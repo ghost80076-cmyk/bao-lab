@@ -33,6 +33,7 @@ const CharacterEngine = {
     const worldModules = (Array.isArray(modulesRaw) ? modulesRaw : [])
       .filter(Boolean)
       .slice(0, 12);
+    const characterStatus = raw.character_status || gameplay.character_status || {};
 
     return {
       id,
@@ -52,6 +53,7 @@ const CharacterEngine = {
       world: content.world || raw.world || "",
       world_focus: worldFocus,
       world_modules: worldModules,
+      character_status: characterStatus,
       npc_rules: content.npc_rules || raw.npc_rules || "",
       author_instructions: content.author_instructions || raw.author_instructions || "",
       creator_notes: content.creator_notes || raw.creator_notes || "",
@@ -72,9 +74,10 @@ const CharacterEngine = {
         location: initial.location || "未設定",
         events: Array.isArray(initial.events) ? initial.events : [],
         npcs: Array.isArray(initial.npcs) ? initial.npcs : [],
-        modules: initial.modules && typeof initial.modules === "object" && !Array.isArray(initial.modules) ? initial.modules : {}
+        modules: initial.modules && typeof initial.modules === "object" && !Array.isArray(initial.modules) ? initial.modules : {},
+        character_statuses: initial.character_statuses && typeof initial.character_statuses === "object" && !Array.isArray(initial.character_statuses) ? initial.character_statuses : {}
       },
-      schema_version: raw.schema_version || "1.4",
+      schema_version: raw.schema_version || "1.5",
       source: raw.source || "custom"
     };
   },
