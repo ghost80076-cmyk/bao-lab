@@ -1,5 +1,5 @@
 {
-  "schema_version": "1.2",
+  "schema_version": "1.3",
   "meta": {
     "id": "example-character",
     "name": "角色名稱",
@@ -14,6 +14,7 @@
     "greeting": "故事開場白。",
     "system_prompt": "角色核心人格、行為邏輯、語氣與不可破壞的設定。",
     "world": "世界背景、時代、社會規則、場所與世界運作方式。",
+    "world_focus": ["這個世界特別重要的元素", "例如魔法、種族特徵、命定印記或特殊制度"],
     "lore": "角色過往、已知事件、重要人物關係、秘密與背景知識。",
     "npc_rules": "NPC 的自主性、資訊隔離、離場與事件推進規則。",
     "author_instructions": "敘事鏡頭、對話格式、節奏、文風等作者級指示。",
@@ -26,6 +27,7 @@
     },
     "prompt": {
       "include_world": true,
+      "include_world_focus": true,
       "include_lore": true,
       "include_npcs": true,
       "include_author_instructions": true,
@@ -57,6 +59,11 @@
     "ui": {
       "type": "basic",
       "panels": ["npc", "status", "events", "memory"]
+    },
+    "narrative": {
+      "recommended_style": "off",
+      "allow_player_preferences": true,
+      "note": "玩家敘事偏好預設關閉；作者可在這裡留下推薦值，但不會自動覆蓋角色卡。"
     }
   }
 }
