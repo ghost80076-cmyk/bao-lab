@@ -137,7 +137,7 @@
     return out;
   };
 
-  WorldStateEngine.stateSnapshot = function(defs = []) {
+  WorldStateEngine.stateSnapshot = function(defs = [], turnText = "") {
     const s = GameState.current || {};
     const snapshot = {
       time: s.time || "未設定",
@@ -152,6 +152,10 @@
       recent_events: (s.events || []).slice(0, 8)
     };
     if (defs.length) snapshot.modules = moduleSnapshot(defs);
+    if (window.BAOCharacterStatus) {
+      const characterStatuses = window.BAOCharacterStatus.snapshotForTracker(turnText);
+      if (Object.keys(characterStatuses).length) snapshot.character_statuses = characterStatuses;
+    }
     return snapshot;
   };
 
@@ -159,16 +163,21 @@
     if (!this.enabled(config) || !config?.api?.key || !GameState.current) return null;
     const defs = dueModules(playerText, assistantText);
     const rules = defs.length ? `\n【本次需要檢查的世界模組】\n${moduleRules(defs)}` : "";
+    const turnText = `${playerText}\n${assistantText}`;
+    const characterStatusRules = window.BAOCharacterStatus?.trackerRules?.() || "";
+    const statusBlock = characterStatusRules ? `【人物狀態欄位】\n只有角色狀態真的改變時，才在 character_statuses 內回傳該角色更新後的欄位。不得猜測沒有證據的身體、服裝、心理或關係變化。\n${characterStatusRules}` : "";
     const prompt = [
       "你是角色扮演遊戲的狀態追蹤器，不是故事作者。",
       "只根據本輪玩家輸入與故事回覆更新有明確依據的狀態，不得自行補劇情。",
       "time、location、events、npcs 只在確實變動時更新。",
       "modules 只輸出本次確實有改變的模組；若某模組改變，請回傳該模組更新後的完整資料，不要只回傳差異。",
+      "character_statuses 只輸出本輪確實改變的人物與欄位。",
       "未發生變化時可以輸出空物件 {}。",
       "只輸出合法 JSON，不要 Markdown、註解或解釋。",
-      `格式：{\"time\":\"\",\"location\":\"\",\"events\":[\"\"],\"npcs\":[{\"name\":\"\",\"role\":\"\",\"mood\":\"\",\"location\":\"\",\"relationship\":\"\"}],\"modules\":{\"module_id\":{}}}`,
+      `格式：{\"time\":\"\",\"location\":\"\",\"events\":[\"\"],\"npcs\":[{\"name\":\"\",\"role\":\"\",\"mood\":\"\",\"location\":\"\",\"relationship\":\"\"}],\"modules\":{\"module_id\":{}},\"character_statuses\":{\"角色名\":{\"field_key\":\"value\"}}}`,
       rules,
-      `【目前狀態】\n${JSON.stringify(this.stateSnapshot(defs))}`,
+      statusBlock,
+      `【目前狀態】\n${JSON.stringify(this.stateSnapshot(defs, turnText))}`,
       `【玩家】\n${playerText}`,
       `【故事回覆】\n${assistantText}`
     ].filter(Boolean).join("\n\n");
