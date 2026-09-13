@@ -15,14 +15,23 @@ const CharacterEngine = {
     const audience = raw.audience || meta.audience || [];
     const categories = raw.categories || meta.categories || [];
     const tags = raw.tags || meta.tags || [];
+    const audienceList = Array.isArray(audience) ? audience : [audience].filter(Boolean);
+    const explicitCategory = String(raw.category || meta.category || "").toLowerCase();
+    const legacyAudience = audienceList.map(x => String(x).toLowerCase());
+    const category = ["male", "female", "r18"].includes(explicitCategory)
+      ? explicitCategory
+      : rating === "adult"
+        ? "r18"
+        : legacyAudience.includes("female") ? "female" : "male";
 
     return {
       id,
       name,
       avatar: raw.avatar || meta.avatar || "https://picsum.photos/seed/bao-character/800/1000",
-      rating,
+      rating: category === "r18" ? "adult" : "general",
+      category,
       gender: raw.gender || meta.gender || "",
-      audience: Array.isArray(audience) ? audience : [audience].filter(Boolean),
+      audience: audienceList,
       categories: Array.isArray(categories) ? categories : [categories].filter(Boolean),
       tags: Array.isArray(tags) ? tags : [tags].filter(Boolean),
       description: raw.description || meta.description || "",
@@ -50,7 +59,7 @@ const CharacterEngine = {
         events: Array.isArray(initial.events) ? initial.events : [],
         npcs: Array.isArray(initial.npcs) ? initial.npcs : []
       },
-      schema_version: raw.schema_version || "1.1",
+      schema_version: raw.schema_version || "1.2",
       source: raw.source || "custom"
     };
   },
@@ -62,7 +71,7 @@ const CharacterEngine = {
     if (!c.name) errors.push("缺少 name");
     if (!c.system_prompt) errors.push("缺少 system_prompt / content.system_prompt");
     if (!c.greeting) errors.push("缺少 greeting / content.greeting");
-    if (!["general", "adult"].includes(c.rating)) errors.push("rating 必須是 general 或 adult");
+    if (!["male", "female", "r18"].includes(c.category)) errors.push("category 必須是 male、female 或 r18");
     return { ok: errors.length === 0, errors, character: c };
   },
 
@@ -98,13 +107,8 @@ const CharacterEngine = {
       if (c.npc_rules) blocks.push(`【NPC 運作規則】\n${c.npc_rules}`);
     }
 
-    if (options.include_author_instructions && c.author_instructions) {
-      blocks.push(`【作者敘事指示】\n${c.author_instructions}`);
-    }
-    if (options.include_creator_notes && c.creator_notes) {
-      blocks.push(`【作者備註】\n${c.creator_notes}`);
-    }
-
+    if (options.include_author_instructions && c.author_instructions) blocks.push(`【作者敘事指示】\n${c.author_instructions}`);
+    if (options.include_creator_notes && c.creator_notes) blocks.push(`【作者備註】\n${c.creator_notes}`);
     if (context.modePrompt) blocks.push(`【敘事模式】\n${context.modePrompt}`);
 
     blocks.push([
