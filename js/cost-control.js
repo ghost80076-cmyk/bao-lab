@@ -10,6 +10,7 @@
     cachePerMillion: numberValue("cost-cache", 0),
     usdTwd: numberValue("cost-fx", 32),
     budgetTwd: numberValue("cost-budget", 0),
+    maxOutputTokens: Math.max(64, numberValue("max-output-tokens", 4096)),
     stateInterval: Math.max(1, numberValue("state-interval", 2))
   });
 
@@ -59,6 +60,7 @@
         <label>Cache 單價（USD / 1M tokens）<input id="cost-cache" type="number" min="0" step="0.01" value="0"></label>
         <label>USD → TWD 換算<input id="cost-fx" type="number" min="1" step="0.1" value="32"></label>
         <label>本次故事預算上限（NT$）<input id="cost-budget" type="number" min="0" step="1" value="0"><small>0 = 不限制</small></label>
+        <label>單次最大輸出 Token<input id="max-output-tokens" type="number" min="64" max="32768" step="64" value="4096"><small>降低可直接限制每次回覆的最大成本。</small></label>
         <label>世界狀態整理間隔（輪）<input id="state-interval" type="number" min="1" max="20" step="1" value="2"><small>數字越大，額外 API 呼叫越少。</small></label>
       </div>`;
     step.appendChild(box);
@@ -76,6 +78,7 @@
     App.collectConfig = function() {
       const config = original();
       config.cost = getCostConfig();
+      config.api.maxOutputTokens = config.cost.maxOutputTokens;
       return config;
     };
     App.__costConfigPatched = true;
@@ -106,9 +109,12 @@
       if (cfg?.budgetTwd > 0 && current.twd >= cfg.budgetTwd) {
         throw new Error(`已達本次故事預算上限 NT$${cfg.budgetTwd.toFixed(0)}。可提高預算或改用較便宜的模型後繼續。`);
       }
+      const effective = { ...config };
+      if (effective.__auxiliaryTask) effective.maxOutputTokens = Math.min(Number(effective.maxOutputTokens || 700), 700);
+      if (effective.__memoryTask) effective.maxOutputTokens = Math.min(Number(effective.maxOutputTokens || 1800), 1800);
       const previousPrompt = typeof Chat !== "undefined" ? Chat.lastStoryPromptTokens : 0;
-      const result = await original(config, messages);
-      if (config?.__auxiliaryTask && typeof Chat !== "undefined") {
+      const result = await original(effective, messages);
+      if (effective.__auxiliaryTask && typeof Chat !== "undefined") {
         Chat.lastStoryPromptTokens = previousPrompt;
         if (typeof App !== "undefined" && App.config) Chat.protectedRounds(App.config);
       }
