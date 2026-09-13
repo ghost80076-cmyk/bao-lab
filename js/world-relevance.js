@@ -28,5 +28,13 @@
     return base + "\n\n【本輪相關世界資料】\n" + picked.text + "\n只把這些資料視為目前事實；不要為了提到資料而刻意改變劇情。";
   };
 
+  document.addEventListener("click", event => {
+    const button = event.target.closest?.(".module-tab[data-panel^='module:']");
+    if (!button || !GameState.current) return;
+    const id = String(button.dataset.panel || "").slice(7);
+    const def = (GameState.current.moduleDefinitions || []).find(item => item.id === id);
+    if (def?.context === "relevant") GameState.current.uiContextModule = id;
+  });
+
   window.BAOWorldRelevance = { getLatestUserText };
 })();
