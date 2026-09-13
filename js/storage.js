@@ -56,25 +56,41 @@ const Storage = {
     return payload;
   },
 
+  importSlot(save) {
+    if (!save || !save.characterId || !save.config || !save.chat) throw new Error("這不是有效的 BAO/LAB 存檔。");
+    const clean = structuredClone(save);
+    clean.id = `slot-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+    clean.savedAt = new Date().toISOString();
+    clean.label = clean.label || `匯入存檔 · ${clean.characterName || clean.characterId}`;
+    if (clean.config?.api) clean.config.api.key = "";
+    if (clean.state?.config?.api) clean.state.config.api.key = "";
+    const slots = this.listSlots();
+    slots.unshift(clean);
+    this.set(this.slotsKey, slots.slice(0, 20));
+    return clean;
+  },
+
   deleteSlot(id) {
-    const slots = this.listSlots().filter(x => x.id !== id);
-    this.set(this.slotsKey, slots);
+    this.set(this.slotsKey, this.listSlots().filter(x => x.id !== id));
   },
 
   getSlot(id) { return this.listSlots().find(x => x.id === id) || null; },
 
   exportSave(save) {
     if (!save) return false;
-    const blob = new Blob([JSON.stringify(save, null, 2)], { type: "application/json" });
+    const safe = structuredClone(save);
+    if (safe.config?.api) safe.config.api.key = "";
+    if (safe.state?.config?.api) safe.state.config.api.key = "";
+    const blob = new Blob([JSON.stringify(safe, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
-    const name = (save.characterName || "story").replace(/[\\/:*?\"<>|]/g, "-");
+    const name = (safe.characterName || "story").replace(/[\\/:*?\"<>|]/g, "-");
     a.href = url;
     a.download = `BAO-LAB-${name}-${new Date().toISOString().slice(0,10)}.json`;
     document.body.appendChild(a);
     a.click();
     a.remove();
-    URL.revokeObjectURL(url);
+    setTimeout(() => URL.revokeObjectURL(url), 0);
     return true;
   },
 
