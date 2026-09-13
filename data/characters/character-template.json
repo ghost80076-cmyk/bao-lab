@@ -1,5 +1,5 @@
 {
-  "schema_version": "1.0",
+  "schema_version": "1.1",
   "meta": {
     "id": "example-character",
     "name": "角色名稱",
@@ -8,26 +8,47 @@
     "gender": "female",
     "audience": ["male"],
     "categories": ["romance"],
-    "tags": ["慢熱", "現代"] ,
+    "tags": ["慢熱", "現代"],
     "description": "角色列表上顯示的簡介。"
   },
   "content": {
     "quote": "角色代表性台詞。",
-    "greeting": "故事開場白。可使用純文字；前端會安全轉義模型輸出。",
-    "system_prompt": "角色核心設定與行為規則。",
-    "lore": "世界觀、背景設定、角色過往與重要知識。",
-    "creator_notes": "作者備註，不一定需要送入模型。"
+    "greeting": "故事開場白。",
+    "system_prompt": "角色核心人格、行為邏輯、語氣與不可破壞的設定。",
+    "world": "世界背景、時代、社會規則、場所與世界運作方式。",
+    "lore": "角色過往、已知事件、重要人物關係、秘密與背景知識。",
+    "npc_rules": "NPC 的自主性、資訊隔離、離場與事件推進規則。",
+    "author_instructions": "敘事鏡頭、對話格式、節奏、文風等作者級指示。",
+    "creator_notes": "只給作者看的備註。預設不會送給模型。"
   },
   "gameplay": {
     "supported_modes": {
       "immersive": true,
       "world": true
     },
+    "prompt": {
+      "include_world": true,
+      "include_lore": true,
+      "include_npcs": true,
+      "include_author_instructions": true,
+      "include_creator_notes": false
+    },
     "initial_state": {
       "time": "未設定",
       "location": "未設定",
       "events": [],
-      "npcs": []
+      "npcs": [
+        {
+          "id": "npc-1",
+          "name": "NPC 名稱",
+          "role": "與主角的身分關係",
+          "personality": "NPC 個性",
+          "mood": "初始情緒",
+          "location": "初始位置",
+          "relationship": "與玩家或主角的初始關係",
+          "notes": "其他重要設定"
+        }
+      ]
     }
   },
   "presentation": {
