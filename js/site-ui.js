@@ -20,7 +20,8 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/player-settings.js"))
     .then(() => loadBAOScript("js/memory-workbench-core.js"))
     .then(() => loadBAOScript("js/memory-workbench-ai.js"))
-    .catch(err => console.warn("BAO/LAB local preview or memory workbench failed to load:", err));
+    .then(() => loadBAOScript("js/chat-markup.js"))
+    .catch(err => console.warn("BAO/LAB local preview, memory workbench or chat markup failed to load:", err));
   loadBAOScript("js/brand-ui.js")
     .catch(err => console.warn("BAO/LAB brand UI failed to load:", err));
 
