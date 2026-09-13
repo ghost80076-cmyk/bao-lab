@@ -190,9 +190,9 @@
       "panels": ["npc", "status", "events", "memory"]
     },
     "narrative": {
-      "recommended_style": "off",
+      "recommended_styles": [],
       "allow_player_preferences": true,
-      "note": "玩家敘事偏好預設關閉；作者可在這裡留下推薦值，但不會自動覆蓋角色卡。"
+      "note": "玩家敘事偏好預設關閉；作者可推薦多個可疊加風格，但不會自動覆蓋角色卡。"
     }
   }
 }
