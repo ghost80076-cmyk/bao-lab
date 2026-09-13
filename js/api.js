@@ -1,40 +1,25 @@
 const API = {
   async send(config, messages) {
     if (!config.key) throw new Error("請先填入 API Key。");
+    if (!config.model) throw new Error("請填入 Model ID。");
 
-    if (config.type === "gemini") {
-      return this.sendGemini(config, messages);
-    }
-
-    if (config.type === "openrouter" || config.type === "custom" || config.type === "openai") {
-      return this.sendOpenAICompatible(config, messages);
-    }
-
-    throw new Error("目前尚未支援此 Provider。");
+    const protocol = config.protocol || (config.type === "gemini" ? "gemini" : config.type === "anthropic" ? "anthropic" : "openai");
+    if (protocol === "gemini") return this.sendGemini(config, messages);
+    if (protocol === "anthropic") return this.sendAnthropic(config, messages);
+    return this.sendOpenAICompatible(config, messages);
   },
 
   async sendOpenAICompatible(config, messages) {
     if (!config.baseUrl) throw new Error("請填入 Base URL。");
-
     const response = await fetch(config.baseUrl, {
       method: "POST",
-      headers: {
-        "Authorization": `Bearer ${config.key}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        model: config.model,
-        messages
-      })
+      headers: { "Authorization": `Bearer ${config.key}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ model: config.model, messages })
     });
-
     const data = await this.readJSON(response);
-    if (!response.ok) {
-      throw new Error(data?.error?.message || data?.message || `API 回傳錯誤 (${response.status})`);
-    }
-
+    if (!response.ok) throw new Error(data?.error?.message || data?.message || `API 回傳錯誤 (${response.status})`);
     return {
-      text: data?.choices?.[0]?.message?.content || "模型沒有回傳內容。",
+      text: this.contentToText(data?.choices?.[0]?.message?.content) || "模型沒有回傳內容。",
       usage: {
         prompt_tokens: data?.usage?.prompt_tokens || 0,
         completion_tokens: data?.usage?.completion_tokens || 0,
@@ -44,57 +29,52 @@ const API = {
     };
   },
 
+  async sendAnthropic(config, messages) {
+    if (!config.baseUrl) throw new Error("請填入 Base URL。");
+    const system = messages.filter(m => m.role === "system").map(m => this.contentToText(m.content)).join("\n\n");
+    const chat = messages.filter(m => m.role !== "system").map(m => ({
+      role: m.role === "assistant" ? "assistant" : "user",
+      content: this.contentToText(m.content)
+    }));
+    const response = await fetch(config.baseUrl, {
+      method: "POST",
+      headers: { "x-api-key": config.key, "anthropic-version": "2023-06-01", "Content-Type": "application/json" },
+      body: JSON.stringify({ model: config.model, max_tokens: 4096, system, messages: chat })
+    });
+    const data = await this.readJSON(response);
+    if (!response.ok) throw new Error(data?.error?.message || data?.message || `Anthropic API 回傳錯誤 (${response.status})`);
+    return {
+      text: (data?.content || []).map(x => x?.type === "text" ? x.text : "").filter(Boolean).join("\n") || "模型沒有回傳內容。",
+      usage: {
+        prompt_tokens: data?.usage?.input_tokens || 0,
+        completion_tokens: data?.usage?.output_tokens || 0,
+        total_tokens: (data?.usage?.input_tokens || 0) + (data?.usage?.output_tokens || 0),
+        cached_tokens: data?.usage?.cache_read_input_tokens || 0
+      }
+    };
+  },
+
   async sendGemini(config, messages) {
     const baseUrl = (config.baseUrl || "https://generativelanguage.googleapis.com/v1beta/models").replace(/\/$/, "");
     const model = encodeURIComponent(config.model);
     const url = `${baseUrl}/${model}:generateContent`;
-
-    const systemMessages = messages.filter(m => m.role === "system");
-    const chatMessages = messages.filter(m => m.role !== "system");
-
-    const systemText = systemMessages
-      .map(m => this.contentToText(m.content))
-      .filter(Boolean)
-      .join("\n\n");
-
-    const contents = chatMessages.map(message => ({
-      role: message.role === "assistant" ? "model" : "user",
-      parts: [{ text: this.contentToText(message.content) }]
+    const systemText = messages.filter(m => m.role === "system").map(m => this.contentToText(m.content)).filter(Boolean).join("\n\n");
+    const contents = messages.filter(m => m.role !== "system").map(m => ({
+      role: m.role === "assistant" ? "model" : "user",
+      parts: [{ text: this.contentToText(m.content) }]
     }));
-
-    if (!contents.length) {
-      throw new Error("沒有可傳送給 Gemini 的對話內容。");
-    }
-
+    if (!contents.length) throw new Error("沒有可傳送給 Gemini 的對話內容。");
     const payload = { contents };
-    if (systemText) {
-      payload.systemInstruction = {
-        parts: [{ text: systemText }]
-      };
-    }
-
+    if (systemText) payload.systemInstruction = { parts: [{ text: systemText }] };
     const response = await fetch(url, {
       method: "POST",
-      headers: {
-        "x-goog-api-key": config.key,
-        "Content-Type": "application/json"
-      },
+      headers: { "x-goog-api-key": config.key, "Content-Type": "application/json" },
       body: JSON.stringify(payload)
     });
-
     const data = await this.readJSON(response);
-    if (!response.ok) {
-      throw new Error(data?.error?.message || data?.message || `Gemini API 回傳錯誤 (${response.status})`);
-    }
-
-    const parts = data?.candidates?.[0]?.content?.parts || [];
-    const text = parts
-      .map(part => typeof part?.text === "string" ? part.text : "")
-      .filter(Boolean)
-      .join("\n");
-
+    if (!response.ok) throw new Error(data?.error?.message || data?.message || `Gemini API 回傳錯誤 (${response.status})`);
+    const text = (data?.candidates?.[0]?.content?.parts || []).map(p => typeof p?.text === "string" ? p.text : "").filter(Boolean).join("\n");
     const usage = data?.usageMetadata || {};
-
     return {
       text: text || this.geminiEmptyResponseMessage(data),
       usage: {
@@ -108,12 +88,7 @@ const API = {
 
   contentToText(content) {
     if (typeof content === "string") return content;
-    if (Array.isArray(content)) {
-      return content
-        .map(part => typeof part === "string" ? part : (part?.text || ""))
-        .filter(Boolean)
-        .join("\n");
-    }
+    if (Array.isArray(content)) return content.map(p => typeof p === "string" ? p : (p?.text || "")).filter(Boolean).join("\n");
     return content == null ? "" : String(content);
   },
 
@@ -128,10 +103,7 @@ const API = {
   async readJSON(response) {
     const text = await response.text();
     if (!text) return {};
-    try {
-      return JSON.parse(text);
-    } catch {
-      throw new Error(`API 回傳非 JSON 內容 (${response.status})`);
-    }
+    try { return JSON.parse(text); }
+    catch { throw new Error(`API 回傳非 JSON 內容 (${response.status})`); }
   }
 };
