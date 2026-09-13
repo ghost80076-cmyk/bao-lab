@@ -17,7 +17,9 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/model-routing.js"))
     .catch(err => console.warn("BAO/LAB cost or model routing controls failed to load:", err));
   loadBAOScript("js/player-settings.js")
-    .catch(err => console.warn("BAO/LAB player settings failed to load:", err));
+    .then(() => loadBAOScript("js/memory-workbench-core.js"))
+    .then(() => loadBAOScript("js/memory-workbench-ai.js"))
+    .catch(err => console.warn("BAO/LAB player settings or memory workbench failed to load:", err));
   loadBAOScript("js/brand-ui.js")
     .catch(err => console.warn("BAO/LAB brand UI failed to load:", err));
 
