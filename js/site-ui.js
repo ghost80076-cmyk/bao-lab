@@ -1,4 +1,17 @@
+const loadBAOScript = src => new Promise((resolve, reject) => {
+  if (document.querySelector(`script[src="${src}"]`)) { resolve(); return; }
+  const script = document.createElement("script");
+  script.src = src;
+  script.onload = resolve;
+  script.onerror = reject;
+  document.head.appendChild(script);
+});
+
 window.addEventListener("DOMContentLoaded", () => {
+  loadBAOScript("js/world-state.js")
+    .then(() => loadBAOScript("js/world-state-hook.js"))
+    .catch(err => console.warn("BAO/LAB world state modules failed to load:", err));
+
   setTimeout(() => {
     const refresh = () => {
       const has = Storage.hasStory();
