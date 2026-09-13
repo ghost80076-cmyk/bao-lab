@@ -20,7 +20,16 @@
     if (!this.shouldUpdate(config)) return null;
     const originalApi = config?.api;
     if (!originalApi) return null;
-    const patched = { ...config, api: { ...originalApi, __auxiliaryTask: true } };
+    const helperModel = config?.cost?.stateModel || "";
+    const patched = {
+      ...config,
+      api: {
+        ...originalApi,
+        ...(helperModel ? { model: helperModel } : {}),
+        __auxiliaryTask: true,
+        __stateTask: true
+      }
+    };
     return originalUpdate(patched, playerText, assistantText);
   };
 
