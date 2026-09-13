@@ -54,7 +54,8 @@
         "kind": "collection",
         "tracking": "medium",
         "context": "relevant",
-        "description": "物品、裝備、消耗品與任務道具。"
+        "description": "物品、裝備、消耗品與任務道具。",
+        "triggers": ["背包", "物品", "道具", "拿出", "撿起", "使用道具"]
       },
       {
         "id": "skills",
@@ -63,7 +64,8 @@
         "kind": "collection",
         "tracking": "medium",
         "context": "relevant",
-        "description": "技能、魔法、武學或功法。"
+        "description": "技能、魔法、武學或功法。",
+        "triggers": ["技能", "能力", "招式", "武學", "功法", "施法"]
       },
       {
         "id": "quests",
@@ -72,7 +74,8 @@
         "kind": "collection",
         "tracking": "medium",
         "context": "relevant",
-        "description": "主線、支線、委託與未完成目標。"
+        "description": "主線、支線、委託與未完成目標。",
+        "triggers": ["任務", "委託", "主線", "支線", "目標", "線索"]
       },
       {
         "id": "economy",
