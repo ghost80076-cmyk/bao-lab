@@ -1,6 +1,4 @@
 (() => {
-  const state = { usd: 0, twd: 0 };
-
   const numberValue = (id, fallback = 0) => {
     const n = Number(document.getElementById(id)?.value);
     return Number.isFinite(n) ? n : fallback;
@@ -16,26 +14,33 @@
   });
 
   const estimate = (usage = {}, cfg = getCostConfig()) => {
-    const input = Number(usage.prompt_tokens || 0);
-    const output = Number(usage.completion_tokens || 0);
-    const cached = Math.min(input, Number(usage.cached_tokens || 0));
+    const input = Number(usage.prompt_tokens ?? usage.prompt ?? 0);
+    const output = Number(usage.completion_tokens ?? usage.completion ?? 0);
+    const cached = Math.min(input, Number(usage.cached_tokens ?? usage.cached ?? 0));
     const nonCached = Math.max(0, input - cached);
     const usd = (nonCached * cfg.inputPerMillion + output * cfg.outputPerMillion + cached * cfg.cachePerMillion) / 1000000;
     return { usd, twd: usd * cfg.usdTwd };
   };
 
+  const cumulativeCost = () => {
+    const cfg = App?.config?.cost || getCostConfig();
+    return estimate(Chat?.usage || {}, cfg);
+  };
+
   const render = () => {
+    if (typeof Chat === "undefined") return;
+    const cost = cumulativeCost();
+    const cfg = App?.config?.cost || getCostConfig();
     const usd = document.getElementById("usage-cost-usd");
     const twd = document.getElementById("usage-cost-twd");
     const budget = document.getElementById("usage-budget");
-    if (usd) usd.textContent = state.usd > 0 ? `$${state.usd.toFixed(4)}` : "—";
-    if (twd) twd.textContent = state.twd > 0 ? `NT$${state.twd.toFixed(2)}` : "—";
-    const cfg = App?.config?.cost || getCostConfig();
+    if (usd) usd.textContent = cost.usd > 0 ? `$${cost.usd.toFixed(4)}` : "—";
+    if (twd) twd.textContent = cost.twd > 0 ? `NT$${cost.twd.toFixed(2)}` : "—";
     if (budget) {
       if (!cfg.budgetTwd) budget.textContent = "未設定";
       else {
-        const ratio = state.twd / cfg.budgetTwd;
-        budget.textContent = `NT$${state.twd.toFixed(2)} / ${cfg.budgetTwd.toFixed(0)}${ratio >= .8 ? " ⚠" : ""}`;
+        const ratio = cost.twd / cfg.budgetTwd;
+        budget.textContent = `NT$${cost.twd.toFixed(2)} / ${cfg.budgetTwd.toFixed(0)}${ratio >= .8 ? " ⚠" : ""}`;
       }
     }
   };
@@ -81,18 +86,12 @@
     const original = Chat.addUsage.bind(Chat);
     Chat.addUsage = function(usage = {}) {
       const result = original(usage);
-      const cfg = App?.config?.cost || getCostConfig();
-      const cost = estimate(usage, cfg);
-      state.usd += cost.usd;
-      state.twd += cost.twd;
       render();
       return result;
     };
-    const originalReset = Chat.reset.bind(Chat);
-    Chat.reset = function() {
-      originalReset();
-      state.usd = 0;
-      state.twd = 0;
+    const originalRender = Chat.renderUsage.bind(Chat);
+    Chat.renderUsage = function(lastUsage = {}) {
+      originalRender(lastUsage);
       render();
     };
     Chat.__costUsagePatched = true;
@@ -103,7 +102,8 @@
     const original = API.send.bind(API);
     API.send = async function(config, messages) {
       const cfg = App?.config?.cost;
-      if (cfg?.budgetTwd > 0 && state.twd >= cfg.budgetTwd) {
+      const current = typeof Chat !== "undefined" ? cumulativeCost() : { twd: 0 };
+      if (cfg?.budgetTwd > 0 && current.twd >= cfg.budgetTwd) {
         throw new Error(`已達本次故事預算上限 NT$${cfg.budgetTwd.toFixed(0)}。可提高預算或改用較便宜的模型後繼續。`);
       }
       const previousPrompt = typeof Chat !== "undefined" ? Chat.lastStoryPromptTokens : 0;
