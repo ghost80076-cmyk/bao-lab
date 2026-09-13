@@ -5,6 +5,7 @@ const App = {
   modelPresets: [],
   currentStep: 1,
   config: {},
+  customModelId: "",
 
   async init() {
     this.bindNavigation();
@@ -60,6 +61,7 @@ const App = {
     });
 
     document.getElementById("api-type").addEventListener("change", () => this.populateModelOptions());
+    document.getElementById("model-select").addEventListener("change", () => this.syncSelectedPreset());
 
     document.getElementById("user-input").addEventListener("keydown", e => {
       if (e.key === "Enter" && !e.shiftKey) {
@@ -92,18 +94,49 @@ const App = {
   populateAPIControls() {
     const apiType = document.getElementById("api-type");
     const providers = [...new Set(this.modelPresets.map(x => x.provider))];
-    apiType.innerHTML = providers.map(p => `<option value="${this.escapeAttr(p)}">${this.escapeHTML(p)}</option>`).join("");
+    apiType.innerHTML = providers.map(provider => {
+      const item = this.modelPresets.find(x => x.provider === provider);
+      const label = item?.provider_label || provider;
+      return `<option value="${this.escapeAttr(provider)}">${this.escapeHTML(label)}</option>`;
+    }).join("");
     this.populateModelOptions();
   },
 
   populateModelOptions() {
     const type = document.getElementById("api-type").value;
-    const items = this.modelPresets.filter(x => x.provider === type);
     const modelSelect = document.getElementById("model-select");
-    modelSelect.innerHTML = items.map(x => `<option value="${this.escapeAttr(x.model)}">${this.escapeHTML(x.label)}</option>`).join("");
+    const indexes = this.modelPresets
+      .map((item, index) => ({ item, index }))
+      .filter(x => x.item.provider === type);
 
-    const first = items[0];
-    document.getElementById("base-url").value = first?.base_url || "";
+    modelSelect.innerHTML = indexes.map(({ item, index }) =>
+      `<option value="${index}">${this.escapeHTML(item.label)}</option>`
+    ).join("");
+
+    this.customModelId = "";
+    this.syncSelectedPreset();
+  },
+
+  syncSelectedPreset() {
+    const index = Number(document.getElementById("model-select").value);
+    const preset = this.modelPresets[index];
+    document.getElementById("base-url").value = preset?.base_url || "";
+  },
+
+  getSelectedPreset() {
+    const index = Number(document.getElementById("model-select").value);
+    return this.modelPresets[index] || null;
+  },
+
+  resolveModelId(preset) {
+    if (preset?.model) return preset.model;
+    const model = window.prompt(
+      "請輸入服務商提供的 Model ID\n例如：claude-sonnet-4-6、gemini-2.5-flash、deepseek-chat",
+      this.customModelId || ""
+    );
+    if (model === null) return "";
+    this.customModelId = model.trim();
+    return this.customModelId;
   },
 
   renderCharacters(filter = "all") {
@@ -178,6 +211,8 @@ const App = {
   prevStep() { this.setStep(this.currentStep - 1); },
 
   collectConfig() {
+    const preset = this.getSelectedPreset();
+    const model = this.resolveModelId(preset);
     return {
       narrativeMode: document.querySelector('input[name="narrative-mode"]:checked').value,
       displayMode: document.querySelector('input[name="display-mode"]:checked').value,
@@ -190,8 +225,9 @@ const App = {
         extra: document.getElementById("persona-extra").value.trim()
       },
       api: {
-        type: document.getElementById("api-type").value,
-        model: document.getElementById("model-select").value,
+        type: preset?.provider || "custom",
+        protocol: preset?.protocol || "openai",
+        model,
         baseUrl: document.getElementById("base-url").value.trim(),
         key: document.getElementById("api-key").value.trim()
       },
@@ -206,6 +242,22 @@ const App = {
 
   startStory() {
     this.config = this.collectConfig();
+    if (!this.config.api.model) {
+      alert("請先輸入 Model ID。");
+      this.setStep(4);
+      return;
+    }
+    if (!this.config.api.baseUrl) {
+      alert("請先填入 Base URL。");
+      this.setStep(4);
+      return;
+    }
+    if (!this.config.api.key) {
+      alert("請先填入 API Key。");
+      this.setStep(4);
+      return;
+    }
+
     Chat.reset();
     GameState.create(this.activeCharacter, this.config);
 
