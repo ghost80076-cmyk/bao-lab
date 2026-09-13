@@ -8,6 +8,50 @@
     wrap.classList.toggle("hidden", select.value !== "custom");
   };
 
+  const addHelp = (fieldId, text) => {
+    const field = document.getElementById(fieldId);
+    const label = field?.closest("label");
+    if (!field || !label || label.querySelector(".bao-field-help")) return;
+    const help = document.createElement("small");
+    help.className = "note bao-field-help";
+    help.textContent = text;
+    label.appendChild(help);
+  };
+
+  const simplifyMainAPISection = () => {
+    const step = document.querySelector('[data-step-panel="4"]');
+    if (!step || step.dataset.beginnerCopy === "true") return;
+    step.dataset.beginnerCopy = "true";
+
+    const title = step.querySelector("h3");
+    if (title) title.textContent = "模型連線";
+    const intro = step.querySelector("p.note");
+    if (intro) intro.textContent = "第一次用也沒關係：先選你使用的 API 服務，再貼上 API 金鑰。官方預設通常會自動填好連線資訊；只有中轉或自訂服務才需要改進階內容。";
+
+    const apiType = document.getElementById("api-type")?.closest("label");
+    const modelSelect = document.getElementById("model-select")?.closest("label");
+    const modelId = document.getElementById("model-id")?.closest("label");
+    const baseUrl = document.getElementById("base-url")?.closest("label");
+    const apiKey = document.getElementById("api-key")?.closest("label");
+
+    if (apiType) apiType.childNodes[0].textContent = "你使用哪個 API 服務？";
+    if (modelSelect) modelSelect.childNodes[0].textContent = "模型來源 / 連線方式";
+    if (modelId) modelId.childNodes[0].textContent = "模型名稱";
+    if (baseUrl) baseUrl.childNodes[0].textContent = "API 連線網址";
+    if (apiKey) apiKey.childNodes[0].textContent = "API 金鑰";
+
+    const modelInput = document.getElementById("model-id");
+    if (modelInput) modelInput.placeholder = "例如：gemini-2.5-flash";
+    const baseInput = document.getElementById("base-url");
+    if (baseInput) baseInput.placeholder = "官方預設通常會自動填好";
+    const keyInput = document.getElementById("api-key");
+    if (keyInput) keyInput.placeholder = "貼上服務商提供的 API Key";
+
+    addHelp("model-id", "服務商有時會把它叫做 Model ID。它只是模型的名稱代碼，不是 API Key。看不懂時先用網站預設即可。");
+    addHelp("base-url", "這是模型服務的連線網址。官方預設通常不用改；中轉或自訂 API 才需要依服務商說明填寫。");
+    addHelp("api-key", "這是你的模型服務金鑰。BAO/LAB 不會把它寫進故事存檔。");
+  };
+
   const injectControls = () => {
     const step = document.querySelector('[data-step-panel="5"]');
     if (!step || document.getElementById("memory-summary-model")) return;
@@ -97,6 +141,7 @@
   };
 
   const init = () => {
+    simplifyMainAPISection();
     injectControls();
     patchConfig();
     restoreInputs();
