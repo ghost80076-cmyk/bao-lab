@@ -23,6 +23,12 @@ const CharacterEngine = {
       : rating === "adult"
         ? "r18"
         : legacyAudience.includes("female") ? "female" : "male";
+    const focusRaw = raw.world_focus || content.world_focus || gameplay.world_focus || [];
+    const worldFocus = (Array.isArray(focusRaw) ? focusRaw : [focusRaw])
+      .filter(Boolean)
+      .map(x => String(x).trim())
+      .filter(Boolean)
+      .slice(0, 24);
 
     return {
       id,
@@ -40,12 +46,15 @@ const CharacterEngine = {
       system_prompt: raw.system_prompt || content.system_prompt || "",
       lore: content.lore || raw.lore || "",
       world: content.world || raw.world || "",
+      world_focus: worldFocus,
       npc_rules: content.npc_rules || raw.npc_rules || "",
       author_instructions: content.author_instructions || raw.author_instructions || "",
       creator_notes: content.creator_notes || raw.creator_notes || "",
+      narrative_profile: raw.narrative_profile || presentation.narrative || {},
       prompt_options: {
         include_lore: prompt.include_lore !== false,
         include_world: prompt.include_world !== false,
+        include_world_focus: prompt.include_world_focus !== false,
         include_npcs: prompt.include_npcs !== false,
         include_author_instructions: prompt.include_author_instructions !== false,
         include_creator_notes: prompt.include_creator_notes === true
@@ -59,7 +68,7 @@ const CharacterEngine = {
         events: Array.isArray(initial.events) ? initial.events : [],
         npcs: Array.isArray(initial.npcs) ? initial.npcs : []
       },
-      schema_version: raw.schema_version || "1.2",
+      schema_version: raw.schema_version || "1.3",
       source: raw.source || "custom"
     };
   },
@@ -99,6 +108,9 @@ const CharacterEngine = {
 
     if (c.system_prompt) blocks.push(`【角色核心】\n${c.system_prompt}`);
     if (options.include_world && c.world) blocks.push(`【世界設定】\n${c.world}`);
+    if (options.include_world_focus && c.world_focus?.length) {
+      blocks.push(`【世界觀焦點】\n${c.world_focus.join("、")}\n只在情境相關時自然帶入，不要為了塞設定而硬寫。`);
+    }
     if (options.include_lore && c.lore) blocks.push(`【背景與 Lore】\n${c.lore}`);
 
     if (options.include_npcs) {
