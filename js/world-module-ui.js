@@ -10,6 +10,7 @@
   };
   const pretty = v => v === null || v === undefined || v === "" ? "—" : typeof v === "boolean" ? (v ? "是" : "否") : typeof v === "object" ? JSON.stringify(v) : String(v);
   const labelFor = (def,key) => def.fields?.find(f => f.key === key)?.label || key;
+  const trackLabel = value => value === "high" ? "高頻" : value === "medium" ? "一般" : value === "low" ? "低頻" : "手動";
   const objectHTML = (def,value) => {
     const obj = value && typeof value === "object" && !Array.isArray(value) ? value : {};
     const keys = def.fields?.length ? def.fields.map(f => f.key).filter(k => obj[k] !== undefined) : Object.keys(obj);
@@ -33,9 +34,8 @@
     const ui = document.getElementById("ui-panel");
     if (!def || !ui) return;
     const value = GameState.current?.modules?.[id];
-    const track = def.tracking === "high" ? "高頻追蹤" : def.tracking === "medium" ? "一般追蹤" : def.tracking === "low" ? "低頻追蹤" : "手動資料";
     const context = def.context === "core" ? "核心狀態會精簡提供給敘事模型" : def.context === "ui_only" ? "只顯示於介面" : "需要時才使用，避免每輪增加 Context";
-    ui.innerHTML = `<section class="world-module-panel"><div class="world-module-head"><div><h3>${esc(def.icon)} ${esc(def.label)}</h3>${def.description ? `<p>${esc(def.description)}</p>` : ""}<div class="world-module-context-note">${esc(context)}</div></div><span class="world-module-badge">${esc(track)}</span></div>${def.kind === "collection" ? collectionHTML(value) : objectHTML(def,value)}</section>`;
+    ui.innerHTML = `<section class="world-module-panel"><div class="world-module-head"><div><h3>${esc(def.icon)} ${esc(def.label)}</h3>${def.description ? `<p>${esc(def.description)}</p>` : ""}<div class="world-module-context-note">${esc(context)}</div></div><span class="world-module-badge">${esc(trackLabel(def.tracking))}追蹤</span></div>${def.kind === "collection" ? collectionHTML(value) : objectHTML(def,value)}</section>`;
   };
   const injectTabs = () => {
     if (App.config?.displayMode !== "ui") return;
@@ -57,6 +57,18 @@
       tabs.appendChild(btn);
     });
   };
+  const injectBuilderSummary = () => {
+    const step = document.querySelector('[data-step-panel="2"]');
+    if (!step) return;
+    step.querySelector("#world-module-builder-card")?.remove();
+    const defs = window.BAOWorldModules.definitions(App.activeCharacter);
+    if (!defs.length) return;
+    const card = document.createElement("div");
+    card.id = "world-module-builder-card";
+    card.className = "narrative-builder-card";
+    card.innerHTML = `<h4>這張作品會追蹤的資料 <span class="chip">作者設定</span></h4><p>世界型作品可以把狀態、背包、技能、任務、勢力等拆成獨立模組。不同資料用不同頻率更新，不需要每輪把整個世界都重讀一次。</p><div class="narrative-summary">${defs.map(d => `<span class="on">${esc(d.icon)} ${esc(d.label)} · ${esc(trackLabel(d.tracking))}</span>`).join("")}</div>`;
+    step.appendChild(card);
+  };
   const originalPanel = App.renderUIPanel.bind(App);
   App.renderUIPanel = function(panel) {
     if (String(panel || "").startsWith("module:")) return renderModule(String(panel).slice(7));
@@ -68,6 +80,11 @@
     originalRender(fresh);
     injectTabs();
   };
+  const originalOpenBuilder = App.openBuilder.bind(App);
+  App.openBuilder = function() {
+    originalOpenBuilder();
+    setTimeout(injectBuilderSummary,0);
+  };
   const originalBuild = App.buildSystemPrompt.bind(App);
   App.buildSystemPrompt = function() {
     const base = originalBuild();
@@ -76,5 +93,5 @@
     return core ? `${base}\n\n【目前核心狀態】\n${core}\n以上只視為目前事實，不要為了提到狀態而刻意改寫劇情。` : base;
   };
   ensureStyles();
-  window.BAOWorldModuleUI = { injectTabs, renderModule };
+  window.BAOWorldModuleUI = { injectTabs, renderModule, injectBuilderSummary };
 })();
