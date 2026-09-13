@@ -1,5 +1,5 @@
 {
-  "schema_version": "1.3",
+  "schema_version": "1.4",
   "meta": {
     "id": "example-character",
     "name": "角色名稱",
@@ -33,6 +33,57 @@
       "include_author_instructions": true,
       "include_creator_notes": false
     },
+    "world_modules": [
+      {
+        "id": "status",
+        "label": "玩家狀態",
+        "icon": "◈",
+        "kind": "object",
+        "tracking": "high",
+        "context": "core",
+        "description": "經常影響下一輪敘事的核心狀態。",
+        "fields": [
+          {"key": "hp", "label": "體力", "type": "number", "min": 0, "max": 100},
+          {"key": "condition", "label": "狀態", "type": "text"}
+        ]
+      },
+      {
+        "id": "inventory",
+        "label": "背包",
+        "icon": "▣",
+        "kind": "collection",
+        "tracking": "medium",
+        "context": "relevant",
+        "description": "物品、裝備、消耗品與任務道具。"
+      },
+      {
+        "id": "skills",
+        "label": "技能",
+        "icon": "✦",
+        "kind": "collection",
+        "tracking": "medium",
+        "context": "relevant",
+        "description": "技能、魔法、武學或功法。"
+      },
+      {
+        "id": "quests",
+        "label": "任務",
+        "icon": "◇",
+        "kind": "collection",
+        "tracking": "medium",
+        "context": "relevant",
+        "description": "主線、支線、委託與未完成目標。"
+      },
+      {
+        "id": "economy",
+        "label": "資產",
+        "icon": "¤",
+        "kind": "object",
+        "tracking": "medium",
+        "context": "core",
+        "description": "金幣、銀兩、靈石等可交易資源。"
+      }
+    ],
     "initial_state": {
       "time": "未設定",
       "location": "未設定",
@@ -48,7 +99,14 @@
           "relationship": "與玩家或主角的初始關係",
           "notes": "其他重要設定"
         }
-      ]
+      ],
+      "modules": {
+        "status": {"hp": 100, "condition": "正常"},
+        "inventory": [],
+        "skills": [],
+        "quests": [],
+        "economy": {"currency": "金幣", "amount": 0}
+      }
     }
   },
   "presentation": {
