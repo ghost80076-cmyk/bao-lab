@@ -8,9 +8,13 @@ const loadBAOScript = src => new Promise((resolve, reject) => {
 });
 
 window.addEventListener("DOMContentLoaded", () => {
-  loadBAOScript("js/world-state.js")
+  loadBAOScript("js/global-bridge.js")
+    .then(() => loadBAOScript("js/world-state.js"))
+    .then(() => loadBAOScript("js/world-state-cost.js"))
     .then(() => loadBAOScript("js/world-state-hook.js"))
     .catch(err => console.warn("BAO/LAB world state modules failed to load:", err));
+  loadBAOScript("js/cost-control.js")
+    .catch(err => console.warn("BAO/LAB cost controls failed to load:", err));
   loadBAOScript("js/brand-ui.js")
     .catch(err => console.warn("BAO/LAB brand UI failed to load:", err));
 
