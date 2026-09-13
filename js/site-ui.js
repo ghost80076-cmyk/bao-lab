@@ -16,12 +16,11 @@ window.addEventListener("DOMContentLoaded", () => {
   loadBAOScript("js/cost-control.js")
     .then(() => loadBAOScript("js/model-routing.js"))
     .catch(err => console.warn("BAO/LAB cost or model routing controls failed to load:", err));
-  loadBAOScript("js/player-settings.js")
+  loadBAOScript("js/chat-shell-fix.js")
+    .then(() => loadBAOScript("js/player-settings.js"))
     .then(() => loadBAOScript("js/memory-workbench-core.js"))
     .then(() => loadBAOScript("js/memory-workbench-ai.js"))
-    .catch(err => console.warn("BAO/LAB player settings or memory workbench failed to load:", err));
-  loadBAOScript("js/chat-shell-fix.js")
-    .catch(err => console.warn("BAO/LAB chat shell fix failed to load:", err));
+    .catch(err => console.warn("BAO/LAB local preview or memory workbench failed to load:", err));
   loadBAOScript("js/brand-ui.js")
     .catch(err => console.warn("BAO/LAB brand UI failed to load:", err));
 
