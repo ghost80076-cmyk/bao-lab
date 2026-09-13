@@ -1,5 +1,5 @@
 (() => {
-  if (!window.App || !window.CharacterEngine) return;
+  if (typeof App === "undefined" || typeof CharacterEngine === "undefined") return;
 
   App.loadCharacters = async function() {
     const manifest = await (await fetch("data/characters.json")).json();
@@ -20,6 +20,15 @@
     this.renderCharacters("all");
   };
 
+  App.buildSystemPrompt = function() {
+    const mode = this.prompts[this.config.narrativeMode];
+    return CharacterEngine.composeSystemPrompt(this.activeCharacter, {
+      persona: this.config.persona,
+      modePrompt: mode?.prompt || "",
+      displayMode: this.config.displayMode
+    });
+  };
+
   window.addEventListener("DOMContentLoaded", () => {
     setTimeout(() => {
       const explore = document.getElementById("explore-view");
@@ -28,7 +37,7 @@
 
       const tools = document.createElement("div");
       tools.style.cssText = "display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 18px";
-      tools.innerHTML = '<button id="import-character-button" class="secondary" type="button">匯入角色 JSON</button><button id="manage-character-button" class="secondary" type="button">管理本機角色</button><input id="import-character-file" type="file" accept="application/json,.json" hidden><span id="character-import-status" class="note"></span><div id="custom-character-list" style="width:100%"></div>';
+      tools.innerHTML = '<button id="import-character-button" class="secondary" type="button">匯入角色 JSON</button><button id="manage-character-button" class="secondary" type="button">管理本機角色</button><a class="secondary" href="data/characters/character-template.json" download>下載角色模板</a><input id="import-character-file" type="file" accept="application/json,.json" hidden><span id="character-import-status" class="note"></span><div id="custom-character-list" style="width:100%"></div>';
       head.insertAdjacentElement("afterend", tools);
 
       const picker = document.getElementById("import-character-file");
@@ -46,7 +55,7 @@
 
       const renderCustomList = () => {
         const custom = CharacterEngine.loadCustom();
-        listBox.innerHTML = custom.length ? custom.map(c => `<div class="note" style="margin-top:8px"><b>${App.escapeHTML(c.name)}</b> · ${App.escapeHTML(c.id)} <button class="text-button" data-remove-character="${App.escapeAttr(c.id)}">移除</button></div>`).join("") : '<div class="note" style="margin-top:8px">目前沒有本機匯入角色。</div>';
+        listBox.innerHTML = custom.length ? custom.map(c => `<div class="note" style="margin-top:8px"><b>${App.escapeHTML(c.name)}</b> · ${App.escapeHTML(c.id)} · schema ${App.escapeHTML(c.schema_version || "1.0")} <button class="text-button" data-remove-character="${App.escapeAttr(c.id)}">移除</button></div>`).join("") : '<div class="note" style="margin-top:8px">目前沒有本機匯入角色。</div>';
         listBox.querySelectorAll("[data-remove-character]").forEach(btn => btn.addEventListener("click", () => {
           CharacterEngine.removeCustom(btn.dataset.removeCharacter);
           refreshCharacters();
