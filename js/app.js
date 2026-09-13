@@ -1,4 +1,3 @@
-
 const App = {
   characters: [],
   activeCharacter: null,
@@ -216,6 +215,9 @@ const App = {
     document.getElementById("chat-persona").textContent = this.config.persona.name;
     document.getElementById("chat-model").textContent = this.config.api.model;
     document.getElementById("usage-memory").textContent = `0/${this.config.memory.maxRounds}`;
+    document.getElementById("usage-context").textContent = "—";
+    document.getElementById("usage-turn").textContent = "—";
+    document.getElementById("usage-cache").textContent = "—";
 
     document.getElementById("chat-character-card").innerHTML = `
       <img src="${this.escapeAttr(this.activeCharacter.avatar)}" alt="${this.escapeAttr(this.activeCharacter.name)}">
@@ -223,7 +225,7 @@ const App = {
       <h3>${this.escapeHTML(this.activeCharacter.name)}</h3>`;
 
     document.getElementById("chat-stream").innerHTML =
-      `<div class="message assistant"><div class="bubble">${this.activeCharacter.greeting}</div></div>`;
+      `<div class="message assistant"><div class="bubble">${this.formatMessage(this.activeCharacter.greeting)}</div></div>`;
 
     document.getElementById("game-ui").classList.toggle("hidden", this.config.displayMode !== "ui");
     this.renderUIPanel("npc");
@@ -292,7 +294,7 @@ const App = {
 
     const stream = document.getElementById("chat-stream");
     stream.insertAdjacentHTML("beforeend",
-      `<div class="message user"><div class="bubble">${this.escapeHTML(text)}</div></div>`
+      `<div class="message user"><div class="bubble">${this.formatMessage(text)}</div></div>`
     );
     input.value = "";
     Chat.add("user", text);
@@ -311,7 +313,7 @@ const App = {
 
       const result = await API.send(this.config.api, messages);
       Chat.add("assistant", result.text);
-      loading.innerHTML = `<div class="bubble">${result.text}</div>`;
+      loading.innerHTML = `<div class="bubble">${this.formatMessage(result.text)}</div>`;
 
       GameState.addEvent(`玩家與 ${this.activeCharacter.name} 完成一輪互動。`);
 
@@ -320,6 +322,8 @@ const App = {
         usage.prompt_tokens ? `${usage.prompt_tokens.toLocaleString()} tok` : "—";
       document.getElementById("usage-turn").textContent =
         usage.completion_tokens ? `${usage.completion_tokens.toLocaleString()} tok` : "—";
+      document.getElementById("usage-cache").textContent =
+        usage.cached_tokens ? `${usage.cached_tokens.toLocaleString()} tok` : "—";
       document.getElementById("usage-memory").textContent =
         `${Math.ceil(Chat.messages.length / 2)}/${this.config.memory.maxRounds}`;
 
@@ -337,6 +341,10 @@ const App = {
     document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
     document.getElementById(`${name}-view`)?.classList.add("active");
     window.scrollTo({ top: 0, behavior: "instant" });
+  },
+
+  formatMessage(str = "") {
+    return this.escapeHTML(str).replace(/\n/g, "<br>");
   },
 
   escapeHTML(str = "") {
