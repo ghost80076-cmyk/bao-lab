@@ -30,6 +30,8 @@ window.addEventListener("DOMContentLoaded", () => {
     .catch(err => console.warn("BAO/LAB local preview, narrative settings, memory workbench or chat markup failed to load:", err));
   loadBAOScript("js/brand-ui.js")
     .catch(err => console.warn("BAO/LAB brand UI failed to load:", err));
+  loadBAOScript("js/author-status-builder.js")
+    .catch(err => console.warn("BAO/LAB author status builder failed to load:", err));
 
   setTimeout(() => {
     const refresh = () => {
