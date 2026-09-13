@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BAO/LAB — Characters · Worlds · Experiments</title>
+  <link rel="stylesheet" href="css/base.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <button class="brand" data-view="home"><span>BAO/</span>LAB</button>
+      <nav>
+        <button data-view="home">首頁</button>
+        <button data-view="explore">作品</button>
+        <button data-view="about">關於我</button>
+      </nav>
+    </header>
+
+    <main>
+      <section id="home-view" class="view active">
+        <div class="hero">
+          <div>
+            <div class="eyebrow">CHARACTERS · WORLDS · EXPERIMENTS</div>
+            <h1>不是只讓角色回話，<br>而是讓世界繼續運轉。</h1>
+            <p class="lead">班長 / 肉包的 AI 角色與世界實驗室。長篇角色扮演、世界模擬、NPC 自主性、互動 UI 與 BYOK。</p>
+            <div class="actions">
+              <button class="primary" data-view="explore">探索作品</button>
+              <button class="secondary" data-view="about">關於作者</button>
+            </div>
+          </div>
+          <div class="hero-card">
+            <span class="status-dot"></span>
+            <small>SYSTEM READY</small>
+            <div><span>Play Mode</span><b>Immersive / World</b></div>
+            <div><span>Display</span><b>Text / UI</b></div>
+            <div><span>API</span><b>BYOK</b></div>
+            <div><span>Memory</span><b>Configurable</b></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="explore-view" class="view">
+        <div class="section-head">
+          <div>
+            <div class="eyebrow">ORIGINAL CHARACTERS</div>
+            <h2>探索作品</h2>
+          </div>
+          <div class="filters">
+            <button class="filter active" data-filter="all">全部</button>
+            <button class="filter" data-filter="male">男性向</button>
+            <button class="filter" data-filter="female">女性向</button>
+            <button class="filter" data-filter="world">世界模擬</button>
+            <button class="filter" data-filter="adult">18+</button>
+          </div>
+        </div>
+        <div id="character-list" class="character-grid"></div>
+      </section>
+
+      <section id="detail-view" class="view">
+        <button class="back-link" data-view="explore">← 返回作品</button>
+        <div id="character-detail"></div>
+      </section>
+
+      <section id="builder-view" class="view">
+        <button class="back-link" onclick="App.showCharacterDetail()">← 返回角色</button>
+        <div class="builder-header">
+          <div>
+            <div class="eyebrow">STORY SETUP</div>
+            <h2>建立你的故事</h2>
+          </div>
+          <div id="builder-character-chip" class="chip"></div>
+        </div>
+
+        <div class="stepper">
+          <button class="step active" data-step="1">1 <span>敘事</span></button>
+          <button class="step" data-step="2">2 <span>顯示</span></button>
+          <button class="step" data-step="3">3 <span>Persona</span></button>
+          <button class="step" data-step="4">4 <span>API</span></button>
+          <button class="step" data-step="5">5 <span>記憶</span></button>
+        </div>
+
+        <div class="builder-card">
+          <section class="builder-step active" data-step-panel="1">
+            <h3>選擇敘事模式</h3>
+            <div class="mode-grid">
+              <label class="choice-card selected">
+                <input type="radio" name="narrative-mode" value="immersive" checked />
+                <span class="choice-icon">◐</span>
+                <b>單角色沉浸</b>
+                <small>聚焦角色與玩家的情緒、互動、距離與關係發展。</small>
+              </label>
+              <label class="choice-card">
+                <input type="radio" name="narrative-mode" value="world" />
+                <span class="choice-icon">◎</span>
+                <b>世界模擬</b>
+                <small>NPC、事件與環境持續運轉，世界不必等待玩家才前進。</small>
+              </label>
+            </div>
+          </section>
+
+          <section class="builder-step" data-step-panel="2">
+            <h3>選擇顯示模式</h3>
+            <div class="mode-grid">
+              <label class="choice-card display selected">
+                <input type="radio" name="display-mode" value="text" checked />
+                <span class="choice-icon">Aa</span>
+                <b>純文本</b>
+                <small>乾淨的小說閱讀體驗，只保留敘事與對話。</small>
+              </label>
+              <label class="choice-card display">
+                <input type="radio" name="display-mode" value="ui" />
+                <span class="choice-icon">▦</span>
+                <b>互動 UI</b>
+                <small>額外顯示 NPC、狀態、事件、記憶等可擴充介面。</small>
+              </label>
+            </div>
+          </section>
+
+          <section class="builder-step" data-step-panel="3">
+            <h3>玩家 Persona</h3>
+            <div class="form-grid">
+              <label>名稱<input id="persona-name" placeholder="例如：夏羽" /></label>
+              <label>性別
+                <select id="persona-gender">
+                  <option value="未指定">未指定</option>
+                  <option value="女性">女性</option>
+                  <option value="男性">男性</option>
+                  <option value="其他">其他</option>
+                </select>
+              </label>
+              <label>身分 / 職業<input id="persona-identity" placeholder="例如：出版社編輯" /></label>
+              <label>與角色的關係<input id="persona-relationship" placeholder="例如：多年朋友" /></label>
+              <label class="wide">個性<textarea id="persona-personality" placeholder="簡短描述你的個性"></textarea></label>
+              <label class="wide">其他設定<textarea id="persona-extra" placeholder="外貌、背景或其他補充"></textarea></label>
+            </div>
+          </section>
+
+          <section class="builder-step" data-step-panel="4">
+            <h3>模型與 API</h3>
+            <div class="form-grid">
+              <label>API 類型
+                <select id="api-type"></select>
+              </label>
+              <label>模型
+                <select id="model-select"></select>
+              </label>
+              <label class="wide">Base URL<input id="base-url" /></label>
+              <label class="wide">API Key<input id="api-key" type="password" placeholder="貼上您的 API Key" /></label>
+            </div>
+            <p class="note">V1.2 先支援 OpenAI-compatible / OpenRouter 直接呼叫；Gemini、Anthropic 官方 API 會透過 provider adapter 在後續版接入。</p>
+          </section>
+
+          <section class="builder-step" data-step-panel="5">
+            <h3>記憶與費用</h3>
+            <div class="form-grid">
+              <label>記憶模式
+                <select id="memory-mode">
+                  <option value="smart">智慧模式（預留）</option>
+                  <option value="rounds">固定輪數</option>
+                  <option value="full">完整上下文</option>
+                </select>
+              </label>
+              <label>最近保留輪數<input id="max-rounds" type="number" value="20" min="4" max="100" /></label>
+              <label>最大 Context<input id="max-context" type="number" value="64000" /></label>
+              <label class="toggle-row"><span>Prompt Cache</span><input id="cache-enabled" type="checkbox" checked /></label>
+            </div>
+          </section>
+
+          <div class="builder-actions">
+            <button id="prev-step" class="secondary" onclick="App.prevStep()">上一步</button>
+            <button id="next-step" class="primary" onclick="App.nextStep()">下一步</button>
+            <button id="start-story" class="primary hidden" onclick="App.startStory()">進入故事</button>
+          </div>
+        </div>
+      </section>
+
+      <section id="chat-view" class="view">
+        <div class="chat-layout">
+          <aside class="chat-sidebar">
+            <button class="back-link" onclick="App.exitChat()">← 離開故事</button>
+            <div id="chat-character-card"></div>
+            <div class="sidebar-block"><span>敘事模式</span><b id="chat-narrative"></b></div>
+            <div class="sidebar-block"><span>顯示模式</span><b id="chat-display"></b></div>
+            <div class="sidebar-block"><span>Persona</span><b id="chat-persona"></b></div>
+            <div class="sidebar-block"><span>模型</span><b id="chat-model"></b></div>
+            <button class="coffee">☕ 請作者喝咖啡</button>
+          </aside>
+
+          <section class="chat-main">
+            <div class="chat-topline">
+              <div>
+                <div class="eyebrow">LIVE SESSION</div>
+                <h2 id="chat-title">故事</h2>
+              </div>
+            </div>
+
+            <div id="game-ui" class="game-ui hidden">
+              <div class="ui-toolbar">
+                <button class="ui-tab active" data-panel="npc">👥 當前 NPC</button>
+                <button class="ui-tab" data-panel="status">◈ 狀態</button>
+                <button class="ui-tab" data-panel="events">▤ 事件</button>
+                <button class="ui-tab" data-panel="memory">◌ 記憶</button>
+              </div>
+              <div id="ui-panel" class="ui-panel"></div>
+            </div>
+
+            <div id="chat-stream" class="chat-stream"></div>
+
+            <div class="usage-bar">
+              <span>Context <b id="usage-context">—</b></span>
+              <span>本輪 <b id="usage-turn">—</b></span>
+              <span>Cache <b id="usage-cache">—</b></span>
+              <span>記憶 <b id="usage-memory">0/20</b></span>
+            </div>
+
+            <div class="input-area">
+              <textarea id="user-input" placeholder="輸入你的行動、對話或想法..."></textarea>
+              <button class="primary" onclick="App.sendMessage()">發送</button>
+            </div>
+          </section>
+        </div>
+      </section>
+
+      <section id="about-view" class="view">
+        <div class="about-wrap">
+          <div class="eyebrow">ABOUT THE CREATOR</div>
+          <h2>關於班長 / 肉包</h2>
+          <p class="lead">我不是從「我要做 AI 平台」開始的。一開始，只是做角色卡，然後不停遇到問題。</p>
+          <p>角色為什麼聊久了會忘記？NPC 為什麼沒有自己的生活？世界為什麼一定要等玩家下指令才會動？</p>
+          <p>所以我開始改提示詞、測試長篇互動、研究世界書、HTML、角色記憶與 NPC 自主性。這裡放的，就是一路測試、翻車，再重新做出來的作品。</p>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <b>BAO/LAB</b>
+      <span>你的 API，你的選擇，你的帳單。</span>
+    </footer>
+  </div>
+
+  <script src="js/storage.js"></script>
+  <script src="js/state.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/chat.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

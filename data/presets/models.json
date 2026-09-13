@@ -1,0 +1,26 @@
+[
+  {
+    "provider": "openrouter",
+    "label": "OpenRouter — GPT-4o mini",
+    "model": "openai/gpt-4o-mini",
+    "base_url": "https://openrouter.ai/api/v1/chat/completions"
+  },
+  {
+    "provider": "openrouter",
+    "label": "OpenRouter — DeepSeek Chat",
+    "model": "deepseek/deepseek-chat",
+    "base_url": "https://openrouter.ai/api/v1/chat/completions"
+  },
+  {
+    "provider": "openai",
+    "label": "OpenAI — GPT-4o mini",
+    "model": "gpt-4o-mini",
+    "base_url": "https://api.openai.com/v1/chat/completions"
+  },
+  {
+    "provider": "custom",
+    "label": "自訂 OpenAI-compatible",
+    "model": "your-model-name",
+    "base_url": ""
+  }
+]
