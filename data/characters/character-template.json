@@ -1,13 +1,11 @@
 {
-  "schema_version": "1.1",
+  "schema_version": "1.2",
   "meta": {
     "id": "example-character",
     "name": "角色名稱",
     "avatar": "https://example.com/character.jpg",
-    "rating": "general",
+    "category": "female",
     "gender": "female",
-    "audience": ["male"],
-    "categories": ["romance"],
     "tags": ["慢熱", "現代"],
     "description": "角色列表上顯示的簡介。"
   },
