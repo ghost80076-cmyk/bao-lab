@@ -14,7 +14,8 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/world-state-hook.js"))
     .catch(err => console.warn("BAO/LAB world state modules failed to load:", err));
   loadBAOScript("js/cost-control.js")
-    .catch(err => console.warn("BAO/LAB cost controls failed to load:", err));
+    .then(() => loadBAOScript("js/model-routing.js"))
+    .catch(err => console.warn("BAO/LAB cost or model routing controls failed to load:", err));
   loadBAOScript("js/player-settings.js")
     .catch(err => console.warn("BAO/LAB player settings failed to load:", err));
   loadBAOScript("js/brand-ui.js")
