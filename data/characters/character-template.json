@@ -1,5 +1,5 @@
 {
-  "schema_version": "1.4",
+  "schema_version": "1.5",
   "meta": {
     "id": "example-character",
     "name": "角色名稱",
@@ -33,6 +33,67 @@
       "include_author_instructions": true,
       "include_creator_notes": false
     },
+    "character_status": {
+      "enabled": true,
+      "allow_player_customize": true,
+      "fields": [
+        {
+          "key": "appearance",
+          "label": "外觀",
+          "type": "text",
+          "context": "relevant",
+          "track": true,
+          "player_toggle": true,
+          "player_rename": true,
+          "default": "未記錄",
+          "description": "目前可觀察到的外觀變化。"
+        },
+        {
+          "key": "outfit",
+          "label": "目前穿著",
+          "type": "text",
+          "context": "relevant",
+          "track": true,
+          "player_toggle": true,
+          "player_rename": true,
+          "default": "未記錄",
+          "description": "衣著、裝備與明確發生的換裝變化。"
+        },
+        {
+          "key": "posture",
+          "label": "姿態",
+          "type": "text",
+          "context": "relevant",
+          "track": true,
+          "player_toggle": true,
+          "player_rename": true,
+          "default": "自然",
+          "description": "站姿、坐姿、距離或其他可觀察姿態。"
+        },
+        {
+          "key": "condition",
+          "label": "身體狀態",
+          "type": "text",
+          "context": "core",
+          "track": true,
+          "player_toggle": false,
+          "player_rename": true,
+          "default": "正常",
+          "description": "傷勢、疲勞、異常狀態等會影響後續敘事的資訊。"
+        },
+        {
+          "key": "special_mark",
+          "label": "特殊特徵",
+          "type": "text",
+          "context": "relevant",
+          "track": true,
+          "player_toggle": true,
+          "player_rename": true,
+          "default": "無",
+          "description": "例如種族特徵、印記、魔法痕跡或世界觀特有狀態。"
+        }
+      ]
+    },
     "world_modules": [
       {
         "id": "status",
@@ -54,8 +115,8 @@
         "kind": "collection",
         "tracking": "medium",
         "context": "relevant",
-        "description": "物品、裝備、消耗品與任務道具。",
-        "triggers": ["背包", "物品", "道具", "拿出", "撿起", "使用道具"]
+        "triggers": ["背包", "物品", "拿出", "放入", "撿起"],
+        "description": "物品、裝備、消耗品與任務道具。"
       },
       {
         "id": "skills",
@@ -64,8 +125,7 @@
         "kind": "collection",
         "tracking": "medium",
         "context": "relevant",
-        "description": "技能、魔法、武學或功法。",
-        "triggers": ["技能", "能力", "招式", "武學", "功法", "施法"]
+        "description": "技能、魔法、武學或功法。"
       },
       {
         "id": "quests",
@@ -74,8 +134,7 @@
         "kind": "collection",
         "tracking": "medium",
         "context": "relevant",
-        "description": "主線、支線、委託與未完成目標。",
-        "triggers": ["任務", "委託", "主線", "支線", "目標", "線索"]
+        "description": "主線、支線、委託與未完成目標。"
       },
       {
         "id": "economy",
@@ -103,6 +162,15 @@
           "notes": "其他重要設定"
         }
       ],
+      "character_statuses": {
+        "角色名稱": {
+          "appearance": "未記錄",
+          "outfit": "未記錄",
+          "posture": "自然",
+          "condition": "正常",
+          "special_mark": "無"
+        }
+      },
       "modules": {
         "status": {"hp": 100, "condition": "正常"},
         "inventory": [],
