@@ -13,7 +13,7 @@ const API = {
       { role: "system", content: "You are an API connection tester. Reply only with OK." },
       { role: "user", content: "Reply OK" }
     ];
-    return this.send(config, messages);
+    return this.send({ ...config, maxOutputTokens: 16 }, messages);
   },
 
   friendlyError(status, data, protocol = "API") {
@@ -34,12 +34,15 @@ const API = {
 
   async sendOpenAICompatible(config, messages) {
     if (!config.baseUrl) throw new Error("請填入 Base URL。");
+    const body = { model: config.model, messages };
+    const limit = Number(config.maxOutputTokens || 0);
+    if (limit > 0) body.max_tokens = Math.floor(limit);
     let response;
     try {
       response = await fetch(config.baseUrl, {
         method: "POST",
         headers: { "Authorization": `Bearer ${config.key}`, "Content-Type": "application/json" },
-        body: JSON.stringify({ model: config.model, messages })
+        body: JSON.stringify(body)
       });
     } catch (err) { throw this.networkError(err); }
     const data = await this.readJSON(response);
@@ -51,13 +54,20 @@ const API = {
     if (!config.baseUrl) throw new Error("請填入 Base URL。");
     const system = messages.filter(m => m.role === "system").map(m => this.contentToText(m.content)).join("\n\n");
     const chat = messages.filter(m => m.role !== "system").map(m => ({ role: m.role === "assistant" ? "assistant" : "user", content: this.contentToText(m.content) }));
+    const limit = Math.max(1, Math.floor(Number(config.maxOutputTokens || 4096)));
     let response;
     try {
-      response = await fetch(config.baseUrl, { method: "POST", headers: { "x-api-key": config.key, "anthropic-version": "2023-06-01", "Content-Type": "application/json" }, body: JSON.stringify({ model: config.model, max_tokens: 4096, system, messages: chat }) });
+      response = await fetch(config.baseUrl, { method: "POST", headers: { "x-api-key": config.key, "anthropic-version": "2023-06-01", "Content-Type": "application/json" }, body: JSON.stringify({ model: config.model, max_tokens: limit, system, messages: chat }) });
     } catch (err) { throw this.networkError(err); }
     const data = await this.readJSON(response);
     if (!response.ok) throw new Error(this.friendlyError(response.status, data, "Anthropic-compatible API"));
-    return { text: (data?.content || []).map(x => x?.type === "text" ? x.text : "").filter(Boolean).join("\n") || "模型沒有回傳內容。", usage: { prompt_tokens: data?.usage?.input_tokens || 0, completion_tokens: data?.usage?.output_tokens || 0, total_tokens: (data?.usage?.input_tokens || 0) + (data?.usage?.output_tokens || 0), cached_tokens: data?.usage?.cache_read_input_tokens || 0 } };
+    const usage = data?.usage || {};
+    const rawInput = Number(usage.input_tokens || 0);
+    const cacheRead = Number(usage.cache_read_input_tokens || 0);
+    const cacheWrite = Number(usage.cache_creation_input_tokens || 0);
+    const promptTotal = rawInput + cacheRead + cacheWrite;
+    const output = Number(usage.output_tokens || 0);
+    return { text: (data?.content || []).map(x => x?.type === "text" ? x.text : "").filter(Boolean).join("\n") || "模型沒有回傳內容。", usage: { prompt_tokens: promptTotal, completion_tokens: output, total_tokens: promptTotal + output, cached_tokens: cacheRead, cache_write_tokens: cacheWrite } };
   },
 
   async sendGemini(config, messages) {
@@ -68,6 +78,8 @@ const API = {
     if (!contents.length) throw new Error("沒有可傳送給 Gemini 的對話內容。");
     const payload = { contents };
     if (systemText) payload.systemInstruction = { parts: [{ text: systemText }] };
+    const limit = Number(config.maxOutputTokens || 0);
+    if (limit > 0) payload.generationConfig = { maxOutputTokens: Math.floor(limit) };
     let response;
     try {
       response = await fetch(url, { method: "POST", headers: { "x-goog-api-key": config.key, "Content-Type": "application/json" }, body: JSON.stringify(payload) });
