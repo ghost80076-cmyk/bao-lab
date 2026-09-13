@@ -2,22 +2,24 @@
   if (typeof GameState === "undefined" || typeof WorldStateEngine === "undefined") return;
 
   const BUILT_INS = {
-    status: { label: "狀態", icon: "◈", tracking: "high", context: "core", kind: "object" },
-    inventory: { label: "背包", icon: "▣", tracking: "medium", context: "relevant", kind: "collection" },
-    skills: { label: "技能", icon: "✦", tracking: "medium", context: "relevant", kind: "collection" },
-    quests: { label: "任務", icon: "◇", tracking: "medium", context: "relevant", kind: "collection" },
-    factions: { label: "勢力", icon: "⌘", tracking: "low", context: "relevant", kind: "collection" },
-    economy: { label: "資產", icon: "¤", tracking: "medium", context: "core", kind: "object" },
-    cultivation: { label: "境界", icon: "△", tracking: "medium", context: "core", kind: "object" },
-    magic: { label: "魔法", icon: "✧", tracking: "medium", context: "relevant", kind: "object" },
-    equipment: { label: "裝備", icon: "◆", tracking: "medium", context: "relevant", kind: "collection" },
-    reputation: { label: "聲望", icon: "◎", tracking: "low", context: "relevant", kind: "object" }
+    status: { label: "狀態", icon: "◈", tracking: "high", context: "core", kind: "object", triggers: ["狀態","血量","hp","生命","體力","魔力","mp","受傷","傷勢","中毒","疲勞"] },
+    inventory: { label: "背包", icon: "▣", tracking: "medium", context: "relevant", kind: "collection", triggers: ["背包","物品","道具","行囊","儲物","口袋","撿起","拿出","放入","丟掉","使用道具","消耗品"] },
+    skills: { label: "技能", icon: "✦", tracking: "medium", context: "relevant", kind: "collection", triggers: ["技能","能力","天賦","招式","武學","功法","法術","施法","咒語","絕招"] },
+    quests: { label: "任務", icon: "◇", tracking: "medium", context: "relevant", kind: "collection", triggers: ["任務","委託","主線","支線","目標","線索","接任務","完成任務","交付"] },
+    factions: { label: "勢力", icon: "⌘", tracking: "low", context: "relevant", kind: "collection", triggers: ["勢力","陣營","宗門","門派","公會","家族","國家","王國","帝國","組織"] },
+    economy: { label: "資產", icon: "¤", tracking: "medium", context: "core", kind: "object", triggers: ["錢","金幣","銀幣","銅幣","銀兩","靈石","貨幣","價格","購買","買下","賣掉","支付","花費"] },
+    cultivation: { label: "境界", icon: "△", tracking: "medium", context: "core", kind: "object", triggers: ["境界","修為","修煉","突破","靈根","靈力","築基","金丹","元嬰","渡劫"] },
+    magic: { label: "魔法", icon: "✧", tracking: "medium", context: "relevant", kind: "object", triggers: ["魔法","法術","咒語","魔力","元素","魔法陣","施法","法力"] },
+    equipment: { label: "裝備", icon: "◆", tracking: "medium", context: "relevant", kind: "collection", triggers: ["裝備","武器","防具","劍","刀","弓","盾","盔甲","戒指","穿戴","換裝"] },
+    reputation: { label: "聲望", icon: "◎", tracking: "low", context: "relevant", kind: "object", triggers: ["聲望","名聲","評價","名望","通緝","知名度","威望"] }
   };
 
   const clone = value => {
     try { return structuredClone(value); }
     catch { return JSON.parse(JSON.stringify(value ?? null)); }
   };
+
+  const normalizeWords = value => (Array.isArray(value) ? value : [value]).filter(Boolean).map(x => String(x).trim().toLowerCase()).filter(Boolean).slice(0, 40);
 
   const normalizeModule = raw => {
     const source = typeof raw === "string" ? { id: raw } : (raw || {});
@@ -27,6 +29,8 @@
     const tracking = ["high", "medium", "low", "manual"].includes(source.tracking) ? source.tracking : (preset.tracking || "medium");
     const context = ["core", "relevant", "ui_only"].includes(source.context) ? source.context : (preset.context || "relevant");
     const kind = ["object", "collection"].includes(source.kind) ? source.kind : (preset.kind || "object");
+    const customTriggers = normalizeWords(source.triggers || []);
+    const triggers = [...new Set(customTriggers.length ? customTriggers : normalizeWords(preset.triggers || []))].slice(0, 40);
     return {
       id,
       label: String(source.label || preset.label || id).slice(0, 40),
@@ -36,6 +40,7 @@
       context,
       kind,
       enabled: source.enabled !== false,
+      triggers,
       fields: Array.isArray(source.fields) ? source.fields.slice(0, 24).map(f => ({
         key: String(f?.key || "").trim().slice(0, 40),
         label: String(f?.label || f?.key || "").trim().slice(0, 40),
@@ -89,16 +94,34 @@
     });
   };
 
-  const dueModules = () => {
+  const relevanceScore = (def, text = "") => {
+    const hay = String(text || "").toLowerCase();
+    if (!hay) return 0;
+    let score = 0;
+    if (hay.includes(String(def.label || "").toLowerCase())) score += 5;
+    if (hay.includes(String(def.id || "").toLowerCase())) score += 3;
+    (def.triggers || []).forEach(word => { if (word && hay.includes(word)) score += word.length >= 3 ? 3 : 2; });
+    (def.fields || []).forEach(field => {
+      const label = String(field.label || "").toLowerCase();
+      const key = String(field.key || "").toLowerCase();
+      if (label && hay.includes(label)) score += 2;
+      if (key.length >= 3 && hay.includes(key)) score += 1;
+    });
+    return score;
+  };
+
+  const dueModules = (playerText = "", assistantText = "") => {
     ensureState(window.App?.activeCharacter);
     const state = GameState.current;
     if (!state) return [];
     state.moduleTrackerTick = Number(state.moduleTrackerTick || 0) + 1;
+    const turnText = `${playerText}\n${assistantText}`;
     return (state.moduleDefinitions || []).filter(def => {
       if (def.tracking === "manual") return false;
       if (def.tracking === "high") return true;
-      if (def.tracking === "medium") return state.moduleTrackerTick % 2 === 0;
-      return state.moduleTrackerTick % 4 === 0;
+      const mentioned = relevanceScore(def, turnText) > 0;
+      if (def.tracking === "medium") return mentioned || state.moduleTrackerTick % 2 === 0;
+      return mentioned || state.moduleTrackerTick % 4 === 0;
     });
   };
 
@@ -134,7 +157,7 @@
 
   WorldStateEngine.update = async function(config, playerText, assistantText) {
     if (!this.enabled(config) || !config?.api?.key || !GameState.current) return null;
-    const defs = dueModules();
+    const defs = dueModules(playerText, assistantText);
     const rules = defs.length ? `\n【本次需要檢查的世界模組】\n${moduleRules(defs)}` : "";
     const prompt = [
       "你是角色扮演遊戲的狀態追蹤器，不是故事作者。",
@@ -165,6 +188,12 @@
     }
   };
 
+  const compactValue = (value, maxChars = 900) => {
+    let text = "";
+    try { text = JSON.stringify(value); } catch { text = String(value ?? ""); }
+    return text.length > maxChars ? `${text.slice(0, maxChars)}…` : text;
+  };
+
   const compactForPrompt = () => {
     ensureState(window.App?.activeCharacter);
     const defs = (GameState.current?.moduleDefinitions || []).filter(d => d.context === "core");
@@ -175,6 +204,36 @@
     return text.length > 2400 ? text.slice(0, 2400) + "…" : text;
   };
 
-  window.BAOWorldModules = { BUILT_INS, normalizeModule, definitions, ensureState, compactForPrompt };
+  const relevantDefinitions = (text = "", options = {}) => {
+    ensureState(window.App?.activeCharacter);
+    const state = GameState.current;
+    if (!state) return [];
+    const maxModules = Math.max(1, Math.min(5, Number(options.maxModules || 3)));
+    const viewed = String(state.uiContextModule || "");
+    const scored = (state.moduleDefinitions || [])
+      .filter(def => def.context === "relevant")
+      .map(def => ({ def, score: relevanceScore(def, text) + (def.id === viewed ? 4 : 0) }))
+      .filter(item => item.score > 0)
+      .sort((a,b) => b.score - a.score || a.def.label.localeCompare(b.def.label, "zh-Hant"))
+      .slice(0, maxModules)
+      .map(item => item.def);
+    return scored;
+  };
+
+  const compactRelevantForPrompt = (text = "", options = {}) => {
+    const defs = relevantDefinitions(text, options);
+    if (!defs.length) {
+      if (options.consumeViewed && GameState.current) GameState.current.uiContextModule = "";
+      return { text: "", ids: [] };
+    }
+    const maxChars = Math.max(400, Math.min(4000, Number(options.maxChars || 2200)));
+    const perModule = Math.max(300, Math.floor(maxChars / defs.length));
+    const lines = defs.map(def => `${def.icon} ${def.label}：${compactValue(GameState.current?.modules?.[def.id], perModule)}`);
+    if (options.consumeViewed && GameState.current) GameState.current.uiContextModule = "";
+    const joined = lines.join("\n");
+    return { text: joined.length > maxChars ? `${joined.slice(0, maxChars)}…` : joined, ids: defs.map(d => d.id) };
+  };
+
+  window.BAOWorldModules = { BUILT_INS, normalizeModule, definitions, ensureState, compactForPrompt, relevantDefinitions, compactRelevantForPrompt, relevanceScore };
   window.WorldStateEngine = WorldStateEngine;
 })();
