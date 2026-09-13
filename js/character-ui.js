@@ -2,9 +2,9 @@
   if (typeof App === "undefined" || typeof CharacterEngine === "undefined") return;
 
   const categoryMeta = {
-    male: { label: "男性向", en: "MALE ORIENTED", desc: "偏遊戲感、世界模擬與角色互動的作品區。" },
-    female: { label: "女性向", en: "FEMALE ORIENTED", desc: "偏情感、關係與長篇沉浸敘事的作品區。" },
-    r18: { label: "R18", en: "ADULT AREA", desc: "成人向作品集中於此區，首次進入需確認年齡。" }
+    male: { label: "男性向", en: "MALE ORIENTED", desc: "偏遊戲感、世界模擬與角色互動的作品區。", kicker: "GAME / WORLD / INTERACTION" },
+    female: { label: "女性向", en: "FEMALE ORIENTED", desc: "偏情感、關係與長篇沉浸敘事的作品區。", kicker: "RELATIONSHIP / STORY / EMOTION" },
+    r18: { label: "R18", en: "ADULT AREA", desc: "成人向作品集中於此區，首次進入需確認年齡。", kicker: "18+ / MATURE CONTENT" }
   };
 
   App.loadCharacters = async function() {
@@ -44,6 +44,22 @@
         <div class="character-content"><div class="eyebrow">${App.escapeHTML(meta.en)}</div><h3>${App.escapeHTML(c.name)}</h3><p>${App.escapeHTML(c.description)}</p><div class="tags">${(c.tags || []).map(t => `<span class="tag">#${App.escapeHTML(t)}</span>`).join("")}</div></div>
       </article>`;
     }).join("") : `<div class="empty-category"><b>${active === "all" ? "目前還沒有更多作品" : `${categoryMeta[active].label}目前還沒有作品`}</b><span>之後新增的角色會依 category 自動出現在這裡。</span></div>`;
+  };
+
+  App.renderDetail = function() {
+    const c = this.activeCharacter;
+    if (!c) return;
+    const category = ["male", "female", "r18"].includes(c.category) ? c.category : "male";
+    const meta = categoryMeta[category];
+    document.getElementById("detail-view")?.setAttribute("data-category-theme", category);
+    document.getElementById("builder-view")?.setAttribute("data-category-theme", category);
+    document.getElementById("chat-view")?.setAttribute("data-category-theme", category);
+    document.getElementById("character-detail").innerHTML = `<div class="detail-theme-shell detail-${category}">
+      <button class="back-link" type="button" onclick="App.showView('explore')">← 返回作品區</button>
+      <div class="detail-theme-layout">
+        <div class="detail-visual"><div class="detail-image-frame"><img class="detail-image" src="${this.escapeAttr(c.avatar)}" alt="${this.escapeAttr(c.name)}"><span class="detail-category-badge">${this.escapeHTML(meta.label)}</span></div><div class="detail-side-code">${this.escapeHTML(meta.kicker)}</div></div>
+        <div class="detail-copy"><div class="detail-category-line"><span>${this.escapeHTML(meta.en)}</span><i></i></div><h1>${this.escapeHTML(c.name)}</h1><p class="detail-description">${this.escapeHTML(c.description || "")}</p>${c.quote ? `<div class="quote">${this.escapeHTML(c.quote)}</div>` : ""}<div class="tags">${(c.tags || []).map(t => `<span class="tag">#${this.escapeHTML(t)}</span>`).join("")}</div><div class="detail-actions"><button class="primary detail-start" onclick="App.openBuilder()">開始故事</button><span class="detail-mode-note">${c.supported_modes?.world ? "支援世界模擬" : "單角色沉浸"} · ${c.supported_display?.ui ? "支援互動 UI" : "純文本"}</span></div></div>
+      </div></div>`;
   };
 
   App.buildSystemPrompt = function() {
