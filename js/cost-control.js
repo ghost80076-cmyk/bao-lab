@@ -106,7 +106,13 @@
       if (cfg?.budgetTwd > 0 && state.twd >= cfg.budgetTwd) {
         throw new Error(`已達本次故事預算上限 NT$${cfg.budgetTwd.toFixed(0)}。可提高預算或改用較便宜的模型後繼續。`);
       }
-      return original(config, messages);
+      const previousPrompt = typeof Chat !== "undefined" ? Chat.lastStoryPromptTokens : 0;
+      const result = await original(config, messages);
+      if (config?.__auxiliaryTask && typeof Chat !== "undefined") {
+        Chat.lastStoryPromptTokens = previousPrompt;
+        if (typeof App !== "undefined" && App.config) Chat.protectedRounds(App.config);
+      }
+      return result;
     };
     API.__budgetPatched = true;
   };
