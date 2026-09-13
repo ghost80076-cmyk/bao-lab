@@ -1,0 +1,43 @@
+{
+  "schema_version": "1.0",
+  "meta": {
+    "id": "example-character",
+    "name": "角色名稱",
+    "avatar": "https://example.com/character.jpg",
+    "rating": "general",
+    "gender": "female",
+    "audience": ["male"],
+    "categories": ["romance"],
+    "tags": ["慢熱", "現代"] ,
+    "description": "角色列表上顯示的簡介。"
+  },
+  "content": {
+    "quote": "角色代表性台詞。",
+    "greeting": "故事開場白。可使用純文字；前端會安全轉義模型輸出。",
+    "system_prompt": "角色核心設定與行為規則。",
+    "lore": "世界觀、背景設定、角色過往與重要知識。",
+    "creator_notes": "作者備註，不一定需要送入模型。"
+  },
+  "gameplay": {
+    "supported_modes": {
+      "immersive": true,
+      "world": true
+    },
+    "initial_state": {
+      "time": "未設定",
+      "location": "未設定",
+      "events": [],
+      "npcs": []
+    }
+  },
+  "presentation": {
+    "supported_display": {
+      "text": true,
+      "ui": true
+    },
+    "ui": {
+      "type": "basic",
+      "panels": ["npc", "status", "events", "memory"]
+    }
+  }
+}
