@@ -78,6 +78,7 @@ const Chat = {
         force ? "目前 Context 使用率偏高，請進一步壓縮，輸出新的完整摘要，盡量控制在 600～1200 字。" : "請輸出新的完整長期記憶摘要，建議 800～1600 字以內。"
       ].filter(Boolean).join("\n\n");
       const summaryConfig = { ...config.api, __memoryTask: true };
+      if (config?.memory?.summaryModel) summaryConfig.model = config.memory.summaryModel;
       const result = await API.send(summaryConfig, [{ role: "system", content: "只做劇情記憶摘要，不要續寫故事。" }, { role: "user", content: prompt }]);
       if (result?.text) { this.summary = result.text.trim(); this.summarizedUntil = end; if (window.GameState?.current) GameState.current.memory = [this.summary]; }
     } catch (err) { console.warn("BAO/LAB memory summary failed:", err); }
