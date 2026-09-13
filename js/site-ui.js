@@ -18,10 +18,11 @@ window.addEventListener("DOMContentLoaded", () => {
     .catch(err => console.warn("BAO/LAB cost or model routing controls failed to load:", err));
   loadBAOScript("js/chat-shell-fix.js")
     .then(() => loadBAOScript("js/player-settings.js"))
+    .then(() => loadBAOScript("js/narrative-settings.js"))
     .then(() => loadBAOScript("js/memory-workbench-core.js"))
     .then(() => loadBAOScript("js/memory-workbench-ai.js"))
     .then(() => loadBAOScript("js/chat-markup.js"))
-    .catch(err => console.warn("BAO/LAB local preview, memory workbench or chat markup failed to load:", err));
+    .catch(err => console.warn("BAO/LAB local preview, narrative settings, memory workbench or chat markup failed to load:", err));
   loadBAOScript("js/brand-ui.js")
     .catch(err => console.warn("BAO/LAB brand UI failed to load:", err));
 
