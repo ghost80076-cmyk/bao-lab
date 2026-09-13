@@ -131,5 +131,3 @@ window.addEventListener("DOMContentLoaded", () => {
     }
   }, 0);
 });
-
-document.write('<script src="js/character.js"><\/script><script src="js/character-ui.js"><\/script>');
