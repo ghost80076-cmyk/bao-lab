@@ -29,6 +29,10 @@ const CharacterEngine = {
       .map(x => String(x).trim())
       .filter(Boolean)
       .slice(0, 24);
+    const modulesRaw = raw.world_modules || gameplay.world_modules || [];
+    const worldModules = (Array.isArray(modulesRaw) ? modulesRaw : [])
+      .filter(Boolean)
+      .slice(0, 12);
 
     return {
       id,
@@ -47,6 +51,7 @@ const CharacterEngine = {
       lore: content.lore || raw.lore || "",
       world: content.world || raw.world || "",
       world_focus: worldFocus,
+      world_modules: worldModules,
       npc_rules: content.npc_rules || raw.npc_rules || "",
       author_instructions: content.author_instructions || raw.author_instructions || "",
       creator_notes: content.creator_notes || raw.creator_notes || "",
@@ -66,9 +71,10 @@ const CharacterEngine = {
         time: initial.time || "未設定",
         location: initial.location || "未設定",
         events: Array.isArray(initial.events) ? initial.events : [],
-        npcs: Array.isArray(initial.npcs) ? initial.npcs : []
+        npcs: Array.isArray(initial.npcs) ? initial.npcs : [],
+        modules: initial.modules && typeof initial.modules === "object" && !Array.isArray(initial.modules) ? initial.modules : {}
       },
-      schema_version: raw.schema_version || "1.3",
+      schema_version: raw.schema_version || "1.4",
       source: raw.source || "custom"
     };
   },
