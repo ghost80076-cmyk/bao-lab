@@ -140,16 +140,27 @@
           <section class="builder-step" data-step-panel="4">
             <h3>模型與 API</h3>
             <div class="form-grid">
-              <label>API 類型
+              <label>供應方式
                 <select id="api-type"></select>
               </label>
-              <label>模型
+              <label>服務 / 相容格式
                 <select id="model-select"></select>
               </label>
-              <label class="wide">Base URL<input id="base-url" /></label>
-              <label class="wide">API Key<input id="api-key" type="password" placeholder="貼上您的 API Key" /></label>
+              <label class="wide">Model ID
+                <input id="model-id" placeholder="官方預設會自動填入；中轉請貼上服務商提供的 Model ID" />
+              </label>
+              <label class="wide">Base URL
+                <input id="base-url" placeholder="官方預設會自動填入；中轉請依服務商文件填寫" />
+              </label>
+              <label class="wide">API Key
+                <input id="api-key" type="password" autocomplete="off" placeholder="貼上你自己的 API Key" />
+              </label>
             </div>
-            <p class="note">V1.2 先支援 OpenAI-compatible / OpenRouter 直接呼叫；Gemini、Anthropic 官方 API 會透過 provider adapter 在後續版接入。</p>
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:14px">
+              <span id="api-protocol-badge" class="tag">API</span>
+              <span id="api-hint" class="note">選擇官方 API 或中轉格式後，這裡會顯示設定提示。</span>
+            </div>
+            <p class="note" style="margin-bottom:0">BAO/LAB 採 BYOK。API Key 不會寫進角色資料或 GitHub；離開頁面後需重新輸入。中轉站請以對方提供的 Base URL、Model ID 與相容格式為準。</p>
           </section>
 
           <section class="builder-step" data-step-panel="5">
@@ -250,5 +261,47 @@
   <script src="js/api.js"></script>
   <script src="js/chat.js"></script>
   <script src="js/app.js"></script>
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      const syncApiFields = () => {
+        if (!window.App || !App.getSelectedPreset) return;
+        const preset = App.getSelectedPreset();
+        const modelId = document.getElementById('model-id');
+        const baseUrl = document.getElementById('base-url');
+        const hint = document.getElementById('api-hint');
+        const badge = document.getElementById('api-protocol-badge');
+        if (!preset || !modelId || !baseUrl) return;
+
+        modelId.value = preset.model || App.customModelId || '';
+        modelId.readOnly = Boolean(preset.model);
+        modelId.placeholder = preset.model ? '此預設已指定 Model ID' : '貼上中轉商提供的 Model ID';
+        if (preset.base_url) baseUrl.value = preset.base_url;
+        baseUrl.readOnly = Boolean(preset.base_url && preset.provider !== 'custom');
+
+        const names = {openai:'OpenAI-compatible', anthropic:'Anthropic-compatible', gemini:'Gemini-compatible'};
+        badge.textContent = names[preset.protocol] || preset.protocol || '自訂';
+        hint.textContent = preset.provider === 'custom'
+          ? '中轉模式：依服務商文件填入 Base URL、API Key 與 Model ID。'
+          : '官方模式：Base URL 與 Model ID 已預設，只需填入你的 API Key。';
+      };
+
+      const apiType = document.getElementById('api-type');
+      const modelSelect = document.getElementById('model-select');
+      const modelId = document.getElementById('model-id');
+      apiType?.addEventListener('change', () => setTimeout(syncApiFields, 0));
+      modelSelect?.addEventListener('change', () => setTimeout(syncApiFields, 0));
+      modelId?.addEventListener('input', () => { if (window.App) App.customModelId = modelId.value.trim(); });
+
+      if (window.App) {
+        App.resolveModelId = function(preset) {
+          const value = document.getElementById('model-id')?.value.trim() || preset?.model || this.customModelId || '';
+          this.customModelId = value;
+          return value;
+        };
+      }
+
+      setTimeout(syncApiFields, 120);
+    });
+  </script>
 </body>
 </html>
