@@ -3,7 +3,7 @@
 
   const KEY = "bao-lab:narrative-settings-v1";
   const defaults = {
-    stylePack: "off",
+    stylePacks: [],
     density: "card",
     paragraphs: "auto",
     innerThoughts: "card",
@@ -12,7 +12,6 @@
   };
 
   const packs = {
-    off: ["關閉 · 依角色卡", "不額外加入文風要求，最省 Token。"],
     female_kfilm: ["女性向 · 韓式電影感", "重視距離、微表情、留白、環境與關係暗流。"],
     male_visual: ["男性向 · 視覺凝視", "重視外觀、服裝、姿態、身體動態與鏡頭焦點。"],
     cinematic: ["電影鏡頭", "用可觀察的動作、空間、聲音與光線組織畫面。"],
@@ -20,9 +19,23 @@
     natural: ["自然口語", "降低模板感，讓對白有停頓、打岔與生活感。"]
   };
 
+  const validStylePacks = value => {
+    const list = Array.isArray(value) ? value : [];
+    return [...new Set(list.filter(key => Object.prototype.hasOwnProperty.call(packs, key)))];
+  };
+
+  const normalizePrefs = value => {
+    const raw = value && typeof value === "object" ? value : {};
+    let stylePacks = validStylePacks(raw.stylePacks);
+    if (!stylePacks.length && raw.stylePack && raw.stylePack !== "off" && packs[raw.stylePack]) {
+      stylePacks = [raw.stylePack];
+    }
+    return { ...defaults, ...raw, stylePacks };
+  };
+
   const read = () => {
-    try { return { ...defaults, ...(JSON.parse(localStorage.getItem(KEY) || "{}") || {}) }; }
-    catch { return { ...defaults }; }
+    try { return normalizePrefs(JSON.parse(localStorage.getItem(KEY) || "{}") || {}); }
+    catch { return { ...defaults, stylePacks: [] }; }
   };
   let settings = read();
   const save = () => localStorage.setItem(KEY, JSON.stringify(settings));
@@ -39,8 +52,8 @@
   const close = () => document.querySelector(".bao-modal-backdrop")?.remove();
   const activePrefs = () => {
     const inChat = document.getElementById("chat-view")?.classList.contains("active");
-    if (inChat && App.config?.narrative) return { ...defaults, ...App.config.narrative };
-    return { ...defaults, ...settings };
+    if (inChat && App.config?.narrative) return normalizePrefs(App.config.narrative);
+    return normalizePrefs(settings);
   };
 
   const worldFocus = () => {
@@ -49,13 +62,13 @@
   };
 
   const summaryItems = prefs => {
-    const items = [];
-    if (prefs.stylePack !== "off") items.push(packs[prefs.stylePack]?.[0] || "自訂文風");
-    if (prefs.density !== "card") items.push(prefs.density === "rich" ? "豐富描寫" : prefs.density === "standard" ? "標準描寫" : "精簡描寫");
-    if (prefs.paragraphs !== "auto") items.push(`${prefs.paragraphs} 段`);
-    if (prefs.innerThoughts !== "card") items.push(prefs.innerThoughts === "none" ? "不揭露內心" : prefs.innerThoughts === "restrained" ? "克制內心戲" : "明確內心戲");
-    if (prefs.physicalContinuity) items.push("身體連續性");
-    if (prefs.intimacy !== "card") items.push(prefs.intimacy === "fade" ? "親密淡化" : prefs.intimacy === "emotion" ? "親密重情感" : "親密連續描寫");
+    const normalized = normalizePrefs(prefs);
+    const items = normalized.stylePacks.map(key => packs[key]?.[0]).filter(Boolean);
+    if (normalized.density !== "card") items.push(normalized.density === "rich" ? "豐富描寫" : normalized.density === "standard" ? "標準描寫" : "精簡描寫");
+    if (normalized.paragraphs !== "auto") items.push(`${normalized.paragraphs} 段`);
+    if (normalized.innerThoughts !== "card") items.push(normalized.innerThoughts === "none" ? "不揭露內心" : normalized.innerThoughts === "restrained" ? "克制內心戲" : "明確內心戲");
+    if (normalized.physicalContinuity) items.push("身體連續性");
+    if (normalized.intimacy !== "card") items.push(normalized.intimacy === "fade" ? "親密淡化" : normalized.intimacy === "emotion" ? "親密重情感" : "親密連續描寫");
     return items;
   };
 
@@ -74,9 +87,22 @@
     }
   };
 
+  const updatePackStatus = wrap => {
+    const active = [...wrap.querySelectorAll("[data-style-pack].active")];
+    const status = wrap.querySelector("#narrative-pack-status");
+    if (!status) return;
+    if (!active.length) {
+      status.innerHTML = "<strong>目前：</strong>未選擇任何文風包，完全依角色卡。";
+      return;
+    }
+    const names = active.map(btn => packs[btn.dataset.stylePack]?.[0]).filter(Boolean);
+    status.innerHTML = `<strong>已選 ${active.length} 個：</strong>${App.escapeHTML(names.join("＋"))}${active.length >= 4 ? "<br>選擇較多風格可能互相拉扯；系統會先合併重複要求，再以角色卡為準。" : ""}`;
+  };
+
   const openModal = () => {
     close();
     const prefs = activePrefs();
+    const selected = new Set(prefs.stylePacks);
     const focus = worldFocus();
     const wrap = document.createElement("div");
     wrap.className = "bao-modal-backdrop";
@@ -84,9 +110,10 @@
       <div class="bao-modal-head"><div><div class="eyebrow">OPTIONAL NARRATIVE LAYER</div><h2>敘事與描寫設定</h2></div><button class="bao-modal-close" type="button">關閉</button></div>
       <div class="bao-modal-body">
         <div class="bao-setting-section">
-          <h3>文風包</h3>
-          <p>預設關閉。開啟後只加入一小段敘事偏好，不會取代角色卡本身的設定。</p>
-          <div class="narrative-pack-grid">${Object.entries(packs).map(([key, meta]) => `<button type="button" class="narrative-pack ${prefs.stylePack === key ? "active" : ""}" data-style-pack="${key}"><b>${App.escapeHTML(meta[0])}</b><span>${App.escapeHTML(meta[1])}</span></button>`).join("")}</div>
+          <h3>文風包 · 可複選</h3>
+          <p>可同時疊加多種效果。未選擇任何項目時完全依角色卡；開啟後系統會合併重複要求，再壓縮成短指令送給模型。</p>
+          <div class="narrative-pack-grid">${Object.entries(packs).map(([key, meta]) => `<button type="button" class="narrative-pack ${selected.has(key) ? "active" : ""}" data-style-pack="${key}" aria-pressed="${selected.has(key) ? "true" : "false"}"><b>${App.escapeHTML(meta[0])}</b><span>${App.escapeHTML(meta[1])}</span></button>`).join("")}</div>
+          <div id="narrative-pack-status" class="narrative-token-note"></div>
           ${focus.length ? `<div class="narrative-world-focus"><b>作者設定的世界觀焦點</b><div>${focus.map(x => `<span>${App.escapeHTML(x)}</span>`).join("")}</div></div>` : ""}
         </div>
 
@@ -135,7 +162,7 @@
             </label>
           </div>
           <label class="narrative-switch" style="margin-top:12px"><span><b>身體與空間連續性</b><br><small class="note">追蹤位置、姿態、接觸、施力／受力、衣物與環境的前後變化。打鬥與親密互動都適用。</small></span><input type="checkbox" data-pref-check="physicalContinuity" ${prefs.physicalContinuity ? "checked" : ""}></label>
-          <div class="narrative-token-note"><strong>Token 原則：</strong>全部維持預設時，不會新增文風 Prompt。只有你開啟的項目才會被壓縮成短指令送給模型。</div>
+          <div class="narrative-token-note"><strong>Token 原則：</strong>全部維持預設時，不會新增文風 Prompt。即使複選多個文風包，也會先合併與去重，不會直接把多套完整 Prompt 疊上去。</div>
         </div>
       </div>
       <div class="bao-modal-footer"><button class="secondary" type="button" data-narrative-reset>全部恢復預設</button><button class="primary" type="button" data-narrative-save>套用設定</button></div>
@@ -145,27 +172,31 @@
     wrap.querySelector(".bao-modal-close").onclick = close;
     wrap.addEventListener("click", e => { if (e.target === wrap) close(); });
     wrap.querySelectorAll("[data-style-pack]").forEach(btn => btn.addEventListener("click", () => {
-      wrap.querySelectorAll("[data-style-pack]").forEach(x => x.classList.toggle("active", x === btn));
+      btn.classList.toggle("active");
+      btn.setAttribute("aria-pressed", btn.classList.contains("active") ? "true" : "false");
+      updatePackStatus(wrap);
     }));
+    updatePackStatus(wrap);
+
     wrap.querySelector("[data-narrative-reset]").onclick = () => {
-      settings = { ...defaults };
+      settings = normalizePrefs(defaults);
       save();
       if (document.getElementById("chat-view")?.classList.contains("active") && App.config) {
-        App.config.narrative = { ...settings };
+        App.config.narrative = { ...settings, stylePacks: [...settings.stylePacks] };
         App.saveStory?.(false);
       }
       close();
       updateBuilderSummary();
     };
     wrap.querySelector("[data-narrative-save]").onclick = () => {
-      const selectedPack = wrap.querySelector("[data-style-pack].active")?.dataset.stylePack || "off";
-      const next = { ...defaults, stylePack: selectedPack };
+      const stylePacks = [...wrap.querySelectorAll("[data-style-pack].active")].map(btn => btn.dataset.stylePack);
+      const next = normalizePrefs({ ...defaults, stylePacks });
       wrap.querySelectorAll("[data-pref]").forEach(el => { next[el.dataset.pref] = el.value; });
       wrap.querySelectorAll("[data-pref-check]").forEach(el => { next[el.dataset.prefCheck] = Boolean(el.checked); });
-      settings = next;
+      settings = normalizePrefs(next);
       save();
       if (document.getElementById("chat-view")?.classList.contains("active") && App.config) {
-        App.config.narrative = { ...settings };
+        App.config.narrative = { ...settings, stylePacks: [...settings.stylePacks] };
         App.saveStory?.(false);
       }
       close();
@@ -173,16 +204,35 @@
     };
   };
 
-  const buildPreferencePrompt = prefs => {
+  const buildPreferencePrompt = input => {
+    const prefs = normalizePrefs(input);
     const lines = [];
-    const style = {
-      female_kfilm: "採克制的韓式電影感敘事：重視角色距離、微表情、停頓、環境光線與對話留白，讓關係暗流從可觀察細節浮現。",
-      male_visual: "採視覺凝視取向：清楚描寫外觀、服裝、姿態與身體動態，鏡頭焦點具體但避免反覆堆砌同義形容。",
-      cinematic: "採電影鏡頭式敘事：以可觀察的動作、空間、聲音、光線與視線移動組織場景。",
-      action_realism: "動作場景採寫實連續描寫：交代發力點、接觸或著力點、力量傳遞、平衡改變、身體反應與環境後果。",
-      natural: "語言自然口語，允許停頓、打岔與不完整句；減少模板式華麗修辭。"
-    }[prefs.stylePack];
-    if (style) lines.push(style);
+    const selected = new Set(prefs.stylePacks);
+    const tones = [];
+    const focuses = [];
+
+    if (selected.has("female_kfilm")) {
+      tones.push("克制的韓式電影感");
+      focuses.push("角色距離、微表情、停頓、關係暗流與對話留白");
+    }
+    if (selected.has("male_visual")) {
+      tones.push("視覺凝視取向");
+      focuses.push("外觀、服裝、姿態與身體動態");
+    }
+    if (selected.has("cinematic")) {
+      tones.push("電影鏡頭式");
+      focuses.push("可觀察動作、空間、聲音、光線與視線移動");
+    }
+    if (selected.has("action_realism")) {
+      tones.push("動作寫實");
+      focuses.push("發力、接觸或著力、力量傳遞、平衡改變與環境後果");
+    }
+    if (tones.length) {
+      lines.push(`融合${tones.join("、")}的敘事取向；重點放在${focuses.join("；")}。相近要求合併處理，不要為了同時呈現多種風格而重複描寫。`);
+    }
+    if (selected.has("natural")) {
+      lines.push("語言與對白保持自然口語，允許停頓、打岔與不完整句，減少模板式華麗修辭。");
+    }
 
     if (prefs.density === "concise") lines.push("描寫精簡，保留推進劇情所需的關鍵動作、對話與反應。");
     if (prefs.density === "standard") lines.push("描寫保持中等密度，兼顧動作、感官、環境與對話，不重複解釋同一資訊。");
@@ -211,7 +261,7 @@
     const box = document.createElement("div");
     box.id = "narrative-builder-card";
     box.className = "narrative-builder-card";
-    box.innerHTML = `<h4>敘事與描寫偏好 <span class="chip">可選</span></h4><p>預設完全依角色卡。想要韓式電影感、視覺凝視、豐富動作、內心戲或親密場景連續性時再開。</p><div id="narrative-builder-focus" class="narrative-world-focus hidden"></div><div class="narrative-builder-row"><div id="narrative-builder-summary" class="narrative-summary"></div><button type="button" class="secondary" data-open-narrative>設定敘事偏好</button></div>`;
+    box.innerHTML = `<h4>敘事與描寫偏好 <span class="chip">可選</span></h4><p>預設完全依角色卡。文風包可複選，例如韓式電影感＋電影鏡頭＋自然口語；系統會合併重複要求後再送給模型。</p><div id="narrative-builder-focus" class="narrative-world-focus hidden"></div><div class="narrative-builder-row"><div id="narrative-builder-summary" class="narrative-summary"></div><button type="button" class="secondary" data-open-narrative>設定敘事偏好</button></div>`;
     step.appendChild(box);
     box.querySelector("[data-open-narrative]").onclick = openModal;
     updateBuilderSummary();
@@ -232,14 +282,14 @@
   const originalCollect = App.collectConfig.bind(App);
   App.collectConfig = function() {
     const cfg = originalCollect();
-    cfg.narrative = { ...settings };
+    cfg.narrative = { ...settings, stylePacks: [...settings.stylePacks] };
     return cfg;
   };
 
   const originalBuild = App.buildSystemPrompt.bind(App);
   App.buildSystemPrompt = function() {
     const base = originalBuild();
-    const prefs = { ...defaults, ...(this.config?.narrative || settings) };
+    const prefs = normalizePrefs(this.config?.narrative || settings);
     const extra = buildPreferencePrompt(prefs);
     return extra ? `${base}\n\n${extra}` : base;
   };
@@ -257,8 +307,8 @@
   };
 
   window.BAONarrativeSettings = {
-    get: () => ({ ...settings }),
-    set: value => { settings = { ...defaults, ...(value || {}) }; save(); updateBuilderSummary(); },
+    get: () => ({ ...settings, stylePacks: [...settings.stylePacks] }),
+    set: value => { settings = normalizePrefs(value); save(); updateBuilderSummary(); },
     open: openModal,
     buildPrompt: buildPreferencePrompt
   };
