@@ -47,7 +47,8 @@
 
     home.querySelectorAll("[data-view]").forEach(btn => btn.addEventListener("click", () => App.showView(btn.dataset.view)));
     document.getElementById("home-continue")?.addEventListener("click", () => App.resumeSavedStory?.());
-    document.getElementById("home-character-count").textContent = String(App.characters?.length || 0);
+    const count = document.getElementById("home-character-count");
+    if (count) count.textContent = String(App.characters?.length || 0);
     window.BAORefreshSaveUI?.();
   };
 
@@ -84,12 +85,7 @@
     document.body.appendChild(a);
   };
 
-  const refreshCount = () => {
-    const el = document.getElementById("home-character-count");
-    if (el) el.textContent = String(App.characters?.length || 0);
-  };
-
-  window.addEventListener("DOMContentLoaded", () => {
+  const initBrandUI = () => {
     ensureStyles();
     setTimeout(() => {
       setNavLabel("home", "首頁");
@@ -98,7 +94,9 @@
       renderHome();
       renderAbout();
       renderSupport();
-      refreshCount();
-    }, 260);
-  });
+    }, 60);
+  };
+
+  if (document.readyState === "loading") window.addEventListener("DOMContentLoaded", initBrandUI);
+  else initBrandUI();
 })();
