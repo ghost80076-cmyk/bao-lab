@@ -19,11 +19,12 @@
       <section class="brand-hero">
         <div class="brand-hero-copy">
           <div class="brand-kicker">CHARACTERS · WORLDS · EXPERIMENTS</div>
-          <h1>不是只讓角色回話，<br>而是讓世界繼續運轉。</h1>
-          <p class="brand-lead">班長 / 肉包的 AI 角色與世界實驗室。長篇角色扮演、世界模擬、NPC 自主性、HTML 互動與 BYOK 模型連接。</p>
+          <h1>班長。</h1>
+          <p class="brand-intro">寫角色，也寫世界。</p>
+          <p class="brand-lead">偶爾研究一些奇怪的玩法，然後把它們真的做出來。這裡收著我的角色卡、世界模擬與互動作品；有些適合談戀愛，有些適合跑劇情，有些……滿十八歲再進去。</p>
           <div class="brand-actions">
             <button class="primary" data-view="explore">探索作品</button>
-            <button class="secondary" data-view="about">關於作者</button>
+            <button class="secondary" data-view="about">關於我</button>
             <button id="home-continue" class="secondary hidden">繼續上次故事</button>
           </div>
         </div>
@@ -31,18 +32,18 @@
           <span class="status-dot"></span>
           <div class="brand-status-title">SYSTEM READY</div>
           <dl>
-            <div><dt>Play Mode</dt><dd>Immersive / World Sim</dd></div>
-            <div><dt>API</dt><dd>BYOK</dd></div>
-            <div><dt>Memory</dt><dd>Configurable</dd></div>
             <div><dt>Characters</dt><dd id="home-character-count">—</dd></div>
+            <div><dt>World Sim</dt><dd>READY</dd></div>
+            <div><dt>Play Mode</dt><dd>Immersive / World</dd></div>
+            <div><dt>API</dt><dd>BYOK</dd></div>
           </dl>
         </aside>
       </section>
       <section class="brand-feature-grid">
-        <article><span>01</span><h3>自由模型</h3><p>官方 API、自訂中轉站與 OpenAI-compatible 介面預留。</p></article>
-        <article><span>02</span><h3>兩種敘事</h3><p>單角色沉浸與世界模擬分開處理，不再把所有規則塞進同一張卡。</p></article>
-        <article><span>03</span><h3>玩家 Persona</h3><p>玩家可自訂名稱、性別、身分與關係，讓 AI 更清楚自己正在面對誰。</p></article>
-        <article><span>04</span><h3>成本透明</h3><p>逐步加入 Context、Token、快取與費用統計，不讓玩家盲目燒錢。</p></article>
+        <article><span>01</span><h3>角色</h3><p>不只是一張設定表。個性、關係、背景與敘事方式，都是角色的一部分。</p></article>
+        <article><span>02</span><h3>世界</h3><p>故事不一定只繞著玩家轉。NPC、事件與關係也可以有自己的變化。</p></article>
+        <article><span>03</span><h3>互動</h3><p>除了文字，也嘗試把狀態、人物、事件與各種玩法做進互動介面。</p></article>
+        <article><span>04</span><h3>BYOK</h3><p>使用自己的 API 與模型。作品留在這裡，模型選擇權留給玩家。</p></article>
       </section>`;
 
     home.querySelectorAll("[data-view]").forEach(btn => btn.addEventListener("click", () => App.showView(btn.dataset.view)));
@@ -57,18 +58,18 @@
     if (!about) return;
     about.innerHTML = `
       <section class="creator-page">
-        <div class="brand-kicker">ABOUT THE CREATOR</div>
-        <h2>關於班長 / 肉包</h2>
+        <div class="brand-kicker">ABOUT ME</div>
+        <h2>關於班長</h2>
         <div class="creator-copy">
-          <p>我不是從「我要做 AI 平台」開始的。一開始，只是做角色卡，然後不停遇到問題。</p>
-          <p>角色為什麼聊久了會忘記？NPC 為什麼沒有自己的生活？世界為什麼一定要等玩家下指令才會動？</p>
-          <p>所以我開始改提示詞、測試長篇互動、研究世界書、HTML、角色記憶與 NPC 自主性。這裡放的，就是一路測試、翻車，再重新做出來的作品。</p>
-          <p>BAO/LAB 想做的不是綁住玩家，而是把角色、世界與模型選擇權交回使用者手上。</p>
+          <p>一開始只是做角色卡。做著做著，開始在意角色聊久了會不會忘記、NPC 能不能有自己的生活、世界能不能不等玩家下指令也繼續走。</p>
+          <p>於是一路改提示詞、測試長篇互動、研究世界設定、HTML、角色記憶與 NPC 自主性。很多東西都是先想到一個奇怪的玩法，再想辦法把它真的做出來。</p>
+          <p>這裡就是我把那些作品和實驗整理在一起的地方。角色、世界、戀愛、劇情、互動介面都有，也會繼續慢慢增加。</p>
+          <p>我比較希望玩家可以選自己想用的模型，所以 BAO/LAB 採 BYOK：作品由我整理，API 與模型由玩家自己決定。</p>
         </div>
         <div class="creator-card">
-          <div><span>方格子</span><b>班長</b></div>
+          <div><span>方格子 / DC</span><b>班長</b></div>
           <div><span>LunaTalk</span><b>肉包</b></div>
-          <div><span>作品方向</span><b>角色卡 / 世界模擬 / 長篇敘事 / HTML</b></div>
+          <div><span>在做的東西</span><b>角色卡 / 世界模擬 / 長篇敘事 / HTML 互動</b></div>
         </div>
       </section>`;
   };
