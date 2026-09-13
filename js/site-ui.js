@@ -29,16 +29,26 @@ window.addEventListener("DOMContentLoaded", () => {
 
     const resumeSave = save => {
       if (!Storage.restoreStory(save)) { alert("無法讀取存檔。"); return; }
-      const key = window.prompt("API Key 不會寫入存檔。請重新貼上 API Key：", "");
-      if (key === null) return;
-      App.config.api.key = key.trim();
+      if (!save?.config?.demoMode) {
+        const key = window.prompt("API Key 不會寫入存檔。請重新貼上 API Key：", "");
+        if (key === null) return;
+        App.config.api.key = key.trim();
+      }
       if (GameState.current) GameState.current.config = App.config;
       App.renderChatShell(false);
       App.showView("chat");
     };
 
-    document.getElementById("continue-story")?.addEventListener("click", () => App.resumeSavedStory?.());
-    document.getElementById("home-continue")?.addEventListener("click", () => App.resumeSavedStory?.());
+    document.getElementById("continue-story")?.addEventListener("click", () => {
+      const save = Storage.loadStory();
+      if (save?.config?.demoMode) resumeSave(save);
+      else App.resumeSavedStory?.();
+    });
+    document.getElementById("home-continue")?.addEventListener("click", () => {
+      const save = Storage.loadStory();
+      if (save?.config?.demoMode) resumeSave(save);
+      else App.resumeSavedStory?.();
+    });
 
     const renderSlots = () => {
       const box = document.getElementById("slot-list");
