@@ -36,6 +36,7 @@
         el.replaceWith(...el.childNodes);
         return;
       }
+
       [...el.attributes].forEach(attr => {
         const name = attr.name.toLowerCase();
         if (name.startsWith("on") || name === "id") { el.removeAttribute(attr.name); return; }
@@ -46,8 +47,11 @@
         }
         if (tag === "A" && name === "href") {
           const url = safeURL(attr.value, false);
-          if (url) { el.setAttribute("href", url); el.setAttribute("target", "_blank"); el.setAttribute("rel", "noopener noreferrer"); }
-          else el.removeAttribute(attr.name);
+          if (url) {
+            el.setAttribute("href", url);
+            el.setAttribute("target", "_blank");
+            el.setAttribute("rel", "noopener noreferrer");
+          } else el.removeAttribute(attr.name);
           return;
         }
         if (tag === "IMG" && name === "src") {
@@ -63,22 +67,49 @@
         if (tag === "SOURCE" && name === "type") return;
         if (!safeAttrs.has(name)) el.removeAttribute(attr.name);
       });
+
       if (tag === "IMG") el.setAttribute("loading", "lazy");
       if (tag === "AUDIO") el.removeAttribute("autoplay");
     });
+
     return root.innerHTML;
+  };
+
+  const renderAuthoredGreeting = () => {
+    const character = App.activeCharacter;
+    if (!character || Chat.messages.length) return false;
+    const stream = document.getElementById("chat-stream");
+    const bubble = stream?.querySelector(".message.assistant .bubble");
+    if (!bubble) return false;
+
+    bubble.innerHTML = sanitize(character.greeting || "");
+    bubble.classList.add("authored-rich-message");
+    bubble.dataset.authoredGreeting = "true";
+    return true;
+  };
+
+  const repairGreetingSoon = () => {
+    renderAuthoredGreeting();
+    setTimeout(renderAuthoredGreeting, 0);
+    setTimeout(renderAuthoredGreeting, 80);
   };
 
   const originalRenderChatShell = App.renderChatShell.bind(App);
   App.renderChatShell = function(fresh = false) {
     originalRenderChatShell(fresh);
-    if (!this.activeCharacter || (!fresh && Chat.messages.length)) return;
-    const bubble = document.querySelector("#chat-stream .message.assistant .bubble");
-    if (bubble) {
-      bubble.innerHTML = sanitize(this.activeCharacter.greeting || "");
-      bubble.classList.add("authored-rich-message");
-    }
+    if (fresh || !Chat.messages.length) repairGreetingSoon();
   };
 
-  window.BAOChatMarkup = { sanitize };
+  const originalShowView = App.showView.bind(App);
+  App.showView = function(name) {
+    const result = originalShowView(name);
+    if (name === "chat") repairGreetingSoon();
+    return result;
+  };
+
+  // If this module finishes loading after the chat shell is already visible,
+  // repair the first authored greeting immediately instead of requiring a reload.
+  if (document.getElementById("chat-view")?.classList.contains("active")) repairGreetingSoon();
+
+  window.BAOChatMarkup = { sanitize, renderAuthoredGreeting };
 })();
