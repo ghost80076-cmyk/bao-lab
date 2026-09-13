@@ -1,38 +1,66 @@
 [
   {
     "provider": "gemini",
+    "provider_label": "Google Gemini 官方",
+    "protocol": "gemini",
     "label": "Gemini — 2.5 Flash",
     "model": "gemini-2.5-flash",
     "base_url": "https://generativelanguage.googleapis.com/v1beta/models"
   },
   {
     "provider": "gemini",
+    "provider_label": "Google Gemini 官方",
+    "protocol": "gemini",
     "label": "Gemini — 2.5 Flash-Lite",
     "model": "gemini-2.5-flash-lite",
     "base_url": "https://generativelanguage.googleapis.com/v1beta/models"
   },
   {
-    "provider": "openrouter",
-    "label": "OpenRouter — GPT-4o mini",
-    "model": "openai/gpt-4o-mini",
-    "base_url": "https://openrouter.ai/api/v1/chat/completions"
-  },
-  {
-    "provider": "openrouter",
-    "label": "OpenRouter — DeepSeek Chat",
-    "model": "deepseek/deepseek-chat",
-    "base_url": "https://openrouter.ai/api/v1/chat/completions"
-  },
-  {
     "provider": "openai",
-    "label": "OpenAI — GPT-4o mini",
-    "model": "gpt-4o-mini",
+    "provider_label": "OpenAI 官方",
+    "protocol": "openai",
+    "label": "OpenAI — 自訂 Model ID",
+    "model": "",
     "base_url": "https://api.openai.com/v1/chat/completions"
   },
   {
+    "provider": "anthropic",
+    "provider_label": "Anthropic 官方",
+    "protocol": "anthropic",
+    "label": "Claude — 自訂 Model ID",
+    "model": "",
+    "base_url": "https://api.anthropic.com/v1/messages"
+  },
+  {
+    "provider": "openrouter",
+    "provider_label": "OpenRouter",
+    "protocol": "openai",
+    "label": "OpenRouter — 自訂 Model ID",
+    "model": "",
+    "base_url": "https://openrouter.ai/api/v1/chat/completions"
+  },
+  {
     "provider": "custom",
-    "label": "自訂 OpenAI-compatible",
-    "model": "your-model-name",
+    "provider_label": "中轉 / 自訂 API",
+    "protocol": "openai",
+    "label": "中轉 — OpenAI-compatible",
+    "model": "",
+    "base_url": ""
+  },
+  {
+    "provider": "custom",
+    "provider_label": "中轉 / 自訂 API",
+    "protocol": "anthropic",
+    "label": "中轉 — Anthropic-compatible",
+    "model": "",
+    "base_url": ""
+  },
+  {
+    "provider": "custom",
+    "provider_label": "中轉 / 自訂 API",
+    "protocol": "gemini",
+    "label": "中轉 — Gemini-compatible",
+    "model": "",
     "base_url": ""
   }
 ]
