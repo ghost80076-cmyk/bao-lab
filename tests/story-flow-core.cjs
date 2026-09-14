@@ -92,6 +92,7 @@ run("js/storage.js");
 run("js/character-status.js");
 run("js/world-modules.js");
 run("js/story-tools.js");
+run("js/global-bridge.js");
 
 GameState.create(character, App.config);
 
