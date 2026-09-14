@@ -12,6 +12,7 @@ global.localStorage = {
 };
 global.document = {
   querySelector() { return null; },
+  getElementById() { return null; },
   createElement() {
     return {
       append() {},
