@@ -89,7 +89,7 @@ global.Storage = {
   buildStoryPayload() { return structuredClone(this._payload); },
   saveStory() { return Boolean(this._payload); },
   loadStory() { return this._payload ? structuredClone(this._payload) : null; },
-  restoreStory() { return true; },
+  restoreStory(input) { return !input?.invalid; },
   saveSlot() { return { id: "slot-1" }; }
 };
 
@@ -141,6 +141,11 @@ vm.runInThisContext(code, { filename: "js/story-library.js" });
   const firstRefs = BAOStoryLibrary.refs();
   assert.ok(firstRefs.storyId);
   assert.ok(firstRefs.chapterId);
+  assert.equal(await BAOStoryLibrary.flush(), true);
+
+  const refsBeforeInvalidRestore = BAOStoryLibrary.refs();
+  assert.equal(Storage.restoreStory({ invalid: true, _library: { storyId: "broken-story", chapterId: "broken-chapter" } }), false);
+  assert.deepEqual(BAOStoryLibrary.refs(), refsBeforeInvalidRestore);
 
   let stories = await BAOStoryLibrary.listStories();
   assert.equal(stories.length, 1);
@@ -191,6 +196,8 @@ vm.runInThisContext(code, { filename: "js/story-library.js" });
   stories = await BAOStoryLibrary.listStories();
   assert.equal(stories.some(story => story.storyId === firstRefs.storyId), false);
 
+  assert.equal(code.includes("if (!restored) return false"), true);
+  assert.equal(code.includes("return Boolean(database)"), true);
   console.log("story library core test passed");
 })().catch(error => {
   console.error(error);

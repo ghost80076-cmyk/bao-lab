@@ -958,7 +958,14 @@
     host.innerHTML = '<div class="story-tools-toolbar"><button class="secondary" type="button" data-back>← 返回</button><span class="story-tools-pill">INDEXEDDB STORY LIBRARY</span></div><section class="story-tools-card"><h3>故事書庫</h3><p>正在讀取這台裝置上的故事與章節……</p></section>';
     host.querySelector("[data-back]").onclick = () => GameState.current ? home(host) : close();
     try {
-      await BAOStoryLibrary.flush();
+      const available = await BAOStoryLibrary.flush();
+      if (!available) {
+        host.innerHTML = '<div class="story-tools-toolbar"><button class="secondary" type="button" data-back>← 返回</button><span class="story-tools-pill">LOCAL STORAGE FALLBACK</span></div>' +
+          '<section class="story-tools-card"><h3>這個瀏覽器目前無法使用故事書庫</h3><p>IndexedDB 無法使用，因此無法顯示跨故事／篇章書庫。自動存檔、手動存檔與完整 JSON 備份仍會沿用可用的本機儲存方式。</p>' +
+          '<div class="story-import-note">建議先匯出完整故事備份；不要清除瀏覽器網站資料。</div></section>';
+        host.querySelector("[data-back]").onclick = () => GameState.current ? home(host) : close();
+        return;
+      }
       const stories = await BAOStoryLibrary.listStories();
       const chapterLists = await Promise.all(stories.map(story => BAOStoryLibrary.listChapters(story.storyId)));
       const active = BAOStoryLibrary.refs();

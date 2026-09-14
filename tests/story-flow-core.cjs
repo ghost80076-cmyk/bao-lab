@@ -215,6 +215,7 @@ assert.equal(storyToolsSource.includes("API Key 不會儲存在故事書庫"), t
 assert.equal(storyToolsSource.includes("確認身分並建立草稿"), true);
 assert.equal(storyToolsSource.includes("SillyTavern／JSONL"), true);
 assert.equal(storyToolsSource.includes("resolveImportedMessages"), true);
+assert.equal(storyToolsSource.includes("IndexedDB 無法使用"), true);
 
 const pack = BAOStoryTools.createPack(Chat.messages);
 pack.summary = "已整理的唯一前情";

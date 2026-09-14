@@ -254,9 +254,9 @@
     },
 
     async flush() {
-      await this.open();
+      const database = await this.open();
       await this._writeQueue;
-      return true;
+      return Boolean(database);
     },
 
     async listStories() {
@@ -390,8 +390,10 @@
 
       const originalRestore = Storage.restoreStory.bind(Storage);
       Storage.restoreStory = input => {
+        const restored = originalRestore(input);
+        if (!restored) return false;
         if (!this.adoptRefs(input)) this.beginStory("第一章");
-        return originalRestore(input);
+        return true;
       };
 
       const originalStart = App.startStory?.bind(App);
