@@ -8,6 +8,8 @@ on:
       - feat/story-library-model
       - feat/character-readiness
       - feat/model-guide-and-api-presets
+      - feat-story-reader-rebuild
+      - fix-story-reader-desktop-layout
   pull_request:
     branches:
       - main
@@ -29,6 +31,8 @@ jobs:
         run: node tests/character-status-core.cjs
       - name: Story flow core
         run: node tests/story-flow-core.cjs
+      - name: Story Reader core
+        run: node tests/story-reader-core.cjs
       - name: IndexedDB storage migration
         run: node tests/storage-indexeddb-core.cjs
       - name: Story library core

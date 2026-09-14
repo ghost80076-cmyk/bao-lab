@@ -8,9 +8,37 @@
 }
 
 #chat-view .chat-layout{
-  grid-template-columns:240px minmax(0,1fr) minmax(280px,34vw);
+  grid-template-columns:200px minmax(0,1fr) clamp(300px,30%,360px);
   align-items:stretch;
   position:relative;
+}
+
+#chat-view .chat-layout > aside:not(.story-character-visual){
+  min-width:0;
+  overflow:hidden;
+  padding:16px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  border:1px solid var(--story-border);
+  border-radius:17px;
+  background:var(--story-surface-strong);
+  box-shadow:var(--story-shadow);
+}
+
+#chat-view .chat-layout > aside:not(.story-character-visual) #chat-character-card img{
+  width:72px;
+  height:72px;
+  max-width:100%;
+  display:block;
+  object-fit:cover;
+  border-radius:14px;
+  margin-bottom:10px;
+}
+
+#chat-view .chat-layout > aside:not(.story-character-visual) .secondary,
+#chat-view .chat-layout > aside:not(.story-character-visual) .text-button{
+  max-width:100%;
 }
 
 #chat-view .chat-main{
@@ -244,7 +272,7 @@
 
 @media(max-width:1080px){
   #chat-view .chat-layout{
-    grid-template-columns:220px minmax(0,1fr) 270px;
+    grid-template-columns:190px minmax(0,1fr) 300px;
   }
   .story-character-visual .story-visual-meta{
     padding:18px;

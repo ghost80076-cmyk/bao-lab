@@ -18,6 +18,9 @@ assert(js.includes("return (list || []).map(message => ({ role: message.role, co
 assert(css.includes("#chat-view .message.assistant .bubble:not(.authored-rich-message)"), "plain text contrast rule is missing");
 assert(css.includes("aside:not(.story-character-visual)"), "mobile artwork must remain visible behind the reader");
 assert(css.includes("position:absolute"), "mobile background artwork layout is missing");
+assert(!css.includes("34vw"), "desktop artwork width must not be based on viewport width inside the fixed app shell");
+assert(css.includes("clamp(300px,30%,360px)"), "desktop artwork should use container-relative sizing");
+assert(css.includes("#chat-character-card img"), "legacy sidebar artwork must be constrained instead of overflowing its grid column");
 assert(siteUI.includes('loadBAOScript("js/story-reader.js")'), "story reader is not loaded by site-ui");
 
 console.log("story-reader-core: ok");
