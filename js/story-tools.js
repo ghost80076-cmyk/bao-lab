@@ -238,7 +238,7 @@
     if (Array.isArray(world.npcs)) state.npcs = clone(world.npcs);
     if (Object.keys(pack.characterStatuses).length) state.characterStatuses = clone(pack.characterStatuses);
     if (Object.keys(pack.modules).length) state.modules = Object.assign({}, state.modules || {}, clone(pack.modules));
-    Chat.summary = packPrompt(pack);
+    Chat.summary = "";
     Chat.summarizedUntil = 0;
     App.renderChatShell(true);
     App.showView("chat");
@@ -297,7 +297,7 @@
       sections,
       mode,
       rounds,
-      estimatedTokens: tokenEstimate(systemPrompt + JSON.stringify(memoryMessages) + JSON.stringify(sections))
+      estimatedTokens: tokenEstimate(systemPrompt + JSON.stringify(memoryMessages))
     };
   };
 
