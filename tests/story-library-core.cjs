@@ -24,7 +24,7 @@ class FakeStore {
   createIndex(name) { this.db.indexes.add(name); return {}; }
   getAll() {
     const request = new FakeRequest();
-    setTimeout(() => { request.result = [...this.db.records.values()].map(structuredClone); request.onsuccess?.(); }, 0);
+    setTimeout(() => { request.result = [...this.db.records.values()].map(value => structuredClone(value)); request.onsuccess?.(); }, 0);
     return request;
   }
   put(value) { this.db.records.set(value.id, structuredClone(value)); return new FakeRequest(); }
