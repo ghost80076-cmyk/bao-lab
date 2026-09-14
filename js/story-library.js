@@ -152,18 +152,21 @@
   };
 
   const listStories = async () => {
-    await ready();
+    const available = await ready();
+    if (!available) return [];
     return (await getAll(STORES.stories)).sort((a, b) => String(b.updatedAt || "").localeCompare(String(a.updatedAt || "")));
   };
 
   const listChapters = async storyId => {
-    await ready();
+    const available = await ready();
+    if (!available) return [];
     return (await getAll(STORES.chapters, "storyId", String(storyId || "")))
       .sort((a, b) => Number(a.number || 0) - Number(b.number || 0));
   };
 
   const listMessages = async chapterId => {
-    await ready();
+    const available = await ready();
+    if (!available) return [];
     return (await getAll(STORES.messages, "chapterId", String(chapterId || "")))
       .sort((a, b) => Number(a.seq || 0) - Number(b.seq || 0));
   };
@@ -205,7 +208,10 @@
   };
 
   const importSave = async (input, options = {}) => {
-    await ready();
+    if (!db) {
+      const available = await ready();
+      if (!available) throw lastError || new Error("故事資料庫無法使用。");
+    }
     const save = Storage.sanitizeImportedStory(input);
     const storyId = String(options.storyId || uid("story"));
     const chapterId = String(options.chapterId || uid("chapter"));
@@ -362,7 +368,8 @@
   };
 
   const composeStorySave = async (storyId, chapterId = "") => {
-    await ready();
+    const available = await ready();
+    if (!available) return null;
     const story = await get(STORES.stories, String(storyId || ""));
     if (!story) return null;
     const targetChapterId = chapterId || story.activeChapterId;
@@ -425,7 +432,8 @@
   };
 
   const deleteStory = async storyId => {
-    await ready();
+    const available = await ready();
+    if (!available) return false;
     const chapters = await getAll(STORES.chapters, "storyId", storyId);
     const messages = await getAll(STORES.messages, "storyId", storyId);
     await transaction([STORES.stories, STORES.chapters, STORES.messages], "readwrite", stores => {
