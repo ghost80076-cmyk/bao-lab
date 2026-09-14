@@ -3,6 +3,8 @@ const fs = require("fs");
 
 const js = fs.readFileSync("js/story-reader.js", "utf8");
 const css = fs.readFileSync("css/story-reader.css", "utf8");
+const polish = fs.readFileSync("css/responsive-polish.css", "utf8");
+const index = fs.readFileSync("index.html", "utf8");
 const siteUI = fs.readFileSync("js/site-ui.js", "utf8");
 const brandUI = fs.readFileSync("js/brand-ui.js", "utf8");
 const brandCSS = fs.readFileSync("css/brand-home.css", "utf8");
@@ -25,6 +27,10 @@ assert(css.includes("clamp(300px,30%,360px)"), "desktop artwork should use conta
 assert(css.includes("#chat-character-card img"), "legacy sidebar artwork must be constrained instead of overflowing its grid column");
 assert(css.includes("@media(max-width:1180px) and (min-width:821px)"), "tablet / narrow desktop layout breakpoint is missing");
 assert(css.includes("background:rgba(8,11,17,.32)!important"), "authored HTML mobile shell should not cover the character artwork with an opaque page");
+assert(polish.includes("overflow-x:hidden"), "rich authored messages should not create a horizontal scrollbar");
+assert(polish.includes("white-space:nowrap"), "mobile top navigation labels must stay horizontal");
+assert(polish.includes("overflow-x:auto"), "mobile top navigation should scroll horizontally when space is tight");
+assert(index.includes('href="css/responsive-polish.css"'), "responsive polish stylesheet is not loaded");
 assert(siteUI.includes('loadBAOScript("js/story-reader.js")'), "story reader is not loaded by site-ui");
 assert(brandUI.includes('.topbar nav [data-view="${view}"]'), "brand labels must target nav controls without replacing the BAO/LAB logo");
 assert(brandCSS.includes("overflow-x:auto"), "mobile topbar navigation must scroll instead of squeezing labels vertically");
