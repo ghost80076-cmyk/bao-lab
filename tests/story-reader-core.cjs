@@ -21,14 +21,24 @@ assert(css.includes("#chat-view .message.assistant .bubble:not(.authored-rich-me
 assert(css.includes("aside:not(.story-character-visual)"), "mobile artwork must remain visible behind the reader");
 assert(css.includes("position:absolute"), "mobile background artwork layout is missing");
 assert(!css.includes("34vw"), "desktop artwork width must not be based on viewport width inside the fixed app shell");
-assert(css.includes("clamp(300px,30%,360px)"), "desktop artwork should use container-relative sizing");
+assert(css.includes("grid-template-columns:220px minmax(0,1fr)"), "desktop reader must use the sidebar + story two-column layout");
+assert(/@media\(min-width:821px\)\{[\s\S]*?\.story-character-visual\{\s*display:none!important;/.test(css), "desktop reader must hide the duplicate large artwork panel");
+assert(css.includes("width:132px"), "desktop sidebar portrait should be enlarged");
+assert(css.includes("object-position:center top"), "desktop sidebar portrait should keep the face aligned");
 assert(css.includes("#chat-character-card img"), "legacy sidebar artwork must be constrained instead of overflowing its grid column");
-assert(css.includes("@media(max-width:1180px) and (min-width:821px)"), "tablet / narrow desktop layout breakpoint is missing");
+assert(css.includes("grid-template-columns:190px minmax(0,1fr)"), "tablet / narrow desktop must retain the sidebar + story layout");
 assert(css.includes("background:rgba(8,11,17,.32)!important"), "authored HTML mobile shell should not cover the character artwork with an opaque page");
+assert(css.includes("overflow-x:hidden"), "authored HTML must not create a reader-wide horizontal scrollbar");
+assert(css.includes("min-width:0!important"), "authored HTML children must be allowed to shrink inside the reading column");
+assert(css.includes("white-space:pre-wrap"), "authored preformatted content must wrap inside the reading column");
+assert(css.includes("width:calc(100% - 16px)"), "mobile story panel must leave the character artwork visible at both sides");
+assert(css.includes("padding:10px 6px"), "small mobile story padding should preserve reading width");
 assert(siteUI.includes('loadBAOScript("js/story-reader.js")'), "story reader is not loaded by site-ui");
 assert(brandUI.includes('.topbar nav [data-view="${view}"]'), "brand labels must target nav controls without replacing the BAO/LAB logo");
 assert(brandCSS.includes("overflow-x:auto"), "mobile topbar navigation must scroll instead of squeezing labels vertically");
 assert(brandCSS.includes("white-space:nowrap"), "topbar labels must not wrap one character per line");
+assert(brandCSS.includes("word-break:keep-all"), "mobile topbar labels must keep Chinese words horizontal");
+assert(brandCSS.includes("writing-mode:horizontal-tb"), "mobile topbar labels must use horizontal writing mode");
 assert(brandCSS.includes("body:has(#chat-view.active) .bao-support-float{display:none}"), "support button should not cover mobile story content");
 
 console.log("story-reader-core: ok");
