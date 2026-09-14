@@ -55,8 +55,8 @@ const Storage = {
     const out = {};
     Object.entries(value).forEach(([key, item]) => {
       const normalized = key.toLowerCase().replace(/[^a-z]/g, "");
-      const parent = String(path[path.length - 1] || "").toLowerCase();
-      if (blocked.has(normalized) || (normalized === "key" && parent === "api")) return;
+      const parent = String(path[path.length - 1] || "").toLowerCase().replace(/[^a-z]/g, "");
+      if (blocked.has(normalized) || (normalized === "key" && parent.endsWith("api"))) return;
       out[key] = this.scrubSecrets(item, path.concat(key));
     });
     return out;
@@ -119,459 +119,304 @@ const Storage = {
     if (!this.validateStory(save)) throw new Error("這不是有效的 BAO/LAB 故事存檔。");
     const clean = this.scrubSecrets(this.clone(save));
     clean.schema = clean.schema || this.storySchema;
-    clean.version = Math.max(1, Number(clean.version || 1));
-    clean.config = clean.config || {};
-    clean.config.api = Object.assign({}, clean.config.api || {}, { key: "" });
-    clean.state = clean.state && typeof clean.state === "object" ? clean.state : {};
-    clean.state.config = clean.config;
-    clean.chat.messages = Array.isArray(clean.chat.messages) ? clean.chat.messages : [];
+    clean.version = Number(clean.version || 1);
+    clean.savedAt = clean.savedAt || new Date().toISOString();
     return clean;
   },
 
   _legacyAutosave() {
-    const save = this.get(this.storyKey, null);
-    try { return save ? this.sanitizeImportedStory(save) : null; }
+    const raw = this.localJSON(this.prefix + this.storyKey, null);
+    try { return raw ? this.sanitizeImportedStory(raw) : null; }
     catch { return null; }
   },
-
   _legacySlots() {
-    const slots = this.get(this.slotsKey, []);
-    if (!Array.isArray(slots)) return [];
-    return slots.map(item => {
-      try {
-        const clean = this.sanitizeImportedStory(item);
-        clean.id = String(item.id || clean.id || ("slot-" + Date.now() + "-" + Math.random().toString(36).slice(2, 7)));
-        clean.label = String(item.label || clean.label || "未命名存檔");
-        clean.savedAt = String(item.savedAt || clean.savedAt || new Date().toISOString());
-        return clean;
-      } catch { return null; }
-    }).filter(Boolean).sort((a, b) => String(b.savedAt).localeCompare(String(a.savedAt))).slice(0, 20);
+    const raw = this.localJSON(this.prefix + this.slotsKey, []);
+    if (!Array.isArray(raw)) return [];
+    return raw.map(item => {
+      try { return this.sanitizeImportedStory(item); }
+      catch { return null; }
+    }).filter(Boolean);
   },
-
   _hydrateLegacyCache() {
     this._cache.autosave = this._legacyAutosave();
-    this._cache.slots = this._legacySlots();
+    this._cache.slots = this._legacySlots().slice(0, 20);
   },
-
-  _legacyStoryKeysExist() {
+  _persistLegacySnapshot() {
     try {
-      return localStorage.getItem(this.prefix + this.storyKey) !== null || localStorage.getItem(this.prefix + this.slotsKey) !== null;
-    } catch { return false; }
-  },
-
-  _persistLegacySnapshot(markFallback = false) {
-    if (this._cache.autosave) this.set(this.storyKey, this._cache.autosave);
-    else this.remove(this.storyKey);
-    this.set(this.slotsKey, this._cache.slots);
-    if (markFallback) {
-      try { localStorage.setItem(this.fallbackKey, "yes"); }
-      catch {}
+      if (this._cache.autosave) localStorage.setItem(this.prefix + this.storyKey, JSON.stringify(this._cache.autosave));
+      else localStorage.removeItem(this.prefix + this.storyKey);
+      localStorage.setItem(this.prefix + this.slotsKey, JSON.stringify(this._cache.slots.slice(0, 20)));
+      return true;
+    } catch (error) {
+      console.warn("BAO/LAB story localStorage fallback write failed:", error);
+      return false;
     }
   },
-
   _cleanupLegacyStoryStorage() {
-    this.remove(this.storyKey);
-    this.remove(this.slotsKey);
     try {
-      localStorage.removeItem(this.fallbackKey);
-      localStorage.setItem(this.migrationKey, new Date().toISOString());
+      localStorage.removeItem(this.prefix + this.storyKey);
+      localStorage.removeItem(this.prefix + this.slotsKey);
     } catch {}
-  },
-
-  _openDatabase() {
-    return new Promise((resolve, reject) => {
-      const request = indexedDB.open(this.dbName, this.dbVersion);
-      request.onupgradeneeded = () => {
-        const db = request.result;
-        const store = db.objectStoreNames.contains(this.dbStore)
-          ? request.transaction.objectStore(this.dbStore)
-          : db.createObjectStore(this.dbStore, { keyPath: "id" });
-        if (!store.indexNames.contains("kind")) store.createIndex("kind", "kind", { unique: false });
-        if (!store.indexNames.contains("savedAt")) store.createIndex("savedAt", "savedAt", { unique: false });
-      };
-      request.onsuccess = () => {
-        const db = request.result;
-        db.onversionchange = () => db.close();
-        resolve(db);
-      };
-      request.onerror = () => reject(request.error || new Error("IndexedDB 無法開啟。"));
-      request.onblocked = () => console.warn("BAO/LAB IndexedDB upgrade is blocked by another tab.");
-    });
   },
 
   _request(request) {
     return new Promise((resolve, reject) => {
       request.onsuccess = () => resolve(request.result);
-      request.onerror = () => reject(request.error || new Error("IndexedDB request failed."));
+      request.onerror = () => reject(request.error || new Error("IndexedDB request failed"));
     });
   },
-
-  _transaction(mode, action) {
-    if (!this._db) return Promise.reject(new Error("IndexedDB 尚未就緒。"));
+  _openDatabase() {
+    return new Promise((resolve, reject) => {
+      if (!window.indexedDB) { reject(new Error("IndexedDB unavailable")); return; }
+      const request = indexedDB.open(this.dbName, this.dbVersion);
+      request.onupgradeneeded = event => {
+        const db = event.target.result;
+        const store = db.objectStoreNames.contains(this.dbStore)
+          ? event.target.transaction.objectStore(this.dbStore)
+          : db.createObjectStore(this.dbStore, { keyPath: "id" });
+        if (!store.indexNames.contains("kind")) store.createIndex("kind", "kind", { unique: false });
+        if (!store.indexNames.contains("savedAt")) store.createIndex("savedAt", "savedAt", { unique: false });
+      };
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error || new Error("IndexedDB open failed"));
+      request.onblocked = () => reject(new Error("IndexedDB upgrade blocked"));
+    });
+  },
+  _transaction(mode, worker) {
     return new Promise((resolve, reject) => {
       const tx = this._db.transaction(this.dbStore, mode);
       const store = tx.objectStore(this.dbStore);
-      try { action(store, tx); }
+      let output;
+      try { output = worker(store, tx); }
       catch (error) { reject(error); return; }
-      tx.oncomplete = () => resolve(true);
-      tx.onerror = () => reject(tx.error || new Error("IndexedDB transaction failed."));
-      tx.onabort = () => reject(tx.error || new Error("IndexedDB transaction aborted."));
+      tx.oncomplete = () => resolve(output);
+      tx.onerror = () => reject(tx.error || new Error("IndexedDB transaction failed"));
+      tx.onabort = () => reject(tx.error || new Error("IndexedDB transaction aborted"));
     });
   },
-
   async _getAllRecords() {
     if (!this._db) return [];
-    const tx = this._db.transaction(this.dbStore, "readonly");
-    const store = tx.objectStore(this.dbStore);
-    const result = await this._request(store.getAll());
-    return Array.isArray(result) ? result : [];
+    return this._request(this._db.transaction(this.dbStore, "readonly").objectStore(this.dbStore).getAll());
   },
-
   _record(kind, payload) {
-    const save = this.clone(payload);
     return {
-      id: kind === "autosave" ? this.autosaveRecordId : String(save.id),
+      id: kind === "autosave" ? this.autosaveRecordId : payload.id,
       kind,
-      savedAt: String(save.savedAt || new Date().toISOString()),
-      characterId: String(save.characterId || ""),
-      characterName: String(save.characterName || ""),
-      label: String(save.label || ""),
-      payload: save
+      savedAt: payload.savedAt || new Date().toISOString(),
+      characterId: payload.characterId || "",
+      characterName: payload.characterName || "",
+      label: payload.label || "",
+      payload: this.scrubSecrets(this.clone(payload))
     };
   },
-
   _payloadFromRecord(record) {
-    if (!record || typeof record !== "object" || !record.payload) return null;
-    try {
-      const clean = this.sanitizeImportedStory(record.payload);
-      if (record.kind === "slot") {
-        clean.id = String(record.payload.id || record.id || "");
-        clean.label = String(record.payload.label || record.label || clean.label || "未命名存檔");
-        clean.savedAt = String(record.payload.savedAt || record.savedAt || clean.savedAt || new Date().toISOString());
-      }
-      return clean;
-    } catch { return null; }
+    if (!record?.payload) return null;
+    try { return this.sanitizeImportedStory(record.payload); }
+    catch { return null; }
   },
-
-  _newerSave(a, b) {
-    if (!a) return b || null;
-    if (!b) return a;
-    return String(b.savedAt || "").localeCompare(String(a.savedAt || "")) > 0 ? b : a;
-  },
-
-  _mergeSlots(primary, secondary) {
-    const byId = new Map();
-    [...(Array.isArray(primary) ? primary : []), ...(Array.isArray(secondary) ? secondary : [])].forEach(item => {
-      if (!item) return;
-      const id = String(item.id || ("slot-" + Date.now() + "-" + Math.random().toString(36).slice(2, 7)));
-      const next = Object.assign({}, item, { id });
-      const previous = byId.get(id);
-      byId.set(id, previous ? this._newerSave(previous, next) : next);
-    });
-    return [...byId.values()].sort((a, b) => String(b.savedAt || "").localeCompare(String(a.savedAt || ""))).slice(0, 20);
-  },
-
   async _replaceDatabaseStories(autosave, slots) {
-    const existing = await this._getAllRecords();
     await this._transaction("readwrite", store => {
-      existing.forEach(record => {
-        if (record?.kind === "autosave" || record?.kind === "slot") store.delete(record.id);
-      });
+      store.clear();
       if (autosave) store.put(this._record("autosave", autosave));
-      (slots || []).forEach(slot => store.put(this._record("slot", slot)));
+      slots.slice(0, 20).forEach(slot => store.put(this._record("slot", slot)));
     });
   },
-
-  async _migrateLegacyToIndexedDB() {
-    const existingRecords = await this._getAllRecords();
-    const existingAutosaveRecord = existingRecords.find(record => record?.kind === "autosave" || record?.id === this.autosaveRecordId);
-    const existingAutosave = this._payloadFromRecord(existingAutosaveRecord);
-    const existingSlots = existingRecords
-      .filter(record => record?.kind === "slot")
-      .map(record => this._payloadFromRecord(record))
-      .filter(Boolean);
-
-    const legacyAutosave = this._legacyAutosave();
-    const legacySlots = this._legacySlots();
-    let fallbackActive = false;
-    try { fallbackActive = localStorage.getItem(this.fallbackKey) === "yes"; }
-    catch {}
-
-    const targetAutosave = fallbackActive
-      ? legacyAutosave
-      : this._newerSave(existingAutosave, legacyAutosave);
-    const targetSlots = fallbackActive
-      ? legacySlots
-      : this._mergeSlots(existingSlots, legacySlots);
-
-    await this._replaceDatabaseStories(targetAutosave, targetSlots);
-  },
-
   async _loadIndexedDBCache() {
     const records = await this._getAllRecords();
-    const autosaveRecord = records.find(record => record?.kind === "autosave" || record?.id === this.autosaveRecordId);
+    const autosaveRecord = records.find(item => item.kind === "autosave" || item.id === this.autosaveRecordId);
+    const slots = records.filter(item => item.kind === "slot").map(item => this._payloadFromRecord(item)).filter(Boolean);
     this._cache.autosave = this._payloadFromRecord(autosaveRecord);
-    this._cache.slots = records
-      .filter(record => record?.kind === "slot")
-      .map(record => this._payloadFromRecord(record))
-      .filter(Boolean)
-      .sort((a, b) => String(b.savedAt || "").localeCompare(String(a.savedAt || "")))
-      .slice(0, 20);
+    this._cache.slots = slots.sort((a, b) => String(b.savedAt || "").localeCompare(String(a.savedAt || ""))).slice(0, 20);
+    return this._cache;
+  },
+
+  _newerStory(a, b) {
+    if (!a) return b || null;
+    if (!b) return a || null;
+    return String(a.savedAt || "").localeCompare(String(b.savedAt || "")) >= 0 ? a : b;
+  },
+  _mergeSlots(a = [], b = []) {
+    const byId = new Map();
+    [...a, ...b].forEach(slot => {
+      if (!slot?.id) return;
+      const prev = byId.get(slot.id);
+      byId.set(slot.id, this._newerStory(prev, slot));
+    });
+    return [...byId.values()].sort((x, y) => String(y.savedAt || "").localeCompare(String(x.savedAt || ""))).slice(0, 20);
   },
 
   _applyOperation(operation) {
-    if (!operation || !operation.type) return;
-    if (operation.type === "saveStory") {
-      this._cache.autosave = this.clone(operation.payload);
-      return;
-    }
-    if (operation.type === "clearStory") {
-      this._cache.autosave = null;
-      return;
-    }
-    if (operation.type === "saveSlot") {
-      const payload = this.clone(operation.payload);
-      this._cache.slots = [payload, ...this._cache.slots.filter(item => item.id !== payload.id)]
-        .sort((a, b) => String(b.savedAt || "").localeCompare(String(a.savedAt || "")))
-        .slice(0, 20);
-      return;
-    }
-    if (operation.type === "deleteSlot") {
-      this._cache.slots = this._cache.slots.filter(item => item.id !== operation.id);
-    }
+    if (!operation) return;
+    if (operation.type === "autosave:set") this._cache.autosave = operation.payload;
+    else if (operation.type === "autosave:clear") this._cache.autosave = null;
+    else if (operation.type === "slot:set") {
+      this._cache.slots = [operation.payload, ...this._cache.slots.filter(item => item.id !== operation.payload.id)]
+        .sort((a, b) => String(b.savedAt || "").localeCompare(String(a.savedAt || ""))).slice(0, 20);
+    } else if (operation.type === "slot:delete") this._cache.slots = this._cache.slots.filter(item => item.id !== operation.id);
   },
-
   async _persistOperationIndexedDB(operation) {
-    if (operation.type === "saveStory") {
-      await this._transaction("readwrite", store => store.put(this._record("autosave", operation.payload)));
-      return;
-    }
-    if (operation.type === "clearStory") {
-      await this._transaction("readwrite", store => store.delete(this.autosaveRecordId));
-      return;
-    }
-    if (operation.type === "saveSlot" || operation.type === "deleteSlot") {
-      const existing = await this._getAllRecords();
-      await this._transaction("readwrite", store => {
-        existing.filter(record => record?.kind === "slot").forEach(record => store.delete(record.id));
-        this._cache.slots.forEach(slot => store.put(this._record("slot", slot)));
-      });
-    }
+    if (!this._db || !operation) return;
+    await this._transaction("readwrite", store => {
+      if (operation.type === "autosave:set") store.put(this._record("autosave", operation.payload));
+      else if (operation.type === "autosave:clear") store.delete(this.autosaveRecordId);
+      else if (operation.type === "slot:set") store.put(this._record("slot", operation.payload));
+      else if (operation.type === "slot:delete") store.delete(operation.id);
+    });
   },
-
-  _degradeToLocalStorage(error) {
-    this._lastError = error || new Error("IndexedDB write failed.");
+  async _degradeToLocalStorage(error) {
+    this._lastError = error || new Error("IndexedDB write failed");
+    console.warn("BAO/LAB IndexedDB unavailable, falling back to localStorage:", this._lastError);
     this._mode = "localStorage";
-    this._persistLegacySnapshot(true);
+    const persisted = this._persistLegacySnapshot();
+    if (persisted) {
+      try { localStorage.setItem(this.fallbackKey, "1"); }
+      catch {}
+    }
     try { this._db?.close?.(); }
     catch {}
     this._db = null;
-    console.warn("BAO/LAB IndexedDB unavailable; using localStorage fallback:", this._lastError);
   },
-
   _queueIndexedDBOperation(operation) {
-    const run = async () => {
+    this._writeQueue = this._writeQueue.then(async () => {
       if (this._mode !== "indexedDB") return;
-      try {
-        await this._persistOperationIndexedDB(operation);
-      } catch (error) {
-        this._degradeToLocalStorage(error);
-      }
-    };
-    this._writeQueue = this._writeQueue.then(run, run);
+      try { await this._persistOperationIndexedDB(operation); }
+      catch (error) { await this._degradeToLocalStorage(error); }
+    });
     return this._writeQueue;
   },
-
   _commitOperation(operation) {
     this._applyOperation(operation);
-    if (this._mode === "indexedDB") {
-      this._queueIndexedDBOperation(operation);
-      return;
-    }
-    if (this._mode === "initializing" || this._mode === "booting") {
-      this._pendingOperations.push(this.clone(operation));
-      this._persistLegacySnapshot(false);
-      return;
-    }
-    this._persistLegacySnapshot(this._mode === "localStorage" && Boolean(this._lastError));
-  },
-
-  init() {
-    if (this._initPromise) return this._initPromise;
-    this._hydrateLegacyCache();
-
-    if (typeof indexedDB === "undefined") {
-      this._mode = "localStorage";
-      this._ready = true;
-      this._initPromise = Promise.resolve(this._mode);
-      return this._initPromise;
-    }
-
-    this._mode = "initializing";
-    this._initPromise = (async () => {
-      try {
-        this._db = await this._openDatabase();
-        await this._migrateLegacyToIndexedDB();
-        await this._loadIndexedDBCache();
-        this._mode = "indexedDB";
-
-        const pending = this._pendingOperations.splice(0);
-        for (const operation of pending) {
-          this._applyOperation(operation);
-          await this._persistOperationIndexedDB(operation);
-        }
-
-        this._cleanupLegacyStoryStorage();
-        this._ready = true;
-        setTimeout(() => window.BAORefreshSaveUI?.(), 0);
-        return this._mode;
-      } catch (error) {
-        this._ready = true;
-        this._degradeToLocalStorage(error);
-        return this._mode;
-      }
-    })();
-    return this._initPromise;
-  },
-
-  ready() { return this.init(); },
-  async flush() {
-    await this.init();
-    await this._writeQueue;
-    return this._mode;
-  },
-  status() {
-    return {
-      mode: this._mode,
-      ready: this._ready,
-      database: this._mode === "indexedDB" ? this.dbName : null,
-      store: this._mode === "indexedDB" ? this.dbStore : null,
-      legacyStoryDataPresent: this._legacyStoryKeysExist(),
-      lastError: this._lastError ? String(this._lastError.message || this._lastError) : ""
-    };
-  },
-
-  saveStory() {
-    const payload = this.buildStoryPayload("自動存檔");
-    if (!payload) return false;
-    this._commitOperation({ type: "saveStory", payload });
+    if (this._mode === "localStorage") return this._persistLegacySnapshot();
+    if (this._mode === "indexedDB") { this._queueIndexedDBOperation(operation); return true; }
+    this._pendingOperations.push(operation);
+    this._persistLegacySnapshot();
     return true;
   },
 
-  loadStory() {
-    let save = this._cache.autosave;
-    if (!save && !this._ready) save = this._legacyAutosave();
-    if (!save) return null;
-    try { return this.sanitizeImportedStory(save); }
-    catch { return null; }
+  async init() {
+    if (this._initPromise) return this._initPromise;
+    this._hydrateLegacyCache();
+    this._mode = "initializing";
+    this._initPromise = (async () => {
+      if (!window.indexedDB) { this._mode = "localStorage"; this._ready = true; return this.status(); }
+      try {
+        const fallbackAuthoritative = (() => { try { return localStorage.getItem(this.fallbackKey) === "1"; } catch { return false; } })();
+        const legacyAutosave = this._cache.autosave;
+        const legacySlots = [...this._cache.slots];
+        this._db = await this._openDatabase();
+        await this._loadIndexedDBCache();
+        const dbAutosave = this._cache.autosave;
+        const dbSlots = [...this._cache.slots];
+        const targetAutosave = fallbackAuthoritative ? legacyAutosave : this._newerStory(legacyAutosave, dbAutosave);
+        const targetSlots = fallbackAuthoritative ? legacySlots : this._mergeSlots(legacySlots, dbSlots);
+        await this._replaceDatabaseStories(targetAutosave, targetSlots);
+        this._cache.autosave = targetAutosave;
+        this._cache.slots = targetSlots;
+        this._mode = "indexedDB";
+        for (const op of this._pendingOperations) {
+          this._applyOperation(op);
+          await this._persistOperationIndexedDB(op);
+        }
+        this._pendingOperations = [];
+        this._cleanupLegacyStoryStorage();
+        try {
+          localStorage.setItem(this.migrationKey, "1");
+          localStorage.removeItem(this.fallbackKey);
+        } catch {}
+      } catch (error) {
+        this._lastError = error;
+        this._mode = "localStorage";
+        this._hydrateLegacyCache();
+      }
+      this._ready = true;
+      Promise.resolve().then(() => window.BAORefreshSaveUI?.());
+      return this.status();
+    })();
+    return this._initPromise;
   },
-  hasStory() { return Boolean(this.loadStory()); },
-  clearStory() { this._commitOperation({ type: "clearStory" }); },
+  ready() { return this._initPromise || this.init(); },
+  async flush() { await this.ready(); await this._writeQueue; return this.status(); },
+  status() { return { mode: this._mode, ready: this._ready, lastError: this._lastError ? String(this._lastError.message || this._lastError) : "" }; },
+
+  saveStory() {
+    const story = this.buildStoryPayload("autosave");
+    if (!story) return false;
+    return this._commitOperation({ type: "autosave:set", payload: story });
+  },
+  loadStory() { return this._cache.autosave ? this.clone(this._cache.autosave) : null; },
+  hasStory() { return Boolean(this._cache.autosave); },
+  clearStory() { return this._commitOperation({ type: "autosave:clear" }); },
 
   listSlots() {
-    const slots = this._cache.slots.length || this._ready ? this._cache.slots : this._legacySlots();
-    return Array.isArray(slots) ? this.clone(slots) : [];
+    return this._cache.slots.map(item => ({ id: item.id, label: item.label, savedAt: item.savedAt, characterId: item.characterId, characterName: item.characterName }));
   },
-
   saveSlot(label = "") {
-    const currentSlots = this.listSlots();
-    const payload = this.buildStoryPayload(label || "存檔 " + (currentSlots.length + 1));
-    if (!payload) return null;
-    payload.id = "slot-" + Date.now() + "-" + Math.random().toString(36).slice(2, 7);
-    this._commitOperation({ type: "saveSlot", payload });
-    return this.clone(payload);
+    const story = this.buildStoryPayload(String(label || "").trim() || "手動存檔");
+    if (!story) return null;
+    story.id = `slot-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    this._commitOperation({ type: "slot:set", payload: story });
+    return this.clone(story);
   },
-
   importSlot(save) {
-    const clean = this.sanitizeImportedStory(save);
-    clean.id = "slot-" + Date.now() + "-" + Math.random().toString(36).slice(2, 7);
-    clean.savedAt = new Date().toISOString();
-    clean.label = clean.label || "匯入存檔 · " + (clean.characterName || clean.characterId);
-    this._commitOperation({ type: "saveSlot", payload: clean });
-    return this.clone(clean);
+    const story = this.sanitizeImportedStory(save);
+    story.id = story.id || `slot-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    story.label = story.label || `匯入 · ${story.characterName || story.characterId}`;
+    story.savedAt = new Date().toISOString();
+    this._commitOperation({ type: "slot:set", payload: story });
+    return this.clone(story);
   },
-
   deleteSlot(id) {
-    this._commitOperation({ type: "deleteSlot", id: String(id || "") });
+    if (!id) return false;
+    return this._commitOperation({ type: "slot:delete", id });
+  },
+  getSlot(id) {
+    const story = this._cache.slots.find(item => item.id === id);
+    return story ? this.clone(story) : null;
   },
 
-  getSlot(id) {
-    const save = this.listSlots().find(item => item.id === id) || null;
-    if (!save) return null;
-    try { return this.sanitizeImportedStory(save); }
-    catch { return null; }
+  restoreStory(save) {
+    try {
+      const clean = this.sanitizeImportedStory(save);
+      const character = clean.character || window.App?.characters?.find?.(item => item.id === clean.characterId) || null;
+      if (!character) return false;
+      App.activeCharacter = window.CharacterEngine?.normalize ? CharacterEngine.normalize(this.clone(character)) : this.clone(character);
+      App.config = this.clone(clean.config || {});
+      Chat.messages = this.clone(clean.chat?.messages || []);
+      Chat.summary = String(clean.chat?.summary || "");
+      Chat.summarizedUntil = Number(clean.chat?.summarizedUntil || 0);
+      Chat.usage = this.clone(clean.chat?.usage || { prompt: 0, completion: 0, cached: 0, total: 0 });
+      Chat.lastStoryPromptTokens = Number(clean.chat?.lastStoryPromptTokens || 0);
+      GameState.current = this.clone(clean.state || {});
+      if (GameState.current) {
+        GameState.current.config = App.config;
+        if (clean.contextPack !== undefined) GameState.current.contextPack = this.clone(clean.contextPack);
+      }
+      window.BAOPlayerSettings?.restore?.(clean.preferences?.player);
+      window.BAONarrativeSettings?.restore?.(clean.preferences?.narrative);
+      window.BAOMemoryWorkbench?.writeSlots?.(clean.preferences?.memorySlots);
+      return true;
+    } catch (error) {
+      console.warn("BAO/LAB restore failed:", error);
+      return false;
+    }
   },
 
   exportSave(save) {
     if (!save) return false;
     const safe = this.scrubSecrets(this.clone(save));
-    const blob = new Blob([JSON.stringify(safe, null, 2)], { type: "application/json" });
+    const name = `${(safe.characterName || safe.characterId || "bao-story").replace(/[\\/:*?\"<>|]/g, "-")}-${new Date(safe.savedAt || Date.now()).toISOString().slice(0, 10)}.bao.json`;
+    const blob = new Blob([JSON.stringify(safe, null, 2)], { type: "application/json;charset=utf-8" });
     const url = URL.createObjectURL(blob);
-    const anchor = document.createElement("a");
-    const name = String(safe.characterName || "story").replace(/[\\/:*?"<>|]/g, "-");
-    anchor.href = url;
-    anchor.download = "BAO-LAB-完整故事-" + name + "-" + new Date().toISOString().slice(0, 10) + ".json";
-    document.body.appendChild(anchor);
-    anchor.click();
-    anchor.remove();
-    setTimeout(() => URL.revokeObjectURL(url), 0);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = name;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
     return true;
   },
-
-  exportCurrentStory(label = "") {
-    const payload = this.buildStoryPayload(label || "完整故事備份");
-    return payload ? this.exportSave(payload) : false;
-  },
-
   async importFile(file) {
     const text = await file.text();
     return this.sanitizeImportedStory(JSON.parse(text));
-  },
-
-  applyPreferences(preferences = {}) {
-    if (!preferences || typeof preferences !== "object") return;
-    if (preferences.player) {
-      localStorage.setItem("bao-lab:player-settings", JSON.stringify(preferences.player));
-      window.BAOPlayerSettings?.set?.(preferences.player);
-    }
-    if (preferences.narrative) {
-      localStorage.setItem("bao-lab:narrative-settings-v1", JSON.stringify(preferences.narrative));
-      window.BAONarrativeSettings?.set?.(preferences.narrative);
-    }
-    if (Array.isArray(preferences.memorySlots)) {
-      localStorage.setItem("bao-lab:player-memory-slots", JSON.stringify(preferences.memorySlots));
-      window.BAOMemoryWorkbench?.writeSlots?.(preferences.memorySlots);
-    }
-  },
-
-  restoreStory(input) {
-    if (!input || !window.App || !window.Chat || !window.GameState) return false;
-    let save;
-    try { save = this.sanitizeImportedStory(input); }
-    catch { return false; }
-
-    let character = App.characters.find(item => item.id === save.characterId);
-    if (!character && save.character) {
-      character = window.CharacterEngine?.normalize ? CharacterEngine.normalize(save.character) : this.clone(save.character);
-      if (character?.id && !App.characters.some(item => item.id === character.id)) App.characters.push(character);
-    }
-    if (!character) return false;
-
-    App.activeCharacter = character;
-    App.config = this.clone(save.config || {});
-    App.config.api = Object.assign({}, App.config.api || {}, { key: "" });
-    Chat.messages = this.clone(save.chat?.messages || []);
-    Chat.summary = String(save.chat?.summary || "");
-    Chat.summarizedUntil = Number(save.chat?.summarizedUntil || 0);
-    Chat.usage = this.clone(save.chat?.usage || { prompt: 0, completion: 0, cached: 0, total: 0 });
-    Chat.lastStoryPromptTokens = Number(save.chat?.lastStoryPromptTokens || 0);
-    GameState.current = this.clone(save.state || {});
-    GameState.current.config = App.config;
-    if (save.contextPack && !GameState.current.contextPack) GameState.current.contextPack = this.clone(save.contextPack);
-    this.applyPreferences(save.preferences || {});
-    window.BAOCharacterStatus?.ensureState?.(character);
-    window.BAOWorldModules?.ensureState?.(character);
-    return true;
   }
 };
 
