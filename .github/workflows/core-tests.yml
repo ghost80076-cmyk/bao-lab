@@ -7,6 +7,7 @@ on:
       - feat/indexeddb-story-storage
       - feat/story-library-model
       - feat/character-readiness
+      - feat/linchenfeng-formal-card
   pull_request:
     branches:
       - main
@@ -34,3 +35,5 @@ jobs:
         run: node tests/story-library-core.cjs
       - name: Character readiness core
         run: node tests/character-readiness-core.cjs
+      - name: Lin Chenfeng token budget
+        run: node tests/linchenfeng-token-budget.cjs
