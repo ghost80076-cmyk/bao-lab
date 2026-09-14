@@ -1,8 +1,7 @@
 const WorldStateEngine = {
   enabled(config) {
     return config?.narrativeMode === "world"
-      || config?.displayMode === "ui"
-      || Boolean(window.BAOCharacterStatus?.hasTrackedFields?.());
+      || config?.displayMode === "ui";
   },
 
   stateSnapshot() {
