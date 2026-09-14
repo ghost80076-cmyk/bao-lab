@@ -264,7 +264,7 @@
   }
 
   #chat-view .chat-sidebar,
-  #chat-view .chat-layout > aside{
+  #chat-view .chat-layout > aside:not(.story-character-visual){
     display:none!important;
   }
 
