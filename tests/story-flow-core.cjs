@@ -147,6 +147,45 @@ const modelJSON = BAOStoryTools.parseExternalText(JSON.stringify([
 assert.equal(plain.messages.length, 2);
 assert.equal(modelJSON.messages[1].role, "assistant");
 
+const claudeJSON = BAOStoryTools.parseExternalText(JSON.stringify({
+  chat_messages: [
+    { sender: "human", text: "Claude 玩家訊息" },
+    { sender: "assistant", text: "Claude 角色訊息" }
+  ]
+}));
+assert.equal(claudeJSON.report.format, "Claude chat_messages JSON");
+assert.deepEqual(claudeJSON.messages.map(item => item.role), ["user", "assistant"]);
+
+const chatGPTJSON = BAOStoryTools.parseExternalText(JSON.stringify({
+  current_node: "assistant-node",
+  mapping: {
+    root: { parent: null, message: { author: { role: "system" }, content: { parts: ["系統"] }, create_time: 1 } },
+    "user-node": { parent: "root", message: { author: { role: "user" }, content: { parts: ["玩家問題"] }, create_time: 2 } },
+    "assistant-node": { parent: "user-node", message: { author: { role: "assistant" }, content: { parts: ["角色回答"] }, create_time: 3 } }
+  }
+}));
+assert.equal(chatGPTJSON.report.format, "ChatGPT 匯出 JSON");
+assert.deepEqual(chatGPTJSON.messages.map(item => item.content), ["玩家問題", "角色回答"]);
+assert.equal(chatGPTJSON.report.skippedCount, 1);
+
+const tavernJSONL = BAOStoryTools.parseExternalText([
+  JSON.stringify({ user_name: "旅人", character_name: "林塵封" }),
+  JSON.stringify({ name: "旅人", is_user: true, mes: "走吧。" }),
+  JSON.stringify({ name: "林塵封", is_user: false, mes: "跟上。" })
+].join("\n"));
+assert.equal(tavernJSONL.report.format, "SillyTavern／JSONL");
+assert.deepEqual(tavernJSONL.messages.map(item => item.role), ["user", "assistant"]);
+assert.equal(tavernJSONL.report.skippedCount, 1);
+
+const namedPlain = BAOStoryTools.parseExternalText("小明：你好\n林塵封：在。");
+assert.equal(namedPlain.messages.length, 0);
+assert.equal(namedPlain.report.unassignedCount, 2);
+assert.deepEqual(
+  BAOStoryTools.resolveImportedMessages(namedPlain, { "小明": "user", "林塵封": "assistant" }).map(item => item.role),
+  ["user", "assistant"]
+);
+assert.equal(BAOStoryTools.resolveImportedMessages(namedPlain, { "小明": "skip", "林塵封": "assistant" }).length, 1);
+
 const longMessages = Array.from({ length: 12 }, (_, index) => ([
   { role: "user", content: "玩家第" + index + "輪：" + "前進。".repeat(12) },
   { role: "assistant", content: "角色第" + index + "輪：" + "回應。".repeat(12) }
@@ -173,6 +212,9 @@ assert.equal(storyToolsSource.includes("繼續未確認草稿"), true);
 assert.equal(storyToolsSource.includes("const libraryScreen = async host"), true);
 assert.equal(storyToolsSource.includes("data-open-story-library"), true);
 assert.equal(storyToolsSource.includes("API Key 不會儲存在故事書庫"), true);
+assert.equal(storyToolsSource.includes("確認身分並建立草稿"), true);
+assert.equal(storyToolsSource.includes("SillyTavern／JSONL"), true);
+assert.equal(storyToolsSource.includes("resolveImportedMessages"), true);
 
 const pack = BAOStoryTools.createPack(Chat.messages);
 pack.summary = "已整理的唯一前情";

@@ -24,12 +24,86 @@
     document.head.appendChild(link);
   };
 
-  const message = input => {
+  const roleFrom = value => {
+    const raw = String(value ?? "").trim().toLocaleLowerCase();
+    if (!raw) return "";
+    if (/^(system|tool|developer|function|系統|工具)$/.test(raw)) return "ignore";
+    if (/^(assistant|model|ai|bot|character|char|角色|ai[ _-]?角色)$/.test(raw)) return "assistant";
+    if (/^(user|human|player|使用者|用戶|玩家|主人公)$/.test(raw)) return "user";
+    return "";
+  };
+
+  const contentText = value => {
+    if (value == null) return "";
+    if (typeof value === "string" || typeof value === "number") return String(value).trim();
+    if (Array.isArray(value)) return value.map(contentText).filter(Boolean).join("\n").trim();
+    if (typeof value !== "object") return "";
+    if (Array.isArray(value.parts)) return contentText(value.parts);
+    for (const key of ["text", "content", "message", "mes", "value"]) {
+      if (value[key] != null && value[key] !== value) {
+        const found = contentText(value[key]);
+        if (found) return found;
+      }
+    }
+    return "";
+  };
+
+  const messageRecord = input => {
     if (!input || typeof input !== "object") return null;
-    const raw = String(input.role || input.sender || input.author || "").toLowerCase();
-    const role = /assistant|model|ai|bot|character|角色/.test(raw) ? "assistant" : /user|human|player|玩家|使用者/.test(raw) ? "user" : "";
-    const content = String(input.content ?? input.text ?? input.message ?? "").trim();
-    return role && content ? { role, content } : null;
+    const hasOwn = key => Object.prototype.hasOwnProperty.call(input, key);
+    let role = "";
+    if (hasOwn("is_user") || hasOwn("isUser") || hasOwn("from_user")) {
+      role = Boolean(input.is_user ?? input.isUser ?? input.from_user) ? "user" : "assistant";
+    } else {
+      role = roleFrom(input.role ?? input.sender ?? input.from ?? input.author?.role ?? input.type);
+      if (!role) {
+        role = roleFrom(input.speaker ?? input.name ?? (typeof input.author === "string" ? input.author : ""));
+      }
+    }
+    const content = contentText(input.content ?? input.text ?? input.message ?? input.mes ?? input.value);
+    if (!content) return null;
+    if (role === "ignore") return { ignored: true, content };
+    const rawName = input.name ?? input.speaker ?? input.author?.name ??
+      (typeof input.author === "string" ? input.author : "") ??
+      (typeof input.sender === "string" && !roleFrom(input.sender) ? input.sender : "") ??
+      (typeof input.from === "string" && !roleFrom(input.from) ? input.from : "");
+    const name = String(rawName || (role ? "" : "未辨識說話者")).trim();
+    return { role, name, content };
+  };
+
+  const importResult = (list, format, warnings = []) => {
+    const source = Array.isArray(list) ? list : [];
+    const parsed = source.map(messageRecord);
+    const records = parsed.filter(item => item && !item.ignored);
+    const skippedCount = parsed.filter(item => !item || item.ignored).length;
+    const messages = records.filter(item => item.role === "user" || item.role === "assistant")
+      .map(item => ({ role: item.role, content: item.content }));
+    const participantMap = new Map();
+    records.filter(item => !item.role).forEach(item => {
+      const name = item.name || "未辨識說話者";
+      participantMap.set(name, (participantMap.get(name) || 0) + 1);
+    });
+    const participants = Array.from(participantMap, ([name, count]) => ({ name, count }));
+    return {
+      messages,
+      records,
+      report: {
+        format,
+        sourceCount: source.length,
+        recognizedCount: messages.length,
+        unassignedCount: records.length - messages.length,
+        skippedCount,
+        participants,
+        warnings: Array.from(new Set(warnings.map(String).filter(Boolean)))
+      }
+    };
+  };
+
+  const message = input => {
+    const parsed = messageRecord(input);
+    return parsed && (parsed.role === "user" || parsed.role === "assistant")
+      ? { role: parsed.role, content: parsed.content }
+      : null;
   };
 
   const normalizePack = input => {
@@ -120,38 +194,127 @@
     ].filter(Boolean).join("\n\n");
   };
 
+  const chatGPTMessages = conversation => {
+    const mapping = conversation?.mapping;
+    if (!mapping || typeof mapping !== "object") return [];
+    const ordered = [];
+    const seen = new Set();
+    let cursor = conversation.current_node;
+    while (cursor && mapping[cursor] && !seen.has(cursor)) {
+      seen.add(cursor);
+      if (mapping[cursor].message) ordered.unshift(mapping[cursor].message);
+      cursor = mapping[cursor].parent;
+    }
+    if (ordered.length) return ordered;
+    return Object.values(mapping)
+      .map(node => node?.message)
+      .filter(Boolean)
+      .sort((a, b) => Number(a.create_time || 0) - Number(b.create_time || 0));
+  };
+
+  const resolveImportedMessages = (parsed, assignments = {}) => {
+    if (!parsed || !Array.isArray(parsed.records)) return [];
+    return parsed.records.map(item => {
+      const selected = item.role || assignments[item.name || "未辨識說話者"] || "";
+      return selected === "user" || selected === "assistant"
+        ? { role: selected, content: item.content }
+        : null;
+    }).filter(Boolean);
+  };
+
   const parseExternalText = input => {
-    const text = String(input || "").trim();
+    const text = String(input || "").replace(/^\uFEFF/, "").trim();
     if (!text) throw new Error("檔案沒有可讀內容。");
+
+    let json;
     try {
-      const json = JSON.parse(text);
+      json = JSON.parse(text);
+    } catch (error) {
+      if (!(error instanceof SyntaxError)) throw error;
+    }
+
+    if (json !== undefined) {
       if (json?.schema === SCHEMA) {
         const pack = normalizePack(json);
         pack.playerConfirmed = false;
-        return { pack, messages: [] };
+        return {
+          pack,
+          messages: [],
+          records: [],
+          report: {
+            format: "BAO/LAB Context Pack",
+            sourceCount: Number(pack.source?.messageCount || pack.recentDialogue.length || 0),
+            recognizedCount: pack.recentDialogue.length,
+            unassignedCount: 0,
+            skippedCount: 0,
+            participants: [],
+            warnings: ["匯入的 Pack 會重設為待玩家確認。"]
+          }
+        };
       }
-      const list = Array.isArray(json) ? json : json?.messages || json?.chat?.messages || json?.conversation || json?.data?.messages;
+
+      const conversations = Array.isArray(json) ? json : [json];
+      const mappingConversations = conversations.filter(item => item?.mapping && typeof item.mapping === "object");
+      if (mappingConversations.length) {
+        const list = mappingConversations.flatMap(chatGPTMessages);
+        const warnings = mappingConversations.length > 1 ? ["檔案包含多個 ChatGPT 對話，已依匯出順序合併；請在下一步確認內容範圍。"] : [];
+        const result = importResult(list, "ChatGPT 匯出 JSON", warnings);
+        if (result.records.length) return result;
+      }
+
+      const claudeConversations = conversations.filter(item => Array.isArray(item?.chat_messages));
+      if (claudeConversations.length) {
+        const list = claudeConversations.flatMap(item => item.chat_messages);
+        const warnings = claudeConversations.length > 1 ? ["檔案包含多個 Claude 對話，已依匯出順序合併；請在下一步確認內容範圍。"] : [];
+        const result = importResult(list, "Claude chat_messages JSON", warnings);
+        if (result.records.length) return result;
+      }
+
+      const list = Array.isArray(json) ? json :
+        json?.messages || json?.chat?.messages || json?.conversation ||
+        json?.data?.messages || json?.chat_messages || json?.history || json?.items;
       if (Array.isArray(list)) {
-        const messages = list.map(message).filter(Boolean);
-        if (!messages.length) throw new Error("JSON 內找不到 user / assistant 訊息。");
-        return { messages };
+        const result = importResult(list, "messages JSON");
+        if (result.records.length) return result;
       }
-    } catch (error) {
-      if (!(error instanceof SyntaxError)) throw error;
-      const messages = [];
-      let current = null;
-      text.split(/\r?\n/).forEach(row => {
-        const found = row.match(/^\s*(玩家|使用者|user|human|player|角色|assistant|ai|bot)\s*[:：]\s*(.*)$/i);
-        if (found) {
-          current = { role: /玩家|使用者|user|human|player/i.test(found[1]) ? "user" : "assistant", content: found[2].trim() };
-          if (current.content) messages.push(current);
-        } else if (current && row.trim()) {
-          current.content += "\n" + row.trim();
-        }
-      });
-      if (messages.length) return { messages };
+
+      throw new Error("JSON 內找不到可匯入的聊天訊息。");
     }
-    throw new Error("無法辨識格式。支援 BAO/LAB JSON、messages JSON，以及「玩家：／角色：」純文字。");
+
+    const rows = text.split(/\r?\n/);
+    const jsonLines = [];
+    let invalidJSONLines = 0;
+    rows.filter(row => row.trim()).forEach(row => {
+      try { jsonLines.push(JSON.parse(row)); }
+      catch { invalidJSONLines += 1; }
+    });
+    if (jsonLines.length) {
+      const warnings = invalidJSONLines ? ["有 " + invalidJSONLines + " 行不是合法 JSON，已略過。"] : [];
+      const result = importResult(jsonLines, "SillyTavern／JSONL", warnings);
+      if (result.records.length) return result;
+    }
+
+    const transcript = [];
+    let current = null;
+    let ignoredLines = 0;
+    rows.forEach(row => {
+      const found = row.match(/^\s*([^:：\n]{1,40})\s*[:：]\s*(.*)$/);
+      if (found) {
+        current = { speaker: found[1].trim(), content: found[2].trim() };
+        transcript.push(current);
+      } else if (current && row.trim()) {
+        current.content += "\n" + row.trim();
+      } else if (row.trim()) {
+        ignoredLines += 1;
+      }
+    });
+    if (transcript.length) {
+      const warnings = ignoredLines ? ["有 " + ignoredLines + " 行位於第一個說話者之前，已略過。"] : [];
+      const result = importResult(transcript, "名字：內容 純文字", warnings);
+      if (result.records.length) return result;
+    }
+
+    throw new Error("無法辨識格式。支援 BAO/LAB Pack、messages JSON、Claude、ChatGPT、SillyTavern／JSONL，以及「名字：內容」純文字。");
   };
 
   const parseObject = (value, label) => {
@@ -669,20 +832,85 @@
     host.querySelector("[data-back]").onclick = () => home(host);
   };
 
+  const importPreviewScreen = (host, parsed, filename) => {
+    const safeFile = App.escapeHTML(filename || "外部紀錄");
+    if (parsed.pack) {
+      host.innerHTML = '<div class="story-tools-toolbar"><button class="secondary" type="button" data-back>← 重新選檔</button><span class="story-tools-pill">BAO/LAB CONTEXT PACK</span></div>' +
+        '<section class="story-tools-card"><h3>匯入預覽</h3><p>已辨識為 Context Pack。原本的確認狀態已清除，仍需由玩家重新檢查並確認。</p>' +
+        '<div class="story-import-report"><div><b>' + safeFile + '</b><span>' + App.escapeHTML(parsed.pack.title) + '</span></div></div>' +
+        '<div class="story-import-note">匯入不會呼叫模型，也不會把未確認內容直接當成故事事實。</div>' +
+        '<div class="story-tools-actions"><button class="primary" type="button" data-continue>檢查 Context Pack 草稿</button></div></section>';
+      host.querySelector("[data-back]").onclick = () => importScreen(host);
+      host.querySelector("[data-continue]").onclick = () => {
+        sourceMessages = [];
+        draft = normalizePack(parsed.pack);
+        draft.playerConfirmed = false;
+        editor(host);
+      };
+      return;
+    }
+
+    const report = parsed.report || {};
+    const participants = Array.isArray(report.participants) ? report.participants : [];
+    const participantHTML = participants.map((item, index) =>
+      '<label class="story-import-participant"><span><b>' + App.escapeHTML(item.name) + '</b><small>' + Number(item.count || 0) + ' 則</small></span>' +
+      '<select data-participant-index="' + index + '"><option value="">請指定身分</option><option value="user">玩家</option><option value="assistant">AI 角色</option><option value="skip">忽略</option></select></label>'
+    ).join("");
+    const samples = parsed.records.length <= 6
+      ? parsed.records
+      : parsed.records.slice(0, 3).concat(parsed.records.slice(-3));
+    const sampleHTML = samples.map(item => {
+      const label = item.role === "user" ? "玩家" : item.role === "assistant" ? "AI 角色" : "待指定：" + (item.name || "未辨識說話者");
+      return '<div class="story-import-preview-row"><b>' + App.escapeHTML(label) + '</b><span>' + App.escapeHTML(String(item.content || "").slice(0, 360)) + '</span></div>';
+    }).join("");
+    const warnings = (report.warnings || []).map(value => '<li>' + App.escapeHTML(value) + '</li>').join("");
+
+    host.innerHTML = '<div class="story-tools-toolbar"><button class="secondary" type="button" data-back>← 重新選檔</button><span class="story-tools-pill">IMPORT PREVIEW</span></div>' +
+      '<section class="story-tools-card"><h3>先確認匯入內容與身分</h3><p>系統只使用格式中明確標示的角色；無法辨識的名字必須由你指定為玩家、AI 角色或忽略。</p>' +
+      '<div class="story-import-report"><div><b>檔案</b><span>' + safeFile + '</span></div><div><b>格式</b><span>' + App.escapeHTML(report.format || "未識別") + '</span></div>' +
+      '<div><b>來源項目</b><span>' + Number(report.sourceCount || 0) + '</span></div><div><b>已辨識</b><span>' + Number(report.recognizedCount || 0) + '</span></div>' +
+      '<div><b>待指定</b><span>' + Number(report.unassignedCount || 0) + '</span></div><div><b>已略過</b><span>' + Number(report.skippedCount || 0) + '</span></div></div>' +
+      (warnings ? '<ul class="story-import-warning">' + warnings + '</ul>' : '') +
+      (participantHTML ? '<div class="story-import-participants"><h4>說話者身分</h4>' + participantHTML + '</div>' : '') +
+      '<details open><summary>訊息預覽（頭尾最多 6 則）</summary><div class="story-import-preview-list">' + sampleHTML + '</div></details>' +
+      '<div class="story-import-note">下一步只建立待確認的 Context Pack 草稿；模型不會永久推斷玩家心理、喜惡或意圖。</div>' +
+      '<div class="story-tools-actions"><button class="primary" type="button" data-continue>確認身分並建立草稿</button></div></section>';
+
+    host.querySelector("[data-back]").onclick = () => importScreen(host);
+    host.querySelector("[data-continue]").onclick = () => {
+      const assignments = {};
+      for (let index = 0; index < participants.length; index += 1) {
+        const selected = host.querySelector('[data-participant-index="' + index + '"]').value;
+        if (!selected) return tell("請先指定「" + participants[index].name + "」是玩家、AI 角色或忽略。");
+        assignments[participants[index].name] = selected;
+      }
+      sourceMessages = resolveImportedMessages(parsed, assignments);
+      if (!sourceMessages.length) return tell("沒有可建立 Context Pack 的玩家或 AI 角色訊息。");
+      draft = createPack(sourceMessages, {
+        type: "external",
+        platform: filename || report.format || "外部紀錄",
+        format: report.format || "",
+        messageCount: sourceMessages.length
+      });
+      editor(host);
+    };
+  };
+
   const importScreen = host => {
     host.innerHTML = '<div class="story-tools-toolbar"><button class="secondary" type="button" data-back>← 返回</button></div>' +
-      '<section class="story-tools-card"><h3>外部聊天歷史匯入</h3><p>支援 BAO/LAB JSON、messages JSON，以及「玩家：／角色：」純文字。匯入只會建立 Context Pack 草稿，不會把幾百輪直接塞進主模型。</p>' +
-      '<input type="file" data-file accept=".json,.txt,application/json,text/plain"><div class="story-import-note">草稿必須由玩家確認；系統不會自行永久判定玩家討厭誰、喜歡誰或想做什麼。</div></section>';
+      '<section class="story-tools-card"><h3>外部聊天歷史匯入</h3><p>支援 BAO/LAB Pack、messages JSON、Claude、ChatGPT、SillyTavern／JSONL，以及一般「名字：內容」純文字。</p>' +
+      '<input type="file" data-file accept=".json,.jsonl,.txt,application/json,application/x-ndjson,text/plain"><div class="story-import-note">選檔後會先顯示格式、訊息數與說話者身分；確認前不建立草稿，也不呼叫模型。</div></section>';
     host.querySelector("[data-back]").onclick = () => home(host);
     host.querySelector("[data-file]").onchange = async event => {
       const file = event.target.files?.[0];
       if (!file) return;
       try {
         const parsed = parseExternalText(await file.text());
-        sourceMessages = parsed.messages || [];
-        draft = parsed.pack || createPack(sourceMessages, { type: "external", platform: file.name, messageCount: sourceMessages.length });
-        editor(host);
-      } catch (error) { tell(error.message || "匯入失敗。"); }
+        importPreviewScreen(host, parsed, file.name);
+      } catch (error) {
+        tell(error.message || "匯入失敗。");
+        event.target.value = "";
+      }
     };
   };
 
@@ -924,7 +1152,7 @@
     setTimeout(inject, 0);
   };
 
-  window.BAOStoryTools = { open, openLibrary, libraryScreen, restoreLibraryChapter, createPack, normalizePack, confirmationSignature, packPrompt, parseExternalText, preview, startSequel, chunkMessages, organizationPlan, mergeCallCount, tokenEstimate };
+  window.BAOStoryTools = { open, openLibrary, libraryScreen, restoreLibraryChapter, createPack, normalizePack, confirmationSignature, packPrompt, parseExternalText, resolveImportedMessages, preview, startSequel, chunkMessages, organizationPlan, mergeCallCount, tokenEstimate };
   ensureStyles();
   setTimeout(inject, 240);
 })();
