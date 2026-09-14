@@ -1,0 +1,30 @@
+name: Core tests
+
+on:
+  push:
+    branches:
+      - main
+      - feat/indexeddb-story-storage
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  node-core:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Character status core
+        run: node tests/character-status-core.cjs
+      - name: Story flow core
+        run: node tests/story-flow-core.cjs
+      - name: IndexedDB storage migration
+        run: node tests/storage-indexeddb-core.cjs
