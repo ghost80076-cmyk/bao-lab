@@ -33,6 +33,28 @@ const CharacterEngine = {
     const worldModules = (Array.isArray(modulesRaw) ? modulesRaw : [])
       .filter(Boolean)
       .slice(0, 12);
+    const dynamicRaw = raw.dynamic_prompts || content.dynamic_prompts || gameplay.dynamic_prompts || [];
+    const dynamicPrompts = (Array.isArray(dynamicRaw) ? dynamicRaw : [])
+      .map((item, index) => {
+        if (!item || typeof item !== "object") return null;
+        const triggers = (Array.isArray(item.triggers) ? item.triggers : [item.triggers])
+          .filter(Boolean)
+          .map(x => String(x).trim().toLowerCase())
+          .filter(Boolean)
+          .slice(0, 40);
+        const text = String(item.text || item.prompt || item.content || "").trim();
+        if (!text) return null;
+        return {
+          id: String(item.id || `dynamic-${index + 1}`).trim().slice(0, 60),
+          label: String(item.label || item.name || `情境指示 ${index + 1}`).trim().slice(0, 60),
+          triggers,
+          text: text.slice(0, 6000),
+          always: item.always === true,
+          recent_turns: Math.max(1, Math.min(8, Number(item.recent_turns || 3)))
+        };
+      })
+      .filter(Boolean)
+      .slice(0, 12);
     const characterStatus = raw.character_status || gameplay.character_status || {};
 
     return {
@@ -53,6 +75,7 @@ const CharacterEngine = {
       world: content.world || raw.world || "",
       world_focus: worldFocus,
       world_modules: worldModules,
+      dynamic_prompts: dynamicPrompts,
       character_status: characterStatus,
       npc_rules: content.npc_rules || raw.npc_rules || "",
       author_instructions: content.author_instructions || raw.author_instructions || "",
@@ -64,7 +87,8 @@ const CharacterEngine = {
         include_world_focus: prompt.include_world_focus !== false,
         include_npcs: prompt.include_npcs !== false,
         include_author_instructions: prompt.include_author_instructions !== false,
-        include_creator_notes: prompt.include_creator_notes === true
+        include_creator_notes: prompt.include_creator_notes === true,
+        include_dynamic_prompts: prompt.include_dynamic_prompts !== false
       },
       supported_modes: raw.supported_modes || gameplay.supported_modes || { immersive: true, world: false },
       supported_display: raw.supported_display || presentation.supported_display || { text: true, ui: false },
@@ -109,6 +133,25 @@ const CharacterEngine = {
     }).join("\n");
   },
 
+  recentConversationText(context = {}, turns = 3) {
+    const messages = Array.isArray(context.recentMessages) ? context.recentMessages : [];
+    if (messages.length) {
+      return messages.slice(-Math.max(2, turns * 2)).map(m => String(m?.content || "")).join("\n").toLowerCase();
+    }
+    return String(context.latestUserText || "").toLowerCase();
+  },
+
+  relevantDynamicPrompts(character, context = {}) {
+    const c = this.normalize(character || {});
+    if (!c.prompt_options?.include_dynamic_prompts || !c.dynamic_prompts?.length) return [];
+    return c.dynamic_prompts.filter(block => {
+      if (block.always) return true;
+      if (!block.triggers.length) return false;
+      const hay = this.recentConversationText(context, block.recent_turns || 3);
+      return block.triggers.some(trigger => trigger && hay.includes(trigger));
+    }).slice(0, 2);
+  },
+
   composeSystemPrompt(character, context = {}) {
     const c = this.normalize(character || {});
     const p = context.persona || {};
@@ -129,6 +172,7 @@ const CharacterEngine = {
     }
 
     if (options.include_author_instructions && c.author_instructions) blocks.push(`【作者敘事指示】\n${c.author_instructions}`);
+    this.relevantDynamicPrompts(c, context).forEach(block => blocks.push(`【${block.label}】\n${block.text}`));
     if (options.include_creator_notes && c.creator_notes) blocks.push(`【作者備註】\n${c.creator_notes}`);
     if (context.modePrompt) blocks.push(`【敘事模式】\n${context.modePrompt}`);
 
