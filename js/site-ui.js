@@ -35,7 +35,8 @@ window.addEventListener("DOMContentLoaded", () => {
     .catch(err => console.warn("BAO/LAB character readiness audit failed to load:", err));
   loadBAOScript("js/brand-ui.js")
     .catch(err => console.warn("BAO/LAB brand UI failed to load:", err));
-  setTimeout(() => {
+  setTimeout(async () => {
+    await Storage.ready();
     const refresh = () => {
       const has = Storage.hasStory();
       document.getElementById("continue-story")?.classList.toggle("hidden", !has);

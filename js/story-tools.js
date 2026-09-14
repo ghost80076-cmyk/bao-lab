@@ -441,7 +441,8 @@
 
   const home = host => {
     const hasPack = Boolean(GameState.current?.contextPack);
-    host.innerHTML = '<div class="story-tools-intro"><div><div class="eyebrow">LOCAL-FIRST STORY DESK</div><h2>故事管理</h2><p>備份、搬家、整理前情與建立續篇都在瀏覽器完成；API Key 永遠不進匯出檔。</p></div><button class="story-tools-close" type="button">關閉</button></div>' +
+    const storageMode = Storage.status?.().mode === "indexedDB" ? "IndexedDB" : "localStorage fallback";
+    host.innerHTML = '<div class="story-tools-intro"><div><div class="eyebrow">LOCAL-FIRST STORY DESK</div><h2>故事管理</h2><p>備份、搬家、整理前情與建立續篇都在瀏覽器完成；API Key 永遠不進匯出檔。</p><div class="story-preview-meta">故事儲存：' + storageMode + '</div></div><button class="story-tools-close" type="button">關閉</button></div>' +
       '<div class="story-tools-home">' +
       '<section class="story-tools-card"><h3>完整故事備份</h3><p>包含對話、Persona、記憶、Character Status、World State、World Modules、敘事偏好與 Context Pack。</p><div class="story-tools-actions"><button class="primary" type="button" data-export>匯出完整故事</button><button class="secondary" type="button" data-backup>建立本機備份</button><button class="secondary" type="button" data-import>匯入完整故事</button><input hidden type="file" data-story-file accept=".json,application/json"></div></section>' +
       '<section class="story-tools-card"><h3>Context Pack / 建立續篇</h3><p>舊故事只整理成後續真正需要的前情，不持續塞入全部歷史。</p><div class="story-tools-actions"><button class="primary" type="button" data-create>整理目前故事</button>' + (hasPack ? '<button class="secondary" type="button" data-edit>編輯既有 Pack</button>' : '') + '</div></section>' +
