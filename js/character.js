@@ -11,6 +11,7 @@ const CharacterEngine = {
 
     const id = String(raw.id || meta.id || `custom-${Date.now()}`).trim();
     const name = String(raw.name || meta.name || "未命名角色").trim();
+    const title = String(raw.title || meta.title || name).trim();
     const rating = raw.rating || meta.rating || "general";
     const audience = raw.audience || meta.audience || [];
     const categories = raw.categories || meta.categories || [];
@@ -60,6 +61,7 @@ const CharacterEngine = {
     return {
       id,
       name,
+      title,
       avatar: raw.avatar || meta.avatar || "https://picsum.photos/seed/bao-character/800/1000",
       rating: category === "r18" ? "adult" : "general",
       category,
@@ -71,6 +73,7 @@ const CharacterEngine = {
       quote: raw.quote || content.quote || "",
       greeting: raw.greeting || content.greeting || "",
       system_prompt: raw.system_prompt || content.system_prompt || "",
+      profile: raw.profile || content.profile || {},
       lore: content.lore || raw.lore || "",
       world: content.world || raw.world || "",
       world_focus: worldFocus,
@@ -82,6 +85,7 @@ const CharacterEngine = {
       creator_notes: content.creator_notes || raw.creator_notes || "",
       narrative_profile: raw.narrative_profile || presentation.narrative || {},
       prompt_options: {
+        include_profile: prompt.include_profile !== false,
         include_lore: prompt.include_lore !== false,
         include_world: prompt.include_world !== false,
         include_world_focus: prompt.include_world_focus !== false,
@@ -115,6 +119,18 @@ const CharacterEngine = {
     if (!c.greeting) errors.push("缺少 greeting / content.greeting");
     if (!["male", "female", "r18"].includes(c.category)) errors.push("category 必須是 male、female 或 r18");
     return { ok: errors.length === 0, errors, character: c };
+  },
+
+  profilePrompt(profile = {}) {
+    if (!profile || typeof profile !== "object" || Array.isArray(profile)) return "";
+    return Object.entries(profile).slice(0, 24).map(([label, value]) => {
+      let body = "";
+      if (Array.isArray(value)) body = value.map(x => String(x || "").trim()).filter(Boolean).join("、");
+      else if (value && typeof value === "object") {
+        body = Object.entries(value).map(([key, item]) => `${key}：${String(item ?? "").trim()}`).join("；");
+      } else body = String(value ?? "").trim();
+      return body ? `${String(label).trim()}：${body.slice(0, 1600)}` : "";
+    }).filter(Boolean).join("\n");
   },
 
   npcPrompt(npcs = []) {
@@ -159,6 +175,10 @@ const CharacterEngine = {
     const blocks = [];
 
     if (c.system_prompt) blocks.push(`【角色核心】\n${c.system_prompt}`);
+    if (options.include_profile) {
+      const profileText = this.profilePrompt(c.profile);
+      if (profileText) blocks.push(`【角色完整設定】\n${profileText}`);
+    }
     if (options.include_world && c.world) blocks.push(`【世界設定】\n${c.world}`);
     if (options.include_world_focus && c.world_focus?.length) {
       blocks.push(`【世界觀焦點】\n${c.world_focus.join("、")}\n只在情境相關時自然帶入，不要為了塞設定而硬寫。`);
