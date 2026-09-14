@@ -30,7 +30,8 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/chat-markup.js"))
     .then(() => loadBAOScript("js/story-tools.js"))
     .then(() => loadBAOScript("js/story-library.js"))
-    .catch(err => console.warn("BAO/LAB local preview, narrative settings, memory workbench, story tools, story library or chat markup failed to load:", err));
+    .then(() => loadBAOScript("js/story-reader.js"))
+    .catch(err => console.warn("BAO/LAB local preview, narrative settings, memory workbench, story tools, story library, story reader or chat markup failed to load:", err));
   loadBAOScript("js/character-readiness.js")
     .catch(err => console.warn("BAO/LAB character readiness audit failed to load:", err));
   loadBAOScript("js/brand-ui.js")
