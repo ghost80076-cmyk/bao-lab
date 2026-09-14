@@ -232,6 +232,20 @@
   const originalRenderChatShell = App.renderChatShell.bind(App);
   App.renderChatShell = function(fresh = false) { originalRenderChatShell(fresh); injectChatButtons(); applyAppearance(); if (this.config?.demoMode) document.getElementById("chat-model").innerHTML = '<span class="bao-demo-badge">LOCAL PREVIEW</span>'; };
 
+  window.BAOPlayerSettings = {
+    get: () => JSON.parse(JSON.stringify(settings)),
+    set: value => {
+      const next = Object.assign({}, defaults, value && typeof value === "object" ? value : {});
+      if (next.replyLength === "free") next.replyLength = "auto";
+      if (!["card", "named"].includes(next.dialogueFormat)) next.dialogueFormat = "card";
+      next.appearance = Object.assign({}, defaults.appearance, next.appearance || {});
+      Object.keys(settings).forEach(key => delete settings[key]);
+      Object.assign(settings, next);
+      saveSettings();
+      applyAppearance();
+    }
+  };
+
   const init = () => { ensureStyles(); injectDemoOption(); injectChatButtons(); applyAppearance(); };
   if (document.readyState === "loading") window.addEventListener("DOMContentLoaded", () => setTimeout(init, 120)); else setTimeout(init, 120);
 })();
