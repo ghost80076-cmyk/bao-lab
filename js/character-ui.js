@@ -41,7 +41,7 @@
       const meta = categoryMeta[c.category] || categoryMeta.male;
       return `<article class="character-card category-${App.escapeAttr(c.category)}" onclick="App.openCharacter('${App.escapeAttr(c.id)}')">
         <div class="character-image-wrap"><img src="${App.escapeAttr(c.avatar)}" alt="${App.escapeAttr(c.name)}"><span class="category-badge">${App.escapeHTML(meta.label)}</span></div>
-        <div class="character-content"><div class="eyebrow">${App.escapeHTML(meta.en)}</div><h3>${App.escapeHTML(c.name)}</h3><p>${App.escapeHTML(c.description)}</p><div class="tags">${(c.tags || []).map(t => `<span class="tag">#${App.escapeHTML(t)}</span>`).join("")}</div></div>
+        <div class="character-content"><div class="eyebrow">${App.escapeHTML(meta.en)}</div><h3>${App.escapeHTML(c.title || c.name)}</h3><p>${App.escapeHTML(c.description)}</p><div class="tags">${(c.tags || []).map(t => `<span class="tag">#${App.escapeHTML(t)}</span>`).join("")}</div></div>
       </article>`;
     }).join("") : `<div class="empty-category"><b>${active === "all" ? "目前還沒有更多作品" : `${categoryMeta[active].label}目前還沒有作品`}</b><span>之後新增的角色會依 category 自動出現在這裡。</span></div>`;
   };
@@ -58,7 +58,7 @@
       <button class="back-link" type="button" onclick="App.showView('explore')">← 返回作品區</button>
       <div class="detail-theme-layout">
         <div class="detail-visual"><div class="detail-image-frame"><img class="detail-image" src="${this.escapeAttr(c.avatar)}" alt="${this.escapeAttr(c.name)}"><span class="detail-category-badge">${this.escapeHTML(meta.label)}</span></div><div class="detail-side-code">${this.escapeHTML(meta.kicker)}</div></div>
-        <div class="detail-copy"><div class="detail-category-line"><span>${this.escapeHTML(meta.en)}</span><i></i></div><h1>${this.escapeHTML(c.name)}</h1><p class="detail-description">${this.escapeHTML(c.description || "")}</p>${c.quote ? `<div class="quote">${this.escapeHTML(c.quote)}</div>` : ""}<div class="tags">${(c.tags || []).map(t => `<span class="tag">#${this.escapeHTML(t)}</span>`).join("")}</div><div class="detail-actions"><button class="primary detail-start" onclick="App.openBuilder()">開始故事</button><span class="detail-mode-note">${c.supported_modes?.world ? "支援世界模擬" : "單角色沉浸"} · ${c.supported_display?.ui ? "支援互動 UI" : "純文本"}</span></div></div>
+        <div class="detail-copy"><div class="detail-category-line"><span>${this.escapeHTML(meta.en)}</span><i></i></div><h1>${this.escapeHTML(c.title || c.name)}</h1><p class="detail-description">${this.escapeHTML(c.description || "")}</p>${c.quote ? `<div class="quote">${this.escapeHTML(c.quote)}</div>` : ""}<div class="tags">${(c.tags || []).map(t => `<span class="tag">#${this.escapeHTML(t)}</span>`).join("")}</div><div class="detail-actions"><button class="primary detail-start" onclick="App.openBuilder()">開始故事</button><span class="detail-mode-note">${c.supported_modes?.world ? "支援世界模擬" : "單角色沉浸"} · ${c.supported_display?.ui ? "支援互動 UI" : "純文本"}</span></div></div>
       </div></div>`;
   };
 
@@ -122,7 +122,7 @@
 
       const renderCustomList = () => {
         const custom = CharacterEngine.loadCustom();
-        listBox.innerHTML = custom.length ? custom.map(c => `<div class="note local-character-row"><b>${App.escapeHTML(c.name)}</b><span>${App.escapeHTML(categoryMeta[c.category]?.label || c.category)}</span><span>${App.escapeHTML(c.id)}</span><button class="text-button" data-remove-character="${App.escapeAttr(c.id)}">移除</button></div>`).join("") : '<div class="note" style="margin-top:8px">目前沒有本機匯入角色。</div>';
+        listBox.innerHTML = custom.length ? custom.map(c => `<div class="note local-character-row"><b>${App.escapeHTML(c.title || c.name)}</b><span>${App.escapeHTML(categoryMeta[c.category]?.label || c.category)}</span><span>${App.escapeHTML(c.id)}</span><button class="text-button" data-remove-character="${App.escapeAttr(c.id)}">移除</button></div>`).join("") : '<div class="note" style="margin-top:8px">目前沒有本機匯入角色。</div>';
         listBox.querySelectorAll("[data-remove-character]").forEach(btn => btn.addEventListener("click", () => {
           CharacterEngine.removeCustom(btn.dataset.removeCharacter);
           refreshCharacters();
