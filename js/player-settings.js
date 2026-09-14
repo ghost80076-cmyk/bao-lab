@@ -4,8 +4,9 @@
   const SETTINGS_KEY = "bao-lab:player-settings";
   const MEMORY_KEY = "bao-lab:player-memory-slots";
   const defaults = {
-    replyLength: "free",
+    replyLength: "auto",
     pov: "card",
+    dialogueFormat: "card",
     language: "zh-Hant",
     autoMemory: true,
     demoMode: false,
@@ -15,6 +16,8 @@
   const readJSON = (key, fallback) => { try { return JSON.parse(localStorage.getItem(key)) ?? fallback; } catch { return fallback; } };
   const writeJSON = (key, value) => localStorage.setItem(key, JSON.stringify(value));
   const settings = Object.assign({}, defaults, readJSON(SETTINGS_KEY, {}));
+  if (settings.replyLength === "free") settings.replyLength = "auto";
+  if (!["card", "named"].includes(settings.dialogueFormat)) settings.dialogueFormat = "card";
   settings.appearance = Object.assign({}, defaults.appearance, settings.appearance || {});
   let memorySlots = readJSON(MEMORY_KEY, [{ id: "memory-1", title: "記憶 1", text: "", enabled: true }]);
   if (!Array.isArray(memorySlots) || !memorySlots.length) memorySlots = [{ id: "memory-1", title: "記憶 1", text: "", enabled: true }];
@@ -43,16 +46,18 @@
   };
 
   const replyLabels = {
-    short: ["短", "約 600 字以內"], long: ["長", "約 1000 字以上"], free: ["自由", "約 1500 字以內"],
-    card: ["跟角色卡走", "由角色卡自己決定"], first: ["第一人稱", "角色以「我」自述"], second: ["第二人稱", "旁白以「你／妳」稱呼玩家"], third: ["第三人稱", "全知或鏡頭式第三人稱"],
+    short: ["短", "快速推進 · 約 300～600 字"], long: ["長", "完整描寫 · 約 900～1500 字"], auto: ["自動", "依場景密度調整"],
+    card: ["跟角色卡走", "沒有設定時採第三人稱"], first: ["角色第一人稱", "旁白「我」＝ AI 主要角色"], second: ["玩家第二人稱", "旁白「你／妳」＝玩家"], third: ["第三人稱", "雙方使用名稱或代詞"],
+    named: ["名稱標示", "角色名稱：「對話」"],
     en: ["English", "英文"], "zh-Hans": ["简体中文", "簡體中文"], "zh-Hant": ["繁體中文", "繁體中文"]
   };
 
   const choiceButtons = (name, values, selected) => values.map(v => `<button type="button" class="bao-choice ${v === selected ? "active" : ""}" data-setting="${name}" data-value="${v}"><b>${replyLabels[v][0]}</b><span>${replyLabels[v][1]}</span></button>`).join("");
 
   const openReplySettings = () => {
-    const body = `<div class="bao-setting-section"><h3>回覆長度</h3><p>控制故事回覆的大致篇幅。實際長度仍會受模型與場景影響。</p><div class="bao-choice-grid">${choiceButtons("replyLength", ["short","long","free"], settings.replyLength)}</div></div>
-    <div class="bao-setting-section"><h3>敘事人稱</h3><p>可固定視角，也可以交給角色卡本身決定。</p><div class="bao-choice-grid two">${choiceButtons("pov", ["card","first","second","third"], settings.pov)}</div></div>
+    const body = `<div class="bao-setting-section"><h3>回覆長度</h3><p>控制輸出密度，不影響記憶模式。短適合快速對話；長要求完整場景；自動會依日常、戰鬥、轉折等情況調整。</p><div class="bao-choice-grid">${choiceButtons("replyLength", ["short","long","auto"], settings.replyLength)}</div></div>
+    <div class="bao-setting-section"><h3>敘事人稱</h3><p>「角色第一人稱」中的我固定是 AI 主要角色；「玩家第二人稱」中的你／妳固定是玩家 Persona。</p><div class="bao-choice-grid two">${choiceButtons("pov", ["card","first","second","third"], settings.pov)}</div></div>
+    <div class="bao-setting-section"><h3>對話格式</h3><p>這只控制台詞標示方式，與敘事人稱分開。AI 不會因此替玩家編造台詞。</p><div class="bao-choice-grid two">${choiceButtons("dialogueFormat", ["card","named"], settings.dialogueFormat)}</div></div>
     <div class="bao-setting-section"><h3>回覆語言</h3><div class="bao-choice-grid">${choiceButtons("language", ["en","zh-Hans","zh-Hant"], settings.language)}</div></div>`;
     const modal = showModal("回覆設定", body, wrap => {
       wrap.querySelectorAll("[data-setting]").forEach(btn => btn.addEventListener("click", () => {
@@ -146,15 +151,34 @@
     box.querySelector("#bao-demo-mode").addEventListener("change", e => { settings.demoMode = e.target.checked; saveSettings(); });
   };
 
-  const lengthInstruction = () => settings.replyLength === "short" ? "回覆盡量控制在約 600 個中文字以內。" : settings.replyLength === "long" ? "回覆可較完整，通常至少約 1000 個中文字，但不要為湊字數重複描寫。" : "依劇情自由調整篇幅，通常控制在約 1500 個中文字以內。";
-  const povInstruction = () => ({ card:"敘事人稱依角色卡原本設定。", first:"固定使用第一人稱敘事，由角色以「我」自述。", second:"固定使用第二人稱敘事，旁白以「你／妳」稱呼玩家。", third:"固定使用第三人稱敘事，可採鏡頭式描寫，但角色不得知道未取得的資訊。" }[settings.pov]);
+  const lengthInstruction = () => settings.replyLength === "short"
+    ? "使用精簡回覆，優先快速對話與劇情推進，通常約 300～600 個中文字；不要為縮短而省略理解本輪所需的關鍵動作或結果。"
+    : settings.replyLength === "long"
+      ? "使用完整場景回覆，充分描寫動作、環境、角色反應與因果，通常約 900～1500 個中文字；不要為達字數而重複、灌水或拖慢劇情。"
+      : "依場景密度自動調整篇幅：日常對話可以簡潔；戰鬥、重大轉折、關係變化或需要沉浸描寫的場景可以加長。不要硬湊固定字數。";
+  const povInstruction = () => {
+    const roleName = App.activeCharacter?.name || "AI 主要角色";
+    const playerName = App.config?.persona?.name || "玩家";
+    return ({
+      card: `敘事人稱依角色卡原本設定；若角色卡沒有明確指定，使用第三人稱鏡頭式敘事。無論採何種人稱，都必須維持「${roleName}」與「${playerName}」的身份邊界。`,
+      first: `固定使用 AI 主要角色第一人稱敘事。旁白中的「我」只能指 AI 主要扮演角色「${roleName}」，不能指玩家「${playerName}」。描述玩家時使用玩家名稱或「你／妳」，不得替玩家補心理、台詞或行動。`,
+      second: `固定使用玩家第二人稱敘事。旁白中的「你／妳」只能指玩家「${playerName}」；AI 主要角色是「${roleName}」，在旁白中使用角色名稱或合適代詞。角色自己的對話可以自然使用「我」，但不得與玩家身份互換。`,
+      third: `固定使用第三人稱鏡頭式／有限視角敘事。「${roleName}」與「${playerName}」都使用名稱或合適代詞指稱；不得使用全知視角洩露角色尚未取得的資訊，也不得代替玩家決定心理、台詞或行動。`
+    }[settings.pov]);
+  };
+  const dialogueInstruction = () => {
+    const roleName = App.activeCharacter?.name || "AI 主要角色";
+    const playerName = App.config?.persona?.name || "玩家";
+    if (settings.dialogueFormat !== "named") return "對話格式依角色卡設定；若角色卡沒有指定，使用自然引號台詞。不得自行生成玩家的新台詞。";
+    return `所有可聽見的角色台詞使用下列格式並各自成行：角色名稱：「對話內容」。AI 主要角色的名稱固定寫作「${roleName}」，其他 NPC 使用實際名稱。不得自行生成玩家「${playerName}」的新台詞；只有在忠實重述玩家本輪已輸入的原話時，才可使用格式：${playerName}：「原話」。旁白維持一般敘事，不要加上角色名稱標籤。`;
+  };
   const languageInstruction = () => ({ "zh-Hant":"所有自然語言回覆使用繁體中文。", "zh-Hans":"所有自然語言回覆使用簡體中文。", en:"All natural-language replies must be in English." }[settings.language]);
 
   const originalBuildSystemPrompt = App.buildSystemPrompt.bind(App);
   App.buildSystemPrompt = function() {
     const base = originalBuildSystemPrompt();
     const memory = enabledMemoryText();
-    return [base, "", "【玩家回覆設定】", lengthInstruction(), povInstruction(), languageInstruction(), memory ? `\n【玩家手動記憶】\n${memory}` : ""].filter(Boolean).join("\n");
+    return [base, "", "【玩家回覆設定】", lengthInstruction(), povInstruction(), dialogueInstruction(), languageInstruction(), memory ? `\n【玩家手動記憶】\n${memory}` : ""].filter(Boolean).join("\n");
   };
 
   const originalCollectConfig = App.collectConfig.bind(App);

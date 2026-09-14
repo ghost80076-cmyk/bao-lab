@@ -132,6 +132,15 @@ const CharacterEngine = {
     if (options.include_creator_notes && c.creator_notes) blocks.push(`【作者備註】\n${c.creator_notes}`);
     if (context.modePrompt) blocks.push(`【敘事模式】\n${context.modePrompt}`);
 
+    const playerName = p.name || "未命名玩家";
+    blocks.push([
+      "【角色與玩家身份邊界】",
+      `AI 主要扮演角色：${c.name}`,
+      `玩家角色：${playerName}`,
+      `來自 user 的輸入一律視為「${playerName}」的台詞、行動或意圖；不得誤認為是「${c.name}」的輸入。`,
+      `AI 可以扮演「${c.name}」與世界中的 NPC，但不能扮演玩家「${playerName}」。兩者的姓名、身份、記憶、台詞與行動不得互換。`
+    ].join("\n"));
+
     blocks.push([
       "【玩家 Persona】",
       `名稱：${p.name || "未命名玩家"}`,
@@ -142,7 +151,7 @@ const CharacterEngine = {
       `其他設定：${p.extra || "無"}`
     ].join("\n"));
 
-    blocks.push("【共同規則】\n不得替玩家決定台詞、心理或行動。角色只能依已知資訊行動，不得無理由獲得玩家未公開的資訊。");
+    blocks.push("【共同規則】\n不得替玩家決定台詞、心理或行動；除非忠實引用玩家已輸入的原話，不得生成玩家的新台詞。角色只能依已知資訊行動，不得無理由獲得玩家未公開的資訊。");
     blocks.push(context.displayMode === "ui"
       ? "【輸出模式】\n目前使用互動 UI。不要每輪重新輸出完整 UI HTML，敘事正常輸出即可。"
       : "【輸出模式】\n目前使用純文本模式。不要輸出 RPG 狀態面板。");
