@@ -6,6 +6,7 @@ on:
       - main
       - feat/indexeddb-story-storage
       - feat/story-library-model
+      - feat/character-readiness
   pull_request:
     branches:
       - main
@@ -31,3 +32,5 @@ jobs:
         run: node tests/storage-indexeddb-core.cjs
       - name: Story library core
         run: node tests/story-library-core.cjs
+      - name: Character readiness core
+        run: node tests/character-readiness-core.cjs
