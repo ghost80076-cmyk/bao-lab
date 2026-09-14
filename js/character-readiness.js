@@ -47,6 +47,14 @@
     if (!asText(c.lore)) recommendations.push("若角色有過去事件、秘密或固定人物關係，可補 lore；純輕量角色可略過。");
     if (!asText(c.quote)) recommendations.push("可補一條代表性 quote，主要用於角色展示，不會影響核心運作。");
 
+    const profile = c.profile && typeof c.profile === "object" && !Array.isArray(c.profile) ? c.profile : {};
+    const profileKeys = Object.keys(profile);
+    if (c.profile && (typeof c.profile !== "object" || Array.isArray(c.profile))) {
+      warnings.push("content.profile 應為物件，方便維護完整角色設定。");
+    } else if (profileKeys.length > 0 && profileKeys.length < 4) {
+      recommendations.push("角色已使用 content.profile，但欄位偏少；可補外貌、行為邏輯、價值觀或關係進程。");
+    }
+
     let characterCore = 0;
     characterCore += asText(c.system_prompt) ? 0.58 : 0;
     characterCore += asText(c.greeting) ? 0.20 : 0;
@@ -80,6 +88,18 @@
       if (!asText(field?.label)) warnings.push(`character_status.fields[${index}] 缺少 label。`);
       if (field?.type && !["text", "number", "boolean", "enum", "collection"].includes(field.type)) {
         warnings.push(`character_status 欄位「${field.key || index + 1}」使用未識別 type：${field.type}。`);
+      }
+    });
+
+    const dynamicPrompts = asArray(c.dynamic_prompts);
+    const dynamicIds = dynamicPrompts.map(block => asText(block?.id)).filter(Boolean);
+    if (dynamicIds.length !== unique(dynamicIds).length) errors.push("dynamic_prompts 的 id 不可重複。");
+    dynamicPrompts.forEach((block, index) => {
+      if (!asText(block?.id)) errors.push(`dynamic_prompts[${index}] 缺少 id。`);
+      if (!asText(block?.label)) warnings.push(`dynamic_prompts[${index}] 缺少 label。`);
+      if (!asText(block?.text)) errors.push(`dynamic_prompts[${index}] 缺少 text。`);
+      if (block?.always !== true && !asArray(block?.triggers).length) {
+        warnings.push(`dynamic prompt「${block.id || index + 1}」沒有 triggers，也不是 always，不會被載入。`);
       }
     });
 
