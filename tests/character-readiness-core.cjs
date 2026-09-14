@@ -36,7 +36,8 @@ const lin = JSON.parse(fs.readFileSync(linPath, "utf8"));
 const report = CharacterEngine.audit(lin);
 
 assert.equal(report.ok, true, report.errors.join("\n"));
-assert.equal(report.character.gender, "female");
+assert.equal(report.character.category, "female", "女性向是作品受眾分類，不是角色性別");
+assert.equal(report.character.gender, "male", "林沉風本人是男性角色");
 assert.equal(report.character.name, "林沉風");
 assert.equal(report.longFormReady, true, JSON.stringify(report, null, 2));
 assert.ok(report.score >= 85);
