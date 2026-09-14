@@ -1,66 +1,71 @@
 [
   {
-    "provider": "gemini",
-    "provider_label": "Google Gemini 官方",
-    "protocol": "gemini",
-    "label": "Gemini — 2.5 Flash",
-    "model": "gemini-2.5-flash",
-    "base_url": "https://generativelanguage.googleapis.com/v1beta/models"
+    "provider":"gemini","provider_label":"Google Gemini 官方","route":"official","protocol":"gemini","label":"Gemini 3.1 Pro Preview · 高品質","model":"gemini-3.1-pro-preview","base_url":"https://generativelanguage.googleapis.com/v1beta/models","badge":"高品質","use_case":"重要劇情、複雜長篇、需要較強推理時","cache":"supported","pricing":{"input":2,"output":12,"cache":0.2,"note":"標準價；提示超過 200K 時價格提高。"},"docs_url":"https://ai.google.dev/gemini-api/docs/pricing"
   },
   {
-    "provider": "gemini",
-    "provider_label": "Google Gemini 官方",
-    "protocol": "gemini",
-    "label": "Gemini — 2.5 Flash-Lite",
-    "model": "gemini-2.5-flash-lite",
-    "base_url": "https://generativelanguage.googleapis.com/v1beta/models"
+    "provider":"gemini","provider_label":"Google Gemini 官方","route":"official","protocol":"gemini","label":"Gemini 3 Flash Preview · 平衡","model":"gemini-3-flash-preview","base_url":"https://generativelanguage.googleapis.com/v1beta/models","badge":"平衡","use_case":"大量長篇、速度與品質兼顧","cache":"supported","pricing":{"input":0.5,"output":3,"cache":0.05,"note":"標準價；實際計費請以 Google 當期價格頁為準。"},"docs_url":"https://ai.google.dev/gemini-api/docs/pricing"
   },
   {
-    "provider": "openai",
-    "provider_label": "OpenAI 官方",
-    "protocol": "openai",
-    "label": "OpenAI — 自訂 Model ID",
-    "model": "",
-    "base_url": "https://api.openai.com/v1/chat/completions"
+    "provider":"gemini","provider_label":"Google Gemini 官方","route":"official","protocol":"gemini","label":"Gemini 2.5 Flash · 相容備選","model":"gemini-2.5-flash","base_url":"https://generativelanguage.googleapis.com/v1beta/models","badge":"相容","use_case":"既有設定相容與一般聊天","cache":"supported","pricing":null,"docs_url":"https://ai.google.dev/gemini-api/docs/pricing"
   },
   {
-    "provider": "anthropic",
-    "provider_label": "Anthropic 官方",
-    "protocol": "anthropic",
-    "label": "Claude — 自訂 Model ID",
-    "model": "",
-    "base_url": "https://api.anthropic.com/v1/messages"
+    "provider":"anthropic","provider_label":"Anthropic Claude 官方","route":"official","protocol":"anthropic","label":"Claude Sonnet 4.6 · 高品質推薦","model":"claude-sonnet-4-6","base_url":"https://api.anthropic.com/v1/messages","badge":"高品質","use_case":"角色一致性、女性向長篇、細膩對話","cache":"explicit","pricing":{"input":3,"output":15,"cache":0.3,"cache_write":3.75,"note":"Cache Read 為 $0.30/M；5 分鐘 Cache Write 為 $3.75/M。"},"docs_url":"https://platform.claude.com/docs/en/about-claude/pricing"
   },
   {
-    "provider": "openrouter",
-    "provider_label": "OpenRouter",
-    "protocol": "openai",
-    "label": "OpenRouter — 自訂 Model ID",
-    "model": "",
-    "base_url": "https://openrouter.ai/api/v1/chat/completions"
+    "provider":"anthropic","provider_label":"Anthropic Claude 官方","route":"official","protocol":"anthropic","label":"Claude Sonnet 4.5 · 舊版相容","model":"claude-sonnet-4-5","base_url":"https://api.anthropic.com/v1/messages","badge":"相容","use_case":"既有角色與舊工作流","cache":"explicit","pricing":{"input":3,"output":15,"cache":0.3,"cache_write":3.75},"docs_url":"https://platform.claude.com/docs/en/about-claude/pricing"
   },
   {
-    "provider": "custom",
-    "provider_label": "中轉 / 自訂 API",
-    "protocol": "openai",
-    "label": "中轉 — OpenAI-compatible",
-    "model": "",
-    "base_url": ""
+    "provider":"anthropic","provider_label":"Anthropic Claude 官方","route":"official","protocol":"anthropic","label":"Claude Opus 4.6 · 豪華","model":"claude-opus-4-6","base_url":"https://api.anthropic.com/v1/messages","badge":"豪華","use_case":"高預算的重要劇情與高難度角色演繹","cache":"explicit","pricing":{"input":5,"output":25,"cache":0.5,"cache_write":6.25},"docs_url":"https://platform.claude.com/docs/en/about-claude/pricing"
   },
   {
-    "provider": "custom",
-    "provider_label": "中轉 / 自訂 API",
-    "protocol": "anthropic",
-    "label": "中轉 — Anthropic-compatible",
-    "model": "",
-    "base_url": ""
+    "provider":"anthropic","provider_label":"Anthropic Claude 官方","route":"official","protocol":"anthropic","label":"Claude Opus 4.5 · 舊版豪華","model":"claude-opus-4-5","base_url":"https://api.anthropic.com/v1/messages","badge":"豪華","use_case":"舊版 Opus 長篇相容","cache":"explicit","pricing":{"input":5,"output":25,"cache":0.5,"cache_write":6.25},"docs_url":"https://platform.claude.com/docs/en/about-claude/pricing"
   },
   {
-    "provider": "custom",
-    "provider_label": "中轉 / 自訂 API",
-    "protocol": "gemini",
-    "label": "中轉 — Gemini-compatible",
-    "model": "",
-    "base_url": ""
+    "provider":"deepseek","provider_label":"DeepSeek 官方","route":"official","protocol":"openai","label":"DeepSeek V4 Flash · 高 CP","model":"deepseek-v4-flash","base_url":"https://api.deepseek.com/chat/completions","badge":"高 CP","use_case":"便宜長篇、推理、狀態模型","cache":"automatic","pricing":{"input":0.22,"output":0.66,"cache":0.007,"note":"此處顯示離峰價；平日尖峰時段約為 2 倍。"},"docs_url":"https://api-docs.deepseek.com/quick_start/pricing/"
+  },
+  {
+    "provider":"mimo","provider_label":"Xiaomi MiMo 官方","route":"official","protocol":"openai","label":"MiMo V2.5 · 極省長篇","model":"mimo-v2.5","base_url":"https://api.xiaomimimo.com/v1/chat/completions","badge":"極省","use_case":"高頻聊天、超長篇、便宜狀態整理","cache":"automatic","pricing":{"input":0.14,"output":0.28,"cache":0.0028,"note":"海外按量 API；快取命中價格非常低。"},"docs_url":"https://mimo.mi.com/docs/en-US/price/pay-as-you-go"
+  },
+  {
+    "provider":"qwen","provider_label":"Alibaba Qwen 官方","route":"official","protocol":"openai","label":"Qwen 3.7 Flash · 狀態整理首選","model":"qwen3.7-flash","base_url":"https://dashscope-intl.aliyuncs.com/compatible-mode/v1/chat/completions","badge":"極省","use_case":"狀態欄、摘要、大量低成本長篇","cache":"automatic","pricing":{"input":0.03,"output":0.13,"cache":0.006,"note":"國際區 ≤32K 參考價；超過 32K 採階梯價格。舊國際 endpoint 仍可用，官方建議逐步改用 workspace 專屬網址。"},"docs_url":"https://www.alibabacloud.com/help/en/model-studio/qwen3-7-flash"
+  },
+  {
+    "provider":"minimax","provider_label":"MiniMax 官方","route":"official","protocol":"openai","label":"MiniMax M3 · 長 Context","model":"MiniMax-M3","base_url":"https://api.minimax.io/v1/chat/completions","badge":"長篇","use_case":"長 Context、世界模擬、成本與品質平衡","cache":"supported","pricing":{"input":0.3,"output":1.2,"cache":0.06,"note":"≤512K 目前官方優惠價。"},"docs_url":"https://platform.minimax.io/subscribe/token-plan?tab=api-enterprise"
+  },
+  {
+    "provider":"openrouter","provider_label":"OpenRouter 中轉 / 統一路由","route":"router","protocol":"openai","label":"OR · Gemini 3.1 Pro","model":"google/gemini-3.1-pro-preview","base_url":"https://openrouter.ai/api/v1/chat/completions","badge":"統一路由","use_case":"一把 Key 切換多模型；可由路由器選供應商","cache":"provider-dependent","pricing":{"input":2,"output":12,"cache":0.2,"note":"路由供應商可能有不同價格；Flex 路由可能更便宜。"},"docs_url":"https://openrouter.ai/google/gemini-3.1-pro-preview"
+  },
+  {
+    "provider":"openrouter","provider_label":"OpenRouter 中轉 / 統一路由","route":"router","protocol":"openai","label":"OR · Gemini 3 Flash","model":"google/gemini-3-flash-preview","base_url":"https://openrouter.ai/api/v1/chat/completions","badge":"統一路由","use_case":"平衡品質、速度與統一帳務","cache":"provider-dependent","pricing":{"input":0.5,"output":3,"cache":0.05},"docs_url":"https://openrouter.ai/google/gemini-3-flash-preview"
+  },
+  {
+    "provider":"openrouter","provider_label":"OpenRouter 中轉 / 統一路由","route":"router","protocol":"openai","label":"OR · Claude Sonnet 4.6","model":"anthropic/claude-sonnet-4.6","base_url":"https://openrouter.ai/api/v1/chat/completions","badge":"高品質","use_case":"想用一把 Key 同時切 Claude 與其他模型","cache":"provider-dependent","pricing":{"input":3,"output":15,"cache":0.3},"docs_url":"https://openrouter.ai/anthropic/claude-sonnet-4.6"
+  },
+  {
+    "provider":"openrouter","provider_label":"OpenRouter 中轉 / 統一路由","route":"router","protocol":"openai","label":"OR · Claude Opus 4.6","model":"anthropic/claude-opus-4.6","base_url":"https://openrouter.ai/api/v1/chat/completions","badge":"豪華","use_case":"高品質重要劇情，統一 OpenRouter 帳務","cache":"provider-dependent","pricing":{"input":5,"output":25,"cache":0.5},"docs_url":"https://openrouter.ai/anthropic/claude-opus-4.6"
+  },
+  {
+    "provider":"openrouter","provider_label":"OpenRouter 中轉 / 統一路由","route":"router","protocol":"openai","label":"OR · DeepSeek V4 Flash 0731","model":"deepseek/deepseek-v4-flash-0731","base_url":"https://openrouter.ai/api/v1/chat/completions","badge":"高 CP","use_case":"便宜主聊天或輔助整理","cache":"provider-dependent","pricing":{"input":0.05,"output":0.16,"cache":0.013,"note":"OpenRouter 路由價格可能隨供應商調整。"},"docs_url":"https://openrouter.ai/deepseek/deepseek-v4-flash-0731"
+  },
+  {
+    "provider":"openrouter","provider_label":"OpenRouter 中轉 / 統一路由","route":"router","protocol":"openai","label":"OR · MiMo V2.5","model":"xiaomi/mimo-v2.5","base_url":"https://openrouter.ai/api/v1/chat/completions","badge":"極省","use_case":"高頻長篇；可跨多個託管商路由","cache":"provider-dependent","pricing":{"input":0.119,"output":0.238,"cache":0.00255,"note":"顯示目前代表性路由價格，實際依 provider 而異。"},"docs_url":"https://openrouter.ai/xiaomi/mimo-v2.5"
+  },
+  {
+    "provider":"openrouter","provider_label":"OpenRouter 中轉 / 統一路由","route":"router","protocol":"openai","label":"OR · Qwen 3.7 Flash","model":"qwen/qwen3.7-flash","base_url":"https://openrouter.ai/api/v1/chat/completions","badge":"狀態首選","use_case":"狀態、摘要與低成本大量聊天","cache":"provider-dependent","pricing":{"input":0.03,"output":0.13,"cache":0.006},"docs_url":"https://openrouter.ai/qwen/qwen3.7-flash"
+  },
+  {
+    "provider":"openrouter","provider_label":"OpenRouter 中轉 / 統一路由","route":"router","protocol":"openai","label":"OR · MiniMax M3","model":"minimax/minimax-m3","base_url":"https://openrouter.ai/api/v1/chat/completions","badge":"長篇","use_case":"長 Context 與世界模擬","cache":"provider-dependent","pricing":{"input":0.23,"output":0.96,"cache":0.05},"docs_url":"https://openrouter.ai/minimax/minimax-m3"
+  },
+  {
+    "provider":"openai","provider_label":"OpenAI 官方","route":"official","protocol":"openai","label":"OpenAI · 自訂 Model ID","model":"","base_url":"https://api.openai.com/v1/chat/completions","badge":"自訂","use_case":"使用 OpenAI 官方但自行指定模型","cache":"model-dependent","pricing":null,"docs_url":"https://platform.openai.com/docs"
+  },
+  {
+    "provider":"custom","provider_label":"自訂 / 其他中轉","route":"custom","protocol":"openai","label":"自訂 · OpenAI-compatible","model":"","base_url":"","badge":"進階","use_case":"SiliconFlow、第三方代理、私人 Gateway 等","cache":"unknown","pricing":null
+  },
+  {
+    "provider":"custom","provider_label":"自訂 / 其他中轉","route":"custom","protocol":"anthropic","label":"自訂 · Anthropic-compatible","model":"","base_url":"","badge":"進階","use_case":"支援 Anthropic Messages API 的自訂服務","cache":"unknown","pricing":null
+  },
+  {
+    "provider":"custom","provider_label":"自訂 / 其他中轉","route":"custom","protocol":"gemini","label":"自訂 · Gemini-compatible","model":"","base_url":"","badge":"進階","use_case":"支援 Gemini generateContent 格式的自訂服務","cache":"unknown","pricing":null
   }
 ]
