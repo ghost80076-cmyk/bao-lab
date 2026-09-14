@@ -135,18 +135,39 @@
     }
   };
 
-  const visualPanel = () => {
-    const layout = document.querySelector("#chat-view .chat-layout");
-    if (!layout || !App.activeCharacter) return;
-    let visual = layout.querySelector(".story-character-visual");
-    if (!visual) {
-      visual = document.createElement("aside");
-      visual.className = "story-character-visual";
-      layout.appendChild(visual);
-    }
-    const avatar = characterAvatar(App.activeCharacter);
-    if (avatar) visual.style.backgroundImage = `url("${String(avatar).replace(/"/g, "%22")}")`;
-    visual.innerHTML = `<div class="story-visual-meta"><small>ACTIVE STORY</small><strong>${App.escapeHTML(characterName(App.activeCharacter))}</strong><span>角色視覺僅作閱讀背景，不影響文字顏色。</span></div>`;
+  const mobileToolBar = () => {
+    const main = document.querySelector("#chat-view .chat-main");
+    const header = main?.querySelector(".chat-topline");
+    if (!main || !header || main.querySelector(".story-mobile-tools")) return;
+
+    const bar = document.createElement("nav");
+    bar.className = "story-mobile-tools";
+    bar.setAttribute("aria-label", "故事工具");
+    bar.innerHTML = '<button type="button" data-story-mobile-action="save">快速儲存</button><button type="button" data-story-mobile-action="save-as">另存新檔</button><button type="button" data-story-mobile-action="narrative">敘事與描寫</button><button type="button" data-story-mobile-action="reply">回覆設定</button><button type="button" data-story-mobile-action="memory">記憶工作台</button>';
+
+    const clickExisting = selector => {
+      const target = document.querySelector(selector);
+      if (target) target.click();
+      else alert("功能仍在載入，請稍後再試。");
+    };
+
+    bar.addEventListener("click", event => {
+      const action = event.target.closest("[data-story-mobile-action]")?.dataset.storyMobileAction;
+      if (!action) return;
+      if (action === "save") App.saveStory(true);
+      if (action === "save-as") clickExisting("#save-slot-button");
+      if (action === "narrative") {
+        if (window.BAONarrativeSettings?.open) window.BAONarrativeSettings.open();
+        else clickExisting('#bao-player-settings [data-bao-open="narrative"]');
+      }
+      if (action === "reply") clickExisting('#bao-player-settings [data-bao-open="reply"]');
+      if (action === "memory") {
+        if (window.BAOMemoryWorkbench?.open) window.BAOMemoryWorkbench.open();
+        else clickExisting('#bao-player-settings [data-bao-open="memory"]');
+      }
+    });
+
+    header.insertAdjacentElement("afterend", bar);
   };
 
   const historyBefore = index => {
@@ -408,7 +429,7 @@
   function decorateStream() {
     applyImageOverrides();
     normalizeMessages();
-    visualPanel();
+    mobileToolBar();
     const stream = document.getElementById("chat-stream");
     if (!stream) return;
     stream.querySelectorAll(".story-message-tools,.story-variant-switcher,.story-inspiration-panel").forEach(node => node.remove());

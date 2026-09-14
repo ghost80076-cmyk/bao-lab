@@ -3,6 +3,8 @@ const fs = require("fs");
 
 const js = fs.readFileSync("js/story-reader.js", "utf8");
 const css = fs.readFileSync("css/story-reader.css", "utf8");
+const app = fs.readFileSync("js/app.js", "utf8");
+const chatShell = fs.readFileSync("js/chat-shell-fix.js", "utf8");
 const siteUI = fs.readFileSync("js/site-ui.js", "utf8");
 const brandUI = fs.readFileSync("js/brand-ui.js", "utf8");
 const brandCSS = fs.readFileSync("css/brand-home.css", "utf8");
@@ -18,21 +20,27 @@ assert(js.includes("input.value = text"), "action inspiration must fill the comp
 assert(js.includes("BAOChatMarkup.sanitize"), "rich HTML renderer integration is missing");
 assert(js.includes("return (list || []).map(message => ({ role: message.role, content:"), "context should strip UI metadata before API calls");
 assert(css.includes("#chat-view .message.assistant .bubble:not(.authored-rich-message)"), "plain text contrast rule is missing");
-assert(css.includes("aside:not(.story-character-visual)"), "mobile artwork must remain visible behind the reader");
-assert(css.includes("position:absolute"), "mobile background artwork layout is missing");
-assert(!css.includes("34vw"), "desktop artwork width must not be based on viewport width inside the fixed app shell");
+assert(!js.includes("visualPanel"), "story reader must not create a separate background artwork panel");
+assert(!css.includes("story-character-visual"), "responsive CSS must not depend on a background artwork panel");
+assert(!app.includes('chat-character-card").innerHTML=`<img'), "sidebar must not duplicate the character portrait");
+assert(chatShell.includes('id="chat-title-avatar"'), "chat header must render the character portrait beside the title");
+assert(chatShell.includes("syncChatHeader"), "chat header portrait must stay in sync with the active character");
 assert(css.includes("grid-template-columns:220px minmax(0,1fr)"), "desktop reader must use the sidebar + story two-column layout");
-assert(/@media\(min-width:821px\)\{[\s\S]*?\.story-character-visual\{\s*display:none!important;/.test(css), "desktop reader must hide the duplicate large artwork panel");
-assert(css.includes("width:132px"), "desktop sidebar portrait should be enlarged");
-assert(css.includes("object-position:center top"), "desktop sidebar portrait should keep the face aligned");
-assert(css.includes("#chat-character-card img"), "legacy sidebar artwork must be constrained instead of overflowing its grid column");
+assert(css.includes(".chat-title-avatar"), "character portrait styling beside the story title is missing");
+assert(css.includes("object-position:center top"), "story title portrait should keep the face aligned");
 assert(css.includes("grid-template-columns:190px minmax(0,1fr)"), "tablet / narrow desktop must retain the sidebar + story layout");
-assert(css.includes("background:rgba(8,11,17,.32)!important"), "authored HTML mobile shell should not cover the character artwork with an opaque page");
+assert(css.includes("background:rgba(8,11,17,.32)!important"), "authored HTML mobile shell should stay visually integrated with the reader");
 assert(css.includes("overflow-x:hidden"), "authored HTML must not create a reader-wide horizontal scrollbar");
 assert(css.includes("min-width:0!important"), "authored HTML children must be allowed to shrink inside the reading column");
 assert(css.includes("white-space:pre-wrap"), "authored preformatted content must wrap inside the reading column");
-assert(css.includes("width:calc(100% - 16px)"), "mobile story panel must leave the character artwork visible at both sides");
+assert(!css.includes("width:calc(100% - 16px)"), "mobile reader must no longer reserve space for background artwork");
 assert(css.includes("padding:10px 6px"), "small mobile story padding should preserve reading width");
+assert(js.includes('className = "story-mobile-tools"'), "mobile story toolbar is missing");
+for (const action of ["save", "save-as", "narrative", "reply", "memory"]) {
+  assert(js.includes(`data-story-mobile-action="${action}"`), `mobile story action is missing: ${action}`);
+}
+assert(css.includes("#chat-view .story-mobile-tools"), "mobile story toolbar styles are missing");
+assert(css.includes("overflow-x:auto"), "mobile story toolbar must scroll horizontally when needed");
 assert(siteUI.includes('loadBAOScript("js/story-reader.js")'), "story reader is not loaded by site-ui");
 assert(brandUI.includes('.topbar nav [data-view="${view}"]'), "brand labels must target nav controls without replacing the BAO/LAB logo");
 assert(brandCSS.includes("overflow-x:auto"), "mobile topbar navigation must scroll instead of squeezing labels vertically");
