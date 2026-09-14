@@ -27,7 +27,7 @@
   const message = input => {
     if (!input || typeof input !== "object") return null;
     const raw = String(input.role || input.sender || input.author || "").toLowerCase();
-    const role = /assistant|ai|bot|character|角色/.test(raw) ? "assistant" : /user|human|player|玩家|使用者/.test(raw) ? "user" : "";
+    const role = /assistant|model|ai|bot|character|角色/.test(raw) ? "assistant" : /user|human|player|玩家|使用者/.test(raw) ? "user" : "";
     const content = String(input.content ?? input.text ?? input.message ?? "").trim();
     return role && content ? { role, content } : null;
   };
@@ -110,7 +110,11 @@
     if (!text) throw new Error("檔案沒有可讀內容。");
     try {
       const json = JSON.parse(text);
-      if (json?.schema === SCHEMA) return { pack: normalizePack(json), messages: [] };
+      if (json?.schema === SCHEMA) {
+        const pack = normalizePack(json);
+        pack.playerConfirmed = false;
+        return { pack, messages: [] };
+      }
       const list = Array.isArray(json) ? json : json?.messages || json?.chat?.messages || json?.conversation || json?.data?.messages;
       if (Array.isArray(list)) {
         const messages = list.map(message).filter(Boolean);
