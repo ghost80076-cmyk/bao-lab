@@ -39,6 +39,11 @@ assert.equal(report.ok, true, report.errors.join("\n"));
 assert.equal(report.character.category, "female", "女性向是作品受眾分類，不是角色性別");
 assert.equal(report.character.gender, "male", "林沉風本人是男性角色");
 assert.equal(report.character.name, "林沉風");
+assert.equal(report.character.title, "林沉風 - 見過黑暗的人");
+assert.equal(report.character.avatar, "https://i.meee.com.tw/UHKTM1O.jpg");
+assert.ok(Object.keys(report.character.profile).length >= 12, "完整角色資料應被正規化保留");
+assert.ok(report.character.profile["沉默策略"].includes("沉默"));
+assert.ok(report.character.profile["關係進程"].includes("陌生試探"));
 assert.equal(report.longFormReady, true, JSON.stringify(report, null, 2));
 assert.ok(report.score >= 85);
 assert.equal(report.character.supported_modes.world, true);
@@ -46,8 +51,14 @@ assert.ok(report.character.world.includes("匿名論壇"));
 assert.ok(Array.isArray(report.character.narrative_profile.recommended_styles));
 assert.ok(report.character.world_modules.some(module => module.id === "relationship"));
 assert.ok(report.character.dynamic_prompts.some(block => block.id === "intimacy"));
-assert.equal(report.character.initial_state.character_statuses["林沉風"].relationship_stage, "陌生人｜試探階段");
+assert.ok(report.character.dynamic_prompts.some(block => block.id === "dependency_boundary"));
+assert.ok(report.character.dynamic_prompts.some(block => block.id === "identity_transition"));
+assert.ok(report.character.dynamic_prompts.some(block => block.id === "private_past"));
+assert.equal("relationship_stage" in report.character.initial_state.character_statuses["林沉風"], false, "關係階段只由 relationship module 追蹤，避免雙份狀態漂移");
+assert.equal(report.character.initial_state.modules.relationship.stage, "陌生人｜試探階段");
 assert.equal(report.character.initial_state.modules.relationship.trust, "尚未建立");
+assert.deepEqual(report.character.initial_state.modules.relationship.shared_history, ["林沉風在匿名論壇第一次回覆玩家的文章。"]);
+assert.ok(report.character.world_modules.find(module => module.id === "relationship").fields.some(field => field.key === "unresolved_tension"));
 
 const baseContext = {
   persona: { name: "玩家", gender: "女性" },
@@ -58,7 +69,12 @@ const ordinaryPrompt = CharacterEngine.composeSystemPrompt(lin, {
   ...baseContext,
   recentMessages: [{ role: "user", content: "今天工作有點累。" }]
 });
+assert.ok(ordinaryPrompt.includes("【角色完整設定】"));
+assert.ok(ordinaryPrompt.includes("低侵略型主導"));
+assert.ok(ordinaryPrompt.includes("AI 主要扮演角色：林沉風"));
+assert.equal(ordinaryPrompt.includes("AI 主要扮演角色：林沉風 - 見過黑暗的人"), false, "作品副標題不可混入角色姓名");
 assert.equal(ordinaryPrompt.includes("【親密情境｜林沉風】"), false, "一般對話不應浪費 token 載入親密模組");
+assert.equal(ordinaryPrompt.includes("【依賴與界線｜林沉風】"), false, "一般對話不應載入界線情境模組");
 const intimatePrompt = CharacterEngine.composeSystemPrompt(lin, {
   ...baseContext,
   recentMessages: [
@@ -68,6 +84,20 @@ const intimatePrompt = CharacterEngine.composeSystemPrompt(lin, {
 });
 assert.equal(intimatePrompt.includes("【親密情境｜林沉風】"), true, "親密情境應載入專屬互動規則");
 assert.ok(intimatePrompt.includes("情緒與信任先於身體行動"));
+
+const dependencyPrompt = CharacterEngine.composeSystemPrompt(lin, {
+  ...baseContext,
+  recentMessages: [{ role: "user", content: "我不能沒有你，你要一直陪我。" }]
+});
+assert.ok(dependencyPrompt.includes("【依賴與界線｜林沉風】"));
+assert.ok(dependencyPrompt.includes("不會用浪漫化的方式強化依賴"));
+
+const transitionPrompt = CharacterEngine.composeSystemPrompt(lin, {
+  ...baseContext,
+  recentMessages: [{ role: "user", content: "我們交換 LINE，改天在現實見面好嗎？" }]
+});
+assert.ok(transitionPrompt.includes("【聯絡方式與現實轉場】"));
+assert.ok(transitionPrompt.includes("不能憑空知道玩家的真名"));
 
 const invalid = JSON.parse(JSON.stringify(lin));
 invalid.gameplay.character_status.fields.push({
