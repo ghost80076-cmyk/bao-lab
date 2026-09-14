@@ -189,11 +189,14 @@ function makeContext() {
   const Storage = context.__Storage;
 
   assert.equal(Storage.hasStory(), true, "legacy autosave is available during startup");
+  const queuedDuringMigration = Storage.saveSlot("queued-during-migration");
+  assert.ok(queuedDuringMigration?.id, "writes are accepted while IndexedDB initializes");
   await Storage.ready();
   assert.equal(Storage.status().mode, "indexedDB");
   assert.equal(Storage.loadStory().label, "legacy-auto");
-  assert.equal(Storage.listSlots().length, 1);
-  assert.equal(Storage.listSlots()[0].id, "slot-1");
+  assert.equal(Storage.listSlots().length, 2);
+  assert.ok(Storage.listSlots().some(item => item.id === queuedDuringMigration.id), "pending slot survives migration");
+  assert.ok(Storage.listSlots().some(item => item.id === "slot-1"));
   assert.equal(localStorage.getItem("bao-lab:story:autosave"), null, "legacy autosave removed after migration");
   assert.equal(localStorage.getItem("bao-lab:story:slots"), null, "legacy slots removed after migration");
   assert.ok(localStorage.getItem("bao-lab:story-idb-migrated-v1"));
@@ -203,14 +206,14 @@ function makeContext() {
   assert.ok(newSlot.id);
   await Storage.flush();
   assert.equal(localStorage.getItem("bao-lab:story:autosave"), null, "new IDB autosave does not return to localStorage");
-  assert.equal(Storage.listSlots().length, 2);
+  assert.equal(Storage.listSlots().length, 3);
 
   context = makeContext();
   const Reloaded = context.__Storage;
   await Reloaded.ready();
   assert.equal(Reloaded.status().mode, "indexedDB");
   assert.equal(Reloaded.loadStory().chat.messages[0].content, "new");
-  assert.equal(Reloaded.listSlots().length, 2, "slots survive reload from IDB");
+  assert.equal(Reloaded.listSlots().length, 3, "slots and migration-time writes survive reload from IDB");
   assert.equal(JSON.stringify(Reloaded.loadStory()).includes("SECRET"), false, "API key is not persisted");
 
   Reloaded.deleteSlot("slot-1");
