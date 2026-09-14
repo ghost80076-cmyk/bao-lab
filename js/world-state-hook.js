@@ -1,5 +1,5 @@
 (() => {
-  window.addEventListener("DOMContentLoaded", () => {
+  const init = () => {
     setTimeout(() => {
       if (!window.App || !window.WorldStateEngine || App.__worldStateHooked) return;
       const originalSend = App.sendMessage.bind(App);
@@ -20,5 +20,8 @@
       };
       App.__worldStateHooked = true;
     }, 0);
-  });
+  };
+
+  if (document.readyState === "loading") window.addEventListener("DOMContentLoaded", init);
+  else init();
 })();

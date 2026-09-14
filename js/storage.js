@@ -14,7 +14,7 @@ const Storage = {
     const state = structuredClone(GameState.current);
     if (state?.config?.api) state.config.api.key = "";
     return {
-      version: 2,
+      version: 3,
       label,
       savedAt: new Date().toISOString(),
       characterId: App.activeCharacter.id,
