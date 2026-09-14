@@ -1,66 +1,26 @@
 [
-  {
-    "provider": "gemini",
-    "provider_label": "Google Gemini 官方",
-    "protocol": "gemini",
-    "label": "Gemini — 2.5 Flash",
-    "model": "gemini-2.5-flash",
-    "base_url": "https://generativelanguage.googleapis.com/v1beta/models"
-  },
-  {
-    "provider": "gemini",
-    "provider_label": "Google Gemini 官方",
-    "protocol": "gemini",
-    "label": "Gemini — 2.5 Flash-Lite",
-    "model": "gemini-2.5-flash-lite",
-    "base_url": "https://generativelanguage.googleapis.com/v1beta/models"
-  },
-  {
-    "provider": "openai",
-    "provider_label": "OpenAI 官方",
-    "protocol": "openai",
-    "label": "OpenAI — 自訂 Model ID",
-    "model": "",
-    "base_url": "https://api.openai.com/v1/chat/completions"
-  },
-  {
-    "provider": "anthropic",
-    "provider_label": "Anthropic 官方",
-    "protocol": "anthropic",
-    "label": "Claude — 自訂 Model ID",
-    "model": "",
-    "base_url": "https://api.anthropic.com/v1/messages"
-  },
-  {
-    "provider": "openrouter",
-    "provider_label": "OpenRouter",
-    "protocol": "openai",
-    "label": "OpenRouter — 自訂 Model ID",
-    "model": "",
-    "base_url": "https://openrouter.ai/api/v1/chat/completions"
-  },
-  {
-    "provider": "custom",
-    "provider_label": "中轉 / 自訂 API",
-    "protocol": "openai",
-    "label": "中轉 — OpenAI-compatible",
-    "model": "",
-    "base_url": ""
-  },
-  {
-    "provider": "custom",
-    "provider_label": "中轉 / 自訂 API",
-    "protocol": "anthropic",
-    "label": "中轉 — Anthropic-compatible",
-    "model": "",
-    "base_url": ""
-  },
-  {
-    "provider": "custom",
-    "provider_label": "中轉 / 自訂 API",
-    "protocol": "gemini",
-    "label": "中轉 — Gemini-compatible",
-    "model": "",
-    "base_url": ""
-  }
+  {"provider":"gemini","provider_label":"Google Gemini 官方","protocol":"gemini","label":"Gemini 3.1 Pro Preview｜高品質長篇","model":"gemini-3.1-pro-preview","base_url":"https://generativelanguage.googleapis.com/v1beta/models","source_kind":"official","tier":"quality","summary":"長篇理解與推理能力強，適合重要劇情與高品質角色互動。","cache_note":"支援 Gemini 快取。","pricing":{"input":2,"output":12,"cache":0.2,"as_of":"2026-09-14"}},
+  {"provider":"gemini","provider_label":"Google Gemini 官方","protocol":"gemini","label":"Gemini 3 Flash Preview｜平衡","model":"gemini-3-flash-preview","base_url":"https://generativelanguage.googleapis.com/v1beta/models","source_kind":"official","tier":"balanced","summary":"速度、品質與價格較平衡，適合大量互動。","cache_note":"支援 Context caching。","pricing":{"input":0.5,"output":3,"cache":0.05,"as_of":"2026-09-14"}},
+  {"provider":"gemini","provider_label":"Google Gemini 官方","protocol":"gemini","label":"Gemini 3.7 Flash｜新一代 Flash","model":"gemini-3.7-flash","base_url":"https://generativelanguage.googleapis.com/v1beta/models","source_kind":"official","tier":"balanced","summary":"新一代 Flash，適合速度與長上下文。","cache_note":"支援 Context caching。","pricing":{"input":0.75,"output":3.75,"cache":0.075,"as_of":"2026-09-14"}},
+  {"provider":"gemini","provider_label":"Google Gemini 官方","protocol":"gemini","label":"Gemini 2.5 Flash-Lite｜輔助整理","model":"gemini-2.5-flash-lite","base_url":"https://generativelanguage.googleapis.com/v1beta/models","source_kind":"official","tier":"economy","summary":"適合狀態 JSON 與記憶摘要。","cache_note":"支援時可利用快取。","pricing":null},
+  {"provider":"anthropic","provider_label":"Anthropic Claude 官方","protocol":"anthropic","label":"Claude Sonnet 4.6｜高品質推薦","model":"claude-sonnet-4-6","base_url":"https://api.anthropic.com/v1/messages","source_kind":"official","tier":"quality","summary":"角色一致性、文字品質與長篇表現均衡。","cache_note":"支援 Prompt Cache；快取命中可降低固定前綴成本。","pricing":{"input":3,"output":15,"cache":0.3,"as_of":"2026-09-14"}},
+  {"provider":"anthropic","provider_label":"Anthropic Claude 官方","protocol":"anthropic","label":"Claude Sonnet 4.5｜舊版相容","model":"claude-sonnet-4-5","base_url":"https://api.anthropic.com/v1/messages","source_kind":"official","tier":"quality","summary":"給偏好 4.5 文風或既有工作流的玩家。","cache_note":"支援 Prompt Cache。","pricing":{"input":3,"output":15,"cache":0.3,"as_of":"2026-09-14"}},
+  {"provider":"anthropic","provider_label":"Anthropic Claude 官方","protocol":"anthropic","label":"Claude Opus 4.6｜豪華","model":"claude-opus-4-6","base_url":"https://api.anthropic.com/v1/messages","source_kind":"official","tier":"premium","summary":"高成本高品質，適合重要劇情與複雜人物。","cache_note":"支援 Prompt Cache。","pricing":{"input":5,"output":25,"cache":0.5,"as_of":"2026-09-14"}},
+  {"provider":"anthropic","provider_label":"Anthropic Claude 官方","protocol":"anthropic","label":"Claude Opus 4.5｜舊版豪華","model":"claude-opus-4-5","base_url":"https://api.anthropic.com/v1/messages","source_kind":"official","tier":"premium","summary":"給偏好 Opus 4.5 行為與文風的玩家。","cache_note":"支援 Prompt Cache。","pricing":{"input":5,"output":25,"cache":0.5,"as_of":"2026-09-14"}},
+  {"provider":"deepseek","provider_label":"DeepSeek 官方","protocol":"openai","label":"DeepSeek V4 Flash｜高 CP","model":"deepseek-v4-flash","base_url":"https://api.deepseek.com/chat/completions","source_kind":"official","tier":"economy","summary":"成本低、長上下文，適合大量長篇與輔助整理。","cache_note":"官方 Prompt Cache 命中價格很低。","pricing":{"input":0.44,"output":1.32,"cache":0.014,"as_of":"2026-09-14","note":"以尖峰保守估算；離峰約一半。"}},
+  {"provider":"mimo","provider_label":"Xiaomi MiMo 官方","protocol":"openai","label":"MiMo V2.5｜極省長篇","model":"mimo-v2.5","base_url":"https://api.xiaomimimo.com/v1/chat/completions","source_kind":"official","tier":"economy","summary":"未命中本來就便宜，快取命中後成本非常低。","cache_note":"Prompt Cache 命中約 $0.0028 / 1M input。","pricing":{"input":0.14,"output":0.28,"cache":0.0028,"as_of":"2026-09-14"}},
+  {"provider":"qwen","provider_label":"Alibaba Qwen 官方","protocol":"openai","label":"Qwen 3.7 Flash｜狀態整理首選","model":"qwen3.7-flash","base_url":"https://dashscope-intl.aliyuncs.com/compatible-mode/v1/chat/completions","source_kind":"official","tier":"economy","summary":"32K 以下非常便宜，適合狀態、摘要與高頻長篇。","cache_note":"支援 Context Cache；長 Context 會分級漲價。","pricing":{"input":0.03,"output":0.13,"cache":0.006,"as_of":"2026-09-14","note":"國際區、輸入 ≤32K。"}},
+  {"provider":"minimax","provider_label":"MiniMax 官方","protocol":"openai","label":"MiniMax M3｜平衡長篇","model":"MiniMax-M3","base_url":"https://api.minimax.io/v1/chat/completions","source_kind":"official","tier":"balanced","summary":"長上下文、成本中低，適合長篇角色扮演與世界模擬。","cache_note":"支援 cache read。","pricing":{"input":0.3,"output":1.2,"cache":0.06,"as_of":"2026-09-14","note":"≤512K Context。"}},
+  {"provider":"openrouter","provider_label":"OpenRouter｜統一中轉","protocol":"openai","label":"Gemini 3.1 Pro｜OpenRouter","model":"google/gemini-3.1-pro-preview","base_url":"https://openrouter.ai/api/v1/chat/completions","source_kind":"router","tier":"quality","summary":"一把 Key 切換 Gemini，並可由路由器選供應商。","cache_note":"快取與實際價格依路由供應商。","pricing":{"input":2,"output":12,"cache":0.2,"as_of":"2026-09-14"}},
+  {"provider":"openrouter","provider_label":"OpenRouter｜統一中轉","protocol":"openai","label":"Gemini 3 Flash｜OpenRouter","model":"google/gemini-3-flash-preview","base_url":"https://openrouter.ai/api/v1/chat/completions","source_kind":"router","tier":"balanced","summary":"適合不想分別管理多家 API 帳號的玩家。","cache_note":"快取依路由供應商。","pricing":{"input":0.5,"output":3,"cache":0.05,"as_of":"2026-09-14"}},
+  {"provider":"openrouter","provider_label":"OpenRouter｜統一中轉","protocol":"openai","label":"Claude Sonnet 4.6｜OpenRouter","model":"anthropic/claude-sonnet-4.6","base_url":"https://openrouter.ai/api/v1/chat/completions","source_kind":"router","tier":"quality","summary":"優點是統一帳號與 failover，通常不是為了比官方更便宜。","cache_note":"快取依路由供應商。","pricing":{"input":3,"output":15,"cache":0.3,"as_of":"2026-09-14"}},
+  {"provider":"openrouter","provider_label":"OpenRouter｜統一中轉","protocol":"openai","label":"Claude Opus 4.6｜OpenRouter","model":"anthropic/claude-opus-4.6","base_url":"https://openrouter.ai/api/v1/chat/completions","source_kind":"router","tier":"premium","summary":"高成本豪華選項，優點是多供應商路由與單一 Key。","cache_note":"快取依路由供應商。","pricing":{"input":5,"output":25,"cache":0.5,"as_of":"2026-09-14"}},
+  {"provider":"openrouter","provider_label":"OpenRouter｜統一中轉","protocol":"openai","label":"DeepSeek V4 Flash｜OpenRouter","model":"deepseek/deepseek-v4-flash","base_url":"https://openrouter.ai/api/v1/chat/completions","source_kind":"router","tier":"economy","summary":"第三方託管可能比官方尖峰價格低。","cache_note":"不同 provider 的快取與效能會不同。","pricing":{"input":0.0679,"output":0.168,"cache":0,"as_of":"2026-09-14"}},
+  {"provider":"openrouter","provider_label":"OpenRouter｜統一中轉","protocol":"openai","label":"MiMo V2.5｜OpenRouter","model":"xiaomi/mimo-v2.5","base_url":"https://openrouter.ai/api/v1/chat/completions","source_kind":"router","tier":"economy","summary":"可在 Xiaomi 與第三方託管間路由。","cache_note":"不同 provider 的 cache 價不同。","pricing":{"input":0.119,"output":0.238,"cache":0.00255,"as_of":"2026-09-14"}},
+  {"provider":"openrouter","provider_label":"OpenRouter｜統一中轉","protocol":"openai","label":"MiniMax M3｜OpenRouter","model":"minimax/minimax-m3","base_url":"https://openrouter.ai/api/v1/chat/completions","source_kind":"router","tier":"balanced","summary":"目前路由價格可能低於 MiniMax 官方按量價。","cache_note":"依路由供應商。","pricing":{"input":0.23,"output":0.96,"cache":0.05,"as_of":"2026-09-14"}},
+  {"provider":"openrouter","provider_label":"OpenRouter｜統一中轉","protocol":"openai","label":"OpenRouter｜自訂 Model ID","model":"","base_url":"https://openrouter.ai/api/v1/chat/completions","source_kind":"router","tier":"custom","summary":"自己填 OpenRouter model slug。","cache_note":"依模型與路由供應商。","pricing":null},
+  {"provider":"openai","provider_label":"OpenAI 官方","protocol":"openai","label":"OpenAI｜自訂 Model ID","model":"","base_url":"https://api.openai.com/v1/chat/completions","source_kind":"official","tier":"custom","summary":"使用 OpenAI 官方 Chat Completions，自行填 Model ID。","cache_note":"依所選模型。","pricing":null},
+  {"provider":"custom","provider_label":"其他中轉 / 自訂 API","protocol":"openai","label":"自訂｜OpenAI-compatible","model":"","base_url":"","source_kind":"custom","tier":"custom","summary":"其他中轉站、自架或 OpenAI Chat Completions 相容端點。","cache_note":"依服務商。","pricing":null},
+  {"provider":"custom","provider_label":"其他中轉 / 自訂 API","protocol":"anthropic","label":"自訂｜Anthropic-compatible","model":"","base_url":"","source_kind":"custom","tier":"custom","summary":"Anthropic Messages API 相容端點。","cache_note":"依服務商。","pricing":null},
+  {"provider":"custom","provider_label":"其他中轉 / 自訂 API","protocol":"gemini","label":"自訂｜Gemini-compatible","model":"","base_url":"","source_kind":"custom","tier":"custom","summary":"Gemini generateContent 相容端點。","cache_note":"依服務商。","pricing":null}
 ]
