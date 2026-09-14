@@ -35,5 +35,7 @@ jobs:
         run: node tests/story-library-core.cjs
       - name: Character readiness core
         run: node tests/character-readiness-core.cjs
+      - name: World state mode gating
+        run: node tests/world-state-mode-core.cjs
       - name: Lin Chenfeng token budget
         run: node tests/linchenfeng-token-budget.cjs
