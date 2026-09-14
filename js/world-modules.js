@@ -51,25 +51,82 @@
     };
   };
 
-  const definitions = character => {
+  const baseDefinitions = character => {
     const raw = character?.world_modules || character?.gameplay?.world_modules || [];
     return (Array.isArray(raw) ? raw : []).map(normalizeModule).filter(Boolean).filter(x => x.enabled).slice(0, 12);
+  };
+
+  const emptyCustomization = () => ({ version: 1, enabledBuiltIns: [], disabled: [], customModules: [], order: [] });
+
+  const normalizeCustomization = (raw, character) => {
+    const source = raw && typeof raw === "object" && !Array.isArray(raw) ? raw : {};
+    const baseIds = new Set(baseDefinitions(character).map(def => def.id));
+    const enabledBuiltIns = [...new Set(Array.isArray(source.enabledBuiltIns) ? source.enabledBuiltIns.map(x => String(x || "")) : [])]
+      .filter(id => BUILT_INS[id] && !baseIds.has(id));
+    const used = new Set([...baseIds, ...enabledBuiltIns]);
+    const customModules = [];
+    (Array.isArray(source.customModules) ? source.customModules : []).slice(0, 12).forEach(rawModule => {
+      const module = normalizeModule({ ...rawModule, enabled: true });
+      if (!module || used.has(module.id) || BUILT_INS[module.id]) return;
+      used.add(module.id);
+      customModules.push({ ...module, origin: "player" });
+    });
+    const disabled = [...new Set(Array.isArray(source.disabled) ? source.disabled.map(x => String(x || "")) : [])].filter(id => used.has(id));
+    const requested = [...new Set(Array.isArray(source.order) ? source.order.map(x => String(x || "")) : [])].filter(id => used.has(id));
+    const order = [...requested, ...[...used].filter(id => !requested.includes(id))];
+    return { version: 1, enabledBuiltIns, disabled, customModules, order };
+  };
+
+  const getCustomization = character => {
+    const c = character || window.App?.activeCharacter;
+    return normalizeCustomization(GameState.current?.worldModuleCustomization || emptyCustomization(), c);
+  };
+
+  const definitions = character => {
+    const c = character || window.App?.activeCharacter;
+    const customization = getCustomization(c);
+    const base = baseDefinitions(c).map(def => ({ ...def, origin: "character" }));
+    const enabled = customization.enabledBuiltIns.map(id => normalizeModule({ id })).filter(Boolean).map(def => ({ ...def, origin: "built_in" }));
+    const all = [...base, ...enabled, ...customization.customModules].filter(def => !customization.disabled.includes(def.id));
+    const rank = new Map(customization.order.map((id, index) => [id, index]));
+    return all.sort((a, b) => (rank.get(a.id) ?? 999) - (rank.get(b.id) ?? 999)).slice(0, 24);
   };
 
   const initialValues = character => clone(character?.initial_state?.modules || character?.gameplay?.initial_state?.modules || {});
 
   const ensureState = character => {
-    if (!GameState.current) return;
-    const defs = definitions(character || window.App?.activeCharacter);
+    if (!GameState.current) return [];
+    const c = character || window.App?.activeCharacter;
+    GameState.current.worldModuleCustomization = getCustomization(c);
+    const defs = definitions(c);
     GameState.current.moduleDefinitions = defs;
-    if (!GameState.current.modules || typeof GameState.current.modules !== "object") GameState.current.modules = {};
-    const initial = initialValues(character || window.App?.activeCharacter);
+    if (!GameState.current.modules || typeof GameState.current.modules !== "object" || Array.isArray(GameState.current.modules)) GameState.current.modules = {};
+    const initial = initialValues(c);
     defs.forEach(def => {
       if (GameState.current.modules[def.id] !== undefined) return;
       if (initial?.[def.id] !== undefined) GameState.current.modules[def.id] = clone(initial[def.id]);
       else GameState.current.modules[def.id] = def.kind === "collection" ? [] : {};
     });
     if (!Number.isFinite(GameState.current.moduleTrackerTick)) GameState.current.moduleTrackerTick = 0;
+    return defs;
+  };
+
+  const applyCustomization = (raw, character) => {
+    if (!GameState.current) return [];
+    const c = character || window.App?.activeCharacter;
+    GameState.current.worldModuleCustomization = normalizeCustomization(raw, c);
+    return ensureState(c);
+  };
+
+  const resetCustomization = character => applyCustomization(emptyCustomization(), character);
+
+  const uniqueModuleId = (hint = "module", character, extra = []) => {
+    const stem = String(hint || "module").trim().toLowerCase().replace(/[^a-z0-9_-]/g, "_").replace(/^_+|_+$/g, "").slice(0, 32) || "module";
+    const used = new Set([...baseDefinitions(character || window.App?.activeCharacter).map(def => def.id), ...Object.keys(BUILT_INS), ...extra.map(def => def.id)]);
+    if (!used.has(`custom_${stem}`)) return `custom_${stem}`;
+    let index = 2;
+    while (used.has(`custom_${stem}_${index}`)) index += 1;
+    return `custom_${stem}_${index}`.slice(0, 40);
   };
 
   const originalCreate = GameState.create.bind(GameState);
@@ -243,6 +300,6 @@
     return { text: joined.length > maxChars ? `${joined.slice(0, maxChars)}…` : joined, ids: defs.map(d => d.id) };
   };
 
-  window.BAOWorldModules = { BUILT_INS, normalizeModule, definitions, ensureState, compactForPrompt, relevantDefinitions, compactRelevantForPrompt, relevanceScore };
+  window.BAOWorldModules = { BUILT_INS, normalizeModule, baseDefinitions, definitions, getCustomization, normalizeCustomization, applyCustomization, resetCustomization, uniqueModuleId, ensureState, compactForPrompt, relevantDefinitions, compactRelevantForPrompt, relevanceScore };
   window.WorldStateEngine = WorldStateEngine;
 })();

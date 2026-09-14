@@ -14,6 +14,7 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/world-modules.js"))
     .then(() => loadBAOScript("js/world-state-cost.js"))
     .then(() => loadBAOScript("js/world-module-ui.js"))
+    .then(() => loadBAOScript("js/world-module-manager.js"))
     .then(() => loadBAOScript("js/world-relevance.js"))
     .then(() => loadBAOScript("js/character-status-ui.js"))
     .then(() => loadBAOScript("js/world-state-hook.js"))
