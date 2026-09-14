@@ -45,8 +45,29 @@ assert.equal(report.character.supported_modes.world, true);
 assert.ok(report.character.world.includes("匿名論壇"));
 assert.ok(Array.isArray(report.character.narrative_profile.recommended_styles));
 assert.ok(report.character.world_modules.some(module => module.id === "relationship"));
+assert.ok(report.character.dynamic_prompts.some(block => block.id === "intimacy"));
 assert.equal(report.character.initial_state.character_statuses["林沉風"].relationship_stage, "陌生人｜試探階段");
 assert.equal(report.character.initial_state.modules.relationship.trust, "尚未建立");
+
+const baseContext = {
+  persona: { name: "玩家", gender: "女性" },
+  modePrompt: "保持沉浸敘事。",
+  displayMode: "text"
+};
+const ordinaryPrompt = CharacterEngine.composeSystemPrompt(lin, {
+  ...baseContext,
+  recentMessages: [{ role: "user", content: "今天工作有點累。" }]
+});
+assert.equal(ordinaryPrompt.includes("【親密情境｜林沉風】"), false, "一般對話不應浪費 token 載入親密模組");
+const intimatePrompt = CharacterEngine.composeSystemPrompt(lin, {
+  ...baseContext,
+  recentMessages: [
+    { role: "assistant", content: "林沉風沒有催促，只是安靜看著你。" },
+    { role: "user", content: "我靠近他，想吻他。" }
+  ]
+});
+assert.equal(intimatePrompt.includes("【親密情境｜林沉風】"), true, "親密情境應載入專屬互動規則");
+assert.ok(intimatePrompt.includes("情緒與信任先於身體行動"));
 
 const invalid = JSON.parse(JSON.stringify(lin));
 invalid.gameplay.character_status.fields.push({

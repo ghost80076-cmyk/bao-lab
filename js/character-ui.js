@@ -67,7 +67,8 @@
     return CharacterEngine.composeSystemPrompt(this.activeCharacter, {
       persona: this.config.persona,
       modePrompt: mode?.prompt || "",
-      displayMode: this.config.displayMode
+      displayMode: this.config.displayMode,
+      recentMessages: typeof Chat !== "undefined" ? (Chat.messages || []).slice(-12) : []
     });
   };
 
