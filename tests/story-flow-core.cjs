@@ -86,6 +86,7 @@ global.Chat = {
   }
 };
 
+const storyToolsSource = fs.readFileSync(path.join(__dirname, "..", "js/story-tools.js"), "utf8");
 const run = file => vm.runInThisContext(fs.readFileSync(path.join(__dirname, "..", file), "utf8"), { filename: file });
 run("js/state.js");
 run("js/world-state.js");
@@ -145,6 +146,30 @@ const modelJSON = BAOStoryTools.parseExternalText(JSON.stringify([
 ]));
 assert.equal(plain.messages.length, 2);
 assert.equal(modelJSON.messages[1].role, "assistant");
+
+const longMessages = Array.from({ length: 12 }, (_, index) => ([
+  { role: "user", content: "玩家第" + index + "輪：" + "前進。".repeat(12) },
+  { role: "assistant", content: "角色第" + index + "輪：" + "回應。".repeat(12) }
+])).flat();
+const chunks = BAOStoryTools.chunkMessages(longMessages, { maxTokens: 90 });
+assert.ok(chunks.length > 1);
+assert.equal(chunks.flat().length, longMessages.length);
+assert.ok(chunks.every(chunk => chunk.reduce((sum, item) => sum + BAOStoryTools.tokenEstimate(item.content) + 8, 0) <= 90));
+const pairedChunks = BAOStoryTools.chunkMessages(longMessages.slice(0, 4), { maxTokens: 100 });
+assert.deepEqual(pairedChunks[0].map(item => item.role), ["user", "assistant"]);
+const oversizedChunks = BAOStoryTools.chunkMessages([{ role: "user", content: "很長的內容。".repeat(300) }], { maxTokens: 80 });
+assert.ok(oversizedChunks.length > 1);
+assert.ok(oversizedChunks.every(chunk => chunk.reduce((sum, item) => sum + BAOStoryTools.tokenEstimate(item.content) + 8, 0) <= 80));
+assert.equal(BAOStoryTools.mergeCallCount(1), 0);
+assert.equal(BAOStoryTools.mergeCallCount(6), 1);
+assert.equal(BAOStoryTools.mergeCallCount(7), 2);
+const plan = BAOStoryTools.organizationPlan(longMessages, { maxTokens: 90 });
+assert.equal(plan.totalCalls, plan.chunkCount + plan.mergeCalls);
+assert.equal(storyToolsSource.includes("slice(-400)"), false);
+assert.equal(storyToolsSource.includes("slice(-80000)"), false);
+assert.equal(storyToolsSource.includes("while (level.length > 1)"), true);
+assert.equal(storyToolsSource.includes("contextPackDraftProgress"), true);
+assert.equal(storyToolsSource.includes("繼續未確認草稿"), true);
 
 const pack = BAOStoryTools.createPack(Chat.messages);
 pack.summary = "已整理的唯一前情";
