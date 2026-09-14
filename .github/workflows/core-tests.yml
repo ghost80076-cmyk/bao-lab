@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - feat/indexeddb-story-storage
+      - feat/story-library-model
   pull_request:
     branches:
       - main
@@ -28,3 +29,5 @@ jobs:
         run: node tests/story-flow-core.cjs
       - name: IndexedDB storage migration
         run: node tests/storage-indexeddb-core.cjs
+      - name: Story library core
+        run: node tests/story-library-core.cjs
