@@ -1,12 +1,8 @@
 (() => {
   if (typeof App === "undefined") return;
 
-  const syncAdvanced = (selectId, inputWrapId) => {
-    const select = document.getElementById(selectId);
-    const wrap = document.getElementById(inputWrapId);
-    if (!select || !wrap) return;
-    wrap.classList.toggle("hidden", select.value !== "custom");
-  };
+  const escape = value => App.escapeHTML(String(value ?? ""));
+  const escapeAttr = value => App.escapeAttr(String(value ?? ""));
 
   const addHelp = (fieldId, text) => {
     const field = document.getElementById(fieldId);
@@ -22,83 +18,130 @@
     const step = document.querySelector('[data-step-panel="4"]');
     if (!step || step.dataset.beginnerCopy === "true") return;
     step.dataset.beginnerCopy = "true";
-
     const title = step.querySelector("h3");
     if (title) title.textContent = "模型連線";
     const intro = step.querySelector("p.note");
-    if (intro) intro.textContent = "第一次用也沒關係：先選你使用的 API 服務，再貼上 API 金鑰。官方預設通常會自動填好連線資訊；只有中轉或自訂服務才需要改進階內容。";
+    if (intro) intro.textContent = "先選 API 來源與模型。官方直連、OpenRouter 與其他中轉都可以；預設會自動填入常用連線網址，進階玩家仍可自己修改 Model ID 與 Base URL。";
 
-    const apiType = document.getElementById("api-type")?.closest("label");
-    const modelSelect = document.getElementById("model-select")?.closest("label");
-    const modelId = document.getElementById("model-id")?.closest("label");
-    const baseUrl = document.getElementById("base-url")?.closest("label");
-    const apiKey = document.getElementById("api-key")?.closest("label");
-
-    if (apiType) apiType.childNodes[0].textContent = "你使用哪個 API 服務？";
-    if (modelSelect) modelSelect.childNodes[0].textContent = "模型來源 / 連線方式";
-    if (modelId) modelId.childNodes[0].textContent = "模型名稱";
-    if (baseUrl) baseUrl.childNodes[0].textContent = "API 連線網址";
-    if (apiKey) apiKey.childNodes[0].textContent = "API 金鑰";
-
+    const labels = {
+      "api-type": "你使用哪個 API 來源？",
+      "model-select": "模型 / 連線方式",
+      "model-id": "模型名稱",
+      "base-url": "API 連線網址",
+      "api-key": "API 金鑰"
+    };
+    Object.entries(labels).forEach(([id, text]) => {
+      const label = document.getElementById(id)?.closest("label");
+      if (label?.childNodes?.[0]) label.childNodes[0].textContent = text;
+    });
     const modelInput = document.getElementById("model-id");
-    if (modelInput) modelInput.placeholder = "例如：gemini-2.5-flash";
+    if (modelInput) modelInput.placeholder = "例如：claude-sonnet-4-6";
     const baseInput = document.getElementById("base-url");
     if (baseInput) baseInput.placeholder = "官方預設通常會自動填好";
     const keyInput = document.getElementById("api-key");
     if (keyInput) keyInput.placeholder = "貼上服務商提供的 API Key";
+    addHelp("model-id", "Model ID 是模型名稱代碼，不是 API Key。使用網站預設時通常不用改。" );
+    addHelp("base-url", "官方、OpenRouter 預設會自動填好；其他中轉或自架服務才需要依服務商文件修改。" );
+    addHelp("api-key", "只保留在目前頁面工作階段，故事存檔與匯出檔不會保存 API Key。" );
+  };
 
-    addHelp("model-id", "服務商有時會把它叫做 Model ID。它只是模型的名稱代碼，不是 API Key。看不懂時先用網站預設即可。");
-    addHelp("base-url", "這是模型服務的連線網址。官方預設通常不用改；中轉或自訂 API 才需要依服務商說明填寫。");
-    addHelp("api-key", "這是你的模型服務金鑰。BAO/LAB 不會把它寫進故事存檔。");
+  const presetOptionsHTML = () => {
+    const groups = new Map();
+    (App.modelPresets || []).forEach((preset, index) => {
+      const label = preset.provider_label || preset.provider || "其他";
+      if (!groups.has(label)) groups.set(label, []);
+      groups.get(label).push({ preset, index });
+    });
+    return [...groups.entries()].map(([label, items]) => `<optgroup label="${escapeAttr(label)}">${items.map(({ preset, index }) => `<option value="${index}">${escape(preset.label || preset.model || "自訂")}</option>`).join("")}</optgroup>`).join("");
+  };
+
+  const helperBlock = ({ prefix, title, description, sameModelId, example }) => `
+    <section class="helper-route-card" data-helper="${prefix}">
+      <h4>${escape(title)}</h4>
+      <p class="note">${escape(description)}</p>
+      <label>連線方式
+        <select id="${prefix}-model-choice">
+          <option value="same">沿用聊天 API 與聊天模型（最簡單）</option>
+          <option value="same_api">沿用聊天 API，只換 Model ID</option>
+          <option value="independent">使用獨立 API（可跨供應商）</option>
+        </select>
+      </label>
+      <div id="${prefix}-same-api" class="hidden helper-route-advanced">
+        <label>同一 API 的另一個 Model ID
+          <input id="${sameModelId}" placeholder="${escapeAttr(example)}">
+        </label>
+        <small class="note">只有當這個模型能用同一組 Base URL / API Key 呼叫時才選這個。</small>
+      </div>
+      <div id="${prefix}-independent" class="hidden helper-route-advanced">
+        <label>獨立 API 預設
+          <select id="${prefix}-helper-preset">${presetOptionsHTML()}</select>
+        </label>
+        <div class="form-grid helper-api-grid">
+          <label>Model ID<input id="${prefix}-helper-model"></label>
+          <label>Base URL<input id="${prefix}-helper-base"></label>
+        </div>
+        <label>這個輔助 API 的 Key<input id="${prefix}-helper-key" type="password" autocomplete="off" placeholder="不會寫入故事存檔"></label>
+        <div id="${prefix}-helper-note" class="note"></div>
+      </div>
+    </section>`;
+
+  const selectedPreset = select => App.modelPresets?.[Number(select?.value)] || null;
+
+  const syncIndependentPreset = prefix => {
+    const select = document.getElementById(`${prefix}-helper-preset`);
+    const preset = selectedPreset(select);
+    const model = document.getElementById(`${prefix}-helper-model`);
+    const base = document.getElementById(`${prefix}-helper-base`);
+    const note = document.getElementById(`${prefix}-helper-note`);
+    if (model) model.value = preset?.model || "";
+    if (base) base.value = preset?.base_url || "";
+    if (note) note.textContent = preset ? `${preset.provider_label || preset.provider} · ${preset.summary || "可作為輔助模型使用。"}` : "";
+  };
+
+  const syncMode = prefix => {
+    const mode = document.getElementById(`${prefix}-model-choice`)?.value || "same";
+    document.getElementById(`${prefix}-same-api`)?.classList.toggle("hidden", mode !== "same_api");
+    document.getElementById(`${prefix}-independent`)?.classList.toggle("hidden", mode !== "independent");
   };
 
   const injectControls = () => {
     const step = document.querySelector('[data-step-panel="5"]');
-    if (!step || document.getElementById("memory-summary-model")) return;
-
+    if (!step || document.getElementById("memory-model-choice")) return;
     const box = document.createElement("div");
-    box.className = "cost-control-box";
+    box.className = "cost-control-box helper-routing-box";
     box.innerHTML = `
-      <h3>要不要用另一個模型幫你整理？</h3>
-      <p class="note">看不懂這裡也沒關係。一般玩家兩個都保持「跟聊天用同一個模型」就可以直接開始。只有想省費用或加快整理速度時，才需要另外指定模型。</p>
-
-      <div class="form-grid">
-        <div>
-          <label>長期記憶要用哪個模型整理？
-            <select id="memory-model-choice">
-              <option value="same">跟聊天用同一個模型（推薦）</option>
-              <option value="custom">改用另一個模型</option>
-            </select>
-          </label>
-          <small class="note">它只負責把舊對話整理成記憶，不會替角色回覆玩家。</small>
-          <div id="memory-model-advanced" class="hidden" style="margin-top:10px">
-            <label>另一個模型的名稱代碼
-              <input id="memory-summary-model" placeholder="例如：gemini-2.5-flash">
-            </label>
-            <small class="note">這就是常見的 Model ID。不是 API Key，而是你的 API 服務商用來辨認模型的名稱。請填服務商提供的模型名稱。</small>
-          </div>
-        </div>
-
-        <div>
-          <label>NPC、事件和狀態要用哪個模型整理？
-            <select id="state-model-choice">
-              <option value="same">跟聊天用同一個模型（推薦）</option>
-              <option value="custom">改用另一個模型</option>
-            </select>
-          </label>
-          <small class="note">它只整理世界狀態，不影響主要故事的文筆和角色回覆。</small>
-          <div id="state-model-advanced" class="hidden" style="margin-top:10px">
-            <label>另一個模型的名稱代碼
-              <input id="state-summary-model" placeholder="例如：gemini-2.5-flash-lite">
-            </label>
-            <small class="note">如果不知道要填什麼，就回到上面選「跟聊天用同一個模型」。</small>
-          </div>
-        </div>
-      </div>`;
+      <h3>輔助模型 · 可選</h3>
+      <p class="note">主模型負責演戲；記憶摘要與狀態整理可以交給便宜模型。若要「Claude 聊天＋Qwen 狀態」，必須選獨立 API，因為兩家使用不同的 Base URL 與 Key。</p>
+      <div class="helper-route-grid">
+        ${helperBlock({ prefix: "memory", title: "長期記憶整理", description: "只整理舊對話，不會替角色回覆玩家。", sameModelId: "memory-summary-model", example: "例如同一服務內的便宜模型" })}
+        ${helperBlock({ prefix: "state", title: "NPC／事件／狀態整理", description: "只負責 JSON 狀態；通常很適合使用低成本模型。", sameModelId: "state-summary-model", example: "例如同一服務內的 Flash / Lite 模型" })}
+      </div>
+      <p class="note helper-key-note">獨立輔助 API Key 只存在目前工作階段；關閉或重新載入存檔後需要再次輸入。若 Key 不存在，系統會安全地回退到主聊天 API。</p>`;
     step.appendChild(box);
 
-    document.getElementById("memory-model-choice")?.addEventListener("change", () => syncAdvanced("memory-model-choice", "memory-model-advanced"));
-    document.getElementById("state-model-choice")?.addEventListener("change", () => syncAdvanced("state-model-choice", "state-model-advanced"));
+    ["memory", "state"].forEach(prefix => {
+      document.getElementById(`${prefix}-model-choice`)?.addEventListener("change", () => syncMode(prefix));
+      document.getElementById(`${prefix}-helper-preset`)?.addEventListener("change", () => syncIndependentPreset(prefix));
+      syncIndependentPreset(prefix);
+      syncMode(prefix);
+    });
+  };
+
+  const readIndependentApi = prefix => {
+    const preset = selectedPreset(document.getElementById(`${prefix}-helper-preset`));
+    const model = document.getElementById(`${prefix}-helper-model`)?.value.trim() || "";
+    const baseUrl = document.getElementById(`${prefix}-helper-base`)?.value.trim() || "";
+    const key = document.getElementById(`${prefix}-helper-key`)?.value.trim() || "";
+    if (!model || !baseUrl) return null;
+    return {
+      type: preset?.provider || "custom",
+      protocol: preset?.protocol || "openai",
+      model,
+      baseUrl,
+      key,
+      cache: document.getElementById("cache-enabled")?.checked !== false,
+      sourceKind: preset?.source_kind || "custom"
+    };
   };
 
   const patchConfig = () => {
@@ -109,35 +152,49 @@
       config.memory = config.memory || {};
       config.cost = config.cost || {};
 
-      const memoryChoice = document.getElementById("memory-model-choice")?.value || "same";
-      const stateChoice = document.getElementById("state-model-choice")?.value || "same";
-      config.memory.summaryModel = memoryChoice === "custom"
-        ? (document.getElementById("memory-summary-model")?.value.trim() || "")
-        : "";
-      config.cost.stateModel = stateChoice === "custom"
-        ? (document.getElementById("state-summary-model")?.value.trim() || "")
-        : "";
+      const memoryMode = document.getElementById("memory-model-choice")?.value || "same";
+      const stateMode = document.getElementById("state-model-choice")?.value || "same";
+      config.memory.summaryModel = memoryMode === "same_api" ? (document.getElementById("memory-summary-model")?.value.trim() || "") : "";
+      config.memory.summaryApi = memoryMode === "independent" ? readIndependentApi("memory") : null;
+      config.cost.stateModel = stateMode === "same_api" ? (document.getElementById("state-summary-model")?.value.trim() || "") : "";
+      config.cost.stateApi = stateMode === "independent" ? readIndependentApi("state") : null;
       return config;
     };
     App.__modelRoutingPatched = true;
   };
 
+  const findPresetIndex = api => {
+    if (!api) return -1;
+    return (App.modelPresets || []).findIndex(p => p.protocol === api.protocol && p.model === api.model && p.base_url === api.baseUrl);
+  };
+
+  const restoreHelper = (prefix, modelId, api) => {
+    const choice = document.getElementById(`${prefix}-model-choice`);
+    if (!choice) return;
+    if (api && (api.model || api.baseUrl)) {
+      choice.value = "independent";
+      const index = findPresetIndex(api);
+      const presetSelect = document.getElementById(`${prefix}-helper-preset`);
+      if (presetSelect && index >= 0) presetSelect.value = String(index);
+      const model = document.getElementById(`${prefix}-helper-model`);
+      const base = document.getElementById(`${prefix}-helper-base`);
+      if (model) model.value = api.model || "";
+      if (base) base.value = api.baseUrl || "";
+      const key = document.getElementById(`${prefix}-helper-key`);
+      if (key) key.value = api.key || "";
+    } else if (modelId) {
+      choice.value = "same_api";
+      const input = document.getElementById(prefix === "memory" ? "memory-summary-model" : "state-summary-model");
+      if (input) input.value = modelId;
+    } else {
+      choice.value = "same";
+    }
+    syncMode(prefix);
+  };
+
   const restoreInputs = () => {
-    const memoryInput = document.getElementById("memory-summary-model");
-    const stateInput = document.getElementById("state-summary-model");
-    const memoryChoice = document.getElementById("memory-model-choice");
-    const stateChoice = document.getElementById("state-model-choice");
-
-    const savedMemory = App.config?.memory?.summaryModel || "";
-    const savedState = App.config?.cost?.stateModel || "";
-
-    if (memoryInput) memoryInput.value = savedMemory;
-    if (stateInput) stateInput.value = savedState;
-    if (memoryChoice) memoryChoice.value = savedMemory ? "custom" : "same";
-    if (stateChoice) stateChoice.value = savedState ? "custom" : "same";
-
-    syncAdvanced("memory-model-choice", "memory-model-advanced");
-    syncAdvanced("state-model-choice", "state-model-advanced");
+    restoreHelper("memory", App.config?.memory?.summaryModel || "", App.config?.memory?.summaryApi || null);
+    restoreHelper("state", App.config?.cost?.stateModel || "", App.config?.cost?.stateApi || null);
   };
 
   const init = () => {
