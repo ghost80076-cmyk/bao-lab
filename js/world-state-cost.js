@@ -18,14 +18,18 @@
 
   WorldStateEngine.update = async function(config, playerText, assistantText) {
     if (!this.shouldUpdate(config)) return null;
-    const originalApi = config?.api;
-    if (!originalApi) return null;
+    const mainApi = config?.api;
+    if (!mainApi) return null;
+
+    const independent = config?.cost?.stateApi;
     const helperModel = config?.cost?.stateModel || "";
+    const hasIndependentKey = Boolean(independent?.key && independent?.model && independent?.baseUrl);
+    const selectedApi = hasIndependentKey ? independent : mainApi;
     const patched = {
       ...config,
       api: {
-        ...originalApi,
-        ...(helperModel ? { model: helperModel } : {}),
+        ...selectedApi,
+        ...(!hasIndependentKey && helperModel ? { model: helperModel } : {}),
         __auxiliaryTask: true,
         __stateTask: true
       }
