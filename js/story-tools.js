@@ -59,6 +59,21 @@
     };
   };
 
+  const confirmationSignature = input => {
+    const pack = normalizePack(input);
+    return JSON.stringify({
+      title: pack.title,
+      summary: pack.summary,
+      importantEvents: pack.importantEvents,
+      relationships: pack.relationships,
+      characterStatuses: pack.characterStatuses,
+      worldState: pack.worldState,
+      modules: pack.modules,
+      openThreads: pack.openThreads,
+      recentDialogue: pack.recentDialogue
+    });
+  };
+
   const createPack = (inputMessages = Chat.messages, source = {}) => {
     const state = GameState.current || {};
     const messages = (Array.isArray(inputMessages) ? inputMessages : []).map(message).filter(Boolean);
@@ -360,7 +375,7 @@
     host.querySelector("[data-sequel]").onclick = () => {
       try {
         const next = readEditor(host);
-        next.playerConfirmed = Boolean(draft?.playerConfirmed);
+        next.playerConfirmed = Boolean(draft?.playerConfirmed && confirmationSignature(next) === confirmationSignature(draft));
         startSequel(next);
       } catch (error) { tell(error.message); }
     };
@@ -502,7 +517,7 @@
     setTimeout(inject, 0);
   };
 
-  window.BAOStoryTools = { open, createPack, normalizePack, packPrompt, parseExternalText, preview, startSequel };
+  window.BAOStoryTools = { open, createPack, normalizePack, confirmationSignature, packPrompt, parseExternalText, preview, startSequel };
   ensureStyles();
   setTimeout(inject, 240);
 })();
