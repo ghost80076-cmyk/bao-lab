@@ -8,7 +8,7 @@
   };
 
   const setNavLabel = (view, text) => {
-    const el = document.querySelector(`.topbar [data-view="${view}"]`);
+    const el = document.querySelector(`.topbar nav [data-view="${view}"]`);
     if (el) el.textContent = text;
   };
 
