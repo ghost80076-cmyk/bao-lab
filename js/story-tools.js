@@ -686,17 +686,160 @@
     };
   };
 
+  const formatLibraryDate = value => {
+    const date = new Date(value || "");
+    return Number.isNaN(date.getTime()) ? "時間未記錄" : date.toLocaleString("zh-TW");
+  };
+
+  const restoreLibraryChapter = async (storyId, chapterId, button) => {
+    if (!window.BAOStoryLibrary) return tell("故事書庫仍在載入，請稍後再試。");
+    const original = button?.textContent || "讀取";
+    if (button) {
+      button.disabled = true;
+      button.textContent = "讀取中…";
+    }
+    try {
+      const save = await BAOStoryLibrary.reconstruct(storyId, chapterId);
+      if (!save) throw new Error("找不到這個章節的完整資料。");
+      let key = "";
+      if (!save.config?.demoMode) {
+        const entered = window.prompt("API Key 不會儲存在故事書庫。請貼上 API Key 才能繼續：", "");
+        if (entered === null) return;
+        key = entered.trim();
+      }
+      if (!Storage.restoreStory(save)) throw new Error("無法恢復這個章節。");
+      App.config.api = Object.assign({}, App.config.api || {}, { key });
+      if (GameState.current) GameState.current.config = App.config;
+      App.renderChatShell(false);
+      App.showView("chat");
+      App.saveStory(false);
+      window.BAORefreshSaveUI?.();
+      close();
+    } catch (error) {
+      tell(error.message || "章節讀取失敗。");
+    } finally {
+      if (button?.isConnected) {
+        button.disabled = false;
+        button.textContent = original;
+      }
+    }
+  };
+
+  const libraryScreen = async host => {
+    if (!window.BAOStoryLibrary) return tell("故事書庫仍在載入，請稍後再試。");
+    host.innerHTML = '<div class="story-tools-toolbar"><button class="secondary" type="button" data-back>← 返回</button><span class="story-tools-pill">INDEXEDDB STORY LIBRARY</span></div><section class="story-tools-card"><h3>故事書庫</h3><p>正在讀取這台裝置上的故事與章節……</p></section>';
+    host.querySelector("[data-back]").onclick = () => GameState.current ? home(host) : close();
+    try {
+      await BAOStoryLibrary.flush();
+      const stories = await BAOStoryLibrary.listStories();
+      const chapterLists = await Promise.all(stories.map(story => BAOStoryLibrary.listChapters(story.storyId)));
+      const active = BAOStoryLibrary.refs();
+      const cards = stories.map((story, storyIndex) => {
+        const chapters = chapterLists[storyIndex] || [];
+        const activeStory = active.storyId === story.storyId;
+        const chapterHTML = chapters.map((chapter, chapterIndex) => {
+          const activeChapter = activeStory && active.chapterId === chapter.chapterId;
+          return '<article class="story-library-chapter">' +
+            '<div class="story-library-chapter-copy"><div><b>' + App.escapeHTML(chapter.label || "未命名章節") + '</b>' + (activeChapter ? '<span class="story-library-active">目前章節</span>' : '') + '</div>' +
+            '<small>' + Number(chapter.messageCount || 0).toLocaleString() + ' 則訊息 · ' + App.escapeHTML(formatLibraryDate(chapter.updatedAt || chapter.createdAt)) + '</small>' +
+            (chapter.summary ? '<p>' + App.escapeHTML(String(chapter.summary).slice(0, 180)) + '</p>' : '') + '</div>' +
+            '<div class="story-library-actions"><button type="button" class="primary" data-library-action="load" data-story-index="' + storyIndex + '" data-chapter-index="' + chapterIndex + '">讀取</button>' +
+            '<button type="button" class="secondary" data-library-action="rename-chapter" data-story-index="' + storyIndex + '" data-chapter-index="' + chapterIndex + '">改名</button>' +
+            '<button type="button" class="story-library-danger" data-library-action="delete-chapter" data-story-index="' + storyIndex + '" data-chapter-index="' + chapterIndex + '"' + (activeChapter ? ' disabled title="目前使用中的章節不能刪除"' : '') + '>刪除</button></div></article>';
+        }).join("");
+        return '<section class="story-library-story">' +
+          '<header><div><div class="story-library-title"><h3>' + App.escapeHTML(story.title || story.characterName || "未命名故事") + '</h3>' + (activeStory ? '<span class="story-library-active">目前故事</span>' : '') + '</div>' +
+          '<p>' + App.escapeHTML(story.characterName || "未知角色") + ' · ' + chapters.length + ' 個章節 · 更新於 ' + App.escapeHTML(formatLibraryDate(story.updatedAt)) + '</p></div>' +
+          '<div class="story-library-actions"><button type="button" class="secondary" data-library-action="rename-story" data-story-index="' + storyIndex + '">故事改名</button><button type="button" class="story-library-danger" data-library-action="delete-story" data-story-index="' + storyIndex + '">刪除故事</button></div></header>' +
+          (story.lastMessagePreview ? '<div class="story-library-preview">' + App.escapeHTML(story.lastMessagePreview) + '</div>' : '') +
+          '<div class="story-library-chapters">' + (chapterHTML || '<p class="note">這個故事尚未保存任何章節。</p>') + '</div></section>';
+      }).join("");
+
+      host.innerHTML = '<div class="story-tools-toolbar"><button class="secondary" type="button" data-back>← 返回</button><span class="story-tools-pill">' + stories.length + ' 個故事</span></div>' +
+        '<section class="story-library-shell"><div class="story-library-head"><div><h2>故事書庫</h2><p>故事與各篇章保存在這台裝置的 IndexedDB；讀取時仍需重新提供 API Key。</p></div></div>' +
+        (cards || '<div class="story-library-empty"><b>目前沒有故事</b><span>開始故事並產生第一次自動存檔後，就會出現在這裡。</span></div>') + '</section>';
+      host.querySelector("[data-back]").onclick = () => GameState.current ? home(host) : close();
+
+      host.querySelectorAll("[data-library-action]").forEach(button => button.addEventListener("click", async () => {
+        const storyIndex = Number(button.dataset.storyIndex);
+        const chapterIndex = Number(button.dataset.chapterIndex);
+        const story = stories[storyIndex];
+        const chapter = chapterLists[storyIndex]?.[chapterIndex];
+        if (!story) return;
+
+        if (button.dataset.libraryAction === "load" && chapter) {
+          await restoreLibraryChapter(story.storyId, chapter.chapterId, button);
+          return;
+        }
+        if (button.dataset.libraryAction === "rename-story") {
+          const title = window.prompt("新的故事名稱：", story.title || story.characterName || "");
+          if (title === null) return;
+          if (!await BAOStoryLibrary.renameStory(story.storyId, title)) return tell("故事名稱不可為空。");
+          await libraryScreen(host);
+          return;
+        }
+        if (button.dataset.libraryAction === "rename-chapter" && chapter) {
+          const label = window.prompt("新的章節名稱：", chapter.label || "");
+          if (label === null) return;
+          if (!await BAOStoryLibrary.renameChapter(story.storyId, chapter.chapterId, label)) return tell("章節名稱不可為空。");
+          await libraryScreen(host);
+          return;
+        }
+        if (button.dataset.libraryAction === "delete-chapter" && chapter) {
+          if (active.storyId === story.storyId && active.chapterId === chapter.chapterId) return tell("目前正在使用的章節不能刪除；請先讀取另一個章節。");
+          if (!confirm("確定永久刪除「" + (chapter.label || "未命名章節") + "」？這個動作無法復原。")) return;
+          if (!await BAOStoryLibrary.deleteChapter(story.storyId, chapter.chapterId)) return tell("章節刪除失敗。");
+          await libraryScreen(host);
+          return;
+        }
+        if (button.dataset.libraryAction === "delete-story") {
+          const isActive = active.storyId === story.storyId;
+          if (!confirm("確定永久刪除故事「" + (story.title || story.characterName || "未命名故事") + "」及其全部章節？這個動作無法復原。")) return;
+          if (!await BAOStoryLibrary.deleteStory(story.storyId)) return tell("故事刪除失敗。");
+          if (isActive) {
+            Storage.clearStory();
+            Chat.reset();
+            GameState.current = null;
+            App.activeCharacter = null;
+            window.BAORefreshSaveUI?.();
+            close();
+            App.showView("home");
+            tell("目前故事與全部章節已刪除。");
+            return;
+          }
+          await libraryScreen(host);
+        }
+      }));
+    } catch (error) {
+      host.innerHTML = '<div class="story-tools-toolbar"><button class="secondary" type="button" data-back>← 返回</button></div><section class="story-tools-card"><h3>故事書庫無法開啟</h3><p>' + App.escapeHTML(error.message || String(error)) + '</p></section>';
+      host.querySelector("[data-back]").onclick = () => GameState.current ? home(host) : close();
+    }
+  };
+
+  const openLibrary = () => {
+    ensureStyles();
+    close();
+    const wrap = document.createElement("div");
+    wrap.className = "story-tools-backdrop";
+    wrap.innerHTML = '<section class="story-tools-modal"><div class="story-tools-main"></div></section>';
+    document.body.appendChild(wrap);
+    wrap.addEventListener("click", event => { if (event.target === wrap) close(); });
+    libraryScreen(wrap.querySelector(".story-tools-main"));
+  };
+
   const home = host => {
     const hasPack = Boolean(GameState.current?.contextPack);
     const hasDraft = Boolean(GameState.current?.contextPackDraft);
     const storageMode = Storage.status?.().mode === "indexedDB" ? "IndexedDB" : "localStorage fallback";
     host.innerHTML = '<div class="story-tools-intro"><div><div class="eyebrow">LOCAL-FIRST STORY DESK</div><h2>故事管理</h2><p>備份、搬家、整理前情與建立續篇都在瀏覽器完成；API Key 永遠不進匯出檔。</p><div class="story-preview-meta">故事儲存：' + storageMode + '</div></div><button class="story-tools-close" type="button">關閉</button></div>' +
       '<div class="story-tools-home">' +
+      '<section class="story-tools-card"><h3>故事書庫</h3><p>查看這台裝置上的所有故事與章節，進行讀取、改名或刪除。</p><button class="primary" type="button" data-library>開啟故事書庫</button></section>' +
       '<section class="story-tools-card"><h3>完整故事備份</h3><p>包含對話、Persona、記憶、Character Status、World State、World Modules、敘事偏好與 Context Pack。</p><div class="story-tools-actions"><button class="primary" type="button" data-export>匯出完整故事</button><button class="secondary" type="button" data-backup>建立本機備份</button><button class="secondary" type="button" data-import>匯入完整故事</button><input hidden type="file" data-story-file accept=".json,application/json"></div></section>' +
       '<section class="story-tools-card"><h3>Context Pack / 建立續篇</h3><p>超長故事會依完整對話輪次分段整理，再分層合併成可由玩家確認的前情。</p><div class="story-tools-actions"><button class="primary" type="button" data-create>整理目前故事</button>' + (hasDraft ? '<button class="secondary" type="button" data-edit-draft>繼續未確認草稿</button>' : '') + (hasPack ? '<button class="secondary" type="button" data-edit>編輯既有 Pack</button>' : '') + '</div></section>' +
       '<section class="story-tools-card"><h3>外部聊天歷史</h3><p>先轉成可檢查的 Context Pack，再由玩家確認。</p><button class="secondary" type="button" data-external>匯入外部紀錄</button></section>' +
       '<section class="story-tools-card"><h3>Context 預覽器</h3><p>查看下一輪實際使用的角色卡、記憶、狀態、模組、Persona 與敘事偏好。</p><button class="secondary" type="button" data-preview>預覽送出內容</button></section></div>';
     host.querySelector(".story-tools-close").onclick = close;
+    host.querySelector("[data-library]").onclick = () => libraryScreen(host);
     host.querySelector("[data-export]").onclick = () => {
       if (!Storage.exportCurrentStory("完整故事備份")) tell("目前沒有可匯出的故事。");
     };
@@ -747,6 +890,16 @@
   };
 
   const inject = () => {
+    const nav = document.querySelector(".topbar nav");
+    if (nav && !nav.querySelector("[data-open-story-library]")) {
+      const libraryButton = document.createElement("button");
+      libraryButton.type = "button";
+      libraryButton.dataset.openStoryLibrary = "true";
+      libraryButton.textContent = "故事庫";
+      libraryButton.onclick = openLibrary;
+      nav.insertBefore(libraryButton, nav.querySelector('[data-view="about"]'));
+    }
+
     const row = document.getElementById("bao-player-settings");
     if (!row || row.querySelector("[data-bao-open='story-tools']")) return;
     const button = document.createElement("button");
@@ -771,7 +924,7 @@
     setTimeout(inject, 0);
   };
 
-  window.BAOStoryTools = { open, createPack, normalizePack, confirmationSignature, packPrompt, parseExternalText, preview, startSequel, chunkMessages, organizationPlan, mergeCallCount, tokenEstimate };
+  window.BAOStoryTools = { open, openLibrary, libraryScreen, restoreLibraryChapter, createPack, normalizePack, confirmationSignature, packPrompt, parseExternalText, preview, startSequel, chunkMessages, organizationPlan, mergeCallCount, tokenEstimate };
   ensureStyles();
   setTimeout(inject, 240);
 })();

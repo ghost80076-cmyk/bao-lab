@@ -34,6 +34,16 @@
       catch {}
     },
 
+    localRemove(key) {
+      try { localStorage.removeItem(key); }
+      catch {}
+    },
+
+    clearRefs() {
+      [this.activeStoryKey, this.activeChapterKey, this.storyCreatedKey, this.chapterCreatedKey, this.chapterLabelKey]
+        .forEach(key => this.localRemove(key));
+    },
+
     refs() {
       return {
         storyId: this.localGet(this.activeStoryKey),
@@ -153,7 +163,7 @@
       return this.request(tx.objectStore(this.storeName).getAll());
     },
 
-    storyRecord(payload, refs) {
+    storyRecord(payload, refs, previous = null) {
       const messages = payload.chat?.messages || [];
       const last = messages[messages.length - 1]?.content || "";
       return {
@@ -162,7 +172,7 @@
         storyId: refs.storyId,
         characterId: payload.characterId,
         characterName: payload.characterName,
-        title: payload.characterName || "未命名故事",
+        title: previous?.title || payload.characterName || "未命名故事",
         createdAt: refs.storyCreatedAt,
         updatedAt: payload.savedAt,
         activeChapterId: refs.chapterId,
@@ -218,7 +228,8 @@
       const refs = this.ensureRefs(payload);
       const records = await this.allRecords();
       const staleMessages = records.filter(record => record.kind === "message" && record.storyId === refs.storyId && record.chapterId === refs.chapterId);
-      const story = this.storyRecord(payload, refs);
+      const previousStory = records.find(record => record.kind === "story" && record.storyId === refs.storyId);
+      const story = this.storyRecord(payload, refs, previousStory);
       const chapter = this.chapterRecord(payload, refs);
       const snapshot = this.snapshotRecord(payload, refs);
       const messages = this.messageRecords(payload, refs);
@@ -265,6 +276,52 @@
         .sort((a, b) => String(a.createdAt || "").localeCompare(String(b.createdAt || "")));
     },
 
+    async renameStory(storyId, title) {
+      const nextTitle = String(title || "").trim().slice(0, 100);
+      if (!nextTitle || !await this.open()) return false;
+      const record = (await this.allRecords()).find(item => item.kind === "story" && item.storyId === storyId);
+      if (!record) return false;
+      record.title = nextTitle;
+      record.updatedAt = new Date().toISOString();
+      await this.transaction("readwrite", store => store.put(record));
+      return this.clone(record);
+    },
+
+    async renameChapter(storyId, chapterId, label) {
+      const nextLabel = String(label || "").trim().slice(0, 100);
+      if (!nextLabel || !await this.open()) return false;
+      const record = (await this.allRecords()).find(item => item.kind === "chapter" && item.storyId === storyId && item.chapterId === chapterId);
+      if (!record) return false;
+      record.label = nextLabel;
+      record.updatedAt = new Date().toISOString();
+      await this.transaction("readwrite", store => store.put(record));
+      const refs = this.refs();
+      if (refs.storyId === storyId && refs.chapterId === chapterId) this.localSet(this.chapterLabelKey, nextLabel);
+      return this.clone(record);
+    },
+
+    async deleteChapter(storyId, chapterId) {
+      if (!await this.open()) return false;
+      const refs = this.refs();
+      if (refs.storyId === storyId && refs.chapterId === chapterId) return false;
+      const records = await this.allRecords();
+      const target = records.find(item => item.kind === "chapter" && item.storyId === storyId && item.chapterId === chapterId);
+      if (!target) return false;
+      const chapterRecords = records.filter(item => item.storyId === storyId && item.chapterId === chapterId);
+      await this.transaction("readwrite", store => chapterRecords.forEach(item => store.delete(item.id)));
+      const remaining = records
+        .filter(item => item.kind === "chapter" && item.storyId === storyId && item.chapterId !== chapterId)
+        .sort((a, b) => String(a.createdAt || "").localeCompare(String(b.createdAt || "")));
+      if (!remaining.length) return this.deleteStory(storyId);
+      const story = records.find(item => item.kind === "story" && item.storyId === storyId);
+      if (story && story.activeChapterId === chapterId) {
+        story.activeChapterId = remaining[remaining.length - 1].chapterId;
+        story.updatedAt = new Date().toISOString();
+        await this.transaction("readwrite", store => store.put(story));
+      }
+      return true;
+    },
+
     async reconstruct(storyId, chapterId = "") {
       const records = await this.allRecords();
       const chapters = records.filter(record => record.kind === "chapter" && record.storyId === storyId)
@@ -292,8 +349,9 @@
     async deleteStory(storyId) {
       if (!await this.open()) return false;
       const records = (await this.allRecords()).filter(record => record.storyId === storyId);
+      if (!records.length) return false;
       await this.transaction("readwrite", store => records.forEach(record => store.delete(record.id)));
-      if (this.refs().storyId === storyId) this.beginStory("第一章");
+      if (this.refs().storyId === storyId) this.clearRefs();
       return true;
     },
 

@@ -170,6 +170,9 @@ assert.equal(storyToolsSource.includes("slice(-80000)"), false);
 assert.equal(storyToolsSource.includes("while (level.length > 1)"), true);
 assert.equal(storyToolsSource.includes("contextPackDraftProgress"), true);
 assert.equal(storyToolsSource.includes("繼續未確認草稿"), true);
+assert.equal(storyToolsSource.includes("const libraryScreen = async host"), true);
+assert.equal(storyToolsSource.includes("data-open-story-library"), true);
+assert.equal(storyToolsSource.includes("API Key 不會儲存在故事書庫"), true);
 
 const pack = BAOStoryTools.createPack(Chat.messages);
 pack.summary = "已整理的唯一前情";

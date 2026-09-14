@@ -147,6 +147,16 @@ vm.runInThisContext(code, { filename: "js/story-library.js" });
   assert.equal(stories[0].chapterCount, 1);
   assert.equal(stories[0].characterName, "林塵封");
 
+  const renamedStory = await BAOStoryLibrary.renameStory(firstRefs.storyId, "舊城夜談");
+  assert.equal(renamedStory.title, "舊城夜談");
+  const renamedChapter = await BAOStoryLibrary.renameChapter(firstRefs.storyId, firstRefs.chapterId, "序章");
+  assert.equal(renamedChapter.label, "序章");
+  assert.equal(BAOStoryLibrary.refs().chapterLabel, "序章");
+  assert.equal(Storage.saveStory(), true);
+  await BAOStoryLibrary.flush();
+  stories = await BAOStoryLibrary.listStories();
+  assert.equal(stories[0].title, "舊城夜談");
+
   const restored = await BAOStoryLibrary.reconstruct(firstRefs.storyId, firstRefs.chapterId);
   assert.equal(restored.chat.messages.length, 2);
   assert.equal(restored.chat.messages[1].content, "第一章回覆");
@@ -162,8 +172,13 @@ vm.runInThisContext(code, { filename: "js/story-library.js" });
 
   const chapters = await BAOStoryLibrary.listChapters(firstRefs.storyId);
   assert.equal(chapters.length, 2);
-  assert.equal(chapters[0].label, "第一章");
+  assert.equal(chapters[0].label, "序章");
   assert.equal(chapters[1].label, "續篇");
+  assert.equal(await BAOStoryLibrary.deleteChapter(firstRefs.storyId, secondRefs.chapterId), false);
+  assert.equal(await BAOStoryLibrary.deleteChapter(firstRefs.storyId, firstRefs.chapterId), true);
+  const chaptersAfterDelete = await BAOStoryLibrary.listChapters(firstRefs.storyId);
+  assert.equal(chaptersAfterDelete.length, 1);
+  assert.equal(chaptersAfterDelete[0].chapterId, secondRefs.chapterId);
 
   const sequel = await BAOStoryLibrary.reconstruct(firstRefs.storyId, secondRefs.chapterId);
   assert.equal(sequel.chat.messages[0].content, "續篇開始");
@@ -172,6 +187,9 @@ vm.runInThisContext(code, { filename: "js/story-library.js" });
   App.startStory();
   const thirdRefs = BAOStoryLibrary.refs();
   assert.notEqual(thirdRefs.storyId, firstRefs.storyId);
+  assert.equal(await BAOStoryLibrary.deleteStory(firstRefs.storyId), true);
+  stories = await BAOStoryLibrary.listStories();
+  assert.equal(stories.some(story => story.storyId === firstRefs.storyId), false);
 
   console.log("story library core test passed");
 })().catch(error => {
