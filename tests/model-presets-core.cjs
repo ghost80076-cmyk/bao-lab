@@ -32,6 +32,23 @@ requirePreset('gemini', 'gemini-3-flash-preview');
 requirePreset('openrouter', 'qwen/qwen3.7-flash');
 requirePreset('openrouter', 'deepseek/deepseek-v4-flash-0731');
 
+const zai = presets.find(x => x.provider === 'zai');
+assert.ok(zai, 'missing Z.AI official provider');
+assert.equal(zai.provider_label, 'Z.AI / GLM 官方');
+assert.equal(zai.route, 'official');
+assert.equal(zai.protocol, 'openai');
+assert.equal(zai.model, '', 'Z.AI provider must not hardcode one GLM model');
+assert.equal(zai.base_url, 'https://api.z.ai/api/paas/v4/chat/completions');
+assert.equal(zai.cache, 'automatic');
+assert.equal(zai.pricing, null, 'Z.AI volatile pricing must not be hardcoded');
+assert.match(zai.docs_url, /^https:\/\/docs\.z\.ai\//);
+
+const routingSource = fs.readFileSync(path.join(root, 'js/model-routing.js'), 'utf8');
+assert.equal(routingSource.includes('filter(p => p.model && p.base_url'), false, 'helper providers with user-entered model IDs must not be filtered out');
+assert.equal(routingSource.includes('filter(p => p.base_url && p.route !== "custom")'), true, 'helper provider presets should allow official endpoints without a fixed model');
+assert.equal(routingSource.includes('type: presetEndpointMatches ? (preset.provider || "custom") : "custom"'), true, 'helper route must retain provider identity');
+assert.equal(routingSource.includes('preset.provider === api.type'), true, 'restored helpers must recover their provider preset');
+
 for (const file of ['js/model-routing.js', 'js/helper-api-routing.js', 'js/model-guide.js']) {
   const code = fs.readFileSync(path.join(root, file), 'utf8');
   new vm.Script(code, { filename: file });
