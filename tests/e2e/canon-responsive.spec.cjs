@@ -226,7 +226,7 @@ test.describe("Canon workbench responsive UI", () => {
 
     await page.locator("#story-branch-button").click();
     await expect(page.getByRole("heading", { name: "故事分支" })).toBeVisible();
-    const mainRow = page.locator(".story-branch-row").filter({ hasText: "第一章" });
+    const mainRow = page.locator(`[data-chapter="${ids.source.chapterId}"]`);
     await mainRow.getByRole("button", { name: "切換" }).click();
     await expect.poll(() => page.evaluate(() => GameState.current.location)).toBe("城門");
     const source = await page.evaluate(() => ({ messages: Chat.messages.map(message => message.content), refs: BAOStoryLibrary.refs() }));
