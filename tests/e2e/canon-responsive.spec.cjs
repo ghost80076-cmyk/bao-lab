@@ -172,6 +172,67 @@ test.describe("Canon workbench responsive UI", () => {
     await expect(replies.nth(1).locator("[data-regenerate]")).toBeEnabled();
   });
 
+  test("a saved AI reply can fork into an independently restorable story branch", async ({ page }) => {
+    await openDemoStory(page);
+    const ids = await page.evaluate(async () => {
+      Chat.messages = Chat.ensureMessageIds([
+        { role: "user", content: "第一輪玩家" },
+        { role: "assistant", content: "第一輪角色" }
+      ]);
+      GameState.current.time = "分岔前的夜晚";
+      GameState.current.location = "舊城";
+      App.renderChatShell(false);
+      App.saveStory(false);
+      await BAOStoryLibrary.flush();
+      const firstAssistantId = Chat.messages[1].id;
+      Chat.messages.push(...Chat.ensureMessageIds([
+        { role: "user", content: "沿主線前進" },
+        { role: "assistant", content: "主線抵達城門" }
+      ]));
+      GameState.current.time = "主線清晨";
+      GameState.current.location = "城門";
+      App.renderChatShell(false);
+      App.saveStory(false);
+      await BAOStoryLibrary.flush();
+      return { firstAssistantId, source: BAOStoryLibrary.refs() };
+    });
+
+    page.on("dialog", dialog => dialog.type() === "prompt" ? dialog.accept("拒絕合作線") : dialog.accept());
+    const firstReply = page.locator("#chat-stream > .message.assistant").first();
+    await expect(firstReply.getByRole("button", { name: /從這裡分支/ })).toBeVisible();
+    await firstReply.getByRole("button", { name: /從這裡分支/ }).click();
+    await expect.poll(() => page.evaluate(() => BAOStoryLibrary.refs().parentChapterId)).toBe(ids.source.chapterId);
+
+    const fork = await page.evaluate(() => ({
+      messages: Chat.messages.map(message => message.content),
+      time: GameState.current.time,
+      location: GameState.current.location,
+      refs: BAOStoryLibrary.refs()
+    }));
+    expect(fork.messages).toEqual(["第一輪玩家", "第一輪角色"]);
+    expect(fork.time).toBe("分岔前的夜晚");
+    expect(fork.location).toBe("舊城");
+    expect(fork.refs.branchPointMessageId).toBe(ids.firstAssistantId);
+
+    await page.evaluate(async () => {
+      Chat.add("user", "只在分支出現的選擇");
+      Chat.add("assistant", "分支抵達碼頭");
+      GameState.current.location = "碼頭";
+      App.renderChatShell(false);
+      App.saveStory(false);
+      await BAOStoryLibrary.flush();
+    });
+
+    await page.locator("#story-branch-button").click();
+    await expect(page.getByRole("heading", { name: "故事分支" })).toBeVisible();
+    const mainRow = page.locator(".story-branch-row").filter({ hasText: "第一章" });
+    await mainRow.getByRole("button", { name: "切換" }).click();
+    await expect.poll(() => page.evaluate(() => GameState.current.location)).toBe("城門");
+    const source = await page.evaluate(() => ({ messages: Chat.messages.map(message => message.content), refs: BAOStoryLibrary.refs() }));
+    expect(source.messages).toEqual(["第一輪玩家", "第一輪角色", "沿主線前進", "主線抵達城門"]);
+    expect(source.refs.chapterId).toBe(ids.source.chapterId);
+  });
+
   test("desktop keeps the summary and editor controls in three columns", async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 1000 });
     await openDemoCanon(page);

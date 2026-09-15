@@ -8,6 +8,10 @@
     storyCreatedKey: "bao-lab:library:active-story-created-at",
     chapterCreatedKey: "bao-lab:library:active-chapter-created-at",
     chapterLabelKey: "bao-lab:library:active-chapter-label",
+    branchParentKey: "bao-lab:library:active-branch-parent",
+    branchPointMessageKey: "bao-lab:library:active-branch-point-message",
+    branchPointSeqKey: "bao-lab:library:active-branch-point-seq",
+    branchPointPreviewKey: "bao-lab:library:active-branch-point-preview",
     _db: null,
     _ready: null,
     _writeQueue: Promise.resolve(),
@@ -40,7 +44,13 @@
     },
 
     clearRefs() {
-      [this.activeStoryKey, this.activeChapterKey, this.storyCreatedKey, this.chapterCreatedKey, this.chapterLabelKey]
+      [this.activeStoryKey, this.activeChapterKey, this.storyCreatedKey, this.chapterCreatedKey, this.chapterLabelKey,
+        this.branchParentKey, this.branchPointMessageKey, this.branchPointSeqKey, this.branchPointPreviewKey]
+        .forEach(key => this.localRemove(key));
+    },
+
+    clearBranchRefs() {
+      [this.branchParentKey, this.branchPointMessageKey, this.branchPointSeqKey, this.branchPointPreviewKey]
         .forEach(key => this.localRemove(key));
     },
 
@@ -50,7 +60,11 @@
         chapterId: this.localGet(this.activeChapterKey),
         storyCreatedAt: this.localGet(this.storyCreatedKey),
         chapterCreatedAt: this.localGet(this.chapterCreatedKey),
-        chapterLabel: this.localGet(this.chapterLabelKey)
+        chapterLabel: this.localGet(this.chapterLabelKey),
+        parentChapterId: this.localGet(this.branchParentKey),
+        branchPointMessageId: this.localGet(this.branchPointMessageKey),
+        branchPointSeq: Number(this.localGet(this.branchPointSeqKey) || -1),
+        branchPointPreview: this.localGet(this.branchPointPreviewKey)
       };
     },
 
@@ -63,6 +77,7 @@
       this.localSet(this.storyCreatedKey, now);
       this.localSet(this.chapterCreatedKey, now);
       this.localSet(this.chapterLabelKey, label || "第一章");
+      this.clearBranchRefs();
       return { storyId, chapterId, storyCreatedAt: now, chapterCreatedAt: now, chapterLabel: label || "第一章" };
     },
 
@@ -74,7 +89,33 @@
       this.localSet(this.activeChapterKey, chapterId);
       this.localSet(this.chapterCreatedKey, now);
       this.localSet(this.chapterLabelKey, label || "續篇");
-      return Object.assign({}, refs, { chapterId, chapterCreatedAt: now, chapterLabel: label || "續篇" });
+      this.clearBranchRefs();
+      return this.refs();
+    },
+
+    beginBranch(input = {}) {
+      const refs = this.refs();
+      if (!refs.storyId || !refs.chapterId) throw new Error("目前沒有可建立分支的故事。");
+      const now = new Date().toISOString();
+      const branch = {
+        storyId: refs.storyId,
+        storyCreatedAt: refs.storyCreatedAt || now,
+        chapterId: this.id("branch"),
+        chapterCreatedAt: now,
+        chapterLabel: String(input.label || "新故事分支").trim().slice(0, 100) || "新故事分支",
+        parentChapterId: refs.chapterId,
+        branchPointMessageId: String(input.messageId || ""),
+        branchPointSeq: Number(input.seq),
+        branchPointPreview: String(input.preview || "").slice(0, 160)
+      };
+      this.localSet(this.activeChapterKey, branch.chapterId);
+      this.localSet(this.chapterCreatedKey, branch.chapterCreatedAt);
+      this.localSet(this.chapterLabelKey, branch.chapterLabel);
+      this.localSet(this.branchParentKey, branch.parentChapterId);
+      this.localSet(this.branchPointMessageKey, branch.branchPointMessageId);
+      this.localSet(this.branchPointSeqKey, branch.branchPointSeq);
+      this.localSet(this.branchPointPreviewKey, branch.branchPointPreview);
+      return branch;
     },
 
     adoptRefs(input = {}) {
@@ -85,6 +126,11 @@
       this.localSet(this.storyCreatedKey, lib.storyCreatedAt || input.savedAt || new Date().toISOString());
       this.localSet(this.chapterCreatedKey, lib.chapterCreatedAt || input.savedAt || new Date().toISOString());
       this.localSet(this.chapterLabelKey, lib.chapterLabel || "章節");
+      this.clearBranchRefs();
+      if (lib.parentChapterId) this.localSet(this.branchParentKey, lib.parentChapterId);
+      if (lib.branchPointMessageId) this.localSet(this.branchPointMessageKey, lib.branchPointMessageId);
+      if (Number.isFinite(Number(lib.branchPointSeq)) && Number(lib.branchPointSeq) >= 0) this.localSet(this.branchPointSeqKey, Number(lib.branchPointSeq));
+      if (lib.branchPointPreview) this.localSet(this.branchPointPreviewKey, lib.branchPointPreview);
       return true;
     },
 
@@ -180,7 +226,7 @@
       };
     },
 
-    chapterRecord(payload, refs) {
+    chapterRecord(payload, refs, previous = null) {
       return {
         id: "chapter:" + refs.storyId + ":" + refs.chapterId,
         kind: "chapter",
@@ -191,7 +237,11 @@
         updatedAt: payload.savedAt,
         messageCount: Array.isArray(payload.chat?.messages) ? payload.chat.messages.length : 0,
         summary: String(payload.chat?.summary || ""),
-        contextPack: Storage.scrubSecrets(this.clone(payload.contextPack || null))
+        contextPack: Storage.scrubSecrets(this.clone(payload.contextPack || null)),
+        parentChapterId: refs.parentChapterId || previous?.parentChapterId || "",
+        branchPointMessageId: refs.branchPointMessageId || previous?.branchPointMessageId || "",
+        branchPointSeq: Number.isFinite(Number(refs.branchPointSeq)) && Number(refs.branchPointSeq) >= 0 ? Number(refs.branchPointSeq) : Number(previous?.branchPointSeq ?? -1),
+        branchPointPreview: refs.branchPointPreview || previous?.branchPointPreview || ""
       };
     },
 
@@ -224,22 +274,49 @@
       }));
     },
 
+    checkpointRecord(payload, refs) {
+      const messages = Array.isArray(payload.chat?.messages) ? payload.chat.messages : [];
+      let seq = -1;
+      for (let index = messages.length - 1; index >= 0; index -= 1) {
+        if (messages[index]?.role === "assistant") { seq = index; break; }
+      }
+      if (seq < 0 || !messages[seq]?.id) return null;
+      const safe = Storage.scrubSecrets(this.clone(payload));
+      delete safe.chat?.messages;
+      return {
+        id: "checkpoint:" + refs.storyId + ":" + refs.chapterId + ":" + messages[seq].id,
+        kind: "checkpoint",
+        storyId: refs.storyId,
+        chapterId: refs.chapterId,
+        messageId: String(messages[seq].id),
+        seq,
+        updatedAt: payload.savedAt,
+        payload: safe
+      };
+    },
+
     async persist(payload) {
       if (!payload || !Storage.validateStory(payload) || !await this.open()) return false;
       const refs = this.ensureRefs(payload);
       const records = await this.allRecords();
       const staleMessages = records.filter(record => record.kind === "message" && record.storyId === refs.storyId && record.chapterId === refs.chapterId);
+      const messageIds = new Set((payload.chat?.messages || []).map(message => String(message?.id || "")).filter(Boolean));
+      const staleCheckpoints = records.filter(record => record.kind === "checkpoint" && record.storyId === refs.storyId && record.chapterId === refs.chapterId && !messageIds.has(String(record.messageId || "")));
       const previousStory = records.find(record => record.kind === "story" && record.storyId === refs.storyId);
+      const previousChapter = records.find(record => record.kind === "chapter" && record.storyId === refs.storyId && record.chapterId === refs.chapterId);
       const story = this.storyRecord(payload, refs, previousStory);
-      const chapter = this.chapterRecord(payload, refs);
+      const chapter = this.chapterRecord(payload, refs, previousChapter);
       const snapshot = this.snapshotRecord(payload, refs);
       const messages = this.messageRecords(payload, refs);
+      const checkpoint = this.checkpointRecord(payload, refs);
       await this.transaction("readwrite", store => {
         staleMessages.forEach(record => store.delete(record.id));
+        staleCheckpoints.forEach(record => store.delete(record.id));
         store.put(story);
         store.put(chapter);
         store.put(snapshot);
         messages.forEach(record => store.put(record));
+        if (checkpoint) store.put(checkpoint);
       });
       return true;
     },
@@ -301,6 +378,65 @@
       return this.clone(record);
     },
 
+    async createBranch(messageId, label = "") {
+      if (!messageId || !await this.open()) throw new Error("找不到分支起點。");
+      Storage.saveStory();
+      await this.flush();
+      const sourceRefs = this.refs();
+      const records = await this.allRecords();
+      const sourceMessages = records
+        .filter(record => record.kind === "message" && record.storyId === sourceRefs.storyId && record.chapterId === sourceRefs.chapterId)
+        .sort((a, b) => Number(a.seq || 0) - Number(b.seq || 0));
+      const point = sourceMessages.find(record => record.messageId === messageId && record.role === "assistant");
+      if (!point) throw new Error("只能從已保存的 AI 回覆建立分支。");
+      const checkpoint = records.find(record => record.kind === "checkpoint" && record.storyId === sourceRefs.storyId && record.chapterId === sourceRefs.chapterId && record.messageId === messageId);
+      if (!checkpoint?.payload) throw new Error("這則舊回覆建立於分支功能完成之前，沒有當時的狀態檢查點。請從較新的回覆建立分支。");
+
+      const payload = this.clone(checkpoint.payload);
+      payload.savedAt = new Date().toISOString();
+      payload.chat = payload.chat || {};
+      payload.chat.messages = sourceMessages
+        .filter(record => Number(record.seq) <= Number(point.seq))
+        .map(record => ({ ...(record.messageId ? { id: record.messageId } : {}), role: record.role, content: record.content }));
+      payload.chat.summarizedUntil = Math.min(Number(payload.chat.summarizedUntil || 0), payload.chat.messages.length);
+      const refs = this.beginBranch({ label, messageId, seq: point.seq, preview: point.content });
+      payload.label = refs.chapterLabel;
+      payload._library = { ...refs };
+      await this.persist(payload);
+      return Storage.sanitizeImportedStory(payload);
+    },
+
+    async branchDescendants(storyId, chapterId) {
+      const chapters = await this.listChapters(storyId);
+      const found = new Set([chapterId]);
+      let changed = true;
+      while (changed) {
+        changed = false;
+        chapters.forEach(chapter => {
+          if (chapter.parentChapterId && found.has(chapter.parentChapterId) && !found.has(chapter.chapterId)) {
+            found.add(chapter.chapterId);
+            changed = true;
+          }
+        });
+      }
+      found.delete(chapterId);
+      return chapters.filter(chapter => found.has(chapter.chapterId));
+    },
+
+    async deleteBranch(storyId, chapterId) {
+      if (!await this.open()) return false;
+      const refs = this.refs();
+      if (refs.storyId === storyId && refs.chapterId === chapterId) return false;
+      const records = await this.allRecords();
+      const target = records.find(record => record.kind === "chapter" && record.storyId === storyId && record.chapterId === chapterId);
+      if (!target?.parentChapterId) return false;
+      const descendants = await this.branchDescendants(storyId, chapterId);
+      const ids = new Set([chapterId, ...descendants.map(item => item.chapterId)]);
+      const doomed = records.filter(record => record.storyId === storyId && ids.has(record.chapterId));
+      await this.transaction("readwrite", store => doomed.forEach(record => store.delete(record.id)));
+      return { deleted: ids.size };
+    },
+
     async deleteChapter(storyId, chapterId) {
       if (!await this.open()) return false;
       const refs = this.refs();
@@ -308,6 +444,7 @@
       const records = await this.allRecords();
       const target = records.find(item => item.kind === "chapter" && item.storyId === storyId && item.chapterId === chapterId);
       if (!target) return false;
+      if (records.some(item => item.kind === "chapter" && item.storyId === storyId && item.parentChapterId === chapterId)) return false;
       const chapterRecords = records.filter(item => item.storyId === storyId && item.chapterId === chapterId);
       await this.transaction("readwrite", store => chapterRecords.forEach(item => store.delete(item.id)));
       const remaining = records
@@ -342,7 +479,11 @@
         chapterId: target.chapterId,
         storyCreatedAt: records.find(record => record.kind === "story" && record.storyId === storyId)?.createdAt || target.createdAt,
         chapterCreatedAt: target.createdAt,
-        chapterLabel: target.label
+        chapterLabel: target.label,
+        parentChapterId: target.parentChapterId || "",
+        branchPointMessageId: target.branchPointMessageId || "",
+        branchPointSeq: Number(target.branchPointSeq ?? -1),
+        branchPointPreview: target.branchPointPreview || ""
       };
       return Storage.sanitizeImportedStory(payload);
     },
@@ -370,7 +511,11 @@
           chapterId: refs.chapterId,
           storyCreatedAt: refs.storyCreatedAt,
           chapterCreatedAt: refs.chapterCreatedAt,
-          chapterLabel: refs.chapterLabel
+          chapterLabel: refs.chapterLabel,
+          parentChapterId: refs.parentChapterId || "",
+          branchPointMessageId: refs.branchPointMessageId || "",
+          branchPointSeq: Number(refs.branchPointSeq ?? -1),
+          branchPointPreview: refs.branchPointPreview || ""
         };
         return payload;
       };

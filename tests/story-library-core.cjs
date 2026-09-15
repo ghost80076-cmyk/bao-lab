@@ -169,6 +169,48 @@ vm.runInThisContext(code, { filename: "js/story-library.js" });
   assert.equal(restored.config.api.key, "");
   assert.equal(restored._library.storyId, firstRefs.storyId);
 
+  Storage._payload = makePayload([
+    { id: "msg-first-user", role: "user", content: "第一句" },
+    { id: "msg-first-assistant", role: "assistant", content: "第一章回覆" },
+    { id: "msg-source-user", role: "user", content: "沿主線前進" },
+    { id: "msg-source-assistant", role: "assistant", content: "主線來到清晨" }
+  ], "主線最新摘要");
+  Storage._payload.state = { time: "清晨", location: "城門", canon: { facts: ["城門已開"] } };
+  Storage._payload.chat.usage = { promptTokens: 42, completionTokens: 18 };
+  assert.equal(Storage.saveStory(), true);
+  await BAOStoryLibrary.flush();
+
+  const branch = await BAOStoryLibrary.createBranch("msg-first-assistant", "拒絕合作線");
+  const branchRefs = BAOStoryLibrary.refs();
+  assert.equal(branchRefs.parentChapterId, firstRefs.chapterId);
+  assert.equal(branchRefs.branchPointMessageId, "msg-first-assistant");
+  assert.equal(branch.chat.messages.length, 2);
+  assert.equal(branch.state.time, "夜晚");
+  assert.deepEqual(branch.chat.usage, {});
+  assert.equal(branch.config.api.key, "");
+
+  Storage._payload = structuredClone(branch);
+  Storage._payload.state.location = "只存在於分支的碼頭";
+  Storage._payload.chat.messages.push(
+    { id: "msg-branch-user", role: "user", content: "走另一條路" },
+    { id: "msg-branch-assistant", role: "assistant", content: "分支抵達碼頭" }
+  );
+  assert.equal(Storage.saveStory(), true);
+  await BAOStoryLibrary.flush();
+
+  const sourceAfterBranch = await BAOStoryLibrary.reconstruct(firstRefs.storyId, firstRefs.chapterId);
+  assert.equal(sourceAfterBranch.chat.messages.length, 4);
+  assert.equal(sourceAfterBranch.state.location, "城門");
+  const branchAfterSave = await BAOStoryLibrary.reconstruct(firstRefs.storyId, branchRefs.chapterId);
+  assert.equal(branchAfterSave.chat.messages.length, 4);
+  assert.equal(branchAfterSave.state.location, "只存在於分支的碼頭");
+
+  assert.equal(Storage.restoreStory(sourceAfterBranch), true);
+  assert.equal(BAOStoryLibrary.refs().chapterId, firstRefs.chapterId);
+  assert.deepEqual(await BAOStoryLibrary.deleteBranch(firstRefs.storyId, branchRefs.chapterId), { deleted: 1 });
+  assert.equal((await BAOStoryLibrary.listChapters(firstRefs.storyId)).length, 1);
+  Storage._payload = sourceAfterBranch;
+
   BAOStoryTools.startSequel({ playerConfirmed: true });
   await BAOStoryLibrary.flush();
 
