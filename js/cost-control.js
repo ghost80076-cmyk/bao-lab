@@ -15,9 +15,10 @@
   });
 
   const estimate = (usage = {}, cfg = getCostConfig()) => {
-    const input = Number(usage.prompt_tokens ?? usage.prompt ?? 0);
-    const output = Number(usage.completion_tokens ?? usage.completion ?? 0);
-    const cached = Math.min(input, Number(usage.cached_tokens ?? usage.cached ?? 0));
+    const input = Number(usage.input_tokens ?? usage.prompt_tokens ?? usage.prompt ?? 0);
+    const output = Number(usage.output_tokens ?? usage.completion_tokens ?? usage.completion ?? 0);
+    const hasCachedUsage = (usage.cached_tokens !== null && usage.cached_tokens !== undefined) || (usage.cached !== null && usage.cached !== undefined);
+    const cached = hasCachedUsage ? Math.min(input, Number(usage.cached_tokens ?? usage.cached ?? 0)) : 0;
     const nonCached = Math.max(0, input - cached);
     const usd = (nonCached * cfg.inputPerMillion + output * cfg.outputPerMillion + cached * cfg.cachePerMillion) / 1000000;
     return { usd, twd: usd * cfg.usdTwd };

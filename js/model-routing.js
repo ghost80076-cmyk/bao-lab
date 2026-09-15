@@ -115,7 +115,9 @@
       protocol: document.getElementById(`${kind}-protocol`)?.value || "openai",
       model: document.getElementById(`${kind}-model-id`)?.value.trim() || "",
       baseUrl: document.getElementById(`${kind}-base-url`)?.value.trim() || "",
-      key: document.getElementById(`${kind}-api-key`)?.value.trim() || mainKey
+      key: document.getElementById(`${kind}-api-key`)?.value.trim() || mainKey,
+      route: "custom",
+      cacheMode: "unknown"
     };
   };
 
@@ -130,6 +132,10 @@
       config.cost.stateApi = readHelperApi("state");
       config.memory.summaryModel = config.memory.summaryApi?.model || "";
       config.cost.stateModel = config.cost.stateApi?.model || "";
+      const preset = App.getSelectedPreset?.();
+      config.api.route = preset?.route || "custom";
+      config.api.cacheMode = preset?.explicit_cache === true ? "explicit" : (preset?.cache || "unknown");
+      config.api.cacheEnabled = config.memory.cache !== false;
       return config;
     };
     App.__modelRoutingPatched = true;

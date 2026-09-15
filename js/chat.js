@@ -1,6 +1,6 @@
 const Chat = {
   messages: [],
-  usage: { prompt: 0, completion: 0, cached: 0, total: 0 },
+  usage: { prompt: 0, completion: 0, cached: 0, cacheWrite: 0, total: 0 },
   summary: "",
   summarizedUntil: 0,
   summarizing: false,
@@ -9,7 +9,7 @@ const Chat = {
 
   reset() {
     this.messages = [];
-    this.usage = { prompt: 0, completion: 0, cached: 0, total: 0 };
+    this.usage = { prompt: 0, completion: 0, cached: 0, cacheWrite: 0, total: 0 };
     this.summary = "";
     this.summarizedUntil = 0;
     this.summarizing = false;
@@ -86,18 +86,34 @@ const Chat = {
   },
 
   addUsage(usage = {}) {
-    const prompt = Number(usage.prompt_tokens || 0), completion = Number(usage.completion_tokens || 0), cached = Number(usage.cached_tokens || 0), total = Number(usage.total_tokens || (prompt + completion));
-    this.usage.prompt += prompt; this.usage.completion += completion; this.usage.cached += cached; this.usage.total += total;
+    const known = value => value !== null && value !== undefined && Number.isFinite(Number(value));
+    const prompt = known(usage.input_tokens ?? usage.prompt_tokens) ? Number(usage.input_tokens ?? usage.prompt_tokens) : 0;
+    const completion = known(usage.output_tokens ?? usage.completion_tokens) ? Number(usage.output_tokens ?? usage.completion_tokens) : 0;
+    const cached = known(usage.cached_tokens) ? Number(usage.cached_tokens) : 0;
+    const cacheWrite = known(usage.cache_write_tokens) ? Number(usage.cache_write_tokens) : 0;
+    const total = known(usage.total_tokens) ? Number(usage.total_tokens) : 0;
+    this.usage.prompt += prompt; this.usage.completion += completion; this.usage.cached += cached; this.usage.cacheWrite = Number(this.usage.cacheWrite || 0) + cacheWrite; this.usage.total += total;
     return { ...this.usage };
   },
-  recordStoryUsage(usage = {}, config = null) { this.lastStoryPromptTokens = Number(usage.prompt_tokens || 0); if (config) this.protectedRounds(config); },
+  recordStoryUsage(usage = {}, config = null) { const input = usage.input_tokens ?? usage.prompt_tokens; if (input !== null && input !== undefined) this.lastStoryPromptTokens = Number(input || 0); if (config) this.protectedRounds(config); },
+  renderTurnUsage(usage = {}) {
+    const format = value => value === null || value === undefined || !Number.isFinite(Number(value)) ? "未知" : Number(value).toLocaleString();
+    const input = usage.input_tokens ?? usage.prompt_tokens;
+    const output = usage.output_tokens ?? usage.completion_tokens;
+    const cached = usage.cached_tokens;
+    const fresh = usage.new_input_tokens ?? (input != null && cached != null ? Math.max(0, Number(input) - Number(cached)) : null);
+    const context = document.getElementById("usage-context"), turn = document.getElementById("usage-turn"), cache = document.getElementById("usage-cache");
+    if (context) context.textContent = format(input);
+    if (turn) turn.textContent = `新增輸入 ${format(fresh)} · 輸出 ${format(output)}`;
+    if (cache) cache.textContent = format(cached);
+  },
   renderUsage(lastUsage = {}) {
     const total = document.getElementById("usage-total"), input = document.getElementById("usage-input-total"), output = document.getElementById("usage-output-total"), cacheTotal = document.getElementById("usage-cache-total");
     if (total) total.textContent = `${this.usage.total.toLocaleString()} tok`;
     if (input) input.textContent = `${this.usage.prompt.toLocaleString()} tok`;
     if (output) output.textContent = `${this.usage.completion.toLocaleString()} tok`;
     if (cacheTotal) cacheTotal.textContent = `${this.usage.cached.toLocaleString()} tok`;
-    const prompt = Number(lastUsage.prompt_tokens || 0), limit = Number(App?.config?.memory?.maxContext || 0);
+    const prompt = Number(lastUsage.input_tokens ?? lastUsage.prompt_tokens ?? 0), limit = Number(App?.config?.memory?.maxContext || 0);
     if (prompt && limit) { const percent = Math.min(999, (prompt / limit) * 100); const context = document.getElementById("usage-context"); if (context) context.textContent = `${prompt.toLocaleString()} / ${limit.toLocaleString()} tok (${percent.toFixed(1)}%)`; }
   },
   renderGuard() {

@@ -1,4 +1,45 @@
 const API = {
+  numberOrNull(value) {
+    if (value === null || value === undefined || value === "") return null;
+    const number = Number(value);
+    return Number.isFinite(number) ? number : null;
+  },
+
+  normalizeUsage(raw = {}, protocol = "openai") {
+    const details = raw?.prompt_tokens_details || raw?.input_tokens_details || {};
+    const pick = (...values) => {
+      for (const value of values) {
+        const number = this.numberOrNull(value);
+        if (number !== null) return number;
+      }
+      return null;
+    };
+    let input = pick(raw.input_tokens, raw.prompt_tokens, raw.promptTokenCount);
+    const cached = pick(details.cached_tokens, raw.cached_tokens, raw.cache_read_input_tokens, raw.cachedContentTokenCount);
+    const cacheWrite = pick(details.cache_write_tokens, raw.cache_write_tokens, raw.cache_creation_input_tokens);
+    const output = pick(raw.output_tokens, raw.completion_tokens, raw.candidatesTokenCount);
+    const total = pick(raw.total_tokens, raw.totalTokenCount);
+
+    // Anthropic reports uncached input separately from cache reads/writes.
+    if (protocol === "anthropic" && input !== null) input += (cached || 0) + (cacheWrite || 0);
+    const newInput = input !== null && cached !== null ? Math.max(0, input - cached) : null;
+    return {
+      input_tokens: input,
+      cached_tokens: cached,
+      cache_write_tokens: cacheWrite,
+      new_input_tokens: newInput,
+      output_tokens: output,
+      total_tokens: total,
+      // Backward-compatible aliases used by existing saves and cost controls.
+      prompt_tokens: input,
+      completion_tokens: output
+    };
+  },
+
+  isOpenRouter(config = {}) {
+    return config.type === "openrouter" || /(^|\.)openrouter\.ai$/i.test((() => { try { return new URL(config.baseUrl).hostname; } catch { return ""; } })());
+  },
+
   async send(config, messages) {
     if (!config.key) throw new Error("請先填入 API Key。");
     if (!config.model) throw new Error("請填入 Model ID。");
@@ -34,7 +75,14 @@ const API = {
 
   async sendOpenAICompatible(config, messages) {
     if (!config.baseUrl) throw new Error("請填入 Base URL。");
-    const body = { model: config.model, messages };
+    const openRouter = this.isOpenRouter(config);
+    const explicitCache = openRouter && config.cacheEnabled !== false && config.cacheMode === "explicit";
+    const requestMessages = explicitCache ? messages.map((message, index) => index === 0 && message.role === "system"
+      ? { ...message, content: [{ type: "text", text: this.contentToText(message.content), cache_control: { type: "ephemeral" } }] }
+      : message) : messages;
+    const body = { model: config.model, messages: requestMessages };
+    const sessionId = config.sessionId || window.BAOPromptCache?.storySessionId?.();
+    if (openRouter && sessionId) body.session_id = String(sessionId).slice(0, 256);
     const limit = Number(config.maxOutputTokens || 0);
     if (limit > 0) body.max_tokens = Math.floor(limit);
     let response;
@@ -47,12 +95,15 @@ const API = {
     } catch (err) { throw this.networkError(err); }
     const data = await this.readJSON(response);
     if (!response.ok) throw new Error(this.friendlyError(response.status, data, "OpenAI-compatible API"));
-    return { text: this.contentToText(data?.choices?.[0]?.message?.content) || "模型沒有回傳內容。", usage: { prompt_tokens: data?.usage?.prompt_tokens || 0, completion_tokens: data?.usage?.completion_tokens || 0, total_tokens: data?.usage?.total_tokens || 0, cached_tokens: data?.usage?.prompt_tokens_details?.cached_tokens || 0 } };
+    return { text: this.contentToText(data?.choices?.[0]?.message?.content) || "模型沒有回傳內容。", usage: this.normalizeUsage(data?.usage || {}, "openai") };
   },
 
   async sendAnthropic(config, messages) {
     if (!config.baseUrl) throw new Error("請填入 Base URL。");
-    const system = messages.filter(m => m.role === "system").map(m => this.contentToText(m.content)).join("\n\n");
+    const systemMessages = messages.filter(m => m.role === "system").map(m => this.contentToText(m.content)).filter(Boolean);
+    const systemText = systemMessages.join("\n\n");
+    const allowExplicitCache = config.cacheEnabled !== false && config.route === "official" && config.cacheMode === "explicit";
+    const system = allowExplicitCache && systemMessages.length ? systemMessages.map((text, index) => ({ type: "text", text, ...(index === 0 ? { cache_control: { type: "ephemeral" } } : {}) })) : systemText;
     const chat = messages.filter(m => m.role !== "system").map(m => ({ role: m.role === "assistant" ? "assistant" : "user", content: this.contentToText(m.content) }));
     const limit = Math.max(1, Math.floor(Number(config.maxOutputTokens || 4096)));
     let response;
@@ -61,13 +112,7 @@ const API = {
     } catch (err) { throw this.networkError(err); }
     const data = await this.readJSON(response);
     if (!response.ok) throw new Error(this.friendlyError(response.status, data, "Anthropic-compatible API"));
-    const usage = data?.usage || {};
-    const rawInput = Number(usage.input_tokens || 0);
-    const cacheRead = Number(usage.cache_read_input_tokens || 0);
-    const cacheWrite = Number(usage.cache_creation_input_tokens || 0);
-    const promptTotal = rawInput + cacheRead + cacheWrite;
-    const output = Number(usage.output_tokens || 0);
-    return { text: (data?.content || []).map(x => x?.type === "text" ? x.text : "").filter(Boolean).join("\n") || "模型沒有回傳內容。", usage: { prompt_tokens: promptTotal, completion_tokens: output, total_tokens: promptTotal + output, cached_tokens: cacheRead, cache_write_tokens: cacheWrite } };
+    return { text: (data?.content || []).map(x => x?.type === "text" ? x.text : "").filter(Boolean).join("\n") || "模型沒有回傳內容。", usage: this.normalizeUsage(data?.usage || {}, "anthropic") };
   },
 
   async sendGemini(config, messages) {
@@ -87,8 +132,7 @@ const API = {
     const data = await this.readJSON(response);
     if (!response.ok) throw new Error(this.friendlyError(response.status, data, "Gemini API"));
     const text = (data?.candidates?.[0]?.content?.parts || []).map(p => typeof p?.text === "string" ? p.text : "").filter(Boolean).join("\n");
-    const usage = data?.usageMetadata || {};
-    return { text: text || this.geminiEmptyResponseMessage(data), usage: { prompt_tokens: usage.promptTokenCount || 0, completion_tokens: usage.candidatesTokenCount || 0, total_tokens: usage.totalTokenCount || 0, cached_tokens: usage.cachedContentTokenCount || 0 } };
+    return { text: text || this.geminiEmptyResponseMessage(data), usage: this.normalizeUsage(data?.usageMetadata || {}, "gemini") };
   },
 
   networkError(err) {

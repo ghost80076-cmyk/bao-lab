@@ -173,12 +173,35 @@ const CharacterEngine = {
     const p = context.persona || {};
     const options = c.prompt_options || {};
     const blocks = [];
+    const playerName = p.name || "未命名玩家";
+
+    blocks.push([
+      "【平台必要規則】",
+      `AI 主要扮演角色：${c.name}`,
+      `玩家角色：${playerName}`,
+      `來自 user 的輸入一律視為「${playerName}」的台詞、行動或意圖；不得誤認為是「${c.name}」的輸入。`,
+      `AI 可以扮演「${c.name}」與世界中的 NPC，但不能扮演玩家「${playerName}」。兩者的姓名、身份、記憶、台詞與行動不得互換。`,
+      "不得替玩家決定台詞、心理或行動；除非忠實引用玩家已輸入的原話，不得生成玩家的新台詞。",
+      "角色只能依已知資訊行動，不得無理由獲得玩家未公開的資訊。"
+    ].join("\n"));
 
     if (c.system_prompt) blocks.push(`【角色核心】\n${c.system_prompt}`);
     if (options.include_profile) {
       const profileText = this.profilePrompt(c.profile);
       if (profileText) blocks.push(`【角色完整設定】\n${profileText}`);
     }
+    if (options.include_author_instructions && c.author_instructions) blocks.push(`【作者敘事指示】\n${c.author_instructions}`);
+    if (options.include_creator_notes && c.creator_notes) blocks.push(`【作者備註】\n${c.creator_notes}`);
+    blocks.push([
+      "【玩家 Persona】",
+      `名稱：${p.name || "未命名玩家"}`,
+      `性別：${p.gender || "未指定"}`,
+      `身分：${p.identity || "未指定"}`,
+      `個性：${p.personality || "未指定"}`,
+      `與角色的初始關係：${p.relationship || "未指定"}`,
+      `其他設定：${p.extra || "無"}`
+    ].join("\n"));
+
     if (options.include_world && c.world) blocks.push(`【世界設定】\n${c.world}`);
     if (options.include_world_focus && c.world_focus?.length) {
       blocks.push(`【世界觀焦點】\n${c.world_focus.join("、")}\n只在情境相關時自然帶入，不要為了塞設定而硬寫。`);
@@ -191,34 +214,13 @@ const CharacterEngine = {
       if (c.npc_rules) blocks.push(`【NPC 運作規則】\n${c.npc_rules}`);
     }
 
-    if (options.include_author_instructions && c.author_instructions) blocks.push(`【作者敘事指示】\n${c.author_instructions}`);
-    this.relevantDynamicPrompts(c, context).forEach(block => blocks.push(`【${block.label}】\n${block.text}`));
-    if (options.include_creator_notes && c.creator_notes) blocks.push(`【作者備註】\n${c.creator_notes}`);
     if (context.modePrompt) blocks.push(`【敘事模式】\n${context.modePrompt}`);
-
-    const playerName = p.name || "未命名玩家";
-    blocks.push([
-      "【角色與玩家身份邊界】",
-      `AI 主要扮演角色：${c.name}`,
-      `玩家角色：${playerName}`,
-      `來自 user 的輸入一律視為「${playerName}」的台詞、行動或意圖；不得誤認為是「${c.name}」的輸入。`,
-      `AI 可以扮演「${c.name}」與世界中的 NPC，但不能扮演玩家「${playerName}」。兩者的姓名、身份、記憶、台詞與行動不得互換。`
-    ].join("\n"));
-
-    blocks.push([
-      "【玩家 Persona】",
-      `名稱：${p.name || "未命名玩家"}`,
-      `性別：${p.gender || "未指定"}`,
-      `身分：${p.identity || "未指定"}`,
-      `個性：${p.personality || "未指定"}`,
-      `與角色的初始關係：${p.relationship || "未指定"}`,
-      `其他設定：${p.extra || "無"}`
-    ].join("\n"));
-
-    blocks.push("【共同規則】\n不得替玩家決定台詞、心理或行動；除非忠實引用玩家已輸入的原話，不得生成玩家的新台詞。角色只能依已知資訊行動，不得無理由獲得玩家未公開的資訊。");
     blocks.push(context.displayMode === "ui"
-      ? "【輸出模式】\n目前使用互動 UI。不要每輪重新輸出完整 UI HTML，敘事正常輸出即可。"
-      : "【輸出模式】\n目前使用純文本模式。不要輸出 RPG 狀態面板。");
+      ? "【固定 Schema】\n目前使用互動 UI。不要每輪重新輸出完整 UI HTML，敘事正常輸出即可。"
+      : "【固定 Schema】\n目前使用純文本模式。不要輸出 RPG 狀態面板。");
+
+    const dynamic = this.relevantDynamicPrompts(c, context).map(block => `【${block.label}】\n${block.text}`).join("\n\n");
+    if (dynamic) blocks.push(`【本輪動態角色規則】\n${dynamic}`);
 
     return blocks.filter(Boolean).join("\n\n");
   },
