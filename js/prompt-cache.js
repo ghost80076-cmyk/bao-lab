@@ -1,8 +1,8 @@
 (() => {
   if (typeof App === "undefined" || typeof Chat === "undefined") return;
 
-  const MEMORY_HEADERS = new Set(["玩家手動記憶", "Context Pack · 玩家已確認的前情"]);
-  const DYNAMIC_HEADERS = new Set(["本輪動態角色規則", "目前核心狀態", "本輪相關世界資料", "本輪人物狀態"]);
+  const MEMORY_HEADERS = new Set(["玩家手動記憶", "Context Pack · 玩家已確認的前情", "Canon Core · 玩家已確認"]);
+  const DYNAMIC_HEADERS = new Set(["本輪動態角色規則", "目前核心狀態", "本輪相關世界資料", "本輪人物狀態", "本輪相關 Canon"]);
   const headerOf = block => String(block.match(/^【([^】]+)】/)?.[1] || "").trim();
 
   const partitionSystemPrompt = prompt => {
