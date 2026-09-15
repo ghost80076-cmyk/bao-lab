@@ -51,5 +51,7 @@ jobs:
         run: node tests/helper-api-diagnostics-core.cjs
       - name: Generation request lifecycle
         run: node tests/request-lifecycle-core.cjs
+      - name: Accumulated world state turns
+        run: node tests/world-state-cost-core.cjs
       - name: Prompt cache pipeline
         run: node tests/prompt-cache-core.cjs

@@ -58,7 +58,8 @@ global.App = {
     displayMode: "ui",
     persona: { name: "玩家" },
     api: { key: "SECRET-KEY", model: "test-model" },
-    memory: { mode: "smart", maxRounds: 20 }
+    memory: { mode: "smart", maxRounds: 20, summaryApi: { model: "memory-model", key: "MEMORY-SECRET" } },
+    cost: { stateApi: { model: "state-model", key: "STATE-SECRET" } }
   },
   escapeHTML: String,
   buildSystemPrompt() { return "BASE SYSTEM"; },
@@ -128,6 +129,10 @@ assert.equal(GameState.current.modules.unknown, undefined);
 const story = Storage.buildStoryPayload("測試備份");
 assert.equal(story.version, 4);
 assert.equal(JSON.stringify(story).includes("SECRET-KEY"), false);
+assert.equal(JSON.stringify(story).includes("MEMORY-SECRET"), false);
+assert.equal(JSON.stringify(story).includes("STATE-SECRET"), false);
+assert.equal(story.config.memory.summaryApi.key, undefined);
+assert.equal(story.config.cost.stateApi.key, undefined);
 assert.ok(story.character);
 assert.ok(story.state.characterStatusCustomization);
 assert.ok(story.state.worldModuleCustomization);

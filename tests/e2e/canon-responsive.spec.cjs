@@ -24,6 +24,14 @@ const openDemoCanon = async page => {
   await expect(page.getByRole("heading", { name: "Canon 資料庫" })).toBeVisible();
 };
 
+const openDemoStory = async page => {
+  await openModelStep(page);
+  await page.locator("#bao-demo-mode").check();
+  await page.getByRole("button", { name: "下一步" }).click();
+  await page.getByRole("button", { name: "開始故事" }).click();
+  await expect(page.locator("#user-input")).toBeVisible();
+};
+
 const seedDraft = async page => page.evaluate(() => {
   const longLine = "這是一段用來驗證長篇 Canon 編輯畫面不會破版的內容。".repeat(18);
   GameState.current.canonDraft = {
@@ -110,6 +118,27 @@ test.describe("Canon workbench responsive UI", () => {
     const state = await page.evaluate(() => ({ messages: Chat.messages.length, pending: App.__requestPending }));
     expect(state).toEqual({ messages: 0, pending: false });
     expect(providerRequests).toBe(1);
+  });
+
+  test("only the latest AI reply exposes state-changing edit tools", async ({ page }) => {
+    await openDemoStory(page);
+    await page.evaluate(() => {
+      Chat.messages = Chat.ensureMessageIds([
+        { role: "user", content: "第一輪玩家" },
+        { role: "assistant", content: "第一輪角色" },
+        { role: "user", content: "第二輪玩家" },
+        { role: "assistant", content: "第二輪角色" }
+      ]);
+      App.renderChatShell(false);
+    });
+    const replies = page.locator("#chat-stream > .message.assistant");
+    await expect(replies).toHaveCount(2);
+    await expect(replies.nth(0).locator("[data-edit]")).toBeDisabled();
+    await expect(replies.nth(0).locator("[data-rewrite]")).toBeDisabled();
+    await expect(replies.nth(0).locator("[data-regenerate]")).toBeDisabled();
+    await expect(replies.nth(1).locator("[data-edit]")).toBeEnabled();
+    await expect(replies.nth(1).locator("[data-rewrite]")).toBeEnabled();
+    await expect(replies.nth(1).locator("[data-regenerate]")).toBeEnabled();
   });
 
   test("desktop keeps the summary and editor controls in three columns", async ({ page }) => {

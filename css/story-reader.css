@@ -186,6 +186,12 @@
   background:rgba(156,140,255,.1);
 }
 
+.story-message-tools button:disabled,
+.story-variant-switcher button:disabled{
+  opacity:.38;
+  cursor:not-allowed;
+}
+
 .story-variant-switcher{
   display:flex;
   align-items:center;

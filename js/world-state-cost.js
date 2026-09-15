@@ -1,8 +1,14 @@
 (() => {
   if (typeof WorldStateEngine === "undefined") return;
 
-  let turnCounter = 0;
   const originalUpdate = WorldStateEngine.update.bind(WorldStateEngine);
+  let persistenceHint = false;
+
+  const queue = () => {
+    if (!window.GameState?.current) return [];
+    if (!Array.isArray(GameState.current.pendingStateTurns)) GameState.current.pendingStateTurns = [];
+    return GameState.current.pendingStateTurns;
+  };
 
   WorldStateEngine.interval = config => {
     const n = Number(config?.cost?.stateInterval || 0);
@@ -10,16 +16,19 @@
     return config?.narrativeMode === "world" ? 2 : 3;
   };
 
-  WorldStateEngine.shouldUpdate = config => {
-    if (!WorldStateEngine.enabled(config)) return false;
-    turnCounter += 1;
-    return turnCounter % WorldStateEngine.interval(config) === 0;
-  };
+  WorldStateEngine.pendingCount = () => queue().length;
+  WorldStateEngine.takePersistenceHint = () => { const value = persistenceHint; persistenceHint = false; return value; };
 
   WorldStateEngine.update = async function(config, playerText, assistantText) {
-    if (!this.shouldUpdate(config)) return null;
+    if (!this.enabled(config) || !window.GameState?.current) return null;
+    const pending = queue();
+    pending.push({ player: String(playerText || ""), assistant: String(assistantText || "") });
+    if (pending.length > 12) pending.splice(0, pending.length - 12);
+    persistenceHint = true;
+    if (pending.length < this.interval(config)) return null;
     const originalApi = config?.api;
     if (!originalApi) return null;
+    const batch = pending.slice();
     const helperModel = config?.cost?.stateModel || "";
     const patched = {
       ...config,
@@ -30,7 +39,11 @@
         __stateTask: true
       }
     };
-    return originalUpdate(patched, playerText, assistantText);
+    const combinedPlayer = batch.map((turn, index) => `第 ${index + 1} 輪：${turn.player}`).join("\n\n");
+    const combinedAssistant = batch.map((turn, index) => `第 ${index + 1} 輪：${turn.assistant}`).join("\n\n");
+    const result = await originalUpdate(patched, combinedPlayer, combinedAssistant);
+    if (result) pending.splice(0, batch.length);
+    return result;
   };
 
   window.WorldStateEngine = WorldStateEngine;

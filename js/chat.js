@@ -158,7 +158,7 @@ window.addEventListener("DOMContentLoaded", () => {
     if (bar && !document.getElementById("usage-total")) bar.insertAdjacentHTML("beforeend", '<span>累積 <b id="usage-total">0 tok</b></span><span>輸入累積 <b id="usage-input-total">0 tok</b></span><span>輸出累積 <b id="usage-output-total">0 tok</b></span><span>Cache 累積 <b id="usage-cache-total">0 tok</b></span><span>Context Guard <b id="usage-guard">正常</b></span>');
     if (window.API && !API.__baoUsageWrapped) {
       const originalSend = API.send.bind(API);
-      API.send = async function(config, messages) { const result = await originalSend(config, messages); if (config?.__connectionTest) return result; Chat.addUsage(result?.usage || {}); Chat.renderUsage(result?.usage || {}); if (!config?.__memoryTask) Chat.recordStoryUsage(result?.usage || {}, App?.config); return result; };
+      API.send = async function(config, messages) { const result = await originalSend(config, messages); if (config?.__connectionTest) return result; Chat.addUsage(result?.usage || {}); Chat.renderUsage(result?.usage || {}); if (!config?.__memoryTask && !config?.__storyTool) Chat.recordStoryUsage(result?.usage || {}, App?.config); return result; };
       API.__baoUsageWrapped = true;
     }
     const apiStep = document.querySelector('[data-step-panel="4"]');

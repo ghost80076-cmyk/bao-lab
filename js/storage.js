@@ -56,7 +56,7 @@ const Storage = {
     Object.entries(value).forEach(([key, item]) => {
       const normalized = key.toLowerCase().replace(/[^a-z]/g, "");
       const parent = String(path[path.length - 1] || "").toLowerCase();
-      if (blocked.has(normalized) || (normalized === "key" && parent === "api")) return;
+      if (blocked.has(normalized) || (normalized === "key" && parent.endsWith("api"))) return;
       out[key] = this.scrubSecrets(item, path.concat(key));
     });
     return out;

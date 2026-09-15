@@ -175,6 +175,15 @@
     return Chat.messages.slice(Math.max(0, index - rounds * 2), index).map(safeMessage);
   };
 
+  const latestAssistantIndex = () => Chat.messages.findLastIndex(message => message?.role === "assistant");
+  const canRevise = index => index === latestAssistantIndex();
+  const requireLatestReply = index => {
+    if (canRevise(index)) return true;
+    alert("為避免既有世界狀態與後續劇情不同步，目前只能修改最新一則 AI 回覆。若要改動舊劇情，請先另存新檔再調整。");
+    return false;
+  };
+  const mainModelToolConfig = () => ({ ...App.config.api, __storyTool: true });
+
   const parseSuggestions = input => {
     const raw = String(input || "").replace(/^\s*```(?:json)?/i, "").replace(/```\s*$/, "").trim();
     try {
@@ -235,7 +244,7 @@
 
   const rewriteMessage = async (index, button) => {
     const message = Chat.messages[index];
-    if (!message || message.role !== "assistant") return;
+    if (!message || message.role !== "assistant" || !requireLatestReply(index)) return;
     if (!App.config?.api?.key) {
       alert("尚未設定 API Key，無法使用 AI 改寫。");
       return;
@@ -244,7 +253,7 @@
     if (instruction == null || !instruction.trim()) return;
     setBusy(button, true);
     try {
-      const result = await API.send({ ...App.config.api, __memoryTask: true }, [
+      const result = await API.send(mainModelToolConfig(), [
         { role: "system", content: `${App.buildSystemPrompt()}\n\n【本次任務】只改寫指定的上一則 AI 回覆，不要推進新事件，不要替玩家新增台詞、心理或行動。` },
         ...historyBefore(index),
         { role: "user", content: `【改寫要求】\n${instruction.trim()}\n\n【原 AI 回覆】\n${message.content}\n\n只輸出改寫後的回覆正文。` }
@@ -263,7 +272,7 @@
 
   const regenerateMessage = async (index, button) => {
     const message = Chat.messages[index];
-    if (!message || message.role !== "assistant") return;
+    if (!message || message.role !== "assistant" || !requireLatestReply(index)) return;
     if (!App.config?.api?.key) {
       alert("尚未設定 API Key，無法重新生成。");
       return;
@@ -272,7 +281,7 @@
     try {
       const previous = historyBefore(index);
       if (!previous.some(item => item.role === "user")) throw new Error("找不到可對應的玩家輸入。");
-      const result = await API.send({ ...App.config.api, __memoryTask: true }, [
+      const result = await API.send(mainModelToolConfig(), [
         { role: "system", content: App.buildSystemPrompt() },
         ...previous
       ]);
@@ -291,7 +300,7 @@
   const editMessage = (index, messageElement) => {
     const message = Chat.messages[index];
     const bubble = messageElement?.querySelector(".bubble");
-    if (!message || message.role !== "assistant" || !bubble) return;
+    if (!message || message.role !== "assistant" || !bubble || !requireLatestReply(index)) return;
     if (messageElement.querySelector(".story-inline-editor")) return;
 
     const editor = document.createElement("div");
@@ -318,6 +327,7 @@
   };
 
   const switchVariant = (index, direction) => {
+    if (!requireLatestReply(index)) return;
     const message = Chat.messages[index];
     normalizeAssistantMessage(message);
     if (!message?.variants?.length) return;
@@ -398,6 +408,15 @@
       setTimeout(() => { button.textContent = before; }, 900);
     };
 
+    if (!canRevise(index)) {
+      ["[data-edit]", "[data-rewrite]", "[data-regenerate]"].forEach(selector => {
+        const button = tools.querySelector(selector);
+        if (!button) return;
+        button.disabled = true;
+        button.title = "為保持狀態一致，只能修改最新一則 AI 回覆";
+      });
+    }
+
     if (message.variants.length > 1 || message.edited) {
       const switcher = document.createElement("div");
       switcher.className = "story-variant-switcher";
@@ -405,6 +424,7 @@
       switcher.innerHTML = `<button type="button" data-prev>‹</button><span>${message.activeVariant + 1} / ${message.variants.length}</span><button type="button" data-next>›</button>${edited}`;
       switcher.querySelector("[data-prev]").onclick = () => switchVariant(index, -1);
       switcher.querySelector("[data-next]").onclick = () => switchVariant(index, 1);
+      if (!canRevise(index)) switcher.querySelectorAll("button").forEach(button => { button.disabled = true; button.title = "舊回覆版本已鎖定"; });
       element.appendChild(switcher);
     }
 

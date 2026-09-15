@@ -11,7 +11,11 @@
         const assistant = Chat.messages[Chat.messages.length - 1];
         if (player?.role !== "user" || assistant?.role !== "assistant") return;
         const changed = await WorldStateEngine.update(this.config, player.content, assistant.content);
-        if (!changed) return;
+        const pendingChanged = WorldStateEngine.takePersistenceHint?.();
+        if (!changed) {
+          if (pendingChanged) this.saveStory(false);
+          return;
+        }
         if (this.config.displayMode === "ui") {
           const panel = document.querySelector(".ui-tab.active")?.dataset.panel || "npc";
           this.renderUIPanel(panel);
