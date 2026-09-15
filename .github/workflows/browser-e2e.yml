@@ -10,9 +10,14 @@ permissions:
   contents: read
 
 jobs:
-  chromium:
+  cross-browser:
+    name: E2E · ${{ matrix.browser }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, firefox, webkit]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -23,15 +28,15 @@ jobs:
           cache: npm
       - name: Install test dependencies
         run: npm ci
-      - name: Install Chromium
-        run: npx playwright install --with-deps chromium
-      - name: Run desktop and mobile E2E
-        run: npm run test:e2e
+      - name: Install ${{ matrix.browser }}
+        run: npx playwright install --with-deps ${{ matrix.browser }}
+      - name: Run desktop and mobile E2E on ${{ matrix.browser }}
+        run: npm run test:e2e -- --project=${{ matrix.browser }}
       - name: Upload failure report
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-report
+          name: playwright-report-${{ matrix.browser }}
           path: |
             playwright-report
             test-results
