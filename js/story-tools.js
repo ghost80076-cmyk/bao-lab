@@ -3,12 +3,17 @@
 
   const SCHEMA = "bao-lab-context-pack";
   let draft = null;
-  let sourceMessages = [];
+  let sourceMessages = null;
   const clone = value => Storage.clone(value);
   const uid = () => "pack-" + Date.now() + "-" + Math.random().toString(36).slice(2, 7);
   const lineList = value => String(value || "").split(/\r?\n/).map(x => x.trim()).filter(Boolean);
   const close = () => document.querySelector(".story-tools-backdrop")?.remove();
   const tell = message => alert(message);
+  const hasSourceMessages = () => Array.isArray(sourceMessages) && sourceMessages.length > 0;
+  const requireSourceMessages = () => {
+    if (!hasSourceMessages()) throw new Error("這份 Context Pack 沒有完整原始對話來源。為避免混入目前故事，請重新匯入原始紀錄或重新整理目前故事。");
+    return clone(sourceMessages);
+  };
   const latestUserText = () => {
     for (let i = Chat.messages.length - 1; i >= 0; i -= 1) {
       if (Chat.messages[i]?.role === "user") return String(Chat.messages[i].content || "");
@@ -781,6 +786,13 @@
       row.append(name, body);
       host.querySelector("[data-dialogue]").appendChild(row);
     });
+    const aiButton = host.querySelector("[data-ai]");
+    const organizeStatus = host.querySelector("[data-organize-status]");
+    if (!hasSourceMessages()) {
+      aiButton.disabled = true;
+      aiButton.title = "沒有完整原始對話來源；不會自動改用目前故事。";
+      organizeStatus.textContent = "這份 Pack 沒有完整原始對話來源；可人工檢查、修改與確認，但不會拿目前故事重新摘要。";
+    }
     host.querySelector("[data-back]").onclick = () => home(host);
     host.querySelector("[data-save]").onclick = () => {
       try {
@@ -822,7 +834,8 @@
       try {
         button.disabled = true;
         button.textContent = "準備整理…";
-        const result = await organize(readEditor(host), sourceMessages.length ? sourceMessages : Chat.messages, progress => {
+        const messagesToOrganize = requireSourceMessages();
+        const result = await organize(readEditor(host), messagesToOrganize, progress => {
           if (!button.isConnected || !status) return;
           if (progress.phase === "plan") status.textContent = "共 " + progress.chunkCount + " 段；預計 " + progress.totalCalls + " 次模型呼叫。";
           if (progress.phase === "chunk") {
@@ -906,7 +919,7 @@
         '<div class="story-tools-actions"><button class="primary" type="button" data-continue>檢查 Context Pack 草稿</button></div></section>';
       host.querySelector("[data-back]").onclick = () => importScreen(host);
       host.querySelector("[data-continue]").onclick = () => {
-        sourceMessages = [];
+        sourceMessages = null;
         draft = normalizePack(parsed.pack);
         draft.playerConfirmed = false;
         editor(host);
@@ -1133,14 +1146,29 @@
     host.innerHTML = '<div class="story-tools-intro"><div><div class="eyebrow">LOCAL-FIRST STORY DESK</div><h2>故事管理</h2><p>備份、搬家、整理前情與建立續篇都在瀏覽器完成；API Key 永遠不進匯出檔。</p><div class="story-preview-meta">故事儲存：' + storageMode + '</div></div><button class="story-tools-close" type="button">關閉</button></div>' +
       '<div class="story-tools-home">' +
       '<section class="story-tools-card"><h3>故事書庫</h3><p>查看這台裝置上的所有故事與章節，進行讀取、改名或刪除。</p><button class="primary" type="button" data-library>開啟故事書庫</button></section>' +
-      '<section class="story-tools-card"><h3>完整故事備份</h3><p>包含對話、Persona、記憶、Character Status、World State、World Modules、敘事偏好與 Context Pack。</p><div class="story-tools-actions"><button class="primary" type="button" data-export>匯出完整故事</button><button class="secondary" type="button" data-backup>建立本機備份</button><button class="secondary" type="button" data-import>匯入完整故事</button><input hidden type="file" data-story-file accept=".json,application/json"></div></section>' +
+      '<section class="story-tools-card"><h3>完整故事備份</h3><p>包含主線與全部分支，以及對話、Persona、記憶、Character Status、World State、World Modules、敘事偏好與 Context Pack。</p><div class="story-tools-actions"><button class="primary" type="button" data-export>匯出完整故事</button><button class="secondary" type="button" data-backup>建立本機備份</button><button class="secondary" type="button" data-import>匯入完整故事</button><input hidden type="file" data-story-file accept=".json,application/json"></div></section>' +
       '<section class="story-tools-card"><h3>Context Pack / 建立續篇</h3><p>超長故事會依完整對話輪次分段整理，再分層合併成可由玩家確認的前情。</p><div class="story-tools-actions"><button class="primary" type="button" data-create>整理目前故事</button>' + (hasDraft ? '<button class="secondary" type="button" data-edit-draft>繼續未確認草稿</button>' : '') + (hasPack ? '<button class="secondary" type="button" data-edit>編輯既有 Pack</button>' : '') + '</div></section>' +
       '<section class="story-tools-card"><h3>外部聊天歷史</h3><p>先轉成可檢查的 Context Pack，再由玩家確認。</p><button class="secondary" type="button" data-external>匯入外部紀錄</button></section>' +
       '<section class="story-tools-card"><h3>Context 預覽器</h3><p>查看下一輪實際使用的角色卡、記憶、狀態、模組、Persona 與敘事偏好。</p><button class="secondary" type="button" data-preview>預覽送出內容</button></section></div>';
     host.querySelector(".story-tools-close").onclick = close;
     host.querySelector("[data-library]").onclick = () => libraryScreen(host);
-    host.querySelector("[data-export]").onclick = () => {
-      if (!Storage.exportCurrentStory("完整故事備份")) tell("目前沒有可匯出的故事。");
+    host.querySelector("[data-export]").onclick = async event => {
+      const button = event.currentTarget;
+      if (!window.BAOStoryBackup?.exportCurrentStory) return tell("完整故事備份模組仍在載入，請稍後再試。");
+      const original = button.textContent;
+      button.disabled = true;
+      button.textContent = "整理完整故事…";
+      try {
+        const bundle = await BAOStoryBackup.exportCurrentStory();
+        tell("完整故事備份已建立，共 " + Number(bundle?.chapters?.length || 0) + " 個章節／分支。API Key 不會寫入備份。");
+      } catch (error) {
+        tell(error.message || "完整故事備份失敗。");
+      } finally {
+        if (button.isConnected) {
+          button.disabled = false;
+          button.textContent = original;
+        }
+      }
     };
     host.querySelector("[data-backup]").onclick = () => {
       tell(Storage.saveSlot((App.activeCharacter?.name || "故事") + " · 完整備份") ? "已建立本機手動備份。" : "目前沒有可備份的故事。");
@@ -1163,12 +1191,12 @@
       editor(host);
     };
     host.querySelector("[data-edit-draft]")?.addEventListener("click", () => {
-      sourceMessages = clone(Chat.messages);
+      sourceMessages = null;
       draft = normalizePack(GameState.current.contextPackDraft);
       editor(host);
     });
     host.querySelector("[data-edit]")?.addEventListener("click", () => {
-      sourceMessages = clone(Chat.messages);
+      sourceMessages = null;
       draft = normalizePack(GameState.current.contextPack);
       editor(host);
     });
