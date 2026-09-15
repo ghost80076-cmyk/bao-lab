@@ -64,6 +64,19 @@ const lastRequest = () => requests.at(-1);
   assert.equal(lastRequest().body.session_id, undefined);
   assert.equal(typeof lastRequest().body.messages[0].content, "string", "custom providers must not inherit explicit caching assumptions");
 
+  responseData = { choices: [{ message: { content: "Z.AI OK" } }], usage: { prompt_tokens: 180, completion_tokens: 20, total_tokens: 200, prompt_tokens_details: { cached_tokens: 90 } } };
+  const zai = await API.send({ type: "zai", protocol: "openai", route: "official", model: "glm-user-selected", baseUrl: "https://api.z.ai/api/paas/v4/chat/completions", key: "ZAI-SECRET", cacheMode: "automatic", cacheEnabled: true }, messages);
+  assert.equal(zai.text, "Z.AI OK");
+  assert.equal(zai.usage.cached_tokens, 90);
+  assert.equal(zai.usage.new_input_tokens, 90);
+  assert.equal(lastRequest().url, "https://api.z.ai/api/paas/v4/chat/completions");
+  assert.equal(lastRequest().options.headers.Authorization, "Bearer ZAI-SECRET");
+  assert.equal(lastRequest().body.model, "glm-user-selected", "Z.AI must accept the player-entered Model ID");
+  assert.equal(lastRequest().body.session_id, undefined, "Z.AI must not inherit OpenRouter session_id");
+  assert.equal(JSON.stringify(lastRequest().body).includes("cache_control"), false, "Z.AI must rely on its implicit context cache");
+  assert.equal(JSON.stringify(lastRequest().body).includes("ZAI-SECRET"), false);
+  assert.equal(lastRequest().options.signal, controller.signal, "Z.AI requests must accept the active generation signal");
+
   responseData = { candidates: [{ content: { parts: [{ text: "Gemini OK" }] } }], usageMetadata: { promptTokenCount: 200, cachedContentTokenCount: 125, candidatesTokenCount: 25, totalTokenCount: 225 } };
   const gemini = await API.send({ type: "gemini", protocol: "gemini", model: "gemini-test", baseUrl: "https://generativelanguage.googleapis.com/v1beta/models", key: "GEMINI-SECRET", cacheMode: "supported", cacheEnabled: true }, messages);
   assert.equal(gemini.usage.cached_tokens, 125);
