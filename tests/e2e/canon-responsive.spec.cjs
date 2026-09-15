@@ -72,6 +72,7 @@ test.describe("Canon workbench responsive UI", () => {
     await expect(page.locator("#api-test-status")).toContainText("主模型連線成功");
     await page.getByRole("button", { name: "下一步" }).click();
 
+    await page.locator("#memory-advanced > summary").click();
     for (const kind of ["memory", "state"]) {
       await page.locator(`#${kind}-route-choice`).selectOption("separate");
       await page.locator(`#${kind}-model-id`).fill(`${kind}-model`);
