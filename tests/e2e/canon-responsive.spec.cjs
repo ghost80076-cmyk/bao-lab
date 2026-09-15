@@ -12,8 +12,9 @@ const openDemoCanon = async page => {
   await page.locator("#bao-demo-mode").check();
   await page.getByRole("button", { name: "下一步" }).click();
   await page.getByRole("button", { name: "開始故事" }).click();
-  await expect(page.getByRole("button", { name: "🧠 記憶工作台" })).toBeVisible();
-  await page.getByRole("button", { name: "🧠 記憶工作台" }).click();
+  const memoryButton = page.getByRole("button", { name: /記憶工作台/ });
+  await expect(memoryButton).toBeVisible();
+  await memoryButton.click();
   await page.getByRole("button", { name: /Canon 資料庫/ }).click();
   await expect(page.getByRole("heading", { name: "Canon 資料庫" })).toBeVisible();
 };
