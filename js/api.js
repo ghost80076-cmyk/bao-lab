@@ -76,7 +76,7 @@ const API = {
   async sendOpenAICompatible(config, messages) {
     if (!config.baseUrl) throw new Error("請填入 Base URL。");
     const openRouter = this.isOpenRouter(config);
-    const explicitCache = openRouter && config.cacheEnabled !== false && config.cacheMode === "explicit";
+    const explicitCache = openRouter && config.cacheEnabled !== false && config.cacheMode === "explicit" && config.explicitCacheModel === config.model;
     const requestMessages = explicitCache ? messages.map((message, index) => index === 0 && message.role === "system"
       ? { ...message, content: [{ type: "text", text: this.contentToText(message.content), cache_control: { type: "ephemeral" } }] }
       : message) : messages;
@@ -102,7 +102,7 @@ const API = {
     if (!config.baseUrl) throw new Error("請填入 Base URL。");
     const systemMessages = messages.filter(m => m.role === "system").map(m => this.contentToText(m.content)).filter(Boolean);
     const systemText = systemMessages.join("\n\n");
-    const allowExplicitCache = config.cacheEnabled !== false && config.route === "official" && config.cacheMode === "explicit";
+    const allowExplicitCache = config.cacheEnabled !== false && config.route === "official" && config.cacheMode === "explicit" && config.explicitCacheModel === config.model;
     const system = allowExplicitCache && systemMessages.length ? systemMessages.map((text, index) => ({ type: "text", text, ...(index === 0 ? { cache_control: { type: "ephemeral" } } : {}) })) : systemText;
     const chat = messages.filter(m => m.role !== "system").map(m => ({ role: m.role === "assistant" ? "assistant" : "user", content: this.contentToText(m.content) }));
     const limit = Math.max(1, Math.floor(Number(config.maxOutputTokens || 4096)));

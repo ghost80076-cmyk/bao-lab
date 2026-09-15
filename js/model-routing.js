@@ -133,8 +133,11 @@
       config.memory.summaryModel = config.memory.summaryApi?.model || "";
       config.cost.stateModel = config.cost.stateApi?.model || "";
       const preset = App.getSelectedPreset?.();
+      const presetModelMatches = Boolean(preset?.model && preset.model === config.api.model);
+      const verifiedExplicit = presetModelMatches && (preset?.explicit_cache === true || (preset?.route === "official" && preset?.protocol === "anthropic" && preset?.cache === "explicit"));
       config.api.route = preset?.route || "custom";
-      config.api.cacheMode = preset?.explicit_cache === true ? "explicit" : (preset?.cache || "unknown");
+      config.api.cacheMode = verifiedExplicit ? "explicit" : (preset?.cache || "unknown");
+      config.api.explicitCacheModel = verifiedExplicit ? config.api.model : "";
       config.api.cacheEnabled = config.memory.cache !== false;
       return config;
     };

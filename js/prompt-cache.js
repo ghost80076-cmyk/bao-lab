@@ -54,10 +54,15 @@
 
   App.applyProviderContext = function(apiConfig = {}) {
     const preset = this.getSelectedPreset?.();
+    const presetModelMatches = Boolean(preset?.model && preset.model === apiConfig.model);
+    const verifiedPreset = presetModelMatches && (preset?.explicit_cache === true || (preset?.route === "official" && preset?.protocol === "anthropic" && preset?.cache === "explicit"));
+    const persistedVerification = Boolean(apiConfig.explicitCacheModel && apiConfig.explicitCacheModel === apiConfig.model && apiConfig.cacheMode === "explicit");
+    const verifiedExplicit = verifiedPreset || persistedVerification;
     const effective = {
       ...apiConfig,
-      route: apiConfig.route || preset?.route || "custom",
-      cacheMode: apiConfig.cacheMode || preset?.cache || "unknown",
+      route: apiConfig.route || (presetModelMatches ? preset?.route : "custom") || "custom",
+      cacheMode: verifiedExplicit ? "explicit" : (apiConfig.cacheMode === "explicit" ? "unknown" : (apiConfig.cacheMode || preset?.cache || "unknown")),
+      explicitCacheModel: verifiedExplicit ? apiConfig.model : "",
       cacheEnabled: this.config?.memory?.cache !== false
     };
     if (API.isOpenRouter(effective)) effective.sessionId = storySessionId();
