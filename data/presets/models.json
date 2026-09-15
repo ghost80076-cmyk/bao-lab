@@ -21,6 +21,9 @@
     "provider":"anthropic","provider_label":"Anthropic Claude 官方","route":"official","protocol":"anthropic","label":"Claude Opus 4.5 · 舊版豪華","model":"claude-opus-4-5","base_url":"https://api.anthropic.com/v1/messages","badge":"豪華","use_case":"舊版 Opus 長篇相容","cache":"explicit","pricing":{"input":5,"output":25,"cache":0.5,"cache_write":6.25},"docs_url":"https://platform.claude.com/docs/en/about-claude/pricing"
   },
   {
+    "provider":"zai","provider_label":"Z.AI / GLM 官方","route":"official","protocol":"openai","label":"Z.AI / GLM · 自訂 Model ID","model":"","base_url":"https://api.z.ai/api/paas/v4/chat/completions","badge":"官方","use_case":"GLM 系列主聊天、長期記憶或狀態整理；Model ID 依 Z.AI 當期文件自行填入","cache":"automatic","pricing":null,"docs_url":"https://docs.z.ai/api-reference/llm/chat-completion"
+  },
+  {
     "provider":"deepseek","provider_label":"DeepSeek 官方","route":"official","protocol":"openai","label":"DeepSeek V4 Flash · 高 CP","model":"deepseek-v4-flash","base_url":"https://api.deepseek.com/chat/completions","badge":"高 CP","use_case":"便宜長篇、推理、狀態模型","cache":"automatic","pricing":{"input":0.22,"output":0.66,"cache":0.007,"note":"此處顯示離峰價；平日尖峰時段約為 2 倍。"},"docs_url":"https://api-docs.deepseek.com/quick_start/pricing/"
   },
   {
