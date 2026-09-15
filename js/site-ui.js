@@ -31,6 +31,7 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/chat-markup.js"))
     .then(() => loadBAOScript("js/story-tools.js"))
     .then(() => loadBAOScript("js/story-library.js"))
+    .then(() => loadBAOScript("js/story-backup.js"))
     .then(() => loadBAOScript("js/prompt-cache.js"))
     .then(() => loadBAOScript("js/story-reader.js"))
     .then(() => loadBAOScript("js/story-revision-state.js"))
