@@ -168,6 +168,40 @@ assert.equal(chatGPTJSON.report.format, "ChatGPT 匯出 JSON");
 assert.deepEqual(chatGPTJSON.messages.map(item => item.content), ["玩家問題", "角色回答"]);
 assert.equal(chatGPTJSON.report.skippedCount, 1);
 
+const multiChatGPTJSON = BAOStoryTools.parseExternalText(JSON.stringify([
+  {
+    id: "chat-a",
+    title: "第一個故事",
+    current_node: "a-user",
+    mapping: {
+      "a-user": { parent: null, message: { author: { role: "user" }, content: { parts: ["只屬於故事 A"] }, create_time: 1 } }
+    }
+  },
+  {
+    id: "chat-b",
+    title: "第二個故事",
+    current_node: "b-assistant",
+    mapping: {
+      "b-user": { parent: null, message: { author: { role: "user" }, content: { parts: ["故事 B 問題"] }, create_time: 1 } },
+      "b-assistant": { parent: "b-user", message: { author: { role: "assistant" }, content: { parts: ["故事 B 回答"] }, create_time: 2 } }
+    }
+  }
+]));
+assert.equal(multiChatGPTJSON.conversations.length, 2);
+assert.deepEqual(multiChatGPTJSON.conversations.map(item => item.title), ["第一個故事", "第二個故事"]);
+assert.deepEqual(multiChatGPTJSON.conversations[0].result.messages.map(item => item.content), ["只屬於故事 A"]);
+assert.deepEqual(multiChatGPTJSON.conversations[1].result.messages.map(item => item.content), ["故事 B 問題", "故事 B 回答"]);
+assert.equal(multiChatGPTJSON.messages.length, 0);
+assert.match(multiChatGPTJSON.report.warnings[0], /不會自動合併/);
+
+const multiClaudeJSON = BAOStoryTools.parseExternalText(JSON.stringify([
+  { uuid: "claude-a", name: "Claude A", chat_messages: [{ sender: "human", text: "A 訊息" }] },
+  { uuid: "claude-b", name: "Claude B", chat_messages: [{ sender: "assistant", text: "B 訊息" }] }
+]));
+assert.equal(multiClaudeJSON.conversations.length, 2);
+assert.deepEqual(multiClaudeJSON.conversations.map(item => item.title), ["Claude A", "Claude B"]);
+assert.equal(multiClaudeJSON.conversations[0].result.messages[0].content, "A 訊息");
+
 const tavernJSONL = BAOStoryTools.parseExternalText([
   JSON.stringify({ user_name: "旅人", character_name: "林塵封" }),
   JSON.stringify({ name: "旅人", is_user: true, mes: "走吧。" }),
@@ -216,6 +250,8 @@ assert.equal(storyToolsSource.includes("確認身分並建立草稿"), true);
 assert.equal(storyToolsSource.includes("SillyTavern／JSONL"), true);
 assert.equal(storyToolsSource.includes("resolveImportedMessages"), true);
 assert.equal(storyToolsSource.includes("IndexedDB 無法使用"), true);
+assert.equal(storyToolsSource.includes("選擇要匯入的對話"), true);
+assert.equal(storyToolsSource.includes("不同對話不會自動合併"), true);
 
 const pack = BAOStoryTools.createPack(Chat.messages);
 pack.summary = "已整理的唯一前情";
