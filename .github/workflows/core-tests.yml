@@ -39,6 +39,8 @@ jobs:
         run: node tests/storage-indexeddb-core.cjs
       - name: Story library core
         run: node tests/story-library-core.cjs
+      - name: Story bundle backup
+        run: node tests/story-backup-core.cjs
       - name: Character readiness core
         run: node tests/character-readiness-core.cjs
       - name: Model presets and routing
