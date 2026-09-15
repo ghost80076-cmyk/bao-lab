@@ -23,6 +23,18 @@ const messages = [
 const lastRequest = () => requests.at(-1);
 
 (async () => {
+  const providerSend = API.send.bind(API);
+  let diagnosticConfig = null;
+  API.send = async (config, diagnosticMessages) => {
+    diagnosticConfig = config;
+    assert.deepEqual(diagnosticMessages.map(message => message.role), ["system", "user"]);
+    return { text: "OK", usage: { total_tokens: 3 } };
+  };
+  await API.test({ type: "custom", model: "diagnostic-model", baseUrl: "https://example.test/v1/chat/completions", key: "DIAGNOSTIC-SECRET" });
+  assert.equal(diagnosticConfig.__connectionTest, true, "connection checks must be identifiable by accounting and routing wrappers");
+  assert.equal(diagnosticConfig.maxOutputTokens, 16, "connection checks must use a minimal output limit");
+  API.send = providerSend;
+
   const unknown = API.normalizeUsage({ prompt_tokens: 120, completion_tokens: 30 }, "openai");
   assert.equal(unknown.input_tokens, 120);
   assert.equal(unknown.cached_tokens, null);

@@ -5,6 +5,7 @@
   const originalSend = API.send.bind(API);
 
   API.send = async function(config, messages) {
+    if (config?.__connectionTest) return originalSend(config, messages);
     let route = null;
     if (config?.__memoryTask) route = App.config?.memory?.summaryApi || null;
     if (config?.__stateTask) route = App.config?.cost?.stateApi || null;
@@ -23,6 +24,7 @@
       __auxiliaryTask: config.__auxiliaryTask,
       __memoryTask: config.__memoryTask,
       __stateTask: config.__stateTask,
+      __connectionTest: config.__connectionTest,
       maxOutputTokens: config.maxOutputTokens
     };
     return originalSend(effective, messages);

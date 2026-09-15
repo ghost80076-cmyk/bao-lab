@@ -1,6 +1,6 @@
 const { test, expect } = require("@playwright/test");
 
-const openDemoCanon = async page => {
+const openModelStep = async page => {
   await page.goto("/");
   await expect(page.getByRole("heading", { name: "班長。" })).toBeVisible();
   await page.getByRole("button", { name: "探索作品" }).click();
@@ -9,6 +9,11 @@ const openDemoCanon = async page => {
   await card.click();
   await page.getByRole("button", { name: "開始故事" }).click();
   for (let step = 0; step < 3; step += 1) await page.getByRole("button", { name: "下一步" }).click();
+  await expect(page.locator("#test-api")).toBeVisible();
+};
+
+const openDemoCanon = async page => {
+  await openModelStep(page);
   await page.locator("#bao-demo-mode").check();
   await page.getByRole("button", { name: "下一步" }).click();
   await page.getByRole("button", { name: "開始故事" }).click();
@@ -40,6 +45,41 @@ const seedDraft = async page => page.evaluate(() => {
 });
 
 test.describe("Canon workbench responsive UI", () => {
+  test("main, memory, and state connection diagnostics keep routes isolated", async ({ page }) => {
+    const requests = [];
+    await page.route("https://generativelanguage.googleapis.com/**", async route => {
+      requests.push({ kind: "main", url: route.request().url() });
+      await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ candidates: [{ content: { parts: [{ text: "OK" }] } }], usageMetadata: { promptTokenCount: 4, candidatesTokenCount: 1, totalTokenCount: 5 } }) });
+    });
+    for (const kind of ["memory", "state"]) {
+      await page.route(`https://${kind}.example/**`, async route => {
+        requests.push({ kind, url: route.request().url() });
+        await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ choices: [{ message: { content: "OK" } }], usage: { prompt_tokens: 4, completion_tokens: 1, total_tokens: 5 } }) });
+      });
+    }
+
+    await openModelStep(page);
+    await page.locator("#api-key").fill("MAIN-TEST-KEY");
+    await page.locator("#test-api").click();
+    await expect(page.locator("#api-test-status")).toContainText("主模型連線成功");
+    await page.getByRole("button", { name: "下一步" }).click();
+
+    for (const kind of ["memory", "state"]) {
+      await page.locator(`#${kind}-route-choice`).selectOption("separate");
+      await page.locator(`#${kind}-model-id`).fill(`${kind}-model`);
+      await page.locator(`#${kind}-protocol`).selectOption("openai");
+      await page.locator(`#${kind}-base-url`).fill(`https://${kind}.example/v1/chat/completions`);
+      await page.locator(`#${kind}-api-key`).fill(`${kind.toUpperCase()}-TEST-KEY`);
+      await page.locator(`[data-test-helper="${kind}"]`).click();
+      await expect(page.locator(`#${kind}-route-test-status`)).toContainText("模型連線成功");
+    }
+
+    expect(requests.map(request => request.kind)).toEqual(["main", "memory", "state"]);
+    const accounting = await page.evaluate(() => ({ usage: Chat.usage, lastStoryPromptTokens: Chat.lastStoryPromptTokens }));
+    expect(accounting.usage).toEqual({ prompt: 0, completion: 0, cached: 0, cacheWrite: 0, total: 0 });
+    expect(accounting.lastStoryPromptTokens).toBe(0);
+  });
+
   test("desktop keeps the summary and editor controls in three columns", async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 1000 });
     await openDemoCanon(page);

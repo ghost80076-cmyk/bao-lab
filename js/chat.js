@@ -158,7 +158,7 @@ window.addEventListener("DOMContentLoaded", () => {
     if (bar && !document.getElementById("usage-total")) bar.insertAdjacentHTML("beforeend", '<span>累積 <b id="usage-total">0 tok</b></span><span>輸入累積 <b id="usage-input-total">0 tok</b></span><span>輸出累積 <b id="usage-output-total">0 tok</b></span><span>Cache 累積 <b id="usage-cache-total">0 tok</b></span><span>Context Guard <b id="usage-guard">正常</b></span>');
     if (window.API && !API.__baoUsageWrapped) {
       const originalSend = API.send.bind(API);
-      API.send = async function(config, messages) { const result = await originalSend(config, messages); Chat.addUsage(result?.usage || {}); Chat.renderUsage(result?.usage || {}); if (!config?.__memoryTask) Chat.recordStoryUsage(result?.usage || {}, App?.config); return result; };
+      API.send = async function(config, messages) { const result = await originalSend(config, messages); if (config?.__connectionTest) return result; Chat.addUsage(result?.usage || {}); Chat.renderUsage(result?.usage || {}); if (!config?.__memoryTask) Chat.recordStoryUsage(result?.usage || {}, App?.config); return result; };
       API.__baoUsageWrapped = true;
     }
     const apiStep = document.querySelector('[data-step-panel="4"]');
@@ -168,7 +168,7 @@ window.addEventListener("DOMContentLoaded", () => {
         const btn = document.getElementById("test-api"), status = document.getElementById("api-test-status"), config = App.collectConfig();
         if (!config.api.model || !config.api.baseUrl || !config.api.key) { status.textContent = "✕ 請先完成 Model ID、Base URL 與 API Key"; return; }
         btn.disabled = true; status.textContent = "測試中…";
-        try { const before = { ...Chat.usage }, previousPrompt = Chat.lastStoryPromptTokens, result = await API.test({ ...config.api, __memoryTask: true }); Chat.usage = before; Chat.lastStoryPromptTokens = previousPrompt; Chat.renderUsage({}); status.textContent = `✓ 連線成功${result?.usage?.total_tokens ? ` · ${result.usage.total_tokens} tok` : ""}`; }
+        try { const result = await API.test(config.api); status.textContent = `✓ 主模型連線成功${result?.usage?.total_tokens ? ` · ${result.usage.total_tokens} tok` : ""}`; }
         catch (err) { status.textContent = `✕ ${String(err.message || err).split("\n")[0]}`; }
         finally { btn.disabled = false; }
       });

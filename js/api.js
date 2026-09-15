@@ -54,7 +54,7 @@ const API = {
       { role: "system", content: "You are an API connection tester. Reply only with OK." },
       { role: "user", content: "Reply OK" }
     ];
-    return this.send({ ...config, maxOutputTokens: 16 }, messages);
+    return this.send({ ...config, __connectionTest: true, maxOutputTokens: 16 }, messages);
   },
 
   friendlyError(status, data, protocol = "API") {

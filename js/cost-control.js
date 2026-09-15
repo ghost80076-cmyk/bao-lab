@@ -107,7 +107,7 @@
     API.send = async function(config, messages) {
       const cfg = App?.config?.cost;
       const current = typeof Chat !== "undefined" ? cumulativeCost() : { twd: 0 };
-      if (cfg?.budgetTwd > 0 && current.twd >= cfg.budgetTwd) {
+      if (!config?.__connectionTest && cfg?.budgetTwd > 0 && current.twd >= cfg.budgetTwd) {
         throw new Error(`已達本次故事預算上限 NT$${cfg.budgetTwd.toFixed(0)}。可提高預算或改用較便宜的模型後繼續。`);
       }
       const effective = { ...config };

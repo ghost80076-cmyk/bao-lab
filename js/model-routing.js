@@ -72,6 +72,10 @@
           <label>API Key<input id="${kind}-api-key" type="password" autocomplete="off" placeholder="若與主 API 不同，貼上另一把 Key"></label>
         </div>
         <div id="${kind}-route-hint" class="note">可以使用和主聊天完全不同的服務商。</div>
+        <div class="helper-route-test-row">
+          <button type="button" class="secondary" data-test-helper="${kind}">測試${isMemory ? "記憶" : "狀態"}模型</button>
+          <span id="${kind}-route-test-status" class="note">尚未測試</span>
+        </div>
       </div>
     </div>`;
   };
@@ -93,6 +97,34 @@
     document.getElementById(`${kind}-route-advanced`)?.classList.toggle("hidden", choice?.value !== "separate");
   };
 
+  const normalizeUrl = value => String(value || "").trim().replace(/\/$/, "");
+  const testHelper = async kind => {
+    const button = document.querySelector(`[data-test-helper="${kind}"]`);
+    const status = document.getElementById(`${kind}-route-test-status`);
+    const config = App.collectConfig();
+    const route = kind === "memory" ? config.memory?.summaryApi : config.cost?.stateApi;
+    if (!route?.model || !route?.baseUrl || !route?.key) {
+      if (status) status.textContent = "✕ 請完成 Model ID、連線網址與 API Key";
+      return;
+    }
+    const mainApi = config.api || {};
+    if (normalizeUrl(route.baseUrl) !== normalizeUrl(mainApi.baseUrl) && route.key === mainApi.key) {
+      if (status) status.textContent = "✕ 不同服務商必須填入自己的 API Key";
+      return;
+    }
+    if (button) button.disabled = true;
+    if (status) status.textContent = "測試中…";
+    try {
+      const result = await API.test(route);
+      const total = result?.usage?.total_tokens;
+      if (status) status.textContent = `✓ ${kind === "memory" ? "記憶" : "狀態"}模型連線成功${total != null ? ` · ${Number(total).toLocaleString()} tok` : ""}`;
+    } catch (err) {
+      if (status) status.textContent = `✕ ${String(err?.message || err).split("\n")[0]}`;
+    } finally {
+      if (button) button.disabled = false;
+    }
+  };
+
   const injectControls = () => {
     const step = document.querySelector('[data-step-panel="5"]');
     if (!step || document.getElementById("helper-routing-box")) return;
@@ -104,6 +136,7 @@
     ["memory","state"].forEach(kind => {
       document.getElementById(`${kind}-route-choice`)?.addEventListener("change", () => toggleHelper(kind));
       document.getElementById(`${kind}-preset-select`)?.addEventListener("change", () => applyPreset(kind));
+      document.querySelector(`[data-test-helper="${kind}"]`)?.addEventListener("click", () => testHelper(kind));
     });
   };
 
