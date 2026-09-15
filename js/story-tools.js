@@ -698,13 +698,23 @@
       "敘事偏好": clone(App.config?.narrative || window.BAONarrativeSettings?.get?.() || {}),
       "Context Pack": clone(state.contextPack || null)
     };
+    const sectionTokens = Object.fromEntries(Object.entries(sections).map(([label, value]) => [
+      label,
+      tokenEstimate(typeof value === "string" ? value : JSON.stringify(value))
+    ]));
+    const tokenBreakdown = {
+      systemPrompt: tokenEstimate(systemPrompt),
+      memoryMessages: tokenEstimate(JSON.stringify(memoryMessages)),
+      sections: sectionTokens
+    };
     return {
       systemPrompt,
       memoryMessages,
       sections,
       mode,
       rounds,
-      estimatedTokens: tokenEstimate(systemPrompt + JSON.stringify(memoryMessages))
+      tokenBreakdown,
+      estimatedTokens: tokenBreakdown.systemPrompt + tokenBreakdown.memoryMessages
     };
   };
 
@@ -814,15 +824,15 @@
     host.innerHTML = '<div class="story-tools-toolbar"><button class="secondary" type="button" data-back>← 返回</button><span class="story-tools-pill">約 ' + data.estimatedTokens.toLocaleString() + ' tokens</span></div>' +
       '<section class="story-tools-card"><h3>Context 預覽器</h3><p>依目前狀態建立，不呼叫模型。智慧記憶若在真正送出前觸發新摘要，實際內容可能略有變動。</p>' +
       '<div class="story-preview-meta">記憶模式：' + App.escapeHTML(data.mode) + ' · 近期保留：約 ' + data.rounds + ' 輪 · API Key：不顯示</div>' +
-      '<details open><summary>實際 System Prompt</summary><textarea data-system rows="14" readonly></textarea></details>' +
-      '<details open><summary>記憶與近期對話</summary><textarea data-memory rows="14" readonly></textarea></details><div data-sections></div></section>';
+      '<details open><summary>實際 System Prompt · 約 ' + data.tokenBreakdown.systemPrompt.toLocaleString() + ' tokens</summary><textarea data-system rows="14" readonly></textarea></details>' +
+      '<details open><summary>記憶與近期對話 · 約 ' + data.tokenBreakdown.memoryMessages.toLocaleString() + ' tokens</summary><textarea data-memory rows="14" readonly></textarea></details><div data-sections></div></section>';
     host.querySelector("[data-system]").value = data.systemPrompt;
     host.querySelector("[data-memory]").value = JSON.stringify(data.memoryMessages, null, 2);
     Object.entries(data.sections).forEach(([label, value]) => {
       const detail = document.createElement("details");
       const summary = document.createElement("summary");
       const area = document.createElement("textarea");
-      summary.textContent = label;
+      summary.textContent = label + " · 約 " + Number(data.tokenBreakdown.sections[label] || 0).toLocaleString() + " tokens";
       area.readOnly = true;
       area.rows = 9;
       area.value = typeof value === "string" ? value : JSON.stringify(value, null, 2);
