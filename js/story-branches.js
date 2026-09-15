@@ -15,8 +15,59 @@
   };
 
   const close = () => document.querySelector(".story-branches-backdrop")?.remove();
+  const waitForRevisionState = async () => {
+    try { await window.BAOStoryRevisionState?.whenIdle?.(); }
+    catch (error) { console.warn("BAO/LAB revision reconciliation did not finish before branch operation:", error); }
+  };
+  const dateValue = chapter => Date.parse(chapter?.createdAt || chapter?.updatedAt || "") || 0;
+  const compareChapters = (a, b) => dateValue(a) - dateValue(b)
+    || String(a?.label || "").localeCompare(String(b?.label || ""), "zh-Hant");
+  const chapterMap = chapters => new Map((chapters || []).map(chapter => [chapter.chapterId, chapter]));
+
+  const lineageFor = (chapter, map) => {
+    const lineage = [];
+    const seen = new Set();
+    let cursor = chapter;
+    while (cursor?.chapterId && !seen.has(cursor.chapterId)) {
+      seen.add(cursor.chapterId);
+      lineage.unshift(cursor);
+      cursor = cursor.parentChapterId ? map.get(cursor.parentChapterId) : null;
+    }
+    return lineage;
+  };
+
+  const buildTree = chapters => {
+    const sorted = [...(chapters || [])].sort(compareChapters);
+    const map = chapterMap(sorted);
+    const children = new Map(sorted.map(chapter => [chapter.chapterId, []]));
+    const roots = [];
+    sorted.forEach(chapter => {
+      if (chapter.parentChapterId && map.has(chapter.parentChapterId)) children.get(chapter.parentChapterId).push(chapter);
+      else roots.push(chapter);
+    });
+    const visit = (chapter, depth = 0, seen = new Set()) => {
+      if (!chapter?.chapterId || seen.has(chapter.chapterId)) return null;
+      const nextSeen = new Set(seen).add(chapter.chapterId);
+      return {
+        chapter,
+        depth,
+        children: (children.get(chapter.chapterId) || [])
+          .sort(compareChapters)
+          .map(child => visit(child, depth + 1, nextSeen))
+          .filter(Boolean)
+      };
+    };
+    return { map, roots: roots.map(root => visit(root)).filter(Boolean) };
+  };
+
+  const formatUpdatedAt = value => {
+    const date = new Date(value || "");
+    if (Number.isNaN(date.getTime())) return "";
+    return date.toLocaleString("zh-TW", { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" });
+  };
 
   const restore = async (storyId, chapterId) => {
+    await waitForRevisionState();
     App.saveStory?.(false);
     await Library.flush();
     const save = await Library.reconstruct(storyId, chapterId);
@@ -44,6 +95,9 @@
     const label = window.prompt("替新分支命名：", "另一條故事線");
     if (label === null) return;
     try {
+      await waitForRevisionState();
+      App.saveStory?.(false);
+      await Library.flush();
       const currentKey = String(App.config?.api?.key || "");
       const save = await Library.createBranch(message.id, label);
       if (!Storage.restoreStory(save)) throw new Error("分支已建立，但無法切換到分支。");
@@ -59,16 +113,27 @@
     }
   };
 
-  const depthOf = (chapter, map) => {
-    let depth = 0;
-    let cursor = chapter;
-    const seen = new Set();
-    while (cursor?.parentChapterId && !seen.has(cursor.parentChapterId)) {
-      seen.add(cursor.parentChapterId);
-      cursor = map.get(cursor.parentChapterId);
-      if (cursor) depth += 1;
-    }
-    return depth;
+  const renderNode = (node, refs, map) => {
+    const chapter = node.chapter;
+    const active = chapter.chapterId === refs.chapterId;
+    const parent = chapter.parentChapterId ? map.get(chapter.parentChapterId) : null;
+    const kind = chapter.parentChapterId ? `分支 L${node.depth}` : "主線篇章";
+    const parentLine = parent ? `<span class="story-branch-parent">從「${escape(parent.label || "上層故事線")}」分出</span>` : "";
+    const preview = chapter.branchPointPreview ? `<p class="story-branch-preview">分岔點：${escape(chapter.branchPointPreview.slice(0, 120))}</p>` : "";
+    const updated = formatUpdatedAt(chapter.updatedAt);
+    const children = node.children.length
+      ? `<ol class="story-branch-children">${node.children.map(child => renderNode(child, refs, map)).join("")}</ol>`
+      : "";
+    return `<li class="story-branch-node" data-depth="${node.depth}" data-parent="${attr(chapter.parentChapterId || "")}">
+      <article class="story-branch-row${active ? " is-active" : ""}" data-chapter="${attr(chapter.chapterId)}" ${active ? 'aria-current="true"' : ""}>
+        <div class="story-branch-copy">
+          <div class="story-branch-heading"><span class="story-branch-kind">${kind}</span><b>${escape(chapter.label || "未命名故事線")}</b>${active ? '<span class="story-library-active">目前故事線</span>' : ""}</div>
+          <div class="story-branch-meta"><span>${Number(chapter.messageCount || 0).toLocaleString()} 則訊息</span>${updated ? `<span>更新 ${escape(updated)}</span>` : ""}</div>
+          ${parentLine}${preview}
+        </div>
+        <div class="story-library-actions"><button type="button" class="primary" data-switch ${active ? "disabled" : ""}>切換</button><button type="button" class="secondary" data-rename>改名</button>${chapter.parentChapterId ? `<button type="button" class="story-library-danger" data-delete ${active ? "disabled" : ""}>刪除</button>` : ""}</div>
+      </article>${children}
+    </li>`;
   };
 
   const open = async () => {
@@ -78,26 +143,29 @@
     if (!refs.storyId) return alert("目前沒有可管理的故事。");
     const backdrop = document.createElement("div");
     backdrop.className = "story-tools-backdrop story-branches-backdrop";
-    backdrop.innerHTML = '<section class="story-tools-modal" role="dialog" aria-modal="true" aria-label="故事分支"><main class="story-tools-main"><header class="story-tools-intro"><div><span class="eyebrow">LOCAL BRANCHES</span><h2>故事分支</h2></div><button type="button" class="story-tools-close" data-close aria-label="關閉">×</button></header><p class="note">從任一已保存的 AI 回覆分岔。對話、摘要、Token 使用量、角色與世界狀態會在分岔後各自獨立。</p><div class="story-branch-list"><p>正在讀取故事線……</p></div></main></section>';
+    backdrop.innerHTML = '<section class="story-tools-modal story-branches-modal" role="dialog" aria-modal="true" aria-label="故事分支"><main class="story-tools-main"><header class="story-tools-intro"><div><span class="eyebrow">LOCAL BRANCHES</span><h2>故事分支</h2></div><button type="button" class="story-tools-close" data-close aria-label="關閉">×</button></header><p class="note">每條故事線都有自己的對話、長期記憶、Context Pack、Token 使用量、角色與世界狀態。從舊回覆改走另一個選擇時，請建立分支，不會覆蓋原主線。</p><div class="story-branch-list"><p>正在讀取故事線……</p></div></main></section>';
     document.body.appendChild(backdrop);
     backdrop.querySelector("[data-close]").onclick = close;
     backdrop.addEventListener("click", event => { if (event.target === backdrop) close(); });
 
     const chapters = await Library.listChapters(refs.storyId);
-    const map = new Map(chapters.map(chapter => [chapter.chapterId, chapter]));
+    if (!backdrop.isConnected) return;
+    const { map, roots } = buildTree(chapters);
+    const active = map.get(refs.chapterId);
+    const path = active ? lineageFor(active, map) : [];
     const list = backdrop.querySelector(".story-branch-list");
-    list.innerHTML = chapters.map(chapter => {
-      const active = chapter.chapterId === refs.chapterId;
-      const depth = depthOf(chapter, map);
-      const kind = chapter.parentChapterId ? `分支 L${depth}` : "主線／篇章";
-      const preview = chapter.branchPointPreview ? `<p>分岔點：${escape(chapter.branchPointPreview.slice(0, 120))}</p>` : "";
-      return `<article class="story-branch-row" style="--branch-depth:${depth}" data-chapter="${attr(chapter.chapterId)}"><div><span class="story-branch-kind">${kind}</span><b>${escape(chapter.label || "未命名故事線")}</b>${active ? '<span class="story-library-active">目前故事線</span>' : ""}<small>${Number(chapter.messageCount || 0).toLocaleString()} 則訊息</small>${preview}</div><div class="story-library-actions"><button type="button" class="primary" data-switch ${active ? "disabled" : ""}>切換</button><button type="button" class="secondary" data-rename>改名</button>${chapter.parentChapterId ? `<button type="button" class="story-library-danger" data-delete ${active ? "disabled" : ""}>刪除</button>` : ""}</div></article>`;
-    }).join("") || '<div class="story-library-empty">尚未建立故事線。</div>';
+    const pathHTML = path.length
+      ? `<div class="story-branch-current-path"><span>目前路徑</span><strong>${path.map(chapter => escape(chapter.label || "未命名故事線")).join(" <i>›</i> ")}</strong></div>`
+      : "";
+    list.innerHTML = roots.length
+      ? `${pathHTML}<ol class="story-branch-tree">${roots.map(node => renderNode(node, refs, map)).join("")}</ol>`
+      : '<div class="story-library-empty">尚未建立故事線。</div>';
 
     list.onclick = async event => {
       const row = event.target.closest("[data-chapter]");
       if (!row) return;
       const chapter = map.get(row.dataset.chapter);
+      if (!chapter) return;
       try {
         if (event.target.closest("[data-switch]")) await restore(refs.storyId, chapter.chapterId);
         if (event.target.closest("[data-rename]")) {
@@ -167,5 +235,5 @@
   observer.observe(document.body, { childList: true, subtree: true });
   setTimeout(decorate, 0);
   setTimeout(decorate, 150);
-  window.BAOStoryBranches = { version: 1, open, restore, createFrom, decorate };
+  window.BAOStoryBranches = { version: 2, open, restore, createFrom, decorate, buildTree, lineageFor };
 })();
