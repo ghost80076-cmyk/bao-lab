@@ -42,6 +42,8 @@ for (const action of ["save", "save-as", "narrative", "reply", "memory"]) {
 assert(css.includes("#chat-view .story-mobile-tools"), "mobile story toolbar styles are missing");
 assert(css.includes("overflow-x:auto"), "mobile story toolbar must scroll horizontally when needed");
 assert(siteUI.includes('loadBAOScript("js/story-reader.js")'), "story reader is not loaded by site-ui");
+assert(siteUI.includes('loadBAOScript("js/request-lifecycle.js")'), "request lifecycle guard is not loaded after the story reader");
+assert(css.includes(".story-cancel-generation"), "responsive cancel-generation styling is missing");
 assert(brandUI.includes('.topbar nav [data-view="${view}"]'), "brand labels must target nav controls without replacing the BAO/LAB logo");
 assert(brandCSS.includes("overflow-x:auto"), "mobile topbar navigation must scroll instead of squeezing labels vertically");
 assert(brandCSS.includes("white-space:nowrap"), "topbar labels must not wrap one character per line");

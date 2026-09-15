@@ -90,7 +90,8 @@ const API = {
       response = await fetch(config.baseUrl, {
         method: "POST",
         headers: { "Authorization": `Bearer ${config.key}`, "Content-Type": "application/json" },
-        body: JSON.stringify(body)
+        body: JSON.stringify(body),
+        signal: config.signal || this.activeSignal
       });
     } catch (err) { throw this.networkError(err); }
     const data = await this.readJSON(response);
@@ -108,7 +109,7 @@ const API = {
     const limit = Math.max(1, Math.floor(Number(config.maxOutputTokens || 4096)));
     let response;
     try {
-      response = await fetch(config.baseUrl, { method: "POST", headers: { "x-api-key": config.key, "anthropic-version": "2023-06-01", "Content-Type": "application/json" }, body: JSON.stringify({ model: config.model, max_tokens: limit, system, messages: chat }) });
+      response = await fetch(config.baseUrl, { method: "POST", headers: { "x-api-key": config.key, "anthropic-version": "2023-06-01", "Content-Type": "application/json" }, body: JSON.stringify({ model: config.model, max_tokens: limit, system, messages: chat }), signal: config.signal || this.activeSignal });
     } catch (err) { throw this.networkError(err); }
     const data = await this.readJSON(response);
     if (!response.ok) throw new Error(this.friendlyError(response.status, data, "Anthropic-compatible API"));
@@ -127,7 +128,7 @@ const API = {
     if (limit > 0) payload.generationConfig = { maxOutputTokens: Math.floor(limit) };
     let response;
     try {
-      response = await fetch(url, { method: "POST", headers: { "x-goog-api-key": config.key, "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+      response = await fetch(url, { method: "POST", headers: { "x-goog-api-key": config.key, "Content-Type": "application/json" }, body: JSON.stringify(payload), signal: config.signal || this.activeSignal });
     } catch (err) { throw this.networkError(err); }
     const data = await this.readJSON(response);
     if (!response.ok) throw new Error(this.friendlyError(response.status, data, "Gemini API"));
@@ -136,6 +137,11 @@ const API = {
   },
 
   networkError(err) {
+    if (err?.name === "AbortError") {
+      const canceled = new Error("已取消本次生成。玩家輸入已還原，可以修改後再次送出。");
+      canceled.code = "BAO_ABORTED";
+      return canceled;
+    }
     return new Error(`無法連線到 API。請檢查 Base URL、網路，或中轉站是否允許瀏覽器跨網域連線（CORS）。\n${err?.message || "Network error"}`);
   },
   contentToText(content) { if (typeof content === "string") return content; if (Array.isArray(content)) return content.map(p => typeof p === "string" ? p : (p?.text || "")).filter(Boolean).join("\n"); return content == null ? "" : String(content); },

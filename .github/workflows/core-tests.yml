@@ -49,5 +49,7 @@ jobs:
         run: node tests/api-provider-contracts.cjs
       - name: Helper API connection diagnostics
         run: node tests/helper-api-diagnostics-core.cjs
+      - name: Generation request lifecycle
+        run: node tests/request-lifecycle-core.cjs
       - name: Prompt cache pipeline
         run: node tests/prompt-cache-core.cjs

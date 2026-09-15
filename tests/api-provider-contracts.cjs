@@ -39,6 +39,11 @@ const lastRequest = () => requests.at(-1);
   assert.equal(unknown.input_tokens, 120);
   assert.equal(unknown.cached_tokens, null);
   assert.equal(unknown.new_input_tokens, null, "missing cache usage must remain unknown");
+  const controller = new AbortController();
+  API.activeSignal = controller.signal;
+  const canceled = API.networkError({ name: "AbortError" });
+  assert.equal(canceled.code, "BAO_ABORTED");
+  assert.match(canceled.message, /玩家輸入已還原/);
 
   responseData = { choices: [{ message: { content: "OpenRouter OK" } }], usage: { prompt_tokens: 100, completion_tokens: 20, total_tokens: 120, prompt_tokens_details: { cached_tokens: 60 } } };
   const openRouter = await API.send({ type: "openrouter", protocol: "openai", model: "anthropic/claude-sonnet", baseUrl: "https://openrouter.ai/api/v1/chat/completions", key: "OR-SECRET", cacheMode: "explicit", explicitCacheModel: "anthropic/claude-sonnet", cacheEnabled: true, maxOutputTokens: 500 }, messages);
@@ -47,6 +52,7 @@ const lastRequest = () => requests.at(-1);
   assert.equal(lastRequest().body.session_id, "bao-lab:test:stable-session");
   assert.deepEqual(lastRequest().body.messages[0].content[0].cache_control, { type: "ephemeral" });
   assert.equal(JSON.stringify(lastRequest().body).includes("OR-SECRET"), false);
+  assert.equal(lastRequest().options.signal, controller.signal, "OpenAI-compatible requests must accept the active generation signal");
 
   await API.send({ type: "openrouter", protocol: "openai", model: "different/model", baseUrl: "https://openrouter.ai/api/v1/chat/completions", key: "OR-SECRET", cacheMode: "explicit", explicitCacheModel: "anthropic/claude-sonnet", cacheEnabled: true }, messages);
   assert.equal(typeof lastRequest().body.messages[0].content, "string", "stale explicit-cache verification must not follow a changed Model ID");
@@ -66,6 +72,7 @@ const lastRequest = () => requests.at(-1);
   assert.equal(JSON.stringify(lastRequest().body).includes("cache_control"), false, "Gemini direct requests must rely on implicit caching");
   assert.equal(lastRequest().options.headers["x-goog-api-key"], "GEMINI-SECRET");
   assert.equal(JSON.stringify(lastRequest().body).includes("GEMINI-SECRET"), false);
+  assert.equal(lastRequest().options.signal, controller.signal, "Gemini requests must accept the active generation signal");
 
   responseData = { content: [{ type: "text", text: "Claude OK" }], usage: { input_tokens: 40, cache_read_input_tokens: 100, cache_creation_input_tokens: 20, output_tokens: 15 } };
   const anthropic = await API.send({ type: "anthropic", protocol: "anthropic", route: "official", model: "claude-test", baseUrl: "https://api.anthropic.com/v1/messages", key: "CLAUDE-SECRET", cacheMode: "explicit", explicitCacheModel: "claude-test", cacheEnabled: true }, messages);
@@ -75,9 +82,11 @@ const lastRequest = () => requests.at(-1);
   assert.equal(anthropic.usage.new_input_tokens, 60);
   assert.deepEqual(lastRequest().body.system[0].cache_control, { type: "ephemeral" });
   assert.equal(JSON.stringify(lastRequest().body).includes("CLAUDE-SECRET"), false);
+  assert.equal(lastRequest().options.signal, controller.signal, "Anthropic requests must accept the active generation signal");
 
   await API.send({ type: "custom", protocol: "anthropic", route: "custom", model: "claude-proxy", baseUrl: "https://proxy.example/messages", key: "PROXY-SECRET", cacheMode: "explicit", cacheEnabled: true }, messages);
   assert.equal(typeof lastRequest().body.system, "string", "custom Anthropic-compatible services must not receive cache_control by assumption");
+  API.activeSignal = null;
 
   console.log("API provider contracts test passed");
 })().catch(error => {

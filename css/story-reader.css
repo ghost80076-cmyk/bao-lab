@@ -281,11 +281,19 @@
 #chat-view .composer textarea{
   min-height:58px;
   max-height:180px;
+  min-width:0;
 }
 
 #chat-view .composer .primary{
   width:92px;
   align-self:stretch;
+}
+
+#chat-view .composer .story-cancel-generation{
+  width:92px;
+  flex:0 0 auto;
+  align-self:stretch;
+  padding-inline:8px;
 }
 
 @media(max-width:1180px) and (min-width:821px){
@@ -451,6 +459,10 @@
   }
 
   #chat-view .composer .primary{
+    width:70px;
+  }
+
+  #chat-view .composer .story-cancel-generation{
     width:70px;
   }
 

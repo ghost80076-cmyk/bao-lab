@@ -80,6 +80,38 @@ test.describe("Canon workbench responsive UI", () => {
     expect(accounting.lastStoryPromptTokens).toBe(0);
   });
 
+  test("a player can cancel one pending generation without duplicate sends or phantom history", async ({ page }) => {
+    let providerRequests = 0;
+    await page.route("https://generativelanguage.googleapis.com/**", async route => {
+      providerRequests += 1;
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      try {
+        await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ candidates: [{ content: { parts: [{ text: "TOO LATE" }] } }] }) });
+      } catch {}
+    });
+
+    await openModelStep(page);
+    await page.locator("#api-key").fill("MAIN-TEST-KEY");
+    await page.getByRole("button", { name: "下一步" }).click();
+    await page.getByRole("button", { name: "開始故事" }).click();
+    const input = page.locator("#user-input");
+    await input.fill("這句取消後要回到輸入框");
+    const send = page.getByRole("button", { name: "送出訊息" });
+    await send.click();
+    const cancel = page.getByRole("button", { name: "取消生成" });
+    await expect(cancel).toBeVisible();
+    await send.evaluate(button => button.click());
+    await cancel.click();
+
+    await expect(cancel).toBeHidden();
+    await expect(send).toBeEnabled();
+    await expect(input).toHaveValue("這句取消後要回到輸入框");
+    await expect(page.locator("#chat-stream")).toContainText("已取消本次生成");
+    const state = await page.evaluate(() => ({ messages: Chat.messages.length, pending: App.__requestPending }));
+    expect(state).toEqual({ messages: 0, pending: false });
+    expect(providerRequests).toBe(1);
+  });
+
   test("desktop keeps the summary and editor controls in three columns", async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 1000 });
     await openDemoCanon(page);
