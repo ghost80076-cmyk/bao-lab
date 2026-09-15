@@ -33,6 +33,8 @@ jobs:
         run: node tests/story-flow-core.cjs
       - name: Story Reader core
         run: node tests/story-reader-core.cjs
+      - name: Story revision state consistency
+        run: node tests/story-revision-state-core.cjs
       - name: IndexedDB storage migration
         run: node tests/storage-indexeddb-core.cjs
       - name: Story library core
