@@ -4,6 +4,7 @@
   const MEMORY_HEADERS = new Set(["玩家手動記憶", "Context Pack · 玩家已確認的前情", "Canon Core · 玩家已確認"]);
   const DYNAMIC_HEADERS = new Set(["本輪動態角色規則", "目前核心狀態", "本輪相關世界資料", "本輪人物狀態", "本輪相關 Canon"]);
   const headerOf = block => String(block.match(/^【([^】]+)】/)?.[1] || "").trim();
+  const cacheMetricKnown = usage => usage?.cached_tokens !== null && usage?.cached_tokens !== undefined && Number.isFinite(Number(usage.cached_tokens));
 
   const partitionSystemPrompt = prompt => {
     const blocks = String(prompt || "").split(/\n{2,}(?=【[^】]+】)/).map(value => value.trim()).filter(Boolean);
@@ -24,6 +25,38 @@
       GameState.current.storySessionId = `bao-lab:${App.activeCharacter?.id || "story"}:${random}`;
     }
     return GameState.current.storySessionId;
+  };
+
+  const patchCacheUsageAccounting = () => {
+    if (Chat.__cacheUsageAccountingPatched) return;
+    const originalAddUsage = typeof Chat.addUsage === "function" ? Chat.addUsage.bind(Chat) : null;
+    const originalReset = typeof Chat.reset === "function" ? Chat.reset.bind(Chat) : null;
+    const originalRenderUsage = typeof Chat.renderUsage === "function" ? Chat.renderUsage.bind(Chat) : null;
+
+    if (originalAddUsage) {
+      Chat.addUsage = function(usage = {}) {
+        this.usage = this.usage || {};
+        if (!cacheMetricKnown(usage)) this.usage.cachedUnknown = true;
+        return originalAddUsage(usage);
+      };
+    }
+    if (originalReset) {
+      Chat.reset = function(...args) {
+        const result = originalReset(...args);
+        this.usage = this.usage || {};
+        this.usage.cachedUnknown = false;
+        return result;
+      };
+    }
+    if (originalRenderUsage) {
+      Chat.renderUsage = function(lastUsage = {}) {
+        const result = originalRenderUsage(lastUsage);
+        const cacheTotal = document.getElementById("usage-cache-total");
+        if (cacheTotal && this.usage?.cachedUnknown) cacheTotal.textContent = "未知";
+        return result;
+      };
+    }
+    Chat.__cacheUsageAccountingPatched = true;
   };
 
   App.buildMessages = async function(config = this.config) {
@@ -69,5 +102,6 @@
     return effective;
   };
 
-  window.BAOPromptCache = { partitionSystemPrompt, storySessionId };
+  patchCacheUsageAccounting();
+  window.BAOPromptCache = { partitionSystemPrompt, storySessionId, cacheMetricKnown };
 })();

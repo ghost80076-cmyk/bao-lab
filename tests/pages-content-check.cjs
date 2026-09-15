@@ -1,6 +1,6 @@
 // Read-only deployment verification. Never sends a player's API key or data.
 const fs = require('node:fs');
-const files = ['index.html', 'js/chat.js', 'js/helper-data.js', 'js/memory-preferences.js', 'js/world-modules.js', 'js/world-state-hook.js', 'js/player-settings.js', 'css/memory-preferences.css'];
+const files = ['index.html', 'js/chat.js', 'js/helper-data.js', 'js/memory-preferences.js', 'js/prompt-cache.js', 'js/world-modules.js', 'js/world-state-hook.js', 'js/player-settings.js', 'css/memory-preferences.css'];
 const base = 'https://ghost80076-cmyk.github.io/bao-lab/';
 (async () => {
   for (let attempt = 0; attempt < 40; attempt++) {
