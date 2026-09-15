@@ -299,4 +299,85 @@ test.describe("Canon workbench responsive UI", () => {
     await expect(page.locator("[data-canon-progress]")).toContainText("請先連接玩家自己的 API");
     expect(providerRequests).toEqual([]);
   });
+
+  test("@stress 2,000 rounds persist, fork, diverge, and restore in real IndexedDB", async ({ page, browserName }) => {
+    test.skip(browserName !== "chromium", "The heavy storage baseline runs once; cross-browser behavior is covered above.");
+    test.setTimeout(120_000);
+    await openDemoStory(page);
+
+    const result = await page.evaluate(async () => {
+      const rounds = 2000;
+      const messages = [];
+      for (let index = 0; index < rounds; index += 1) {
+        messages.push({ role: "user", content: `第 ${index + 1} 輪玩家行動：${"沿著世界線推進並記錄線索。".repeat(3)}` });
+        messages.push({ role: "assistant", content: `第 ${index + 1} 輪角色回覆：${"事件持續發展，人物關係與世界狀態產生變化。".repeat(3)}` });
+      }
+      Chat.messages = Chat.ensureMessageIds(messages);
+      Chat.summary = "長篇故事壓力測試摘要";
+      Chat.summarizedUntil = 3600;
+      Chat.usage = { prompt: 800000, completion: 600000, cached: 120000, cacheWrite: 0, total: 1400000 };
+      GameState.current.time = "第 2000 輪";
+      GameState.current.location = "主線終點";
+      GameState.current.events = Array.from({ length: 200 }, (_, index) => `事件 ${index + 1}`);
+      GameState.current.npcs = Array.from({ length: 50 }, (_, index) => ({ name: `NPC ${index + 1}`, relationship: index - 25 }));
+      GameState.current.modules = {
+        inventory: Array.from({ length: 100 }, (_, index) => ({ id: `item-${index}`, name: `物品 ${index + 1}`, count: index + 1 })),
+        quests: Array.from({ length: 40 }, (_, index) => ({ id: `quest-${index}`, status: index % 3 === 0 ? "done" : "active" }))
+      };
+
+      const saveStarted = performance.now();
+      App.saveStory(false);
+      await BAOStoryLibrary.flush();
+      const sourceRefs = BAOStoryLibrary.refs();
+      const source = await BAOStoryLibrary.reconstruct(sourceRefs.storyId, sourceRefs.chapterId);
+      const saveMs = performance.now() - saveStarted;
+
+      const forkStarted = performance.now();
+      const lastAssistantId = Chat.messages.at(-1).id;
+      const fork = await BAOStoryLibrary.createBranch(lastAssistantId, "第 2000 輪分支");
+      const forkRefs = BAOStoryLibrary.refs();
+      Storage.restoreStory(fork);
+      GameState.current.location = "只屬於壓力分支的地點";
+      Chat.add("user", "分支專屬行動");
+      Chat.add("assistant", "分支專屬結果");
+      App.saveStory(false);
+      await BAOStoryLibrary.flush();
+      const forkSaved = await BAOStoryLibrary.reconstruct(forkRefs.storyId, forkRefs.chapterId);
+      const sourceAfterFork = await BAOStoryLibrary.reconstruct(sourceRefs.storyId, sourceRefs.chapterId);
+      const forkMs = performance.now() - forkStarted;
+
+      Storage.restoreStory(sourceAfterFork);
+      const deletion = await BAOStoryLibrary.deleteBranch(forkRefs.storyId, forkRefs.chapterId);
+      return {
+        rounds,
+        sourceMessages: source.chat.messages.length,
+        sourceAfterForkMessages: sourceAfterFork.chat.messages.length,
+        forkMessages: forkSaved.chat.messages.length,
+        sourceLocation: sourceAfterFork.state.location,
+        forkLocation: forkSaved.state.location,
+        sourceUsage: sourceAfterFork.chat.usage,
+        sourceEvents: sourceAfterFork.state.events.length,
+        sourceInventory: sourceAfterFork.state.modules.inventory.length,
+        keyPersisted: Boolean(sourceAfterFork.config.api.key),
+        branchParentMatches: forkRefs.parentChapterId === sourceRefs.chapterId,
+        deletion,
+        saveMs: Math.round(saveMs),
+        forkMs: Math.round(forkMs)
+      };
+    });
+
+    expect(result.sourceMessages).toBe(4000);
+    expect(result.sourceAfterForkMessages).toBe(4000);
+    expect(result.forkMessages).toBe(4002);
+    expect(result.sourceLocation).toBe("主線終點");
+    expect(result.forkLocation).toBe("只屬於壓力分支的地點");
+    expect(result.sourceUsage.total).toBe(1400000);
+    expect(result.sourceEvents).toBe(200);
+    expect(result.sourceInventory).toBe(100);
+    expect(result.keyPersisted).toBe(false);
+    expect(result.branchParentMatches).toBe(true);
+    expect(result.deletion).toEqual({ deleted: 1 });
+    expect(result.saveMs).toBeLessThan(30_000);
+    expect(result.forkMs).toBeLessThan(45_000);
+  });
 });
