@@ -88,6 +88,7 @@ const Storage = {
     if (!window.App?.activeCharacter || !window.GameState?.current) return null;
     const safeConfig = this.scrubSecrets(this.clone(App.config || {}));
     const state = this.scrubSecrets(this.clone(GameState.current || {}));
+    const chatMessages = window.Chat?.ensureMessageIds ? Chat.ensureMessageIds() : (Chat.messages || []);
     if (state && typeof state === "object") state.config = safeConfig;
     return {
       schema: this.storySchema,
@@ -100,7 +101,7 @@ const Storage = {
       config: safeConfig,
       preferences: this.preferenceSnapshot(),
       chat: {
-        messages: this.scrubSecrets(this.clone(Chat.messages || [])),
+        messages: this.scrubSecrets(this.clone(chatMessages)),
         summary: String(Chat.summary || ""),
         summarizedUntil: Number(Chat.summarizedUntil || 0),
         usage: this.scrubSecrets(this.clone(Chat.usage || {})),
@@ -125,6 +126,7 @@ const Storage = {
     clean.state = clean.state && typeof clean.state === "object" ? clean.state : {};
     clean.state.config = clean.config;
     clean.chat.messages = Array.isArray(clean.chat.messages) ? clean.chat.messages : [];
+    if (window.Chat?.ensureMessageIds) clean.chat.messages = Chat.ensureMessageIds(clean.chat.messages);
     return clean;
   },
 
@@ -560,7 +562,8 @@ const Storage = {
     App.activeCharacter = character;
     App.config = this.clone(save.config || {});
     App.config.api = Object.assign({}, App.config.api || {}, { key: "" });
-    Chat.messages = this.clone(save.chat?.messages || []);
+    const restoredMessages = this.clone(save.chat?.messages || []);
+    Chat.messages = Chat.ensureMessageIds ? Chat.ensureMessageIds(restoredMessages) : restoredMessages;
     Chat.summary = String(save.chat?.summary || "");
     Chat.summarizedUntil = Number(save.chat?.summarizedUntil || 0);
     Chat.usage = Object.assign({ prompt: 0, completion: 0, cached: 0, cacheWrite: 0, total: 0 }, this.clone(save.chat?.usage || {}));

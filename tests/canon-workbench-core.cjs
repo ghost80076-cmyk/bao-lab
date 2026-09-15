@@ -7,11 +7,16 @@ global.window = global;
 global.document = { querySelectorAll() { return []; } };
 global.confirm = () => true;
 global.GameState = { current: {} };
+let messageSequence = 0;
 global.Chat = {
   messages: [
     { role: "user", content: "我去找艾琳，詢問北塔的封印。" },
     { role: "assistant", content: "艾琳承認她昨夜見過守塔人。" }
-  ]
+  ],
+  ensureMessageIds() {
+    this.messages = this.messages.map(message => ({ ...message, id: message.id || `msg-test-${++messageSequence}` }));
+    return this.messages;
+  }
 };
 global.App = {
   activeCharacter: { id: "test-character" },
@@ -36,6 +41,7 @@ const normalized = BAOCanonWorkbench.normalizeCanon({ notebooks: [
   { title: "世界硬規則", category: "world", content: "月蝕會關閉城門。" },
   { title: "衝突證據", category: "conflicts", content: "日期不一致。" }
 ] });
+assert.equal(normalized.version, 2);
 assert.equal(normalized.notebooks[0].tier, "core");
 assert.equal(normalized.notebooks[1].tier, "ui");
 assert.ok(BAOCanonWorkbench.searchTerms("我去找艾琳").includes("艾琳"));
@@ -51,6 +57,12 @@ assert.match(prompt, /月蝕會關閉城門/);
 assert.match(prompt, /本輪相關 Canon/);
 assert.match(prompt, /艾琳在北塔/);
 assert.doesNotMatch(prompt, /日期有衝突/);
+const referencedMessages = Chat.ensureMessageIds();
+assert.equal(BAOCanonWorkbench.processedStart({ lastProcessedMessageId: referencedMessages[0].id, lastProcessedMessageCount: 0 }, referencedMessages), 1);
+assert.equal(BAOCanonWorkbench.processedStart({ lastProcessedMessageId: "missing", lastProcessedMessageCount: 1 }, referencedMessages), 1);
+const oversizedChunks = BAOCanonWorkbench.chunkMessages([{ id: "msg-oversized", role: "assistant", content: "很長的回覆。".repeat(200) }], 0, 100);
+assert.ok(oversizedChunks.length > 1);
+assert.equal(oversizedChunks.every(chunk => chunk.includes("msg-oversized")), true);
 
 (async () => {
   delete GameState.current.canon;
@@ -60,6 +72,23 @@ assert.doesNotMatch(prompt, /日期有衝突/);
   assert.equal(GameState.current.canon, undefined, "AI output must not become official Canon before player confirmation");
   assert.equal(GameState.current.canonDraft.notebooks[0].title, "艾琳與北塔");
   assert.equal(GameState.current.canonDraft.lastProcessedMessageCount, Chat.messages.length);
+  assert.equal(GameState.current.canonDraft.lastProcessedMessageId, Chat.messages.at(-1).id);
+  const processedId = GameState.current.canonDraft.lastProcessedMessageId;
+  const processedCount = GameState.current.canonDraft.lastProcessedMessageCount;
+  Chat.messages.push({ id: "msg-after-draft", role: "user", content: "草稿建立後的新訊息" });
+  const editedDraft = BAOCanonWorkbench.readEditor({ querySelectorAll() { return []; } });
+  assert.equal(editedDraft.lastProcessedMessageId, processedId, "confirming an older draft must not consume newer messages");
+  assert.equal(editedDraft.lastProcessedMessageCount, processedCount);
+
+  API.calls = [];
+  GameState.current = {};
+  Chat.messages = Array.from({ length: 5 }, (_, index) => ({ role: index % 2 ? "assistant" : "user", content: `${index}-${"長篇證據".repeat(5000)}` }));
+  assert.equal(BAOCanonWorkbench.estimate("full").chunks, 5);
+  assert.equal(BAOCanonWorkbench.estimate("full").calls, 7, "five extracts, one intermediate merge and one final merge expected");
+  await BAOCanonWorkbench.run("full");
+  assert.equal(API.calls.length, 7);
+  assert.ok(API.calls.some(call => call.messages[1].content.includes("階層式合併的中間層")));
+  assert.match(API.calls[0].messages[1].content, /msg-test-/);
   console.log("canon workbench core test passed");
 })().catch(error => {
   console.error(error);

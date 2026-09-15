@@ -128,8 +128,8 @@ vm.runInThisContext(code, { filename: "js/story-library.js" });
   BAOStoryLibrary.install();
 
   Storage._payload = makePayload([
-    { role: "user", content: "第一句" },
-    { role: "assistant", content: "第一章回覆" }
+    { id: "msg-first-user", role: "user", content: "第一句" },
+    { id: "msg-first-assistant", role: "assistant", content: "第一章回覆" }
   ], "第一章摘要");
 
   App.startStory();
@@ -165,6 +165,7 @@ vm.runInThisContext(code, { filename: "js/story-library.js" });
   const restored = await BAOStoryLibrary.reconstruct(firstRefs.storyId, firstRefs.chapterId);
   assert.equal(restored.chat.messages.length, 2);
   assert.equal(restored.chat.messages[1].content, "第一章回覆");
+  assert.deepEqual(restored.chat.messages.map(message => message.id), ["msg-first-user", "msg-first-assistant"]);
   assert.equal(restored.config.api.key, "");
   assert.equal(restored._library.storyId, firstRefs.storyId);
 

@@ -216,6 +216,7 @@
         storyId: refs.storyId,
         chapterId: refs.chapterId,
         seq: index,
+        messageId: String(message.id || ""),
         role: message.role,
         content: String(message.content || ""),
         createdAt: message.createdAt || payload.savedAt,
@@ -332,7 +333,7 @@
       if (!snapshot?.payload) return null;
       const messages = records.filter(record => record.kind === "message" && record.storyId === storyId && record.chapterId === target.chapterId)
         .sort((a, b) => Number(a.seq || 0) - Number(b.seq || 0))
-        .map(record => ({ role: record.role, content: record.content }));
+        .map(record => ({ ...(record.messageId ? { id: record.messageId } : {}), role: record.role, content: record.content }));
       const payload = this.clone(snapshot.payload);
       payload.chat = payload.chat || {};
       payload.chat.messages = messages;

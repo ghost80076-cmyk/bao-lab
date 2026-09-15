@@ -41,3 +41,7 @@ jobs:
         run: node tests/character-readiness-core.cjs
       - name: Model presets and routing
         run: node tests/model-presets-core.cjs
+      - name: Canon workbench
+        run: node tests/canon-workbench-core.cjs
+      - name: Stable chat message IDs
+        run: node tests/chat-message-id-core.cjs

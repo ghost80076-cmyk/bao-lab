@@ -18,7 +18,34 @@ const Chat = {
     this.renderGuard();
   },
 
-  add(role, content) { this.messages.push({ role, content }); },
+  createMessageId() {
+    const random = globalThis.crypto?.randomUUID?.() || `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+    return `msg-${random}`;
+  },
+  normalizeMessage(message = {}) {
+    return {
+      ...message,
+      id: String(message.id || this.createMessageId()),
+      role: String(message.role || "assistant"),
+      content: String(message.content || "")
+    };
+  },
+  ensureMessageIds(messages = this.messages) {
+    const seen = new Set();
+    const normalized = (Array.isArray(messages) ? messages : []).map(message => {
+      const next = this.normalizeMessage(message);
+      if (seen.has(next.id)) next.id = this.createMessageId();
+      seen.add(next.id);
+      return next;
+    });
+    if (messages === this.messages) this.messages = normalized;
+    return normalized;
+  },
+  add(role, content) {
+    const message = this.normalizeMessage({ role, content });
+    this.messages.push(message);
+    return message;
+  },
   recent(maxRounds, mode) { if (mode === "full") return this.messages; return this.messages.slice(-Math.max(1, maxRounds) * 2); },
   pressure(config) { const limit = Math.max(1, Number(config?.memory?.maxContext || 64000)); return this.lastStoryPromptTokens > 0 ? this.lastStoryPromptTokens / limit : 0; },
 

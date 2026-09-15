@@ -140,6 +140,7 @@ localStorage.setItem("bao-lab:story:autosave", JSON.stringify(legacyAuto));
 localStorage.setItem("bao-lab:story:slots", JSON.stringify([legacySlot]));
 
 function makeContext() {
+  let messageSequence = 0;
   const context = {
     console,
     setTimeout,
@@ -167,7 +168,12 @@ function makeContext() {
       summary: "",
       summarizedUntil: 0,
       usage: {},
-      lastStoryPromptTokens: 0
+      lastStoryPromptTokens: 0,
+      ensureMessageIds(messages = this.messages) {
+        const normalized = messages.map(message => ({ ...message, id: message.id || `msg-storage-${++messageSequence}` }));
+        if (messages === this.messages) this.messages = normalized;
+        return normalized;
+      }
     },
     GameState: { current: { config: {} } },
     CharacterEngine: null,
@@ -213,6 +219,7 @@ function makeContext() {
   await Reloaded.ready();
   assert.equal(Reloaded.status().mode, "indexedDB");
   assert.equal(Reloaded.loadStory().chat.messages[0].content, "new");
+  assert.match(Reloaded.loadStory().chat.messages[0].id, /^msg-storage-/);
   assert.equal(Reloaded.listSlots().length, 3, "slots and migration-time writes survive reload from IDB");
   assert.equal(JSON.stringify(Reloaded.loadStory()).includes("SECRET"), false, "API key is not persisted");
 
