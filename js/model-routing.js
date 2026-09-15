@@ -195,6 +195,7 @@
     simplifyMainAPISection();
     injectControls();
     patchConfig();
+    window.BAOMemoryPreferences?.mount?.();
     restoreHelper("memory", App.config?.memory?.summaryApi || null);
     restoreHelper("state", App.config?.cost?.stateApi || null);
     loadExtra("js/helper-api-routing.js");
@@ -204,3 +205,4 @@
   if (document.readyState === "loading") window.addEventListener("DOMContentLoaded", () => setTimeout(init, 50));
   else setTimeout(init, 50);
 })();
+

@@ -1,0 +1,13 @@
+.memory-mode-summary{color:#70d2cf;margin:16px 0}
+.memory-strength{border:0;padding:0;margin:18px 0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.memory-strength legend{padding:0;margin-bottom:12px;color:#f0ece5;font-weight:600}
+.memory-strength label{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:8px;min-width:0;padding:18px;border:1px solid #3b3946;border-radius:14px;background:#201f29;cursor:pointer}
+.memory-strength input{width:auto;margin:0;accent-color:#b49bea}
+.memory-strength label:has(input:checked){border-color:#b49bea;background:#30283f;box-shadow:inset 0 0 0 1px #b49bea}
+.memory-strength label:focus-within{outline:2px solid #70d2cf;outline-offset:3px}
+.memory-strength span{font-size:12px;color:#c5bccd}
+#memory-advanced{border-top:1px solid #3b3946;margin-top:24px;padding-top:18px}
+#memory-advanced>summary{cursor:pointer;color:#d9ccee;font-weight:600;padding:8px 0}
+#memory-advanced .cost-control-box{margin-top:24px}
+#memory-advanced .form-grid{margin-top:16px}
+@media(max-width:640px){.memory-strength{grid-template-columns:repeat(2,minmax(0,1fr))}.memory-strength label{padding:14px}#memory-advanced .form-grid{grid-template-columns:minmax(0,1fr)}}

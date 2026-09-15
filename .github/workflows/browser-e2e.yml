@@ -32,8 +32,16 @@ jobs:
         run: npx playwright install --with-deps ${{ matrix.browser }}
       - name: Run desktop and mobile E2E on ${{ matrix.browser }}
         run: npm run test:e2e -- --project=${{ matrix.browser }}
-      - name: Upload failure report
-        if: failure()
+      - name: Verify deployed Pages content
+        if: github.event_name == 'push' && matrix.browser == 'chromium'
+        run: node tests/pages-content-check.cjs
+      - name: Verify live Pages memory flow
+        if: github.event_name == 'push' && matrix.browser == 'chromium'
+        env:
+          BAO_LIVE_URL: https://ghost80076-cmyk.github.io/bao-lab/
+        run: npm run test:e2e -- tests/e2e/memory-preferences.spec.cjs --project=chromium
+      - name: Upload browser verification report
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: playwright-report-${{ matrix.browser }}
@@ -42,3 +50,4 @@ jobs:
             test-results
           if-no-files-found: ignore
           retention-days: 7
+

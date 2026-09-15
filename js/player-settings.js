@@ -24,7 +24,7 @@
 
   const saveSettings = () => writeJSON(SETTINGS_KEY, settings);
   const saveMemory = () => writeJSON(MEMORY_KEY, memorySlots);
-  const enabledMemoryText = () => memorySlots.filter(x => x.enabled && x.text.trim()).map(x => `【${x.title}】\n${x.text.trim()}`).join("\n\n");
+  const enabledMemoryText = () => (window.BAOMemoryWorkbench?.readSlots?.() || readJSON(MEMORY_KEY, memorySlots)).filter(x => x.enabled && String(x.text || "").trim()).map(x => `【${x.title}】\n${x.text.trim()}`).join("\n\n");
 
   const ensureStyles = () => {
     if (document.querySelector('link[href="css/player-settings.css"]')) return;
@@ -249,3 +249,4 @@
   const init = () => { ensureStyles(); injectDemoOption(); injectChatButtons(); applyAppearance(); };
   if (document.readyState === "loading") window.addEventListener("DOMContentLoaded", () => setTimeout(init, 120)); else setTimeout(init, 120);
 })();
+

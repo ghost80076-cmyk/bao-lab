@@ -72,9 +72,11 @@ const Chat = {
     }
     if (mode === "rounds") return this.messages.slice(-this.protectedRounds(config) * 2);
     const rounds = this.protectedRounds(config);
-    const force = this.contextGuard.level === "high" || this.contextGuard.level === "critical";
-    await this.maybeSummarize(config, force, rounds);
-    const recent = this.messages.slice(-rounds * 2);
+    // Keep the small pending interval in raw form until it has been summarized.
+    const buffer = Math.max(2, Number(config?.memory?.summaryInterval || 4)) * 2;
+    const start = Math.max(0, this.messages.length - rounds * 2 - buffer,
+      Math.min(this.summarizedUntil, this.messages.length - rounds * 2));
+    const recent = this.messages.slice(start);
     const result = [];
     if (this.summary) result.push({ role: "system", content: `【長期記憶摘要】\n以下內容是較早對話的壓縮記憶，請保持人物關係、重要事件、承諾、偏好與未解決事項的一致性。\n${this.summary}` });
     result.push(...recent);
@@ -82,34 +84,63 @@ const Chat = {
   },
 
   async maybeSummarize(config, force = false, recentRounds = null) {
-    if (this.summarizing) return;
+    if (this.summarizing || config?.demoMode || !config?.api?.key) return;
     const configuredRounds = Math.max(4, Number(config?.memory?.maxRounds || 20));
     const rounds = Math.max(4, Number(recentRounds || configuredRounds));
     const keepMessages = rounds * 2;
     const overflow = this.messages.length - keepMessages;
-    if (!force && overflow < 8) return;
+    const interval = Math.max(2, Number(config?.memory?.summaryInterval || 4)) * 2;
+    if (overflow - this.summarizedUntil < (force ? 4 : interval)) return;
     let end = Math.max(this.summarizedUntil, this.messages.length - keepMessages);
     if (force && end <= this.summarizedUntil && this.messages.length > 12) end = Math.max(this.summarizedUntil, this.messages.length - Math.max(8, keepMessages));
-    const chunk = this.messages.slice(this.summarizedUntil, end);
-    if (chunk.length < 4) return;
+    const start = this.summarizedUntil;
+    const owner = window.GameState?.current;
+    const previousSummary = this.summary;
+    // Bound each incremental request; never advance past unprocessed source.
+    const charBudget = Math.max(4000, Number(config?.memory?.summaryChunkChars || 24000));
+    let chars = 0;
+    let boundedEnd = start;
+    for (let i = start; i < end; i++) {
+      const size = String(this.messages[i]?.content || "").length;
+      if (boundedEnd > start && chars + size > charBudget) break;
+      chars += size;
+      boundedEnd = i + 1;
+    }
+    end = boundedEnd;
+    const chunk = this.messages.slice(start, end);
+    const sourceSignature = JSON.stringify(chunk.map(m => [m.id, m.content]));
+    if (!chunk.length) return;
     this.summarizing = true;
     try {
       const transcript = chunk.map(m => `${m.role === "user" ? "玩家" : "角色/系統"}：${m.content}`).join("\n\n");
       const prompt = [
         "你是角色扮演長期記憶整理器。",
         "請把舊對話壓縮成精簡但可延續劇情的記憶。",
-        "務必保留：角色關係變化、重要事件、承諾、玩家偏好、秘密、物品/能力變化、正在進行中的目標與未解決伏筆。",
+        "保留已發生事件、已知資訊、明確關係、承諾、物品與目標。玩家偏好只能記錄玩家明說的內容；不得把 AI 推測的心理當作事實。",
+        window.BAOHelperData.memoryRules,
         "刪除重複修辭、寒暄與不影響後續的細節。不要加入原文沒有的資訊，不要寫分析過程。",
         this.summary ? `【既有摘要】\n${this.summary}` : "",
         `【待整理舊對話】\n${transcript}`,
         force ? "目前 Context 使用率偏高，請進一步壓縮，輸出新的完整摘要，盡量控制在 600～1200 字。" : "請輸出新的完整長期記憶摘要，建議 800～1600 字以內。"
       ].filter(Boolean).join("\n\n");
-      const summaryConfig = { ...config.api, __memoryTask: true };
+      const summaryConfig = { ...config.api, __memoryTask: true, cacheEnabled: false };
       if (config?.memory?.summaryModel) summaryConfig.model = config.memory.summaryModel;
-      const result = await API.send(summaryConfig, [{ role: "system", content: "只做劇情記憶摘要，不要續寫故事。" }, { role: "user", content: prompt }]);
-      if (result?.text) { this.summary = result.text.trim(); this.summarizedUntil = end; if (window.GameState?.current) GameState.current.memory = [this.summary]; }
+      const result = await API.send(summaryConfig, [{ role: "system", content: "你是 Observer，不是作者。只輸出記憶規格 JSON，不要續寫故事或模仿正文文風。" }, { role: "user", content: prompt }]);
+      const summary = window.BAOHelperData.memoryText(result?.text || "");
+      if (!summary) return;
+      if (window.GameState?.current !== owner || this.summary !== previousSummary || this.summarizedUntil !== start
+        || JSON.stringify(this.messages.slice(start, end).map(m => [m.id, m.content])) !== sourceSignature) return;
+      this.summary = summary;
+      this.summarizedUntil = end;
+      if (owner) owner.memory = [summary];
     } catch (err) { console.warn("BAO/LAB memory summary failed:", err); }
     finally { this.summarizing = false; }
+  },
+
+  async afterTurn(config) {
+    if (config?.memory?.mode !== "smart" || config?.demoMode) return;
+    const rounds = this.protectedRounds(config);
+    await this.maybeSummarize(config, ["high", "critical"].includes(this.contextGuard.level), rounds);
   },
 
   addUsage(usage = {}) {
@@ -158,7 +189,7 @@ window.addEventListener("DOMContentLoaded", () => {
     if (bar && !document.getElementById("usage-total")) bar.insertAdjacentHTML("beforeend", '<span>累積 <b id="usage-total">0 tok</b></span><span>輸入累積 <b id="usage-input-total">0 tok</b></span><span>輸出累積 <b id="usage-output-total">0 tok</b></span><span>Cache 累積 <b id="usage-cache-total">0 tok</b></span><span>Context Guard <b id="usage-guard">正常</b></span>');
     if (window.API && !API.__baoUsageWrapped) {
       const originalSend = API.send.bind(API);
-      API.send = async function(config, messages) { const result = await originalSend(config, messages); if (config?.__connectionTest) return result; Chat.addUsage(result?.usage || {}); Chat.renderUsage(result?.usage || {}); if (!config?.__memoryTask && !config?.__storyTool) Chat.recordStoryUsage(result?.usage || {}, App?.config); return result; };
+      API.send = async function(config, messages) { const result = await originalSend(config, messages); if (config?.__connectionTest) return result; Chat.addUsage(result?.usage || {}); Chat.renderUsage(result?.usage || {}); if (!config?.__memoryTask && !config?.__stateTask && !config?.__auxiliaryTask && !config?.__storyTool) Chat.recordStoryUsage(result?.usage || {}, App?.config); return result; };
       API.__baoUsageWrapped = true;
     }
     const apiStep = document.querySelector('[data-step-panel="4"]');
@@ -175,3 +206,4 @@ window.addEventListener("DOMContentLoaded", () => {
     }
   }, 0);
 });
+

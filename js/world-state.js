@@ -39,7 +39,7 @@ const WorldStateEngine = {
         { role: "system", content: "只輸出合法 JSON 世界狀態。" },
         { role: "user", content: prompt }
       ]);
-      const data = this.parse(result?.text || "");
+      const data = window.BAOHelperData.stateUpdate(this.parse(result?.text || ""), []);
       if (!data) return null;
       GameState.applyUpdate(data);
       return data;
@@ -62,3 +62,4 @@ const WorldStateEngine = {
     }
   }
 };
+

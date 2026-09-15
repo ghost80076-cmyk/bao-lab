@@ -14,7 +14,7 @@
   };
   const prompt = (source,style) => {
     const focus = style === "compact" ? "高度壓縮，只保留會影響後續劇情或角色行為的資訊。" : style === "continuity" ? "優先整理時間順序、因果、承諾、未完成目標與伏筆。" : "完整整理角色關係、重要事件、情緒轉折、秘密、承諾、物品或能力變化與未完成事項。";
-    return ["你是角色扮演故事的記憶整理助手，不是故事作者。",focus,"只能使用來源中已經存在的資訊，不得自行補劇情。","請使用清楚的小標與條目，輸出可直接作為長期記憶。",`【來源】\n${source}`].join("\n\n");
+    return ["你是角色扮演故事的記憶整理助手，不是故事作者。",focus,"只能使用來源中已經存在的資訊，不得自行補劇情。",window.BAOHelperData.memoryRules,`【來源】\n${source}`].join("\n\n");
   };
   const html = slots => {
     const model = App.config?.memory?.summaryModel || App.config?.api?.model || "";
@@ -49,7 +49,7 @@
       try{
         const cfg={...App.config.api,model,__memoryTask:true,maxOutputTokens:1400};
         const result=await API.send(cfg,[{role:"system",content:"只進行記憶整理，不要續寫故事。"},{role:"user",content:prompt(src,style)}]);
-        draft=String(result?.text||"").trim();area.querySelector("[data-refine-draft]").textContent=draft||"模型沒有回傳整理內容。";area.querySelector("[data-write-draft]").disabled=!draft;status.textContent=draft?`完成 · ${Number(result?.usage?.total_tokens||0).toLocaleString()} tokens`:"沒有產生整理稿。";
+        draft=window.BAOHelperData.memoryText(result?.text||"");area.querySelector("[data-refine-draft]").textContent=draft||"模型沒有回傳整理內容。";area.querySelector("[data-write-draft]").disabled=!draft;status.textContent=draft?`完成 · ${Number(result?.usage?.total_tokens||0).toLocaleString()} tokens`:"沒有產生整理稿。";
       }catch(err){status.textContent=`整理失敗：${String(err.message||err).split("\n")[0]}`;}finally{run.disabled=false;}
     });
     area.querySelector("[data-write-draft]")?.addEventListener("click",()=>{

@@ -218,6 +218,7 @@
 
   WorldStateEngine.update = async function(config, playerText, assistantText) {
     if (!this.enabled(config) || !config?.api?.key || !GameState.current) return null;
+    const owner = GameState.current;
     const defs = dueModules(playerText, assistantText);
     const rules = defs.length ? `\n【本次需要檢查的世界模組】\n${moduleRules(defs)}` : "";
     const turnText = `${playerText}\n${assistantText}`;
@@ -234,6 +235,7 @@
       `格式：{\"time\":\"\",\"location\":\"\",\"events\":[\"\"],\"npcs\":[{\"name\":\"\",\"role\":\"\",\"mood\":\"\",\"location\":\"\",\"relationship\":\"\"}],\"modules\":{\"module_id\":{}},\"character_statuses\":{\"角色名\":{\"field_key\":\"value\"}}}`,
       rules,
       statusBlock,
+      `【世界模組允許欄位】\n${JSON.stringify(window.BAOHelperData.moduleSchemas(defs))}`,
       `【目前狀態】\n${JSON.stringify(this.stateSnapshot(defs, turnText))}`,
       `【玩家】\n${playerText}`,
       `【故事回覆】\n${assistantText}`
@@ -244,7 +246,8 @@
         { role: "system", content: "只進行狀態追蹤，只輸出合法 JSON。" },
         { role: "user", content: prompt }
       ]);
-      const data = this.parse(result?.text || "");
+      if (GameState.current !== owner) return null;
+      const data = window.BAOHelperData.stateUpdate(this.parse(result?.text || ""), defs);
       if (!data) return null;
       GameState.applyUpdate(data);
       return data;
