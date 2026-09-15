@@ -212,6 +212,43 @@
       .sort((a, b) => Number(a.create_time || 0) - Number(b.create_time || 0));
   };
 
+  const conversationTitle = (conversation, index, fallback) => {
+    const raw = conversation?.title ?? conversation?.name ?? conversation?.conversation_name ?? conversation?.subject;
+    const title = String(raw || "").trim();
+    return title || fallback + " " + (index + 1);
+  };
+
+  const conversationSelection = (conversations, format, readMessages) => {
+    const choices = conversations.map((conversation, index) => {
+      const result = importResult(readMessages(conversation), format);
+      return {
+        id: String(conversation?.uuid || conversation?.id || conversation?.conversation_id || index),
+        title: conversationTitle(conversation, index, "未命名對話"),
+        createdAt: conversation?.create_time || conversation?.created_at || conversation?.updated_at || "",
+        result
+      };
+    }).filter(choice => choice.result.records.length);
+    if (choices.length === 1) return choices[0].result;
+    if (choices.length > 1) {
+      return {
+        conversations: choices,
+        messages: [],
+        records: [],
+        report: {
+          format,
+          conversationCount: choices.length,
+          sourceCount: choices.reduce((sum, choice) => sum + choice.result.report.sourceCount, 0),
+          recognizedCount: choices.reduce((sum, choice) => sum + choice.result.report.recognizedCount, 0),
+          unassignedCount: choices.reduce((sum, choice) => sum + choice.result.report.unassignedCount, 0),
+          skippedCount: choices.reduce((sum, choice) => sum + choice.result.report.skippedCount, 0),
+          participants: [],
+          warnings: ["檔案包含多個對話，請先選擇其中一個；不同對話不會自動合併。"]
+        }
+      };
+    }
+    return null;
+  };
+
   const resolveImportedMessages = (parsed, assignments = {}) => {
     if (!parsed || !Array.isArray(parsed.records)) return [];
     return parsed.records.map(item => {
@@ -256,18 +293,14 @@
       const conversations = Array.isArray(json) ? json : [json];
       const mappingConversations = conversations.filter(item => item?.mapping && typeof item.mapping === "object");
       if (mappingConversations.length) {
-        const list = mappingConversations.flatMap(chatGPTMessages);
-        const warnings = mappingConversations.length > 1 ? ["檔案包含多個 ChatGPT 對話，已依匯出順序合併；請在下一步確認內容範圍。"] : [];
-        const result = importResult(list, "ChatGPT 匯出 JSON", warnings);
-        if (result.records.length) return result;
+        const result = conversationSelection(mappingConversations, "ChatGPT 匯出 JSON", chatGPTMessages);
+        if (result) return result;
       }
 
       const claudeConversations = conversations.filter(item => Array.isArray(item?.chat_messages));
       if (claudeConversations.length) {
-        const list = claudeConversations.flatMap(item => item.chat_messages);
-        const warnings = claudeConversations.length > 1 ? ["檔案包含多個 Claude 對話，已依匯出順序合併；請在下一步確認內容範圍。"] : [];
-        const result = importResult(list, "Claude chat_messages JSON", warnings);
-        if (result.records.length) return result;
+        const result = conversationSelection(claudeConversations, "Claude chat_messages JSON", item => item.chat_messages);
+        if (result) return result;
       }
 
       const list = Array.isArray(json) ? json :
@@ -844,6 +877,27 @@
 
   const importPreviewScreen = (host, parsed, filename) => {
     const safeFile = App.escapeHTML(filename || "外部紀錄");
+    if (Array.isArray(parsed.conversations) && parsed.conversations.length) {
+      const options = parsed.conversations.map((item, index) =>
+        '<option value="' + index + '">' + App.escapeHTML(item.title) + '（' + Number(item.result.report.sourceCount || 0).toLocaleString() + ' 項）</option>'
+      ).join("");
+      host.innerHTML = '<div class="story-tools-toolbar"><button class="secondary" type="button" data-back>← 重新選檔</button><span class="story-tools-pill">' + parsed.conversations.length + ' 個對話</span></div>' +
+        '<section class="story-tools-card"><h3>選擇要匯入的對話</h3><p>這個檔案包含多個對話。為避免不同故事混在一起，請先選擇單一對話；之後仍會進入訊息與身分確認。</p>' +
+        '<label>對話<select data-conversation>' + options + '</select></label>' +
+        '<div class="story-import-report"><div><b>檔案</b><span>' + safeFile + '</span></div><div><b>格式</b><span>' + App.escapeHTML(parsed.report?.format || "多對話匯出") + '</span></div>' +
+        '<div><b>對話數</b><span>' + parsed.conversations.length + '</span></div><div><b>全部來源項目</b><span>' + Number(parsed.report?.sourceCount || 0).toLocaleString() + '</span></div></div>' +
+        '<div class="story-import-note">目前不提供自動合併；如需串接多段紀錄，請逐一整理成玩家確認過的 Context Pack。</div>' +
+        '<div class="story-tools-actions"><button class="primary" type="button" data-select>預覽所選對話</button></div></section>';
+      host.querySelector("[data-back]").onclick = () => importScreen(host);
+      host.querySelector("[data-select]").onclick = () => {
+        const selected = parsed.conversations[Number(host.querySelector("[data-conversation]").value)];
+        if (!selected) return tell("請先選擇要匯入的對話。");
+        const next = clone(selected.result);
+        next.report = Object.assign({}, next.report, { conversationTitle: selected.title });
+        importPreviewScreen(host, next, (filename || "外部紀錄") + " · " + selected.title);
+      };
+      return;
+    }
     if (parsed.pack) {
       host.innerHTML = '<div class="story-tools-toolbar"><button class="secondary" type="button" data-back>← 重新選檔</button><span class="story-tools-pill">BAO/LAB CONTEXT PACK</span></div>' +
         '<section class="story-tools-card"><h3>匯入預覽</h3><p>已辨識為 Context Pack。原本的確認狀態已清除，仍需由玩家重新檢查並確認。</p>' +
