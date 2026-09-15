@@ -287,13 +287,37 @@ assert.equal(
 assert.equal(storyToolsSource.includes("data.tokenBreakdown.systemPrompt.toLocaleString()"), true);
 assert.equal(storyToolsSource.includes("data.tokenBreakdown.sections[label]"), true);
 
+App.config.demoMode = true;
+GameState.current.config = App.config;
+Chat.messages = [
+  { role: "user", content: "跨裝置後繼續這句。" },
+  { role: "assistant", content: "續篇狀態仍然存在。" }
+];
+localStorage.setItem("bao-lab:player-settings", JSON.stringify({ displayName: "搬家玩家" }));
+localStorage.setItem("bao-lab:narrative-settings-v1", JSON.stringify({ styles: ["韓式電影"] }));
+localStorage.setItem("bao-lab:player-memory-slots", JSON.stringify([{ id: "portable-memory", text: "不可遺失的記憶", enabled: true }]));
 const portable = Storage.buildStoryPayload("續篇");
+assert.equal(JSON.stringify(portable).includes("SECRET-KEY"), false);
 App.characters = [];
 App.activeCharacter = null;
+App.config = {};
+Chat.messages = [];
 GameState.current = null;
+localStorage.removeItem("bao-lab:player-settings");
+localStorage.removeItem("bao-lab:narrative-settings-v1");
+localStorage.removeItem("bao-lab:player-memory-slots");
 assert.equal(Storage.restoreStory(portable), true);
 assert.equal(App.activeCharacter.id, "test-hero");
 assert.equal(App.config.api.key, "");
+assert.equal(App.config.demoMode, true);
+assert.deepEqual(Chat.messages.map(item => item.content), ["跨裝置後繼續這句。", "續篇狀態仍然存在。"]);
 assert.equal(GameState.current.contextPack.playerConfirmed, true);
+assert.equal(GameState.current.characterStatusCustomization.customFields[0].key, "focus");
+assert.equal(GameState.current.worldModuleCustomization.customModules[0].id, "oaths");
+assert.deepEqual(GameState.current.modules.inventory, [{ name: "短刀" }]);
+assert.deepEqual(GameState.current.modules.oaths, [{ name: "守密" }]);
+assert.deepEqual(JSON.parse(localStorage.getItem("bao-lab:player-settings")), { displayName: "搬家玩家" });
+assert.deepEqual(JSON.parse(localStorage.getItem("bao-lab:narrative-settings-v1")), { styles: ["韓式電影"] });
+assert.deepEqual(JSON.parse(localStorage.getItem("bao-lab:player-memory-slots")), [{ id: "portable-memory", text: "不可遺失的記憶", enabled: true }]);
 
 console.log("story flow core test passed");
