@@ -33,6 +33,7 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/story-library.js"))
     .then(() => loadBAOScript("js/prompt-cache.js"))
     .then(() => loadBAOScript("js/story-reader.js"))
+    .then(() => loadBAOScript("js/streaming-ui.js"))
     .then(() => loadBAOScript("js/request-lifecycle.js"))
     .catch(err => console.warn("BAO/LAB local preview, narrative settings, memory workbench, story tools, story library, story reader or chat markup failed to load:", err));
   loadBAOScript("js/character-readiness.js")

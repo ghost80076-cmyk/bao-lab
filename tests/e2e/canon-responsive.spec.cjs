@@ -120,6 +120,37 @@ test.describe("Canon workbench responsive UI", () => {
     expect(providerRequests).toBe(1);
   });
 
+  test("main story renders Gemini SSE deltas and keeps the final reply", async ({ page }) => {
+    let requestBody = null;
+    let requestUrl = "";
+    await page.route("https://generativelanguage.googleapis.com/**", async route => {
+      requestUrl = route.request().url();
+      requestBody = route.request().postDataJSON();
+      const events = [
+        { candidates: [{ content: { parts: [{ text: "第一段故事" }] } }] },
+        { candidates: [{ content: { parts: [{ text: "，接著第二段。" }] } }], usageMetadata: { promptTokenCount: 9, candidatesTokenCount: 6, totalTokenCount: 15 } }
+      ];
+      await route.fulfill({ status: 200, contentType: "text/event-stream", body: events.map(data => `data: ${JSON.stringify(data)}\n\n`).join("") });
+    });
+
+    await openModelStep(page);
+    await page.locator("#api-key").fill("MAIN-TEST-KEY");
+    await page.getByRole("button", { name: "下一步" }).click();
+    await page.getByRole("button", { name: "開始故事" }).click();
+    await page.evaluate(() => {
+      window.__baoStreamEvents = [];
+      window.addEventListener("bao:stream-delta", event => window.__baoStreamEvents.push(event.detail.text));
+    });
+    await page.locator("#user-input").fill("請繼續故事");
+    await page.getByRole("button", { name: "送出訊息" }).click();
+
+    await expect(page.locator("#chat-stream")).toContainText("第一段故事，接著第二段。");
+    expect(requestBody.stream).toBeUndefined();
+    expect(requestUrl).toContain(":streamGenerateContent?alt=sse");
+    expect(await page.evaluate(() => window.__baoStreamEvents)).toEqual(["第一段故事", "第一段故事，接著第二段。"]);
+    expect(await page.evaluate(() => Chat.messages.at(-1).content)).toBe("第一段故事，接著第二段。");
+  });
+
   test("only the latest AI reply exposes state-changing edit tools", async ({ page }) => {
     await openDemoStory(page);
     await page.evaluate(() => {
