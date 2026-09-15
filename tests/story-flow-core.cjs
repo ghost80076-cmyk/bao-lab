@@ -235,7 +235,21 @@ const estimate = value => {
   const cjk = (text.match(/[\u3400-\u9fff\uf900-\ufaff]/g) || []).length;
   return Math.max(1, Math.ceil(cjk + (text.length - cjk) / 4));
 };
-assert.equal(preview.estimatedTokens, estimate(preview.systemPrompt + JSON.stringify(preview.memoryMessages)));
+assert.equal(preview.tokenBreakdown.systemPrompt, estimate(preview.systemPrompt));
+assert.equal(preview.tokenBreakdown.memoryMessages, estimate(JSON.stringify(preview.memoryMessages)));
+assert.deepEqual(Object.keys(preview.tokenBreakdown.sections), Object.keys(preview.sections));
+Object.entries(preview.sections).forEach(([label, value]) => {
+  assert.equal(
+    preview.tokenBreakdown.sections[label],
+    estimate(typeof value === "string" ? value : JSON.stringify(value))
+  );
+});
+assert.equal(
+  preview.estimatedTokens,
+  preview.tokenBreakdown.systemPrompt + preview.tokenBreakdown.memoryMessages
+);
+assert.equal(storyToolsSource.includes("data.tokenBreakdown.systemPrompt.toLocaleString()"), true);
+assert.equal(storyToolsSource.includes("data.tokenBreakdown.sections[label]"), true);
 
 const portable = Storage.buildStoryPayload("續篇");
 App.characters = [];
