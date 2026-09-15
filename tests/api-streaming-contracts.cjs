@@ -34,6 +34,12 @@ global.fetch = async (url, options) => {
     `data: ${JSON.stringify({ choices: [], usage: { prompt_tokens: 12, completion_tokens: 5, total_tokens: 17 } })}`,
     "data: [DONE]"
   ].join("\n\n") + "\n\n", [1, 8, 31, 73]);
+  if (body.model === "zai-stream") return sseResponse([
+    `data: ${JSON.stringify({ choices: [{ delta: { content: "GLM 串" } }] })}`,
+    `data: ${JSON.stringify({ choices: [{ delta: { content: "流" } }] })}`,
+    `data: ${JSON.stringify({ choices: [{ finish_reason: "stop", delta: { role: "assistant", content: "" } }], usage: { prompt_tokens: 20, completion_tokens: 6, total_tokens: 26, prompt_tokens_details: { cached_tokens: 8 } } })}`,
+    "data: [DONE]"
+  ].join("\n\n") + "\n\n", [2, 13, 41, 87]);
   if (body.model === "claude-stream") return sseResponse([
     `event: message_start\ndata: ${JSON.stringify({ type: "message_start", message: { usage: { input_tokens: 20, cache_read_input_tokens: 8, cache_creation_input_tokens: 2, output_tokens: 1 } } })}`,
     `event: content_block_delta\ndata: ${JSON.stringify({ type: "content_block_delta", delta: { type: "text_delta", text: "Claude 串" } })}`,
@@ -56,22 +62,33 @@ global.fetch = async (url, options) => {
   assert.equal(requests[0].body.stream, true);
   assert.deepEqual(requests[0].body.stream_options, { include_usage: true });
 
+  const zaiDeltas = [];
+  const zai = await API.send({ type: "zai", protocol: "openai", route: "official", model: "zai-stream", baseUrl: "https://api.z.ai/api/paas/v4/chat/completions", key: "SECRET", stream: true, onDelta: delta => zaiDeltas.push(delta) }, messages);
+  assert.equal(zai.text, "GLM 串流");
+  assert.deepEqual(zaiDeltas, ["GLM 串", "流"]);
+  assert.equal(zai.usage.total_tokens, 26);
+  assert.equal(zai.usage.cached_tokens, 8);
+  assert.equal(zai.usage.new_input_tokens, 12);
+  assert.equal(requests[1].body.stream, true);
+  assert.equal(requests[1].body.stream_options, undefined, "Z.AI must not receive OpenAI-specific stream_options by assumption");
+  assert.equal(requests[1].body.session_id, undefined, "Z.AI must not receive OpenRouter session_id");
+
   const anthropicDeltas = [];
   const anthropic = await API.send({ type: "anthropic", protocol: "anthropic", route: "official", model: "claude-stream", baseUrl: "https://api.anthropic.com/v1/messages", key: "SECRET", stream: true, onDelta: delta => anthropicDeltas.push(delta) }, messages);
   assert.equal(anthropic.text, "Claude 串流");
   assert.deepEqual(anthropicDeltas, ["Claude 串", "流"]);
   assert.equal(anthropic.usage.input_tokens, 30);
   assert.equal(anthropic.usage.output_tokens, 6);
-  assert.equal(requests[1].body.stream, true);
+  assert.equal(requests[2].body.stream, true);
 
   const geminiDeltas = [];
   const gemini = await API.send({ type: "gemini", protocol: "gemini", model: "gemini-stream", baseUrl: "https://generativelanguage.googleapis.com/v1beta/models", key: "SECRET", stream: true, onDelta: delta => geminiDeltas.push(delta) }, messages);
   assert.equal(gemini.text, "Gemini 串流");
   assert.deepEqual(geminiDeltas, ["Gemini 串", "流"]);
   assert.equal(gemini.usage.total_tokens, 37);
-  assert.match(requests[2].url, /gemini-stream:streamGenerateContent\?alt=sse$/);
+  assert.match(requests[3].url, /gemini-stream:streamGenerateContent\?alt=sse$/);
 
-  console.log("API streaming contracts test passed (OpenAI-compatible, Anthropic, Gemini)");
+  console.log("API streaming contracts test passed (OpenAI-compatible, Z.AI, Anthropic, Gemini)");
 })().catch(error => {
   console.error(error);
   process.exitCode = 1;
