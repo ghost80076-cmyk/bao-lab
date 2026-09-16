@@ -55,6 +55,8 @@ jobs:
         run: node tests/chat-message-id-core.cjs
       - name: Provider request contracts
         run: node tests/api-provider-contracts.cjs
+      - name: Provider browser diagnostics
+        run: node tests/provider-diagnostics-core.cjs
       - name: Provider streaming contracts
         run: node tests/api-streaming-contracts.cjs
       - name: Helper API connection diagnostics
