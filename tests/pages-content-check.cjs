@@ -1,6 +1,6 @@
 // Read-only deployment verification. Never sends a player's API key or data.
 const fs = require('node:fs');
-const files = ['index.html', 'data/presets/models.json', 'js/chat.js', 'js/helper-data.js', 'js/memory-preferences.js', 'js/model-routing.js', 'js/prompt-cache.js', 'js/site-ui.js', 'js/story-backup.js', 'js/story-tools.js', 'js/story-revision-state.js', 'js/story-branches.js', 'js/world-modules.js', 'js/world-state-hook.js', 'js/player-settings.js', 'css/base.css', 'css/story-reader.css', 'css/memory-preferences.css', 'css/story-branches.css'];
+const files = ['index.html', 'assets/bao-mark.svg', 'js/brand-ui.js', 'css/brand-home.css', 'data/presets/models.json', 'js/chat.js', 'js/helper-data.js', 'js/memory-preferences.js', 'js/model-routing.js', 'js/prompt-cache.js', 'js/site-ui.js', 'js/story-backup.js', 'js/story-tools.js', 'js/story-revision-state.js', 'js/story-branches.js', 'js/world-modules.js', 'js/world-state-hook.js', 'js/player-settings.js', 'css/base.css', 'css/story-reader.css', 'css/memory-preferences.css', 'css/story-branches.css'];
 const storyTools = fs.readFileSync('js/story-tools.js', 'utf8');
 if (storyTools.includes('sourceMessages.length ? sourceMessages : Chat.messages')) throw new Error('Context Pack source isolation regressed to current-chat fallback.');
 if (!storyTools.includes('const messagesToOrganize = requireSourceMessages();')) throw new Error('Context Pack organizer no longer requires an explicit source.');

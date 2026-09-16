@@ -2,3 +2,22 @@
 .topbar{min-width:0}.topbar>.brand{flex:0 0 auto;white-space:nowrap}.topbar nav{display:flex;flex:1 1 auto;min-width:0;white-space:nowrap}.topbar nav button,.topbar nav>a{flex:0 0 auto;white-space:nowrap;word-break:keep-all;writing-mode:horizontal-tb}.topbar nav>a{display:inline-flex;align-items:center;padding:9px 12px;border-radius:9px;color:var(--muted);text-decoration:none}.topbar nav>a:hover{background:var(--surface2);color:var(--text)}
 @media(max-width:900px){.brand-hero{grid-template-columns:1fr;gap:24px;padding-top:30px}.brand-feature-grid{grid-template-columns:1fr 1fr}.topbar{gap:14px}.topbar nav{overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:none;-webkit-overflow-scrolling:touch;justify-content:flex-start}.topbar nav::-webkit-scrollbar{display:none}}
 @media(max-width:560px){.brand-feature-grid{grid-template-columns:1fr}.brand-hero h1{font-size:43px}.brand-lead{font-size:16px}.bao-support-float{right:12px;bottom:12px}.creator-card div{grid-template-columns:1fr;gap:4px}.topbar{height:62px}.topbar>.brand{font-size:18px}.topbar nav{gap:2px}.topbar nav button,.topbar nav>a{padding:8px 9px;font-size:13px}body:has(#chat-view.active) .bao-support-float{display:none}}
+
+
+/* One local vector mark across navigation, home and support. */
+.topbar > .brand{display:inline-flex;align-items:center;gap:8px;text-decoration:none}
+.topbar > .brand span{color:var(--text)}
+.bao-mark,.bao-support-icon{display:inline-block;flex:none;object-fit:contain;vertical-align:middle}
+.bao-support-float{display:inline-flex;align-items:center;gap:8px}
+.brand-signature{display:flex;align-items:center;gap:14px;margin-bottom:26px}
+.brand-signature>span{font-size:22px;letter-spacing:.08em;font-weight:900}
+.brand-signature small{display:block;margin-top:5px;color:var(--muted);font-size:12px;letter-spacing:.06em;font-weight:500}
+.brand-principles{max-width:40rem;color:var(--muted);font-size:13px;line-height:1.9}
+.brand-hero-copy{min-width:0}
+@media(max-width:560px){
+  .topbar>.brand{gap:6px;font-size:16px;letter-spacing:.04em}
+  .topbar .bao-mark{width:26px;height:26px}
+  .brand-signature{margin-bottom:20px}
+  .brand-signature>img{width:52px;height:52px}
+}
+@media(prefers-reduced-motion:reduce){.bao-support-float{transition:none}}

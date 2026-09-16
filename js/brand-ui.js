@@ -18,10 +18,12 @@
     home.innerHTML = `
       <section class="brand-hero">
         <div class="brand-hero-copy">
+          <div class="brand-signature"><img src="assets/bao-mark.svg" width="64" height="64" alt=""><span>BAO/LAB<small>肉包的故事實驗室</small></span></div>
           <div class="brand-kicker">CHARACTERS · WORLDS · EXPERIMENTS</div>
           <h1>班長。</h1>
           <p class="brand-intro">寫角色，也寫世界。</p>
           <p class="brand-lead">偶爾研究一些奇怪的玩法，然後把它們真的做出來。這裡收著我的角色卡、世界模擬與互動作品；有些適合談戀愛，有些適合跑劇情，有些……滿十八歲再進去。</p>
+          <p class="brand-principles">故事保存在此裝置 · 自備 API 與模型 · 不需註冊帳號</p>
           <div class="brand-actions">
             <button class="primary" data-view="explore">探索作品</button>
             <button class="secondary" data-view="about">關於我</button>
@@ -43,7 +45,7 @@
         <article><span>01</span><h3>角色</h3><p>不只是一張設定表。個性、關係、背景與敘事方式，都是角色的一部分。</p></article>
         <article><span>02</span><h3>世界</h3><p>故事不一定只繞著玩家轉。NPC、事件與關係也可以有自己的變化。</p></article>
         <article><span>03</span><h3>互動</h3><p>除了文字，也嘗試把狀態、人物、事件與各種玩法做進互動介面。</p></article>
-        <article><span>04</span><h3>BYOK</h3><p>使用自己的 API 與模型。作品留在這裡，模型選擇權留給玩家。</p></article>
+        <article><span>04</span><h3>BYOK</h3><p>使用自己的 API 與模型。故事保存在自己的裝置，模型選擇權留給玩家。</p></article>
       </section>`;
 
     home.querySelectorAll("[data-view]").forEach(btn => btn.addEventListener("click", () => App.showView(btn.dataset.view)));
@@ -82,7 +84,7 @@
     a.href = "https://ko-fi.com/roger2486";
     a.target = "_blank";
     a.rel = "noopener";
-    a.textContent = "☕ 請作者喝咖啡";
+    a.innerHTML = '<img class="bao-support-icon" src="assets/bao-mark.svg" width="24" height="24" alt=""><span>投餵肉包</span>';
     document.body.appendChild(a);
   };
 
