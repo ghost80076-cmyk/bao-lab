@@ -31,6 +31,8 @@ jobs:
         run: node tests/character-status-core.cjs
       - name: Story flow core
         run: node tests/story-flow-core.cjs
+      - name: Context Pack resumable organization
+        run: node tests/context-pack-resume-core.cjs
       - name: Story Reader core
         run: node tests/story-reader-core.cjs
       - name: Story revision state consistency
