@@ -45,6 +45,11 @@ jobs:
         env:
           BAO_LIVE_URL: https://ghost80076-cmyk.github.io/bao-lab/
         run: npm run test:e2e -- tests/e2e/context-pack-resume.spec.cjs --project=chromium
+      - name: Verify live Pages 1000-round story stress
+        if: github.event_name == 'push' && matrix.browser == 'chromium'
+        env:
+          BAO_LIVE_URL: https://ghost80076-cmyk.github.io/bao-lab/
+        run: npm run test:e2e -- tests/e2e/long-story-stress.spec.cjs --project=chromium
       - name: Upload browser verification report
         if: always()
         uses: actions/upload-artifact@v4
