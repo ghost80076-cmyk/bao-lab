@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://ghost80076-cmyk.github.io/bao-lab/sitemap.xml

@@ -1,5 +1,37 @@
 <!doctype html>
-<html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>BAO/LAB</title><meta name="theme-color" content="#101118"><link rel="icon" type="image/svg+xml" href="assets/bao-mark.svg"><link rel="stylesheet" href="css/brand-home.css"><link rel="stylesheet" href="css/base.css"><link rel="stylesheet" href="css/memory-preferences.css"><link rel="stylesheet" href="css/explore-zones.css"></head><body>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BAO/LAB｜Local-first BYOK AI 角色扮演與世界模擬工具</title>
+<meta name="description" content="BAO/LAB 是 Local-first、BYOK 的 AI 角色扮演／世界模擬工具。玩家使用自己的 API Key，故事、記憶與狀態優先保存在本機。">
+<meta name="robots" content="index,follow,max-image-preview:large">
+<meta name="theme-color" content="#101118">
+<meta name="application-name" content="BAO/LAB">
+<link rel="canonical" href="https://ghost80076-cmyk.github.io/bao-lab/">
+<link rel="icon" type="image/svg+xml" href="assets/bao-mark.svg">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="BAO/LAB">
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="BAO/LAB｜Local-first BYOK AI 角色扮演與世界模擬工具">
+<meta property="og:description" content="用自己的 API Key 開始 AI 角色扮演與世界模擬。故事、記憶與狀態優先保存在本機。">
+<meta property="og:url" content="https://ghost80076-cmyk.github.io/bao-lab/">
+<meta property="og:image" content="https://ghost80076-cmyk.github.io/bao-lab/assets/bao-social-card.png">
+<meta property="og:image:secure_url" content="https://ghost80076-cmyk.github.io/bao-lab/assets/bao-social-card.png">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="BAO/LAB — Local-first BYOK AI Roleplay Lab">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="BAO/LAB｜Local-first BYOK AI 角色扮演與世界模擬工具">
+<meta name="twitter:description" content="用自己的 API Key 開始 AI 角色扮演與世界模擬。故事、記憶與狀態優先保存在本機。">
+<meta name="twitter:image" content="https://ghost80076-cmyk.github.io/bao-lab/assets/bao-social-card.png">
+<meta name="twitter:image:alt" content="BAO/LAB — Local-first BYOK AI Roleplay Lab">
+<link rel="stylesheet" href="css/brand-home.css">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/memory-preferences.css">
+<link rel="stylesheet" href="css/explore-zones.css">
+</head><body>
 <div class="app-shell"><header class="topbar"><a class="brand" href="#" data-view="home" aria-label="BAO/LAB 首頁"><img class="bao-mark" src="assets/bao-mark.svg" width="32" height="32" alt=""><span>BAO/LAB</span></a><nav><button data-view="home">首頁</button><button data-view="explore">探索</button><button id="continue-story" class="hidden">繼續故事</button><a href="https://ko-fi.com/roger2486" target="_blank" rel="noopener"><img class="bao-support-icon" src="assets/bao-mark.svg" width="22" height="22" alt=""> 投餵肉包</a><button data-view="about">關於</button></nav></header><main>
 <section id="home-view" class="view active"><div class="hero"><div><div class="eyebrow">BYOK ROLEPLAY LAB</div><h1>把模型選擇權<br>還給玩家。</h1><p>選角色、設定 Persona、接上自己的 API，開始你的故事。</p><div class="hero-actions"><button class="primary" data-view="explore">探索角色</button><button id="home-continue" class="secondary hidden">繼續上次故事</button></div></div><div class="hero-card"><b>BAO/LAB</b><span>角色 × 世界 × API × 記憶</span></div></div></section>
 <section id="explore-view" class="view"><div class="section-head"><div><div class="eyebrow">CHARACTERS</div><h2>探索角色</h2></div><div class="filters"><button class="filter active" data-filter="all">全部</button><button class="filter" data-filter="male">一般男性</button><button class="filter" data-filter="female">一般女性</button><button class="filter adult-filter" data-filter="adult-male">18+ 男性</button><button class="filter adult-filter" data-filter="adult-female">18+ 女性</button></div></div><div id="adult-notice" class="note hidden">18+ 分類僅供已滿 18 歲使用者瀏覽。年齡確認只保存在這台裝置。</div><div id="character-list" class="character-grid"></div></section>
