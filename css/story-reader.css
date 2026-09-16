@@ -353,14 +353,17 @@
 
   #chat-view .story-mobile-tools{
     display:flex;
+    order:40;
     gap:7px;
-    padding:9px 10px;
+    padding:9px 10px calc(9px + env(safe-area-inset-bottom,0px));
     overflow-x:auto;
     overscroll-behavior-x:contain;
     scrollbar-width:none;
     -webkit-overflow-scrolling:touch;
+    border-top:1px solid var(--story-border);
     border-bottom:1px solid var(--story-border);
     background:rgba(9,12,18,.98);
+    box-shadow:0 -12px 28px rgba(0,0,0,.22);
   }
 
   #chat-view .story-mobile-tools::-webkit-scrollbar{
@@ -369,16 +372,23 @@
 
   #chat-view .story-mobile-tools button{
     flex:0 0 auto;
+    min-height:40px;
     white-space:nowrap;
     word-break:keep-all;
     border:1px solid var(--story-border);
-    border-radius:9px;
-    padding:8px 10px;
+    border-radius:10px;
+    padding:8px 11px;
     color:var(--story-text);
     background:rgba(25,30,42,.96);
     cursor:pointer;
     font-size:13px;
   }
+
+  #chat-view .chat-topline{order:10}
+  #chat-view .chat-stream{order:20}
+  #chat-view #game-ui{order:25}
+  #chat-view .usage-bar{order:30}
+  #chat-view .composer{order:50}
 
   #chat-view .chat-stream{
     min-height:58vh;
@@ -444,7 +454,7 @@
   }
 
   #chat-view .story-mobile-tools{
-    padding:8px 7px;
+    padding:8px 7px calc(8px + env(safe-area-inset-bottom,0px));
   }
 
   #chat-view .chat-topline .eyebrow{
