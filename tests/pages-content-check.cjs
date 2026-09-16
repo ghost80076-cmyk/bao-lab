@@ -1,6 +1,6 @@
 // Read-only deployment verification. Never sends a player's API key or data.
 const fs = require('node:fs');
-const files = ['index.html', 'data/presets/models.json', 'js/chat.js', 'js/helper-data.js', 'js/memory-preferences.js', 'js/model-routing.js', 'js/prompt-cache.js', 'js/site-ui.js', 'js/story-backup.js', 'js/story-tools.js', 'js/story-revision-state.js', 'js/story-branches.js', 'js/world-modules.js', 'js/world-state-hook.js', 'js/player-settings.js', 'css/memory-preferences.css', 'css/story-branches.css'];
+const files = ['index.html', 'data/presets/models.json', 'js/chat.js', 'js/helper-data.js', 'js/memory-preferences.js', 'js/model-routing.js', 'js/prompt-cache.js', 'js/site-ui.js', 'js/story-backup.js', 'js/story-tools.js', 'js/story-revision-state.js', 'js/story-branches.js', 'js/world-modules.js', 'js/world-state-hook.js', 'js/player-settings.js', 'css/base.css', 'css/story-reader.css', 'css/memory-preferences.css', 'css/story-branches.css'];
 const storyTools = fs.readFileSync('js/story-tools.js', 'utf8');
 if (storyTools.includes('sourceMessages.length ? sourceMessages : Chat.messages')) throw new Error('Context Pack source isolation regressed to current-chat fallback.');
 if (!storyTools.includes('const messagesToOrganize = requireSourceMessages();')) throw new Error('Context Pack organizer no longer requires an explicit source.');
@@ -17,6 +17,13 @@ if (zai.protocol !== 'openai' || zai.route !== 'official' || zai.cache !== 'auto
 const modelRouting = fs.readFileSync('js/model-routing.js', 'utf8');
 if (!modelRouting.includes('filter(p => p.base_url && p.route !== "custom")')) throw new Error('Helper routing no longer accepts official providers with user-entered Model IDs.');
 if (!modelRouting.includes('type: presetEndpointMatches ? (preset.provider || "custom") : "custom"')) throw new Error('Helper routing no longer preserves provider identity.');
+
+const baseCSS = fs.readFileSync('css/base.css', 'utf8');
+if (!baseCSS.includes('.topbar nav{flex:1;overflow-x:auto')) throw new Error('Mobile top navigation is no longer a single horizontally scrollable row.');
+if (!baseCSS.includes('--bao-reading:min(780px,100%)')) throw new Error('Desktop reading width token is missing.');
+const storyReaderCSS = fs.readFileSync('css/story-reader.css', 'utf8');
+if (!storyReaderCSS.includes('#chat-view .story-mobile-tools{\n    display:flex;\n    order:40;')) throw new Error('Mobile story tools are no longer placed in the thumb-zone order.');
+if (!storyReaderCSS.includes('#chat-view .composer{order:50}')) throw new Error('Mobile composer ordering no longer follows the story tool bar.');
 
 const base = 'https://ghost80076-cmyk.github.io/bao-lab/';
 (async () => {
