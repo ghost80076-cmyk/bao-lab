@@ -1,0 +1,62 @@
+name: Pages live smoke
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify-live-pages:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    env:
+      SITE_URL: https://ghost80076-cmyk.github.io/bao-lab/
+      EXPECTED_TITLE: BAO/LAB｜Local-first BYOK AI 角色扮演與世界模擬工具
+    steps:
+      - name: Wait for live Pages metadata
+        shell: bash
+        run: |
+          set -euo pipefail
+          ok=0
+          for attempt in $(seq 1 36); do
+            html="$(curl --fail --silent --show-error --location --max-time 15 "${SITE_URL}" || true)"
+            if grep -Fq "<title>${EXPECTED_TITLE}</title>" <<<"${html}" \
+              && grep -Fq '<link rel="canonical" href="https://ghost80076-cmyk.github.io/bao-lab/">' <<<"${html}" \
+              && grep -Fq '<meta property="og:image" content="https://ghost80076-cmyk.github.io/bao-lab/assets/bao-social-card.png">' <<<"${html}" \
+              && grep -Fq '<meta name="twitter:card" content="summary_large_image">' <<<"${html}"; then
+              ok=1
+              printf 'Live homepage metadata verified on attempt %s.\n' "${attempt}"
+              break
+            fi
+            printf 'Waiting for the latest Pages content (attempt %s/36)...\n' "${attempt}"
+            sleep 5
+          done
+          if [ "${ok}" -ne 1 ]; then
+            printf 'Expected live homepage metadata was not observed.\n' >&2
+            exit 1
+          fi
+
+      - name: Verify robots and sitemap
+        shell: bash
+        run: |
+          set -euo pipefail
+          robots="$(curl --fail --silent --show-error --location --max-time 15 "${SITE_URL}robots.txt")"
+          sitemap="$(curl --fail --silent --show-error --location --max-time 15 "${SITE_URL}sitemap.xml")"
+          grep -Fq 'User-agent: *' <<<"${robots}"
+          grep -Fq 'Allow: /' <<<"${robots}"
+          grep -Fq 'Sitemap: https://ghost80076-cmyk.github.io/bao-lab/sitemap.xml' <<<"${robots}"
+          grep -Fq '<loc>https://ghost80076-cmyk.github.io/bao-lab/</loc>' <<<"${sitemap}"
+          printf 'robots.txt and sitemap.xml verified.\n'
+
+      - name: Verify social preview image
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error --location --max-time 20 \
+            "${SITE_URL}assets/bao-social-card.png" -o /tmp/bao-social-card.png
+          test -s /tmp/bao-social-card.png
+          file /tmp/bao-social-card.png | grep -Fq 'PNG image data, 1200 x 630'
+          printf 'Social preview image verified as a non-empty 1200x630 PNG.\n'
