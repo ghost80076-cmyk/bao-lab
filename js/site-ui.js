@@ -20,8 +20,10 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/world-state-hook.js"))
     .catch(err => console.warn("BAO/LAB world state or character status modules failed to load:", err));
   loadBAOScript("js/cost-control.js")
+    .then(() => loadBAOScript("js/provider-browser-compat.js"))
     .then(() => loadBAOScript("js/model-routing.js"))
-    .catch(err => console.warn("BAO/LAB cost or model routing controls failed to load:", err));
+    .then(() => loadBAOScript("js/provider-diagnostics.js"))
+    .catch(err => console.warn("BAO/LAB cost, provider compatibility, model routing or provider diagnostics controls failed to load:", err));
   loadBAOScript("js/chat-shell-fix.js")
     .then(() => loadBAOScript("js/player-settings.js"))
     .then(() => loadBAOScript("js/narrative-settings.js"))
