@@ -165,7 +165,12 @@ const run = file => vm.runInThisContext(fs.readFileSync(path.join(__dirname, "..
 run("js/state.js");
 run("js/chat.js");
 run("js/storage.js");
+// In browsers `window.Storage` is the native Web Storage constructor. Story Library only
+// uses that property as an environment guard; the app's lexical `Storage` object remains
+// the persistence implementation. Mirror that browser condition in this Node sandbox.
+global.Storage = function BrowserStorageMock() {};
 run("js/story-tools.js");
+run("js/global-bridge.js");
 run("js/story-library.js");
 
 const detail = index => {
