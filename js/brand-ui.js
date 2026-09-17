@@ -1,5 +1,5 @@
 (() => {
-  const DISCORD_INVITE = "https://discord.gg/Mdvn2hdwe";
+  const DISCORD_INVITE = "https://discord.gg/N3XpAhwTN";
   const DISCORD_ICON = '<img src="assets/discord-mark.svg" width="21" height="21" alt="">';
   const discordLink = (label, className = "brand-discord-cta") => `<a class="${className}" href="${DISCORD_INVITE}" target="_blank" rel="noopener noreferrer" aria-label="${label}（另開 Discord 邀請連結）">${DISCORD_ICON}<span>${label}</span></a>`;
 
