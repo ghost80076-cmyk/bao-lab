@@ -102,6 +102,81 @@
     return effective;
   };
 
+  // Memory requests are BYOK: never retry an ambiguous timeout automatically.
+  // Keep the guard outside saved story/config data; it contains no API credentials.
+  const patchMemoryRequestGuard = () => {
+    if (Chat.__memoryRequestGuardPatched || typeof API?.send !== "function" || typeof Chat.maybeSummarize !== "function") return;
+    const originalSend = API.send.bind(API);
+    const originalSummarize = Chat.maybeSummarize;
+    const cooldowns = new WeakMap();
+    const activeStories = new WeakSet();
+    const TIMEOUT_MS = 45000;
+    const COOLDOWN_MS = 5 * 60 * 1000;
+    const AUTH_COOLDOWN_MS = 30 * 60 * 1000;
+    const notice = (message) => {
+      const element = document.getElementById("usage-guard");
+      if (element) element.title = message;
+    };
+
+    API.send = async function(config, messages) {
+      if (!config?.__memoryTask) return originalSend(config, messages);
+      const controller = new AbortController();
+      const previousSignal = config.signal;
+      const relayAbort = () => controller.abort();
+      if (previousSignal?.aborted) controller.abort();
+      else previousSignal?.addEventListener?.("abort", relayAbort, { once: true });
+      let timedOut = false;
+      const timer = setTimeout(() => { timedOut = true; controller.abort(); }, TIMEOUT_MS);
+      try {
+        return await originalSend({ ...config, signal: controller.signal }, messages);
+      } catch (error) {
+        const safeError = new Error(timedOut ? "記憶整理逾時，已暫停背景整理。" : "記憶整理請求失敗，已暫停背景整理。");
+        safeError.memoryFailure = true;
+        safeError.authFailure = /(?:API Key 無效|驗證失敗|沒有使用此模型或 API 的權限|額度|餘額|rate limit|quota)/i.test(String(error?.message || ""));
+        throw safeError;
+      } finally {
+        clearTimeout(timer);
+        previousSignal?.removeEventListener?.("abort", relayAbort);
+      }
+    };
+
+    Chat.maybeSummarize = async function(config, force = false, recentRounds = null) {
+      const story = window.GameState?.current;
+      if (!story || activeStories.has(story)) return;
+      const blockedUntil = cooldowns.get(story) || 0;
+      if (blockedUntil > Date.now()) {
+        notice(`記憶整理暫停中，約 ${Math.ceil((blockedUntil - Date.now()) / 60000)} 分鐘後再試。原始對話仍保留。`);
+        return;
+      }
+      activeStories.add(story);
+      const priorSummary = this.summary;
+      const priorCursor = this.summarizedUntil;
+      let failure = null;
+      // Capture only the sanitized memory failure, without logging raw provider errors or keys.
+      const guardedSend = API.send;
+      API.send = async function(requestConfig, messages) {
+        try { return await guardedSend(requestConfig, messages); }
+        catch (error) { if (requestConfig?.__memoryTask && error?.memoryFailure) failure = error; throw error; }
+      };
+      try {
+        await originalSummarize.call(this, config, force, recentRounds);
+        if (failure) {
+          const delay = failure.authFailure ? AUTH_COOLDOWN_MS : COOLDOWN_MS;
+          cooldowns.set(story, Date.now() + delay);
+          notice(`記憶整理失敗，已暫停 ${Math.ceil(delay / 60000)} 分鐘；原始對話仍保留。`);
+        } else if (this.summary !== priorSummary || this.summarizedUntil !== priorCursor) {
+          cooldowns.delete(story);
+          notice("");
+        }
+      } finally {
+        API.send = guardedSend;
+        activeStories.delete(story);
+      }
+    };
+    Chat.__memoryRequestGuardPatched = true;
+  };
+
   patchCacheUsageAccounting();
+  patchMemoryRequestGuard();
   window.BAOPromptCache = { partitionSystemPrompt, storySessionId, cacheMetricKnown };
 })();
