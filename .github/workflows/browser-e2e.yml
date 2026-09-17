@@ -35,6 +35,11 @@ jobs:
       - name: Verify deployed Pages content
         if: github.event_name == 'push' && matrix.browser == 'chromium'
         run: node tests/pages-content-check.cjs
+      - name: Verify live Pages author guidance and relay probe
+        if: github.event_name == 'push' && matrix.browser == 'chromium'
+        env:
+          BAO_LIVE_URL: https://ghost80076-cmyk.github.io/bao-lab/
+        run: npm run test:e2e -- tests/e2e/author-diagnostics.spec.cjs --project=chromium
       - name: Verify live Pages character import and reload
         if: github.event_name == 'push' && matrix.browser == 'chromium'
         env:

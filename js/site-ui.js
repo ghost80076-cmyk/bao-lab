@@ -44,7 +44,8 @@ window.addEventListener("DOMContentLoaded", () => {
     .catch(err => console.warn("BAO/LAB local preview, narrative settings, memory workbench, story tools, story library, story reader or chat markup failed to load:", err));
   loadBAOScript("js/character-readiness.js")
     .then(() => loadBAOScript("js/character-import-upgrade.js"))
-    .catch(err => console.warn("BAO/LAB character readiness or import upgrade failed to load:", err));
+    .then(() => loadBAOScript("js/author-diagnostics.js"))
+    .catch(err => console.warn("BAO/LAB character readiness, import or author diagnostics failed to load:", err));
   loadBAOScript("js/brand-ui.js")
     .catch(err => console.warn("BAO/LAB brand UI failed to load:", err));
   setTimeout(async () => {
