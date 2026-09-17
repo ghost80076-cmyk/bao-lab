@@ -32,30 +32,23 @@
     const originalAddUsage = typeof Chat.addUsage === "function" ? Chat.addUsage.bind(Chat) : null;
     const originalReset = typeof Chat.reset === "function" ? Chat.reset.bind(Chat) : null;
     const originalRenderUsage = typeof Chat.renderUsage === "function" ? Chat.renderUsage.bind(Chat) : null;
-
-    if (originalAddUsage) {
-      Chat.addUsage = function(usage = {}) {
-        this.usage = this.usage || {};
-        if (!cacheMetricKnown(usage)) this.usage.cachedUnknown = true;
-        return originalAddUsage(usage);
-      };
-    }
-    if (originalReset) {
-      Chat.reset = function(...args) {
-        const result = originalReset(...args);
-        this.usage = this.usage || {};
-        this.usage.cachedUnknown = false;
-        return result;
-      };
-    }
-    if (originalRenderUsage) {
-      Chat.renderUsage = function(lastUsage = {}) {
-        const result = originalRenderUsage(lastUsage);
-        const cacheTotal = document.getElementById("usage-cache-total");
-        if (cacheTotal && this.usage?.cachedUnknown) cacheTotal.textContent = "未知";
-        return result;
-      };
-    }
+    if (originalAddUsage) Chat.addUsage = function(usage = {}) {
+      this.usage = this.usage || {};
+      if (!cacheMetricKnown(usage)) this.usage.cachedUnknown = true;
+      return originalAddUsage(usage);
+    };
+    if (originalReset) Chat.reset = function(...args) {
+      const result = originalReset(...args);
+      this.usage = this.usage || {};
+      this.usage.cachedUnknown = false;
+      return result;
+    };
+    if (originalRenderUsage) Chat.renderUsage = function(lastUsage = {}) {
+      const result = originalRenderUsage(lastUsage);
+      const cacheTotal = document.getElementById("usage-cache-total");
+      if (cacheTotal && this.usage?.cachedUnknown) cacheTotal.textContent = "未知";
+      return result;
+    };
     Chat.__cacheUsageAccountingPatched = true;
   };
 
@@ -68,13 +61,11 @@
     const parts = partitionSystemPrompt(this.buildSystemPrompt());
     const memorySystems = [];
     const history = [];
-
     if (parts.memory) memorySystems.push(parts.memory);
     earlier.forEach(message => {
       if (message.role === "system") memorySystems.push(String(message.content || ""));
       else history.push({ role: message.role, content: String(message.content || "") });
     });
-
     const messages = [{ role: "system", content: parts.stable }];
     if (memorySystems.length) messages.push({ role: "system", content: memorySystems.join("\n\n") });
     messages.push(...history);
@@ -102,24 +93,26 @@
     return effective;
   };
 
-  // Memory requests are BYOK: never retry an ambiguous timeout automatically.
-  // Keep the guard outside saved story/config data; it contains no API credentials.
+  // Install one permanent wrapper. Never swap API.send while another request is in flight.
+  // WeakMap entries contain only sanitized failure metadata, not provider errors or credentials.
   const patchMemoryRequestGuard = () => {
     if (Chat.__memoryRequestGuardPatched || typeof API?.send !== "function" || typeof Chat.maybeSummarize !== "function") return;
     const originalSend = API.send.bind(API);
     const originalSummarize = Chat.maybeSummarize;
     const cooldowns = new WeakMap();
+    const failures = new WeakMap();
     const activeStories = new WeakSet();
     const TIMEOUT_MS = 45000;
     const COOLDOWN_MS = 5 * 60 * 1000;
     const AUTH_COOLDOWN_MS = 30 * 60 * 1000;
-    const notice = (message) => {
+    const notice = message => {
       const element = document.getElementById("usage-guard");
       if (element) element.title = message;
     };
 
     API.send = async function(config, messages) {
       if (!config?.__memoryTask) return originalSend(config, messages);
+      const story = window.GameState?.current;
       const controller = new AbortController();
       const previousSignal = config.signal;
       const relayAbort = () => controller.abort();
@@ -130,9 +123,10 @@
       try {
         return await originalSend({ ...config, signal: controller.signal }, messages);
       } catch (error) {
+        const authFailure = /(?:API Key 無效|驗證失敗|沒有使用此模型或 API 的權限|額度|餘額|rate limit|quota)/i.test(String(error?.message || ""));
+        if (story) failures.set(story, { authFailure });
         const safeError = new Error(timedOut ? "記憶整理逾時，已暫停背景整理。" : "記憶整理請求失敗，已暫停背景整理。");
         safeError.memoryFailure = true;
-        safeError.authFailure = /(?:API Key 無效|驗證失敗|沒有使用此模型或 API 的權限|額度|餘額|rate limit|quota)/i.test(String(error?.message || ""));
         throw safeError;
       } finally {
         clearTimeout(timer);
@@ -149,17 +143,12 @@
         return;
       }
       activeStories.add(story);
+      failures.delete(story);
       const priorSummary = this.summary;
       const priorCursor = this.summarizedUntil;
-      let failure = null;
-      // Capture only the sanitized memory failure, without logging raw provider errors or keys.
-      const guardedSend = API.send;
-      API.send = async function(requestConfig, messages) {
-        try { return await guardedSend(requestConfig, messages); }
-        catch (error) { if (requestConfig?.__memoryTask && error?.memoryFailure) failure = error; throw error; }
-      };
       try {
         await originalSummarize.call(this, config, force, recentRounds);
+        const failure = failures.get(story);
         if (failure) {
           const delay = failure.authFailure ? AUTH_COOLDOWN_MS : COOLDOWN_MS;
           cooldowns.set(story, Date.now() + delay);
@@ -169,7 +158,7 @@
           notice("");
         }
       } finally {
-        API.send = guardedSend;
+        failures.delete(story);
         activeStories.delete(story);
       }
     };
