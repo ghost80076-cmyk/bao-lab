@@ -47,6 +47,13 @@
         <article><span>03</span><h3>互動</h3><p>除了文字，也嘗試把狀態、人物、事件與各種玩法做進互動介面。</p></article>
         <article><span>04</span><h3>BYOK</h3><p>使用自己的 API 與模型。故事保存在自己的裝置，模型選擇權留給玩家。</p></article>
       </section>
+      <section class="brand-product-intro" aria-labelledby="brand-product-intro-title" style="margin:24px 0;padding:clamp(20px,4vw,32px);border:1px solid #444653;border-radius:18px;background:#1c1e27">
+        <div class="brand-kicker">ABOUT BAO/LAB</div>
+        <h2 id="brand-product-intro-title">讓故事回到玩家手中</h2>
+        <p style="font-size:1.15rem;font-weight:700">你的模型，你的故事，你的世界。</p>
+        <p>BAO/LAB 是以 Local-first、BYOK 為核心的 AI 角色扮演與世界模擬工具。自由選擇模型，透過故事書庫、記憶整理、故事分支與備份功能，管理並延續你的長篇故事。</p>
+        <a class="primary" href="about-bao-lab.html" style="display:inline-block;text-decoration:none;padding:10px 18px;border-radius:10px">了解 BAO/LAB ↗</a>
+      </section>
       <section class="brand-api-guide" aria-labelledby="brand-api-guide-title" style="margin:24px 0;padding:24px;border:1px solid #444653;border-radius:18px;background:#1c1e27">
         <div class="brand-kicker">NEW PLAYER GUIDE</div>
         <h2 id="brand-api-guide-title">第一次使用 API？從這裡開始。</h2>
