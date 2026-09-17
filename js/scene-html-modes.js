@@ -35,35 +35,89 @@
     }
     return greeting ? window.BAOChatMarkup.sanitize(body) : App.formatMessage(plain(body));
   };
+  // A presentation adapter only: never parse a displayed [STATUS] block back into game state.
+  const sharedStatus = () => {
+    const state = window.GameState?.current;
+    if (!state) return null;
+    const statusAPI = window.BAOCharacterStatus;
+    const config = statusAPI?.configFor?.(App.activeCharacter);
+    const names = Object.keys(state.characterStatuses || {});
+    const preferred = state.uiContextCharacter || App.activeCharacter?.name;
+    const name = names.includes(preferred) ? preferred : names[0];
+    const fields = config?.fields?.filter(field => !config.customization?.hidden?.includes(field.key)) || [];
+    const values = name ? state.characterStatuses[name] || {} : {};
+    return { state, name, fields, values, labels: config?.customization?.labels || {} };
+  };
+  const valueText = value => Array.isArray(value) ? value.join('、') : typeof value === 'boolean' ? (value ? '是' : '否') : String(value ?? '');
+  const paintStatus = () => {
+    const native = document.getElementById('bao-scene-native-status');
+    const author = document.getElementById('bao-scene-author-status');
+    const shared = sharedStatus();
+    if (native) {
+      native.hidden = prefs.status !== 'native';
+      const label = shared ? `時間：${shared.state.time || '未知'}　地點：${shared.state.location || '未知'}` : '尚無世界狀態';
+      if (native.textContent !== label) native.textContent = label;
+    }
+    if (!author) return;
+    author.hidden = prefs.status !== 'author';
+    if (prefs.status !== 'author') return;
+    // Author-supplied presentation can opt in via character.author_status_html.
+    // Only known field keys are substituted, as text nodes, never as executable markup.
+    const template = App.activeCharacter?.author_status_html;
+    const fingerprint = JSON.stringify({ template, name: shared?.name, values: shared?.values, fields: shared?.fields, labels: shared?.labels, time: shared?.state.time, location: shared?.state.location });
+    if (author.dataset.fingerprint === fingerprint) return;
+    author.dataset.fingerprint = fingerprint;
+    if (!shared) { author.textContent = '尚無世界狀態。'; return; }
+    if (typeof template === 'string' && template.trim()) {
+      const safe = window.BAOChatMarkup.sanitize(template);
+      const doc = new DOMParser().parseFromString(`<div id="bao-author-status-root">${safe}</div>`, 'text/html');
+      const root = doc.getElementById('bao-author-status-root');
+      const values = { time: shared.state.time, location: shared.state.location, character: shared.name };
+      shared.fields.forEach(field => { values[field.key] = shared.values[field.key]; });
+      const substitute = node => {
+        if (node.nodeType === Node.TEXT_NODE) {
+          const text = node.textContent || '';
+          if (!/{{\s*[a-zA-Z0-9_-]{1,40}\s*}}/.test(text)) return;
+          const fragment = document.createDocumentFragment();
+          let start = 0;
+          const pattern = /{{\s*([a-zA-Z0-9_-]{1,40})\s*}}/g;
+          for (const match of text.matchAll(pattern)) {
+            fragment.append(document.createTextNode(text.slice(start, match.index)));
+            fragment.append(document.createTextNode(Object.prototype.hasOwnProperty.call(values, match[1]) ? valueText(values[match[1]]) : '—'));
+            start = match.index + match[0].length;
+          }
+          fragment.append(document.createTextNode(text.slice(start)));
+          node.replaceWith(fragment);
+        } else if (node.nodeType === Node.ELEMENT_NODE) [...node.childNodes].forEach(substitute);
+      };
+      substitute(root);
+      author.replaceChildren(...root.childNodes);
+      return;
+    }
+    const heading = document.createElement('strong'); heading.textContent = shared.name || '世界狀態';
+    const rows = shared.fields.map(field => {
+      const line = document.createElement('div');
+      line.textContent = `${shared.labels[field.key] || field.label}：${valueText(shared.values[field.key]) || '—'}`;
+      return line;
+    });
+    if (!rows.length) {
+      const line = document.createElement('div'); line.textContent = `時間：${shared.state.time || '未知'}　地點：${shared.state.location || '未知'}`;
+      rows.push(line);
+    }
+    author.replaceChildren(heading, ...rows);
+  };
   const refresh = () => {
     const stream = document.getElementById('chat-stream');
     if (!stream || !App.activeCharacter) return;
     const messages = Chat.messages.length ? Chat.messages : [{ role: 'assistant', content: App.activeCharacter.greeting || '', greeting: true }];
-    const bubbles = [...stream.querySelectorAll('.message .bubble')];
-    bubbles.forEach((bubble, index) => {
+    [...stream.querySelectorAll('.message .bubble')].forEach((bubble, index) => {
       const msg = messages[index];
-      if (!msg || msg.role !== 'assistant') return; // Ignore pending streaming and error bubbles.
+      if (!msg || msg.role !== 'assistant') return;
       const html = render(msg.content, Boolean(msg.greeting));
       if (bubble.innerHTML !== html) bubble.innerHTML = html;
       bubble.classList.toggle('authored-rich-message', prefs.mode !== 'native');
     });
-    const native = document.getElementById('bao-scene-native-status');
-    const author = document.getElementById('bao-scene-author-status');
-    if (native) {
-      native.hidden = prefs.status !== 'native';
-      if (prefs.status === 'native') {
-        const s = window.GameState?.current;
-        const label = s ? `時間：${s.time || '未知'}　地點：${s.location || '未知'}` : '尚無世界狀態';
-        if (native.textContent !== label) native.textContent = label;
-      }
-    }
-    if (author) {
-      const last = [...messages].reverse().find(m => m.role === 'assistant' && statusBlock(m.content));
-      const content = last ? statusBlock(last.content) : '';
-      author.hidden = prefs.status !== 'author';
-      const label = content ? `作者狀態（僅顯示，未同步世界狀態）\n${plain(content)}` : '此故事尚無可辨識的 [STATUS] 作者狀態資料。';
-      if (author.textContent !== label) author.textContent = label;
-    }
+    paintStatus();
   };
   const originalPrompt = App.buildSystemPrompt.bind(App);
   App.buildSystemPrompt = function(...args) {
@@ -73,10 +127,7 @@
       efficient: '【玩家排版偏好】優先輸出純文字敘事。需要場景排版時，只能使用 [SCENE:forum]、[SCENE:realistic] 或 [SCENE:dramatic]，並將正文放在 [NARRATION]...[/NARRATION] 中；場景未變更時可以只輸出一般文字。不要重複輸出 HTML、CSS 或 JavaScript。',
       free: '【玩家排版偏好】允許依劇情產生 HTML 視覺排版，但不得輸出 JavaScript、事件處理器、iframe 或可執行程式碼；不需要華麗排版時直接輸出一般文字。'
     };
-    const statusInstruction = prefs.status === 'author'
-      ? '若角色卡定義作者狀態，請將狀態資料放在 [STATUS]...[/STATUS]；這是展示資料，不會自動寫入世界狀態。'
-      : '使用平台原生狀態或隱藏狀態欄；不要生成 [STATUS] 區塊或 HTML 視覺狀態欄。';
-    return `${base}\n\n${instructions[prefs.mode]}\n${statusInstruction}`;
+    return `${base}\n\n${instructions[prefs.mode]}\n狀態資料由世界狀態追蹤器更新；不要為視覺狀態欄重複生成 HTML 或 [STATUS] 區塊。`;
   };
   const mount = () => {
     const aside = document.querySelector('#chat-view aside');
@@ -96,14 +147,14 @@
     };
     addSelect('閱讀模式', [['native','原生閱讀（不生成 HTML）'],['efficient','節省 Token 的場景排版'],['free','自由安全 HTML']], prefs.mode, value => { prefs.mode = value; });
     addSelect('狀態欄', [['native','BAO/LAB 原生狀態'],['author','作者狀態欄'],['hidden','隱藏狀態欄']], prefs.status, value => { prefs.status = value; });
-    const note = document.createElement('small'); note.textContent = '設定從下一輪 API 請求生效；既有回覆可切換閱讀。作者狀態目前僅展示，不會修改世界狀態。'; panel.append(note);
+    const note = document.createElement('small'); note.textContent = '設定從下一輪 API 請求生效；作者狀態欄僅讀取世界狀態，不會修改它。'; panel.append(note);
     const native = document.createElement('div'); native.id = 'bao-scene-native-status'; native.setAttribute('role','status'); panel.append(native);
     const author = document.createElement('div'); author.id = 'bao-scene-author-status'; author.style.whiteSpace = 'pre-wrap'; author.setAttribute('role','status'); panel.append(author);
     aside.append(panel); refresh();
   };
   const originalShell = App.renderChatShell.bind(App);
   App.renderChatShell = function(...args) { const result = originalShell(...args); mount(); refresh(); return result; };
-  window.BAOSceneHTML = { prefs, render, refresh, sceneTemplates };
+  window.BAOSceneHTML = { prefs, render, refresh, sceneTemplates, sharedStatus, paintStatus };
   mount();
   const stream = document.getElementById('chat-stream');
   if (stream) {
