@@ -82,7 +82,7 @@
     const bubble = stream?.querySelector(".message.assistant .bubble");
     if (!bubble) return false;
 
-    bubble.innerHTML = sanitize(character.greeting || "");
+    bubble.innerHTML = window.BAOSceneHTML ? window.BAOSceneHTML.render(character.greeting || "", true) : sanitize(character.greeting || "");
     bubble.classList.add("authored-rich-message");
     bubble.dataset.authoredGreeting = "true";
     return true;
@@ -107,9 +107,13 @@
     return result;
   };
 
-  // If this module finishes loading after the chat shell is already visible,
-  // repair the first authored greeting immediately instead of requiring a reload.
   if (document.getElementById("chat-view")?.classList.contains("active")) repairGreetingSoon();
 
   window.BAOChatMarkup = { sanitize, renderAuthoredGreeting };
+  if (!document.querySelector('script[src="js/scene-html-modes.js"]')) {
+    const script = document.createElement('script');
+    script.src = 'js/scene-html-modes.js';
+    script.onerror = () => console.warn('BAO/LAB scene HTML controls failed to load');
+    document.head.appendChild(script);
+  }
 })();
