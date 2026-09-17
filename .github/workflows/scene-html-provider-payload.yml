@@ -1,0 +1,17 @@
+name: Scene HTML provider payload
+on:
+  push:
+    paths:
+      - 'js/api.js'
+      - 'tests/scene-html-provider-payload.cjs'
+      - '.github/workflows/scene-html-provider-payload.yml'
+  workflow_dispatch:
+jobs:
+  provider-payload:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node tests/scene-html-provider-payload.cjs
