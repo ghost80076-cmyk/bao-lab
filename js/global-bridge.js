@@ -15,7 +15,7 @@
     const doc = new DOMParser().parseFromString(spaced, "text/html");
     return (doc.body.textContent || "").replace(/\n[ \t]+/g, "\n").replace(/\n{3,}/g, "\n\n").trim();
   };
-  if (typeof Chat !== "undefined" && !Chat.__baoContextPresentationGuard) {
+  if (typeof Chat !== "undefined" && typeof Chat.context === "function" && !Chat.__baoContextPresentationGuard) {
     const originalContext = Chat.context.bind(Chat);
     Chat.context = async function(...args) {
       const messages = await originalContext(...args);
@@ -27,7 +27,7 @@
   }
   // Smart-memory summaries bypass Chat.context. Sanitize their request copies too,
   // without changing Chat.messages or the source signature used to detect stale summaries.
-  if (typeof API !== "undefined" && !API.__baoMemoryPresentationGuard) {
+  if (typeof API !== "undefined" && typeof API.send === "function" && !API.__baoMemoryPresentationGuard) {
     const originalSend = API.send.bind(API);
     API.send = function(config, messages, ...rest) {
       if (!config?.__memoryTask || !Array.isArray(messages)) return originalSend(config, messages, ...rest);
