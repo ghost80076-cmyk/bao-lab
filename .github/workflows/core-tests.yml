@@ -27,6 +27,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
+      - name: Author status binding and persistence
+        run: node tests/author-status-binding-core.cjs
       - name: Character status core
         run: node tests/character-status-core.cjs
       - name: Story flow core
