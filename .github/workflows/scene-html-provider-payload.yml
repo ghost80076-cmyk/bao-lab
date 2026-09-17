@@ -3,7 +3,9 @@ on:
   push:
     paths:
       - 'js/api.js'
+      - 'js/global-bridge.js'
       - 'tests/scene-html-provider-payload.cjs'
+      - 'tests/scene-html-context-guard.cjs'
       - '.github/workflows/scene-html-provider-payload.yml'
   workflow_dispatch:
 jobs:
@@ -15,3 +17,4 @@ jobs:
         with:
           node-version: '22'
       - run: node tests/scene-html-provider-payload.cjs
+      - run: node tests/scene-html-context-guard.cjs
