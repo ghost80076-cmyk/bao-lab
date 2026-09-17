@@ -1,0 +1,26 @@
+{
+  "schema_version": "1.5",
+  "meta": {
+    "id": "my-first-character",
+    "name": "請填入角色姓名",
+    "category": "female",
+    "gender": "",
+    "avatar": "https://example.com/character.jpg",
+    "description": "在作品列表顯示的一句簡介。",
+    "tags": ["現代", "慢熱"]
+  },
+  "content": {
+    "greeting": "這裡填入第一幕：時間、地點、角色的行動或台詞。",
+    "system_prompt": "這裡填入角色人格、語氣、目標、界線，以及角色如何根據已知資訊作決定。",
+    "lore": "選填：重要過去、人物關係或世界背景。",
+    "author_instructions": "選填：對話格式、敘事視角與節奏。不要代替玩家發言或決定行動。"
+  },
+  "gameplay": {
+    "supported_modes": { "immersive": true, "world": false },
+    "initial_state": { "time": "未設定", "location": "未設定", "events": [], "npcs": [] }
+  },
+  "presentation": {
+    "supported_display": { "text": true, "ui": false },
+    "narrative": { "recommended_styles": [], "allow_player_preferences": true }
+  }
+}

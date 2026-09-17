@@ -47,6 +47,8 @@ jobs:
         run: node tests/story-backup-core.cjs
       - name: Character readiness core
         run: node tests/character-readiness-core.cjs
+      - name: Character JSON import hardening
+        run: node tests/character-import-core.cjs
       - name: Model presets and routing
         run: node tests/model-presets-core.cjs
       - name: Canon workbench

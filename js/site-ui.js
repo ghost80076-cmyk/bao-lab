@@ -43,7 +43,8 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/request-lifecycle.js"))
     .catch(err => console.warn("BAO/LAB local preview, narrative settings, memory workbench, story tools, story library, story reader or chat markup failed to load:", err));
   loadBAOScript("js/character-readiness.js")
-    .catch(err => console.warn("BAO/LAB character readiness audit failed to load:", err));
+    .then(() => loadBAOScript("js/character-import-upgrade.js"))
+    .catch(err => console.warn("BAO/LAB character readiness or import upgrade failed to load:", err));
   loadBAOScript("js/brand-ui.js")
     .catch(err => console.warn("BAO/LAB brand UI failed to load:", err));
   setTimeout(async () => {
@@ -90,6 +91,7 @@ window.addEventListener("DOMContentLoaded", () => {
       });
     };
 
+    const picker = document.getElementById("import-save-file");
     document.getElementById("save-slot-button")?.addEventListener("click", () => {
       if (!App.activeCharacter || !GameState.current) { alert("目前沒有進行中的故事。"); return; }
       const label = prompt("輸入存檔名稱：", `${App.activeCharacter.name} · ${new Date().toLocaleString("zh-TW")}`);
@@ -100,7 +102,6 @@ window.addEventListener("DOMContentLoaded", () => {
     });
     document.getElementById("list-slots-button")?.addEventListener("click", renderSlots);
 
-    const picker = document.getElementById("import-save-file");
     document.getElementById("import-save-button")?.addEventListener("click", () => picker?.click());
     picker?.addEventListener("change", async () => {
       const file = picker.files?.[0];
