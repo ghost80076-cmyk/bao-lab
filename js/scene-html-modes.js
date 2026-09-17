@@ -12,7 +12,6 @@
     realistic: { label: '現實敘事', background: '#29251f', accent: '#f0d5a9' },
     dramatic: { label: '劇情轉折', background: '#1b1b24', accent: '#e5d9f4' }
   };
-  const statusBlock = text => String(text || '').match(/\[STATUS\]([\s\S]*?)\[\/STATUS\]/i)?.[1]?.trim() || '';
   const withoutMetadata = text => String(text || '')
     .replace(/\[STATUS\][\s\S]*?\[\/STATUS\]/gi, '')
     .replace(/\[SCENE:[a-z-]+\]/gi, '')
@@ -35,12 +34,11 @@
     }
     return greeting ? window.BAOChatMarkup.sanitize(body) : App.formatMessage(plain(body));
   };
-  // A presentation adapter only: never parse a displayed [STATUS] block back into game state.
+  // Presentation only. Never parse a displayed [STATUS] block back into game state.
   const sharedStatus = () => {
     const state = window.GameState?.current;
     if (!state) return null;
-    const statusAPI = window.BAOCharacterStatus;
-    const config = statusAPI?.configFor?.(App.activeCharacter);
+    const config = window.BAOCharacterStatus?.configFor?.(App.activeCharacter);
     const names = Object.keys(state.characterStatuses || {});
     const preferred = state.uiContextCharacter || App.activeCharacter?.name;
     const name = names.includes(preferred) ? preferred : names[0];
@@ -52,6 +50,7 @@
   const paintStatus = () => {
     const native = document.getElementById('bao-scene-native-status');
     const author = document.getElementById('bao-scene-author-status');
+    if (!native && !author) return;
     const shared = sharedStatus();
     if (native) {
       native.hidden = prefs.status !== 'native';
@@ -61,26 +60,25 @@
     if (!author) return;
     author.hidden = prefs.status !== 'author';
     if (prefs.status !== 'author') return;
-    // Author-supplied presentation can opt in via character.author_status_html.
-    // Only known field keys are substituted, as text nodes, never as executable markup.
     const template = App.activeCharacter?.author_status_html;
     const fingerprint = JSON.stringify({ template, name: shared?.name, values: shared?.values, fields: shared?.fields, labels: shared?.labels, time: shared?.state.time, location: shared?.state.location });
     if (author.dataset.fingerprint === fingerprint) return;
-    author.dataset.fingerprint = fingerprint;
-    if (!shared) { author.textContent = '尚無世界狀態。'; return; }
+    if (!shared) { author.textContent = '尚無世界狀態。'; author.dataset.fingerprint = fingerprint; return; }
     if (typeof template === 'string' && template.trim()) {
       const safe = window.BAOChatMarkup.sanitize(template);
       const doc = new DOMParser().parseFromString(`<div id="bao-author-status-root">${safe}</div>`, 'text/html');
       const root = doc.getElementById('bao-author-status-root');
+      if (!root) { author.textContent = '作者狀態欄格式無法讀取。'; return; }
       const values = { time: shared.state.time, location: shared.state.location, character: shared.name };
-      shared.fields.forEach(field => { values[field.key] = shared.values[field.key]; });
+      shared.fields.forEach(field => { if (!Object.prototype.hasOwnProperty.call(values, field.key)) values[field.key] = shared.values[field.key]; });
       const substitute = node => {
         if (node.nodeType === Node.TEXT_NODE) {
           const text = node.textContent || '';
-          if (!/{{\s*[a-zA-Z0-9_-]{1,40}\s*}}/.test(text)) return;
+          const pattern = /{{\s*([a-zA-Z0-9_-]{1,40})\s*}}/g;
+          if (!pattern.test(text)) return;
+          pattern.lastIndex = 0;
           const fragment = document.createDocumentFragment();
           let start = 0;
-          const pattern = /{{\s*([a-zA-Z0-9_-]{1,40})\s*}}/g;
           for (const match of text.matchAll(pattern)) {
             fragment.append(document.createTextNode(text.slice(start, match.index)));
             fragment.append(document.createTextNode(Object.prototype.hasOwnProperty.call(values, match[1]) ? valueText(values[match[1]]) : '—'));
@@ -92,6 +90,7 @@
       };
       substitute(root);
       author.replaceChildren(...root.childNodes);
+      author.dataset.fingerprint = fingerprint;
       return;
     }
     const heading = document.createElement('strong'); heading.textContent = shared.name || '世界狀態';
@@ -105,18 +104,20 @@
       rows.push(line);
     }
     author.replaceChildren(heading, ...rows);
+    author.dataset.fingerprint = fingerprint;
   };
   const refresh = () => {
     const stream = document.getElementById('chat-stream');
-    if (!stream || !App.activeCharacter) return;
-    const messages = Chat.messages.length ? Chat.messages : [{ role: 'assistant', content: App.activeCharacter.greeting || '', greeting: true }];
-    [...stream.querySelectorAll('.message .bubble')].forEach((bubble, index) => {
-      const msg = messages[index];
-      if (!msg || msg.role !== 'assistant') return;
-      const html = render(msg.content, Boolean(msg.greeting));
-      if (bubble.innerHTML !== html) bubble.innerHTML = html;
-      bubble.classList.toggle('authored-rich-message', prefs.mode !== 'native');
-    });
+    if (stream && App.activeCharacter) {
+      const messages = Chat.messages.length ? Chat.messages : [{ role: 'assistant', content: App.activeCharacter.greeting || '', greeting: true }];
+      [...stream.querySelectorAll('.message .bubble')].forEach((bubble, index) => {
+        const msg = messages[index];
+        if (!msg || msg.role !== 'assistant') return;
+        const html = render(msg.content, Boolean(msg.greeting));
+        if (bubble.innerHTML !== html) bubble.innerHTML = html;
+        bubble.classList.toggle('authored-rich-message', prefs.mode !== 'native');
+      });
+    }
     paintStatus();
   };
   const originalPrompt = App.buildSystemPrompt.bind(App);
@@ -154,6 +155,18 @@
   };
   const originalShell = App.renderChatShell.bind(App);
   App.renderChatShell = function(...args) { const result = originalShell(...args); mount(); refresh(); return result; };
+  // World-state updates may arrive after the chat DOM has finished rendering.
+  // Refresh only the status panel here; do not rewrite streaming message bubbles.
+  const stateAPI = window.GameState;
+  if (stateAPI) ['applyUpdate', 'upsertNPC', 'create'].forEach(method => {
+    if (typeof stateAPI[method] !== 'function') return;
+    const original = stateAPI[method];
+    stateAPI[method] = function(...args) {
+      const result = original.apply(this, args);
+      queueMicrotask(paintStatus);
+      return result;
+    };
+  });
   window.BAOSceneHTML = { prefs, render, refresh, sceneTemplates, sharedStatus, paintStatus };
   mount();
   const stream = document.getElementById('chat-stream');
