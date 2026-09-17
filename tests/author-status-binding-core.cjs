@@ -1,0 +1,15 @@
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const vm = require('node:vm');
+const context = { console, window: { BAOChatMarkup: { sanitize: x => x }, BAOCharacterStatus: {} }, document: { querySelector: () => ({ querySelector: () => null, append: () => {} }), createElement: () => ({ addEventListener() {}, dataset: {} }) }, setInterval() {} };
+vm.createContext(context);
+vm.runInContext(fs.readFileSync('js/character.js', 'utf8'), context);
+vm.runInContext(fs.readFileSync('js/author-status-binding.js', 'utf8'), context);
+const raw = { meta: { id: 'sample', name: '阿青' }, content: { greeting: '你好', system_prompt: '角色設定' }, gameplay: { character_status: { enabled: true, fields: [{ key: 'energy', label: '精力', default: 80 }] }, initial_state: { time: '第 2 天', location: '庭院', character_statuses: { '阿青': { energy: 65 } } } }, presentation: { author_status_html: '<p>精力：{{energy}}</p>' } };
+const normalized = vm.runInContext('CharacterEngine.normalize', context)(raw);
+assert.equal(normalized.author_status_html, '<p>精力：{{energy}}</p>');
+assert.equal(vm.runInContext('CharacterEngine.normalize', context)(normalized).author_status_html, normalized.author_status_html);
+assert.equal(vm.runInContext('CharacterEngine.normalize', context)({ ...raw, author_status_html: '<b>{{time}}</b>' }).author_status_html, '<b>{{time}}</b>');
+assert.equal(context.window.BAOAuthorStatusBinding.definitions(raw).find(f => f.key === 'energy').default, 80);
+assert.equal(context.window.BAOAuthorStatusBinding.definitions(raw).some(f => f.key === 'time'), true);
+console.log('Author status HTML normalization and field binding tests passed');
