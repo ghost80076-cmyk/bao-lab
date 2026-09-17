@@ -11,7 +11,6 @@
 .brand-signature{display:flex;align-items:center;gap:14px;margin-bottom:26px}
 .brand-signature>span{font-size:22px;letter-spacing:.08em;font-weight:900}
 .brand-signature small{display:block;margin-top:5px;color:var(--muted);font-size:12px;letter-spacing:.06em;font-weight:500}
-.brand-principles{max-width:40rem;color:var(--muted);font-size:13px;line-height:1.9}
 .brand-hero-copy{min-width:0}
 @media(max-width:560px){
   .topbar>.brand{gap:6px;font-size:16px;letter-spacing:.04em}
@@ -21,8 +20,8 @@
 }
 @media(prefers-reduced-motion:reduce){.bao-support-float{transition:none}}
 
-/* Donation is voluntary: show only the floating entry, including on mobile chat. */
+/* Donation is voluntary: show only the floating entry outside the story reader. */
 .topbar nav>a[href*="ko-fi.com/roger2486"],
 #chat-view aside>a[href*="ko-fi.com/roger2486"],
 #about-view a[href*="ko-fi.com/roger2486"]{display:none!important}
-@media(max-width:560px){body:has(#chat-view.active) .bao-support-float{display:inline-flex;bottom:84px}}
+body:has(#chat-view.active) .bao-support-float{display:none}
