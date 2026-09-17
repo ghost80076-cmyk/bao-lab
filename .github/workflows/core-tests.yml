@@ -47,6 +47,8 @@ jobs:
         run: node tests/story-backup-core.cjs
       - name: Story backup corruption and rollback
         run: node tests/story-backup-recovery-core.cjs
+      - name: Story bundle nested credential sanitization
+        run: node tests/story-bundle-secret-core.cjs
       - name: Character readiness core
         run: node tests/character-readiness-core.cjs
       - name: Character JSON import hardening
