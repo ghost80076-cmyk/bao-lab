@@ -9,7 +9,8 @@ const loadBAOScript = src => new Promise((resolve, reject) => {
 
 window.addEventListener("DOMContentLoaded", () => {
   loadBAOScript("js/autonomous-world-workbench.js")
-    .catch(err => console.warn("BAO/LAB autonomous world workbench failed to load:", err));
+    .then(() => loadBAOScript("js/autonomous-world-display.js"))
+    .catch(err => console.warn("BAO/LAB autonomous world workbench or display failed to load:", err));
   loadBAOScript("js/global-bridge.js")
     .then(() => loadBAOScript("js/world-state.js"))
     .then(() => loadBAOScript("js/character-status.js"))
