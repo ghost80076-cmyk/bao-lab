@@ -12,8 +12,8 @@ const minimal = {
 test('author can inspect JSON with field paths and safe errors on the real site', async ({ page }) => {
   await page.goto('./');
   await page.getByRole('button', { name: '探索作品' }).click();
-  await page.waitForFunction(() => Boolean(window.BAOAuthorDiagnostics && document.querySelector('[data-character-audit]')?.nextElementSibling?.dataset.guidanceReady === '1'));
-  const picker = page.locator('[data-character-audit] + input[type="file"]');
+  const picker = page.locator('input[type="file"][data-character-audit-file="true"]');
+  await expect(picker).toHaveCount(1);
   const missing = structuredClone(minimal);
   missing.content.system_prompt = '';
   await picker.setInputFiles({ name: 'bad-card.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(missing)) });
