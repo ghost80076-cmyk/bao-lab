@@ -1,14 +1,24 @@
-/* Author-only local JSON editor. No model calls and no automatic overwrite of the character library. */
+/* Local-only author status editor: preserve presentation on import and preview the same bindings as the player. */
 (() => {
-  if (!window.BAOChatMarkup || !window.BAOCharacterStatus) return;
+  if (!window.BAOChatMarkup || !window.BAOCharacterStatus || typeof CharacterEngine === 'undefined') return;
   const isObject = v => v && typeof v === 'object' && !Array.isArray(v);
   const keyPattern = /^[a-zA-Z0-9_-]{1,40}$/;
   const valueText = v => Array.isArray(v) ? v.join('、') : typeof v === 'boolean' ? (v ? '是' : '否') : String(v ?? '');
+  const originalNormalize = CharacterEngine.normalize;
+  if (!CharacterEngine.__baoAuthorStatusPreserved) {
+    CharacterEngine.normalize = function(raw = {}, ...args) {
+      const character = originalNormalize.call(this, raw, ...args);
+      const html = typeof raw.author_status_html === 'string' ? raw.author_status_html : raw.presentation?.author_status_html;
+      if (typeof html === 'string') character.author_status_html = html.slice(0, 100000);
+      return character;
+    };
+    CharacterEngine.__baoAuthorStatusPreserved = true;
+  }
   const definitions = card => {
     const status = card?.character_status || card?.gameplay?.character_status;
     const fields = Array.isArray(status?.fields) ? status.fields : [];
     const result = [{ key: 'time', label: '時間' }, { key: 'location', label: '地點' }, { key: 'character', label: '角色名稱' }];
-    fields.forEach(f => { if (keyPattern.test(f?.key || '') && !result.some(x => x.key === f.key)) result.push({ key: f.key, label: String(f.label || f.key) }); });
+    fields.forEach(f => { if (keyPattern.test(f?.key || '') && !result.some(x => x.key === f.key)) result.push({ key: f.key, label: String(f.label || f.key), default: f.default }); });
     return result;
   };
   const preview = (html, fields, values) => {
@@ -47,7 +57,7 @@
     panel.setAttribute('role', 'dialog'); panel.setAttribute('aria-modal', 'true'); panel.setAttribute('aria-label', '作者狀態欄欄位綁定');
     panel.style.cssText = 'width:min(900px,100%);max-height:92vh;overflow:auto;background:var(--panel,#202027);color:var(--text,#eee);padding:20px;border-radius:14px;display:grid;gap:12px';
     const heading = document.createElement('h2'); heading.textContent = '作者狀態欄 · 欄位綁定';
-    const help = document.createElement('p'); help.textContent = '匯入 BAO/LAB 角色 JSON，選擇欄位插入 HTML。預覽使用本機示例值，不會呼叫 AI；下載修改後的 JSON，再自行匯入角色庫。';
+    const help = document.createElement('p'); help.textContent = '匯入 BAO/LAB 角色 JSON，選擇欄位插入 HTML。預覽使用角色卡初始狀態，不會呼叫 AI；下載修改後的 JSON，再自行匯入角色庫。';
     const file = document.createElement('input'); file.type = 'file'; file.accept = '.json,application/json'; file.setAttribute('aria-label', '匯入角色 JSON');
     const selector = document.createElement('select'); selector.setAttribute('aria-label', '選擇世界狀態欄位');
     const insert = document.createElement('button'); insert.type = 'button'; insert.textContent = '在游標處插入欄位';
@@ -61,11 +71,14 @@
     let raw = null; let fields = definitions(null); let caret = 0;
     const populate = () => { selector.replaceChildren(...fields.map(f => { const option = document.createElement('option'); option.value = f.key; option.textContent = `${f.label} (${f.key})`; return option; })); };
     const update = () => {
-      const values = Object.fromEntries(fields.map(f => [f.key, f.key === 'time' ? '第 1 天 08:00' : f.key === 'location' ? '城鎮' : f.key === 'character' ? (raw?.meta?.name || raw?.name || '角色') : '示例值']));
+      const initial = raw?.initial_state || raw?.gameplay?.initial_state || {};
+      const name = raw?.meta?.name || raw?.name || '角色';
+      const status = initial.character_statuses?.[name] || {};
+      const values = Object.fromEntries(fields.map(f => [f.key, f.key === 'time' ? initial.time ?? '未設定' : f.key === 'location' ? initial.location ?? '未設定' : f.key === 'character' ? name : status[f.key] ?? f.default ?? '—']));
       const unknown = [...editor.value.matchAll(/{{\s*([^{}]+?)\s*}}/g)].map(m => m[1].trim()).filter(k => !fields.some(f => f.key === k));
-      issues.textContent = unknown.length ? `找不到欄位：${[...new Set(unknown)].join('、')}。請從選單插入，或檢查角色卡欄位定義。` : raw ? '欄位名稱檢查通過；預覽為示例值，實際遊戲會讀取世界狀態。' : '請先匯入角色 JSON；目前只顯示內建欄位示例。';
+      issues.textContent = unknown.length ? `找不到欄位：${[...new Set(unknown)].join('、')}。請從選單插入，或檢查角色卡欄位定義。` : raw ? '欄位名稱檢查通過；預覽使用初始狀態，實際遊戲會讀取當前世界狀態。' : '請先匯入角色 JSON；目前只顯示內建欄位示例。';
       output.replaceChildren(preview(editor.value, fields, values));
-      download.disabled = !raw || Boolean(unknown.length);
+      download.disabled = !raw || Boolean(unknown.length) || editor.value.length > 100000;
     };
     populate(); update();
     file.addEventListener('change', async () => {
