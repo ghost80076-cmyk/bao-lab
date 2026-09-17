@@ -1,6 +1,13 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
-  <path d="M24 6c-4 4 4 5 0 9M39 4c-4 4 4 5 0 9" stroke="#69ddd0" stroke-width="3" stroke-linecap="round"/>
-  <path d="M32 18C24 22 9 29 8 41 6 54 18 59 32 59s26-5 24-18C55 29 40 22 32 18Z" fill="#fff0d8" stroke="#d8a777" stroke-width="2.5" stroke-linejoin="round"/>
-  <path d="M32 19c-7 8-11 14-11 22m11-22v21m0-21c7 8 11 14 11 22" stroke="#d8a777" stroke-width="2.5" stroke-linecap="round"/>
-  <path d="M24 49c5 3 11 3 16 0" stroke="#76533f" stroke-width="2.5" stroke-linecap="round"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" role="img" aria-label="BAO/LAB 星環世界核心">
+  <defs>
+    <radialGradient id="world" cx="27%" cy="20%" r="80%"><stop stop-color="#e9c9f9"/><stop offset=".32" stop-color="#8d77c4"/><stop offset=".72" stop-color="#343052"/><stop offset="1" stop-color="#16172b"/></radialGradient>
+    <linearGradient id="orbit" x1="3" y1="42" x2="61" y2="20"><stop stop-color="#d6bdfc"/><stop offset=".5" stop-color="#fff4de"/><stop offset="1" stop-color="#9b86d5"/></linearGradient>
+  </defs>
+  <circle cx="32" cy="32" r="31" fill="#151524"/>
+  <circle cx="32" cy="32" r="20" fill="url(#world)"/>
+  <ellipse cx="32" cy="32" rx="29" ry="11" transform="rotate(-23 32 32)" stroke="url(#orbit)" stroke-width="2.3"/>
+  <circle cx="11" cy="42" r="3" fill="#ffe9d4"/>
+  <circle cx="54" cy="23" r="2.6" fill="#f4def9"/>
+  <path d="M32 19c1.7 8.5 4.5 11.3 13 13-8.5 1.7-11.3 4.5-13 13-1.7-8.5-4.5-11.3-13-13 8.5-1.7 11.3-4.5 13-13Z" fill="#fff3e5"/>
+  <circle cx="32" cy="32" r="2.2" fill="#fff"/>
 </svg>

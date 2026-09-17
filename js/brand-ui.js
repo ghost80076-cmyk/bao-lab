@@ -1,10 +1,16 @@
 (() => {
+  const DISCORD_INVITE = "https://discord.gg/Mdvn2hdwe";
+  const DISCORD_ICON = '<img src="assets/discord-mark.svg" width="21" height="21" alt="">';
+  const discordLink = (label, className = "brand-discord-cta") => `<a class="${className}" href="${DISCORD_INVITE}" target="_blank" rel="noopener noreferrer" aria-label="${label}（另開 Discord 邀請連結）">${DISCORD_ICON}<span>${label}</span></a>`;
+
   const ensureStyles = () => {
-    if (document.querySelector('link[href="css/brand-home.css"]')) return;
-    const link = document.createElement("link");
-    link.rel = "stylesheet";
-    link.href = "css/brand-home.css";
-    document.head.appendChild(link);
+    ["css/brand-home.css", "css/brand-community.css"].forEach(href => {
+      if (document.querySelector(`link[href="${href}"]`)) return;
+      const link = document.createElement("link");
+      link.rel = "stylesheet";
+      link.href = href;
+      document.head.appendChild(link);
+    });
   };
 
   const setNavLabel = (view, text) => {
@@ -18,7 +24,7 @@
     home.innerHTML = `
       <section class="brand-hero">
         <div class="brand-hero-copy">
-          <div class="brand-signature"><img src="assets/bao-mark.svg" width="64" height="64" alt=""><span>BAO/LAB<small>肉包的故事實驗室</small></span></div>
+          <div class="brand-signature"><img src="assets/bao-mark.svg" width="64" height="64" alt=""><span>BAO/LAB<small>班長的故事實驗室</small></span></div>
           <div class="brand-kicker">CHARACTERS · WORLDS · EXPERIMENTS</div>
           <h1>班長。</h1>
           <p class="brand-intro">寫角色，也寫世界。</p>
@@ -26,11 +32,13 @@
           <p class="brand-principles">故事保存在此裝置 · 自備 API 與模型 · 不需註冊帳號</p>
           <div class="brand-actions">
             <button class="primary" data-view="explore">探索作品</button>
+            ${discordLink("加入官方 Discord", "secondary brand-discord-cta")}
             <button class="secondary" data-view="about">關於我</button>
             <button id="home-continue" class="secondary hidden">繼續上次故事</button>
           </div>
         </div>
-        <aside class="brand-status-card">
+        <aside class="brand-status-card brand-identity-card">
+          <img class="brand-world-art" src="assets/bao-world-core.webp" width="256" height="256" alt="BAO/LAB 世界核心：紫色星球、環繞軌道與中央微光">
           <span class="status-dot"></span>
           <div class="brand-status-title">SYSTEM READY</div>
           <dl>
@@ -59,6 +67,10 @@
         <h2 id="brand-api-guide-title">第一次使用 API？從這裡開始。</h2>
         <p>不需要懂程式。跟著教學了解 API Key、申請 OpenRouter 或 Gemini，再回到 BAO/LAB 開始故事。模型費用與免費額度以服務商公告為準。</p>
         <a class="primary" href="api-guide.html" style="display:inline-block;text-decoration:none;padding:10px 18px;border-radius:10px">查看 API 新手教學 ↗</a>
+      </section>
+      <section class="brand-contact" aria-labelledby="brand-contact-title">
+        <div><div class="brand-kicker">COMMUNITY & CONTACT</div><h2 id="brand-contact-title">聯絡我們</h2><p>使用問題、錯誤回報、功能建議或角色卡交流，歡迎加入 BAO/LAB 官方 Discord。請勿在公開頻道張貼 API Key 或個人資料。</p></div>
+        ${discordLink("加入官方 Discord")}
       </section>`;
 
     home.querySelectorAll("[data-view]").forEach(btn => btn.addEventListener("click", () => App.showView(btn.dataset.view)));
@@ -86,7 +98,45 @@
           <div><span>LunaTalk</span><b>肉包</b></div>
           <div><span>在做的東西</span><b>角色卡 / 世界模擬 / 長篇敘事 / HTML 互動</b></div>
         </div>
+        <section class="brand-contact brand-contact-about" id="contact" aria-labelledby="about-contact-title">
+          <div><div class="brand-kicker">CONTACT</div><h3 id="about-contact-title">聯絡我們</h3><p>加入 BAO/LAB 官方 Discord，提出功能建議、回報問題或交流創作。請不要公開 API Key、密碼或私人資料。</p></div>
+          ${discordLink("前往官方 Discord")}
+        </section>
       </section>`;
+  };
+
+  const renderCommunityNavigation = () => {
+    const nav = document.querySelector(".topbar nav");
+    if (nav && !document.getElementById("bao-discord-nav")) {
+      const link = document.createElement("a");
+      link.id = "bao-discord-nav";
+      link.className = "brand-discord-nav";
+      link.href = DISCORD_INVITE;
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      link.setAttribute("aria-label", "加入 BAO/LAB 官方 Discord（另開分頁）");
+      link.innerHTML = `${DISCORD_ICON}<span>Discord</span>`;
+      nav.querySelector('[data-view="about"]')?.before(link);
+      if (!link.isConnected) nav.appendChild(link);
+    }
+    if (nav && !document.getElementById("bao-contact-nav")) {
+      const contact = document.createElement("button");
+      contact.id = "bao-contact-nav";
+      contact.type = "button";
+      contact.textContent = "聯絡我們";
+      contact.addEventListener("click", () => {
+        App.showView("about");
+        document.getElementById("contact")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+      nav.appendChild(contact);
+    }
+    const footer = document.querySelector(".app-shell > footer");
+    if (footer && !document.getElementById("bao-contact-footer")) {
+      const contact = document.createElement("span");
+      contact.id = "bao-contact-footer";
+      contact.innerHTML = `聯絡我們：${discordLink("官方 Discord", "brand-footer-discord")}`;
+      footer.appendChild(contact);
+    }
   };
 
   const renderSupport = () => {
@@ -120,6 +170,7 @@
       setNavLabel("about", "關於我");
       renderHome();
       renderAbout();
+      renderCommunityNavigation();
       renderAPISetupGuide();
       renderSupport();
     }, 60);

@@ -1,0 +1,22 @@
+/* BAO/LAB world-core identity and official Discord contact surfaces. */
+.brand-identity-card{overflow:hidden;position:relative}
+.brand-world-art{display:block;width:min(100%,256px);height:auto;aspect-ratio:1;margin:0 auto 16px;border-radius:50%;object-fit:contain;filter:drop-shadow(0 8px 28px rgba(177,135,249,.13))}
+.brand-discord-nav,.brand-discord-cta,.brand-footer-discord{display:inline-flex;align-items:center;justify-content:center;gap:9px;text-decoration:none;white-space:nowrap}
+.brand-discord-nav img,.brand-discord-cta img,.brand-footer-discord img{display:inline-block;flex:none;width:21px;height:21px}
+.brand-discord-nav{color:#e1dafe!important;font-weight:700}
+.brand-discord-nav:hover,.brand-discord-nav:focus-visible{color:#fff!important;background:#33304c!important}
+.brand-discord-cta{padding:11px 18px;border-radius:11px;border:1px solid #7770a8;color:#f3efff;background:linear-gradient(120deg,#373152,#28283c);font-weight:700;line-height:1.5;transition:background .2s,border-color .2s}
+.brand-discord-cta:hover,.brand-discord-cta:focus-visible{color:#fff;background:#4c4270;border-color:#b2a1ec}
+.brand-actions>.brand-discord-cta{min-height:42px}
+.brand-contact{display:flex;align-items:center;justify-content:space-between;gap:22px;padding:clamp(20px,4vw,32px);margin:24px 0 42px;border-radius:18px;border:1px solid #49445f;background:linear-gradient(125deg,#242034,#171821)}
+.brand-contact h2,.brand-contact h3{margin:8px 0 12px;font-size:clamp(24px,3vw,32px)}
+.brand-contact p{color:#c6bfd7;max-width:58ch;margin:0;line-height:1.8}
+.brand-contact>.brand-discord-cta{flex:none}
+.brand-contact-about{margin:30px 0 0}
+#bao-contact-footer{display:inline-flex;align-items:center;gap:7px;flex-wrap:wrap}
+.brand-footer-discord{color:#c5b9fc!important}
+.brand-footer-discord:hover{text-decoration:underline}
+.brand-footer-discord img{width:18px;height:18px}
+@media(max-width:900px){.brand-contact{align-items:flex-start;flex-direction:column}.brand-identity-card{max-width:560px;width:100%;margin:auto}}
+@media(max-width:560px){.brand-world-art{width:min(72%,220px)}.brand-contact{padding:20px}.brand-discord-cta{white-space:normal}.brand-actions>.brand-discord-cta{width:auto}.brand-contact>.brand-discord-cta{width:100%}.brand-discord-nav img{width:19px;height:19px}}
+@media(prefers-reduced-motion:reduce){.brand-discord-cta{transition:none}}
