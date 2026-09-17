@@ -116,4 +116,18 @@
     script.onerror = () => console.warn('BAO/LAB scene HTML controls failed to load');
     document.head.appendChild(script);
   }
+  // The editor uses the same sanitizer as the player view and only loads after
+  // the world-state field definitions become available.
+  const loadBindingEditor = () => {
+    if (!window.BAOCharacterStatus || document.querySelector('script[src="js/author-status-binding.js"]')) return Boolean(window.BAOCharacterStatus);
+    const script = document.createElement('script');
+    script.src = 'js/author-status-binding.js';
+    script.onerror = () => console.warn('BAO/LAB author status binding editor failed to load');
+    document.head.appendChild(script);
+    return true;
+  };
+  if (!loadBindingEditor()) {
+    let attempts = 0;
+    const timer = setInterval(() => { if (loadBindingEditor() || ++attempts >= 60) clearInterval(timer); }, 150);
+  }
 })();
