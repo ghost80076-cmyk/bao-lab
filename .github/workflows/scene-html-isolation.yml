@@ -16,3 +16,5 @@ jobs:
           node-version: '22'
       - name: Check scene startup and author template isolation
         run: node tests/scene-html-request-isolation.cjs
+      - name: Check smart memory request isolation
+        run: node tests/scene-html-memory-isolation.cjs
