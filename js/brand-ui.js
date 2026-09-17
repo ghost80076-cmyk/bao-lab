@@ -46,6 +46,12 @@
         <article><span>02</span><h3>世界</h3><p>故事不一定只繞著玩家轉。NPC、事件與關係也可以有自己的變化。</p></article>
         <article><span>03</span><h3>互動</h3><p>除了文字，也嘗試把狀態、人物、事件與各種玩法做進互動介面。</p></article>
         <article><span>04</span><h3>BYOK</h3><p>使用自己的 API 與模型。故事保存在自己的裝置，模型選擇權留給玩家。</p></article>
+      </section>
+      <section class="brand-api-guide" aria-labelledby="brand-api-guide-title" style="margin:24px 0;padding:24px;border:1px solid #444653;border-radius:18px;background:#1c1e27">
+        <div class="brand-kicker">NEW PLAYER GUIDE</div>
+        <h2 id="brand-api-guide-title">第一次使用 API？從這裡開始。</h2>
+        <p>不需要懂程式。跟著教學了解 API Key、申請 OpenRouter 或 Gemini，再回到 BAO/LAB 開始故事。模型費用與免費額度以服務商公告為準。</p>
+        <a class="primary" href="api-guide.html" style="display:inline-block;text-decoration:none;padding:10px 18px;border-radius:10px">查看 API 新手教學 ↗</a>
       </section>`;
 
     home.querySelectorAll("[data-view]").forEach(btn => btn.addEventListener("click", () => App.showView(btn.dataset.view)));
@@ -88,6 +94,17 @@
     document.body.appendChild(a);
   };
 
+  const renderAPISetupGuide = () => {
+    const step = document.querySelector('[data-step-panel="4"]');
+    if (!step || document.getElementById("builder-api-guide")) return;
+    const box = document.createElement("div");
+    box.id = "builder-api-guide";
+    box.className = "note";
+    box.style.cssText = "margin:12px 0 18px;padding:14px 16px;border:1px solid #555763;border-radius:12px";
+    box.innerHTML = '<strong>第一次使用 API？</strong> 還沒有 Key 也沒關係，先看申請教學，再回來完成設定。<br><a href="api-guide.html" target="_blank" rel="noopener noreferrer">查看 API 新手教學（另開分頁）↗</a>';
+    step.querySelector("h3")?.insertAdjacentElement("afterend", box);
+  };
+
   const initBrandUI = () => {
     ensureStyles();
     setTimeout(() => {
@@ -96,6 +113,7 @@
       setNavLabel("about", "關於我");
       renderHome();
       renderAbout();
+      renderAPISetupGuide();
       renderSupport();
     }, 60);
   };
