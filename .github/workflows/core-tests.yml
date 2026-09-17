@@ -71,6 +71,7 @@ jobs:
         run: node tests/world-state-cost-core.cjs
       - name: Prompt cache pipeline
         run: node tests/prompt-cache-core.cjs
-
+      - name: Memory request isolation and cooldown
+        run: node tests/memory-request-guard-core.cjs
       - name: Helper context isolation and memory lifecycle
         run: node tests/helper-context-core.cjs
