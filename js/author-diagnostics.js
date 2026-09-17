@@ -1,33 +1,27 @@
-/* BAO/LAB author diagnostics: structural feedback and an optional keyless relay reachability probe. */
+/* BAO/LAB character structure diagnostics and keyless relay probe. */
 (() => {
   if (typeof CharacterEngine === 'undefined') return;
   const object = value => value !== null && typeof value === 'object' && !Array.isArray(value);
   const text = value => typeof value === 'string' ? value.trim() : '';
-  const esc = value => String(value ?? '').replace(/[&<>"']/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[character]));
+  const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const MAX_SIZE = 1024 * 1024;
-  const issues = [];
-  const add = (severity, path, problem, fix) => issues.push({ severity, path, problem, fix });
-  const has = (parent, name) => object(parent) && Object.prototype.hasOwnProperty.call(parent, name);
-
   function inspect(raw) {
-    issues.length = 0;
+    const issues = [];
+    const add = (severity, path, problem, fix) => issues.push({ severity, path, problem, fix });
+    const has = (parent, name) => object(parent) && Object.prototype.hasOwnProperty.call(parent, name);
     if (!object(raw)) {
       add('error', '$', '角色卡必須是單一 JSON 物件。', '請使用 BAO/LAB 基礎或進階模板；不可直接匯入故事備份或 JSON 陣列。');
-      return { importable: false, issues: issues.slice(), score: null };
+      return { importable: false, issues, score: null };
     }
     if (/^chara_card_v[23]$/.test(String(raw.spec || '')) || object(raw.data) && text(raw.data.name)) {
       add('error', '$.spec', '這是其他平台的角色卡格式。', 'BAO/LAB 尚未支援酒館角色卡自動轉換；請先轉成 BAO/LAB JSON，避免設定遺失。');
-      return { importable: false, issues: issues.slice(), score: null };
+      return { importable: false, issues, score: null };
     }
-    if (raw.schema_version && !/^1(?:\.|$)/.test(String(raw.schema_version))) {
-      add('error', '$.schema_version', '不支援這個角色卡版本。', '請使用 BAO/LAB 1.x 模板，不要直接更改版本字串來假裝相容。');
-    }
+    if (raw.schema_version && !/^1(?:\.|$)/.test(String(raw.schema_version))) add('error', '$.schema_version', '不支援這個角色卡版本。', '請使用 BAO/LAB 1.x 模板，不要直接更改版本字串來假裝相容。');
     for (const field of ['meta', 'content', 'gameplay', 'presentation']) {
       if (has(raw, field) && !object(raw[field])) add('error', '$.' + field, '資料型態必須是 JSON 物件。', '將此欄改為以 { 開頭、以 } 結尾的物件；不要使用陣列或文字。');
     }
-    if (issues.some(item => item.severity === 'error' && item.path !== '$.schema_version')) {
-      return { importable: false, issues: issues.slice(), score: null };
-    }
+    if (issues.some(item => item.severity === 'error' && item.path !== '$.schema_version')) return { importable: false, issues, score: null };
     const meta = object(raw.meta) ? raw.meta : {};
     const content = object(raw.content) ? raw.content : {};
     const gameplay = object(raw.gameplay) ? raw.gameplay : {};
@@ -87,31 +81,28 @@
     } catch {
       add('error', '$', '既有角色規格檢查無法解析此檔案。', '檢查巢狀物件、陣列與型別是否符合模板；不要直接匯入。');
     }
-    return { importable: !issues.some(item => item.severity === 'error'), issues: issues.slice(), score };
+    return { importable: !issues.some(item => item.severity === 'error'), issues, score };
   }
-
-  function parse(textValue) {
-    if (typeof textValue !== 'string') throw new Error('檔案內容必須是 UTF-8 JSON 文字。');
-    try { return JSON.parse(textValue); }
+  function parse(value) {
+    if (typeof value !== 'string') throw new Error('檔案內容必須是 UTF-8 JSON 文字。');
+    try { return JSON.parse(value); }
     catch (error) {
       const match = /position\s+(\d+)/i.exec(error.message || '');
       let location = '';
       if (match) {
-        const position = Math.min(textValue.length, Number(match[1]));
-        const prefix = textValue.slice(0, position);
+        const position = Math.min(value.length, Number(match[1]));
+        const prefix = value.slice(0, position);
         location = `（第 ${prefix.split('\n').length} 行、第 ${prefix.length - prefix.lastIndexOf('\n')} 欄附近）`;
       }
       throw new Error(`JSON 語法錯誤${location}。請檢查括號、引號及尾端多餘逗號。`);
     }
   }
-
   function reportHTML(report, name = '角色卡') {
     const errors = report.issues.filter(item => item.severity === 'error');
     const notices = report.issues.filter(item => item.severity !== 'error');
     const rows = items => items.length ? `<ul style="padding-left:20px">${items.map(item => `<li style="margin:10px 0"><code style="overflow-wrap:anywhere">${esc(item.path)}</code><br><b>${esc(item.problem)}</b><br><span>${esc(item.fix)}</span></li>`).join('')}</ul>` : '<p class="note">無。</p>';
     return `<div class="eyebrow">BAO/LAB CHARACTER STRUCTURE</div><h2 style="margin:4px 0">${esc(name)}</h2><p><b>${report.importable ? '✓ 結構可匯入' : '✕ 尚不可匯入'}</b> · ${errors.length} 項必修 · ${notices.length} 項提醒</p><p class="note">這只檢查 JSON 結構，不會呼叫 AI，也無法保證角色扮演品質。${report.score === null ? '' : `原有覆蓋度參考：${report.score}/100；不代表模型演出分數。`}</p><h3>必須修正</h3>${rows(errors)}<h3>可選改善</h3>${rows(notices)}<p class="note">模板：<a href="data/characters/character-basic-template.json" download="bao-character-basic-template.json">基礎角色</a> · <a href="data/characters/character-template.json" download="bao-character-advanced-template.json">進階世界</a></p>`;
   }
-
   function show(report, name) {
     document.getElementById('bao-character-audit-modal')?.remove();
     const wrap = document.createElement('div');
@@ -123,13 +114,14 @@
     wrap.addEventListener('click', event => { if (event.target === wrap) close(); });
     document.body.appendChild(wrap);
   }
-
   function mountAudit() {
     const button = document.querySelector('[data-character-audit]');
-    const input = button?.nextElementSibling;
+    const tools = button?.closest('.character-tools');
+    const input = tools?.querySelector('input[type="file"]:not(#import-character-file)');
     if (!button || !input || input.dataset.guidanceReady === '1') return false;
     button.textContent = '檢查角色卡結構';
     input.dataset.guidanceReady = '1';
+    input.dataset.characterAuditFile = 'true';
     input.onchange = async () => {
       const file = input.files?.[0];
       if (!file) return;
@@ -142,7 +134,6 @@
     };
     return true;
   }
-
   function validEndpoint(value) {
     try {
       const url = new URL(String(value || '').trim());
@@ -150,7 +141,6 @@
       return url;
     } catch { return null; }
   }
-
   async function probeRelay(endpoint, request = fetch) {
     const url = validEndpoint(endpoint);
     if (!url) return { reachable: false, kind: 'config', message: '請填入完整 HTTPS API 端點，不能包含帳密、查詢參數或片段。' };
@@ -168,7 +158,6 @@
         message: '瀏覽器未取得可讀回應；可能是 CORS、網路、DNS、TLS 或中轉商封鎖。不能據此判定 Key 有問題。' };
     }
   }
-
   function mountRelay() {
     const parent = document.getElementById('provider-diagnostics-box');
     if (!parent || parent.querySelector('[data-relay-probe]')) return false;
@@ -189,7 +178,6 @@
     });
     return true;
   }
-
   if (typeof document !== 'undefined' && typeof setInterval === 'function') {
     let attempts = 0;
     const timer = setInterval(() => { mountAudit(); mountRelay(); if (++attempts >= 60) clearInterval(timer); }, 150);
