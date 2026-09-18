@@ -52,4 +52,19 @@ scene.prefs.mode = 'native';
 const plain = scene.render('[SCENE:action][NARRATION]純文字[/NARRATION]');
 assert.ok(plain.includes('純文字') && !plain.includes('bao-scene-card'), 'Native mode remains plain text');
 assert.ok(app.buildSystemPrompt().includes('只輸出純文字'), 'Native mode changes model instruction');
-console.log(`PASS: ${keys.length} scene templates, escaping, fallback, status isolation and native mode`);
+
+// A scene-tagged response can contain multiple narration blocks, character
+// dialogue between them and a plain-text author appendix. None may be lost.
+const fullReply = '[SCENE:realistic]\n[NARRATION]第一幕：燈光。[/NARRATION]\n林慕晴：「請聽我說。」\n[NARRATION]第二幕：雨聲。[/NARRATION]\n林慕晴：「接著呢？」\n[NARRATION]第三幕：門開了。[/NARRATION]\n---\n**當前世界狀態**：總裁辦公室';
+scene.prefs.mode = 'efficient';
+const fullScene = scene.render(fullReply);
+for (const passage of ['第一幕：燈光。', '林慕晴：「請聽我說。」', '第二幕：雨聲。', '林慕晴：「接著呢？」', '第三幕：門開了。', '當前世界狀態', '總裁辦公室']) {
+  assert.ok(fullScene.includes(passage), `Efficient scene must retain ${passage}`);
+}
+assert.equal((fullScene.match(/第一幕/g) || []).length, 1, 'Scene must not duplicate text');
+assert.ok(!fullScene.includes('[NARRATION]') && !fullScene.includes('[SCENE:'), 'Presentation strips structural tags');
+scene.prefs.mode = 'native';
+for (const passage of ['第一幕：燈光。', '第二幕：雨聲。', '第三幕：門開了。', '總裁辦公室']) {
+  assert.ok(scene.render(fullReply).includes(passage), `Native view must retain ${passage}`);
+}
+console.log(`PASS: ${keys.length} scene templates, escaping, fallback, status isolation, full multi-block story and native mode`);
