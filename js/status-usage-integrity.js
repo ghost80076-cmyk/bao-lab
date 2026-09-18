@@ -49,15 +49,18 @@
       .forEach(message => registerNamedNPCs(message.content));
   };
 
-  // Identify named NPCs explicitly mentioned in the supplied story. The tracker
-  // must not invent names or treat the world template's title as a character.
+  // This outermost wrapper corrects the inner tracker call's blanket 1200-token
+  // clamp. Respect a player's smaller configured output limit, and cap at 2400
+  // for predictable helper costs. It never changes main-story requests.
   const rawSend = API.send.bind(API);
   API.send = function(config, messages) {
     if (!config?.__stateTask) return rawSend(config, messages);
     const extra = '人物建檔：如果故事回覆明確出現具名 NPC（例如「姓名：台詞」），而目前 npcs 清單尚未有此人，請在 npcs 回傳其真實姓名與有據可查的資訊；不要把角色卡／世界模板名稱當成 NPC，也不要杜撰姓名、數值或玩家心理。新 NPC 的 character_statuses 只填本輪能證實有變動的欄位；未知欄位沿用預設。';
     const updated = (messages || []).map((message, index) => index === 0 && message.role === 'system'
       ? { ...message, content: `${message.content}\n${extra}` } : message);
-    return rawSend(config, updated);
+    const configuredLimit = Number(App.config?.api?.maxOutputTokens);
+    const maxOutputTokens = Math.min(Number.isFinite(configuredLimit) && configuredLimit > 0 ? configuredLimit : 2400, 2400);
+    return rawSend({ ...config, maxOutputTokens }, updated);
   };
 
   const renderStatusNotice = () => {
