@@ -89,7 +89,7 @@ window.addEventListener("DOMContentLoaded", () => {
       box.querySelectorAll("[data-export-slot]").forEach(b => b.onclick = () => Storage.exportSave(Storage.getSlot(b.dataset.exportSlot)));
       box.querySelectorAll("[data-delete-slot]").forEach(b => b.onclick = () => {
         const s = Storage.getSlot(b.dataset.deleteSlot);
-        if (s && confirm(`確定刪除「${s.label || "未命名存檔"}」？`)) { Storage.deleteSlot(s.dataset.deleteSlot); renderSlots(); }
+        if (s && confirm(`確定刪除「${s.label || "未命名存檔"}」？`)) { Storage.deleteSlot(b.dataset.deleteSlot); renderSlots(); }
       });
     };
 
