@@ -1,12 +1,11 @@
-/* UI and request diagnostics only. Never persist API keys, generate story text, or infer NPC state. */
+/* UI and request diagnostics only. Never persist API keys or invent NPC state. */
 (() => {
   'use strict';
   if (!window.App || !window.GameState || !window.BAOCharacterStatus || !window.WorldStateEngine || !window.Chat || !window.API || window.BAOStatusUsageIntegrity) return;
   const worldTemplateName = () => App.activeCharacter?.id === 'autonomous-npc-world' ? String(App.activeCharacter.name || '') : '';
-  const escape = value => App.escapeHTML(String(value ?? ''));
 
   // The world engine is a template, not a fictional NPC. Do not send its default
-  // health/relationship meters as the status of a person in the tracking request.
+  // meters as the status of a person in the tracking request.
   const snapshot = BAOCharacterStatus.snapshotForTracker.bind(BAOCharacterStatus);
   BAOCharacterStatus.snapshotForTracker = (...args) => {
     const result = snapshot(...args);
@@ -24,6 +23,30 @@
       names: (result.names || []).filter(name => name !== template),
       text: String(result.text || '').split('\n').filter(line => !line.startsWith(`${template}：`)).join('\n')
     };
+  };
+
+  // Only a speaker label in an actual saved assistant turn is enough to
+  // establish a named NPC. A name alone cannot establish their health/mood.
+  const registerNamedNPCs = text => {
+    if (!worldTemplateName() || !GameState.current || !GameState.upsertNPC) return 0;
+    const excluded = new Set([
+      worldTemplateName(), App.config?.persona?.name, '玩家', '旁白', '系統', '狀態', '時間', '地點', '世界', '世界狀態', '主要角色', '當前NPC', 'NPC'
+    ].filter(Boolean));
+    const pattern = /(?:^|\n)\s*(?:\[(?:\/)?NARRATION\]\s*)?([\p{Script=Han}]{2,6})\s*[：:]\s*[「『]/gu;
+    let found = 0;
+    for (const match of String(text || '').matchAll(pattern)) {
+      const name = match[1];
+      if (excluded.has(name) || (GameState.current.npcs || []).some(npc => npc.name === name)) continue;
+      GameState.upsertNPC({ name, role: 'NPC' });
+      found += 1;
+      if (found >= 8) break;
+    }
+    return found;
+  };
+  const registerFromHistory = () => {
+    if (!worldTemplateName()) return;
+    (Chat.messages || []).filter(message => message?.role === 'assistant').slice(-12)
+      .forEach(message => registerNamedNPCs(message.content));
   };
 
   // Identify named NPCs explicitly mentioned in the supplied story. The tracker
@@ -72,8 +95,7 @@
     return result;
   };
 
-  // A streaming gateway may omit usage entirely. Do not display absent usage as
-  // an actual zero, or infer an exact bill from incomplete counters.
+  // A streaming gateway may omit usage entirely. Never imply unknown = 0.
   let missingReports = 0;
   const oldAddUsage = Chat.addUsage.bind(Chat);
   Chat.addUsage = function(usage = {}) {
@@ -118,8 +140,15 @@
   Chat.renderUsage = function(...args) { const result = oldRenderUsage(...args); decorateUsage(); return result; };
   const oldTurnUsage = Chat.renderTurnUsage.bind(Chat);
   Chat.renderTurnUsage = function(...args) { const result = oldTurnUsage(...args); decorateUsage(); return result; };
+  const oldReset = Chat.reset.bind(Chat);
+  Chat.reset = function(...args) { missingReports = 0; const result = oldReset(...args); decorateUsage(); return result; };
   const oldShell = App.renderChatShell.bind(App);
-  App.renderChatShell = function(...args) { const result = oldShell(...args); decorateUsage(); return result; };
-  window.BAOStatusUsageIntegrity = { renderStatusNotice, decorateUsage };
+  App.renderChatShell = function(...args) {
+    registerFromHistory();
+    const result = oldShell(...args);
+    decorateUsage();
+    return result;
+  };
+  window.BAOStatusUsageIntegrity = { registerNamedNPCs, registerFromHistory, renderStatusNotice, decorateUsage };
   decorateUsage();
 })();
