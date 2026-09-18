@@ -51,9 +51,11 @@
     if (prefs.mode === 'native') return App.formatMessage(plain(body));
     if (prefs.mode === 'free') return window.BAOChatMarkup.sanitize(body);
     const scene = text.match(/\[SCENE:([a-z-]+)\]/i)?.[1]?.toLowerCase();
-    const narration = text.match(/\[NARRATION\]([\s\S]*?)\[\/NARRATION\]/i)?.[1];
-    if (scene && Object.prototype.hasOwnProperty.call(sceneTemplates, scene) && narration !== undefined) {
-      return renderScene(scene, narration);
+    // An assistant turn may contain several [NARRATION] blocks separated by
+    // dialogue, choices, and an authored world-status appendix. Rendering only
+    // the first regex match silently discards most of that committed reply.
+    if (scene && Object.prototype.hasOwnProperty.call(sceneTemplates, scene) && /\[NARRATION\]/i.test(text)) {
+      return renderScene(scene, body); // Same full cleaned source in every reading mode.
     }
     // Preserve already-authored safe HTML. Turning it into textContent destroys
     // paragraphs and can make the committed story read differently from the stream.
