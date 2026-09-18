@@ -35,11 +35,23 @@
         this.saveStory(false);
       };
       App.__worldStateHooked = true;
-      if (!window.BAOStatusUsageIntegrity && !document.querySelector('script[src="js/status-usage-integrity.js"]')) {
+      const loadNativePack = () => {
+        if (window.BAONativeStatusPacks || document.querySelector('script[src="js/native-status-packs.js"]')) return;
         const script = document.createElement('script');
-        script.src = 'js/status-usage-integrity.js';
-        script.onerror = () => console.warn('BAO/LAB status and usage diagnostics did not load');
+        script.src = 'js/native-status-packs.js';
+        script.onerror = () => console.warn('BAO/LAB native status packs did not load');
         document.head.appendChild(script);
+      };
+      if (window.BAOStatusUsageIntegrity) loadNativePack();
+      else {
+        let script = document.querySelector('script[src="js/status-usage-integrity.js"]');
+        if (!script) {
+          script = document.createElement('script');
+          script.src = 'js/status-usage-integrity.js';
+          script.onerror = () => console.warn('BAO/LAB status and usage diagnostics did not load');
+          document.head.appendChild(script);
+        }
+        script.addEventListener('load', loadNativePack, { once: true });
       }
     }, 0);
   };
