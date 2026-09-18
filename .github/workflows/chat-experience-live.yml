@@ -1,0 +1,46 @@
+name: Chat experience deploy verification
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check-chat-experience:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout current code
+        uses: actions/checkout@v4
+      - name: Test status parser and JavaScript syntax
+        run: |
+          node --check js/chat-presentation-core.js
+          node --check js/chat-experience.js
+          node --check js/chat-shell-fix.js
+          node tests/chat-presentation-core.cjs
+      - name: Verify the new chat assets are on live Pages
+        shell: bash
+        env:
+          SITE_URL: https://ghost80076-cmyk.github.io/bao-lab/
+        run: |
+          set -euo pipefail
+          for attempt in $(seq 1 48); do
+            shell="$(curl --fail --silent --location --max-time 12 -H 'Cache-Control: no-cache' "${SITE_URL}js/chat-shell-fix.js?sha=${GITHUB_SHA}" || true)"
+            core="$(curl --fail --silent --location --max-time 12 -H 'Cache-Control: no-cache' "${SITE_URL}js/chat-presentation-core.js?sha=${GITHUB_SHA}" || true)"
+            script="$(curl --fail --silent --location --max-time 12 -H 'Cache-Control: no-cache' "${SITE_URL}js/chat-experience.js?sha=${GITHUB_SHA}" || true)"
+            styles="$(curl --fail --silent --location --max-time 12 -H 'Cache-Control: no-cache' "${SITE_URL}css/chat-experience.css?sha=${GITHUB_SHA}" || true)"
+            if grep -Fq "load('js/chat-experience.js')" <<<"${shell}" \
+              && grep -Fq 'BAOChatPresentationCore' <<<"${core}" \
+              && grep -Fq 'BAOChatExperience' <<<"${script}" \
+              && grep -Fq '.bao-status-rail' <<<"${styles}"; then
+              printf 'Verified new reading layout, parser and loader on public Pages (attempt %s).\n' "${attempt}"
+              exit 0
+            fi
+            printf 'Waiting for the deployed chat assets (%s/48)...\n' "${attempt}"
+            sleep 5
+          done
+          echo 'Live Pages did not expose all of the new chat assets.' >&2
+          exit 1
