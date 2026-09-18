@@ -64,8 +64,9 @@
     return patch;
   };
 
-  // Resume: recover only missing fields from the newest committed assistant
-  // messages. Never replace a saved, established value with an older appendix.
+  // Resume: recover only missing fields from newest saved assistant turns,
+  // then the opening greeting. A greeting bubble is not in Chat.messages;
+  // never overwrite newer or established state with that older content.
   const recoverExplicitScene = () => {
     const owner = window.GameState?.current;
     if (!owner || (!unknown(owner.time) && !unknown(owner.location))) return false;
@@ -74,6 +75,9 @@
       if (!unknown(owner.time) && !unknown(owner.location)) break;
       if (message?.role !== 'assistant') continue;
       changed = Boolean(syncExplicitScene(message.content, true)) || changed;
+    }
+    if (unknown(owner.time) || unknown(owner.location)) {
+      changed = Boolean(syncExplicitScene(window.App?.activeCharacter?.greeting, true)) || changed;
     }
     return changed;
   };
