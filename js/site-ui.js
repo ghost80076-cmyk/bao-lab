@@ -47,6 +47,7 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/story-branches.js"))
     .then(() => loadBAOScript("js/streaming-ui.js"))
     .then(() => loadBAOScript("js/request-lifecycle.js"))
+    .then(() => loadBAOScript("js/chat-tool-navigation.js"))
     .catch(err => console.warn("BAO/LAB local preview, narrative settings, memory workbench, story tools, story library, story reader or chat markup failed to load:", err));
   loadBAOScript("js/character-readiness.js")
     .then(() => loadBAOScript("js/character-import-upgrade.js"))
@@ -88,7 +89,7 @@ window.addEventListener("DOMContentLoaded", () => {
       box.querySelectorAll("[data-export-slot]").forEach(b => b.onclick = () => Storage.exportSave(Storage.getSlot(b.dataset.exportSlot)));
       box.querySelectorAll("[data-delete-slot]").forEach(b => b.onclick = () => {
         const s = Storage.getSlot(b.dataset.deleteSlot);
-        if (s && confirm(`確定刪除「${s.label || "未命名存檔"}」？`)) { Storage.deleteSlot(b.dataset.deleteSlot); renderSlots(); }
+        if (s && confirm(`確定刪除「${s.label || "未命名存檔"}」？`)) { Storage.deleteSlot(s.dataset.deleteSlot); renderSlots(); }
       });
     };
 
