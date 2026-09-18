@@ -1,0 +1,25 @@
+name: LM Studio local provider
+on:
+  push:
+    branches: [main, feat/lm-studio-local-provider]
+  pull_request:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  local-provider:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax and local transport contract
+        run: |
+          node --check js/lm-studio-core.js
+          node --check js/lm-studio.js
+          node --check js/helper-api-routing.js
+          node tests/lm-studio-core.cjs
+      - name: Verify guide and script loading
+        run: |
+          node -e "const fs=require('node:fs');const load=fs.readFileSync('js/helper-api-routing.js','utf8');const guide=fs.readFileSync('lm-studio-guide.html','utf8'); if(!load.includes('js/lm-studio-core.js')||!load.includes('js/lm-studio.js')||!guide.includes('Enable CORS'))process.exit(1)"

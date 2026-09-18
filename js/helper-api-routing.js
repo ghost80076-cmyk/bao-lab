@@ -31,3 +31,18 @@
   };
   API.__helperRoutePatched = true;
 })();
+
+// Load local support after the existing routing wrappers; neither module starts a server.
+(() => {
+  const load = src => new Promise((resolve, reject) => {
+    const existing = document.querySelector(`script[src="${src}"]`);
+    if (existing) { resolve(); return; }
+    const script = document.createElement('script');
+    script.src = src;
+    script.onload = resolve;
+    script.onerror = reject;
+    document.head.appendChild(script);
+  });
+  load('js/lm-studio-core.js').then(() => load('js/lm-studio.js'))
+    .catch(error => console.warn('BAO/LAB LM Studio local provider did not load:', error));
+})();
