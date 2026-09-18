@@ -9,6 +9,7 @@ for (const width of [390, 1440]) {
     await page.evaluate(() => {
       // Reproduce generateInspirations: the old busy toolbar was detached by
       // decorateStream, leaving its .message with pointer-events:none.
+      App.showView('chat');
       const stream = document.getElementById('chat-stream');
       const message = document.createElement('div');
       message.className = 'message assistant story-busy';
