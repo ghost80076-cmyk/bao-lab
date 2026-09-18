@@ -14,7 +14,7 @@ const chat = {
 };
 const app = {
   activeCharacter: { id: 'autonomous-npc-world', name: title },
-  config: { cost: {}, persona: { name: '未命名玩家' } },
+  config: { api: { maxOutputTokens: 4096 }, cost: {}, persona: { name: '未命名玩家' } },
   escapeHTML: value => value,
   renderUIPanel: () => {}, renderChatShell: () => {}
 };
@@ -42,10 +42,14 @@ assert.equal(newNames, 1, 'only an explicit NPC speaker should be registered');
 assert.deepEqual(state.npcs.map(npc => npc.name), ['林慕晴']);
 assert.equal(sandbox.BAOStatusUsageIntegrity.registerNamedNPCs('林慕晴：「又見面了」'), 0, 'repeated dialogue must not create duplicate NPCs');
 (async () => {
-  await sandbox.API.send({ __stateTask: true }, [{ role: 'system', content: '只做狀態整理' }, { role: 'user', content: '林慕晴：你好' }]);
+  await sandbox.API.send({ __stateTask: true, maxOutputTokens: 1200 }, [{ role: 'system', content: '只做狀態整理' }, { role: 'user', content: '林慕晴：你好' }]);
   assert.match(calls[0].messages[0].content, /具名 NPC/);
   assert.match(calls[0].messages[0].content, /不要把角色卡／世界模板名稱當成 NPC/);
+  assert.equal(calls[0].config.maxOutputTokens, 2400, 'state tracker must bypass the inner 1200-token clamp');
+  app.config.api.maxOutputTokens = 900;
+  await sandbox.API.send({ __stateTask: true, maxOutputTokens: 900 }, [{ role: 'system', content: '只做狀態整理' }]);
+  assert.equal(calls[1].config.maxOutputTokens, 900, 'player-selected smaller limit must be respected');
   await sandbox.API.send({}, [{ role: 'user', content: '正常回覆' }]);
-  assert.equal(calls[1].messages[0].content, '正常回覆', 'ordinary story payload must remain unchanged');
+  assert.equal(calls[2].messages[0].content, '正常回覆', 'ordinary story payload must remain unchanged');
   console.log('status usage integrity core test passed');
 })().catch(error => { console.error(error); process.exitCode = 1; });
