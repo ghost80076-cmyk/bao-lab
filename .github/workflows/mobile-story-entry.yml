@@ -1,0 +1,25 @@
+name: Mobile story entry
+
+on:
+  push:
+    branches: [fix/mobile-story-entry-20260919]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  mobile-entry:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Verify mobile step-five start and both resume buttons
+        run: npm run test:e2e -- tests/e2e/mobile-story-entry.spec.cjs --project=chromium
