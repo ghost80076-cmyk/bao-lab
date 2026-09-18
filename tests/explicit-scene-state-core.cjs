@@ -50,6 +50,7 @@ const config = { narrativeMode: 'world', api: { key: 'mock-only' }, cost: { stat
     { role: 'user', content: '繼續' },
     { role: 'assistant', content: metadata }
   ];
+  App.activeCharacter = { greeting: earlier };
   assert.equal(App.renderChatShell(), 'rendered');
   await Promise.resolve();
   assert.equal(GameState.current.time, '22:14（深夜）');
@@ -58,14 +59,27 @@ const config = { narrativeMode: 'world', api: { key: 'mock-only' }, cost: { stat
   App.renderChatShell();
   await Promise.resolve();
   assert.equal(saves, 1, 'repeated redraw must not rewrite the save again');
-  console.log('PASS: existing stories recover newest explicit fields once and persist them');
+  console.log('PASS: saved turns take priority over older opening greeting');
+
+  GameState.current = { time: '未設定', location: '未設定' };
+  Chat.messages = [];
+  App.activeCharacter = { greeting: metadata };
+  App.renderChatShell();
+  await Promise.resolve();
+  assert.equal(GameState.current.time, '22:14（深夜）');
+  assert.equal(GameState.current.location, '下層區・灰網巷（老周麵館後方）');
+  assert.equal(saves, 2, 'greeting-only recovery should be saved once');
+  App.renderChatShell();
+  await Promise.resolve();
+  assert.equal(saves, 2);
+  console.log('PASS: greeting-only stories recover scene details without API');
 
   GameState.current = { time: '23:00', location: '新碼頭' };
   App.renderChatShell();
   await Promise.resolve();
   assert.equal(GameState.current.time, '23:00');
   assert.equal(GameState.current.location, '新碼頭');
-  assert.equal(saves, 1);
+  assert.equal(saves, 2);
   assert.equal(helperCalls, 0);
-  console.log('PASS: established saved state is never overwritten by older dialogue');
+  console.log('PASS: established saved state is never overwritten by older text');
 })().catch(error => { console.error(error); process.exitCode = 1; });
