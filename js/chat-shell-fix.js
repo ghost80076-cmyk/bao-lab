@@ -41,3 +41,25 @@
   ensureChatHeader();
   App.__chatShellFixed = true;
 })();
+
+// Keep the presentation layer independent of story saves and provider routes.
+(() => {
+  if (!document.querySelector('link[href="css/chat-experience.css"]')) {
+    const css = document.createElement('link');
+    css.rel = 'stylesheet';
+    css.href = 'css/chat-experience.css';
+    document.head.append(css);
+  }
+  const load = src => new Promise((resolve, reject) => {
+    const existing = document.querySelector(`script[src="${src}"]`);
+    if (existing) { resolve(); return; }
+    const script = document.createElement('script');
+    script.src = src;
+    script.onload = resolve;
+    script.onerror = reject;
+    document.head.append(script);
+  });
+  load('js/chat-presentation-core.js')
+    .then(() => load('js/chat-experience.js'))
+    .catch(error => console.warn('BAO/LAB chat presentation did not load:', error));
+})();
