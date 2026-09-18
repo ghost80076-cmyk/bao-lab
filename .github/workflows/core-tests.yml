@@ -31,6 +31,8 @@ jobs:
         run: node tests/author-status-binding-core.cjs
       - name: Character status core
         run: node tests/character-status-core.cjs
+      - name: Native mature status pack
+        run: node tests/native-status-packs-core.cjs
       - name: World template and usage integrity
         run: node tests/status-usage-integrity-core.cjs
       - name: Story flow core
