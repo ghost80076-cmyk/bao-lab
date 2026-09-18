@@ -52,9 +52,7 @@
   };
 
   const pretty = value => Array.isArray(value) ? value.join("、") : typeof value === "boolean" ? (value ? "是" : "否") : (value === "" || value === null || value === undefined ? "—" : String(value));
-
   const displayLabel = (field, customization) => customization.labels?.[field.key] || field.label;
-
   const visibleFields = cfg => cfg.fields.filter(field => !cfg.customization.hidden.includes(field.key));
 
   const fieldValueHTML = (field, value) => {
@@ -70,7 +68,6 @@
     const cfg = window.BAOCharacterStatus.ensureState(App.activeCharacter) || window.BAOCharacterStatus.configFor(App.activeCharacter);
     const ui = document.getElementById("ui-panel");
     if (!ui || (!cfg.enabled && !cfg.allow_player_customize)) return false;
-
     const names = [App.activeCharacter?.name, ...(GameState.current?.npcs || []).map(n => n?.name)].filter(Boolean);
     const fields = visibleFields(cfg);
     const cards = [...new Set(names)].map(name => {
@@ -81,7 +78,6 @@
       const rows = fields.map(field => `<div class="character-status-field"><small>${esc(displayLabel(field, cfg.customization))}</small>${fieldValueHTML(field, status[field.key])}</div>`).join("");
       return `<article class="character-status-card ${picked ? "context-picked" : ""}" data-character-context="${esc(name)}"><div class="character-status-head"><div><strong>${esc(name)}</strong><br><span>${esc(role)}</span></div><span>${picked ? "下一輪優先參考" : "點一下可供下一輪參考"}</span></div>${rows ? `<div class="character-status-fields">${rows}</div>` : '<div class="character-status-empty">目前沒有顯示中的狀態欄位，可從「狀態欄管理」新增。</div>'}</article>`;
     }).join("");
-
     ui.innerHTML = `<div class="character-status-toolbar"><p>角色卡預設欄位與玩家自訂欄位共同組成這份故事的實際狀態欄。</p>${cfg.allow_player_customize ? '<button type="button" class="secondary" data-character-status-settings>⚙ 狀態欄管理</button>' : ""}</div><div class="character-status-grid">${cards || '<div class="character-status-empty">目前沒有可追蹤人物。</div>'}</div>`;
     ui.querySelectorAll("[data-character-context]").forEach(card => card.addEventListener("click", event => {
       if (event.target.closest("button")) return;
@@ -112,7 +108,6 @@
     if (!base.allow_player_customize) return;
     const current = window.BAOCharacterStatus.getCustomization(App.activeCharacter);
     const draft = clone(current);
-
     document.querySelector(".status-manager-backdrop")?.remove();
     const wrap = document.createElement("div");
     wrap.className = "status-manager-backdrop";
@@ -124,35 +119,27 @@
       const rank = new Map(draft.order.map((key, index) => [key, index]));
       return all.sort((a, b) => (rank.get(a.key) ?? 999) - (rank.get(b.key) ?? 999));
     };
-
     const ensureOrder = () => {
       const keys = allDraftFields().map(field => field.key);
       draft.order = [...draft.order.filter(key => keys.includes(key)), ...keys.filter(key => !draft.order.includes(key))];
     };
-
     const addCustom = raw => {
       if (draft.customFields.length >= window.BAOCharacterStatus.MAX_CUSTOM_FIELDS) return false;
       const key = window.BAOCharacterStatus.uniqueCustomKey(raw.key || "status", App.activeCharacter, draft.customFields);
       const field = {
-        key,
-        label: String(raw.label || "新欄位").slice(0, 40),
+        key, label: String(raw.label || "新欄位").slice(0, 40),
         type: TYPE_LABELS[raw.type] ? raw.type : "text",
         context: CONTEXT_LABELS[raw.context] ? raw.context : "relevant",
-        track: raw.track !== false,
-        player_toggle: true,
-        player_rename: true,
+        track: raw.track !== false, player_toggle: true, player_rename: true,
         default: clone(raw.default ?? ""),
         min: Number.isFinite(Number(raw.min)) ? Number(raw.min) : undefined,
         max: Number.isFinite(Number(raw.max)) ? Number(raw.max) : undefined,
         description: String(raw.description || "").slice(0, 240),
-        origin: "player",
-        template_id: String(raw.template_id || "").slice(0, 40)
+        origin: "player", template_id: String(raw.template_id || "").slice(0, 40)
       };
-      draft.customFields.push(field);
-      draft.order.push(field.key);
+      draft.customFields.push(field); draft.order.push(field.key);
       return true;
     };
-
     const renderEditor = () => {
       ensureOrder();
       const fields = allDraftFields();
@@ -165,7 +152,6 @@
         const numeric = field.type === "number" || field.type === "meter";
         return `<article class="status-manager-field ${custom ? "is-custom" : "is-character"}" data-field-key="${esc(field.key)}"><div class="status-manager-field-head"><div><span class="status-origin ${custom ? "player" : "character"}">${custom ? "玩家自訂" : "角色卡預設"}</span><b>${esc(label)}</b><small>${esc(field.key)}</small></div><div class="status-manager-actions"><button type="button" data-move="up" ${index === 0 ? "disabled" : ""}>↑</button><button type="button" data-move="down" ${index === fields.length - 1 ? "disabled" : ""}>↓</button>${custom ? '<button type="button" data-delete>刪除</button>' : ""}</div></div><div class="status-manager-basic"><label class="status-visible"><input type="checkbox" data-visible ${shown ? "checked" : ""} ${!custom && !field.player_toggle ? "disabled" : ""}> 顯示</label><label>顯示名稱<input type="text" maxlength="40" data-label value="${esc(label)}" ${!custom && !field.player_rename ? "disabled" : ""}></label></div>${custom ? `<div class="status-manager-details"><label>類型<select data-custom-prop="type">${Object.entries(TYPE_LABELS).map(([key, text]) => `<option value="${key}" ${field.type === key ? "selected" : ""}>${text}</option>`).join("")}</select></label><label>初始值${defaultControl(field)}</label><label>AI 使用方式<select data-custom-prop="context">${Object.entries(CONTEXT_LABELS).map(([key, text]) => `<option value="${key}" ${field.context === key ? "selected" : ""}>${text}</option>`).join("")}</select></label>${numeric ? `<label>最小值<input type="number" step="any" data-custom-prop="min" value="${esc(field.min ?? "")}" placeholder="可留空"></label><label>最大值<input type="number" step="any" data-custom-prop="max" value="${esc(field.max ?? "")}" placeholder="可留空"></label>` : ""}<label class="status-manager-wide">給狀態 AI 的說明<textarea maxlength="240" data-custom-prop="description" placeholder="只描述可由故事證據更新的規則。">${esc(field.description)}</textarea></label><label class="status-track"><input type="checkbox" data-custom-prop="track" ${field.track ? "checked" : ""}> AI 自動追蹤</label></div>` : `<div class="status-character-summary">${esc(TYPE_LABELS[field.type])} · ${esc(CONTEXT_LABELS[field.context])} · ${field.track ? "AI 追蹤" : "不自動追蹤"}${field.description ? ` · ${esc(field.description)}` : ""}</div>`}</article>`;
       }).join("") : '<div class="character-status-empty">還沒有任何欄位，請新增或套用快速範本。</div>';
-
       editor.querySelectorAll("[data-field-key]").forEach(row => {
         const key = row.dataset.fieldKey;
         const customField = draft.customFields.find(field => field.key === key);
@@ -212,12 +198,11 @@
         });
       });
     };
-
     wrap.querySelectorAll("[data-status-template]").forEach(button => button.addEventListener("click", () => {
       const templateKey = button.dataset.statusTemplate;
       const template = TEMPLATES[templateKey];
       if (!template) return;
-      template.fields.forEach((field, index) => {
+      template.fields.forEach(field => {
         const templateId = `${templateKey}_${field.key}`;
         if (draft.customFields.some(item => item.template_id === templateId)) return;
         addCustom({ ...field, template_id: templateId });
@@ -230,7 +215,6 @@
       }
       renderEditor();
     });
-
     const close = () => wrap.remove();
     wrap.querySelector("[data-status-close]").addEventListener("click", close);
     wrap.addEventListener("click", event => { if (event.target === wrap) close(); });
@@ -238,8 +222,7 @@
       if (!confirm("確定移除目前故事的所有玩家自訂欄位與顯示調整？角色卡預設欄位會保留。")) return;
       window.BAOCharacterStatus.resetCustomization(App.activeCharacter);
       App.saveStory?.(false);
-      close();
-      renderCharactersPanel();
+      close(); renderCharactersPanel();
     });
     wrap.querySelector("[data-status-save]").addEventListener("click", () => {
       window.BAOCharacterStatus.applyCustomization(draft, App.activeCharacter);
@@ -260,7 +243,8 @@
     button.textContent = "◈ 狀態欄管理";
     button.addEventListener("click", openSettings);
     const exit = aside.querySelector(".text-button");
-    if (exit) aside.insertBefore(button, exit); else aside.appendChild(button);
+    if (exit && exit.parentElement === aside) aside.insertBefore(button, exit);
+    else aside.appendChild(button);
   };
 
   const injectBuilderSummary = () => {
