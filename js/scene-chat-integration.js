@@ -11,7 +11,7 @@
   const currentType = () => window.GameState?.current?.scenePresentation || window.GameState?.current?.sceneType || 'general';
   function paint() {
     const stream = document.getElementById('chat-stream');
-    if (!stream || !App.activeCharacter) return;
+    if (!stream || !App.activeCharacter || App.config?.offlineWorldPreview) return;
     const messages = Chat.messages.length ? Chat.messages : [{ role: 'assistant', content: App.activeCharacter.greeting || '' }];
     const nodes = [...stream.querySelectorAll(':scope > .message')];
     // Never modify a pending/streaming bubble: only render messages already committed to Chat.messages.
@@ -24,12 +24,12 @@
       const fingerprint = JSON.stringify([message.id || '', message.content, prefs.enabled, type]);
       if (bubble.dataset.sceneFingerprint === fingerprint) continue;
       if (prefs.enabled) BAOScenePresentation.render(bubble, message.content, { type });
-      else {
+      else if (bubble.dataset.sceneFingerprint) {
         bubble.replaceChildren(document.createTextNode(String(message.content || '')));
         bubble.style.cssText = 'white-space:pre-wrap;overflow-wrap:anywhere';
         delete bubble.dataset.sceneType;
         bubble.classList.remove('bao-scene-plain');
-      }
+      } else continue; // Default off: leave existing rich-message renderer untouched.
       bubble.dataset.sceneFingerprint = fingerprint;
     }
   }
