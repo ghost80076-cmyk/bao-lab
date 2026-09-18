@@ -1,0 +1,10 @@
+const assert = require('node:assert/strict');
+const { stripStatusAppendix: clean } = require('../js/chat-presentation-core.js');
+const sample = '他把電子菸收起。\n\n---\n**當前場景資訊：**\n* **時間：** 22:14（深夜）\n* **地點：** 下層區\n* **天氣：** 大雨\n\n你正站在巷口。';
+assert.equal(clean(sample), '他把電子菸收起。\n\n你正站在巷口。');
+assert.equal(clean('他說：「當前場景資訊」是暗號。'), '他說：「當前場景資訊」是暗號。');
+assert.equal(clean('**當前場景資訊：**\n* **時間：** 22:14'), '**當前場景資訊：**\n* **時間：** 22:14');
+assert.equal(clean('敘事\n[STATUS]時間：22:14[/STATUS]'), '敘事\n[STATUS]時間：22:14[/STATUS]');
+assert.equal(clean('敘事\n---\n**當前場景資訊：**\n* **時間：** 22:14\n* **地點：** 巷口\n* 這段不是狀態欄'), '敘事\n\n* 這段不是狀態欄');
+assert.equal(clean('他看見---的字樣。\n第二段'), '他看見---的字樣。\n第二段');
+console.log('PASS: six non-destructive story status appendix cases');
