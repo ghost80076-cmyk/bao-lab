@@ -25,8 +25,8 @@ async function startBYOKStory(page) {
   await page.evaluate(async () => { await Storage.flush(); });
 }
 
-for (const width of [390, 375]) {
-  test(`mobile ${width}px: step 5 starts a BYOK story and both resume entries work`, async ({ page }) => {
+for (const width of [390, 375, 1280]) {
+  test(`${width < 500 ? "mobile" : "desktop"} ${width}px: step 5 starts a BYOK story and both resume entries work`, async ({ page }) => {
     await page.setViewportSize({ width, height: 844 });
     const errors = [];
     page.on('pageerror', error => errors.push(error.message));
