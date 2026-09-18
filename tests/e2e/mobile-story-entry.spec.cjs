@@ -2,7 +2,7 @@ const { test, expect } = require('@playwright/test');
 
 async function waitForApp(page) {
   await page.goto('/');
-  await page.waitForFunction(() => window.App?.characters?.length > 0 && window.BAOChatAPISettings?.restore && window.Storage?.status()?.ready, null, { timeout: 15000 });
+  await page.waitForFunction(() => window.App?.characters?.length > 0 && window.BAOChatAPISettings?.restore && window.Storage?.status?.ready, null, { timeout: 15000 });
 }
 
 async function startBYOKStory(page) {
@@ -46,7 +46,7 @@ for (const width of [390, 375]) {
       expect(errors).toEqual([]);
     } finally {
       console.log('Mobile entry page errors:', JSON.stringify(errors));
-      console.log('Mobile entry diagnostics:', JSON.stringify(await page.evaluate(() => ({ view: document.querySelector('.view.active')?.id, storage: Storage.status(), appReady: !!App.activeCharacter, apiReady: !!window.BAOChatAPISettings, startVisible: !!document.getElementById('start-story')?.offsetParent })).catch(error => ({ diagnosticError: error.message }))));
+      console.log('Mobile entry diagnostics:', JSON.stringify(await page.evaluate(() => ({ view: document.querySelector('.view.active')?.id, storage: Storage.status, appReady: !!App.activeCharacter, apiReady: !!window.BAOChatAPISettings, startVisible: !!document.getElementById('start-story')?.offsetParent })).catch(error => ({ diagnosticError: error.message }))));
     }
   });
 }
