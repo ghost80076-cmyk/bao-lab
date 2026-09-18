@@ -17,8 +17,12 @@
     const messages = window.Chat?.messages;
     if (!stream || !Array.isArray(messages) || !messages.length) return;
     const nodes = [...stream.querySelectorAll(":scope > .message")];
-    const offset = nodes.length === messages.length + 1 && nodes[0]?.classList.contains("assistant") ? 1 : 0;
+    const offset = nodes.length === messages.length + 1 && (
+      nodes[0]?.dataset.storyGreeting === "true" ||
+      nodes[0]?.querySelector(".bubble")?.dataset.authoredGreeting === "true"
+    ) ? 1 : 0;
     if (nodes.length !== messages.length + offset) return; // Do not touch the pending bubble.
+    if (!messages.every((message, i) => nodes[i + offset].classList.contains(message.role === "user" ? "user" : "assistant"))) return;
 
     const sceneView = window.BAOSceneChat;
     const sceneEnabled = sceneView?.prefs?.enabled === true;
@@ -28,7 +32,7 @@
       const message = messages[i];
       const node = nodes[i + offset];
       const bubble = node?.querySelector(".bubble");
-      if (!bubble || !node.classList.contains(message.role === "user" ? "user" : "assistant")) return;
+      if (!bubble) return;
       if (bubble.querySelector(".story-inline-editor")) continue;
       const source = String(message.content || "");
       if (message.role === "user") {
@@ -49,14 +53,11 @@
         bubble.classList.remove("bao-scene-plain");
         bubble.style.cssText = "";
       }
-      const authoredHTML = /<\/?[a-z][^>]*>/i.test(source);
-      const hasSceneTag = /\[SCENE:[a-z-]+\]/i.test(source);
-      // An author may include safe HTML even when the efficient template mode
-      // is chosen; do not silently flatten already-produced HTML at commit.
-      const html = mode === "efficient" && authoredHTML && !hasSceneTag && window.BAOChatMarkup?.sanitize
-        ? BAOChatMarkup.sanitize(source)
-        : renderer?.render ? renderer.render(source) :
-          authoredHTML && window.BAOChatMarkup?.sanitize ? BAOChatMarkup.sanitize(source) : App.formatMessage(source);
+      // Always use the same renderer as story loading and scene refresh. A
+      // separate HTML shortcut used to include [STATUS] and other metadata in
+      // the displayed story, creating a second version of the same response.
+      const html = renderer?.render ? renderer.render(source)
+        : window.BAOChatMarkup?.sanitize ? BAOChatMarkup.sanitize(source) : App.formatMessage(source);
       if (bubble.innerHTML !== html) bubble.innerHTML = html;
       bubble.classList.toggle("authored-rich-message", mode !== "native");
     }
