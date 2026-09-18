@@ -79,6 +79,8 @@ jobs:
         run: node tests/request-lifecycle-core.cjs
       - name: Accumulated world state turns
         run: node tests/world-state-cost-core.cjs
+      - name: Explicit scene metadata and greeting recovery
+        run: node tests/explicit-scene-state-core.cjs
       - name: Prompt cache pipeline
         run: node tests/prompt-cache-core.cjs
       - name: Memory request isolation and cooldown
