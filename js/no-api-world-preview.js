@@ -2,6 +2,7 @@
   'use strict';
   const WORLD_ID = 'autonomous-npc-world';
   const isWorld = () => window.App?.activeCharacter?.id === WORLD_ID;
+  const legacyBuilderPresent = () => Boolean(document.getElementById('autonomous-world-setup'));
   const originalStart = App.startStory.bind(App);
   const originalSend = App.sendMessage.bind(App);
   const originalResume = App.resumeSavedStory.bind(App);
@@ -50,15 +51,15 @@
       App.setStep(5);
     }
   }
+  // Legacy offline world drafts are still readable, but a native start without
+  // the dedicated setup panel must follow BAO/LAB's standard API/demo flow.
   App.startStory = function () {
-    if (!isWorld()) return originalStart();
+    if (!isWorld() || !legacyBuilderPresent()) return originalStart();
     return startOffline();
   };
-  // Handle the actual button before inline onclick or late-loaded modules can replace App.startStory.
-  // This also surfaces an error on step 5 instead of leaving mobile users with a silent tap.
   document.addEventListener('click', event => {
     const button = event.target?.closest?.('#start-story');
-    if (!button || !isWorld()) return;
+    if (!button || !isWorld() || !legacyBuilderPresent()) return;
     event.preventDefault();
     event.stopImmediatePropagation();
     startOffline();
@@ -83,7 +84,7 @@
   };
   App.sendMessage = function () {
     if (isWorld() && this.config?.offlineWorldPreview) {
-      alert('目前是離線世界設定預覽，尚未連接 AI。請返回角色設定並填入自己的 API Key，才能開始生成劇情。');
+      alert('目前是離線世界設定預覽，尚未連接 AI。請先設定 API Key，才能開始生成劇情。');
       return;
     }
     return originalSend();
