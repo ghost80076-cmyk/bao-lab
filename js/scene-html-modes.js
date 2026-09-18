@@ -55,6 +55,9 @@
     if (scene && Object.prototype.hasOwnProperty.call(sceneTemplates, scene) && narration !== undefined) {
       return renderScene(scene, narration);
     }
+    // Preserve already-authored safe HTML. Turning it into textContent destroys
+    // paragraphs and can make the committed story read differently from the stream.
+    if (/<\/?[a-z][^>]*>/i.test(body)) return window.BAOChatMarkup.sanitize(body);
     return greeting ? window.BAOChatMarkup.sanitize(body) : App.formatMessage(plain(body));
   };
   // Presentation only. Never parse a displayed [STATUS] block back into game state.
@@ -132,14 +135,35 @@
   const refresh = () => {
     const stream = document.getElementById('chat-stream');
     if (stream && App.activeCharacter) {
-      const messages = Chat.messages.length ? Chat.messages : [{ role: 'assistant', content: App.activeCharacter.greeting || '', greeting: true }];
-      [...stream.querySelectorAll('.message .bubble')].forEach((bubble, index) => {
-        const msg = messages[index];
-        if (!msg || msg.role !== 'assistant') return;
-        const html = render(msg.content, Boolean(msg.greeting));
-        if (bubble.innerHTML !== html) bubble.innerHTML = html;
-        bubble.classList.toggle('authored-rich-message', prefs.mode !== 'native');
-      });
+      // A fresh story has one greeting bubble outside Chat.messages. During a
+      // request there may also be an unsaved streaming bubble. Repaint only
+      // when the whole DOM matches the committed messages by role and count.
+      const messages = Chat.messages;
+      const nodes = [...stream.querySelectorAll(':scope > .message')];
+      const firstBubble = nodes[0]?.querySelector('.bubble');
+      const greetingOnly = !messages.length && nodes.length === 1 && nodes[0].classList.contains('assistant')
+        && (nodes[0].dataset.storyGreeting === 'true' || firstBubble?.dataset.authoredGreeting === 'true'
+          || firstBubble?.innerHTML === App.formatMessage(App.activeCharacter.greeting || ''));
+      if (greetingOnly) {
+        nodes[0].dataset.storyGreeting = 'true';
+        const bubble = firstBubble;
+        const html = render(App.activeCharacter.greeting || '', true);
+        if (bubble && bubble.innerHTML !== html) bubble.innerHTML = html;
+      } else if (messages.length) {
+        const offset = nodes.length === messages.length + 1 && nodes[0].dataset.storyGreeting === 'true' ? 1 : 0;
+        const aligned = nodes.length === messages.length + offset
+          && messages.every((msg, index) => nodes[index + offset].classList.contains(msg.role === 'user' ? 'user' : 'assistant'));
+        if (aligned) {
+          messages.forEach((msg, index) => {
+            if (msg.role !== 'assistant') return;
+            const bubble = nodes[index + offset].querySelector('.bubble');
+            if (!bubble || bubble.querySelector('.story-inline-editor')) return;
+            const html = render(msg.content, Boolean(msg.greeting));
+            if (bubble.innerHTML !== html) bubble.innerHTML = html;
+            bubble.classList.toggle('authored-rich-message', prefs.mode !== 'native');
+          });
+        }
+      }
     }
     paintStatus();
   };
