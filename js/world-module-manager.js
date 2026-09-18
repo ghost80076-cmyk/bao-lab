@@ -192,7 +192,8 @@
     button.textContent = "◇ 世界模組管理";
     button.addEventListener("click", open);
     const exit = aside.querySelector(".text-button");
-    if (exit) aside.insertBefore(button, exit); else aside.appendChild(button);
+    if (exit && exit.parentElement === aside) aside.insertBefore(button, exit);
+    else aside.appendChild(button);
   };
 
   const originalRender = App.renderChatShell.bind(App);
