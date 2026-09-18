@@ -18,3 +18,5 @@ jobs:
         run: node tests/scene-html-request-isolation.cjs
       - name: Check smart memory request isolation
         run: node tests/scene-html-memory-isolation.cjs
+      - name: Check seven scene templates, escaping and plain-text fallback
+        run: node tests/scene-template-core.cjs
