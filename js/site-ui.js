@@ -8,6 +8,8 @@ const loadBAOScript = src => new Promise((resolve, reject) => {
 });
 
 window.addEventListener("DOMContentLoaded", () => {
+  loadBAOScript("js/chat-api-settings.js")
+    .catch(err => console.warn("BAO/LAB chat API settings failed to load:", err));
   loadBAOScript("js/autonomous-world-workbench.js")
     .then(() => loadBAOScript("js/autonomous-world-display.js"))
     .catch(err => console.warn("BAO/LAB autonomous world workbench or display failed to load:", err));
@@ -60,15 +62,9 @@ window.addEventListener("DOMContentLoaded", () => {
     };
 
     const resumeSave = save => {
-      if (!Storage.restoreStory(save)) { alert("無法讀取存檔。"); return; }
-      if (!save?.config?.demoMode) {
-        const key = window.prompt("API Key 不會寫入存檔。請重新貼上 API Key：", "");
-        if (key === null) return;
-        App.config.api.key = key.trim();
-      }
-      if (GameState.current) GameState.current.config = App.config;
-      App.renderChatShell(false);
-      App.showView("chat");
+      if (window.BAOChatAPISettings?.restore) return window.BAOChatAPISettings.restore(save);
+      alert("API 設定功能尚未載入。請重新整理頁面後再讀取存檔。");
+      return false;
     };
 
     document.getElementById("continue-story")?.addEventListener("click", () => {
