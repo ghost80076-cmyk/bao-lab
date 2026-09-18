@@ -45,7 +45,8 @@ body:has(#chat-view.active) .app-shell{width:min(1710px,calc(100% - 32px));max-w
 }
 @media(max-width:1080px){
  #chat-view .chat-layout{grid-template-columns:minmax(0,1fr)!important}
- #chat-view .chat-layout>aside{display:none!important}
+ #chat-view .chat-layout>aside:not(.bao-status-rail){display:none!important}
+ #chat-view .chat-layout>.bao-status-rail{display:block!important}
  #chat-view #bao-chat-tool-shortcuts{display:flex!important;order:12;gap:8px;padding:9px 11px;border-bottom:1px solid #ffffff22;background:#121822;flex-wrap:wrap}
  #chat-view #bao-chat-tool-shortcuts button{flex:1 1 115px;min-height:40px;white-space:normal}
  #chat-view .story-mobile-tools{display:none!important}
