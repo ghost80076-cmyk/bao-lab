@@ -34,6 +34,10 @@
   WorldStateEngine.update = async function(config, playerText, assistantText) {
     if (!this.enabled(config) || !window.GameState?.current) return null;
     const owner = GameState.current;
+    // A clearly labeled speaker is an observed NPC name, not an inferred status.
+    // Register it before building the tracker snapshot so the state model can
+    // update the correct person's fields on this very turn.
+    window.BAOStatusUsageIntegrity?.registerNamedNPCs?.(assistantText);
     const pending = queue();
     pending.push({ player: String(playerText || ""), assistant: String(assistantText || "") });
     if (pending.length > 12) pending.splice(0, pending.length - 12);
