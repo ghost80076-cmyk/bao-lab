@@ -12,13 +12,21 @@
   function paint() {
     const stream = document.getElementById('chat-stream');
     if (!stream || !App.activeCharacter || App.config?.offlineWorldPreview) return;
-    const messages = Chat.messages.length ? Chat.messages : [{ role: 'assistant', content: App.activeCharacter.greeting || '' }];
     const nodes = [...stream.querySelectorAll(':scope > .message')];
-    // Never modify a pending/streaming bubble: only render messages already committed to Chat.messages.
-    for (let i = 0; i < messages.length && i < nodes.length; i++) {
-      const message = messages[i];
-      if (message.role !== 'assistant') continue;
-      const bubble = nodes[i].querySelector('.bubble');
+    const messages = Chat.messages;
+    // The fresh shell shows a greeting that is not in Chat.messages. During an
+    // in-flight request the DOM can also contain a pending assistant bubble.
+    // Only paint when the committed messages align exactly with the DOM.
+    const greetingOnly = messages.length === 0 && nodes.length === 1;
+    const offset = greetingOnly ? 0 : nodes.length === messages.length ? 0 :
+      nodes.length === messages.length + 1 && nodes[0]?.classList.contains('assistant') ? 1 : -1;
+    if (offset < 0) return;
+    const entries = greetingOnly ? [{ role: 'assistant', content: App.activeCharacter.greeting || '' }] : messages;
+    for (let i = 0; i < entries.length; i++) {
+      const message = entries[i];
+      const node = nodes[i + offset];
+      if (!node || message.role !== 'assistant' || !node.classList.contains('assistant')) continue;
+      const bubble = node.querySelector('.bubble');
       if (!bubble) continue;
       const type = prefs.type === 'auto' ? currentType() : prefs.type;
       const fingerprint = JSON.stringify([message.id || '', message.content, prefs.enabled, type]);
@@ -29,7 +37,7 @@
         bubble.style.cssText = 'white-space:pre-wrap;overflow-wrap:anywhere';
         delete bubble.dataset.sceneType;
         bubble.classList.remove('bao-scene-plain');
-      } else continue; // Default off: leave existing rich-message renderer untouched.
+      } else continue; // Default off: leave the existing rich-message renderer untouched.
       bubble.dataset.sceneFingerprint = fingerprint;
     }
   }
