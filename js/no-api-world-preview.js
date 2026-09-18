@@ -51,8 +51,6 @@
       App.setStep(5);
     }
   }
-  // Legacy offline world drafts are still readable, but a native start without
-  // the dedicated setup panel must follow BAO/LAB's standard API/demo flow.
   App.startStory = function () {
     if (!isWorld() || !legacyBuilderPresent()) return originalStart();
     return startOffline();
@@ -100,4 +98,18 @@
       alert('離線預覽讀取失敗：' + (error?.message || String(error)));
     }
   };
+})();
+
+// Load presentation after the existing chat and offline-preview wrappers.
+// No extra model request or scene instruction is sent to the player's API.
+(() => {
+  const load = src => new Promise((resolve, reject) => {
+    const script = document.createElement('script');
+    script.src = src;
+    script.onload = resolve;
+    script.onerror = () => reject(new Error(`無法載入場景模組：${src}`));
+    document.head.append(script);
+  });
+  load('js/scene-presentation-core.js').then(() => load('js/scene-chat-integration.js'))
+    .catch(error => console.error(error));
 })();
