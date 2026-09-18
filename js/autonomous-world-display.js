@@ -58,3 +58,39 @@
   App.renderChatShell = function(...args) { const result = originalShell(...args); installStatus(); return result; };
   window.BAOWorldDisplay = { render: renderStatus, preferences: () => ({...preferences}) };
 })();
+
+// Native story start: retain the original card greeting and existing API/memory
+// pipeline. The former multi-step world creator remains available only to old
+// saved stories, not as a required setup screen for new playthroughs.
+(() => {
+  'use strict';
+  const ID = 'autonomous-npc-world';
+  if (typeof App === 'undefined' || App.__nativeAutonomousWorldStart) return;
+  const originalOpen = App.openBuilder.bind(App);
+  App.openBuilder = function(...args) {
+    const result = originalOpen(...args);
+    if (this.activeCharacter?.id !== ID) return result;
+    document.getElementById('autonomous-world-setup')?.remove();
+    document.getElementById('aw-display-options')?.remove();
+    document.getElementById('offline-start-status')?.remove();
+    const mode = document.querySelector('input[name="narrative-mode"][value="world"]');
+    if (mode) { mode.checked = true; mode.dispatchEvent(new Event('change', { bubbles: true })); }
+    return result;
+  };
+  const originalShell = App.renderChatShell.bind(App);
+  App.renderChatShell = function(fresh = false) {
+    const result = originalShell(fresh);
+    if (fresh && this.activeCharacter?.id === ID && !this.config?.offlineWorldPreview && !Chat.messages.length) {
+      const stream = document.getElementById('chat-stream');
+      if (stream) stream.innerHTML = `<div class="message assistant"><div class="bubble">${this.formatMessage(this.activeCharacter.greeting || '')}</div></div>`;
+    }
+    return result;
+  };
+  const originalPrompt = App.buildSystemPrompt.bind(App);
+  App.buildSystemPrompt = function() {
+    const base = originalPrompt();
+    if (this.activeCharacter?.id !== ID || this.config?.worldSetup || Chat.messages.length !== 1 || Chat.messages[0]?.role !== 'user') return base;
+    return base + '\n\n【已向玩家顯示的原始開場白】\n' + String(this.activeCharacter.greeting || '') + '\n玩家已看過這段開場白；請依照玩家第一則輸入建立世界，不要無故重複要求選擇。';
+  };
+  App.__nativeAutonomousWorldStart = true;
+})();
