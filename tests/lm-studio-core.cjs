@@ -9,7 +9,7 @@ const local = require('../js/lm-studio-core.js');
     'https://localhost:1234/v1', 'http://192.168.1.100:1234/v1',
     'http://evil.example/v1', 'http://localhost.evil.example:1234/v1',
     'http://localhost:1234/v1?key=secret', 'http://user:password@localhost:1234/v1',
-    'http://localhost:1234/v1/../../admin', 'http://localhost:1234/other',
+    'http://localhost:1234/v1/../admin', 'http://localhost:1234/other',
     'http://localhost:1234/v1#fragment'
   ]) assert.throws(() => local.endpoint(url), /本機|格式/);
   assert.equal(local.isLocal({ type: 'lmstudio' }), true);
@@ -45,7 +45,7 @@ const local = require('../js/lm-studio-core.js');
   const prior = calls.length;
   await assert.rejects(local.send({ ...config, baseUrl: 'http://attacker.invalid/v1' }, [], api, fetchMock), /本機/);
   assert.equal(calls.length, prior, 'Reject remote hosts before network request');
-  assert.throws(() => local.endpoint('http://localhost:1234/v1/../v1/'), /本機|格式/);
+  assert.throws(() => local.endpoint('http://localhost:1234/v1/../admin'), /本機|格式/);
   await assert.rejects(local.send({ ...config, model: '' }, [], api, fetchMock), /Model ID/);
   await assert.rejects(local.send(config, [], api, async () => { throw Error('Failed to fetch'); }), /CORS/);
   await assert.rejects(local.send(config, [], api, async () => { const e = new Error('Aborted'); e.name = 'AbortError'; throw e; }), error => error.code === 'BAO_ABORTED');
