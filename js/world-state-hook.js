@@ -13,6 +13,11 @@
         if (player?.role !== "user" || assistant?.role !== "assistant") return;
         const changed = await WorldStateEngine.update(this.config, player.content, assistant.content);
         if (GameState.current !== owner) return;
+        // The helper can fail or be waiting for its interval; show that rather
+        // than silently leaving old status values looking authoritative.
+        if (document.querySelector('.ui-tab[data-panel="npc"]')?.classList.contains('active')) {
+          this.renderUIPanel('npc');
+        }
         const pendingChanged = WorldStateEngine.takePersistenceHint?.();
         const previousSummary = Chat.summary;
         await Chat.afterTurn?.(this.config);
@@ -30,10 +35,15 @@
         this.saveStory(false);
       };
       App.__worldStateHooked = true;
+      if (!window.BAOStatusUsageIntegrity && !document.querySelector('script[src="js/status-usage-integrity.js"]')) {
+        const script = document.createElement('script');
+        script.src = 'js/status-usage-integrity.js';
+        script.onerror = () => console.warn('BAO/LAB status and usage diagnostics did not load');
+        document.head.appendChild(script);
+      }
     }, 0);
   };
 
   if (document.readyState === "loading") window.addEventListener("DOMContentLoaded", init);
   else init();
 })();
-
