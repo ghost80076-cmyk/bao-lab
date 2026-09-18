@@ -9,6 +9,8 @@ const GameState = {
       events: Array.isArray(base.events) && base.events.length ? base.events : ["故事剛剛開始。"],
       npcs: Array.isArray(base.npcs) ? base.npcs : [],
       memory: [],
+      // Manually entered world and NPC notes belong to this story, not every story in the browser.
+      memorySlots: [],
       config
     };
     return this.current;
