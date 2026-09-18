@@ -19,7 +19,11 @@ jobs:
         with:
           node-version: 22
           cache: npm
+      - name: Locate DOM insertion callsites
+        run: grep -R -n 'insertBefore(' js/ || true
       - run: npm ci
       - run: npx playwright install --with-deps chromium
       - name: Verify mobile step-five start and both resume buttons
-        run: npm run test:e2e -- tests/e2e/mobile-story-entry.spec.cjs --project=chromium
+        run: |
+          set -o pipefail
+          npm run test:e2e -- tests/e2e/mobile-story-entry.spec.cjs --project=chromium 2>&1 | grep -v '^\[WebServer\]'
