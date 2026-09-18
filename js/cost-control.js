@@ -111,7 +111,10 @@
         throw new Error(`已達本次故事預算上限 NT$${cfg.budgetTwd.toFixed(0)}。可提高預算或改用較便宜的模型後繼續。`);
       }
       const effective = { ...config };
-      if (effective.__auxiliaryTask) effective.maxOutputTokens = Math.min(Number(effective.maxOutputTokens || 700), 700);
+      // State extraction can require a longer JSON document than other helper tasks.
+      // Keep the tracker's own requested limit, up to 2400; never apply the 700-token cap to it.
+      if (effective.__stateTask) effective.maxOutputTokens = Math.min(Number(effective.maxOutputTokens || 1800), 2400);
+      else if (effective.__auxiliaryTask) effective.maxOutputTokens = Math.min(Number(effective.maxOutputTokens || 700), 700);
       if (effective.__memoryTask) effective.maxOutputTokens = Math.min(Number(effective.maxOutputTokens || 1800), 1800);
       const previousPrompt = typeof Chat !== "undefined" ? Chat.lastStoryPromptTokens : 0;
       const result = await original(effective, messages);
