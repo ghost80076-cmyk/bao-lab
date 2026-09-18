@@ -17,6 +17,17 @@
     }
   };
 
+  // Older UI modules insert new controls before the original exit button. The
+  // grouped tool navigation can move that button inside a nested <details>,
+  // where it is no longer a direct child of the sidebar. Restore the original
+  // node (and its click handler) before the synchronous render/injection chain.
+  // Navigation may regroup it afterward; we do not clone controls or save data.
+  const restoreSidebarInsertionAnchor = () => {
+    const aside = document.querySelector("#chat-view .chat-layout > aside");
+    const exit = aside?.querySelector('.text-button[onclick*="exitChat"]');
+    if (aside && exit && exit.parentElement !== aside) aside.prepend(exit);
+  };
+
   const ensureChatHeader = () => {
     const main = document.querySelector("#chat-view .chat-main");
     const stream = document.getElementById("chat-stream");
@@ -25,13 +36,15 @@
       const header = document.createElement("div");
       header.className = "chat-topline";
       header.innerHTML = '<img id="chat-title-avatar" class="chat-title-avatar" alt="" hidden><div class="chat-title-copy"><div class="eyebrow">ACTIVE STORY</div><h2 id="chat-title"></h2></div>';
-      main.insertBefore(header, stream);
+      if (stream.parentElement === main) main.insertBefore(header, stream);
+      else main.prepend(header);
     }
     syncChatHeader();
   };
 
   const originalRenderChatShell = App.renderChatShell.bind(App);
   App.renderChatShell = function(fresh = false) {
+    restoreSidebarInsertionAnchor();
     ensureChatHeader();
     const result = originalRenderChatShell(fresh);
     syncChatHeader();
