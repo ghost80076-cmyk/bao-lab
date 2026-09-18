@@ -1,4 +1,4 @@
-name: Mobile story entry
+name: Story entry regression and repair
 
 on:
   push:
@@ -7,23 +7,65 @@ on:
     branches: [main]
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
-  mobile-entry:
+  story-entry:
     runs-on: ubuntu-latest
-    timeout-minutes: 7
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
-      - name: Locate DOM insertion callsites
-        run: grep -R -n 'insertBefore(' js/ || true
+      - name: Fix insertion against relocated sidebar controls
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          changes = {
+              'js/world-module-manager.js': [
+                  ('if (exit) aside.insertBefore(button, exit); else aside.appendChild(button);',
+                   'if (exit?.parentElement) exit.parentElement.insertBefore(button, exit); else aside.appendChild(button);'),
+              ],
+              'js/character-status-ui.js': [
+                  ('if (exit) aside.insertBefore(button, exit); else aside.appendChild(button);',
+                   'if (exit?.parentElement) exit.parentElement.insertBefore(button, exit); else aside.appendChild(button);'),
+              ],
+              'js/player-settings.js': [
+                  ('    aside.insertBefore(box, aside.querySelector(".text-button"));',
+                   '    const exit = aside.querySelector(".text-button");\n    if (exit?.parentElement) exit.parentElement.insertBefore(box, exit);\n    else aside.appendChild(box);'),
+              ],
+              'js/chat-shell-fix.js': [
+                  ('  // Older UI modules insert new controls before the original exit button. The\n  // grouped tool navigation can move that button inside a nested <details>,\n  // where it is no longer a direct child of the sidebar. Restore the original\n  // node (and its click handler) before the synchronous render/injection chain.\n  // Navigation may regroup it afterward; we do not clone controls or save data.\n  const restoreSidebarInsertionAnchor = () => {\n    const aside = document.querySelector("#chat-view .chat-layout > aside");\n    const exit = aside?.querySelector(\'.text-button[onclick*="exitChat"]\');\n    if (aside && exit && exit.parentElement !== aside) aside.prepend(exit);\n  };\n\n', ''),
+                  ('    restoreSidebarInsertionAnchor();\n', ''),
+              ],
+              'tests/e2e/mobile-story-entry.spec.cjs': [
+                  ('for (const width of [390, 375]) {', 'for (const width of [390, 375, 1280]) {'),
+                  ('test(`mobile ${width}px:', 'test(`${width < 500 ? "mobile" : "desktop"} ${width}px:'),
+              ],
+          }
+          for filename, replacements in changes.items():
+              path = Path(filename)
+              original = path.read_text()
+              updated = original
+              for before, after in replacements:
+                  assert updated.count(before) == 1, f'{filename}: expected one occurrence of {before[:70]!r}, found {updated.count(before)}'
+                  updated = updated.replace(before, after, 1)
+              path.write_text(updated)
+              print(f'Patched {filename}')
+          PY
       - run: npm ci
       - run: npx playwright install --with-deps chromium
-      - name: Verify mobile step-five start and both resume buttons
+      - name: Verify PC and phone step-five start and both resume buttons
         run: |
           set -o pipefail
           npm run test:e2e -- tests/e2e/mobile-story-entry.spec.cjs --project=chromium 2>&1 | grep -v '^\[WebServer\]'
+      - name: Commit verified fix to pull request branch
+        if: github.event_name == 'push'
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add js/world-module-manager.js js/character-status-ui.js js/player-settings.js js/chat-shell-fix.js tests/e2e/mobile-story-entry.spec.cjs
+          git diff --cached --quiet || git commit -m 'Repair nested sidebar button insertion on PC and mobile'
+          git push origin HEAD:fix/mobile-story-entry-20260919
