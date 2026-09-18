@@ -11,7 +11,7 @@ permissions:
 jobs:
   check-chat-experience:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 7
     steps:
       - name: Checkout current code
         uses: actions/checkout@v4
@@ -20,8 +20,11 @@ jobs:
           node --check js/chat-presentation-core.js
           node --check js/chat-experience.js
           node --check js/chat-shell-fix.js
+          node --check js/world-module-manager.js
+          node --check js/character-status-ui.js
+          node --check js/player-settings.js
           node tests/chat-presentation-core.cjs
-      - name: Verify the new chat assets are on live Pages
+      - name: Verify chat assets are on live Pages
         shell: bash
         env:
           SITE_URL: https://ghost80076-cmyk.github.io/bao-lab/
@@ -32,15 +35,21 @@ jobs:
             core="$(curl --fail --silent --location --max-time 12 -H 'Cache-Control: no-cache' "${SITE_URL}js/chat-presentation-core.js?sha=${GITHUB_SHA}" || true)"
             script="$(curl --fail --silent --location --max-time 12 -H 'Cache-Control: no-cache' "${SITE_URL}js/chat-experience.js?sha=${GITHUB_SHA}" || true)"
             styles="$(curl --fail --silent --location --max-time 12 -H 'Cache-Control: no-cache' "${SITE_URL}css/chat-experience.css?sha=${GITHUB_SHA}" || true)"
+            world="$(curl --fail --silent --location --max-time 12 -H 'Cache-Control: no-cache' "${SITE_URL}js/world-module-manager.js?sha=${GITHUB_SHA}" || true)"
+            status="$(curl --fail --silent --location --max-time 12 -H 'Cache-Control: no-cache' "${SITE_URL}js/character-status-ui.js?sha=${GITHUB_SHA}" || true)"
+            player="$(curl --fail --silent --location --max-time 12 -H 'Cache-Control: no-cache' "${SITE_URL}js/player-settings.js?sha=${GITHUB_SHA}" || true)"
             if grep -Fq "load('js/chat-experience.js')" <<<"${shell}" \
               && grep -Fq 'BAOChatPresentationCore' <<<"${core}" \
               && grep -Fq 'BAOChatExperience' <<<"${script}" \
-              && grep -Fq '.bao-status-rail' <<<"${styles}"; then
-              printf 'Verified new reading layout, parser and loader on public Pages (attempt %s).\n' "${attempt}"
+              && grep -Fq '.bao-status-rail' <<<"${styles}" \
+              && grep -Fq 'exit.parentElement.insertBefore(button, exit)' <<<"${world}" \
+              && grep -Fq 'exit.parentElement.insertBefore(button, exit)' <<<"${status}" \
+              && grep -Fq 'exit.parentElement.insertBefore(box, exit)' <<<"${player}"; then
+              printf 'Verified story-entry fix and reading assets on public Pages (attempt %s).\n' "${attempt}"
               exit 0
             fi
-            printf 'Waiting for the deployed chat assets (%s/48)...\n' "${attempt}"
+            printf 'Waiting for the deployed story entry assets (%s/48)...\n' "${attempt}"
             sleep 5
           done
-          echo 'Live Pages did not expose all of the new chat assets.' >&2
+          echo 'Live Pages did not expose all repaired story-entry assets.' >&2
           exit 1
