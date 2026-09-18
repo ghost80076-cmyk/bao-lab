@@ -7,10 +7,15 @@
   const saved = read();
   const prefs = { mode: modes.has(saved.mode) ? saved.mode : 'efficient', status: statuses.has(saved.status) ? saved.status : 'native' };
   const save = () => { try { localStorage.setItem(KEY, JSON.stringify(prefs)); } catch (_) {} };
+  // These are presentation templates, not new world rules. All data stays in GameState.
   const sceneTemplates = {
-    forum: { label: '匿名論壇', background: '#182433', accent: '#b9d8ff' },
-    realistic: { label: '現實敘事', background: '#29251f', accent: '#f0d5a9' },
-    dramatic: { label: '劇情轉折', background: '#1b1b24', accent: '#e5d9f4' }
+    forum: { label: '匿名論壇', background: '#182433', accent: '#b9d8ff', icon: '＃' },
+    realistic: { label: '現實敘事', background: '#29251f', accent: '#f0d5a9', icon: '◈' },
+    dramatic: { label: '劇情轉折', background: '#1b1b24', accent: '#e5d9f4', icon: '◆' },
+    communication: { label: '通訊紀錄', background: '#14272b', accent: '#b5efe6', icon: '✉' },
+    action: { label: '動作場景', background: '#32231e', accent: '#ffd6a1', icon: '⚡' },
+    investigation: { label: '調查紀錄', background: '#252a32', accent: '#d9e4f2', icon: '⌕' },
+    fantasy: { label: '奇幻場景', background: '#262139', accent: '#e9d8ff', icon: '✧' }
   };
   const withoutMetadata = text => String(text || '')
     .replace(/\[STATUS\][\s\S]*?\[\/STATUS\]/gi, '')
@@ -21,6 +26,25 @@
     doc.querySelectorAll('script,style,iframe,object,embed,template,svg,math').forEach(el => el.remove());
     return (doc.body.textContent || '').trim();
   };
+  const renderScene = (scene, narration) => {
+    const theme = sceneTemplates[scene];
+    const esc = App.escapeHTML.bind(App);
+    const content = String(narration || '').trim();
+    const body = scene === 'communication'
+      ? content.split(/\r?\n/).filter(line => line.trim()).map(line => {
+          const message = line.match(/^([^：:\n]{1,24})[：:]\s*(\S[\s\S]*)$/);
+          return message
+            ? `<div class="bao-scene-chat-line" style="margin:8px 0;padding:9px 12px;border-radius:12px;background:rgba(181,239,230,.10)"><strong style="display:block;font-size:12px">${esc(message[1].trim())}</strong><span style="white-space:pre-wrap">${esc(message[2])}</span></div>`
+            : `<p style="margin:7px 0;white-space:pre-wrap">${esc(line)}</p>`;
+        }).join('')
+      : scene === 'investigation'
+        ? content.split(/\r?\n/).filter(line => line.trim()).map(line => `<div style="padding:7px 0;border-bottom:1px dashed rgba(217,228,242,.24);white-space:pre-wrap">${esc(line)}</div>`).join('')
+        : `<div style="white-space:pre-wrap">${esc(content)}</div>`;
+    const borders = { communication: '1px solid #437d7a', action: '2px solid #d58b4b', investigation: '1px solid #8896a8', fantasy: '1px solid #8e78c0' };
+    const border = borders[scene] || '1px solid transparent';
+    const spacing = scene === 'action' ? 'letter-spacing:.012em;' : '';
+    return `<section class="bao-scene-card bao-scene-${scene}" style="background:${theme.background};color:${theme.accent};padding:18px;border:${border};border-radius:12px;line-height:1.8;max-width:100%;min-width:0;box-sizing:border-box;overflow-wrap:anywhere;${spacing}"><small style="display:block;opacity:.86;border-bottom:1px solid currentColor;padding-bottom:7px;margin-bottom:10px">${theme.icon} ${theme.label}</small><div>${body}</div></section>`;
+  };
   const render = (raw, greeting = false) => {
     const text = String(raw || '');
     const body = withoutMetadata(text);
@@ -28,9 +52,8 @@
     if (prefs.mode === 'free') return window.BAOChatMarkup.sanitize(body);
     const scene = text.match(/\[SCENE:([a-z-]+)\]/i)?.[1]?.toLowerCase();
     const narration = text.match(/\[NARRATION\]([\s\S]*?)\[\/NARRATION\]/i)?.[1];
-    if (scene && sceneTemplates[scene] && narration !== undefined) {
-      const theme = sceneTemplates[scene];
-      return `<section class="bao-scene-card" style="background:${theme.background};color:${theme.accent};padding:18px;border-radius:12px;line-height:1.8"><small>${theme.label}</small><div style="margin-top:10px;white-space:pre-wrap">${App.escapeHTML(narration.trim())}</div></section>`;
+    if (scene && Object.prototype.hasOwnProperty.call(sceneTemplates, scene) && narration !== undefined) {
+      return renderScene(scene, narration);
     }
     return greeting ? window.BAOChatMarkup.sanitize(body) : App.formatMessage(plain(body));
   };
@@ -125,7 +148,7 @@
     const base = originalPrompt(...args);
     const instructions = {
       native: '【玩家排版偏好】只輸出純文字敘事及對話。不要產生 HTML、CSS、JavaScript、場景標籤或視覺狀態欄。角色卡原有的 HTML 排版要求若與此衝突，以本項玩家選擇為準。',
-      efficient: '【玩家排版偏好】優先輸出純文字敘事。需要場景排版時，只能使用 [SCENE:forum]、[SCENE:realistic] 或 [SCENE:dramatic]，並將正文放在 [NARRATION]...[/NARRATION] 中；場景未變更時可以只輸出一般文字。不要重複輸出 HTML、CSS 或 JavaScript。',
+      efficient: '【玩家排版偏好】優先輸出純文字敘事；只有通訊、動作、調查、奇幻等場景確實需要排版時，才擇一使用 [SCENE:forum]、[SCENE:realistic]、[SCENE:dramatic]、[SCENE:communication]、[SCENE:action]、[SCENE:investigation] 或 [SCENE:fantasy]，並將該場景正文放在 [NARRATION]...[/NARRATION] 中；通訊紀錄可每行使用「發話者：訊息」。沒有適合的場景就直接輸出一般文字。不要杜撰訊息發話者、線索或世界事實；不要輸出 HTML、CSS、JavaScript，也不要為了排版重複敘事。',
       free: '【玩家排版偏好】允許依劇情產生 HTML 視覺排版，但不得輸出 JavaScript、事件處理器、iframe 或可執行程式碼；不需要華麗排版時直接輸出一般文字。'
     };
     return `${base}\n\n${instructions[prefs.mode]}\n狀態資料由世界狀態追蹤器更新；不要為視覺狀態欄重複生成 HTML 或 [STATUS] 區塊。`;
