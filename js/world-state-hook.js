@@ -35,12 +35,39 @@
         this.saveStory(false);
       };
       App.__worldStateHooked = true;
+      // The scene renderer may mount after this script and its private refresh
+      // function may replace the native board with the one-line legacy label.
+      // Watch only its native host; never observe or rewrite chat messages.
+      const watchNativeHost = () => {
+        const host = document.getElementById('bao-scene-native-status');
+        if (!host || host.dataset.nativePackWatched) return;
+        host.dataset.nativePackWatched = 'true';
+        new MutationObserver(() => {
+          if (window.BAOSceneHTML?.prefs?.status !== 'native' || host.querySelector('.bao-native-status-board')) return;
+          window.BAONativeStatusPacks?.hookScene?.();
+          window.BAONativeStatusPacks?.paintSceneStatus?.();
+        }).observe(host, { childList: true });
+        window.BAONativeStatusPacks?.hookScene?.();
+        window.BAONativeStatusPacks?.paintSceneStatus?.();
+      };
+      const afterNativeLoad = () => {
+        watchNativeHost();
+        const scope = document.getElementById('chat-view');
+        if (scope && !scope.dataset.nativePackMountWatched) {
+          scope.dataset.nativePackMountWatched = 'true';
+          new MutationObserver(watchNativeHost).observe(scope, { childList: true, subtree: true });
+        }
+      };
       const loadNativePack = () => {
-        if (window.BAONativeStatusPacks || document.querySelector('script[src="js/native-status-packs.js"]')) return;
-        const script = document.createElement('script');
-        script.src = 'js/native-status-packs.js';
-        script.onerror = () => console.warn('BAO/LAB native status packs did not load');
-        document.head.appendChild(script);
+        if (window.BAONativeStatusPacks) { afterNativeLoad(); return; }
+        let script = document.querySelector('script[src="js/native-status-packs.js"]');
+        if (!script) {
+          script = document.createElement('script');
+          script.src = 'js/native-status-packs.js';
+          script.onerror = () => console.warn('BAO/LAB native status packs did not load');
+          document.head.appendChild(script);
+        }
+        script.addEventListener('load', afterNativeLoad, { once: true });
       };
       if (window.BAOStatusUsageIntegrity) loadNativePack();
       else {
