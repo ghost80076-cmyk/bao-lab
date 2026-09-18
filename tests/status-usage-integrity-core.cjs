@@ -10,17 +10,22 @@ const status = {
 };
 const chat = {
   messages: [], usage: { prompt: 0, completion: 0 },
-  addUsage: () => {}, renderUsage: () => {}, renderTurnUsage: () => {}
+  addUsage: () => {}, renderUsage: () => {}, renderTurnUsage: () => {}, reset: () => {}
 };
 const app = {
   activeCharacter: { id: 'autonomous-npc-world', name: title },
-  config: { cost: {} },
+  config: { cost: {}, persona: { name: '未命名玩家' } },
   escapeHTML: value => value,
   renderUIPanel: () => {}, renderChatShell: () => {}
 };
+const state = { npcs: [] };
+const gameState = {
+  current: state,
+  upsertNPC: npc => { if (!state.npcs.some(x => x.name === npc.name)) state.npcs.push(npc); }
+};
 const sandbox = {
   document: { querySelector: () => null, getElementById: () => null },
-  App: app, GameState: { current: {} }, BAOCharacterStatus: status,
+  App: app, GameState: gameState, BAOCharacterStatus: status,
   WorldStateEngine: {}, Chat: chat,
   API: { send: async (config, messages) => { calls.push({ config, messages }); return { text: '{}' }; } }
 };
@@ -32,6 +37,10 @@ assert.deepEqual(Object.keys(status.snapshotForTracker()), ['林慕晴'], 'world
 const compact = status.compactForPrompt();
 assert.deepEqual(Array.from(compact.names), ['林慕晴']);
 assert.doesNotMatch(compact.text, /自主NPC世界/);
+const newNames = sandbox.BAOStatusUsageIntegrity.registerNamedNPCs('林慕晴：「你好」\n未命名玩家：「回答」\n時間：「晚上」');
+assert.equal(newNames, 1, 'only an explicit NPC speaker should be registered');
+assert.deepEqual(state.npcs.map(npc => npc.name), ['林慕晴']);
+assert.equal(sandbox.BAOStatusUsageIntegrity.registerNamedNPCs('林慕晴：「又見面了」'), 0, 'repeated dialogue must not create duplicate NPCs');
 (async () => {
   await sandbox.API.send({ __stateTask: true }, [{ role: 'system', content: '只做狀態整理' }, { role: 'user', content: '林慕晴：你好' }]);
   assert.match(calls[0].messages[0].content, /具名 NPC/);
