@@ -120,6 +120,7 @@ window.addEventListener("DOMContentLoaded", () => {
       e.stopImmediatePropagation();
       if (confirm("此分類為 18+ 成人內容。請確認你已年滿 18 歲。")) {
         localStorage.setItem("bao-lab:adult-confirmed", "yes");
+        document.getElementById("adult-notice")?.classList.remove("hidden");
         App.renderCharacters(btn.dataset.filter);
         document.querySelectorAll(".filter").forEach(x => x.classList.remove("active"));
         btn.classList.add("active");
