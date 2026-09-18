@@ -71,6 +71,32 @@
     } catch (_) {}
   };
 
+  // story-reader rebuilds the message toolbar as soon as suggestions arrive.
+  // Its original "busy" button is then detached before the finally block can
+  // clear .story-busy, whose CSS disables pointer events for the whole message.
+  // Clear that stale flag only when a finished inspiration panel is present.
+  const releaseInspirationBusy = panel => {
+    const message = panel?.closest?.('.message');
+    if (message?.classList.contains('story-busy')) message.classList.remove('story-busy');
+  };
+  const watchInspirationPanels = () => {
+    const stream = document.getElementById('chat-stream');
+    if (!stream) return;
+    stream.querySelectorAll('.story-inspiration-panel').forEach(releaseInspirationBusy);
+    const observer = new MutationObserver(records => {
+      for (const record of records) {
+        for (const node of record.addedNodes) {
+          if (node.nodeType !== 1) continue;
+          if (node.matches?.('.story-inspiration-panel')) releaseInspirationBusy(node);
+          node.querySelectorAll?.('.story-inspiration-panel').forEach(releaseInspirationBusy);
+        }
+      }
+    });
+    observer.observe(stream, { childList: true, subtree: true });
+  };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', watchInspirationPanels, { once: true });
+  else watchInspirationPanels();
+
   document.addEventListener('click', async event => {
     const button = event.target?.closest?.('button.story-copy-chip');
     const row = button?.closest('.story-inspiration-row');
@@ -112,5 +138,5 @@
     }, 1100);
   }, true);
 
-  window.BAOInspirationCopy = { copyText };
+  window.BAOInspirationCopy = { copyText, releaseInspirationBusy };
 })();
