@@ -260,7 +260,7 @@
     button.textContent = "◈ 狀態欄管理";
     button.addEventListener("click", openSettings);
     const exit = aside.querySelector(".text-button");
-    if (exit) aside.insertBefore(button, exit); else aside.appendChild(button);
+    if (exit?.parentElement) exit.parentElement.insertBefore(button, exit); else aside.appendChild(button);
   };
 
   const injectBuilderSummary = () => {

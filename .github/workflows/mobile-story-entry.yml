@@ -1,0 +1,31 @@
+name: Story entry regression
+
+on:
+  push:
+    branches: [fix/mobile-story-entry-20260919, main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  story-entry:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Verify relocated button insertion stays safe
+        run: |
+          if grep -R -nE 'aside\.insertBefore\((button|box),[[:space:]]*(exit|aside\.querySelector\("\.text-button"\))\)' js/; then
+            echo 'Unsafe sidebar insertion found' >&2
+            exit 1
+          fi
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Verify phone and desktop start and resume
+        run: npm run test:e2e -- tests/e2e/mobile-story-entry.spec.cjs --project=chromium

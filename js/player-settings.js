@@ -137,7 +137,9 @@
     if (!aside || document.getElementById("bao-player-settings")) return;
     const box = document.createElement("div"); box.id = "bao-player-settings"; box.className = "bao-settings-row";
     box.innerHTML = '<button type="button" class="secondary" data-bao-open="reply">⚙ 回覆設定</button><button type="button" class="secondary" data-bao-open="memory">🧠 記憶管理</button><button type="button" class="secondary" data-bao-open="appearance">✦ 聊天外觀</button>';
-    aside.insertBefore(box, aside.querySelector(".text-button"));
+    const exit = aside.querySelector(".text-button");
+    if (exit?.parentElement) exit.parentElement.insertBefore(box, exit);
+    else aside.appendChild(box);
     box.querySelector('[data-bao-open="reply"]').onclick = openReplySettings;
     box.querySelector('[data-bao-open="memory"]').onclick = openMemorySettings;
     box.querySelector('[data-bao-open="appearance"]').onclick = openAppearanceSettings;
