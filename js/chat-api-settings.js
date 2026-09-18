@@ -88,13 +88,20 @@
       event.preventDefault();
       try {
         const next = currentInput();
+        const wasOffline = Boolean(App.config?.offlineWorldPreview);
         App.config.api = next;
+        App.config.demoMode = false;
+        if (wasOffline) App.config.offlineWorldPreview = false;
         if (GameState.current) GameState.current.config = App.config;
+        if (wasOffline) App.renderChatShell(false);
         const modelLabel = document.getElementById("chat-model");
         if (modelLabel) modelLabel.textContent = next.model;
+        const input = document.getElementById("user-input");
+        if (wasOffline && input) input.placeholder = "輸入你的行動或台詞…";
+        App.saveStory?.(false);
         status();
         close();
-        document.getElementById("user-input")?.focus();
+        input?.focus();
       } catch (cause) { setError(cause.message || "API 設定無效。"); }
     });
     backdrop.querySelector("[data-api-test]").onclick = async event => {
@@ -181,7 +188,10 @@
   };
   const originalSend = App.sendMessage.bind(App);
   App.sendMessage = function(...args) {
-    if (!App.config?.demoMode && !hasKey()) { open(); return Promise.resolve(); }
+    if (App.config?.offlineWorldPreview || (!App.config?.demoMode && !hasKey())) {
+      open();
+      return Promise.resolve();
+    }
     return originalSend(...args);
   };
   installEntries();
