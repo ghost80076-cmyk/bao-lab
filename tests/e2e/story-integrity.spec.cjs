@@ -18,7 +18,8 @@ async function startStory(page) {
   await page.waitForFunction(() => !!window.BAOStoryIntegrity && !!window.BAOStateTrackerRepairs, null, { timeout: 15000 });
 }
 
-test('Android Enter inserts a newline, long chat scrolls internally and event history stays deduplicated', async ({ browser }) => {
+test('Android Enter inserts a newline, long chat scrolls internally and event history stays deduplicated', async ({ browser }, testInfo) => {
+  test.skip(testInfo.project.name !== 'chromium', 'Android mobile emulation is tested in Chromium');
   const context = await browser.newContext({
     viewport: { width: 390, height: 844 }, userAgent: ANDROID,
     hasTouch: true, isMobile: true
