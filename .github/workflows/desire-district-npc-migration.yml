@@ -15,6 +15,17 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Match reviewed patch against newest card lore
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          path = Path('scripts/fix-desire-district-npc.py')
+          text = path.read_text(encoding='utf-8')
+          old = '不得將『學生妹』『蘿莉』『未成年』『看似小孩』等未成年或幼態設定用於性化角色。'
+          new = '不得將學生、幼態、兒童或看似未成年的人物性化。'
+          assert text.count(old) == 1
+          path.write_text(text.replace(old, new, 1), encoding='utf-8')
+          PY
       - name: Patch reviewed character and scene NPC integration
         run: python3 scripts/fix-desire-district-npc.py
       - name: Complete scene status conditional expression
