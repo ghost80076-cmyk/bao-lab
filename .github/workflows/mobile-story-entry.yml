@@ -27,5 +27,5 @@ jobs:
           fi
       - run: npm ci
       - run: npx playwright install --with-deps chromium
-      - name: Verify phone and desktop start and resume
-        run: npm run test:e2e -- tests/e2e/mobile-story-entry.spec.cjs --project=chromium
+      - name: Verify phone and desktop start, resume, keys, scroll and event integrity
+        run: npm run test:e2e -- tests/e2e/mobile-story-entry.spec.cjs tests/e2e/story-integrity.spec.cjs --project=chromium
