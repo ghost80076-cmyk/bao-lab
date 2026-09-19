@@ -9,11 +9,12 @@
   const prefs = { enabled: saved.enabled === true, type: choices.includes(saved.type) ? saved.type : 'auto' };
   const persist = () => { try { localStorage.setItem(KEY, JSON.stringify(prefs)); } catch (_) {} };
   const currentType = () => window.GameState?.current?.scenePresentation || window.GameState?.current?.sceneType || 'general';
+  const stripAppendix = source => window.BAOChatPresentationCore?.stripStatusAppendix?.(source) ?? String(source || '');
 
   // Scene templates use textContent, so pass narration rather than the model's
   // transport markers. Keep the complete original reply in Chat.messages.
   const narrationText = source => {
-    const body = String(source || '')
+    const body = String(stripAppendix(source))
       .replace(/\[STATUS\][\s\S]*?\[\/STATUS\]/gi, '')
       .replace(/\[SCENE:[a-z-]+\]/gi, '')
       .replace(/\[\/?(?:NARRATION|CHOICE)\]/gi, '').trim();
@@ -29,16 +30,19 @@
     if (!stream || !App.activeCharacter || App.config?.offlineWorldPreview || App.__requestPending) return;
     const nodes = [...stream.querySelectorAll(':scope > .message')];
     const messages = Chat.messages;
-    // Never repaint the uncommitted streaming bubble or an untracked API error.
-    const greetingOnly = messages.length === 0 && nodes.length === 1 && nodes[0].classList.contains('assistant');
+    // Never repaint a pending bubble or an untracked API error as a greeting.
+    const first = nodes[0];
+    const greetingBubble = first?.querySelector('.bubble');
+    const knownGreeting = first?.dataset.storyGreeting === 'true'
+      || first?.dataset.messageIndex === '-1'
+      || greetingBubble?.dataset.authoredGreeting === 'true'
+      || greetingBubble?.innerHTML === App.formatMessage(App.activeCharacter.greeting || '');
+    const greetingOnly = messages.length === 0 && nodes.length === 1
+      && first.classList.contains('assistant') && knownGreeting;
     let offset = 0;
     if (!greetingOnly && nodes.length !== messages.length) {
-      const greeting = nodes[0];
-      const knownGreeting = greeting?.dataset.storyGreeting === 'true'
-        || greeting?.dataset.messageIndex === '-1'
-        || greeting?.querySelector('.bubble')?.dataset.authoredGreeting === 'true';
-      if (nodes.length !== messages.length + 1 || !greeting?.classList.contains('assistant') || !knownGreeting) return;
-      greeting.dataset.storyGreeting = 'true';
+      if (nodes.length !== messages.length + 1 || !first?.classList.contains('assistant') || !knownGreeting) return;
+      first.dataset.storyGreeting = 'true';
       offset = 1;
     }
     if (!greetingOnly && !messages.every((message, index) =>
@@ -62,9 +66,10 @@
       } else {
         const renderer = window.BAOSceneHTML;
         if (!renderer?.render) continue;
-        // Text and interactive display modes must use the exact same committed
-        // source renderer, even after late story-reader decorations.
-        const html = renderer.render(message.content, Boolean(message.greeting || greetingOnly));
+        // Text and interactive display modes use the same canonical renderer.
+        // Strip legacy textual appendices too, or the status rail and this
+        // renderer would rewrite each other's output indefinitely.
+        const html = renderer.render(stripAppendix(message.content), Boolean(message.greeting || greetingOnly));
         if (bubble.dataset.sceneFingerprint || bubble.dataset.sceneType) {
           bubble.style.cssText = '';
           delete bubble.dataset.sceneType;
