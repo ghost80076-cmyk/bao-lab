@@ -119,3 +119,14 @@
   if (stream) new MutationObserver(scheduleCommittedPaint).observe(stream, { childList: true });
   API.__streamingUIPatched = true;
 })();
+
+// Keep the original streaming preview untouched. Once a reply is committed,
+// the coordinator renders it through the same player-selected scene renderer.
+(() => {
+  const src = 'js/scene-render-coordinator.js';
+  if (document.querySelector(`script[src="${src}"]`)) return;
+  const script = document.createElement('script');
+  script.src = src;
+  script.onerror = () => console.warn('BAO/LAB scene coordinator failed to load');
+  document.head.appendChild(script);
+})();

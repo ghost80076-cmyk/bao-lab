@@ -43,6 +43,8 @@ jobs:
         run: node tests/context-pack-resume-core.cjs
       - name: Story Reader core
         run: node tests/story-reader-core.cjs
+      - name: Scene renderer regression
+        run: node tests/scene-render-coordinator-core.cjs
       - name: Story revision state consistency
         run: node tests/story-revision-state-core.cjs
       - name: IndexedDB storage migration
