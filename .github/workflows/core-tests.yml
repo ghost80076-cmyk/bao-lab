@@ -35,6 +35,8 @@ jobs:
         run: node tests/native-status-packs-core.cjs
       - name: World template and usage integrity
         run: node tests/status-usage-integrity-core.cjs
+      - name: Story integrity and NPC state regression
+        run: node tests/story-integrity-core.cjs
       - name: Story flow core
         run: node tests/story-flow-core.cjs
       - name: Context Pack resumable organization
