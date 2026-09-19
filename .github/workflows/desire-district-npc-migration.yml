@@ -28,7 +28,7 @@ jobs:
           PY
       - name: Patch reviewed character and scene NPC integration
         run: python3 scripts/fix-desire-district-npc.py
-      - name: Complete scene status conditional expression
+      - name: Complete scene status conditional expression and update regression
         run: |
           python3 - <<'PY'
           from pathlib import Path
@@ -37,6 +37,12 @@ jobs:
           old = "      return line;\n    });\n    if (!rows.length) {"
           new = "      return line;\n    }) : [];\n    if (!rows.length) {"
           assert text.count(old) == 1, 'Unexpected scene status renderer'
+          path.write_text(text.replace(old, new, 1), encoding='utf-8')
+          path = Path('tests/desire-district-core.cjs')
+          text = path.read_text(encoding='utf-8')
+          old = "assert.ok(card.content.system_prompt.includes('貓姐兒只是開場'));"
+          new = "assert.ok(card.content.system_prompt.includes('貓姐兒是開場入口的實際'));\nassert.equal(card.gameplay.initial_state.npcs[0].presence, 'present');"
+          assert text.count(old) == 1
           path.write_text(text.replace(old, new, 1), encoding='utf-8')
           PY
       - name: Verify syntax and NPC lifecycle
@@ -56,7 +62,7 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git rm scripts/fix-desire-district-npc.py .github/workflows/desire-district-npc-migration.yml
-          git add data/characters/general/desire-district.json js/character-status.js js/state.js js/helper-data.js js/world-state.js js/character-status-ui.js js/scene-html-modes.js tests/desire-district-current-npc.cjs
+          git add data/characters/general/desire-district.json js/character-status.js js/state.js js/helper-data.js js/world-state.js js/character-status-ui.js js/scene-html-modes.js tests/desire-district-current-npc.cjs tests/desire-district-core.cjs
           git diff --cached --check
           git commit -m 'Track Desire District current NPC by scene and simplify adult-only prompt'
           git push origin HEAD:main
