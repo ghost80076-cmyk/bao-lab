@@ -9,36 +9,71 @@
   const prefs = { enabled: saved.enabled === true, type: choices.includes(saved.type) ? saved.type : 'auto' };
   const persist = () => { try { localStorage.setItem(KEY, JSON.stringify(prefs)); } catch (_) {} };
   const currentType = () => window.GameState?.current?.scenePresentation || window.GameState?.current?.sceneType || 'general';
+
+  // Scene templates use textContent, so pass narration rather than the model's
+  // transport markers. Keep the complete original reply in Chat.messages.
+  const narrationText = source => {
+    const body = String(source || '')
+      .replace(/\[STATUS\][\s\S]*?\[\/STATUS\]/gi, '')
+      .replace(/\[SCENE:[a-z-]+\]/gi, '')
+      .replace(/\[\/?(?:NARRATION|CHOICE)\]/gi, '').trim();
+    if (!/<\/?[a-z][^>]*>/i.test(body)) return body;
+    const withBreaks = body.replace(/<br\s*\/?>/gi, '\n').replace(/<\/(?:p|div|li|h[1-6])\s*>/gi, '\n');
+    const doc = new DOMParser().parseFromString(withBreaks, 'text/html');
+    doc.querySelectorAll('script,style,iframe,object,embed,template,svg,math').forEach(node => node.remove());
+    return (doc.body.textContent || '').trim();
+  };
+
   function paint() {
     const stream = document.getElementById('chat-stream');
-    if (!stream || !App.activeCharacter || App.config?.offlineWorldPreview) return;
+    if (!stream || !App.activeCharacter || App.config?.offlineWorldPreview || App.__requestPending) return;
     const nodes = [...stream.querySelectorAll(':scope > .message')];
     const messages = Chat.messages;
-    // The fresh shell shows a greeting that is not in Chat.messages. During an
-    // in-flight request the DOM can also contain a pending assistant bubble.
-    // Only paint when the committed messages align exactly with the DOM.
-    const greetingOnly = messages.length === 0 && nodes.length === 1;
-    const offset = greetingOnly ? 0 : nodes.length === messages.length ? 0 :
-      nodes.length === messages.length + 1 && nodes[0]?.classList.contains('assistant') ? 1 : -1;
-    if (offset < 0) return;
-    const entries = greetingOnly ? [{ role: 'assistant', content: App.activeCharacter.greeting || '' }] : messages;
+    // Never repaint the uncommitted streaming bubble or an untracked API error.
+    const greetingOnly = messages.length === 0 && nodes.length === 1 && nodes[0].classList.contains('assistant');
+    let offset = 0;
+    if (!greetingOnly && nodes.length !== messages.length) {
+      const greeting = nodes[0];
+      const knownGreeting = greeting?.dataset.storyGreeting === 'true'
+        || greeting?.dataset.messageIndex === '-1'
+        || greeting?.querySelector('.bubble')?.dataset.authoredGreeting === 'true';
+      if (nodes.length !== messages.length + 1 || !greeting?.classList.contains('assistant') || !knownGreeting) return;
+      greeting.dataset.storyGreeting = 'true';
+      offset = 1;
+    }
+    if (!greetingOnly && !messages.every((message, index) =>
+      nodes[index + offset]?.classList.contains(message.role === 'user' ? 'user' : 'assistant'))) return;
+    const entries = greetingOnly ? [{ role: 'assistant', content: App.activeCharacter.greeting || '', greeting: true }] : messages;
     for (let i = 0; i < entries.length; i++) {
       const message = entries[i];
       const node = nodes[i + offset];
-      if (!node || message.role !== 'assistant' || !node.classList.contains('assistant')) continue;
+      if (!node || message.role !== 'assistant' || !node.classList.contains('assistant') || node.classList.contains('is-streaming')) continue;
       const bubble = node.querySelector('.bubble');
-      if (!bubble) continue;
+      if (!bubble || bubble.querySelector('.story-inline-editor')) continue;
       const type = prefs.type === 'auto' ? currentType() : prefs.type;
       const fingerprint = JSON.stringify([message.id || '', message.content, prefs.enabled, type]);
-      if (bubble.dataset.sceneFingerprint === fingerprint) continue;
-      if (prefs.enabled) BAOScenePresentation.render(bubble, message.content, { type });
-      else if (bubble.dataset.sceneFingerprint) {
-        bubble.replaceChildren(document.createTextNode(String(message.content || '')));
-        bubble.style.cssText = 'white-space:pre-wrap;overflow-wrap:anywhere';
-        delete bubble.dataset.sceneType;
-        bubble.classList.remove('bao-scene-plain');
-      } else continue; // Default off: leave the existing rich-message renderer untouched.
-      bubble.dataset.sceneFingerprint = fingerprint;
+      if (prefs.enabled) {
+        // The story reader can replace the bubble after our earlier paint;
+        // a matching fingerprint alone does not mean the scene still exists.
+        if (bubble.dataset.sceneFingerprint !== fingerprint || !bubble.querySelector('.bao-scene-body')) {
+          BAOScenePresentation.render(bubble, narrationText(message.content), { type });
+          bubble.dataset.sceneFingerprint = fingerprint;
+        }
+      } else {
+        const renderer = window.BAOSceneHTML;
+        if (!renderer?.render) continue;
+        // Text and interactive display modes must use the exact same committed
+        // source renderer, even after late story-reader decorations.
+        const html = renderer.render(message.content, Boolean(message.greeting || greetingOnly));
+        if (bubble.dataset.sceneFingerprint || bubble.dataset.sceneType) {
+          bubble.style.cssText = '';
+          delete bubble.dataset.sceneType;
+          delete bubble.dataset.sceneFingerprint;
+          bubble.classList.remove('bao-scene-plain');
+        }
+        if (bubble.innerHTML !== html) bubble.innerHTML = html;
+        bubble.classList.toggle('authored-rich-message', renderer.prefs?.mode !== 'native');
+      }
     }
   }
   function mount() {
@@ -61,9 +96,25 @@
     aside.append(panel);
   }
   const originalShell = App.renderChatShell;
-  App.renderChatShell = function(...args) { const result = originalShell.apply(this, args); mount(); paint(); return result; };
+  App.renderChatShell = function(...args) {
+    const result = originalShell.apply(this, args);
+    mount(); paint(); setTimeout(paint, 140); // Story reader also decorates at 100ms.
+    return result;
+  };
   const originalSend = App.sendMessage;
-  App.sendMessage = async function(...args) { const result = await originalSend.apply(this, args); paint(); return result; };
-  window.BAOSceneChat = { prefs, paint, mount };
+  App.sendMessage = async function(...args) {
+    try { return await originalSend.apply(this, args); }
+    finally { paint(); setTimeout(paint, 140); }
+  };
+  const stream = document.getElementById('chat-stream');
+  if (stream) {
+    let queued = false;
+    new MutationObserver(() => {
+      if (queued || App.__requestPending) return;
+      queued = true;
+      queueMicrotask(() => { queued = false; paint(); });
+    }).observe(stream, { childList: true, subtree: true });
+  }
+  window.BAOSceneChat = { prefs, paint, mount, narrationText };
   mount();
 })();
