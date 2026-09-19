@@ -84,7 +84,14 @@
       .bao-story-event-list small{display:block;color:var(--story-muted,#a4abb8);font-size:11px}
       #chat-view .ui-tabs #bao-chat-top{flex:0 0 auto;width:auto;white-space:nowrap;cursor:pointer}
       #chat-view .ui-tabs{display:flex;align-items:center;flex-wrap:wrap;gap:6px}
-      #chat-view .ui-tabs #bao-chat-top:focus-visible{outline:2px solid var(--bao-cyan,#5dd6c0);outline-offset:2px}`;
+      #chat-view .ui-tabs #bao-chat-top:focus-visible{outline:2px solid var(--bao-cyan,#5dd6c0);outline-offset:2px}
+      /* Undo the original clipping as well as the removed 100dvh override.
+         Mobile keeps the whole-document reading flow; desktop retains its own styles. */
+      @media(max-width:820px){
+        #chat-view .chat-layout{height:auto!important;max-height:none!important;overflow:visible!important}
+        #chat-view .chat-main{height:auto!important;max-height:none!important;overflow:visible!important}
+        #chat-view .chat-stream{flex:0 0 auto!important;height:auto!important;max-height:none!important;overflow:visible!important}
+      }`;
     document.head.appendChild(style);
   }
   const scrollToStart = () => {
