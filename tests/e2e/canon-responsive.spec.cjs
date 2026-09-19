@@ -115,7 +115,8 @@ test.describe("Canon workbench responsive UI", () => {
     await expect(cancel).toBeHidden();
     await expect(send).toBeEnabled();
     await expect(input).toHaveValue("這句取消後要回到輸入框");
-    await expect(page.locator("#chat-stream")).toContainText("已取消本次生成");
+    await expect(page.locator("#bao-chat-system-notices")).toContainText("已取消本次生成");
+    await expect(page.locator("#chat-stream")).not.toContainText("已取消本次生成");
     const state = await page.evaluate(() => ({ messages: Chat.messages.length, pending: App.__requestPending }));
     expect(state).toEqual({ messages: 0, pending: false });
     expect(providerRequests).toBe(1);

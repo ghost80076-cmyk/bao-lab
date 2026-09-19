@@ -72,4 +72,19 @@
 
   controls();
   App.__requestLifecyclePatched = true;
+  // Real browsers have document.head; headless core tests deliberately do not.
+  if (document.head?.append && !document.querySelector('script[src="js/scene-render-integrity.js"]')) {
+    const script = document.createElement('script');
+    script.src = 'js/scene-render-integrity.js';
+    script.onerror = () => console.warn('BAO/LAB scene render integrity failed to load');
+    document.head.append(script);
+  }
+  // Keep the request notice region outside #chat-stream, without altering
+  // the SSE transport or committed story records.
+  if (document.head?.append && !document.querySelector('script[src="js/chat-system-notices.js"]')) {
+    const script = document.createElement('script');
+    script.src = 'js/chat-system-notices.js';
+    script.onerror = () => console.warn('BAO/LAB chat system notices failed to load');
+    document.head.append(script);
+  }
 })();

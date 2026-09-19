@@ -21,10 +21,10 @@ async function startStory(page, displayMode = 'text') {
   await page.getByRole('button', { name: '下一步' }).click();
   await page.locator('#start-story').click();
   await expect(page.locator('#chat-view')).toHaveClass(/active/);
-  await page.waitForFunction(() => !!window.BAOStoryIntegrity && !!window.BAOStateTrackerRepairs, null, { timeout: 15000 });
+  await page.waitForFunction(() => !!window.BAOStoryIntegrity && !!window.BAOStateTrackerRepairs && !!window.BAOChatExperienceRepairs, null, { timeout: 15000 });
 }
 
-test('Android long story grows with document, Enter inserts newline and visible top button jumps to first message', async ({ browser }, testInfo) => {
+test('Android long story grows with document, Enter inserts newline and floating top button jumps to first message', async ({ browser }, testInfo) => {
   test.skip(testInfo.project.name !== 'chromium', 'Android mobile emulation is tested in Chromium');
   const context = await browser.newContext({ viewport: { width: 390, height: 844 }, userAgent: ANDROID, hasTouch: true, isMobile: true });
   const page = await context.newPage();
@@ -73,10 +73,10 @@ test('Android long story grows with document, Enter inserts newline and visible 
     expect(metrics.lastVisible).toBe(true);
     expect(metrics.oldJump).toBe(false);
     expect(await page.evaluate(() => GameState.current.events.filter(item => item.text === '林沉風離開房間。').length)).toBe(1);
-    const top = page.locator('#bao-chat-top');
+    const top = page.locator('#bao-chat-floating-actions button');
     await expect(top).toBeVisible();
     await expect(top).toHaveText('↑ 置頂');
-    await expect(page.locator('#chat-view .chat-topline #bao-chat-top')).toBeVisible();
+    await expect(page.locator('#bao-chat-top')).toBeHidden();
     await page.evaluate(() => { document.documentElement.style.scrollBehavior = 'auto'; window.scrollTo(0, document.scrollingElement.scrollHeight); });
     await expect.poll(() => page.evaluate(() => window.scrollY), { timeout: 5000 }).toBeGreaterThan(500);
     await top.click();
@@ -85,15 +85,39 @@ test('Android long story grows with document, Enter inserts newline and visible 
   } finally { await context.close().catch(() => {}); }
 });
 
-test('interactive UI keeps top button immediately after memory tab and text mode moves it to visible header', async ({ page }) => {
+test('both reading modes share bottom floating top and donation controls', async ({ page }) => {
   await startStory(page, 'ui');
-  const top = page.locator('#bao-chat-top');
-  await expect(top).toBeVisible();
-  await expect(page.locator('#chat-view .ui-tabs [data-panel="memory"] + #bao-chat-top')).toBeVisible();
+  const floating = page.locator('#bao-chat-floating-actions');
+  await expect(floating.getByRole('button', { name: '跳至目前故事開頭' })).toBeVisible();
+  await expect(floating.getByRole('link', { name: '投餵肉包' })).toBeVisible();
+  await expect(page.locator('#bao-chat-top')).toBeHidden();
   await page.evaluate(() => { App.config.displayMode = 'text'; App.renderChatShell(false); });
   await expect(page.locator('#game-ui')).toBeHidden();
-  await expect(page.locator('#chat-view .chat-topline #bao-chat-top')).toBeVisible();
-  expect(await page.locator('#bao-chat-top').count()).toBe(1);
+  await expect(floating.getByRole('button', { name: '跳至目前故事開頭' })).toBeVisible();
+  await expect(floating.getByRole('link', { name: '投餵肉包' })).toHaveAttribute('href', /ko-fi\.com/);
+  expect(await page.locator('#bao-chat-floating-actions button').count()).toBe(1);
+});
+
+test('a failed Gemini-like send preserves the draft and does not corrupt historical renderers', async ({ page }) => {
+  await startStory(page);
+  await page.evaluate(() => {
+    Chat.add('user', '前一次的玩家訊息');
+    Chat.add('assistant', '<b>已保存的歷史敘事</b>');
+    App.renderChatShell(false);
+    BAOSceneHTML.prefs.mode = 'free';
+    BAOSceneHTML.refresh();
+    API.send = async () => { throw new Error('測試 429：請求太頻繁或額度不足'); };
+  });
+  await expect(page.locator('#chat-stream .message.assistant .bubble b')).toContainText('已保存的歷史敘事');
+  const before = await page.locator('#chat-stream > .message').count();
+  await page.locator('#user-input').fill('這則訊息應在失敗後返回輸入框');
+  await page.locator('#chat-view .composer button.primary').click();
+  await expect(page.locator('#user-input')).toHaveValue('這則訊息應在失敗後返回輸入框');
+  await expect(page.locator('#bao-chat-send-feedback')).toContainText('測試 429');
+  await expect(page.locator('#chat-stream > .message')).toHaveCount(before);
+  await page.evaluate(() => BAOSceneHTML.refresh());
+  await expect(page.locator('#chat-stream .message.assistant .bubble b')).toContainText('已保存的歷史敘事');
+  expect(await page.evaluate(() => Chat.messages.map(m => m.content))).toEqual(['前一次的玩家訊息', '<b>已保存的歷史敘事</b>']);
 });
 
 test('resuming shows saved main, state and memory model metadata; only keys need reentry', async ({ page }) => {
@@ -162,4 +186,32 @@ test('same-provider helper model is restored without requesting a second key', a
   await expect.poll(() => page.evaluate(() => [App.config.api.key, App.config.cost.stateModel, App.config.cost.stateApiMode].join('|')))
     .toBe('ONE_MAIN_KEY|state-on-main-provider|same');
   expect(await page.evaluate(() => App.config.cost.stateApi)).toBe(null);
+});
+
+test('resumed story can edit output tokens and budget without resetting messages or storing keys', async ({ page }) => {
+  await startStory(page);
+  await page.locator('#bao-chat-cost-open').click();
+  const form = page.locator('#bao-chat-cost-form');
+  await expect(form).toBeVisible();
+  await form.locator('[name="maxOutputTokens"]').fill('2048');
+  await form.locator('[name="budgetTwd"]').fill('70');
+  await form.locator('[name="maxContext"]').fill('24000');
+  await form.getByRole('button', { name: '儲存到目前故事' }).click();
+  await expect(page.locator('#bao-chat-cost-backdrop')).toHaveCount(0);
+  await page.evaluate(async () => { await Storage.flush(); });
+  const saved = await page.evaluate(() => ({
+    active: App.config.cost.maxOutputTokens, maxContext: App.config.memory.maxContext,
+    story: Storage.loadStory()?.config?.cost?.maxOutputTokens,
+    key: Storage.loadStory()?.config?.api?.key || ''
+  }));
+  expect(saved).toEqual({ active: 2048, maxContext: 24000, story: 2048, key: '' });
+  await page.reload();
+  await page.locator('#home-continue').click();
+  const api = page.getByRole('dialog', { name: '故事 API 設定' });
+  await api.locator('input[name="key"]').fill('A_SESSION_ONLY_KEY');
+  await api.getByRole('button', { name: '套用到目前故事' }).click();
+  await page.locator('#bao-chat-cost-open').click();
+  await expect(page.locator('#bao-chat-cost-form [name="maxOutputTokens"]')).toHaveValue('2048');
+  await expect(page.locator('#bao-chat-cost-form [name="budgetTwd"]')).toHaveValue('70');
+  await expect(page.locator('#bao-chat-cost-form [name="maxContext"]')).toHaveValue('24000');
 });
