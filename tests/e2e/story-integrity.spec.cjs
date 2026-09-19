@@ -9,7 +9,11 @@ async function startStory(page, displayMode = 'text') {
   await page.locator('article').filter({ hasText: '林沉風 - 見過黑暗的人' }).click();
   await page.getByRole('button', { name: '開始故事' }).click();
   await page.getByRole('button', { name: '下一步' }).click();
-  if (displayMode === 'ui') await page.locator('input[name="display-mode"][value="ui"]').check();
+  if (displayMode === 'ui') {
+    // The radio is deliberately visually hidden; players click its visible label card.
+    await page.locator('.builder-step[data-step-panel="2"] label.choice-card').filter({ has: page.locator('input[name="display-mode"][value="ui"]') }).click();
+    await expect(page.locator('input[name="display-mode"][value="ui"]')).toBeChecked();
+  }
   for (let step = 1; step < 3; step++) await page.getByRole('button', { name: '下一步' }).click();
   await page.locator('#model-id').fill('local-browser-test');
   await page.locator('#base-url').fill('https://main.invalid/v1');
