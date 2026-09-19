@@ -18,7 +18,7 @@ async function startStory(page) {
   await page.waitForFunction(() => !!window.BAOStoryIntegrity && !!window.BAOStateTrackerRepairs, null, { timeout: 15000 });
 }
 
-test('Android keeps full-height story visible, Enter inserts newline, in-tab top button jumps back', async ({ browser }, testInfo) => {
+test('Android long story grows with document, Enter inserts newline and tab top button jumps to first message', async ({ browser }, testInfo) => {
   test.skip(testInfo.project.name !== 'chromium', 'Android mobile emulation is tested in Chromium');
   const context = await browser.newContext({ viewport: { width: 390, height: 844 }, userAgent: ANDROID, hasTouch: true, isMobile: true });
   const page = await context.newPage();
@@ -47,33 +47,30 @@ test('Android keeps full-height story visible, Enter inserts newline, in-tab top
       GameState.applyUpdate({ new_events: ['林沉風離開房間。', '林沉風返回客廳。'] });
       GameState.applyUpdate({ new_events: ['林沉風離開房間。', '林沉風返回客廳。'] });
     });
-    const mobileMetrics = await page.evaluate(() => {
+    const metrics = await page.evaluate(() => {
       const stream = document.getElementById('chat-stream');
       const layout = document.querySelector('#chat-view .chat-layout');
-      const main = document.querySelector('#chat-view .chat-main');
-      return { viewport: innerHeight, doc: document.scrollingElement.scrollHeight,
-        streamClient: stream.clientHeight, streamScroll: stream.scrollHeight,
-        streamMaxHeight: getComputedStyle(stream).maxHeight, streamOverflow: getComputedStyle(stream).overflowY,
-        layoutHeight: layout.getBoundingClientRect().height, layoutOverflow: getComputedStyle(layout).overflowY,
-        mainHeight: main.getBoundingClientRect().height, mainOverflow: getComputedStyle(main).overflowY,
-        oldJump: !!document.getElementById('bao-chat-jump'),
-        topButton: !!document.querySelector('#chat-view .ui-tabs #bao-chat-top') };
+      const last = stream.lastElementChild;
+      return { viewport: innerHeight, documentHeight: document.scrollingElement.scrollHeight,
+        streamHeight: stream.getBoundingClientRect().height, streamMaxHeight: getComputedStyle(stream).maxHeight,
+        streamOverflow: getComputedStyle(stream).overflowY, layoutHeight: layout.getBoundingClientRect().height,
+        layoutOverflow: getComputedStyle(layout).overflowY, lastVisible: last.getBoundingClientRect().height > 0 &&
+          last.textContent.includes('長篇故事測試第 89 段'), oldJump: !!document.getElementById('bao-chat-jump') };
     });
-    console.log('Android long-story layout:', JSON.stringify(mobileMetrics));
-    await expect.poll(() => page.evaluate(() => {
-      const stream = document.getElementById('chat-stream');
-      const layout = document.querySelector('#chat-view .chat-layout');
-      return getComputedStyle(stream).maxHeight === 'none' &&
-        stream.scrollHeight - stream.clientHeight < 30 &&
-        layout.getBoundingClientRect().height > window.innerHeight * 2 &&
-        document.scrollingElement.scrollHeight > window.innerHeight * 2 &&
-        !document.getElementById('bao-chat-jump');
-    }), { timeout: 7000 }).toBe(true);
+    console.log('Android long-story layout:', JSON.stringify(metrics));
+    expect(metrics.streamMaxHeight).toBe('none');
+    expect(metrics.streamOverflow).toBe('visible');
+    expect(metrics.layoutOverflow).toBe('visible');
+    expect(metrics.streamHeight).toBeGreaterThan(metrics.viewport * 2);
+    expect(metrics.layoutHeight).toBeGreaterThan(metrics.viewport * 2);
+    expect(metrics.documentHeight).toBeGreaterThan(metrics.viewport * 2);
+    expect(metrics.lastVisible).toBe(true);
+    expect(metrics.oldJump).toBe(false);
     expect(await page.evaluate(() => GameState.current.events.filter(item => item.text === '林沉風離開房間。').length)).toBe(1);
     const top = page.locator('#chat-view .ui-tabs #bao-chat-top');
     await expect(top).toBeVisible();
     await expect(top).toHaveText('↑ 置頂');
-    await page.evaluate(() => window.scrollTo(0, document.scrollingElement.scrollHeight));
+    await page.evaluate(() => { document.documentElement.style.scrollBehavior = 'auto'; window.scrollTo(0, document.scrollingElement.scrollHeight); });
     await expect.poll(() => page.evaluate(() => window.scrollY), { timeout: 5000 }).toBeGreaterThan(500);
     await top.click();
     await expect.poll(() => page.evaluate(() => Math.abs(document.getElementById('chat-stream').getBoundingClientRect().top -
