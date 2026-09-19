@@ -9,6 +9,17 @@
   const prefs = { enabled: saved.enabled === true, type: choices.includes(saved.type) ? saved.type : 'auto' };
   const persist = () => { try { localStorage.setItem(KEY, JSON.stringify(prefs)); } catch (_) {} };
   const currentType = () => window.GameState?.current?.scenePresentation || window.GameState?.current?.sceneType || 'general';
+  // The built-in theme receives display text, never the raw model protocol.
+  // Keep Chat.messages untouched so memory, revisions and exports retain the
+  // complete original reply. Both author/native status choices use this path.
+  const visibleNarration = raw => {
+    const source = window.BAOChatPresentationCore?.stripStatusAppendix?.(raw) ?? String(raw ?? '');
+    return String(source)
+      .replace(/\[STATUS\][\s\S]*?(?:\[\/STATUS\]|$)/gi, '')
+      .replace(/\[SCENE:[a-z-]+\]/gi, '')
+      .replace(/\[\/?(?:NARRATION|CHOICE)\]/gi, '')
+      .trim();
+  };
   function paint() {
     const stream = document.getElementById('chat-stream');
     if (!stream || !App.activeCharacter || App.config?.offlineWorldPreview) return;
@@ -27,14 +38,19 @@
       const node = nodes[i + offset];
       if (!node || message.role !== 'assistant' || !node.classList.contains('assistant')) continue;
       const bubble = node.querySelector('.bubble');
-      if (!bubble) continue;
+      if (!bubble || bubble.querySelector('.story-inline-editor') || node.classList.contains('is-streaming')) continue;
       const type = prefs.type === 'auto' ? currentType() : prefs.type;
       const fingerprint = JSON.stringify([message.id || '', message.content, prefs.enabled, type]);
-      if (bubble.dataset.sceneFingerprint === fingerprint) continue;
-      if (prefs.enabled) BAOScenePresentation.render(bubble, message.content, { type });
+      // Another reader may replace the body after we painted it. A matching
+      // fingerprint alone is not evidence that our scene is still on screen.
+      if (bubble.dataset.sceneFingerprint === fingerprint &&
+          (!prefs.enabled || bubble.querySelector('.bao-scene-body'))) continue;
+      if (prefs.enabled) BAOScenePresentation.render(bubble, visibleNarration(message.content), { type });
       else if (bubble.dataset.sceneFingerprint) {
-        bubble.replaceChildren(document.createTextNode(String(message.content || '')));
-        bubble.style.cssText = 'white-space:pre-wrap;overflow-wrap:anywhere';
+        const html = window.BAOSceneHTML?.render?.(message.content);
+        if (typeof html === 'string') bubble.innerHTML = html;
+        else bubble.textContent = visibleNarration(message.content);
+        bubble.style.cssText = '';
         delete bubble.dataset.sceneType;
         bubble.classList.remove('bao-scene-plain');
       } else continue; // Default off: leave the existing rich-message renderer untouched.
