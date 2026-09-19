@@ -85,8 +85,11 @@
       .bao-story-event-list{margin:0;padding:0 0 0 22px;display:grid;gap:10px}
       .bao-story-event-list li{line-height:1.65;overflow-wrap:anywhere}
       .bao-story-event-list small{display:block;color:var(--story-muted,#a4abb8);font-size:11px}
-      .bao-chat-jump{position:absolute;right:12px;bottom:8px;z-index:4;display:flex;gap:6px}
+      /* Keep controls in the layout after the scroll pane. Zero-height/absolute
+         positioning put them beneath the fixed mobile top bar. */
+      .bao-chat-jump{position:static;display:flex;justify-content:flex-end;align-items:center;gap:6px;padding:6px 12px;z-index:4}
       .bao-chat-jump button{width:auto;border-radius:10px;border:1px solid #50556b;background:#191d28;color:#f1eee8;padding:6px 9px;font-size:12px}
+      .bao-chat-jump button[hidden]{display:none}
       @media(max-width:820px){
         #chat-view.active{padding-bottom:8px}
         #chat-view.active .chat-layout{height:calc(100dvh - 100px);min-height:0!important;overflow:hidden}
@@ -107,7 +110,7 @@
     latest.onclick = () => stream.scrollTo({ top: stream.scrollHeight, behavior: 'smooth' });
     controls.append(top, latest);
     const host = document.createElement('div'); host.style.position = 'relative'; host.style.flex = '0 0 auto';
-    host.style.height = '0'; host.appendChild(controls); stream.after(host);
+    host.style.height = 'auto'; host.style.width = '100%'; host.appendChild(controls); stream.after(host);
     const refresh = () => { latest.hidden = stream.scrollHeight - stream.scrollTop - stream.clientHeight < 160; top.hidden = stream.scrollTop < 160; };
     stream.addEventListener('scroll', refresh, { passive: true });
     new MutationObserver(refresh).observe(stream, { childList: true, subtree: false });
