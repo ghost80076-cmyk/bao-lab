@@ -9,7 +9,8 @@ const loadBAOScript = src => new Promise((resolve, reject) => {
 
 window.addEventListener("DOMContentLoaded", () => {
   loadBAOScript("js/chat-api-settings.js")
-    .catch(err => console.warn("BAO/LAB chat API settings failed to load:", err));
+    .then(() => loadBAOScript("js/model-discovery.js"))
+    .catch(err => console.warn("BAO/LAB chat API settings or model discovery failed to load:", err));
   loadBAOScript("js/autonomous-world-workbench.js")
     .then(() => loadBAOScript("js/autonomous-world-display.js"))
     .catch(err => console.warn("BAO/LAB autonomous world workbench or display failed to load:", err));
@@ -124,7 +125,7 @@ window.addEventListener("DOMContentLoaded", () => {
         localStorage.setItem("bao-lab:adult-confirmed", "yes");
         document.getElementById("adult-notice")?.classList.remove("hidden");
         App.renderCharacters(btn.dataset.filter);
-        document.querySelectorAll(".filter").forEach(x => x.classList.remove("active"));
+        document.querySelectorAll(".filter").forEach(x=>x.classList.remove("active"));
         btn.classList.add("active");
       }
     }), true);
