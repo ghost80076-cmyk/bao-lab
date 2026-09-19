@@ -65,6 +65,7 @@
     if (Array.isArray(data.npcs)) out.npcs = data.npcs.filter(object).slice(0, 30).map(n => {
       const clean = pickFields(n, ["name", "role", "mood", "location", "relationship"].map(key => ({ key, type: "text" })));
       if (typeof n.relationship === "number" && Number.isFinite(n.relationship)) clean.relationship = n.relationship;
+      if (["present", "away", "unknown"].includes(n.presence)) clean.presence = n.presence;
       return clean;
     }).filter(n => n.name?.trim() && safeKey(n.name));
     const fields = window.BAOCharacterStatus?.configFor?.(window.App?.activeCharacter)?.fields?.filter(f => f.track) || [];

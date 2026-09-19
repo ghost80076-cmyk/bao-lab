@@ -133,7 +133,7 @@
   const defaultStatus = cfg => Object.fromEntries(cfg.fields.map(f => [f.key, cleanValue(f, f.default)]));
 
   const trackedNames = character => [
-    character?.name || window.App?.activeCharacter?.name,
+    ...(character?.id === "desire-district" ? [] : [character?.name || window.App?.activeCharacter?.name]),
     ...(GameState.current?.npcs || []).map(n => n?.name)
   ].filter(Boolean);
 
@@ -226,17 +226,23 @@
     const state = GameState.current;
     if (!state) return [];
     const hay = String(text || "").toLowerCase();
-    const all = Object.keys(state.characterStatuses || {});
+    const district = window.App?.activeCharacter?.id === "desire-district";
+    const all = Object.keys(state.characterStatuses || {}).filter(name => !district || name !== window.App?.activeCharacter?.name);
+    const inScene = new Set((state.npcs || []).filter(npc => npc?.name && npc.presence !== "away" &&
+      (npc.location === state.location || (npc.presence === "present" && (!npc.location || npc.location === "未知")))).map(npc => npc.name));
     const viewed = String(state.uiContextCharacter || "");
     const scored = all.map(name => {
-      let score = hay.includes(name.toLowerCase()) ? 6 : 0;
+      const mentioned = hay.includes(name.toLowerCase());
+      if (district && !mentioned && !inScene.has(name)) return { name, score: 0 };
+      let score = mentioned ? 6 : 0;
       if (name === viewed) score += 4;
       if (name === window.App?.activeCharacter?.name) score += 1;
+      if (district && inScene.has(name)) score += 2;
       return { name, score };
     }).filter(x => x.score > 0).sort((a, b) => b.score - a.score)
       .slice(0, Math.max(1, Math.min(4, Number(options.maxCharacters || 3))))
       .map(x => x.name);
-    if (!scored.length && all.length === 1) return all;
+    if (!scored.length && !district && all.length === 1) return all;
     return scored;
   };
 

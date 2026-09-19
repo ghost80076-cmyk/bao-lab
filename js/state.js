@@ -46,6 +46,7 @@ const GameState = {
     ["name", "role", "mood", "location", "relationship", "personality", "notes"].forEach(k => {
       if (npc[k] !== undefined && npc[k] !== null && String(npc[k]).trim() !== "") clean[k] = npc[k];
     });
+    if (["present", "away", "unknown"].includes(npc.presence)) clean.presence = npc.presence;
     if (found) Object.assign(found, clean);
     else list.push({ name, role: "NPC", mood: "未知", location: "未知", relationship: "未設定", ...clean });
     this.current.npcs = list.slice(0, 50);

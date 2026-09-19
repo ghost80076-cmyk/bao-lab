@@ -71,7 +71,10 @@
     const ui = document.getElementById("ui-panel");
     if (!ui || (!cfg.enabled && !cfg.allow_player_customize)) return false;
 
-    const names = [App.activeCharacter?.name, ...(GameState.current?.npcs || []).map(n => n?.name)].filter(Boolean);
+    const isDistrict = App.activeCharacter?.id === "desire-district";
+    const sceneNPCs = (GameState.current?.npcs || []).filter(npc => npc?.name && npc.presence !== "away" &&
+      (npc.location === GameState.current?.location || (npc.presence === "present" && (!npc.location || npc.location === "未知"))));
+    const names = isDistrict ? sceneNPCs.map(npc => npc.name) : [App.activeCharacter?.name, ...(GameState.current?.npcs || []).map(n => n?.name)].filter(Boolean);
     const fields = visibleFields(cfg);
     const cards = [...new Set(names)].map(name => {
       const npc = (GameState.current?.npcs || []).find(n => n.name === name);
@@ -82,7 +85,7 @@
       return `<article class="character-status-card ${picked ? "context-picked" : ""}" data-character-context="${esc(name)}"><div class="character-status-head"><div><strong>${esc(name)}</strong><br><span>${esc(role)}</span></div><span>${picked ? "下一輪優先參考" : "點一下可供下一輪參考"}</span></div>${rows ? `<div class="character-status-fields">${rows}</div>` : '<div class="character-status-empty">目前沒有顯示中的狀態欄位，可從「狀態欄管理」新增。</div>'}</article>`;
     }).join("");
 
-    ui.innerHTML = `<div class="character-status-toolbar"><p>角色卡預設欄位與玩家自訂欄位共同組成這份故事的實際狀態欄。</p>${cfg.allow_player_customize ? '<button type="button" class="secondary" data-character-status-settings>⚙ 狀態欄管理</button>' : ""}</div><div class="character-status-grid">${cards || '<div class="character-status-empty">目前沒有可追蹤人物。</div>'}</div>`;
+    ui.innerHTML = `<div class="character-status-toolbar"><p>${isDistrict ? "👥 當前場景 NPC（離場角色資料仍保存在故事中）" : "角色卡預設欄位與玩家自訂欄位共同組成這份故事的實際狀態欄。"}</p>${cfg.allow_player_customize ? '<button type="button" class="secondary" data-character-status-settings>⚙ 狀態欄管理</button>' : ""}</div><div class="character-status-grid">${cards || (isDistrict ? '<div class="character-status-empty">當前場景沒有已確認的在場 NPC。</div>' : '<div class="character-status-empty">目前沒有可追蹤人物。</div>')}</div>`;
     ui.querySelectorAll("[data-character-context]").forEach(card => card.addEventListener("click", event => {
       if (event.target.closest("button")) return;
       GameState.current.uiContextCharacter = card.dataset.characterContext || "";

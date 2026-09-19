@@ -15,7 +15,8 @@ const WorldStateEngine = {
         role: n.role || "NPC",
         mood: n.mood || "未知",
         location: n.location || "未知",
-        relationship: n.relationship ?? "未設定"
+        relationship: n.relationship ?? "未設定",
+        presence: n.presence || "unknown"
       })),
       recent_events: (s.events || []).slice(0, 8)
     };
@@ -27,8 +28,9 @@ const WorldStateEngine = {
       "你是角色扮演遊戲的狀態整理器，不是故事作者。",
       "根據本輪玩家輸入與故事回覆，只更新有明確依據的世界狀態。",
       "不得自行新增未發生的劇情。沒有變化的欄位請保留原值。",
+      "npcs 是人物狀態的 PATCH，不是全島完整名單；只依場景可證實的人物進出更新 presence：present（在場）、away（離場）、unknown（不確定）。轉場後不能把原登記員自動視為在場，既有人物資料仍要保留。",
       "只輸出一個 JSON 物件，不要 Markdown，不要解釋。",
-      "格式：{\"time\":\"\",\"location\":\"\",\"events\":[\"\"],\"npcs\":[{\"name\":\"\",\"role\":\"\",\"mood\":\"\",\"location\":\"\",\"relationship\":\"\"}]}",
+      "格式：{\"time\":\"\",\"location\":\"\",\"events\":[\"\"],\"npcs\":[{\"name\":\"\",\"role\":\"\",\"mood\":\"\",\"location\":\"\",\"relationship\":\"\",\"presence\":\"present\"}]}",
       `【目前狀態】\n${JSON.stringify(this.stateSnapshot())}`,
       `【玩家】\n${playerText}`,
       `【故事回覆】\n${assistantText}`

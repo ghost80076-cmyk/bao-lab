@@ -68,8 +68,12 @@
     if (!state) return null;
     const config = window.BAOCharacterStatus?.configFor?.(App.activeCharacter);
     const names = Object.keys(state.characterStatuses || {});
+    const district = App.activeCharacter?.id === "desire-district";
+    const present = (state.npcs || []).filter(npc => npc?.name && npc.presence !== "away" &&
+      (npc.location === state.location || (npc.presence === "present" && (!npc.location || npc.location === "未知")))).map(npc => npc.name);
     const preferred = state.uiContextCharacter || App.activeCharacter?.name;
-    const name = names.includes(preferred) ? preferred : names[0];
+    const name = district ? (present.includes(preferred) ? preferred : present.find(item => names.includes(item)) || null)
+      : names.includes(preferred) ? preferred : names[0];
     const fields = config?.fields?.filter(field => !config.customization?.hidden?.includes(field.key)) || [];
     const values = name ? state.characterStatuses[name] || {} : {};
     return { state, name, fields, values, labels: config?.customization?.labels || {} };
@@ -121,12 +125,12 @@
       author.dataset.fingerprint = fingerprint;
       return;
     }
-    const heading = document.createElement('strong'); heading.textContent = shared.name || '世界狀態';
-    const rows = shared.fields.map(field => {
+    const heading = document.createElement('strong'); heading.textContent = shared.name || (App.activeCharacter?.id === "desire-district" ? '當前場景沒有已確認 NPC' : '世界狀態');
+    const rows = shared.name ? shared.fields.map(field => {
       const line = document.createElement('div');
       line.textContent = `${shared.labels[field.key] || field.label}：${valueText(shared.values[field.key]) || '—'}`;
       return line;
-    });
+    }) : [];
     if (!rows.length) {
       const line = document.createElement('div'); line.textContent = `時間：${shared.state.time || '未知'}　地點：${shared.state.location || '未知'}`;
       rows.push(line);
