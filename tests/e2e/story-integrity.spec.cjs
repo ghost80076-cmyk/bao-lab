@@ -2,13 +2,15 @@ const { test, expect } = require('@playwright/test');
 
 const ANDROID = 'Mozilla/5.0 (Linux; Android 14; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Mobile Safari/537.36';
 
-async function startStory(page) {
+async function startStory(page, displayMode = 'text') {
   await page.goto('/');
   await page.waitForFunction(() => typeof App !== 'undefined' && App.characters?.length > 0 && Storage.status().ready, null, { timeout: 15000 });
   await page.getByRole('button', { name: '探索作品' }).click();
   await page.locator('article').filter({ hasText: '林沉風 - 見過黑暗的人' }).click();
   await page.getByRole('button', { name: '開始故事' }).click();
-  for (let step = 0; step < 3; step++) await page.getByRole('button', { name: '下一步' }).click();
+  await page.getByRole('button', { name: '下一步' }).click();
+  if (displayMode === 'ui') await page.locator('input[name="display-mode"][value="ui"]').check();
+  for (let step = 1; step < 3; step++) await page.getByRole('button', { name: '下一步' }).click();
   await page.locator('#model-id').fill('local-browser-test');
   await page.locator('#base-url').fill('https://main.invalid/v1');
   await page.locator('#api-key').fill('MAIN_UNSAVED_BROWSER_KEY');
@@ -18,7 +20,7 @@ async function startStory(page) {
   await page.waitForFunction(() => !!window.BAOStoryIntegrity && !!window.BAOStateTrackerRepairs, null, { timeout: 15000 });
 }
 
-test('Android long story grows with document, Enter inserts newline and tab top button jumps to first message', async ({ browser }, testInfo) => {
+test('Android long story grows with document, Enter inserts newline and visible top button jumps to first message', async ({ browser }, testInfo) => {
   test.skip(testInfo.project.name !== 'chromium', 'Android mobile emulation is tested in Chromium');
   const context = await browser.newContext({ viewport: { width: 390, height: 844 }, userAgent: ANDROID, hasTouch: true, isMobile: true });
   const page = await context.newPage();
@@ -67,15 +69,27 @@ test('Android long story grows with document, Enter inserts newline and tab top 
     expect(metrics.lastVisible).toBe(true);
     expect(metrics.oldJump).toBe(false);
     expect(await page.evaluate(() => GameState.current.events.filter(item => item.text === '林沉風離開房間。').length)).toBe(1);
-    const top = page.locator('#chat-view .ui-tabs #bao-chat-top');
+    const top = page.locator('#bao-chat-top');
     await expect(top).toBeVisible();
     await expect(top).toHaveText('↑ 置頂');
+    await expect(page.locator('#chat-view .chat-topline #bao-chat-top')).toBeVisible();
     await page.evaluate(() => { document.documentElement.style.scrollBehavior = 'auto'; window.scrollTo(0, document.scrollingElement.scrollHeight); });
     await expect.poll(() => page.evaluate(() => window.scrollY), { timeout: 5000 }).toBeGreaterThan(500);
     await top.click();
     await expect.poll(() => page.evaluate(() => Math.abs(document.getElementById('chat-stream').getBoundingClientRect().top -
       (document.querySelector('.topbar')?.getBoundingClientRect().height || 0) - 8)), { timeout: 5000 }).toBeLessThan(25);
   } finally { await context.close().catch(() => {}); }
+});
+
+test('interactive UI keeps top button immediately after memory tab and text mode moves it to visible header', async ({ page }) => {
+  await startStory(page, 'ui');
+  const top = page.locator('#bao-chat-top');
+  await expect(top).toBeVisible();
+  await expect(page.locator('#chat-view .ui-tabs [data-panel="memory"] + #bao-chat-top')).toBeVisible();
+  await page.evaluate(() => { App.config.displayMode = 'text'; App.renderChatShell(false); });
+  await expect(page.locator('#game-ui')).toBeHidden();
+  await expect(page.locator('#chat-view .chat-topline #bao-chat-top')).toBeVisible();
+  expect(await page.locator('#bao-chat-top').count()).toBe(1);
 });
 
 test('resuming shows saved main, state and memory model metadata; only keys need reentry', async ({ page }) => {
