@@ -18,6 +18,18 @@ const requirePreset = (provider, model) => {
   return p;
 };
 
+// The free route must be a separate, discoverable provider, not a paid-model default.
+const free = requirePreset('openrouter-free', 'openrouter/free');
+assert.equal(presets[0], free, 'free trial should be the first API service option');
+assert.equal(free.provider_label, 'OpenRouter 免費體驗');
+assert.equal(free.route, 'router');
+assert.equal(free.protocol, 'openai');
+assert.equal(free.base_url, 'https://openrouter.ai/api/v1/chat/completions');
+assert.deepEqual([free.pricing.input, free.pricing.output, free.pricing.cache], [0, 0, 0]);
+assert.match(free.docs_url, /^https:\/\/openrouter\.ai\/openrouter\/free/);
+assert.match(free.pricing.note, /50.*1,000.*20/, 'free quotas must be shown as limits, not unlimited usage');
+assert.match(free.use_case, /記憶.*狀態.*付費/, 'warn when helper models might still cost money');
+
 const sonnet = requirePreset('anthropic', 'claude-sonnet-4-6');
 assert.deepEqual([sonnet.pricing.input, sonnet.pricing.output, sonnet.pricing.cache], [3, 15, 0.3]);
 const mimo = requirePreset('mimo', 'mimo-v2.5');
