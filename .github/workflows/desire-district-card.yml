@@ -27,3 +27,20 @@ jobs:
         with:
           node-version: 22
       - run: node tests/desire-district-core.cjs
+      - name: Verify published character card and catalog
+        if: github.event_name == 'push'
+        shell: bash
+        run: |
+          set -euo pipefail
+          base='https://ghost80076-cmyk.github.io/bao-lab/data'
+          for attempt in $(seq 1 36); do
+            if curl --fail --silent --show-error --location --max-time 15 "$base/characters/general/desire-district.json" -o /tmp/desire-district.json \
+              && curl --fail --silent --show-error --location --max-time 15 "$base/characters.json" -o /tmp/characters.json \
+              && node -e 'const fs=require("fs");const card=JSON.parse(fs.readFileSync("/tmp/desire-district.json","utf8"));const list=JSON.parse(fs.readFileSync("/tmp/characters.json","utf8"));if(card.meta.id!=="desire-district"||!list.some(x=>x.id===card.meta.id))process.exit(1)'; then
+              echo "Live Pages card and catalog verified on attempt $attempt."
+              exit 0
+            fi
+            sleep 5
+          done
+          echo 'Live Pages has not published the expected card and catalog.' >&2
+          exit 1
