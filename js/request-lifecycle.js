@@ -72,9 +72,8 @@
 
   controls();
   App.__requestLifecyclePatched = true;
-  // The canonical renderer must load after the request lifecycle so it never
-  // repaints an in-flight response, regardless of text or interactive UI mode.
-  if (!document.querySelector('script[src="js/scene-render-integrity.js"]')) {
+  // Real browsers have document.head; headless core tests deliberately do not.
+  if (document.head?.append && !document.querySelector('script[src="js/scene-render-integrity.js"]')) {
     const script = document.createElement('script');
     script.src = 'js/scene-render-integrity.js';
     script.onerror = () => console.warn('BAO/LAB scene render integrity failed to load');
