@@ -16,18 +16,42 @@ assert.equal(card.meta.avatar, 'https://i.meee.com.tw/nfkc3T3.jpg');
 assert.ok(card.content.greeting.includes('貓姐兒'));
 assert.ok(card.content.greeting.includes('<details>'), '開場介紹應可折疊');
 assert.ok(card.content.greeting.includes('<audio controls'), '開場提供可選播放器');
-assert.ok(card.content.greeting.includes('src="https://videotourl.com/audio/'), '音訊必須是直接網址，而非 Markdown 連結');
+assert.ok(card.content.greeting.includes('src="https://videotourl.com/audio/'), '音訊必須是直接網址');
 assert.ok(!/<script\b|\son\w+\s*=/i.test(card.content.greeting), '開場不得帶入可執行腳本或事件屬性');
-assert.equal(card.gameplay.initial_state.modules.economy.amount, 20000);
-assert.equal(card.gameplay.initial_state.modules.status.stamina, 100);
-assert.equal(card.gameplay.initial_state.npcs[0].name, '貓姐兒');
-assert.ok(card.gameplay.initial_state.character_statuses['貓姐兒']);
-const moduleIds = card.gameplay.world_modules.map(module => module.id);
+assert.ok(card.content.system_prompt.includes('18歲以上成年人'));
+assert.ok(card.content.system_prompt.includes('不等於對額外行為的同意'));
+assert.ok(card.content.world.includes('霓港島'));
+assert.ok(card.content.world.includes('持證性工作者'));
+assert.ok(card.content.system_prompt.includes('貓姐兒只是開場'));
+const modules = card.gameplay.world_modules;
+const moduleIds = modules.map(module => module.id);
 assert.equal(new Set(moduleIds).size, moduleIds.length);
-for (const name of Object.keys(card.gameplay.initial_state.modules)) {
+const initial = card.gameplay.initial_state;
+for (const name of Object.keys(initial.modules)) {
   assert.ok(moduleIds.includes(name), `初始狀態缺少模組定義：${name}`);
 }
-assert.ok(card.gameplay.dynamic_prompts.some(item => item.id === 'district-relations'));
-assert.ok(card.content.system_prompt.includes('21歲以上'));
-assert.ok(card.content.system_prompt.includes('不等於同意'));
-console.log('Desire District card manifest, schema, greeting and state checks passed.');
+for (const module of modules.filter(item => item.kind === 'object')) {
+  const current = initial.modules[module.id];
+  for (const field of module.fields) {
+    assert.ok(Object.hasOwn(current, field.key), `初始狀態缺少 ${module.id}.${field.key}`);
+  }
+}
+assert.equal(initial.modules.economy.amount, 20000);
+assert.equal(initial.modules.status.stamina, 100);
+assert.equal(initial.modules.status.ability, 50);
+assert.equal(initial.modules.skills.sexual_technique, 0);
+assert.equal(initial.modules.occupation.services_today, 0);
+assert.equal(initial.modules.occupation.services_total, 0);
+assert.equal(initial.npcs[0].name, '貓姐兒');
+assert.deepEqual(Object.keys(initial.character_statuses), ['貓姐兒']);
+assert.ok(initial.npcs[0].notes.includes('開場當前NPC'));
+const statusFields = card.gameplay.character_status.fields;
+assert.ok(statusFields.length <= 24);
+assert.equal(new Set(statusFields.map(field => field.key)).size, statusFields.length);
+for (const field of statusFields) {
+  assert.ok(Object.hasOwn(initial.character_statuses['貓姐兒'], field.key), `貓姐兒示例缺少 ${field.key}`);
+}
+for (const name of ['district-economy', 'district-intimacy', 'district-offscreen']) {
+  assert.ok(card.gameplay.dynamic_prompts.some(item => item.id === name), `缺少動態模組 ${name}`);
+}
+console.log('Desire District adult world, status, skills, NPC and greeting checks passed.');
