@@ -35,8 +35,13 @@
         this.saveStory(false);
       };
       App.__worldStateHooked = true;
-      // Apply shared story fixes only after the native state hooks are in place.
-      // Neither module starts a server or persists API credentials.
+      // Modules are global lexical consts in the original classic scripts.
+      // The optional repair scripts check window members: publish references
+      // after all original modules have loaded, before loading the repairs.
+      if (typeof Storage !== 'undefined') window.Storage = Storage;
+      if (typeof API !== 'undefined') window.API = API;
+      if (typeof BAOCharacterStatus !== 'undefined') window.BAOCharacterStatus = BAOCharacterStatus;
+      if (typeof BAOHelperData !== 'undefined') window.BAOHelperData = BAOHelperData;
       for (const src of ['js/story-integrity-fixes.js', 'js/state-tracker-repairs.js']) {
         if (document.querySelector(`script[src="${src}"]`)) continue;
         const script = document.createElement('script');
