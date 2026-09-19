@@ -46,7 +46,6 @@
       const close = document.createElement('button');
       close.type = 'button'; close.className = 'bao-status-close secondary';
       close.textContent = '關閉'; close.setAttribute('aria-label', '關閉世界狀態');
-      close.addEventListener('click', closeStatus);
       heading.append(title, close);
       const host = document.createElement('div'); host.className = 'bao-rail-status-host';
       const info = document.createElement('p'); info.className = 'bao-status-empty note';
@@ -109,7 +108,11 @@
     const stream = $('chat-stream');
     const messages = window.Chat?.messages;
     const scene = window.BAOSceneHTML;
-    if (!stream || !Array.isArray(messages) || typeof scene?.render !== 'function') return;
+    if (!stream || !Array.isArray(messages) || typeof scene?.render !== 'function' || App.__requestPending) return;
+    // The optional scene integration owns scene cards. Writing the legacy
+    // appendix-cleaned text here used to replace the card on every animation
+    // frame, causing visible raw tags and an observer repaint loop.
+    if (window.BAOSceneChat?.prefs?.enabled === true) return;
     const nodes = [...stream.querySelectorAll(':scope > .message')];
     const greeting = nodes[0]?.dataset.storyGreeting === 'true' || nodes[0]?.querySelector('.bubble')?.dataset.authoredGreeting === 'true';
     if (!messages.length && nodes.length === 1 && greeting) {
