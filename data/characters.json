@@ -10,5 +10,9 @@
   {
     "id": "open-world-real-persona",
     "file": "data/characters/general/open-world-real-persona.json"
+  },
+  {
+    "id": "desire-district",
+    "file": "data/characters/general/desire-district.json"
   }
 ]
