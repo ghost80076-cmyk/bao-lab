@@ -43,6 +43,10 @@ jobs:
           old = "assert.ok(card.content.system_prompt.includes('貓姐兒只是開場'));"
           new = "assert.ok(card.content.system_prompt.includes('貓姐兒是開場入口的實際'));\nassert.equal(card.gameplay.initial_state.npcs[0].presence, 'present');"
           assert text.count(old) == 1
+          text = text.replace(old, new, 1)
+          old = "assert.ok(initial.npcs[0].notes.includes('開場當前NPC'));"
+          new = "assert.ok(initial.npcs[0].notes.includes('開場時在登記處與玩家互動的當前NPC'));"
+          assert text.count(old) == 1
           path.write_text(text.replace(old, new, 1), encoding='utf-8')
           PY
       - name: Verify syntax and NPC lifecycle
