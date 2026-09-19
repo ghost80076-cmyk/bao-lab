@@ -15,7 +15,7 @@
     #chat-view #bao-chat-top{display:none!important}
     #bao-chat-floating-actions{position:fixed;right:max(14px,env(safe-area-inset-right));bottom:calc(94px + env(safe-area-inset-bottom));z-index:148;display:flex;flex-direction:column;align-items:flex-end;gap:9px;pointer-events:none}
     #chat-view:not(.active) #bao-chat-floating-actions{display:none}
-    #bao-chat-floating-actions :is(button,a){pointer-events:auto;display:inline-flex;align-items:center;justify-content:center;gap:6px;width:auto;min-height:42px;max-width:165px;padding:9px 13px;border:1px solid #6c7b89;border-radius:999px;background:#1a2630;color:#f6fafb;font:600 13px/1.3 inherit;text-decoration:none;box-shadow:0 6px 22px #0009;cursor:pointer}
+    #bao-chat-floating-actions :is(button,a){pointer-events:auto;display:inline-flex;align-items:center;justify-content:center;gap:6px;width:auto;min-height:42px;max-width:165px;padding:9px 13px;border:1px solid #6c7b89;border-radius:999px;background:#1a2630;color:#f6fafb;font-size:13px;font-weight:600;line-height:1.3;text-decoration:none;box-shadow:0 6px 22px #0009;cursor:pointer}
     #bao-chat-floating-actions :is(button,a):focus-visible{outline:3px solid #70e3d1;outline-offset:3px}
     #bao-chat-floating-actions a img{width:20px;height:20px}
     #bao-chat-send-feedback{margin:8px 0;padding:10px 13px;border:1px solid #9c7957;border-radius:10px;background:#322820;color:#ffddb9;font-size:13px;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere}
@@ -31,7 +31,7 @@
     #bao-chat-cost-dialog input,#bao-chat-cost-dialog select{box-sizing:border-box;width:100%;min-width:0;padding:9px;border:1px solid #777d91;border-radius:8px;background:#141720;color:white;font:inherit}
     #bao-chat-cost-dialog footer button{width:auto;min-height:41px}
     #bao-chat-cost-error{color:#ffcc93!important;margin:0}
-    #bao-chat-cost-open{width:auto;min-height:38px}
+    #bao-chat-cost-open{order:15;align-self:flex-start;width:auto;min-height:38px;margin:0 0 9px}
     @media(max-width:600px){#bao-chat-floating-actions{right:10px;bottom:calc(116px + env(safe-area-inset-bottom))}#bao-chat-floating-actions :is(button,a){min-height:40px;padding:8px 11px}#bao-chat-cost-dialog fieldset{grid-template-columns:1fr}}
   `;
   document.head.append(styles);
@@ -93,14 +93,15 @@
   floating.append(toTop, support);
   chat.append(floating);
 
-  const toolbar = $('bao-chat-api-toolbar') || chat.querySelector('.chat-main');
+  // Keep the original API toolbar's single button intact for older readers.
   const settingsButton = document.createElement('button');
   settingsButton.type = 'button';
   settingsButton.id = 'bao-chat-cost-open';
   settingsButton.className = 'secondary';
   settingsButton.textContent = '⚙ 記憶／Token／成本';
   settingsButton.addEventListener('click', openSettings);
-  if (toolbar?.id === 'bao-chat-api-toolbar') toolbar.append(settingsButton);
+  const apiToolbar = $('bao-chat-api-toolbar');
+  if (apiToolbar) apiToolbar.insertAdjacentElement('afterend', settingsButton);
   else chat.querySelector('.chat-main')?.insertBefore(settingsButton, stream);
 
   const numeric = (form, name, min, max = Infinity) => {
