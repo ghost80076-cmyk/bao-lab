@@ -36,12 +36,13 @@
       };
       App.__worldStateHooked = true;
       // Apply shared story fixes only after the native state hooks are in place.
-      // The module makes no network request and creates no server-side storage.
-      if (!document.querySelector('script[src="js/story-integrity-fixes.js"]')) {
-        const integrity = document.createElement('script');
-        integrity.src = 'js/story-integrity-fixes.js';
-        integrity.onerror = () => console.warn('BAO/LAB story integrity fixes did not load');
-        document.head.appendChild(integrity);
+      // Neither module starts a server or persists API credentials.
+      for (const src of ['js/story-integrity-fixes.js', 'js/state-tracker-repairs.js']) {
+        if (document.querySelector(`script[src="${src}"]`)) continue;
+        const script = document.createElement('script');
+        script.src = src;
+        script.onerror = () => console.warn(`BAO/LAB repair module did not load: ${src}`);
+        document.head.appendChild(script);
       }
       // The scene renderer may mount after this script and its private refresh
       // function may replace the native board with the one-line legacy label.
