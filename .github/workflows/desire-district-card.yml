@@ -1,0 +1,29 @@
+name: Desire District card
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - data/characters.json
+      - data/characters/general/desire-district.json
+      - tests/desire-district-core.cjs
+      - .github/workflows/desire-district-card.yml
+  pull_request:
+    paths:
+      - data/characters.json
+      - data/characters/general/desire-district.json
+      - tests/desire-district-core.cjs
+      - .github/workflows/desire-district-card.yml
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node tests/desire-district-core.cjs
