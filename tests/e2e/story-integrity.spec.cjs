@@ -20,24 +20,24 @@ async function startStory(page) {
 
 test('Android Enter inserts a newline, long chat scrolls internally and event history stays deduplicated', async ({ browser }, testInfo) => {
   test.skip(testInfo.project.name !== 'chromium', 'Android mobile emulation is tested in Chromium');
-  const context = await browser.newContext({
-    viewport: { width: 390, height: 844 }, userAgent: ANDROID,
-    hasTouch: true, isMobile: true
-  });
+  const context = await browser.newContext({ viewport: { width: 390, height: 844 }, userAgent: ANDROID, hasTouch: true, isMobile: true });
   const page = await context.newPage();
   try {
+    console.log('Android integrity: starting story');
     await startStory(page);
+    console.log('Android integrity: preparing composer');
     await page.evaluate(() => {
       window.__unexpectedSendCount = 0;
       App.sendMessage = () => { window.__unexpectedSendCount++; return Promise.resolve(); };
     });
     const input = page.locator('#user-input');
-    await input.fill('第一行');
-    await input.press('Enter');
-    await expect(input).toHaveValue('第一行\n');
-    await input.press('Shift+Enter');
-    await expect(input).toHaveValue('第一行\n\n');
+    await input.fill('第一行', { timeout: 5000 });
+    await input.press('Enter', { timeout: 5000 });
+    await expect(input).toHaveValue('第一行\n', { timeout: 5000 });
+    await input.press('Shift+Enter', { timeout: 5000 });
+    await expect(input).toHaveValue('第一行\n\n', { timeout: 5000 });
     expect(await page.evaluate(() => window.__unexpectedSendCount)).toBe(0);
+    console.log('Android integrity: composer newline passed; adding long story');
     await page.evaluate(() => {
       const stream = document.getElementById('chat-stream');
       for (let i = 0; i < 90; i++) {
@@ -48,18 +48,25 @@ test('Android Enter inserts a newline, long chat scrolls internally and event hi
       GameState.addEvent('玩家與 林沉風 完成一輪互動。');
       GameState.applyUpdate({ new_events: ['林沉風離開房間。', '林沉風返回客廳。'] });
       GameState.applyUpdate({ new_events: ['林沉風離開房間。', '林沉風返回客廳。'] });
+      // The latest button hides when already at the bottom; make a reader scroll upward first.
+      stream.scrollTop = 0;
+      stream.dispatchEvent(new Event('scroll'));
     });
     await expect.poll(() => page.evaluate(() => {
       const stream = document.getElementById('chat-stream');
       return stream.scrollHeight > stream.clientHeight && getComputedStyle(stream).overflowY === 'auto';
-    })).toBe(true);
+    }), { timeout: 5000 }).toBe(true);
+    console.log('Android integrity: internal scroll passed; validating event and jump');
     expect(await page.evaluate(() => GameState.current.events.filter(item => item.text === '林沉風離開房間。').length)).toBe(1);
-    await page.locator('#bao-chat-jump button').filter({ hasText: '回到最新' }).click();
+    const latest = page.locator('#bao-chat-jump button').filter({ hasText: '回到最新' });
+    await expect(latest).toBeVisible({ timeout: 5000 });
+    await latest.click({ timeout: 5000 });
     await expect.poll(() => page.evaluate(() => {
       const stream = document.getElementById('chat-stream');
       return stream.scrollHeight - stream.scrollTop - stream.clientHeight;
-    })).toBeLessThan(30);
-  } finally { await context.close(); }
+    }), { timeout: 5000 }).toBeLessThan(30);
+    console.log('Android integrity: event and jump passed');
+  } finally { await context.close().catch(() => {}); }
 });
 
 test('restore reconnects separate state and memory keys without exporting any key', async ({ page }) => {
