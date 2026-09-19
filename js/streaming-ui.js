@@ -9,6 +9,30 @@
     && !config?.__auxiliaryTask
     && document.getElementById("chat-view")?.classList.contains("active");
 
+  // Streaming may stop in the middle of a protocol marker or a status block.
+  // Render the visible portion with the same reader used for saved messages,
+  // without modifying the raw response stored in Chat.messages or sent to APIs.
+  const renderStreamingPreview = text => {
+    let preview = String(text || "");
+    const upper = preview.toUpperCase();
+    const openStatus = upper.lastIndexOf("[STATUS]");
+    if (openStatus > upper.lastIndexOf("[/STATUS]")) preview = preview.slice(0, openStatus);
+    const unfinished = preview.match(/\[\/?[A-Za-z:-]*$/);
+    if (unfinished) {
+      const fragment = unfinished[0].toUpperCase();
+      const markers = ["[SCENE:", "[NARRATION]", "[/NARRATION]", "[CHOICE]", "[/CHOICE]", "[STATUS]", "[/STATUS]"];
+      if (markers.some(marker => marker.startsWith(fragment)) || /^\[SCENE:[A-Z-]*$/.test(fragment)) {
+        preview = preview.slice(0, -fragment.length);
+      }
+    }
+    if (window.BAOSceneHTML?.render) return window.BAOSceneHTML.render(preview);
+    // A late-loading reader must not briefly expose control syntax either.
+    return App.formatMessage(preview
+      .replace(/\[STATUS\][\s\S]*?(?:\[\/STATUS\]|$)/gi, "")
+      .replace(/\[SCENE:[a-z-]+\]/gi, "")
+      .replace(/\[\/?(?:NARRATION|CHOICE)\]/gi, ""));
+  };
+
   // A streaming bubble is temporary. After a request completes, restore the
   // committed source using the same selected reader mode as saved messages.
   // In particular, the fresh-story greeting does not belong to Chat.messages.
@@ -86,7 +110,7 @@
       if (settled) return; // A delayed animation frame must not overwrite the final message.
       const bubble = document.querySelector("#chat-stream > .message.assistant:last-child .bubble");
       if (!bubble || !pendingText) return;
-      bubble.innerHTML = App.formatMessage(pendingText);
+      bubble.innerHTML = renderStreamingPreview(pendingText);
       bubble.closest(".message")?.classList.add("is-streaming");
       const stream = document.getElementById("chat-stream");
       if (stream) stream.scrollTop = stream.scrollHeight;
