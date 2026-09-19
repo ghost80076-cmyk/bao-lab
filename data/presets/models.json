@@ -1,5 +1,8 @@
 [
   {
+    "provider":"openrouter-free","provider_label":"OpenRouter 免費體驗","route":"router","protocol":"openai","label":"免費模型自動路由 · $0 Token","model":"openrouter/free","base_url":"https://openrouter.ai/api/v1/chat/completions","badge":"免費","use_case":"玩家使用自己的 OpenRouter API Key；免費路由會從可用模型中選擇，長篇文風與 JSON 狀態輸出可能不穩定。記憶、狀態若選付費模型仍會計費，請分別確認。","cache":"provider-dependent","pricing":{"input":0,"output":0,"cache":0,"note":"免費模型 Token 為 $0，並非不限次數：未儲值帳戶目前每日 50 次請求；累計購買至少 US$10 額度的帳戶每日 1,000 次，皆每分鐘最多 20 次。測試連線、重新生成及記憶／狀態請求都可能計入額度；實際限制以 OpenRouter 為準。"},"docs_url":"https://openrouter.ai/openrouter/free"
+  },
+  {
     "provider":"gemini","provider_label":"Google Gemini 官方","route":"official","protocol":"gemini","label":"Gemini 3.1 Pro Preview · 高品質","model":"gemini-3.1-pro-preview","base_url":"https://generativelanguage.googleapis.com/v1beta/models","badge":"高品質","use_case":"重要劇情、複雜長篇、需要較強推理時","cache":"supported","pricing":{"input":2,"output":12,"cache":0.2,"note":"標準價；提示超過 200K 時價格提高。"},"docs_url":"https://ai.google.dev/gemini-api/docs/pricing"
   },
   {
