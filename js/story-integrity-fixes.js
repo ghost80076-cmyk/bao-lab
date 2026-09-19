@@ -82,9 +82,10 @@
       .bao-story-event-list{margin:0;padding:0 0 0 22px;display:grid;gap:10px}
       .bao-story-event-list li{line-height:1.65;overflow-wrap:anywhere}
       .bao-story-event-list small{display:block;color:var(--story-muted,#a4abb8);font-size:11px}
-      #chat-view .ui-tabs #bao-chat-top{flex:0 0 auto;width:auto;white-space:nowrap;cursor:pointer}
+      #chat-view #bao-chat-top{flex:0 0 auto;width:auto;white-space:nowrap;cursor:pointer}
       #chat-view .ui-tabs{display:flex;align-items:center;flex-wrap:wrap;gap:6px}
-      #chat-view .ui-tabs #bao-chat-top:focus-visible{outline:2px solid var(--bao-cyan,#5dd6c0);outline-offset:2px}
+      #chat-view #bao-chat-top:focus-visible{outline:2px solid var(--bao-cyan,#5dd6c0);outline-offset:2px}
+      #chat-view .chat-topline #bao-chat-top{margin-left:auto;font-size:12px;padding:8px 11px}
       /* Undo the original clipping as well as the removed 100dvh override.
          Mobile keeps the whole-document reading flow; desktop retains its own styles. */
       @media(max-width:820px){
@@ -104,21 +105,31 @@
     window.scrollTo(0, Math.max(0, window.scrollY + stream.getBoundingClientRect().top - offset - 8));
   };
   const ensureTop = () => {
-    const tabs = document.querySelector('#chat-view #game-ui .ui-tabs');
-    if (!tabs || tabs.querySelector('#bao-chat-top')) return;
-    const button = document.createElement('button');
-    button.type = 'button'; button.id = 'bao-chat-top'; button.className = 'ui-tab';
-    button.textContent = '↑ 置頂'; button.setAttribute('aria-label', '跳到目前對話開頭');
-    button.addEventListener('click', scrollToStart);
-    const memory = tabs.querySelector('[data-panel="memory"]');
-    (memory || tabs.lastElementChild)?.insertAdjacentElement('afterend', button);
-    if (!button.isConnected) tabs.append(button);
+    const ui = document.getElementById('game-ui');
+    const tabs = ui?.querySelector('.ui-tabs');
+    const interactive = Boolean(tabs && !ui.classList.contains('hidden') && getComputedStyle(ui).display !== 'none');
+    const host = interactive ? tabs : document.querySelector('#chat-view .chat-topline');
+    if (!host) return;
+    let button = document.getElementById('bao-chat-top');
+    if (!button) {
+      button = document.createElement('button');
+      button.type = 'button'; button.id = 'bao-chat-top';
+      button.textContent = '↑ 置頂'; button.setAttribute('aria-label', '跳到目前對話開頭');
+      button.addEventListener('click', scrollToStart);
+    }
+    if (button.parentElement === host) return;
+    button.className = interactive ? 'ui-tab' : 'secondary';
+    const memory = interactive ? tabs.querySelector('[data-panel="memory"]') : null;
+    if (memory) memory.after(button);
+    else host.append(button);
   };
   ensureTop();
-  // Some rendering modes rebuild the tabs; only reattach the button, never resize the story.
+  // A text story hides all UI tabs; keep the same button visible in the chat header.
   const topObserver = new MutationObserver(ensureTop);
   const gameUI = document.getElementById('game-ui');
-  if (gameUI) topObserver.observe(gameUI, { childList: true, subtree: true });
+  if (gameUI) topObserver.observe(gameUI, { attributes: true, attributeFilter: ['class'], childList: true, subtree: true });
+  const previousShell = App.renderChatShell.bind(App);
+  App.renderChatShell = function(...args) { const result = previousShell(...args); ensureTop(); return result; };
 
   // Restore helper route metadata from the story. Credentials remain in this page only.
   const normalizeUrl = value => String(value || '').trim().replace(/\/+$/, '');
