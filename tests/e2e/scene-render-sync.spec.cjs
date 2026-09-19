@@ -18,47 +18,60 @@ async function start(page, mode) {
   await page.locator('#api-key').fill('TEMP_TEST_KEY');
   await page.getByRole('button', { name: '下一步' }).click();
   await page.locator('#start-story').click();
-  await page.waitForFunction(() => Boolean(window.BAOSceneHTML?.render && window.BAOSceneChat?.paint && window.BAOStoryReader?.decorateStream), null, { timeout: 15000 });
+  await page.waitForFunction(() => Boolean(window.BAOSceneHTML?.render && window.BAOSceneRenderIntegrity?.reconcile && window.BAOStoryReader?.decorateStream), null, { timeout: 15000 });
 }
 
-for (const displayMode of ['text', 'ui']) {
-  test(`${displayMode}: scene template never displays SCENE or NARRATION control tags`, async ({ page }) => {
-    await start(page, displayMode);
-    await page.evaluate(() => {
-      BAOSceneHTML.prefs.mode = 'efficient';
-      BAOSceneChat.prefs.enabled = true;
+const taggedReply = '[SCENE:realistic]\n[NARRATION]\n凌晨的照片被放大。\n[/NARRATION]\n[STATUS]\n時間：01:28\n[/STATUS]';
+
+for (const mode of ['text', 'ui']) {
+  test(`${mode}: original story tags are hidden in native reading even after story-reader redraw`, async ({ page }) => {
+    await start(page, mode);
+    await page.evaluate(reply => {
+      BAOSceneHTML.prefs.mode = 'native';
       Chat.add('user', '請描述照片');
-      Chat.add('assistant', '[SCENE:realistic]\n[NARRATION]\n凌晨的照片被放大。\n[/NARRATION]\n[STATUS]\n時間：01:28\n[/STATUS]');
+      Chat.add('assistant', reply);
       App.renderChatShell(false);
-    });
+    }, taggedReply);
     const bubble = page.locator('#chat-stream > .message.assistant').last().locator('.bubble');
-    await expect(bubble.locator('.bao-scene-body')).toContainText('凌晨的照片被放大。');
+    await expect(bubble).toContainText('凌晨的照片被放大。');
     await expect(bubble).not.toContainText('[SCENE:realistic]');
     await expect(bubble).not.toContainText('[NARRATION]');
     await expect(bubble).not.toContainText('[STATUS]');
-    // Story-reader's delayed decoration used to overwrite the final scene.
     await page.evaluate(() => BAOStoryReader.decorateStream());
-    await expect.poll(() => bubble.locator('.bao-scene-body').count(), { timeout: 3000 }).toBe(1);
-    await expect(bubble).not.toContainText('[SCENE:realistic]');
+    await expect.poll(() => bubble.textContent(), { timeout: 5000 }).not.toContain('[SCENE:realistic]');
+    await expect.poll(() => bubble.textContent(), { timeout: 5000 }).not.toContain('[NARRATION]');
+    expect(await page.evaluate(() => Chat.messages.at(-1).content)).toBe(taggedReply);
   });
 
-  test(`${displayMode}: disabling scene template restores canonical narration after late redraw`, async ({ page }) => {
-    await start(page, displayMode);
+  test(`${mode}: efficient mode restores scene card after late story-reader rewrite`, async ({ page }) => {
+    await start(page, mode);
+    await page.evaluate(reply => {
+      BAOSceneHTML.prefs.mode = 'efficient';
+      Chat.add('user', '繼續');
+      Chat.add('assistant', reply);
+      App.renderChatShell(false);
+    }, taggedReply);
+    const bubble = page.locator('#chat-stream > .message.assistant').last().locator('.bubble');
+    await expect(bubble.locator('.bao-scene-realistic')).toContainText('凌晨的照片被放大。');
+    await page.evaluate(() => BAOStoryReader.decorateStream());
+    await expect.poll(() => bubble.locator('.bao-scene-realistic').count(), { timeout: 5000 }).toBe(1);
+    await expect(bubble).not.toContainText('[SCENE:realistic]');
+    await expect(bubble).not.toContainText('[NARRATION]');
+    await expect(bubble).not.toContainText('[STATUS]');
+  });
+
+  test(`${mode}: legacy scene appendix is presentation-only and not repeated`, async ({ page }) => {
+    await start(page, mode);
     await page.evaluate(() => {
       BAOSceneHTML.prefs.mode = 'native';
-      BAOSceneChat.prefs.enabled = true;
-      Chat.add('user', '繼續');
-      Chat.add('assistant', '[SCENE:realistic]\n[NARRATION]\n完整原始敘事。\n[/NARRATION]');
+      Chat.add('user', '場景');
+      Chat.add('assistant', '這是一段完整故事。\n\n當前場景資訊\n時間：凌晨\n地點：房間');
       App.renderChatShell(false);
     });
     const bubble = page.locator('#chat-stream > .message.assistant').last().locator('.bubble');
-    await expect(bubble.locator('.bao-scene-body')).toContainText('完整原始敘事。');
-    await page.evaluate(() => {
-      BAOSceneChat.prefs.enabled = false;
-      BAOSceneChat.paint();
-      BAOStoryReader.decorateStream();
-    });
-    await expect.poll(() => bubble.textContent(), { timeout: 3000 }).toBe('完整原始敘事。');
-    await expect(bubble).not.toContainText('[NARRATION]');
+    await expect.poll(() => bubble.textContent(), { timeout: 5000 }).not.toContain('當前場景資訊');
+    await expect(bubble).toContainText('這是一段完整故事。');
+    await page.evaluate(() => BAOStoryReader.decorateStream());
+    await expect.poll(() => bubble.textContent(), { timeout: 5000 }).not.toContain('當前場景資訊');
   });
 }
