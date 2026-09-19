@@ -47,6 +47,19 @@ test('Android keeps full-height story visible, Enter inserts newline, in-tab top
       GameState.applyUpdate({ new_events: ['林沉風離開房間。', '林沉風返回客廳。'] });
       GameState.applyUpdate({ new_events: ['林沉風離開房間。', '林沉風返回客廳。'] });
     });
+    const mobileMetrics = await page.evaluate(() => {
+      const stream = document.getElementById('chat-stream');
+      const layout = document.querySelector('#chat-view .chat-layout');
+      const main = document.querySelector('#chat-view .chat-main');
+      return { viewport: innerHeight, doc: document.scrollingElement.scrollHeight,
+        streamClient: stream.clientHeight, streamScroll: stream.scrollHeight,
+        streamMaxHeight: getComputedStyle(stream).maxHeight, streamOverflow: getComputedStyle(stream).overflowY,
+        layoutHeight: layout.getBoundingClientRect().height, layoutOverflow: getComputedStyle(layout).overflowY,
+        mainHeight: main.getBoundingClientRect().height, mainOverflow: getComputedStyle(main).overflowY,
+        oldJump: !!document.getElementById('bao-chat-jump'),
+        topButton: !!document.querySelector('#chat-view .ui-tabs #bao-chat-top') };
+    });
+    console.log('Android long-story layout:', JSON.stringify(mobileMetrics));
     await expect.poll(() => page.evaluate(() => {
       const stream = document.getElementById('chat-stream');
       const layout = document.querySelector('#chat-view .chat-layout');
