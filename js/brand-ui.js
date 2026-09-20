@@ -42,10 +42,10 @@
           <span class="status-dot"></span>
           <div class="brand-status-title">SYSTEM READY</div>
           <dl>
-            <div><dt>Characters</dt><dd id="home-character-count">—</dd></div>
-            <div><dt>World Sim</dt><dd>READY</dd></div>
-            <div><dt>Play Mode</dt><dd>Immersive / World</dd></div>
-            <div><dt>連線方式</dt><dd>自備金鑰模式</dd></div>
+            <div><dt>角色數量</dt><dd id="home-character-count">—</dd></div>
+            <div><dt>世界模擬</dt><dd>可使用</dd></div>
+            <div><dt>遊玩模式</dt><dd>角色互動／世界模擬</dd></div>
+            <div><dt>連線方式</dt><dd>自備連線金鑰模式（BYOK）</dd></div>
           </dl>
         </aside>
       </section>

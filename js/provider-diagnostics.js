@@ -26,11 +26,11 @@
   };
   const categoryHint = value => ({
     browser: "瀏覽器直連或 CORS 被服務商擋下；Key 不一定有問題。",
-    key: "API Key 驗證失敗，請確認貼入的是目前服務商的金鑰。",
+    key: "連線金鑰（API Key）驗證失敗，請確認貼入的是目前服務商的金鑰。",
     quota: "連線已到服務商，但額度、餘額或速率限制阻止請求。",
     permission: "金鑰可被辨識，但目前帳號／地區／模型權限不足。",
-    model: "請核對 Model ID 與 Base URL 是否屬於同一服務。",
-    stream: "一般回覆可能可用，但 Streaming 協議沒有通過。",
+    model: "請核對模型代號（Model ID）與連線網址（Base URL）是否屬於同一服務。",
+    stream: "一般回覆可能可用，但即時輸出（Streaming）協議沒有通過。",
     provider: "服務商回傳未分類錯誤；可依下方訊息核對設定。"
   }[value] || "");
 
@@ -72,9 +72,9 @@
   });
 
   const validate = config => {
-    if (!normalize(config.key)) return "請先填入 API Key。";
-    if (!normalize(config.model)) return "請先填入 Model ID。";
-    if (!normalize(config.baseUrl) && config.protocol !== "gemini") return "請先填入 Base URL。";
+    if (!normalize(config.key)) return "請先填入連線金鑰（API Key）。";
+    if (!normalize(config.model)) return "請先填入模型代號（Model ID）。";
+    if (!normalize(config.baseUrl) && config.protocol !== "gemini") return "請先填入連線網址（Base URL）。";
     return "";
   };
 

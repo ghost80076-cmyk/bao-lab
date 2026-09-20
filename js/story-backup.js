@@ -210,7 +210,7 @@
       button.disabled = true; button.textContent = '整理完整故事…';
       try {
         const bundle = await exportCurrentStory();
-        alert(`完整故事備份已建立，共 ${bundle.chapters.length} 個章節／分支。API Key 不會寫入備份。`);
+        alert(`完整故事備份已建立，共 ${bundle.chapters.length} 個章節／分支。連線金鑰（API Key）不會寫入備份。`);
       } catch (error) { alert(error?.message || '完整故事備份失敗。'); }
       finally { button.disabled = false; button.textContent = original; }
     });

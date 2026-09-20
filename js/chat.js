@@ -197,7 +197,7 @@ window.addEventListener("DOMContentLoaded", () => {
       const row = document.createElement("div"); row.style.cssText = "display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:14px"; row.innerHTML = '<button id="test-api" type="button" class="secondary">⚡ 測試 API 連線</button><span id="api-test-status" class="note">尚未測試</span>'; apiStep.appendChild(row);
       document.getElementById("test-api").addEventListener("click", async () => {
         const btn = document.getElementById("test-api"), status = document.getElementById("api-test-status"), config = App.collectConfig();
-        if (!config.api.model || !config.api.baseUrl || !config.api.key) { status.textContent = "✕ 請先完成 Model ID、Base URL 與 API Key"; return; }
+        if (!config.api.model || !config.api.baseUrl || !config.api.key) { status.textContent = "✕ 請先完成模型代號（Model ID）、連線網址（Base URL）與連線金鑰（API Key）"; return; }
         btn.disabled = true; status.textContent = "測試中…";
         try { const result = await API.test(config.api); status.textContent = `✓ 主模型連線成功${result?.usage?.total_tokens ? ` · ${result.usage.total_tokens} tok` : ""}`; }
         catch (err) { status.textContent = `✕ ${String(err.message || err).split("\n")[0]}`; }
@@ -206,4 +206,3 @@ window.addEventListener("DOMContentLoaded", () => {
     }
   }, 0);
 });
-

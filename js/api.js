@@ -50,8 +50,8 @@ const API = {
   },
 
   async send(config, messages) {
-    if (!config.key) throw new Error("請先填入 API Key。");
-    if (!config.model) throw new Error("請填入 Model ID。");
+    if (!config.key) throw new Error("請先填入連線金鑰（API Key）。");
+    if (!config.model) throw new Error("請填入模型代號（Model ID）。");
     const protocol = config.protocol || (config.type === "gemini" ? "gemini" : config.type === "anthropic" ? "anthropic" : "openai");
     if (protocol === "gemini") return this.sendGemini(config, messages);
     if (protocol === "anthropic") return this.sendAnthropic(config, messages);
@@ -70,11 +70,11 @@ const API = {
     const raw = data?.error?.message || data?.message || data?.error?.error?.message || "";
     const lower = String(raw).toLowerCase();
     if (status === 401 || lower.includes("invalid api key") || lower.includes("incorrect api key") || lower.includes("authentication"))
-      return `API Key 無效或驗證失敗。請檢查金鑰是否正確。${raw ? `\n${raw}` : ""}`;
+      return `連線金鑰（API Key）無效或驗證失敗。請檢查金鑰是否正確。${raw ? `\n${raw}` : ""}`;
     if (status === 403)
       return `沒有使用此模型或 API 的權限。請檢查帳號權限、地區限制或金鑰設定。${raw ? `\n${raw}` : ""}`;
     if (status === 404 || lower.includes("model not found") || lower.includes("not found"))
-      return `找不到 API 端點或 Model ID。請檢查 Base URL 與模型名稱。${raw ? `\n${raw}` : ""}`;
+      return `找不到 API 端點或模型代號（Model ID）。請檢查連線網址（Base URL）與模型名稱。${raw ? `\n${raw}` : ""}`;
     if (status === 429 || lower.includes("rate limit") || lower.includes("quota") || lower.includes("insufficient_quota"))
       return `請求太頻繁，或 API 額度／餘額不足。請稍後再試並檢查服務商帳戶。${raw ? `\n${raw}` : ""}`;
     if (status >= 500)
@@ -83,7 +83,7 @@ const API = {
   },
 
   async sendOpenAICompatible(config, messages) {
-    if (!config.baseUrl) throw new Error("請填入 Base URL。");
+    if (!config.baseUrl) throw new Error("請填入連線網址（Base URL）。");
     const openRouter = this.isOpenRouter(config);
     const explicitCache = openRouter && config.cacheEnabled !== false && config.cacheMode === "explicit" && config.explicitCacheModel === config.model;
     const requestMessages = explicitCache ? messages.map((message, index) => index === 0 && message.role === "system"

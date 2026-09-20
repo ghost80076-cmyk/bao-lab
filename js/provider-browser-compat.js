@@ -8,7 +8,7 @@
   };
 
   API.sendAnthropic = async function(config, messages) {
-    if (!config.baseUrl) throw new Error("請填入 Base URL。");
+    if (!config.baseUrl) throw new Error("請填入連線網址（Base URL）。");
     const systemMessages = messages.filter(m => m.role === "system").map(m => this.contentToText(m.content)).filter(Boolean);
     const systemText = systemMessages.join("\n\n");
     const allowExplicitCache = config.cacheEnabled !== false && config.route === "official" && config.cacheMode === "explicit" && config.explicitCacheModel === config.model;
