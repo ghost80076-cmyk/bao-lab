@@ -11,7 +11,7 @@ permissions:
 jobs:
   verify-mascot:
     runs-on: ubuntu-latest
-    timeout-minutes: 7
+    timeout-minutes: 8
     env:
       SITE: https://ghost80076-cmyk.github.io/bao-lab/
     steps:
@@ -20,11 +20,11 @@ jobs:
         run: |
           set -euo pipefail
           ok=0
-          for attempt in $(seq 1 48); do
+          for attempt in $(seq 1 60); do
             html="$(curl -fsSL --max-time 15 "${SITE}bao-mascot.html" || true)"
             if grep -Fq 'assets/bao-human-v2.webp' <<<"${html}" \
               && grep -Fq 'id="bao-page-open"' <<<"${html}" \
-              && grep -Fq 'js/bao-mascot.js?v=2' <<<"${html}"; then
+              && grep -Fq 'js/bao-mascot.js?v=3' <<<"${html}"; then
               ok=1
               printf 'Live BAO page updated on attempt %s.\n' "${attempt}"
               break
@@ -33,7 +33,7 @@ jobs:
           done
           test "$ok" -eq 1
 
-      - name: Verify image and interactive helper assets
+      - name: Verify interactive SVG, CSS and human preview
         shell: bash
         run: |
           set -euo pipefail
@@ -43,11 +43,14 @@ jobs:
           blob = Path('/tmp/bao-human-v2.webp').read_bytes()
           assert len(blob) > 1000, 'Portrait is empty'
           assert blob[:4] == b'RIFF' and blob[8:12] == b'WEBP', 'Portrait is not a WebP'
-          print('Valid WebP signature, size:', len(blob))
+          print('Valid human WebP image, bytes:', len(blob))
           PY
-          curl -fsSL --max-time 20 "${SITE}js/bao-mascot.js?v=2" -o /tmp/bao-mascot.js
-          curl -fsSL --max-time 20 "${SITE}css/bao-mascot.css" -o /tmp/bao-mascot.css
-          grep -Fq 'bao-mascot-launch' /tmp/bao-mascot.js
-          grep -Fq '.bao-mascot-panel' /tmp/bao-mascot.css
+          curl -fsSL --max-time 20 "${SITE}js/bao-mascot.js?v=3" -o /tmp/bao-mascot.js
+          curl -fsSL --max-time 20 "${SITE}css/bao-mascot.css?v=3" -o /tmp/bao-mascot.css
+          grep -Fq 'bao-mascot-transform' /tmp/bao-mascot.js
+          grep -Fq 'bao-mascot-motion' /tmp/bao-mascot.js
+          grep -Fq 'bao-bun-eyes' /tmp/bao-mascot.js
+          grep -Fq '@keyframes bao-bun-blink' /tmp/bao-mascot.css
+          grep -Fq 'prefers-reduced-motion:reduce' /tmp/bao-mascot.css
           node --check /tmp/bao-mascot.js
-          printf 'Live BAO image, launcher script and stylesheet verified.\n'
+          printf 'Live BAO mascot animation code and styles verified.\n'
