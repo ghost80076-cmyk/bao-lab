@@ -82,3 +82,29 @@ test('bad or conflicting character JSON never changes the local library', async 
   await expect(page.locator('#character-import-status')).toContainText('內建作品重複');
   expect(await page.evaluate(() => CharacterEngine.loadCustom().length)).toBe(0);
 });
+
+test('SillyTavern V2 JSON opens a conversion preview and saves only after confirmation', async ({ page }) => {
+  const v2 = {
+    spec: 'chara_card_v2',
+    data: {
+      name: '酒館轉換測試', description: '可從酒館帶來的角色。', personality: '冷靜。', scenario: '雨夜鐘樓。',
+      first_mes: '觀測員把潮汐表推到你面前。', mes_example: '<START>\n觀測員：潮水轉向了。',
+      character_book: { entries: [{ keys: ['鐘樓'], content: '鐘樓在午夜鳴響。', enabled: true }] },
+      extensions: { regex_scripts: [{ scriptName: 'legacy' }], api_key: 'do-not-keep' }
+    }
+  };
+  await page.goto('./');
+  await page.getByRole('button', { name: '探索作品' }).click();
+  await page.waitForFunction(() => Boolean(window.BAOCharacterImport && CharacterEngine.requestImport));
+  await upload(page, v2);
+  await expect(page.getByRole('dialog', { name: '角色卡轉換預覽' })).toBeVisible();
+  await expect(page.getByRole('dialog')).toContainText('世界書 1 條');
+  await expect(page.getByRole('dialog')).toContainText('Regex');
+  expect(await page.evaluate(() => CharacterEngine.loadCustom().length)).toBe(0);
+  await page.getByRole('button', { name: '確認匯入到本機' }).click();
+  await expect(page.locator('#character-import-status')).toContainText('已匯入：酒館轉換測試');
+  const stored = await page.evaluate(() => CharacterEngine.loadCustom()[0]);
+  expect(stored.schema_version).toBe('1.5');
+  expect(stored.import_metadata.source_format).toBe('sillytavern-v2');
+  expect(stored.import_metadata.preserved_source.data.extensions.api_key).toBe('[REDACTED]');
+});

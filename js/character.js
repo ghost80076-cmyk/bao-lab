@@ -8,6 +8,11 @@ const CharacterEngine = {
     const presentation = raw.presentation || {};
     const initial = gameplay.initial_state || raw.initial_state || {};
     const prompt = gameplay.prompt || raw.prompt || {};
+    // Kept only for local provenance/export. Imported metadata never joins a
+    // model request, because files from other platforms are untrusted input.
+    const importMetadata = raw.import_metadata && typeof raw.import_metadata === "object" && !Array.isArray(raw.import_metadata)
+      ? raw.import_metadata
+      : null;
 
     const id = String(raw.id || meta.id || `custom-${Date.now()}`).trim();
     const name = String(raw.name || meta.name || "未命名角色").trim();
@@ -105,6 +110,7 @@ const CharacterEngine = {
         modules: initial.modules && typeof initial.modules === "object" && !Array.isArray(initial.modules) ? initial.modules : {},
         character_statuses: initial.character_statuses && typeof initial.character_statuses === "object" && !Array.isArray(initial.character_statuses) ? initial.character_statuses : {}
       },
+      import_metadata: importMetadata,
       schema_version: raw.schema_version || "1.5",
       source: raw.source || "custom"
     };
