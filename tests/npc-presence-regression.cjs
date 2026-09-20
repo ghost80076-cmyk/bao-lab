@@ -38,5 +38,33 @@ assert.equal(state.npcs[0].presence, 'away', 'the snapshot must not mutate the s
   assert.match(calls[1].messages[0].content, /只在確有變化時/);
   assert.equal(calls[1].messages[1].content, '更新 NPC');
   assert.equal(helper[0].content, '只輸出 JSON', 'do not rewrite the original prompt');
-  console.log('NPC presence regression: PASS (snapshot, no inference, helper-only prompt, main request isolation)');
+  // The UI reads the same state without guessing or accumulating duplicate tags.
+  const cards = state.npcs.map(npc => {
+    const card = { dataset: { characterContext: npc.name }, badge: null, badgeAdds: 0 };
+    const head = { appendChild(badge) { card.badge = badge; card.badgeAdds += 1; } };
+    card.querySelector = selector => selector === '[data-npc-presence]' ? card.badge :
+      selector === '.character-status-head > div' ? head : null;
+    return card;
+  });
+  const ui = {
+    querySelectorAll(selector) { return selector === '.character-status-card[data-character-context]' ? cards : []; },
+    querySelector() { return null; }
+  };
+  let style = null;
+  ctx.document = {
+    getElementById(id) { return id === 'ui-panel' ? ui : id === 'bao-npc-presence-style' ? style : null; },
+    createElement() { return { dataset: {}, className: '', textContent: '' }; },
+    head: { appendChild(node) { style = node; } }
+  };
+  ctx.App.renderUIPanel('npc');
+  assert.deepEqual(cards.map(card => card.badge.textContent),
+    ['已離場', '在場', '行蹤未知', '在場未確認']);
+  assert.deepEqual(cards.map(card => card.badge.dataset.npcPresence),
+    ['away', 'present', 'unknown', 'unconfirmed']);
+  state.npcs[0].presence = 'present';
+  ctx.App.renderUIPanel('npc');
+  assert.equal(cards[0].badge.textContent, '在場');
+  assert.ok(cards.every(card => card.badgeAdds === 1), 'panel refresh must not duplicate presence badges');
+  assert.ok(state.npcs.every(npc => !Object.hasOwn(npc, 'badge')), 'rendering must not mutate persisted NPCs');
+  console.log('NPC presence regression: PASS (snapshot, prompt isolation, visible labels, no duplicate tags)');
 })().catch(error => { console.error(error); process.exitCode = 1; });
