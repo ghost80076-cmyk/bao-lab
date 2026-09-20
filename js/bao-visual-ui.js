@@ -56,8 +56,8 @@
     document.head.appendChild(script);
   };
   addStylesheet('css/bao-visual-ui.css');
-  // Versioned URL prevents old cached rose-heavy CSS from masking the RP theme.
-  addStylesheet('css/bao-brand-v2.css?v=rp-neutral-1');
+  // Versioned CSS ensures the original violet/mint palette replaces cached neutral/rose versions.
+  addStylesheet('css/bao-brand-v2.css?v=original-violet-mint-1');
   addStylesheet('css/bao-image-quality.css?v=1');
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', enhanceAndGuard, { once: true });
   else enhanceAndGuard();
