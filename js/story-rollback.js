@@ -41,14 +41,16 @@
     let original = null;
     let originalRefs = null;
     let switched = false;
+    let key = "";
     try {
       const { refs, point, futureCount } = await preflight(Number(index), message.id);
       if (!window.confirm(`回溯到這則 AI 回覆？\n後續 ${futureCount} 則訊息會保留在原故事線。系統將建立一條新路線，並還原當時的世界、人物與記憶狀態。`)) return false;
       if (App.__requestPending || Chat.summarizing || Chat.messages[index]?.id !== message.id
         || Library.refs().chapterId !== refs.chapterId) fail("故事狀態已改變，請重新執行回溯。");
       original = Storage.loadStory();
+      if (!original) fail("無法取得原故事的安全備份，回溯已取消。");
       originalRefs = refs;
-      const key = String(App.config?.api?.key || "");
+      key = String(App.config?.api?.key || "");
       const label = `回溯 · 第 ${Chat.messages.slice(0, index + 1).filter(item => item.role === "assistant").length} 輪`;
       const save = await Library.createBranch(point.messageId, label);
       if (!save?.state || save._library?.parentChapterId !== refs.chapterId
@@ -71,8 +73,13 @@
       if (originalRefs && !switched) Library.adoptRefs({ _library: originalRefs });
       if (original && originalRefs) {
         try {
-          Storage.restoreStory(original);
+          if (!Storage.restoreStory(original)) throw new Error("無法還原原故事。");
           Library.adoptRefs({ _library: originalRefs });
+          App.config.api = Object.assign({}, App.config.api || {}, { key });
+          if (GameState.current) GameState.current.config = App.config;
+          App.saveStory(false);
+          await Storage.flush();
+          await Library.flush();
           App.renderChatShell(false);
           App.showView("chat");
           window.BAORefreshSaveUI?.();
