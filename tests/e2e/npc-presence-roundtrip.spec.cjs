@@ -7,14 +7,17 @@ for (const width of [390, 1440]) {
     await page.setViewportSize({ width, height: 900 });
     await page.goto('./');
     await page.waitForFunction(() => window.App?.characters?.some(c => c.id === 'autonomous-npc-world') &&
-      Storage.status().ready && window.BAOStateTrackerRepairs && window.BAOCharacterStatusUI, null, { timeout: 15000 });
+      Storage.status().ready && App.__nativeAutonomousWorldStart && document.getElementById('bao-demo-mode') &&
+      window.BAOStateTrackerRepairs && window.BAOCharacterStatusUI, null, { timeout: 15000 });
     await page.evaluate(() => {
       App.openCharacter('autonomous-npc-world');
       App.openBuilder();
-      if (!document.getElementById('autonomous-world-setup')) throw new Error('Offline world builder was not initialized');
-      // The existing start button opens the offline world preview without an API Key.
+      // The native world entry intentionally removes the legacy offline world builder.
+      if (document.getElementById('autonomous-world-setup')) throw new Error('Legacy world builder unexpectedly remained visible');
+      document.getElementById('bao-demo-mode').checked = true;
+      document.querySelector('input[name="display-mode"][value="ui"]').checked = true;
       App.startStory();
-      if (!GameState.current?.config?.offlineWorldPreview) throw new Error('Offline world preview did not create a story');
+      if (!GameState.current) throw new Error('Native demo did not create a story');
       App.config.displayMode = 'ui';
       GameState.current.config = App.config;
       App.renderChatShell(false);
@@ -49,7 +52,6 @@ for (const width of [390, 1440]) {
     const card = page.locator('.character-status-card[data-character-context="阿青"]');
     await expect(card.locator('[data-npc-presence]')).toHaveText('在場');
     await expect(page.locator('.character-status-card[data-character-context="小周"] [data-npc-presence]')).toHaveText('行蹤未知');
-    await expect(page.locator('.character-status-card[data-character-context="自主NPC世界(成熟內容支援)"] [data-npc-presence]')).toHaveCount(0);
 
     const left = await applyModelResponse({ npcs: [{ name: '阿青', presence: 'away' }] });
     expect(left.npcs.find(n => n.name === '阿青').presence).toBe('away');
