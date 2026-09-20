@@ -56,12 +56,22 @@
   };
   // Structured history is for the UI and saves; keep the model's history
   // compact by sending plain texts, not IDs, bookkeeping, or source metadata.
+  // The modular tracker omitted NPC presence from its snapshot, so retain the
+  // existing confirmed presence without guessing whether anyone is in scene.
   const oldSnapshot = WorldStateEngine.stateSnapshot.bind(WorldStateEngine);
   WorldStateEngine.stateSnapshot = function(...args) {
     const snapshot = oldSnapshot(...args);
     if (Array.isArray(snapshot?.recent_events)) snapshot.recent_events = snapshot.recent_events
       .map(item => typeof item === 'string' ? item : item?.text)
       .filter(Boolean);
+    if (Array.isArray(snapshot?.npcs)) {
+      const knownPresence = new Map((GameState.current?.npcs || [])
+        .filter(npc => npc?.name && ['present', 'away', 'unknown'].includes(npc.presence))
+        .map(npc => [npc.name, npc.presence]));
+      snapshot.npcs.forEach(npc => {
+        if (knownPresence.has(npc.name)) npc.presence = knownPresence.get(npc.name);
+      });
+    }
     return snapshot;
   };
   let lastError = '';
@@ -69,7 +79,10 @@
   API.send = async function(config, messages) {
     try {
       if (config?.__stateTask) lastError = '';
-      return await oldSend(config, messages);
+      const guarded = config?.__stateTask ? (messages || []).map(message => message?.role === 'system'
+        ? { ...message, content: `${message.content}\nNPC 的 presence 可為 present、away 或 unknown。npcs 是 PATCH，不是全員名單。僅在本輪敘事明確證實進場、離場或行蹤不明時更新 presence；地點改變不能自動認定原 NPC 仍在場。已有的 presence 應依「目前狀態」延續；只在確有變化時於 npcs 回傳 presence。` }
+        : message) : messages;
+      return await oldSend(config, guarded);
     } catch (error) {
       if (config?.__stateTask) lastError = String(error?.message || error).slice(0, 240);
       throw error;

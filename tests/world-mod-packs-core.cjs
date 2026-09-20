@@ -1,0 +1,24 @@
+const assert = require('node:assert/strict');
+const { normalizePack, buildPack } = require('../js/world-mod-packs.js');
+const meta = { name: '關係模組', author: 'Test' };
+const item = { id: 'relationships', label: '關係', kind: 'object', tracking: 'medium', context: 'relevant', triggers: ['好感'], fields: [{ key: 'affinity', label: '好感度', type: 'meter', min: 0, max: 100 }, { key: 'trust', label: '信任', type: 'boolean' }], initial: { affinity: 15, trust: false } };
+const valid = buildPack(meta, [item], { relationships: item.initial });
+assert.equal(valid.schema, 'bao-lab-world-mod-pack');
+assert.equal(valid.modules[0].initial.affinity, 15);
+assert.equal(valid.modules[0].initial.trust, false);
+assert.equal(normalizePack(JSON.parse(JSON.stringify(valid))).modules[0].fields.length, 2);
+const rejects = (transform, msg) => {
+  const copy = JSON.parse(JSON.stringify(valid));
+  transform(copy);
+  assert.throws(() => normalizePack(copy), msg);
+};
+rejects(p => { p.modules[0].id = '__proto__'; }, /模組 ID/);
+rejects(p => { p.modules[0].initial.affinity = 101; }, /超出設定範圍/);
+rejects(p => { p.modules[0].fields[1].key = 'affinity'; }, /重複欄位/);
+rejects(p => { p.modules[0].fields[0].min = 110; }, /最小值/);
+rejects(p => { p.modules[0].initial.invisible = 'private'; }, /不存在/);
+rejects(p => { p.version = 2; }, /v1/);
+assert.throws(() => normalizePack(valid, ['relationships']), /衝突/);
+const exported = buildPack(meta, [item], { relationships: { affinity: 0 } });
+assert.deepEqual(exported.modules[0].initial, { affinity: 0 });
+console.log('MOD pack core tests: PASS (normalization, defaults, collision and malformed input)');

@@ -1,0 +1,32 @@
+name: NPC presence regression
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'js/state-tracker-repairs.js'
+      - 'js/world-modules.js'
+      - 'js/world-state-cost.js'
+      - 'tests/npc-presence-regression.cjs'
+      - '.github/workflows/npc-presence.yml'
+  pull_request:
+    paths:
+      - 'js/state-tracker-repairs.js'
+      - 'js/world-modules.js'
+      - 'js/world-state-cost.js'
+      - 'tests/npc-presence-regression.cjs'
+      - '.github/workflows/npc-presence.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  presence:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate presence regression
+        run: node tests/npc-presence-regression.cjs

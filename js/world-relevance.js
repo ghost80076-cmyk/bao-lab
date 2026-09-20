@@ -38,3 +38,9 @@
 
   window.BAOWorldRelevance = { getLatestUserText };
 })();
+
+// The world-state startup chain loads this after world-module-manager.js.
+// Keep the optional data-only MOD editor separate from the tracker and prompts.
+if (typeof loadBAOScript === 'function') {
+  loadBAOScript('js/world-mod-packs.js').catch(err => console.warn('BAO/LAB MOD packs failed to load:', err));
+}
