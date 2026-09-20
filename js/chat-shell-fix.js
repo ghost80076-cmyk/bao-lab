@@ -63,4 +63,6 @@
   load('js/chat-presentation-core.js')
     .then(() => load('js/chat-experience.js'))
     .catch(error => console.warn('BAO/LAB chat presentation did not load:', error));
+  load('js/quick-start-mode.js')
+    .catch(error => console.warn('BAO/LAB quick start did not load:', error));
 })();
