@@ -41,4 +41,17 @@ assert.match(storyTools, /劇情摘要包（Context Pack）／建立續篇/);
 assert.match(storyTools, /瀏覽器故事資料庫（IndexedDB）/);
 assert.match(storyTools, /字詞用量（Token）/);
 
+const diagnostics = read('js/provider-diagnostics.js');
+assert.match(diagnostics, /AI 服務商（Provider）實際連線測試/);
+assert.match(diagnostics, /即時輸出（Streaming）/);
+assert.match(diagnostics, /連線金鑰（API Key）/);
+
+const memoryDesk = read('js/memory-workbench-core.js');
+assert.match(memoryDesk, /正式劇情資料庫（Canon）/);
+assert.match(memoryDesk, /對話輪數/);
+
+const statusUi = read('js/character-status-ui.js');
+assert.match(statusUi, /主要故事脈絡（Context）/);
+assert.match(statusUi, /只供畫面顯示（UI Only）/);
+
 console.log('Plain-language UI terminology checks passed.');

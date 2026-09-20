@@ -20,7 +20,7 @@ const openDemoCanon = async page => {
   const memoryButton = page.getByRole("button", { name: /記憶工作台/ });
   await expect(memoryButton).toBeVisible();
   await memoryButton.click();
-  await page.getByRole("button", { name: /Canon 資料庫/ }).click();
+  await page.getByRole("button", { name: "正式劇情資料庫（Canon）" }).click();
   await expect(page.getByRole("heading", { name: "Canon 資料庫" })).toBeVisible();
 };
 
