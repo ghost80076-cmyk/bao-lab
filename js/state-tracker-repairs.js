@@ -107,6 +107,19 @@
     const ui = document.getElementById('ui-panel');
     const state = GameState.current;
     if (!ui || !state) return;
+    // The status editor redraws its cards directly when a character is picked,
+    // bypassing App.renderUIPanel. Repaint after its click handler completes.
+    if (typeof ui.addEventListener === 'function' && !ui.__baoNpcPresenceClickHooked) {
+      ui.__baoNpcPresenceClickHooked = true;
+      ui.addEventListener('click', event => {
+        if (!event.target.closest?.('.character-status-card')) return;
+        const owner = GameState.current;
+        queueMicrotask(() => {
+          if (GameState.current === owner && document.getElementById('ui-panel') === ui &&
+              ui.querySelector('.character-status-card[data-character-context]')) decorateNPCPresence();
+        });
+      });
+    }
     const npcs = (state.npcs || []).filter(npc => npc?.name);
     const byName = new Map(npcs.map(npc => [npc.name, npc]));
     const statusCards = [...ui.querySelectorAll('.character-status-card[data-character-context]')];
