@@ -10,6 +10,9 @@
   let previousFocus = null;
   const isMobile = () => window.matchMedia('(max-width: 820px)').matches;
   const drawer = () => document.getElementById('bao-chat-tool-drawer');
+  const supportUrl = () => document.querySelector('#chat-view .chat-layout > aside a[href*="ko-fi.com"]')?.href
+    || document.querySelector('.topbar a[href*="ko-fi.com"]')?.href
+    || 'https://ko-fi.com/roger2486';
 
   const measure = () => {
     if (!isMobile()) return;
@@ -70,6 +73,27 @@
       stream?.scrollTo?.({ top: 0, behavior: 'smooth' });
     }
   };
+  const ensureSupport = () => {
+    const header = main.querySelector('.chat-topline');
+    if (!header) return;
+    let link = header.querySelector('#bao-mobile-support');
+    if (!link) {
+      link = document.createElement('a');
+      link.id = 'bao-mobile-support';
+      link.className = 'bao-mobile-support-link';
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      link.setAttribute('aria-label', '投餵肉包，另開新視窗');
+      const icon = document.createElement('img');
+      icon.src = 'assets/bao-mark.svg';
+      icon.alt = '';
+      const label = document.createElement('span');
+      label.textContent = '投餵肉包';
+      link.append(icon, label);
+      header.append(link);
+    }
+    link.href = supportUrl();
+  };
   const enhanceDrawer = () => {
     const panel = drawer();
     if (!panel || panel.dataset.baoMobileEnhanced === 'true') return;
@@ -96,6 +120,14 @@
     });
     makeAction(quick, '✦ 聊天外觀', () => clickOriginal('[data-bao-open="appearance"]'), { 'data-bao-open': 'appearance' });
     makeAction(quick, '↑ 置頂', toTop);
+    const support = document.createElement('a');
+    support.className = 'bao-mobile-support-link';
+    support.href = supportUrl();
+    support.target = '_blank';
+    support.rel = 'noopener noreferrer';
+    support.textContent = '🥟 支持 BAO/LAB・投餵肉包';
+    support.addEventListener('click', () => nav.closeDrawer());
+    quick.append(support);
     const connection = document.createElement('small');
     connection.setAttribute('aria-live', 'polite');
     const apiStatus = document.querySelector('#bao-chat-api-toolbar [data-bao-api-status]');
@@ -123,6 +155,7 @@
   };
   const sync = () => {
     ensureTab();
+    ensureSupport();
     measure();
     enhanceDrawer();
     const tab = document.getElementById('bao-mobile-tools-tab');
@@ -154,10 +187,26 @@
   window.visualViewport?.addEventListener('scroll', schedule, { passive: true });
   root.addEventListener('focusin', schedule);
   root.addEventListener('focusout', schedule);
-  window.BAOMobileReadingLayout = { version: 2, sync, openTools, enhanceDrawer, togglePanels };
+  window.BAOMobileReadingLayout = { version: 3, sync, openTools, enhanceDrawer, togglePanels };
   const style = document.createElement('link');
   style.rel = 'stylesheet';
   style.href = 'css/mobile-reading-layout.css';
   document.head.append(style);
+  const supportStyle = document.createElement('style');
+  supportStyle.id = 'bao-mobile-support-style';
+  supportStyle.textContent = `
+    #bao-mobile-support{display:none!important}
+    @media(max-width:820px){
+      #chat-view .chat-topline{display:flex!important;align-items:center!important;flex-wrap:nowrap!important}
+      #chat-view .chat-title-copy{flex:1 1 0!important;min-width:0!important;overflow:hidden}
+      #chat-view .chat-title-copy h2{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+      #chat-view.active #bao-mobile-support{display:inline-flex!important;align-items:center;justify-content:center;gap:5px;flex:0 0 auto;width:auto!important;min-height:40px;padding:7px 9px;border:1px solid rgba(214,170,115,.42);border-radius:10px;background:rgba(214,170,115,.1);color:#f4d6ad;text-decoration:none;font-size:12px;font-weight:700;white-space:nowrap}
+      #bao-mobile-support img{width:18px;height:18px;flex:0 0 18px}
+      #bao-mobile-support:focus-visible,#bao-chat-tool-drawer .bao-mobile-support-link:focus-visible{outline:3px solid #72e2d3;outline-offset:2px}
+      #bao-chat-tool-drawer .bao-mobile-quick .bao-mobile-support-link{grid-column:1/-1;display:flex;align-items:center;justify-content:center;min-height:44px;padding:9px;border:1px solid rgba(214,170,115,.42);border-radius:10px;background:rgba(214,170,115,.12);color:#f4d6ad;text-decoration:none;font-size:13px;font-weight:700}
+    }
+    @media(max-width:360px){#chat-view.active #bao-mobile-support{font-size:11px;padding:7px 7px;gap:4px}#bao-mobile-support img{width:16px;height:16px;flex-basis:16px}}
+  `;
+  document.head.append(supportStyle);
   sync();
 })();
