@@ -1,7 +1,16 @@
 const WorldStateEngine = {
+  // Record the original UI-based default only once for old stories. After that,
+  // rendering preferences cannot silently enable or disable an auxiliary API.
+  ensureTrackingPreference(config) {
+    if (!config || typeof config !== "object") return false;
+    if (typeof config.stateTracking !== "boolean") config.stateTracking = config.displayMode === "ui";
+    return config.stateTracking;
+  },
+
   enabled(config) {
+    const preferred = this.ensureTrackingPreference(config);
     return config?.narrativeMode === "world"
-      || config?.displayMode === "ui"
+      || preferred
       || Boolean(window.BAOCharacterStatus?.hasTrackedFields?.());
   },
 
@@ -65,3 +74,12 @@ const WorldStateEngine = {
   }
 };
 
+// New stories persist the original tracking choice in their own config. The
+// legacy restore path is normalized lazily by enabled() on its first turn.
+if (typeof GameState !== "undefined" && typeof GameState.create === "function") {
+  const create = GameState.create;
+  GameState.create = function(character, config) {
+    WorldStateEngine.ensureTrackingPreference(config);
+    return create.call(this, character, config);
+  };
+}
