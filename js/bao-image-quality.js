@@ -2,8 +2,9 @@
  * Upgrade automatically when a genuinely high-resolution portrait is supplied. */
 (() => {
   'use strict';
-  const WIDTH_REQUIRED = 640;
-  const HEIGHT_REQUIRED = 800;
+  // A 430 CSS-pixel portrait needs roughly 2x source pixels on common HiDPI screens.
+  const WIDTH_REQUIRED = 900;
+  const HEIGHT_REQUIRED = 1200;
   const previewLabel = '人形 · 低解析預覽';
 
   const apply = (img, container, isHome) => {
@@ -25,11 +26,15 @@
       container.appendChild(note);
     }
     const check = () => {
-      const low = img.naturalWidth < WIDTH_REQUIRED || img.naturalHeight < HEIGHT_REQUIRED;
+      const missing = !img.naturalWidth || /(?:^|\/)bao-bun\.svg(?:[?#]|$)/.test(img.currentSrc || img.src);
+      const low = missing || img.naturalWidth < WIDTH_REQUIRED || img.naturalHeight < HEIGHT_REQUIRED;
       container.classList.toggle('bao-image-lowres', low);
-      container.classList.toggle('bao-image-unavailable', !img.naturalWidth);
+      container.classList.toggle('bao-image-unavailable', missing);
       const note = container.querySelector('.bao-quality-note');
-      if (note) note.hidden = !low;
+      if (note) {
+        note.hidden = !low;
+        note.textContent = missing ? '人形原圖暫時無法顯示' : previewLabel;
+      }
     };
     img.addEventListener('load', check);
     img.addEventListener('error', check);
