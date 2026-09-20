@@ -11,7 +11,7 @@
 <link rel="stylesheet" href="css/character-studio.css">
 </head>
 <body>
-<div class="app-shell"><header class="topbar"><a class="brand" href="./" aria-label="回 BAO/LAB 首頁"><img src="assets/bao-mark.svg" alt="" width="32" height="32"><span>BAO/LAB</span></a><nav><a href="./">返回首頁</a><a href="./#explore">探索角色</a></nav></header>
+<div class="app-shell"><header class="topbar"><a class="brand" href="./" aria-label="回 BAO/LAB 首頁"><img src="assets/bao-mark.svg" alt="" width="32" height="32"><span>BAO/LAB</span></a><nav><a href="./">返回首頁</a><a href="./">探索角色</a></nav></header>
 <main class="studio-main">
 <header class="studio-heading"><div><div class="eyebrow">LOCAL CHARACTER STUDIO</div><h1>角色卡創作室</h1><p>你和其他作者都能在自己的瀏覽器製作角色卡。草稿不會自動公開，也不需要提供 API 金鑰。</p></div><img src="assets/bao-bun.svg" alt="BAO 肉包" width="82" height="82"></header>
 <div class="studio-notice">🔒 草稿儲存在這台瀏覽器（IndexedDB）。「加入我的角色」才會另存到 BAO/LAB 本機角色庫；公開網站的角色列表不會因此改變。請另外匯出 JSON 備份，清除網站資料可能會刪除草稿。</div>
@@ -30,6 +30,7 @@
 </section></div>
 </main><footer><b>BAO/LAB</b><span>本機製作 · 自主備份 · 選擇是否分享</span></footer></div>
 <script src="js/character.js"></script>
+<script>window.CharacterEngine = CharacterEngine;</script>
 <script src="js/character-import-upgrade.js"></script>
 <script src="js/character-studio.js"></script>
 </body></html>
