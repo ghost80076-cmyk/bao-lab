@@ -14,9 +14,17 @@ async function demo(page) {
   await expect.poll(() => page.evaluate(() => Boolean(window.BAOModPacks && window.BAOWorldModuleManager))).toBe(true);
 }
 
+async function openWorldManager(page) {
+  const group = page.locator('[data-chat-tool-group="world"]');
+  await expect(group).toBeAttached();
+  if (!await group.evaluate(node => node.open)) await group.locator('summary').click();
+  await group.locator('[data-open-world-manager]').click();
+  await expect(page.locator('.world-manager-backdrop')).toBeVisible();
+}
+
 test('custom field saves and a data-only MOD can be exported and imported into another story', async ({ page }) => {
   await demo(page);
-  await page.getByRole('button', { name: /世界模組管理/ }).click();
+  await openWorldManager(page);
   await page.locator('[data-world-add]').click();
   const card = page.locator('.world-custom-card').last();
   await card.locator('[data-custom-prop="label"]').fill('戀愛關係');
@@ -30,21 +38,24 @@ test('custom field saves and a data-only MOD can be exported and imported into a
   await page.locator('[data-world-save]').click();
   await expect.poll(() => page.evaluate(() => GameState.current.worldModuleCustomization.customModules.find(m => m.label === '戀愛關係')?.fields?.[0]?.key)).toBe('affinity');
   expect(await page.evaluate(() => GameState.current.modules.custom_module.affinity)).toBe(15);
-  await page.getByRole('button', { name: /世界模組管理/ }).click();
+
+  await openWorldManager(page);
   page.on('dialog', dialog => dialog.accept(dialog.message().includes('MOD 名稱') ? '測試 MOD' : dialog.message().includes('作者名稱') ? '測試作者' : ''));
   const [download] = await Promise.all([page.waitForEvent('download'), page.locator('[data-mod-export]').click()]);
   const chunks = [];
   for await (const chunk of await download.createReadStream()) chunks.push(chunk);
   const pack = JSON.parse(Buffer.concat(chunks).toString('utf8'));
   expect(pack.schema).toBe('bao-lab-world-mod-pack');
+  expect(pack.modules[0].fields).toMatchObject([{ key: 'affinity', type: 'meter', min: 0, max: 100 }]);
   expect(pack.modules[0].initial.affinity).toBe(15);
+
   await page.locator('[data-world-close]').click();
   await page.evaluate(() => {
     GameState.create(App.activeCharacter, App.config);
     App.renderChatShell(true);
   });
   expect(await page.evaluate(() => GameState.current.worldModuleCustomization.customModules.length)).toBe(0);
-  await page.getByRole('button', { name: /世界模組管理/ }).click();
+  await openWorldManager(page);
   await page.locator('[data-mod-file]').setInputFiles({ name: 'test.bao-mod.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(pack)) });
   await expect.poll(() => page.evaluate(() => GameState.current.worldModuleCustomization.customModules.some(m => m.label === '戀愛關係'))).toBe(true);
   expect(await page.evaluate(() => GameState.current.modules.custom_module.affinity)).toBe(15);
