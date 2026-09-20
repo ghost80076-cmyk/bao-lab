@@ -54,8 +54,8 @@
     }
     const tip = $('bao-quick-api-tip');
     if (tip) tip.textContent = needsFields
-      ? '這個服務需要自己填入模型名稱或連線網址；不確定怎麼填，可以先選有完整預設的服務。'
-      : '模型名稱和連線網址已帶入預設值；一般情況只要貼上相符的 API Key。';
+      ? '這個 AI 服務需要自己填入模型代號或連線網址；不確定怎麼填，可以先選有完整預設的服務。'
+      : '模型代號和連線網址已帶入預設值；一般情況只要貼上相符的連線金鑰（API Key）。';
   }
   function ensureUI() {
     if ($('bao-setup-choice')) return;
@@ -64,18 +64,18 @@
     const choice = document.createElement('section');
     choice.id = 'bao-setup-choice';
     choice.setAttribute('aria-label', '建立故事的操作方式');
-    choice.innerHTML = '<h3>想怎麼開始？</h3><div class="bao-setup-buttons"><button type="button" class="secondary" data-bao-setup="quick" aria-pressed="false">快速開始 · 只設定 AI</button><button type="button" class="secondary" data-bao-setup="advanced" aria-pressed="false">完整設定 · 自訂故事</button></div><p id="bao-setup-note">第一次來可以先用預設設定，之後仍可調整記憶和故事功能。</p>';
+    choice.innerHTML = '<h3>想怎麼開始？</h3><div class="bao-setup-buttons"><button type="button" class="secondary" data-bao-setup="quick" aria-pressed="false">快速開始 · 只連接 AI</button><button type="button" class="secondary" data-bao-setup="advanced" aria-pressed="false">完整設定 · 自訂故事</button></div><p id="bao-setup-note">第一次來可以先用預設設定，之後仍可調整記憶和故事功能。</p>';
     stepper.before(choice);
     choice.querySelectorAll('[data-bao-setup]').forEach(button => button.addEventListener('click', () => setMode(button.dataset.baoSetup)));
     const panel = view.querySelector('.builder-step[data-step-panel="4"]');
     if (!panel) return;
     const intro = document.createElement('div');
     intro.id = 'bao-quick-intro';
-    intro.innerHTML = '選擇 AI 服務、選擇模型，再貼上自己的 API Key，就能開始。<br>還沒有鑰匙？<a href="quick-start.html" target="_blank" rel="noopener noreferrer">看三步驟教學 ↗</a>　<a href="api-guide.html" target="_blank" rel="noopener noreferrer">完整 API 說明 ↗</a>';
+    intro.innerHTML = '選擇 AI 服務商、選擇 AI 模型，再貼上自己的連線金鑰（API Key），就能開始。<br>還沒有金鑰？<a href="quick-start.html" target="_blank" rel="noopener noreferrer">看三步驟教學 ↗</a>　<a href="api-guide.html" target="_blank" rel="noopener noreferrer">完整連線說明（API）↗</a>';
     panel.querySelector('h3')?.insertAdjacentElement('afterend', intro);
     const extra = document.createElement('div');
     extra.id = 'bao-quick-extra';
-    extra.innerHTML = '<button id="bao-quick-technical-toggle" type="button" class="secondary" aria-expanded="false">展開進階連線欄位</button><p id="bao-quick-api-tip" role="status"></p><p>API Key 不會寫進故事備份。實際費用和免費額度依你選的服務商而定。</p>';
+    extra.innerHTML = '<button id="bao-quick-technical-toggle" type="button" class="secondary" aria-expanded="false">展開進階連線欄位</button><p id="bao-quick-api-tip" role="status"></p><p>連線金鑰（API Key）不會寫進故事備份。實際費用和免費額度依你選的 AI 服務商而定。</p>';
     panel.append(extra);
     $('bao-quick-technical-toggle').addEventListener('click', () => {
       view.classList.toggle('bao-quick-advanced');
@@ -116,7 +116,7 @@
     const note = $('bao-setup-note');
     if (note) note.textContent = restricted
       ? '這個世界需要先選開局方式與世界觀，請使用完整設定；原本的功能都會保留。'
-      : '快速開始只顯示 AI 連線；敘事、玩家設定與記憶會沿用原本的預設值，隨時可切回完整設定。';
+      : '快速開始只顯示 AI 連線；敘事、玩家資料（Persona）與記憶會沿用原本的預設值，隨時可切回完整設定。';
     // If an existing flow selected another step, never silently override it.
     setMode(restricted || App.currentStep !== 1 ? 'advanced' : 'quick', restricted || App.currentStep !== 1);
   }

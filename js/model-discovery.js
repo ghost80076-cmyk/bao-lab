@@ -9,14 +9,14 @@
 
   function modelsEndpoint(config) {
     const input = normalizeUrl(config?.baseUrl);
-    if (!input) throw new Error('請先填入 API 連線網址。');
+    if (!input) throw new Error('請先填入連線網址（Base URL）。');
     let url;
-    try { url = new URL(input); } catch { throw new Error('API 連線網址格式不正確。'); }
+    try { url = new URL(input); } catch { throw new Error('連線網址（Base URL）格式不正確。'); }
     const local = ['localhost', '127.0.0.1', '[::1]'].includes(url.hostname);
     if (url.protocol !== 'https:' && !(local && url.protocol === 'http:')) {
       throw new Error('請使用 HTTPS，或本機 localhost 的 HTTP 連線。');
     }
-    if (url.username || url.password || url.search || url.hash) throw new Error('請使用不含帳密或查詢參數的 API 網址。');
+    if (url.username || url.password || url.search || url.hash) throw new Error('請使用不含帳密或查詢參數的連線網址。');
     let path = url.pathname.replace(/\/+$/, '');
     const protocol = protocolName(config?.protocol);
     // The chat endpoint differs from the model catalog endpoint; never alter the saved chat URL.
@@ -57,7 +57,7 @@
   async function fetchModels(config, fetcher = fetch) {
     const protocol = protocolName(config?.protocol);
     const key = String(config?.key || '').trim();
-    if (!key) throw new Error('請先輸入這個連線的 API Key。');
+    if (!key) throw new Error('請先輸入這個連線的金鑰（API Key）。');
     const url = modelsEndpoint(config);
     const headers = protocol === 'gemini' ? { 'x-goog-api-key': key }
       : protocol === 'anthropic' ? { 'x-api-key': key, 'anthropic-version': '2023-06-01' }
@@ -67,13 +67,13 @@
     catch (error) { throw new Error(`無法拉取模型，可能是網路或供應商的瀏覽器跨網域限制（CORS）。${error?.message ? ' ' + error.message : ''}`); }
     let data;
     try { data = await response.json(); }
-    catch { throw new Error('供應商的模型清單不是有效 JSON，請改用手動填寫 Model ID。'); }
+    catch { throw new Error('AI 服務商的模型清單不是有效 JSON，請改用手動填寫模型代號（Model ID）。'); }
     if (!response.ok) {
       const message = String(data?.error?.message || data?.message || '').slice(0, 180);
-      throw new Error(`拉取失敗（HTTP ${response.status}）。${message || '請確認 Key、網址或供應商是否支援模型清單。'}`);
+      throw new Error(`拉取失敗（HTTP ${response.status}）。${message || '請確認金鑰、網址或 AI 服務商是否支援模型清單。'}`);
     }
     const models = normalizeModels(data, protocol);
-    if (!models.length) throw new Error('供應商沒有回傳可辨識的聊天模型；請手動填寫 Model ID。');
+    if (!models.length) throw new Error('AI 服務商沒有回傳可辨識的聊天模型；請手動填寫模型代號（Model ID）。');
     return models;
   }
 
@@ -93,13 +93,13 @@
     status.className = 'note';
     status.setAttribute('role', 'status');
     status.setAttribute('aria-live', 'polite');
-    status.textContent = '拉取後可以選擇模型；也可直接手動輸入 Model ID。';
+    status.textContent = '拉取後可以選擇模型；也可直接手動輸入模型代號（Model ID）。';
     block.append(button, select, status);
     anchor.insertAdjacentElement('afterend', block);
     const reset = () => {
       select.replaceChildren();
       select.hidden = true;
-      status.textContent = '連線設定已更改，請重新拉取；仍可手動輸入 Model ID。';
+      status.textContent = '連線設定已更改，請重新拉取；仍可手動輸入模型代號（Model ID）。';
     };
     controls.forEach(control => control?.addEventListener('change', reset));
     select.addEventListener('change', () => { if (select.value) setModel(select.value); });
@@ -121,7 +121,7 @@
         models.forEach(model => select.add(new Option(model.label, model.id)));
         select.hidden = false;
         status.textContent = `已取得 ${models.length} 個模型。清單不代表帳號可用或聊天一定相容。`;
-      } catch (error) { status.textContent = error.message || '拉取失敗，請手動填寫 Model ID。'; }
+      } catch (error) { status.textContent = error.message || '拉取失敗，請手動填寫模型代號（Model ID）。'; }
       finally { button.disabled = false; }
     });
     return { block, button, select, status, reset };
@@ -138,7 +138,7 @@
     protocol.id = 'bao-builder-discovery-protocol';
     protocol.innerHTML = '<option value="openai">Chat / OpenAI-compatible</option><option value="anthropic">Anthropic</option><option value="gemini">Gemini</option>';
     const protocolLabel = document.createElement('label');
-    protocolLabel.textContent = 'API 相容格式（自訂連線可切換）';
+    protocolLabel.textContent = '連線格式（API Protocol；自訂連線可切換）';
     protocolLabel.append(protocol);
     baseUrl.closest('label')?.insertAdjacentElement('afterend', protocolLabel);
     const sync = () => { protocol.value = protocolName(App.getSelectedPreset?.()?.protocol); };

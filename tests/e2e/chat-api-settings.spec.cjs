@@ -34,7 +34,7 @@ test("resuming a story opens editable API settings, preserves the story and does
   await page.setViewportSize({ width: 390, height: 844 });
   await saveStoryWithoutPersistingKey(page);
   await page.locator("#home-continue").click();
-  const dialog = page.getByRole("dialog", { name: "故事 API 設定" });
+  const dialog = page.getByRole("dialog", { name: "目前故事的 AI 連線設定" });
   await expect(dialog).toBeVisible();
   await expect(dialog.locator('[name="model"]')).toHaveValue("test-model");
   await expect(dialog.locator('[name="baseUrl"]')).toHaveValue("https://example.invalid/v1/chat/completions");
@@ -66,7 +66,7 @@ test("desktop chat can reopen API settings and switch models without restarting"
   await page.setViewportSize({ width: 1440, height: 900 });
   await saveStoryWithoutPersistingKey(page);
   await page.locator("#home-continue").click();
-  const dialog = page.getByRole("dialog", { name: "故事 API 設定" });
+  const dialog = page.getByRole("dialog", { name: "目前故事的 AI 連線設定" });
   await expect(dialog).toBeVisible();
   await dialog.locator('[name="key"]').fill("DESKTOP_TEST_KEY");
   await dialog.getByRole("button", { name: "套用到目前故事" }).click();

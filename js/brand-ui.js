@@ -29,7 +29,7 @@
           <h1>選個角色，<br>開始你的故事。</h1>
           <p class="brand-intro">寫角色，也寫世界。</p>
           <p class="brand-lead">選喜歡的角色，接上自己的 AI，就能聊天或探索世界。不用先學會一堆設定；想深入玩，再慢慢調整就好。</p>
-          <p class="brand-principles">故事主要保存在此裝置 · 自備 AI 連線鑰匙 · 不需註冊 BAO/LAB 帳號</p>
+          <p class="brand-principles">故事主要保存在此裝置 · 自備連線金鑰（API Key） · 不需註冊 BAO/LAB 帳號</p>
           <div class="brand-actions">
             <button class="primary" data-view="explore">開始玩 · 選角色</button>
             <a class="primary brand-first-run" href="quick-start.html">第一次玩？看三步驟教學 ↗</a>
@@ -54,11 +54,11 @@
         <h2 id="brand-onboarding-title">先開始玩，其他功能之後再研究。</h2>
         <ol class="brand-onboarding-steps">
           <li><b>① 選角色</b><span>挑一張喜歡的角色卡，其他設定可以先用預設值。</span></li>
-          <li><b>② 連接 AI</b><span>選服務商、貼上自己的 API Key，再選擇可用模型。</span></li>
+          <li><b>② 連接 AI</b><span>選 AI 服務商（Provider）、貼上自己的連線金鑰（API Key），再選擇可用模型。</span></li>
           <li><b>③ 開始聊天</b><span>按「開始故事」，輸入你的第一句話。</span></li>
         </ol>
-        <p>API Key 就像 AI 的連線鑰匙；使用模型的費用和免費額度依服務商規定。</p>
-        <div class="brand-onboarding-links"><a href="quick-start.html">跟著新手教學走 →</a><a href="api-guide.html">查看完整 API 說明 →</a></div>
+        <p>連線金鑰（API Key）就像使用 AI 的鑰匙；模型費用和免費額度依 AI 服務商規定。</p>
+        <div class="brand-onboarding-links"><a href="quick-start.html">跟著新手教學走 →</a><a href="api-guide.html">查看完整連線說明（API）→</a></div>
       </section>
       <section class="brand-feature-grid">
         <article><span>01</span><h3>角色</h3><p>不只是一張設定表。個性、關係、背景與敘事方式，都是角色的一部分。</p></article>
@@ -70,7 +70,7 @@
         <div class="brand-kicker">ABOUT BAO/LAB</div>
         <h2 id="brand-product-intro-title">讓故事回到玩家手中</h2>
         <p style="font-size:1.15rem;font-weight:700">你的模型，你的故事，你的世界。</p>
-        <p>BAO/LAB 是以 Local-first、BYOK 為核心的 AI 角色扮演與世界模擬工具。自由選擇模型，透過故事書庫、記憶整理、故事分支與備份功能，管理並延續你的長篇故事。</p>
+        <p>BAO/LAB 是故事優先保存在本機（Local-first）、由玩家自備連線金鑰（BYOK）的 AI 角色扮演與世界模擬工具。你能自由選擇模型，透過故事書庫、記憶整理、故事分支與備份功能，管理並延續長篇故事。</p>
         <a class="primary" href="about-bao-lab.html" style="display:inline-block;text-decoration:none;padding:10px 18px;border-radius:10px">了解 BAO/LAB ↗</a>
       </section>
       <section class="brand-contact" aria-labelledby="brand-contact-title">
@@ -96,7 +96,7 @@
           <p>一開始只是做角色卡。做著做著，開始在意角色聊久了會不會忘記、NPC 能不能有自己的生活、世界能不能不等玩家下指令也繼續走。</p>
           <p>於是一路改提示詞、測試長篇互動、研究世界設定、HTML、角色記憶與 NPC 自主性。很多東西都是先想到一個奇怪的玩法，再想辦法把它真的做出來。</p>
           <p>這裡就是我把那些作品和實驗整理在一起的地方。角色、世界、戀愛、劇情、互動介面都有，也會繼續慢慢增加。</p>
-          <p>我比較希望玩家可以選自己想用的模型，所以 BAO/LAB 採 BYOK：作品由我整理，API 與模型由玩家自己決定。</p>
+          <p>我比較希望玩家可以選自己想用的模型，所以 BAO/LAB 採自備金鑰模式（BYOK）：作品由我整理，連線金鑰（API Key）與模型由玩家自己決定。</p>
         </div>
         <div class="creator-card">
           <div><span>方格子 / DC</span><b>班長</b></div>
@@ -163,7 +163,7 @@
     box.id = "builder-api-guide";
     box.className = "note";
     box.style.cssText = "margin:12px 0 18px;padding:14px 16px;border:1px solid #555763;border-radius:12px";
-    box.innerHTML = '<strong>API Key 就是 AI 的連線鑰匙。</strong> 沒有 Key？三步驟教學會帶你取得並連接。<br><a href="quick-start.html" target="_blank" rel="noopener noreferrer">第一次玩？看三步驟教學（另開分頁）↗</a> · <a href="api-guide.html" target="_blank" rel="noopener noreferrer">完整 API 說明 ↗</a>';
+    box.innerHTML = '<strong>連線金鑰（API Key）就是使用 AI 的鑰匙。</strong> 沒有金鑰？三步驟教學會帶你取得並連接。<br><a href="quick-start.html" target="_blank" rel="noopener noreferrer">第一次玩？看三步驟教學（另開分頁）↗</a> · <a href="api-guide.html" target="_blank" rel="noopener noreferrer">完整連線說明（API）↗</a>';
     step.querySelector("h3")?.insertAdjacentElement("afterend", box);
   };
 

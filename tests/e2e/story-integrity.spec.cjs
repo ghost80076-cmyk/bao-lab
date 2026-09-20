@@ -139,7 +139,7 @@ test('resuming shows saved main, state and memory model metadata; only keys need
   await page.reload();
   await page.waitForFunction(() => Storage.status().ready && !!window.BAOChatAPISettings?.restore, null, { timeout: 15000 });
   await page.locator('#continue-story').click();
-  const dialog = page.getByRole('dialog', { name: '故事 API 設定' });
+  const dialog = page.getByRole('dialog', { name: '目前故事的 AI 連線設定' });
   await expect(dialog).toBeVisible();
   await expect(dialog.locator('input[name=model]')).toHaveValue('local-browser-test');
   await expect(dialog.locator('input[name=baseUrl]')).toHaveValue('https://main.invalid/v1');
@@ -181,7 +181,7 @@ test('same-provider helper model is restored without requesting a second key', a
   await page.reload();
   await page.waitForFunction(() => Storage.status().ready && !!window.BAOChatAPISettings?.restore);
   await page.locator('#continue-story').click();
-  const dialog = page.getByRole('dialog', { name: '故事 API 設定' });
+  const dialog = page.getByRole('dialog', { name: '目前故事的 AI 連線設定' });
   const state = dialog.locator('.bao-helper-reconnect fieldset').first();
   await expect(state.locator('select').first()).toHaveValue('same');
   await expect(state).toContainText('state-on-main-provider');
@@ -211,7 +211,7 @@ test('resumed story can edit output tokens and budget without resetting messages
   expect(saved).toEqual({ active: 2048, maxContext: 24000, story: 2048, key: '' });
   await page.reload();
   await page.locator('#home-continue').click();
-  const api = page.getByRole('dialog', { name: '故事 API 設定' });
+  const api = page.getByRole('dialog', { name: '目前故事的 AI 連線設定' });
   await api.locator('input[name="key"]').fill('A_SESSION_ONLY_KEY');
   await api.getByRole('button', { name: '套用到目前故事' }).click();
   await page.locator('#bao-chat-cost-open').click();

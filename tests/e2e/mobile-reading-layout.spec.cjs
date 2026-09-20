@@ -37,7 +37,7 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 320, height: 568 }
     await expect(tab).toHaveAttribute('aria-expanded', 'true');
     await expect(page.getByRole('button', { name: 'API／切換模型' })).toBeVisible();
     await page.getByRole('button', { name: 'API／切換模型' }).click();
-    await expect(page.getByRole('heading', { name: '故事 API 設定' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: '目前故事的 AI 連線設定' })).toBeVisible();
     await page.locator('[data-api-close]').click();
 
     await tab.click();
