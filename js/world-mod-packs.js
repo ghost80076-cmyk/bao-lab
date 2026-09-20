@@ -191,6 +191,11 @@
       ...BAOWorldModules.baseDefinitions(App.activeCharacter).map(m => m.id),
       ...current.customModules.map(m => m.id) ];
     const checked = normalizePack(pack, occupied);
+    // Deleting a module intentionally retains its story data. Never reuse that ID for
+    // another pack: ensureState() would otherwise attach the old values to a new schema.
+    const retainedIds = new Set([...Object.keys(state.modules || {}), ...Object.keys(getDefaults())]);
+    const stale = checked.modules.find(m => retainedIds.has(m.id));
+    if (stale) fail(`模組 ID「${stale.id}」仍保有舊故事資料；為避免混用，請在新故事匯入或改用不同的模組 ID。`);
     if (current.customModules.length + checked.modules.length > 12) fail('目前故事最多有 12 個玩家自訂模組；請先移除不用的模組。');
     const draft = { ...current, customModules: [...current.customModules, ...checked.modules.map(({initial, ...m}) => m)],
       order: [...current.order, ...checked.modules.map(m => m.id)] };
