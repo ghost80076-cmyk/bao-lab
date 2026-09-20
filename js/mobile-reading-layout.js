@@ -13,10 +13,16 @@
 
   const measure = () => {
     if (!isMobile()) return;
-    const height = Math.round(window.visualViewport?.height || window.innerHeight);
-    const header = Math.round(document.querySelector('.topbar')?.getBoundingClientRect().height || 64);
-    if (height > 0) root.style.setProperty('--bao-mobile-viewport-height', `${height}px`);
-    root.style.setProperty('--bao-mobile-header-height', `${header}px`);
+    const headerBottom = Math.max(0, Math.round(document.querySelector('.topbar')?.getBoundingClientRect().bottom || 64));
+    root.style.setProperty('--bao-mobile-header-bottom', `${headerBottom}px`);
+    // Android may retain a shrunken visualViewport after its keyboard closes.
+    // 100dvh is the default; use visualViewport only while an editor is focused
+    // AND the keyboard has measurably reduced the visible screen.
+    const focused = document.activeElement;
+    const editing = root.contains(focused) && focused?.matches?.('textarea,input,[contenteditable="true"]');
+    const visual = window.visualViewport;
+    const keyboardVisible = editing && visual && window.innerHeight - visual.height > 120;
+    root.style.setProperty('--bao-mobile-viewport-height', keyboardVisible ? `${Math.round(visual.height)}px` : '100dvh');
   };
 
   const sourceButton = selector => document.querySelector(`#chat-view .chat-layout > aside ${selector}`);
@@ -146,7 +152,9 @@
   window.addEventListener('resize', schedule, { passive: true });
   window.visualViewport?.addEventListener('resize', schedule, { passive: true });
   window.visualViewport?.addEventListener('scroll', schedule, { passive: true });
-  window.BAOMobileReadingLayout = { version: 1, sync, openTools, enhanceDrawer, togglePanels };
+  root.addEventListener('focusin', schedule);
+  root.addEventListener('focusout', schedule);
+  window.BAOMobileReadingLayout = { version: 2, sync, openTools, enhanceDrawer, togglePanels };
   const style = document.createElement('link');
   style.rel = 'stylesheet';
   style.href = 'css/mobile-reading-layout.css';
