@@ -60,23 +60,7 @@
         <p>連線金鑰（API Key）就像使用 AI 的鑰匙；模型費用和免費額度依 AI 服務商規定。</p>
         <div class="brand-onboarding-links"><a href="quick-start.html">跟著新手教學走 →</a><a href="api-guide.html">查看完整連線說明（API）→</a></div>
       </section>
-      <section class="brand-feature-grid">
-        <article><span>01</span><h3>角色</h3><p>不只是一張設定表。個性、關係、背景與敘事方式，都是角色的一部分。</p></article>
-        <article><span>02</span><h3>世界</h3><p>故事不一定只繞著玩家轉。NPC、事件與關係也可以有自己的變化。</p></article>
-        <article><span>03</span><h3>互動</h3><p>除了文字，也嘗試把狀態、人物、事件與各種玩法做進互動介面。</p></article>
-        <article><span>04</span><h3>自己的 AI</h3><p>使用自己選擇的 AI 服務。故事主要保存在自己的裝置，模型選擇權留給玩家。</p></article>
-      </section>
-      <section class="brand-product-intro" aria-labelledby="brand-product-intro-title" style="margin:24px 0;padding:clamp(20px,4vw,32px);border:1px solid #444653;border-radius:18px;background:#1c1e27">
-        <div class="brand-kicker">ABOUT BAO/LAB</div>
-        <h2 id="brand-product-intro-title">讓故事回到玩家手中</h2>
-        <p style="font-size:1.15rem;font-weight:700">你的模型，你的故事，你的世界。</p>
-        <p>BAO/LAB 是故事優先保存在本機（Local-first）的 AI 角色扮演與世界模擬工具，採自備連線金鑰模式（BYOK）：你向 AI 服務商取得連線金鑰（API Key），自行選擇模型與費用方案。你能透過故事書庫、記憶整理、故事分支與備份功能，管理並延續長篇故事。</p>
-        <a class="primary" href="about-bao-lab.html" style="display:inline-block;text-decoration:none;padding:10px 18px;border-radius:10px">了解 BAO/LAB ↗</a>
-      </section>
-      <section class="brand-contact" aria-labelledby="brand-contact-title">
-        <div><div class="brand-kicker">COMMUNITY & CONTACT</div><h2 id="brand-contact-title">聯絡我們</h2><p>使用問題、錯誤回報、功能建議或角色卡交流，歡迎加入 BAO/LAB 官方 Discord。請勿在公開頻道張貼 API Key 或個人資料。</p></div>
-        ${discordLink("加入官方 Discord")}
-      </section>`;
+      `;
 
     home.querySelectorAll("[data-view]").forEach(btn => btn.addEventListener("click", () => App.showView(btn.dataset.view)));
     document.getElementById("home-continue")?.addEventListener("click", () => App.resumeSavedStory?.());
@@ -90,51 +74,32 @@
     if (!about) return;
     about.innerHTML = `
       <section class="creator-page">
-        <div class="brand-kicker">ABOUT ME</div>
-        <h2>關於班長</h2>
+        <div class="brand-kicker">ABOUT BAO/LAB</div>
+        <h2>讓故事回到玩家手中</h2>
+        <p class="brand-about-lead">你的模型，你的故事，你的世界。</p>
+        <section class="brand-about-product" aria-label="BAO/LAB 是什麼">
+          <p class="brand-about-focus">角色 · 世界 · 互動 · 自己的 AI</p>
+          <p>BAO/LAB 是故事優先保存在本機（Local-first）的 AI 角色扮演與世界模擬工具，採自備連線金鑰模式（BYOK）：你向 AI 服務商取得連線金鑰（API Key），自行選擇模型與費用方案。</p>
+          <p>你可以建立角色、探索世界、整理記憶、建立故事分支並匯出備份；故事與選擇由你保留，不必被綁在單一聊天平台。</p>
+        </section>
+        <div class="brand-kicker brand-creator-kicker">ABOUT THE CREATOR</div>
+        <h3>關於班長</h3>
         <div class="creator-copy">
           <p>一開始只是做角色卡。做著做著，開始在意角色聊久了會不會忘記、NPC 能不能有自己的生活、世界能不能不等玩家下指令也繼續走。</p>
           <p>於是一路改提示詞、測試長篇互動、研究世界設定、HTML、角色記憶與 NPC 自主性。很多東西都是先想到一個奇怪的玩法，再想辦法把它真的做出來。</p>
           <p>這裡就是我把那些作品和實驗整理在一起的地方。角色、世界、戀愛、劇情、互動介面都有，也會繼續慢慢增加。</p>
-          <p>我比較希望玩家可以選自己想用的模型，所以 BAO/LAB 採自備連線金鑰模式（BYOK）：作品由我整理，連線金鑰（API Key）與模型由玩家自己決定。</p>
+          <p>我比較希望玩家可以選自己想用的模型，所以作品由我整理，連線金鑰（API Key）與模型由玩家自己決定。</p>
         </div>
         <div class="creator-card">
           <div><span>方格子 / DC</span><b>班長</b></div>
           <div><span>LunaTalk</span><b>肉包</b></div>
           <div><span>在做的東西</span><b>角色卡 / 世界模擬 / 長篇敘事 / HTML 互動</b></div>
         </div>
-        <section class="brand-contact brand-contact-about" id="contact" aria-labelledby="about-contact-title">
-          <div><div class="brand-kicker">CONTACT</div><h3 id="about-contact-title">聯絡我們</h3><p>加入 BAO/LAB 官方 Discord，提出功能建議、回報問題或交流創作。請不要公開 API Key、密碼或私人資料。</p></div>
-          ${discordLink("前往官方 Discord")}
-        </section>
       </section>`;
   };
 
   const renderCommunityNavigation = () => {
     const nav = document.querySelector(".topbar nav");
-    if (nav && !document.getElementById("bao-discord-nav")) {
-      const link = document.createElement("a");
-      link.id = "bao-discord-nav";
-      link.className = "brand-discord-nav";
-      link.href = DISCORD_INVITE;
-      link.target = "_blank";
-      link.rel = "noopener noreferrer";
-      link.setAttribute("aria-label", "加入 BAO/LAB 官方 Discord（另開分頁）");
-      link.innerHTML = `${DISCORD_ICON}<span>Discord</span>`;
-      nav.querySelector('[data-view="about"]')?.before(link);
-      if (!link.isConnected) nav.appendChild(link);
-    }
-    if (nav && !document.getElementById("bao-contact-nav")) {
-      const contact = document.createElement("button");
-      contact.id = "bao-contact-nav";
-      contact.type = "button";
-      contact.textContent = "聯絡我們";
-      contact.addEventListener("click", () => {
-        App.showView("about");
-        document.getElementById("contact")?.scrollIntoView({ behavior: "smooth", block: "start" });
-      });
-      nav.appendChild(contact);
-    }
     const footer = document.querySelector(".app-shell > footer");
     if (footer && !document.getElementById("bao-contact-footer")) {
       const contact = document.createElement("span");
@@ -172,7 +137,7 @@
     setTimeout(() => {
       setNavLabel("home", "首頁");
       setNavLabel("explore", "作品");
-      setNavLabel("about", "關於我");
+      setNavLabel("about", "關於 BAO/LAB");
       renderHome();
       renderAbout();
       renderCommunityNavigation();
