@@ -84,7 +84,7 @@
     ['api-type', 'model-select', 'model-id', 'base-url'].forEach(id => $(id)?.addEventListener('change', updateTechnicalVisibility));
     updateTechnicalVisibility();
   }
-  function setMode(mode) {
+  function setMode(mode, preserveStep = false) {
     ensureUI();
     if (mode === 'quick' && specialWorld()) return;
     view.dataset.baoSetup = mode === 'advanced' ? 'advanced' : 'quick';
@@ -92,9 +92,22 @@
     view.querySelectorAll('#bao-setup-choice [data-bao-setup]').forEach(button => {
       button.setAttribute('aria-pressed', String(button.dataset.baoSetup === view.dataset.baoSetup));
     });
-    App.setStep(view.dataset.baoSetup === 'quick' ? 4 : 1);
+    if (!preserveStep) App.setStep(view.dataset.baoSetup === 'quick' ? 4 : 1);
     updateTechnicalVisibility();
   }
+  // Preserve existing scripted flows, including resume, demo and tests which
+  // explicitly navigate to step 5 after opening the builder.
+  const originalSetStep = App.setStep;
+  App.setStep = function(step) {
+    if (view.classList.contains('active') && view.dataset.baoSetup === 'quick' && Number(step) !== 4) {
+      view.dataset.baoSetup = 'advanced';
+      view.querySelectorAll('#bao-setup-choice [data-bao-setup]').forEach(button => {
+        button.setAttribute('aria-pressed', String(button.dataset.baoSetup === 'advanced'));
+      });
+      updateTechnicalVisibility();
+    }
+    return originalSetStep.call(this, step);
+  };
   function shown() {
     ensureUI();
     const restricted = specialWorld();
@@ -104,7 +117,8 @@
     if (note) note.textContent = restricted
       ? '這個世界需要先選開局方式與世界觀，請使用完整設定；原本的功能都會保留。'
       : '快速開始只顯示 AI 連線；敘事、玩家設定與記憶會沿用原本的預設值，隨時可切回完整設定。';
-    setMode(restricted ? 'advanced' : 'quick');
+    // If an existing flow selected another step, never silently override it.
+    setMode(restricted || App.currentStep !== 1 ? 'advanced' : 'quick', restricted || App.currentStep !== 1);
   }
   const observer = new MutationObserver(() => {
     const visible = view.classList.contains('active');
