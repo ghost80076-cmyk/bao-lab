@@ -1,0 +1,29 @@
+name: World MOD packs
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'js/world-mod-packs.js'
+      - 'js/world-relevance.js'
+      - 'tests/world-mod-packs-core.cjs'
+      - 'tests/e2e/world-mod-packs.spec.cjs'
+      - '.github/workflows/world-mod-packs.yml'
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  mod-pack-core-and-browser:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node tests/world-mod-packs-core.cjs
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npx playwright test tests/e2e/world-mod-packs.spec.cjs --project=chromium
