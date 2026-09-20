@@ -52,12 +52,17 @@ for (const width of [390, 1440]) {
     const card = page.locator('.character-status-card[data-character-context="阿青"]');
     await expect(card.locator('[data-npc-presence]')).toHaveText('在場');
     await expect(page.locator('.character-status-card[data-character-context="小周"] [data-npc-presence]')).toHaveText('行蹤未知');
+    // Selecting a character redraws the private status panel without App.renderUIPanel.
+    await card.click();
+    await expect(card.locator('[data-npc-presence]')).toHaveText('在場');
 
     const left = await applyModelResponse({ npcs: [{ name: '阿青', presence: 'away' }] });
     expect(left.npcs.find(n => n.name === '阿青').presence).toBe('away');
     await expect(card.locator('[data-npc-presence]')).toHaveText('已離場');
     // A later patch that does not mention presence must not overwrite it.
     await applyModelResponse({ npcs: [{ name: '阿青', mood: '平靜' }] });
+    await expect(card.locator('[data-npc-presence]')).toHaveText('已離場');
+    await card.click();
     await expect(card.locator('[data-npc-presence]')).toHaveText('已離場');
 
     await page.evaluate(async () => {
@@ -87,6 +92,8 @@ for (const width of [390, 1440]) {
     });
     expect(restored).toEqual({ ok: true, leaked: false, presence: 'away', unknown: 'unknown' });
     await expect(page.locator('.character-status-card[data-character-context="阿青"] [data-npc-presence]')).toHaveText('已離場');
+    await expect(page.locator('.character-status-card[data-character-context="小周"] [data-npc-presence]')).toHaveText('行蹤未知');
+    await page.locator('.character-status-card[data-character-context="小周"]').click();
     await expect(page.locator('.character-status-card[data-character-context="小周"] [data-npc-presence]')).toHaveText('行蹤未知');
   });
 }
