@@ -47,8 +47,17 @@
     link.href = href;
     document.head.appendChild(link);
   };
+  const enhanceAndGuard = () => {
+    enhance();
+    if (document.querySelector('script[data-bao-quality]')) return;
+    const script = document.createElement('script');
+    script.dataset.baoQuality = '1';
+    script.src = 'js/bao-image-quality.js?v=1';
+    document.head.appendChild(script);
+  };
   addStylesheet('css/bao-visual-ui.css');
   addStylesheet('css/bao-brand-v2.css');
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', enhance, { once: true });
-  else enhance();
+  addStylesheet('css/bao-image-quality.css?v=1');
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', enhanceAndGuard, { once: true });
+  else enhanceAndGuard();
 })();
