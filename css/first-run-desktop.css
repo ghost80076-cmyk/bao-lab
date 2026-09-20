@@ -1,0 +1,40 @@
+/* BAO/LAB: progressive disclosure for first-time players and reading-first PC polish.
+   Only presentation is changed here; story controls keep their original nodes and handlers. */
+.brand-actions .brand-first-run{background:linear-gradient(135deg,#b19cff,#8f7be9);color:#101019;border:1px solid #c5b5ff;font-weight:800;box-shadow:0 12px 28px rgba(124,94,212,.18)}
+.brand-actions .brand-first-run:hover{filter:brightness(1.07)}
+.brand-actions .brand-manual{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;border:1px solid rgba(255,255,255,.18);border-radius:11px;padding:11px 17px;color:#ddd6f0;background:#202532;font-weight:700}
+.brand-actions .brand-manual:hover{background:#2b3041;color:#fff}
+.brand-onboarding{margin:0 0 28px;padding:clamp(18px,3vw,28px);background:linear-gradient(125deg,#1a1c2b,#111b25);border:1px solid rgba(177,156,255,.28);border-radius:20px;box-shadow:0 18px 52px rgba(0,0,0,.12)}
+.brand-onboarding h2{font-size:clamp(21px,3vw,28px);line-height:1.35;margin:9px 0 16px}
+.brand-onboarding p{color:#c4cad8;line-height:1.7;margin:8px 0 0}
+.brand-onboarding-steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;list-style:none;margin:0;padding:0}
+.brand-onboarding-steps li{padding:14px 15px;border-radius:13px;background:rgba(8,11,21,.55);border:1px solid rgba(255,255,255,.09);min-width:0}
+.brand-onboarding-steps b{display:block;font-size:15px;margin-bottom:4px;color:#f4f0ff}
+.brand-onboarding-steps span{font-size:13px;color:#aeb8ce;line-height:1.6}
+.brand-onboarding-links{display:flex;flex-wrap:wrap;gap:12px;margin-top:16px}
+.brand-onboarding-links a{color:#e6dcff;text-underline-offset:3px}
+@media(min-width:1081px){
+  /* Retain the existing responsive grid and status-toggle behavior. */
+  #chat-view .chat-layout{gap:18px;align-items:start}
+  #chat-view .chat-layout>aside:not(.bao-status-rail),
+  #chat-view .chat-main,#chat-view .bao-status-rail{border-radius:18px;border-color:rgba(199,192,240,.13);box-shadow:0 12px 40px rgba(0,0,0,.15)}
+  #chat-view .chat-layout>aside:not(.bao-status-rail){background:linear-gradient(180deg,#151923,#10141b);padding:15px;gap:11px}
+  #chat-view #chat-character-card{min-width:0}
+  #chat-view .chat-meta{padding:12px;border:1px solid rgba(255,255,255,.09);border-radius:12px;background:rgba(8,12,19,.5)}
+  #chat-view .chat-main{background:#121721}
+  #chat-view .chat-topline{padding:16px 24px;background:linear-gradient(90deg,#1a1c2d,#141923);border-color:rgba(255,255,255,.09)}
+  #chat-view .chat-stream{padding:clamp(22px,2.7vw,44px);background:linear-gradient(180deg,#11151e,#111722)}
+  #chat-view .message.assistant .bubble{line-height:1.95;font-size:15.5px;letter-spacing:.005em}
+  #chat-view .message.user .bubble{line-height:1.8}
+  #chat-view .usage-bar{background:#10141c}
+  #chat-view .composer{background:#141923;border-top:1px solid rgba(255,255,255,.09);padding:16px 20px}
+  #chat-view .composer textarea{background:#0d1119;border:1px solid rgba(255,255,255,.17);line-height:1.7}
+  #chat-view #bao-chat-tool-groups>details{background:#171d28;border-color:rgba(255,255,255,.1)}
+  #chat-view #bao-chat-tool-groups>details>summary{padding:13px 12px;font-size:13px}
+  #chat-view #bao-chat-tool-groups>details>summary:hover{background:#21293a}
+  #chat-view #bao-chat-quick-actions>button{min-height:42px}
+  #chat-view .bao-status-rail{background:#141a24}
+}
+@media(max-width:900px){.brand-onboarding-steps{grid-template-columns:1fr}.brand-onboarding{margin-top:8px}}
+@media(max-width:560px){.brand-actions .brand-first-run,.brand-actions .brand-manual{flex:1 1 100%;text-align:center}.brand-onboarding-links{flex-direction:column}.brand-onboarding-steps li{padding:11px 13px}}
+@media(prefers-reduced-motion:reduce){.brand-actions .brand-first-run:hover{filter:none}}
