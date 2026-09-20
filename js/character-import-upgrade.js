@@ -1,7 +1,11 @@
 /* Local-only import. Character-card text is never executed or sent to a model. */
 (() => {
   if (typeof CharacterEngine === "undefined") return;
-  const engine = CharacterEngine, MAX = 1024 * 1024, validId = /^[a-zA-Z0-9][a-zA-Z0-9_-]{0,63}$/;
+  const engine = CharacterEngine,
+    MAX_JSON_BYTES = 1024 * 1024,
+    MAX_PNG_BYTES = 10 * 1024 * 1024,
+    MAX_METADATA_BYTES = 1024 * 1024,
+    validId = /^[a-zA-Z0-9][a-zA-Z0-9_-]{0,63}$/;
   const text = v => typeof v === "string" ? v.trim() : "";
   const object = v => v && typeof v === "object" && !Array.isArray(v);
   const esc = v => String(v ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -69,7 +73,7 @@
     const decoder = new TextDecoder("utf-8"); let offset = 8;
     while (offset + 12 <= bytes.length) {
       const length = (((bytes[offset] << 24) >>> 0) + (bytes[offset+1] << 16) + (bytes[offset+2] << 8) + bytes[offset+3]);
-      if (length > MAX || offset + 12 + length > bytes.length) throw new Error("PNG metadata 區塊不完整或超出可接受大小。");
+      if (length > MAX_METADATA_BYTES || offset + 12 + length > bytes.length) throw new Error("PNG metadata 區塊不完整或超出 1 MB 安全上限。");
       const type = decoder.decode(bytes.slice(offset+4,offset+8)), body = bytes.slice(offset+8,offset+8+length);
       if (type === "tEXt") { const split = body.indexOf(0), key = split < 0 ? "" : decoder.decode(body.slice(0,split)).toLowerCase(); if (key === "chara") return decoder.decode(body.slice(split+1)); }
       offset += 12 + length; if (type === "IEND") break;
@@ -83,8 +87,11 @@
   }
   async function parseFile(file) {
     if (!file) throw new Error("請先選擇角色卡 JSON 或 PNG。");
-    if (typeof file.size === "number" && file.size > MAX) throw new Error("角色卡超過 1 MB，請先精簡後再匯入。");
     const isPng = /\.png$/i.test(file.name || "") || file.type === "image/png";
+    const maxSize = isPng ? MAX_PNG_BYTES : MAX_JSON_BYTES;
+    if (typeof file.size === "number" && file.size > maxSize) {
+      throw new Error(isPng ? "PNG 角色卡超過 10 MB，請先壓縮圖片或改用 V2 JSON。" : "角色 JSON 超過 1 MB，請先精簡後再匯入。");
+    }
     if (isPng) {
       if (typeof file.arrayBuffer !== "function") throw new Error("這個瀏覽器無法讀取 PNG 角色卡。");
       return {raw:decodePayload(pngPayload(new Uint8Array(await file.arrayBuffer()))), origin:"PNG metadata"};
