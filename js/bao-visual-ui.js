@@ -47,6 +47,14 @@
     link.href = href;
     document.head.appendChild(link);
   };
+  // Replace each original stylesheet URL instead of stacking another conflicting override.
+  const refreshStylesheet = (path, version) => {
+    const existing = [...document.querySelectorAll('link[rel="stylesheet"]')]
+      .find(link => link.getAttribute('href')?.split('?')[0] === path);
+    if (existing && existing.getAttribute('href') !== `${path}?v=${version}`) {
+      existing.href = `${path}?v=${version}`;
+    }
+  };
   const enhanceAndGuard = () => {
     enhance();
     if (document.querySelector('script[data-bao-quality]')) return;
@@ -55,8 +63,9 @@
     script.src = 'js/bao-image-quality.js?v=1';
     document.head.appendChild(script);
   };
+  refreshStylesheet('css/explore-zones.css', 'original-violet-mint-1');
+  refreshStylesheet('css/bao-mascot.css', 'original-violet-mint-1');
   addStylesheet('css/bao-visual-ui.css');
-  // Versioned CSS ensures the original violet/mint palette replaces cached neutral/rose versions.
   addStylesheet('css/bao-brand-v2.css?v=original-violet-mint-1');
   addStylesheet('css/bao-image-quality.css?v=1');
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', enhanceAndGuard, { once: true });
