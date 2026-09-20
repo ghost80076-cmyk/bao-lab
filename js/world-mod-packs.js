@@ -262,7 +262,7 @@
       catch (err) { event.stopImmediatePropagation(); alert(`欄位設定無法儲存：${err.message}`); return; }
       // The original manager's save handler applies its own draft first.
       // Amend the same story state after that handler without mutating its closure.
-      queueMicrotask(() => {
+      setTimeout(() => {
         if (!active()) return;
         const state = GameState.current;
         const saved = BAOWorldModules.getCustomization(App.activeCharacter);
@@ -278,7 +278,7 @@
           });
         }
         App.saveStory(false);
-      });
+      }, 0);
     }, { capture: true });
   };
   const enhance = () => {
