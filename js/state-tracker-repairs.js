@@ -100,9 +100,56 @@
     return result;
   };
 
+  // One GameState is authoritative for NPC presence. Display the confirmed
+  // value on the existing character cards without creating another state store.
+  const presenceLabel = { present: '在場', away: '已離場', unknown: '行蹤未知', unconfirmed: '在場未確認' };
+  const decorateNPCPresence = () => {
+    const ui = document.getElementById('ui-panel');
+    const state = GameState.current;
+    if (!ui || !state) return;
+    const npcs = (state.npcs || []).filter(npc => npc?.name);
+    const byName = new Map(npcs.map(npc => [npc.name, npc]));
+    const statusCards = [...ui.querySelectorAll('.character-status-card[data-character-context]')];
+    const mark = (card, npc, host) => {
+      if (!npc) return;
+      const presence = ['present', 'away', 'unknown'].includes(npc.presence) ? npc.presence : 'unconfirmed';
+      let badge = card.querySelector('[data-npc-presence]');
+      if (!badge) {
+        badge = document.createElement('span');
+        badge.className = 'bao-npc-presence';
+        (host || card).appendChild(badge);
+      }
+      badge.dataset.npcPresence = presence;
+      badge.textContent = presenceLabel[presence];
+    };
+    if (statusCards.length) statusCards.forEach(card =>
+      mark(card, byName.get(card.dataset.characterContext), card.querySelector('.character-status-head > div')));
+    else [...ui.querySelectorAll('.npc-card')].forEach((card, index) => mark(card, npcs[index]));
+    if (App.activeCharacter?.id === 'desire-district') {
+      const count = npcs.filter(npc => npc.presence === 'away').length;
+      let note = ui.querySelector('[data-offscene-npc-count]');
+      if (count) {
+        if (!note) {
+          note = document.createElement('p');
+          note.dataset.offsceneNpcCount = 'true';
+          note.className = 'note';
+          (ui.querySelector('.character-status-toolbar') || ui).appendChild(note);
+        }
+        note.textContent = `另有 ${count} 位 NPC 已離場，人物資料仍保留在本故事。`;
+      } else note?.remove();
+    }
+    if (!document.getElementById('bao-npc-presence-style')) {
+      const style = document.createElement('style');
+      style.id = 'bao-npc-presence-style';
+      style.textContent = '.bao-npc-presence{display:inline-block;margin-top:4px;padding:2px 7px;border:1px solid currentColor;border-radius:99px;font-size:12px;opacity:.85}.bao-npc-presence[data-npc-presence="away"]{opacity:.65}.bao-npc-presence[data-npc-presence="unconfirmed"]{border-style:dashed}';
+      document.head.appendChild(style);
+    }
+  };
+
   const oldPanel = App.renderUIPanel.bind(App);
   App.renderUIPanel = function(panel) {
     const result = oldPanel(panel);
+    if (panel === 'npc') { decorateNPCPresence(); return result; }
     if (panel !== 'status') return result;
     const ui = document.getElementById('ui-panel');
     if (!ui || ui.querySelector('[data-world-state-tracker]')) return result;
@@ -119,5 +166,5 @@
     ui.appendChild(note);
     return result;
   };
-  window.BAOStateTrackerRepairs = { installSchema, ensureSchema };
+  window.BAOStateTrackerRepairs = { installSchema, ensureSchema, decorateNPCPresence };
 })();
