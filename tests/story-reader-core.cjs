@@ -1,3 +1,62 @@
-YªçŠx-®éÜj×¢ëiºÚ+Š§j[h‘éÜ¢éí×ÝzN‹Z–‹­¦ëeŠw¬Õ½¹ÍÐ…ÍÍ•ÉÐ€ôÉ•ÅÕ¥É” ‰…ÍÍ•ÉÐˆ¤ì)½¹ÍÐ™Ì€ôÉ•ÅÕ¥É” ‰™Ìˆ¤ì()½¹ÍÐ©Ì€ô™Ì¹É•…‘¥±•Må¹Œ ‰©Ì½ÍÑ½ÉäµÉ•…‘•È¹©Ìˆ°€‰ÕÑ˜àˆ¤ì)½¹ÍÐÍÌ€ô™Ì¹É•…‘¥±•Må¹Œ ‰Ï_5êÚ$z{-®éÜj×hat-view.active) .bao-support-float{display:none}"), "support button should not cover mobile story content");
+const assert = require("assert");
+const fs = require("fs");
+
+const js = fs.readFileSync("js/story-reader.js", "utf8");
+const css = fs.readFileSync("css/story-reader.css", "utf8");
+const app = fs.readFileSync("js/app.js", "utf8");
+const chatShell = fs.readFileSync("js/chat-shell-fix.js", "utf8");
+const chat = fs.readFileSync("js/chat.js", "utf8");
+const siteUI = fs.readFileSync("js/site-ui.js", "utf8");
+const brandUI = fs.readFileSync("js/brand-ui.js", "utf8");
+const brandCSS = fs.readFileSync("css/brand-home.css", "utf8");
+
+assert(js.includes('linchenfeng: "https://i.meee.com.tw/UHKTM1O.jpg"'), "Lin Chenfeng image override is missing");
+assert(js.includes("originalContent"), "message originalContent support is missing");
+assert(js.includes("message.variants"), "message variant support is missing");
+assert(js.includes("data-edit"), "manual assistant edit control is missing");
+assert(js.includes("data-rewrite"), "AI rewrite control is missing");
+assert(js.includes("data-regenerate"), "regenerate control is missing");
+assert(js.includes("data-inspire"), "action inspiration control is missing");
+assert.equal((js.match(/__memoryTask/g) || []).length, 1, "only action inspiration may use the memory helper route");
+assert(js.includes("__storyTool: true"), "rewrite and regeneration must be marked as main-model story tools");
+assert(js.includes("latestAssistantIndex"), "destructive reply tools must identify the latest AI reply");
+assert(js.includes("åªèƒ½ä¿®æ”¹æœ€æ–°ä¸€å‰‡ AI å›žè¦†"), "old reply edits must explain the state-consistency lock");
+assert(chat.includes("!config?.__storyTool"), "story tools must not replace the main conversation context-pressure reading");
+assert(js.includes("input.value = text"), "action inspiration must fill the composer");
+assert(js.includes("BAOChatMarkup.sanitize"), "rich HTML renderer integration is missing");
+assert(js.includes("return (list || []).map(message => ({ role: message.role, content:"), "context should strip UI metadata before API calls");
+assert(css.includes("#chat-view .message.assistant .bubble:not(.authored-rich-message)"), "plain text contrast rule is missing");
+assert(!js.includes("visualPanel"), "story reader must not create a separate background artwork panel");
+assert(!css.includes("story-character-visual"), "responsive CSS must not depend on a background artwork panel");
+assert(!app.includes('chat-character-card").innerHTML=`<img'), "sidebar must not duplicate the character portrait");
+assert(chatShell.includes('id="chat-title-avatar"'), "chat header must render the character portrait beside the title");
+assert(chatShell.includes("syncChatHeader"), "chat header portrait must stay in sync with the active character");
+assert(css.includes("grid-template-columns:220px minmax(0,1fr)"), "desktop reader must use the sidebar + story two-column layout");
+assert(css.includes(".chat-title-avatar"), "character portrait styling beside the story title is missing");
+assert(css.includes("object-position:center top"), "story title portrait should keep the face aligned");
+assert(css.includes("grid-template-columns:190px minmax(0,1fr)"), "tablet / narrow desktop must retain the sidebar + story layout");
+assert(css.includes("background:rgba(8,11,17,.32)!important"), "authored HTML mobile shell should stay visually integrated with the reader");
+assert(css.includes("overflow-x:hidden"), "authored HTML must not create a reader-wide horizontal scrollbar");
+assert(css.includes("min-width:0!important"), "authored HTML children must be allowed to shrink inside the reading column");
+assert(css.includes("white-space:pre-wrap"), "authored preformatted content must wrap inside the reading column");
+assert(!css.includes("width:calc(100% - 16px)"), "mobile reader must no longer reserve space for background artwork");
+assert(css.includes("padding:10px 6px"), "small mobile story padding should preserve reading width");
+assert(js.includes('className = "story-mobile-tools"'), "mobile story toolbar is missing");
+for (const action of ["save", "save-as", "narrative", "reply", "memory"]) {
+  assert(js.includes(`data-story-mobile-action="${action}"`), `mobile story action is missing: ${action}`);
+}
+assert(css.includes("#chat-view .story-mobile-tools"), "mobile story toolbar styles are missing");
+assert(css.includes("overflow-x:auto"), "mobile story toolbar must scroll horizontally when needed");
+assert(siteUI.includes('loadBAOScript("js/story-reader.js")'), "story reader is not loaded by site-ui");
+assert(siteUI.includes('loadBAOScript("js/request-lifecycle.js")'), "request lifecycle guard is not loaded after the story reader");
+assert(css.includes(".story-cancel-generation"), "responsive cancel-generation styling is missing");
+assert(brandUI.includes('.topbar nav [data-view="${view}"]'), "brand labels must target nav controls without replacing the BAO/LAB logo");
+assert(brandUI.includes("è‡ªå‚™é€£ç·šé‡‘é‘°æ¨¡å¼ï¼ˆBYOKï¼‰"), "BYOK must be described as a mode, not as an individual key");
+assert(!brandUI.includes("è‡ªå‚™é€£ç·šé‡‘é‘°ï¼ˆBYOKï¼‰"), "homepage must not label BYOK as an individual connection key");
+assert(brandCSS.includes("overflow-x:auto"), "mobile topbar navigation must scroll instead of squeezing labels vertically");
+assert(brandCSS.includes("white-space:nowrap"), "topbar labels must not wrap one character per line");
+assert(brandCSS.includes("word-break:keep-all"), "mobile topbar labels must keep Chinese words horizontal");
+assert(brandCSS.includes("writing-mode:horizontal-tb"), "mobile topbar labels must use horizontal writing mode");
+assert(brandCSS.includes("body:has(#chat-view.active) .bao-support-float{display:none}"), "support button should not cover mobile story content");
 
 console.log("story-reader-core: ok");
