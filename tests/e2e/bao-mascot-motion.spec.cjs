@@ -3,7 +3,14 @@ const { test, expect } = require('@playwright/test');
 const KEY = 'bao-lab:mascot:v1';
 
 test.beforeEach(async ({ page }) => {
-  await page.addInitScript(key => { try { localStorage.removeItem(key); } catch {} }, KEY);
+  await page.addInitScript(key => {
+    try {
+      if (!sessionStorage.getItem('bao-mascot-test-cleared')) {
+        localStorage.removeItem(key);
+        sessionStorage.setItem('bao-mascot-test-cleared', 'yes');
+      }
+    } catch {}
+  }, KEY);
 });
 
 test('animated bun opens, responds, and toggles to a clearly labeled static human preview', async ({ page }) => {
