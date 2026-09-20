@@ -87,4 +87,12 @@
     script.onerror = () => console.warn('BAO/LAB chat system notices failed to load');
     document.head.append(script);
   }
+  // Story rollback uses existing checkpointed story branches, loaded before this module.
+  if (document.head?.append && window.BAOStoryBranches
+      && !document.querySelector('script[src="js/story-rollback.js"]')) {
+    const script = document.createElement('script');
+    script.src = 'js/story-rollback.js';
+    script.onerror = () => console.warn('BAO/LAB story rollback failed to load');
+    document.head.append(script);
+  }
 })();
