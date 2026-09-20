@@ -19,3 +19,5 @@ jobs:
           node-version: 22
       - name: Verify safe historical rollback and failure recovery
         run: node tests/story-rollback-core.cjs
+      - name: Verify branch API credentials and state continuity
+        run: node tests/story-branch-api-core.cjs
