@@ -5,13 +5,19 @@ const readBackground = locator => locator.evaluate(el => ({
   color: getComputedStyle(el).backgroundColor,
   image: getComputedStyle(el).backgroundImage
 }));
+const waitForOriginalTheme = page => page.waitForFunction(() => {
+  const sheets = [...document.styleSheets].map(sheet => sheet.href || '');
+  return sheets.some(href => href.includes('bao-brand-v2.css?v=original-violet-mint-1')) &&
+    sheets.some(href => href.includes('explore-zones.css?v=original-violet-mint-1')) &&
+    sheets.some(href => href.includes('bao-mascot.css?v=original-violet-mint-1'));
+});
 
 for (const width of [390, 1440]) {
   test(`original BAO/LAB violet and mint survive on ${width}px RP UI`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
     await page.goto('./');
-    await page.waitForFunction(() => window.BAOQuickSetup && App.characters?.length &&
-      [...document.styleSheets].some(sheet => sheet.href?.includes('bao-brand-v2.css')));
+    await page.waitForFunction(() => window.BAOQuickSetup && App.characters?.length);
+    await waitForOriginalTheme(page);
     await expect(page.locator('#home-view .brand-hero')).toBeVisible();
     await expect(page.locator('#home-view #bao-home-portrait')).toBeVisible();
 
@@ -51,6 +57,7 @@ for (const width of [390, 1440]) {
 
 test('Bao mascot controls are dark while the mascot image stays intact', async ({ page }) => {
   await page.goto('./');
+  await waitForOriginalTheme(page);
   await expect(page.locator('#bao-home-portrait img')).toBeVisible();
   await expect(page.locator('.bao-mascot-launch')).toBeVisible();
   expect((await readBackground(page.locator('.bao-mascot-launch'))).color).toBe('rgb(29, 34, 48)');
