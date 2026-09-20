@@ -11,7 +11,7 @@
   const tell = message => alert(message);
   const hasSourceMessages = () => Array.isArray(sourceMessages) && sourceMessages.length > 0;
   const requireSourceMessages = () => {
-    if (!hasSourceMessages()) throw new Error("這份 Context Pack 沒有完整原始對話來源。為避免混入目前故事，請重新匯入原始紀錄或重新整理目前故事。");
+    if (!hasSourceMessages()) throw new Error("這份劇情摘要包（Context Pack）沒有完整原始對話來源。為避免混入目前故事，請重新匯入原始紀錄或重新整理目前故事。");
     return clone(sourceMessages);
   };
   const latestUserText = () => {
@@ -118,7 +118,7 @@
       version: 1,
       id: String(raw.id || uid()),
       createdAt: String(raw.createdAt || new Date().toISOString()),
-      title: String(raw.title || ((App.activeCharacter?.name || "故事") + " · Context Pack")),
+      title: String(raw.title || ((App.activeCharacter?.name || "故事") + " · 劇情摘要包")),
       source: Object.assign({
         type: "current-story",
         platform: "BAO/LAB",
@@ -367,7 +367,7 @@
 
   const readEditor = root => {
     const next = normalizePack(draft || {});
-    next.title = root.querySelector("[data-title]").value.trim() || "未命名 Context Pack";
+    next.title = root.querySelector("[data-title]").value.trim() || "未命名劇情摘要包";
     next.summary = root.querySelector("[data-summary]").value.trim();
     next.importantEvents = lineList(root.querySelector("[data-events]").value);
     next.relationships = lineList(root.querySelector("[data-relations]").value);
@@ -607,13 +607,13 @@
 
   const organize = async (pack, messages, onProgress = () => {}) => {
     const api = App.config?.api || {};
-    if (!api.key) throw new Error("尚未設定 API Key；你仍可手動編輯並確認。");
+    if (!api.key) throw new Error("尚未設定連線金鑰（API Key）；你仍可手動編輯並確認。");
     const plan = organizationPlan(messages);
     if (!plan.chunkCount) throw new Error("目前沒有可整理的對話。");
     const accepted = confirm(
       "將 " + messages.length + " 則訊息分成 " + plan.chunkCount + " 段整理，" +
       (plan.mergeCalls ? "再進行 " + plan.mergeCalls + " 次分層合併，" : "") +
-      "預計呼叫記憶模型 " + plan.totalCalls + " 次。這會產生 Token 用量，要繼續嗎？"
+      "預計呼叫記憶模型 " + plan.totalCalls + " 次。這會產生字詞用量（Token），要繼續嗎？"
     );
     if (!accepted) return null;
 
@@ -669,7 +669,7 @@
 
   const startSequel = input => {
     const pack = normalizePack(input);
-    if (!pack.playerConfirmed) return tell("請先確認 Context Pack，再建立續篇。");
+    if (!pack.playerConfirmed) return tell("請先確認劇情摘要包（Context Pack），再建立續篇。");
     if (!confirm("會先建立「續篇前備份」，再清空目前對話並開啟新篇章。要繼續嗎？")) return;
     Storage.saveSlot((App.activeCharacter?.name || "故事") + " · 續篇前備份");
     const previous = clone(GameState.current || {});
@@ -695,7 +695,7 @@
     App.showView("chat");
     App.saveStory(false);
     close();
-    tell("新篇章已建立；舊故事已放進手動存檔，Context Pack 已成為續篇前情。");
+    tell("新篇章已建立；舊故事已放進手動存檔，劇情摘要包已成為續篇前情。");
   };
 
   const preview = () => {
@@ -760,7 +760,7 @@
     const pack = normalizePack(draft || createPack());
     draft = pack;
     host.innerHTML = '<div class="story-tools-toolbar"><button class="secondary" type="button" data-back>← 返回</button><span class="story-tools-pill">' + (pack.playerConfirmed ? "已確認" : "待玩家確認") + '</span></div>' +
-      '<section class="story-tools-card"><h3>Context Pack 編輯與確認</h3><p>未確認草稿不會成為續篇事實。人物心理、喜惡與意圖必須由玩家明確確認。</p>' +
+      '<section class="story-tools-card"><h3>劇情摘要包（Context Pack）編輯與確認</h3><p>未確認草稿不會成為續篇事實。人物心理、喜惡與意圖必須由玩家明確確認。</p>' +
       '<label>標題<input data-title maxlength="120"></label><label>前情摘要<textarea data-summary rows="7"></textarea></label>' +
       '<div class="story-tools-grid"><label>重要事件（每行一項）<textarea data-events rows="7"></textarea></label><label>人物關係（每行一項）<textarea data-relations rows="7"></textarea></label></div>' +
       '<label>未完成伏筆／目標（每行一項）<textarea data-threads rows="5"></textarea></label>' +
@@ -801,7 +801,7 @@
         GameState.current.contextPackDraft = clone(draft);
         delete GameState.current.contextPackDraftProgress;
         App.saveStory(false);
-        tell("Context Pack 草稿已保存到目前故事。");
+        tell("劇情摘要包草稿已保存到目前故事。");
         editor(host);
       } catch (error) { tell(error.message); }
     };
@@ -813,7 +813,7 @@
         delete GameState.current.contextPackDraft;
         delete GameState.current.contextPackDraftProgress;
         App.saveStory(false);
-        tell("Context Pack 已由玩家確認並套用。");
+        tell("劇情摘要包已由玩家確認並套用。");
         editor(host);
       } catch (error) { tell(error.message); }
     };
@@ -867,18 +867,18 @@
 
   const previewScreen = host => {
     const data = preview();
-    host.innerHTML = '<div class="story-tools-toolbar"><button class="secondary" type="button" data-back>← 返回</button><span class="story-tools-pill">約 ' + data.estimatedTokens.toLocaleString() + ' tokens</span></div>' +
+    host.innerHTML = '<div class="story-tools-toolbar"><button class="secondary" type="button" data-back>← 返回</button><span class="story-tools-pill">約 ' + data.estimatedTokens.toLocaleString() + ' 字詞用量（tokens）</span></div>' +
       '<section class="story-tools-card"><h3>Context 預覽器</h3><p>依目前狀態建立，不呼叫模型。智慧記憶若在真正送出前觸發新摘要，實際內容可能略有變動。</p>' +
-      '<div class="story-preview-meta">記憶模式：' + App.escapeHTML(data.mode) + ' · 近期保留：約 ' + data.rounds + ' 輪 · API Key：不顯示</div>' +
-      '<details open><summary>實際 System Prompt · 約 ' + data.tokenBreakdown.systemPrompt.toLocaleString() + ' tokens</summary><textarea data-system rows="14" readonly></textarea></details>' +
-      '<details open><summary>記憶與近期對話 · 約 ' + data.tokenBreakdown.memoryMessages.toLocaleString() + ' tokens</summary><textarea data-memory rows="14" readonly></textarea></details><div data-sections></div></section>';
+      '<div class="story-preview-meta">記憶模式：' + App.escapeHTML(data.mode) + ' · 近期保留：約 ' + data.rounds + ' 輪 · 連線金鑰（API Key）：不顯示</div>' +
+      '<details open><summary>實際系統指示（System Prompt）· 約 ' + data.tokenBreakdown.systemPrompt.toLocaleString() + ' 字詞用量（tokens）</summary><textarea data-system rows="14" readonly></textarea></details>' +
+      '<details open><summary>記憶與近期對話 · 約 ' + data.tokenBreakdown.memoryMessages.toLocaleString() + ' 字詞用量（tokens）</summary><textarea data-memory rows="14" readonly></textarea></details><div data-sections></div></section>';
     host.querySelector("[data-system]").value = data.systemPrompt;
     host.querySelector("[data-memory]").value = JSON.stringify(data.memoryMessages, null, 2);
     Object.entries(data.sections).forEach(([label, value]) => {
       const detail = document.createElement("details");
       const summary = document.createElement("summary");
       const area = document.createElement("textarea");
-      summary.textContent = label + " · 約 " + Number(data.tokenBreakdown.sections[label] || 0).toLocaleString() + " tokens";
+      summary.textContent = label + " · 約 " + Number(data.tokenBreakdown.sections[label] || 0).toLocaleString() + " 字詞用量（tokens）";
       area.readOnly = true;
       area.rows = 9;
       area.value = typeof value === "string" ? value : JSON.stringify(value, null, 2);
@@ -899,7 +899,7 @@
         '<label>對話<select data-conversation>' + options + '</select></label>' +
         '<div class="story-import-report"><div><b>檔案</b><span>' + safeFile + '</span></div><div><b>格式</b><span>' + App.escapeHTML(parsed.report?.format || "多對話匯出") + '</span></div>' +
         '<div><b>對話數</b><span>' + parsed.conversations.length + '</span></div><div><b>全部來源項目</b><span>' + Number(parsed.report?.sourceCount || 0).toLocaleString() + '</span></div></div>' +
-        '<div class="story-import-note">目前不提供自動合併；如需串接多段紀錄，請逐一整理成玩家確認過的 Context Pack。</div>' +
+        '<div class="story-import-note">目前不提供自動合併；如需串接多段紀錄，請逐一整理成玩家確認過的劇情摘要包（Context Pack）。</div>' +
         '<div class="story-tools-actions"><button class="primary" type="button" data-select>預覽所選對話</button></div></section>';
       host.querySelector("[data-back]").onclick = () => importScreen(host);
       host.querySelector("[data-select]").onclick = () => {
@@ -913,10 +913,10 @@
     }
     if (parsed.pack) {
       host.innerHTML = '<div class="story-tools-toolbar"><button class="secondary" type="button" data-back>← 重新選檔</button><span class="story-tools-pill">BAO/LAB CONTEXT PACK</span></div>' +
-        '<section class="story-tools-card"><h3>匯入預覽</h3><p>已辨識為 Context Pack。原本的確認狀態已清除，仍需由玩家重新檢查並確認。</p>' +
+        '<section class="story-tools-card"><h3>匯入預覽</h3><p>已辨識為劇情摘要包（Context Pack）。原本的確認狀態已清除，仍需由玩家重新檢查並確認。</p>' +
         '<div class="story-import-report"><div><b>' + safeFile + '</b><span>' + App.escapeHTML(parsed.pack.title) + '</span></div></div>' +
         '<div class="story-import-note">匯入不會呼叫模型，也不會把未確認內容直接當成故事事實。</div>' +
-        '<div class="story-tools-actions"><button class="primary" type="button" data-continue>檢查 Context Pack 草稿</button></div></section>';
+        '<div class="story-tools-actions"><button class="primary" type="button" data-continue>檢查劇情摘要包草稿</button></div></section>';
       host.querySelector("[data-back]").onclick = () => importScreen(host);
       host.querySelector("[data-continue]").onclick = () => {
         sourceMessages = null;
@@ -950,7 +950,7 @@
       (warnings ? '<ul class="story-import-warning">' + warnings + '</ul>' : '') +
       (participantHTML ? '<div class="story-import-participants"><h4>說話者身分</h4>' + participantHTML + '</div>' : '') +
       '<details open><summary>訊息預覽（頭尾最多 6 則）</summary><div class="story-import-preview-list">' + sampleHTML + '</div></details>' +
-      '<div class="story-import-note">下一步只建立待確認的 Context Pack 草稿；模型不會永久推斷玩家心理、喜惡或意圖。</div>' +
+      '<div class="story-import-note">下一步只建立待確認的劇情摘要包（Context Pack）草稿；模型不會永久推斷玩家心理、喜惡或意圖。</div>' +
       '<div class="story-tools-actions"><button class="primary" type="button" data-continue>確認身分並建立草稿</button></div></section>';
 
     host.querySelector("[data-back]").onclick = () => importScreen(host);
@@ -962,7 +962,7 @@
         assignments[participants[index].name] = selected;
       }
       sourceMessages = resolveImportedMessages(parsed, assignments);
-      if (!sourceMessages.length) return tell("沒有可建立 Context Pack 的玩家或 AI 角色訊息。");
+      if (!sourceMessages.length) return tell("沒有可建立劇情摘要包的玩家或 AI 角色訊息。");
       draft = createPack(sourceMessages, {
         type: "external",
         platform: filename || report.format || "外部紀錄",
@@ -1008,7 +1008,7 @@
       if (!save) throw new Error("找不到這個章節的完整資料。");
       let key = "";
       if (!save.config?.demoMode) {
-        const entered = window.prompt("API Key 不會儲存在故事書庫。請貼上 API Key 才能繼續：", "");
+        const entered = window.prompt("連線金鑰（API Key）不會儲存在故事書庫。請貼上金鑰才能繼續：", "");
         if (entered === null) return;
         key = entered.trim();
       }
@@ -1038,7 +1038,7 @@
       const available = await BAOStoryLibrary.flush();
       if (!available) {
         host.innerHTML = '<div class="story-tools-toolbar"><button class="secondary" type="button" data-back>← 返回</button><span class="story-tools-pill">LOCAL STORAGE FALLBACK</span></div>' +
-          '<section class="story-tools-card"><h3>這個瀏覽器目前無法使用故事書庫</h3><p>IndexedDB 無法使用，因此無法顯示跨故事／篇章書庫。自動存檔、手動存檔與完整 JSON 備份仍會沿用可用的本機儲存方式。</p>' +
+          '<section class="story-tools-card"><h3>這個瀏覽器目前無法使用故事書庫</h3><p>瀏覽器故事資料庫（IndexedDB）無法使用，因此無法顯示跨故事／篇章書庫。自動存檔、手動存檔與完整 JSON 備份仍會沿用可用的本機儲存方式。</p>' +
           '<div class="story-import-note">建議先匯出完整故事備份；不要清除瀏覽器網站資料。</div></section>';
         host.querySelector("[data-back]").onclick = () => GameState.current ? home(host) : close();
         return;
@@ -1068,7 +1068,7 @@
       }).join("");
 
       host.innerHTML = '<div class="story-tools-toolbar"><button class="secondary" type="button" data-back>← 返回</button><span class="story-tools-pill">' + stories.length + ' 個故事</span></div>' +
-        '<section class="story-library-shell"><div class="story-library-head"><div><h2>故事書庫</h2><p>故事與各篇章保存在這台裝置的 IndexedDB；讀取時仍需重新提供 API Key。</p></div></div>' +
+        '<section class="story-library-shell"><div class="story-library-head"><div><h2>故事書庫</h2><p>故事與各篇章保存在這台裝置的瀏覽器故事資料庫（IndexedDB）；讀取時仍需重新提供連線金鑰（API Key）。</p></div></div>' +
         (cards || '<div class="story-library-empty"><b>目前沒有故事</b><span>開始故事並產生第一次自動存檔後，就會出現在這裡。</span></div>') + '</section>';
       host.querySelector("[data-back]").onclick = () => GameState.current ? home(host) : close();
 
@@ -1142,13 +1142,13 @@
   const home = host => {
     const hasPack = Boolean(GameState.current?.contextPack);
     const hasDraft = Boolean(GameState.current?.contextPackDraft);
-    const storageMode = Storage.status?.().mode === "indexedDB" ? "IndexedDB" : "localStorage fallback";
-    host.innerHTML = '<div class="story-tools-intro"><div><div class="eyebrow">LOCAL-FIRST STORY DESK</div><h2>故事管理</h2><p>備份、搬家、整理前情與建立續篇都在瀏覽器完成；API Key 永遠不進匯出檔。</p><div class="story-preview-meta">故事儲存：' + storageMode + '</div></div><button class="story-tools-close" type="button">關閉</button></div>' +
+    const storageMode = Storage.status?.().mode === "indexedDB" ? "瀏覽器故事資料庫（IndexedDB）" : "本機儲存備用模式（localStorage）";
+    host.innerHTML = '<div class="story-tools-intro"><div><div class="eyebrow">LOCAL-FIRST STORY DESK</div><h2>故事管理</h2><p>備份、搬家、整理前情與建立續篇都在瀏覽器完成；連線金鑰（API Key）永遠不進匯出檔。</p><div class="story-preview-meta">故事儲存：' + storageMode + '</div></div><button class="story-tools-close" type="button">關閉</button></div>' +
       '<div class="story-tools-home">' +
       '<section class="story-tools-card"><h3>故事書庫</h3><p>查看這台裝置上的所有故事與章節，進行讀取、改名或刪除。</p><button class="primary" type="button" data-library>開啟故事書庫</button></section>' +
-      '<section class="story-tools-card"><h3>完整故事備份</h3><p>包含主線與全部分支，以及對話、Persona、記憶、Character Status、World State、World Modules、敘事偏好與 Context Pack。</p><div class="story-tools-actions"><button class="primary" type="button" data-export>匯出完整故事</button><button class="secondary" type="button" data-backup>建立本機備份</button><button class="secondary" type="button" data-import>匯入完整故事</button><input hidden type="file" data-story-file accept=".json,application/json"></div></section>' +
-      '<section class="story-tools-card"><h3>Context Pack / 建立續篇</h3><p>超長故事會依完整對話輪次分段整理，再分層合併成可由玩家確認的前情。</p><div class="story-tools-actions"><button class="primary" type="button" data-create>整理目前故事</button>' + (hasDraft ? '<button class="secondary" type="button" data-edit-draft>繼續未確認草稿</button>' : '') + (hasPack ? '<button class="secondary" type="button" data-edit>編輯既有 Pack</button>' : '') + '</div></section>' +
-      '<section class="story-tools-card"><h3>外部聊天歷史</h3><p>先轉成可檢查的 Context Pack，再由玩家確認。</p><button class="secondary" type="button" data-external>匯入外部紀錄</button></section>' +
+      '<section class="story-tools-card"><h3>完整故事備份</h3><p>包含主線與全部分支，以及對話、玩家資料（Persona）、記憶、角色狀態（Character Status）、世界狀態（World State）、世界模組、敘事偏好與劇情摘要包（Context Pack）。</p><div class="story-tools-actions"><button class="primary" type="button" data-export>匯出完整故事</button><button class="secondary" type="button" data-backup>建立本機備份</button><button class="secondary" type="button" data-import>匯入完整故事</button><input hidden type="file" data-story-file accept=".json,application/json"></div></section>' +
+      '<section class="story-tools-card"><h3>劇情摘要包（Context Pack）／建立續篇</h3><p>超長故事會依完整對話輪次分段整理，再分層合併成可由玩家確認的前情。</p><div class="story-tools-actions"><button class="primary" type="button" data-create>整理目前故事</button>' + (hasDraft ? '<button class="secondary" type="button" data-edit-draft>繼續未確認草稿</button>' : '') + (hasPack ? '<button class="secondary" type="button" data-edit>編輯既有摘要包</button>' : '') + '</div></section>' +
+      '<section class="story-tools-card"><h3>外部聊天歷史</h3><p>先轉成可檢查的劇情摘要包（Context Pack），再由玩家確認。</p><button class="secondary" type="button" data-external>匯入外部紀錄</button></section>' +
       '<section class="story-tools-card"><h3>Context 預覽器</h3><p>查看下一輪實際使用的角色卡、記憶、狀態、模組、Persona 與敘事偏好。</p><button class="secondary" type="button" data-preview>預覽送出內容</button></section></div>';
     host.querySelector(".story-tools-close").onclick = close;
     host.querySelector("[data-library]").onclick = () => libraryScreen(host);
@@ -1160,7 +1160,7 @@
       button.textContent = "整理完整故事…";
       try {
         const bundle = await BAOStoryBackup.exportCurrentStory();
-        tell("完整故事備份已建立，共 " + Number(bundle?.chapters?.length || 0) + " 個章節／分支。API Key 不會寫入備份。");
+        tell("完整故事備份已建立，共 " + Number(bundle?.chapters?.length || 0) + " 個章節／分支。連線金鑰（API Key）不會寫入備份。");
       } catch (error) {
         tell(error.message || "完整故事備份失敗。");
       } finally {
@@ -1181,7 +1181,7 @@
       try {
         Storage.importSlot(await Storage.importFile(file));
         window.BAORefreshSaveUI?.();
-        tell("完整故事已匯入手動存檔；API Key 已清除。可從首頁存檔列表讀取。");
+        tell("完整故事已匯入手動存檔；連線金鑰（API Key）已清除。可從首頁存檔列表讀取。");
       } catch (error) { tell(error.message || "匯入失敗。"); }
       finally { picker.value = ""; }
     };

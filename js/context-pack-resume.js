@@ -131,7 +131,7 @@
   const readEditor = root => {
     const current = state();
     const next = window.BAOStoryTools.normalizePack(current?.contextPackDraft || {});
-    next.title = root.querySelector("[data-title]")?.value.trim() || "未命名 Context Pack";
+    next.title = root.querySelector("[data-title]")?.value.trim() || "未命名劇情摘要包";
     next.summary = root.querySelector("[data-summary]")?.value.trim() || "";
     next.importantEvents = lineList(root.querySelector("[data-events]")?.value);
     next.relationships = lineList(root.querySelector("[data-relations]")?.value);
@@ -252,7 +252,7 @@
 
   const organizeDraft = async (pack, inputMessages, onProgress = () => {}, options = {}) => {
     const api = App.config?.api || {};
-    if (!api.key) throw new Error("尚未設定 API Key；重新貼上自己的 Key 後即可從保存進度繼續。");
+    if (!api.key) throw new Error("尚未設定連線金鑰（API Key）；重新貼上自己的金鑰後即可從保存進度繼續。");
     const messages = normalizeMessages(inputMessages);
     const plan = window.BAOStoryTools.organizationPlan(messages, options.maxTokens ? { maxTokens: options.maxTokens } : {});
     if (!plan.chunkCount) throw new Error("目前沒有可整理的對話。");
@@ -293,8 +293,8 @@
     const remainingCalls = Math.max(0, plan.totalCalls - completedCalls);
     if (!options.skipConfirm) {
       const message = completedCalls
-        ? "找到關頁前保存的 Context Pack 整理進度：已完成 " + completedCalls + "／" + plan.totalCalls + " 次模型呼叫，剩餘約 " + remainingCalls + " 次。要從中斷處繼續嗎？"
-        : "將 " + messages.length + " 則訊息分成 " + plan.chunkCount + " 段整理，" + (plan.mergeCalls ? "再進行 " + plan.mergeCalls + " 次分層合併，" : "") + "預計呼叫記憶模型 " + plan.totalCalls + " 次。這會產生 Token 用量，要繼續嗎？";
+        ? "找到關頁前保存的劇情摘要包（Context Pack）整理進度：已完成 " + completedCalls + "／" + plan.totalCalls + " 次模型呼叫，剩餘約 " + remainingCalls + " 次。要從中斷處繼續嗎？"
+        : "將 " + messages.length + " 則訊息分成 " + plan.chunkCount + " 段整理，" + (plan.mergeCalls ? "再進行 " + plan.mergeCalls + " 次分層合併，" : "") + "預計呼叫記憶模型 " + plan.totalCalls + " 次。這會產生字詞用量（Token），要繼續嗎？";
       if (!confirm(message)) return null;
     }
 

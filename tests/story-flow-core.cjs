@@ -250,11 +250,11 @@ assert.equal(storyToolsSource.includes("contextPackDraftProgress"), true);
 assert.equal(storyToolsSource.includes("繼續未確認草稿"), true);
 assert.equal(storyToolsSource.includes("const libraryScreen = async host"), true);
 assert.equal(storyToolsSource.includes("data-open-story-library"), true);
-assert.equal(storyToolsSource.includes("API Key 不會儲存在故事書庫"), true);
+assert.equal(storyToolsSource.includes("連線金鑰（API Key）不會儲存在故事書庫"), true);
 assert.equal(storyToolsSource.includes("確認身分並建立草稿"), true);
 assert.equal(storyToolsSource.includes("SillyTavern／JSONL"), true);
 assert.equal(storyToolsSource.includes("resolveImportedMessages"), true);
-assert.equal(storyToolsSource.includes("IndexedDB 無法使用"), true);
+assert.equal(storyToolsSource.includes("瀏覽器故事資料庫（IndexedDB）無法使用"), true);
 assert.equal(storyToolsSource.includes("選擇要匯入的對話"), true);
 assert.equal(storyToolsSource.includes("不同對話不會自動合併"), true);
 

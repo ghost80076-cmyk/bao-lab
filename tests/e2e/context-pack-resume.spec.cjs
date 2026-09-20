@@ -36,7 +36,7 @@ test("Context Pack AI draft source survives a full page reload", async ({ page }
   await page.locator("[data-bao-open='story-tools']").click();
   await expect(page.getByRole("heading", { name: "故事管理" })).toBeVisible();
   await page.locator("[data-create]").click();
-  await expect(page.getByRole("heading", { name: "Context Pack 編輯與確認" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "劇情摘要包（Context Pack）編輯與確認" })).toBeVisible();
 
   await expect.poll(() => page.evaluate(() => Boolean(GameState.current?.contextPackDraftResume?.source?.fingerprint))).toBe(true);
   const beforeReload = await page.evaluate(() => ({
