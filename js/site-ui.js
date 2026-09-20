@@ -30,7 +30,8 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/model-routing.js"))
     .then(() => loadBAOScript("js/provider-diagnostics.js"))
     .catch(err => console.warn("BAO/LAB cost, provider compatibility, model routing or provider diagnostics controls failed to load:", err));
-  loadBAOScript("js/chat-shell-fix.js")
+  loadBAOScript("js/storage-write-guard.js")
+    .then(() => loadBAOScript("js/chat-shell-fix.js"))
     .then(() => loadBAOScript("js/player-settings.js"))
     .then(() => loadBAOScript("js/narrative-settings.js"))
     .then(() => loadBAOScript("js/memory-workbench-core.js"))
@@ -72,16 +73,27 @@ window.addEventListener("DOMContentLoaded", () => {
       return false;
     };
 
-    document.getElementById("continue-story")?.addEventListener("click", () => {
-      const save = Storage.loadStory();
-      if (save?.config?.demoMode) resumeSave(save);
-      else App.resumeSavedStory?.();
-    });
-    document.getElementById("home-continue")?.addEventListener("click", () => {
-      const save = Storage.loadStory();
-      if (save?.config?.demoMode) resumeSave(save);
-      else App.resumeSavedStory?.();
-    });
+    document.getElementById("continue-story")?.addEventListener("click", () => resumeSave(Storage.loadStory()));
+    document.getElementById("home-continue")?.addEventListener("click", () => resumeSave(Storage.loadStory()));
+
+    const confirmSlot = async (slot, successText) => {
+      if (!slot) { alert("目前沒有可儲存的故事。"); return; }
+      try {
+        await Storage.flush();
+        const mode = Storage.status().mode;
+        let stored = mode === "indexedDB";
+        if (mode === "localStorage") {
+          try {
+            const slots = JSON.parse(localStorage.getItem(Storage.prefix + Storage.slotsKey) || "[]");
+            stored = Array.isArray(slots) && slots.some(item => item.id === slot.id);
+          } catch { stored = false; }
+        }
+        alert(stored ? successText : "無法確認存檔已寫入，請立即匯出完整故事備份。");
+      } catch (error) {
+        console.warn("BAO/LAB slot persistence verification failed:", error);
+        alert("無法確認存檔已寫入，請立即匯出完整故事備份。");
+      }
+    };
 
     const renderSlots = () => {
       const box = document.getElementById("slot-list");
@@ -101,9 +113,9 @@ window.addEventListener("DOMContentLoaded", () => {
       if (!App.activeCharacter || !GameState.current) { alert("目前沒有進行中的故事。"); return; }
       const label = prompt("輸入存檔名稱：", `${App.activeCharacter.name} · ${new Date().toLocaleString("zh-TW")}`);
       if (label === null) return;
-      Storage.saveSlot(label.trim() || "未命名存檔");
+      const slot = Storage.saveSlot(label.trim() || "未命名存檔");
       renderSlots();
-      alert("已建立手動存檔。");
+      void confirmSlot(slot, "手動存檔已確認寫入這台裝置。");
     });
     document.getElementById("list-slots-button")?.addEventListener("click", renderSlots);
 
@@ -111,8 +123,12 @@ window.addEventListener("DOMContentLoaded", () => {
     picker?.addEventListener("change", async () => {
       const file = picker.files?.[0];
       if (!file) return;
-      try { const save = await Storage.importFile(file); Storage.importSlot(save); renderSlots(); alert("存檔匯入完成。"); }
-      catch (err) { alert(err.message || "匯入失敗。"); }
+      try {
+        const save = await Storage.importFile(file);
+        const slot = Storage.importSlot(save);
+        renderSlots();
+        await confirmSlot(slot, "存檔匯入並確認寫入完成。");
+      } catch (err) { alert(err.message || "匯入失敗。"); }
       finally { picker.value = ""; }
     });
 
