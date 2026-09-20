@@ -58,7 +58,10 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/author-diagnostics.js"))
     .catch(err => console.warn("BAO/LAB character readiness, import or author diagnostics failed to load:", err));
   loadBAOScript("js/brand-ui.js")
-    .catch(err => console.warn("BAO/LAB brand UI failed to load:", err));
+    .then(() => new Promise(resolve => setTimeout(resolve, 100)))
+    .then(() => loadBAOScript("js/bao-mascot.js"))
+    .then(() => loadBAOScript("js/bao-visual-ui.js"))
+    .catch(err => console.warn("BAO/LAB brand or mascot UI failed to load:", err));
   setTimeout(async () => {
     await Storage.ready();
     const refresh = () => {
