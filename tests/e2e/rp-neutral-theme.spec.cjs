@@ -1,32 +1,60 @@
 const { test, expect } = require('@playwright/test');
 
+const originalViolet = 'rgb(156, 140, 255)';
+const readBackground = locator => locator.evaluate(el => ({
+  color: getComputedStyle(el).backgroundColor,
+  image: getComputedStyle(el).backgroundImage
+}));
+
 for (const width of [390, 1440]) {
-  test(`RP reading theme stays neutral at ${width}px`, async ({ page }) => {
+  test(`original BAO/LAB violet and mint survive on ${width}px RP UI`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
     await page.goto('./');
-    await page.waitForFunction(() => [...document.styleSheets].some(sheet => sheet.href?.includes('bao-brand-v2.css')));
+    await page.waitForFunction(() => window.BAOQuickSetup && App.characters?.length &&
+      [...document.styleSheets].some(sheet => sheet.href?.includes('bao-brand-v2.css')));
     await expect(page.locator('#home-view .brand-hero')).toBeVisible();
     await expect(page.locator('#home-view #bao-home-portrait')).toBeVisible();
 
-    // Brand artwork may contain rose, but the page and functional controls do not.
-    expect(await page.evaluate(() => getComputedStyle(document.body).backgroundColor)).toBe('rgb(14, 17, 23)');
-    expect(await page.locator('.brand-actions .brand-first-run').evaluate(el => getComputedStyle(el).backgroundColor)).toBe('rgb(168, 191, 215)');
-    expect(await page.locator('#bao-home-portrait').evaluate(el => getComputedStyle(el).backgroundColor)).toBe('rgb(34, 42, 53)');
+    // The 2026-09-13 original theme: near-black, purple CTA, mint accent.
+    expect(await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--primary').trim())).toBe('#9c8cff');
+    expect(await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--secondary').trim())).toBe('#5dd6c0');
+    expect((await readBackground(page.locator('.brand-actions .brand-first-run'))).image).toContain(originalViolet);
+    expect((await readBackground(page.locator('#bao-home-portrait'))).color).toBe('rgb(29, 34, 48)');
 
-    await page.waitForFunction(() => window.BAOQuickSetup && App.characters?.length);
-    await page.evaluate(() => {
-      const character = App.characters.find(c => c.id !== 'autonomous-npc-world');
-      if (!character) throw new Error('Ordinary character missing');
-      App.openCharacter(character.id);
-      App.openBuilder();
-    });
+    // A character's category must not turn the 'start story' button pink or red.
+    for (const category of ['female', 'r18']) {
+      await page.evaluate(category => {
+        const base = App.characters.find(c => c.id !== 'autonomous-npc-world');
+        if (!base) throw new Error('Ordinary character missing');
+        const id = `visual-theme-${category}`;
+        if (!App.characters.some(c => c.id === id)) App.characters.push({ ...base, id, category, rating: category === 'r18' ? 'adult' : 'general' });
+        App.openCharacter(id);
+      }, category);
+      await expect(page.locator('#detail-start')).toBeVisible();
+      const start = await readBackground(page.locator('#detail-start'));
+      expect(start.image).toContain(originalViolet);
+      expect(start.image).not.toContain('rgb(199, 106, 184)');
+      expect(start.image).not.toContain('rgb(182, 59, 83)');
+    }
+
+    await page.locator('#detail-start').click();
     await expect(page.locator('#bao-setup-choice')).toBeVisible();
-    expect(await page.locator('#builder-view .builder-panel').evaluate(el => getComputedStyle(el).backgroundColor)).toBe('rgb(27, 34, 44)');
+    await expect(page.locator('#start-story')).toBeVisible();
+    expect((await readBackground(page.locator('#start-story'))).image).toContain(originalViolet);
     await page.locator('#api-key').fill('visual-only-not-a-real-api-key');
     await page.locator('#start-story').click();
     await expect(page.locator('#chat-view')).toHaveClass(/active/);
-    expect(await page.locator('#chat-view .chat-stream').evaluate(el => getComputedStyle(el).backgroundColor)).toBe('rgb(18, 24, 33)');
-    expect(await page.locator('#chat-view .composer').evaluate(el => getComputedStyle(el).backgroundColor)).toBe('rgb(29, 38, 49)');
+    expect((await readBackground(page.locator('#chat-view .chat-stream'))).color).toBe('rgb(12, 15, 21)');
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
   });
 }
+
+test('Bao mascot controls are dark while the mascot image stays intact', async ({ page }) => {
+  await page.goto('./');
+  await expect(page.locator('#bao-home-portrait img')).toBeVisible();
+  await expect(page.locator('.bao-mascot-launch')).toBeVisible();
+  expect((await readBackground(page.locator('.bao-mascot-launch'))).color).toBe('rgb(29, 34, 48)');
+  await page.locator('.bao-mascot-launch').click();
+  await expect(page.locator('.bao-mascot-panel')).toBeVisible();
+  expect((await readBackground(page.locator('.bao-mascot-panel'))).color).toBe('rgb(17, 20, 27)');
+});
