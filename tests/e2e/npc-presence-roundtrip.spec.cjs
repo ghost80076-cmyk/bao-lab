@@ -11,8 +11,10 @@ for (const width of [390, 1440]) {
     await page.evaluate(() => {
       App.openCharacter('autonomous-npc-world');
       App.openBuilder();
-      document.getElementById('bao-demo-mode').checked = true;
+      if (!document.getElementById('autonomous-world-setup')) throw new Error('Offline world builder was not initialized');
+      // The existing start button opens the offline world preview without an API Key.
       App.startStory();
+      if (!GameState.current?.config?.offlineWorldPreview) throw new Error('Offline world preview did not create a story');
       App.config.displayMode = 'ui';
       GameState.current.config = App.config;
       App.renderChatShell(false);
