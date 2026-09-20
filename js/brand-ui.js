@@ -4,7 +4,7 @@
   const discordLink = (label, className = "brand-discord-cta") => `<a class="${className}" href="${DISCORD_INVITE}" target="_blank" rel="noopener noreferrer" aria-label="${label}（另開 Discord 邀請連結）">${DISCORD_ICON}<span>${label}</span></a>`;
 
   const ensureStyles = () => {
-    ["css/brand-home.css", "css/brand-community.css"].forEach(href => {
+    ["css/brand-home.css", "css/brand-community.css", "css/first-run-desktop.css"].forEach(href => {
       if (document.querySelector(`link[href="${href}"]`)) return;
       const link = document.createElement("link");
       link.rel = "stylesheet";
@@ -26,15 +26,15 @@
         <div class="brand-hero-copy">
           <div class="brand-signature"><img src="assets/bao-mark.svg" width="64" height="64" alt=""><span>BAO/LAB<small>班長的故事實驗室</small></span></div>
           <div class="brand-kicker">CHARACTERS · WORLDS · EXPERIMENTS</div>
-          <h1>班長。</h1>
+          <h1>選個角色，<br>開始你的故事。</h1>
           <p class="brand-intro">寫角色，也寫世界。</p>
-          <p class="brand-lead">偶爾研究一些奇怪的玩法，然後把它們真的做出來。這裡收著我的角色卡、世界模擬與互動作品；有些適合談戀愛，有些適合跑劇情，有些……滿十八歲再進去。</p>
-          <p class="brand-principles">故事保存在此裝置 · 自備 API 與模型 · 不需註冊帳號</p>
+          <p class="brand-lead">選喜歡的角色，接上自己的 AI，就能聊天或探索世界。不用先學會一堆設定；想深入玩，再慢慢調整就好。</p>
+          <p class="brand-principles">故事主要保存在此裝置 · 自備 AI 連線鑰匙 · 不需註冊 BAO/LAB 帳號</p>
           <div class="brand-actions">
-            <button class="primary" data-view="explore">探索作品</button>
-            ${discordLink("加入官方 Discord", "secondary brand-discord-cta")}
-            <button class="secondary" data-view="about">關於我</button>
+            <button class="primary" data-view="explore">開始玩 · 選角色</button>
+            <a class="primary brand-first-run" href="quick-start.html">第一次玩？看三步驟教學 ↗</a>
             <button id="home-continue" class="secondary hidden">繼續上次故事</button>
+            <a class="brand-manual" href="api-guide.html">完整 API 說明 ↗</a>
           </div>
         </div>
         <aside class="brand-status-card brand-identity-card">
@@ -49,11 +49,22 @@
           </dl>
         </aside>
       </section>
+      <section class="brand-onboarding" aria-labelledby="brand-onboarding-title">
+        <div class="brand-kicker">第一次來？只要三步驟</div>
+        <h2 id="brand-onboarding-title">先開始玩，其他功能之後再研究。</h2>
+        <ol class="brand-onboarding-steps">
+          <li><b>① 選角色</b><span>挑一張喜歡的角色卡，其他設定可以先用預設值。</span></li>
+          <li><b>② 連接 AI</b><span>選服務商、貼上自己的 API Key，再選擇可用模型。</span></li>
+          <li><b>③ 開始聊天</b><span>按「開始故事」，輸入你的第一句話。</span></li>
+        </ol>
+        <p>API Key 就像 AI 的連線鑰匙；使用模型的費用和免費額度依服務商規定。</p>
+        <div class="brand-onboarding-links"><a href="quick-start.html">跟著新手教學走 →</a><a href="api-guide.html">查看完整 API 說明 →</a></div>
+      </section>
       <section class="brand-feature-grid">
         <article><span>01</span><h3>角色</h3><p>不只是一張設定表。個性、關係、背景與敘事方式，都是角色的一部分。</p></article>
         <article><span>02</span><h3>世界</h3><p>故事不一定只繞著玩家轉。NPC、事件與關係也可以有自己的變化。</p></article>
         <article><span>03</span><h3>互動</h3><p>除了文字，也嘗試把狀態、人物、事件與各種玩法做進互動介面。</p></article>
-        <article><span>04</span><h3>BYOK</h3><p>使用自己的 API 與模型。故事保存在自己的裝置，模型選擇權留給玩家。</p></article>
+        <article><span>04</span><h3>自己的 AI</h3><p>使用自己選擇的 AI 服務。故事主要保存在自己的裝置，模型選擇權留給玩家。</p></article>
       </section>
       <section class="brand-product-intro" aria-labelledby="brand-product-intro-title" style="margin:24px 0;padding:clamp(20px,4vw,32px);border:1px solid #444653;border-radius:18px;background:#1c1e27">
         <div class="brand-kicker">ABOUT BAO/LAB</div>
@@ -61,12 +72,6 @@
         <p style="font-size:1.15rem;font-weight:700">你的模型，你的故事，你的世界。</p>
         <p>BAO/LAB 是以 Local-first、BYOK 為核心的 AI 角色扮演與世界模擬工具。自由選擇模型，透過故事書庫、記憶整理、故事分支與備份功能，管理並延續你的長篇故事。</p>
         <a class="primary" href="about-bao-lab.html" style="display:inline-block;text-decoration:none;padding:10px 18px;border-radius:10px">了解 BAO/LAB ↗</a>
-      </section>
-      <section class="brand-api-guide" aria-labelledby="brand-api-guide-title" style="margin:24px 0;padding:24px;border:1px solid #444653;border-radius:18px;background:#1c1e27">
-        <div class="brand-kicker">NEW PLAYER GUIDE</div>
-        <h2 id="brand-api-guide-title">第一次使用 API？從這裡開始。</h2>
-        <p>不需要懂程式。跟著教學了解 API Key、申請 OpenRouter 或 Gemini，再回到 BAO/LAB 開始故事。模型費用與免費額度以服務商公告為準。</p>
-        <a class="primary" href="api-guide.html" style="display:inline-block;text-decoration:none;padding:10px 18px;border-radius:10px">查看 API 新手教學 ↗</a>
       </section>
       <section class="brand-contact" aria-labelledby="brand-contact-title">
         <div><div class="brand-kicker">COMMUNITY & CONTACT</div><h2 id="brand-contact-title">聯絡我們</h2><p>使用問題、錯誤回報、功能建議或角色卡交流，歡迎加入 BAO/LAB 官方 Discord。請勿在公開頻道張貼 API Key 或個人資料。</p></div>
@@ -158,7 +163,7 @@
     box.id = "builder-api-guide";
     box.className = "note";
     box.style.cssText = "margin:12px 0 18px;padding:14px 16px;border:1px solid #555763;border-radius:12px";
-    box.innerHTML = '<strong>第一次使用 API？</strong> 還沒有 Key 也沒關係，先看申請教學，再回來完成設定。<br><a href="api-guide.html" target="_blank" rel="noopener noreferrer">查看 API 新手教學（另開分頁）↗</a>';
+    box.innerHTML = '<strong>API Key 就是 AI 的連線鑰匙。</strong> 沒有 Key？三步驟教學會帶你取得並連接。<br><a href="quick-start.html" target="_blank" rel="noopener noreferrer">第一次玩？看三步驟教學（另開分頁）↗</a> · <a href="api-guide.html" target="_blank" rel="noopener noreferrer">完整 API 說明 ↗</a>';
     step.querySelector("h3")?.insertAdjacentElement("afterend", box);
   };
 
