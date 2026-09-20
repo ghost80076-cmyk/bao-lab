@@ -40,10 +40,15 @@
       });
     }
   };
-  const link = document.createElement('link');
-  link.rel = 'stylesheet';
-  link.href = 'css/bao-visual-ui.css';
-  document.head.appendChild(link);
+  const addStylesheet = href => {
+    if (document.querySelector(`link[rel="stylesheet"][href="${href}"]`)) return;
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = href;
+    document.head.appendChild(link);
+  };
+  addStylesheet('css/bao-visual-ui.css');
+  addStylesheet('css/bao-brand-v2.css');
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', enhance, { once: true });
   else enhance();
 })();
