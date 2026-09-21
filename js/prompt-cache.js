@@ -168,8 +168,8 @@
   patchCacheUsageAccounting();
   patchMemoryRequestGuard();
   window.BAOPromptCache = { partitionSystemPrompt, storySessionId, cacheMetricKnown };
-  // Loaded after message partitioning so an explicit cache snapshots the same system prompt as normal Gemini requests.
-  if (!document.querySelector('script[src="js/gemini-explicit-cache.js"]')) {
+  // The small Node unit-test DOM has no querySelector/head; load only inside real browsers.
+  if (typeof document.querySelector === 'function' && document.head && !document.querySelector('script[src="js/gemini-explicit-cache.js"]')) {
     const script = document.createElement('script');
     script.src = 'js/gemini-explicit-cache.js';
     script.onerror = () => console.warn('BAO/LAB optional Gemini cache controls failed to load');
