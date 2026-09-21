@@ -77,10 +77,16 @@ async function admin(request, env, path) {
 }
 async function chat(request, env, user) {
   if (!user?.enabled) return fail("登入碼無效或已停用。", 401);
-  if (!env.UPSTREAM_URL || !env.UPSTREAM_KEY || !env.MODEL_ID ||
-      env.MODEL_ID === "replace-after-provider-review") return fail("服務尚未開放。", 503);
   const body = await parse(request);
   if (!validateMessages(body.messages)) return fail("對話格式或長度不符。");
+  const provider = body.provider;
+  if (!["openrouter", "gemini"].includes(provider)) return fail("請選擇可用的 AI 服務。");
+  // Google AI Studio's Gemini API currently excludes Hong Kong end users.
+  // Keep this route disabled unless the provider's terms permit the target audience.
+  if (provider === "gemini" && env.ENABLE_GEMINI !== "true") return fail("此服務目前未向這些玩家開放。", 403);
+  const model = provider === "gemini" ? env.GEMINI_MODEL : env.OPENROUTER_MODEL;
+  const key = provider === "gemini" ? env.GEMINI_API_KEY : env.OPENROUTER_API_KEY;
+  if (!model || !key || model.startsWith("replace-")) return fail("服務尚未開放。", 503);
   const day = new Date().toISOString().slice(0, 10);
   const limit = Math.min(200, Math.max(1, Number(env.DAILY_CALL_LIMIT) || 200));
   // Conditional update serializes balance and daily quota across concurrent requests.
@@ -94,11 +100,26 @@ async function chat(request, env, user) {
     .bind(id, user.id).run();
   let upstream;
   try {
-    upstream = await fetch(env.UPSTREAM_URL, {
-      method: "POST",
-      headers: { "authorization": `Bearer ${env.UPSTREAM_KEY}`, "content-type": "application/json" },
-      body: JSON.stringify({ model: env.MODEL_ID, messages: body.messages, max_tokens: 2048, stream: false })
-    });
+    if (provider === "openrouter") {
+      upstream = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+        method: "POST",
+        headers: { "authorization": `Bearer ${key}`, "content-type": "application/json" },
+        body: JSON.stringify({ model, messages: body.messages, max_tokens: 2048, stream: false })
+      });
+    } else {
+      const system = body.messages.filter(m => m.role === "system").map(m => m.content).join("\\n\\n");
+      const contents = body.messages.filter(m => m.role !== "system").map(m => ({
+        role: m.role === "assistant" ? "model" : "user", parts: [{ text: m.content }]
+      }));
+      upstream = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`, {
+        method: "POST",
+        headers: { "x-goog-api-key": key, "content-type": "application/json" },
+        body: JSON.stringify({
+          contents, ...(system ? { systemInstruction: { parts: [{ text: system }] } } : {}),
+          generationConfig: { maxOutputTokens: 2048 }
+        })
+      });
+    }
   } catch {
     // Delivery may have reached the provider; keep the reserved credit for manual reconciliation.
     return fail("模型連線結果不明，請聯絡站長核對本次額度。", 502);
@@ -114,10 +135,13 @@ async function chat(request, env, user) {
   let data;
   try { data = await upstream.json(); }
   catch { return fail("模型回應無法解析，請聯絡站長核對本次額度。", 502); }
-  const answer = data?.choices?.[0]?.message?.content;
+  const answer = provider === "gemini"
+    ? (data?.candidates?.[0]?.content?.parts || []).map(p => p?.text || "").join("")
+    : data?.choices?.[0]?.message?.content;
   if (typeof answer !== "string" || !answer) return fail("模型沒有傳回文字，請聯絡站長核對本次額度。", 502);
+  const usage = provider === "gemini" ? data.usageMetadata : data.usage;
   const balance = await env.DB.prepare("SELECT credits FROM players WHERE id = ?").bind(user.id).first();
-  return json({ text: answer, usage: data.usage || null, credits: balance.credits });
+  return json({ text: answer, provider, model, usage: usage || null, credits: balance.credits });
 }
 export default {
   async fetch(request, env) {
