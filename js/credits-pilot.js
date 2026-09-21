@@ -84,7 +84,10 @@
       throw new Error("故事設定或近期對話超過 BAO/LAB 測試版的 24 KB 上限。請縮短內容或改用自己的 API Key；不會自動刪除故事。");
     }
     const kind = config.__memoryTask ? "summary" : config.__stateTask ? "status" : "chat";
-    const requested = Number(config.__connectionTest ? 128 : (config.maxOutputTokens || 2048));
+    // Gemini 3 uses output tokens for thinking as well as visible text. The generic
+    // connection tester's tiny 16-token budget (previously raised only to 128 here)
+    // can produce a successful upstream response with no visible text at all.
+    const requested = Number(config.__connectionTest ? 1024 : (config.maxOutputTokens || 2048));
     const maxOutput = Number.isFinite(requested) ? Math.max(1, Math.min(4096, Math.floor(requested))) : 2048;
     let response;
     try {
