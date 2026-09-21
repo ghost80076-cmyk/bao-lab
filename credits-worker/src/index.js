@@ -119,23 +119,30 @@ async function adminRoute(request, url, env, db) {
   }
   return fail('not_found', 404);
 }
-// Classify only known Google error phrases. Never send back Google's raw message:
-// provider messages may include snippets of a user's private prompt or key.
-async function geminiBadRequestHint(response) {
+// Keep diagnostics small and allowlisted. Google's raw message may contain
+// snippets of a private prompt or credential, so never log or return it.
+async function geminiErrorHint(response) {
   try {
     const payload = await response.json();
     const message = String(payload?.error?.message || '').toLowerCase().slice(0, 4000);
-    if (/thought.?signature|thought_signature/.test(message)) return 'thought_signature';
-    if (/max.?output.?tokens|generation.?config|thinking.?budget|thinking.?level/.test(message)) return 'generation_config';
-    if (/system.?instruction/.test(message)) return 'system_instruction';
-    if (/contents|turns?|parts?|roles?|conversation/.test(message)) return 'message_format';
-    if (/context.length|token.limit|too.many.tokens|input.too.long|request.too.large/.test(message)) return 'context_limit';
-    if (/not.found|not.supported|not.available|deprecated/.test(message) && /model/.test(message)) return 'model_unavailable';
-    if (/api.?key|api_key/.test(message)) return 'api_key';
-    if (/location|region|country/.test(message)) return 'region';
-    if (/invalid.argument|invalid.request/.test(message)) return 'invalid_argument';
+    const knownStatuses = new Set(['INVALID_ARGUMENT', 'FAILED_PRECONDITION', 'PERMISSION_DENIED',
+      'UNAUTHENTICATED', 'RESOURCE_EXHAUSTED', 'NOT_FOUND', 'UNAVAILABLE']);
+    const providerStatus = knownStatuses.has(payload?.error?.status) ? payload.error.status : null;
+    // A generic mention of "region" in a prompt or provider message is not evidence
+    // of an actual location restriction. Require an explicit location denial phrase.
+    if (/user location is not supported|location is not supported for (the )?api|not available in your (location|region|country)|unsupported (location|region|country)/.test(message))
+      return { hint: 'region', providerStatus };
+    if (/thought.?signature|thought_signature/.test(message)) return { hint: 'thought_signature', providerStatus };
+    if (/max.?output.?tokens|generation.?config|thinking.?budget|thinking.?level/.test(message)) return { hint: 'generation_config', providerStatus };
+    if (/system.?instruction/.test(message)) return { hint: 'system_instruction', providerStatus };
+    if (/contents|turns?|parts?|roles?|conversation/.test(message)) return { hint: 'message_format', providerStatus };
+    if (/context.length|token.limit|too.many.tokens|input.too.long|request.too.large/.test(message)) return { hint: 'context_limit', providerStatus };
+    if (/not.found|not.supported|not.available|deprecated/.test(message) && /model/.test(message)) return { hint: 'model_unavailable', providerStatus };
+    if (/api.?key|api_key/.test(message)) return { hint: 'api_key', providerStatus };
+    if (/invalid.argument|invalid.request/.test(message)) return { hint: 'invalid_argument', providerStatus };
+    return { hint: 'unknown', providerStatus };
   } catch { /* Response body unavailable: report only safe fallback code. */ }
-  return 'unknown';
+  return { hint: 'unknown', providerStatus: null };
 }
 async function providerCall(env, provider, model, messages, maxOutput) {
   let endpoint, init;
@@ -158,10 +165,13 @@ async function providerCall(env, provider, model, messages, maxOutput) {
   try { response = await fetch(endpoint, { ...init, signal: AbortSignal.timeout(60_000) }); }
   catch { return { ok: false, category: 'provider_network_error' }; }
   if (!response.ok) {
-    // Include only an allowlisted diagnostic code. A 400 is NOT the player's virtual credit limit.
+    // Include only allowlisted metadata. A Google 400 is not a player credit limit.
+    const diagnostic = provider === 'gemini'
+      ? await geminiErrorHint(response) : { hint: 'unknown', providerStatus: null };
     const category = provider === 'gemini' && response.status === 400
-      ? `google_bad_request_${await geminiBadRequestHint(response)}` : 'provider_http_error';
-    return { ok: false, category, upstreamStatus: response.status };
+      ? `google_bad_request_${diagnostic.hint}` : 'provider_http_error';
+    return { ok: false, category, upstreamStatus: response.status,
+      providerStatus: diagnostic.providerStatus };
   }
   let data;
   try { data = await response.json(); }
@@ -227,8 +237,17 @@ async function chatRoute(request, env, db) {
       db.prepare("UPDATE api_usage SET status = 'failed' WHERE request_id = ?").bind(requestId)
     ]);
     const extra = {};
+    extra.request_id = requestId;
     if (integer(result.upstreamStatus, 400, 599)) extra.upstream_http_status = result.upstreamStatus;
+    if (result.providerStatus) extra.provider_status = result.providerStatus;
     if (result.finishReason) extra.finish_reason = result.finishReason;
+    // Cloudflare observability can correlate a player's request ID without
+    // retaining their IP, token, messages or Google's raw error response.
+    console.info('bao_provider_failure', JSON.stringify({ request_id: requestId,
+      player_id: player.id, provider, model, request_kind: kind,
+      category: result.category, upstream_http_status: extra.upstream_http_status ?? null,
+      provider_status: result.providerStatus ?? null,
+      visitor_country: request.cf?.country ?? null, edge_colo: request.cf?.colo ?? null }));
     if (result.category === 'provider_http_error' && result.upstreamStatus === 429)
       return fail('provider_rate_limited', 502, extra);
     return fail(result.category || 'provider_request_failed', 502, extra);
