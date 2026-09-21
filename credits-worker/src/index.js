@@ -119,6 +119,24 @@ async function adminRoute(request, url, env, db) {
   }
   return fail('not_found', 404);
 }
+// Classify only known Google error phrases. Never send back Google's raw message:
+// provider messages may include snippets of a user's private prompt or key.
+async function geminiBadRequestHint(response) {
+  try {
+    const payload = await response.json();
+    const message = String(payload?.error?.message || '').toLowerCase().slice(0, 4000);
+    if (/thought.?signature|thought_signature/.test(message)) return 'thought_signature';
+    if (/max.?output.?tokens|generation.?config|thinking.?budget|thinking.?level/.test(message)) return 'generation_config';
+    if (/system.?instruction/.test(message)) return 'system_instruction';
+    if (/contents|turns?|parts?|roles?|conversation/.test(message)) return 'message_format';
+    if (/context.length|token.limit|too.many.tokens|input.too.long|request.too.large/.test(message)) return 'context_limit';
+    if (/not.found|not.supported|not.available|deprecated/.test(message) && /model/.test(message)) return 'model_unavailable';
+    if (/api.?key|api_key/.test(message)) return 'api_key';
+    if (/location|region|country/.test(message)) return 'region';
+    if (/invalid.argument|invalid.request/.test(message)) return 'invalid_argument';
+  } catch { /* Response body unavailable: report only safe fallback code. */ }
+  return 'unknown';
+}
 async function providerCall(env, provider, model, messages, maxOutput) {
   let endpoint, init;
   if (provider === 'openrouter') {
@@ -139,7 +157,12 @@ async function providerCall(env, provider, model, messages, maxOutput) {
   let response;
   try { response = await fetch(endpoint, { ...init, signal: AbortSignal.timeout(60_000) }); }
   catch { return { ok: false, category: 'provider_network_error' }; }
-  if (!response.ok) return { ok: false, category: 'provider_http_error', upstreamStatus: response.status };
+  if (!response.ok) {
+    // Include only an allowlisted diagnostic code. A 400 is NOT the player's virtual credit limit.
+    const category = provider === 'gemini' && response.status === 400
+      ? `google_bad_request_${await geminiBadRequestHint(response)}` : 'provider_http_error';
+    return { ok: false, category, upstreamStatus: response.status };
+  }
   let data;
   try { data = await response.json(); }
   catch { return { ok: false, category: 'provider_invalid_json' }; }
