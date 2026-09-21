@@ -1,0 +1,28 @@
+name: Google Drive sync checks
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'js/google-drive-*.js'
+      - 'js/site-ui.js'
+      - 'tests/google-drive-sync-core.cjs'
+      - '.github/workflows/google-drive-sync.yml'
+  pull_request:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  sync-core:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: JavaScript syntax
+        run: |
+          node --check js/google-drive-sync.js
+          node --check js/google-drive-config.js
+          node --check js/site-ui.js
+      - name: Mocked Drive API smoke tests
+        run: node tests/google-drive-sync-core.cjs
