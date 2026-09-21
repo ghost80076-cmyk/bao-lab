@@ -38,11 +38,13 @@ async function story(page, source = rules) {
   return panel;
 }
 
-test('author UI survives turns, updates from the same world state, and cannot send an API request', async ({ page }) => {
+test('author UI survives turns, updates from consented world state, and cannot send an API request', async ({ page }) => {
   const panel = await story(page);
   await page.evaluate(() => GameState.applyUpdate({ time: '啟動畫面', location: '開始地點' }));
   page.once('dialog', dialog => dialog.accept());
   await panel.getByLabel('允許作者腳本（需自行信任來源）').check();
+  page.once('dialog', dialog => dialog.accept());
+  await panel.getByLabel('允許作者腳本讀取本故事的世界狀態').check();
   await panel.getByLabel('跨回合常駐作者介面（不必每輪重建）').check();
   const dock = page.locator('#bao-author-dock');
   const frame = page.frameLocator('iframe[title="跨回合作者隔離介面"]');
@@ -89,10 +91,32 @@ test('static persistent view keeps HTML but cannot execute JS until separately a
   await expect(page.locator('#user-input')).toHaveValue('');
   page.once('dialog', dialog => dialog.accept());
   await panel.getByLabel('允許作者腳本（需自行信任來源）').check();
-  await expect(frame.locator('#author-state')).toContainText('｜');
-  expect(await frame.locator('#persistent-card').evaluate(node => node.ownerDocument.defaultView.__kept)).toBe(1);
+  await expect.poll(async () => frame.locator('#persistent-card').evaluate(node => node.ownerDocument.defaultView.__kept)).toBe(1);
+  await expect(frame.locator('#author-state')).toHaveText('等待狀態');
   await panel.getByLabel('在這張角色卡啟用作者介面').uncheck();
   await expect(dock).toHaveCount(0);
+  expect(await page.evaluate(() => window.__testApiCalls)).toBe(0);
+});
+
+test('author script receives no world state without separate consent; revocation destroys old state', async ({ page }) => {
+  const panel = await story(page);
+  page.once('dialog', dialog => dialog.accept());
+  await panel.getByLabel('允許作者腳本（需自行信任來源）').check();
+  await panel.getByLabel('跨回合常駐作者介面（不必每輪重建）').check();
+  const frame = page.frameLocator('iframe[title="跨回合作者隔離介面"]');
+  await expect(frame.locator('#persistent-card')).toBeVisible();
+  await page.evaluate(() => GameState.applyUpdate({ time: '私密時間', location: '秘密房間' }));
+  await expect(frame.locator('#author-state')).toHaveText('等待狀態');
+  expect(await frame.locator('#persistent-card').evaluate(node => node.ownerDocument.defaultView.BAOAuthor.getState())).toEqual({});
+  page.once('dialog', dialog => dialog.accept());
+  await panel.getByLabel('允許作者腳本讀取本故事的世界狀態').check();
+  await expect(frame.locator('#author-state')).toHaveText('私密時間｜秘密房間｜undefined');
+  expect(await frame.locator('#persistent-card').evaluate(node => node.ownerDocument.defaultView.BAOAuthor.getState())).toMatchObject({ time: '私密時間' });
+  await panel.getByLabel('允許作者腳本讀取本故事的世界狀態').uncheck();
+  await expect(frame.locator('#author-state')).toHaveText('等待狀態');
+  expect(await frame.locator('#persistent-card').evaluate(node => node.ownerDocument.defaultView.BAOAuthor.getState())).toEqual({});
+  await page.evaluate(() => GameState.applyUpdate({ time: '再次更新', location: '不公開' }));
+  await expect(frame.locator('#author-state')).toHaveText('等待狀態');
   expect(await page.evaluate(() => window.__testApiCalls)).toBe(0);
 });
 
