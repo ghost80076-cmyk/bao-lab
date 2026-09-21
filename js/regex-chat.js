@@ -20,22 +20,27 @@
     const records = window.Chat?.messages;
     if (!stream || !Array.isArray(records)) return;
     const nodes = [...stream.children].filter(node => node.classList?.contains('message'));
-    const hasGreeting = nodes.length > records.length && nodes[0]?.classList.contains('assistant') && records[0]?.role === 'user';
+    const hasGreeting = nodes.length === records.length + 1 && nodes[0]?.classList.contains('assistant') &&
+      (nodes[0].dataset.storyGreeting === 'true' || nodes[0].querySelector('.bubble')?.dataset.authoredGreeting === 'true' || records[0]?.role === 'user');
     const shift = hasGreeting ? 1 : 0;
+    if (nodes.length !== records.length + shift || !records.every((message, i) =>
+      nodes[i + shift]?.classList.contains(message.role === 'user' ? 'user' : 'assistant'))) return;
     const state = R.load();
-    const stamp = JSON.stringify([state.active, state.rules]);
+    const active = state.active && state.rules.some(rule => rule.enabled);
+    const stamp = JSON.stringify([active, state.rules]);
     nodes.forEach((node, index) => {
-      if (!node.classList.contains('assistant')) return;
+      if (!node.classList.contains('assistant') || node.classList.contains('is-streaming')) return;
       const message = records[index - shift];
       if (message?.role !== 'assistant') return;
       const bubble = node.querySelector(':scope > .bubble');
-      if (!bubble) return;
+      if (!bubble || bubble.querySelector('.story-inline-editor')) return;
       // Do not interfere with existing HTML/Markdown/status renderers.
       if ([...bubble.querySelectorAll('*')].some(el => el.tagName !== 'BR')) return;
+      if (!active && !signatures.has(bubble)) return;
       const signature = `${String(message.id || index)}|${message.content}|${stamp}`;
       if (signatures.get(bubble) === signature) return;
       signatures.set(bubble, signature);
-      const value = state.active ? R.apply(message.content, state.rules) : String(message.content ?? '');
+      const value = active ? R.apply(message.content, state.rules) : String(message.content ?? '');
       setPlainText(bubble, value);
     });
   };
