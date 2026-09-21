@@ -59,9 +59,14 @@ test('mobile: isolated legacy UI does not shrink the main composer', async ({ pa
   await panel.getByLabel('允許作者腳本（需自行信任來源）').check();
   const frame = page.frameLocator('iframe[title="跨回合作者隔離介面"]');
   await expect(frame.locator('#legacy-menu')).toBeVisible();
+  // Mobile settings intentionally cover the content while expanded: dismiss
+  // them as a player would before interacting with the persistent author UI.
+  await panel.locator('summary').click();
+  await expect(panel).not.toHaveAttribute('open', '');
   await expect(page.locator('#user-input')).toBeVisible();
   const width = await page.locator('#user-input').evaluate(el => el.getBoundingClientRect().width);
   expect(width).toBeGreaterThan(100);
   await frame.getByRole('button', { name: '查看圖鑑' }).click();
   await expect(page.locator('#user-input')).toHaveValue('查看圖鑑');
+  expect(await page.evaluate(() => window.__legacyApiCalls)).toBe(0);
 });
