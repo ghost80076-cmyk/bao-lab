@@ -5,7 +5,7 @@
   if (!Core || !window.App || !window.Chat) return;
   const CORE_URL = new URL('author-regex-core.js', document.currentScript?.src || location.href).href;
   const PREFIX = 'bao-lab:author-regex:v1:';
-  const empty = () => ({ enabled: false, allowScripts: false, allowExternalAssets: false, rules: [] });
+  const empty = () => ({ enabled: false, allowScripts: false, allowExternalAssets: false, allowStateSharing: false, rules: [] });
   const cardId = () => String(App.activeCharacter?.id || '').slice(0, 80);
   const key = id => PREFIX + encodeURIComponent(id);
   const load = id => {
@@ -13,12 +13,13 @@
       const data = JSON.parse(localStorage.getItem(key(id)) || 'null');
       return data && Array.isArray(data.rules) ? {
         enabled: data.enabled === true, allowScripts: data.allowScripts === true,
-        allowExternalAssets: data.allowExternalAssets === true, rules: Core.normalize(data.rules)
+        allowExternalAssets: data.allowExternalAssets === true,
+        allowStateSharing: data.allowStateSharing === true, rules: Core.normalize(data.rules)
       } : empty();
     } catch (_) { return empty(); }
   };
   const save = (id, data) => localStorage.setItem(key(id), JSON.stringify(data));
-  let panel, status, activeCheckbox, scriptCheckbox, externalCheckbox, fileInput, sourceSelect, overlay;
+  let panel, status, activeCheckbox, scriptCheckbox, externalCheckbox, stateCheckbox, fileInput, sourceSelect, overlay;
   let currentFrame = null, currentToken = '', currentOwner = '', currentScripts = false, lastDraftAt = 0;
   const say = message => { if (status) status.textContent = message; };
   const close = () => {
@@ -47,7 +48,8 @@
     };
   };
   const sendState = () => {
-    if (!currentScripts || !currentFrame?.isConnected || cardId() !== currentOwner || !currentToken) return;
+    if (!currentScripts || !currentFrame?.isConnected || cardId() !== currentOwner || !currentToken
+      || !load(currentOwner).allowStateSharing) return;
     currentFrame.contentWindow?.postMessage({ baoAuthor: 'v1', token: currentToken,
       type: 'state', value: stateForAuthor() }, '*');
   };
@@ -86,7 +88,7 @@
       worker.postMessage({ text, rules, allowScripts });
     });
   }
-  const bootstrap = token => `<script>(function(){'use strict';const token=${JSON.stringify(token)};let state={};window.BAOAuthor=Object.freeze({draft:function(value){if(typeof value==='string'&&value.length<=500)parent.postMessage({baoAuthor:'v1',token:token,type:'draft',value:value},'*');},getState:function(){return state;}});window.addEventListener('message',function(e){if(e.source!==parent||!e.data||e.data.baoAuthor!=='v1'||e.data.token!==token||e.data.type!=='state')return;state=e.data.value||{};window.dispatchEvent(new CustomEvent('bao:statechange',{detail:state}));});parent.postMessage({baoAuthor:'v1',token:token,type:'ready'},'*');})();</script>`;
+  const bootstrap = token => `<script>(function(){'use strict';const token=${JSON.stringify(token)};let state={};window.BAOAuthor=Object.freeze({draft:function(value){if(typeof value==='string'&&value.length<=500)parent.postMessage({baoAuthor:'v1',token:token,type:'draft',value:value},'*');},getState:function(){return JSON.parse(JSON.stringify(state));}});window.addEventListener('message',function(e){if(e.source!==parent||!e.data||e.data.baoAuthor!=='v1'||e.data.token!==token||e.data.type!=='state')return;state=e.data.value||{};window.dispatchEvent(new CustomEvent('bao:statechange',{detail:window.BAOAuthor.getState()}));});parent.postMessage({baoAuthor:'v1',token:token,type:'ready'},'*');})();</script>`;
   function show(htmlResult, owner, allowExternalAssets) {
     close();
     currentOwner = owner;
@@ -122,13 +124,14 @@
     if (activeCheckbox) activeCheckbox.checked = data.enabled;
     if (scriptCheckbox) scriptCheckbox.checked = data.allowScripts;
     if (externalCheckbox) externalCheckbox.checked = data.allowExternalAssets;
+    if (stateCheckbox) stateCheckbox.checked = data.allowStateSharing;
     say(`這張卡已保存 ${data.rules.length} 條正則；含腳本 ${data.rules.filter(r => r.script).length} 條；格式不相容 ${data.rules.filter(r => r.reason).length} 條。`);
   };
   const importData = raw => {
     const id = cardId(); if (!id) throw new Error('請先進入一張角色卡的故事。');
     const rules = Core.normalize(raw);
     const current = empty(); current.rules = rules;
-    save(id, current); showCount();
+    save(id, current); close(); showCount();
     say(`已保存 ${rules.length} 條原始正則，預設全部不執行。請檢查來源，再自行啟用；原始角色卡與故事未修改。`);
   };
   function mount() {
@@ -139,7 +142,7 @@
     panel.style.cssText = 'padding:12px;margin:12px 0;border:1px solid #987a9c;border-radius:10px;display:grid;gap:8px';
     const summary = document.createElement('summary'); summary.textContent = '作者正則介面（測試版）'; panel.append(summary);
     const intro = document.createElement('p'); intro.style.fontSize = '12px';
-    intro.textContent = '按角色保存正則；HTML／CSS 可在不執行腳本時顯示，外部圖片和作者 JavaScript 需分別授權。本工具不加入提示詞、不修改劇情與記憶。'; panel.append(intro);
+    intro.textContent = '按角色保存正則；HTML／CSS 可在不執行腳本時顯示。作者 JS、世界狀態和外部圖片須分別授權；不會加入 AI 提示詞。'; panel.append(intro);
     const makeButton = (label, action) => { const b = document.createElement('button'); b.type = 'button'; b.textContent = label; b.style.margin = '4px'; b.addEventListener('click', action); panel.append(b); return b; };
     makeButton('匯入正則 JSON', () => fileInput.click());
     fileInput = document.createElement('input'); fileInput.type = 'file'; fileInput.accept = '.json,application/json'; fileInput.hidden = true;
@@ -160,19 +163,26 @@
     activeCheckbox = makeToggle('在這張角色卡啟用作者介面', false, input => {
       const id = cardId(); if (!id) { input.checked = false; return; }
       const data = load(id); data.enabled = input.checked;
-      try { save(id, data); showCount(); } catch (error) { input.checked = false; say('保存失敗：' + error.message); }
+      try { save(id, data); if (!data.enabled) close(); showCount(); } catch (error) { input.checked = false; say('保存失敗：' + error.message); }
     });
     scriptCheckbox = makeToggle('允許作者腳本（需自行信任來源）', false, input => {
       const id = cardId(); if (!id) { input.checked = false; return; }
-      if (input.checked && !confirm('作者 JavaScript 可在隔離視窗讀取有限世界狀態；沙盒無法保證防止所有對外傳送或跳轉。確定信任來源並允許腳本嗎？')) { input.checked = false; return; }
+      if (input.checked && !confirm('作者 JavaScript 可以操作隔離介面，但預設不提供人物／世界狀態。沙盒無法阻止所有對外傳送或跳轉，確定信任來源並允許腳本嗎？')) { input.checked = false; return; }
       const data = load(id); data.allowScripts = input.checked;
-      try { save(id, data); showCount(); } catch (error) { input.checked = false; say('保存失敗：' + error.message); }
+      try { save(id, data); close(); showCount(); } catch (error) { input.checked = false; say('保存失敗：' + error.message); }
+    });
+    stateCheckbox = makeToggle('允許作者腳本讀取本故事的世界狀態', false, input => {
+      const id = cardId(); if (!id) { input.checked = false; return; }
+      if (input.checked && !confirm('授權後，作者 JS 可取得時間、地點、人物及有限狀態欄等資料。即使未開放圖片，也不能保證它不會利用導覽等方式對外傳送。只對信任的角色卡開啟，確定嗎？')) { input.checked = false; return; }
+      const data = load(id); data.allowStateSharing = input.checked;
+      try { save(id, data); close(); showCount(); say('世界狀態權限已更新；作者介面將重新建立，避免繼續使用舊快照。'); }
+      catch (error) { input.checked = false; say('保存失敗：' + error.message); }
     });
     externalCheckbox = makeToggle('允許作者介面載入外部圖片／字型／媒體', false, input => {
       const id = cardId(); if (!id) { input.checked = false; return; }
       if (input.checked && !confirm('外部資源的提供者可能得知 IP、讀取時間與網址中包含的資訊。僅信任來源時才開啟，確定嗎？')) { input.checked = false; return; }
       const data = load(id); data.allowExternalAssets = input.checked;
-      try { save(id, data); showCount(); } catch (error) { input.checked = false; say('保存失敗：' + error.message); }
+      try { save(id, data); close(); showCount(); } catch (error) { input.checked = false; say('保存失敗：' + error.message); }
     });
     sourceSelect = document.createElement('select'); sourceSelect.style.cssText = 'max-width:100%;margin:8px 0';
     [['greeting','開場畫面'],['latest','最新 AI 回覆']].forEach(([value, label]) => {
