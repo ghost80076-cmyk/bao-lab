@@ -1,0 +1,27 @@
+name: Regex library tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  regex-library:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Local regex import and safety tests
+        run: node --test tests/regex-library.test.cjs
+      - name: Check chat adapter and manager JavaScript syntax
+        run: |
+          node --check js/regex-library.js
+          node --check js/regex-chat.js
