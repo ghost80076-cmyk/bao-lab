@@ -2,10 +2,18 @@
 (() => {
   'use strict';
   const Core = window.BAOAuthorRegexCore;
-  if (!Core || !window.App) return;
+  // The regex scripts can load before global-bridge.js. Classic-script lexical
+  // globals are already available here even if their window aliases are not.
+  const app = window.App || (typeof App !== 'undefined' ? App : null);
+  const chat = window.Chat || (typeof Chat !== 'undefined' ? Chat : null);
+  const state = window.GameState || (typeof GameState !== 'undefined' ? GameState : null);
+  if (!Core || !app || !chat || !state) return;
+  window.App = app;
+  window.Chat = chat;
+  window.GameState = state;
   const PREFIX = 'bao-lab:author-regex:v1:';
   function sync() {
-    const character = App.activeCharacter;
+    const character = app.activeCharacter;
     const id = String(character?.id || '').slice(0, 80);
     const raw = character?.import_metadata?.preserved_source;
     if (!id || !raw) return false;
@@ -23,11 +31,11 @@
       return false;
     }
   }
-  const renderShell = App.renderChatShell.bind(App);
-  App.renderChatShell = function(...args) { sync(); return renderShell(...args); };
+  const renderShell = app.renderChatShell.bind(app);
+  app.renderChatShell = function(...args) { sync(); return renderShell(...args); };
   window.BAOAuthorCardBind = { sync };
   sync();
-  // Isolated, presentation-only addon. Its own card check keeps other stories unchanged.
+  // Isolated addon: the Yume card check is inside the archive, not here.
   if (!document.querySelector('script[data-bao-yume-archive]')) {
     const addon = document.createElement('script');
     addon.src = 'js/yume-relationship-archive.js';
