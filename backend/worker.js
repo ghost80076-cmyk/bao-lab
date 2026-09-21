@@ -67,7 +67,6 @@ async function admin(request, env, path) {
     const result = await env.DB.prepare("INSERT OR IGNORE INTO ledger (id, player_id, delta, kind) SELECT ?, id, ?, 'topup' FROM players WHERE id = ?")
       .bind("topup:" + reference, credits, playerId).run();
     if (!result.meta.changes) return fail("付款編號已使用，或找不到玩家。", 409);
-    await env.DB.prepare("UPDATE players SET credits = credits + ? WHERE id = ?").bind(credits, playerId).run();
     return json({ player_id: playerId, added: credits });
   }
   if (path === "/admin/players" && request.method === "GET") {
