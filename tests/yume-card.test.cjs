@@ -16,6 +16,9 @@ assert.ok(fs.existsSync(path.join(__dirname,'../assets/yume-yume-rain-v4.webp'))
 assert.ok(fs.existsSync(path.join(__dirname,'../assets/yume-misaki-work-v3.webp')));
 assert.match(card.content.greeting,/src="assets\/yume-yume-rain-v4\.webp"/);
 assert.match(card.content.greeting,/傘、ある/);
+assert.match(card.content.greeting,/① 回應ゆめ/);
+assert.doesNotMatch(card.content.greeting,/你們是三週前|沒有完美結局/);
+assert.equal(card.gameplay.initial_state.time,'日期未定 02:47');
 assert.match(card.gameplay.initial_state.location,/便利店門前/);
 assert.equal(card.meta.avatar,'assets/yume-yume-close-v3.webp');
 for(const view of ['close','home','club']) assert.ok(fs.existsSync(path.join(__dirname,'..',`assets/yume-yume-${view}-v3.webp`)));
