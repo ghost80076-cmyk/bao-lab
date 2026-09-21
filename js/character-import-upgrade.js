@@ -73,12 +73,38 @@
     const decoder = new TextDecoder("utf-8"); let offset = 8;
     while (offset + 12 <= bytes.length) {
       const length = (((bytes[offset] << 24) >>> 0) + (bytes[offset+1] << 16) + (bytes[offset+2] << 8) + bytes[offset+3]);
-      if (length > MAX_METADATA_BYTES || offset + 12 + length > bytes.length) throw new Error("PNG metadata 區塊不完整或超出 1 MB 安全上限。");
-      const type = decoder.decode(bytes.slice(offset+4,offset+8)), body = bytes.slice(offset+8,offset+8+length);
-      if (type === "tEXt") { const split = body.indexOf(0), key = split < 0 ? "" : decoder.decode(body.slice(0,split)).toLowerCase(); if (key === "chara") return decoder.decode(body.slice(split+1)); }
+      if (offset + 12 + length > bytes.length) throw new Error("PNG 圖片區塊不完整，檔案可能已損壞。");
+      const type = decoder.decode(bytes.slice(offset+4,offset+8));
+      if (type === "tEXt") {
+        const bodyStart = offset + 8, bodyEnd = bodyStart + length;
+        const keywordBytes = bytes.slice(bodyStart, Math.min(bodyEnd, bodyStart + 80));
+        const split = keywordBytes.indexOf(0);
+        const key = split < 0 ? "" : decoder.decode(keywordBytes.slice(0, split)).toLowerCase();
+        if (key === "chara") {
+          const payloadLength = length - split - 1;
+          if (payloadLength > MAX_METADATA_BYTES) throw new Error("PNG 內嵌角色資料超出 1 MB 安全上限；圖片本身仍可大於 1 MB。");
+          return decoder.decode(bytes.slice(bodyStart + split + 1, bodyEnd));
+        }
+      }
       offset += 12 + length; if (type === "IEND") break;
     }
     throw new Error("這張 PNG 沒有找到 SillyTavern「chara」內嵌角色資料。截圖、轉傳或重新壓縮常會移除此資料；請使用原始 PNG 或 V2 JSON。");
+  }
+  function pngCover(bytes) {
+    const decoder = new TextDecoder("utf-8"), chunks = [bytes.slice(0, 8)];
+    let offset = 8;
+    while (offset + 12 <= bytes.length) {
+      const length = (((bytes[offset] << 24) >>> 0) + (bytes[offset+1] << 16) + (bytes[offset+2] << 8) + bytes[offset+3]);
+      const end = offset + 12 + length;
+      if (end > bytes.length) throw new Error("PNG 圖片區塊不完整，檔案可能已損壞。");
+      const type = decoder.decode(bytes.slice(offset + 4, offset + 8));
+      if (!new Set(["tEXt", "iTXt", "zTXt"]).has(type)) chunks.push(bytes.slice(offset, end));
+      offset = end;
+      if (type === "IEND") break;
+    }
+    const size = chunks.reduce((sum, chunk) => sum + chunk.length, 0), cover = new Uint8Array(size);
+    let cursor = 0; for (const chunk of chunks) { cover.set(chunk, cursor); cursor += chunk.length; }
+    return cover;
   }
   function decodePayload(payload) {
     const value = text(payload); if (value.startsWith("{")) return JSON.parse(value);
@@ -94,7 +120,9 @@
     }
     if (isPng) {
       if (typeof file.arrayBuffer !== "function") throw new Error("這個瀏覽器無法讀取 PNG 角色卡。");
-      return {raw:decodePayload(pngPayload(new Uint8Array(await file.arrayBuffer()))), origin:"PNG metadata"};
+      const bytes = new Uint8Array(await file.arrayBuffer());
+      const cover = typeof Blob === "function" ? new Blob([pngCover(bytes)], { type: "image/png" }) : null;
+      return {raw:decodePayload(pngPayload(bytes)), origin:"PNG metadata", cover};
     }
     if (typeof file.text !== "function") throw new Error("請選擇 JSON 角色檔案。");
     try { return {raw:JSON.parse(await file.text()), origin:"JSON"}; } catch { throw new Error("JSON 語法錯誤，請確認括號、引號與逗號格式。"); }
@@ -117,18 +145,22 @@
     return engine.normalize(raw);
   }
   async function prepareFile(file) {
-    const {raw,origin}=await parseFile(file);
-    if (raw?.spec === "chara_card_v2" || raw?.spec === "chara_card_v3") { const draft=convertSillyTavern(raw,origin); inspect(draft.character); return draft; }
-    return {converted:false,format:"BAO/LAB JSON",origin,character:inspect(raw),report:null};
+    const {raw,origin,cover}=await parseFile(file);
+    if (raw?.spec === "chara_card_v2" || raw?.spec === "chara_card_v3") { const draft=convertSillyTavern(raw,origin); draft.cover=cover||null; inspect(draft.character); return draft; }
+    return {converted:false,format:"BAO/LAB JSON",origin,character:inspect(raw),report:null,cover:null};
   }
-  function saveCharacter(raw) {
+  async function saveCharacter(raw, cover = null) {
     const character=inspect(raw), builtin=(typeof App !== "undefined" && Array.isArray(App.characters)?App.characters:[]).some(x=>x.id===character.id&&x.source==="built-in");
     if (builtin) throw new Error("這個角色 ID 與內建作品重複；請修改 JSON 中的 meta.id，避免遮蔽原作品。");
-    let existing; try { const saved=localStorage.getItem(engine.storageKey); existing=saved===null?[]:JSON.parse(saved); if(!Array.isArray(existing)) throw new Error(); } catch { throw new Error("本機角色庫無法解析；為避免覆蓋資料，本次匯入已取消。"); }
+    let existing;
+    if (typeof engine.saveCustomAsync === "function") existing=engine.loadCustom();
+    else try { const saved=localStorage.getItem(engine.storageKey); existing=saved===null?[]:JSON.parse(saved); if(!Array.isArray(existing)) throw new Error(); } catch { throw new Error("本機角色庫無法解析；為避免覆蓋資料，本次匯入已取消。"); }
     const duplicate=existing.some(x=>x?.id===character.id);
     if (duplicate && !window.confirm(`本機已有 ID「${character.id}」的角色。確定要以新檔覆蓋角色設定嗎？現有故事存檔不會被修改。`)) throw new Error("已取消同 ID 角色覆蓋，原有資料沒有變更。");
     if (!duplicate && existing.length>=100) throw new Error("本機角色庫已達 100 張上限；請先備份並移除不需要的角色。");
-    character.source="local-import"; engine.saveCustom(character);
+    character.source="local-import";
+    if (typeof engine.saveCustomAsync === "function") await engine.saveCustomAsync(character, { cover });
+    else engine.saveCustom(character);
     const persisted=engine.loadCustom().find(x=>x.id===character.id);
     if (!persisted || persisted.name!==character.name || persisted.system_prompt!==character.system_prompt || persisted.greeting!==character.greeting) throw new Error("本機儲存驗證未通過；請檢查瀏覽器儲存空間與隱私模式。");
     return character;
@@ -142,19 +174,19 @@
       wrap.innerHTML=`<section role="dialog" aria-modal="true" aria-label="角色卡轉換預覽" style="box-sizing:border-box;width:min(760px,100%);max-height:88dvh;overflow:auto;padding:24px;border:1px solid #62677a;border-radius:18px;background:#20232d;color:#f4f4fa"><header style="display:flex;justify-content:space-between;gap:12px;align-items:start"><div><small>LOCAL-ONLY IMPORT PREVIEW</small><h2 style="margin:5px 0">SillyTavern V2 轉換預覽</h2></div><button type="button" class="text-button" data-close>關閉</button></header><p>來源：${esc(draft.origin)}。不會呼叫 AI、不會執行卡內 HTML／JavaScript，也還沒寫入本機角色庫。</p><label>角色名稱<input data-name value="${esc(c.meta.name)}" maxlength="100" style="width:100%;box-sizing:border-box;padding:9px"></label><label>BAO/LAB 分區<select data-category style="width:100%;box-sizing:border-box;padding:9px"><option value="male" ${c.meta.category==="male"?"selected":""}>男性向</option><option value="female" ${c.meta.category==="female"?"selected":""}>女性向</option><option value="r18" ${c.meta.category==="r18"?"selected":""}>R18</option></select></label><details open><summary>開場白</summary><pre style="white-space:pre-wrap">${esc(c.content.greeting)}</pre></details><details><summary>角色核心（${c.content.system_prompt.length} 字）</summary><pre style="white-space:pre-wrap">${esc(c.content.system_prompt)}</pre></details>${c.content.lore?`<details><summary>世界書（${c.content.lore.length} 字）</summary><pre style="white-space:pre-wrap">${esc(c.content.lore)}</pre></details>`:""}<details><summary>已轉換</summary>${list(r.mapped)}</details><details><summary>已保留（只存本機）</summary>${list(r.preserved)}</details><details><summary>未直接套用</summary>${list(r.unavailable)}</details><footer style="display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap;margin-top:16px"><button type="button" class="secondary" data-cancel>取消</button><button type="button" class="primary" data-confirm>確認匯入到本機</button></footer></section>`;
       const close=()=>{wrap.remove();reject(new Error("已取消角色卡轉換，沒有寫入資料。"));};
       wrap.querySelectorAll("[data-close],[data-cancel]").forEach(x=>x.addEventListener("click",close)); wrap.addEventListener("click",e=>{if(e.target===wrap)close();});
-      wrap.querySelector("[data-confirm]").addEventListener("click",()=>{const name=text(wrap.querySelector("[data-name]").value);if(!name)return;c.meta.name=c.meta.title=name;c.meta.category=wrap.querySelector("[data-category]").value;try{const saved=saveCharacter(c);wrap.remove();resolve(saved);}catch(error){reject(error);}});
+      wrap.querySelector("[data-confirm]").addEventListener("click",async()=>{const name=text(wrap.querySelector("[data-name]").value);if(!name)return;c.meta.name=c.meta.title=name;c.meta.category=wrap.querySelector("[data-category]").value;try{const saved=await saveCharacter(c,draft.cover);wrap.remove();resolve(saved);}catch(error){reject(error);}});
       document.body.append(wrap); wrap.querySelector("[data-name]").focus();
     });
   }
-  async function importFile(file) { return saveCharacter((await prepareFile(file)).character); }
-  async function requestImport(file) { const draft=await prepareFile(file); return draft.converted?preview(draft):saveCharacter(draft.character); }
+  async function importFile(file) { const draft=await prepareFile(file); return saveCharacter(draft.character,draft.cover); }
+  async function requestImport(file) { const draft=await prepareFile(file); return draft.converted?preview(draft):saveCharacter(draft.character,draft.cover); }
   engine.importFile=importFile; engine.requestImport=requestImport;
   function enhanceTools() {
     const tools=document.querySelector(".character-tools"); if(!tools||tools.dataset.importUpgrade==="1")return false;
     const advanced=tools.querySelector('a[href="data/characters/character-template.json"]');if(!advanced)return false;advanced.textContent="下載進階世界模板";
     const basic=document.createElement("a");basic.className="secondary";basic.href="data/characters/character-basic-template.json";basic.download="bao-character-basic-template.json";basic.textContent="下載基礎角色模板";advanced.before(basic);
-    const note=document.createElement("p");note.className="note";note.style.width="100%";note.textContent="可匯入 BAO/LAB JSON，以及 SillyTavern V2 JSON／原始 PNG 角色卡；酒館卡會先顯示轉換預覽。所有資料只保存在這台瀏覽器。";tools.append(note);tools.dataset.importUpgrade="1";return true;
+    const note=document.createElement("p");note.className="note";note.style.width="100%";note.textContent="可匯入 BAO/LAB JSON，以及 SillyTavern V2 JSON／原始 PNG 角色卡；PNG 圖片會作為本機角色封面，酒館卡會先顯示轉換預覽。所有資料只保存在這台瀏覽器。";tools.append(note);tools.dataset.importUpgrade="1";return true;
   }
   if(typeof document!=="undefined"){let attempts=0;const timer=setInterval(()=>{if(enhanceTools()||++attempts>=60)clearInterval(timer);},100);}
-  window.BAOCharacterImport={inspect,parseFile,prepareFile,convertSillyTavern,importFile,requestImport,pngPayload,decodePayload};
+  window.BAOCharacterImport={inspect,parseFile,prepareFile,convertSillyTavern,importFile,requestImport,pngPayload,pngCover,decodePayload};
 })();

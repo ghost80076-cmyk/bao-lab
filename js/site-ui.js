@@ -53,10 +53,12 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/chat-experience-repairs.js"))
     .then(() => loadBAOScript("js/mobile-reading-layout.js"))
     .catch(err => console.warn("BAO/LAB local preview, narrative settings, memory workbench, story tools, story library, story reader or chat markup failed to load:", err));
-  loadBAOScript("js/character-readiness.js")
+  loadBAOScript("js/character-library.js")
+    .then(() => loadBAOScript("js/character-readiness.js"))
     .then(() => loadBAOScript("js/character-import-upgrade.js"))
+    .then(() => loadBAOScript("js/device-transfer.js"))
     .then(() => loadBAOScript("js/author-diagnostics.js"))
-    .catch(err => console.warn("BAO/LAB character readiness, import or author diagnostics failed to load:", err));
+    .catch(err => console.warn("BAO/LAB character library, import, device transfer or author diagnostics failed to load:", err));
   loadBAOScript("js/brand-ui.js")
     .then(() => new Promise(resolve => setTimeout(resolve, 100)))
     .then(() => loadBAOScript("js/bao-mascot.js"))

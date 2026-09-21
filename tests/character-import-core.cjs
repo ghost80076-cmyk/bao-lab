@@ -39,6 +39,12 @@ const pngFile = raw => {
   const bytes = Buffer.concat([Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]), chunk('tEXt', meta), chunk('IEND', Buffer.alloc(0))]);
   return { name: 'rainport.png', type: 'image/png', size: bytes.length, arrayBuffer: async () => bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength) };
 };
+const pngWithLargeImageChunk = raw => {
+  const meta = Buffer.from('chara\0' + Buffer.from(JSON.stringify(raw)).toString('base64'));
+  const chunk = (type, body) => { const length = Buffer.alloc(4); length.writeUInt32BE(body.length); return Buffer.concat([length, Buffer.from(type), body, Buffer.alloc(4)]); };
+  const bytes = Buffer.concat([Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]), chunk('IDAT', Buffer.alloc(1536 * 1024)), chunk('tEXt', meta), chunk('IEND', Buffer.alloc(0))]);
+  return { name: 'large-image-chunk.png', type: 'image/png', size: bytes.length, arrayBuffer: async () => bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength) };
+};
 const template = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'data', 'characters', 'character-basic-template.json'), 'utf8'));
 const clone = data => structuredClone(data);
 
@@ -85,6 +91,9 @@ const clone = data => structuredClone(data);
   const pngDraft = await BAOCharacterImport.prepareFile(pngFile(sillyV2));
   assert.equal(pngDraft.origin, 'PNG metadata');
   assert.equal(pngDraft.character.meta.name, sillyV2.data.name);
+  assert.equal(pngDraft.cover instanceof Blob, true, 'the original PNG should be retained as the local cover');
+  assert.equal(Buffer.from(await pngDraft.cover.arrayBuffer()).includes(Buffer.from('chara\0')), false, 'the stored cover must strip embedded character metadata and possible secrets');
+  assert.equal((await BAOCharacterImport.prepareFile(pngWithLargeImageChunk(sillyV2))).character.meta.name, sillyV2.data.name, 'large image chunks must not be mistaken for oversized character metadata');
   const ordinaryLargePng = pngFile(sillyV2);
   ordinaryLargePng.size = 2 * 1024 * 1024;
   assert.equal((await BAOCharacterImport.prepareFile(ordinaryLargePng)).character.meta.name, sillyV2.data.name, 'a normal high-resolution PNG card may exceed the JSON limit');
