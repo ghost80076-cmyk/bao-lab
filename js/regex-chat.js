@@ -87,6 +87,10 @@
       mobile.src = 'js/author-regex-mobile.js';
       mobile.onerror = () => console.warn('BAO/LAB responsive author controls failed to load');
       document.head.appendChild(mobile);
+      const inline = document.createElement('script');
+      inline.src = 'js/author-regex-inline.js';
+      inline.onerror = () => console.warn('BAO/LAB inline author interface failed to load');
+      document.head.appendChild(inline);
     };
     compat.onerror = () => console.warn('BAO/LAB author regex compatibility failed to load');
     document.head.appendChild(compat);
