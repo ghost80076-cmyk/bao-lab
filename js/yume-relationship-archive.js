@@ -148,7 +148,7 @@
 })(typeof window !== 'undefined' ? window : null, function () {
   'use strict';
   const roster=Object.freeze({player:'玩家',yume:'ゆめ',rina:'りな',ryusei:'琉星',airi:'あいり',asami:'麻美',misaki:'美咲'});
-  const aliases=Object.freeze({yume:['黑羽ゆめ','黒羽ゆめ','ゆめ'],rina:['りな'],ryusei:['琉星'],airi:['あいり'],asami:['麻美'],misaki:['美咲']});
+  const aliases=Object.freeze({yume:['黑羽ゆめ','黒羽ゆめ','ゆめ'],rina:['桜井りな','りな'],ryusei:['琉星'],airi:['あいり'],asami:['高橋麻美','麻美'],misaki:['田中美咲','美咲']});
   const normalized=value=>String(value||'').normalize('NFKC').replace(/[\s・·]/g,'').toLowerCase();
   const known=value=>Boolean(String(value??'').trim()) && !/^(?:未知|未設定|未確認|—|－|-|null)$/i.test(String(value).trim());
   const isYume=card=>{const name=String(card?.name||'');return /(黑羽|黒羽)/.test(name)&&/(ゆめ|夢)/.test(name);};
