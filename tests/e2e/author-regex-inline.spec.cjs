@@ -72,13 +72,23 @@ test('inline static HTML and CSS remain visible without script permission, and J
   await expect(page.locator('#chat-stream .message.assistant').last().locator(':scope > .bubble')).toBeHidden();
   expect(await frame.locator('.author-panel').evaluate(node => ({
     scriptRan: node.ownerDocument.defaultView.__authorScriptRan,
-    bridge: typeof node.ownerDocument.defaultView.BAOAuthor,
-    sandbox: node.ownerDocument.defaultView.frameElement?.getAttribute('sandbox')
+    bridge: typeof node.ownerDocument.defaultView.BAOAuthor
   }))).toMatchObject({ scriptRan: undefined, bridge: 'undefined' });
   await frame.getByRole('button', { name: '查看照片' }).click();
   await expect(page.locator('#user-input')).toHaveValue('');
   page.once('dialog', dialog => dialog.accept());
   await panel.getByLabel('允許作者腳本（需自行信任來源）').check();
-  await expect(frame.locator('.author-panel')).toBeVisible();
-  expect(await frame.locator('.author-panel').evaluate(node => node.ownerDocument.defaultView.__authorScriptRan)).toBe(true);
+  // The old static iframe remains visible while the worker prepares the new one.
+  // Wait for the permission-triggered remount rather than asserting against it.
+  await expect(page.locator('iframe[title="聊天內作者隔離介面"]')).toHaveAttribute('sandbox', 'allow-scripts');
+  await expect.poll(async () => frame.locator('.author-panel').evaluate(node => node.ownerDocument.defaultView.__authorScriptRan)).toBe(true);
+  const isolation = await frame.locator('.author-panel').evaluate(node => {
+    const win = node.ownerDocument.defaultView;
+    let parentDocumentAccessible = false;
+    let parentStorageAccessible = false;
+    try { parentDocumentAccessible = Boolean(win.parent.document.body); } catch (_) { /* Cross-origin. */ }
+    try { parentStorageAccessible = Boolean(win.parent.localStorage); } catch (_) { /* Cross-origin. */ }
+    return { parentDocumentAccessible, parentStorageAccessible };
+  });
+  expect(isolation).toEqual({ parentDocumentAccessible: false, parentStorageAccessible: false });
 });
