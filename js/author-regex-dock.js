@@ -47,7 +47,7 @@
     if (!active || active.story !== GameState.current || active.owner !== cardId() || !inChat()) return;
     const value = snapshot();
     active.stateLabel.textContent = `世界狀態：${value.time || '未設定'} · ${value.location || '未設定'} · NPC ${value.npcs.length} 位`;
-    if (active.ready && active.frame?.isConnected)
+    if (active.allowScripts && active.ready && active.frame?.isConnected)
       active.frame.contentWindow?.postMessage({ baoAuthor: 'v1', token: active.token, type: 'state', value }, '*');
   }
   function clear() {
@@ -69,7 +69,7 @@
     if (input.value.trim() && !confirm('要用作者介面的選項取代尚未送出的文字嗎？')) return;
     input.value = event.data.value;
     input.dispatchEvent(new Event('input', { bubbles: true }));
-    input.focus(); // Only the player can submit an API request.
+    input.focus();
   });
   function candidates() {
     const records = Array.isArray(Chat.messages) ? Chat.messages : [];
@@ -95,10 +95,8 @@
       worker.postMessage({ items, rules: Core.normalize(rules), allowScripts });
     });
   }
-  // Wait for the author's body scripts to attach statechange listeners before
-  // sending the initial state. Otherwise initial UI can remain blank until a turn.
   const bootstrap = token => `<script>(function(){'use strict';const token=${JSON.stringify(token)};let state={};window.BAOAuthor=Object.freeze({draft:function(value){if(typeof value==='string'&&value.length<=500)parent.postMessage({baoAuthor:'v1',token:token,type:'draft',value:value},'*');},getState:function(){return JSON.parse(JSON.stringify(state));}});window.addEventListener('message',function(e){if(e.source!==parent||e.data?.baoAuthor!=='v1'||e.data.token!==token||e.data.type!=='state')return;state=e.data.value||{};window.dispatchEvent(new CustomEvent('bao:statechange',{detail:window.BAOAuthor.getState()}));});window.addEventListener('DOMContentLoaded',function(){parent.postMessage({baoAuthor:'v1',token:token,type:'ready'},'*');},{once:true});})();</script>`;
-  function mount(result, owner, story, signature) {
+  function mount(result, owner, story, signature, allowExternalAssets) {
     clear();
     if (!inChat() || GameState.current !== story || cardId() !== owner) return;
     const root = document.createElement('details');
@@ -118,7 +116,8 @@
     const allowScripts = Boolean(result.script);
     frame.setAttribute('sandbox', allowScripts ? 'allow-scripts' : ''); // No allow-same-origin.
     frame.style.cssText = 'display:block;width:100%;height:clamp(240px,42vh,520px);border:0;background:#fff';
-    const csp = "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src https: data:; font-src https: data:; media-src https: data:; connect-src 'none'; frame-src 'none'; form-action 'none'; base-uri 'none'; object-src 'none'";
+    const assets = allowExternalAssets ? 'https: data:' : 'data:';
+    const csp = `default-src 'none'; script-src ${allowScripts ? "'unsafe-inline'" : "'none'"}; style-src 'unsafe-inline'; img-src ${assets}; font-src ${assets}; media-src ${assets}; connect-src 'none'; frame-src 'none'; form-action 'none'; base-uri 'none'; object-src 'none'`;
     const token = crypto.randomUUID?.() || `${Math.random()}-${Date.now()}`;
     frame.srcdoc = '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="' + csp + '"><style>html,body{margin:0;min-height:100%;overflow-wrap:anywhere}*,*:before,*:after{box-sizing:border-box}</style>' + (allowScripts ? bootstrap(token) : '') + '</head><body>' + result.html + '</body></html>';
     root.append(summary, bar, frame);
@@ -152,7 +151,7 @@
     attachControl();
     const owner = cardId(), story = GameState.current, data = owner && settings(owner);
     if (!inChat() || !story || !owner || !data || !optedIn(owner)) { clear(); return; }
-    const signature = JSON.stringify([owner, data.allowScripts === true, data.rules]);
+    const signature = JSON.stringify([owner, data.allowScripts === true, data.allowExternalAssets === true, data.rules]);
     if (active && active.owner === owner && active.story === story && active.signature === signature && active.root.isConnected) {
       sendState(); return;
     }
@@ -165,7 +164,7 @@
         console.info('BAO/LAB author dock: no compatible rich source found', rendered?.blocked ? '(scripts disabled)' : '');
         return;
       }
-      mount(rendered.result, owner, story, signature);
+      mount(rendered.result, owner, story, signature, data.allowExternalAssets === true);
     } catch (error) { if (ticket === sequence) console.warn('BAO/LAB persistent author interface:', error.message); }
   }
   function schedule() { if (!queued) { queued = true; queueMicrotask(refresh); } }
