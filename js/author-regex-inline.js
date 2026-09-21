@@ -38,12 +38,12 @@
       character: String(App.activeCharacter?.name || '').slice(0, 80), characterStatuses };
   };
   const sendState = () => {
-    if (!active?.ready || cardId() !== active.owner || !active.frame.isConnected) return;
+    if (!active?.ready || !active.script || cardId() !== active.owner || !active.frame.isConnected) return;
     active.frame.contentWindow?.postMessage({ baoAuthor: 'v1', token: active.token,
-      type: 'state', value: stateSnapshot() }, '*'); // Opaque sandbox origin; window + nonce are checked on receive.
+      type: 'state', value: stateSnapshot() }, '*'); // Opaque origin; source and token are checked on receive.
   };
   window.addEventListener('message', event => {
-    if (!active || event.source !== active.frame.contentWindow || event.origin !== 'null'
+    if (!active || !active.script || event.source !== active.frame.contentWindow || event.origin !== 'null'
       || cardId() !== active.owner || event.data?.baoAuthor !== 'v1'
       || event.data.token !== active.token) return;
     if (event.data.type === 'ready') {
@@ -61,7 +61,7 @@
     if (input.value.trim() && !confirm('要用作者介面的選項取代目前尚未送出的文字嗎？')) return;
     input.value = event.data.value;
     input.dispatchEvent(new Event('input', { bubbles: true }));
-    input.focus(); // The player, never the authored iframe, chooses when to send an API request.
+    input.focus();
   });
   const renderInWorker = (text, rules, allowScripts) => new Promise((resolve, reject) => {
     const workerCode = `importScripts(${JSON.stringify(CORE_URL)});onmessage=e=>{try{postMessage({value:self.BAOAuthorRegexCore.render(e.data.text,e.data.rules,e.data.allowScripts)});}catch(err){postMessage({error:String(err.message||err)});}}`;
@@ -99,7 +99,7 @@
     }
     return shift ? { node: nodes[0], source: String(App.activeCharacter?.greeting || ''), id: 'greeting' } : null;
   }
-  function mount(candidate, result, owner, fingerprint) {
+  function mount(candidate, result, owner, fingerprint, allowExternalAssets) {
     clear();
     const bubble = candidate.node.querySelector(':scope > .bubble');
     if (!bubble || !candidate.node.isConnected) return;
@@ -112,6 +112,7 @@
     const title = document.createElement('span'); title.textContent = `作者介面 · ${result.name || '正則排版'}`;
     const toggle = document.createElement('button'); toggle.type = 'button'; toggle.textContent = '查看原文';
     toggle.style.cssText = 'padding:5px 9px;max-width:100%;width:auto;background:#392d47;color:white;border:1px solid #987a9c;border-radius:7px';
+    const frame = document.createElement('iframe');
     toggle.addEventListener('click', () => {
       if (!active || active.root !== root) return;
       active.rawOpen = !active.rawOpen;
@@ -120,35 +121,37 @@
       frame.hidden = active.rawOpen;
     });
     bar.append(title, toggle);
-    const frame = document.createElement('iframe');
     frame.title = '聊天內作者隔離介面'; frame.referrerPolicy = 'no-referrer';
-    frame.setAttribute('sandbox', 'allow-scripts'); // Never grant allow-same-origin.
+    frame.setAttribute('sandbox', result.script ? 'allow-scripts' : ''); // Never grant allow-same-origin.
     frame.style.cssText = 'display:block;width:100%;height:clamp(320px,68vh,720px);border:0;background:#fff';
     const bootstrap = `<script>(function(){'use strict';const token=${JSON.stringify(token)};let state={};window.BAOAuthor=Object.freeze({draft:function(value){if(typeof value==='string'&&value.length<=500)parent.postMessage({baoAuthor:'v1',token:token,type:'draft',value:value},'*');},getState:function(){return state;}});window.addEventListener('message',function(e){if(e.source!==parent||e.data?.baoAuthor!=='v1'||e.data.token!==token||e.data.type!=='state')return;state=e.data.value||{};window.dispatchEvent(new CustomEvent('bao:statechange',{detail:state}));});parent.postMessage({baoAuthor:'v1',token:token,type:'ready'},'*');})();</script>`;
-    const csp = "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src https: data:; font-src https: data:; media-src https: data:; connect-src 'none'; frame-src 'none'; form-action 'none'; base-uri 'none'; object-src 'none'";
-    frame.srcdoc = '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="' + csp + '"><style>html,body{margin:0;min-height:100%;overflow-wrap:anywhere}*,*:before,*:after{box-sizing:border-box}</style>' + bootstrap + '</head><body>' + result.html + '</body></html>';
+    const assets = allowExternalAssets ? 'https: data:' : 'data:';
+    const csp = `default-src 'none'; script-src ${result.script ? "'unsafe-inline'" : "'none'"}; style-src 'unsafe-inline'; img-src ${assets}; font-src ${assets}; media-src ${allowExternalAssets ? 'https: data:' : 'data:'}; connect-src 'none'; frame-src 'none'; form-action 'none'; base-uri 'none'; object-src 'none'`;
+    frame.srcdoc = '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="' + csp + '"><style>html,body{margin:0;min-height:100%;overflow-wrap:anywhere}*,*:before,*:after{box-sizing:border-box}</style>' + (result.script ? bootstrap : '') + '</head><body>' + result.html + '</body></html>';
+    frame.addEventListener('load', () => {
+      if (!result.script && active?.root === root) { active.ready = true; if (!active.rawOpen) bubble.hidden = true; }
+    });
     root.append(bar, frame); candidate.node.append(root);
-    active = { owner, fingerprint, root, frame, bubble, token, ready: false, rawOpen: false };
+    active = { owner, fingerprint, root, frame, bubble, token, ready: false, rawOpen: false, script: result.script };
   }
   async function refresh() {
     queued = false;
-    // The persistent, story-scoped renderer owns the card UI while its opt-in is active.
     if (window.BAOAuthorDock?.enabled?.()) { clear(); return; }
     const owner = cardId();
     const data = owner && config(owner);
     if (!owner || !data || !data.rules.length) { clear(); return; }
     const candidate = target();
-    if (!candidate?.source) return; // Ignore an intermediate streaming DOM, without unmounting the old UI.
+    if (!candidate?.source) return;
     const bubble = candidate.node.querySelector(':scope > .bubble');
     if (!bubble || bubble.querySelector('.story-inline-editor')) return;
-    const fingerprint = JSON.stringify([owner, candidate.id, candidate.source, data.allowScripts, data.rules]);
+    const fingerprint = JSON.stringify([owner, candidate.id, candidate.source, data.allowScripts, data.allowExternalAssets, data.rules]);
     if (active?.fingerprint === fingerprint && active.root.parentElement === candidate.node) return;
     const ticket = ++sequence;
     try {
       const value = await renderInWorker(candidate.source, Core.normalize(data.rules), data.allowScripts === true);
       if (ticket !== sequence || cardId() !== owner || !candidate.node.isConnected) return;
       if (!value?.matched || !value.rich) { clear(); return; }
-      mount(candidate, value, owner, fingerprint);
+      mount(candidate, value, owner, fingerprint, data.allowExternalAssets === true);
     } catch (error) {
       if (ticket !== sequence) return;
       clear();
