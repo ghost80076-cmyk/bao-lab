@@ -1,7 +1,8 @@
 /* Keep Character Studio and the playable character library in sync without discarding old cards. */
 (() => {
   'use strict';
-  const engine = window.CharacterEngine;
+  // Homepage declares CharacterEngine as a top-level const, not a window property.
+  const engine = typeof CharacterEngine !== 'undefined' ? CharacterEngine : window.CharacterEngine;
   if (!engine) return;
 
   const LEGACY_KEY = engine.storageKey || 'bao-lab:custom-characters';
@@ -22,8 +23,8 @@
       && typeof card.name === 'string' && card.name.trim();
   }
 
-  // The editor's original install handler is synchronous. Journal each requested
-  // upsert before it runs, so closing the tab cannot silently lose a pending IDB write.
+  // Journal the original editor's synchronous install call before an IDB write
+  // begins. If the tab closes early, the next visit can replay the saved card.
   if (inStudio && !engine.__baoStudioSaveJournal) {
     const originalSave = engine.saveCustom.bind(engine);
     engine.saveCustom = function saveStudioCard(character) {
@@ -48,7 +49,7 @@
   }
 
   async function ready() {
-    for (let attempt = 0; attempt < 100; attempt++) {
+    for (let attempt = 0; attempt < 200; attempt++) {
       if (typeof engine.readyCustomLibrary === 'function'
           && typeof engine.saveCustomAsync === 'function'
           && typeof engine.loadCustomAsync === 'function') return;
@@ -58,7 +59,7 @@
   }
 
   async function reconcile() {
-    // Capture before ready(): its initial migration may remove the legacy key.
+    // Capture before ready(): initial migration may remove the legacy key.
     const legacy = readArray(LEGACY_KEY);
     const pending = readArray(PENDING_KEY);
     await ready();
@@ -81,7 +82,7 @@
     }
     if (pending.length) {
       // Clear only the snapshot handled above. A new save could have arrived
-      // while the asynchronous replay was running; never delete that new entry.
+      // while asynchronous replay was running; never delete that new entry.
       const latest = readArray(PENDING_KEY);
       const handled = new Map(pending.filter(validCard).map(card => [card.id, JSON.stringify(card)]));
       const remaining = latest.filter(card => handled.get(card?.id) !== JSON.stringify(card));
@@ -94,7 +95,7 @@
 
   engine.reconcileCustomCharacters = reconcile;
   void reconcile().catch(error => {
-    console.warn('BAO/LAB character recovery kept the original data unchanged:', error);
+    console.warn('BAO/LAB character recovery could not complete:', error);
     if (inStudio) {
       const status = document.getElementById('studio-status');
       if (status) status.textContent = '角色庫同步未完成，請先匯出 JSON 備份。';
