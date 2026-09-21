@@ -89,6 +89,8 @@ jobs:
         run: node tests/explicit-scene-state-core.cjs
       - name: Prompt cache pipeline
         run: node tests/prompt-cache-core.cjs
+      - name: Cache cost panel
+        run: node tests/cache-cost-panel-core.cjs
       - name: Memory request isolation and cooldown
         run: node tests/memory-request-guard-core.cjs
       - name: Helper context isolation and memory lifecycle
