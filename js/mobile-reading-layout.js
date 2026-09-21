@@ -73,26 +73,23 @@
       stream?.scrollTo?.({ top: 0, behavior: 'smooth' });
     }
   };
-  const ensureSupport = () => {
+  const ensureExit = () => {
     const header = main.querySelector('.chat-topline');
     if (!header) return;
-    let link = header.querySelector('#bao-mobile-support');
-    if (!link) {
-      link = document.createElement('a');
-      link.id = 'bao-mobile-support';
-      link.className = 'bao-mobile-support-link';
-      link.target = '_blank';
-      link.rel = 'noopener noreferrer';
-      link.setAttribute('aria-label', '投餵肉包，另開新視窗');
-      const icon = document.createElement('img');
-      icon.src = 'assets/bao-mark.svg';
-      icon.alt = '';
-      const label = document.createElement('span');
-      label.textContent = '投餵肉包';
-      link.append(icon, label);
-      header.append(link);
+    header.querySelector('#bao-mobile-support')?.remove();
+    let button = header.querySelector('#bao-mobile-exit');
+    if (!button) {
+      button = document.createElement('button');
+      button.type = 'button';
+      button.id = 'bao-mobile-exit';
+      button.textContent = '← 離開';
+      button.setAttribute('aria-label', '離開故事');
+      button.addEventListener('click', () => {
+        if (!window.confirm('離開前會自動儲存目前進度。確定離開故事嗎？')) return;
+        App.exitChat?.();
+      });
+      header.append(button);
     }
-    link.href = supportUrl();
   };
   const enhanceDrawer = () => {
     const panel = drawer();
@@ -160,7 +157,7 @@
   };
   const sync = () => {
     ensureTab();
-    ensureSupport();
+    ensureExit();
     measure();
     enhanceDrawer();
     const tab = document.getElementById('bao-mobile-tools-tab');
@@ -198,16 +195,15 @@
   style.href = 'css/mobile-reading-layout.css';
   document.head.append(style);
   const supportStyle = document.createElement('style');
-  supportStyle.id = 'bao-mobile-support-style';
+  supportStyle.id = 'bao-mobile-exit-style';
   supportStyle.textContent = `
-    #bao-mobile-support{display:none!important}
+    #bao-mobile-exit{display:none!important}
     @media(max-width:820px){
       #chat-view .chat-topline{display:flex!important;align-items:center!important;flex-wrap:nowrap!important}
       #chat-view .chat-title-copy{flex:1 1 0!important;min-width:0!important;overflow:hidden}
       #chat-view .chat-title-copy h2{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-      #chat-view.active #bao-mobile-support{display:inline-flex!important;align-items:center;justify-content:center;gap:5px;flex:0 0 auto;width:auto!important;min-height:40px;padding:7px 9px;border:1px solid rgba(214,170,115,.42);border-radius:10px;background:rgba(214,170,115,.1);color:#f4d6ad;text-decoration:none;font-size:12px;font-weight:700;white-space:nowrap}
-      #bao-mobile-support img{width:18px;height:18px;flex:0 0 18px}
-      #bao-mobile-support:focus-visible,#bao-chat-tool-drawer .bao-mobile-support-link:focus-visible{outline:3px solid #72e2d3;outline-offset:2px}
+      #chat-view.active #bao-mobile-exit{display:inline-flex!important;align-items:center;justify-content:center;flex:0 0 auto;width:auto!important;min-height:40px;padding:7px 10px;border:1px solid #51636f;border-radius:10px;background:#1b2935;color:#f1eee8;font-size:12px;font-weight:700;white-space:nowrap;cursor:pointer}
+      #bao-mobile-exit:focus-visible,#bao-chat-tool-drawer .bao-mobile-support-link:focus-visible{outline:3px solid #72e2d3;outline-offset:2px}
       #bao-chat-tool-drawer .bao-mobile-quick .bao-mobile-support-link{grid-column:1/-1;display:flex;align-items:center;justify-content:center;min-height:44px;padding:9px;border:1px solid rgba(214,170,115,.42);border-radius:10px;background:rgba(214,170,115,.12);color:#f4d6ad;text-decoration:none;font-size:13px;font-weight:700}
       /* A 36px dedicated row keeps the small drawer trigger out of story text. */
       #chat-view .chat-layout>.chat-main{grid-template-rows:auto minmax(0,1fr) auto auto 36px auto!important}
@@ -215,7 +211,7 @@
       #chat-view.active #bao-mobile-tools-tab{display:flex!important;position:static!important;grid-column:1!important;grid-row:5!important;align-self:center!important;justify-self:start!important;z-index:5!important;top:auto!important;left:auto!important;transform:none!important;margin:2px 0 2px 0!important;width:36px!important;height:32px!important;min-height:32px!important;padding:0!important;gap:0!important;border-radius:0 9px 9px 0!important;border:1px solid #51636f!important;border-left:0!important;background:#1b2935!important;box-shadow:none!important;font-size:23px!important;line-height:1!important}
       #chat-view.active #bao-mobile-tools-tab span:first-child{font-size:25px;line-height:1}
     }
-    @media(max-width:360px){#chat-view.active #bao-mobile-support{font-size:11px;padding:7px 7px;gap:4px}#bao-mobile-support img{width:16px;height:16px;flex-basis:16px}}
+    @media(max-width:360px){#chat-view.active #bao-mobile-exit{font-size:11px;padding:7px 8px}}
   `;
   document.head.append(supportStyle);
   sync();

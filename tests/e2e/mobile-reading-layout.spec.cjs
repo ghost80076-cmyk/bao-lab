@@ -19,6 +19,9 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 320, height: 568 }
     await openDemoStory(page);
     const tab = page.locator('#bao-mobile-tools-tab');
     await expect(tab).toBeVisible();
+    const exit = page.getByRole('button', { name: '離開故事' });
+    await expect(exit).toBeVisible();
+    await expect(page.locator('#bao-mobile-support')).toHaveCount(0);
     await expect(page.locator('#bao-chat-tool-shortcuts')).toBeHidden();
     await expect(page.locator('#bao-chat-api-toolbar')).toBeHidden();
     const boxes = await page.evaluate(() => {
@@ -34,6 +37,7 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 320, height: 568 }
 
     await tab.click();
     await expect(page.getByRole('dialog', { name: '故事功能選單' })).toBeVisible();
+    await expect(page.getByRole('link', { name: /投餵肉包/ })).toBeVisible();
     await expect(tab).toHaveAttribute('aria-expanded', 'true');
     await expect(page.getByRole('button', { name: 'API／切換模型' })).toBeVisible();
     await page.getByRole('button', { name: 'API／切換模型' }).click();
@@ -68,7 +72,21 @@ test('desktop keeps the original full-size tools and reading columns', async ({ 
   await page.setViewportSize({ width: 1440, height: 900 });
   await openDemoStory(page);
   await expect(page.locator('#bao-mobile-tools-tab')).toBeHidden();
+  await expect(page.locator('#bao-mobile-exit')).toBeHidden();
   await expect(page.locator('#bao-chat-api-toolbar')).toBeVisible();
   await expect(page.locator('#bao-reading-status-toggle')).toBeVisible();
   await expect(page.locator('#user-input')).toBeVisible();
+});
+
+test('mobile exit asks first, then leaves through the existing auto-save flow', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await openDemoStory(page);
+  const exit = page.getByRole('button', { name: '離開故事' });
+  page.once('dialog', dialog => dialog.dismiss());
+  await exit.click();
+  await expect(page.locator('#chat-view')).toHaveClass(/active/);
+  page.once('dialog', dialog => dialog.accept());
+  await exit.click();
+  await expect(page.locator('#detail-view')).toHaveClass(/active/);
+  await expect.poll(() => page.evaluate(() => Boolean(Storage.loadStory()))).toBe(true);
 });
