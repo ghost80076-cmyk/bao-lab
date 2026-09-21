@@ -64,3 +64,51 @@ test('Google 400 surfaces only allowlisted hint, not private error content; rese
     assert.equal(calls, 1);
   } finally { globalThis.fetch = originalFetch; }
 });
+
+test('region hint requires an explicit denial; response and logs contain no prompt or key', async () => {
+  const token = 'bao_' + 'B'.repeat(43);
+  const bytes = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(token));
+  const hash = [...new Uint8Array(bytes)].map(n => n.toString(16).padStart(2, '0')).join('');
+  const { db, player } = fixture(hash);
+  const env = { DB: db, GEMINI_API_KEY: 'private-provider-key',
+    MODELS_JSON: JSON.stringify([{ provider: 'gemini', model: 'gemini-3-flash-preview' }]) };
+  const request = () => new Request('https://pilot.invalid/chat', { method: 'POST',
+    headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json' },
+    body: JSON.stringify({ provider: 'gemini', model: 'gemini-3-flash-preview',
+      messages: [{ role: 'user', content: 'PRIVATE_STORY' }], max_output_tokens: 1024 }) });
+  const cases = [
+    { upstream: 400, message: 'Region appears in PRIVATE_STORY but contents[0].role invalid',
+      status: 'INVALID_ARGUMENT', category: 'google_bad_request_message_format' },
+    { upstream: 400, message: 'User location is not supported for the API use. PRIVATE_STORY',
+      status: 'FAILED_PRECONDITION', category: 'google_bad_request_region' },
+    { upstream: 401, message: 'Bad private-provider-key',
+      status: 'UNAUTHENTICATED', category: 'provider_http_error' }
+  ];
+  const originalFetch = globalThis.fetch;
+  const originalInfo = console.info;
+  const logs = [];
+  console.info = (...args) => logs.push(args.join(' '));
+  try {
+    for (const sample of cases) {
+      globalThis.fetch = async (_url, init) => {
+        assert.deepEqual(Object.keys(init.headers).sort(), ['content-type', 'x-goog-api-key']);
+        return Response.json({ error: { status: sample.status, message: sample.message } },
+          { status: sample.upstream });
+      };
+      const response = await worker.fetch(request(), env);
+      assert.equal(response.status, 502);
+      const result = await response.json();
+      assert.equal(result.error, sample.category);
+      assert.equal(result.provider_status, sample.status);
+      assert.equal(result.upstream_http_status, sample.upstream);
+      assert.match(result.request_id, /^[0-9a-f-]{36}$/);
+      assert.equal(player.balance_microusd, 10000);
+      const log = JSON.parse(logs.at(-1).replace(/^bao_provider_failure /, ''));
+      assert.equal(log.request_id, result.request_id);
+      assert.equal(log.provider_status, sample.status);
+    }
+    assert.ok(!logs.join('').includes('PRIVATE_STORY'));
+    assert.ok(!logs.join('').includes('private-provider-key'));
+    assert.ok(!logs.join('').includes(token));
+  } finally { globalThis.fetch = originalFetch; console.info = originalInfo; }
+});
