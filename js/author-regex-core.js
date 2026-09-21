@@ -56,9 +56,7 @@
       return number > 0 && number < captures.length ? escapeHTML(captures[number] ?? '') : token;
     });
   }
-  // A narrow compatibility adapter for cards targeting another platform's chat
-  // textarea. It runs only in an opted-in opaque-origin iframe and forwards a
-  // user-initiated draft through BAOAuthor, never an API call or saved-state edit.
+  // Compatibility is limited to a user-initiated draft inside the opaque iframe.
   const legacyInputAdapter = `<script>(function(){'use strict';
 if(!window.BAOAuthor||!document.body||document.querySelector('.bao-author-legacy-input'))return;
 var holder=document.createElement('div');holder.className='chatMsgTextarea chat-input-scope chat-bottom';
@@ -81,11 +79,14 @@ field.addEventListener('input',function(){var value=field.value;if(Date.now()-ge
       try { re = new RegExp(rule.pattern, rule.flags || 'g'); } catch (_) { continue; }
       if (!re.test(source)) continue;
       re.lastIndex = 0;
-      if (rule.script && !allowScripts) { blocked++; continue; }
+      // Keep the authored HTML/CSS even when script permission is off. The host
+      // MUST mount this result in sandbox="" with script-src 'none'; never execute
+      // script tags, inline handlers or javascript: URLs in the static view.
+      if (rule.script && !allowScripts) blocked++;
       matched = true;
       if (!firstName) firstName = rule.name;
       if (rule.rich) {
-        rich = true; script = script || Boolean(rule.script);
+        rich = true; script = script || Boolean(rule.script && allowScripts);
         let replacements = 0;
         source = source.replace(re, (...args) => {
           if (++replacements > 100) throw new Error('單條規則單輪最多替換 100 個片段');
@@ -104,8 +105,6 @@ field.addEventListener('input',function(){var value=field.value;if(Date.now()-ge
     let html = escapeHTML(source).replace(/\r?\n/g, '<br>');
     // Restore only author-authored replacement markup, never raw model content.
     for (let index = 0; index < fragments.length; index++) html = html.split(marker(index)).join(fragments[index]);
-    // Do not inject a faux platform textarea into unrelated cards or static HTML.
-    // The original card is never rewritten; this adapter exists only in display.
     if (script && allowScripts && /(?:chatMsgTextarea|chat-input-scope|chat-bottom)\s+textarea/.test(html)) {
       html = legacyInputAdapter + html;
     }
