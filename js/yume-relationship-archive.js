@@ -30,7 +30,13 @@
 #bao-yume-archive{max-width:100%;margin:10px 0 14px;flex-shrink:0;color:#f9e5f2;background:#19151f;border:1px solid #79526b;border-radius:14px;overflow:hidden;font:inherit}
 #bao-yume-archive *{box-sizing:border-box}#bao-yume-archive button{font:inherit;cursor:pointer}
 #bao-yume-archive .y-head{width:100%;display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:#2c2031;color:#ffe2f0;border:0;text-align:left}
-#bao-yume-archive .y-panel{padding:12px;display:grid;gap:12px}#bao-yume-archive .y-tabs,#bao-yume-archive .y-people{display:flex;flex-wrap:wrap;gap:7px}
+#bao-yume-archive .y-panel{padding:12px;display:grid;gap:12px}#bao-yume-archive .y-tabs{display:flex;flex-wrap:wrap;gap:7px}
+#bao-yume-archive .y-people{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+#bao-yume-archive .y-person{display:grid;gap:5px;padding:5px;min-width:0;border:1px solid #77546c;border-radius:10px;background:#33253a;color:#f7ddea;text-align:center}
+#bao-yume-archive .y-person[aria-pressed=true]{background:#784365;border-color:#e8a4c8;color:white;box-shadow:0 0 0 2px #e8a4c83b}
+#bao-yume-archive .y-person img{width:100%;height:105px;object-fit:cover;object-position:center 23%;border-radius:6px;display:block}
+#bao-yume-archive .y-person span{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#bao-yume-archive .y-player{justify-self:start}
 #bao-yume-archive .y-chip{border:1px solid #77546c;border-radius:999px;background:#33253a;color:#f7ddea;padding:6px 10px;min-height:34px}
 #bao-yume-archive .y-chip[aria-pressed=true]{background:#784365;border-color:#e8a4c8;color:white}
 #bao-yume-archive .y-network{width:100%;max-width:390px;display:block;margin:0 auto;overflow:visible}
@@ -40,6 +46,7 @@
 #bao-yume-archive .y-item p{margin:6px 0 0;white-space:pre-wrap;line-height:1.6;font-size:14px}
 #bao-yume-archive .y-portrait{display:block;width:min(100%,260px);aspect-ratio:4/5;object-fit:cover;object-position:center top;border:1px solid #79526b;border-radius:12px;margin:0 auto}
 #bao-yume-archive .y-note{font-size:12px;color:#c6aec1;line-height:1.6}
+@media(min-width:680px){#bao-yume-archive .y-people{grid-template-columns:repeat(6,minmax(0,1fr))}}
 @media(max-width:480px){#bao-yume-archive .y-panel{padding:10px}#bao-yume-archive .y-network{max-width:280px}}
 `;
     doc.head.appendChild(css);
@@ -100,7 +107,7 @@
     }
     const data=api.collect(root.Chat.messages);
     container.replaceChildren();
-    const head=el('button','y-head',`♡ 歌舞伎町・六人故事檔案　${open?'▴':'▾'}`);
+    const head=el('button','y-head',`♡ 人物關係・親密紀錄・世界進展　${open?'▴':'▾'}`);
     head.type='button';head.setAttribute('aria-expanded',String(open));
     head.addEventListener('click',()=>{open=!open;schedule();});
     container.appendChild(head);
@@ -111,13 +118,25 @@
       tabs.append(button(label,()=>{tab=id;schedule();},tab===id));
     }
     panel.appendChild(tabs);
+    const playerButton=button('玩家視角',()=>{focused='player';schedule();},focused==='player');
+    playerButton.classList.add('y-player');panel.append(playerButton);
     const persons=el('div','y-people');
-    for (const [id,name] of Object.entries(roster)) persons.append(button(name,()=>{focused=id;schedule();},focused===id));
+    for (const [id,name] of Object.entries(roster)) {
+      if (id==='player') continue;
+      const person=el('button','y-person');
+      person.type='button';person.setAttribute('aria-pressed',String(focused===id));
+      person.setAttribute('aria-label',`查看${name}的角色檔案`);
+      const thumb=el('img');thumb.src=`assets/yume-${id}-v2.webp`;
+      thumb.alt='';thumb.loading='lazy';thumb.width=90;thumb.height=105;
+      person.append(thumb,el('span','',name));
+      person.addEventListener('click',()=>{focused=id;schedule();});
+      persons.append(person);
+    }
     panel.appendChild(persons);
     panel.append(el('div','y-muted',`目前選擇：${roster[focused]}`));
     if (focused !== 'player') {
       const portrait=el('img','y-portrait');
-      portrait.src=`assets/yume-${focused}-v1.webp`;
+      portrait.src=`assets/yume-${focused}-v2.webp`;
       portrait.alt=`${roster[focused]}的人物插畫`;
       portrait.loading='lazy';
       panel.append(portrait);
