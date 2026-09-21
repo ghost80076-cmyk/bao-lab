@@ -2,6 +2,8 @@
   if (typeof App !== "undefined") window.App = App;
   if (typeof Chat !== "undefined") window.Chat = Chat;
   if (typeof GameState !== "undefined") window.GameState = GameState;
+  if (typeof Storage !== "undefined") window.Storage = Storage;
+  if (typeof CharacterEngine !== "undefined") window.CharacterEngine = CharacterEngine;
 
   // Preserve original messages for display, edits, and backups. Clean only copies sent to models.
   const narrativeText = value => {
