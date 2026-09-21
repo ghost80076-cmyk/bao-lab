@@ -5,6 +5,8 @@ const vm = require('node:vm');
 
 const source = fs.readFileSync(path.join(__dirname, '..', 'js', 'story-persona-manager.js'), 'utf8');
 new vm.Script(source, { filename: 'story-persona-manager.js' });
+assert.ok(!source.includes('<option value="card">'), 'author-card editor must not be selectable');
+assert.ok(!source.includes('CARD_FIELDS.map'), 'author prompts must never be rendered into an editor');
 const browserStorage = new Map();
 const originalCard = { id: 'world', name: '原角色', system_prompt: '原角色設定', profile: {}, world: '原世界' };
 const App = {
@@ -43,43 +45,39 @@ const sandbox = {
 sandbox.window = sandbox;
 vm.runInNewContext(source, sandbox, { filename: 'story-persona-manager.js' });
 assert.ok(sandbox.BAOStoryActors, 'module initialized');
-
 App.startStory();
-assert.notStrictEqual(App.activeCharacter, originalCard, 'new story owns an independent character copy');
-assert.equal(state.current.storyActors.baseCharacter.name, '原角色');
-const baseline = App.buildSystemPrompt();
+assert.notStrictEqual(App.activeCharacter, originalCard, 'story owns an independent character copy');
+assert.equal(state.current.storyActors.basePersona.name, '玩家甲');
+assert.deepEqual(Array.from(state.current.storyActors.hostedCharacters), []);
 App.config.persona.name = '玩家乙';
-App.activeCharacter.name = '故事專用角色';
-assert.equal(originalCard.name, '原角色', 'source character is never modified');
-const prompt = App.buildSystemPrompt();
-assert.ok(prompt.startsWith(baseline), 'stable original prompt retains its prefix');
-assert.match(prompt, /目前玩家人物/);
-assert.match(prompt, /玩家乙/);
-assert.match(prompt, /故事專用角色/);
+assert.equal(originalCard.name, '原角色');
+assert.equal(originalCard.system_prompt, '原角色設定');
 
 (async () => {
+  const playerMessages = await App.buildMessages();
+  assert.ok(!playerMessages[0].content.includes('本輪人物覆寫'), 'dynamic override must not enter system prompt');
+  assert.match(playerMessages.at(-1).content, /玩家乙/);
+  const actors = state.current.storyActors.hostedCharacters;
+  actors.push({ id:'one', name:'自創男主', role:'primary', personality:'冷靜' });
+  actors.push({ id:'two', name:'旅館老闆', role:'additional', personality:'熱情' });
   const messages = await App.buildMessages();
-  assert.ok(!messages[0].content.includes('本輪人物覆寫'), 'mutable actors must not enter the stable cache prefix');
-  assert.match(messages.at(-1).content, /本輪人物覆寫/);
-  assert.match(messages.at(-1).content, /玩家乙/);
-  state.current.storyActors.hostedCharacter = { name: '自創男主', role: 'primary', personality: '冷靜' };
-  const hosted = await App.buildMessages();
-  assert.match(hosted.at(-1).content, /自創男主/);
-  assert.match(hosted.at(-1).content, /AI 主要扮演此自訂角色/);
-
+  assert.match(messages.at(-1).content, /自創男主/);
+  assert.match(messages.at(-1).content, /旅館老闆/);
+  assert.match(messages.at(-1).content, /主要互動人物/);
+  assert.equal(originalCard.name, '原角色', 'user actors do not mutate the source card');
   const preset = sandbox.BAOStoryActors.savePreset({ name: '人物乙', gender: '女性', extra: '設定' });
   assert.equal(preset.persona.name, '人物乙');
   assert.equal(sandbox.BAOStoryActors.readPresets().length, 1);
   assert.ok(!browserStorage.get('bao-lab:persona-presets-v1').includes('apiKey'));
-
   App.saveStory();
-  const save = Storage.clone(Storage.lastSave);
+  const saved = Storage.clone(Storage.lastSave);
   App.characters[0].name = '人物庫新版本';
   App.activeCharacter = App.characters[0];
-  assert.equal(Storage.restoreStory(save), true);
-  assert.equal(App.activeCharacter.name, '故事專用角色', 'story snapshot beats same-id library card');
+  assert.equal(Storage.restoreStory(saved), true);
+  assert.equal(App.activeCharacter.name, '原角色', 'story snapshot beats same-id library card');
   assert.equal(App.characters[0].name, '人物庫新版本');
   assert.equal(App.config.persona.name, '玩家乙');
-  assert.equal(state.current.storyActors.hostedCharacter.name, '自創男主');
-  console.log('story persona core: 12 assertions passed');
+  assert.equal(state.current.storyActors.hostedCharacters.length, 2);
+  assert.equal(state.current.storyActors.hostedCharacters[1].name, '旅館老闆');
+  console.log('story persona core: author-editor safety, multiple AI actors and save/restore passed');
 })().catch(error => { console.error(error); process.exitCode = 1; });
