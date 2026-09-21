@@ -41,6 +41,12 @@ assert.equal(prompt.split(worldMode.prompt).length-1,1,'shared world rules shoul
 assert.match(prompt,/邊緣人的孤獨/);
 assert.match(prompt,/不套用任何參考作品/);
 assert.match(prompt,/中野的 1K/);
+for(const name of ['桜井りな','あいり','高橋麻美','琉星','田中美咲']) assert.match(prompt,new RegExp(`【六人私下設定：${name}】`));
+assert.match(prompt,/童年曾遭父親性侵/);
+assert.match(prompt,/營業時敬語周全/);
+assert.match(prompt,/下班換便服/);
+assert.match(prompt,/玩家只有經由行動、對話或可見線索確認後才會知道/);
+assert.doesNotMatch(prompt,/極端行為升級系統|極端反應對齊|泥沼效應系統|Level [1-5]/);
 assert.doesNotMatch(prompt,/\[object Object\]/);
 assert.doesNotMatch(prompt,/hc-collapse/);
 const visible=archive.collect([
