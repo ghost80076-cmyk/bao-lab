@@ -134,7 +134,7 @@ test('one virtual credit per 100 tokens, old one-chat limit ignored, top up and 
 });
 test('credit shortage is distinct from provider 429 and failed provider call refunds reserve', async () => {
   const { db, players, usage } = fakeDb(), env = envFor(db);
-  const { player_token } = await makePlayer(env, 15);
+  const { player_token } = await makePlayer(env, 100);
   const originalFetch = globalThis.fetch;
   let upstreamCalls = 0;
   globalThis.fetch = async () => { upstreamCalls++; return new Response('{}', { status: 429 }); };
@@ -144,7 +144,7 @@ test('credit shortage is distinct from provider 429 and failed provider call ref
     const error = await first.json();
     assert.equal(error.error, 'provider_rate_limited');
     assert.equal(error.upstream_http_status, 429);
-    assert.equal(players[0].balance_microusd, 15);
+    assert.equal(players[0].balance_microusd, 100);
     assert.equal(usage[0].status, 'failed');
     assert.equal(upstreamCalls, 1);
     const huge = await worker.fetch(request('/chat', 'POST', {
@@ -162,7 +162,7 @@ test('larger world prompt is accepted and empty model output reports finish reas
   globalThis.fetch = async () => Response.json({ candidates: [{ finishReason: 'MAX_TOKENS' }],
     usageMetadata: { promptTokenCount: 100, totalTokenCount: 1024, thoughtsTokenCount: 924 } });
   try {
-    const prompt = '背景'.repeat(16000);
+    const prompt = '背景'.repeat(14500);
     const response = await worker.fetch(request('/chat', 'POST', { ...body,
       messages: [{ role: 'user', content: prompt }], max_output_tokens: 2048 }, player_token), env);
     assert.equal(response.status, 502);
