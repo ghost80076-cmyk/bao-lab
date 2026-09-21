@@ -12,6 +12,8 @@ assert.equal(card.content.profile.cast.length,6);
 assert.equal(new Set(card.content.profile.cast.map(person=>person.id)).size,6);
 assert.ok(card.content.profile.cast.every(person=>person.age>=18));
 assert.ok(fs.existsSync(path.join(__dirname,'..',card.meta.avatar)));
+assert.equal(card.meta.avatar,'assets/yume-yume-close-v3.webp');
+for(const view of ['close','home','club']) assert.ok(fs.existsSync(path.join(__dirname,'..',`assets/yume-yume-${view}-v3.webp`)));
 for(const person of card.content.profile.cast){
   const state={npcs:[{name:person.name,presence:'away'}]};
   assert.equal(archive.knownNPC(state,person.id)?.presence,'away',person.name);

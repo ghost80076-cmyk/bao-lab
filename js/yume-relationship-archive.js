@@ -9,8 +9,14 @@
   const doc = root.document;
   const roster = api.roster;
   const CHAT_ID = 'bao-yume-archive';
+  const yumePhotos = Object.freeze([
+    {src:'assets/yume-yume-close-v3.webp',label:'近距離',alt:'黑羽ゆめ的近距離肖像'},
+    {src:'assets/yume-yume-home-v3.webp',label:'中野套房',alt:'黑羽ゆめ在中野套房的肖像'},
+    {src:'assets/yume-yume-club-v3.webp',label:'Club Rose',alt:'黑羽ゆめ在夜店的肖像'}
+  ]);
   let currentStory = null;
   let focused = 'yume';
+  let yumePhoto = 1;
   let tab = 'scene';
   let open = false;
   let queued = false;
@@ -37,6 +43,11 @@
 #bao-yume-archive .y-person img{width:100%;height:105px;object-fit:cover;object-position:center 23%;border-radius:6px;display:block}
 #bao-yume-archive .y-person span{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #bao-yume-archive .y-player{justify-self:start}
+#bao-yume-archive .y-gallery{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;max-width:360px;width:100%;margin:auto}
+#bao-yume-archive .y-gallery button{display:grid;gap:4px;padding:5px;border:1px solid #77546c;border-radius:9px;background:#33253a;color:#f7ddea;cursor:pointer}
+#bao-yume-archive .y-gallery button[aria-pressed=true]{border-color:#ffc2e0;background:#784365}
+#bao-yume-archive .y-gallery img{display:block;width:100%;height:72px;object-fit:cover;object-position:center 20%;border-radius:5px}
+#bao-yume-archive .y-gallery span{font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #bao-yume-archive .y-chip{border:1px solid #77546c;border-radius:999px;background:#33253a;color:#f7ddea;padding:6px 10px;min-height:34px}
 #bao-yume-archive .y-chip[aria-pressed=true]{background:#784365;border-color:#e8a4c8;color:white}
 #bao-yume-archive .y-network{width:100%;max-width:390px;display:block;margin:0 auto;overflow:visible}
@@ -44,7 +55,7 @@
 #bao-yume-archive .y-item strong{display:block;color:#f9b8d7;margin-bottom:5px}
 #bao-yume-archive .y-item small,#bao-yume-archive .y-muted{display:block;color:#c4b3c3;font-size:12px;line-height:1.55}
 #bao-yume-archive .y-item p{margin:6px 0 0;white-space:pre-wrap;line-height:1.6;font-size:14px}
-#bao-yume-archive .y-portrait{display:block;width:min(100%,260px);aspect-ratio:4/5;object-fit:cover;object-position:center top;border:1px solid #79526b;border-radius:12px;margin:0 auto}
+#bao-yume-archive .y-portrait{display:block;width:auto;max-width:min(100%,320px);max-height:480px;height:auto;object-fit:contain;border:1px solid #79526b;border-radius:12px;margin:0 auto}
 #bao-yume-archive .y-note{font-size:12px;color:#c6aec1;line-height:1.6}
 @media(min-width:680px){#bao-yume-archive .y-people{grid-template-columns:repeat(6,minmax(0,1fr))}}
 @media(max-width:480px){#bao-yume-archive .y-panel{padding:10px}#bao-yume-archive .y-network{max-width:280px}}
@@ -91,7 +102,7 @@
     const old = doc.getElementById(CHAT_ID);
     if (!eligible() || !isChat() || !ownerState()) { old?.remove(); currentStory=null; return; }
     const story = ownerState();
-    if (story !== currentStory) {currentStory=story;focused='yume';tab='scene';open=false;}
+    if (story !== currentStory) {currentStory=story;focused='yume';yumePhoto=1;tab='scene';open=false;}
     const main = doc.querySelector('#chat-view .chat-main');
     const stream = doc.getElementById('chat-stream');
     if (!main || !stream) return;
@@ -126,7 +137,7 @@
       const person=el('button','y-person');
       person.type='button';person.setAttribute('aria-pressed',String(focused===id));
       person.setAttribute('aria-label',`查看${name}的角色檔案`);
-      const thumb=el('img');thumb.src=`assets/yume-${id}-v2.webp`;
+      const thumb=el('img');thumb.src=id==='yume'?yumePhotos[0].src:`assets/yume-${id}-v2.webp`;
       thumb.alt='';thumb.loading='lazy';thumb.width=90;thumb.height=105;
       person.append(thumb,el('span','',name));
       person.addEventListener('click',()=>{focused=id;schedule();});
@@ -136,10 +147,23 @@
     panel.append(el('div','y-muted',`目前選擇：${roster[focused]}`));
     if (focused !== 'player') {
       const portrait=el('img','y-portrait');
-      portrait.src=`assets/yume-${focused}-v2.webp`;
-      portrait.alt=`${roster[focused]}的人物插畫`;
+      portrait.src=focused==='yume'?yumePhotos[yumePhoto].src:`assets/yume-${focused}-v2.webp`;
+      portrait.alt=focused==='yume'?yumePhotos[yumePhoto].alt:`${roster[focused]}的人物插畫`;
       portrait.loading='lazy';
       panel.append(portrait);
+      if(focused==='yume') {
+        const gallery=el('div','y-gallery');gallery.setAttribute('aria-label','黑羽ゆめ圖片');
+        yumePhotos.forEach((photo,index)=>{
+          const choice=el('button');choice.type='button';
+          choice.setAttribute('aria-pressed',String(yumePhoto===index));
+          choice.setAttribute('aria-label',`查看黑羽ゆめ：${photo.label}`);
+          const preview=el('img');preview.src=photo.src;preview.alt='';preview.loading='lazy';
+          choice.append(preview,el('span','',photo.label));
+          choice.addEventListener('click',()=>{yumePhoto=index;schedule();});
+          gallery.append(choice);
+        });
+        panel.append(gallery);
+      }
       const npc=api.knownNPC(story,focused);
       const state=el('div','y-item');
       state.append(el('strong','',`${roster[focused]} · 共用世界狀態`));
