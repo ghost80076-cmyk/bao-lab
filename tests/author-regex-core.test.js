@@ -28,12 +28,25 @@ test('HTML and CSS transform is local and escapes model-supplied captures', () =
   assert.doesNotMatch(result.html, /<img src=x/);
 });
 
-test('JS rules require separate explicit permission', () => {
+test('JS rules keep inert HTML in static preview, but require separate script permission', () => {
   const rules = core.normalize([{ name: '翻牌', pattern: 'CARD', replacement: '<button onclick="this.textContent=\'背面\'">翻牌</button>' }]);
-  assert.equal(core.render('CARD', rules, false).matched, false);
+  const staticResult = core.render('CARD', rules, false);
+  assert.equal(staticResult.matched, true);
+  assert.equal(staticResult.rich, true);
+  assert.equal(staticResult.script, false);
+  assert.equal(staticResult.blocked, 1);
+  assert.match(staticResult.html, /<button/);
+  // The static result must only be mounted in sandbox="" with script-src 'none'.
+  const inline = fs.readFileSync(require('node:path').join(__dirname, '..', 'js/author-regex-inline.js'), 'utf8');
+  const compat = fs.readFileSync(require('node:path').join(__dirname, '..', 'js/author-regex-compat.js'), 'utf8');
+  for (const source of [inline, compat]) {
+    assert.match(source, /setAttribute\('sandbox',\s*[^\n]+\?\s*'allow-scripts'\s*:\s*''\)/);
+    assert.match(source, /script-src\s+\$\{[^\n]+\?\s*"'unsafe-inline'"\s*:\s*"'none'"\}/);
+  }
   const result = core.render('CARD', rules, true);
   assert.equal(result.matched, true);
   assert.equal(result.script, true);
+  assert.equal(result.blocked, 0);
 });
 
 test('plain text and regex captures do not create an API call or rewrite the original', () => {
