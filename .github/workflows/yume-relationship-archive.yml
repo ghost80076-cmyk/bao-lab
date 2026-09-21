@@ -6,12 +6,20 @@ on:
       - 'js/yume-relationship-archive.js'
       - 'js/author-regex-card-bind.js'
       - 'tests/yume-relationship-archive.cjs'
+      - 'tests/yume-card.test.cjs'
+      - 'data/characters/general/kurobane-yume-kabukicho.json'
+      - 'data/characters.json'
+      - 'assets/yume-*.webp'
       - '.github/workflows/yume-relationship-archive.yml'
   pull_request:
     paths:
       - 'js/yume-relationship-archive.js'
       - 'js/author-regex-card-bind.js'
       - 'tests/yume-relationship-archive.cjs'
+      - 'tests/yume-card.test.cjs'
+      - 'data/characters/general/kurobane-yume-kabukicho.json'
+      - 'data/characters.json'
+      - 'assets/yume-*.webp'
       - '.github/workflows/yume-relationship-archive.yml'
 permissions:
   contents: read
@@ -25,3 +33,4 @@ jobs:
           node-version: '22'
       - run: node --check js/yume-relationship-archive.js
       - run: node tests/yume-relationship-archive.cjs
+      - run: node tests/yume-card.test.cjs
