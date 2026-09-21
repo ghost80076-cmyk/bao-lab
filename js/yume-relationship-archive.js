@@ -11,7 +11,7 @@
   const CHAT_ID = 'bao-yume-archive';
   let currentStory = null;
   let focused = 'yume';
-  let tab = 'relations';
+  let tab = 'scene';
   let open = false;
   let queued = false;
   const el = (tag, cls, value) => {
@@ -84,7 +84,7 @@
     const old = doc.getElementById(CHAT_ID);
     if (!eligible() || !isChat() || !ownerState()) { old?.remove(); currentStory=null; return; }
     const story = ownerState();
-    if (story !== currentStory) {currentStory=story;focused='yume';tab='relations';open=false;}
+    if (story !== currentStory) {currentStory=story;focused='yume';tab='scene';open=false;}
     const main = doc.querySelector('#chat-view .chat-main');
     const stream = doc.getElementById('chat-stream');
     if (!main || !stream) return;
@@ -100,14 +100,14 @@
     }
     const data=api.collect(root.Chat.messages);
     container.replaceChildren();
-    const head=el('button','y-head',`♡ 人物關係・親密紀錄・世界進展　${open?'▴':'▾'}`);
+    const head=el('button','y-head',`♡ 歌舞伎町・六人故事檔案　${open?'▴':'▾'}`);
     head.type='button';head.setAttribute('aria-expanded',String(open));
     head.addEventListener('click',()=>{open=!open;schedule();});
     container.appendChild(head);
     if (!open) return;
     const panel=el('div','y-panel');
     const tabs=el('div','y-tabs');
-    for (const [id,label] of [['relations','關係網絡'],['intimacy','親密事件'],['offscreen','已標記的場外紀錄']]) {
+    for (const [id,label] of [['scene','街區・現場'],['cast','人物圖鑑'],['relations','關係網絡'],['phone','LINE・來電'],['sns','SNS'],['intimacy','R18 檔案']]) {
       tabs.append(button(label,()=>{tab=id;schedule();},tab===id));
     }
     panel.appendChild(tabs);
@@ -127,16 +127,33 @@
       state.append(el('small','',npc ? `在場狀態：${api.presenceLabel(npc.presence)}${npc.presence === 'present' && api.known(npc.location) ? ` · 目前位置：${String(npc.location).slice(0,100)}` : ''}` : '尚未找到這名 NPC 的已確認狀態；不會猜測行蹤。'));
       panel.append(state);
     }
-    const visible=data[tab].filter(r=>tab==='offscreen' ? r.actor===focused : r.a===focused || r.b===focused);
-    if(tab==='relations') { const svg=doc.createElementNS('http://www.w3.org/2000/svg','svg');svg.classList.add('y-network');drawGraph(svg,data);panel.appendChild(svg); }
-    if (!visible.length) panel.append(el('div','y-item',tab==='offscreen'?'這條故事尚無已標記的場外事件；原生世界事件請到原有狀態面板查看。':tab==='relations'?'尚無明確標記的人物關係。':'尚無明確標記的親密事件；不會由曖昧推定。'));
+    if (tab==='relations') { const svg=doc.createElementNS('http://www.w3.org/2000/svg','svg');svg.classList.add('y-network');drawGraph(svg,data);panel.appendChild(svg); }
+    let visible=[];
+    if (tab==='scene') {
+      const position=el('div','y-item');
+      position.append(el('strong','','目前世界位置'));
+      position.append(el('p','',`${api.known(story.time)?story.time:'時間未確認'} · ${api.known(story.location)?story.location:'地點未確認'}`));
+      panel.append(position);
+      visible=[...data.scenes.slice(-1),...data.offscreen.filter(r=>r.actor===focused)];
+    } else if (tab==='cast') {
+      const profile=root.App.activeCharacter?.profile?.cast?.find?.(p=>p.id===focused);
+      if (profile) panel.append(el('div','y-item',`${profile.name} · ${profile.age}歲 · ${profile.job}`));
+      visible=data.characters.filter(r=>r.actor===focused);
+    } else if (tab==='phone') visible=data.phones.filter(r=>r.actor===focused);
+    else if (tab==='sns') visible=data.sns.filter(r=>r.actor===focused);
+    else visible=data[tab].filter(r=>r.a===focused || r.b===focused);
+    if (!visible.length) panel.append(el('div','y-item',({scene:'尚無這名角色已公開的場外紀錄；請看原生事件面板。',cast:'這條故事尚無玩家可見的角色新資料。',relations:'尚無明確標記的人物關係。',phone:'玩家的手機尚無這名角色可見的訊息或來電。',sns:'尚無玩家可見的貼文；私密帳號不會自動解鎖。',intimacy:'尚無明確標記的親密事件；不會由曖昧推定。'})[tab]));
     visible.slice(-60).reverse().forEach(record=>{
       const card=el('article','y-item');
-      card.append(el('strong','',tab==='offscreen'?`${roster[record.actor]} · 場外進展`:`${roster[record.a]} × ${roster[record.b]}`));
-      card.append(el('small','',`故事訊息 ${record.turn} · ${tab==='offscreen'?'已公開的離場事件':tab==='relations'?'人物關係標記':'親密事件標記'}`));
+      const label=tab==='scene'?(record.actor?`${roster[record.actor]} · 已公開場外紀錄`:'最近的現場'):
+        tab==='cast'?`${roster[record.actor]} · 已知動態`:
+        tab==='phone'?`${roster[record.actor]} · ${record.kind==='CALL'?'來電':'LINE'}`:
+        tab==='sns'?`${roster[record.actor]} · ${record.scope==='PRIVATE'?'已標記可見的裏帳':'公開貼文'}`:`${roster[record.a]} × ${roster[record.b]}`;
+      card.append(el('strong','',label));
+      card.append(el('small','',`故事訊息 ${record.turn} · 玩家可見資料`));
       card.append(el('p','',record.body));panel.append(card);
     });
-    panel.append(el('div','y-note','唯讀呈現：讀取目前故事中既有的 [REL]、[INTIMACY]、[OFFSCREEN] 標記及 BAO/LAB 原有世界狀態。不會自行要求 AI 產生標記或重複世界規則；沒有標記時請使用原生事件與狀態面板。回溯／分支時按目前對話重建紀錄。'));
+    panel.append(el('div','y-note','唯讀呈現目前故事的玩家可見標記與共用世界狀態。介面不發送 API，也不保存第二份世界；沒有標記時請看原生敘事與狀態面板。回溯／分支時依目前對話重建。'));
     container.append(panel);
   }
   function schedule() { if(queued)return;queued=true;root.queueMicrotask ? root.queueMicrotask(render) : Promise.resolve().then(render); }
@@ -164,13 +181,17 @@
     return (Array.isArray(state?.npcs)?state.npcs:[]).find(npc=>aliases[id].some(name=>normalized(name)===normalized(npc?.name)))||null;
   }
   function collect(messages) {
-    const result={relations:[],intimacy:[],offscreen:[]};
+    const result={relations:[],intimacy:[],offscreen:[],scenes:[],characters:[],phones:[],sns:[]};
     const pair=/\[(REL|INTIMACY):([a-z][a-z0-9_-]{0,39})\|([a-z][a-z0-9_-]{0,39})\]([\s\S]{1,2000}?)\[\/\1\]/gi;
     const offscreen=/\[OFFSCREEN:([a-z][a-z0-9_-]{0,39})(?:\|known)?\]([\s\S]{1,2000}?)\[\/OFFSCREEN\]/gi;
+    const scene=/\[SCENE\]([\s\S]{1,3000}?)\[\/SCENE\]/gi;
+    const character=/\[CHAR:([a-z][a-z0-9_-]{0,39})\]([\s\S]{1,2000}?)\[\/CHAR\]/gi;
+    const phone=/\[(PHONE|CALL):([a-z][a-z0-9_-]{0,39})\]([\s\S]{1,2000}?)\[\/\1\]/gi;
+    const sns=/\[SNS:(PUBLIC|PRIVATE):([a-z][a-z0-9_-]{0,39})\]([\s\S]{1,2000}?)\[\/SNS\]/gi;
     for (const [i,message] of (Array.isArray(messages)?messages:[]).entries()) {
       if(message?.role!=='assistant')continue;
       const content=String(message.content||'');
-      if(!/\[(?:REL|INTIMACY|OFFSCREEN):/i.test(content))continue;
+      if(!/\[(?:REL|INTIMACY|OFFSCREEN|CHAR|PHONE|CALL|SNS):|\[SCENE\]/i.test(content))continue;
       pair.lastIndex=0;
       for (const match of content.matchAll(pair)) {
         const a=match[2].toLowerCase(),b=match[3].toLowerCase(),body=match[4].trim();
@@ -182,6 +203,17 @@
         const actor=match[1].toLowerCase(),body=match[2].trim();
         if(!Object.hasOwn(aliases,actor)||!body)continue;
         result.offscreen.push({actor,body:body.slice(0,1600),turn:i+1,id:`turn-${i}:${match.index}`});
+      }
+      for (const match of content.matchAll(scene)) {
+        const body=match[1].trim();if(body)result.scenes.push({body:body.slice(0,3000),turn:i+1});
+      }
+      for (const [pattern,key] of [[character,'characters'],[phone,'phones'],[sns,'sns']]) {
+        for (const match of content.matchAll(pattern)) {
+          const actor=(key==='characters'?match[1]:match[2]).toLowerCase();
+          const body=(key==='characters'?match[2]:match[3]).trim();
+          if(!Object.hasOwn(aliases,actor)||!body)continue;
+          result[key].push({actor,body:body.slice(0,1600),kind:key==='phones'?match[1].toUpperCase():undefined,scope:key==='sns'?match[1].toUpperCase():undefined,turn:i+1});
+        }
       }
     }
     return result;

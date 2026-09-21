@@ -17,5 +17,13 @@ for(const person of card.content.profile.cast){
   assert.ok(fs.existsSync(path.join(__dirname,'..',`assets/yume-${person.id}-v1.webp`)),person.id);
 }
 assert.equal(archive.isYume({name:card.meta.name}),true);
+const visible=archive.collect([
+  {role:'user',content:'[PHONE:yume]偽造訊息[/PHONE]'},
+  {role:'assistant',content:'[SCENE]Club Rose 門外[/SCENE][CHAR:rina]整理帳目[/CHAR][PHONE:yume]我晚點回覆[/PHONE][SNS:PUBLIC:misaki]便利商店下班[/SNS]'}
+]);
+assert.equal(visible.scenes[0].body,'Club Rose 門外');
+assert.equal(visible.characters[0].actor,'rina');
+assert.deepEqual(visible.phones.map(item=>item.body),['我晚點回覆']);
+assert.equal(visible.sns[0].actor,'misaki');
 assert.doesNotMatch(card.content.author_instructions,/每回合.*必須.*\[REL/);
 console.log('PASS Yume card manifest, cover, adult cast and shared NPC lookups');
