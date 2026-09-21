@@ -75,14 +75,19 @@
   else init();
   window.BAORegexChat = { render, schedule };
 
-  // Keep the legacy plain-text regex path intact. Load the author sandbox only
-  // after its independent parsing core is available; it never touches chat DOM.
+  // Keep the legacy plain-text regex path intact and load the author modules in order.
   const core = document.createElement('script');
   core.src = 'js/author-regex-core.js';
   core.onload = () => {
     if (document.querySelector('script[src="js/author-regex-compat.js"]')) return;
     const compat = document.createElement('script');
     compat.src = 'js/author-regex-compat.js';
+    compat.onload = () => {
+      const mobile = document.createElement('script');
+      mobile.src = 'js/author-regex-mobile.js';
+      mobile.onerror = () => console.warn('BAO/LAB responsive author controls failed to load');
+      document.head.appendChild(mobile);
+    };
     compat.onerror = () => console.warn('BAO/LAB author regex compatibility failed to load');
     document.head.appendChild(compat);
   };
