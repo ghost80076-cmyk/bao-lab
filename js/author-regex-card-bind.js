@@ -7,10 +7,14 @@
   const app = window.App || (typeof App !== 'undefined' ? App : null);
   const chat = window.Chat || (typeof Chat !== 'undefined' ? Chat : null);
   const state = window.GameState || (typeof GameState !== 'undefined' ? GameState : null);
-  if (!Core || !app || !chat || !state) return;
+  const storyStorage = window.Storage || (typeof Storage !== 'undefined' ? Storage : null);
+  if (!Core || !app || !chat || !state || !storyStorage) return;
   window.App = app;
   window.Chat = chat;
   window.GameState = state;
+  // Only the parent BAO/LAB page receives this reference. Sandboxed author
+  // iframes never receive Storage, and only use the bounded UI-state bridge.
+  window.Storage = storyStorage;
   const PREFIX = 'bao-lab:author-regex:v1:';
   function sync() {
     const character = app.activeCharacter;
