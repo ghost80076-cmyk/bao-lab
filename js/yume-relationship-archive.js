@@ -12,7 +12,12 @@
   const yumePhotos = Object.freeze([
     {src:'assets/yume-yume-close-v3.webp',label:'近距離',alt:'黑羽ゆめ的近距離肖像'},
     {src:'assets/yume-yume-home-v3.webp',label:'中野套房',alt:'黑羽ゆめ在中野套房的肖像'},
-    {src:'assets/yume-yume-club-v3.webp',label:'Club Rose',alt:'黑羽ゆめ在夜店的肖像'}
+    {src:'assets/yume-yume-club-v3.webp',label:'Club Rose',alt:'黑羽ゆめ在夜店的肖像'},
+    {src:'assets/yume-yume-rain-v4.webp',label:'雨夜街角',alt:'黑羽ゆめ在歌舞伎町雨夜的肖像'}
+  ]);
+  const misakiPhotos = Object.freeze([
+    {src:'assets/yume-misaki-work-v3.webp',label:'上班中',alt:'美咲在深夜便利商店值班的肖像'},
+    {src:'assets/yume-misaki-v3.webp',label:'下班後',alt:'美咲在便利商店外休息的肖像'}
   ]);
   const castPortraits = Object.freeze({
     asami:'assets/yume-asami-v3.webp',
@@ -22,6 +27,7 @@
   let currentStory = null;
   let focused = 'yume';
   let yumePhoto = 1;
+  let misakiPhoto = 0;
   let tab = 'scene';
   let open = false;
   let queued = false;
@@ -48,7 +54,8 @@
 #bao-yume-archive .y-person img{width:100%;height:105px;object-fit:cover;object-position:center 23%;border-radius:6px;display:block}
 #bao-yume-archive .y-person span{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #bao-yume-archive .y-player{justify-self:start}
-#bao-yume-archive .y-gallery{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;max-width:360px;width:100%;margin:auto}
+#bao-yume-archive .y-gallery{display:flex;justify-content:center;flex-wrap:wrap;gap:8px;max-width:480px;width:100%;margin:auto}
+#bao-yume-archive .y-gallery button{width:calc(25% - 7px);min-width:72px}
 #bao-yume-archive .y-gallery button{display:grid;gap:4px;padding:5px;border:1px solid #77546c;border-radius:9px;background:#33253a;color:#f7ddea;cursor:pointer}
 #bao-yume-archive .y-gallery button[aria-pressed=true]{border-color:#ffc2e0;background:#784365}
 #bao-yume-archive .y-gallery img{display:block;width:100%;height:72px;object-fit:cover;object-position:center 20%;border-radius:5px}
@@ -107,7 +114,7 @@
     const old = doc.getElementById(CHAT_ID);
     if (!eligible() || !isChat() || !ownerState()) { old?.remove(); currentStory=null; return; }
     const story = ownerState();
-    if (story !== currentStory) {currentStory=story;focused='yume';yumePhoto=1;tab='scene';open=false;}
+    if (story !== currentStory) {currentStory=story;focused='yume';yumePhoto=1;misakiPhoto=0;tab='scene';open=false;}
     const main = doc.querySelector('#chat-view .chat-main');
     const stream = doc.getElementById('chat-stream');
     if (!main || !stream) return;
@@ -142,7 +149,7 @@
       const person=el('button','y-person');
       person.type='button';person.setAttribute('aria-pressed',String(focused===id));
       person.setAttribute('aria-label',`查看${name}的角色檔案`);
-      const thumb=el('img');thumb.src=id==='yume'?yumePhotos[0].src:castPortrait(id);
+      const thumb=el('img');thumb.src=id==='yume'?yumePhotos[0].src:id==='misaki'?misakiPhotos[0].src:castPortrait(id);
       thumb.alt='';thumb.loading='lazy';thumb.width=90;thumb.height=105;
       person.append(thumb,el('span','',name));
       person.addEventListener('click',()=>{focused=id;schedule();});
@@ -152,19 +159,21 @@
     panel.append(el('div','y-muted',`目前選擇：${roster[focused]}`));
     if (focused !== 'player') {
       const portrait=el('img','y-portrait');
-      portrait.src=focused==='yume'?yumePhotos[yumePhoto].src:castPortrait(focused);
-      portrait.alt=focused==='yume'?yumePhotos[yumePhoto].alt:`${roster[focused]}的人物插畫`;
+      const photos=focused==='yume'?yumePhotos:focused==='misaki'?misakiPhotos:null;
+      const selectedPhoto=focused==='yume'?yumePhoto:misakiPhoto;
+      portrait.src=photos?photos[selectedPhoto].src:castPortrait(focused);
+      portrait.alt=photos?photos[selectedPhoto].alt:`${roster[focused]}的人物插畫`;
       portrait.loading='lazy';
       panel.append(portrait);
-      if(focused==='yume') {
-        const gallery=el('div','y-gallery');gallery.setAttribute('aria-label','黑羽ゆめ圖片');
-        yumePhotos.forEach((photo,index)=>{
+      if(photos) {
+        const gallery=el('div','y-gallery');gallery.setAttribute('aria-label',`${roster[focused]}圖片`);
+        photos.forEach((photo,index)=>{
           const choice=el('button');choice.type='button';
-          choice.setAttribute('aria-pressed',String(yumePhoto===index));
-          choice.setAttribute('aria-label',`查看黑羽ゆめ：${photo.label}`);
+          choice.setAttribute('aria-pressed',String(selectedPhoto===index));
+          choice.setAttribute('aria-label',`查看${roster[focused]}：${photo.label}`);
           const preview=el('img');preview.src=photo.src;preview.alt='';preview.loading='lazy';
           choice.append(preview,el('span','',photo.label));
-          choice.addEventListener('click',()=>{yumePhoto=index;schedule();});
+          choice.addEventListener('click',()=>{if(focused==='yume')yumePhoto=index;else misakiPhoto=index;schedule();});
           gallery.append(choice);
         });
         panel.append(gallery);

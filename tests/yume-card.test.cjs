@@ -12,6 +12,11 @@ assert.equal(card.content.profile.cast.length,6);
 assert.equal(new Set(card.content.profile.cast.map(person=>person.id)).size,6);
 assert.ok(card.content.profile.cast.every(person=>person.age>=18));
 assert.ok(fs.existsSync(path.join(__dirname,'..',card.meta.avatar)));
+assert.ok(fs.existsSync(path.join(__dirname,'../assets/yume-yume-rain-v4.webp')));
+assert.ok(fs.existsSync(path.join(__dirname,'../assets/yume-misaki-work-v3.webp')));
+assert.match(card.content.greeting,/src="assets\/yume-yume-rain-v4\.webp"/);
+assert.match(card.content.greeting,/傘、ある/);
+assert.match(card.gameplay.initial_state.location,/便利店門前/);
 assert.equal(card.meta.avatar,'assets/yume-yume-close-v3.webp');
 for(const view of ['close','home','club']) assert.ok(fs.existsSync(path.join(__dirname,'..',`assets/yume-yume-${view}-v3.webp`)));
 for(const person of card.content.profile.cast){
