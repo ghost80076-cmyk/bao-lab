@@ -12,6 +12,7 @@
   const safeURL = (value, image = false) => {
     const v = String(value || "").trim();
     if (/^https?:\/\//i.test(v)) return v;
+    if (image && /^assets\/[a-z0-9][a-z0-9._-]*\.(?:png|jpe?g|webp)$/i.test(v)) return v;
     if (image && /^data:image\/(?:png|gif|jpe?g|webp);base64,/i.test(v)) return v;
     return "";
   };
