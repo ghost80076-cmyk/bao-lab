@@ -32,3 +32,10 @@ Google 官方使用資格及帳單需另在 Google 帳戶核對；本版只為�
 ## 測試
 
 Node 22+ 執行：`node --check src/index.js && node --test tests/*.test.mjs`。單元測試涵蓋：密鑰與來源檢查、舊每日限制不阻擋、按 token 計點、額度不足、Google 429、失敗退點、長篇請求和空回覆診斷。部署後務必實際以玩家金鑰測一次短句和一張較長的角色卡，再核對 `/me` 與使用紀錄。不要截圖金鑰，也不要將故事全文寫入日誌；Google 與 Cloudflare 自身的日誌／資料保存政策須另行確認。
+## 502 診斷與地區判斷
+
+新版失敗回應提供 `request_id`、`upstream_http_status` 與允許清單中的 `provider_status`。Cloudflare Worker 日誌會以 `bao_provider_failure` 記錄診斷編號、玩家 ID、模型、錯誤類別、HTTP 狀態、Google 狀態，以及粗略的訪客國家與 Cloudflare 節點；**不寫入 IP、玩家金鑰、Google 金鑰、故事或 Google 原始錯誤**。網站也會顯示診斷編號，不必請玩家傳 F12 標頭。
+
+`google_bad_request_region` 只在 Google 錯誤文字明確說明地區不可用時回報，仍不等於已證實 Google 使用玩家 IP 進行判斷。Cloudflare [HTTP 標頭文件](https://developers.cloudflare.com/fundamentals/reference/http-headers/)指出，Worker 對非 Cloudflare 網站的子請求可附帶原始訪客 IP；單純在 JavaScript 建立新 headers 並不足以保證固定出口。若確定不同地區請求持續有差異，應評估由固定區域後端發起 Gemini 請求，同時確認服務適用地區與條款。
+
+GitHub 上的程式更新與 Cloudflare 的線上 Worker 是兩個獨立部署。必須更新 Worker 後，新的診斷欄位才會在線上出現；`/health` 並不實測 Gemini。
