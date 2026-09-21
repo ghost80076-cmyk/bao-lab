@@ -1,0 +1,13 @@
+{
+  "$schema": "../node_modules/wrangler/config-schema.json",
+  "name": "bao-lab-credits-api",
+  "main": "src/index.js",
+  "compatibility_date": "2026-09-21",
+  "d1_databases": [
+    {
+      "binding": "資料庫",
+      "database_name": "bao-lab-credits-pilot",
+      "database_id": "3f375fd9-eb86-449f-8ba8-4ad1c1a15ff2"
+    }
+  ]
+}
