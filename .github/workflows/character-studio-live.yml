@@ -1,0 +1,40 @@
+name: Character studio live verification
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/character-studio-live.yml
+      - character-studio.html
+      - js/character-library-repair.js
+      - js/global-bridge.js
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify-live-recovery:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Verify published studio and recovery scripts
+        shell: bash
+        run: |
+          set -euo pipefail
+          site='https://ghost80076-cmyk.github.io/bao-lab/'
+          for attempt in $(seq 1 40); do
+            studio="$(curl --fail --silent --show-error --location --max-time 12 "${site}character-studio.html" || true)"
+            repair="$(curl --fail --silent --show-error --location --max-time 12 "${site}js/character-library-repair.js" || true)"
+            bridge="$(curl --fail --silent --show-error --location --max-time 12 "${site}js/global-bridge.js" || true)"
+            if grep -Fq '<script src="js/character-library-repair.js"></script>' <<<"$studio" \
+              && grep -Fq 'character-pending-upserts-v1' <<<"$repair" \
+              && grep -Fq "repairScript.src = 'js/character-library-repair.js'" <<<"$bridge"; then
+              echo 'PASS: character studio and both recovery scripts are published on GitHub Pages.'
+              exit 0
+            fi
+            echo "Live recovery deployment not yet confirmed (check ${attempt}/40)."
+            sleep 5
+          done
+          echo 'FAIL: current GitHub Pages content does not contain the recovery fix.' >&2
+          exit 1
