@@ -1,4 +1,4 @@
-/* Optional Google Drive story sync. Player OAuth token stays in memory; no AI API keys are uploaded. */
+/* Opt-in Drive sync: player owns appDataFolder; OAuth token only lives in memory. */
 (() => {
   'use strict';
   const SCOPE = 'https://www.googleapis.com/auth/drive.appdata';
@@ -23,7 +23,8 @@
   const autoEnabled = () => localStorage.getItem(autoKey) === 'yes';
   const validId = value => /^story-[\w-]{8,100}$/.test(String(value || ''));
   const filename = id => PREFIX + id + '.json';
-  const connected = () => Boolean(token && account && Date.now() < expiresAt - 60000);
+  const authorized = () => Boolean(token && Date.now() < expiresAt - 60000);
+  const connected = () => Boolean(account && authorized());
   const state = () => {
     try { return JSON.parse(localStorage.getItem(stateKey(account)) || '{}'); }
     catch { return {}; }
@@ -32,10 +33,11 @@
   const errorText = error => error?.message || String(error || '未知錯誤');
 
   async function request(url, options = {}) {
-    if (!connected()) throw new Error('Google 授權已到期，請按「重新連結」後再同步。');
+    // about.get establishes the account identity; account is not known at this point.
+    if (!authorized()) throw new Error('Google 授權已到期，請按「重新連結」後再同步。');
     const response = await fetch(url, { ...options, headers: { Authorization: 'Bearer ' + token, ...(options.headers || {}) } });
     if (!response.ok) {
-      if (response.status === 401) { token = ''; expiresAt = 0; refresh(); }
+      if (response.status === 401) { token = ''; expiresAt = 0; account = ''; refresh(); }
       let detail = '';
       try { detail = (await response.json()).error?.message || ''; } catch {}
       throw new Error('Google Drive ' + response.status + (detail ? '：' + detail : '，請稍後再試。'));
@@ -62,6 +64,7 @@
     const safe = Backup.sanitizeBundle(body);
     const id = safe.story?.storyId;
     if (!validId(id) || file.name !== filename(id)) throw new Error('雲端故事的識別碼與檔名不一致。');
+    if (Number(safe.version || 1) > Backup.version) throw new Error('雲端故事格式較新，請先更新 BAO/LAB。');
     return safe;
   };
   async function makeRemote(id, bundle) {
@@ -72,29 +75,30 @@
       '\r\n--' + boundary + '\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n',
       JSON.stringify(bundle), '\r\n--' + boundary + '--'
     ]);
-    return json(UPLOAD + '/files?uploadType=multipart&fields=id,name,version', { method: 'POST', headers: { 'Content-Type': 'multipart/related; boundary=' + boundary }, body });
+    return json(UPLOAD + '/files?uploadType=multipart&fields=id,name,version', {
+      method: 'POST', headers: { 'Content-Type': 'multipart/related; boundary=' + boundary }, body
+    });
   }
   async function updateRemote(file, bundle) {
-    // Best-effort last-second revision check. Drive v3 does not give this client an atomic compare-and-swap.
+    // Best-effort version check, NOT an atomic cross-device lock.
     const current = await json(DRIVE + '/files/' + encodeURIComponent(file.id) + '?fields=id,version,trashed');
     if (current.trashed || String(current.version) !== String(file.version)) throw new Error('雲端故事剛被其他裝置更新；請重新同步，避免覆蓋。');
     return json(UPLOAD + '/files/' + encodeURIComponent(file.id) + '?uploadType=media&fields=id,name,version', {
       method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(bundle)
     });
   }
+  const activeChat = id => Library.refs().storyId === id && document.getElementById('chat-view')?.classList.contains('active');
 
   async function restoreStableBundle(bundle) {
     const safe = Backup.sanitizeBundle(bundle);
     const id = String(safe.story?.storyId || '');
     if (!validId(id) || !await Library.open()) throw new Error('無法辨識雲端故事或本機故事庫不可用。');
+    if (activeChat(id)) throw new Error('這個故事正在遊玩，請先離開故事並重新整理，再下載雲端進度。');
     const previous = Library.refs();
     const previousRecords = await Library.allRecords();
     const existing = previousRecords.some(record => record.kind === 'story' && record.storyId === id);
-    const active = previous.storyId === id && document.getElementById('chat-view')?.classList.contains('active');
-    if (active) throw new Error('這個故事目前正在遊玩。請先離開故事並重新整理頁面，再下載雲端進度。');
     const chapterIds = new Set(safe.chapters.map(chapter => chapter.chapterId));
     if ([...chapterIds].some(chapterId => !/^(chapter|branch)-[\w-]{8,100}$/.test(chapterId))) throw new Error('雲端故事章節識別碼不合法。');
-    // If this is an existing story, the caller has already checked both sides for conflicts.
     try {
       for (const chapter of safe.chapters) {
         const payload = Storage.sanitizeImportedStory(chapter.payload);
@@ -108,7 +112,7 @@
         Library.adoptRefs(payload);
         if (!await Library.persist(payload)) throw new Error('章節寫入本機故事庫失敗。');
         const messageIds = new Set((payload.chat?.messages || []).map(message => String(message.id || '')));
-        const checkpoints = chapter.checkpoints.filter(checkpoint => messageIds.has(checkpoint.messageId)).map(checkpoint => {
+        const checkpoints = (chapter.checkpoints || []).filter(checkpoint => messageIds.has(checkpoint.messageId)).map(checkpoint => {
           const clean = Storage.scrubSecrets(Storage.clone(checkpoint.payload));
           clean.config = clean.config || {};
           clean.config.api = { ...(clean.config.api || {}), key: '' };
@@ -117,9 +121,11 @@
           clean.chat = clean.chat || {};
           delete clean.chat.messages;
           clean._library = Storage.clone(payload._library);
-          return { id: 'checkpoint:' + id + ':' + chapter.chapterId + ':' + checkpoint.messageId,
+          return {
+            id: 'checkpoint:' + id + ':' + chapter.chapterId + ':' + checkpoint.messageId,
             kind: 'checkpoint', storyId: id, chapterId: chapter.chapterId, messageId: checkpoint.messageId,
-            seq: checkpoint.seq, updatedAt: checkpoint.updatedAt, payload: clean };
+            seq: checkpoint.seq, updatedAt: checkpoint.updatedAt, payload: clean
+          };
         });
         if (checkpoints.length) await Library.transaction('readwrite', store => checkpoints.forEach(record => store.put(record)));
       }
@@ -131,13 +137,14 @@
       story.updatedAt = safe.story.updatedAt;
       story.activeChapterId = selected;
       const stale = existing ? records.filter(record => record.storyId === id && record.chapterId && !chapterIds.has(record.chapterId)) : [];
-      await Library.transaction('readwrite', store => {
-        store.put(story);
-        stale.forEach(record => store.delete(record.id));
-      });
-      if (!Storage.hasStory()) {
+      await Library.transaction('readwrite', store => { store.put(story); stale.forEach(record => store.delete(record.id)); });
+      const autosave = Storage.loadStory();
+      if (!autosave || autosave._library?.storyId === id) {
         const restored = await Library.reconstruct(id, selected);
-        if (restored) { Storage._commitOperation({ type: 'saveStory', payload: restored }); await Storage.flush(); }
+        if (restored) {
+          Storage._commitOperation({ type: 'saveStory', payload: restored });
+          await Storage.flush();
+        }
       }
       window.BAORefreshSaveUI?.();
     } finally {
@@ -146,10 +153,9 @@
     }
   }
 
-  async function connect() {
-    if (!CLIENT_ID) throw new Error('站長尚未設定 Google OAuth Client ID；Google 登入目前未開放。');
+  function ensureGIS() {
+    if (window.google?.accounts?.oauth2) return Promise.resolve();
     if (!scriptPromise) scriptPromise = new Promise((resolve, reject) => {
-      if (window.google?.accounts?.oauth2) return resolve();
       const script = document.createElement('script');
       script.src = 'https://accounts.google.com/gsi/client';
       script.async = true;
@@ -157,8 +163,11 @@
       script.onerror = () => reject(new Error('無法載入 Google 登入服務。'));
       document.head.append(script);
     }).catch(error => { scriptPromise = null; throw error; });
-    await scriptPromise;
-    // Callback must be attached to the token client. Tokens are not persisted across reloads.
+    return scriptPromise;
+  }
+  async function connect() {
+    if (!CLIENT_ID) throw new Error('站長尚未設定 Google OAuth Client ID；Google 登入目前未開放。');
+    if (!window.google?.accounts?.oauth2) await ensureGIS();
     if (!tokenClient) tokenClient = google.accounts.oauth2.initTokenClient({ client_id: CLIENT_ID, scope: SCOPE, callback: () => {} });
     const granted = new Promise((resolve, reject) => {
       tokenClient.callback = response => response?.access_token ? resolve(response) : reject(new Error(response?.error || 'Google 授權沒有完成。'));
@@ -167,8 +176,9 @@
     const result = await granted;
     token = result.access_token;
     expiresAt = Date.now() + Number(result.expires_in || 3500) * 1000;
+    // Authorization exists here, but account identity is intentionally unknown until about.get.
     const info = await json(DRIVE + '/about?fields=user(permissionId)');
-    if (!info.user?.permissionId) { token = ''; throw new Error('Google 沒有提供帳號識別碼，已停止同步以避免混用帳號。'); }
+    if (!info.user?.permissionId) { token = ''; expiresAt = 0; account = ''; throw new Error('Google 沒有提供帳號識別碼，已停止同步以避免混用帳號。'); }
     account = String(info.user.permissionId);
     note('已連結 Google Drive。故事只會存入你帳號的 BAO/LAB 專用資料夾。');
     refresh();
@@ -179,7 +189,6 @@
     if (timer) clearTimeout(timer);
     note('已在這個頁面中中斷連結；本機故事不受影響。'); refresh();
   }
-  const activeChat = id => Library.refs().storyId === id && document.getElementById('chat-view')?.classList.contains('active');
 
   async function sync() {
     if (busy) return { busy: true };
@@ -188,9 +197,10 @@
     refresh();
     const result = { uploaded: 0, downloaded: 0, skipped: 0, conflicts: 0, errors: [] };
     try {
+      if (activeChat(Library.refs().storyId) && window.App?.activeCharacter && window.GameState?.current) Storage.saveStory();
       if (!await Library.flush()) throw new Error('本機故事庫無法使用，已停止同步。');
       const local = await Library.listStories();
-      const remoteFiles = await listRemote(); // One paginated list per sync, not one search per story.
+      const remoteFiles = await listRemote();
       const groups = new Map();
       remoteFiles.forEach(file => {
         const id = file.name.slice(PREFIX.length, -5);
@@ -202,7 +212,11 @@
       for (const id of new Set([...localMap.keys(), ...groups.keys()])) {
         if (!validId(id)) continue;
         const files = groups.get(id) || [];
-        if (files.length > 1) { result.conflicts++; result.errors.push('「' + (localMap.get(id)?.title || id) + '」有重複的雲端檔案，請先人工確認。'); continue; }
+        if (files.length > 1) {
+          result.conflicts++;
+          result.errors.push('「' + (localMap.get(id)?.title || id) + '」有重複的雲端檔案，請先人工確認。');
+          continue;
+        }
         const remote = files[0];
         const story = localMap.get(id);
         const baseline = syncMap[id];
@@ -302,14 +316,15 @@
       connectButton.disabled = busy || !CLIENT_ID;
       syncButton.disabled = busy || !connected();
       disconnectButton.disabled = busy || !token;
-      if (busy) syncButton.textContent = '同步中…'; else syncButton.textContent = '立即同步';
+      syncButton.textContent = busy ? '同步中…' : '立即同步';
     };
-    button.onclick = () => { refresh(); if (panel.showModal) panel.showModal(); else panel.setAttribute('open', ''); };
+    button.onclick = () => {
+      refresh();
+      if (panel.showModal) panel.showModal(); else panel.setAttribute('open', '');
+      if (CLIENT_ID && !window.google?.accounts?.oauth2) ensureGIS().catch(error => note(errorText(error)));
+    };
     closeButton.onclick = () => panel.close ? panel.close() : panel.removeAttribute('open');
-    connectButton.onclick = async () => {
-      // Start the Google account chooser from the user's click; don't schedule it in the background.
-      try { await connect(); } catch (error) { note(errorText(error)); refresh(); }
-    };
+    connectButton.onclick = async () => { try { await connect(); } catch (error) { note(errorText(error)); refresh(); } };
     syncButton.onclick = () => sync().catch(error => note(errorText(error)));
     disconnectButton.onclick = disconnect;
     auto.onchange = () => {
