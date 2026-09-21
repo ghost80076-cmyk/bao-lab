@@ -87,6 +87,10 @@
       mobile.src = 'js/author-regex-mobile.js';
       mobile.onerror = () => console.warn('BAO/LAB responsive author controls failed to load');
       document.head.appendChild(mobile);
+      // The hidden attribute must override the iframe's responsive inline display style.
+      const style = document.createElement('style');
+      style.textContent = '.bao-author-inline iframe[hidden]{display:none!important}';
+      document.head.appendChild(style);
       const inline = document.createElement('script');
       inline.src = 'js/author-regex-inline.js';
       inline.onerror = () => console.warn('BAO/LAB inline author interface failed to load');
