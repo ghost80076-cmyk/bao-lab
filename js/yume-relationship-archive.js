@@ -1,4 +1,4 @@
-/* Yume relationship archive v2: story-message projection; no extra API or storage. */
+/* Yume continuity v3: one story projection + the existing GameState; no extra API or storage. */
 (function (root, make) {
   'use strict';
   const api = make();
@@ -14,7 +14,7 @@
   let tab = 'relations';
   let open = false;
   let queued = false;
-  const e = (tag, cls, value) => {
+  const el = (tag, cls, value) => {
     const node = doc.createElement(tag);
     if (cls) node.className = cls;
     if (value != null) node.textContent = value;
@@ -25,7 +25,7 @@
   const ownerState = () => root.GameState?.current || null;
   function style() {
     if (doc.getElementById('bao-yume-archive-style')) return;
-    const css = e('style'); css.id = 'bao-yume-archive-style';
+    const css = el('style'); css.id = 'bao-yume-archive-style';
     css.textContent = `
 #bao-yume-archive{max-width:100%;margin:10px 0 14px;flex-shrink:0;color:#f9e5f2;background:#19151f;border:1px solid #79526b;border-radius:14px;overflow:hidden;font:inherit}
 #bao-yume-archive *{box-sizing:border-box}#bao-yume-archive button{font:inherit;cursor:pointer}
@@ -34,7 +34,6 @@
 #bao-yume-archive .y-chip{border:1px solid #77546c;border-radius:999px;background:#33253a;color:#f7ddea;padding:6px 10px;min-height:34px}
 #bao-yume-archive .y-chip[aria-pressed=true]{background:#784365;border-color:#e8a4c8;color:white}
 #bao-yume-archive .y-network{width:100%;max-width:390px;display:block;margin:0 auto;overflow:visible}
-#bao-yume-archive .y-nodes{display:grid;grid-template-columns:repeat(auto-fit,minmax(92px,1fr));gap:6px}
 #bao-yume-archive .y-item{background:#29212f;padding:10px;border:1px solid #554359;border-radius:10px;overflow-wrap:anywhere}
 #bao-yume-archive .y-item strong{display:block;color:#f9b8d7;margin-bottom:5px}
 #bao-yume-archive .y-item small,#bao-yume-archive .y-muted{display:block;color:#c4b3c3;font-size:12px;line-height:1.55}
@@ -45,7 +44,7 @@
     doc.head.appendChild(css);
   }
   function button(text, onClick, pressed) {
-    const b = e('button', 'y-chip', text);
+    const b = el('button', 'y-chip', text);
     b.type = 'button';
     b.setAttribute('aria-pressed', String(Boolean(pressed)));
     b.addEventListener('click', onClick);
@@ -55,10 +54,10 @@
     const NS = 'http://www.w3.org/2000/svg';
     const nodes = {player:[156,14], yume:[156,90], rina:[42,160], ryusei:[270,160], airi:[42,252], asami:[156,252], misaki:[270,252]};
     svg.setAttribute('viewBox', '0 0 312 296');
-    svg.setAttribute('role', 'img'); svg.setAttribute('aria-label','已確認的角色關係連線圖');
+    svg.setAttribute('role', 'img'); svg.setAttribute('aria-label','已標記的人物關係連線圖');
     const relevant = data.relations.filter(r => r.a === focused || r.b === focused);
-    const pairKeys = new Set(relevant.map(r => [r.a,r.b].sort().join('|')));
-    pairKeys.forEach(key => {
+    const pairs = new Set(relevant.map(r => [r.a,r.b].sort().join('|')));
+    pairs.forEach(key => {
       const [a,b] = key.split('|'); const na = nodes[a], nb = nodes[b];
       if (!na || !nb) return;
       const line = doc.createElementNS(NS, 'line');
@@ -88,72 +87,119 @@
     const main = doc.querySelector('#chat-view .chat-main');
     const stream = doc.getElementById('chat-stream');
     if (!main || !stream) return;
+    if (!stream.dataset.baoYumeObserved && root.MutationObserver) {
+      stream.dataset.baoYumeObserved = '1';
+      new root.MutationObserver(() => { if (open) schedule(); }).observe(stream, {childList:true,subtree:true});
+    }
     style();
     let container = old;
     if (!container) {
-      container=e('section'); container.id=CHAT_ID;
+      container=el('section'); container.id=CHAT_ID;
       main.insertBefore(container, stream);
     }
     const data=api.collect(root.Chat.messages);
     container.replaceChildren();
-    const head=e('button','y-head',`♡ 人物關係網絡・親密事件　${open?'▴':'▾'}`);
+    const head=el('button','y-head',`♡ 人物關係・親密紀錄・世界進展　${open?'▴':'▾'}`);
     head.type='button';head.setAttribute('aria-expanded',String(open));
     head.addEventListener('click',()=>{open=!open;schedule();});
     container.appendChild(head);
     if (!open) return;
-    const panel=e('div','y-panel');
-    const tabs=e('div','y-tabs');
-    tabs.append(button('關係網絡',()=>{tab='relations';schedule();},tab==='relations'),button('親密事件',()=>{tab='intimacy';schedule();},tab==='intimacy'));
+    const panel=el('div','y-panel');
+    const tabs=el('div','y-tabs');
+    for (const [id,label] of [['relations','關係網絡'],['intimacy','親密事件'],['offscreen','離場／世界進展']]) {
+      tabs.append(button(label,()=>{tab=id;schedule();},tab===id));
+    }
     panel.appendChild(tabs);
-    const persons=e('div','y-people');
+    const persons=el('div','y-people');
     for (const [id,name] of Object.entries(roster)) persons.append(button(name,()=>{focused=id;schedule();},focused===id));
     panel.appendChild(persons);
-    const title = e('div','y-muted',`目前選擇：${roster[focused]}`);panel.appendChild(title);
-    const visible = data[tab].filter(r=>r.a===focused || r.b===focused);
+    panel.append(el('div','y-muted',`目前選擇：${roster[focused]}`));
+    if (focused !== 'player') {
+      const npc=api.knownNPC(story,focused);
+      const state=el('div','y-item');
+      state.append(el('strong','',`${roster[focused]} · 共用世界狀態`));
+      state.append(el('small','',npc ? `在場狀態：${api.presenceLabel(npc.presence)}${npc.presence === 'present' && api.known(npc.location) ? ` · 目前位置：${String(npc.location).slice(0,100)}` : ''}` : '尚未找到這名 NPC 的已確認狀態；不會猜測行蹤。'));
+      panel.append(state);
+    }
+    const visible=data[tab].filter(r=>tab==='offscreen' ? r.actor===focused : r.a===focused || r.b===focused);
     if(tab==='relations') { const svg=doc.createElementNS('http://www.w3.org/2000/svg','svg');svg.classList.add('y-network');drawGraph(svg,data);panel.appendChild(svg); }
-    if(!visible.length) panel.append(e('div','y-item',tab==='relations'?'尚無玩家已確認的關係紀錄。':'尚無已確認的親密事件；不會從曖昧或傳聞推定。'));
+    if (!visible.length) panel.append(el('div','y-item',tab==='offscreen'?'暫無已向玩家揭露的場外進展；離場不代表停止生活，也不代表已發生特定事件。':tab==='relations'?'尚無明確標記的人物關係。':'尚無明確標記的親密事件；不會由曖昧推定。'));
     visible.slice(-60).reverse().forEach(record=>{
-      const card=e('article','y-item');
-      card.append(e('strong','',`${roster[record.a]} × ${roster[record.b]}`));
-      card.append(e('small','',`故事訊息 ${record.turn} · ${tab==='relations'?'已知關係':'已確認親密事件'}`));
-      card.append(e('p','',record.body));panel.append(card);
+      const card=el('article','y-item');
+      card.append(el('strong','',tab==='offscreen'?`${roster[record.actor]} · 場外進展`:`${roster[record.a]} × ${roster[record.b]}`));
+      card.append(el('small','',`故事訊息 ${record.turn} · ${tab==='offscreen'?'已公開的離場事件':tab==='relations'?'人物關係標記':'親密事件標記'}`));
+      card.append(el('p','',record.body));panel.append(card);
     });
-    panel.append(e('div','y-note','僅整理目前故事中 AI 明確輸出的 [REL]／[INTIMACY] 標記；不顯示其他角色未公開的秘密。回溯與分支依目前故事訊息重新建檔。此頁不會自行判斷關係或呼叫 API。'));
+    panel.append(el('div','y-note','依目前故事中 AI 的 [REL]、[INTIMACY]、[OFFSCREEN] 標記整理。場外事件只收錄已向玩家揭露的內容；不推測秘密、不自動杜撰事件。人物在場狀態來自 BAO/LAB 原有世界狀態；回溯／分支時按目前對話重建紀錄。'));
     container.append(panel);
   }
-  function schedule() { if(queued)return;queued=true;queueMicrotask(render); }
-  const originalAdd = root.Chat.add.bind(root.Chat);
+  function schedule() { if(queued)return;queued=true;root.queueMicrotask ? root.queueMicrotask(render) : Promise.resolve().then(render); }
+  const originalAdd=root.Chat.add.bind(root.Chat);
   root.Chat.add=function(...args){const msg=originalAdd(...args);if(args[0]==='assistant' && open)schedule();return msg;};
   const originalShell=root.App.renderChatShell.bind(root.App);
   root.App.renderChatShell=function(...args){const result=originalShell(...args);schedule();return result;};
   const originalShow=root.App.showView.bind(root.App);
   root.App.showView=function(...args){const result=originalShow(...args);schedule();return result;};
-  root.BAOYumeArchive = Object.freeze({ refresh:schedule, collect:()=>api.collect(root.Chat.messages) });
+  const originalPanel=root.App.renderUIPanel?.bind(root.App);
+  if (originalPanel) root.App.renderUIPanel=function(...args){const result=originalPanel(...args);if(open)schedule();return result;};
+  const originalPrompt=root.App.buildSystemPrompt.bind(root.App);
+  root.App.buildSystemPrompt=function(...args){
+    const base=originalPrompt(...args);
+    if(!eligible())return base;
+    return `${base}\n\n${api.continuityPrompt(root.Chat.messages,ownerState())}`;
+  };
+  root.BAOYumeArchive=Object.freeze({refresh:schedule,collect:()=>api.collect(root.Chat.messages)});
   if(doc.readyState==='loading')doc.addEventListener('DOMContentLoaded',schedule);
   else schedule();
 })(typeof window !== 'undefined' ? window : null, function () {
   'use strict';
   const roster=Object.freeze({player:'玩家',yume:'ゆめ',rina:'りな',ryusei:'琉星',airi:'あいり',asami:'麻美',misaki:'美咲'});
+  const aliases=Object.freeze({yume:['黑羽ゆめ','黒羽ゆめ','ゆめ'],rina:['りな'],ryusei:['琉星'],airi:['あいり'],asami:['麻美'],misaki:['美咲']});
+  const normalized=value=>String(value||'').normalize('NFKC').replace(/[\s・·]/g,'').toLowerCase();
+  const known=value=>Boolean(String(value??'').trim()) && !/^(?:未知|未設定|未確認|—|－|-|null)$/i.test(String(value).trim());
   const isYume=card=>{const name=String(card?.name||'');return /(黑羽|黒羽)/.test(name)&&/(ゆめ|夢)/.test(name);};
+  const presenceLabel=value=>({present:'在場',away:'已離場',unknown:'行蹤未知'})[value]||'尚未確認';
+  function knownNPC(state,id) {
+    if(!Object.hasOwn(aliases,id))return null;
+    return (Array.isArray(state?.npcs)?state.npcs:[]).find(npc=>aliases[id].some(name=>normalized(name)===normalized(npc?.name)))||null;
+  }
   function collect(messages) {
-    const result={relations:[],intimacy:[]};
-    const seen=new Set();
-    const re=/\[(REL|INTIMACY):([a-z][a-z0-9_-]{0,39})\|([a-z][a-z0-9_-]{0,39})\]([\s\S]{1,2000}?)\[\/\1\]/gi;
+    const result={relations:[],intimacy:[],offscreen:[]};
+    const pair=/\[(REL|INTIMACY):([a-z][a-z0-9_-]{0,39})\|([a-z][a-z0-9_-]{0,39})\]([\s\S]{1,2000}?)\[\/\1\]/gi;
+    const offscreen=/\[OFFSCREEN:([a-z][a-z0-9_-]{0,39})(?:\|known)?\]([\s\S]{1,2000}?)\[\/OFFSCREEN\]/gi;
     for (const [i,message] of (Array.isArray(messages)?messages:[]).entries()) {
       if(message?.role!=='assistant')continue;
       const content=String(message.content||'');
-      if(!content.includes('[REL:')&&!content.includes('[INTIMACY:'))continue;
-      re.lastIndex=0;
-      for (const match of content.matchAll(re)) {
+      if(!/\[(?:REL|INTIMACY|OFFSCREEN):/i.test(content))continue;
+      pair.lastIndex=0;
+      for (const match of content.matchAll(pair)) {
         const a=match[2].toLowerCase(),b=match[3].toLowerCase(),body=match[4].trim();
         if(!Object.hasOwn(roster,a)||!Object.hasOwn(roster,b)||a===b||!body)continue;
-        const id=`turn-${i}:${match.index}`;
-        if(seen.has(id))continue;seen.add(id);
-        const entry={a,b,body:body.slice(0,1600),turn:i+1,id};
-        result[match[1].toUpperCase()==='REL'?'relations':'intimacy'].push(entry);
+        result[match[1].toUpperCase()==='REL'?'relations':'intimacy'].push({a,b,body:body.slice(0,1600),turn:i+1,id:`turn-${i}:${match.index}`});
+      }
+      offscreen.lastIndex=0;
+      for (const match of content.matchAll(offscreen)) {
+        const actor=match[1].toLowerCase(),body=match[2].trim();
+        if(!Object.hasOwn(aliases,actor)||!body)continue;
+        result.offscreen.push({actor,body:body.slice(0,1600),turn:i+1,id:`turn-${i}:${match.index}`});
       }
     }
     return result;
   }
-  return Object.freeze({roster,isYume,collect});
+  function continuityPrompt(messages,state) {
+    const entries=collect(messages).offscreen.slice(-4).map(item=>`${roster[item.actor]}（先前已公開的事件）：${item.body.slice(0,100)}`);
+    const active=Object.keys(aliases).map(id=>{
+      const npc=knownNPC(state,id);
+      return npc?.presence==='present'||npc?.presence==='away' ? `${roster[id]}：${presenceLabel(npc.presence)}` : '';
+    }).filter(Boolean).slice(0,6);
+    return [
+      '【六人世界・場外連續性（補充，不取代原角色卡與世界規則）】',
+      '六名 NPC 各有原設定的目標與日常；玩家不在場時也不必停止生活。只有劇情時間實際經過且有合理因果時，才讓場外行動推進；不要求每輪每人都有事件，也不得隨機篡改既定關係。',
+      '保持玩家視角與資訊隔離。未向玩家揭露的秘密不能當成玩家已知事實，不要把秘密寫進公開狀態或標記。不得替玩家決定台詞、意願或行動。',
+      '當正文已明確向玩家揭露某位 NPC 的場外行動或後果時，可於正文後以 [OFFSCREEN:rina]已公開事件[/OFFSCREEN] 記錄；rina 可替換為 yume、ryusei、airi、asami、misaki。未揭露則不輸出標記；不需為了標記縮短正文。',
+      active.length ? `【既有世界狀態的在場資訊】${active.join('；')}` : '',
+      entries.length ? `【已公開的場外歷史（非當前位置）】\n${entries.join('\n')}` : ''
+    ].filter(Boolean).join('\n');
+  }
+  return Object.freeze({roster,isYume,collect,knownNPC,known,presenceLabel,continuityPrompt});
 });
