@@ -110,7 +110,12 @@
         provider_request_failed: "Gemini 暫時無法回覆；請先確認 Worker 已更新，再檢查 Google 配額。",
         origin_not_allowed: "目前網站網址不在 Worker 的允許來源清單。"
       };
-      throw new Error(errors[data?.error] || `BAO/LAB 後端錯誤（HTTP ${response.status}；${String(data?.error || 'unknown').slice(0, 80)}）。`);
+      const detail = errors[data?.error] || `BAO/LAB 後端錯誤（HTTP ${response.status}；${String(data?.error || 'unknown').slice(0, 80)}）。`;
+      const diagnosticId = /^[0-9a-f-]{36}$/.test(data?.request_id || '') ? `（診斷編號：${data.request_id}）` : '';
+      const googleStatus = ['INVALID_ARGUMENT', 'FAILED_PRECONDITION', 'PERMISSION_DENIED', 'UNAUTHENTICATED',
+        'RESOURCE_EXHAUSTED', 'NOT_FOUND', 'UNAVAILABLE'].includes(data?.provider_status)
+        ? `（Google：${data.provider_status}）` : '';
+      throw new Error(`${detail}${googleStatus}${diagnosticId}`);
     }
     if (typeof data?.content !== "string" || !data.content.trim()) throw new Error("Gemini 沒有回傳可顯示的文字內容。");
     const input = Number.isInteger(data.usage?.input_tokens) ? data.usage.input_tokens : null;
