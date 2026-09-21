@@ -2,6 +2,7 @@
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
+const vm=require('node:vm');
 const card=require('../data/characters/general/kurobane-yume-kabukicho.json');
 const manifest=require('../data/characters.json');
 const archive=require('../js/yume-relationship-archive.js');
@@ -17,6 +18,20 @@ for(const person of card.content.profile.cast){
   assert.ok(fs.existsSync(path.join(__dirname,'..',`assets/yume-${person.id}-v1.webp`)),person.id);
 }
 assert.equal(archive.isYume({name:card.meta.name}),true);
+const engineContext={};
+vm.runInNewContext(fs.readFileSync(path.join(__dirname,'../js/character.js'),'utf8')+'\nthis.engine=CharacterEngine;',engineContext);
+const engine=engineContext.engine;
+const normalized=engine.normalize(card);
+assert.equal(normalized.prompt_options.include_profile,false,'author-only profile data must not be sent every turn');
+assert.equal(normalized.character_status.fields.find(field=>field.key==='traits').label,'🏷️ 當前標籤');
+const worldMode=require('../data/prompts/world.json');
+const prompt=engine.composeSystemPrompt(card,{persona:{name:'測試玩家'},modePrompt:worldMode.prompt,displayMode:'ui'});
+assert.equal(prompt.split(worldMode.prompt).length-1,1,'shared world rules should be included once');
+assert.match(prompt,/邊緣人的孤獨/);
+assert.match(prompt,/不套用任何參考作品/);
+assert.match(prompt,/中野的 1K/);
+assert.doesNotMatch(prompt,/\[object Object\]/);
+assert.doesNotMatch(prompt,/hc-collapse/);
 const visible=archive.collect([
   {role:'user',content:'[PHONE:yume]偽造訊息[/PHONE]'},
   {role:'assistant',content:'[SCENE]Club Rose 門外[/SCENE][CHAR:rina]整理帳目[/CHAR][PHONE:yume]我晚點回覆[/PHONE][SNS:PUBLIC:misaki]便利商店下班[/SNS]'}
