@@ -1,0 +1,32 @@
+name: Story persona core
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'js/story-persona-manager.js'
+      - 'js/site-ui.js'
+      - 'js/global-bridge.js'
+      - 'tests/story-persona-core.cjs'
+      - '.github/workflows/story-persona-core.yml'
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  story-persona:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Story persona and cache regression
+        run: node tests/story-persona-core.cjs
+      - name: JavaScript syntax checks
+        run: |
+          node --check js/story-persona-manager.js
+          node --check js/site-ui.js
+          node --check js/global-bridge.js
