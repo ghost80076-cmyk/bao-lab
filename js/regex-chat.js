@@ -87,14 +87,19 @@
       mobile.src = 'js/author-regex-mobile.js';
       mobile.onerror = () => console.warn('BAO/LAB responsive author controls failed to load');
       document.head.appendChild(mobile);
-      // The hidden attribute must override the iframe's responsive inline display style.
       const style = document.createElement('style');
       style.textContent = '.bao-author-inline iframe[hidden]{display:none!important}';
       document.head.appendChild(style);
-      const inline = document.createElement('script');
-      inline.src = 'js/author-regex-inline.js';
-      inline.onerror = () => console.warn('BAO/LAB inline author interface failed to load');
-      document.head.appendChild(inline);
+      const cardBind = document.createElement('script');
+      cardBind.src = 'js/author-regex-card-bind.js';
+      cardBind.onload = () => {
+        const inline = document.createElement('script');
+        inline.src = 'js/author-regex-inline.js';
+        inline.onerror = () => console.warn('BAO/LAB inline author interface failed to load');
+        document.head.appendChild(inline);
+      };
+      cardBind.onerror = () => console.warn('BAO/LAB imported-card regex could not be linked');
+      document.head.appendChild(cardBind);
     };
     compat.onerror = () => console.warn('BAO/LAB author regex compatibility failed to load');
     document.head.appendChild(compat);
