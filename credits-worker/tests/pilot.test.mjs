@@ -148,7 +148,7 @@ test('credit shortage is distinct from provider 429 and failed provider call ref
     assert.equal(usage[0].status, 'failed');
     assert.equal(upstreamCalls, 1);
     const huge = await worker.fetch(request('/chat', 'POST', {
-      ...body, messages: [{ role: 'user', content: '長篇'.repeat(18000) }], max_output_tokens: 8192
+      ...body, messages: [{ role: 'user', content: '長篇'.repeat(15000) }], max_output_tokens: 8192
     }, player_token), env);
     assert.equal(huge.status, 402);
     assert.equal((await huge.json()).error, 'insufficient_credits');
