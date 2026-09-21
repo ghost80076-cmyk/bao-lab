@@ -9,13 +9,14 @@ const rules = { regex_scripts: [
 async function startDemo(page) {
   await page.goto('./');
   await page.waitForFunction(() => Boolean(window.BAOAuthorInline && App.characters?.length));
-  await page.getByRole('button', { name: '探索作品' }).click();
-  await page.locator('article').first().click();
-  await page.getByRole('button', { name: '開始故事' }).click();
+  await page.evaluate(() => {
+    App.openCharacter(App.characters[0].id);
+    App.openBuilder();
+  });
   for (let i = 0; i < 3; i++) await page.getByRole('button', { name: '下一步' }).click();
   await page.locator('#bao-demo-mode').check();
   await page.getByRole('button', { name: '下一步' }).click();
-  await page.getByRole('button', { name: '開始故事' }).click();
+  await page.locator('#start-story').click();
 }
 
 test('author card renders inline, can toggle original, and drafts without extra API or state changes', async ({ page }) => {
