@@ -1,4 +1,4 @@
-/* Opt-in author interface compatibility. Does not modify Chat.messages, prompts, GameState or API calls. */
+/* Opt-in author regex preview. Never changes model calls, Chat.messages or saved state. */
 (() => {
   'use strict';
   const Core = window.BAOAuthorRegexCore;
@@ -21,16 +21,20 @@
   let panel, status, activeCheckbox, scriptCheckbox, fileInput, sourceSelect, overlay;
   let currentFrame = null, currentToken = '', currentOwner = '', lastDraftAt = 0;
   const say = message => { if (status) status.textContent = message; };
-  const close = () => { if (overlay) overlay.remove(); overlay = null; currentFrame = null; currentToken = ''; currentOwner = ''; };
+  const close = () => {
+    if (overlay) overlay.remove();
+    overlay = null; currentFrame = null; currentToken = ''; currentOwner = '';
+  };
   const stateForAuthor = () => {
     const state = window.GameState?.current || {};
     const statuses = {};
     for (const [name, fields] of Object.entries(state.characterStatuses || {}).slice(0, 12)) {
       if (!fields || typeof fields !== 'object') continue;
-      statuses[String(name).slice(0, 80)] = {};
+      const safeName = String(name).slice(0, 80);
+      statuses[safeName] = {};
       for (const [field, value] of Object.entries(fields).slice(0, 30)) {
         if (['string', 'number', 'boolean'].includes(typeof value)) {
-          statuses[String(name).slice(0, 80)][String(field).slice(0, 80)] = String(value).slice(0, 180);
+          statuses[safeName][String(field).slice(0, 80)] = String(value).slice(0, 180);
         }
       }
     }
@@ -71,11 +75,10 @@
       const url = URL.createObjectURL(new Blob([workerCode], { type: 'text/javascript' }));
       let worker;
       try { worker = new Worker(url); } catch (error) { URL.revokeObjectURL(url); reject(error); return; }
-      URL.revokeObjectURL(url);
       let done = false;
       const finish = (error, result) => {
         if (done) return;
-        done = true; clearTimeout(timer); worker.terminate();
+        done = true; clearTimeout(timer); worker.terminate(); URL.revokeObjectURL(url);
         if (error) reject(error); else resolve(result);
       };
       const timer = setTimeout(() => finish(new Error('正則處理超過 2 秒，已停止；原始故事未變更。')), 2000);
@@ -84,7 +87,9 @@
       worker.postMessage({ text, rules, allowScripts });
     });
   }
-  const bootstrap = token => `<script>(function(){'use strict';const token=${JSON.stringify(token)};let state={};window.BAOAuthor=Object.freeze({draft:function(value){if(typeof value==='string'&&value.length<=500)parent.postMessage({baoAuthor:'v1',token:token,type:'draft',value:value},'*');},getState:function(){return state;}});window.addEventListener('message',function(e){if(e.source!==parent||!e.data||e.data.baoAuthor!=='v1'||e.data.token!==token||e.data.type!=='state')return;state=e.data.value||{};window.dispatchEvent(new CustomEvent('bao:statechange',{detail:state}));});parent.postMessage({baoAuthor:'v1',token:token,type:'ready'},'*');})();<\/script>`;
+  // srcdoc is created from an external JS file, so the bootstrap MUST contain
+  // a real closing script tag, not the backslash-escaped <\/script> text.
+  const bootstrap = token => `<script>(function(){'use strict';const token=${JSON.stringify(token)};let state={};window.BAOAuthor=Object.freeze({draft:function(value){if(typeof value==='string'&&value.length<=500)parent.postMessage({baoAuthor:'v1',token:token,type:'draft',value:value},'*');},getState:function(){return state;}});window.addEventListener('message',function(e){if(e.source!==parent||!e.data||e.data.baoAuthor!=='v1'||e.data.token!==token||e.data.type!=='state')return;state=e.data.value||{};window.dispatchEvent(new CustomEvent('bao:statechange',{detail:state}));});parent.postMessage({baoAuthor:'v1',token:token,type:'ready'},'*');})();</script>`;
   function show(htmlResult, owner) {
     close();
     currentOwner = owner;
