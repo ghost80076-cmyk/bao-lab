@@ -17,7 +17,8 @@ assert.equal(safe.blocked, 1);
 assert.equal(safe.script, false);
 assert.match(safe.html, /<style>/);
 assert.match(safe.html, /主畫面/);
-assert.doesNotMatch(safe.html, /<script>/);
+// The authored script remains inert markup, only ever mounted in a no-script iframe.
+assert.match(safe.html, /<script>/);
 assert.match(safe.html, /&lt;img/);
 const full = core.render(input, rules, true);
 assert.equal(full.script, true);
@@ -30,4 +31,4 @@ assert.doesNotMatch(full.html, /<img src=x/);
 for (const path of ['js/author-regex-core.js', 'js/author-regex-compat.js', 'js/author-regex-mobile.js', 'js/regex-chat.js']) {
   new vm.Script(fs.readFileSync(require('node:path').join(__dirname, '..', path), 'utf8'), { filename: path });
 }
-console.log('✓ layered author UI, script consent, escaped captures and four JS syntax checks passed');
+console.log('✓ layered author UI, inert static markup, script consent, escaped captures and four JS syntax checks passed');
