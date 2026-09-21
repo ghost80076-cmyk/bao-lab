@@ -38,7 +38,8 @@
       character: String(App.activeCharacter?.name || '').slice(0, 80), characterStatuses };
   };
   const sendState = () => {
-    if (!active?.ready || !active.script || cardId() !== active.owner || !active.frame.isConnected) return;
+    if (!active?.ready || !active.script || !active.allowStateSharing
+      || config(active.owner)?.allowStateSharing !== true || cardId() !== active.owner || !active.frame.isConnected) return;
     active.frame.contentWindow?.postMessage({ baoAuthor: 'v1', token: active.token,
       type: 'state', value: stateSnapshot() }, '*'); // Opaque origin; source and token are checked on receive.
   };
@@ -99,7 +100,7 @@
     }
     return shift ? { node: nodes[0], source: String(App.activeCharacter?.greeting || ''), id: 'greeting' } : null;
   }
-  function mount(candidate, result, owner, fingerprint, allowExternalAssets) {
+  function mount(candidate, result, owner, fingerprint, allowExternalAssets, allowStateSharing) {
     clear();
     const bubble = candidate.node.querySelector(':scope > .bubble');
     if (!bubble || !candidate.node.isConnected) return;
@@ -124,7 +125,7 @@
     frame.title = '聊天內作者隔離介面'; frame.referrerPolicy = 'no-referrer';
     frame.setAttribute('sandbox', result.script ? 'allow-scripts' : ''); // Never grant allow-same-origin.
     frame.style.cssText = 'display:block;width:100%;height:clamp(320px,68vh,720px);border:0;background:#fff';
-    const bootstrap = `<script>(function(){'use strict';const token=${JSON.stringify(token)};let state={};window.BAOAuthor=Object.freeze({draft:function(value){if(typeof value==='string'&&value.length<=500)parent.postMessage({baoAuthor:'v1',token:token,type:'draft',value:value},'*');},getState:function(){return state;}});window.addEventListener('message',function(e){if(e.source!==parent||e.data?.baoAuthor!=='v1'||e.data.token!==token||e.data.type!=='state')return;state=e.data.value||{};window.dispatchEvent(new CustomEvent('bao:statechange',{detail:state}));});parent.postMessage({baoAuthor:'v1',token:token,type:'ready'},'*');})();</script>`;
+    const bootstrap = `<script>(function(){'use strict';const token=${JSON.stringify(token)};let state={};window.BAOAuthor=Object.freeze({draft:function(value){if(typeof value==='string'&&value.length<=500)parent.postMessage({baoAuthor:'v1',token:token,type:'draft',value:value},'*');},getState:function(){return JSON.parse(JSON.stringify(state));}});window.addEventListener('message',function(e){if(e.source!==parent||e.data?.baoAuthor!=='v1'||e.data.token!==token||e.data.type!=='state')return;state=e.data.value||{};window.dispatchEvent(new CustomEvent('bao:statechange',{detail:window.BAOAuthor.getState()}));});parent.postMessage({baoAuthor:'v1',token:token,type:'ready'},'*');})();</script>`;
     const assets = allowExternalAssets ? 'https: data:' : 'data:';
     const csp = `default-src 'none'; script-src ${result.script ? "'unsafe-inline'" : "'none'"}; style-src 'unsafe-inline'; img-src ${assets}; font-src ${assets}; media-src ${allowExternalAssets ? 'https: data:' : 'data:'}; connect-src 'none'; frame-src 'none'; form-action 'none'; base-uri 'none'; object-src 'none'`;
     frame.srcdoc = '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="' + csp + '"><style>html,body{margin:0;min-height:100%;overflow-wrap:anywhere}*,*:before,*:after{box-sizing:border-box}</style>' + (result.script ? bootstrap : '') + '</head><body>' + result.html + '</body></html>';
@@ -132,7 +133,8 @@
       if (!result.script && active?.root === root) { active.ready = true; if (!active.rawOpen) bubble.hidden = true; }
     });
     root.append(bar, frame); candidate.node.append(root);
-    active = { owner, fingerprint, root, frame, bubble, token, ready: false, rawOpen: false, script: result.script };
+    active = { owner, fingerprint, root, frame, bubble, token, ready: false, rawOpen: false,
+      script: result.script, allowStateSharing };
   }
   async function refresh() {
     queued = false;
@@ -144,14 +146,15 @@
     if (!candidate?.source) return;
     const bubble = candidate.node.querySelector(':scope > .bubble');
     if (!bubble || bubble.querySelector('.story-inline-editor')) return;
-    const fingerprint = JSON.stringify([owner, candidate.id, candidate.source, data.allowScripts, data.allowExternalAssets, data.rules]);
+    const fingerprint = JSON.stringify([owner, candidate.id, candidate.source, data.allowScripts,
+      data.allowExternalAssets, data.allowStateSharing, data.rules]);
     if (active?.fingerprint === fingerprint && active.root.parentElement === candidate.node) return;
     const ticket = ++sequence;
     try {
       const value = await renderInWorker(candidate.source, Core.normalize(data.rules), data.allowScripts === true);
       if (ticket !== sequence || cardId() !== owner || !candidate.node.isConnected) return;
       if (!value?.matched || !value.rich) { clear(); return; }
-      mount(candidate, value, owner, fingerprint, data.allowExternalAssets === true);
+      mount(candidate, value, owner, fingerprint, data.allowExternalAssets === true, data.allowStateSharing === true);
     } catch (error) {
       if (ticket !== sequence) return;
       clear();
@@ -169,7 +172,7 @@
   }
   new MutationObserver(schedule).observe(stream, { childList: true });
   document.addEventListener('change', event => {
-    if (event.target?.closest?.('#bao-author-regex-panel')) setTimeout(schedule, 250);
+    if (event.target?.closest?.('#bao-author-regex-panel')) schedule();
   });
   window.addEventListener('storage', event => { if (event.key?.startsWith(PREFIX)) schedule(); });
   window.BAOAuthorInline = { refresh: schedule };
