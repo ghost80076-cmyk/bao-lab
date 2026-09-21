@@ -32,15 +32,21 @@
       if (!node.classList.contains('assistant') || node.classList.contains('is-streaming')) return;
       const message = records[index - shift];
       if (message?.role !== 'assistant') return;
+      const source = String(message.content ?? '');
+      // Rich authored markup and control blocks belong to their existing dedicated renderer.
+      if (/<\/?[a-z][\w:-]*[^>]*>/i.test(source) || /\[(?:\/?STATUS|SCENE:|\/?NARRATION|\/?CHOICE)\]/i.test(source)) return;
       const bubble = node.querySelector(':scope > .bubble');
       if (!bubble || bubble.querySelector('.story-inline-editor')) return;
-      // Do not interfere with existing HTML/Markdown/status renderers.
       if ([...bubble.querySelectorAll('*')].some(el => el.tagName !== 'BR')) return;
-      if (!active && !signatures.has(bubble)) return;
-      const signature = `${String(message.id || index)}|${message.content}|${stamp}`;
-      if (signatures.get(bubble) === signature) return;
-      signatures.set(bubble, signature);
-      const value = active ? R.apply(message.content, state.rules) : String(message.content ?? '');
+      const previous = signatures.get(bubble);
+      if (!active && !previous) return;
+      const signature = `${String(message.id || index)}|${source}|${stamp}`;
+      const value = active ? R.apply(source, state.rules) : source;
+      const flatValue = value.replace(/\n/g, '');
+      // The reader may repaint the same bubble after our first pass. Compare its
+      // current content as well as its signature before skipping the regex pass.
+      if (previous?.signature === signature && bubble.textContent === flatValue) return;
+      signatures.set(bubble, { signature, flatValue });
       setPlainText(bubble, value);
     });
   };
