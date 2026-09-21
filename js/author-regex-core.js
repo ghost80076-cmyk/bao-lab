@@ -44,36 +44,24 @@
         rich, script, reason };
     });
   }
-  // Capture values originate in model output. Escape them before inserting into authored HTML.
-  function expand(template, match, source) {
+  // Captures originate in model output. Escape them before substituting into authored HTML.
+  function expand(template, captures, index, source, groups) {
     return template.replace(/\$\$|\$&|\$`|\$'|\$<([^>]+)>|\$(\d{1,2})/g, token => {
       if (token === '$$') return '$';
-      if (token === '$&') return escapeHTML(match[0]);
-      if (token === '$`') return escapeHTML(source.slice(0, match.index));
-      if (token === "$'") return escapeHTML(source.slice(match.index + match[0].length));
-      if (token.startsWith('$<')) return escapeHTML(match.groups?.[token.slice(2, -1)] ?? '');
+      if (token === '$&') return escapeHTML(captures[0]);
+      if (token === '$`') return escapeHTML(source.slice(0, index));
+      if (token === "$'") return escapeHTML(source.slice(index + captures[0].length));
+      if (token.startsWith('$<')) return escapeHTML(groups?.[token.slice(2, -1)] ?? '');
       const number = Number(token.slice(1));
-      return number > 0 && number < match.length ? escapeHTML(match[number] ?? '') : token;
+      return number > 0 && number < captures.length ? escapeHTML(captures[number] ?? '') : token;
     });
-  }
-  function richReplace(source, re, replacement) {
-    let html = '', cursor = 0, count = 0, match;
-    re.lastIndex = 0;
-    while ((match = re.exec(source))) {
-      if (++count > 100) throw new Error('單輪最多替換 100 個片段');
-      html += escapeHTML(source.slice(cursor, match.index)) + expand(replacement, match, source);
-      cursor = match.index + match[0].length;
-      if (html.length > MAX_HTML) throw new Error('渲染內容超過上限');
-      if (!re.global) break;
-      if (match[0] === '') re.lastIndex = Math.min(source.length + 1, re.lastIndex + 1);
-      if (re.lastIndex > source.length) break;
-    }
-    return html + escapeHTML(source.slice(cursor));
   }
   function render(raw, rules, allowScripts) {
     let source = String(raw ?? '');
     if (source.length > MAX_SOURCE) throw new Error('本輪文字超過 20,000 字元，保留原文以避免卡頓');
-    let plainChanged = false, blocked = 0;
+    const fragments = [], nonce = Math.random().toString(36).slice(2) + Date.now().toString(36);
+    const marker = index => `\uE000BAO-${nonce}-${index}\uE001`;
+    let matched = false, rich = false, script = false, blocked = 0, firstName = '';
     for (const rule of (Array.isArray(rules) ? rules : []).slice(0, LIMIT)) {
       if (!rule || !rule.enabled || rule.reason) continue;
       if (String(rule.pattern).length > 3000 || String(rule.replacement).length > 200000) continue;
@@ -81,18 +69,31 @@
       try { re = new RegExp(rule.pattern, rule.flags || 'g'); } catch (_) { continue; }
       if (!re.test(source)) continue;
       re.lastIndex = 0;
+      if (rule.script && !allowScripts) { blocked++; continue; }
+      matched = true;
+      if (!firstName) firstName = rule.name;
       if (rule.rich) {
-        if (rule.script && !allowScripts) { blocked++; continue; }
-        const html = richReplace(source, re, rule.replacement);
-        if (html.length > MAX_HTML) throw new Error('渲染內容超過上限');
-        return { matched: true, rich: true, script: Boolean(rule.script), html, name: rule.name, blocked };
-      }
-      source = source.replace(re, rule.replacement);
-      plainChanged = true;
-      if (source.length > MAX_SOURCE * 2) throw new Error('文字替換內容超過上限');
+        rich = true; script = script || Boolean(rule.script);
+        let replacements = 0;
+        source = source.replace(re, (...args) => {
+          if (++replacements > 100) throw new Error('單條規則單輪最多替換 100 個片段');
+          const named = typeof args[args.length - 1] === 'object';
+          const input = args[named ? args.length - 2 : args.length - 1];
+          const index = args[named ? args.length - 3 : args.length - 2];
+          const captures = args.slice(0, named ? -3 : -2);
+          const fragment = expand(rule.replacement, captures, index, input, named ? args[args.length - 1] : null);
+          fragments.push(fragment);
+          return marker(fragments.length - 1);
+        });
+      } else source = source.replace(re, rule.replacement);
+      if (source.length > MAX_SOURCE * 3 || fragments.reduce((sum, part) => sum + part.length, 0) > MAX_HTML)
+        throw new Error('渲染內容超過上限');
     }
-    return { matched: plainChanged, rich: false, script: false,
-      html: escapeHTML(source).replace(/\r?\n/g, '<br>'), blocked };
+    let html = escapeHTML(source).replace(/\r?\n/g, '<br>');
+    // Restore only author-authored replacement markup, never raw model content.
+    for (let index = 0; index < fragments.length; index++) html = html.split(marker(index)).join(fragments[index]);
+    if (html.length > MAX_HTML) throw new Error('渲染內容超過上限');
+    return { matched, rich, script, html, name: firstName, blocked, applied: fragments.length };
   }
   return { LIMIT, normalize, list, render, escapeHTML };
 });
