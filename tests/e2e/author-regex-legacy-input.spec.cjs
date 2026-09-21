@@ -1,9 +1,7 @@
 const { test, expect } = require('@playwright/test');
 if (process.env.BAO_LIVE_URL) test.use({ baseURL: process.env.BAO_LIVE_URL });
 
-// Original cards may target another site's .chatMsgTextarea textarea and use
-// HTMLTextAreaElement.prototype.value.set before dispatching an input event.
-// A synthetic fixture tests that behavior without publishing anyone's card.
+// Synthetic legacy textarea fixture; do not publish anyone's original character card.
 const fixture = { regex_scripts: [{
   scriptName: '舊平台選單', findRegex: '【舊平台選單】',
   replaceString: `<section id="legacy-menu"><button type="button" onclick="const t=document.querySelector('.chatMsgTextarea textarea')||document.querySelector('textarea');if(!t)throw Error('missing legacy input');Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype,'value').set.call(t,'查看圖鑑');t.dispatchEvent(new Event('input',{bubbles:true}));">查看圖鑑</button></section>`
@@ -37,10 +35,13 @@ async function start(page) {
 
 test('legacy textarea action drafts only after a player click, no extra API or story writes', async ({ page }) => {
   const panel = await start(page);
-  await expect(page.locator('#bao-author-dock')).toHaveCount(0);
+  const dock = page.locator('#bao-author-dock');
+  const frame = page.frameLocator('iframe[title="跨回合作者隔離介面"]');
+  await expect(frame.locator('#legacy-menu')).toBeVisible();
+  await frame.getByRole('button', { name: '查看圖鑑' }).click();
+  await expect(page.locator('#user-input')).toHaveValue(''); // Untrusted JS must not run in static view.
   page.once('dialog', dialog => dialog.accept());
   await panel.getByLabel('允許作者腳本（需自行信任來源）').check();
-  const frame = page.frameLocator('iframe[title="跨回合作者隔離介面"]');
   await expect(frame.locator('#legacy-menu')).toBeVisible();
   await expect(frame.locator('.bao-author-legacy-input')).toHaveCount(1);
   const before = await page.evaluate(() => JSON.stringify({ messages: Chat.messages, usage: Chat.usage, state: GameState.current }));
@@ -49,7 +50,7 @@ test('legacy textarea action drafts only after a player click, no extra API or s
   expect(await page.evaluate(() => window.__legacyApiCalls)).toBe(0);
   expect(await page.evaluate(() => JSON.stringify({ messages: Chat.messages, usage: Chat.usage, state: GameState.current }))).toBe(before);
   await panel.getByLabel('在這張角色卡啟用作者介面').uncheck();
-  await expect(page.locator('#bao-author-dock')).toHaveCount(0);
+  await expect(dock).toHaveCount(0);
 });
 
 test('mobile: isolated legacy UI does not shrink the main composer', async ({ page }) => {
@@ -59,8 +60,6 @@ test('mobile: isolated legacy UI does not shrink the main composer', async ({ pa
   await panel.getByLabel('允許作者腳本（需自行信任來源）').check();
   const frame = page.frameLocator('iframe[title="跨回合作者隔離介面"]');
   await expect(frame.locator('#legacy-menu')).toBeVisible();
-  // Mobile settings intentionally cover the content while expanded: dismiss
-  // them as a player would before interacting with the persistent author UI.
   await panel.locator('summary').click();
   await expect(panel).not.toHaveAttribute('open', '');
   await expect(page.locator('#user-input')).toBeVisible();
