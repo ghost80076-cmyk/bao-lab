@@ -95,6 +95,12 @@
       cardBind.onload = () => {
         const inline = document.createElement('script');
         inline.src = 'js/author-regex-inline.js';
+        inline.onload = () => {
+          const dock = document.createElement('script');
+          dock.src = 'js/author-regex-dock.js';
+          dock.onerror = () => console.warn('BAO/LAB persistent author interface failed to load');
+          document.head.appendChild(dock);
+        };
         inline.onerror = () => console.warn('BAO/LAB inline author interface failed to load');
         document.head.appendChild(inline);
       };
