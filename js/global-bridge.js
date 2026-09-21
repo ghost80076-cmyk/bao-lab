@@ -13,7 +13,7 @@
       .replace(/<[^>]+>/g, "");
     if (typeof DOMParser === "undefined") return spaced.replace(/&(?:nbsp|#160);/gi, " ").replace(/&lt;/gi, "<").replace(/&gt;/gi, ">").replace(/&amp;/gi, "&").trim();
     const doc = new DOMParser().parseFromString(spaced, "text/html");
-    return (doc.body.textContent || "").replace(/\n[ \t]+/g, "\n\n").replace(/\n{3,}/g, "\n\n").trim();
+    return (doc.body.textContent || "").replace(/\n[ \t]+/g, "\n").replace(/\n{3,}/g, "\n\n").trim();
   };
   if (typeof Chat !== "undefined" && typeof Chat.context === "function" && !Chat.__baoContextPresentationGuard) {
     const originalContext = Chat.context.bind(Chat);
