@@ -95,7 +95,9 @@
       worker.postMessage({ items, rules: Core.normalize(rules), allowScripts });
     });
   }
-  const bootstrap = token => `<script>(function(){'use strict';const token=${JSON.stringify(token)};let state={};window.BAOAuthor=Object.freeze({draft:function(value){if(typeof value==='string'&&value.length<=500)parent.postMessage({baoAuthor:'v1',token:token,type:'draft',value:value},'*');},getState:function(){return JSON.parse(JSON.stringify(state));}});window.addEventListener('message',function(e){if(e.source!==parent||e.data?.baoAuthor!=='v1'||e.data.token!==token||e.data.type!=='state')return;state=e.data.value||{};window.dispatchEvent(new CustomEvent('bao:statechange',{detail:window.BAOAuthor.getState()}));});parent.postMessage({baoAuthor:'v1',token:token,type:'ready'},'*');})();</script>`;
+  // Wait for the author's body scripts to attach statechange listeners before
+  // sending the initial state. Otherwise initial UI can remain blank until a turn.
+  const bootstrap = token => `<script>(function(){'use strict';const token=${JSON.stringify(token)};let state={};window.BAOAuthor=Object.freeze({draft:function(value){if(typeof value==='string'&&value.length<=500)parent.postMessage({baoAuthor:'v1',token:token,type:'draft',value:value},'*');},getState:function(){return JSON.parse(JSON.stringify(state));}});window.addEventListener('message',function(e){if(e.source!==parent||e.data?.baoAuthor!=='v1'||e.data.token!==token||e.data.type!=='state')return;state=e.data.value||{};window.dispatchEvent(new CustomEvent('bao:statechange',{detail:window.BAOAuthor.getState()}));});window.addEventListener('DOMContentLoaded',function(){parent.postMessage({baoAuthor:'v1',token:token,type:'ready'},'*');},{once:true});})();</script>`;
   function mount(result, owner, story, signature) {
     clear();
     if (!inChat() || GameState.current !== story || cardId() !== owner) return;
