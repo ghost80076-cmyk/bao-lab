@@ -56,6 +56,18 @@
       return number > 0 && number < captures.length ? escapeHTML(captures[number] ?? '') : token;
     });
   }
+  // A narrow compatibility adapter for cards targeting another platform's chat
+  // textarea. It runs only in an opted-in opaque-origin iframe and forwards a
+  // user-initiated draft through BAOAuthor, never an API call or saved-state edit.
+  const legacyInputAdapter = `<script>(function(){'use strict';
+if(!window.BAOAuthor||!document.body||document.querySelector('.bao-author-legacy-input'))return;
+var holder=document.createElement('div');holder.className='chatMsgTextarea chat-input-scope chat-bottom';
+holder.setAttribute('aria-hidden','true');holder.style.cssText='position:absolute!important;left:-10000px!important;top:0!important;width:1px!important;height:1px!important;overflow:hidden!important;pointer-events:none!important';
+var field=document.createElement('textarea');field.className='bao-author-legacy-input';field.tabIndex=-1;holder.appendChild(field);document.body.appendChild(holder);
+var gestureAt=0;document.addEventListener('pointerdown',function(e){if(e.isTrusted)gestureAt=Date.now();},true);
+document.addEventListener('keydown',function(e){if(e.isTrusted)gestureAt=Date.now();},true);
+field.addEventListener('input',function(){var value=field.value;if(Date.now()-gestureAt<1500&&value&&value.trim()&&value.length<=500)window.BAOAuthor.draft(value);});
+})();</script>`;
   function render(raw, rules, allowScripts) {
     let source = String(raw ?? '');
     if (source.length > MAX_SOURCE) throw new Error('本輪文字超過 20,000 字元，保留原文以避免卡頓');
@@ -92,6 +104,11 @@
     let html = escapeHTML(source).replace(/\r?\n/g, '<br>');
     // Restore only author-authored replacement markup, never raw model content.
     for (let index = 0; index < fragments.length; index++) html = html.split(marker(index)).join(fragments[index]);
+    // Do not inject a faux platform textarea into unrelated cards or static HTML.
+    // The original card is never rewritten; this adapter exists only in display.
+    if (script && allowScripts && /(?:chatMsgTextarea|chat-input-scope|chat-bottom)\s+textarea/.test(html)) {
+      html = legacyInputAdapter + html;
+    }
     if (html.length > MAX_HTML) throw new Error('渲染內容超過上限');
     return { matched, rich, script, html, name: firstName, blocked, applied: fragments.length };
   }
