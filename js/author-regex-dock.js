@@ -47,7 +47,10 @@
     if (!active || active.story !== GameState.current || active.owner !== cardId() || !inChat()) return;
     const value = snapshot();
     active.stateLabel.textContent = `世界狀態：${value.time || '未設定'} · ${value.location || '未設定'} · NPC ${value.npcs.length} 位`;
-    if (active.allowScripts && active.ready && active.frame?.isConnected)
+    // Script permission alone never grants world-state access. The player's
+    // separate per-card opt-in must still be current at the moment of sending.
+    if (active.allowScripts && active.allowStateSharing && settings(active.owner)?.allowStateSharing === true
+      && active.ready && active.frame?.isConnected)
       active.frame.contentWindow?.postMessage({ baoAuthor: 'v1', token: active.token, type: 'state', value }, '*');
   }
   function clear() {
@@ -96,7 +99,7 @@
     });
   }
   const bootstrap = token => `<script>(function(){'use strict';const token=${JSON.stringify(token)};let state={};window.BAOAuthor=Object.freeze({draft:function(value){if(typeof value==='string'&&value.length<=500)parent.postMessage({baoAuthor:'v1',token:token,type:'draft',value:value},'*');},getState:function(){return JSON.parse(JSON.stringify(state));}});window.addEventListener('message',function(e){if(e.source!==parent||e.data?.baoAuthor!=='v1'||e.data.token!==token||e.data.type!=='state')return;state=e.data.value||{};window.dispatchEvent(new CustomEvent('bao:statechange',{detail:window.BAOAuthor.getState()}));});window.addEventListener('DOMContentLoaded',function(){parent.postMessage({baoAuthor:'v1',token:token,type:'ready'},'*');},{once:true});})();</script>`;
-  function mount(result, owner, story, signature, allowExternalAssets) {
+  function mount(result, owner, story, signature, allowExternalAssets, allowStateSharing) {
     clear();
     if (!inChat() || GameState.current !== story || cardId() !== owner) return;
     const root = document.createElement('details');
@@ -122,7 +125,7 @@
     frame.srcdoc = '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="' + csp + '"><style>html,body{margin:0;min-height:100%;overflow-wrap:anywhere}*,*:before,*:after{box-sizing:border-box}</style>' + (allowScripts ? bootstrap(token) : '') + '</head><body>' + result.html + '</body></html>';
     root.append(summary, bar, frame);
     main.insertBefore(root, stream);
-    active = { owner, story, signature, root, frame, token, ready: false, allowScripts, stateLabel };
+    active = { owner, story, signature, root, frame, token, ready: false, allowScripts, allowStateSharing, stateLabel };
     sendState();
   }
   function attachControl() {
@@ -135,7 +138,7 @@
       label.append(control, document.createTextNode(' 跨回合常駐作者介面（不必每輪重建）'));
       const note = document.createElement('small');
       note.style.cssText = 'display:block;line-height:1.6';
-      note.textContent = '選用後會固定最新一個命中的介面，後續只同步同一份世界狀態；切換故事或關閉功能會銷毀介面。腳本仍須另外授權。';
+      note.textContent = '選用後固定一個命中的介面並同步狀態；腳本與世界狀態資料須另外授權。切換故事會銷毀介面。';
       panel.append(label, note);
       control.addEventListener('change', () => {
         const id = cardId();
@@ -151,7 +154,8 @@
     attachControl();
     const owner = cardId(), story = GameState.current, data = owner && settings(owner);
     if (!inChat() || !story || !owner || !data || !optedIn(owner)) { clear(); return; }
-    const signature = JSON.stringify([owner, data.allowScripts === true, data.allowExternalAssets === true, data.rules]);
+    const signature = JSON.stringify([owner, data.allowScripts === true, data.allowExternalAssets === true,
+      data.allowStateSharing === true, data.rules]);
     if (active && active.owner === owner && active.story === story && active.signature === signature && active.root.isConnected) {
       sendState(); return;
     }
@@ -164,7 +168,7 @@
         console.info('BAO/LAB author dock: no compatible rich source found', rendered?.blocked ? '(scripts disabled)' : '');
         return;
       }
-      mount(rendered.result, owner, story, signature, data.allowExternalAssets === true);
+      mount(rendered.result, owner, story, signature, data.allowExternalAssets === true, data.allowStateSharing === true);
     } catch (error) { if (ticket === sequence) console.warn('BAO/LAB persistent author interface:', error.message); }
   }
   function schedule() { if (!queued) { queued = true; queueMicrotask(refresh); } }
