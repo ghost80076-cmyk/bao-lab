@@ -278,7 +278,8 @@ export default {
       let response;
       if (url.pathname === '/health' && request.method === 'GET') {
         await db.prepare('SELECT id FROM players LIMIT 1').first();
-        response = json({ ok: true, service: 'bao-lab-credits-pilot', credit_unit: '100_tokens', daily_chat_limit_enabled: false });
+        response = json({ ok: true, service: 'bao-lab-credits-pilot', credit_unit: '100_tokens',
+          daily_chat_limit_enabled: false, diagnostic_version: '2026-09-22-1' });
       } else if (url.pathname.startsWith('/admin/')) response = await adminRoute(request, url, env, db);
       else if (url.pathname === '/me' && request.method === 'GET') response = await chatRoute(request, env, db);
       else if (url.pathname === '/chat' && request.method === 'POST') response = await chatRoute(request, env, db);
