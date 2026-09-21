@@ -1,91 +1,34 @@
-# BAO/LAB Credits Worker — limited pilot
+# BAO/LAB 邀請制 Worker — token 額度測試版
 
-This is a separate Cloudflare Worker, NOT an update to the live GitHub Pages frontend. It uses the existing `bao-lab-credits-pilot` D1 database and its existing `players` and `api_usage` tables. The existing dashboard binding is called `資料庫` (the code also accepts `DB`). No migrations are required for this pilot.
+此目錄是獨立的 Cloudflare Worker，與 GitHub Pages 前端分開部署。GitHub 提交不會自動更新 Cloudflare 上已運行的 Worker。保留既有 `bao-lab-credits-pilot` D1 資料庫及 `資料庫`（或 `DB`）binding；本版不需資料庫遷移。
 
-**Status:** experimental, non-streaming text-only chat. Do not advertise paid credits or onboard paying players until you have verified pricing, provider terms, region eligibility, metering, and the refund/reconciliation process. A D1 binding and a GitHub commit alone do NOT deploy the Worker.
+## 目前的額度定義
 
-## 1. Configuration (keep keys out of GitHub)
+- 先供經管理員邀請的文字 Gemini 使用；**每 100 個 Google 回報的輸入＋輸出 token 算 1 點虛擬額度**，每次向上取整。Gemini 回報的 total token 若包含思考 token，也算在輸出用量內。
+- **不再按每日 5／200 次聊天限制**；聊天、摘要與狀態請求均按自己的 token 用量計點。每次呼叫前先預留保守點數，成功後按實際用量結算並退回多預留點數；無使用量回報時保留預留點數並標為 `unverified`，失敗時退回預留點數。
+- 為了沿用現有 D1 表格而不重建資料，舊欄位 `balance_microusd`、`cost_microusd` 目前**裝的是虛擬點數，不是美元**。新 API 回傳 `balance_credits` 與 `charged_credits`；舊欄位僅作相容。舊玩家仍使用相同金鑰及原有點數。這些點數是遊玩測試配額，**不是已購買的美元、不代表 Google 實際費率或帳單**。
+- 每次文字請求最多 96 KB、100 則訊息、8192 輸出 tokens。前端平時請求 6144 tokens，連線測試請求 1024 tokens。Google 官方模型或免費配額限制仍可能先阻擋請求；Worker 現可區分 Google 429、上游 HTTP 錯誤與沒有文字（如 `MAX_TOKENS`），不回傳上游原始錯誤及對話全文。
 
-In Cloudflare, open Workers & Pages → `bao-lab-credits-api` → Settings / Variables and Secrets. Add these as **encrypted secrets** (never paste them in GitHub or chat):
+## 部署到目前的 Worker
 
-- `ADMIN_TOKEN`: a fresh, randomly generated, long private token for the owner only. It is different from players' tokens.
-- `OPENROUTER_API_KEY`: your own OpenRouter API key if using OpenRouter.
-- `GEMINI_API_KEY`: your own official Gemini API key if using the Gemini direct endpoint.
+在 Cloudflare → Workers & Pages → `bao-lab-credits-api` → Edit code，把 [最新 index.js](./src/index.js) 的**完整內容**覆蓋原有 Worker 程式，按 Deploy。這個 GitHub PR 是原始碼位置，**不是已部署的正式服務**。不要重建 D1，不要覆蓋現有 Cloudflare 環境變數或加密 secrets；`ADMIN_TOKEN`、`GEMINI_API_KEY`、`ALLOWED_ORIGIN` 沿用原值。確認部署後開啟 `https://bao-lab-credits-api.ghost80076.workers.dev/health`，JSON 應出現 `"credit_unit":"100_tokens"` 和 `"daily_chat_limit_enabled":false`。只有顯示這兩個新欄位才能確定 Cloudflare 已切換成功。網站前端的 `js/credits-pilot.js` 在 `main` 已更新，重新整理網站即可載入。
 
-Add these as ordinary environment variables (not credentials):
+Google 官方使用資格及帳單需另在 Google 帳戶核對；本版只為你的現有免費 Gemini 模型邀請玩家進行技術測試，不含正式付款／自動儲值。
 
-- `ALLOWED_ORIGIN`: the exact origin of the BAO/LAB site, e.g. `https://example.com` (no trailing slash; comma-separated origins if needed). Requests with another browser Origin are denied. Requests without an Origin, e.g. from curl, still require authentication.
-- `MODELS_JSON`: a JSON array of **explicitly allowed** model IDs and their current input/output prices. Configure only models you have checked against your own provider account; do not copy illustrative prices. Shape:
+## 管理員與玩家驗證
 
-```json
-[
-  {
-    "provider": "openrouter",
-    "model": "YOUR_ALLOWED_OPENROUTER_MODEL_ID",
-    "input_microusd_per_million": 0,
-    "output_microusd_per_million": 0
-  },
-  {
-    "provider": "gemini",
-    "model": "YOUR_ALLOWED_GEMINI_MODEL_ID",
-    "input_microusd_per_million": 0,
-    "output_microusd_per_million": 0
-  }
-]
-```
+所有管理操作都要帶管理員自己的 `Authorization: Bearer <ADMIN_TOKEN>`，不要放進前端或聊天紀錄。
 
-Replace the placeholders and both zeroes with real prices **before** using a paid model. Amounts are integers: USD 1 per million tokens = 1,000,000 micro-USD per million tokens. Cloudflare dashboard may provide an editor for text variables. If `MODELS_JSON` is missing/invalid, chat fails closed (no model is allowed). Do not grant a player token until keys, prices, and restrictions have been tested. The backend does not automatically pull live prices or reconcile invoices. Some providers apply cache discounts, tiered input pricing, or different rates for thought tokens, which this pilot does not model precisely.
+- `POST /admin/players`：`{"balance_credits":10000}`，建立玩家並**只回傳一次**玩家金鑰；舊 `balance_microusd` 參數仍可用，但含義是虛擬點數。
+- `GET /admin/players`：列出玩家 ID 及剩餘 `balance_credits`，不列出金鑰。
+- `POST /admin/players/<player_id>/credit`：`{"amount_credits":10000}`，加點，不用重建玩家；舊 `amount_microusd` 亦兼容。
+- `POST /admin/players/<player_id>/disable`：停用玩家。
+- `GET /admin/usage?player_id=<player_id>`：最新 100 筆用量，包含 `input_tokens`、`output_tokens`、`charged_credits`、`status`。
+- `GET /me`：用玩家金鑰查看 `balance_credits`、`credit_unit`，每日聊天用量僅供參考，不再作為阻擋條件。
+- `POST /chat`：玩家金鑰、`provider:"gemini"`、允許清單中的模型、`messages`、`max_output_tokens`。成功回傳文字、input/output tokens、charged_credits。
 
-## 2. Deployment
+`MODELS_JSON` 現沿用現有的模型允許清單。原先的美元費率欄位不參與本版虛擬點數結算；若日後開放收費模型，必須先設計獨立的真實金流、成本與風險管理，不可把虛擬點數宣稱為美元。
 
-The branch includes `src/index.js` and `wrangler.jsonc` matching the existing Worker name and D1 ID. To deploy with Wrangler on a trusted local computer:
+## 測試
 
-```bash
-cd credits-worker
-npx wrangler login
-npx wrangler deploy
-```
-
-Alternatively, paste the complete contents of `credits-worker/src/index.js` into Cloudflare's **Edit code** for `bao-lab-credits-api` and click **Deploy**. This retains the current dashboard D1 binding; confirm the deployed Worker still has the `資料庫` binding and secrets. No API keys belong in source. Do **not** connect the root GitHub Pages project to Cloudflare Workers as if it were a standalone Worker. After deployment, visit `/health` and expect JSON `{ "ok": true, ... }`; that checks D1 table access, not provider connectivity.
-
-`wrangler.jsonc` contains the D1 UUID shown in your Cloudflare dashboard. It is an identifier, not an API key. If your dashboard lists a different D1 ID, update it before deploying. Using Wrangler config as source-of-truth may reconcile dashboard bindings on the next deploy.
-
-## 3. Admin actions (server-side or terminal only)
-
-All administrative requests require `Authorization: Bearer <ADMIN_TOKEN>`. Never store the admin token in the BAO/LAB frontend or expose it to players. Endpoints:
-
-- `POST /admin/players` with `{"balance_microusd":1000000,"daily_chat_limit":200}` creates a player. **The returned `player_token` is shown only once**; save it securely and give each player only their own token. `1,000,000` micro-USD = USD 1 of estimated credit (not a payment receipt).
-- `GET /admin/players` lists IDs, balances and limits without returning tokens.
-- `POST /admin/players/<uuid>/credit` with `{"amount_microusd":1000000}` adds manually reconciled credit.
-- `POST /admin/players/<uuid>/disable` immediately blocks that token from making *new* requests (does not cancel an in-flight request).
-- `GET /admin/usage?player_id=<uuid>` returns the latest 100 metadata-only usage records.
-
-## 4. Player actions
-
-Use `Authorization: Bearer <player_token>` on every request.
-
-`GET /me` shows the player's own ID, balance, UTC chat count, and daily chat limit.
-
-`POST /chat` accepts:
-
-```json
-{
-  "provider": "openrouter",
-  "model": "YOUR_ALLOWED_OPENROUTER_MODEL_ID",
-  "request_kind": "chat",
-  "messages": [{"role":"user","content":"Hello"}],
-  "max_output_tokens": 1024
-}
-```
-
-`provider` is `openrouter` or `gemini`; `model` must exactly match `MODELS_JSON`; `request_kind` can be `chat`, `status`, or `summary`. Successful responses contain `content` and usage. Streaming, image inputs, tool calls, file uploads, OpenAI-compatible proxy endpoints, and automatic frontend integration are **not included**.
-
-## 5. Limits, accounting and privacy
-
-Each player has a separate token hash, balance, and usage metadata. `chat` has a per-player daily limit (default 200 in **UTC**, not Hong Kong/Taiwan midnight). `status` and `summary` do not consume those 200 chats; they each have a separate 50/day safety cap and **still cost credits**. Input is limited to 24 KB of text messages; max output is 4096 tokens. An estimated upper amount is reserved before calling the model; unused credit is returned after verified usage. If a successful provider response lacks usage data, the reserve is kept and flagged `unverified` for manual reconciliation. If the measured charge is more than reserve, the player is charged no more than reserve; the operator covers the difference. Failed provider calls usually refund the reserve, but some providers may charge for failed/timed-out requests. Reconcile against provider invoices and set provider-side spending limits.
-
-This Worker does **not** store message text, AI responses, or API keys in D1. It stores player ID, provider, model, purpose, tokens, estimated charged credit, status and UTC timestamp. The model providers receive prompt data for generation. A backend operator could change the Worker to log or read plaintext requests in the future; make a clear privacy disclosure to players. Cloudflare/provider logs and their retention are separate; review their settings and terms. Any paid resale, invoicing or regional access requires independent checks, especially for Hong Kong users. Do not present this as a bypass of a provider's regional restrictions.
-
-## 6. Test before letting players in
-
-Run `node --test tests/*.test.mjs` with Node 22+. After deploying, verify `/health`, create one **test** player, give a small credit, confirm `/me`, send one short request to an explicitly allowed model, check `/admin/usage`, verify chat usage and balance change, and test zero balance and expired daily quota. Check that the BAO/LAB frontend still uses its previous BYOK pathway unless you explicitly add an opt-in relay mode later.
+Node 22+ 執行：`node --check src/index.js && node --test tests/*.test.mjs`。單元測試涵蓋：密鑰與來源檢查、舊每日限制不阻擋、按 token 計點、額度不足、Google 429、失敗退點、長篇請求和空回覆診斷。部署後務必實際以玩家金鑰測一次短句和一張較長的角色卡，再核對 `/me` 與使用紀錄。不要截圖金鑰，也不要將故事全文寫入日誌；Google 與 Cloudflare 自身的日誌／資料保存政策須另行確認。
