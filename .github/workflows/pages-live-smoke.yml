@@ -66,6 +66,29 @@ jobs:
             exit 1
           fi
 
+      - name: Verify Gemini explicit cache on public Pages
+        shell: bash
+        run: |
+          set -euo pipefail
+          ok=0
+          for attempt in $(seq 1 24); do
+            loader="$(curl --fail --silent --show-error --location --max-time 15 "${SITE_URL}js/prompt-cache.js" || true)"
+            cache="$(curl --fail --silent --show-error --location --max-time 15 "${SITE_URL}js/gemini-explicit-cache.js" || true)"
+            if grep -Fq "script.src = 'js/gemini-explicit-cache.js'" <<<"${loader}" \
+              && grep -Fq 'window.BAOGeminiExplicitCache = { open, inspect, create, remove }' <<<"${cache}" \
+              && grep -Fq 'Gemini 顯式快取（進階）' <<<"${cache}"; then
+              ok=1
+              printf 'Public Pages Gemini explicit cache and loader verified on attempt %s.\n' "$attempt"
+              break
+            fi
+            printf 'Waiting for Gemini explicit cache deployment (attempt %s/24)...\n' "$attempt"
+            sleep 5
+          done
+          if [ "$ok" -ne 1 ]; then
+            printf 'Public Pages Gemini explicit cache assets could not be verified.\n' >&2
+            exit 1
+          fi
+
       - name: Verify robots and sitemap
         shell: bash
         run: |
