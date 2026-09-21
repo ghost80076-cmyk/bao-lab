@@ -14,6 +14,11 @@
     {src:'assets/yume-yume-home-v3.webp',label:'中野套房',alt:'黑羽ゆめ在中野套房的肖像'},
     {src:'assets/yume-yume-club-v3.webp',label:'Club Rose',alt:'黑羽ゆめ在夜店的肖像'}
   ]);
+  const castPortraits = Object.freeze({
+    asami:'assets/yume-asami-v3.webp',
+    misaki:'assets/yume-misaki-v3.webp'
+  });
+  const castPortrait = id => castPortraits[id] || `assets/yume-${id}-v2.webp`;
   let currentStory = null;
   let focused = 'yume';
   let yumePhoto = 1;
@@ -137,7 +142,7 @@
       const person=el('button','y-person');
       person.type='button';person.setAttribute('aria-pressed',String(focused===id));
       person.setAttribute('aria-label',`查看${name}的角色檔案`);
-      const thumb=el('img');thumb.src=id==='yume'?yumePhotos[0].src:`assets/yume-${id}-v2.webp`;
+      const thumb=el('img');thumb.src=id==='yume'?yumePhotos[0].src:castPortrait(id);
       thumb.alt='';thumb.loading='lazy';thumb.width=90;thumb.height=105;
       person.append(thumb,el('span','',name));
       person.addEventListener('click',()=>{focused=id;schedule();});
@@ -147,7 +152,7 @@
     panel.append(el('div','y-muted',`目前選擇：${roster[focused]}`));
     if (focused !== 'player') {
       const portrait=el('img','y-portrait');
-      portrait.src=focused==='yume'?yumePhotos[yumePhoto].src:`assets/yume-${focused}-v2.webp`;
+      portrait.src=focused==='yume'?yumePhotos[yumePhoto].src:castPortrait(focused);
       portrait.alt=focused==='yume'?yumePhotos[yumePhoto].alt:`${roster[focused]}的人物插畫`;
       portrait.loading='lazy';
       panel.append(portrait);
