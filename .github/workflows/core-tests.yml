@@ -93,3 +93,5 @@ jobs:
         run: node tests/memory-request-guard-core.cjs
       - name: Helper context isolation and memory lifecycle
         run: node tests/helper-context-core.cjs
+      - name: Contextual lorebook and legacy compatibility
+        run: node tests/lorebook-core.cjs
