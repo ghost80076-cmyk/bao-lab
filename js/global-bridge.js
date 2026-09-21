@@ -39,7 +39,7 @@
     API.__baoMemoryPresentationGuard = true;
   }
   // Optional UI only. Keep Node/test harnesses with partial DOMs working.
-  if (typeof document.querySelector === 'function' && document.head && !document.querySelector('script[src="js/cache-cost-panel.js"]')) {
+  if (typeof document !== 'undefined' && typeof document.querySelector === 'function' && document.head && !document.querySelector('script[src="js/cache-cost-panel.js"]')) {
     const script = document.createElement('script');
     script.src = 'js/cache-cost-panel.js';
     script.onerror = () => console.warn('BAO/LAB cache and cost panel failed to load');
