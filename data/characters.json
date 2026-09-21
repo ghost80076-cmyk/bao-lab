@@ -14,5 +14,9 @@
   {
     "id": "desire-district",
     "file": "data/characters/general/desire-district.json"
+  },
+  {
+    "id": "kurobane-yume-kabukicho",
+    "file": "data/characters/general/kurobane-yume-kabukicho.json"
   }
 ]
