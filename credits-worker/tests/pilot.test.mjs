@@ -92,6 +92,7 @@ test('D1 binding and origin/auth checks still fail closed', async () => {
   const { db } = fakeDb(), env = envFor(db);
   const health = await (await worker.fetch(request('/health'), env)).json();
   assert.equal(health.daily_chat_limit_enabled, false);
+  assert.equal(health.diagnostic_version, '2026-09-22-1');
   assert.equal((await worker.fetch(request('/health', 'GET', null, null, 'https://evil.test'), env)).status, 403);
   assert.equal((await worker.fetch(request('/admin/players'), env)).status, 401);
 });
