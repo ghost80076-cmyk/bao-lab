@@ -9,6 +9,7 @@ on:
       - 'js/regex-chat.js'
       - 'tests/e2e/author-regex-inline.spec.cjs'
       - 'tests/e2e/author-regex-dock.spec.cjs'
+      - 'tests/e2e/author-regex-legacy-input.spec.cjs'
       - '.github/workflows/author-regex-inline.yml'
   pull_request:
     paths:
@@ -19,6 +20,7 @@ on:
       - 'js/regex-chat.js'
       - 'tests/e2e/author-regex-inline.spec.cjs'
       - 'tests/e2e/author-regex-dock.spec.cjs'
+      - 'tests/e2e/author-regex-legacy-input.spec.cjs'
       - '.github/workflows/author-regex-inline.yml'
   workflow_dispatch:
 permissions:
@@ -35,4 +37,4 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npx playwright install --with-deps chromium
-      - run: npm run test:e2e -- tests/e2e/author-regex-inline.spec.cjs tests/e2e/author-regex-dock.spec.cjs --project=chromium
+      - run: npm run test:e2e -- tests/e2e/author-regex-inline.spec.cjs tests/e2e/author-regex-dock.spec.cjs tests/e2e/author-regex-legacy-input.spec.cjs --project=chromium
