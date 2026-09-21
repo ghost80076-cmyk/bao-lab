@@ -14,6 +14,7 @@ assert.ok(fs.existsSync(path.join(__dirname,'..',card.meta.avatar)));
 for(const person of card.content.profile.cast){
   const state={npcs:[{name:person.name,presence:'away'}]};
   assert.equal(archive.knownNPC(state,person.id)?.presence,'away',person.name);
+  assert.ok(fs.existsSync(path.join(__dirname,'..',`assets/yume-${person.id}-v1.webp`)),person.id);
 }
 assert.equal(archive.isYume({name:card.meta.name}),true);
 assert.doesNotMatch(card.content.author_instructions,/每回合.*必須.*\[REL/);

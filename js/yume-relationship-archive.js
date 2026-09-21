@@ -38,6 +38,7 @@
 #bao-yume-archive .y-item strong{display:block;color:#f9b8d7;margin-bottom:5px}
 #bao-yume-archive .y-item small,#bao-yume-archive .y-muted{display:block;color:#c4b3c3;font-size:12px;line-height:1.55}
 #bao-yume-archive .y-item p{margin:6px 0 0;white-space:pre-wrap;line-height:1.6;font-size:14px}
+#bao-yume-archive .y-portrait{display:block;width:min(100%,260px);aspect-ratio:4/5;object-fit:cover;object-position:center top;border:1px solid #79526b;border-radius:12px;margin:0 auto}
 #bao-yume-archive .y-note{font-size:12px;color:#c6aec1;line-height:1.6}
 @media(max-width:480px){#bao-yume-archive .y-panel{padding:10px}#bao-yume-archive .y-network{max-width:280px}}
 `;
@@ -115,6 +116,11 @@
     panel.appendChild(persons);
     panel.append(el('div','y-muted',`目前選擇：${roster[focused]}`));
     if (focused !== 'player') {
+      const portrait=el('img','y-portrait');
+      portrait.src=`assets/yume-${focused}-v1.webp`;
+      portrait.alt=`${roster[focused]}的人物插畫`;
+      portrait.loading='lazy';
+      panel.append(portrait);
       const npc=api.knownNPC(story,focused);
       const state=el('div','y-item');
       state.append(el('strong','',`${roster[focused]} · 共用世界狀態`));
