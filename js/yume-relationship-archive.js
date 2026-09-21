@@ -1,4 +1,4 @@
-/* Yume continuity v3: one story projection + the existing GameState; no extra API or storage. */
+/* Yume archive: read-only UI over the active story and shared GameState; no extra prompts, API calls or storage. */
 (function (root, make) {
   'use strict';
   const api = make();
@@ -106,7 +106,7 @@
     if (!open) return;
     const panel=el('div','y-panel');
     const tabs=el('div','y-tabs');
-    for (const [id,label] of [['relations','關係網絡'],['intimacy','親密事件'],['offscreen','離場／世界進展']]) {
+    for (const [id,label] of [['relations','關係網絡'],['intimacy','親密事件'],['offscreen','已標記的場外紀錄']]) {
       tabs.append(button(label,()=>{tab=id;schedule();},tab===id));
     }
     panel.appendChild(tabs);
@@ -123,14 +123,14 @@
     }
     const visible=data[tab].filter(r=>tab==='offscreen' ? r.actor===focused : r.a===focused || r.b===focused);
     if(tab==='relations') { const svg=doc.createElementNS('http://www.w3.org/2000/svg','svg');svg.classList.add('y-network');drawGraph(svg,data);panel.appendChild(svg); }
-    if (!visible.length) panel.append(el('div','y-item',tab==='offscreen'?'暫無已向玩家揭露的場外進展；離場不代表停止生活，也不代表已發生特定事件。':tab==='relations'?'尚無明確標記的人物關係。':'尚無明確標記的親密事件；不會由曖昧推定。'));
+    if (!visible.length) panel.append(el('div','y-item',tab==='offscreen'?'這條故事尚無已標記的場外事件；原生世界事件請到原有狀態面板查看。':tab==='relations'?'尚無明確標記的人物關係。':'尚無明確標記的親密事件；不會由曖昧推定。'));
     visible.slice(-60).reverse().forEach(record=>{
       const card=el('article','y-item');
       card.append(el('strong','',tab==='offscreen'?`${roster[record.actor]} · 場外進展`:`${roster[record.a]} × ${roster[record.b]}`));
       card.append(el('small','',`故事訊息 ${record.turn} · ${tab==='offscreen'?'已公開的離場事件':tab==='relations'?'人物關係標記':'親密事件標記'}`));
       card.append(el('p','',record.body));panel.append(card);
     });
-    panel.append(el('div','y-note','依目前故事中 AI 的 [REL]、[INTIMACY]、[OFFSCREEN] 標記整理。場外事件只收錄已向玩家揭露的內容；不推測秘密、不自動杜撰事件。人物在場狀態來自 BAO/LAB 原有世界狀態；回溯／分支時按目前對話重建紀錄。'));
+    panel.append(el('div','y-note','唯讀呈現：讀取目前故事中既有的 [REL]、[INTIMACY]、[OFFSCREEN] 標記及 BAO/LAB 原有世界狀態。不會自行要求 AI 產生標記或重複世界規則；沒有標記時請使用原生事件與狀態面板。回溯／分支時按目前對話重建紀錄。'));
     container.append(panel);
   }
   function schedule() { if(queued)return;queued=true;root.queueMicrotask ? root.queueMicrotask(render) : Promise.resolve().then(render); }
@@ -142,12 +142,6 @@
   root.App.showView=function(...args){const result=originalShow(...args);schedule();return result;};
   const originalPanel=root.App.renderUIPanel?.bind(root.App);
   if (originalPanel) root.App.renderUIPanel=function(...args){const result=originalPanel(...args);if(open)schedule();return result;};
-  const originalPrompt=root.App.buildSystemPrompt.bind(root.App);
-  root.App.buildSystemPrompt=function(...args){
-    const base=originalPrompt(...args);
-    if(!eligible())return base;
-    return `${base}\n\n${api.continuityPrompt(root.Chat.messages,ownerState())}`;
-  };
   root.BAOYumeArchive=Object.freeze({refresh:schedule,collect:()=>api.collect(root.Chat.messages)});
   if(doc.readyState==='loading')doc.addEventListener('DOMContentLoaded',schedule);
   else schedule();
@@ -186,20 +180,5 @@
     }
     return result;
   }
-  function continuityPrompt(messages,state) {
-    const entries=collect(messages).offscreen.slice(-4).map(item=>`${roster[item.actor]}（先前已公開的事件）：${item.body.slice(0,100)}`);
-    const active=Object.keys(aliases).map(id=>{
-      const npc=knownNPC(state,id);
-      return npc?.presence==='present'||npc?.presence==='away' ? `${roster[id]}：${presenceLabel(npc.presence)}` : '';
-    }).filter(Boolean).slice(0,6);
-    return [
-      '【六人世界・場外連續性（補充，不取代原角色卡與世界規則）】',
-      '六名 NPC 各有原設定的目標與日常；玩家不在場時也不必停止生活。只有劇情時間實際經過且有合理因果時，才讓場外行動推進；不要求每輪每人都有事件，也不得隨機篡改既定關係。',
-      '保持玩家視角與資訊隔離。未向玩家揭露的秘密不能當成玩家已知事實，不要把秘密寫進公開狀態或標記。不得替玩家決定台詞、意願或行動。',
-      '當正文已明確向玩家揭露某位 NPC 的場外行動或後果時，可於正文後以 [OFFSCREEN:rina]已公開事件[/OFFSCREEN] 記錄；rina 可替換為 yume、ryusei、airi、asami、misaki。未揭露則不輸出標記；不需為了標記縮短正文。',
-      active.length ? `【既有世界狀態的在場資訊】${active.join('；')}` : '',
-      entries.length ? `【已公開的場外歷史（非當前位置）】\n${entries.join('\n')}` : ''
-    ].filter(Boolean).join('\n');
-  }
-  return Object.freeze({roster,isYume,collect,knownNPC,known,presenceLabel,continuityPrompt});
+  return Object.freeze({roster,isYume,collect,knownNPC,known,presenceLabel});
 });
