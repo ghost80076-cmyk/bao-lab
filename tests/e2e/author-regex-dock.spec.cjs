@@ -11,6 +11,14 @@ async function story(page) {
   await page.waitForFunction(() => Boolean(window.BAOAuthorDock && App.characters?.length));
   await page.evaluate(() => {
     App.openCharacter(App.characters[0].id);
+    // Character statuses are schema-governed: an undeclared field is discarded
+    // by the real status engine. Declare the test field instead of bypassing it.
+    App.activeCharacter = {
+      ...App.activeCharacter,
+      character_status: { enabled: true, fields: [
+        { key: 'trust', label: '信任', type: 'number', default: 0 }
+      ] }
+    };
     App.config = {
       narrativeMode: 'immersive', displayMode: 'text',
       persona: { name: '測試玩家', gender: '未指定', identity: '', personality: '', relationship: '', extra: '' },
@@ -34,6 +42,8 @@ async function story(page) {
 
 test('author UI survives turns, updates from the same world state, and cannot send an API request', async ({ page }) => {
   const panel = await story(page);
+  // Existing state must be delivered after the author document has loaded.
+  await page.evaluate(() => GameState.applyUpdate({ time: '啟動畫面', location: '開始地點' }));
   page.once('dialog', dialog => dialog.accept());
   await panel.getByLabel('允許作者腳本（需自行信任來源）').check();
   await panel.getByLabel('跨回合常駐作者介面（不必每輪重建）').check();
@@ -41,10 +51,10 @@ test('author UI survives turns, updates from the same world state, and cannot se
   const frame = page.frameLocator('iframe[title="跨回合作者隔離介面"]');
   await expect(dock).toHaveCount(1);
   await expect(frame.locator('#persistent-card')).toBeVisible();
+  await expect(frame.locator('#author-state')).toHaveText('啟動畫面｜開始地點｜undefined');
   await expect(page.locator('#chat-stream .bao-author-inline')).toHaveCount(0);
   await page.evaluate(() => {
-    GameState.current.characterStatuses = { '阿花': { trust: 7 } };
-    GameState.applyUpdate({ time: '星期一 早晨', location: '廣場', npcs: [{ name: '阿花', mood: '開心', presence: 'present' }] });
+    GameState.applyUpdate({ time: '星期一 早晨', location: '廣場', npcs: [{ name: '阿花', mood: '開心', presence: 'present' }], character_statuses: { '阿花': { trust: 7 } } });
   });
   await expect(frame.locator('#author-state')).toHaveText('星期一 早晨｜廣場｜7');
   const frameIdentity = await frame.locator('#persistent-card').evaluate(node => {
