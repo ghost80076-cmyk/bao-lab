@@ -13,7 +13,7 @@
       .replace(/<[^>]+>/g, "");
     if (typeof DOMParser === "undefined") return spaced.replace(/&(?:nbsp|#160);/gi, " ").replace(/&lt;/gi, "<").replace(/&gt;/gi, ">").replace(/&amp;/gi, "&").trim();
     const doc = new DOMParser().parseFromString(spaced, "text/html");
-    return (doc.body.textContent || "").replace(/\n[ \t]+/g, "\n").replace(/\n{3,}/g, "\n\n").trim();
+    return (doc.body.textContent || "").replace(/\n[ \t]+/g, "\n\n").replace(/\n{3,}/g, "\n\n").trim();
   };
   if (typeof Chat !== "undefined" && typeof Chat.context === "function" && !Chat.__baoContextPresentationGuard) {
     const originalContext = Chat.context.bind(Chat);
@@ -53,4 +53,12 @@ if (typeof document !== 'undefined' && document.head && !document.querySelector(
   creditsScript.src = 'js/credits-pilot.js';
   creditsScript.onerror = () => console.warn('BAO/LAB invited credits pilot failed to load; personal API keys remain available.');
   document.head.appendChild(creditsScript);
+}
+
+// Load recovery separately: the character library loads asynchronously from site-ui.js.
+if (typeof document !== 'undefined' && document.head && !document.querySelector('script[src="js/character-library-repair.js"]')) {
+  const repairScript = document.createElement('script');
+  repairScript.src = 'js/character-library-repair.js';
+  repairScript.onerror = () => console.warn('BAO/LAB character library recovery failed to load. Existing data was not changed.');
+  document.head.appendChild(repairScript);
 }
