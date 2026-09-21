@@ -5,7 +5,9 @@
   "workers_dev": true,
   "vars": {
     "ALLOWED_ORIGIN": "https://ghost80076-cmyk.github.io",
-    "MODEL_ID": "replace-after-provider-review",
+    "OPENROUTER_MODEL": "replace-with-reviewed-model",
+    "GEMINI_MODEL": "replace-with-reviewed-model",
+    "ENABLE_GEMINI": "false",
     "DAILY_CALL_LIMIT": "200"
   },
   "d1_databases": [
