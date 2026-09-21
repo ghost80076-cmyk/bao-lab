@@ -89,6 +89,29 @@ jobs:
             exit 1
           fi
 
+      - name: Verify cache cost panel on public Pages
+        shell: bash
+        run: |
+          set -euo pipefail
+          ok=0
+          for attempt in $(seq 1 24); do
+            loader="$(curl --fail --silent --show-error --location --max-time 15 "${SITE_URL}js/global-bridge.js" || true)"
+            panel="$(curl --fail --silent --show-error --location --max-time 15 "${SITE_URL}js/cache-cost-panel.js" || true)"
+            if grep -Fq "script.src = 'js/cache-cost-panel.js'" <<<"${loader}" \
+              && grep -Fq 'window.BAOCacheCostPanel = { describeCache, estimateDifference, open, render }' <<<"${panel}" \
+              && grep -Fq '快取與費用管理' <<<"${panel}"; then
+              ok=1
+              printf 'Public Pages cache cost panel and loader verified on attempt %s.\n' "$attempt"
+              break
+            fi
+            printf 'Waiting for cache cost panel deployment (attempt %s/24)...\n' "$attempt"
+            sleep 5
+          done
+          if [ "$ok" -ne 1 ]; then
+            printf 'Public Pages cache cost panel assets could not be verified.\n' >&2
+            exit 1
+          fi
+
       - name: Verify robots and sitemap
         shell: bash
         run: |
