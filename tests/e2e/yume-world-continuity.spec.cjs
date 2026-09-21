@@ -15,10 +15,11 @@ test('Yume archive reads one world state without adding simulation instructions'
   const panel = page.locator('#bao-yume-archive');
   await expect(panel).toBeVisible();
   await panel.locator('.y-head').click();
+  await panel.getByRole('button', { name: '關係網絡' }).click();
   await expect(panel).toContainText('舊關係');
-  await panel.getByRole('button', { name: '親密事件' }).click();
+  await panel.getByRole('button', { name: 'R18 檔案' }).click();
   await expect(panel).toContainText('雙方自願的成人親密紀錄');
-  await panel.getByRole('button', { name: '已標記的場外紀錄' }).click();
+  await panel.getByRole('button', { name: '街區・現場' }).click();
   await panel.getByRole('button', { name: 'りな' }).click();
   await expect(panel).toContainText('玩家收到訊息，確認りな已離開。');
   await expect(panel).toContainText('在場狀態：已離場');
@@ -33,7 +34,7 @@ test('Yume archive reads one world state without adding simulation instructions'
     BAOYumeArchive.refresh();
   });
   await panel.locator('.y-head').click();
-  await panel.getByRole('button', { name: '已標記的場外紀錄' }).click();
+  await panel.getByRole('button', { name: '街區・現場' }).click();
   await panel.getByRole('button', { name: '美咲' }).click();
   await expect(panel).toContainText('美咲已出發。');
   await expect(panel).not.toContainText('玩家收到訊息，確認りな已離開。');
