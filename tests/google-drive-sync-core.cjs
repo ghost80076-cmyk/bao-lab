@@ -23,12 +23,13 @@ async function run() {
   const fetch = async (url, options = {}) => {
     calls.push({ url: String(url), method: options.method || 'GET' });
     if (String(url).includes('/about?')) return response({ user: { permissionId: 'test-account' } });
-    if (String(url).includes('/files?')) return response({ files: remote, incompleteSearch: false });
+    // Upload URLs also end in /files?, so match the specific upload endpoint first.
     if (String(url).includes('/upload/drive/v3/files?')) {
       const item = { id: 'drive-file-1', name: 'bao-lab-story-v1-' + id + '.json', version: '1' };
       remote.push(item);
       return response(item);
     }
+    if (String(url).includes('/files?')) return response({ files: remote, incompleteSearch: false });
     throw new Error('Unexpected request: ' + url);
   };
   const lib = { open: async () => true, install() {}, flush: async () => true,
