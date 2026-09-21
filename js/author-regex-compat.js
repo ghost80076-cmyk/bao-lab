@@ -5,7 +5,7 @@
   if (!Core || !window.App || !window.Chat) return;
   const CORE_URL = new URL('author-regex-core.js', document.currentScript?.src || location.href).href;
   const PREFIX = 'bao-lab:author-regex:v1:';
-  const empty = () => ({ enabled: false, allowScripts: false, rules: [] });
+  const empty = () => ({ enabled: false, allowScripts: false, allowExternalAssets: false, rules: [] });
   const cardId = () => String(App.activeCharacter?.id || '').slice(0, 80);
   const key = id => PREFIX + encodeURIComponent(id);
   const load = id => {
@@ -13,17 +13,17 @@
       const data = JSON.parse(localStorage.getItem(key(id)) || 'null');
       return data && Array.isArray(data.rules) ? {
         enabled: data.enabled === true, allowScripts: data.allowScripts === true,
-        rules: Core.normalize(data.rules)
+        allowExternalAssets: data.allowExternalAssets === true, rules: Core.normalize(data.rules)
       } : empty();
     } catch (_) { return empty(); }
   };
   const save = (id, data) => localStorage.setItem(key(id), JSON.stringify(data));
-  let panel, status, activeCheckbox, scriptCheckbox, fileInput, sourceSelect, overlay;
-  let currentFrame = null, currentToken = '', currentOwner = '', lastDraftAt = 0;
+  let panel, status, activeCheckbox, scriptCheckbox, externalCheckbox, fileInput, sourceSelect, overlay;
+  let currentFrame = null, currentToken = '', currentOwner = '', currentScripts = false, lastDraftAt = 0;
   const say = message => { if (status) status.textContent = message; };
   const close = () => {
     if (overlay) overlay.remove();
-    overlay = null; currentFrame = null; currentToken = ''; currentOwner = '';
+    overlay = null; currentFrame = null; currentToken = ''; currentOwner = ''; currentScripts = false;
   };
   const stateForAuthor = () => {
     const state = window.GameState?.current || {};
@@ -33,9 +33,8 @@
       const safeName = String(name).slice(0, 80);
       statuses[safeName] = {};
       for (const [field, value] of Object.entries(fields).slice(0, 30)) {
-        if (['string', 'number', 'boolean'].includes(typeof value)) {
+        if (['string', 'number', 'boolean'].includes(typeof value))
           statuses[safeName][String(field).slice(0, 80)] = String(value).slice(0, 180);
-        }
       }
     }
     return {
@@ -48,12 +47,12 @@
     };
   };
   const sendState = () => {
-    if (!currentFrame?.isConnected || cardId() !== currentOwner || !currentToken) return;
+    if (!currentScripts || !currentFrame?.isConnected || cardId() !== currentOwner || !currentToken) return;
     currentFrame.contentWindow?.postMessage({ baoAuthor: 'v1', token: currentToken,
       type: 'state', value: stateForAuthor() }, '*');
   };
   window.addEventListener('message', event => {
-    if (!currentFrame || event.source !== currentFrame.contentWindow || event.origin !== 'null'
+    if (!currentScripts || !currentFrame || event.source !== currentFrame.contentWindow || event.origin !== 'null'
       || cardId() !== currentOwner || !event.data || event.data.baoAuthor !== 'v1'
       || event.data.token !== currentToken) return;
     if (event.data.type === 'ready') { sendState(); return; }
@@ -87,12 +86,11 @@
       worker.postMessage({ text, rules, allowScripts });
     });
   }
-  // srcdoc is created from an external JS file, so the bootstrap MUST contain
-  // a real closing script tag, not the backslash-escaped <\/script> text.
   const bootstrap = token => `<script>(function(){'use strict';const token=${JSON.stringify(token)};let state={};window.BAOAuthor=Object.freeze({draft:function(value){if(typeof value==='string'&&value.length<=500)parent.postMessage({baoAuthor:'v1',token:token,type:'draft',value:value},'*');},getState:function(){return state;}});window.addEventListener('message',function(e){if(e.source!==parent||!e.data||e.data.baoAuthor!=='v1'||e.data.token!==token||e.data.type!=='state')return;state=e.data.value||{};window.dispatchEvent(new CustomEvent('bao:statechange',{detail:state}));});parent.postMessage({baoAuthor:'v1',token:token,type:'ready'},'*');})();</script>`;
-  function show(htmlResult, owner) {
+  function show(htmlResult, owner, allowExternalAssets) {
     close();
     currentOwner = owner;
+    currentScripts = Boolean(htmlResult.script);
     currentToken = crypto.randomUUID?.() || String(Math.random()) + String(Date.now());
     overlay = document.createElement('div');
     overlay.style.cssText = 'position:fixed;inset:0;background:#000b;z-index:2147483000;display:flex;align-items:center;justify-content:center;padding:10px;box-sizing:border-box';
@@ -108,11 +106,12 @@
     note.textContent = '介面僅在隔離視窗運作；作者按鈕只能填入草稿，無法自行呼叫 API 或寫入故事。';
     currentFrame = document.createElement('iframe');
     currentFrame.title = '作者正則隔離介面'; currentFrame.referrerPolicy = 'no-referrer';
-    currentFrame.setAttribute('sandbox', htmlResult.script ? 'allow-scripts' : '');
+    currentFrame.setAttribute('sandbox', currentScripts ? 'allow-scripts' : '');
     currentFrame.style.cssText = 'display:block;flex:1;min-height:0;width:100%;border:0;background:white';
-    const csp = "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src https: data:; font-src https: data:; media-src https: data:; connect-src 'none'; frame-src 'none'; form-action 'none'; base-uri 'none'; object-src 'none'";
+    const assets = allowExternalAssets ? 'https: data:' : 'data:';
+    const csp = `default-src 'none'; script-src ${currentScripts ? "'unsafe-inline'" : "'none'"}; style-src 'unsafe-inline'; img-src ${assets}; font-src ${assets}; media-src ${assets}; connect-src 'none'; frame-src 'none'; form-action 'none'; base-uri 'none'; object-src 'none'`;
     currentFrame.srcdoc = '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="' + csp + '"><style>html,body{margin:0;min-height:100%;overflow-wrap:anywhere}*,*:before,*:after{box-sizing:border-box}</style>'
-      + (htmlResult.script ? bootstrap(currentToken) : '') + '</head><body>' + htmlResult.html + '</body></html>';
+      + (currentScripts ? bootstrap(currentToken) : '') + '</head><body>' + htmlResult.html + '</body></html>';
     box.append(bar, note, currentFrame); overlay.append(box); document.body.append(overlay);
     overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
     currentFrame.addEventListener('load', sendState);
@@ -122,6 +121,7 @@
     const data = load(cardId());
     if (activeCheckbox) activeCheckbox.checked = data.enabled;
     if (scriptCheckbox) scriptCheckbox.checked = data.allowScripts;
+    if (externalCheckbox) externalCheckbox.checked = data.allowExternalAssets;
     say(`這張卡已保存 ${data.rules.length} 條正則；含腳本 ${data.rules.filter(r => r.script).length} 條；格式不相容 ${data.rules.filter(r => r.reason).length} 條。`);
   };
   const importData = raw => {
@@ -139,7 +139,7 @@
     panel.style.cssText = 'padding:12px;margin:12px 0;border:1px solid #987a9c;border-radius:10px;display:grid;gap:8px';
     const summary = document.createElement('summary'); summary.textContent = '作者正則介面（測試版）'; panel.append(summary);
     const intro = document.createElement('p'); intro.style.fontSize = '12px';
-    intro.textContent = '按角色保存正則；文字在背景執行緒處理，HTML／CSS 在隔離視窗預覽。此工具不加入提示詞、不修改原始劇情、世界狀態或記憶。'; panel.append(intro);
+    intro.textContent = '按角色保存正則；HTML／CSS 可在不執行腳本時顯示，外部圖片和作者 JavaScript 需分別授權。本工具不加入提示詞、不修改劇情與記憶。'; panel.append(intro);
     const makeButton = (label, action) => { const b = document.createElement('button'); b.type = 'button'; b.textContent = label; b.style.margin = '4px'; b.addEventListener('click', action); panel.append(b); return b; };
     makeButton('匯入正則 JSON', () => fileInput.click());
     fileInput = document.createElement('input'); fileInput.type = 'file'; fileInput.accept = '.json,application/json'; fileInput.hidden = true;
@@ -164,8 +164,14 @@
     });
     scriptCheckbox = makeToggle('允許作者腳本（需自行信任來源）', false, input => {
       const id = cardId(); if (!id) { input.checked = false; return; }
-      if (input.checked && !confirm('作者 JavaScript 只能在隔離視窗執行，但仍可讀取該介面展示的故事資料，且可能透過外部圖片網址傳出。確定信任這份角色卡並允許腳本嗎？')) { input.checked = false; return; }
+      if (input.checked && !confirm('作者 JavaScript 可在隔離視窗讀取有限世界狀態；沙盒無法保證防止所有對外傳送或跳轉。確定信任來源並允許腳本嗎？')) { input.checked = false; return; }
       const data = load(id); data.allowScripts = input.checked;
+      try { save(id, data); showCount(); } catch (error) { input.checked = false; say('保存失敗：' + error.message); }
+    });
+    externalCheckbox = makeToggle('允許作者介面載入外部圖片／字型／媒體', false, input => {
+      const id = cardId(); if (!id) { input.checked = false; return; }
+      if (input.checked && !confirm('外部資源的提供者可能得知 IP、讀取時間與網址中包含的資訊。僅信任來源時才開啟，確定嗎？')) { input.checked = false; return; }
+      const data = load(id); data.allowExternalAssets = input.checked;
       try { save(id, data); showCount(); } catch (error) { input.checked = false; say('保存失敗：' + error.message); }
     });
     sourceSelect = document.createElement('select'); sourceSelect.style.cssText = 'max-width:100%;margin:8px 0';
@@ -182,8 +188,8 @@
       try {
         const result = await workerRender(text, data.rules, data.allowScripts);
         if (id !== cardId()) { say('已切換故事，取消舊角色的預覽。'); return; }
-        if (!result?.matched) { say(result?.blocked ? '找到需要作者腳本的規則；請確認來源後再允許腳本。' : '這段文字未符合任何已啟用的正則；不會憑空生成介面。'); return; }
-        show(result, id); say('已在隔離視窗呈現。關閉後原本劇情仍保留。');
+        if (!result?.matched) { say('這段文字未符合任何已啟用的正則；不會憑空生成介面。'); return; }
+        show(result, id, data.allowExternalAssets); say(result.blocked ? '已顯示靜態介面；作者腳本尚未獲授權。' : '已在隔離視窗呈現。關閉後原本劇情仍保留。');
       } catch (error) { say('預覽失敗：' + error.message); }
       finally { preview.disabled = false; }
     });
