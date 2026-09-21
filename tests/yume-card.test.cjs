@@ -18,6 +18,7 @@ for(const person of card.content.profile.cast){
   const state={npcs:[{name:person.name,presence:'away'}]};
   assert.equal(archive.knownNPC(state,person.id)?.presence,'away',person.name);
   assert.ok(fs.existsSync(path.join(__dirname,'..',`assets/yume-${person.id}-v2.webp`)),person.id);
+  if(['asami','misaki'].includes(person.id)) assert.ok(fs.existsSync(path.join(__dirname,'..',`assets/yume-${person.id}-v3.webp`)),person.id);
 }
 assert.equal(archive.isYume({name:card.meta.name}),true);
 const engineContext={};
