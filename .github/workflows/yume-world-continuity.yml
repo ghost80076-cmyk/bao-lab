@@ -1,0 +1,34 @@
+name: Yume world continuity
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'js/yume-relationship-archive.js'
+      - 'tests/yume-relationship-archive.cjs'
+      - 'tests/yume-world-continuity.cjs'
+      - '.github/workflows/yume-world-continuity.yml'
+  pull_request:
+    paths:
+      - 'js/yume-relationship-archive.js'
+      - 'tests/yume-relationship-archive.cjs'
+      - 'tests/yume-world-continuity.cjs'
+      - '.github/workflows/yume-world-continuity.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  yume-continuity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Relationship archive regression
+        run: node tests/yume-relationship-archive.cjs
+      - name: Offscreen continuity and state tests
+        run: node tests/yume-world-continuity.cjs
+      - name: JavaScript syntax
+        run: node --check js/yume-relationship-archive.js
