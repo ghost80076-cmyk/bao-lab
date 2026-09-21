@@ -27,4 +27,12 @@
   App.renderChatShell = function(...args) { sync(); return renderShell(...args); };
   window.BAOAuthorCardBind = { sync };
   sync();
+  // Isolated, presentation-only addon. Its own card check keeps other stories unchanged.
+  if (!document.querySelector('script[data-bao-yume-archive]')) {
+    const addon = document.createElement('script');
+    addon.src = 'js/yume-relationship-archive.js';
+    addon.dataset.baoYumeArchive = '1';
+    addon.onerror = () => console.warn('BAO/LAB 黑羽關係檔案載入失敗；原本故事不受影響。');
+    document.head.appendChild(addon);
+  }
 })();
