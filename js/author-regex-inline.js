@@ -132,6 +132,8 @@
   }
   async function refresh() {
     queued = false;
+    // The persistent, story-scoped renderer owns the card UI while its opt-in is active.
+    if (window.BAOAuthorDock?.enabled?.()) { clear(); return; }
     const owner = cardId();
     const data = owner && config(owner);
     if (!owner || !data || !data.rules.length) { clear(); return; }
