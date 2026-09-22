@@ -9,7 +9,7 @@ const rules = { regex_scripts: [
 test('per-card authored HTML, CSS and JS stay in an iframe and only draft player text', async ({ page }) => {
   await page.goto('./');
   await page.waitForFunction(() => Boolean(window.BAOAuthorRegexCore && document.querySelector('#bao-author-regex-panel') && App.characters?.length));
-  await page.getByRole('button', { name: '探索角色' }).click();
+  await page.locator('#home-view [data-view="explore"]').click();
   await page.locator('article').first().click();
   await page.getByRole('button', { name: '開始故事' }).click();
   for (let i = 0; i < 3; i++) await page.getByRole('button', { name: '下一步' }).click();

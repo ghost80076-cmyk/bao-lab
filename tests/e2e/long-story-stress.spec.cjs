@@ -5,7 +5,7 @@ const targetURL = () => process.env.BAO_LIVE_URL || "/";
 const openDemoStory = async page => {
   await page.goto(targetURL(), { waitUntil: "domcontentloaded" });
   await expect(page.getByRole("heading", { name: "班長。" })).toBeVisible();
-  await page.getByRole("button", { name: "探索角色" }).click();
+  await page.locator('#home-view [data-view="explore"]').click();
   const card = page.locator("article").filter({ hasText: "林沉風 - 見過黑暗的人" });
   await expect(card).toBeVisible();
   await card.click();

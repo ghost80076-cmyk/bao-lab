@@ -5,7 +5,7 @@ for (const width of [375, 390]) {
     await page.setViewportSize({ width, height: 844 });
     await page.goto('/');
     await page.waitForFunction(() => typeof App !== 'undefined' && App.characters?.length > 0 && Storage.status().ready, null, { timeout: 15000 });
-    await page.getByRole('button', { name: '探索角色' }).click();
+    await page.locator('#home-view [data-view="explore"]').click();
     await page.locator('article').filter({ hasText: '林沉風 - 見過黑暗的人' }).click();
     await page.getByRole('button', { name: '開始故事' }).click();
     for (let step = 0; step < 3; step++) await page.getByRole('button', { name: '下一步' }).click();

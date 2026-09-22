@@ -4,7 +4,7 @@ test.use({ viewport: { width: 390, height: 844 } });
 
 test('MOD editor and controls remain usable on a narrow screen', async ({ page }) => {
   await page.goto('/');
-  await page.getByRole('button', { name: '探索角色' }).click();
+  await page.locator('#home-view [data-view="explore"]').click();
   await page.locator('article').filter({ hasText: '林沉風 - 見過黑暗的人' }).click();
   await page.getByRole('button', { name: '開始故事' }).click();
   for (let step = 0; step < 3; step++) await page.getByRole('button', { name: '下一步' }).click();

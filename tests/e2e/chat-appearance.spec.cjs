@@ -2,7 +2,7 @@ const { test, expect } = require('@playwright/test');
 
 async function openStory(page) {
   await page.goto('/');
-  await page.getByRole('button', { name: '探索角色' }).click();
+  await page.locator('#home-view [data-view="explore"]').click();
   await page.locator('article').filter({ hasText: '林沉風 - 見過黑暗的人' }).click();
   await page.getByRole('button', { name: '開始故事' }).click();
   for (let i = 0; i < 3; i++) await page.getByRole('button', { name: '下一步' }).click();

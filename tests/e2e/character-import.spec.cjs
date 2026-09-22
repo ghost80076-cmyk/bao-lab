@@ -18,7 +18,7 @@ const upload = (page, body) => page.locator('#import-character-file').setInputFi
 
 test('BAO character import persists through reload and opens a playable demo story', async ({ page }) => {
   await page.goto('./');
-  await page.getByRole('button', { name: '探索角色' }).click();
+  await page.locator('#home-view [data-view="explore"]').click();
   await page.waitForFunction(() => Boolean(window.BAOCharacterImport && App.characters?.length));
   await expect(page.getByRole('link', { name: '下載基礎角色模板' })).toBeVisible();
   await expect(page.getByRole('link', { name: '下載進階世界模板' })).toBeVisible();
@@ -32,7 +32,7 @@ test('BAO character import persists through reload and opens a playable demo sto
 
   await page.reload();
   await page.waitForFunction(() => Boolean(window.BAOCharacterImport && App.characters?.some(item => item.id === 'e2e-rainport')));
-  await page.getByRole('button', { name: '探索角色' }).click();
+  await page.locator('#home-view [data-view="explore"]').click();
   await page.locator('article').filter({ hasText: '雨港觀測員' }).click();
   await page.getByRole('button', { name: '開始故事' }).click();
   for (let i = 0; i < 3; i++) await page.getByRole('button', { name: '下一步' }).click();
@@ -68,7 +68,7 @@ test('BAO character import persists through reload and opens a playable demo sto
 
 test('bad or conflicting character JSON never changes the local library', async ({ page }) => {
   await page.goto('./');
-  await page.getByRole('button', { name: '探索角色' }).click();
+  await page.locator('#home-view [data-view="explore"]').click();
   await page.waitForFunction(() => Boolean(window.BAOCharacterImport && App.characters?.length));
   const noGreeting = structuredClone(card);
   delete noGreeting.content.greeting;
@@ -94,7 +94,7 @@ test('SillyTavern V2 JSON opens a conversion preview and saves only after confir
     }
   };
   await page.goto('./');
-  await page.getByRole('button', { name: '探索角色' }).click();
+  await page.locator('#home-view [data-view="explore"]').click();
   await page.waitForFunction(() => Boolean(window.BAOCharacterImport && CharacterEngine.requestImport));
   await upload(page, v2);
   await expect(page.getByRole('dialog', { name: '角色卡轉換預覽' })).toBeVisible();

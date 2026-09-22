@@ -6,7 +6,7 @@ const roleId = 'e2e-studio-rainport';
 
 test('character studio creates a private draft, previews safely, exports and installs a playable card', async ({ page }) => {
   await page.goto('./');
-  await page.getByRole('button', { name: '探索角色' }).click();
+  await page.locator('#home-view [data-view="explore"]').click();
   await expect(page.getByRole('link', { name: '＋ 角色卡創作室' })).toBeVisible();
   await page.getByRole('link', { name: '＋ 角色卡創作室' }).click();
   await expect(page.getByRole('heading', { name: '角色卡創作室' })).toBeVisible();
@@ -48,7 +48,7 @@ test('character studio creates a private draft, previews safely, exports and ins
   const installed = await page.evaluate(() => CharacterEngine.loadCustom().find(c => c.id === 'e2e-studio-rainport'));
   expect(installed.system_prompt).toContain('雨港');
   await page.goto('./');
-  await page.getByRole('button', { name: '探索角色' }).click();
+  await page.locator('#home-view [data-view="explore"]').click();
   await expect(page.locator('article').filter({ hasText: name })).toBeVisible();
   await page.locator('article').filter({ hasText: name }).click();
   await expect(page.getByRole('button', { name: '開始故事' })).toBeVisible();
