@@ -75,6 +75,12 @@
       bookshelf.src = 'js/bookshelf-enhance.js';
       document.head.appendChild(bookshelf);
     }
+    if (!document.querySelector('script[data-bao-scene-image]')) {
+      const scenes = document.createElement('script');
+      scenes.dataset.baoSceneImage = '1';
+      scenes.src = 'js/story-image-moments.js';
+      document.head.appendChild(scenes);
+    }
   };
   refreshStylesheet('css/explore-zones.css', 'original-violet-mint-1');
   refreshStylesheet('css/bao-mascot.css', 'original-violet-mint-1');
