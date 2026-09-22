@@ -4,7 +4,7 @@ on:
   push:
     branches: [main]
   pull_request:
-    branches: [main]
+    branches: [main, integrate/pr36-pr35-20260922]
 
 permissions:
   contents: read
