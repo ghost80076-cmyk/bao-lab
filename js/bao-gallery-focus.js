@@ -4,8 +4,9 @@
   if (window.BAOGalleryFocus) return;
   const root = document.getElementById('explore-view');
   if (!root) return;
-  const stylesheet = 'css/bao-editorial-polish.css?v=1';
-  if (!document.querySelector(`link[href="${stylesheet}"]`)) {
+  // Each proposal layer loads in order, after the original BAO/LAB brand CSS.
+  for (const stylesheet of ['css/bao-editorial-polish.css?v=1', 'css/bao-editorial-cinema.css?v=1']) {
+    if (document.querySelector(`link[href="${stylesheet}"]`)) continue;
     const link = document.createElement('link');
     link.rel = 'stylesheet';
     link.href = stylesheet;
