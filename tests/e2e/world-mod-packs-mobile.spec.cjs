@@ -14,10 +14,11 @@ test('MOD editor and controls remain usable on a narrow screen', async ({ page }
   await page.getByRole('button', { name: '開始故事' }).click();
   await expect.poll(() => page.evaluate(() => Boolean(window.BAOModPacks))).toBe(true);
 
-  const group = page.locator('[data-chat-tool-group="world"]');
-  await expect(group).toBeAttached();
-  if (!await group.evaluate(node => node.open)) await group.locator('summary').click();
-  await group.locator('[data-open-world-manager]').click();
+  await page.locator('#bao-mobile-tools-tab').click();
+  const drawer = page.locator('#bao-chat-tool-drawer');
+  await expect(drawer).toBeVisible();
+  await drawer.locator('summary').filter({ hasText: '世界設定與狀態' }).click();
+  await drawer.getByRole('button', { name: '◇ 世界模組管理' }).click();
   await expect(page.locator('.world-manager-backdrop')).toBeVisible();
   await page.locator('[data-world-add]').click();
   const card = page.locator('.world-custom-card').last();

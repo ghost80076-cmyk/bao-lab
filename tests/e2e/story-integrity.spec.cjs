@@ -139,7 +139,7 @@ test('resuming shows saved main, state and memory model metadata; only keys need
   });
   await page.reload();
   await page.waitForFunction(() => Storage.status().ready && !!window.BAOChatAPISettings?.restore, null, { timeout: 15000 });
-  await page.locator('#continue-story').click();
+  await page.locator('#home-continue').click();
   const dialog = page.getByRole('dialog', { name: '目前故事的 AI 連線設定' });
   await expect(dialog).toBeVisible();
   await expect(dialog.locator('input[name=model]')).toHaveValue('local-browser-test');
@@ -181,7 +181,7 @@ test('same-provider helper model is restored without requesting a second key', a
   });
   await page.reload();
   await page.waitForFunction(() => Storage.status().ready && !!window.BAOChatAPISettings?.restore);
-  await page.locator('#continue-story').click();
+  await page.locator('#home-continue').click();
   const dialog = page.getByRole('dialog', { name: '目前故事的 AI 連線設定' });
   const state = dialog.locator('.bao-helper-reconnect fieldset').first();
   await expect(state.locator('select').first()).toHaveValue('same');

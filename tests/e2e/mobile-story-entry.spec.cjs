@@ -34,6 +34,7 @@ for (const width of [390, 375, 1280]) {
     try {
       await startBYOKStory(page);
       await page.reload();
+      await page.evaluate(() => App.showView('explore'));
       await expect(page.locator('#continue-story')).toBeVisible();
       await page.locator('#continue-story').click();
       await expect(page.locator('#chat-view')).toHaveClass(/active/);
