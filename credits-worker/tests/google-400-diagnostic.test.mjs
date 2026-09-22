@@ -40,11 +40,12 @@ test('Google 400 surfaces only allowlisted hint, not private error content; rese
   const hash = [...new Uint8Array(bytes)].map(n => n.toString(16).padStart(2, '0')).join('');
   const { db, player, usage } = fixture(hash);
   const env = { DB: db, GEMINI_RELAY_URL: 'https://relay.example.test/', GEMINI_RELAY_TOKEN: 'private-relay-token',
+    ALLOWED_GEMINI_COUNTRIES: 'TW',
     MODELS_JSON: JSON.stringify([{ provider: 'gemini', model: 'gemini-3-flash-preview' }]) };
-  const req = () => new Request('https://pilot.invalid/chat', { method: 'POST',
+  const req = () => Object.assign(new Request('https://pilot.invalid/chat', { method: 'POST',
     headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json' },
     body: JSON.stringify({ provider: 'gemini', model: 'gemini-3-flash-preview',
-      messages: [{ role: 'user', content: 'hello' }], max_output_tokens: 1024 }) });
+      messages: [{ role: 'user', content: 'hello' }], max_output_tokens: 1024 }) }), { cf: { country: 'TW' } });
   const originalFetch = globalThis.fetch;
   let calls = 0;
   globalThis.fetch = async () => {
@@ -71,11 +72,12 @@ test('region hint requires an explicit denial; response and logs contain no prom
   const hash = [...new Uint8Array(bytes)].map(n => n.toString(16).padStart(2, '0')).join('');
   const { db, player } = fixture(hash);
   const env = { DB: db, GEMINI_RELAY_URL: 'https://relay.example.test/', GEMINI_RELAY_TOKEN: 'private-relay-token',
+    ALLOWED_GEMINI_COUNTRIES: 'TW',
     MODELS_JSON: JSON.stringify([{ provider: 'gemini', model: 'gemini-3-flash-preview' }]) };
-  const request = () => new Request('https://pilot.invalid/chat', { method: 'POST',
+  const request = () => Object.assign(new Request('https://pilot.invalid/chat', { method: 'POST',
     headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json' },
     body: JSON.stringify({ provider: 'gemini', model: 'gemini-3-flash-preview',
-      messages: [{ role: 'user', content: 'PRIVATE_STORY' }], max_output_tokens: 1024 }) });
+      messages: [{ role: 'user', content: 'PRIVATE_STORY' }], max_output_tokens: 1024 }) }), { cf: { country: 'TW' } });
   const cases = [
     { upstream: 400, message: 'Region appears in PRIVATE_STORY but contents[0].role invalid',
       status: 'INVALID_ARGUMENT', category: 'google_bad_request_message_format' },

@@ -11,9 +11,9 @@
 
 ## 部署到目前的 Worker
 
-先部署 [台灣區 Gemini 中繼服務](../gemini-relay/README.md)。在 Cloudflare Worker 的 Secrets 設定 `GEMINI_RELAY_URL`（Cloud Run HTTPS 基底網址，結尾 `/`）及 `GEMINI_RELAY_TOKEN`（與中繼服務一致的隨機權杖）。中繼服務單獨保管 `GEMINI_API_KEY`；Worker 舊有的 `GEMINI_API_KEY` 不再使用，確認新路徑上線後從 Worker 刪除。**切勿先覆蓋正在服務的 Worker 再部署中繼服務**：缺中繼設定時 Gemini 請求會安全失敗。
+**香港玩家不適用此 Gemini 中繼方案。**Google 的 [可用地區](https://ai.google.dev/gemini-api/docs/available-regions)清單沒有香港，[附加條款](https://ai.google.dev/gemini-api/terms)限制將 API Client 提供到可用地區外。台灣固定出口能隔離訪客 IP 標頭，但不能用來繞過實際玩家的地區限制。先部署 [台灣區 Gemini 中繼服務](../gemini-relay/README.md)供獲准地區使用。在 Cloudflare Worker 的 Secrets 設定 `GEMINI_RELAY_URL`（Cloud Run HTTPS 基底網址，結尾 `/`）及 `GEMINI_RELAY_TOKEN`（與中繼服務一致的隨機權杖），再設定 `ALLOWED_GEMINI_COUNTRIES` 為符合供應商條款的 ISO 國家代碼清單（如僅台灣時填 `TW`）。未設定會拒絕所有 Gemini 聊天。中繼服務單獨保管 `GEMINI_API_KEY`；Worker 舊有的 `GEMINI_API_KEY` 不再使用，確認新路徑上線後從 Worker 刪除。**切勿先覆蓋正在服務的 Worker 再部署中繼服務**：缺中繼設定時 Gemini 請求會安全失敗。
 
-在 Cloudflare → Workers & Pages → `bao-lab-credits-api` → Edit code，把 [最新 index.js](./src/index.js) 的**完整內容**覆蓋原有 Worker 程式，按 Deploy。GitHub 原始碼**不是已部署的正式服務**。不用重建 D1；`ADMIN_TOKEN`、`ALLOWED_ORIGIN` 沿用原值。確認 `https://bao-lab-credits-api.ghost80076.workers.dev/health` 顯示 `"diagnostic_version":"2026-09-22-relay-1"` 且 `"gemini_relay_ready":true`。這只是設定檢查；最後還需一筆台灣與一筆香港玩家短句測試，核對實際結果及 Google 上游狀態。
+在 Cloudflare → Workers & Pages → `bao-lab-credits-api` → Edit code，把 [最新 index.js](./src/index.js) 的**完整內容**覆蓋原有 Worker 程式，按 Deploy。GitHub 原始碼**不是已部署的正式服務**。不用重建 D1；`ADMIN_TOKEN`、`ALLOWED_ORIGIN` 沿用原值。確認 `https://bao-lab-credits-api.ghost80076.workers.dev/health` 顯示 `"diagnostic_version":"2026-09-22-relay-2"`、`"gemini_relay_ready":true`、`"gemini_region_policy_ready":true`。這只是設定檢查；最後還需從獲准地區實測短句並核對 Google 上游狀態。香港來源應在呼叫上游前被拒絕且不扣點。
 
 Google 官方使用資格及帳單需另在 Google 帳戶核對；本版只為你的現有免費 Gemini 模型邀請玩家進行技術測試，不含正式付款／自動儲值。
 

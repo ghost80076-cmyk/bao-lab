@@ -72,14 +72,15 @@ function fakeDb() {
   return { db, players, usage };
 }
 const base = 'https://bao-lab-credits-api.example.test';
-const request = (path, method = 'GET', body, token, origin) => new Request(base + path, {
+const request = (path, method = 'GET', body, token, origin, country = 'TW') => Object.assign(new Request(base + path, {
   method, headers: { ...(token ? { authorization: `Bearer ${token}` } : {}),
     ...(origin ? { origin } : {}), ...(body ? { 'content-type': 'application/json' } : {}) },
   ...(body ? { body: JSON.stringify(body) } : {})
-});
+}), { cf: { country } });
 const envFor = db => ({ '資料庫': db, ADMIN_TOKEN: 'admin-secret', ALLOWED_ORIGIN: 'https://bao.example',
   MODELS_JSON: JSON.stringify([{ provider: 'gemini', model: 'gemini-test', input_microusd_per_million: 0, output_microusd_per_million: 0 }]),
-  GEMINI_RELAY_URL: 'https://relay.example.test/', GEMINI_RELAY_TOKEN: 'relay-secret' });
+  GEMINI_RELAY_URL: 'https://relay.example.test/', GEMINI_RELAY_TOKEN: 'relay-secret',
+  ALLOWED_GEMINI_COUNTRIES: 'TW' });
 const body = { provider: 'gemini', model: 'gemini-test', request_kind: 'chat',
   messages: [{ role: 'user', content: 'Hi' }], max_output_tokens: 1024 };
 async function makePlayer(env, balance_credits = 10000) {
@@ -92,8 +93,9 @@ test('D1 binding and origin/auth checks still fail closed', async () => {
   const { db } = fakeDb(), env = envFor(db);
   const health = await (await worker.fetch(request('/health'), env)).json();
   assert.equal(health.daily_chat_limit_enabled, false);
-  assert.equal(health.diagnostic_version, '2026-09-22-relay-1');
+  assert.equal(health.diagnostic_version, '2026-09-22-relay-2');
   assert.equal(health.gemini_relay_ready, true);
+  assert.equal(health.gemini_region_policy_ready, true);
   assert.equal((await worker.fetch(request('/health', 'GET', null, null, 'https://evil.test'), env)).status, 403);
   assert.equal((await worker.fetch(request('/admin/players'), env)).status, 401);
 });
@@ -175,6 +177,26 @@ test('Gemini fails closed without relay and never directly calls Google', async 
     assert.equal(calls, 0);
     assert.equal(players[0].balance_microusd, 10000);
     assert.equal(usage[0].status, 'failed');
+  } finally { globalThis.fetch = originalFetch; }
+});
+test('unsupported visitor region is denied before debit or Gemini relay call', async () => {
+  const { db, players, usage } = fakeDb(), env = envFor(db);
+  const { player_token } = await makePlayer(env);
+  const originalFetch = globalThis.fetch;
+  let calls = 0;
+  globalThis.fetch = async () => { calls++; throw new Error('should not fetch'); };
+  try {
+    for (const country of ['HK', 'ZZ']) {
+      const response = await worker.fetch(request('/chat', 'POST', body, player_token, undefined, country), env);
+      assert.equal(response.status, 403);
+      assert.equal((await response.json()).error, 'gemini_region_unavailable');
+    }
+    delete env.ALLOWED_GEMINI_COUNTRIES;
+    const response = await worker.fetch(request('/chat', 'POST', body, player_token), env);
+    assert.equal(response.status, 403);
+    assert.equal(calls, 0);
+    assert.equal(usage.length, 0);
+    assert.equal(players[0].balance_microusd, 10000);
   } finally { globalThis.fetch = originalFetch; }
 });
 test('larger world prompt is accepted and empty model output reports finish reason without leaking prompts', async () => {
