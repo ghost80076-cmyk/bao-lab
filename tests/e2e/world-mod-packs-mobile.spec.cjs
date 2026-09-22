@@ -20,7 +20,8 @@ test('MOD editor and controls remain usable on a narrow screen', async ({ page }
   await page.locator('#bao-mobile-tools-tab').click();
   const drawer = page.locator('#bao-chat-tool-drawer');
   await expect(drawer).toBeVisible();
-  await drawer.locator('summary').filter({ hasText: '世界設定與狀態' }).click();
+  const worldGroup = drawer.locator('.bao-chat-tool-dialog-body > details').filter({ hasText: '世界設定與狀態' });
+  if (!await worldGroup.evaluate(node => node.open)) await worldGroup.locator('summary').click();
   await drawer.locator('.bao-chat-tool-proxy').filter({ hasText: '世界模組管理' }).click();
   await expect(page.locator('.world-manager-backdrop')).toBeVisible();
   await page.locator('[data-world-add]').click();
