@@ -4,7 +4,7 @@ test('mobile story keeps advanced regex out of the reading column and retains ac
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/');
   await page.waitForFunction(() => Boolean(window.BAOAdvancedToolPlacement && App.characters?.length && Storage.status().ready));
-  await page.getByRole('button', { name: '探索作品' }).click();
+  await page.getByRole('button', { name: '探索角色' }).click();
   await page.locator('article').filter({ hasText: '林沉風 - 見過黑暗的人' }).click();
   await page.getByRole('button', { name: '開始故事' }).click();
   for (let step = 0; step < 3; step++) await page.getByRole('button', { name: '下一步' }).click();
@@ -36,7 +36,7 @@ test('image prompt remains usable from advanced tools without a permanent sideba
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/');
   await page.waitForFunction(() => Boolean(window.BAOAdvancedToolPlacement && App.characters?.length && Storage.status().ready));
-  await page.getByRole('button', { name: '探索作品' }).click();
+  await page.getByRole('button', { name: '探索角色' }).click();
   await page.locator('article').filter({ hasText: '林沉風 - 見過黑暗的人' }).click();
   await page.getByRole('button', { name: '開始故事' }).click();
   for (let step = 0; step < 3; step++) await page.getByRole('button', { name: '下一步' }).click();
