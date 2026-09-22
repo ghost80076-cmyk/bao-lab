@@ -4,6 +4,7 @@ on:
     paths:
       - 'css/bao-editorial.css'
       - 'css/bao-editorial-polish.css'
+      - 'css/bao-editorial-cinema.css'
       - 'js/bao-gallery-focus.js'
       - 'js/bao-visual-ui.js'
       - 'tests/e2e/editorial-visual.spec.cjs'
