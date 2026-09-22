@@ -1,7 +1,14 @@
-/* Progressive disclosure for author regex settings and optional visual tools. */
+/* Load presentation-only chat refinements after the author tools initialize. */
 (() => {
   'use strict';
   const load = () => {
+    const stylesheet = 'css/chat-desktop-reading.css';
+    if (!document.querySelector(`link[href="${stylesheet}"]`)) {
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = stylesheet;
+      document.head.append(link);
+    }
     for (const src of ['js/chat-ui-simplify.js', 'js/story-entry-visibility.js']) {
       if (document.querySelector(`script[src="${src}"]`)) continue;
       const script = document.createElement('script');
