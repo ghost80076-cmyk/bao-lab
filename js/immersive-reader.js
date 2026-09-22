@@ -30,6 +30,11 @@
     #chat-view.active.bao-immersive-on #chat-stream{width:100%;max-width:800px;min-width:0;margin-inline:auto;box-sizing:border-box;padding-inline:clamp(12px,3vw,32px)}
     #chat-view.active.bao-immersive-on #chat-stream .message.assistant .bubble{max-width:100%;line-height:1.82;overflow-wrap:anywhere}
     #chat-view.active.bao-immersive-on .composer{width:100%;max-width:800px;min-width:0;margin-inline:auto;box-sizing:border-box}
+    @media(min-width:821px){
+      #chat-view.active.bao-immersive-on .chat-layout{height:calc(100dvh - 130px);min-height:0;align-items:stretch!important}
+      #chat-view.active.bao-immersive-on .chat-main{min-height:0}
+      #chat-view.active.bao-immersive-on #chat-stream{flex:1 1 auto;min-height:0;max-height:none}
+    }
     @media(max-width:820px){
       #chat-view.active.bao-immersive-on .chat-layout>.chat-main{grid-template-rows:auto minmax(0,1fr) 0 0 0 auto!important}
       #chat-view.active.bao-immersive-on #chat-stream{padding-inline:14px}
