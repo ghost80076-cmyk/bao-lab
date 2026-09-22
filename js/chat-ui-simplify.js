@@ -1,8 +1,10 @@
-/* Mobile progressive disclosure only. Never change saved stories, regex rules or API handlers. */
+/* Compact-screen progressive disclosure. Never change saved stories, regex rules or API handlers. */
 (() => {
   'use strict';
   if (window.BAOChatUISimplify) return;
-  const mobile = matchMedia('(max-width: 820px)');
+  // The existing chat-experience stylesheet hides the sidebar up to 1080px.
+  // Match that breakpoint so tablet readers can still reach the author tools.
+  const compact = matchMedia('(max-width: 1080px)');
   const choices = new Map();
   const seenDocks = new WeakSet();
   let queued = false;
@@ -25,7 +27,7 @@
     const editor = panel();
     if (editor && overlay.contains(editor)) {
       editor.open = false;
-      (mobile.matches ? storage() : aside())?.append(editor);
+      (compact.matches ? storage() : aside())?.append(editor);
     }
     overlay.remove();
   };
@@ -70,7 +72,7 @@
       summary.textContent = '自訂排版與互動（正則）';
       summary.title = '進階功能：匯入或啟用角色卡作者提供的排版與互動規則';
     }
-    if (!mobile.matches) {
+    if (!compact.matches) {
       close();
       if (editor.parentElement !== aside()) aside()?.append(editor);
       document.getElementById('bao-author-settings-open')?.remove();
@@ -98,7 +100,7 @@
     if (!trigger) return;
     if (trigger.textContent !== '配圖工具（提示詞）') trigger.textContent = '配圖工具（提示詞）';
     trigger.title = '需要為當前故事製作圖片時使用；平常聊天不需要開啟';
-    const host = mobile.matches && settings();
+    const host = compact.matches && settings();
     if (host && trigger.parentElement !== host) host.append(trigger);
   };
   const dock = () => {
@@ -111,8 +113,8 @@
       summary.textContent = summary.textContent.replace(/^常駐作者介面/, '故事互動面板').replace('正則排版', '自訂排版');
       summary.title = '點此展開或收起作者設計的互動介面';
     }
-    if (mobile.matches) root.open = choices.get(owner) === true;
-    root.addEventListener('toggle', () => { if (mobile.matches) choices.set(owner, root.open); });
+    if (compact.matches) root.open = choices.get(owner) === true;
+    root.addEventListener('toggle', () => { if (compact.matches) choices.set(owner, root.open); });
   };
   const sync = () => {
     queued = false;
@@ -132,15 +134,14 @@
   };
   const init = () => {
     const sidebar = aside();
-    // Only direct additions (new controls or toolbar host) matter. Text updates within
-    // the panel must not create a recursive observer/render loop.
+    // Observe direct additions only; text updates inside the editor must not recurse.
     if (sidebar) new MutationObserver(schedule).observe(sidebar, { childList: true });
     const main = document.querySelector('#chat-view .chat-main');
     if (main) new MutationObserver(mutations => {
       if (mutations.some(record => [...record.addedNodes].some(node => node.nodeType === 1 &&
         (node.id === 'bao-author-dock' || node.querySelector?.('#bao-author-dock'))))) schedule();
     }).observe(main, { childList: true, subtree: true });
-    mobile.addEventListener?.('change', schedule);
+    compact.addEventListener?.('change', schedule);
     window.BAOChatUISimplify = Object.freeze({ sync, openAuthorSettings: open, closeAuthorSettings: close });
     schedule();
   };
