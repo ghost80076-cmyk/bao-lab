@@ -18,6 +18,7 @@
     #chat-view.active.bao-immersive-on .story-message-tools,
     #chat-view.active.bao-immersive-on .story-variant-switcher,
     #chat-view.active.bao-immersive-on .story-mobile-tools,
+    #chat-view.active.bao-immersive-on .bao-scene-image-action,
     #chat-view.active.bao-immersive-on #bao-mobile-tools-tab,
     #chat-view.active.bao-immersive-on #bao-chat-floating-actions,
     #chat-view.active.bao-immersive-on #bao-reading-status,
