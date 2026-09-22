@@ -12,6 +12,7 @@ async function startBYOKStory(page) {
   await expect(card).toBeVisible();
   await card.click();
   await page.getByRole('button', { name: '開始故事' }).click();
+  await page.locator('#bao-setup-choice [data-bao-setup="advanced"]').click();
   for (let i = 0; i < 3; i += 1) await page.getByRole('button', { name: '下一步' }).click();
   await page.locator('#model-id').fill('mobile-entry-test-model');
   await page.locator('#base-url').fill('https://example.invalid/v1/chat/completions');

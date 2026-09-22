@@ -8,6 +8,7 @@ async function startStory(page, displayMode = 'text') {
   await page.locator('#home-view [data-view="explore"]').click();
   await page.locator('article').filter({ hasText: '林沉風 - 見過黑暗的人' }).click();
   await page.getByRole('button', { name: '開始故事' }).click();
+  await page.locator('#bao-setup-choice [data-bao-setup="advanced"]').click();
   await page.getByRole('button', { name: '下一步' }).click();
   if (displayMode === 'ui') {
     // The radio is deliberately visually hidden; players click its visible label card.

@@ -6,6 +6,7 @@ async function start(page, mode) {
   await page.locator('#home-view [data-view="explore"]').click();
   await page.locator('article').filter({ hasText: '林沉風 - 見過黑暗的人' }).click();
   await page.getByRole('button', { name: '開始故事' }).click();
+  await page.locator('#bao-setup-choice [data-bao-setup="advanced"]').click();
   await page.getByRole('button', { name: '下一步' }).click();
   if (mode === 'ui') {
     await page.locator('.builder-step[data-step-panel="2"] label.choice-card')

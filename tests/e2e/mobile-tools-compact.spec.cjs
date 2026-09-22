@@ -8,6 +8,7 @@ for (const width of [375, 390]) {
     await page.locator('#home-view [data-view="explore"]').click();
     await page.locator('article').filter({ hasText: '林沉風 - 見過黑暗的人' }).click();
     await page.getByRole('button', { name: '開始故事' }).click();
+  await page.locator('#bao-setup-choice [data-bao-setup="advanced"]').click();
     for (let step = 0; step < 3; step++) await page.getByRole('button', { name: '下一步' }).click();
     await page.locator('#model-id').fill('compact-tools-test');
     await page.locator('#base-url').fill('https://example.invalid/v1');
