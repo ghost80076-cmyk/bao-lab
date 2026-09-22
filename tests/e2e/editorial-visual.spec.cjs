@@ -15,7 +15,8 @@ for (const width of [390, 1280]) {
     await expect(page.locator('#home-view .brand-hero h1')).toBeVisible();
     await expect(page.locator('#home-view #bao-home-portrait')).toBeVisible();
     await expect(page.locator('link[href="css/bao-editorial-polish.css?v=1"]')).toHaveCount(1);
-    await expect.poll(() => page.locator('#home-view .brand-hero h1').evaluate(node => getComputedStyle(node).whiteSpace)).toBe('nowrap');
+    await expect(page.locator('link[href="css/bao-editorial-cinema.css?v=1"]')).toHaveCount(1);
+    await expect.poll(() => page.locator('#home-view .brand-hero h1').evaluate(node => getComputedStyle(node).whiteSpace)).toBe('normal');
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width + 1);
     await capture(page, `home-${width}`);
     await page.locator('#home-view button[data-view="explore"]').click();
@@ -29,8 +30,9 @@ for (const width of [390, 1280]) {
     await expect(page.locator('#import-character-button')).toBeHidden();
     const image = card.locator('.character-image-wrap img');
     await expect(image).toBeVisible();
+    await expect.poll(() => image.evaluate(node => getComputedStyle(node).aspectRatio)).toBe('2 / 3');
     const imageBox = await image.boundingBox();
-    expect(imageBox.height / imageBox.width).toBeGreaterThan(1.2);
+    expect(imageBox.height / imageBox.width).toBeGreaterThan(1.4);
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width + 1);
     await capture(page, `characters-${width}`);
     await more.locator('summary').click();
@@ -63,6 +65,7 @@ for (const width of [390, 1280]) {
     await expect(shelf).toBeVisible();
     await expect(shelf.locator('.bao-shelf-cover')).toBeVisible();
     await expect(shelf.locator('.story-library-chapter')).toHaveCount(1);
+    await expect.poll(() => shelf.evaluate(node => getComputedStyle(node).borderTopWidth)).toBe('0px');
     await expect(shelf.getByRole('button', { name: '繼續此故事' })).toBeVisible();
     await capture(page, `bookshelf-${width}`);
     await shelf.getByRole('button', { name: '繼續此故事' }).click();
