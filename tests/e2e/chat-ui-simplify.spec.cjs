@@ -51,6 +51,7 @@ test('phone author dock begins collapsed and can be expanded without removing th
   await page.goto('./');
   await page.waitForFunction(() => Boolean(window.BAOChatUISimplify));
   await page.evaluate(() => {
+    App.showView('chat');
     const dock = document.createElement('details');
     dock.id = 'bao-author-dock';
     dock.open = true;

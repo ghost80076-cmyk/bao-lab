@@ -6,6 +6,8 @@
     padding-block: clamp(20px, 2.6vh, 34px);
     scroll-padding-block: 24px 72px;
   }
+  /* The blurred backdrop already covers the reader; scaling it extends scrollWidth. */
+  #chat-view .chat-stream::before { transform: none; }
   #chat-view .message {
     margin-bottom: 24px;
   }

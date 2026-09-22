@@ -11,7 +11,7 @@ const minimal = {
 
 test('author can inspect JSON with field paths and safe errors on the real site', async ({ page }) => {
   await page.goto('./');
-  await page.getByRole('button', { name: '探索作品' }).click();
+  await page.getByRole('button', { name: '探索角色' }).click();
   const picker = page.locator('input[type="file"][data-character-audit-file="true"]');
   await expect(picker).toHaveCount(1);
   const missing = structuredClone(minimal);

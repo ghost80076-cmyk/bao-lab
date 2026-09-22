@@ -3,7 +3,7 @@ const { test, expect } = require('@playwright/test');
 async function start(page, mode) {
   await page.goto('/');
   await page.waitForFunction(() => App.characters?.length && Storage.status().ready, null, { timeout: 15000 });
-  await page.getByRole('button', { name: '探索作品' }).click();
+  await page.getByRole('button', { name: '探索角色' }).click();
   await page.locator('article').filter({ hasText: '林沉風 - 見過黑暗的人' }).click();
   await page.getByRole('button', { name: '開始故事' }).click();
   await page.getByRole('button', { name: '下一步' }).click();

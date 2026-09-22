@@ -3,7 +3,7 @@ const { test, expect } = require("@playwright/test");
 async function saveStoryWithoutPersistingKey(page) {
   await page.goto("/");
   await expect(page.getByRole("heading", { name: "班長。" })).toBeVisible();
-  await page.getByRole("button", { name: "探索作品" }).click();
+  await page.getByRole("button", { name: "探索角色" }).click();
   const card = page.locator("article").filter({ hasText: "林沉風 - 見過黑暗的人" });
   await expect(card).toBeVisible();
   await card.click();

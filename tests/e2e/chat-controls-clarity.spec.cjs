@@ -15,6 +15,7 @@ test('labels distinguish auto-save, named backup and story library without losin
   const drawer = page.locator('#bao-chat-tool-drawer');
   await expect(drawer).toBeVisible();
   await expect(drawer.locator('[data-bao-clarity-group="story"]')).toHaveText('▤ 故事庫與存檔');
+  await drawer.locator('[data-bao-clarity-group="story"]').click();
   await expect(drawer.getByRole('button', { name: '手動備份清單' })).toHaveCount(1);
   await drawer.getByRole('button', { name: '關閉 ×' }).click();
   await expect(page.locator('#list-slots-button')).toHaveText('手動備份清單');

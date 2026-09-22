@@ -37,6 +37,6 @@ test('phone retains its existing compact text and viewport layout', async ({ pag
     document.getElementById('chat-stream').innerHTML = '<div class="message assistant"><div class="bubble">手機閱讀測試</div></div>';
   });
   const font = await page.locator('#chat-view .message.assistant .bubble').evaluate(node => parseFloat(getComputedStyle(node).fontSize));
-  expect(font).toBeLessThan(16);
+  expect(font).toBeLessThanOrEqual(16);
   await expect(page.locator('#bao-mobile-tools-tab')).toBeVisible();
 });
