@@ -2,8 +2,8 @@ const { test, expect } = require('@playwright/test');
 
 async function demo(page) {
   await page.goto('/');
-  await expect(page.getByRole('heading', { name: '班長。' })).toBeVisible();
-  await page.getByRole('button', { name: '探索作品' }).click();
+  await expect(page.getByRole('heading', { name: '把模型選擇權還給玩家。' })).toBeVisible();
+  await page.getByRole('button', { name: '探索角色' }).click();
   const card = page.locator('article').filter({ hasText: '林沉風 - 見過黑暗的人' });
   await card.click();
   await page.getByRole('button', { name: '開始故事' }).click();
@@ -106,7 +106,7 @@ test('retained MOD data blocks ID reuse, invalid imports are atomic, and a valid
   expect(await page.evaluate(() => GameState.current.modules.archived_mod.affinity)).toBe(77);
   await page.evaluate(() => Storage.flush());
   await page.reload();
-  await expect(page.getByRole('heading', { name: '班長。' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '把模型選擇權還給玩家。' })).toBeVisible();
   const restored = await page.evaluate(async () => {
     await Storage.ready();
     const save = Storage.loadStory();
