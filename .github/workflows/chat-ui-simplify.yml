@@ -7,6 +7,7 @@ on:
       - 'js/author-regex-mobile.js'
       - 'css/chat-desktop-reading.css'
       - 'tests/e2e/chat-ui-simplify.spec.cjs'
+      - 'tests/e2e/chat-tablet-access.spec.cjs'
       - 'tests/e2e/story-entry-visibility.spec.cjs'
       - 'tests/e2e/chat-desktop-reading.spec.cjs'
       - '.github/workflows/chat-ui-simplify.yml'
@@ -24,5 +25,5 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npx playwright install --with-deps chromium
-      - name: Check new and existing author UI on Chromium
-        run: npx playwright test --project=chromium tests/e2e/chat-ui-simplify.spec.cjs tests/e2e/story-entry-visibility.spec.cjs tests/e2e/chat-desktop-reading.spec.cjs tests/e2e/author-regex-dock.spec.cjs tests/e2e/author-regex-compat.spec.cjs
+      - name: Check compact UI and existing author behavior on Chromium
+        run: npx playwright test --project=chromium tests/e2e/chat-ui-simplify.spec.cjs tests/e2e/chat-tablet-access.spec.cjs tests/e2e/story-entry-visibility.spec.cjs tests/e2e/chat-desktop-reading.spec.cjs tests/e2e/author-regex-dock.spec.cjs tests/e2e/author-regex-compat.spec.cjs
