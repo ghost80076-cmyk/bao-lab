@@ -218,13 +218,6 @@ async function chatRoute(request, env, db) {
   const messages = normalizeMessages(body?.messages);
   if (!['chat','status','summary'].includes(kind) || !messages || !modelAllowed(env, provider, model))
     return fail('invalid_request_or_model_not_allowed');
-  if (provider === 'gemini') {
-    // The relay location cannot turn an unsupported visitor region into an
-    // eligible API Client. Require an explicit supported-region allowlist.
-    const countries = (env.ALLOWED_GEMINI_COUNTRIES || '').split(',').map(x => x.trim().toUpperCase()).filter(Boolean);
-    if (!request.cf?.country || !countries.includes(request.cf.country.toUpperCase()))
-      return fail('gemini_region_unavailable', 403);
-  }
   const maxOutput = body?.max_output_tokens ?? 2048;
   if (!integer(maxOutput, 1, MAX_OUTPUT)) return fail('invalid_max_output_tokens');
   const inputBytes = new TextEncoder().encode(JSON.stringify(messages)).length;
@@ -297,9 +290,8 @@ export default {
       if (url.pathname === '/health' && request.method === 'GET') {
         await db.prepare('SELECT id FROM players LIMIT 1').first();
         response = json({ ok: true, service: 'bao-lab-credits-pilot', credit_unit: '100_tokens',
-          daily_chat_limit_enabled: false, diagnostic_version: '2026-09-22-relay-2',
-          gemini_relay_ready: Boolean(env.GEMINI_RELAY_URL && env.GEMINI_RELAY_TOKEN),
-          gemini_region_policy_ready: Boolean(env.ALLOWED_GEMINI_COUNTRIES) });
+          daily_chat_limit_enabled: false, diagnostic_version: '2026-09-22-relay-3',
+          gemini_relay_ready: Boolean(env.GEMINI_RELAY_URL && env.GEMINI_RELAY_TOKEN) });
       } else if (url.pathname.startsWith('/admin/')) response = await adminRoute(request, url, env, db);
       else if (url.pathname === '/me' && request.method === 'GET') response = await chatRoute(request, env, db);
       else if (url.pathname === '/chat' && request.method === 'POST') response = await chatRoute(request, env, db);

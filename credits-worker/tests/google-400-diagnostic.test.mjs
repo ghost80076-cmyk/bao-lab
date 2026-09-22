@@ -40,7 +40,6 @@ test('Google 400 surfaces only allowlisted hint, not private error content; rese
   const hash = [...new Uint8Array(bytes)].map(n => n.toString(16).padStart(2, '0')).join('');
   const { db, player, usage } = fixture(hash);
   const env = { DB: db, GEMINI_RELAY_URL: 'https://relay.example.test/', GEMINI_RELAY_TOKEN: 'private-relay-token',
-    ALLOWED_GEMINI_COUNTRIES: 'TW',
     MODELS_JSON: JSON.stringify([{ provider: 'gemini', model: 'gemini-3-flash-preview' }]) };
   const req = () => Object.assign(new Request('https://pilot.invalid/chat', { method: 'POST',
     headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json' },
@@ -72,7 +71,6 @@ test('region hint requires an explicit denial; response and logs contain no prom
   const hash = [...new Uint8Array(bytes)].map(n => n.toString(16).padStart(2, '0')).join('');
   const { db, player } = fixture(hash);
   const env = { DB: db, GEMINI_RELAY_URL: 'https://relay.example.test/', GEMINI_RELAY_TOKEN: 'private-relay-token',
-    ALLOWED_GEMINI_COUNTRIES: 'TW',
     MODELS_JSON: JSON.stringify([{ provider: 'gemini', model: 'gemini-3-flash-preview' }]) };
   const request = () => Object.assign(new Request('https://pilot.invalid/chat', { method: 'POST',
     headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json' },

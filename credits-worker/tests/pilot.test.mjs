@@ -79,8 +79,7 @@ const request = (path, method = 'GET', body, token, origin, country = 'TW') => O
 }), { cf: { country } });
 const envFor = db => ({ '資料庫': db, ADMIN_TOKEN: 'admin-secret', ALLOWED_ORIGIN: 'https://bao.example',
   MODELS_JSON: JSON.stringify([{ provider: 'gemini', model: 'gemini-test', input_microusd_per_million: 0, output_microusd_per_million: 0 }]),
-  GEMINI_RELAY_URL: 'https://relay.example.test/', GEMINI_RELAY_TOKEN: 'relay-secret',
-  ALLOWED_GEMINI_COUNTRIES: 'TW' });
+  GEMINI_RELAY_URL: 'https://relay.example.test/', GEMINI_RELAY_TOKEN: 'relay-secret' });
 const body = { provider: 'gemini', model: 'gemini-test', request_kind: 'chat',
   messages: [{ role: 'user', content: 'Hi' }], max_output_tokens: 1024 };
 async function makePlayer(env, balance_credits = 10000) {
@@ -93,9 +92,8 @@ test('D1 binding and origin/auth checks still fail closed', async () => {
   const { db } = fakeDb(), env = envFor(db);
   const health = await (await worker.fetch(request('/health'), env)).json();
   assert.equal(health.daily_chat_limit_enabled, false);
-  assert.equal(health.diagnostic_version, '2026-09-22-relay-2');
+  assert.equal(health.diagnostic_version, '2026-09-22-relay-3');
   assert.equal(health.gemini_relay_ready, true);
-  assert.equal(health.gemini_region_policy_ready, true);
   assert.equal((await worker.fetch(request('/health', 'GET', null, null, 'https://evil.test'), env)).status, 403);
   assert.equal((await worker.fetch(request('/admin/players'), env)).status, 401);
 });
@@ -179,24 +177,27 @@ test('Gemini fails closed without relay and never directly calls Google', async 
     assert.equal(usage[0].status, 'failed');
   } finally { globalThis.fetch = originalFetch; }
 });
-test('unsupported visitor region is denied before debit or Gemini relay call', async () => {
-  const { db, players, usage } = fakeDb(), env = envFor(db);
+test('visitor location is not forwarded to Gemini through regional relay', async () => {
+  const { db } = fakeDb(), env = envFor(db);
   const { player_token } = await makePlayer(env);
   const originalFetch = globalThis.fetch;
-  let calls = 0;
-  globalThis.fetch = async () => { calls++; throw new Error('should not fetch'); };
+  const seen = [];
+  globalThis.fetch = async (url, init) => {
+    seen.push({ url, init });
+    return Response.json({ candidates: [{ content: { parts: [{ text: 'OK' }] } }],
+      usageMetadata: { promptTokenCount: 20, totalTokenCount: 40 } });
+  };
   try {
-    for (const country of ['HK', 'ZZ']) {
+    for (const country of ['TW', 'JP', 'HK']) {
       const response = await worker.fetch(request('/chat', 'POST', body, player_token, undefined, country), env);
-      assert.equal(response.status, 403);
-      assert.equal((await response.json()).error, 'gemini_region_unavailable');
+      assert.equal(response.status, 200);
     }
-    delete env.ALLOWED_GEMINI_COUNTRIES;
-    const response = await worker.fetch(request('/chat', 'POST', body, player_token), env);
-    assert.equal(response.status, 403);
-    assert.equal(calls, 0);
-    assert.equal(usage.length, 0);
-    assert.equal(players[0].balance_microusd, 10000);
+    assert.equal(seen.length, 3);
+    for (const { url, init } of seen) {
+      assert.equal(url, 'https://relay.example.test/generate');
+      assert.deepEqual(Object.keys(init.headers).sort(), ['authorization', 'content-type']);
+      assert.ok(!init.body.includes('country'));
+    }
   } finally { globalThis.fetch = originalFetch; }
 });
 test('larger world prompt is accepted and empty model output reports finish reason without leaking prompts', async () => {
