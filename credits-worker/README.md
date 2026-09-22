@@ -11,7 +11,9 @@
 
 ## 部署到目前的 Worker
 
-在 Cloudflare → Workers & Pages → `bao-lab-credits-api` → Edit code，把 [最新 index.js](./src/index.js) 的**完整內容**覆蓋原有 Worker 程式，按 Deploy。這個 GitHub PR 是原始碼位置，**不是已部署的正式服務**。不要重建 D1，不要覆蓋現有 Cloudflare 環境變數或加密 secrets；`ADMIN_TOKEN`、`GEMINI_API_KEY`、`ALLOWED_ORIGIN` 沿用原值。確認部署後開啟 `https://bao-lab-credits-api.ghost80076.workers.dev/health`，JSON 應出現 `"credit_unit":"100_tokens"` 和 `"daily_chat_limit_enabled":false`。只有顯示這兩個新欄位才能確定 Cloudflare 已切換成功。網站前端的 `js/credits-pilot.js` 在 `main` 已更新，重新整理網站即可載入。
+先部署 [台灣區 Gemini 中繼服務](../gemini-relay/README.md)。在 Cloudflare Worker 的 Secrets 設定 `GEMINI_RELAY_URL`（Cloud Run HTTPS 基底網址，結尾 `/`）及 `GEMINI_RELAY_TOKEN`（與中繼服務一致的隨機權杖）。中繼服務單獨保管 `GEMINI_API_KEY`；Worker 舊有的 `GEMINI_API_KEY` 不再使用，確認新路徑上線後從 Worker 刪除。**切勿先覆蓋正在服務的 Worker 再部署中繼服務**：缺中繼設定時 Gemini 請求會安全失敗。
+
+在 Cloudflare → Workers & Pages → `bao-lab-credits-api` → Edit code，把 [最新 index.js](./src/index.js) 的**完整內容**覆蓋原有 Worker 程式，按 Deploy。GitHub 原始碼**不是已部署的正式服務**。不用重建 D1；`ADMIN_TOKEN`、`ALLOWED_ORIGIN` 沿用原值。確認 `https://bao-lab-credits-api.ghost80076.workers.dev/health` 顯示 `"diagnostic_version":"2026-09-22-relay-1"` 且 `"gemini_relay_ready":true`。這只是設定檢查；最後還需一筆台灣與一筆香港玩家短句測試，核對實際結果及 Google 上游狀態。
 
 Google 官方使用資格及帳單需另在 Google 帳戶核對；本版只為你的現有免費 Gemini 模型邀請玩家進行技術測試，不含正式付款／自動儲值。
 
@@ -34,8 +36,8 @@ Google 官方使用資格及帳單需另在 Google 帳戶核對；本版只為�
 Node 22+ 執行：`node --check src/index.js && node --test tests/*.test.mjs`。單元測試涵蓋：密鑰與來源檢查、舊每日限制不阻擋、按 token 計點、額度不足、Google 429、失敗退點、長篇請求和空回覆診斷。部署後務必實際以玩家金鑰測一次短句和一張較長的角色卡，再核對 `/me` 與使用紀錄。不要截圖金鑰，也不要將故事全文寫入日誌；Google 與 Cloudflare 自身的日誌／資料保存政策須另行確認。
 ## 502 診斷與地區判斷
 
-新版失敗回應提供 `request_id`、`upstream_http_status` 與允許清單中的 `provider_status`。Cloudflare Worker 日誌會以 `bao_provider_failure` 記錄診斷編號、玩家 ID、模型、錯誤類別、HTTP 狀態、Google 狀態，以及粗略的訪客國家與 Cloudflare 節點；**不寫入 IP、玩家金鑰、Google 金鑰、故事或 Google 原始錯誤**。網站也會顯示診斷編號，不必請玩家傳 F12 標頭。
+新版失敗回應提供 `request_id`、`upstream_http_status` 與允許清單中的 `provider_status`。Worker 自訂的 `bao_provider_failure` 日誌記錄診斷編號、玩家 ID、模型、錯誤類別及上游狀態；**不主動記錄 IP、訪客地區、金鑰、故事或 Google 原始錯誤**。Cloudflare 平台自身的請求日誌仍可能記錄玩家 IP，須在 Cloudflare Observability 檢查存取權、保留與關閉不必要的請求記錄；本程式不能刪除供應商層級的日誌。
 
-`google_bad_request_region` 只在 Google 錯誤文字明確說明地區不可用時回報，仍不等於已證實 Google 使用玩家 IP 進行判斷。Cloudflare [HTTP 標頭文件](https://developers.cloudflare.com/fundamentals/reference/http-headers/)指出，Worker 對非 Cloudflare 網站的子請求可附帶原始訪客 IP；單純在 JavaScript 建立新 headers 並不足以保證固定出口。若確定不同地區請求持續有差異，應評估由固定區域後端發起 Gemini 請求，同時確認服務適用地區與條款。
+Cloudflare [HTTP 標頭文件](https://developers.cloudflare.com/fundamentals/reference/http-headers/)指出，Worker 對非 Cloudflare 網站的子請求可附帶原始訪客 IP。新版 Worker **不直接呼叫 Gemini**；台灣區中繼服務重建 Gemini 請求，不轉寄玩家的任何 HTTP 標頭。中繼服務仍需將玩家送出的故事內容傳給 Gemini 才能生成回覆，無法承諾 Google 不處理故事文字。Google 看到的網路出口也應在部署後以實測核對，不應只憑服務區域推定。
 
 GitHub 上的程式更新與 Cloudflare 的線上 Worker 是兩個獨立部署。必須更新 Worker 後，新的診斷欄位才會在線上出現；`/health` 並不實測 Gemini。

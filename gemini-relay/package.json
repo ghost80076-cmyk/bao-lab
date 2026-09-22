@@ -1,0 +1,7 @@
+{
+  "name": "bao-lab-gemini-relay",
+  "private": true,
+  "type": "module",
+  "scripts": { "start": "node server.js", "test": "node --test test/*.test.mjs" },
+  "engines": { "node": ">=22" }
+}

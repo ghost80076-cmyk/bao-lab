@@ -152,22 +152,33 @@ async function providerCall(env, provider, model, messages, maxOutput) {
     init = { method: 'POST', headers: { authorization: `Bearer ${env.OPENROUTER_API_KEY}`, 'content-type': 'application/json' },
       body: JSON.stringify({ model, messages, max_tokens: maxOutput, stream: false }) };
   } else if (provider === 'gemini') {
-    if (!env.GEMINI_API_KEY) return { ok: false, category: 'provider_not_configured' };
+    // Gemini must be called from a separately deployed, regional relay.
+    // A direct Worker subrequest can expose visitor IP headers to the origin.
+    if (!env.GEMINI_RELAY_URL || !env.GEMINI_RELAY_TOKEN)
+      return { ok: false, category: 'gemini_relay_not_configured' };
+    let relayUrl;
+    try { relayUrl = new URL(env.GEMINI_RELAY_URL); }
+    catch { return { ok: false, category: 'gemini_relay_not_configured' }; }
+    if (relayUrl.protocol !== 'https:' || relayUrl.username || relayUrl.password || relayUrl.search || relayUrl.hash || relayUrl.pathname !== '/')
+      return { ok: false, category: 'gemini_relay_not_configured' };
     if (!/^[a-zA-Z0-9._-]{1,100}$/.test(model)) return { ok: false, category: 'invalid_model' };
-    endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
+    endpoint = new URL('/generate', relayUrl).href;
     const system = messages.filter(m => m.role === 'system').map(m => m.content).join('\n\n');
     const contents = messages.filter(m => m.role !== 'system').map(m => ({ role: m.role === 'assistant' ? 'model' : 'user', parts: [{ text: m.content }] }));
     const payload = { contents, generationConfig: { maxOutputTokens: maxOutput } };
     if (system) payload.systemInstruction = { parts: [{ text: system }] };
-    init = { method: 'POST', headers: { 'x-goog-api-key': env.GEMINI_API_KEY, 'content-type': 'application/json' }, body: JSON.stringify(payload) };
+    init = { method: 'POST', headers: { authorization: `Bearer ${env.GEMINI_RELAY_TOKEN}`, 'content-type': 'application/json' },
+      body: JSON.stringify({ model, payload }) };
   } else return { ok: false, category: 'invalid_provider' };
   let response;
   try { response = await fetch(endpoint, { ...init, signal: AbortSignal.timeout(60_000) }); }
   catch { return { ok: false, category: 'provider_network_error' }; }
   if (!response.ok) {
     // Include only allowlisted metadata. A Google 400 is not a player credit limit.
-    const diagnostic = provider === 'gemini'
+    const diagnostic = provider === 'gemini' && response.status !== 401 && response.status !== 403
       ? await geminiErrorHint(response) : { hint: 'unknown', providerStatus: null };
+    if (provider === 'gemini' && [401, 403].includes(response.status))
+      return { ok: false, category: 'gemini_relay_auth_failed', upstreamStatus: response.status };
     const category = provider === 'gemini' && response.status === 400
       ? `google_bad_request_${diagnostic.hint}` : 'provider_http_error';
     return { ok: false, category, upstreamStatus: response.status,
@@ -247,7 +258,7 @@ async function chatRoute(request, env, db) {
       player_id: player.id, provider, model, request_kind: kind,
       category: result.category, upstream_http_status: extra.upstream_http_status ?? null,
       provider_status: result.providerStatus ?? null,
-      visitor_country: request.cf?.country ?? null, edge_colo: request.cf?.colo ?? null }));
+      }));
     if (result.category === 'provider_http_error' && result.upstreamStatus === 429)
       return fail('provider_rate_limited', 502, extra);
     return fail(result.category || 'provider_request_failed', 502, extra);
@@ -279,7 +290,8 @@ export default {
       if (url.pathname === '/health' && request.method === 'GET') {
         await db.prepare('SELECT id FROM players LIMIT 1').first();
         response = json({ ok: true, service: 'bao-lab-credits-pilot', credit_unit: '100_tokens',
-          daily_chat_limit_enabled: false, diagnostic_version: '2026-09-22-1' });
+          daily_chat_limit_enabled: false, diagnostic_version: '2026-09-22-relay-1',
+          gemini_relay_ready: Boolean(env.GEMINI_RELAY_URL && env.GEMINI_RELAY_TOKEN) });
       } else if (url.pathname.startsWith('/admin/')) response = await adminRoute(request, url, env, db);
       else if (url.pathname === '/me' && request.method === 'GET') response = await chatRoute(request, env, db);
       else if (url.pathname === '/chat' && request.method === 'POST') response = await chatRoute(request, env, db);

@@ -79,7 +79,7 @@ const request = (path, method = 'GET', body, token, origin) => new Request(base 
 });
 const envFor = db => ({ '資料庫': db, ADMIN_TOKEN: 'admin-secret', ALLOWED_ORIGIN: 'https://bao.example',
   MODELS_JSON: JSON.stringify([{ provider: 'gemini', model: 'gemini-test', input_microusd_per_million: 0, output_microusd_per_million: 0 }]),
-  GEMINI_API_KEY: 'test-key' });
+  GEMINI_RELAY_URL: 'https://relay.example.test/', GEMINI_RELAY_TOKEN: 'relay-secret' });
 const body = { provider: 'gemini', model: 'gemini-test', request_kind: 'chat',
   messages: [{ role: 'user', content: 'Hi' }], max_output_tokens: 1024 };
 async function makePlayer(env, balance_credits = 10000) {
@@ -92,7 +92,8 @@ test('D1 binding and origin/auth checks still fail closed', async () => {
   const { db } = fakeDb(), env = envFor(db);
   const health = await (await worker.fetch(request('/health'), env)).json();
   assert.equal(health.daily_chat_limit_enabled, false);
-  assert.equal(health.diagnostic_version, '2026-09-22-1');
+  assert.equal(health.diagnostic_version, '2026-09-22-relay-1');
+  assert.equal(health.gemini_relay_ready, true);
   assert.equal((await worker.fetch(request('/health', 'GET', null, null, 'https://evil.test'), env)).status, 403);
   assert.equal((await worker.fetch(request('/admin/players'), env)).status, 401);
 });
@@ -105,7 +106,9 @@ test('one virtual credit per 100 tokens, old one-chat limit ignored, top up and 
   const originalFetch = globalThis.fetch;
   globalThis.fetch = async (_url, init) => {
     upstreamCalls++;
-    assert.equal(init.headers['x-goog-api-key'], 'test-key');
+    assert.equal(_url, 'https://relay.example.test/generate');
+    assert.equal(init.headers.authorization, 'Bearer relay-secret');
+    assert.equal(init.headers['x-goog-api-key'], undefined);
     return Response.json({ candidates: [{ content: { parts: [{ text: 'Hello' }] } }],
       usageMetadata: { promptTokenCount: 250, totalTokenCount: 610, thoughtsTokenCount: 200 } });
   };
@@ -154,6 +157,24 @@ test('credit shortage is distinct from provider 429 and failed provider call ref
     assert.equal(huge.status, 402);
     assert.equal((await huge.json()).error, 'insufficient_credits');
     assert.equal(upstreamCalls, 1);
+  } finally { globalThis.fetch = originalFetch; }
+});
+test('Gemini fails closed without relay and never directly calls Google', async () => {
+  const { db, players, usage } = fakeDb(), env = envFor(db);
+  delete env.GEMINI_RELAY_URL;
+  delete env.GEMINI_RELAY_TOKEN;
+  env.GEMINI_API_KEY = 'old-key-must-not-be-used';
+  const { player_token } = await makePlayer(env);
+  const originalFetch = globalThis.fetch;
+  let calls = 0;
+  globalThis.fetch = async () => { calls++; throw new Error('should not fetch'); };
+  try {
+    const response = await worker.fetch(request('/chat', 'POST', body, player_token), env);
+    assert.equal(response.status, 502);
+    assert.equal((await response.json()).error, 'gemini_relay_not_configured');
+    assert.equal(calls, 0);
+    assert.equal(players[0].balance_microusd, 10000);
+    assert.equal(usage[0].status, 'failed');
   } finally { globalThis.fetch = originalFetch; }
 });
 test('larger world prompt is accepted and empty model output reports finish reason without leaking prompts', async () => {

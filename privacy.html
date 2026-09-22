@@ -17,7 +17,7 @@
 <main>
   <nav aria-label="網站導覽"><a href="./">← BAO/LAB 首頁</a><a href="about-bao-lab.html">關於 BAO/LAB</a></nav>
   <h1>BAO/LAB 隱私權政策</h1>
-  <p class="muted">更新日期：2026 年 9 月 21 日</p>
+  <p class="muted">更新日期：2026 年 9 月 22 日</p>
   <p class="intro">BAO/LAB 是以本機儲存與玩家自備 AI 連線金鑰（BYOK）為核心的角色扮演／世界模擬網站。故事預設存在你的瀏覽器；只有你主動授權 Google Drive 同步時，才會將故事資料傳到你自己的 Google 帳號。</p>
 
   <h2>1. 我們處理哪些資料？</h2>
@@ -25,6 +25,7 @@
     <li><strong>本機故事與設定：</strong>你建立或匯入的故事、對話、角色、記憶、世界狀態、分支，以及相關設定，主要儲存在你使用的瀏覽器（例如 IndexedDB 或本機儲存空間）。不同裝置或瀏覽器的本機資料可能彼此獨立。</li>
     <li><strong>Google Drive 同步資料：</strong>你選擇連結 Google 後，網站透過 Google OAuth 取得同步所需的短期存取權杖，並讀取 Google 提供的帳號識別碼（permissionId），用來區分此瀏覽器內不同 Google 帳號的同步紀錄；網站不為此功能要求讀取你的 Gmail 或整個雲端硬碟。</li>
     <li><strong>自備 AI 服務：</strong>當你使用 AI 聊天、記憶或狀態整理功能時，執行所需的提示詞、故事脈絡及你提供的內容會傳送至你選擇的 AI 服務商或自訂連線端點。其資料處理及費用依該服務商的政策而定。</li>
+    <li><strong>邀請制後端（選用）：</strong>持有邀請金鑰的玩家可以透過 BAO/LAB 的 Cloudflare Worker 使用作者提供的模型額度。Worker 核對金鑰的雜湊值、扣除額度、記錄玩家識別碼、模型、token 用量及請求狀態；故事內容會經 Worker 及後端中繼服務傳至 Gemini 生成回覆，不以故事全文作為 BAO/LAB 用量紀錄。此模式的請求經 Cloudflare、Google Cloud Run 與 Google Gemini 處理；你的網路連線 IP 可能出現在雲端平台自己的請求紀錄中。後端中繼服務向 Gemini 建立新的請求，不轉寄玩家 IP 標頭或邀請金鑰，但 Gemini 仍須接收本次生成所需的故事文字。</li>
   </ul>
 
   <h2>2. Google 資料如何使用與儲存？</h2>
