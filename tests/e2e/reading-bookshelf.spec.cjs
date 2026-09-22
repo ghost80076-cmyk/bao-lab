@@ -1,0 +1,64 @@
+const { test, expect } = require('@playwright/test');
+
+async function openDemoStory(page) {
+  await page.goto('/');
+  await page.getByRole('button', { name: '探索作品' }).click();
+  await page.locator('article').filter({ hasText: '林沉風 - 見過黑暗的人' }).click();
+  await page.getByRole('button', { name: '開始故事' }).click();
+  for (let i = 0; i < 3; i += 1) await page.getByRole('button', { name: '下一步' }).click();
+  await page.locator('#bao-demo-mode').check();
+  await page.getByRole('button', { name: '下一步' }).click();
+  await page.getByRole('button', { name: '開始故事' }).click();
+  await expect(page.locator('#user-input')).toBeVisible();
+  await expect(page.locator('#bao-immersive-toggle')).toBeVisible();
+}
+
+for (const width of [320, 390, 1280]) {
+  test(`immersive reading ${width}px keeps story text and composer usable`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 780 });
+    await openDemoStory(page);
+    const before = await page.evaluate(() => JSON.stringify(Chat.messages));
+    const button = page.locator('#bao-immersive-toggle');
+    await button.click();
+    await expect(button).toHaveText('退出閱讀');
+    await expect(button).toHaveAttribute('aria-pressed', 'true');
+    await expect(page.locator('#chat-stream')).toBeVisible();
+    await expect(page.locator('#user-input')).toBeVisible();
+    await expect(page.locator('#game-ui')).toBeHidden();
+    const size = await page.evaluate(() => {
+      const stream = document.getElementById('chat-stream').getBoundingClientRect();
+      const composer = document.querySelector('#chat-view .composer').getBoundingClientRect();
+      const toggle = document.getElementById('bao-immersive-toggle').getBoundingClientRect();
+      return { stream: stream.height, composerTop: composer.top, composerBottom: composer.bottom, toggleRight: toggle.right, pageWidth: document.documentElement.scrollWidth, width: innerWidth, height: innerHeight };
+    });
+    expect(size.stream).toBeGreaterThan(100);
+    expect(size.composerTop).toBeGreaterThan(0);
+    expect(size.composerBottom).toBeLessThanOrEqual(size.height + 2);
+    expect(size.toggleRight).toBeLessThanOrEqual(size.width + 1);
+    expect(size.pageWidth).toBeLessThanOrEqual(size.width + 1);
+    await button.click();
+    await expect(button).toHaveText('沉浸閱讀');
+    await expect(button).toHaveAttribute('aria-pressed', 'false');
+    expect(await page.evaluate(() => JSON.stringify(Chat.messages))).toBe(before);
+    await page.reload();
+    await expect.poll(() => page.evaluate(() => Boolean(window.BAOImmersiveReader))).toBe(true);
+    expect(await page.evaluate(() => window.BAOImmersiveReader.enabled)).toBe(false);
+  });
+}
+
+test('bookshelf links the active chapter to the existing restore flow', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await openDemoStory(page);
+  await page.evaluate(async () => { App.saveStory(false); await BAOStoryLibrary.flush(); });
+  await page.evaluate(() => BAOStoryTools.openLibrary());
+  const shelf = page.locator('.story-library-shell');
+  await expect(shelf).toBeVisible();
+  await expect(shelf.locator('.bao-shelf-enhanced')).toHaveCount(1);
+  await expect(shelf.locator('.bao-shelf-cover')).toHaveCount(1);
+  await expect(shelf.locator('.bao-shelf-progress')).toContainText('第一章');
+  const continueButton = shelf.getByRole('button', { name: '繼續此故事' });
+  await expect(continueButton).toBeVisible();
+  await continueButton.click();
+  await expect(page.locator('#chat-view')).toHaveClass(/active/);
+  await expect(page.locator('#user-input')).toBeVisible();
+});
