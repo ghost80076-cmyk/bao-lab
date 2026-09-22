@@ -56,3 +56,19 @@
   #explore-view .category-portal{padding:12px 8px}
 }
 @media(prefers-reduced-motion:reduce){#explore-view .bao-gallery-more>summary{transition:none}}
+
+/* Screenshot refinement: remove the home dashboard, keep the portrait and real links. */
+#home-view .brand-hero h1{max-width:none!important;white-space:normal!important;word-break:keep-all}
+#home-view .brand-status-card .status-dot,#home-view .brand-status-card .brand-status-title,
+#home-view .brand-status-card dl{display:none!important}
+#home-view .brand-actions .brand-manual{
+  background:transparent!important;border:0!important;box-shadow:none!important;
+  min-height:40px;padding:8px 2px;color:#c5c0dc!important;text-decoration:underline;text-underline-offset:5px;
+}
+/* The home portrait itself opens Bao's profile; floating helpers should not cover its art. */
+body:has(#home-view.active) .bao-support-float,
+body:has(#home-view.active) #bao-mascot-root{display:none!important}
+@media(max-width:700px){
+  #home-view .brand-hero h1{font-size:clamp(35px,9vw,43px)!important}
+  #home-view .brand-actions .brand-manual{width:auto!important;justify-content:flex-start!important}
+}
