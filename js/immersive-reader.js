@@ -9,8 +9,10 @@
   const css = document.createElement('style');
   css.id = 'bao-immersive-reader-style';
   css.textContent = `
-    #bao-immersive-toggle{flex:0 0 auto;min-height:40px;width:auto;padding:7px 12px;border:1px solid #68847f;border-radius:11px;background:#1b2935;color:#e6f8f2;font-size:13px;font-weight:700;cursor:pointer}
-    #bao-immersive-toggle:focus-visible{outline:3px solid #70e3d1;outline-offset:2px}
+    #bao-immersive-toggle,#bao-immersive-exit{flex:0 0 auto;min-height:40px;width:auto;padding:7px 12px;border:1px solid #68847f;border-radius:11px;background:#1b2935;color:#e6f8f2;font-size:13px;font-weight:700;cursor:pointer}
+    #bao-immersive-toggle:focus-visible,#bao-immersive-exit:focus-visible{outline:3px solid #70e3d1;outline-offset:2px}
+    #bao-immersive-exit{display:none}
+    @media(min-width:821px){#chat-view.active.bao-immersive-on #bao-immersive-exit{display:inline-flex;align-items:center}}
     #chat-view.active.bao-immersive-on .chat-layout{grid-template-columns:minmax(0,1fr)!important}
     #chat-view.active.bao-immersive-on .chat-layout>aside,
     #chat-view.active.bao-immersive-on #game-ui,
@@ -53,6 +55,17 @@
       button.addEventListener('click', () => setEnabled(!enabled));
     }
     if (button.parentElement !== header) header.append(button);
+    let exit = document.getElementById('bao-immersive-exit');
+    if (!exit) {
+      exit = document.createElement('button');
+      exit.type = 'button';
+      exit.id = 'bao-immersive-exit';
+      exit.textContent = '← 離開故事';
+      exit.addEventListener('click', () => {
+        if (window.confirm('離開前會自動儲存目前進度。確定離開故事嗎？')) App.exitChat?.();
+      });
+    }
+    if (exit.parentElement !== header) header.append(exit);
     button.textContent = enabled ? '退出閱讀' : '沉浸閱讀';
     button.setAttribute('aria-label', enabled ? '退出沉浸閱讀，顯示故事工具' : '進入沉浸閱讀，專注故事正文');
     button.setAttribute('aria-pressed', String(enabled));
@@ -72,7 +85,7 @@
   };
   const observer = new MutationObserver(mutations => {
     if (mutations.some(m => [...m.addedNodes, ...m.removedNodes].some(node =>
-      node.nodeType === 1 && (node.classList?.contains('chat-topline') || node.id === 'bao-immersive-toggle')))) schedule();
+      node.nodeType === 1 && (node.classList?.contains('chat-topline') || node.id === 'bao-immersive-toggle' || node.id === 'bao-immersive-exit')))) schedule();
   });
   observer.observe(main, { childList: true, subtree: true });
   document.addEventListener('keydown', event => {
