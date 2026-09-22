@@ -1,0 +1,82 @@
+/* Second proposal: cinematic collection + quiet library. Site chrome only; never style author story HTML. */
+:root{--bao-gallery-surface:#10131a;--bao-gallery-ink:#f3efe9;--bao-gallery-subtle:#b7bfcd;--bao-gallery-rule:rgba(221,222,232,.13)}
+/* Expressive headings without a network font request. Keep body copy clear and legible. */
+#home-view .brand-hero h1,#home-view .brand-onboarding h2,#explore-view .section-head h2,
+#explore-view .character-content h3,#detail-view .detail-copy h1,
+.story-library-head h2,.story-library-story.bao-shelf-enhanced .story-library-title h3{
+  font-family:'Noto Serif TC','Songti TC','PMingLiU',Georgia,serif;
+  font-weight:600;letter-spacing:.005em;
+}
+#home-view .brand-hero h1{line-height:1.22;white-space:normal;max-width:12ch;text-wrap:balance}
+#home-view .brand-lead,#detail-view .detail-description{color:#c9cdd6}
+/* One uninterrupted visual stage instead of bordered cards inside cards. */
+#home-view .brand-status-card{background:transparent;border:0;border-radius:0;box-shadow:none;padding:0}
+#home-view .brand-status-card::before{display:none}
+#home-view #bao-home-portrait{border:0;border-radius:19px;margin:0 0 12px;background:radial-gradient(ellipse at 50% 38%,#333048 0%,#171924 64%,#0b0e15 100%)}
+#home-view #bao-home-portrait>span{background:rgba(13,16,24,.94);padding:13px 15px}
+#home-view .brand-status-card dl{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px 20px}
+#home-view .brand-status-card dl div{min-width:0;padding:9px 0;border-top:1px solid var(--bao-gallery-rule);gap:8px}
+#home-view .brand-status-card dt,#home-view .brand-status-card dd{font-size:11px;overflow-wrap:anywhere}
+#home-view .brand-onboarding{background:transparent;border:0;border-top:1px solid var(--bao-gallery-rule);border-radius:0;padding:clamp(25px,4vw,46px) 0 0}
+#home-view .brand-onboarding-steps li{background:transparent;border:0;border-left:1px solid var(--bao-gallery-rule);border-radius:0;padding:8px 16px}
+/* Artwork-first gallery: use a 2:3 poster, one quiet gradient and legible live text. */
+#explore-view .category-portal{background:#121620;border-color:var(--bao-gallery-rule)}
+#explore-view .character-card{position:relative;isolation:isolate;border:0;border-radius:15px;background:#11151d;box-shadow:0 14px 36px #0004;overflow:hidden}
+#explore-view .character-image-wrap{background:#191b27}
+#explore-view .character-image-wrap img{display:block;width:100%;aspect-ratio:2/3;height:auto;object-fit:cover;object-position:center 20%}
+#explore-view .character-image-wrap::after{display:none}
+#explore-view .character-card .category-badge{top:12px;bottom:auto;left:12px;border:1px solid rgba(255,255,255,.16);background:rgba(9,12,17,.75);color:#f0eef5}
+#explore-view .character-content{position:absolute;inset:auto 0 0;padding:72px 19px 19px;background:linear-gradient(180deg,transparent 0%,rgba(6,8,14,.82) 32%,rgba(6,8,14,.97) 100%);color:#f3efe9;pointer-events:none}
+#explore-view .character-content h3{color:#fff;font-size:clamp(18px,2vw,23px);line-height:1.4;margin:6px 0 7px;text-shadow:0 1px 10px #0008}
+#explore-view .character-content .eyebrow{color:#d6ccfa}
+#explore-view .character-content p{color:#e0dfe6;min-height:0;line-height:1.65;margin:0;font-size:12px;-webkit-line-clamp:2}
+#explore-view .character-content .tags{margin-top:8px;max-height:29px;gap:5px}
+#explore-view .character-content .tag{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.11);color:#e4e0ed;border-radius:999px;padding:3px 8px}
+#explore-view .character-card:hover{box-shadow:0 22px 46px #0008;border:0}
+#explore-view .character-card:focus-visible{outline:3px solid #c0b6ff;outline-offset:4px}
+/* Character detail: editorial layout, fewer heavy containers, action remains intact. */
+#detail-view .detail-theme-shell{background:transparent;border:0;border-radius:0;padding:clamp(12px,2vw,25px) 0}
+#detail-view .detail-theme-shell::before{opacity:.07}
+#detail-view .detail-image-frame{border:0;border-radius:14px;box-shadow:0 28px 58px #0006}
+#detail-view .detail-copy h1{font-size:clamp(38px,5vw,64px);line-height:1.3}
+#detail-view .detail-copy .tag{background:rgba(255,255,255,.035);border:1px solid var(--bao-gallery-rule);border-radius:999px}
+#detail-view .detail-copy .quote{color:#ded8eb}
+/* A collection of stories, not stacked panels inside one more panel. */
+.story-tools-modal:has(.story-library-shell){background:#0d1017;border:1px solid var(--bao-gallery-rule)}
+.story-library-story.bao-shelf-enhanced{border:0;border-bottom:1px solid var(--bao-gallery-rule);border-radius:0;background:transparent;padding:20px 0 27px;box-shadow:none}
+.story-library-story.bao-shelf-enhanced .bao-shelf-cover{border:1px solid rgba(230,222,248,.18);border-radius:5px;aspect-ratio:2/3;box-shadow:5px 6px 0 rgba(0,0,0,.24),0 12px 28px #0006}
+.story-library-story.bao-shelf-enhanced .story-library-preview{border-color:var(--bao-gallery-rule);color:#c3c8d2}
+.story-library-story.bao-shelf-enhanced .story-library-chapters{border-color:var(--bao-gallery-rule)}
+.story-library-story.bao-shelf-enhanced .story-library-chapter{background:transparent;border:0;border-left:1px solid var(--bao-gallery-rule);border-radius:0;padding:9px 12px}
+.story-library-story.bao-shelf-enhanced .story-library-actions button:not(.bao-shelf-continue){background:transparent;color:#d1d3df;border:1px solid var(--bao-gallery-rule)}
+.story-library-story.bao-shelf-enhanced .story-library-actions .story-library-danger{color:#d3a9b0;border-color:rgba(242,143,151,.24)}
+.story-library-story.bao-shelf-enhanced .bao-shelf-continue{background:#8674da;border-color:#a391f8;color:#fff;box-shadow:none}
+.story-library-story.bao-shelf-enhanced .bao-shelf-continue:hover{background:#9a88e6;border-color:#b8a8ff}
+/* Actual existing float selectors; never remove the mascot panel or its click handling. */
+body:has(#explore-view.active) .bao-support-float,body:has(#detail-view.active) .bao-support-float{display:none}
+body:has(#explore-view.active) .bao-mascot-launch,body:has(#detail-view.active) .bao-mascot-launch{width:46px;height:46px;padding:1px;display:grid;place-items:center}
+body:has(#explore-view.active) .bao-mascot-launch-label,body:has(#detail-view.active) .bao-mascot-launch-label{display:none}
+body:has(#explore-view.active) .bao-mascot-avatar,body:has(#detail-view.active) .bao-mascot-avatar{width:42px;height:42px}
+/* A simple accessible tab-like navigation on small screens; don't replace existing nav handlers. */
+@media(max-width:700px){
+  #home-view .brand-hero h1{max-width:none;font-size:clamp(34px,9.6vw,46px);line-height:1.34}
+  #home-view .brand-status-card dl{gap:5px 10px}
+  #home-view .brand-onboarding-steps li{padding-inline:11px}
+  #explore-view .character-content{padding:57px 10px 11px}
+  #explore-view .character-content h3{font-size:15px;line-height:1.4;margin:4px 0 5px}
+  #explore-view .character-content .eyebrow{font-size:9px}
+  #explore-view .character-content p{font-size:11px;-webkit-line-clamp:1}
+  #explore-view .character-content .tags{display:none}
+  #explore-view .character-card .category-badge{left:8px;top:8px;bottom:auto;font-size:9px}
+  #detail-view .detail-theme-layout{gap:0}
+  #detail-view .detail-visual{height:clamp(235px,42svh,350px);width:100%;max-width:100%;overflow:hidden}
+  #detail-view .detail-image-frame{height:100%;border-radius:13px 13px 0 0}
+  #detail-view .detail-image{height:100%;width:100%;aspect-ratio:auto;object-fit:cover;object-position:center 19%}
+  #detail-view .detail-side-code{display:none}
+  #detail-view .detail-copy{position:relative;z-index:1;margin:-25px 10px 0;padding:20px 13px 0;background:linear-gradient(180deg,#151923 0%,#090b10 92%);border-radius:15px 15px 0 0}
+  #detail-view .detail-copy h1{font-size:clamp(31px,8vw,43px);line-height:1.3;margin:9px 0 14px}
+  #detail-view .detail-description{font-size:14px;line-height:1.85}
+  #detail-view .detail-actions{margin-top:20px}
+  body:has(#explore-view.active) .bao-mascot,body:has(#detail-view.active) .bao-mascot{right:8px;bottom:calc(9px + env(safe-area-inset-bottom,0px))}
+}
+@media(prefers-reduced-motion:reduce){#explore-view .character-image-wrap img{transition:none!important}}
