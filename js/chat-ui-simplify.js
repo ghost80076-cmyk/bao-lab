@@ -1,4 +1,4 @@
-/* Progressive disclosure on phones only; do not alter regex rules, stories or API calls. */
+/* Mobile progressive disclosure only. Never change saved stories, regex rules or API handlers. */
 (() => {
   'use strict';
   if (window.BAOChatUISimplify) return;
@@ -66,7 +66,7 @@
     const editor = panel();
     if (!editor) return;
     const summary = editor.querySelector(':scope > summary');
-    if (summary) {
+    if (summary && summary.textContent !== '自訂排版與互動（正則）') {
       summary.textContent = '自訂排版與互動（正則）';
       summary.title = '進階功能：匯入或啟用角色卡作者提供的排版與互動規則';
     }
@@ -96,7 +96,7 @@
   const image = () => {
     const trigger = aside()?.querySelector('[data-bao-image-prompt]');
     if (!trigger) return;
-    trigger.textContent = '配圖工具（提示詞）';
+    if (trigger.textContent !== '配圖工具（提示詞）') trigger.textContent = '配圖工具（提示詞）';
     trigger.title = '需要為當前故事製作圖片時使用；平常聊天不需要開啟';
     const host = mobile.matches && settings();
     if (host && trigger.parentElement !== host) host.append(trigger);
@@ -120,7 +120,10 @@
     image();
     dock();
     const link = document.querySelector('.topbar nav [data-bao-regex-link]');
-    if (link) { link.textContent = '排版工具'; link.title = '進階：文字替換與正則規則'; }
+    if (link && link.textContent !== '排版工具') {
+      link.textContent = '排版工具';
+      link.title = '進階：文字替換與正則規則';
+    }
   };
   const schedule = () => {
     if (queued) return;
@@ -129,7 +132,9 @@
   };
   const init = () => {
     const sidebar = aside();
-    if (sidebar) new MutationObserver(schedule).observe(sidebar, { childList: true, subtree: true });
+    // Only direct additions (new controls or toolbar host) matter. Text updates within
+    // the panel must not create a recursive observer/render loop.
+    if (sidebar) new MutationObserver(schedule).observe(sidebar, { childList: true });
     const main = document.querySelector('#chat-view .chat-main');
     if (main) new MutationObserver(mutations => {
       if (mutations.some(record => [...record.addedNodes].some(node => node.nodeType === 1 &&
