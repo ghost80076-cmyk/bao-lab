@@ -86,6 +86,8 @@
   refreshStylesheet('css/bao-mascot.css', 'original-violet-mint-1');
   addStylesheet('css/bao-visual-ui.css');
   addStylesheet('css/bao-brand-v2.css?v=original-violet-mint-1');
+  // Brand tokens first, editorial layout second; story-specific authored HTML is never restyled.
+  addStylesheet('css/bao-editorial.css?v=1');
   addStylesheet('css/bao-image-quality.css?v=1');
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', enhanceAndGuard, { once: true });
   else enhanceAndGuard();
