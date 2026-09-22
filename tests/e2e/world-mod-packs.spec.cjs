@@ -2,12 +2,11 @@ const { test, expect } = require('@playwright/test');
 
 async function demo(page) {
   await page.goto('/');
-  await expect(page.locator('#home-view .brand-hero h1')).toBeVisible();
-  await page.locator('#home-view [data-view="explore"]').click();
+  await expect(page.getByRole('heading', { name: '班長。' })).toBeVisible();
+  await page.getByRole('button', { name: '探索作品' }).click();
   const card = page.locator('article').filter({ hasText: '林沉風 - 見過黑暗的人' });
   await card.click();
   await page.getByRole('button', { name: '開始故事' }).click();
-  await page.locator('#bao-setup-choice [data-bao-setup="advanced"]').click();
   for (let n = 0; n < 3; n++) await page.getByRole('button', { name: '下一步' }).click();
   await page.locator('#bao-demo-mode').check();
   await page.getByRole('button', { name: '下一步' }).click();
@@ -107,7 +106,7 @@ test('retained MOD data blocks ID reuse, invalid imports are atomic, and a valid
   expect(await page.evaluate(() => GameState.current.modules.archived_mod.affinity)).toBe(77);
   await page.evaluate(() => Storage.flush());
   await page.reload();
-  await expect(page.locator('#home-view .brand-hero h1')).toBeVisible();
+  await expect(page.getByRole('heading', { name: '班長。' })).toBeVisible();
   const restored = await page.evaluate(async () => {
     await Storage.ready();
     const save = Storage.loadStory();

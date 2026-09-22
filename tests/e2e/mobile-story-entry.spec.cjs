@@ -7,12 +7,11 @@ async function waitForApp(page) {
 
 async function startBYOKStory(page) {
   await waitForApp(page);
-  await page.locator('#home-view [data-view="explore"]').click();
+  await page.getByRole('button', { name: '探索作品' }).click();
   const card = page.locator('article').filter({ hasText: '林沉風 - 見過黑暗的人' });
   await expect(card).toBeVisible();
   await card.click();
   await page.getByRole('button', { name: '開始故事' }).click();
-  await page.locator('#bao-setup-choice [data-bao-setup="advanced"]').click();
   for (let i = 0; i < 3; i += 1) await page.getByRole('button', { name: '下一步' }).click();
   await page.locator('#model-id').fill('mobile-entry-test-model');
   await page.locator('#base-url').fill('https://example.invalid/v1/chat/completions');
@@ -34,7 +33,6 @@ for (const width of [390, 375, 1280]) {
     try {
       await startBYOKStory(page);
       await page.reload();
-      await page.evaluate(() => App.showView('explore'));
       await expect(page.locator('#continue-story')).toBeVisible();
       await page.locator('#continue-story').click();
       await expect(page.locator('#chat-view')).toHaveClass(/active/);

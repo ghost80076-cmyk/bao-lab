@@ -2,13 +2,12 @@ const { test, expect } = require('@playwright/test');
 
 async function openDemoStory(page) {
   await page.goto('/');
-  await expect(page.locator('#home-view .brand-hero h1')).toBeVisible();
-  await page.locator('#home-view [data-view="explore"]').click();
+  await expect(page.getByRole('heading', { name: '班長。' })).toBeVisible();
+  await page.getByRole('button', { name: '探索作品' }).click();
   const card = page.locator('article').filter({ hasText: '林沉風 - 見過黑暗的人' });
   await expect(card).toBeVisible();
   await card.click();
   await page.getByRole('button', { name: '開始故事' }).click();
-  await page.locator('#bao-setup-choice [data-bao-setup="advanced"]').click();
   for (let i = 0; i < 3; i++) await page.getByRole('button', { name: '下一步' }).click();
   await page.locator('#bao-demo-mode').check();
   await page.getByRole('button', { name: '下一步' }).click();

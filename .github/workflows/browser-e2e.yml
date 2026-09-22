@@ -11,14 +11,13 @@ permissions:
 
 jobs:
   cross-browser:
-    name: E2E · ${{ matrix.browser }} · ${{ matrix.shard }}/3
+    name: E2E · ${{ matrix.browser }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     strategy:
       fail-fast: false
       matrix:
         browser: [chromium, firefox, webkit]
-        shard: [1, 2, 3]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -32,42 +31,42 @@ jobs:
       - name: Install ${{ matrix.browser }}
         run: npx playwright install --with-deps ${{ matrix.browser }}
       - name: Run desktop and mobile E2E on ${{ matrix.browser }}
-        run: npm run test:e2e -- --project=${{ matrix.browser }} --shard=${{ matrix.shard }}/3
+        run: npm run test:e2e -- --project=${{ matrix.browser }}
       - name: Verify deployed Pages content
-        if: github.event_name == 'push' && matrix.browser == 'chromium' && matrix.shard == 1
+        if: github.event_name == 'push' && matrix.browser == 'chromium'
         run: node tests/pages-content-check.cjs
       - name: Verify live Pages official logo and Discord contact
-        if: github.event_name == 'push' && matrix.browser == 'chromium' && matrix.shard == 1
+        if: github.event_name == 'push' && matrix.browser == 'chromium'
         env:
           BAO_LIVE_URL: https://ghost80076-cmyk.github.io/bao-lab/
         run: npm run test:e2e -- tests/e2e/community-brand.spec.cjs --project=chromium
       - name: Verify live Pages author guidance and relay probe
-        if: github.event_name == 'push' && matrix.browser == 'chromium' && matrix.shard == 1
+        if: github.event_name == 'push' && matrix.browser == 'chromium'
         env:
           BAO_LIVE_URL: https://ghost80076-cmyk.github.io/bao-lab/
         run: npm run test:e2e -- tests/e2e/author-diagnostics.spec.cjs --project=chromium
       - name: Verify live Pages character import and reload
-        if: github.event_name == 'push' && matrix.browser == 'chromium' && matrix.shard == 1
+        if: github.event_name == 'push' && matrix.browser == 'chromium'
         env:
           BAO_LIVE_URL: https://ghost80076-cmyk.github.io/bao-lab/
         run: npm run test:e2e -- tests/e2e/character-import.spec.cjs --project=chromium
       - name: Verify live Pages provider diagnostics
-        if: github.event_name == 'push' && matrix.browser == 'chromium' && matrix.shard == 1
+        if: github.event_name == 'push' && matrix.browser == 'chromium'
         env:
           BAO_LIVE_URL: https://ghost80076-cmyk.github.io/bao-lab/
         run: npm run test:e2e -- tests/e2e/provider-diagnostics.spec.cjs --project=chromium
       - name: Verify live Pages memory flow
-        if: github.event_name == 'push' && matrix.browser == 'chromium' && matrix.shard == 1
+        if: github.event_name == 'push' && matrix.browser == 'chromium'
         env:
           BAO_LIVE_URL: https://ghost80076-cmyk.github.io/bao-lab/
         run: npm run test:e2e -- tests/e2e/memory-preferences.spec.cjs --project=chromium
       - name: Verify live Pages Context Pack resume
-        if: github.event_name == 'push' && matrix.browser == 'chromium' && matrix.shard == 1
+        if: github.event_name == 'push' && matrix.browser == 'chromium'
         env:
           BAO_LIVE_URL: https://ghost80076-cmyk.github.io/bao-lab/
         run: npm run test:e2e -- tests/e2e/context-pack-resume.spec.cjs --project=chromium
       - name: Verify live Pages 1000-round story stress
-        if: github.event_name == 'push' && matrix.browser == 'chromium' && matrix.shard == 1
+        if: github.event_name == 'push' && matrix.browser == 'chromium'
         env:
           BAO_LIVE_URL: https://ghost80076-cmyk.github.io/bao-lab/
         run: npm run test:e2e -- tests/e2e/long-story-stress.spec.cjs --project=chromium
@@ -75,7 +74,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-report-${{ matrix.browser }}-${{ matrix.shard }}
+          name: playwright-report-${{ matrix.browser }}
           path: |
             playwright-report
             test-results
