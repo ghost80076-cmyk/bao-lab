@@ -57,11 +57,30 @@
   };
   const enhanceAndGuard = () => {
     enhance();
-    if (document.querySelector('script[data-bao-quality]')) return;
-    const script = document.createElement('script');
-    script.dataset.baoQuality = '1';
-    script.src = 'js/bao-image-quality.js?v=1';
-    document.head.appendChild(script);
+    if (!document.querySelector('script[data-bao-quality]')) {
+      const script = document.createElement('script');
+      script.dataset.baoQuality = '1';
+      script.src = 'js/bao-image-quality.js?v=1';
+      document.head.appendChild(script);
+    }
+    if (!document.querySelector('script[data-bao-immersive]')) {
+      const reader = document.createElement('script');
+      reader.dataset.baoImmersive = '1';
+      reader.src = 'js/immersive-reader.js';
+      document.head.appendChild(reader);
+    }
+    if (!document.querySelector('script[data-bao-bookshelf]')) {
+      const bookshelf = document.createElement('script');
+      bookshelf.dataset.baoBookshelf = '1';
+      bookshelf.src = 'js/bookshelf-enhance.js';
+      document.head.appendChild(bookshelf);
+    }
+    if (!document.querySelector('script[data-bao-scene-image]')) {
+      const scenes = document.createElement('script');
+      scenes.dataset.baoSceneImage = '1';
+      scenes.src = 'js/story-image-moments.js';
+      document.head.appendChild(scenes);
+    }
   };
   refreshStylesheet('css/explore-zones.css', 'original-violet-mint-1');
   refreshStylesheet('css/bao-mascot.css', 'original-violet-mint-1');

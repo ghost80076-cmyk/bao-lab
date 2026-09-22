@@ -2,12 +2,13 @@ const { test, expect } = require("@playwright/test");
 
 const openModelStep = async page => {
   await page.goto("/");
-  await expect(page.getByRole("heading", { name: "班長。" })).toBeVisible();
-  await page.getByRole("button", { name: "探索作品" }).click();
+  await expect(page.locator('#home-view .brand-hero h1')).toBeVisible();
+  await page.locator('#home-view [data-view="explore"]').click();
   const card = page.locator("article").filter({ hasText: "林沉風 - 見過黑暗的人" });
   await expect(card).toBeVisible();
   await card.click();
   await page.getByRole("button", { name: "開始故事" }).click();
+  await page.locator('#bao-setup-choice [data-bao-setup="advanced"]').click();
   for (let step = 0; step < 3; step += 1) await page.getByRole("button", { name: "下一步" }).click();
 };
 
