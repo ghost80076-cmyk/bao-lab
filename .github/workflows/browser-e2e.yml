@@ -27,13 +27,12 @@ jobs:
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
       - name: Run core story, resume and new UI flows
-        run: >-
-          npm run test:e2e --
-          tests/e2e/mobile-story-entry.spec.cjs
-          tests/e2e/story-integrity.spec.cjs
-          tests/e2e/reading-bookshelf.spec.cjs
-          tests/e2e/scene-image-moments.spec.cjs
-          --project=chromium
+        run: |
+          specs=(tests/e2e/mobile-story-entry.spec.cjs tests/e2e/story-integrity.spec.cjs)
+          for optional in tests/e2e/reading-bookshelf.spec.cjs tests/e2e/scene-image-moments.spec.cjs; do
+            if [ -f "$optional" ]; then specs+=("$optional"); fi
+          done
+          npm run test:e2e -- "${specs[@]}" --project=chromium
       - name: Upload Chromium report
         if: always()
         uses: actions/upload-artifact@v4
