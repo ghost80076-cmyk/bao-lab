@@ -69,6 +69,12 @@
       reader.src = 'js/immersive-reader.js';
       document.head.appendChild(reader);
     }
+    if (!document.querySelector('script[data-bao-bookshelf]')) {
+      const bookshelf = document.createElement('script');
+      bookshelf.dataset.baoBookshelf = '1';
+      bookshelf.src = 'js/bookshelf-enhance.js';
+      document.head.appendChild(bookshelf);
+    }
   };
   refreshStylesheet('css/explore-zones.css', 'original-violet-mint-1');
   refreshStylesheet('css/bao-mascot.css', 'original-violet-mint-1');
