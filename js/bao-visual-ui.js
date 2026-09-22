@@ -81,6 +81,12 @@
       scenes.src = 'js/story-image-moments.js';
       document.head.appendChild(scenes);
     }
+    if (!document.querySelector('script[data-bao-gallery-focus]')) {
+      const gallery = document.createElement('script');
+      gallery.dataset.baoGalleryFocus = '1';
+      gallery.src = 'js/bao-gallery-focus.js';
+      document.head.appendChild(gallery);
+    }
   };
   refreshStylesheet('css/explore-zones.css', 'original-violet-mint-1');
   refreshStylesheet('css/bao-mascot.css', 'original-violet-mint-1');
