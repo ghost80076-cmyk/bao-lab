@@ -7,24 +7,37 @@ const capture = async (page, name) => {
 };
 
 for (const width of [390, 1280]) {
-  test(`editorial home, character covers and character detail remain usable at ${width}px`, async ({ page }) => {
+  test(`editorial home, gallery disclosure and character detail work at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 844 });
     await page.goto('/');
     await page.waitForFunction(() => Boolean(window.App?.characters?.length &&
-      document.querySelector('#home-view .brand-hero') &&
-      document.querySelector('link[href="css/bao-editorial.css?v=1"]')));
+      document.querySelector('#home-view .brand-hero') && window.BAOGalleryFocus));
     await expect(page.locator('#home-view .brand-hero h1')).toBeVisible();
     await expect(page.locator('#home-view #bao-home-portrait')).toBeVisible();
+    await expect(page.locator('link[href="css/bao-editorial-polish.css?v=1"]')).toHaveCount(1);
+    await expect.poll(() => page.locator('#home-view .brand-hero h1').evaluate(node => getComputedStyle(node).whiteSpace)).toBe('nowrap');
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width + 1);
     await capture(page, `home-${width}`);
     await page.locator('#home-view button[data-view="explore"]').click();
     const card = page.locator('#character-list .character-card').first();
     await expect(card).toBeVisible();
+    const more = page.locator('#explore-view .bao-gallery-more');
+    await expect(more).toBeVisible();
+    await expect(more).not.toHaveAttribute('open', '');
+    await expect(page.locator('#explore-view .character-tools > a[href="character-studio.html"]')).toBeVisible();
+    await expect(page.locator('#explore-view .character-tools > a[download]')).toHaveCount(2);
+    await expect(page.locator('#import-character-button')).toBeHidden();
     const image = card.locator('.character-image-wrap img');
     await expect(image).toBeVisible();
     const imageBox = await image.boundingBox();
     expect(imageBox.height / imageBox.width).toBeGreaterThan(1.2);
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width + 1);
     await capture(page, `characters-${width}`);
+    await more.locator('summary').click();
+    await expect(page.locator('#import-character-button')).toBeVisible();
+    await page.locator('#manage-character-button').click();
+    await expect(page.locator('#custom-character-list')).toContainText('目前沒有本機匯入角色');
+    await more.locator('summary').click();
     await card.click();
     await expect(page.locator('#detail-view .detail-theme-shell')).toBeVisible();
     await expect(page.locator('#detail-start')).toBeVisible();
