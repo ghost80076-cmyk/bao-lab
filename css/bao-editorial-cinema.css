@@ -442,13 +442,17 @@ body:has(#chat-view.active) .app-shell{width:min(1660px,calc(100% - 30px))}
   box-shadow:0 10px 27px rgba(116,94,231,.18);
 }
 #chat-view #bao-chat-send-feedback{border-color:rgba(214,170,115,.28);background:rgba(56,42,31,.62)}
-#bao-chat-floating-actions a{display:none!important}
-#bao-chat-floating-actions button{
-  min-width:42px!important;width:42px!important;min-height:42px!important;padding:0!important;
-  overflow:hidden;text-indent:-9999px;border-color:rgba(184,169,255,.22)!important;
+#bao-chat-floating-actions :is(button,a){
+  min-width:42px!important;width:42px!important;min-height:42px!important;height:42px!important;padding:0!important;
+  overflow:hidden;white-space:nowrap;text-indent:-9999px;border-color:rgba(184,169,255,.22)!important;
   background:rgba(18,20,30,.74)!important;backdrop-filter:blur(10px);
 }
-#bao-chat-floating-actions button::after{content:"↑";text-indent:0;font-size:18px;color:#d9d2f4}
+#bao-chat-floating-actions :is(button,a)::after{
+  display:block;text-indent:0;font-size:18px;line-height:1;color:#d9d2f4;
+}
+#bao-chat-floating-actions button::after{content:"↑"}
+#bao-chat-floating-actions a::after{content:"🥟";font-size:17px}
+#bao-chat-floating-actions a img{display:none!important}
 
 /* Native status / relationship panels borrow B's glass pills without becoming a dashboard. */
 #chat-view #game-ui{
