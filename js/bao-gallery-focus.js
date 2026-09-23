@@ -5,7 +5,7 @@
   const root = document.getElementById('explore-view');
   if (!root) return;
   // Each proposal layer loads in order, after the original BAO/LAB brand CSS.
-  for (const stylesheet of ['css/bao-editorial-polish.css?v=2', 'css/bao-editorial-cinema.css?v=6']) {
+  for (const stylesheet of ['css/bao-editorial-polish.css?v=2', 'css/bao-editorial-cinema.css?v=7']) {
     if (document.querySelector(`link[href="${stylesheet}"]`)) continue;
     const link = document.createElement('link');
     link.rel = 'stylesheet';
