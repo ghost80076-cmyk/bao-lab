@@ -7,6 +7,7 @@ on:
       - 'css/bao-editorial-cinema.css'
       - 'css/bao-cinematic-home.css'
       - 'js/bao-gallery-focus.js'
+      - 'js/bookshelf-enhance.js'
       - 'js/bao-visual-ui.js'
       - 'js/brand-ui.js'
       - 'js/site-ui.js'
