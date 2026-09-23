@@ -277,3 +277,342 @@ body:has(#detail-view.active) .bao-mascot-avatar{width:44px;height:44px}
   body:has(#detail-view.active) .bao-mascot-launch{animation:none!important;transform:none!important}
 }
 
+
+
+/* Core A extension: story library + reading room + status panels. */
+/* Story library: keep management available, but present each saved story like a cinematic collection entry. */
+.story-tools-modal:has(.story-library-shell){
+  background:
+    radial-gradient(circle at 82% 6%,rgba(141,108,255,.11),transparent 28%),
+    linear-gradient(180deg,#0d0f17,#090b10 76%);
+  border-color:rgba(184,169,255,.14);
+  box-shadow:0 30px 100px rgba(0,0,0,.52);
+}
+.story-library-head{border-color:rgba(184,169,255,.12)}
+.story-library-head h2{
+  font-family:'Noto Serif TC','Songti TC','PMingLiU',Georgia,serif;
+  color:#f4f0f7;letter-spacing:.01em;
+}
+.story-library-story.bao-shelf-enhanced{
+  position:relative;padding:24px 2px 30px;
+  border-bottom:1px solid rgba(184,169,255,.13);
+}
+.story-library-story.bao-shelf-enhanced::before{
+  content:"";position:absolute;inset:10px -8px 8px;z-index:-1;opacity:0;
+  border-radius:18px;
+  background:linear-gradient(110deg,rgba(141,108,255,.07),rgba(93,214,192,.025) 55%,transparent);
+  transition:opacity .2s ease;
+}
+.story-library-story.bao-shelf-enhanced:hover::before{opacity:1}
+.story-library-story.bao-shelf-enhanced .bao-shelf-cover{
+  width:104px;flex-basis:104px;border-radius:8px;
+  border-color:rgba(184,169,255,.25);
+  box-shadow:8px 10px 0 rgba(0,0,0,.18),0 18px 42px rgba(0,0,0,.45),0 0 28px rgba(141,108,255,.08);
+}
+.story-library-story.bao-shelf-enhanced .story-library-title h3{
+  font-family:'Noto Serif TC','Songti TC','PMingLiU',Georgia,serif;
+  color:#f5f1f8;font-size:clamp(21px,2.3vw,28px);
+}
+.story-library-story.bao-shelf-enhanced .bao-shelf-progress{color:#c7bbff}
+.story-library-story.bao-shelf-enhanced .story-library-preview{color:#bfc2cc}
+.story-library-story.bao-shelf-enhanced .story-library-chapter{
+  border-left-color:rgba(184,169,255,.22);
+  background:linear-gradient(90deg,rgba(141,108,255,.045),transparent 58%);
+}
+.story-library-story.bao-shelf-enhanced .story-library-actions button:not(.bao-shelf-continue){
+  border-radius:999px;background:rgba(18,20,30,.48);backdrop-filter:blur(8px);
+}
+.story-library-story.bao-shelf-enhanced .bao-shelf-continue{
+  border-radius:11px;
+  background:linear-gradient(135deg,#9c8cff,#745ee7);
+  border-color:#aa9aff;
+  box-shadow:0 10px 26px rgba(116,94,231,.18);
+}
+
+/* Chat: a reading room first. Controls remain present but visually retreat from the prose. */
+body:has(#chat-view.active){
+  background:
+    radial-gradient(circle at 80% 0,rgba(141,108,255,.10),transparent 29%),
+    radial-gradient(circle at 10% 16%,rgba(93,214,192,.035),transparent 24%),
+    #080910;
+}
+body:has(#chat-view.active) .app-shell{width:min(1660px,calc(100% - 30px))}
+#chat-view{padding-top:18px}
+#chat-view .chat-layout{gap:15px}
+#chat-view .chat-layout>aside:not(.bao-status-rail){
+  border:1px solid rgba(184,169,255,.12);
+  border-radius:18px;
+  background:linear-gradient(180deg,rgba(20,18,31,.86),rgba(11,13,20,.94));
+  box-shadow:0 18px 48px rgba(0,0,0,.28);
+}
+#chat-view #chat-character-card{
+  padding:10px 4px 15px;border-bottom:1px solid rgba(184,169,255,.12);
+}
+#chat-view #chat-character-card .eyebrow{color:#a899e4}
+#chat-view #chat-character-card h3{
+  margin:8px 0 0;font-family:'Noto Serif TC','Songti TC','PMingLiU',Georgia,serif;
+  font-size:20px;line-height:1.45;color:#f5f0f8;
+}
+#chat-view .chat-meta{display:grid;gap:7px;padding:12px 2px}
+#chat-view .chat-meta span{
+  display:flex;justify-content:space-between;gap:8px;padding:5px 0;
+  border-bottom:1px solid rgba(255,255,255,.045);font-size:11px;color:#898f9d;
+}
+#chat-view .chat-meta b{color:#d5d0e7;font-weight:600;text-align:right}
+#chat-view .chat-layout>aside .secondary,
+#chat-view .status-manager-launch{
+  min-height:38px;border-radius:10px;
+  background:rgba(25,26,39,.55);border-color:rgba(184,169,255,.13);
+  color:#d5d2df;box-shadow:none;
+}
+#chat-view .chat-layout>aside .secondary:hover,
+#chat-view .status-manager-launch:hover{
+  background:rgba(92,72,150,.17);border-color:rgba(184,169,255,.34);color:#fff;
+}
+#chat-view .chat-layout>aside .text-button{color:#9b9faf}
+#chat-view .chat-main{
+  border:1px solid rgba(184,169,255,.11);
+  border-radius:20px;
+  background:rgba(9,11,17,.88);
+  box-shadow:0 24px 70px rgba(0,0,0,.34);
+}
+#chat-view .chat-topline{
+  padding:14px 18px;border-bottom:1px solid rgba(184,169,255,.10);
+  background:linear-gradient(180deg,rgba(20,17,31,.74),rgba(11,13,20,.42));
+}
+#chat-view .chat-title-avatar{
+  border-radius:10px;box-shadow:0 8px 20px rgba(0,0,0,.34),0 0 0 1px rgba(184,169,255,.16);
+}
+#chat-view .chat-title-copy .eyebrow{color:#a899e4}
+#chat-view .chat-title-copy h2{
+  font-family:'Noto Serif TC','Songti TC','PMingLiU',Georgia,serif;
+  color:#f5f1f8;letter-spacing:.01em;
+}
+#chat-view #bao-immersive-toggle,#chat-view #bao-immersive-exit{
+  border-color:rgba(184,169,255,.18);background:rgba(26,25,39,.72);color:#ded9ee;
+}
+#chat-view .chat-stream{
+  background:
+    linear-gradient(180deg,rgba(10,11,18,.74),rgba(8,10,15,.96)),
+    radial-gradient(circle at 80% 20%,rgba(141,108,255,.045),transparent 36%);
+  padding-block:clamp(20px,3vw,36px);
+}
+#chat-view .message{margin-bottom:clamp(23px,3vw,35px)}
+#chat-view .message.assistant .bubble{
+  border-left:0!important;padding:0!important;background:transparent!important;
+  color:#e3e0e6;font-family:'Noto Serif TC','Songti TC','PMingLiU',Georgia,serif;
+  font-size:15.5px;line-height:2.02;letter-spacing:.012em;
+}
+#chat-view .message.user .bubble{
+  border:1px solid rgba(184,169,255,.16);
+  border-radius:16px 16px 5px 16px;
+  background:linear-gradient(135deg,rgba(51,45,75,.78),rgba(29,31,46,.86));
+  color:#f0edf5;box-shadow:0 8px 24px rgba(0,0,0,.18);
+}
+#chat-view .story-message-tools{opacity:.62;transition:opacity .16s ease}
+#chat-view .message:hover .story-message-tools,
+#chat-view .story-message-tools:focus-within{opacity:1}
+#chat-view .story-message-tools button,
+#chat-view .story-variant-switcher button{
+  border-radius:999px!important;background:rgba(20,22,33,.56)!important;
+  border-color:rgba(184,169,255,.13)!important;color:#bfc2cf!important;
+  box-shadow:none!important;backdrop-filter:blur(8px);
+}
+#chat-view .story-message-tools button:hover{color:#fff!important;border-color:rgba(184,169,255,.35)!important}
+#chat-view .usage-bar{
+  padding:8px 15px;border-color:rgba(184,169,255,.09);
+  background:rgba(10,12,18,.78);color:#747b88;
+}
+#chat-view .usage-bar b{color:#aaaebe;font-weight:600}
+#chat-view .composer{
+  padding:13px;background:rgba(14,16,24,.94);
+  border-top:1px solid rgba(184,169,255,.12);
+}
+#chat-view .composer textarea{
+  border-radius:13px;background:rgba(7,9,14,.82);
+  border-color:rgba(184,169,255,.13);color:#f0edf4;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.015);
+}
+#chat-view .composer textarea:focus{
+  border-color:rgba(184,169,255,.48);
+  box-shadow:0 0 0 3px rgba(141,108,255,.08);
+}
+#chat-view .composer .primary{
+  border-radius:12px;background:linear-gradient(135deg,#9c8cff,#745ee7);
+  box-shadow:0 10px 27px rgba(116,94,231,.18);
+}
+#chat-view #bao-chat-send-feedback{border-color:rgba(214,170,115,.28);background:rgba(56,42,31,.62)}
+#bao-chat-floating-actions a{display:none!important}
+#bao-chat-floating-actions button{
+  min-width:42px!important;width:42px!important;min-height:42px!important;padding:0!important;
+  overflow:hidden;text-indent:-9999px;border-color:rgba(184,169,255,.22)!important;
+  background:rgba(18,20,30,.74)!important;backdrop-filter:blur(10px);
+}
+#bao-chat-floating-actions button::after{content:"↑";text-indent:0;font-size:18px;color:#d9d2f4}
+
+/* Native status / relationship panels borrow B's glass pills without becoming a dashboard. */
+#chat-view #game-ui{
+  background:rgba(10,12,18,.82);border-color:rgba(184,169,255,.10);
+}
+#chat-view .ui-tabs{
+  display:flex;gap:6px;padding:10px 12px;overflow-x:auto;
+  border-bottom:1px solid rgba(184,169,255,.09);scrollbar-width:none;
+}
+#chat-view .ui-tabs::-webkit-scrollbar{display:none}
+#chat-view .ui-tab{
+  flex:0 0 auto;border-radius:999px;padding:7px 11px;
+  background:rgba(21,23,35,.52);border:1px solid rgba(184,169,255,.13);
+  color:#aeb2bf;backdrop-filter:blur(10px);
+}
+#chat-view .ui-tab.active{
+  color:#efeaff;border-color:rgba(184,169,255,.42);
+  background:linear-gradient(135deg,rgba(141,108,255,.20),rgba(93,214,192,.065));
+}
+#chat-view #ui-panel{padding:15px;color:#c7c9d2}
+#chat-view .npc-grid,#chat-view .state-grid{gap:9px}
+#chat-view .npc-card,#chat-view .state-box,
+#chat-view .character-status-card{
+  border:1px solid rgba(184,169,255,.12)!important;
+  border-radius:13px!important;
+  background:linear-gradient(145deg,rgba(26,25,39,.62),rgba(15,18,27,.68))!important;
+  box-shadow:none!important;
+}
+#chat-view .npc-card strong,#chat-view .character-status-head strong{color:#f0ecf5}
+#chat-view .npc-card span,#chat-view .state-box small,#chat-view .character-status-head span{color:#8f95a4}
+#chat-view .character-status-card:hover{transform:none;border-color:rgba(184,169,255,.32)!important}
+#chat-view .character-status-card.context-picked{
+  border-color:rgba(93,214,192,.34)!important;
+  box-shadow:inset 0 0 0 1px rgba(93,214,192,.055)!important;
+}
+#chat-view .character-status-field{
+  border-radius:10px;background:rgba(8,10,16,.44);border:1px solid rgba(255,255,255,.035);
+}
+#chat-view .status-meter{height:4px;background:#0b0d13}
+#chat-view .status-meter i{background:linear-gradient(90deg,#8d6cff,#5dd6c0)}
+#chat-view .bao-status-rail{
+  border-color:rgba(184,169,255,.15);
+  background:
+    radial-gradient(circle at 80% 0,rgba(141,108,255,.10),transparent 30%),
+    rgba(12,14,22,.96);
+  box-shadow:0 22px 64px rgba(0,0,0,.5);
+}
+#chat-view .bao-status-heading{border-color:rgba(184,169,255,.11)}
+#chat-view .bao-status-heading h3{
+  font-family:'Noto Serif TC','Songti TC','PMingLiU',Georgia,serif;color:#f1edf5;
+}
+
+/* Special relationship archive: same A shell, B-like chips. Its data logic is untouched. */
+#chat-view #bao-yume-archive{
+  color:#e9e2ec!important;background:rgba(12,13,21,.92)!important;
+  border:1px solid rgba(184,169,255,.14)!important;border-radius:15px!important;
+  box-shadow:0 18px 50px rgba(0,0,0,.28)!important;
+}
+#chat-view #bao-yume-archive .y-head{
+  padding:12px 14px!important;
+  background:linear-gradient(90deg,rgba(84,58,115,.42),rgba(19,21,32,.68))!important;
+  color:#f1eaf5!important;border:0!important;
+}
+#chat-view #bao-yume-archive .y-panel{background:transparent!important}
+#chat-view #bao-yume-archive .y-chip,
+#chat-view #bao-yume-archive .y-person,
+#chat-view #bao-yume-archive .y-gallery button{
+  border:1px solid rgba(184,169,255,.15)!important;
+  background:rgba(22,24,36,.56)!important;color:#d9d4e4!important;
+  backdrop-filter:blur(10px);
+}
+#chat-view #bao-yume-archive :is(.y-chip,.y-person,.y-gallery button)[aria-pressed=true]{
+  background:linear-gradient(135deg,rgba(141,108,255,.23),rgba(93,214,192,.07))!important;
+  border-color:rgba(184,169,255,.48)!important;color:#fff!important;
+  box-shadow:inset 0 0 0 1px rgba(93,214,192,.035)!important;
+}
+#chat-view #bao-yume-archive .y-item{
+  background:rgba(14,17,25,.64)!important;border:1px solid rgba(184,169,255,.10)!important;
+}
+#chat-view #bao-yume-archive .y-item strong{color:#d8caff!important}
+#chat-view #bao-yume-archive .y-item small,
+#chat-view #bao-yume-archive .y-muted,
+#chat-view #bao-yume-archive .y-note{color:#9ea3b0!important}
+#chat-view #bao-yume-archive .y-portrait{
+  border-color:rgba(184,169,255,.18)!important;
+  box-shadow:0 18px 45px rgba(0,0,0,.38);
+}
+#chat-view #bao-yume-archive .y-network line{stroke:#9c8cff!important;opacity:.78}
+#chat-view #bao-yume-archive .y-network circle{stroke:#b8a9ff!important}
+#chat-view #bao-yume-archive .y-network text{fill:#f2edf7!important}
+
+/* Settings modals belong to the same night system but remain highly legible. */
+.status-manager-backdrop{background:rgba(3,4,8,.84);backdrop-filter:blur(14px)}
+.status-manager-modal{
+  border-color:rgba(184,169,255,.15);
+  background:
+    radial-gradient(circle at 82% 0,rgba(141,108,255,.08),transparent 27%),
+    #0e1017;
+}
+.status-manager-head,.status-manager-foot{background:rgba(15,17,25,.92);border-color:rgba(184,169,255,.11)}
+.status-manager-card,.status-manager-field{border-color:rgba(184,169,255,.10);background:rgba(21,22,32,.68)}
+.status-template-list button,.status-manager-actions button{
+  border-color:rgba(184,169,255,.14);background:rgba(25,26,39,.62);color:#d3d0dc;
+}
+.status-template-list button:hover{border-color:rgba(184,169,255,.38)}
+#bao-chat-cost-backdrop{backdrop-filter:blur(12px)}
+#bao-chat-cost-dialog{
+  background:
+    radial-gradient(circle at 85% 0,rgba(141,108,255,.09),transparent 28%),
+    #11131c!important;
+  border-color:rgba(184,169,255,.16)!important;border-radius:20px!important;
+}
+
+/* Mobile keeps the reading-first full-screen behavior; only the visual language changes. */
+@media(max-width:1080px){
+  #chat-view .chat-topline{background:rgba(13,15,23,.94)}
+}
+@media(max-width:820px){
+  #chat-view.active{background:#080a10!important}
+  #chat-view .chat-layout>.chat-main{background:#080a10!important}
+  #chat-view .chat-topline{
+    border-color:rgba(184,169,255,.11)!important;
+    background:linear-gradient(180deg,rgba(22,18,34,.97),rgba(12,14,21,.97))!important;
+  }
+  #chat-view .chat-stream{
+    background:
+      linear-gradient(180deg,rgba(8,10,16,.97),rgba(8,10,15,1)),
+      radial-gradient(circle at 80% 8%,rgba(141,108,255,.06),transparent 32%)!important;
+  }
+  #chat-view .message.assistant .bubble{
+    font-size:14.5px!important;line-height:1.95!important;letter-spacing:.008em;
+  }
+  #chat-view .message.user .bubble{max-width:88%!important}
+  #chat-view .composer{
+    background:rgba(13,15,23,.98)!important;
+    border-color:rgba(184,169,255,.13)!important;
+    box-shadow:0 -10px 32px rgba(0,0,0,.36)!important;
+  }
+  #chat-view .chat-main.bao-mobile-panel-open #game-ui{
+    background:rgba(10,12,19,.98)!important;border-color:rgba(184,169,255,.12)!important;
+  }
+  #chat-view.active #bao-mobile-exit,
+  #chat-view.active #bao-mobile-tools-tab{
+    border-color:rgba(184,169,255,.20)!important;
+    background:rgba(25,24,38,.96)!important;color:#e9e3f6!important;
+  }
+  #bao-chat-tool-drawer{background:rgba(3,4,8,.78)!important;backdrop-filter:blur(8px)}
+  #bao-chat-tool-drawer .bao-chat-tool-dialog{
+    background:
+      radial-gradient(circle at 82% 0,rgba(141,108,255,.09),transparent 26%),
+      #0f121a!important;
+    border-color:rgba(184,169,255,.14)!important;
+  }
+  #bao-chat-tool-drawer .bao-mobile-quick button{
+    border-color:rgba(184,169,255,.14)!important;
+    background:rgba(23,24,36,.72)!important;color:#e0dce8!important;
+  }
+}
+@media(max-width:560px){
+  #chat-view .message{margin-bottom:24px}
+  #chat-view .message.assistant .bubble{line-height:1.92!important}
+  .story-library-story.bao-shelf-enhanced .bao-shelf-cover{width:82px;flex-basis:82px}
+}
+@media(prefers-reduced-motion:reduce){
+  .story-library-story.bao-shelf-enhanced::before,
+  #chat-view .story-message-tools{transition:none!important}
+}
