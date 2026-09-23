@@ -13,6 +13,11 @@ async function demo(page) {
   await page.getByRole('button', { name: '下一步' }).click();
   await page.getByRole('button', { name: '開始故事' }).click();
   await expect.poll(() => page.evaluate(() => Boolean(window.BAOModPacks && window.BAOWorldModuleManager))).toBe(true);
+  // Play is deliberately reader-first and hides the desktop sidebar. MOD editing
+  // belongs to the explicit Studio surface, where the existing sidebar controls remain usable.
+  await expect(page.locator('#bao-surface-mode-toggle')).toBeVisible();
+  await page.locator('#bao-surface-mode-toggle').click();
+  await expect(page.locator('#chat-view')).toHaveAttribute('data-bao-surface', 'studio');
 }
 
 async function openWorldManager(page) {
