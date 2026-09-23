@@ -5,9 +5,14 @@ on:
       - 'css/bao-editorial.css'
       - 'css/bao-editorial-polish.css'
       - 'css/bao-editorial-cinema.css'
+      - 'css/bao-cinematic-home.css'
       - 'js/bao-gallery-focus.js'
       - 'js/bao-visual-ui.js'
+      - 'js/brand-ui.js'
+      - 'js/site-ui.js'
+      - 'js/character-ui.js'
       - 'tests/e2e/editorial-visual.spec.cjs'
+      - 'tests/e2e/community-brand.spec.cjs'
       - '.github/workflows/editorial-visual.yml'
   workflow_dispatch:
 jobs:
