@@ -665,6 +665,15 @@ body:has(#chat-view.active) .app-shell{width:min(1660px,calc(100% - 30px))}
 #chat-view[data-bao-surface="play"] .chat-main.bao-mobile-panel-open #game-ui{
   display:block!important;
 }
+#bao-play-status-close{
+  position:sticky;top:0;z-index:3;float:right;margin:10px 10px 0 0;
+  width:auto;min-height:34px;padding:6px 10px;border-radius:999px;
+  border:1px solid rgba(184,169,255,.18);
+  background:rgba(20,22,33,.88);color:#d8d3e5;font:inherit;font-size:11px;
+  cursor:pointer;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+}
+#bao-play-status-close:hover{color:#fff;border-color:rgba(184,169,255,.42)}
+#chat-view:not(.bao-play-status-open) #bao-play-status-close{display:none!important}
 #chat-view[data-bao-surface="play"].bao-play-status-open #game-ui{
   display:block!important;position:fixed!important;z-index:164;
   top:92px;right:16px;bottom:18px;width:min(390px,calc(100vw - 32px));
