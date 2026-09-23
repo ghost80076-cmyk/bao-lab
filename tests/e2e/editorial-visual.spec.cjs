@@ -17,7 +17,7 @@ for (const width of [390, 1280]) {
     await expect(page.locator('#bao-mascot-launch')).toBeVisible();
     await expect(page.locator('#bao-mascot-launch .bao-mascot-launch-label')).toBeHidden();
     await expect(page.locator('link[href="css/bao-editorial-polish.css?v=2"]')).toHaveCount(1);
-    await expect(page.locator('link[href="css/bao-editorial-cinema.css?v=6"]')).toHaveCount(1);
+    await expect(page.locator('link[href="css/bao-editorial-cinema.css?v=7"]')).toHaveCount(1);
     await expect.poll(() => page.locator('#home-view .brand-hero h1').evaluate(node => getComputedStyle(node).whiteSpace)).toBe('normal');
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width + 1);
     await capture(page, `home-${width}`);
@@ -105,7 +105,7 @@ for (const width of [390, 1280]) {
     await page.locator('.ui-tab[data-panel="status"]').click();
     await expect(page.locator('#ui-panel .state-grid')).toBeVisible();
     await capture(page, `chat-status-${width}`);
-    await page.locator('#bao-play-status-toggle').click();
+    await page.locator('#bao-play-status-close').click();
     await expect(page.locator('#game-ui')).toBeHidden();
 
     if (width > 820) {
