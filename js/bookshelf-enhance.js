@@ -5,13 +5,13 @@
   const style = document.createElement('style');
   style.id = 'bao-bookshelf-style';
   style.textContent = `
-    .story-library-story.bao-shelf-enhanced{background:linear-gradient(135deg,#1b2634,#171820 62%);border-color:#3c5262}
+    .story-library-story.bao-shelf-enhanced{background:linear-gradient(135deg,rgba(34,27,54,.82),rgba(10,12,19,.9) 62%);border-color:rgba(184,169,255,.18)}
     .bao-shelf-heading{display:flex;align-items:flex-start;gap:14px;min-width:0;flex:1 1 auto}
     .bao-shelf-copy{flex:1 1 auto;min-width:0}
-    .bao-shelf-cover{position:relative;display:flex;flex:0 0 78px;width:78px;aspect-ratio:3/4;align-items:center;justify-content:center;overflow:hidden;border:1px solid #667487;border-radius:10px;background:linear-gradient(145deg,#253d51,#252334);color:#f5e2b8;font-size:27px;font-family:serif;box-shadow:0 5px 16px #0006}
+    .bao-shelf-cover{position:relative;display:flex;flex:0 0 78px;width:78px;aspect-ratio:3/4;align-items:center;justify-content:center;overflow:hidden;border:1px solid rgba(184,169,255,.28);border-radius:10px;background:linear-gradient(145deg,#3b3155,#171522);color:#f3dfbc;font-size:27px;font-family:serif;box-shadow:0 5px 16px #0006,0 0 22px rgba(141,108,255,.08)}
     .bao-shelf-cover img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
     .bao-shelf-progress{margin:12px 0 0;color:#e4d5b6;font-size:13px;line-height:1.5}
-    .story-library-story .bao-shelf-continue{background:#25403e;color:#e4fff6;border:1px solid #5da898}
+    .story-library-story .bao-shelf-continue{background:linear-gradient(135deg,#9c8cff,#745ee7);color:#fff;border:1px solid #aa9aff}
     @media(max-width:430px){.bao-shelf-heading{gap:10px}.bao-shelf-cover{flex-basis:64px;width:64px}.story-library-story>header{gap:10px}}
   `;
   document.head.append(style);

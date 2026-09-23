@@ -13,7 +13,7 @@
 .bao-mascot-line{border-radius:15px 15px 15px 3px;padding:12px;background:#1d2230;color:#f1eee8;line-height:1.6;margin:0;font-size:.9rem;min-height:82px;flex:1;min-width:0;overflow-wrap:anywhere}
 .bao-mascot-count{font-size:.78rem;color:#a5adbc;text-align:center;margin:5px 12px 10px}.bao-mascot-actions,.bao-mascot-controls{display:flex;flex-wrap:wrap;gap:7px;padding:0 14px 13px}
 .bao-mascot-actions button,.bao-mascot-controls button{border:1px solid rgba(156,140,255,.28);background:#171b24;color:#f1eee8;border-radius:999px;padding:7px 11px;font-size:.82rem}.bao-mascot-controls button{background:#1d2230}
-.bao-mascot-actions button:hover:not(:disabled),.bao-mascot-actions button:focus-visible,.bao-mascot-controls button:hover:not(:disabled),.bao-mascot-controls button:focus-visible{background:#292440;border-color:#9c8cff;outline-color:#5dd6c0}
+.bao-mascot-actions button:hover:not(:disabled),.bao-mascot-actions button:focus-visible,.bao-mascot-controls button:hover:not(:disabled),.bao-mascot-controls button:focus-visible{background:#292440;border-color:#9c8cff;outline-color:#d6aa73}
 .bao-mascot-form-note{margin:-5px 14px 12px;color:#a5adbc;font-size:.74rem;line-height:1.5}.bao-mascot-help{margin:0 14px;border-top:1px solid rgba(255,255,255,.12);padding:10px 0}.bao-mascot-help summary{cursor:pointer;font-weight:650;font-size:.88rem}.bao-mascot-help .bao-mascot-actions{padding:11px 0 0}
 .bao-mascot-bottom{display:flex;align-items:center;justify-content:space-between;padding:6px 14px 7px;gap:12px}.bao-mascot-bottom a{color:#c3b9ff;font-size:.85rem;font-weight:650}.bao-mascot-bottom button{border:0;background:transparent;color:#a5adbc;font-size:.78rem;text-decoration:underline}.bao-mascot-disclaimer{display:block;padding:0 14px 13px;color:#a5adbc;font-size:.69rem;line-height:1.45}
 @keyframes bao-bun-float{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-5px) rotate(2deg)}}
@@ -22,4 +22,4 @@
 .bao-mascot--still .bao-mascot-bun,.bao-mascot--still .bao-bun-eyes,.bao-mascot--still .bao-mascot-avatar-human{animation:none!important;transition:none!important}
 @media(max-width:600px){.bao-mascot{right:10px;bottom:calc(10px + env(safe-area-inset-bottom,0px))}.bao-mascot-panel{max-height:calc(100dvh - 95px)}.bao-mascot-launch{padding-right:7px}.bao-mascot-launch-label{font-size:.75rem}.bao-mascot-avatar{width:44px;height:44px}}
 @media(prefers-reduced-motion:reduce){.bao-mascot .bao-mascot-bun,.bao-mascot .bao-bun-eyes,.bao-mascot .bao-mascot-avatar-human{animation:none!important;transition:none!important}}
-.bao-mascot-launch:focus-visible,.bao-mascot button:focus-visible{outline:3px solid #5dd6c0;outline-offset:2px}
+.bao-mascot-launch:focus-visible,.bao-mascot button:focus-visible{outline:3px solid #d6aa73;outline-offset:2px}
