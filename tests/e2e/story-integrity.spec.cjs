@@ -22,7 +22,7 @@ async function startStory(page, displayMode = 'text') {
   await page.getByRole('button', { name: '下一步' }).click();
   await page.locator('#start-story').click();
   await expect(page.locator('#chat-view')).toHaveClass(/active/);
-  await page.waitForFunction(() => !!window.BAOStoryIntegrity && !!window.BAOStateTrackerRepairs && !!window.BAOChatExperienceRepairs && !!window.BAOMobileReadingLayout, null, { timeout: 15000 });
+  await page.waitForFunction(() => !!window.BAOStoryIntegrity && !!window.BAOStateTrackerRepairs && !!window.BAOChatExperienceRepairs && !!window.BAOMobileReadingLayout && !!window.BAOStorySurface, null, { timeout: 15000 });
 }
 
 test('Android long story scrolls within the fixed reader; Enter inserts newline and drawer top returns to start', async ({ browser }, testInfo) => {
@@ -195,6 +195,7 @@ test('same-provider helper model is restored without requesting a second key', a
 
 test('resumed story can edit output tokens and budget without resetting messages or storing keys', async ({ page }) => {
   await startStory(page);
+  await page.evaluate(() => BAOStorySurface.setMode('studio'));
   await page.locator('#bao-chat-cost-open').click();
   const form = page.locator('#bao-chat-cost-form');
   await expect(form).toBeVisible();
@@ -215,6 +216,8 @@ test('resumed story can edit output tokens and budget without resetting messages
   const api = page.getByRole('dialog', { name: '目前故事的 AI 連線設定' });
   await api.locator('input[name="key"]').fill('A_SESSION_ONLY_KEY');
   await api.getByRole('button', { name: '套用到目前故事' }).click();
+  await page.waitForFunction(() => Boolean(window.BAOStorySurface));
+  await page.evaluate(() => BAOStorySurface.setMode('studio'));
   await page.locator('#bao-chat-cost-open').click();
   await expect(page.locator('#bao-chat-cost-form [name="maxOutputTokens"]')).toHaveValue('2048');
   await expect(page.locator('#bao-chat-cost-form [name="budgetTwd"]')).toHaveValue('70');
