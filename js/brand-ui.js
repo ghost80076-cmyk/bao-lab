@@ -47,13 +47,14 @@
       <section class="brand-home-explore" aria-labelledby="home-explore-title">
         <div class="brand-home-explore-head">
           <div><p class="brand-kicker">OPEN A STORY</p><h2 id="home-explore-title">角色正在等你翻開。</h2></div>
-          <button class="text-button" data-view="explore">查看全部作品 →</button>
+          <button class="text-button" id="home-all-works" type="button">查看全部作品 →</button>
         </div>
         <div id="home-character-preview" class="home-character-preview" aria-live="polite"></div>
       </section>
       `;
 
     home.querySelectorAll("[data-view]").forEach(btn => btn.addEventListener("click", () => App.showView(btn.dataset.view)));
+    document.getElementById("home-all-works")?.addEventListener("click", () => App.showView("explore"));
     document.getElementById("home-continue")?.addEventListener("click", () => App.resumeSavedStory?.());
     window.BAORefreshHomeCharacterPreview?.();
     window.BAORefreshSaveUI?.();
