@@ -91,7 +91,7 @@ body:has(#explore-view.active) .bao-mascot-avatar,body:has(#detail-view.active) 
 }
 /* Home = a cinematic stage, not a dashboard. */
 #home-view .brand-hero{
-  position:relative;overflow:visible;
+  position:relative;overflow:clip;
   grid-template-columns:minmax(0,1.04fr) minmax(320px,.96fr);
   gap:clamp(36px,6vw,86px);
   padding-block:clamp(50px,7vw,86px);
