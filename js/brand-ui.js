@@ -24,15 +24,15 @@
     home.innerHTML = `
       <section class="brand-hero">
         <div class="brand-hero-copy">
-          <div class="brand-signature"><img src="assets/bao-mark.svg" width="64" height="64" alt=""><span>BAO/LAB<small>班長的故事實驗室</small></span></div>
-          <div class="brand-kicker">CHARACTERS · WORLDS · EXPERIMENTS</div>
-          <h1>選個角色，<br>開始你的故事。</h1>
-          <p class="brand-intro">寫角色，也寫世界。</p>
-          <p class="brand-lead">選喜歡的角色，接上自己的 AI，就能聊天或探索世界。不用先學會一堆設定；想深入玩，再慢慢調整就好。</p>
+          <div class="brand-signature"><img src="assets/bao-mark.svg" width="64" height="64" alt=""><span>BAO/LAB<small>包包夜讀書房</small></span></div>
+          <div class="brand-kicker">A NIGHT READING ROOM · STORIES LEFT WARM</div>
+          <h1>今晚，想走進<br>誰的故事？</h1>
+          <p class="brand-intro">包包替你留著一盞燈。</p>
+          <p class="brand-lead">挑一個角色，接上自己的 AI，讓故事從今晚開始。第一次只要選角色、連上模型、說出第一句話；想走得更深，再慢慢打開世界、記憶與分支。</p>
           <p class="brand-principles">故事主要保存在此裝置 · 使用自己的連線金鑰（API Key） · 不需註冊 BAO/LAB 帳號</p>
           <div class="brand-actions">
-            <button class="primary" data-view="explore">開始玩 · 選角色</button>
-            <a class="primary brand-first-run" href="quick-start.html">第一次玩？看三步驟教學 ↗</a>
+            <button class="primary" data-view="explore">挑一本故事開始</button>
+            <a class="brand-first-run" href="quick-start.html">第一次來？三步開始 ↗</a>
             <button id="home-continue" class="secondary hidden">繼續上次故事</button>
             <a class="brand-manual" href="api-guide.html">完整 API 說明 ↗</a>
           </div>
@@ -49,16 +49,20 @@
           </dl>
         </aside>
       </section>
-      <section class="brand-onboarding" aria-labelledby="brand-onboarding-title">
-        <div class="brand-kicker">第一次來？只要三步驟</div>
-        <h2 id="brand-onboarding-title">先開始玩，其他功能之後再研究。</h2>
-        <ol class="brand-onboarding-steps">
-          <li><b>① 選角色</b><span>挑一張喜歡的角色卡，其他設定可以先用預設值。</span></li>
-          <li><b>② 連接 AI</b><span>選 AI 服務商（Provider）、貼上自己的連線金鑰（API Key），再選擇可用模型。</span></li>
-          <li><b>③ 開始聊天</b><span>按「開始故事」，輸入你的第一句話。</span></li>
-        </ol>
-        <p>連線金鑰（API Key）就像使用 AI 的鑰匙；模型費用和免費額度依 AI 服務商規定。</p>
-        <div class="brand-onboarding-links"><a href="quick-start.html">跟著新手教學走 →</a><a href="api-guide.html">查看完整連線說明（API）→</a></div>
+      <section class="brand-reading-intro" aria-labelledby="brand-reading-title">
+        <div class="brand-section-mark">01 · STORY FIRST</div>
+        <div><p class="brand-kicker">不是另一個聊天視窗</p><h2 id="brand-reading-title">讓一段故事，慢慢長成一個世界。</h2></div>
+        <p>角色會留下關係、世界會推進時間、每一段對話都有可以回頭的地方。工具留在需要時才出現，閱讀永遠放在前面。</p>
+      </section>
+      <section class="brand-chapter-grid" aria-label="BAO/LAB 故事特色">
+        <article><span>人物</span><h3>關係會留下痕跡</h3><p>用人物、狀態與關係面板，接住故事裡真正改變過的事。</p></article>
+        <article><span>世界</span><h3>時間不必停在原地</h3><p>世界狀態、NPC 與事件可以跟著劇情延續，而不是每一輪重新開始。</p></article>
+        <article><span>書頁</span><h3>讀過的篇章都有位置</h3><p>故事書庫、分支與匯出讓你保留選擇；想繼續，就從上次停下的那一頁回來。</p></article>
+      </section>
+      <section class="brand-closing" aria-labelledby="brand-closing-title">
+        <div class="brand-closing-lamp" aria-hidden="true"><img src="assets/bao-bun.svg" width="86" height="86" alt=""></div>
+        <div><div class="brand-section-mark">02 · OPEN A STORY</div><h2 id="brand-closing-title">一張角色卡，<br>一段今晚的故事。</h2><p>不需要先記住一堆新名詞。先選你想靠近的角色，其他的，故事會帶你慢慢認識。</p></div>
+        <button class="primary" data-view="explore">開始選角色</button>
       </section>
       `;
 

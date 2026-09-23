@@ -5,7 +5,7 @@ const INVITE = 'https://discord.gg/N3XpAhwTN';
 test.describe('BAO/LAB official identity and concise community entry', () => {
   test('mascot remains on the homepage while Discord appears only once in the footer', async ({ page }) => {
     await page.goto('/');
-    await expect(page.locator('#home-view .brand-hero h1')).toContainText('選個角色');
+    await expect(page.locator('#home-view .brand-hero h1')).toContainText('今晚，想走進');
     const portrait = page.locator('#bao-home-portrait img:not(.bao-portrait-bun)');
     await expect(portrait).toBeVisible();
     await expect.poll(() => portrait.evaluate(img => img.complete && img.naturalWidth > 0)).toBe(true);

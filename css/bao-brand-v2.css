@@ -1,11 +1,11 @@
-/* BAO/LAB canonical RP theme. Palette restored from the first site version
-   (2026-09-13, dd4a06a): violet #9c8cff, mint #5dd6c0 and near-black #090b10.
+/* BAO/LAB canonical RP theme. Violet identity with paper and lamplight accents.
+   Mint is reserved for a future explicit success state, not the visual brand.
    Keep the mascot artwork independent. Never override author-authored story HTML. */
-:root{color-scheme:dark;--bg:#090b10;--surface:#11141b;--surface2:#171b24;--surface3:#1d2230;--text:#f1eee8;--muted:#8d94a3;--primary:#9c8cff;--primary2:#c3b9ff;--secondary:#5dd6c0;--warm:#d6aa73;--border:rgba(255,255,255,.08);--bao-cyan:#5dd6c0;--bao-purple:#9c8cff;--bao-warm:#d6aa73;--bao-wine:#30263b;--story-border:rgba(255,255,255,.11);--story-text:#eef1f6;--story-muted:#a4abb8;--story-surface:rgba(12,15,22,.9);--story-surface-strong:rgba(9,12,18,.96)}
+:root{color-scheme:dark;--bg:#090b10;--surface:#11141b;--surface2:#171b24;--surface3:#1d2230;--text:#f1eee8;--muted:#8d94a3;--primary:#9c8cff;--primary2:#c3b9ff;--secondary:#d6aa73;--warm:#d6aa73;--paper:#f1eee8;--lamp:#e2b66d;--success:#5dd6c0;--border:rgba(255,255,255,.08);--bao-cyan:#d6aa73;--bao-purple:#9c8cff;--bao-warm:#d6aa73;--bao-wine:#30263b;--story-border:rgba(255,255,255,.11);--story-text:#eef1f6;--story-muted:#a4abb8;--story-surface:rgba(12,15,22,.9);--story-surface-strong:rgba(9,12,18,.96)}
 html{scroll-padding-top:84px}body:has(.app-shell){background:radial-gradient(circle at 12% 0,rgba(156,140,255,.12),transparent 28%),#090b10}
 ::selection{background:#51448a;color:#fff}a{color:#c3b9ff;text-underline-offset:3px}a:hover{color:#e0d9ff}
 button,.primary,.secondary,.filter{transition:background-color .16s ease,border-color .16s ease,box-shadow .16s ease}
-button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible{outline:2px solid #5dd6c0;outline-offset:3px}button:disabled{cursor:not-allowed}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible{outline:2px solid #d6aa73;outline-offset:3px}button:disabled{cursor:not-allowed}
 /* All action buttons use the ORIGINAL violet, regardless of category. */
 .primary,.brand-actions .brand-first-run{background:linear-gradient(135deg,#9c8cff,#7465df);color:#fff;border:1px solid #9c8cff;box-shadow:none}
 .primary:hover:not(:disabled),.brand-actions .brand-first-run:hover{background:linear-gradient(135deg,#b3a7ff,#8374eb);border-color:#b3a7ff;filter:none}
@@ -16,7 +16,7 @@ input:hover,select:hover,textarea:hover{border-color:rgba(195,185,255,.3)}input:
 input[type="checkbox"],input[type="radio"]{accent-color:#9c8cff}.note,small{overflow-wrap:anywhere}
 /* Brand, onboarding and discovery: no pink-tinted app surfaces. */
 .topbar{background:rgba(9,11,16,.95);border-bottom-color:var(--border)}.topbar>.brand span{color:#f1eee8}.topbar nav :is(button,a):hover{background:#1d2230;color:#fff}
-.brand-kicker,.eyebrow{color:#5dd6c0}.app-shell>footer{border-top-color:var(--border)}
+.brand-kicker,.eyebrow{color:#d6aa73}.app-shell>footer{border-top-color:var(--border)}
 #home-view .brand-hero{gap:clamp(22px,4vw,58px);min-height:clamp(510px,60vh,660px)}#home-view .brand-signature>img{border-radius:15px;padding:6px;background:#1d2230;box-shadow:none}
 #home-view .brand-hero h1{color:#f1eee8;text-wrap:balance}#home-view .brand-lead{color:#bbc3d0}#home-view .brand-principles{color:#9ea8ba;line-height:1.75}
 #home-view .brand-status-card{background:#11141b;border-color:var(--border);box-shadow:0 17px 46px #0003}
@@ -44,7 +44,7 @@ input[type="checkbox"],input[type="radio"]{accent-color:#9c8cff}.note,small{over
 #builder-view .choice-card{background:#171b24;border-color:var(--border)}#builder-view .choice-card.selected{background:rgba(156,140,255,.1);border-color:rgba(156,140,255,.56)}
 #builder-view #bao-setup-choice{background:#141821;border-color:var(--border)}#builder-view #bao-setup-choice p,#builder-view #bao-quick-extra p{color:#b3bdca}
 #builder-view .bao-setup-buttons button[aria-pressed="true"]{background:rgba(156,140,255,.14);border-color:#9c8cff;color:#f1eee8}
-#builder-view #bao-quick-intro{background:#142621;border-color:#5dd6c0;color:#d2f5ec}#builder-view #bao-quick-intro a{color:#c3b9ff}#builder-view #builder-api-guide{border-color:var(--border)!important}
+#builder-view #bao-quick-intro{background:#2b2118;border-color:#d6aa73;color:#f3dfbf}#builder-view #bao-quick-intro a{color:#c3b9ff}#builder-view #builder-api-guide{border-color:var(--border)!important}
 /* Chat separates story, player bubble, toolbars and side panels without rose UI. */
 #chat-view .chat-layout>aside:not(.bao-status-rail),#chat-view .chat-main,#chat-view .bao-status-rail{border-color:var(--story-border)}
 #chat-view .chat-layout>aside:not(.bao-status-rail){background:#11141b}#chat-view .chat-meta{background:#0d1118;border-color:var(--story-border)}#chat-view .chat-main{background:#11141b}
@@ -57,19 +57,19 @@ input[type="checkbox"],input[type="radio"]{accent-color:#9c8cff}.note,small{over
 #chat-view #bao-chat-tool-groups [data-chat-tool-body]>button,#chat-view #bao-chat-tool-groups [data-chat-tool-body]>a,#chat-view #bao-chat-quick-actions>button{background:#202633;border-color:var(--story-border);color:#f1eee8}
 #chat-view #bao-chat-tool-groups [data-chat-tool-body]>button:hover,#chat-view #bao-chat-quick-actions>button:hover{background:#2a3043;border-color:#9c8cff}
 #bao-chat-tool-drawer .bao-chat-tool-dialog{background:#151923;border-color:var(--story-border);color:#f1eee8}#bao-chat-tool-drawer .bao-mobile-quick button{background:#202633;border-color:var(--story-border);color:#f1eee8}
-#bao-chat-tool-drawer .bao-mobile-quick button:focus-visible{outline-color:#5dd6c0}.studio-panel,.studio-notice{border-color:var(--story-border)}
+#bao-chat-tool-drawer .bao-mobile-quick button:focus-visible{outline-color:#d6aa73}.studio-panel,.studio-notice{border-color:var(--story-border)}
 /* Standalone guides share violet buttons and dark surfaces. */
-body.bao-brand-document{background:#090b10;color:#f1eee8}.bao-brand-document :is(h1,h2,h3){color:#f1eee8}.bao-brand-document :is(.eyebrow,.kicker){color:#5dd6c0}
+body.bao-brand-document{background:#090b10;color:#f1eee8}.bao-brand-document :is(h1,h2,h3){color:#f1eee8}.bao-brand-document :is(.eyebrow,.kicker){color:#d6aa73}
 .bao-brand-document :is(.lead,p,li){overflow-wrap:anywhere}.bao-brand-document :is(a,nav a){color:#c3b9ff}
 .bao-brand-document :is(.panel,.step,.term,.help,.closing,details){background:#11141b;border-color:var(--border)}.bao-brand-document :is(.step p,.panel p,.help p,.lead,.term span,details p,details li){color:#c0c7d2}
 .bao-brand-document :is(.btn,.button,.actions a:first-child,.open-bao){background:linear-gradient(135deg,#9c8cff,#7465df);color:#fff!important;border-color:#9c8cff}
 .bao-brand-document :is(.btn.secondary,.button.secondary){background:#1d2230;color:#f1eee8!important;border-color:var(--border)}
-.bao-brand-document :is(.tip,.notice){background:#142621;border-color:#5dd6c0}.bao-brand-document .step-number{background:#292440;color:#c3b9ff}.bao-brand-document :is(header,footer){border-color:var(--border)}
+.bao-brand-document :is(.tip,.notice){background:#2b2118;border-color:#d6aa73}.bao-brand-document .step-number{background:#292440;color:#c3b9ff}.bao-brand-document :is(header,footer){border-color:var(--border)}
 /* Mascot portrait retains its own colors; the surrounding website does not. */
-.bao-brand-document.bao-mascot-page .visual:before{background:linear-gradient(180deg,rgba(156,140,255,.11),rgba(93,214,192,.04));border-color:var(--border)}
+.bao-brand-document.bao-mascot-page .visual:before{background:linear-gradient(180deg,rgba(156,140,255,.11),rgba(214,170,115,.04));border-color:var(--border)}
 .bao-brand-document.bao-mascot-page .chips span{background:rgba(156,140,255,.07);border-color:rgba(156,140,255,.2)}
 @media(max-width:900px){#home-view .brand-hero{min-height:0;gap:24px;padding-top:22px}#home-view #bao-home-portrait img{height:clamp(220px,48vw,320px)}}
 @media(max-width:560px){#home-view .brand-hero h1{font-size:clamp(35px,9vw,44px)}#home-view #bao-home-portrait img{height:clamp(210px,65vw,290px)}#home-view .brand-feature-grid article{min-height:0}#home-view .brand-feature-grid article>span{margin-bottom:15px}
  #chat-view.active{background:#090b10!important}#chat-view .chat-layout>.chat-main{background:#11141b!important}#chat-view .chat-topline{background:#151923!important;border-bottom-color:var(--story-border)!important}#chat-view .chat-stream{background:#0c0f15!important}#chat-view .composer{background:#141923!important;border-top-color:var(--story-border)!important}
- #bao-mobile-tools-tab{background:#292440!important;border-color:#8072bb!important;color:#f1eee8!important}#bao-mobile-tools-tab:focus-visible{outline-color:#5dd6c0!important}}
+ #bao-mobile-tools-tab{background:#292440!important;border-color:#8072bb!important;color:#f1eee8!important}#bao-mobile-tools-tab:focus-visible{outline-color:#d6aa73!important}}
 @media(prefers-reduced-motion:reduce){button,.primary,.secondary,.filter{transition:none!important}}
