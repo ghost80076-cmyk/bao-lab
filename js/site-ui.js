@@ -62,7 +62,7 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/device-transfer.js"))
     .then(() => loadBAOScript("js/author-diagnostics.js"))
     .catch(err => console.warn("BAO/LAB character library, import, device transfer or author diagnostics failed to load:", err));
-  loadBAOScript("js/brand-ui.js")
+  loadBAOScript("js/brand-ui.js?v=3")
     .then(() => new Promise(resolve => setTimeout(resolve, 100)))
     .then(() => loadBAOScript("js/bao-mascot.js"))
     .then(() => loadBAOScript("js/bao-visual-ui.js"))

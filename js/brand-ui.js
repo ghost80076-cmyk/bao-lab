@@ -4,7 +4,7 @@
   const discordLink = (label, className = "brand-discord-cta") => `<a class="${className}" href="${DISCORD_INVITE}" target="_blank" rel="noopener noreferrer" aria-label="${label}（另開 Discord 邀請連結）">${DISCORD_ICON}<span>${label}</span></a>`;
 
   const ensureStyles = () => {
-    ["css/brand-home.css", "css/brand-community.css", "css/first-run-desktop.css"].forEach(href => {
+    ["css/brand-home.css", "css/brand-community.css", "css/first-run-desktop.css", "css/bao-cinematic-home.css"].forEach(href => {
       if (document.querySelector(`link[href="${href}"]`)) return;
       const link = document.createElement("link");
       link.rel = "stylesheet";
@@ -22,55 +22,64 @@
     const home = document.getElementById("home-view");
     if (!home) return;
     home.innerHTML = `
-      <section class="brand-hero">
+      <section class="brand-hero brand-cinematic-hero">
         <div class="brand-hero-copy">
           <div class="brand-signature"><img src="assets/bao-mark.svg" width="64" height="64" alt=""><span>BAO/LAB<small>包包夜讀書房</small></span></div>
-          <div class="brand-kicker">A NIGHT READING ROOM · STORIES LEFT WARM</div>
+          <div class="brand-kicker">CINEMATIC NIGHT · BAO/LAB</div>
           <h1>今晚，想走進<br>誰的故事？</h1>
           <p class="brand-intro">包包替你留著一盞燈。</p>
-          <p class="brand-lead">挑一個角色，接上自己的 AI，讓故事從今晚開始。第一次只要選角色、連上模型、說出第一句話；想走得更深，再慢慢打開世界、記憶與分支。</p>
-          <p class="brand-principles">故事主要保存在此裝置 · 使用自己的連線金鑰（API Key） · 不需註冊 BAO/LAB 帳號</p>
+          <p class="brand-lead">每一張角色卡，都是一段正在等你打開的故事。選一個人，從第一句話開始。</p>
           <div class="brand-actions">
-            <button class="primary" data-view="explore">挑一本故事開始</button>
-            <a class="brand-first-run" href="quick-start.html">第一次來？三步開始 ↗</a>
+            <button class="primary" data-view="explore">開始探索</button>
             <button id="home-continue" class="secondary hidden">繼續上次故事</button>
-            <a class="brand-manual" href="api-guide.html">完整 API 說明 ↗</a>
+            <a class="brand-first-run" href="quick-start.html">第一次來？三步開始 ↗</a>
           </div>
+          <a id="bao-home-portrait" class="brand-bao-companion" href="bao-mascot.html" aria-label="認識 BAO/LAB 官方吉祥物包包">
+            <img src="assets/bao-human-v2.webp" alt="包包：BAO/LAB 官方吉祥物" width="58" height="76" loading="eager"><span>包包在這裡留燈</span>
+          </a>
         </div>
-        <aside class="brand-status-card brand-identity-card">
-          <img class="brand-world-art" src="assets/bao-world-core.webp" width="256" height="256" alt="BAO/LAB 世界核心：紫色星球、環繞軌道與中央微光">
-          <span class="status-dot"></span>
-          <div class="brand-status-title">SYSTEM READY</div>
-          <dl>
-            <div><dt>角色數量</dt><dd id="home-character-count">—</dd></div>
-            <div><dt>世界模擬</dt><dd>可使用</dd></div>
-            <div><dt>遊玩模式</dt><dd>角色互動／世界模擬</dd></div>
-            <div><dt>連線方式</dt><dd>自備連線金鑰模式（BYOK）</dd></div>
-          </dl>
-        </aside>
+        <button class="brand-feature-stage" id="home-feature-stage" type="button" aria-label="開啟精選角色：林沉風">
+          <img id="home-feature-image" src="https://i.meee.com.tw/UHKTM1O.jpg" alt="林沉風" referrerpolicy="no-referrer">
+          <span class="brand-feature-shade"></span>
+          <span class="brand-feature-copy"><small>FEATURED CHARACTER</small><b id="home-feature-name">林沉風</b><em id="home-feature-title">見過黑暗的人</em></span>
+        </button>
       </section>
-      <section class="brand-reading-intro" aria-labelledby="brand-reading-title">
-        <div class="brand-section-mark">01 · STORY FIRST</div>
-        <div><p class="brand-kicker">不是另一個聊天視窗</p><h2 id="brand-reading-title">讓一段故事，慢慢長成一個世界。</h2></div>
-        <p>角色會留下關係、世界會推進時間、每一段對話都有可以回頭的地方。工具留在需要時才出現，閱讀永遠放在前面。</p>
-      </section>
-      <section class="brand-chapter-grid" aria-label="BAO/LAB 故事特色">
-        <article><span>人物</span><h3>關係會留下痕跡</h3><p>用人物、狀態與關係面板，接住故事裡真正改變過的事。</p></article>
-        <article><span>世界</span><h3>時間不必停在原地</h3><p>世界狀態、NPC 與事件可以跟著劇情延續，而不是每一輪重新開始。</p></article>
-        <article><span>書頁</span><h3>讀過的篇章都有位置</h3><p>故事書庫、分支與匯出讓你保留選擇；想繼續，就從上次停下的那一頁回來。</p></article>
-      </section>
-      <section class="brand-closing" aria-labelledby="brand-closing-title">
-        <div class="brand-closing-lamp" aria-hidden="true"><img src="assets/bao-bun.svg" width="86" height="86" alt=""></div>
-        <div><div class="brand-section-mark">02 · OPEN A STORY</div><h2 id="brand-closing-title">一張角色卡，<br>一段今晚的故事。</h2><p>不需要先記住一堆新名詞。先選你想靠近的角色，其他的，故事會帶你慢慢認識。</p></div>
-        <button class="primary" data-view="explore">開始選角色</button>
+      <section class="brand-home-explore" aria-labelledby="home-explore-title">
+        <div class="brand-home-explore-head">
+          <div><p class="brand-kicker">OPEN A STORY</p><h2 id="home-explore-title">角色正在等你翻開。</h2></div>
+          <button class="text-button" data-view="explore">查看全部作品 →</button>
+        </div>
+        <div id="home-character-preview" class="home-character-preview" aria-live="polite"></div>
       </section>
       `;
 
     home.querySelectorAll("[data-view]").forEach(btn => btn.addEventListener("click", () => App.showView(btn.dataset.view)));
     document.getElementById("home-continue")?.addEventListener("click", () => App.resumeSavedStory?.());
-    const count = document.getElementById("home-character-count");
-    if (count) count.textContent = String(App.characters?.length || 0);
+    window.BAORefreshHomeCharacterPreview?.();
     window.BAORefreshSaveUI?.();
+  };
+
+  window.BAORefreshHomeCharacterPreview = () => {
+    const home = document.getElementById("home-view");
+    const preview = document.getElementById("home-character-preview");
+    const characters = (App.characters || []).filter(character => character?.category !== "r18");
+    if (!home || !preview || !characters.length) return;
+    const featured = characters[0];
+    const image = document.getElementById("home-feature-image");
+    if (image) { image.src = featured.avatar; image.alt = featured.name; }
+    document.getElementById("home-feature-name").textContent = featured.name;
+    document.getElementById("home-feature-title").textContent = featured.title || featured.description || "開始這段故事";
+    const stage = document.getElementById("home-feature-stage");
+    if (stage) {
+      stage.setAttribute("aria-label", `開啟精選角色：${featured.name}`);
+      stage.onclick = () => App.openCharacter(featured.id);
+    }
+    preview.innerHTML = characters.slice(0, 4).map(character => `
+      <button class="home-character-card" type="button" data-home-character="${App.escapeAttr(character.id)}">
+        <img src="${App.escapeAttr(character.avatar)}" alt="${App.escapeAttr(character.name)}" loading="lazy">
+        <span><small>ORIGINAL CHARACTER</small><b>${App.escapeHTML(character.title || character.name)}</b></span>
+      </button>`).join("");
+    preview.querySelectorAll("[data-home-character]").forEach(card => card.addEventListener("click", () => App.openCharacter(card.dataset.homeCharacter)));
   };
 
   const renderAbout = () => {
