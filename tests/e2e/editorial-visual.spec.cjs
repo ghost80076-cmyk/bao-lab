@@ -17,7 +17,7 @@ for (const width of [390, 1280]) {
     await expect(page.locator('#bao-mascot-launch')).toBeVisible();
     await expect(page.locator('#bao-mascot-launch .bao-mascot-launch-label')).toBeHidden();
     await expect(page.locator('link[href="css/bao-editorial-polish.css?v=2"]')).toHaveCount(1);
-    await expect(page.locator('link[href="css/bao-editorial-cinema.css?v=5"]')).toHaveCount(1);
+    await expect(page.locator('link[href="css/bao-editorial-cinema.css?v=6"]')).toHaveCount(1);
     await expect.poll(() => page.locator('#home-view .brand-hero h1').evaluate(node => getComputedStyle(node).whiteSpace)).toBe('normal');
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width + 1);
     await capture(page, `home-${width}`);
@@ -84,17 +84,36 @@ for (const width of [390, 1280]) {
     await shelf.getByRole('button', { name: '繼續此故事' }).click();
     await expect(page.locator('#chat-view')).toHaveClass(/active/);
     await expect(page.locator('#user-input')).toBeVisible();
+    await page.waitForFunction(() => Boolean(window.BAOStorySurface));
+    await expect(page.locator('#chat-view')).toHaveAttribute('data-bao-surface', 'play');
     await expect(page.locator('#chat-view .chat-topline')).toBeVisible();
+    await expect(page.locator('#bao-scene-meta')).toBeVisible();
+    await expect(page.locator('#bao-surface-mode-toggle')).toBeVisible();
+    await expect(page.locator('#bao-play-status-toggle')).toBeVisible();
+    await expect(page.locator('#chat-view .usage-bar')).toBeHidden();
     await expect.poll(() => page.locator('#chat-view .message.assistant .bubble').first()
       .evaluate(node => getComputedStyle(node).borderLeftWidth)).toBe('0px');
-    if (width <= 820) {
-      await page.waitForFunction(() => Boolean(window.BAOMobileReadingLayout));
-      await page.evaluate(() => window.BAOMobileReadingLayout.togglePanels());
-    }
+    const cyoa = page.locator('#chat-view .bao-cyoa-card');
+    await expect(cyoa).toBeVisible();
+    await expect(cyoa.locator('li')).toHaveCount(6);
+    expect(await cyoa.evaluate(node => getComputedStyle(node).backgroundColor)).not.toBe('rgb(255, 255, 255)');
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width + 1);
+    await capture(page, `chat-play-${width}`);
+
+    await page.locator('#bao-play-status-toggle').click();
     await expect(page.locator('#game-ui')).toBeVisible();
     await page.locator('.ui-tab[data-panel="status"]').click();
     await expect(page.locator('#ui-panel .state-grid')).toBeVisible();
-    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width + 1);
-    await capture(page, `chat-${width}`);
+    await capture(page, `chat-status-${width}`);
+    await page.locator('#bao-play-status-toggle').click();
+    await expect(page.locator('#game-ui')).toBeHidden();
+
+    if (width > 820) {
+      await page.locator('#bao-surface-mode-toggle').click();
+      await expect(page.locator('#chat-view')).toHaveAttribute('data-bao-surface', 'studio');
+      await expect(page.locator('#chat-view .chat-layout > aside').first()).toBeVisible();
+      await expect(page.locator('#chat-view .usage-bar')).toBeVisible();
+      await capture(page, `chat-studio-${width}`);
+    }
   });
 }
