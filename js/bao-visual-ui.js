@@ -63,12 +63,6 @@
       script.src = 'js/bao-image-quality.js?v=1';
       document.head.appendChild(script);
     }
-    if (!document.querySelector('script[data-bao-immersive]')) {
-      const reader = document.createElement('script');
-      reader.dataset.baoImmersive = '1';
-      reader.src = 'js/immersive-reader.js';
-      document.head.appendChild(reader);
-    }
     if (!document.querySelector('script[data-bao-bookshelf]')) {
       const bookshelf = document.createElement('script');
       bookshelf.dataset.baoBookshelf = '1';
@@ -109,13 +103,17 @@
   const layout = root?.querySelector('.chat-layout');
   if (!root || !main || !layout) return;
 
-  const KEY = 'bao-lab:story-surface-v1';
   const desktop = window.matchMedia('(min-width:1081px)');
   let mode = 'play';
   let statusOpen = false;
-  try { mode = localStorage.getItem(KEY) === 'studio' ? 'studio' : 'play'; } catch {}
+  // Play is always the entry surface. Studio is useful while editing, but it must
+  // never make a later reading session reopen with cost and token controls exposed.
+  try {
+    localStorage.removeItem('bao-lab:story-surface-v1');
+    localStorage.removeItem('bao-lab:immersive-reading');
+  } catch {}
 
-  const save = () => { try { localStorage.setItem(KEY, mode); } catch {} };
+  const save = () => {};
   const currentPanel = () => root.querySelector('.ui-tab.active')?.dataset.panel || 'npc';
 
   const sceneValue = value => {
@@ -169,6 +167,9 @@
   };
 
   const openStatus = () => {
+    // Migrate an already-open tab that still has the retired reader loaded.
+    window.BAOImmersiveReader?.setEnabled?.(false);
+    root.classList.remove('bao-immersive-on');
     statusOpen = true;
     root.classList.add('bao-play-status-open');
     const button = document.getElementById('bao-play-status-toggle');
@@ -183,7 +184,7 @@
     const button = document.getElementById('bao-surface-mode-toggle');
     if (button) {
       const mobile = !desktop.matches;
-      button.textContent = mode === 'studio' ? '返回故事' : (mobile ? '工具' : '工作室');
+      button.textContent = mode === 'studio' ? (mobile ? '閱讀' : '返回閱讀') : (mobile ? '工具' : '工作室');
       button.setAttribute('aria-pressed', String(mode === 'studio'));
       button.setAttribute('aria-label', mode === 'studio' ? '返回玩家閱讀模式' : '開啟工作室模式');
     }
@@ -201,6 +202,11 @@
   const ensure = () => {
     const header = main.querySelector('.chat-topline');
     if (!header) return;
+    // The legacy reader used a second pair of header buttons. Remove any stale
+    // controls so the reading/tool switch remains the only mode control.
+    root.classList.remove('bao-immersive-on');
+    document.getElementById('bao-immersive-toggle')?.remove();
+    document.getElementById('bao-immersive-exit')?.remove();
     const copy = header.querySelector('.chat-title-copy');
     if (copy && !document.getElementById('bao-scene-meta')) {
       const meta = document.createElement('div');

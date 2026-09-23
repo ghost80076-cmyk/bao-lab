@@ -130,11 +130,6 @@
     const apiStatus = document.querySelector('#bao-chat-api-toolbar [data-bao-api-status]');
     connection.textContent = apiStatus?.textContent?.trim() || (App.config?.demoMode ? '本機預覽' : '可從這裡設定 API 與模型');
     quick.append(connection);
-    const usage = document.createElement('span');
-    usage.className = 'bao-mobile-usage';
-    const usageNodes = [...document.querySelectorAll('#chat-view .usage-bar > span')];
-    usage.textContent = usageNodes.map(node => node.textContent.trim()).filter(Boolean).join(' · ');
-    quick.append(usage);
     body.prepend(quick);
   };
 

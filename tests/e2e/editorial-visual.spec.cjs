@@ -14,6 +14,7 @@ for (const width of [390, 1280]) {
       document.querySelector('#home-view .brand-hero') && window.BAOGalleryFocus));
     await expect(page.locator('#home-view .brand-hero h1')).toBeVisible();
     await expect(page.locator('#home-view #bao-home-portrait')).toBeVisible();
+    await expect(page.locator('#home-view #bao-home-portrait .bao-portrait-bun')).toHaveCount(0);
     await expect(page.locator('#bao-mascot-launch')).toBeVisible();
     await expect(page.locator('#bao-mascot-launch .bao-mascot-launch-label')).toBeHidden();
     await expect(page.locator('link[href="css/bao-editorial-polish.css?v=2"]')).toHaveCount(1);
@@ -90,6 +91,7 @@ for (const width of [390, 1280]) {
     await expect(page.locator('#bao-scene-meta')).toBeVisible();
     await expect(page.locator('#bao-surface-mode-toggle')).toBeVisible();
     await expect(page.locator('#bao-play-status-toggle')).toBeVisible();
+    await expect(page.locator('#bao-immersive-toggle')).toHaveCount(0);
     await expect(page.locator('#chat-view .usage-bar')).toBeHidden();
     await expect.poll(() => page.locator('#chat-view .message.assistant .bubble').first()
       .evaluate(node => getComputedStyle(node).borderLeftWidth)).toBe('0px');
