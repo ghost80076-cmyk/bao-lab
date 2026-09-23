@@ -152,11 +152,28 @@
     button?.setAttribute('aria-expanded', 'false');
   };
 
+  const ensureStatusClose = () => {
+    const panel = document.getElementById('game-ui');
+    if (!panel) return null;
+    let close = document.getElementById('bao-play-status-close');
+    if (!close) {
+      close = document.createElement('button');
+      close.type = 'button';
+      close.id = 'bao-play-status-close';
+      close.textContent = '關閉 ×';
+      close.setAttribute('aria-label', '關閉人物與故事狀態');
+      close.addEventListener('click', closeStatus);
+      panel.prepend(close);
+    }
+    return close;
+  };
+
   const openStatus = () => {
     statusOpen = true;
     root.classList.add('bao-play-status-open');
     const button = document.getElementById('bao-play-status-toggle');
     button?.setAttribute('aria-expanded', 'true');
+    ensureStatusClose();
     if (App.config?.displayMode === 'ui') App.renderUIPanel?.(currentPanel());
   };
 
