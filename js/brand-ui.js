@@ -46,7 +46,7 @@
       </section>
       <section class="brand-home-explore" aria-labelledby="home-explore-title">
         <div class="brand-home-explore-head">
-          <div><p class="brand-kicker">OPEN A STORY</p><h2 id="home-explore-title">角色正在等你翻開。</h2></div>
+          <div><p class="brand-kicker">OPEN A STORY</p><h2 id="home-explore-title">角色正在等你翻開。</h2><p class="brand-home-count">包包今夜留了 <span id="home-character-count">—</span> 個故事入口</p></div>
           <button class="text-button" id="home-all-works" type="button">查看全部作品 →</button>
         </div>
         <div id="home-character-preview" class="home-character-preview" aria-live="polite"></div>
@@ -65,6 +65,8 @@
     const preview = document.getElementById("home-character-preview");
     const characters = (App.characters || []).filter(character => character?.category !== "r18");
     if (!home || !preview || !characters.length) return;
+    const count = document.getElementById("home-character-count");
+    if (count) count.textContent = String(characters.length);
     const featured = characters[0];
     const image = document.getElementById("home-feature-image");
     if (image) { image.src = featured.avatar; image.alt = featured.name; }

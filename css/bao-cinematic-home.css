@@ -28,6 +28,7 @@
 #home-view .brand-home-explore-head{display:flex;align-items:end;justify-content:space-between;gap:20px;margin-bottom:24px}
 #home-view .brand-home-explore-head .brand-kicker{margin:0 0 8px;color:var(--bao-lamplight)!important;font-size:10px;letter-spacing:.18em}
 #home-view .brand-home-explore-head h2{margin:0;color:var(--bao-paper);font-family:'Noto Serif TC','Songti TC','PMingLiU',Georgia,serif;font-size:clamp(30px,4vw,50px);font-weight:600;line-height:1.25}
+#home-view .brand-home-count{margin:9px 0 0;color:#aaa3b4;font-size:12px;letter-spacing:.04em}#home-view .brand-home-count span{color:var(--bao-lamplight);font-weight:700}
 #home-view .brand-home-explore-head .text-button{color:#ddd3ed;font-size:13px;white-space:nowrap}
 #home-view .home-character-preview{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:clamp(12px,2vw,23px)}
 #home-view .home-character-card{position:relative;min-width:0;padding:0;overflow:hidden;border:1px solid rgba(216,207,238,.13);border-radius:15px;background:#10111a;text-align:left;cursor:pointer;box-shadow:0 16px 38px rgba(0,0,0,.25)}
