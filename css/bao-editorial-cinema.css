@@ -662,6 +662,9 @@ body:has(#chat-view.active) .app-shell{width:min(1660px,calc(100% - 30px))}
   display:none!important;
 }
 #chat-view[data-bao-surface="play"] #game-ui{display:none!important}
+#chat-view[data-bao-surface="play"] .chat-main.bao-mobile-panel-open #game-ui{
+  display:block!important;
+}
 #chat-view[data-bao-surface="play"].bao-play-status-open #game-ui{
   display:block!important;position:fixed!important;z-index:164;
   top:92px;right:16px;bottom:18px;width:min(390px,calc(100vw - 32px));
