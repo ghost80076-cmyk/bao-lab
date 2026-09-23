@@ -58,7 +58,12 @@
   const visibleFields = cfg => cfg.fields.filter(field => !cfg.customization.hidden.includes(field.key));
 
   const fieldValueHTML = (field, value) => {
-    if (field.type !== "meter") return `<b>${esc(pretty(value))}</b>`;
+    if (field.type !== "meter") {
+      const rendered = pretty(value);
+      const compact = field.type === "boolean" || field.type === "tags" || field.type === "number"
+        || (field.type === "text" && rendered.length > 0 && rendered.length <= 18);
+      return `<b${compact ? ' class="status-value-badge"' : ''}>${esc(rendered)}</b>`;
+    }
     const min = Number.isFinite(field.min) ? field.min : 0;
     const max = Number.isFinite(field.max) ? field.max : 100;
     const number = Number.isFinite(Number(value)) ? Number(value) : min;
