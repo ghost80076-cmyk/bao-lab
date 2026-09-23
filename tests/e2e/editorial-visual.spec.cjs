@@ -17,7 +17,7 @@ for (const width of [390, 1280]) {
     await expect(page.locator('#bao-mascot-launch')).toBeVisible();
     await expect(page.locator('#bao-mascot-launch .bao-mascot-launch-label')).toBeHidden();
     await expect(page.locator('link[href="css/bao-editorial-polish.css?v=2"]')).toHaveCount(1);
-    await expect(page.locator('link[href="css/bao-editorial-cinema.css?v=3"]')).toHaveCount(1);
+    await expect(page.locator('link[href="css/bao-editorial-cinema.css?v=4"]')).toHaveCount(1);
     await expect.poll(() => page.locator('#home-view .brand-hero h1').evaluate(node => getComputedStyle(node).whiteSpace)).toBe('normal');
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width + 1);
     await capture(page, `home-${width}`);
@@ -61,6 +61,7 @@ for (const width of [390, 1280]) {
     await page.locator('article').filter({ hasText: '林沉風 - 見過黑暗的人' }).click();
     await page.getByRole('button', { name: '開始故事' }).click();
     await page.locator('#bao-setup-choice [data-bao-setup="advanced"]').click();
+    await page.locator('input[name="display-mode"][value="ui"]').check({ force: true });
     for (let i = 0; i < 3; i += 1) await page.locator('#next-step').click();
     await page.locator('#bao-demo-mode').check();
     await page.locator('#next-step').click();
@@ -78,5 +79,17 @@ for (const width of [390, 1280]) {
     await shelf.getByRole('button', { name: '繼續此故事' }).click();
     await expect(page.locator('#chat-view')).toHaveClass(/active/);
     await expect(page.locator('#user-input')).toBeVisible();
+    await expect(page.locator('#chat-view .chat-topline')).toBeVisible();
+    await expect.poll(() => page.locator('#chat-view .message.assistant .bubble').first()
+      .evaluate(node => getComputedStyle(node).borderLeftWidth)).toBe('0px');
+    if (width <= 820) {
+      await page.waitForFunction(() => Boolean(window.BAOMobileReadingLayout));
+      await page.evaluate(() => window.BAOMobileReadingLayout.togglePanels());
+    }
+    await expect(page.locator('#game-ui')).toBeVisible();
+    await page.locator('.ui-tab[data-panel="status"]').click();
+    await expect(page.locator('#ui-panel .state-grid')).toBeVisible();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width + 1);
+    await capture(page, `chat-${width}`);
   });
 }
