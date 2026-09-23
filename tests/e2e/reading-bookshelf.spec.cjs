@@ -11,7 +11,10 @@ async function openDemoStory(page) {
   await page.locator('#next-step').click();
   await page.locator('#start-story').click();
   await expect(page.locator('#user-input')).toBeVisible();
-  await expect(page.locator('#bao-immersive-toggle')).toBeVisible();
+  await page.waitForFunction(() => Boolean(window.BAOStorySurface && window.BAOImmersiveReader));
+  await expect(page.locator('#chat-view')).toHaveAttribute('data-bao-surface', 'play');
+  await expect(page.locator('#bao-immersive-toggle')).toBeHidden();
+  await expect(page.locator('#bao-surface-mode-toggle')).toBeVisible();
 }
 
 for (const width of [320, 390, 1280]) {
@@ -19,7 +22,11 @@ for (const width of [320, 390, 1280]) {
     await page.setViewportSize({ width, height: 780 });
     await openDemoStory(page);
     const before = await page.evaluate(() => JSON.stringify(Chat.messages));
+    await page.locator('#bao-surface-mode-toggle').click();
+    if (width <= 820) await page.evaluate(() => window.BAOChatToolNavigation?.closeDrawer?.());
+    await expect(page.locator('#chat-view')).toHaveAttribute('data-bao-surface', 'studio');
     const button = page.locator('#bao-immersive-toggle');
+    await expect(button).toBeVisible();
     await button.click();
     await expect(button).toHaveText('退出閱讀');
     await expect(button).toHaveAttribute('aria-pressed', 'true');
@@ -40,10 +47,14 @@ for (const width of [320, 390, 1280]) {
     await button.click();
     await expect(button).toHaveText('沉浸閱讀');
     await expect(button).toHaveAttribute('aria-pressed', 'false');
+    await page.locator('#bao-surface-mode-toggle').click();
+    await expect(page.locator('#chat-view')).toHaveAttribute('data-bao-surface', 'play');
+    await expect(button).toBeHidden();
     expect(await page.evaluate(() => JSON.stringify(Chat.messages))).toBe(before);
     await page.reload();
-    await expect.poll(() => page.evaluate(() => Boolean(window.BAOImmersiveReader))).toBe(true);
+    await expect.poll(() => page.evaluate(() => Boolean(window.BAOImmersiveReader && window.BAOStorySurface))).toBe(true);
     expect(await page.evaluate(() => window.BAOImmersiveReader.enabled)).toBe(false);
+    expect(await page.evaluate(() => window.BAOStorySurface.mode)).toBe('play');
   });
 }
 
