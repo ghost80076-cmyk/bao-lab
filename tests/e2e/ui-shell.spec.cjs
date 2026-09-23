@@ -46,63 +46,62 @@ test.describe("Unified BAO/LAB app shell", () => {
     expect(layout.childrenSingleLine).toBe(true);
   });
 
-  test("mobile story keeps all five tools in the thumb zone directly above the composer", async ({ page }) => {
+  test("mobile story defaults to a player-first surface with tools on demand", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await openDemoStory(page);
+    await page.waitForFunction(() => Boolean(window.BAOStorySurface));
 
-    const tools = page.locator(".story-mobile-tools");
-    await expect(tools).toBeVisible();
-    for (const label of ["快速儲存", "另存新檔", "敘事與描寫", "回覆設定", "記憶工作台"]) {
-      await expect(tools.getByRole("button", { name: label })).toBeVisible();
-    }
+    await expect(page.locator("#chat-view")).toHaveAttribute("data-bao-surface", "play");
+    await expect(page.locator(".story-mobile-tools")).toBeHidden();
+    await expect(page.locator("#bao-mobile-tools-tab")).toBeVisible();
+    await expect(page.locator("#bao-play-status-toggle")).toBeVisible();
+    await expect(page.locator("#bao-surface-mode-toggle")).toBeVisible();
+    await expect(page.locator("#bao-scene-meta")).toBeVisible();
 
     const layout = await page.evaluate(() => {
-      const toolBar = document.querySelector(".story-mobile-tools");
       const composer = document.querySelector("#chat-view .composer");
       const aside = document.querySelector("#chat-view .chat-layout > aside");
-      const toolbarRect = toolBar.getBoundingClientRect();
-      const composerRect = composer.getBoundingClientRect();
       return {
         documentWidth: document.documentElement.scrollWidth,
         viewport: innerWidth,
         asideDisplay: getComputedStyle(aside).display,
-        toolOrder: getComputedStyle(toolBar).order,
-        composerOrder: getComputedStyle(composer).order,
-        toolbarBeforeComposer: toolbarRect.bottom <= composerRect.top + 2,
-        toolbarScrollable: toolBar.scrollWidth >= toolBar.clientWidth
+        composerBottom: composer.getBoundingClientRect().bottom,
+        height: innerHeight
       };
     });
 
     expect(layout.documentWidth).toBeLessThanOrEqual(layout.viewport);
     expect(layout.asideDisplay).toBe("none");
-    expect(Number(layout.toolOrder)).toBeLessThan(Number(layout.composerOrder));
-    expect(layout.toolbarBeforeComposer).toBe(true);
-    expect(layout.toolbarScrollable).toBe(true);
+    expect(layout.composerBottom).toBeLessThanOrEqual(layout.height + 2);
   });
 
-  test("desktop story remains a two-column reader with the character rail visible", async ({ page }) => {
+  test("desktop story defaults to Play and reveals the full tool rail only in Studio", async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 1000 });
     await openDemoStory(page);
+    await page.waitForFunction(() => Boolean(window.BAOStorySurface));
 
-    const layout = await page.evaluate(() => {
+    await expect(page.locator("#chat-view")).toHaveAttribute("data-bao-surface", "play");
+    await expect(page.locator("#chat-view .chat-layout > aside").first()).toBeHidden();
+    await expect(page.locator("#chat-view .usage-bar")).toBeHidden();
+
+    const playLayout = await page.evaluate(() => {
       const grid = document.querySelector("#chat-view .chat-layout");
-      const aside = grid.querySelector(":scope > aside");
       const main = grid.querySelector(".chat-main");
-      const columns = getComputedStyle(grid).gridTemplateColumns.split(" ").filter(Boolean);
       return {
         documentWidth: document.documentElement.scrollWidth,
         viewport: innerWidth,
-        columns: columns.length,
-        asideDisplay: getComputedStyle(aside).display,
-        asideWidth: Math.round(aside.getBoundingClientRect().width),
+        columns: getComputedStyle(grid).gridTemplateColumns.split(" ").filter(Boolean).length,
         mainWidth: Math.round(main.getBoundingClientRect().width)
       };
     });
+    expect(playLayout.documentWidth).toBeLessThanOrEqual(playLayout.viewport);
+    expect(playLayout.columns).toBe(1);
+    expect(playLayout.mainWidth).toBeGreaterThan(700);
 
-    expect(layout.documentWidth).toBeLessThanOrEqual(layout.viewport);
-    expect(layout.columns).toBe(2);
-    expect(layout.asideDisplay).not.toBe("none");
-    expect(layout.asideWidth).toBeGreaterThanOrEqual(190);
-    expect(layout.mainWidth).toBeGreaterThan(layout.asideWidth * 2);
+    await page.locator("#bao-surface-mode-toggle").click();
+    await expect(page.locator("#chat-view")).toHaveAttribute("data-bao-surface", "studio");
+    await expect(page.locator("#chat-view .chat-layout > aside").first()).toBeVisible();
+    await expect(page.locator("#chat-view .usage-bar")).toBeVisible();
+    await expect(page.locator("#bao-chat-api-toolbar")).toBeVisible();
   });
 });
