@@ -14,8 +14,10 @@ for (const width of [390, 1280]) {
       document.querySelector('#home-view .brand-hero') && window.BAOGalleryFocus));
     await expect(page.locator('#home-view .brand-hero h1')).toBeVisible();
     await expect(page.locator('#home-view #bao-home-portrait')).toBeVisible();
-    await expect(page.locator('link[href="css/bao-editorial-polish.css?v=1"]')).toHaveCount(1);
-    await expect(page.locator('link[href="css/bao-editorial-cinema.css?v=1"]')).toHaveCount(1);
+    await expect(page.locator('#bao-mascot-launch')).toBeVisible();
+    await expect(page.locator('#bao-mascot-launch .bao-mascot-launch-label')).toBeHidden();
+    await expect(page.locator('link[href="css/bao-editorial-polish.css?v=2"]')).toHaveCount(1);
+    await expect(page.locator('link[href="css/bao-editorial-cinema.css?v=2"]')).toHaveCount(1);
     await expect.poll(() => page.locator('#home-view .brand-hero h1').evaluate(node => getComputedStyle(node).whiteSpace)).toBe('normal');
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width + 1);
     await capture(page, `home-${width}`);
@@ -31,6 +33,11 @@ for (const width of [390, 1280]) {
     const image = card.locator('.character-image-wrap img');
     await expect(image).toBeVisible();
     await expect.poll(() => image.evaluate(node => getComputedStyle(node).aspectRatio)).toBe('2 / 3');
+    const firstTag = card.locator('.tag').first();
+    if (await firstTag.count()) {
+      await expect(firstTag).toBeVisible();
+      await expect.poll(() => firstTag.evaluate(node => getComputedStyle(node).borderRadius)).not.toBe('0px');
+    }
     const imageBox = await image.boundingBox();
     expect(imageBox.height / imageBox.width).toBeGreaterThan(1.4);
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width + 1);
