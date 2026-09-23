@@ -23,8 +23,13 @@ for (const width of [320, 390, 1280]) {
     await openDemoStory(page);
     const before = await page.evaluate(() => JSON.stringify(Chat.messages));
     await page.locator('#bao-surface-mode-toggle').click();
-    if (width <= 820) await page.evaluate(() => window.BAOChatToolNavigation?.closeDrawer?.());
     await expect(page.locator('#chat-view')).toHaveAttribute('data-bao-surface', 'studio');
+    if (width <= 820) {
+      const drawer = page.locator('#bao-chat-tool-drawer');
+      await expect(drawer).toBeVisible();
+      await drawer.getByRole('button', { name: '關閉 ×' }).click();
+      await expect(drawer).toHaveCount(0);
+    }
     const button = page.locator('#bao-immersive-toggle');
     await expect(button).toBeVisible();
     await button.click();
