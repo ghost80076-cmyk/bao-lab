@@ -61,7 +61,12 @@ for (const width of [390, 1280]) {
     await page.locator('article').filter({ hasText: '林沉風 - 見過黑暗的人' }).click();
     await page.getByRole('button', { name: '開始故事' }).click();
     await page.locator('#bao-setup-choice [data-bao-setup="advanced"]').click();
-    await page.locator('input[name="display-mode"][value="ui"]').check({ force: true });
+    await page.evaluate(() => {
+      const input = document.querySelector('input[name="display-mode"][value="ui"]');
+      if (!input) throw new Error('display-mode UI option missing');
+      input.checked = true;
+      input.dispatchEvent(new Event('change', { bubbles: true }));
+    });
     for (let i = 0; i < 3; i += 1) await page.locator('#next-step').click();
     await page.locator('#bao-demo-mode').check();
     await page.locator('#next-step').click();
