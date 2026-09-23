@@ -98,3 +98,174 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', enhanceAndGuard, { once: true });
   else enhanceAndGuard();
 })();
+
+
+/* BAO story surface: Play is the default reader; Studio reveals advanced controls. */
+(() => {
+  'use strict';
+  if (window.BAOStorySurface || !window.App) return;
+  const root = document.getElementById('chat-view');
+  const main = root?.querySelector('.chat-main');
+  const layout = root?.querySelector('.chat-layout');
+  if (!root || !main || !layout) return;
+
+  const KEY = 'bao-lab:story-surface-v1';
+  const desktop = window.matchMedia('(min-width:1081px)');
+  let mode = 'play';
+  let statusOpen = false;
+  try { mode = localStorage.getItem(KEY) === 'studio' ? 'studio' : 'play'; } catch {}
+
+  const save = () => { try { localStorage.setItem(KEY, mode); } catch {} };
+  const currentPanel = () => root.querySelector('.ui-tab.active')?.dataset.panel || 'npc';
+
+  const sceneValue = value => {
+    const text = String(value ?? '').trim();
+    return text && !/^(?:未知|未設定|未確認|—|-)$/.test(text) ? text : '';
+  };
+
+  const syncMeta = () => {
+    const meta = document.getElementById('bao-scene-meta');
+    if (!meta) return;
+    const state = window.GameState?.current || {};
+    const time = sceneValue(state.time);
+    const location = sceneValue(state.location);
+    const values = [time, location].filter(Boolean);
+    meta.replaceChildren();
+    values.forEach((value, index) => {
+      if (index) {
+        const dot = document.createElement('span');
+        dot.className = 'bao-scene-meta-dot';
+        dot.textContent = '·';
+        meta.append(dot);
+      }
+      const item = document.createElement('span');
+      item.textContent = value;
+      meta.append(item);
+    });
+    meta.hidden = values.length === 0;
+  };
+
+  const closeStatus = () => {
+    statusOpen = false;
+    root.classList.remove('bao-play-status-open');
+    const button = document.getElementById('bao-play-status-toggle');
+    button?.setAttribute('aria-expanded', 'false');
+  };
+
+  const openStatus = () => {
+    statusOpen = true;
+    root.classList.add('bao-play-status-open');
+    const button = document.getElementById('bao-play-status-toggle');
+    button?.setAttribute('aria-expanded', 'true');
+    if (App.config?.displayMode === 'ui') App.renderUIPanel?.(currentPanel());
+  };
+
+  const setMode = (next, persist = true) => {
+    mode = next === 'studio' ? 'studio' : 'play';
+    root.dataset.baoSurface = mode;
+    const button = document.getElementById('bao-surface-mode-toggle');
+    if (button) {
+      const mobile = !desktop.matches;
+      button.textContent = mode === 'studio' ? '返回故事' : (mobile ? '工具' : '工作室');
+      button.setAttribute('aria-pressed', String(mode === 'studio'));
+      button.setAttribute('aria-label', mode === 'studio' ? '返回玩家閱讀模式' : '開啟工作室模式');
+    }
+    if (mode === 'studio') {
+      closeStatus();
+      if (!desktop.matches) setTimeout(() => window.BAOMobileReadingLayout?.openTools?.(), 0);
+    } else {
+      window.BAOChatToolNavigation?.closeDrawer?.();
+      window.BAOChatExperience?.closeStatus?.();
+      main.classList.remove('bao-mobile-panel-open');
+    }
+    if (persist) save();
+  };
+
+  const ensure = () => {
+    const header = main.querySelector('.chat-topline');
+    if (!header) return;
+    const copy = header.querySelector('.chat-title-copy');
+    if (copy && !document.getElementById('bao-scene-meta')) {
+      const meta = document.createElement('div');
+      meta.id = 'bao-scene-meta';
+      meta.className = 'bao-scene-meta';
+      meta.hidden = true;
+      meta.setAttribute('aria-label', '目前故事場景');
+      copy.append(meta);
+    }
+    let controls = document.getElementById('bao-surface-controls');
+    if (!controls) {
+      controls = document.createElement('div');
+      controls.id = 'bao-surface-controls';
+      controls.className = 'bao-surface-controls';
+
+      const status = document.createElement('button');
+      status.type = 'button';
+      status.id = 'bao-play-status-toggle';
+      status.textContent = '狀態';
+      status.setAttribute('aria-controls', 'game-ui');
+      status.setAttribute('aria-expanded', 'false');
+      status.addEventListener('click', () => statusOpen ? closeStatus() : openStatus());
+
+      const surface = document.createElement('button');
+      surface.type = 'button';
+      surface.id = 'bao-surface-mode-toggle';
+      surface.addEventListener('click', () => setMode(mode === 'play' ? 'studio' : 'play'));
+
+      controls.append(status, surface);
+      header.append(controls);
+    }
+    syncMeta();
+    setMode(mode, false);
+  };
+
+  const sync = () => { ensure(); syncMeta(); };
+
+  const priorShell = App.renderChatShell.bind(App);
+  App.renderChatShell = function(...args) {
+    const result = priorShell(...args);
+    requestAnimationFrame(sync);
+    return result;
+  };
+
+  const priorView = App.showView.bind(App);
+  App.showView = function(name, ...args) {
+    const result = priorView(name, ...args);
+    if (name === 'chat') requestAnimationFrame(sync);
+    return result;
+  };
+
+  if (window.GameState && !window.GameState.__baoSurfaceWrapped) {
+    ['create','applyUpdate','upsertNPC'].forEach(method => {
+      if (typeof GameState[method] !== 'function') return;
+      const original = GameState[method];
+      GameState[method] = function(...args) {
+        const result = original.apply(this, args);
+        queueMicrotask(syncMeta);
+        return result;
+      };
+    });
+    window.GameState.__baoSurfaceWrapped = true;
+  }
+
+  new MutationObserver(mutations => {
+    if (mutations.some(record => [...record.addedNodes].some(node =>
+      node.nodeType === 1 && (node.classList?.contains('chat-topline') || node.querySelector?.('.chat-topline'))))) {
+      requestAnimationFrame(sync);
+    }
+  }).observe(main, { childList:true, subtree:true });
+
+  desktop.addEventListener?.('change', () => setMode(mode, false));
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && statusOpen) closeStatus();
+  });
+
+  window.BAOStorySurface = Object.freeze({
+    get mode() { return mode; },
+    setMode,
+    openStatus,
+    closeStatus,
+    sync
+  });
+  sync();
+})();
