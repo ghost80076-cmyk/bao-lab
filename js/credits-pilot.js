@@ -11,13 +11,21 @@
   const MODEL_PROVIDERS = Object.freeze({
     "gemini-3-flash-preview": "gemini",
     "gemini-3.1-flash-lite": "gemini",
-    "google/gemini-3.1-pro-preview": "openrouter"
+    "google/gemini-3.1-pro-preview": "openrouter",
+    "anthropic/claude-sonnet-4.5": "openrouter",
+    "anthropic/claude-sonnet-4.6": "openrouter",
+    "anthropic/claude-opus-4.5": "openrouter",
+    "anthropic/claude-opus-4.6": "openrouter"
   });
   const MODELS = Object.keys(MODEL_PROVIDERS);
   const PRESETS = [
     { provider: PROVIDER, provider_label: "BAO/LAB 測試額度（邀請制）", label: "Gemini 3 Flash · 故事", model: MODELS[0], base_url: ENDPOINT, protocol: "openai", route: PROVIDER, use_case: "限邀請測試" },
     { provider: PROVIDER, provider_label: "BAO/LAB 測試額度（邀請制）", label: "Gemini 3.1 Flash-Lite · 摘要", model: MODELS[1], base_url: ENDPOINT, protocol: "openai", route: PROVIDER, use_case: "限邀請測試" },
-    { provider: PROVIDER, provider_label: "BAO/LAB 測試額度（邀請制）", label: "Gemini 3.1 Pro · OpenRouter（付費）", model: MODELS[2], base_url: ENDPOINT, protocol: "openai", route: PROVIDER, use_case: "限邀請測試 · 由站長負擔 OpenRouter 費用" }
+    { provider: PROVIDER, provider_label: "BAO/LAB 測試額度（邀請制）", label: "Gemini 3.1 Pro · OpenRouter（付費）", model: MODELS[2], base_url: ENDPOINT, protocol: "openai", route: PROVIDER, use_case: "限邀請測試 · 由站長負擔 OpenRouter 費用" },
+    { provider: PROVIDER, provider_label: "BAO/LAB 測試額度（邀請制）", label: "Claude Sonnet 4.5 · OpenRouter", model: MODELS[3], base_url: ENDPOINT, protocol: "openai", route: PROVIDER, use_case: "限邀請測試 · Claude 舊版文風相容" },
+    { provider: PROVIDER, provider_label: "BAO/LAB 測試額度（邀請制）", label: "Claude Sonnet 4.6 · OpenRouter", model: MODELS[4], base_url: ENDPOINT, protocol: "openai", route: PROVIDER, use_case: "限邀請測試 · Claude 高品質長篇" },
+    { provider: PROVIDER, provider_label: "BAO/LAB 測試額度（邀請制）", label: "Claude Opus 4.5 · OpenRouter", model: MODELS[5], base_url: ENDPOINT, protocol: "openai", route: PROVIDER, use_case: "限邀請測試 · Claude Opus 舊版相容" },
+    { provider: PROVIDER, provider_label: "BAO/LAB 測試額度（邀請制）", label: "Claude Opus 4.6 · OpenRouter", model: MODELS[6], base_url: ENDPOINT, protocol: "openai", route: PROVIDER, use_case: "限邀請測試 · Claude Opus 高品質" }
   ];
   const isPilot = config => config?.type === PROVIDER || config?.route === PROVIDER;
   const isEndpoint = value => String(value || "").trim().replace(/\/+$/, "") === ENDPOINT;
@@ -52,9 +60,13 @@
     const preset = App.getSelectedPreset?.() || App.modelPresets?.[Number(select?.value)];
     return preset?.provider === PROVIDER ? preset.model : null;
   };
-  const pilotHint = model => MODEL_PROVIDERS[model] === "openrouter"
-    ? "邀請制：Gemini 3.1 Pro 由 BAO/LAB 後端透過 OpenRouter 呼叫，費用由站長支付；依用量扣測試點數（每 100 tokens 為 1 點），不等於實際美元價格。僅支援文字、非串流，每次最多 96 KB；金鑰不會存入故事備份。"
-    : "邀請制：依模型回報的輸入＋輸出用量計額度（每 100 tokens 為 1 點），不限每日聊天次數。故事內容經 BAO/LAB 後端轉送 Google；僅限文字、非串流，每次最多 96 KB。金鑰不會存入故事備份。";
+  const pilotHint = model => {
+    if (MODEL_PROVIDERS[model] === "openrouter") {
+      const modelName = model?.startsWith("anthropic/") ? "Claude" : "Gemini 3.1 Pro";
+      return `邀請制：${modelName} 由 BAO/LAB 後端透過 OpenRouter 呼叫，費用由站長支付；目前依用量扣測試點數（每 100 tokens 為 1 點），不等於實際美元價格。僅支援文字、非串流，每次最多 96 KB；金鑰不會存入故事備份。`;
+    }
+    return "邀請制：依模型回報的輸入＋輸出用量計額度（每 100 tokens 為 1 點），不限每日聊天次數。故事內容經 BAO/LAB 後端轉送 Google；僅限文字、非串流，每次最多 96 KB。金鑰不會存入故事備份。";
+  };
   const refreshBuilder = () => {
     const enabled = document.getElementById("api-type")?.value === PROVIDER;
     const keyField = document.getElementById("api-key");
@@ -83,7 +95,7 @@
     }
     const upstreamProvider = MODEL_PROVIDERS[config.model];
     if (!isEndpoint(config.baseUrl) || !upstreamProvider) {
-      throw new Error("BAO/LAB 測試額度僅支援指定的三款 Gemini 模型及固定後端網址。請重新選擇模型預設。");
+      throw new Error("BAO/LAB 測試額度僅支援指定的邀請制模型及固定後端網址。請重新選擇模型預設。");
     }
     const token = String(config.key || "").trim();
     if (!/^bao_[A-Za-z0-9_-]{30,}$/.test(token)) throw new Error("請輸入管理員發給你的個人玩家金鑰（player_token），不要使用 ADMIN_TOKEN 或官方 API Key。");
@@ -142,11 +154,24 @@
     if (typeof data?.content !== "string" || !data.content.trim()) throw new Error(`${upstreamName(config.model)} 沒有回傳可顯示的文字內容。`);
     const input = Number.isInteger(data.usage?.input_tokens) ? data.usage.input_tokens : null;
     const output = Number.isInteger(data.usage?.output_tokens) ? data.usage.output_tokens : null;
+    const cached = Number.isInteger(data.usage?.cached_tokens) ? data.usage.cached_tokens : null;
+    const cacheWrite = Number.isInteger(data.usage?.cache_write_tokens) ? data.usage.cache_write_tokens : null;
     return {
       text: data.content,
-      usage: this.normalizeUsage({ input_tokens: input, output_tokens: output,
-        total_tokens: input != null && output != null ? input + output : null }, "openai"),
-      credits: { charged_credits: data.usage?.charged_credits, request_id: data.request_id }
+      usage: this.normalizeUsage({
+        input_tokens: input,
+        output_tokens: output,
+        cached_tokens: cached,
+        cache_write_tokens: cacheWrite,
+        total_tokens: input != null && output != null ? input + output : null
+      }, "openai"),
+      credits: {
+        charged_credits: data.usage?.charged_credits,
+        request_id: data.request_id,
+        provider_cost_usd: data.usage?.provider_cost_usd ?? null,
+        reasoning_tokens: data.usage?.reasoning_tokens ?? null,
+        billing_mode: data.usage?.billing_mode ?? null
+      }
     };
   };
 

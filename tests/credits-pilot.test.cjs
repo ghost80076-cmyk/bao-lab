@@ -38,6 +38,20 @@ test('Gemini Pro uses OpenRouter upstream behind same Worker, same player token,
  assert.equal(s.calls[0][1].body.includes(token),false);
  assert.equal(s.calls[0][1].body.includes('OPENROUTER_API_KEY'),false);
 });
+test('Claude Sonnet and Opus invitation presets route through OpenRouter with the same player token',async()=>{
+ const s=build();
+ for (const model of ['anthropic/claude-sonnet-4.5','anthropic/claude-sonnet-4.6','anthropic/claude-opus-4.5','anthropic/claude-opus-4.6']) {
+   await s.api.send({...cfg,model,maxOutputTokens:4096},msgs);
+ }
+ assert.equal(s.calls.length,4);
+ for (let i=0;i<s.calls.length;i++) {
+   const body=JSON.parse(s.calls[i][1].body);
+   assert.equal(body.provider,'openrouter');
+   assert.equal(body.model,['anthropic/claude-sonnet-4.5','anthropic/claude-sonnet-4.6','anthropic/claude-opus-4.5','anthropic/claude-opus-4.6'][i]);
+   assert.equal(body.max_output_tokens,2048);
+   assert.equal(s.calls[i][1].headers.Authorization,'Bearer '+token);
+ }
+});
 test('summary routes separate from chat, connection tests use 1024 tokens, and BYOK stays available',async()=>{
  const s=build(); await s.api.send({...cfg,model:'gemini-3.1-flash-lite',__memoryTask:true},msgs);
  assert.equal(JSON.parse(s.calls[0][1].body).request_kind,'summary');
@@ -52,7 +66,7 @@ test('refuses player-token leakage to other provider and wrong URL/models',async
  const s=build();s.app.config.api=cfg;
  await assert.rejects(()=>s.api.send({type:'openrouter',key:token,baseUrl:'https://openrouter.ai/api/v1'},msgs),/不可沿用/);
  await assert.rejects(()=>s.api.send({...cfg,baseUrl:'https://evil.test/chat'},msgs),/固定後端/);
- await assert.rejects(()=>s.api.send({...cfg,model:'gemini-3.1-pro-preview'},msgs),/指定的三款/);
+ await assert.rejects(()=>s.api.send({...cfg,model:'gemini-3.1-pro-preview'},msgs),/指定的邀請制模型/);
  assert.equal(s.calls.length,0);
 });
 test('allows long prompts under 96 KB, rejects oversized prompts before sending',async()=>{
@@ -61,6 +75,17 @@ test('allows long prompts under 96 KB, rejects oversized prompts before sending'
  assert.equal(s.calls.length,1);
  await assert.rejects(()=>s.api.send(cfg,[{role:'user',content:'x'.repeat(97000)}]),/96 KB/);
  assert.equal(s.calls.length,1);
+});
+test('forwards cache-aware usage returned by the Worker to BAO/LAB usage accounting',async()=>{
+ const s=build({ok:true,status:200,body:{content:'cache',usage:{input_tokens:1000,output_tokens:100,cached_tokens:700,cache_write_tokens:50,reasoning_tokens:20,provider_cost_usd:0.01,charged_credits:11,billing_mode:'raw_tokens_v1'}}});
+ const result=await s.api.send({...cfg,model:'anthropic/claude-sonnet-4.6'},msgs);
+ assert.equal(result.usage.input_tokens,1000);
+ assert.equal(result.usage.cached_tokens,700);
+ assert.equal(result.usage.cache_write_tokens,50);
+ assert.equal(result.usage.new_input_tokens,300);
+ assert.equal(result.credits.reasoning_tokens,20);
+ assert.equal(result.credits.provider_cost_usd,0.01);
+ assert.equal(result.credits.billing_mode,'raw_tokens_v1');
 });
 test('propagates quota and provider-specific upstream errors without exposing player keys',async()=>{
  const auth=build({ok:false,status:401,body:{error:'unauthorized'}});
@@ -73,15 +98,23 @@ test('propagates quota and provider-specific upstream errors without exposing pl
  const empty=build({ok:false,status:502,body:{error:'provider_empty_text',finish_reason:'MAX_TOKENS'}});
  await assert.rejects(()=>empty.api.send(cfg,msgs),/MAX_TOKENS/);
 });
-test('registers all three model presets without replacing existing provider or duplication',()=>{
+test('registers all seven invitation model presets without replacing existing provider or duplication',()=>{
  const s=build();s.app.populateAPIControls();s.app.populateAPIControls();
- assert.equal(s.app.modelPresets.length,4);
+ assert.equal(s.app.modelPresets.length,8);
  assert.equal(s.app.modelPresets[0].provider,'gemini');
- assert.equal(s.app.modelPresets[1].model,'gemini-3-flash-preview');
- assert.equal(s.app.modelPresets[2].model,'gemini-3.1-flash-lite');
- assert.equal(s.app.modelPresets[3].model,'google/gemini-3.1-pro-preview');
- assert.match(s.app.modelPresets[3].label,/OpenRouter/);
- assert.equal(s.app.modelPresets[3].provider,'bao-credits');
- assert.equal(s.app.modelPresets[3].base_url,cfg.baseUrl);
- assert.equal(s.window.BAOCreditsPilot.models.length,3);
+ const added=s.app.modelPresets.slice(1);
+ assert.deepEqual(Array.from(added.map(p=>p.model)),[
+   'gemini-3-flash-preview',
+   'gemini-3.1-flash-lite',
+   'google/gemini-3.1-pro-preview',
+   'anthropic/claude-sonnet-4.5',
+   'anthropic/claude-sonnet-4.6',
+   'anthropic/claude-opus-4.5',
+   'anthropic/claude-opus-4.6'
+ ]);
+ assert.equal(added.every(p=>p.provider==='bao-credits'),true);
+ assert.equal(added.every(p=>p.base_url===cfg.baseUrl),true);
+ assert.match(added[4].label,/Sonnet 4\.6/);
+ assert.match(added[6].label,/Opus 4\.6/);
+ assert.equal(s.window.BAOCreditsPilot.models.length,7);
 });
