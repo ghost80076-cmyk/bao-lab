@@ -15,6 +15,8 @@ async function openDemoStory(page) {
   await expect(page.locator('#chat-view')).toHaveAttribute('data-bao-surface', 'play');
   await expect(page.locator('#bao-immersive-toggle')).toBeHidden();
   await expect(page.locator('#bao-surface-mode-toggle')).toBeVisible();
+  await expect(page.locator('#chat-view .chat-title-copy .eyebrow')).toContainText('包包夜讀書房');
+  await expect(page.locator('#user-input')).toHaveAttribute('placeholder', '寫下你的下一句…');
 }
 
 for (const width of [320, 390, 900, 1280]) {
@@ -38,6 +40,7 @@ for (const width of [320, 390, 900, 1280]) {
     await expect(page.locator('#bao-play-status-toggle')).toHaveAttribute('aria-expanded', 'false');
     await page.locator('#bao-surface-mode-toggle').click();
     await expect(page.locator('#chat-view')).toHaveAttribute('data-bao-surface', 'studio');
+    await expect(page.locator('#user-input')).toHaveAttribute('placeholder', '輸入你的行動或台詞…');
     if (width < 1081) {
       const drawer = page.locator('#bao-chat-tool-drawer');
       await expect(drawer).toBeVisible();
@@ -51,6 +54,7 @@ for (const width of [320, 390, 900, 1280]) {
     }
     await page.locator('#bao-surface-mode-toggle').click();
     await expect(page.locator('#chat-view')).toHaveAttribute('data-bao-surface', 'play');
+    await expect(page.locator('#user-input')).toHaveAttribute('placeholder', '寫下你的下一句…');
     await expect(page.locator('#bao-surface-mode-toggle')).toHaveAttribute('aria-pressed', 'false');
     await expect(page.locator('#chat-view .usage-bar')).toBeHidden();
     await expect(page.locator('#chat-stream')).toBeVisible();
@@ -82,16 +86,19 @@ for (const width of [320, 390, 900, 1280]) {
 test('bookshelf links the active chapter to the existing restore flow', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await openDemoStory(page);
-  await page.evaluate(async () => { App.saveStory(false); await BAOStoryLibrary.flush(); });
+  await page.evaluate(async () => { App.saveStory(false); await BAOStoryLibrary.flush(); App.showView('home'); });
+  await expect(page.locator('#home-local-story')).toBeVisible();
+  await expect(page.locator('#home-local-story-name')).toContainText('林沉風');
+  await expect(page.getByRole('button', { name: /繼續閱讀/ })).toBeVisible();
   await expect(page.locator('.topbar nav [data-open-story-library]')).toHaveText('我的故事');
   await page.evaluate(() => BAOStoryTools.openLibrary());
   const shelf = page.locator('.story-library-shell');
   await expect(shelf).toBeVisible();
   await expect(shelf.locator('.bao-shelf-enhanced')).toHaveCount(1);
   await expect(shelf.locator('.bao-shelf-cover')).toHaveCount(1);
-  await expect(shelf.locator('.bao-shelf-progress')).toContainText('上次遊玩：第一章');
+  await expect(shelf.locator('.bao-shelf-progress')).toContainText('上次閱讀：第一章');
   await expect(shelf.getByRole('heading', { name: '我的故事' })).toBeVisible();
-  const continueButton = shelf.getByRole('button', { name: '繼續故事' });
+  const continueButton = shelf.getByRole('button', { name: '繼續閱讀 →' });
   await expect(continueButton).toBeVisible();
   await continueButton.click();
   await expect(page.locator('#chat-view')).toHaveClass(/active/);
