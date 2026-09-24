@@ -136,6 +136,7 @@ test('nightly recommendation stays stable for the same local day', async ({ page
   const visibleMore = await page.locator('#home-character-preview [data-home-character]').count();
   expect(visibleMore).toBeGreaterThan(0);
   const ids = await page.locator('#home-character-preview [data-home-character]').evaluateAll(nodes => nodes.map(node => node.dataset.homeCharacter));
-  const featuredLabel = await page.locator('#home-feature-stage').getAttribute('aria-label');
-  expect(ids.every(id => !featuredLabel.includes(id))).toBeTruthy();
+  const featuredId = await page.locator('#home-feature-stage').getAttribute('data-home-character');
+  expect(featuredId).toBeTruthy();
+  expect(ids).not.toContain(featuredId);
 });
