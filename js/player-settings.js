@@ -26,7 +26,10 @@
     const migrated = localStorage.getItem(APPEARANCE_V2_KEY) === "yes";
     const old = storedSettings?.appearance;
     const untouchedLegacy = !old || Object.entries(legacyAppearance).every(([key, value]) => old?.[key] === value);
-    if (!migrated && untouchedLegacy) Object.assign(settings.appearance, defaults.appearance);
+    if (!migrated && untouchedLegacy) {
+      Object.assign(settings.appearance, defaults.appearance);
+      localStorage.setItem(SETTINGS_KEY, JSON.stringify({ ...storedSettings, appearance: settings.appearance }));
+    }
     if (!migrated) localStorage.setItem(APPEARANCE_V2_KEY, "yes");
   } catch {}
   let memorySlots = readJSON(MEMORY_KEY, [{ id: "memory-1", title: "記憶 1", text: "", enabled: true }]);
