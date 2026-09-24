@@ -40,8 +40,8 @@
   const enabledMemoryText = () => (window.BAOMemoryWorkbench?.readSlots?.() || readJSON(MEMORY_KEY, memorySlots)).filter(x => x.enabled && String(x.text || "").trim()).map(x => `【${x.title}】\n${x.text.trim()}`).join("\n\n");
 
   const ensureStyles = () => {
-    if (document.querySelector('link[href="css/player-settings.css"]')) return;
-    const link = document.createElement("link"); link.rel = "stylesheet"; link.href = "css/player-settings.css"; document.head.appendChild(link);
+    if (document.querySelector('link[href^="css/player-settings.css"]')) return;
+    const link = document.createElement("link"); link.rel = "stylesheet"; link.href = "css/player-settings.css?v=2"; document.head.appendChild(link);
   };
 
   const closeModal = () => document.querySelector(".bao-modal-backdrop")?.remove();
