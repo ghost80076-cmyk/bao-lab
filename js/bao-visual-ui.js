@@ -78,7 +78,7 @@
     if (!document.querySelector('script[data-bao-gallery-focus]')) {
       const gallery = document.createElement('script');
       gallery.dataset.baoGalleryFocus = '1';
-      gallery.src = 'js/bao-gallery-focus.js';
+      gallery.src = 'js/bao-gallery-focus.js?v=2';
       document.head.appendChild(gallery);
     }
   };
@@ -113,7 +113,6 @@
     localStorage.removeItem('bao-lab:immersive-reading');
   } catch {}
 
-  const save = () => {};
   const currentPanel = () => root.querySelector('.ui-tab.active')?.dataset.panel || 'npc';
 
   const sceneValue = value => {
@@ -175,10 +174,11 @@
     const button = document.getElementById('bao-play-status-toggle');
     button?.setAttribute('aria-expanded', 'true');
     ensureStatusClose();
-    if (App.config?.displayMode === 'ui') App.renderUIPanel?.(currentPanel());
+    App.renderUIPanel?.(currentPanel());
   };
 
-  const setMode = (next, persist = true) => {
+  const setMode = next => {
+    const previousMode = mode;
     mode = next === 'studio' ? 'studio' : 'play';
     root.dataset.baoSurface = mode;
     const button = document.getElementById('bao-surface-mode-toggle');
@@ -190,13 +190,19 @@
     }
     if (mode === 'studio') {
       closeStatus();
-      if (!desktop.matches) setTimeout(() => window.BAOMobileReadingLayout?.openTools?.(), 0);
+      if (previousMode !== mode && !desktop.matches) setTimeout(() => {
+        if (mode !== 'studio' || !root.classList.contains('active')) return;
+        if (window.matchMedia('(max-width:820px)').matches && window.BAOMobileReadingLayout) {
+          window.BAOMobileReadingLayout.openTools();
+        } else {
+          window.BAOChatToolNavigation?.openDrawer?.();
+        }
+      }, 0);
     } else {
       window.BAOChatToolNavigation?.closeDrawer?.();
       window.BAOChatExperience?.closeStatus?.();
       main.classList.remove('bao-mobile-panel-open');
     }
-    if (persist) save();
   };
 
   const ensure = () => {
@@ -239,7 +245,7 @@
       header.append(controls);
     }
     syncMeta();
-    setMode(mode, false);
+    setMode(mode);
   };
 
   const sync = () => { ensure(); syncMeta(); };
@@ -253,7 +259,9 @@
 
   const priorView = App.showView.bind(App);
   App.showView = function(name, ...args) {
+    const enteringStory = name === 'chat' && !root.classList.contains('active');
     const result = priorView(name, ...args);
+    if (enteringStory) { closeStatus(); setMode('play'); }
     if (name === 'chat') requestAnimationFrame(sync);
     return result;
   };
@@ -278,7 +286,7 @@
     }
   }).observe(main, { childList:true, subtree:true });
 
-  desktop.addEventListener?.('change', () => setMode(mode, false));
+  desktop.addEventListener?.('change', () => setMode(mode));
   document.addEventListener('keydown', event => {
     if (event.key === 'Escape' && statusOpen) closeStatus();
   });

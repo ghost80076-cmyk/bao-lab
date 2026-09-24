@@ -62,10 +62,10 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/device-transfer.js"))
     .then(() => loadBAOScript("js/author-diagnostics.js"))
     .catch(err => console.warn("BAO/LAB character library, import, device transfer or author diagnostics failed to load:", err));
-  loadBAOScript("js/brand-ui.js?v=4")
+  loadBAOScript("js/brand-ui.js?v=5")
     .then(() => new Promise(resolve => setTimeout(resolve, 100)))
     .then(() => loadBAOScript("js/bao-mascot.js"))
-    .then(() => loadBAOScript("js/bao-visual-ui.js"))
+    .then(() => loadBAOScript("js/bao-visual-ui.js?v=2"))
     .catch(err => console.warn("BAO/LAB brand or mascot UI failed to load:", err));
   setTimeout(async () => {
     await Storage.ready();
