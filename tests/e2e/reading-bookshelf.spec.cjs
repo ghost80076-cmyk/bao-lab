@@ -67,13 +67,15 @@ test('bookshelf links the active chapter to the existing restore flow', async ({
   await page.setViewportSize({ width: 390, height: 844 });
   await openDemoStory(page);
   await page.evaluate(async () => { App.saveStory(false); await BAOStoryLibrary.flush(); });
+  await expect(page.locator('.topbar nav [data-open-story-library]')).toHaveText('我的故事');
   await page.evaluate(() => BAOStoryTools.openLibrary());
   const shelf = page.locator('.story-library-shell');
   await expect(shelf).toBeVisible();
   await expect(shelf.locator('.bao-shelf-enhanced')).toHaveCount(1);
   await expect(shelf.locator('.bao-shelf-cover')).toHaveCount(1);
-  await expect(shelf.locator('.bao-shelf-progress')).toContainText('第一章');
-  const continueButton = shelf.getByRole('button', { name: '繼續此故事' });
+  await expect(shelf.locator('.bao-shelf-progress')).toContainText('上次遊玩：第一章');
+  await expect(shelf.getByRole('heading', { name: '我的故事' })).toBeVisible();
+  const continueButton = shelf.getByRole('button', { name: '繼續故事' });
   await expect(continueButton).toBeVisible();
   await continueButton.click();
   await expect(page.locator('#chat-view')).toHaveClass(/active/);
