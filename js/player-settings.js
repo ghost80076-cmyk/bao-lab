@@ -3,6 +3,8 @@
 
   const SETTINGS_KEY = "bao-lab:player-settings";
   const MEMORY_KEY = "bao-lab:player-memory-slots";
+  const APPEARANCE_V2_KEY = "bao-lab:night-reading-appearance-v2";
+  const legacyAppearance = { fontSize: 16, bgMode: "solid", customBg: "", bgOpacity: 12, bgBlur: 0, assistantColor: "#171b24", userColor: "#242a37", bubbleOpacity: 100 };
   const defaults = {
     replyLength: "auto",
     pov: "card",
@@ -10,15 +12,26 @@
     language: "zh-Hant",
     autoMemory: true,
     demoMode: false,
-    appearance: { fontSize: 16, bgMode: "solid", customBg: "", bgOpacity: 12, bgBlur: 0, assistantColor: "#171b24", userColor: "#242a37", bubbleOpacity: 100 }
+    appearance: { fontSize: 16, bgMode: "character", customBg: "", bgOpacity: 34, bgBlur: 6, assistantColor: "#171b24", userColor: "#242a37", bubbleOpacity: 76 }
   };
 
   const readJSON = (key, fallback) => { try { return JSON.parse(localStorage.getItem(key)) ?? fallback; } catch { return fallback; } };
   const writeJSON = (key, value) => localStorage.setItem(key, JSON.stringify(value));
-  const settings = Object.assign({}, defaults, readJSON(SETTINGS_KEY, {}));
+  const storedSettings = readJSON(SETTINGS_KEY, {});
+  const settings = Object.assign({}, defaults, storedSettings);
   if (settings.replyLength === "free") settings.replyLength = "auto";
   if (!["card", "named"].includes(settings.dialogueFormat)) settings.dialogueFormat = "card";
   settings.appearance = Object.assign({}, defaults.appearance, settings.appearance || {});
+  try {
+    const migrated = localStorage.getItem(APPEARANCE_V2_KEY) === "yes";
+    const old = storedSettings?.appearance;
+    const untouchedLegacy = !old || Object.entries(legacyAppearance).every(([key, value]) => old?.[key] === value);
+    if (!migrated && untouchedLegacy) {
+      Object.assign(settings.appearance, defaults.appearance);
+      localStorage.setItem(SETTINGS_KEY, JSON.stringify({ ...storedSettings, appearance: settings.appearance }));
+    }
+    if (!migrated) localStorage.setItem(APPEARANCE_V2_KEY, "yes");
+  } catch {}
   let memorySlots = readJSON(MEMORY_KEY, [{ id: "memory-1", title: "記憶 1", text: "", enabled: true }]);
   if (!Array.isArray(memorySlots) || !memorySlots.length) memorySlots = [{ id: "memory-1", title: "記憶 1", text: "", enabled: true }];
 
@@ -27,8 +40,8 @@
   const enabledMemoryText = () => (window.BAOMemoryWorkbench?.readSlots?.() || readJSON(MEMORY_KEY, memorySlots)).filter(x => x.enabled && String(x.text || "").trim()).map(x => `【${x.title}】\n${x.text.trim()}`).join("\n\n");
 
   const ensureStyles = () => {
-    if (document.querySelector('link[href="css/player-settings.css"]')) return;
-    const link = document.createElement("link"); link.rel = "stylesheet"; link.href = "css/player-settings.css"; document.head.appendChild(link);
+    if (document.querySelector('link[href^="css/player-settings.css"]')) return;
+    const link = document.createElement("link"); link.rel = "stylesheet"; link.href = "css/player-settings.css?v=2"; document.head.appendChild(link);
   };
 
   const closeModal = () => document.querySelector(".bao-modal-backdrop")?.remove();
@@ -100,6 +113,10 @@
     return modal;
   };
 
+  const safeBackground = value => {
+    const url = String(value || "").trim();
+    return /^(?:https?:\/\/|assets\/|\.\/assets\/)/i.test(url) ? url : "";
+  };
   const applyAppearance = () => {
     const view = document.getElementById("chat-view"); if (!view) return;
     const a = settings.appearance;
@@ -110,20 +127,43 @@
     view.style.setProperty("--chat-bg-opacity", String(a.bgOpacity / 100));
     view.style.setProperty("--chat-bg-blur", `${a.bgBlur}px`);
     let url = "";
-    if (a.bgMode === "character") url = App.activeCharacter?.avatar || "";
-    if (a.bgMode === "custom" && /^https?:\/\//i.test(a.customBg || "")) url = a.customBg;
+    if (a.bgMode === "character") url = safeBackground(App.activeCharacter?.reading_background || App.activeCharacter?.avatar);
+    if (a.bgMode === "custom") url = safeBackground(a.customBg);
     const safe = String(url).replace(/["\\]/g, "\\$&");
     view.style.setProperty("--chat-bg-image", url ? `url("${safe}")` : "none");
+    view.dataset.baoReadingBackground = url && Number(a.bgOpacity) > 0 ? "image" : "solid";
   };
 
   const openAppearanceSettings = () => {
     const a = settings.appearance;
     const body = `<div class="bao-setting-section"><h3>訊息字級</h3><div class="bao-range-row"><input id="bao-font-size" type="range" min="13" max="24" value="${a.fontSize}"><b><span id="bao-font-size-value">${a.fontSize}</span>px</b></div></div>
-    <div class="bao-setting-section"><h3>對話背景</h3><div class="bao-choice-grid">${["solid","character","custom"].map(v => `<button type="button" class="bao-choice ${a.bgMode===v?"active":""}" data-bg-mode="${v}"><b>${v==="solid"?"純色":v==="character"?"角色照片":"自訂圖片"}</b><span>${v==="solid"?"無背景圖":v==="character"?"使用角色圖":"圖片網址"}</span></button>`).join("")}</div><input id="bao-custom-bg" style="margin-top:10px" placeholder="https://..." value="${App.escapeAttr(a.customBg || "")}"><div class="bao-range-row" style="margin-top:14px"><label>背景強度</label><b><span id="bao-bg-opacity-value">${a.bgOpacity}</span>%</b><input id="bao-bg-opacity" style="grid-column:1/-1" type="range" min="0" max="100" value="${a.bgOpacity}"></div><div class="bao-range-row" style="margin-top:14px"><label>背景模糊</label><b><span id="bao-bg-blur-value">${a.bgBlur}</span>px</b><input id="bao-bg-blur" style="grid-column:1/-1" type="range" min="0" max="24" value="${a.bgBlur}"></div></div>
+    <div class="bao-setting-section"><h3>閱讀背景</h3><p>背景只負責作品氣氛；正文保持開放閱讀，頂部、輸入框與資料面板才使用深色玻璃。</p><div class="bao-choice-grid"><button type="button" class="bao-choice" data-bg-preset="off"><b>關閉</b><span>純色閱讀</span></button><button type="button" class="bao-choice" data-bg-preset="soft"><b>柔和</b><span>推薦 · 夜讀</span></button><button type="button" class="bao-choice" data-bg-preset="immersive"><b>沉浸</b><span>更明顯的作品圖</span></button></div><h4 class="bao-setting-subhead">背景來源</h4><div class="bao-choice-grid">${["solid","character","custom"].map(v => `<button type="button" class="bao-choice ${a.bgMode===v?"active":""}" data-bg-mode="${v}"><b>${v==="solid"?"純色":v==="character"?"作品圖片":"自訂圖片"}</b><span>${v==="solid"?"不載入圖片":v==="character"?"優先作品背景／角色圖":"圖片網址"}</span></button>`).join("")}</div><input id="bao-custom-bg" style="margin-top:10px" placeholder="https://..." value="${App.escapeAttr(a.customBg || "")}"><div class="bao-range-row" style="margin-top:14px"><label>背景強度</label><b><span id="bao-bg-opacity-value">${a.bgOpacity}</span>%</b><input id="bao-bg-opacity" style="grid-column:1/-1" type="range" min="0" max="70" value="${a.bgOpacity}"></div><div class="bao-range-row" style="margin-top:14px"><label>背景柔焦</label><b><span id="bao-bg-blur-value">${a.bgBlur}</span>px</b><input id="bao-bg-blur" style="grid-column:1/-1" type="range" min="0" max="18" value="${a.bgBlur}"></div></div>
     <div class="bao-setting-section"><h3>訊息氣泡</h3><div class="bao-color-row"><label>角色氣泡</label><input id="bao-assistant-color" type="color" value="${a.assistantColor}"></div><div class="bao-color-row" style="margin-top:10px"><label>玩家氣泡</label><input id="bao-user-color" type="color" value="${a.userColor}"></div><div class="bao-range-row" style="margin-top:14px"><label>氣泡透明度</label><b><span id="bao-bubble-opacity-value">${a.bubbleOpacity}</span>%</b><input id="bao-bubble-opacity" style="grid-column:1/-1" type="range" min="20" max="100" value="${a.bubbleOpacity}"></div></div>`;
     showModal("聊天外觀", body, wrap => {
       let bgMode = a.bgMode;
-      wrap.querySelectorAll("[data-bg-mode]").forEach(btn => btn.addEventListener("click", () => { bgMode = btn.dataset.bgMode; wrap.querySelectorAll("[data-bg-mode]").forEach(x => x.classList.toggle("active", x===btn)); }));
+      const setRange = (id, valueId, value) => {
+        const input = wrap.querySelector(`#${id}`);
+        if (!input) return;
+        input.value = String(value);
+        const label = wrap.querySelector(`#${valueId}`);
+        if (label) label.textContent = String(value);
+      };
+      const selectMode = mode => {
+        bgMode = mode;
+        wrap.querySelectorAll("[data-bg-mode]").forEach(x => x.classList.toggle("active", x.dataset.bgMode === mode));
+      };
+      wrap.querySelectorAll("[data-bg-mode]").forEach(btn => btn.addEventListener("click", () => selectMode(btn.dataset.bgMode)));
+      wrap.querySelectorAll("[data-bg-preset]").forEach(btn => btn.addEventListener("click", () => {
+        const preset = btn.dataset.bgPreset;
+        wrap.querySelectorAll("[data-bg-preset]").forEach(x => x.classList.toggle("active", x === btn));
+        if (preset === "off") {
+          selectMode("solid"); setRange("bao-bg-opacity","bao-bg-opacity-value",0); setRange("bao-bg-blur","bao-bg-blur-value",0);
+        } else if (preset === "immersive") {
+          selectMode("character"); setRange("bao-bg-opacity","bao-bg-opacity-value",50); setRange("bao-bg-blur","bao-bg-blur-value",3);
+        } else {
+          selectMode("character"); setRange("bao-bg-opacity","bao-bg-opacity-value",34); setRange("bao-bg-blur","bao-bg-blur-value",6);
+        }
+      }));
       [["bao-font-size","bao-font-size-value"],["bao-bg-opacity","bao-bg-opacity-value"],["bao-bg-blur","bao-bg-blur-value"],["bao-bubble-opacity","bao-bubble-opacity-value"]].forEach(([input,value]) => wrap.querySelector(`#${input}`)?.addEventListener("input", e => wrap.querySelector(`#${value}`).textContent = e.target.value));
       wrap.querySelector(".bao-modal-save").addEventListener("click", () => {
         settings.appearance = { fontSize:Number(wrap.querySelector("#bao-font-size").value), bgMode, customBg:wrap.querySelector("#bao-custom-bg").value.trim(), bgOpacity:Number(wrap.querySelector("#bao-bg-opacity").value), bgBlur:Number(wrap.querySelector("#bao-bg-blur").value), assistantColor:wrap.querySelector("#bao-assistant-color").value, userColor:wrap.querySelector("#bao-user-color").value, bubbleOpacity:Number(wrap.querySelector("#bao-bubble-opacity").value) };

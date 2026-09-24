@@ -68,6 +68,7 @@ const CharacterEngine = {
       name,
       title,
       avatar: raw.avatar || meta.avatar || "https://picsum.photos/seed/bao-character/800/1000",
+      reading_background: raw.reading_background || presentation.reading_background || presentation.background || raw.background || "",
       rating: category === "r18" ? "adult" : "general",
       category,
       gender: raw.gender || meta.gender || "",

@@ -19,6 +19,15 @@ for (const viewport of [{ name: 'desktop', width: 1440, height: 900 }, { name: '
     await openStory(page);
     await page.locator('[data-bao-open="appearance"]:visible').click();
     await expect(page.getByRole('heading', { name: '聊天外觀' })).toBeVisible();
+    await expect(page.locator('[data-bg-mode="character"]')).toHaveClass(/active/);
+    await expect(page.locator('#bao-bg-opacity')).toHaveValue('34');
+    await expect(page.locator('#bao-bg-blur')).toHaveValue('6');
+    await page.locator('[data-bg-preset="immersive"]').click();
+    await expect(page.locator('#bao-bg-opacity')).toHaveValue('50');
+    await expect(page.locator('#bao-bg-blur')).toHaveValue('3');
+    await page.locator('[data-bg-preset="soft"]').click();
+    await expect(page.locator('#bao-bg-opacity')).toHaveValue('34');
+    await expect(page.locator('#bao-bg-blur')).toHaveValue('6');
     await page.locator('#bao-font-size').fill('20');
     await page.locator('[data-bg-mode="custom"]').click();
     await page.locator('#bao-custom-bg').fill('https://example.com/test-background.png');

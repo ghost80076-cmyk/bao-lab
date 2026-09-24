@@ -181,6 +181,8 @@
     const previousMode = mode;
     mode = next === 'studio' ? 'studio' : 'play';
     root.dataset.baoSurface = mode;
+    const input = document.getElementById('user-input');
+    if (input) input.placeholder = mode === 'play' ? '寫下你的下一句…' : '輸入你的行動或台詞…';
     const button = document.getElementById('bao-surface-mode-toggle');
     if (button) {
       const mobile = !desktop.matches;
