@@ -89,7 +89,7 @@ test('bookshelf links the active chapter to the existing restore flow', async ({
   await page.evaluate(async () => { App.saveStory(false); await BAOStoryLibrary.flush(); App.showView('home'); });
   await expect(page.locator('#home-local-story')).toBeVisible();
   await expect(page.locator('#home-local-story-name')).toContainText('林沉風');
-  await expect(page.getByRole('button', { name: /繼續閱讀/ })).toBeVisible();
+  await expect(page.locator('#home-resume-story')).toBeVisible();
   await expect(page.locator('.topbar nav [data-open-story-library]')).toHaveText('我的故事');
   await page.evaluate(() => BAOStoryTools.openLibrary());
   const shelf = page.locator('.story-library-shell');
