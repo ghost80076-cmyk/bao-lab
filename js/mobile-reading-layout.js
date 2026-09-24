@@ -82,12 +82,28 @@
       button = document.createElement('button');
       button.type = 'button';
       button.id = 'bao-mobile-exit';
-      button.textContent = '← 離開';
+      button.className = 'bao-mobile-header-action';
+      button.textContent = '←';
       button.setAttribute('aria-label', '離開故事');
       button.addEventListener('click', () => {
         if (!window.confirm('離開前會自動儲存目前進度。確定離開故事嗎？')) return;
         App.exitChat?.();
       });
+      header.prepend(button);
+    }
+  };
+  const ensureStatus = () => {
+    const header = main.querySelector('.chat-topline');
+    if (!header) return;
+    let button = header.querySelector('#bao-mobile-status');
+    if (!button) {
+      button = document.createElement('button');
+      button.type = 'button';
+      button.id = 'bao-mobile-status';
+      button.className = 'bao-mobile-header-action bao-mobile-status-action';
+      button.textContent = '狀態';
+      button.setAttribute('aria-label', '查看故事狀態');
+      button.addEventListener('click', openStatus);
       header.append(button);
     }
   };
@@ -139,20 +155,20 @@
       button = document.createElement('button');
       button.type = 'button';
       button.id = 'bao-mobile-tools-tab';
+      button.className = 'bao-mobile-header-action bao-mobile-tools-action';
       button.setAttribute('aria-label', '開啟或關閉故事功能表');
       button.setAttribute('aria-controls', 'bao-chat-tool-drawer');
       button.setAttribute('aria-expanded', 'false');
-      button.innerHTML = '<span aria-hidden="true">›</span>';
+      button.innerHTML = '<span aria-hidden="true">•••</span>';
       button.addEventListener('click', openTools);
     }
-    // Keep the trigger in its own grid row immediately before the composer.
-    // A fixed tab over the story obscured the first characters of long paragraphs.
-    const host = root.querySelector('.chat-main');
+    const host = main.querySelector('.chat-topline');
     if (host && button.parentElement !== host) host.append(button);
   };
   const sync = () => {
-    ensureTab();
     ensureExit();
+    ensureStatus();
+    ensureTab();
     measure();
     enhanceDrawer();
     const tab = document.getElementById('bao-mobile-tools-tab');
@@ -184,30 +200,10 @@
   window.visualViewport?.addEventListener('scroll', schedule, { passive: true });
   root.addEventListener('focusin', schedule);
   root.addEventListener('focusout', schedule);
-  window.BAOMobileReadingLayout = { version: 4, sync, openTools, enhanceDrawer, togglePanels };
+  window.BAOMobileReadingLayout = { version: 5, sync, openTools, enhanceDrawer, togglePanels };
   const style = document.createElement('link');
   style.rel = 'stylesheet';
   style.href = 'css/mobile-reading-layout.css';
   document.head.append(style);
-  const supportStyle = document.createElement('style');
-  supportStyle.id = 'bao-mobile-exit-style';
-  supportStyle.textContent = `
-    #bao-mobile-exit{display:none!important}
-    @media(max-width:820px){
-      #chat-view .chat-topline{display:flex!important;align-items:center!important;flex-wrap:nowrap!important}
-      #chat-view .chat-title-copy{flex:1 1 0!important;min-width:0!important;overflow:hidden}
-      #chat-view .chat-title-copy h2{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-      #chat-view.active #bao-mobile-exit{display:inline-flex!important;align-items:center;justify-content:center;flex:0 0 auto;width:auto!important;min-height:40px;padding:7px 10px;border:1px solid #51636f;border-radius:10px;background:#1b2935;color:#f1eee8;font-size:12px;font-weight:700;white-space:nowrap;cursor:pointer}
-      #bao-mobile-exit:focus-visible,#bao-chat-tool-drawer .bao-mobile-support-link:focus-visible{outline:3px solid #72e2d3;outline-offset:2px}
-      #bao-chat-tool-drawer .bao-mobile-quick .bao-mobile-support-link{grid-column:1/-1;display:flex;align-items:center;justify-content:center;min-height:44px;padding:9px;border:1px solid rgba(214,170,115,.42);border-radius:10px;background:rgba(214,170,115,.12);color:#f4d6ad;text-decoration:none;font-size:13px;font-weight:700}
-      /* A 36px dedicated row keeps the small drawer trigger out of story text. */
-      #chat-view .chat-layout>.chat-main{grid-template-rows:auto minmax(0,1fr) auto auto 36px auto!important}
-      #chat-view .composer{grid-row:6!important}
-      #chat-view.active #bao-mobile-tools-tab{display:flex!important;position:static!important;grid-column:1!important;grid-row:5!important;align-self:center!important;justify-self:start!important;z-index:5!important;top:auto!important;left:auto!important;transform:none!important;margin:2px 0 2px 0!important;width:36px!important;height:32px!important;min-height:32px!important;padding:0!important;gap:0!important;border-radius:0 9px 9px 0!important;border:1px solid #51636f!important;border-left:0!important;background:#1b2935!important;box-shadow:none!important;font-size:23px!important;line-height:1!important}
-      #chat-view.active #bao-mobile-tools-tab span:first-child{font-size:25px;line-height:1}
-    }
-    @media(max-width:360px){#chat-view.active #bao-mobile-exit{font-size:11px;padding:7px 8px}}
-  `;
-  document.head.append(supportStyle);
   sync();
 })();

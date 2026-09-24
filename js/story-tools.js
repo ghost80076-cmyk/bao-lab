@@ -997,7 +997,7 @@
   };
 
   const restoreLibraryChapter = async (storyId, chapterId, button) => {
-    if (!window.BAOStoryLibrary) return tell("故事書庫仍在載入，請稍後再試。");
+    if (!window.BAOStoryLibrary) return tell("我的故事仍在載入，請稍後再試。");
     const original = button?.textContent || "讀取";
     if (button) {
       button.disabled = true;
@@ -1032,13 +1032,13 @@
 
   const libraryScreen = async host => {
     if (!window.BAOStoryLibrary) return tell("故事書庫仍在載入，請稍後再試。");
-    host.innerHTML = '<div class="story-tools-toolbar"><button class="secondary" type="button" data-back>← 返回</button><span class="story-tools-pill">INDEXEDDB STORY LIBRARY</span></div><section class="story-tools-card"><h3>故事書庫</h3><p>正在讀取這台裝置上的故事與章節……</p></section>';
+    host.innerHTML = '<div class="story-tools-toolbar"><button class="secondary" type="button" data-back>← 返回</button><span class="story-tools-pill">INDEXEDDB STORY LIBRARY</span></div><section class="story-tools-card"><h3>我的故事</h3><p>正在讀取這台裝置上的獨立故事與篇章／分支……</p></section>';
     host.querySelector("[data-back]").onclick = () => GameState.current ? home(host) : close();
     try {
       const available = await BAOStoryLibrary.flush();
       if (!available) {
         host.innerHTML = '<div class="story-tools-toolbar"><button class="secondary" type="button" data-back>← 返回</button><span class="story-tools-pill">LOCAL STORAGE FALLBACK</span></div>' +
-          '<section class="story-tools-card"><h3>這個瀏覽器目前無法使用故事書庫</h3><p>瀏覽器故事資料庫（IndexedDB）無法使用，因此無法顯示跨故事／篇章書庫。自動存檔、手動存檔與完整 JSON 備份仍會沿用可用的本機儲存方式。</p>' +
+          '<section class="story-tools-card"><h3>這個瀏覽器目前無法使用「我的故事」</h3><p>瀏覽器故事資料庫（IndexedDB）無法使用，因此無法顯示多個獨立故事與篇章／分支。自動存檔、手動存檔與完整 JSON 備份仍會沿用可用的本機儲存方式。</p>' +
           '<div class="story-import-note">建議先匯出完整故事備份；不要清除瀏覽器網站資料。</div></section>';
         host.querySelector("[data-back]").onclick = () => GameState.current ? home(host) : close();
         return;
@@ -1068,8 +1068,8 @@
       }).join("");
 
       host.innerHTML = '<div class="story-tools-toolbar"><button class="secondary" type="button" data-back>← 返回</button><span class="story-tools-pill">' + stories.length + ' 個故事</span></div>' +
-        '<section class="story-library-shell"><div class="story-library-head"><div><h2>故事書庫</h2><p>故事與各篇章保存在這台裝置的瀏覽器故事資料庫（IndexedDB）；讀取時仍需重新提供連線金鑰（API Key）。</p></div></div>' +
-        (cards || '<div class="story-library-empty"><b>目前沒有故事</b><span>開始故事並產生第一次自動存檔後，就會出現在這裡。</span></div>') + '</section>';
+        '<section class="story-library-shell"><div class="story-library-head"><div><div class="eyebrow">YOUR STORIES</div><h2>我的故事</h2><p>每一張卡片都是一個獨立的 RP 世界；同一個角色可以開多個不同故事。故事、記憶、Persona、世界狀態與篇章／分支彼此獨立，保存在這台裝置的瀏覽器故事資料庫（IndexedDB）。讀取時仍需重新提供連線金鑰（API Key）。</p></div></div>' +
+        (cards || '<div class="story-library-empty"><b>還沒有你的故事</b><span>從任一角色開始 RP，第一次自動存檔後就會成為一個獨立故事出現在這裡。</span></div>') + '</section>';
       host.querySelector("[data-back]").onclick = () => GameState.current ? home(host) : close();
 
       host.querySelectorAll("[data-library-action]").forEach(button => button.addEventListener("click", async () => {
@@ -1123,7 +1123,7 @@
         }
       }));
     } catch (error) {
-      host.innerHTML = '<div class="story-tools-toolbar"><button class="secondary" type="button" data-back>← 返回</button></div><section class="story-tools-card"><h3>故事書庫無法開啟</h3><p>' + App.escapeHTML(error.message || String(error)) + '</p></section>';
+      host.innerHTML = '<div class="story-tools-toolbar"><button class="secondary" type="button" data-back>← 返回</button></div><section class="story-tools-card"><h3>「我的故事」無法開啟</h3><p>' + App.escapeHTML(error.message || String(error)) + '</p></section>';
       host.querySelector("[data-back]").onclick = () => GameState.current ? home(host) : close();
     }
   };
@@ -1145,7 +1145,7 @@
     const storageMode = Storage.status?.().mode === "indexedDB" ? "瀏覽器故事資料庫（IndexedDB）" : "本機儲存備用模式（localStorage）";
     host.innerHTML = '<div class="story-tools-intro"><div><div class="eyebrow">LOCAL-FIRST STORY DESK</div><h2>故事管理</h2><p>備份、搬家、整理前情與建立續篇都在瀏覽器完成；連線金鑰（API Key）永遠不進匯出檔。</p><div class="story-preview-meta">故事儲存：' + storageMode + '</div></div><button class="story-tools-close" type="button">關閉</button></div>' +
       '<div class="story-tools-home">' +
-      '<section class="story-tools-card"><h3>故事書庫</h3><p>查看這台裝置上的所有故事與章節，進行讀取、改名或刪除。</p><button class="primary" type="button" data-library>開啟故事書庫</button></section>' +
+      '<section class="story-tools-card"><h3>我的故事</h3><p>一個角色可以擁有多個互不干擾的 RP 故事；每個故事都有自己的記憶、Persona、世界狀態與篇章／分支。</p><button class="primary" type="button" data-library>查看我的故事</button></section>' +
       '<section class="story-tools-card"><h3>完整故事備份</h3><p>包含主線與全部分支，以及對話、玩家資料（Persona）、記憶、角色狀態（Character Status）、世界狀態（World State）、世界模組、敘事偏好與劇情摘要包（Context Pack）。</p><div class="story-tools-actions"><button class="primary" type="button" data-export>匯出完整故事</button><button class="secondary" type="button" data-backup>建立本機備份</button><button class="secondary" type="button" data-import>匯入完整故事</button><input hidden type="file" data-story-file accept=".json,application/json"></div></section>' +
       '<section class="story-tools-card"><h3>劇情摘要包（Context Pack）／建立續篇</h3><p>超長故事會依完整對話輪次分段整理，再分層合併成可由玩家確認的前情。</p><div class="story-tools-actions"><button class="primary" type="button" data-create>整理目前故事</button>' + (hasDraft ? '<button class="secondary" type="button" data-edit-draft>繼續未確認草稿</button>' : '') + (hasPack ? '<button class="secondary" type="button" data-edit>編輯既有摘要包</button>' : '') + '</div></section>' +
       '<section class="story-tools-card"><h3>外部聊天歷史</h3><p>先轉成可檢查的劇情摘要包（Context Pack），再由玩家確認。</p><button class="secondary" type="button" data-external>匯入外部紀錄</button></section>' +
@@ -1222,7 +1222,7 @@
       const libraryButton = document.createElement("button");
       libraryButton.type = "button";
       libraryButton.dataset.openStoryLibrary = "true";
-      libraryButton.textContent = "故事庫";
+      libraryButton.textContent = "我的故事";
       libraryButton.onclick = openLibrary;
       nav.insertBefore(libraryButton, nav.querySelector('[data-view="about"]'));
     }

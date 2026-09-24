@@ -15,13 +15,15 @@ async function openDemoStory(page) {
 }
 
 for (const viewport of [{ width: 390, height: 844 }, { width: 320, height: 568 }]) {
-  test(`mobile ${viewport.width}px reading remains usable and tools open from left`, async ({ page }) => {
+  test(`mobile ${viewport.width}px reading remains usable with compact header controls`, async ({ page }) => {
     await page.setViewportSize(viewport);
     await openDemoStory(page);
     const tab = page.locator('#bao-mobile-tools-tab');
     await expect(tab).toBeVisible();
     const exit = page.getByRole('button', { name: '離開故事' });
+    const headerStatus = page.getByRole('button', { name: '查看故事狀態' });
     await expect(exit).toBeVisible();
+    await expect(headerStatus).toBeVisible();
     await expect(page.locator('#bao-mobile-support')).toHaveCount(0);
     await expect(page.locator('#bao-chat-tool-shortcuts')).toBeHidden();
     await expect(page.locator('#bao-chat-api-toolbar')).toBeHidden();
@@ -39,6 +41,10 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 320, height: 568 }
     expect(boxes.composerTop).toBeGreaterThan(0);
     expect(boxes.composerBottom).toBeLessThanOrEqual(boxes.screenHeight + 2);
     expect(boxes.pageWidth).toBeLessThanOrEqual(boxes.viewport + 1);
+
+    await headerStatus.click();
+    await expect(page.locator('#bao-reading-status')).toHaveClass(/is-open/);
+    await page.locator('.bao-status-close').click();
 
     await tab.click();
     await expect(page.getByRole('dialog', { name: '故事功能選單' })).toBeVisible();
