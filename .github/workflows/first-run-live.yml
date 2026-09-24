@@ -42,15 +42,19 @@ jobs:
           SITE_URL: https://ghost80076-cmyk.github.io/bao-lab/
         run: |
           set -euo pipefail
+          verify_dir="$(mktemp -d)"
+          trap 'rm -rf "$verify_dir"' EXIT
           for attempt in $(seq 1 50); do
-            guide="$(curl -fsSL --max-time 15 "${SITE_URL}quick-start.html" || true)"
-            brand="$(curl -fsSL --max-time 15 "${SITE_URL}js/brand-ui.js" || true)"
-            css="$(curl -fsSL --max-time 15 "${SITE_URL}css/first-run-desktop.css" || true)"
-            if grep -Fq '不用懂程式，也能開始玩。' <<<"$guide" \
-              && grep -Fq 'brand-onboarding-steps' <<<"$brand" \
-              && grep -Fq 'first-run-desktop.css' <<<"$brand" \
-              && grep -Fq 'reading-first PC polish' <<<"$css"; then
-              echo "Latest first-run guide and PC stylesheet verified live on attempt ${attempt}."
+            matched=true
+            for file in quick-start.html js/brand-ui.js css/first-run-desktop.css; do
+              if ! curl -fsSL --max-time 15 "${SITE_URL}${file}?verify=${GITHUB_SHA}" -o "$verify_dir/content" \
+                || ! cmp -s "$file" "$verify_dir/content"; then
+                matched=false
+                echo "Waiting for deployed file: ${file}"
+              fi
+            done
+            if [[ "$matched" == true ]]; then
+              echo "First-run files match ${GITHUB_SHA} on live Pages (attempt ${attempt})."
               exit 0
             fi
             echo "Waiting for current Pages version (${attempt}/50)..."
