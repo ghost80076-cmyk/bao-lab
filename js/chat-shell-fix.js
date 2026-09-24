@@ -24,7 +24,7 @@
     if (!document.getElementById("chat-title")) {
       const header = document.createElement("div");
       header.className = "chat-topline";
-      header.innerHTML = '<img id="chat-title-avatar" class="chat-title-avatar" alt="" hidden><div class="chat-title-copy"><div class="eyebrow">ACTIVE STORY</div><h2 id="chat-title"></h2></div>';
+      header.innerHTML = '<img id="chat-title-avatar" class="chat-title-avatar" alt="" hidden><div class="chat-title-copy"><div class="eyebrow">包包夜讀書房 · NIGHT READING</div><h2 id="chat-title"></h2></div>';
       if (stream.parentElement === main) main.insertBefore(header, stream);
       else main.prepend(header);
     }
