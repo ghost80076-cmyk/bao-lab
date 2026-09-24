@@ -129,21 +129,7 @@
     let url = "";
     if (a.bgMode === "character") url = safeBackground(App.activeCharacter?.reading_background || App.activeCharacter?.avatar);
     if (a.bgMode === "custom") url = safeBackground(a.customBg);
-    const safe = String(url).replace(/["\\]/g, "\\  const applyAppearance = () => {
-    const view = document.getElementById("chat-view"); if (!view) return;
-    const a = settings.appearance;
-    view.style.setProperty("--chat-font-size", `${a.fontSize}px`);
-    view.style.setProperty("--chat-assistant", a.assistantColor);
-    view.style.setProperty("--chat-user", a.userColor);
-    view.style.setProperty("--chat-bubble-opacity", String(a.bubbleOpacity / 100));
-    view.style.setProperty("--chat-bg-opacity", String(a.bgOpacity / 100));
-    view.style.setProperty("--chat-bg-blur", `${a.bgBlur}px`);
-    let url = "";
-    if (a.bgMode === "character") url = App.activeCharacter?.avatar || "";
-    if (a.bgMode === "custom" && /^https?:\/\//i.test(a.customBg || "")) url = a.customBg;
     const safe = String(url).replace(/["\\]/g, "\\$&");
-    view.style.setProperty("--chat-bg-image", url ? `url("${safe}")` : "none");
-  };");
     view.style.setProperty("--chat-bg-image", url ? `url("${safe}")` : "none");
     view.dataset.baoReadingBackground = url && Number(a.bgOpacity) > 0 ? "image" : "solid";
   };
