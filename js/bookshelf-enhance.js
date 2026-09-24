@@ -62,7 +62,7 @@
         if (active) {
           const progress = document.createElement('p');
           progress.className = 'bao-shelf-progress';
-          progress.textContent = `上次閱讀：${active.label || '未命名章節'}`;
+          progress.textContent = `上次遊玩：${active.label || '未命名章節'}`;
           header.after(progress);
           const chapterIndex = chapters.indexOf(active);
           const loadButton = chapterRows[chapterIndex]?.querySelector('[data-library-action="load"]');
@@ -71,7 +71,7 @@
             const continueButton = document.createElement('button');
             continueButton.type = 'button';
             continueButton.className = 'bao-shelf-continue';
-            continueButton.textContent = '▶ 繼續此故事';
+            continueButton.textContent = '▶ 繼續故事';
             continueButton.addEventListener('click', () => loadButton.click());
             actions.prepend(continueButton);
           }
