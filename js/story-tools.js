@@ -998,10 +998,10 @@
 
   const restoreLibraryChapter = async (storyId, chapterId, button) => {
     if (!window.BAOStoryLibrary) return tell("我的故事仍在載入，請稍後再試。");
-    const original = button?.textContent || "讀取";
+    const original = button?.textContent || "閱讀";
     if (button) {
       button.disabled = true;
-      button.textContent = "讀取中…";
+      button.textContent = "翻到上次那一頁…";
     }
     try {
       const save = await BAOStoryLibrary.reconstruct(storyId, chapterId);
@@ -1055,21 +1055,21 @@
             '<div class="story-library-chapter-copy"><div><b>' + App.escapeHTML(chapter.label || "未命名章節") + '</b>' + (activeChapter ? '<span class="story-library-active">目前章節</span>' : '') + '</div>' +
             '<small>' + Number(chapter.messageCount || 0).toLocaleString() + ' 則訊息 · ' + App.escapeHTML(formatLibraryDate(chapter.updatedAt || chapter.createdAt)) + '</small>' +
             (chapter.summary ? '<p>' + App.escapeHTML(String(chapter.summary).slice(0, 180)) + '</p>' : '') + '</div>' +
-            '<div class="story-library-actions"><button type="button" class="primary" data-library-action="load" data-story-index="' + storyIndex + '" data-chapter-index="' + chapterIndex + '">讀取</button>' +
+            '<div class="story-library-actions"><button type="button" class="primary" data-library-action="load" data-story-index="' + storyIndex + '" data-chapter-index="' + chapterIndex + '">閱讀</button>' +
             '<button type="button" class="secondary" data-library-action="rename-chapter" data-story-index="' + storyIndex + '" data-chapter-index="' + chapterIndex + '">改名</button>' +
             '<button type="button" class="story-library-danger" data-library-action="delete-chapter" data-story-index="' + storyIndex + '" data-chapter-index="' + chapterIndex + '"' + (activeChapter ? ' disabled title="目前使用中的章節不能刪除"' : '') + '>刪除</button></div></article>';
         }).join("");
         return '<section class="story-library-story">' +
           '<header><div><div class="story-library-title"><h3>' + App.escapeHTML(story.title || story.characterName || "未命名故事") + '</h3>' + (activeStory ? '<span class="story-library-active">目前故事</span>' : '') + '</div>' +
-          '<p>' + App.escapeHTML(story.characterName || "未知角色") + ' · ' + chapters.length + ' 個章節 · 更新於 ' + App.escapeHTML(formatLibraryDate(story.updatedAt)) + '</p></div>' +
+          '<p>' + App.escapeHTML(story.characterName || "未知角色") + ' · ' + chapters.length + ' 個章節 · 上次閱讀 ' + App.escapeHTML(formatLibraryDate(story.updatedAt)) + '</p></div>' +
           '<div class="story-library-actions"><button type="button" class="secondary" data-library-action="rename-story" data-story-index="' + storyIndex + '">故事改名</button><button type="button" class="story-library-danger" data-library-action="delete-story" data-story-index="' + storyIndex + '">刪除故事</button></div></header>' +
           (story.lastMessagePreview ? '<div class="story-library-preview">' + App.escapeHTML(story.lastMessagePreview) + '</div>' : '') +
           '<div class="story-library-chapters">' + (chapterHTML || '<p class="note">這個故事尚未保存任何章節。</p>') + '</div></section>';
       }).join("");
 
       host.innerHTML = '<div class="story-tools-toolbar"><button class="secondary" type="button" data-back>← 返回</button><span class="story-tools-pill">' + stories.length + ' 個故事</span></div>' +
-        '<section class="story-library-shell"><div class="story-library-head"><div><div class="eyebrow">YOUR STORIES</div><h2>我的故事</h2><p>每一張卡片都是一個獨立的 RP 世界；同一個角色可以開多個不同故事。故事、記憶、Persona、世界狀態與篇章／分支彼此獨立，保存在這台裝置的瀏覽器故事資料庫（IndexedDB）。讀取時仍需重新提供連線金鑰（API Key）。</p></div></div>' +
-        (cards || '<div class="story-library-empty"><b>還沒有你的故事</b><span>從任一角色開始 RP，第一次自動存檔後就會成為一個獨立故事出現在這裡。</span></div>') + '</section>';
+        '<section class="story-library-shell"><div class="story-library-head"><div><div class="eyebrow">BAO NIGHT READING ROOM</div><h2>我的故事</h2><p>你打開過的故事都收在這裡。同一個角色可以有多本彼此獨立的故事；記憶、Persona、世界狀態與章節／分支各自保存。資料仍留在這台裝置的瀏覽器故事資料庫（IndexedDB），繼續閱讀時需重新提供連線金鑰（API Key）。</p></div></div>' +
+        (cards || '<div class="story-library-empty"><b>書架現在還是空的</b><span>從任一角色翻開第一頁；第一次自動存檔後，這段故事就會留在這裡等你回來。</span></div>') + '</section>';
       host.querySelector("[data-back]").onclick = () => GameState.current ? home(host) : close();
 
       host.querySelectorAll("[data-library-action]").forEach(button => button.addEventListener("click", async () => {
@@ -1145,7 +1145,7 @@
     const storageMode = Storage.status?.().mode === "indexedDB" ? "瀏覽器故事資料庫（IndexedDB）" : "本機儲存備用模式（localStorage）";
     host.innerHTML = '<div class="story-tools-intro"><div><div class="eyebrow">LOCAL-FIRST STORY DESK</div><h2>故事管理</h2><p>備份、搬家、整理前情與建立續篇都在瀏覽器完成；連線金鑰（API Key）永遠不進匯出檔。</p><div class="story-preview-meta">故事儲存：' + storageMode + '</div></div><button class="story-tools-close" type="button">關閉</button></div>' +
       '<div class="story-tools-home">' +
-      '<section class="story-tools-card"><h3>我的故事</h3><p>一個角色可以擁有多個互不干擾的 RP 故事；每個故事都有自己的記憶、Persona、世界狀態與篇章／分支。</p><button class="primary" type="button" data-library>查看我的故事</button></section>' +
+      '<section class="story-tools-card"><h3>我的故事</h3><p>像一座只屬於你的書架：同一個角色可以展開不同故事，每一本都有自己的記憶、Persona、世界狀態與章節／分支。</p><button class="primary" type="button" data-library>回到我的故事</button></section>' +
       '<section class="story-tools-card"><h3>完整故事備份</h3><p>包含主線與全部分支，以及對話、玩家資料（Persona）、記憶、角色狀態（Character Status）、世界狀態（World State）、世界模組、敘事偏好與劇情摘要包（Context Pack）。</p><div class="story-tools-actions"><button class="primary" type="button" data-export>匯出完整故事</button><button class="secondary" type="button" data-backup>建立本機備份</button><button class="secondary" type="button" data-import>匯入完整故事</button><input hidden type="file" data-story-file accept=".json,application/json"></div></section>' +
       '<section class="story-tools-card"><h3>劇情摘要包（Context Pack）／建立續篇</h3><p>超長故事會依完整對話輪次分段整理，再分層合併成可由玩家確認的前情。</p><div class="story-tools-actions"><button class="primary" type="button" data-create>整理目前故事</button>' + (hasDraft ? '<button class="secondary" type="button" data-edit-draft>繼續未確認草稿</button>' : '') + (hasPack ? '<button class="secondary" type="button" data-edit>編輯既有摘要包</button>' : '') + '</div></section>' +
       '<section class="story-tools-card"><h3>外部聊天歷史</h3><p>先轉成可檢查的劇情摘要包（Context Pack），再由玩家確認。</p><button class="secondary" type="button" data-external>匯入外部紀錄</button></section>' +
