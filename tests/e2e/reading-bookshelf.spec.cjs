@@ -26,8 +26,10 @@ async function openDemoStory(page) {
   expect(readingBackground.image).toContain('url(');
   expect(readingBackground.opacity).toBe('0.34');
   expect(readingBackground.blur).toBe('6px');
-  const backdropOpacity = await page.locator('#chat-stream').evaluate(node => getComputedStyle(node, '::before').opacity);
+  const backdropOpacity = await page.locator('#chat-view .chat-main').evaluate(node => getComputedStyle(node, '::before').opacity);
   expect(Number(backdropOpacity)).toBeGreaterThan(0.3);
+  const streamBackground = await page.locator('#chat-stream').evaluate(node => getComputedStyle(node).backgroundColor);
+  expect(streamBackground).not.toBe('rgb(8, 10, 16)');
 }
 
 for (const width of [320, 390, 900, 1280]) {
