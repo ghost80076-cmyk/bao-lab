@@ -2,9 +2,33 @@
   const DISCORD_INVITE = "https://discord.gg/N3XpAhwTN";
   const DISCORD_ICON = '<img src="assets/discord-mark.svg" width="21" height="21" alt="">';
   const discordLink = (label, className = "brand-discord-cta") => `<a class="${className}" href="${DISCORD_INVITE}" target="_blank" rel="noopener noreferrer" aria-label="${label}（另開 Discord 邀請連結）">${DISCORD_ICON}<span>${label}</span></a>`;
+  const nightKey = () => {
+    const now = new Date();
+    return [now.getFullYear(), String(now.getMonth() + 1).padStart(2, "0"), String(now.getDate()).padStart(2, "0")].join("-");
+  };
+  const stableScore = value => {
+    let hash = 2166136261;
+    for (const char of String(value || "")) {
+      hash ^= char.charCodeAt(0);
+      hash = Math.imul(hash, 16777619);
+    }
+    return hash >>> 0;
+  };
+  const nightlyCharacters = characters => [...characters].sort((a, b) =>
+    stableScore(nightKey() + ":" + String(a?.id || a?.name || "")) -
+    stableScore(nightKey() + ":" + String(b?.id || b?.name || "")));
+  const plainStoryText = value => {
+    const node = document.createElement("div");
+    node.innerHTML = String(value || "");
+    return String(node.textContent || node.innerText || "").replace(/\s+/g, " ").trim();
+  };
+  const usefulState = value => {
+    const text = String(value || "").trim();
+    return text && !/^(?:未知|未設定|未確認|—|-)$/.test(text) ? text : "";
+  };
 
   const ensureStyles = () => {
-    ["css/brand-home.css", "css/brand-community.css", "css/first-run-desktop.css", "css/bao-cinematic-home.css?v=2"].forEach(href => {
+    ["css/brand-home.css", "css/brand-community.css", "css/first-run-desktop.css", "css/bao-cinematic-home.css?v=3"].forEach(href => {
       if (document.querySelector(`link[href="${href}"]`)) return;
       const link = document.createElement("link");
       link.rel = "stylesheet";
@@ -31,7 +55,7 @@
           <p class="brand-lead">每一張角色卡，都是一段正在等你打開的故事。選一個人，從第一句話開始。</p>
           <div class="brand-actions">
             <button class="primary" data-view="explore">開始探索</button>
-            <button id="home-continue" class="secondary hidden">繼續上次故事</button>
+            <button id="home-continue" class="secondary hidden">繼續閱讀</button>
             <a class="brand-first-run" href="quick-start.html">第一次來？三步開始 ↗</a>
           </div>
           <a id="bao-home-portrait" class="brand-bao-companion" href="bao-mascot.html" aria-label="認識 BAO/LAB 官方吉祥物包包">
@@ -41,12 +65,27 @@
         <button class="brand-feature-stage" id="home-feature-stage" type="button" aria-label="開啟角色：林沉風">
           <img id="home-feature-image" src="https://i.meee.com.tw/UHKTM1O.jpg" alt="林沉風" referrerpolicy="no-referrer">
           <span class="brand-feature-shade"></span>
-          <span class="brand-feature-copy"><small>走進他的故事</small><b id="home-feature-name">林沉風</b><em id="home-feature-title">見過黑暗的人</em></span>
+          <span class="brand-feature-copy"><small>今晚推薦</small><b id="home-feature-name">林沉風</b><em id="home-feature-title">見過黑暗的人</em></span>
         </button>
+      </section>
+      <section id="home-local-story" class="brand-local-story hidden" aria-labelledby="home-local-story-title">
+        <div class="brand-local-story-cover"><img id="home-local-story-cover" src="assets/bao-mark.svg" alt="" loading="lazy"></div>
+        <div class="brand-local-story-copy">
+          <p class="brand-section-mark">CONTINUE READING ／ 本機故事</p>
+          <span id="home-local-story-time" class="brand-local-story-time">上次閱讀</span>
+          <h2 id="home-local-story-title">繼續你的故事</h2>
+          <h3 id="home-local-story-name">你的故事</h3>
+          <p id="home-local-story-preview">上一次停下來的地方，還替你留著。</p>
+          <div id="home-local-story-meta" class="brand-local-story-meta"></div>
+          <div class="brand-local-story-actions">
+            <button id="home-resume-story" type="button" class="primary">繼續閱讀 <span aria-hidden="true">→</span></button>
+            <button id="home-my-stories" type="button" class="brand-home-link">打開我的故事</button>
+          </div>
+        </div>
       </section>
       <section class="brand-home-explore" aria-labelledby="home-explore-title">
         <div class="brand-home-explore-head">
-          <div><p class="brand-kicker">OPEN A STORY</p><h2 id="home-explore-title">角色正在等你翻開。</h2><p class="brand-home-count">包包今夜留了 <span id="home-character-count">—</span> 個故事入口</p></div>
+          <div><p class="brand-kicker">MORE STORIES</p><h2 id="home-explore-title">更多作品，今晚也在等你。</h2><p class="brand-home-count">包包今夜留了 <span id="home-character-count">—</span> 個故事入口</p></div>
           <button class="text-button" id="home-all-works" type="button">查看全部作品 →</button>
         </div>
         <div id="home-character-preview" class="home-character-preview" aria-live="polite"></div>
@@ -106,6 +145,11 @@
     home.querySelectorAll("[data-view]").forEach(btn => btn.addEventListener("click", () => App.showView(btn.dataset.view)));
     document.getElementById("home-all-works")?.addEventListener("click", () => App.showView("explore"));
     document.getElementById("home-start-story")?.addEventListener("click", () => App.showView("explore"));
+    document.getElementById("home-resume-story")?.addEventListener("click", () => App.resumeSavedStory?.());
+    document.getElementById("home-my-stories")?.addEventListener("click", () => {
+      if (window.BAOStoryTools?.openLibrary) window.BAOStoryTools.openLibrary();
+      else window.alert("我的故事正在載入，請稍後再試。");
+    });
     document.getElementById("home-library-open")?.addEventListener("click", () => {
       if (window.BAOStoryTools?.openLibrary) window.BAOStoryTools.openLibrary();
       else window.alert("故事書庫正在載入，請稍後再試。");
@@ -117,7 +161,48 @@
     });
     document.getElementById("home-continue")?.addEventListener("click", () => App.resumeSavedStory?.());
     window.BAORefreshHomeCharacterPreview?.();
+    window.BAORefreshHomeLocalStory?.();
     window.BAORefreshSaveUI?.();
+  };
+
+  window.BAORefreshHomeLocalStory = async () => {
+    const section = document.getElementById("home-local-story");
+    if (!section || !window.Storage) return;
+    await Storage.ready?.();
+    const save = Storage.loadStory?.();
+    if (!save) {
+      section.classList.add("hidden");
+      return;
+    }
+    const character = (App.characters || []).find(card => String(card?.id || "") === String(save.characterId || ""));
+    const cover = document.getElementById("home-local-story-cover");
+    if (cover) {
+      const avatar = character?.avatar || save.character?.avatar || "assets/bao-mark.svg";
+      cover.src = avatar;
+      cover.alt = (save.characterName || character?.name || "故事") + "封面";
+    }
+    const name = document.getElementById("home-local-story-name");
+    if (name) name.textContent = save.characterName || character?.name || "未命名故事";
+    const messages = Array.isArray(save.chat?.messages) ? save.chat.messages : [];
+    const last = [...messages].reverse().find(message => String(message?.content || "").trim());
+    const preview = document.getElementById("home-local-story-preview");
+    if (preview) {
+      const text = plainStoryText(last?.content).slice(0, 150);
+      preview.textContent = text || "上一次停下來的地方，還替你留著。";
+    }
+    const saved = new Date(save.savedAt || "");
+    const time = document.getElementById("home-local-story-time");
+    if (time) time.textContent = Number.isNaN(saved.getTime()) ? "上次閱讀" : "上次閱讀 · " + saved.toLocaleString("zh-TW", { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" });
+    const meta = document.getElementById("home-local-story-meta");
+    if (meta) {
+      const values = [usefulState(save.state?.time), usefulState(save.state?.location)].filter(Boolean);
+      meta.replaceChildren(...values.map(value => {
+        const span = document.createElement("span");
+        span.textContent = value;
+        return span;
+      }));
+    }
+    section.classList.remove("hidden");
   };
 
   window.BAORefreshHomeCharacterPreview = () => {
@@ -125,9 +210,10 @@
     const preview = document.getElementById("home-character-preview");
     const characters = (App.characters || []).filter(character => character?.category !== "r18");
     if (!home || !preview || !characters.length) return;
+    const nightly = nightlyCharacters(characters);
     const count = document.getElementById("home-character-count");
     if (count) count.textContent = String(characters.length);
-    const featured = characters[0];
+    const featured = nightly[0];
     const image = document.getElementById("home-feature-image");
     if (image) { image.src = featured.avatar; image.alt = featured.name; }
     document.getElementById("home-feature-name").textContent = featured.name;
@@ -141,7 +227,8 @@
     if (libraryCover) libraryCover.src = featured.avatar;
     const libraryStory = document.getElementById("home-library-story");
     if (libraryStory) libraryStory.textContent = featured.name;
-    preview.innerHTML = characters.slice(0, 4).map(character => `
+    const moreStories = nightly.filter(character => character !== featured).slice(0, 4);
+    preview.innerHTML = moreStories.map(character => `
       <button class="home-character-card" type="button" data-home-character="${App.escapeAttr(character.id)}">
         <img src="${App.escapeAttr(character.avatar)}" alt="${App.escapeAttr(character.name)}" loading="lazy">
         <span><small>ORIGINAL CHARACTER</small><b>${App.escapeHTML(character.title || character.name)}</b></span>
@@ -214,6 +301,20 @@
 
   const initBrandUI = () => {
     ensureStyles();
+    if (!App.__baoNightHomeRefreshWrapped) {
+      const previousShowView = App.showView.bind(App);
+      App.showView = function(view, ...args) {
+        const result = previousShowView(view, ...args);
+        if (view === "home") {
+          queueMicrotask(() => {
+            window.BAORefreshHomeCharacterPreview?.();
+            window.BAORefreshHomeLocalStory?.();
+          });
+        }
+        return result;
+      };
+      App.__baoNightHomeRefreshWrapped = true;
+    }
     setTimeout(() => {
       setNavLabel("home", "首頁");
       setNavLabel("explore", "作品");
