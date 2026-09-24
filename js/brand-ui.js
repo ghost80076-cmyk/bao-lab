@@ -220,7 +220,8 @@
     document.getElementById("home-feature-title").textContent = featured.title || featured.description || "開始這段故事";
     const stage = document.getElementById("home-feature-stage");
     if (stage) {
-      stage.setAttribute("aria-label", `開啟角色：${featured.name}`);
+      stage.setAttribute("aria-label", `今晚推薦：${featured.name}`);
+      stage.dataset.homeCharacter = String(featured.id || "");
       stage.onclick = () => App.openCharacter(featured.id);
     }
     const libraryCover = document.getElementById("home-library-cover");
