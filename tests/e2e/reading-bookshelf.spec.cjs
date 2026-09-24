@@ -17,6 +17,17 @@ async function openDemoStory(page) {
   await expect(page.locator('#bao-surface-mode-toggle')).toBeVisible();
   await expect(page.locator('#chat-view .chat-title-copy .eyebrow')).toContainText('包包夜讀書房');
   await expect(page.locator('#user-input')).toHaveAttribute('placeholder', '寫下你的下一句…');
+  await expect(page.locator('#chat-view')).toHaveAttribute('data-bao-reading-background', 'image');
+  const readingBackground = await page.locator('#chat-view').evaluate(node => ({
+    image: node.style.getPropertyValue('--chat-bg-image'),
+    opacity: node.style.getPropertyValue('--chat-bg-opacity'),
+    blur: node.style.getPropertyValue('--chat-bg-blur')
+  }));
+  expect(readingBackground.image).toContain('url(');
+  expect(readingBackground.opacity).toBe('0.34');
+  expect(readingBackground.blur).toBe('6px');
+  const backdropOpacity = await page.locator('#chat-stream').evaluate(node => getComputedStyle(node, '::before').opacity);
+  expect(Number(backdropOpacity)).toBeGreaterThan(0.3);
 }
 
 for (const width of [320, 390, 900, 1280]) {
