@@ -80,9 +80,9 @@ for (const width of [390, 1280]) {
     await expect(shelf.locator('.bao-shelf-cover')).toBeVisible();
     await expect(shelf.locator('.story-library-chapter')).toHaveCount(1);
     await expect.poll(() => shelf.evaluate(node => getComputedStyle(node).borderTopWidth)).toBe('0px');
-    await expect(shelf.getByRole('button', { name: '繼續此故事' })).toBeVisible();
+    await expect(shelf.getByRole('button', { name: '繼續故事' })).toBeVisible();
     await capture(page, `bookshelf-${width}`);
-    await shelf.getByRole('button', { name: '繼續此故事' }).click();
+    await shelf.getByRole('button', { name: '繼續故事' }).click();
     await expect(page.locator('#chat-view')).toHaveClass(/active/);
     await expect(page.locator('#user-input')).toBeVisible();
     await page.waitForFunction(() => Boolean(window.BAOStorySurface));
