@@ -13,12 +13,15 @@ for (const width of [390, 1280]) {
     await page.waitForFunction(() => Boolean(window.App?.characters?.length &&
       document.querySelector('#home-view .brand-hero') && window.BAOGalleryFocus));
     await expect(page.locator('#home-view .brand-hero h1')).toBeVisible();
+    await expect(page.locator('#home-feature-stage .brand-feature-copy small')).toHaveText('今晚推薦');
+    await expect(page.locator('#home-explore-title')).toContainText('更多作品');
+    await expect(page.locator('#home-local-story')).toBeHidden();
     await expect(page.locator('#home-view #bao-home-portrait')).toBeVisible();
     await expect(page.locator('#home-view #bao-home-portrait .bao-portrait-bun')).toHaveCount(0);
     await expect(page.locator('#bao-mascot-launch')).toBeVisible();
     await expect(page.locator('#bao-mascot-launch .bao-mascot-launch-label')).toBeHidden();
     await expect(page.locator('link[href="css/bao-editorial-polish.css?v=2"]')).toHaveCount(1);
-    await expect(page.locator('link[href="css/bao-editorial-cinema.css?v=9"]')).toHaveCount(1);
+    await expect(page.locator('link[href="css/bao-editorial-cinema.css?v=10"]')).toHaveCount(1);
     await expect.poll(() => page.locator('#home-view .brand-hero h1').evaluate(node => getComputedStyle(node).whiteSpace)).toBe('normal');
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width + 1);
     await capture(page, `home-${width}`);
@@ -80,9 +83,10 @@ for (const width of [390, 1280]) {
     await expect(shelf.locator('.bao-shelf-cover')).toBeVisible();
     await expect(shelf.locator('.story-library-chapter')).toHaveCount(1);
     await expect.poll(() => shelf.evaluate(node => getComputedStyle(node).borderTopWidth)).toBe('0px');
-    await expect(shelf.getByRole('button', { name: '繼續故事' })).toBeVisible();
+    await expect(shelf.getByRole('button', { name: '繼續閱讀 →' })).toBeVisible();
+    await expect(shelf.locator('.bao-shelf-progress')).toContainText('上次閱讀');
     await capture(page, `bookshelf-${width}`);
-    await shelf.getByRole('button', { name: '繼續故事' }).click();
+    await shelf.getByRole('button', { name: '繼續閱讀 →' }).click();
     await expect(page.locator('#chat-view')).toHaveClass(/active/);
     await expect(page.locator('#user-input')).toBeVisible();
     await page.waitForFunction(() => Boolean(window.BAOStorySurface));
@@ -119,3 +123,19 @@ for (const width of [390, 1280]) {
     }
   });
 }
+
+
+test('nightly recommendation stays stable for the same local day', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/');
+  await page.waitForFunction(() => Boolean(window.App?.characters?.length && document.querySelector('#home-feature-name')?.textContent?.trim()));
+  const first = await page.locator('#home-feature-name').textContent();
+  await page.reload();
+  await page.waitForFunction(() => Boolean(window.App?.characters?.length && document.querySelector('#home-feature-name')?.textContent?.trim()));
+  await expect(page.locator('#home-feature-name')).toHaveText(first.trim());
+  const visibleMore = await page.locator('#home-character-preview [data-home-character]').count();
+  expect(visibleMore).toBeGreaterThan(0);
+  const ids = await page.locator('#home-character-preview [data-home-character]').evaluateAll(nodes => nodes.map(node => node.dataset.homeCharacter));
+  const featuredLabel = await page.locator('#home-feature-stage').getAttribute('aria-label');
+  expect(ids.every(id => !featuredLabel.includes(id))).toBeTruthy();
+});
