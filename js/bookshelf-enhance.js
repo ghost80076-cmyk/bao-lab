@@ -5,13 +5,13 @@
   const style = document.createElement('style');
   style.id = 'bao-bookshelf-style';
   style.textContent = `
-    .story-library-story.bao-shelf-enhanced{background:linear-gradient(135deg,rgba(34,27,54,.82),rgba(10,12,19,.9) 62%);border-color:rgba(184,169,255,.18)}
+    .story-library-story.bao-shelf-enhanced{background:linear-gradient(135deg,rgba(48,34,48,.74),rgba(10,12,19,.92) 62%);border-color:rgba(223,180,110,.16)}
     .bao-shelf-heading{display:flex;align-items:flex-start;gap:14px;min-width:0;flex:1 1 auto}
     .bao-shelf-copy{flex:1 1 auto;min-width:0}
-    .bao-shelf-cover{position:relative;display:flex;flex:0 0 78px;width:78px;aspect-ratio:3/4;align-items:center;justify-content:center;overflow:hidden;border:1px solid rgba(184,169,255,.28);border-radius:10px;background:linear-gradient(145deg,#3b3155,#171522);color:#f3dfbc;font-size:27px;font-family:serif;box-shadow:0 5px 16px #0006,0 0 22px rgba(141,108,255,.08)}
+    .bao-shelf-cover{position:relative;display:flex;flex:0 0 78px;width:78px;aspect-ratio:2/3;align-items:center;justify-content:center;overflow:hidden;border:1px solid rgba(223,180,110,.25);border-radius:3px 8px 8px 3px;background:linear-gradient(145deg,#443345,#171522);color:#f3dfbc;font-size:27px;font-family:serif;box-shadow:5px 7px 0 rgba(0,0,0,.18),0 14px 28px #0006}
     .bao-shelf-cover img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-    .bao-shelf-progress{margin:12px 0 0;color:#e4d5b6;font-size:13px;line-height:1.5}
-    .story-library-story .bao-shelf-continue{background:linear-gradient(135deg,#9c8cff,#745ee7);color:#fff;border:1px solid #aa9aff}
+    .bao-shelf-progress{margin:12px 0 0;color:#dfc49e;font-size:12px;line-height:1.5;letter-spacing:.025em}
+    .story-library-story .bao-shelf-continue{background:linear-gradient(135deg,#ead0a9,#c89b60);color:#2d2130;border:1px solid #dfbd87;font-weight:700}
     @media(max-width:430px){.bao-shelf-heading{gap:10px}.bao-shelf-cover{flex-basis:64px;width:64px}.story-library-story>header{gap:10px}}
   `;
   document.head.append(style);
@@ -62,7 +62,7 @@
         if (active) {
           const progress = document.createElement('p');
           progress.className = 'bao-shelf-progress';
-          progress.textContent = `上次遊玩：${active.label || '未命名章節'}`;
+          progress.textContent = `上次閱讀：${active.label || '未命名章節'}`;
           header.after(progress);
           const chapterIndex = chapters.indexOf(active);
           const loadButton = chapterRows[chapterIndex]?.querySelector('[data-library-action="load"]');
@@ -71,7 +71,7 @@
             const continueButton = document.createElement('button');
             continueButton.type = 'button';
             continueButton.className = 'bao-shelf-continue';
-            continueButton.textContent = '▶ 繼續故事';
+            continueButton.textContent = '繼續閱讀 →';
             continueButton.addEventListener('click', () => loadButton.click());
             actions.prepend(continueButton);
           }
