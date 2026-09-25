@@ -193,6 +193,118 @@
     nav.querySelector('[data-player-nav="me"]')?.addEventListener("click", () => App.showView("me"));
   };
 
+
+  const compactLocalTools = () => {
+    const tools = document.querySelector("#explore-view .character-tools");
+    if (!tools || tools.closest("#bao-local-tools")) return;
+    const details = document.createElement("details");
+    details.id = "bao-local-tools";
+    details.className = "bao-local-tools";
+    details.innerHTML = '<summary>本機角色與匯入 <span>進階</span></summary><p>匯入、管理或測試自己的角色卡。一般找故事時不需要打開這裡。</p>';
+    tools.parentNode.insertBefore(details, tools);
+    details.appendChild(tools);
+  };
+
+  const applyExploreSearch = () => {
+    const list = $("character-list");
+    const input = $("bao-work-search");
+    if (!list || !input) return;
+    const query = input.value.trim().toLocaleLowerCase("zh-Hant");
+    let visible = 0;
+    list.querySelectorAll(".character-card").forEach(card => {
+      const character = (App.characters || []).find(item => String(item?.id || "") === String(card.dataset.characterId || ""));
+      const haystack = [
+        card.textContent,
+        character?.name,
+        character?.title,
+        character?.description,
+        ...(Array.isArray(character?.tags) ? character.tags : [])
+      ].filter(Boolean).join(" ").toLocaleLowerCase("zh-Hant");
+      const matches = !query || haystack.includes(query);
+      card.hidden = !matches;
+      if (matches) visible += 1;
+    });
+    const count = $("bao-work-result-count");
+    if (count) count.textContent = query ? `找到 ${visible} 個作品` : `目前顯示 ${visible} 個作品`;
+    const empty = $("bao-work-search-empty");
+    if (empty) empty.hidden = !query || visible > 0;
+  };
+
+  const decorateExploreCards = () => {
+    const list = $("character-list");
+    if (!list) return;
+    list.querySelectorAll(".character-card").forEach(card => {
+      card.classList.add("bao-work-card-v2");
+      if (card.querySelector(".bao-work-capabilities")) return;
+      const character = (App.characters || []).find(item => String(item?.id || "") === String(card.dataset.characterId || ""));
+      if (!character) return;
+      const labels = [];
+      if (character.supported_modes?.world) labels.push("世界模擬");
+      if (character.supported_display?.ui) labels.push("互動 UI");
+      if (character.category === "r18" || character.rating === "adult") labels.push("18+");
+      if (!labels.length) labels.push("角色互動");
+      const row = document.createElement("div");
+      row.className = "bao-work-capabilities";
+      row.innerHTML = labels.slice(0, 3).map(label => `<span>${App.escapeHTML(label)}</span>`).join("");
+      card.querySelector(".character-content")?.appendChild(row);
+    });
+    applyExploreSearch();
+  };
+
+  const installExploreDiscovery = () => {
+    const explore = $("explore-view");
+    const head = explore?.querySelector(".section-head");
+    const list = $("character-list");
+    if (!explore || !head || !list) return;
+    const title = head.querySelector("h2");
+    if (title) title.textContent = "今晚想走進哪個故事？";
+    const lead = explore.querySelector(".explore-lead");
+    if (lead) lead.textContent = "先看作品，再決定模型。可以搜尋角色、作品名稱或標籤。";
+
+    if (!$("bao-explore-discovery")) {
+      const bar = document.createElement("section");
+      bar.id = "bao-explore-discovery";
+      bar.className = "bao-explore-discovery";
+      bar.setAttribute("aria-label", "作品搜尋");
+      bar.innerHTML = `
+        <label class="bao-work-search">
+          <span aria-hidden="true">⌕</span>
+          <input id="bao-work-search" type="search" autocomplete="off" placeholder="搜尋作品、角色或標籤">
+        </label>
+        <span id="bao-work-result-count" class="bao-work-result-count" aria-live="polite"></span>
+        <button id="bao-work-search-clear" class="text-button" type="button">清除</button>`;
+      head.insertAdjacentElement("afterend", bar);
+      $("bao-work-search")?.addEventListener("input", applyExploreSearch);
+      $("bao-work-search-clear")?.addEventListener("click", () => {
+        const input = $("bao-work-search");
+        if (!input) return;
+        input.value = "";
+        input.focus();
+        applyExploreSearch();
+      });
+    }
+
+    if (!$("bao-work-search-empty")) {
+      const empty = document.createElement("div");
+      empty.id = "bao-work-search-empty";
+      empty.className = "bao-work-search-empty";
+      empty.hidden = true;
+      empty.innerHTML = "<b>沒有找到符合的作品。</b><span>換個角色名、作品名或標籤再試一次。</span>";
+      list.insertAdjacentElement("afterend", empty);
+    }
+
+    if (!list.dataset.baoPlayerObserved) {
+      list.dataset.baoPlayerObserved = "yes";
+      new MutationObserver(() => decorateExploreCards()).observe(list, { childList: true, subtree: false });
+    }
+    if (!explore.dataset.baoPlayerObserved) {
+      explore.dataset.baoPlayerObserved = "yes";
+      new MutationObserver(() => compactLocalTools()).observe(explore, { childList: true, subtree: true });
+    }
+    compactLocalTools();
+    decorateExploreCards();
+  };
+
   const activeView = () => document.querySelector(".app-shell > main > .view.active")?.id?.replace(/-view$/, "") || "home";
 
   const syncNavigation = view => {
@@ -233,9 +345,15 @@
     renderMeView();
     installDesktopEntry();
     installMobileNav();
+    installExploreDiscovery();
     patchViews();
     refreshMeView();
     syncNavigation();
+    setTimeout(() => {
+      installExploreDiscovery();
+      compactLocalTools();
+      decorateExploreCards();
+    }, 360);
     window.addEventListener("resize", () => syncNavigation());
     window.addEventListener("storage", event => {
       if (event.key === ACCOUNT_SESSION_KEY) refreshMeView();
