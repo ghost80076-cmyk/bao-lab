@@ -86,7 +86,7 @@
     return preset?.provider === PROVIDER ? preset.model : null;
   };
   const pilotHint = model => {
-    if (accountToken()) {
+    if (validAccountSession()) {
       const route = MODEL_PROVIDERS[model] === "openrouter" ? "OpenRouter" : "Google Gemini";
       return `已登入 YoruBay。此模型由 YoruBay 後端轉送 ${route}，不需要自己的 API Key；成功請求會依帳號 Wallet 扣除 API 額度。故事內容不會寫入帳號資料庫。`;
     }
