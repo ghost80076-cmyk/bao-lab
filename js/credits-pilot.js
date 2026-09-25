@@ -90,13 +90,13 @@
       const route = MODEL_PROVIDERS[model] === "openrouter" ? "OpenRouter" : "Google Gemini";
       return `已登入 YoruBay。此模型由 YoruBay 後端轉送 ${route}，不需要自己的 API Key；成功請求會依帳號 Wallet 扣除 API 額度。故事內容不會寫入帳號資料庫。`;
     }
-    return "請先點上方「YoruBay 帳號」使用邀請碼註冊或登入。舊版封測玩家仍可在下方貼上 bao_ 玩家金鑰。";
+    return "請先點上方「YoruBay 帳號」使用邀請碼註冊或登入。YoruBay API 額度僅接受登入帳號 Session。";
   };
   const refreshBuilder = () => {
     const enabled = document.getElementById("api-type")?.value === PROVIDER;
     const keyField = document.getElementById("api-key");
     const loggedIn = validAccountSession();
-    setFieldLabel(keyField, enabled ? (loggedIn ? "YoruBay 帳號" : "玩家金鑰（舊版）") : "連線金鑰（API Key）");
+    setFieldLabel(keyField, enabled ? "YoruBay 帳號" : "連線金鑰（API Key）");
     if (keyField) {
       if (enabled && loggedIn) {
         keyField.value = accountSentinel;
@@ -104,8 +104,8 @@
         keyField.placeholder = "已使用目前登入的 YoruBay 帳號";
       } else {
         if (keyField.value === accountSentinel) keyField.value = "";
-        keyField.readOnly = false;
-        keyField.placeholder = enabled ? "先登入 YoruBay；舊版玩家可貼 bao_ 金鑰" : "貼上自己的 API Key";
+        keyField.readOnly = enabled;
+        keyField.placeholder = enabled ? "請先登入 YoruBay 帳號" : "貼上自己的 API Key";
       }
     }
     const hint = document.getElementById("api-hint");
@@ -126,7 +126,7 @@
     if (!isPilot(config)) {
       const main = App.config?.api;
       if (isPilot(main) && main.key && config?.key === main.key && !isEndpoint(config?.baseUrl)) {
-        throw new Error("輔助模型使用不同服務商時，必須另外填入自己的 API Key；不可沿用 BAO/LAB 玩家金鑰。");
+        throw new Error("輔助模型使用不同服務商時，必須另外填入自己的 API Key；不可沿用 YoruBay 帳號 Session。");
       }
       return originalSend(config, messages);
     }
@@ -134,12 +134,9 @@
     if (!isEndpoint(config.baseUrl) || !upstreamProvider) {
       throw new Error("YoruBay API 額度僅支援已開放模型及固定後端網址。請重新選擇模型預設。");
     }
-    const sessionToken = accountToken();
-    const legacyToken = String(config.key || "").trim();
-    const token = sessionToken || legacyToken;
+    const token = accountToken();
     const validSession = /^yb_s_[A-Za-z0-9_-]{30,}$/.test(token);
-    const validLegacy = /^bao_[A-Za-z0-9_-]{30,}$/.test(token);
-    if (!validSession && !validLegacy) throw new Error("請先登入 YoruBay 帳號；舊版封測玩家也可以使用管理員發給你的 bao_ 玩家金鑰。");
+    if (!validSession) throw new Error("請先登入 YoruBay 帳號。舊版 bao_ 玩家金鑰已停止用於 YoruBay API 額度。");
     if (!Array.isArray(messages) || !messages.length || messages.length > 100) {
       throw new Error("BAO/LAB 每次最多傳送 100 則訊息。請縮短近期對話或改用自己的 API Key。");
     }
