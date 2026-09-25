@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>YoruBay Wallet Admin</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" type="image/svg+xml" href="assets/bao-mark.svg">
+<link rel="stylesheet" href="css/brand-home.css">
+<link rel="stylesheet" href="css/base.css">
+<style>
+body{min-height:100vh;background:#101118;color:#f5f1ff}
+.wrap{width:min(900px,calc(100% - 28px));margin:28px auto 64px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
+.card{background:#181a24;border:1px solid rgba(255,255,255,.11);border-radius:20px;padding:22px;margin:14px 0}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+label{display:grid;gap:6px;color:#c8c4d6;font-size:13px}
+input,select,textarea{box-sizing:border-box;width:100%;background:#10121a;border:1px solid rgba(255,255,255,.14);color:#fff;border-radius:11px;padding:11px 12px;font:inherit}
+textarea{min-height:80px;resize:vertical}
+button{border-radius:12px;padding:10px 14px;font:inherit;font-weight:700;cursor:pointer}
+.primary{border:0;background:#eee8ff;color:#171821}
+.secondary{border:1px solid rgba(255,255,255,.14);background:#232633;color:#eee}
+.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:14px}
+.note{font-size:13px;line-height:1.65;color:#aaa6b8}
+.error{color:#ff9d9d;font-size:13px;min-height:20px;margin-top:10px}
+.success{color:#8fe0bd;font-size:13px;min-height:20px;margin-top:10px}
+.player{background:#10121a;border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:14px;margin-top:12px}
+.row{display:flex;justify-content:space-between;gap:18px;padding:5px 0}
+.row span{color:#aaa6b8;font-size:13px}.row b{text-align:right;word-break:break-all}
+.packages{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:12px 0}
+.package{border:1px solid rgba(255,255,255,.12);background:#222532;color:#eee;border-radius:12px;padding:12px 8px}
+.package.active{background:#eee8ff;color:#171821}
+.summary{background:#10121a;border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:14px;margin-top:14px}
+code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
+@media(max-width:700px){.grid{grid-template-columns:1fr}.packages{grid-template-columns:repeat(2,minmax(0,1fr))}.card{padding:17px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div><div class="eyebrow">YORUBAY ADMIN</div><h1>玩家 Wallet 加值</h1></div>
+    <a href="index.html" class="secondary">回首頁</a>
+  </div>
+
+  <section class="card">
+    <h2>1. 管理員登入</h2>
+    <p class="note">ADMIN_TOKEN 只保存在這個分頁的記憶體，不寫入 localStorage、sessionStorage 或網址。關閉或重新整理頁面後會清除。</p>
+    <label>ADMIN_TOKEN
+      <input id="admin-token" type="password" autocomplete="off" spellcheck="false" placeholder="貼上 Cloudflare Worker 的 ADMIN_TOKEN">
+    </label>
+    <div class="actions"><button id="connect" class="primary" type="button">驗證並載入玩家</button></div>
+    <div id="connect-message" class="error"></div>
+  </section>
+
+  <section class="card">
+    <h2>2. 找玩家</h2>
+    <div class="grid">
+      <label>玩家編號（Player ID）
+        <input id="public-id" autocomplete="off" spellcheck="false" placeholder="YR-XXXX-XXXX">
+      </label>
+      <label>或登入帳號
+        <input id="username" autocomplete="off" spellcheck="false" placeholder="例如 yorutest">
+      </label>
+    </div>
+    <div class="actions"><button id="find-player" class="secondary" type="button">尋找玩家</button></div>
+    <div id="player-message" class="error"></div>
+    <div id="player-card" class="player" hidden>
+      <div class="row"><span>玩家編號</span><b id="p-public"></b></div>
+      <div class="row"><span>帳號</span><b id="p-user"></b></div>
+      <div class="row"><span>顯示名稱</span><b id="p-display"></b></div>
+      <div class="row"><span>目前 Wallet</span><b id="p-wallet"></b></div>
+      <div class="row"><span>內部 ID</span><b id="p-internal"></b></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>3. 建立加值紀錄</h2>
+    <p class="note">「玩家付款」與「API 額度」分開記錄。預設套餐是目前討論的台幣人工加值方案；可自行改成自訂金額。</p>
+    <div class="packages">
+      <button class="package" type="button" data-pay="190" data-credit="5">NT$190<br>→ US$5</button>
+      <button class="package" type="button" data-pay="370" data-credit="10">NT$370<br>→ US$10</button>
+      <button class="package" type="button" data-pay="730" data-credit="20">NT$730<br>→ US$20</button>
+      <button class="package" type="button" data-pay="1850" data-credit="50">NT$1,850<br>→ US$50</button>
+    </div>
+
+    <div class="grid">
+      <label>付款幣別
+        <select id="currency"><option value="TWD">TWD</option><option value="USD">USD</option></select>
+      </label>
+      <label>玩家付款金額
+        <input id="payment-amount" type="number" min="0" step="0.01" placeholder="例如 370">
+      </label>
+      <label>手續費
+        <input id="processor-fee" type="number" min="0" step="0.01" value="0">
+      </label>
+      <label>實收
+        <input id="net-received" type="number" min="0" step="0.01" placeholder="自動 = 付款 - 手續費">
+      </label>
+      <label>加入 API 額度（USD）
+        <input id="credit-usd" type="number" min="0.000001" step="0.000001" placeholder="例如 10">
+      </label>
+      <label>付款方式
+        <select id="payment-method">
+          <option value="manual-ecpay">綠界人工確認</option>
+          <option value="manual-bank">銀行轉帳人工確認</option>
+          <option value="manual-jkopay">街口／電子支付人工確認</option>
+          <option value="manual-test">測試加值</option>
+          <option value="manual-other">其他人工確認</option>
+        </select>
+      </label>
+      <label>付款／交易參考號
+        <input id="payment-reference" autocomplete="off" placeholder="選填">
+      </label>
+      <label>備註
+        <input id="note" autocomplete="off" value="YoruBay manual wallet top-up">
+      </label>
+    </div>
+
+    <div id="topup-summary" class="summary note">請先選擇玩家與加值金額。</div>
+    <div class="actions"><button id="credit-wallet" class="primary" type="button" disabled>確認加值</button></div>
+    <div id="topup-message" class="error"></div>
+  </section>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var BASE="https://bao-lab-credits-api.ghost80076.workers.dev";
+  var adminToken="";
+  var players=[];
+  var selected=null;
+
+  var $=function(id){return document.getElementById(id);};
+  function money(value){
+    var n=Number(value||0);
+    return Number.isFinite(n) ? "US$"+n.toFixed(6).replace(/0+$/,"").replace(/\.$/,".00") : "US$0.00";
+  }
+  function setMessage(id,text,ok){
+    var el=$(id); el.textContent=text||""; el.className=ok?"success":"error";
+  }
+  function minorUnits(value,currency){
+    var n=Number(value);
+    if(!Number.isFinite(n)||n<0) return null;
+    return Math.round(n*100);
+  }
+  function microusd(value){
+    var n=Number(value);
+    if(!Number.isFinite(n)||n<=0) return null;
+    var v=Math.round(n*1000000);
+    return Number.isSafeInteger(v)&&v>0?v:null;
+  }
+  async function api(path,options){
+    if(!adminToken) throw new Error("請先驗證 ADMIN_TOKEN。");
+    options=options||{};
+    var headers=new Headers(options.headers||{});
+    headers.set("Authorization","Bearer "+adminToken);
+    if(options.body&&!headers.has("Content-Type")) headers.set("Content-Type","application/json");
+    var response;
+    try{response=await fetch(BASE+path,Object.assign({},options,{headers:headers}));}
+    catch(e){throw new Error("無法連線 YoruBay Worker。");}
+    var data={}; try{data=await response.json();}catch(e){}
+    if(!response.ok){
+      if(response.status===401) throw new Error("ADMIN_TOKEN 無效，或目前 Worker 已更換管理員金鑰。");
+      throw new Error((data&&data.error)||("HTTP "+response.status));
+    }
+    return data;
+  }
+  function renderSelected(){
+    var card=$("player-card");
+    if(!selected){card.hidden=true;$("credit-wallet").disabled=true;updateSummary();return;}
+    card.hidden=false;
+    $("p-public").textContent=selected.public_id||"—";
+    $("p-user").textContent=selected.username||"—";
+    $("p-display").textContent=selected.display_name||"—";
+    $("p-wallet").textContent=money(selected.wallet_balance_usd);
+    $("p-internal").textContent=selected.id||"—";
+    $("credit-wallet").disabled=false;
+    updateSummary();
+  }
+  function updateSummary(){
+    if(!$("net-received").value){
+      var pay=Number($("payment-amount").value||0),fee=Number($("processor-fee").value||0);
+      if(pay>=fee&&pay>0) $("net-received").placeholder=(pay-fee).toFixed(2);
+    }
+    var pay=Number($("payment-amount").value||0);
+    var fee=Number($("processor-fee").value||0);
+    var net=$("net-received").value==="" ? pay-fee : Number($("net-received").value);
+    var credit=Number($("credit-usd").value||0);
+    var who=selected ? ((selected.public_id||"")+" / "+(selected.username||"")) : "尚未選玩家";
+    $("topup-summary").textContent=
+      "玩家："+who+" ｜ 收款 "+$("currency").value+" "+(Number.isFinite(pay)?pay.toFixed(2):"—")+
+      " ｜ 手續費 "+(Number.isFinite(fee)?fee.toFixed(2):"—")+
+      " ｜ 實收 "+(Number.isFinite(net)?net.toFixed(2):"—")+
+      " ｜ 加入 API 額度 "+(Number.isFinite(credit)?money(credit):"—");
+  }
+
+  $("connect").onclick=async function(){
+    setMessage("connect-message","");
+    adminToken=$("admin-token").value.trim();
+    if(!adminToken){setMessage("connect-message","請貼上 ADMIN_TOKEN。");return;}
+    this.disabled=true;
+    try{
+      var data=await api("/admin/players",{method:"GET"});
+      players=Array.isArray(data.players)?data.players:[];
+      setMessage("connect-message","管理員驗證成功，已載入 "+players.length+" 位玩家。",true);
+      $("admin-token").value="";
+    }catch(e){
+      adminToken="";
+      setMessage("connect-message",e.message);
+    }finally{this.disabled=false;}
+  };
+
+  $("find-player").onclick=function(){
+    setMessage("player-message","");
+    var pid=$("public-id").value.trim().toUpperCase();
+    var user=$("username").value.trim().toLowerCase();
+    selected=players.find(function(p){
+      return (pid&&String(p.public_id||"").toUpperCase()===pid) ||
+             (user&&String(p.username||"").toLowerCase()===user);
+    })||null;
+    if(!selected){
+      renderSelected();
+      setMessage("player-message",players.length?"找不到符合的玩家。":"尚未載入玩家，請先驗證 ADMIN_TOKEN。");
+      return;
+    }
+    renderSelected();
+    setMessage("player-message","已找到玩家。",true);
+  };
+
+  document.querySelectorAll(".package").forEach(function(button){
+    button.onclick=function(){
+      document.querySelectorAll(".package").forEach(function(x){x.classList.remove("active");});
+      button.classList.add("active");
+      $("currency").value="TWD";
+      $("payment-amount").value=button.dataset.pay;
+      $("processor-fee").value="0";
+      $("net-received").value="";
+      $("credit-usd").value=button.dataset.credit;
+      updateSummary();
+    };
+  });
+
+  ["currency","payment-amount","processor-fee","net-received","credit-usd","payment-method","payment-reference","note"]
+    .forEach(function(id){$(id).addEventListener("input",updateSummary);$(id).addEventListener("change",updateSummary);});
+
+  $("credit-wallet").onclick=async function(){
+    setMessage("topup-message","");
+    if(!selected){setMessage("topup-message","請先選擇玩家。");return;}
+    var currency=$("currency").value;
+    var pay=Number($("payment-amount").value);
+    var fee=Number($("processor-fee").value||0);
+    var net=$("net-received").value===""?pay-fee:Number($("net-received").value);
+    var credit=Number($("credit-usd").value);
+    var paymentMinor=minorUnits(pay,currency);
+    var feeMinor=minorUnits(fee,currency);
+    var netMinor=minorUnits(net,currency);
+    var creditMicro=microusd(credit);
+    if(paymentMinor===null||feeMinor===null||netMinor===null||creditMicro===null||net<0){
+      setMessage("topup-message","請確認付款、手續費、實收與 API 額度金額。");
+      return;
+    }
+    var text="確認替 "+(selected.public_id||selected.username)+" 加入 "+money(credit)+" API 額度？\n"+
+      "玩家付款："+currency+" "+pay.toFixed(2)+"\n"+
+      "實收："+currency+" "+net.toFixed(2);
+    if(!confirm(text)) return;
+    this.disabled=true;
+    try{
+      var body={
+        credit_added_microusd:creditMicro,
+        payment_currency:currency,
+        payment_amount_minor:paymentMinor,
+        processor_fee_minor:feeMinor,
+        net_received_minor:netMinor,
+        payment_method:$("payment-method").value,
+        payment_reference:$("payment-reference").value.trim()||null,
+        note:$("note").value.trim()||null
+      };
+      var data=await api("/admin/players/"+encodeURIComponent(selected.id)+"/wallet-credit",{
+        method:"POST",
+        body:JSON.stringify(body)
+      });
+      if(data&&data.wallet_balance_usd!=null) selected.wallet_balance_usd=data.wallet_balance_usd;
+      else selected.wallet_balance_usd=Number(selected.wallet_balance_usd||0)+credit;
+      renderSelected();
+      setMessage("topup-message","加值成功。最新 Wallet："+money(selected.wallet_balance_usd),true);
+      var refreshed=await api("/admin/players",{method:"GET"});
+      players=Array.isArray(refreshed.players)?refreshed.players:players;
+      selected=players.find(function(p){return p.id===selected.id;})||selected;
+      renderSelected();
+    }catch(e){
+      setMessage("topup-message","加值失敗："+e.message);
+    }finally{
+      $("credit-wallet").disabled=!selected;
+    }
+  };
+
+  updateSummary();
+})();
+</script>
+</body>
+</html>
