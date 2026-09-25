@@ -62,7 +62,7 @@
       const connection = { baseUrl, protocol };
       const key = enteredKey || (sameConnection(api, connection) ? String(api.key || "").trim() : "");
       const selected = presets[Number(field("preset").value)];
-      const matchingPreset = selected &&
+      const matchingPreset = selected && selected.protocol === protocol &&
         String(selected.base_url || "").replace(/\/+$/, "") === baseUrl.replace(/\/+$/, "") &&
         selected.model === model ? selected : null;
       const explicitCache = matchingPreset &&
