@@ -33,9 +33,10 @@
   const encoder = new TextEncoder();
   const accountToken = () => String(window.localStorage?.getItem?.("yorubay:session") || "").trim();
   const accountSentinel = "__YORUBAY_ACCOUNT__";
+  const validAccountSession = () => /^yb_s_[A-Za-z0-9_-]{30,}$/.test(accountToken());
   const isAccountConnection = config => isEndpoint(config?.baseUrl) && Boolean(MODEL_PROVIDERS[config?.model]);
   const isPilot = config => config?.type === PROVIDER || config?.route === PROVIDER || isAccountConnection(config);
-  const isAccountReady = config => Boolean(accountToken()) && isAccountConnection(config);
+  const isAccountReady = config => validAccountSession() && isAccountConnection(config);
   const prepareAccountConfig = config => {
     if (!config || !isAccountReady(config)) return false;
     config.type = PROVIDER;
@@ -74,7 +75,7 @@
     if (label) label.hidden = Boolean(hidden);
   };
   const refreshBuilderFields = enabled => {
-    const loggedIn = Boolean(accountToken());
+    const loggedIn = validAccountSession();
     setLabelHidden(document.getElementById("model-id"), enabled);
     setLabelHidden(document.getElementById("base-url"), enabled);
     setLabelHidden(document.getElementById("api-key"), enabled && loggedIn);
@@ -94,7 +95,7 @@
   const refreshBuilder = () => {
     const enabled = document.getElementById("api-type")?.value === PROVIDER;
     const keyField = document.getElementById("api-key");
-    const loggedIn = Boolean(accountToken());
+    const loggedIn = validAccountSession();
     setFieldLabel(keyField, enabled ? (loggedIn ? "YoruBay 帳號" : "玩家金鑰（舊版）") : "連線金鑰（API Key）");
     if (keyField) {
       if (enabled && loggedIn) {
@@ -243,7 +244,7 @@
     }
 
     const pilot = selected?.provider === PROVIDER && preset?.value !== "custom";
-    const loggedIn = Boolean(accountToken());
+    const loggedIn = validAccountSession();
     setFieldLabel(key, pilot ? (loggedIn ? "YoruBay 帳號" : "玩家金鑰（舊版）") : "連線金鑰（API Key）");
     if (key) {
       if (pilot && loggedIn) {
