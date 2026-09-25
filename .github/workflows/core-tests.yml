@@ -101,3 +101,5 @@ jobs:
         run: node tests/helper-context-core.cjs
       - name: Contextual lorebook and legacy compatibility
         run: node tests/lorebook-core.cjs
+      - name: Yume world-card relevant context
+        run: node tests/yume-relevant-context.cjs
