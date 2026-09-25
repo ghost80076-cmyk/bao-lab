@@ -5,7 +5,7 @@
     String(left.baseUrl || "").trim().replace(/\/+$/, "") === String(right.baseUrl || "").trim().replace(/\/+$/, "") &&
     String(left.protocol || "openai") === String(right.protocol || "openai");
   const escape = value => App.escapeHTML(String(value ?? ""));
-  const hasKey = () => Boolean(String(App.config?.api?.key || "").trim());
+  const hasKey = () => Boolean(String(App.config?.api?.key || "").trim()) || Boolean(window.BAOCreditsPilot?.isAccountReady?.(App.config?.api));
   const status = () => {
     const connected = hasKey();
     document.querySelectorAll("[data-bao-api-status]").forEach(node => {
@@ -21,8 +21,11 @@
     close();
     const api = App.config?.api || {};
     const presets = App.modelPresets || [];
-    const exactIndex = presets.findIndex(p => p.protocol === api.protocol && p.model === api.model &&
+    let exactIndex = presets.findIndex(p => p.protocol === api.protocol && p.model === api.model &&
       String(p.base_url || "").replace(/\/+$/, "") === String(api.baseUrl || "").replace(/\/+$/, ""));
+    if (exactIndex < 0 && window.BAOCreditsPilot?.isAccountConnection?.(api)) {
+      exactIndex = presets.findIndex(p => p.provider === window.BAOCreditsPilot.provider && p.model === api.model);
+    }
     const backdrop = document.createElement("div");
     backdrop.id = "bao-chat-api-backdrop";
     backdrop.innerHTML = `<section class="bao-chat-api-dialog" role="dialog" aria-modal="true" aria-labelledby="bao-chat-api-title">
@@ -58,13 +61,13 @@
       if (!/^https:\/\/[^\s]+$/i.test(baseUrl)) throw new Error("請使用有效的 HTTPS 連線網址（Base URL）。");
       const connection = { baseUrl, protocol };
       const key = enteredKey || (sameConnection(api, connection) ? String(api.key || "").trim() : "");
-      if (!key) throw new Error("請輸入這個 AI 服務商的連線金鑰（API Key）。");
       const selected = presets[Number(field("preset").value)];
       const matchingPreset = selected && selected.protocol === protocol &&
-        String(selected.base_url || "").replace(/\/+$/, "") === baseUrl.replace(/\/+$/, "") ? selected : null;
-      const explicitCache = matchingPreset?.model === model &&
-        (matchingPreset?.explicit_cache === true || (matchingPreset?.route === "official" && protocol === "anthropic" && matchingPreset?.cache === "explicit"));
-      return {
+        String(selected.base_url || "").replace(/\/+$/, "") === baseUrl.replace(/\/+$/, "") &&
+        selected.model === model ? selected : null;
+      const explicitCache = matchingPreset &&
+        (matchingPreset.explicit_cache === true || (matchingPreset.route === "official" && protocol === "anthropic" && matchingPreset.cache === "explicit"));
+      const candidate = {
         ...api,
         type: matchingPreset?.provider || "custom",
         protocol, model, baseUrl, key,
@@ -73,6 +76,9 @@
         explicitCacheModel: explicitCache ? model : "",
         cacheEnabled: App.config?.memory?.cache !== false
       };
+      if (window.BAOCreditsPilot?.prepareAccountConfig?.(candidate)) return candidate;
+      if (!candidate.key) throw new Error("請輸入這個 AI 服務商的連線金鑰（API Key）。");
+      return candidate;
     };
     field("preset").addEventListener("change", () => {
       const selected = presets[Number(field("preset").value)];
@@ -116,7 +122,7 @@
       } catch (cause) { setError(`連線測試失敗：${cause.message || cause}`); }
       finally { button.disabled = false; }
     };
-    field(hasKey() ? "model" : "key").focus();
+    field(window.BAOCreditsPilot?.isAccountReady?.(api) ? "preset" : (hasKey() ? "model" : "key")).focus();
     return true;
   };
 
@@ -128,6 +134,7 @@
     if (sameConnection(previous, App.config.api) && previous.key && !save.config?.demoMode) {
       App.config.api.key = previous.key;
     }
+    window.BAOCreditsPilot?.prepareAccountConfig?.(App.config.api);
     if (GameState.current) GameState.current.config = App.config;
     App.renderChatShell(false);
     App.showView("chat");

@@ -27,16 +27,20 @@ test('pilot sends player-token request to fixed Worker, never admin/provider key
  assert.deepEqual(JSON.parse(JSON.stringify(JSON.parse(opt.body))),{provider:'gemini',model:'gemini-3-flash-preview',request_kind:'chat',messages:msgs,max_output_tokens:6144});
  assert.equal(opt.body.includes(token),false);
 });
-test('Gemini Pro uses OpenRouter upstream behind same Worker, same player token, bounded output',async()=>{
- const s=build(); const pro={...cfg,model:'google/gemini-3.1-pro-preview',maxOutputTokens:8192};
- const result=await s.api.send(pro,msgs);
- assert.equal(result.text,'測試成功');
- assert.equal(s.calls.length,1);
- assert.equal(s.calls[0][0],cfg.baseUrl);
- assert.equal(s.calls[0][1].headers.Authorization,'Bearer '+token);
- assert.deepEqual(JSON.parse(JSON.stringify(JSON.parse(s.calls[0][1].body))),{provider:'openrouter',model:'google/gemini-3.1-pro-preview',request_kind:'chat',messages:msgs,max_output_tokens:2048});
- assert.equal(s.calls[0][1].body.includes(token),false);
- assert.equal(s.calls[0][1].body.includes('OPENROUTER_API_KEY'),false);
+test('Gemini 3.1 Pro supports both Google official and OpenRouter wallet routes',async()=>{
+ const s=build();
+ const official={...cfg,model:'gemini-3.1-pro-preview',maxOutputTokens:8192};
+ const router={...cfg,model:'google/gemini-3.1-pro-preview',maxOutputTokens:8192};
+ await s.api.send(official,msgs);
+ await s.api.send(router,msgs);
+ assert.equal(s.calls.length,2);
+ assert.deepEqual(JSON.parse(JSON.stringify(JSON.parse(s.calls[0][1].body))),{provider:'gemini',model:'gemini-3.1-pro-preview',request_kind:'chat',messages:msgs,max_output_tokens:8192});
+ assert.deepEqual(JSON.parse(JSON.stringify(JSON.parse(s.calls[1][1].body))),{provider:'openrouter',model:'google/gemini-3.1-pro-preview',request_kind:'chat',messages:msgs,max_output_tokens:2048});
+ for (const [,opt] of s.calls) {
+   assert.equal(opt.headers.Authorization,'Bearer '+token);
+   assert.equal(opt.body.includes(token),false);
+   assert.equal(opt.body.includes('OPENROUTER_API_KEY'),false);
+ }
 });
 test('Claude Sonnet and Opus invitation presets route through OpenRouter with the same player token',async()=>{
  const s=build();
@@ -66,7 +70,7 @@ test('refuses player-token leakage to other provider and wrong URL/models',async
  const s=build();s.app.config.api=cfg;
  await assert.rejects(()=>s.api.send({type:'openrouter',key:token,baseUrl:'https://openrouter.ai/api/v1'},msgs),/不可沿用/);
  await assert.rejects(()=>s.api.send({...cfg,baseUrl:'https://evil.test/chat'},msgs),/固定後端/);
- await assert.rejects(()=>s.api.send({...cfg,model:'gemini-3.1-pro-preview'},msgs),/指定的邀請制模型/);
+ await assert.rejects(()=>s.api.send({...cfg,model:'gemini-9-unknown'},msgs),/已開放模型/);
  assert.equal(s.calls.length,0);
 });
 test('allows long prompts under 96 KB, rejects oversized prompts before sending',async()=>{
@@ -98,14 +102,15 @@ test('propagates quota and provider-specific upstream errors without exposing pl
  const empty=build({ok:false,status:502,body:{error:'provider_empty_text',finish_reason:'MAX_TOKENS'}});
  await assert.rejects(()=>empty.api.send(cfg,msgs),/MAX_TOKENS/);
 });
-test('registers all seven invitation model presets without replacing existing provider or duplication',()=>{
+test('registers all eight YoruBay wallet model presets without replacing existing provider or duplication',()=>{
  const s=build();s.app.populateAPIControls();s.app.populateAPIControls();
- assert.equal(s.app.modelPresets.length,8);
+ assert.equal(s.app.modelPresets.length,9);
  assert.equal(s.app.modelPresets[0].provider,'gemini');
  const added=s.app.modelPresets.slice(1);
  assert.deepEqual(Array.from(added.map(p=>p.model)),[
    'gemini-3-flash-preview',
    'gemini-3.1-flash-lite',
+   'gemini-3.1-pro-preview',
    'google/gemini-3.1-pro-preview',
    'anthropic/claude-sonnet-4.5',
    'anthropic/claude-sonnet-4.6',
@@ -113,10 +118,12 @@ test('registers all seven invitation model presets without replacing existing pr
    'anthropic/claude-opus-4.6'
  ]);
  assert.equal(added.every(p=>p.provider==='bao-credits'),true);
+ assert.equal(added.every(p=>p.provider_label==='YoruBay API 額度'),true);
  assert.equal(added.every(p=>p.base_url===cfg.baseUrl),true);
- assert.match(added[4].label,/Sonnet 4\.6/);
- assert.match(added[6].label,/Opus 4\.6/);
- assert.equal(s.window.BAOCreditsPilot.models.length,7);
+ assert.match(added[2].label,/Google 官方/);
+ assert.match(added[5].label,/Sonnet 4\.6/);
+ assert.match(added[7].label,/Opus 4\.6/);
+ assert.equal(s.window.BAOCreditsPilot.models.length,8);
 });
 
 test('uses logged-in YoruBay session token without copying it into request body',async()=>{
@@ -127,4 +134,18 @@ test('uses logged-in YoruBay session token without copying it into request body'
  assert.equal(result.text,'測試成功');
  assert.equal(s.calls[0][1].headers.Authorization,'Bearer '+session);
  assert.equal(s.calls[0][1].body.includes(session),false);
+});
+
+test('logged-in account normalizes saved Worker connections and does not require a BYOK key',()=>{
+ const s=build();
+ const session='yb_s_'+'W'.repeat(43);
+ s.window.localStorage={getItem:key=>key==='yorubay:session'?session:null};
+ const saved={type:'custom',route:'custom',protocol:'gemini',model:'gemini-3.1-pro-preview',baseUrl:cfg.baseUrl,key:''};
+ assert.equal(s.window.BAOCreditsPilot.isAccountConnection(saved),true);
+ assert.equal(s.window.BAOCreditsPilot.isAccountReady(saved),true);
+ assert.equal(s.window.BAOCreditsPilot.prepareAccountConfig(saved),true);
+ assert.equal(saved.type,'bao-credits');
+ assert.equal(saved.route,'bao-credits');
+ assert.equal(saved.protocol,'openai');
+ assert.equal(saved.key,'__YORUBAY_ACCOUNT__');
 });
