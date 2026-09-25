@@ -10,16 +10,18 @@ function build(response={ok:true,status:200,body:{content:'測試成功',usage:{
   const app={config:{api:null},modelPresets:[{provider:'gemini',label:'original',model:'original',base_url:'https://google',protocol:'gemini'}],populateAPIControls(){},syncSelectedPreset(){}};
   const elements={'api-type':{value:'',querySelector:()=>null,appendChild:o=>options.push(o),addEventListener:()=>{}},'api-key':{value:'',closest:()=>({firstChild:{nodeType:3}}),addEventListener:()=>{}},'api-hint':{textContent:''},'api-protocol-badge':{textContent:''}};
   const document={readyState:'loading',getElementById:id=>elements[id],createElement:()=>({}),addEventListener(){},body:{}};
-  const window={};
+  const defaultSession='yb_s_'+'A'.repeat(43);
+  const window={localStorage:{getItem:key=>key==='yorubay:session'?defaultSession:null}};
   const context={API:api,App:app,document,window,TextEncoder,MutationObserver:class{observe(){}},fetch:async(url,opt)=>{calls.push([url,opt]);return {ok:response.ok,status:response.status,json:async()=>response.body}}};
   vm.runInNewContext(code,context);
   return {app,api,calls,options,window,elements};
 }
-const token='bao_'+'A'.repeat(43);
-const cfg={type:'bao-credits',route:'bao-credits',protocol:'openai',baseUrl:'https://bao-lab-credits-api.ghost80076.workers.dev/chat',key:token,model:'gemini-3-flash-preview'};
+const token='yb_s_'+'A'.repeat(43);
+const legacyToken='bao_'+'L'.repeat(43);
+const cfg={type:'bao-credits',route:'bao-credits',protocol:'openai',baseUrl:'https://bao-lab-credits-api.ghost80076.workers.dev/chat',key:'__YORUBAY_ACCOUNT__',model:'gemini-3-flash-preview'};
 const msgs=[{role:'user',content:'你好'}];
 
-test('pilot sends player-token request to fixed Worker, never admin/provider keys',async()=>{
+test('wallet sends logged-in session request to fixed Worker, never admin/provider keys',async()=>{
  const s=build(); const result=await s.api.send(cfg,msgs);
  assert.equal(result.text,'測試成功'); assert.equal(s.calls.length,1);
  assert.equal(result.credits.charged_credits,1);
@@ -42,7 +44,7 @@ test('Gemini 3.1 Pro supports both Google official and OpenRouter wallet routes'
    assert.equal(opt.body.includes('OPENROUTER_API_KEY'),false);
  }
 });
-test('Claude Sonnet and Opus invitation presets route through OpenRouter with the same player token',async()=>{
+test('Claude Sonnet and Opus wallet presets route through OpenRouter with the same account session',async()=>{
  const s=build();
  for (const model of ['anthropic/claude-sonnet-4.5','anthropic/claude-sonnet-4.6','anthropic/claude-opus-4.5','anthropic/claude-opus-4.6']) {
    await s.api.send({...cfg,model,maxOutputTokens:4096},msgs);
@@ -66,9 +68,9 @@ test('summary routes separate from chat, connection tests use 1024 tokens, and B
  const normal=await s.api.send({type:'gemini',key:'own-key',model:'abc',baseUrl:'https://example.org'},msgs);
  assert.equal(normal.text,'BYOK works'); assert.equal(s.calls.length,3);
 });
-test('refuses player-token leakage to other provider and wrong URL/models',async()=>{
+test('refuses account-session leakage to other provider and wrong URL/models',async()=>{
  const s=build();s.app.config.api=cfg;
- await assert.rejects(()=>s.api.send({type:'openrouter',key:token,baseUrl:'https://openrouter.ai/api/v1'},msgs),/不可沿用/);
+ await assert.rejects(()=>s.api.send({type:'openrouter',key:'__YORUBAY_ACCOUNT__',baseUrl:'https://openrouter.ai/api/v1'},msgs),/不可沿用/);
  await assert.rejects(()=>s.api.send({...cfg,baseUrl:'https://evil.test/chat'},msgs),/固定後端/);
  await assert.rejects(()=>s.api.send({...cfg,model:'gemini-9-unknown'},msgs),/已開放模型/);
  assert.equal(s.calls.length,0);
@@ -134,6 +136,16 @@ test('uses logged-in YoruBay session token without copying it into request body'
  assert.equal(result.text,'測試成功');
  assert.equal(s.calls[0][1].headers.Authorization,'Bearer '+session);
  assert.equal(s.calls[0][1].body.includes(session),false);
+});
+
+test('rejects legacy bao_ token before any Worker request when no YoruBay session exists',async()=>{
+ const s=build();
+ s.window.localStorage={getItem:()=>null};
+ await assert.rejects(
+   ()=>s.api.send({...cfg,key:legacyToken},msgs),
+   /舊版 bao_ 玩家金鑰已停止/
+ );
+ assert.equal(s.calls.length,0);
 });
 
 test('logged-in account normalizes saved Worker connections and does not require a BYOK key',()=>{
