@@ -30,6 +30,8 @@
   const isPilot = config => config?.type === PROVIDER || config?.route === PROVIDER;
   const isEndpoint = value => String(value || "").trim().replace(/\/+$/, "") === ENDPOINT;
   const encoder = new TextEncoder();
+  const accountToken = () => String(window.localStorage?.getItem?.("yorubay:session") || "").trim();
+  const accountSentinel = "__YORUBAY_ACCOUNT__";
   const upstreamName = model => MODEL_PROVIDERS[model] === "openrouter" ? "OpenRouter" : "Google Gemini";
 
   const ensurePresets = () => {
@@ -61,21 +63,32 @@
     return preset?.provider === PROVIDER ? preset.model : null;
   };
   const pilotHint = model => {
-    if (MODEL_PROVIDERS[model] === "openrouter") {
-      const modelName = model?.startsWith("anthropic/") ? "Claude" : "Gemini 3.1 Pro";
-      return `邀請制：${modelName} 由 BAO/LAB 後端透過 OpenRouter 呼叫，費用由站長支付；目前依用量扣測試點數（每 100 tokens 為 1 點），不等於實際美元價格。僅支援文字、非串流，每次最多 96 KB；金鑰不會存入故事備份。`;
+    if (accountToken()) {
+      const route = MODEL_PROVIDERS[model] === "openrouter" ? "OpenRouter" : "Google Gemini";
+      return `已登入 YoruBay。此模型由 YoruBay 後端轉送 ${route}，成功請求會依帳號目前計費模式扣除 API 額度；故事內容不會寫入帳號資料庫。可到「YoruBay 帳號」查看玩家編號與餘額。`;
     }
-    return "邀請制：依模型回報的輸入＋輸出用量計額度（每 100 tokens 為 1 點），不限每日聊天次數。故事內容經 BAO/LAB 後端轉送 Google；僅限文字、非串流，每次最多 96 KB。金鑰不會存入故事備份。";
+    return "請先點上方「YoruBay 帳號」使用邀請碼註冊或登入。舊版封測玩家仍可在下方貼上 bao_ 玩家金鑰。";
   };
   const refreshBuilder = () => {
     const enabled = document.getElementById("api-type")?.value === PROVIDER;
     const keyField = document.getElementById("api-key");
-    setFieldLabel(keyField, enabled ? "玩家金鑰（player_token）" : "連線金鑰（API Key）");
-    if (keyField) keyField.placeholder = enabled ? "貼上管理員發給你的個人玩家金鑰" : "貼上自己的 API Key";
+    const loggedIn = Boolean(accountToken());
+    setFieldLabel(keyField, enabled ? (loggedIn ? "YoruBay 帳號" : "玩家金鑰（舊版）") : "連線金鑰（API Key）");
+    if (keyField) {
+      if (enabled && loggedIn) {
+        keyField.value = accountSentinel;
+        keyField.readOnly = true;
+        keyField.placeholder = "已使用目前登入的 YoruBay 帳號";
+      } else {
+        if (keyField.value === accountSentinel) keyField.value = "";
+        keyField.readOnly = false;
+        keyField.placeholder = enabled ? "先登入 YoruBay；舊版玩家可貼 bao_ 金鑰" : "貼上自己的 API Key";
+      }
+    }
     const hint = document.getElementById("api-hint");
     if (enabled && hint) hint.textContent = pilotHint(selectedPilotModel());
     const badge = document.getElementById("api-protocol-badge");
-    if (enabled && badge) badge.textContent = "BAO/LAB";
+    if (enabled && badge) badge.textContent = "YoruBay";
   };
   const originalSync = App.syncSelectedPreset;
   App.syncSelectedPreset = function(...args) {
@@ -97,8 +110,12 @@
     if (!isEndpoint(config.baseUrl) || !upstreamProvider) {
       throw new Error("BAO/LAB 測試額度僅支援指定的邀請制模型及固定後端網址。請重新選擇模型預設。");
     }
-    const token = String(config.key || "").trim();
-    if (!/^bao_[A-Za-z0-9_-]{30,}$/.test(token)) throw new Error("請輸入管理員發給你的個人玩家金鑰（player_token），不要使用 ADMIN_TOKEN 或官方 API Key。");
+    const sessionToken = accountToken();
+    const legacyToken = String(config.key || "").trim();
+    const token = sessionToken || legacyToken;
+    const validSession = /^yb_s_[A-Za-z0-9_-]{30,}$/.test(token);
+    const validLegacy = /^bao_[A-Za-z0-9_-]{30,}$/.test(token);
+    if (!validSession && !validLegacy) throw new Error("請先登入 YoruBay 帳號；舊版封測玩家也可以使用管理員發給你的 bao_ 玩家金鑰。");
     if (!Array.isArray(messages) || !messages.length || messages.length > 100) {
       throw new Error("BAO/LAB 每次最多傳送 100 則訊息。請縮短近期對話或改用自己的 API Key。");
     }
@@ -129,7 +146,9 @@
       const name = upstreamName(config.model);
       const errors = {
         unauthorized: "玩家金鑰無效或已停用，請向管理員索取新金鑰。",
-        insufficient_credits: "個人測試額度不足，請向管理員補充額度。",
+        insufficient_credits: "舊版測試點數不足，請向管理員補充額度。",
+        insufficient_wallet_balance: "YoruBay API 額度不足，請儲值後再試。",
+        wallet_disabled: "這個 YoruBay Wallet 已停用，請聯絡管理員。",
         daily_limit_or_insufficient_balance: "後端仍在使用舊的每日次數限制；請管理員更新 Worker。",
         insufficient_balance: "玩家測試額度不足，請管理員更新 Worker。",
         invalid_request_or_model_not_allowed: "模型未開放或故事內容不符合測試版限制；請確認 Worker 的 MODELS_JSON 已包含此模型。",
@@ -166,11 +185,16 @@
         total_tokens: input != null && output != null ? input + output : null
       }, "openai"),
       credits: {
-        charged_credits: data.usage?.charged_credits,
+        charged_credits: data.usage?.charged_credits ?? null,
+        charged_usd: data.usage?.charged_usd ?? null,
+        charged_microusd: data.usage?.charged_microusd ?? null,
+        wallet_balance_usd: data.usage?.wallet_balance_usd ?? null,
         request_id: data.request_id,
         provider_cost_usd: data.usage?.provider_cost_usd ?? null,
+        actual_cost_usd: data.usage?.actual_cost_usd ?? null,
         reasoning_tokens: data.usage?.reasoning_tokens ?? null,
-        billing_mode: data.usage?.billing_mode ?? null
+        billing_mode: data.usage?.billing_mode ?? null,
+        settlement_status: data.usage?.settlement_status ?? null
       }
     };
   };
@@ -180,8 +204,19 @@
     const selected = App.modelPresets?.[Number(preset?.value)];
     const pilot = selected?.provider === PROVIDER && preset?.value !== "custom";
     const key = backdrop.querySelector('input[name="key"]');
-    setFieldLabel(key, pilot ? "玩家金鑰（player_token）" : "連線金鑰（API Key）");
-    if (key) key.placeholder = pilot ? "貼上你的 BAO/LAB 個人玩家金鑰" : "貼上自己的 API Key";
+    const loggedIn = Boolean(accountToken());
+    setFieldLabel(key, pilot ? (loggedIn ? "YoruBay 帳號" : "玩家金鑰（舊版）") : "連線金鑰（API Key）");
+    if (key) {
+      if (pilot && loggedIn) {
+        key.value = accountSentinel;
+        key.readOnly = true;
+        key.placeholder = "已使用目前登入的 YoruBay 帳號";
+      } else {
+        if (key.value === accountSentinel) key.value = "";
+        key.readOnly = false;
+        key.placeholder = pilot ? "先登入 YoruBay；舊版玩家可貼 bao_ 金鑰" : "貼上自己的 API Key";
+      }
+    }
     const hint = backdrop.querySelector(".bao-chat-api-hint");
     if (pilot && hint) hint.textContent = pilotHint(selected.model);
   };
@@ -203,7 +238,7 @@
     refreshBuilder();
     const type = document.getElementById("api-type");
     const key = document.getElementById("api-key");
-    type?.addEventListener("change", () => { if (key) key.value = ""; }, true);
+    type?.addEventListener("change", () => { if (key && key.value !== accountSentinel) key.value = ""; }, true);
     type?.addEventListener("change", refreshBuilder);
     watchDialog();
   };
