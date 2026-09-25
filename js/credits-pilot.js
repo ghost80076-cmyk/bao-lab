@@ -146,7 +146,7 @@
       const name = upstreamName(config.model);
       const errors = {
         unauthorized: "玩家金鑰無效或已停用，請向管理員索取新金鑰。",
-        insufficient_credits: "舊版測試點數不足，請向管理員補充額度。",
+        insufficient_credits: "舊版測試額度不足，請向管理員補充額度。",
         insufficient_wallet_balance: "YoruBay API 額度不足，請儲值後再試。",
         wallet_disabled: "這個 YoruBay Wallet 已停用，請聯絡管理員。",
         daily_limit_or_insufficient_balance: "後端仍在使用舊的每日次數限制；請管理員更新 Worker。",
@@ -182,6 +182,7 @@
         output_tokens: output,
         cached_tokens: cached,
         cache_write_tokens: cacheWrite,
+        new_input_tokens: input != null && cached != null ? Math.max(0, input - cached) : null,
         total_tokens: input != null && output != null ? input + output : null
       }, "openai"),
       credits: {
