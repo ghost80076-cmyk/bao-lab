@@ -118,3 +118,13 @@ test('registers all seven invitation model presets without replacing existing pr
  assert.match(added[6].label,/Opus 4\.6/);
  assert.equal(s.window.BAOCreditsPilot.models.length,7);
 });
+
+test('uses logged-in YoruBay session token without copying it into request body',async()=>{
+ const s=build();
+ const session='yb_s_'+'S'.repeat(43);
+ s.window.localStorage={getItem:key=>key==='yorubay:session'?session:null};
+ const result=await s.api.send({...cfg,key:'__YORUBAY_ACCOUNT__',model:'gemini-3.1-flash-lite'},msgs);
+ assert.equal(result.text,'測試成功');
+ assert.equal(s.calls[0][1].headers.Authorization,'Bearer '+session);
+ assert.equal(s.calls[0][1].body.includes(session),false);
+});
