@@ -28,4 +28,19 @@ test.describe('Player 2.0 shell', () => {
     await expect(page.locator('#me-view')).toHaveClass(/active/);
     await expect(page.locator('#me-view')).toContainText('Local-first');
   });
+  test('work discovery searches current cards and keeps local author tools collapsed', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await page.goto('/');
+    await page.evaluate(() => App.showView('explore'));
+    await expect(page.locator('#bao-work-search')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('#bao-local-tools')).toBeVisible();
+    await expect(page.locator('#bao-local-tools')).not.toHaveAttribute('open', '');
+
+    const total = await page.locator('#character-list .character-card').count();
+    expect(total).toBeGreaterThan(1);
+    await page.locator('#bao-work-search').fill('林沉風');
+    await expect(page.locator('#character-list .character-card:visible')).toHaveCount(1);
+    await expect(page.locator('#character-list .character-card:visible')).toContainText('林沉風');
+  });
+
 });
