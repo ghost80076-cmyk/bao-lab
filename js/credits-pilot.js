@@ -1,4 +1,4 @@
-/* BAO/LAB invited credits pilot. Player tokens stay in page memory; never add owner secrets here. */
+/* YoruBay account wallet bridge. Player sessions stay in page memory; never add owner secrets here. */
 (() => {
   "use strict";
   if (typeof App === "undefined" || typeof API === "undefined" || window.BAOCreditsPilot) return;
@@ -11,6 +11,7 @@
   const MODEL_PROVIDERS = Object.freeze({
     "gemini-3-flash-preview": "gemini",
     "gemini-3.1-flash-lite": "gemini",
+    "gemini-3.1-pro-preview": "gemini",
     "google/gemini-3.1-pro-preview": "openrouter",
     "anthropic/claude-sonnet-4.5": "openrouter",
     "anthropic/claude-sonnet-4.6": "openrouter",
@@ -19,19 +20,30 @@
   });
   const MODELS = Object.keys(MODEL_PROVIDERS);
   const PRESETS = [
-    { provider: PROVIDER, provider_label: "BAO/LAB 測試額度（邀請制）", label: "Gemini 3 Flash · 故事", model: MODELS[0], base_url: ENDPOINT, protocol: "openai", route: PROVIDER, use_case: "限邀請測試" },
-    { provider: PROVIDER, provider_label: "BAO/LAB 測試額度（邀請制）", label: "Gemini 3.1 Flash-Lite · 摘要", model: MODELS[1], base_url: ENDPOINT, protocol: "openai", route: PROVIDER, use_case: "限邀請測試" },
-    { provider: PROVIDER, provider_label: "BAO/LAB 測試額度（邀請制）", label: "Gemini 3.1 Pro · OpenRouter（付費）", model: MODELS[2], base_url: ENDPOINT, protocol: "openai", route: PROVIDER, use_case: "限邀請測試 · 由站長負擔 OpenRouter 費用" },
-    { provider: PROVIDER, provider_label: "BAO/LAB 測試額度（邀請制）", label: "Claude Sonnet 4.5 · OpenRouter", model: MODELS[3], base_url: ENDPOINT, protocol: "openai", route: PROVIDER, use_case: "限邀請測試 · Claude 舊版文風相容" },
-    { provider: PROVIDER, provider_label: "BAO/LAB 測試額度（邀請制）", label: "Claude Sonnet 4.6 · OpenRouter", model: MODELS[4], base_url: ENDPOINT, protocol: "openai", route: PROVIDER, use_case: "限邀請測試 · Claude 高品質長篇" },
-    { provider: PROVIDER, provider_label: "BAO/LAB 測試額度（邀請制）", label: "Claude Opus 4.5 · OpenRouter", model: MODELS[5], base_url: ENDPOINT, protocol: "openai", route: PROVIDER, use_case: "限邀請測試 · Claude Opus 舊版相容" },
-    { provider: PROVIDER, provider_label: "BAO/LAB 測試額度（邀請制）", label: "Claude Opus 4.6 · OpenRouter", model: MODELS[6], base_url: ENDPOINT, protocol: "openai", route: PROVIDER, use_case: "限邀請測試 · Claude Opus 高品質" }
+    { provider: PROVIDER, provider_label: "YoruBay API 額度", label: "Gemini 3 Flash · Google 官方", model: "gemini-3-flash-preview", base_url: ENDPOINT, protocol: "openai", route: PROVIDER, use_case: "登入 YoruBay 後直接使用，依 Wallet 扣除模型成本" },
+    { provider: PROVIDER, provider_label: "YoruBay API 額度", label: "Gemini 3.1 Flash-Lite · Google 官方", model: "gemini-3.1-flash-lite", base_url: ENDPOINT, protocol: "openai", route: PROVIDER, use_case: "登入 YoruBay 後直接使用，適合摘要與低成本整理" },
+    { provider: PROVIDER, provider_label: "YoruBay API 額度", label: "Gemini 3.1 Pro · Google 官方", model: "gemini-3.1-pro-preview", base_url: ENDPOINT, protocol: "openai", route: PROVIDER, use_case: "登入 YoruBay 後直接使用，依 Google 官方模型成本扣款" },
+    { provider: PROVIDER, provider_label: "YoruBay API 額度", label: "Gemini 3.1 Pro · OpenRouter", model: "google/gemini-3.1-pro-preview", base_url: ENDPOINT, protocol: "openai", route: PROVIDER, use_case: "登入 YoruBay 後直接使用，經 OpenRouter 路由" },
+    { provider: PROVIDER, provider_label: "YoruBay API 額度", label: "Claude Sonnet 4.5 · OpenRouter", model: "anthropic/claude-sonnet-4.5", base_url: ENDPOINT, protocol: "openai", route: PROVIDER, use_case: "登入 YoruBay 後直接使用，Claude 舊版文風相容" },
+    { provider: PROVIDER, provider_label: "YoruBay API 額度", label: "Claude Sonnet 4.6 · OpenRouter", model: "anthropic/claude-sonnet-4.6", base_url: ENDPOINT, protocol: "openai", route: PROVIDER, use_case: "登入 YoruBay 後直接使用，適合高品質長篇" },
+    { provider: PROVIDER, provider_label: "YoruBay API 額度", label: "Claude Opus 4.5 · OpenRouter", model: "anthropic/claude-opus-4.5", base_url: ENDPOINT, protocol: "openai", route: PROVIDER, use_case: "登入 YoruBay 後直接使用，Opus 舊版相容" },
+    { provider: PROVIDER, provider_label: "YoruBay API 額度", label: "Claude Opus 4.6 · OpenRouter", model: "anthropic/claude-opus-4.6", base_url: ENDPOINT, protocol: "openai", route: PROVIDER, use_case: "登入 YoruBay 後直接使用，適合高品質重要劇情" }
   ];
-  const isPilot = config => config?.type === PROVIDER || config?.route === PROVIDER;
   const isEndpoint = value => String(value || "").trim().replace(/\/+$/, "") === ENDPOINT;
   const encoder = new TextEncoder();
   const accountToken = () => String(window.localStorage?.getItem?.("yorubay:session") || "").trim();
   const accountSentinel = "__YORUBAY_ACCOUNT__";
+  const isAccountConnection = config => isEndpoint(config?.baseUrl) && Boolean(MODEL_PROVIDERS[config?.model]);
+  const isPilot = config => config?.type === PROVIDER || config?.route === PROVIDER || isAccountConnection(config);
+  const isAccountReady = config => Boolean(accountToken()) && isAccountConnection(config);
+  const prepareAccountConfig = config => {
+    if (!config || !isAccountReady(config)) return false;
+    config.type = PROVIDER;
+    config.route = PROVIDER;
+    config.protocol = "openai";
+    config.key = accountSentinel;
+    return true;
+  };
   const upstreamName = model => MODEL_PROVIDERS[model] === "openrouter" ? "OpenRouter" : "Google Gemini";
 
   const ensurePresets = () => {
@@ -43,7 +55,7 @@
     if (types && !types.querySelector(`option[value="${PROVIDER}"]`)) {
       const option = document.createElement("option");
       option.value = PROVIDER;
-      option.textContent = "BAO/LAB 測試額度（邀請制）";
+      option.textContent = "YoruBay API 額度";
       types.appendChild(option);
     }
     return true;
@@ -57,6 +69,16 @@
     const parent = field?.closest("label");
     if (parent?.firstChild?.nodeType === 3) parent.firstChild.nodeValue = label;
   };
+  const setLabelHidden = (field, hidden) => {
+    const label = field?.closest?.("label");
+    if (label) label.hidden = Boolean(hidden);
+  };
+  const refreshBuilderFields = enabled => {
+    const loggedIn = Boolean(accountToken());
+    setLabelHidden(document.getElementById("model-id"), enabled);
+    setLabelHidden(document.getElementById("base-url"), enabled);
+    setLabelHidden(document.getElementById("api-key"), enabled && loggedIn);
+  };
   const selectedPilotModel = () => {
     const select = document.getElementById("model-select");
     const preset = App.getSelectedPreset?.() || App.modelPresets?.[Number(select?.value)];
@@ -65,7 +87,7 @@
   const pilotHint = model => {
     if (accountToken()) {
       const route = MODEL_PROVIDERS[model] === "openrouter" ? "OpenRouter" : "Google Gemini";
-      return `已登入 YoruBay。此模型由 YoruBay 後端轉送 ${route}，成功請求會依帳號目前計費模式扣除 API 額度；故事內容不會寫入帳號資料庫。可到「YoruBay 帳號」查看玩家編號與餘額。`;
+      return `已登入 YoruBay。此模型由 YoruBay 後端轉送 ${route}，不需要自己的 API Key；成功請求會依帳號 Wallet 扣除 API 額度。故事內容不會寫入帳號資料庫。`;
     }
     return "請先點上方「YoruBay 帳號」使用邀請碼註冊或登入。舊版封測玩家仍可在下方貼上 bao_ 玩家金鑰。";
   };
@@ -88,7 +110,8 @@
     const hint = document.getElementById("api-hint");
     if (enabled && hint) hint.textContent = pilotHint(selectedPilotModel());
     const badge = document.getElementById("api-protocol-badge");
-    if (enabled && badge) badge.textContent = "YoruBay";
+    if (enabled && badge) badge.textContent = "YoruBay Wallet";
+    refreshBuilderFields(enabled);
   };
   const originalSync = App.syncSelectedPreset;
   App.syncSelectedPreset = function(...args) {
@@ -108,7 +131,7 @@
     }
     const upstreamProvider = MODEL_PROVIDERS[config.model];
     if (!isEndpoint(config.baseUrl) || !upstreamProvider) {
-      throw new Error("BAO/LAB 測試額度僅支援指定的邀請制模型及固定後端網址。請重新選擇模型預設。");
+      throw new Error("YoruBay API 額度僅支援已開放模型及固定後端網址。請重新選擇模型預設。");
     }
     const sessionToken = accountToken();
     const legacyToken = String(config.key || "").trim();
@@ -202,9 +225,24 @@
 
   const refreshDialog = backdrop => {
     const preset = backdrop.querySelector('select[name="preset"]');
-    const selected = App.modelPresets?.[Number(preset?.value)];
-    const pilot = selected?.provider === PROVIDER && preset?.value !== "custom";
+    const modelField = backdrop.querySelector('input[name="model"]');
+    const baseUrlField = backdrop.querySelector('input[name="baseUrl"]');
+    const protocolField = backdrop.querySelector('select[name="protocol"]');
     const key = backdrop.querySelector('input[name="key"]');
+    let selected = App.modelPresets?.[Number(preset?.value)];
+
+    if ((!selected || preset?.value === "custom") && isEndpoint(baseUrlField?.value) && MODEL_PROVIDERS[modelField?.value]) {
+      const walletIndex = App.modelPresets?.findIndex(p => p.provider === PROVIDER && p.model === modelField.value);
+      if (Number.isInteger(walletIndex) && walletIndex >= 0) {
+        preset.value = String(walletIndex);
+        selected = App.modelPresets[walletIndex];
+        protocolField.value = selected.protocol || "openai";
+        modelField.value = selected.model || "";
+        baseUrlField.value = selected.base_url || "";
+      }
+    }
+
+    const pilot = selected?.provider === PROVIDER && preset?.value !== "custom";
     const loggedIn = Boolean(accountToken());
     setFieldLabel(key, pilot ? (loggedIn ? "YoruBay 帳號" : "玩家金鑰（舊版）") : "連線金鑰（API Key）");
     if (key) {
@@ -218,8 +256,15 @@
         key.placeholder = pilot ? "先登入 YoruBay；舊版玩家可貼 bao_ 金鑰" : "貼上自己的 API Key";
       }
     }
+
+    setLabelHidden(protocolField, pilot);
+    setLabelHidden(modelField, pilot);
+    setLabelHidden(baseUrlField, pilot);
+    setLabelHidden(key, pilot && loggedIn);
+
     const hint = backdrop.querySelector(".bao-chat-api-hint");
     if (pilot && hint) hint.textContent = pilotHint(selected.model);
+    else if (hint) hint.textContent = "連線金鑰（API Key）只保留在目前開啟的頁面記憶體，不寫入故事存檔或備份。更換 AI 服務商或連線網址時，必須輸入新的金鑰。";
   };
   const watchDialog = () => {
     const observer = new MutationObserver(mutations => {
@@ -245,5 +290,5 @@
   };
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
   else init();
-  window.BAOCreditsPilot = Object.freeze({ endpoint: ENDPOINT, models: [...MODELS] });
+  window.BAOCreditsPilot = Object.freeze({ endpoint: ENDPOINT, provider: PROVIDER, models: [...MODELS], isAccountConnection, isAccountReady, prepareAccountConfig });
 })();
