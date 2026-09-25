@@ -185,6 +185,22 @@
         provider_invalid_json: `${name} 回覆無法解析，請向管理員回報。`,
         provider_not_configured: "BAO/LAB 後端尚未設定此模型金鑰。",
         provider_request_failed: `${name} 暫時無法回覆；請管理員檢查上游服務及配額。`,
+        google_bad_request_region: "Google Gemini 回報目前請求來源區域不受支援。",
+        google_bad_request_billing: "Google Gemini 回報此專案的付費／Billing 條件尚未滿足。",
+        google_bad_request_model_not_allowed: "AWS Gemini 中繼尚未允許這個模型，請管理員更新 Relay 模型清單。",
+        google_bad_request_model_unavailable: "Google Gemini 回報此模型不存在、不可用或已停用。",
+        google_bad_request_permission: "Google Gemini 回報目前 API 專案沒有使用此模型的權限。",
+        google_bad_request_api_key: "Google Gemini 回報 API Key 或驗證設定有問題。",
+        google_bad_request_generation_config: "Google Gemini 不接受目前的生成參數設定。",
+        google_bad_request_system_instruction: "Google Gemini 不接受目前的 system instruction 格式。",
+        google_bad_request_message_format: "Google Gemini 不接受目前的對話訊息格式。",
+        google_bad_request_context_limit: "本次內容超過 Google Gemini 可接受的上下文或請求大小。",
+        google_bad_request_invalid_argument: "Google Gemini 回報請求參數無效。",
+        google_bad_request_precondition: "Google Gemini 回報目前專案或模型尚未滿足必要條件。",
+        google_bad_request_quota: "Google Gemini 回報供應商配額不足或已達限制。",
+        google_bad_request_unavailable: "Google Gemini 目前暫時不可用。",
+        google_bad_request_thought_signature: "Google Gemini 回報 thought signature 格式不符合要求。",
+        google_bad_request_invalid_error_payload: "AWS Gemini 中繼回傳了無法辨識的錯誤格式，請管理員檢查 Relay 日誌。",
         origin_not_allowed: "目前網站網址不在 Worker 的允許來源清單。"
       };
       const detail = errors[data?.error] || `BAO/LAB 後端錯誤（HTTP ${response.status}；${String(data?.error || 'unknown').slice(0, 80)}）。`;
