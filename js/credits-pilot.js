@@ -245,6 +245,11 @@
 
     const pilot = selected?.provider === PROVIDER && preset?.value !== "custom";
     const loggedIn = validAccountSession();
+    if (pilot) {
+      protocolField.value = selected.protocol || "openai";
+      modelField.value = selected.model || "";
+      baseUrlField.value = selected.base_url || "";
+    }
     setFieldLabel(key, pilot ? (loggedIn ? "YoruBay 帳號" : "玩家金鑰（舊版）") : "連線金鑰（API Key）");
     if (key) {
       if (pilot && loggedIn) {
