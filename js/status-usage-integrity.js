@@ -101,11 +101,11 @@
   // A streaming gateway may omit usage entirely. Never imply unknown = 0.
   let missingReports = 0;
   const oldAddUsage = Chat.addUsage.bind(Chat);
-  Chat.addUsage = function(usage = {}) {
+  Chat.addUsage = function(usage = {}, kind = "all") {
     const input = usage.input_tokens ?? usage.prompt_tokens;
     const output = usage.output_tokens ?? usage.completion_tokens;
     if (input == null || output == null) missingReports += 1;
-    return oldAddUsage(usage);
+    return oldAddUsage(usage, kind);
   };
   const decorateUsage = () => {
     const bar = document.querySelector('.usage-bar');
