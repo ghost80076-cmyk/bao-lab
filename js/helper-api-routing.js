@@ -35,7 +35,7 @@
   API.__helperRoutePatched = true;
 })();
 
-// Load local support after the existing routing wrappers; neither module starts a server.
+// Load local and credential-reconnect support after the existing routing wrappers.
 (() => {
   const load = src => new Promise((resolve, reject) => {
     const existing = document.querySelector(`script[src="${src}"]`);
@@ -46,6 +46,8 @@
     script.onerror = reject;
     document.head.appendChild(script);
   });
+  load('js/story-helper-reconnect.js')
+    .catch(error => console.warn('BAO/LAB story helper API reconnect did not load:', error));
   load('js/lm-studio-core.js').then(() => load('js/lm-studio.js'))
     .catch(error => console.warn('BAO/LAB LM Studio local provider did not load:', error));
 })();
