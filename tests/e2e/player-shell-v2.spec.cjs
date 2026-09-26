@@ -93,4 +93,13 @@ test.describe('Player 2.0 shell', () => {
     await expect(page.locator('[data-bao-connection="byok"]')).toHaveAttribute('aria-pressed', 'true');
   });
 
+  test('BAO Account page matches the player shell on mobile', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto('/account.html');
+    await expect(page.locator('.yb-account-hero h1')).toHaveText('帳號與 API 額度');
+    await expect(page.locator('.yb-local-first')).toContainText('Local-first');
+    await expect(page.locator('.yb-tabs')).toBeVisible();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(391);
+  });
+
 });
