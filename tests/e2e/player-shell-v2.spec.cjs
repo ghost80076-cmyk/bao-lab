@@ -42,6 +42,8 @@ test.describe('Player 2.0 shell', () => {
 
     const total = await page.locator('#character-list .character-card').count();
     expect(total).toBeGreaterThan(1);
+    await expect(page.locator('#character-list .character-card img').first()).toHaveAttribute('loading', 'lazy');
+    await expect(page.locator('#character-list .character-card img').first()).toHaveAttribute('decoding', 'async');
     await page.locator('#bao-work-search').fill('林沉風');
     await expect(page.locator('#character-list .character-card:visible')).toHaveCount(1);
     await expect(page.locator('#character-list .character-card:visible')).toContainText('林沉風');
