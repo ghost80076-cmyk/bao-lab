@@ -77,6 +77,8 @@ jobs:
         run: node tests/api-provider-contracts.cjs
       - name: Provider failure and cancellation contracts
         run: node tests/api-failure-contracts.cjs
+      - name: Bounded API retry contracts
+        run: node tests/api-retry-contracts.cjs
       - name: Provider browser diagnostics
         run: node tests/provider-diagnostics-core.cjs
       - name: Provider streaming contracts
