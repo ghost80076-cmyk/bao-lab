@@ -1108,8 +1108,7 @@ function reservePlan(
 
   if (
     inputRate === null ||
-    outputRate === null ||
-    outputRate <= 0
+    outputRate === null
   ) {
     return null;
   }
@@ -1163,6 +1162,32 @@ function reservePlan(
 
       affordableOutputTokens:
         0,
+    };
+  }
+
+  // Zero-output-price models (including fully free OpenRouter models)
+  // must not be rejected or divided by zero. They may use the full
+  // requested output allowance while reserving only any non-zero
+  // input/cache-write cost configured for the model.
+  if (
+    outputRate === 0
+  ) {
+    return {
+      ok:
+        true,
+
+      estimatedInputTokens,
+
+      inputReserveMicrousd,
+
+      outputReserveMicrousd:
+        0,
+
+      reserveMicrousd:
+        inputReserveMicrousd,
+
+      effectiveMaxOutput:
+        requestedMaxOutput,
     };
   }
 
@@ -5408,40 +5433,55 @@ async function costUsdChatRoute(
     );
   }
 
-  const reserveDebit =
-    await db
-      .prepare(
-        `
-        UPDATE wallets
+  let reserveDebit = {
+    meta: {
+      changes:
+        1,
+    },
+  };
 
-        SET
-          balance_microusd =
-            balance_microusd -
-            ?,
+  // A fully free model has nothing to reserve. Avoid relying on a
+  // database no-op UPDATE being reported as a changed row.
+  if (
+    plan
+      .reserveMicrousd >
+    0
+  ) {
+    reserveDebit =
+      await db
+        .prepare(
+          `
+          UPDATE wallets
 
-          updated_at =
-            CURRENT_TIMESTAMP
+          SET
+            balance_microusd =
+              balance_microusd -
+              ?,
 
-        WHERE
-          player_id = ?
+            updated_at =
+              CURRENT_TIMESTAMP
 
-          AND
-          enabled = 1
+          WHERE
+            player_id = ?
 
-          AND
-          balance_microusd >= ?
-        `
-      )
-      .bind(
-        plan
-          .reserveMicrousd,
+            AND
+            enabled = 1
 
-        player.id,
+            AND
+            balance_microusd >= ?
+          `
+        )
+        .bind(
+          plan
+            .reserveMicrousd,
 
-        plan
-          .reserveMicrousd
-      )
-      .run();
+          player.id,
+
+          plan
+            .reserveMicrousd
+        )
+        .run();
+  }
 
   if (
     !reserveDebit

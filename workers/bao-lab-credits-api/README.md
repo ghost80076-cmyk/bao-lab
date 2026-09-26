@@ -54,3 +54,28 @@ When a matched player requests an allowed `openrouter` model, the Worker sends t
 Unmatched players continue to call OpenRouter directly from the Worker with `OPENROUTER_API_KEY`.
 
 This switch is server-side only: the browser cannot choose the route. Model allowlisting and Wallet settlement remain in the Worker, and the AWS relay returns the raw OpenRouter response so existing `usage.cost` settlement continues to work.
+
+
+## OpenRouter free-model Wallet behavior
+
+The cost-USD billing path supports zero-priced models. When a model is configured with zero input/output rates and OpenRouter reports `usage.cost = 0`:
+
+- the Worker creates the usage record but reserves **$0** from the player's Wallet;
+- a successful request settles at **$0** and leaves the Wallet balance unchanged;
+- the player still needs an enabled YoruBay Wallet/account;
+- if the upstream unexpectedly reports a non-zero `usage.cost`, the existing actual-cost settlement path applies instead of silently treating it as free.
+
+Example `MODELS_JSON` entry for the OpenRouter free router:
+
+```json
+{
+  "provider": "openrouter",
+  "model": "openrouter/free",
+  "input_microusd_per_million": 0,
+  "output_microusd_per_million": 0,
+  "cache_read_microusd_per_million": 0,
+  "cache_write_microusd_per_million": 0
+}
+```
+
+For players routed through the AWS OpenRouter relay, also add `openrouter/free` to the relay's `OPENROUTER_MODELS` allowlist before enabling the preset in production.
