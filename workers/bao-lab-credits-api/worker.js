@@ -2484,6 +2484,12 @@ async function meRoute(
       walletBalance /
       1_000_000,
 
+    // Player-facing denomination: 1 USD of internal model-cost balance = 1,000 YoruBay points.
+    // Keep the USD fields for backwards compatibility and internal accounting.
+    wallet_balance_points:
+      walletBalance /
+      1_000,
+
     wallet_currency:
       player
         .wallet_currency ||
@@ -2495,6 +2501,128 @@ async function meRoute(
     chat_used_today_utc:
       safeInt(
         used?.n
+      ),
+  });
+}
+
+async function walletLedgerRoute(
+  request,
+  db
+) {
+  const player =
+    await playerFor(
+      request,
+      db
+    );
+
+  if (
+    !player ||
+    !player.enabled
+  ) {
+    return fail(
+      "unauthorized",
+      401
+    );
+  }
+
+  const rows =
+    await db
+      .prepare(
+        `
+        SELECT
+          ledger_id,
+          entry_type,
+          amount_microusd,
+          balance_after_microusd,
+          note,
+          created_at
+
+        FROM wallet_ledger
+
+        WHERE
+          player_id = ?
+
+        ORDER BY
+          created_at DESC
+
+        LIMIT 50
+        `
+      )
+      .bind(
+        player.id
+      )
+      .all();
+
+  const legacyTopupNotes =
+    new Set([
+      "",
+      "YoruBay manual wallet top-up",
+      "manual wallet top-up",
+    ]);
+
+  return json({
+    entries:
+      rows.results.map(
+        (row) => {
+          const rawNote =
+            String(
+              row.note ||
+              ""
+            ).trim();
+
+          let label =
+            row.entry_type ===
+              "usage"
+              ? "AI 使用"
+              : row.entry_type ===
+                  "topup"
+                ? (
+                    legacyTopupNotes
+                      .has(rawNote)
+                      ? "點數加值"
+                      : rawNote
+                  )
+                : "點數調整";
+
+          label =
+            String(
+              label ||
+              "點數異動"
+            ).slice(
+              0,
+              80
+            );
+
+          return {
+            id:
+              row.ledger_id,
+
+            type:
+              row.entry_type,
+
+            label,
+
+            points:
+              safeMoneyInt(
+                row.amount_microusd
+              ) /
+              1_000,
+
+            balance_after_points:
+              row
+                .balance_after_microusd ==
+              null
+                ? null
+                : safeMoneyInt(
+                    row
+                      .balance_after_microusd
+                  ) /
+                  1_000,
+
+            created_at:
+              row.created_at,
+          };
+        }
       ),
   });
 }
@@ -6455,6 +6583,19 @@ export default {
           await meRoute(
             request,
             env,
+            db
+          );
+      }
+
+      else if (
+        url.pathname ===
+          "/me/wallet-ledger" &&
+        request.method ===
+          "GET"
+      ) {
+        response =
+          await walletLedgerRoute(
+            request,
             db
           );
       }
