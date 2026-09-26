@@ -229,6 +229,7 @@
     render();
   };
 
+  window.BAOCostControl = { estimate, cumulativeCost, entryPricing };
   if (document.readyState === "loading") window.addEventListener("DOMContentLoaded", () => setTimeout(init, 20));
   else setTimeout(init, 20);
 })();
