@@ -113,6 +113,7 @@ body{min-height:100vh;background:#101118;color:#f5f1ff}
   var token=localStorage.getItem(KEY)||"";
   var profile=null;
   var ledger=[];
+  var walletChannel=null;
 
   function msg(id,text){document.getElementById(id).textContent=text||"";}
   function formatPoints(value){
@@ -178,10 +179,10 @@ body{min-height:100vh;background:#101118;color:#f5f1ff}
       '<div class="yb-row"><span>玩家編號</span><b id="v-id"></b></div></div>'+
       '<div class="yb-note">YoruBay AI 點數</div><div class="yb-wallet" id="v-wallet"></div>'+
       '<div class="yb-note" id="v-billing"></div>'+
-      '<div class="yb-actions"><button class="yb-secondary" id="copy-id">複製玩家編號</button><button class="yb-secondary" id="refresh">重新整理點數</button></div>'+
+      '<div class="yb-actions"><button class="yb-secondary" id="copy-id">複製玩家編號</button><button class="yb-secondary" id="refresh">同步最新點數</button></div>'+
       '<div class="yb-box"><b>點數方案</b><p class="yb-note">完成付款後提供玩家編號，管理員確認後會把 YoruBay AI 點數加入帳號。點數只能用於 BAO/LAB 的 Hosted AI 功能。</p>'+
       '<div class="yb-packages"><div class="yb-package">NT$220 或 US$7<br>→ 5,000 點</div><div class="yb-package">NT$430 或 US$13<br>→ 10,000 點</div><div class="yb-package">NT$850 或 US$26<br>→ 20,000 點</div><div class="yb-package">NT$2,150 或 US$65<br>→ 50,000 點</div></div></div>'+
-      '<div class="yb-box"><b>點數紀錄</b><p class="yb-note">加值、贈送與 AI 使用會記錄在這裡；頁面開啟時會自動更新，不必手動重新整理瀏覽器。</p><div class="yb-ledger" id="v-ledger"></div></div>'+
+      '<div class="yb-box"><b>點數紀錄</b><p class="yb-note">加值、贈送與 AI 使用會記錄在這裡。進入本頁、切回本頁或按「同步最新點數」時會抓取最新資料；不使用固定時間輪詢。</p><div class="yb-ledger" id="v-ledger"></div></div>'+
       '<div class="yb-actions"><a class="yb-primary" href="index.html">回到 BAO/LAB</a><button class="yb-secondary" id="logout">登出</button></div>';
     document.getElementById("v-display").textContent=profile.display_name||"—";
     document.getElementById("v-user").textContent=profile.username||"—";
@@ -240,6 +241,34 @@ body{min-height:100vh;background:#101118;color:#f5f1ff}
       show("login");
     }
   }
+  function applyWalletEvent(event){
+    if(!profile||!event||event.source!=="yorubay-ai-usage") return;
+    var balance=Number(event.wallet_balance_points);
+    if(Number.isFinite(balance)){
+      profile.wallet_balance_points=balance;
+      profile.wallet_balance_usd=balance/1000;
+    }
+    var points=Number(event.points);
+    if(event.id&&Number.isFinite(points)&&!ledger.some(function(row){return row&&row.id===event.id;})){
+      ledger.unshift({
+        id:event.id,
+        type:"usage",
+        label:event.label||"AI 使用",
+        points:points,
+        balance_after_points:Number.isFinite(balance)?balance:null,
+        created_at:event.created_at||new Date().toISOString()
+      });
+      ledger=ledger.slice(0,50);
+    }
+    render();
+  }
+  function setupWalletChannel(){
+    if(!("BroadcastChannel" in window)) return;
+    try{
+      walletChannel=new BroadcastChannel("yorubay-wallet");
+      walletChannel.onmessage=function(message){applyWalletEvent(message&&message.data);};
+    }catch(e){walletChannel=null;}
+  }
   async function logout(){
     var old=token;localStorage.removeItem(KEY);token="";profile=null;
     if(old){try{await call("/auth/logout",{method:"POST"},old);}catch(e){}}
@@ -271,15 +300,10 @@ body{min-height:100vh;background:#101118;color:#f5f1ff}
       token=data.session_token;localStorage.setItem(KEY,token);profile=await call("/me",{method:"GET"},token);f.reset();recovery(data.recovery_code);
     }catch(error){msg("recover-error",error.message);}finally{button.disabled=false;}
   };
+  setupWalletChannel();
   refresh(true);
-  setInterval(function(){
-    if(token&&profile&&!document.hidden) refresh(true);
-  },30000);
   document.addEventListener("visibilitychange",function(){
     if(!document.hidden&&token) refresh(true);
-  });
-  window.addEventListener("focus",function(){
-    if(token) refresh(true);
   });
 })();
 </script>
