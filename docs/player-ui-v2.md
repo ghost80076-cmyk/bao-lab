@@ -45,3 +45,9 @@ Player 2.0 的目標不是重做 Story Engine，而是把既有能力重新包�
 - 帳號 API 額度只切換既有 `bao-credits` 路由，不改 Wallet、Worker 或計價邏輯。
 - 故事中的「AI 模型與連線」視窗預設只顯示模型與 API Key；Protocol、Model ID、Base URL 收到「進階連線設定」。自訂連線會自動展開進階欄位。
 - OpenAI/GPT 的 Hosted 模型目錄與即時計價仍屬後端 Model Catalog 工作，不在這個 UI PR 假造不存在的模型。
+
+## 第五階段：帳號與 Wallet 表面
+
+- 玩家端正式使用「BAO 帳號與 API 額度」語言；內部既有 YoruBay session / Worker 路由暫不重命名，避免在 UI PR 裡動身份協議。
+- 帳號頁明確說明：登入只服務 Hosted API 額度與線上服務，Local-first / BYOK / 本地故事不要求登入。
+- Wallet 餘額與人工儲值方案改成 Player 2.0 視覺層級；管理員加值頁不在本輪重做。
