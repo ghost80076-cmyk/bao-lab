@@ -18,7 +18,7 @@ const openDemoCanon = async page => {
   await page.locator("#bao-demo-mode").check();
   await page.getByRole("button", { name: "下一步" }).click();
   await page.getByRole("button", { name: "開始故事" }).click();
-  const memoryButton = page.getByRole("button", { name: /記憶工作台/ });
+  const memoryButton = page.locator('#bao-player-settings [data-bao-open="memory"]');
   await expect(memoryButton).toBeVisible();
   await memoryButton.click();
   await page.getByRole("button", { name: "劇情檔案" }).click();
@@ -57,7 +57,7 @@ test.describe("Canon workbench responsive UI", () => {
   test("memory workbench exposes three player goals and keeps AI cleanup progressive", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await openDemoStory(page);
-    await page.getByRole("button", { name: /記憶/ }).click();
+    await page.locator('#bao-player-settings [data-bao-open="memory"]').click();
 
     const desk = page.locator(".memory-desk");
     await expect(desk.getByRole("heading", { name: "記憶", exact: true })).toBeVisible();
