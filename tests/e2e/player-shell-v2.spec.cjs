@@ -25,6 +25,8 @@ test.describe('Player 2.0 shell', () => {
     await expect(page.locator('#bao-mobile-nav')).toBeHidden();
     await expect(page.locator('.topbar nav a[href="account.html"]')).toBeHidden();
     await expect(page.locator('.topbar nav a[href*="ko-fi.com"]')).toBeHidden();
+    await expect(page.locator('.topbar nav [data-bao-regex-link]')).toBeHidden();
+    await expect(page.locator('.topbar nav #bao-drive-button')).toBeHidden();
 
     await page.locator('#bao-me-nav').click();
     await expect(page.locator('#me-view')).toHaveClass(/active/);
