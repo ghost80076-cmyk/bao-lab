@@ -21,15 +21,15 @@
   });
   const MODELS = Object.keys(MODEL_PROVIDERS);
   const PRESETS = [
-    { provider: PROVIDER, provider_label: "YoruBay API 額度", label: "Gemini 3 Flash · Google 官方", model: "gemini-3-flash-preview", base_url: ENDPOINT, protocol: "openai", route: PROVIDER, use_case: "登入 YoruBay 後直接使用，依 Wallet 扣除模型成本" },
-    { provider: PROVIDER, provider_label: "YoruBay API 額度", label: "Gemini 3.1 Flash-Lite · Google 官方", model: "gemini-3.1-flash-lite", base_url: ENDPOINT, protocol: "openai", route: PROVIDER, use_case: "登入 YoruBay 後直接使用，適合摘要與低成本整理" },
-    { provider: PROVIDER, provider_label: "YoruBay API 額度", label: "Gemini 3.1 Pro · Google 官方", model: "gemini-3.1-pro-preview", base_url: ENDPOINT, protocol: "openai", route: PROVIDER, use_case: "登入 YoruBay 後直接使用，依 Google 官方模型成本扣款" },
-    { provider: PROVIDER, provider_label: "YoruBay API 額度", label: "Gemini 3.1 Pro · OpenRouter", model: "google/gemini-3.1-pro-preview", base_url: ENDPOINT, protocol: "openai", route: PROVIDER, use_case: "登入 YoruBay 後直接使用，經 OpenRouter 路由" },
-    { provider: PROVIDER, provider_label: "YoruBay API 額度", label: "OpenRouter Free · 免費路由", model: "openrouter/free", base_url: ENDPOINT, protocol: "openai", route: PROVIDER, use_case: "OpenRouter 免費模型路由；實際 usage.cost 為 0 時不扣 YoruBay Wallet，受免費模型配額限制" },
-    { provider: PROVIDER, provider_label: "YoruBay API 額度", label: "Claude Sonnet 4.5 · OpenRouter", model: "anthropic/claude-sonnet-4.5", base_url: ENDPOINT, protocol: "openai", route: PROVIDER, use_case: "登入 YoruBay 後直接使用，Claude 舊版文風相容" },
-    { provider: PROVIDER, provider_label: "YoruBay API 額度", label: "Claude Sonnet 4.6 · OpenRouter", model: "anthropic/claude-sonnet-4.6", base_url: ENDPOINT, protocol: "openai", route: PROVIDER, use_case: "登入 YoruBay 後直接使用，適合高品質長篇" },
-    { provider: PROVIDER, provider_label: "YoruBay API 額度", label: "Claude Opus 4.5 · OpenRouter", model: "anthropic/claude-opus-4.5", base_url: ENDPOINT, protocol: "openai", route: PROVIDER, use_case: "登入 YoruBay 後直接使用，Opus 舊版相容" },
-    { provider: PROVIDER, provider_label: "YoruBay API 額度", label: "Claude Opus 4.6 · OpenRouter", model: "anthropic/claude-opus-4.6", base_url: ENDPOINT, protocol: "openai", route: PROVIDER, use_case: "登入 YoruBay 後直接使用，適合高品質重要劇情" }
+    { provider: PROVIDER, provider_label: "YoruBay AI 點數", label: "Gemini 3 Flash · Google 官方", model: "gemini-3-flash-preview", base_url: ENDPOINT, protocol: "openai", route: PROVIDER, use_case: "登入 YoruBay 後直接使用，依 YoruBay 點數扣除實際 AI 使用量" },
+    { provider: PROVIDER, provider_label: "YoruBay AI 點數", label: "Gemini 3.1 Flash-Lite · Google 官方", model: "gemini-3.1-flash-lite", base_url: ENDPOINT, protocol: "openai", route: PROVIDER, use_case: "登入 YoruBay 後直接使用，適合摘要與低成本整理" },
+    { provider: PROVIDER, provider_label: "YoruBay AI 點數", label: "Gemini 3.1 Pro · Google 官方", model: "gemini-3.1-pro-preview", base_url: ENDPOINT, protocol: "openai", route: PROVIDER, use_case: "登入 YoruBay 後直接使用，依 Google 官方模型成本扣款" },
+    { provider: PROVIDER, provider_label: "YoruBay AI 點數", label: "Gemini 3.1 Pro · OpenRouter", model: "google/gemini-3.1-pro-preview", base_url: ENDPOINT, protocol: "openai", route: PROVIDER, use_case: "登入 YoruBay 後直接使用，經 OpenRouter 路由" },
+    { provider: PROVIDER, provider_label: "YoruBay AI 點數", label: "OpenRouter Free · 免費路由", model: "openrouter/free", base_url: ENDPOINT, protocol: "openai", route: PROVIDER, use_case: "OpenRouter 免費模型路由；實際 usage.cost 為 0 時不扣 YoruBay 點數，受免費模型配額限制" },
+    { provider: PROVIDER, provider_label: "YoruBay AI 點數", label: "Claude Sonnet 4.5 · OpenRouter", model: "anthropic/claude-sonnet-4.5", base_url: ENDPOINT, protocol: "openai", route: PROVIDER, use_case: "登入 YoruBay 後直接使用，Claude 舊版文風相容" },
+    { provider: PROVIDER, provider_label: "YoruBay AI 點數", label: "Claude Sonnet 4.6 · OpenRouter", model: "anthropic/claude-sonnet-4.6", base_url: ENDPOINT, protocol: "openai", route: PROVIDER, use_case: "登入 YoruBay 後直接使用，適合高品質長篇" },
+    { provider: PROVIDER, provider_label: "YoruBay AI 點數", label: "Claude Opus 4.5 · OpenRouter", model: "anthropic/claude-opus-4.5", base_url: ENDPOINT, protocol: "openai", route: PROVIDER, use_case: "登入 YoruBay 後直接使用，Opus 舊版相容" },
+    { provider: PROVIDER, provider_label: "YoruBay AI 點數", label: "Claude Opus 4.6 · OpenRouter", model: "anthropic/claude-opus-4.6", base_url: ENDPOINT, protocol: "openai", route: PROVIDER, use_case: "登入 YoruBay 後直接使用，適合高品質重要劇情" }
   ];
   const isEndpoint = value => String(value || "").trim().replace(/\/+$/, "") === ENDPOINT;
   const encoder = new TextEncoder();
@@ -58,7 +58,7 @@
     if (types && !types.querySelector(`option[value="${PROVIDER}"]`)) {
       const option = document.createElement("option");
       option.value = PROVIDER;
-      option.textContent = "YoruBay API 額度";
+      option.textContent = "YoruBay AI 點數";
       types.appendChild(option);
     }
     return true;
@@ -90,7 +90,7 @@
   const pilotHint = model => {
     if (validAccountSession()) {
       const route = MODEL_PROVIDERS[model] === "openrouter" ? "OpenRouter" : "Google Gemini";
-      return `已登入 YoruBay。此模型由 YoruBay 後端轉送 ${route}，不需要自己的 API Key；成功請求會依帳號 Wallet 扣除 API 額度。故事內容不會寫入帳號資料庫。`;
+      return `已登入 YoruBay。此模型由 YoruBay 後端轉送 ${route}，不需要自己的 API Key；成功請求會依帳號點數扣除實際 AI 使用量。故事內容不會寫入帳號資料庫。`;
     }
     return "請先點上方「YoruBay 帳號」使用邀請碼註冊或登入。YoruBay API 額度僅接受登入帳號 Session。";
   };
@@ -113,7 +113,7 @@
     const hint = document.getElementById("api-hint");
     if (enabled && hint) hint.textContent = pilotHint(selectedPilotModel());
     const badge = document.getElementById("api-protocol-badge");
-    if (enabled && badge) badge.textContent = "YoruBay Wallet";
+    if (enabled && badge) badge.textContent = "YoruBay 點數";
     refreshBuilderFields(enabled);
   };
   const originalSync = App.syncSelectedPreset;
@@ -134,7 +134,7 @@
     }
     const upstreamProvider = MODEL_PROVIDERS[config.model];
     if (!isEndpoint(config.baseUrl) || !upstreamProvider) {
-      throw new Error("YoruBay API 額度僅支援已開放模型及固定後端網址。請重新選擇模型預設。");
+      throw new Error("YoruBay AI 點數僅支援已開放模型及固定後端網址。請重新選擇模型預設。");
     }
     const token = accountToken();
     const validSession = /^yb_s_[A-Za-z0-9_-]{30,}$/.test(token);
@@ -170,8 +170,8 @@
       const errors = {
         unauthorized: "玩家金鑰無效或已停用，請向管理員索取新金鑰。",
         insufficient_credits: "舊版測試額度不足，請向管理員補充額度。",
-        insufficient_wallet_balance: "YoruBay API 額度不足，請儲值後再試。",
-        wallet_disabled: "這個 YoruBay Wallet 已停用，請聯絡管理員。",
+        insufficient_wallet_balance: "YoruBay AI 點數不足，請儲值後再試。",
+        wallet_disabled: "這個 YoruBay 點數帳戶已停用，請聯絡管理員。",
         daily_limit_or_insufficient_balance: "後端仍在使用舊的每日次數限制；請管理員更新 Worker。",
         insufficient_balance: "玩家測試額度不足，請管理員更新 Worker。",
         invalid_request_or_model_not_allowed: "模型未開放或故事內容不符合測試版限制；請確認 Worker 的 MODELS_JSON 已包含此模型。",
