@@ -45,8 +45,11 @@
   const entryPricing = (entry, cfg) =>
     pricingFrom(entry?.pricing) || presetPricing(entry) || (sameAsMain(entry) ? manualMainPricing(cfg) : null);
 
-  const estimate = (usage = {}, cfg = getCostConfig(), pricing = null) => {
-    const rates = pricing || manualMainPricing(cfg);
+  const estimate = (usage = {}, cfg = getCostConfig(), pricing = undefined) => {
+    // Omitted pricing means "use the main-model manual rate" (legacy/main path).
+    // Explicit null means this specific request has no trustworthy rate and
+    // must remain unpriced rather than inheriting another model's price.
+    const rates = pricing === undefined ? manualMainPricing(cfg) : pricing;
     if (!rates) return { usd: 0, twd: 0, priced: false };
     const input = finiteOrNull(usage.input_tokens ?? usage.prompt_tokens ?? usage.prompt);
     const output = finiteOrNull(usage.output_tokens ?? usage.completion_tokens ?? usage.completion);
