@@ -23,10 +23,14 @@ test.describe('Player 2.0 shell', () => {
     await page.goto('/');
     await expect(page.locator('#bao-me-nav')).toBeVisible({ timeout: 10000 });
     await expect(page.locator('#bao-mobile-nav')).toBeHidden();
+    await expect(page.locator('.topbar nav a[href="account.html"]')).toBeHidden();
+    await expect(page.locator('.topbar nav a[href*="ko-fi.com"]')).toBeHidden();
 
     await page.locator('#bao-me-nav').click();
     await expect(page.locator('#me-view')).toHaveClass(/active/);
     await expect(page.locator('#me-view')).toContainText('Local-first');
+    await expect(page.locator('#me-view a[href="account.html"]')).toBeVisible();
+    await expect(page.locator('#me-view a[href*="ko-fi.com"]')).toBeVisible();
   });
   test('work discovery searches current cards and keeps local author tools collapsed', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 900 });
