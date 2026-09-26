@@ -37,6 +37,8 @@ test.describe('Player 2.0 shell', () => {
     await page.goto('/');
     await page.evaluate(() => App.showView('explore'));
     await expect(page.locator('#bao-work-search')).toBeVisible({ timeout: 10000 });
+    await page.waitForTimeout(120);
+    await expect(page.locator('#explore-view .bao-gallery-more > summary')).toHaveAttribute('data-bao-player-styled', 'yes');
     await expect(page.locator('#explore-view .bao-gallery-more')).toBeVisible();
     await expect(page.locator('#explore-view .bao-gallery-more')).not.toHaveAttribute('open', '');
 
