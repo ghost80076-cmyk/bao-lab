@@ -316,6 +316,59 @@
   };
 
 
+  const decorateDetail = () => {
+    const detail = $("detail-view");
+    const shell = detail?.querySelector(".detail-theme-shell");
+    const copy = shell?.querySelector(".detail-copy");
+    const actions = shell?.querySelector(".detail-actions");
+    const character = App.activeCharacter;
+    if (!detail || !shell || !copy || !actions || !character) return;
+
+    shell.classList.add("bao-work-detail-v2");
+    const line = copy.querySelector(".detail-category-line span");
+    if (line && !line.dataset.baoPlayerCopy) {
+      line.dataset.baoPlayerCopy = "yes";
+      line.textContent = `BAO ORIGINAL · ${line.textContent}`;
+    }
+
+    let strip = copy.querySelector(".bao-detail-feature-strip");
+    if (!strip) {
+      const features = [
+        character.supported_modes?.world ? ["世界", "世界模擬"] : ["敘事", "角色沉浸"],
+        character.supported_display?.ui ? ["介面", "互動 UI"] : ["介面", "純文字"],
+        ["保存", "Local-first"]
+      ];
+      strip = document.createElement("div");
+      strip.className = "bao-detail-feature-strip";
+      strip.innerHTML = features.map(([label, value]) =>
+        `<span><small>${App.escapeHTML(label)}</small><b>${App.escapeHTML(value)}</b></span>`).join("");
+      const tags = copy.querySelector(".tags");
+      (tags || actions).insertAdjacentElement("beforebegin", strip);
+    }
+
+    if (!copy.querySelector(".bao-detail-start-note")) {
+      const note = document.createElement("div");
+      note.className = "bao-detail-start-note";
+      note.innerHTML = "<b>先選故事，再選 AI。</b><span>下一步可以直接使用帳號 API 額度，或連接自己的 API；故事設定不會因為選哪個模型而消失。</span>";
+      actions.insertAdjacentElement("beforebegin", note);
+    }
+
+    const start = actions.querySelector("#detail-start");
+    if (start) {
+      start.classList.add("bao-detail-primary");
+      start.setAttribute("aria-describedby", "bao-detail-start-help");
+    }
+    let help = actions.querySelector("#bao-detail-start-help");
+    if (!help) {
+      help = document.createElement("small");
+      help.id = "bao-detail-start-help";
+      help.className = "bao-detail-start-help";
+      help.textContent = "接著設定玩家資料、故事偏好與 AI 連線";
+      actions.appendChild(help);
+    }
+  };
+
+
   const installReadingHierarchy = () => {
     const root = $("chat-view");
     if (!root || root.dataset.baoPlayerReading === "v2") return;
@@ -372,6 +425,7 @@
     App.showView = function(view, ...args) {
       const result = previous(view, ...args);
       if (view === "me") refreshMeView();
+      if (view === "detail") requestAnimationFrame(decorateDetail);
       syncNavigation(view);
       return result;
     };
@@ -384,6 +438,7 @@
     installDesktopEntry();
     installMobileNav();
     installExploreDiscovery();
+    decorateDetail();
     installReadingHierarchy();
     patchViews();
     refreshMeView();
