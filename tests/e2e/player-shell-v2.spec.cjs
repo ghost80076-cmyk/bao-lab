@@ -131,4 +131,18 @@ test.describe('Player 2.0 shell', () => {
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(391);
   });
 
+
+  test('mobile first paint is already mobile before enhancement JavaScript runs', async ({ browser }) => {
+    const context = await browser.newContext({
+      javaScriptEnabled: false,
+      viewport: { width: 390, height: 844 }
+    });
+    const page = await context.newPage();
+    await page.goto('/');
+    await expect(page.locator('link[href^="css/player-shell-v2.css"]')).toHaveCount(1);
+    await expect(page.locator('.topbar nav')).toBeHidden();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(391);
+    await context.close();
+  });
+
 });
