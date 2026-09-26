@@ -30,3 +30,27 @@ After the production hotfix, D1 showed normal `ok` settlement with exact wallet 
 - Gemini 3.1 Pro: `3994510 - 52104 = 3942406`
 
 The `unverified` branch is intended for ambiguous transport/usage outcomes and should be inspected through D1 when it occurs.
+
+
+## Selected-player OpenRouter AWS routing
+
+The Worker supports an optional comma-separated environment variable:
+
+`AWS_OPENROUTER_PLAYERS`
+
+Entries may be a player's internal `id`, stable `public_id`, or `username` (matching is case-insensitive).
+
+When a matched player requests an allowed `openrouter` model, the Worker sends the request to the existing AWS relay at `AWS_RELAY_URL/v1/chat` using `BAO_INTERNAL_TOKEN`. The relay is expected to accept:
+
+```json
+{
+  "provider": "openrouter",
+  "model": "google/gemini-3.1-pro-preview",
+  "messages": [{"role":"user","content":"..."}],
+  "max_output_tokens": 2048
+}
+```
+
+Unmatched players continue to call OpenRouter directly from the Worker with `OPENROUTER_API_KEY`.
+
+This switch is server-side only: the browser cannot choose the route. Model allowlisting and Wallet settlement remain in the Worker, and the AWS relay returns the raw OpenRouter response so existing `usage.cost` settlement continues to work.

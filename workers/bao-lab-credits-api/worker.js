@@ -572,6 +572,63 @@ function billingV2TestPlayers(
   );
 }
 
+function awsOpenRouterPlayers(
+  env
+) {
+  return new Set(
+    String(
+      env.AWS_OPENROUTER_PLAYERS ||
+      ""
+    )
+      .split(",")
+      .map(
+        (x) =>
+          x
+            .trim()
+            .toUpperCase()
+      )
+      .filter(Boolean)
+  );
+}
+
+function playerUsesAwsOpenRouter(
+  env,
+  player
+) {
+  const allowed =
+    awsOpenRouterPlayers(
+      env
+    );
+
+  if (
+    !allowed.size ||
+    !player
+  ) {
+    return false;
+  }
+
+  return [
+    player.id,
+    player.public_id,
+    player.username,
+  ]
+    .map(
+      (value) =>
+        String(
+          value || ""
+        )
+          .trim()
+          .toUpperCase()
+    )
+    .some(
+      (value) =>
+        value &&
+        allowed.has(
+          value
+        )
+    );
+}
+
 function billingModeForPlayer(
   env,
   player
@@ -3713,61 +3770,155 @@ async function providerCall(
   provider,
   model,
   messages,
-  maxOutput
+  maxOutput,
+  player = null
 ) {
   let endpoint;
   let init;
+  let usingAwsRelay =
+    false;
 
   if (
     provider ===
     "openrouter"
   ) {
-    if (
-      !env.OPENROUTER_API_KEY
-    ) {
-      return {
-        ok:
-          false,
+    const useAwsRelay =
+      playerUsesAwsOpenRouter(
+        env,
+        player
+      );
 
-        category:
-          "provider_not_configured",
+    if (
+      useAwsRelay
+    ) {
+      if (
+        !env.AWS_RELAY_URL ||
+        !env.BAO_INTERNAL_TOKEN
+      ) {
+        return {
+          ok:
+            false,
+
+          category:
+            "relay_not_configured",
+        };
+      }
+
+      let relayBase;
+
+      try {
+        relayBase =
+          new URL(
+            env.AWS_RELAY_URL
+          );
+
+        if (
+          relayBase.protocol !==
+            "https:" ||
+          relayBase.username ||
+          relayBase.password
+        ) {
+          throw new Error(
+            "bad_relay"
+          );
+        }
+      }
+
+      catch {
+        return {
+          ok:
+            false,
+
+          category:
+            "relay_not_configured",
+        };
+      }
+
+      endpoint =
+        new URL(
+          "/v1/chat",
+          relayBase
+        ).toString();
+
+      usingAwsRelay =
+        true;
+
+      init = {
+        method:
+          "POST",
+
+        headers: {
+          authorization:
+            `Bearer ${env.BAO_INTERNAL_TOKEN}`,
+
+          "content-type":
+            "application/json",
+        },
+
+        body:
+          JSON.stringify(
+            {
+              provider:
+                "openrouter",
+
+              model,
+              messages,
+
+              max_output_tokens:
+                maxOutput,
+            }
+          ),
       };
     }
 
-    endpoint =
-      "https://openrouter.ai/api/v1/chat/completions";
+    else {
+      if (
+        !env.OPENROUTER_API_KEY
+      ) {
+        return {
+          ok:
+            false,
 
-    init = {
-      method:
-        "POST",
+          category:
+            "provider_not_configured",
+        };
+      }
 
-      headers: {
-        authorization:
-          `Bearer ${env.OPENROUTER_API_KEY}`,
+      endpoint =
+        "https://openrouter.ai/api/v1/chat/completions";
 
-        "content-type":
-          "application/json",
-      },
+      init = {
+        method:
+          "POST",
 
-      body:
-        JSON.stringify(
-          {
-            model,
-            messages,
+        headers: {
+          authorization:
+            `Bearer ${env.OPENROUTER_API_KEY}`,
 
-            max_tokens:
-              maxOutput,
+          "content-type":
+            "application/json",
+        },
 
-            stream:
-              false,
+        body:
+          JSON.stringify(
+            {
+              model,
+              messages,
 
-            usage: {
-              include:
-                true,
-            },
-          }
-        ),
-    };
+              max_tokens:
+                maxOutput,
+
+              stream:
+                false,
+
+              usage: {
+                include:
+                  true,
+              },
+            }
+          ),
+      };
+    }
   }
 
   else if (
@@ -4010,8 +4161,11 @@ async function providerCall(
         false,
 
       category:
-        provider ===
-          "gemini"
+        (
+          provider ===
+            "gemini" ||
+          usingAwsRelay
+        )
           ? "relay_network_error"
           : "provider_network_error",
     };
@@ -4635,7 +4789,8 @@ async function legacyChatRoute(
       provider,
       model,
       messages,
-      maxOutput
+      maxOutput,
+      player
     );
 
   if (
@@ -5324,7 +5479,8 @@ async function costUsdChatRoute(
       model,
       messages,
       plan
-        .effectiveMaxOutput
+        .effectiveMaxOutput,
+      player
     );
 
   if (
@@ -6136,6 +6292,11 @@ export default {
                 env.AWS_RELAY_URL &&
                 env.BAO_INTERNAL_TOKEN
               ),
+
+            aws_openrouter_players_configured:
+              awsOpenRouterPlayers(
+                env
+              ).size,
 
             anthropic_configured:
               Boolean(
