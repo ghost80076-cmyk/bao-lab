@@ -212,9 +212,10 @@
     window.BAOGalleryFocus?.sync?.();
     const more = tools.querySelector(":scope > details.bao-gallery-more");
     if (!more) return;
-    more.dataset.playerLabel = "local-tools";
+    if (more.dataset.playerLabel !== "local-tools") more.dataset.playerLabel = "local-tools";
     const summary = more.querySelector(":scope > summary");
-    if (summary) {
+    if (summary && summary.dataset.baoPlayerStyled !== "yes") {
+      summary.dataset.baoPlayerStyled = "yes";
       summary.innerHTML = '本機角色與匯入 <span>進階</span>';
       summary.setAttribute("aria-label", "展開本機角色匯入與管理工具");
     }
