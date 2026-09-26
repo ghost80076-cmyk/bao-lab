@@ -113,7 +113,8 @@ test('a failed Gemini-like send preserves the draft and does not corrupt histori
     BAOSceneHTML.refresh();
     API.send = async () => { throw new Error('測試 429：請求太頻繁或額度不足'); };
   });
-  await expect(page.locator('#chat-stream .message.assistant .bubble b')).toContainText('已保存的歷史敘事');
+  const savedHistory = page.locator('#chat-stream .message.assistant .bubble').filter({ hasText: '已保存的歷史敘事' }).getByText('已保存的歷史敘事', { exact: true });
+  await expect(savedHistory).toBeVisible();
   const before = await page.locator('#chat-stream > .message').count();
   await page.locator('#user-input').fill('這則訊息應在失敗後返回輸入框');
   await page.locator('#chat-view .composer button.primary').click();
@@ -121,8 +122,10 @@ test('a failed Gemini-like send preserves the draft and does not corrupt histori
   await expect(page.locator('#bao-chat-send-feedback')).toContainText('測試 429');
   await expect(page.locator('#chat-stream > .message')).toHaveCount(before);
   await page.evaluate(() => BAOSceneHTML.refresh());
-  await expect(page.locator('#chat-stream .message.assistant .bubble b')).toContainText('已保存的歷史敘事');
-  expect(await page.evaluate(() => Chat.messages.map(m => m.content))).toEqual(['前一次的玩家訊息', '<b>已保存的歷史敘事</b>']);
+  await expect(savedHistory).toBeVisible();
+  const history = await page.evaluate(() => Chat.messages.map(m => [m.role, m.content]));
+  expect(history.slice(-2)).toEqual([['user', '前一次的玩家訊息'], ['assistant', '<b>已保存的歷史敘事</b>']]);
+  expect(history[0]?.[0]).toBe('assistant'); // opening greeting is now intentional history
 });
 
 test('resuming shows saved main, state and memory model metadata; only keys need reentry', async ({ page }) => {
