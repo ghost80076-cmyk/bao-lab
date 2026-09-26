@@ -279,6 +279,7 @@ const Chat = {
     return { ...this.usage };
   },
   recordRequestUsage(config = {}, result = {}) {
+    if (result && result.__baoUsageRecorded) return result.__baoUsageEntry || null;
     const kind = this.usageKind(config);
     const usage = result?.usage || {};
     this.addUsage(usage, kind);
@@ -288,7 +289,7 @@ const Chat = {
     const cached = number(usage.cached_tokens);
     const cacheWrite = number(usage.cache_write_tokens);
     const actualUsd = number(result?.credits?.charged_usd ?? result?.credits?.actual_cost_usd);
-    this.usageLedger.push({
+    const entry = {
       kind,
       model: String(config?.model || ""),
       type: String(config?.type || ""),
@@ -300,9 +301,19 @@ const Chat = {
       cacheWrite,
       actualUsd,
       at: new Date().toISOString()
-    });
+    };
+    this.usageLedger.push(entry);
     if (this.usageLedger.length > 10000) this.usageLedger.splice(0, this.usageLedger.length - 10000);
-    return this.usageLedger.at(-1);
+    if (result && typeof result === "object") {
+      try {
+        Object.defineProperty(result, "__baoUsageRecorded", { value: true, configurable: true });
+        Object.defineProperty(result, "__baoUsageEntry", { value: entry, configurable: true });
+      } catch {
+        result.__baoUsageRecorded = true;
+        result.__baoUsageEntry = entry;
+      }
+    }
+    return entry;
   },
   recordStoryUsage(usage = {}, config = null) { const input = usage.input_tokens ?? usage.prompt_tokens; if (input !== null && input !== undefined) this.lastStoryPromptTokens = Number(input || 0); if (config) this.protectedRounds(config); },
   renderTurnUsage(usage = {}) {
