@@ -42,6 +42,17 @@ test('Gemini 3.1 Pro supports both Google official and OpenRouter wallet routes'
    assert.equal(opt.body.includes('OPENROUTER_API_KEY'),false);
  }
 });
+test('OpenRouter free preset uses the same wallet bridge and OpenRouter route',async()=>{
+ const s=build();
+ await s.api.send({...cfg,model:'openrouter/free',maxOutputTokens:4096},msgs);
+ assert.equal(s.calls.length,1);
+ const body=JSON.parse(s.calls[0][1].body);
+ assert.equal(body.provider,'openrouter');
+ assert.equal(body.model,'openrouter/free');
+ assert.equal(body.max_output_tokens,2048);
+ assert.equal(s.calls[0][1].headers.Authorization,'Bearer '+token);
+});
+
 test('Claude Sonnet and Opus invitation presets route through OpenRouter with the same player token',async()=>{
  const s=build();
  for (const model of ['anthropic/claude-sonnet-4.5','anthropic/claude-sonnet-4.6','anthropic/claude-opus-4.5','anthropic/claude-opus-4.6']) {
