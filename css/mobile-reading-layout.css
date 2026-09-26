@@ -12,10 +12,14 @@
   /* The active story owns the whole visual viewport on phones. */
   #chat-view.active{
     position:fixed!important;
-    inset:0!important;
+    inset:auto!important;
+    top:var(--bao-mobile-viewport-top,0px)!important;
+    left:var(--bao-mobile-viewport-left,0px)!important;
+    right:auto!important;
+    bottom:auto!important;
     display:flex!important;
     flex-direction:column!important;
-    width:100%!important;
+    width:var(--bao-mobile-viewport-width,100%)!important;
     height:var(--bao-mobile-viewport-height,100dvh)!important;
     min-height:0!important;
     max-height:none!important;
