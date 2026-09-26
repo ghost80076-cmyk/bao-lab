@@ -32,10 +32,10 @@
     const originalAddUsage = typeof Chat.addUsage === "function" ? Chat.addUsage.bind(Chat) : null;
     const originalReset = typeof Chat.reset === "function" ? Chat.reset.bind(Chat) : null;
     const originalRenderUsage = typeof Chat.renderUsage === "function" ? Chat.renderUsage.bind(Chat) : null;
-    if (originalAddUsage) Chat.addUsage = function(usage = {}) {
+    if (originalAddUsage) Chat.addUsage = function(usage = {}, kind = "all") {
       this.usage = this.usage || {};
       if (!cacheMetricKnown(usage)) this.usage.cachedUnknown = true;
-      return originalAddUsage(usage);
+      return originalAddUsage(usage, kind);
     };
     if (originalReset) Chat.reset = function(...args) {
       const result = originalReset(...args);
