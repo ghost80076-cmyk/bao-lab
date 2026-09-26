@@ -111,6 +111,13 @@ test('bookshelf links the active chapter to the existing restore flow', async ({
   await expect(shelf.locator('.bao-shelf-cover')).toHaveCount(1);
   await expect(shelf.locator('.bao-shelf-progress')).toContainText('上次閱讀：第一章');
   await expect(shelf.getByRole('heading', { name: '我的故事' })).toBeVisible();
+  await expect(shelf.locator('.bao-shelf-toolbar')).toBeVisible();
+  const search = shelf.locator('.bao-shelf-search input');
+  await search.fill('不存在的故事');
+  await expect(shelf.locator('.bao-shelf-count')).toHaveText('找到 0 本');
+  await expect(shelf.locator('.bao-shelf-empty')).toHaveAttribute('data-visible', 'true');
+  await search.fill('林沉風');
+  await expect(shelf.locator('.bao-shelf-count')).toHaveText('找到 1 本');
   const continueButton = shelf.getByRole('button', { name: '繼續閱讀 →' });
   await expect(continueButton).toBeVisible();
   await continueButton.click();
