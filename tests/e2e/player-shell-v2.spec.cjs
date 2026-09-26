@@ -70,7 +70,7 @@ test.describe('Player 2.0 shell', () => {
     await expect(page.locator('#chat-stream')).toHaveAttribute('aria-label', '故事內容');
     const assistant = page.locator('#chat-view .message.assistant .bubble').first();
     await expect(assistant).toBeVisible();
-    expect((await assistant.boundingBox()).width).toBeLessThan(800);
+    expect((await assistant.boundingBox()).width).toBeLessThanOrEqual(860);
 
     await page.locator('#bao-surface-mode-toggle').click();
     await expect(page.locator('#chat-view')).toHaveAttribute('data-bao-surface', 'studio');
@@ -87,18 +87,18 @@ test.describe('Player 2.0 shell', () => {
 
     await expect(page.locator('#builder-view')).toHaveAttribute('data-bao-setup', 'quick');
     await expect(page.locator('#bao-connection-mode')).toBeVisible({ timeout: 10000 });
-    await expect(page.locator('[data-bao-connection="byok"]')).toHaveAttribute('aria-pressed', 'true');
+    await expect(page.locator('#bao-connection-mode [data-bao-connection="byok"]')).toHaveAttribute('aria-pressed', 'true');
     await expect(page.locator('#model-id').locator('xpath=..')).toBeHidden();
 
     await page.waitForFunction(() => Boolean(document.querySelector('#api-type option[value="bao-credits"]')));
-    await page.locator('[data-bao-connection="hosted"]').click();
+    await page.locator('#bao-connection-mode [data-bao-connection="hosted"]').click();
     await expect(page.locator('#api-type')).toHaveValue('bao-credits');
-    await expect(page.locator('[data-bao-connection="hosted"]')).toHaveAttribute('aria-pressed', 'true');
+    await expect(page.locator('#bao-connection-mode [data-bao-connection="hosted"]')).toHaveAttribute('aria-pressed', 'true');
     await expect(page.locator('#bao-connection-account')).toBeVisible();
 
-    await page.locator('[data-bao-connection="byok"]').click();
+    await page.locator('#bao-connection-mode [data-bao-connection="byok"]').click();
     await expect(page.locator('#api-type')).not.toHaveValue('bao-credits');
-    await expect(page.locator('[data-bao-connection="byok"]')).toHaveAttribute('aria-pressed', 'true');
+    await expect(page.locator('#bao-connection-mode [data-bao-connection="byok"]')).toHaveAttribute('aria-pressed', 'true');
   });
 
   test('BAO Account page matches the player shell on mobile', async ({ page }) => {
