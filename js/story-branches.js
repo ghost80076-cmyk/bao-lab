@@ -4,6 +4,12 @@
   const Library = window.BAOStoryLibrary;
   const escape = value => App.escapeHTML(String(value ?? ""));
   const attr = value => App.escapeAttr(String(value ?? ""));
+  // A session credential only follows a story when the destination is the same API service.
+  const sameConnection = (left = {}, right = {}) => {
+    const url = value => String(value || "").trim().replace(/\/+$/, "");
+    return Boolean(url(left.baseUrl) && url(right.baseUrl)) && url(left.baseUrl) === url(right.baseUrl)
+      && String(left.protocol || "openai") === String(right.protocol || "openai");
+  };
   let decorating = false;
 
   const ensureStyles = () => {
@@ -72,9 +78,10 @@
     await Library.flush();
     const save = await Library.reconstruct(storyId, chapterId);
     if (!save) throw new Error("找不到這條故事線的完整資料。");
-    let key = String(App.config?.api?.key || "");
+    const previousApi = App.config?.api || {};
+    let key = sameConnection(previousApi, save.config?.api) ? String(previousApi.key || "") : "";
     if (!save.config?.demoMode && !key) {
-      const entered = window.prompt("API Key 不會儲存在故事分支。請貼上 API Key 才能繼續：", "");
+      const entered = window.prompt("這條故事線的 API 連線可能與目前不同。API Key 不會儲存在分支，請輸入此故事使用的 API Key：", "");
       if (entered === null) return false;
       key = entered.trim();
     }
@@ -86,6 +93,7 @@
     App.saveStory(false);
     window.BAORefreshSaveUI?.();
     close();
+    if (!save.config?.demoMode && !key) window.BAOChatAPISettings?.open?.();
     return true;
   };
 
@@ -98,15 +106,17 @@
       await waitForRevisionState();
       App.saveStory?.(false);
       await Library.flush();
-      const currentKey = String(App.config?.api?.key || "");
+      const previousApi = App.config?.api || {};
       const save = await Library.createBranch(message.id, label);
       if (!Storage.restoreStory(save)) throw new Error("分支已建立，但無法切換到分支。");
-      App.config.api = Object.assign({}, App.config.api || {}, { key: currentKey });
+      const key = sameConnection(previousApi, App.config.api) ? String(previousApi.key || "") : "";
+      App.config.api = Object.assign({}, App.config.api || {}, { key });
       if (GameState.current) GameState.current.config = App.config;
       App.renderChatShell(false);
       App.showView("chat");
       App.saveStory(false);
       window.BAORefreshSaveUI?.();
+      if (!save.config?.demoMode && !key) window.BAOChatAPISettings?.open?.();
       alert("已建立獨立故事分支。原故事線仍完整保留。");
     } catch (error) {
       alert(error.message || "建立故事分支失敗。");
@@ -225,9 +235,7 @@
         button.onclick = () => createFrom(index);
         tools.appendChild(button);
       });
-    } finally {
-      decorating = false;
-    }
+    } finally { decorating = false; }
   };
 
   ensureStyles();
