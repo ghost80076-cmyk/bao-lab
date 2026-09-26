@@ -16,6 +16,12 @@ test.describe('Player 2.0 shell', () => {
 
     await nav.locator('[data-player-nav="home"]').click();
     await expect(page.locator('#home-view')).toHaveClass(/active/);
+
+    await nav.locator('[data-player-nav="stories"]').click();
+    await expect(page.locator('.story-tools-backdrop')).toBeVisible({ timeout: 10000 });
+    await nav.locator('[data-player-nav="me"]').click();
+    await expect(page.locator('.story-tools-backdrop')).toHaveCount(0);
+    await expect(page.locator('#me-view')).toHaveClass(/active/);
   });
 
   test('desktop keeps the top navigation and exposes My without a bottom bar', async ({ page }) => {
