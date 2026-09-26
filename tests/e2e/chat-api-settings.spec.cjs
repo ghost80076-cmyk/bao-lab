@@ -37,6 +37,7 @@ test("resuming a story opens editable API settings, preserves the story and does
   await page.locator("#home-continue").click();
   const dialog = page.getByRole("dialog", { name: "目前故事的 AI 連線設定" });
   await expect(dialog).toBeVisible();
+  await expect(dialog.locator('.bao-chat-api-advanced')).toHaveAttribute('open', '');
   await expect(dialog.locator('[name="model"]')).toHaveValue("test-model");
   await expect(dialog.locator('[name="baseUrl"]')).toHaveValue("https://example.invalid/v1/chat/completions");
   await dialog.locator('[name="key"]').fill("NEW_TEST_KEY");
