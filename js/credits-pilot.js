@@ -174,7 +174,7 @@
         unauthorized: "玩家金鑰無效或已停用，請向管理員索取新金鑰。",
         insufficient_credits: "舊版測試額度不足，請向管理員補充額度。",
         insufficient_wallet_balance: "YoruBay AI 點數不足，請儲值後再試。",
-        wallet_disabled: "這個 YoruBay Wallet 已停用，請聯絡管理員。",
+        wallet_disabled: "這個 YoruBay 點數帳戶已停用，請聯絡管理員。",
         daily_limit_or_insufficient_balance: "後端仍在使用舊的每日次數限制；請管理員更新 Worker。",
         insufficient_balance: "玩家測試額度不足，請管理員更新 Worker。",
         invalid_request_or_model_not_allowed: "模型未開放或故事內容不符合測試版限制；請確認 Worker 的 MODELS_JSON 已包含此模型。",
