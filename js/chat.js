@@ -300,6 +300,7 @@ const Chat = {
       cached,
       cacheWrite,
       actualUsd,
+      pricing: config?.pricing && typeof config.pricing === "object" ? { ...config.pricing } : null,
       at: new Date().toISOString()
     };
     this.usageLedger.push(entry);
