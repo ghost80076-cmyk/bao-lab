@@ -149,6 +149,12 @@ const Chat = {
 
   async maybeSummarize(config, force = false, recentRounds = null) {
     if (this.summarizing || config?.demoMode) return;
+    const configuredRounds = Math.max(4, Number(config?.memory?.maxRounds || 20));
+    const rounds = Math.max(4, Number(recentRounds || configuredRounds));
+    const keepMessages = rounds * 2;
+    const overflow = this.messages.length - keepMessages;
+    const interval = Math.max(2, Number(config?.memory?.summaryInterval || 4)) * 2;
+    if (overflow - this.summarizedUntil < (force ? 4 : interval)) return;
     const memoryApi = config?.memory?.summaryApi?.model && config?.memory?.summaryApi?.baseUrl
       ? config.memory.summaryApi
       : config?.api;
@@ -163,12 +169,6 @@ const Chat = {
       };
       return;
     }
-    const configuredRounds = Math.max(4, Number(config?.memory?.maxRounds || 20));
-    const rounds = Math.max(4, Number(recentRounds || configuredRounds));
-    const keepMessages = rounds * 2;
-    const overflow = this.messages.length - keepMessages;
-    const interval = Math.max(2, Number(config?.memory?.summaryInterval || 4)) * 2;
-    if (overflow - this.summarizedUntil < (force ? 4 : interval)) return;
     let end = Math.max(this.summarizedUntil, this.messages.length - keepMessages);
     if (force && end <= this.summarizedUntil && this.messages.length > 12) end = Math.max(this.summarizedUntil, this.messages.length - Math.max(8, keepMessages));
     const start = this.summarizedUntil;
