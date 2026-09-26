@@ -183,7 +183,8 @@
       route: presetEndpointMatches ? (preset.route || "custom") : "custom",
       cacheMode: verifiedExplicit ? "explicit" : (presetEndpointMatches ? (preset.cache || "unknown") : "unknown"),
       explicitCacheModel: verifiedExplicit ? model : "",
-      cacheEnabled: App.config?.memory?.cache !== false
+      cacheEnabled: App.config?.memory?.cache !== false,
+      pricing: presetEndpointMatches && preset?.pricing ? { ...preset.pricing } : null
     };
   };
 

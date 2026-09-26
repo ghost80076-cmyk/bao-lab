@@ -13,6 +13,7 @@
     "gemini-3.1-flash-lite": "gemini",
     "gemini-3.1-pro-preview": "gemini",
     "google/gemini-3.1-pro-preview": "openrouter",
+    "openrouter/free": "openrouter",
     "anthropic/claude-sonnet-4.5": "openrouter",
     "anthropic/claude-sonnet-4.6": "openrouter",
     "anthropic/claude-opus-4.5": "openrouter",
@@ -24,6 +25,7 @@
     { provider: PROVIDER, provider_label: "YoruBay API 額度", label: "Gemini 3.1 Flash-Lite · Google 官方", model: "gemini-3.1-flash-lite", base_url: ENDPOINT, protocol: "openai", route: PROVIDER, use_case: "登入 YoruBay 後直接使用，適合摘要與低成本整理" },
     { provider: PROVIDER, provider_label: "YoruBay API 額度", label: "Gemini 3.1 Pro · Google 官方", model: "gemini-3.1-pro-preview", base_url: ENDPOINT, protocol: "openai", route: PROVIDER, use_case: "登入 YoruBay 後直接使用，依 Google 官方模型成本扣款" },
     { provider: PROVIDER, provider_label: "YoruBay API 額度", label: "Gemini 3.1 Pro · OpenRouter", model: "google/gemini-3.1-pro-preview", base_url: ENDPOINT, protocol: "openai", route: PROVIDER, use_case: "登入 YoruBay 後直接使用，經 OpenRouter 路由" },
+    { provider: PROVIDER, provider_label: "YoruBay API 額度", label: "OpenRouter Free · 免費路由", model: "openrouter/free", base_url: ENDPOINT, protocol: "openai", route: PROVIDER, use_case: "OpenRouter 免費模型路由；實際 usage.cost 為 0 時不扣 YoruBay Wallet，受免費模型配額限制" },
     { provider: PROVIDER, provider_label: "YoruBay API 額度", label: "Claude Sonnet 4.5 · OpenRouter", model: "anthropic/claude-sonnet-4.5", base_url: ENDPOINT, protocol: "openai", route: PROVIDER, use_case: "登入 YoruBay 後直接使用，Claude 舊版文風相容" },
     { provider: PROVIDER, provider_label: "YoruBay API 額度", label: "Claude Sonnet 4.6 · OpenRouter", model: "anthropic/claude-sonnet-4.6", base_url: ENDPOINT, protocol: "openai", route: PROVIDER, use_case: "登入 YoruBay 後直接使用，適合高品質長篇" },
     { provider: PROVIDER, provider_label: "YoruBay API 額度", label: "Claude Opus 4.5 · OpenRouter", model: "anthropic/claude-opus-4.5", base_url: ENDPOINT, protocol: "openai", route: PROVIDER, use_case: "登入 YoruBay 後直接使用，Opus 舊版相容" },
@@ -212,7 +214,7 @@
     const output = Number.isInteger(data.usage?.output_tokens) ? data.usage.output_tokens : null;
     const cached = Number.isInteger(data.usage?.cached_tokens) ? data.usage.cached_tokens : null;
     const cacheWrite = Number.isInteger(data.usage?.cache_write_tokens) ? data.usage.cache_write_tokens : null;
-    return {
+    const result = {
       text: data.content,
       usage: this.normalizeUsage({
         input_tokens: input,
@@ -235,6 +237,16 @@
         settlement_status: data.usage?.settlement_status ?? null
       }
     };
+    // This route bypasses the base API transport, so account usage here as well.
+    // recordRequestUsage is idempotent: an outer wrapper may safely see the same result.
+    if (!config.__connectionTest && window.Chat) {
+      Chat.recordRequestUsage?.(config, result);
+      Chat.renderUsage?.(result.usage || {});
+      if (!config.__memoryTask && !config.__stateTask && !config.__auxiliaryTask && !config.__storyTool) {
+        Chat.recordStoryUsage?.(result.usage || {}, App?.config);
+      }
+    }
+    return result;
   };
 
   const refreshDialog = backdrop => {
@@ -263,7 +275,7 @@
       modelField.value = selected.model || "";
       baseUrlField.value = selected.base_url || "";
     }
-    setFieldLabel(key, pilot ? (loggedIn ? "YoruBay 帳號" : "玩家金鑰（舊版）") : "連線金鑰（API Key）");
+    setFieldLabel(key, pilot ? "YoruBay 帳號" : "連線金鑰（API Key）");
     if (key) {
       if (pilot && loggedIn) {
         key.value = accountSentinel;
@@ -271,8 +283,8 @@
         key.placeholder = "已使用目前登入的 YoruBay 帳號";
       } else {
         if (key.value === accountSentinel) key.value = "";
-        key.readOnly = false;
-        key.placeholder = pilot ? "先登入 YoruBay；舊版玩家可貼 bao_ 金鑰" : "貼上自己的 API Key";
+        key.readOnly = pilot;
+        key.placeholder = pilot ? "請先登入 YoruBay 帳號" : "貼上自己的 API Key";
       }
     }
 

@@ -2,7 +2,7 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,interactive-widget=resizes-content">
 <title>BAO/LAB｜故事在本機、自己選 AI 的角色扮演工具</title>
 <meta name="description" content="BAO/LAB 是故事優先留在本機、由玩家自選 AI 服務的角色扮演／世界模擬工具。連線金鑰（API Key）不會寫入故事備份。">
 <meta name="robots" content="index,follow,max-image-preview:large">
@@ -31,6 +31,16 @@
 <link rel="stylesheet" href="css/base.css">
 <link rel="stylesheet" href="css/memory-preferences.css">
 <link rel="stylesheet" href="css/explore-zones.css">
+<!-- Critical Player 2.0 presentation is render-blocking on purpose.
+     These styles used to arrive after DOMContentLoaded, causing a brief desktop-layout flash on mobile refresh. -->
+<link rel="stylesheet" href="css/brand-community.css">
+<link rel="stylesheet" href="css/first-run-desktop.css">
+<link rel="stylesheet" href="css/bao-cinematic-home.css?v=3">
+<link rel="stylesheet" href="css/bao-visual-ui.css">
+<link rel="stylesheet" href="css/bao-brand-v2.css?v=original-violet-mint-1">
+<link rel="stylesheet" href="css/bao-editorial.css?v=1">
+<link rel="stylesheet" href="css/bao-image-quality.css?v=1">
+<link rel="stylesheet" href="css/player-shell-v2.css?v=1">
 </head><body>
 <div class="app-shell"><header class="topbar"><a class="brand" href="#" data-view="home" aria-label="BAO/LAB 首頁"><img class="bao-mark" src="assets/bao-mark.svg" width="32" height="32" alt=""><span>BAO/LAB</span></a><nav><button data-view="home">首頁</button><button data-view="explore">探索</button><button id="continue-story" class="hidden">繼續故事</button><a href="account.html">YoruBay 帳號</a><a href="https://ko-fi.com/roger2486" target="_blank" rel="noopener"><img class="bao-support-icon" src="assets/bao-mark.svg" width="22" height="22" alt=""> 投餵肉包</a><button data-view="about">關於</button></nav></header><main>
 <section id="home-view" class="view active"><div class="hero"><div><div class="eyebrow">YOUR AI · YOUR STORY</div><h1>把模型選擇權<br>還給玩家。</h1><p>選角色、設定玩家資料、接上自己的 AI，開始你的故事。</p><div class="hero-actions"><button class="primary" data-view="explore">探索角色</button><button id="home-continue" class="secondary hidden">繼續上次故事</button></div></div><div class="hero-card"><b>BAO/LAB</b><span>角色 × 世界 × AI × 記憶</span></div></div></section>
@@ -50,9 +60,9 @@
 <label><input type="radio" name="memory-strength" value="custom"><b>自訂</b><span>自行調整參數</span></label>
 </fieldset><p id="memory-profile-description" class="note" aria-live="polite"></p>
 <details id="memory-advanced"><summary>進階設定</summary><p class="note">輸入預算是本工具的整理參考，不代表模型官方上限。實際費用與可用長度依服務商為準。</p>
-<div class="form-grid"><label>記憶模式<select id="memory-mode"><option value="smart">智慧整理</option><option value="rounds">固定輪數</option><option value="full">完整對話</option></select></label><label>最近保留輪數<input id="max-rounds" type="number" value="20" min="4"></label><label>送給 AI 的故事脈絡上限（Context）<input id="max-context" type="number" value="32000" min="1000"></label><label>累積待整理輪數<input id="summary-interval" type="number" value="4" min="2"><small>只有較早內容超出近期保留範圍時才計算。</small></label><label><input id="cache-enabled" type="checkbox" checked> 使用支援的提示快取（Prompt Cache）<small>自動快取仍由服務商決定；不保證命中。</small></label></div>
+<div class="form-grid"><label>記憶模式<select id="memory-mode"><option value="smart">智慧整理</option><option value="rounds">固定輪數</option><option value="full">完整對話</option></select></label><label>最近保留輪數<input id="max-rounds" type="number" value="20" min="4"></label><label>BAO/LAB 故事輸入預算（Token 參考值）<input id="max-context" type="number" value="32000" min="1000"><small>這不是模型官方 Context Window；只用來決定何時啟動記憶整理與保護。</small></label><label>累積待整理輪數<input id="summary-interval" type="number" value="4" min="2"><small>只有較早內容超出近期保留範圍時才計算。</small></label><label><input id="cache-enabled" type="checkbox" checked> 使用支援的提示快取（Prompt Cache）<small>自動快取仍由服務商決定；不保證命中。</small></label></div>
 </details></div><div class="builder-actions"><button id="prev-step" class="secondary hidden" onclick="App.prevStep()">上一步</button><button id="next-step" class="primary" onclick="App.nextStep()">下一步</button><button id="start-story" class="primary hidden" onclick="App.startStory()">開始故事</button></div></div></section>
 <section id="chat-view" class="view"><div class="chat-layout"><aside><div id="chat-character-card"></div><div class="chat-meta"><span>模式 <b id="chat-narrative"></b></span><span>顯示 <b id="chat-display"></b></span><span>Persona <b id="chat-persona"></b></span><span>模型 <b id="chat-model"></b></span></div><button class="secondary" onclick="App.saveStory(true)">快速儲存</button><button class="secondary" id="save-slot-button">另存新檔</button><button class="secondary" id="list-slots-button">管理存檔</button><button class="secondary" id="import-save-button">匯入存檔</button><input id="import-save-file" type="file" accept="application/json,.json" hidden><div id="slot-list"></div><button class="text-button" onclick="App.exitChat()">離開故事</button><a class="secondary" href="https://ko-fi.com/roger2486" target="_blank" rel="noopener"><img class="bao-support-icon" src="assets/bao-mark.svg" width="22" height="22" alt=""> 投餵肉包</a></aside><section class="chat-main"><div id="chat-stream" class="chat-stream"></div><div id="game-ui"><div class="ui-tabs"><button class="ui-tab active" data-panel="npc">人物</button><button class="ui-tab" data-panel="status">狀態</button><button class="ui-tab" data-panel="events">事件</button><button class="ui-tab" data-panel="memory">記憶</button></div><div id="ui-panel"></div></div><div class="usage-bar"><span>本輪輸入 <b id="usage-context">—</b></span><span><b id="usage-turn">新增輸入 — · 輸出 —</b></span><span>快取命中 <b id="usage-cache">—</b></span><span>記憶 <b id="usage-memory">—</b></span></div><div class="composer"><textarea id="user-input" placeholder="輸入你的行動或台詞…"></textarea><button class="primary" onclick="App.sendMessage()">送出</button></div></section></div></section>
 <section id="about-view" class="view"><div class="prose"><div class="eyebrow">ABOUT</div><h2>BAO/LAB</h2><p>免費角色體驗網站。玩家使用自己的 API，模型費用由 API 服務商計費。</p><p>喜歡這個實驗室，可以用一顆肉包支持後續施工。</p><a class="primary" href="https://ko-fi.com/roger2486" target="_blank" rel="noopener"><img class="bao-support-icon" src="assets/bao-mark.svg" width="22" height="22" alt=""> 投餵肉包</a></div></section></main><footer><b>BAO/LAB</b><span>你的 API，你的選擇，你的帳單。</span><a href="privacy.html">隱私權政策</a></footer></div>
-<script src="js/storage.js"></script><script src="js/state.js"></script><script src="js/api.js"></script><script src="js/helper-data.js"></script><script src="js/chat.js"></script><script src="js/character.js"></script><script src="js/app.js"></script><script src="js/character-ui.js"></script><script src="js/memory-preferences.js"></script><script src="js/no-api-world-preview.js"></script><script src="js/site-ui.js?v=5"></script><script src="js/regex-library.js"></script><script src="js/regex-chat.js"></script>
+<script src="js/storage.js"></script><script src="js/state.js"></script><script src="js/api.js"></script><script src="js/helper-data.js"></script><script src="js/chat.js"></script><script src="js/character.js"></script><script src="js/app.js"></script><script src="js/character-ui.js"></script><script src="js/memory-preferences.js"></script><script src="js/no-api-world-preview.js"></script><script src="js/site-ui.js?v=6"></script><script src="js/regex-library.js"></script><script src="js/regex-chat.js"></script>
 </body></html>

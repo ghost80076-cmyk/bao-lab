@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>YoruBay 帳號｜BAO/LAB</title>
+<title>BAO 帳號與 API 額度｜BAO/LAB</title>
 <meta name="robots" content="noindex,nofollow">
 <link rel="icon" type="image/svg+xml" href="assets/bao-mark.svg">
 <link rel="stylesheet" href="css/brand-home.css">
@@ -36,17 +36,24 @@ body{min-height:100vh;background:#101118;color:#f5f1ff}
 .yb-package{background:#222532;border-radius:11px;padding:11px;font-size:13px}
 @media(max-width:600px){.yb-card{padding:18px}.yb-packages{grid-template-columns:1fr}}
 </style>
+<link rel="stylesheet" href="css/account-v2.css?v=1">
 </head>
 <body>
 <div class="yb-wrap">
   <div class="yb-top">
     <a href="index.html"><b>← BAO/LAB</b></a>
-    <span class="chip">YoruBay Account</span>
+    <span class="chip">BAO Account</span>
   </div>
   <main class="yb-card">
-    <div class="eyebrow">YORUBAY ACCOUNT</div>
-    <h1>玩家帳號</h1>
-    <p class="yb-note">帳號只管理登入、API 額度與付款紀錄。故事、角色、記憶與世界狀態仍留在你的裝置或你自己的同步空間。</p>
+    <section class="yb-account-hero">
+      <div>
+        <div class="eyebrow">BAO ACCOUNT · OPTIONAL ONLINE SERVICES</div>
+        <h1>帳號與 API 額度</h1>
+        <p class="yb-note">登入只用於你主動使用的 Hosted API 額度與線上服務。BYOK、本地故事、角色、記憶與世界狀態不需要登入。</p>
+      </div>
+      <img src="assets/bao-bun.svg" width="84" height="84" alt="包包">
+    </section>
+    <div class="yb-local-first"><b>Local-first 保持不變</b><span>帳號不是讀取私人故事的必要條件；API Key 也不會存進帳號。</span></div>
 
     <div class="yb-tabs">
       <button type="button" data-tab="login">登入</button>
@@ -59,7 +66,7 @@ body{min-height:100vh;background:#101118;color:#f5f1ff}
       <form class="yb-form" id="login-form">
         <label>帳號<input name="username" autocomplete="username" required maxlength="32"></label>
         <label>密碼<input name="password" type="password" autocomplete="current-password" required maxlength="128"></label>
-        <button class="yb-primary" type="submit">登入 YoruBay</button>
+        <button class="yb-primary" type="submit">登入 BAO 帳號</button>
       </form>
       <div class="yb-error" id="login-error"></div>
     </section>
@@ -71,9 +78,9 @@ body{min-height:100vh;background:#101118;color:#f5f1ff}
         <label>密碼<input name="password" type="password" autocomplete="new-password" required minlength="10" maxlength="128"></label>
         <label>確認密碼<input name="password_confirm" type="password" autocomplete="new-password" required minlength="10" maxlength="128"></label>
         <label>邀請碼<input name="invite_code" autocomplete="off" required maxlength="160"></label>
-        <button class="yb-primary" type="submit">建立 YoruBay 帳號</button>
+        <button class="yb-primary" type="submit">建立 BAO 帳號</button>
       </form>
-      <p class="yb-note">邀請碼由管理員提供。密碼與恢復碼不會以明文保存在 YoruBay 資料庫。</p>
+      <p class="yb-note">邀請碼由管理員提供。密碼與恢復碼不會以明文保存在 BAO 帳號資料庫。</p>
       <div class="yb-error" id="register-error"></div>
     </section>
 
@@ -114,7 +121,7 @@ body{min-height:100vh;background:#101118;color:#f5f1ff}
     if(auth) headers.set("Authorization","Bearer "+auth);
     var response;
     try{response=await fetch(BASE+path,Object.assign({},options,{headers:headers}));}
-    catch(error){throw new Error("無法連線 YoruBay 帳號服務。");}
+    catch(error){throw new Error("無法連線 BAO 帳號服務。");}
     var data={};try{data=await response.json();}catch(e){}
     if(!response.ok){
       var map={
@@ -127,7 +134,7 @@ body{min-height:100vh;background:#101118;color:#f5f1ff}
         invalid_recovery_request:"恢復資料格式不正確。",
         invalid_recovery_credentials:"玩家編號或恢復碼不正確。"
       };
-      throw new Error(map[data&&data.error]||("YoruBay 帳號服務錯誤（HTTP "+response.status+"）。"));
+      throw new Error(map[data&&data.error]||("BAO 帳號服務錯誤（HTTP "+response.status+"）。"));
     }
     return data;
   }
@@ -146,12 +153,12 @@ body{min-height:100vh;background:#101118;color:#f5f1ff}
       '<div class="yb-row"><span>顯示名稱</span><b id="v-display"></b></div>'+
       '<div class="yb-row"><span>帳號</span><b id="v-user"></b></div>'+
       '<div class="yb-row"><span>玩家編號</span><b id="v-id"></b></div></div>'+
-      '<div class="yb-note">YoruBay API 額度</div><div class="yb-wallet" id="v-wallet"></div>'+
+      '<div class="yb-note">BAO API 額度</div><div class="yb-wallet" id="v-wallet"></div>'+
       '<div class="yb-note" id="v-billing"></div>'+
       '<div class="yb-actions"><button class="yb-secondary" id="copy-id">複製玩家編號</button><button class="yb-secondary" id="refresh">重新整理額度</button></div>'+
       '<div class="yb-box"><b>人工儲值測試</b><p class="yb-note">付款後把玩家編號提供給管理員。管理員確認款項後，API 額度會加到這個帳號。</p>'+
       '<div class="yb-packages"><div class="yb-package">NT$190 → US$5 額度</div><div class="yb-package">NT$370 → US$10 額度</div><div class="yb-package">NT$730 → US$20 額度</div><div class="yb-package">NT$1,850 → US$50 額度</div></div></div>'+
-      '<div class="yb-actions"><a class="yb-primary" href="index.html">回到 YoruBay / BAO/LAB</a><button class="yb-secondary" id="logout">登出</button></div>';
+      '<div class="yb-actions"><a class="yb-primary" href="index.html">回到 BAO/LAB</a><button class="yb-secondary" id="logout">登出</button></div>';
     document.getElementById("v-display").textContent=profile.display_name||"—";
     document.getElementById("v-user").textContent=profile.username||"—";
     document.getElementById("v-id").textContent=profile.public_id||"—";
@@ -167,7 +174,7 @@ body{min-height:100vh;background:#101118;color:#f5f1ff}
   function recovery(code){
     show("account");
     var body=document.getElementById("account-body");
-    body.innerHTML='<h3>帳號建立／恢復成功</h3><p class="yb-note">請立即保存新的恢復碼。這組明文只在現在顯示；YoruBay 後端只保存雜湊，管理員之後也無法替你查回。</p>'+
+    body.innerHTML='<h3>帳號建立／恢復成功</h3><p class="yb-note">請立即保存新的恢復碼。這組明文只在現在顯示；BAO 帳號後端只保存雜湊，管理員之後也無法替你查回。</p>'+
       '<div class="yb-recovery" id="recovery-code"></div><div class="yb-actions"><button class="yb-primary" id="copy-recovery">複製恢復碼</button><button class="yb-secondary" id="finish">我已保存</button></div>';
     document.getElementById("recovery-code").textContent=code||"";
     document.getElementById("copy-recovery").onclick=async function(){

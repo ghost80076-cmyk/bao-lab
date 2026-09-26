@@ -144,7 +144,26 @@ const API = {
     const payload = { contents };
     if (systemText) payload.systemInstruction = { parts: [{ text: systemText }] };
     const limit = Number(config.maxOutputTokens || 0);
-    if (limit > 0) payload.generationConfig = { maxOutputTokens: Math.floor(limit) };
+    const generationConfig = {};
+    if (limit > 0) generationConfig.maxOutputTokens = Math.floor(limit);
+    if (config.__memoryTask) {
+      generationConfig.responseFormat = {
+        text: {
+          mimeType: "application/json",
+          schema: {
+            type: "object",
+            properties: {
+              events: { type: "array", items: { type: "string" } },
+              knownFacts: { type: "array", items: { type: "string" } },
+              relationships: { type: "array", items: { type: "string" } },
+              openThreads: { type: "array", items: { type: "string" } }
+            },
+            required: ["events", "knownFacts", "relationships", "openThreads"]
+          }
+        }
+      };
+    }
+    if (Object.keys(generationConfig).length) payload.generationConfig = generationConfig;
     let response;
     try {
       response = await fetch(url, { method: "POST", headers: { "x-goog-api-key": config.key, "Content-Type": "application/json" }, body: JSON.stringify(payload), signal: config.signal || this.activeSignal });

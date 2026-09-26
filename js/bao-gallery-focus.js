@@ -28,10 +28,10 @@
       tools.append(more);
     }
     const body = more.querySelector('.bao-gallery-more-body');
-    // Keep creation and both downloadable templates discoverable without opening the drawer.
-    // Everything else (including file picker, messages and local-character manager) is moved intact.
+    // Player discovery stays work-first. Creation, templates, import and local management
+    // remain available intact, but only after the player deliberately opens advanced tools.
     [...tools.children].forEach(node => {
-      if (node === more || node.matches?.('a[href="character-studio.html"],a[download]')) return;
+      if (node === more) return;
       if (node.parentElement !== body) body.append(node);
     });
   };

@@ -19,15 +19,31 @@
     const recent = Array.isArray(context.recentMessages) ? context.recentMessages : [];
     const latestUser = [...recent].reverse().find(m => m?.role === 'user')?.content || context.latestUserText || '';
     const lastReply = [...recent].reverse().find(m => m?.role === 'assistant')?.content || '';
-    const location = String(window.GameState?.current?.location || '');
-    const needle = [latestUser, lastReply, location].map(s => String(s || '').toLocaleLowerCase());
+    const state = window.GameState?.current || {};
+    const location = String(state.location || '');
+    const presentNPCs = (Array.isArray(state.npcs) ? state.npcs : [])
+      .filter(npc => npc?.presence === 'present')
+      .map(npc => [npc.name, npc.role, npc.location].filter(Boolean).join(' '))
+      .join('\n');
+    const recentEvents = (Array.isArray(state.events) ? state.events : [])
+      .slice(0, 8)
+      .map(event => typeof event === 'string' ? event : event?.text || '')
+      .filter(Boolean)
+      .join('\n');
+    const signals = [
+      { text: latestUser, weight: 180 },
+      { text: presentNPCs, weight: 140 },
+      { text: location, weight: 120 },
+      { text: recentEvents, weight: 70 },
+      { text: lastReply, weight: 30 }
+    ].map(signal => ({ ...signal, text: String(signal.text || '').toLocaleLowerCase() }));
     let budget = 0;
     return entries.map((entry, index) => {
       let score = 0;
       entry.triggers.forEach(trigger => {
-        if (needle[0].includes(trigger)) score = Math.max(score, 100 + trigger.length);
-        if (needle[1].includes(trigger)) score = Math.max(score, 30 + trigger.length);
-        if (needle[2].includes(trigger)) score = Math.max(score, 80 + trigger.length);
+        signals.forEach(signal => {
+          if (signal.text.includes(trigger)) score = Math.max(score, signal.weight + trigger.length);
+        });
       });
       return { ...entry, score, index };
     }).filter(entry => entry.score > 0).sort((a, b) => b.score - a.score || a.index - b.index)

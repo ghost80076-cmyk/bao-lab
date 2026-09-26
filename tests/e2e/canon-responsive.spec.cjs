@@ -18,11 +18,11 @@ const openDemoCanon = async page => {
   await page.locator("#bao-demo-mode").check();
   await page.getByRole("button", { name: "下一步" }).click();
   await page.getByRole("button", { name: "開始故事" }).click();
-  const memoryButton = page.getByRole("button", { name: /記憶工作台/ });
+  const memoryButton = page.locator('#bao-player-settings [data-bao-open="memory"]');
   await expect(memoryButton).toBeVisible();
   await memoryButton.click();
-  await page.getByRole("button", { name: "正式劇情資料庫（Canon）" }).click();
-  await expect(page.getByRole("heading", { name: "Canon 資料庫" })).toBeVisible();
+  await page.getByRole("button", { name: "劇情檔案" }).click();
+  await expect(page.getByRole("heading", { name: "劇情檔案" })).toBeVisible();
 };
 
 const openDemoStory = async page => {
@@ -54,6 +54,28 @@ const seedDraft = async page => page.evaluate(() => {
 });
 
 test.describe("Canon workbench responsive UI", () => {
+  test("memory workbench exposes three player goals and keeps AI cleanup progressive", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await openDemoStory(page);
+    await page.locator('#bao-player-settings [data-bao-open="memory"]').click();
+
+    const desk = page.locator(".memory-desk");
+    await expect(desk.getByRole("heading", { name: "記憶", exact: true })).toBeVisible();
+    await expect(desk.locator(".memory-desk-tab:not([hidden])")).toHaveCount(3);
+    await expect(desk.getByRole("button", { name: "記憶狀態" })).toBeVisible();
+    await expect(desk.getByRole("button", { name: "必記事項" })).toBeVisible();
+    await expect(desk.getByRole("button", { name: "劇情檔案" })).toBeVisible();
+    await expect(desk.getByRole("button", { name: /AI 整理/ })).toBeHidden();
+
+    await desk.getByRole("button", { name: "必記事項" }).click();
+    await expect(desk.getByRole("button", { name: "✨ AI 幫我整理" })).toBeVisible();
+    await desk.getByRole("button", { name: "✨ AI 幫我整理" }).click();
+    await expect(desk.getByRole("heading", { name: "AI 幫我整理" })).toBeVisible();
+    await expect(desk.getByRole("button", { name: "← 返回必記事項" })).toBeVisible();
+    await desk.getByRole("button", { name: "← 返回必記事項" }).click();
+    await expect(desk.getByRole("heading", { name: "必記事項" })).toBeVisible();
+  });
+
   test("main, memory, and state connection diagnostics keep routes isolated", async ({ page }) => {
     const requests = [];
     await page.route("https://generativelanguage.googleapis.com/**", async route => {
@@ -251,7 +273,7 @@ test.describe("Canon workbench responsive UI", () => {
     expect(layout.viewport).toBe(1440);
     expect(layout.documentWidth).toBeLessThanOrEqual(1440);
     expect(layout.deskWidth).toBeGreaterThan(900);
-    expect(layout.summaryColumns).toBe(3);
+    expect(layout.summaryColumns).toBe(2);
     expect(layout.controlColumns).toBe(3);
     expect(layout.visibleBooks).toBe(6);
   });
@@ -281,7 +303,7 @@ test.describe("Canon workbench responsive UI", () => {
     expect(layout.summaryColumns).toBe(1);
     expect(layout.controlColumns).toBe(1);
     expect(layout.actionColumns).toBe(1);
-    expect(layout.navCanScroll).toBe(true);
+    expect(layout.navCanScroll).toBe(false);
   });
 
   test("no-API demo refuses Canon generation without provider traffic", async ({ page }) => {
@@ -298,7 +320,7 @@ test.describe("Canon workbench responsive UI", () => {
       BAOMemoryWorkbench.refresh(document.querySelector(".memory-desk-backdrop"), "canon");
     });
     page.once("dialog", dialog => dialog.accept());
-    await page.getByRole("button", { name: /更新近期 Canon/ }).click();
+    await page.getByRole("button", { name: /整理最新劇情/ }).click();
     await expect(page.locator("[data-canon-progress]")).toContainText("請先連接玩家自己的 API");
     expect(providerRequests).toEqual([]);
   });

@@ -21,7 +21,7 @@ const legacyToken='bao_'+'L'.repeat(43);
 const cfg={type:'bao-credits',route:'bao-credits',protocol:'openai',baseUrl:'https://bao-lab-credits-api.ghost80076.workers.dev/chat',key:'__YORUBAY_ACCOUNT__',model:'gemini-3-flash-preview'};
 const msgs=[{role:'user',content:'你好'}];
 
-test('wallet sends logged-in session request to fixed Worker, never admin/provider keys',async()=>{
+test('pilot sends player-token request to fixed Worker, never admin/provider keys',async()=>{
  const s=build(); const result=await s.api.send(cfg,msgs);
  assert.equal(result.text,'測試成功'); assert.equal(s.calls.length,1);
  assert.equal(result.credits.charged_credits,1);
@@ -44,7 +44,18 @@ test('Gemini 3.1 Pro supports both Google official and OpenRouter wallet routes'
    assert.equal(opt.body.includes('OPENROUTER_API_KEY'),false);
  }
 });
-test('Claude Sonnet and Opus wallet presets route through OpenRouter with the same account session',async()=>{
+test('OpenRouter free preset uses the same wallet bridge and OpenRouter route',async()=>{
+ const s=build();
+ await s.api.send({...cfg,model:'openrouter/free',maxOutputTokens:4096},msgs);
+ assert.equal(s.calls.length,1);
+ const body=JSON.parse(s.calls[0][1].body);
+ assert.equal(body.provider,'openrouter');
+ assert.equal(body.model,'openrouter/free');
+ assert.equal(body.max_output_tokens,2048);
+ assert.equal(s.calls[0][1].headers.Authorization,'Bearer '+token);
+});
+
+test('Claude Sonnet and Opus invitation presets route through OpenRouter with the same account session',async()=>{
  const s=build();
  for (const model of ['anthropic/claude-sonnet-4.5','anthropic/claude-sonnet-4.6','anthropic/claude-opus-4.5','anthropic/claude-opus-4.6']) {
    await s.api.send({...cfg,model,maxOutputTokens:4096},msgs);
@@ -104,9 +115,9 @@ test('propagates quota and provider-specific upstream errors without exposing pl
  const empty=build({ok:false,status:502,body:{error:'provider_empty_text',finish_reason:'MAX_TOKENS'}});
  await assert.rejects(()=>empty.api.send(cfg,msgs),/MAX_TOKENS/);
 });
-test('registers all eight YoruBay wallet model presets without replacing existing provider or duplication',()=>{
+test('registers all nine YoruBay wallet model presets without replacing existing provider or duplication',()=>{
  const s=build();s.app.populateAPIControls();s.app.populateAPIControls();
- assert.equal(s.app.modelPresets.length,9);
+ assert.equal(s.app.modelPresets.length,10);
  assert.equal(s.app.modelPresets[0].provider,'gemini');
  const added=s.app.modelPresets.slice(1);
  assert.deepEqual(Array.from(added.map(p=>p.model)),[
@@ -114,6 +125,7 @@ test('registers all eight YoruBay wallet model presets without replacing existin
    'gemini-3.1-flash-lite',
    'gemini-3.1-pro-preview',
    'google/gemini-3.1-pro-preview',
+   'openrouter/free',
    'anthropic/claude-sonnet-4.5',
    'anthropic/claude-sonnet-4.6',
    'anthropic/claude-opus-4.5',
@@ -123,9 +135,10 @@ test('registers all eight YoruBay wallet model presets without replacing existin
  assert.equal(added.every(p=>p.provider_label==='YoruBay API 額度'),true);
  assert.equal(added.every(p=>p.base_url===cfg.baseUrl),true);
  assert.match(added[2].label,/Google 官方/);
- assert.match(added[5].label,/Sonnet 4\.6/);
- assert.match(added[7].label,/Opus 4\.6/);
- assert.equal(s.window.BAOCreditsPilot.models.length,8);
+ assert.match(added[4].label,/免費路由/);
+ assert.match(added[6].label,/Sonnet 4\.6/);
+ assert.match(added[8].label,/Opus 4\.6/);
+ assert.equal(s.window.BAOCreditsPilot.models.length,9);
 });
 
 test('uses logged-in YoruBay session token without copying it into request body',async()=>{
@@ -141,10 +154,7 @@ test('uses logged-in YoruBay session token without copying it into request body'
 test('rejects legacy bao_ token before any Worker request when no YoruBay session exists',async()=>{
  const s=build();
  s.window.localStorage={getItem:()=>null};
- await assert.rejects(
-   ()=>s.api.send({...cfg,key:legacyToken},msgs),
-   /舊版 bao_ 玩家金鑰已停止/
- );
+ await assert.rejects(()=>s.api.send({...cfg,key:legacyToken},msgs),/舊版 bao_ 玩家金鑰已停止/);
  assert.equal(s.calls.length,0);
 });
 

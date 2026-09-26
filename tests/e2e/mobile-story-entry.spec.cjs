@@ -27,7 +27,7 @@ async function startBYOKStory(page) {
 }
 
 for (const width of [390, 375, 1280]) {
-  test(`${width < 500 ? "mobile" : "desktop"} ${width}px: step 5 starts a BYOK story and both resume entries work`, async ({ page }) => {
+  test(`${width < 500 ? "mobile" : "desktop"} ${width}px: step 5 starts a BYOK story and player resume entries work`, async ({ page }) => {
     await page.setViewportSize({ width, height: 844 });
     const errors = [];
     page.on('pageerror', error => errors.push(error.message));
@@ -35,8 +35,15 @@ for (const width of [390, 375, 1280]) {
       await startBYOKStory(page);
       await page.reload();
       await page.evaluate(() => App.showView('explore'));
-      await expect(page.locator('#continue-story')).toBeVisible();
-      await page.locator('#continue-story').click();
+      if (width < 500) {
+        await expect(page.locator('#bao-mobile-nav')).toBeVisible();
+        await page.locator('[data-player-nav="me"]').click();
+        await expect(page.locator('[data-bao-player-action="resume"]')).toBeVisible();
+        await page.locator('[data-bao-player-action="resume"]').click();
+      } else {
+        await expect(page.locator('#continue-story')).toBeVisible();
+        await page.locator('#continue-story').click();
+      }
       await expect(page.locator('#chat-view')).toHaveClass(/active/);
       await expect(page.getByRole('dialog', { name: '目前故事的 AI 連線設定' })).toBeVisible();
       await page.reload();
