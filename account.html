@@ -34,12 +34,7 @@ body{min-height:100vh;background:#101118;color:#f5f1ff}
 .yb-recovery{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;word-break:break-all;background:#0d0f16;border:1px dashed rgba(255,255,255,.22);border-radius:12px;padding:12px;margin:10px 0}
 .yb-packages{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:10px 0}
 .yb-package{background:#222532;border-radius:11px;padding:11px;font-size:13px}
-.yb-ledger{display:grid;gap:8px;margin-top:10px}
-.yb-ledger-item{display:flex;align-items:center;justify-content:space-between;gap:16px;background:#171923;border:1px solid rgba(255,255,255,.08);border-radius:11px;padding:10px 12px}
-.yb-ledger-main{display:grid;gap:3px;min-width:0}
-.yb-ledger-label{font-weight:750}.yb-ledger-time{font-size:11px;color:#858293}
-.yb-ledger-amount{font-weight:800;white-space:nowrap}.yb-ledger-amount.plus{color:#8fe0bd}.yb-ledger-amount.minus{color:#c8c4d6}
-@media(max-width:600px){.yb-card{padding:18px}.yb-packages{grid-template-columns:1fr}.yb-ledger-item{align-items:flex-start}}
+@media(max-width:600px){.yb-card{padding:18px}.yb-packages{grid-template-columns:1fr}}
 </style>
 <link rel="stylesheet" href="css/account-v2.css?v=1">
 </head>
@@ -112,31 +107,12 @@ body{min-height:100vh;background:#101118;color:#f5f1ff}
   var KEY="yorubay:session";
   var token=localStorage.getItem(KEY)||"";
   var profile=null;
-  var ledger=[];
-  var walletChannel=null;
 
   function msg(id,text){document.getElementById(id).textContent=text||"";}
-  function formatPoints(value){
+  function points(value){
     var n=Number(value||0);
     if(!Number.isFinite(n)) n=0;
-    return n.toLocaleString("zh-TW",{minimumFractionDigits:0,maximumFractionDigits:1})+" 點";
-  }
-  function walletPoints(data){
-    var direct=Number(data&&data.wallet_balance_points);
-    if(Number.isFinite(direct)) return direct;
-    var usd=Number(data&&data.wallet_balance_usd);
-    return Number.isFinite(usd)?usd*1000:0;
-  }
-  function signedPoints(value){
-    var n=Number(value||0);
-    if(!Number.isFinite(n)) n=0;
-    return (n>0?"+":"")+n.toLocaleString("zh-TW",{minimumFractionDigits:0,maximumFractionDigits:1})+" 點";
-  }
-  function timeText(value){
-    if(!value) return "";
-    var d=new Date(String(value).replace(" ","T")+"Z");
-    if(Number.isNaN(d.getTime())) d=new Date(value);
-    return Number.isNaN(d.getTime())?String(value):d.toLocaleString("zh-TW",{hour12:false});
+    return (n*1000).toLocaleString("zh-TW",{minimumFractionDigits:0,maximumFractionDigits:1})+" 點";
   }
   async function call(path,options,auth){
     options=options||{};
@@ -180,33 +156,14 @@ body{min-height:100vh;background:#101118;color:#f5f1ff}
       '<div class="yb-note">YoruBay AI 點數</div><div class="yb-wallet" id="v-wallet"></div>'+
       '<div class="yb-note" id="v-billing"></div>'+
       '<div class="yb-actions"><button class="yb-secondary" id="copy-id">複製玩家編號</button><button class="yb-secondary" id="refresh">同步最新點數</button></div>'+
-      '<div class="yb-box"><b>點數方案</b><p class="yb-note">完成付款後提供玩家編號，管理員確認後會把 YoruBay AI 點數加入帳號。點數只能用於 BAO/LAB 的 Hosted AI 功能。</p>'+
-      '<div class="yb-packages"><div class="yb-package">NT$220 或 US$7<br>→ 5,000 點</div><div class="yb-package">NT$430 或 US$13<br>→ 10,000 點</div><div class="yb-package">NT$850 或 US$26<br>→ 20,000 點</div><div class="yb-package">NT$2,150 或 US$65<br>→ 50,000 點</div></div></div>'+
-      '<div class="yb-box"><b>點數紀錄</b><p class="yb-note">加值、贈送與 AI 使用會記錄在這裡。進入本頁、切回本頁或按「同步最新點數」時會抓取最新資料；不使用固定時間輪詢。</p><div class="yb-ledger" id="v-ledger"></div></div>'+
+      '<div class="yb-box"><b>點數方案</b><p class="yb-note">完成付款後提供玩家編號，管理員確認後會把 YoruBay AI 點數加入帳號。點數僅用於 BAO/LAB Hosted AI 功能。</p>'+
+      '<div class="yb-packages"><div class="yb-package">NT$220 / US$7 → 5,000 點</div><div class="yb-package">NT$430 / US$13 → 10,000 點</div><div class="yb-package">NT$850 / US$26 → 20,000 點</div><div class="yb-package">NT$2,150 / US$65 → 50,000 點</div></div></div>'+
       '<div class="yb-actions"><a class="yb-primary" href="index.html">回到 BAO/LAB</a><button class="yb-secondary" id="logout">登出</button></div>';
     document.getElementById("v-display").textContent=profile.display_name||"—";
     document.getElementById("v-user").textContent=profile.username||"—";
     document.getElementById("v-id").textContent=profile.public_id||"—";
-    document.getElementById("v-wallet").textContent=formatPoints(walletPoints(profile));
+    document.getElementById("v-wallet").textContent=points(profile.wallet_balance_usd);
     document.getElementById("v-billing").textContent=profile.billing_mode==="cost_usd_v2"?"依實際 AI 使用量扣除點數":"目前帳號仍在舊測試額度模式";
-    var ledgerEl=document.getElementById("v-ledger");
-    if(ledgerEl){
-      if(!ledger.length){
-        ledgerEl.innerHTML='<div class="yb-note">目前還沒有點數紀錄。</div>';
-      }else{
-        ledgerEl.innerHTML=ledger.map(function(entry){
-          var amount=Number(entry.points||0);
-          var cls=amount>0?"plus":"minus";
-          return '<div class="yb-ledger-item"><div class="yb-ledger-main"><div class="yb-ledger-label"></div><div class="yb-ledger-time"></div></div><div class="yb-ledger-amount '+cls+'"></div></div>';
-        }).join("");
-        ledgerEl.querySelectorAll(".yb-ledger-item").forEach(function(row,index){
-          var entry=ledger[index]||{};
-          row.querySelector(".yb-ledger-label").textContent=entry.label||"點數異動";
-          row.querySelector(".yb-ledger-time").textContent=timeText(entry.created_at);
-          row.querySelector(".yb-ledger-amount").textContent=signedPoints(entry.points);
-        });
-      }
-    }
     document.getElementById("copy-id").onclick=async function(){
       try{await navigator.clipboard.writeText(profile.public_id||"");}
       catch(e){window.prompt("複製玩家編號：",profile.public_id||"");}
@@ -226,48 +183,13 @@ body{min-height:100vh;background:#101118;color:#f5f1ff}
     document.getElementById("finish").onclick=render;
   }
   async function refresh(silent){
-    if(!token){profile=null;ledger=[];show("login");return;}
-    try{
-      profile=await call("/me",{method:"GET"},token);
-      try{
-        var history=await call("/me/wallet-ledger",{method:"GET"},token);
-        ledger=Array.isArray(history&&history.entries)?history.entries:[];
-      }catch(e){ledger=[];}
-      show("account");
-    }
+    if(!token){profile=null;show("login");return;}
+    try{profile=await call("/me",{method:"GET"},token);show("account");}
     catch(error){
-      localStorage.removeItem(KEY);token="";profile=null;ledger=[];
+      localStorage.removeItem(KEY);token="";profile=null;
       if(!silent) alert(error.message);
       show("login");
     }
-  }
-  function applyWalletEvent(event){
-    if(!profile||!event||event.source!=="yorubay-ai-usage") return;
-    var balance=Number(event.wallet_balance_points);
-    if(Number.isFinite(balance)){
-      profile.wallet_balance_points=balance;
-      profile.wallet_balance_usd=balance/1000;
-    }
-    var points=Number(event.points);
-    if(event.id&&Number.isFinite(points)&&!ledger.some(function(row){return row&&row.id===event.id;})){
-      ledger.unshift({
-        id:event.id,
-        type:"usage",
-        label:event.label||"AI 使用",
-        points:points,
-        balance_after_points:Number.isFinite(balance)?balance:null,
-        created_at:event.created_at||new Date().toISOString()
-      });
-      ledger=ledger.slice(0,50);
-    }
-    render();
-  }
-  function setupWalletChannel(){
-    if(!("BroadcastChannel" in window)) return;
-    try{
-      walletChannel=new BroadcastChannel("yorubay-wallet");
-      walletChannel.onmessage=function(message){applyWalletEvent(message&&message.data);};
-    }catch(e){walletChannel=null;}
   }
   async function logout(){
     var old=token;localStorage.removeItem(KEY);token="";profile=null;
@@ -300,11 +222,7 @@ body{min-height:100vh;background:#101118;color:#f5f1ff}
       token=data.session_token;localStorage.setItem(KEY,token);profile=await call("/me",{method:"GET"},token);f.reset();recovery(data.recovery_code);
     }catch(error){msg("recover-error",error.message);}finally{button.disabled=false;}
   };
-  setupWalletChannel();
   refresh(true);
-  document.addEventListener("visibilitychange",function(){
-    if(!document.hidden&&token) refresh(true);
-  });
 })();
 </script>
 </body>
