@@ -181,8 +181,8 @@
   const patchUsage = () => {
     if (typeof Chat === "undefined" || Chat.__costUsagePatched) return;
     const original = Chat.addUsage.bind(Chat);
-    Chat.addUsage = function(usage = {}) {
-      const result = original(usage);
+    Chat.addUsage = function(usage = {}, kind = "all") {
+      const result = original(usage, kind);
       render();
       return result;
     };
