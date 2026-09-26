@@ -70,4 +70,27 @@ test.describe('Player 2.0 shell', () => {
     await expect(page.locator('#chat-view .usage-bar')).toBeVisible();
   });
 
+  test('quick builder separates account credits from BYOK without raw connection fields first', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto('/');
+    await page.locator('#home-view button[data-view="explore"]').click();
+    await page.locator('#character-list .character-card').first().click();
+    await page.getByRole('button', { name: '開始故事' }).click();
+
+    await expect(page.locator('#builder-view')).toHaveAttribute('data-bao-setup', 'quick');
+    await expect(page.locator('#bao-connection-mode')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('[data-bao-connection="byok"]')).toHaveAttribute('aria-pressed', 'true');
+    await expect(page.locator('#model-id').locator('xpath=..')).toBeHidden();
+
+    await page.waitForFunction(() => Boolean(document.querySelector('#api-type option[value="bao-credits"]')));
+    await page.locator('[data-bao-connection="hosted"]').click();
+    await expect(page.locator('#api-type')).toHaveValue('bao-credits');
+    await expect(page.locator('[data-bao-connection="hosted"]')).toHaveAttribute('aria-pressed', 'true');
+    await expect(page.locator('#bao-connection-account')).toBeVisible();
+
+    await page.locator('[data-bao-connection="byok"]').click();
+    await expect(page.locator('#api-type')).not.toHaveValue('bao-credits');
+    await expect(page.locator('[data-bao-connection="byok"]')).toHaveAttribute('aria-pressed', 'true');
+  });
+
 });
