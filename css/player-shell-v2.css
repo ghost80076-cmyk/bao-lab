@@ -341,3 +341,7 @@
   }
   #detail-view .bao-detail-primary{width:100%;min-height:48px}
 }
+
+
+/* Author styles can override the browser's hidden attribute; keep removed service links truly out of the primary nav. */
+.topbar nav [hidden]{display:none!important}
