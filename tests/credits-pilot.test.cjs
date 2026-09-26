@@ -132,7 +132,7 @@ test('registers all nine YoruBay wallet model presets without replacing existing
    'anthropic/claude-opus-4.6'
  ]);
  assert.equal(added.every(p=>p.provider==='bao-credits'),true);
- assert.equal(added.every(p=>p.provider_label==='YoruBay API 額度'),true);
+ assert.equal(added.every(p=>p.provider_label==='YoruBay AI 點數'),true);
  assert.equal(added.every(p=>p.base_url===cfg.baseUrl),true);
  assert.match(added[2].label,/Google 官方/);
  assert.match(added[4].label,/免費路由/);

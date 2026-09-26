@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>YoruBay Wallet Admin</title>
+<title>YoruBay 點數管理</title>
 <meta name="robots" content="noindex,nofollow">
 <link rel="icon" type="image/svg+xml" href="assets/bao-mark.svg">
 <link rel="stylesheet" href="css/brand-home.css">
@@ -38,7 +38,7 @@ code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
 <body>
 <div class="wrap">
   <div class="top">
-    <div><div class="eyebrow">YORUBAY ADMIN</div><h1>玩家 Wallet 加值</h1></div>
+    <div><div class="eyebrow">YORUBAY ADMIN</div><h1>玩家點數管理</h1></div>
     <a href="index.html" class="secondary">回首頁</a>
   </div>
 
@@ -68,19 +68,19 @@ code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
       <div class="row"><span>玩家編號</span><b id="p-public"></b></div>
       <div class="row"><span>帳號</span><b id="p-user"></b></div>
       <div class="row"><span>顯示名稱</span><b id="p-display"></b></div>
-      <div class="row"><span>目前 Wallet</span><b id="p-wallet"></b></div>
+      <div class="row"><span>目前 YoruBay 點數</span><b id="p-wallet"></b></div>
       <div class="row"><span>內部 ID</span><b id="p-internal"></b></div>
     </div>
   </section>
 
   <section class="card">
-    <h2>3. 建立加值紀錄</h2>
-    <p class="note">「玩家付款」與「API 額度」分開記錄。預設套餐是目前討論的台幣人工加值方案；可自行改成自訂金額。</p>
+    <h2>3. 建立點數加值紀錄</h2>
+    <p class="note">玩家端使用 YoruBay 點數；後端仍沿用既有美元成本帳本。1 美元成本單位 = 1,000 點。</p>
     <div class="packages">
-      <button class="package" type="button" data-pay="190" data-credit="5">NT$190<br>→ US$5</button>
-      <button class="package" type="button" data-pay="370" data-credit="10">NT$370<br>→ US$10</button>
-      <button class="package" type="button" data-pay="730" data-credit="20">NT$730<br>→ US$20</button>
-      <button class="package" type="button" data-pay="1850" data-credit="50">NT$1,850<br>→ US$50</button>
+      <button class="package" type="button" data-pay-twd="220" data-pay-usd="7" data-points="5000">5,000 點<br>NT$220 / US$7</button>
+      <button class="package" type="button" data-pay-twd="430" data-pay-usd="13" data-points="10000">10,000 點<br>NT$430 / US$13</button>
+      <button class="package" type="button" data-pay-twd="850" data-pay-usd="26" data-points="20000">20,000 點<br>NT$850 / US$26</button>
+      <button class="package" type="button" data-pay-twd="2150" data-pay-usd="65" data-points="50000">50,000 點<br>NT$2,150 / US$65</button>
     </div>
 
     <div class="grid">
@@ -96,8 +96,8 @@ code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
       <label>實收
         <input id="net-received" type="number" min="0" step="0.01" placeholder="自動 = 付款 - 手續費">
       </label>
-      <label>加入 API 額度（USD）
-        <input id="credit-usd" type="number" min="0.000001" step="0.000001" placeholder="例如 10">
+      <label>加入 YoruBay 點數
+        <input id="credit-points" type="number" min="0.1" step="0.1" placeholder="例如 5000">
       </label>
       <label>付款方式
         <select id="payment-method">
@@ -112,7 +112,7 @@ code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
         <input id="payment-reference" autocomplete="off" placeholder="選填">
       </label>
       <label>備註
-        <input id="note" autocomplete="off" value="YoruBay manual wallet top-up">
+        <input id="note" autocomplete="off" value="YoruBay manual point top-up">
       </label>
     </div>
 
@@ -131,9 +131,10 @@ code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
   var selected=null;
 
   var $=function(id){return document.getElementById(id);};
-  function money(value){
+  function points(value){
     var n=Number(value||0);
-    return Number.isFinite(n) ? "US$"+n.toFixed(6).replace(/0+$/,"").replace(/\.$/,".00") : "US$0.00";
+    if(!Number.isFinite(n)) n=0;
+    return (n*1000).toLocaleString("zh-TW",{minimumFractionDigits:0,maximumFractionDigits:1})+" 點";
   }
   function setMessage(id,text,ok){
     var el=$(id); el.textContent=text||""; el.className=ok?"success":"error";
@@ -143,10 +144,10 @@ code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
     if(!Number.isFinite(n)||n<0) return null;
     return Math.round(n*100);
   }
-  function microusd(value){
+  function microusdFromPoints(value){
     var n=Number(value);
     if(!Number.isFinite(n)||n<=0) return null;
-    var v=Math.round(n*1000000);
+    var v=Math.round(n*1000);
     return Number.isSafeInteger(v)&&v>0?v:null;
   }
   async function api(path,options){
@@ -172,7 +173,7 @@ code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
     $("p-public").textContent=selected.public_id||"—";
     $("p-user").textContent=selected.username||"—";
     $("p-display").textContent=selected.display_name||"—";
-    $("p-wallet").textContent=money(selected.wallet_balance_usd);
+    $("p-wallet").textContent=points(selected.wallet_balance_usd);
     $("p-internal").textContent=selected.id||"—";
     $("credit-wallet").disabled=false;
     updateSummary();
@@ -185,13 +186,13 @@ code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
     var pay=Number($("payment-amount").value||0);
     var fee=Number($("processor-fee").value||0);
     var net=$("net-received").value==="" ? pay-fee : Number($("net-received").value);
-    var credit=Number($("credit-usd").value||0);
+    var credit=Number($("credit-points").value||0);
     var who=selected ? ((selected.public_id||"")+" / "+(selected.username||"")) : "尚未選玩家";
     $("topup-summary").textContent=
       "玩家："+who+" ｜ 收款 "+$("currency").value+" "+(Number.isFinite(pay)?pay.toFixed(2):"—")+
       " ｜ 手續費 "+(Number.isFinite(fee)?fee.toFixed(2):"—")+
       " ｜ 實收 "+(Number.isFinite(net)?net.toFixed(2):"—")+
-      " ｜ 加入 API 額度 "+(Number.isFinite(credit)?money(credit):"—");
+      " ｜ 加入點數 "+(Number.isFinite(credit)?credit.toLocaleString("zh-TW",{maximumFractionDigits:1})+" 點":"—");
   }
 
   $("connect").onclick=async function(){
@@ -227,20 +228,28 @@ code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
     setMessage("player-message","已找到玩家。",true);
   };
 
+  function applyPackage(button){
+    var currency=$("currency").value;
+    $("payment-amount").value=currency==="USD"?button.dataset.payUsd:button.dataset.payTwd;
+    $("processor-fee").value="0";
+    $("net-received").value="";
+    $("credit-points").value=button.dataset.points;
+  }
   document.querySelectorAll(".package").forEach(function(button){
     button.onclick=function(){
       document.querySelectorAll(".package").forEach(function(x){x.classList.remove("active");});
       button.classList.add("active");
-      $("currency").value="TWD";
-      $("payment-amount").value=button.dataset.pay;
-      $("processor-fee").value="0";
-      $("net-received").value="";
-      $("credit-usd").value=button.dataset.credit;
+      applyPackage(button);
       updateSummary();
     };
   });
+  $("currency").addEventListener("change",function(){
+    var active=document.querySelector(".package.active");
+    if(active) applyPackage(active);
+    updateSummary();
+  });
 
-  ["currency","payment-amount","processor-fee","net-received","credit-usd","payment-method","payment-reference","note"]
+  ["payment-amount","processor-fee","net-received","credit-points","payment-method","payment-reference","note"]
     .forEach(function(id){$(id).addEventListener("input",updateSummary);$(id).addEventListener("change",updateSummary);});
 
   $("credit-wallet").onclick=async function(){
@@ -250,16 +259,16 @@ code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
     var pay=Number($("payment-amount").value);
     var fee=Number($("processor-fee").value||0);
     var net=$("net-received").value===""?pay-fee:Number($("net-received").value);
-    var credit=Number($("credit-usd").value);
+    var credit=Number($("credit-points").value);
     var paymentMinor=minorUnits(pay,currency);
     var feeMinor=minorUnits(fee,currency);
     var netMinor=minorUnits(net,currency);
-    var creditMicro=microusd(credit);
+    var creditMicro=microusdFromPoints(credit);
     if(paymentMinor===null||feeMinor===null||netMinor===null||creditMicro===null||net<0){
-      setMessage("topup-message","請確認付款、手續費、實收與 API 額度金額。");
+      setMessage("topup-message","請確認付款、手續費、實收與點數金額。");
       return;
     }
-    var text="確認替 "+(selected.public_id||selected.username)+" 加入 "+money(credit)+" API 額度？\n"+
+    var text="確認替 "+(selected.public_id||selected.username)+" 加入 "+credit.toLocaleString("zh-TW",{maximumFractionDigits:1})+" 點？\n"+
       "玩家付款："+currency+" "+pay.toFixed(2)+"\n"+
       "實收："+currency+" "+net.toFixed(2);
     if(!confirm(text)) return;
@@ -280,9 +289,9 @@ code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
         body:JSON.stringify(body)
       });
       if(data&&data.wallet_balance_usd!=null) selected.wallet_balance_usd=data.wallet_balance_usd;
-      else selected.wallet_balance_usd=Number(selected.wallet_balance_usd||0)+credit;
+      else selected.wallet_balance_usd=Number(selected.wallet_balance_usd||0)+(credit/1000);
       renderSelected();
-      setMessage("topup-message","加值成功。最新 Wallet："+money(selected.wallet_balance_usd),true);
+      setMessage("topup-message","加值成功。最新點數："+points(selected.wallet_balance_usd),true);
       var refreshed=await api("/admin/players",{method:"GET"});
       players=Array.isArray(refreshed.players)?refreshed.players:players;
       selected=players.find(function(p){return p.id===selected.id;})||selected;
