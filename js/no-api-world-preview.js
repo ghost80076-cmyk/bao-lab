@@ -15,7 +15,7 @@
     if (confirmed.npcs && s.npcs) parts.push('【NPC】\n' + s.npcs);
     if (confirmed.persona && s.personaText) parts.push('【玩家資料】\n' + s.personaText);
     if (s.opening) parts.push('【預定開場】\n' + s.opening);
-    parts.push('要讓 NPC 自主行動並生成後續劇情，請設定自己的 API Key。');
+    parts.push('要讓 NPC 自主行動並生成後續劇情，請設定自己的連線金鑰（API Key）。');
     return parts.join('\n\n');
   };
   function status(message) {
@@ -76,13 +76,13 @@
       const model = document.getElementById('chat-model');
       if (model) model.textContent = '離線預覽';
       const input = document.getElementById('user-input');
-      if (input) input.placeholder = '離線預覽不能生成 AI 回覆；請先設定 API Key';
+      if (input) input.placeholder = '離線預覽不能生成 AI 回覆；請先設定連線金鑰（API Key）';
     }
     return result;
   };
   App.sendMessage = function () {
     if (isWorld() && this.config?.offlineWorldPreview) {
-      alert('目前是離線世界設定預覽，尚未連接 AI。請先設定 API Key，才能開始生成劇情。');
+      alert('目前是離線世界設定預覽，尚未連接 AI。請先設定連線金鑰（API Key），才能開始生成劇情。');
       return;
     }
     return originalSend();

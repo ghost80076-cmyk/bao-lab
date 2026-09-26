@@ -1,0 +1,11 @@
+/* BAO appears on the home card, not over the story reader. */
+#home-view .brand-identity-card{overflow:hidden}
+#bao-home-portrait{display:block;position:relative;margin:-16px -16px 18px;border-radius:18px;overflow:hidden;text-decoration:none;background:radial-gradient(ellipse at 50% 22%,#f9e9f1 0%,#e8d6e6 45%,#231d2b 100%);border:1px solid rgba(244,168,196,.22)}
+#bao-home-portrait img{display:block;width:100%;height:clamp(240px,27vw,360px);object-fit:contain;object-position:center bottom;filter:drop-shadow(0 12px 22px rgba(35,20,31,.24))}
+#bao-home-portrait>span{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 16px;background:rgba(24,19,31,.92);color:#fff}
+#bao-home-portrait b{font-size:14px}#bao-home-portrait small{font-size:12px;color:#f2c2d5}#bao-home-portrait:hover,#bao-home-portrait:focus-visible{outline:2px solid #f4a8c4;outline-offset:2px}
+.bao-about-intro{display:flex;align-items:flex-start;gap:18px;margin-top:32px;padding:22px;background:#211a25;border:1px solid rgba(244,168,196,.25);border-radius:18px}.bao-about-intro img{flex:none}.bao-about-intro h3{margin:0 0 8px}.bao-about-intro p{margin:0 0 12px;color:#d6c9d2;line-height:1.8}.bao-about-intro a{color:#ffd0e3}.bao-about-intro button{display:inline-block;margin-left:12px;padding:6px 10px;background:transparent;color:#ffd0e3;border:1px solid #d995b5;border-radius:8px;cursor:pointer}.bao-about-intro button[hidden]{display:none!important}
+/* Existing voluntary support link must not overlap the mascot launcher. */
+body:has(#bao-mascot-root:not([hidden])) .bao-support-float{bottom:calc(88px + env(safe-area-inset-bottom,0px))}
+@media(max-width:820px){#bao-home-portrait{margin:-10px -10px 16px}#bao-home-portrait img{height:320px}}
+@media(max-width:560px){.bao-about-intro{padding:16px;gap:12px}.bao-about-intro img{width:46px;height:46px}#bao-home-portrait img{height:310px}body:has(#bao-mascot-root:not([hidden])) .bao-support-float{bottom:calc(78px + env(safe-area-inset-bottom,0px))}}

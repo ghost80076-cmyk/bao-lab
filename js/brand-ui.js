@@ -2,9 +2,33 @@
   const DISCORD_INVITE = "https://discord.gg/N3XpAhwTN";
   const DISCORD_ICON = '<img src="assets/discord-mark.svg" width="21" height="21" alt="">';
   const discordLink = (label, className = "brand-discord-cta") => `<a class="${className}" href="${DISCORD_INVITE}" target="_blank" rel="noopener noreferrer" aria-label="${label}（另開 Discord 邀請連結）">${DISCORD_ICON}<span>${label}</span></a>`;
+  const nightKey = () => {
+    const now = new Date();
+    return [now.getFullYear(), String(now.getMonth() + 1).padStart(2, "0"), String(now.getDate()).padStart(2, "0")].join("-");
+  };
+  const stableScore = value => {
+    let hash = 2166136261;
+    for (const char of String(value || "")) {
+      hash ^= char.charCodeAt(0);
+      hash = Math.imul(hash, 16777619);
+    }
+    return hash >>> 0;
+  };
+  const nightlyCharacters = characters => [...characters].sort((a, b) =>
+    stableScore(nightKey() + ":" + String(a?.id || a?.name || "")) -
+    stableScore(nightKey() + ":" + String(b?.id || b?.name || "")));
+  const plainStoryText = value => {
+    const node = document.createElement("div");
+    node.innerHTML = String(value || "");
+    return String(node.textContent || node.innerText || "").replace(/\s+/g, " ").trim();
+  };
+  const usefulState = value => {
+    const text = String(value || "").trim();
+    return text && !/^(?:未知|未設定|未確認|—|-)$/.test(text) ? text : "";
+  };
 
   const ensureStyles = () => {
-    ["css/brand-home.css", "css/brand-community.css"].forEach(href => {
+    ["css/brand-home.css", "css/brand-community.css", "css/first-run-desktop.css", "css/bao-cinematic-home.css?v=3"].forEach(href => {
       if (document.querySelector(`link[href="${href}"]`)) return;
       const link = document.createElement("link");
       link.rel = "stylesheet";
@@ -22,62 +46,195 @@
     const home = document.getElementById("home-view");
     if (!home) return;
     home.innerHTML = `
-      <section class="brand-hero">
+      <section class="brand-hero brand-cinematic-hero">
         <div class="brand-hero-copy">
-          <div class="brand-signature"><img src="assets/bao-mark.svg" width="64" height="64" alt=""><span>BAO/LAB<small>班長的故事實驗室</small></span></div>
-          <div class="brand-kicker">CHARACTERS · WORLDS · EXPERIMENTS</div>
-          <h1>班長。</h1>
-          <p class="brand-intro">寫角色，也寫世界。</p>
-          <p class="brand-lead">偶爾研究一些奇怪的玩法，然後把它們真的做出來。這裡收著我的角色卡、世界模擬與互動作品；有些適合談戀愛，有些適合跑劇情，有些……滿十八歲再進去。</p>
-          <p class="brand-principles">故事保存在此裝置 · 自備 API 與模型 · 不需註冊帳號</p>
+          <div class="brand-signature"><img src="assets/bao-mark.svg" width="64" height="64" alt=""><span>BAO/LAB<small>包包夜讀書房</small></span></div>
+          <div class="brand-kicker">CINEMATIC NIGHT · BAO/LAB</div>
+          <h1>今晚，想走進<br>誰的故事？</h1>
+          <p class="brand-intro">包包替你留著一盞燈。</p>
+          <p class="brand-lead">每一張角色卡，都是一段正在等你打開的故事。選一個人，從第一句話開始。</p>
           <div class="brand-actions">
-            <button class="primary" data-view="explore">探索作品</button>
-            ${discordLink("加入官方 Discord", "secondary brand-discord-cta")}
-            <button class="secondary" data-view="about">關於我</button>
-            <button id="home-continue" class="secondary hidden">繼續上次故事</button>
+            <button class="primary" data-view="explore">開始探索</button>
+            <button id="home-continue" class="secondary hidden">繼續閱讀</button>
+            <a class="brand-first-run" href="quick-start.html">第一次來？三步開始 ↗</a>
+          </div>
+          <a id="bao-home-portrait" class="brand-bao-companion" href="bao-mascot.html" aria-label="認識 BAO/LAB 官方吉祥物包包">
+            <img src="assets/bao-human-v2.webp" alt="包包：BAO/LAB 官方吉祥物" width="58" height="76" loading="eager"><span>包包在這裡留燈</span>
+          </a>
+        </div>
+        <button class="brand-feature-stage" id="home-feature-stage" type="button" aria-label="開啟角色：林沉風">
+          <img id="home-feature-image" src="https://i.meee.com.tw/UHKTM1O.jpg" alt="林沉風" loading="lazy" decoding="async" fetchpriority="low" referrerpolicy="no-referrer">
+          <span class="brand-feature-shade"></span>
+          <span class="brand-feature-copy"><small>今晚推薦</small><b id="home-feature-name">林沉風</b><em id="home-feature-title">見過黑暗的人</em></span>
+        </button>
+      </section>
+      <section id="home-local-story" class="brand-local-story hidden" aria-labelledby="home-local-story-title">
+        <div class="brand-local-story-cover"><img id="home-local-story-cover" src="assets/bao-mark.svg" alt="" loading="lazy"></div>
+        <div class="brand-local-story-copy">
+          <p class="brand-section-mark">CONTINUE READING ／ 本機故事</p>
+          <span id="home-local-story-time" class="brand-local-story-time">上次閱讀</span>
+          <h2 id="home-local-story-title">繼續你的故事</h2>
+          <h3 id="home-local-story-name">你的故事</h3>
+          <p id="home-local-story-preview">上一次停下來的地方，還替你留著。</p>
+          <div id="home-local-story-meta" class="brand-local-story-meta"></div>
+          <div class="brand-local-story-actions">
+            <button id="home-resume-story" type="button" class="primary">繼續閱讀 <span aria-hidden="true">→</span></button>
+            <button id="home-my-stories" type="button" class="brand-home-link">打開我的故事</button>
           </div>
         </div>
-        <aside class="brand-status-card brand-identity-card">
-          <img class="brand-world-art" src="assets/bao-world-core.webp" width="256" height="256" alt="BAO/LAB 世界核心：紫色星球、環繞軌道與中央微光">
-          <span class="status-dot"></span>
-          <div class="brand-status-title">SYSTEM READY</div>
-          <dl>
-            <div><dt>Characters</dt><dd id="home-character-count">—</dd></div>
-            <div><dt>World Sim</dt><dd>READY</dd></div>
-            <div><dt>Play Mode</dt><dd>Immersive / World</dd></div>
-            <div><dt>API</dt><dd>BYOK</dd></div>
-          </dl>
-        </aside>
       </section>
-      <section class="brand-feature-grid">
-        <article><span>01</span><h3>角色</h3><p>不只是一張設定表。個性、關係、背景與敘事方式，都是角色的一部分。</p></article>
-        <article><span>02</span><h3>世界</h3><p>故事不一定只繞著玩家轉。NPC、事件與關係也可以有自己的變化。</p></article>
-        <article><span>03</span><h3>互動</h3><p>除了文字，也嘗試把狀態、人物、事件與各種玩法做進互動介面。</p></article>
-        <article><span>04</span><h3>BYOK</h3><p>使用自己的 API 與模型。故事保存在自己的裝置，模型選擇權留給玩家。</p></article>
+      <section class="brand-home-explore" aria-labelledby="home-explore-title">
+        <div class="brand-home-explore-head">
+          <div><p class="brand-kicker">MORE STORIES</p><h2 id="home-explore-title">更多作品，今晚也在等你。</h2><p class="brand-home-count">包包今夜留了 <span id="home-character-count">—</span> 個故事入口</p></div>
+          <button class="text-button" id="home-all-works" type="button">查看全部作品 →</button>
+        </div>
+        <div id="home-character-preview" class="home-character-preview" aria-live="polite"></div>
       </section>
-      <section class="brand-product-intro" aria-labelledby="brand-product-intro-title" style="margin:24px 0;padding:clamp(20px,4vw,32px);border:1px solid #444653;border-radius:18px;background:#1c1e27">
-        <div class="brand-kicker">ABOUT BAO/LAB</div>
-        <h2 id="brand-product-intro-title">讓故事回到玩家手中</h2>
-        <p style="font-size:1.15rem;font-weight:700">你的模型，你的故事，你的世界。</p>
-        <p>BAO/LAB 是以 Local-first、BYOK 為核心的 AI 角色扮演與世界模擬工具。自由選擇模型，透過故事書庫、記憶整理、故事分支與備份功能，管理並延續你的長篇故事。</p>
-        <a class="primary" href="about-bao-lab.html" style="display:inline-block;text-decoration:none;padding:10px 18px;border-radius:10px">了解 BAO/LAB ↗</a>
+      <section id="home-reading" class="brand-reading-intro" aria-labelledby="home-reading-title">
+        <div class="brand-reading-copy">
+          <p class="brand-section-mark">01 ／ 翻開一頁</p>
+          <h2 id="home-reading-title">留一點安靜，<br>讓故事慢慢發生。</h2>
+          <p>讀完這一段，再決定下一句。你可以回看前情、整理重要記憶，讓每一次選擇都有跡可循。</p>
+          <p class="brand-reading-footnote">從一句話開始，也可以寫成很長的故事。</p>
+        </div>
+        <article class="brand-paper-page" aria-labelledby="home-excerpt-title">
+          <header><span>閱讀示例</span><span class="brand-page-chapter">第一章</span></header>
+          <h3 id="home-excerpt-title">燈還亮著</h3>
+          <div class="brand-paper-prose">
+            <p>雨聲落在窗沿。你推開門時，他抬了抬眼，將桌上的書籤夾回書裡。</p>
+            <p>「今天過得怎麼樣？」</p>
+            <p>他沒有催你回答，只把另一張椅子拉開一點。燈光落在空著的那一頁，像是替還沒說出口的話，留了一個位置。</p>
+          </div>
+          <footer><span>故事停在這裡，等你接下一句。</span><span aria-hidden="true">01</span></footer>
+        </article>
       </section>
-      <section class="brand-api-guide" aria-labelledby="brand-api-guide-title" style="margin:24px 0;padding:24px;border:1px solid #444653;border-radius:18px;background:#1c1e27">
-        <div class="brand-kicker">NEW PLAYER GUIDE</div>
-        <h2 id="brand-api-guide-title">第一次使用 API？從這裡開始。</h2>
-        <p>不需要懂程式。跟著教學了解 API Key、申請 OpenRouter 或 Gemini，再回到 BAO/LAB 開始故事。模型費用與免費額度以服務商公告為準。</p>
-        <a class="primary" href="api-guide.html" style="display:inline-block;text-decoration:none;padding:10px 18px;border-radius:10px">查看 API 新手教學 ↗</a>
+      <section id="home-library" class="brand-library-intro" aria-labelledby="home-library-title">
+        <div class="brand-library-sample" aria-label="故事書庫的章節示例">
+          <div class="brand-library-sample-head"><span>故事書庫</span><small>章節示例</small></div>
+          <div class="brand-library-book">
+            <div class="brand-library-cover"><img id="home-library-cover" src="https://i.meee.com.tw/UHKTM1O.jpg" alt="" loading="lazy" referrerpolicy="no-referrer"></div>
+            <div class="brand-library-book-copy"><span>留在書庫的故事</span><h3 id="home-library-story">林沉風</h3><p>每次回來，都有一頁等著你。</p></div>
+          </div>
+          <ol class="brand-library-chapters">
+            <li><span>第一章</span><span>第一次相遇</span></li>
+            <li class="brand-chapter-current"><span>第二章</span><span>還沒說完的話</span><small>上次閱讀</small></li>
+          </ol>
+          <button id="home-library-open" type="button" class="brand-home-link">打開我的故事書庫 <span aria-hidden="true">→</span></button>
+        </div>
+        <div class="brand-library-copy">
+          <p class="brand-section-mark">02 ／ 留住故事</p>
+          <h2 id="home-library-title">今晚先讀到這裡。<br>下次，接著寫。</h2>
+          <p>把故事與章節留在自己的書庫。回來時繼續，也能保留分支，走向另一種可能。</p>
+          <div class="brand-sync-note">
+            <h3>換個裝置，接上同一個故事。</h3>
+            <p>故事先保存在目前裝置。想在手機與電腦之間接續，可連結自己的 Google 雲端硬碟；換裝置後先同步，再從書庫繼續。</p>
+            <button id="home-sync-open" type="button" class="brand-home-link">查看跨裝置同步 <span aria-hidden="true">→</span></button>
+            <small>連線金鑰（API Key）不會同步，換裝置時需重新輸入。</small>
+          </div>
+        </div>
       </section>
-      <section class="brand-contact" aria-labelledby="brand-contact-title">
-        <div><div class="brand-kicker">COMMUNITY & CONTACT</div><h2 id="brand-contact-title">聯絡我們</h2><p>使用問題、錯誤回報、功能建議或角色卡交流，歡迎加入 BAO/LAB 官方 Discord。請勿在公開頻道張貼 API Key 或個人資料。</p></div>
-        ${discordLink("加入官方 Discord")}
-      </section>`;
+      <section id="home-closing" class="brand-closing" aria-labelledby="home-closing-title">
+        <img src="assets/bao-bun.svg" class="brand-closing-bao" alt="包包" width="64" height="64" loading="lazy">
+        <p class="brand-section-mark">包包替你留著燈</p>
+        <h2 id="home-closing-title">下一頁，從你開始。</h2>
+        <p>選一個角色，把第一句話留給今晚。</p>
+        <div class="brand-closing-actions"><button id="home-start-story" type="button" class="primary">開始故事 <span aria-hidden="true">→</span></button><a class="brand-home-link" href="quick-start.html">第一次來？看三步開始</a></div>
+      </section>
+      `;
 
     home.querySelectorAll("[data-view]").forEach(btn => btn.addEventListener("click", () => App.showView(btn.dataset.view)));
+    document.getElementById("home-all-works")?.addEventListener("click", () => App.showView("explore"));
+    document.getElementById("home-start-story")?.addEventListener("click", () => App.showView("explore"));
+    document.getElementById("home-resume-story")?.addEventListener("click", () => App.resumeSavedStory?.());
+    document.getElementById("home-my-stories")?.addEventListener("click", () => {
+      if (window.BAOStoryTools?.openLibrary) window.BAOStoryTools.openLibrary();
+      else window.alert("我的故事正在載入，請稍後再試。");
+    });
+    document.getElementById("home-library-open")?.addEventListener("click", () => {
+      if (window.BAOStoryTools?.openLibrary) window.BAOStoryTools.openLibrary();
+      else window.alert("故事書庫正在載入，請稍後再試。");
+    });
+    document.getElementById("home-sync-open")?.addEventListener("click", () => {
+      const trigger = document.getElementById("bao-drive-button");
+      if (trigger) trigger.click();
+      else window.alert("同步功能正在載入，請稍後再試。");
+    });
     document.getElementById("home-continue")?.addEventListener("click", () => App.resumeSavedStory?.());
-    const count = document.getElementById("home-character-count");
-    if (count) count.textContent = String(App.characters?.length || 0);
+    window.BAORefreshHomeCharacterPreview?.();
+    window.BAORefreshHomeLocalStory?.();
     window.BAORefreshSaveUI?.();
+  };
+
+  window.BAORefreshHomeLocalStory = async () => {
+    const section = document.getElementById("home-local-story");
+    if (!section || !window.Storage) return;
+    await Storage.ready?.();
+    const save = Storage.loadStory?.();
+    if (!save) {
+      section.classList.add("hidden");
+      return;
+    }
+    const character = (App.characters || []).find(card => String(card?.id || "") === String(save.characterId || ""));
+    const cover = document.getElementById("home-local-story-cover");
+    if (cover) {
+      const avatar = character?.avatar || save.character?.avatar || "assets/bao-mark.svg";
+      cover.src = avatar;
+      cover.alt = (save.characterName || character?.name || "故事") + "封面";
+    }
+    const name = document.getElementById("home-local-story-name");
+    if (name) name.textContent = save.characterName || character?.name || "未命名故事";
+    const messages = Array.isArray(save.chat?.messages) ? save.chat.messages : [];
+    const last = [...messages].reverse().find(message => String(message?.content || "").trim());
+    const preview = document.getElementById("home-local-story-preview");
+    if (preview) {
+      const text = plainStoryText(last?.content).slice(0, 150);
+      preview.textContent = text || "上一次停下來的地方，還替你留著。";
+    }
+    const saved = new Date(save.savedAt || "");
+    const time = document.getElementById("home-local-story-time");
+    if (time) time.textContent = Number.isNaN(saved.getTime()) ? "上次閱讀" : "上次閱讀 · " + saved.toLocaleString("zh-TW", { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" });
+    const meta = document.getElementById("home-local-story-meta");
+    if (meta) {
+      const values = [usefulState(save.state?.time), usefulState(save.state?.location)].filter(Boolean);
+      meta.replaceChildren(...values.map(value => {
+        const span = document.createElement("span");
+        span.textContent = value;
+        return span;
+      }));
+    }
+    section.classList.remove("hidden");
+  };
+
+  window.BAORefreshHomeCharacterPreview = () => {
+    const home = document.getElementById("home-view");
+    const preview = document.getElementById("home-character-preview");
+    const characters = (App.characters || []).filter(character => character?.category !== "r18");
+    if (!home || !preview || !characters.length) return;
+    const nightly = nightlyCharacters(characters);
+    const count = document.getElementById("home-character-count");
+    if (count) count.textContent = String(characters.length);
+    const featured = nightly[0];
+    const image = document.getElementById("home-feature-image");
+    if (image) { image.src = featured.avatar; image.alt = featured.name; }
+    document.getElementById("home-feature-name").textContent = featured.name;
+    document.getElementById("home-feature-title").textContent = featured.title || featured.description || "開始這段故事";
+    const stage = document.getElementById("home-feature-stage");
+    if (stage) {
+      stage.setAttribute("aria-label", `今晚推薦：${featured.name}`);
+      stage.dataset.homeCharacter = String(featured.id || "");
+      stage.onclick = () => App.openCharacter(featured.id);
+    }
+    const libraryCover = document.getElementById("home-library-cover");
+    if (libraryCover) libraryCover.src = featured.avatar;
+    const libraryStory = document.getElementById("home-library-story");
+    if (libraryStory) libraryStory.textContent = featured.name;
+    const moreStories = nightly.filter(character => character !== featured).slice(0, 4);
+    preview.innerHTML = moreStories.map(character => `
+      <button class="home-character-card" type="button" data-home-character="${App.escapeAttr(character.id)}">
+        <img src="${App.escapeAttr(character.avatar)}" alt="${App.escapeAttr(character.name)}" loading="lazy">
+        <span><small>ORIGINAL CHARACTER</small><b>${App.escapeHTML(character.title || character.name)}</b></span>
+      </button>`).join("");
+    preview.querySelectorAll("[data-home-character]").forEach(card => card.addEventListener("click", () => App.openCharacter(card.dataset.homeCharacter)));
   };
 
   const renderAbout = () => {
@@ -85,51 +242,32 @@
     if (!about) return;
     about.innerHTML = `
       <section class="creator-page">
-        <div class="brand-kicker">ABOUT ME</div>
-        <h2>關於班長</h2>
+        <div class="brand-kicker">ABOUT BAO/LAB</div>
+        <h2>讓故事回到玩家手中</h2>
+        <p class="brand-about-lead">你的模型，你的故事，你的世界。</p>
+        <section class="brand-about-product" aria-label="BAO/LAB 是什麼">
+          <p class="brand-about-focus">角色 · 世界 · 互動 · 自己的 AI</p>
+          <p>BAO/LAB 是故事優先保存在本機（Local-first）的 AI 角色扮演與世界模擬工具，採自備連線金鑰模式（BYOK）：你向 AI 服務商取得連線金鑰（API Key），自行選擇模型與費用方案。</p>
+          <p>你可以建立角色、探索世界、整理記憶、建立故事分支並匯出備份；故事與選擇由你保留，不必被綁在單一聊天平台。</p>
+        </section>
+        <div class="brand-kicker brand-creator-kicker">ABOUT THE CREATOR</div>
+        <h3>關於班長</h3>
         <div class="creator-copy">
           <p>一開始只是做角色卡。做著做著，開始在意角色聊久了會不會忘記、NPC 能不能有自己的生活、世界能不能不等玩家下指令也繼續走。</p>
           <p>於是一路改提示詞、測試長篇互動、研究世界設定、HTML、角色記憶與 NPC 自主性。很多東西都是先想到一個奇怪的玩法，再想辦法把它真的做出來。</p>
           <p>這裡就是我把那些作品和實驗整理在一起的地方。角色、世界、戀愛、劇情、互動介面都有，也會繼續慢慢增加。</p>
-          <p>我比較希望玩家可以選自己想用的模型，所以 BAO/LAB 採 BYOK：作品由我整理，API 與模型由玩家自己決定。</p>
+          <p>我比較希望玩家可以選自己想用的模型，所以作品由我整理，連線金鑰（API Key）與模型由玩家自己決定。</p>
         </div>
         <div class="creator-card">
           <div><span>方格子 / DC</span><b>班長</b></div>
           <div><span>LunaTalk</span><b>肉包</b></div>
           <div><span>在做的東西</span><b>角色卡 / 世界模擬 / 長篇敘事 / HTML 互動</b></div>
         </div>
-        <section class="brand-contact brand-contact-about" id="contact" aria-labelledby="about-contact-title">
-          <div><div class="brand-kicker">CONTACT</div><h3 id="about-contact-title">聯絡我們</h3><p>加入 BAO/LAB 官方 Discord，提出功能建議、回報問題或交流創作。請不要公開 API Key、密碼或私人資料。</p></div>
-          ${discordLink("前往官方 Discord")}
-        </section>
       </section>`;
   };
 
   const renderCommunityNavigation = () => {
     const nav = document.querySelector(".topbar nav");
-    if (nav && !document.getElementById("bao-discord-nav")) {
-      const link = document.createElement("a");
-      link.id = "bao-discord-nav";
-      link.className = "brand-discord-nav";
-      link.href = DISCORD_INVITE;
-      link.target = "_blank";
-      link.rel = "noopener noreferrer";
-      link.setAttribute("aria-label", "加入 BAO/LAB 官方 Discord（另開分頁）");
-      link.innerHTML = `${DISCORD_ICON}<span>Discord</span>`;
-      nav.querySelector('[data-view="about"]')?.before(link);
-      if (!link.isConnected) nav.appendChild(link);
-    }
-    if (nav && !document.getElementById("bao-contact-nav")) {
-      const contact = document.createElement("button");
-      contact.id = "bao-contact-nav";
-      contact.type = "button";
-      contact.textContent = "聯絡我們";
-      contact.addEventListener("click", () => {
-        App.showView("about");
-        document.getElementById("contact")?.scrollIntoView({ behavior: "smooth", block: "start" });
-      });
-      nav.appendChild(contact);
-    }
     const footer = document.querySelector(".app-shell > footer");
     if (footer && !document.getElementById("bao-contact-footer")) {
       const contact = document.createElement("span");
@@ -158,16 +296,30 @@
     box.id = "builder-api-guide";
     box.className = "note";
     box.style.cssText = "margin:12px 0 18px;padding:14px 16px;border:1px solid #555763;border-radius:12px";
-    box.innerHTML = '<strong>第一次使用 API？</strong> 還沒有 Key 也沒關係，先看申請教學，再回來完成設定。<br><a href="api-guide.html" target="_blank" rel="noopener noreferrer">查看 API 新手教學（另開分頁）↗</a>';
+    box.innerHTML = '<strong>連線金鑰（API Key）就是使用 AI 的鑰匙。</strong> 沒有金鑰？三步驟教學會帶你取得並連接。<br><a href="quick-start.html" target="_blank" rel="noopener noreferrer">第一次玩？看三步驟教學（另開分頁）↗</a> · <a href="api-guide.html" target="_blank" rel="noopener noreferrer">完整連線說明（API）↗</a>';
     step.querySelector("h3")?.insertAdjacentElement("afterend", box);
   };
 
   const initBrandUI = () => {
     ensureStyles();
+    if (!App.__baoNightHomeRefreshWrapped) {
+      const previousShowView = App.showView.bind(App);
+      App.showView = function(view, ...args) {
+        const result = previousShowView(view, ...args);
+        if (view === "home") {
+          queueMicrotask(() => {
+            window.BAORefreshHomeCharacterPreview?.();
+            window.BAORefreshHomeLocalStory?.();
+          });
+        }
+        return result;
+      };
+      App.__baoNightHomeRefreshWrapped = true;
+    }
     setTimeout(() => {
       setNavLabel("home", "首頁");
       setNavLabel("explore", "作品");
-      setNavLabel("about", "關於我");
+      setNavLabel("about", "關於 BAO/LAB");
       renderHome();
       renderAbout();
       renderCommunityNavigation();

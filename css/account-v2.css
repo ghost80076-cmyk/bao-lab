@@ -1,0 +1,76 @@
+/* BAO Account · Player 2.0 */
+body{background:
+  radial-gradient(circle at 82% 8%,rgba(141,108,255,.15),transparent 28%),
+  radial-gradient(circle at 12% 92%,rgba(223,180,110,.075),transparent 26%),
+  #0b0d14!important}
+.yb-wrap{width:min(880px,calc(100% - 30px));margin:24px auto 72px}
+.yb-top{min-height:48px;margin-bottom:16px}
+.yb-top>a{display:inline-flex;align-items:center;min-height:40px;padding:0 4px;color:#ded8e8!important}
+.yb-top .chip{border-color:rgba(184,169,255,.16);background:rgba(31,28,44,.72);color:#cfc4ea}
+.yb-card{
+  padding:0!important;overflow:hidden;border-color:rgba(195,178,226,.13)!important;
+  background:rgba(15,17,25,.88)!important;
+  box-shadow:0 34px 100px rgba(0,0,0,.38)!important
+}
+.yb-account-hero{
+  position:relative;display:flex;align-items:center;justify-content:space-between;gap:28px;
+  padding:clamp(24px,5vw,46px);
+  background:
+    radial-gradient(circle at 88% 20%,rgba(141,108,255,.17),transparent 30%),
+    radial-gradient(circle at 12% 90%,rgba(223,180,110,.08),transparent 28%),
+    linear-gradient(145deg,rgba(28,23,43,.96),rgba(15,17,25,.96))
+}
+.yb-account-hero::after{
+  content:"";position:absolute;inset:0;pointer-events:none;opacity:.24;
+  background-image:radial-gradient(circle,rgba(243,237,226,.6) 0 1px,transparent 1.3px);
+  background-size:86px 86px;mask-image:linear-gradient(90deg,transparent,#000 45%,#000 100%)
+}
+.yb-account-hero>div,.yb-account-hero>img{position:relative;z-index:1}
+.yb-account-hero img{width:82px;height:82px;padding:10px;border-radius:24px;background:rgba(13,14,22,.62);border:1px solid rgba(223,180,110,.16)}
+.yb-account-hero h1{margin:5px 0 10px;font-family:'Noto Serif TC','Songti TC','PMingLiU',Georgia,serif;font-size:clamp(30px,5vw,48px);color:#f2ebe3}
+.yb-account-hero .eyebrow{color:#d8b476;letter-spacing:.15em}
+.yb-account-hero .yb-note{max-width:650px;margin:0;color:#c0b9c5}
+.yb-local-first{
+  display:flex;gap:10px;align-items:flex-start;margin:16px 24px 0;padding:13px 15px;border-radius:14px;
+  border:1px solid rgba(151,217,190,.13);background:rgba(28,62,52,.18);font-size:12px;line-height:1.65
+}
+.yb-local-first b{color:#c8eadc;white-space:nowrap}.yb-local-first span{color:#9ea8a4}
+.yb-tabs{margin:18px 24px 4px!important;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,.07)}
+.yb-tabs button{min-height:38px;padding:8px 14px!important;background:rgba(30,32,45,.72)!important}
+.yb-tabs button.active{background:linear-gradient(135deg,#cbb7ff,#e2c39a)!important;color:#201a27!important;border-color:transparent!important}
+.yb-panel{padding:20px 24px 28px}
+.yb-form{gap:14px}
+.yb-form label{color:#bbb5c6!important}
+.yb-form input{
+  min-height:46px;background:rgba(9,11,17,.72)!important;border-color:rgba(199,181,226,.14)!important;border-radius:13px!important
+}
+.yb-primary,.yb-secondary{min-height:42px;border-radius:13px!important}
+.yb-primary{background:linear-gradient(135deg,#cbb7ff,#e0bd86)!important;color:#201a27!important}
+.yb-secondary{background:rgba(28,30,43,.78)!important;border-color:rgba(199,181,226,.13)!important}
+.yb-box{background:rgba(8,10,16,.55)!important;border-color:rgba(199,181,226,.10)!important;border-radius:16px!important}
+.yb-wallet{
+  display:inline-flex;align-items:center;min-height:58px;margin:8px 0 5px;padding:8px 14px;border-radius:16px;
+  background:linear-gradient(135deg,rgba(141,108,255,.17),rgba(223,180,110,.08));
+  border:1px solid rgba(199,181,226,.14);font-family:'Noto Serif TC','Songti TC','PMingLiU',Georgia,serif;color:#f2eaf4
+}
+.yb-packages{gap:10px!important}
+.yb-package{
+  min-height:54px;display:grid;place-items:center;text-align:center;border:1px solid rgba(199,181,226,.10);
+  background:rgba(27,29,41,.68)!important;border-radius:13px!important;color:#d7d2dc
+}
+.yb-recovery{background:#090b11!important;border-color:rgba(223,180,110,.28)!important}
+.yb-error{color:#f1aaa5!important}
+@media(max-width:600px){
+  .yb-wrap{width:min(100% - 18px,680px);margin:10px auto 36px}
+  .yb-top{padding:0 4px;margin-bottom:8px}
+  .yb-account-hero{padding:23px 18px}
+  .yb-account-hero img{width:58px;height:58px;padding:7px;border-radius:18px}
+  .yb-account-hero h1{font-size:32px}
+  .yb-account-hero .yb-note{font-size:12px}
+  .yb-local-first{display:block;margin:12px 14px 0;padding:12px 13px}
+  .yb-local-first b{display:block;margin-bottom:3px}
+  .yb-tabs{margin:14px 14px 2px!important;display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))}
+  .yb-tabs button{width:100%;font-size:12px}
+  .yb-panel{padding:17px 14px 22px}
+  .yb-packages{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+}

@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,follow">
+<meta name="theme-color" content="#100e14">
+<title>角色卡創作室｜BAO/LAB</title>
+<link rel="icon" type="image/svg+xml" href="assets/bao-mark.svg">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/character-studio.css">
+<link rel="stylesheet" href="css/bao-brand-v2.css">
+</head>
+<body>
+<div class="app-shell"><header class="topbar"><a class="brand" href="./" aria-label="回 BAO/LAB 首頁"><img src="assets/bao-mark.svg" alt="" width="32" height="32"><span>BAO/LAB</span></a><nav><a href="./">返回首頁</a><a href="./">探索角色</a></nav></header>
+<main class="studio-main">
+<header class="studio-heading"><div><div class="eyebrow">LOCAL CHARACTER STUDIO</div><h1>角色卡創作室</h1><p>你和其他作者都能在自己的瀏覽器製作角色卡。草稿不會自動公開，也不需要提供 API 金鑰。</p></div><img src="assets/bao-bun.svg" alt="BAO 肉包" width="82" height="82"></header>
+<div class="studio-notice">🔒 草稿儲存在這台瀏覽器（IndexedDB）。「加入我的角色」才會另存到 BAO/LAB 本機角色庫；公開網站的角色列表不會因此改變。請另外匯出 JSON 備份，清除網站資料可能會刪除草稿。</div>
+<div class="studio-layout"><aside class="studio-panel studio-sidebar"><h2>我的草稿</h2><div class="studio-actions"><button type="button" class="primary" id="studio-new">＋ 新建角色卡</button><button type="button" class="secondary" id="studio-import">匯入 JSON／PNG</button><input type="file" id="studio-file" accept=".json,.png,application/json,image/png" hidden></div><div id="studio-drafts" class="studio-drafts" aria-label="本機草稿列表"></div><p class="note">這裡列的是創作草稿，與故事存檔互相獨立。</p></aside>
+<section class="studio-panel studio-editor"><div class="studio-toolbar"><h2>編輯角色卡</h2><span id="studio-status" role="status" aria-live="polite">準備中…</span></div>
+<form id="studio-form" autocomplete="off">
+<div class="studio-grid"><label>角色／作品名稱 <span class="required">*</span><input name="name" maxlength="100" required placeholder="例：自主 NPC 世界"></label><label>角色 ID <span class="required">*</span><input name="id" maxlength="64" pattern="[A-Za-z0-9][A-Za-z0-9_-]{0,63}" required placeholder="例：my-original-world"><small>英數、底線或連字號；加入角色庫後不建議更改。</small></label><label>作品分區<select name="category"><option value="male">男性向</option><option value="female">女性向</option><option value="r18">R18（成人向）</option></select></label><label>敘事類型<select name="mode"><option value="immersive">單角色沉浸</option><option value="world">世界／多 NPC 模擬</option></select></label></div>
+<label>作品簡介<textarea name="description" rows="2" maxlength="3000" placeholder="顯示在探索角色與詳情頁的文字"></textarea></label>
+<label>角色圖片網址<input name="avatar" type="url" placeholder="https://...（可留白使用預設圖片）"><small>目前支援 HTTPS 圖片網址；不會把圖片上傳到 BAO/LAB。</small></label>
+<label>標籤（以逗號或換行分隔）<input name="tags" placeholder="都市, 日常, 自主 NPC"></label>
+<label>核心設定／AI 角色規範 <span class="required">*</span><textarea name="system_prompt" rows="9" required placeholder="AI 扮演誰、角色如何行動，以及敘事規範；世界與背景細節可寫在下方進階欄位。"></textarea></label>
+<label>初始訊息（故事開場） <span class="required">*</span><textarea name="greeting" rows="5" required placeholder="例：今天是你進入皇家魔法學院的第一天……"></textarea><small>玩家開始故事時會看到的第一段劇情；世界歷史與設定請寫在下方進階欄位。</small></label>
+<details class="studio-advanced"><summary>進階設定：人物、世界、作者備註</summary><label>人物設定（自由文字）<textarea name="profile" rows="4" placeholder="外貌、性格、習慣、關係……"></textarea></label><label>世界設定（這個世界如何運作？）<textarea name="world" rows="4" placeholder="例：魔法與科技共存。魔法師需要執照，五大王國彼此對立。"></textarea><small>填寫時代、社會制度、力量體系及世界的基本規則；沒有特殊設定可以留白。這裡的內容預設每輪提供給 AI。</small></label><label>背景資料／按需世界書<textarea name="lore" rows="9" placeholder="固定世界歷史可直接填寫。人物、勢力或地點的長篇細節，按下方「＋ 新增按需條目」加入。"></textarea><small>未包裝的一般背景文字仍每輪提供給 AI；世界書條目只在相關關鍵字或目前位置命中時載入。舊角色卡的背景文字不會自動刪除或轉換。</small></label><button type="button" class="secondary" id="studio-add-lore-entry">＋ 新增按需條目</button><small id="studio-lore-status" class="note" role="status" aria-live="polite"></small><p class="note">範例：<code>【世界書：魔法學院｜魔法學院,學院】</code>，下一行寫學院資料，最後以 <code>【/世界書】</code> 結尾。每輪最多載入 3 條相關資料；長內容仍會佔用 Token。若要寫故事的第一幕，請使用上方「初始訊息」。</p><p class="note">以下兩欄都是補充這張作品的特殊需求，不必重寫網站內建的 NPC 自主、資訊限制及基本敘事規則。核心設定已有相同內容時，留白即可；填寫的內容預設會隨每輪對話送給 AI，重複文字會增加 Token。</p><label>本作品特殊 NPC 規則（選填）<textarea name="npc_rules" rows="3" placeholder="例：學院老師依課表行動；校長不會立即得知宿舍內的事件。"></textarea><small>只寫這張作品的 NPC 特殊行為或限制。網站已有基本 NPC 自主規則；沒有額外要求就留白。</small></label><label>作者專屬敘事偏好（選填）<textarea name="author_instructions" rows="3" placeholder="例：使用近距離第三人稱，不提前揭露謎底。"></textarea><small>只寫這張作品特有的敘事視角、文風或節奏。網站已有基礎敘事模式；核心設定寫過就不要重複。</small></label><label>創作者備註（預設不送 AI）<textarea name="creator_notes" rows="3"></textarea></label><label>角色短句／引言<input name="quote" maxlength="400"></label></details>
+<div class="studio-button-row"><button type="button" class="secondary" id="studio-preview-button">預覽</button><button type="button" class="secondary" id="studio-save-draft">儲存草稿</button><button type="button" class="secondary" id="studio-export">匯出 BAO/LAB JSON</button><button type="button" class="primary" id="studio-install">加入我的角色</button></div>
+</form><section id="studio-preview" class="studio-preview hidden" aria-label="角色卡預覽"><h3>本機預覽（不會呼叫 AI）</h3><img id="studio-preview-image" alt="角色圖片預覽" src="assets/bao-bun.svg"><h4 id="studio-preview-name"></h4><p id="studio-preview-description"></p><div class="studio-preview-label">初始訊息</div><p id="studio-preview-greeting"></p><div class="studio-preview-label">核心設定摘要</div><p id="studio-preview-prompt"></p></section>
+</section></div>
+</main><footer><b>BAO/LAB</b><span>本機製作 · 自主備份 · 選擇是否分享</span></footer></div>
+<script src="js/character.js"></script>
+<script>window.CharacterEngine = CharacterEngine;</script>
+<script src="js/lorebook.js"></script>
+<script src="js/character-library.js"></script>
+<script src="js/character-library-repair.js"></script>
+<script src="js/character-import-upgrade.js"></script>
+<script src="js/character-studio.js"></script>
+</body></html>

@@ -1,0 +1,55 @@
+name: BAO editorial visual review
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'css/bao-cinematic-home.css'
+      - 'css/bao-editorial-cinema.css'
+      - 'js/brand-ui.js'
+      - 'js/bao-visual-ui.js'
+      - 'tests/e2e/community-brand.spec.cjs'
+      - 'tests/e2e/reading-bookshelf.spec.cjs'
+      - 'tests/e2e/editorial-visual.spec.cjs'
+      - '.github/workflows/editorial-visual.yml'
+  pull_request:
+    paths:
+      - 'css/bao-cinematic-home.css'
+      - 'css/bao-editorial.css'
+      - 'css/bao-editorial-polish.css'
+      - 'css/bao-editorial-cinema.css'
+      - 'js/bao-gallery-focus.js'
+      - 'js/bookshelf-enhance.js'
+      - 'js/bao-visual-ui.js'
+      - 'js/brand-ui.js'
+      - 'js/site-ui.js'
+      - 'js/character-ui.js'
+      - 'tests/e2e/community-brand.spec.cjs'
+      - 'tests/e2e/reading-bookshelf.spec.cjs'
+      - 'tests/e2e/editorial-visual.spec.cjs'
+      - '.github/workflows/editorial-visual.yml'
+  workflow_dispatch:
+jobs:
+  visual-and-functional-smoke:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Capture responsive pages and check original reading actions
+        run: npx playwright test --project=chromium tests/e2e/editorial-visual.spec.cjs tests/e2e/reading-bookshelf.spec.cjs tests/e2e/community-brand.spec.cjs
+      - name: Upload screenshots for visual approval
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bao-editorial-visual-review
+          path: |
+            test-results/editorial/*.png
+            playwright-report/
+          if-no-files-found: ignore
+          retention-days: 14

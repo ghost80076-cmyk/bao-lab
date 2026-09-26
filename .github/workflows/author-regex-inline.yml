@@ -1,0 +1,40 @@
+name: Author regex inline and dock
+on:
+  push:
+    paths:
+      - 'js/author-regex-core.js'
+      - 'js/author-regex-compat.js'
+      - 'js/author-regex-inline.js'
+      - 'js/author-regex-dock.js'
+      - 'js/regex-chat.js'
+      - 'tests/e2e/author-regex-inline.spec.cjs'
+      - 'tests/e2e/author-regex-dock.spec.cjs'
+      - 'tests/e2e/author-regex-legacy-input.spec.cjs'
+      - '.github/workflows/author-regex-inline.yml'
+  pull_request:
+    paths:
+      - 'js/author-regex-core.js'
+      - 'js/author-regex-compat.js'
+      - 'js/author-regex-inline.js'
+      - 'js/author-regex-dock.js'
+      - 'js/regex-chat.js'
+      - 'tests/e2e/author-regex-inline.spec.cjs'
+      - 'tests/e2e/author-regex-dock.spec.cjs'
+      - 'tests/e2e/author-regex-legacy-input.spec.cjs'
+      - '.github/workflows/author-regex-inline.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  inline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e -- tests/e2e/author-regex-inline.spec.cjs tests/e2e/author-regex-dock.spec.cjs tests/e2e/author-regex-legacy-input.spec.cjs --project=chromium

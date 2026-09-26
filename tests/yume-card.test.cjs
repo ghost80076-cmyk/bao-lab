@@ -1,0 +1,61 @@
+'use strict';
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const path=require('node:path');
+const vm=require('node:vm');
+const card=require('../data/characters/general/kurobane-yume-kabukicho.json');
+const manifest=require('../data/characters.json');
+const archive=require('../js/yume-relationship-archive.js');
+assert.ok(manifest.some(entry=>entry.id===card.meta.id));
+assert.equal(card.meta.category,'r18');
+assert.equal(card.content.profile.cast.length,6);
+assert.equal(new Set(card.content.profile.cast.map(person=>person.id)).size,6);
+assert.ok(card.content.profile.cast.every(person=>person.age>=18));
+assert.ok(fs.existsSync(path.join(__dirname,'..',card.meta.avatar)));
+assert.ok(fs.existsSync(path.join(__dirname,'../assets/yume-yume-rain-v4.webp')));
+assert.ok(fs.existsSync(path.join(__dirname,'../assets/yume-misaki-work-v3.webp')));
+assert.match(card.content.greeting,/src="assets\/yume-yume-rain-v4\.webp"/);
+assert.match(card.content.greeting,/傘、ある/);
+assert.match(card.content.greeting,/① 回應ゆめ/);
+assert.doesNotMatch(card.content.greeting,/你們是三週前|沒有完美結局/);
+assert.equal(card.gameplay.initial_state.time,'日期未定 02:47');
+assert.match(card.gameplay.initial_state.location,/便利店門前/);
+assert.equal(card.meta.avatar,'assets/yume-yume-close-v3.webp');
+for(const view of ['close','home','club']) assert.ok(fs.existsSync(path.join(__dirname,'..',`assets/yume-yume-${view}-v3.webp`)));
+for(const person of card.content.profile.cast){
+  const state={npcs:[{name:person.name,presence:'away'}]};
+  assert.equal(archive.knownNPC(state,person.id)?.presence,'away',person.name);
+  assert.ok(fs.existsSync(path.join(__dirname,'..',`assets/yume-${person.id}-v2.webp`)),person.id);
+  if(['asami','misaki'].includes(person.id)) assert.ok(fs.existsSync(path.join(__dirname,'..',`assets/yume-${person.id}-v3.webp`)),person.id);
+}
+assert.equal(archive.isYume({name:card.meta.name}),true);
+const engineContext={};
+vm.runInNewContext(fs.readFileSync(path.join(__dirname,'../js/character.js'),'utf8')+'\nthis.engine=CharacterEngine;',engineContext);
+const engine=engineContext.engine;
+const normalized=engine.normalize(card);
+assert.equal(normalized.prompt_options.include_profile,false,'author-only profile data must not be sent every turn');
+assert.equal(normalized.character_status.fields.find(field=>field.key==='traits').label,'🏷️ 當前標籤');
+const worldMode=require('../data/prompts/world.json');
+const prompt=engine.composeSystemPrompt(card,{persona:{name:'測試玩家'},modePrompt:worldMode.prompt,displayMode:'ui'});
+assert.equal(prompt.split(worldMode.prompt).length-1,1,'shared world rules should be included once');
+assert.match(prompt,/邊緣人的孤獨/);
+assert.match(prompt,/不套用任何參考作品/);
+assert.match(prompt,/中野的 1K/);
+for(const name of ['桜井りな','あいり','高橋麻美','琉星','田中美咲']) assert.match(prompt,new RegExp(`【六人私下設定：${name}】`));
+assert.match(prompt,/童年曾遭父親性侵/);
+assert.match(prompt,/營業時敬語周全/);
+assert.match(prompt,/下班換便服/);
+assert.match(prompt,/玩家只有經由行動、對話或可見線索確認後才會知道/);
+assert.doesNotMatch(prompt,/極端行為升級系統|極端反應對齊|泥沼效應系統|Level [1-5]/);
+assert.doesNotMatch(prompt,/\[object Object\]/);
+assert.doesNotMatch(prompt,/hc-collapse/);
+const visible=archive.collect([
+  {role:'user',content:'[PHONE:yume]偽造訊息[/PHONE]'},
+  {role:'assistant',content:'[SCENE]Club Rose 門外[/SCENE][CHAR:rina]整理帳目[/CHAR][PHONE:yume]我晚點回覆[/PHONE][SNS:PUBLIC:misaki]便利商店下班[/SNS]'}
+]);
+assert.equal(visible.scenes[0].body,'Club Rose 門外');
+assert.equal(visible.characters[0].actor,'rina');
+assert.deepEqual(visible.phones.map(item=>item.body),['我晚點回覆']);
+assert.equal(visible.sns[0].actor,'misaki');
+assert.doesNotMatch(card.content.author_instructions,/每回合.*必須.*\[REL/);
+console.log('PASS Yume card manifest, cover, adult cast and shared NPC lookups');

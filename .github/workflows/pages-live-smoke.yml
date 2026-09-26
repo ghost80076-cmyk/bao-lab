@@ -14,7 +14,7 @@ jobs:
     timeout-minutes: 4
     env:
       SITE_URL: https://ghost80076-cmyk.github.io/bao-lab/
-      EXPECTED_TITLE: BAO/LAB｜Local-first BYOK AI 角色扮演與世界模擬工具
+      EXPECTED_TITLE: BAO/LAB｜故事在本機、自己選 AI 的角色扮演工具
     steps:
       - name: Wait for live Pages metadata
         shell: bash
@@ -36,6 +36,79 @@ jobs:
           done
           if [ "${ok}" -ne 1 ]; then
             printf 'Expected live homepage metadata was not observed.\n' >&2
+            exit 1
+          fi
+
+      - name: Verify regex manager on public Pages
+        shell: bash
+        run: |
+          set -euo pipefail
+          ok=0
+          for attempt in $(seq 1 24); do
+            page="$(curl --fail --silent --show-error --location --max-time 15 "${SITE_URL}regex-manager.html" || true)"
+            adapter="$(curl --fail --silent --show-error --location --max-time 15 "${SITE_URL}js/regex-chat.js" || true)"
+            library="$(curl --fail --silent --show-error --location --max-time 15 "${SITE_URL}js/regex-library.js" || true)"
+            home="$(curl --fail --silent --show-error --location --max-time 15 "${SITE_URL}" || true)"
+            if grep -Fq '<title>正則管理器｜BAO/LAB</title>' <<<"${page}" \
+              && grep -Fq 'js/regex-library.js' <<<"${page}" \
+              && grep -Fq 'window.BAORegexChat = { render, schedule }' <<<"${adapter}" \
+              && grep -Fq 'bao-lab-display-regex-v1' <<<"${library}" \
+              && grep -Fq 'js/regex-chat.js' <<<"${home}"; then
+              ok=1
+              printf 'Public Pages regex manager and chat adapter verified on attempt %s.\n' "$attempt"
+              break
+            fi
+            printf 'Waiting for regex manager deployment (attempt %s/24)...\n' "$attempt"
+            sleep 5
+          done
+          if [ "$ok" -ne 1 ]; then
+            printf 'Public Pages regex manager assets could not be verified.\n' >&2
+            exit 1
+          fi
+
+      - name: Verify Gemini explicit cache on public Pages
+        shell: bash
+        run: |
+          set -euo pipefail
+          ok=0
+          for attempt in $(seq 1 24); do
+            loader="$(curl --fail --silent --show-error --location --max-time 15 "${SITE_URL}js/prompt-cache.js" || true)"
+            cache="$(curl --fail --silent --show-error --location --max-time 15 "${SITE_URL}js/gemini-explicit-cache.js" || true)"
+            if grep -Fq "script.src = 'js/gemini-explicit-cache.js'" <<<"${loader}" \
+              && grep -Fq 'window.BAOGeminiExplicitCache = { open, inspect, create, remove }' <<<"${cache}" \
+              && grep -Fq 'Gemini 顯式快取（進階）' <<<"${cache}"; then
+              ok=1
+              printf 'Public Pages Gemini explicit cache and loader verified on attempt %s.\n' "$attempt"
+              break
+            fi
+            printf 'Waiting for Gemini explicit cache deployment (attempt %s/24)...\n' "$attempt"
+            sleep 5
+          done
+          if [ "$ok" -ne 1 ]; then
+            printf 'Public Pages Gemini explicit cache assets could not be verified.\n' >&2
+            exit 1
+          fi
+
+      - name: Verify cache cost panel on public Pages
+        shell: bash
+        run: |
+          set -euo pipefail
+          ok=0
+          for attempt in $(seq 1 24); do
+            loader="$(curl --fail --silent --show-error --location --max-time 15 "${SITE_URL}js/global-bridge.js" || true)"
+            panel="$(curl --fail --silent --show-error --location --max-time 15 "${SITE_URL}js/cache-cost-panel.js" || true)"
+            if grep -Fq "script.src = 'js/cache-cost-panel.js'" <<<"${loader}" \
+              && grep -Fq 'window.BAOCacheCostPanel = { describeCache, estimateDifference, open, render }' <<<"${panel}" \
+              && grep -Fq '快取與費用管理' <<<"${panel}"; then
+              ok=1
+              printf 'Public Pages cache cost panel and loader verified on attempt %s.\n' "$attempt"
+              break
+            fi
+            printf 'Waiting for cache cost panel deployment (attempt %s/24)...\n' "$attempt"
+            sleep 5
+          done
+          if [ "$ok" -ne 1 ]; then
+            printf 'Public Pages cache cost panel assets could not be verified.\n' >&2
             exit 1
           fi
 

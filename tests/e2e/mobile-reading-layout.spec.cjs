@@ -2,9 +2,10 @@ const { test, expect } = require('@playwright/test');
 
 async function openDemoStory(page) {
   await page.goto('/');
-  await page.getByRole('button', { name: '探索作品' }).click();
+  await page.locator('#home-view [data-view="explore"]').click();
   await page.locator('article').filter({ hasText: '林沉風 - 見過黑暗的人' }).click();
   await page.getByRole('button', { name: '開始故事' }).click();
+  await page.locator('#bao-setup-choice [data-bao-setup="advanced"]').click();
   for (let i = 0; i < 3; i += 1) await page.getByRole('button', { name: '下一步' }).click();
   await page.locator('#bao-demo-mode').check();
   await page.getByRole('button', { name: '下一步' }).click();
@@ -14,13 +15,22 @@ async function openDemoStory(page) {
 }
 
 for (const viewport of [{ width: 390, height: 844 }, { width: 320, height: 568 }]) {
-  test(`mobile ${viewport.width}px reading remains usable and tools open from left`, async ({ page }) => {
+  test(`mobile ${viewport.width}px reading remains usable with compact header controls`, async ({ page }) => {
     await page.setViewportSize(viewport);
     await openDemoStory(page);
     const tab = page.locator('#bao-mobile-tools-tab');
     await expect(tab).toBeVisible();
+    const exit = page.getByRole('button', { name: '離開故事' });
+    const headerStatus = page.getByRole('button', { name: '查看故事狀態' });
+    await expect(exit).toBeVisible();
+    await expect(headerStatus).toBeVisible();
+    await expect(page.locator('#bao-mobile-support')).toHaveCount(0);
     await expect(page.locator('#bao-chat-tool-shortcuts')).toBeHidden();
     await expect(page.locator('#bao-chat-api-toolbar')).toBeHidden();
+    await page.waitForFunction(() => Boolean(window.BAOStorySurface));
+    await expect(page.locator('#chat-view')).toHaveAttribute('data-bao-surface', 'play');
+    await expect(page.locator('#bao-scene-meta')).toBeVisible();
+    await expect(page.locator('#bao-play-status-toggle')).toBeVisible();
     const boxes = await page.evaluate(() => {
       const stream = document.getElementById('chat-stream').getBoundingClientRect();
       const composer = document.querySelector('#chat-view .composer').getBoundingClientRect();
@@ -32,12 +42,17 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 320, height: 568 }
     expect(boxes.composerBottom).toBeLessThanOrEqual(boxes.screenHeight + 2);
     expect(boxes.pageWidth).toBeLessThanOrEqual(boxes.viewport + 1);
 
+    await headerStatus.click();
+    await expect(page.locator('#bao-reading-status')).toHaveClass(/is-open/);
+    await page.locator('.bao-status-close').click();
+
     await tab.click();
     await expect(page.getByRole('dialog', { name: '故事功能選單' })).toBeVisible();
+    await expect(page.getByRole('link', { name: /投餵肉包/ })).toBeVisible();
     await expect(tab).toHaveAttribute('aria-expanded', 'true');
     await expect(page.getByRole('button', { name: 'API／切換模型' })).toBeVisible();
     await page.getByRole('button', { name: 'API／切換模型' }).click();
-    await expect(page.getByRole('heading', { name: '故事 API 設定' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: '目前故事的 AI 連線設定' })).toBeVisible();
     await page.locator('[data-api-close]').click();
 
     await tab.click();
@@ -64,11 +79,31 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 320, height: 568 }
   });
 }
 
-test('desktop keeps the original full-size tools and reading columns', async ({ page }) => {
+test('desktop defaults to Play and one click reveals the full Studio controls', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await openDemoStory(page);
+  await page.waitForFunction(() => Boolean(window.BAOStorySurface));
   await expect(page.locator('#bao-mobile-tools-tab')).toBeHidden();
+  await expect(page.locator('#bao-mobile-exit')).toBeHidden();
+  await expect(page.locator('#chat-view')).toHaveAttribute('data-bao-surface', 'play');
+  await expect(page.locator('#bao-chat-api-toolbar')).toBeHidden();
+  await expect(page.locator('#bao-reading-status-toggle')).toBeHidden();
+  await expect(page.locator('#user-input')).toBeVisible();
+  await page.locator('#bao-surface-mode-toggle').click();
+  await expect(page.locator('#chat-view')).toHaveAttribute('data-bao-surface', 'studio');
   await expect(page.locator('#bao-chat-api-toolbar')).toBeVisible();
   await expect(page.locator('#bao-reading-status-toggle')).toBeVisible();
-  await expect(page.locator('#user-input')).toBeVisible();
+});
+
+test('mobile exit asks first, then leaves through the existing auto-save flow', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await openDemoStory(page);
+  const exit = page.getByRole('button', { name: '離開故事' });
+  page.once('dialog', dialog => dialog.dismiss());
+  await exit.click();
+  await expect(page.locator('#chat-view')).toHaveClass(/active/);
+  page.once('dialog', dialog => dialog.accept());
+  await exit.click();
+  await expect(page.locator('#detail-view')).toHaveClass(/active/);
+  await expect.poll(() => page.evaluate(() => Boolean(Storage.loadStory()))).toBe(true);
 });

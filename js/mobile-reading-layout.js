@@ -8,6 +8,9 @@
   const nav = window.BAOChatToolNavigation;
   let scheduled = false;
   let previousFocus = null;
+  let keyboardOpen = false;
+  let focusScrollTop = null;
+  let stableViewport = { width: 0, height: 0 };
   const isMobile = () => window.matchMedia('(max-width: 820px)').matches;
   const drawer = () => document.getElementById('bao-chat-tool-drawer');
   const supportUrl = () => document.querySelector('#chat-view .chat-layout > aside a[href*="ko-fi.com"]')?.href
@@ -18,14 +21,65 @@
     if (!isMobile()) return;
     const headerBottom = Math.max(0, Math.round(document.querySelector('.topbar')?.getBoundingClientRect().bottom || 64));
     root.style.setProperty('--bao-mobile-header-bottom', `${headerBottom}px`);
-    // Android may retain a shrunken visualViewport after its keyboard closes.
-    // 100dvh is the default; use visualViewport only while an editor is focused
-    // AND the keyboard has measurably reduced the visible screen.
+
     const focused = document.activeElement;
     const editing = root.contains(focused) && focused?.matches?.('textarea,input,[contenteditable="true"]');
     const visual = window.visualViewport;
-    const keyboardVisible = editing && visual && window.innerHeight - visual.height > 120;
-    root.style.setProperty('--bao-mobile-viewport-height', keyboardVisible ? `${Math.round(visual.height)}px` : '100dvh');
+    const layoutWidth = Math.max(1, Math.round(window.innerWidth || document.documentElement.clientWidth || 1));
+    const layoutHeight = Math.max(1, Math.round(window.innerHeight || document.documentElement.clientHeight || 1));
+    const visualWidth = Math.max(1, Math.round(visual?.width || layoutWidth));
+    const visualHeight = Math.max(1, Math.round(visual?.height || layoutHeight));
+    const visualTop = Math.max(0, Math.round(visual?.offsetTop || 0));
+    const visualLeft = Math.max(0, Math.round(visual?.offsetLeft || 0));
+
+    // Keep a keyboard-free baseline. Some Android/Samsung browsers resize both
+    // innerHeight and visualViewport, so comparing those two values alone misses
+    // the keyboard entirely. A meaningful width change means orientation changed.
+    const orientationChanged = stableViewport.width && Math.abs(layoutWidth - stableViewport.width) > 80;
+    if (!editing || !stableViewport.height || orientationChanged) {
+      stableViewport = {
+        width: layoutWidth,
+        height: Math.max(layoutHeight, visualHeight + visualTop)
+      };
+    }
+
+    const lostHeight = stableViewport.height - Math.min(layoutHeight, visualHeight);
+    const keyboardVisible = Boolean(editing && (
+      lostHeight > 120
+      || stableViewport.height - layoutHeight > 120
+      || stableViewport.height - visualHeight > 120
+      || visualTop > 40
+    ));
+    const wasKeyboardOpen = keyboardOpen;
+    keyboardOpen = keyboardVisible;
+
+    if (keyboardVisible) {
+      // Follow the *visual* viewport, including its pan offset. Without offsetTop,
+      // browsers that pan the page to reveal the focused textarea can leave the
+      // composer near the top with a large dead area above the keyboard.
+      root.style.setProperty('--bao-mobile-viewport-top', `${visualTop}px`);
+      root.style.setProperty('--bao-mobile-viewport-left', `${visualLeft}px`);
+      root.style.setProperty('--bao-mobile-viewport-width', `${visualWidth}px`);
+      root.style.setProperty('--bao-mobile-viewport-height', `${visualHeight}px`);
+      root.dataset.baoKeyboardOpen = 'true';
+    } else {
+      root.style.setProperty('--bao-mobile-viewport-top', '0px');
+      root.style.setProperty('--bao-mobile-viewport-left', '0px');
+      root.style.setProperty('--bao-mobile-viewport-width', '100%');
+      root.style.setProperty('--bao-mobile-viewport-height', '100dvh');
+      delete root.dataset.baoKeyboardOpen;
+    }
+
+    // Preserve the story reading position once when the keyboard first takes
+    // over the viewport. Streaming scroll behavior is handled separately.
+    if (keyboardVisible && !wasKeyboardOpen && focusScrollTop !== null) {
+      const stream = document.getElementById('chat-stream');
+      const target = focusScrollTop;
+      focusScrollTop = null;
+      window.requestAnimationFrame(() => {
+        if (stream?.isConnected && keyboardOpen) stream.scrollTop = target;
+      });
+    }
   };
 
   const sourceButton = selector => document.querySelector(`#chat-view .chat-layout > aside ${selector}`);
@@ -73,26 +127,39 @@
       stream?.scrollTo?.({ top: 0, behavior: 'smooth' });
     }
   };
-  const ensureSupport = () => {
+  const ensureExit = () => {
     const header = main.querySelector('.chat-topline');
     if (!header) return;
-    let link = header.querySelector('#bao-mobile-support');
-    if (!link) {
-      link = document.createElement('a');
-      link.id = 'bao-mobile-support';
-      link.className = 'bao-mobile-support-link';
-      link.target = '_blank';
-      link.rel = 'noopener noreferrer';
-      link.setAttribute('aria-label', '投餵肉包，另開新視窗');
-      const icon = document.createElement('img');
-      icon.src = 'assets/bao-mark.svg';
-      icon.alt = '';
-      const label = document.createElement('span');
-      label.textContent = '投餵肉包';
-      link.append(icon, label);
-      header.append(link);
+    header.querySelector('#bao-mobile-support')?.remove();
+    let button = header.querySelector('#bao-mobile-exit');
+    if (!button) {
+      button = document.createElement('button');
+      button.type = 'button';
+      button.id = 'bao-mobile-exit';
+      button.className = 'bao-mobile-header-action';
+      button.textContent = '←';
+      button.setAttribute('aria-label', '離開故事');
+      button.addEventListener('click', () => {
+        if (!window.confirm('離開前會自動儲存目前進度。確定離開故事嗎？')) return;
+        App.exitChat?.();
+      });
+      header.prepend(button);
     }
-    link.href = supportUrl();
+  };
+  const ensureStatus = () => {
+    const header = main.querySelector('.chat-topline');
+    if (!header) return;
+    let button = header.querySelector('#bao-mobile-status');
+    if (!button) {
+      button = document.createElement('button');
+      button.type = 'button';
+      button.id = 'bao-mobile-status';
+      button.className = 'bao-mobile-header-action bao-mobile-status-action';
+      button.textContent = '狀態';
+      button.setAttribute('aria-label', '查看故事狀態');
+      button.addEventListener('click', openStatus);
+      header.append(button);
+    }
   };
   const enhanceDrawer = () => {
     const panel = drawer();
@@ -133,11 +200,6 @@
     const apiStatus = document.querySelector('#bao-chat-api-toolbar [data-bao-api-status]');
     connection.textContent = apiStatus?.textContent?.trim() || (App.config?.demoMode ? '本機預覽' : '可從這裡設定 API 與模型');
     quick.append(connection);
-    const usage = document.createElement('span');
-    usage.className = 'bao-mobile-usage';
-    const usageNodes = [...document.querySelectorAll('#chat-view .usage-bar > span')];
-    usage.textContent = usageNodes.map(node => node.textContent.trim()).filter(Boolean).join(' · ');
-    quick.append(usage);
     body.prepend(quick);
   };
 
@@ -147,20 +209,20 @@
       button = document.createElement('button');
       button.type = 'button';
       button.id = 'bao-mobile-tools-tab';
+      button.className = 'bao-mobile-header-action bao-mobile-tools-action';
       button.setAttribute('aria-label', '開啟或關閉故事功能表');
       button.setAttribute('aria-controls', 'bao-chat-tool-drawer');
       button.setAttribute('aria-expanded', 'false');
-      button.innerHTML = '<span aria-hidden="true">›</span>';
+      button.innerHTML = '<span aria-hidden="true">•••</span>';
       button.addEventListener('click', openTools);
     }
-    // Keep the trigger in its own grid row immediately before the composer.
-    // A fixed tab over the story obscured the first characters of long paragraphs.
-    const host = root.querySelector('.chat-main');
+    const host = main.querySelector('.chat-topline');
     if (host && button.parentElement !== host) host.append(button);
   };
   const sync = () => {
+    ensureExit();
+    ensureStatus();
     ensureTab();
-    ensureSupport();
     measure();
     enhanceDrawer();
     const tab = document.getElementById('bao-mobile-tools-tab');
@@ -190,33 +252,20 @@
   window.addEventListener('resize', schedule, { passive: true });
   window.visualViewport?.addEventListener('resize', schedule, { passive: true });
   window.visualViewport?.addEventListener('scroll', schedule, { passive: true });
-  root.addEventListener('focusin', schedule);
-  root.addEventListener('focusout', schedule);
-  window.BAOMobileReadingLayout = { version: 4, sync, openTools, enhanceDrawer, togglePanels };
+  root.addEventListener('focusin', event => {
+    if (event.target?.matches?.('textarea,input,[contenteditable="true"]')) {
+      focusScrollTop = document.getElementById('chat-stream')?.scrollTop ?? null;
+    }
+    schedule();
+  });
+  root.addEventListener('focusout', () => {
+    focusScrollTop = null;
+    schedule();
+  });
+  window.BAOMobileReadingLayout = { version: 6, sync, openTools, enhanceDrawer, togglePanels };
   const style = document.createElement('link');
   style.rel = 'stylesheet';
-  style.href = 'css/mobile-reading-layout.css';
+  style.href = 'css/mobile-reading-layout.css?v=6';
   document.head.append(style);
-  const supportStyle = document.createElement('style');
-  supportStyle.id = 'bao-mobile-support-style';
-  supportStyle.textContent = `
-    #bao-mobile-support{display:none!important}
-    @media(max-width:820px){
-      #chat-view .chat-topline{display:flex!important;align-items:center!important;flex-wrap:nowrap!important}
-      #chat-view .chat-title-copy{flex:1 1 0!important;min-width:0!important;overflow:hidden}
-      #chat-view .chat-title-copy h2{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-      #chat-view.active #bao-mobile-support{display:inline-flex!important;align-items:center;justify-content:center;gap:5px;flex:0 0 auto;width:auto!important;min-height:40px;padding:7px 9px;border:1px solid rgba(214,170,115,.42);border-radius:10px;background:rgba(214,170,115,.1);color:#f4d6ad;text-decoration:none;font-size:12px;font-weight:700;white-space:nowrap}
-      #bao-mobile-support img{width:18px;height:18px;flex:0 0 18px}
-      #bao-mobile-support:focus-visible,#bao-chat-tool-drawer .bao-mobile-support-link:focus-visible{outline:3px solid #72e2d3;outline-offset:2px}
-      #bao-chat-tool-drawer .bao-mobile-quick .bao-mobile-support-link{grid-column:1/-1;display:flex;align-items:center;justify-content:center;min-height:44px;padding:9px;border:1px solid rgba(214,170,115,.42);border-radius:10px;background:rgba(214,170,115,.12);color:#f4d6ad;text-decoration:none;font-size:13px;font-weight:700}
-      /* A 36px dedicated row keeps the small drawer trigger out of story text. */
-      #chat-view .chat-layout>.chat-main{grid-template-rows:auto minmax(0,1fr) auto auto 36px auto!important}
-      #chat-view .composer{grid-row:6!important}
-      #chat-view.active #bao-mobile-tools-tab{display:flex!important;position:static!important;grid-column:1!important;grid-row:5!important;align-self:center!important;justify-self:start!important;z-index:5!important;top:auto!important;left:auto!important;transform:none!important;margin:2px 0 2px 0!important;width:36px!important;height:32px!important;min-height:32px!important;padding:0!important;gap:0!important;border-radius:0 9px 9px 0!important;border:1px solid #51636f!important;border-left:0!important;background:#1b2935!important;box-shadow:none!important;font-size:23px!important;line-height:1!important}
-      #chat-view.active #bao-mobile-tools-tab span:first-child{font-size:25px;line-height:1}
-    }
-    @media(max-width:360px){#chat-view.active #bao-mobile-support{font-size:11px;padding:7px 7px;gap:4px}#bao-mobile-support img{width:16px;height:16px;flex-basis:16px}}
-  `;
-  document.head.append(supportStyle);
   sync();
 })();

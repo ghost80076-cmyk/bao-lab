@@ -1,0 +1,57 @@
+name: Chat reading scroll
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  reading-scroll:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Syntax checks
+        run: |
+          node --check js/chat-reading-scroll.js
+          node --check js/streaming-ui.js
+      - name: Reading and existing streaming regressions
+        run: |
+          node tests/chat-reading-scroll-core.cjs
+          node tests/api-streaming-contracts.cjs
+          node tests/request-lifecycle-core.cjs
+          node tests/story-reader-core.cjs
+          node tests/chat-presentation-core.cjs
+
+  pages-live:
+    if: github.event_name == 'push'
+    needs: reading-scroll
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - name: Confirm reading controller and streaming fix reached Pages
+        shell: bash
+        env:
+          SITE_URL: https://ghost80076-cmyk.github.io/bao-lab/
+        run: |
+          set -euo pipefail
+          for attempt in $(seq 1 50); do
+            reader="$(curl --fail --silent --location --max-time 12 -H 'Cache-Control: no-cache' "${SITE_URL}js/chat-reading-scroll.js?sha=${GITHUB_SHA}" || true)"
+            stream="$(curl --fail --silent --location --max-time 12 -H 'Cache-Control: no-cache' "${SITE_URL}js/streaming-ui.js?sha=${GITHUB_SHA}" || true)"
+            if grep -Fq 'BAOChatReadingScroll' <<<"${reader}" \
+              && grep -Fq 'const readingTop = stream?.scrollTop' <<<"${stream}" \
+              && grep -Fq "js/chat-reading-scroll.js" <<<"${stream}"; then
+              echo 'Reading-first chat scripts verified on public GitHub Pages.'
+              exit 0
+            fi
+            sleep 5
+          done
+          echo 'The updated chat scripts have not appeared on GitHub Pages.' >&2
+          exit 1

@@ -5,12 +5,12 @@
     String(left.baseUrl || "").trim().replace(/\/+$/, "") === String(right.baseUrl || "").trim().replace(/\/+$/, "") &&
     String(left.protocol || "openai") === String(right.protocol || "openai");
   const escape = value => App.escapeHTML(String(value ?? ""));
-  const hasKey = () => Boolean(String(App.config?.api?.key || "").trim());
+  const hasKey = () => Boolean(String(App.config?.api?.key || "").trim()) || Boolean(window.BAOCreditsPilot?.isAccountReady?.(App.config?.api));
   const status = () => {
     const connected = hasKey();
     document.querySelectorAll("[data-bao-api-status]").forEach(node => {
       node.textContent = App.config?.demoMode ? "離線體驗" : connected
-        ? `已設定：${App.config?.api?.model || "自訂模型"}` : "尚未設定 API Key";
+        ? `已連接：${App.config?.api?.model || "自訂模型"}` : "尚未設定連線金鑰（API Key）";
       node.dataset.connected = connected ? "true" : "false";
     });
   };
@@ -21,21 +21,29 @@
     close();
     const api = App.config?.api || {};
     const presets = App.modelPresets || [];
-    const exactIndex = presets.findIndex(p => p.protocol === api.protocol && p.model === api.model &&
+    let exactIndex = presets.findIndex(p => p.protocol === api.protocol && p.model === api.model &&
       String(p.base_url || "").replace(/\/+$/, "") === String(api.baseUrl || "").replace(/\/+$/, ""));
+    if (exactIndex < 0 && window.BAOCreditsPilot?.isAccountConnection?.(api)) {
+      exactIndex = presets.findIndex(p => p.provider === window.BAOCreditsPilot.provider && p.model === api.model);
+    }
     const backdrop = document.createElement("div");
     backdrop.id = "bao-chat-api-backdrop";
     backdrop.innerHTML = `<section class="bao-chat-api-dialog" role="dialog" aria-modal="true" aria-labelledby="bao-chat-api-title">
-      <header><h2 id="bao-chat-api-title">故事 API 設定</h2><button type="button" data-api-close aria-label="關閉設定">×</button></header>
+      <header><h2 id="bao-chat-api-title">目前故事的 AI 連線設定</h2><button type="button" data-api-close aria-label="關閉設定">×</button></header>
       <p>直接為目前故事連接或更換模型。故事、對話、記憶與世界狀態都不會重置。</p>
       <form id="bao-chat-api-form" autocomplete="off">
-        <label>服務與模型預設<select name="preset"><option value="custom">自訂／保留現有連線</option>${presets.map((p, i) =>
+        <label>模型<select name="preset"><option value="custom">自訂／保留現有連線</option>${presets.map((p, i) =>
           `<option value="${i}">${escape(p.provider_label || p.provider || "API")} · ${escape(p.label || p.model || "自訂模型")}</option>`).join("")}</select></label>
-        <label>相容格式<select name="protocol"><option value="openai">OpenAI-compatible</option><option value="anthropic">Anthropic</option><option value="gemini">Gemini</option></select></label>
-        <label>Model ID<input name="model" required placeholder="模型 ID" autocomplete="off"></label>
-        <label>API 連線網址<input name="baseUrl" required placeholder="https://..." autocomplete="off" spellcheck="false"></label>
-        <label>API Key<input name="key" type="password" autocomplete="off" spellcheck="false" placeholder="${hasKey() ? "留空則維持目前 Key（同一連線）" : "貼上自己的 API Key"}"></label>
-        <p class="bao-chat-api-hint">API Key 只保留在目前開啟的頁面記憶體，不寫入故事存檔或備份。更換服務商或連線網址時，必須輸入新 Key。</p>
+        <label>API Key<input name="key" type="password" autocomplete="off" spellcheck="false" placeholder="${hasKey() ? "留空會維持目前金鑰（相同連線）" : "貼上自己的 API Key"}"></label>
+        <details class="bao-chat-api-advanced">
+          <summary>進階連線設定</summary>
+          <div class="bao-chat-api-advanced-body">
+            <label>連線格式（Protocol）<select name="protocol"><option value="openai">OpenAI-compatible</option><option value="anthropic">Anthropic</option><option value="gemini">Gemini</option></select></label>
+            <label>模型代號（Model ID）<input name="model" required placeholder="例如：gemini-2.5-flash" autocomplete="off"></label>
+            <label>連線網址（Base URL）<input name="baseUrl" required placeholder="https://..." autocomplete="off" spellcheck="false"></label>
+          </div>
+        </details>
+        <p class="bao-chat-api-hint">API Key 只保留在目前開啟的頁面記憶體，不寫入故事存檔或備份。</p>
         <p class="bao-chat-api-error" role="status" aria-live="polite"></p>
         <footer><button type="button" class="secondary" data-api-test>測試連線（可能計費）</button><button type="submit" class="primary">套用到目前故事</button></footer>
       </form>
@@ -48,23 +56,30 @@
     field("protocol").value = api.protocol || "openai";
     field("model").value = api.model || "";
     field("baseUrl").value = api.baseUrl || "";
+    const advanced = backdrop.querySelector(".bao-chat-api-advanced");
+    const syncAdvanced = () => {
+      const selected = presets[Number(field("preset").value)];
+      const needsManual = field("preset").value === "custom" || !selected || !selected.model || !selected.base_url || selected.route === "custom";
+      if (needsManual && advanced) advanced.open = true;
+    };
+    if (exactIndex < 0 && advanced) advanced.open = true;
     const setError = message => { error.textContent = message || ""; };
     const currentInput = () => {
       const model = field("model").value.trim();
       const baseUrl = field("baseUrl").value.trim();
       const protocol = field("protocol").value;
       const enteredKey = field("key").value.trim();
-      if (!model || !baseUrl) throw new Error("請填寫 Model ID 與 API 連線網址。");
-      if (!/^https:\/\/[^\s]+$/i.test(baseUrl)) throw new Error("請使用有效的 HTTPS API 連線網址。");
+      if (!model || !baseUrl) throw new Error("請填寫模型代號（Model ID）與連線網址（Base URL）。");
+      if (!/^https:\/\/[^\s]+$/i.test(baseUrl)) throw new Error("請使用有效的 HTTPS 連線網址（Base URL）。");
       const connection = { baseUrl, protocol };
       const key = enteredKey || (sameConnection(api, connection) ? String(api.key || "").trim() : "");
-      if (!key) throw new Error("請輸入這個服務商的 API Key。");
       const selected = presets[Number(field("preset").value)];
       const matchingPreset = selected && selected.protocol === protocol &&
-        String(selected.base_url || "").replace(/\/+$/, "") === baseUrl.replace(/\/+$/, "") ? selected : null;
-      const explicitCache = matchingPreset?.model === model &&
-        (matchingPreset?.explicit_cache === true || (matchingPreset?.route === "official" && protocol === "anthropic" && matchingPreset?.cache === "explicit"));
-      return {
+        String(selected.base_url || "").replace(/\/+$/, "") === baseUrl.replace(/\/+$/, "") &&
+        selected.model === model ? selected : null;
+      const explicitCache = matchingPreset &&
+        (matchingPreset.explicit_cache === true || (matchingPreset.route === "official" && protocol === "anthropic" && matchingPreset.cache === "explicit"));
+      const candidate = {
         ...api,
         type: matchingPreset?.provider || "custom",
         protocol, model, baseUrl, key,
@@ -73,14 +88,19 @@
         explicitCacheModel: explicitCache ? model : "",
         cacheEnabled: App.config?.memory?.cache !== false
       };
+      if (window.BAOCreditsPilot?.prepareAccountConfig?.(candidate)) return candidate;
+      if (!candidate.key) throw new Error("請輸入這個 AI 服務商的連線金鑰（API Key）。");
+      return candidate;
     };
     field("preset").addEventListener("change", () => {
       const selected = presets[Number(field("preset").value)];
-      if (field("preset").value === "custom" || !selected) return;
-      field("protocol").value = selected.protocol || "openai";
-      field("model").value = selected.model || "";
-      field("baseUrl").value = selected.base_url || "";
-      setError("");
+      if (field("preset").value !== "custom" && selected) {
+        field("protocol").value = selected.protocol || "openai";
+        field("model").value = selected.model || "";
+        field("baseUrl").value = selected.base_url || "";
+        setError("");
+      }
+      syncAdvanced();
     });
     backdrop.querySelector("[data-api-close]").onclick = close;
     backdrop.addEventListener("click", event => { if (event.target === backdrop) close(); });
@@ -102,7 +122,7 @@
         status();
         close();
         input?.focus();
-      } catch (cause) { setError(cause.message || "API 設定無效。"); }
+      } catch (cause) { setError(cause.message || "AI 連線設定無效。"); }
     });
     backdrop.querySelector("[data-api-test]").onclick = async event => {
       const button = event.currentTarget;
@@ -116,7 +136,7 @@
       } catch (cause) { setError(`連線測試失敗：${cause.message || cause}`); }
       finally { button.disabled = false; }
     };
-    field(hasKey() ? "model" : "key").focus();
+    field(window.BAOCreditsPilot?.isAccountReady?.(api) ? "preset" : (hasKey() ? "model" : "key")).focus();
     return true;
   };
 
@@ -128,6 +148,7 @@
     if (sameConnection(previous, App.config.api) && previous.key && !save.config?.demoMode) {
       App.config.api.key = previous.key;
     }
+    window.BAOCreditsPilot?.prepareAccountConfig?.(App.config.api);
     if (GameState.current) GameState.current.config = App.config;
     App.renderChatShell(false);
     App.showView("chat");
@@ -141,7 +162,7 @@
     if (main && !document.getElementById("bao-chat-api-toolbar")) {
       const toolbar = document.createElement("div");
       toolbar.id = "bao-chat-api-toolbar";
-      toolbar.innerHTML = '<span data-bao-api-status aria-live="polite"></span><button type="button" class="secondary" data-bao-api-open>API 設定／切換模型</button>';
+      toolbar.innerHTML = '<span data-bao-api-status aria-live="polite"></span><button type="button" class="secondary" data-bao-api-open>AI 連線／切換模型</button>';
       main.querySelector("#chat-stream")?.before(toolbar);
       toolbar.querySelector("button").onclick = open;
     }
@@ -151,7 +172,7 @@
       button.type = "button";
       button.id = "bao-chat-api-aside";
       button.className = "secondary";
-      button.textContent = "API 設定／切換模型";
+      button.textContent = "AI 連線／切換模型";
       button.onclick = open;
       aside.querySelector("#save-slot-button")?.before(button);
     }
@@ -173,6 +194,9 @@
       .bao-chat-api-dialog p{font-size:14px;line-height:1.6;color:#d4d7e4}
       .bao-chat-api-dialog form{display:grid;gap:12px}.bao-chat-api-dialog label{display:grid;gap:5px;font-size:14px}
       .bao-chat-api-dialog input,.bao-chat-api-dialog select{box-sizing:border-box;width:100%;min-width:0;padding:10px;border:1px solid #697086;border-radius:8px;background:#141720;color:#fff;font:inherit}
+      .bao-chat-api-advanced{border:1px solid #454b5d;border-radius:12px;background:#171a23}
+      .bao-chat-api-advanced>summary{cursor:pointer;padding:11px 13px;color:#c9c6d2;font-size:13px}
+      .bao-chat-api-advanced-body{display:grid;gap:11px;padding:0 12px 12px}
       .bao-chat-api-dialog .bao-chat-api-hint{margin:0;color:#c1c8d7}.bao-chat-api-dialog .bao-chat-api-error{min-height:1.5em;margin:0;color:#ffcc93}
       .bao-chat-api-dialog footer button{min-height:42px;flex:1 1 180px}
       @media(max-width:700px){#bao-chat-api-toolbar{margin:8px 0;padding:8px 10px}#bao-chat-api-toolbar button{flex:1 1 auto}.bao-chat-api-dialog{max-height:calc(100dvh - 20px)}}`;

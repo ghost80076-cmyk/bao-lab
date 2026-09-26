@@ -2,9 +2,10 @@ const { test, expect } = require('@playwright/test');
 
 async function openStory(page) {
   await page.goto('/');
-  await page.getByRole('button', { name: '探索作品' }).click();
+  await page.locator('#home-view [data-view="explore"]').click();
   await page.locator('article').filter({ hasText: '林沉風 - 見過黑暗的人' }).click();
   await page.getByRole('button', { name: '開始故事' }).click();
+  await page.locator('#bao-setup-choice [data-bao-setup="advanced"]').click();
   for (let i = 0; i < 3; i++) await page.getByRole('button', { name: '下一步' }).click();
   await page.locator('#bao-demo-mode').check();
   await page.getByRole('button', { name: '下一步' }).click();
@@ -18,6 +19,15 @@ for (const viewport of [{ name: 'desktop', width: 1440, height: 900 }, { name: '
     await openStory(page);
     await page.locator('[data-bao-open="appearance"]:visible').click();
     await expect(page.getByRole('heading', { name: '聊天外觀' })).toBeVisible();
+    await expect(page.locator('[data-bg-mode="character"]')).toHaveClass(/active/);
+    await expect(page.locator('#bao-bg-opacity')).toHaveValue('34');
+    await expect(page.locator('#bao-bg-blur')).toHaveValue('6');
+    await page.locator('[data-bg-preset="immersive"]').click();
+    await expect(page.locator('#bao-bg-opacity')).toHaveValue('50');
+    await expect(page.locator('#bao-bg-blur')).toHaveValue('3');
+    await page.locator('[data-bg-preset="soft"]').click();
+    await expect(page.locator('#bao-bg-opacity')).toHaveValue('34');
+    await expect(page.locator('#bao-bg-blur')).toHaveValue('6');
     await page.locator('#bao-font-size').fill('20');
     await page.locator('[data-bg-mode="custom"]').click();
     await page.locator('#bao-custom-bg').fill('https://example.com/test-background.png');

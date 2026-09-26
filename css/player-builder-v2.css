@@ -1,0 +1,50 @@
+/* BAO/LAB Player 2.0 builder: choose a connection route before seeing provider details. */
+#builder-view .bao-connection-mode{
+  margin:14px 0 18px;padding:16px;border:1px solid rgba(192,174,225,.13);border-radius:18px;
+  background:linear-gradient(145deg,rgba(23,22,34,.88),rgba(14,16,24,.94));
+}
+#builder-view .bao-connection-mode-head{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;margin-bottom:12px}
+#builder-view .bao-connection-mode-head span{display:block;margin-bottom:4px;color:#d8b779;font-size:9px;font-weight:800;letter-spacing:.18em}
+#builder-view .bao-connection-mode-head h4{margin:0;color:#eee8f1;font-size:17px}
+#builder-view .bao-connection-mode-head small{max-width:350px;color:#8f909a;font-size:11px;line-height:1.55;text-align:right}
+#builder-view .bao-connection-mode-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+#builder-view .bao-connection-mode-grid button{
+  min-height:92px;padding:14px;text-align:left;border:1px solid rgba(192,174,225,.12);border-radius:15px;
+  background:rgba(8,10,16,.44);color:#d8d5de;cursor:pointer
+}
+#builder-view .bao-connection-mode-grid button b{display:block;margin-bottom:6px;color:#eee9f2;font-size:14px}
+#builder-view .bao-connection-mode-grid button span{display:block;color:#92939e;font-size:11px;line-height:1.6}
+#builder-view .bao-connection-mode-grid button[aria-pressed="true"]{
+  border-color:rgba(168,143,240,.48);background:linear-gradient(135deg,rgba(141,108,255,.19),rgba(223,180,110,.055));
+  box-shadow:inset 0 0 0 1px rgba(202,184,241,.06)
+}
+#builder-view .bao-connection-mode-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:11px}
+#builder-view .bao-connection-mode-foot p{margin:0;color:#aaa6b1;font-size:11px;line-height:1.6}
+#builder-view .bao-connection-mode-foot a{color:#c9b7ff;font-size:11px;text-decoration:none;white-space:nowrap}
+#builder-view[data-bao-connection="hosted"] .bao-builder-provider{display:none!important}
+#builder-view[data-bao-setup="quick"] .bao-builder-ai-v2>.note:first-of-type{display:none}
+#builder-view[data-bao-setup="quick"] .bao-builder-ai-v2>.form-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+#builder-view[data-bao-setup="quick"][data-bao-connection="hosted"] .bao-builder-ai-v2>.form-grid{grid-template-columns:minmax(0,1fr)}
+#builder-view[data-bao-setup="quick"] .bao-builder-ai-v2 .bao-builder-model,
+#builder-view[data-bao-setup="quick"] .bao-builder-ai-v2 .bao-builder-provider,
+#builder-view[data-bao-setup="quick"] .bao-builder-ai-v2 .bao-builder-key{font-size:12px;color:#c7c3ce}
+#builder-view[data-bao-setup="quick"] .bao-builder-ai-v2 .bao-builder-model select,
+#builder-view[data-bao-setup="quick"] .bao-builder-ai-v2 .bao-builder-provider select,
+#builder-view[data-bao-setup="quick"] .bao-builder-ai-v2 .bao-builder-key input{min-height:46px;margin-top:5px}
+#builder-view[data-bao-setup="quick"] #api-route-advice{display:none}
+#builder-view[data-bao-setup="quick"] #model-advisor{margin-top:11px}
+#builder-view[data-bao-setup="quick"] #model-advisor .model-facts{grid-template-columns:repeat(2,minmax(0,1fr))}
+#builder-view[data-bao-setup="quick"] #bao-quick-extra{padding-top:2px;border-top:0}
+#builder-view[data-bao-setup="advanced"] .bao-connection-mode{margin-bottom:22px}
+
+@media(max-width:620px){
+  #builder-view .bao-connection-mode{padding:13px;border-radius:15px}
+  #builder-view .bao-connection-mode-head{display:block}
+  #builder-view .bao-connection-mode-head small{display:block;margin-top:7px;text-align:left}
+  #builder-view .bao-connection-mode-grid{grid-template-columns:1fr}
+  #builder-view .bao-connection-mode-grid button{min-height:78px;padding:12px}
+  #builder-view .bao-connection-mode-foot{display:block}
+  #builder-view .bao-connection-mode-foot a{display:inline-block;margin-top:7px}
+  #builder-view[data-bao-setup="quick"] .bao-builder-ai-v2>.form-grid{grid-template-columns:1fr}
+  #builder-view[data-bao-setup="quick"] #model-advisor .model-facts{grid-template-columns:1fr 1fr}
+}

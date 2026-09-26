@@ -14,19 +14,104 @@
     stateInterval: Math.max(1, numberValue("state-interval", 2))
   });
 
-  const estimate = (usage = {}, cfg = getCostConfig()) => {
-    const input = Number(usage.input_tokens ?? usage.prompt_tokens ?? usage.prompt ?? 0);
-    const output = Number(usage.output_tokens ?? usage.completion_tokens ?? usage.completion ?? 0);
-    const hasCachedUsage = (usage.cached_tokens !== null && usage.cached_tokens !== undefined) || (usage.cached !== null && usage.cached !== undefined);
-    const cached = hasCachedUsage ? Math.min(input, Number(usage.cached_tokens ?? usage.cached ?? 0)) : 0;
+  const normalizeUrl = value => String(value || "").trim().replace(/\/+$/, "");
+  const finiteOrNull = value => value === null || value === undefined || value === "" || !Number.isFinite(Number(value)) ? null : Number(value);
+  const pricingFrom = value => {
+    if (!value || typeof value !== "object") return null;
+    const input = finiteOrNull(value.input ?? value.inputPerMillion);
+    const output = finiteOrNull(value.output ?? value.outputPerMillion);
+    const cache = finiteOrNull(value.cache ?? value.cachePerMillion);
+    if (input === null || output === null) return null;
+    return { input, output, cache: cache === null ? input : cache };
+  };
+  const manualMainPricing = cfg => {
+    const input = finiteOrNull(cfg?.inputPerMillion), output = finiteOrNull(cfg?.outputPerMillion);
+    if (input === null || output === null || (input <= 0 && output <= 0)) return null;
+    return { input, output, cache: Math.max(0, finiteOrNull(cfg?.cachePerMillion) ?? input) };
+  };
+  const presetPricing = entry => {
+    const model = String(entry?.model || "");
+    const endpoint = normalizeUrl(entry?.baseUrl);
+    const preset = (App?.modelPresets || []).find(item =>
+      item?.model === model && (!endpoint || normalizeUrl(item?.base_url) === endpoint) && item?.pricing
+    );
+    return pricingFrom(preset?.pricing);
+  };
+  const sameAsMain = entry => {
+    const main = App?.config?.api || {};
+    return String(entry?.model || "") === String(main.model || "") &&
+      normalizeUrl(entry?.baseUrl) === normalizeUrl(main.baseUrl);
+  };
+  const entryPricing = (entry, cfg) =>
+    pricingFrom(entry?.pricing) || presetPricing(entry) || (sameAsMain(entry) ? manualMainPricing(cfg) : null);
+
+  const estimate = (usage = {}, cfg = getCostConfig(), pricing = undefined) => {
+    // Omitted pricing = legacy/main-model fallback. Explicit null = unknown
+    // request rate; never inherit a different model's price.
+    const rates = pricing === undefined ? manualMainPricing(cfg) : pricing;
+    if (!rates) return { usd: 0, twd: 0, priced: false };
+    const input = finiteOrNull(usage.input_tokens ?? usage.prompt_tokens ?? usage.prompt);
+    const output = finiteOrNull(usage.output_tokens ?? usage.completion_tokens ?? usage.completion);
+    if (input === null || output === null) return { usd: 0, twd: 0, priced: false, unknownUsage: true };
+    const cachedRaw = finiteOrNull(usage.cached_tokens ?? usage.cached);
+    const cached = cachedRaw === null ? 0 : Math.min(input, Math.max(0, cachedRaw));
     const nonCached = Math.max(0, input - cached);
-    const usd = (nonCached * cfg.inputPerMillion + output * cfg.outputPerMillion + cached * cfg.cachePerMillion) / 1000000;
-    return { usd, twd: usd * cfg.usdTwd };
+    const usd = (nonCached * rates.input + output * rates.output + cached * rates.cache) / 1000000;
+    return { usd, twd: usd * Number(cfg?.usdTwd || 32), priced: true };
   };
 
   const cumulativeCost = () => {
     const cfg = App?.config?.cost || getCostConfig();
-    return estimate(Chat?.usage || {}, cfg);
+    const ledger = Array.isArray(Chat?.usageLedger) ? Chat.usageLedger : [];
+    if (!ledger.length) {
+      const legacy = estimate(Chat?.usage || {}, cfg);
+      const hasUsage = Boolean(Chat?.usage?.total || Chat?.usage?.prompt || Chat?.usage?.completion);
+      return {
+        usd: legacy.usd,
+        twd: legacy.twd,
+        actualUsd: 0,
+        estimatedUsd: legacy.usd,
+        actualCalls: 0,
+        estimatedCalls: legacy.priced && hasUsage ? 1 : 0,
+        unpricedCalls: legacy.priced ? 0 : (hasUsage ? 1 : 0),
+        unknownUsageCalls: legacy.unknownUsage ? 1 : 0,
+        legacy: hasUsage
+      };
+    }
+    let actualUsd = 0, estimatedUsd = 0, actualCalls = 0, estimatedCalls = 0, unpricedCalls = 0, unknownUsageCalls = 0;
+    for (const entry of ledger) {
+      const charged = finiteOrNull(entry?.actualUsd);
+      if (charged !== null && charged >= 0) {
+        actualUsd += charged;
+        actualCalls += 1;
+        continue;
+      }
+      const pricing = entryPricing(entry, cfg);
+      const result = estimate({
+        input_tokens: entry?.input,
+        output_tokens: entry?.output,
+        cached_tokens: entry?.cached
+      }, cfg, pricing);
+      if (result.priced) {
+        estimatedUsd += result.usd;
+        estimatedCalls += 1;
+      } else {
+        unpricedCalls += 1;
+        if (result.unknownUsage) unknownUsageCalls += 1;
+      }
+    }
+    const usd = actualUsd + estimatedUsd;
+    return {
+      usd,
+      twd: usd * Number(cfg?.usdTwd || 32),
+      actualUsd,
+      estimatedUsd,
+      actualCalls,
+      estimatedCalls,
+      unpricedCalls,
+      unknownUsageCalls,
+      legacy: false
+    };
   };
 
   const render = () => {
@@ -36,13 +121,24 @@
     const usd = document.getElementById("usage-cost-usd");
     const twd = document.getElementById("usage-cost-twd");
     const budget = document.getElementById("usage-budget");
-    if (usd) usd.textContent = cost.usd > 0 ? `$${cost.usd.toFixed(4)}` : "—";
-    if (twd) twd.textContent = cost.twd > 0 ? `NT$${cost.twd.toFixed(2)}` : "—";
+    const integrity = document.querySelector("[data-cost-integrity]");
+    const hasKnownCost = cost.actualCalls + cost.estimatedCalls > 0;
+    if (usd) usd.textContent = hasKnownCost ? "$" + cost.usd.toFixed(4) : "—";
+    if (twd) twd.textContent = hasKnownCost ? "NT$" + cost.twd.toFixed(2) : "—";
+    if (integrity) {
+      const parts = [];
+      if (cost.actualCalls) parts.push("YoruBay 實扣 " + cost.actualCalls + " 次：$" + cost.actualUsd.toFixed(4));
+      if (cost.estimatedCalls) parts.push("依各模型費率估算 " + cost.estimatedCalls + " 次：$" + cost.estimatedUsd.toFixed(4));
+      if (cost.unpricedCalls) parts.push("⚠ " + cost.unpricedCalls + " 次請求缺少可用費率／用量，未計入金額");
+      if (cost.legacy) parts.push("舊存檔沒有逐請求帳本；既有累積值只能按主模型單價估算");
+      integrity.textContent = parts.length ? parts.join(" · ") : "尚無可計價請求。Token 與費用以服務商帳單為最終依據。";
+    }
     if (budget) {
       if (!cfg.budgetTwd) budget.textContent = "未設定";
       else {
         const ratio = cost.twd / cfg.budgetTwd;
-        budget.textContent = `NT$${cost.twd.toFixed(2)} / ${cfg.budgetTwd.toFixed(0)}${ratio >= .8 ? " ⚠" : ""}`;
+        const unknown = cost.unpricedCalls ? " · 有未計價請求" : "";
+        budget.textContent = "NT$" + cost.twd.toFixed(2) + " / " + cfg.budgetTwd.toFixed(0) + (ratio >= .8 ? " ⚠" : "") + unknown;
       }
     }
   };
@@ -53,8 +149,8 @@
     const box = document.createElement("div");
     box.className = "cost-control-box";
     box.innerHTML = `
-      <h3>Token 成本控制</h3>
-      <p class="note">單價由你依目前使用的模型或中轉站填入，避免網站內建價格過期。0 代表只統計 Token、不估算金額。</p>
+      <h3>Token 與成本控制</h3>
+      <p class="note">BAO/LAB 會逐請求區分故事、記憶與狀態模型。YoruBay 優先使用後端實扣金額；BYOK 依已知模型費率估算。下方手動單價只作目前主模型／舊存檔的備援，0 代表沒有自訂備援價格。</p>
       <div class="form-grid">
         <label>輸入單價（USD / 1M tokens）<input id="cost-input" type="number" min="0" step="0.01" value="0"></label>
         <label>輸出單價（USD / 1M tokens）<input id="cost-output" type="number" min="0" step="0.01" value="0"></label>
@@ -70,7 +166,7 @@
   const injectUsage = () => {
     const bar = document.querySelector(".usage-bar");
     if (!bar || document.getElementById("usage-cost-twd")) return;
-    bar.insertAdjacentHTML("beforeend", '<span>估算 USD <b id="usage-cost-usd">—</b></span><span>估算台幣 <b id="usage-cost-twd">—</b></span><span>預算 <b id="usage-budget">未設定</b></span>');
+    bar.insertAdjacentHTML("beforeend", '<span>已知成本 USD <b id="usage-cost-usd">—</b></span><span>已知成本台幣 <b id="usage-cost-twd">—</b></span><span>預算 <b id="usage-budget">未設定</b></span><span class="note" data-cost-integrity>尚無可計價請求。</span>');
   };
 
   const patchConfig = () => {
@@ -88,8 +184,8 @@
   const patchUsage = () => {
     if (typeof Chat === "undefined" || Chat.__costUsagePatched) return;
     const original = Chat.addUsage.bind(Chat);
-    Chat.addUsage = function(usage = {}) {
-      const result = original(usage);
+    Chat.addUsage = function(usage = {}, kind = "all") {
+      const result = original(usage, kind);
       render();
       return result;
     };
@@ -136,6 +232,7 @@
     render();
   };
 
+  window.BAOCostControl = { estimate, cumulativeCost, entryPricing };
   if (document.readyState === "loading") window.addEventListener("DOMContentLoaded", () => setTimeout(init, 20));
   else setTimeout(init, 20);
 })();

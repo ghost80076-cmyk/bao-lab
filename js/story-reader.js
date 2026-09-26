@@ -215,7 +215,7 @@
 
   const generateInspirations = async (index, button) => {
     if (!App.config?.api?.key) {
-      alert("尚未設定 API Key，無法產生行動靈感。");
+      alert("尚未設定連線金鑰（API Key），無法產生行動靈感。");
       return;
     }
     setBusy(button, true);
@@ -246,7 +246,7 @@
     const message = Chat.messages[index];
     if (!message || message.role !== "assistant" || !requireLatestReply(index)) return;
     if (!App.config?.api?.key) {
-      alert("尚未設定 API Key，無法使用 AI 改寫。");
+      alert("尚未設定連線金鑰（API Key），無法使用 AI 改寫。");
       return;
     }
     const instruction = window.prompt("改寫要求（例如：更詳細、增加對話、放慢節奏、語氣更克制）：", "保留事件結果，讓文字更自然、更有畫面");
@@ -274,7 +274,7 @@
     const message = Chat.messages[index];
     if (!message || message.role !== "assistant" || !requireLatestReply(index)) return;
     if (!App.config?.api?.key) {
-      alert("尚未設定 API Key，無法重新生成。");
+      alert("尚未設定連線金鑰（API Key），無法重新生成。");
       return;
     }
     setBusy(button, true);

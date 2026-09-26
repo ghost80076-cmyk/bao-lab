@@ -37,11 +37,14 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/memory-workbench-core.js"))
     .then(() => loadBAOScript("js/memory-workbench-ai.js"))
     .then(() => loadBAOScript("js/canon-workbench.js"))
+    .then(() => loadBAOScript("js/memory-workbench-simplify.js"))
     .then(() => loadBAOScript("js/chat-markup.js"))
     .then(() => loadBAOScript("js/story-tools.js"))
     .then(() => loadBAOScript("js/context-pack-resume.js"))
     .then(() => loadBAOScript("js/story-library.js"))
     .then(() => loadBAOScript("js/story-backup.js"))
+    .then(() => loadBAOScript("js/google-drive-config.js"))
+    .then(() => loadBAOScript("js/google-drive-sync.js"))
     .then(() => loadBAOScript("js/prompt-cache.js"))
     .then(() => loadBAOScript("js/story-reader.js"))
     .then(() => loadBAOScript("js/inspiration-copy.js"))
@@ -51,14 +54,22 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/request-lifecycle.js"))
     .then(() => loadBAOScript("js/chat-tool-navigation.js"))
     .then(() => loadBAOScript("js/chat-experience-repairs.js"))
-    .then(() => loadBAOScript("js/mobile-reading-layout.js"))
+    .then(() => loadBAOScript("js/mobile-reading-layout.js?v=6"))
+    .then(() => loadBAOScript("js/story-persona-manager.js"))
     .catch(err => console.warn("BAO/LAB local preview, narrative settings, memory workbench, story tools, story library, story reader or chat markup failed to load:", err));
-  loadBAOScript("js/character-readiness.js")
+  loadBAOScript("js/character-library.js")
+    .then(() => loadBAOScript("js/character-readiness.js"))
     .then(() => loadBAOScript("js/character-import-upgrade.js"))
+    .then(() => loadBAOScript("js/device-transfer.js"))
     .then(() => loadBAOScript("js/author-diagnostics.js"))
-    .catch(err => console.warn("BAO/LAB character readiness, import or author diagnostics failed to load:", err));
-  loadBAOScript("js/brand-ui.js")
-    .catch(err => console.warn("BAO/LAB brand UI failed to load:", err));
+    .catch(err => console.warn("BAO/LAB character library, import, device transfer or author diagnostics failed to load:", err));
+  loadBAOScript("js/brand-ui.js?v=5")
+    .then(() => new Promise(resolve => setTimeout(resolve, 100)))
+    .then(() => loadBAOScript("js/bao-mascot.js"))
+    .then(() => loadBAOScript("js/bao-visual-ui.js?v=2"))
+    .then(() => loadBAOScript("js/player-shell-v2.js?v=1"))
+    .then(() => loadBAOScript("js/player-builder-v2.js?v=1"))
+    .catch(err => console.warn("BAO/LAB brand, mascot or Player 2.0 UI failed to load:", err));
   setTimeout(async () => {
     await Storage.ready();
     const refresh = () => {

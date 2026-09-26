@@ -4,7 +4,7 @@ on:
   push:
     branches: [fix/mobile-story-entry-20260919, main]
   pull_request:
-    branches: [main]
+    branches: [main, integrate/pr36-pr35-20260922]
 
 permissions:
   contents: read

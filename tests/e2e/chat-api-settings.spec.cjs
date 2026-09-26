@@ -2,12 +2,13 @@ const { test, expect } = require("@playwright/test");
 
 async function saveStoryWithoutPersistingKey(page) {
   await page.goto("/");
-  await expect(page.getByRole("heading", { name: "班長。" })).toBeVisible();
-  await page.getByRole("button", { name: "探索作品" }).click();
+  await expect(page.locator('#home-view .brand-hero h1')).toBeVisible();
+  await page.locator('#home-view [data-view="explore"]').click();
   const card = page.locator("article").filter({ hasText: "林沉風 - 見過黑暗的人" });
   await expect(card).toBeVisible();
   await card.click();
   await page.getByRole("button", { name: "開始故事" }).click();
+  await page.locator('#bao-setup-choice [data-bao-setup="advanced"]').click();
   for (let step = 0; step < 3; step += 1) await page.getByRole("button", { name: "下一步" }).click();
   await page.locator("#bao-demo-mode").check();
   await page.getByRole("button", { name: "下一步" }).click();
@@ -34,8 +35,9 @@ test("resuming a story opens editable API settings, preserves the story and does
   await page.setViewportSize({ width: 390, height: 844 });
   await saveStoryWithoutPersistingKey(page);
   await page.locator("#home-continue").click();
-  const dialog = page.getByRole("dialog", { name: "故事 API 設定" });
+  const dialog = page.getByRole("dialog", { name: "目前故事的 AI 連線設定" });
   await expect(dialog).toBeVisible();
+  await expect(dialog.locator('.bao-chat-api-advanced')).toHaveAttribute('open', '');
   await expect(dialog.locator('[name="model"]')).toHaveValue("test-model");
   await expect(dialog.locator('[name="baseUrl"]')).toHaveValue("https://example.invalid/v1/chat/completions");
   await dialog.locator('[name="key"]').fill("NEW_TEST_KEY");
@@ -66,7 +68,7 @@ test("desktop chat can reopen API settings and switch models without restarting"
   await page.setViewportSize({ width: 1440, height: 900 });
   await saveStoryWithoutPersistingKey(page);
   await page.locator("#home-continue").click();
-  const dialog = page.getByRole("dialog", { name: "故事 API 設定" });
+  const dialog = page.getByRole("dialog", { name: "目前故事的 AI 連線設定" });
   await expect(dialog).toBeVisible();
   await dialog.locator('[name="key"]').fill("DESKTOP_TEST_KEY");
   await dialog.getByRole("button", { name: "套用到目前故事" }).click();

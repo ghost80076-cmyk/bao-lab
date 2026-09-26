@@ -1,0 +1,49 @@
+name: Scene story preferences
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'js/scene-story-preferences.js'
+      - 'js/chat-markup.js'
+      - 'tests/scene-story-preferences-core.cjs'
+      - 'tests/scene-story-preferences-live.cjs'
+      - 'tests/e2e/scene-story-preferences.spec.cjs'
+      - '.github/workflows/scene-story-preferences.yml'
+  pull_request:
+    paths:
+      - 'js/scene-story-preferences.js'
+      - 'js/chat-markup.js'
+      - 'tests/scene-story-preferences-core.cjs'
+      - 'tests/scene-story-preferences-live.cjs'
+      - 'tests/e2e/scene-story-preferences.spec.cjs'
+      - '.github/workflows/scene-story-preferences.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  preferences:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Validate per-story scene preferences and secret isolation
+        run: node tests/scene-story-preferences-core.cjs
+      - name: Validate scene HTML prompt isolation
+        run: node tests/scene-html-request-isolation.cjs
+      - name: Install Chromium for live UI regression
+        if: github.event_name == 'push'
+        run: npm ci && npx playwright install --with-deps chromium
+      - name: Check exact public Pages scripts
+        if: github.event_name == 'push'
+        run: node tests/scene-story-preferences-live.cjs
+      - name: Verify story scene settings on public Pages
+        if: github.event_name == 'push'
+        env:
+          BAO_LIVE_URL: https://ghost80076-cmyk.github.io/bao-lab/
+        run: npm run test:e2e -- tests/e2e/scene-story-preferences.spec.cjs --project=chromium

@@ -110,10 +110,13 @@
       if (settled) return; // A delayed animation frame must not overwrite the final message.
       const bubble = document.querySelector("#chat-stream > .message.assistant:last-child .bubble");
       if (!bubble || !pendingText) return;
+      const stream = document.getElementById("chat-stream");
+      const readingTop = stream?.scrollTop;
       bubble.innerHTML = renderStreamingPreview(pendingText);
       bubble.closest(".message")?.classList.add("is-streaming");
-      const stream = document.getElementById("chat-stream");
-      if (stream) stream.scrollTop = stream.scrollHeight;
+      // Repainting an HTML bubble can disturb browser scroll anchoring. Keep
+      // the player's current reading position instead of chasing new tokens.
+      if (stream && readingTop != null) stream.scrollTop = readingTop;
     };
     const onDelta = (delta, fullText) => {
       pendingText = fullText;
@@ -142,4 +145,12 @@
   const stream = document.getElementById("chat-stream");
   if (stream) new MutationObserver(scheduleCommittedPaint).observe(stream, { childList: true });
   API.__streamingUIPatched = true;
+
+  // Keep the scroll-only adapter separate from the HTML and story renderers.
+  if (document.head?.append && !document.querySelector('script[src="js/chat-reading-scroll.js"]')) {
+    const script = document.createElement('script');
+    script.src = 'js/chat-reading-scroll.js';
+    script.onerror = () => console.warn('BAO/LAB reading position controller failed to load');
+    document.head.append(script);
+  }
 })();

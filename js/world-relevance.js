@@ -43,4 +43,5 @@
 // Keep the optional data-only MOD editor separate from the tracker and prompts.
 if (typeof loadBAOScript === 'function') {
   loadBAOScript('js/world-mod-packs.js').catch(err => console.warn('BAO/LAB MOD packs failed to load:', err));
+  loadBAOScript('js/lorebook.js').catch(err => console.warn('BAO/LAB lorebook failed to load:', err));
 }

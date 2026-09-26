@@ -4,12 +4,13 @@ const ROOT_URL = process.env.BAO_LIVE_URL || "/";
 
 const openDemoStory = async page => {
   await page.goto(ROOT_URL);
-  await expect(page.getByRole("heading", { name: "班長。" })).toBeVisible();
-  await page.getByRole("button", { name: "探索作品" }).click();
+  await expect(page.locator('#home-view .brand-hero h1')).toBeVisible();
+  await page.locator('#home-view [data-view="explore"]').click();
   const card = page.locator("article").filter({ hasText: "林沉風 - 見過黑暗的人" });
   await expect(card).toBeVisible();
   await card.click();
   await page.getByRole("button", { name: "開始故事" }).click();
+  await page.locator('#bao-setup-choice [data-bao-setup="advanced"]').click();
   for (let step = 0; step < 3; step += 1) await page.getByRole("button", { name: "下一步" }).click();
   await page.locator("#bao-demo-mode").check();
   await page.getByRole("button", { name: "下一步" }).click();
@@ -36,7 +37,7 @@ test("Context Pack AI draft source survives a full page reload", async ({ page }
   await page.locator("[data-bao-open='story-tools']").click();
   await expect(page.getByRole("heading", { name: "故事管理" })).toBeVisible();
   await page.locator("[data-create]").click();
-  await expect(page.getByRole("heading", { name: "Context Pack 編輯與確認" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "劇情摘要包（Context Pack）編輯與確認" })).toBeVisible();
 
   await expect.poll(() => page.evaluate(() => Boolean(GameState.current?.contextPackDraftResume?.source?.fingerprint))).toBe(true);
   const beforeReload = await page.evaluate(() => ({

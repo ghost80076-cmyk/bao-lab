@@ -1,0 +1,61 @@
+name: Author regex live Pages interaction
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'js/author-regex-core.js'
+      - 'js/author-regex-compat.js'
+      - 'js/author-regex-inline.js'
+      - 'js/author-regex-dock.js'
+      - 'tests/e2e/author-regex-*.spec.cjs'
+      - '.github/workflows/author-regex-live.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  live-author-ui:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      BAO_LIVE_URL: https://ghost80076-cmyk.github.io/bao-lab/
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Wait until the public site serves this revision
+        shell: bash
+        run: |
+          set -euo pipefail
+          for attempt in $(seq 1 60); do
+            if curl --fail --silent --show-error --location --max-time 15 \
+              -H 'Cache-Control: no-cache' \
+              "${BAO_LIVE_URL}js/author-regex-dock.js?ci=${GITHUB_SHA}" -o /tmp/bao-live-dock.js \
+              && cmp -s js/author-regex-dock.js /tmp/bao-live-dock.js \
+              && curl --fail --silent --show-error --location --max-time 15 \
+              -H 'Cache-Control: no-cache' \
+              "${BAO_LIVE_URL}js/author-regex-core.js?ci=${GITHUB_SHA}" -o /tmp/bao-live-core.js \
+              && cmp -s js/author-regex-core.js /tmp/bao-live-core.js \
+              && curl --fail --silent --show-error --location --max-time 15 \
+              "${BAO_LIVE_URL}?ci=${GITHUB_SHA}" -o /tmp/bao-live-index.html \
+              && grep -Fq 'js/author-regex-dock.js' /tmp/bao-live-index.html; then
+              echo "Pages is serving the checked-out author UI and core (attempt ${attempt})."
+              exit 0
+            fi
+            echo "Waiting for current author UI on Pages (${attempt}/60)..."
+            sleep 5
+          done
+          echo 'Pages did not serve this commit within the wait window.' >&2
+          exit 1
+      - name: Exercise real Pages in Chromium without an API key
+        run: npx playwright test tests/e2e/author-regex-inline.spec.cjs tests/e2e/author-regex-dock.spec.cjs tests/e2e/author-regex-legacy-input.spec.cjs tests/e2e/author-regex-ui-save.spec.cjs --project=chromium
+      - name: Upload browser failures
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: author-regex-live-failure
+          path: test-results/
+          if-no-files-found: ignore

@@ -26,11 +26,11 @@
   };
   const categoryHint = value => ({
     browser: "瀏覽器直連或 CORS 被服務商擋下；Key 不一定有問題。",
-    key: "API Key 驗證失敗，請確認貼入的是目前服務商的金鑰。",
+    key: "連線金鑰（API Key）驗證失敗，請確認貼入的是目前服務商的金鑰。",
     quota: "連線已到服務商，但額度、餘額或速率限制阻止請求。",
     permission: "金鑰可被辨識，但目前帳號／地區／模型權限不足。",
-    model: "請核對 Model ID 與 Base URL 是否屬於同一服務。",
-    stream: "一般回覆可能可用，但 Streaming 協議沒有通過。",
+    model: "請核對模型代號（Model ID）與連線網址（Base URL）是否屬於同一服務。",
+    stream: "一般回覆可能可用，但即時輸出（Streaming）協議沒有通過。",
     provider: "服務商回傳未分類錯誤；可依下方訊息核對設定。"
   }[value] || "");
 
@@ -72,9 +72,9 @@
   });
 
   const validate = config => {
-    if (!normalize(config.key)) return "請先填入 API Key。";
-    if (!normalize(config.model)) return "請先填入 Model ID。";
-    if (!normalize(config.baseUrl) && config.protocol !== "gemini") return "請先填入 Base URL。";
+    if (!normalize(config.key)) return "請先填入連線金鑰（API Key）。";
+    if (!normalize(config.model)) return "請先填入模型代號（Model ID）。";
+    if (!normalize(config.baseUrl) && config.protocol !== "gemini") return "請先填入連線網址（Base URL）。";
     return "";
   };
 
@@ -174,7 +174,7 @@
   const statusText = item => {
     if (item?.skipped) return "尚未執行";
     if (!item?.ok) return `${item?.responseOk ? "未確認" : "失敗"} · ${item?.ms ?? 0} ms`;
-    return `成功 · ${item?.ms ?? 0} ms${item?.totalTokens != null ? ` · ${Number(item.totalTokens).toLocaleString()} tok` : ""}`;
+    return `成功 · ${item?.ms ?? 0} ms${item?.totalTokens != null ? ` · ${Number(item.totalTokens).toLocaleString()} 字詞用量（tok）` : ""}`;
   };
 
   const render = result => {
@@ -184,8 +184,8 @@
     const streamDetail = result.streaming.skipped
       ? "尚未執行"
       : result.streaming.ok
-        ? `SSE 已確認 · ${result.streaming.chunks} chunks`
-        : result.streaming.error || "串流失敗";
+        ? `即時輸出（Streaming）已確認 · ${result.streaming.chunks} 段資料`
+        : result.streaming.error || "即時輸出失敗";
     const failure = !result.standard.ok ? result.standard : (!result.streaming.ok ? result.streaming : null);
     status.textContent = result.ok
       ? "✓ 完整驗收通過"
@@ -196,8 +196,8 @@
       <div class="provider-diagnostics-meta"><b>${escape(result.provider || "custom")}</b><span>${escape(result.protocol || "openai").toUpperCase()}</span><span>${escape(result.model || "—")}</span><span>${escape(result.endpoint || "—")}</span></div>
       <div class="provider-diagnostics-grid">
         <div><small>一般回覆</small><b>${escape(statusText(result.standard))}</b>${result.standard.error ? `<span>${escape(result.standard.error)}</span>` : ""}</div>
-        <div><small>Streaming</small><b>${escape(statusText(result.streaming))}</b><span>${escape(streamDetail)}</span></div>
-        <div><small>本機隱私</small><b>${result.privacy.ok ? "✓ 未發現 Key 持久化" : "✕ 發現 Key"}</b><span>${result.privacy.ok ? "未出現在 localStorage、sessionStorage 或故事 payload" : escape(result.privacy.leaks.join("、"))}</span></div>
+        <div><small>即時輸出（Streaming）</small><b>${escape(statusText(result.streaming))}</b><span>${escape(streamDetail)}</span></div>
+        <div><small>本機隱私</small><b>${result.privacy.ok ? "✓ 未發現金鑰持久化" : "✕ 發現金鑰"}</b><span>${result.privacy.ok ? "未出現在瀏覽器儲存空間或故事資料中" : escape(result.privacy.leaks.join("、"))}</span></div>
       </div>
       ${failure?.category ? `<p class="note provider-diagnostics-hint">${escape(categoryHint(failure.category))}</p>` : ""}`;
   };
@@ -208,7 +208,7 @@
     const status = document.getElementById("provider-diagnostics-status");
     state.running = true;
     if (button) button.disabled = true;
-    if (status) status.textContent = "驗收中：先測一般回覆，再測 Streaming…";
+    if (status) status.textContent = "驗收中：先測一般回覆，再測即時輸出（Streaming）…";
     try {
       const result = await runConfig(currentConfig());
       state.last = result;
@@ -226,7 +226,7 @@
     state.last = null;
     const status = document.getElementById("provider-diagnostics-status");
     const output = document.getElementById("provider-diagnostics-result");
-    if (status) status.textContent = "API Key 已從輸入框清除。";
+    if (status) status.textContent = "連線金鑰（API Key）已從輸入框清除。";
     if (output) output.innerHTML = "";
   };
 
@@ -237,15 +237,15 @@
     box.id = "provider-diagnostics-box";
     box.className = "cost-control-box provider-diagnostics-box";
     box.innerHTML = `
-      <h3>真實 Provider 驗收</h3>
-      <p class="note">完整驗收最多送出 2 次極短 API 請求：先確認一般回覆，再確認 Streaming。API Key 只從目前輸入框讀取，不寫入診斷結果、故事存檔或瀏覽器持久化空間。</p>
+      <h3>AI 服務商（Provider）實際連線測試</h3>
+      <p class="note">完整測試最多送出 2 次極短 AI 請求：先確認一般回覆，再確認即時輸出（Streaming）。連線金鑰（API Key）只從目前輸入框讀取，不寫入測試結果、故事存檔或瀏覽器儲存空間。</p>
       <div class="provider-diagnostics-actions">
-        <button type="button" class="secondary" data-run-provider-diagnostics>完整驗收目前 API</button>
-        <button type="button" class="text-button" data-clear-provider-key>清除 API Key</button>
+        <button type="button" class="secondary" data-run-provider-diagnostics>測試目前 AI 連線</button>
+        <button type="button" class="text-button" data-clear-provider-key>清除連線金鑰</button>
         <span id="provider-diagnostics-status" class="note" aria-live="polite">尚未驗收</span>
       </div>
       <div id="provider-diagnostics-result" aria-live="polite"></div>
-      <p class="note">Anthropic 官方若回報組織禁止瀏覽器 CORS，代表該帳戶政策不允許直接從網頁呼叫；這和 Key 本身錯誤是不同問題。</p>`;
+      <p class="note">若 Anthropic 官方回報組織禁止瀏覽器跨網站連線（CORS），代表該帳戶政策不允許直接從網頁呼叫；這和連線金鑰錯誤是不同問題。</p>`;
     step.appendChild(box);
     if (!document.getElementById("provider-diagnostics-style")) {
       const style = document.createElement("style");

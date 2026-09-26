@@ -8,6 +8,8 @@ on:
       - 'js/world-modules.js'
       - 'js/world-state-cost.js'
       - 'tests/npc-presence-regression.cjs'
+      - 'tests/npc-presence-live.cjs'
+      - 'tests/e2e/npc-presence-roundtrip.spec.cjs'
       - '.github/workflows/npc-presence.yml'
   pull_request:
     paths:
@@ -15,6 +17,8 @@ on:
       - 'js/world-modules.js'
       - 'js/world-state-cost.js'
       - 'tests/npc-presence-regression.cjs'
+      - 'tests/npc-presence-live.cjs'
+      - 'tests/e2e/npc-presence-roundtrip.spec.cjs'
       - '.github/workflows/npc-presence.yml'
 
 permissions:
@@ -23,10 +27,23 @@ permissions:
 jobs:
   presence:
     runs-on: ubuntu-latest
+    timeout-minutes: 12
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+          cache: npm
       - name: Validate presence regression
         run: node tests/npc-presence-regression.cjs
+      - name: Install live browser test dependencies
+        if: github.event_name == 'push'
+        run: npm ci && npx playwright install --with-deps chromium
+      - name: Verify Pages serves this NPC module
+        if: github.event_name == 'push'
+        run: node tests/npc-presence-live.cjs
+      - name: Verify NPC round-trip in live Pages Chromium
+        if: github.event_name == 'push'
+        env:
+          BAO_LIVE_URL: https://ghost80076-cmyk.github.io/bao-lab/
+        run: npm run test:e2e -- tests/e2e/npc-presence-roundtrip.spec.cjs --project=chromium

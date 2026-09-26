@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000" role="img" aria-label="歌舞伎町夜色與六道霓虹光的插畫封面">
+  <defs>
+    <linearGradient id="sky" x2="0" y2="1"><stop stop-color="#141225"/><stop offset=".55" stop-color="#3f2143"/><stop offset="1" stop-color="#160f24"/></linearGradient>
+    <linearGradient id="road" x2="0" y2="1"><stop stop-color="#7d4364" stop-opacity=".2"/><stop offset="1" stop-color="#e38cae" stop-opacity=".46"/></linearGradient>
+    <filter id="glow"><feGaussianBlur stdDeviation="12"/></filter>
+  </defs>
+  <path fill="url(#sky)" d="M0 0h800v1000H0z"/>
+  <circle cx="572" cy="184" r="80" fill="#f3a7ce" opacity=".22" filter="url(#glow)"/>
+  <circle cx="572" cy="184" r="58" fill="#ffd7e6" opacity=".82"/>
+  <path fill="#1a1427" d="M0 310h70v215h68V262h94v283h53V340h81v196h64V240h97v318h39V301h80v249h60V360h94v640H0z"/>
+  <path fill="#281b31" d="M0 412h115v230h78V355h112v266h72V458h105v210h91V364h99v305h128v331H0z"/>
+  <g fill="#f6a9cf" opacity=".82"><path d="M155 399h12v35h-12zm23 0h12v35h-12zm200 102h13v45h-13zm24 0h13v45h-13zm192-83h11v49h-11zm24 0h11v49h-11z"/></g>
+  <g fill="#9bd1d5" opacity=".75"><path d="M61 547h13v32H61zm25 0h13v32H86zm194-147h11v38h-11zm-52 141h14v39h-14zm313 34h16v40h-16z"/></g>
+  <path d="M0 760 285 610h230l285 150v240H0z" fill="#130f20"/>
+  <path d="M345 610 180 1000h440L455 610z" fill="url(#road)"/>
+  <g stroke="#efa4c2" stroke-width="4" opacity=".7"><path d="M292 775 50 1000m458-225 242 225"/><path d="M372 736 315 1000m113-264 57 264"/></g>
+  <g fill="#f5c4d9"><circle cx="75" cy="682" r="6"/><circle cx="162" cy="618" r="5"/><circle cx="245" cy="684" r="6"/><circle cx="548" cy="660" r="6"/><circle cx="654" cy="608" r="5"/><circle cx="730" cy="686" r="6"/></g>
+  <text x="400" y="96" fill="#fff0f7" font-family="sans-serif" font-size="23" letter-spacing="8" text-anchor="middle">KABUKICHO · AFTER DARK</text>
+  <text x="400" y="864" fill="#fff0f7" font-family="serif" font-size="48" font-weight="bold" text-anchor="middle">午前零時の地雷</text>
+  <text x="400" y="908" fill="#efb3ce" font-family="sans-serif" font-size="20" letter-spacing="4" text-anchor="middle">黒羽ゆめ · 六人の夜</text>
+</svg>

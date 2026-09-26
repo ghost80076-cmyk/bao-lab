@@ -45,6 +45,17 @@ const addTurns = n => { for (let i = 0; i < n; i++) { Chat.add('user', `玩家-$
   await Chat.afterTurn(config);
   assert.equal(Chat.summarizedUntil, 16, 'invalid prose must not consume source or replace memory');
   assert.match(Chat.summary, /艾琳坦白/);
+  assert.equal(Chat.memoryHealth.phase, 'failed', 'invalid summary output must be observable instead of silently returning');
+  // Grow the unsummarized backlog beyond the critical raw-window target.
+  // Even under extreme Context Guard pressure, the first unsummarized message
+  // must still be present in the next main-model context.
+  const firstUnsummarized = Chat.messages[Chat.summarizedUntil].content;
+  addTurns(6);
+  Chat.lastStoryPromptTokens = 1000;
+  const pressuredConfig = { ...config, memory: { ...config.memory, maxContext: 100 } };
+  const pressuredContext = await Chat.context(pressuredConfig);
+  assert.ok(JSON.stringify(pressuredContext).includes(firstUnsummarized), 'Context Guard must never drop unsummarized raw dialogue');
+  assert.equal(Chat.contextGuard.level, 'critical');
   let resolve;
   ctx.API.send = () => new Promise(r => { resolve = r; });
   const pending = Chat.afterTurn(config);
@@ -55,6 +66,7 @@ const addTurns = n => { for (let i = 0; i < n; i++) { Chat.add('user', `玩家-$
   ctx.API.send = () => { throw new Error('demo must not invoke API'); };
   await Chat.afterTurn({ ...config, demoMode: true });
   assert.equal(data.memoryText('{"events":[{},"事實"],"style":"小說"}'), '重要事件：\n- 事實');
+  assert.equal(data.memoryText('整理如下：\n{"events":["包裹 JSON 仍可解析"]}\n以上'), '重要事件：\n- 包裹 JSON 仍可解析', 'common prose wrappers around valid JSON should be tolerated');
   GameState.create(ctx.App.activeCharacter, config);
   const clean = data.stateUpdate({
     nextScene: '接吻', events: [{ fake: true }, '進入王都'],

@@ -1,0 +1,26 @@
+/* Desktop reading only. No changes to mobile grid, story DOM, scripts or scroll handlers. */
+@media (min-width: 1081px) {
+  #chat-view .chat-stream {
+    min-height: min(66dvh, 780px);
+    max-height: min(80dvh, 960px);
+    padding-block: clamp(20px, 2.6vh, 34px);
+    scroll-padding-block: 24px 72px;
+  }
+  /* The blurred backdrop already covers the reader; scaling it extends scrollWidth. */
+  #chat-view .chat-stream::before { transform: none; }
+  #chat-view .message {
+    margin-bottom: 24px;
+  }
+  #chat-view .message.assistant .bubble {
+    font-size: 16px;
+    line-height: 1.95;
+    width: min(100%, 850px);
+  }
+  #chat-view .message.user .bubble {
+    font-size: 15px;
+    line-height: 1.8;
+  }
+  #chat-view .chat-topline {
+    padding-block: 16px;
+  }
+}

@@ -1,0 +1,28 @@
+/* Low-resolution portrait guard. The 192x256 character file is a thumbnail,
+   not a full-size illustration. Restore the normal layout automatically once
+   the file is replaced with an actual high-resolution export. */
+.bao-quality-note[hidden],#bao-home-portrait .bao-portrait-bun{display:none!important}
+#bao-home-portrait.bao-image-lowres{isolation:isolate;min-height:296px}
+#bao-home-portrait.bao-image-lowres .bao-portrait-bun{display:block!important;position:relative;width:min(58%,230px);height:clamp(240px,27vw,360px)!important;margin-inline:auto;object-fit:contain;filter:drop-shadow(0 16px 24px rgba(29,17,26,.3))}
+#bao-home-portrait.bao-image-lowres img:not(.bao-portrait-bun){position:absolute;right:15px;bottom:72px;z-index:1;width:88px;height:117px!important;padding:3px;object-fit:contain;background:#f8eaf2;border:1px solid rgba(97,55,79,.25);border-radius:12px;filter:none;box-shadow:0 8px 20px rgba(26,12,24,.24)}
+#bao-home-portrait.bao-image-lowres .bao-quality-note{position:absolute;right:9px;bottom:52px;z-index:2;padding:2px 6px;border-radius:7px;background:rgba(30,22,34,.88);color:#fff0f7;font-size:10px;line-height:1.4}
+#bao-home-portrait.bao-image-lowres>span:not(.bao-quality-note){position:relative;z-index:3}
+.bao-mascot-page .visual.bao-image-lowres{display:flex;align-items:center;justify-content:center;min-height:490px;padding:38px 22px 48px}
+.bao-mascot-page .visual.bao-image-lowres img.bun{display:block;position:relative;right:auto;bottom:auto;width:min(63%,250px);height:auto;padding:0;border:none;border-radius:0;background:transparent;filter:drop-shadow(0 20px 28px rgba(5,4,9,.25))}
+.bao-mascot-page .visual.bao-image-lowres img.human{position:absolute;right:clamp(12px,3vw,32px);bottom:55px;z-index:1;width:96px;height:128px;max-height:128px;padding:3px;object-fit:contain;background:#f9eaf2;border:1px solid rgba(239,187,215,.5);border-radius:14px;box-shadow:0 8px 24px rgba(8,6,12,.23);filter:none}
+.bao-mascot-page .visual.bao-image-lowres .bao-quality-note{position:absolute;right:clamp(12px,3vw,32px);bottom:34px;padding:2px 4px;background:#282030;color:#ffe4f0;border-radius:5px;font-size:10px;line-height:1.4}
+.bao-mascot--human .bao-mascot-avatar-human{width:38px;height:38px}
+.bao-mascot--human .bao-mascot-human{width:88px;height:117px}
+@media(max-width:900px){
+  #bao-home-portrait.bao-image-lowres .bao-portrait-bun{height:320px!important}
+  .bao-mascot-page .visual.bao-image-lowres{min-height:385px}
+}
+@media(max-width:560px){
+  #bao-home-portrait.bao-image-lowres .bao-portrait-bun{height:310px!important}
+  #bao-home-portrait.bao-image-lowres img:not(.bao-portrait-bun){width:76px;height:101px!important;right:10px}
+  .bao-mascot-page .visual.bao-image-lowres{min-height:330px;padding:20px 8px 34px}
+  .bao-mascot-page .visual.bao-image-lowres img.bun{width:min(61%,210px)}
+  .bao-mascot-page .visual.bao-image-lowres img.human{width:76px;height:101px;max-height:101px;right:10px;bottom:48px}
+  .bao-mascot-page .visual.bao-image-lowres .bao-quality-note{right:8px;bottom:25px;font-size:9px}
+}
+@media(prefers-reduced-motion:reduce){.bao-mascot-page .visual.bao-image-lowres img.bun{animation:none!important}}

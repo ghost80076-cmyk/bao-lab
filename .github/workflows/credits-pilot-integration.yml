@@ -1,0 +1,47 @@
+name: Credits pilot frontend verification
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - js/credits-pilot.js
+      - js/global-bridge.js
+      - tests/credits-pilot.test.cjs
+      - .github/workflows/credits-pilot-integration.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  tests-and-live-assets:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify local adapter and isolation
+        run: |
+          node --check js/credits-pilot.js
+          node --check js/global-bridge.js
+          node --test tests/credits-pilot.test.cjs
+      - name: Verify deployed Pages adapter and loader
+        shell: bash
+        run: |
+          set -euo pipefail
+          base='https://ghost80076-cmyk.github.io/bao-lab/js'
+          for attempt in $(seq 1 36); do
+            adapter="$(curl --fail --silent --show-error --location --max-time 15 "${base}/credits-pilot.js" || true)"
+            loader="$(curl --fail --silent --show-error --location --max-time 15 "${base}/global-bridge.js" || true)"
+            if grep -Fq 'gemini-3.1-flash-lite' <<<"${adapter}" \
+              && grep -Fq 'BAO/LAB 測試額度（邀請制）' <<<"${adapter}" \
+              && grep -Fq "creditsScript.src = 'js/credits-pilot.js'" <<<"${loader}"; then
+              printf 'Credits pilot and loader are live on Pages (attempt %s).\n' "$attempt"
+              exit 0
+            fi
+            sleep 5
+          done
+          printf 'New credits pilot assets were not observed on live Pages.\n' >&2
+          exit 1

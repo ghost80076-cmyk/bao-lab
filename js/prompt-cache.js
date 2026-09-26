@@ -32,10 +32,10 @@
     const originalAddUsage = typeof Chat.addUsage === "function" ? Chat.addUsage.bind(Chat) : null;
     const originalReset = typeof Chat.reset === "function" ? Chat.reset.bind(Chat) : null;
     const originalRenderUsage = typeof Chat.renderUsage === "function" ? Chat.renderUsage.bind(Chat) : null;
-    if (originalAddUsage) Chat.addUsage = function(usage = {}) {
+    if (originalAddUsage) Chat.addUsage = function(usage = {}, kind = "all") {
       this.usage = this.usage || {};
       if (!cacheMetricKnown(usage)) this.usage.cachedUnknown = true;
-      return originalAddUsage(usage);
+      return originalAddUsage(usage, kind);
     };
     if (originalReset) Chat.reset = function(...args) {
       const result = originalReset(...args);
@@ -168,4 +168,11 @@
   patchCacheUsageAccounting();
   patchMemoryRequestGuard();
   window.BAOPromptCache = { partitionSystemPrompt, storySessionId, cacheMetricKnown };
+  // The small Node unit-test DOM has no querySelector/head; load only inside real browsers.
+  if (typeof document.querySelector === 'function' && document.head && !document.querySelector('script[src="js/gemini-explicit-cache.js"]')) {
+    const script = document.createElement('script');
+    script.src = 'js/gemini-explicit-cache.js';
+    script.onerror = () => console.warn('BAO/LAB optional Gemini cache controls failed to load');
+    document.head.appendChild(script);
+  }
 })();

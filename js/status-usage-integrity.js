@@ -101,11 +101,11 @@
   // A streaming gateway may omit usage entirely. Never imply unknown = 0.
   let missingReports = 0;
   const oldAddUsage = Chat.addUsage.bind(Chat);
-  Chat.addUsage = function(usage = {}) {
+  Chat.addUsage = function(usage = {}, kind = "all") {
     const input = usage.input_tokens ?? usage.prompt_tokens;
     const output = usage.output_tokens ?? usage.completion_tokens;
     if (input == null || output == null) missingReports += 1;
-    return oldAddUsage(usage);
+    return oldAddUsage(usage, kind);
   };
   const decorateUsage = () => {
     const bar = document.querySelector('.usage-bar');
@@ -119,6 +119,8 @@
     }
     const cost = App.config?.cost || {};
     const hasPrice = Number(cost.inputPerMillion || 0) > 0 && Number(cost.outputPerMillion || 0) > 0;
+    const ledger = Array.isArray(Chat.usageLedger) ? Chat.usageLedger : [];
+    const actualCharges = ledger.filter(entry => entry?.actualUsd !== null && entry?.actualUsd !== undefined && Number.isFinite(Number(entry.actualUsd))).length;
     const hasMessages = (Chat.messages || []).length > 0;
     const missing = missingReports > 0 || (hasMessages && !Chat.usage?.prompt && !Chat.usage?.completion);
     if (missing) {
@@ -135,8 +137,9 @@
         const total = document.getElementById('usage-total');
         if (total) total.textContent = '未回報';
       }
-    } else if (!hasPrice) note.textContent = '金額未估：尚未設定主模型輸入與輸出單價；不同輔助模型的價格不可直接套用主模型單價。';
-    else note.textContent = '金額為依已回報 Token 與自填單價估算，非服務商帳單；多模型可能各有費率。';
+    } else if (actualCharges) note.textContent = `Token 依各次 API 回報統計；YoruBay 有 ${actualCharges} 次請求可使用後端實扣金額，其餘 BYOK 依對應模型費率估算，缺少費率會標示未計價。`;
+    else if (!hasPrice) note.textContent = 'Token 已分用途統計；費用會優先使用各模型已知費率。缺少費率的請求會標示未計價，不再套用主模型價格。';
+    else note.textContent = 'Token 已分為故事／記憶／狀態等用途；BYOK 金額按各請求對應模型費率估算，服務商帳單仍是最終依據。';
     if (missing && !hasPrice) note.textContent += ' 目前也未設定主模型單價。';
   };
   const oldRenderUsage = Chat.renderUsage.bind(Chat);

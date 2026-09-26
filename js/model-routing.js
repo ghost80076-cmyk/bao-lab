@@ -28,19 +28,19 @@
     const title = step.querySelector("h3");
     if (title) title.textContent = "模型連線";
     const intro = step.querySelector("p.note");
-    if (intro) intro.textContent = "先選 API 服務，再選模型。部分官方服務會直接填好 Model ID；Z.AI、OpenAI 等可保留官方連線網址並自行輸入 Model ID；OpenRouter 可用一把 Key 切換多家模型。";
+    if (intro) intro.textContent = "先選 AI 服務商，再選模型。部分官方服務會直接填好模型代號（Model ID）；Z.AI、OpenAI 等可保留官方連線網址並自行輸入模型代號；OpenRouter 可用一把連線金鑰切換多家模型。";
     const rename = (id, text) => {
       const label = document.getElementById(id)?.closest("label");
       if (label?.childNodes?.[0]) label.childNodes[0].textContent = text;
     };
-    rename("api-type", "API 服務 / 路由");
+    rename("api-type", "AI 服務商（Provider）／路由");
     rename("model-select", "模型與連線預設");
-    rename("model-id", "Model ID");
-    rename("base-url", "API 連線網址");
-    rename("api-key", "API Key");
-    addHelp("model-id", "官方服務若未綁定單一模型，請依服務商目前文件填入 Model ID；BAO/LAB 不會把某個 GLM 或 OpenAI 型號寫死。");
-    addHelp("base-url", "這是實際送出請求的 endpoint。不同官方、區域與中轉站可能不同。");
-    addHelp("api-key", "只留在目前頁面記憶體中，不會寫入故事存檔。請不要分享你的 Key。");
+    rename("model-id", "模型代號（Model ID）");
+    rename("base-url", "連線網址（Base URL）");
+    rename("api-key", "連線金鑰（API Key）");
+    addHelp("model-id", "官方服務若未綁定單一模型，請依服務商目前文件填入模型代號（Model ID）；BAO/LAB 不會把某個 GLM 或 OpenAI 型號寫死。");
+    addHelp("base-url", "這是實際送出請求的端點（Endpoint）。不同官方、區域與中轉站可能不同。");
+    addHelp("api-key", "只留在目前頁面記憶體中，不會寫入故事存檔。請不要分享你的連線金鑰。");
   };
 
   const patchMainProviderHint = () => {
@@ -51,7 +51,7 @@
       const preset = App.getSelectedPreset?.();
       const hint = document.getElementById("api-hint");
       if (hint && preset?.route === "official" && preset?.base_url && !preset?.model) {
-        hint.textContent = `${preset.provider_label || "官方服務"}已填好官方 API 連線網址。請依服務商文件輸入 Model ID，再貼上自己的 API Key。`;
+        hint.textContent = `${preset.provider_label || "官方服務"}已填好官方連線網址。請依服務商文件輸入模型代號（Model ID），再貼上自己的連線金鑰（API Key）。`;
       }
       return result;
     };
@@ -83,10 +83,10 @@
       <div id="${kind}-route-advanced" class="hidden helper-route-advanced">
         <label>快速選擇服務 / 模型<select id="${kind}-preset-select"><option value="">選擇官方 / OpenRouter 預設…</option>${optionHTML()}</select></label>
         <div class="form-grid">
-          <label>Model ID<input id="${kind}-model-id" placeholder="Model ID"></label>
+          <label>模型代號（Model ID）<input id="${kind}-model-id" placeholder="模型代號（Model ID）"></label>
           <label>相容格式<select id="${kind}-protocol"><option value="openai">OpenAI-compatible</option><option value="anthropic">Anthropic</option><option value="gemini">Gemini</option></select></label>
-          <label>API 連線網址<input id="${kind}-base-url" placeholder="API endpoint"></label>
-          <label>API Key<input id="${kind}-api-key" type="password" autocomplete="off" placeholder="若與主 API 不同，貼上另一把 Key"></label>
+          <label>連線網址（Base URL）<input id="${kind}-base-url" placeholder="API 端點（Endpoint）"></label>
+          <label>連線金鑰（API Key）<input id="${kind}-api-key" type="password" autocomplete="off" placeholder="若與主連線不同，貼上另一把金鑰"></label>
         </div>
         <div id="${kind}-route-hint" class="note">可以使用和主聊天完全不同的服務商。</div>
         <div class="helper-route-test-row">
@@ -107,7 +107,7 @@
     document.getElementById(`${kind}-protocol`).value = preset.protocol || "openai";
     const hint = document.getElementById(`${kind}-route-hint`);
     if (hint) {
-      const modelHint = preset.model ? "" : " · 請自行填入 Model ID";
+      const modelHint = preset.model ? "" : " · 請自行填入模型代號（Model ID）";
       hint.textContent = `${preset.provider_label || preset.provider} · ${preset.use_case || "輔助模型"}${modelHint}${preset.pricing ? ` · Input $${preset.pricing.input}/M · Output $${preset.pricing.output}/M` : ""}`;
     }
   };
@@ -129,12 +129,12 @@
     const config = App.collectConfig();
     const route = kind === "memory" ? config.memory?.summaryApi : config.cost?.stateApi;
     if (!route?.model || !route?.baseUrl || !route?.key) {
-      if (status) status.textContent = "✕ 請完成 Model ID、連線網址與 API Key";
+      if (status) status.textContent = "✕ 請完成模型代號（Model ID）、連線網址（Base URL）與連線金鑰（API Key）";
       return;
     }
     const mainApi = config.api || {};
     if (normalizeUrl(route.baseUrl) !== normalizeUrl(mainApi.baseUrl) && route.key === mainApi.key) {
-      if (status) status.textContent = "✕ 不同服務商必須填入自己的 API Key";
+      if (status) status.textContent = "✕ 不同服務商必須填入自己的連線金鑰（API Key）";
       return;
     }
     if (button) button.disabled = true;
@@ -156,7 +156,7 @@
     const box = document.createElement("div");
     box.id = "helper-routing-box";
     box.className = "cost-control-box";
-    box.innerHTML = `<h3>主模型演戲，便宜模型做整理</h3><p class="note">選填。可以讓 Claude / Gemini / GLM 負責故事，再用 Qwen、MiMo、DeepSeek、GLM 或其他模型整理記憶與狀態。若不想準備第二把 API Key，維持「沿用主聊天」即可。</p><div class="helper-route-grid">${helperCard("memory")}${helperCard("state")}</div>`;
+    box.innerHTML = `<h3>主模型演戲，便宜模型做整理</h3><p class="note">選填。可以讓 Claude／Gemini／GLM 負責故事，再用 Qwen、MiMo、DeepSeek、GLM 或其他模型整理記憶與狀態。若不想準備第二把連線金鑰（API Key），維持「沿用主聊天」即可。</p><div class="helper-route-grid">${helperCard("memory")}${helperCard("state")}</div>`;
     step.appendChild(box);
     ["memory","state"].forEach(kind => {
       document.getElementById(`${kind}-route-choice`)?.addEventListener("change", () => toggleHelper(kind));
@@ -183,7 +183,8 @@
       route: presetEndpointMatches ? (preset.route || "custom") : "custom",
       cacheMode: verifiedExplicit ? "explicit" : (presetEndpointMatches ? (preset.cache || "unknown") : "unknown"),
       explicitCacheModel: verifiedExplicit ? model : "",
-      cacheEnabled: App.config?.memory?.cache !== false
+      cacheEnabled: App.config?.memory?.cache !== false,
+      pricing: presetEndpointMatches && preset?.pricing ? { ...preset.pricing } : null
     };
   };
 
@@ -247,4 +248,3 @@
   if (document.readyState === "loading") window.addEventListener("DOMContentLoaded", () => setTimeout(init, 50));
   else setTimeout(init, 50);
 })();
-

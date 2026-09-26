@@ -1,8 +1,50 @@
 <!doctype html>
-<html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>LM Studio 本地 AI 連線教學｜BAO/LAB</title><meta name="description" content="使用 LM Studio 本機模型連接 BAO/LAB：啟動伺服器、開啟 CORS、選取模型與故障排除。"><link rel="icon" href="assets/bao-mark.svg" type="image/svg+xml"><style>
-:root{color-scheme:dark;font-family:system-ui,-apple-system,'Noto Sans TC',sans-serif;background:#101118;color:#f3f4fa}*{box-sizing:border-box}body{max-width:820px;margin:0 auto;padding:clamp(18px,4vw,40px);line-height:1.85}a{color:#a9d9ff}a:hover{text-decoration:none}h1,h2{line-height:1.35}h1{font-size:clamp(1.7rem,4vw,2.5rem)}h2{margin-top:2rem}.box{background:#222632;border:1px solid #454d64;border-radius:14px;padding:16px 20px}li{margin:.8rem 0}code{background:#292f40;border-radius:4px;padding:2px 6px;overflow-wrap:anywhere}strong{color:#fff}.muted{color:#c6cee2}header{display:flex;gap:12px;align-items:center}header img{width:32px;height:32px}header a{text-decoration:none;font-weight:700}footer{border-top:1px solid #41465c;margin-top:36px;padding-top:14px;color:#bfc9da}
-</style></head><body><header><img src="assets/bao-mark.svg" alt=""><a href="./">BAO/LAB 首頁</a></header><main><h1>用 LM Studio 玩 BAO/LAB：本地 AI 連線教學</h1><p class="muted">適合已在電腦上使用 LM Studio 的玩家。模型會在你的電腦上運行；不必將模型上傳給 BAO/LAB，也不需要雲端 API Key。</p><div class="box"><strong>開始前</strong><p>請在運行 LM Studio 的<strong>同一台電腦</strong>，使用瀏覽器開啟 BAO/LAB。手機開啟公開網站時，手機上的 localhost 指向手機本身，不會自動連到家中電腦。伺服器只需要監聽本機；不要為了連線而將它公開到網際網路。</p></div>
-<h2>一、在 LM Studio 啟動本機模型</h2><ol><li>開啟 <a href="https://lmstudio.ai/" target="_blank" rel="noopener noreferrer">LM Studio 官方網站</a>，在電腦安裝 LM Studio。</li><li>下載與硬體相容的模型，或使用你已有的模型。玩家提到的「Gemma 4 26B 無限制版」只是模型名稱或第三方版本描述；BAO/LAB 不需要指定它，直接讀取 LM Studio 顯示的實際 Model ID 即可。</li><li>在 LM Studio 載入模型，進入 <strong>Developer／開發者 → Local Server／本地伺服器</strong>，按 <strong>Start Server</strong>。</li><li>在伺服器設定中啟用 <strong>Enable CORS</strong>，以允許 BAO/LAB 網頁向本機 API 發出跨來源請求。僅在信任的網頁使用本地伺服器時開啟；請保留僅本機存取，避免開啟「Serve on Local Network」或對外轉發連接埠。</li></ol><p>LM Studio 預設 OpenAI 相容 API 位置：<code>http://localhost:1234/v1</code>。BAO/LAB 使用的聊天端點是 <code>http://localhost:1234/v1/chat/completions</code>。</p>
-<h2>二、在 BAO/LAB 選擇本地 AI</h2><ol><li>進入角色的「建立故事」→「模型連線」，在「API 服務／路由」選擇 <strong>LM Studio（本地 AI）</strong>。</li><li>保留預設連線網址，點「<strong>讀取本機模型</strong>」。從下拉選單選擇模型；也可以依照 LM Studio 顯示的實際 ID 手動填入 Model ID。</li><li>LM Studio 預設不需要 API Key。只有你自行啟用 LM Studio 驗證時，才需要填寫本機 API Token。</li><li>完成其他角色與記憶設定，按「開始故事」。進入既有故事後，點「<strong>連接本地 AI</strong>」，可切換至 LM Studio、讀取模型並測試連線，故事不會因切換而重置。</li></ol><p>無法開始時，請先用「讀取本機模型」確認伺服器有回應，再使用「測試本地模型」確認模型能產生文字。測試會在本機實際執行模型，可能增加電腦負載，不會收取雲端 API 逐次呼叫費用。</p>
-<h2>三、常見問題</h2><div class="box"><p><strong>讀取模型失敗／Failed to fetch／CORS：</strong>確認 LM Studio 已啟動 Server、已開啟 Enable CORS；允許瀏覽器詢問的本地網路存取權限。部分瀏覽器的 HTTPS 網站連到 HTTP localhost 仍可能受瀏覽器安全政策限制。試著更新瀏覽器並在同一台電腦開啟。</p><p><strong>能讀到模型，但生成失敗：</strong>確認已載入模型、Model ID 與 LM Studio 顯示完全相同；檢查顯示記憶體與上下文是否超過可用資源。部分第三方模型或量化版本可能不支援長上下文或特定指令格式。</p><p><strong>401 或 403：</strong>檢查 LM Studio 是否自行啟用了 API Token；預設無驗證時不需填寫任何 Key。</p><p><strong>手機／另一台電腦無法連線：</strong>這個功能刻意只接受 localhost 或 127.0.0.1，並不接受區域網路或遠端 URL；請在 LM Studio 所在電腦使用 BAO/LAB。</p><p><strong>故事重新開啟後：</strong>本地模式會保留模型與本機網址。若你啟用了本地 API Token，它不會寫入故事存檔，需重新輸入。</p></div>
-<h2>四、隱私與費用</h2><p>選擇本地模式時，BAO/LAB 將角色卡、上下文及聊天請求發往你電腦的 LM Studio <code>localhost</code> API；不會自動轉送到雲端模型。模型是否自行使用外部服務、日誌如何保存，取決於你安裝的軟體與模型，請檢查其設定。若你另外啟用雲端記憶／狀態模型，那些輔助請求仍可能送往你自行指定的供應商。本地推論沒有雲端 API 逐次使用費，但仍有電力與硬體成本。</p><p>官方參考：<a href="https://lmstudio.ai/docs/developer/core/server" target="_blank" rel="noopener noreferrer">LM Studio Local Server</a>、<a href="https://lmstudio.ai/docs/developer/core/server/settings" target="_blank" rel="noopener noreferrer">Server Settings</a>。</p></main><footer><a href="./">← 回 BAO/LAB</a> · 只連接你信任的本機模型與網站</footer></body></html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>LM Studio 本地 AI 連線教學｜BAO/LAB</title>
+  <meta name="description" content="用 LM Studio 在自己的電腦執行 AI 模型，並安全連接 BAO/LAB。">
+  <link rel="icon" href="assets/bao-mark.svg" type="image/svg+xml">
+  <style>
+    :root{color-scheme:dark;font-family:system-ui,-apple-system,'Noto Sans TC',sans-serif;background:#101118;color:#f4f1eb}*{box-sizing:border-box}body{margin:0;line-height:1.8}header,main,footer{max-width:880px;margin:auto;padding:22px}header{display:flex;align-items:center;gap:10px}header img{width:30px;height:30px}header a,a{color:#f6ca87}h1{font-size:clamp(1.8rem,5vw,3rem);line-height:1.25}.muted,footer{color:#bdbdc4}.box{margin:22px 0;padding:18px 20px;border:1px solid #373943;border-radius:16px;background:#1c1e27}.notice{border-left:4px solid #f6ca87;padding:12px 18px;background:#29261f}.term{font-size:.93em;color:#c9c7c2}code{overflow-wrap:anywhere;background:#151720;padding:2px 5px;border-radius:5px}@media(max-width:600px){header,main,footer{padding:16px}}
+  </style>
+</head>
+<body>
+  <header><img src="assets/bao-mark.svg" alt=""><a href="./">BAO/LAB 首頁</a></header>
+  <main>
+    <h1>用 LM Studio 在自己的電腦跑 AI</h1>
+    <p class="muted">這條路適合已在電腦上使用 LM Studio 的玩家。AI 模型會在你的電腦運行；不需要雲端連線金鑰（API Key），也不會自動改用付費雲端 AI。</p>
+    <div class="notice"><strong>請在同一台電腦操作。</strong>手機上的 <code>localhost</code> 只代表手機自己，不會自動連上家中電腦。為了安全，BAO/LAB 的本地連線只接受本機網址，不支援區域網路或遠端網址。</div>
+
+    <section class="box">
+      <h2>一、在 LM Studio 啟動本地 AI</h2>
+      <ol><li>到 <a href="https://lmstudio.ai/" target="_blank" rel="noopener noreferrer">LM Studio 官方網站</a> 安裝 LM Studio。</li><li>下載並載入與你電腦硬體相容的 AI 模型。</li><li>進入 <strong>Developer／開發者 → Local Server／本地伺服器</strong>，按 <strong>Start Server</strong>。</li><li>在伺服器設定開啟 <strong>Enable CORS</strong>，讓 BAO/LAB 網頁可以向本機 AI 發出請求。</li></ol>
+      <p class="term">CORS 是瀏覽器的跨網站連線保護。只在信任的網站需要連接你電腦上的 LM Studio 時開啟；不要為了連線而開啟區域網路服務或把連接埠公開到網際網路。</p>
+      <p>LM Studio 常見的本機連線網址（Base URL）是 <code>http://localhost:1234/v1</code>；聊天端點通常為 <code>http://localhost:1234/v1/chat/completions</code>。</p>
+    </section>
+
+    <section class="box">
+      <h2>二、在 BAO/LAB 連接本地 AI</h2>
+      <ol><li>進入角色後，按「建立故事」→「連接 AI」。</li><li>在 AI 服務商（Provider）選擇 <strong>LM Studio（本地 AI）</strong>。</li><li>保留預設連線網址，按「讀取本機模型」，再從清單選擇 AI 模型（Model）。</li><li>需要時，依 LM Studio 顯示的名稱手動填寫模型代號（Model ID）。</li><li>完成角色與記憶設定後按「開始故事」。既有故事可按「AI 連線／切換模型」改用本地 AI，故事不會重置。</li></ol>
+      <p>LM Studio 預設不需要連線金鑰（API Key）。只有你自行開啟 LM Studio 驗證時，才需填寫本機金鑰（API Token）。</p>
+    </section>
+
+    <section class="box">
+      <h2>三、卡住時怎麼檢查？</h2>
+      <p><strong>讀不到模型／Failed to fetch／CORS：</strong>確認 LM Studio 已啟動 Local Server、已開啟 Enable CORS，並用同一台電腦的瀏覽器開啟 BAO/LAB。</p>
+      <p><strong>讀到模型但生成失敗：</strong>確認模型已載入，模型代號（Model ID）與 LM Studio 顯示完全相同；也檢查顯示記憶體和送給 AI 的故事脈絡（Context）是否超過電腦可用資源。</p>
+      <p><strong>401 或 403：</strong>檢查是否自己開啟了 LM Studio 的本機金鑰；預設無驗證時不需填寫。</p>
+      <p><strong>換裝置後：</strong>本地模式會記住模型與本機網址；若你使用本機金鑰，它不會存進故事存檔，需要重新輸入。</p>
+    </section>
+
+    <section class="box">
+      <h2>四、隱私與成本</h2>
+      <p>本地模式會把角色卡、故事脈絡和聊天請求送到你電腦上的 LM Studio <code>localhost</code>，不會自動轉送到雲端 AI。模型與 LM Studio 是否自行記錄日誌、是否使用外部服務，取決於你安裝的軟體與模型設定。</p>
+      <p>本地推論不會產生雲端 API 逐次使用費，但仍會消耗電力、顯示記憶體與硬體資源。若另外設定雲端的記憶或狀態整理模型，該輔助請求仍會送往你指定的 AI 服務商。</p>
+      <p>官方參考：<a href="https://lmstudio.ai/docs/developer/core/server" target="_blank" rel="noopener noreferrer">LM Studio Local Server</a>、<a href="https://lmstudio.ai/docs/developer/core/server/settings" target="_blank" rel="noopener noreferrer">Server Settings</a>。</p>
+    </section>
+  </main>
+  <footer><a href="./">← 回 BAO/LAB</a> · 只連接你信任的本機模型與網站</footer>
+</body>
+</html>

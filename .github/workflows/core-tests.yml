@@ -65,6 +65,12 @@ jobs:
         run: node tests/author-diagnostics-core.cjs
       - name: Model presets and routing
         run: node tests/model-presets-core.cjs
+      - name: YoruBay invited credits bridge
+        run: |
+          node --check js/credits-pilot.js
+          node --test tests/credits-pilot.test.cjs
+      - name: YoruBay zero-cost model billing
+        run: node tests/worker-free-model-billing-core.cjs
       - name: Canon workbench
         run: node tests/canon-workbench-core.cjs
       - name: Stable chat message IDs
@@ -83,11 +89,23 @@ jobs:
         run: node tests/request-lifecycle-core.cjs
       - name: Accumulated world state turns
         run: node tests/world-state-cost-core.cjs
+      - name: Display-independent state tracking
+        run: node tests/display-state-tracking-core.cjs
       - name: Explicit scene metadata and greeting recovery
         run: node tests/explicit-scene-state-core.cjs
       - name: Prompt cache pipeline
         run: node tests/prompt-cache-core.cjs
+      - name: Cache cost panel
+        run: node tests/cache-cost-panel-core.cjs
+      - name: Per-request multi-model cost accounting
+        run: node tests/per-request-cost-core.cjs
       - name: Memory request isolation and cooldown
         run: node tests/memory-request-guard-core.cjs
       - name: Helper context isolation and memory lifecycle
         run: node tests/helper-context-core.cjs
+      - name: Memory app greeting and post-turn integrity
+        run: node tests/memory-app-integrity-core.cjs
+      - name: Contextual lorebook and legacy compatibility
+        run: node tests/lorebook-core.cjs
+      - name: Yume world-card relevant context
+        run: node tests/yume-relevant-context.cjs

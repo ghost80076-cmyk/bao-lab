@@ -1,0 +1,64 @@
+name: First-run guide live smoke
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'quick-start.html'
+      - 'js/brand-ui.js'
+      - 'css/first-run-desktop.css'
+      - '.github/workflows/first-run-live.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify-first-run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check JavaScript syntax and onboarding links
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check js/brand-ui.js
+          node <<'NODE'
+          const fs = require('node:fs');
+          const assert = require('node:assert/strict');
+          const home = fs.readFileSync('js/brand-ui.js', 'utf8');
+          const guide = fs.readFileSync('quick-start.html', 'utf8');
+          const css = fs.readFileSync('css/first-run-desktop.css', 'utf8');
+          for (const phrase of ['href="quick-start.html"', 'href="api-guide.html"', 'id="home-continue"', 'id="home-character-count"']) assert.ok(home.includes(phrase), `Missing homepage element: ${phrase}`);
+          for (const phrase of ['id="step-one"', 'id="step-two"', 'id="step-three"', 'https://openrouter.ai/keys', 'https://aistudio.google.com/apikey']) assert.ok(guide.includes(phrase), `Missing guide element: ${phrase}`);
+          assert.ok(css.includes('@media(min-width:1081px)'), 'Desktop styles missing');
+          assert.ok(home.includes('css/first-run-desktop.css'), 'Stylesheet not loaded');
+          console.log('First-run guide, preserved navigation IDs, CSS linkage: OK');
+          NODE
+      - name: Verify latest guide and stylesheet on live Pages
+        shell: bash
+        env:
+          SITE_URL: https://ghost80076-cmyk.github.io/bao-lab/
+        run: |
+          set -euo pipefail
+          verify_dir="$(mktemp -d)"
+          trap 'rm -rf "$verify_dir"' EXIT
+          for attempt in $(seq 1 50); do
+            matched=true
+            for file in quick-start.html js/brand-ui.js css/first-run-desktop.css; do
+              if ! curl -fsSL --max-time 15 "${SITE_URL}${file}?verify=${GITHUB_SHA}" -o "$verify_dir/content" \
+                || ! cmp -s "$file" "$verify_dir/content"; then
+                matched=false
+                echo "Waiting for deployed file: ${file}"
+              fi
+            done
+            if [[ "$matched" == true ]]; then
+              echo "First-run files match ${GITHUB_SHA} on live Pages (attempt ${attempt})."
+              exit 0
+            fi
+            echo "Waiting for current Pages version (${attempt}/50)..."
+            sleep 5
+          done
+          echo 'Latest first-run guide and desktop styles not observed on live Pages.' >&2
+          exit 1

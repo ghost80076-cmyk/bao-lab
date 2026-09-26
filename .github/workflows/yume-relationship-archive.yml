@@ -1,0 +1,36 @@
+name: Yume relationship archive
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'js/yume-relationship-archive.js'
+      - 'js/author-regex-card-bind.js'
+      - 'tests/yume-relationship-archive.cjs'
+      - 'tests/yume-card.test.cjs'
+      - 'data/characters/general/kurobane-yume-kabukicho.json'
+      - 'data/characters.json'
+      - 'assets/yume-*.webp'
+      - '.github/workflows/yume-relationship-archive.yml'
+  pull_request:
+    paths:
+      - 'js/yume-relationship-archive.js'
+      - 'js/author-regex-card-bind.js'
+      - 'tests/yume-relationship-archive.cjs'
+      - 'tests/yume-card.test.cjs'
+      - 'data/characters/general/kurobane-yume-kabukicho.json'
+      - 'data/characters.json'
+      - 'assets/yume-*.webp'
+      - '.github/workflows/yume-relationship-archive.yml'
+permissions:
+  contents: read
+jobs:
+  regression:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --check js/yume-relationship-archive.js
+      - run: node tests/yume-relationship-archive.cjs
+      - run: node tests/yume-card.test.cjs

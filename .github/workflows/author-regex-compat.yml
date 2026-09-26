@@ -1,0 +1,33 @@
+name: Author regex compatibility
+on:
+  push:
+    paths:
+      - 'js/author-regex-core.js'
+      - 'js/author-regex-compat.js'
+      - 'js/author-regex-mobile.js'
+      - 'js/regex-chat.js'
+      - 'tests/author-regex-core.test.js'
+      - 'tests/author-regex-layered.test.js'
+      - '.github/workflows/author-regex-compat.yml'
+  pull_request:
+    paths:
+      - 'js/author-regex-core.js'
+      - 'js/author-regex-compat.js'
+      - 'js/author-regex-mobile.js'
+      - 'js/regex-chat.js'
+      - 'tests/author-regex-core.test.js'
+      - 'tests/author-regex-layered.test.js'
+      - '.github/workflows/author-regex-compat.yml'
+  workflow_dispatch:
+jobs:
+  compatibility:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node tests/author-regex-core.test.js
+      - run: node tests/author-regex-layered.test.js

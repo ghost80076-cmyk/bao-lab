@@ -25,3 +25,13 @@
 #chat-view aside>a[href*="ko-fi.com/roger2486"],
 #about-view a[href*="ko-fi.com/roger2486"]{display:none!important}
 body:has(#chat-view.active) .bao-support-float{display:none}
+
+/* Product positioning lives on the About page so the homepage stays a clean entry point. */
+.creator-page h2{margin-bottom:18px}
+.creator-page h3{font-size:clamp(28px,3vw,38px);letter-spacing:-.03em;margin:12px 0 22px}
+.brand-about-lead{margin:0;color:#f2edf8;font-size:clamp(19px,2.2vw,24px);font-weight:800}
+.brand-about-product{margin:28px 0 46px;padding:clamp(20px,3vw,28px);border:1px solid rgba(185,151,255,.28);border-radius:20px;background:linear-gradient(135deg,rgba(39,31,56,.9),rgba(19,23,34,.9))}
+.brand-about-product p{color:#cbd0dd;line-height:1.9;font-size:16px;margin:0 0 14px}
+.brand-about-product p:last-child{margin-bottom:0}
+.brand-about-product .brand-about-focus{color:#f7f4ff;font-weight:900;letter-spacing:.04em;font-size:18px}
+.brand-creator-kicker{margin-top:8px}

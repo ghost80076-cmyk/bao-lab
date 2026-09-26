@@ -18,7 +18,7 @@ const upload = (page, body) => page.locator('#import-character-file').setInputFi
 
 test('BAO character import persists through reload and opens a playable demo story', async ({ page }) => {
   await page.goto('./');
-  await page.getByRole('button', { name: '探索作品' }).click();
+  await page.locator('#home-view [data-view="explore"]').click();
   await page.waitForFunction(() => Boolean(window.BAOCharacterImport && App.characters?.length));
   await expect(page.getByRole('link', { name: '下載基礎角色模板' })).toBeVisible();
   await expect(page.getByRole('link', { name: '下載進階世界模板' })).toBeVisible();
@@ -32,9 +32,10 @@ test('BAO character import persists through reload and opens a playable demo sto
 
   await page.reload();
   await page.waitForFunction(() => Boolean(window.BAOCharacterImport && App.characters?.some(item => item.id === 'e2e-rainport')));
-  await page.getByRole('button', { name: '探索作品' }).click();
+  await page.locator('#home-view [data-view="explore"]').click();
   await page.locator('article').filter({ hasText: '雨港觀測員' }).click();
   await page.getByRole('button', { name: '開始故事' }).click();
+  await page.locator('#bao-setup-choice [data-bao-setup="advanced"]').click();
   for (let i = 0; i < 3; i++) await page.getByRole('button', { name: '下一步' }).click();
   await page.locator('#bao-demo-mode').check();
   await page.getByRole('button', { name: '下一步' }).click();
@@ -68,7 +69,7 @@ test('BAO character import persists through reload and opens a playable demo sto
 
 test('bad or conflicting character JSON never changes the local library', async ({ page }) => {
   await page.goto('./');
-  await page.getByRole('button', { name: '探索作品' }).click();
+  await page.locator('#home-view [data-view="explore"]').click();
   await page.waitForFunction(() => Boolean(window.BAOCharacterImport && App.characters?.length));
   const noGreeting = structuredClone(card);
   delete noGreeting.content.greeting;
@@ -81,4 +82,30 @@ test('bad or conflicting character JSON never changes the local library', async 
   await upload(page, duplicateBuiltin);
   await expect(page.locator('#character-import-status')).toContainText('內建作品重複');
   expect(await page.evaluate(() => CharacterEngine.loadCustom().length)).toBe(0);
+});
+
+test('SillyTavern V2 JSON opens a conversion preview and saves only after confirmation', async ({ page }) => {
+  const v2 = {
+    spec: 'chara_card_v2',
+    data: {
+      name: '酒館轉換測試', description: '可從酒館帶來的角色。', personality: '冷靜。', scenario: '雨夜鐘樓。',
+      first_mes: '觀測員把潮汐表推到你面前。', mes_example: '<START>\n觀測員：潮水轉向了。',
+      character_book: { entries: [{ keys: ['鐘樓'], content: '鐘樓在午夜鳴響。', enabled: true }] },
+      extensions: { regex_scripts: [{ scriptName: 'legacy' }], api_key: 'do-not-keep' }
+    }
+  };
+  await page.goto('./');
+  await page.locator('#home-view [data-view="explore"]').click();
+  await page.waitForFunction(() => Boolean(window.BAOCharacterImport && CharacterEngine.requestImport));
+  await upload(page, v2);
+  await expect(page.getByRole('dialog', { name: '角色卡轉換預覽' })).toBeVisible();
+  await expect(page.getByRole('dialog')).toContainText('世界書 1 條');
+  await expect(page.getByRole('dialog')).toContainText('Regex');
+  expect(await page.evaluate(() => CharacterEngine.loadCustom().length)).toBe(0);
+  await page.getByRole('button', { name: '確認匯入到本機' }).click();
+  await expect(page.locator('#character-import-status')).toContainText('已匯入：酒館轉換測試');
+  const stored = await page.evaluate(() => CharacterEngine.loadCustom()[0]);
+  expect(stored.schema_version).toBe('1.5');
+  expect(stored.import_metadata.source_format).toBe('sillytavern-v2');
+  expect(stored.import_metadata.preserved_source.data.extensions.api_key).toBe('[REDACTED]');
 });

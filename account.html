@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BAO 帳號與 API 額度｜BAO/LAB</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" type="image/svg+xml" href="assets/bao-mark.svg">
+<link rel="stylesheet" href="css/brand-home.css">
+<link rel="stylesheet" href="css/base.css">
+<style>
+body{min-height:100vh;background:#101118;color:#f5f1ff}
+.yb-wrap{width:min(720px,calc(100% - 28px));margin:28px auto 64px}
+.yb-top{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:22px}
+.yb-top a{color:inherit;text-decoration:none}
+.yb-card{background:#181a24;border:1px solid rgba(255,255,255,.11);border-radius:22px;padding:24px;box-shadow:0 24px 70px rgba(0,0,0,.28)}
+.yb-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0}
+.yb-tabs button{border:1px solid rgba(255,255,255,.13);background:#222532;color:#ddd8ec;border-radius:999px;padding:8px 13px;cursor:pointer}
+.yb-tabs button.active{background:#eee8ff;color:#171821}
+.yb-panel[hidden]{display:none}
+.yb-form{display:grid;gap:13px}
+.yb-form label{display:grid;gap:6px;color:#c8c4d6;font-size:13px}
+.yb-form input{box-sizing:border-box;width:100%;background:#10121a;border:1px solid rgba(255,255,255,.14);color:#fff;border-radius:11px;padding:11px 12px;font:inherit}
+.yb-primary,.yb-secondary{border-radius:12px;padding:11px 14px;font-weight:700;cursor:pointer}
+.yb-primary{border:0;background:#eee8ff;color:#171821}
+.yb-secondary{border:1px solid rgba(255,255,255,.14);background:#232633;color:#eee}
+.yb-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:14px}
+.yb-note{font-size:13px;line-height:1.65;color:#aaa6b8}
+.yb-error{min-height:20px;color:#ff9d9d;font-size:13px;margin-top:10px}
+.yb-box{background:#10121a;border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:14px;margin:12px 0}
+.yb-row{display:flex;justify-content:space-between;gap:16px;padding:6px 0}
+.yb-row span{color:#aaa6b8;font-size:13px}.yb-row b{text-align:right;word-break:break-all}
+.yb-wallet{font-size:32px;font-weight:850;margin:4px 0 2px}
+.yb-recovery{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;word-break:break-all;background:#0d0f16;border:1px dashed rgba(255,255,255,.22);border-radius:12px;padding:12px;margin:10px 0}
+.yb-packages{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:10px 0}
+.yb-package{background:#222532;border-radius:11px;padding:11px;font-size:13px}
+@media(max-width:600px){.yb-card{padding:18px}.yb-packages{grid-template-columns:1fr}}
+</style>
+<link rel="stylesheet" href="css/account-v2.css?v=1">
+</head>
+<body>
+<div class="yb-wrap">
+  <div class="yb-top">
+    <a href="index.html"><b>← BAO/LAB</b></a>
+    <span class="chip">BAO Account</span>
+  </div>
+  <main class="yb-card">
+    <section class="yb-account-hero">
+      <div>
+        <div class="eyebrow">BAO ACCOUNT · OPTIONAL ONLINE SERVICES</div>
+        <h1>帳號與 API 額度</h1>
+        <p class="yb-note">登入只用於你主動使用的 Hosted API 額度與線上服務。BYOK、本地故事、角色、記憶與世界狀態不需要登入。</p>
+      </div>
+      <img src="assets/bao-bun.svg" width="84" height="84" alt="包包">
+    </section>
+    <div class="yb-local-first"><b>Local-first 保持不變</b><span>帳號不是讀取私人故事的必要條件；API Key 也不會存進帳號。</span></div>
+
+    <div class="yb-tabs">
+      <button type="button" data-tab="login">登入</button>
+      <button type="button" data-tab="register">使用邀請碼註冊</button>
+      <button type="button" data-tab="recover">恢復帳號</button>
+      <button type="button" data-tab="account" hidden>我的帳號</button>
+    </div>
+
+    <section class="yb-panel" data-panel="login">
+      <form class="yb-form" id="login-form">
+        <label>帳號<input name="username" autocomplete="username" required maxlength="32"></label>
+        <label>密碼<input name="password" type="password" autocomplete="current-password" required maxlength="128"></label>
+        <button class="yb-primary" type="submit">登入 BAO 帳號</button>
+      </form>
+      <div class="yb-error" id="login-error"></div>
+    </section>
+
+    <section class="yb-panel" data-panel="register" hidden>
+      <form class="yb-form" id="register-form">
+        <label>顯示名稱<input name="display_name" autocomplete="nickname" required maxlength="50"></label>
+        <label>登入帳號<input name="username" autocomplete="username" required maxlength="32" placeholder="3–32 字元，英文／數字／._-"></label>
+        <label>密碼<input name="password" type="password" autocomplete="new-password" required minlength="10" maxlength="128"></label>
+        <label>確認密碼<input name="password_confirm" type="password" autocomplete="new-password" required minlength="10" maxlength="128"></label>
+        <label>邀請碼<input name="invite_code" autocomplete="off" required maxlength="160"></label>
+        <button class="yb-primary" type="submit">建立 BAO 帳號</button>
+      </form>
+      <p class="yb-note">邀請碼由管理員提供。密碼與恢復碼不會以明文保存在 BAO 帳號資料庫。</p>
+      <div class="yb-error" id="register-error"></div>
+    </section>
+
+    <section class="yb-panel" data-panel="recover" hidden>
+      <form class="yb-form" id="recover-form">
+        <label>玩家編號<input name="public_id" autocomplete="off" required placeholder="YR-XXXX-XXXX"></label>
+        <label>恢復碼<input name="recovery_code" autocomplete="off" required placeholder="YBRC-...."></label>
+        <label>新密碼<input name="new_password" type="password" autocomplete="new-password" required minlength="10" maxlength="128"></label>
+        <button class="yb-primary" type="submit">恢復帳號</button>
+      </form>
+      <p class="yb-note">恢復成功後，舊恢復碼會失效，系統會產生一組新的恢復碼。</p>
+      <div class="yb-error" id="recover-error"></div>
+    </section>
+
+    <section class="yb-panel" data-panel="account" hidden>
+      <div id="account-body"></div>
+    </section>
+  </main>
+</div>
+<script>
+(function(){
+  "use strict";
+  var BASE="https://bao-lab-credits-api.ghost80076.workers.dev";
+  var KEY="yorubay:session";
+  var token=localStorage.getItem(KEY)||"";
+  var profile=null;
+
+  function msg(id,text){document.getElementById(id).textContent=text||"";}
+  function money(value){
+    var n=Number(value||0);
+    if(!Number.isFinite(n)) return "US$0.00";
+    return "US$"+n.toFixed(6).replace(/0+$/,"").replace(/\.$/,".00");
+  }
+  async function call(path,options,auth){
+    options=options||{};
+    var headers=new Headers(options.headers||{});
+    if(options.body&&!headers.has("Content-Type")) headers.set("Content-Type","application/json");
+    if(auth) headers.set("Authorization","Bearer "+auth);
+    var response;
+    try{response=await fetch(BASE+path,Object.assign({},options,{headers:headers}));}
+    catch(error){throw new Error("無法連線 BAO 帳號服務。");}
+    var data={};try{data=await response.json();}catch(e){}
+    if(!response.ok){
+      var map={
+        unauthorized:"登入已失效，請重新登入。",
+        invalid_credentials:"帳號或密碼不正確。",
+        invalid_registration:"帳號資料不符合規則。帳號需 3–32 字元，密碼至少 10 字元。",
+        username_taken:"這個帳號名稱已有人使用。",
+        invalid_invite_code:"邀請碼無效或已更新，請向管理員確認。",
+        registration_closed:"目前尚未開放新帳號註冊。",
+        invalid_recovery_request:"恢復資料格式不正確。",
+        invalid_recovery_credentials:"玩家編號或恢復碼不正確。"
+      };
+      throw new Error(map[data&&data.error]||("BAO 帳號服務錯誤（HTTP "+response.status+"）。"));
+    }
+    return data;
+  }
+  function show(name){
+    if(name==="account"&&!profile) name="login";
+    document.querySelectorAll("[data-panel]").forEach(function(p){p.hidden=p.dataset.panel!==name;});
+    document.querySelectorAll("[data-tab]").forEach(function(b){b.classList.toggle("active",b.dataset.tab===name);});
+    render();
+  }
+  function render(){
+    var tab=document.querySelector('[data-tab="account"]');
+    if(tab) tab.hidden=!profile;
+    var body=document.getElementById("account-body");
+    if(!body||!profile) return;
+    body.innerHTML='<div class="yb-box">'+
+      '<div class="yb-row"><span>顯示名稱</span><b id="v-display"></b></div>'+
+      '<div class="yb-row"><span>帳號</span><b id="v-user"></b></div>'+
+      '<div class="yb-row"><span>玩家編號</span><b id="v-id"></b></div></div>'+
+      '<div class="yb-note">BAO API 額度</div><div class="yb-wallet" id="v-wallet"></div>'+
+      '<div class="yb-note" id="v-billing"></div>'+
+      '<div class="yb-actions"><button class="yb-secondary" id="copy-id">複製玩家編號</button><button class="yb-secondary" id="refresh">重新整理額度</button></div>'+
+      '<div class="yb-box"><b>人工儲值測試</b><p class="yb-note">付款後把玩家編號提供給管理員。管理員確認款項後，API 額度會加到這個帳號。</p>'+
+      '<div class="yb-packages"><div class="yb-package">NT$190 → US$5 額度</div><div class="yb-package">NT$370 → US$10 額度</div><div class="yb-package">NT$730 → US$20 額度</div><div class="yb-package">NT$1,850 → US$50 額度</div></div></div>'+
+      '<div class="yb-actions"><a class="yb-primary" href="index.html">回到 BAO/LAB</a><button class="yb-secondary" id="logout">登出</button></div>';
+    document.getElementById("v-display").textContent=profile.display_name||"—";
+    document.getElementById("v-user").textContent=profile.username||"—";
+    document.getElementById("v-id").textContent=profile.public_id||"—";
+    document.getElementById("v-wallet").textContent=money(profile.wallet_balance_usd);
+    document.getElementById("v-billing").textContent=profile.billing_mode==="cost_usd_v2"?"依模型成本扣除 API 額度":"目前帳號仍在舊測試額度模式";
+    document.getElementById("copy-id").onclick=async function(){
+      try{await navigator.clipboard.writeText(profile.public_id||"");}
+      catch(e){window.prompt("複製玩家編號：",profile.public_id||"");}
+    };
+    document.getElementById("refresh").onclick=function(){refresh(false);};
+    document.getElementById("logout").onclick=logout;
+  }
+  function recovery(code){
+    show("account");
+    var body=document.getElementById("account-body");
+    body.innerHTML='<h3>帳號建立／恢復成功</h3><p class="yb-note">請立即保存新的恢復碼。這組明文只在現在顯示；BAO 帳號後端只保存雜湊，管理員之後也無法替你查回。</p>'+
+      '<div class="yb-recovery" id="recovery-code"></div><div class="yb-actions"><button class="yb-primary" id="copy-recovery">複製恢復碼</button><button class="yb-secondary" id="finish">我已保存</button></div>';
+    document.getElementById("recovery-code").textContent=code||"";
+    document.getElementById("copy-recovery").onclick=async function(){
+      try{await navigator.clipboard.writeText(code||"");}catch(e){window.prompt("複製恢復碼：",code||"");}
+    };
+    document.getElementById("finish").onclick=render;
+  }
+  async function refresh(silent){
+    if(!token){profile=null;show("login");return;}
+    try{profile=await call("/me",{method:"GET"},token);show("account");}
+    catch(error){
+      localStorage.removeItem(KEY);token="";profile=null;
+      if(!silent) alert(error.message);
+      show("login");
+    }
+  }
+  async function logout(){
+    var old=token;localStorage.removeItem(KEY);token="";profile=null;
+    if(old){try{await call("/auth/logout",{method:"POST"},old);}catch(e){}}
+    show("login");
+  }
+  document.querySelectorAll("[data-tab]").forEach(function(b){b.onclick=function(){show(b.dataset.tab);};});
+  document.getElementById("login-form").onsubmit=async function(event){
+    event.preventDefault();msg("login-error","");
+    var f=event.currentTarget,button=f.querySelector("button");button.disabled=true;
+    try{
+      var data=await call("/auth/login",{method:"POST",body:JSON.stringify({username:f.elements.username.value.trim(),password:f.elements.password.value})});
+      token=data.session_token;localStorage.setItem(KEY,token);await refresh(true);
+    }catch(error){msg("login-error",error.message);}finally{button.disabled=false;}
+  };
+  document.getElementById("register-form").onsubmit=async function(event){
+    event.preventDefault();msg("register-error","");
+    var f=event.currentTarget;if(f.elements.password.value!==f.elements.password_confirm.value){msg("register-error","兩次輸入的密碼不一致。");return;}
+    var button=f.querySelector("button");button.disabled=true;
+    try{
+      var data=await call("/auth/register",{method:"POST",body:JSON.stringify({username:f.elements.username.value.trim(),display_name:f.elements.display_name.value.trim(),password:f.elements.password.value,invite_code:f.elements.invite_code.value.trim()})});
+      token=data.session_token;localStorage.setItem(KEY,token);profile=await call("/me",{method:"GET"},token);f.reset();recovery(data.recovery_code);
+    }catch(error){msg("register-error",error.message);}finally{button.disabled=false;}
+  };
+  document.getElementById("recover-form").onsubmit=async function(event){
+    event.preventDefault();msg("recover-error","");
+    var f=event.currentTarget,button=f.querySelector("button");button.disabled=true;
+    try{
+      var data=await call("/auth/recover",{method:"POST",body:JSON.stringify({public_id:f.elements.public_id.value.trim(),recovery_code:f.elements.recovery_code.value.trim(),new_password:f.elements.new_password.value})});
+      token=data.session_token;localStorage.setItem(KEY,token);profile=await call("/me",{method:"GET"},token);f.reset();recovery(data.recovery_code);
+    }catch(error){msg("recover-error",error.message);}finally{button.disabled=false;}
+  };
+  refresh(true);
+})();
+</script>
+</body>
+</html>

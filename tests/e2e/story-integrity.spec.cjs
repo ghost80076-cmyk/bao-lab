@@ -5,9 +5,10 @@ const ANDROID = 'Mozilla/5.0 (Linux; Android 14; Pixel 7) AppleWebKit/537.36 (KH
 async function startStory(page, displayMode = 'text') {
   await page.goto('/');
   await page.waitForFunction(() => typeof App !== 'undefined' && App.characters?.length > 0 && Storage.status().ready, null, { timeout: 15000 });
-  await page.getByRole('button', { name: '探索作品' }).click();
+  await page.locator('#home-view [data-view="explore"]').click();
   await page.locator('article').filter({ hasText: '林沉風 - 見過黑暗的人' }).click();
   await page.getByRole('button', { name: '開始故事' }).click();
+  await page.locator('#bao-setup-choice [data-bao-setup="advanced"]').click();
   await page.getByRole('button', { name: '下一步' }).click();
   if (displayMode === 'ui') {
     // The radio is deliberately visually hidden; players click its visible label card.
@@ -21,7 +22,7 @@ async function startStory(page, displayMode = 'text') {
   await page.getByRole('button', { name: '下一步' }).click();
   await page.locator('#start-story').click();
   await expect(page.locator('#chat-view')).toHaveClass(/active/);
-  await page.waitForFunction(() => !!window.BAOStoryIntegrity && !!window.BAOStateTrackerRepairs && !!window.BAOChatExperienceRepairs && !!window.BAOMobileReadingLayout, null, { timeout: 15000 });
+  await page.waitForFunction(() => !!window.BAOStoryIntegrity && !!window.BAOStateTrackerRepairs && !!window.BAOChatExperienceRepairs && !!window.BAOMobileReadingLayout && !!window.BAOStorySurface, null, { timeout: 15000 });
 }
 
 test('Android long story scrolls within the fixed reader; Enter inserts newline and drawer top returns to start', async ({ browser }, testInfo) => {
@@ -112,7 +113,8 @@ test('a failed Gemini-like send preserves the draft and does not corrupt histori
     BAOSceneHTML.refresh();
     API.send = async () => { throw new Error('測試 429：請求太頻繁或額度不足'); };
   });
-  await expect(page.locator('#chat-stream .message.assistant .bubble b')).toContainText('已保存的歷史敘事');
+  const savedHistory = page.locator('#chat-stream .message.assistant .bubble').filter({ hasText: '已保存的歷史敘事' }).getByText('已保存的歷史敘事', { exact: true });
+  await expect(savedHistory).toBeVisible();
   const before = await page.locator('#chat-stream > .message').count();
   await page.locator('#user-input').fill('這則訊息應在失敗後返回輸入框');
   await page.locator('#chat-view .composer button.primary').click();
@@ -120,8 +122,10 @@ test('a failed Gemini-like send preserves the draft and does not corrupt histori
   await expect(page.locator('#bao-chat-send-feedback')).toContainText('測試 429');
   await expect(page.locator('#chat-stream > .message')).toHaveCount(before);
   await page.evaluate(() => BAOSceneHTML.refresh());
-  await expect(page.locator('#chat-stream .message.assistant .bubble b')).toContainText('已保存的歷史敘事');
-  expect(await page.evaluate(() => Chat.messages.map(m => m.content))).toEqual(['前一次的玩家訊息', '<b>已保存的歷史敘事</b>']);
+  await expect(savedHistory).toBeVisible();
+  const history = await page.evaluate(() => Chat.messages.map(m => [m.role, m.content]));
+  expect(history.slice(-2)).toEqual([['user', '前一次的玩家訊息'], ['assistant', '<b>已保存的歷史敘事</b>']]);
+  expect(history[0]?.[0]).toBe('assistant'); // opening greeting is now intentional history
 });
 
 test('resuming shows saved main, state and memory model metadata; only keys need reentry', async ({ page }) => {
@@ -138,8 +142,8 @@ test('resuming shows saved main, state and memory model metadata; only keys need
   });
   await page.reload();
   await page.waitForFunction(() => Storage.status().ready && !!window.BAOChatAPISettings?.restore, null, { timeout: 15000 });
-  await page.locator('#continue-story').click();
-  const dialog = page.getByRole('dialog', { name: '故事 API 設定' });
+  await page.locator('#home-continue').click();
+  const dialog = page.getByRole('dialog', { name: '目前故事的 AI 連線設定' });
   await expect(dialog).toBeVisible();
   await expect(dialog.locator('input[name=model]')).toHaveValue('local-browser-test');
   await expect(dialog.locator('input[name=baseUrl]')).toHaveValue('https://main.invalid/v1');
@@ -180,8 +184,8 @@ test('same-provider helper model is restored without requesting a second key', a
   });
   await page.reload();
   await page.waitForFunction(() => Storage.status().ready && !!window.BAOChatAPISettings?.restore);
-  await page.locator('#continue-story').click();
-  const dialog = page.getByRole('dialog', { name: '故事 API 設定' });
+  await page.locator('#home-continue').click();
+  const dialog = page.getByRole('dialog', { name: '目前故事的 AI 連線設定' });
   const state = dialog.locator('.bao-helper-reconnect fieldset').first();
   await expect(state.locator('select').first()).toHaveValue('same');
   await expect(state).toContainText('state-on-main-provider');
@@ -194,6 +198,7 @@ test('same-provider helper model is restored without requesting a second key', a
 
 test('resumed story can edit output tokens and budget without resetting messages or storing keys', async ({ page }) => {
   await startStory(page);
+  await page.evaluate(() => BAOStorySurface.setMode('studio'));
   await page.locator('#bao-chat-cost-open').click();
   const form = page.locator('#bao-chat-cost-form');
   await expect(form).toBeVisible();
@@ -211,9 +216,11 @@ test('resumed story can edit output tokens and budget without resetting messages
   expect(saved).toEqual({ active: 2048, maxContext: 24000, story: 2048, key: '' });
   await page.reload();
   await page.locator('#home-continue').click();
-  const api = page.getByRole('dialog', { name: '故事 API 設定' });
+  const api = page.getByRole('dialog', { name: '目前故事的 AI 連線設定' });
   await api.locator('input[name="key"]').fill('A_SESSION_ONLY_KEY');
   await api.getByRole('button', { name: '套用到目前故事' }).click();
+  await page.waitForFunction(() => Boolean(window.BAOStorySurface));
+  await page.evaluate(() => BAOStorySurface.setMode('studio'));
   await page.locator('#bao-chat-cost-open').click();
   await expect(page.locator('#bao-chat-cost-form [name="maxOutputTokens"]')).toHaveValue('2048');
   await expect(page.locator('#bao-chat-cost-form [name="budgetTwd"]')).toHaveValue('70');

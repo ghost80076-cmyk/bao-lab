@@ -29,7 +29,7 @@
       __connectionTest: config.__connectionTest,
       maxOutputTokens: config.maxOutputTokens
     };
-    if (!effective.key) throw new Error('輔助模型缺少 API Key，請重新連接。');
+    if (!effective.key) throw new Error('輔助模型缺少連線金鑰（API Key），請重新連接。');
     return originalSend(effective, messages);
   };
   API.__helperRoutePatched = true;

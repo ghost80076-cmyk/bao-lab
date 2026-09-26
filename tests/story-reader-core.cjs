@@ -51,6 +51,12 @@ assert(siteUI.includes('loadBAOScript("js/story-reader.js")'), "story reader is 
 assert(siteUI.includes('loadBAOScript("js/request-lifecycle.js")'), "request lifecycle guard is not loaded after the story reader");
 assert(css.includes(".story-cancel-generation"), "responsive cancel-generation styling is missing");
 assert(brandUI.includes('.topbar nav [data-view="${view}"]'), "brand labels must target nav controls without replacing the BAO/LAB logo");
+assert(brandUI.includes("自備連線金鑰模式（BYOK）"), "BYOK must be described as a mode, not as an individual key");
+assert(!brandUI.includes("自備連線金鑰（BYOK）"), "homepage must not label BYOK as an individual connection key");
+assert(!brandUI.includes('class="brand-feature-grid"'), "homepage must keep the entry flow focused instead of repeating a four-card product summary");
+assert(!brandUI.includes('class="brand-contact" aria-labelledby="brand-contact-title"'), "homepage must not repeat the Discord contact panel");
+assert(!brandUI.includes('id = "bao-contact-nav"'), "navigation must not duplicate the About page with a contact-only entry");
+assert(brandUI.includes("讓故事回到玩家手中"), "About page must contain the concise BAO/LAB product introduction");
 assert(brandCSS.includes("overflow-x:auto"), "mobile topbar navigation must scroll instead of squeezing labels vertically");
 assert(brandCSS.includes("white-space:nowrap"), "topbar labels must not wrap one character per line");
 assert(brandCSS.includes("word-break:keep-all"), "mobile topbar labels must keep Chinese words horizontal");

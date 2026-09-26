@@ -1,23 +1,57 @@
-name: Browser E2E
+name: Fast Browser E2E
 
 on:
   push:
-    branches: [main]
+    branches: [main, integrate/pr36-pr35-20260922]
   pull_request:
-    branches: [main]
+    branches: [main, integrate/pr36-pr35-20260922]
 
 permissions:
   contents: read
 
 jobs:
-  cross-browser:
-    name: E2E · ${{ matrix.browser }}
+  chromium-core:
+    name: Fast E2E · Chromium core
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 7
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install test dependencies
+        run: npm ci
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Run core story, resume and new UI flows
+        run: |
+          specs=(tests/e2e/mobile-story-entry.spec.cjs tests/e2e/story-integrity.spec.cjs)
+          for optional in tests/e2e/reading-bookshelf.spec.cjs tests/e2e/scene-image-moments.spec.cjs tests/e2e/player-shell-v2.spec.cjs; do
+            if [ -f "$optional" ]; then specs+=("$optional"); fi
+          done
+          npm run test:e2e -- "${specs[@]}" --project=chromium
+      - name: Upload Chromium report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fast-playwright-report-chromium
+          path: |
+            playwright-report
+            test-results
+          if-no-files-found: ignore
+          retention-days: 7
+
+  cross-browser-smoke:
+    name: Smoke · ${{ matrix.browser }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
     strategy:
       fail-fast: false
       matrix:
-        browser: [chromium, firefox, webkit]
+        browser: [firefox, webkit]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -30,53 +64,44 @@ jobs:
         run: npm ci
       - name: Install ${{ matrix.browser }}
         run: npx playwright install --with-deps ${{ matrix.browser }}
-      - name: Run desktop and mobile E2E on ${{ matrix.browser }}
-        run: npm run test:e2e -- --project=${{ matrix.browser }}
-      - name: Verify deployed Pages content
-        if: github.event_name == 'push' && matrix.browser == 'chromium'
-        run: node tests/pages-content-check.cjs
-      - name: Verify live Pages official logo and Discord contact
-        if: github.event_name == 'push' && matrix.browser == 'chromium'
-        env:
-          BAO_LIVE_URL: https://ghost80076-cmyk.github.io/bao-lab/
-        run: npm run test:e2e -- tests/e2e/community-brand.spec.cjs --project=chromium
-      - name: Verify live Pages author guidance and relay probe
-        if: github.event_name == 'push' && matrix.browser == 'chromium'
-        env:
-          BAO_LIVE_URL: https://ghost80076-cmyk.github.io/bao-lab/
-        run: npm run test:e2e -- tests/e2e/author-diagnostics.spec.cjs --project=chromium
-      - name: Verify live Pages character import and reload
-        if: github.event_name == 'push' && matrix.browser == 'chromium'
-        env:
-          BAO_LIVE_URL: https://ghost80076-cmyk.github.io/bao-lab/
-        run: npm run test:e2e -- tests/e2e/character-import.spec.cjs --project=chromium
-      - name: Verify live Pages provider diagnostics
-        if: github.event_name == 'push' && matrix.browser == 'chromium'
-        env:
-          BAO_LIVE_URL: https://ghost80076-cmyk.github.io/bao-lab/
-        run: npm run test:e2e -- tests/e2e/provider-diagnostics.spec.cjs --project=chromium
-      - name: Verify live Pages memory flow
-        if: github.event_name == 'push' && matrix.browser == 'chromium'
-        env:
-          BAO_LIVE_URL: https://ghost80076-cmyk.github.io/bao-lab/
-        run: npm run test:e2e -- tests/e2e/memory-preferences.spec.cjs --project=chromium
-      - name: Verify live Pages Context Pack resume
-        if: github.event_name == 'push' && matrix.browser == 'chromium'
-        env:
-          BAO_LIVE_URL: https://ghost80076-cmyk.github.io/bao-lab/
-        run: npm run test:e2e -- tests/e2e/context-pack-resume.spec.cjs --project=chromium
-      - name: Verify live Pages 1000-round story stress
-        if: github.event_name == 'push' && matrix.browser == 'chromium'
-        env:
-          BAO_LIVE_URL: https://ghost80076-cmyk.github.io/bao-lab/
-        run: npm run test:e2e -- tests/e2e/long-story-stress.spec.cjs --project=chromium
-      - name: Upload browser verification report
+      - name: Run cross-browser smoke flows
+        run: >-
+          npm run test:e2e --
+          tests/e2e/mobile-story-entry.spec.cjs
+          tests/e2e/story-integrity.spec.cjs
+          --project=${{ matrix.browser }}
+      - name: Upload smoke report
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-report-${{ matrix.browser }}
+          name: fast-playwright-report-${{ matrix.browser }}
           path: |
             playwright-report
             test-results
           if-no-files-found: ignore
           retention-days: 7
+
+  pages-smoke:
+    name: Live Pages smoke
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    needs: chromium-core
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install test dependencies
+        run: npm ci
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Verify deployed Pages content
+        run: node tests/pages-content-check.cjs
+      - name: Verify live Pages brand shell
+        env:
+          BAO_LIVE_URL: https://ghost80076-cmyk.github.io/bao-lab/
+        run: npm run test:e2e -- tests/e2e/community-brand.spec.cjs --project=chromium

@@ -1,0 +1,37 @@
+name: Published privacy policy
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - privacy.html
+      - index.html
+      - .github/workflows/privacy-policy-check.yml
+  workflow_dispatch:
+
+jobs:
+  privacy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check committed policy and homepage link
+        run: |
+          grep -Fq 'href="privacy.html"' index.html
+          grep -Fq 'BAO/LAB 隱私權政策' privacy.html
+          grep -Fq 'https://www.googleapis.com/auth/drive.appdata' privacy.html
+      - name: Verify the policy and link are live on GitHub Pages
+        run: |
+          set -euo pipefail
+          root='https://ghost80076-cmyk.github.io/bao-lab/'
+          for attempt in $(seq 1 24); do
+            if curl -fsSL --max-time 15 "$root" | grep -Fq 'href="privacy.html"' \
+              && curl -fsSL --max-time 15 "${root}privacy.html" | grep -Fq 'BAO/LAB 隱私權政策'; then
+              echo 'PASS: published homepage links to the live privacy policy.'
+              exit 0
+            fi
+            echo "Waiting for GitHub Pages deployment ($attempt/24) ..."
+            sleep 10
+          done
+          echo 'FAIL: privacy policy or homepage link was not visible on the published site.' >&2
+          exit 1
