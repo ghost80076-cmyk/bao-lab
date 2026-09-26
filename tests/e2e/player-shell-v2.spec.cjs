@@ -102,4 +102,17 @@ test.describe('Player 2.0 shell', () => {
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(391);
   });
 
+  test('work detail explains capabilities before story setup', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto('/');
+    await page.locator('#home-view button[data-view="explore"]').click();
+    await page.locator('#character-list .character-card').first().click();
+    await expect(page.locator('#detail-view .bao-work-detail-v2')).toBeVisible();
+    await expect(page.locator('#detail-view .bao-detail-feature-strip')).toBeVisible();
+    await expect(page.locator('#detail-view .bao-detail-feature-strip')).toContainText('Local-first');
+    await expect(page.locator('#detail-view .bao-detail-start-note')).toContainText('先選故事，再選 AI');
+    await expect(page.locator('#detail-start')).toBeVisible();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(391);
+  });
+
 });
