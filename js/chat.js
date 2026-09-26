@@ -288,7 +288,13 @@ const Chat = {
     const output = number(usage.output_tokens ?? usage.completion_tokens);
     const cached = number(usage.cached_tokens);
     const cacheWrite = number(usage.cache_write_tokens);
-    const actualUsd = number(result?.credits?.charged_usd ?? result?.credits?.actual_cost_usd);
+    const chargedUsd = number(result?.credits?.charged_usd);
+    const chargedMicrousd = number(result?.credits?.charged_microusd);
+    const actualUsd = chargedUsd !== null
+      ? chargedUsd
+      : chargedMicrousd !== null
+        ? chargedMicrousd / 1000000
+        : number(result?.credits?.actual_cost_usd);
     const entry = {
       kind,
       model: String(config?.model || ""),
