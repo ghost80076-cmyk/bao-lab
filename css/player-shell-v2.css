@@ -345,3 +345,15 @@
 
 /* Author styles can override the browser's hidden attribute; keep removed service links truly out of the primary nav. */
 .topbar nav [hidden]{display:none!important}
+
+
+/* Discovery search stays compact; generic mobile button rules must not stretch Clear into a full-width bar. */
+#explore-view #bao-work-search-clear{
+  justify-self:end;width:max-content!important;min-width:0;min-height:32px;padding:5px 10px!important;
+  border:1px solid rgba(196,178,225,.11)!important;border-radius:999px!important;
+  background:rgba(31,32,44,.66)!important;color:#aaa6b3!important;
+}
+#explore-view #bao-work-search-clear:hover,
+#explore-view #bao-work-search-clear:focus-visible{
+  color:#eee8f2!important;background:rgba(141,108,255,.13)!important;
+}
