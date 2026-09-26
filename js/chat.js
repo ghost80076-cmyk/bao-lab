@@ -335,12 +335,12 @@ const Chat = {
     if (output) output.textContent = `${this.usage.completion.toLocaleString()} tok`;
     if (cacheTotal) cacheTotal.textContent = `${this.usage.cached.toLocaleString()} tok`;
     const prompt = Number(lastUsage.input_tokens ?? lastUsage.prompt_tokens ?? 0), limit = Number(App?.config?.memory?.maxContext || 0);
-    if (prompt && limit) { const percent = Math.min(999, (prompt / limit) * 100); const context = document.getElementById("usage-context"); if (context) context.textContent = `${prompt.toLocaleString()} / ${limit.toLocaleString()} tok (${percent.toFixed(1)}%)`; }
+    if (prompt && limit) { const percent = Math.min(999, (prompt / limit) * 100); const context = document.getElementById("usage-context"); if (context) context.textContent = `${prompt.toLocaleString()} tok · BAO 預算 ${limit.toLocaleString()} (${percent.toFixed(1)}%)`; }
   },
   renderGuard() {
     const el = document.getElementById("usage-guard"); if (!el) return;
     const { level, ratio, recentRounds } = this.contextGuard, pct = ratio > 0 ? `${(ratio * 100).toFixed(0)}%` : "—";
-    const labels = { normal:`正常 · 保留 ${recentRounds || "—"} 輪`, watch:`注意 ${pct} · 自動縮短至 ${recentRounds} 輪`, high:`保護中 ${pct} · 摘要＋保留 ${recentRounds} 輪`, critical:`緊急保護 ${pct} · 強制摘要＋保留 ${recentRounds} 輪`, manual:"完整上下文 · 不自動裁切" };
+    const labels = { normal:`正常 · 保留 ${recentRounds || "—"} 輪`, watch:`輸入預算 ${pct} · 準備整理`, high:`輸入預算 ${pct} · 摘要保護 ${recentRounds} 輪`, critical:`輸入預算 ${pct} · 強制摘要；未摘要原文不裁切`, manual:"完整上下文 · 不自動裁切" };
     el.textContent = labels[level] || labels.normal; el.dataset.level = level;
   },
   memoryStatus(maxRounds) {
