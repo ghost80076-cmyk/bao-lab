@@ -113,9 +113,9 @@ test('propagates quota and provider-specific upstream errors without exposing pl
  const empty=build({ok:false,status:502,body:{error:'provider_empty_text',finish_reason:'MAX_TOKENS'}});
  await assert.rejects(()=>empty.api.send(cfg,msgs),/MAX_TOKENS/);
 });
-test('registers all eight YoruBay wallet model presets without replacing existing provider or duplication',()=>{
+test('registers all nine YoruBay wallet model presets without replacing existing provider or duplication',()=>{
  const s=build();s.app.populateAPIControls();s.app.populateAPIControls();
- assert.equal(s.app.modelPresets.length,9);
+ assert.equal(s.app.modelPresets.length,10);
  assert.equal(s.app.modelPresets[0].provider,'gemini');
  const added=s.app.modelPresets.slice(1);
  assert.deepEqual(Array.from(added.map(p=>p.model)),[
@@ -123,6 +123,7 @@ test('registers all eight YoruBay wallet model presets without replacing existin
    'gemini-3.1-flash-lite',
    'gemini-3.1-pro-preview',
    'google/gemini-3.1-pro-preview',
+   'openrouter/free',
    'anthropic/claude-sonnet-4.5',
    'anthropic/claude-sonnet-4.6',
    'anthropic/claude-opus-4.5',
@@ -132,9 +133,10 @@ test('registers all eight YoruBay wallet model presets without replacing existin
  assert.equal(added.every(p=>p.provider_label==='YoruBay API 額度'),true);
  assert.equal(added.every(p=>p.base_url===cfg.baseUrl),true);
  assert.match(added[2].label,/Google 官方/);
- assert.match(added[5].label,/Sonnet 4\.6/);
- assert.match(added[7].label,/Opus 4\.6/);
- assert.equal(s.window.BAOCreditsPilot.models.length,8);
+ assert.match(added[4].label,/免費路由/);
+ assert.match(added[6].label,/Sonnet 4\.6/);
+ assert.match(added[8].label,/Opus 4\.6/);
+ assert.equal(s.window.BAOCreditsPilot.models.length,9);
 });
 
 test('uses logged-in YoruBay session token without copying it into request body',async()=>{
