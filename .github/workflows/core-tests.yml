@@ -59,6 +59,8 @@ jobs:
         run: node tests/story-bundle-secret-core.cjs
       - name: Character readiness core
         run: node tests/character-readiness-core.cjs
+      - name: Lazy character catalog
+        run: node tests/character-catalog-lazy-core.cjs
       - name: Character JSON import hardening
         run: node tests/character-import-core.cjs
       - name: Author structure guidance and relay probe
