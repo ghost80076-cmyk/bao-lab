@@ -48,27 +48,6 @@
     return true;
   };
   const upstreamName = model => MODEL_PROVIDERS[model] === "openrouter" ? "OpenRouter" : "Google Gemini";
-  const publishWalletUsage = (kind, credits) => {
-    const balanceUsd = Number(credits?.wallet_balance_usd);
-    const chargedUsd = Number(credits?.charged_usd);
-    if (!Number.isFinite(balanceUsd) || !Number.isFinite(chargedUsd)) return;
-    const label = kind === "summary" ? "AI 整理" : kind === "status" ? "狀態更新" : "AI 使用";
-    const payload = {
-      source: "yorubay-ai-usage",
-      id: credits?.request_id || null,
-      label,
-      points: -(chargedUsd * 1000),
-      wallet_balance_points: balanceUsd * 1000,
-      created_at: new Date().toISOString()
-    };
-    if (typeof window.BroadcastChannel === "function") {
-      try {
-        const channel = new window.BroadcastChannel("yorubay-wallet");
-        channel.postMessage(payload);
-        channel.close();
-      } catch {}
-    }
-  };
 
   const ensurePresets = () => {
     if (!Array.isArray(App.modelPresets) || !App.modelPresets.length) return false;
@@ -270,7 +249,6 @@
         Chat.recordStoryUsage?.(result.usage || {}, App?.config);
       }
     }
-    if (!config.__connectionTest) publishWalletUsage(kind, result.credits);
     return result;
   };
 
