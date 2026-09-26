@@ -37,6 +37,7 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/memory-workbench-core.js"))
     .then(() => loadBAOScript("js/memory-workbench-ai.js"))
     .then(() => loadBAOScript("js/canon-workbench.js"))
+    .then(() => loadBAOScript("js/memory-workbench-simplify.js"))
     .then(() => loadBAOScript("js/chat-markup.js"))
     .then(() => loadBAOScript("js/story-tools.js"))
     .then(() => loadBAOScript("js/context-pack-resume.js"))
