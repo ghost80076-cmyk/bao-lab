@@ -69,6 +69,8 @@ jobs:
         run: |
           node --check js/credits-pilot.js
           node --test tests/credits-pilot.test.cjs
+      - name: YoruBay points and player ledger
+        run: node --test tests/yorubay-points-core.cjs
       - name: YoruBay zero-cost model billing
         run: node tests/worker-free-model-billing-core.cjs
       - name: Canon workbench
