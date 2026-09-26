@@ -148,7 +148,21 @@ const Chat = {
   },
 
   async maybeSummarize(config, force = false, recentRounds = null) {
-    if (this.summarizing || config?.demoMode || !config?.api?.key) return;
+    if (this.summarizing || config?.demoMode) return;
+    const memoryApi = config?.memory?.summaryApi?.model && config?.memory?.summaryApi?.baseUrl
+      ? config.memory.summaryApi
+      : config?.api;
+    window.BAOCreditsPilot?.prepareAccountConfig?.(memoryApi);
+    if (!memoryApi?.key && !window.BAOCreditsPilot?.isAccountReady?.(memoryApi)) {
+      this.memoryHealth = {
+        ...(this.memoryHealth || {}),
+        phase: "failed",
+        message: "記憶整理模型尚未連線；原始對話仍完整保留。",
+        lastFailureAt: new Date().toISOString(),
+        lastModel: memoryApi?.model || config?.memory?.summaryModel || config?.api?.model || ""
+      };
+      return;
+    }
     const configuredRounds = Math.max(4, Number(config?.memory?.maxRounds || 20));
     const rounds = Math.max(4, Number(recentRounds || configuredRounds));
     const keepMessages = rounds * 2;
@@ -194,8 +208,8 @@ const Chat = {
         `【待整理舊對話】\n${transcript}`,
         force ? "目前 Context 使用率偏高，請進一步壓縮，輸出新的完整摘要，盡量控制在 600～1200 字。" : "請輸出新的完整長期記憶摘要，建議 800～1600 字以內。"
       ].filter(Boolean).join("\n\n");
-      const summaryConfig = { ...config.api, __memoryTask: true, cacheEnabled: false };
-      if (config?.memory?.summaryModel) summaryConfig.model = config.memory.summaryModel;
+      const summaryConfig = { ...memoryApi, __memoryTask: true, cacheEnabled: false };
+      if (!config?.memory?.summaryApi?.model && config?.memory?.summaryModel) summaryConfig.model = config.memory.summaryModel;
       const result = await API.send(summaryConfig, [{ role: "system", content: "你是 Observer，不是作者。只輸出記憶規格 JSON，不要續寫故事或模仿正文文風。" }, { role: "user", content: prompt }]);
       const normalized = await this.normalizeMemoryResult(summaryConfig, result?.text || "");
       const summary = normalized.summary;
