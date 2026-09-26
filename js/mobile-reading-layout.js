@@ -8,6 +8,9 @@
   const nav = window.BAOChatToolNavigation;
   let scheduled = false;
   let previousFocus = null;
+  let keyboardOpen = false;
+  let focusScrollTop = null;
+  let stableViewport = { width: 0, height: 0 };
   const isMobile = () => window.matchMedia('(max-width: 820px)').matches;
   const drawer = () => document.getElementById('bao-chat-tool-drawer');
   const supportUrl = () => document.querySelector('#chat-view .chat-layout > aside a[href*="ko-fi.com"]')?.href
@@ -18,14 +21,65 @@
     if (!isMobile()) return;
     const headerBottom = Math.max(0, Math.round(document.querySelector('.topbar')?.getBoundingClientRect().bottom || 64));
     root.style.setProperty('--bao-mobile-header-bottom', `${headerBottom}px`);
-    // Android may retain a shrunken visualViewport after its keyboard closes.
-    // 100dvh is the default; use visualViewport only while an editor is focused
-    // AND the keyboard has measurably reduced the visible screen.
+
     const focused = document.activeElement;
     const editing = root.contains(focused) && focused?.matches?.('textarea,input,[contenteditable="true"]');
     const visual = window.visualViewport;
-    const keyboardVisible = editing && visual && window.innerHeight - visual.height > 120;
-    root.style.setProperty('--bao-mobile-viewport-height', keyboardVisible ? `${Math.round(visual.height)}px` : '100dvh');
+    const layoutWidth = Math.max(1, Math.round(window.innerWidth || document.documentElement.clientWidth || 1));
+    const layoutHeight = Math.max(1, Math.round(window.innerHeight || document.documentElement.clientHeight || 1));
+    const visualWidth = Math.max(1, Math.round(visual?.width || layoutWidth));
+    const visualHeight = Math.max(1, Math.round(visual?.height || layoutHeight));
+    const visualTop = Math.max(0, Math.round(visual?.offsetTop || 0));
+    const visualLeft = Math.max(0, Math.round(visual?.offsetLeft || 0));
+
+    // Keep a keyboard-free baseline. Some Android/Samsung browsers resize both
+    // innerHeight and visualViewport, so comparing those two values alone misses
+    // the keyboard entirely. A meaningful width change means orientation changed.
+    const orientationChanged = stableViewport.width && Math.abs(layoutWidth - stableViewport.width) > 80;
+    if (!editing || !stableViewport.height || orientationChanged) {
+      stableViewport = {
+        width: layoutWidth,
+        height: Math.max(layoutHeight, visualHeight + visualTop)
+      };
+    }
+
+    const lostHeight = stableViewport.height - Math.min(layoutHeight, visualHeight);
+    const keyboardVisible = Boolean(editing && (
+      lostHeight > 120
+      || stableViewport.height - layoutHeight > 120
+      || stableViewport.height - visualHeight > 120
+      || visualTop > 40
+    ));
+    const wasKeyboardOpen = keyboardOpen;
+    keyboardOpen = keyboardVisible;
+
+    if (keyboardVisible) {
+      // Follow the *visual* viewport, including its pan offset. Without offsetTop,
+      // browsers that pan the page to reveal the focused textarea can leave the
+      // composer near the top with a large dead area above the keyboard.
+      root.style.setProperty('--bao-mobile-viewport-top', `${visualTop}px`);
+      root.style.setProperty('--bao-mobile-viewport-left', `${visualLeft}px`);
+      root.style.setProperty('--bao-mobile-viewport-width', `${visualWidth}px`);
+      root.style.setProperty('--bao-mobile-viewport-height', `${visualHeight}px`);
+      root.dataset.baoKeyboardOpen = 'true';
+    } else {
+      root.style.setProperty('--bao-mobile-viewport-top', '0px');
+      root.style.setProperty('--bao-mobile-viewport-left', '0px');
+      root.style.setProperty('--bao-mobile-viewport-width', '100%');
+      root.style.setProperty('--bao-mobile-viewport-height', '100dvh');
+      delete root.dataset.baoKeyboardOpen;
+    }
+
+    // Preserve the story reading position once when the keyboard first takes
+    // over the viewport. Streaming scroll behavior is handled separately.
+    if (keyboardVisible && !wasKeyboardOpen && focusScrollTop !== null) {
+      const stream = document.getElementById('chat-stream');
+      const target = focusScrollTop;
+      focusScrollTop = null;
+      window.requestAnimationFrame(() => {
+        if (stream?.isConnected && keyboardOpen) stream.scrollTop = target;
+      });
+    }
   };
 
   const sourceButton = selector => document.querySelector(`#chat-view .chat-layout > aside ${selector}`);
@@ -198,12 +252,20 @@
   window.addEventListener('resize', schedule, { passive: true });
   window.visualViewport?.addEventListener('resize', schedule, { passive: true });
   window.visualViewport?.addEventListener('scroll', schedule, { passive: true });
-  root.addEventListener('focusin', schedule);
-  root.addEventListener('focusout', schedule);
-  window.BAOMobileReadingLayout = { version: 5, sync, openTools, enhanceDrawer, togglePanels };
+  root.addEventListener('focusin', event => {
+    if (event.target?.matches?.('textarea,input,[contenteditable="true"]')) {
+      focusScrollTop = document.getElementById('chat-stream')?.scrollTop ?? null;
+    }
+    schedule();
+  });
+  root.addEventListener('focusout', () => {
+    focusScrollTop = null;
+    schedule();
+  });
+  window.BAOMobileReadingLayout = { version: 6, sync, openTools, enhanceDrawer, togglePanels };
   const style = document.createElement('link');
   style.rel = 'stylesheet';
-  style.href = 'css/mobile-reading-layout.css';
+  style.href = 'css/mobile-reading-layout.css?v=6';
   document.head.append(style);
   sync();
 })();
