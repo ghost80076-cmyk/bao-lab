@@ -37,3 +37,11 @@ Player 2.0 的目標不是重做 Story Engine，而是把既有能力重新包�
 - 長篇正文固定在較窄的閱讀寬度，增加行距與段落留白；玩家訊息保持較小的氣泡，避免和正文搶層級。
 - 訊息操作按鈕在桌面平時降低存在感，滑入或鍵盤聚焦時再完整顯示；手機維持可發現性。
 - 輸入區成為獨立的底部閱讀控制面，不改 Story Engine、訊息資料或串流定位。
+
+## 第四階段：建立故事與模型連線降噪
+
+- 快速開始先問「使用帳號 API 額度」或「使用自己的 API」，再顯示模型選擇；玩家不用先理解 Provider、Protocol、Base URL。
+- BYOK 仍保留所有官方／OpenRouter／自訂連線能力；完整設定與診斷不刪除。
+- 帳號 API 額度只切換既有 `bao-credits` 路由，不改 Wallet、Worker 或計價邏輯。
+- 故事中的「AI 模型與連線」視窗預設只顯示模型與 API Key；Protocol、Model ID、Base URL 收到「進階連線設定」。自訂連線會自動展開進階欄位。
+- OpenAI/GPT 的 Hosted 模型目錄與即時計價仍屬後端 Model Catalog 工作，不在這個 UI PR 假造不存在的模型。
