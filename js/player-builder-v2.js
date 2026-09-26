@@ -4,6 +4,12 @@
   if (window.BAOPlayerBuilderV2 || !window.App) return;
 
   const HOSTED_PROVIDER = "bao-credits";
+  if (!document.querySelector('link[href^="css/player-builder-v2.css"]')) {
+    const link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = "css/player-builder-v2.css?v=1";
+    document.head.appendChild(link);
+  }
   const view = document.getElementById("builder-view");
   const step = document.querySelector('.builder-step[data-step-panel="4"]');
   const $ = id => document.getElementById(id);
@@ -153,8 +159,8 @@
     ensure();
     provider()?.addEventListener("change", sync);
     model()?.addEventListener("change", sync);
-    new MutationObserver(() => ensure()).observe(step, { childList: true, subtree: true });
     if (provider()) new MutationObserver(sync).observe(provider(), { childList: true });
+    setTimeout(() => { markFields(); sync(); }, 250);
     window.addEventListener("storage", event => { if (event.key === "yorubay:session") sync(); });
   };
 
