@@ -95,6 +95,8 @@ jobs:
         run: node tests/prompt-cache-core.cjs
       - name: Cache cost panel
         run: node tests/cache-cost-panel-core.cjs
+      - name: Per-request multi-model cost accounting
+        run: node tests/per-request-cost-core.cjs
       - name: Memory request isolation and cooldown
         run: node tests/memory-request-guard-core.cjs
       - name: Helper context isolation and memory lifecycle
