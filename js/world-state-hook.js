@@ -19,13 +19,8 @@
           this.renderUIPanel('npc');
         }
         const pendingChanged = WorldStateEngine.takePersistenceHint?.();
-        const previousSummary = Chat.summary;
-        await Chat.afterTurn?.(this.config);
-        const memoryChanged = previousSummary !== Chat.summary;
-        const memoryLabel = document.getElementById("usage-memory");
-        if (memoryLabel) memoryLabel.textContent = Chat.memoryStatus(this.config.memory.maxRounds);
         if (!changed) {
-          if (pendingChanged || memoryChanged) this.saveStory(false);
+          if (pendingChanged) this.saveStory(false);
           return;
         }
         if (this.config.displayMode === "ui") {

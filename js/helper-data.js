@@ -2,8 +2,16 @@
   const object = value => value && typeof value === "object" && !Array.isArray(value);
   const safeKey = key => !["__proto__", "constructor", "prototype"].includes(key);
   const parse = text => {
-    try { return JSON.parse(String(text).trim().replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "")); }
-    catch { return null; }
+    const raw = String(text ?? "").trim().replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "").trim();
+    if (!raw) return null;
+    const candidates = [raw];
+    const first = raw.indexOf("{"), last = raw.lastIndexOf("}");
+    if (first >= 0 && last > first) candidates.push(raw.slice(first, last + 1));
+    for (const candidate of [...new Set(candidates)]) {
+      try { return JSON.parse(candidate); }
+      catch {}
+    }
+    return null;
   };
   const categories = { events: "重要事件", knownFacts: "人物已知資訊", relationships: "已確認關係", openThreads: "未完成事件" };
   const memoryRules = '只輸出 JSON：{"events":["事實"],"knownFacts":["誰知道什麼"],"relationships":["明確關係"],"openThreads":["未完成目標"]}。每項是精簡事實，不寫小說、修辭、建議或下一幕安排；不確定與心理推測不寫入。合併既有記憶，保留仍有效的重要事實。每類最多 16 項，每項最多 160 字。';
