@@ -31,8 +31,9 @@ for (const width of [390, 1280]) {
     const more = page.locator('#explore-view .bao-gallery-more');
     await expect(more).toBeVisible();
     await expect(more).not.toHaveAttribute('open', '');
-    await expect(page.locator('#explore-view .character-tools > a[href="character-studio.html"]')).toBeVisible();
-    await expect(page.locator('#explore-view .character-tools > a[download]')).toHaveCount(2);
+    await expect(page.locator('#explore-view a[href="character-studio.html"]')).toBeHidden();
+    await expect(page.locator('#explore-view a[download]')).toHaveCount(2);
+    await expect(page.locator('#explore-view a[download]').first()).toBeHidden();
     await expect(page.locator('#import-character-button')).toBeHidden();
     const image = card.locator('.character-image-wrap img');
     await expect(image).toBeVisible();
@@ -47,6 +48,8 @@ for (const width of [390, 1280]) {
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width + 1);
     await capture(page, `characters-${width}`);
     await more.locator('summary').click();
+    await expect(page.locator('#explore-view a[href="character-studio.html"]')).toBeVisible();
+    await expect(page.locator('#explore-view a[download]').first()).toBeVisible();
     await expect(page.locator('#import-character-button')).toBeVisible();
     await page.locator('#manage-character-button').click();
     await expect(page.locator('#custom-character-list')).toContainText('目前沒有本機匯入角色');
