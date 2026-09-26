@@ -196,13 +196,23 @@
 
   const compactLocalTools = () => {
     const tools = document.querySelector("#explore-view .character-tools");
-    if (!tools || tools.closest("#bao-local-tools")) return;
-    const details = document.createElement("details");
-    details.id = "bao-local-tools";
-    details.className = "bao-local-tools";
-    details.innerHTML = '<summary>本機角色與匯入 <span>進階</span></summary><p>匯入、管理或測試自己的角色卡。一般找故事時不需要打開這裡。</p>';
-    tools.parentNode.insertBefore(details, tools);
-    details.appendChild(tools);
+    if (!tools) return;
+    // BAOGalleryFocus already owns the disclosure and preserves the existing
+    // import/template handlers. Reuse that surface instead of nesting another drawer.
+    const stale = document.getElementById("bao-local-tools");
+    if (stale && stale.contains(tools)) {
+      stale.parentNode?.insertBefore(tools, stale);
+      stale.remove();
+    }
+    window.BAOGalleryFocus?.sync?.();
+    const more = tools.querySelector(":scope > details.bao-gallery-more");
+    if (!more) return;
+    more.dataset.playerLabel = "local-tools";
+    const summary = more.querySelector(":scope > summary");
+    if (summary) {
+      summary.innerHTML = '本機角色與匯入 <span>進階</span>';
+      summary.setAttribute("aria-label", "展開本機角色匯入與管理工具");
+    }
   };
 
   const applyExploreSearch = () => {
@@ -305,6 +315,34 @@
     decorateExploreCards();
   };
 
+
+  const installReadingHierarchy = () => {
+    const root = $("chat-view");
+    if (!root || root.dataset.baoPlayerReading === "v2") return;
+    root.dataset.baoPlayerReading = "v2";
+    root.classList.add("bao-player-reading-v2");
+
+    const sync = () => {
+      const controls = $("bao-surface-controls");
+      controls?.setAttribute("aria-label", "故事閱讀控制");
+      $("bao-play-status-toggle")?.setAttribute("title", "查看人物與世界狀態");
+      $("bao-surface-mode-toggle")?.setAttribute("title", "開啟故事工具與進階設定");
+      const stream = $("chat-stream");
+      stream?.setAttribute("aria-label", "故事內容");
+      const input = $("user-input");
+      input?.setAttribute("aria-label", "寫下你的下一句");
+    };
+
+    let queued = false;
+    const schedule = () => {
+      if (queued) return;
+      queued = true;
+      requestAnimationFrame(() => { queued = false; sync(); });
+    };
+    new MutationObserver(schedule).observe(root, { childList: true, subtree: true });
+    schedule();
+  };
+
   const activeView = () => document.querySelector(".app-shell > main > .view.active")?.id?.replace(/-view$/, "") || "home";
 
   const syncNavigation = view => {
@@ -346,6 +384,7 @@
     installDesktopEntry();
     installMobileNav();
     installExploreDiscovery();
+    installReadingHierarchy();
     patchViews();
     refreshMeView();
     syncNavigation();
