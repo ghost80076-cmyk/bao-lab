@@ -59,3 +59,74 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 360, height: 740 }
     await assertReadingGeometry(page);
   });
 }
+
+
+test('mobile keyboard follows a panned visual viewport instead of leaving dead space', async ({ page }) => {
+  await page.addInitScript(() => {
+    const listeners = new Map();
+    const viewport = {
+      width: 390,
+      height: 844,
+      offsetTop: 0,
+      offsetLeft: 0,
+      addEventListener(type, handler) {
+        if (!listeners.has(type)) listeners.set(type, new Set());
+        listeners.get(type).add(handler);
+      },
+      removeEventListener(type, handler) {
+        listeners.get(type)?.delete(handler);
+      }
+    };
+    Object.defineProperty(window, 'visualViewport', {
+      configurable: true,
+      value: viewport
+    });
+    window.__setBaoVisualViewport = next => {
+      Object.assign(viewport, next);
+      for (const type of ['resize', 'scroll']) {
+        for (const handler of listeners.get(type) || []) handler.call(viewport, new Event(type));
+      }
+    };
+  });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await openDemoStory(page);
+
+  const stream = page.locator('#chat-stream');
+  await stream.evaluate(node => { node.scrollTop = Math.min(60, node.scrollHeight); });
+  const before = await stream.evaluate(node => node.scrollTop);
+
+  await page.locator('#user-input').focus();
+  await page.evaluate(() => {
+    window.__setBaoVisualViewport({ width: 390, height: 430, offsetTop: 318, offsetLeft: 0 });
+  });
+  await expect.poll(() => page.evaluate(() => document.getElementById('chat-view').dataset.baoKeyboardOpen)).toBe('true');
+
+  const state = await page.evaluate(() => {
+    const root = document.getElementById('chat-view');
+    const composer = document.querySelector('#chat-view .composer').getBoundingClientRect();
+    return {
+      top: root.style.getPropertyValue('--bao-mobile-viewport-top'),
+      height: root.style.getPropertyValue('--bao-mobile-viewport-height'),
+      width: root.style.getPropertyValue('--bao-mobile-viewport-width'),
+      rootTop: root.getBoundingClientRect().top,
+      rootBottom: root.getBoundingClientRect().bottom,
+      composerBottom: composer.bottom,
+      scrollTop: document.getElementById('chat-stream').scrollTop
+    };
+  });
+  expect(state.top).toBe('318px');
+  expect(state.height).toBe('430px');
+  expect(state.width).toBe('390px');
+  expect(Math.abs(state.rootTop - 318)).toBeLessThanOrEqual(2);
+  expect(Math.abs(state.rootBottom - 748)).toBeLessThanOrEqual(3);
+  expect(Math.abs(state.composerBottom - 748)).toBeLessThanOrEqual(4);
+  expect(Math.abs(state.scrollTop - before)).toBeLessThanOrEqual(2);
+
+  await page.locator('#user-input').blur();
+  await page.evaluate(() => {
+    window.__setBaoVisualViewport({ width: 390, height: 844, offsetTop: 0, offsetLeft: 0 });
+    window.BAOMobileReadingLayout.sync();
+  });
+  await expect.poll(() => page.evaluate(() => document.getElementById('chat-view').style.getPropertyValue('--bao-mobile-viewport-height'))).toBe('100dvh');
+  await expect(page.locator('#chat-view')).not.toHaveAttribute('data-bao-keyboard-open', 'true');
+});
