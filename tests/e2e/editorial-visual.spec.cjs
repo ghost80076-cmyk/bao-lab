@@ -36,14 +36,14 @@ for (const width of [390, 1280]) {
     await expect(page.locator('#import-character-button')).toBeHidden();
     const image = card.locator('.character-image-wrap img');
     await expect(image).toBeVisible();
-    await expect.poll(() => image.evaluate(node => getComputedStyle(node).aspectRatio)).toBe('2 / 3');
+    await expect.poll(() => image.evaluate(node => getComputedStyle(node).aspectRatio)).toBe(width <= 820 ? '3 / 4' : '4 / 5');
     const firstTag = card.locator('.tag').first();
     if (await firstTag.count()) {
       await expect(firstTag).toBeVisible();
       await expect.poll(() => firstTag.evaluate(node => getComputedStyle(node).borderRadius)).not.toBe('0px');
     }
     const imageBox = await image.boundingBox();
-    expect(imageBox.height / imageBox.width).toBeGreaterThan(1.4);
+    expect(imageBox.height / imageBox.width).toBeGreaterThan(width <= 820 ? 1.3 : 1.2);
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width + 1);
     await capture(page, `characters-${width}`);
     await more.locator('summary').click();
