@@ -117,6 +117,7 @@
             <div class="bao-player-actions">
               <button class="secondary" type="button" data-bao-player-action="explore">探索作品</button>
               <button class="secondary" type="button" data-bao-player-action="about">關於 BAO/LAB</button>
+              <a class="secondary" href="https://ko-fi.com/roger2486" target="_blank" rel="noopener">投餵肉包</a>
             </div>
           </section>
         </div>
@@ -167,6 +168,10 @@
   const installDesktopEntry = () => {
     const nav = document.querySelector(".topbar nav");
     if (!nav || $("bao-me-nav")) return;
+    // Player 2.0 keeps the top navigation about destinations, not services.
+    // Account and support remain available in "我的" and the home content.
+    nav.querySelector('a[href="account.html"]')?.setAttribute("hidden", "");
+    nav.querySelector('a[href*="ko-fi.com"]')?.setAttribute("hidden", "");
     const button = document.createElement("button");
     button.id = "bao-me-nav";
     button.type = "button";
