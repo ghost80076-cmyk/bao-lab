@@ -412,6 +412,15 @@
     schedule();
   };
 
+  const dismissNavigationSurfaces = () => {
+    document.querySelectorAll(".story-tools-backdrop").forEach(node => node.remove());
+    const drive = $("bao-drive-panel");
+    if (drive?.open) {
+      try { drive.close?.(); }
+      catch (_) { drive.removeAttribute("open"); }
+    }
+  };
+
   const activeView = () => document.querySelector(".app-shell > main > .view.active")?.id?.replace(/-view$/, "") || "home";
 
   const syncNavigation = view => {
@@ -439,6 +448,7 @@
     if (App.__baoPlayerShellViewWrapped) return;
     const previous = App.showView.bind(App);
     App.showView = function(view, ...args) {
+      dismissNavigationSurfaces();
       const result = previous(view, ...args);
       if (view === "me") refreshMeView();
       if (view === "detail") requestAnimationFrame(decorateDetail);
@@ -476,6 +486,6 @@
     });
   };
 
-  window.BAOPlayerShellV2 = Object.freeze({ refresh: refreshMeView, openStoryLibrary, syncNavigation });
+  window.BAOPlayerShellV2 = Object.freeze({ refresh: refreshMeView, openStoryLibrary, syncNavigation, dismissNavigationSurfaces });
   init();
 })();
