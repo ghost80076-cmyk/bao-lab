@@ -215,7 +215,7 @@
     const output = Number.isInteger(data.usage?.output_tokens) ? data.usage.output_tokens : null;
     const cached = Number.isInteger(data.usage?.cached_tokens) ? data.usage.cached_tokens : null;
     const cacheWrite = Number.isInteger(data.usage?.cache_write_tokens) ? data.usage.cache_write_tokens : null;
-    return {
+    const result = {
       text: data.content,
       usage: this.normalizeUsage({
         input_tokens: input,
@@ -238,6 +238,16 @@
         settlement_status: data.usage?.settlement_status ?? null
       }
     };
+    // This route bypasses the base API transport, so account usage here as well.
+    // recordRequestUsage is idempotent: an outer wrapper may safely see the same result.
+    if (!config.__connectionTest && window.Chat) {
+      Chat.recordRequestUsage?.(config, result);
+      Chat.renderUsage?.(result.usage || {});
+      if (!config.__memoryTask && !config.__stateTask && !config.__auxiliaryTask && !config.__storyTool) {
+        Chat.recordStoryUsage?.(result.usage || {}, App?.config);
+      }
+    }
+    return result;
   };
 
   const refreshDialog = backdrop => {

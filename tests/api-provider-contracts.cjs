@@ -87,6 +87,12 @@ const lastRequest = () => requests.at(-1);
   assert.equal(JSON.stringify(lastRequest().body).includes("GEMINI-SECRET"), false);
   assert.equal(lastRequest().options.signal, controller.signal, "Gemini requests must accept the active generation signal");
 
+  responseData = { candidates: [{ content: { parts: [{ text: '{"events":[],"knownFacts":[],"relationships":[],"openThreads":[]}' }] } }], usageMetadata: { promptTokenCount: 80, candidatesTokenCount: 20, totalTokenCount: 100 } };
+  await API.send({ type: "gemini", protocol: "gemini", model: "gemini-3.1-pro-preview", baseUrl: "https://generativelanguage.googleapis.com/v1beta/models", key: "GEMINI-SECRET", __memoryTask: true, maxOutputTokens: 1400 }, messages);
+  assert.equal(lastRequest().body.generationConfig.responseFormat.text.mimeType, "application/json", "Gemini memory requests must opt into structured JSON output");
+  assert.deepEqual(lastRequest().body.generationConfig.responseFormat.text.schema.required, ["events", "knownFacts", "relationships", "openThreads"]);
+  assert.equal(lastRequest().body.generationConfig.maxOutputTokens, 1400);
+
   responseData = { content: [{ type: "text", text: "Claude OK" }], usage: { input_tokens: 40, cache_read_input_tokens: 100, cache_creation_input_tokens: 20, output_tokens: 15 } };
   const anthropic = await API.send({ type: "anthropic", protocol: "anthropic", route: "official", model: "claude-test", baseUrl: "https://api.anthropic.com/v1/messages", key: "CLAUDE-SECRET", cacheMode: "explicit", explicitCacheModel: "claude-test", cacheEnabled: true }, messages);
   assert.equal(anthropic.usage.input_tokens, 160);

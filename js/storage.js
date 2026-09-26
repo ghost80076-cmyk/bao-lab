@@ -105,6 +105,9 @@ const Storage = {
         summary: String(Chat.summary || ""),
         summarizedUntil: Number(Chat.summarizedUntil || 0),
         usage: this.scrubSecrets(this.clone(Chat.usage || {})),
+        usageByKind: this.scrubSecrets(this.clone(Chat.usageByKind || {})),
+        usageLedger: this.scrubSecrets(this.clone(Chat.usageLedger || [])),
+        memoryHealth: this.scrubSecrets(this.clone(Chat.memoryHealth || {})),
         lastStoryPromptTokens: Number(Chat.lastStoryPromptTokens || 0)
       },
       contextPack: this.scrubSecrets(this.clone(GameState.current?.contextPack || null)),
@@ -567,6 +570,16 @@ const Storage = {
     Chat.summary = String(save.chat?.summary || "");
     Chat.summarizedUntil = Number(save.chat?.summarizedUntil || 0);
     Chat.usage = Object.assign({ prompt: 0, completion: 0, cached: 0, cacheWrite: 0, total: 0 }, this.clone(save.chat?.usage || {}));
+    Chat.usageByKind = this.clone(save.chat?.usageByKind || {});
+    Chat.usageLedger = Array.isArray(save.chat?.usageLedger) ? this.clone(save.chat.usageLedger).slice(-10000) : [];
+    Chat.memoryHealth = Object.assign({
+      phase: Chat.summary ? "success" : "idle",
+      message: Chat.summary ? "已從存檔還原長期摘要。" : "尚未需要摘要",
+      lastSuccessAt: "",
+      lastFailureAt: "",
+      lastModel: App.config?.memory?.summaryApi?.model || App.config?.memory?.summaryModel || App.config?.api?.model || "",
+      repaired: false
+    }, this.clone(save.chat?.memoryHealth || {}));
     Chat.lastStoryPromptTokens = Number(save.chat?.lastStoryPromptTokens || 0);
     GameState.current = this.clone(save.state || {});
     GameState.current.config = App.config;

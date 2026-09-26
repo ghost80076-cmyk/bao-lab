@@ -40,16 +40,22 @@
     area.querySelector("[data-main-model]")?.addEventListener("click",()=>{area.querySelector("[data-refine-model]").value=App.config?.api?.model||"";syncModel();});
     area.querySelector("[data-run-refine]")?.addEventListener("click",async()=>{
       const status=area.querySelector("[data-refine-status]"),run=area.querySelector("[data-run-refine]");
-      if(App.config?.demoMode||!App.config?.api?.key){status.textContent="目前只能預覽功能；玩家連上自己的 API 後才能執行 AI 整理。";return;}
+      const selectedRoute=App.config?.memory?.summaryApi?.model&&App.config?.memory?.summaryApi?.baseUrl?App.config.memory.summaryApi:App.config?.api;
+      window.BAOCreditsPilot?.prepareAccountConfig?.(selectedRoute);
+      if(App.config?.demoMode||(!selectedRoute?.key&&!window.BAOCreditsPilot?.isAccountReady?.(selectedRoute))){status.textContent="整理模型尚未連線；原始故事不會因此被刪除。請先完成記憶模型的 API 連線。";return;}
       const src=sourceText(area.querySelector("[data-refine-source]").value,window.BAOMemoryWorkbench.readSlots());
       if(!src.trim()){status.textContent="目前沒有可整理的內容。";return;}
       const model=area.querySelector("[data-refine-model]").value.trim()||App.config.api.model;
       const style=area.querySelector("[data-refine-style]").value;
       syncModel();run.disabled=true;status.textContent=`整理中 · ${model}`;
       try{
-        const cfg={...App.config.api,model,__memoryTask:true,maxOutputTokens:1400};
+        const cfg={...selectedRoute,model,__memoryTask:true,maxOutputTokens:1400,cacheEnabled:false};
         const result=await API.send(cfg,[{role:"system",content:"只進行記憶整理，不要續寫故事。"},{role:"user",content:prompt(src,style)}]);
-        draft=window.BAOHelperData.memoryText(result?.text||"");area.querySelector("[data-refine-draft]").textContent=draft||"模型沒有回傳整理內容。";area.querySelector("[data-write-draft]").disabled=!draft;status.textContent=draft?`完成 · ${Number(result?.usage?.total_tokens||0).toLocaleString()} tokens`:"沒有產生整理稿。";
+        const normalized=await Chat.normalizeMemoryResult(cfg,result?.text||"");
+        draft=normalized.summary||"";
+        area.querySelector("[data-refine-draft]").textContent=draft||(normalized.error||"模型沒有產生可用整理稿；原始故事仍保留。");
+        area.querySelector("[data-write-draft]").disabled=!draft;
+        status.textContent=draft?`完成${normalized.repaired?" · 已自動修復 JSON":""} · ${Number(result?.usage?.total_tokens||0).toLocaleString()} tokens`:`整理失敗：${normalized.error||"格式不正確"}`;
       }catch(err){status.textContent=`整理失敗：${String(err.message||err).split("\n")[0]}`;}finally{run.disabled=false;}
     });
     area.querySelector("[data-write-draft]")?.addEventListener("click",()=>{
