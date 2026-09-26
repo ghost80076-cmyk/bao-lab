@@ -1,0 +1,481 @@
+/* BAO/LAB Player 2.0 shell.
+   Player-facing navigation only: do not move story data, API keys or engine state. */
+(() => {
+  "use strict";
+  if (window.BAOPlayerShellV2 || !window.App) return;
+
+  const MOBILE_BREAKPOINT = 820;
+  const ACCOUNT_SESSION_KEY = "yorubay:session";
+  const $ = id => document.getElementById(id);
+  const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
+  const validAccountSession = () => {
+    try {
+      return /^yb_s_[A-Za-z0-9_-]{30,}$/.test(String(localStorage.getItem(ACCOUNT_SESSION_KEY) || "").trim());
+    } catch (_) {
+      return false;
+    }
+  };
+  const plainText = value => {
+    const node = document.createElement("div");
+    node.innerHTML = String(value || "");
+    return String(node.textContent || node.innerText || "").replace(/\s+/g, " ").trim();
+  };
+
+  const ensureStyles = () => {
+    if (document.querySelector('link[href^="css/player-shell-v2.css"]')) return;
+    const link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = "css/player-shell-v2.css?v=1";
+    document.head.appendChild(link);
+  };
+
+  const waitFor = async getter => {
+    for (let i = 0; i < 12; i++) {
+      const value = getter();
+      if (value) return value;
+      await wait(100);
+    }
+    return null;
+  };
+
+  const openStoryLibrary = async () => {
+    const open = await waitFor(() => window.BAOStoryTools?.openLibrary);
+    if (open) return open();
+    alert("故事書庫仍在載入，請稍後再試。");
+  };
+
+  const openDrive = async () => {
+    const button = await waitFor(() => $("bao-drive-button"));
+    if (button) return button.click();
+    alert("跨裝置同步仍在載入，請稍後再試。");
+  };
+
+  const resumeStory = () => {
+    if (!window.Storage?.hasStory?.()) {
+      App.showView("home");
+      return;
+    }
+    if (typeof App.resumeSavedStory === "function") App.resumeSavedStory();
+  };
+
+  const renderMeView = () => {
+    if ($("me-view")) return $("me-view");
+    const main = document.querySelector(".app-shell > main");
+    if (!main) return null;
+    const section = document.createElement("section");
+    section.id = "me-view";
+    section.className = "view";
+    section.innerHTML = `
+      <div class="bao-player-hub">
+        <header class="bao-player-hub-head">
+          <div>
+            <p class="bao-player-kicker">MY BAO</p>
+            <h1>我的</h1>
+            <p>故事留在你的裝置；登入只用於你主動使用的線上服務。</p>
+          </div>
+          <img src="assets/bao-bun.svg" width="72" height="72" alt="包包">
+        </header>
+
+        <section class="bao-player-account-card" aria-labelledby="bao-player-account-title">
+          <div>
+            <span class="bao-player-card-label">ACCOUNT</span>
+            <h2 id="bao-player-account-title">帳號與 API 額度</h2>
+            <p id="bao-player-account-state">正在確認帳號狀態…</p>
+          </div>
+          <a class="primary" href="account.html">帳號與額度</a>
+        </section>
+
+        <div class="bao-player-grid">
+          <section class="bao-player-panel">
+            <span class="bao-player-card-label">STORIES</span>
+            <h2>我的故事</h2>
+            <p id="bao-player-story-state">故事優先保存在目前裝置。</p>
+            <div class="bao-player-actions">
+              <button class="primary" type="button" data-bao-player-action="stories">打開故事書庫</button>
+              <button class="secondary" type="button" data-bao-player-action="resume">繼續最近故事</button>
+            </div>
+          </section>
+
+          <section class="bao-player-panel">
+            <span class="bao-player-card-label">SYNC</span>
+            <h2>跨裝置</h2>
+            <p>需要時再連結自己的 Google 雲端硬碟。API Key 不會跟著故事同步。</p>
+            <button class="secondary" type="button" data-bao-player-action="drive">雲端故事</button>
+          </section>
+
+          <section class="bao-player-panel">
+            <span class="bao-player-card-label">LOCAL LAB</span>
+            <h2>角色實驗室</h2>
+            <p>匯入、修改、測試自己的角色卡；草稿仍留在這台裝置。</p>
+            <a class="secondary" href="character-studio.html">打開角色實驗室</a>
+          </section>
+
+          <section class="bao-player-panel">
+            <span class="bao-player-card-label">BAO/LAB</span>
+            <h2>作品與說明</h2>
+            <p>回到作品區找新的故事，或查看 BAO/LAB 的使用方式與理念。</p>
+            <div class="bao-player-actions">
+              <button class="secondary" type="button" data-bao-player-action="explore">探索作品</button>
+              <button class="secondary" type="button" data-bao-player-action="about">關於 BAO/LAB</button>
+              <a class="secondary" href="https://ko-fi.com/roger2486" target="_blank" rel="noopener">投餵肉包</a>
+            </div>
+          </section>
+        </div>
+
+        <aside class="bao-player-privacy-note">
+          <b>Local-first 仍是預設。</b>
+          <span>不登入也能使用 BYOK、本地角色與本地故事；帳號不是讀取私人故事的必要條件。</span>
+        </aside>
+      </div>`;
+    main.appendChild(section);
+
+    section.querySelector('[data-bao-player-action="stories"]')?.addEventListener("click", openStoryLibrary);
+    section.querySelector('[data-bao-player-action="resume"]')?.addEventListener("click", resumeStory);
+    section.querySelector('[data-bao-player-action="drive"]')?.addEventListener("click", openDrive);
+    section.querySelector('[data-bao-player-action="explore"]')?.addEventListener("click", () => App.showView("explore"));
+    section.querySelector('[data-bao-player-action="about"]')?.addEventListener("click", () => App.showView("about"));
+    return section;
+  };
+
+  const refreshMeView = () => {
+    renderMeView();
+    const account = $("bao-player-account-state");
+    if (account) {
+      account.textContent = validAccountSession()
+        ? "已登入。Hosted 模型與 API 額度會使用目前帳號；BYOK 仍可獨立使用。"
+        : "目前未登入。不影響 BYOK、本地故事或角色匯入；需要 Hosted 額度時再登入即可。";
+    }
+
+    const storyState = $("bao-player-story-state");
+    const resume = document.querySelector('[data-bao-player-action="resume"]');
+    const hasStory = Boolean(window.Storage?.hasStory?.());
+    if (resume) resume.hidden = !hasStory;
+    if (!storyState) return;
+    if (!hasStory) {
+      storyState.textContent = "這台裝置目前還沒有最近故事。";
+      return;
+    }
+
+    const save = window.Storage?.loadStory?.();
+    const messages = Array.isArray(save?.chat?.messages) ? save.chat.messages : [];
+    const last = [...messages].reverse().find(message => String(message?.content || "").trim());
+    const name = String(save?.characterName || save?.character?.name || "最近故事").trim();
+    const fullPreview = plainText(last?.content);
+    const preview = fullPreview.slice(0, 72);
+    storyState.textContent = preview ? `${name} · ${preview}${fullPreview.length > 72 ? "…" : ""}` : `${name} · 可以從上次的位置繼續。`;
+  };
+
+  const declutterDesktopServices = () => {
+    const nav = document.querySelector(".topbar nav");
+    if (!nav) return;
+    [
+      'a[href="account.html"]',
+      'a[href*="ko-fi.com"]',
+      '[data-bao-regex-link]',
+      '#bao-drive-button'
+    ].forEach(selector => nav.querySelector(selector)?.setAttribute("hidden", ""));
+  };
+
+  const installDesktopEntry = () => {
+    const nav = document.querySelector(".topbar nav");
+    if (!nav || $("bao-me-nav")) return;
+    // Player 2.0 keeps the top navigation about destinations, not services.
+    // Account, cloud sync, formatting tools and support remain available from "我的" or contextual tools.
+    declutterDesktopServices();
+    const button = document.createElement("button");
+    button.id = "bao-me-nav";
+    button.type = "button";
+    button.textContent = "我的";
+    button.addEventListener("click", () => App.showView("me"));
+    const about = nav.querySelector('[data-view="about"]');
+    if (about) nav.insertBefore(button, about);
+    else nav.appendChild(button);
+  };
+
+  const installMobileNav = () => {
+    if ($("bao-mobile-nav")) return;
+    const nav = document.createElement("nav");
+    nav.id = "bao-mobile-nav";
+    nav.className = "bao-mobile-nav";
+    nav.setAttribute("aria-label", "主要導覽");
+    nav.innerHTML = `
+      <button type="button" data-player-nav="home" aria-label="首頁"><span aria-hidden="true">⌂</span><b>首頁</b></button>
+      <button type="button" data-player-nav="stories" aria-label="我的故事"><span aria-hidden="true">▤</span><b>故事</b></button>
+      <button type="button" data-player-nav="me" aria-label="我的"><span aria-hidden="true">◎</span><b>我的</b></button>`;
+    document.body.appendChild(nav);
+    nav.querySelector('[data-player-nav="home"]')?.addEventListener("click", () => App.showView("home"));
+    nav.querySelector('[data-player-nav="stories"]')?.addEventListener("click", openStoryLibrary);
+    nav.querySelector('[data-player-nav="me"]')?.addEventListener("click", () => App.showView("me"));
+  };
+
+
+  const compactLocalTools = () => {
+    const tools = document.querySelector("#explore-view .character-tools");
+    if (!tools) return;
+    // BAOGalleryFocus already owns the disclosure and preserves the existing
+    // import/template handlers. Reuse that surface instead of nesting another drawer.
+    const stale = document.getElementById("bao-local-tools");
+    if (stale && stale.contains(tools)) {
+      stale.parentNode?.insertBefore(tools, stale);
+      stale.remove();
+    }
+    window.BAOGalleryFocus?.sync?.();
+    const more = tools.querySelector(":scope > details.bao-gallery-more");
+    if (!more) return;
+    if (more.dataset.playerLabel !== "local-tools") more.dataset.playerLabel = "local-tools";
+    const summary = more.querySelector(":scope > summary");
+    if (summary && summary.dataset.baoPlayerStyled !== "yes") {
+      summary.dataset.baoPlayerStyled = "yes";
+      summary.innerHTML = '本機角色與匯入 <span>進階</span>';
+      summary.setAttribute("aria-label", "展開本機角色匯入與管理工具");
+    }
+  };
+
+  const applyExploreSearch = () => {
+    const list = $("character-list");
+    const input = $("bao-work-search");
+    if (!list || !input) return;
+    const query = input.value.trim().toLocaleLowerCase("zh-Hant");
+    let visible = 0;
+    list.querySelectorAll(".character-card").forEach(card => {
+      const character = (App.characters || []).find(item => String(item?.id || "") === String(card.dataset.characterId || ""));
+      const haystack = [
+        card.textContent,
+        character?.name,
+        character?.title,
+        character?.description,
+        ...(Array.isArray(character?.tags) ? character.tags : [])
+      ].filter(Boolean).join(" ").toLocaleLowerCase("zh-Hant");
+      const matches = !query || haystack.includes(query);
+      card.hidden = !matches;
+      if (matches) visible += 1;
+    });
+    const count = $("bao-work-result-count");
+    if (count) count.textContent = query ? `找到 ${visible} 個作品` : `目前顯示 ${visible} 個作品`;
+    const empty = $("bao-work-search-empty");
+    if (empty) empty.hidden = !query || visible > 0;
+  };
+
+  const decorateExploreCards = () => {
+    const list = $("character-list");
+    if (!list) return;
+    list.querySelectorAll(".character-card").forEach(card => {
+      card.classList.add("bao-work-card-v2");
+      if (card.querySelector(".bao-work-capabilities")) return;
+      const character = (App.characters || []).find(item => String(item?.id || "") === String(card.dataset.characterId || ""));
+      if (!character) return;
+      const labels = [];
+      if (character.supported_modes?.world) labels.push("世界模擬");
+      if (character.supported_display?.ui) labels.push("互動 UI");
+      if (character.category === "r18" || character.rating === "adult") labels.push("18+");
+      if (!labels.length) labels.push("角色互動");
+      const row = document.createElement("div");
+      row.className = "bao-work-capabilities";
+      row.innerHTML = labels.slice(0, 3).map(label => `<span>${App.escapeHTML(label)}</span>`).join("");
+      card.querySelector(".character-content")?.appendChild(row);
+    });
+    applyExploreSearch();
+  };
+
+  const installExploreDiscovery = () => {
+    const explore = $("explore-view");
+    const head = explore?.querySelector(".section-head");
+    const list = $("character-list");
+    if (!explore || !head || !list) return;
+    const title = head.querySelector("h2");
+    if (title) title.textContent = "今晚想走進哪個故事？";
+    const lead = explore.querySelector(".explore-lead");
+    if (lead) lead.textContent = "先看作品，再決定模型。可以搜尋角色、作品名稱或標籤。";
+
+    if (!$("bao-explore-discovery")) {
+      const bar = document.createElement("section");
+      bar.id = "bao-explore-discovery";
+      bar.className = "bao-explore-discovery";
+      bar.setAttribute("aria-label", "作品搜尋");
+      bar.innerHTML = `
+        <label class="bao-work-search">
+          <span aria-hidden="true">⌕</span>
+          <input id="bao-work-search" type="search" autocomplete="off" placeholder="搜尋作品、角色或標籤">
+        </label>
+        <span id="bao-work-result-count" class="bao-work-result-count" aria-live="polite"></span>
+        <button id="bao-work-search-clear" class="text-button" type="button">清除</button>`;
+      head.insertAdjacentElement("afterend", bar);
+      $("bao-work-search")?.addEventListener("input", applyExploreSearch);
+      $("bao-work-search-clear")?.addEventListener("click", () => {
+        const input = $("bao-work-search");
+        if (!input) return;
+        input.value = "";
+        input.focus();
+        applyExploreSearch();
+      });
+    }
+
+    if (!$("bao-work-search-empty")) {
+      const empty = document.createElement("div");
+      empty.id = "bao-work-search-empty";
+      empty.className = "bao-work-search-empty";
+      empty.hidden = true;
+      empty.innerHTML = "<b>沒有找到符合的作品。</b><span>換個角色名、作品名或標籤再試一次。</span>";
+      list.insertAdjacentElement("afterend", empty);
+    }
+
+    if (!list.dataset.baoPlayerObserved) {
+      list.dataset.baoPlayerObserved = "yes";
+      new MutationObserver(() => decorateExploreCards()).observe(list, { childList: true, subtree: false });
+    }
+    if (!explore.dataset.baoPlayerObserved) {
+      explore.dataset.baoPlayerObserved = "yes";
+      new MutationObserver(() => compactLocalTools()).observe(explore, { childList: true, subtree: true });
+    }
+    compactLocalTools();
+    decorateExploreCards();
+  };
+
+
+  const decorateDetail = () => {
+    const detail = $("detail-view");
+    const shell = detail?.querySelector(".detail-theme-shell");
+    const copy = shell?.querySelector(".detail-copy");
+    const actions = shell?.querySelector(".detail-actions");
+    const character = App.activeCharacter;
+    if (!detail || !shell || !copy || !actions || !character) return;
+
+    shell.classList.add("bao-work-detail-v2");
+    const line = copy.querySelector(".detail-category-line span");
+    if (line && !line.dataset.baoPlayerCopy) {
+      line.dataset.baoPlayerCopy = "yes";
+      line.textContent = `BAO ORIGINAL · ${line.textContent}`;
+    }
+
+    let strip = copy.querySelector(".bao-detail-feature-strip");
+    if (!strip) {
+      const features = [
+        character.supported_modes?.world ? ["世界", "世界模擬"] : ["敘事", "角色沉浸"],
+        character.supported_display?.ui ? ["介面", "互動 UI"] : ["介面", "純文字"],
+        ["保存", "Local-first"]
+      ];
+      strip = document.createElement("div");
+      strip.className = "bao-detail-feature-strip";
+      strip.innerHTML = features.map(([label, value]) =>
+        `<span><small>${App.escapeHTML(label)}</small><b>${App.escapeHTML(value)}</b></span>`).join("");
+      const tags = copy.querySelector(".tags");
+      (tags || actions).insertAdjacentElement("beforebegin", strip);
+    }
+
+    if (!copy.querySelector(".bao-detail-start-note")) {
+      const note = document.createElement("div");
+      note.className = "bao-detail-start-note";
+      note.innerHTML = "<b>先選故事，再選 AI。</b><span>下一步可以直接使用帳號 API 額度，或連接自己的 API；故事設定不會因為選哪個模型而消失。</span>";
+      actions.insertAdjacentElement("beforebegin", note);
+    }
+
+    const start = actions.querySelector("#detail-start");
+    if (start) {
+      start.classList.add("bao-detail-primary");
+      start.setAttribute("aria-describedby", "bao-detail-start-help");
+    }
+    let help = actions.querySelector("#bao-detail-start-help");
+    if (!help) {
+      help = document.createElement("small");
+      help.id = "bao-detail-start-help";
+      help.className = "bao-detail-start-help";
+      help.textContent = "接著設定玩家資料、故事偏好與 AI 連線";
+      actions.appendChild(help);
+    }
+  };
+
+
+  const installReadingHierarchy = () => {
+    const root = $("chat-view");
+    if (!root || root.dataset.baoPlayerReading === "v2") return;
+    root.dataset.baoPlayerReading = "v2";
+    root.classList.add("bao-player-reading-v2");
+
+    const sync = () => {
+      const controls = $("bao-surface-controls");
+      controls?.setAttribute("aria-label", "故事閱讀控制");
+      $("bao-play-status-toggle")?.setAttribute("title", "查看人物與世界狀態");
+      $("bao-surface-mode-toggle")?.setAttribute("title", "開啟故事工具與進階設定");
+      const stream = $("chat-stream");
+      stream?.setAttribute("aria-label", "故事內容");
+      const input = $("user-input");
+      input?.setAttribute("aria-label", "寫下你的下一句");
+    };
+
+    let queued = false;
+    const schedule = () => {
+      if (queued) return;
+      queued = true;
+      requestAnimationFrame(() => { queued = false; sync(); });
+    };
+    new MutationObserver(schedule).observe(root, { childList: true, subtree: true });
+    schedule();
+  };
+
+  const activeView = () => document.querySelector(".app-shell > main > .view.active")?.id?.replace(/-view$/, "") || "home";
+
+  const syncNavigation = view => {
+    const current = String(view || activeView());
+    const nav = $("bao-mobile-nav");
+    const mobile = window.matchMedia(`(max-width:${MOBILE_BREAKPOINT}px)`).matches;
+    const hiddenForFlow = ["builder", "chat"].includes(current);
+    if (nav) nav.hidden = !mobile || hiddenForFlow;
+    document.body.classList.toggle("bao-mobile-nav-visible", Boolean(mobile && !hiddenForFlow));
+
+    const key = current === "me" ? "me"
+      : current === "chat" ? "stories"
+      : ["home", "explore", "detail"].includes(current) ? "home"
+      : "";
+    nav?.querySelectorAll("[data-player-nav]").forEach(button => {
+      const active = button.dataset.playerNav === key;
+      button.classList.toggle("active", active);
+      if (active) button.setAttribute("aria-current", "page");
+      else button.removeAttribute("aria-current");
+    });
+    $("bao-me-nav")?.classList.toggle("active", current === "me");
+  };
+
+  const patchViews = () => {
+    if (App.__baoPlayerShellViewWrapped) return;
+    const previous = App.showView.bind(App);
+    App.showView = function(view, ...args) {
+      const result = previous(view, ...args);
+      if (view === "me") refreshMeView();
+      if (view === "detail") requestAnimationFrame(decorateDetail);
+      syncNavigation(view);
+      return result;
+    };
+    App.__baoPlayerShellViewWrapped = true;
+  };
+
+  const init = () => {
+    ensureStyles();
+    renderMeView();
+    installDesktopEntry();
+    installMobileNav();
+    installExploreDiscovery();
+    const topNav = document.querySelector(".topbar nav");
+    if (topNav && !topNav.dataset.baoPlayerObserved) {
+      topNav.dataset.baoPlayerObserved = "yes";
+      new MutationObserver(declutterDesktopServices).observe(topNav, { childList: true });
+    }
+    declutterDesktopServices();
+    decorateDetail();
+    installReadingHierarchy();
+    patchViews();
+    refreshMeView();
+    syncNavigation();
+    setTimeout(() => {
+      installExploreDiscovery();
+      compactLocalTools();
+      decorateExploreCards();
+    }, 360);
+    window.addEventListener("resize", () => syncNavigation());
+    window.addEventListener("storage", event => {
+      if (event.key === ACCOUNT_SESSION_KEY) refreshMeView();
+    });
+  };
+
+  window.BAOPlayerShellV2 = Object.freeze({ refresh: refreshMeView, openStoryLibrary, syncNavigation });
+  init();
+})();

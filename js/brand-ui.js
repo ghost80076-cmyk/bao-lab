@@ -63,7 +63,7 @@
           </a>
         </div>
         <button class="brand-feature-stage" id="home-feature-stage" type="button" aria-label="開啟角色：林沉風">
-          <img id="home-feature-image" src="https://i.meee.com.tw/UHKTM1O.jpg" alt="林沉風" referrerpolicy="no-referrer">
+          <img id="home-feature-image" src="https://i.meee.com.tw/UHKTM1O.jpg" alt="林沉風" loading="lazy" decoding="async" fetchpriority="low" referrerpolicy="no-referrer">
           <span class="brand-feature-shade"></span>
           <span class="brand-feature-copy"><small>今晚推薦</small><b id="home-feature-name">林沉風</b><em id="home-feature-title">見過黑暗的人</em></span>
         </button>

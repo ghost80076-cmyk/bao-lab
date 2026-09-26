@@ -186,9 +186,9 @@
     const button = document.getElementById('bao-surface-mode-toggle');
     if (button) {
       const mobile = !desktop.matches;
-      button.textContent = mode === 'studio' ? (mobile ? '閱讀' : '返回閱讀') : (mobile ? '工具' : '工作室');
+      button.textContent = mode === 'studio' ? '返回故事' : '工具';
       button.setAttribute('aria-pressed', String(mode === 'studio'));
-      button.setAttribute('aria-label', mode === 'studio' ? '返回玩家閱讀模式' : '開啟工作室模式');
+      button.setAttribute('aria-label', mode === 'studio' ? '返回故事閱讀' : '開啟故事工具與進階設定');
     }
     if (mode === 'studio') {
       closeStatus();
