@@ -165,13 +165,23 @@
     storyState.textContent = preview ? `${name} · ${preview}${fullPreview.length > 72 ? "…" : ""}` : `${name} · 可以從上次的位置繼續。`;
   };
 
+  const declutterDesktopServices = () => {
+    const nav = document.querySelector(".topbar nav");
+    if (!nav) return;
+    [
+      'a[href="account.html"]',
+      'a[href*="ko-fi.com"]',
+      '[data-bao-regex-link]',
+      '#bao-drive-button'
+    ].forEach(selector => nav.querySelector(selector)?.setAttribute("hidden", ""));
+  };
+
   const installDesktopEntry = () => {
     const nav = document.querySelector(".topbar nav");
     if (!nav || $("bao-me-nav")) return;
     // Player 2.0 keeps the top navigation about destinations, not services.
-    // Account and support remain available in "我的" and the home content.
-    nav.querySelector('a[href="account.html"]')?.setAttribute("hidden", "");
-    nav.querySelector('a[href*="ko-fi.com"]')?.setAttribute("hidden", "");
+    // Account, cloud sync, formatting tools and support remain available from "我的" or contextual tools.
+    declutterDesktopServices();
     const button = document.createElement("button");
     button.id = "bao-me-nav";
     button.type = "button";
@@ -444,6 +454,12 @@
     installDesktopEntry();
     installMobileNav();
     installExploreDiscovery();
+    const topNav = document.querySelector(".topbar nav");
+    if (topNav && !topNav.dataset.baoPlayerObserved) {
+      topNav.dataset.baoPlayerObserved = "yes";
+      new MutationObserver(declutterDesktopServices).observe(topNav, { childList: true });
+    }
+    declutterDesktopServices();
     decorateDetail();
     installReadingHierarchy();
     patchViews();
