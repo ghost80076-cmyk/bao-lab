@@ -2603,8 +2603,16 @@ async function walletLedgerRoute(
             label,
 
             points:
-              safeMoneyInt(
-                row.amount_microusd
+              (
+                Number.isSafeInteger(
+                  row.amount_microusd
+                ) &&
+                Math.abs(
+                  row.amount_microusd
+                ) <=
+                  9_000_000_000_000
+                  ? row.amount_microusd
+                  : 0
               ) /
               1_000,
 
