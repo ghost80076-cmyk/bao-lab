@@ -269,6 +269,18 @@
     return result;
   };
 
+  const relabelLauncher = () => {
+    const button = document.querySelector('#bao-player-settings [data-bao-open="memory"]');
+    if (button) button.textContent = "🧠 記憶";
+  };
+
+  const originalRenderChatShell = App.renderChatShell.bind(App);
+  App.renderChatShell = function(fresh = false) {
+    const result = originalRenderChatShell(fresh);
+    setTimeout(relabelLauncher, 0);
+    return result;
+  };
+
   const originalPanel = App.renderUIPanel.bind(App);
   App.renderUIPanel = function(panel) {
     if (panel !== "memory") return originalPanel(panel);
@@ -302,5 +314,6 @@
   });
   observer.observe(document.body, { childList: true, subtree: true });
 
+  relabelLauncher();
   window.BAOMemoryWorkbenchSimple = { simplify, playerLabel, playerText };
 })();
