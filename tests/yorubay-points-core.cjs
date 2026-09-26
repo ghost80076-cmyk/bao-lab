@@ -16,7 +16,9 @@ test('player account presents internal wallet as YoruBay points', () => {
   assert.match(account, /NT\$2,150 或 US\$65<br>→ 50,000 點/);
   assert.match(account, /wallet_balance_points/);
   assert.match(account, /\/me\/wallet-ledger/);
-  assert.match(account, /setInterval\([\s\S]*30000/);
+  assert.doesNotMatch(account, /setInterval\(/);
+  assert.match(account, /BroadcastChannel/);
+  assert.match(account, /visibilitychange/);
   assert.doesNotMatch(account, /NT\$190 → US\$5 額度/);
 });
 
@@ -38,6 +40,13 @@ test('Worker exposes point balance and authenticated wallet ledger without chang
   assert.match(worker, /"\/me\/wallet-ledger"/);
   assert.match(worker, /row\.amount_microusd[\s\S]*\/\s*1_000/);
   assert.match(worker, /wallet_balance_usd:/);
+});
+
+test('hosted AI usage pushes point balance updates without polling', () => {
+  const credits = read('js/credits-pilot.js');
+  assert.match(credits, /publishWalletUsage/);
+  assert.match(credits, /new window\.BroadcastChannel\("yorubay-wallet"\)/);
+  assert.match(credits, /points: -\(chargedUsd \* 1000\)/);
 });
 
 test('point denomination stays 1 USD internal cost unit = 1000 points', () => {
