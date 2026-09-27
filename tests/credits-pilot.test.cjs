@@ -37,7 +37,7 @@ test('Gemini 3.1 Pro supports both Google official and OpenRouter wallet routes'
  await s.api.send(router,msgs);
  assert.equal(s.calls.length,2);
  assert.deepEqual(JSON.parse(JSON.stringify(JSON.parse(s.calls[0][1].body))),{provider:'gemini',model:'gemini-3.1-pro-preview',request_kind:'chat',messages:msgs,max_output_tokens:8192});
- assert.deepEqual(JSON.parse(JSON.stringify(JSON.parse(s.calls[1][1].body))),{provider:'openrouter',model:'google/gemini-3.1-pro-preview',request_kind:'chat',messages:msgs,max_output_tokens:2048});
+ assert.deepEqual(JSON.parse(JSON.stringify(JSON.parse(s.calls[1][1].body))),{provider:'openrouter',model:'google/gemini-3.1-pro-preview',request_kind:'chat',messages:msgs,max_output_tokens:8192});
  for (const [,opt] of s.calls) {
    assert.equal(opt.headers.Authorization,'Bearer '+token);
    assert.equal(opt.body.includes(token),false);
@@ -51,7 +51,7 @@ test('OpenRouter free preset uses the same wallet bridge and OpenRouter route',a
  const body=JSON.parse(s.calls[0][1].body);
  assert.equal(body.provider,'openrouter');
  assert.equal(body.model,'openrouter/free');
- assert.equal(body.max_output_tokens,2048);
+ assert.equal(body.max_output_tokens,4096);
  assert.equal(s.calls[0][1].headers.Authorization,'Bearer '+token);
 });
 
@@ -65,20 +65,26 @@ test('Claude Sonnet and Opus invitation presets route through OpenRouter with th
    const body=JSON.parse(s.calls[i][1].body);
    assert.equal(body.provider,'openrouter');
    assert.equal(body.model,['anthropic/claude-sonnet-4.5','anthropic/claude-sonnet-4.6','anthropic/claude-opus-4.5','anthropic/claude-opus-4.6'][i]);
-   assert.equal(body.max_output_tokens,2048);
+   assert.equal(body.max_output_tokens,4096);
    assert.equal(s.calls[i][1].headers.Authorization,'Bearer '+token);
  }
 });
-test('summary routes separate from chat, connection tests use 1024 tokens, and BYOK stays available',async()=>{
+test('summary routes separate from chat, connection tests stay minimal, and BYOK stays available',async()=>{
  const s=build(); await s.api.send({...cfg,model:'gemini-3.1-flash-lite',__memoryTask:true},msgs);
  assert.equal(JSON.parse(s.calls[0][1].body).request_kind,'summary');
  await s.api.send({...cfg,__connectionTest:true,maxOutputTokens:16},msgs);
- assert.equal(JSON.parse(s.calls[1][1].body).max_output_tokens,1024);
+ assert.equal(JSON.parse(s.calls[1][1].body).max_output_tokens,16);
  await s.api.send({...cfg,model:'google/gemini-3.1-pro-preview',__stateTask:true},msgs);
  assert.equal(JSON.parse(s.calls[2][1].body).request_kind,'status');
  const normal=await s.api.send({type:'gemini',key:'own-key',model:'abc',baseUrl:'https://example.org'},msgs);
  assert.equal(normal.text,'BYOK works'); assert.equal(s.calls.length,3);
 });
+test('YoruBay requests clamp only above the shared 8192 Worker ceiling',async()=>{
+ const s=build();
+ await s.api.send({...cfg,model:'google/gemini-3.1-pro-preview',maxOutputTokens:12000},msgs);
+ assert.equal(JSON.parse(s.calls[0][1].body).max_output_tokens,8192);
+});
+
 test('refuses account-session leakage to other provider and wrong URL/models',async()=>{
  const s=build();s.app.config.api=cfg;
  await assert.rejects(()=>s.api.send({type:'openrouter',key:'__YORUBAY_ACCOUNT__',baseUrl:'https://openrouter.ai/api/v1'},msgs),/不可沿用/);
