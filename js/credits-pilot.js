@@ -33,6 +33,82 @@
   ];
   const isEndpoint = value => String(value || "").trim().replace(/\/+$/, "") === ENDPOINT;
   const encoder = new TextEncoder();
+  // The soft target keeps normal hosted story calls compact. The hard ceiling is
+  // only a transport / abuse guard; it is deliberately not treated as a model
+  // context-window limit.
+  const HOSTED_SOFT_PROMPT_BYTES = 88_000;
+  const HOSTED_HARD_PROMPT_BYTES = 192_000;
+  const promptBytes = messages => encoder.encode(JSON.stringify(messages)).length;
+  const cleanMessages = messages => messages.map(m => ({ role: m.role, content: API.contentToText(m.content) }));
+  let lastContextBudget = null;
+  const basicMessagesValid = messages => (
+    Array.isArray(messages) &&
+    messages.length > 0 &&
+    messages.length <= 100 &&
+    messages.some(m => m.role === "user") &&
+    !messages.some(m => !["user", "assistant", "system"].includes(m.role) || !m.content || m.content.length > 80000)
+  );
+  const rebuildForRounds = async rounds => {
+    if (typeof App.buildMessages !== "function") return null;
+    const source = App.config || {};
+    const scoped = {
+      ...source,
+      memory: { ...(source.memory || {}), maxRounds: rounds }
+    };
+    const rebuilt = await App.buildMessages(scoped);
+    const cleaned = Array.isArray(rebuilt) ? cleanMessages(rebuilt) : null;
+    return basicMessagesValid(cleaned) ? cleaned : null;
+  };
+  const adaptHostedContext = async (config, input) => {
+    let cleaned = input;
+    const initialBytes = promptBytes(cleaned);
+    let finalBytes = initialBytes;
+    let rounds = null;
+    let summaryPasses = 0;
+    const isStoryChat = !config?.__memoryTask && !config?.__stateTask && !config?.__auxiliaryTask
+      && !config?.__storyTool && !config?.__connectionTest;
+    const smart = App.config?.memory?.mode === "smart";
+    const chat = window.Chat;
+    if (initialBytes > HOSTED_SOFT_PROMPT_BYTES && isStoryChat && smart
+        && chat?.maybeSummarize && typeof App.buildMessages === "function") {
+      const configured = Math.max(4, Number(App.config?.memory?.maxRounds || 20));
+      const candidates = [...new Set([Math.min(configured, 8), 4])];
+      for (const candidateRounds of candidates) {
+        rounds = candidateRounds;
+        // Rebuild first: an existing summary may already cover enough history,
+        // in which case no extra paid helper request is needed.
+        let candidate = await rebuildForRounds(candidateRounds);
+        if (candidate) {
+          cleaned = candidate;
+          finalBytes = promptBytes(cleaned);
+          if (finalBytes <= HOSTED_SOFT_PROMPT_BYTES) break;
+        }
+        const before = Number(chat.summarizedUntil || 0);
+        await chat.maybeSummarize(App.config, true, candidateRounds);
+        const after = Number(chat.summarizedUntil || 0);
+        if (after > before) summaryPasses += 1;
+        candidate = await rebuildForRounds(candidateRounds);
+        if (candidate) {
+          cleaned = candidate;
+          finalBytes = promptBytes(cleaned);
+          if (finalBytes <= HOSTED_SOFT_PROMPT_BYTES) break;
+        }
+        if (after <= before && candidateRounds === 4) break;
+      }
+    }
+    lastContextBudget = {
+      at: new Date().toISOString(),
+      initialBytes,
+      finalBytes,
+      softBytes: HOSTED_SOFT_PROMPT_BYTES,
+      hardBytes: HOSTED_HARD_PROMPT_BYTES,
+      adaptive: finalBytes < initialBytes,
+      smart,
+      rounds,
+      summaryPasses
+    };
+    return cleaned;
+  };
   const accountToken = () => String(window.localStorage?.getItem?.("yorubay:session") || "").trim();
   const accountSentinel = "__YORUBAY_ACCOUNT__";
   const validAccountSession = () => /^yb_s_[A-Za-z0-9_-]{30,}$/.test(accountToken());
@@ -142,10 +218,17 @@
     if (!Array.isArray(messages) || !messages.length || messages.length > 100) {
       throw new Error("BAO/LAB 每次最多傳送 100 則訊息。請縮短近期對話或改用自己的 API Key。");
     }
-    const cleaned = messages.map(m => ({ role: m.role, content: this.contentToText(m.content) }));
-    if (!cleaned.some(m => m.role === "user") || cleaned.some(m => !["user", "assistant", "system"].includes(m.role) || !m.content || m.content.length > 80000) ||
-        encoder.encode(JSON.stringify(cleaned)).length > 96000) {
-      throw new Error("本次故事設定與近期對話超過 BAO/LAB 的 96 KB 上限。請縮短內容或改用自己的 API Key；不會刪除故事。");
+    let cleaned = cleanMessages(messages);
+    if (!basicMessagesValid(cleaned)) {
+      throw new Error("本次內容包含無法安全送出的訊息格式或單則內容過大；故事不會刪除。");
+    }
+    cleaned = await adaptHostedContext(config, cleaned);
+    const hostedBytes = promptBytes(cleaned);
+    if (hostedBytes > HOSTED_HARD_PROMPT_BYTES) {
+      if (App.config?.memory?.mode === "smart") {
+        throw new Error("本次送出內容仍過大。BAO/LAB 已嘗試整理較早故事脈絡，但固定角色／世界設定與尚未整理內容仍超過安全上限。故事不會刪除；可先用記憶工作台整理、縮減大型固定設定，或改用自己的 API Key。");
+      }
+      throw new Error("本次送出內容過大，而且目前不是智慧記憶模式。切換智慧記憶可讓 BAO/LAB 自動整理較早脈絡，或改用自己的 API Key；故事不會刪除。");
     }
     const kind = config.__memoryTask ? "summary" : config.__stateTask ? "status" : "chat";
     const requested = Number(config.maxOutputTokens || (config.__connectionTest ? 16 : 6144));
@@ -239,11 +322,12 @@
     };
     // This route bypasses the base API transport, so account usage here as well.
     // recordRequestUsage is idempotent: an outer wrapper may safely see the same result.
-    if (!config.__connectionTest && window.Chat) {
-      Chat.recordRequestUsage?.(config, result);
-      Chat.renderUsage?.(result.usage || {});
+    const chatUsage = window.Chat;
+    if (!config.__connectionTest && chatUsage) {
+      chatUsage.recordRequestUsage?.(config, result);
+      chatUsage.renderUsage?.(result.usage || {});
       if (!config.__memoryTask && !config.__stateTask && !config.__auxiliaryTask && !config.__storyTool) {
-        Chat.recordStoryUsage?.(result.usage || {}, App?.config);
+        chatUsage.recordStoryUsage?.(result.usage || {}, App?.config);
       }
     }
     return result;
@@ -321,5 +405,13 @@
   };
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
   else init();
-  window.BAOCreditsPilot = Object.freeze({ endpoint: ENDPOINT, provider: PROVIDER, models: [...MODELS], isAccountConnection, isAccountReady, prepareAccountConfig });
+  window.BAOCreditsPilot = Object.freeze({
+    endpoint: ENDPOINT,
+    provider: PROVIDER,
+    models: [...MODELS],
+    isAccountConnection,
+    isAccountReady,
+    prepareAccountConfig,
+    contextBudget: () => lastContextBudget ? { ...lastContextBudget } : null
+  });
 })();
