@@ -52,7 +52,22 @@
 <div class="builder-step active" data-step-panel="1"><h3>敘事模式</h3><label class="choice-card selected"><input type="radio" name="narrative-mode" value="immersive" checked><b>單角色沉浸</b><span>聚焦角色關係與場景互動。</span></label><label class="choice-card"><input type="radio" name="narrative-mode" value="world"><b>世界模擬</b><span>NPC 與事件會持續運作。</span></label></div>
 <div class="builder-step" data-step-panel="2"><h3>顯示模式</h3><label class="choice-card selected"><input type="radio" name="display-mode" value="text" checked><b>純文本</b><span>乾淨的小說式聊天。</span></label><label class="choice-card"><input type="radio" name="display-mode" value="ui"><b>互動 UI</b><span>顯示 NPC、狀態、事件與記憶。</span></label></div>
 <div class="builder-step" data-step-panel="3"><h3>玩家資料（Persona）</h3><div class="form-grid"><label>名稱<input id="persona-name" placeholder="玩家名稱"></label><label>性別<select id="persona-gender"><option>未指定</option><option>男性</option><option>女性</option><option>其他</option></select></label><label>身分<input id="persona-identity" placeholder="職業 / 身分"></label><label>初始關係<input id="persona-relationship" placeholder="陌生人 / 戀人 / 同事…"></label></div><label>個性<textarea id="persona-personality"></textarea></label><label>其他設定<textarea id="persona-extra"></textarea></label></div>
-<div class="builder-step" data-step-panel="4"><h3>連接 AI</h3><p class="note">連線金鑰（API Key）只留在目前頁面，不會寫入故事存檔或備份。</p><div class="form-grid"><label>AI 服務商（Provider）<select id="api-type"></select></label><label>服務與連線格式<select id="model-select"></select></label><label>模型代號（Model ID）<input id="model-id" placeholder="例如：gemini-2.5-flash"></label><label>連線網址（Base URL）<input id="base-url" placeholder="https://..."></label></div><label>連線金鑰（API Key）<input id="api-key" type="password" autocomplete="off" placeholder="貼上自己的 API Key"></label><div><span id="api-protocol-badge" class="chip">API</span> <span id="api-hint" class="note"></span></div></div>
+<div class="builder-step" data-step-panel="4"><h3>連接 AI</h3>
+<p class="note api-onboarding-intro">新手只要完成三件事：選服務商、貼上 API Key、選模型。其他連線參數已盡量自動處理。</p>
+<div class="form-grid api-primary-grid">
+  <label class="wide">AI 服務商（Provider）<select id="api-type"></select></label>
+  <label class="wide api-key-primary">連線金鑰（API Key）<input id="api-key" type="password" autocomplete="off" spellcheck="false" placeholder="先貼上自己的 API Key"><small>只留在目前頁面記憶體，不會寫入故事存檔或備份。</small></label>
+  <label class="wide">使用哪個模型？<select id="model-select"></select></label>
+</div>
+<div class="api-connection-summary"><span id="api-protocol-badge" class="chip">API</span> <span id="api-hint" class="note"></span></div>
+<details id="api-advanced-settings" class="api-advanced-settings">
+  <summary>進階連線設定</summary>
+  <p class="note">只有自訂 API、中轉站或特殊服務需要調整。一般玩家可以保持預設。</p>
+  <div class="form-grid" data-api-advanced-grid>
+    <label>模型代號（Model ID）<input id="model-id" placeholder="例如：gemini-2.5-flash"></label>
+    <label>連線網址（Base URL）<input id="base-url" placeholder="https://..."></label>
+  </div>
+</details></div>
 <div class="builder-step" data-step-panel="5"><h3>故事記憶</h3><p class="note">最近劇情保留原文，較早內容會逐步整理成長期記憶。</p>
 <div class="memory-mode-summary">記憶模式：<b id="memory-mode-label">智慧整理</b> <span id="memory-hosted-recommendation" class="chip" hidden>推薦 · 長篇故事</span></div>
 <fieldset class="memory-strength"><legend>記憶強度</legend>
