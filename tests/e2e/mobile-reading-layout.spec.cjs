@@ -24,7 +24,10 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 320, height: 568 }
     const headerStatus = page.getByRole('button', { name: '查看故事狀態' });
     await expect(exit).toBeVisible();
     await expect(headerStatus).toBeVisible();
-    await expect(page.locator('#bao-mobile-support')).toHaveCount(0);
+    const headerMemory = page.getByRole('button', { name: '查看故事記憶' });
+    const headerSupport = page.getByRole('link', { name: '支持 BAO/LAB・投餵肉包' });
+    await expect(headerMemory).toBeVisible();
+    await expect(headerSupport).toBeVisible();
     await expect(page.locator('#bao-chat-tool-shortcuts')).toBeHidden();
     await expect(page.locator('#bao-chat-api-toolbar')).toBeHidden();
     await page.waitForFunction(() => Boolean(window.BAOStorySurface));
@@ -60,11 +63,15 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 320, height: 568 }
     await expect(page.locator('#bao-reading-status')).toHaveClass(/is-open/);
     await page.locator('.bao-status-close').click();
     await tab.click();
-    await page.getByRole('button', { name: '人物／事件／記憶' }).click();
+    await page.getByRole('button', { name: '人物／事件' }).click();
     await expect(page.locator('#game-ui')).toBeVisible();
     await tab.click();
-    await page.getByRole('button', { name: '人物／事件／記憶' }).click();
+    await page.getByRole('button', { name: '人物／事件' }).click();
     await expect(page.locator('#game-ui')).toBeHidden();
+
+    await headerMemory.click();
+    await expect(page.locator('#game-ui')).toBeVisible();
+    await expect(page.locator('#chat-view .ui-tab[data-panel="memory"]')).toHaveClass(/active/);
 
     await page.locator('#user-input').fill('手機版閱讀測試');
     await page.locator('#chat-view .composer [data-send-message]').click();
@@ -75,6 +82,11 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 320, height: 568 }
     await expect(actions.locator('[data-regenerate]')).toBeVisible();
     await expect(actions.locator('[data-create-branch]')).toHaveCount(1);
     await expect(actions.locator('[data-story-rollback]')).toHaveCount(1);
+    const beforeEditScroll = await page.locator('#chat-stream').evaluate(node => node.scrollTop);
+    await actions.locator('[data-edit]').click();
+    await expect(page.locator('.story-inline-editor textarea')).toBeVisible();
+    await expect.poll(() => page.locator('#chat-stream').evaluate(node => node.scrollTop)).toBe(beforeEditScroll);
+    await expect(page.locator('.story-inline-editor textarea')).toHaveCSS('position', 'static');
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
   });
 }

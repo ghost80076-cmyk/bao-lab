@@ -203,6 +203,8 @@
 
   #bao-mobile-exit,
   #bao-mobile-status,
+  #bao-mobile-memory,
+  #bao-mobile-support,
   #bao-mobile-tools-tab{
     display:inline-flex!important;
     align-items:center!important;
@@ -229,6 +231,14 @@
     font-size:18px!important;
   }
   #bao-mobile-status{min-width:54px!important}
+  #bao-mobile-memory{min-width:54px!important}
+  #bao-mobile-support{
+    width:40px!important;
+    min-width:40px!important;
+    padding:0!important;
+    text-decoration:none!important;
+    font-size:18px!important;
+  }
   #bao-mobile-tools-tab{
     width:40px!important;
     min-width:40px!important;
@@ -241,8 +251,10 @@
   #bao-mobile-tools-tab span:first-child{font-size:14px!important;line-height:1;letter-spacing:1px;transform:translateY(-2px)}
   #bao-mobile-exit:focus-visible,
   #bao-mobile-status:focus-visible,
+  #bao-mobile-memory:focus-visible,
+  #bao-mobile-support:focus-visible,
   #bao-mobile-tools-tab:focus-visible{outline:3px solid #72e2d3;outline-offset:2px}
-  #chat-view:not(.active) :is(#bao-mobile-exit,#bao-mobile-status,#bao-mobile-tools-tab){display:none!important}
+  #chat-view:not(.active) :is(#bao-mobile-exit,#bao-mobile-status,#bao-mobile-memory,#bao-mobile-support,#bao-mobile-tools-tab){display:none!important}
 
   #bao-chat-tool-drawer{inset:0!important;z-index:145!important;display:flex!important;align-items:flex-end!important;justify-content:center!important;padding:0!important;background:rgba(2,5,10,.68)!important;backdrop-filter:blur(10px)}
   #bao-chat-tool-drawer .bao-chat-tool-dialog{height:auto!important;max-height:86dvh!important;width:100%!important;max-width:560px!important;border-radius:24px 24px 0 0!important;border:1px solid rgba(255,255,255,.12)!important;border-bottom:0!important;background:#121620!important;box-shadow:0 -18px 54px rgba(0,0,0,.58)!important;overflow:hidden}
@@ -267,3 +279,10 @@
   #bao-chat-tool-drawer .bao-chat-tool-dialog{width:100%!important}
 }
 @media(prefers-reduced-motion:reduce){#bao-mobile-tools-tab,#bao-chat-tool-drawer *{transition:none!important;animation:none!important}}
+
+@media(max-width:430px){
+  #chat-view .chat-topline{gap:6px!important}
+  #bao-mobile-status,#bao-mobile-memory{min-width:46px!important;padding-inline:8px!important;font-size:11px!important}
+  #bao-mobile-support,#bao-mobile-tools-tab,#bao-mobile-exit{width:38px!important;min-width:38px!important;height:38px!important;min-height:38px!important}
+  #chat-view .chat-title-avatar{width:36px!important;height:36px!important;flex-basis:36px!important}
+}

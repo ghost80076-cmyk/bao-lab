@@ -111,6 +111,13 @@
     if (window.BAOChatExperience?.openStatus) BAOChatExperience.openStatus();
     else document.getElementById('bao-reading-status-toggle')?.click();
   };
+  const openMemory = () => {
+    if (!main.classList.contains('bao-mobile-panel-open')) main.classList.add('bao-mobile-panel-open');
+    const tab = document.querySelector('#chat-view .ui-tab[data-panel="memory"]');
+    if (tab) tab.click();
+    else App.renderUIPanel?.('memory');
+    document.querySelector('[data-bao-mobile-panel-toggle]')?.setAttribute('aria-expanded', 'true');
+  };
   const togglePanels = () => {
     const opened = main.classList.toggle('bao-mobile-panel-open');
     const panelButton = document.querySelector('[data-bao-mobile-panel-toggle]');
@@ -130,7 +137,6 @@
   const ensureExit = () => {
     const header = main.querySelector('.chat-topline');
     if (!header) return;
-    header.querySelector('#bao-mobile-support')?.remove();
     let button = header.querySelector('#bao-mobile-exit');
     if (!button) {
       button = document.createElement('button');
@@ -161,6 +167,38 @@
       header.append(button);
     }
   };
+  const ensureMemory = () => {
+    const header = main.querySelector('.chat-topline');
+    if (!header) return;
+    let button = header.querySelector('#bao-mobile-memory');
+    if (!button) {
+      button = document.createElement('button');
+      button.type = 'button';
+      button.id = 'bao-mobile-memory';
+      button.className = 'bao-mobile-header-action bao-mobile-memory-action';
+      button.textContent = '記憶';
+      button.setAttribute('aria-label', '查看故事記憶');
+      button.addEventListener('click', openMemory);
+      header.append(button);
+    }
+  };
+  const ensureSupport = () => {
+    const header = main.querySelector('.chat-topline');
+    if (!header) return;
+    let link = header.querySelector('#bao-mobile-support');
+    if (!link) {
+      link = document.createElement('a');
+      link.id = 'bao-mobile-support';
+      link.className = 'bao-mobile-header-action bao-mobile-support-action';
+      link.href = supportUrl();
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      link.textContent = '🥟';
+      link.title = '投餵肉包';
+      link.setAttribute('aria-label', '支持 BAO/LAB・投餵肉包');
+      header.append(link);
+    }
+  };
   const enhanceDrawer = () => {
     const panel = drawer();
     if (!panel || panel.dataset.baoMobileEnhanced === 'true') return;
@@ -175,7 +213,8 @@
       if (window.BAOCharacterStatusUI?.openSettings) BAOCharacterStatusUI.openSettings();
       else clickOriginal('[data-open-status-manager]');
     });
-    makeAction(quick, '人物／事件／記憶', togglePanels, { 'data-bao-mobile-panel-toggle': '', 'aria-expanded': String(main.classList.contains('bao-mobile-panel-open')) });
+    makeAction(quick, '人物／事件', togglePanels, { 'data-bao-mobile-panel-toggle': '', 'aria-expanded': String(main.classList.contains('bao-mobile-panel-open')) });
+    makeAction(quick, '🧠 記憶', openMemory);
     makeAction(quick, 'API／切換模型', () => {
       if (window.BAOChatAPISettings?.open) BAOChatAPISettings.open();
       else clickOriginal('#bao-chat-api-aside');
@@ -222,6 +261,8 @@
   const sync = () => {
     ensureExit();
     ensureStatus();
+    ensureMemory();
+    ensureSupport();
     ensureTab();
     measure();
     enhanceDrawer();
@@ -262,10 +303,10 @@
     focusScrollTop = null;
     schedule();
   });
-  window.BAOMobileReadingLayout = { version: 6, sync, openTools, enhanceDrawer, togglePanels };
+  window.BAOMobileReadingLayout = { version: 7, sync, openTools, enhanceDrawer, togglePanels, openMemory };
   const style = document.createElement('link');
   style.rel = 'stylesheet';
-  style.href = 'css/mobile-reading-layout.css?v=6';
+  style.href = 'css/mobile-reading-layout.css?v=7';
   document.head.append(style);
   sync();
 })();

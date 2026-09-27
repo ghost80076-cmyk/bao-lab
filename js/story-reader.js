@@ -10,10 +10,10 @@
   const safeMessage = message => ({ role: message.role, content: String(message.content || "") });
 
   const ensureStyles = () => {
-    if (document.querySelector('link[href="css/story-reader.css"]')) return;
+    if (document.querySelector('link[href^="css/story-reader.css"]')) return;
     const link = document.createElement("link");
     link.rel = "stylesheet";
-    link.href = "css/story-reader.css";
+    link.href = "css/story-reader.css?v=2";
     document.head.appendChild(link);
   };
 
@@ -303,12 +303,18 @@
     if (!message || message.role !== "assistant" || !bubble || !requireLatestReply(index)) return;
     if (messageElement.querySelector(".story-inline-editor")) return;
 
+    const stream = document.getElementById("chat-stream");
+    const priorScrollTop = stream?.scrollTop ?? 0;
     const editor = document.createElement("div");
     editor.className = "story-inline-editor";
     editor.innerHTML = `<textarea aria-label="編輯 AI 回覆"></textarea><div class="story-inline-actions"><button type="button" class="secondary" data-cancel>取消</button><button type="button" class="primary" data-save>儲存</button></div>`;
-    editor.querySelector("textarea").value = String(message.content || "");
+    const textarea = editor.querySelector("textarea");
+    textarea.value = String(message.content || "");
     bubble.replaceChildren(editor);
-    editor.querySelector("textarea").focus();
+    textarea.focus({ preventScroll: true });
+    requestAnimationFrame(() => {
+      if (stream?.isConnected) stream.scrollTop = priorScrollTop;
+    });
 
     editor.querySelector("[data-cancel]").onclick = () => decorateStream();
     editor.querySelector("[data-save]").onclick = () => {

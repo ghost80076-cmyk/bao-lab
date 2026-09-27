@@ -100,9 +100,10 @@
   settingsButton.className = 'secondary';
   settingsButton.textContent = '⚙ 記憶／Token／成本';
   settingsButton.addEventListener('click', openSettings);
-  const apiToolbar = $('bao-chat-api-toolbar');
-  if (apiToolbar) apiToolbar.insertAdjacentElement('afterend', settingsButton);
-  else chat.querySelector('.chat-main')?.insertBefore(settingsButton, stream);
+  const settingsGroup = chat.querySelector('[data-chat-tool-body="settings"]');
+  const sidebar = chat.querySelector('.chat-layout > aside');
+  if (settingsGroup) settingsGroup.append(settingsButton);
+  else if (sidebar) sidebar.append(settingsButton);
 
   const numeric = (form, name, min, max = Infinity) => {
     const value = Number(form.elements.namedItem(name)?.value);
