@@ -31,6 +31,19 @@ test.describe('Player 2.0 shell', () => {
     await expect(page.locator('#bao-mobile-nav')).toBeHidden();
     await expect(page.locator('.topbar nav a[href="account.html"]')).toBeHidden();
     await expect(page.locator('.topbar nav a[href*="ko-fi.com"]')).toBeHidden();
+    const homeSupport = page.locator('#bao-support-float');
+    await expect(homeSupport).toBeVisible();
+    await expect(homeSupport).toContainText('投餵肉包');
+    await expect(homeSupport.locator('img[src$="assets/bao-bun.svg"]')).toHaveCount(1);
+    const mascotButton = page.locator('#bao-mascot-launch');
+    await expect(mascotButton).toBeVisible();
+    await mascotButton.click();
+    const mascotPanel = page.locator('#bao-mascot-panel');
+    await expect(mascotPanel).toBeVisible();
+    const mascotSupport = mascotPanel.getByRole('link', { name: '投餵肉包・支持 BAO/LAB' });
+    await expect(mascotSupport).toBeVisible();
+    await expect(mascotSupport.locator('img[src$="assets/bao-bun.svg"]')).toHaveCount(1);
+    await page.locator('#bao-mascot-close').click();
     await expect(page.locator('.topbar nav [data-bao-regex-link]')).toBeHidden();
     await expect(page.locator('.topbar nav #bao-drive-button')).toBeHidden();
 
