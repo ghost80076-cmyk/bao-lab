@@ -29,59 +29,55 @@ test('pilot sends player-token request to fixed Worker, never admin/provider key
  assert.deepEqual(JSON.parse(JSON.stringify(JSON.parse(opt.body))),{provider:'gemini',model:'gemini-3-flash-preview',request_kind:'chat',messages:msgs,max_output_tokens:6144});
  assert.equal(opt.body.includes(token),false);
 });
-test('Gemini 3.1 Pro supports both Google official and OpenRouter wallet routes',async()=>{
+test('Gemini 3.1 Pro uses the Google official hosted route',async()=>{
  const s=build();
  const official={...cfg,model:'gemini-3.1-pro-preview',maxOutputTokens:8192};
- const router={...cfg,model:'google/gemini-3.1-pro-preview',maxOutputTokens:8192};
  await s.api.send(official,msgs);
- await s.api.send(router,msgs);
- assert.equal(s.calls.length,2);
- assert.deepEqual(JSON.parse(JSON.stringify(JSON.parse(s.calls[0][1].body))),{provider:'gemini',model:'gemini-3.1-pro-preview',request_kind:'chat',messages:msgs,max_output_tokens:8192});
- assert.deepEqual(JSON.parse(JSON.stringify(JSON.parse(s.calls[1][1].body))),{provider:'openrouter',model:'google/gemini-3.1-pro-preview',request_kind:'chat',messages:msgs,max_output_tokens:8192});
- for (const [,opt] of s.calls) {
-   assert.equal(opt.headers.Authorization,'Bearer '+token);
-   assert.equal(opt.body.includes(token),false);
-   assert.equal(opt.body.includes('OPENROUTER_API_KEY'),false);
- }
-});
-test('OpenRouter free preset uses the same wallet bridge and OpenRouter route',async()=>{
- const s=build();
- await s.api.send({...cfg,model:'openrouter/free',maxOutputTokens:4096},msgs);
  assert.equal(s.calls.length,1);
- const body=JSON.parse(s.calls[0][1].body);
- assert.equal(body.provider,'openrouter');
- assert.equal(body.model,'openrouter/free');
- assert.equal(body.max_output_tokens,4096);
+ assert.deepEqual(JSON.parse(JSON.stringify(JSON.parse(s.calls[0][1].body))),{provider:'gemini',model:'gemini-3.1-pro-preview',request_kind:'chat',messages:msgs,max_output_tokens:8192});
  assert.equal(s.calls[0][1].headers.Authorization,'Bearer '+token);
+ assert.equal(s.calls[0][1].body.includes(token),false);
+ assert.equal(s.calls[0][1].body.includes('OPENROUTER_API_KEY'),false);
 });
-
 test('Claude Sonnet and Opus invitation presets route through OpenRouter with the same account session',async()=>{
  const s=build();
- for (const model of ['anthropic/claude-sonnet-4.5','anthropic/claude-sonnet-4.6','anthropic/claude-opus-4.5','anthropic/claude-opus-4.6']) {
+ for (const model of ['anthropic/claude-sonnet-4.5','anthropic/claude-sonnet-4.6','anthropic/claude-opus-4.6']) {
    await s.api.send({...cfg,model,maxOutputTokens:4096},msgs);
  }
- assert.equal(s.calls.length,4);
+ assert.equal(s.calls.length,3);
  for (let i=0;i<s.calls.length;i++) {
    const body=JSON.parse(s.calls[i][1].body);
    assert.equal(body.provider,'openrouter');
-   assert.equal(body.model,['anthropic/claude-sonnet-4.5','anthropic/claude-sonnet-4.6','anthropic/claude-opus-4.5','anthropic/claude-opus-4.6'][i]);
+   assert.equal(body.model,['anthropic/claude-sonnet-4.5','anthropic/claude-sonnet-4.6','anthropic/claude-opus-4.6'][i]);
    assert.equal(body.max_output_tokens,4096);
    assert.equal(s.calls[i][1].headers.Authorization,'Bearer '+token);
  }
 });
+test('DeepSeek, Qwen, MiMo and MiniMax hosted presets route through OpenRouter',async()=>{
+ const s=build();
+ const models=['deepseek/deepseek-v4-flash-0731','qwen/qwen3.7-flash','xiaomi/mimo-v2.5','minimax/minimax-m3'];
+ for (const model of models) await s.api.send({...cfg,model,maxOutputTokens:4096},msgs);
+ assert.equal(s.calls.length,models.length);
+ for (let i=0;i<models.length;i++) {
+   const body=JSON.parse(s.calls[i][1].body);
+   assert.equal(body.provider,'openrouter');
+   assert.equal(body.model,models[i]);
+   assert.equal(body.max_output_tokens,4096);
+ }
+});
 test('summary routes separate from chat, connection tests stay minimal, and BYOK stays available',async()=>{
- const s=build(); await s.api.send({...cfg,model:'gemini-3.1-flash-lite',__memoryTask:true},msgs);
+ const s=build(); await s.api.send({...cfg,model:'qwen/qwen3.7-flash',__memoryTask:true},msgs);
  assert.equal(JSON.parse(s.calls[0][1].body).request_kind,'summary');
  await s.api.send({...cfg,__connectionTest:true,maxOutputTokens:16},msgs);
  assert.equal(JSON.parse(s.calls[1][1].body).max_output_tokens,16);
- await s.api.send({...cfg,model:'google/gemini-3.1-pro-preview',__stateTask:true},msgs);
+ await s.api.send({...cfg,model:'minimax/minimax-m3',__stateTask:true},msgs);
  assert.equal(JSON.parse(s.calls[2][1].body).request_kind,'status');
  const normal=await s.api.send({type:'gemini',key:'own-key',model:'abc',baseUrl:'https://example.org'},msgs);
  assert.equal(normal.text,'BYOK works'); assert.equal(s.calls.length,3);
 });
 test('YoruBay requests clamp only above the shared 8192 Worker ceiling',async()=>{
  const s=build();
- await s.api.send({...cfg,model:'google/gemini-3.1-pro-preview',maxOutputTokens:12000},msgs);
+ await s.api.send({...cfg,model:'anthropic/claude-sonnet-4.6',maxOutputTokens:12000},msgs);
  assert.equal(JSON.parse(s.calls[0][1].body).max_output_tokens,8192);
 });
 
@@ -117,33 +113,38 @@ test('propagates quota and provider-specific upstream errors without exposing pl
  await assert.rejects(()=>insufficient.api.send(cfg,msgs),/額度不足/);
  const rateLimit=build({ok:false,status:502,body:{error:'provider_rate_limited',upstream_http_status:429}});
  await assert.rejects(()=>rateLimit.api.send(cfg,msgs),/Google Gemini 回報 API 速率或配額限制/);
- await assert.rejects(()=>rateLimit.api.send({...cfg,model:'google/gemini-3.1-pro-preview'},msgs),/OpenRouter 回報 API 速率或配額限制/);
+ await assert.rejects(()=>rateLimit.api.send({...cfg,model:'deepseek/deepseek-v4-flash-0731'},msgs),/OpenRouter 回報 API 速率或配額限制/);
  const empty=build({ok:false,status:502,body:{error:'provider_empty_text',finish_reason:'MAX_TOKENS'}});
  await assert.rejects(()=>empty.api.send(cfg,msgs),/MAX_TOKENS/);
 });
-test('registers all nine YoruBay wallet model presets without replacing existing provider or duplication',()=>{
+test('registers only the prioritized YoruBay hosted catalog without free or duplicate routes',()=>{
  const s=build();s.app.populateAPIControls();s.app.populateAPIControls();
  assert.equal(s.app.modelPresets.length,10);
  assert.equal(s.app.modelPresets[0].provider,'gemini');
  const added=s.app.modelPresets.slice(1);
  assert.deepEqual(Array.from(added.map(p=>p.model)),[
+   'deepseek/deepseek-v4-flash-0731',
+   'qwen/qwen3.7-flash',
+   'xiaomi/mimo-v2.5',
    'gemini-3-flash-preview',
-   'gemini-3.1-flash-lite',
+   'minimax/minimax-m3',
    'gemini-3.1-pro-preview',
-   'google/gemini-3.1-pro-preview',
-   'openrouter/free',
    'anthropic/claude-sonnet-4.5',
    'anthropic/claude-sonnet-4.6',
-   'anthropic/claude-opus-4.5',
    'anthropic/claude-opus-4.6'
  ]);
  assert.equal(added.every(p=>p.provider==='bao-credits'),true);
  assert.equal(added.every(p=>p.provider_label==='YoruBay AI 點數'),true);
  assert.equal(added.every(p=>p.base_url===cfg.baseUrl),true);
- assert.match(added[2].label,/Google 官方/);
- assert.match(added[4].label,/免費路由/);
- assert.match(added[6].label,/Sonnet 4\.6/);
- assert.match(added[8].label,/Opus 4\.6/);
+ assert.equal(added.some(p=>p.model==='openrouter/free'),false);
+ assert.equal(added.some(p=>p.model==='gemini-3.1-flash-lite'),false);
+ assert.equal(added.some(p=>p.model==='google/gemini-3.1-pro-preview'),false);
+ assert.equal(added.some(p=>p.model==='anthropic/claude-opus-4.5'),false);
+ assert.match(added[0].label,/超省長聊.*DeepSeek/);
+ assert.match(added[3].label,/日常主力.*Gemini 3 Flash/);
+ assert.match(added[4].label,/長篇世界.*MiniMax M3/);
+ assert.match(added[7].label,/RP 高品質.*Sonnet 4\.6/);
+ assert.match(added[8].label,/豪華.*Opus 4\.6/);
  assert.equal(s.window.BAOCreditsPilot.models.length,9);
 });
 
@@ -151,7 +152,7 @@ test('uses logged-in YoruBay session token without copying it into request body'
  const s=build();
  const session='yb_s_'+'S'.repeat(43);
  s.window.localStorage={getItem:key=>key==='yorubay:session'?session:null};
- const result=await s.api.send({...cfg,key:'__YORUBAY_ACCOUNT__',model:'gemini-3.1-flash-lite'},msgs);
+ const result=await s.api.send({...cfg,key:'__YORUBAY_ACCOUNT__',model:'gemini-3-flash-preview'},msgs);
  assert.equal(result.text,'測試成功');
  assert.equal(s.calls[0][1].headers.Authorization,'Bearer '+session);
  assert.equal(s.calls[0][1].body.includes(session),false);

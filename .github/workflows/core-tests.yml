@@ -73,6 +73,8 @@ jobs:
           node --test tests/credits-pilot.test.cjs
       - name: YoruBay zero-cost model billing
         run: node tests/worker-free-model-billing-core.cjs
+      - name: YoruBay OpenRouter price guard
+        run: node tests/worker-openrouter-cost-guard-core.cjs
       - name: Canon workbench
         run: node tests/canon-workbench-core.cjs
       - name: Stable chat message IDs
