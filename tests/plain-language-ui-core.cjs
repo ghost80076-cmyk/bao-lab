@@ -24,6 +24,11 @@ const chatSettings = read('js/chat-api-settings.js');
 assert.match(chatSettings, /目前故事的 AI 連線設定/);
 assert.match(chatSettings, /連線格式（API Protocol）/);
 
+const chatExperienceRepairs = read('js/chat-experience-repairs.js');
+assert.match(chatExperienceRepairs, /YoruBay 點數模式最高 8192/);
+assert.match(chatExperienceRepairs, /自備 API Key（BYOK）介面最高 32768/);
+assert.match(chatExperienceRepairs, /const outputLimit = isYoruBay \? 8192 : 32768/);
+
 const discovery = read('js/model-discovery.js');
 assert.match(discovery, /連線格式（API Protocol；自訂連線可切換）/);
 
