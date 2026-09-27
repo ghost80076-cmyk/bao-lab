@@ -10,10 +10,10 @@
   const safeMessage = message => ({ role: message.role, content: String(message.content || "") });
 
   const ensureStyles = () => {
-    if (document.querySelector('link[href="css/story-reader.css"]')) return;
+    if (document.querySelector('link[href^="css/story-reader.css"]')) return;
     const link = document.createElement("link");
     link.rel = "stylesheet";
-    link.href = "css/story-reader.css";
+    link.href = "css/story-reader.css?v=2";
     document.head.appendChild(link);
   };
 
