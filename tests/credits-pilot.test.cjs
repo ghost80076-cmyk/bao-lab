@@ -69,11 +69,23 @@ test('Claude Sonnet and Opus invitation presets route through OpenRouter with th
    assert.equal(s.calls[i][1].headers.Authorization,'Bearer '+token);
  }
 });
-test('summary routes separate from chat, connection tests use 1024 tokens, and BYOK stays available',async()=>{
+test('DeepSeek, Qwen, MiMo and MiniMax hosted presets route through OpenRouter',async()=>{
+ const s=build();
+ const models=['deepseek/deepseek-v4-flash-0731','qwen/qwen3.7-flash','xiaomi/mimo-v2.5','minimax/minimax-m3'];
+ for (const model of models) await s.api.send({...cfg,model,maxOutputTokens:4096},msgs);
+ assert.equal(s.calls.length,models.length);
+ for (let i=0;i<models.length;i++) {
+   const body=JSON.parse(s.calls[i][1].body);
+   assert.equal(body.provider,'openrouter');
+   assert.equal(body.model,models[i]);
+   assert.equal(body.max_output_tokens,2048);
+ }
+});
+test('summary routes separate from chat, connection tests stay tiny, and BYOK stays available',async()=>{
  const s=build(); await s.api.send({...cfg,model:'gemini-3.1-flash-lite',__memoryTask:true},msgs);
  assert.equal(JSON.parse(s.calls[0][1].body).request_kind,'summary');
  await s.api.send({...cfg,__connectionTest:true,maxOutputTokens:16},msgs);
- assert.equal(JSON.parse(s.calls[1][1].body).max_output_tokens,1024);
+ assert.equal(JSON.parse(s.calls[1][1].body).max_output_tokens,16);
  await s.api.send({...cfg,model:'google/gemini-3.1-pro-preview',__stateTask:true},msgs);
  assert.equal(JSON.parse(s.calls[2][1].body).request_kind,'status');
  const normal=await s.api.send({type:'gemini',key:'own-key',model:'abc',baseUrl:'https://example.org'},msgs);
@@ -115,9 +127,9 @@ test('propagates quota and provider-specific upstream errors without exposing pl
  const empty=build({ok:false,status:502,body:{error:'provider_empty_text',finish_reason:'MAX_TOKENS'}});
  await assert.rejects(()=>empty.api.send(cfg,msgs),/MAX_TOKENS/);
 });
-test('registers all nine YoruBay wallet model presets without replacing existing provider or duplication',()=>{
+test('registers the classified YoruBay hosted catalog without replacing existing provider or duplication',()=>{
  const s=build();s.app.populateAPIControls();s.app.populateAPIControls();
- assert.equal(s.app.modelPresets.length,10);
+ assert.equal(s.app.modelPresets.length,14);
  assert.equal(s.app.modelPresets[0].provider,'gemini');
  const added=s.app.modelPresets.slice(1);
  assert.deepEqual(Array.from(added.map(p=>p.model)),[
@@ -126,6 +138,10 @@ test('registers all nine YoruBay wallet model presets without replacing existing
    'gemini-3.1-pro-preview',
    'google/gemini-3.1-pro-preview',
    'openrouter/free',
+   'deepseek/deepseek-v4-flash-0731',
+   'qwen/qwen3.7-flash',
+   'xiaomi/mimo-v2.5',
+   'minimax/minimax-m3',
    'anthropic/claude-sonnet-4.5',
    'anthropic/claude-sonnet-4.6',
    'anthropic/claude-opus-4.5',
@@ -134,11 +150,14 @@ test('registers all nine YoruBay wallet model presets without replacing existing
  assert.equal(added.every(p=>p.provider==='bao-credits'),true);
  assert.equal(added.every(p=>p.provider_label==='YoruBay AI 點數'),true);
  assert.equal(added.every(p=>p.base_url===cfg.baseUrl),true);
- assert.match(added[2].label,/Google 官方/);
- assert.match(added[4].label,/免費路由/);
- assert.match(added[6].label,/Sonnet 4\.6/);
- assert.match(added[8].label,/Opus 4\.6/);
- assert.equal(s.window.BAOCreditsPilot.models.length,9);
+ assert.equal(added.every(p=>['體驗','經濟','標準','高階','豪華'].includes(p.tier)),true);
+ assert.match(added[0].label,/【標準】.*Gemini 3 Flash/);
+ assert.match(added[4].label,/【體驗】.*Free/);
+ assert.match(added[5].label,/DeepSeek/);
+ assert.match(added[8].label,/MiniMax M3/);
+ assert.match(added[10].label,/Sonnet 4\.6/);
+ assert.match(added[12].label,/Opus 4\.6/);
+ assert.equal(s.window.BAOCreditsPilot.models.length,13);
 });
 
 test('uses logged-in YoruBay session token without copying it into request body',async()=>{
