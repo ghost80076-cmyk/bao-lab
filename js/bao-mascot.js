@@ -56,7 +56,7 @@
         <div class="bao-mascot-controls"><button type="button" id="bao-mascot-transform" aria-pressed="false">變成人形</button><button type="button" id="bao-mascot-motion" aria-pressed="true">關閉動畫</button></div>
         <p id="bao-mascot-form-note" class="bao-mascot-form-note">肉包型態：眨眼、漂浮與點擊反應在本機執行。</p>
         <details class="bao-mascot-help"><summary>網站小教室（不限次數）</summary><div class="bao-mascot-actions"><button type="button" data-bao-help="api">如何連接 AI？</button><button type="button" data-bao-help="backup">如何備份？</button><button type="button" data-bao-help="memory">記憶有什麼用？</button></div></details>
-        <div class="bao-mascot-bottom"><a href="https://ko-fi.com/roger2486" target="_blank" rel="noopener noreferrer">支持 BAO/LAB ↗</a><button id="bao-mascot-disable" type="button">不再顯示</button></div>
+        <div class="bao-mascot-bottom"><a href="https://ko-fi.com/roger2486" target="_blank" rel="noopener noreferrer" aria-label="投餵肉包・支持 BAO/LAB"><img class="bao-support-icon" src="assets/bao-bun.svg" width="20" height="20" alt=""> 投餵肉包 ↗</a><button id="bao-mascot-disable" type="button">不再顯示</button></div>
         <small class="bao-mascot-disclaimer">動畫與型態偏好只存在這台瀏覽器。人形目前是靜態預覽，非 Live2D；不會讀取故事或連線金鑰。</small>
       </section>`;
     document.body.appendChild(root);
