@@ -30,7 +30,7 @@ test('Lin Chenfeng opening is structured UI backed by plain story text', async (
     content: Chat.messages[0]?.content,
     openingType: App.activeCharacter?.opening?.type,
     stateTime: GameState.current?.time,
-    stage: GameState.current?.modules?.relationship?.stage
+    stage: App.activeCharacter?.initial_state?.modules?.relationship?.stage
   }));
   expect(stored.greeting).toBe(true);
   expect(stored.content).not.toMatch(/<\/?(?:div|p|span|details|style)\b/i);
