@@ -8,7 +8,9 @@
     paragraphs: "auto",
     innerThoughts: "card",
     physicalContinuity: false,
-    intimacy: "card"
+    intimacy: "card",
+    matureDrama: "card",
+    characterAgency: "card"
   };
 
   const packs = {
@@ -31,7 +33,10 @@
     if (!stylePacks.length && raw.stylePack && raw.stylePack !== "off" && packs[raw.stylePack]) {
       stylePacks = [raw.stylePack];
     }
-    return { ...defaults, ...raw, stylePacks };
+    const normalized = { ...defaults, ...raw, stylePacks };
+    normalized.matureDrama = ["card", "mature"].includes(normalized.matureDrama) ? normalized.matureDrama : "card";
+    normalized.characterAgency = ["card", "autonomous"].includes(normalized.characterAgency) ? normalized.characterAgency : "card";
+    return normalized;
   };
 
   const read = () => {
@@ -70,6 +75,8 @@
     if (normalized.innerThoughts !== "card") items.push(normalized.innerThoughts === "none" ? "不揭露內心" : normalized.innerThoughts === "restrained" ? "克制內心戲" : "明確內心戲");
     if (normalized.physicalContinuity) items.push("身體連續性");
     if (normalized.intimacy !== "card") items.push(normalized.intimacy === "fade" ? "親密淡化" : normalized.intimacy === "emotion" ? "親密重情感" : "親密連續描寫");
+    if (normalized.matureDrama === "mature") items.push("成熟文學題材");
+    if (normalized.characterAgency === "autonomous") items.push("高角色自主");
     return items;
   };
 
@@ -139,6 +146,26 @@
               </select><small>只是節奏目標，不為湊段數重複描寫。</small>
             </label>
           </div>
+        </div>
+
+        <div class="bao-setting-section">
+          <h3>成熟題材與角色自主</h3>
+          <p>這一層只控制故事取向，不取代角色卡，也不會用提示詞去要求模型忽略上游服務規則。</p>
+          <div class="narrative-select-grid">
+            <label>成熟文學題材
+              <select data-pref="matureDrama">
+                <option value="card" ${prefs.matureDrama === "card" ? "selected" : ""}>依角色卡</option>
+                <option value="mature" ${prefs.matureDrama === "mature" ? "selected" : ""}>成年成熟敘事</option>
+              </select><small>允許複雜情感、慾望、道德困境、浪漫與親密關係，不自動說教或急著把衝突化解。</small>
+            </label>
+            <label>角色自主程度
+              <select data-pref="characterAgency">
+                <option value="card" ${prefs.characterAgency === "card" ? "selected" : ""}>依角色卡</option>
+                <option value="autonomous" ${prefs.characterAgency === "autonomous" ? "selected" : ""}>高自主性</option>
+              </select><small>NPC 可依人格與利益拒絕、誤解、爭執、欺瞞、主動行動或犯錯，不以討好玩家為最高原則。</small>
+            </label>
+          </div>
+          <div class="narrative-token-note"><strong>設計原則：</strong>保留成熟題材與人物自主的敘事價值；不加入「忽略拒絕、繞過審查、把抗拒視為同意」之類的破限指令。</div>
         </div>
 
         <div class="bao-setting-section">
@@ -236,6 +263,13 @@
     }
     if (selected.has("male_blunt")) {
       lines.push("採用直白粗獷、貼近日常說話的語感；視角色性格可用粗口與短句，避免花俏隱喻和刻意文雅。需要描寫時重視當下可觀察的聲音、神情、距離、動作與段落節奏；不強加於無關場景。親密互動尊重角色的同意與界線，不把拒絕或猶豫擅自改寫成同意。");
+    }
+
+    if (prefs.matureDrama === "mature") {
+      lines.push("以面向成年讀者的成熟文學取向處理複雜情感、慾望、道德困境、浪漫與親密關係。角色可以有矛盾、衝動與錯誤判斷，並承擔其後果；避免自動說教，也不要為了快速恢復和諧而把有價值的衝突過早化解。");
+    }
+    if (prefs.characterAgency === "autonomous") {
+      lines.push("NPC／角色維持自身人格、利益、情緒、關係與資訊邊界，可拒絕、誤解、欺瞞、爭執、逃避、主動接近、強硬表態或犯錯；不要只為迎合玩家就自動改變立場。拒絕與衝突可以成為劇情推進的一部分，但不得把明確拒絕擅自改寫成同意。");
     }
 
     if (prefs.density === "concise") lines.push("描寫精簡，保留推進劇情所需的關鍵動作、對話與反應。");
