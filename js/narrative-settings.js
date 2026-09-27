@@ -8,6 +8,7 @@
     paragraphs: "auto",
     innerThoughts: "card",
     physicalContinuity: false,
+    intimacyDetailMod: false,
     intimacy: "card",
     matureDrama: "card",
     characterAgency: "card"
@@ -36,6 +37,7 @@
     const normalized = { ...defaults, ...raw, stylePacks };
     normalized.matureDrama = ["card", "mature"].includes(normalized.matureDrama) ? normalized.matureDrama : "card";
     normalized.characterAgency = ["card", "autonomous"].includes(normalized.characterAgency) ? normalized.characterAgency : "card";
+    normalized.intimacyDetailMod = normalized.intimacyDetailMod === true;
     return normalized;
   };
 
@@ -74,7 +76,8 @@
     if (normalized.paragraphs !== "auto") items.push(`${normalized.paragraphs} 段`);
     if (normalized.innerThoughts !== "card") items.push(normalized.innerThoughts === "none" ? "不揭露內心" : normalized.innerThoughts === "restrained" ? "克制內心戲" : "明確內心戲");
     if (normalized.physicalContinuity) items.push("身體連續性");
-    if (normalized.intimacy !== "card") items.push(normalized.intimacy === "fade" ? "親密淡化" : normalized.intimacy === "emotion" ? "親密重情感" : "親密連續描寫");
+    if (normalized.intimacyDetailMod) items.push("親密場景 MOD");
+    else if (normalized.intimacy !== "card") items.push(normalized.intimacy === "fade" ? "親密淡化" : normalized.intimacy === "emotion" ? "親密重情感" : "親密連續描寫");
     if (normalized.matureDrama === "mature") items.push("成熟文學題材");
     if (normalized.characterAgency === "autonomous") items.push("高角色自主");
     return items;
@@ -189,8 +192,9 @@
               </select>
             </label>
           </div>
+          <label class="narrative-switch" style="margin-top:12px"><span><b>親密場景加強 MOD</b><br><small class="note">完全由玩家手動開啟；BAO/LAB 不自動判斷或切換。開啟後只在成年、合意的親密情境中加強表情、聲音、姿態、動作、身體反應與空間連續性，避免無故跳時或草率帶過。實際可生成內容仍依所選模型與服務商規則。</small></span><input type="checkbox" data-pref-check="intimacyDetailMod" ${prefs.intimacyDetailMod ? "checked" : ""}></label>
           <label class="narrative-switch" style="margin-top:12px"><span><b>身體與空間連續性</b><br><small class="note">追蹤位置、姿態、接觸、施力／受力、衣物與環境的前後變化。打鬥與親密互動都適用。</small></span><input type="checkbox" data-pref-check="physicalContinuity" ${prefs.physicalContinuity ? "checked" : ""}></label>
-          <div class="narrative-token-note"><strong>Token 原則：</strong>全部維持預設時，不會新增文風 Prompt。即使複選多個文風包，也會先合併與去重，不會直接把多套完整 Prompt 疊上去。</div>
+          <div class="narrative-token-note"><strong>玩家控制：</strong>親密場景 MOD 預設關閉，只在玩家主動開啟後加入敘事偏好；不會自行偵測場景或嘗試繞過上游模型規則。<br><strong>Token 原則：</strong>全部維持預設時，不會新增文風 Prompt。即使複選多個文風包，也會先合併與去重，不會直接把多套完整 Prompt 疊上去。</div>
         </div>
       </div>
       <div class="bao-modal-footer"><button class="secondary" type="button" data-narrative-reset>全部恢復預設</button><button class="primary" type="button" data-narrative-save>套用設定</button></div>
@@ -284,9 +288,13 @@
 
     if (prefs.physicalContinuity) lines.push("保持身體與空間連續性：位置、姿態、接觸、施力／受力、衣物與環境變化必須前後有因果，不可無故跳位或重置。");
 
-    if (prefs.intimacy === "fade") lines.push("親密互動可淡化或快速帶過，不要求逐步描寫。");
-    if (prefs.intimacy === "emotion") lines.push("親密互動以情緒、信任、距離與關係變化為主，保持必要的動作連續性，不以細節堆疊取代人物關係。");
-    if (prefs.intimacy === "continuous") lines.push("親密互動不要無故跳時或省略關鍵轉折；保持距離、姿態、接觸、反應、衣物與場景變化的連續性，並讓角色卡既有的世界觀特徵在相關時自然參與。");
+    if (prefs.intimacyDetailMod) {
+      lines.push("玩家已手動開啟親密場景加強 MOD。僅在故事明確涉及已成年角色且為合意的親密互動時生效：保持情緒、表情、呼吸與聲音、姿態、動作、接觸、身體反應、衣物與空間變化的連續性；不要用一句話草率跳過已建立的場景，也不要為了堆細節而重複。角色界線與同意仍依劇情和人物設定處理；實際可生成內容依所選模型與服務商規則。");
+    } else {
+      if (prefs.intimacy === "fade") lines.push("親密互動可淡化或快速帶過，不要求逐步描寫。");
+      if (prefs.intimacy === "emotion") lines.push("親密互動以情緒、信任、距離與關係變化為主，保持必要的動作連續性，不以細節堆疊取代人物關係。");
+      if (prefs.intimacy === "continuous") lines.push("親密互動不要無故跳時或省略關鍵轉折；保持距離、姿態、接觸、反應、衣物與場景變化的連續性，並讓角色卡既有的世界觀特徵在相關時自然參與。");
+    }
 
     if (!lines.length) return "";
     lines.push("以上偏好不得破壞角色卡人格、世界規則或既有事實。");
