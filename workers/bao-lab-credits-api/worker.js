@@ -1,5 +1,8 @@
-const MAX_BODY_BYTES = 110_000;
-const MAX_PROMPT_BYTES = 96_000;
+// Hosted prompt limits are transport / abuse guards, not model context-window limits.
+// The browser aims substantially below these values and compacts smart-memory stories
+// before reaching the hard ceiling.
+const MAX_BODY_BYTES = 220_000;
+const MAX_PROMPT_BYTES = 192_000;
 const MAX_OUTPUT = 8192;
 const MAX_MESSAGES = 100;
 
