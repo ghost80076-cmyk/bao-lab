@@ -148,10 +148,10 @@
       throw new Error("本次故事設定與近期對話超過 BAO/LAB 的 96 KB 上限。請縮短內容或改用自己的 API Key；不會刪除故事。");
     }
     const kind = config.__memoryTask ? "summary" : config.__stateTask ? "status" : "chat";
-    const requested = Number(config.__connectionTest ? 1024 : (config.maxOutputTokens || 6144));
-    // Limit the paid model's normal requests in the UI. The Worker and the
-    // OpenRouter account still need independent spending limits before rollout.
-    const outputCap = upstreamProvider === "openrouter" ? 2048 : 8192;
+    const requested = Number(config.maxOutputTokens || (config.__connectionTest ? 16 : 6144));
+    // Keep YoruBay frontend and Worker ceilings aligned. Auxiliary tasks still
+    // pass their own smaller maxOutputTokens values, so this is only a hard cap.
+    const outputCap = 8192;
     const maxOutput = Number.isFinite(requested) ? Math.max(1, Math.min(outputCap, Math.floor(requested))) : Math.min(6144, outputCap);
     let response;
     try {
