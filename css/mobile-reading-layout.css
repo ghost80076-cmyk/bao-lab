@@ -65,18 +65,25 @@
   #chat-view .chat-topline{
     grid-column:1!important;
     grid-row:1!important;
+    display:flex!important;
+    flex-wrap:nowrap!important;
+    align-items:center!important;
+    width:100%!important;
+    max-width:100%!important;
+    min-width:0!important;
     min-height:62px!important;
     padding:9px 12px calc(9px + env(safe-area-inset-top,0px))!important;
     gap:8px!important;
     margin:0!important;
+    overflow:hidden!important;
     border-bottom:1px solid rgba(255,255,255,.075)!important;
     background:linear-gradient(180deg,rgba(15,18,29,.98),rgba(11,15,23,.94))!important;
     backdrop-filter:blur(18px);
     box-shadow:0 8px 28px rgba(0,0,0,.18);
   }
   #chat-view .chat-title-avatar{width:40px!important;height:40px!important;flex:0 0 40px!important;border-radius:12px!important}
-  #chat-view .chat-title-copy{min-width:0!important}
-  #chat-view .chat-title-copy h2{font-size:clamp(16px,4.5vw,20px)!important;line-height:1.2;margin:0!important;font-weight:760;letter-spacing:.01em}
+  #chat-view .chat-title-copy{flex:1 1 auto!important;min-width:0!important;overflow:hidden!important}
+  #chat-view .chat-title-copy h2{display:block;max-width:100%;font-size:clamp(16px,4.5vw,20px)!important;line-height:1.2;margin:0!important;font-weight:760;letter-spacing:.01em;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
   #chat-view .chat-topline .eyebrow{display:none!important}
 
   /* Hide desktop/mobile duplicate toolbars. They remain reachable from the drawer. */
