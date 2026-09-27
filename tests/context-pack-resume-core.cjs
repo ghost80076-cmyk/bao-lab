@@ -123,6 +123,8 @@ assert.equal(JSON.stringify(GameState.current.contextPackDraftResume).includes("
   assert.equal(GameState.current.contextPackDraftProgress.completed, 1);
   assert.match(calls[0].prompt, /第 1／3 段/);
   assert.match(calls[1].prompt, /第 2／3 段/);
+  assert.equal(calls[0].config.__responseSchema, false, "Context Pack must request flexible JSON instead of the fixed memory schema");
+  assert.equal(calls[1].config.__responseSchema, false);
 
   const persisted = structuredClone(GameState.current);
   GameState.current = persisted;
