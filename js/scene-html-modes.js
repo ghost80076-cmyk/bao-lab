@@ -26,6 +26,41 @@
     doc.querySelectorAll('script,style,iframe,object,embed,template,svg,math').forEach(el => el.remove());
     return (doc.body.textContent || '').trim();
   };
+  const renderStructuredOpening = opening => {
+    const esc = App.escapeHTML.bind(App);
+    const attr = App.escapeAttr ? App.escapeAttr.bind(App) : esc;
+    const multiline = value => esc(String(value || "")).replace(/\n/g, "<br>");
+    const type = String(opening?.type || "basic").replace(/[^a-z0-9_-]/gi, "").toLowerCase() || "basic";
+    const label = String(opening?.label || "").trim();
+    const posts = Array.isArray(opening?.posts) ? opening.posts : [];
+    const choices = Array.isArray(opening?.choices) ? opening.choices.slice(0, 4) : [];
+    const postHTML = posts.map(post => {
+      const kind = ["player", "character", "system"].includes(post?.kind) ? post.kind : "system";
+      const transition = post?.transition
+        ? `<div class="bao-opening-transition">${multiline(post.transition)}</div>`
+        : "";
+      const meta = post?.meta
+        ? `<div class="bao-opening-meta">${multiline(post.meta)}</div>`
+        : "";
+      return `${transition}<article class="bao-opening-post bao-opening-post-${kind}">${meta}<div class="bao-opening-text">${multiline(post?.content || "")}</div></article>`;
+    }).join("");
+    const choiceHTML = choices.length
+      ? `<div class="bao-opening-choices"><div class="bao-opening-choice-title">你可以：</div>${choices.map((choice, index) => `<button type="button" class="bao-opening-choice" data-bao-opening-choice="${attr(choice)}"><span>${index + 1}</span>${esc(choice)}</button>`).join("")}</div>`
+      : "";
+    const note = opening?.note ? `<div class="bao-opening-note">${multiline(opening.note)}</div>` : "";
+    return `<section class="bao-structured-opening bao-opening-${type}">${label ? `<div class="bao-opening-label">${esc(label)}</div>` : ""}${postHTML}${note}${choiceHTML}</section>`;
+  };
+
+  document.addEventListener("click", event => {
+    const button = event.target.closest?.("[data-bao-opening-choice]");
+    if (!button) return;
+    const input = document.getElementById("user-input");
+    if (!input) return;
+    input.value = button.dataset.baoOpeningChoice || "";
+    input.focus();
+    input.setSelectionRange?.(input.value.length, input.value.length);
+  });
+
   const renderScene = (scene, narration) => {
     const theme = sceneTemplates[scene];
     const esc = App.escapeHTML.bind(App);
@@ -46,6 +81,7 @@
     return `<section class="bao-scene-card bao-scene-${scene}" style="background:${theme.background};color:${theme.accent};padding:18px;border:${border};border-radius:12px;line-height:1.8;max-width:100%;min-width:0;box-sizing:border-box;overflow-wrap:anywhere;${spacing}"><small style="display:block;opacity:.86;border-bottom:1px solid currentColor;padding-bottom:7px;margin-bottom:10px">${theme.icon} ${theme.label}</small><div>${body}</div></section>`;
   };
   const render = (raw, greeting = false) => {
+    if (greeting && App.activeCharacter?.opening?.posts?.length) return renderStructuredOpening(App.activeCharacter.opening);
     const text = String(raw || '');
     const body = withoutMetadata(text);
     if (prefs.mode === 'native') return App.formatMessage(plain(body));
@@ -220,7 +256,7 @@
       return result;
     };
   });
-  window.BAOSceneHTML = { prefs, render, refresh, sceneTemplates, sharedStatus, paintStatus };
+  window.BAOSceneHTML = { prefs, render, renderStructuredOpening, refresh, sceneTemplates, sharedStatus, paintStatus };
   mount();
   const stream = document.getElementById('chat-stream');
   if (stream) {
