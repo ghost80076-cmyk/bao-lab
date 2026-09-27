@@ -112,13 +112,21 @@
   const field = (name, label, value, options = {}) => {
     const attrs = [`name="${name}"`, `value="${esc(value)}"`, `type="number"`, `min="${options.min ?? 0}"`, `step="${options.step ?? 1}"`];
     if (Number.isFinite(options.max)) attrs.push(`max="${options.max}"`);
-    return `<label>${label}<input ${attrs.join(' ')} required></label>`;
+    const hint = options.hint ? `<small>${esc(options.hint)}</small>` : '';
+    return `<label>${label}<input ${attrs.join(' ')} required>${hint}</label>`;
   };
   function openSettings() {
     if (!App.activeCharacter || !window.GameState?.current) return;
     $('bao-chat-cost-backdrop')?.remove();
     const memory = App.config.memory || {};
     const cost = App.config.cost || {};
+    const isYoruBay = Boolean(window.BAOCreditsPilot?.isAccountConnection?.(App.config.api));
+    const outputLimit = isYoruBay ? 8192 : 32768;
+    const configuredOutput = Number(cost.maxOutputTokens ?? App.config.api?.maxOutputTokens ?? 4096);
+    const visibleOutput = Math.min(Number.isFinite(configuredOutput) ? configuredOutput : 4096, outputLimit);
+    const outputHint = isYoruBay
+      ? 'YoruBay 點數模式最高 8192；實際只按模型真正輸出的 Token 計費。'
+      : '自備 API Key（BYOK）介面最高 32768；實際上限仍依模型與服務商規格。';
     const modal = document.createElement('div');
     modal.id = 'bao-chat-cost-backdrop';
     const previousFocus = document.activeElement;
@@ -134,7 +142,7 @@
           <label>支援的快取提示<select name="cache"><option value="yes">使用</option><option value="no">不使用</option></select></label>
         </fieldset>
         <fieldset><legend>Token 與費用估算</legend>
-          ${field('maxOutputTokens','單次最大輸出 Token',cost.maxOutputTokens ?? App.config.api?.maxOutputTokens ?? 4096,{min:64,max:32768,step:64})}
+          ${field('maxOutputTokens','單次最大輸出 Token',visibleOutput,{min:64,max:outputLimit,step:64,hint:outputHint})}
           ${field('stateInterval','世界狀態整理間隔（輪）',cost.stateInterval ?? 2,{min:1,max:20})}
           ${field('inputPerMillion','輸入單價（USD / 1M tokens）',cost.inputPerMillion ?? 0,{min:0,step:0.01})}
           ${field('outputPerMillion','輸出單價（USD / 1M tokens）',cost.outputPerMillion ?? 0,{min:0,step:0.01})}
@@ -160,7 +168,7 @@
         const nextMemory = { ...memory, mode: form.elements.namedItem('mode').value, strength: 'custom',
           maxRounds: numeric(form,'maxRounds',4,10000), maxContext: numeric(form,'maxContext',1000,2000000),
           summaryInterval: numeric(form,'summaryInterval',2,10000), cache: form.elements.namedItem('cache').value === 'yes' };
-        const nextCost = { ...cost, maxOutputTokens: numeric(form,'maxOutputTokens',64,32768),
+        const nextCost = { ...cost, maxOutputTokens: numeric(form,'maxOutputTokens',64,outputLimit),
           stateInterval: numeric(form,'stateInterval',1,20), inputPerMillion: numeric(form,'inputPerMillion',0),
           outputPerMillion: numeric(form,'outputPerMillion',0), cachePerMillion: numeric(form,'cachePerMillion',0),
           usdTwd: numeric(form,'usdTwd',0.01), budgetTwd: numeric(form,'budgetTwd',0) };
