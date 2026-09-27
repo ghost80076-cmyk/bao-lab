@@ -226,6 +226,9 @@ test('resumed story can edit output tokens and budget without resetting messages
   await api.getByRole('button', { name: '套用到目前故事' }).click();
   await page.waitForFunction(() => Boolean(window.BAOStorySurface));
   await page.evaluate(() => BAOStorySurface.setMode('studio'));
+  const resumedSettingsGroup = page.locator('[data-chat-tool-group="settings"]');
+  await expect(resumedSettingsGroup).toBeVisible();
+  if (!(await resumedSettingsGroup.getAttribute('open'))) await resumedSettingsGroup.locator('summary').click();
   await page.locator('#bao-chat-cost-open').click();
   await expect(page.locator('#bao-chat-cost-form [name="maxOutputTokens"]')).toHaveValue('2048');
   await expect(page.locator('#bao-chat-cost-form [name="budgetTwd"]')).toHaveValue('70');
