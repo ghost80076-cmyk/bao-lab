@@ -102,10 +102,10 @@ for (const width of [390, 1280]) {
     await expect(page.locator('#chat-view .usage-bar')).toBeHidden();
     await expect.poll(() => page.locator('#chat-view .message.assistant .bubble').first()
       .evaluate(node => getComputedStyle(node).borderLeftWidth)).toBe('0px');
-    const cyoa = page.locator('#chat-view .bao-cyoa-card');
-    await expect(cyoa).toBeVisible();
-    await expect(cyoa.locator('li')).toHaveCount(6);
-    expect(await cyoa.evaluate(node => getComputedStyle(node).backgroundColor)).not.toBe('rgb(255, 255, 255)');
+    const opening = page.locator('#chat-view .bao-structured-opening');
+    await expect(opening).toBeVisible();
+    await expect(opening.locator('.bao-opening-choice')).toHaveCount(4);
+    expect(await opening.evaluate(node => getComputedStyle(node).backgroundColor)).not.toBe('rgb(255, 255, 255)');
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width + 1);
     await capture(page, `chat-play-${width}`);
 

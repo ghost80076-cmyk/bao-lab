@@ -1,0 +1,106 @@
+.bao-structured-opening{
+  display:grid;
+  gap:14px;
+  width:min(100%,860px);
+  margin:0 auto;
+  padding:18px;
+  border:1px solid rgba(116,185,255,.18);
+  border-radius:16px;
+  background:linear-gradient(145deg,rgba(19,27,39,.96),rgba(24,36,51,.92));
+  box-sizing:border-box;
+}
+.bao-opening-label{
+  font-size:12px;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:#9fc8ee;
+  opacity:.9;
+}
+.bao-opening-transition,
+.bao-opening-note{
+  text-align:center;
+  font-size:12px;
+  color:#9aa8b7;
+  padding:2px 8px;
+}
+.bao-opening-post{
+  display:grid;
+  gap:12px;
+  padding:18px;
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:13px;
+  background:rgba(255,255,255,.045);
+  box-shadow:0 10px 26px rgba(0,0,0,.16);
+}
+.bao-opening-post-player{
+  border-left:3px solid #8f9eae;
+}
+.bao-opening-post-character{
+  border-left:3px solid #74b9ff;
+  background:rgba(116,185,255,.06);
+}
+.bao-opening-meta{
+  font-size:12px;
+  color:#9fb2c5;
+}
+.bao-opening-post-character .bao-opening-meta{
+  color:#8cc7ff;
+}
+.bao-opening-text{
+  white-space:normal;
+  line-height:1.95;
+  overflow-wrap:anywhere;
+  color:#e8eef5;
+}
+.bao-opening-choices{
+  display:grid;
+  gap:8px;
+  margin-top:2px;
+  padding-top:14px;
+  border-top:1px solid rgba(255,255,255,.08);
+}
+.bao-opening-choice-title{
+  font-size:13px;
+  color:#b7c6d6;
+  margin-bottom:2px;
+}
+.bao-opening-choice{
+  display:flex;
+  align-items:flex-start;
+  gap:10px;
+  width:100%;
+  min-height:44px;
+  padding:10px 12px;
+  text-align:left;
+  border:1px solid rgba(85,239,196,.16);
+  border-radius:10px;
+  background:rgba(255,255,255,.035);
+  color:#e9f4f1;
+  cursor:pointer;
+}
+.bao-opening-choice:hover{
+  border-color:rgba(85,239,196,.42);
+  background:rgba(85,239,196,.07);
+}
+.bao-opening-choice span{
+  flex:0 0 auto;
+  color:#72dfc3;
+  font-weight:700;
+}
+@media(max-width:560px){
+  .bao-structured-opening{
+    gap:11px;
+    padding:12px;
+    border-radius:13px;
+  }
+  .bao-opening-post{
+    padding:14px;
+  }
+  .bao-opening-text{
+    line-height:1.85;
+  }
+  .bao-opening-choice{
+    min-height:42px;
+    padding:9px 10px;
+  }
+}
