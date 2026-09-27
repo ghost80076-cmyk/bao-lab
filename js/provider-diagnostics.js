@@ -1,7 +1,7 @@
 (() => {
   if (typeof App === "undefined" || typeof API === "undefined" || window.BAOProviderDiagnostics) return;
 
-  const state = { running: false, last: null };
+  const state = { running: false, quickRunning: false, last: null, quick: null };
   const now = () => (typeof performance !== "undefined" && performance.now ? performance.now() : Date.now());
   const normalize = value => String(value || "").trim();
   const endpointHost = value => { try { return new URL(value).host; } catch { return normalize(value); } };
@@ -157,6 +157,45 @@
     return result;
   };
 
+  const runQuickConfig = async input => {
+    const config = { ...(input || {}) };
+    const secret = normalize(config.key);
+    const meta = publicMeta(config);
+    const validation = validate(config);
+    const result = {
+      ...meta,
+      ok: false,
+      standard: { ok: false, skipped: false },
+      privacy: privacyCheck(secret)
+    };
+    if (validation) {
+      result.standard = { ok: false, skipped: true, category: "config", error: validation };
+      return result;
+    }
+    const started = now();
+    try {
+      const response = await API.test({ ...config, stream: false, onDelta: undefined });
+      result.standard = {
+        ok: true,
+        skipped: false,
+        ms: Math.max(0, Math.round(now() - started)),
+        totalTokens: usageTotal(response?.usage)
+      };
+    } catch (error) {
+      const message = sanitizeError(error, secret);
+      result.standard = {
+        ok: false,
+        skipped: false,
+        ms: Math.max(0, Math.round(now() - started)),
+        category: category(message),
+        error: message
+      };
+    }
+    result.privacy = privacyCheck(secret);
+    result.ok = result.standard.ok && result.privacy.ok;
+    return result;
+  };
+
   const currentConfig = () => {
     let api = {};
     try { api = { ...(App.collectConfig?.().api || {}) }; } catch {}
@@ -202,6 +241,30 @@
       ${failure?.category ? `<p class="note provider-diagnostics-hint">${escape(categoryHint(failure.category))}</p>` : ""}`;
   };
 
+  const runQuick = async () => {
+    if (state.quickRunning) return state.quick;
+    const button = document.querySelector("[data-run-provider-quick]");
+    const status = document.getElementById("provider-quick-status");
+    state.quickRunning = true;
+    if (button) button.disabled = true;
+    if (status) status.textContent = "測試連線中…";
+    try {
+      const result = await runQuickConfig(currentConfig());
+      state.quick = result;
+      if (status) {
+        status.textContent = result.ok
+          ? `✓ 可以開始 · ${result.standard.ms ?? 0} ms`
+          : result.standard.skipped
+            ? result.standard.error || "請先完成連線設定"
+            : `△ 連線失敗：${categoryHint(result.standard.category) || result.standard.error || "請檢查設定"}`;
+      }
+      return result;
+    } finally {
+      state.quickRunning = false;
+      if (button) button.disabled = false;
+    }
+  };
+
   const run = async () => {
     if (state.running) return state.last;
     const button = document.querySelector("[data-run-provider-diagnostics]");
@@ -224,9 +287,12 @@
     const field = document.getElementById("api-key");
     if (field) field.value = "";
     state.last = null;
+    state.quick = null;
     const status = document.getElementById("provider-diagnostics-status");
+    const quickStatus = document.getElementById("provider-quick-status");
     const output = document.getElementById("provider-diagnostics-result");
     if (status) status.textContent = "連線金鑰（API Key）已從輸入框清除。";
+    if (quickStatus) quickStatus.textContent = "API Key 已清除";
     if (output) output.innerHTML = "";
   };
 
@@ -237,22 +303,31 @@
     box.id = "provider-diagnostics-box";
     box.className = "cost-control-box provider-diagnostics-box";
     box.innerHTML = `
-      <h3>AI 服務商（Provider）實際連線測試</h3>
-      <p class="note">完整測試最多送出 2 次極短 AI 請求：先確認一般回覆，再確認即時輸出（Streaming）。連線金鑰（API Key）只從目前輸入框讀取，不寫入測試結果、故事存檔或瀏覽器儲存空間。</p>
-      <div class="provider-diagnostics-actions">
-        <button type="button" class="secondary" data-run-provider-diagnostics>測試目前 AI 連線</button>
-        <button type="button" class="text-button" data-clear-provider-key>清除連線金鑰</button>
-        <span id="provider-diagnostics-status" class="note" aria-live="polite">尚未驗收</span>
+      <h3>確認 AI 連線</h3>
+      <p class="note">完成上方「服務商 → API Key → 模型」後，先用一次極短請求確認能否開始故事。</p>
+      <div class="provider-diagnostics-actions provider-quick-actions">
+        <button type="button" class="primary" data-run-provider-quick>⚡ 測試連線</button>
+        <span id="provider-quick-status" class="note" aria-live="polite">尚未測試</span>
       </div>
-      <div id="provider-diagnostics-result" aria-live="polite"></div>
-      <p class="note">若 Anthropic 官方回報組織禁止瀏覽器跨網站連線（CORS），代表該帳戶政策不允許直接從網頁呼叫；這和連線金鑰錯誤是不同問題。</p>`;
+      <details class="provider-diagnostics-advanced">
+        <summary>完整 Streaming 與連線診斷</summary>
+        <p class="note">需要排錯時才使用。完整測試最多送出 2 次極短 AI 請求：先確認一般回覆，再確認即時輸出（Streaming）。API Key 只從目前輸入框讀取，不寫入測試結果、故事存檔或瀏覽器儲存空間。</p>
+        <div class="provider-diagnostics-actions">
+          <button type="button" class="secondary" data-run-provider-diagnostics>完整連線測試</button>
+          <button type="button" class="text-button" data-clear-provider-key>清除連線金鑰</button>
+          <span id="provider-diagnostics-status" class="note" aria-live="polite">尚未驗收</span>
+        </div>
+        <div id="provider-diagnostics-result" aria-live="polite"></div>
+        <p class="note">若 Anthropic 官方回報組織禁止瀏覽器跨網站連線（CORS），代表該帳戶政策不允許直接從網頁呼叫；這和連線金鑰錯誤是不同問題。</p>
+      </details>`;
     step.appendChild(box);
     if (!document.getElementById("provider-diagnostics-style")) {
       const style = document.createElement("style");
       style.id = "provider-diagnostics-style";
-      style.textContent = `.provider-diagnostics-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.provider-diagnostics-meta{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.provider-diagnostics-meta span,.provider-diagnostics-meta b{font-size:12px;padding:4px 8px;border:1px solid var(--line,#333);border-radius:999px}.provider-diagnostics-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:10px}.provider-diagnostics-grid>div{display:flex;flex-direction:column;gap:5px;padding:12px;border:1px solid var(--line,#333);border-radius:12px;min-width:0}.provider-diagnostics-grid span{font-size:12px;overflow-wrap:anywhere}.provider-diagnostics-hint{margin-top:10px}@media(max-width:720px){.provider-diagnostics-grid{grid-template-columns:1fr}}`;
+      style.textContent = `.provider-diagnostics-box{margin-top:14px}.provider-diagnostics-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.provider-quick-actions{padding:4px 0 8px}.provider-quick-actions .primary{min-width:150px}.provider-diagnostics-advanced{margin-top:10px;border-top:1px solid var(--line,var(--border,#333));padding-top:10px}.provider-diagnostics-advanced>summary{cursor:pointer;color:var(--muted,#aaa);font-size:13px}.provider-diagnostics-meta{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.provider-diagnostics-meta span,.provider-diagnostics-meta b{font-size:12px;padding:4px 8px;border:1px solid var(--line,#333);border-radius:999px}.provider-diagnostics-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:10px}.provider-diagnostics-grid>div{display:flex;flex-direction:column;gap:5px;padding:12px;border:1px solid var(--line,#333);border-radius:12px;min-width:0}.provider-diagnostics-grid span{font-size:12px;overflow-wrap:anywhere}.provider-diagnostics-hint{margin-top:10px}@media(max-width:720px){.provider-diagnostics-grid{grid-template-columns:1fr}.provider-quick-actions .primary{width:100%}}`;
       document.head.appendChild(style);
     }
+    box.querySelector("[data-run-provider-quick]")?.addEventListener("click", runQuick);
     box.querySelector("[data-run-provider-diagnostics]")?.addEventListener("click", run);
     box.querySelector("[data-clear-provider-key]")?.addEventListener("click", clearKey);
     return true;
@@ -261,7 +336,9 @@
   window.BAOProviderDiagnostics = {
     mount,
     run,
+    runQuick,
     runConfig,
+    runQuickConfig,
     currentConfig,
     privacyCheck,
     redact: secretReplace,
