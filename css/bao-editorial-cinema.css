@@ -207,7 +207,6 @@ body:has(#explore-view.active) .bao-mascot-avatar,body:has(#detail-view.active) 
 }
 
 /* Bao is a quiet companion point: compact, clickable and never another dashboard chip. */
-body:has(#home-view.active) .bao-support-float,
 body:has(#explore-view.active) .bao-support-float,
 body:has(#detail-view.active) .bao-support-float{display:none!important}
 body:has(#home-view.active) #bao-mascot-root{display:block!important}
