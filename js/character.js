@@ -62,6 +62,26 @@ const CharacterEngine = {
       .filter(Boolean)
       .slice(0, 12);
     const characterStatus = raw.character_status || gameplay.character_status || {};
+    const openingRaw = raw.opening || presentation.opening || null;
+    const opening = openingRaw && typeof openingRaw === "object" && !Array.isArray(openingRaw)
+      ? {
+          type: String(openingRaw.type || "basic").trim().slice(0, 40),
+          label: String(openingRaw.label || "").trim().slice(0, 80),
+          posts: (Array.isArray(openingRaw.posts) ? openingRaw.posts : []).slice(0, 8).map((post, index) => ({
+            kind: ["player", "character", "system"].includes(String(post?.kind || "").toLowerCase())
+              ? String(post.kind).toLowerCase()
+              : index === 0 ? "player" : "character",
+            meta: String(post?.meta || "").trim().slice(0, 180),
+            transition: String(post?.transition || "").trim().slice(0, 120),
+            content: String(post?.content || "").trim().slice(0, 12000)
+          })).filter(post => post.content),
+          choices: (Array.isArray(openingRaw.choices) ? openingRaw.choices : [])
+            .map(value => String(value || "").trim())
+            .filter(Boolean)
+            .slice(0, 4),
+          note: String(openingRaw.note || "").trim().slice(0, 500)
+        }
+      : null;
 
     return {
       id,
@@ -78,6 +98,7 @@ const CharacterEngine = {
       description: raw.description || meta.description || "",
       quote: raw.quote || content.quote || "",
       greeting: raw.greeting || content.greeting || "",
+      opening,
       system_prompt: raw.system_prompt || content.system_prompt || "",
       profile: raw.profile || content.profile || {},
       lore: content.lore || raw.lore || "",
