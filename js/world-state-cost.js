@@ -109,6 +109,7 @@
   };
 
   WorldStateEngine.pendingCount = () => queue().length;
+  WorldStateEngine.markPersistenceHint = () => { persistenceHint = true; };
   WorldStateEngine.takePersistenceHint = () => { const value = persistenceHint; persistenceHint = false; return value; };
 
   WorldStateEngine.update = async function(config, playerText, assistantText) {
@@ -139,7 +140,11 @@
       report(owner, "failed", `${scenePatch ? '時間／地點已同步；' : ''}獨立狀態模型的連線金鑰（API Key）尚未重新填入，請到 AI 連線設定補上。`);
       return scenePatch;
     }
-    const batch = pending.slice();
+    // Process only one configured batch at a time. If a previous state request
+    // failed, newer turns may queue behind it, but a retry must not grow into an
+    // ever-larger prompt. Successful batches are removed below; queued turns stay
+    // intact for the next update, so cost is bounded without dropping story data.
+    const batch = pending.slice(0, interval);
     const helperModel = config?.cost?.stateModel || "";
     const patched = {
       ...config,
@@ -152,7 +157,7 @@
     };
     const combinedPlayer = batch.map((turn, index) => `第 ${index + 1} 輪：${turn.player}`).join("\n\n");
     const combinedAssistant = batch.map((turn, index) => `第 ${index + 1} 輪：${turn.assistant}`).join("\n\n");
-    report(owner, "updating", `正在整理 ${batch.length} 輪；此操作會呼叫狀態 API。`);
+    report(owner, "updating", `正在整理 ${batch.length} 輪${pending.length > batch.length ? `（其餘 ${pending.length - batch.length} 輪排隊）` : ""}；此操作會呼叫狀態 API。`);
     try {
       const result = await originalUpdate(patched, combinedPlayer, combinedAssistant);
       if (GameState.current !== owner) return null;

@@ -25,6 +25,8 @@ const addTurns = n => { for (let i = 0; i < n; i++) { Chat.add('user', `玩家-$
   assert.equal(requests.length, 0, 'building Main context cannot invoke a Helper');
   await Chat.afterTurn(config);
   assert.equal(requests.length, 1);
+  assert.equal(requests[0].api.model, 'main', 'memory may reuse the main model without inheriting the full story prompt');
+  assert.equal(requests[0].api.__memoryTask, true);
   assert.equal(Chat.summarizedUntil, 8);
   assert.match(Chat.summary, /艾琳坦白/);
   assert.doesNotMatch(Chat.summary, /接吻|王室|nextScene/);
@@ -92,6 +94,7 @@ const addTurns = n => { for (let i = 0; i < n; i++) { Chat.add('user', `玩家-$
   assert.match(stateRequest, /購買二/);
   assert.doesNotMatch(stateRequest, /玩家-0|角色-1/, 'state never reads full Chat history');
   assert.equal(requests.at(-1).api.__stateTask, true);
+  assert.equal(requests.at(-1).api.model, 'main', 'state may reuse the main model while receiving only its isolated batch context');
   assert.equal(GameState.current.modules.economy.gold, 25);
   assert.equal(GameState.current.modules.economy.nextScene, undefined);
   console.log('helper context: incremental memory, invalid/stale replies, demo, schema isolation, batched state passed');
