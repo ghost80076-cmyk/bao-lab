@@ -88,12 +88,46 @@ test('refuses account-session leakage to other provider and wrong URL/models',as
  await assert.rejects(()=>s.api.send({...cfg,model:'gemini-9-unknown'},msgs),/已開放模型/);
  assert.equal(s.calls.length,0);
 });
-test('allows long prompts under 96 KB, rejects oversized prompts before sending',async()=>{
+test('hosted transport no longer treats 96 KB as the normal story ceiling',async()=>{
  const s=build();
- await s.api.send(cfg,[{role:'user',content:'x'.repeat(25000)}]);
+ const long=[{role:'system',content:'s'.repeat(60000)},{role:'user',content:'u'.repeat(40000)}];
+ await s.api.send(cfg,long);
  assert.equal(s.calls.length,1);
- await assert.rejects(()=>s.api.send(cfg,[{role:'user',content:'x'.repeat(97000)}]),/96 KB/);
+ assert.ok(Buffer.byteLength(JSON.stringify(JSON.parse(s.calls[0][1].body).messages),'utf8')>96000);
+});
+
+test('smart hosted stories compact before sending when the soft budget is crossed',async()=>{
+ const s=build();
+ let summaries=0;
+ s.app.config={api:cfg,memory:{mode:'smart',maxRounds:20}};
+ s.window.Chat={
+   summarizedUntil:0,
+   async maybeSummarize(){summaries+=1;this.summarizedUntil=24;}
+ };
+ s.app.buildMessages=async()=>s.window.Chat.summarizedUntil
+   ? [{role:'system',content:'s'.repeat(18000)},{role:'user',content:'u'.repeat(18000)}]
+   : [{role:'system',content:'s'.repeat(60000)},{role:'user',content:'u'.repeat(40000)}];
+ const original=[{role:'system',content:'s'.repeat(60000)},{role:'user',content:'u'.repeat(40000)}];
+ await s.api.send(cfg,original);
+ assert.equal(summaries,1);
  assert.equal(s.calls.length,1);
+ const sent=JSON.parse(s.calls[0][1].body).messages;
+ assert.ok(Buffer.byteLength(JSON.stringify(sent),'utf8')<88000);
+ const budget=s.window.BAOCreditsPilot.contextBudget();
+ assert.equal(budget.adaptive,true);
+ assert.equal(budget.summaryPasses,1);
+ assert.ok(budget.finalBytes<budget.initialBytes);
+});
+
+test('hosted hard guard still rejects extreme requests without deleting story data',async()=>{
+ const s=build();
+ const huge=[
+   {role:'system',content:'s'.repeat(70000)},
+   {role:'assistant',content:'a'.repeat(70000)},
+   {role:'user',content:'u'.repeat(70000)}
+ ];
+ await assert.rejects(()=>s.api.send(cfg,huge),/不是智慧記憶模式/);
+ assert.equal(s.calls.length,0);
 });
 test('forwards cache-aware usage returned by the Worker to BAO/LAB usage accounting',async()=>{
  const s=build({ok:true,status:200,body:{content:'cache',usage:{input_tokens:1000,output_tokens:100,cached_tokens:700,cache_write_tokens:50,reasoning_tokens:20,provider_cost_usd:0.01,charged_credits:11,billing_mode:'raw_tokens_v1'}}});
