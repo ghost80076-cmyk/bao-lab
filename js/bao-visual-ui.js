@@ -78,7 +78,7 @@
     if (!document.querySelector('script[data-bao-gallery-focus]')) {
       const gallery = document.createElement('script');
       gallery.dataset.baoGalleryFocus = '1';
-      gallery.src = 'js/bao-gallery-focus.js?v=2';
+      gallery.src = 'js/bao-gallery-focus.js?v=3';
       document.head.appendChild(gallery);
     }
   };

@@ -37,7 +37,8 @@ test.describe('Player 2.0 shell', () => {
     await expect(homeSupport.locator('img[src$="assets/bao-bun.svg"]')).toHaveCount(1);
     const mascotButton = page.locator('#bao-mascot-launch');
     await expect(mascotButton).toBeVisible();
-    await mascotButton.click();
+    // The mascot intentionally floats; force the synthetic click so Playwright does not wait for a stationary box.
+    await mascotButton.click({ force: true });
     const mascotPanel = page.locator('#bao-mascot-panel');
     await expect(mascotPanel).toBeVisible();
     const mascotSupport = mascotPanel.getByRole('link', { name: '投餵肉包・支持 BAO/LAB' });
