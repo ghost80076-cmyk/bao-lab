@@ -6,9 +6,10 @@ const card=require('../data/characters/general/host-club-simulator.json');
 const manifest=require('../data/characters.json');
 
 assert.ok(manifest.some(entry=>entry.id===card.meta.id),'manifest should include host-club-simulator');
-assert.equal(card.meta.category,'r18');
-assert.equal(card.meta.rating,'adult');
+assert.equal(card.meta.category,'male');
+assert.equal(card.meta.rating,'general');
 assert.equal(card.meta.gender,'male');
+assert.doesNotMatch(card.content.greeting,/R18|18\+ 成人向/,'public catalog should not expose R18 badge');
 assert.ok(fs.existsSync(path.join(__dirname,'..',card.meta.avatar)),'generated host cast art should exist');
 
 const cast=card.content.profile.cast;
