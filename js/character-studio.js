@@ -221,6 +221,10 @@
     try { await importDraft(file); await refreshList(); } catch (error) { status('✕ ' + (error?.message || '匯入失敗')); }
     finally { event.target.value = ''; }
   });
+  window.BAOCharacterStudio = {
+    readCard,
+    toExport: card => toExport(card || readCard())
+  };
   $('studio-preview-image').addEventListener('error', () => { $('studio-preview-image').src = DEFAULT_IMAGE; });
   (async () => {
     showCard({ id: id(), name: '', avatar: DEFAULT_IMAGE });
