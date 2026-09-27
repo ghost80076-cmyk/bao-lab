@@ -152,12 +152,16 @@
       if (config?.api) config.api.protocol = protocol.value;
       return config;
     };
-    attachPicker({
+    const picker = attachPicker({
       anchor: modelInput.closest('label'),
       getConfig: () => ({ baseUrl: baseUrl.value, key: key.value, protocol: protocol.value }),
       setModel: id => { modelInput.value = id; modelInput.dispatchEvent(new Event('input', { bubbles: true })); },
       controls: [baseUrl, provider, protocol, key]
     });
+    if (picker) {
+      picker.button.textContent = '更多模型／從帳號取得';
+      picker.status.textContent = '需要預設清單以外的模型時再使用；一般玩家可直接保持上方選擇。';
+    }
   }
 
   function mountHelper(kind) {

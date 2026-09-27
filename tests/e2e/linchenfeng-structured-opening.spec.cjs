@@ -13,6 +13,7 @@ test('Lin Chenfeng opening is structured UI backed by plain story text', async (
     await page.getByRole('button', { name: '下一步' }).click();
   }
 
+  await page.locator('#api-advanced-settings > summary').click();
   await page.locator('#model-id').fill('local-browser-test');
   await page.locator('#base-url').fill('https://test.invalid/v1');
   await page.locator('#api-key').fill('TEMP_TEST_KEY');

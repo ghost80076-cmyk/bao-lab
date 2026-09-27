@@ -33,6 +33,7 @@ test('Host Club Simulator renders generated cast, setup and economy UI', async (
   await page.locator('#hostsim-reason').fill('朋友推薦，想知道牛郎店到底在賣什麼。');
 
   await page.getByRole('button', { name: '下一步' }).click();
+  await page.locator('#api-advanced-settings > summary').click();
   await page.locator('#model-id').fill('local-browser-test');
   await page.locator('#base-url').fill('https://test.invalid/v1');
   await page.locator('#api-key').fill('TEMP_TEST_KEY');

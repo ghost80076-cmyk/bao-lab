@@ -47,8 +47,9 @@
     const box = document.createElement("div");
     box.id = "model-advisor";
     box.className = "model-advisor";
-    const grid = step.querySelector(".form-grid");
-    grid?.insertAdjacentElement("afterend", box);
+    const advanced = document.getElementById("api-advanced-settings");
+    if (advanced) advanced.appendChild(box);
+    else step.querySelector(".form-grid")?.insertAdjacentElement("afterend", box);
     renderAdvisor();
   };
 
@@ -94,7 +95,7 @@
       <div><b>官方 API</b><p>來源、隱私政策與計費最清楚；若你只固定使用一家模型，通常最單純。</p></div>
       <div><b>OpenRouter</b><p>一把 Key 可以切換多家模型，也能使用路由與備援；不同 provider 的價格、速度與快取可能不同。</p></div>
       <div><b>其他中轉 / 自訂 API</b><p>可能更便宜，也可能有自訂模型；但請自行確認是否保存對話、是否量化模型、實際倍率與退款規則。</p></div>`;
-    step.appendChild(details);
+    (document.getElementById("api-advanced-settings") || step).appendChild(details);
   };
 
   const patchPresetSync = () => {
