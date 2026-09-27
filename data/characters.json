@@ -136,5 +136,34 @@
       "text": true,
       "ui": true
     }
+  },
+  {
+    "id": "unhealed-bonds",
+    "file": "data/characters/general/unhealed-bonds.json",
+    "name": "共犯關係｜壞掉以前",
+    "title": "共犯關係：壞掉以前",
+    "avatar": "assets/unhealed-bonds-shenyan.svg",
+    "category": "r18",
+    "rating": "adult",
+    "gender": "male",
+    "tags": [
+      "女性向",
+      "現代現實",
+      "六男群像",
+      "共依附",
+      "病態依戀",
+      "心理寫實",
+      "慢熱關係",
+      "自主NPC"
+    ],
+    "description": "六名原創男性 × 現代心理寫實 × 病態依附群像。你以為他們在救你；後來才發現，每個人都在用不同方式把自己綁進這段關係。親密、依賴與健康度彼此獨立。",
+    "supported_modes": {
+      "immersive": true,
+      "world": true
+    },
+    "supported_display": {
+      "text": true,
+      "ui": true
+    }
   }
 ]
