@@ -93,6 +93,20 @@ const lastRequest = () => requests.at(-1);
   assert.deepEqual(lastRequest().body.generationConfig.responseFormat.text.schema.required, ["events", "knownFacts", "relationships", "openThreads"]);
   assert.equal(lastRequest().body.generationConfig.maxOutputTokens, 1400);
 
+  const canonSchema = {
+    type: "object",
+    properties: { notebooks: { type: "array", items: { type: "object", properties: { title: { type: "string" } }, required: ["title"] } } },
+    required: ["notebooks"]
+  };
+  responseData = { candidates: [{ content: { parts: [{ text: '{"notebooks":[]}' }] } }] };
+  await API.send({ type: "gemini", protocol: "gemini", model: "gemini-3.1-pro-preview", baseUrl: "https://generativelanguage.googleapis.com/v1beta/models", key: "GEMINI-SECRET", __memoryTask: true, __responseSchema: canonSchema }, messages);
+  assert.deepEqual(lastRequest().body.generationConfig.responseFormat.text.schema, canonSchema, "task-specific structured output must override the legacy memory schema");
+
+  responseData = { candidates: [{ content: { parts: [{ text: '{"summary":"","importantEvents":[]}' }] } }] };
+  await API.send({ type: "gemini", protocol: "gemini", model: "gemini-3.1-pro-preview", baseUrl: "https://generativelanguage.googleapis.com/v1beta/models", key: "GEMINI-SECRET", __memoryTask: true, __responseSchema: false }, messages);
+  assert.equal(lastRequest().body.generationConfig.responseFormat.text.mimeType, "application/json");
+  assert.equal(lastRequest().body.generationConfig.responseFormat.text.schema, undefined, "flexible JSON tasks must not inherit the legacy memory schema");
+
   responseData = { content: [{ type: "text", text: "Claude OK" }], usage: { input_tokens: 40, cache_read_input_tokens: 100, cache_creation_input_tokens: 20, output_tokens: 15 } };
   const anthropic = await API.send({ type: "anthropic", protocol: "anthropic", route: "official", model: "claude-test", baseUrl: "https://api.anthropic.com/v1/messages", key: "CLAUDE-SECRET", cacheMode: "explicit", explicitCacheModel: "claude-test", cacheEnabled: true }, messages);
   assert.equal(anthropic.usage.input_tokens, 160);
