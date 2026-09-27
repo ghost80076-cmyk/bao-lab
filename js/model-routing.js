@@ -75,11 +75,11 @@
     return `<div class="helper-route-card" data-helper-card="${kind}">
       <label>${isMemory ? "長期記憶摘要" : "NPC／事件／狀態整理"}要用哪個連線？
         <select id="${kind}-route-choice">
-          <option value="same">沿用主聊天模型與 API（最簡單）</option>
+          <option value="same">沿用主聊天模型與 API（仍只送整理所需內容）</option>
           <option value="separate">使用另一個 API／模型（省費用或分工）</option>
         </select>
       </label>
-      <small class="note">${isMemory ? "只整理舊對話，不會替角色演戲。" : "只做 JSON 狀態整理，不影響主要故事文筆。"}</small>
+      <small class="note">${isMemory ? "即使用主聊天同一模型，也只送待整理舊對話＋既有摘要，不會重送完整故事。" : "即使用主聊天同一模型，也只送目前狀態＋待整理的小批次，不會重送完整故事。"}</small>
       <div id="${kind}-route-advanced" class="hidden helper-route-advanced">
         <label>快速選擇服務 / 模型<select id="${kind}-preset-select"><option value="">選擇官方 / OpenRouter 預設…</option>${optionHTML()}</select></label>
         <div class="form-grid">
@@ -156,7 +156,7 @@
     const box = document.createElement("div");
     box.id = "helper-routing-box";
     box.className = "cost-control-box";
-    box.innerHTML = `<h3>主模型演戲，便宜模型做整理</h3><p class="note">選填。可以讓 Claude／Gemini／GLM 負責故事，再用 Qwen、MiMo、DeepSeek、GLM 或其他模型整理記憶與狀態。若不想準備第二把連線金鑰（API Key），維持「沿用主聊天」即可。</p><div class="helper-route-grid">${helperCard("memory")}${helperCard("state")}</div>`;
+    box.innerHTML = `<h3>故事、記憶與狀態可以用同一模型，也可以分工</h3><p class="note">選填。三項都選 DeepSeek／Gemini／GLM 也可以：它們仍是分開的小請求，記憶只讀待整理區段，狀態只讀目前狀態與待處理批次，不會各自重送完整故事。需要省模型單價或避開特定模型的格式／內容限制時，再改用另一個 API／模型。</p><div class="helper-route-grid">${helperCard("memory")}${helperCard("state")}</div>`;
     step.appendChild(box);
     ["memory","state"].forEach(kind => {
       document.getElementById(`${kind}-route-choice`)?.addEventListener("change", () => toggleHelper(kind));
