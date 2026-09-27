@@ -38,12 +38,20 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 320, height: 568 }
     const boxes = await page.evaluate(() => {
       const stream = document.getElementById('chat-stream').getBoundingClientRect();
       const composer = document.querySelector('#chat-view .composer').getBoundingClientRect();
+      const header = document.querySelector('#chat-view .chat-topline').getBoundingClientRect();
+      const title = document.querySelector('#chat-view .chat-title-copy h2').getBoundingClientRect();
+      const titleStyle = getComputedStyle(document.querySelector('#chat-view .chat-title-copy h2'));
       return { stream: stream.height, composerTop: composer.top, composerBottom: composer.bottom,
+        headerHeight: header.height, titleHeight: title.height, titleWidth: title.width, titleWhiteSpace: titleStyle.whiteSpace,
         pageWidth: document.documentElement.scrollWidth, viewport: innerWidth, screenHeight: innerHeight };
     });
     expect(boxes.stream).toBeGreaterThan(150);
     expect(boxes.composerTop).toBeGreaterThan(0);
     expect(boxes.composerBottom).toBeLessThanOrEqual(boxes.screenHeight + 2);
+    expect(boxes.headerHeight).toBeLessThan(90);
+    expect(boxes.titleHeight).toBeLessThan(32);
+    expect(boxes.titleWidth).toBeGreaterThan(0);
+    expect(boxes.titleWhiteSpace).toBe('nowrap');
     expect(boxes.pageWidth).toBeLessThanOrEqual(boxes.viewport + 1);
 
     await headerStatus.click();
