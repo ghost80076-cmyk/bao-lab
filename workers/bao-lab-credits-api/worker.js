@@ -572,6 +572,63 @@ function billingV2TestPlayers(
   );
 }
 
+function awsOpenRouterPlayers(
+  env
+) {
+  return new Set(
+    String(
+      env.AWS_OPENROUTER_PLAYERS ||
+      ""
+    )
+      .split(",")
+      .map(
+        (x) =>
+          x
+            .trim()
+            .toUpperCase()
+      )
+      .filter(Boolean)
+  );
+}
+
+function playerUsesAwsOpenRouter(
+  env,
+  player
+) {
+  const allowed =
+    awsOpenRouterPlayers(
+      env
+    );
+
+  if (
+    !allowed.size ||
+    !player
+  ) {
+    return false;
+  }
+
+  return [
+    player.id,
+    player.public_id,
+    player.username,
+  ]
+    .map(
+      (value) =>
+        String(
+          value || ""
+        )
+          .trim()
+          .toUpperCase()
+    )
+    .some(
+      (value) =>
+        value &&
+        allowed.has(
+          value
+        )
+    );
+}
+
 function billingModeForPlayer(
   env,
   player
@@ -737,6 +794,163 @@ function pricingRate(
   )
     ? value
     : null;
+}
+
+function longContextActive(
+  config,
+  inputTokens
+) {
+  const threshold =
+    pricingRate(
+      config,
+      "long_context_threshold_tokens"
+    );
+
+  return (
+    threshold !== null &&
+    threshold > 0 &&
+    Number.isSafeInteger(
+      inputTokens
+    ) &&
+    inputTokens >
+      threshold
+  );
+}
+
+function resolvedPricingRates(
+  config,
+  inputTokens
+) {
+  const longContext =
+    longContextActive(
+      config,
+      inputTokens
+    );
+
+  const rate = (
+    key
+  ) => {
+    if (longContext) {
+      const tiered =
+        pricingRate(
+          config,
+          `long_context_${key}`
+        );
+
+      if (
+        tiered !== null
+      ) {
+        return tiered;
+      }
+    }
+
+    return pricingRate(
+      config,
+      key
+    );
+  };
+
+  const inputRate =
+    rate(
+      "input_microusd_per_million"
+    );
+
+  const outputRate =
+    rate(
+      "output_microusd_per_million"
+    );
+
+  return {
+    longContext,
+    inputRate,
+    outputRate,
+
+    cacheReadRate:
+      rate(
+        "cache_read_microusd_per_million"
+      ) ??
+      inputRate,
+
+    cacheWriteRate:
+      rate(
+        "cache_write_microusd_per_million"
+      ) ??
+      inputRate,
+  };
+}
+
+function openRouterPriceGuard(
+  config,
+  inputTokens
+) {
+  if (
+    config?.provider !==
+      "openrouter"
+  ) {
+    return null;
+  }
+
+  const rates =
+    resolvedPricingRates(
+      config,
+      inputTokens
+    );
+
+  if (
+    rates.inputRate ===
+      null ||
+    rates.outputRate ===
+      null
+  ) {
+    return null;
+  }
+
+  const longPrefix =
+    rates.longContext
+      ? "long_context_"
+      : "";
+
+  const promptRate =
+    pricingRate(
+      config,
+      `${longPrefix}openrouter_max_prompt_microusd_per_million`
+    ) ??
+    pricingRate(
+      config,
+      "openrouter_max_prompt_microusd_per_million"
+    ) ??
+    rates.inputRate;
+
+  const completionRate =
+    pricingRate(
+      config,
+      `${longPrefix}openrouter_max_completion_microusd_per_million`
+    ) ??
+    pricingRate(
+      config,
+      "openrouter_max_completion_microusd_per_million"
+    ) ??
+    rates.outputRate;
+
+  return {
+    promptRate,
+    completionRate,
+
+    longContext:
+      rates.longContext,
+
+    provider: {
+      max_price: {
+        prompt:
+          promptRate /
+          1_000_000,
+
+        completion:
+          completionRate /
+          1_000_000,
+      },
+    },
+  };
 }
 
 function ceilDivBigInt(
@@ -907,59 +1121,41 @@ function computedUsageCostMicrousd(
   config,
   stored
 ) {
-  const inputRate =
-    pricingRate(
+  const rates =
+    resolvedPricingRates(
       config,
-      "input_microusd_per_million"
-    );
-
-  const outputRate =
-    pricingRate(
-      config,
-      "output_microusd_per_million"
+      stored.input
     );
 
   if (
-    inputRate === null ||
-    outputRate === null
+    rates.inputRate ===
+      null ||
+    rates.outputRate ===
+      null
   ) {
     return null;
   }
-
-  const cacheReadRate =
-    pricingRate(
-      config,
-      "cache_read_microusd_per_million"
-    ) ??
-    inputRate;
-
-  const cacheWriteRate =
-    pricingRate(
-      config,
-      "cache_write_microusd_per_million"
-    ) ??
-    inputRate;
 
   return costBucketsMicrousd(
     [
       [
         stored.freshInput,
-        inputRate,
+        rates.inputRate,
       ],
 
       [
         stored.cached,
-        cacheReadRate,
+        rates.cacheReadRate,
       ],
 
       [
         stored.cacheWrite,
-        cacheWriteRate,
+        rates.cacheWriteRate,
       ],
 
       [
         stored.output,
-        outputRate,
+        rates.outputRate,
       ],
     ]
   );
@@ -1037,42 +1233,43 @@ function reservePlan(
   requestedMaxOutput,
   walletBalance
 ) {
-  const inputRate =
-    pricingRate(
-      config,
-      "input_microusd_per_million"
+  const estimatedInputTokens =
+    estimatedPromptTokens(
+      messages
     );
 
-  const outputRate =
-    pricingRate(
+  const rates =
+    resolvedPricingRates(
       config,
-      "output_microusd_per_million"
+      estimatedInputTokens
     );
 
   if (
-    inputRate === null ||
-    outputRate === null ||
-    outputRate <= 0
+    rates.inputRate ===
+      null ||
+    rates.outputRate ===
+      null
   ) {
     return null;
   }
 
-  const cacheWriteRate =
-    pricingRate(
+  const guard =
+    openRouterPriceGuard(
       config,
-      "cache_write_microusd_per_million"
-    ) ??
-    inputRate;
+      estimatedInputTokens
+    );
 
   const reserveInputRate =
     Math.max(
-      inputRate,
-      cacheWriteRate
+      rates.inputRate,
+      rates.cacheWriteRate ?? 0,
+      guard?.promptRate ?? 0
     );
 
-  const estimatedInputTokens =
-    estimatedPromptTokens(
-      messages
+  const reserveOutputRate =
+    Math.max(
+      rates.outputRate,
+      guard?.completionRate ?? 0
     );
 
   const inputReserveMicrousd =
@@ -1101,11 +1298,50 @@ function reservePlan(
         false,
 
       estimatedInputTokens,
-
       inputReserveMicrousd,
 
       affordableOutputTokens:
         0,
+
+      pricingTier:
+        rates.longContext
+          ? "long_context"
+          : "standard",
+    };
+  }
+
+  if (
+    reserveOutputRate ===
+      0
+  ) {
+    return {
+      ok:
+        true,
+
+      estimatedInputTokens,
+      inputReserveMicrousd,
+
+      outputReserveMicrousd:
+        0,
+
+      reserveMicrousd:
+        inputReserveMicrousd,
+
+      effectiveMaxOutput:
+        requestedMaxOutput,
+
+      pricingTier:
+        rates.longContext
+          ? "long_context"
+          : "standard",
+
+      openRouterMaxPromptMicrousdPerMillion:
+        guard?.promptRate ??
+        null,
+
+      openRouterMaxCompletionMicrousdPerMillion:
+        guard?.completionRate ??
+        null,
     };
   }
 
@@ -1121,7 +1357,7 @@ function reservePlan(
       1_000_000n
     ) /
     BigInt(
-      outputRate
+      reserveOutputRate
     );
 
   const affordableOutputTokens =
@@ -1158,11 +1394,14 @@ function reservePlan(
         false,
 
       estimatedInputTokens,
-
       inputReserveMicrousd,
-
       affordableOutputTokens:
         effectiveMaxOutput,
+
+      pricingTier:
+        rates.longContext
+          ? "long_context"
+          : "standard",
     };
   }
 
@@ -1171,7 +1410,7 @@ function reservePlan(
       [
         [
           effectiveMaxOutput,
-          outputRate,
+          reserveOutputRate,
         ],
       ]
     );
@@ -1200,14 +1439,23 @@ function reservePlan(
       true,
 
     estimatedInputTokens,
-
     inputReserveMicrousd,
-
     outputReserveMicrousd,
-
     reserveMicrousd,
-
     effectiveMaxOutput,
+
+    pricingTier:
+      rates.longContext
+        ? "long_context"
+        : "standard",
+
+    openRouterMaxPromptMicrousdPerMillion:
+      guard?.promptRate ??
+      null,
+
+    openRouterMaxCompletionMicrousdPerMillion:
+      guard?.completionRate ??
+      null,
   };
 }
 
@@ -3713,61 +3961,181 @@ async function providerCall(
   provider,
   model,
   messages,
-  maxOutput
+  maxOutput,
+  player = null
 ) {
   let endpoint;
   let init;
+  let usingAwsRelay =
+    false;
+
+  const configuredModel =
+    modelConfig(
+      env,
+      provider,
+      model
+    );
+
+  const openRouterGuard =
+    provider ===
+      "openrouter"
+      ? openRouterPriceGuard(
+          configuredModel,
+          estimatedPromptTokens(
+            messages
+          )
+        )
+      : null;
 
   if (
     provider ===
     "openrouter"
   ) {
-    if (
-      !env.OPENROUTER_API_KEY
-    ) {
-      return {
-        ok:
-          false,
+    const useAwsRelay =
+      playerUsesAwsOpenRouter(
+        env,
+        player
+      );
 
-        category:
-          "provider_not_configured",
+    if (
+      useAwsRelay
+    ) {
+      if (
+        !env.AWS_RELAY_URL ||
+        !env.BAO_INTERNAL_TOKEN
+      ) {
+        return {
+          ok:
+            false,
+
+          category:
+            "relay_not_configured",
+        };
+      }
+
+      let relayBase;
+
+      try {
+        relayBase =
+          new URL(
+            env.AWS_RELAY_URL
+          );
+
+        if (
+          relayBase.protocol !==
+            "https:" ||
+          relayBase.username ||
+          relayBase.password
+        ) {
+          throw new Error(
+            "bad_relay"
+          );
+        }
+      }
+
+      catch {
+        return {
+          ok:
+            false,
+
+          category:
+            "relay_not_configured",
+        };
+      }
+
+      endpoint =
+        new URL(
+          "/v1/chat",
+          relayBase
+        ).toString();
+
+      usingAwsRelay =
+        true;
+
+      init = {
+        method:
+          "POST",
+
+        headers: {
+          authorization:
+            `Bearer ${env.BAO_INTERNAL_TOKEN}`,
+
+          "content-type":
+            "application/json",
+        },
+
+        body:
+          JSON.stringify(
+            {
+              provider:
+                "openrouter",
+
+              model,
+              messages,
+
+              max_output_tokens:
+                maxOutput,
+
+              openrouter_provider:
+                openRouterGuard
+                  ?.provider,
+            }
+          ),
       };
     }
 
-    endpoint =
-      "https://openrouter.ai/api/v1/chat/completions";
+    else {
+      if (
+        !env.OPENROUTER_API_KEY
+      ) {
+        return {
+          ok:
+            false,
 
-    init = {
-      method:
-        "POST",
+          category:
+            "provider_not_configured",
+        };
+      }
 
-      headers: {
-        authorization:
-          `Bearer ${env.OPENROUTER_API_KEY}`,
+      endpoint =
+        "https://openrouter.ai/api/v1/chat/completions";
 
-        "content-type":
-          "application/json",
-      },
+      init = {
+        method:
+          "POST",
 
-      body:
-        JSON.stringify(
-          {
-            model,
-            messages,
+        headers: {
+          authorization:
+            `Bearer ${env.OPENROUTER_API_KEY}`,
 
-            max_tokens:
-              maxOutput,
+          "content-type":
+            "application/json",
+        },
 
-            stream:
-              false,
+        body:
+          JSON.stringify(
+            {
+              model,
+              messages,
 
-            usage: {
-              include:
-                true,
-            },
-          }
-        ),
-    };
+              max_tokens:
+                maxOutput,
+
+              stream:
+                false,
+
+              provider:
+                openRouterGuard
+                  ?.provider,
+
+              usage: {
+                include:
+                  true,
+              },
+            }
+          ),
+      };
+    }
   }
 
   else if (
@@ -4010,8 +4378,11 @@ async function providerCall(
         false,
 
       category:
-        provider ===
-          "gemini"
+        (
+          provider ===
+            "gemini" ||
+          usingAwsRelay
+        )
           ? "relay_network_error"
           : "provider_network_error",
     };
@@ -4635,7 +5006,8 @@ async function legacyChatRoute(
       provider,
       model,
       messages,
-      maxOutput
+      maxOutput,
+      player
     );
 
   if (
@@ -5253,40 +5625,55 @@ async function costUsdChatRoute(
     );
   }
 
-  const reserveDebit =
-    await db
-      .prepare(
-        `
-        UPDATE wallets
+  let reserveDebit = {
+    meta: {
+      changes:
+        1,
+    },
+  };
 
-        SET
-          balance_microusd =
-            balance_microusd -
-            ?,
+  // A fully free model has nothing to reserve. Avoid relying on a
+  // database no-op UPDATE being reported as a changed row.
+  if (
+    plan
+      .reserveMicrousd >
+    0
+  ) {
+    reserveDebit =
+      await db
+        .prepare(
+          `
+          UPDATE wallets
 
-          updated_at =
-            CURRENT_TIMESTAMP
+          SET
+            balance_microusd =
+              balance_microusd -
+              ?,
 
-        WHERE
-          player_id = ?
+            updated_at =
+              CURRENT_TIMESTAMP
 
-          AND
-          enabled = 1
+          WHERE
+            player_id = ?
 
-          AND
-          balance_microusd >= ?
-        `
-      )
-      .bind(
-        plan
-          .reserveMicrousd,
+            AND
+            enabled = 1
 
-        player.id,
+            AND
+            balance_microusd >= ?
+          `
+        )
+        .bind(
+          plan
+            .reserveMicrousd,
 
-        plan
-          .reserveMicrousd
-      )
-      .run();
+          player.id,
+
+          plan
+            .reserveMicrousd
+        )
+        .run();
+  }
 
   if (
     !reserveDebit
@@ -5324,7 +5711,8 @@ async function costUsdChatRoute(
       model,
       messages,
       plan
-        .effectiveMaxOutput
+        .effectiveMaxOutput,
+      player
     );
 
   if (
@@ -5972,6 +6360,29 @@ async function costUsdChatRoute(
         plan
           .reserveMicrousd,
 
+      pricing_tier:
+        plan
+          .pricingTier ||
+        "standard",
+
+      openrouter_max_prompt_usd_per_million:
+        plan
+          .openRouterMaxPromptMicrousdPerMillion ==
+        null
+          ? null
+          : plan
+              .openRouterMaxPromptMicrousdPerMillion /
+            1_000_000,
+
+      openrouter_max_completion_usd_per_million:
+        plan
+          .openRouterMaxCompletionMicrousdPerMillion ==
+        null
+          ? null
+          : plan
+              .openRouterMaxCompletionMicrousdPerMillion /
+            1_000_000,
+
       billing_mode:
         COST_BILLING_MODE,
 
@@ -6136,6 +6547,11 @@ export default {
                 env.AWS_RELAY_URL &&
                 env.BAO_INTERNAL_TOKEN
               ),
+
+            aws_openrouter_players_configured:
+              awsOpenRouterPlayers(
+                env
+              ).size,
 
             anthropic_configured:
               Boolean(

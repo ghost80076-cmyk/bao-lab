@@ -59,6 +59,8 @@ jobs:
         run: node tests/story-bundle-secret-core.cjs
       - name: Character readiness core
         run: node tests/character-readiness-core.cjs
+      - name: Lazy character catalog
+        run: node tests/character-catalog-lazy-core.cjs
       - name: Character JSON import hardening
         run: node tests/character-import-core.cjs
       - name: Author structure guidance and relay probe
@@ -69,6 +71,10 @@ jobs:
         run: |
           node --check js/credits-pilot.js
           node --test tests/credits-pilot.test.cjs
+      - name: YoruBay zero-cost model billing
+        run: node tests/worker-free-model-billing-core.cjs
+      - name: YoruBay OpenRouter price guard
+        run: node tests/worker-openrouter-cost-guard-core.cjs
       - name: Canon workbench
         run: node tests/canon-workbench-core.cjs
       - name: Stable chat message IDs
@@ -89,6 +95,8 @@ jobs:
         run: node tests/request-lifecycle-core.cjs
       - name: Accumulated world state turns
         run: node tests/world-state-cost-core.cjs
+      - name: Same-model story and state merge
+        run: node tests/same-model-state-merge-core.cjs
       - name: Display-independent state tracking
         run: node tests/display-state-tracking-core.cjs
       - name: Explicit scene metadata and greeting recovery

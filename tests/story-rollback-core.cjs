@@ -5,8 +5,8 @@ const fs = require('node:fs');
 const path = require('node:path');
 const source = fs.readFileSync(path.join(__dirname, '..', 'js', 'story-rollback.js'), 'utf8');
 
-function fixture({ checkpoint = true, confirm = true, pending = false, createFails = false, restoreFails = false } = {}) {
-  const events = { alerts: [], saves: 0, restored: [], created: 0, prompts: 0 };
+function fixture({ checkpoint = true, confirm = true, pending = false, createFails = false, restoreFails = false, differentEndpoint = false } = {}) {
+  const events = { alerts: [], saves: 0, restored: [], created: 0, prompts: 0, apiOpens: 0 };
   const oldMessages = [
     { id: 'u1', role: 'user', content: 'start' },
     { id: 'a1', role: 'assistant', content: 'at the crossroads' },
@@ -15,13 +15,15 @@ function fixture({ checkpoint = true, confirm = true, pending = false, createFai
   ];
   const originalRefs = { storyId: 'story1', chapterId: 'main', chapterLabel: '主線' };
   let refs = structuredClone(originalRefs);
-  const oldSave = { characterId: 'char1', config: { api: { model: 'test' } }, chat: { messages: structuredClone(oldMessages), summary: 'modern memory' }, state: { money: 20 }, _library: structuredClone(originalRefs) };
-  const pointPayload = { characterId: 'char1', config: { api: { model: 'test' } }, chat: { messages: [], summary: 'historical memory', summarizedUntil: 0 }, state: { money: 100, npcs: [] } };
+  const mainApi = { model: 'test', baseUrl: 'https://a.example/v1', protocol: 'openai' };
+  const branchApi = differentEndpoint ? { model: 'test', baseUrl: 'https://b.example/v1', protocol: 'openai' } : mainApi;
+  const oldSave = { characterId: 'char1', config: { api: mainApi }, chat: { messages: structuredClone(oldMessages), summary: 'modern memory' }, state: { money: 20 }, _library: structuredClone(originalRefs) };
+  const pointPayload = { characterId: 'char1', config: { api: branchApi }, chat: { messages: [], summary: 'historical memory', summarizedUntil: 0 }, state: { money: 100, npcs: [] } };
   const records = oldMessages.map((m, seq) => ({ kind: 'message', storyId: 'story1', chapterId: 'main', messageId: m.id, role: m.role, seq }));
   if (checkpoint) records.push({ kind: 'checkpoint', storyId: 'story1', chapterId: 'main', messageId: 'a1', seq: 1, payload: pointPayload });
   const chat = { messages: structuredClone(oldMessages), summarizing: false };
   const app = {
-    config: { api: { key: 'secret' } }, __requestPending: pending,
+    config: { api: { ...mainApi, key: 'secret' } }, __requestPending: pending,
     saveStory: () => { events.saves++; return true; },
     renderChatShell: () => {}, showView: () => {}
   };
@@ -57,6 +59,7 @@ function fixture({ checkpoint = true, confirm = true, pending = false, createFai
     BAOStoryLibrary: library,
     BAOStoryBranches: { open() {} },
     BAOStoryRevisionState: { whenIdle: async () => {} },
+    BAOChatAPISettings: { open: () => { events.apiOpens++; } },
     confirm: () => { events.prompts++; return confirm; },
     alert: m => events.alerts.push(m),
     BAORefreshSaveUI() {}
@@ -80,7 +83,16 @@ function fixture({ checkpoint = true, confirm = true, pending = false, createFai
     assert.equal(f.events.restored[0].chat.summary, 'historical memory');
     assert.equal(f.events.created, 1);
     assert.match(f.events.alerts.at(-1), /原故事線完整保留/);
-    console.log('PASS rollback branches at historical checkpoint and restores state, memory and session API key');
+    console.log('PASS rollback branches at historical checkpoint and restores state, memory and same-endpoint API key');
+  }
+  {
+    const f = fixture({ differentEndpoint: true });
+    assert.equal(await f.rollback.rewind(1), true);
+    assert.equal(f.app.config.api.baseUrl, 'https://b.example/v1');
+    assert.equal(f.app.config.api.key, '');
+    assert.equal(f.events.apiOpens, 1);
+    assert.equal(f.events.restored[0].state.money, 100);
+    console.log('PASS rollback never sends the old provider key to a different endpoint');
   }
   {
     const f = fixture({ checkpoint: false });
@@ -126,5 +138,5 @@ function fixture({ checkpoint = true, confirm = true, pending = false, createFai
     assert.equal(f.events.created, 0);
     console.log('PASS last assistant message cannot be rewound unnecessarily');
   }
-  console.log('PASS 7 rollback core regression cases');
+  console.log('PASS 8 rollback core regression cases');
 })().catch(error => { console.error(error); process.exitCode = 1; });

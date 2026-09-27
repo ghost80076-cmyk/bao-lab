@@ -1,22 +1,140 @@
 [
   {
     "id": "linchenfeng",
-    "file": "data/characters/general/linchenfeng.json"
+    "file": "data/characters/general/linchenfeng.json",
+    "name": "林沉風",
+    "title": "林沉風 - 見過黑暗的人",
+    "avatar": "https://i.meee.com.tw/UHKTM1O.jpg",
+    "category": "female",
+    "rating": "general",
+    "gender": "male",
+    "tags": [
+      "女性向",
+      "現代現實",
+      "深夜論壇",
+      "慢熱戀愛",
+      "心理寫實",
+      "邊界感",
+      "低侵略主導",
+      "長篇關係"
+    ],
+    "description": "28 歲｜自由接案者｜深夜常在線。他不是來拯救你的；他只是在理解世界之後，仍然選擇用溫和的方式活著。看得懂人性，但不急著拆穿；不主動靠近，卻接得住真正的脆弱。",
+    "supported_modes": {
+      "immersive": true,
+      "world": true
+    },
+    "supported_display": {
+      "text": true,
+      "ui": true
+    }
   },
   {
     "id": "autonomous-npc-world",
-    "file": "data/characters/general/autonomous-npc-world.json"
+    "file": "data/characters/general/autonomous-npc-world.json",
+    "name": "自主NPC世界(成熟內容支援)",
+    "title": "自主NPC世界(成熟內容支援)",
+    "avatar": "https://i.meee.com.tw/CZubuJ9.jpg",
+    "category": "male",
+    "rating": "general",
+    "gender": "",
+    "tags": [
+      "世界模擬",
+      "自主NPC",
+      "多角色",
+      "資訊隔離",
+      "成熟題材"
+    ],
+    "description": "🌟 動態世界模擬器｜單角色深度互動、多NPC開放世界與自訂世界觀。NPC有自己的生活、目標、界線與記憶；支援成人向主題設定。",
+    "supported_modes": {
+      "immersive": true,
+      "world": true
+    },
+    "supported_display": {
+      "text": true,
+      "ui": true
+    }
   },
   {
     "id": "open-world-real-persona",
-    "file": "data/characters/general/open-world-real-persona.json"
+    "file": "data/characters/general/open-world-real-persona.json",
+    "name": "開放世界：真實人格模擬器",
+    "title": "開放世界：真實人格模擬器",
+    "avatar": "https://i.meee.com.tw/4Fl2azt.jpg",
+    "category": "male",
+    "rating": "general",
+    "gender": "",
+    "tags": [
+      "開放世界",
+      "人格模擬",
+      "自主NPC",
+      "資訊隔離",
+      "動態關係"
+    ],
+    "description": "不是服從你的工具，而是有自己想法的人。單角色深度互動、多NPC開放世界與自訂開局；NPC有獨立行程、資訊邊界與持續變化的人際關係。",
+    "supported_modes": {
+      "immersive": true,
+      "world": true
+    },
+    "supported_display": {
+      "text": true,
+      "ui": true
+    }
   },
   {
     "id": "desire-district",
-    "file": "data/characters/general/desire-district.json"
+    "file": "data/characters/general/desire-district.json",
+    "name": "慾望街區：紅燈區模擬器",
+    "title": "慾望街區：紅燈區模擬器",
+    "avatar": "https://i.meee.com.tw/nfkc3T3.jpg",
+    "category": "r18",
+    "rating": "adult",
+    "gender": "all",
+    "tags": [
+      "R18成人世界",
+      "合法紅燈區",
+      "旅遊島",
+      "自主NPC",
+      "性產業職涯",
+      "經濟經營",
+      "成熟親密",
+      "二次元角色設計",
+      "犯罪懸疑"
+    ],
+    "description": "🌃 平行世界的霓港島，合法成人性服務與夜生活並存的旅遊特區。以消費者、持證性工作者、接待員、經紀人、店主或調查者身分探索基礎、中等、高級三區；經營資產、性技巧與職業技能、名聲與自主NPC關係。採原創二次元／小說角色設計，成年角色外觀、穿搭、神態多元；每筆交易與每個選擇都留下後果。",
+    "supported_modes": {
+      "immersive": true,
+      "world": true
+    },
+    "supported_display": {
+      "text": true,
+      "ui": true
+    }
   },
   {
     "id": "kurobane-yume-kabukicho",
-    "file": "data/characters/general/kurobane-yume-kabukicho.json"
+    "file": "data/characters/general/kurobane-yume-kabukicho.json",
+    "name": "黑羽 ゆめ｜歌舞伎町・午前零時",
+    "title": "歌舞伎町・午前零時：黑羽 ゆめ",
+    "avatar": "assets/yume-yume-close-v3.webp",
+    "category": "r18",
+    "rating": "adult",
+    "gender": "female",
+    "tags": [
+      "歌舞伎町",
+      "六人群像",
+      "地雷系",
+      "夜職",
+      "自主NPC",
+      "成人關係"
+    ],
+    "description": "歌舞伎町夜職與六人群像。黑羽ゆめ在依附、工作、金錢和自己的生活之間反覆拉扯；玩家從可見的現場與訊息，逐步認識這座夜城。",
+    "supported_modes": {
+      "immersive": true,
+      "world": true
+    },
+    "supported_display": {
+      "text": true,
+      "ui": true
+    }
   }
 ]

@@ -10,24 +10,26 @@
   // upstream provider for its MODELS_JSON allowlist and providerCall routing.
   const MODEL_PROVIDERS = Object.freeze({
     "gemini-3-flash-preview": "gemini",
-    "gemini-3.1-flash-lite": "gemini",
     "gemini-3.1-pro-preview": "gemini",
-    "google/gemini-3.1-pro-preview": "openrouter",
+    "deepseek/deepseek-v4-flash-0731": "openrouter",
+    "qwen/qwen3.7-flash": "openrouter",
+    "xiaomi/mimo-v2.5": "openrouter",
+    "minimax/minimax-m3": "openrouter",
     "anthropic/claude-sonnet-4.5": "openrouter",
     "anthropic/claude-sonnet-4.6": "openrouter",
-    "anthropic/claude-opus-4.5": "openrouter",
     "anthropic/claude-opus-4.6": "openrouter"
   });
   const MODELS = Object.keys(MODEL_PROVIDERS);
   const PRESETS = [
-    { provider: PROVIDER, provider_label: "YoruBay API 額度", label: "Gemini 3 Flash · Google 官方", model: "gemini-3-flash-preview", base_url: ENDPOINT, protocol: "openai", route: PROVIDER, use_case: "登入 YoruBay 後直接使用，依 Wallet 扣除模型成本" },
-    { provider: PROVIDER, provider_label: "YoruBay API 額度", label: "Gemini 3.1 Flash-Lite · Google 官方", model: "gemini-3.1-flash-lite", base_url: ENDPOINT, protocol: "openai", route: PROVIDER, use_case: "登入 YoruBay 後直接使用，適合摘要與低成本整理" },
-    { provider: PROVIDER, provider_label: "YoruBay API 額度", label: "Gemini 3.1 Pro · Google 官方", model: "gemini-3.1-pro-preview", base_url: ENDPOINT, protocol: "openai", route: PROVIDER, use_case: "登入 YoruBay 後直接使用，依 Google 官方模型成本扣款" },
-    { provider: PROVIDER, provider_label: "YoruBay API 額度", label: "Gemini 3.1 Pro · OpenRouter", model: "google/gemini-3.1-pro-preview", base_url: ENDPOINT, protocol: "openai", route: PROVIDER, use_case: "登入 YoruBay 後直接使用，經 OpenRouter 路由" },
-    { provider: PROVIDER, provider_label: "YoruBay API 額度", label: "Claude Sonnet 4.5 · OpenRouter", model: "anthropic/claude-sonnet-4.5", base_url: ENDPOINT, protocol: "openai", route: PROVIDER, use_case: "登入 YoruBay 後直接使用，Claude 舊版文風相容" },
-    { provider: PROVIDER, provider_label: "YoruBay API 額度", label: "Claude Sonnet 4.6 · OpenRouter", model: "anthropic/claude-sonnet-4.6", base_url: ENDPOINT, protocol: "openai", route: PROVIDER, use_case: "登入 YoruBay 後直接使用，適合高品質長篇" },
-    { provider: PROVIDER, provider_label: "YoruBay API 額度", label: "Claude Opus 4.5 · OpenRouter", model: "anthropic/claude-opus-4.5", base_url: ENDPOINT, protocol: "openai", route: PROVIDER, use_case: "登入 YoruBay 後直接使用，Opus 舊版相容" },
-    { provider: PROVIDER, provider_label: "YoruBay API 額度", label: "Claude Opus 4.6 · OpenRouter", model: "anthropic/claude-opus-4.6", base_url: ENDPOINT, protocol: "openai", route: PROVIDER, use_case: "登入 YoruBay 後直接使用，適合高品質重要劇情" }
+    { provider: PROVIDER, provider_label: "YoruBay AI 點數", tier: "超省長聊", label: "【超省長聊】DeepSeek V4 Flash 0731", model: "deepseek/deepseek-v4-flash-0731", base_url: ENDPOINT, protocol: "openai", route: PROVIDER, use_case: "低成本主聊天與長篇互動；適合希望把點數用得更久的玩家" },
+    { provider: PROVIDER, provider_label: "YoruBay AI 點數", tier: "超省備選", label: "【超省備選】Qwen 3.7 Flash", model: "qwen/qwen3.7-flash", base_url: ENDPOINT, protocol: "openai", route: PROVIDER, use_case: "低成本聊天、摘要與狀態整理；OpenRouter 路由" },
+    { provider: PROVIDER, provider_label: "YoruBay AI 點數", tier: "超省備選", label: "【超省備選】MiMo V2.5", model: "xiaomi/mimo-v2.5", base_url: ENDPOINT, protocol: "openai", route: PROVIDER, use_case: "低成本長篇與世界互動；OpenRouter 路由" },
+    { provider: PROVIDER, provider_label: "YoruBay AI 點數", tier: "日常主力", label: "【日常主力】Gemini 3 Flash", model: "gemini-3-flash-preview", base_url: ENDPOINT, protocol: "openai", route: PROVIDER, use_case: "玩家指定主力；日常長篇、速度與品質兼顧，走 Google 官方 Gemini" },
+    { provider: PROVIDER, provider_label: "YoruBay AI 點數", tier: "長篇世界", label: "【長篇世界】MiniMax M3", model: "minimax/minimax-m3", base_url: ENDPOINT, protocol: "openai", route: PROVIDER, use_case: "長 Context、世界模擬與成本／品質平衡；OpenRouter 路由" },
+    { provider: PROVIDER, provider_label: "YoruBay AI 點數", tier: "高品質", label: "【高品質】Gemini 3.1 Pro", model: "gemini-3.1-pro-preview", base_url: ENDPOINT, protocol: "openai", route: PROVIDER, use_case: "玩家指定高階模型；複雜世界觀、推理與重要劇情，走 Google 官方 Gemini" },
+    { provider: PROVIDER, provider_label: "YoruBay AI 點數", tier: "RP 高品質", label: "【RP 高品質】Claude Sonnet 4.5", model: "anthropic/claude-sonnet-4.5", base_url: ENDPOINT, protocol: "openai", route: PROVIDER, use_case: "玩家指定；既有 Claude 4.5 角色與文風相容，走 OpenRouter" },
+    { provider: PROVIDER, provider_label: "YoruBay AI 點數", tier: "RP 高品質", label: "【RP 高品質】Claude Sonnet 4.6", model: "anthropic/claude-sonnet-4.6", base_url: ENDPOINT, protocol: "openai", route: PROVIDER, use_case: "玩家指定；角色演繹、細膩對話與高品質長篇，走 OpenRouter" },
+    { provider: PROVIDER, provider_label: "YoruBay AI 點數", tier: "豪華", label: "【豪華】Claude Opus 4.6", model: "anthropic/claude-opus-4.6", base_url: ENDPOINT, protocol: "openai", route: PROVIDER, use_case: "高成本高品質模型；重要劇情與高難度角色演繹" }
   ];
   const isEndpoint = value => String(value || "").trim().replace(/\/+$/, "") === ENDPOINT;
   const encoder = new TextEncoder();
@@ -56,7 +58,7 @@
     if (types && !types.querySelector(`option[value="${PROVIDER}"]`)) {
       const option = document.createElement("option");
       option.value = PROVIDER;
-      option.textContent = "YoruBay API 額度";
+      option.textContent = "YoruBay AI 點數";
       types.appendChild(option);
     }
     return true;
@@ -88,15 +90,15 @@
   const pilotHint = model => {
     if (validAccountSession()) {
       const route = MODEL_PROVIDERS[model] === "openrouter" ? "OpenRouter" : "Google Gemini";
-      return `已登入 YoruBay。此模型由 YoruBay 後端轉送 ${route}，不需要自己的 API Key；成功請求會依帳號 Wallet 扣除 API 額度。故事內容不會寫入帳號資料庫。`;
+      return `已登入 YoruBay。此模型由 YoruBay 後端轉送 ${route}，不需要自己的 API Key；成功請求會依帳號點數扣除實際 AI 使用量。故事內容不會寫入帳號資料庫。`;
     }
-    return "請先點上方「YoruBay 帳號」使用邀請碼註冊或登入。舊版封測玩家仍可在下方貼上 bao_ 玩家金鑰。";
+    return "請先點上方「YoruBay 帳號」使用邀請碼註冊或登入。YoruBay API 額度僅接受登入帳號 Session。";
   };
   const refreshBuilder = () => {
     const enabled = document.getElementById("api-type")?.value === PROVIDER;
     const keyField = document.getElementById("api-key");
     const loggedIn = validAccountSession();
-    setFieldLabel(keyField, enabled ? (loggedIn ? "YoruBay 帳號" : "玩家金鑰（舊版）") : "連線金鑰（API Key）");
+    setFieldLabel(keyField, enabled ? "YoruBay 帳號" : "連線金鑰（API Key）");
     if (keyField) {
       if (enabled && loggedIn) {
         keyField.value = accountSentinel;
@@ -104,14 +106,14 @@
         keyField.placeholder = "已使用目前登入的 YoruBay 帳號";
       } else {
         if (keyField.value === accountSentinel) keyField.value = "";
-        keyField.readOnly = false;
-        keyField.placeholder = enabled ? "先登入 YoruBay；舊版玩家可貼 bao_ 金鑰" : "貼上自己的 API Key";
+        keyField.readOnly = enabled;
+        keyField.placeholder = enabled ? "請先登入 YoruBay 帳號" : "貼上自己的 API Key";
       }
     }
     const hint = document.getElementById("api-hint");
     if (enabled && hint) hint.textContent = pilotHint(selectedPilotModel());
     const badge = document.getElementById("api-protocol-badge");
-    if (enabled && badge) badge.textContent = "YoruBay Wallet";
+    if (enabled && badge) badge.textContent = "YoruBay 點數";
     refreshBuilderFields(enabled);
   };
   const originalSync = App.syncSelectedPreset;
@@ -126,20 +128,17 @@
     if (!isPilot(config)) {
       const main = App.config?.api;
       if (isPilot(main) && main.key && config?.key === main.key && !isEndpoint(config?.baseUrl)) {
-        throw new Error("輔助模型使用不同服務商時，必須另外填入自己的 API Key；不可沿用 BAO/LAB 玩家金鑰。");
+        throw new Error("輔助模型使用不同服務商時，必須另外填入自己的 API Key；不可沿用 YoruBay 帳號 Session。");
       }
       return originalSend(config, messages);
     }
     const upstreamProvider = MODEL_PROVIDERS[config.model];
     if (!isEndpoint(config.baseUrl) || !upstreamProvider) {
-      throw new Error("YoruBay API 額度僅支援已開放模型及固定後端網址。請重新選擇模型預設。");
+      throw new Error("YoruBay AI 點數僅支援已開放模型及固定後端網址。請重新選擇模型預設。");
     }
-    const sessionToken = accountToken();
-    const legacyToken = String(config.key || "").trim();
-    const token = sessionToken || legacyToken;
+    const token = accountToken();
     const validSession = /^yb_s_[A-Za-z0-9_-]{30,}$/.test(token);
-    const validLegacy = /^bao_[A-Za-z0-9_-]{30,}$/.test(token);
-    if (!validSession && !validLegacy) throw new Error("請先登入 YoruBay 帳號；舊版封測玩家也可以使用管理員發給你的 bao_ 玩家金鑰。");
+    if (!validSession) throw new Error("請先登入 YoruBay 帳號。舊版 bao_ 玩家金鑰已停止用於 YoruBay API 額度。");
     if (!Array.isArray(messages) || !messages.length || messages.length > 100) {
       throw new Error("BAO/LAB 每次最多傳送 100 則訊息。請縮短近期對話或改用自己的 API Key。");
     }
@@ -149,10 +148,10 @@
       throw new Error("本次故事設定與近期對話超過 BAO/LAB 的 96 KB 上限。請縮短內容或改用自己的 API Key；不會刪除故事。");
     }
     const kind = config.__memoryTask ? "summary" : config.__stateTask ? "status" : "chat";
-    const requested = Number(config.__connectionTest ? 1024 : (config.maxOutputTokens || 6144));
-    // Limit the paid model's normal requests in the UI. The Worker and the
-    // OpenRouter account still need independent spending limits before rollout.
-    const outputCap = upstreamProvider === "openrouter" ? 2048 : 8192;
+    const requested = Number(config.maxOutputTokens || (config.__connectionTest ? 16 : 6144));
+    // Keep YoruBay frontend and Worker ceilings aligned. Auxiliary tasks still
+    // pass their own smaller maxOutputTokens values, so this is only a hard cap.
+    const outputCap = 8192;
     const maxOutput = Number.isFinite(requested) ? Math.max(1, Math.min(outputCap, Math.floor(requested))) : Math.min(6144, outputCap);
     let response;
     try {
@@ -171,8 +170,8 @@
       const errors = {
         unauthorized: "玩家金鑰無效或已停用，請向管理員索取新金鑰。",
         insufficient_credits: "舊版測試額度不足，請向管理員補充額度。",
-        insufficient_wallet_balance: "YoruBay API 額度不足，請儲值後再試。",
-        wallet_disabled: "這個 YoruBay Wallet 已停用，請聯絡管理員。",
+        insufficient_wallet_balance: "YoruBay AI 點數不足，請儲值後再試。",
+        wallet_disabled: "這個 YoruBay 點數帳戶已停用，請聯絡管理員。",
         daily_limit_or_insufficient_balance: "後端仍在使用舊的每日次數限制；請管理員更新 Worker。",
         insufficient_balance: "玩家測試額度不足，請管理員更新 Worker。",
         invalid_request_or_model_not_allowed: "模型未開放或故事內容不符合測試版限制；請確認 Worker 的 MODELS_JSON 已包含此模型。",
@@ -276,7 +275,7 @@
       modelField.value = selected.model || "";
       baseUrlField.value = selected.base_url || "";
     }
-    setFieldLabel(key, pilot ? (loggedIn ? "YoruBay 帳號" : "玩家金鑰（舊版）") : "連線金鑰（API Key）");
+    setFieldLabel(key, pilot ? "YoruBay 帳號" : "連線金鑰（API Key）");
     if (key) {
       if (pilot && loggedIn) {
         key.value = accountSentinel;
@@ -284,8 +283,8 @@
         key.placeholder = "已使用目前登入的 YoruBay 帳號";
       } else {
         if (key.value === accountSentinel) key.value = "";
-        key.readOnly = false;
-        key.placeholder = pilot ? "先登入 YoruBay；舊版玩家可貼 bao_ 金鑰" : "貼上自己的 API Key";
+        key.readOnly = pilot;
+        key.placeholder = pilot ? "請先登入 YoruBay 帳號" : "貼上自己的 API Key";
       }
     }
 

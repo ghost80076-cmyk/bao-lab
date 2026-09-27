@@ -16,6 +16,12 @@ test.describe('Player 2.0 shell', () => {
 
     await nav.locator('[data-player-nav="home"]').click();
     await expect(page.locator('#home-view')).toHaveClass(/active/);
+
+    await nav.locator('[data-player-nav="stories"]').click();
+    await expect(page.locator('.story-tools-backdrop')).toBeVisible({ timeout: 10000 });
+    await nav.locator('[data-player-nav="me"]').click();
+    await expect(page.locator('.story-tools-backdrop')).toHaveCount(0);
+    await expect(page.locator('#me-view')).toHaveClass(/active/);
   });
 
   test('desktop keeps the top navigation and exposes My without a bottom bar', async ({ page }) => {
@@ -106,7 +112,7 @@ test.describe('Player 2.0 shell', () => {
   test('BAO Account page matches the player shell on mobile', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto('/account.html');
-    await expect(page.locator('.yb-account-hero h1')).toHaveText('帳號與 API 額度');
+    await expect(page.locator('.yb-account-hero h1')).toHaveText('帳號與 AI 點數');
     await expect(page.locator('.yb-local-first')).toContainText('Local-first');
     await expect(page.locator('.yb-tabs')).toBeVisible();
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(391);
@@ -123,6 +129,20 @@ test.describe('Player 2.0 shell', () => {
     await expect(page.locator('#detail-view .bao-detail-start-note')).toContainText('先選故事，再選 AI');
     await expect(page.locator('#detail-start')).toBeVisible();
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(391);
+  });
+
+
+  test('mobile first paint is already mobile before enhancement JavaScript runs', async ({ browser }) => {
+    const context = await browser.newContext({
+      javaScriptEnabled: false,
+      viewport: { width: 390, height: 844 }
+    });
+    const page = await context.newPage();
+    await page.goto('/');
+    await expect(page.locator('link[href^="css/player-shell-v2.css"]')).toHaveCount(1);
+    await expect(page.locator('.topbar nav')).toBeHidden();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(391);
+    await context.close();
   });
 
 });

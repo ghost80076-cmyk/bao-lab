@@ -556,11 +556,19 @@ const Storage = {
     catch { return false; }
 
     let character = App.characters.find(item => item.id === save.characterId);
-    if (!character && save.character) {
-      character = window.CharacterEngine?.normalize ? CharacterEngine.normalize(save.character) : this.clone(save.character);
-      if (character?.id && !App.characters.some(item => item.id === character.id)) App.characters.push(character);
+    if (save.character && (!character || character.catalog_only)) {
+      const snapshot = window.CharacterEngine?.normalize ? CharacterEngine.normalize(save.character) : this.clone(save.character);
+      if (snapshot?.id) {
+        snapshot.source = character?.source || snapshot.source || "story-snapshot";
+        snapshot.catalog_only = false;
+        if (character?.catalog_file) snapshot.catalog_file = character.catalog_file;
+        const index = App.characters.findIndex(item => item.id === snapshot.id);
+        if (index >= 0) App.characters[index] = snapshot;
+        else App.characters.push(snapshot);
+        character = snapshot;
+      }
     }
-    if (!character) return false;
+    if (!character || character.catalog_only) return false;
 
     App.activeCharacter = character;
     App.config = this.clone(save.config || {});

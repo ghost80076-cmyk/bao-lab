@@ -30,3 +30,182 @@ After the production hotfix, D1 showed normal `ok` settlement with exact wallet 
 - Gemini 3.1 Pro: `3994510 - 52104 = 3942406`
 
 The `unverified` branch is intended for ambiguous transport/usage outcomes and should be inspected through D1 when it occurs.
+
+
+## Selected-player OpenRouter AWS routing
+
+The Worker supports an optional comma-separated environment variable:
+
+`AWS_OPENROUTER_PLAYERS`
+
+Entries may be a player's internal `id`, stable `public_id`, or `username` (matching is case-insensitive).
+
+When a matched player requests an allowed `openrouter` model, the Worker sends the request to the existing AWS relay at `AWS_RELAY_URL/v1/chat` using `BAO_INTERNAL_TOKEN`. The relay is expected to accept:
+
+```json
+{
+  "provider": "openrouter",
+  "model": "google/gemini-3.1-pro-preview",
+  "messages": [{"role":"user","content":"..."}],
+  "max_output_tokens": 2048
+}
+```
+
+Unmatched players continue to call OpenRouter directly from the Worker with `OPENROUTER_API_KEY`.
+
+This switch is server-side only: the browser cannot choose the route. Model allowlisting and Wallet settlement remain in the Worker, and the AWS relay returns the raw OpenRouter response so existing `usage.cost` settlement continues to work.
+
+
+## OpenRouter free-model Wallet behavior
+
+The cost-USD billing path supports zero-priced models. When a model is configured with zero input/output rates and OpenRouter reports `usage.cost = 0`:
+
+- the Worker creates the usage record but reserves **$0** from the player's Wallet;
+- a successful request settles at **$0** and leaves the Wallet balance unchanged;
+- the player still needs an enabled YoruBay Wallet/account;
+- if the upstream unexpectedly reports a non-zero `usage.cost`, the existing actual-cost settlement path applies instead of silently treating it as free.
+
+Example `MODELS_JSON` entry for the OpenRouter free router:
+
+```json
+{
+  "provider": "openrouter",
+  "model": "openrouter/free",
+  "input_microusd_per_million": 0,
+  "output_microusd_per_million": 0,
+  "cache_read_microusd_per_million": 0,
+  "cache_write_microusd_per_million": 0
+}
+```
+
+For players routed through the AWS OpenRouter relay, also add `openrouter/free` to the relay's `OPENROUTER_MODELS` allowlist before enabling the preset in production.
+
+
+## Hosted model catalog rollout
+
+The browser catalog and the two server allowlists must be updated together. A model is not production-ready until all three layers agree:
+
+1. `js/credits-pilot.js` exposes the YoruBay hosted preset.
+2. Cloudflare `MODELS_JSON` allows the same `provider + model` and has reviewed pricing.
+3. AWS-relayed players have the same OpenRouter model in `OPENROUTER_MODELS`.
+
+The prioritized September 2026 player-facing catalog adds these paid OpenRouter routes:
+
+- `deepseek/deepseek-v4-flash-0731`
+- `qwen/qwen3.7-flash`
+- `xiaomi/mimo-v2.5`
+- `minimax/minimax-m3`
+
+Player-facing Google official routes are:
+
+- `gemini-3-flash-preview`
+- `gemini-3.1-pro-preview`
+
+Player-facing OpenRouter high-end routes are:
+
+- `anthropic/claude-sonnet-4.5`
+- `anthropic/claude-sonnet-4.6`
+- `anthropic/claude-opus-4.6`
+
+The following previously exposed YoruBay Hosted presets are intentionally removed from the player-facing catalog:
+
+- `openrouter/free` — reserved for a separate future Discord mascot/support-assistant backlog rather than normal RP usage
+- `gemini-3.1-flash-lite`
+- `google/gemini-3.1-pro-preview`
+- `anthropic/claude-opus-4.5`
+
+The Worker may retain compatibility code for some removed routes, but the browser must not advertise them as YoruBay Hosted choices.
+
+For the current OpenRouter pricing snapshot already tracked in `data/presets/models.json`, the new Worker `MODELS_JSON` entries should use the same reviewed rates before rollout. Do not assume the browser labels are a billing source of truth; re-check OpenRouter pricing when production configuration changes.
+
+Example AWS relay allowlist after the expansion:
+
+```text
+OPENROUTER_MODELS=deepseek/deepseek-v4-flash-0731,qwen/qwen3.7-flash,xiaomi/mimo-v2.5,minimax/minimax-m3,anthropic/claude-sonnet-4.5,anthropic/claude-sonnet-4.6,anthropic/claude-opus-4.6
+```
+
+`openrouter/free` is not part of the player-facing Hosted catalog in this rollout. Its existing Worker compatibility behavior can remain until the separate Discord-assistant design is implemented.
+
+## OpenRouter cost guard and long-context pricing
+
+YoruBay Hosted must not depend on an operator manually noticing every upstream price change.
+
+The Worker now treats `MODELS_JSON` as both an allowlist and a **pre-request safety contract**:
+
+1. estimate the request input before sending it;
+2. choose the standard or configured long-context pricing tier;
+3. reserve Wallet balance against the configured OpenRouter hard ceiling;
+4. send OpenRouter `provider.max_price` so an unexpectedly expensive provider is rejected before inference;
+5. settle the successful request from OpenRouter's returned `usage.cost`;
+6. refund unused reservation when the real cost is lower.
+
+OpenRouter documents `provider.max_price.prompt` and `provider.max_price.completion` in USD per 1M tokens. If all available providers exceed the ceiling, OpenRouter should fail the request instead of silently spending above the configured limit.
+
+### MODELS_JSON fields
+
+Existing fields remain valid:
+
+```json
+{
+  "provider": "openrouter",
+  "model": "example/model",
+  "input_microusd_per_million": 100000,
+  "output_microusd_per_million": 200000,
+  "cache_read_microusd_per_million": 50000,
+  "cache_write_microusd_per_million": 125000
+}
+```
+
+Optional hard-ceiling fields:
+
+```json
+{
+  "openrouter_max_prompt_microusd_per_million": 150000,
+  "openrouter_max_completion_microusd_per_million": 300000
+}
+```
+
+If these are omitted, the Worker uses the active configured input/output pricing rates as the OpenRouter `max_price` ceiling. This is intentionally fail-closed: a provider price increase may temporarily make the request unavailable, but should not silently turn into an owner-funded overage.
+
+Optional long-context tier:
+
+```json
+{
+  "long_context_threshold_tokens": 200000,
+  "long_context_input_microusd_per_million": 200000,
+  "long_context_output_microusd_per_million": 400000,
+  "long_context_cache_read_microusd_per_million": 100000,
+  "long_context_cache_write_microusd_per_million": 250000,
+  "long_context_openrouter_max_prompt_microusd_per_million": 250000,
+  "long_context_openrouter_max_completion_microusd_per_million": 500000
+}
+```
+
+The threshold and tier values are per-model configuration. Do not assume every provider or model uses a 200K boundary.
+
+The current YoruBay Hosted transport still limits normalized prompt payloads to `MAX_PROMPT_BYTES = 96_000`, so a 200K-token tier is not normally reachable today. Tier support is added now so future context-window expansion cannot silently invalidate Wallet reservation logic.
+
+### AWS relay requirement
+
+Selected AWS-routed OpenRouter players must receive the same hard ceiling as direct Worker -> OpenRouter traffic.
+
+The Worker now sends this extra field to `AWS_RELAY_URL/v1/chat`:
+
+```json
+{
+  "provider": "openrouter",
+  "model": "anthropic/claude-sonnet-4.6",
+  "messages": [{"role":"user","content":"..."}],
+  "max_output_tokens": 2048,
+  "openrouter_provider": {
+    "max_price": {
+      "prompt": 3,
+      "completion": 15
+    }
+  }
+}
+```
+
+The EC2 relay must validate `openrouter_provider.max_price` as non-negative finite numbers and forward it to OpenRouter as the request body's `provider` object. Until the relay does this, AWS-routed OpenRouter requests do **not** have the upstream hard-price guarantee and PR #61 must remain Draft.
+
+Do not accept arbitrary browser-supplied provider routing. The browser never sends this field; the Worker derives it from the server-side `MODELS_JSON` entry.
