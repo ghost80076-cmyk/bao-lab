@@ -109,6 +109,7 @@
   };
 
   WorldStateEngine.pendingCount = () => queue().length;
+  WorldStateEngine.markPersistenceHint = () => { persistenceHint = true; };
   WorldStateEngine.takePersistenceHint = () => { const value = persistenceHint; persistenceHint = false; return value; };
 
   WorldStateEngine.update = async function(config, playerText, assistantText) {
