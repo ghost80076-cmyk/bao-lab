@@ -47,7 +47,7 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/google-drive-config.js"))
     .then(() => loadBAOScript("js/google-drive-sync.js"))
     .then(() => loadBAOScript("js/prompt-cache.js"))
-    .then(() => loadBAOScript("js/story-reader.js"))
+    .then(() => loadBAOScript("js/story-reader.js?v=2"))
     .then(() => loadBAOScript("js/inspiration-copy.js"))
     .then(() => loadBAOScript("js/story-revision-state.js"))
     .then(() => loadBAOScript("js/story-branches.js"))
@@ -55,7 +55,7 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/request-lifecycle.js"))
     .then(() => loadBAOScript("js/chat-tool-navigation.js"))
     .then(() => loadBAOScript("js/chat-experience-repairs.js"))
-    .then(() => loadBAOScript("js/mobile-reading-layout.js?v=6"))
+    .then(() => loadBAOScript("js/mobile-reading-layout.js?v=7"))
     .then(() => loadBAOScript("js/story-persona-manager.js"))
     .catch(err => console.warn("BAO/LAB local preview, narrative settings, memory workbench, story tools, story library, story reader or chat markup failed to load:", err));
   loadBAOScript("js/character-library.js")
