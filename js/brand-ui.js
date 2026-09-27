@@ -285,7 +285,7 @@
     a.href = "https://ko-fi.com/roger2486";
     a.target = "_blank";
     a.rel = "noopener";
-    a.innerHTML = '<img class="bao-support-icon" src="assets/bao-mark.svg" width="24" height="24" alt=""><span>投餵肉包</span>';
+    a.innerHTML = '<img class="bao-support-icon" src="assets/bao-bun.svg" width="24" height="24" alt=""><span>投餵肉包</span>';
     document.body.appendChild(a);
   };
 
