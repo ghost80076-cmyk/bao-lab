@@ -49,7 +49,7 @@ test('Claude Sonnet and Opus invitation presets route through OpenRouter with th
    const body=JSON.parse(s.calls[i][1].body);
    assert.equal(body.provider,'openrouter');
    assert.equal(body.model,['anthropic/claude-sonnet-4.5','anthropic/claude-sonnet-4.6','anthropic/claude-opus-4.6'][i]);
-   assert.equal(body.max_output_tokens,2048);
+   assert.equal(body.max_output_tokens,4096);
    assert.equal(s.calls[i][1].headers.Authorization,'Bearer '+token);
  }
 });
@@ -62,10 +62,10 @@ test('DeepSeek, Qwen, MiMo and MiniMax hosted presets route through OpenRouter',
    const body=JSON.parse(s.calls[i][1].body);
    assert.equal(body.provider,'openrouter');
    assert.equal(body.model,models[i]);
-   assert.equal(body.max_output_tokens,2048);
+   assert.equal(body.max_output_tokens,4096);
  }
 });
-test('summary routes separate from chat, connection tests stay tiny, and BYOK stays available',async()=>{
+test('summary routes separate from chat, connection tests stay minimal, and BYOK stays available',async()=>{
  const s=build(); await s.api.send({...cfg,model:'qwen/qwen3.7-flash',__memoryTask:true},msgs);
  assert.equal(JSON.parse(s.calls[0][1].body).request_kind,'summary');
  await s.api.send({...cfg,__connectionTest:true,maxOutputTokens:16},msgs);
@@ -75,6 +75,12 @@ test('summary routes separate from chat, connection tests stay tiny, and BYOK st
  const normal=await s.api.send({type:'gemini',key:'own-key',model:'abc',baseUrl:'https://example.org'},msgs);
  assert.equal(normal.text,'BYOK works'); assert.equal(s.calls.length,3);
 });
+test('YoruBay requests clamp only above the shared 8192 Worker ceiling',async()=>{
+ const s=build();
+ await s.api.send({...cfg,model:'anthropic/claude-sonnet-4.6',maxOutputTokens:12000},msgs);
+ assert.equal(JSON.parse(s.calls[0][1].body).max_output_tokens,8192);
+});
+
 test('refuses account-session leakage to other provider and wrong URL/models',async()=>{
  const s=build();s.app.config.api=cfg;
  await assert.rejects(()=>s.api.send({type:'openrouter',key:'__YORUBAY_ACCOUNT__',baseUrl:'https://openrouter.ai/api/v1'},msgs),/不可沿用/);
