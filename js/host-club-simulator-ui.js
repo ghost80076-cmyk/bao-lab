@@ -18,6 +18,105 @@
   const esc = value => App.escapeHTML(String(value ?? ''));
   const avatar = () => App.activeCharacter?.avatar || 'assets/hostsim-cast.jpg';
   const bgStyle = key => `background-image:url("${App.escapeAttr(avatar())}");background-size:300% 200%;background-position:${pos[key]};`;
+  const isHostSim = () => App.activeCharacter?.id === CARD_ID;
+  const economyProfiles = {
+    tight:{money:140000,income:240000,housing:'租屋，固定支出壓力偏高'},
+    normal:{money:350000,income:320000,housing:'一般租屋／生活支出'},
+    comfortable:{money:900000,income:550000,housing:'居住與現金流較寬裕'},
+    wealthy:{money:2500000,income:1000000,housing:'高收入／資產充足'}
+  };
+  const roleProfiles = {
+    customer:{label:'顧客',job:'一般上班族',charm:50,conversation:50,mood:55,health:92},
+    host:{label:'新人牛郎',job:'CLUB LUMIÈRE 新人牛郎',charm:58,conversation:56,mood:58,health:93},
+    nightlife:{label:'夜場／服務業從業者',job:'夜場／服務業從業者',charm:55,conversation:58,mood:54,health:90},
+    custom:{label:'自訂',job:'依 Persona',charm:50,conversation:50,mood:55,health:92}
+  };
+
+  const applyInitialState = () => {
+    if (!isHostSim() || !GameState.current || !App.config?.hostsimSetup) return false;
+    const state = GameState.current;
+    if (state.hostsimInitializedVersion >= 2) return true;
+    const fresh = (Chat.messages || []).length <= 1 && (!Chat.messages.length || Chat.messages[0]?.greeting);
+    if (!fresh) {
+      state.hostsimInitializedVersion = 2; // Never reset an existing story's money or relationships.
+      return true;
+    }
+    const modules = state.modules;
+    if (!modules?.player_stats || !modules?.work_life || !modules?.nightlife || !modules?.host_relation) return false;
+    const setup = App.config.hostsimSetup;
+    const economy = economyProfiles[setup.economy] || economyProfiles.normal;
+    const role = roleProfiles[setup.role] || roleProfiles.customer;
+    modules.player_stats = {
+      ...modules.player_stats,
+      condition:'正常',
+      money:economy.money,
+      charm:role.charm,
+      conversation:role.conversation,
+      mood:role.mood,
+      health:role.health
+    };
+    modules.work_life = {
+      ...modules.work_life,
+      job:App.config?.persona?.identity || role.job,
+      monthly_income:economy.income,
+      work_state:'正常',
+      housing:economy.housing
+    };
+    modules.nightlife = { ...modules.nightlife, monthly_spend:0, debt:0, visits:0, emptiness:15 };
+    modules.host_relation = { ...modules.host_relation, host:'暫無', stage:'初回前' };
+    state.hostsimInitializedVersion = 2;
+    return true;
+  };
+
+  const ensureInitialState = (attempt = 0) => {
+    if (applyInitialState()) return;
+    if (attempt >= 30 || !isHostSim() || !GameState.current) return;
+    setTimeout(() => {
+      if (applyInitialState()) {
+        const active = document.querySelector('.ui-tab.active')?.dataset.panel || 'status';
+        if (App.config?.displayMode === 'ui') App.renderUIPanel(active);
+        App.saveStory?.(false);
+      } else ensureInitialState(attempt + 1);
+    }, 50);
+  };
+
+  const parseChoices = raw => {
+    const found = new Map();
+    String(raw || '').split(/\r?\n/).slice(-16).forEach(line => {
+      const match = line.trim().match(/^(?:\*\*)?([A-D])(?:\.\*\*|\*\*\.|[.、：:])\s*(.+?)\s*$/i);
+      if (!match) return;
+      const key = match[1].toUpperCase();
+      const text = match[2].replace(/\*\*$/,'').trim();
+      if (text) found.set(key,text);
+    });
+    return ['A','B','C','D'].map(key => ({key,text:found.get(key)||''})).filter(item => item.text);
+  };
+
+  const mountTurnChoices = () => {
+    document.getElementById('hostsim-turn-choices')?.remove();
+    if (!isHostSim() || !document.getElementById('chat-view')?.classList.contains('active')) return;
+    const last = [...(Chat.messages || [])].reverse().find(message => message?.role === 'assistant' && !message?.greeting);
+    const choices = parseChoices(last?.content || '');
+    if (choices.filter(item => item.key !== 'D').length < 2) return;
+    const composer = document.querySelector('#chat-view .composer');
+    if (!composer) return;
+    const wrap = document.createElement('div');
+    wrap.id = 'hostsim-turn-choices';
+    wrap.className = 'hostsim-turn-choices';
+    wrap.innerHTML = choices.map(item => `<button type="button" data-hostsim-choice="${esc(item.key)}"><span>${esc(item.key)}</span>${esc(item.text)}</button>`).join('');
+    wrap.addEventListener('click', event => {
+      const button = event.target.closest?.('[data-hostsim-choice]');
+      if (!button) return;
+      const input = document.getElementById('user-input');
+      if (!input) return;
+      const item = choices.find(choice => choice.key === button.dataset.hostsimChoice);
+      if (!item) return;
+      input.value = item.key === 'D' ? '' : item.text;
+      input.focus();
+      input.setSelectionRange?.(input.value.length,input.value.length);
+    });
+    composer.before(wrap);
+  };
 
   const originalRenderDetail = App.renderDetail.bind(App);
   App.renderDetail = function() {
@@ -128,26 +227,18 @@
         life:(document.getElementById('hostsim-life')?.value || '').trim()
       };
       if (cfg.hostsimSetup.age < 18) cfg.hostsimSetup.age = 18;
+      const role = roleProfiles[cfg.hostsimSetup.role] || roleProfiles.customer;
+      if (!cfg.persona.identity) cfg.persona.identity = role.job;
+      const setupNote = [
+        `牛郎模擬器開局：${cfg.hostsimSetup.age} 歲（成年）／${role.label}`,
+        cfg.hostsimSetup.reason ? `來店理由：${cfg.hostsimSetup.reason}` : '',
+        cfg.hostsimSetup.life ? `生活補充：${cfg.hostsimSetup.life}` : ''
+      ].filter(Boolean).join('；');
+      cfg.persona.extra = [cfg.persona.extra,setupNote].filter(Boolean).join('\n');
       cfg.narrativeMode = 'world';
       cfg.displayMode = 'ui';
     }
     return cfg;
-  };
-
-  const originalBuildSystemPrompt = App.buildSystemPrompt.bind(App);
-  App.buildSystemPrompt = function() {
-    const base = originalBuildSystemPrompt();
-    if (this.activeCharacter?.id !== CARD_ID || !this.config?.hostsimSetup) return base;
-    const s = this.config.hostsimSetup;
-    const roleMap = {customer:'顧客',host:'新人牛郎',nightlife:'夜場／服務業從業者',custom:'自訂'};
-    const economyMap = {tight:'經濟偏緊',normal:'普通收入／存款',comfortable:'較寬裕',wealthy:'高收入或資產充足'};
-    return base + '\n\n【本次牛郎模擬器開局】\n'
-      + '玩家年齡：' + s.age + '（成年人）\n'
-      + '開局身分：' + (roleMap[s.role] || s.role) + '\n'
-      + '經濟層級：' + (economyMap[s.economy] || s.economy) + '\n'
-      + '來店理由：' + (s.reason || '未指定') + '\n'
-      + '現實生活補充：' + (s.life || '無') + '\n'
-      + '請依職業、經濟層級與 Persona 合理校正初始金錢、魅力、談吐與生活條件；不要因玩家是主角而給予免費資源或特殊待遇。';
   };
 
   const meter = (label,value,max=100) => {
@@ -173,6 +264,9 @@
       const r = modules.host_relation || fallback.host_relation || {};
       const n = modules.nightlife || fallback.nightlife || {};
       const w = modules.work_life || fallback.work_life || {};
+      const hostName = String(r.host || '暫無').toUpperCase();
+      const hostStatus = hostName !== '暫無' ? (s.characterStatuses?.[hostName] || {}) : {};
+      const relationValue = key => hostStatus[key] ?? r[key] ?? 0; // old saves can still read legacy module values.
       ui.innerHTML = `
         <div class="hostsim-status-shell">
           <section class="hostsim-status-card primary">
@@ -184,9 +278,9 @@
             <p>狀態：${esc(p.condition || '正常')} · ${esc(w.job || '現實生活未初始化')}</p>
           </section>
           <section class="hostsim-status-card relation">
-            <div class="hostsim-status-title"><span>担当關係</span><b>${esc(r.host || '暫無')}</b></div>
-            ${meter('重要度',r.importance)}${meter('好感度',r.affection)}${meter('依賴度',r.dependency)}${meter('警戒度',r.guard)}
-            <p>階段：${esc(r.stage || '初回前')}</p>
+            <div class="hostsim-status-title"><span>${this.config?.hostsimSetup?.role === 'host' ? '焦點關係' : '担当關係'}</span><b>${esc(r.host || '暫無')}</b></div>
+            ${meter('重要度',relationValue('importance'))}${meter('好感度',relationValue('affection'))}${meter('依賴度',relationValue('dependency'))}${meter('警戒度',relationValue('guard'))}
+            <p>階段：${esc(hostStatus.stage || r.stage || '初回前')}${hostName !== '暫無' ? ` · 接待／指名 ${esc(hostStatus.visits ?? 0)} 次 · 歸屬消費 ${money(hostStatus.spend ?? 0)}` : ''}</p>
           </section>
           <section class="hostsim-status-card finance">
             <div><small>本月店內消費</small><b>${money(n.monthly_spend)}</b></div>
@@ -201,19 +295,33 @@
       const byName = new Map((s.npcs||[]).map(n=>[String(n.name||'').toUpperCase(),n]));
       ui.innerHTML = `<div class="hostsim-npc-grid">${hostOrder.map(key=>{
         const info=hostMeta[key], state=byName.get(info.name)||{};
-        return `<article><div class="hostsim-mini-photo" style="${bgStyle(key)}"></div><div><b>${info.name}</b><span>${esc(state.role||info.role)}</span><small>${esc(state.mood||'未知')} · ${esc(state.relationship||'未認識')}</small></div></article>`;
+        const status=s.characterStatuses?.[info.name]||{};
+        const relation=status.stage&&status.stage!=='未認識' ? status.stage : (state.relationship||'未認識');
+        return `<article><div class="hostsim-mini-photo" style="${bgStyle(key)}"></div><div><b>${info.name}</b><span>${esc(state.role||info.role)}</span><small>${esc(state.mood||status.mood||'未知')} · ${esc(relation)}</small></div></article>`;
       }).join('')}</div>`;
       return;
     }
     return originalRenderUIPanel(panel);
   };
 
+  const originalSendMessage = App.sendMessage.bind(App);
+  App.sendMessage = async function(...args) {
+    const result = await originalSendMessage(...args);
+    if (isHostSim()) setTimeout(mountTurnChoices,0);
+    return result;
+  };
+
   const originalRenderChatShell = App.renderChatShell.bind(App);
   App.renderChatShell = function(fresh=false) {
+    applyInitialState();
     originalRenderChatShell(fresh);
     if (this.activeCharacter?.id !== CARD_ID) return;
+    ensureInitialState();
     const card = document.getElementById('chat-character-card');
     if (card) card.innerHTML = `<div class="hostsim-chat-badge"><span>CLUB LUMIÈRE</span><b>歌舞伎町・最後指名</b></div>`;
     document.querySelector('.ui-tab[data-panel="status"]')?.click();
+    setTimeout(mountTurnChoices,0);
   };
+
+  window.BAOHostSimUI = { applyInitialState, ensureInitialState, parseChoices, mountTurnChoices };
 })();
