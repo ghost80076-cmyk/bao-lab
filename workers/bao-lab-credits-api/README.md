@@ -89,25 +89,39 @@ The browser catalog and the two server allowlists must be updated together. A mo
 2. Cloudflare `MODELS_JSON` allows the same `provider + model` and has reviewed pricing.
 3. AWS-relayed players have the same OpenRouter model in `OPENROUTER_MODELS`.
 
-The September 2026 catalog expansion adds these paid OpenRouter routes:
+The prioritized September 2026 player-facing catalog adds these paid OpenRouter routes:
 
 - `deepseek/deepseek-v4-flash-0731`
 - `qwen/qwen3.7-flash`
 - `xiaomi/mimo-v2.5`
 - `minimax/minimax-m3`
 
-Player-requested core routes remain:
+Player-facing Google official routes are:
 
-- Google official: `gemini-3-flash-preview`, `gemini-3.1-flash-lite`, `gemini-3.1-pro-preview`
-- OpenRouter: `google/gemini-3.1-pro-preview`, `anthropic/claude-sonnet-4.5`, `anthropic/claude-sonnet-4.6`
-- Existing Opus presets remain opt-in high-cost choices.
+- `gemini-3-flash-preview`
+- `gemini-3.1-pro-preview`
+
+Player-facing OpenRouter high-end routes are:
+
+- `anthropic/claude-sonnet-4.5`
+- `anthropic/claude-sonnet-4.6`
+- `anthropic/claude-opus-4.6`
+
+The following previously exposed YoruBay Hosted presets are intentionally removed from the player-facing catalog:
+
+- `openrouter/free` — reserved for a separate future Discord mascot/support-assistant backlog rather than normal RP usage
+- `gemini-3.1-flash-lite`
+- `google/gemini-3.1-pro-preview`
+- `anthropic/claude-opus-4.5`
+
+The Worker may retain compatibility code for some removed routes, but the browser must not advertise them as YoruBay Hosted choices.
 
 For the current OpenRouter pricing snapshot already tracked in `data/presets/models.json`, the new Worker `MODELS_JSON` entries should use the same reviewed rates before rollout. Do not assume the browser labels are a billing source of truth; re-check OpenRouter pricing when production configuration changes.
 
 Example AWS relay allowlist after the expansion:
 
 ```text
-OPENROUTER_MODELS=google/gemini-3.1-pro-preview,openrouter/free,deepseek/deepseek-v4-flash-0731,qwen/qwen3.7-flash,xiaomi/mimo-v2.5,minimax/minimax-m3,anthropic/claude-sonnet-4.5,anthropic/claude-sonnet-4.6,anthropic/claude-opus-4.5,anthropic/claude-opus-4.6
+OPENROUTER_MODELS=deepseek/deepseek-v4-flash-0731,qwen/qwen3.7-flash,xiaomi/mimo-v2.5,minimax/minimax-m3,anthropic/claude-sonnet-4.5,anthropic/claude-sonnet-4.6,anthropic/claude-opus-4.6
 ```
 
-`openrouter/free` keeps its existing billing semantics in this change: when upstream `usage.cost` is zero, the cost-USD Wallet charge is zero. Any future YoruBay platform/minimum fee should be implemented as a separate billing change, not hidden inside model-catalog rollout.
+`openrouter/free` is not part of the player-facing Hosted catalog in this rollout. Its existing Worker compatibility behavior can remain until the separate Discord-assistant design is implemented.
