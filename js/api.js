@@ -49,6 +49,80 @@ const API = {
     config.onDelta(delta, fullText);
   },
 
+  retryStatuses: new Set([408, 429, 500, 502, 503, 504]),
+
+  retryLimit(config = {}) {
+    if (config?.type === "bao-credits" || config?.route === "bao-credits" || config?.retryEnabled === false) return 0;
+    const requested = Number(config?.retryMaxRetries);
+    if (Number.isInteger(requested)) return Math.max(0, Math.min(2, requested));
+    return config?.__connectionTest ? 1 : 2;
+  },
+
+  retryDelayMs(attempt, response) {
+    const retryAfter = response?.headers?.get?.("retry-after");
+    if (retryAfter) {
+      const seconds = Number(retryAfter);
+      if (Number.isFinite(seconds) && seconds >= 0) return Math.min(5000, Math.max(0, Math.round(seconds * 1000)));
+      const date = Date.parse(retryAfter);
+      if (Number.isFinite(date)) return Math.min(5000, Math.max(0, date - Date.now()));
+    }
+    return Math.min(2400, 350 * (2 ** Math.max(0, attempt - 1)));
+  },
+
+  async waitForRetry(ms, signal) {
+    if (!(ms > 0)) return;
+    if (signal?.aborted) {
+      const error = new Error("aborted");
+      error.name = "AbortError";
+      throw error;
+    }
+    await new Promise((resolve, reject) => {
+      const timer = setTimeout(done, ms);
+      const onAbort = () => {
+        clearTimeout(timer);
+        const error = new Error("aborted");
+        error.name = "AbortError";
+        reject(error);
+      };
+      function done() {
+        signal?.removeEventListener?.("abort", onAbort);
+        resolve();
+      }
+      signal?.addEventListener?.("abort", onAbort, { once: true });
+    });
+  },
+
+  isRetryableNetworkError(error) {
+    if (!error || error.name === "AbortError" || error.code === "BAO_ABORTED") return false;
+    if (error instanceof TypeError) return true;
+    return ["ECONNRESET", "ETIMEDOUT", "EAI_AGAIN", "ENETUNREACH", "UND_ERR_CONNECT_TIMEOUT", "UND_ERR_SOCKET"].includes(String(error.code || ""));
+  },
+
+  async fetchWithRetry(url, options = {}, config = {}) {
+    const maxRetries = this.retryLimit(config);
+    const signal = options.signal || config.signal || this.activeSignal;
+    let retries = 0;
+    while (true) {
+      let response;
+      try {
+        response = await fetch(url, { ...options, signal });
+      } catch (error) {
+        if (retries >= maxRetries || !this.isRetryableNetworkError(error)) throw error;
+        retries += 1;
+        const delayMs = this.retryDelayMs(retries);
+        config?.onRetry?.({ attempt: retries, maxRetries, reason: "network", delayMs });
+        await this.waitForRetry(delayMs, signal);
+        continue;
+      }
+      if (!this.retryStatuses.has(Number(response?.status)) || retries >= maxRetries) return response;
+      retries += 1;
+      const delayMs = this.retryDelayMs(retries, response);
+      config?.onRetry?.({ attempt: retries, maxRetries, reason: "http", status: response.status, delayMs });
+      try { await response.body?.cancel?.(); } catch {}
+      await this.waitForRetry(delayMs, signal);
+    }
+  },
+
   async send(config, messages) {
     if (!config.key) throw new Error("請先填入連線金鑰（API Key）。");
     if (!config.model) throw new Error("請填入模型代號（Model ID）。");
@@ -103,12 +177,12 @@ const API = {
     if (limit > 0) body.max_tokens = Math.floor(limit);
     let response;
     try {
-      response = await fetch(config.baseUrl, {
+      response = await this.fetchWithRetry(config.baseUrl, {
         method: "POST",
         headers: { "Authorization": `Bearer ${config.key}`, "Content-Type": "application/json" },
         body: JSON.stringify(body),
         signal: config.signal || this.activeSignal
-      });
+      }, config);
     } catch (err) { throw this.networkError(err); }
     if (streaming && response.ok && this.isEventStream(response)) return this.readOpenAIStream(response, config);
     const data = await this.readJSON(response);
@@ -126,7 +200,7 @@ const API = {
     const limit = Math.max(1, Math.floor(Number(config.maxOutputTokens || 4096)));
     let response;
     try {
-      response = await fetch(config.baseUrl, { method: "POST", headers: { "x-api-key": config.key, "anthropic-version": "2023-06-01", "Content-Type": "application/json" }, body: JSON.stringify({ model: config.model, max_tokens: limit, system, messages: chat, ...(this.shouldStream(config) ? { stream: true } : {}) }), signal: config.signal || this.activeSignal });
+      response = await this.fetchWithRetry(config.baseUrl, { method: "POST", headers: { "x-api-key": config.key, "anthropic-version": "2023-06-01", "Content-Type": "application/json" }, body: JSON.stringify({ model: config.model, max_tokens: limit, system, messages: chat, ...(this.shouldStream(config) ? { stream: true } : {}) }), signal: config.signal || this.activeSignal }, config);
     } catch (err) { throw this.networkError(err); }
     if (this.shouldStream(config) && response.ok && this.isEventStream(response)) return this.readAnthropicStream(response, config);
     const data = await this.readJSON(response);
@@ -166,7 +240,7 @@ const API = {
     if (Object.keys(generationConfig).length) payload.generationConfig = generationConfig;
     let response;
     try {
-      response = await fetch(url, { method: "POST", headers: { "x-goog-api-key": config.key, "Content-Type": "application/json" }, body: JSON.stringify(payload), signal: config.signal || this.activeSignal });
+      response = await this.fetchWithRetry(url, { method: "POST", headers: { "x-goog-api-key": config.key, "Content-Type": "application/json" }, body: JSON.stringify(payload), signal: config.signal || this.activeSignal }, config);
     } catch (err) { throw this.networkError(err); }
     if (streaming && response.ok && this.isEventStream(response)) return this.readGeminiStream(response, config);
     const data = await this.readJSON(response);
