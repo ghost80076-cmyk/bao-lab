@@ -6,14 +6,26 @@
   };
   const field = id => document.getElementById(id);
   const selected = () => document.querySelector('[name="memory-strength"]:checked')?.value || "custom";
+  const hostedSelected = () => field("api-type")?.value === "bao-credits" || App.getSelectedPreset?.()?.provider === "bao-credits";
   const modelBudget = preset => {
     const known = Number(preset?.context_window || preset?.contextWindow || 0);
     return known > 0 ? Math.max(1000, Math.floor(known * 0.75)) : Infinity;
   };
   const describe = () => {
+    const mode = field("memory-mode")?.value || "smart";
     const label = field("memory-mode")?.selectedOptions?.[0]?.textContent || "智慧整理";
+    const hosted = hostedSelected();
     if (field("memory-mode-label")) field("memory-mode-label").textContent = label;
-    if (field("memory-profile-description")) field("memory-profile-description").textContent = profiles[selected()]?.label || "依照你的進階設定運作。";
+    const badge = field("memory-hosted-recommendation");
+    if (badge) {
+      badge.hidden = !hosted;
+      badge.textContent = mode === "smart" ? "推薦 · 長篇故事" : "長篇建議：智慧整理";
+    }
+    const base = profiles[selected()]?.label || "依照你的進階設定運作。";
+    const hostedHint = !hosted ? "" : mode === "smart"
+      ? " YoruBay 點數長篇故事預設使用智慧整理；較早內容會在需要時整理成摘要，完整故事仍保留在本機。"
+      : " YoruBay 點數長篇故事建議使用智慧整理；目前仍保留你的手動選擇，不會強制切換。";
+    if (field("memory-profile-description")) field("memory-profile-description").textContent = base + hostedHint;
   };
   const apply = () => {
     const profile = profiles[selected()];
@@ -46,7 +58,10 @@
       document.querySelector('[name="memory-strength"][value="custom"]').checked = true;
       describe();
     }));
-    ["model-select", "api-type", "model-id", "base-url"].forEach(id => field(id)?.addEventListener("change", () => { if (selected() !== "custom") apply(); }));
+    ["model-select", "api-type", "model-id", "base-url"].forEach(id => field(id)?.addEventListener("change", () => {
+      if (selected() !== "custom") apply();
+      else describe();
+    }));
     describe();
     mount();
   });
