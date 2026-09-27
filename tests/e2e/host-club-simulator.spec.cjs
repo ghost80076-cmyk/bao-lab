@@ -42,7 +42,7 @@ test('Host Club Simulator renders generated cast, setup and economy UI', async (
   await expect(page.locator('.bao-opening-choice')).toHaveCount(4);
 
   await page.waitForFunction(() => Boolean(window.BAOWorldModules), null, { timeout: 15000 });
-  await page.locator('.ui-tab[data-panel="status"]').click();
+  await page.getByRole('button', { name: '狀態', exact: true }).click();
   await expect(page.locator('.hostsim-status-shell')).toBeVisible();
   await expect(page.locator('.hostsim-money-row')).toContainText('¥350,000');
   await expect(page.locator('.hostsim-status-card.relation')).toContainText('暫無');
