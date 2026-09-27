@@ -617,7 +617,7 @@
     );
     if (!accepted) return null;
 
-    const config = Object.assign({}, api, { __memoryTask: true, maxOutputTokens: 2200 });
+    const config = Object.assign({}, api, { __memoryTask: true, __responseSchema: false, maxOutputTokens: 2200 });
     if (App.config?.memory?.summaryModel) config.model = App.config.memory.summaryModel;
     onProgress({ phase: "plan", chunkCount: plan.chunkCount, mergeCalls: plan.mergeCalls, totalCalls: plan.totalCalls });
 

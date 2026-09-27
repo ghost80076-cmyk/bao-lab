@@ -220,22 +220,24 @@ const API = {
     const limit = Number(config.maxOutputTokens || 0);
     const generationConfig = {};
     if (limit > 0) generationConfig.maxOutputTokens = Math.floor(limit);
-    if (config.__memoryTask) {
-      generationConfig.responseFormat = {
-        text: {
-          mimeType: "application/json",
-          schema: {
-            type: "object",
-            properties: {
-              events: { type: "array", items: { type: "string" } },
-              knownFacts: { type: "array", items: { type: "string" } },
-              relationships: { type: "array", items: { type: "string" } },
-              openThreads: { type: "array", items: { type: "string" } }
-            },
-            required: ["events", "knownFacts", "relationships", "openThreads"]
-          }
-        }
+    if (config.__memoryTask || Object.prototype.hasOwnProperty.call(config, "__responseSchema")) {
+      const legacyMemorySchema = {
+        type: "object",
+        properties: {
+          events: { type: "array", items: { type: "string" } },
+          knownFacts: { type: "array", items: { type: "string" } },
+          relationships: { type: "array", items: { type: "string" } },
+          openThreads: { type: "array", items: { type: "string" } }
+        },
+        required: ["events", "knownFacts", "relationships", "openThreads"]
       };
+      const requestedSchema = Object.prototype.hasOwnProperty.call(config, "__responseSchema")
+        ? config.__responseSchema
+        : legacyMemorySchema;
+      generationConfig.responseFormat = { text: { mimeType: "application/json" } };
+      if (requestedSchema && typeof requestedSchema === "object") {
+        generationConfig.responseFormat.text.schema = requestedSchema;
+      }
     }
     if (Object.keys(generationConfig).length) payload.generationConfig = generationConfig;
     let response;

@@ -38,24 +38,26 @@ const run = file => vm.runInThisContext(fs.readFileSync(path.join(__dirname, "..
 run("js/canon-workbench.js");
 
 const normalized = BAOCanonWorkbench.normalizeCanon({ notebooks: [
-  { title: "世界硬規則", category: "world", content: "月蝕會關閉城門。" },
+  { title: "世界硬規則", category: "world", content: "月蝕會關閉城門。", locations: "北塔、城門", factions: ["守塔人"] },
   { title: "衝突證據", category: "conflicts", content: "日期不一致。" }
 ] });
-assert.equal(normalized.version, 2);
+assert.equal(normalized.version, 3);
 assert.equal(normalized.notebooks[0].tier, "core");
 assert.equal(normalized.notebooks[1].tier, "ui");
+assert.deepEqual(normalized.notebooks[0].locations, ["北塔", "城門"]);
+assert.deepEqual(normalized.notebooks[0].factions, ["守塔人"]);
 assert.ok(BAOCanonWorkbench.searchTerms("我去找艾琳").includes("艾琳"));
 
 GameState.current.canon = BAOCanonWorkbench.normalizeCanon({ notebooks: [
   { title: "月蝕規則", category: "world", tier: "core", certainty: "confirmed", content: "月蝕會關閉城門。" },
-  { title: "艾琳動向", category: "current", tier: "relevant", certainty: "confirmed", content: "艾琳在北塔。" },
+  { title: "艾琳動向", category: "current", tier: "relevant", certainty: "confirmed", content: "她正在值夜。", characters: ["艾琳"], locations: ["北塔"] },
   { title: "內部證據", category: "conflicts", tier: "ui", certainty: "uncertain", content: "日期有衝突。" }
 ] });
 const prompt = App.buildSystemPrompt();
 assert.match(prompt, /Canon Core · 玩家已確認/);
 assert.match(prompt, /月蝕會關閉城門/);
 assert.match(prompt, /本輪相關 Canon/);
-assert.match(prompt, /艾琳在北塔/);
+assert.match(prompt, /她正在值夜/);
 assert.doesNotMatch(prompt, /日期有衝突/);
 const referencedMessages = Chat.ensureMessageIds();
 assert.equal(BAOCanonWorkbench.processedStart({ lastProcessedMessageId: referencedMessages[0].id, lastProcessedMessageCount: 0 }, referencedMessages), 1);
@@ -69,6 +71,7 @@ assert.equal(oversizedChunks.every(chunk => chunk.includes("msg-oversized")), tr
   await BAOCanonWorkbench.run("full");
   assert.equal(API.calls.length, 2, "one extraction call plus one merge call expected");
   assert.equal(API.calls.every(call => call.config.__memoryTask === true), true);
+  assert.equal(API.calls.every(call => call.config.__responseSchema?.properties?.notebooks), true, "Canon requests must carry their own Gemini schema");
   assert.equal(GameState.current.canon, undefined, "AI output must not become official Canon before player confirmation");
   assert.equal(GameState.current.canonDraft.notebooks[0].title, "艾琳與北塔");
   assert.equal(GameState.current.canonDraft.lastProcessedMessageCount, Chat.messages.length);
