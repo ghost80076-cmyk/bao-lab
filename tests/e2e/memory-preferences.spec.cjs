@@ -10,8 +10,14 @@ for (const width of [390, 1440]) {
   test(`memory preferences and no-API story at ${width}px`, async ({ page }, testInfo) => {
     await page.setViewportSize({ width, height: 900 });
     await openMemory(page);
-    await expect(page.locator('#memory-mode-label')).toHaveText('智慧整理');
+    await expect(page.locator('#memory-mode-label')).toHaveText('智慧整理（推薦・長篇故事）');
     await expect(page.locator('[name="memory-strength"][value="balanced"]')).toBeChecked();
+    await expect(page.locator('#api-type option[value="bao-credits"]')).toHaveCount(1);
+    await page.locator('#api-type').selectOption('bao-credits');
+    await expect(page.locator('#memory-mode')).toHaveValue('smart');
+    await expect(page.locator('#memory-hosted-recommendation')).toBeVisible();
+    await expect(page.locator('#memory-hosted-recommendation')).toHaveText('推薦 · 長篇故事');
+    await expect(page.locator('#memory-profile-description')).toContainText('YoruBay 點數長篇故事預設使用智慧整理');
     await page.locator('[name="memory-strength"][value="economy"]').check();
     expect(await page.evaluate(() => App.collectConfig().memory.maxRounds)).toBe(12);
     await page.locator('[name="memory-strength"][value="long"]').check();
