@@ -47,6 +47,7 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/google-drive-config.js"))
     .then(() => loadBAOScript("js/google-drive-sync.js"))
     .then(() => loadBAOScript("js/prompt-cache.js"))
+    .then(() => loadBAOScript("js/prompt-orchestrator.js"))
     .then(() => loadBAOScript("js/story-reader.js?v=2"))
     .then(() => loadBAOScript("js/inspiration-copy.js"))
     .then(() => loadBAOScript("js/story-revision-state.js"))

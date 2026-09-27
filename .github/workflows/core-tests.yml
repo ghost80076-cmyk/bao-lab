@@ -111,6 +111,8 @@ jobs:
         run: node tests/explicit-scene-state-core.cjs
       - name: Prompt cache pipeline
         run: node tests/prompt-cache-core.cjs
+      - name: Prompt orchestration adapters
+        run: node tests/prompt-orchestrator-core.cjs
       - name: Cache cost panel
         run: node tests/cache-cost-panel-core.cjs
       - name: Per-request multi-model cost accounting
