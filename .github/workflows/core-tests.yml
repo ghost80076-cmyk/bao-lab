@@ -59,6 +59,8 @@ jobs:
         run: node tests/story-bundle-secret-core.cjs
       - name: Character readiness core
         run: node tests/character-readiness-core.cjs
+      - name: Unhealed Bonds card
+        run: node tests/unhealed-bonds-card.test.cjs
       - name: BAO Doctor static diagnostics
         run: node tests/bao-doctor-core.cjs
       - name: Lazy character catalog
