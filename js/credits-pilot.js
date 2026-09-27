@@ -10,34 +10,26 @@
   // upstream provider for its MODELS_JSON allowlist and providerCall routing.
   const MODEL_PROVIDERS = Object.freeze({
     "gemini-3-flash-preview": "gemini",
-    "gemini-3.1-flash-lite": "gemini",
     "gemini-3.1-pro-preview": "gemini",
-    "google/gemini-3.1-pro-preview": "openrouter",
-    "openrouter/free": "openrouter",
     "deepseek/deepseek-v4-flash-0731": "openrouter",
     "qwen/qwen3.7-flash": "openrouter",
     "xiaomi/mimo-v2.5": "openrouter",
     "minimax/minimax-m3": "openrouter",
     "anthropic/claude-sonnet-4.5": "openrouter",
     "anthropic/claude-sonnet-4.6": "openrouter",
-    "anthropic/claude-opus-4.5": "openrouter",
     "anthropic/claude-opus-4.6": "openrouter"
   });
   const MODELS = Object.keys(MODEL_PROVIDERS);
   const PRESETS = [
-    { provider: PROVIDER, provider_label: "YoruBay AI 點數", tier: "標準", label: "【標準】Gemini 3 Flash · 日常主力", model: "gemini-3-flash-preview", base_url: ENDPOINT, protocol: "openai", route: PROVIDER, use_case: "玩家指定主力；大量長篇、速度與品質兼顧，走 Google 官方 Gemini" },
-    { provider: PROVIDER, provider_label: "YoruBay AI 點數", tier: "經濟", label: "【經濟】Gemini 3.1 Flash-Lite · 省點整理", model: "gemini-3.1-flash-lite", base_url: ENDPOINT, protocol: "openai", route: PROVIDER, use_case: "摘要、記憶整理與低成本工作，走 Google 官方 Gemini" },
-    { provider: PROVIDER, provider_label: "YoruBay AI 點數", tier: "高階", label: "【高階】Gemini 3.1 Pro · 複雜劇情", model: "gemini-3.1-pro-preview", base_url: ENDPOINT, protocol: "openai", route: PROVIDER, use_case: "玩家指定高階模型；複雜世界觀、推理與重要劇情，走 Google 官方 Gemini" },
-    { provider: PROVIDER, provider_label: "YoruBay AI 點數", tier: "高階", label: "【高階】Gemini 3.1 Pro · OpenRouter 備援", model: "google/gemini-3.1-pro-preview", base_url: ENDPOINT, protocol: "openai", route: PROVIDER, use_case: "同一 Gemini 3.1 Pro 的 OpenRouter 路由，供需要中轉或備援的帳號使用" },
-    { provider: PROVIDER, provider_label: "YoruBay AI 點數", tier: "體驗", label: "【體驗】OpenRouter Free · 隨機免費模型", model: "openrouter/free", base_url: ENDPOINT, protocol: "openai", route: PROVIDER, use_case: "上游免費模型自動路由；模型會變動且受共享免費請求額度限制，目前 usage.cost 為 0 時不扣 YoruBay Wallet" },
-    { provider: PROVIDER, provider_label: "YoruBay AI 點數", tier: "經濟", label: "【經濟】DeepSeek V4 Flash · 超省長聊", model: "deepseek/deepseek-v4-flash-0731", base_url: ENDPOINT, protocol: "openai", route: PROVIDER, use_case: "低成本主聊天、推理與長篇；適合想把點數用得更久的玩家" },
-    { provider: PROVIDER, provider_label: "YoruBay AI 點數", tier: "經濟", label: "【經濟】Qwen 3.7 Flash · 低成本整理", model: "qwen/qwen3.7-flash", base_url: ENDPOINT, protocol: "openai", route: PROVIDER, use_case: "摘要、狀態與低成本大量聊天；適合作為經濟型輔助模型" },
-    { provider: PROVIDER, provider_label: "YoruBay AI 點數", tier: "經濟", label: "【經濟】MiMo V2.5 · 超省長篇", model: "xiaomi/mimo-v2.5", base_url: ENDPOINT, protocol: "openai", route: PROVIDER, use_case: "高頻長篇與低成本世界互動；OpenRouter 路由" },
-    { provider: PROVIDER, provider_label: "YoruBay AI 點數", tier: "標準", label: "【標準】MiniMax M3 · 長篇世界", model: "minimax/minimax-m3", base_url: ENDPOINT, protocol: "openai", route: PROVIDER, use_case: "長 Context、世界模擬與成本／品質平衡；OpenRouter 路由" },
-    { provider: PROVIDER, provider_label: "YoruBay AI 點數", tier: "高階", label: "【高階】Claude Sonnet 4.5 · RP 相容", model: "anthropic/claude-sonnet-4.5", base_url: ENDPOINT, protocol: "openai", route: PROVIDER, use_case: "玩家指定；既有 Claude 4.5 角色與文風相容，走 OpenRouter" },
-    { provider: PROVIDER, provider_label: "YoruBay AI 點數", tier: "高階", label: "【高階】Claude Sonnet 4.6 · RP 高品質", model: "anthropic/claude-sonnet-4.6", base_url: ENDPOINT, protocol: "openai", route: PROVIDER, use_case: "玩家指定；角色演繹、細膩對話與高品質長篇，走 OpenRouter" },
-    { provider: PROVIDER, provider_label: "YoruBay AI 點數", tier: "豪華", label: "【豪華】Claude Opus 4.5 · 舊版相容", model: "anthropic/claude-opus-4.5", base_url: ENDPOINT, protocol: "openai", route: PROVIDER, use_case: "高成本 Opus 舊版相容；重要劇情使用" },
-    { provider: PROVIDER, provider_label: "YoruBay AI 點數", tier: "豪華", label: "【豪華】Claude Opus 4.6 · 重要劇情", model: "anthropic/claude-opus-4.6", base_url: ENDPOINT, protocol: "openai", route: PROVIDER, use_case: "高成本高品質模型；重要劇情與高難度角色演繹" }
+    { provider: PROVIDER, provider_label: "YoruBay AI 點數", tier: "超省長聊", label: "【超省長聊】DeepSeek V4 Flash 0731", model: "deepseek/deepseek-v4-flash-0731", base_url: ENDPOINT, protocol: "openai", route: PROVIDER, use_case: "低成本主聊天與長篇互動；適合希望把點數用得更久的玩家" },
+    { provider: PROVIDER, provider_label: "YoruBay AI 點數", tier: "超省備選", label: "【超省備選】Qwen 3.7 Flash", model: "qwen/qwen3.7-flash", base_url: ENDPOINT, protocol: "openai", route: PROVIDER, use_case: "低成本聊天、摘要與狀態整理；OpenRouter 路由" },
+    { provider: PROVIDER, provider_label: "YoruBay AI 點數", tier: "超省備選", label: "【超省備選】MiMo V2.5", model: "xiaomi/mimo-v2.5", base_url: ENDPOINT, protocol: "openai", route: PROVIDER, use_case: "低成本長篇與世界互動；OpenRouter 路由" },
+    { provider: PROVIDER, provider_label: "YoruBay AI 點數", tier: "日常主力", label: "【日常主力】Gemini 3 Flash", model: "gemini-3-flash-preview", base_url: ENDPOINT, protocol: "openai", route: PROVIDER, use_case: "玩家指定主力；日常長篇、速度與品質兼顧，走 Google 官方 Gemini" },
+    { provider: PROVIDER, provider_label: "YoruBay AI 點數", tier: "長篇世界", label: "【長篇世界】MiniMax M3", model: "minimax/minimax-m3", base_url: ENDPOINT, protocol: "openai", route: PROVIDER, use_case: "長 Context、世界模擬與成本／品質平衡；OpenRouter 路由" },
+    { provider: PROVIDER, provider_label: "YoruBay AI 點數", tier: "高品質", label: "【高品質】Gemini 3.1 Pro", model: "gemini-3.1-pro-preview", base_url: ENDPOINT, protocol: "openai", route: PROVIDER, use_case: "玩家指定高階模型；複雜世界觀、推理與重要劇情，走 Google 官方 Gemini" },
+    { provider: PROVIDER, provider_label: "YoruBay AI 點數", tier: "RP 高品質", label: "【RP 高品質】Claude Sonnet 4.5", model: "anthropic/claude-sonnet-4.5", base_url: ENDPOINT, protocol: "openai", route: PROVIDER, use_case: "玩家指定；既有 Claude 4.5 角色與文風相容，走 OpenRouter" },
+    { provider: PROVIDER, provider_label: "YoruBay AI 點數", tier: "RP 高品質", label: "【RP 高品質】Claude Sonnet 4.6", model: "anthropic/claude-sonnet-4.6", base_url: ENDPOINT, protocol: "openai", route: PROVIDER, use_case: "玩家指定；角色演繹、細膩對話與高品質長篇，走 OpenRouter" },
+    { provider: PROVIDER, provider_label: "YoruBay AI 點數", tier: "豪華", label: "【豪華】Claude Opus 4.6", model: "anthropic/claude-opus-4.6", base_url: ENDPOINT, protocol: "openai", route: PROVIDER, use_case: "高成本高品質模型；重要劇情與高難度角色演繹" }
   ];
   const isEndpoint = value => String(value || "").trim().replace(/\/+$/, "") === ENDPOINT;
   const encoder = new TextEncoder();
