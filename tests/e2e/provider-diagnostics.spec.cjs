@@ -45,11 +45,24 @@ test('provider diagnostics validates buffered, streaming and key privacy', async
   });
 
   await expect(page.locator('#provider-diagnostics-box')).toBeVisible();
+  await expect(page.locator('#api-advanced-settings')).not.toHaveAttribute('open', '');
+  const order = await page.evaluate(() => {
+    const key = document.getElementById('api-key');
+    const models = document.getElementById('model-select');
+    return Boolean(key && models && (key.compareDocumentPosition(models) & Node.DOCUMENT_POSITION_FOLLOWING));
+  });
+  expect(order).toBe(true);
+
+  await page.locator('[data-run-provider-quick]').click();
+  await expect(page.locator('#provider-quick-status')).toHaveText(/可以開始/);
+  expect(requestCount).toBe(1);
+
+  await page.locator('.provider-diagnostics-advanced > summary').click();
   await page.locator('[data-run-provider-diagnostics]').click();
   await expect(page.locator('#provider-diagnostics-status')).toHaveText(/完整驗收通過/);
   await expect(page.locator('#provider-diagnostics-result')).toContainText('SSE 已確認');
-  await expect(page.locator('#provider-diagnostics-result')).toContainText('未發現 Key 持久化');
-  expect(requestCount).toBe(2);
+  await expect(page.locator('#provider-diagnostics-result')).toContainText(/未發現.*持久化/);
+  expect(requestCount).toBe(3);
 
   const snapshot = await page.evaluate(() => ({
     result: window.BAOProviderDiagnostics.snapshot(),
