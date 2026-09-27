@@ -1,5 +1,5 @@
 /* Mobile chat is a single viewport-sized reading surface. Keep original story and tool handlers. */
-#bao-mobile-tools-tab{display:none}
+#bao-mobile-exit,#bao-mobile-status,#bao-mobile-memory,#bao-mobile-support,#bao-mobile-tools-tab{display:none}
 @media(max-width:820px){
   body:has(#chat-view.active){overflow:hidden}
   body:has(#chat-view.active) .app-shell{width:100%!important;max-width:none!important}
@@ -239,6 +239,12 @@
     text-decoration:none!important;
     font-size:18px!important;
   }
+  #bao-mobile-support .bao-mobile-bun-icon{
+    display:block;
+    width:27px;
+    height:27px;
+    object-fit:contain;
+  }
   #bao-mobile-tools-tab{
     width:40px!important;
     min-width:40px!important;
@@ -267,7 +273,8 @@
   #bao-chat-tool-drawer .bao-mobile-quick button{width:100%;min-width:0;min-height:48px;padding:10px 9px;border-radius:14px;border:1px solid rgba(255,255,255,.1);background:#1b2130;color:#f1f3f8;text-align:left;font-size:12px;font-weight:700;cursor:pointer;overflow-wrap:anywhere}
   #bao-chat-tool-drawer .bao-mobile-quick button:focus-visible{outline:2px solid #73e3d3;outline-offset:2px}
   #bao-chat-tool-drawer .bao-mobile-quick small,#bao-chat-tool-drawer .bao-mobile-quick .bao-mobile-usage{grid-column:1/-1;color:#9ea6b5;font-size:11px;line-height:1.55;overflow-wrap:anywhere}
-  #bao-chat-tool-drawer .bao-mobile-support-link{grid-column:1/-1;display:flex;align-items:center;justify-content:center;min-height:46px;padding:10px;border:1px solid rgba(214,170,115,.32);border-radius:14px;background:rgba(214,170,115,.09);color:#f3d4aa;text-decoration:none;font-size:13px;font-weight:750}
+  #bao-chat-tool-drawer .bao-mobile-support-link{grid-column:1/-1;display:flex;align-items:center;justify-content:center;gap:8px;min-height:46px;padding:10px;border:1px solid rgba(214,170,115,.32);border-radius:14px;background:rgba(214,170,115,.09);color:#f3d4aa;text-decoration:none;font-size:13px;font-weight:750}
+  #bao-chat-tool-drawer .bao-mobile-support-link .bao-mobile-bun-icon{display:block;width:27px;height:27px;object-fit:contain;flex:none}
 }
 @media(max-width:360px){
   #chat-view .chat-stream{padding-left:14px!important;padding-right:14px!important}
