@@ -322,11 +322,12 @@
     };
     // This route bypasses the base API transport, so account usage here as well.
     // recordRequestUsage is idempotent: an outer wrapper may safely see the same result.
-    if (!config.__connectionTest && window.Chat) {
-      Chat.recordRequestUsage?.(config, result);
-      Chat.renderUsage?.(result.usage || {});
+    const chatUsage = window.Chat;
+    if (!config.__connectionTest && chatUsage) {
+      chatUsage.recordRequestUsage?.(config, result);
+      chatUsage.renderUsage?.(result.usage || {});
       if (!config.__memoryTask && !config.__stateTask && !config.__auxiliaryTask && !config.__storyTool) {
-        Chat.recordStoryUsage?.(result.usage || {}, App?.config);
+        chatUsage.recordStoryUsage?.(result.usage || {}, App?.config);
       }
     }
     return result;
