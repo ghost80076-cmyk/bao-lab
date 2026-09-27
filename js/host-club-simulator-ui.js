@@ -17,7 +17,7 @@
   };
   const esc = value => App.escapeHTML(String(value ?? ''));
   const avatar = () => App.activeCharacter?.avatar || 'assets/hostsim-cast.jpg';
-  const bgStyle = key => `background-image:url("${App.escapeAttr(avatar())}");background-size:300% 200%;background-position:${pos[key]};`;
+  const bgStyle = key => `background-image:url('${App.escapeAttr(avatar())}');background-size:300% 200%;background-position:${pos[key]};`;
   const isHostSim = () => App.activeCharacter?.id === CARD_ID;
   const economyProfiles = {
     tight:{money:140000,income:240000,housing:'租屋，固定支出壓力偏高'},
@@ -138,7 +138,7 @@
               <div class="tags">${(c.tags||[]).map(t=>`<span class="tag">#${esc(t)}</span>`).join('')}</div>
               <div class="hostsim-actions">
                 <button class="primary" data-hostsim-start>開始遊戲</button>
-                <span>18+ · 世界模擬 · 經濟循環 · 多結局</span>
+                <span>世界模擬 · 經濟循環 · 多結局</span>
               </div>
             </div>
           </div>
