@@ -104,3 +104,33 @@
     padding:9px 10px;
   }
 }
+
+/* Unhealed Bonds — card-specific structured opening skin */
+.bao-opening-unhealed{
+  border-color:rgba(214,128,154,.24);
+  background:
+    radial-gradient(circle at 82% 12%,rgba(122,43,68,.22),transparent 34%),
+    linear-gradient(145deg,rgba(24,18,23,.97),rgba(31,23,29,.94));
+  box-shadow:0 18px 46px rgba(15,8,12,.28);
+}
+.bao-opening-unhealed .bao-opening-label{color:#e7a8bc;letter-spacing:.12em}
+.bao-opening-unhealed .bao-opening-post{
+  border-color:rgba(230,173,190,.10);
+  background:rgba(255,242,246,.035);
+}
+.bao-opening-unhealed .bao-opening-post-character{
+  border-left-color:#d77f9b;
+  background:rgba(163,69,99,.08);
+}
+.bao-opening-unhealed .bao-opening-meta{color:#d7a7b6}
+.bao-opening-unhealed .bao-opening-transition,
+.bao-opening-unhealed .bao-opening-note{color:#bdaeb4}
+.bao-opening-unhealed .bao-opening-choice{
+  border-color:rgba(215,127,155,.22);
+  background:rgba(255,255,255,.025);
+}
+.bao-opening-unhealed .bao-opening-choice:hover{
+  border-color:rgba(229,151,176,.55);
+  background:rgba(171,74,105,.12);
+}
+.bao-opening-unhealed .bao-opening-choice span{color:#e399b2}
