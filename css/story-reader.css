@@ -259,6 +259,9 @@
   min-height:150px;
   line-height:1.8;
   resize:vertical;
+  position:static;
+  inset:auto;
+  transform:none;
 }
 
 .story-inline-actions{
@@ -484,5 +487,19 @@
 
   .story-inspiration-row{
     grid-template-columns:minmax(0,1fr) 34px;
+  }
+}
+
+@media(max-width:820px){
+  .story-inline-editor{width:100%;max-width:100%}
+  .story-inline-editor textarea{
+    width:100%;
+    min-height:180px;
+    max-height:52dvh;
+    overflow:auto;
+    position:static!important;
+    inset:auto!important;
+    transform:none!important;
+    font-size:16px;
   }
 }
