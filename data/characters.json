@@ -165,5 +165,34 @@
       "text": true,
       "ui": true
     }
+  },
+  {
+    "id": "host-club-simulator",
+    "file": "data/characters/general/host-club-simulator.json",
+    "name": "牛郎模擬器｜歌舞伎町・最後指名",
+    "title": "牛郎模擬器｜歌舞伎町・最後指名",
+    "avatar": "assets/hostsim-cast.jpg",
+    "category": "r18",
+    "rating": "adult",
+    "gender": "male",
+    "tags": [
+      "女性向",
+      "歌舞伎町",
+      "牛郎店",
+      "經濟循環",
+      "六男群像",
+      "指名制",
+      "夜生活",
+      "多結局"
+    ],
+    "description": "白天工作、晚上消費。初回、指名、排名、after、店外約會、空虛與帳單交替發生。重要度不等於真心；你買得到他的時間，但不一定買得到他本人。",
+    "supported_modes": {
+      "immersive": true,
+      "world": true
+    },
+    "supported_display": {
+      "text": true,
+      "ui": true
+    }
   }
 ]
