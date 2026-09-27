@@ -796,6 +796,161 @@ function pricingRate(
     : null;
 }
 
+function longContextActive(
+  config,
+  inputTokens
+) {
+  const threshold =
+    pricingRate(
+      config,
+      "long_context_threshold_tokens"
+    );
+
+  return (
+    threshold !== null &&
+    threshold > 0 &&
+    Number.isSafeInteger(
+      inputTokens
+    ) &&
+    inputTokens >
+      threshold
+  );
+}
+
+function resolvedPricingRates(
+  config,
+  inputTokens
+) {
+  const longContext =
+    longContextActive(
+      config,
+      inputTokens
+    );
+
+  const rate = (
+    key
+  ) => {
+    if (longContext) {
+      const tiered =
+        pricingRate(
+          config,
+          `long_context_${key}`
+        );
+
+      if (
+        tiered !== null
+      ) {
+        return tiered;
+      }
+    }
+
+    return pricingRate(
+      config,
+      key
+    );
+  };
+
+  const inputRate =
+    rate(
+      "input_microusd_per_million"
+    );
+
+  const outputRate =
+    rate(
+      "output_microusd_per_million"
+    );
+
+  return {
+    longContext,
+    inputRate,
+    outputRate,
+
+    cacheReadRate:
+      rate(
+        "cache_read_microusd_per_million"
+      ) ??
+      inputRate,
+
+    cacheWriteRate:
+      rate(
+        "cache_write_microusd_per_million"
+      ) ??
+      inputRate,
+  };
+}
+
+function openRouterPriceGuard(
+  config,
+  inputTokens
+) {
+  if (
+    config?.provider !==
+      "openrouter"
+  ) {
+    return null;
+  }
+
+  const rates =
+    resolvedPricingRates(
+      config,
+      inputTokens
+    );
+
+  if (
+    rates.inputRate ===
+      null ||
+    rates.outputRate ===
+      null
+  ) {
+    return null;
+  }
+
+  const longPrefix =
+    rates.longContext
+      ? "long_context_"
+      : "";
+
+  const promptRate =
+    pricingRate(
+      config,
+      `${longPrefix}openrouter_max_prompt_microusd_per_million`
+    ) ??
+    pricingRate(
+      config,
+      "openrouter_max_prompt_microusd_per_million"
+    ) ??
+    rates.inputRate;
+
+  const completionRate =
+    pricingRate(
+      config,
+      `${longPrefix}openrouter_max_completion_microusd_per_million`
+    ) ??
+    pricingRate(
+      config,
+      "openrouter_max_completion_microusd_per_million"
+    ) ??
+    rates.outputRate;
+
+  return {
+    promptRate,
+    completionRate,
+    longContext,
+
+    provider: {
+      max_price: {
+        prompt:
+          promptRate /
+          1_000_000,
+
+        completion:
+          completionRate /
+          1_000_000,
+      },
+    },
+  };
+}
+
 function ceilDivBigInt(
   n,
   d
@@ -964,59 +1119,41 @@ function computedUsageCostMicrousd(
   config,
   stored
 ) {
-  const inputRate =
-    pricingRate(
+  const rates =
+    resolvedPricingRates(
       config,
-      "input_microusd_per_million"
-    );
-
-  const outputRate =
-    pricingRate(
-      config,
-      "output_microusd_per_million"
+      stored.input
     );
 
   if (
-    inputRate === null ||
-    outputRate === null
+    rates.inputRate ===
+      null ||
+    rates.outputRate ===
+      null
   ) {
     return null;
   }
-
-  const cacheReadRate =
-    pricingRate(
-      config,
-      "cache_read_microusd_per_million"
-    ) ??
-    inputRate;
-
-  const cacheWriteRate =
-    pricingRate(
-      config,
-      "cache_write_microusd_per_million"
-    ) ??
-    inputRate;
 
   return costBucketsMicrousd(
     [
       [
         stored.freshInput,
-        inputRate,
+        rates.inputRate,
       ],
 
       [
         stored.cached,
-        cacheReadRate,
+        rates.cacheReadRate,
       ],
 
       [
         stored.cacheWrite,
-        cacheWriteRate,
+        rates.cacheWriteRate,
       ],
 
       [
         stored.output,
-        outputRate,
+        rates.outputRate,
       ],
     ]
   );
@@ -1094,41 +1231,43 @@ function reservePlan(
   requestedMaxOutput,
   walletBalance
 ) {
-  const inputRate =
-    pricingRate(
-      config,
-      "input_microusd_per_million"
+  const estimatedInputTokens =
+    estimatedPromptTokens(
+      messages
     );
 
-  const outputRate =
-    pricingRate(
+  const rates =
+    resolvedPricingRates(
       config,
-      "output_microusd_per_million"
+      estimatedInputTokens
     );
 
   if (
-    inputRate === null ||
-    outputRate === null
+    rates.inputRate ===
+      null ||
+    rates.outputRate ===
+      null
   ) {
     return null;
   }
 
-  const cacheWriteRate =
-    pricingRate(
+  const guard =
+    openRouterPriceGuard(
       config,
-      "cache_write_microusd_per_million"
-    ) ??
-    inputRate;
+      estimatedInputTokens
+    );
 
   const reserveInputRate =
     Math.max(
-      inputRate,
-      cacheWriteRate
+      rates.inputRate,
+      rates.cacheWriteRate ?? 0,
+      guard?.promptRate ?? 0
     );
 
-  const estimatedInputTokens =
-    estimatedPromptTokens(
-      messages
+  const reserveOutputRate =
+    Math.max(
+      rates.outputRate,
+      guard?.completionRate ?? 0
     );
 
   const inputReserveMicrousd =
@@ -1157,27 +1296,27 @@ function reservePlan(
         false,
 
       estimatedInputTokens,
-
       inputReserveMicrousd,
 
       affordableOutputTokens:
         0,
+
+      pricingTier:
+        rates.longContext
+          ? "long_context"
+          : "standard",
     };
   }
 
-  // Zero-output-price models (including fully free OpenRouter models)
-  // must not be rejected or divided by zero. They may use the full
-  // requested output allowance while reserving only any non-zero
-  // input/cache-write cost configured for the model.
   if (
-    outputRate === 0
+    reserveOutputRate ===
+      0
   ) {
     return {
       ok:
         true,
 
       estimatedInputTokens,
-
       inputReserveMicrousd,
 
       outputReserveMicrousd:
@@ -1188,6 +1327,19 @@ function reservePlan(
 
       effectiveMaxOutput:
         requestedMaxOutput,
+
+      pricingTier:
+        rates.longContext
+          ? "long_context"
+          : "standard",
+
+      openRouterMaxPromptMicrousdPerMillion:
+        guard?.promptRate ??
+        null,
+
+      openRouterMaxCompletionMicrousdPerMillion:
+        guard?.completionRate ??
+        null,
     };
   }
 
@@ -1203,7 +1355,7 @@ function reservePlan(
       1_000_000n
     ) /
     BigInt(
-      outputRate
+      reserveOutputRate
     );
 
   const affordableOutputTokens =
@@ -1240,11 +1392,14 @@ function reservePlan(
         false,
 
       estimatedInputTokens,
-
       inputReserveMicrousd,
-
       affordableOutputTokens:
         effectiveMaxOutput,
+
+      pricingTier:
+        rates.longContext
+          ? "long_context"
+          : "standard",
     };
   }
 
@@ -1253,7 +1408,7 @@ function reservePlan(
       [
         [
           effectiveMaxOutput,
-          outputRate,
+          reserveOutputRate,
         ],
       ]
     );
@@ -1282,14 +1437,23 @@ function reservePlan(
       true,
 
     estimatedInputTokens,
-
     inputReserveMicrousd,
-
     outputReserveMicrousd,
-
     reserveMicrousd,
-
     effectiveMaxOutput,
+
+    pricingTier:
+      rates.longContext
+        ? "long_context"
+        : "standard",
+
+    openRouterMaxPromptMicrousdPerMillion:
+      guard?.promptRate ??
+      null,
+
+    openRouterMaxCompletionMicrousdPerMillion:
+      guard?.completionRate ??
+      null,
   };
 }
 
@@ -3803,6 +3967,24 @@ async function providerCall(
   let usingAwsRelay =
     false;
 
+  const configuredModel =
+    modelConfig(
+      env,
+      provider,
+      model
+    );
+
+  const openRouterGuard =
+    provider ===
+      "openrouter"
+      ? openRouterPriceGuard(
+          configuredModel,
+          estimatedPromptTokens(
+            messages
+          )
+        )
+      : null;
+
   if (
     provider ===
     "openrouter"
@@ -3891,6 +4073,10 @@ async function providerCall(
 
               max_output_tokens:
                 maxOutput,
+
+              openrouter_provider:
+                openRouterGuard
+                  ?.provider,
             }
           ),
       };
@@ -3935,6 +4121,10 @@ async function providerCall(
 
               stream:
                 false,
+
+              provider:
+                openRouterGuard
+                  ?.provider,
 
               usage: {
                 include:
@@ -6167,6 +6357,29 @@ async function costUsdChatRoute(
       reserve_microusd:
         plan
           .reserveMicrousd,
+
+      pricing_tier:
+        plan
+          .pricingTier ||
+        "standard",
+
+      openrouter_max_prompt_usd_per_million:
+        plan
+          .openRouterMaxPromptMicrousdPerMillion ==
+        null
+          ? null
+          : plan
+              .openRouterMaxPromptMicrousdPerMillion /
+            1_000_000,
+
+      openrouter_max_completion_usd_per_million:
+        plan
+          .openRouterMaxCompletionMicrousdPerMillion ==
+        null
+          ? null
+          : plan
+              .openRouterMaxCompletionMicrousdPerMillion /
+            1_000_000,
 
       billing_mode:
         COST_BILLING_MODE,
