@@ -194,5 +194,34 @@
       "text": true,
       "ui": true
     }
+  },
+  {
+    "id": "night-sky-magic-academy",
+    "file": "data/characters/general/night-sky-magic-academy.json",
+    "name": "夜穹魔法學院｜第一學年",
+    "title": "夜穹魔法學院｜第一學年",
+    "avatar": "assets/night-sky-academy-cover.svg",
+    "category": "male",
+    "rating": "general",
+    "gender": "all",
+    "tags": [
+      "魔法學院",
+      "校園群像",
+      "長篇模擬",
+      "分院儀式",
+      "魔法課程",
+      "關係養成",
+      "隱藏主線",
+      "多結局"
+    ],
+    "description": "收到一封只在月光下顯字的錄取信，進入一所古老魔法學院。分院、課程、朋友、競爭、學院分與慢慢浮出的秘密，都會因你的選擇改變。",
+    "supported_modes": {
+      "immersive": true,
+      "world": true
+    },
+    "supported_display": {
+      "text": true,
+      "ui": true
+    }
   }
 ]
