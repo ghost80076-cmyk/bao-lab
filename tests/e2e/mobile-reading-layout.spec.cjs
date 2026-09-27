@@ -28,6 +28,7 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 320, height: 568 }
     const headerSupport = page.getByRole('link', { name: '支持 BAO/LAB・投餵肉包' });
     await expect(headerMemory).toBeVisible();
     await expect(headerSupport).toBeVisible();
+    await expect(headerSupport.locator('img[src$="assets/bao-bun.svg"]')).toHaveCount(1);
     await expect(page.locator('#bao-chat-tool-shortcuts')).toBeHidden();
     await expect(page.locator('#bao-chat-api-toolbar')).toBeHidden();
     await page.waitForFunction(() => Boolean(window.BAOStorySurface));
@@ -37,12 +38,20 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 320, height: 568 }
     const boxes = await page.evaluate(() => {
       const stream = document.getElementById('chat-stream').getBoundingClientRect();
       const composer = document.querySelector('#chat-view .composer').getBoundingClientRect();
+      const header = document.querySelector('#chat-view .chat-topline').getBoundingClientRect();
+      const title = document.querySelector('#chat-view .chat-title-copy h2').getBoundingClientRect();
+      const titleStyle = getComputedStyle(document.querySelector('#chat-view .chat-title-copy h2'));
       return { stream: stream.height, composerTop: composer.top, composerBottom: composer.bottom,
+        headerHeight: header.height, titleHeight: title.height, titleWidth: title.width, titleWhiteSpace: titleStyle.whiteSpace,
         pageWidth: document.documentElement.scrollWidth, viewport: innerWidth, screenHeight: innerHeight };
     });
     expect(boxes.stream).toBeGreaterThan(150);
     expect(boxes.composerTop).toBeGreaterThan(0);
     expect(boxes.composerBottom).toBeLessThanOrEqual(boxes.screenHeight + 2);
+    expect(boxes.headerHeight).toBeLessThan(90);
+    expect(boxes.titleHeight).toBeLessThan(32);
+    expect(boxes.titleWidth).toBeGreaterThan(0);
+    expect(boxes.titleWhiteSpace).toBe('nowrap');
     expect(boxes.pageWidth).toBeLessThanOrEqual(boxes.viewport + 1);
 
     await headerStatus.click();
@@ -50,8 +59,11 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 320, height: 568 }
     await page.locator('.bao-status-close').click();
 
     await tab.click();
-    await expect(page.getByRole('dialog', { name: '故事功能選單' })).toBeVisible();
-    await expect(page.getByRole('link', { name: /投餵肉包/ })).toBeVisible();
+    const toolDialog = page.getByRole('dialog', { name: '故事功能選單' });
+    await expect(toolDialog).toBeVisible();
+    const drawerSupport = toolDialog.getByRole('link', { name: /投餵肉包/ });
+    await expect(drawerSupport).toBeVisible();
+    await expect(drawerSupport.locator('img[src$="assets/bao-bun.svg"]')).toHaveCount(1);
     await expect(tab).toHaveAttribute('aria-expanded', 'true');
     await expect(page.getByRole('button', { name: 'API／切換模型' })).toBeVisible();
     await page.getByRole('button', { name: 'API／切換模型' }).click();
@@ -95,8 +107,15 @@ test('desktop defaults to Play and one click reveals the full Studio controls', 
   await page.setViewportSize({ width: 1440, height: 900 });
   await openDemoStory(page);
   await page.waitForFunction(() => Boolean(window.BAOStorySurface));
-  await expect(page.locator('#bao-mobile-tools-tab')).toBeHidden();
-  await expect(page.locator('#bao-mobile-exit')).toBeHidden();
+  await expect(page.locator('#bao-mobile-tools-tab')).toHaveCount(0);
+  await expect(page.locator('#bao-mobile-exit')).toHaveCount(0);
+  await expect(page.locator('#bao-mobile-status')).toHaveCount(0);
+  await expect(page.locator('#bao-mobile-memory')).toHaveCount(0);
+  await expect(page.locator('#bao-mobile-support')).toHaveCount(0);
+  const desktopSupport = page.locator('#bao-chat-floating-actions a[href*="ko-fi.com"]');
+  await expect(desktopSupport).toBeVisible();
+  await expect(desktopSupport.locator('img[src$="assets/bao-bun.svg"]')).toHaveCount(1);
+  await expect(page.locator('#chat-view a[href*="ko-fi.com"]:visible')).toHaveCount(1);
   await expect(page.locator('#chat-view')).toHaveAttribute('data-bao-surface', 'play');
   await expect(page.locator('#bao-chat-api-toolbar')).toBeHidden();
   await expect(page.locator('#bao-reading-status-toggle')).toBeHidden();

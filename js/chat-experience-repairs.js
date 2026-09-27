@@ -89,7 +89,7 @@
   support.href = document.querySelector('.topbar a[href*="ko-fi.com"]')?.href || 'https://ko-fi.com/roger2486';
   support.target = '_blank';
   support.rel = 'noopener noreferrer';
-  support.innerHTML = '<img src="assets/bao-mark.svg" alt="">投餵肉包';
+  support.innerHTML = '<img src="assets/bao-bun.svg" alt="">投餵肉包';
   floating.append(toTop, support);
   chat.append(floating);
 

@@ -206,7 +206,7 @@ body:has(#explore-view.active) .bao-mascot-avatar,body:has(#detail-view.active) 
   box-shadow:0 12px 32px rgba(116,94,231,.22);
 }
 
-/* Bao is a quiet companion point: compact, clickable and never another dashboard chip. */
+/* Keep the feed-bun support entry on Home; discovery/detail stay visually quiet. */
 body:has(#explore-view.active) .bao-support-float,
 body:has(#detail-view.active) .bao-support-float{display:none!important}
 body:has(#home-view.active) #bao-mascot-root{display:block!important}
