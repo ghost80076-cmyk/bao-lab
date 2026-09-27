@@ -935,7 +935,9 @@ function openRouterPriceGuard(
   return {
     promptRate,
     completionRate,
-    longContext,
+
+    longContext:
+      rates.longContext,
 
     provider: {
       max_price: {
