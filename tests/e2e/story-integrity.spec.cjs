@@ -199,6 +199,11 @@ test('same-provider helper model is restored without requesting a second key', a
 test('resumed story can edit output tokens and budget without resetting messages or storing keys', async ({ page }) => {
   await startStory(page);
   await page.evaluate(() => BAOStorySurface.setMode('studio'));
+  const settingsGroup = page.locator('[data-chat-tool-group="settings"]');
+  await expect(settingsGroup).toBeVisible();
+  await expect(page.locator('#bao-chat-cost-open')).toBeAttached();
+  await expect(page.locator('#chat-view .chat-main > #bao-chat-cost-open')).toHaveCount(0);
+  await settingsGroup.locator('summary').click();
   await page.locator('#bao-chat-cost-open').click();
   const form = page.locator('#bao-chat-cost-form');
   await expect(form).toBeVisible();
