@@ -82,6 +82,12 @@ load("js/provider-diagnostics.js");
   assert.equal(JSON.stringify(result).includes("DIAG-SECRET"), false, "diagnostic results must never retain the API key");
   assert.equal(result.privacy.ok, true);
 
+  calls.length = 0;
+  const quick = await BAOProviderDiagnostics.runQuickConfig({ type: "openrouter", protocol: "openai", model: "test/model", baseUrl: "https://openrouter.ai/api/v1/chat/completions", key: "QUICK-SECRET" });
+  assert.equal(quick.ok, true);
+  assert.deepEqual(calls.map(call => call.stream), [false], "quick connection test must send only one non-streaming request");
+  assert.equal(JSON.stringify(quick).includes("QUICK-SECRET"), false, "quick test result must never retain the API key");
+
   APIRef.test = async () => { throw new Error("401 authentication failed for LEAK-ME-SECRET"); };
   const failed = await BAOProviderDiagnostics.runConfig({ type: "custom", protocol: "openai", model: "bad", baseUrl: "https://example.invalid/v1/chat/completions", key: "LEAK-ME-SECRET" });
   assert.equal(failed.ok, false);
