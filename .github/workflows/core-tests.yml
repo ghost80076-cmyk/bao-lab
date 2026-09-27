@@ -91,6 +91,8 @@ jobs:
         run: node tests/request-lifecycle-core.cjs
       - name: Accumulated world state turns
         run: node tests/world-state-cost-core.cjs
+      - name: Same-model story and state merge
+        run: node tests/same-model-state-merge-core.cjs
       - name: Display-independent state tracking
         run: node tests/display-state-tracking-core.cjs
       - name: Explicit scene metadata and greeting recovery
