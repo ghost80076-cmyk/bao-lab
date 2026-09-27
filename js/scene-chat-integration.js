@@ -37,6 +37,7 @@
       const message = entries[i];
       const node = nodes[i + offset];
       if (!node || message.role !== 'assistant' || !node.classList.contains('assistant')) continue;
+      if (message.greeting && App.activeCharacter?.opening?.posts?.length) continue;
       const bubble = node.querySelector('.bubble');
       if (!bubble || bubble.querySelector('.story-inline-editor') || node.classList.contains('is-streaming')) continue;
       const type = prefs.type === 'auto' ? currentType() : prefs.type;
