@@ -26,21 +26,20 @@
     if (!step || step.dataset.beginnerCopy === "true") return;
     step.dataset.beginnerCopy = "true";
     const title = step.querySelector("h3");
-    if (title) title.textContent = "模型連線";
-    const intro = step.querySelector("p.note");
-    if (intro) intro.textContent = "先選 AI 服務商，再選模型。部分官方服務會直接填好模型代號（Model ID）；Z.AI、OpenAI 等可保留官方連線網址並自行輸入模型代號；OpenRouter 可用一把連線金鑰切換多家模型。";
+    if (title) title.textContent = "連接 AI";
+    const intro = step.querySelector(".api-onboarding-intro") || step.querySelector("p.note");
+    if (intro) intro.textContent = "新手只要完成三件事：選服務商、貼上 API Key、選模型。其他連線參數已盡量自動處理。";
     const rename = (id, text) => {
       const label = document.getElementById(id)?.closest("label");
       if (label?.childNodes?.[0]) label.childNodes[0].textContent = text;
     };
-    rename("api-type", "AI 服務商（Provider）／路由");
-    rename("model-select", "模型與連線預設");
+    rename("api-type", "AI 服務商（Provider）");
+    rename("model-select", "使用哪個模型？");
     rename("model-id", "模型代號（Model ID）");
     rename("base-url", "連線網址（Base URL）");
     rename("api-key", "連線金鑰（API Key）");
-    addHelp("model-id", "官方服務若未綁定單一模型，請依服務商目前文件填入模型代號（Model ID）；BAO/LAB 不會把某個 GLM 或 OpenAI 型號寫死。");
-    addHelp("base-url", "這是實際送出請求的端點（Endpoint）。不同官方、區域與中轉站可能不同。");
-    addHelp("api-key", "只留在目前頁面記憶體中，不會寫入故事存檔。請不要分享你的連線金鑰。");
+    addHelp("model-id", "只有預設清單沒有你要的模型時才需要手動填寫；一般玩家可直接使用上方模型選擇。");
+    addHelp("base-url", "只有自訂 API、中轉站或特殊區域端點需要修改；一般官方連線保持預設即可。");
   };
 
   const patchMainProviderHint = () => {
