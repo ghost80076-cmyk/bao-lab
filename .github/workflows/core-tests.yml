@@ -61,6 +61,8 @@ jobs:
         run: node tests/character-readiness-core.cjs
       - name: Unhealed Bonds card
         run: node tests/unhealed-bonds-card.test.cjs
+      - name: Host Club Simulator card
+        run: node tests/host-club-simulator-card.test.cjs
       - name: BAO Doctor static diagnostics
         run: node tests/bao-doctor-core.cjs
       - name: Lazy character catalog
