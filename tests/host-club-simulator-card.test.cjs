@@ -28,7 +28,7 @@ assert.match(card.content.system_prompt,/重要度是玩家對該牛郎職業與
 assert.match(card.content.system_prompt,/好感度是牛郎私下對玩家的真實看法/);
 assert.match(card.content.system_prompt,/白天現實生活／工作/);
 assert.match(card.content.author_instructions,/不要描寫性器官、體液、性交步驟/);
-assert.match(card.content.author_instructions,/不提供方法與效率資訊/);
+assert.match(card.content.author_instructions,/避免提供方法與效率資訊/);
 assert.doesNotMatch(JSON.stringify(card),/金泳勳|李賢在|李柱延|池昌民|金善旴|孫英宰|TBZ/);
 
 const index=fs.readFileSync(path.join(__dirname,'../index.html'),'utf8');
