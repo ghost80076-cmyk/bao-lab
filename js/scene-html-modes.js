@@ -51,13 +51,13 @@
     return `<section class="bao-structured-opening bao-opening-${type}">${label ? `<div class="bao-opening-label">${esc(label)}</div>` : ""}${postHTML}${note}${choiceHTML}</section>`;
   };
 
-  document.addEventListener("click", event => {
-    const button = event.target.closest?.("[data-bao-opening-choice]");
+  if (typeof document?.addEventListener === "function") document.addEventListener("click", event => {
+    const button = event.target?.closest?.("[data-bao-opening-choice]");
     if (!button) return;
     const input = document.getElementById("user-input");
     if (!input) return;
     input.value = button.dataset.baoOpeningChoice || "";
-    input.focus();
+    input.focus?.();
     input.setSelectionRange?.(input.value.length, input.value.length);
   });
 
