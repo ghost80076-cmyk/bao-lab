@@ -1,0 +1,81 @@
+/* BAO/LAB prompt orchestration: keep only high-value constraints, targeted model patches and a tiny turn anchor. */
+(() => {
+  "use strict";
+  if (typeof App === "undefined") return;
+
+  const PRIORITY_PROMPT = [
+    "【平台硬規則】",
+    "不替玩家補寫未輸入的台詞、心理、意圖、主動行動或同意。",
+    "已確認事實、記憶、Canon、狀態與固定 Schema 不得為文風改寫；結構化資料要求高於文風要求。"
+  ].join("\n");
+
+  // Only add a model patch where BAO/LAB has an observed failure mode.
+  // Modern models that do not need a patch should receive no extra prose coaching.
+  const MODEL_GUIDANCE = {
+    deepseek: "【模型補丁 · DeepSeek】狀態／輔助資料不得取代玩家最新輸入；先完整處理本輪，再維持已確認狀態。",
+    glm: "【模型補丁 · GLM】完整處理玩家最新輸入，勿遺漏後半段、否定句、條件句或並列要求。",
+    minimax: "【模型補丁 · MiniMax】核對長期記憶與最近狀態，勿重置已確認的人物關係、位置、物品、時間或事件。"
+  };
+
+  const TURN_ANCHOR = "【本輪】依玩家最新輸入延續一輪；保持已確認事實與資訊邊界，不代寫玩家。";
+
+  const normalized = value => String(value || "").trim().toLowerCase();
+
+  const familyFor = (api = {}) => {
+    const provider = normalized(api.type || api.provider);
+    const protocol = normalized(api.protocol);
+    const model = normalized(api.model);
+    const baseUrl = normalized(api.baseUrl || api.base_url);
+    const haystack = [provider, protocol, model, baseUrl].join(" ");
+
+    if (/deepseek/.test(haystack)) return "deepseek";
+    if (/(minimax|mini-max)/.test(haystack)) return "minimax";
+    if (/(\bglm\b|z\.ai|z-ai|bigmodel)/.test(haystack)) return "glm";
+    if (/(anthropic|claude)/.test(haystack)) return "claude";
+    if (/(gemini|generativelanguage|google\/)/.test(haystack)) return "gemini";
+    if (/(openai|\bgpt[-_]|\bo[134][-_])/i.test(haystack)) return "gpt";
+    return "generic";
+  };
+
+  const guidanceFor = api => MODEL_GUIDANCE[familyFor(api)] || "";
+
+  const appendBlock = (content, block) => {
+    const base = String(content || "").trim();
+    const extra = String(block || "").trim();
+    if (!extra || base.includes(extra)) return base;
+    return [base, extra].filter(Boolean).join("\n\n");
+  };
+
+  const originalBuildMessages = typeof App.buildMessages === "function" ? App.buildMessages.bind(App) : null;
+  if (originalBuildMessages && !App.__promptOrchestratorPatched) {
+    App.buildMessages = async function(config = this.config) {
+      const messages = await originalBuildMessages(config);
+      const result = Array.isArray(messages) ? messages.map(message => ({ ...message })) : [];
+      const api = config?.api || config || {};
+      const stableAdapter = [PRIORITY_PROMPT, guidanceFor(api)].filter(Boolean).join("\n\n");
+
+      if (result[0]?.role === "system") {
+        result[0].content = appendBlock(result[0].content, stableAdapter);
+      } else {
+        result.unshift({ role: "system", content: stableAdapter });
+      }
+
+      const lastIndex = result.length - 1;
+      if (lastIndex >= 0 && result[lastIndex]?.role === "user") {
+        result[lastIndex].content = appendBlock(result[lastIndex].content, TURN_ANCHOR);
+      } else {
+        result.push({ role: "user", content: TURN_ANCHOR });
+      }
+      return result;
+    };
+    App.__promptOrchestratorPatched = true;
+  }
+
+  window.BAOPromptOrchestrator = {
+    version: 2,
+    familyFor,
+    guidanceFor,
+    priorityPrompt: PRIORITY_PROMPT,
+    turnAnchor: TURN_ANCHOR
+  };
+})();
