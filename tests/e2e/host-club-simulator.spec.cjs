@@ -5,14 +5,15 @@ test('Host Club Simulator renders generated cast, setup and economy UI', async (
   await page.waitForFunction(() => App.characters?.some(c => c.id === 'host-club-simulator') && Storage.status().ready, null, { timeout: 15000 });
 
   await page.locator('#home-view [data-view="explore"]').click();
-  await page.evaluate(() => localStorage.setItem('bao-lab:adult-confirmed','yes'));
-  await page.getByRole('button', { name: 'R18' }).click();
+  await page.getByRole('button', { name: '男性' }).click();
   const card = page.locator('article.character-card').filter({ hasText: '牛郎模擬器' });
   await expect(card).toBeVisible();
   await card.click();
 
   await expect(page.locator('.hostsim-detail')).toBeVisible();
   await expect(page.locator('.hostsim-cast-grid .hostsim-card')).toHaveCount(6);
+  const backgroundImage = await page.locator('.hostsim-hero-portrait').evaluate(el => getComputedStyle(el).backgroundImage);
+  expect(backgroundImage).toContain('hostsim-cast.jpg');
   await expect(page.locator('.hostsim-card').filter({hasText:'REN'})).toBeVisible();
   await expect(page.locator('.hostsim-card').filter({hasText:'HARU'})).toBeVisible();
   await expect(page.locator('.hostsim-card').filter({hasText:'REI'})).toBeVisible();
