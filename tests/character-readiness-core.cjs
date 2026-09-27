@@ -55,9 +55,13 @@ assert.ok(report.character.dynamic_prompts.some(block => block.id === "dependenc
 assert.ok(report.character.dynamic_prompts.some(block => block.id === "identity_transition"));
 assert.ok(report.character.dynamic_prompts.some(block => block.id === "private_past"));
 assert.equal("relationship_stage" in report.character.initial_state.character_statuses["林沉風"], false, "關係階段只由 relationship module 追蹤，避免雙份狀態漂移");
-assert.equal(report.character.initial_state.modules.relationship.stage, "陌生人｜試探階段");
+assert.equal(report.character.initial_state.modules.relationship.stage, "陌生人", "初始狀態不應把作者的試探意圖直接劇透給玩家");
 assert.equal(report.character.initial_state.modules.relationship.trust, "尚未建立");
-assert.deepEqual(report.character.initial_state.modules.relationship.shared_history, ["林沉風在匿名論壇第一次回覆玩家的文章。"]);
+assert.deepEqual(report.character.initial_state.modules.relationship.shared_history, [
+  "林沉風第一次回覆玩家的公開文章。",
+  "林沉風指出玩家七年前的公開舊文曾出現與今晚相似的措辭。"
+]);
+assert.ok(report.character.world.includes("公開發文可由其他使用者從個人頁翻閱"), "七年前鉤子必須有公開資訊來源，不能變成讀心或越權得知");
 assert.ok(report.character.world_modules.find(module => module.id === "relationship").fields.some(field => field.key === "unresolved_tension"));
 
 const baseContext = {
