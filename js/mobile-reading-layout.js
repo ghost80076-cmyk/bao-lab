@@ -16,6 +16,16 @@
   const supportUrl = () => document.querySelector('#chat-view .chat-layout > aside a[href*="ko-fi.com"]')?.href
     || document.querySelector('.topbar a[href*="ko-fi.com"]')?.href
     || 'https://ko-fi.com/roger2486';
+  const mobileControlIds = ['bao-mobile-exit', 'bao-mobile-status', 'bao-mobile-memory', 'bao-mobile-support', 'bao-mobile-tools-tab'];
+  const clearMobileChrome = () => {
+    mobileControlIds.forEach(id => document.getElementById(id)?.remove());
+    const panel = drawer();
+    if (panel?.dataset.baoMobileEnhanced === 'true') nav.closeDrawer();
+    main.classList.remove('bao-mobile-panel-open');
+    delete root.dataset.baoKeyboardOpen;
+    ['--bao-mobile-header-bottom', '--bao-mobile-viewport-top', '--bao-mobile-viewport-left', '--bao-mobile-viewport-width', '--bao-mobile-viewport-height']
+      .forEach(property => root.style.removeProperty(property));
+  };
 
   const measure = () => {
     if (!isMobile()) return;
@@ -193,7 +203,7 @@
       link.href = supportUrl();
       link.target = '_blank';
       link.rel = 'noopener noreferrer';
-      link.textContent = '🥟';
+      link.innerHTML = '<img class="bao-mobile-bun-icon" src="assets/bao-bun.svg" width="26" height="26" alt="">';
       link.title = '投餵肉包';
       link.setAttribute('aria-label', '支持 BAO/LAB・投餵肉包');
       header.append(link);
@@ -231,7 +241,7 @@
     support.href = supportUrl();
     support.target = '_blank';
     support.rel = 'noopener noreferrer';
-    support.textContent = '🥟 支持 BAO/LAB・投餵肉包';
+    support.innerHTML = '<img class="bao-mobile-bun-icon" src="assets/bao-bun.svg" width="26" height="26" alt=""><span>支持 BAO/LAB・投餵肉包</span>';
     support.addEventListener('click', () => nav.closeDrawer());
     quick.append(support);
     const connection = document.createElement('small');
@@ -259,6 +269,10 @@
     if (host && button.parentElement !== host) host.append(button);
   };
   const sync = () => {
+    if (!isMobile()) {
+      clearMobileChrome();
+      return;
+    }
     ensureExit();
     ensureStatus();
     ensureMemory();
@@ -303,10 +317,10 @@
     focusScrollTop = null;
     schedule();
   });
-  window.BAOMobileReadingLayout = { version: 7, sync, openTools, enhanceDrawer, togglePanels, openMemory };
+  window.BAOMobileReadingLayout = { version: 8, sync, openTools, enhanceDrawer, togglePanels, openMemory };
   const style = document.createElement('link');
   style.rel = 'stylesheet';
-  style.href = 'css/mobile-reading-layout.css?v=7';
+  style.href = 'css/mobile-reading-layout.css?v=8';
   document.head.append(style);
   sync();
 })();
