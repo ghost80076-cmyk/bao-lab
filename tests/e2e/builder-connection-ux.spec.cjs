@@ -6,8 +6,9 @@ const openBuilder = async (page, width) => {
   await page.waitForFunction(() => window.BAOPlayerBuilderV2 && window.BAOLMStudio &&
     window.BAOProviderDiagnostics && document.querySelector('#api-type option[value="bao-credits"]') &&
     document.querySelector('#api-type option[value="lmstudio"]') && App.characters.length);
-  await page.evaluate(() => {
-    App.openCharacter(App.characters.find(character => character.id !== 'autonomous-npc-world').id);
+  await page.evaluate(async () => {
+    const character = App.characters.find(item => item.id !== 'autonomous-npc-world');
+    await App.openCharacter(character.id);
     App.openBuilder();
   });
   await expect(page.locator('#builder-view')).toHaveAttribute('data-bao-setup', 'quick');
