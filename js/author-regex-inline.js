@@ -110,29 +110,54 @@
     root.style.cssText = 'width:min(100%,860px);margin:10px 0 18px;border:1px solid #826589;border-radius:12px;overflow:hidden;background:#171723;color:#fff';
     const bar = document.createElement('div');
     bar.style.cssText = 'display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:8px 12px;font-size:12px';
-    const title = document.createElement('span'); title.textContent = `作者介面 · ${result.name || '正則排版'}`;
-    const toggle = document.createElement('button'); toggle.type = 'button'; toggle.textContent = '查看原文';
+    const title = document.createElement('span');
+    title.textContent = `${result.rich ? '作者介面' : 'Regex MOD'} · ${result.name || '正則排版'}`;
+    const toggle = document.createElement('button');
+    toggle.type = 'button';
+    toggle.textContent = '查看原文';
     toggle.style.cssText = 'padding:5px 9px;max-width:100%;width:auto;background:#392d47;color:white;border:1px solid #987a9c;border-radius:7px';
-    const frame = document.createElement('iframe');
+    let view = null;
     toggle.addEventListener('click', () => {
-      if (!active || active.root !== root) return;
+      if (!active || active.root !== root || !view) return;
       active.rawOpen = !active.rawOpen;
       bubble.hidden = !active.rawOpen;
-      toggle.textContent = active.rawOpen ? '顯示作者介面' : '查看原文';
-      frame.hidden = active.rawOpen;
+      toggle.textContent = active.rawOpen ? (result.rich ? '顯示作者介面' : '顯示 Regex MOD') : '查看原文';
+      view.hidden = active.rawOpen;
     });
     bar.append(title, toggle);
-    frame.title = '聊天內作者隔離介面'; frame.referrerPolicy = 'no-referrer';
+
+    if (!result.rich) {
+      const output = document.createElement('div');
+      output.className = 'bao-author-plain-output';
+      output.textContent = String(result.text ?? '');
+      output.style.cssText = 'white-space:pre-wrap;overflow-wrap:anywhere;padding:12px 14px;line-height:1.75;background:#fff;color:#18121a';
+      view = output;
+      root.append(bar, output);
+      candidate.node.append(root);
+      bubble.hidden = true;
+      active = { owner, fingerprint, root, frame: null, bubble, token: '', ready: true, rawOpen: false,
+        script: false, allowStateSharing: false };
+      return;
+    }
+
+    const frame = document.createElement('iframe');
+    view = frame;
+    frame.title = '聊天內作者隔離介面';
+    frame.referrerPolicy = 'no-referrer';
     frame.setAttribute('sandbox', result.script ? 'allow-scripts' : ''); // Never grant allow-same-origin.
     frame.style.cssText = 'display:block;width:100%;height:clamp(320px,68vh,720px);border:0;background:#fff';
-    const bootstrap = `<script>(function(){'use strict';const token=${JSON.stringify(token)};let state={};window.BAOAuthor=Object.freeze({draft:function(value){if(typeof value==='string'&&value.length<=500)parent.postMessage({baoAuthor:'v1',token:token,type:'draft',value:value},'*');},getState:function(){return JSON.parse(JSON.stringify(state));}});window.addEventListener('message',function(e){if(e.source!==parent||e.data?.baoAuthor!=='v1'||e.data.token!==token||e.data.type!=='state')return;state=e.data.value||{};window.dispatchEvent(new CustomEvent('bao:statechange',{detail:window.BAOAuthor.getState()}));});parent.postMessage({baoAuthor:'v1',token:token,type:'ready'},'*');})();</script>`;
+    const bootstrap = `<script>(function(){'use strict';const token=${JSON.stringify(token)};let state={};window.BAOAuthor=Object.freeze({draft:function(value){if(typeof value==='string'&&value.length<=500)parent.postMessage({baoAuthor:'v1',token:token,type:'draft',value:value},'*');},getState:function(){return JSON.parse(JSON.stringify(state));}});window.addEventListener('message',function(e){if(e.source!==parent||e.data?.baoAuthor!=='v1'||e.data.token!==token||e.data.type!=='state')return;state=e.data.value||{};window.dispatchEvent(new CustomEvent('bao:statechange',{detail:window.BAOAuthor.getState()}));});parent.postMessage({baoAuthor:'v1',token:token,type:'ready'},'*');})();<\/script>`;
     const assets = allowExternalAssets ? 'https: data:' : 'data:';
     const csp = `default-src 'none'; script-src ${result.script ? "'unsafe-inline'" : "'none'"}; style-src 'unsafe-inline'; img-src ${assets}; font-src ${assets}; media-src ${allowExternalAssets ? 'https: data:' : 'data:'}; connect-src 'none'; frame-src 'none'; form-action 'none'; base-uri 'none'; object-src 'none'`;
     frame.srcdoc = '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="' + csp + '"><style>html,body{margin:0;min-height:100%;overflow-wrap:anywhere}*,*:before,*:after{box-sizing:border-box}</style>' + (result.script ? bootstrap : '') + '</head><body>' + result.html + '</body></html>';
     frame.addEventListener('load', () => {
-      if (!result.script && active?.root === root) { active.ready = true; if (!active.rawOpen) bubble.hidden = true; }
+      if (!result.script && active?.root === root) {
+        active.ready = true;
+        if (!active.rawOpen) bubble.hidden = true;
+      }
     });
-    root.append(bar, frame); candidate.node.append(root);
+    root.append(bar, frame);
+    candidate.node.append(root);
     active = { owner, fingerprint, root, frame, bubble, token, ready: false, rawOpen: false,
       script: result.script, allowStateSharing };
   }
@@ -153,7 +178,7 @@
     try {
       const value = await renderInWorker(candidate.source, Core.normalize(data.rules), data.allowScripts === true);
       if (ticket !== sequence || cardId() !== owner || !candidate.node.isConnected) return;
-      if (!value?.matched || !value.rich) { clear(); return; }
+      if (!value?.matched) { clear(); return; }
       mount(candidate, value, owner, fingerprint, data.allowExternalAssets === true, data.allowStateSharing === true);
     } catch (error) {
       if (ticket !== sequence) return;
@@ -175,6 +200,7 @@
     if (event.target?.closest?.('#bao-author-regex-panel')) schedule();
   });
   window.addEventListener('storage', event => { if (event.key?.startsWith(PREFIX)) schedule(); });
+  window.addEventListener('bao:author-regex-changed', schedule);
   window.BAOAuthorInline = { refresh: schedule };
   schedule();
 })();
