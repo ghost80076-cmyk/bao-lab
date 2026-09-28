@@ -132,6 +132,13 @@
     post.querySelector('.bao-opening-text')?.before(strip);
   };
 
+  const observeOpeningCast = () => {
+    const stream = document.getElementById('chat-stream');
+    if (!stream || stream.dataset.hostsimCastObserver) return;
+    new MutationObserver(mountOpeningCast).observe(stream,{childList:true,subtree:true});
+    stream.dataset.hostsimCastObserver = 'true';
+  };
+
   const originalRenderDetail = App.renderDetail.bind(App);
   App.renderDetail = function() {
     if (this.activeCharacter?.id !== CARD_ID) return originalRenderDetail();
@@ -334,10 +341,11 @@
     const card = document.getElementById('chat-character-card');
     if (card) card.innerHTML = `<div class="hostsim-chat-badge"><span>CLUB LUMIÈRE</span><b>歌舞伎町・最後指名</b></div>`;
     document.querySelector('.ui-tab[data-panel="status"]')?.click();
+    observeOpeningCast();
     mountOpeningCast();
     setTimeout(mountOpeningCast,120);
     setTimeout(mountTurnChoices,0);
   };
 
-  window.BAOHostSimUI = { applyInitialState, ensureInitialState, parseChoices, mountTurnChoices, mountOpeningCast };
+  window.BAOHostSimUI = { applyInitialState, ensureInitialState, parseChoices, mountTurnChoices, mountOpeningCast, observeOpeningCast };
 })();
