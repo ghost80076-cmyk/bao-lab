@@ -42,6 +42,10 @@
     catch { return JSON.parse(JSON.stringify(value ?? null)); }
   };
   const esc = value => App.escapeHTML(String(value ?? ""));
+  const displayValue = value => {
+    const mod = window.BAOPlayerTextReplace;
+    return mod?.applyStatus ? mod.applyStatus(String(value ?? ""), mod.get?.()) : String(value ?? "");
+  };
 
   const ensureStyles = () => {
     if (document.querySelector('link[href="css/character-status.css"]')) return;
@@ -62,13 +66,13 @@
       const rendered = pretty(value);
       const compact = field.type === "boolean" || field.type === "tags" || field.type === "number"
         || (field.type === "text" && rendered.length > 0 && rendered.length <= 18);
-      return `<b${compact ? ' class="status-value-badge"' : ''}>${esc(rendered)}</b>`;
+      return `<b${compact ? ' class="status-value-badge"' : ''}>${esc(displayValue(rendered))}</b>`;
     }
     const min = Number.isFinite(field.min) ? field.min : 0;
     const max = Number.isFinite(field.max) ? field.max : 100;
     const number = Number.isFinite(Number(value)) ? Number(value) : min;
     const ratio = max > min ? Math.max(0, Math.min(100, ((number - min) / (max - min)) * 100)) : 0;
-    return `<b>${esc(number)} <span class="status-meter-range">/ ${esc(max)}</span></b><span class="status-meter"><i style="width:${ratio}%"></i></span>`;
+    return `<b>${esc(displayValue(number))} <span class="status-meter-range">/ ${esc(displayValue(max))}</span></b><span class="status-meter"><i style="width:${ratio}%"></i></span>`;
   };
 
   const renderCharactersPanel = () => {
