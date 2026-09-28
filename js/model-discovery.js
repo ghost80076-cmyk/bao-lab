@@ -138,13 +138,22 @@
     protocol.id = 'bao-builder-discovery-protocol';
     protocol.innerHTML = '<option value="openai">Chat / OpenAI-compatible</option><option value="anthropic">Anthropic</option><option value="gemini">Gemini</option>';
     const protocolLabel = document.createElement('label');
+    protocolLabel.id = 'bao-builder-discovery-protocol-label';
     protocolLabel.textContent = '連線格式（API Protocol；自訂連線可切換）';
     protocolLabel.append(protocol);
     baseUrl.closest('label')?.insertAdjacentElement('afterend', protocolLabel);
-    const sync = () => { protocol.value = protocolName(App.getSelectedPreset?.()?.protocol); };
+    let picker;
+    const sync = () => {
+      const preset = App.getSelectedPreset?.();
+      const custom = preset?.route === 'custom';
+      const localSelected = document.getElementById('api-type')?.value === 'lmstudio';
+      protocol.value = protocolName(preset?.protocol);
+      protocol.disabled = !custom;
+      protocolLabel.hidden = !custom;
+      if (picker?.block) picker.block.hidden = localSelected;
+    };
     provider.addEventListener('change', sync);
     document.getElementById('api-type')?.addEventListener('change', sync);
-    sync();
     // App.collectConfig has further wrappers for memory/state routes; retain them.
     const originalCollect = App.collectConfig.bind(App);
     App.collectConfig = function(...args) {
@@ -152,16 +161,19 @@
       if (config?.api) config.api.protocol = protocol.value;
       return config;
     };
-    const picker = attachPicker({
+    picker = attachPicker({
       anchor: modelInput.closest('label'),
       getConfig: () => ({ baseUrl: baseUrl.value, key: key.value, protocol: protocol.value }),
       setModel: id => { modelInput.value = id; modelInput.dispatchEvent(new Event('input', { bubbles: true })); },
       controls: [baseUrl, provider, protocol, key]
     });
     if (picker) {
+      picker.block.id = 'bao-builder-model-discovery';
       picker.button.textContent = '更多模型／從帳號取得';
       picker.status.textContent = '需要預設清單以外的模型時再使用；一般玩家可直接保持上方選擇。';
     }
+    sync();
+    window.BAOModelDiscoverySyncBuilder = sync;
   }
 
   function mountHelper(kind) {
@@ -219,5 +231,6 @@
   const watcher = new MutationObserver(() => mount());
   watcher.observe(document.body, { childList: true, subtree: true });
   mount();
-  window.BAOModelDiscovery = { modelsEndpoint, normalizeModels, fetchModels, sameConnection, mount };
+  window.BAOModelDiscovery = { modelsEndpoint, normalizeModels, fetchModels, sameConnection, mount,
+    syncBuilderControls: () => window.BAOModelDiscoverySyncBuilder?.() };
 })();

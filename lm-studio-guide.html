@@ -19,20 +19,20 @@
 
     <section class="box">
       <h2>一、在 LM Studio 啟動本地 AI</h2>
-      <ol><li>到 <a href="https://lmstudio.ai/" target="_blank" rel="noopener noreferrer">LM Studio 官方網站</a> 安裝 LM Studio。</li><li>下載並載入與你電腦硬體相容的 AI 模型。</li><li>進入 <strong>Developer／開發者 → Local Server／本地伺服器</strong>，按 <strong>Start Server</strong>。</li><li>在伺服器設定開啟 <strong>Enable CORS</strong>，讓 BAO/LAB 網頁可以向本機 AI 發出請求。</li></ol>
-      <p class="term">CORS 是瀏覽器的跨網站連線保護。只在信任的網站需要連接你電腦上的 LM Studio 時開啟；不要為了連線而開啟區域網路服務或把連接埠公開到網際網路。</p>
+      <ol><li>到 <a href="https://lmstudio.ai/" target="_blank" rel="noopener noreferrer">LM Studio 官方網站</a> 安裝 LM Studio。</li><li>下載並載入與你電腦硬體相容的 AI 模型。</li><li><strong>如果你目前看到 Settings 設定視窗</strong>（左側有 General／Appearance／Developer／Chat），先按右上角 <strong>×</strong> 關閉。這裡要找的不是 <strong>Settings → Developer</strong>。</li><li>回到 LM Studio 主畫面，點左側主導覽的 <strong>Developer</strong> 頁面，在頁面上方切換 <strong>Start Server</strong>。</li><li>進入 Server Settings，開啟 <strong>Enable CORS</strong>，讓 BAO/LAB 網頁可以向本機 AI 發出請求。</li></ol>
+      <p class="term"><strong>最常卡住的地方：</strong>LM Studio 的「Settings → Developer」是設定分類，不是啟動 API Server 的 Developer 主頁。若你看到的是設定視窗，先關掉它，再從主畫面左側進入 Developer。</p><p class="term">CORS 是瀏覽器的跨網站連線保護。只在信任的網站需要連接你電腦上的 LM Studio 時開啟；不要為了連線而開啟區域網路服務或把連接埠公開到網際網路。</p>
       <p>LM Studio 常見的本機連線網址（Base URL）是 <code>http://localhost:1234/v1</code>；聊天端點通常為 <code>http://localhost:1234/v1/chat/completions</code>。</p>
     </section>
 
     <section class="box">
       <h2>二、在 BAO/LAB 連接本地 AI</h2>
-      <ol><li>進入角色後，按「建立故事」→「連接 AI」。</li><li>在 AI 服務商（Provider）選擇 <strong>LM Studio（本地 AI）</strong>。</li><li>保留預設連線網址，按「讀取本機模型」，再從清單選擇 AI 模型（Model）。</li><li>需要時，依 LM Studio 顯示的名稱手動填寫模型代號（Model ID）。</li><li>完成角色與記憶設定後按「開始故事」。既有故事可按「AI 連線／切換模型」改用本地 AI，故事不會重置。</li></ol>
+      <ol><li>進入角色後，按「建立故事」→「連接 AI」。</li><li>在 AI 服務商（Provider）選擇 <strong>LM Studio（本地 AI）</strong>。</li><li>在 LM Studio 卡片直接確認「本機 API 網址」。預設為 <code>http://127.0.0.1:1234/v1</code>，通常不需要修改；若 LM Studio 顯示不同連接埠，再改成畫面上的位址。</li><li>按「讀取本機模型」，再從清單選擇 AI 模型（Model）。</li><li>需要時，依 LM Studio 顯示的名稱手動填寫模型代號（Model ID）。</li><li>完成角色與記憶設定後按「開始故事」。既有故事可按「AI 連線／切換模型」改用本地 AI，故事不會重置。</li></ol>
       <p>LM Studio 預設不需要連線金鑰（API Key）。只有你自行開啟 LM Studio 驗證時，才需填寫本機金鑰（API Token）。</p>
     </section>
 
     <section class="box">
       <h2>三、卡住時怎麼檢查？</h2>
-      <p><strong>讀不到模型／Failed to fetch／CORS：</strong>確認 LM Studio 已啟動 Local Server、已開啟 Enable CORS，並用同一台電腦的瀏覽器開啟 BAO/LAB。</p>
+      <p><strong>找不到 API Server：</strong>先確認你不是停在 Settings 視窗；關閉 Settings，回 LM Studio 主畫面的 Developer 頁面，再啟動 Start Server。</p><p><strong>讀不到模型／Failed to fetch／CORS：</strong>確認 LM Studio 已啟動 Server、已開啟 Enable CORS，並用同一台電腦的瀏覽器開啟 BAO/LAB。</p>
       <p><strong>讀到模型但生成失敗：</strong>確認模型已載入，模型代號（Model ID）與 LM Studio 顯示完全相同；也檢查顯示記憶體和送給 AI 的故事脈絡（Context）是否超過電腦可用資源。</p>
       <p><strong>401 或 403：</strong>檢查是否自己開啟了 LM Studio 的本機金鑰；預設無驗證時不需填寫。</p>
       <p><strong>換裝置後：</strong>本地模式會記住模型與本機網址；若你使用本機金鑰，它不會存進故事存檔，需要重新輸入。</p>

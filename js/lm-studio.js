@@ -2,7 +2,7 @@
   'use strict';
   if (window.BAOLMStudio || !window.BAOLMStudioCore || typeof App === 'undefined' || typeof API === 'undefined') return;
   const local = window.BAOLMStudioCore;
-  const DEFAULT_URL = 'http://localhost:1234/v1/chat/completions';
+  const DEFAULT_URL = 'http://127.0.0.1:1234/v1';
   const PRESET = { provider: 'lmstudio', provider_label: 'LM Studio（本地 AI）', label: '選擇本機已載入的模型', protocol: 'openai', base_url: DEFAULT_URL, model: '', route: 'local', cache: 'unknown' };
   const byId = id => document.getElementById(id);
   const normalize = value => String(value || '').trim().replace(/\/+$/, '');
@@ -32,8 +32,11 @@
     const result = originalCollect(...args);
     const localSelected = byId('api-type')?.value === 'lmstudio';
     if (localSelected) {
+      const endpointValue = byId('bao-lm-endpoint')?.value.trim() || byId('base-url')?.value.trim() || DEFAULT_URL;
+      const target = local.endpoint(endpointValue);
       result.api = { ...result.api, type: 'lmstudio', route: 'local', local: true,
-        protocol: 'openai', key: credential(byId('api-key')?.value), cacheMode: 'unknown', explicitCacheModel: '' };
+        protocol: 'openai', baseUrl: target.chatUrl, key: credential(byId('api-key')?.value),
+        cacheMode: 'unknown', explicitCacheModel: '' };
     }
     for (const kind of ['memory', 'state']) {
       const selected = byId(`${kind}-preset-select`);
@@ -65,7 +68,8 @@
   App.startStory = function(...args) {
     if (byId('api-type')?.value !== 'lmstudio') return originalStart(...args);
     try {
-      local.endpoint(byId('base-url')?.value);
+      const endpointValue = byId('bao-lm-endpoint')?.value.trim() || byId('base-url')?.value.trim() || DEFAULT_URL;
+      local.endpoint(endpointValue);
       if (!byId('model-id')?.value.trim()) throw new Error('請先按「讀取本機模型」選擇 Model ID，或手動輸入模型 ID。');
     } catch (error) { alert(error.message); this.setStep(4); return false; }
     return originalStart(...args);
@@ -82,9 +86,17 @@
       if (label.firstChild) label.firstChild.textContent = selected ? '本機 API Token（選填）' : label.dataset.baoCloudLabel;
       field.placeholder = selected ? 'LM Studio 預設免填；只有開啟驗證才需要' : '貼上自己的 API Key';
     }
+    window.BAOModelDiscovery?.syncBuilderControls?.();
     if (selected) {
+      const endpoint = byId('bao-lm-endpoint');
+      const advancedUrl = byId('base-url');
+      if (endpoint) {
+        try { endpoint.value = local.endpoint(advancedUrl?.value || endpoint.value || DEFAULT_URL).baseUrl; }
+        catch { endpoint.value = DEFAULT_URL; }
+        if (advancedUrl) advancedUrl.value = endpoint.value;
+      }
       const hint = byId('api-hint');
-      if (hint) hint.textContent = '免雲端 API Key。先在 LM Studio 啟動 Server 並開啟 CORS，再讀取本機模型。';
+      if (hint) hint.textContent = '免雲端 API Key。確認下方本機 API 網址後，回 LM Studio 主畫面左側 Developer → Start Server，開啟 CORS，再讀取本機模型。';
     }
   };
 
@@ -133,10 +145,13 @@
     if (!step) return;
     const box = document.createElement('section');
     box.id = 'bao-lm-builder'; box.className = 'hidden';
-    box.innerHTML = '<div class="bao-lm-heading"><strong>本地 AI · LM Studio</strong><a href="lm-studio-guide.html" target="_blank" rel="noopener">查看連接教學 ↗</a></div><p class="note">在同一台電腦啟動 LM Studio 的 Developer → Start Server，開啟 Enable CORS。模型在你的電腦運行，BAO/LAB 不會自動改用付費雲端 API。</p><div class="bao-lm-controls"><button type="button" class="secondary" id="bao-lm-discover">讀取本機模型</button><select id="bao-lm-models" aria-label="本機模型"><option value="">先按讀取本機模型…</option></select></div><p class="note" id="bao-lm-status" role="status" aria-live="polite"></p>';
+    box.innerHTML = '<div class="bao-lm-heading"><strong>本地 AI · LM Studio</strong><a href="lm-studio-guide.html" target="_blank" rel="noopener">查看連接教學 ↗</a></div><p class="note">如果目前看到 LM Studio 的 Settings 視窗，先按右上角 × 關閉；回主畫面左側 Developer → Start Server，並開啟 Enable CORS。不是 Settings → Developer。模型在你的電腦運行，BAO/LAB 不會自動改用付費雲端 API。</p><label class="bao-lm-endpoint-label">本機 API 網址<input id="bao-lm-endpoint" value="http://127.0.0.1:1234/v1" autocomplete="off" spellcheck="false"><small class="note">通常不用改；只有 LM Studio 顯示不同連接埠時才需要調整。</small></label><div class="bao-lm-controls"><button type="button" class="secondary" id="bao-lm-discover">讀取本機模型</button><select id="bao-lm-models" aria-label="本機模型"><option value="">先按讀取本機模型…</option></select></div><p class="note" id="bao-lm-status" role="status" aria-live="polite"></p>';
     byId('api-key')?.closest('label')?.after(box);
     const select = byId('bao-lm-models');
-    byId('bao-lm-discover').onclick = () => getModels({ url: byId('base-url'), token: byId('api-key'), select,
+    const endpoint = byId('bao-lm-endpoint');
+    const advancedUrl = byId('base-url');
+    endpoint?.addEventListener('input', () => { if (advancedUrl) advancedUrl.value = endpoint.value.trim(); });
+    byId('bao-lm-discover').onclick = () => getModels({ url: endpoint || advancedUrl, token: byId('api-key'), select,
       modelField: byId('model-id'), status: byId('bao-lm-status'), button: byId('bao-lm-discover') });
     byId('api-type')?.addEventListener('change', updateBuilder);
     updateBuilder();
@@ -160,7 +175,7 @@
     const prior = App.config?.api || {};
     const root = document.createElement('div');
     root.id = 'bao-lm-dialog';
-    root.innerHTML = '<section class="bao-lm-modal" role="dialog" aria-modal="true" aria-labelledby="bao-lm-title"><header><h2 id="bao-lm-title">連接 LM Studio 本地 AI</h2><button type="button" data-close aria-label="關閉">×</button></header><p>在執行模型的電腦啟動 LM Studio Server，並開啟 Enable CORS；不需要雲端 API Key。</p><form id="bao-lm-form" autocomplete="off"><label>本地 API 網址<input name="endpoint" required spellcheck="false"></label><label>本地 API Token（選填）<input name="token" type="password" autocomplete="off" placeholder="LM Studio 預設免填"></label><div class="bao-lm-controls"><button type="button" class="secondary" data-discover>讀取本機模型</button><select name="models" aria-label="本機模型"><option value="">請先讀取模型…</option></select></div><label>Model ID<input name="model" required placeholder="模型 ID，可手動填寫"></label><p data-message role="status" aria-live="polite"></p><footer><button type="button" class="secondary" data-test>測試本地模型</button><button type="submit" class="primary">套用到目前故事</button></footer></form><a href="lm-studio-guide.html" target="_blank" rel="noopener">LM Studio 詳細設定與故障排除 ↗</a></section>';
+    root.innerHTML = '<section class="bao-lm-modal" role="dialog" aria-modal="true" aria-labelledby="bao-lm-title"><header><h2 id="bao-lm-title">連接 LM Studio 本地 AI</h2><button type="button" data-close aria-label="關閉">×</button></header><p>若 LM Studio 正開著 Settings，先關閉它；回主畫面左側 Developer → Start Server，並開啟 Enable CORS。不需要雲端 API Key。</p><form id="bao-lm-form" autocomplete="off"><label>本地 API 網址<input name="endpoint" required spellcheck="false"></label><label>本地 API Token（選填）<input name="token" type="password" autocomplete="off" placeholder="LM Studio 預設免填"></label><div class="bao-lm-controls"><button type="button" class="secondary" data-discover>讀取本機模型</button><select name="models" aria-label="本機模型"><option value="">請先讀取模型…</option></select></div><label>Model ID<input name="model" required placeholder="模型 ID，可手動填寫"></label><p data-message role="status" aria-live="polite"></p><footer><button type="button" class="secondary" data-test>測試本地模型</button><button type="submit" class="primary">套用到目前故事</button></footer></form><a href="lm-studio-guide.html" target="_blank" rel="noopener">LM Studio 詳細設定與故障排除 ↗</a></section>';
     document.body.append(root);
     const form = root.querySelector('form');
     const field = name => form.elements.namedItem(name);
@@ -248,7 +263,7 @@
     };
   };
   const style = document.createElement('style');
-  style.textContent = '#bao-lm-builder{margin:12px 0;padding:12px;border:1px solid #596676;border-radius:12px}#bao-lm-builder .bao-lm-heading{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}#bao-lm-builder a,#bao-lm-dialog a{color:#aad7ff} .bao-lm-controls{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:8px 0}.bao-lm-controls select{min-width:130px;flex:1 1 230px;max-width:100%;padding:8px}#bao-lm-chat-button{width:auto;min-height:38px}#bao-lm-dialog{position:fixed;inset:0;z-index:10030;display:flex;align-items:center;justify-content:center;overflow:auto;padding:16px;background:#000b}.bao-lm-modal{box-sizing:border-box;width:min(100%,560px);max-height:calc(100dvh - 30px);overflow:auto;padding:20px;background:#20232d;color:#f4f4fa;border:1px solid #62677a;border-radius:16px}.bao-lm-modal header,.bao-lm-modal footer{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.bao-lm-modal header h2{margin:0}.bao-lm-modal header button{font-size:27px;color:inherit;border:0;background:none}.bao-lm-modal p{line-height:1.6}.bao-lm-modal form,.bao-lm-modal label{display:grid;gap:8px}.bao-lm-modal input,.bao-lm-modal select{box-sizing:border-box;min-width:0;width:100%;padding:10px;background:#141720;color:#fff;border:1px solid #697086;border-radius:8px}.bao-lm-modal [data-message]{min-height:1.5em;color:#ffd7a0}.bao-lm-modal footer button{flex:1 1 170px}@media(max-width:700px){#bao-lm-chat-button{flex:1 1 auto}}';
+  style.textContent = '#bao-lm-builder{margin:12px 0;padding:12px;border:1px solid #596676;border-radius:12px}#bao-lm-builder .bao-lm-heading{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}#bao-lm-builder a,#bao-lm-dialog a{color:#aad7ff}.bao-lm-endpoint-label{display:grid;gap:6px;margin:12px 0}.bao-lm-endpoint-label input{box-sizing:border-box;width:100%;min-width:0;padding:10px;border:1px solid #697086;border-radius:8px;background:#141720;color:#fff;font:inherit}.bao-lm-endpoint-label small{line-height:1.45}.bao-lm-controls{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:8px 0}.bao-lm-controls select{min-width:130px;flex:1 1 230px;max-width:100%;padding:8px}#bao-lm-chat-button{width:auto;min-height:38px}#bao-lm-dialog{position:fixed;inset:0;z-index:10030;display:flex;align-items:center;justify-content:center;overflow:auto;padding:16px;background:#000b}.bao-lm-modal{box-sizing:border-box;width:min(100%,560px);max-height:calc(100dvh - 30px);overflow:auto;padding:20px;background:#20232d;color:#f4f4fa;border:1px solid #62677a;border-radius:16px}.bao-lm-modal header,.bao-lm-modal footer{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.bao-lm-modal header h2{margin:0}.bao-lm-modal header button{font-size:27px;color:inherit;border:0;background:none}.bao-lm-modal p{line-height:1.6}.bao-lm-modal form,.bao-lm-modal label{display:grid;gap:8px}.bao-lm-modal input,.bao-lm-modal select{box-sizing:border-box;min-width:0;width:100%;padding:10px;background:#141720;color:#fff;border:1px solid #697086;border-radius:8px}.bao-lm-modal [data-message]{min-height:1.5em;color:#ffd7a0}.bao-lm-modal footer button{flex:1 1 170px}@media(max-width:700px){#bao-lm-chat-button{flex:1 1 auto}}';
   document.head.append(style);
   window.BAOLMStudio = Object.freeze({ open: openLocal, core: local });
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, { once: true });
