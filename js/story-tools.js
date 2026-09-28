@@ -1098,9 +1098,21 @@
           return;
         }
         if (button.dataset.libraryAction === "delete-chapter" && chapter) {
-          if (active.storyId === story.storyId && active.chapterId === chapter.chapterId) return tell("目前正在使用的章節不能刪除；請先讀取另一個章節。");
-          if (!confirm("確定永久刪除「" + (chapter.label || "未命名章節") + "」？這個動作無法復原。")) return;
-          if (!await BAOStoryLibrary.deleteChapter(story.storyId, chapter.chapterId)) return tell("章節刪除失敗。");
+          if (active.storyId === story.storyId && active.chapterId === chapter.chapterId) {
+            return tell("目前正在使用「" + (chapter.label || "未命名章節") + "」，不能直接刪除；請先讀取另一個章節。");
+          }
+          const descendants = await BAOStoryLibrary.branchDescendants(story.storyId, chapter.chapterId);
+          const activeDescendant = descendants.find(item => active.storyId === story.storyId && active.chapterId === item.chapterId);
+          const branchNote = descendants.length
+            ? "\n此章節下方有 " + descendants.length + " 條分支；它們會全部保留，最上層子分支會改成獨立故事線。"
+            : "";
+          const activeNote = activeDescendant
+            ? "\n你目前正在閱讀「" + (activeDescendant.label || "未命名分支") + "」，它也會保留。"
+            : "";
+          if (!confirm("確定永久刪除「" + (chapter.label || "未命名章節") + "」？" + branchNote + activeNote + "\n這個動作無法復原。")) return;
+          if (!await BAOStoryLibrary.deleteChapter(story.storyId, chapter.chapterId)) {
+            return tell("章節沒有刪除，資料仍完整保留。請重新整理故事書庫後再試。");
+          }
           await libraryScreen(host);
           return;
         }
