@@ -3,6 +3,12 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
 
+const webpDimensions=file=>{
+  const data=fs.readFileSync(file), signature=data.indexOf(Buffer.from([0x9d,0x01,0x2a]));
+  assert.ok(signature>=0,`${file} should contain a decodable VP8 frame`);
+  return {width:data.readUInt16LE(signature+3)&0x3fff,height:data.readUInt16LE(signature+5)&0x3fff};
+};
+
 const card=require('../data/characters/general/night-sky-magic-academy.json');
 const manifest=require('../data/characters.json');
 
@@ -11,6 +17,8 @@ assert.equal(card.meta.category,'male');
 assert.equal(card.meta.rating,'general');
 assert.equal(card.meta.gender,'all');
 assert.ok(fs.existsSync(path.join(__dirname,'..',card.meta.avatar)),'generated academy cover should exist');
+assert.match(card.meta.avatar,/night-sky-academy-cover-v2\.webp$/,'academy should use a direct browser image instead of the embedded SVG thumbnail');
+assert.deepEqual(webpDimensions(path.join(__dirname,'..',card.meta.avatar)),{width:1774,height:887});
 
 assert.equal(card.presentation.opening.type,'nightacademy');
 assert.equal(card.presentation.opening.choices.length,4);
@@ -51,5 +59,7 @@ assert.doesNotMatch(serialized,/霍格沃茨|格蘭芬多|史萊哲林|雷文克
 const index=fs.readFileSync(path.join(__dirname,'../index.html'),'utf8');
 assert.match(index,/night-sky-magic-academy\.css/);
 assert.match(index,/night-sky-magic-academy-ui\.js/);
+const academyUI=fs.readFileSync(path.join(__dirname,'../js/night-sky-magic-academy-ui.js'),'utf8');
+assert.match(academyUI,/<div class="magic-hero-art"><img/,'academy detail hero should use a directly loadable image element');
 
 console.log('PASS Night Sky Magic Academy original houses, low-token context, NPC states, magic progression and UI assets');
