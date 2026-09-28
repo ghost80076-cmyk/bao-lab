@@ -9,8 +9,8 @@ const rules = { regex_scripts: [{
 async function story(page, source = rules) {
   await page.goto('./');
   await page.waitForFunction(() => Boolean(window.BAOAuthorDock && App.characters?.length));
-  await page.evaluate(() => {
-    App.openCharacter(App.characters[0].id);
+  await page.evaluate(async () => {
+    await App.openCharacter(App.characters[0].id);
     App.activeCharacter = {
       ...App.activeCharacter,
       character_status: { enabled: true, fields: [
@@ -31,7 +31,7 @@ async function story(page, source = rules) {
   });
   await expect(page.locator('#bao-author-regex-panel')).toHaveCount(1);
   const panel = page.locator('#bao-author-regex-panel');
-  await panel.locator('summary').click();
+  await panel.locator(':scope > summary').click();
   await panel.locator('input[type=file]').setInputFiles({ name: 'author-regex.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(source)) });
   await expect(panel).toContainText('已保存 1 條原始正則');
   await panel.getByLabel('在這張角色卡啟用作者介面').check();
@@ -52,7 +52,7 @@ test('author UI survives turns, updates from consented world state, and cannot s
   await expect(frame.locator('#persistent-card')).toBeVisible();
   await expect(frame.locator('#author-state')).toHaveText('啟動畫面｜開始地點｜undefined');
   await expect(page.locator('#chat-stream .bao-author-inline')).toHaveCount(0);
-  await page.evaluate(() => {
+  await page.evaluate(async () => {
     GameState.applyUpdate({ time: '星期一 早晨', location: '廣場', npcs: [{ name: '阿花', mood: '開心', presence: 'present' }], character_statuses: { '阿花': { trust: 7 } } });
   });
   await expect(frame.locator('#author-state')).toHaveText('星期一 早晨｜廣場｜7');
@@ -61,7 +61,7 @@ test('author UI survives turns, updates from consented world state, and cannot s
     return node.ownerDocument.defaultView.__kept;
   });
   expect(frameIdentity).toBe(1);
-  await page.evaluate(() => {
+  await page.evaluate(async () => {
     Chat.add('user', '繼續'); Chat.add('assistant', '新一輪劇情，沒有開屏標記。');
     App.renderChatShell(false);
   });
@@ -74,7 +74,7 @@ test('author UI survives turns, updates from consented world state, and cannot s
   await expect(page.locator('#user-input')).toHaveValue('打開圖鑑');
   expect(await page.evaluate(() => window.__testApiCalls)).toBe(0);
   expect(await page.evaluate(() => JSON.stringify({ messages: Chat.messages, usage: Chat.usage, state: GameState.current }))).toBe(before);
-  await page.evaluate(() => { Chat.reset(); GameState.create(App.activeCharacter, App.config); App.renderChatShell(true); });
+  await page.evaluate(async () => { Chat.reset(); GameState.create(App.activeCharacter, App.config); App.renderChatShell(true); });
   await expect(dock).toHaveCount(0);
 });
 
