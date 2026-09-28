@@ -32,6 +32,10 @@
         }
       }
       const replacement = String(raw.replacement ?? raw.replaceString ?? '');
+      const description = String(raw.description ?? raw.note ?? '').slice(0, 240);
+      const priorityValue = Number(raw.priority ?? 0);
+      const priority = Number.isFinite(priorityValue) ? Math.max(-100, Math.min(100, Math.round(priorityValue))) : 0;
+      const scope = 'assistant_display';
       const script = /<\s*script\b|\bon[a-z]+\s*=|javascript\s*:/i.test(replacement);
       const rich = script || /<\s*\/?\s*[a-z][^>]*>/i.test(replacement);
       let reason = '';
@@ -40,7 +44,8 @@
       else if (!/^[gimsu]*$/.test(flags) || new Set(flags).size !== flags.length) reason = '不支援的正則旗標';
       else { try { new RegExp(pattern, flags); } catch (_) { reason = '正則語法無效'; } }
       return { name: String(raw.name || raw.scriptName || `規則 ${index + 1}`).slice(0, 80),
-        pattern, flags, replacement, enabled: raw.enabled !== false && raw.disabled !== true && raw.disable !== true,
+        description, pattern, flags, replacement, priority, scope,
+        enabled: raw.enabled !== false && raw.disabled !== true && raw.disable !== true,
         rich, script, reason };
     });
   }
@@ -72,7 +77,11 @@ field.addEventListener('input',function(){var value=field.value;if(Date.now()-ge
     const fragments = [], nonce = Math.random().toString(36).slice(2) + Date.now().toString(36);
     const marker = index => `\uE000BAO-${nonce}-${index}\uE001`;
     let matched = false, rich = false, script = false, blocked = 0, firstName = '';
-    for (const rule of (Array.isArray(rules) ? rules : []).slice(0, LIMIT)) {
+    const orderedRules = (Array.isArray(rules) ? rules : []).slice(0, LIMIT)
+      .map((rule, index) => ({ rule, index }))
+      .sort((a, b) => (Number(b.rule?.priority) || 0) - (Number(a.rule?.priority) || 0) || a.index - b.index)
+      .map(item => item.rule);
+    for (const rule of orderedRules) {
       if (!rule || !rule.enabled || rule.reason) continue;
       if (String(rule.pattern).length > 3000 || String(rule.replacement).length > 200000) continue;
       let re;
@@ -109,7 +118,7 @@ field.addEventListener('input',function(){var value=field.value;if(Date.now()-ge
       html = legacyInputAdapter + html;
     }
     if (html.length > MAX_HTML) throw new Error('渲染內容超過上限');
-    return { matched, rich, script, html, name: firstName, blocked, applied: fragments.length };
+    return { matched, rich, script, html, text: rich ? '' : source, name: firstName, blocked, applied: fragments.length };
   }
   return { LIMIT, normalize, list, render, escapeHTML };
 });
