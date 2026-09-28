@@ -335,6 +335,7 @@
     if (card) card.innerHTML = `<div class="hostsim-chat-badge"><span>CLUB LUMIÈRE</span><b>歌舞伎町・最後指名</b></div>`;
     document.querySelector('.ui-tab[data-panel="status"]')?.click();
     mountOpeningCast();
+    setTimeout(mountOpeningCast,120);
     setTimeout(mountTurnChoices,0);
   };
 
