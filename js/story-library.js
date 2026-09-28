@@ -444,17 +444,37 @@
       const records = await this.allRecords();
       const target = records.find(item => item.kind === "chapter" && item.storyId === storyId && item.chapterId === chapterId);
       if (!target) return false;
-      if (records.some(item => item.kind === "chapter" && item.storyId === storyId && item.parentChapterId === chapterId)) return false;
+
+      // Deleting one library chapter must never silently delete its branch tree.
+      // Direct children are promoted to independent top-level story lines; their
+      // own descendants stay attached to them, so every surviving snapshot and
+      // message remains reachable.
+      const promotedAt = new Date().toISOString();
+      const directChildren = records
+        .filter(item => item.kind === "chapter" && item.storyId === storyId && item.parentChapterId === chapterId)
+        .map(item => ({
+          ...item,
+          parentChapterId: "",
+          branchPointMessageId: "",
+          branchPointSeq: -1,
+          branchPointPreview: "",
+          updatedAt: promotedAt
+        }));
       const chapterRecords = records.filter(item => item.storyId === storyId && item.chapterId === chapterId);
-      await this.transaction("readwrite", store => chapterRecords.forEach(item => store.delete(item.id)));
+      await this.transaction("readwrite", store => {
+        chapterRecords.forEach(item => store.delete(item.id));
+        directChildren.forEach(item => store.put(item));
+      });
+
       const remaining = records
         .filter(item => item.kind === "chapter" && item.storyId === storyId && item.chapterId !== chapterId)
+        .map(item => directChildren.find(child => child.chapterId === item.chapterId) || item)
         .sort((a, b) => String(a.createdAt || "").localeCompare(String(b.createdAt || "")));
       if (!remaining.length) return this.deleteStory(storyId);
       const story = records.find(item => item.kind === "story" && item.storyId === storyId);
       if (story && story.activeChapterId === chapterId) {
         story.activeChapterId = remaining[remaining.length - 1].chapterId;
-        story.updatedAt = new Date().toISOString();
+        story.updatedAt = promotedAt;
         await this.transaction("readwrite", store => store.put(story));
       }
       return true;

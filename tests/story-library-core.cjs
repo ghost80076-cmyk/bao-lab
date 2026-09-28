@@ -239,6 +239,31 @@ vm.runInThisContext(code, { filename: "js/story-library.js" });
   stories = await BAOStoryLibrary.listStories();
   assert.equal(stories.some(story => story.storyId === firstRefs.storyId), false);
 
+  Storage._payload = makePayload([
+    { id: "msg-promote-user", role: "user", content: "保留分支的起點" },
+    { id: "msg-promote-assistant", role: "assistant", content: "這一輪之後會產生回溯分支" }
+  ], "待刪除父章節");
+  App.startStory();
+  Storage._payload = Storage.buildStoryPayload();
+  assert.equal(Storage.saveStory(), true);
+  await BAOStoryLibrary.flush();
+
+  const parentToDelete = BAOStoryLibrary.refs();
+  await BAOStoryLibrary.createBranch("msg-promote-assistant", "回溯・保留線");
+  const promotedBranch = BAOStoryLibrary.refs();
+  assert.equal(promotedBranch.parentChapterId, parentToDelete.chapterId);
+  assert.equal(await BAOStoryLibrary.deleteChapter(parentToDelete.storyId, parentToDelete.chapterId), true);
+
+  const chaptersAfterParentDelete = await BAOStoryLibrary.listChapters(parentToDelete.storyId);
+  assert.equal(chaptersAfterParentDelete.length, 1);
+  assert.equal(chaptersAfterParentDelete[0].chapterId, promotedBranch.chapterId);
+  assert.equal(chaptersAfterParentDelete[0].parentChapterId, "");
+  assert.equal(chaptersAfterParentDelete[0].branchPointMessageId, "");
+  assert.equal(BAOStoryLibrary.refs().chapterId, promotedBranch.chapterId);
+  const promotedPayload = await BAOStoryLibrary.reconstruct(parentToDelete.storyId, promotedBranch.chapterId);
+  assert.equal(promotedPayload.chat.messages[1].content, "這一輪之後會產生回溯分支");
+  assert.equal(await BAOStoryLibrary.deleteChapter(parentToDelete.storyId, promotedBranch.chapterId), false);
+
   assert.equal(code.includes("if (!restored) return false"), true);
   assert.equal(code.includes("return Boolean(database)"), true);
   console.log("story library core test passed");

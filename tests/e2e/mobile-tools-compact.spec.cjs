@@ -10,6 +10,7 @@ for (const width of [375, 390]) {
     await page.getByRole('button', { name: '開始故事' }).click();
   await page.locator('#bao-setup-choice [data-bao-setup="advanced"]').click();
     for (let step = 0; step < 3; step++) await page.getByRole('button', { name: '下一步' }).click();
+    await page.locator('#api-advanced-settings > summary').click();
     await page.locator('#model-id').fill('compact-tools-test');
     await page.locator('#base-url').fill('https://example.invalid/v1');
     await page.locator('#api-key').fill('EPHEMERAL_TEST_KEY');
@@ -41,5 +42,26 @@ for (const width of [375, 390]) {
     await arrow.click();
     await expect(page.locator('#bao-chat-tool-drawer')).toBeVisible();
     await expect(page.locator('#bao-chat-tool-drawer')).toContainText('API／切換模型');
+
+    await page.locator('#bao-chat-tool-drawer header button').click();
+    await expect(page.locator('#bao-chat-tool-drawer')).toHaveCount(0);
+
+    const memory = page.locator('#bao-mobile-memory');
+    const panelClose = page.locator('#bao-mobile-panel-close');
+    const chatMain = page.locator('#chat-view .chat-main');
+    await memory.click();
+    await expect(chatMain).toHaveClass(/bao-mobile-panel-open/);
+    await expect(memory).toHaveAttribute('aria-expanded', 'true');
+    await expect(panelClose).toBeVisible();
+    await expect(panelClose).toHaveAttribute('aria-label', '收起人物、狀態、事件與記憶面板');
+
+    await panelClose.click();
+    await expect(chatMain).not.toHaveClass(/bao-mobile-panel-open/);
+    await expect(memory).toHaveAttribute('aria-expanded', 'false');
+
+    await memory.click();
+    await expect(chatMain).toHaveClass(/bao-mobile-panel-open/);
+    await memory.click();
+    await expect(chatMain).not.toHaveClass(/bao-mobile-panel-open/);
   });
 }
