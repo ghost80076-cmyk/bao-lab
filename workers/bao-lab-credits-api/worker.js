@@ -3288,6 +3288,24 @@ async function providerControlSnapshot(
   };
 }
 
+async function ensureAdminPlayerEvents(
+  db
+) {
+  await db
+    .prepare(
+      `
+      CREATE TABLE IF NOT EXISTS admin_player_events (
+        event_id TEXT PRIMARY KEY,
+        player_id TEXT NOT NULL,
+        action TEXT NOT NULL,
+        reason TEXT,
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+      )
+      `
+    )
+    .run();
+}
+
 async function adminRoute(
   request,
   url,
@@ -3306,6 +3324,10 @@ async function adminRoute(
       401
     );
   }
+
+  await ensureAdminPlayerEvents(
+    db
+  );
 
   const path =
     url.pathname;
@@ -3580,7 +3602,33 @@ async function adminRoute(
               AS wallet_enabled,
 
             a.username,
-            a.display_name
+            a.display_name,
+            a.enabled
+              AS account_enabled,
+
+            (
+              SELECT e.action
+              FROM admin_player_events e
+              WHERE e.player_id = p.id
+              ORDER BY e.created_at DESC, e.event_id DESC
+              LIMIT 1
+            ) AS last_admin_action,
+
+            (
+              SELECT e.reason
+              FROM admin_player_events e
+              WHERE e.player_id = p.id
+              ORDER BY e.created_at DESC, e.event_id DESC
+              LIMIT 1
+            ) AS last_admin_reason,
+
+            (
+              SELECT e.created_at
+              FROM admin_player_events e
+              WHERE e.player_id = p.id
+              ORDER BY e.created_at DESC, e.event_id DESC
+              LIMIT 1
+            ) AS last_admin_action_at
 
           FROM players p
 
@@ -3776,7 +3824,7 @@ async function adminRoute(
 
   const match =
     path.match(
-      /^\/admin\/players\/([0-9a-f-]{36})\/(credit|wallet-credit|disable)$/
+      /^\/admin\/players\/([0-9a-f-]{36})\/(credit|wallet-credit|disable|enable)$/
     );
 
   if (
@@ -3792,8 +3840,35 @@ async function adminRoute(
 
     if (
       action ===
-      "disable"
+        "disable" ||
+      action ===
+        "enable"
     ) {
+      const body =
+        await readJson(
+          request
+        );
+
+      const reason =
+        String(
+          body?.reason ||
+          ""
+        )
+          .trim()
+          .slice(
+            0,
+            300
+          );
+
+      const enabling =
+        action ===
+          "enable";
+
+      const nextEnabled =
+        enabling
+          ? 1
+          : 0;
+
       const result =
         await db
           .prepare(
@@ -3801,55 +3876,133 @@ async function adminRoute(
             UPDATE players
 
             SET
-              enabled = 0
+              enabled = ?
 
             WHERE
               id = ?
+
+              AND enabled != ?
             `
           )
           .bind(
-            playerId
+            nextEnabled,
+            playerId,
+            nextEnabled
           )
           .run();
 
-      await db.batch(
-        [
-          db
+      if (
+        !result
+          .meta
+          .changes
+      ) {
+        const exists =
+          await db
             .prepare(
               `
-              UPDATE wallets
+              SELECT
+                id,
+                enabled
 
-              SET
-                enabled = 0,
-                updated_at =
-                  CURRENT_TIMESTAMP
+              FROM players
 
               WHERE
-                player_id = ?
+                id = ?
+
+              LIMIT 1
               `
             )
             .bind(
               playerId
-            ),
-
-          db
-            .prepare(
-              `
-              UPDATE accounts
-
-              SET
-                enabled = 0,
-                updated_at =
-                  CURRENT_TIMESTAMP
-
-              WHERE
-                player_id = ?
-              `
             )
-            .bind(
-              playerId
+            .first();
+
+        if (!exists) {
+          return fail(
+            "player_not_found",
+            404
+          );
+        }
+
+        return json({
+          enabled:
+            Boolean(
+              exists.enabled
             ),
 
+          unchanged:
+            true,
+        });
+      }
+
+      const statements = [
+        db
+          .prepare(
+            `
+            UPDATE wallets
+
+            SET
+              enabled = ?,
+              updated_at =
+                CURRENT_TIMESTAMP
+
+            WHERE
+              player_id = ?
+            `
+          )
+          .bind(
+            nextEnabled,
+            playerId
+          ),
+
+        db
+          .prepare(
+            `
+            UPDATE accounts
+
+            SET
+              enabled = ?,
+              updated_at =
+                CURRENT_TIMESTAMP
+
+            WHERE
+              player_id = ?
+            `
+          )
+          .bind(
+            nextEnabled,
+            playerId
+          ),
+
+        db
+          .prepare(
+            `
+            INSERT INTO admin_player_events (
+              event_id,
+              player_id,
+              action,
+              reason
+            )
+
+            VALUES (
+              ?,
+              ?,
+              ?,
+              ?
+            )
+            `
+          )
+          .bind(
+            crypto.randomUUID(),
+            playerId,
+            action,
+            reason ||
+              null
+          ),
+      ];
+
+      if (!enabling) {
+        statements.push(
           db
             .prepare(
               `
@@ -3872,21 +4025,27 @@ async function adminRoute(
             )
             .bind(
               playerId
-            ),
-        ]
+            )
+        );
+      }
+
+      await db.batch(
+        statements
       );
 
-      return result
-        .meta
-        .changes
-        ? json({
-            disabled:
-              true,
-          })
-        : fail(
-            "player_not_found",
-            404
-          );
+      return json({
+        enabled:
+          enabling,
+
+        action,
+
+        reason:
+          reason ||
+          null,
+
+        session_relogin_required:
+          enabling,
+      });
     }
 
     const body =
@@ -7528,7 +7687,7 @@ export default {
               false,
 
             diagnostic_version:
-              "2026-09-28-7.0",
+              "2026-09-29-7.1",
           });
       }
 
