@@ -162,6 +162,26 @@ test('propagates quota and provider-specific upstream errors without exposing pl
    assert.match(error.message,/重新生成或調整本次內容/);
    return true;
  });
+ const inputBlocked=build({ok:false,status:502,body:{error:'provider_empty_text',finish_reason:'PROHIBITED_CONTENT',prompt_block_reason:'PROHIBITED_CONTENT',blocked_stage:'input'}});
+ await assert.rejects(()=>inputBlocked.api.send(cfg,msgs),error=>{
+   assert.equal(error.code,'BAO_PROVIDER_BLOCKED');
+   assert.equal(error.blockedStage,'input');
+   assert.equal(error.finishReason,'PROHIBITED_CONTENT');
+   assert.match(error.message,/未接受本次內容/);
+   assert.match(error.message,/階段：輸入內容/);
+   assert.doesNotMatch(error.message,/連線失敗/);
+   return true;
+ });
+ const outputBlocked=build({ok:false,status:502,body:{error:'provider_empty_text',finish_reason:'PROHIBITED_CONTENT',candidate_finish_reason:'PROHIBITED_CONTENT',blocked_stage:'output'}});
+ await assert.rejects(()=>outputBlocked.api.send(cfg,msgs),error=>{
+   assert.equal(error.code,'BAO_PROVIDER_BLOCKED');
+   assert.equal(error.blockedStage,'output');
+   assert.equal(error.finishReason,'PROHIBITED_CONTENT');
+   assert.match(error.message,/中止本次生成/);
+   assert.match(error.message,/階段：生成輸出/);
+   assert.doesNotMatch(error.message,/連線失敗/);
+   return true;
+ });
  const unknown=build({ok:false,status:502,body:{error:'provider_empty_text'}});
  await assert.rejects(()=>unknown.api.send(cfg,msgs),error=>{
    assert.match(error.message,/已回應，但沒有可顯示文字/);
