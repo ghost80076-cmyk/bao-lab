@@ -3,8 +3,8 @@
 .idol-back{justify-self:start}
 .idol-hero{min-height:560px;position:relative;overflow:hidden;border-radius:26px;border:1px solid rgba(255,110,196,.24);background:#080912;box-shadow:0 32px 90px rgba(0,0,0,.36)}
 .idol-hero-art{position:absolute;inset:0;overflow:hidden;filter:saturate(1.04) contrast(1.04)}
-.idol-hero-art img{display:block;width:100%;height:100%;object-fit:cover;object-position:center}
-.idol-hero-art:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(6,7,15,.08),rgba(6,7,15,.26) 38%,rgba(6,7,15,.95) 72%),linear-gradient(0deg,rgba(6,7,15,.88),transparent 55%)}
+.idol-hero-art img{display:block;width:100%;height:100%;object-fit:cover;object-position:43% center;transform:scale(1.01)}
+.idol-hero-art:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(6,7,15,.02),rgba(6,7,15,.08) 42%,rgba(6,7,15,.88) 76%),linear-gradient(0deg,rgba(6,7,15,.74),transparent 58%)}
 .idol-hero-copy{position:relative;z-index:2;margin-left:48%;min-height:560px;padding:54px 46px;display:grid;align-content:center;gap:18px;color:#fff7fd}
 .idol-kicker{font-size:11px;letter-spacing:.18em;color:#ff88ce}
 .idol-hero h1{font-size:clamp(38px,5vw,66px);line-height:1.05;margin:0}
@@ -59,4 +59,4 @@
 .bao-opening-idolsurvival .bao-opening-choice:hover{border-color:rgba(255,145,211,.48);background:rgba(255,93,184,.1)}
 .bao-opening-idolsurvival .bao-opening-choice span{color:#ff9cd5}
 @media(max-width:900px){.idol-feature-grid{grid-template-columns:1fr 1fr}.idol-status-shell{grid-template-columns:1fr}.idol-status-card.stage,.idol-status-card.pressure{grid-column:auto}}
-@media(max-width:620px){.idol-hero{min-height:650px}.idol-hero-art:after{background:linear-gradient(0deg,rgba(6,7,15,.98) 0%,rgba(6,7,15,.28) 62%,transparent 100%)}.idol-hero-copy{margin-left:0;padding:310px 20px 24px;min-height:650px}.idol-hero h1{font-size:38px}.idol-feature-grid,.idol-survival-turn-choices{grid-template-columns:1fr}.idol-status-grid,.idol-grade-grid{grid-template-columns:1fr 1fr}.idol-pressure-grid{grid-template-columns:1fr}}
+@media(max-width:620px){.idol-hero{min-height:650px}.idol-hero-art img{object-position:49% top;transform:scale(1.04)}.idol-hero-art:after{background:linear-gradient(0deg,rgba(6,7,15,.98) 0%,rgba(6,7,15,.28) 62%,transparent 100%)}.idol-hero-copy{margin-left:0;padding:310px 20px 24px;min-height:650px}.idol-hero h1{font-size:38px}.idol-feature-grid,.idol-survival-turn-choices{grid-template-columns:1fr}.idol-status-grid,.idol-grade-grid{grid-template-columns:1fr 1fr}.idol-pressure-grid{grid-template-columns:1fr}}
