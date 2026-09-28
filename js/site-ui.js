@@ -34,6 +34,7 @@ window.addEventListener("DOMContentLoaded", () => {
   loadBAOScript("js/storage-write-guard.js")
     .then(() => loadBAOScript("js/chat-shell-fix.js"))
     .then(() => loadBAOScript("js/player-settings.js"))
+    .then(() => loadBAOScript("js/player-text-replace-mod.js"))
     .then(() => loadBAOScript("js/narrative-settings.js"))
     .then(() => loadBAOScript("js/memory-workbench-core.js"))
     .then(() => loadBAOScript("js/memory-workbench-ai.js"))
