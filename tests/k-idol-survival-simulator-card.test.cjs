@@ -44,7 +44,7 @@ const index=fs.readFileSync(path.join(__dirname,'../index.html'),'utf8');
 assert.match(index,/k-idol-survival-simulator\.css/);
 assert.match(index,/k-idol-survival-simulator-ui\.js/);
 const idolUI=fs.readFileSync(path.join(__dirname,'../js/k-idol-survival-simulator-ui.js'),'utf8');
-assert.match(idolUI,/id="idol-survival-setup"/);
+assert.match(idolUI,/box\.id='idol-survival-setup'/);
 assert.match(idolUI,/核心練習生 NPC 必須與玩家同性別、同國籍/);
 assert.match(idolUI,/確認資料・進入節目/);
 
