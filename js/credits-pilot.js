@@ -133,12 +133,21 @@
     return true;
   };
   const upstreamName = model => hostedProviderFor(model) === "openrouter" ? "OpenRouter" : "Google Gemini";
+  const providerBlockReasons = new Set(["SAFETY", "BLOCKLIST", "PROHIBITED_CONTENT", "SPII", "IMAGE_SAFETY", "CONTENT_FILTER"]);
+  const providerBlockedStage = data => ["input", "output"].includes(data?.blocked_stage) ? data.blocked_stage : "";
   const emptyTextMessage = (name, data) => {
     const reason = String(data?.finish_reason || "").trim().toUpperCase();
+    const blockedStage = providerBlockedStage(data);
     if (reason === "MAX_TOKENS" || reason === "LENGTH") {
       return `${name} 未產生文字（原因：${reason}）。本次輸出預算可能不足，請提高「回覆輸出上限」後重試。`;
     }
-    if (["SAFETY", "BLOCKLIST", "PROHIBITED_CONTENT", "SPII", "IMAGE_SAFETY", "CONTENT_FILTER"].includes(reason)) {
+    if (providerBlockReasons.has(reason)) {
+      if (blockedStage === "input") {
+        return `${name} 未接受本次內容（原因：${reason}；階段：輸入內容）。Google 在讀取本次故事脈絡時停止請求；可修改最近內容或故事脈絡後重新生成。`;
+      }
+      if (blockedStage === "output") {
+        return `${name} 中止本次生成（原因：${reason}；階段：生成輸出）。請求已送達供應商；可重新生成，或調整近期劇情。`;
+      }
       return `${name} 在供應商端停止本次生成（原因：${reason}）。可重新生成或調整本次內容。`;
     }
     if (reason) {
@@ -312,7 +321,14 @@
       const googleStatus = ['INVALID_ARGUMENT', 'FAILED_PRECONDITION', 'PERMISSION_DENIED', 'UNAUTHENTICATED',
         'RESOURCE_EXHAUSTED', 'NOT_FOUND', 'UNAVAILABLE'].includes(data?.provider_status)
         ? `（供應商：${data.provider_status}）` : '';
-      throw new Error(`${detail}${googleStatus}${diagnosticId}`);
+      const upstreamError = new Error(`${detail}${googleStatus}${diagnosticId}`);
+      const finishReason = String(data?.finish_reason || "").trim().toUpperCase();
+      if (data?.error === "provider_empty_text" && providerBlockReasons.has(finishReason)) {
+        upstreamError.code = "BAO_PROVIDER_BLOCKED";
+        upstreamError.blockedStage = providerBlockedStage(data) || null;
+        upstreamError.finishReason = finishReason || null;
+      }
+      throw upstreamError;
     }
     if (typeof data?.content !== "string" || !data.content.trim()) throw new Error(`${upstreamName(config.model)} 沒有回傳可顯示的文字內容。`);
     const input = Number.isInteger(data.usage?.input_tokens) ? data.usage.input_tokens : null;
