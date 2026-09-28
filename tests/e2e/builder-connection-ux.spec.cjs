@@ -1,5 +1,11 @@
 const { test, expect } = require('@playwright/test');
 
+const expectAllHidden = async locator => {
+  const matches = await locator.all();
+  expect(matches.length).toBeGreaterThan(0);
+  for (const match of matches) await expect(match).toBeHidden();
+};
+
 const openBuilder = async (page, width) => {
   await page.setViewportSize({ width, height: width < 600 ? 844 : 900 });
   await page.goto('./');
@@ -39,14 +45,14 @@ for (const width of [390, 1440]) {
     await expect(page.locator('#builder-api-guide')).toBeHidden();
     await expect(page.locator('#test-api')).toBeHidden();
     await expect(page.locator('#provider-diagnostics-box')).toBeHidden();
-    await expect(page.locator('[data-bao-gemini-cache-open]')).toBeHidden();
+    await expectAllHidden(page.locator('[data-bao-gemini-cache-open]'));
     await expect(page.locator('#bao-quick-intro')).toContainText('不需要雲端 API Key');
 
     await page.locator('#api-type').selectOption('custom');
     await expect(page.locator('#test-api')).toBeHidden();
     await expect(page.locator('[data-run-provider-quick]')).toBeVisible();
     await expect(page.locator('.bao-relay-probe')).toBeVisible();
-    await expect(page.locator('[data-bao-gemini-cache-open]')).toBeHidden();
+    await expectAllHidden(page.locator('[data-bao-gemini-cache-open]'));
 
     const viewport = await page.evaluate(() => ({ content: document.documentElement.scrollWidth, viewport: innerWidth }));
     expect(viewport.content).toBeLessThanOrEqual(viewport.viewport + 1);
