@@ -87,6 +87,8 @@ jobs:
         run: node tests/worker-openrouter-cost-guard-core.cjs
       - name: YoruBay provider control
         run: node tests/provider-control-core.cjs
+      - name: YoruBay admin player list
+        run: node tests/admin-player-list-core.cjs
       - name: Canon workbench
         run: node tests/canon-workbench-core.cjs
       - name: Mature narrative and character agency settings
