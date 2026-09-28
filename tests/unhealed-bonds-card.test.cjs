@@ -2,6 +2,12 @@
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
+
+const webpDimensions=file=>{
+  const data=fs.readFileSync(file), signature=data.indexOf(Buffer.from([0x9d,0x01,0x2a]));
+  assert.ok(signature>=0,`${file} should contain a decodable VP8 frame`);
+  return {width:data.readUInt16LE(signature+3)&0x3fff,height:data.readUInt16LE(signature+5)&0x3fff};
+};
 const card=require('../data/characters/general/unhealed-bonds.json');
 const manifest=require('../data/characters.json');
 
@@ -10,6 +16,8 @@ assert.equal(card.meta.category,'r18');
 assert.equal(card.meta.rating,'adult');
 assert.equal(card.meta.gender,'male');
 assert.ok(fs.existsSync(path.join(__dirname,'..',card.meta.avatar)),'generated cover/avatar asset should exist');
+assert.match(card.meta.avatar,/\.webp$/,'published cover should use a direct browser image instead of an embedded SVG thumbnail');
+assert.deepEqual(webpDimensions(path.join(__dirname,'..',card.meta.avatar)),{width:1672,height:941});
 
 const cast=card.content.profile.cast;
 assert.equal(cast.length,6);

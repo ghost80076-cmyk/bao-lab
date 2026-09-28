@@ -12,8 +12,9 @@ test('Night Sky Magic Academy renders enrollment, fixed mystery, status and choi
 
   await expect(page.locator('.magic-detail')).toBeVisible();
   await expect(page.locator('.magic-house-grid article')).toHaveCount(4);
-  const bg=await page.locator('.magic-hero-art').evaluate(el=>getComputedStyle(el).backgroundImage);
-  expect(bg).toContain('night-sky-academy-cover.svg');
+  const heroImage=page.locator('.magic-hero-art img');
+  await expect(heroImage).toHaveAttribute('src',/night-sky-academy-cover-v2\.webp/);
+  await expect.poll(()=>heroImage.evaluate(img=>img.naturalWidth)).toBeGreaterThanOrEqual(1700);
 
   await page.locator('[data-magic-start]').click();
   await page.locator('#bao-setup-choice [data-bao-setup="advanced"]').click();

@@ -1,7 +1,8 @@
 /* Night Sky Magic Academy */
 .magic-detail{display:grid;gap:28px;max-width:1180px;margin:0 auto;padding:8px 0 32px}
 .magic-back{justify-self:start}.magic-hero{min-height:560px;position:relative;overflow:hidden;border-radius:26px;border:1px solid rgba(225,194,126,.24);background:#0b1020;box-shadow:0 32px 90px rgba(0,0,0,.32)}
-.magic-hero-art{position:absolute;inset:0;background-size:cover;background-position:center;filter:saturate(.9) contrast(1.03)}
+.magic-hero-art{position:absolute;inset:0;overflow:hidden;filter:saturate(.9) contrast(1.03)}
+.magic-hero-art img{display:block;width:100%;height:100%;object-fit:cover;object-position:center}
 .magic-hero-art:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(5,10,24,.12),rgba(5,10,24,.22) 38%,rgba(5,10,24,.94) 72%),linear-gradient(0deg,rgba(5,9,21,.88),transparent 55%)}
 .magic-hero-copy{position:relative;z-index:2;margin-left:48%;min-height:560px;padding:54px 46px;display:grid;align-content:center;gap:18px;color:#f5f0df}
 .magic-kicker{font-size:11px;letter-spacing:.18em;color:#dfc47e}.magic-hero h1{font-size:clamp(38px,5vw,66px);line-height:1.05;margin:0}.magic-hero p{line-height:1.9;color:#d4d4dc;margin:0}.magic-hero blockquote{margin:0;padding:14px 16px;border-left:2px solid #d6b96f;background:rgba(197,163,88,.11);color:#efe3bb}

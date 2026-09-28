@@ -2,6 +2,11 @@
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
+const webpDimensions=file=>{
+  const data=fs.readFileSync(file), signature=data.indexOf(Buffer.from([0x9d,0x01,0x2a]));
+  assert.ok(signature>=0,`${file} should contain a decodable VP8 frame`);
+  return {width:data.readUInt16LE(signature+3)&0x3fff,height:data.readUInt16LE(signature+5)&0x3fff};
+};
 const card=require('../data/characters/general/host-club-simulator.json');
 const manifest=require('../data/characters.json');
 
@@ -11,6 +16,9 @@ assert.equal(card.meta.rating,'general');
 assert.equal(card.meta.gender,'male');
 assert.doesNotMatch(card.content.greeting,/R18|18\+ 成人向/,'public catalog should not expose R18 badge');
 assert.ok(fs.existsSync(path.join(__dirname,'..',card.meta.avatar)),'generated host cast art should exist');
+assert.match(card.meta.avatar,/hostsim-hero-v2\.webp$/,'catalog and detail should use the high-resolution hero');
+assert.deepEqual(webpDimensions(path.join(__dirname,'..',card.meta.avatar)),{width:1672,height:941});
+assert.deepEqual(webpDimensions(path.join(__dirname,'../assets/hostsim-cast-v2.webp')),{width:1536,height:1024});
 
 const cast=card.content.profile.cast;
 assert.equal(cast.length,6);
@@ -52,5 +60,8 @@ assert.doesNotMatch(JSON.stringify(card),/金泳勳|李賢在|李柱延|池昌�
 const index=fs.readFileSync(path.join(__dirname,'../index.html'),'utf8');
 assert.match(index,/host-club-simulator\.css/);
 assert.match(index,/host-club-simulator-ui\.js/);
+const hostUI=fs.readFileSync(path.join(__dirname,'../js/host-club-simulator-ui.js'),'utf8');
+assert.match(hostUI,/hostsim-cast-v2\.webp/,'cast cards should render the dedicated six-person art');
+assert.match(hostUI,/<img src=.*heroArt/,'detail hero should use a real image element');
 
 console.log('PASS Host Club Simulator card, adult cast, economy, host relationship axes and custom UI');
