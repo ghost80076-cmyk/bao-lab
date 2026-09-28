@@ -4,7 +4,7 @@
     "id": "k-idol-survival-simulator",
     "name": "韓國偶像選秀模擬器｜最後一席",
     "title": "韓國偶像選秀模擬器｜最後一席",
-    "avatar": "assets/k-idol-survival-cover.svg",
+    "avatar": "assets/k-idol-survival-cover.webp",
     "category": "male",
     "rating": "general",
     "gender": "all",
@@ -645,7 +645,7 @@
       "text": true,
       "ui": true
     },
-    "reading_background": "assets/k-idol-survival-cover.svg",
+    "reading_background": "assets/k-idol-survival-cover.webp",
     "opening": {
       "type": "idolsurvival",
       "label": "K-IDOL SURVIVAL / DEBUT PROJECT",
