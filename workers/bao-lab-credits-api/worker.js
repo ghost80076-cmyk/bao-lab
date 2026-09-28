@@ -2668,6 +2668,626 @@ async function meRoute(
   });
 }
 
+const HOSTED_ROUTE_CONTROL = Object.freeze({
+  "gemini-3-flash": {
+    label: "Gemini 3 Flash",
+    default_route: "google-official",
+    routes: {
+      "google-official": {
+        label: "Google Gemini 官方",
+        provider: "gemini",
+        model: "gemini-3-flash-preview",
+      },
+      openrouter: {
+        label: "OpenRouter",
+        provider: "openrouter",
+        model: "google/gemini-3-flash-preview",
+      },
+    },
+  },
+  "gemini-3.1-pro": {
+    label: "Gemini 3.1 Pro",
+    default_route: "google-official",
+    routes: {
+      "google-official": {
+        label: "Google Gemini 官方",
+        provider: "gemini",
+        model: "gemini-3.1-pro-preview",
+      },
+      openrouter: {
+        label: "OpenRouter",
+        provider: "openrouter",
+        model: "google/gemini-3.1-pro-preview",
+      },
+    },
+  },
+});
+
+const PROVIDER_CONTROL = Object.freeze({
+  gemini: {
+    label: "Google Gemini",
+    default_threshold_microusd: 2_000_000,
+  },
+  openrouter: {
+    label: "OpenRouter",
+    default_threshold_microusd: 2_000_000,
+  },
+});
+
+function hostedLogicalModel(
+  provider,
+  model
+) {
+  for (
+    const [
+      modelId,
+      config,
+    ]
+    of Object.entries(
+      HOSTED_ROUTE_CONTROL
+    )
+  ) {
+    for (
+      const [
+        routeId,
+        route,
+      ]
+      of Object.entries(
+        config.routes
+      )
+    ) {
+      if (
+        route.provider ===
+          provider &&
+        route.model ===
+          model
+      ) {
+        return {
+          modelId,
+          config,
+          routeId,
+        };
+      }
+    }
+  }
+
+  return null;
+}
+
+async function readHostedRouteOverride(
+  db,
+  modelId
+) {
+  try {
+    const row =
+      await db
+        .prepare(
+          `
+          SELECT
+            route_id
+
+          FROM hosted_route_overrides
+
+          WHERE
+            model_id = ?
+
+          LIMIT 1
+          `
+        )
+        .bind(
+          modelId
+        )
+        .first();
+
+    return (
+      typeof row?.route_id ===
+        "string"
+        ? row.route_id
+        : null
+    );
+  }
+
+  catch {
+    // The control tables are created lazily from the authenticated
+    // admin page. Before the first admin visit, production routing
+    // must remain exactly as it was.
+    return null;
+  }
+}
+
+async function resolveHostedRoute(
+  db,
+  env,
+  provider,
+  model
+) {
+  const logical =
+    hostedLogicalModel(
+      provider,
+      model
+    );
+
+  if (!logical) {
+    return {
+      provider,
+      model,
+      logical_model_id:
+        null,
+      route_id:
+        null,
+      overridden:
+        false,
+      fallback:
+        false,
+    };
+  }
+
+  const savedRouteId =
+    await readHostedRouteOverride(
+      db,
+      logical.modelId
+    );
+
+  const requestedRouteId =
+    logical.config.routes[
+      savedRouteId
+    ]
+      ? savedRouteId
+      : logical.config
+          .default_route;
+
+  let routeId =
+    requestedRouteId;
+
+  let route =
+    logical.config
+      .routes[routeId];
+
+  let fallback =
+    false;
+
+  if (
+    !modelAllowed(
+      env,
+      route.provider,
+      route.model
+    )
+  ) {
+    const defaultRoute =
+      logical.config.routes[
+        logical.config
+          .default_route
+      ];
+
+    if (
+      defaultRoute &&
+      modelAllowed(
+        env,
+        defaultRoute.provider,
+        defaultRoute.model
+      )
+    ) {
+      routeId =
+        logical.config
+          .default_route;
+
+      route =
+        defaultRoute;
+
+      fallback =
+        true;
+    }
+  }
+
+  return {
+    provider:
+      route.provider,
+
+    model:
+      route.model,
+
+    logical_model_id:
+      logical.modelId,
+
+    route_id:
+      routeId,
+
+    overridden:
+      Boolean(
+        savedRouteId
+      ),
+
+    fallback,
+  };
+}
+
+async function ensureProviderControlTables(
+  db
+) {
+  await db.batch(
+    [
+      db.prepare(
+        `
+        CREATE TABLE IF NOT EXISTS hosted_route_overrides (
+          model_id TEXT PRIMARY KEY,
+          route_id TEXT NOT NULL,
+          updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+        )
+        `
+      ),
+
+      db.prepare(
+        `
+        CREATE TABLE IF NOT EXISTS provider_balance_anchors (
+          provider TEXT PRIMARY KEY,
+          anchor_balance_microusd INTEGER NOT NULL,
+          anchor_spent_microusd INTEGER NOT NULL,
+          low_balance_threshold_microusd INTEGER NOT NULL DEFAULT 2000000,
+          updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+        )
+        `
+      ),
+    ]
+  );
+}
+
+async function providerCumulativeSpendMicrousd(
+  db,
+  provider
+) {
+  const row =
+    await db
+      .prepare(
+        `
+        SELECT
+          COALESCE(
+            SUM(
+              CASE
+                WHEN provider_cost_microusd IS NOT NULL
+                  THEN provider_cost_microusd
+                WHEN settled_cost_microusd IS NOT NULL
+                  THEN settled_cost_microusd
+                ELSE cost_microusd
+              END
+            ),
+            0
+          ) AS spent_microusd
+
+        FROM api_usage
+
+        WHERE
+          provider = ?
+
+          AND billing_mode = ?
+
+          AND status IN (
+            'ok',
+            'over_budget'
+          )
+        `
+      )
+      .bind(
+        provider,
+        COST_BILLING_MODE
+      )
+      .first();
+
+  return safeMoneyInt(
+    Number(
+      row?.spent_microusd ||
+      0
+    )
+  );
+}
+
+async function providerControlSnapshot(
+  env,
+  db
+) {
+  await ensureProviderControlTables(
+    db
+  );
+
+  const [
+    routeRows,
+    balanceRows,
+  ] =
+    await Promise.all(
+      [
+        db
+          .prepare(
+            `
+            SELECT
+              model_id,
+              route_id,
+              updated_at
+
+            FROM hosted_route_overrides
+            `
+          )
+          .all(),
+
+        db
+          .prepare(
+            `
+            SELECT
+              provider,
+              anchor_balance_microusd,
+              anchor_spent_microusd,
+              low_balance_threshold_microusd,
+              updated_at
+
+            FROM provider_balance_anchors
+            `
+          )
+          .all(),
+      ]
+    );
+
+  const overrides =
+    new Map(
+      (
+        routeRows.results ||
+        []
+      ).map(
+        (row) => [
+          row.model_id,
+          row,
+        ]
+      )
+    );
+
+  const anchors =
+    new Map(
+      (
+        balanceRows.results ||
+        []
+      ).map(
+        (row) => [
+          row.provider,
+          row,
+        ]
+      )
+    );
+
+  const routes = [];
+
+  for (
+    const [
+      modelId,
+      config,
+    ]
+    of Object.entries(
+      HOSTED_ROUTE_CONTROL
+    )
+  ) {
+    const saved =
+      overrides.get(
+        modelId
+      );
+
+    const savedRouteId =
+      config.routes[
+        saved?.route_id
+      ]
+        ? saved.route_id
+        : null;
+
+    const desiredRouteId =
+      savedRouteId ||
+      config.default_route;
+
+    const desiredRoute =
+      config.routes[
+        desiredRouteId
+      ];
+
+    const desiredAvailable =
+      Boolean(
+        modelConfig(
+          env,
+          desiredRoute.provider,
+          desiredRoute.model
+        )
+      );
+
+    const defaultRoute =
+      config.routes[
+        config.default_route
+      ];
+
+    const effectiveRouteId =
+      desiredAvailable
+        ? desiredRouteId
+        : (
+            modelConfig(
+              env,
+              defaultRoute.provider,
+              defaultRoute.model
+            )
+              ? config
+                  .default_route
+              : desiredRouteId
+          );
+
+    routes.push({
+      model_id:
+        modelId,
+
+      label:
+        config.label,
+
+      default_route_id:
+        config.default_route,
+
+      saved_route_id:
+        savedRouteId,
+
+      effective_route_id:
+        effectiveRouteId,
+
+      fallback:
+        effectiveRouteId !==
+        desiredRouteId,
+
+      updated_at:
+        saved?.updated_at ||
+        null,
+
+      routes:
+        Object.entries(
+          config.routes
+        ).map(
+          ([
+            routeId,
+            route,
+          ]) => ({
+            route_id:
+              routeId,
+
+            label:
+              route.label,
+
+            provider:
+              route.provider,
+
+            model:
+              route.model,
+
+            available:
+              Boolean(
+                modelConfig(
+                  env,
+                  route.provider,
+                  route.model
+                )
+              ),
+          })
+        ),
+    });
+  }
+
+  const providers = [];
+
+  for (
+    const [
+      provider,
+      info,
+    ]
+    of Object.entries(
+      PROVIDER_CONTROL
+    )
+  ) {
+    const cumulative =
+      await providerCumulativeSpendMicrousd(
+        db,
+        provider
+      );
+
+    const anchor =
+      anchors.get(
+        provider
+      );
+
+    const anchored =
+      Boolean(
+        anchor
+      );
+
+    const anchorBalance =
+      anchored
+        ? safeMoneyInt(
+            Number(
+              anchor
+                .anchor_balance_microusd
+            )
+          )
+        : null;
+
+    const anchorSpent =
+      anchored
+        ? safeMoneyInt(
+            Number(
+              anchor
+                .anchor_spent_microusd
+            )
+          )
+        : cumulative;
+
+    const trackedSpend =
+      anchored
+        ? Math.max(
+            0,
+            cumulative -
+              anchorSpent
+          )
+        : 0;
+
+    const remaining =
+      anchored
+        ? anchorBalance -
+          trackedSpend
+        : null;
+
+    const threshold =
+      anchored
+        ? safeMoneyInt(
+            Number(
+              anchor
+                .low_balance_threshold_microusd
+            )
+          )
+        : info
+            .default_threshold_microusd;
+
+    let status =
+      "untracked";
+
+    if (anchored) {
+      status =
+        remaining <= 0
+          ? "empty"
+          : (
+              remaining <=
+                threshold
+                ? "low"
+                : "ok"
+            );
+    }
+
+    providers.push({
+      provider,
+      label:
+        info.label,
+
+      anchored,
+
+      anchor_balance_microusd:
+        anchorBalance,
+
+      tracked_spent_microusd:
+        trackedSpend,
+
+      estimated_remaining_microusd:
+        remaining,
+
+      low_balance_threshold_microusd:
+        threshold,
+
+      status,
+
+      updated_at:
+        anchor?.updated_at ||
+        null,
+    });
+  }
+
+  return {
+    routes,
+    providers,
+  };
+}
+
 async function adminRoute(
   request,
   url,
@@ -2689,6 +3309,248 @@ async function adminRoute(
 
   const path =
     url.pathname;
+
+  if (
+    path ===
+      "/admin/provider-control" &&
+    request.method ===
+      "GET"
+  ) {
+    return json(
+      await providerControlSnapshot(
+        env,
+        db
+      )
+    );
+  }
+
+  if (
+    path ===
+      "/admin/provider-control/route" &&
+    request.method ===
+      "POST"
+  ) {
+    await ensureProviderControlTables(
+      db
+    );
+
+    const body =
+      await readJson(
+        request
+      );
+
+    const modelId =
+      String(
+        body?.model_id ||
+        ""
+      ).trim();
+
+    const routeId =
+      String(
+        body?.route_id ||
+        ""
+      ).trim();
+
+    const config =
+      HOSTED_ROUTE_CONTROL[
+        modelId
+      ];
+
+    const route =
+      config?.routes?.[
+        routeId
+      ];
+
+    if (
+      !config ||
+      !route
+    ) {
+      return fail(
+        "invalid_hosted_route"
+      );
+    }
+
+    if (
+      !modelAllowed(
+        env,
+        route.provider,
+        route.model
+      )
+    ) {
+      return fail(
+        "hosted_route_not_configured",
+        409,
+        {
+          model_id:
+            modelId,
+
+          route_id:
+            routeId,
+
+          provider:
+            route.provider,
+
+          model:
+            route.model,
+        }
+      );
+    }
+
+    await db
+      .prepare(
+        `
+        INSERT INTO hosted_route_overrides (
+          model_id,
+          route_id,
+          updated_at
+        )
+
+        VALUES (
+          ?,
+          ?,
+          CURRENT_TIMESTAMP
+        )
+
+        ON CONFLICT(model_id)
+        DO UPDATE SET
+          route_id =
+            excluded.route_id,
+
+          updated_at =
+            CURRENT_TIMESTAMP
+        `
+      )
+      .bind(
+        modelId,
+        routeId
+      )
+      .run();
+
+    return json(
+      await providerControlSnapshot(
+        env,
+        db
+      )
+    );
+  }
+
+  if (
+    path ===
+      "/admin/provider-control/balance" &&
+    request.method ===
+      "POST"
+  ) {
+    await ensureProviderControlTables(
+      db
+    );
+
+    const body =
+      await readJson(
+        request
+      );
+
+    const provider =
+      String(
+        body?.provider ||
+        ""
+      )
+        .trim()
+        .toLowerCase();
+
+    const balance =
+      Number(
+        body
+          ?.balance_microusd
+      );
+
+    const defaultThreshold =
+      PROVIDER_CONTROL[
+        provider
+      ]
+        ?.default_threshold_microusd;
+
+    const threshold =
+      Number(
+        body
+          ?.low_balance_threshold_microusd ??
+        defaultThreshold
+      );
+
+    if (
+      !PROVIDER_CONTROL[
+        provider
+      ] ||
+      !integer(
+        balance,
+        0,
+        9_000_000_000_000
+      ) ||
+      !integer(
+        threshold,
+        0,
+        9_000_000_000_000
+      )
+    ) {
+      return fail(
+        "invalid_provider_balance"
+      );
+    }
+
+    const currentSpend =
+      await providerCumulativeSpendMicrousd(
+        db,
+        provider
+      );
+
+    await db
+      .prepare(
+        `
+        INSERT INTO provider_balance_anchors (
+          provider,
+          anchor_balance_microusd,
+          anchor_spent_microusd,
+          low_balance_threshold_microusd,
+          updated_at
+        )
+
+        VALUES (
+          ?,
+          ?,
+          ?,
+          ?,
+          CURRENT_TIMESTAMP
+        )
+
+        ON CONFLICT(provider)
+        DO UPDATE SET
+          anchor_balance_microusd =
+            excluded.anchor_balance_microusd,
+
+          anchor_spent_microusd =
+            excluded.anchor_spent_microusd,
+
+          low_balance_threshold_microusd =
+            excluded.low_balance_threshold_microusd,
+
+          updated_at =
+            CURRENT_TIMESTAMP
+        `
+      )
+      .bind(
+        provider,
+        balance,
+        currentSpend,
+        threshold
+      )
+      .run();
+
+    return json(
+      await providerControlSnapshot(
+        env,
+        db
+      )
+    );
+  }
 
   if (
     path ===
@@ -4794,11 +5656,25 @@ async function legacyChatRoute(
     body?.request_kind ||
     "chat";
 
-  const provider =
+  const requestedProvider =
     body?.provider;
 
-  const model =
+  const requestedModel =
     body?.model;
+
+  const resolvedRoute =
+    await resolveHostedRoute(
+      db,
+      env,
+      requestedProvider,
+      requestedModel
+    );
+
+  const provider =
+    resolvedRoute.provider;
+
+  const model =
+    resolvedRoute.model;
 
   const messages =
     normalizeMessages(
@@ -5390,6 +6266,24 @@ async function legacyChatRoute(
     provider,
     model,
 
+    hosted_route: {
+      logical_model_id:
+        resolvedRoute
+          .logical_model_id,
+
+      route_id:
+        resolvedRoute
+          .route_id,
+
+      overridden:
+        resolvedRoute
+          .overridden,
+
+      fallback:
+        resolvedRoute
+          .fallback,
+    },
+
     content:
       result.text,
 
@@ -5471,11 +6365,25 @@ async function costUsdChatRoute(
       ?.request_kind ||
     "chat";
 
-  const provider =
+  const requestedProvider =
     body?.provider;
 
-  const model =
+  const requestedModel =
     body?.model;
+
+  const resolvedRoute =
+    await resolveHostedRoute(
+      db,
+      env,
+      requestedProvider,
+      requestedModel
+    );
+
+  const provider =
+    resolvedRoute.provider;
+
+  const model =
+    resolvedRoute.model;
 
   const messages =
     normalizeMessages(
@@ -6292,6 +7200,24 @@ async function costUsdChatRoute(
     provider,
     model,
 
+    hosted_route: {
+      logical_model_id:
+        resolvedRoute
+          .logical_model_id,
+
+      route_id:
+        resolvedRoute
+          .route_id,
+
+      overridden:
+        resolvedRoute
+          .overridden,
+
+      fallback:
+        resolvedRoute
+          .fallback,
+    },
+
     content:
       result.text,
 
@@ -6600,7 +7526,7 @@ export default {
               false,
 
             diagnostic_version:
-              "2026-09-25-6.2",
+              "2026-09-28-7.0",
           });
       }
 

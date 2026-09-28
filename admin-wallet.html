@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>YoruBay 點數管理</title>
+<title>YoruBay 管理員</title>
 <meta name="robots" content="noindex,nofollow">
 <link rel="icon" type="image/svg+xml" href="assets/bao-mark.svg">
 <link rel="stylesheet" href="css/brand-home.css">
@@ -31,14 +31,27 @@ button{border-radius:12px;padding:10px 14px;font:inherit;font-weight:700;cursor:
 .package{border:1px solid rgba(255,255,255,.12);background:#222532;color:#eee;border-radius:12px;padding:12px 8px}
 .package.active{background:#eee8ff;color:#171821}
 .summary{background:#10121a;border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:14px;margin-top:14px}
+.provider-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:14px}
+.provider-card,.route-row{background:#10121a;border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:14px}
+.provider-card h3,.route-row h3{margin:0 0 8px}
+.provider-metrics{display:grid;gap:5px;margin:10px 0}
+.metric{display:flex;justify-content:space-between;gap:14px;font-size:13px}
+.metric span{color:#aaa6b8}.metric b{text-align:right}
+.status-pill{display:inline-flex;align-items:center;border:1px solid rgba(255,255,255,.13);border-radius:999px;padding:3px 9px;font-size:12px}
+.status-ok{color:#8fe0bd}.status-low{color:#ffd37e}.status-empty{color:#ff9d9d}.status-untracked{color:#aaa6b8}
+.route-list{display:grid;gap:10px;margin-top:14px}
+.route-controls{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:9px;align-items:end}
+.provider-form{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px}
+.provider-form .actions{grid-column:1/-1;margin-top:0}
+.control-heading{display:flex;justify-content:space-between;align-items:center;gap:12px}
 code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
-@media(max-width:700px){.grid{grid-template-columns:1fr}.packages{grid-template-columns:repeat(2,minmax(0,1fr))}.card{padding:17px}}
+@media(max-width:700px){.grid,.provider-grid,.provider-form{grid-template-columns:1fr}.route-controls{grid-template-columns:1fr}.packages{grid-template-columns:repeat(2,minmax(0,1fr))}.card{padding:17px}}
 </style>
 </head>
 <body>
 <div class="wrap">
   <div class="top">
-    <div><div class="eyebrow">YORUBAY ADMIN</div><h1>玩家點數管理</h1></div>
+    <div><div class="eyebrow">YORUBAY ADMIN</div><h1>YoruBay 管理員</h1></div>
     <a href="index.html" class="secondary">回首頁</a>
   </div>
 
@@ -120,6 +133,23 @@ code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
     <div class="actions"><button id="credit-wallet" class="primary" type="button" disabled>確認加值</button></div>
     <div id="topup-message" class="error"></div>
   </section>
+
+  <section class="card" id="provider-control-card" hidden>
+    <div class="control-heading">
+      <div>
+        <h2>4. 上游供應商與 Hosted 路由</h2>
+        <p class="note">這裡只控制 YoruBay 帳號玩家的上游。BYOK 玩家仍使用自己的 API Key，不受影響。供應商餘額是管理員輸入的「目前官方餘額」基準，之後由 YoruBay 已記錄的實際成本往下估算。</p>
+      </div>
+      <span class="status-pill">ADMIN ONLY</span>
+    </div>
+    <div id="provider-control-message" class="error"></div>
+    <h3>供應商資金池</h3>
+    <div id="provider-balances" class="provider-grid"></div>
+    <h3 style="margin-top:22px">Gemini Hosted 路由</h3>
+    <p class="note">玩家仍只選 Gemini 模型；你在這裡決定實際走 Google Gemini 官方或 OpenRouter。未在 Worker 安全白名單與價格表配置的路由會顯示為不可用。</p>
+    <div id="hosted-routes" class="route-list"></div>
+    <div class="actions"><button id="refresh-provider-control" class="secondary" type="button">重新整理供應商狀態</button></div>
+  </section>
 </div>
 
 <script>
@@ -129,6 +159,7 @@ code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
   var adminToken="";
   var players=[];
   var selected=null;
+  var providerControl=null;
 
   var $=function(id){return document.getElementById(id);};
   function points(value){
@@ -149,6 +180,73 @@ code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
     if(!Number.isFinite(n)||n<=0) return null;
     var v=Math.round(n*1000);
     return Number.isSafeInteger(v)&&v>0?v:null;
+  }
+  function microusdFromUsd(value){
+    var n=Number(value);
+    if(!Number.isFinite(n)||n<0) return null;
+    var v=Math.round(n*1000000);
+    return Number.isSafeInteger(v)&&v>=0?v:null;
+  }
+  function usdFromMicro(value){
+    if(value===null||value===undefined) return "尚未設定";
+    var n=Number(value);
+    if(!Number.isFinite(n)) return "—";
+    return "US$"+(n/1000000).toFixed(2);
+  }
+  function providerStatus(status){
+    return status==="ok"?["正常","status-ok"]:
+      status==="low"?["偏低","status-low"]:
+      status==="empty"?["已用盡／低於零","status-empty"]:
+      ["尚未追蹤","status-untracked"];
+  }
+  function renderProviderControl(data){
+    providerControl=data||{providers:[],routes:[]};
+    $("provider-control-card").hidden=false;
+    var providers=Array.isArray(providerControl.providers)?providerControl.providers:[];
+    $("provider-balances").innerHTML=providers.map(function(p){
+      var st=providerStatus(p.status);
+      var threshold=Number(p.low_balance_threshold_microusd||0)/1000000;
+      return '<div class="provider-card" data-provider-card="'+String(p.provider)+'">'+
+        '<div class="control-heading"><h3>'+String(p.label||p.provider)+'</h3><span class="status-pill '+st[1]+'">'+st[0]+'</span></div>'+
+        '<div class="provider-metrics">'+
+          '<div class="metric"><span>預估剩餘</span><b>'+usdFromMicro(p.estimated_remaining_microusd)+'</b></div>'+
+          '<div class="metric"><span>本次基準後已記錄消耗</span><b>'+usdFromMicro(p.tracked_spent_microusd)+'</b></div>'+
+          '<div class="metric"><span>上次輸入官方餘額</span><b>'+usdFromMicro(p.anchor_balance_microusd)+'</b></div>'+
+        '</div>'+
+        '<div class="provider-form">'+
+          '<label>重新校正目前官方餘額（US$）<input data-role="balance" type="number" min="0" step="0.01" placeholder="例如 10.00"></label>'+
+          '<label>低餘額提醒門檻（US$）<input data-role="threshold" type="number" min="0" step="0.01" value="'+threshold.toFixed(2)+'"></label>'+
+          '<div class="actions"><button class="secondary" type="button" data-save-provider="'+String(p.provider)+'">儲存目前餘額基準</button></div>'+
+        '</div>'+
+      '</div>';
+    }).join("")||'<p class="note">尚無供應商資料。</p>';
+
+    var routes=Array.isArray(providerControl.routes)?providerControl.routes:[];
+    $("hosted-routes").innerHTML=routes.map(function(item){
+      var desired=item.saved_route_id||item.effective_route_id||item.default_route_id;
+      var options=(item.routes||[]).map(function(route){
+        var selected=route.route_id===desired?" selected":"";
+        var disabled=route.available?"":" disabled";
+        return '<option value="'+String(route.route_id)+'"'+selected+disabled+'>'+
+          String(route.label)+(route.available?"":"（未配置）")+
+        '</option>';
+      }).join("");
+      var note=item.fallback?"目前儲存的路由不可用，系統已安全退回預設路由。":
+        "目前實際路由："+String((item.routes||[]).find(function(r){return r.route_id===item.effective_route_id;})?.label||item.effective_route_id||"—");
+      return '<div class="route-row" data-route-row="'+String(item.model_id)+'">'+
+        '<h3>'+String(item.label||item.model_id)+'</h3>'+
+        '<div class="route-controls">'+
+          '<label>上游路由<select data-role="route-select">'+options+'</select></label>'+
+          '<button class="primary" type="button" data-save-route="'+String(item.model_id)+'">套用路由</button>'+
+        '</div>'+
+        '<p class="note">'+note+'</p>'+
+      '</div>';
+    }).join("")||'<p class="note">目前沒有可切換的 Hosted 模型。</p>';
+  }
+  async function loadProviderControl(){
+    var data=await api("/admin/provider-control",{method:"GET"});
+    renderProviderControl(data);
+    return data;
   }
   async function api(path,options){
     if(!adminToken) throw new Error("請先驗證 ADMIN_TOKEN。");
@@ -205,6 +303,13 @@ code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
       players=Array.isArray(data.players)?data.players:[];
       setMessage("connect-message","管理員驗證成功，已載入 "+players.length+" 位玩家。",true);
       $("admin-token").value="";
+      try{
+        await loadProviderControl();
+        setMessage("provider-control-message","供應商與路由狀態已載入。",true);
+      }catch(controlError){
+        $("provider-control-card").hidden=false;
+        setMessage("provider-control-message","供應商控制尚未就緒："+controlError.message);
+      }
     }catch(e){
       adminToken="";
       setMessage("connect-message",e.message);
@@ -302,6 +407,68 @@ code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
       $("credit-wallet").disabled=!selected;
     }
   };
+
+  $("refresh-provider-control").onclick=async function(){
+    if(!adminToken){setMessage("provider-control-message","請先驗證 ADMIN_TOKEN。");return;}
+    this.disabled=true;
+    try{
+      await loadProviderControl();
+      setMessage("provider-control-message","已重新整理供應商狀態。",true);
+    }catch(e){
+      setMessage("provider-control-message","重新整理失敗："+e.message);
+    }finally{this.disabled=false;}
+  };
+
+  $("provider-balances").addEventListener("click",async function(event){
+    var button=event.target.closest("[data-save-provider]");
+    if(!button) return;
+    var provider=button.dataset.saveProvider;
+    var card=button.closest("[data-provider-card]");
+    var balance=microusdFromUsd(card.querySelector('[data-role="balance"]').value);
+    var threshold=microusdFromUsd(card.querySelector('[data-role="threshold"]').value);
+    if(balance===null||threshold===null){
+      setMessage("provider-control-message","請輸入目前官方餘額與低餘額提醒門檻。");
+      return;
+    }
+    if(!confirm("確認把 "+provider+" 的目前官方餘額基準設為 "+usdFromMicro(balance)+"？\n儲存後，YoruBay 會從這個時間點開始用實際使用成本往下估算。")) return;
+    button.disabled=true;
+    try{
+      var data=await api("/admin/provider-control/balance",{
+        method:"POST",
+        body:JSON.stringify({
+          provider:provider,
+          balance_microusd:balance,
+          low_balance_threshold_microusd:threshold
+        })
+      });
+      renderProviderControl(data);
+      setMessage("provider-control-message","供應商餘額基準已更新。",true);
+    }catch(e){
+      setMessage("provider-control-message","餘額基準更新失敗："+e.message);
+    }finally{button.disabled=false;}
+  });
+
+  $("hosted-routes").addEventListener("click",async function(event){
+    var button=event.target.closest("[data-save-route]");
+    if(!button) return;
+    var modelId=button.dataset.saveRoute;
+    var row=button.closest("[data-route-row]");
+    var select=row.querySelector('[data-role="route-select"]');
+    var routeId=select.value;
+    var routeLabel=select.options[select.selectedIndex]?.textContent||routeId;
+    if(!confirm("確認將 "+modelId+" 的 YoruBay Hosted 上游切換為 "+routeLabel+"？\n玩家不需要重新登入或修改故事設定。")) return;
+    button.disabled=true;
+    try{
+      var data=await api("/admin/provider-control/route",{
+        method:"POST",
+        body:JSON.stringify({model_id:modelId,route_id:routeId})
+      });
+      renderProviderControl(data);
+      setMessage("provider-control-message","Hosted 路由已更新。",true);
+    }catch(e){
+      setMessage("provider-control-message","路由切換失敗："+e.message);
+    }finally{button.disabled=false;}
+  });
 
   updateSummary();
 })();
