@@ -7,7 +7,7 @@
   if (!document.querySelector('link[href^="css/player-builder-v2.css"]')) {
     const link = document.createElement("link");
     link.rel = "stylesheet";
-    link.href = "css/player-builder-v2.css?v=1";
+    link.href = "css/player-builder-v2.css?v=2";
     document.head.appendChild(link);
   }
   const view = document.getElementById("builder-view");
@@ -66,11 +66,22 @@
 
   const route = () => provider()?.value === HOSTED_PROVIDER ? "hosted" : "byok";
 
+  const markConditionalSurfaces = () => {
+    const legacyTest = $("test-api")?.parentElement;
+    if (legacyTest) legacyTest.classList.add("bao-builder-test-row");
+    const demo = $("bao-demo-mode")?.closest("label") || $("bao-demo-mode")?.parentElement;
+    if (demo) demo.classList.add("bao-builder-demo");
+    step.querySelector("[data-relay-probe]")?.closest("section")?.classList.add("bao-relay-probe");
+  };
+
   const sync = () => {
     markFields();
     const current = route();
+    const currentProvider = provider()?.value || "custom";
     if (current === "byok" && provider()?.value) lastByokProvider = provider().value;
     view.dataset.baoConnection = current;
+    view.dataset.baoProvider = currentProvider;
+    markConditionalSurfaces();
 
     const box = $("bao-connection-mode");
     if (!box) return;
@@ -97,9 +108,13 @@
 
     const quickIntro = $("bao-quick-intro");
     if (quickIntro && view.dataset.baoSetup === "quick") {
-      quickIntro.innerHTML = current === "hosted"
-        ? "選一個模型就能開始。帳號 API 額度只處理你主動送出的模型請求。"
-        : '選 AI 服務商、模型，再貼上自己的 API Key。還沒有 Key？<a href="quick-start.html" target="_blank" rel="noopener noreferrer">看三步驟教學 ↗</a>';
+      if (current === "hosted") {
+        quickIntro.textContent = "選一個模型就能開始。帳號 API 額度只處理你主動送出的模型請求。";
+      } else if (currentProvider === "lmstudio") {
+        quickIntro.textContent = "先在 LM Studio 啟動 Local Server 並開啟 CORS，再從下方讀取本機模型。不需要雲端 API Key。";
+      } else {
+        quickIntro.innerHTML = '選 AI 服務商、模型，再貼上自己的 API Key。還沒有 Key？<a href="quick-start.html" target="_blank" rel="noopener noreferrer">看三步驟教學 ↗</a>';
+      }
     }
   };
 
@@ -160,6 +175,7 @@
     provider()?.addEventListener("change", sync);
     model()?.addEventListener("change", sync);
     if (provider()) new MutationObserver(sync).observe(provider(), { childList: true });
+    new MutationObserver(markConditionalSurfaces).observe(step, { childList: true, subtree: true });
     setTimeout(() => { markFields(); sync(); }, 250);
     window.addEventListener("storage", event => { if (event.key === "yorubay:session") sync(); });
   };
