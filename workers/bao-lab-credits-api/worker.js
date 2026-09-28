@@ -5570,6 +5570,8 @@ async function providerCall(
       String(
         data.candidates?.[0]
           ?.finishReason ||
+        data.promptFeedback
+          ?.blockReason ||
         ""
       )
         .replace(
