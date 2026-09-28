@@ -4,10 +4,11 @@ const vm = require('node:vm');
 const fs = require('node:fs');
 const path = require('node:path');
 const code = fs.readFileSync(path.join(__dirname, '../js/credits-pilot.js'), 'utf8');
+const registry = JSON.parse(fs.readFileSync(path.join(__dirname, '../data/presets/models.json'), 'utf8'));
 function build(response={ok:true,status:200,body:{content:'測試成功',usage:{input_tokens:10,output_tokens:6,charged_credits:1}}}) {
   const calls=[]; const options=[];
   const api={send:async()=>({text:'BYOK works',usage:{}}),contentToText:x=>String(x),normalizeUsage:u=>u,networkError:e=>e};
-  const app={config:{api:null},modelPresets:[{provider:'gemini',label:'original',model:'original',base_url:'https://google',protocol:'gemini'}],populateAPIControls(){},syncSelectedPreset(){}};
+  const app={config:{api:null},modelRegistry:registry,modelPresets:[{provider:'gemini',label:'original',model:'original',base_url:'https://google',protocol:'gemini'}],populateAPIControls(){},syncSelectedPreset(){}};
   const elements={'api-type':{value:'',querySelector:()=>null,appendChild:o=>options.push(o),addEventListener:()=>{}},'api-key':{value:'',closest:()=>({firstChild:{nodeType:3}}),addEventListener:()=>{}},'api-hint':{textContent:''},'api-protocol-badge':{textContent:''}};
   const document={readyState:'loading',getElementById:id=>elements[id],createElement:()=>({}),addEventListener(){},body:{}};
   const defaultSession='yb_s_'+'A'.repeat(43);
