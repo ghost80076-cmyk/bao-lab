@@ -84,7 +84,7 @@
     }
     if (selected) {
       const hint = byId('api-hint');
-      if (hint) hint.textContent = '免雲端 API Key。先在 LM Studio 啟動 Server 並開啟 CORS，再讀取本機模型。';
+      if (hint) hint.textContent = '免雲端 API Key。若目前開著 Settings，先關閉；回主畫面左側 Developer → Start Server，開啟 CORS，再讀取本機模型。';
     }
   };
 
@@ -133,7 +133,7 @@
     if (!step) return;
     const box = document.createElement('section');
     box.id = 'bao-lm-builder'; box.className = 'hidden';
-    box.innerHTML = '<div class="bao-lm-heading"><strong>本地 AI · LM Studio</strong><a href="lm-studio-guide.html" target="_blank" rel="noopener">查看連接教學 ↗</a></div><p class="note">在同一台電腦啟動 LM Studio 的 Developer → Start Server，開啟 Enable CORS。模型在你的電腦運行，BAO/LAB 不會自動改用付費雲端 API。</p><div class="bao-lm-controls"><button type="button" class="secondary" id="bao-lm-discover">讀取本機模型</button><select id="bao-lm-models" aria-label="本機模型"><option value="">先按讀取本機模型…</option></select></div><p class="note" id="bao-lm-status" role="status" aria-live="polite"></p>';
+    box.innerHTML = '<div class="bao-lm-heading"><strong>本地 AI · LM Studio</strong><a href="lm-studio-guide.html" target="_blank" rel="noopener">查看連接教學 ↗</a></div><p class="note">如果目前看到 LM Studio 的 Settings 視窗，先按右上角 × 關閉；回主畫面左側 Developer → Start Server，並開啟 Enable CORS。不是 Settings → Developer。模型在你的電腦運行，BAO/LAB 不會自動改用付費雲端 API。</p><div class="bao-lm-controls"><button type="button" class="secondary" id="bao-lm-discover">讀取本機模型</button><select id="bao-lm-models" aria-label="本機模型"><option value="">先按讀取本機模型…</option></select></div><p class="note" id="bao-lm-status" role="status" aria-live="polite"></p>';
     byId('api-key')?.closest('label')?.after(box);
     const select = byId('bao-lm-models');
     byId('bao-lm-discover').onclick = () => getModels({ url: byId('base-url'), token: byId('api-key'), select,
@@ -160,7 +160,7 @@
     const prior = App.config?.api || {};
     const root = document.createElement('div');
     root.id = 'bao-lm-dialog';
-    root.innerHTML = '<section class="bao-lm-modal" role="dialog" aria-modal="true" aria-labelledby="bao-lm-title"><header><h2 id="bao-lm-title">連接 LM Studio 本地 AI</h2><button type="button" data-close aria-label="關閉">×</button></header><p>在執行模型的電腦啟動 LM Studio Server，並開啟 Enable CORS；不需要雲端 API Key。</p><form id="bao-lm-form" autocomplete="off"><label>本地 API 網址<input name="endpoint" required spellcheck="false"></label><label>本地 API Token（選填）<input name="token" type="password" autocomplete="off" placeholder="LM Studio 預設免填"></label><div class="bao-lm-controls"><button type="button" class="secondary" data-discover>讀取本機模型</button><select name="models" aria-label="本機模型"><option value="">請先讀取模型…</option></select></div><label>Model ID<input name="model" required placeholder="模型 ID，可手動填寫"></label><p data-message role="status" aria-live="polite"></p><footer><button type="button" class="secondary" data-test>測試本地模型</button><button type="submit" class="primary">套用到目前故事</button></footer></form><a href="lm-studio-guide.html" target="_blank" rel="noopener">LM Studio 詳細設定與故障排除 ↗</a></section>';
+    root.innerHTML = '<section class="bao-lm-modal" role="dialog" aria-modal="true" aria-labelledby="bao-lm-title"><header><h2 id="bao-lm-title">連接 LM Studio 本地 AI</h2><button type="button" data-close aria-label="關閉">×</button></header><p>若 LM Studio 正開著 Settings，先關閉它；回主畫面左側 Developer → Start Server，並開啟 Enable CORS。不需要雲端 API Key。</p><form id="bao-lm-form" autocomplete="off"><label>本地 API 網址<input name="endpoint" required spellcheck="false"></label><label>本地 API Token（選填）<input name="token" type="password" autocomplete="off" placeholder="LM Studio 預設免填"></label><div class="bao-lm-controls"><button type="button" class="secondary" data-discover>讀取本機模型</button><select name="models" aria-label="本機模型"><option value="">請先讀取模型…</option></select></div><label>Model ID<input name="model" required placeholder="模型 ID，可手動填寫"></label><p data-message role="status" aria-live="polite"></p><footer><button type="button" class="secondary" data-test>測試本地模型</button><button type="submit" class="primary">套用到目前故事</button></footer></form><a href="lm-studio-guide.html" target="_blank" rel="noopener">LM Studio 詳細設定與故障排除 ↗</a></section>';
     document.body.append(root);
     const form = root.querySelector('form');
     const field = name => form.elements.namedItem(name);
