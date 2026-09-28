@@ -30,4 +30,8 @@ jobs:
           node --check js/regex-library.js
           node --check js/regex-chat.js
           node --check js/player-text-replace-mod.js
+          node --check js/character-status-ui.js
+          node --check js/world-module-ui.js
+          node --check js/gameplay-ui.js
+          node --check js/app.js
           node --check js/author-regex-text-mod.js
