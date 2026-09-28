@@ -79,6 +79,14 @@
     const selected = byId('api-type')?.value === 'lmstudio';
     const controls = byId('bao-lm-builder');
     if (controls) controls.classList.toggle('hidden', !selected);
+
+    // LM Studio already has its own local model picker. Hide the generic preset row and
+    // protocol summary so players do not think they must choose the same model twice.
+    const genericModelLabel = byId('model-select')?.closest('label');
+    const connectionSummary = document.querySelector('[data-step-panel="4"] .api-connection-summary');
+    if (genericModelLabel) genericModelLabel.hidden = selected;
+    if (connectionSummary) connectionSummary.hidden = selected;
+
     const field = byId('api-key');
     const label = field?.closest('label');
     if (label) {
