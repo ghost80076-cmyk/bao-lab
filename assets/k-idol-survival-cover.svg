@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1774" height="887" viewBox="0 0 1774 887" role="img" aria-labelledby="title desc">
+<title id="title">韓國偶像選秀模擬器舞台主視覺</title>
+<desc id="desc">大型選秀舞台、聚光燈、九個出道席與練習生剪影。</desc>
+<defs>
+  <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#070811"/><stop offset=".48" stop-color="#151125"/><stop offset="1" stop-color="#070a13"/></linearGradient>
+  <linearGradient id="floor" x1=".5" y1="0" x2=".5" y2="1"><stop stop-color="#25162e" stop-opacity=".2"/><stop offset="1" stop-color="#02040a"/></linearGradient>
+  <radialGradient id="pink"><stop stop-color="#ff66bd" stop-opacity=".72"/><stop offset="1" stop-color="#ff66bd" stop-opacity="0"/></radialGradient>
+  <radialGradient id="cyan"><stop stop-color="#54ddff" stop-opacity=".68"/><stop offset="1" stop-color="#54ddff" stop-opacity="0"/></radialGradient>
+  <linearGradient id="seat" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#ff9cd6"/><stop offset="1" stop-color="#793164"/></linearGradient>
+  <filter id="blur"><feGaussianBlur stdDeviation="24"/></filter>
+</defs>
+<rect width="1774" height="887" fill="url(#bg)"/>
+<ellipse cx="365" cy="148" rx="430" ry="330" fill="url(#pink)" filter="url(#blur)"/>
+<ellipse cx="1430" cy="170" rx="430" ry="330" fill="url(#cyan)" filter="url(#blur)"/>
+<path d="M120 0L520 590" stroke="#ff8bd1" stroke-opacity=".16" stroke-width="92"/>
+<path d="M1650 0L1230 610" stroke="#69dcff" stroke-opacity=".14" stroke-width="96"/>
+<path d="M550 0L720 600M900 0L890 600M1220 0L1050 600" stroke="#fff" stroke-opacity=".06" stroke-width="34"/>
+<rect x="0" y="555" width="1774" height="332" fill="url(#floor)"/>
+<g opacity=".75">
+  <path d="M0 650H1774M0 720H1774M0 790H1774" stroke="#ff83cc" stroke-opacity=".08"/>
+  <path d="M510 555L350 887M700 555L650 887M887 555V887M1070 555L1120 887M1260 555L1420 887" stroke="#74dfff" stroke-opacity=".07"/>
+</g>
+<g transform="translate(160 132)">
+  <text x="0" y="0" fill="#ff8dd0" font-family="Arial, sans-serif" font-size="30" font-weight="700" letter-spacing="10">K-IDOL SURVIVAL</text>
+  <text x="0" y="78" fill="#fff8fd" font-family="Arial, sans-serif" font-size="78" font-weight="800" letter-spacing="-2">DEBUT PROJECT</text>
+  <text x="2" y="128" fill="#b7bac9" font-family="Arial, sans-serif" font-size="25" letter-spacing="4">TRAIN · STAGE · RANK · SURVIVE</text>
+</g>
+<g transform="translate(1130 190)">
+  <text x="0" y="0" fill="#ffffff" fill-opacity=".55" font-family="Arial, sans-serif" font-size="22" letter-spacing="5">FINAL</text>
+  <text x="0" y="72" fill="#ffffff" font-family="Arial, sans-serif" font-size="96" font-weight="900">9</text>
+  <text x="76" y="72" fill="#ff9bd7" font-family="Arial, sans-serif" font-size="28" font-weight="700">SEATS</text>
+</g>
+<g transform="translate(1018 390)">
+  <g fill="url(#seat)" stroke="#ffc4e5" stroke-opacity=".32">
+    <rect x="0" y="120" width="120" height="70" rx="16"/><rect x="132" y="120" width="120" height="70" rx="16"/><rect x="264" y="120" width="120" height="70" rx="16"/>
+    <rect x="66" y="42" width="120" height="70" rx="16"/><rect x="198" y="42" width="120" height="70" rx="16"/>
+    <rect x="132" y="-36" width="120" height="70" rx="16"/>
+  </g>
+  <g fill="#fff" font-family="Arial, sans-serif" font-size="24" font-weight="800" text-anchor="middle">
+    <text x="60" y="165">7</text><text x="192" y="165">8</text><text x="324" y="165">9</text>
+    <text x="126" y="87">4</text><text x="258" y="87">5</text><text x="192" y="9">1</text>
+  </g>
+</g>
+<g transform="translate(190 456)" fill="#05060b">
+  <g transform="translate(0 18)"><circle cx="42" cy="42" r="30"/><path d="M6 174c4-67 18-94 36-94s32 27 36 94z"/></g>
+  <g transform="translate(115 0)"><circle cx="42" cy="42" r="31"/><path d="M4 178c8-74 21-98 38-98s30 24 38 98z"/></g>
+  <g transform="translate(235 22)"><circle cx="42" cy="42" r="29"/><path d="M8 170c5-63 17-90 34-90s29 27 34 90z"/></g>
+  <g transform="translate(350 8)"><circle cx="42" cy="42" r="31"/><path d="M5 176c7-70 19-96 37-96s30 26 37 96z"/></g>
+  <g transform="translate(470 25)"><circle cx="42" cy="42" r="29"/><path d="M8 168c5-61 17-88 34-88s29 27 34 88z"/></g>
+</g>
+<rect x="116" y="804" width="470" height="2" fill="#ff7dc8" opacity=".55"/>
+<text x="116" y="844" fill="#d6d7e2" font-family="Arial, sans-serif" font-size="20" letter-spacing="3">THE CAMERA IS ON. YOUR CHOICE STILL MATTERS.</text>
+</svg>
