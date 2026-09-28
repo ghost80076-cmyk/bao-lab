@@ -6,6 +6,17 @@ const rules = { regex_scripts: [{
   replaceString: `<section id="persistent-card"><span id="author-state">等待狀態</span><button onclick="BAOAuthor.draft('打開圖鑑')">打開圖鑑</button><script>window.__kept=1;window.addEventListener('bao:statechange',function(e){var s=e.detail;document.getElementById('author-state').textContent=s.time+'｜'+s.location+'｜'+(s.characterStatuses['阿花']||{}).trust;});</script></section>`
 }] };
 
+async function openAuthorSettings(page) {
+  await page.waitForFunction(() => Boolean(window.BAOChatUISimplify?.openAuthorSettings && document.getElementById('bao-author-regex-panel')));
+  await page.evaluate(() => window.BAOChatUISimplify.openAuthorSettings());
+  const panel = page.locator('#bao-author-regex-panel');
+  await expect(panel).toBeVisible();
+  return panel;
+}
+async function closeAuthorSettings(page) {
+  await page.evaluate(() => window.BAOChatUISimplify?.closeAuthorSettings?.());
+}
+
 async function story(page, source = rules) {
   await page.goto('./');
   await page.waitForFunction(() => Boolean(window.BAOAuthorDock && App.characters?.length));
@@ -30,8 +41,7 @@ async function story(page, source = rules) {
     API.send = () => { window.__testApiCalls++; throw new Error('UI must not call API'); };
   });
   await expect(page.locator('#bao-author-regex-panel')).toHaveCount(1);
-  const panel = page.locator('#bao-author-regex-panel');
-  await panel.locator('summary').click();
+  const panel = await openAuthorSettings(page);
   await panel.locator('input[type=file]').setInputFiles({ name: 'author-regex.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(source)) });
   await expect(panel).toContainText('已保存 1 條原始正則');
   await panel.getByLabel('在這張角色卡啟用作者介面').check();
@@ -46,6 +56,7 @@ test('author UI survives turns, updates from consented world state, and cannot s
   page.once('dialog', dialog => dialog.accept());
   await panel.getByLabel('允許作者腳本讀取本故事的世界狀態').check();
   await panel.getByLabel('跨回合常駐作者介面（不必每輪重建）').check();
+  await closeAuthorSettings(page);
   const dock = page.locator('#bao-author-dock');
   const frame = page.frameLocator('iframe[title="跨回合作者隔離介面"]');
   await expect(dock).toHaveCount(1);
@@ -81,6 +92,7 @@ test('author UI survives turns, updates from consented world state, and cannot s
 test('static persistent view keeps HTML but cannot execute JS until separately allowed', async ({ page }) => {
   const panel = await story(page);
   await panel.getByLabel('跨回合常駐作者介面（不必每輪重建）').check();
+  await closeAuthorSettings(page);
   const dock = page.locator('#bao-author-dock');
   const frame = page.frameLocator('iframe[title="跨回合作者隔離介面"]');
   await expect(frame.locator('#persistent-card')).toBeVisible();
@@ -89,11 +101,15 @@ test('static persistent view keeps HTML but cannot execute JS until separately a
   }))).toEqual({ ran: undefined, bridge: 'undefined' });
   await frame.getByRole('button', { name: '打開圖鑑' }).click();
   await expect(page.locator('#user-input')).toHaveValue('');
+  await openAuthorSettings(page);
   page.once('dialog', dialog => dialog.accept());
   await panel.getByLabel('允許作者腳本（需自行信任來源）').check();
+  await closeAuthorSettings(page);
   await expect.poll(async () => frame.locator('#persistent-card').evaluate(node => node.ownerDocument.defaultView.__kept)).toBe(1);
   await expect(frame.locator('#author-state')).toHaveText('等待狀態');
+  await openAuthorSettings(page);
   await panel.getByLabel('在這張角色卡啟用作者介面').uncheck();
+  await closeAuthorSettings(page);
   await expect(dock).toHaveCount(0);
   expect(await page.evaluate(() => window.__testApiCalls)).toBe(0);
 });
@@ -103,16 +119,21 @@ test('author script receives no world state without separate consent; revocation
   page.once('dialog', dialog => dialog.accept());
   await panel.getByLabel('允許作者腳本（需自行信任來源）').check();
   await panel.getByLabel('跨回合常駐作者介面（不必每輪重建）').check();
+  await closeAuthorSettings(page);
   const frame = page.frameLocator('iframe[title="跨回合作者隔離介面"]');
   await expect(frame.locator('#persistent-card')).toBeVisible();
   await page.evaluate(() => GameState.applyUpdate({ time: '私密時間', location: '秘密房間' }));
   await expect(frame.locator('#author-state')).toHaveText('等待狀態');
   expect(await frame.locator('#persistent-card').evaluate(node => node.ownerDocument.defaultView.BAOAuthor.getState())).toEqual({});
+  await openAuthorSettings(page);
   page.once('dialog', dialog => dialog.accept());
   await panel.getByLabel('允許作者腳本讀取本故事的世界狀態').check();
+  await closeAuthorSettings(page);
   await expect(frame.locator('#author-state')).toHaveText('私密時間｜秘密房間｜undefined');
   expect(await frame.locator('#persistent-card').evaluate(node => node.ownerDocument.defaultView.BAOAuthor.getState())).toMatchObject({ time: '私密時間' });
+  await openAuthorSettings(page);
   await panel.getByLabel('允許作者腳本讀取本故事的世界狀態').uncheck();
+  await closeAuthorSettings(page);
   await expect(frame.locator('#author-state')).toHaveText('等待狀態');
   expect(await frame.locator('#persistent-card').evaluate(node => node.ownerDocument.defaultView.BAOAuthor.getState())).toEqual({});
   await page.evaluate(() => GameState.applyUpdate({ time: '再次更新', location: '不公開' }));
@@ -130,11 +151,14 @@ test('external images are blocked until separate per-card permission is granted'
   });
   const panel = await story(page, media);
   await panel.getByLabel('跨回合常駐作者介面（不必每輪重建）').check();
+  await closeAuthorSettings(page);
   const frame = page.frameLocator('iframe[title="跨回合作者隔離介面"]');
   await expect(frame.locator('#media-card')).toBeVisible();
   expect(requests).toBe(0);
+  await openAuthorSettings(page);
   page.once('dialog', dialog => dialog.accept());
   await panel.getByLabel('允許作者介面載入外部圖片／字型／媒體').check();
+  await closeAuthorSettings(page);
   await expect.poll(() => requests).toBeGreaterThan(0);
   await expect(frame.locator('img')).toHaveJSProperty('naturalWidth', 1);
   expect(await page.evaluate(() => Boolean(window.GameState.current))).toBe(true);
