@@ -46,7 +46,7 @@
       const signature = `${String(message.id || index)}|${source}|${stamp}`;
       let value = source;
       if (regexActive) value = R.apply(value, state.rules);
-      if (playerActive) value = window.BAOPlayerTextReplace.apply(value, playerState);
+      if (playerActive) value = window.BAOPlayerTextReplace.applyChat(value, playerState);
       const flatValue = value.replace(/\n/g, '');
       // The reader may repaint the same bubble after our first pass. Compare its
       // current content as well as its signature before skipping the regex pass.

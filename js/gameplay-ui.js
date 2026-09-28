@@ -10,6 +10,10 @@
   let cacheSchema = null;
 
   const esc = value => App.escapeHTML(String(value ?? ''));
+  const displayValue = value => {
+    const mod = window.BAOPlayerTextReplace;
+    return mod?.applyStatus ? mod.applyStatus(String(value ?? ''), mod.get?.()) : String(value ?? '');
+  };
   const clone = value => {
     try { return structuredClone(value); }
     catch (_) { return JSON.parse(JSON.stringify(value ?? null)); }
@@ -132,17 +136,17 @@
     const max = Number.isFinite(maxRaw) && maxRaw > min ? maxRaw : Math.max(min + 1, 100);
     const value = Number.isFinite(raw) ? raw : min;
     const ratio = Math.max(0, Math.min(100, ((value - min) / (max - min)) * 100));
-    return `<div class="gameplay-meter"><div><span>${esc(item.label)}</span><b>${esc(value)} / ${esc(max)}${item.suffix ? ` ${esc(item.suffix)}` : ''}</b></div><i><em style="width:${ratio}%"></em></i></div>`;
+    return `<div class="gameplay-meter"><div><span>${esc(item.label)}</span><b>${esc(displayValue(value))} / ${esc(displayValue(max))}${item.suffix ? ` ${esc(displayValue(item.suffix))}` : ''}</b></div><i><em style="width:${ratio}%"></em></i></div>`;
   };
 
   const sectionHTML = (section, state) => {
     const heading = section.title ? `<h4>${esc(section.title)}</h4>` : '';
     if (section.type === 'meters') return `<section class="gameplay-ui-section">${heading}<div class="gameplay-meter-grid">${section.items.map(item => meterHTML(item, state)).join('')}</div></section>`;
-    if (section.type === 'stats') return `<section class="gameplay-ui-section">${heading}<div class="gameplay-stat-grid">${section.items.map(item => `<div><small>${esc(item.label)}</small><b>${esc(formatValue(Core.getPath(state, item.path)))}${item.suffix ? ` ${esc(item.suffix)}` : ''}</b></div>`).join('')}</div></section>`;
+    if (section.type === 'stats') return `<section class="gameplay-ui-section">${heading}<div class="gameplay-stat-grid">${section.items.map(item => `<div><small>${esc(item.label)}</small><b>${esc(displayValue(formatValue(Core.getPath(state, item.path))))}${item.suffix ? ` ${esc(displayValue(item.suffix))}` : ''}</b></div>`).join('')}</div></section>`;
     if (section.type === 'list') {
       const value = Core.getPath(state, section.path);
       const list = Array.isArray(value) ? value.slice(0, section.limit) : [];
-      return `<section class="gameplay-ui-section">${heading}<div class="gameplay-list">${list.length ? list.map(item => `<div>• ${esc(formatValue(item))}</div>`).join('') : `<span>${esc(section.empty)}</span>`}</div></section>`;
+      return `<section class="gameplay-ui-section">${heading}<div class="gameplay-list">${list.length ? list.map(item => `<div>• ${esc(displayValue(formatValue(item)))}</div>`).join('') : `<span>${esc(displayValue(section.empty))}</span>`}</div></section>`;
     }
     if (section.type === 'actions') return `<section class="gameplay-ui-section">${heading}<div class="gameplay-actions">${section.items.map((item, index) => `<button type="button" class="secondary" data-gameplay-draft="${index}" data-gameplay-draft-text="${esc(item.draft)}">${esc(item.label)}</button>${item.hint ? `<small>${esc(item.hint)}</small>` : ''}`).join('')}</div></section>`;
     return '';

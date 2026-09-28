@@ -1,6 +1,10 @@
 (() => {
   if (typeof App === "undefined" || !window.BAOWorldModules) return;
   const esc = v => App.escapeHTML(String(v ?? ""));
+  const displayValue = value => {
+    const mod = window.BAOPlayerTextReplace;
+    return mod?.applyStatus ? mod.applyStatus(String(value ?? ""), mod.get?.()) : String(value ?? "");
+  };
   const ensureStyles = () => {
     if (document.querySelector('link[href="css/world-modules.css"]')) return;
     const link = document.createElement("link");
@@ -15,17 +19,17 @@
     const obj = value && typeof value === "object" && !Array.isArray(value) ? value : {};
     const keys = def.fields?.length ? def.fields.map(f => f.key).filter(k => obj[k] !== undefined) : Object.keys(obj);
     if (!keys.length) return '<div class="world-module-empty">目前沒有資料。</div>';
-    return `<div class="world-module-object">${keys.map(key => `<div class="world-module-field"><small>${esc(labelFor(def,key))}</small><b>${esc(pretty(obj[key]))}</b></div>`).join("")}</div>`;
+    return `<div class="world-module-object">${keys.map(key => `<div class="world-module-field"><small>${esc(labelFor(def,key))}</small><b>${esc(displayValue(pretty(obj[key])))}</b></div>`).join("")}</div>`;
   };
   const collectionHTML = value => {
     const list = Array.isArray(value) ? value : [];
     if (!list.length) return '<div class="world-module-empty">目前沒有資料。</div>';
     return `<div class="world-module-collection">${list.slice(0,80).map((item,index) => {
-      if (!item || typeof item !== "object" || Array.isArray(item)) return `<article class="world-module-card"><strong>${esc(pretty(item))}</strong></article>`;
+      if (!item || typeof item !== "object" || Array.isArray(item)) return `<article class="world-module-card"><strong>${esc(displayValue(pretty(item)))}</strong></article>`;
       const titleKey = ["name","title","label","item","id"].find(k => item[k] !== undefined);
       const title = titleKey ? item[titleKey] : `項目 ${index + 1}`;
       const rows = Object.entries(item).filter(([k]) => k !== titleKey).slice(0,12);
-      return `<article class="world-module-card"><strong>${esc(title)}</strong>${rows.length ? `<div class="world-module-kv">${rows.map(([k,v]) => `<span>${esc(k)}</span><span>${esc(pretty(v))}</span>`).join("")}</div>` : ""}</article>`;
+      return `<article class="world-module-card"><strong>${esc(displayValue(title))}</strong>${rows.length ? `<div class="world-module-kv">${rows.map(([k,v]) => `<span>${esc(k)}</span><span>${esc(displayValue(pretty(v)))}</span>`).join("")}</div>` : ""}</article>`;
     }).join("")}</div>`;
   };
   const renderModule = id => {
