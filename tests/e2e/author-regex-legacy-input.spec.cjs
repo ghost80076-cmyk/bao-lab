@@ -52,10 +52,8 @@ test('legacy textarea action drafts only after a player click, no extra API or s
   await frame.getByRole('button', { name: '查看圖鑑' }).click();
   await expect(page.locator('#user-input')).toHaveValue(''); // Untrusted JS must not run in static view.
   await openAuthorSettings(page);
-  await openAuthorSettings(page);
   page.once('dialog', dialog => dialog.accept());
   await panel.getByLabel('允許作者腳本（需自行信任來源）').check();
-  await closeAuthorSettings(page);
   await closeAuthorSettings(page);
   await expect(frame.locator('#legacy-menu')).toBeVisible();
   await expect(frame.locator('.bao-author-legacy-input')).toHaveCount(1);
@@ -73,11 +71,12 @@ test('legacy textarea action drafts only after a player click, no extra API or s
 test('mobile: isolated legacy UI does not shrink the main composer', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   const panel = await start(page);
+  await openAuthorSettings(page);
   page.once('dialog', dialog => dialog.accept());
   await panel.getByLabel('允許作者腳本（需自行信任來源）').check();
+  await closeAuthorSettings(page);
   const frame = page.frameLocator('iframe[title="跨回合作者隔離介面"]');
   await expect(frame.locator('#legacy-menu')).toBeVisible();
-  await closeAuthorSettings(page);
   await expect(page.locator('#user-input')).toBeVisible();
   const width = await page.locator('#user-input').evaluate(el => el.getBoundingClientRect().width);
   expect(width).toBeGreaterThan(100);
