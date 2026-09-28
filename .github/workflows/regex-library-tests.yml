@@ -21,7 +21,14 @@ jobs:
           node-version: 22
       - name: Local regex import and safety tests
         run: node --test tests/regex-library.test.cjs
-      - name: Check chat adapter and manager JavaScript syntax
+      - name: Author Regex MOD core tests
+        run: node --test tests/author-regex-mod-core.test.cjs
+      - name: Check chat adapter and Regex MOD JavaScript syntax
         run: |
           node --check js/regex-library.js
           node --check js/regex-chat.js
+          node --check js/author-regex-core.js
+          node --check js/author-regex-compat.js
+          node --check js/author-regex-studio.js
+          node --check js/author-regex-inline.js
+          node --check js/author-regex-dock.js
