@@ -278,13 +278,19 @@
       return true;
     }
 
-    host = document.createElement('details');
+    host = document.createElement('section');
     host.id = 'bao-author-regex-studio';
     host.style.cssText = 'margin-top:10px;padding:10px;border:1px solid #725c78;border-radius:10px;background:#17131c';
 
-    const summary = document.createElement('summary');
-    summary.textContent = 'Regex MOD 工作室 · 手動建立規則';
-    summary.style.cssText = 'cursor:pointer;font-weight:600';
+    const toggle = document.createElement('button');
+    toggle.type = 'button';
+    toggle.textContent = 'Regex MOD 工作室 · 手動建立規則';
+    toggle.setAttribute('aria-expanded', 'false');
+    toggle.style.cssText = 'width:100%;text-align:left;font-weight:600;background:transparent;border:0;color:inherit;padding:2px 0;cursor:pointer';
+
+    const body = document.createElement('div');
+    body.hidden = true;
+    body.dataset.regexStudioBody = '1';
 
     const intro = document.createElement('p');
     intro.textContent = '作者可以為目前角色卡建立自己的 Regex MOD。固定作用在 AI 回覆的「顯示層」：不改 Prompt、不改 Chat.messages、不改記憶、Canon、狀態或備份原文。';
@@ -327,9 +333,14 @@
     status.setAttribute('role', 'status');
     status.style.cssText = 'font-size:12px;line-height:1.6;overflow-wrap:anywhere';
 
-    host.append(summary, intro, buttons, ruleList, status);
+    body.append(intro, buttons, ruleList, status);
+    host.append(toggle, body);
     panel.append(host);
-    host.addEventListener('toggle', () => { if (host.open && owner !== cardId()) reloadDraft(); });
+    toggle.addEventListener('click', () => {
+      body.hidden = !body.hidden;
+      toggle.setAttribute('aria-expanded', body.hidden ? 'false' : 'true');
+      if (!body.hidden && owner !== cardId()) reloadDraft();
+    });
     reloadDraft();
     return true;
   }
