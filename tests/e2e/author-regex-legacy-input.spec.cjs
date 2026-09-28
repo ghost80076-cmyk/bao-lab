@@ -1,6 +1,10 @@
 const { test, expect } = require('@playwright/test');
 if (process.env.BAO_LIVE_URL) test.use({ baseURL: process.env.BAO_LIVE_URL });
 
+async function setPanelOpen(panel, open) {
+  await panel.evaluate((el, value) => { el.open = value; }, open);
+}
+
 // Synthetic legacy textarea fixture; do not publish anyone's original character card.
 const fixture = { regex_scripts: [{
   scriptName: '舊平台選單', findRegex: '【舊平台選單】',
@@ -25,7 +29,7 @@ async function start(page) {
     API.send = () => { window.__legacyApiCalls++; throw new Error('Author interface must not call API'); };
   });
   const panel = page.locator('#bao-author-regex-panel');
-  await panel.locator(':scope > summary').click();
+  await setPanelOpen(panel, true);
   await panel.locator('input[type=file]').setInputFiles({ name: 'legacy-test.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(fixture)) });
   await expect(panel).toContainText('已保存 1 條原始正則');
   await panel.getByLabel('在這張角色卡啟用作者介面').check();
@@ -60,7 +64,7 @@ test('mobile: isolated legacy UI does not shrink the main composer', async ({ pa
   await panel.getByLabel('允許作者腳本（需自行信任來源）').check();
   const frame = page.frameLocator('iframe[title="跨回合作者隔離介面"]');
   await expect(frame.locator('#legacy-menu')).toBeVisible();
-  await panel.locator(':scope > summary').click();
+  await setPanelOpen(panel, false);
   await expect(panel).not.toHaveAttribute('open', '');
   await expect(page.locator('#user-input')).toBeVisible();
   const width = await page.locator('#user-input').evaluate(el => el.getBoundingClientRect().width);
