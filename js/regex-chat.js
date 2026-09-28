@@ -26,8 +26,11 @@
     if (nodes.length !== records.length + shift || !records.every((message, i) =>
       nodes[i + shift]?.classList.contains(message.role === 'user' ? 'user' : 'assistant'))) return;
     const state = R.load();
-    const active = state.active && state.rules.some(rule => rule.enabled);
-    const stamp = JSON.stringify([active, state.rules]);
+    const regexActive = state.active && state.rules.some(rule => rule.enabled);
+    const playerState = window.BAOPlayerTextReplace?.get?.() || { active: false, rules: [] };
+    const playerActive = playerState.active && playerState.rules.some(rule => rule.enabled && rule.find);
+    const active = regexActive || playerActive;
+    const stamp = JSON.stringify([regexActive, state.rules, playerActive, playerState.rules]);
     nodes.forEach((node, index) => {
       if (!node.classList.contains('assistant') || node.classList.contains('is-streaming')) return;
       const message = records[index - shift];
@@ -41,7 +44,9 @@
       const previous = signatures.get(bubble);
       if (!active && !previous) return;
       const signature = `${String(message.id || index)}|${source}|${stamp}`;
-      const value = active ? R.apply(source, state.rules) : source;
+      let value = source;
+      if (regexActive) value = R.apply(value, state.rules);
+      if (playerActive) value = window.BAOPlayerTextReplace.apply(value, playerState);
       const flatValue = value.replace(/\n/g, '');
       // The reader may repaint the same bubble after our first pass. Compare its
       // current content as well as its signature before skipping the regex pass.
@@ -68,6 +73,7 @@
     if (!stream) return;
     new MutationObserver(schedule).observe(stream, { childList: true, subtree: true, characterData: true });
     window.addEventListener('storage', event => { if (event.key === R.KEY) schedule(); });
+    window.addEventListener('bao:player-text-replace-changed', schedule);
     window.addEventListener('focus', schedule);
     schedule();
   };
