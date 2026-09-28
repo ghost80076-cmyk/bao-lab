@@ -223,5 +223,34 @@
       "text": true,
       "ui": true
     }
+  },
+  {
+    "id": "k-idol-survival-simulator",
+    "file": "data/characters/general/k-idol-survival-simulator.json",
+    "name": "韓國偶像選秀模擬器｜最後一席",
+    "title": "韓國偶像選秀模擬器｜最後一席",
+    "avatar": "assets/k-idol-survival-cover.svg",
+    "category": "male",
+    "rating": "general",
+    "gender": "all",
+    "tags": [
+      "韓娛選秀",
+      "練習生",
+      "生存競演",
+      "舞台成長",
+      "排名淘汰",
+      "NPC群像",
+      "二創導入",
+      "多結局"
+    ],
+    "description": "從一封深夜入選通知開始，以練習生身分走進首爾大型生存選秀。初評、分組、舞台、排名、剪輯、宿舍、人際與淘汰壓力都會留下後果；最後能不能站進出道席，取決於你一路做出的選擇。",
+    "supported_modes": {
+      "immersive": true,
+      "world": true
+    },
+    "supported_display": {
+      "text": true,
+      "ui": true
+    }
   }
 ]

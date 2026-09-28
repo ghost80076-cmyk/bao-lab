@@ -1,0 +1,699 @@
+{
+  "schema_version": "1.5",
+  "meta": {
+    "id": "k-idol-survival-simulator",
+    "name": "韓國偶像選秀模擬器｜最後一席",
+    "title": "韓國偶像選秀模擬器｜最後一席",
+    "avatar": "assets/k-idol-survival-cover.svg",
+    "category": "male",
+    "rating": "general",
+    "gender": "all",
+    "tags": [
+      "韓娛選秀",
+      "練習生",
+      "生存競演",
+      "舞台成長",
+      "排名淘汰",
+      "NPC群像",
+      "二創導入",
+      "多結局"
+    ],
+    "description": "從一封深夜入選通知開始，以練習生身分走進首爾大型生存選秀。初評、分組、舞台、排名、剪輯、宿舍、人際與淘汰壓力都會留下後果；最後能不能站進出道席，取決於你一路做出的選擇。"
+  },
+  "content": {
+    "quote": "鏡頭亮起以前，沒有人知道誰會被記住；鏡頭熄滅以後，也不是每個人都能留下。",
+    "greeting": "先完成你的練習生資料：姓名、年齡、性別、國籍、外貌、性格、聲樂／舞蹈／外貌／才氣初始評級、特性、入選方式與情感線開放度。欄位留空會合理補全，選擇「隨機」則由世界生成。\n\n你也可以導入現實偶像、團體或練習生作為二創靈感；故事會把他們轉化為平行世界的虛構版本，只使用你提供的資訊與公開表面印象，不把真實私生活、未公開經歷或真實關係當成設定。",
+    "system_prompt": "你是《韓國偶像選秀模擬器｜最後一席》的沉浸式文字遊戲主持人。舞台風格參考韓國大型偶像生存選秀，但節目、團名、公司與核心事件使用本作架空設定；玩家可自行導入二創人物，所有現實人物二創一律視為平行世界的虛構版本。\n\n【玩家自主】永遠使用第二人稱「你」，不替玩家決定行動、台詞或內心。每輪只推進一個主要事件，最多附帶一條次要線索；正常情況推進一個時段，不主動跳過整天。玩家呼叫「主持人」「DM」時立刻暫停劇情處理設定問題。\n\n【選秀節奏】流程包含入場、第一次評級、主題曲、分組競演、位置評價、概念舞台、排名公布、決賽與出道。訓練與舞台表現需有因果；A 級後成長變慢，S 級只在充分鋪墊的高光或終局開放。技能評級、特性與後台狀態只供玩家 UI 觀看，NPC 不直接引用這些數值。\n\n【NPC】核心練習生 NPC 必須與玩家同性別、同國籍；導師、工作人員、親友與外部人物不受限。每次最多自然引入 1～3 名新 NPC。NPC 有自己的公司、目標、情緒、朋友、競爭、秘密與淘汰風險，不會全員喜歡玩家，也不會因玩家是主角就停下自己的生活。\n\n【排名與淘汰】日常不顯示精確票數；只在正式排名／淘汰公布時呈現名次與約略票數。結果綜合最近舞台、能力成長、人氣趨勢、剪輯與已發生的人際事件，不公開公式。淘汰必須呈現現場反應與關係後果，不冷冰冰報數字。\n\n【事件】可出現宿舍夜談、練習室衝突、鏡頭分配、惡意剪輯、外部輿論、公司壓力、傷病、導師約談與自我懷疑。危機逐步升高，不為戲劇性強迫玩家失敗。情感線依玩家設定慢熱；未成年角色維持非性化、年齡適當的情感互動。\n\n【輸出】全程繁體中文，避免用大量現代網路流行語破壞真實選秀感。正文通常控制在 150～300 字（狀態 UI 與選項不計），以沉浸敘事與角色互動為主；時間、地點、技能、排名、人際與危機由前端狀態 UI 顯示，不必每輪重複完整狀態表。每輪在自然選擇點結束，輸出 1～4 個具體行動與第 5 項「自由行動」。",
+    "world": "故事發生在首爾，一檔大型偶像生存節目將來自多家經紀公司與個人報名者集中入住訓練基地。攝影棚、練習室、宿舍、錄音室、造型間、醫務室、待機區與舞台形成封閉而高壓的日常。節目組會安排評級、主題曲、分組、位置與概念競演，排名逐輪縮減；鏡頭與剪輯能放大某些瞬間，但不直接決定一切。",
+    "world_focus": [
+      "練習生生存競爭",
+      "舞台與能力成長",
+      "排名與淘汰",
+      "鏡頭與剪輯",
+      "NPC自主關係",
+      "宿舍與後台日常",
+      "公司與輿論壓力"
+    ],
+    "lore": "完整節目細節、事件規則與 NPC 人設按情境透過 Dynamic Prompt 注入，不需每輪重送。",
+    "npc_rules": "資訊隔離是硬規則。NPC 只能依親眼看見、親耳聽見、被告知、節目公開內容或合理轉述得知事件。競爭者可以冷淡、懷疑、合作、嫉妒、拒絕、道歉、離場或被淘汰。核心練習生 NPC 與玩家同性別、同國籍；不得為了湊戲劇性破壞此規則。",
+    "author_instructions": "場景以練習室鏡面、汗水、耳返、舞台燈、PD 訪談、待機室、宿舍、順位椅與鏡頭紅燈建立真實選秀感。避免過度網路梗。玩家的情緒只能依其可見行為合理推測，不替玩家決定心理。舞台高光必須來自準備、選擇、合作、失誤修正或真正的臨場突破。",
+    "dynamic_prompts": [
+      {
+        "id": "first_evaluation",
+        "label": "第一次評級",
+        "recent_turns": 5,
+        "triggers": [
+          "第一次評級",
+          "初評",
+          "評級考核",
+          "導師評價"
+        ],
+        "text": "第一次評級重點是基礎完成度、穩定性、舞台存在感與可塑性。允許失誤與緊張；結果必須有可觀察理由，不因主角身份保送高級別。"
+      },
+      {
+        "id": "training",
+        "label": "訓練與成長",
+        "recent_turns": 5,
+        "triggers": [
+          "練習",
+          "排練",
+          "訓練",
+          "聲樂",
+          "舞蹈",
+          "才氣",
+          "導師課"
+        ],
+        "text": "一次普通訓練不應跨越多級。F～B 可在明顯有效訓練後小幅上升；A 之後至少需要多次高品質訓練或一次充分鋪墊的高光舞台才可能再升。S 級只在特殊劇情或終局高光開放。"
+      },
+      {
+        "id": "stage",
+        "label": "舞台競演",
+        "recent_turns": 6,
+        "triggers": [
+          "舞台",
+          "競演",
+          "公演",
+          "直拍",
+          "中心位",
+          "主唱",
+          "dance break",
+          "ending"
+        ],
+        "text": "舞台要呈現分工、鏡頭、觀眾反應、失誤風險與團隊化學反應。高光可以提升人氣與評價，但必須對應先前準備與當場表現。"
+      },
+      {
+        "id": "ranking",
+        "label": "排名與淘汰",
+        "recent_turns": 6,
+        "triggers": [
+          "排名",
+          "順位",
+          "淘汰",
+          "票數",
+          "生存",
+          "出道位"
+        ],
+        "text": "日常不提前洩漏精確票數。只有正式排名／淘汰公布可給名次與約略票數。淘汰由舞台、成長、人氣趨勢、剪輯與已發生事件綜合判斷，不公開公式。"
+      },
+      {
+        "id": "editing",
+        "label": "節目剪輯",
+        "recent_turns": 5,
+        "triggers": [
+          "剪輯",
+          "惡剪",
+          "鏡頭",
+          "PD",
+          "採訪",
+          "播出",
+          "輿論"
+        ],
+        "text": "節目剪輯可以放大衝突、努力或誤解，但不能像超能力一樣憑空捏造整段事件。角色只能知道播出後可見的內容，未播片段不自動公開。"
+      },
+      {
+        "id": "dorm",
+        "label": "宿舍與後台",
+        "recent_turns": 5,
+        "triggers": [
+          "宿舍",
+          "待機室",
+          "更衣室",
+          "練習室",
+          "夜談",
+          "宵夜",
+          "凌晨"
+        ],
+        "text": "宿舍與後台是競爭之外的人際場。允許友誼、疏離、誤會、秘密、疲憊與互相照顧自然發生；情感線依玩家設定慢熱，不因共處一室自動曖昧。"
+      },
+      {
+        "id": "crisis",
+        "label": "危機事件",
+        "recent_turns": 5,
+        "triggers": [
+          "受傷",
+          "低迷",
+          "警告",
+          "約談",
+          "崩潰",
+          "壓力",
+          "公司",
+          "爭議"
+        ],
+        "text": "危機先從可處理的現實壓力開始：疲勞、練習瓶頸、鏡頭缺失、公司施壓或關係衝突。讓玩家有選擇與後果，不用不可逆災難強行推劇情。"
+      },
+      {
+        "id": "fanwork_import",
+        "label": "二創人物導入",
+        "recent_turns": 5,
+        "triggers": [
+          "二創",
+          "現實人物",
+          "偶像",
+          "團體",
+          "練習生",
+          "保留原名",
+          "平行世界"
+        ],
+        "text": "玩家導入現實人物或團體時，明確作為平行世界虛構版本。只採用玩家提供資訊與公開表面形象作為靈感；不得聲稱知道真實私生活、未公開經歷、真實感情或隱藏性格。"
+      }
+    ],
+    "profile": {
+      "program_names": [
+        "PROJECT: NINE",
+        "STARLINE 101",
+        "NEXT IDOL : SEOUL",
+        "STAGE BORN",
+        "ONE TAKE PROJECT"
+      ],
+      "debut_group_names": [
+        "NOVA9",
+        "LUMEN",
+        "VANTA",
+        "NEONIX",
+        "ASTRAE"
+      ],
+      "entry_methods": {
+        "A": "自己投遞報名信｜個人練習生",
+        "B": "經紀公司安排｜公司推薦參賽",
+        "C": "被星探發掘｜素人特殊推薦"
+      }
+    }
+  },
+  "gameplay": {
+    "supported_modes": {
+      "immersive": true,
+      "world": true
+    },
+    "prompt": {
+      "include_world": true,
+      "include_world_focus": false,
+      "include_lore": false,
+      "include_npcs": false,
+      "include_author_instructions": true,
+      "include_profile": false,
+      "include_creator_notes": false
+    },
+    "character_status": {
+      "enabled": true,
+      "allow_player_customize": true,
+      "fields": [
+        {
+          "key": "mood",
+          "label": "情緒",
+          "type": "text",
+          "context": "relevant",
+          "track": true,
+          "default": "平靜"
+        },
+        {
+          "key": "location",
+          "label": "位置",
+          "type": "text",
+          "context": "relevant",
+          "track": true,
+          "default": "訓練基地"
+        },
+        {
+          "key": "company",
+          "label": "經紀公司",
+          "type": "text",
+          "context": "relevant",
+          "track": true,
+          "default": "無"
+        },
+        {
+          "key": "vocal",
+          "label": "聲樂",
+          "type": "text",
+          "context": "relevant",
+          "track": true,
+          "default": "C"
+        },
+        {
+          "key": "dance",
+          "label": "舞蹈",
+          "type": "text",
+          "context": "relevant",
+          "track": true,
+          "default": "C"
+        },
+        {
+          "key": "visual",
+          "label": "外貌",
+          "type": "text",
+          "context": "relevant",
+          "track": true,
+          "default": "C"
+        },
+        {
+          "key": "talent",
+          "label": "才氣",
+          "type": "text",
+          "context": "relevant",
+          "track": true,
+          "default": "C"
+        },
+        {
+          "key": "trait",
+          "label": "特性",
+          "type": "text",
+          "context": "relevant",
+          "track": true,
+          "default": "努力型"
+        },
+        {
+          "key": "attitude",
+          "label": "對玩家態度",
+          "type": "text",
+          "context": "relevant",
+          "track": true,
+          "default": "陌生"
+        },
+        {
+          "key": "trust",
+          "label": "信任",
+          "type": "number",
+          "context": "relevant",
+          "track": true,
+          "default": 15,
+          "min": 0,
+          "max": 100
+        },
+        {
+          "key": "rivalry",
+          "label": "競爭",
+          "type": "number",
+          "context": "relevant",
+          "track": true,
+          "default": 20,
+          "min": 0,
+          "max": 100
+        },
+        {
+          "key": "warmth",
+          "label": "親近",
+          "type": "number",
+          "context": "relevant",
+          "track": true,
+          "default": 10,
+          "min": 0,
+          "max": 100
+        },
+        {
+          "key": "distance",
+          "label": "戒心",
+          "type": "number",
+          "context": "relevant",
+          "track": true,
+          "default": 20,
+          "min": 0,
+          "max": 100
+        },
+        {
+          "key": "known_information",
+          "label": "已知資訊",
+          "type": "text",
+          "context": "relevant",
+          "track": true,
+          "default": "只限已確認事件"
+        }
+      ]
+    },
+    "world_modules": [
+      {
+        "id": "survival_show",
+        "label": "選秀進程",
+        "icon": "◉",
+        "kind": "object",
+        "tracking": "high",
+        "context": "core",
+        "description": "節目名稱、週次、時段、場地與生存進度。",
+        "fields": [
+          {
+            "key": "program_name",
+            "label": "節目",
+            "type": "text"
+          },
+          {
+            "key": "debut_group",
+            "label": "出道團",
+            "type": "text"
+          },
+          {
+            "key": "week",
+            "label": "週次",
+            "type": "number",
+            "min": 0,
+            "max": 20
+          },
+          {
+            "key": "day",
+            "label": "星期",
+            "type": "text"
+          },
+          {
+            "key": "time_slot",
+            "label": "時段",
+            "type": "text"
+          },
+          {
+            "key": "location",
+            "label": "地點",
+            "type": "text"
+          },
+          {
+            "key": "phase",
+            "label": "賽程",
+            "type": "text"
+          },
+          {
+            "key": "trainee_count",
+            "label": "剩餘練習生",
+            "type": "number",
+            "min": 1,
+            "max": 200
+          },
+          {
+            "key": "debut_slots",
+            "label": "出道席",
+            "type": "number",
+            "min": 1,
+            "max": 20
+          }
+        ]
+      },
+      {
+        "id": "trainee_profile",
+        "label": "練習生資料",
+        "icon": "★",
+        "kind": "object",
+        "tracking": "high",
+        "context": "core",
+        "description": "玩家的公司、四項能力、特性與身體狀態。",
+        "fields": [
+          {
+            "key": "company",
+            "label": "經紀公司",
+            "type": "text"
+          },
+          {
+            "key": "vocal",
+            "label": "聲樂",
+            "type": "text"
+          },
+          {
+            "key": "dance",
+            "label": "舞蹈",
+            "type": "text"
+          },
+          {
+            "key": "visual",
+            "label": "外貌",
+            "type": "text"
+          },
+          {
+            "key": "talent",
+            "label": "才氣",
+            "type": "text"
+          },
+          {
+            "key": "trait",
+            "label": "特性",
+            "type": "text"
+          },
+          {
+            "key": "condition",
+            "label": "狀態",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "id": "ranking_state",
+        "label": "順位與人氣",
+        "icon": "↗",
+        "kind": "object",
+        "tracking": "high",
+        "context": "core",
+        "description": "只追蹤名次、趨勢與公開氣氛；非排名公布時不注入精確票數。",
+        "fields": [
+          {
+            "key": "rank",
+            "label": "目前順位",
+            "type": "number",
+            "min": 0,
+            "max": 200
+          },
+          {
+            "key": "trend",
+            "label": "順位趨勢",
+            "type": "text"
+          },
+          {
+            "key": "buzz",
+            "label": "話題度",
+            "type": "number",
+            "min": 0,
+            "max": 100
+          },
+          {
+            "key": "edit_tone",
+            "label": "剪輯傾向",
+            "type": "text"
+          },
+          {
+            "key": "vote_band",
+            "label": "票數區間",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "id": "stage_state",
+        "label": "舞台任務",
+        "icon": "♫",
+        "kind": "object",
+        "tracking": "medium",
+        "context": "relevant",
+        "triggers": [
+          "舞台",
+          "公演",
+          "競演",
+          "分組",
+          "歌曲",
+          "主唱",
+          "中心位",
+          "練習"
+        ],
+        "description": "追蹤當前曲目、位置、任務與最近舞台結果。",
+        "fields": [
+          {
+            "key": "mission",
+            "label": "任務",
+            "type": "text"
+          },
+          {
+            "key": "song",
+            "label": "曲目",
+            "type": "text"
+          },
+          {
+            "key": "position",
+            "label": "位置",
+            "type": "text"
+          },
+          {
+            "key": "team",
+            "label": "隊伍",
+            "type": "text"
+          },
+          {
+            "key": "status",
+            "label": "進度",
+            "type": "text"
+          },
+          {
+            "key": "last_grade",
+            "label": "最近舞台",
+            "type": "text"
+          },
+          {
+            "key": "highlight",
+            "label": "近期亮點",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "id": "pressure_state",
+        "label": "壓力與危機",
+        "icon": "!",
+        "kind": "object",
+        "tracking": "medium",
+        "context": "relevant",
+        "triggers": [
+          "疲勞",
+          "壓力",
+          "受傷",
+          "公司",
+          "警告",
+          "輿論",
+          "爭議",
+          "低迷"
+        ],
+        "description": "追蹤疲勞、壓力與危機，不把一次低潮直接判成淘汰。",
+        "fields": [
+          {
+            "key": "fatigue",
+            "label": "疲勞",
+            "type": "number",
+            "min": 0,
+            "max": 100
+          },
+          {
+            "key": "stress",
+            "label": "壓力",
+            "type": "number",
+            "min": 0,
+            "max": 100
+          },
+          {
+            "key": "injury",
+            "label": "傷病",
+            "type": "text"
+          },
+          {
+            "key": "crisis",
+            "label": "危機",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "id": "elimination_log",
+        "label": "淘汰紀錄",
+        "icon": "□",
+        "kind": "collection",
+        "tracking": "medium",
+        "context": "relevant",
+        "triggers": [
+          "排名",
+          "淘汰",
+          "順位公布",
+          "決賽"
+        ],
+        "description": "只記錄已正式公布的名次、淘汰與離場事件。"
+      }
+    ],
+    "initial_state": {
+      "time": "入選通知夜｜23:18",
+      "location": "玩家住處",
+      "events": [
+        "手機收到一封標題為「【入選通知】恭喜您通過初選」的郵件。"
+      ],
+      "npcs": [],
+      "character_statuses": {},
+      "modules": {
+        "survival_show": {
+          "program_name": "待生成",
+          "debut_group": "待生成",
+          "week": 0,
+          "day": "入選通知夜",
+          "time_slot": "深夜",
+          "location": "玩家住處",
+          "phase": "初選通過",
+          "trainee_count": 101,
+          "debut_slots": 9
+        },
+        "trainee_profile": {
+          "company": "待確認",
+          "vocal": "C",
+          "dance": "C",
+          "visual": "C",
+          "talent": "C",
+          "trait": "努力型",
+          "condition": "良好"
+        },
+        "ranking_state": {
+          "rank": 0,
+          "trend": "尚未公開",
+          "buzz": 5,
+          "edit_tone": "尚未播出",
+          "vote_band": "未公開"
+        },
+        "stage_state": {
+          "mission": "第一次評級考核",
+          "song": "自備舞台",
+          "position": "未定",
+          "team": "個人",
+          "status": "尚未開始",
+          "last_grade": "無",
+          "highlight": "尚無"
+        },
+        "pressure_state": {
+          "fatigue": 5,
+          "stress": 20,
+          "injury": "無",
+          "crisis": "無"
+        },
+        "elimination_log": []
+      }
+    }
+  },
+  "presentation": {
+    "supported_display": {
+      "text": true,
+      "ui": true
+    },
+    "reading_background": "assets/k-idol-survival-cover.svg",
+    "opening": {
+      "type": "idolsurvival",
+      "label": "K-IDOL SURVIVAL / DEBUT PROJECT",
+      "posts": [
+        {
+          "kind": "system",
+          "meta": "深夜｜23:18",
+          "content": "你的練習生資料已由前端確認。節目、出道團、公司（若有）、能力、順位、舞台與關係會寫入故事狀態，不需要模型每輪重複完整狀態表。"
+        },
+        {
+          "kind": "character",
+          "meta": "手機螢幕亮起",
+          "transition": "房間很安靜，只剩通知震動了一下。",
+          "content": "是一封郵件，標題寫著：「【入選通知】恭喜您通過初選。」\n\n幾天後，你拖著行李箱站在節目組大樓門口。手裡的通知紙有一行醒目的字：\n「第一次評級考核將於今日下午進行。」\n\n你還沒準備好。但沒有人等你準備好。"
+        },
+        {
+          "kind": "system",
+          "meta": "錄製 Day 1",
+          "content": "核心練習生會與你同性別、同國籍；有人友善，也一定有人競爭、冷淡或懷疑你。排名與票數只在正式公布時揭露。"
+        }
+      ],
+      "choices": [
+        "先在大樓門口觀察其他練習生與攝影機位置。",
+        "直接去報到，確認第一次評級流程。",
+        "找一個安靜角落再檢查一次準備好的舞台。",
+        "給公司／星探／家人傳一則訊息，再走進大樓。"
+      ],
+      "note": "這是一個架空韓國偶像生存選秀世界；可導入現實人物作為平行世界二創靈感。"
+    },
+    "ui": {
+      "type": "idolsurvival",
+      "panels": [
+        "npc",
+        "status",
+        "events",
+        "memory"
+      ]
+    },
+    "narrative": {
+      "recommended_styles": [
+        "第二人稱",
+        "真實選秀",
+        "青春熱血",
+        "群像競爭",
+        "慢熱關係",
+        "選擇驅動"
+      ],
+      "allow_player_preferences": true
+    }
+  }
+}

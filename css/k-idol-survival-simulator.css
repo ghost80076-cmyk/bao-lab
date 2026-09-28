@@ -1,0 +1,62 @@
+/* K-Idol Survival Simulator */
+.idol-detail{display:grid;gap:28px;max-width:1180px;margin:0 auto;padding:8px 0 32px}
+.idol-back{justify-self:start}
+.idol-hero{min-height:560px;position:relative;overflow:hidden;border-radius:26px;border:1px solid rgba(255,110,196,.24);background:#080912;box-shadow:0 32px 90px rgba(0,0,0,.36)}
+.idol-hero-art{position:absolute;inset:0;overflow:hidden;filter:saturate(1.04) contrast(1.04)}
+.idol-hero-art img{display:block;width:100%;height:100%;object-fit:cover;object-position:center}
+.idol-hero-art:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(6,7,15,.08),rgba(6,7,15,.26) 38%,rgba(6,7,15,.95) 72%),linear-gradient(0deg,rgba(6,7,15,.88),transparent 55%)}
+.idol-hero-copy{position:relative;z-index:2;margin-left:48%;min-height:560px;padding:54px 46px;display:grid;align-content:center;gap:18px;color:#fff7fd}
+.idol-kicker{font-size:11px;letter-spacing:.18em;color:#ff88ce}
+.idol-hero h1{font-size:clamp(38px,5vw,66px);line-height:1.05;margin:0}
+.idol-hero p{line-height:1.9;color:#d7d7e1;margin:0}
+.idol-hero blockquote{margin:0;padding:14px 16px;border-left:2px solid #ff77c4;background:rgba(255,88,184,.1);color:#ffe4f5}
+.idol-actions{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.idol-actions span{font-size:12px;color:#aeb2c8}
+.idol-section-head{display:flex;justify-content:space-between;align-items:end;gap:24px}
+.idol-section-head h2{margin:6px 0 0;font-size:28px}
+.idol-section-head p{max-width:430px;margin:0;color:#9ea4b8;line-height:1.7}
+.idol-feature-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.idol-feature-grid article{padding:18px;border-radius:14px;background:linear-gradient(145deg,rgba(20,21,35,.96),rgba(12,13,24,.96));border:1px solid rgba(255,255,255,.08);display:grid;gap:7px}
+.idol-feature-grid b{color:#ffb4df}
+.idol-feature-grid span{font-size:13px;line-height:1.65;color:#a9adbf}
+.idol-builder-box{margin-top:18px;padding:18px;border-radius:16px;border:1px solid rgba(255,113,196,.27);background:linear-gradient(145deg,rgba(29,22,38,.98),rgba(15,17,30,.98))}
+.idol-builder-title{display:flex;align-items:baseline;gap:12px;margin-bottom:14px}
+.idol-builder-title span{font-size:10px;letter-spacing:.15em;color:#ff86cd}
+.idol-builder-title b{font-size:18px}
+.idol-confirm{margin-top:14px;padding:14px;border-radius:12px;background:rgba(255,86,184,.08);border:1px solid rgba(255,115,198,.18)}
+.idol-confirm b{color:#ffc3e7}
+.idol-confirm p,.idol-confirm small{display:block;margin:5px 0 0;color:#b4b6c7;line-height:1.6}
+.idol-status-shell{display:grid;grid-template-columns:1.05fr .95fr;gap:12px}
+.idol-status-card{padding:16px;border-radius:14px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.025);display:grid;gap:11px}
+.idol-status-card.show{background:linear-gradient(145deg,rgba(126,45,102,.2),rgba(255,255,255,.02))}
+.idol-status-card.stage,.idol-status-card.pressure{grid-column:1/-1}
+.idol-status-title{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.idol-status-title span{font-size:10px;letter-spacing:.13em;color:#ff8bcf}
+.idol-status-title b{font-size:17px}
+.idol-status-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.idol-status-grid div{display:grid;gap:4px}
+.idol-status-grid small{color:#8d93a8}
+.idol-status-grid b{color:#f7edf4}
+.idol-status-card p{margin:0;color:#9da3b6;font-size:12px}
+.idol-grade-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.idol-grade{min-height:72px;display:grid;place-items:center;border-radius:12px;background:linear-gradient(180deg,rgba(255,82,179,.12),rgba(79,224,255,.04));border:1px solid rgba(255,255,255,.07)}
+.idol-grade small{color:#9fa6bb}.idol-grade b{font-size:25px;color:#ffd7ee}
+.idol-pressure-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.idol-meter{display:grid;gap:5px}
+.idol-meter>div{display:flex;justify-content:space-between;font-size:11px}
+.idol-meter span{color:#a5aabd}.idol-meter b{color:#ffd1ea}
+.idol-meter i{height:5px;background:rgba(255,255,255,.08);border-radius:999px;overflow:hidden}
+.idol-meter em{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#58d8ff,#ff63bb)}
+.idol-survival-turn-choices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding:10px 0 2px}
+.idol-survival-turn-choices button{display:flex;gap:9px;text-align:left;align-items:flex-start;padding:11px 12px;border:1px solid rgba(255,115,198,.22);border-radius:12px;background:rgba(29,22,42,.78);color:#eee8ef;line-height:1.5;cursor:pointer}
+.idol-survival-turn-choices button:hover{border-color:rgba(255,139,207,.52);background:rgba(76,41,82,.58)}
+.idol-survival-turn-choices button span{display:grid;place-items:center;flex:0 0 22px;height:22px;border-radius:999px;background:rgba(255,102,187,.14);color:#ff9fd5;font-size:11px;font-weight:800}
+.idol-chat-badge{display:grid;gap:4px}.idol-chat-badge span{font-size:10px;letter-spacing:.13em;color:#ff8bcf}.idol-chat-badge b{font-size:16px}
+.bao-opening-idolsurvival{border-color:rgba(255,113,197,.24);background:radial-gradient(circle at 84% 8%,rgba(80,220,255,.13),transparent 32%),radial-gradient(circle at 16% 0%,rgba(255,72,174,.16),transparent 30%),linear-gradient(145deg,rgba(10,10,20,.98),rgba(26,19,36,.96))}
+.bao-opening-idolsurvival .bao-opening-label{color:#ff91d1}
+.bao-opening-idolsurvival .bao-opening-post-character{border-left-color:#ff6fbe;background:rgba(255,78,177,.06)}
+.bao-opening-idolsurvival .bao-opening-choice{border-color:rgba(255,114,198,.22)}
+.bao-opening-idolsurvival .bao-opening-choice:hover{border-color:rgba(255,145,211,.48);background:rgba(255,93,184,.1)}
+.bao-opening-idolsurvival .bao-opening-choice span{color:#ff9cd5}
+@media(max-width:900px){.idol-feature-grid{grid-template-columns:1fr 1fr}.idol-status-shell{grid-template-columns:1fr}.idol-status-card.stage,.idol-status-card.pressure{grid-column:auto}}
+@media(max-width:620px){.idol-hero{min-height:650px}.idol-hero-art:after{background:linear-gradient(0deg,rgba(6,7,15,.98) 0%,rgba(6,7,15,.28) 62%,transparent 100%)}.idol-hero-copy{margin-left:0;padding:310px 20px 24px;min-height:650px}.idol-hero h1{font-size:38px}.idol-feature-grid,.idol-survival-turn-choices{grid-template-columns:1fr}.idol-status-grid,.idol-grade-grid{grid-template-columns:1fr 1fr}.idol-pressure-grid{grid-template-columns:1fr}}
