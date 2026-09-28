@@ -4,7 +4,7 @@
     "id": "host-club-simulator",
     "name": "牛郎模擬器｜歌舞伎町・最後指名",
     "title": "牛郎模擬器｜歌舞伎町・最後指名",
-    "avatar": "assets/hostsim-cast.jpg",
+    "avatar": "assets/hostsim-hero-v2.webp",
     "category": "male",
     "rating": "general",
     "gender": "male",
@@ -750,7 +750,7 @@
           "kind": "character",
           "meta": "CLUB LUMIÈRE｜18:40",
           "transition": "新宿站東口的人潮往歌舞伎町方向散開。手機螢幕上，店家首頁還停在六張藝名照片。",
-          "content": "REN　HARU　REI　SENA　KYO　NAGI\n\n今晚你可以只是看看，也可以真的走進去。初回價看起來不貴——真正昂貴的是第二次、第三次，以及你開始在意某個人之後。"
+          "content": "店家頁面停在六張公開藝名照上。\n\n今晚你可以只是看看，也可以真的走進去。初回價看起來不貴——真正昂貴的是第二次、第三次，以及你開始在意某個人之後。"
         },
         {
           "kind": "system",
