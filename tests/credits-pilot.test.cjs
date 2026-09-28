@@ -150,7 +150,25 @@ test('propagates quota and provider-specific upstream errors without exposing pl
  await assert.rejects(()=>rateLimit.api.send(cfg,msgs),/Google Gemini 回報 API 速率或配額限制/);
  await assert.rejects(()=>rateLimit.api.send({...cfg,model:'deepseek/deepseek-v4-flash-0731'},msgs),/OpenRouter 回報 API 速率或配額限制/);
  const empty=build({ok:false,status:502,body:{error:'provider_empty_text',finish_reason:'MAX_TOKENS'}});
- await assert.rejects(()=>empty.api.send(cfg,msgs),/MAX_TOKENS/);
+ await assert.rejects(()=>empty.api.send(cfg,msgs),error=>{
+   assert.match(error.message,/MAX_TOKENS/);
+   assert.match(error.message,/提高「回覆輸出上限」/);
+   return true;
+ });
+ const safety=build({ok:false,status:502,body:{error:'provider_empty_text',finish_reason:'SAFETY'}});
+ await assert.rejects(()=>safety.api.send(cfg,msgs),error=>{
+   assert.match(error.message,/SAFETY/);
+   assert.doesNotMatch(error.message,/提高「回覆輸出上限」/);
+   assert.match(error.message,/重新生成或調整本次內容/);
+   return true;
+ });
+ const unknown=build({ok:false,status:502,body:{error:'provider_empty_text'}});
+ await assert.rejects(()=>unknown.api.send(cfg,msgs),error=>{
+   assert.match(error.message,/已回應，但沒有可顯示文字/);
+   assert.match(error.message,/先重新生成/);
+   assert.doesNotMatch(error.message,/輸出上限/);
+   return true;
+ });
 });
 test('registers only the prioritized YoruBay hosted catalog without free or duplicate routes',()=>{
  const s=build();s.app.populateAPIControls();s.app.populateAPIControls();
