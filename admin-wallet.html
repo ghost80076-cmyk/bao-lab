@@ -56,6 +56,10 @@ button{border-radius:12px;padding:10px 14px;font:inherit;font-weight:700;cursor:
 .player-table .wallet{text-align:right;white-space:nowrap}
 .player-table .actions-cell{text-align:right}
 .player-table button{padding:7px 10px;font-size:12px}
+.player-table .status-note{display:block;margin-top:4px;color:#aaa6b8;font-size:11px;max-width:220px}
+.player-actions{display:flex;justify-content:flex-end;gap:6px;flex-wrap:wrap}
+.danger{border:1px solid rgba(255,157,157,.35);background:#2a1b21;color:#ffb4b4}
+.restore{border:1px solid rgba(143,224,189,.32);background:#17241f;color:#9ae7c5}
 .player-empty{padding:18px;color:#aaa6b8;text-align:center}
 code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
 @media(max-width:700px){.grid,.provider-grid,.provider-form{grid-template-columns:1fr}.route-controls{grid-template-columns:1fr}.packages{grid-template-columns:repeat(2,minmax(0,1fr))}.card{padding:17px}}
@@ -131,6 +135,8 @@ code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
       <div class="row"><span>帳號</span><b id="p-user"></b></div>
       <div class="row"><span>顯示名稱</span><b id="p-display"></b></div>
       <div class="row"><span>目前 YoruBay 點數</span><b id="p-wallet"></b></div>
+      <div class="row"><span>帳號狀態</span><b id="p-status"></b></div>
+      <div class="row"><span>最近管理紀錄</span><b id="p-status-note"></b></div>
       <div class="row"><span>內部 ID</span><b id="p-internal"></b></div>
     </div>
   </section>
@@ -266,11 +272,18 @@ code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
         '<td><code>'+escapeHTML(p.public_id||"—")+'</code></td>'+
         '<td>'+escapeHTML(p.display_name||"—")+'</td>'+
         '<td class="wallet"><b>'+escapeHTML(points(p.wallet_balance_usd))+'</b></td>'+
-        '<td><span class="status-pill '+st[1]+'">'+st[0]+'</span></td>'+
+        '<td><span class="status-pill '+st[1]+'">'+st[0]+'</span>'+
+          (Number(p.enabled)===0?'<span class="status-note">'+escapeHTML(p.last_admin_reason||"舊版停用，原因未記錄")+'</span>':"")+
+        '</td>'+
         '<td class="muted">'+escapeHTML(formatDate(p.created_at))+'</td>'+
-        '<td class="actions-cell"><button class="secondary" type="button" data-select-player="'+escapeHTML(p.id)+'">'+
-          (selected&&selected.id===p.id?"已選取":"選取／加值")+
-        '</button></td>'+
+        '<td class="actions-cell"><div class="player-actions">'+
+          '<button class="secondary" type="button" data-select-player="'+escapeHTML(p.id)+'">'+
+            (selected&&selected.id===p.id?"已選取":"選取／加值")+
+          '</button>'+
+          (Number(p.enabled)===0
+            ?'<button class="restore" type="button" data-enable-player="'+escapeHTML(p.id)+'">恢復帳號</button>'
+            :'<button class="danger" type="button" data-disable-player="'+escapeHTML(p.id)+'">停用帳號</button>')+
+        '</div></td>'+
       '</tr>';
     }).join(""):'<tr><td colspan="7"><div class="player-empty">找不到符合的玩家。</div></td></tr>';
   }
@@ -283,6 +296,18 @@ code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
     renderSelected();
     renderPlayerList();
     if(selected) setMessage("player-message","已選取 "+(selected.username||selected.public_id||"玩家")+"。",true);
+  }
+  async function refreshPlayers(preferredId){
+    var data=await api("/admin/players",{method:"GET"});
+    players=Array.isArray(data.players)?data.players:[];
+    if(preferredId){
+      selected=players.find(function(p){return p.id===preferredId;})||selected;
+    }else if(selected){
+      selected=players.find(function(p){return p.id===selected.id;})||selected;
+    }
+    renderSelected();
+    renderPlayerList();
+    return data;
   }
   function minorUnits(value,currency){
     var n=Number(value);
@@ -386,8 +411,13 @@ code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
     $("p-user").textContent=selected.username||"—";
     $("p-display").textContent=selected.display_name||"—";
     $("p-wallet").textContent=points(selected.wallet_balance_usd);
+    var st=playerStatusLabel(selected);
+    $("p-status").textContent=st[0];
+    $("p-status-note").textContent=selected.last_admin_action
+      ? ((selected.last_admin_action==="disable"?"停用":"恢復")+"｜"+(selected.last_admin_reason||"未填原因")+"｜"+formatDate(selected.last_admin_action_at))
+      : (Number(selected.enabled)===0?"舊版停用，原因未記錄":"—");
     $("p-internal").textContent=selected.id||"—";
-    $("credit-wallet").disabled=false;
+    $("credit-wallet").disabled=Number(selected.enabled)===0||Number(selected.wallet_enabled)===0;
     updateSummary();
   }
   function updateSummary(){
@@ -449,13 +479,55 @@ code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
 
   $("player-list-filter").addEventListener("input",renderPlayerList);
   $("player-list-sort").addEventListener("change",renderPlayerList);
-  $("player-list-body").addEventListener("click",function(event){
-    var button=event.target.closest("[data-select-player]");
-    if(!button) return;
-    var player=players.find(function(p){return p.id===button.dataset.selectPlayer;})||null;
-    if(!player) return;
-    selectPlayer(player);
-    $("player-card").scrollIntoView({behavior:"smooth",block:"center"});
+  $("player-list-body").addEventListener("click",async function(event){
+    var selectButton=event.target.closest("[data-select-player]");
+    if(selectButton){
+      var player=players.find(function(p){return p.id===selectButton.dataset.selectPlayer;})||null;
+      if(!player) return;
+      selectPlayer(player);
+      $("player-card").scrollIntoView({behavior:"smooth",block:"center"});
+      return;
+    }
+
+    var disableButton=event.target.closest("[data-disable-player]");
+    if(disableButton){
+      var disablePlayer=players.find(function(p){return p.id===disableButton.dataset.disablePlayer;})||null;
+      if(!disablePlayer) return;
+      var reason=prompt("停用原因（會留下管理紀錄）", disablePlayer.username?"測試／停用："+disablePlayer.username:"測試帳號");
+      if(reason===null) return;
+      reason=reason.trim();
+      if(!confirm("確認停用 "+(disablePlayer.username||disablePlayer.public_id)+"？\n\n停用後：\n・玩家無法登入/呼叫 Hosted API\n・Wallet 與帳務紀錄保留\n・目前登入 Session 會失效\n・之後可從這裡恢復")) return;
+      disableButton.disabled=true;
+      try{
+        await api("/admin/players/"+encodeURIComponent(disablePlayer.id)+"/disable",{
+          method:"POST",
+          body:JSON.stringify({reason:reason||"管理員手動停用"})
+        });
+        await refreshPlayers(disablePlayer.id);
+        setMessage("player-message","已停用 "+(disablePlayer.username||disablePlayer.public_id)+"。",true);
+      }catch(e){
+        setMessage("player-message","停用失敗："+e.message);
+      }finally{disableButton.disabled=false;}
+      return;
+    }
+
+    var enableButton=event.target.closest("[data-enable-player]");
+    if(enableButton){
+      var enablePlayer=players.find(function(p){return p.id===enableButton.dataset.enablePlayer;})||null;
+      if(!enablePlayer) return;
+      if(!confirm("確認恢復 "+(enablePlayer.username||enablePlayer.public_id)+"？\n\n恢復後帳號與 Wallet 會重新啟用；舊 Session 不會復活，玩家需要重新登入。")) return;
+      enableButton.disabled=true;
+      try{
+        await api("/admin/players/"+encodeURIComponent(enablePlayer.id)+"/enable",{
+          method:"POST",
+          body:JSON.stringify({reason:"管理員手動恢復"})
+        });
+        await refreshPlayers(enablePlayer.id);
+        setMessage("player-message","已恢復 "+(enablePlayer.username||enablePlayer.public_id)+"，玩家需要重新登入。",true);
+      }catch(e){
+        setMessage("player-message","恢復失敗："+e.message);
+      }finally{enableButton.disabled=false;}
+    }
   });
 
   function applyPackage(button){
@@ -522,11 +594,7 @@ code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
       else selected.wallet_balance_usd=Number(selected.wallet_balance_usd||0)+(credit/1000);
       renderSelected();
       setMessage("topup-message","加值成功。最新點數："+points(selected.wallet_balance_usd),true);
-      var refreshed=await api("/admin/players",{method:"GET"});
-      players=Array.isArray(refreshed.players)?refreshed.players:players;
-      selected=players.find(function(p){return p.id===selected.id;})||selected;
-      renderSelected();
-      renderPlayerList();
+      await refreshPlayers(selected.id);
     }catch(e){
       setMessage("topup-message","加值失敗："+e.message);
     }finally{
