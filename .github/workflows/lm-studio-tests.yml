@@ -33,6 +33,8 @@ jobs:
             load.includes('js/lm-studio.js') &&
             lm.includes('bao-lm-endpoint') &&
             lm.includes('http://127.0.0.1:1234/v1') &&
+            lm.includes("genericModelLabel.hidden = selected") &&
+            lm.includes("connectionSummary.hidden = selected") &&
             discovery.includes('bao-builder-model-discovery') &&
             discovery.includes("preset?.route === 'custom'") &&
             discovery.includes("value === 'lmstudio'") &&
