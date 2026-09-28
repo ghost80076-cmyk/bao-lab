@@ -96,6 +96,19 @@ input.value = "繼續。";
   const latestAssistantNode = stream.children.at(-1);
   assert.doesNotMatch(String(latestAssistantNode?.innerHTML || ""), /連線失敗/, "post-turn memory failure must not be shown as a main chat failure");
 
+  API.send = async () => {
+    const error = new Error("Google Gemini 未接受本次內容（原因：PROHIBITED_CONTENT；階段：輸入內容）。");
+    error.code = "BAO_PROVIDER_BLOCKED";
+    throw error;
+  };
+  Chat.afterTurn = async () => {};
+  input.value = "再試一次。";
+  await App.sendMessage();
+  const blockedNode = stream.children.at(-1);
+  assert.match(String(blockedNode?.innerHTML || ""), /PROHIBITED_CONTENT/, "provider block reason must remain visible");
+  assert.doesNotMatch(String(blockedNode?.innerHTML || ""), /連線失敗/, "provider content blocking must not be mislabeled as a connection failure");
+  assert.equal(input.value, "再試一次。", "failed blocked turn must restore the player's input");
+
   console.log("memory app integrity core test passed");
 })().catch(error => {
   console.error(error);
