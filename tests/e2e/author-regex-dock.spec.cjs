@@ -9,8 +9,8 @@ const rules = { regex_scripts: [{
 async function story(page, source = rules) {
   await page.goto('./');
   await page.waitForFunction(() => Boolean(window.BAOAuthorDock && App.characters?.length));
-  await page.evaluate(() => {
-    App.openCharacter(App.characters[0].id);
+  await page.evaluate(async () => {
+    await App.openCharacter(App.characters[0].id);
     App.activeCharacter = {
       ...App.activeCharacter,
       character_status: { enabled: true, fields: [
