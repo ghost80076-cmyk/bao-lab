@@ -11,14 +11,9 @@
     kyo:{name:'KYO',role:'成熟 · 傾聽型',tag:'不逼單，但看得懂你'},
     nagi:{name:'NAGI',role:'散漫 · 不可預測',tag:'越不像牛郎，越讓人想追'}
   };
-  const pos = {
-    ren:'0% 0%', haru:'50% 0%', rei:'100% 0%',
-    sena:'0% 100%', kyo:'50% 100%', nagi:'100% 100%'
-  };
   const esc = value => App.escapeHTML(String(value ?? ''));
   const heroArt = () => App.activeCharacter?.avatar || 'assets/hostsim-hero-v2.webp';
-  const castArt = () => 'assets/hostsim-cast-v2.webp';
-  const bgStyle = key => `background-image:url('${App.escapeAttr(castArt())}');background-size:300% 200%;background-position:${pos[key]};`;
+  const portraitArt = key => `assets/hostsim-${key}-portrait-v3.webp`;
   const isHostSim = () => App.activeCharacter?.id === CARD_ID;
   const economyProfiles = {
     tight:{money:140000,income:240000,housing:'租屋，固定支出壓力偏高'},
@@ -127,7 +122,7 @@
     strip.setAttribute('aria-label','CLUB LUMIÈRE 六名牛郎');
     strip.innerHTML = hostOrder.map(key => {
       const info = hostMeta[key];
-      return `<figure><div class="hostsim-opening-photo" style="${bgStyle(key)}"></div><figcaption>${esc(info.name)}<small>${esc(info.role)}</small></figcaption></figure>`;
+      return `<figure><img class="hostsim-opening-photo" src="${App.escapeAttr(portraitArt(key))}" alt="${esc(info.name)} 公開角色照" decoding="async"><figcaption>${esc(info.name)}<small>${esc(info.role)}</small></figcaption></figure>`;
     }).join('');
     post.querySelector('.bao-opening-text')?.before(strip);
   };
@@ -180,7 +175,7 @@
             const info = hostMeta[key];
             const profile = cast.find(x => x.id === key);
             return `<article class="hostsim-card">
-              <div class="hostsim-card-photo" style="${bgStyle(key)}"></div>
+              <img class="hostsim-card-photo" src="${App.escapeAttr(portraitArt(key))}" alt="${esc(profile?.name || info.name)} 角色大頭照" loading="lazy" decoding="async">
               <div class="hostsim-card-body">
                 <span>${esc(profile?.role || info.role)}</span>
                 <h3>${esc(profile?.name || info.name)}</h3>
@@ -318,7 +313,7 @@
         const info=hostMeta[key], state=byName.get(info.name)||{};
         const status=s.characterStatuses?.[info.name]||{};
         const relation=status.stage&&status.stage!=='未認識' ? status.stage : (state.relationship||'未認識');
-        return `<article><div class="hostsim-mini-photo" style="${bgStyle(key)}"></div><div><b>${info.name}</b><span>${esc(state.role||info.role)}</span><small>${esc(state.mood||status.mood||'未知')} · ${esc(relation)}</small></div></article>`;
+        return `<article><img class="hostsim-mini-photo" src="${App.escapeAttr(portraitArt(key))}" alt="${esc(info.name)}"><div><b>${info.name}</b><span>${esc(state.role||info.role)}</span><small>${esc(state.mood||status.mood||'未知')} · ${esc(relation)}</small></div></article>`;
       }).join('')}</div>`;
       return;
     }
