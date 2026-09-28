@@ -1,0 +1,32 @@
+name: Gameplay UI Engine
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'js/gameplay-ui-core.js'
+      - 'js/gameplay-ui.js'
+      - 'css/gameplay-ui.css'
+      - 'tests/gameplay-ui-engine-core.cjs'
+      - 'tests/fixtures/gameplay-ui-demo-character.json'
+      - 'docs/gameplay-ui-engine.md'
+      - '.github/workflows/gameplay-ui-engine.yml'
+      - 'js/character.js'
+      - 'index.html'
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  gameplay-ui-core:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node --check js/gameplay-ui-core.js
+      - run: node --check js/gameplay-ui.js
+      - run: node tests/gameplay-ui-engine-core.cjs
