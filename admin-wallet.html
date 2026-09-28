@@ -44,6 +44,19 @@ button{border-radius:12px;padding:10px 14px;font:inherit;font-weight:700;cursor:
 .provider-form{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px}
 .provider-form .actions{grid-column:1/-1;margin-top:0}
 .control-heading{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.player-list-area{margin-top:18px}
+.player-list-scroll{overflow:auto;border:1px solid rgba(255,255,255,.1);border-radius:14px;background:#10121a}
+.player-table{width:100%;border-collapse:collapse;min-width:760px}
+.player-table th,.player-table td{padding:11px 12px;border-bottom:1px solid rgba(255,255,255,.08);text-align:left;font-size:13px;vertical-align:middle}
+.player-table th{position:sticky;top:0;background:#151722;color:#aaa6b8;font-weight:700;z-index:1}
+.player-table tr:last-child td{border-bottom:0}
+.player-table tr.selected-player-row{background:rgba(238,232,255,.08)}
+.player-table code{font-size:12px}
+.player-table .muted{color:#aaa6b8}
+.player-table .wallet{text-align:right;white-space:nowrap}
+.player-table .actions-cell{text-align:right}
+.player-table button{padding:7px 10px;font-size:12px}
+.player-empty{padding:18px;color:#aaa6b8;text-align:center}
 code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
 @media(max-width:700px){.grid,.provider-grid,.provider-form{grid-template-columns:1fr}.route-controls{grid-template-columns:1fr}.packages{grid-template-columns:repeat(2,minmax(0,1fr))}.card{padding:17px}}
 </style>
@@ -77,6 +90,42 @@ code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
     </div>
     <div class="actions"><button id="find-player" class="secondary" type="button">尋找玩家</button></div>
     <div id="player-message" class="error"></div>
+
+    <div id="player-list-area" class="player-list-area" hidden>
+      <div class="control-heading">
+        <h3>已載入玩家</h3>
+        <span id="player-count" class="status-pill">0 位</span>
+      </div>
+      <div class="grid">
+        <label>篩選玩家
+          <input id="player-list-filter" autocomplete="off" spellcheck="false" placeholder="帳號、顯示名稱或 Player ID">
+        </label>
+        <label>排序
+          <select id="player-list-sort">
+            <option value="newest">建立時間：新到舊</option>
+            <option value="balance-desc">點數：高到低</option>
+            <option value="username">帳號：A → Z</option>
+          </select>
+        </label>
+      </div>
+      <div class="player-list-scroll" style="margin-top:12px">
+        <table class="player-table">
+          <thead>
+            <tr>
+              <th>帳號</th>
+              <th>Player ID</th>
+              <th>顯示名稱</th>
+              <th class="wallet">點數</th>
+              <th>狀態</th>
+              <th>建立時間</th>
+              <th class="actions-cell">操作</th>
+            </tr>
+          </thead>
+          <tbody id="player-list-body"></tbody>
+        </table>
+      </div>
+    </div>
+
     <div id="player-card" class="player" hidden>
       <div class="row"><span>玩家編號</span><b id="p-public"></b></div>
       <div class="row"><span>帳號</span><b id="p-user"></b></div>
@@ -169,6 +218,71 @@ code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
   }
   function setMessage(id,text,ok){
     var el=$(id); el.textContent=text||""; el.className=ok?"success":"error";
+  }
+  function escapeHTML(value){
+    return String(value==null?"":value)
+      .replace(/&/g,"&amp;")
+      .replace(/</g,"&lt;")
+      .replace(/>/g,"&gt;")
+      .replace(/"/g,"&quot;")
+      .replace(/'/g,"&#39;");
+  }
+  function formatDate(value){
+    if(!value) return "—";
+    var d=new Date(value);
+    if(Number.isNaN(d.getTime())) return String(value);
+    return d.toLocaleString("zh-TW",{year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit"});
+  }
+  function playerStatusLabel(player){
+    if(Number(player&&player.enabled)===0) return ["停用","status-empty"];
+    if(player&&player.wallet_enabled!=null&&Number(player.wallet_enabled)===0) return ["錢包停用","status-low"];
+    return ["正常","status-ok"];
+  }
+  function renderPlayerList(){
+    var area=$("player-list-area");
+    var body=$("player-list-body");
+    if(!area||!body) return;
+    area.hidden=!adminToken;
+    var query=String($("player-list-filter")?.value||"").trim().toLowerCase();
+    var sort=String($("player-list-sort")?.value||"newest");
+    var list=players.filter(function(p){
+      if(!query) return true;
+      return [p.public_id,p.username,p.display_name,p.id]
+        .some(function(v){return String(v||"").toLowerCase().includes(query);});
+    }).slice();
+    if(sort==="balance-desc"){
+      list.sort(function(a,b){return Number(b.wallet_balance_usd||0)-Number(a.wallet_balance_usd||0);});
+    }else if(sort==="username"){
+      list.sort(function(a,b){return String(a.username||"").localeCompare(String(b.username||""),"zh-Hant");});
+    }else{
+      list.sort(function(a,b){return new Date(b.created_at||0)-new Date(a.created_at||0);});
+    }
+    $("player-count").textContent=(query?list.length+" / ":"")+players.length+" 位";
+    body.innerHTML=list.length?list.map(function(p){
+      var st=playerStatusLabel(p);
+      var selectedClass=selected&&selected.id===p.id?" selected-player-row":"";
+      return '<tr class="'+selectedClass+'" data-player-row="'+escapeHTML(p.id)+'">'+
+        '<td><b>'+escapeHTML(p.username||"—")+'</b></td>'+
+        '<td><code>'+escapeHTML(p.public_id||"—")+'</code></td>'+
+        '<td>'+escapeHTML(p.display_name||"—")+'</td>'+
+        '<td class="wallet"><b>'+escapeHTML(points(p.wallet_balance_usd))+'</b></td>'+
+        '<td><span class="status-pill '+st[1]+'">'+st[0]+'</span></td>'+
+        '<td class="muted">'+escapeHTML(formatDate(p.created_at))+'</td>'+
+        '<td class="actions-cell"><button class="secondary" type="button" data-select-player="'+escapeHTML(p.id)+'">'+
+          (selected&&selected.id===p.id?"已選取":"選取／加值")+
+        '</button></td>'+
+      '</tr>';
+    }).join(""):'<tr><td colspan="7"><div class="player-empty">找不到符合的玩家。</div></td></tr>';
+  }
+  function selectPlayer(player){
+    selected=player||null;
+    if(selected){
+      $("public-id").value=selected.public_id||"";
+      $("username").value=selected.username||"";
+    }
+    renderSelected();
+    renderPlayerList();
+    if(selected) setMessage("player-message","已選取 "+(selected.username||selected.public_id||"玩家")+"。",true);
   }
   function minorUnits(value,currency){
     var n=Number(value);
@@ -301,6 +415,7 @@ code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
     try{
       var data=await api("/admin/players",{method:"GET"});
       players=Array.isArray(data.players)?data.players:[];
+      renderPlayerList();
       setMessage("connect-message","管理員驗證成功，已載入 "+players.length+" 位玩家。",true);
       $("admin-token").value="";
       try{
@@ -320,18 +435,28 @@ code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
     setMessage("player-message","");
     var pid=$("public-id").value.trim().toUpperCase();
     var user=$("username").value.trim().toLowerCase();
-    selected=players.find(function(p){
+    var found=players.find(function(p){
       return (pid&&String(p.public_id||"").toUpperCase()===pid) ||
              (user&&String(p.username||"").toLowerCase()===user);
     })||null;
-    if(!selected){
-      renderSelected();
+    if(!found){
+      selectPlayer(null);
       setMessage("player-message",players.length?"找不到符合的玩家。":"尚未載入玩家，請先驗證 ADMIN_TOKEN。");
       return;
     }
-    renderSelected();
-    setMessage("player-message","已找到玩家。",true);
+    selectPlayer(found);
   };
+
+  $("player-list-filter").addEventListener("input",renderPlayerList);
+  $("player-list-sort").addEventListener("change",renderPlayerList);
+  $("player-list-body").addEventListener("click",function(event){
+    var button=event.target.closest("[data-select-player]");
+    if(!button) return;
+    var player=players.find(function(p){return p.id===button.dataset.selectPlayer;})||null;
+    if(!player) return;
+    selectPlayer(player);
+    $("player-card").scrollIntoView({behavior:"smooth",block:"center"});
+  });
 
   function applyPackage(button){
     var currency=$("currency").value;
@@ -401,6 +526,7 @@ code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
       players=Array.isArray(refreshed.players)?refreshed.players:players;
       selected=players.find(function(p){return p.id===selected.id;})||selected;
       renderSelected();
+      renderPlayerList();
     }catch(e){
       setMessage("topup-message","加值失敗："+e.message);
     }finally{
