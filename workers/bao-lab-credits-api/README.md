@@ -209,3 +209,54 @@ The Worker now sends this extra field to `AWS_RELAY_URL/v1/chat`:
 The EC2 relay must validate `openrouter_provider.max_price` as non-negative finite numbers and forward it to OpenRouter as the request body's `provider` object. Until the relay does this, AWS-routed OpenRouter requests do **not** have the upstream hard-price guarantee and PR #61 must remain Draft.
 
 Do not accept arbitrary browser-supplied provider routing. The browser never sends this field; the Worker derives it from the server-side `MODELS_JSON` entry.
+
+
+## Admin provider control
+
+The authenticated `admin-wallet.html` page can manage two owner-side concerns without exposing them to players:
+
+1. **Provider balance anchors** for `gemini` and `openrouter`.
+   - The admin enters the provider's current real balance in USD and a low-balance warning threshold.
+   - The Worker stores that balance together with the cumulative YoruBay USD-billing spend at that moment.
+   - Future estimated remaining balance is calculated as `anchor balance - YoruBay provider spend since the anchor`.
+   - This is an internal estimate, not a live query to Google or OpenRouter. Re-anchor whenever the upstream account is topped up or manually adjusted.
+
+2. **Hosted Gemini route overrides**.
+   - `gemini-3-flash-preview` and `gemini-3.1-pro-preview` default to the existing Google Gemini route.
+   - The admin can switch either logical model to its OpenRouter equivalent.
+   - Players keep the same YoruBay model choice and story settings; the Worker resolves the actual upstream server-side.
+   - If a saved override is no longer permitted by `MODELS_JSON`, the Worker falls back to the existing Google route instead of sending an unpriced request.
+
+The control tables are created lazily after an authenticated admin request:
+
+- `hosted_route_overrides`
+- `provider_balance_anchors`
+
+Admin endpoints:
+
+- `GET /admin/provider-control`
+- `POST /admin/provider-control/route`
+- `POST /admin/provider-control/balance`
+
+All three require `Authorization: Bearer <ADMIN_TOKEN>`.
+
+### OpenRouter Gemini prerequisite
+
+The OpenRouter route can only be selected when the Worker `MODELS_JSON` already contains a reviewed pricing entry for the matching provider/model pair:
+
+```json
+[
+  {
+    "provider": "openrouter",
+    "model": "google/gemini-3-flash-preview"
+  },
+  {
+    "provider": "openrouter",
+    "model": "google/gemini-3.1-pro-preview"
+  }
+]
+```
+
+Real pricing fields must also be present in production. The admin page deliberately marks an unconfigured route unavailable rather than bypassing the server-side allowlist.
+
+This control is separate from BYOK. A player using their own Google Gemini or OpenRouter API key continues to call their selected provider directly and is not affected by the YoruBay Hosted route override.
