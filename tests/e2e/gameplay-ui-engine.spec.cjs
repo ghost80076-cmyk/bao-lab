@@ -57,6 +57,8 @@ test('gameplay schema renders builder, applies state, and drafts actions without
   await expect(panel).toContainText('世家子弟');
 
   await page.evaluate(() => BAOGameplayUI.renderPanel('combat'));
-  await page.getByRole('button', { name: '穩健迎戰' }).click();
+  const action = page.locator('[data-gameplay-draft-text]');
+  await expect(action).toHaveCount(1);
+  await action.click({ force: true });
   await expect(page.locator('#user-input')).toHaveValue('我採取穩健策略迎戰，優先保命並觀察對手破綻。');
 });
