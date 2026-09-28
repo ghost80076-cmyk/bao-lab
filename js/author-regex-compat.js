@@ -135,6 +135,8 @@
     const rules = Core.normalize(raw);
     const current = empty(); current.rules = rules;
     save(id, current); showCount();
+    window.BAOAuthorRegexStudio?.reload?.();
+    window.dispatchEvent(new CustomEvent('bao:author-regex-changed', { detail: { characterId: id } }));
     say(`已保存 ${rules.length} 條原始正則，預設全部不執行。請檢查來源，再自行啟用；原始角色卡與故事未修改。`);
   };
   function mount() {
@@ -218,6 +220,9 @@
     GameState.applyUpdate = function(...args) { const result = originalUpdate.apply(this, args); queueMicrotask(sendState); return result; };
     GameState.__baoAuthorRegexHooked = true;
   }
+  window.addEventListener('bao:author-regex-changed', event => {
+    if (!event.detail?.characterId || event.detail.characterId === cardId()) showCount();
+  });
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mount);
   else mount();
 })();
