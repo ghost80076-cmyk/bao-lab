@@ -1,53 +1,148 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1774" height="887" viewBox="0 0 1774 887" role="img" aria-labelledby="title desc">
-<title id="title">韓國偶像選秀模擬器舞台主視覺</title>
-<desc id="desc">大型選秀舞台、聚光燈、九個出道席與練習生剪影。</desc>
+<title id="title">韓國偶像選秀模擬器人物群像主視覺</title>
+<desc id="desc">五名練習生站在粉紫與冰藍舞台燈光下，中央角色向觀眾伸手，背景是大型選秀舞台與最後出道席。</desc>
 <defs>
-  <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#070811"/><stop offset=".48" stop-color="#151125"/><stop offset="1" stop-color="#070a13"/></linearGradient>
-  <linearGradient id="floor" x1=".5" y1="0" x2=".5" y2="1"><stop stop-color="#25162e" stop-opacity=".2"/><stop offset="1" stop-color="#02040a"/></linearGradient>
-  <radialGradient id="pink"><stop stop-color="#ff66bd" stop-opacity=".72"/><stop offset="1" stop-color="#ff66bd" stop-opacity="0"/></radialGradient>
-  <radialGradient id="cyan"><stop stop-color="#54ddff" stop-opacity=".68"/><stop offset="1" stop-color="#54ddff" stop-opacity="0"/></radialGradient>
-  <linearGradient id="seat" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#ff9cd6"/><stop offset="1" stop-color="#793164"/></linearGradient>
-  <filter id="blur"><feGaussianBlur stdDeviation="24"/></filter>
+  <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#090812"/><stop offset=".46" stop-color="#211229"/><stop offset="1" stop-color="#07101a"/></linearGradient>
+  <radialGradient id="pink" cx=".45" cy=".3" r=".75"><stop stop-color="#ff6fc2" stop-opacity=".68"/><stop offset="1" stop-color="#ff6fc2" stop-opacity="0"/></radialGradient>
+  <radialGradient id="cyan" cx=".5" cy=".4" r=".72"><stop stop-color="#69e4ff" stop-opacity=".55"/><stop offset="1" stop-color="#69e4ff" stop-opacity="0"/></radialGradient>
+  <linearGradient id="skin" x1=".2" y1="0" x2=".8" y2="1"><stop stop-color="#fff1ec"/><stop offset=".55" stop-color="#f5d2cb"/><stop offset="1" stop-color="#dbaaa7"/></linearGradient>
+  <linearGradient id="skin2" x1=".2" y1="0" x2=".8" y2="1"><stop stop-color="#fff7f2"/><stop offset=".65" stop-color="#efd1c8"/><stop offset="1" stop-color="#c99692"/></linearGradient>
+  <linearGradient id="blackHair" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#232230"/><stop offset=".55" stop-color="#090a10"/><stop offset="1" stop-color="#35243b"/></linearGradient>
+  <linearGradient id="brownHair" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#5e433d"/><stop offset=".5" stop-color="#21161a"/><stop offset="1" stop-color="#7b4d5c"/></linearGradient>
+  <linearGradient id="blondHair" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff0d1"/><stop offset=".55" stop-color="#cba98e"/><stop offset="1" stop-color="#765f62"/></linearGradient>
+  <linearGradient id="outfitDark" x1=".15" y1="0" x2=".85" y2="1"><stop stop-color="#252738"/><stop offset=".45" stop-color="#07090f"/><stop offset="1" stop-color="#321b34"/></linearGradient>
+  <linearGradient id="outfitWhite" x1=".15" y1="0" x2=".85" y2="1"><stop stop-color="#fff"/><stop offset=".55" stop-color="#c8cbd7"/><stop offset="1" stop-color="#7e7891"/></linearGradient>
+  <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#69e6ff"/><stop offset=".5" stop-color="#fff"/><stop offset="1" stop-color="#ff72c5"/></linearGradient>
+  <filter id="glow"><feGaussianBlur stdDeviation="18"/></filter>
+  <filter id="soft"><feGaussianBlur stdDeviation="7"/></filter>
+  <filter id="shadow"><feDropShadow dx="0" dy="14" stdDeviation="18" flood-color="#000" flood-opacity=".55"/></filter>
 </defs>
+
 <rect width="1774" height="887" fill="url(#bg)"/>
-<ellipse cx="365" cy="148" rx="430" ry="330" fill="url(#pink)" filter="url(#blur)"/>
-<ellipse cx="1430" cy="170" rx="430" ry="330" fill="url(#cyan)" filter="url(#blur)"/>
-<path d="M120 0L520 590" stroke="#ff8bd1" stroke-opacity=".16" stroke-width="92"/>
-<path d="M1650 0L1230 610" stroke="#69dcff" stroke-opacity=".14" stroke-width="96"/>
-<path d="M550 0L720 600M900 0L890 600M1220 0L1050 600" stroke="#fff" stroke-opacity=".06" stroke-width="34"/>
-<rect x="0" y="555" width="1774" height="332" fill="url(#floor)"/>
-<g opacity=".75">
-  <path d="M0 650H1774M0 720H1774M0 790H1774" stroke="#ff83cc" stroke-opacity=".08"/>
-  <path d="M510 555L350 887M700 555L650 887M887 555V887M1070 555L1120 887M1260 555L1420 887" stroke="#74dfff" stroke-opacity=".07"/>
+<ellipse cx="420" cy="220" rx="520" ry="420" fill="url(#pink)" filter="url(#glow)"/>
+<ellipse cx="1180" cy="230" rx="530" ry="420" fill="url(#cyan)" filter="url(#glow)"/>
+<path d="M65 0L430 620M430 0L650 590M940 0L865 590M1420 0L1110 610M1720 0L1280 620" stroke="#fff" stroke-opacity=".08" stroke-width="44"/>
+<path d="M100 0L465 610M1640 0L1260 620" stroke="url(#accent)" stroke-opacity=".22" stroke-width="10"/>
+<g opacity=".55">
+  <rect x="170" y="70" width="1435" height="390" rx="34" fill="none" stroke="#ff8bce" stroke-opacity=".16" stroke-width="2"/>
+  <rect x="250" y="118" width="1275" height="285" rx="26" fill="none" stroke="#73e7ff" stroke-opacity=".12" stroke-width="2"/>
+  <path d="M230 480H1510" stroke="#fff" stroke-opacity=".08" stroke-width="2"/>
 </g>
-<g transform="translate(160 132)">
-  <text x="0" y="0" fill="#ff8dd0" font-family="Arial, sans-serif" font-size="30" font-weight="700" letter-spacing="10">K-IDOL SURVIVAL</text>
-  <text x="0" y="78" fill="#fff8fd" font-family="Arial, sans-serif" font-size="78" font-weight="800" letter-spacing="-2">DEBUT PROJECT</text>
-  <text x="2" y="128" fill="#b7bac9" font-family="Arial, sans-serif" font-size="25" letter-spacing="4">TRAIN · STAGE · RANK · SURVIVE</text>
-</g>
-<g transform="translate(1130 190)">
-  <text x="0" y="0" fill="#ffffff" fill-opacity=".55" font-family="Arial, sans-serif" font-size="22" letter-spacing="5">FINAL</text>
-  <text x="0" y="72" fill="#ffffff" font-family="Arial, sans-serif" font-size="96" font-weight="900">9</text>
-  <text x="76" y="72" fill="#ff9bd7" font-family="Arial, sans-serif" font-size="28" font-weight="700">SEATS</text>
-</g>
-<g transform="translate(1018 390)">
-  <g fill="url(#seat)" stroke="#ffc4e5" stroke-opacity=".32">
-    <rect x="0" y="120" width="120" height="70" rx="16"/><rect x="132" y="120" width="120" height="70" rx="16"/><rect x="264" y="120" width="120" height="70" rx="16"/>
-    <rect x="66" y="42" width="120" height="70" rx="16"/><rect x="198" y="42" width="120" height="70" rx="16"/>
-    <rect x="132" y="-36" width="120" height="70" rx="16"/>
+
+<!-- distant debut seats -->
+<g transform="translate(1230 168)" opacity=".7">
+  <text x="110" y="-20" fill="#fff" fill-opacity=".65" font-family="Arial,sans-serif" font-size="18" text-anchor="middle" letter-spacing="5">FINAL 9</text>
+  <g fill="#2c1a35" stroke="#ff9ad7" stroke-opacity=".52">
+    <rect x="0" y="125" width="72" height="46" rx="10"/><rect x="82" y="125" width="72" height="46" rx="10"/><rect x="164" y="125" width="72" height="46" rx="10"/>
+    <rect x="41" y="72" width="72" height="46" rx="10"/><rect x="123" y="72" width="72" height="46" rx="10"/>
+    <rect x="82" y="18" width="72" height="46" rx="10"/>
   </g>
-  <g fill="#fff" font-family="Arial, sans-serif" font-size="24" font-weight="800" text-anchor="middle">
-    <text x="60" y="165">7</text><text x="192" y="165">8</text><text x="324" y="165">9</text>
-    <text x="126" y="87">4</text><text x="258" y="87">5</text><text x="192" y="9">1</text>
+  <g fill="#fff" font-family="Arial,sans-serif" font-size="16" font-weight="700" text-anchor="middle">
+    <text x="36" y="154">7</text><text x="118" y="154">8</text><text x="200" y="154">9</text>
+    <text x="77" y="101">4</text><text x="159" y="101">5</text><text x="118" y="48">1</text>
   </g>
 </g>
-<g transform="translate(190 456)" fill="#05060b">
-  <g transform="translate(0 18)"><circle cx="42" cy="42" r="30"/><path d="M6 174c4-67 18-94 36-94s32 27 36 94z"/></g>
-  <g transform="translate(115 0)"><circle cx="42" cy="42" r="31"/><path d="M4 178c8-74 21-98 38-98s30 24 38 98z"/></g>
-  <g transform="translate(235 22)"><circle cx="42" cy="42" r="29"/><path d="M8 170c5-63 17-90 34-90s29 27 34 90z"/></g>
-  <g transform="translate(350 8)"><circle cx="42" cy="42" r="31"/><path d="M5 176c7-70 19-96 37-96s30 26 37 96z"/></g>
-  <g transform="translate(470 25)"><circle cx="42" cy="42" r="29"/><path d="M8 168c5-61 17-88 34-88s29 27 34 88z"/></g>
+
+<!-- stage LEDs -->
+<g opacity=".35">
+  <rect x="30" y="515" width="1714" height="5" fill="url(#accent)"/>
+  <rect x="0" y="670" width="1774" height="2" fill="#ff80ca"/>
+  <rect x="0" y="742" width="1774" height="2" fill="#68e2ff"/>
 </g>
-<rect x="116" y="804" width="470" height="2" fill="#ff7dc8" opacity=".55"/>
-<text x="116" y="844" fill="#d6d7e2" font-family="Arial, sans-serif" font-size="20" letter-spacing="3">THE CAMERA IS ON. YOUR CHOICE STILL MATTERS.</text>
+
+<!-- back-left trainee -->
+<g transform="translate(120 235) scale(.84)" filter="url(#shadow)">
+  <path d="M20 520C35 380 78 314 160 286c86-28 156 2 199 98 22 49 31 96 40 154H20z" fill="url(#outfitDark)"/>
+  <ellipse cx="188" cy="210" rx="89" ry="118" fill="url(#skin2)"/>
+  <path d="M92 204C86 95 141 45 217 57c63 10 102 65 95 159-28-58-67-87-123-91-35-2-63 22-97 79z" fill="url(#blackHair)"/>
+  <path d="M103 169c-24 95 2 190 73 204-67 14-131-47-132-123 0-46 18-72 59-81z" fill="#0b0b12"/>
+  <path d="M283 168c35 68 23 157-34 202 74-18 104-96 82-164-12-37-26-46-48-38z" fill="#16121d"/>
+  <path d="M145 220q18-13 37 0" stroke="#6d4850" stroke-width="5" stroke-linecap="round"/><path d="M213 220q18-13 37 0" stroke="#6d4850" stroke-width="5" stroke-linecap="round"/>
+  <ellipse cx="164" cy="222" rx="5" ry="7" fill="#241923"/><ellipse cx="232" cy="222" rx="5" ry="7" fill="#241923"/>
+  <path d="M185 257q14 10 28 0" stroke="#bc6c7e" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <path d="M131 329l55 65 63-68 38 180H86z" fill="#171722"/><path d="M184 395l22 52 24-55" fill="none" stroke="#ff80c9" stroke-width="5"/>
+  <circle cx="88" cy="252" r="11" fill="#66dff8"/><path d="M82 252h-20" stroke="#66dff8" stroke-width="4"/>
+</g>
+
+<!-- back-right trainee -->
+<g transform="translate(860 215) scale(.87)" filter="url(#shadow)">
+  <path d="M5 548C22 392 78 318 172 287c89-29 170 17 209 112 18 43 27 92 35 149H5z" fill="url(#outfitWhite)"/>
+  <ellipse cx="205" cy="202" rx="88" ry="116" fill="url(#skin)"/>
+  <path d="M112 205c-10-98 45-158 117-152 78 7 116 71 103 166-20-38-51-66-89-79-47-16-90 1-131 65z" fill="url(#blondHair)"/>
+  <path d="M136 111c22-42 64-60 110-49-26 10-42 31-50 62z" fill="#f7dfbd" opacity=".9"/>
+  <path d="M161 214q18-11 36 1" stroke="#755f66" stroke-width="5" stroke-linecap="round"/><path d="M227 214q18-11 36 1" stroke="#755f66" stroke-width="5" stroke-linecap="round"/>
+  <ellipse cx="179" cy="216" rx="5" ry="7" fill="#27313a"/><ellipse cx="245" cy="216" rx="5" ry="7" fill="#27313a"/>
+  <path d="M195 253q14 8 29-1" stroke="#bd7182" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <path d="M143 331l62 65 65-66 56 191H88z" fill="#f4f2f6"/><path d="M205 397l19 60 22-61" stroke="#6d637a" stroke-width="5" fill="none"/>
+  <circle cx="319" cy="244" r="11" fill="#ff7ec6"/><path d="M329 244h25" stroke="#ff7ec6" stroke-width="4"/>
+</g>
+
+<!-- front-left trainee -->
+<g transform="translate(285 250) scale(1.02)" filter="url(#shadow)">
+  <path d="M-5 565C20 387 91 305 194 282c100-22 183 45 215 161 12 43 18 82 21 122H-5z" fill="url(#outfitDark)"/>
+  <ellipse cx="208" cy="188" rx="96" ry="126" fill="url(#skin2)"/>
+  <path d="M101 198C92 75 158 25 234 43c80 18 111 88 88 182-28-59-70-91-118-94-45-4-76 20-103 67z" fill="url(#blackHair)"/>
+  <path d="M124 111c-19 26-30 62-28 105 12-25 29-48 51-67 29-25 62-36 99-34-42-29-91-31-122-4z" fill="#14121b"/>
+  <path d="M158 202q20-13 40 1" stroke="#684a54" stroke-width="5" stroke-linecap="round"/><path d="M231 203q20-13 40 1" stroke="#684a54" stroke-width="5" stroke-linecap="round"/>
+  <ellipse cx="178" cy="205" rx="6" ry="8" fill="#1e1921"/><ellipse cx="251" cy="206" rx="6" ry="8" fill="#1e1921"/>
+  <path d="M195 246q16 9 34-1" stroke="#c36f86" stroke-width="5" fill="none" stroke-linecap="round"/>
+  <path d="M131 333l75 63 74-65 70 210H63z" fill="#0c0e15"/>
+  <path d="M156 357l53 39 48-41" stroke="#b9c6d8" stroke-width="8" fill="none"/>
+  <path d="M206 396v113" stroke="#ff77c5" stroke-opacity=".7" stroke-width="5"/>
+  <circle cx="296" cy="236" r="12" fill="#67e0fa"/><path d="M306 236h27" stroke="#67e0fa" stroke-width="4"/>
+</g>
+
+<!-- front-right trainee -->
+<g transform="translate(1035 280) scale(.93)" filter="url(#shadow)">
+  <path d="M0 542C22 392 75 318 173 283c95-34 184 19 223 120 18 47 27 94 33 139H0z" fill="url(#outfitDark)"/>
+  <ellipse cx="214" cy="185" rx="94" ry="123" fill="url(#skin)"/>
+  <path d="M111 192C105 88 156 34 235 45c78 11 121 75 103 171-28-56-74-87-126-86-38 1-71 21-101 62z" fill="url(#brownHair)"/>
+  <path d="M132 112c40-40 99-53 150-30-25 3-47 16-66 38-23-14-50-17-84-8z" fill="#26171c"/>
+  <path d="M166 200q18-12 38 0" stroke="#6b4d53" stroke-width="5" stroke-linecap="round"/><path d="M236 200q18-12 38 0" stroke="#6b4d53" stroke-width="5" stroke-linecap="round"/>
+  <ellipse cx="185" cy="203" rx="5" ry="8" fill="#211b20"/><ellipse cx="255" cy="203" rx="5" ry="8" fill="#211b20"/>
+  <path d="M201 242q15 10 32 0" stroke="#bd6b7e" stroke-width="5" fill="none" stroke-linecap="round"/>
+  <path d="M141 326l73 64 73-65 69 196H74z" fill="#11121a"/>
+  <path d="M165 350l49 40 48-39" stroke="#d6d9e2" stroke-width="7" fill="none"/>
+  <circle cx="313" cy="235" r="12" fill="#6ce3ff"/><path d="M323 235h28" stroke="#6ce3ff" stroke-width="4"/>
+</g>
+
+<!-- center trainee / focal -->
+<g transform="translate(555 190) scale(1.12)" filter="url(#shadow)">
+  <path d="M-15 600C8 410 80 316 198 281c116-35 216 28 260 145 20 52 27 111 31 174H-15z" fill="url(#outfitDark)"/>
+  <ellipse cx="230" cy="178" rx="104" ry="136" fill="url(#skin)"/>
+  <path d="M111 190C105 65 166 14 256 34c91 20 123 101 91 197-26-64-70-101-123-104-45-3-83 20-113 63z" fill="url(#brownHair)"/>
+  <path d="M127 109c18-35 62-62 115-62-25 14-43 36-54 66z" fill="#473037" opacity=".88"/>
+  <path d="M174 190q22-14 44 1" stroke="#704f58" stroke-width="5" stroke-linecap="round"/><path d="M250 190q22-14 44 1" stroke="#704f58" stroke-width="5" stroke-linecap="round"/>
+  <ellipse cx="196" cy="193" rx="6" ry="9" fill="#34242c"/><ellipse cx="272" cy="193" rx="6" ry="9" fill="#34242c"/>
+  <circle cx="198" cy="190" r="2" fill="#fff"/><circle cx="274" cy="190" r="2" fill="#fff"/>
+  <path d="M217 235q18 13 39 0" stroke="#c5647f" stroke-width="6" fill="none" stroke-linecap="round"/>
+  <path d="M153 330l78 67 82-69 79 246H70z" fill="#0c0d14"/>
+  <path d="M164 352l66 46 60-47" stroke="#f5f4f8" stroke-width="8" fill="none"/>
+  <path d="M230 398v130" stroke="#ff6fc0" stroke-width="6"/>
+  <circle cx="330" cy="226" r="12" fill="#ff77c7"/><path d="M340 226h30" stroke="#ff77c7" stroke-width="4"/>
+  <!-- reaching hand -->
+  <path d="M258 445c74 11 135 39 175 83 19 21 16 48-6 61-17 10-37 3-51-13l-48-52 19 59c8 24-9 43-30 39-14-3-23-14-28-28l-20-57 1 58c0 21-16 35-34 31-14-3-22-14-22-29l-1-88c0-34 14-59 45-64z" fill="url(#skin)"/>
+  <path d="M263 458c43 8 82 24 117 50" stroke="#fff" stroke-opacity=".18" stroke-width="4" fill="none"/>
+</g>
+
+<!-- foreground light sticks / confetti -->
+<g filter="url(#soft)" opacity=".75">
+  <rect x="105" y="740" width="20" height="132" rx="10" fill="#ff70bf" transform="rotate(-18 105 740)"/>
+  <rect x="1450" y="730" width="20" height="140" rx="10" fill="#6fe3ff" transform="rotate(20 1450 730)"/>
+  <rect x="1560" y="785" width="18" height="110" rx="9" fill="#ff85d0" transform="rotate(-22 1560 785)"/>
+</g>
+<g fill="#fff" opacity=".7">
+  <circle cx="330" cy="130" r="4"/><circle cx="570" cy="92" r="3"/><circle cx="900" cy="96" r="4"/><circle cx="1150" cy="132" r="3"/><circle cx="1460" cy="118" r="4"/>
+</g>
+<g fill="#ff8fd2" opacity=".55">
+  <path d="M350 160l11 5-9 8z"/><path d="M980 120l12 4-8 10z"/><path d="M1260 340l12 5-10 9z"/><path d="M520 620l11 4-8 9z"/>
+</g>
+
+<!-- title plate -->
+<g transform="translate(94 705)">
+  <rect x="0" y="0" width="1050" height="118" rx="24" fill="#080912" fill-opacity=".72" stroke="#ff8bce" stroke-opacity=".24"/>
+  <text x="34" y="38" fill="#ff9ad6" font-family="Arial,sans-serif" font-size="16" font-weight="700" letter-spacing="7">K-IDOL SURVIVAL / DEBUT PROJECT</text>
+  <text x="34" y="88" fill="#fff" font-family="Arial,sans-serif" font-size="48" font-weight="800" letter-spacing="2">韓國偶像選秀模擬器｜最後一席</text>
+</g>
+<text x="1505" y="815" fill="#fff" fill-opacity=".58" font-family="Arial,sans-serif" font-size="15" text-anchor="middle" letter-spacing="3">TRAIN · RIVAL · STAGE · SURVIVE</text>
 </svg>
