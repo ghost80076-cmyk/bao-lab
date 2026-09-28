@@ -12,7 +12,7 @@ test('K-idol survival simulator renders setup, generated show state and action c
 
   await expect(page.locator('.idol-detail')).toBeVisible();
   await expect(page.locator('.idol-feature-grid article')).toHaveCount(4);
-  await expect(page.locator('.idol-hero-art img')).toHaveAttribute('src',/k-idol-survival-cover\.svg/);
+  await expect(page.locator('.idol-hero-art img')).toHaveAttribute('src',/k-idol-survival-cover\.webp/);
 
   await page.locator('[data-idol-start]').click();
   await page.locator('#bao-setup-choice [data-bao-setup="advanced"]').click();
