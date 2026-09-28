@@ -1,6 +1,10 @@
 const { test, expect } = require('@playwright/test');
 if (process.env.BAO_LIVE_URL) test.use({ baseURL: process.env.BAO_LIVE_URL });
 
+async function setPanelOpen(panel, open) {
+  await panel.evaluate((el, value) => { el.open = value; }, open);
+}
+
 const rules = { regex_scripts: [{
   scriptName: '常駐介面', findRegex: '【常駐開屏】',
   replaceString: `<section id="persistent-card"><span id="author-state">等待狀態</span><button onclick="BAOAuthor.draft('打開圖鑑')">打開圖鑑</button><script>window.__kept=1;window.addEventListener('bao:statechange',function(e){var s=e.detail;document.getElementById('author-state').textContent=s.time+'｜'+s.location+'｜'+(s.characterStatuses['阿花']||{}).trust;});</script></section>`
@@ -31,7 +35,7 @@ async function story(page, source = rules) {
   });
   await expect(page.locator('#bao-author-regex-panel')).toHaveCount(1);
   const panel = page.locator('#bao-author-regex-panel');
-  await panel.locator(':scope > summary').click();
+  await setPanelOpen(panel, true);
   await panel.locator('input[type=file]').setInputFiles({ name: 'author-regex.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(source)) });
   await expect(panel).toContainText('已保存 1 條原始正則');
   await panel.getByLabel('在這張角色卡啟用作者介面').check();
