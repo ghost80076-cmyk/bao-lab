@@ -85,6 +85,8 @@ jobs:
         run: node tests/worker-free-model-billing-core.cjs
       - name: YoruBay OpenRouter price guard
         run: node tests/worker-openrouter-cost-guard-core.cjs
+      - name: YoruBay provider control
+        run: node tests/provider-control-core.cjs
       - name: Canon workbench
         run: node tests/canon-workbench-core.cjs
       - name: Mature narrative and character agency settings
