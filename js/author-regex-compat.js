@@ -128,7 +128,7 @@
     if (scriptCheckbox) scriptCheckbox.checked = data.allowScripts;
     if (externalCheckbox) externalCheckbox.checked = data.allowExternalAssets;
     if (stateCheckbox) stateCheckbox.checked = data.allowStateSharing;
-    say(`這張卡已保存 ${data.rules.length} 條正則；含腳本 ${data.rules.filter(r => r.script).length} 條；格式不相容 ${data.rules.filter(r => r.reason).length} 條。`);
+    say(`這張卡已保存 ${data.rules.length} 條 Regex MOD；啟用 ${data.rules.filter(r => r.enabled && !r.reason).length} 條；含腳本 ${data.rules.filter(r => r.script).length} 條；格式不相容 ${data.rules.filter(r => r.reason).length} 條。`);
   };
   const importData = raw => {
     const id = cardId(); if (!id) throw new Error('請先進入一張角色卡的故事。');
@@ -143,9 +143,9 @@
     if (!aside || document.getElementById('bao-author-regex-panel')) return;
     panel = document.createElement('details'); panel.id = 'bao-author-regex-panel';
     panel.style.cssText = 'padding:12px;margin:12px 0;border:1px solid #987a9c;border-radius:10px;display:grid;gap:8px';
-    const summary = document.createElement('summary'); summary.textContent = '作者正則介面（測試版）'; panel.append(summary);
+    const summary = document.createElement('summary'); summary.textContent = '作者 Regex MOD'; panel.append(summary);
     const intro = document.createElement('p'); intro.style.fontSize = '12px';
-    intro.textContent = '按角色保存正則；HTML／CSS 可在不執行腳本時顯示，外部圖片、作者 JavaScript、世界狀態與介面偏好存檔分別授權。本工具不加入提示詞、不修改劇情與記憶。'; panel.append(intro);
+    intro.textContent = '每張角色卡可有自己的 Regex MOD。可匯入既有正則，也可在下方工作室手動建立；純文字替換與作者介面都只作用於前端顯示層。本工具不加入提示詞、不修改劇情、記憶、Canon 或世界狀態。'; panel.append(intro);
     const makeButton = (label, action) => { const b = document.createElement('button'); b.type = 'button'; b.textContent = label; b.style.margin = '4px'; b.addEventListener('click', action); panel.append(b); return b; };
     makeButton('匯入正則 JSON', () => fileInput.click());
     fileInput = document.createElement('input'); fileInput.type = 'file'; fileInput.accept = '.json,application/json'; fileInput.hidden = true;
