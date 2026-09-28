@@ -23,8 +23,11 @@ jobs:
         run: node --test tests/regex-library.test.cjs
       - name: Author text Regex MOD
         run: node --test tests/author-regex-text-mod.test.cjs
+      - name: Player text replacement MOD
+        run: node --test tests/player-text-replace-mod.test.cjs
       - name: Check chat adapter and manager JavaScript syntax
         run: |
           node --check js/regex-library.js
           node --check js/regex-chat.js
+          node --check js/player-text-replace-mod.js
           node --check js/author-regex-text-mod.js
