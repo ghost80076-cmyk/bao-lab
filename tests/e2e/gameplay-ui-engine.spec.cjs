@@ -2,7 +2,7 @@ const { test, expect } = require('@playwright/test');
 
 async function ready(page) {
   await page.goto('/');
-  await page.waitForFunction(() => window.App && window.CharacterEngine && window.BAOGameplayUI && window.BAOGameplayUICore);
+  await page.waitForFunction(() => typeof App !== 'undefined' && typeof CharacterEngine !== 'undefined' && window.BAOGameplayUI && window.BAOGameplayUICore);
   await page.waitForTimeout(500);
 }
 
