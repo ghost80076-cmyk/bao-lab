@@ -3,6 +3,7 @@
   'use strict';
   if (!window.BAORegex) return;
   const R = window.BAORegex;
+  const AUTHOR_PREFIX = 'bao-lab:author-regex:v1:';
   const signatures = new WeakMap();
   let scheduled = false;
   const setPlainText = (bubble, value) => {
@@ -27,7 +28,20 @@
       nodes[i + shift]?.classList.contains(message.role === 'user' ? 'user' : 'assistant'))) return;
     const state = R.load();
     const active = state.active && state.rules.some(rule => rule.enabled);
-    const stamp = JSON.stringify([active, state.rules]);
+    const authorId = String(window.App?.activeCharacter?.id || '').slice(0, 80);
+    let authorRules = [];
+    try {
+      const Core = window.BAOAuthorRegexCore;
+      const saved = authorId ? JSON.parse(localStorage.getItem(AUTHOR_PREFIX + encodeURIComponent(authorId)) || 'null') : null;
+      if (Core && saved?.enabled === true && Array.isArray(saved.rules)) {
+        const normalized = Core.normalize(saved.rules).filter(rule => rule.enabled && !rule.reason);
+        // Rich author packs keep using the isolated iframe renderer. Pure text packs
+        // can safely apply to every assistant bubble without touching Chat.messages.
+        if (!normalized.some(rule => rule.rich)) authorRules = normalized;
+      }
+    } catch (_) { authorRules = []; }
+    const authorActive = authorRules.length > 0;
+    const stamp = JSON.stringify([active, state.rules, authorId, authorRules]);
     nodes.forEach((node, index) => {
       if (!node.classList.contains('assistant') || node.classList.contains('is-streaming')) return;
       const message = records[index - shift];
@@ -39,9 +53,16 @@
       if (!bubble || bubble.querySelector('.story-inline-editor')) return;
       if ([...bubble.querySelectorAll('*')].some(el => el.tagName !== 'BR')) return;
       const previous = signatures.get(bubble);
-      if (!active && !previous) return;
+      if (!active && !authorActive && !previous) return;
       const signature = `${String(message.id || index)}|${source}|${stamp}`;
-      const value = active ? R.apply(source, state.rules) : source;
+      let value = source;
+      if (authorActive) {
+        const rendered = window.BAOAuthorRegexCore.render(value, authorRules, false);
+        if (rendered?.matched && !rendered.rich) value = rendered.text;
+      }
+      // Player-global plain rules run last, so the player's own display preference
+      // can override a card-scoped author MOD without changing the story.
+      if (active) value = R.apply(value, state.rules);
       const flatValue = value.replace(/\n/g, '');
       // The reader may repaint the same bubble after our first pass. Compare its
       // current content as well as its signature before skipping the regex pass.
@@ -67,7 +88,10 @@
     const stream = document.getElementById('chat-stream');
     if (!stream) return;
     new MutationObserver(schedule).observe(stream, { childList: true, subtree: true, characterData: true });
-    window.addEventListener('storage', event => { if (event.key === R.KEY) schedule(); });
+      window.addEventListener('storage', event => {
+      if (event.key === R.KEY || event.key?.startsWith(AUTHOR_PREFIX)) schedule();
+    });
+    window.addEventListener('bao:author-regex-changed', schedule);
     window.addEventListener('focus', schedule);
     schedule();
   };
@@ -79,6 +103,7 @@
   const core = document.createElement('script');
   core.src = 'js/author-regex-core.js';
   core.onload = () => {
+    window.BAORegexChat?.schedule?.();
     if (document.querySelector('script[src="js/author-regex-compat.js"]')) return;
     const compat = document.createElement('script');
     compat.src = 'js/author-regex-compat.js';
