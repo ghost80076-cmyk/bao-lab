@@ -75,7 +75,7 @@
     panel.querySelector('h3')?.insertAdjacentElement('afterend', intro);
     const extra = document.createElement('div');
     extra.id = 'bao-quick-extra';
-    extra.innerHTML = '<button id="bao-quick-technical-toggle" type="button" class="secondary" aria-expanded="false">展開進階連線欄位</button><p id="bao-quick-api-tip" role="status"></p><p>連線金鑰（API Key）不會寫進故事備份。實際費用和免費額度依你選的 AI 服務商而定。</p>';
+    extra.innerHTML = '<button id="bao-quick-technical-toggle" type="button" class="secondary" aria-expanded="false">展開進階連線欄位</button><p id="bao-quick-api-tip" role="status"></p>';
     panel.append(extra);
     $('bao-quick-technical-toggle').addEventListener('click', () => {
       view.classList.toggle('bao-quick-advanced');
