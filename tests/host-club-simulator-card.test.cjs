@@ -18,7 +18,11 @@ assert.doesNotMatch(card.content.greeting,/R18|18\+ 成人向/,'public catalog s
 assert.ok(fs.existsSync(path.join(__dirname,'..',card.meta.avatar)),'generated host cast art should exist');
 assert.match(card.meta.avatar,/hostsim-hero-v2\.webp$/,'catalog and detail should use the high-resolution hero');
 assert.deepEqual(webpDimensions(path.join(__dirname,'..',card.meta.avatar)),{width:1672,height:941});
-assert.deepEqual(webpDimensions(path.join(__dirname,'../assets/hostsim-cast-v2.webp')),{width:1536,height:1024});
+for(const name of ['ren','haru','rei','sena','kyo','nagi']){
+  const portrait=path.join(__dirname,`../assets/hostsim-${name}-portrait-v3.webp`);
+  assert.ok(fs.existsSync(portrait),`missing standalone ${name} portrait`);
+  assert.deepEqual(webpDimensions(portrait),{width:1122,height:1402});
+}
 
 const cast=card.content.profile.cast;
 assert.equal(cast.length,6);
@@ -61,7 +65,8 @@ const index=fs.readFileSync(path.join(__dirname,'../index.html'),'utf8');
 assert.match(index,/host-club-simulator\.css/);
 assert.match(index,/host-club-simulator-ui\.js/);
 const hostUI=fs.readFileSync(path.join(__dirname,'../js/host-club-simulator-ui.js'),'utf8');
-assert.match(hostUI,/hostsim-cast-v2\.webp/,'cast cards should render the dedicated six-person art');
+assert.match(hostUI,/hostsim-\$\{key\}-portrait-v3\.webp/,'cast cards should render one standalone portrait per host');
+assert.match(hostUI,/<img class="hostsim-card-photo"/,'cast cards should use real image elements instead of sprite backgrounds');
 assert.match(hostUI,/<img src=.*heroArt/,'detail hero should use a real image element');
 
 console.log('PASS Host Club Simulator card, adult cast, economy, host relationship axes and custom UI');

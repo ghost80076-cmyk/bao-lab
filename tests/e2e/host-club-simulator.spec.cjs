@@ -15,8 +15,10 @@ test('Host Club Simulator renders generated cast, setup and economy UI', async (
   const heroImage = page.locator('.hostsim-hero-portrait img');
   await expect(heroImage).toHaveAttribute('src', /hostsim-hero-v2\.webp/);
   await expect.poll(() => heroImage.evaluate(img => img.naturalWidth)).toBeGreaterThanOrEqual(1600);
-  const castBackground = await page.locator('.hostsim-card-photo').first().evaluate(el => getComputedStyle(el).backgroundImage);
-  expect(castBackground).toContain('hostsim-cast-v2.webp');
+  const castImages = page.locator('.hostsim-card-photo');
+  await expect(castImages).toHaveCount(6);
+  await expect(castImages.first()).toHaveAttribute('src', /hostsim-ren-portrait-v3\.webp/);
+  await expect.poll(() => castImages.first().evaluate(img => img.naturalWidth)).toBeGreaterThanOrEqual(1100);
   await expect(page.locator('.hostsim-card').filter({hasText:'REN'})).toBeVisible();
   await expect(page.locator('.hostsim-card').filter({hasText:'HARU'})).toBeVisible();
   await expect(page.locator('.hostsim-card').filter({hasText:'REI'})).toBeVisible();
@@ -46,6 +48,7 @@ test('Host Club Simulator renders generated cast, setup and economy UI', async (
   await expect(page.locator('.bao-structured-opening.bao-opening-hostsim')).toBeVisible();
   await expect(page.locator('.bao-opening-choice')).toHaveCount(4);
   await expect(page.locator('.hostsim-opening-cast figure')).toHaveCount(6);
+  await expect(page.locator('.hostsim-opening-photo').first()).toHaveAttribute('src', /hostsim-ren-portrait-v3\.webp/);
 
   await page.waitForFunction(() => Boolean(window.BAOWorldModules), null, { timeout: 15000 });
   await page.getByRole('button', { name: '狀態', exact: true }).click();
