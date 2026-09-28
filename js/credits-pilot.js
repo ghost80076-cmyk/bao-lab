@@ -133,6 +133,19 @@
     return true;
   };
   const upstreamName = model => hostedProviderFor(model) === "openrouter" ? "OpenRouter" : "Google Gemini";
+  const emptyTextMessage = (name, data) => {
+    const reason = String(data?.finish_reason || "").trim().toUpperCase();
+    if (reason === "MAX_TOKENS" || reason === "LENGTH") {
+      return `${name} 未產生文字（原因：${reason}）。本次輸出預算可能不足，請提高「回覆輸出上限」後重試。`;
+    }
+    if (["SAFETY", "BLOCKLIST", "PROHIBITED_CONTENT", "SPII", "IMAGE_SAFETY", "CONTENT_FILTER"].includes(reason)) {
+      return `${name} 在供應商端停止本次生成（原因：${reason}）。可重新生成或調整本次內容。`;
+    }
+    if (reason) {
+      return `${name} 已回應，但沒有可顯示文字（原因：${reason}）。請先重新生成；若持續發生，再回報診斷編號。`;
+    }
+    return `${name} 已回應，但沒有可顯示文字。請先重新生成；若持續發生，再回報診斷編號。`;
+  };
 
   const ensurePresets = () => {
     if (!Array.isArray(App.modelPresets) || !App.modelPresets.length) return false;
@@ -270,7 +283,7 @@
         invalid_max_output_tokens: "本次輸出上限超過後端設定，請管理員更新 Worker。",
         request_too_large: "本次故事內容超過後端大小限制。",
         provider_rate_limited: `${name} 回報 API 速率或配額限制，與 BAO/LAB 玩家額度不同。`,
-        provider_empty_text: `${name} 未回傳可顯示的文字${data?.finish_reason ? `（結束原因：${data.finish_reason}）` : ""}。可試著調整輸出上限。`,
+        provider_empty_text: emptyTextMessage(name, data),
         provider_http_error: `${name} 拒絕本次請求${data?.upstream_http_status ? `（HTTP ${data.upstream_http_status}）` : ""}。`,
         provider_network_error: `BAO/LAB 後端連到 ${name} 時發生網路或逾時問題。`,
         provider_invalid_json: `${name} 回覆無法解析，請向管理員回報。`,
