@@ -5,7 +5,7 @@
   const CARD_ID='k-idol-survival-simulator';
   const esc=value=>App.escapeHTML(String(value??''));
   const isIdol=()=>App.activeCharacter?.id===CARD_ID;
-  const cover=()=>App.activeCharacter?.avatar||'assets/k-idol-survival-cover.svg';
+  const cover=()=>App.activeCharacter?.avatar||'assets/k-idol-survival-cover.webp';
   const programs=['PROJECT: NINE','STARLINE 101','NEXT IDOL : SEOUL','STAGE BORN','ONE TAKE PROJECT'];
   const groups=['NOVA9','LUMEN','VANTA','NEONIX','ASTRAE'];
   const companies=['MIRA Entertainment','Orbit Works','HANEUL Media','Vivid Lab','Northstar Entertainment','JUNO Music'];
