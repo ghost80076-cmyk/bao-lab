@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#100e14">
-  <meta name="description" content="從零開始取得連線金鑰（API Key），連接 AI 服務商並在 BAO/LAB 開始故事。">
-  <title>AI 連線教學｜取得連線金鑰（API Key）｜BAO/LAB</title>
+  <meta name="description" content="從零開始連接 AI：使用自己的 API Key，或用 LM Studio 在本機執行模型，並在 BAO/LAB 開始故事。">
+  <title>AI 連線教學｜API Key 與 LM Studio 本地 AI｜BAO/LAB</title>
   <link rel="icon" href="assets/bao-mark.svg" type="image/svg+xml">
   <style>
     :root{color-scheme:dark;font-family:system-ui,-apple-system,'Noto Sans TC',sans-serif;background:#101118;color:#f4f1eb}*{box-sizing:border-box}body{margin:0;line-height:1.8}a{color:#f6ca87}header,main,footer{max-width:880px;margin:auto;padding:22px}header{display:flex;justify-content:space-between;align-items:center;gap:16px}header a{text-decoration:none}h1{font-size:clamp(1.8rem,5vw,3rem);line-height:1.25}h2{margin-top:0}.lead{color:#c9c7c2}.panel{background:#1c1e27;border:1px solid #373943;border-radius:18px;padding:24px;margin:22px 0}.steps{padding-left:1.4rem}.steps li{padding:6px 0}.button{display:inline-block;padding:10px 17px;border-radius:10px;background:#f6ca87;color:#171717;text-decoration:none;font-weight:700;margin:8px 8px 8px 0}.secondary{background:#30333f;color:#fff}.notice{border-left:4px solid #f6ca87;padding:12px 18px;background:#29261f}.terms{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:18px 0}.term{padding:12px;border-radius:12px;background:#151720;border:1px solid #3b3e4a}.term b{display:block;color:#fff}small,footer{color:#bdbdc4}code{overflow-wrap:anywhere}details{margin-top:16px}summary{cursor:pointer;font-weight:700}a:focus-visible{outline:3px solid #f6ca87;outline-offset:3px}@media(max-width:600px){header,main,footer{padding:16px}.panel{padding:18px}.terms{grid-template-columns:1fr}}
@@ -16,15 +16,15 @@
   <header><a href="./">← BAO/LAB 首頁</a><span>AI 連線教學</span></header>
   <main>
     <p class="lead">第一次用自己的 AI？照這頁做就能開始。</p>
-    <h1>取得連線金鑰（API Key），開始你的第一段故事。</h1>
-    <p>BAO/LAB 採自備連線金鑰模式（BYOK，Bring Your Own Key）：你向 AI 服務商取得連線金鑰，再貼到 BAO/LAB。BAO/LAB 不代售模型額度；費用與用量依你選擇的 AI 服務商而定。</p>
+    <h1>接上你的 AI，開始第一段故事。</h1>
+    <p>BAO/LAB 可以使用自備連線金鑰（BYOK，Bring Your Own Key），也可以連接同一台電腦上的 LM Studio 本地 AI。雲端 API 的費用與用量依你選擇的 AI 服務商而定；LM Studio 本地模式預設不需要雲端 API Key。</p>
     <div class="terms" aria-label="名詞對照">
       <div class="term"><b>連線金鑰（API Key）</b><span>使用 AI 服務的私人鑰匙；不要公開。</span></div>
       <div class="term"><b>AI 服務商（Provider）</b><span>提供模型與計費的服務，例如 OpenRouter 或 Google。</span></div>
       <div class="term"><b>AI 模型（Model）</b><span>實際產生故事回覆的 AI。</span></div>
       <div class="term"><b>模型代號（Model ID）</b><span>服務商辨識某個模型的名稱；一般預設服務會自動帶入。</span></div>
     </div>
-    <div class="notice"><strong>可以先看介面，不一定要先花錢。</strong>免 API 的示範模式只用來體驗操作；真正請 AI 寫新劇情時，通常需要自己的連線金鑰。免費模型或免費額度有用量、速率及地區限制，並非無限免費。</div>
+    <div class="notice"><strong>可以先看介面，不一定要先花錢。</strong>免 API 的示範模式只用來體驗操作；真正請 AI 寫新劇情時，可以使用自己的雲端連線金鑰，也可以使用 LM Studio 本地模型。免費模型或免費額度有用量、速率及地區限制，並非無限免費。</div>
 
     <section class="panel">
       <h2>路線 A：OpenRouter</h2>
@@ -43,8 +43,16 @@
     </section>
 
     <section class="panel">
+      <h2>路線 C：LM Studio 本地 AI</h2>
+      <p>適合想讓模型在自己的電腦上運行、不走雲端 API 的玩家。預設不需要雲端 API Key。</p>
+      <ol class="steps"><li>在 LM Studio 下載並載入模型。</li><li>如果畫面中央開著 Settings 設定視窗，先按右上角 × 關閉；<strong>不要在 Settings → Developer 裡找 API Server</strong>。</li><li>回到 LM Studio 主畫面，點左側主導覽的 <strong>Developer</strong> 頁面，切換 <strong>Start Server</strong>。</li><li>到 Server Settings 開啟 <strong>Enable CORS</strong>。</li><li>回 BAO/LAB 選擇「LM Studio（本地 AI）」並按「讀取本機模型」。</li></ol>
+      <a class="button" href="lm-studio-guide.html">查看 LM Studio 完整教學 →</a>
+      <a class="button secondary" href="https://lmstudio.ai/docs/developer/core/server" target="_blank" rel="noopener noreferrer">LM Studio 官方 Server 文件 ↗</a>
+    </section>
+
+    <section class="panel">
       <h2>回到 BAO/LAB，怎麼設定？</h2>
-      <ol class="steps"><li>回到首頁，選角色並建立故事。</li><li>快速開始時，只要處理「連接 AI」；完整設定則在第 4 步。</li><li>選擇 AI 服務商（Provider）與 AI 模型（Model），貼上相符的連線金鑰（API Key）。</li><li>有完整預設的服務不需手動填模型代號（Model ID）或連線網址（Base URL）。只有自訂連線才需要這兩欄。</li></ol>
+      <ol class="steps"><li>回到首頁，選角色並建立故事。</li><li>快速開始時，只要處理「連接 AI」；完整設定則在第 4 步。</li><li>雲端 AI：選擇服務商（Provider）與模型（Model），貼上相符的連線金鑰（API Key）。</li><li>LM Studio：選「LM Studio（本地 AI）」後讀取本機模型；預設不需雲端 API Key。</li><li>有完整預設的雲端服務不需手動填模型代號（Model ID）或連線網址（Base URL）。只有自訂連線才需要這兩欄。</li></ol>
       <a class="button" href="./">返回 BAO/LAB ↗</a>
     </section>
 
