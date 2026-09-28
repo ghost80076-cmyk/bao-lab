@@ -10,6 +10,22 @@
   let cacheSchema = null;
 
   const esc = value => App.escapeHTML(String(value ?? ''));
+  const clone = value => {
+    try { return structuredClone(value); }
+    catch (_) { return JSON.parse(JSON.stringify(value ?? null)); }
+  };
+  const mergeInitialModules = (state, character) => {
+    const initial = character?.initial_state?.modules;
+    if (!state || !initial || typeof initial !== 'object' || Array.isArray(initial)) return;
+    if (!state.modules || typeof state.modules !== 'object' || Array.isArray(state.modules)) state.modules = {};
+    Object.entries(initial).forEach(([moduleId, value]) => {
+      if (!Core.isTargetPath(`modules.${moduleId}.value`)) return;
+      if (state.modules[moduleId] === undefined) state.modules[moduleId] = clone(value);
+      else if (value && typeof value === 'object' && !Array.isArray(value) && state.modules[moduleId] && typeof state.modules[moduleId] === 'object' && !Array.isArray(state.modules[moduleId])) {
+        state.modules[moduleId] = { ...clone(value), ...state.modules[moduleId] };
+      }
+    });
+  };
   const schemaFor = character => {
     const c = character || App.activeCharacter;
     const raw = c?.gameplay_ui || c?.gameplay?.ui_schema || null;
@@ -216,8 +232,9 @@
   GameState.create = function(character, config) {
     const state = originalCreate(character, config);
     const schema = schemaFor(character);
-    if (schema && config?.gameplaySetup) {
-      Core.applyBuilderValues(schema, config.gameplaySetup, state);
+    if (schema) {
+      mergeInitialModules(state, character);
+      if (config?.gameplaySetup) Core.applyBuilderValues(schema, config.gameplaySetup, state);
       state.gameplayUIVersion = 1;
     }
     return state;
