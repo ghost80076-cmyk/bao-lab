@@ -30,17 +30,22 @@
   function normalizeState(input = {}) {
     const raw = input && typeof input === 'object' ? input : {};
     const rules = Array.isArray(raw.rules) ? raw.rules : [];
+    const scope = raw.scope && typeof raw.scope === 'object' ? raw.scope : {};
     return {
       active: raw.active === true,
+      scope: {
+        chat: scope.chat !== false,
+        status: scope.status === true
+      },
       rules: rules.slice(0, MAX_RULES).map(normalizeRule)
     };
   }
 
-  function apply(input, state) {
+  function apply(input, state, target = 'chat') {
     const original = text(input);
     if (original.length > MAX_SOURCE) return original;
     const normalized = normalizeState(state);
-    if (!normalized.active) return original;
+    if (!normalized.active || normalized.scope?.[target] !== true) return original;
     let result = original;
     for (const rule of normalized.rules) {
       if (!rule.enabled || !rule.find) continue;
@@ -57,6 +62,7 @@
     story.playerTextReplaceMod = normalized;
     return {
       active: normalized.active,
+      scope: { ...normalized.scope },
       rules: normalized.rules.map(rule => ({ ...rule }))
     };
   }
@@ -71,6 +77,8 @@
       host.dispatchEvent(new CustomEvent('bao:player-text-replace-changed'));
     } catch (_) {}
     host.BAORegexChat?.schedule?.();
+    const activePanel = host.document?.querySelector?.('#game-ui .ui-tab.active')?.dataset?.panel;
+    if (activePanel) host.App?.renderUIPanel?.(activePanel);
     return current();
   }
 
@@ -120,6 +128,14 @@
             <label class="bao-toggle"><span><b>啟用文字替換</b><br><small class="note">多條規則會依目前順序由上往下套用。</small></span><input id="bao-text-replace-active" type="checkbox" ${draft.active ? 'checked' : ''}></label>
           </div>
           <div class="bao-setting-section">
+            <h3>套用範圍</h3>
+            <p>只替換顯示值，不修改狀態欄名稱、世界模組名稱或底層資料。</p>
+            <div class="bao-choice-grid two">
+              <label class="bao-toggle"><span><b>故事文字</b><br><small class="note">AI 回覆正文</small></span><input id="bao-text-replace-scope-chat" type="checkbox" ${draft.scope?.chat !== false ? 'checked' : ''}></label>
+              <label class="bao-toggle"><span><b>狀態顯示</b><br><small class="note">人物狀態、時間地點、世界模組與 Gameplay UI 的值</small></span><input id="bao-text-replace-scope-status" type="checkbox" ${draft.scope?.status === true ? 'checked' : ''}></label>
+            </div>
+          </div>
+          <div class="bao-setting-section">
             <div style="display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap">
               <div><h3 style="margin-bottom:4px">替換規則</h3><small class="note">不需要懂 Regex；括號、問號、+ 等符號都只當普通文字。</small></div>
               <button type="button" class="secondary" data-text-replace-add>＋ 新增替換</button>
@@ -142,6 +158,8 @@
 
       const list = wrap.querySelector('[data-text-replace-list]');
       const active = wrap.querySelector('#bao-text-replace-active');
+      const scopeChat = wrap.querySelector('#bao-text-replace-scope-chat');
+      const scopeStatus = wrap.querySelector('#bao-text-replace-scope-status');
       const source = wrap.querySelector('[data-text-replace-source]');
       const result = wrap.querySelector('[data-text-replace-result]');
 
@@ -203,6 +221,10 @@
 
       const syncAll = () => {
         draft.active = Boolean(active.checked);
+        draft.scope = {
+          chat: Boolean(scopeChat?.checked),
+          status: Boolean(scopeStatus?.checked)
+        };
         list.querySelectorAll('[data-text-replace-rule]').forEach(card => {
           const rule = draft.rules.find(item => item.id === card.dataset.textReplaceRule);
           if (!rule) return;
@@ -251,6 +273,10 @@
           alert('啟用中的替換規則不能留空「尋找文字」。');
           return;
         }
+        if (next.active && !next.scope.chat && !next.scope.status) {
+          alert('請至少選擇一個套用範圍。');
+          return;
+        }
         write(next);
         close();
         updateButton();
@@ -291,5 +317,11 @@
     }
   }
 
-  return { MAX_RULES, MAX_FIND, MAX_REPLACE, MAX_SOURCE, normalizeRule, normalizeState, apply, get: current, set: write, install };
+  return {
+    MAX_RULES, MAX_FIND, MAX_REPLACE, MAX_SOURCE,
+    normalizeRule, normalizeState, apply,
+    applyChat: (input, state) => apply(input, state, 'chat'),
+    applyStatus: (input, state) => apply(input, state, 'status'),
+    get: current, set: write, install
+  };
 });
