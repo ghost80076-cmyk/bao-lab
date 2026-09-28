@@ -27,6 +27,7 @@ test('gameplay schema renders builder, applies state, and drafts actions without
   await page.evaluate(raw => {
     App.activeCharacter = CharacterEngine.normalize(raw);
     App.openBuilder();
+    App.setStep(3);
   }, card);
 
   const builder = page.locator('#bao-gameplay-builder');
