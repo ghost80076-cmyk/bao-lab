@@ -83,6 +83,12 @@
     const compat = document.createElement('script');
     compat.src = 'js/author-regex-compat.js';
     compat.onload = () => {
+      if (!document.querySelector('script[src="js/author-regex-text-mod.js"]')) {
+        const textMod = document.createElement('script');
+        textMod.src = 'js/author-regex-text-mod.js';
+        textMod.onerror = () => console.warn('BAO/LAB author text Regex MOD failed to load');
+        document.head.appendChild(textMod);
+      }
       const mobile = document.createElement('script');
       mobile.src = 'js/author-regex-mobile.js';
       mobile.onerror = () => console.warn('BAO/LAB responsive author controls failed to load');
