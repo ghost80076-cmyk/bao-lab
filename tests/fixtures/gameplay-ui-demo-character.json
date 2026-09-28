@@ -1,0 +1,76 @@
+{
+  "schema_version": "1.5",
+  "id": "gameplay-ui-demo",
+  "name": "Gameplay UI Demo",
+  "system_prompt": "測試用角色，不加入正式作品目錄。",
+  "greeting": "測試開始。",
+  "supported_display": { "text": true, "ui": true },
+  "initial_state": {
+    "time": "玄曆 30 年 春 三月初三",
+    "location": "青雲城",
+    "modules": {
+      "player": {
+        "hp": 700,
+        "max_hp": 810,
+        "qi": 380,
+        "max_qi": 380,
+        "strength": 8,
+        "agility": 8,
+        "origin": "散修"
+      }
+    }
+  },
+  "gameplay_ui": {
+    "version": 1,
+    "builder": {
+      "title": "踏入東洲之前",
+      "description": "先分配基礎屬性，再選擇出身。",
+      "point_pool": 6,
+      "attributes": [
+        { "key": "strength", "label": "力量", "base": 8, "min": 8, "max": 14, "target_path": "modules.player.strength" },
+        { "key": "agility", "label": "身法", "base": 8, "min": 8, "max": 14, "target_path": "modules.player.agility" }
+      ],
+      "fields": [
+        { "key": "origin", "label": "出身", "type": "select", "options": ["散修", "宗門弟子", "世家子弟"], "default": "散修", "target_path": "modules.player.origin" }
+      ]
+    },
+    "panels": [
+      {
+        "id": "status",
+        "label": "狀態",
+        "sections": [
+          {
+            "type": "meters",
+            "title": "當前狀態",
+            "items": [
+              { "label": "血", "value_path": "modules.player.hp", "max_path": "modules.player.max_hp" },
+              { "label": "氣", "value_path": "modules.player.qi", "max_path": "modules.player.max_qi" }
+            ]
+          },
+          {
+            "type": "stats",
+            "title": "基礎屬性",
+            "items": [
+              { "label": "力量", "path": "modules.player.strength" },
+              { "label": "身法", "path": "modules.player.agility" },
+              { "label": "出身", "path": "modules.player.origin" }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "combat",
+        "label": "戰鬥",
+        "sections": [
+          {
+            "type": "actions",
+            "title": "戰鬥指令",
+            "items": [
+              { "label": "穩健迎戰", "draft": "我採取穩健策略迎戰，優先保命並觀察對手破綻。" }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
