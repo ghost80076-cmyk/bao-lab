@@ -8,7 +8,10 @@ if (!storyTools.includes('BAOStoryBackup.exportCurrentStory()')) throw new Error
 if (storyTools.includes('Storage.exportCurrentStory("完整故事備份")')) throw new Error('Story Desk full export regressed to single-chapter export.');
 if (!storyTools.includes('主線與全部分支')) throw new Error('Story Desk no longer describes full branch-tree backup.');
 
-const presets = JSON.parse(fs.readFileSync('data/presets/models.json', 'utf8'));
+const registry = JSON.parse(fs.readFileSync('data/presets/models.json', 'utf8'));
+const presets = Array.isArray(registry)
+  ? registry
+  : (registry.models || []).flatMap(model => Array.isArray(model.routes) ? model.routes : []);
 const zai = presets.find(item => item.provider === 'zai');
 if (!zai) throw new Error('Z.AI provider is missing from deployed model presets.');
 if (zai.model !== '') throw new Error('Z.AI provider must keep Model ID user-selectable instead of hardcoding one GLM model.');
