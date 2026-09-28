@@ -86,6 +86,7 @@
       if (label.firstChild) label.firstChild.textContent = selected ? '本機 API Token（選填）' : label.dataset.baoCloudLabel;
       field.placeholder = selected ? 'LM Studio 預設免填；只有開啟驗證才需要' : '貼上自己的 API Key';
     }
+    window.BAOModelDiscovery?.syncBuilderControls?.();
     if (selected) {
       const endpoint = byId('bao-lm-endpoint');
       const advancedUrl = byId('base-url');
