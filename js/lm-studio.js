@@ -89,10 +89,13 @@
 
     const field = byId('api-key');
     const label = field?.closest('label');
+    const auth = byId('bao-lm-auth');
     if (label) {
       if (!label.dataset.baoCloudLabel) label.dataset.baoCloudLabel = label.firstChild?.textContent || 'API Key';
       if (label.firstChild) label.firstChild.textContent = selected ? '本機 API Token（選填）' : label.dataset.baoCloudLabel;
       field.placeholder = selected ? 'LM Studio 預設免填；只有開啟驗證才需要' : '貼上自己的 API Key';
+      if (selected && auth && label.parentElement !== auth) auth.append(label);
+      if (!selected && auth && label.parentElement === auth && controls) controls.before(label);
     }
     window.BAOModelDiscovery?.syncBuilderControls?.();
     if (selected) {
@@ -153,7 +156,7 @@
     if (!step) return;
     const box = document.createElement('section');
     box.id = 'bao-lm-builder'; box.className = 'hidden';
-    box.innerHTML = '<div class="bao-lm-heading"><strong>本地 AI · LM Studio</strong><a href="lm-studio-guide.html" target="_blank" rel="noopener">查看連接教學 ↗</a></div><p class="note">如果目前看到 LM Studio 的 Settings 視窗，先按右上角 × 關閉；回主畫面左側 Developer → Start Server，並開啟 Enable CORS。不是 Settings → Developer。模型在你的電腦運行，BAO/LAB 不會自動改用付費雲端 API。</p><label class="bao-lm-endpoint-label">本機 API 網址<input id="bao-lm-endpoint" value="http://127.0.0.1:1234/v1" autocomplete="off" spellcheck="false"><small class="note">通常不用改；只有 LM Studio 顯示不同連接埠時才需要調整。</small></label><div class="bao-lm-controls"><button type="button" class="secondary" id="bao-lm-discover">讀取本機模型</button><select id="bao-lm-models" aria-label="本機模型"><option value="">先按讀取本機模型…</option></select></div><p class="note" id="bao-lm-status" role="status" aria-live="polite"></p>';
+    box.innerHTML = '<div class="bao-lm-heading"><strong>本地 AI · LM Studio</strong><a href="lm-studio-guide.html" target="_blank" rel="noopener">查看連接教學 ↗</a></div><p class="note">如果目前看到 LM Studio 的 Settings 視窗，先按右上角 × 關閉；回主畫面左側 Developer → Start Server，並開啟 Enable CORS。不是 Settings → Developer。模型在你的電腦運行，BAO/LAB 不會自動改用付費雲端 API。</p><label class="bao-lm-endpoint-label">本機 API 網址<input id="bao-lm-endpoint" value="http://127.0.0.1:1234/v1" autocomplete="off" spellcheck="false"><small class="note">通常不用改；只有 LM Studio 顯示不同連接埠時才需要調整。</small></label><details id="bao-lm-auth"><summary>本機 API Token（選填）</summary></details><div class="bao-lm-controls"><button type="button" class="secondary" id="bao-lm-discover">讀取本機模型</button><select id="bao-lm-models" aria-label="本機模型"><option value="">先按讀取本機模型…</option></select></div><p class="note" id="bao-lm-status" role="status" aria-live="polite"></p>';
     byId('api-key')?.closest('label')?.after(box);
     const select = byId('bao-lm-models');
     const endpoint = byId('bao-lm-endpoint');
