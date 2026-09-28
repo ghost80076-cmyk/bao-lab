@@ -183,6 +183,7 @@
     return false;
   };
   const mainModelToolConfig = () => ({ ...App.config.api, __storyTool: true });
+  const aiToolsAvailable = () => Boolean(App.config?.api?.key && !App.config?.demoMode && !App.config?.offlineWorldPreview);
 
   const parseSuggestions = input => {
     const raw = String(input || "").replace(/^\s*```(?:json)?/i, "").replace(/```\s*$/, "").trim();
@@ -413,6 +414,15 @@
       button.textContent = "✓ 已複製";
       setTimeout(() => { button.textContent = before; }, 900);
     };
+
+    if (!aiToolsAvailable()) {
+      ["[data-rewrite]", "[data-regenerate]", "[data-inspire]"].forEach(selector => {
+        const button = tools.querySelector(selector);
+        if (!button) return;
+        button.disabled = true;
+        button.title = "目前是本機預覽；連接 AI 後即可使用";
+      });
+    }
 
     if (!canRevise(index)) {
       ["[data-edit]", "[data-rewrite]", "[data-regenerate]"].forEach(selector => {
