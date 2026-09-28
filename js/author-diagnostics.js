@@ -162,7 +162,7 @@
     const parent = document.getElementById('provider-diagnostics-box');
     if (!parent || parent.querySelector('[data-relay-probe]')) return false;
     const section = document.createElement('section');
-    section.className = 'note';
+    section.className = 'note bao-relay-probe';
     section.style.marginTop = '12px';
     section.innerHTML = '<h4>第三方中轉：瀏覽器連通檢查</h4><p>請先在 Custom Provider 填入中轉商提供的完整 HTTPS Chat Completions 端點（不是註冊頁或只有網域的網址）。按下檢查才會送出一筆使用固定假 Key 的請求；不會讀取或傳送你輸入的真實 API Key，服務商仍可能記錄請求。成功也不代表模型驗收通過。</p><button type="button" class="secondary" data-relay-probe>不使用真實 Key 檢查端點</button> <span data-relay-probe-status aria-live="polite">尚未檢查</span><p>要驗證實際模型與 SSE，仍須使用上方「完整驗收目前 API」。請不要把第三方中轉的 Key 貼在聊天裡。</p>';
     parent.appendChild(section);
