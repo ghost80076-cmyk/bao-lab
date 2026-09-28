@@ -1,7 +1,7 @@
 /* BAO/LAB opt-in Gameplay UI Engine. Cards without gameplay_ui keep the legacy path unchanged. */
 (() => {
   'use strict';
-  if (!window.App || !window.GameState || !window.BAOGameplayUICore || window.BAOGameplayUI) return;
+  if (typeof App === 'undefined' || typeof GameState === 'undefined' || !window.BAOGameplayUICore || window.BAOGameplayUI) return;
 
   const Core = window.BAOGameplayUICore;
   const builderDrafts = new Map();
