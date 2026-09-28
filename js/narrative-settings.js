@@ -83,6 +83,26 @@
     return items;
   };
 
+  const statusLabel = prefs => {
+    const items = summaryItems(prefs);
+    return {
+      items,
+      text: items.length ? `✦ 敘事與描寫 · ${items.length} 項啟用` : "✦ 敘事與描寫",
+      title: items.length ? `目前啟用：${items.join("、")}` : "目前完全依角色卡，未額外套用敘事偏好。"
+    };
+  };
+
+  const updateChatButtonState = () => {
+    const btn = document.querySelector("[data-bao-open='narrative']");
+    if (!btn) return;
+    const status = statusLabel(activePrefs());
+    btn.textContent = status.text;
+    btn.title = status.title;
+    btn.dataset.activeCount = String(status.items.length);
+    btn.setAttribute("aria-label", status.title);
+    btn.classList.toggle("is-active", status.items.length > 0);
+  };
+
   const updateBuilderSummary = () => {
     const box = document.getElementById("narrative-builder-summary");
     if (!box) return;
@@ -219,6 +239,7 @@
       }
       close();
       updateBuilderSummary();
+      updateChatButtonState();
     };
     wrap.querySelector("[data-narrative-save]").onclick = () => {
       const stylePacks = [...wrap.querySelectorAll("[data-style-pack].active")].map(btn => btn.dataset.stylePack);
@@ -233,6 +254,7 @@
       }
       close();
       updateBuilderSummary();
+      updateChatButtonState();
     };
   };
 
@@ -315,14 +337,19 @@
 
   const bindChatButton = () => {
     const row = document.getElementById("bao-player-settings");
-    if (!row || row.querySelector("[data-bao-open='narrative']")) return;
+    if (!row) return;
+    const existing = row.querySelector("[data-bao-open='narrative']");
+    if (existing) {
+      updateChatButtonState();
+      return;
+    }
     const btn = document.createElement("button");
     btn.type = "button";
     btn.className = "secondary";
     btn.dataset.baoOpen = "narrative";
-    btn.textContent = "✦ 敘事與描寫";
     btn.onclick = openModal;
     row.insertBefore(btn, row.firstChild);
+    updateChatButtonState();
   };
 
   const originalCollect = App.collectConfig.bind(App);
@@ -354,13 +381,15 @@
 
   window.BAONarrativeSettings = {
     get: () => ({ ...settings, stylePacks: [...settings.stylePacks] }),
-    set: value => { settings = normalizePrefs(value); save(); updateBuilderSummary(); },
+    set: value => { settings = normalizePrefs(value); save(); updateBuilderSummary(); updateChatButtonState(); },
     open: openModal,
-    buildPrompt: buildPreferencePrompt
+    buildPrompt: buildPreferencePrompt,
+    summaryItems: prefs => [...summaryItems(prefs)],
+    statusLabel: prefs => ({ ...statusLabel(prefs), items: [...statusLabel(prefs).items] })
   };
 
   ensureStyles();
-  const init = () => { injectBuilder(); bindChatButton(); updateBuilderSummary(); };
+  const init = () => { injectBuilder(); bindChatButton(); updateBuilderSummary(); updateChatButtonState(); };
   if (document.readyState === "loading") window.addEventListener("DOMContentLoaded", () => setTimeout(init, 150));
   else setTimeout(init, 150);
 })();
