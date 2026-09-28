@@ -1,6 +1,10 @@
 const { test, expect } = require('@playwright/test');
 if (process.env.BAO_LIVE_URL) test.use({ baseURL: process.env.BAO_LIVE_URL });
 
+async function setPanelOpen(panel, open) {
+  await panel.evaluate((el, value) => { el.open = value; }, open);
+}
+
 const rules = { regex_scripts: [
   { scriptName: '介面樣式', findRegex: '【開屏】', replaceString: '<style>.author-panel{color:rgb(255,0,0)}</style>' },
   { scriptName: '介面按鈕', findRegex: '【開屏1】', replaceString: '<div class="author-panel"><button onclick="BAOAuthor.draft(\'查看照片\')">查看照片</button><script>window.__authorScriptRan=true</script></div>' }
@@ -26,7 +30,7 @@ async function startDemo(page) {
 
 async function importRules(page) {
   const panel = page.locator('#bao-author-regex-panel');
-  await panel.locator(':scope > summary').click();
+  await setPanelOpen(panel, true);
   await panel.locator('input[type=file]').setInputFiles({ name: 'author-regex.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(rules)) });
   await expect(panel).toContainText('已保存 2 條原始正則');
   await panel.getByLabel('在這張角色卡啟用作者介面').check();
