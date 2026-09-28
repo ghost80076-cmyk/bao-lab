@@ -4,7 +4,7 @@
   const CARD_ID='night-sky-magic-academy';
   const esc=value=>App.escapeHTML(String(value??''));
   const isMagic=()=>App.activeCharacter?.id===CARD_ID;
-  const cover=()=>App.activeCharacter?.avatar||'assets/night-sky-academy-cover.svg';
+  const cover=()=>App.activeCharacter?.avatar||'assets/night-sky-academy-cover-v2.webp';
   const mysterySeeds=[
     '禁書庫有一本只在深夜自行翻頁的無名書',
     '一幅封存舊畫似乎認得玩家的姓氏',
@@ -68,7 +68,7 @@
       <section class="magic-detail">
         <button class="back-link magic-back" type="button">← 返回作品區</button>
         <div class="magic-hero">
-          <div class="magic-hero-art" style="background-image:url('${App.escapeAttr(cover())}')"></div>
+          <div class="magic-hero-art"><img src="${App.escapeAttr(cover())}" alt="夜穹魔法學院的月夜校園" decoding="async"></div>
           <div class="magic-hero-copy">
             <span class="magic-kicker">NIGHT SKY MAGIC ACADEMY / FIRST YEAR</span>
             <h1>${esc(c.title||c.name)}</h1>

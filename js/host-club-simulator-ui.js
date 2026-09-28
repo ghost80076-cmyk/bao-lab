@@ -16,8 +16,9 @@
     sena:'0% 100%', kyo:'50% 100%', nagi:'100% 100%'
   };
   const esc = value => App.escapeHTML(String(value ?? ''));
-  const avatar = () => App.activeCharacter?.avatar || 'assets/hostsim-cast.jpg';
-  const bgStyle = key => `background-image:url('${App.escapeAttr(avatar())}');background-size:300% 200%;background-position:${pos[key]};`;
+  const heroArt = () => App.activeCharacter?.avatar || 'assets/hostsim-hero-v2.webp';
+  const castArt = () => 'assets/hostsim-cast-v2.webp';
+  const bgStyle = key => `background-image:url('${App.escapeAttr(castArt())}');background-size:300% 200%;background-position:${pos[key]};`;
   const isHostSim = () => App.activeCharacter?.id === CARD_ID;
   const economyProfiles = {
     tight:{money:140000,income:240000,housing:'租屋，固定支出壓力偏高'},
@@ -118,6 +119,19 @@
     composer.before(wrap);
   };
 
+  const mountOpeningCast = () => {
+    const post = document.querySelector('.bao-opening-hostsim .bao-opening-post-character');
+    if (!post || post.querySelector('.hostsim-opening-cast')) return;
+    const strip = document.createElement('div');
+    strip.className = 'hostsim-opening-cast';
+    strip.setAttribute('aria-label','CLUB LUMIÈRE 六名牛郎');
+    strip.innerHTML = hostOrder.map(key => {
+      const info = hostMeta[key];
+      return `<figure><div class="hostsim-opening-photo" style="${bgStyle(key)}"></div><figcaption>${esc(info.name)}<small>${esc(info.role)}</small></figcaption></figure>`;
+    }).join('');
+    post.querySelector('.bao-opening-text')?.before(strip);
+  };
+
   const originalRenderDetail = App.renderDetail.bind(App);
   App.renderDetail = function() {
     if (this.activeCharacter?.id !== CARD_ID) return originalRenderDetail();
@@ -129,7 +143,7 @@
         <button class="back-link hostsim-back" type="button">← 返回作品區</button>
         <div class="hostsim-hero">
           <div class="hostsim-hero-visual">
-            <div class="hostsim-hero-portrait" style="${bgStyle('ren')}"></div>
+            <div class="hostsim-hero-portrait"><img src="${App.escapeAttr(heroArt())}" alt="六名 CLUB LUMIÈRE 牛郎" decoding="async"></div>
             <div class="hostsim-hero-copy">
               <span class="hostsim-kicker">KABUKICHO / CLUB LUMIÈRE</span>
               <h1>${esc(c.title || c.name)}</h1>
@@ -320,8 +334,9 @@
     const card = document.getElementById('chat-character-card');
     if (card) card.innerHTML = `<div class="hostsim-chat-badge"><span>CLUB LUMIÈRE</span><b>歌舞伎町・最後指名</b></div>`;
     document.querySelector('.ui-tab[data-panel="status"]')?.click();
+    mountOpeningCast();
     setTimeout(mountTurnChoices,0);
   };
 
-  window.BAOHostSimUI = { applyInitialState, ensureInitialState, parseChoices, mountTurnChoices };
+  window.BAOHostSimUI = { applyInitialState, ensureInitialState, parseChoices, mountTurnChoices, mountOpeningCast };
 })();
