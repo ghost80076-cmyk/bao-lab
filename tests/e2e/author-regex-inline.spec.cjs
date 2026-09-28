@@ -9,8 +9,8 @@ const rules = { regex_scripts: [
 async function startDemo(page) {
   await page.goto('./');
   await page.waitForFunction(() => Boolean(window.BAOAuthorInline && App.characters?.length));
-  await page.evaluate(() => {
-    App.openCharacter(App.characters[0].id);
+  await page.evaluate(async () => {
+    await App.openCharacter(App.characters[0].id);
     App.config = {
       narrativeMode: 'immersive', displayMode: 'text',
       persona: { name: '測試玩家', gender: '未指定', identity: '', personality: '', relationship: '', extra: '' },
@@ -26,7 +26,7 @@ async function startDemo(page) {
 
 async function importRules(page) {
   const panel = page.locator('#bao-author-regex-panel');
-  await panel.locator('summary').click();
+  await panel.locator(':scope > summary').click();
   await panel.locator('input[type=file]').setInputFiles({ name: 'author-regex.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(rules)) });
   await expect(panel).toContainText('已保存 2 條原始正則');
   await panel.getByLabel('在這張角色卡啟用作者介面').check();
@@ -35,7 +35,7 @@ async function importRules(page) {
 
 test('author card renders inline, can toggle original, and drafts without extra API or state changes', async ({ page }) => {
   await startDemo(page);
-  await page.evaluate(() => {
+  await page.evaluate(async () => {
     Chat.add('user', '顯示開屏'); Chat.add('assistant', '【開屏】【開屏1】');
     App.renderChatShell(false);
   });
@@ -62,7 +62,7 @@ test('author card renders inline, can toggle original, and drafts without extra 
 
 test('inline static HTML and CSS remain visible without script permission, and JS cannot run', async ({ page }) => {
   await startDemo(page);
-  await page.evaluate(() => { Chat.add('assistant', '【開屏】【開屏1】'); App.renderChatShell(false); });
+  await page.evaluate(async () => { Chat.add('assistant', '【開屏】【開屏1】'); App.renderChatShell(false); });
   const panel = await importRules(page);
   const host = page.locator('#chat-stream .bao-author-inline');
   const frame = page.frameLocator('iframe[title="聊天內作者隔離介面"]');
