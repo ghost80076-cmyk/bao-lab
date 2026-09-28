@@ -46,6 +46,7 @@ test('gameplay schema renders builder, applies state, and drafts actions without
     config.displayMode = 'ui';
     App.config = config;
     GameState.create(App.activeCharacter, config);
+    App.showView('chat');
     BAOGameplayUI.renderPanel('status');
   });
 
