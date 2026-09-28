@@ -8,6 +8,7 @@ on:
       - 'js/gameplay-ui.js'
       - 'css/gameplay-ui.css'
       - 'tests/gameplay-ui-engine-core.cjs'
+      - 'tests/e2e/gameplay-ui-engine.spec.cjs'
       - 'tests/fixtures/gameplay-ui-demo-character.json'
       - 'docs/gameplay-ui-engine.md'
       - '.github/workflows/gameplay-ui-engine.yml'
@@ -30,3 +31,6 @@ jobs:
       - run: node --check js/gameplay-ui-core.js
       - run: node --check js/gameplay-ui.js
       - run: node tests/gameplay-ui-engine-core.cjs
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npx playwright test tests/e2e/gameplay-ui-engine.spec.cjs --project=chromium
