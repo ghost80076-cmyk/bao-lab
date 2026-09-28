@@ -22,6 +22,40 @@
 #builder-view .bao-connection-mode-foot p{margin:0;color:#aaa6b1;font-size:11px;line-height:1.6}
 #builder-view .bao-connection-mode-foot a{color:#c9b7ff;font-size:11px;text-decoration:none;white-space:nowrap}
 #builder-view[data-bao-connection="hosted"] .bao-builder-provider{display:none!important}
+#builder-view[data-bao-connection="hosted"] #builder-api-guide,
+#builder-view[data-bao-connection="hosted"] .bao-builder-key,
+#builder-view[data-bao-connection="hosted"] .api-connection-summary,
+#builder-view[data-bao-connection="hosted"] #api-advanced-settings,
+#builder-view[data-bao-connection="hosted"] .bao-builder-test-row,
+#builder-view[data-bao-connection="hosted"] #provider-diagnostics-box,
+#builder-view[data-bao-connection="hosted"] #bao-quick-extra,
+#builder-view[data-bao-connection="hosted"] .bao-builder-demo{display:none!important}
+#builder-view[data-bao-provider="lmstudio"] #builder-api-guide,
+#builder-view[data-bao-provider="lmstudio"] .bao-builder-model,
+#builder-view[data-bao-provider="lmstudio"] .api-connection-summary,
+#builder-view[data-bao-provider="lmstudio"] #api-advanced-settings,
+#builder-view[data-bao-provider="lmstudio"] .bao-builder-test-row,
+#builder-view[data-bao-provider="lmstudio"] #provider-diagnostics-box,
+#builder-view[data-bao-provider="lmstudio"] #bao-quick-extra,
+#builder-view[data-bao-provider="lmstudio"] .bao-builder-demo{display:none!important}
+#builder-view[data-bao-setup="quick"] #builder-api-guide,
+#builder-view[data-bao-setup="quick"] #provider-diagnostics-box{display:none!important}
+#builder-view[data-bao-setup="quick"][data-bao-provider="custom"] #provider-diagnostics-box{display:block!important}
+#builder-view[data-bao-setup="quick"] .bao-builder-demo{display:none!important}
+#builder-view [data-bao-gemini-cache-open]{display:none!important}
+#builder-view[data-bao-setup="advanced"][data-bao-connection="byok"][data-bao-provider="gemini"] [data-bao-gemini-cache-open]{display:inline-flex!important}
+#builder-view .provider-quick-actions,
+#builder-view #provider-diagnostics-box>h3,
+#builder-view #provider-diagnostics-box>p{display:none!important}
+#builder-view[data-bao-provider="custom"] .provider-quick-actions{display:flex!important}
+#builder-view[data-bao-provider="custom"] .bao-builder-test-row{display:none!important}
+#builder-view #provider-diagnostics-box{padding:10px 14px;background:rgba(255,255,255,.015)}
+#builder-view #provider-diagnostics-box .provider-diagnostics-advanced{margin-top:0;padding-top:0;border-top:0}
+#builder-view .bao-relay-probe{display:none!important}
+#builder-view[data-bao-provider="custom"] .bao-relay-probe{display:block!important}
+#builder-view #bao-lm-auth{margin:12px 0 4px;border:1px solid rgba(192,174,225,.14);border-radius:10px}
+#builder-view #bao-lm-auth>summary{padding:10px 12px;color:#aaa6b1;cursor:pointer;font-size:12px}
+#builder-view #bao-lm-auth .bao-builder-key{margin:0 10px 10px;padding:10px}
 #builder-view[data-bao-setup="quick"] .bao-builder-ai-v2>.note:first-of-type{display:none}
 #builder-view[data-bao-setup="quick"] .bao-builder-ai-v2>.form-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
 #builder-view[data-bao-setup="quick"][data-bao-connection="hosted"] .bao-builder-ai-v2>.form-grid{grid-template-columns:minmax(0,1fr)}

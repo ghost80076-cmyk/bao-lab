@@ -48,6 +48,6 @@
   });
   load('js/story-helper-reconnect.js')
     .catch(error => console.warn('BAO/LAB story helper API reconnect did not load:', error));
-  load('js/lm-studio-core.js').then(() => load('js/lm-studio.js'))
+  load('js/lm-studio-core.js').then(() => load('js/lm-studio.js?v=2'))
     .catch(error => console.warn('BAO/LAB LM Studio local provider did not load:', error));
 })();

@@ -19,6 +19,9 @@
   const writeJSON = (key, value) => localStorage.setItem(key, JSON.stringify(value));
   const storedSettings = readJSON(SETTINGS_KEY, {});
   const settings = Object.assign({}, defaults, storedSettings);
+  // Local preview is a per-story testing choice, not a durable player preference.
+  // Never reopen a later story in preview mode just because it was used previously.
+  settings.demoMode = false;
   if (settings.replyLength === "free") settings.replyLength = "auto";
   if (!["card", "named"].includes(settings.dialogueFormat)) settings.dialogueFormat = "card";
   settings.appearance = Object.assign({}, defaults.appearance, settings.appearance || {});
@@ -291,4 +294,3 @@
   const init = () => { ensureStyles(); injectDemoOption(); injectChatButtons(); applyAppearance(); };
   if (document.readyState === "loading") window.addEventListener("DOMContentLoaded", () => setTimeout(init, 120)); else setTimeout(init, 120);
 })();
-

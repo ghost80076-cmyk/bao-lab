@@ -28,12 +28,12 @@ window.addEventListener("DOMContentLoaded", () => {
     .catch(err => console.warn("BAO/LAB world state or character status modules failed to load:", err));
   loadBAOScript("js/cost-control.js")
     .then(() => loadBAOScript("js/provider-browser-compat.js"))
-    .then(() => loadBAOScript("js/model-routing.js"))
+    .then(() => loadBAOScript("js/model-routing.js?v=2"))
     .then(() => loadBAOScript("js/provider-diagnostics.js"))
     .catch(err => console.warn("BAO/LAB cost, provider compatibility, model routing or provider diagnostics controls failed to load:", err));
   loadBAOScript("js/storage-write-guard.js")
-    .then(() => loadBAOScript("js/chat-shell-fix.js"))
-    .then(() => loadBAOScript("js/player-settings.js"))
+    .then(() => loadBAOScript("js/chat-shell-fix.js?v=2"))
+    .then(() => loadBAOScript("js/player-settings.js?v=2"))
     .then(() => loadBAOScript("js/player-text-replace-mod.js"))
     .then(() => loadBAOScript("js/narrative-settings.js"))
     .then(() => loadBAOScript("js/memory-workbench-core.js"))
@@ -49,7 +49,7 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/google-drive-sync.js"))
     .then(() => loadBAOScript("js/prompt-cache.js"))
     .then(() => loadBAOScript("js/prompt-orchestrator.js"))
-    .then(() => loadBAOScript("js/story-reader.js?v=2"))
+    .then(() => loadBAOScript("js/story-reader.js?v=3"))
     .then(() => loadBAOScript("js/inspiration-copy.js"))
     .then(() => loadBAOScript("js/story-revision-state.js"))
     .then(() => loadBAOScript("js/story-branches.js"))
@@ -71,7 +71,7 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/bao-mascot.js?v=4"))
     .then(() => loadBAOScript("js/bao-visual-ui.js?v=3"))
     .then(() => loadBAOScript("js/player-shell-v2.js?v=1"))
-    .then(() => loadBAOScript("js/player-builder-v2.js?v=1"))
+    .then(() => loadBAOScript("js/player-builder-v2.js?v=2"))
     .catch(err => console.warn("BAO/LAB brand, mascot or Player 2.0 UI failed to load:", err));
   setTimeout(async () => {
     await Storage.ready();
