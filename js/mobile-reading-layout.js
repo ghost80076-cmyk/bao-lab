@@ -16,7 +16,7 @@
   const supportUrl = () => document.querySelector('#chat-view .chat-layout > aside a[href*="ko-fi.com"]')?.href
     || document.querySelector('.topbar a[href*="ko-fi.com"]')?.href
     || 'https://ko-fi.com/roger2486';
-  const mobileControlIds = ['bao-mobile-exit', 'bao-mobile-status', 'bao-mobile-memory', 'bao-mobile-support', 'bao-mobile-tools-tab'];
+  const mobileControlIds = ['bao-mobile-exit', 'bao-mobile-status', 'bao-mobile-memory', 'bao-mobile-support', 'bao-mobile-tools-tab', 'bao-mobile-panel-close'];
   const clearMobileChrome = () => {
     mobileControlIds.forEach(id => document.getElementById(id)?.remove());
     const panel = drawer();
@@ -121,21 +121,37 @@
     if (window.BAOChatExperience?.openStatus) BAOChatExperience.openStatus();
     else document.getElementById('bao-reading-status-toggle')?.click();
   };
+  const closePanels = () => {
+    main.classList.remove('bao-mobile-panel-open');
+    document.querySelector('[data-bao-mobile-panel-toggle]')?.setAttribute('aria-expanded', 'false');
+    document.getElementById('bao-mobile-memory')?.setAttribute('aria-expanded', 'false');
+    schedule();
+  };
   const openMemory = () => {
-    if (!main.classList.contains('bao-mobile-panel-open')) main.classList.add('bao-mobile-panel-open');
+    const activePanel = document.querySelector('#chat-view .ui-tab.active')?.dataset.panel || '';
+    if (main.classList.contains('bao-mobile-panel-open') && activePanel === 'memory') {
+      closePanels();
+      return;
+    }
+    main.classList.add('bao-mobile-panel-open');
     const tab = document.querySelector('#chat-view .ui-tab[data-panel="memory"]');
     if (tab) tab.click();
     else App.renderUIPanel?.('memory');
     document.querySelector('[data-bao-mobile-panel-toggle]')?.setAttribute('aria-expanded', 'true');
+    document.getElementById('bao-mobile-memory')?.setAttribute('aria-expanded', 'true');
+    schedule();
   };
   const togglePanels = () => {
-    const opened = main.classList.toggle('bao-mobile-panel-open');
-    const panelButton = document.querySelector('[data-bao-mobile-panel-toggle]');
-    if (panelButton) panelButton.setAttribute('aria-expanded', String(opened));
-    if (opened) {
-      const panel = document.querySelector('#chat-view .ui-tab.active')?.dataset.panel || 'npc';
-      App.renderUIPanel?.(panel);
+    if (main.classList.contains('bao-mobile-panel-open')) {
+      closePanels();
+      return;
     }
+    main.classList.add('bao-mobile-panel-open');
+    const panelButton = document.querySelector('[data-bao-mobile-panel-toggle]');
+    if (panelButton) panelButton.setAttribute('aria-expanded', 'true');
+    const panel = document.querySelector('#chat-view .ui-tab.active')?.dataset.panel || 'npc';
+    App.renderUIPanel?.(panel);
+    schedule();
   };
   const toTop = () => {
     if (window.BAOStoryIntegrity?.scrollToStart) BAOStoryIntegrity.scrollToStart();
@@ -187,9 +203,27 @@
       button.id = 'bao-mobile-memory';
       button.className = 'bao-mobile-header-action bao-mobile-memory-action';
       button.textContent = '記憶';
-      button.setAttribute('aria-label', '查看故事記憶');
+      button.setAttribute('aria-label', '查看或收起故事記憶');
+      button.setAttribute('aria-controls', 'game-ui');
+      button.setAttribute('aria-expanded', 'false');
       button.addEventListener('click', openMemory);
       header.append(button);
+    }
+  };
+  const ensurePanelClose = () => {
+    const tabs = main.querySelector('#game-ui .ui-tabs');
+    if (!tabs) return;
+    let button = tabs.querySelector('#bao-mobile-panel-close');
+    if (!button) {
+      button = document.createElement('button');
+      button.type = 'button';
+      button.id = 'bao-mobile-panel-close';
+      button.className = 'ui-tab bao-mobile-panel-close';
+      button.textContent = '×';
+      button.setAttribute('aria-label', '收起人物、狀態、事件與記憶面板');
+      button.setAttribute('title', '收起資訊面板');
+      button.addEventListener('click', closePanels);
+      tabs.append(button);
     }
   };
   const ensureSupport = () => {
@@ -278,8 +312,17 @@
     ensureMemory();
     ensureSupport();
     ensureTab();
+    ensurePanelClose();
     measure();
     enhanceDrawer();
+    const panelOpen = main.classList.contains('bao-mobile-panel-open');
+    const activePanel = document.querySelector('#chat-view .ui-tab.active')?.dataset.panel || '';
+    const memoryButton = document.getElementById('bao-mobile-memory');
+    if (memoryButton) {
+      const memoryOpen = panelOpen && activePanel === 'memory';
+      memoryButton.setAttribute('aria-expanded', String(memoryOpen));
+      memoryButton.classList.toggle('is-active', memoryOpen);
+    }
     const tab = document.getElementById('bao-mobile-tools-tab');
     if (tab) {
       const open = Boolean(drawer());
@@ -317,10 +360,10 @@
     focusScrollTop = null;
     schedule();
   });
-  window.BAOMobileReadingLayout = { version: 8, sync, openTools, enhanceDrawer, togglePanels, openMemory };
+  window.BAOMobileReadingLayout = { version: 9, sync, openTools, enhanceDrawer, togglePanels, openMemory, closePanels };
   const style = document.createElement('link');
   style.rel = 'stylesheet';
-  style.href = 'css/mobile-reading-layout.css?v=8';
+  style.href = 'css/mobile-reading-layout.css?v=9';
   document.head.append(style);
   sync();
 })();
