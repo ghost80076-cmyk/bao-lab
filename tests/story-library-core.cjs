@@ -162,6 +162,17 @@ vm.runInThisContext(code, { filename: "js/story-library.js" });
   stories = await BAOStoryLibrary.listStories();
   assert.equal(stories[0].title, "舊城夜談");
 
+  const pinnedStory = await BAOStoryLibrary.setStoryPinned(firstRefs.storyId, true);
+  assert.equal(pinnedStory.pinned, true);
+  assert.equal(Storage.saveStory(), true);
+  await BAOStoryLibrary.flush();
+  stories = await BAOStoryLibrary.listStories();
+  assert.equal(stories[0].pinned, true);
+  const unpinnedStory = await BAOStoryLibrary.setStoryPinned(firstRefs.storyId, false);
+  assert.equal(unpinnedStory.pinned, false);
+  const repinnedStory = await BAOStoryLibrary.setStoryPinned(firstRefs.storyId, true);
+  assert.equal(repinnedStory.pinned, true);
+
   const restored = await BAOStoryLibrary.reconstruct(firstRefs.storyId, firstRefs.chapterId);
   assert.equal(restored.chat.messages.length, 2);
   assert.equal(restored.chat.messages[1].content, "第一章回覆");
@@ -266,6 +277,8 @@ vm.runInThisContext(code, { filename: "js/story-library.js" });
 
   assert.equal(code.includes("if (!restored) return false"), true);
   assert.equal(code.includes("return Boolean(database)"), true);
+  assert.equal(code.includes("async setStoryPinned(storyId, pinned = true)"), true);
+  assert.equal(code.includes("if (Boolean(a.pinned) !== Boolean(b.pinned))"), true);
   console.log("story library core test passed");
 })().catch(error => {
   console.error(error);

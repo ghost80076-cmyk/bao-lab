@@ -219,6 +219,7 @@
         characterId: payload.characterId,
         characterName: payload.characterName,
         title: previous?.title || payload.characterName || "未命名故事",
+        pinned: Boolean(previous?.pinned),
         createdAt: refs.storyCreatedAt,
         updatedAt: payload.savedAt,
         activeChapterId: refs.chapterId,
@@ -345,7 +346,10 @@
         .map(story => Object.assign({}, story, {
           chapterCount: chapters.filter(chapter => chapter.storyId === story.storyId).length
         }))
-        .sort((a, b) => String(b.updatedAt || "").localeCompare(String(a.updatedAt || "")));
+        .sort((a, b) => {
+          if (Boolean(a.pinned) !== Boolean(b.pinned)) return a.pinned ? -1 : 1;
+          return String(b.updatedAt || "").localeCompare(String(a.updatedAt || ""));
+        });
     },
 
     async listChapters(storyId) {
@@ -361,6 +365,15 @@
       if (!record) return false;
       record.title = nextTitle;
       record.updatedAt = new Date().toISOString();
+      await this.transaction("readwrite", store => store.put(record));
+      return this.clone(record);
+    },
+
+    async setStoryPinned(storyId, pinned = true) {
+      if (!storyId || !await this.open()) return false;
+      const record = (await this.allRecords()).find(item => item.kind === "story" && item.storyId === storyId);
+      if (!record) return false;
+      record.pinned = Boolean(pinned);
       await this.transaction("readwrite", store => store.put(record));
       return this.clone(record);
     },

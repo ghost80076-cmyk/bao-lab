@@ -22,3 +22,28 @@
   .story-library-story>header>.story-library-actions .story-library-danger,
   .story-library-chapter>.story-library-actions .story-library-danger{grid-column:2}
 }
+
+
+/* Story shelf return UX: search, pin and one-tap continue. */
+.story-library-controls{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:end;gap:10px;padding:12px;border:1px solid var(--border);border-radius:14px;background:#12131a}
+.story-library-search{display:flex;flex-direction:column;gap:6px;color:var(--muted);font-size:12px}
+.story-library-search input{width:100%;min-height:42px;box-sizing:border-box;border:1px solid var(--border);border-radius:11px;background:#0f1016;color:var(--text);padding:10px 12px;font:inherit}
+.story-library-search input:focus{outline:2px solid rgba(93,214,192,.24);outline-offset:1px}
+.story-library-pinned-filter.active,.story-library-pinned-filter[aria-pressed="true"]{border-color:rgba(255,210,120,.38);background:rgba(255,210,120,.1);color:#ffd278}
+.story-library-result{align-self:center;color:var(--muted);font-size:12px;white-space:nowrap}
+.story-library-pinned{display:inline-flex;border:1px solid rgba(255,210,120,.34);border-radius:999px;background:rgba(255,210,120,.09);color:#ffd278;padding:3px 7px;font-size:10px;font-weight:800}
+.story-library-story[hidden]{display:none!important}
+.story-library-empty[hidden]{display:none!important}
+@media(max-width:760px){
+  .story-library-controls{grid-template-columns:minmax(0,1fr) auto}
+  .story-library-result{grid-column:1/-1}
+  .story-library-story>header>.story-library-actions{grid-template-columns:minmax(0,1fr) auto auto}
+  .story-library-story>header>.story-library-actions .story-library-danger{grid-column:auto}
+}
+@media(max-width:430px){
+  .story-library-controls{grid-template-columns:1fr}
+  .story-library-pinned-filter{width:100%}
+  .story-library-result{grid-column:auto}
+  .story-library-story>header>.story-library-actions{grid-template-columns:minmax(0,1fr) auto}
+  .story-library-story>header>.story-library-actions .bao-shelf-continue{grid-column:1/-1}
+}
