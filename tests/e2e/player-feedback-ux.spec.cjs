@@ -26,34 +26,45 @@ test('save feedback stays inside the site without native dialogs', async ({ page
   await page.setViewportSize({ width: 1280, height: 900 });
   await page.goto('/');
   await page.waitForFunction(() => window.BAOFeedback && window.BAOStorageWriteGuard &&
-    window.BAOPlayerBuilderV2 && window.BAOChatToolNavigation && App.characters?.length &&
-    Storage.status().ready, null, { timeout: 30000 });
+    window.BAORefreshSaveUI && App.characters?.length && Storage.status().ready, null, { timeout: 30000 });
   await expect(page.locator('#bao-me-nav')).toHaveCount(1);
   await expect(page.locator('.topbar nav [data-open-story-library]')).toHaveCount(1);
   await page.evaluate(async () => {
     const character = App.characters.find(item => item.id !== 'autonomous-npc-world');
     await App.openCharacter(character.id);
-    App.openBuilder();
+    App.config = {
+      narrativeMode: 'immersive',
+      displayMode: 'ui',
+      persona: { name: '回歸測試玩家', gender: '未指定', identity: '', personality: '', relationship: '', extra: '' },
+      api: { type: 'custom', protocol: 'openai', model: 'offline-test', baseUrl: '', key: '' },
+      memory: { mode: 'smart', maxRounds: 20, maxContext: 32000, cache: false }
+    };
+    Chat.reset();
+    GameState.create(App.activeCharacter, App.config);
+    const greeting = Chat.add('assistant', App.activeCharacter.greeting || '故事開始');
+    greeting.greeting = true;
+    App.renderChatShell(false);
+    App.showView('chat');
+    App.saveStory(false);
   });
-  await page.locator('[data-bao-setup="advanced"]').click();
-  await page.evaluate(() => App.setStep(4));
-  await page.locator('#bao-demo-mode').check();
-  await page.evaluate(() => App.startStory());
   await expect(page.locator('#chat-view')).toHaveClass(/active/);
+  await page.waitForFunction(() => window.BAOPlayerShellV2 && window.BAOChatToolNavigation &&
+    document.getElementById('chat-view')?.dataset.baoSurface === 'play', null, { timeout: 30000 });
+  await page.locator('#bao-surface-mode-toggle').click();
+  await expect(page.locator('#chat-view')).toHaveAttribute('data-bao-surface', 'studio');
+  const sidebar = page.locator('#chat-view .chat-layout > aside').first();
+  await expect(sidebar).toBeVisible();
 
-  const quickSave = page.locator('#bao-chat-tool-shortcuts').getByRole('button', { name: '快速儲存' });
+  const quickSave = sidebar.getByRole('button', { name: '快速儲存', exact: true });
   await expect(quickSave).toBeVisible();
   await quickSave.click();
   const toast = page.locator('#bao-feedback-toast');
   await expect(toast).toBeVisible();
   await expect(toast).toContainText(/已確認寫入|已寫入瀏覽器備援儲存空間/);
 
-  await page.locator('#bao-chat-tool-shortcuts').getByRole('button', { name: /全部功能/ }).click();
-  const drawer = page.locator('#bao-chat-tool-drawer');
-  await expect(drawer).toBeVisible();
-  const storyTools = drawer.locator('details').filter({ hasText: '故事與存檔' });
+  const storyTools = sidebar.locator('details[data-chat-tool-group="story"]');
   await storyTools.locator('summary').click();
-  await storyTools.getByRole('button', { name: /另存手動備份|另存新檔/ }).click();
+  await storyTools.locator('#save-slot-button').click();
   const request = page.locator('#bao-text-request');
   await expect(request).toBeVisible();
   await request.locator('input').fill('回歸測試備份');
