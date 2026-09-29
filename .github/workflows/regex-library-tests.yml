@@ -35,3 +35,4 @@ jobs:
           node --check js/gameplay-ui.js
           node --check js/app.js
           node --check js/author-regex-text-mod.js
+          node --check js/author-regex-core.js
