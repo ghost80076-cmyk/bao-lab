@@ -51,7 +51,7 @@ test('story quick commands fill the composer without sending and persist custom 
 
   await dialog.getByRole('button', { name: /NPC 自主行動/ }).click();
   await expect(dialog).not.toBeVisible();
-  await expect(page.locator('#user-input')).toContainText('NPC');
+  await expect(page.locator('#user-input')).toHaveValue(/NPC/);
   expect(await page.evaluate(() => Chat.messages.length)).toBe(beforeMessages);
 
   await page.evaluate(() => { document.getElementById('user-input').value = ''; });
