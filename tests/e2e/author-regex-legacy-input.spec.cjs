@@ -89,7 +89,7 @@ test('mobile: isolated legacy UI does not shrink the main composer', async ({ pa
 
   await dock.evaluate(el => { el.open = true; el.dispatchEvent(new Event('toggle')); });
   await expect(frame.locator('#legacy-menu')).toBeVisible();
-  await frame.getByRole('button', { name: '查看圖鑑' }).evaluate(node => node.click());
+  await frame.getByRole('button', { name: '查看圖鑑' }).click({ force: true });
   await expect(page.locator('#user-input')).toHaveValue('查看圖鑑');
   expect(await page.evaluate(() => window.__legacyApiCalls)).toBe(0);
 });
