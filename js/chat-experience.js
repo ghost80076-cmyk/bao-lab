@@ -43,11 +43,14 @@
       const heading = document.createElement('div');
       heading.className = 'bao-status-heading';
       const title = document.createElement('h3'); title.textContent = '世界狀態';
+      const help = window.BAOFeatureHelp?.button?.('world_status');
       const close = document.createElement('button');
       close.type = 'button'; close.className = 'bao-status-close secondary';
       close.textContent = '關閉'; close.setAttribute('aria-label', '關閉世界狀態');
       close.addEventListener('click', closeStatus);
-      heading.append(title, close);
+      heading.append(title);
+      if (help) heading.append(help);
+      heading.append(close);
       const host = document.createElement('div'); host.className = 'bao-rail-status-host';
       const info = document.createElement('p'); info.className = 'bao-status-empty note';
       info.textContent = '目前沒有可顯示的世界狀態。';
