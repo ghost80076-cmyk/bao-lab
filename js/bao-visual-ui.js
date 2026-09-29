@@ -11,7 +11,7 @@
       link.className = 'bao-home-portrait';
       link.href = 'bao-mascot.html';
       link.setAttribute('aria-label', '認識夜灣官方吉祥物包包');
-      link.innerHTML = `<img src="${PORTRAIT}" alt="包包：奶白色短髮、粉紫眼睛的 夜灣官方吉祥物" width="320" height="426" loading="eager"><span><b>BAO · 包包</b><small>肉包 ⇄ 人形 · 認識她 →</small></span>`;
+      link.innerHTML = `<img src="${PORTRAIT}" alt="包包：奶白色短髮、粉紫眼睛的夜灣官方吉祥物" width="320" height="426" loading="eager"><span><b>BAO · 包包</b><small>肉包 ⇄ 人形 · 認識她 →</small></span>`;
       const oldArt = homeCard.querySelector('.brand-world-art');
       if (oldArt) oldArt.replaceWith(link);
       else homeCard.prepend(link);
