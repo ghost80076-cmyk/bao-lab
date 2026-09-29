@@ -62,6 +62,9 @@ button{border-radius:12px;padding:10px 14px;font:inherit;font-weight:700;cursor:
 .restore{border:1px solid rgba(143,224,189,.32);background:#17241f;color:#9ae7c5}
 .player-empty{padding:18px;color:#aaa6b8;text-align:center}
 code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
+#publish-cover-preview{display:block;width:150px;max-height:210px;object-fit:cover;border-radius:14px;border:1px solid rgba(255,255,255,.14);margin:10px 0}
+.publish-source-preview{white-space:pre-wrap;max-height:220px;overflow:auto;background:#10121a;border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:12px;color:#d8d4e4;font-size:13px;line-height:1.6}
+.publish-rights{display:flex;grid-template-columns:none;align-items:flex-start;gap:9px;margin-top:12px}.publish-rights input{width:auto;margin-top:4px}.publish-result{margin-top:12px;line-height:1.7}
 @media(max-width:700px){.grid,.provider-grid,.provider-form{grid-template-columns:1fr}.route-controls{grid-template-columns:1fr}.packages{grid-template-columns:repeat(2,minmax(0,1fr))}.card{padding:17px}}
 </style>
 </head>
@@ -204,6 +207,78 @@ code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
     <p class="note">玩家仍只選 Gemini 模型；你在這裡決定實際走 Google Gemini 官方或 OpenRouter。未在 Worker 安全白名單與價格表配置的路由會顯示為不可用。</p>
     <div id="hosted-routes" class="route-list"></div>
     <div class="actions"><button id="refresh-provider-control" class="secondary" type="button">重新整理供應商狀態</button></div>
+  </section>
+  <section class="card" id="character-publish-admin">
+    <h2>5. 作品上架管理</h2>
+    <p class="note">只建立 GitHub Pull Request，不會直接修改 main 或立即部署。PNG 會先在本機解析角色資料，封面重新編碼並移除內嵌 metadata；原始 SillyTavern 卡不會公開到 repo。</p>
+
+    <div class="grid">
+      <label>作者角色卡（PNG／JSON）
+        <input id="publish-character-file" type="file" accept=".png,.json,image/png,application/json">
+      </label>
+      <label>另選發布封面（選填）
+        <input id="publish-cover-file" type="file" accept="image/png,image/jpeg,image/webp">
+      </label>
+    </div>
+    <div class="actions">
+      <button id="publish-load" class="secondary" type="button">解析角色卡</button>
+      <button id="publish-validate" class="secondary" type="button">重新驗證</button>
+    </div>
+    <div id="publish-source-summary" class="note">尚未載入角色卡。</div>
+
+    <div class="grid" style="margin-top:14px">
+      <label>角色 ID
+        <input id="publish-id" maxlength="64" pattern="[A-Za-z0-9][A-Za-z0-9_-]{0,63}" placeholder="character-id">
+      </label>
+      <label>作者顯示名稱
+        <input id="publish-author" maxlength="80" placeholder="選填">
+      </label>
+      <label>角色／作品名稱
+        <input id="publish-name" maxlength="100">
+      </label>
+      <label>正式標題
+        <input id="publish-title" maxlength="160">
+      </label>
+      <label>作品分區
+        <select id="publish-category">
+          <option value="male">男性向</option>
+          <option value="female">女性向</option>
+          <option value="r18">R18</option>
+        </select>
+      </label>
+      <label>標籤
+        <input id="publish-tags" placeholder="都市, 慢熱, 自主 NPC">
+      </label>
+    </div>
+
+    <label style="margin-top:12px">作品簡介
+      <textarea id="publish-description" maxlength="3000" rows="3"></textarea>
+    </label>
+
+    <div class="grid" style="margin-top:14px">
+      <div>
+        <div class="note">發布封面預覽</div>
+        <img id="publish-cover-preview" alt="發布封面預覽" hidden>
+        <div id="publish-cover-note" class="note">若來源是原始 PNG 角色卡，會自動抽出乾淨封面。</div>
+      </div>
+      <div>
+        <div class="note">開場預覽</div>
+        <div id="publish-card-preview" class="publish-source-preview">尚未載入。</div>
+      </div>
+    </div>
+
+    <div id="publish-audit" class="summary note">尚未驗證。</div>
+
+    <label class="publish-rights">
+      <input id="publish-rights" type="checkbox">
+      <span>我已確認提交者本人擁有這份角色設定與圖片的公開／授權權利，允許 YoruBay 將轉換後作品公開發布。</span>
+    </label>
+
+    <div class="actions">
+      <button id="publish-create-pr" class="primary" type="button" disabled>建立上架 PR</button>
+    </div>
+    <div id="publish-message" class="error"></div>
+    <div id="publish-result" class="publish-result"></div>
   </section>
 </div>
 
@@ -664,8 +739,18 @@ code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
     }finally{button.disabled=false;}
   });
 
+  window.YoruBayAdmin={
+    api:api,
+    isAuthenticated:function(){return Boolean(adminToken);}
+  };
+
   updateSummary();
 })();
 </script>
+<script src="js/character.js"></script>
+<script>window.CharacterEngine=CharacterEngine;</script>
+<script src="js/character-readiness.js"></script>
+<script src="js/character-import-upgrade.js"></script>
+<script src="js/admin-character-publish.js"></script>
 </body>
 </html>

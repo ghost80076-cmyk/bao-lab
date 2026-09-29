@@ -73,6 +73,8 @@ jobs:
         run: node tests/character-catalog-lazy-core.cjs
       - name: Character JSON import hardening
         run: node tests/character-import-core.cjs
+      - name: Admin character publication
+        run: node tests/admin-character-publish-core.cjs
       - name: Author structure guidance and relay probe
         run: node tests/author-diagnostics-core.cjs
       - name: Model presets and routing

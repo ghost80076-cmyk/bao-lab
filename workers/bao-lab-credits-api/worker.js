@@ -2,6 +2,10 @@
 // The browser aims substantially below these values and compacts smart-memory stories
 // before reaching the hard ceiling.
 const MAX_BODY_BYTES = 220_000;
+const MAX_ADMIN_PUBLISH_BODY_BYTES = 2_500_000;
+const MAX_PUBLISH_CARD_BYTES = 500_000;
+const MAX_PUBLISH_COVER_BYTES = 1_200_000;
+const COMMUNITY_CATALOG_PAGE_SIZE = 48;
 const MAX_PROMPT_BYTES = 192_000;
 const MAX_OUTPUT = 8192;
 const MAX_MESSAGES = 100;
@@ -464,8 +468,9 @@ function validDisplayName(
     : null;
 }
 
-async function readJson(
-  request
+async function readJsonWithLimit(
+  request,
+  maxBytes = MAX_BODY_BYTES
 ) {
   if (!request.body) {
     throw new Error(
@@ -501,7 +506,7 @@ async function readJson(
 
     if (
       size >
-      MAX_BODY_BYTES
+      maxBytes
     ) {
       await reader.cancel();
 
@@ -534,6 +539,15 @@ async function readJson(
       "invalid_json"
     );
   }
+}
+
+async function readJson(
+  request
+) {
+  return readJsonWithLimit(
+    request,
+    MAX_BODY_BYTES
+  );
 }
 
 function getDb(
@@ -3288,6 +3302,1694 @@ async function providerControlSnapshot(
   };
 }
 
+function publishError(
+  code,
+  status = 400
+) {
+  const error =
+    new Error(
+      code
+    );
+
+  error.httpStatus =
+    status;
+
+  return error;
+}
+
+function plainObject(
+  value
+) {
+  return Boolean(
+    value &&
+    typeof value === "object" &&
+    !Array.isArray(
+      value
+    )
+  );
+}
+
+function utf8ToBase64(
+  value
+) {
+  const bytes =
+    enc.encode(
+      String(
+        value ?? ""
+      )
+    );
+
+  let binary =
+    "";
+
+  for (
+    const byte
+    of bytes
+  ) {
+    binary +=
+      String.fromCharCode(
+        byte
+      );
+  }
+
+  return btoa(
+    binary
+  );
+}
+
+function base64ToUtf8(
+  value
+) {
+  const raw =
+    atob(
+      String(
+        value || ""
+      ).replace(
+        /\s/g,
+        ""
+      )
+    );
+
+  return new TextDecoder()
+    .decode(
+      Uint8Array.from(
+        raw,
+        (char) =>
+          char.charCodeAt(
+            0
+          )
+      )
+    );
+}
+
+function redactPublishSecrets(
+  value,
+  redacted = []
+) {
+  if (
+    Array.isArray(
+      value
+    )
+  ) {
+    return value.map(
+      (item) =>
+        redactPublishSecrets(
+          item,
+          redacted
+        )
+    );
+  }
+
+  if (
+    !plainObject(
+      value
+    )
+  ) {
+    return value;
+  }
+
+  const out =
+    {};
+
+  for (
+    const [
+      key,
+      item,
+    ]
+    of Object.entries(
+      value
+    )
+  ) {
+    if (
+      key ===
+        "preserved_source"
+    ) {
+      continue;
+    }
+
+    if (
+      /(api[_-]?key|authorization|password|secret|access[_-]?token|refresh[_-]?token)/i.test(
+        key
+      )
+    ) {
+      redacted.push(
+        key
+      );
+
+      out[key] =
+        "[REDACTED]";
+    }
+
+    else {
+      out[key] =
+        redactPublishSecrets(
+          item,
+          redacted
+        );
+    }
+  }
+
+  return out;
+}
+
+function cleanStringList(
+  value,
+  maxItems,
+  maxLength
+) {
+  const list =
+    Array.isArray(
+      value
+    )
+      ? value
+      : [];
+
+  return list
+    .map(
+      (item) =>
+        String(
+          item || ""
+        )
+          .trim()
+          .slice(
+            0,
+            maxLength
+          )
+    )
+    .filter(
+      Boolean
+    )
+    .slice(
+      0,
+      maxItems
+    );
+}
+
+function characterBucket(
+  value
+) {
+  const input =
+    String(
+      value || ""
+    );
+
+  let hash =
+    2166136261;
+
+  for (
+    let i = 0;
+    i < input.length;
+    i += 1
+  ) {
+    hash ^=
+      input.charCodeAt(
+        i
+      );
+
+    hash =
+      Math.imul(
+        hash,
+        16777619
+      ) >>>
+      0;
+  }
+
+  return (
+    (
+      hash >>>
+      24
+    ) &
+    255
+  )
+    .toString(16)
+    .padStart(
+      2,
+      "0"
+    );
+}
+
+function prepareCharacterPublication(
+  body
+) {
+  if (
+    !plainObject(
+      body
+    ) ||
+    body.rights_confirmed !==
+      true
+  ) {
+    throw publishError(
+      "rights_confirmation_required"
+    );
+  }
+
+  if (
+    !plainObject(
+      body.card
+    )
+  ) {
+    throw publishError(
+      "invalid_character_card"
+    );
+  }
+
+  const cardBytes =
+    enc.encode(
+      JSON.stringify(
+        body.card
+      )
+    ).length;
+
+  if (
+    cardBytes >
+    MAX_PUBLISH_CARD_BYTES
+  ) {
+    throw publishError(
+      "character_card_too_large",
+      413
+    );
+  }
+
+  const raw =
+    JSON.parse(
+      JSON.stringify(
+        body.card
+      )
+    );
+
+  const meta =
+    plainObject(
+      raw.meta
+    )
+      ? raw.meta
+      : {};
+
+  const content =
+    plainObject(
+      raw.content
+    )
+      ? raw.content
+      : {};
+
+  const gameplay =
+    plainObject(
+      raw.gameplay
+    )
+      ? raw.gameplay
+      : {};
+
+  const presentation =
+    plainObject(
+      raw.presentation
+    )
+      ? raw.presentation
+      : {};
+
+  const id =
+    String(
+      meta.id ||
+      raw.id ||
+      ""
+    )
+      .trim();
+
+  const name =
+    String(
+      meta.name ||
+      raw.name ||
+      ""
+    )
+      .trim()
+      .slice(
+        0,
+        100
+      );
+
+  const title =
+    String(
+      meta.title ||
+      raw.title ||
+      name
+    )
+      .trim()
+      .slice(
+        0,
+        160
+      );
+
+  const category =
+    String(
+      meta.category ||
+      raw.category ||
+      ""
+    )
+      .trim()
+      .toLowerCase();
+
+  const description =
+    String(
+      meta.description ||
+      raw.description ||
+      ""
+    )
+      .trim()
+      .slice(
+        0,
+        3000
+      );
+
+  const greeting =
+    String(
+      content.greeting ||
+      raw.greeting ||
+      ""
+    )
+      .trim();
+
+  const systemPrompt =
+    String(
+      content.system_prompt ||
+      raw.system_prompt ||
+      ""
+    )
+      .trim();
+
+  if (
+    !/^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$/.test(
+      id
+    )
+  ) {
+    throw publishError(
+      "invalid_character_id"
+    );
+  }
+
+  if (
+    !name ||
+    !greeting ||
+    !systemPrompt
+  ) {
+    throw publishError(
+      "character_required_fields_missing"
+    );
+  }
+
+  if (
+    ![
+      "male",
+      "female",
+      "r18",
+    ].includes(
+      category
+    )
+  ) {
+    throw publishError(
+      "invalid_character_category"
+    );
+  }
+
+  if (
+    greeting.length >
+      50_000 ||
+    systemPrompt.length >
+      100_000
+  ) {
+    throw publishError(
+      "character_text_too_large",
+      413
+    );
+  }
+
+  const author =
+    String(
+      body.author_name ||
+      meta.creator ||
+      ""
+    )
+      .trim()
+      .slice(
+        0,
+        80
+      );
+
+  const tags =
+    cleanStringList(
+      meta.tags ||
+      raw.tags,
+      24,
+      50
+    );
+
+  let cover =
+    null;
+
+  let avatar =
+    String(
+      meta.avatar ||
+      raw.avatar ||
+      ""
+    )
+      .trim();
+
+  const coverDataUrl =
+    String(
+      body.cover_data_url ||
+      ""
+    )
+      .trim();
+
+  if (
+    coverDataUrl
+  ) {
+    const match =
+      coverDataUrl.match(
+        /^data:image\/(webp|png);base64,([A-Za-z0-9+/=\s]+)$/i
+      );
+
+    if (!match) {
+      throw publishError(
+        "invalid_cover_image"
+      );
+    }
+
+    const base64 =
+      match[2].replace(
+        /\s/g,
+        ""
+      );
+
+    let binary;
+
+    try {
+      binary =
+        atob(
+          base64
+        );
+    }
+
+    catch {
+      throw publishError(
+        "invalid_cover_image"
+      );
+    }
+
+    const byteLength =
+      binary.length;
+
+    if (
+      byteLength <=
+        0 ||
+      byteLength >
+        MAX_PUBLISH_COVER_BYTES
+    ) {
+      throw publishError(
+        "cover_image_too_large",
+        413
+      );
+    }
+
+    const extension =
+      match[1]
+        .toLowerCase();
+
+    const isPng =
+      binary.length >=
+        8 &&
+      binary.charCodeAt(0) ===
+        137 &&
+      binary.slice(
+        1,
+        4
+      ) ===
+        "PNG" &&
+      binary.charCodeAt(4) ===
+        13 &&
+      binary.charCodeAt(5) ===
+        10 &&
+      binary.charCodeAt(6) ===
+        26 &&
+      binary.charCodeAt(7) ===
+        10;
+
+    const isWebp =
+      binary.length >=
+        12 &&
+      binary.slice(
+        0,
+        4
+      ) ===
+        "RIFF" &&
+      binary.slice(
+        8,
+        12
+      ) ===
+        "WEBP";
+
+    if (
+      (
+        extension ===
+          "png" &&
+        !isPng
+      ) ||
+      (
+        extension ===
+          "webp" &&
+        !isWebp
+      )
+    ) {
+      throw publishError(
+        "invalid_cover_image"
+      );
+    }
+
+    const bucket =
+      characterBucket(
+        id
+      );
+
+    const assetPath =
+      "assets/community/" +
+      bucket +
+      "/" +
+      id +
+      "." +
+      extension;
+
+    cover = {
+      extension,
+      base64,
+      path:
+        assetPath,
+      mime:
+        "image/" +
+        extension,
+    };
+
+    avatar =
+      assetPath;
+  }
+
+  if (
+    !cover &&
+    !/^(https:\/\/|assets\/)/i.test(
+      avatar
+    )
+  ) {
+    avatar =
+      "assets/bao-bun.svg";
+  }
+
+  const redacted =
+    [];
+
+  const sanitized =
+    redactPublishSecrets(
+      raw,
+      redacted
+    );
+
+  const sourceMetadata =
+    plainObject(
+      raw.import_metadata
+    )
+      ? raw.import_metadata
+      : {};
+
+  const safeImportMetadata =
+    {};
+
+  const sourceFormat =
+    String(
+      sourceMetadata.source_format ||
+      body.source_format ||
+      ""
+    )
+      .trim()
+      .slice(
+        0,
+        80
+      );
+
+  if (
+    sourceFormat
+  ) {
+    safeImportMetadata.source_format =
+      sourceFormat;
+  }
+
+  safeImportMetadata.source_origin =
+    "admin-publish";
+
+  const unmapped =
+    cleanStringList(
+      sourceMetadata.unmapped_fields,
+      50,
+      100
+    );
+
+  if (
+    unmapped.length
+  ) {
+    safeImportMetadata.unmapped_fields =
+      unmapped;
+  }
+
+  const unavailable =
+    cleanStringList(
+      sourceMetadata.unavailable_features,
+      50,
+      300
+    );
+
+  if (
+    unavailable.length
+  ) {
+    safeImportMetadata.unavailable_features =
+      unavailable;
+  }
+
+  const redactedFields =
+    [
+      ...new Set(
+        [
+          ...cleanStringList(
+            sourceMetadata.redacted_fields,
+            50,
+            100
+          ),
+          ...redacted,
+        ]
+      ),
+    ];
+
+  if (
+    redactedFields.length
+  ) {
+    safeImportMetadata.redacted_fields =
+      redactedFields;
+  }
+
+  const cleanMeta =
+    plainObject(
+      sanitized.meta
+    )
+      ? sanitized.meta
+      : {};
+
+  const cleanContent =
+    plainObject(
+      sanitized.content
+    )
+      ? sanitized.content
+      : {};
+
+  const cleanGameplay =
+    plainObject(
+      sanitized.gameplay
+    )
+      ? sanitized.gameplay
+      : {};
+
+  const cleanPresentation =
+    plainObject(
+      sanitized.presentation
+    )
+      ? sanitized.presentation
+      : {};
+
+  const publishedCard = {
+    schema_version:
+      "1.5",
+
+    meta: {
+      ...cleanMeta,
+      id,
+      name,
+      title,
+      avatar,
+      category,
+
+      rating:
+        category ===
+          "r18"
+          ? "adult"
+          : "general",
+
+      description,
+      tags,
+
+      creator:
+        author ||
+        cleanMeta.creator ||
+        "",
+    },
+
+    content: {
+      ...cleanContent,
+      greeting,
+      system_prompt:
+        systemPrompt,
+    },
+
+    gameplay:
+      cleanGameplay,
+
+    presentation:
+      cleanPresentation,
+
+    import_metadata:
+      safeImportMetadata,
+  };
+
+  const catalogEntry = {
+    id,
+
+    file:
+      "data/characters/community/" +
+      characterBucket(
+        id
+      ) +
+      "/" +
+      id +
+      ".json",
+
+    name,
+    title,
+    avatar,
+    category,
+
+    rating:
+      category ===
+        "r18"
+        ? "adult"
+        : "general",
+
+    gender:
+      String(
+        cleanMeta.gender ||
+        ""
+      )
+        .trim()
+        .slice(
+          0,
+          40
+        ),
+
+    tags,
+    description,
+
+    supported_modes:
+      plainObject(
+        cleanGameplay
+          .supported_modes
+      )
+        ? cleanGameplay
+            .supported_modes
+        : {
+            immersive:
+              true,
+
+            world:
+              false,
+          },
+
+    supported_display:
+      plainObject(
+        cleanPresentation
+          .supported_display
+      )
+        ? cleanPresentation
+            .supported_display
+        : {
+            text:
+              true,
+
+            ui:
+              false,
+          },
+  };
+
+  if (
+    author
+  ) {
+    catalogEntry.author =
+      author;
+  }
+
+  return {
+    id,
+
+    bucket:
+      characterBucket(
+        id
+      ),
+
+    author,
+    card:
+      publishedCard,
+    catalogEntry,
+    cover,
+  };
+}
+
+function githubSettings(
+  env
+) {
+  const repo =
+    String(
+      env.GITHUB_REPO ||
+      "ghost80076-cmyk/bao-lab"
+    )
+      .trim();
+
+  const baseBranch =
+    String(
+      env.GITHUB_BASE_BRANCH ||
+      "main"
+    )
+      .trim();
+
+  const parts =
+    repo.split(
+      "/"
+    );
+
+  return {
+    configured:
+      Boolean(
+        env.GITHUB_TOKEN &&
+        parts.length ===
+          2 &&
+        parts[0] &&
+        parts[1] &&
+        /^[A-Za-z0-9._-]+$/.test(
+          parts[0]
+        ) &&
+        /^[A-Za-z0-9._-]+$/.test(
+          parts[1]
+        ) &&
+        /^[A-Za-z0-9._\/-]+$/.test(
+          baseBranch
+        )
+      ),
+
+    token:
+      env.GITHUB_TOKEN ||
+      "",
+
+    owner:
+      parts[0] ||
+      "",
+
+    repo:
+      parts[1] ||
+      "",
+
+    fullName:
+      repo,
+
+    baseBranch,
+  };
+}
+
+async function githubApi(
+  env,
+  path,
+  options = {}
+) {
+  const settings =
+    githubSettings(
+      env
+    );
+
+  if (
+    !settings
+      .configured
+  ) {
+    throw publishError(
+      "github_publish_not_configured",
+      503
+    );
+  }
+
+  const headers =
+    new Headers(
+      options.headers ||
+      {}
+    );
+
+  headers.set(
+    "authorization",
+    "Bearer " +
+      settings.token
+  );
+
+  headers.set(
+    "accept",
+    "application/vnd.github+json"
+  );
+
+  headers.set(
+    "x-github-api-version",
+    "2022-11-28"
+  );
+
+  headers.set(
+    "user-agent",
+    "yorubay-admin-character-publisher"
+  );
+
+  let body =
+    options.body;
+
+  if (
+    body !==
+      undefined &&
+    body !==
+      null &&
+    typeof body !==
+      "string"
+  ) {
+    headers.set(
+      "content-type",
+      "application/json"
+    );
+
+    body =
+      JSON.stringify(
+        body
+      );
+  }
+
+  const response =
+    await fetch(
+      "https://api.github.com/repos/" +
+        settings.owner +
+        "/" +
+        settings.repo +
+        path,
+      {
+        ...options,
+        headers,
+        body,
+      }
+    );
+
+  const text =
+    await response.text();
+
+  let payload =
+    null;
+
+  if (
+    text
+  ) {
+    try {
+      payload =
+        JSON.parse(
+          text
+        );
+    }
+
+    catch {
+      payload =
+        null;
+    }
+  }
+
+  if (
+    !response.ok
+  ) {
+    const error =
+      new Error(
+        "github_http_" +
+        response.status
+      );
+
+    error.githubStatus =
+      response.status;
+
+    throw error;
+  }
+
+  return payload;
+}
+
+async function createCharacterPublicationPr(
+  env,
+  publication
+) {
+  const settings =
+    githubSettings(
+      env
+    );
+
+  if (
+    !settings
+      .configured
+  ) {
+    throw publishError(
+      "github_publish_not_configured",
+      503
+    );
+  }
+
+  const baseRef =
+    await githubApi(
+      env,
+      "/git/ref/heads/" +
+        encodeURIComponent(
+          settings.baseBranch
+        )
+    );
+
+  const baseSha =
+    baseRef
+      ?.object
+      ?.sha;
+
+  if (!baseSha) {
+    throw new Error(
+      "github_base_ref_missing"
+    );
+  }
+
+  const officialCatalogFile =
+    await githubApi(
+      env,
+      "/contents/data/characters.json?ref=" +
+        encodeURIComponent(
+          settings.baseBranch
+        )
+    );
+
+  const officialCatalog =
+    JSON.parse(
+      base64ToUtf8(
+        officialCatalogFile
+          ?.content ||
+        ""
+      )
+    );
+
+  if (
+    !Array.isArray(
+      officialCatalog
+    )
+  ) {
+    throw new Error(
+      "github_catalog_invalid"
+    );
+  }
+
+  if (
+    officialCatalog.some(
+      (entry) =>
+        entry?.id ===
+        publication.id
+    )
+  ) {
+    throw publishError(
+      "character_already_published",
+      409
+    );
+  }
+
+  const characterPath =
+    publication
+      .catalogEntry
+      .file;
+
+  try {
+    await githubApi(
+      env,
+      "/contents/" +
+        characterPath +
+        "?ref=" +
+        encodeURIComponent(
+          settings.baseBranch
+        )
+    );
+
+    throw publishError(
+      "character_already_published",
+      409
+    );
+  }
+
+  catch (error) {
+    if (
+      error?.httpStatus ||
+      error?.githubStatus !==
+        404
+    ) {
+      throw error;
+    }
+  }
+
+  const manifestPath =
+    "data/character-catalog/community/manifest.json";
+
+  let manifestFile =
+    null;
+
+  let manifest = {
+    schema_version:
+      1,
+
+    page_size:
+      COMMUNITY_CATALOG_PAGE_SIZE,
+
+    total:
+      0,
+
+    pages:
+      [],
+  };
+
+  try {
+    manifestFile =
+      await githubApi(
+        env,
+        "/contents/" +
+          manifestPath +
+          "?ref=" +
+          encodeURIComponent(
+            settings.baseBranch
+          )
+      );
+
+    const parsed =
+      JSON.parse(
+        base64ToUtf8(
+          manifestFile
+            ?.content ||
+          ""
+        )
+      );
+
+    if (
+      plainObject(
+        parsed
+      ) &&
+      Array.isArray(
+        parsed.pages
+      )
+    ) {
+      manifest = {
+        schema_version:
+          1,
+
+        page_size:
+          COMMUNITY_CATALOG_PAGE_SIZE,
+
+        total:
+          safeInt(
+            Number(
+              parsed.total
+            )
+          ),
+
+        pages:
+          parsed.pages
+            .filter(
+              (page) =>
+                plainObject(
+                  page
+                ) &&
+                Number.isSafeInteger(
+                  Number(
+                    page.page
+                  )
+                ) &&
+                Number(
+                  page.page
+                ) >
+                  0 &&
+                typeof page.file ===
+                  "string"
+            )
+            .map(
+              (page) => ({
+                page:
+                  Number(
+                    page.page
+                  ),
+
+                file:
+                  String(
+                    page.file
+                  ),
+
+                count:
+                  safeInt(
+                    Number(
+                      page.count
+                    )
+                  ),
+              })
+            ),
+      };
+    }
+  }
+
+  catch (error) {
+    if (
+      error?.githubStatus !==
+        404
+    ) {
+      throw error;
+    }
+  }
+
+  let pageMeta =
+    manifest.pages[
+      manifest.pages.length -
+      1
+    ] ||
+    null;
+
+  let pageEntries =
+    [];
+
+  let pageFile =
+    null;
+
+  if (
+    pageMeta &&
+    pageMeta.count <
+      COMMUNITY_CATALOG_PAGE_SIZE
+  ) {
+    try {
+      pageFile =
+        await githubApi(
+          env,
+          "/contents/" +
+            pageMeta.file +
+            "?ref=" +
+            encodeURIComponent(
+              settings.baseBranch
+            )
+        );
+
+      const parsed =
+        JSON.parse(
+          base64ToUtf8(
+            pageFile
+              ?.content ||
+            ""
+          )
+        );
+
+      pageEntries =
+        Array.isArray(
+          parsed
+        )
+          ? parsed
+          : [];
+    }
+
+    catch (error) {
+      if (
+        error?.githubStatus !==
+          404
+      ) {
+        throw error;
+      }
+
+      pageEntries =
+        [];
+    }
+  }
+
+  if (
+    !pageMeta ||
+    pageEntries.length >=
+      COMMUNITY_CATALOG_PAGE_SIZE
+  ) {
+    const pageNumber =
+      pageMeta
+        ? pageMeta.page +
+          1
+        : 1;
+
+    pageMeta = {
+      page:
+        pageNumber,
+
+      file:
+        "data/character-catalog/community/page-" +
+        String(
+          pageNumber
+        ).padStart(
+          4,
+          "0"
+        ) +
+        ".json",
+
+      count:
+        0,
+    };
+
+    manifest.pages.push(
+      pageMeta
+    );
+
+    pageEntries =
+      [];
+
+    pageFile =
+      null;
+  }
+
+  if (
+    pageEntries.some(
+      (entry) =>
+        entry?.id ===
+        publication.id
+    )
+  ) {
+    throw publishError(
+      "character_already_published",
+      409
+    );
+  }
+
+  pageEntries.push(
+    publication
+      .catalogEntry
+  );
+
+  pageMeta.count =
+    pageEntries.length;
+
+  manifest.total =
+    Math.max(
+      0,
+      Number(
+        manifest.total ||
+        0
+      )
+    ) +
+    1;
+
+  const branch =
+    "publish/" +
+    publication.id +
+    "-" +
+    Date.now()
+      .toString(
+        36
+      );
+
+  let branchCreated =
+    false;
+
+  try {
+    await githubApi(
+      env,
+      "/git/refs",
+      {
+        method:
+          "POST",
+
+        body: {
+          ref:
+            "refs/heads/" +
+            branch,
+
+          sha:
+            baseSha,
+        },
+      }
+    );
+
+    branchCreated =
+      true;
+
+    await githubApi(
+      env,
+      "/contents/" +
+        characterPath,
+      {
+        method:
+          "PUT",
+
+        body: {
+          message:
+            "Add character " +
+            publication.id,
+
+          content:
+            utf8ToBase64(
+              JSON.stringify(
+                publication.card,
+                null,
+                2
+              ) +
+              "\n"
+            ),
+
+          branch,
+        },
+      }
+    );
+
+    if (
+      publication.cover
+    ) {
+      await githubApi(
+        env,
+        "/contents/" +
+          publication
+            .cover
+            .path,
+        {
+          method:
+            "PUT",
+
+          body: {
+            message:
+              "Add cover for " +
+              publication.id,
+
+            content:
+              publication
+                .cover
+                .base64,
+
+            branch,
+          },
+        }
+      );
+    }
+
+    await githubApi(
+      env,
+      "/contents/" +
+        pageMeta.file,
+      {
+        method:
+          "PUT",
+
+        body: {
+          message:
+            "Update community catalog page " +
+            pageMeta.page,
+
+          content:
+            utf8ToBase64(
+              JSON.stringify(
+                pageEntries,
+                null,
+                2
+              ) +
+              "\n"
+            ),
+
+          ...(pageFile?.sha
+            ? {
+                sha:
+                  pageFile.sha,
+              }
+            : {}),
+
+          branch,
+        },
+      }
+    );
+
+    await githubApi(
+      env,
+      "/contents/" +
+        manifestPath,
+      {
+        method:
+          "PUT",
+
+        body: {
+          message:
+            "Update community catalog manifest",
+
+          content:
+            utf8ToBase64(
+              JSON.stringify(
+                manifest,
+                null,
+                2
+              ) +
+              "\n"
+            ),
+
+          ...(manifestFile?.sha
+            ? {
+                sha:
+                  manifestFile.sha,
+              }
+            : {}),
+
+          branch,
+        },
+      }
+    );
+
+    const pr =
+      await githubApi(
+        env,
+        "/pulls",
+        {
+          method:
+            "POST",
+
+          body: {
+            title:
+              "Publish character: " +
+              publication
+                .card
+                .meta
+                .title,
+
+            head:
+              branch,
+
+            base:
+              settings
+                .baseBranch,
+
+            body:
+              [
+                "Admin character publication request.",
+                "",
+                "- Character ID: " +
+                  publication.id,
+                "- Bucket: " +
+                  publication.bucket,
+                "- Catalog page: " +
+                  pageMeta.page,
+                "- Author label: " +
+                  (
+                    publication.author ||
+                    "not provided"
+                  ),
+                "- Rights confirmation: confirmed by operator",
+                "- Original embedded card payload: not published",
+                "- Cover metadata: stripped/re-encoded before submission",
+                "",
+                "Please review content and automated checks before merging.",
+              ].join(
+                "\n"
+              ),
+          },
+        }
+      );
+
+    return {
+      pr_number:
+        pr?.number ||
+        null,
+
+      pr_url:
+        pr?.html_url ||
+        null,
+
+      branch,
+
+      bucket:
+        publication.bucket,
+
+      catalog_page:
+        pageMeta.page,
+
+      catalog_page_path:
+        pageMeta.file,
+
+      catalog_manifest_path:
+        manifestPath,
+
+      character_path:
+        characterPath,
+
+      asset_path:
+        publication
+          .cover
+          ?.path ||
+        null,
+
+      repository:
+        settings.fullName,
+
+      base_branch:
+        settings.baseBranch,
+    };
+  }
+
+  catch (error) {
+    if (
+      branchCreated
+    ) {
+      try {
+        await githubApi(
+          env,
+          "/git/refs/heads/" +
+            encodeURIComponent(
+              branch
+            ),
+          {
+            method:
+              "DELETE",
+          }
+        );
+      }
+
+      catch {}
+    }
+
+    if (
+      error
+        ?.httpStatus
+    ) {
+      throw error;
+    }
+
+    console.error(
+      "github_character_publish_error",
+      String(
+        error?.message ||
+        error
+      ).slice(
+        0,
+        500
+      )
+    );
+
+    throw publishError(
+      "github_publish_failed",
+      502
+    );
+  }
+}
+
+
 async function ensureAdminPlayerEvents(
   db
 ) {
@@ -3325,12 +5027,107 @@ async function adminRoute(
     );
   }
 
+  const path =
+    url.pathname;
+
+  if (
+    path ===
+      "/admin/characters/publish-status" &&
+    request.method ===
+      "GET"
+  ) {
+    const settings =
+      githubSettings(
+        env
+      );
+
+    return json({
+      configured:
+        settings
+          .configured,
+
+      repository:
+        settings
+          .fullName,
+
+      base_branch:
+        settings
+          .baseBranch,
+
+      mode:
+        "pull_request_only",
+    });
+  }
+
+  if (
+    path ===
+      "/admin/characters/publish-pr" &&
+    request.method ===
+      "POST"
+  ) {
+    let publication;
+
+    try {
+      publication =
+        prepareCharacterPublication(
+          await readJsonWithLimit(
+            request,
+            MAX_ADMIN_PUBLISH_BODY_BYTES
+          )
+        );
+    }
+
+    catch (error) {
+      if (
+        error
+          ?.httpStatus
+      ) {
+        return fail(
+          error.message,
+          error.httpStatus
+        );
+      }
+
+      throw error;
+    }
+
+    try {
+      const result =
+        await createCharacterPublicationPr(
+          env,
+          publication
+        );
+
+      return json(
+        {
+          created:
+            true,
+
+          ...result,
+        },
+        201
+      );
+    }
+
+    catch (error) {
+      if (
+        error
+          ?.httpStatus
+      ) {
+        return fail(
+          error.message,
+          error.httpStatus
+        );
+      }
+
+      throw error;
+    }
+  }
+
+
   await ensureAdminPlayerEvents(
     db
   );
-
-  const path =
-    url.pathname;
 
   if (
     path ===
