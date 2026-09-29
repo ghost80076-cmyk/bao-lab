@@ -18,15 +18,15 @@ jobs:
       - name: Check committed policy and homepage link
         run: |
           grep -Fq 'href="privacy.html"' index.html
-          grep -Fq 'BAO/LAB 隱私權政策' privacy.html
+          grep -Fq '夜灣隱私權政策' privacy.html
           grep -Fq 'https://www.googleapis.com/auth/drive.appdata' privacy.html
       - name: Verify the policy and link are live on GitHub Pages
         run: |
           set -euo pipefail
-          root='https://ghost80076-cmyk.github.io/bao-lab/'
+          root='https://yorubay.com/'
           for attempt in $(seq 1 24); do
             if curl -fsSL --max-time 15 "$root" | grep -Fq 'href="privacy.html"' \
-              && curl -fsSL --max-time 15 "${root}privacy.html" | grep -Fq 'BAO/LAB 隱私權政策'; then
+              && curl -fsSL --max-time 15 "${root}privacy.html" | grep -Fq '夜灣隱私權政策'; then
               echo 'PASS: published homepage links to the live privacy policy.'
               exit 0
             fi
