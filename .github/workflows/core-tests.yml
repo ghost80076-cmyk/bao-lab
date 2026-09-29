@@ -85,6 +85,8 @@ jobs:
         run: |
           node --check js/credits-pilot.js
           node --test tests/credits-pilot.test.cjs
+      - name: YoruBay package pricing consistency
+        run: node tests/yorubay-package-pricing-core.cjs
       - name: YoruBay zero-cost model billing
         run: node tests/worker-free-model-billing-core.cjs
       - name: YoruBay OpenRouter price guard
