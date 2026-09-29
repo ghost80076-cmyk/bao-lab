@@ -178,18 +178,24 @@
 
   const installDesktopEntry = () => {
     const nav = document.querySelector(".topbar nav");
-    if (!nav || $("bao-me-nav")) return;
+    if (!nav) return;
     // Player 2.0 keeps the top navigation about destinations, not services.
     // Account, cloud sync, formatting tools and support remain available from "我的" or contextual tools.
     declutterDesktopServices();
-    const button = document.createElement("button");
-    button.id = "bao-me-nav";
-    button.type = "button";
-    button.textContent = "我的";
-    button.addEventListener("click", () => App.showView("me"));
-    const about = nav.querySelector('[data-view="about"]');
-    if (about) nav.insertBefore(button, about);
-    else nav.appendChild(button);
+    let button = $("bao-me-nav");
+    if (!button) {
+      button = document.createElement("button");
+      button.id = "bao-me-nav";
+      button.type = "button";
+      button.textContent = "我的";
+      const about = nav.querySelector('[data-view="about"]');
+      if (about) nav.insertBefore(button, about);
+      else nav.appendChild(button);
+    }
+    if (button.dataset.baoPlayerBound !== "yes") {
+      button.dataset.baoPlayerBound = "yes";
+      button.addEventListener("click", () => App.showView("me"));
+    }
   };
 
   const installMobileNav = () => {

@@ -20,6 +20,11 @@
     warning.textContent = message;
   };
   const clearWarning = () => document.getElementById(warningId)?.remove();
+  const tell = (message, tone = 'info') => {
+    if (window.BAOFeedback?.notify) return window.BAOFeedback.notify(message, tone);
+    warn(message);
+    return true;
+  };
 
   const verify = save => {
     const mode = Storage.status().mode;
@@ -38,7 +43,7 @@
     // return value does NOT mean the IndexedDB transaction has committed.
     const accepted = originalSave.call(this, false);
     if (!accepted) {
-      if (notify) alert('目前沒有可儲存的故事。');
+      if (notify) tell('目前沒有可儲存的故事。', 'error');
       return false;
     }
     const save = Storage._cache?.autosave;
@@ -49,19 +54,19 @@
       if (!result.ok) {
         const text = '故事尚未成功寫入瀏覽器儲存空間，請立即匯出完整故事備份，並檢查裝置剩餘空間。';
         if (myGeneration === generation) warn(text);
-        if (notify) alert(text);
+        if (notify) tell(text, 'error');
         return;
       }
       if (myGeneration === generation) clearWarning();
-      if (notify) alert(result.mode === 'indexedDB'
+      if (notify) tell(result.mode === 'indexedDB'
         ? '故事已確認寫入這台裝置的 IndexedDB。建議定期匯出備份。'
-        : '故事已寫入瀏覽器備援儲存空間（localStorage），容量有限，建議匯出備份。');
+        : '故事已寫入瀏覽器備援儲存空間（localStorage），容量有限，建議匯出備份。', 'success');
     }).catch(error => {
       if (myGeneration !== generation && !notify) return;
       console.warn('BAO/LAB story persistence verification failed:', error);
       const text = '無法確認故事已儲存，請立即匯出完整故事備份。';
       if (myGeneration === generation) warn(text);
-      if (notify) alert(text);
+      if (notify) tell(text, 'error');
     });
     return true;
   };

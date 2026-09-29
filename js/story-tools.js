@@ -1230,13 +1230,16 @@
 
   const inject = () => {
     const nav = document.querySelector(".topbar nav");
-    if (nav && !nav.querySelector("[data-open-story-library]")) {
-      const libraryButton = document.createElement("button");
-      libraryButton.type = "button";
-      libraryButton.dataset.openStoryLibrary = "true";
+    if (nav) {
+      let libraryButton = nav.querySelector("[data-open-story-library]");
+      if (!libraryButton) {
+        libraryButton = document.createElement("button");
+        libraryButton.type = "button";
+        libraryButton.dataset.openStoryLibrary = "true";
+        nav.insertBefore(libraryButton, nav.querySelector('[data-view="about"]'));
+      }
       libraryButton.textContent = "我的故事";
       libraryButton.onclick = openLibrary;
-      nav.insertBefore(libraryButton, nav.querySelector('[data-view="about"]'));
     }
 
     const row = document.getElementById("bao-player-settings");

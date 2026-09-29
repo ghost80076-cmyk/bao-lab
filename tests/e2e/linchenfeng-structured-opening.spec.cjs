@@ -39,6 +39,19 @@ test('Lin Chenfeng opening is structured UI backed by plain story text', async (
   expect(stored.stateTime).toBe('23:52');
   expect(stored.stage).toBe('陌生人');
 
+  await page.evaluate(async () => {
+    App.saveStory(false);
+    await Storage.flush();
+    const save = Storage.loadStory();
+    App.showView('home');
+    if (!save || !Storage.restoreStory(save)) throw new Error('failed to restore structured opening story');
+    App.renderChatShell(false);
+    App.showView('chat');
+  });
+  await expect(page.locator('.bao-structured-opening')).toBeVisible();
+  await expect(page.locator('.bao-opening-post')).toHaveCount(2);
+  expect(await page.evaluate(() => Chat.messages[0]?.greeting)).toBe(true);
+
   const choice = page.getByRole('button', { name: /七年前那篇，你怎麼會看過？/ });
   await choice.click();
   await expect(page.locator('#user-input')).toHaveValue('七年前那篇，你怎麼會看過？');
