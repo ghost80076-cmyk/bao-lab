@@ -7,6 +7,56 @@ const loadBAOScript = src => new Promise((resolve, reject) => {
   document.head.appendChild(script);
 });
 
+let baoFeedbackTimer = 0;
+const notifyPlayer = (message, tone = "info") => {
+  let toast = document.getElementById("bao-feedback-toast");
+  if (!toast) {
+    toast = document.createElement("div");
+    toast.id = "bao-feedback-toast";
+    toast.className = "bao-feedback-toast";
+    document.body.appendChild(toast);
+  }
+  toast.textContent = String(message || "");
+  toast.dataset.tone = tone;
+  toast.setAttribute("role", tone === "error" ? "alert" : "status");
+  toast.setAttribute("aria-live", tone === "error" ? "assertive" : "polite");
+  toast.hidden = false;
+  window.clearTimeout(baoFeedbackTimer);
+  baoFeedbackTimer = window.setTimeout(() => { toast.hidden = true; }, tone === "error" ? 6500 : 3600);
+  return true;
+};
+
+const requestPlayerText = ({ title = "輸入名稱", label = "名稱", value = "", confirmLabel = "確認" } = {}) => new Promise(resolve => {
+  document.getElementById("bao-text-request")?.remove();
+  const dialog = document.createElement("dialog");
+  dialog.id = "bao-text-request";
+  dialog.className = "bao-text-request";
+  dialog.innerHTML = '<form method="dialog"><h2></h2><label><span></span><input type="text" maxlength="100" autocomplete="off"></label><div class="bao-text-request-actions"><button type="button" class="secondary" data-cancel>取消</button><button type="submit" class="primary"></button></div></form>';
+  dialog.querySelector("h2").textContent = title;
+  dialog.querySelector("label span").textContent = label;
+  const input = dialog.querySelector("input");
+  input.value = String(value || "");
+  dialog.querySelector('[type="submit"]').textContent = confirmLabel;
+  document.body.appendChild(dialog);
+  let settled = false;
+  const finish = result => {
+    if (settled) return;
+    settled = true;
+    if (dialog.open) dialog.close();
+    dialog.remove();
+    resolve(result);
+  };
+  dialog.querySelector("form").addEventListener("submit", event => { event.preventDefault(); finish(input.value); });
+  dialog.querySelector("[data-cancel]").addEventListener("click", () => finish(null));
+  dialog.addEventListener("cancel", event => { event.preventDefault(); finish(null); });
+  dialog.addEventListener("click", event => { if (event.target === dialog) finish(null); });
+  dialog.showModal();
+  input.focus();
+  input.select();
+});
+
+window.BAOFeedback = Object.freeze({ notify: notifyPlayer, requestText: requestPlayerText });
+
 window.addEventListener("DOMContentLoaded", () => {
   loadBAOScript("js/chat-api-settings.js")
     .then(() => loadBAOScript("js/model-discovery.js"))
@@ -31,7 +81,7 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/model-routing.js?v=2"))
     .then(() => loadBAOScript("js/provider-diagnostics.js"))
     .catch(err => console.warn("BAO/LAB cost, provider compatibility, model routing or provider diagnostics controls failed to load:", err));
-  loadBAOScript("js/storage-write-guard.js")
+  loadBAOScript("js/storage-write-guard.js?v=2")
     .then(() => loadBAOScript("js/chat-shell-fix.js?v=2"))
     .then(() => loadBAOScript("js/player-settings.js?v=2"))
     .then(() => loadBAOScript("js/player-text-replace-mod.js"))
@@ -41,7 +91,7 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/canon-workbench.js"))
     .then(() => loadBAOScript("js/memory-workbench-simplify.js"))
     .then(() => loadBAOScript("js/chat-markup.js"))
-    .then(() => loadBAOScript("js/story-tools.js"))
+    .then(() => loadBAOScript("js/story-tools.js?v=2"))
     .then(() => loadBAOScript("js/context-pack-resume.js"))
     .then(() => loadBAOScript("js/story-library.js"))
     .then(() => loadBAOScript("js/story-backup.js"))
@@ -70,7 +120,7 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => new Promise(resolve => setTimeout(resolve, 100)))
     .then(() => loadBAOScript("js/bao-mascot.js?v=4"))
     .then(() => loadBAOScript("js/bao-visual-ui.js?v=3"))
-    .then(() => loadBAOScript("js/player-shell-v2.js?v=1"))
+    .then(() => loadBAOScript("js/player-shell-v2.js?v=2"))
     .then(() => loadBAOScript("js/player-builder-v2.js?v=2"))
     .catch(err => console.warn("BAO/LAB brand, mascot or Player 2.0 UI failed to load:", err));
   setTimeout(async () => {
@@ -91,7 +141,7 @@ window.addEventListener("DOMContentLoaded", () => {
     document.getElementById("home-continue")?.addEventListener("click", () => resumeSave(Storage.loadStory()));
 
     const confirmSlot = async (slot, successText) => {
-      if (!slot) { alert("目前沒有可儲存的故事。"); return; }
+      if (!slot) { notifyPlayer("目前沒有可儲存的故事。", "error"); return; }
       try {
         await Storage.flush();
         const mode = Storage.status().mode;
@@ -102,10 +152,10 @@ window.addEventListener("DOMContentLoaded", () => {
             stored = Array.isArray(slots) && slots.some(item => item.id === slot.id);
           } catch { stored = false; }
         }
-        alert(stored ? successText : "無法確認存檔已寫入，請立即匯出完整故事備份。");
+        notifyPlayer(stored ? successText : "無法確認存檔已寫入，請立即匯出完整故事備份。", stored ? "success" : "error");
       } catch (error) {
         console.warn("BAO/LAB slot persistence verification failed:", error);
-        alert("無法確認存檔已寫入，請立即匯出完整故事備份。");
+        notifyPlayer("無法確認存檔已寫入，請立即匯出完整故事備份。", "error");
       }
     };
 
@@ -123,13 +173,24 @@ window.addEventListener("DOMContentLoaded", () => {
     };
 
     const picker = document.getElementById("import-save-file");
-    document.getElementById("save-slot-button")?.addEventListener("click", () => {
-      if (!App.activeCharacter || !GameState.current) { alert("目前沒有進行中的故事。"); return; }
-      const label = prompt("輸入存檔名稱：", `${App.activeCharacter.name} · ${new Date().toLocaleString("zh-TW")}`);
-      if (label === null) return;
-      const slot = Storage.saveSlot(label.trim() || "未命名存檔");
-      renderSlots();
-      void confirmSlot(slot, "手動存檔已確認寫入這台裝置。");
+    document.getElementById("save-slot-button")?.addEventListener("click", async event => {
+      if (!App.activeCharacter || !GameState.current) { notifyPlayer("目前沒有進行中的故事。", "error"); return; }
+      const button = event.currentTarget;
+      button.disabled = true;
+      try {
+        const label = await requestPlayerText({
+          title: "另存手動備份",
+          label: "存檔名稱",
+          value: `${App.activeCharacter.name} · ${new Date().toLocaleString("zh-TW")}`,
+          confirmLabel: "儲存備份"
+        });
+        if (label === null) return;
+        const slot = Storage.saveSlot(label.trim() || "未命名存檔");
+        renderSlots();
+        await confirmSlot(slot, "手動備份已確認寫入這台裝置。");
+      } finally {
+        button.disabled = false;
+      }
     });
     document.getElementById("list-slots-button")?.addEventListener("click", renderSlots);
 
@@ -142,7 +203,7 @@ window.addEventListener("DOMContentLoaded", () => {
         const slot = Storage.importSlot(save);
         renderSlots();
         await confirmSlot(slot, "存檔匯入並確認寫入完成。");
-      } catch (err) { alert(err.message || "匯入失敗。"); }
+      } catch (err) { notifyPlayer(err.message || "匯入失敗。", "error"); }
       finally { picker.value = ""; }
     });
 
