@@ -266,6 +266,10 @@
       if (window.BAOContextHealth?.open) BAOContextHealth.open();
       else window.alert('上下文狀態仍在載入，請稍後再試。');
     });
+    makeAction(quick, '⌁ 快捷指令', () => {
+      if (window.BAOStoryQuickCommands?.open) BAOStoryQuickCommands.open();
+      else window.alert('快捷指令仍在載入，請稍後再試。');
+    });
     makeAction(quick, '◈ 世界狀態', openStatus);
     makeAction(quick, '人物／事件', togglePanels, { 'data-bao-mobile-panel-toggle': '', 'aria-expanded': String(main.classList.contains('bao-mobile-panel-open')) });
     makeAction(quick, '🧠 記憶', openMemory);
@@ -403,7 +407,7 @@
     focusScrollTop = null;
     schedule();
   });
-  window.BAOMobileReadingLayout = { version: 12, sync, openTools, enhanceDrawer, togglePanels, openMemory, closePanels, ensureComposerTools };
+  window.BAOMobileReadingLayout = { version: 13, sync, openTools, enhanceDrawer, togglePanels, openMemory, closePanels, ensureComposerTools };
   const style = document.createElement('link');
   style.rel = 'stylesheet';
   style.href = 'css/mobile-reading-layout.css?v=12';

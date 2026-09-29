@@ -117,6 +117,11 @@ jobs:
           node --check js/context-health-core.js
           node --check js/context-health.js
           node tests/context-health-core.cjs
+      - name: Story quick commands
+        run: |
+          node --check js/story-quick-commands-core.js
+          node --check js/story-quick-commands.js
+          node tests/story-quick-commands-core.cjs
       - name: Provider request contracts
         run: node tests/api-provider-contracts.cjs
       - name: Provider failure and cancellation contracts

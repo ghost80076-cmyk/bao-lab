@@ -42,6 +42,11 @@
     const narrativeStatus = window.BAONarrativeSettings?.statusLabel?.(narrativeState) || {};
     let replaceState = {};
     try { replaceState = window.BAOPlayerTextReplace?.get?.() || {}; } catch (_) {}
+    let quick = { title: "常用快捷指令", detail: "點一下填入，不會自動送出" };
+    try {
+      const info = window.BAOStoryQuickCommands?.summary?.();
+      if (info) quick = { title: info.title, detail: info.detail };
+    } catch (_) {}
     let context = { title: "尚無上下文資料", detail: "完成一輪 AI 回覆後會顯示目前輸入壓力" };
     try {
       const health = window.BAOContextHealth?.snapshot?.();
@@ -68,6 +73,7 @@
       status: core.statusSummary(statusConfig, window.BAOSceneHTML?.prefs?.status || "native"),
       world: core.worldSummary(worldDefs),
       narrative: core.narrativeSummary(narrativeStatus),
+      quick,
       mod: core.modSummary(replaceState)
     };
   };
@@ -80,6 +86,7 @@
     status() { window.BAOCharacterStatusUI?.openSettings?.(); },
     world() { window.BAOWorldModuleManager?.open?.(); },
     narrative() { window.BAONarrativeSettings?.open?.(); },
+    quick() { window.BAOStoryQuickCommands?.open?.(); },
     mod() { document.querySelector('[data-bao-open="text-replace"]')?.click(); },
     search() { window.BAOConversationSearch?.open?.(); },
     all() { window.BAOChatToolNavigation?.openDrawer?.(); }
@@ -123,6 +130,7 @@
           ${card("status", "人物／世界狀態", data.status, "管理狀態")}
           ${card("world", "世界模組", data.world, "管理模組")}
           ${card("narrative", "敘事與描寫", data.narrative, "調整敘事")}
+          ${card("quick", "快捷指令", data.quick, "打開指令")}
           ${card("mod", "顯示 MOD", data.mod, "文字替換")}
         </div>
         <footer class="story-control-footer">
