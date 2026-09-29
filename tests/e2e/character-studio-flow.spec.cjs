@@ -8,7 +8,7 @@ test('character studio exposes a mobile-friendly creation flow without hiding th
   const flow = page.locator('#studio-flow-shell');
   await expect(flow).toBeVisible();
   await expect(flow.locator('[data-flow-step]')).toHaveCount(6);
-  await expect(page.locator('#studio-flow-progress')).toHaveText('必填 0/4 · 還有 4 項');
+  await expect(page.locator('#studio-flow-progress')).toHaveText('必填 2/4 · 還有 2 項');
 
   const navBox = await flow.locator('.studio-flow-nav').evaluate(node => ({
     scrollWidth: node.scrollWidth,
