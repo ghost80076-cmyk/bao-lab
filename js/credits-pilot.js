@@ -63,7 +63,9 @@
     const base = hostedStorySessionId();
     if (!base) return "";
     const suffix = ["chat", "summary", "status"].includes(kind) ? kind : "chat";
-    return `${base}:${suffix}`.replace(/[^A-Za-z0-9._:-]/g, "-").slice(0, 256);
+    const safeBase = base.replace(/[^A-Za-z0-9._:-]/g, "-");
+    const baseLimit = Math.max(1, 256 - suffix.length - 1);
+    return `${safeBase.slice(0, baseLimit)}:${suffix}`;
   };
   let lastContextBudget = null;
   const basicMessagesValid = messages => (
