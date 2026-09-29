@@ -254,8 +254,6 @@
     quick.className = 'bao-mobile-quick';
     quick.setAttribute('aria-label', '手機常用功能');
     makeAction(quick, '◈ 世界狀態', openStatus);
-    const worldHelp = window.BAOFeatureHelp?.button?.('world_status');
-    if (worldHelp) quick.append(worldHelp);
     makeAction(quick, '⚙ 狀態欄管理', () => {
       if (window.BAOCharacterStatusUI?.openSettings) BAOCharacterStatusUI.openSettings();
       else clickOriginal('[data-open-status-manager]');
