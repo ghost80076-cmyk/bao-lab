@@ -78,10 +78,10 @@ test('Android long story scrolls within the fixed reader; Enter inserts newline 
     expect(metrics.lastVisible).toBe(true);
     expect(metrics.oldJump).toBe(false);
     expect(await page.evaluate(() => GameState.current.events.filter(item => item.text === '林沉風離開房間。').length)).toBe(1);
-    await expect(page.locator('#bao-mobile-tools-tab')).toBeVisible();
+    await expect(page.locator('#bao-mobile-composer-tools')).toBeVisible();
     await page.evaluate(() => { document.getElementById('chat-stream').scrollTop = document.getElementById('chat-stream').scrollHeight; });
     await expect.poll(() => page.evaluate(() => document.getElementById('chat-stream').scrollTop), { timeout: 5000 }).toBeGreaterThan(500);
-    await page.locator('#bao-mobile-tools-tab').click();
+    await page.locator('#bao-mobile-composer-tools').click();
     const drawer = page.locator('#bao-chat-tool-drawer');
     await expect(drawer).toBeVisible();
     const top = drawer.locator('.bao-mobile-quick button').filter({ hasText: '↑ 置頂' });
