@@ -100,6 +100,8 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/prompt-cache.js"))
     .then(() => loadBAOScript("js/prompt-orchestrator.js"))
     .then(() => loadBAOScript("js/story-reader.js?v=4"))
+    .then(() => loadBAOScript("js/conversation-search-core.js"))
+    .then(() => loadBAOScript("js/conversation-search.js"))
     .then(() => loadBAOScript("js/inspiration-copy.js"))
     .then(() => loadBAOScript("js/story-revision-state.js"))
     .then(() => loadBAOScript("js/story-branches.js"))
