@@ -109,7 +109,7 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/request-lifecycle.js"))
     .then(() => loadBAOScript("js/chat-tool-navigation.js"))
     .then(() => loadBAOScript("js/chat-experience-repairs.js?v=2"))
-    .then(() => loadBAOScript("js/mobile-reading-layout.js?v=11"))
+    .then(() => loadBAOScript("js/mobile-reading-layout.js?v=12"))
     .then(() => loadBAOScript("js/story-persona-manager.js"))
     .then(() => loadBAOScript("js/context-health-core.js"))
     .then(() => loadBAOScript("js/context-health.js"))
