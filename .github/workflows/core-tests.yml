@@ -61,6 +61,11 @@ jobs:
         run: node tests/story-bundle-secret-core.cjs
       - name: Character readiness core
         run: node tests/character-readiness-core.cjs
+      - name: Character studio creation flow
+        run: |
+          node --check js/character-studio-flow-core.js
+          node --check js/character-studio-flow.js
+          node tests/character-studio-flow-core.cjs
       - name: Unhealed Bonds card
         run: node tests/unhealed-bonds-card.test.cjs
       - name: Host Club Simulator card
