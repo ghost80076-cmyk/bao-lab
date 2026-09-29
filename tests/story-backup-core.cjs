@@ -102,6 +102,10 @@ global.BAOStoryLibrary = {
 
 const code = fs.readFileSync(path.join(__dirname, '..', 'js', 'story-backup.js'), 'utf8');
 vm.runInThisContext(code, { filename: 'js/story-backup.js' });
+const storyToolsSource = fs.readFileSync(path.join(__dirname, '..', 'js', 'story-tools.js'), 'utf8');
+assert.match(storyToolsSource, /data-story-library-import/);
+assert.match(storyToolsSource, /const importStoryFile = async file/);
+assert.match(storyToolsSource, /BAOStoryBackup\.importBundle\(parsed\)/);
 
 (async () => {
   const bundle = await BAOStoryBackup.buildBundle('story-old');
