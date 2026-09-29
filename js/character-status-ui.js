@@ -85,21 +85,36 @@
       (npc.location === GameState.current?.location || (npc.presence === "present" && (!npc.location || npc.location === "未知"))));
     const names = isDistrict ? sceneNPCs.map(npc => npc.name) : [App.activeCharacter?.name, ...(GameState.current?.npcs || []).map(n => n?.name)].filter(Boolean);
     const fields = visibleFields(cfg);
+    const selected = new Set(window.BAOCharacterStatus.selectedContextCharacters?.() || []);
     const cards = [...new Set(names)].map(name => {
       const npc = (GameState.current?.npcs || []).find(n => n.name === name);
       const role = name === App.activeCharacter?.name ? "主要角色" : (npc?.role || "NPC");
       const status = GameState.current?.characterStatuses?.[name] || {};
-      const picked = GameState.current?.uiContextCharacter === name;
+      const picked = selected.has(name);
       const rows = fields.map(field => `<div class="character-status-field"><small>${esc(displayLabel(field, cfg.customization))}</small>${fieldValueHTML(field, status[field.key])}</div>`).join("");
-      return `<article class="character-status-card ${picked ? "context-picked" : ""}" data-character-context="${esc(name)}"><div class="character-status-head"><div><strong>${esc(name)}</strong><br><span>${esc(role)}</span></div><span>${picked ? "下一輪優先參考" : "點一下可供下一輪參考"}</span></div>${rows ? `<div class="character-status-fields">${rows}</div>` : '<div class="character-status-empty">目前沒有顯示中的狀態欄位，可從「狀態欄管理」新增。</div>'}</article>`;
+      return `<article class="character-status-card ${picked ? "context-picked" : ""}" role="button" tabindex="0" aria-pressed="${picked ? "true" : "false"}" data-character-context="${esc(name)}"><div class="character-status-head"><div><strong>${esc(name)}</strong><br><span>${esc(role)}</span></div><span>${picked ? "✓ 下一輪參考" : "＋ 加入下一輪參考"}</span></div>${rows ? `<div class="character-status-fields">${rows}</div>` : '<div class="character-status-empty">目前沒有顯示中的狀態欄位，可從「狀態欄管理」新增。</div>'}</article>`;
     }).join("");
 
-    ui.innerHTML = `<div class="character-status-toolbar"><p>${isDistrict ? "👥 當前場景 NPC（離場角色資料仍保存在故事中）" : "角色卡預設欄位與玩家自訂欄位共同組成這份故事的實際狀態欄。"}</p>${cfg.allow_player_customize ? '<button type="button" class="secondary" data-character-status-settings>⚙ 狀態欄管理</button>' : ""}</div><div class="character-status-grid">${cards || (isDistrict ? '<div class="character-status-empty">當前場景沒有已確認的在場 NPC。</div>' : '<div class="character-status-empty">目前沒有可追蹤人物。</div>')}</div>`;
-    ui.querySelectorAll("[data-character-context]").forEach(card => card.addEventListener("click", event => {
-      if (event.target.closest("button")) return;
-      GameState.current.uiContextCharacter = card.dataset.characterContext || "";
+    const selectedText = selected.size
+      ? `下一輪將優先參考 ${selected.size} 位人物；再次點擊人物可取消。`
+      : `可選最多 ${window.BAOCharacterStatus.MAX_CONTEXT_CHARACTERS} 位人物，供下一輪回覆優先參考。`;
+    ui.innerHTML = `<div class="character-status-toolbar"><div><p>${isDistrict ? "👥 當前場景 NPC（離場角色資料仍保存在故事中）" : "角色卡預設欄位與玩家自訂欄位共同組成這份故事的實際狀態欄。"} <button type="button" class="bao-help-button" data-bao-help="next_turn_reference" aria-label="了解下一輪參考">?</button></p><small class="character-context-selection" aria-live="polite">${esc(selectedText)}</small></div>${cfg.allow_player_customize ? '<button type="button" class="secondary" data-character-status-settings>⚙ 狀態欄管理</button>' : ""}</div><div class="character-status-grid">${cards || (isDistrict ? '<div class="character-status-empty">當前場景沒有已確認的在場 NPC。</div>' : '<div class="character-status-empty">目前沒有可追蹤人物。</div>')}</div>`;
+    const toggleCard = card => {
+      const result = window.BAOCharacterStatus.toggleContextCharacter?.(card.dataset.characterContext || "");
+      if (result?.limitReached) window.BAOFeedback?.notify?.(`下一輪最多選 ${window.BAOCharacterStatus.MAX_CONTEXT_CHARACTERS} 位人物。`, "info");
       renderCharactersPanel();
-    }));
+    };
+    ui.querySelectorAll("[data-character-context]").forEach(card => {
+      card.addEventListener("click", event => {
+        if (event.target.closest("button")) return;
+        toggleCard(card);
+      });
+      card.addEventListener("keydown", event => {
+        if (event.key !== "Enter" && event.key !== " ") return;
+        event.preventDefault();
+        toggleCard(card);
+      });
+    });
     ui.querySelector("[data-character-status-settings]")?.addEventListener("click", openSettings);
     return true;
   };
@@ -306,7 +321,7 @@
   App.buildSystemPrompt = function() {
     const base = originalBuild();
     if (!GameState.current) return base;
-    const compact = window.BAOCharacterStatus.compactForPrompt(latestUserText(), { maxCharacters: 2, maxChars: 1400, consumeViewed: true });
+    const compact = window.BAOCharacterStatus.compactForPrompt(latestUserText(), { maxCharacters: 4, maxChars: 1400, consumeViewed: false });
     if (!compact.text) return base;
     return `${base}\n\n【本輪人物狀態】\n${compact.text}\n只把這些狀態視為目前事實；不要替玩家補心理、台詞或未發生的行動。`;
   };
@@ -325,5 +340,18 @@
   };
 
   ensureStyles();
+  const originalSendMessage = App.sendMessage.bind(App);
+  App.sendMessage = async function(...args) {
+    const before = Array.isArray(window.Chat?.messages) ? Chat.messages.filter(item => item?.role === "assistant").length : 0;
+    const result = await originalSendMessage(...args);
+    const after = Array.isArray(window.Chat?.messages) ? Chat.messages.filter(item => item?.role === "assistant").length : 0;
+    if (after > before && window.BAOCharacterStatus.selectedContextCharacters?.().length) {
+      window.BAOCharacterStatus.clearContextCharacters?.();
+      if (document.querySelector('.ui-tab[data-panel="npc"]')?.classList.contains("active")) renderCharactersPanel();
+      App.saveStory?.(false);
+    }
+    return result;
+  };
+
   window.BAOCharacterStatusUI = { renderCharactersPanel, openSettings, injectBuilderSummary, TEMPLATES };
 })();
