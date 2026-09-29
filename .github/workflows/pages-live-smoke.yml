@@ -13,8 +13,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 4
     env:
-      SITE_URL: https://ghost80076-cmyk.github.io/bao-lab/
-      EXPECTED_TITLE: BAO/LAB｜故事在本機、自己選 AI 的角色扮演工具
+      SITE_URL: https://yorubay.com/
+      EXPECTED_TITLE: 夜灣 YoruBay｜故事在本機、自己選 AI 的角色扮演工具
     steps:
       - name: Wait for live Pages metadata
         shell: bash
@@ -24,8 +24,8 @@ jobs:
           for attempt in $(seq 1 36); do
             html="$(curl --fail --silent --show-error --location --max-time 15 "${SITE_URL}" || true)"
             if grep -Fq "<title>${EXPECTED_TITLE}</title>" <<<"${html}" \
-              && grep -Fq '<link rel="canonical" href="https://ghost80076-cmyk.github.io/bao-lab/">' <<<"${html}" \
-              && grep -Fq '<meta property="og:image" content="https://ghost80076-cmyk.github.io/bao-lab/assets/bao-social-card.png">' <<<"${html}" \
+              && grep -Fq '<link rel="canonical" href="https://yorubay.com/">' <<<"${html}" \
+              && grep -Fq '<meta property="og:image" content="https://yorubay.com/assets/bao-social-card.png">' <<<"${html}" \
               && grep -Fq '<meta name="twitter:card" content="summary_large_image">' <<<"${html}"; then
               ok=1
               printf 'Live homepage metadata verified on attempt %s.\n' "${attempt}"
@@ -49,7 +49,7 @@ jobs:
             adapter="$(curl --fail --silent --show-error --location --max-time 15 "${SITE_URL}js/regex-chat.js" || true)"
             library="$(curl --fail --silent --show-error --location --max-time 15 "${SITE_URL}js/regex-library.js" || true)"
             home="$(curl --fail --silent --show-error --location --max-time 15 "${SITE_URL}" || true)"
-            if grep -Fq '<title>正則管理器｜BAO/LAB</title>' <<<"${page}" \
+            if grep -Fq '<title>正則管理器｜夜灣 YoruBay</title>' <<<"${page}" \
               && grep -Fq 'js/regex-library.js' <<<"${page}" \
               && grep -Fq 'window.BAORegexChat = { render, schedule }' <<<"${adapter}" \
               && grep -Fq 'bao-lab-display-regex-v1' <<<"${library}" \
@@ -120,8 +120,8 @@ jobs:
           sitemap="$(curl --fail --silent --show-error --location --max-time 15 "${SITE_URL}sitemap.xml")"
           grep -Fq 'User-agent: *' <<<"${robots}"
           grep -Fq 'Allow: /' <<<"${robots}"
-          grep -Fq 'Sitemap: https://ghost80076-cmyk.github.io/bao-lab/sitemap.xml' <<<"${robots}"
-          grep -Fq '<loc>https://ghost80076-cmyk.github.io/bao-lab/</loc>' <<<"${sitemap}"
+          grep -Fq 'Sitemap: https://yorubay.com/sitemap.xml' <<<"${robots}"
+          grep -Fq '<loc>https://yorubay.com/</loc>' <<<"${sitemap}"
           printf 'robots.txt and sitemap.xml verified.\n'
 
       - name: Verify social preview image
