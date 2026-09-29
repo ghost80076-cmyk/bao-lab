@@ -1,5 +1,5 @@
 /* Mobile chat is a single viewport-sized reading surface. Keep original story and tool handlers. */
-#bao-mobile-exit,#bao-mobile-status,#bao-mobile-memory,#bao-mobile-support,#bao-mobile-tools-tab,#bao-mobile-panel-close{display:none}
+#bao-mobile-exit,#bao-mobile-status,#bao-mobile-memory,#bao-mobile-support,#bao-mobile-tools-tab,#bao-mobile-panel-close,#bao-mobile-composer-tools,#bao-mobile-composer-inspire{display:none}
 @media(max-width:820px){
   body:has(#chat-view.active){overflow:hidden}
   body:has(#chat-view.active) .app-shell{width:100%!important;max-width:none!important}
@@ -187,6 +187,40 @@
     box-shadow:0 -18px 34px rgba(0,0,0,.28);
     z-index:4!important;
   }
+  #chat-view #bao-mobile-composer-tools,
+  #chat-view #bao-mobile-composer-inspire{
+    display:inline-flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    flex:0 0 42px!important;
+    width:42px!important;
+    min-width:42px!important;
+    height:52px!important;
+    min-height:52px!important;
+    padding:0!important;
+    border:1px solid rgba(255,255,255,.13)!important;
+    border-radius:16px!important;
+    background:rgba(28,31,45,.96)!important;
+    color:#f4f1ed!important;
+    font:inherit!important;
+    font-size:20px!important;
+    font-weight:800!important;
+    cursor:pointer;
+    box-shadow:inset 0 1px rgba(255,255,255,.035),0 8px 22px rgba(0,0,0,.16);
+    touch-action:manipulation;
+  }
+  #chat-view #bao-mobile-composer-inspire{
+    border-color:rgba(181,174,255,.30)!important;
+    background:rgba(73,62,126,.32)!important;
+    color:#ddd7ff!important;
+    font-size:18px!important;
+  }
+  #chat-view #bao-mobile-composer-tools:focus-visible,
+  #chat-view #bao-mobile-composer-inspire:focus-visible{outline:3px solid #72e2d3;outline-offset:2px}
+  #chat-view #bao-mobile-composer-inspire:disabled{opacity:.42;cursor:not-allowed}
+  #chat-view .composer.story-request-pending #bao-mobile-composer-tools,
+  #chat-view .composer.story-request-pending #bao-mobile-composer-inspire{display:none!important}
+
   #chat-view .composer textarea{
     flex:1 1 auto!important;
     min-width:0!important;
@@ -322,6 +356,8 @@
 }
 @media(max-width:360px){
   #chat-view .chat-stream{padding-left:14px!important;padding-right:14px!important}
+  #chat-view #bao-mobile-composer-tools,
+  #chat-view #bao-mobile-composer-inspire{flex-basis:36px!important;width:36px!important;min-width:36px!important;font-size:17px!important}
   #chat-view .composer :is(.primary,.story-cancel-generation){min-width:54px!important;font-size:12px!important;padding-left:9px!important;padding-right:9px!important}
   #chat-view .chat-title-avatar{width:34px!important;height:34px!important;flex-basis:34px!important}
   #chat-view .chat-topline{gap:6px!important;padding-left:8px!important;padding-right:8px!important}
