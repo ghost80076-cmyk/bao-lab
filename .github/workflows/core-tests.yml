@@ -105,6 +105,8 @@ jobs:
         run: node tests/narrative-prompt-pipeline-core.cjs
       - name: Stable chat message IDs
         run: node tests/chat-message-id-core.cjs
+      - name: Local conversation search
+        run: node tests/conversation-search-core.cjs
       - name: Provider request contracts
         run: node tests/api-provider-contracts.cjs
       - name: Provider failure and cancellation contracts

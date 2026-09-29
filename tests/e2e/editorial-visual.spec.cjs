@@ -95,7 +95,10 @@ for (const width of [390, 1280]) {
     await page.waitForFunction(() => Boolean(window.BAOStorySurface));
     await expect(page.locator('#chat-view')).toHaveAttribute('data-bao-surface', 'play');
     await expect(page.locator('#chat-view .chat-topline')).toBeVisible();
-    await expect(page.locator('#bao-scene-meta')).toBeVisible();
+    // The compact mobile Play header hides scene metadata; desktop keeps the
+    // confirmed scene context visible beside the story title.
+    if (width === 390) await expect(page.locator('#bao-scene-meta')).toBeHidden();
+    else await expect(page.locator('#bao-scene-meta')).toBeVisible();
     await expect(page.locator('#bao-surface-mode-toggle')).toBeVisible();
     await expect(page.locator('#bao-play-status-toggle')).toBeVisible();
     await expect(page.locator('#bao-immersive-toggle')).toHaveCount(0);
