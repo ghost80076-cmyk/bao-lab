@@ -22,7 +22,7 @@ function build(response={ok:true,status:200,body:{content:'測試成功',usage:{
 }
 const token='yb_s_'+'A'.repeat(43);
 const legacyToken='bao_'+'L'.repeat(43);
-const cfg={type:'bao-credits',route:'bao-credits',protocol:'openai',baseUrl:'https://bao-lab-credits-api.ghost80076.workers.dev/chat',key:'__YORUBAY_ACCOUNT__',model:'gemini-3-flash-preview'};
+const cfg={type:'bao-credits',route:'bao-credits',protocol:'openai',baseUrl:'https://api.yorubay.com/chat',key:'__YORUBAY_ACCOUNT__',model:'gemini-3-flash-preview'};
 const msgs=[{role:'user',content:'你好'}];
 
 test('pilot sends player-token request to fixed Worker, never admin/provider keys',async()=>{
