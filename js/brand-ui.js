@@ -57,7 +57,7 @@
             <a class="brand-first-run" href="quick-start.html">第一次來？三步開始 ↗</a>
           </div>
           <a id="bao-home-portrait" class="brand-bao-companion" href="bao-mascot.html" aria-label="認識夜灣官方吉祥物包包">
-            <img src="assets/bao-human-v2.webp" alt="包包：夜灣官方吉祥物" width="58" height="76" loading="eager"><span>包包在這裡留燈</span>
+            <img src="assets/bao-human-v2.webp" alt="包包：夜灣官方吉祥物" width="58" height="76" loading="eager"><span>認識包包</span>
           </a>
         </div>
         <button class="brand-feature-stage" id="home-feature-stage" type="button" aria-label="開啟角色：林沉風">
@@ -83,7 +83,7 @@
       </section>
       <section class="brand-home-explore" aria-labelledby="home-explore-title">
         <div class="brand-home-explore-head">
-          <div><p class="brand-kicker">MORE STORIES</p><h2 id="home-explore-title">更多作品，今晚也在等你。</h2><p class="brand-home-count">包包今夜留了 <span id="home-character-count">—</span> 個故事入口</p></div>
+          <div><p class="brand-kicker">MORE STORIES</p><h2 id="home-explore-title">更多作品，今晚也在等你。</h2><p class="brand-home-count">今夜有 <span id="home-character-count">—</span> 個故事正在等你。</p></div>
           <button class="text-button" id="home-all-works" type="button">查看全部作品 →</button>
         </div>
         <div id="home-character-preview" class="home-character-preview" aria-live="polite"></div>
