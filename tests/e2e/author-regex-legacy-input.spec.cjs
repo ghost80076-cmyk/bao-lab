@@ -75,13 +75,20 @@ test('mobile: isolated legacy UI does not shrink the main composer', async ({ pa
   const panel = await start(page);
   page.once('dialog', dialog => dialog.accept());
   await setLabeledCheckbox(panel, '允許作者腳本（需自行信任來源）', true);
-  const frame = page.frameLocator('iframe[title="跨回合作者隔離介面"]');
-  await expect(frame.locator('#legacy-menu')).toBeVisible();
   await setPanelOpen(panel, false);
   await expect(panel).not.toHaveAttribute('open', '');
+
+  const dock = page.locator('#bao-author-dock');
+  const frame = page.frameLocator('iframe[title="跨回合作者隔離介面"]');
+  await expect(dock).toHaveCount(1);
+  await expect(dock).not.toHaveAttribute('open', '');
+
   await expect(page.locator('#user-input')).toBeVisible();
   const width = await page.locator('#user-input').evaluate(el => el.getBoundingClientRect().width);
   expect(width).toBeGreaterThan(100);
+
+  await dock.evaluate(el => { el.open = true; el.dispatchEvent(new Event('toggle')); });
+  await expect(frame.locator('#legacy-menu')).toBeVisible();
   await frame.getByRole('button', { name: '查看圖鑑' }).evaluate(node => node.click());
   await expect(page.locator('#user-input')).toHaveValue('查看圖鑑');
   expect(await page.evaluate(() => window.__legacyApiCalls)).toBe(0);
