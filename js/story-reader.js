@@ -250,6 +250,16 @@
     }
   };
 
+  const inspireLatest = async button => {
+    const index = latestAssistantIndex();
+    if (index < 0) {
+      alert("目前還沒有可參考的 AI 回覆。");
+      return false;
+    }
+    await generateInspirations(index, button || null);
+    return true;
+  };
+
   const rewriteMessage = async (index, button) => {
     const message = Chat.messages[index];
     if (!message || message.role !== "assistant" || !requireLatestReply(index)) return;
@@ -550,6 +560,9 @@
     normalizeMessages,
     decorateStream,
     refreshTools: decorateStream,
+    inspireLatest,
+    aiToolsAvailable,
+    aiToolsUnavailableMessage,
     addVariant,
     invalidateDerivedMemory,
     imageOverrides: clone(IMAGE_OVERRIDES)
