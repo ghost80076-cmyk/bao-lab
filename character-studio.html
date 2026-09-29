@@ -30,7 +30,7 @@
 <p class="note">Gameplay UI 使用平台原生元件；作者可以選主題、主色、密度、圓角與數值條風格，不會執行任意 CSS／JavaScript。只有角色卡已經包含 Gameplay UI schema 時才會套用。</p>
 <div class="studio-grid">
 <label>UI 主題<select name="gameplay_theme" data-gameplay-theme-control><option value="default">平台預設</option><option value="arcane-night">夜色魔法</option><option value="stage-neon">舞台霓虹</option><option value="parchment">紙張古典</option><option value="noir">黑白電影</option></select></label>
-<label>主色<input name="gameplay_accent" data-gameplay-theme-control type="color" value="#d6a94f"></label>
+<label>自訂主色（選填）<input name="gameplay_accent" data-gameplay-theme-control type="text" maxlength="7" pattern="#[0-9A-Fa-f]{3}([0-9A-Fa-f]{3})?" placeholder="#d6a94f"><small>留白使用主題預設；只接受 #RGB / #RRGGBB。</small></label>
 <label>資訊密度<select name="gameplay_density" data-gameplay-theme-control><option value="comfortable">舒適</option><option value="compact">緊湊</option></select></label>
 <label>面板圓角<select name="gameplay_radius" data-gameplay-theme-control><option value="round">圓潤</option><option value="soft">柔和</option><option value="sharp">俐落</option></select></label>
 <label>數值條<select name="gameplay_meter" data-gameplay-theme-control><option value="soft">柔和漸層</option><option value="solid">單色</option><option value="glow">發光</option></select></label>
