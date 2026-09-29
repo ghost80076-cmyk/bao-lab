@@ -12,7 +12,12 @@
   const MAX_ATTRIBUTES = 16;
   const MAX_FIELDS = 20;
   const MAX_OPTIONS = 40;
+  const THEME_PRESETS = Object.freeze(['default', 'arcane-night', 'stage-neon', 'parchment', 'noir']);
+  const THEME_DENSITIES = Object.freeze(['comfortable', 'compact']);
+  const THEME_RADII = Object.freeze(['round', 'soft', 'sharp']);
+  const THEME_METERS = Object.freeze(['soft', 'solid', 'glow']);
   const SAFE_KEY = /^[a-zA-Z][a-zA-Z0-9_-]{0,39}$/;
+  const SAFE_COLOR = /^#[0-9a-fA-F]{3}([0-9a-fA-F]{3})?$/;
   const BLOCKED_KEYS = new Set(['__proto__', 'prototype', 'constructor']);
 
   const isObject = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
@@ -26,6 +31,28 @@
   };
   const label = (value, fallback = '') => String(value ?? fallback).trim().slice(0, 60);
   const finite = (value, fallback = 0) => Number.isFinite(Number(value)) ? Number(value) : fallback;
+  const enumValue = (value, allowed, fallback) => allowed.includes(String(value || '')) ? String(value) : fallback;
+  const themeColor = value => {
+    const text = String(value || '').trim();
+    if (!SAFE_COLOR.test(text)) return '';
+    if (text.length === 4) return ('#' + [...text.slice(1)].map(ch => ch + ch).join('')).toLowerCase();
+    return text.toLowerCase();
+  };
+
+  function normalizeTheme(raw) {
+    const source = typeof raw === 'string' ? { preset: raw } : (isObject(raw) ? raw : {});
+    const result = {
+      preset: enumValue(source.preset, THEME_PRESETS, 'default'),
+      density: enumValue(source.density, THEME_DENSITIES, 'comfortable'),
+      radius: enumValue(source.radius, THEME_RADII, 'round'),
+      meter: enumValue(source.meter, THEME_METERS, 'soft')
+    };
+    for (const name of ['accent', 'surface', 'surface_alt', 'text', 'border', 'muted']) {
+      const value = themeColor(source[name]);
+      if (value) result[name] = value;
+    }
+    return result;
+  }
 
   function splitPath(path) {
     const parts = String(path ?? '').trim().split('.').filter(Boolean);
@@ -190,6 +217,7 @@
     return {
       version: 1,
       enabled: true,
+      theme: normalizeTheme(raw.theme),
       builder: {
         title: label(builderRaw.title, '角色設定'),
         description: String(builderRaw.description || '').trim().slice(0, 300),
@@ -264,7 +292,8 @@
 
   return Object.freeze({
     MAX_PANELS, MAX_SECTIONS, MAX_ITEMS, MAX_ATTRIBUTES, MAX_FIELDS,
-    normalize, builderDefaults, attributeCost, remainingPoints, normalizeBuilderValues,
+    THEME_PRESETS, THEME_DENSITIES, THEME_RADII, THEME_METERS,
+    normalize, normalizeTheme, builderDefaults, attributeCost, remainingPoints, normalizeBuilderValues,
     applyBuilderValues, getPath, setPath, isTargetPath, isDisplayPath
   });
 });
