@@ -119,7 +119,14 @@
           }
         ]
       }
-    ]
+    ],
+    "theme": {
+      "preset": "stage-neon",
+      "accent": "#c78cff",
+      "density": "compact",
+      "radius": "soft",
+      "meter": "glow"
+    }
   },
   "world_modules": [
     {
