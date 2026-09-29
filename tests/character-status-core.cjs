@@ -71,6 +71,20 @@ assert.doesNotMatch(unrelated.text, /備註=/);
 const relevant = BAOCharacterStatus.compactForPrompt("我查看銀色鑰匙的線索");
 assert.match(relevant.text, /線索=銀色鑰匙/);
 
+GameState.upsertNPC({ name: "同學甲", role: "同學", status: { condition: "疲憊", clue: "羽毛筆" } });
+GameState.upsertNPC({ name: "同學乙", role: "同學", status: { condition: "緊張", clue: "舊地圖" } });
+BAOCharacterStatus.toggleContextCharacter("同學甲");
+BAOCharacterStatus.toggleContextCharacter("同學乙");
+assert.deepEqual(BAOCharacterStatus.selectedContextCharacters(), ["同學甲", "同學乙"]);
+const multi = BAOCharacterStatus.compactForPrompt("我繼續往前走", { maxCharacters: 2, consumeViewed: false });
+assert.equal(multi.names.includes("同學甲"), true);
+assert.equal(multi.names.includes("同學乙"), true);
+assert.match(multi.text, /同學甲/);
+assert.match(multi.text, /同學乙/);
+assert.equal(BAOCharacterStatus.selectedContextCharacters().length, 2);
+BAOCharacterStatus.compactForPrompt("我繼續往前走", { maxCharacters: 2, consumeViewed: true });
+assert.deepEqual(BAOCharacterStatus.selectedContextCharacters(), []);
+
 BAOCharacterStatus.resetCustomization(character);
 assert.equal(BAOCharacterStatus.configFor(character).fields.some(field => field.key === "custom_alert"), false);
 assert.equal(GameState.current.characterStatuses[character.name].custom_alert, undefined);
