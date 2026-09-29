@@ -183,7 +183,14 @@
     return false;
   };
   const mainModelToolConfig = () => ({ ...App.config.api, __storyTool: true });
-  const aiToolsAvailable = () => Boolean(App.config?.api?.key && !App.config?.demoMode && !App.config?.offlineWorldPreview);
+  const aiToolsAvailable = () => {
+    const api = App.config?.api;
+    const connected = Boolean(String(api?.key || "").trim()) || Boolean(window.BAOCreditsPilot?.isAccountReady?.(api));
+    return connected && !App.config?.demoMode && !App.config?.offlineWorldPreview;
+  };
+  const aiToolsUnavailableMessage = () => App.config?.demoMode || App.config?.offlineWorldPreview
+    ? "目前是無 API 本機預覽；連接 AI 後即可使用"
+    : "目前尚未連接 AI；完成連線後即可使用";
 
   const parseSuggestions = input => {
     const raw = String(input || "").replace(/^\s*```(?:json)?/i, "").replace(/```\s*$/, "").trim();
@@ -215,8 +222,8 @@
   };
 
   const generateInspirations = async (index, button) => {
-    if (!App.config?.api?.key) {
-      alert("尚未設定連線金鑰（API Key），無法產生行動靈感。");
+    if (!aiToolsAvailable()) {
+      alert(aiToolsUnavailableMessage());
       return;
     }
     setBusy(button, true);
@@ -246,8 +253,8 @@
   const rewriteMessage = async (index, button) => {
     const message = Chat.messages[index];
     if (!message || message.role !== "assistant" || !requireLatestReply(index)) return;
-    if (!App.config?.api?.key) {
-      alert("尚未設定連線金鑰（API Key），無法使用 AI 改寫。");
+    if (!aiToolsAvailable()) {
+      alert(aiToolsUnavailableMessage());
       return;
     }
     const instruction = window.prompt("改寫要求（例如：更詳細、增加對話、放慢節奏、語氣更克制）：", "保留事件結果，讓文字更自然、更有畫面");
@@ -274,8 +281,8 @@
   const regenerateMessage = async (index, button) => {
     const message = Chat.messages[index];
     if (!message || message.role !== "assistant" || !requireLatestReply(index)) return;
-    if (!App.config?.api?.key) {
-      alert("尚未設定連線金鑰（API Key），無法重新生成。");
+    if (!aiToolsAvailable()) {
+      alert(aiToolsUnavailableMessage());
       return;
     }
     setBusy(button, true);
@@ -420,7 +427,7 @@
         const button = tools.querySelector(selector);
         if (!button) return;
         button.disabled = true;
-        button.title = "目前是本機預覽；連接 AI 後即可使用";
+        button.title = aiToolsUnavailableMessage();
       });
     }
 
@@ -539,9 +546,10 @@
   }, 0);
 
   window.BAOStoryReader = {
-    version: 1,
+    version: 2,
     normalizeMessages,
     decorateStream,
+    refreshTools: decorateStream,
     addVariant,
     invalidateDerivedMemory,
     imageOverrides: clone(IMAGE_OVERRIDES)
