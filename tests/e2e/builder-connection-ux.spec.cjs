@@ -91,7 +91,7 @@ test('local preview does not offer AI-only message actions', async ({ page }) =>
 
 test('local preview is reset for each new story and is not persisted as a player preference', async ({ page }) => {
   await openBuilder(page, 390);
-  await page.locator('[data-bao-connection="byok"]').click();
+  await page.locator('button[data-bao-connection="byok"]').click();
   await page.locator('#api-type').selectOption('custom');
   await expect(page.locator('#bao-demo-mode')).toBeVisible();
 
