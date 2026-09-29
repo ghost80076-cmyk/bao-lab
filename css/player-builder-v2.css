@@ -41,7 +41,6 @@
 #builder-view[data-bao-setup="quick"] #builder-api-guide,
 #builder-view[data-bao-setup="quick"] #provider-diagnostics-box{display:none!important}
 #builder-view[data-bao-setup="quick"][data-bao-provider="custom"] #provider-diagnostics-box{display:block!important}
-#builder-view[data-bao-setup="quick"] .bao-builder-demo{display:none!important}
 #builder-view [data-bao-gemini-cache-open]{display:none!important}
 #builder-view[data-bao-setup="advanced"][data-bao-connection="byok"][data-bao-provider="gemini"] [data-bao-gemini-cache-open]{display:inline-flex!important}
 #builder-view .provider-quick-actions,
