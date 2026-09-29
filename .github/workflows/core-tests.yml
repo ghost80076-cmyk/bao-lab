@@ -107,6 +107,11 @@ jobs:
         run: node tests/chat-message-id-core.cjs
       - name: Local conversation search
         run: node tests/conversation-search-core.cjs
+      - name: Current story control center
+        run: |
+          node --check js/story-control-center-core.js
+          node --check js/story-control-center.js
+          node tests/story-control-center-core.cjs
       - name: Provider request contracts
         run: node tests/api-provider-contracts.cjs
       - name: Provider failure and cancellation contracts
