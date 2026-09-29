@@ -109,6 +109,7 @@
       try {
         const next = currentInput();
         const wasOffline = Boolean(App.config?.offlineWorldPreview);
+        const wasPreview = Boolean(App.config?.demoMode || wasOffline);
         App.config.api = next;
         App.config.demoMode = false;
         if (wasOffline) App.config.offlineWorldPreview = false;
@@ -120,6 +121,11 @@
         if (wasOffline && input) input.placeholder = "輸入你的行動或台詞…";
         App.saveStory?.(false);
         status();
+        // Message tools may have been rendered while the story had no usable AI
+        // connection. Rebuild only those controls so they immediately reflect the
+        // new connection without resetting story state or scroll position.
+        window.BAOStoryReader?.refreshTools?.();
+        if (wasPreview) window.dispatchEvent(new CustomEvent("bao:story-ai-connected"));
         close();
         input?.focus();
       } catch (cause) { setError(cause.message || "AI 連線設定無效。"); }
