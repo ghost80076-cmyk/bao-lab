@@ -12,13 +12,14 @@ const instrumented =
     /export\s+default\s+\{/,
     "const __workerDefault = {"
   ) +
-  "\nreturn { reservePlan, resolvedPricingRates, openRouterPriceGuard, computedUsageCostMicrousd };";
+  "\nreturn { reservePlan, resolvedPricingRates, openRouterPriceGuard, computedUsageCostMicrousd, normalizeHostedSessionId };";
 
 const {
   reservePlan,
   resolvedPricingRates,
   openRouterPriceGuard,
   computedUsageCostMicrousd,
+  normalizeHostedSessionId,
 } = new Function(instrumented)();
 
 const config = {
@@ -84,16 +85,27 @@ const fallbackLongCost = computedUsageCostMicrousd(
 );
 assert.equal(fallbackLongCost, 40_401);
 
+assert.equal(normalizeHostedSessionId(undefined), "");
+assert.equal(normalizeHostedSessionId("bao-lab:story-1:chat"), "bao-lab:story-1:chat");
+assert.equal(normalizeHostedSessionId("bad session id"), null);
+assert.equal(normalizeHostedSessionId("x".repeat(257)), null);
+
 assert.match(
   source,
-  /openrouter_provider:\s*openRouterGuard\s*\?\.provider/,
-  "AWS relay contract must receive the same OpenRouter price guard"
+  /openrouter_provider:\s*openRouterGuard\s*\?\.provider[\s\S]*session_id:\s*sessionId/,
+  "AWS relay contract must receive both the OpenRouter price guard and story session id"
 );
 
 assert.match(
   source,
-  /provider:\s*openRouterGuard\s*\?\.provider[\s\S]*usage:\s*\{\s*include:\s*true/,
-  "direct OpenRouter requests must send provider.max_price"
+  /provider:\s*openRouterGuard\s*\?\.provider[\s\S]*session_id:\s*sessionId[\s\S]*usage:\s*\{\s*include:\s*true/,
+  "direct OpenRouter requests must send provider.max_price and story session id"
+);
+
+assert.match(
+  source,
+  /normalizeHostedSessionId\(\s*body\?\.session_id\s*\)[\s\S]*invalid_session_id/,
+  "hosted routes must validate user-supplied session ids before forwarding them"
 );
 
 console.log("worker OpenRouter cost guard core test passed");

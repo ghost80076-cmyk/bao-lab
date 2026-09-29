@@ -49,6 +49,24 @@
   const HOSTED_HARD_PROMPT_BYTES = 192_000;
   const promptBytes = messages => encoder.encode(JSON.stringify(messages)).length;
   const cleanMessages = messages => messages.map(m => ({ role: m.role, content: API.contentToText(m.content) }));
+  const hostedStorySessionId = () => {
+    const cacheId = window.BAOPromptCache?.storySessionId?.();
+    const existing = String(cacheId || window.GameState?.current?.storySessionId || "").trim();
+    if (existing) return existing;
+    const story = window.GameState?.current;
+    if (!story) return "";
+    const random = globalThis.crypto?.randomUUID?.() || `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
+    story.storySessionId = `bao-lab:${random}`;
+    return story.storySessionId;
+  };
+  const hostedSessionId = kind => {
+    const base = hostedStorySessionId();
+    if (!base) return "";
+    const suffix = ["chat", "summary", "status"].includes(kind) ? kind : "chat";
+    const safeBase = base.replace(/[^A-Za-z0-9._:-]/g, "-");
+    const baseLimit = Math.max(1, 256 - suffix.length - 1);
+    return `${safeBase.slice(0, baseLimit)}:${suffix}`;
+  };
   let lastContextBudget = null;
   const basicMessagesValid = messages => (
     Array.isArray(messages) &&
@@ -262,6 +280,7 @@
       throw new Error("本次送出內容過大，而且目前不是智慧記憶模式。切換智慧記憶可讓 夜灣 自動整理較早脈絡，或改用自己的 API Key；故事不會刪除。");
     }
     const kind = config.__memoryTask ? "summary" : config.__stateTask ? "status" : "chat";
+    const sessionId = upstreamProvider === "openrouter" ? hostedSessionId(kind) : "";
     const requested = Number(config.maxOutputTokens || (config.__connectionTest ? 16 : 6144));
     // Keep YoruBay frontend and Worker ceilings aligned. Auxiliary tasks still
     // pass their own smaller maxOutputTokens values, so this is only a hard cap.
@@ -272,7 +291,14 @@
       response = await fetch(ENDPOINT, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-        body: JSON.stringify({ provider: upstreamProvider, model: config.model, request_kind: kind, messages: cleaned, max_output_tokens: maxOutput }),
+        body: JSON.stringify({
+          provider: upstreamProvider,
+          model: config.model,
+          request_kind: kind,
+          messages: cleaned,
+          max_output_tokens: maxOutput,
+          ...(sessionId ? { session_id: sessionId } : {})
+        }),
         signal: config.signal || this.activeSignal
       });
     } catch (error) { throw this.networkError(error); }
