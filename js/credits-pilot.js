@@ -3,7 +3,7 @@
   "use strict";
   if (typeof App === "undefined" || typeof API === "undefined" || window.BAOCreditsPilot) return;
 
-  const BASE = "https://bao-lab-credits-api.ghost80076.workers.dev";
+  const BASE = "https://api.yorubay.com";
   const ENDPOINT = `${BASE}/chat`;
   const PROVIDER = "bao-credits";
   // YoruBay Hosted uses the same logical model registry as BYOK.
