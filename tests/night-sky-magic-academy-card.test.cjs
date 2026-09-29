@@ -45,6 +45,8 @@ for(const key of ['charms','potions','herbology','transfiguration','defense','cr
 }
 
 assert.equal(card.gameplay.ui_schema?.version,1,'academy should opt in to Gameplay UI Engine v1');
+assert.equal(card.gameplay.ui_schema.theme?.preset,'arcane-night','academy gameplay UI should keep its own visual identity');
+assert.equal(card.gameplay.ui_schema.theme?.meter,'glow','academy magic meters should use the themed glow treatment');
 const gameplayPanels=new Map(card.gameplay.ui_schema.panels.map(panel=>[panel.id,panel]));
 for(const id of ['status','magic','mystery']) assert.ok(gameplayPanels.has(id),`missing gameplay UI panel ${id}`);
 assert.ok(gameplayPanels.get('magic').sections.some(section=>section.type==='meters'),'magic panel should use generic meter sections');
