@@ -13,6 +13,9 @@ on:
       - 'docs/gameplay-ui-engine.md'
       - '.github/workflows/gameplay-ui-engine.yml'
       - 'js/character.js'
+      - 'js/character-studio.js'
+      - 'character-studio.html'
+      - 'tests/character-studio-gameplay-ui-core.cjs'
       - 'index.html'
   pull_request:
     branches: [main]
@@ -31,6 +34,8 @@ jobs:
       - run: node --check js/gameplay-ui-core.js
       - run: node --check js/gameplay-ui.js
       - run: node tests/gameplay-ui-engine-core.cjs
+      - run: node tests/character-studio-gameplay-ui-core.cjs
+      - run: node --check js/character-studio.js
       - run: npm ci
       - run: npx playwright install --with-deps chromium
       - run: npx playwright test tests/e2e/gameplay-ui-engine.spec.cjs --project=chromium

@@ -32,6 +32,9 @@ test('gameplay schema renders builder, applies state, and drafts actions without
 
   const builder = page.locator('#bao-gameplay-builder');
   await expect(builder).toBeVisible();
+  await expect(builder).toHaveAttribute('data-gameplay-theme', 'stage-neon');
+  await expect(builder).toHaveAttribute('data-gameplay-density', 'compact');
+  expect(await builder.evaluate(node => node.style.getPropertyValue('--gameplay-accent'))).toBe('#c78cff');
   await expect(builder).toContainText('剩餘 6 / 6');
 
   const plus = page.locator('[data-gameplay-attribute="strength"] [data-gameplay-step="plus"]');
@@ -51,6 +54,9 @@ test('gameplay schema renders builder, applies state, and drafts actions without
   });
 
   const panel = page.locator('#ui-panel');
+  const gameUI = page.locator('#game-ui');
+  await expect(gameUI).toHaveAttribute('data-gameplay-theme', 'stage-neon');
+  await expect(gameUI).toHaveAttribute('data-gameplay-meter', 'glow');
   await expect(panel).toContainText('700 / 810');
   await expect(panel).toContainText('力量');
   await expect(panel).toContainText('11');

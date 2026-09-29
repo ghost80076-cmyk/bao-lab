@@ -3,6 +3,7 @@
   'use strict';
   const engine = window.CharacterEngine;
   const importer = window.BAOCharacterImport;
+  const gameplayCore = window.BAOGameplayUICore;
   const form = document.getElementById('studio-form');
   if (!engine || !importer || !form) return;
   const $ = id => document.getElementById(id);
@@ -22,6 +23,24 @@
   const id = () => `custom-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
   const safeImage = value => /^(https:\/\/[^\s]+|assets\/[a-zA-Z0-9_./-]+)$/.test(String(value || '')) ? value : DEFAULT_IMAGE;
   const text = name => String(field(name).value || '').trim();
+  const clone = value => {
+    try { return structuredClone(value); }
+    catch (_) { return JSON.parse(JSON.stringify(value ?? null)); }
+  };
+  const gameplayTheme = () => gameplayCore?.normalizeTheme?.({
+    preset: text('gameplay_theme') || 'default',
+    accent: text('gameplay_accent'),
+    density: text('gameplay_density') || 'comfortable',
+    radius: text('gameplay_radius') || 'round',
+    meter: text('gameplay_meter') || 'soft'
+  }) || { preset: 'default', density: 'comfortable', radius: 'round', meter: 'soft' };
+  const syncGameplayThemeControls = enabled => {
+    form.querySelectorAll('[data-gameplay-theme-control]').forEach(control => { control.disabled = !enabled; });
+    const note = $('studio-gameplay-theme-status');
+    if (note) note.textContent = enabled
+      ? '這張卡已有 Gameplay UI schema；外觀設定會跟著草稿、角色庫與匯出 JSON 保存。'
+      : '這張卡目前沒有 Gameplay UI schema，因此不會新增空白 UI。匯入已有 Gameplay UI 的卡後即可調整外觀。';
+  };
 
   function openDB() {
     if (!('indexedDB' in window)) return Promise.reject(new Error('這個瀏覽器未提供 IndexedDB，請先匯出 JSON 備份。'));
@@ -57,6 +76,9 @@
     const profileText = text('profile');
     const avatar = text('avatar');
     const tags = text('tags').split(/[,，\n]+/).map(s => s.trim()).filter(Boolean).slice(0, 24);
+    const gameplayUI = base.gameplay_ui && typeof base.gameplay_ui === 'object' && !Array.isArray(base.gameplay_ui)
+      ? { ...clone(base.gameplay_ui), theme: gameplayTheme() }
+      : null;
     return {
       ...base,
       id: text('id'), name, title: name,
@@ -69,6 +91,7 @@
       author_instructions: text('author_instructions'), creator_notes: text('creator_notes'),
       supported_modes: { immersive: true, world },
       supported_display: base.supported_display || { text: true, ui: false },
+      gameplay_ui: gameplayUI,
       source: 'local-import', schema_version: '1.5'
     };
   }
@@ -82,6 +105,13 @@
     field('tags').value = (c.tags || []).join(', ');
     field('mode').value = c.supported_modes?.world ? 'world' : 'immersive';
     field('profile').value = typeof c.profile === 'object' ? (c.profile['人物設定'] || engine.profilePrompt(c.profile)) : String(c.profile || '');
+    const theme = gameplayCore?.normalizeTheme?.(c.gameplay_ui?.theme) || { preset: 'default', density: 'comfortable', radius: 'round', meter: 'soft' };
+    field('gameplay_theme').value = theme.preset || 'default';
+    field('gameplay_accent').value = theme.accent || '';
+    field('gameplay_density').value = theme.density || 'comfortable';
+    field('gameplay_radius').value = theme.radius || 'round';
+    field('gameplay_meter').value = theme.meter || 'soft';
+    syncGameplayThemeControls(Boolean(c.gameplay_ui));
     $('studio-preview').classList.add('hidden');
     loading = false;
     dirty = false;
@@ -142,7 +172,7 @@
       schema_version: '1.5',
       meta: { id: c.id, name: c.name, title: c.title, category: c.category, rating: c.rating, avatar: c.avatar, description: c.description, tags: c.tags, gender: c.gender, audience: c.audience, categories: c.categories },
       content: { greeting: c.greeting, system_prompt: c.system_prompt, quote: c.quote, profile: c.profile, world: c.world, lore: c.lore, npc_rules: c.npc_rules, author_instructions: c.author_instructions, creator_notes: c.creator_notes, world_focus: c.world_focus, dynamic_prompts: c.dynamic_prompts },
-      gameplay: { supported_modes: c.supported_modes, initial_state: c.initial_state, world_modules: c.world_modules, character_status: c.character_status, prompt: c.prompt_options },
+      gameplay: { supported_modes: c.supported_modes, initial_state: c.initial_state, world_modules: c.world_modules, character_status: c.character_status, prompt: c.prompt_options, ...(c.gameplay_ui ? { ui_schema: c.gameplay_ui } : {}) },
       presentation: { supported_display: c.supported_display, ui: c.ui, narrative: c.narrative_profile }
     };
     if (includeMetadata && c.import_metadata) obj.import_metadata = c.import_metadata;

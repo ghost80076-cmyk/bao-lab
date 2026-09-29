@@ -973,7 +973,13 @@
             }
           ]
         }
-      ]
+      ],
+      "theme": {
+        "preset": "arcane-night",
+        "density": "comfortable",
+        "radius": "round",
+        "meter": "glow"
+      }
     }
   },
   "presentation": {
