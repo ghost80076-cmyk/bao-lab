@@ -17,6 +17,10 @@ for (const width of [375, 390]) {
     await page.getByRole('button', { name: '下一步' }).click();
     await page.locator('#start-story').click();
     await expect(page.locator('#chat-view')).toHaveClass(/active/);
+    await expect(page.locator('#bao-play-status-toggle')).toHaveText('資訊');
+    await expect(page.locator('#bao-mobile-status')).toHaveText('世界狀態');
+    await expect(page.locator('#bao-play-status-toggle')).toHaveAttribute('aria-label', '查看人物、事件與作品資訊');
+    await expect(page.locator('#bao-mobile-status')).toHaveAttribute('aria-label', '查看世界狀態');
 
     const arrow = page.locator('#chat-view .chat-topline > #bao-mobile-tools-tab');
     await expect(arrow).toBeVisible();
