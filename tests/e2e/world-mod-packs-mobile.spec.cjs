@@ -17,7 +17,7 @@ test('MOD editor and controls remain usable on a narrow screen', async ({ page }
   await page.evaluate(() => window.BAOChatToolNavigation.sync());
   await expect(page.locator('[data-chat-tool-body="world"] [data-open-world-manager]')).toBeAttached();
 
-  await page.locator('#bao-mobile-tools-tab').click();
+  await page.locator('#bao-mobile-composer-tools').click();
   const drawer = page.locator('#bao-chat-tool-drawer');
   await expect(drawer).toBeVisible();
   const worldGroup = drawer.locator('.bao-chat-tool-dialog-body > details').filter({ hasText: '世界設定與狀態' });

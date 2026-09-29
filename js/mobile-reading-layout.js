@@ -160,6 +160,11 @@
       stream?.scrollTo?.({ top: 0, behavior: 'smooth' });
     }
   };
+  const removeDuplicateHeaderActions = () => {
+    ['bao-mobile-status', 'bao-mobile-memory', 'bao-mobile-support', 'bao-mobile-tools-tab']
+      .forEach(id => document.getElementById(id)?.remove());
+  };
+
   const ensureExit = () => {
     const header = main.querySelector('.chat-topline');
     if (!header) return;
@@ -355,23 +360,12 @@
       clearMobileChrome();
       return;
     }
+    removeDuplicateHeaderActions();
     ensureExit();
-    ensureStatus();
-    ensureMemory();
-    ensureSupport();
-    ensureTab();
     ensurePanelClose();
     ensureComposerTools();
     measure();
     enhanceDrawer();
-    const panelOpen = main.classList.contains('bao-mobile-panel-open');
-    const activePanel = document.querySelector('#chat-view .ui-tab.active')?.dataset.panel || '';
-    const memoryButton = document.getElementById('bao-mobile-memory');
-    if (memoryButton) {
-      const memoryOpen = panelOpen && activePanel === 'memory';
-      memoryButton.setAttribute('aria-expanded', String(memoryOpen));
-      memoryButton.classList.toggle('is-active', memoryOpen);
-    }
     const tab = document.getElementById('bao-mobile-tools-tab');
     if (tab) {
       const open = Boolean(drawer());
@@ -409,10 +403,10 @@
     focusScrollTop = null;
     schedule();
   });
-  window.BAOMobileReadingLayout = { version: 11, sync, openTools, enhanceDrawer, togglePanels, openMemory, closePanels, ensureComposerTools };
+  window.BAOMobileReadingLayout = { version: 12, sync, openTools, enhanceDrawer, togglePanels, openMemory, closePanels, ensureComposerTools };
   const style = document.createElement('link');
   style.rel = 'stylesheet';
-  style.href = 'css/mobile-reading-layout.css?v=11';
+  style.href = 'css/mobile-reading-layout.css?v=12';
   document.head.append(style);
   sync();
 })();
