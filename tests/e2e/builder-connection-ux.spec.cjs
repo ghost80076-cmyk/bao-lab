@@ -33,10 +33,12 @@ for (const width of [390, 1440]) {
     await expect(page.locator('#builder-api-guide')).toBeHidden();
     await expect(page.locator('#test-api')).toBeHidden();
     await expect(page.locator('#provider-diagnostics-box')).toBeHidden();
+    await expect(page.locator('.bao-demo-box')).toBeHidden();
     await expect(page.locator('#bao-demo-mode')).toBeHidden();
     await expect(page.locator('#bao-quick-intro')).toContainText('選一個模型就能開始');
 
     await page.locator('[data-bao-connection="byok"]').click();
+    await expect(page.locator('.bao-demo-box')).toBeVisible();
     await expect(page.locator('#bao-demo-mode')).toBeVisible();
     await page.locator('#api-type').selectOption('lmstudio');
     await expect(page.locator('#builder-view')).toHaveAttribute('data-bao-provider', 'lmstudio');
@@ -47,7 +49,12 @@ for (const width of [390, 1440]) {
     await expect(page.locator('#builder-api-guide')).toBeHidden();
     await expect(page.locator('#test-api')).toBeHidden();
     await expect(page.locator('#provider-diagnostics-box')).toBeHidden();
+    await expect(page.locator('.bao-demo-box')).toBeHidden();
     await expect(page.locator('#bao-demo-mode')).toBeHidden();
+    await expect(page.locator('#api-advanced-settings')).toBeHidden();
+    await page.locator('#bao-lm-manual > summary').click();
+    await page.locator('#bao-lm-model-manual').fill('manual-local-model');
+    await expect(page.locator('#model-id')).toHaveValue('manual-local-model');
     await expectAllHidden(page.locator('[data-bao-gemini-cache-open]'));
     await expect(page.locator('#bao-quick-intro')).toContainText('不需要雲端 API Key');
 
@@ -55,6 +62,7 @@ for (const width of [390, 1440]) {
     await expect(page.locator('#test-api')).toBeHidden();
     await expect(page.locator('[data-run-provider-quick]')).toBeVisible();
     await expect(page.locator('.bao-relay-probe')).toBeVisible();
+    await expect(page.locator('.bao-demo-box')).toBeVisible();
     await expect(page.locator('#bao-demo-mode')).toBeVisible();
     await expectAllHidden(page.locator('[data-bao-gemini-cache-open]'));
 
@@ -78,4 +86,70 @@ test('local preview does not offer AI-only message actions', async ({ page }) =>
   await expect(latest.locator('[data-inspire]')).toHaveAttribute('title', /連接 AI 後/);
   await expect(latest.locator('[data-edit]')).toBeEnabled();
   await expect(latest.locator('[data-copy]')).toBeEnabled();
+});
+
+
+test('local preview is reset for each new story and is not persisted as a player preference', async ({ page }) => {
+  await openBuilder(page, 390);
+  await page.locator('button[data-bao-connection="byok"]').click();
+  await page.locator('#api-type').selectOption('custom');
+  await expect(page.locator('#bao-demo-mode')).toBeVisible();
+
+  await page.locator('#bao-demo-mode').check();
+  const storedHasDemoMode = await page.evaluate(() => {
+    const stored = JSON.parse(localStorage.getItem('bao-lab:player-settings') || '{}');
+    return Object.prototype.hasOwnProperty.call(stored, 'demoMode');
+  });
+  expect(storedHasDemoMode).toBe(false);
+
+  await page.evaluate(() => App.startStory());
+  await expect(page.locator('#chat-view')).toHaveClass(/active/);
+  await page.evaluate(() => {
+    App.exitChat();
+    App.openBuilder();
+    App.setStep(4);
+  });
+
+  await expect(page.locator('#bao-demo-mode')).not.toBeChecked();
+  expect(await page.evaluate(() => App.collectConfig().demoMode)).toBe(false);
+});
+
+test('reconnecting AI immediately re-enables message AI tools', async ({ page }) => {
+  await openBuilder(page, 390);
+  await page.waitForFunction(() => window.BAOChatAPISettings && window.BAOStoryReader);
+
+  await page.evaluate(() => {
+    const config = App.collectConfig();
+    config.api = {
+      type: 'custom',
+      protocol: 'openai',
+      model: 'reconnect-test-model',
+      baseUrl: 'https://example.invalid/v1',
+      key: ''
+    };
+    config.demoMode = false;
+    config.offlineWorldPreview = false;
+    App.config = config;
+    Chat.reset();
+    GameState.create(App.activeCharacter, config);
+    Chat.add('user', '測試重新連線');
+    Chat.add('assistant', '這是一則等待重新連線的回覆。');
+    App.renderChatShell(false);
+    App.showView('chat');
+  });
+
+  const latest = page.locator('#chat-stream .message.assistant').last();
+  await expect(latest.locator('[data-rewrite]')).toBeDisabled();
+  await expect(latest.locator('[data-inspire]')).toHaveAttribute('title', /尚未連接 AI/);
+
+  await page.evaluate(() => window.BAOChatAPISettings.open());
+  const dialog = page.locator('#bao-chat-api-backdrop');
+  await expect(dialog).toBeVisible();
+  await dialog.locator('input[name="key"]').fill('test-key-not-sent');
+  await dialog.getByRole('button', { name: '套用到目前故事' }).click();
+  await expect(dialog).toBeHidden();
+
+  await expect(latest.locator('[data-rewrite]')).toBeEnabled();
+  await expect(latest.locator('[data-regenerate]')).toBeEnabled();
+  await expect(latest.locator('[data-inspire]')).toBeEnabled();
 });

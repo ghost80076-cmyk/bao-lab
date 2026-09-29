@@ -18,9 +18,13 @@
   const readJSON = (key, fallback) => { try { return JSON.parse(localStorage.getItem(key)) ?? fallback; } catch { return fallback; } };
   const writeJSON = (key, value) => localStorage.setItem(key, JSON.stringify(value));
   const storedSettings = readJSON(SETTINGS_KEY, {});
+  // Local preview is a per-story choice. Clean up the legacy durable flag once,
+  // then keep it only in runtime state for the builder that is currently open.
+  if (storedSettings && typeof storedSettings === "object" && "demoMode" in storedSettings) {
+    delete storedSettings.demoMode;
+    writeJSON(SETTINGS_KEY, storedSettings);
+  }
   const settings = Object.assign({}, defaults, storedSettings);
-  // Local preview is a per-story testing choice, not a durable player preference.
-  // Never reopen a later story in preview mode just because it was used previously.
   settings.demoMode = false;
   if (settings.replyLength === "free") settings.replyLength = "auto";
   if (!["card", "named"].includes(settings.dialogueFormat)) settings.dialogueFormat = "card";
@@ -38,7 +42,11 @@
   let memorySlots = readJSON(MEMORY_KEY, [{ id: "memory-1", title: "記憶 1", text: "", enabled: true }]);
   if (!Array.isArray(memorySlots) || !memorySlots.length) memorySlots = [{ id: "memory-1", title: "記憶 1", text: "", enabled: true }];
 
-  const saveSettings = () => writeJSON(SETTINGS_KEY, settings);
+  const durableSettings = () => {
+    const { demoMode: _demoMode, ...durable } = settings;
+    return durable;
+  };
+  const saveSettings = () => writeJSON(SETTINGS_KEY, durableSettings());
   const saveMemory = () => writeJSON(MEMORY_KEY, memorySlots);
   const enabledMemoryText = () => (window.BAOMemoryWorkbench?.readSlots?.() || readJSON(MEMORY_KEY, memorySlots)).filter(x => x.enabled && String(x.text || "").trim()).map(x => `【${x.title}】\n${x.text.trim()}`).join("\n\n");
 
@@ -188,12 +196,18 @@
     box.querySelector('[data-bao-open="appearance"]').onclick = openAppearanceSettings;
   };
 
+  const resetDemoChoice = () => {
+    settings.demoMode = false;
+    const input = document.getElementById("bao-demo-mode");
+    if (input) input.checked = false;
+  };
+
   const injectDemoOption = () => {
     const step = document.querySelector('[data-step-panel="4"]'); if (!step || document.getElementById("bao-demo-mode")) return;
     const box = document.createElement("div"); box.className = "bao-demo-box";
-    box.innerHTML = `<label><input id="bao-demo-mode" type="checkbox" ${settings.demoMode ? "checked" : ""}><span><b>無 API 本機預覽</b><br><small class="note">不呼叫任何模型、不產生 Token 費用。只用來測試聊天流程、記憶與外觀。</small></span></label>`;
+    box.innerHTML = `<label><input id="bao-demo-mode" type="checkbox"><span><b>無 API 本機預覽</b><br><small class="note">不呼叫任何模型、不產生 Token 費用。只用來測試聊天流程、記憶與外觀。</small></span></label>`;
     step.appendChild(box);
-    box.querySelector("#bao-demo-mode").addEventListener("change", e => { settings.demoMode = e.target.checked; saveSettings(); });
+    box.querySelector("#bao-demo-mode").addEventListener("change", e => { settings.demoMode = e.target.checked; });
   };
 
   const lengthInstruction = () => settings.replyLength === "short"
@@ -226,8 +240,14 @@
     return [base, "", "【玩家回覆設定】", lengthInstruction(), povInstruction(), dialogueInstruction(), languageInstruction(), memory ? `\n【玩家手動記憶】\n${memory}` : ""].filter(Boolean).join("\n");
   };
 
+  const originalOpenBuilder = App.openBuilder.bind(App);
+  App.openBuilder = function(...args) {
+    resetDemoChoice();
+    return originalOpenBuilder(...args);
+  };
+
   const originalCollectConfig = App.collectConfig.bind(App);
-  App.collectConfig = function() { const cfg = originalCollectConfig(); cfg.demoMode = Boolean(document.getElementById("bao-demo-mode")?.checked || settings.demoMode); return cfg; };
+  App.collectConfig = function() { const cfg = originalCollectConfig(); cfg.demoMode = Boolean(document.getElementById("bao-demo-mode")?.checked); return cfg; };
 
   const originalStartStory = App.startStory.bind(App);
   App.startStory = function() {
@@ -281,6 +301,7 @@
     get: () => JSON.parse(JSON.stringify(settings)),
     set: value => {
       const next = Object.assign({}, defaults, value && typeof value === "object" ? value : {});
+      next.demoMode = false;
       if (next.replyLength === "free") next.replyLength = "auto";
       if (!["card", "named"].includes(next.dialogueFormat)) next.dialogueFormat = "card";
       next.appearance = Object.assign({}, defaults.appearance, next.appearance || {});

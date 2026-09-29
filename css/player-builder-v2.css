@@ -55,6 +55,10 @@
 #builder-view #bao-lm-auth{margin:12px 0 4px;border:1px solid rgba(192,174,225,.14);border-radius:10px}
 #builder-view #bao-lm-auth>summary{padding:10px 12px;color:#aaa6b1;cursor:pointer;font-size:12px}
 #builder-view #bao-lm-auth .bao-builder-key{margin:0 10px 10px;padding:10px}
+#builder-view #bao-lm-manual{margin:10px 0 4px;border:1px solid rgba(192,174,225,.14);border-radius:10px}
+#builder-view #bao-lm-manual>summary{padding:10px 12px;color:#aaa6b1;cursor:pointer;font-size:12px}
+#builder-view #bao-lm-manual label{display:block;margin:0 10px 10px;color:#c7c3ce;font-size:12px}
+#builder-view #bao-lm-manual input{min-height:42px;margin-top:6px}
 #builder-view[data-bao-setup="quick"] .bao-builder-ai-v2>.note:first-of-type{display:none}
 #builder-view[data-bao-setup="quick"] .bao-builder-ai-v2>.form-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
 #builder-view[data-bao-setup="quick"][data-bao-connection="hosted"] .bao-builder-ai-v2>.form-grid{grid-template-columns:minmax(0,1fr)}

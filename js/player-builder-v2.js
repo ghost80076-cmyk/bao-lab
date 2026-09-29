@@ -7,7 +7,7 @@
   if (!document.querySelector('link[href^="css/player-builder-v2.css"]')) {
     const link = document.createElement("link");
     link.rel = "stylesheet";
-    link.href = "css/player-builder-v2.css?v=3";
+    link.href = "css/player-builder-v2.css?v=4";
     document.head.appendChild(link);
   }
   const view = document.getElementById("builder-view");
@@ -69,7 +69,7 @@
   const markConditionalSurfaces = () => {
     const legacyTest = $("test-api")?.parentElement;
     if (legacyTest) legacyTest.classList.add("bao-builder-test-row");
-    const demo = $("bao-demo-mode")?.closest("label") || $("bao-demo-mode")?.parentElement;
+    const demo = $("bao-demo-mode")?.closest(".bao-demo-box") || $("bao-demo-mode")?.closest("label") || $("bao-demo-mode")?.parentElement;
     if (demo) demo.classList.add("bao-builder-demo");
     step.querySelector("[data-relay-probe]")?.closest("section")?.classList.add("bao-relay-probe");
   };
