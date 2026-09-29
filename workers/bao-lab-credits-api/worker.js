@@ -1548,6 +1548,44 @@ function normalizeMessages(
     : null;
 }
 
+function normalizeHostedSessionId(
+  value
+) {
+  if (
+    value ===
+      undefined ||
+    value ===
+      null ||
+    value ===
+      ""
+  ) {
+    return "";
+  }
+
+  if (
+    typeof value !==
+      "string"
+  ) {
+    return null;
+  }
+
+  const normalized =
+    value.trim();
+
+  if (
+    !normalized ||
+    normalized.length >
+      256 ||
+    !/^[A-Za-z0-9._:-]+$/.test(
+      normalized
+    )
+  ) {
+    return null;
+  }
+
+  return normalized;
+}
+
 function validOrigin(
   request,
   env
@@ -6783,7 +6821,8 @@ async function providerCall(
   model,
   messages,
   maxOutput,
-  player = null
+  player = null,
+  sessionId = ""
 ) {
   let endpoint;
   let init;
@@ -6900,6 +6939,13 @@ async function providerCall(
               openrouter_provider:
                 openRouterGuard
                   ?.provider,
+
+              ...(sessionId
+                ? {
+                    session_id:
+                      sessionId,
+                  }
+                : {}),
             }
           ),
       };
@@ -6948,6 +6994,13 @@ async function providerCall(
               provider:
                 openRouterGuard
                   ?.provider,
+
+              ...(sessionId
+                ? {
+                    session_id:
+                      sessionId,
+                  }
+                : {}),
 
               usage: {
                 include:
@@ -7639,6 +7692,20 @@ async function legacyChatRoute(
       body?.messages
     );
 
+  const sessionId =
+    normalizeHostedSessionId(
+      body?.session_id
+    );
+
+  if (
+    sessionId ===
+      null
+  ) {
+    return fail(
+      "invalid_session_id"
+    );
+  }
+
   if (
     ![
       "chat",
@@ -7844,7 +7911,8 @@ async function legacyChatRoute(
       model,
       messages,
       maxOutput,
-      player
+      player,
+      sessionId
     );
 
   if (
@@ -8348,6 +8416,20 @@ async function costUsdChatRoute(
       body?.messages
     );
 
+  const sessionId =
+    normalizeHostedSessionId(
+      body?.session_id
+    );
+
+  if (
+    sessionId ===
+      null
+  ) {
+    return fail(
+      "invalid_session_id"
+    );
+  }
+
   const config =
     modelConfig(
       env,
@@ -8581,7 +8663,8 @@ async function costUsdChatRoute(
       messages,
       plan
         .effectiveMaxOutput,
-      player
+      player,
+      sessionId
     );
 
   if (
