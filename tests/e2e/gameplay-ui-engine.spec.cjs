@@ -34,7 +34,7 @@ test('gameplay schema renders builder, applies state, and drafts actions without
   await expect(builder).toBeVisible();
   await expect(builder).toHaveAttribute('data-gameplay-theme', 'stage-neon');
   await expect(builder).toHaveAttribute('data-gameplay-density', 'compact');
-  await expect(builder).toHaveCSS('--gameplay-accent', '#c78cff');
+  expect(await builder.evaluate(node => node.style.getPropertyValue('--gameplay-accent'))).toBe('#c78cff');
   await expect(builder).toContainText('剩餘 6 / 6');
 
   const plus = page.locator('[data-gameplay-attribute="strength"] [data-gameplay-step="plus"]');
