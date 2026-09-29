@@ -54,11 +54,6 @@
     composer.before(wrap);
   };
 
-  const meter=(label,value,max=100)=>{
-    const n=Math.max(0,Math.min(max,Number(value)||0));
-    return `<div class="magic-meter"><div><span>${esc(label)}</span><b>${n}</b></div><i><em style="width:${max?n/max*100:0}%"></em></i></div>`;
-  };
-
   const originalRenderDetail=App.renderDetail.bind(App);
   App.renderDetail=function(){
     if(!isMagic()) return originalRenderDetail();
@@ -186,30 +181,7 @@
     setTimeout(()=>ensureInitialState(n+1),50);
   };
 
-  const originalRenderUIPanel=App.renderUIPanel.bind(App);
-  App.renderUIPanel=function(panel){
-    if(!isMagic()||!GameState.current) return originalRenderUIPanel(panel);
-    const ui=document.getElementById('ui-panel');
-    if(!ui) return;
-    const s=GameState.current, modules=s.modules||{};
-    if(panel==='status'){
-      const life=modules.academy_life||{}, skills=modules.magic_skills||{}, mystery=modules.mystery_state||{}, work=modules.schoolwork||{};
-      ui.innerHTML=`
-        <div class="magic-status-shell">
-          <section class="magic-status-card academy">
-            <div class="magic-status-title"><span>ACADEMY</span><b>${esc(life.house||'待分院')}</b></div>
-            <div class="magic-status-grid"><div><small>日期</small><b>${esc(life.date||'—')}</b></div><div><small>時段</small><b>${esc(life.time_slot||'—')}</b></div><div><small>地點</small><b>${esc(life.location||'—')}</b></div><div><small>學院分</small><b>${esc(life.house_points??0)}</b></div></div>
-            <p>違規紀錄：${esc(life.violations??0)} · 下一堂：${esc(work.next_class||'尚未安排')}</p>
-          </section>
-          <section class="magic-status-card skills"><div class="magic-status-title"><span>MAGIC</span><b>熟練度</b></div>
-            <div class="magic-skill-grid">${meter('術式',skills.charms)}${meter('魔藥',skills.potions)}${meter('植物',skills.herbology)}${meter('變形',skills.transfiguration)}${meter('防禦',skills.defense)}${meter('生物',skills.creatures)}${meter('占卜',skills.divination)}${meter('飛行',skills.flight)}${meter('魔文',skills.runes)}</div>
-          </section>
-          <section class="magic-status-card mystery"><div class="magic-status-title"><span>MYSTERY</span><b>${esc(mystery.phase||'序章')}</b></div><div class="magic-status-grid"><div><small>確認線索</small><b>${esc(mystery.clue_count??0)}</b></div><div><small>危險度</small><b>${esc(mystery.threat??0)} / 100</b></div></div><p>${esc(mystery.active_thread||'尚無明確異常')}</p></section>
-        </div>`;
-      return;
-    }
-    return originalRenderUIPanel(panel);
-  };
+  // 狀態／魔法／主線面板已遷移到角色卡 gameplay.ui_schema，由通用 Gameplay UI Engine 渲染。
 
   const originalSendMessage=App.sendMessage.bind(App);
   App.sendMessage=async function(...args){const result=await originalSendMessage(...args);if(isMagic())setTimeout(mountChoices,0);return result;};

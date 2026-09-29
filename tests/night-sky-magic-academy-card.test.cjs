@@ -44,6 +44,12 @@ for(const key of ['charms','potions','herbology','transfiguration','defense','cr
   assert.ok(modules.get('magic_skills').fields.some(f=>f.key===key),`missing magic skill ${key}`);
 }
 
+assert.equal(card.gameplay.ui_schema?.version,1,'academy should opt in to Gameplay UI Engine v1');
+const gameplayPanels=new Map(card.gameplay.ui_schema.panels.map(panel=>[panel.id,panel]));
+for(const id of ['status','magic','mystery']) assert.ok(gameplayPanels.has(id),`missing gameplay UI panel ${id}`);
+assert.ok(gameplayPanels.get('magic').sections.some(section=>section.type==='meters'),'magic panel should use generic meter sections');
+assert.ok(gameplayPanels.get('mystery').sections.some(section=>section.type==='list'&&section.path==='modules.clue_log'),'mystery panel should expose clue log through the generic list renderer');
+
 for(const npc of ['賽維爾','凜夏','艾瑪','里歐','夜梟','艾利歐特']){
   assert.ok(card.gameplay.initial_state.character_statuses[npc],`missing initial NPC state for ${npc}`);
 }
@@ -61,5 +67,6 @@ assert.match(index,/night-sky-magic-academy\.css/);
 assert.match(index,/night-sky-magic-academy-ui\.js/);
 const academyUI=fs.readFileSync(path.join(__dirname,'../js/night-sky-magic-academy-ui.js'),'utf8');
 assert.match(academyUI,/<div class="magic-hero-art"><img/,'academy detail hero should use a directly loadable image element');
+assert.doesNotMatch(academyUI,/originalRenderUIPanel/,'academy-specific status renderer should be retired after schema migration');
 
 console.log('PASS Night Sky Magic Academy original houses, low-token context, NPC states, magic progression and UI assets');

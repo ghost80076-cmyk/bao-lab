@@ -45,9 +45,18 @@ test('Night Sky Magic Academy renders enrollment, fixed mystery, status and choi
   await page.waitForFunction(() => GameState.current?.magicAcademyInitializedVersion === 1);
 
   await page.getByRole('button',{name:'狀態',exact:true}).click();
-  await expect(page.locator('.magic-status-shell')).toBeVisible();
-  await expect(page.locator('.magic-status-card.academy')).toContainText('待分院');
-  await expect(page.locator('.magic-status-card.skills')).toContainText('魔文');
+  await expect(page.locator('.gameplay-ui-panel[data-gameplay-panel="status"]')).toBeVisible();
+  await expect(page.locator('.gameplay-ui-panel[data-gameplay-panel="status"]')).toContainText('待分院');
+  await expect(page.locator('.gameplay-ui-panel[data-gameplay-panel="status"]')).toContainText('下一堂課');
+
+  await page.getByRole('button',{name:'魔法',exact:true}).click();
+  await expect(page.locator('.gameplay-ui-panel[data-gameplay-panel="magic"]')).toBeVisible();
+  await expect(page.locator('.gameplay-ui-panel[data-gameplay-panel="magic"]')).toContainText('古代魔文');
+  await expect(page.locator('.gameplay-ui-panel[data-gameplay-panel="magic"]')).toContainText('14 / 100');
+
+  await page.getByRole('button',{name:'主線',exact:true}).click();
+  await expect(page.locator('.gameplay-ui-panel[data-gameplay-panel="mystery"]')).toBeVisible();
+  await expect(page.locator('.gameplay-ui-panel[data-gameplay-panel="mystery"]')).toContainText('線索簿');
 
   const setup=await page.evaluate(()=>({
     config:App.config.magicAcademySetup,
