@@ -18,7 +18,7 @@ for (const width of [375, 390]) {
     await page.locator('#start-story').click();
     await expect(page.locator('#chat-view')).toHaveClass(/active/);
     await expect(page.locator('#bao-play-status-toggle')).toHaveText('資訊');
-    await expect(page.locator('#bao-mobile-status')).toHaveText('世界狀態');
+    await expect(page.locator('#bao-mobile-status')).toHaveText('世界');
     await expect(page.locator('#bao-play-status-toggle')).toHaveAttribute('aria-label', '查看人物、事件與作品資訊');
     await expect(page.locator('#bao-mobile-status')).toHaveAttribute('aria-label', '查看世界狀態');
 
