@@ -5,7 +5,7 @@
 ## 相容原則
 
 - 沒有 `gameplay_ui` 的角色卡：完全沿用目前流程。
-- 既有 `k-idol-survival-simulator-ui.js`、`night-sky-magic-academy-ui.js` 等專屬 UI：本 PR 不遷移、不刪除。
+- 沒有 opt-in 的既有專屬 UI（例如部分模擬器）維持原流程；《夜穹魔法學院》已只把狀態／魔法／主線面板遷移到 schema，入學、NPC、選項與作品詳情仍保留專屬 UI。
 - 新引擎只讀取角色卡聲明的安全 schema；不允許 schema 讀取 API Key、故事儲存層或任意 DOM。
 - Builder 寫入目標只允許 `modules.*`，因此角色初始選擇會成為 GameState 的世界模組資料。
 - 行動按鈕只把文字填進玩家輸入框，不會替玩家自動送出。
