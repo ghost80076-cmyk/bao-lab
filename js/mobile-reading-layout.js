@@ -187,7 +187,7 @@
       button.type = 'button';
       button.id = 'bao-mobile-status';
       button.className = 'bao-mobile-header-action bao-mobile-status-action';
-      button.textContent = '世界狀態';
+      button.textContent = '世界';
       button.setAttribute('aria-label', '查看世界狀態');
       button.title = '目前故事已確認的時間、地點、人物與世界狀態';
       button.addEventListener('click', openStatus);
