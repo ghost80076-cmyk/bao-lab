@@ -18,54 +18,59 @@ for (const width of [375, 390]) {
     await page.locator('#start-story').click();
     await expect(page.locator('#chat-view')).toHaveClass(/active/);
     await expect(page.locator('#bao-play-status-toggle')).toHaveText('資訊');
-    await expect(page.locator('#bao-mobile-status')).toHaveText('世界');
     await expect(page.locator('#bao-play-status-toggle')).toHaveAttribute('aria-label', '查看人物、事件與作品資訊');
-    await expect(page.locator('#bao-mobile-status')).toHaveAttribute('aria-label', '查看世界狀態');
+    await expect(page.locator('#bao-surface-mode-toggle')).toHaveText('工具');
+    await expect(page.locator('#bao-mobile-status')).toHaveCount(0);
+    await expect(page.locator('#bao-mobile-memory')).toHaveCount(0);
+    await expect(page.locator('#bao-mobile-support')).toHaveCount(0);
+    await expect(page.locator('#bao-mobile-tools-tab')).toHaveCount(0);
 
-    const arrow = page.locator('#chat-view .chat-topline > #bao-mobile-tools-tab');
-    await expect(arrow).toBeVisible();
-    await expect(arrow).toHaveAttribute('aria-label', '開啟或關閉故事功能表');
+    const composerTools = page.locator('#bao-mobile-composer-tools');
+    await expect(composerTools).toBeVisible();
     const geometry = await page.evaluate(() => {
-      const tab = document.getElementById('bao-mobile-tools-tab').getBoundingClientRect();
+      const tools = document.getElementById('bao-mobile-composer-tools').getBoundingClientRect();
       const header = document.querySelector('#chat-view .chat-topline').getBoundingClientRect();
+      const surface = document.getElementById('bao-surface-controls').getBoundingClientRect();
       const stream = document.getElementById('chat-stream').getBoundingClientRect();
       return {
         viewport: innerWidth,
-        tab: { top: tab.top, bottom: tab.bottom, left: tab.left, right: tab.right, width: tab.width, height: tab.height },
+        tools: { left: tools.left, right: tools.right, width: tools.width, height: tools.height },
         header: { top: header.top, bottom: header.bottom },
+        surface: { left: surface.left, right: surface.right, top: surface.top, bottom: surface.bottom },
         streamTop: stream.top
       };
     });
-    expect(geometry.tab.width).toBeLessThanOrEqual(44);
-    expect(geometry.tab.height).toBeLessThanOrEqual(44);
-    expect(geometry.tab.top).toBeGreaterThanOrEqual(geometry.header.top - 1);
-    expect(geometry.tab.bottom).toBeLessThanOrEqual(geometry.header.bottom + 1);
+    expect(geometry.tools.width).toBeLessThanOrEqual(44);
+    expect(geometry.tools.height).toBeLessThanOrEqual(54);
+    expect(geometry.tools.left).toBeGreaterThanOrEqual(0);
+    expect(geometry.tools.right).toBeLessThanOrEqual(geometry.viewport + 1);
+    expect(geometry.surface.top).toBeGreaterThanOrEqual(geometry.header.top - 1);
+    expect(geometry.surface.bottom).toBeLessThanOrEqual(geometry.header.bottom + 1);
     expect(geometry.header.bottom).toBeLessThanOrEqual(geometry.streamTop + 1);
-    expect(geometry.tab.left).toBeGreaterThanOrEqual(0);
-    expect(geometry.tab.right).toBeLessThanOrEqual(geometry.viewport + 1);
-    await arrow.click();
+    expect(geometry.surface.right).toBeLessThanOrEqual(geometry.viewport + 1);
+    await composerTools.click();
     await expect(page.locator('#bao-chat-tool-drawer')).toBeVisible();
     await expect(page.locator('#bao-chat-tool-drawer')).toContainText('API／切換模型');
 
     await page.locator('#bao-chat-tool-drawer header').getByRole('button', { name: '關閉 ×', exact: true }).click();
     await expect(page.locator('#bao-chat-tool-drawer')).toHaveCount(0);
 
-    const memory = page.locator('#bao-mobile-memory');
     const panelClose = page.locator('#bao-mobile-panel-close');
     const chatMain = page.locator('#chat-view .chat-main');
-    await memory.click();
+
+    await composerTools.click();
+    await page.getByRole('button', { name: '🧠 記憶' }).click();
     await expect(chatMain).toHaveClass(/bao-mobile-panel-open/);
-    await expect(memory).toHaveAttribute('aria-expanded', 'true');
+    await expect(page.locator('#chat-view .ui-tab[data-panel="memory"]')).toHaveClass(/active/);
     await expect(panelClose).toBeVisible();
     await expect(panelClose).toHaveAttribute('aria-label', '收起人物、狀態、事件與記憶面板');
 
     await panelClose.click();
     await expect(chatMain).not.toHaveClass(/bao-mobile-panel-open/);
-    await expect(memory).toHaveAttribute('aria-expanded', 'false');
 
-    await memory.click();
-    await expect(chatMain).toHaveClass(/bao-mobile-panel-open/);
-    await memory.click();
-    await expect(chatMain).not.toHaveClass(/bao-mobile-panel-open/);
+    await page.locator('#bao-play-status-toggle').click();
+    await expect(page.locator('#chat-view')).toHaveClass(/bao-play-status-open/);
+    await page.locator('#bao-play-status-close').click();
+    await expect(page.locator('#chat-view')).not.toHaveClass(/bao-play-status-open/);
   });
 }
