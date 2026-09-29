@@ -1053,36 +1053,6 @@
           '<section class="story-tools-card"><h3>這個瀏覽器目前無法使用「我的故事」</h3><p>瀏覽器故事資料庫（IndexedDB）無法使用，因此無法顯示多個獨立故事與篇章／分支。自動存檔、手動存檔與完整 JSON 備份仍會沿用可用的本機儲存方式。</p>' +
           '<div class="story-import-note">建議先匯出完整故事備份；不要清除瀏覽器網站資料。</div></section>';
         host.querySelector("[data-back]").onclick = () => GameState.current ? home(host) : close();
-      const libraryImportButton = host.querySelector("[data-story-library-import]");
-      const libraryImportPicker = host.querySelector("[data-story-library-import-file]");
-      libraryImportButton?.addEventListener("click", () => libraryImportPicker?.click());
-      libraryImportPicker?.addEventListener("change", async () => {
-        const file = libraryImportPicker.files?.[0];
-        if (!file) return;
-        const original = libraryImportButton?.textContent || "匯入完整故事";
-        if (libraryImportButton) {
-          libraryImportButton.disabled = true;
-          libraryImportButton.textContent = "匯入中…";
-        }
-        try {
-          const result = await importStoryFile(file);
-          window.BAORefreshSaveUI?.();
-          if (result.kind === "bundle") {
-            tell("完整故事已加入「我的故事」，共 " + Number(result.imported?.chapterCount || 0) + " 個章節／分支。連線金鑰（API Key）不會從備份還原。");
-          } else {
-            tell("舊版單一故事備份已匯入手動存檔；連線金鑰（API Key）已清除。");
-          }
-          await libraryScreen(host);
-        } catch (error) {
-          tell(error.message || "故事備份匯入失敗。");
-        } finally {
-          libraryImportPicker.value = "";
-          if (libraryImportButton?.isConnected) {
-            libraryImportButton.disabled = false;
-            libraryImportButton.textContent = original;
-          }
-        }
-      });
         return;
       }
       const stories = await BAOStoryLibrary.listStories();
@@ -1126,6 +1096,37 @@
         (cards || '<div class="story-library-empty"><b>書架現在還是空的</b><span>從任一角色翻開第一頁；第一次自動存檔後，這段故事就會留在這裡等你回來。</span></div>') +
         (stories.length ? '<div class="story-library-empty" data-story-library-no-results hidden><b>找不到符合的故事</b><span>換個關鍵字，或取消「只看釘選」。</span></div>' : '') + '</section>';
       host.querySelector("[data-back]").onclick = () => GameState.current ? home(host) : close();
+      const libraryImportButton = host.querySelector("[data-story-library-import]");
+      const libraryImportPicker = host.querySelector("[data-story-library-import-file]");
+      libraryImportButton?.addEventListener("click", () => libraryImportPicker?.click());
+      libraryImportPicker?.addEventListener("change", async () => {
+        const file = libraryImportPicker.files?.[0];
+        if (!file) return;
+        const original = libraryImportButton?.textContent || "匯入完整故事";
+        if (libraryImportButton) {
+          libraryImportButton.disabled = true;
+          libraryImportButton.textContent = "匯入中…";
+        }
+        try {
+          const result = await importStoryFile(file);
+          window.BAORefreshSaveUI?.();
+          if (result.kind === "bundle") {
+            tell("完整故事已加入「我的故事」，共 " + Number(result.imported?.chapterCount || 0) + " 個章節／分支。連線金鑰（API Key）不會從備份還原。");
+          } else {
+            tell("舊版單一故事備份已匯入手動存檔；連線金鑰（API Key）已清除。");
+          }
+          await libraryScreen(host);
+        } catch (error) {
+          tell(error.message || "故事備份匯入失敗。");
+        } finally {
+          libraryImportPicker.value = "";
+          if (libraryImportButton?.isConnected) {
+            libraryImportButton.disabled = false;
+            libraryImportButton.textContent = original;
+          }
+        }
+      });
+
 
       const librarySearch = host.querySelector("[data-story-library-search]");
       const pinnedFilter = host.querySelector("[data-story-library-pinned]");
