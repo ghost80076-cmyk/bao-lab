@@ -42,6 +42,21 @@
     const narrativeStatus = window.BAONarrativeSettings?.statusLabel?.(narrativeState) || {};
     let replaceState = {};
     try { replaceState = window.BAOPlayerTextReplace?.get?.() || {}; } catch (_) {}
+    let context = { title: "尚無上下文資料", detail: "完成一輪 AI 回覆後會顯示目前輸入壓力" };
+    try {
+      const health = window.BAOContextHealth?.snapshot?.();
+      if (health?.pressure) {
+        const pct = health.pressure.percent === null || health.pressure.percent === undefined
+          ? ""
+          : " · " + health.pressure.percent.toFixed(health.pressure.percent >= 100 ? 0 : 0) + "%";
+        context = {
+          title: health.pressure.label + pct,
+          detail: health.pressure.input === null || health.pressure.input === undefined
+            ? health.memory?.title || "尚無 Provider 用量資料"
+            : Number(health.pressure.input).toLocaleString() + " tok 本輪輸入 · " + (health.memory?.title || "記憶正常")
+        };
+      }
+    } catch (_) {}
 
     return {
       refs,
@@ -49,6 +64,7 @@
       model: core.modelSummary(config.api || {}, routeLabel(config.api || {})),
       persona: core.personaSummary(config.persona || {}),
       memory: core.memorySummary(memoryDiag, Array.isArray(notes) ? notes.length : 0),
+      context,
       status: core.statusSummary(statusConfig, window.BAOSceneHTML?.prefs?.status || "native"),
       world: core.worldSummary(worldDefs),
       narrative: core.narrativeSummary(narrativeStatus),
@@ -60,6 +76,7 @@
     model() { window.BAOChatAPISettings?.open?.(); },
     persona() { window.BAOStoryActors?.open?.("player"); },
     memory() { window.BAOMemoryWorkbench?.open?.(); },
+    context() { window.BAOContextHealth?.open?.(); },
     status() { window.BAOCharacterStatusUI?.openSettings?.(); },
     world() { window.BAOWorldModuleManager?.open?.(); },
     narrative() { window.BAONarrativeSettings?.open?.(); },
@@ -102,6 +119,7 @@
           ${card("model", "AI 模型", data.model, "切換模型")}
           ${card("persona", "玩家身份", data.persona, "調整人物")}
           ${card("memory", "故事記憶", data.memory, "查看記憶")}
+          ${card("context", "上下文狀態", data.context, "查看前情")}
           ${card("status", "人物／世界狀態", data.status, "管理狀態")}
           ${card("world", "世界模組", data.world, "管理模組")}
           ${card("narrative", "敘事與描寫", data.narrative, "調整敘事")}

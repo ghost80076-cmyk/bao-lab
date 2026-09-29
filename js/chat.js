@@ -341,7 +341,7 @@ const Chat = {
     if (output) output.textContent = `${this.usage.completion.toLocaleString()} tok`;
     if (cacheTotal) cacheTotal.textContent = `${this.usage.cached.toLocaleString()} tok`;
     const prompt = Number(lastUsage.input_tokens ?? lastUsage.prompt_tokens ?? 0), limit = Number(App?.config?.memory?.maxContext || 0);
-    if (prompt && limit) { const percent = Math.min(999, (prompt / limit) * 100); const context = document.getElementById("usage-context"); if (context) context.textContent = `${prompt.toLocaleString()} tok · BAO 預算 ${limit.toLocaleString()} (${percent.toFixed(1)}%)`; }
+    if (prompt && limit) { const percent = Math.min(999, (prompt / limit) * 100); const context = document.getElementById("usage-context"); if (context) context.textContent = `${prompt.toLocaleString()} tok · 夜灣管理預算 ${limit.toLocaleString()} (${percent.toFixed(1)}%)`; }
   },
   renderGuard() {
     const el = document.getElementById("usage-guard"); if (!el) return;
