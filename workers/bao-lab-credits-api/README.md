@@ -260,3 +260,35 @@ The OpenRouter route can only be selected when the Worker `MODELS_JSON` already 
 Real pricing fields must also be present in production. The admin page deliberately marks an unconfigured route unavailable rather than bypassing the server-side allowlist.
 
 This control is separate from BYOK. A player using their own Google Gemini or OpenRouter API key continues to call their selected provider directly and is not affected by the YoruBay Hosted route override.
+
+## Admin character publication
+
+The existing `ADMIN_TOKEN` also protects the character publication endpoints:
+
+- `GET /admin/characters/publish-status`
+- `POST /admin/characters/publish-pr`
+
+Publication is intentionally **pull-request only**. The Worker creates a new branch and GitHub PR; it never writes directly to `main`.
+
+Community publication is stored for scale:
+
+- character JSON: `data/characters/community/<hash-bucket>/<id>.json`
+- cover: `assets/community/<hash-bucket>/<id>.<webp|png>`
+- browse catalog: bounded 48-item pages under `data/character-catalog/community/`
+- manifest: `data/character-catalog/community/manifest.json`
+
+The browser loads only the newest community catalog page initially; older pages are fetched only when the player requests more works. Full character JSON is still fetched only when the player opens that work.
+
+Required Worker secret:
+
+- `GITHUB_TOKEN` — use a fine-grained GitHub personal access token scoped only to `ghost80076-cmyk/bao-lab`, with **Contents: Read and write** and **Pull requests: Read and write**.
+
+Optional Worker variables:
+
+- `GITHUB_REPO` — defaults to `ghost80076-cmyk/bao-lab`.
+- `GITHUB_BASE_BRANCH` — defaults to `main`.
+
+Do not put `GITHUB_TOKEN` in the browser, Pages environment, localStorage, or the admin HTML. The browser sends only the parsed publication payload through the existing admin Worker connection.
+
+The endpoint requires explicit rights confirmation, rejects duplicate published IDs, strips `preserved_source`, redacts credential-like object fields, limits card/cover sizes, validates PNG/WebP signatures, and removes the temporary branch if PR creation fails. BAO-native `meta`, `content`, `gameplay`, and `presentation` extension fields are preserved so later platform features can evolve without republishing every card.
+
