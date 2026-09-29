@@ -70,7 +70,7 @@
     try {
       const endpointValue = byId('bao-lm-endpoint')?.value.trim() || byId('base-url')?.value.trim() || DEFAULT_URL;
       local.endpoint(endpointValue);
-      if (!byId('model-id')?.value.trim()) throw new Error('請先按「讀取本機模型」選擇 Model ID，或手動輸入模型 ID。');
+      if (!byId('model-id')?.value.trim()) throw new Error('請先按「讀取本機模型」選擇模型；如果模型清單讀取失敗，可展開「讀不到模型？手動輸入 Model ID」自行填寫。');
     } catch (error) { alert(error.message); this.setStep(4); return false; }
     return originalStart(...args);
   };
@@ -112,12 +112,18 @@
   };
 
   const fillModels = (select, models, modelField) => {
+    const manual = byId('bao-lm-model-manual');
     select.replaceChildren();
     select.add(new Option('請選擇已載入模型…', ''));
     models.forEach(id => select.add(new Option(id, id)));
     if (models.includes(modelField.value)) select.value = modelField.value;
     else if (models.length === 1) { select.value = models[0]; modelField.value = models[0]; }
-    select.onchange = () => { if (select.value) modelField.value = select.value; };
+    if (manual && modelField.value) manual.value = modelField.value;
+    select.onchange = () => {
+      if (!select.value) return;
+      modelField.value = select.value;
+      if (manual) manual.value = select.value;
+    };
   };
 
   const getModels = async ({ url, token, select, modelField, status, button }) => {
@@ -156,14 +162,21 @@
     if (!step) return;
     const box = document.createElement('section');
     box.id = 'bao-lm-builder'; box.className = 'hidden';
-    box.innerHTML = '<div class="bao-lm-heading"><strong>本地 AI · LM Studio</strong><a href="lm-studio-guide.html" target="_blank" rel="noopener">查看連接教學 ↗</a></div><p class="note">如果目前看到 LM Studio 的 Settings 視窗，先按右上角 × 關閉；回主畫面左側 Developer → Start Server，並開啟 Enable CORS。不是 Settings → Developer。模型在你的電腦運行，BAO/LAB 不會自動改用付費雲端 API。</p><label class="bao-lm-endpoint-label">本機 API 網址<input id="bao-lm-endpoint" value="http://127.0.0.1:1234/v1" autocomplete="off" spellcheck="false"><small class="note">通常不用改；只有 LM Studio 顯示不同連接埠時才需要調整。</small></label><details id="bao-lm-auth"><summary>本機 API Token（選填）</summary></details><div class="bao-lm-controls"><button type="button" class="secondary" id="bao-lm-discover">讀取本機模型</button><select id="bao-lm-models" aria-label="本機模型"><option value="">先按讀取本機模型…</option></select></div><p class="note" id="bao-lm-status" role="status" aria-live="polite"></p>';
+    box.innerHTML = '<div class="bao-lm-heading"><strong>本地 AI · LM Studio</strong><a href="lm-studio-guide.html" target="_blank" rel="noopener">查看連接教學 ↗</a></div><p class="note">如果目前看到 LM Studio 的 Settings 視窗，先按右上角 × 關閉；回主畫面左側 Developer → Start Server，並開啟 Enable CORS。不是 Settings → Developer。模型在你的電腦運行，BAO/LAB 不會自動改用付費雲端 API。</p><label class="bao-lm-endpoint-label">本機 API 網址<input id="bao-lm-endpoint" value="http://127.0.0.1:1234/v1" autocomplete="off" spellcheck="false"><small class="note">通常不用改；只有 LM Studio 顯示不同連接埠時才需要調整。</small></label><details id="bao-lm-auth"><summary>本機 API Token（選填）</summary></details><div class="bao-lm-controls"><button type="button" class="secondary" id="bao-lm-discover">讀取本機模型</button><select id="bao-lm-models" aria-label="本機模型"><option value="">先按讀取本機模型…</option></select></div><details id="bao-lm-manual"><summary>讀不到模型？手動輸入 Model ID</summary><label>Model ID<input id="bao-lm-model-manual" autocomplete="off" spellcheck="false" placeholder="例如：gemma-3-12b-it"></label></details><p class="note" id="bao-lm-status" role="status" aria-live="polite"></p>';
     byId('api-key')?.closest('label')?.after(box);
     const select = byId('bao-lm-models');
     const endpoint = byId('bao-lm-endpoint');
     const advancedUrl = byId('base-url');
+    const manualModel = byId('bao-lm-model-manual');
+    const modelField = byId('model-id');
     endpoint?.addEventListener('input', () => { if (advancedUrl) advancedUrl.value = endpoint.value.trim(); });
+    manualModel?.addEventListener('input', () => {
+      const value = manualModel.value.trim();
+      if (modelField) modelField.value = value;
+      if (select) select.value = [...select.options].some(option => option.value === value) ? value : '';
+    });
     byId('bao-lm-discover').onclick = () => getModels({ url: endpoint || advancedUrl, token: byId('api-key'), select,
-      modelField: byId('model-id'), status: byId('bao-lm-status'), button: byId('bao-lm-discover') });
+      modelField, status: byId('bao-lm-status'), button: byId('bao-lm-discover') });
     byId('api-type')?.addEventListener('change', updateBuilder);
     updateBuilder();
   };
