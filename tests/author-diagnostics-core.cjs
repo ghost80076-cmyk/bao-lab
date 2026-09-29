@@ -31,6 +31,11 @@ assert.ok(tool.inspect(malformed).issues.some(item => item.path === '$.gameplay.
 const foreign = tool.inspect({ spec: 'chara_card_v2', data: { name: 'other' } });
 assert.equal(foreign.importable, false);
 assert.ok(foreign.issues[0].fix.includes('尚未支援'));
+const storyBundle = tool.inspect({ schema: 'bao-lab-story-bundle', chapters: [] });
+assert.equal(storyBundle.importable, false);
+assert.match(storyBundle.issues[0].problem, /完整故事備份/);
+assert.match(storyBundle.issues[0].fix, /我的故事/);
+assert.match(storyBundle.issues[0].fix, /1 MB/);
 assert.throws(() => tool.parse('{\n "meta":,\n}'), /JSON 語法錯誤/);
 assert.doesNotMatch(tool.reportHTML({ importable: false, score: null, issues: [{ severity: 'error', path: '$.meta.name', problem: '<img src=x onerror=alert(1)>', fix: '修正' }] }, '<script>alert(1)</script>'), /<script>|<img/);
 assert.equal(tool.validEndpoint('http://example.com/v1/chat/completions'), null);
