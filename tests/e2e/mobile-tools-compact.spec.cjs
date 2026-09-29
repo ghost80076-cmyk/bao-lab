@@ -47,7 +47,7 @@ for (const width of [375, 390]) {
     await expect(page.locator('#bao-chat-tool-drawer')).toBeVisible();
     await expect(page.locator('#bao-chat-tool-drawer')).toContainText('API／切換模型');
 
-    await page.locator('#bao-chat-tool-drawer header button').click();
+    await page.locator('#bao-chat-tool-drawer header').getByRole('button', { name: '關閉 ×', exact: true }).click();
     await expect(page.locator('#bao-chat-tool-drawer')).toHaveCount(0);
 
     const memory = page.locator('#bao-mobile-memory');
