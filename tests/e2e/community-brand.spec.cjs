@@ -20,7 +20,10 @@ test.describe('YoruBay official identity and concise community entry', () => {
     await expect(page.locator('#bao-contact-nav')).toHaveCount(0);
     await expect(page.locator('#home-view .brand-contact')).toHaveCount(0);
     await expect(page.locator('#home-view .brand-feature-grid')).toHaveCount(0);
-    await expect(page.locator('.topbar .brand')).toContainText('夜灣 YoruBay');
+    await expect(page.locator('.topbar .brand .brand-wordmark strong')).toHaveText('夜灣');
+    await expect(page.locator('.topbar .brand .brand-wordmark small')).toHaveText('YoruBay');
+    await expect(page.locator('#bao-home-portrait')).toContainText('認識包包');
+    await expect(page.locator('.brand-home-count')).toContainText('個故事正在等你。');
     await expect(page.locator('#home-view .brand-signature')).toHaveCount(0);
     await expect(page.locator('#home-view .brand-hero-copy > .brand-kicker')).toHaveCount(0);
     await expect(page.locator('#home-view .brand-intro')).toHaveText('替你留了一盞燈。');
