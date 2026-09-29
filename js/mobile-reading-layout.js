@@ -16,7 +16,7 @@
   const supportUrl = () => document.querySelector('#chat-view .chat-layout > aside a[href*="ko-fi.com"]')?.href
     || document.querySelector('.topbar a[href*="ko-fi.com"]')?.href
     || 'https://ko-fi.com/roger2486';
-  const mobileControlIds = ['bao-mobile-exit', 'bao-mobile-status', 'bao-mobile-memory', 'bao-mobile-support', 'bao-mobile-tools-tab', 'bao-mobile-panel-close'];
+  const mobileControlIds = ['bao-mobile-exit', 'bao-mobile-status', 'bao-mobile-memory', 'bao-mobile-support', 'bao-mobile-tools-tab', 'bao-mobile-panel-close', 'bao-mobile-composer-tools', 'bao-mobile-composer-inspire'];
   const clearMobileChrome = () => {
     mobileControlIds.forEach(id => document.getElementById(id)?.remove());
     const panel = drawer();
@@ -253,11 +253,15 @@
     const quick = document.createElement('nav');
     quick.className = 'bao-mobile-quick';
     quick.setAttribute('aria-label', '手機常用功能');
-    makeAction(quick, '◈ 世界狀態', openStatus);
-    makeAction(quick, '⚙ 狀態欄管理', () => {
-      if (window.BAOCharacterStatusUI?.openSettings) BAOCharacterStatusUI.openSettings();
-      else clickOriginal('[data-open-status-manager]');
+    makeAction(quick, '☷ 故事控制台', () => {
+      if (window.BAOStoryControlCenter?.open) BAOStoryControlCenter.open();
+      else window.alert('故事控制台仍在載入，請稍後再試。');
     });
+    makeAction(quick, '◔ 上下文狀態', () => {
+      if (window.BAOContextHealth?.open) BAOContextHealth.open();
+      else window.alert('上下文狀態仍在載入，請稍後再試。');
+    });
+    makeAction(quick, '◈ 世界狀態', openStatus);
     makeAction(quick, '人物／事件', togglePanels, { 'data-bao-mobile-panel-toggle': '', 'aria-expanded': String(main.classList.contains('bao-mobile-panel-open')) });
     makeAction(quick, '🧠 記憶', openMemory);
     makeAction(quick, 'API／切換模型', () => {
@@ -265,10 +269,6 @@
       else clickOriginal('#bao-chat-api-aside');
     });
     makeAction(quick, '快速儲存', () => App.saveStory?.(true));
-    makeAction(quick, '記憶／Token／成本', () => {
-      if (window.BAOChatExperienceRepairs?.openSettings) BAOChatExperienceRepairs.openSettings();
-      else document.getElementById('bao-chat-cost-open')?.click();
-    });
     makeAction(quick, '✦ 聊天外觀', () => clickOriginal('[data-bao-open="appearance"]'), { 'data-bao-open': 'appearance' });
     makeAction(quick, '↑ 置頂', toTop);
     const support = document.createElement('a');
@@ -285,6 +285,53 @@
     connection.textContent = apiStatus?.textContent?.trim() || (App.config?.demoMode ? '本機預覽' : '可從這裡設定 API 與模型');
     quick.append(connection);
     body.prepend(quick);
+  };
+
+  const ensureComposerTools = () => {
+    const composer = main.querySelector('.composer');
+    const input = document.getElementById('user-input');
+    const send = composer?.querySelector('[data-send-message],button.primary');
+    if (!composer || !input || !send) return;
+
+    let tools = composer.querySelector('#bao-mobile-composer-tools');
+    if (!tools) {
+      tools = document.createElement('button');
+      tools.type = 'button';
+      tools.id = 'bao-mobile-composer-tools';
+      tools.className = 'bao-mobile-composer-action';
+      tools.textContent = '＋';
+      tools.setAttribute('aria-label', '開啟故事工具');
+      tools.title = '故事工具';
+      tools.addEventListener('click', openTools);
+      composer.insertBefore(tools, input);
+    }
+
+    let inspire = composer.querySelector('#bao-mobile-composer-inspire');
+    if (!inspire) {
+      inspire = document.createElement('button');
+      inspire.type = 'button';
+      inspire.id = 'bao-mobile-composer-inspire';
+      inspire.className = 'bao-mobile-composer-action bao-mobile-composer-inspire';
+      inspire.textContent = '✦';
+      inspire.setAttribute('aria-label', 'AI 行動靈感');
+      inspire.addEventListener('click', async () => {
+        if (App.__requestPending) {
+          window.BAOFeedback?.notify?.('目前正在生成回覆，完成後再取得行動靈感。', 'error');
+          return;
+        }
+        if (!window.BAOStoryReader?.inspireLatest) {
+          window.BAOFeedback?.notify?.('行動靈感仍在載入，請稍後再試。', 'error');
+          return;
+        }
+        await window.BAOStoryReader.inspireLatest(inspire);
+      });
+      send.before(inspire);
+    }
+    const available = window.BAOStoryReader?.aiToolsAvailable?.() ?? true;
+    inspire.disabled = !available;
+    inspire.title = available
+      ? '依目前故事提供 4 個下一步靈感，不會自動送出'
+      : (window.BAOStoryReader?.aiToolsUnavailableMessage?.() || '連接 AI 後即可使用');
   };
 
   const ensureTab = () => {
@@ -314,6 +361,7 @@
     ensureSupport();
     ensureTab();
     ensurePanelClose();
+    ensureComposerTools();
     measure();
     enhanceDrawer();
     const panelOpen = main.classList.contains('bao-mobile-panel-open');
@@ -361,10 +409,10 @@
     focusScrollTop = null;
     schedule();
   });
-  window.BAOMobileReadingLayout = { version: 9, sync, openTools, enhanceDrawer, togglePanels, openMemory, closePanels };
+  window.BAOMobileReadingLayout = { version: 10, sync, openTools, enhanceDrawer, togglePanels, openMemory, closePanels, ensureComposerTools };
   const style = document.createElement('link');
   style.rel = 'stylesheet';
-  style.href = 'css/mobile-reading-layout.css?v=9';
+  style.href = 'css/mobile-reading-layout.css?v=10';
   document.head.append(style);
   sync();
 })();
