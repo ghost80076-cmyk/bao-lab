@@ -29,11 +29,11 @@
   };
   const gameplayTheme = () => gameplayCore?.normalizeTheme?.({
     preset: text('gameplay_theme') || 'default',
-    accent: text('gameplay_accent') || '#d6a94f',
+    accent: text('gameplay_accent'),
     density: text('gameplay_density') || 'comfortable',
     radius: text('gameplay_radius') || 'round',
     meter: text('gameplay_meter') || 'soft'
-  }) || { preset: 'default', density: 'comfortable', radius: 'round', meter: 'soft', accent: '#d6a94f' };
+  }) || { preset: 'default', density: 'comfortable', radius: 'round', meter: 'soft' };
   const syncGameplayThemeControls = enabled => {
     form.querySelectorAll('[data-gameplay-theme-control]').forEach(control => { control.disabled = !enabled; });
     const note = $('studio-gameplay-theme-status');
@@ -107,7 +107,7 @@
     field('profile').value = typeof c.profile === 'object' ? (c.profile['人物設定'] || engine.profilePrompt(c.profile)) : String(c.profile || '');
     const theme = gameplayCore?.normalizeTheme?.(c.gameplay_ui?.theme) || { preset: 'default', density: 'comfortable', radius: 'round', meter: 'soft' };
     field('gameplay_theme').value = theme.preset || 'default';
-    field('gameplay_accent').value = theme.accent || '#d6a94f';
+    field('gameplay_accent').value = theme.accent || '';
     field('gameplay_density').value = theme.density || 'comfortable';
     field('gameplay_radius').value = theme.radius || 'round';
     field('gameplay_meter').value = theme.meter || 'soft';
