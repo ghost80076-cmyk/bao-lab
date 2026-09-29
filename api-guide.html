@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#100e14">
-  <meta name="description" content="從零開始連接 AI：使用自己的 API Key，或用 LM Studio 在本機執行模型，並在 BAO/LAB 開始故事。">
-  <title>AI 連線教學｜API Key 與 LM Studio 本地 AI｜BAO/LAB</title>
+  <meta name="description" content="從零開始連接 AI：使用自己的 API Key，或用 LM Studio 在本機執行模型，並在夜灣開始故事。">
+  <title>AI 連線教學｜API Key 與 LM Studio 本地 AI｜夜灣 YoruBay</title>
   <link rel="icon" href="assets/bao-mark.svg" type="image/svg+xml">
   <style>
     :root{color-scheme:dark;font-family:system-ui,-apple-system,'Noto Sans TC',sans-serif;background:#101118;color:#f4f1eb}*{box-sizing:border-box}body{margin:0;line-height:1.8}a{color:#f6ca87}header,main,footer{max-width:880px;margin:auto;padding:22px}header{display:flex;justify-content:space-between;align-items:center;gap:16px}header a{text-decoration:none}h1{font-size:clamp(1.8rem,5vw,3rem);line-height:1.25}h2{margin-top:0}.lead{color:#c9c7c2}.panel{background:#1c1e27;border:1px solid #373943;border-radius:18px;padding:24px;margin:22px 0}.steps{padding-left:1.4rem}.steps li{padding:6px 0}.button{display:inline-block;padding:10px 17px;border-radius:10px;background:#f6ca87;color:#171717;text-decoration:none;font-weight:700;margin:8px 8px 8px 0}.secondary{background:#30333f;color:#fff}.notice{border-left:4px solid #f6ca87;padding:12px 18px;background:#29261f}.terms{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:18px 0}.term{padding:12px;border-radius:12px;background:#151720;border:1px solid #3b3e4a}.term b{display:block;color:#fff}small,footer{color:#bdbdc4}code{overflow-wrap:anywhere}details{margin-top:16px}summary{cursor:pointer;font-weight:700}a:focus-visible{outline:3px solid #f6ca87;outline-offset:3px}@media(max-width:600px){header,main,footer{padding:16px}.panel{padding:18px}.terms{grid-template-columns:1fr}}
@@ -13,11 +13,11 @@
   <link rel="stylesheet" href="css/bao-brand-v2.css">
 </head>
 <body class="bao-brand-document">
-  <header><a href="./">← BAO/LAB 首頁</a><span>AI 連線教學</span></header>
+  <header><a href="./">← 夜灣 YoruBay 首頁</a><span>AI 連線教學</span></header>
   <main>
     <p class="lead">第一次用自己的 AI？照這頁做就能開始。</p>
     <h1>接上你的 AI，開始第一段故事。</h1>
-    <p>BAO/LAB 可以使用自備連線金鑰（BYOK，Bring Your Own Key），也可以連接同一台電腦上的 LM Studio 本地 AI。雲端 API 的費用與用量依你選擇的 AI 服務商而定；LM Studio 本地模式預設不需要雲端 API Key。</p>
+    <p>夜灣 YoruBay 可以使用自備連線金鑰（BYOK，Bring Your Own Key），也可以連接同一台電腦上的 LM Studio 本地 AI。雲端 API 的費用與用量依你選擇的 AI 服務商而定；LM Studio 本地模式預設不需要雲端 API Key。</p>
     <div class="terms" aria-label="名詞對照">
       <div class="term"><b>連線金鑰（API Key）</b><span>使用 AI 服務的私人鑰匙；不要公開。</span></div>
       <div class="term"><b>AI 服務商（Provider）</b><span>提供模型與計費的服務，例如 OpenRouter 或 Google。</span></div>
@@ -29,7 +29,7 @@
     <section class="panel">
       <h2>路線 A：OpenRouter</h2>
       <p>適合想用一組連線金鑰，嘗試多個 AI 模型的玩家。模型、價格與可用性會變動，請以官方頁面為準。</p>
-      <ol class="steps"><li>開啟 OpenRouter 並註冊或登入。</li><li>進入 API Keys，建立一組新的連線金鑰。</li><li>複製金鑰，回到 BAO/LAB 的「連接 AI」。</li><li>選擇 OpenRouter，確認 AI 模型，貼上金鑰後開始故事。</li></ol>
+      <ol class="steps"><li>開啟 OpenRouter 並註冊或登入。</li><li>進入 API Keys，建立一組新的連線金鑰。</li><li>複製金鑰，回到夜灣 的「連接 AI」。</li><li>選擇 OpenRouter，確認 AI 模型，貼上金鑰後開始故事。</li></ol>
       <a class="button" href="https://openrouter.ai/keys" target="_blank" rel="noopener noreferrer">前往 OpenRouter API Keys ↗</a>
       <a class="button secondary" href="https://openrouter.ai/models" target="_blank" rel="noopener noreferrer">查看模型與價格 ↗</a>
     </section>
@@ -37,7 +37,7 @@
     <section class="panel">
       <h2>路線 B：Google Gemini</h2>
       <p>適合想直接使用 Gemini 的玩家。免費層、可用模型與額度依官方規則及所在地區而定。</p>
-      <ol class="steps"><li>開啟 Google AI Studio，登入 Google 帳號。</li><li>在 API Keys 依畫面指示建立連線金鑰；如需建立專案或設定計費，先閱讀官方說明。</li><li>回到 BAO/LAB 的「連接 AI」，選擇 Gemini 與想使用的模型。</li><li>貼上金鑰，確認設定後開始故事。</li></ol>
+      <ol class="steps"><li>開啟 Google AI Studio，登入 Google 帳號。</li><li>在 API Keys 依畫面指示建立連線金鑰；如需建立專案或設定計費，先閱讀官方說明。</li><li>回到夜灣 的「連接 AI」，選擇 Gemini 與想使用的模型。</li><li>貼上金鑰，確認設定後開始故事。</li></ol>
       <a class="button" href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer">前往 Google AI Studio ↗</a>
       <a class="button secondary" href="https://ai.google.dev/gemini-api/docs/pricing" target="_blank" rel="noopener noreferrer">查看官方價格與免費層 ↗</a>
     </section>
@@ -45,15 +45,15 @@
     <section class="panel">
       <h2>路線 C：LM Studio 本地 AI</h2>
       <p>適合想讓模型在自己的電腦上運行、不走雲端 API 的玩家。預設不需要雲端 API Key。</p>
-      <ol class="steps"><li>在 LM Studio 下載並載入模型。</li><li>如果畫面中央開著 Settings 設定視窗，先按右上角 × 關閉；<strong>不要在 Settings → Developer 裡找 API Server</strong>。</li><li>回到 LM Studio 主畫面，點左側主導覽的 <strong>Developer</strong> 頁面，切換 <strong>Start Server</strong>。</li><li>到 Server Settings 開啟 <strong>Enable CORS</strong>。</li><li>回 BAO/LAB 選擇「LM Studio（本地 AI）」，確認卡片上的本機 API 網址（預設 <code>http://127.0.0.1:1234/v1</code>），再按「讀取本機模型」。</li></ol>
+      <ol class="steps"><li>在 LM Studio 下載並載入模型。</li><li>如果畫面中央開著 Settings 設定視窗，先按右上角 × 關閉；<strong>不要在 Settings → Developer 裡找 API Server</strong>。</li><li>回到 LM Studio 主畫面，點左側主導覽的 <strong>Developer</strong> 頁面，切換 <strong>Start Server</strong>。</li><li>到 Server Settings 開啟 <strong>Enable CORS</strong>。</li><li>回 夜灣 YoruBay 選擇「LM Studio（本地 AI）」，確認卡片上的本機 API 網址（預設 <code>http://127.0.0.1:1234/v1</code>），再按「讀取本機模型」。</li></ol>
       <a class="button" href="lm-studio-guide.html">查看 LM Studio 完整教學 →</a>
       <a class="button secondary" href="https://lmstudio.ai/docs/developer/core/server" target="_blank" rel="noopener noreferrer">LM Studio 官方 Server 文件 ↗</a>
     </section>
 
     <section class="panel">
-      <h2>回到 BAO/LAB，怎麼設定？</h2>
+      <h2>回到夜灣，怎麼設定？</h2>
       <ol class="steps"><li>回到首頁，選角色並建立故事。</li><li>快速開始時，只要處理「連接 AI」；完整設定則在第 4 步。</li><li>雲端 AI：選擇服務商（Provider）與模型（Model），貼上相符的連線金鑰（API Key）。</li><li>LM Studio：選「LM Studio（本地 AI）」後讀取本機模型；預設不需雲端 API Key。</li><li>有完整預設的雲端服務不需手動填模型代號（Model ID）或連線網址（Base URL）。只有自訂連線才需要這兩欄。</li></ol>
-      <a class="button" href="./">返回 BAO/LAB ↗</a>
+      <a class="button" href="./">返回夜灣 ↗</a>
     </section>
 
     <section class="panel">
@@ -62,6 +62,6 @@
       <details><summary>遇到錯誤怎麼辦？</summary><p><strong>401／金鑰無效：</strong>檢查 AI 服務商是否選對、金鑰是否貼完整，必要時重新建立。<br><strong>429／額度不足：</strong>檢查免費額度、速率限制與帳戶餘額，稍後再試或換模型。<br><strong>找不到模型：</strong>核對模型代號（Model ID）與所選服務商。<br><strong>網路或瀏覽器錯誤：</strong>檢查服務商是否允許瀏覽器直連與目前瀏覽器相容性。</p></details>
     </section>
   </main>
-  <footer>BAO/LAB · 你的 AI，你的選擇，你的帳單。官方服務的價格、政策與額度可能變動，請以其網站為準。</footer>
+  <footer>夜灣 YoruBay · 你的模型，你的故事。官方服務的價格、政策與額度可能變動，請以其網站為準。</footer>
 </body>
 </html>

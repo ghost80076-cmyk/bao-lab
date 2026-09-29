@@ -10,14 +10,14 @@
     const add = (severity, path, problem, fix) => issues.push({ severity, path, problem, fix });
     const has = (parent, name) => object(parent) && Object.prototype.hasOwnProperty.call(parent, name);
     if (!object(raw)) {
-      add('error', '$', '角色卡必須是單一 JSON 物件。', '請使用 BAO/LAB 基礎或進階模板；不可直接匯入故事備份或 JSON 陣列。');
+      add('error', '$', '角色卡必須是單一 JSON 物件。', '請使用 夜灣基礎或進階模板；不可直接匯入故事備份或 JSON 陣列。');
       return { importable: false, issues, score: null };
     }
     if (/^chara_card_v[23]$/.test(String(raw.spec || '')) || object(raw.data) && text(raw.data.name)) {
-      add('error', '$.spec', '這是其他平台的角色卡格式。', 'BAO/LAB 尚未支援酒館角色卡自動轉換；請先轉成 BAO/LAB JSON，避免設定遺失。');
+      add('error', '$.spec', '這是其他平台的角色卡格式。', '夜灣尚未支援酒館角色卡自動轉換；請先轉成夜灣 JSON，避免設定遺失。');
       return { importable: false, issues, score: null };
     }
-    if (raw.schema_version && !/^1(?:\.|$)/.test(String(raw.schema_version))) add('error', '$.schema_version', '不支援這個角色卡版本。', '請使用 BAO/LAB 1.x 模板，不要直接更改版本字串來假裝相容。');
+    if (raw.schema_version && !/^1(?:\.|$)/.test(String(raw.schema_version))) add('error', '$.schema_version', '不支援這個角色卡版本。', '請使用 夜灣 1.x 模板，不要直接更改版本字串來假裝相容。');
     for (const field of ['meta', 'content', 'gameplay', 'presentation']) {
       if (has(raw, field) && !object(raw[field])) add('error', '$.' + field, '資料型態必須是 JSON 物件。', '將此欄改為以 { 開頭、以 } 結尾的物件；不要使用陣列或文字。');
     }
@@ -101,7 +101,7 @@
     const errors = report.issues.filter(item => item.severity === 'error');
     const notices = report.issues.filter(item => item.severity !== 'error');
     const rows = items => items.length ? `<ul style="padding-left:20px">${items.map(item => `<li style="margin:10px 0"><code style="overflow-wrap:anywhere">${esc(item.path)}</code><br><b>${esc(item.problem)}</b><br><span>${esc(item.fix)}</span></li>`).join('')}</ul>` : '<p class="note">無。</p>';
-    return `<div class="eyebrow">BAO/LAB CHARACTER STRUCTURE</div><h2 style="margin:4px 0">${esc(name)}</h2><p><b>${report.importable ? '✓ 結構可匯入' : '✕ 尚不可匯入'}</b> · ${errors.length} 項必修 · ${notices.length} 項提醒</p><p class="note">這只檢查 JSON 結構，不會呼叫 AI，也無法保證角色扮演品質。${report.score === null ? '' : `原有覆蓋度參考：${report.score}/100；不代表模型演出分數。`}</p><h3>必須修正</h3>${rows(errors)}<h3>可選改善</h3>${rows(notices)}<p class="note">模板：<a href="data/characters/character-basic-template.json" download="bao-character-basic-template.json">基礎角色</a> · <a href="data/characters/character-template.json" download="bao-character-advanced-template.json">進階世界</a></p>`;
+    return `<div class="eyebrow">YORUBAY CHARACTER STRUCTURE</div><h2 style="margin:4px 0">${esc(name)}</h2><p><b>${report.importable ? '✓ 結構可匯入' : '✕ 尚不可匯入'}</b> · ${errors.length} 項必修 · ${notices.length} 項提醒</p><p class="note">這只檢查 JSON 結構，不會呼叫 AI，也無法保證角色扮演品質。${report.score === null ? '' : `原有覆蓋度參考：${report.score}/100；不代表模型演出分數。`}</p><h3>必須修正</h3>${rows(errors)}<h3>可選改善</h3>${rows(notices)}<p class="note">模板：<a href="data/characters/character-basic-template.json" download="bao-character-basic-template.json">基礎角色</a> · <a href="data/characters/character-template.json" download="bao-character-advanced-template.json">進階世界</a></p>`;
   }
   function show(report, name) {
     document.getElementById('bao-character-audit-modal')?.remove();
@@ -129,7 +129,7 @@
         if (file.size > MAX_SIZE) throw new Error('檔案超過 1 MB；請先縮小角色卡。');
         show(inspect(parse(await file.text())), file.name);
       } catch (error) {
-        show({ importable: false, score: null, issues: [{ severity: 'error', path: '$', problem: error.message || '無法讀取 JSON。', fix: '確認檔案是 UTF-8 編碼的 BAO/LAB JSON。' }] }, file.name);
+        show({ importable: false, score: null, issues: [{ severity: 'error', path: '$', problem: error.message || '無法讀取 JSON。', fix: '確認檔案是 UTF-8 編碼的夜灣 JSON。' }] }, file.name);
       } finally { input.value = ''; }
     };
     return true;

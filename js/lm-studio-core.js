@@ -27,7 +27,7 @@
       canceled.code = 'BAO_ABORTED';
       return canceled;
     }
-    return new Error('無法連接 LM Studio。請確認：本機已啟動 Server、已開啟 Enable CORS，並允許瀏覽器的本機網路存取權限。請在運行模型的同一台電腦開啟 BAO/LAB。');
+    return new Error('無法連接 LM Studio。請確認：本機已啟動 Server、已開啟 Enable CORS，並允許瀏覽器的本機網路存取權限。請在運行模型的同一台電腦開啟夜灣。');
   };
   const send = async (config, messages, api, fetchImpl = fetch) => {
     if (!String(config?.model || '').trim()) throw new Error('請先選擇 LM Studio 已載入的 Model ID。');

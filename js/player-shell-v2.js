@@ -111,12 +111,12 @@
           </section>
 
           <section class="bao-player-panel">
-            <span class="bao-player-card-label">BAO/LAB</span>
+            <span class="bao-player-card-label">夜灣 YoruBay</span>
             <h2>作品與說明</h2>
-            <p>回到作品區找新的故事，或查看 BAO/LAB 的使用方式與理念。</p>
+            <p>回到作品區找新的故事，或查看夜灣的使用方式與理念。</p>
             <div class="bao-player-actions">
               <button class="secondary" type="button" data-bao-player-action="explore">探索作品</button>
-              <button class="secondary" type="button" data-bao-player-action="about">關於 BAO/LAB</button>
+              <button class="secondary" type="button" data-bao-player-action="about">關於夜灣</button>
               <a class="secondary" href="https://ko-fi.com/roger2486" target="_blank" rel="noopener">投餵肉包</a>
             </div>
           </section>

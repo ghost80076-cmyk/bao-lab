@@ -42,7 +42,7 @@
     const d = raw.data, name = text(d.name), description = text(d.description), personality = text(d.personality), scenario = text(d.scenario);
     const greeting = text(d.first_mes) || text(d.alternate_greetings?.[0]);
     if (!name) throw new Error("SillyTavern V2 角色卡缺少 data.name。");
-    if (!greeting) throw new Error("SillyTavern V2 角色卡缺少 first_mes／alternate_greetings，無法建立 BAO/LAB 開場。");
+    if (!greeting) throw new Error("SillyTavern V2 角色卡缺少 first_mes／alternate_greetings，無法建立夜灣開場。");
     const core = [description && `【角色描述】\n${description}`, personality && `【性格】\n${personality}`, scenario && `【情境／世界前提】\n${scenario}`, text(d.post_history_instructions) && `【後續回覆指示】\n${text(d.post_history_instructions)}`].filter(Boolean).join("\n\n");
     if (!core) throw new Error("SillyTavern V2 角色卡缺少 description、personality、scenario 等可轉換設定。");
     const book = worldBook(d.character_book), tags = Array.isArray(d.tags) ? d.tags.map(text).filter(Boolean).slice(0,24) : [], lowerTags = tags.map(x => x.toLowerCase());
@@ -50,8 +50,8 @@
     const redacted = [], known = new Set(["name","description","personality","scenario","first_mes","alternate_greetings","mes_example","creator_notes","system_prompt","post_history_instructions","character_book","tags","extensions","creator","character_version","talkativeness","fav","avatar"]);
     const unknown = Object.keys(d).filter(key => !known.has(key));
     const unavailable = [];
-    if (d.extensions?.regex_scripts || d.extensions?.regex) unavailable.push("酒館正則／Regex（已保留來源資料，BAO/LAB 不會執行）");
-    if (d.system_prompt) unavailable.push("酒館 system_prompt（已保留來源資料；角色設定已轉為 BAO/LAB 核心）");
+    if (d.extensions?.regex_scripts || d.extensions?.regex) unavailable.push("酒館正則／Regex（已保留來源資料，夜灣不會執行）");
+    if (d.system_prompt) unavailable.push("酒館 system_prompt（已保留來源資料；角色設定已轉為夜灣核心）");
     unavailable.push("PNG 圖片本身（只讀取 chara metadata，不會自動複製圖片）");
     const card = {
       schema_version: "1.5",
@@ -130,7 +130,7 @@
   function inspect(raw) {
     if (!object(raw)) throw new Error("角色檔案必須是單一 JSON 物件，不是陣列或故事備份。");
     if (raw.spec === "chara_card_v2" || raw.spec === "chara_card_v3") throw new Error("請使用 prepareFile 處理 SillyTavern 角色卡。");
-    if (raw.schema_version && !/^1(?:\.|$)/.test(String(raw.schema_version))) throw new Error("不支援這份角色卡的 schema_version；請使用 BAO/LAB 1.x 模板。");
+    if (raw.schema_version && !/^1(?:\.|$)/.test(String(raw.schema_version))) throw new Error("不支援這份角色卡的 schema_version；請使用夜灣 1.x 模板。");
     if (raw.meta !== undefined && !object(raw.meta)) throw new Error("meta 必須是 JSON 物件。");
     if (raw.content !== undefined && !object(raw.content)) throw new Error("content 必須是 JSON 物件。");
     const meta=raw.meta||{}, content=raw.content||{}, id=text(meta.id||raw.id), name=text(meta.name||raw.name), greeting=text(content.greeting||raw.greeting), prompt=text(content.system_prompt||raw.system_prompt);
@@ -171,7 +171,7 @@
       document.getElementById("bao-character-import-preview")?.remove();
       const c=draft.character, r=draft.report, list=values=>values?.length?`<ul>${values.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:"<p>無</p>";
       const wrap=document.createElement("div"); wrap.id="bao-character-import-preview"; wrap.style.cssText="position:fixed;inset:0;z-index:10060;display:grid;place-items:center;padding:16px;background:#000b";
-      wrap.innerHTML=`<section role="dialog" aria-modal="true" aria-label="角色卡轉換預覽" style="box-sizing:border-box;width:min(760px,100%);max-height:88dvh;overflow:auto;padding:24px;border:1px solid #62677a;border-radius:18px;background:#20232d;color:#f4f4fa"><header style="display:flex;justify-content:space-between;gap:12px;align-items:start"><div><small>LOCAL-ONLY IMPORT PREVIEW</small><h2 style="margin:5px 0">SillyTavern V2 轉換預覽</h2></div><button type="button" class="text-button" data-close>關閉</button></header><p>來源：${esc(draft.origin)}。不會呼叫 AI、不會執行卡內 HTML／JavaScript，也還沒寫入本機角色庫。</p><label>角色名稱<input data-name value="${esc(c.meta.name)}" maxlength="100" style="width:100%;box-sizing:border-box;padding:9px"></label><label>BAO/LAB 分區<select data-category style="width:100%;box-sizing:border-box;padding:9px"><option value="male" ${c.meta.category==="male"?"selected":""}>男性向</option><option value="female" ${c.meta.category==="female"?"selected":""}>女性向</option><option value="r18" ${c.meta.category==="r18"?"selected":""}>R18</option></select></label><details open><summary>開場白</summary><pre style="white-space:pre-wrap">${esc(c.content.greeting)}</pre></details><details><summary>角色核心（${c.content.system_prompt.length} 字）</summary><pre style="white-space:pre-wrap">${esc(c.content.system_prompt)}</pre></details>${c.content.lore?`<details><summary>世界書（${c.content.lore.length} 字）</summary><pre style="white-space:pre-wrap">${esc(c.content.lore)}</pre></details>`:""}<details><summary>已轉換</summary>${list(r.mapped)}</details><details><summary>已保留（只存本機）</summary>${list(r.preserved)}</details><details><summary>未直接套用</summary>${list(r.unavailable)}</details><footer style="display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap;margin-top:16px"><button type="button" class="secondary" data-cancel>取消</button><button type="button" class="primary" data-confirm>確認匯入到本機</button></footer></section>`;
+      wrap.innerHTML=`<section role="dialog" aria-modal="true" aria-label="角色卡轉換預覽" style="box-sizing:border-box;width:min(760px,100%);max-height:88dvh;overflow:auto;padding:24px;border:1px solid #62677a;border-radius:18px;background:#20232d;color:#f4f4fa"><header style="display:flex;justify-content:space-between;gap:12px;align-items:start"><div><small>LOCAL-ONLY IMPORT PREVIEW</small><h2 style="margin:5px 0">SillyTavern V2 轉換預覽</h2></div><button type="button" class="text-button" data-close>關閉</button></header><p>來源：${esc(draft.origin)}。不會呼叫 AI、不會執行卡內 HTML／JavaScript，也還沒寫入本機角色庫。</p><label>角色名稱<input data-name value="${esc(c.meta.name)}" maxlength="100" style="width:100%;box-sizing:border-box;padding:9px"></label><label>夜灣分區<select data-category style="width:100%;box-sizing:border-box;padding:9px"><option value="male" ${c.meta.category==="male"?"selected":""}>男性向</option><option value="female" ${c.meta.category==="female"?"selected":""}>女性向</option><option value="r18" ${c.meta.category==="r18"?"selected":""}>R18</option></select></label><details open><summary>開場白</summary><pre style="white-space:pre-wrap">${esc(c.content.greeting)}</pre></details><details><summary>角色核心（${c.content.system_prompt.length} 字）</summary><pre style="white-space:pre-wrap">${esc(c.content.system_prompt)}</pre></details>${c.content.lore?`<details><summary>世界書（${c.content.lore.length} 字）</summary><pre style="white-space:pre-wrap">${esc(c.content.lore)}</pre></details>`:""}<details><summary>已轉換</summary>${list(r.mapped)}</details><details><summary>已保留（只存本機）</summary>${list(r.preserved)}</details><details><summary>未直接套用</summary>${list(r.unavailable)}</details><footer style="display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap;margin-top:16px"><button type="button" class="secondary" data-cancel>取消</button><button type="button" class="primary" data-confirm>確認匯入到本機</button></footer></section>`;
       const close=()=>{wrap.remove();reject(new Error("已取消角色卡轉換，沒有寫入資料。"));};
       wrap.querySelectorAll("[data-close],[data-cancel]").forEach(x=>x.addEventListener("click",close)); wrap.addEventListener("click",e=>{if(e.target===wrap)close();});
       wrap.querySelector("[data-confirm]").addEventListener("click",async()=>{const name=text(wrap.querySelector("[data-name]").value);if(!name)return;c.meta.name=c.meta.title=name;c.meta.category=wrap.querySelector("[data-category]").value;try{const saved=await saveCharacter(c,draft.cover);wrap.remove();resolve(saved);}catch(error){reject(error);}});
@@ -185,7 +185,7 @@
     const tools=document.querySelector(".character-tools"); if(!tools||tools.dataset.importUpgrade==="1")return false;
     const advanced=tools.querySelector('a[href="data/characters/character-template.json"]');if(!advanced)return false;advanced.textContent="下載進階世界模板";
     const basic=document.createElement("a");basic.className="secondary";basic.href="data/characters/character-basic-template.json";basic.download="bao-character-basic-template.json";basic.textContent="下載基礎角色模板";advanced.before(basic);
-    const note=document.createElement("p");note.className="note";note.style.width="100%";note.textContent="可匯入 BAO/LAB JSON，以及 SillyTavern V2 JSON／原始 PNG 角色卡；PNG 圖片會作為本機角色封面，酒館卡會先顯示轉換預覽。所有資料只保存在這台瀏覽器。";tools.append(note);tools.dataset.importUpgrade="1";return true;
+    const note=document.createElement("p");note.className="note";note.style.width="100%";note.textContent="可匯入夜灣 JSON（相容舊 BAO/LAB JSON），以及 SillyTavern V2 JSON／原始 PNG 角色卡；PNG 圖片會作為本機角色封面，酒館卡會先顯示轉換預覽。所有資料只保存在這台瀏覽器。";tools.append(note);tools.dataset.importUpgrade="1";return true;
   }
   if(typeof document!=="undefined"){let attempts=0;const timer=setInterval(()=>{if(enhanceTools()||++attempts>=60)clearInterval(timer);},100);}
   window.BAOCharacterImport={inspect,parseFile,prepareFile,convertSillyTavern,importFile,requestImport,pngPayload,pngCover,decodePayload};

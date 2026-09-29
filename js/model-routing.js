@@ -155,7 +155,7 @@
     const box = document.createElement("div");
     box.id = "helper-routing-box";
     box.className = "cost-control-box";
-    box.innerHTML = `<h3>同模型就合併狀態，不同模型再分工</h3><p class="note">故事與狀態都沿用同一個 DeepSeek／Gemini／GLM 時，BAO/LAB 會在狀態整理間隔到達後，讓同一次故事請求順便回傳狀態 PATCH，不再補發第二次狀態 API。記憶仍只在達到摘要門檻時獨立整理。若另選狀態模型，才維持獨立狀態請求。</p><div class="helper-route-grid">${helperCard("memory")}${helperCard("state")}</div>`;
+    box.innerHTML = `<h3>同模型就合併狀態，不同模型再分工</h3><p class="note">故事與狀態都沿用同一個 DeepSeek／Gemini／GLM 時，夜灣會在狀態整理間隔到達後，讓同一次故事請求順便回傳狀態 PATCH，不再補發第二次狀態 API。記憶仍只在達到摘要門檻時獨立整理。若另選狀態模型，才維持獨立狀態請求。</p><div class="helper-route-grid">${helperCard("memory")}${helperCard("state")}</div>`;
     step.appendChild(box);
     ["memory","state"].forEach(kind => {
       document.getElementById(`${kind}-route-choice`)?.addEventListener("change", () => toggleHelper(kind));

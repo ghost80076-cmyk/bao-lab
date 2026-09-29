@@ -41,7 +41,7 @@ test.describe('Player 2.0 shell', () => {
     await mascotButton.click({ force: true });
     const mascotPanel = page.locator('#bao-mascot-panel');
     await expect(mascotPanel).toBeVisible();
-    const mascotSupport = mascotPanel.getByRole('link', { name: '投餵肉包・支持 BAO/LAB' });
+    const mascotSupport = mascotPanel.getByRole('link', { name: '投餵肉包・支持夜灣' });
     await expect(mascotSupport).toBeVisible();
     await expect(mascotSupport.locator('img[src$="assets/bao-bun.svg"]')).toHaveCount(1);
     await page.locator('#bao-mascot-close').click();

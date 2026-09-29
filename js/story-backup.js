@@ -23,7 +23,7 @@
   };
 
   const sanitizeBundle = input => {
-    if (!isBundle(input)) throw new Error('這不是有效的 BAO/LAB 完整故事備份。');
+    if (!isBundle(input)) throw new Error('這不是有效的夜灣完整故事備份。');
     const story = input.story && typeof input.story === 'object' ? scrub(input.story) : {};
     const chapters = input.chapters.map((entry, index) => {
       if (!entry || typeof entry !== 'object' || !entry.payload) throw new Error(`完整故事備份的第 ${index + 1} 個章節無效。`);

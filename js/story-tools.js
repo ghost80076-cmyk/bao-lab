@@ -352,7 +352,7 @@
       if (result.records.length) return result;
     }
 
-    throw new Error("無法辨識格式。支援 BAO/LAB Pack、messages JSON、Claude、ChatGPT、SillyTavern／JSONL，以及「名字：內容」純文字。");
+    throw new Error("無法辨識格式。支援夜灣 Context Pack（相容舊 BAO/LAB Pack）、messages JSON、Claude、ChatGPT、SillyTavern／JSONL，以及「名字：內容」純文字。");
   };
 
   const parseObject = (value, label) => {
@@ -912,7 +912,7 @@
       return;
     }
     if (parsed.pack) {
-      host.innerHTML = '<div class="story-tools-toolbar"><button class="secondary" type="button" data-back>← 重新選檔</button><span class="story-tools-pill">BAO/LAB CONTEXT PACK</span></div>' +
+      host.innerHTML = '<div class="story-tools-toolbar"><button class="secondary" type="button" data-back>← 重新選檔</button><span class="story-tools-pill">YORUBAY CONTEXT PACK</span></div>' +
         '<section class="story-tools-card"><h3>匯入預覽</h3><p>已辨識為劇情摘要包（Context Pack）。原本的確認狀態已清除，仍需由玩家重新檢查並確認。</p>' +
         '<div class="story-import-report"><div><b>' + safeFile + '</b><span>' + App.escapeHTML(parsed.pack.title) + '</span></div></div>' +
         '<div class="story-import-note">匯入不會呼叫模型，也不會把未確認內容直接當成故事事實。</div>' +
@@ -975,7 +975,7 @@
 
   const importScreen = host => {
     host.innerHTML = '<div class="story-tools-toolbar"><button class="secondary" type="button" data-back>← 返回</button></div>' +
-      '<section class="story-tools-card"><h3>外部聊天歷史匯入</h3><p>支援 BAO/LAB Pack、messages JSON、Claude、ChatGPT、SillyTavern／JSONL，以及一般「名字：內容」純文字。</p>' +
+      '<section class="story-tools-card"><h3>外部聊天歷史匯入</h3><p>支援夜灣 Context Pack（相容舊 BAO/LAB Pack）、messages JSON、Claude、ChatGPT、SillyTavern／JSONL，以及一般「名字：內容」純文字。</p>' +
       '<input type="file" data-file accept=".json,.jsonl,.txt,application/json,application/x-ndjson,text/plain"><div class="story-import-note">選檔後會先顯示格式、訊息數與說話者身分；確認前不建立草稿，也不呼叫模型。</div></section>';
     host.querySelector("[data-back]").onclick = () => home(host);
     host.querySelector("[data-file]").onchange = async event => {

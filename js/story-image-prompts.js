@@ -31,7 +31,7 @@
   const openPlayer = () => {
     const card = App.activeCharacter;
     if (!card) return;
-    const { panel, status, close } = dialog('劇情配圖提示詞', '複製作者設定不需要 API；AI 分析只使用你目前連接的文字模型 API，可能產生服務商費用。BAO/LAB 不提供模型額度或生圖 API。');
+    const { panel, status, close } = dialog('劇情配圖提示詞', '複製作者設定不需要 API；AI 分析只使用你目前連接的文字模型 API，可能產生服務商費用。夜灣不提供模型額度或生圖 API。');
     const profile = textarea('作者視覺設定（可自行修改，不會改動角色卡）', plain(profileOf(card)), 5);
     const result = textarea('圖片提示詞（生成後可編輯、複製到自己的生圖網站）', '', 9);
     const actions = document.createElement('div'); actions.style.cssText = 'display:flex;gap:8px;flex-wrap:wrap';
@@ -39,7 +39,7 @@
     const copyResult = button('複製圖片提示詞', () => copy(result.field.value, status));
     const generate = button('用我的文字模型分析當前劇情', async () => {
       const config = App.config?.api;
-      if (!config?.key || !config?.model || !config?.baseUrl) { status.textContent = '請先連接自己的文字模型 API；BAO/LAB 不提供免費 API。'; return; }
+      if (!config?.key || !config?.model || !config?.baseUrl) { status.textContent = '請先連接自己的文字模型 API；夜灣不提供免費 API。'; return; }
       if (!Chat.messages?.length) { status.textContent = '目前尚無對話；可先複製作者設定。'; return; }
       generate.disabled = true; status.textContent = '正在使用你的文字模型製作提示詞……';
       try {
@@ -59,7 +59,7 @@
     panel.append(profile.wrap, result.wrap, actions, status, close);
   };
   const openAuthor = () => {
-    const { panel, status, close } = dialog('作者圖片提示詞設定', '匯入 BAO/LAB 角色 JSON，填寫視覺設定並下載修改後的角色卡。此操作完全在本機進行，不呼叫 API。');
+    const { panel, status, close } = dialog('作者圖片提示詞設定', '匯入夜灣角色 JSON，填寫視覺設定並下載修改後的角色卡。此操作完全在本機進行，不呼叫 API。');
     const file = document.createElement('input'); file.type = 'file'; file.accept = '.json,application/json'; file.setAttribute('aria-label', '匯入角色 JSON');
     const editor = textarea('角色固定外觀、畫風與世界視覺設定', '', 10);
     let card = null;

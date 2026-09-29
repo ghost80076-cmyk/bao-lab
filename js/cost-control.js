@@ -150,7 +150,7 @@
     box.className = "cost-control-box";
     box.innerHTML = `
       <h3>Token 與成本控制</h3>
-      <p class="note">BAO/LAB 會逐請求區分故事、記憶與狀態模型。YoruBay 優先使用後端實扣金額；BYOK 依已知模型費率估算。下方手動單價只作目前主模型／舊存檔的備援，0 代表沒有自訂備援價格。</p>
+      <p class="note">夜灣會逐請求區分故事、記憶與狀態模型。YoruBay 優先使用後端實扣金額；BYOK 依已知模型費率估算。下方手動單價只作目前主模型／舊存檔的備援，0 代表沒有自訂備援價格。</p>
       <div class="form-grid">
         <label>輸入單價（USD / 1M tokens）<input id="cost-input" type="number" min="0" step="0.01" value="0"></label>
         <label>輸出單價（USD / 1M tokens）<input id="cost-output" type="number" min="0" step="0.01" value="0"></label>

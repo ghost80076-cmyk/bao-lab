@@ -50,13 +50,13 @@
       </button>
       <section id="bao-mascot-panel" class="bao-mascot-panel" aria-label="包包小助手" hidden>
         <header class="bao-mascot-head"><div><strong>包包 · BAO</strong><small>固定台詞小助手 · 不使用 AI／API</small></div><button id="bao-mascot-close" type="button" aria-label="關閉包包助手">✕</button></header>
-        <div class="bao-mascot-body"><div class="bao-mascot-stage"><span class="bao-mascot-bun">${bun}</span><img class="bao-mascot-human" src="${HUMAN}" width="100" height="134" alt="包包人形立繪：奶白短髮、粉紫眼睛、黑粉蝴蝶結" loading="lazy"></div><p id="bao-mascot-line" class="bao-mascot-line" aria-live="polite">嗨，我是包包！今天要聊聊天，還是讓我帶你認識 BAO/LAB？</p></div>
+        <div class="bao-mascot-body"><div class="bao-mascot-stage"><span class="bao-mascot-bun">${bun}</span><img class="bao-mascot-human" src="${HUMAN}" width="100" height="134" alt="包包人形立繪：奶白短髮、粉紫眼睛、黑粉蝴蝶結" loading="lazy"></div><p id="bao-mascot-line" class="bao-mascot-line" aria-live="polite">嗨，我是包包！今天要聊聊天，還是讓我帶你認識夜灣？</p></div>
         <p id="bao-mascot-count" class="bao-mascot-count"></p>
         <div class="bao-mascot-actions"><button type="button" data-bao-talk="hello">打招呼</button><button type="button" data-bao-talk="pat">摸摸頭</button><button type="button" data-bao-talk="tired">今天好累</button></div>
         <div class="bao-mascot-controls"><button type="button" id="bao-mascot-transform" aria-pressed="false">變成人形</button><button type="button" id="bao-mascot-motion" aria-pressed="true">關閉動畫</button></div>
         <p id="bao-mascot-form-note" class="bao-mascot-form-note">肉包型態：眨眼、漂浮與點擊反應在本機執行。</p>
         <details class="bao-mascot-help"><summary>網站小教室（不限次數）</summary><div class="bao-mascot-actions"><button type="button" data-bao-help="api">如何連接 AI？</button><button type="button" data-bao-help="backup">如何備份？</button><button type="button" data-bao-help="memory">記憶有什麼用？</button></div></details>
-        <div class="bao-mascot-bottom"><a href="https://ko-fi.com/roger2486" target="_blank" rel="noopener noreferrer" aria-label="投餵肉包・支持 BAO/LAB"><img class="bao-support-icon" src="assets/bao-bun.svg" width="20" height="20" alt=""> 投餵肉包 ↗</a><button id="bao-mascot-disable" type="button">不再顯示</button></div>
+        <div class="bao-mascot-bottom"><a href="https://ko-fi.com/roger2486" target="_blank" rel="noopener noreferrer" aria-label="投餵肉包・支持夜灣"><img class="bao-support-icon" src="assets/bao-bun.svg" width="20" height="20" alt=""> 投餵肉包 ↗</a><button id="bao-mascot-disable" type="button">不再顯示</button></div>
         <small class="bao-mascot-disclaimer">動畫與型態偏好只存在這台瀏覽器。人形目前是靜態預覽，非 Live2D；不會讀取故事或連線金鑰。</small>
       </section>`;
     document.body.appendChild(root);

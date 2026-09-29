@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" role="img" aria-label="BAO/LAB 星環世界核心">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" role="img" aria-label="夜灣 YoruBay 星環世界核心">
   <defs>
     <radialGradient id="world" cx="27%" cy="20%" r="80%"><stop stop-color="#e9c9f9"/><stop offset=".32" stop-color="#8d77c4"/><stop offset=".72" stop-color="#343052"/><stop offset="1" stop-color="#16172b"/></radialGradient>
     <linearGradient id="orbit" x1="3" y1="42" x2="61" y2="20"><stop stop-color="#d6bdfc"/><stop offset=".5" stop-color="#fff4de"/><stop offset="1" stop-color="#9b86d5"/></linearGradient>

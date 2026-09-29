@@ -53,6 +53,8 @@ jobs:
         run: node tests/long-story-stress-core.cjs
       - name: Story bundle backup
         run: node tests/story-backup-core.cjs
+      - name: Legacy BAO/LAB to YoruBay compatibility
+        run: node tests/legacy-brand-compat-core.cjs
       - name: Story backup corruption and rollback
         run: node tests/story-backup-recovery-core.cjs
       - name: Story bundle nested credential sanitization

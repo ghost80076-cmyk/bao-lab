@@ -33,7 +33,7 @@
     const description = document.createElement('p'); description.textContent = '只控制本機畫面，不會把 HTML 或顯示偏好送給模型；世界設定仍由原有聊天流程處理。'; section.append(description);
     const selectLabel = document.createElement('label'); selectLabel.textContent = '顯示樣式 ';
     const select = document.createElement('select'); select.id = 'aw-display-layout';
-    [['cards','BAO/LAB 狀態卡'],['text','純文字（不顯示額外狀態卡）']].forEach(([value, label]) => { const option = document.createElement('option'); option.value = value; option.textContent = label; select.append(option); });
+    [['cards','夜灣狀態卡'],['text','純文字（不顯示額外狀態卡）']].forEach(([value, label]) => { const option = document.createElement('option'); option.value = value; option.textContent = label; select.append(option); });
     select.value = preferences.layout; select.addEventListener('change', () => { preferences.layout = select.value; save(); renderStatus(); }); selectLabel.append(select); section.append(selectLabel);
     [['world','世界觀'],['npcs','NPC 與人物關係'],['persona','玩家背景'],['opening','開場情境']].forEach(([name,label]) => {
       const wrapper = document.createElement('label'); wrapper.style.display = 'block';

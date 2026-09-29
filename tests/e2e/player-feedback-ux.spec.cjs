@@ -9,7 +9,7 @@ test('first paint already uses the final player navigation', async ({ page }) =>
   await expect(nav).toContainText('繼續上次故事');
   await expect(nav).toContainText('我的');
   await expect(nav).toContainText('我的故事');
-  await expect(nav).toContainText('關於 BAO/LAB');
+  await expect(nav).toContainText('關於夜灣');
   await expect(nav).not.toContainText('探索');
   await expect(nav).not.toContainText('YoruBay 帳號');
   await expect(nav).not.toContainText('投餵肉包');

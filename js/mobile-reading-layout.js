@@ -240,7 +240,7 @@
       link.rel = 'noopener noreferrer';
       link.innerHTML = '<img class="bao-mobile-bun-icon" src="assets/bao-bun.svg" width="26" height="26" alt="">';
       link.title = '投餵肉包';
-      link.setAttribute('aria-label', '支持 BAO/LAB・投餵肉包');
+      link.setAttribute('aria-label', '投餵肉包');
       header.append(link);
     }
   };
@@ -276,7 +276,7 @@
     support.href = supportUrl();
     support.target = '_blank';
     support.rel = 'noopener noreferrer';
-    support.innerHTML = '<img class="bao-mobile-bun-icon" src="assets/bao-bun.svg" width="26" height="26" alt=""><span>支持 BAO/LAB・投餵肉包</span>';
+    support.innerHTML = '<img class="bao-mobile-bun-icon" src="assets/bao-bun.svg" width="26" height="26" alt=""><span>投餵肉包</span>';
     support.addEventListener('click', () => nav.closeDrawer());
     quick.append(support);
     const connection = document.createElement('small');

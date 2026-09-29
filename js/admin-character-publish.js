@@ -283,7 +283,7 @@
     fillForm(prepared.character, prepared.format || prepared.origin);
     if (prepared.cover instanceof Blob) await encodeCover(prepared.cover);
     validateCard();
-    setMessage(prepared.converted ? "✓ 酒館 V2 已轉成 BAO/LAB，請確認欄位後建立 PR。" : "✓ BAO/LAB 角色卡已載入，請確認欄位後建立 PR。", true);
+    setMessage(prepared.converted ? "✓ 酒館 V2 已轉成夜灣格式，請確認欄位後建立 PR。" : "✓ 夜灣角色卡已載入，請確認欄位後建立 PR。", true);
   }
 
   async function loadSeparateCover() {

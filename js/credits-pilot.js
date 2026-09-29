@@ -247,7 +247,7 @@
     const validSession = /^yb_s_[A-Za-z0-9_-]{30,}$/.test(token);
     if (!validSession) throw new Error("請先登入 YoruBay 帳號。舊版 bao_ 玩家金鑰已停止用於 YoruBay API 額度。");
     if (!Array.isArray(messages) || !messages.length || messages.length > 100) {
-      throw new Error("BAO/LAB 每次最多傳送 100 則訊息。請縮短近期對話或改用自己的 API Key。");
+      throw new Error("夜灣 每次最多傳送 100 則訊息。請縮短近期對話或改用自己的 API Key。");
     }
     let cleaned = cleanMessages(messages);
     if (!basicMessagesValid(cleaned)) {
@@ -257,9 +257,9 @@
     const hostedBytes = promptBytes(cleaned);
     if (hostedBytes > HOSTED_HARD_PROMPT_BYTES) {
       if (App.config?.memory?.mode === "smart") {
-        throw new Error("本次送出內容仍過大。BAO/LAB 已嘗試整理較早故事脈絡，但固定角色／世界設定與尚未整理內容仍超過安全上限。故事不會刪除；可先用記憶工作台整理、縮減大型固定設定，或改用自己的 API Key。");
+        throw new Error("本次送出內容仍過大。夜灣 已嘗試整理較早故事脈絡，但固定角色／世界設定與尚未整理內容仍超過安全上限。故事不會刪除；可先用記憶工作台整理、縮減大型固定設定，或改用自己的 API Key。");
       }
-      throw new Error("本次送出內容過大，而且目前不是智慧記憶模式。切換智慧記憶可讓 BAO/LAB 自動整理較早脈絡，或改用自己的 API Key；故事不會刪除。");
+      throw new Error("本次送出內容過大，而且目前不是智慧記憶模式。切換智慧記憶可讓 夜灣 自動整理較早脈絡，或改用自己的 API Key；故事不會刪除。");
     }
     const kind = config.__memoryTask ? "summary" : config.__stateTask ? "status" : "chat";
     const requested = Number(config.maxOutputTokens || (config.__connectionTest ? 16 : 6144));
@@ -278,7 +278,7 @@
     } catch (error) { throw this.networkError(error); }
     let data;
     try { data = await response.json(); }
-    catch { throw new Error(`BAO/LAB 後端回傳了無法解析的內容（HTTP ${response.status}）。`); }
+    catch { throw new Error(`夜灣 後端回傳了無法解析的內容（HTTP ${response.status}）。`); }
     if (!response.ok) {
       const name = upstreamName(config.model);
       const errors = {
@@ -291,12 +291,12 @@
         invalid_request_or_model_not_allowed: "模型未開放或故事內容不符合測試版限制；請確認 Worker 的 MODELS_JSON 已包含此模型。",
         invalid_max_output_tokens: "本次輸出上限超過後端設定，請管理員更新 Worker。",
         request_too_large: "本次故事內容超過後端大小限制。",
-        provider_rate_limited: `${name} 回報 API 速率或配額限制，與 BAO/LAB 玩家額度不同。`,
+        provider_rate_limited: `${name} 回報 API 速率或配額限制，與 夜灣 玩家額度不同。`,
         provider_empty_text: emptyTextMessage(name, data),
         provider_http_error: `${name} 拒絕本次請求${data?.upstream_http_status ? `（HTTP ${data.upstream_http_status}）` : ""}。`,
-        provider_network_error: `BAO/LAB 後端連到 ${name} 時發生網路或逾時問題。`,
+        provider_network_error: `夜灣 後端連到 ${name} 時發生網路或逾時問題。`,
         provider_invalid_json: `${name} 回覆無法解析，請向管理員回報。`,
-        provider_not_configured: "BAO/LAB 後端尚未設定此模型金鑰。",
+        provider_not_configured: "夜灣 後端尚未設定此模型金鑰。",
         provider_request_failed: `${name} 暫時無法回覆；請管理員檢查上游服務及配額。`,
         google_bad_request_region: "Google Gemini 回報目前請求來源區域不受支援。",
         google_bad_request_billing: "Google Gemini 回報此專案的付費／Billing 條件尚未滿足。",
@@ -316,7 +316,7 @@
         google_bad_request_invalid_error_payload: "AWS Gemini 中繼回傳了無法辨識的錯誤格式，請管理員檢查 Relay 日誌。",
         origin_not_allowed: "目前網站網址不在 Worker 的允許來源清單。"
       };
-      const detail = errors[data?.error] || `BAO/LAB 後端錯誤（HTTP ${response.status}；${String(data?.error || 'unknown').slice(0, 80)}）。`;
+      const detail = errors[data?.error] || `夜灣 後端錯誤（HTTP ${response.status}；${String(data?.error || 'unknown').slice(0, 80)}）。`;
       const diagnosticId = /^[0-9a-f-]{36}$/.test(data?.request_id || '') ? `（診斷編號：${data.request_id}）` : '';
       const googleStatus = ['INVALID_ARGUMENT', 'FAILED_PRECONDITION', 'PERMISSION_DENIED', 'UNAUTHENTICATED',
         'RESOURCE_EXHAUSTED', 'NOT_FOUND', 'UNAVAILABLE'].includes(data?.provider_status)

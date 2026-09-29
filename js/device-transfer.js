@@ -54,9 +54,9 @@
 
   const validate = input => {
     if (!input || input.schema !== SCHEMA || !Array.isArray(input.characters) || !Array.isArray(input.stories)) {
-      throw new Error("這不是有效的 BAO/LAB 裝置搬家包。");
+      throw new Error("這不是有效的夜灣裝置搬家包。");
     }
-    if (Number(input.version || 0) > VERSION) throw new Error("這份裝置搬家包來自較新的版本，請先更新 BAO/LAB。");
+    if (Number(input.version || 0) > VERSION) throw new Error("這份裝置搬家包來自較新的版本，請先更新夜灣。");
     return sanitize(input);
   };
 
