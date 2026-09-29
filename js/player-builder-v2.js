@@ -7,7 +7,7 @@
   if (!document.querySelector('link[href^="css/player-builder-v2.css"]')) {
     const link = document.createElement("link");
     link.rel = "stylesheet";
-    link.href = "css/player-builder-v2.css?v=2";
+    link.href = "css/player-builder-v2.css?v=3";
     document.head.appendChild(link);
   }
   const view = document.getElementById("builder-view");
