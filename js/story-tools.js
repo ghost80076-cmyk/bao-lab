@@ -9,6 +9,18 @@
   const lineList = value => String(value || "").split(/\r?\n/).map(x => x.trim()).filter(Boolean);
   const close = () => document.querySelector(".story-tools-backdrop")?.remove();
   const tell = message => alert(message);
+  const importStoryFile = async file => {
+    if (!file) throw new Error("請先選擇故事備份 JSON。");
+    let parsed;
+    try { parsed = JSON.parse(await file.text()); }
+    catch { throw new Error("故事備份不是有效的 JSON 檔案。"); }
+    if (window.BAOStoryBackup?.isBundle?.(parsed)) {
+      const imported = await BAOStoryBackup.importBundle(parsed);
+      return { kind: "bundle", imported };
+    }
+    const save = Storage.sanitizeImportedStory(parsed);
+    return { kind: "single", imported: Storage.importSlot(save) };
+  };
   const hasSourceMessages = () => Array.isArray(sourceMessages) && sourceMessages.length > 0;
   const requireSourceMessages = () => {
     if (!hasSourceMessages()) throw new Error("這份劇情摘要包（Context Pack）沒有完整原始對話來源。為避免混入目前故事，請重新匯入原始紀錄或重新整理目前故事。");
@@ -1041,6 +1053,36 @@
           '<section class="story-tools-card"><h3>這個瀏覽器目前無法使用「我的故事」</h3><p>瀏覽器故事資料庫（IndexedDB）無法使用，因此無法顯示多個獨立故事與篇章／分支。自動存檔、手動存檔與完整 JSON 備份仍會沿用可用的本機儲存方式。</p>' +
           '<div class="story-import-note">建議先匯出完整故事備份；不要清除瀏覽器網站資料。</div></section>';
         host.querySelector("[data-back]").onclick = () => GameState.current ? home(host) : close();
+      const libraryImportButton = host.querySelector("[data-story-library-import]");
+      const libraryImportPicker = host.querySelector("[data-story-library-import-file]");
+      libraryImportButton?.addEventListener("click", () => libraryImportPicker?.click());
+      libraryImportPicker?.addEventListener("change", async () => {
+        const file = libraryImportPicker.files?.[0];
+        if (!file) return;
+        const original = libraryImportButton?.textContent || "匯入完整故事";
+        if (libraryImportButton) {
+          libraryImportButton.disabled = true;
+          libraryImportButton.textContent = "匯入中…";
+        }
+        try {
+          const result = await importStoryFile(file);
+          window.BAORefreshSaveUI?.();
+          if (result.kind === "bundle") {
+            tell("完整故事已加入「我的故事」，共 " + Number(result.imported?.chapterCount || 0) + " 個章節／分支。連線金鑰（API Key）不會從備份還原。");
+          } else {
+            tell("舊版單一故事備份已匯入手動存檔；連線金鑰（API Key）已清除。");
+          }
+          await libraryScreen(host);
+        } catch (error) {
+          tell(error.message || "故事備份匯入失敗。");
+        } finally {
+          libraryImportPicker.value = "";
+          if (libraryImportButton?.isConnected) {
+            libraryImportButton.disabled = false;
+            libraryImportButton.textContent = original;
+          }
+        }
+      });
         return;
       }
       const stories = await BAOStoryLibrary.listStories();
@@ -1079,7 +1121,7 @@
       }).join("");
 
       host.innerHTML = '<div class="story-tools-toolbar"><button class="secondary" type="button" data-back>← 返回</button><span class="story-tools-pill">' + stories.length + ' 個故事</span></div>' +
-        '<section class="story-library-shell"><div class="story-library-head"><div><div class="eyebrow">NIGHT READING ROOM</div><h2>我的故事</h2><p>你打開過的故事都收在這裡。同一個角色可以有多本彼此獨立的故事；記憶、Persona、世界狀態與章節／分支各自保存。釘選常玩的故事，或直接搜尋名稱與最近內容，就能更快回到昨晚停下的地方。</p></div></div>' +
+        '<section class="story-library-shell"><div class="story-library-head"><div><div class="eyebrow">NIGHT READING ROOM</div><h2>我的故事</h2><p>你打開過的故事都收在這裡。同一個角色可以有多本彼此獨立的故事；記憶、Persona、世界狀態與章節／分支各自保存。釘選常玩的故事，或直接搜尋名稱與最近內容，就能更快回到昨晚停下的地方。</p></div><div class="story-tools-actions"><button type="button" class="secondary" data-story-library-import>匯入完整故事</button><input hidden type="file" data-story-library-import-file accept=".json,application/json"></div></div>' +
         (stories.length ? '<div class="story-library-controls"><label class="story-library-search"><span>搜尋故事</span><input type="search" data-story-library-search placeholder="故事名、角色或最近內容…" autocomplete="off"></label><button type="button" class="secondary story-library-pinned-filter" data-story-library-pinned aria-pressed="false">★ 只看釘選</button><span class="story-library-result" data-story-library-result></span></div>' : '') +
         (cards || '<div class="story-library-empty"><b>書架現在還是空的</b><span>從任一角色翻開第一頁；第一次自動存檔後，這段故事就會留在這裡等你回來。</span></div>') +
         (stories.length ? '<div class="story-library-empty" data-story-library-no-results hidden><b>找不到符合的故事</b><span>換個關鍵字，或取消「只看釘選」。</span></div>' : '') + '</section>';
@@ -1240,9 +1282,13 @@
       const file = picker.files?.[0];
       if (!file) return;
       try {
-        Storage.importSlot(await Storage.importFile(file));
+        const result = await importStoryFile(file);
         window.BAORefreshSaveUI?.();
-        tell("完整故事已匯入手動存檔；連線金鑰（API Key）已清除。可從首頁存檔列表讀取。");
+        if (result.kind === "bundle") {
+          tell("完整故事已加入「我的故事」，共 " + Number(result.imported?.chapterCount || 0) + " 個章節／分支。連線金鑰（API Key）不會從備份還原。");
+        } else {
+          tell("舊版單一故事備份已匯入手動存檔；連線金鑰（API Key）已清除。");
+        }
       } catch (error) { tell(error.message || "匯入失敗。"); }
       finally { picker.value = ""; }
     };
