@@ -329,7 +329,7 @@
     if (!cfg.enabled) return { text: "", names: [] };
     const names = namesForTurn(text, { maxCharacters: options.maxCharacters || 2 });
     if (!names.length) {
-      if (options.consumeViewed && GameState.current) GameState.current.uiContextCharacter = "";
+      if (options.consumeViewed) clearContextCharacters();
       return { text: "", names: [] };
     }
     const viewed = new Set(selectedContextCharacters());
