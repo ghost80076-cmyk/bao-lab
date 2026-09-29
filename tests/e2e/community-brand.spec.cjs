@@ -2,7 +2,7 @@ const { test, expect } = require('@playwright/test');
 
 const INVITE = 'https://discord.gg/N3XpAhwTN';
 
-test.describe('BAO/LAB official identity and concise community entry', () => {
+test.describe('YoruBay official identity and concise community entry', () => {
   test('Cinematic Night homepage keeps the character first and mascot subtle', async ({ page }) => {
     await page.goto('/');
     await expect(page.locator('#home-view .brand-hero h1')).toContainText('今晚，想走進');
@@ -20,8 +20,12 @@ test.describe('BAO/LAB official identity and concise community entry', () => {
     await expect(page.locator('#bao-contact-nav')).toHaveCount(0);
     await expect(page.locator('#home-view .brand-contact')).toHaveCount(0);
     await expect(page.locator('#home-view .brand-feature-grid')).toHaveCount(0);
+    await expect(page.locator('.topbar .brand')).toContainText('夜灣 YoruBay');
+    await expect(page.locator('#home-view .brand-signature')).toHaveCount(0);
+    await expect(page.locator('#home-view .brand-hero-copy > .brand-kicker')).toHaveCount(0);
+    await expect(page.locator('#home-view .brand-intro')).toHaveText('替你留了一盞燈。');
     await expect(page.locator('#bao-contact-footer a')).toHaveAttribute('href', INVITE);
-    await page.getByRole('button', { name: '關於 BAO/LAB' }).click();
+    await page.getByRole('button', { name: '關於夜灣' }).click();
     await expect(page.locator('#about-view.active')).toContainText('讓故事回到玩家手中');
     await expect(page.locator('#about-view.active')).toContainText('角色 · 世界 · 互動 · 自己的 AI');
   });

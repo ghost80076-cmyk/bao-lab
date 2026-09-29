@@ -64,7 +64,7 @@
     const safe = Backup.sanitizeBundle(body);
     const id = safe.story?.storyId;
     if (!validId(id) || file.name !== filename(id)) throw new Error('雲端故事的識別碼與檔名不一致。');
-    if (Number(safe.version || 1) > Backup.version) throw new Error('雲端故事格式較新，請先更新 BAO/LAB。');
+    if (Number(safe.version || 1) > Backup.version) throw new Error('雲端故事格式較新，請先更新夜灣。');
     return safe;
   };
   async function makeRemote(id, bundle) {
@@ -180,7 +180,7 @@
     const info = await json(DRIVE + '/about?fields=user(permissionId)');
     if (!info.user?.permissionId) { token = ''; expiresAt = 0; account = ''; throw new Error('Google 沒有提供帳號識別碼，已停止同步以避免混用帳號。'); }
     account = String(info.user.permissionId);
-    note('已連結 Google Drive。故事只會存入你帳號的 BAO/LAB 專用資料夾。');
+    note('已連結 Google Drive。故事只會存入你帳號的夜灣專用資料空間。');
     refresh();
     return account;
   }

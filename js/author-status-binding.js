@@ -57,7 +57,7 @@
     panel.setAttribute('role', 'dialog'); panel.setAttribute('aria-modal', 'true'); panel.setAttribute('aria-label', '作者狀態欄欄位綁定');
     panel.style.cssText = 'width:min(900px,100%);max-height:92vh;overflow:auto;background:var(--panel,#202027);color:var(--text,#eee);padding:20px;border-radius:14px;display:grid;gap:12px';
     const heading = document.createElement('h2'); heading.textContent = '作者狀態欄 · 欄位綁定';
-    const help = document.createElement('p'); help.textContent = '匯入 BAO/LAB 角色 JSON，選擇欄位插入 HTML。預覽使用角色卡初始狀態，不會呼叫 AI；下載修改後的 JSON，再自行匯入角色庫。';
+    const help = document.createElement('p'); help.textContent = '匯入夜灣角色 JSON（相容舊 BAO/LAB JSON），選擇欄位插入 HTML。預覽使用角色卡初始狀態，不會呼叫 AI；下載修改後的 JSON，再自行匯入角色庫。';
     const file = document.createElement('input'); file.type = 'file'; file.accept = '.json,application/json'; file.setAttribute('aria-label', '匯入角色 JSON');
     const selector = document.createElement('select'); selector.setAttribute('aria-label', '選擇世界狀態欄位');
     const insert = document.createElement('button'); insert.type = 'button'; insert.textContent = '在游標處插入欄位';
@@ -86,7 +86,7 @@
         const selected = file.files?.[0]; if (!selected) return;
         if (selected.size > 1024 * 1024) throw new Error('角色 JSON 不可超過 1 MB。');
         const next = JSON.parse(await selected.text());
-        if (!isObject(next) || !(next.meta?.id || next.id) || !(next.meta?.name || next.name)) throw new Error('請選擇包含角色 ID 與名稱的 BAO/LAB 角色 JSON。');
+        if (!isObject(next) || !(next.meta?.id || next.id) || !(next.meta?.name || next.name)) throw new Error('請選擇包含角色 ID 與名稱的夜灣角色 JSON。');
         raw = next; fields = definitions(raw); populate();
         editor.value = typeof raw.author_status_html === 'string' ? raw.author_status_html : typeof raw.presentation?.author_status_html === 'string' ? raw.presentation.author_status_html : '';
         update();

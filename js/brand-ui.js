@@ -48,18 +48,16 @@
     home.innerHTML = `
       <section class="brand-hero brand-cinematic-hero">
         <div class="brand-hero-copy">
-          <div class="brand-signature"><img src="assets/bao-mark.svg" width="64" height="64" alt=""><span>BAO/LAB<small>包包夜讀書房</small></span></div>
-          <div class="brand-kicker">CINEMATIC NIGHT · BAO/LAB</div>
           <h1>今晚，想走進<br>誰的故事？</h1>
-          <p class="brand-intro">包包替你留著一盞燈。</p>
+          <p class="brand-intro">替你留了一盞燈。</p>
           <p class="brand-lead">每一張角色卡，都是一段正在等你打開的故事。選一個人，從第一句話開始。</p>
           <div class="brand-actions">
             <button class="primary" data-view="explore">開始探索</button>
             <button id="home-continue" class="secondary hidden">繼續閱讀</button>
             <a class="brand-first-run" href="quick-start.html">第一次來？三步開始 ↗</a>
           </div>
-          <a id="bao-home-portrait" class="brand-bao-companion" href="bao-mascot.html" aria-label="認識 BAO/LAB 官方吉祥物包包">
-            <img src="assets/bao-human-v2.webp" alt="包包：BAO/LAB 官方吉祥物" width="58" height="76" loading="eager"><span>包包在這裡留燈</span>
+          <a id="bao-home-portrait" class="brand-bao-companion" href="bao-mascot.html" aria-label="認識夜灣官方吉祥物包包">
+            <img src="assets/bao-human-v2.webp" alt="包包：夜灣官方吉祥物" width="58" height="76" loading="eager"><span>包包在這裡留燈</span>
           </a>
         </div>
         <button class="brand-feature-stage" id="home-feature-stage" type="button" aria-label="開啟角色：林沉風">
@@ -135,7 +133,7 @@
       </section>
       <section id="home-closing" class="brand-closing" aria-labelledby="home-closing-title">
         <img src="assets/bao-bun.svg" class="brand-closing-bao" alt="包包" width="64" height="64" loading="lazy">
-        <p class="brand-section-mark">包包替你留著燈</p>
+        <p class="brand-section-mark">替你留著燈</p>
         <h2 id="home-closing-title">下一頁，從你開始。</h2>
         <p>選一個角色，把第一句話留給今晚。</p>
         <div class="brand-closing-actions"><button id="home-start-story" type="button" class="primary">開始故事 <span aria-hidden="true">→</span></button><a class="brand-home-link" href="quick-start.html">第一次來？看三步開始</a></div>
@@ -242,12 +240,12 @@
     if (!about) return;
     about.innerHTML = `
       <section class="creator-page">
-        <div class="brand-kicker">ABOUT BAO/LAB</div>
+        <div class="brand-kicker">ABOUT YORUBAY</div>
         <h2>讓故事回到玩家手中</h2>
         <p class="brand-about-lead">你的模型，你的故事，你的世界。</p>
-        <section class="brand-about-product" aria-label="BAO/LAB 是什麼">
+        <section class="brand-about-product" aria-label="夜灣是什麼">
           <p class="brand-about-focus">角色 · 世界 · 互動 · 自己的 AI</p>
-          <p>BAO/LAB 是故事優先保存在本機（Local-first）的 AI 角色扮演與世界模擬工具，採自備連線金鑰模式（BYOK）：你向 AI 服務商取得連線金鑰（API Key），自行選擇模型與費用方案。</p>
+          <p>夜灣（YoruBay）是故事優先保存在本機（Local-first）的 AI 角色扮演與世界模擬工具，採自備連線金鑰模式（BYOK）：你向 AI 服務商取得連線金鑰（API Key），自行選擇模型與費用方案。</p>
           <p>你可以建立角色、探索世界、整理記憶、建立故事分支並匯出備份；故事與選擇由你保留，不必被綁在單一聊天平台。</p>
         </section>
         <div class="brand-kicker brand-creator-kicker">ABOUT THE CREATOR</div>
@@ -319,7 +317,7 @@
     setTimeout(() => {
       setNavLabel("home", "首頁");
       setNavLabel("explore", "作品");
-      setNavLabel("about", "關於 BAO/LAB");
+      setNavLabel("about", "關於夜灣");
       renderHome();
       renderAbout();
       renderCommunityNavigation();

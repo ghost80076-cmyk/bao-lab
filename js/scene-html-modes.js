@@ -236,7 +236,7 @@
       wrap.append(select); panel.append(wrap);
     };
     addSelect('閱讀模式', [['native','原生閱讀（不生成 HTML）'],['efficient','節省 Token 的場景排版'],['free','自由安全 HTML']], prefs.mode, value => { prefs.mode = value; });
-    addSelect('狀態欄', [['native','BAO/LAB 原生狀態'],['author','作者狀態欄'],['hidden','隱藏狀態欄']], prefs.status, value => { prefs.status = value; });
+    addSelect('狀態欄', [['native','夜灣原生狀態'],['author','作者狀態欄'],['hidden','隱藏狀態欄']], prefs.status, value => { prefs.status = value; });
     const note = document.createElement('small'); note.textContent = '設定從下一輪 API 請求生效；作者狀態欄僅讀取世界狀態，不會修改它。'; panel.append(note);
     const native = document.createElement('div'); native.id = 'bao-scene-native-status'; native.setAttribute('role','status'); panel.append(native);
     const author = document.createElement('div'); author.id = 'bao-scene-author-status'; author.style.whiteSpace = 'pre-wrap'; author.setAttribute('role','status'); panel.append(author);

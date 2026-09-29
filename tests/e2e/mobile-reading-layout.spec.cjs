@@ -25,7 +25,7 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 320, height: 568 }
     await expect(exit).toBeVisible();
     await expect(headerStatus).toBeVisible();
     const headerMemory = page.getByRole('button', { name: '查看故事記憶' });
-    const headerSupport = page.getByRole('link', { name: '支持 BAO/LAB・投餵肉包' });
+    const headerSupport = page.getByRole('link', { name: '支持夜灣・投餵肉包' });
     await expect(headerMemory).toBeVisible();
     await expect(headerSupport).toBeVisible();
     await expect(headerSupport.locator('img[src$="assets/bao-bun.svg"]')).toHaveCount(1);

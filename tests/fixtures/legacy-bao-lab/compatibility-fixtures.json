@@ -1,0 +1,180 @@
+{
+  "story": {
+    "schema": "bao-lab-story",
+    "version": 1,
+    "label": "BAO/LAB 舊故事",
+    "savedAt": "2026-01-01T00:00:00.000Z",
+    "characterId": "legacy-character",
+    "characterName": "舊角色",
+    "character": {
+      "id": "legacy-character",
+      "name": "舊角色",
+      "greeting": "舊故事開場",
+      "system_prompt": "保持角色一致。"
+    },
+    "config": {
+      "api": {
+        "model": "legacy-model",
+        "key": "sk-legacy-must-be-cleared"
+      },
+      "persona": {
+        "name": "舊玩家"
+      }
+    },
+    "preferences": {},
+    "chat": {
+      "messages": [
+        {
+          "id": "legacy-u1",
+          "role": "user",
+          "content": "還記得以前的故事嗎？"
+        },
+        {
+          "id": "legacy-a1",
+          "role": "assistant",
+          "content": "記得。"
+        }
+      ],
+      "summary": "舊故事摘要",
+      "summarizedUntil": 0,
+      "usage": {}
+    },
+    "contextPack": null,
+    "state": {
+      "time": "舊時間",
+      "location": "舊港口"
+    }
+  },
+  "bundle": {
+    "schema": "bao-lab-story-bundle",
+    "version": 1,
+    "exportedAt": "2026-01-02T00:00:00.000Z",
+    "story": {
+      "storyId": "legacy-story",
+      "title": "BAO/LAB 舊完整故事",
+      "characterId": "legacy-character",
+      "characterName": "舊角色",
+      "createdAt": "2026-01-01T00:00:00.000Z",
+      "updatedAt": "2026-01-02T00:00:00.000Z",
+      "activeChapterId": "legacy-root"
+    },
+    "activeChapterId": "legacy-root",
+    "chapters": [
+      {
+        "chapterId": "legacy-root",
+        "parentChapterId": "",
+        "label": "舊主線",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "updatedAt": "2026-01-02T00:00:00.000Z",
+        "branchPointMessageId": "",
+        "branchPointSeq": -1,
+        "branchPointPreview": "",
+        "payload": {
+          "schema": "bao-lab-story",
+          "version": 1,
+          "savedAt": "2026-01-02T00:00:00.000Z",
+          "characterId": "legacy-character",
+          "characterName": "舊角色",
+          "config": {
+            "api": {
+              "model": "legacy-model",
+              "key": "sk-legacy-bundle-secret"
+            },
+            "persona": {
+              "name": "舊玩家"
+            }
+          },
+          "preferences": {},
+          "chat": {
+            "messages": [
+              {
+                "id": "legacy-u1",
+                "role": "user",
+                "content": "舊主線"
+              }
+            ],
+            "summary": "舊主線摘要",
+            "summarizedUntil": 0,
+            "usage": {}
+          },
+          "contextPack": null,
+          "state": {
+            "time": "舊時間",
+            "location": "舊港口"
+          }
+        },
+        "checkpoints": []
+      }
+    ]
+  },
+  "deviceTransfer": {
+    "schema": "bao-lab-device-transfer",
+    "version": 1,
+    "exportedAt": "2026-01-03T00:00:00.000Z",
+    "app": "BAO/LAB",
+    "characters": [],
+    "stories": [],
+    "settings": {}
+  },
+  "contextPack": {
+    "schema": "bao-lab-context-pack",
+    "version": 1,
+    "id": "legacy-pack",
+    "createdAt": "2026-01-04T00:00:00.000Z",
+    "title": "BAO/LAB 舊 Context Pack",
+    "source": {
+      "type": "current-story",
+      "platform": "BAO/LAB",
+      "characterId": "legacy-character",
+      "characterName": "舊角色",
+      "messageCount": 2
+    },
+    "summary": "這是舊版摘要。",
+    "importantEvents": [
+      "曾在舊港口見面"
+    ],
+    "relationships": [
+      "舊角色：信任玩家"
+    ],
+    "characterStatuses": {},
+    "worldState": {
+      "location": "舊港口"
+    },
+    "modules": {},
+    "openThreads": [
+      "等待下一次見面"
+    ],
+    "recentDialogue": [
+      {
+        "role": "user",
+        "content": "我回來了。"
+      },
+      {
+        "role": "assistant",
+        "content": "港口的燈還亮著。"
+      }
+    ],
+    "playerConfirmed": true
+  },
+  "character": {
+    "schema_version": "1.0",
+    "meta": {
+      "id": "legacy-character",
+      "name": "BAO/LAB 舊角色",
+      "title": "舊角色卡",
+      "category": "female",
+      "rating": "general"
+    },
+    "content": {
+      "greeting": "這是一張舊版角色卡。",
+      "system_prompt": "依照角色設定與玩家可見資訊行動。",
+      "lore": "舊世界書仍應可以讀取。"
+    },
+    "gameplay": {
+      "initial_state": {
+        "time": "夜晚",
+        "location": "舊港口"
+      }
+    }
+  }
+}

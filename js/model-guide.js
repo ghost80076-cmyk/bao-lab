@@ -37,7 +37,7 @@
         <article><span>高品質</span><b>Gemini 3.1 Pro / Claude Sonnet 4.6</b><p>重要劇情、角色一致性、細膩關係描寫可優先考慮。</p></article>
         <article><span>豪華</span><b>Claude Opus 4.6</b><p>高預算、高難度場景。通常不必拿來做狀態整理。</p></article>
       </div>
-      <div class="model-guide-note">價格會隨官方、區域與中轉供應商調整。BAO/LAB 只提供參考與自動填值，實際帳單以你的 API 服務商為準。</div>`;
+      <div class="model-guide-note">價格會隨官方、區域與中轉供應商調整。夜灣只提供參考與自動填值，實際帳單以你的 API 服務商為準。</div>`;
     hero.insertAdjacentElement("afterend", section);
   };
 

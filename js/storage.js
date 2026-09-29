@@ -120,7 +120,7 @@ const Storage = {
   },
 
   sanitizeImportedStory(save) {
-    if (!this.validateStory(save)) throw new Error("這不是有效的 BAO/LAB 故事存檔。");
+    if (!this.validateStory(save)) throw new Error("這不是有效的夜灣故事存檔。");
     const clean = this.scrubSecrets(this.clone(save));
     clean.schema = clean.schema || this.storySchema;
     clean.version = Math.max(1, Number(clean.version || 1));

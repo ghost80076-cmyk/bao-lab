@@ -43,7 +43,7 @@
       const heading = title.querySelector("h3");
       const copy = title.querySelector("p");
       if (heading) heading.textContent = "記憶狀態";
-      if (copy) copy.textContent = "平常不用操作；BAO/LAB 會自動保留近期劇情，必要時再整理舊內容。";
+      if (copy) copy.textContent = "平常不用操作；夜灣會自動保留近期劇情，必要時再整理舊內容。";
       title.querySelector(".memory-pill")?.remove();
     }
 
@@ -217,7 +217,7 @@
     const kicker = desk.querySelector(".memory-desk-kicker");
     const heading = desk.querySelector(".memory-desk-head h2");
     const copy = desk.querySelector(".memory-desk-head p");
-    if (kicker) kicker.textContent = "MEMORY · BAO/LAB";
+    if (kicker) kicker.textContent = "MEMORY · YORUBAY";
     if (heading) heading.textContent = "記憶";
     if (copy) copy.textContent = "平常不用設定。系統會自動維持前情，你只需要在必要時補充「一定要記住」的事情。";
 

@@ -51,7 +51,7 @@
       };
       req.onsuccess = () => resolve(req.result);
       req.onerror = () => reject(req.error || new Error('無法開啟本機草稿資料庫。'));
-      req.onblocked = () => reject(new Error('草稿資料庫被其他分頁佔用，請關閉其他 BAO/LAB 分頁後重試。'));
+      req.onblocked = () => reject(new Error('草稿資料庫被其他分頁佔用，請關閉其他夜灣分頁後重試。'));
     }).catch(error => { dbPromise = null; throw error; });
     return dbPromise;
   }
@@ -216,7 +216,7 @@
     const url = URL.createObjectURL(new Blob([json], { type: 'application/json;charset=utf-8' }));
     const link = document.createElement('a'); link.href = url; link.download = `${card.id}.bao-character.json`; document.body.append(link); link.click(); link.remove();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
-    status('✓ 已產生 BAO/LAB JSON。請自行保管檔案；酒館 V2 的未對應來源欄位不包含在這份匯出中。');
+    status('✓ 已產生夜灣 JSON。請自行保管檔案；酒館 V2 的未對應來源欄位不包含在這份匯出中。');
   }
   async function importDraft(file) {
     if (!confirmDiscard()) return;
@@ -226,7 +226,7 @@
     if (existing.length >= MAX_DRAFTS) throw new Error('本機草稿已達 100 張，請先備份並清理。');
     showCard(normalized, null);
     dirty = true;
-    const details = result.converted ? '酒館 V2 已轉換；來源進階功能未必能在本站使用，請檢查內容後再加入角色庫。' : 'BAO/LAB 角色卡已載入，請確認後儲存草稿。';
+    const details = result.converted ? '酒館 V2 已轉換；來源進階功能未必能在本站使用，請檢查內容後再加入角色庫。' : '夜灣角色卡已載入，請確認後儲存草稿。';
     status(details);
   }
   function run(buttonId, action) {

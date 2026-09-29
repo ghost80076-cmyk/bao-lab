@@ -32,7 +32,7 @@
     return value;
   };
   const normalizePack = (input, occupied = []) => {
-    if (!record(input) || input.schema !== SCHEMA || input.version !== VERSION) fail('檔案不是支援的 BAO/LAB MOD v1 格式。');
+    if (!record(input) || input.schema !== SCHEMA || input.version !== VERSION) fail('檔案不是支援的夜灣 MOD v1 格式（舊 BAO/LAB MOD v1 仍相容）。');
     if (JSON.stringify(input).length > 131072) fail('MOD 檔案過大（上限約 128 KB）。');
     if (!record(input.meta) || !text(input.meta.name, 80)) fail('MOD 缺少名稱。');
     if (!Array.isArray(input.modules) || !input.modules.length || input.modules.length > 12) fail('每包 MOD 需包含 1～12 個模組。');
@@ -235,7 +235,7 @@
     box.querySelector('[data-mod-export]').addEventListener('click', () => {
       const mods = BAOWorldModules.getCustomization(App.activeCharacter).customModules;
       if (!mods.length) { alert('目前故事沒有可匯出的玩家自訂模組。請先儲存模組設定。'); return; }
-      const name = prompt('MOD 名稱：', `${App.activeCharacter?.name || 'BAO/LAB'} 世界擴充`);
+      const name = prompt('MOD 名稱：', `${App.activeCharacter?.name || '夜灣'} 世界擴充`);
       if (name === null) return;
       const author = prompt('作者名稱（可留空）：', '');
       if (author === null) return;
