@@ -820,6 +820,160 @@
         },
         "clue_log": []
       }
+    },
+    "ui_schema": {
+      "version": 1,
+      "panels": [
+        {
+          "id": "status",
+          "label": "狀態",
+          "sections": [
+            {
+              "type": "stats",
+              "title": "學院生活",
+              "items": [
+                {
+                  "label": "日期",
+                  "path": "modules.academy_life.date"
+                },
+                {
+                  "label": "時段",
+                  "path": "modules.academy_life.time_slot"
+                },
+                {
+                  "label": "地點",
+                  "path": "modules.academy_life.location"
+                },
+                {
+                  "label": "所屬學院",
+                  "path": "modules.academy_life.house"
+                },
+                {
+                  "label": "年級",
+                  "path": "modules.academy_life.year"
+                },
+                {
+                  "label": "學院分",
+                  "path": "modules.academy_life.house_points"
+                },
+                {
+                  "label": "違規紀錄",
+                  "path": "modules.academy_life.violations"
+                },
+                {
+                  "label": "下一堂課",
+                  "path": "modules.schoolwork.next_class"
+                },
+                {
+                  "label": "待完成作業",
+                  "path": "modules.schoolwork.assignments"
+                },
+                {
+                  "label": "禁閉／處分",
+                  "path": "modules.schoolwork.detention"
+                },
+                {
+                  "label": "社團／活動",
+                  "path": "modules.schoolwork.activity"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "magic",
+          "label": "魔法",
+          "sections": [
+            {
+              "type": "meters",
+              "title": "魔法熟練度",
+              "items": [
+                {
+                  "label": "基礎術式",
+                  "value_path": "modules.magic_skills.charms",
+                  "max": 100
+                },
+                {
+                  "label": "魔藥",
+                  "value_path": "modules.magic_skills.potions",
+                  "max": 100
+                },
+                {
+                  "label": "植物魔法",
+                  "value_path": "modules.magic_skills.herbology",
+                  "max": 100
+                },
+                {
+                  "label": "變形",
+                  "value_path": "modules.magic_skills.transfiguration",
+                  "max": 100
+                },
+                {
+                  "label": "防禦",
+                  "value_path": "modules.magic_skills.defense",
+                  "max": 100
+                },
+                {
+                  "label": "神奇生物",
+                  "value_path": "modules.magic_skills.creatures",
+                  "max": 100
+                },
+                {
+                  "label": "占卜感知",
+                  "value_path": "modules.magic_skills.divination",
+                  "max": 100
+                },
+                {
+                  "label": "飛行",
+                  "value_path": "modules.magic_skills.flight",
+                  "max": 100
+                },
+                {
+                  "label": "古代魔文",
+                  "value_path": "modules.magic_skills.runes",
+                  "max": 100
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "mystery",
+          "label": "主線",
+          "sections": [
+            {
+              "type": "stats",
+              "title": "隱藏主線",
+              "items": [
+                {
+                  "label": "主線階段",
+                  "path": "modules.mystery_state.phase"
+                },
+                {
+                  "label": "已確認線索",
+                  "path": "modules.mystery_state.clue_count"
+                },
+                {
+                  "label": "危險度",
+                  "path": "modules.mystery_state.threat",
+                  "suffix": "/ 100"
+                },
+                {
+                  "label": "目前異常",
+                  "path": "modules.mystery_state.active_thread"
+                }
+              ]
+            },
+            {
+              "type": "list",
+              "title": "線索簿",
+              "path": "modules.clue_log",
+              "empty": "目前還沒有已確認線索。",
+              "limit": 12
+            }
+          ]
+        }
+      ]
     }
   },
   "presentation": {
