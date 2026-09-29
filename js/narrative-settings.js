@@ -212,7 +212,7 @@
               </select>
             </label>
           </div>
-          <label class="narrative-switch" style="margin-top:12px"><span><b>親密場景加強 MOD</b><br><small class="note">完全由玩家手動開啟；BAO/LAB 不自動判斷或切換。開啟後只在成年、合意的親密情境中加強表情、聲音、姿態、動作、身體反應與空間連續性，避免無故跳時或草率帶過。實際可生成內容仍依所選模型與服務商規則。</small></span><input type="checkbox" data-pref-check="intimacyDetailMod" ${prefs.intimacyDetailMod ? "checked" : ""}></label>
+          <label class="narrative-switch" style="margin-top:12px"><span><b>親密場景加強 MOD</b><br><small class="note">完全由玩家手動開啟；夜灣不自動判斷或切換。開啟後只在成年、合意的親密情境中加強表情、聲音、姿態、動作、身體反應與空間連續性，避免無故跳時或草率帶過。實際可生成內容仍依所選模型與服務商規則。</small></span><input type="checkbox" data-pref-check="intimacyDetailMod" ${prefs.intimacyDetailMod ? "checked" : ""}></label>
           <label class="narrative-switch" style="margin-top:12px"><span><b>身體與空間連續性</b><br><small class="note">追蹤位置、姿態、接觸、施力／受力、衣物與環境的前後變化。打鬥與親密互動都適用。</small></span><input type="checkbox" data-pref-check="physicalContinuity" ${prefs.physicalContinuity ? "checked" : ""}></label>
           <div class="narrative-token-note"><strong>玩家控制：</strong>親密場景 MOD 預設關閉，只在玩家主動開啟後加入敘事偏好；不會自行偵測場景或嘗試繞過上游模型規則。<br><strong>Token 原則：</strong>全部維持預設時，不會新增文風 Prompt。即使複選多個文風包，也會先合併與去重，不會直接把多套完整 Prompt 疊上去。</div>
         </div>
