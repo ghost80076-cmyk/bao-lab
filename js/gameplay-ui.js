@@ -18,6 +18,35 @@
     try { return structuredClone(value); }
     catch (_) { return JSON.parse(JSON.stringify(value ?? null)); }
   };
+  const THEME_VARS = Object.freeze({
+    accent: '--gameplay-accent',
+    surface: '--gameplay-surface',
+    surface_alt: '--gameplay-surface-alt',
+    text: '--gameplay-text',
+    border: '--gameplay-border',
+    muted: '--gameplay-muted'
+  });
+  const clearTheme = node => {
+    if (!node) return;
+    delete node.dataset.gameplayTheme;
+    delete node.dataset.gameplayDensity;
+    delete node.dataset.gameplayRadius;
+    delete node.dataset.gameplayMeter;
+    Object.values(THEME_VARS).forEach(name => node.style.removeProperty(name));
+  };
+  const applyTheme = (node, schema) => {
+    if (!node) return;
+    clearTheme(node);
+    const theme = schema?.theme;
+    if (!theme) return;
+    node.dataset.gameplayTheme = theme.preset || 'default';
+    node.dataset.gameplayDensity = theme.density || 'comfortable';
+    node.dataset.gameplayRadius = theme.radius || 'round';
+    node.dataset.gameplayMeter = theme.meter || 'soft';
+    Object.entries(THEME_VARS).forEach(([key, cssName]) => {
+      if (theme[key]) node.style.setProperty(cssName, theme[key]);
+    });
+  };
   const mergeInitialModules = (state, character) => {
     const initial = character?.initial_state?.modules;
     if (!state || !initial || typeof initial !== 'object' || Array.isArray(initial)) return;
@@ -70,6 +99,7 @@
   };
 
   const renderBuilder = (box, schema, values) => {
+    applyTheme(box, schema);
     const builder = schema.builder;
     const remaining = Core.remainingPoints(schema, values);
     const attributes = builder.attributes.map(attr => {
@@ -156,6 +186,7 @@
     const schema = schemaFor(App.activeCharacter);
     const panel = schema?.panels.find(item => item.id === panelId);
     const ui = document.getElementById('ui-panel');
+    applyTheme(document.getElementById('game-ui'), schema);
     if (!panel || !ui || !GameState.current) return false;
     ui.innerHTML = `<div class="gameplay-ui-panel" data-gameplay-panel="${esc(panel.id)}">${panel.sections.map(section => sectionHTML(section, GameState.current)).join('')}</div>`;
     ui.querySelectorAll('[data-gameplay-draft-text]').forEach(button => button.addEventListener('click', () => {
@@ -183,6 +214,7 @@
     if (!tabs) return;
     cleanupTabs();
     const schema = schemaFor(App.activeCharacter);
+    applyTheme(document.getElementById('game-ui'), schema);
     if (!schema || App.config?.displayMode !== 'ui' || !schema.panels.length) return;
     schema.panels.forEach(panel => {
       let button = [...tabs.querySelectorAll('.ui-tab')].find(item => item.dataset.panel === panel.id);
@@ -258,5 +290,5 @@
     return result;
   };
 
-  window.BAOGameplayUI = Object.freeze({ schemaFor, mountBuilder, renderPanel, syncTabs, activateInitialPanel });
+  window.BAOGameplayUI = Object.freeze({ schemaFor, mountBuilder, renderPanel, syncTabs, activateInitialPanel, applyTheme, clearTheme });
 })();
