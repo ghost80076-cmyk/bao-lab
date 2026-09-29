@@ -31,7 +31,7 @@ test('mobile composer keeps tools, input, AI assist and send in one row', async 
     };
   });
 
-  const plus = page.getByRole('button', { name: '開啟故事工具' });
+  const plus = page.locator('#bao-mobile-composer-tools');
   const inspire = page.getByRole('button', { name: 'AI 行動靈感' });
   const input = page.locator('#user-input');
   const send = page.getByRole('button', { name: '送出訊息' });
