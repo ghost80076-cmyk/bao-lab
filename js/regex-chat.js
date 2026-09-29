@@ -3,6 +3,7 @@
   'use strict';
   if (!window.BAORegex) return;
   const R = window.BAORegex;
+  const AUTHOR_PREFIX = 'bao-lab:author-regex:v1:';
   const signatures = new WeakMap();
   let scheduled = false;
   const setPlainText = (bubble, value) => {
@@ -27,10 +28,21 @@
       nodes[i + shift]?.classList.contains(message.role === 'user' ? 'user' : 'assistant'))) return;
     const state = R.load();
     const regexActive = state.active && state.rules.some(rule => rule.enabled);
+    const authorId = String(window.App?.activeCharacter?.id || '').slice(0, 80);
+    let authorRules = [];
+    try {
+      const Core = window.BAOAuthorRegexCore;
+      const saved = authorId ? JSON.parse(localStorage.getItem(AUTHOR_PREFIX + encodeURIComponent(authorId)) || 'null') : null;
+      if (Core && saved?.enabled === true && Array.isArray(saved.rules)) {
+        authorRules = Core.normalize(saved.rules)
+          .filter(rule => rule.enabled && !rule.reason && !rule.rich);
+      }
+    } catch (_) { authorRules = []; }
+    const authorActive = authorRules.length > 0;
     const playerState = window.BAOPlayerTextReplace?.get?.() || { active: false, rules: [] };
     const playerActive = playerState.active && playerState.rules.some(rule => rule.enabled && rule.find);
-    const active = regexActive || playerActive;
-    const stamp = JSON.stringify([regexActive, state.rules, playerActive, playerState.rules]);
+    const active = authorActive || regexActive || playerActive;
+    const stamp = JSON.stringify([authorId, authorRules, regexActive, state.rules, playerActive, playerState.rules]);
     nodes.forEach((node, index) => {
       if (!node.classList.contains('assistant') || node.classList.contains('is-streaming')) return;
       const message = records[index - shift];
@@ -45,7 +57,12 @@
       if (!active && !previous) return;
       const signature = `${String(message.id || index)}|${source}|${stamp}`;
       let value = source;
+      if (authorActive) {
+        const rendered = window.BAOAuthorRegexCore.render(value, authorRules, false);
+        if (rendered?.matched && !rendered.rich) value = rendered.text;
+      }
       if (regexActive) value = R.apply(value, state.rules);
+      // Player-owned display replacement runs last so it can override author choices.
       if (playerActive) value = window.BAOPlayerTextReplace.applyChat(value, playerState);
       const flatValue = value.replace(/\n/g, '');
       // The reader may repaint the same bubble after our first pass. Compare its
@@ -72,7 +89,10 @@
     const stream = document.getElementById('chat-stream');
     if (!stream) return;
     new MutationObserver(schedule).observe(stream, { childList: true, subtree: true, characterData: true });
-    window.addEventListener('storage', event => { if (event.key === R.KEY) schedule(); });
+    window.addEventListener('storage', event => {
+      if (event.key === R.KEY || event.key?.startsWith(AUTHOR_PREFIX)) schedule();
+    });
+    window.addEventListener('bao:author-regex-changed', schedule);
     window.addEventListener('bao:player-text-replace-changed', schedule);
     window.addEventListener('focus', schedule);
     schedule();
@@ -85,6 +105,7 @@
   const core = document.createElement('script');
   core.src = 'js/author-regex-core.js';
   core.onload = () => {
+    window.BAORegexChat?.schedule?.();
     if (document.querySelector('script[src="js/author-regex-compat.js"]')) return;
     const compat = document.createElement('script');
     compat.src = 'js/author-regex-compat.js';

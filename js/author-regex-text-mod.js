@@ -38,6 +38,8 @@
 
   const plainRule = (rule, index) => ({
     name: String(rule?.name || `文字 MOD ${index + 1}`).slice(0, 80),
+    description: String(rule?.description || '').slice(0, 240),
+    priority: Number.isFinite(Number(rule?.priority)) ? Number(rule.priority) : 0,
     pattern: String(rule?.pattern || ''),
     replacement: String(rule?.replacement || ''),
     flags: String(rule?.flags || 'g'),
@@ -80,7 +82,11 @@
     commit.type = 'button';
     commit.textContent = '儲存 MOD';
 
-    controls.append(add, commit);
+    const exportButton = document.createElement('button');
+    exportButton.type = 'button';
+    exportButton.textContent = '匯出 JSON';
+
+    controls.append(add, commit, exportButton);
     root.append(summary, intro, stage, controls, list, status);
     panel.append(root);
 
@@ -123,12 +129,13 @@
         head.append(enabled, label, remove);
         card.append(head);
 
-        const make = (title, value, onInput, multiline = false) => {
+        const make = (title, value, onInput, multiline = false, inputType = 'text') => {
           const wrap = document.createElement('label');
           const cap = document.createElement('span');
           cap.textContent = title;
           cap.style.cssText = 'display:block;font-size:12px;margin-bottom:4px';
           const input = multiline ? document.createElement('textarea') : document.createElement('input');
+          if (!multiline) input.type = inputType;
           input.value = value;
           input.style.cssText = multiline
             ? 'width:100%;min-height:64px;box-sizing:border-box'
@@ -143,6 +150,8 @@
             rule.name = value.slice(0, 80);
             label.textContent = rule.name || `文字 MOD ${index + 1}`;
           }),
+          make('說明', rule.description || '', value => { rule.description = value.slice(0, 240); }),
+          make('優先序（-100～100，越大越先）', rule.priority ?? 0, value => { rule.priority = Number(value) || 0; }, false, 'number'),
           make('Regex 比對式', rule.pattern, value => { rule.pattern = value; }),
           make('旗標', rule.flags || 'g', value => { rule.flags = value; }),
           make('替換文字', rule.replacement, value => { rule.replacement = value; }, true)
@@ -181,8 +190,28 @@
         say(`最多 ${LIMIT} 條規則，請先移除不需要的項目。`);
         return;
       }
-      draft.push({ name: `文字 MOD ${draft.length + 1}`, pattern: '', replacement: '', flags: 'g', enabled: false });
+      draft.push({ name: `文字 MOD ${draft.length + 1}`, description: '', priority: 0, pattern: '', replacement: '', flags: 'g', enabled: false });
       render();
+    });
+
+    exportButton.addEventListener('click', () => {
+      const id = cardId();
+      if (!id) { say('請先進入一張作品。'); return; }
+      const payload = {
+        version: 1,
+        type: 'yorubay-author-regex-mod',
+        scope: 'assistant_display',
+        characterId: id,
+        rules: Core.normalize(draft)
+      };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `yorubay-regex-mod-${id.replace(/[^a-zA-Z0-9_-]+/g, '-').slice(0, 48) || 'character'}.json`;
+      link.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      say('✓ 已匯出目前 Regex MOD 草稿；不包含 API Key、聊天內容或故事存檔。');
     });
 
     commit.addEventListener('click', () => {
