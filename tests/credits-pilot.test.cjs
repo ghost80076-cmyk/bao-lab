@@ -12,7 +12,10 @@ function build(response={ok:true,status:200,body:{content:'測試成功',usage:{
   const elements={'api-type':{value:'',querySelector:()=>null,appendChild:o=>options.push(o),addEventListener:()=>{}},'api-key':{value:'',closest:()=>({firstChild:{nodeType:3}}),addEventListener:()=>{}},'api-hint':{textContent:''},'api-protocol-badge':{textContent:''}};
   const document={readyState:'loading',getElementById:id=>elements[id],createElement:()=>({}),addEventListener(){},body:{}};
   const defaultSession='yb_s_'+'A'.repeat(43);
-  const window={localStorage:{getItem:key=>key==='yorubay:session'?defaultSession:null}};
+  const window={
+    localStorage:{getItem:key=>key==='yorubay:session'?defaultSession:null},
+    GameState:{current:{storySessionId:'bao-lab:test-story:11111111-1111-4111-8111-111111111111'}}
+  };
   const context={API:api,App:app,document,window,TextEncoder,MutationObserver:class{observe(){}},fetch:async(url,opt)=>{calls.push([url,opt]);return {ok:response.ok,status:response.status,json:async()=>response.body}}};
   vm.runInNewContext(code,context);
   return {app,api,calls,options,window,elements};
@@ -51,6 +54,7 @@ test('Claude Sonnet and Opus invitation presets route through OpenRouter with th
    assert.equal(body.provider,'openrouter');
    assert.equal(body.model,['anthropic/claude-sonnet-4.5','anthropic/claude-sonnet-4.6','anthropic/claude-opus-4.6'][i]);
    assert.equal(body.max_output_tokens,4096);
+   assert.equal(body.session_id,'bao-lab:test-story:11111111-1111-4111-8111-111111111111:chat');
    assert.equal(s.calls[i][1].headers.Authorization,'Bearer '+token);
  }
 });
@@ -64,17 +68,38 @@ test('DeepSeek, Qwen, MiMo and MiniMax hosted presets route through OpenRouter',
    assert.equal(body.provider,'openrouter');
    assert.equal(body.model,models[i]);
    assert.equal(body.max_output_tokens,4096);
+   assert.equal(body.session_id,'bao-lab:test-story:11111111-1111-4111-8111-111111111111:chat');
  }
 });
-test('summary routes separate from chat, connection tests stay minimal, and BYOK stays available',async()=>{
+test('summary and status use separate sticky sessions while BYOK stays available',async()=>{
  const s=build(); await s.api.send({...cfg,model:'qwen/qwen3.7-flash',__memoryTask:true},msgs);
- assert.equal(JSON.parse(s.calls[0][1].body).request_kind,'summary');
+ const summaryBody=JSON.parse(s.calls[0][1].body);
+ assert.equal(summaryBody.request_kind,'summary');
+ assert.equal(summaryBody.session_id,'bao-lab:test-story:11111111-1111-4111-8111-111111111111:summary');
  await s.api.send({...cfg,__connectionTest:true,maxOutputTokens:16},msgs);
  assert.equal(JSON.parse(s.calls[1][1].body).max_output_tokens,16);
+ assert.equal(JSON.parse(s.calls[1][1].body).session_id,undefined);
  await s.api.send({...cfg,model:'minimax/minimax-m3',__stateTask:true},msgs);
- assert.equal(JSON.parse(s.calls[2][1].body).request_kind,'status');
+ const statusBody=JSON.parse(s.calls[2][1].body);
+ assert.equal(statusBody.request_kind,'status');
+ assert.equal(statusBody.session_id,'bao-lab:test-story:11111111-1111-4111-8111-111111111111:status');
  const normal=await s.api.send({type:'gemini',key:'own-key',model:'abc',baseUrl:'https://example.org'},msgs);
  assert.equal(normal.text,'BYOK works'); assert.equal(s.calls.length,3);
+});
+
+test('OpenRouter hosted chat keeps one session per story and changes it for another story',async()=>{
+ const s=build();
+ const openrouter={...cfg,model:'anthropic/claude-sonnet-4.6'};
+ await s.api.send(openrouter,msgs);
+ await s.api.send(openrouter,msgs);
+ const first=JSON.parse(s.calls[0][1].body).session_id;
+ const second=JSON.parse(s.calls[1][1].body).session_id;
+ assert.equal(first,second);
+ s.window.GameState.current={storySessionId:'bao-lab:other-story:22222222-2222-4222-8222-222222222222'};
+ await s.api.send(openrouter,msgs);
+ const third=JSON.parse(s.calls[2][1].body).session_id;
+ assert.notEqual(first,third);
+ assert.equal(third,'bao-lab:other-story:22222222-2222-4222-8222-222222222222:chat');
 });
 test('YoruBay requests clamp only above the shared 8192 Worker ceiling',async()=>{
  const s=build();
