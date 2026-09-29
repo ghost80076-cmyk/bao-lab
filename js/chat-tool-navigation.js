@@ -208,10 +208,13 @@
     dialog.setAttribute('aria-label', '故事功能選單');
     const head = document.createElement('header');
     const title = document.createElement('h2'); title.textContent = '故事功能';
+    const help = window.BAOFeatureHelp?.button?.('tools');
     const close = document.createElement('button');
     close.type = 'button'; close.textContent = '關閉 ×';
     close.addEventListener('click', closeDrawer);
-    head.append(title, close);
+    head.append(title);
+    if (help) head.append(help);
+    head.append(close);
     dialog.append(head);
     const body = document.createElement('div');
     body.className = 'bao-chat-tool-dialog-body';

@@ -66,14 +66,14 @@ window.addEventListener("DOMContentLoaded", () => {
     .catch(err => console.warn("BAO/LAB autonomous world workbench or display failed to load:", err));
   loadBAOScript("js/global-bridge.js")
     .then(() => loadBAOScript("js/world-state.js"))
-    .then(() => loadBAOScript("js/character-status.js"))
+    .then(() => loadBAOScript("js/character-status.js?v=2"))
     .then(() => loadBAOScript("js/world-modules.js"))
     .then(() => loadBAOScript("js/world-state-cost.js"))
     .then(() => loadBAOScript("js/same-model-state-merge.js"))
     .then(() => loadBAOScript("js/world-module-ui.js"))
     .then(() => loadBAOScript("js/world-module-manager.js"))
     .then(() => loadBAOScript("js/world-relevance.js"))
-    .then(() => loadBAOScript("js/character-status-ui.js"))
+    .then(() => loadBAOScript("js/character-status-ui.js?v=2"))
     .then(() => loadBAOScript("js/world-state-hook.js"))
     .catch(err => console.warn("BAO/LAB world state or character status modules failed to load:", err));
   loadBAOScript("js/cost-control.js")
@@ -107,7 +107,7 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/request-lifecycle.js"))
     .then(() => loadBAOScript("js/chat-tool-navigation.js"))
     .then(() => loadBAOScript("js/chat-experience-repairs.js?v=2"))
-    .then(() => loadBAOScript("js/mobile-reading-layout.js?v=8"))
+    .then(() => loadBAOScript("js/mobile-reading-layout.js?v=10"))
     .then(() => loadBAOScript("js/story-persona-manager.js"))
     .catch(err => console.warn("BAO/LAB local preview, narrative settings, memory workbench, story tools, story library, story reader or chat markup failed to load:", err));
   loadBAOScript("js/character-library.js")
@@ -119,7 +119,7 @@ window.addEventListener("DOMContentLoaded", () => {
   loadBAOScript("js/brand-ui.js?v=6")
     .then(() => new Promise(resolve => setTimeout(resolve, 100)))
     .then(() => loadBAOScript("js/bao-mascot.js?v=4"))
-    .then(() => loadBAOScript("js/bao-visual-ui.js?v=3"))
+    .then(() => loadBAOScript("js/bao-visual-ui.js?v=4"))
     .then(() => loadBAOScript("js/player-shell-v2.js?v=2"))
     .then(() => loadBAOScript("js/player-builder-v2.js?v=4"))
     .catch(err => console.warn("BAO/LAB brand, mascot or Player 2.0 UI failed to load:", err));

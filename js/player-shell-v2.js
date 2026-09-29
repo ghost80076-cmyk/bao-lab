@@ -400,7 +400,7 @@
     const sync = () => {
       const controls = $("bao-surface-controls");
       controls?.setAttribute("aria-label", "故事閱讀控制");
-      $("bao-play-status-toggle")?.setAttribute("title", "查看人物與世界狀態");
+      $("bao-play-status-toggle")?.setAttribute("title", "查看人物、事件與作品資訊");
       $("bao-surface-mode-toggle")?.setAttribute("title", "開啟故事工具與進階設定");
       const stream = $("chat-stream");
       stream?.setAttribute("aria-label", "故事內容");

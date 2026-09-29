@@ -5,6 +5,7 @@
   const CONTEXT_TYPES = ["core", "relevant", "ui_only"];
   const MAX_BASE_FIELDS = 24;
   const MAX_CUSTOM_FIELDS = 24;
+  const MAX_CONTEXT_CHARACTERS = 4;
 
   const clone = value => {
     try { return structuredClone(value); }
@@ -221,6 +222,40 @@
     return `${stem}_${index}`.slice(0, 40);
   };
 
+  const selectedContextCharacters = () => {
+    const state = GameState.current;
+    if (!state) return [];
+    const raw = Array.isArray(state.uiContextCharacters) ? state.uiContextCharacters : [];
+    if (!raw.length && state.uiContextCharacter) raw.push(String(state.uiContextCharacter));
+    const known = new Set(Object.keys(state.characterStatuses || {}));
+    const next = [...new Set(raw.map(name => String(name || "").trim()).filter(name => name && known.has(name)))]
+      .slice(0, MAX_CONTEXT_CHARACTERS);
+    state.uiContextCharacters = next;
+    if (Object.prototype.hasOwnProperty.call(state, "uiContextCharacter")) delete state.uiContextCharacter;
+    return [...next];
+  };
+
+  const toggleContextCharacter = name => {
+    const target = String(name || "").trim();
+    const state = GameState.current;
+    if (!state || !target) return { selected: false, names: selectedContextCharacters(), limitReached: false };
+    const current = selectedContextCharacters();
+    const index = current.indexOf(target);
+    if (index >= 0) current.splice(index, 1);
+    else if (current.length >= MAX_CONTEXT_CHARACTERS) {
+      return { selected: false, names: current, limitReached: true };
+    } else current.push(target);
+    state.uiContextCharacters = current;
+    return { selected: current.includes(target), names: [...current], limitReached: false };
+  };
+
+  const clearContextCharacters = () => {
+    if (!GameState.current) return [];
+    GameState.current.uiContextCharacters = [];
+    if (Object.prototype.hasOwnProperty.call(GameState.current, "uiContextCharacter")) delete GameState.current.uiContextCharacter;
+    return [];
+  };
+
   const namesForTurn = (text = "", options = {}) => {
     ensureState(window.App?.activeCharacter);
     const state = GameState.current;
@@ -230,20 +265,21 @@
     const all = Object.keys(state.characterStatuses || {}).filter(name => !district || name !== window.App?.activeCharacter?.name);
     const inScene = new Set((state.npcs || []).filter(npc => npc?.name && npc.presence !== "away" &&
       (npc.location === state.location || (npc.presence === "present" && (!npc.location || npc.location === "未知")))).map(npc => npc.name));
-    const viewed = String(state.uiContextCharacter || "");
+    const viewed = new Set(selectedContextCharacters());
     const scored = all.map(name => {
       const mentioned = hay.includes(name.toLowerCase());
-      if (district && !mentioned && !inScene.has(name)) return { name, score: 0 };
+      if (district && !mentioned && !inScene.has(name) && !viewed.has(name)) return { name, score: 0 };
       let score = mentioned ? 6 : 0;
-      if (name === viewed) score += 4;
+      if (viewed.has(name)) score += 10;
       if (name === window.App?.activeCharacter?.name) score += 1;
       if (district && inScene.has(name)) score += 2;
       return { name, score };
-    }).filter(x => x.score > 0).sort((a, b) => b.score - a.score)
-      .slice(0, Math.max(1, Math.min(4, Number(options.maxCharacters || 3))))
-      .map(x => x.name);
-    if (!scored.length && !district && all.length === 1) return all;
-    return scored;
+    }).filter(x => x.score > 0).sort((a, b) => b.score - a.score);
+    const requested = Math.max(1, Math.min(MAX_CONTEXT_CHARACTERS, Number(options.maxCharacters || 3)));
+    const limit = Math.max(requested, Math.min(MAX_CONTEXT_CHARACTERS, viewed.size));
+    const names = scored.slice(0, limit).map(x => x.name);
+    if (!names.length && !district && all.length === 1) return all;
+    return names;
   };
 
   const trackerRules = () => {
@@ -293,22 +329,22 @@
     if (!cfg.enabled) return { text: "", names: [] };
     const names = namesForTurn(text, { maxCharacters: options.maxCharacters || 2 });
     if (!names.length) {
-      if (options.consumeViewed && GameState.current) GameState.current.uiContextCharacter = "";
+      if (options.consumeViewed) clearContextCharacters();
       return { text: "", names: [] };
     }
-    const viewed = String(GameState.current?.uiContextCharacter || "");
+    const viewed = new Set(selectedContextCharacters());
     const maxChars = Math.max(300, Math.min(2200, Number(options.maxChars || 1400)));
     const lines = [];
     names.forEach(name => {
       const source = GameState.current?.characterStatuses?.[name] || {};
-      const parts = cfg.fields.filter(field => fieldIsRelevant(field, source, text, name === viewed)).map(field => {
+      const parts = cfg.fields.filter(field => fieldIsRelevant(field, source, text, viewed.has(name))).map(field => {
         const value = source[field.key];
         if (value === undefined || value === null || value === "" || (Array.isArray(value) && !value.length)) return "";
         return `${field.label}=${Array.isArray(value) ? value.join("、") : String(value)}`;
       }).filter(Boolean);
       if (parts.length) lines.push(`${name}：${parts.join("；")}`);
     });
-    if (options.consumeViewed && GameState.current) GameState.current.uiContextCharacter = "";
+    if (options.consumeViewed) clearContextCharacters();
     const joined = lines.join("\n");
     return { text: joined.length > maxChars ? `${joined.slice(0, maxChars)}…` : joined, names };
   };
@@ -317,6 +353,7 @@
     FIELD_TYPES,
     CONTEXT_TYPES,
     MAX_CUSTOM_FIELDS,
+    MAX_CONTEXT_CHARACTERS,
     baseConfigFor,
     configFor,
     getCustomization,
@@ -330,6 +367,9 @@
     hasTrackedFields,
     snapshotForTracker,
     compactForPrompt,
-    namesForTurn
+    namesForTurn,
+    selectedContextCharacters,
+    toggleContextCharacter,
+    clearContextCharacters
   };
 })();

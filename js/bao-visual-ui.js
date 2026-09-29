@@ -158,9 +158,14 @@
       close.type = 'button';
       close.id = 'bao-play-status-close';
       close.textContent = '關閉 ×';
-      close.setAttribute('aria-label', '關閉人物與故事狀態');
+      close.setAttribute('aria-label', '關閉故事資訊');
       close.addEventListener('click', closeStatus);
       panel.prepend(close);
+      const help = window.BAOFeatureHelp?.button?.('info_panel');
+      if (help) {
+        help.id = 'bao-info-panel-help';
+        close.insertAdjacentElement('afterend', help);
+      }
     }
     return close;
   };
@@ -233,9 +238,11 @@
       const status = document.createElement('button');
       status.type = 'button';
       status.id = 'bao-play-status-toggle';
-      status.textContent = '狀態';
+      status.textContent = '資訊';
       status.setAttribute('aria-controls', 'game-ui');
       status.setAttribute('aria-expanded', 'false');
+      status.setAttribute('aria-label', '查看人物、事件與作品資訊');
+      status.title = '人物、狀態、事件、記憶與作品自訂分頁';
       status.addEventListener('click', () => statusOpen ? closeStatus() : openStatus());
 
       const surface = document.createElement('button');

@@ -51,6 +51,7 @@ test('Host Club Simulator renders generated cast, setup and economy UI', async (
   await expect(page.locator('.hostsim-opening-photo').first()).toHaveAttribute('src', /hostsim-ren-portrait-v3\.webp/);
 
   await page.waitForFunction(() => Boolean(window.BAOWorldModules), null, { timeout: 15000 });
+  await page.locator('#bao-play-status-toggle').click();
   await page.getByRole('button', { name: '狀態', exact: true }).click();
   await expect(page.locator('.hostsim-status-shell')).toBeVisible();
   await page.waitForFunction(() => GameState.current?.hostsimInitializedVersion === 2);

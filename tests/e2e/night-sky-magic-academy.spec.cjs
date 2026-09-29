@@ -44,6 +44,7 @@ test('Night Sky Magic Academy renders enrollment, fixed mystery, status and choi
   await expect(page.locator('.bao-opening-choice')).toHaveCount(4);
   await page.waitForFunction(() => GameState.current?.magicAcademyInitializedVersion === 1);
 
+  await page.locator('#bao-play-status-toggle').click();
   await page.getByRole('button',{name:'狀態',exact:true}).click();
   await expect(page.locator('.gameplay-ui-panel[data-gameplay-panel="status"]')).toBeVisible();
   await expect(page.locator('.gameplay-ui-panel[data-gameplay-panel="status"]')).toContainText('待分院');

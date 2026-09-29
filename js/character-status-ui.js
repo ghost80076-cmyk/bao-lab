@@ -85,21 +85,36 @@
       (npc.location === GameState.current?.location || (npc.presence === "present" && (!npc.location || npc.location === "未知"))));
     const names = isDistrict ? sceneNPCs.map(npc => npc.name) : [App.activeCharacter?.name, ...(GameState.current?.npcs || []).map(n => n?.name)].filter(Boolean);
     const fields = visibleFields(cfg);
+    const selected = new Set(window.BAOCharacterStatus.selectedContextCharacters?.() || []);
     const cards = [...new Set(names)].map(name => {
       const npc = (GameState.current?.npcs || []).find(n => n.name === name);
       const role = name === App.activeCharacter?.name ? "主要角色" : (npc?.role || "NPC");
       const status = GameState.current?.characterStatuses?.[name] || {};
-      const picked = GameState.current?.uiContextCharacter === name;
+      const picked = selected.has(name);
       const rows = fields.map(field => `<div class="character-status-field"><small>${esc(displayLabel(field, cfg.customization))}</small>${fieldValueHTML(field, status[field.key])}</div>`).join("");
-      return `<article class="character-status-card ${picked ? "context-picked" : ""}" data-character-context="${esc(name)}"><div class="character-status-head"><div><strong>${esc(name)}</strong><br><span>${esc(role)}</span></div><span>${picked ? "下一輪優先參考" : "點一下可供下一輪參考"}</span></div>${rows ? `<div class="character-status-fields">${rows}</div>` : '<div class="character-status-empty">目前沒有顯示中的狀態欄位，可從「狀態欄管理」新增。</div>'}</article>`;
+      return `<article class="character-status-card ${picked ? "context-picked" : ""}" role="button" tabindex="0" aria-pressed="${picked ? "true" : "false"}" data-character-context="${esc(name)}"><div class="character-status-head"><div><strong>${esc(name)}</strong><br><span>${esc(role)}</span></div><span>${picked ? "✓ 下一輪參考" : "＋ 加入下一輪參考"}</span></div>${rows ? `<div class="character-status-fields">${rows}</div>` : '<div class="character-status-empty">目前沒有顯示中的狀態欄位，可從「狀態欄管理」新增。</div>'}</article>`;
     }).join("");
 
-    ui.innerHTML = `<div class="character-status-toolbar"><p>${isDistrict ? "👥 當前場景 NPC（離場角色資料仍保存在故事中）" : "角色卡預設欄位與玩家自訂欄位共同組成這份故事的實際狀態欄。"}</p>${cfg.allow_player_customize ? '<button type="button" class="secondary" data-character-status-settings>⚙ 狀態欄管理</button>' : ""}</div><div class="character-status-grid">${cards || (isDistrict ? '<div class="character-status-empty">當前場景沒有已確認的在場 NPC。</div>' : '<div class="character-status-empty">目前沒有可追蹤人物。</div>')}</div>`;
-    ui.querySelectorAll("[data-character-context]").forEach(card => card.addEventListener("click", event => {
-      if (event.target.closest("button")) return;
-      GameState.current.uiContextCharacter = card.dataset.characterContext || "";
+    const selectedText = selected.size
+      ? `下一輪將優先參考 ${selected.size} 位人物；再次點擊人物可取消。`
+      : `可選最多 ${window.BAOCharacterStatus.MAX_CONTEXT_CHARACTERS} 位人物，供下一輪回覆優先參考。`;
+    ui.innerHTML = `<div class="character-status-toolbar"><div><p>${isDistrict ? "👥 當前場景 NPC（離場角色資料仍保存在故事中）" : "角色卡預設欄位與玩家自訂欄位共同組成這份故事的實際狀態欄。"} <button type="button" class="bao-help-button" data-bao-help="next_turn_reference" aria-label="了解下一輪參考">?</button></p><small class="character-context-selection" aria-live="polite">${esc(selectedText)}</small></div>${cfg.allow_player_customize ? '<button type="button" class="secondary" data-character-status-settings>⚙ 狀態欄管理</button>' : ""}</div><div class="character-status-grid">${cards || (isDistrict ? '<div class="character-status-empty">當前場景沒有已確認的在場 NPC。</div>' : '<div class="character-status-empty">目前沒有可追蹤人物。</div>')}</div>`;
+    const toggleCard = card => {
+      const result = window.BAOCharacterStatus.toggleContextCharacter?.(card.dataset.characterContext || "");
+      if (result?.limitReached) window.BAOFeedback?.notify?.(`下一輪最多選 ${window.BAOCharacterStatus.MAX_CONTEXT_CHARACTERS} 位人物。`, "info");
       renderCharactersPanel();
-    }));
+    };
+    ui.querySelectorAll("[data-character-context]").forEach(card => {
+      card.addEventListener("click", event => {
+        if (event.target.closest("button")) return;
+        toggleCard(card);
+      });
+      card.addEventListener("keydown", event => {
+        if (event.key !== "Enter" && event.key !== " ") return;
+        event.preventDefault();
+        toggleCard(card);
+      });
+    });
     ui.querySelector("[data-character-status-settings]")?.addEventListener("click", openSettings);
     return true;
   };
@@ -128,7 +143,7 @@
     document.querySelector(".status-manager-backdrop")?.remove();
     const wrap = document.createElement("div");
     wrap.className = "status-manager-backdrop";
-    wrap.innerHTML = `<section class="status-manager-modal"><header class="status-manager-head"><div><div class="eyebrow">STORY STATUS</div><h2>狀態欄管理</h2><p>變更只屬於目前故事存檔，不會修改原始角色卡。</p></div><button type="button" class="text-button" data-status-close>關閉</button></header><div class="status-manager-body"><main><section class="status-manager-card"><div class="status-manager-card-title"><div><h3>快速範本</h3><p>只加入尚未套用的欄位，可複數混用。</p></div><span class="chip" data-status-count></span></div><div class="status-template-list">${Object.entries(TEMPLATES).map(([key, template]) => `<button type="button" data-status-template="${key}">＋ ${esc(template.label)}</button>`).join("")}</div></section><section class="status-manager-card"><div class="status-manager-card-title"><div><h3>目前故事欄位</h3><p>上下鍵排序；角色卡欄位保留底層定義，玩家欄位可以完整編輯或刪除。</p></div><button type="button" class="secondary" data-status-add>＋ 新增欄位</button></div><div data-status-editor class="status-manager-list"></div></section></main><aside><section class="status-manager-card status-manager-guide"><h3>AI 使用方式</h3><p><b>核心</b>：精簡放入主要故事脈絡（Context）。</p><p><b>本輪相關（Relevant）</b>：本輪相關或手動點選人物時才放入。</p><p><b>只供畫面顯示（UI Only）</b>：只顯示，不送主模型。</p><p><b>AI 自動追蹤</b>：由既有狀態追蹤器（Character Status tracker）根據已發生內容更新。</p></section><section class="status-manager-card"><h3>資料歸屬</h3><p>自訂欄位結構（schema）、數值與顯示偏好都寫進故事存檔；匯入原角色卡或開新故事不會被永久改寫。</p></section></aside></div><footer class="status-manager-foot"><button type="button" class="secondary" data-status-reset>恢復角色卡預設</button><span data-status-message></span><button type="button" class="primary" data-status-save>套用到目前故事</button></footer></section>`;
+    wrap.innerHTML = `<section class="status-manager-modal"><header class="status-manager-head"><div><div class="eyebrow">STORY STATUS</div><h2>狀態欄管理 <button type="button" class="bao-help-button" data-bao-help="status_manager" aria-label="了解狀態欄管理">?</button></h2><p>變更只屬於目前故事存檔，不會修改原始角色卡。</p></div><button type="button" class="text-button" data-status-close>關閉</button></header><div class="status-manager-body"><main><section class="status-manager-card"><div class="status-manager-card-title"><div><h3>快速範本</h3><p>只加入尚未套用的欄位，可複數混用。</p></div><span class="chip" data-status-count></span></div><div class="status-template-list">${Object.entries(TEMPLATES).map(([key, template]) => `<button type="button" data-status-template="${key}">＋ ${esc(template.label)}</button>`).join("")}</div></section><section class="status-manager-card"><div class="status-manager-card-title"><div><h3>目前故事欄位</h3><p>上下鍵排序；角色卡欄位保留底層定義，玩家欄位可以完整編輯或刪除。</p></div><button type="button" class="secondary" data-status-add>＋ 新增欄位</button></div><div data-status-editor class="status-manager-list"></div></section></main><aside><section class="status-manager-card status-manager-guide"><h3>AI 使用方式</h3><p><b>核心</b>：精簡放入主要故事脈絡（Context）。</p><p><b>本輪相關（Relevant）</b>：本輪相關或手動點選人物時才放入。</p><p><b>只供畫面顯示（UI Only）</b>：只顯示，不送主模型。</p><p><b>AI 自動追蹤</b>：由既有狀態追蹤器（Character Status tracker）根據已發生內容更新。</p></section><section class="status-manager-card"><h3>資料歸屬</h3><p>自訂欄位結構（schema）、數值與顯示偏好都寫進故事存檔；匯入原角色卡或開新故事不會被永久改寫。</p></section></aside></div><footer class="status-manager-foot"><button type="button" class="secondary" data-status-reset>恢復角色卡預設</button><span data-status-message></span><button type="button" class="primary" data-status-save>套用到目前故事</button></footer></section>`;
     document.body.appendChild(wrap);
 
     const allDraftFields = () => {
@@ -306,7 +321,7 @@
   App.buildSystemPrompt = function() {
     const base = originalBuild();
     if (!GameState.current) return base;
-    const compact = window.BAOCharacterStatus.compactForPrompt(latestUserText(), { maxCharacters: 2, maxChars: 1400, consumeViewed: true });
+    const compact = window.BAOCharacterStatus.compactForPrompt(latestUserText(), { maxCharacters: 4, maxChars: 1400, consumeViewed: false });
     if (!compact.text) return base;
     return `${base}\n\n【本輪人物狀態】\n${compact.text}\n只把這些狀態視為目前事實；不要替玩家補心理、台詞或未發生的行動。`;
   };
@@ -325,5 +340,18 @@
   };
 
   ensureStyles();
+  const originalSendMessage = App.sendMessage.bind(App);
+  App.sendMessage = async function(...args) {
+    const before = Array.isArray(window.Chat?.messages) ? Chat.messages.filter(item => item?.role === "assistant").length : 0;
+    const result = await originalSendMessage(...args);
+    const after = Array.isArray(window.Chat?.messages) ? Chat.messages.filter(item => item?.role === "assistant").length : 0;
+    if (after > before && window.BAOCharacterStatus.selectedContextCharacters?.().length) {
+      window.BAOCharacterStatus.clearContextCharacters?.();
+      if (document.querySelector('.ui-tab[data-panel="npc"]')?.classList.contains("active")) renderCharactersPanel();
+      App.saveStory?.(false);
+    }
+    return result;
+  };
+
   window.BAOCharacterStatusUI = { renderCharactersPanel, openSettings, injectBuilderSummary, TEMPLATES };
 })();

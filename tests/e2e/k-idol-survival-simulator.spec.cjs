@@ -48,6 +48,7 @@ test('K-idol survival simulator renders setup, generated show state and action c
   await expect(page.locator('.bao-opening-choice')).toHaveCount(4);
   await page.waitForFunction(() => GameState.current?.idolSurvivalInitializedVersion === 1);
 
+  await page.locator('#bao-play-status-toggle').click();
   await page.getByRole('button',{name:'狀態',exact:true}).click();
   await expect(page.locator('.idol-status-shell')).toBeVisible();
   await expect(page.locator('.idol-status-card.profile')).toContainText('舞台體質');
