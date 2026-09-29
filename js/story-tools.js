@@ -1049,6 +1049,11 @@
       const cards = stories.map((story, storyIndex) => {
         const chapters = chapterLists[storyIndex] || [];
         const activeStory = active.storyId === story.storyId;
+        let continueChapterIndex = chapters.findIndex(chapter => chapter.chapterId === story.activeChapterId);
+        if (continueChapterIndex < 0 && chapters.length) {
+          continueChapterIndex = chapters.reduce((best, chapter, index) =>
+            String(chapter.updatedAt || "").localeCompare(String(chapters[best]?.updatedAt || "")) > 0 ? index : best, 0);
+        }
         const chapterHTML = chapters.map((chapter, chapterIndex) => {
           const activeChapter = activeStory && active.chapterId === chapter.chapterId;
           return '<article class="story-library-chapter">' +
@@ -1059,18 +1064,56 @@
             '<button type="button" class="secondary" data-library-action="rename-chapter" data-story-index="' + storyIndex + '" data-chapter-index="' + chapterIndex + '">改名</button>' +
             '<button type="button" class="story-library-danger" data-library-action="delete-chapter" data-story-index="' + storyIndex + '" data-chapter-index="' + chapterIndex + '"' + (activeChapter ? ' disabled title="目前使用中的章節不能刪除"' : '') + '>刪除</button></div></article>';
         }).join("");
-        return '<section class="story-library-story">' +
-          '<header><div><div class="story-library-title"><h3>' + App.escapeHTML(story.title || story.characterName || "未命名故事") + '</h3>' + (activeStory ? '<span class="story-library-active">目前故事</span>' : '') + '</div>' +
+        return '<section class="story-library-story" data-story-library-card data-pinned="' + (story.pinned ? 'true' : 'false') + '">' +
+          '<header><div><div class="story-library-title"><h3>' + App.escapeHTML(story.title || story.characterName || "未命名故事") + '</h3>' +
+          (story.pinned ? '<span class="story-library-pinned">★ 已釘選</span>' : '') +
+          (activeStory ? '<span class="story-library-active">目前故事</span>' : '') + '</div>' +
           '<p>' + App.escapeHTML(story.characterName || "未知角色") + ' · ' + chapters.length + ' 個章節 · 上次閱讀 ' + App.escapeHTML(formatLibraryDate(story.updatedAt)) + '</p></div>' +
-          '<div class="story-library-actions"><button type="button" class="secondary" data-library-action="rename-story" data-story-index="' + storyIndex + '">故事改名</button><button type="button" class="story-library-danger" data-library-action="delete-story" data-story-index="' + storyIndex + '">刪除故事</button></div></header>' +
+          '<div class="story-library-actions">' +
+          (continueChapterIndex >= 0 ? '<button type="button" class="primary bao-shelf-continue" data-library-action="continue-story" data-story-index="' + storyIndex + '" data-chapter-index="' + continueChapterIndex + '">繼續</button>' : '') +
+          '<button type="button" class="secondary story-library-pin" data-library-action="pin-story" data-story-index="' + storyIndex + '">' + (story.pinned ? '取消釘選' : '釘選') + '</button>' +
+          '<button type="button" class="secondary" data-library-action="rename-story" data-story-index="' + storyIndex + '">改名</button>' +
+          '<button type="button" class="story-library-danger" data-library-action="delete-story" data-story-index="' + storyIndex + '">刪除</button></div></header>' +
           (story.lastMessagePreview ? '<div class="story-library-preview">' + App.escapeHTML(story.lastMessagePreview) + '</div>' : '') +
           '<div class="story-library-chapters">' + (chapterHTML || '<p class="note">這個故事尚未保存任何章節。</p>') + '</div></section>';
       }).join("");
 
       host.innerHTML = '<div class="story-tools-toolbar"><button class="secondary" type="button" data-back>← 返回</button><span class="story-tools-pill">' + stories.length + ' 個故事</span></div>' +
-        '<section class="story-library-shell"><div class="story-library-head"><div><div class="eyebrow">BAO NIGHT READING ROOM</div><h2>我的故事</h2><p>你打開過的故事都收在這裡。同一個角色可以有多本彼此獨立的故事；記憶、Persona、世界狀態與章節／分支各自保存。資料仍留在這台裝置的瀏覽器故事資料庫（IndexedDB），繼續閱讀時需重新提供連線金鑰（API Key）。</p></div></div>' +
-        (cards || '<div class="story-library-empty"><b>書架現在還是空的</b><span>從任一角色翻開第一頁；第一次自動存檔後，這段故事就會留在這裡等你回來。</span></div>') + '</section>';
+        '<section class="story-library-shell"><div class="story-library-head"><div><div class="eyebrow">NIGHT READING ROOM</div><h2>我的故事</h2><p>你打開過的故事都收在這裡。同一個角色可以有多本彼此獨立的故事；記憶、Persona、世界狀態與章節／分支各自保存。釘選常玩的故事，或直接搜尋名稱與最近內容，就能更快回到昨晚停下的地方。</p></div></div>' +
+        (stories.length ? '<div class="story-library-controls"><label class="story-library-search"><span>搜尋故事</span><input type="search" data-story-library-search placeholder="故事名、角色或最近內容…" autocomplete="off"></label><button type="button" class="secondary story-library-pinned-filter" data-story-library-pinned aria-pressed="false">★ 只看釘選</button><span class="story-library-result" data-story-library-result></span></div>' : '') +
+        (cards || '<div class="story-library-empty"><b>書架現在還是空的</b><span>從任一角色翻開第一頁；第一次自動存檔後，這段故事就會留在這裡等你回來。</span></div>') +
+        (stories.length ? '<div class="story-library-empty" data-story-library-no-results hidden><b>找不到符合的故事</b><span>換個關鍵字，或取消「只看釘選」。</span></div>' : '') + '</section>';
       host.querySelector("[data-back]").onclick = () => GameState.current ? home(host) : close();
+
+      const librarySearch = host.querySelector("[data-story-library-search]");
+      const pinnedFilter = host.querySelector("[data-story-library-pinned]");
+      const libraryResult = host.querySelector("[data-story-library-result]");
+      const emptyResult = host.querySelector("[data-story-library-no-results]");
+      if (librarySearch) librarySearch.value = host.dataset.storyLibraryQuery || "";
+      if (pinnedFilter) pinnedFilter.setAttribute("aria-pressed", host.dataset.storyLibraryPinned === "true" ? "true" : "false");
+      const applyLibraryFilters = () => {
+        const query = String(librarySearch?.value || "").trim().toLocaleLowerCase();
+        const pinnedOnly = pinnedFilter?.getAttribute("aria-pressed") === "true";
+        host.dataset.storyLibraryQuery = query;
+        host.dataset.storyLibraryPinned = pinnedOnly ? "true" : "false";
+        let shown = 0;
+        host.querySelectorAll("[data-story-library-card]").forEach(card => {
+          const matchesQuery = !query || String(card.textContent || "").toLocaleLowerCase().includes(query);
+          const matchesPin = !pinnedOnly || card.dataset.pinned === "true";
+          const visible = matchesQuery && matchesPin;
+          card.hidden = !visible;
+          if (visible) shown += 1;
+        });
+        if (libraryResult) libraryResult.textContent = "顯示 " + shown + " / " + stories.length;
+        if (emptyResult) emptyResult.hidden = shown !== 0;
+        pinnedFilter?.classList.toggle("active", pinnedOnly);
+      };
+      librarySearch?.addEventListener("input", applyLibraryFilters);
+      pinnedFilter?.addEventListener("click", () => {
+        pinnedFilter.setAttribute("aria-pressed", pinnedFilter.getAttribute("aria-pressed") === "true" ? "false" : "true");
+        applyLibraryFilters();
+      });
+      applyLibraryFilters();
 
       host.querySelectorAll("[data-library-action]").forEach(button => button.addEventListener("click", async () => {
         const storyIndex = Number(button.dataset.storyIndex);
@@ -1079,8 +1122,14 @@
         const chapter = chapterLists[storyIndex]?.[chapterIndex];
         if (!story) return;
 
-        if (button.dataset.libraryAction === "load" && chapter) {
+        if ((button.dataset.libraryAction === "load" || button.dataset.libraryAction === "continue-story") && chapter) {
           await restoreLibraryChapter(story.storyId, chapter.chapterId, button);
+          return;
+        }
+        if (button.dataset.libraryAction === "pin-story") {
+          const result = await BAOStoryLibrary.setStoryPinned(story.storyId, !story.pinned);
+          if (!result) return tell("無法更新故事釘選狀態。");
+          await libraryScreen(host);
           return;
         }
         if (button.dataset.libraryAction === "rename-story") {
