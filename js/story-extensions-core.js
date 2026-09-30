@@ -153,7 +153,7 @@
     ].filter(group => group.items.length);
   }
 
-  function worldSummary(definitions = []) {
+  function worldSummary(definitions = [], inventoryInput = {}) {
     const list = Array.isArray(definitions) ? definitions : [];
     const workCount = list.filter(item => item?.origin === "character" || !item?.origin).length;
     const platformCount = list.filter(item => item?.origin === "built_in").length;
@@ -176,7 +176,7 @@
         appliesTo: "目前故事",
         control: "玩家可啟用、停用或新增"
       }),
-      inventory: worldInventory(arguments[1] || {}),
+      inventory: worldInventory(inventoryInput),
       active: list.length > 0
     };
   }
