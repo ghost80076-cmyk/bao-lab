@@ -40,16 +40,71 @@
   function matches(character = {}, state = {}, extra = {}) {
     const category = state.category || "all";
     const capability = state.capability || "all";
+    const scope = ["favorites", "recent"].includes(state.scope) ? state.scope : "all";
     const query = fold(state.query || "");
     if (!inCategory(character, category)) return false;
     if (!supports(character, capability)) return false;
+    if (scope === "favorites" && extra.favorite !== true) return false;
+    if (scope === "recent" && !Number(extra.recentAt || 0)) return false;
     if (!query) return true;
     return haystack(character, extra).includes(query);
   }
 
   function filter(list = [], state = {}, extraFor = () => ({})) {
     const source = Array.isArray(list) ? list : [];
-    return source.filter(item => matches(item, state, extraFor(item) || {}));
+    const matched = source.filter(item => matches(item, state, extraFor(item) || {}));
+    if (state.scope !== "recent") return matched;
+    return matched.slice().sort((a, b) => {
+      const aTime = Number((extraFor(a) || {}).recentAt || 0);
+      const bTime = Number((extraFor(b) || {}).recentAt || 0);
+      return bTime - aTime;
+    });
+  }
+
+  function normalizeLibrary(value = {}) {
+    const favorites = [...new Set((Array.isArray(value.favorites) ? value.favorites : [])
+      .map(clean).filter(Boolean))].slice(0, 500);
+    const recent = (Array.isArray(value.recent) ? value.recent : [])
+      .map(item => ({
+        id: clean(item?.id),
+        viewedAt: Math.max(0, Number(item?.viewedAt) || 0)
+      }))
+      .filter(item => item.id && item.viewedAt)
+      .sort((a, b) => b.viewedAt - a.viewedAt)
+      .filter((item, index, list) => list.findIndex(other => other.id === item.id) === index)
+      .slice(0, 60);
+    return { favorites, recent };
+  }
+
+  function libraryMeta(library = {}, id = "") {
+    const safe = normalizeLibrary(library);
+    const key = clean(id);
+    const recent = safe.recent.find(item => item.id === key);
+    return {
+      favorite: safe.favorites.includes(key),
+      recentAt: recent?.viewedAt || 0
+    };
+  }
+
+  function toggleFavorite(library = {}, id = "") {
+    const safe = normalizeLibrary(library);
+    const key = clean(id);
+    if (!key) return safe;
+    const favorites = safe.favorites.includes(key)
+      ? safe.favorites.filter(item => item !== key)
+      : [key, ...safe.favorites];
+    return normalizeLibrary({ ...safe, favorites });
+  }
+
+  function markViewed(library = {}, id = "", viewedAt = Date.now()) {
+    const safe = normalizeLibrary(library);
+    const key = clean(id);
+    const stamp = Math.max(0, Number(viewedAt) || 0);
+    if (!key || !stamp) return safe;
+    return normalizeLibrary({
+      ...safe,
+      recent: [{ id: key, viewedAt: stamp }, ...safe.recent.filter(item => item.id !== key)]
+    });
   }
 
   function capabilityLabels(character = {}) {
@@ -73,6 +128,10 @@
     haystack,
     matches,
     filter,
+    normalizeLibrary,
+    libraryMeta,
+    toggleFavorite,
+    markViewed,
     capabilityLabels,
     resultLabel
   });
