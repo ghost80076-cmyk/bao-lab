@@ -15,7 +15,7 @@
     "economy", "cultivation", "magic", "equipment", "reputation"
   ]);
   const FORBIDDEN_EXPORT_KEYS = new Set([
-    "api", "apikey", "api_key", "key", "token", "authorization", "auth",
+    "api", "apikey", "api_key", "token", "authorization", "auth",
     "chat", "messages", "story", "storyid", "characterid", "charactername",
     "state", "modules", "characterstatuses", "npcs", "events",
     "authorregex", "allowscripts", "allowexternalassets", "allowstatesharing",
