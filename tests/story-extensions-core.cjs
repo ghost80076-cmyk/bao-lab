@@ -15,6 +15,7 @@ const core = require("../js/story-extensions-core.js");
     ["玩家新增", 1]
   ]);
   assert.equal(world.ownership.storage, "故事存檔");
+  assert.equal(world.ownership.appliesTo, "目前故事");
   assert.match(world.ownership.control, /玩家可啟用/);
   assert.equal(world.active, true);
 }
@@ -26,6 +27,7 @@ const core = require("../js/story-extensions-core.js");
   assert.deepEqual(scene.scopes, ["AI 回覆格式", "閱讀顯示", "這台裝置"]);
   assert.equal(scene.ownership.sources[0].label, "夜灣內建");
   assert.equal(scene.ownership.storage, "這台裝置");
+  assert.equal(scene.ownership.appliesTo, "這台裝置的所有故事");
   assert.match(scene.ownership.control, /玩家決定/);
 }
 
@@ -43,6 +45,7 @@ const core = require("../js/story-extensions-core.js");
   assert.deepEqual(replace.scopes, ["只改畫面", "不改原文", "故事內"]);
   assert.equal(replace.ownership.sources[0].label, "玩家建立");
   assert.equal(replace.ownership.storage, "故事存檔");
+  assert.equal(replace.ownership.appliesTo, "目前故事");
   assert.match(replace.ownership.control, /排序/);
 }
 
@@ -71,6 +74,7 @@ const core = require("../js/story-extensions-core.js");
     ["作品提供", 1]
   ]);
   assert.equal(regex.ownership.storage, "這台裝置");
+  assert.equal(regex.ownership.appliesTo, "玩家規則：所有故事 · 作品規則：目前作品");
   assert.match(regex.ownership.control, /作品規則也需要玩家明確啟用/);
   assert.match(regex.ownership.permissions.join(" · "), /等待玩家啟用/);
   assert.match(regex.ownership.permissions.join(" · "), /作者腳本：未允許/);
