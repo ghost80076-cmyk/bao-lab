@@ -123,7 +123,7 @@ test('explore keeps favorites and recently viewed works on this device', async (
   await tools.getByRole('button', { name: '最近看過', exact: true }).click();
   await expect.poll(() => page.locator('#character-list [data-character-id]:visible').count()).toBe(1);
   await expect(target).toBeVisible();
-  await expect(target.locator('.explore-card-continuity')).toContainText('最近看過');
+  await expect(target.locator('.explore-card-context')).toContainText('上次看過');
 
   const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('yorubay:explore-continuity:v1') || '{}'));
   expect(saved.favorites).toContain('night-sky-magic-academy');
