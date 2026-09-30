@@ -122,6 +122,11 @@ jobs:
         run: node tests/chat-message-id-core.cjs
       - name: Local conversation search
         run: node tests/conversation-search-core.cjs
+      - name: Story start readiness
+        run: |
+          node --check js/story-start-readiness-core.js
+          node --check js/story-start-readiness.js
+          node tests/story-start-readiness-core.cjs
       - name: Current story control center
         run: |
           node --check js/story-control-center-core.js
