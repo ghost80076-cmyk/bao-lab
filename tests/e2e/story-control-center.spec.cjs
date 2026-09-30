@@ -59,6 +59,10 @@ test('opens the current story control center and routes to existing story tools'
   await expect(extensions).toContainText('只改畫面');
   await expect(extensions).toContainText('來源');
   await expect(extensions).toContainText('保存');
+  await expect(extensions).toContainText('適用');
+  await expect(extensions).toContainText('目前故事');
+  await expect(extensions).toContainText('這台裝置的所有故事');
+  await expect(extensions).toContainText('玩家規則：所有故事 · 作品規則：目前作品');
   await expect(extensions).toContainText('啟用');
   await expect(extensions).toContainText('作品提供');
   await expect(extensions).toContainText('夜灣內建');
