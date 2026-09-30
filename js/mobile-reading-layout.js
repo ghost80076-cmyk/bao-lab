@@ -414,7 +414,7 @@
     if (host && button.parentElement !== host) host.append(button);
   };
   const sync = () => {
-    if (!isMobile()) {
+    if (!isMobile() || !root.classList.contains('active')) {
       clearMobileChrome();
       return;
     }
@@ -448,6 +448,7 @@
       node.nodeType === 1 && (node.id === 'bao-chat-tool-drawer' || node.id === 'bao-mobile-tools-tab')))) schedule();
   });
   observer.observe(document.body, { childList: true, subtree: true });
+  new MutationObserver(schedule).observe(root, { attributes: true, attributeFilter: ['class'] });
   window.addEventListener('resize', () => { fitComposerInput(); schedule(); }, { passive: true });
   window.visualViewport?.addEventListener('resize', () => { fitComposerInput(); schedule(); }, { passive: true });
   window.visualViewport?.addEventListener('scroll', schedule, { passive: true });
@@ -461,7 +462,7 @@
     focusScrollTop = null;
     schedule();
   });
-  window.BAOMobileReadingLayout = { version: 15, sync, openTools, enhanceDrawer, togglePanels, openMemory, closePanels, ensureComposerTools, fitComposerInput };
+  window.BAOMobileReadingLayout = { version: 16, sync, openTools, enhanceDrawer, togglePanels, openMemory, closePanels, ensureComposerTools, fitComposerInput };
   const style = document.createElement('link');
   style.rel = 'stylesheet';
   style.href = 'css/mobile-reading-layout.css?v=15';
