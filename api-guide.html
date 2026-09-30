@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#100e14">
-  <meta name="description" content="從零開始連接 AI：使用自己的 API Key，或用 LM Studio 在本機執行模型，並在夜灣開始故事。">
+  <meta name="description" content="夜灣 AI 連線完整說明：帳號 API 額度、自己的 API Key、OpenRouter、Gemini 與 LM Studio 本地 AI。">
   <title>AI 連線教學｜API Key 與 LM Studio 本地 AI｜夜灣 YoruBay</title>
   <link rel="icon" href="assets/bao-mark.svg" type="image/svg+xml">
   <style>
@@ -13,11 +13,11 @@
   <link rel="stylesheet" href="css/bao-brand-v2.css">
 </head>
 <body class="bao-brand-document">
-  <header><a href="./">← 夜灣 YoruBay 首頁</a><span>AI 連線教學</span></header>
+  <header><a href="./">← 夜灣 YoruBay 首頁</a><a href="quick-start.html">第一次玩？三步開始 →</a></header>
   <main>
-    <p class="lead">第一次用自己的 AI？照這頁做就能開始。</p>
-    <h1>接上你的 AI，開始第一段故事。</h1>
-    <p>夜灣 YoruBay 可以使用自備連線金鑰（BYOK，Bring Your Own Key），也可以連接同一台電腦上的 LM Studio 本地 AI。雲端 API 的費用與用量依你選擇的 AI 服務商而定；LM Studio 本地模式預設不需要雲端 API Key。</p>
+    <p class="lead">這頁是完整連線參考。如果只是第一次想開始玩，先看「三步開始」會比較快。</p>
+    <h1>選一條 AI 連線路線。</h1>
+    <p>夜灣可以使用帳號 API 額度、自備連線金鑰（BYOK），也可以連接同一台電腦上的 LM Studio 本地 AI。不同路線的費用、資料流向與設定方式不同，請只看你正在使用的那一段。</p>
     <div class="terms" aria-label="名詞對照">
       <div class="term"><b>連線金鑰（API Key）</b><span>使用 AI 服務的私人鑰匙；不要公開。</span></div>
       <div class="term"><b>AI 服務商（Provider）</b><span>提供模型與計費的服務，例如 OpenRouter 或 Google。</span></div>
@@ -27,7 +27,14 @@
     <div class="notice"><strong>可以先看介面，不一定要先花錢。</strong>免 API 的示範模式只用來體驗操作；真正請 AI 寫新劇情時，可以使用自己的雲端連線金鑰，也可以使用 LM Studio 本地模型。免費模型或免費額度有用量、速率及地區限制，並非無限免費。</div>
 
     <section class="panel">
-      <h2>路線 A：OpenRouter</h2>
+      <h2>路線 A：夜灣帳號 API 額度</h2>
+      <p>適合已取得夜灣帳號與 API 點數、想直接選模型開始的玩家。這條路線不需要貼自己的 API Key；實際可用模型與點數以帳號頁顯示為準。</p>
+      <ol class="steps"><li>登入夜灣帳號。</li><li>回到作品的「連接 AI」，選「使用帳號 API 額度」。</li><li>選擇目前可用模型後開始故事。</li></ol>
+      <a class="button" href="account.html">登入／查看帳號與 API 點數 →</a>
+    </section>
+
+    <section class="panel">
+      <h2>路線 B：OpenRouter</h2>
       <p>適合想用一組連線金鑰，嘗試多個 AI 模型的玩家。模型、價格與可用性會變動，請以官方頁面為準。</p>
       <ol class="steps"><li>開啟 OpenRouter 並註冊或登入。</li><li>進入 API Keys，建立一組新的連線金鑰。</li><li>複製金鑰，回到夜灣 的「連接 AI」。</li><li>選擇 OpenRouter，確認 AI 模型，貼上金鑰後開始故事。</li></ol>
       <a class="button" href="https://openrouter.ai/keys" target="_blank" rel="noopener noreferrer">前往 OpenRouter API Keys ↗</a>
@@ -35,7 +42,7 @@
     </section>
 
     <section class="panel">
-      <h2>路線 B：Google Gemini</h2>
+      <h2>路線 C：Google Gemini</h2>
       <p>適合想直接使用 Gemini 的玩家。免費層、可用模型與額度依官方規則及所在地區而定。</p>
       <ol class="steps"><li>開啟 Google AI Studio，登入 Google 帳號。</li><li>在 API Keys 依畫面指示建立連線金鑰；如需建立專案或設定計費，先閱讀官方說明。</li><li>回到夜灣 的「連接 AI」，選擇 Gemini 與想使用的模型。</li><li>貼上金鑰，確認設定後開始故事。</li></ol>
       <a class="button" href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer">前往 Google AI Studio ↗</a>
@@ -43,7 +50,7 @@
     </section>
 
     <section class="panel">
-      <h2>路線 C：LM Studio 本地 AI</h2>
+      <h2>路線 D：LM Studio 本地 AI</h2>
       <p>適合想讓模型在自己的電腦上運行、不走雲端 API 的玩家。預設不需要雲端 API Key。</p>
       <ol class="steps"><li>在 LM Studio 下載並載入模型。</li><li>如果畫面中央開著 Settings 設定視窗，先按右上角 × 關閉；<strong>不要在 Settings → Developer 裡找 API Server</strong>。</li><li>回到 LM Studio 主畫面，點左側主導覽的 <strong>Developer</strong> 頁面，切換 <strong>Start Server</strong>。</li><li>到 Server Settings 開啟 <strong>Enable CORS</strong>。</li><li>回 夜灣 YoruBay 選擇「LM Studio（本地 AI）」，確認卡片上的本機 API 網址（預設 <code>http://127.0.0.1:1234/v1</code>），再按「讀取本機模型」。</li></ol>
       <a class="button" href="lm-studio-guide.html">查看 LM Studio 完整教學 →</a>
@@ -52,7 +59,7 @@
 
     <section class="panel">
       <h2>回到夜灣，怎麼設定？</h2>
-      <ol class="steps"><li>回到首頁，選角色並建立故事。</li><li>快速開始時，只要處理「連接 AI」；完整設定則在第 4 步。</li><li>雲端 AI：選擇服務商（Provider）與模型（Model），貼上相符的連線金鑰（API Key）。</li><li>LM Studio：選「LM Studio（本地 AI）」後讀取本機模型；預設不需雲端 API Key。</li><li>有完整預設的雲端服務不需手動填模型代號（Model ID）或連線網址（Base URL）。只有自訂連線才需要這兩欄。</li></ol>
+      <ol class="steps"><li>回到首頁，選作品並按「開始故事」。</li><li>一般作品會進入快速開始，只要處理「連接 AI」；特殊世界或想自訂敘事時再用完整設定。</li><li>帳號額度：選「使用帳號 API 額度」與可用模型。</li><li>自己的 API：選服務商（Provider）與模型（Model），貼上相符的 API Key。</li><li>LM Studio：在「使用自己的 API」裡選本地 AI，啟動 Server 後讀取本機模型。</li><li>只有自訂連線才需要手動調模型代號（Model ID）或連線網址（Base URL）。</li></ol>
       <a class="button" href="./">返回夜灣 ↗</a>
     </section>
 
