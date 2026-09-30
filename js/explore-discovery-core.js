@@ -40,10 +40,11 @@
   function matches(character = {}, state = {}, extra = {}) {
     const category = state.category || "all";
     const capability = state.capability || "all";
-    const scope = ["favorites", "recent"].includes(state.scope) ? state.scope : "all";
+    const scope = ["updates", "favorites", "recent"].includes(state.scope) ? state.scope : "all";
     const query = fold(state.query || "");
     if (!inCategory(character, category)) return false;
     if (!supports(character, capability)) return false;
+    if (scope === "updates" && extra.recentlyUpdated !== true) return false;
     if (scope === "favorites" && extra.favorite !== true) return false;
     if (scope === "recent" && !Number(extra.recentAt || 0)) return false;
     if (!query) return true;
@@ -53,10 +54,11 @@
   function filter(list = [], state = {}, extraFor = () => ({})) {
     const source = Array.isArray(list) ? list : [];
     const matched = source.filter(item => matches(item, state, extraFor(item) || {}));
-    if (state.scope !== "recent") return matched;
+    if (!["recent", "updates"].includes(state.scope)) return matched;
+    const key = state.scope === "updates" ? "updatedAt" : "recentAt";
     return matched.slice().sort((a, b) => {
-      const aTime = Number((extraFor(a) || {}).recentAt || 0);
-      const bTime = Number((extraFor(b) || {}).recentAt || 0);
+      const aTime = Number((extraFor(a) || {})[key] || 0);
+      const bTime = Number((extraFor(b) || {})[key] || 0);
       return bTime - aTime;
     });
   }
@@ -73,16 +75,29 @@
       .sort((a, b) => b.viewedAt - a.viewedAt)
       .filter((item, index, list) => list.findIndex(other => other.id === item.id) === index)
       .slice(0, 60);
-    return { favorites, recent };
+    const seen = (Array.isArray(value.seen) ? value.seen : [])
+      .map(item => ({
+        id: clean(item?.id),
+        revision: clean(item?.revision),
+        seenAt: Math.max(0, Number(item?.seenAt) || 0)
+      }))
+      .filter(item => item.id && item.revision)
+      .sort((a, b) => b.seenAt - a.seenAt)
+      .filter((item, index, list) => list.findIndex(other => other.id === item.id) === index)
+      .slice(0, 500);
+    return { favorites, recent, seen };
   }
 
   function libraryMeta(library = {}, id = "") {
     const safe = normalizeLibrary(library);
     const key = clean(id);
     const recent = safe.recent.find(item => item.id === key);
+    const seen = safe.seen.find(item => item.id === key);
     return {
       favorite: safe.favorites.includes(key),
-      recentAt: recent?.viewedAt || 0
+      recentAt: recent?.viewedAt || 0,
+      seenRevision: seen?.revision || "",
+      seenAt: seen?.seenAt || 0
     };
   }
 
@@ -96,15 +111,62 @@
     return normalizeLibrary({ ...safe, favorites });
   }
 
-  function markViewed(library = {}, id = "", viewedAt = Date.now()) {
+  function markViewed(library = {}, id = "", viewedAt = Date.now(), revision = "") {
     const safe = normalizeLibrary(library);
     const key = clean(id);
     const stamp = Math.max(0, Number(viewedAt) || 0);
+    const rev = clean(revision);
     if (!key || !stamp) return safe;
     return normalizeLibrary({
       ...safe,
-      recent: [{ id: key, viewedAt: stamp }, ...safe.recent.filter(item => item.id !== key)]
+      recent: [{ id: key, viewedAt: stamp }, ...safe.recent.filter(item => item.id !== key)],
+      seen: rev
+        ? [{ id: key, revision: rev, seenAt: stamp }, ...safe.seen.filter(item => item.id !== key)]
+        : safe.seen
     });
+  }
+
+  function toTimestamp(value) {
+    if (typeof value === "number") return Number.isFinite(value) ? Math.max(0, value) : 0;
+    const time = Date.parse(clean(value));
+    return Number.isFinite(time) ? Math.max(0, time) : 0;
+  }
+
+  function releaseMeta(value = {}) {
+    return {
+      revision: clean(value.revision),
+      publishedAt: toTimestamp(value.publishedAt ?? value.published_at),
+      updatedAt: toTimestamp(value.updatedAt ?? value.updated_at),
+      updateNote: clean(value.updateNote ?? value.update_note)
+    };
+  }
+
+  function releaseState(release = {}, libraryInfo = {}, now = Date.now()) {
+    const meta = releaseMeta(release);
+    const stamp = Math.max(0, Number(now) || 0);
+    const day = 24 * 60 * 60 * 1000;
+    const recentAt = Math.max(0, Number(libraryInfo.recentAt) || 0);
+    const seenRevision = clean(libraryInfo.seenRevision);
+    const recentlyUpdated = Boolean(meta.updatedAt && stamp >= meta.updatedAt && stamp - meta.updatedAt <= 30 * day);
+
+    let isNew = false;
+    let isUpdated = false;
+
+    if (seenRevision) {
+      isUpdated = Boolean(meta.revision && seenRevision !== meta.revision);
+    } else if (recentAt) {
+      isUpdated = Boolean(meta.updatedAt && meta.updatedAt > recentAt + 60 * 1000);
+    } else {
+      isNew = Boolean(meta.publishedAt && stamp >= meta.publishedAt && stamp - meta.publishedAt <= 14 * day);
+    }
+
+    return {
+      ...meta,
+      recentlyUpdated,
+      isNew,
+      isUpdated,
+      label: isUpdated ? "UPDATED" : isNew ? "NEW" : ""
+    };
   }
 
   function capabilityLabels(character = {}) {
@@ -132,6 +194,8 @@
     libraryMeta,
     toggleFavorite,
     markViewed,
+    releaseMeta,
+    releaseState,
     capabilityLabels,
     resultLabel
   });
