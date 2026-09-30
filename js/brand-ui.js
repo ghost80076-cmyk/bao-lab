@@ -50,7 +50,7 @@
         <div class="brand-hero-copy">
           <h1>今晚，想走進<br>誰的故事？</h1>
           <p class="brand-intro">替你留了一盞燈。</p>
-          <p class="brand-lead">每一張角色卡，都是一段正在等你打開的故事。選一個人，從第一句話開始。</p>
+          <p class="brand-lead">每一個作品，都是一段正在等你打開的故事。選一個故事，從第一句話開始。</p>
           <div class="brand-actions">
             <button class="primary" data-view="explore">開始探索</button>
             <button id="home-continue" class="secondary hidden">繼續閱讀</button>
@@ -135,8 +135,8 @@
         <img src="assets/bao-bun.svg" class="brand-closing-bao" alt="包包" width="64" height="64" loading="lazy">
         <p class="brand-section-mark">替你留著燈</p>
         <h2 id="home-closing-title">下一頁，從你開始。</h2>
-        <p>選一個角色，把第一句話留給今晚。</p>
-        <div class="brand-closing-actions"><button id="home-start-story" type="button" class="primary">開始故事 <span aria-hidden="true">→</span></button><a class="brand-home-link" href="quick-start.html">第一次來？看三步開始</a></div>
+        <p>選一個作品，把第一句話留給今晚。</p>
+        <div class="brand-closing-actions"><button id="home-start-story" type="button" class="primary">開始探索 <span aria-hidden="true">→</span></button></div>
       </section>
       `;
 
@@ -245,8 +245,8 @@
         <p class="brand-about-lead">你的模型，你的故事，你的世界。</p>
         <section class="brand-about-product" aria-label="夜灣是什麼">
           <p class="brand-about-focus">角色 · 世界 · 互動 · 自己的 AI</p>
-          <p>夜灣（YoruBay）是故事優先保存在本機（Local-first）的 AI 角色扮演與世界模擬工具，採自備連線金鑰模式（BYOK）：你向 AI 服務商取得連線金鑰（API Key），自行選擇模型與費用方案。</p>
-          <p>你可以建立角色、探索世界、整理記憶、建立故事分支並匯出備份；故事與選擇由你保留，不必被綁在單一聊天平台。</p>
+          <p>夜灣（YoruBay）是故事優先保存在本機（Local-first）的 AI 角色扮演與世界模擬工具。你可以使用自己的 API（BYOK）、LM Studio 本地 AI，或在開放時使用夜灣帳號 API 額度。</p>
+          <p>你可以建立角色、探索世界、整理記憶、建立故事分支並匯出備份；故事與選擇由你保留，不必被綁在單一聊天平台或單一模型。</p>
         </section>
         <div class="brand-kicker brand-creator-kicker">ABOUT THE CREATOR</div>
         <h3>關於班長</h3>
@@ -254,7 +254,7 @@
           <p>一開始只是做角色卡。做著做著，開始在意角色聊久了會不會忘記、NPC 能不能有自己的生活、世界能不能不等玩家下指令也繼續走。</p>
           <p>於是一路改提示詞、測試長篇互動、研究世界設定、HTML、角色記憶與 NPC 自主性。很多東西都是先想到一個奇怪的玩法，再想辦法把它真的做出來。</p>
           <p>這裡就是我把那些作品和實驗整理在一起的地方。角色、世界、戀愛、劇情、互動介面都有，也會繼續慢慢增加。</p>
-          <p>我比較希望玩家可以選自己想用的模型，所以作品由我整理，連線金鑰（API Key）與模型由玩家自己決定。</p>
+          <p>我比較希望玩家可以選自己想用的模型，所以作品由我整理；AI 連線則可以用自己的 API、本地模型，或使用目前開放的夜灣帳號額度。</p>
         </div>
         <div class="creator-card">
           <div><span>方格子 / DC</span><b>班長</b></div>
@@ -287,17 +287,6 @@
     document.body.appendChild(a);
   };
 
-  const renderAPISetupGuide = () => {
-    const step = document.querySelector('[data-step-panel="4"]');
-    if (!step || document.getElementById("builder-api-guide")) return;
-    const box = document.createElement("div");
-    box.id = "builder-api-guide";
-    box.className = "note";
-    box.style.cssText = "margin:12px 0 18px;padding:14px 16px;border:1px solid #555763;border-radius:12px";
-    box.innerHTML = '<strong>連線金鑰（API Key）就是使用 AI 的鑰匙。</strong> 沒有金鑰？三步驟教學會帶你取得並連接。<br><a href="quick-start.html" target="_blank" rel="noopener noreferrer">第一次玩？看三步驟教學（另開分頁）↗</a> · <a href="api-guide.html" target="_blank" rel="noopener noreferrer">完整連線說明（API）↗</a>';
-    step.querySelector("h3")?.insertAdjacentElement("afterend", box);
-  };
-
   const initBrandUI = () => {
     ensureStyles();
     if (!App.__baoNightHomeRefreshWrapped) {
@@ -321,7 +310,6 @@
       renderHome();
       renderAbout();
       renderCommunityNavigation();
-      renderAPISetupGuide();
       renderSupport();
     }, 60);
   };
