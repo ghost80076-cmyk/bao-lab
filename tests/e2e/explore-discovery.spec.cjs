@@ -135,3 +135,39 @@ test('explore keeps favorites and recently viewed works on this device', async (
   }));
   expect(dimensions.pageWidth).toBeLessThanOrEqual(dimensions.viewport + 1);
 });
+
+
+test('explore surfaces NEW and UPDATED from explicit catalog timestamps', async ({ page }) => {
+  await page.addInitScript(() => localStorage.removeItem('yorubay:explore-continuity:v1'));
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('./');
+  await page.waitForFunction(() => Boolean(window.BAOExploreDiscovery && App.characters?.length));
+  await page.evaluate(() => App.showView('explore'));
+
+  const tools = page.locator('#explore-discovery-tools');
+  const target = page.locator('#character-list [data-character-id="night-sky-magic-academy"]');
+  await expect(target).toBeVisible();
+  await expect(target.locator('.explore-update-badge')).toHaveText('NEW');
+
+  await tools.getByRole('button', { name: '最近更新', exact: true }).click();
+  await expect(target).toBeVisible();
+  await expect(page.locator('#explore-result-count')).toContainText('目前顯示');
+
+  await target.click();
+  await expect(page.locator('#detail-view')).toHaveClass(/active/);
+  await page.evaluate(() => App.showView('explore'));
+  await expect(target.locator('.explore-update-badge')).toHaveCount(0);
+
+  await page.evaluate(() => {
+    const item = App.characterManifest.find(entry => entry.id === 'night-sky-magic-academy');
+    item.updated_at = new Date(Date.now() - 60_000).toISOString();
+    BAOExploreDiscovery.apply();
+  });
+  await expect(target.locator('.explore-update-badge')).toHaveText('UPDATED');
+
+  await page.evaluate(() => BAOExploreDiscovery.markViewed('night-sky-magic-academy', Date.now()));
+  await expect(target.locator('.explore-update-badge')).toHaveCount(0);
+
+  const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('yorubay:explore-continuity:v1') || '{}'));
+  expect(saved.recent[0].seenUpdatedAt).toBeGreaterThan(0);
+});
