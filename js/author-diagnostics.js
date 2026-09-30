@@ -13,6 +13,10 @@
       add('error', '$', '角色卡必須是單一 JSON 物件。', '請使用 夜灣基礎或進階模板；不可直接匯入故事備份或 JSON 陣列。');
       return { importable: false, issues, score: null };
     }
+    if (raw.schema === 'bao-lab-story-bundle') {
+      add('error', '$.schema', '這是夜灣完整故事備份，不是角色卡。', '請到「我的故事」使用「匯入完整故事」。故事備份不受角色卡 1 MB 檢查限制。');
+      return { importable: false, issues, score: null };
+    }
     if (/^chara_card_v[23]$/.test(String(raw.spec || '')) || object(raw.data) && text(raw.data.name)) {
       add('error', '$.spec', '這是其他平台的角色卡格式。', '夜灣尚未支援酒館角色卡自動轉換；請先轉成夜灣 JSON，避免設定遺失。');
       return { importable: false, issues, score: null };
@@ -126,7 +130,14 @@
       const file = input.files?.[0];
       if (!file) return;
       try {
-        if (file.size > MAX_SIZE) throw new Error('檔案超過 1 MB；請先縮小角色卡。');
+        const header = typeof file.slice === 'function'
+          ? await file.slice(0, Math.min(Number(file.size || 0), 8192)).text()
+          : '';
+        if (/"schema"\s*:\s*"bao-lab-story-bundle"/.test(header)) {
+          show(inspect({ schema: 'bao-lab-story-bundle' }), file.name);
+          return;
+        }
+        if (file.size > MAX_SIZE) throw new Error('角色卡檔案超過 1 MB；請先縮小角色卡。若這是完整故事備份，請到「我的故事」使用「匯入完整故事」。');
         show(inspect(parse(await file.text())), file.name);
       } catch (error) {
         show({ importable: false, score: null, issues: [{ severity: 'error', path: '$', problem: error.message || '無法讀取 JSON。', fix: '確認檔案是 UTF-8 編碼的夜灣 JSON。' }] }, file.name);
