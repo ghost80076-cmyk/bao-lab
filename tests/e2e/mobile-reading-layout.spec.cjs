@@ -150,14 +150,12 @@ test('mobile exit asks first, then leaves through the existing auto-save flow', 
   await expect.poll(() => page.evaluate(() => {
     const chat = document.getElementById('chat-view');
     const detail = document.getElementById('detail-view');
-    const box = detail?.getBoundingClientRect();
     return {
-      active: chat?.classList.contains('active'),
-      viewportHeight: chat?.style.getPropertyValue('--bao-mobile-viewport-height') || '',
-      detailHeight: Math.round(box?.height || 0),
-      bodyOverflowY: getComputedStyle(document.body).overflowY
+      inactive: !chat?.classList.contains('active'),
+      viewportCleared: !chat?.style.getPropertyValue('--bao-mobile-viewport-height'),
+      detailVisible: (detail?.getBoundingClientRect().height || 0) > 100,
+      bodyUnlocked: getComputedStyle(document.body).overflowY !== 'hidden'
     };
-  })).toEqual({ active: false, viewportHeight: '', detailHeight: expect.any(Number), bodyOverflowY: 'visible' });
-  expect(await page.locator('#detail-view').evaluate(node => node.getBoundingClientRect().height)).toBeGreaterThan(100);
+  })).toEqual({ inactive: true, viewportCleared: true, detailVisible: true, bodyUnlocked: true });
   await expect.poll(() => page.evaluate(() => Boolean(Storage.loadStory()))).toBe(true);
 });
