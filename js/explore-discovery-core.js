@@ -61,12 +61,15 @@
   }
 
   function inCategory(character = {}, category = "all") {
-    const active = ["male", "female", "r18", "adult-male", "adult-female"].includes(category) ? category : "all";
-    if (active === "all") return !isAdult(character);
-    if (active === "r18") return isAdult(character);
-    if (active === "adult-male") return isAdult(character) && characterGender(character) === "male";
-    if (active === "adult-female") return isAdult(character) && characterGender(character) === "female";
-    return !isAdult(character) && characterGender(character) === active;
+    const active = ["male", "female"].includes(category) ? category : "all";
+    if (active === "all") return true;
+    return characterGender(character) === active;
+  }
+
+  function inRating(character = {}, rating = "general") {
+    const active = ["general", "mature", "all"].includes(rating) ? rating : "general";
+    if (active === "all") return true;
+    return active === "mature" ? isAdult(character) : !isAdult(character);
   }
 
   function supports(character = {}, capability = "all") {
@@ -89,10 +92,12 @@
 
   function matches(character = {}, state = {}, extra = {}) {
     const category = state.category || "all";
+    const rating = state.rating || "general";
     const capability = state.capability || "all";
     const scope = ["favorites", "recent", "updates"].includes(state.scope) ? state.scope : "all";
     const query = fold(state.query || "");
     if (!inCategory(character, category)) return false;
+    if (!inRating(character, rating)) return false;
     if (!supports(character, capability)) return false;
     if (scope === "favorites" && extra.favorite !== true) return false;
     if (scope === "recent" && !Number(extra.recentAt || 0)) return false;
@@ -234,6 +239,7 @@
     isAdult,
     characterGender,
     inCategory,
+    inRating,
     supports,
     haystack,
     matches,
