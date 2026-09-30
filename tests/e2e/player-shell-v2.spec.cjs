@@ -81,6 +81,7 @@ test.describe('Player 2.0 shell', () => {
     await page.goto('/');
     await page.locator('#home-view button[data-view="explore"]').click();
     await page.locator('article').filter({ hasText: '林沉風 - 見過黑暗的人' }).click();
+    await page.getByRole('button', { name: '查看作品', exact: true }).click();
     await page.getByRole('button', { name: '開始故事' }).click();
     await page.locator('#bao-setup-choice [data-bao-setup="advanced"]').click();
     for (let i = 0; i < 3; i += 1) await page.locator('#next-step').click();
@@ -108,6 +109,7 @@ test.describe('Player 2.0 shell', () => {
     await page.goto('/');
     await page.locator('#home-view button[data-view="explore"]').click();
     await page.locator('#character-list .character-card').first().click();
+    await page.getByRole('button', { name: '查看作品', exact: true }).click();
     await page.getByRole('button', { name: '開始故事' }).click();
 
     await expect(page.locator('#builder-view')).toHaveAttribute('data-bao-setup', 'quick');
@@ -132,7 +134,7 @@ test.describe('Player 2.0 shell', () => {
   test('BAO Account page matches the player shell on mobile', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto('/account.html');
-    await expect(page.locator('.yb-account-hero h1')).toHaveText('帳號與 AI 點數');
+    await expect(page.locator('.yb-account-hero h1')).toHaveText('帳號與燈火');
     await expect(page.locator('.yb-local-first')).toContainText('Local-first');
     await expect(page.locator('.yb-tabs')).toBeVisible();
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(391);
@@ -143,6 +145,7 @@ test.describe('Player 2.0 shell', () => {
     await page.goto('/');
     await page.locator('#home-view button[data-view="explore"]').click();
     await page.locator('#character-list .character-card').first().click();
+    await page.getByRole('button', { name: '查看作品', exact: true }).click();
     await expect(page.locator('#detail-view .bao-work-detail-v2')).toBeVisible();
     await expect(page.locator('#detail-view .bao-detail-feature-strip')).toBeVisible();
     await expect(page.locator('#detail-view .bao-detail-feature-strip')).toContainText('Local-first');

@@ -9,6 +9,7 @@ test('Night Sky Magic Academy renders enrollment, fixed mystery, status and choi
   const card=page.locator('article.character-card').filter({hasText:'夜穹魔法學院'});
   await expect(card).toBeVisible();
   await card.click();
+  await page.getByRole('button', { name: '查看作品', exact: true }).click();
 
   await expect(page.locator('.magic-detail')).toBeVisible();
   await expect(page.locator('.magic-house-grid article')).toHaveCount(4);
