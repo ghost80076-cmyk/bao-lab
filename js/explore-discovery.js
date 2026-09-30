@@ -41,9 +41,12 @@
 
   const extraFor = character => {
     const item = manifestEntry(character);
+    const libraryInfo = core.libraryMeta(library, character?.id);
+    const release = core.releaseState(item, libraryInfo);
     return {
       author: item.author || "",
-      ...core.libraryMeta(library, character?.id)
+      ...libraryInfo,
+      ...release
     };
   };
 
@@ -65,9 +68,10 @@
           <button type="button" class="text-button explore-search-clear" data-explore-clear hidden>清除</button>
         </div>
       </div>
-      <div class="explore-scope" aria-label="我的作品篩選">
-        <span>我的：</span>
+      <div class="explore-scope" aria-label="作品狀態篩選">
+        <span>快速找：</span>
         <button type="button" class="filter active" data-explore-scope="all">全部作品</button>
+        <button type="button" class="filter" data-explore-scope="updates">最近更新</button>
         <button type="button" class="filter" data-explore-scope="favorites">★ 收藏</button>
         <button type="button" class="filter" data-explore-scope="recent">最近看過</button>
       </div>
@@ -146,7 +150,9 @@
       const content = card.querySelector(".character-content");
       if (!content) return;
 
+      const item = manifestEntry(character);
       const libraryInfo = core.libraryMeta(library, character.id);
+      const release = core.releaseState(item, libraryInfo);
       let favoriteButton = card.querySelector("[data-explore-favorite]");
       if (!favoriteButton && imageWrap) {
         favoriteButton = document.createElement("button");
@@ -167,6 +173,23 @@
         favoriteButton.setAttribute("aria-label", (libraryInfo.favorite ? "取消收藏 " : "收藏 ") + (character.title || character.name || "作品"));
         favoriteButton.title = libraryInfo.favorite ? "取消收藏" : "收藏";
         favoriteButton.textContent = libraryInfo.favorite ? "★" : "☆";
+      }
+
+      let releaseBadge = card.querySelector("[data-explore-release-badge]");
+      if (!release.label) {
+        releaseBadge?.remove();
+      } else if (imageWrap) {
+        if (!releaseBadge) {
+          releaseBadge = document.createElement("span");
+          releaseBadge.className = "explore-release-badge";
+          releaseBadge.dataset.exploreReleaseBadge = "";
+          imageWrap.appendChild(releaseBadge);
+        }
+        releaseBadge.dataset.releaseStatus = release.label.toLowerCase();
+        releaseBadge.textContent = release.label;
+        releaseBadge.title = release.updateNote
+          ? release.label + " · " + release.updateNote
+          : release.label === "NEW" ? "最近上架" : "作品有新版";
       }
 
       let continuity = content.querySelector(".explore-card-continuity");
@@ -261,7 +284,10 @@
       empty.hidden = matches.length !== 0;
       const title = empty.querySelector("b");
       const copy = empty.querySelector("span");
-      if (state.scope === "favorites") {
+      if (state.scope === "updates") {
+        if (title) title.textContent = "目前沒有符合條件的最近更新";
+        if (copy) copy.textContent = "最近 30 天有公開更新時間的作品會出現在這裡。";
+      } else if (state.scope === "favorites") {
         if (title) title.textContent = "還沒有符合條件的收藏";
         if (copy) copy.textContent = "點作品封面上的 ☆ 收藏；收藏只保存在這台裝置。";
       } else if (state.scope === "recent") {
@@ -300,7 +326,8 @@
   App.openCharacter = async function(id) {
     const result = await originalOpenCharacter(id);
     if (String(App.activeCharacter?.id || "") === String(id || "")) {
-      writeLibrary(core.markViewed(library, id));
+      const item = manifestEntry({ id });
+      writeLibrary(core.markViewed(library, id, Date.now(), item.revision || item.updated_at || ""));
       scheduleApply();
     }
     return result;
