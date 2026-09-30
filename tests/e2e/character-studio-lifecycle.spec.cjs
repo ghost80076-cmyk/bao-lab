@@ -43,10 +43,16 @@ test('character studio separates draft, local test version and public lifecycle 
   await page.locator('#studio-save-draft').click();
   await expect.poll(() => lifecycle.locator('[data-lifecycle-next-label]').textContent())
     .toBe('更新本機試玩版本');
-  await lifecycle.locator('[data-lifecycle-next-action]').click();
+  const nextAction = lifecycle.locator('[data-lifecycle-next-action]');
+  await expect(nextAction).toHaveAttribute('data-lifecycle-action', 'install');
+  page.once('dialog', dialog => dialog.accept());
+  await nextAction.click();
 
-  // The underlying install flow saves the draft first, so the shared status
-  // briefly reports the save step. The lifecycle state is the stable result.
+  await expect.poll(
+    () => page.evaluate(() => CharacterEngine.loadCustom()
+      .find(item => item.id === 'creator-lifecycle-e2e')?.system_prompt || ''),
+    { timeout: 12000 }
+  ).toContain('更新後');
   await expect.poll(
     () => lifecycle.locator('[data-lifecycle-stage="test"] [data-lifecycle-value]').textContent(),
     { timeout: 12000 }
