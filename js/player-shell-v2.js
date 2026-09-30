@@ -25,7 +25,7 @@
     if (document.querySelector('link[href^="css/player-shell-v2.css"]')) return;
     const link = document.createElement("link");
     link.rel = "stylesheet";
-    link.href = "css/player-shell-v2.css?v=1";
+    link.href = "css/player-shell-v2.css?v=2";
     document.head.appendChild(link);
   };
 
@@ -420,6 +420,11 @@
 
   const dismissNavigationSurfaces = () => {
     document.querySelectorAll(".story-tools-backdrop").forEach(node => node.remove());
+    window.BAOChatToolNavigation?.closeDrawer?.();
+    window.BAOChatExperience?.closeStatus?.();
+    window.BAOStorySurface?.closeStatus?.();
+    document.getElementById("bao-chat-cost-backdrop")?.remove();
+    document.querySelector("#chat-view .chat-main")?.classList.remove("bao-mobile-panel-open");
     const drive = $("bao-drive-panel");
     if (drive?.open) {
       try { drive.close?.(); }
@@ -459,6 +464,7 @@
       if (view === "me") refreshMeView();
       if (view === "detail") requestAnimationFrame(decorateDetail);
       syncNavigation(view);
+      if (view !== "chat") requestAnimationFrame(() => window.BAOMobileReadingLayout?.sync?.());
       return result;
     };
     App.__baoPlayerShellViewWrapped = true;

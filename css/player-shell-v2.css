@@ -53,6 +53,10 @@
 @media(max-width:820px){
   body.bao-mobile-nav-visible{padding-bottom:calc(74px + env(safe-area-inset-bottom,0px))}
   body.bao-mobile-nav-visible #bao-support-float{display:none!important}
+  body.bao-mobile-nav-visible:has(#home-view.active) #bao-support-float{
+    display:inline-flex!important;
+    bottom:calc(86px + env(safe-area-inset-bottom,0px));
+  }
   .topbar nav{display:none!important}
   .topbar{min-height:54px;padding:8px 13px}
   .topbar .brand{margin-right:auto}

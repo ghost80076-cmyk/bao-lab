@@ -142,5 +142,20 @@ test('mobile exit asks first, then leaves through the existing auto-save flow', 
   page.once('dialog', dialog => dialog.accept());
   await exit.click();
   await expect(page.locator('#detail-view')).toHaveClass(/active/);
+  await expect(page.locator('#bao-mobile-nav')).toBeVisible();
+  await expect(page.locator('#bao-mobile-exit')).toHaveCount(0);
+  await expect(page.locator('#bao-mobile-composer-tools')).toHaveCount(0);
+  await expect(page.locator('#bao-chat-tool-drawer')).toHaveCount(0);
+  await expect(page.locator('#bao-chat-cost-backdrop')).toHaveCount(0);
+  await expect.poll(() => page.evaluate(() => {
+    const chat = document.getElementById('chat-view');
+    const detail = document.getElementById('detail-view');
+    return {
+      inactive: !chat?.classList.contains('active'),
+      viewportCleared: !chat?.style.getPropertyValue('--bao-mobile-viewport-height'),
+      detailVisible: (detail?.getBoundingClientRect().height || 0) > 100,
+      bodyUnlocked: getComputedStyle(document.body).overflowY !== 'hidden'
+    };
+  })).toEqual({ inactive: true, viewportCleared: true, detailVisible: true, bodyUnlocked: true });
   await expect.poll(() => page.evaluate(() => Boolean(Storage.loadStory()))).toBe(true);
 });
