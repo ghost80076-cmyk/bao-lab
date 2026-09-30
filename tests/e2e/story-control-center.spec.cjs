@@ -14,6 +14,17 @@ test('opens the current story control center and routes to existing story tools'
       memory: { maxRounds: 20, maxContext: 32000, mode: 'smart', cache: true }
     };
     GameState.create(App.activeCharacter, App.config);
+    localStorage.setItem(
+      'bao-lab:author-regex:v1:' + encodeURIComponent(App.activeCharacter.id),
+      JSON.stringify({
+        enabled: false,
+        allowScripts: false,
+        allowExternalAssets: false,
+        allowStateSharing: false,
+        allowUiPersistence: false,
+        rules: [{ pattern: 'hello', replacement: '<b>hi</b>', flags: 'g', enabled: true }]
+      })
+    );
     Chat.reset();
     Chat.add('assistant', App.activeCharacter.greeting);
     Chat.add('user', '我回到港口。');
@@ -46,6 +57,15 @@ test('opens the current story control center and routes to existing story tools'
   await expect(extensions).toContainText('進階顯示規則');
   await expect(extensions).toContainText('AI 上下文');
   await expect(extensions).toContainText('只改畫面');
+  await expect(extensions).toContainText('來源');
+  await expect(extensions).toContainText('保存');
+  await expect(extensions).toContainText('啟用');
+  await expect(extensions).toContainText('作品提供');
+  await expect(extensions).toContainText('夜灣內建');
+  await expect(extensions).toContainText('玩家建立');
+  await expect(extensions).toContainText('作品規則：等待玩家啟用');
+  await expect(extensions).toContainText('作者腳本：未允許');
+  await expect(extensions).toContainText('不自動送 API');
   await extensions.getByRole('button', { name: '關閉故事擴充' }).click();
 
   await open.click();
