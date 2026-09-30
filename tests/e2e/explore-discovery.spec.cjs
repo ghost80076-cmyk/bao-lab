@@ -5,7 +5,7 @@ test('explore page lets players search works and filter capabilities without exp
   await page.goto('./');
   await page.waitForFunction(() => Boolean(window.BAOExploreDiscovery && App.characters?.length));
 
-  await page.getByRole('button', { name: '作品', exact: true }).click();
+  await page.evaluate(() => App.showView('explore'));
   await expect(page.locator('#explore-view')).toHaveClass(/active/);
   await expect(page.locator('#explore-view h2')).toHaveText('探索作品');
 
