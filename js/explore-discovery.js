@@ -102,6 +102,106 @@
     return author ? "作者 · " + author : "";
   };
 
+
+  let previewDialog = null;
+
+  const closePreview = () => {
+    if (!previewDialog) return;
+    if (typeof previewDialog.close === "function" && previewDialog.open) previewDialog.close();
+    else previewDialog.removeAttribute("open");
+  };
+
+  const ensurePreview = () => {
+    if (previewDialog?.isConnected) return previewDialog;
+    const dialog = document.createElement("dialog");
+    dialog.id = "explore-work-preview";
+    dialog.className = "explore-work-preview";
+    dialog.setAttribute("aria-labelledby", "explore-work-preview-title");
+    dialog.innerHTML = '<div class="explore-work-preview-panel">'
+      + '<div class="explore-work-preview-media"><img data-explore-preview-image alt=""><span data-explore-preview-rating></span></div>'
+      + '<div class="explore-work-preview-copy">'
+      + '<div class="explore-work-preview-head"><div><span class="eyebrow">STORY PREVIEW</span><h3 id="explore-work-preview-title" data-explore-preview-title></h3></div>'
+      + '<button type="button" class="text-button" data-explore-preview-close aria-label="關閉作品預覽">關閉</button></div>'
+      + '<div class="explore-work-preview-meta" data-explore-preview-meta></div>'
+      + '<p class="explore-work-preview-description" data-explore-preview-description></p>'
+      + '<div class="explore-work-preview-capabilities" data-explore-preview-capabilities></div>'
+      + '<div class="tags explore-work-preview-tags" data-explore-preview-tags></div>'
+      + '<div class="explore-work-preview-actions"><button type="button" class="secondary" data-explore-preview-close>繼續瀏覽</button>'
+      + '<button type="button" class="primary" data-explore-preview-open>查看作品</button></div>'
+      + '</div></div>';
+
+    dialog.querySelectorAll("[data-explore-preview-close]").forEach(button => {
+      button.addEventListener("click", closePreview);
+    });
+    dialog.addEventListener("click", event => {
+      if (event.target === dialog) closePreview();
+    });
+    dialog.querySelector("[data-explore-preview-open]")?.addEventListener("click", async event => {
+      const id = String(event.currentTarget.dataset.characterId || "");
+      closePreview();
+      if (id) await App.openCharacter(id);
+    });
+    document.body.appendChild(dialog);
+    previewDialog = dialog;
+    return dialog;
+  };
+
+  const openPreview = id => {
+    const key = String(id || "");
+    const character = (App.characters || []).find(item => String(item?.id || "") === key);
+    if (!character) return false;
+
+    const dialog = ensurePreview();
+    const item = manifestEntry(character);
+    const publication = core.publicationMeta(item);
+    const labels = core.capabilityLabels(character);
+    const title = character.title || character.name || "未命名作品";
+    const author = String(item.author || "").trim();
+    const rating = character.rating === "adult" || item.rating === "adult" ? "成熟內容" : "一般內容";
+    const meta = [];
+    if (author) meta.push("作者 · " + author);
+    meta.push(rating);
+    if (publication.publishedVersion) meta.push("公開版本 v" + publication.publishedVersion);
+    if (publication.activityAt) meta.push("更新於 " + formatActivityDate(publication.activityAt));
+
+    const image = dialog.querySelector("[data-explore-preview-image]");
+    if (image) {
+      image.src = character.avatar || "";
+      image.alt = title;
+    }
+    const ratingNode = dialog.querySelector("[data-explore-preview-rating]");
+    if (ratingNode) {
+      ratingNode.textContent = rating;
+      ratingNode.dataset.kind = rating === "成熟內容" ? "mature" : "general";
+    }
+    const titleNode = dialog.querySelector("[data-explore-preview-title]");
+    if (titleNode) titleNode.textContent = title;
+    const metaNode = dialog.querySelector("[data-explore-preview-meta]");
+    if (metaNode) metaNode.textContent = meta.join(" · ");
+    const description = dialog.querySelector("[data-explore-preview-description]");
+    if (description) description.textContent = character.description || "這個作品尚未提供簡介。";
+
+    const capabilityNode = dialog.querySelector("[data-explore-preview-capabilities]");
+    if (capabilityNode) {
+      capabilityNode.innerHTML = labels.map(label => "<span>" + App.escapeHTML(label) + "</span>").join("");
+      capabilityNode.hidden = labels.length === 0;
+    }
+    const tagNode = dialog.querySelector("[data-explore-preview-tags]");
+    if (tagNode) {
+      tagNode.innerHTML = (character.tags || []).slice(0, 8)
+        .map(tag => '<span class="tag">#' + App.escapeHTML(tag) + "</span>").join("");
+      tagNode.hidden = !(character.tags || []).length;
+    }
+    const openButton = dialog.querySelector("[data-explore-preview-open]");
+    if (openButton) openButton.dataset.characterId = key;
+
+    if (!dialog.open) {
+      if (typeof dialog.showModal === "function") dialog.showModal();
+      else dialog.setAttribute("open", "");
+    }
+    return true;
+  };
+
   const ensureTools = () => {
     let host = document.getElementById("explore-discovery-tools");
     if (host) return host;
@@ -465,12 +565,18 @@
         ? matches.map(item => String(item.id || ""))
         : (App.characters || []).map(item => String(item.id || ""));
       const rank = new Map(preferred.map((id, index) => [id, index]));
-      cards.sort((a, b) =>
+      const orderedCards = cards.slice().sort((a, b) =>
         (rank.get(String(a.dataset.characterId || "")) ?? Number.MAX_SAFE_INTEGER) -
         (rank.get(String(b.dataset.characterId || "")) ?? Number.MAX_SAFE_INTEGER)
       );
-      const more = list.querySelector(".character-load-more");
-      cards.forEach(card => list.insertBefore(card, more || null));
+      const currentOrder = cards.map(card => String(card.dataset.characterId || ""));
+      const nextOrder = orderedCards.map(card => String(card.dataset.characterId || ""));
+      const needsReorder = currentOrder.length === nextOrder.length &&
+        currentOrder.some((id, index) => id !== nextOrder[index]);
+      if (needsReorder) {
+        const more = list.querySelector(".character-load-more");
+        orderedCards.forEach(card => list.insertBefore(card, more || null));
+      }
     }
 
     decorateCards();
@@ -637,6 +743,8 @@
   window.BAOExploreDiscovery = Object.freeze({
     state,
     apply,
+    openPreview,
+    closePreview,
     reset() {
       state.query = "";
       state.capability = "all";
