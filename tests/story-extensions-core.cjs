@@ -21,6 +21,25 @@ const core = require("../js/story-extensions-core.js");
 }
 
 {
+  const groups = core.worldInventory({
+    work: [{ id: "inventory", label: "背包", context: "core", tracking: "high" }],
+    platform: [{ id: "quests", label: "任務", context: "relevant", tracking: "medium" }],
+    player: [{ id: "custom_map", label: "地圖", context: "ui_only", tracking: "manual" }],
+    disabled: ["quests"]
+  });
+  assert.deepEqual(groups.map(group => [group.label, group.items.length]), [
+    ["作品提供", 1],
+    ["夜灣內建", 1],
+    ["玩家新增", 1]
+  ]);
+  assert.equal(groups[0].items[0].status, "啟用");
+  assert.match(groups[0].items[0].detail, /每輪提供/);
+  assert.equal(groups[1].items[0].status, "已停用");
+  assert.equal(groups[1].items[0].state, "paused");
+  assert.match(groups[2].items[0].detail, /只顯示/);
+}
+
+{
   const scene = core.sceneSummary({ mode: "efficient", status: "author" });
   assert.equal(scene.title, "節省 Token 場景排版");
   assert.match(scene.detail, /作者狀態欄/);
@@ -29,6 +48,9 @@ const core = require("../js/story-extensions-core.js");
   assert.equal(scene.ownership.storage, "這台裝置");
   assert.equal(scene.ownership.appliesTo, "這台裝置的所有故事");
   assert.match(scene.ownership.control, /玩家決定/);
+  assert.equal(scene.inventory[0].items[0].label, "閱讀模式");
+  assert.equal(scene.inventory[0].items[0].detail, "節省 Token 場景排版");
+  assert.equal(scene.inventory[0].items[1].detail, "作者狀態欄");
 }
 
 {
@@ -47,6 +69,20 @@ const core = require("../js/story-extensions-core.js");
   assert.equal(replace.ownership.storage, "故事存檔");
   assert.equal(replace.ownership.appliesTo, "目前故事");
   assert.match(replace.ownership.control, /排序/);
+  assert.equal(replace.inventory[0].items[0].label, "20歲");
+  assert.equal(replace.inventory[0].items[0].status, "啟用");
+}
+
+{
+  const groups = core.replaceInventory({
+    active: false,
+    rules: [
+      { id: "one", find: "A", replace: "B", enabled: true },
+      { id: "two", find: "C", replace: "D", enabled: false },
+      { id: "three", find: "", replace: "E", enabled: true }
+    ]
+  });
+  assert.deepEqual(groups[0].items.map(item => item.status), ["MOD 關閉", "規則停用", "未完成"]);
 }
 
 {
@@ -78,6 +114,13 @@ const core = require("../js/story-extensions-core.js");
   assert.match(regex.ownership.control, /作品規則也需要玩家明確啟用/);
   assert.match(regex.ownership.permissions.join(" · "), /等待玩家啟用/);
   assert.match(regex.ownership.permissions.join(" · "), /作者腳本：未允許/);
+  assert.deepEqual(regex.inventory.map(group => [group.label, group.items.length]), [
+    ["玩家規則", 2],
+    ["作品提供", 1]
+  ]);
+  assert.equal(regex.inventory[0].items[0].status, "啟用");
+  assert.equal(regex.inventory[0].items[1].status, "規則停用");
+  assert.equal(regex.inventory[1].items[0].status, "等待玩家啟用");
 }
 
 

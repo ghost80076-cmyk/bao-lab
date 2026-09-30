@@ -2,10 +2,24 @@ const { test, expect } = require('@playwright/test');
 
 test('opens the current story control center and routes to existing story tools', async ({ page }) => {
   await page.goto('./');
-  await page.waitForFunction(() => Boolean(window.BAOStoryControlCenter && window.BAOStoryExtensionsCenter && window.BAOConversationSearch && App.characters?.length));
+  await page.waitForFunction(() => Boolean(
+    window.BAOStoryControlCenter &&
+    window.BAOStoryExtensionsCenter &&
+    window.BAOConversationSearch &&
+    window.BAOWorldModules &&
+    window.BAOPlayerTextReplace &&
+    window.BAORegex &&
+    App.characters?.length
+  ));
 
   await page.evaluate(() => {
-    App.activeCharacter = { ...App.characters[0], greeting: '夜灣的燈還亮著。' };
+    App.activeCharacter = {
+      ...App.characters[0],
+      greeting: '夜灣的燈還亮著。',
+      world_modules: [
+        { id: 'inventory', label: '作品背包', context: 'core', tracking: 'high', kind: 'collection' }
+      ]
+    };
     App.config = {
       persona: { name: '玩家', identity: '旅人', relationship: '初次見面' },
       narrativeMode: 'immersive',
@@ -14,6 +28,31 @@ test('opens the current story control center and routes to existing story tools'
       memory: { maxRounds: 20, maxContext: 32000, mode: 'smart', cache: true }
     };
     GameState.create(App.activeCharacter, App.config);
+    BAOWorldModules.applyCustomization({
+      version: 1,
+      enabledBuiltIns: ['quests'],
+      disabled: ['quests'],
+      customModules: [{
+        id: 'custom_map',
+        label: '玩家地圖',
+        icon: '◇',
+        context: 'ui_only',
+        tracking: 'manual',
+        kind: 'object',
+        triggers: [],
+        fields: []
+      }],
+      order: ['inventory', 'quests', 'custom_map']
+    }, App.activeCharacter);
+    BAOPlayerTextReplace.set({
+      active: true,
+      scope: { chat: true, status: false },
+      rules: [{ id: 'age', find: '20歲', replace: 'XX歲', enabled: true }]
+    });
+    BAORegex.save({
+      active: true,
+      rules: [{ name: '稱呼修正', pattern: '先生', replacement: '老師', flags: 'g', enabled: true }]
+    });
     localStorage.setItem(
       'bao-lab:author-regex:v1:' + encodeURIComponent(App.activeCharacter.id),
       JSON.stringify({
@@ -70,6 +109,31 @@ test('opens the current story control center and routes to existing story tools'
   await expect(extensions).toContainText('作品規則：等待玩家啟用');
   await expect(extensions).toContainText('作者腳本：未允許');
   await expect(extensions).toContainText('不自動送 API');
+
+  const worldCard = extensions.locator('[data-extension-card="world"]');
+  await worldCard.locator('summary').click();
+  await expect(worldCard.locator('[data-extension-source-group="work"]')).toContainText('作品背包');
+  await expect(worldCard.locator('[data-extension-source-group="platform"]')).toContainText('任務');
+  await expect(worldCard.locator('[data-extension-source-group="platform"]')).toContainText('已停用');
+  await expect(worldCard.locator('[data-extension-source-group="player"]')).toContainText('玩家地圖');
+
+  const replaceCard = extensions.locator('[data-extension-card="replace"]');
+  await replaceCard.locator('summary').click();
+  await expect(replaceCard).toContainText('20歲');
+  await expect(replaceCard).toContainText('→ XX歲');
+  await expect(replaceCard).toContainText('啟用');
+
+  const regexCard = extensions.locator('[data-extension-card="regex"]');
+  await regexCard.locator('summary').click();
+  await expect(regexCard.locator('[data-extension-source-group="player"]')).toContainText('稱呼修正');
+  await expect(regexCard.locator('[data-extension-source-group="work"]')).toContainText('hello');
+  await expect(regexCard.locator('[data-extension-source-group="work"]')).toContainText('等待玩家啟用');
+
+  const sceneCard = extensions.locator('[data-extension-card="scene"]');
+  await sceneCard.locator('summary').click();
+  await expect(sceneCard).toContainText('閱讀模式');
+  await expect(sceneCard).toContainText('狀態顯示');
+
   await extensions.getByRole('button', { name: '關閉故事擴充' }).click();
 
   await open.click();

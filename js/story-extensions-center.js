@@ -27,7 +27,20 @@
 
   const snapshot = () => {
     let world = [];
-    try { world = window.BAOWorldModules?.definitions?.(App.activeCharacter) || []; } catch (_) {}
+    let worldInventory = {};
+    try {
+      const modules = window.BAOWorldModules;
+      world = modules?.definitions?.(App.activeCharacter) || [];
+      const base = modules?.baseDefinitions?.(App.activeCharacter) || [];
+      const custom = modules?.getCustomization?.(App.activeCharacter) || {};
+      worldInventory = {
+        work: base,
+        platform: (Array.isArray(custom.enabledBuiltIns) ? custom.enabledBuiltIns : [])
+          .map(id => modules?.normalizeModule?.({ id })).filter(Boolean),
+        player: Array.isArray(custom.customModules) ? custom.customModules : [],
+        disabled: Array.isArray(custom.disabled) ? custom.disabled : []
+      };
+    } catch (_) {}
     let replace = {};
     try { replace = window.BAOPlayerTextReplace?.get?.() || {}; } catch (_) {}
     let regex = {};
@@ -35,6 +48,7 @@
     const scene = window.BAOSceneHTML?.prefs || { mode: "native", status: "native" };
     return core.overview({
       world,
+      worldInventory,
       scene,
       replace,
       regex,
@@ -95,6 +109,31 @@
       </div>`;
   };
 
+
+  const inventoryHTML = data => {
+    const groups = Array.isArray(data?.inventory) ? data.inventory.filter(group => group?.items?.length) : [];
+    if (!groups.length) return "";
+    const total = groups.reduce((sum, group) => sum + group.items.length, 0);
+    const summary = groups.map(group => `${group.label} ${group.items.length}`).join(" · ");
+    return `
+      <details class="story-extension-inventory">
+        <summary><span>目前內容</span><small>${esc(total + " 項 · " + summary)}</small></summary>
+        <div class="story-extension-inventory-body">
+          ${groups.map(group => `
+            <section class="story-extension-inventory-group" data-extension-source-group="${esc(group.id || "")}">
+              <header><b>${esc(group.label || "其他")}</b><span>${Number(group.items.length).toLocaleString()} 項</span></header>
+              <div class="story-extension-items">
+                ${group.items.map(item => `
+                  <div class="story-extension-item" data-state="${esc(item.state || "info")}">
+                    <div><b>${esc(item.label || "未命名")}</b>${item.detail ? `<small>${esc(item.detail)}</small>` : ""}</div>
+                    <span>${esc(item.status || "")}</span>
+                  </div>`).join("")}
+              </div>
+            </section>`).join("")}
+        </div>
+      </details>`;
+  };
+
   const card = data => `
     <article class="story-extension-card" data-extension-card="${esc(data.id)}">
       <div class="story-extension-copy">
@@ -103,6 +142,7 @@
         <p>${esc(data.detail)}</p>
         <div class="story-extension-scopes" aria-label="作用範圍">${scopeChips(data.scopes)}</div>
         ${ownershipMeta(data)}
+        ${inventoryHTML(data)}
       </div>
       <button type="button" class="secondary" data-extension-action="${esc(data.id)}">${data.id === "regex" ? "開啟工具" : "管理"} →</button>
     </article>`;
