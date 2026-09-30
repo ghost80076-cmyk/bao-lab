@@ -142,5 +142,22 @@ test('mobile exit asks first, then leaves through the existing auto-save flow', 
   page.once('dialog', dialog => dialog.accept());
   await exit.click();
   await expect(page.locator('#detail-view')).toHaveClass(/active/);
+  await expect(page.locator('#bao-mobile-nav')).toBeVisible();
+  await expect(page.locator('#bao-mobile-exit')).toHaveCount(0);
+  await expect(page.locator('#bao-mobile-composer-tools')).toHaveCount(0);
+  await expect(page.locator('#bao-chat-tool-drawer')).toHaveCount(0);
+  await expect(page.locator('#bao-chat-cost-backdrop')).toHaveCount(0);
+  await expect.poll(() => page.evaluate(() => {
+    const chat = document.getElementById('chat-view');
+    const detail = document.getElementById('detail-view');
+    const box = detail?.getBoundingClientRect();
+    return {
+      active: chat?.classList.contains('active'),
+      viewportHeight: chat?.style.getPropertyValue('--bao-mobile-viewport-height') || '',
+      detailHeight: Math.round(box?.height || 0),
+      bodyOverflowY: getComputedStyle(document.body).overflowY
+    };
+  })).toEqual({ active: false, viewportHeight: '', detailHeight: expect.any(Number), bodyOverflowY: 'visible' });
+  expect(await page.locator('#detail-view').evaluate(node => node.getBoundingClientRect().height)).toBeGreaterThan(100);
   await expect.poll(() => page.evaluate(() => Boolean(Storage.loadStory()))).toBe(true);
 });
