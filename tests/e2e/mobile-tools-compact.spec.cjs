@@ -19,7 +19,7 @@ for (const width of [375, 390]) {
     await expect(page.locator('#chat-view')).toHaveClass(/active/);
     await expect(page.locator('#bao-play-status-toggle')).toHaveText('資訊');
     await expect(page.locator('#bao-play-status-toggle')).toHaveAttribute('aria-label', '查看人物、事件與作品資訊');
-    await expect(page.locator('#bao-surface-mode-toggle')).toHaveText('工具');
+    await expect(page.locator('#bao-surface-mode-toggle')).toBeHidden();
     await expect(page.locator('#bao-mobile-status')).toHaveCount(0);
     await expect(page.locator('#bao-mobile-memory')).toHaveCount(0);
     await expect(page.locator('#bao-mobile-support')).toHaveCount(0);

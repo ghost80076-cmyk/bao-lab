@@ -14,7 +14,12 @@ async function openDemoStory(page) {
   await page.waitForFunction(() => Boolean(window.BAOStorySurface));
   await expect(page.locator('#chat-view')).toHaveAttribute('data-bao-surface', 'play');
   await expect(page.locator('#bao-immersive-toggle')).toBeHidden();
-  await expect(page.locator('#bao-surface-mode-toggle')).toBeVisible();
+  if ((await page.viewportSize()).width <= 820) {
+    await expect(page.locator('#bao-surface-mode-toggle')).toBeHidden();
+    await expect(page.locator('#bao-mobile-composer-tools')).toBeVisible();
+  } else {
+    await expect(page.locator('#bao-surface-mode-toggle')).toBeVisible();
+  }
   await expect(page.locator('#chat-view .chat-title-copy .eyebrow')).toContainText('夜灣');
   await expect(page.locator('#user-input')).toHaveAttribute('placeholder', '寫下你的下一句…');
   await expect(page.locator('#chat-view')).toHaveAttribute('data-bao-reading-background', 'image');
@@ -51,10 +56,8 @@ for (const width of [320, 390, 900, 1280]) {
     await page.locator('#bao-play-status-close').click();
     await expect(page.locator('#game-ui')).toBeHidden();
     await expect(page.locator('#bao-play-status-toggle')).toHaveAttribute('aria-expanded', 'false');
-    await page.locator('#bao-surface-mode-toggle').click();
-    await expect(page.locator('#chat-view')).toHaveAttribute('data-bao-surface', 'studio');
-    await expect(page.locator('#user-input')).toHaveAttribute('placeholder', '輸入你的行動或台詞…');
-    if (width < 1081) {
+    if (width <= 820) {
+      await page.locator('#bao-mobile-composer-tools').click();
       const drawer = page.locator('#bao-chat-tool-drawer');
       await expect(drawer).toBeVisible();
       // A render refresh must not toggle the mobile tools closed or recreate it.
@@ -62,13 +65,27 @@ for (const width of [320, 390, 900, 1280]) {
       await expect(drawer).toBeVisible();
       await drawer.getByRole('button', { name: '關閉 ×' }).click();
       await expect(drawer).toHaveCount(0);
+      await expect(page.locator('#chat-view')).toHaveAttribute('data-bao-surface', 'play');
+      await expect(page.locator('#user-input')).toHaveAttribute('placeholder', '寫下你的下一句…');
     } else {
-      await expect(page.locator('#chat-view .usage-bar')).toBeVisible();
+      await page.locator('#bao-surface-mode-toggle').click();
+      await expect(page.locator('#chat-view')).toHaveAttribute('data-bao-surface', 'studio');
+      await expect(page.locator('#user-input')).toHaveAttribute('placeholder', '輸入你的行動或台詞…');
+      if (width < 1081) {
+        const drawer = page.locator('#bao-chat-tool-drawer');
+        await expect(drawer).toBeVisible();
+        await page.evaluate(() => { BAOStorySurface.sync(); BAOStorySurface.sync(); });
+        await expect(drawer).toBeVisible();
+        await drawer.getByRole('button', { name: '關閉 ×' }).click();
+        await expect(drawer).toHaveCount(0);
+      } else {
+        await expect(page.locator('#chat-view .usage-bar')).toBeVisible();
+      }
+      await page.locator('#bao-surface-mode-toggle').click();
+      await expect(page.locator('#chat-view')).toHaveAttribute('data-bao-surface', 'play');
+      await expect(page.locator('#user-input')).toHaveAttribute('placeholder', '寫下你的下一句…');
+      await expect(page.locator('#bao-surface-mode-toggle')).toHaveAttribute('aria-pressed', 'false');
     }
-    await page.locator('#bao-surface-mode-toggle').click();
-    await expect(page.locator('#chat-view')).toHaveAttribute('data-bao-surface', 'play');
-    await expect(page.locator('#user-input')).toHaveAttribute('placeholder', '寫下你的下一句…');
-    await expect(page.locator('#bao-surface-mode-toggle')).toHaveAttribute('aria-pressed', 'false');
     await expect(page.locator('#chat-view .usage-bar')).toBeHidden();
     await expect(page.locator('#chat-stream')).toBeVisible();
     await expect(page.locator('#user-input')).toBeVisible();
@@ -77,14 +94,28 @@ for (const width of [320, 390, 900, 1280]) {
     const size = await page.evaluate(() => {
       const stream = document.getElementById('chat-stream').getBoundingClientRect();
       const composer = document.querySelector('#chat-view .composer').getBoundingClientRect();
-      const toggle = document.getElementById('bao-surface-mode-toggle').getBoundingClientRect();
+      const toggle = document.getElementById('bao-surface-mode-toggle')?.getBoundingClientRect();
       const status = document.getElementById('bao-play-status-toggle').getBoundingClientRect();
-      return { stream: stream.height, composerTop: composer.top, toggleLeft: toggle.left, statusRight: status.right, toggleRight: toggle.right, pageWidth: document.documentElement.scrollWidth, width: innerWidth };
+      const composerTools = document.getElementById('bao-mobile-composer-tools')?.getBoundingClientRect();
+      return {
+        stream: stream.height,
+        composerTop: composer.top,
+        toggle: toggle ? { left: toggle.left, right: toggle.right, width: toggle.width } : null,
+        statusRight: status.right,
+        composerTools: composerTools ? { left: composerTools.left, right: composerTools.right } : null,
+        pageWidth: document.documentElement.scrollWidth,
+        width: innerWidth
+      };
     });
     expect(size.stream).toBeGreaterThan(100);
     expect(size.composerTop).toBeGreaterThan(0);
-    expect(size.statusRight).toBeLessThanOrEqual(size.toggleLeft);
-    expect(size.toggleRight).toBeLessThanOrEqual(size.width + 1);
+    if (width <= 820) {
+      expect(size.toggle.width).toBe(0);
+      expect(size.composerTools.right).toBeLessThanOrEqual(size.width + 1);
+    } else {
+      expect(size.statusRight).toBeLessThanOrEqual(size.toggle.left);
+      expect(size.toggle.right).toBeLessThanOrEqual(size.width + 1);
+    }
     expect(size.pageWidth).toBeLessThanOrEqual(size.width + 1);
     expect(await page.evaluate(() => JSON.stringify(Chat.messages))).toBe(before);
     await page.evaluate(() => { BAOStorySurface.setMode('studio'); App.showView('home'); App.showView('chat'); });

@@ -206,7 +206,10 @@
         }
       }, 0);
     } else {
-      window.BAOChatToolNavigation?.closeDrawer?.();
+      // A normal Play-mode refresh must not close a tool drawer the player
+      // explicitly opened from the mobile Composer ＋. Only close the drawer
+      // when actually transitioning back from Studio to Play.
+      if (previousMode !== mode) window.BAOChatToolNavigation?.closeDrawer?.();
       window.BAOChatExperience?.closeStatus?.();
       main.classList.remove('bao-mobile-panel-open');
     }

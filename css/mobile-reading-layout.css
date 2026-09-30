@@ -275,9 +275,20 @@
   #chat-view .story-message-tools [data-regenerate]{order:30}
   #chat-view .story-message-tools [data-story-rollback]{order:40}
   #chat-view .story-message-tools [data-create-branch]{order:50}
-  #chat-view .story-message-tools [data-inspire]{order:60}
+  /* On phones, AI action inspiration belongs beside the composer. Keep the
+     per-message version on desktop, but remove the duplicate mobile entry. */
+  #chat-view .story-message-tools [data-inspire]{display:none!important}
   #chat-view .story-message-tools [data-copy]{order:70}
   #chat-view .story-variant-switcher{min-height:35px}
+
+  /* Composer ＋ is the single mobile entry to story tools.
+     Keep Header「資訊」for reading context; hide the duplicate Header「工具」. */
+  #chat-view #bao-surface-mode-toggle{display:none!important}
+  #chat-view #bao-surface-controls{
+    padding:0!important;
+    border:0!important;
+    background:transparent!important;
+  }
 
   #bao-mobile-exit,
   #bao-mobile-status,

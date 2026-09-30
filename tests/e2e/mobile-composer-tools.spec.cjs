@@ -41,6 +41,9 @@ test('mobile composer keeps tools, input, AI assist and send in one row', async 
   await expect(inspire).toBeEnabled();
   await expect(input).toBeVisible();
   await expect(send).toBeVisible();
+  await expect(page.locator('#bao-surface-mode-toggle')).toBeHidden();
+  const messageInspire = page.locator('.story-message-tools [data-inspire]');
+  await expect(messageInspire.first()).toBeHidden();
 
   const geometry = await page.evaluate(() => {
     const composer = document.querySelector('#chat-view .composer').getBoundingClientRect();
