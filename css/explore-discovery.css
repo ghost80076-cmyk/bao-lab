@@ -204,18 +204,6 @@
   border-top:1px solid rgba(255,255,255,.055);backdrop-filter:blur(14px)
 }
 
-/* Player-owned presentation preference. These only alter card density, never story data. */
-#explore-view[data-explore-layout="large"] #character-list{
-  grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:20px
-}
-#explore-view[data-explore-layout="compact"] #character-list{
-  grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px
-}
-#explore-view[data-explore-layout="compact"] #character-list .character-content{padding:11px}
-#explore-view[data-explore-layout="compact"] #character-list .character-content>p{-webkit-line-clamp:1}
-#explore-view[data-explore-layout="compact"] #character-list .tags{max-height:23px;overflow:hidden}
-#explore-view[data-explore-layout="compact"] .explore-card-capabilities{display:none}
-
 @media(max-width:700px){
   .explore-toolbar{grid-template-columns:minmax(0,1fr) auto;align-items:end}
   .explore-filter-trigger{min-height:42px;padding-inline:12px}
@@ -226,11 +214,6 @@
   .explore-filter-panel{max-height:88dvh;padding:18px 16px calc(16px + env(safe-area-inset-bottom))}
   .explore-filter-head{top:-18px;margin:-18px -16px 4px;padding:18px 16px 15px}
   .explore-filter-actions{bottom:calc(-16px - env(safe-area-inset-bottom));margin:8px -16px calc(-16px - env(safe-area-inset-bottom));padding:13px 16px calc(16px + env(safe-area-inset-bottom))}
-  #explore-view[data-explore-layout="large"] #character-list{grid-template-columns:1fr;gap:16px}
-  #explore-view[data-explore-layout="compact"] #character-list{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
-  #explore-view[data-explore-layout="compact"] #character-list .character-content{padding:9px}
-  #explore-view[data-explore-layout="compact"] #character-list .character-content h3{font-size:14px}
-  #explore-view[data-explore-layout="compact"] .explore-favorite-button{width:29px;height:29px}
 }
 @media(max-width:390px){
   .explore-toolbar{grid-template-columns:1fr}
