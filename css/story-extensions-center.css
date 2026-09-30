@@ -164,3 +164,48 @@
   .story-extension-item{grid-template-columns:minmax(0,1fr) auto}
   .story-extension-item>.story-extension-quick{grid-column:1/-1;width:100%}
 }
+
+.story-extension-pack-actions{
+  display:flex;flex-wrap:wrap;gap:8px;margin-top:10px
+}
+.story-extension-pack-actions button{
+  min-height:36px
+}
+.story-extensions-note>small{
+  display:block;margin-top:8px;color:#777286;font-size:10px;line-height:1.55
+}
+.story-extension-pack-preview{
+  margin-top:16px;padding:14px;border:1px solid rgba(181,174,255,.22);border-radius:16px;
+  background:rgba(181,174,255,.055)
+}
+.story-extension-pack-preview>header{
+  display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:11px
+}
+.story-extension-pack-preview h3{margin:3px 0 4px;font-size:17px}
+.story-extension-pack-preview header p{margin:0;color:var(--muted);font-size:12px;line-height:1.55}
+.story-extension-pack-cancel{
+  flex:0 0 auto;min-height:32px;padding:4px 9px;border:1px solid rgba(255,255,255,.1);border-radius:9px;
+  background:rgba(255,255,255,.035);color:#bbb5ca;font:inherit;font-size:10px;cursor:pointer
+}
+.story-extension-pack-sections{display:grid;gap:7px}
+.story-extension-pack-section{
+  display:grid;grid-template-columns:auto minmax(0,1fr);align-items:start;gap:9px;padding:10px;
+  border:1px solid rgba(255,255,255,.07);border-radius:12px;background:rgba(9,10,16,.34);cursor:pointer
+}
+.story-extension-pack-section input{margin-top:3px}
+.story-extension-pack-section span{display:grid;gap:2px}
+.story-extension-pack-section b{color:#dfdae9;font-size:12px}
+.story-extension-pack-section small{color:#a49eaf;font-size:10px}
+.story-extension-pack-section em{color:#777286;font-size:9px;font-style:normal;line-height:1.5}
+.story-extension-pack-excluded{
+  display:grid;gap:3px;margin:10px 0;padding:9px 10px;border-radius:10px;background:rgba(0,0,0,.16);
+  color:#8c8798;font-size:9px;line-height:1.55
+}
+.story-extension-pack-excluded b{color:#aaa4ba;font-size:10px}
+.story-extension-pack-apply{width:100%;min-height:40px}
+@media(max-width:720px){
+  .story-extension-pack-actions{display:grid;grid-template-columns:1fr 1fr}
+  .story-extension-pack-actions button{width:100%;min-height:42px}
+  .story-extension-pack-preview{padding:12px}
+  .story-extension-pack-preview>header{gap:8px}
+}

@@ -132,6 +132,11 @@ jobs:
           node --check js/story-extensions-core.js
           node --check js/story-extensions-center.js
           node tests/story-extensions-core.cjs
+      - name: Portable story extension packs
+        run: |
+          node --check js/story-extension-pack-core.js
+          node --check js/story-extension-pack.js
+          node tests/story-extension-pack-core.cjs
       - name: Player-facing context health
         run: |
           node --check js/context-health-core.js
