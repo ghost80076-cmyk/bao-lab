@@ -164,7 +164,7 @@ test('explore surfaces player-relative NEW and UPDATED from explicit published v
   await expect(target).toBeVisible();
   await expect(target.locator('.explore-update-badge')).toHaveText('NEW');
 
-  await chooseFilter(page, '最近更新');
+  await chooseFilter(page, '有近期更新');
   await expect(target).toBeVisible();
   await expect(page.locator('#explore-result-count')).toContainText('目前顯示');
 
@@ -198,7 +198,7 @@ test('explore surfaces player-relative NEW and UPDATED from explicit published v
   await expect(target.locator('.explore-update-badge')).toHaveText('UPDATED');
   await expect(target.locator('.explore-update-badge')).toHaveAttribute('aria-label', /v2/);
 
-  await chooseFilter(page, '最近更新');
+  await chooseFilter(page, '有近期更新');
   await expect(target.locator('.explore-card-context')).toContainText('v2');
 
   await page.evaluate(() => BAOExploreDiscovery.markViewed('night-sky-magic-academy', Date.now()));
@@ -232,13 +232,12 @@ test('explore cards change information emphasis by browsing context', async ({ p
 
   await chooseFilter(page, '最近看過');
   await expect(target.locator('.explore-card-context')).toContainText('上次看過');
-  await expect(target.locator('.tags')).toHaveAttribute('data-hidden-count', '5');
-  await expect(target.locator('.tags .tag:visible')).toHaveCount(3);
+  await expect(target.locator('.character-content > .tags')).toBeHidden();
 
   await chooseFilter(page, '★ 收藏');
   await expect(target.locator('.explore-card-context')).toContainText('收藏中');
 
-  await chooseFilter(page, '最近更新');
+  await chooseFilter(page, '有近期更新');
   await expect(target.locator('.explore-card-context')).toContainText('更新於');
 });
 
