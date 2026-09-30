@@ -92,3 +92,46 @@ test('explore search matches tags and does not change the current category gate'
   );
   expect(categories.every(category => category === 'female')).toBe(true);
 });
+
+
+test('explore keeps favorites and recently viewed works on this device', async ({ page }) => {
+  await page.addInitScript(() => localStorage.removeItem('yorubay:explore-continuity:v1'));
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('./');
+  await page.waitForFunction(() => Boolean(window.BAOExploreDiscovery && App.characters?.length));
+  await page.evaluate(() => App.showView('explore'));
+
+  const target = page.locator('#character-list [data-character-id="night-sky-magic-academy"]');
+  await expect(target).toBeVisible();
+
+  const favorite = target.locator('[data-explore-favorite]');
+  await expect(favorite).toHaveAttribute('aria-pressed', 'false');
+  await favorite.click();
+  await expect(favorite).toHaveAttribute('aria-pressed', 'true');
+  await expect(target.locator('.explore-card-continuity')).toContainText('已收藏');
+
+  const tools = page.locator('#explore-discovery-tools');
+  await tools.getByRole('button', { name: '★ 收藏', exact: true }).click();
+  await expect.poll(() => page.locator('#character-list [data-character-id]:visible').count()).toBe(1);
+  await expect(target).toBeVisible();
+
+  await target.click();
+  await expect(page.locator('#detail-view')).toHaveClass(/active/);
+  await page.locator('#detail-back').click();
+  await expect(page.locator('#explore-view')).toHaveClass(/active/);
+
+  await tools.getByRole('button', { name: '最近看過', exact: true }).click();
+  await expect.poll(() => page.locator('#character-list [data-character-id]:visible').count()).toBe(1);
+  await expect(target).toBeVisible();
+  await expect(target.locator('.explore-card-continuity')).toContainText('最近看過');
+
+  const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('yorubay:explore-continuity:v1') || '{}'));
+  expect(saved.favorites).toContain('night-sky-magic-academy');
+  expect(saved.recent[0].id).toBe('night-sky-magic-academy');
+
+  const dimensions = await page.evaluate(() => ({
+    pageWidth: document.documentElement.scrollWidth,
+    viewport: innerWidth
+  }));
+  expect(dimensions.pageWidth).toBeLessThanOrEqual(dimensions.viewport + 1);
+});
