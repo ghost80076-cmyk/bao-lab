@@ -321,7 +321,7 @@
     const fullHeight = Math.ceil(input.scrollHeight || minHeight);
     const wanted = Math.max(minHeight, Math.min(maxHeight, fullHeight));
     input.style.height = wanted + 'px';
-    input.style.overflowY = fullHeight > maxHeight + 1 ? 'auto' : 'hidden';
+    input.style.setProperty('overflow-y', fullHeight > maxHeight + 1 ? 'auto' : 'hidden', 'important');
     input.dataset.baoComposerExpanded = wanted > minHeight + 4 ? 'true' : 'false';
     input.dataset.baoComposerHeight = String(wanted);
     if (previousHeight && previousHeight !== wanted) schedule();
