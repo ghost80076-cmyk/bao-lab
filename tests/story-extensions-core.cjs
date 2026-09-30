@@ -34,8 +34,10 @@ const core = require("../js/story-extensions-core.js");
   ]);
   assert.equal(groups[0].items[0].status, "啟用");
   assert.match(groups[0].items[0].detail, /每輪提供/);
+  assert.deepEqual(groups[0].items[0].quick, { kind: "world", key: "inventory", enabled: true, label: "停用" });
   assert.equal(groups[1].items[0].status, "已停用");
   assert.equal(groups[1].items[0].state, "paused");
+  assert.deepEqual(groups[1].items[0].quick, { kind: "world", key: "quests", enabled: false, label: "啟用" });
   assert.match(groups[2].items[0].detail, /只顯示/);
 }
 
@@ -58,7 +60,7 @@ const core = require("../js/story-extensions-core.js");
     active: true,
     scope: { chat: true, status: true },
     rules: [
-      { find: "20歲", replace: "XX歲", enabled: true },
+      { id: "text-replace-1", find: "20歲", replace: "XX歲", enabled: true },
       { find: "", replace: "ignored", enabled: true }
     ]
   });
@@ -71,6 +73,8 @@ const core = require("../js/story-extensions-core.js");
   assert.match(replace.ownership.control, /排序/);
   assert.equal(replace.inventory[0].items[0].label, "20歲");
   assert.equal(replace.inventory[0].items[0].status, "啟用");
+  assert.deepEqual(replace.inventory[0].quick, { kind: "replace-master", key: "replace", enabled: true, label: "停用" });
+  assert.deepEqual(replace.inventory[0].items[0].quick, { kind: "replace-rule", key: "text-replace-1", enabled: true, label: "停用" });
 }
 
 {
@@ -120,9 +124,22 @@ const core = require("../js/story-extensions-core.js");
   ]);
   assert.equal(regex.inventory[0].items[0].status, "啟用");
   assert.equal(regex.inventory[0].items[1].status, "規則停用");
+  assert.deepEqual(regex.inventory[0].quick, { kind: "regex-master", key: "regex", enabled: true, label: "停用" });
+  assert.deepEqual(regex.inventory[0].items[0].quick, { kind: "regex-rule", key: "0", enabled: true, label: "停用" });
+  assert.deepEqual(regex.inventory[0].items[1].quick, { kind: "regex-rule", key: "1", enabled: false, label: "啟用" });
   assert.equal(regex.inventory[1].items[0].status, "等待玩家啟用");
+  assert.equal(regex.inventory[1].items[0].quick, null);
 }
 
+
+
+{
+  const groups = core.regexInventory({
+    active: true,
+    rules: [{ name: "壞掉規則", pattern: "(", enabled: false, reason: "正則語法錯誤" }]
+  }, {});
+  assert.equal(groups[0].items[0].quick, null);
+}
 
 {
   const regex = core.regexSummary(

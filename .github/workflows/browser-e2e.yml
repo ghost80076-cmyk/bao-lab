@@ -44,6 +44,35 @@ jobs:
           if-no-files-found: ignore
           retention-days: 7
 
+  story-controls:
+    name: Story controls · Chromium
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install test dependencies
+        run: npm ci
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Verify story control center and extension quick controls
+        run: npm run test:e2e -- tests/e2e/story-control-center.spec.cjs --project=chromium
+      - name: Upload story control report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: story-control-playwright-report
+          path: |
+            playwright-report
+            test-results
+          if-no-files-found: ignore
+          retention-days: 7
+
   cross-browser-smoke:
     name: Smoke · ${{ matrix.browser }}
     runs-on: ubuntu-latest
