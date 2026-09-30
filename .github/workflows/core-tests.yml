@@ -127,6 +127,11 @@ jobs:
           node --check js/story-control-center-core.js
           node --check js/story-control-center.js
           node tests/story-control-center-core.cjs
+      - name: Story extension scopes
+        run: |
+          node --check js/story-extensions-core.js
+          node --check js/story-extensions-center.js
+          node tests/story-extensions-core.cjs
       - name: Player-facing context health
         run: |
           node --check js/context-health-core.js
