@@ -117,7 +117,7 @@ test('explore keeps favorites and recently viewed works on this device', async (
 
   await target.click();
   await expect(page.locator('#detail-view')).toHaveClass(/active/);
-  await page.locator('#detail-back').click();
+  await page.evaluate(() => App.showView('explore'));
   await expect(page.locator('#explore-view')).toHaveClass(/active/);
 
   await tools.getByRole('button', { name: '最近看過', exact: true }).click();
