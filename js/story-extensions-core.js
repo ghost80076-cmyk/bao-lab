@@ -14,7 +14,7 @@
   const source = (id, label, count = 0, note = "") => ({
     id,
     label,
-    count: Math.max(0, Number(count) || 0),
+    count: count === null ? null : Math.max(0, Number(count) || 0),
     note: text(note)
   });
 
