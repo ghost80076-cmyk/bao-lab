@@ -157,20 +157,21 @@
   const injectEntry = () => {
     const chat = document.getElementById("chat-view");
     if (!chat?.classList.contains("active")) return;
-    const bar = document.getElementById("bao-chat-tool-shortcuts");
-    const host = bar || chat.querySelector(".chat-topline");
-    if (!host || host.querySelector("[data-open-story-control]")) return;
+    const controls = document.getElementById("bao-surface-controls");
+    const host = controls || chat.querySelector(".chat-topline");
+    if (!host || chat.querySelector("[data-open-story-control]")) return;
     const button = document.createElement("button");
     button.type = "button";
     button.className = "secondary story-control-entry";
     button.dataset.openStoryControl = "true";
-    button.textContent = "☷ 故事控制台";
+    button.textContent = controls ? "故事" : "☷ 故事控制台";
+    button.setAttribute("aria-label", "故事控制台");
     button.title = "查看這個故事目前使用的模型、身份、記憶、狀態與故事擴充";
     button.addEventListener("click", open);
-    if (bar) {
-      const all = bar.querySelector("button:last-child");
-      if (all) bar.insertBefore(button, all);
-      else bar.appendChild(button);
+    if (controls) {
+      const tools = controls.querySelector("#bao-surface-mode-toggle");
+      if (tools) controls.insertBefore(button, tools);
+      else controls.appendChild(button);
     } else host.appendChild(button);
   };
 
