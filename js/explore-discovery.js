@@ -6,6 +6,7 @@
   if (!core || !root || typeof App === "undefined" || window.BAOExploreDiscovery) return;
 
   const STORAGE_KEY = "yorubay:explore-continuity:v1";
+  const PREF_KEY = "yorubay:explore-preferences:v1";
 
   const readLibrary = () => {
     try {
@@ -27,13 +28,34 @@
     return safe;
   };
 
+  const readPreferences = () => {
+    try {
+      const raw = JSON.parse(localStorage.getItem(PREF_KEY) || "{}");
+      return {
+        sort: ["default", "latest", "updated"].includes(raw?.sort) ? raw.sort : "default"
+      };
+    } catch {
+      return { sort: "default" };
+    }
+  };
+
+  const writePreferences = () => {
+    try {
+      localStorage.setItem(PREF_KEY, JSON.stringify({ sort: state.sort }));
+    } catch (error) {
+      console.warn("YoruBay explore preferences could not be saved:", error);
+    }
+  };
+
   let library = readLibrary();
+  const preferences = readPreferences();
 
   const state = {
     category: "all",
     query: "",
     capability: "all",
-    scope: "all"
+    scope: "all",
+    sort: preferences.sort
   };
 
   const manifestEntry = character =>
@@ -88,36 +110,83 @@
     host.className = "explore-discovery-tools";
     host.setAttribute("aria-label", "搜尋與篩選作品");
     host.innerHTML = `
-      <div class="explore-search">
-        <label for="explore-search-input">搜尋作品</label>
-        <div class="explore-search-box">
-          <span aria-hidden="true">⌕</span>
-          <input id="explore-search-input" type="search" autocomplete="off" spellcheck="false"
-            placeholder="搜尋標題、描述、標籤…">
-          <button type="button" class="text-button explore-search-clear" data-explore-clear hidden>清除</button>
+      <div class="explore-toolbar">
+        <div class="explore-search">
+          <label for="explore-search-input">搜尋作品</label>
+          <div class="explore-search-box">
+            <span aria-hidden="true">⌕</span>
+            <input id="explore-search-input" type="search" autocomplete="off" spellcheck="false"
+              placeholder="搜尋標題、描述、標籤…">
+            <button type="button" class="text-button explore-search-clear" data-explore-clear hidden>清除</button>
+          </div>
         </div>
+        <button type="button" class="secondary explore-filter-trigger" data-explore-filter-open
+          aria-haspopup="dialog" aria-controls="explore-filter-sheet">
+          <span aria-hidden="true">☷</span><span>篩選</span>
+          <b data-explore-filter-count hidden>0</b>
+        </button>
       </div>
-      <div class="explore-scope" aria-label="我的作品篩選">
-        <span>我的：</span>
-        <button type="button" class="filter active" data-explore-scope="all">全部作品</button>
-        <button type="button" class="filter" data-explore-scope="favorites">★ 收藏</button>
-        <button type="button" class="filter" data-explore-scope="recent">最近看過</button>
-        <button type="button" class="filter" data-explore-scope="updates">最近更新</button>
-      </div>
-      <div class="explore-capabilities" aria-label="作品能力篩選">
-        <span>想找：</span>
-        <button type="button" class="filter active" data-explore-capability="all">全部</button>
-        <button type="button" class="filter" data-explore-capability="world">世界模擬</button>
-        <button type="button" class="filter" data-explore-capability="ui">互動 UI</button>
-      </div>
+      <div id="explore-active-filters" class="explore-active-filters" aria-label="目前篩選條件" hidden></div>
       <div class="explore-result-line">
         <span id="explore-result-count" role="status" aria-live="polite">整理作品中…</span>
-        <button type="button" class="text-button" data-explore-reset hidden>重設篩選</button>
+        <button type="button" class="text-button" data-explore-reset hidden>全部重設</button>
       </div>
       <div id="explore-search-empty" class="explore-search-empty" hidden>
         <b>沒有找到符合條件的作品</b>
-        <span>可以換一個關鍵字，或清除能力篩選後再看看。</span>
-      </div>`;
+        <span>可以換一個關鍵字，或清除篩選後再看看。</span>
+      </div>
+      <dialog id="explore-filter-sheet" class="explore-filter-sheet" aria-labelledby="explore-filter-title">
+        <div class="explore-filter-panel">
+          <div class="explore-filter-head">
+            <div><span class="eyebrow">DISCOVER</span><h3 id="explore-filter-title">調整探索方式</h3></div>
+            <button type="button" class="text-button" data-explore-filter-close aria-label="關閉篩選">關閉</button>
+          </div>
+
+          <section class="explore-filter-group" aria-labelledby="explore-sort-label">
+            <h4 id="explore-sort-label">排序</h4>
+            <div class="explore-option-row">
+              <button type="button" data-explore-sort="default">預設</button>
+              <button type="button" data-explore-sort="latest">最近發布</button>
+              <button type="button" data-explore-sort="updated">最近更新</button>
+            </div>
+          </section>
+
+          <section class="explore-filter-group" aria-labelledby="explore-scope-label">
+            <h4 id="explore-scope-label">我的</h4>
+            <div class="explore-option-row">
+              <button type="button" data-explore-scope="all">全部作品</button>
+              <button type="button" data-explore-scope="favorites">★ 收藏</button>
+              <button type="button" data-explore-scope="recent">最近看過</button>
+              <button type="button" data-explore-scope="updates">有近期更新</button>
+            </div>
+          </section>
+
+          <section class="explore-filter-group" aria-labelledby="explore-category-label">
+            <h4 id="explore-category-label">角色分類</h4>
+            <div class="explore-option-row">
+              <button type="button" data-explore-category="all">全部</button>
+              <button type="button" data-explore-category="male">一般男性</button>
+              <button type="button" data-explore-category="female">一般女性</button>
+              <button type="button" data-explore-category="adult-male">18+ 男性</button>
+              <button type="button" data-explore-category="adult-female">18+ 女性</button>
+            </div>
+          </section>
+
+          <section class="explore-filter-group" aria-labelledby="explore-capability-label">
+            <h4 id="explore-capability-label">作品能力</h4>
+            <div class="explore-option-row">
+              <button type="button" data-explore-capability="all">全部</button>
+              <button type="button" data-explore-capability="world">世界模擬</button>
+              <button type="button" data-explore-capability="ui">互動 UI</button>
+            </div>
+          </section>
+
+          <div class="explore-filter-actions">
+            <button type="button" class="secondary" data-explore-clear-filters>清除</button>
+            <button type="button" class="primary" data-explore-done>完成</button>
+          </div>
+        </div>
+      </dialog>`
 
     const list = document.getElementById("character-list");
     list?.insertAdjacentElement("beforebegin", host);
@@ -125,6 +194,43 @@
     const input = host.querySelector("#explore-search-input");
     const clear = host.querySelector("[data-explore-clear]");
     const reset = host.querySelector("[data-explore-reset]");
+    const dialog = host.querySelector("#explore-filter-sheet");
+
+    const closeDialog = () => {
+      if (!dialog) return;
+      if (typeof dialog.close === "function" && dialog.open) dialog.close();
+      else dialog.removeAttribute("open");
+    };
+
+    const openDialog = () => {
+      if (!dialog) return;
+      if (typeof dialog.showModal === "function") dialog.showModal();
+      else dialog.setAttribute("open", "");
+    };
+
+    const setCategory = category => {
+      const next = ["all", "male", "female", "adult-male", "adult-female"].includes(category) ? category : "all";
+      if (next.startsWith("adult-") && localStorage.getItem("bao-lab:adult-confirmed") !== "yes") {
+        if (!confirm("此分類為 18+ 成人內容。請確認你已年滿 18 歲。")) return false;
+        localStorage.setItem("bao-lab:adult-confirmed", "yes");
+      }
+      document.getElementById("adult-notice")?.classList.toggle("hidden", !next.startsWith("adult-"));
+      App.renderCharacters(next);
+      return true;
+    };
+
+    const clearFilters = ({ includeQuery = false } = {}) => {
+      state.capability = "all";
+      state.scope = "all";
+      state.sort = "default";
+      if (includeQuery) {
+        state.query = "";
+        input.value = "";
+      }
+      writePreferences();
+      setCategory("all");
+      scheduleApply();
+    };
 
     input?.addEventListener("input", () => {
       state.query = input.value;
@@ -139,12 +245,17 @@
     });
 
     reset?.addEventListener("click", () => {
-      state.query = "";
-      state.capability = "all";
-      state.scope = "all";
-      input.value = "";
-      scheduleApply();
+      clearFilters({ includeQuery: true });
       input.focus();
+    });
+
+    host.querySelector("[data-explore-filter-open]")?.addEventListener("click", openDialog);
+    host.querySelector("[data-explore-filter-close]")?.addEventListener("click", closeDialog);
+    host.querySelector("[data-explore-done]")?.addEventListener("click", closeDialog);
+    host.querySelector("[data-explore-clear-filters]")?.addEventListener("click", () => clearFilters());
+
+    dialog?.addEventListener("click", event => {
+      if (event.target === dialog) closeDialog();
     });
 
     host.querySelectorAll("[data-explore-scope]").forEach(button => {
@@ -159,6 +270,40 @@
         state.capability = button.dataset.exploreCapability || "all";
         scheduleApply();
       });
+    });
+
+    host.querySelectorAll("[data-explore-category]").forEach(button => {
+      button.addEventListener("click", () => setCategory(button.dataset.exploreCategory || "all"));
+    });
+
+    host.querySelectorAll("[data-explore-sort]").forEach(button => {
+      button.addEventListener("click", () => {
+        state.sort = button.dataset.exploreSort || "default";
+        writePreferences();
+        scheduleApply();
+      });
+    });
+
+    host.addEventListener("click", event => {
+      const chip = event.target.closest?.("[data-explore-remove]");
+      if (!chip) return;
+      const key = chip.dataset.exploreRemove;
+      if (key === "query") {
+        state.query = "";
+        input.value = "";
+      } else if (key === "category") {
+        setCategory("all");
+        return;
+      } else if (key === "scope") state.scope = "all";
+      else if (key === "capability") state.capability = "all";
+      else if (key === "sort") {
+        state.sort = "default";
+        writePreferences();
+      } else if (key === "layout") {
+        state.layout = "standard";
+        writePreferences();
+      }
+      scheduleApply();
     });
 
     return host;
@@ -296,7 +441,8 @@
     });
 
     if (list) {
-      const preferred = ["recent", "updates"].includes(state.scope)
+      const ordered = ["recent", "updates"].includes(state.scope) || ["latest", "updated"].includes(state.sort);
+      const preferred = ordered
         ? matches.map(item => String(item.id || ""))
         : (App.characters || []).map(item => String(item.id || ""));
       const rank = new Map(preferred.map((id, index) => [id, index]));
@@ -322,16 +468,61 @@
       button.setAttribute("aria-pressed", String(active));
     });
 
+    host.querySelectorAll("[data-explore-category]").forEach(button => {
+      const active = button.dataset.exploreCategory === state.category;
+      button.classList.toggle("active", active);
+      button.setAttribute("aria-pressed", String(active));
+    });
+
+    host.querySelectorAll("[data-explore-sort]").forEach(button => {
+      const active = button.dataset.exploreSort === state.sort;
+      button.classList.toggle("active", active);
+      button.setAttribute("aria-pressed", String(active));
+    });
+
     const input = host.querySelector("#explore-search-input");
     if (input && input.value !== state.query) input.value = state.query;
 
     const hasQuery = Boolean(core.clean(state.query));
     const hasCapability = state.capability !== "all";
     const hasScope = state.scope !== "all";
+    const hasCategory = state.category !== "all";
+    const hasSort = state.sort !== "default";
+    const hasFilters = hasCapability || hasScope || hasCategory || hasSort;
     const clear = host.querySelector("[data-explore-clear]");
     const reset = host.querySelector("[data-explore-reset]");
     if (clear) clear.hidden = !hasQuery;
-    if (reset) reset.hidden = !(hasQuery || hasCapability || hasScope);
+    if (reset) reset.hidden = !(hasQuery || hasFilters);
+
+    const activeFilters = host.querySelector("#explore-active-filters");
+    if (activeFilters) {
+      const chips = [];
+      const labels = {
+        category: {
+          male: "一般男性", female: "一般女性",
+          "adult-male": "18+ 男性", "adult-female": "18+ 女性"
+        },
+        scope: { favorites: "收藏", recent: "最近看過", updates: "有近期更新" },
+        capability: { world: "世界模擬", ui: "互動 UI" },
+        sort: { latest: "最近發布", updated: "最近更新排序" }
+      };
+      if (hasQuery) chips.push({ key: "query", label: "搜尋：" + core.clean(state.query) });
+      if (hasCategory) chips.push({ key: "category", label: labels.category[state.category] || state.category });
+      if (hasScope) chips.push({ key: "scope", label: labels.scope[state.scope] || state.scope });
+      if (hasCapability) chips.push({ key: "capability", label: labels.capability[state.capability] || state.capability });
+      if (hasSort) chips.push({ key: "sort", label: labels.sort[state.sort] || state.sort });
+      activeFilters.innerHTML = chips.map(chip =>
+        `<button type="button" data-explore-remove="${App.escapeAttr(chip.key)}">${App.escapeHTML(chip.label)} <span aria-hidden="true">×</span></button>`
+      ).join("");
+      activeFilters.hidden = chips.length === 0;
+    }
+
+    const filterCount = host.querySelector("[data-explore-filter-count]");
+    if (filterCount) {
+      const count = [hasCapability, hasScope, hasCategory, hasSort].filter(Boolean).length;
+      filterCount.textContent = String(count);
+      filterCount.hidden = count === 0;
+    }
 
     const count = host.querySelector("#explore-result-count");
     if (count) count.textContent = core.resultLabel(matches.length, Boolean(App.hasMoreCharacterCatalog?.()));
@@ -380,7 +571,7 @@
 
   const originalRender = App.renderCharacters.bind(App);
   App.renderCharacters = function(filter = "all") {
-    state.category = ["male", "female", "r18"].includes(filter) ? filter : "all";
+    state.category = ["male", "female", "r18", "adult-male", "adult-female"].includes(filter) ? filter : "all";
     const result = originalRender(filter);
     scheduleApply();
     return result;
@@ -425,6 +616,9 @@
       state.query = "";
       state.capability = "all";
       state.scope = "all";
+      state.sort = "default";
+      writePreferences();
+      App.renderCharacters("all");
       scheduleApply();
     },
     matches: currentMatches,
