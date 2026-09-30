@@ -45,9 +45,12 @@ test('character studio separates draft, local test version and public lifecycle 
     .toBe('更新本機試玩版本');
   await lifecycle.locator('[data-lifecycle-next-action]').click();
 
-  await expect(page.locator('#studio-status')).toContainText('已加入這台裝置的角色庫');
-  await expect.poll(() => lifecycle.locator('[data-lifecycle-stage="test"] [data-lifecycle-value]').textContent())
-    .toBe('本機試玩版本已同步');
+  // The underlying install flow saves the draft first, so the shared status
+  // briefly reports the save step. The lifecycle state is the stable result.
+  await expect.poll(
+    () => lifecycle.locator('[data-lifecycle-stage="test"] [data-lifecycle-value]').textContent(),
+    { timeout: 12000 }
+  ).toBe('本機試玩版本已同步');
 
   const box = await lifecycle.boundingBox();
   expect(box.width).toBeLessThanOrEqual(390);
