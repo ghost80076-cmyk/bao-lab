@@ -217,7 +217,7 @@
           const version = updateInfo.publishedVersion ? " v" + updateInfo.publishedVersion : "";
           updateBadge.title = updateInfo.badge === "UPDATED"
             ? "你看過這個作品，但現在有新版" + version
-            : "這是你還沒看過的新作品" + version;
+            : "你還沒看過這個作品目前的版本" + version;
           updateBadge.setAttribute("aria-label", updateBadge.title);
         }
       } else {
