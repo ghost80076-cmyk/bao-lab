@@ -17,7 +17,7 @@ for (const item of packages) {
   const points = item.points.toLocaleString("en-US");
   const twd = item.twd.toLocaleString("en-US");
   assert.ok(
-    account.includes(`NT$${twd} / US$${item.usd} → ${points} 點`),
+    account.includes(`NT${twd} / US${item.usd} → ${points} 燈火`),
     `account package mismatch for ${item.points} points`
   );
   assert.ok(
