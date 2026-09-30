@@ -16,7 +16,7 @@
   ]);
   const FORBIDDEN_EXPORT_KEYS = new Set([
     "api", "apikey", "api_key", "token", "authorization", "auth",
-    "chat", "messages", "story", "storyid", "characterid", "charactername",
+    "messages", "story", "storyid", "characterid", "charactername",
     "state", "modules", "characterstatuses", "npcs", "events",
     "authorregex", "allowscripts", "allowexternalassets", "allowstatesharing",
     "allowuipersistence", "authorui"
