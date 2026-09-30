@@ -3,10 +3,10 @@ const { test, expect } = require('@playwright/test');
 const openBuilder = async (page, predicate = 'c.id !== "autonomous-npc-world"') => {
   await page.goto('./');
   await page.waitForFunction(() => window.BAOQuickSetup && App.characters.length && window.Storage && window.GameState);
-  await page.evaluate(condition => {
+  await page.evaluate(async condition => {
     const character = App.characters.find(c => condition === 'world' ? c.id === 'autonomous-npc-world' : c.id !== 'autonomous-npc-world');
     if (!character) throw new Error('Missing a suitable test character');
-    App.openCharacter(character.id);
+    await App.openCharacter(character.id);
     App.openBuilder();
   }, predicate === 'world' ? 'world' : 'ordinary');
   await expect(page.locator('#bao-setup-choice')).toBeVisible();
@@ -81,9 +81,10 @@ test('world-specific setup stays available rather than being skipped', async ({ 
 test('explicit step navigation keeps older builder workflows usable', async ({ page }) => {
   await page.goto('./');
   await page.waitForFunction(() => window.BAOQuickSetup && App.characters.length);
-  await page.evaluate(() => {
+  await page.evaluate(async () => {
     const character = App.characters.find(c => c.id !== 'autonomous-npc-world');
-    App.openCharacter(character.id);
+    if (!character) throw new Error('Missing a suitable test character');
+    await App.openCharacter(character.id);
     App.openBuilder();
     App.setStep(5);
   });
