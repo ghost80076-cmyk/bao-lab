@@ -110,6 +110,83 @@
   };
 
 
+  const quickButton = (quick, extra = "") => {
+    if (!quick?.kind) return "";
+    const label = quick.label || (quick.enabled ? "停用" : "啟用");
+    return `<button type="button" class="story-extension-quick" data-extension-quick="${esc(quick.kind)}" data-extension-key="${esc(quick.key || "")}" data-extension-extra="${esc(extra)}" aria-pressed="${quick.enabled ? "true" : "false"}">${esc(label)}</button>`;
+  };
+
+  const saveStoryQuietly = () => {
+    try { App.saveStory?.(false); } catch (_) {}
+  };
+
+  const rerenderAfterQuickChange = cardId => {
+    window.setTimeout(() => open({ expandCard: cardId }), 0);
+  };
+
+  const applyQuickChange = (kind, key, cardId) => {
+    if (!kind) return false;
+
+    if (kind === "world") {
+      const modules = window.BAOWorldModules;
+      const draft = modules?.getCustomization?.(App.activeCharacter);
+      if (!modules || !draft || !key) return false;
+      const disabled = new Set(Array.isArray(draft.disabled) ? draft.disabled : []);
+      if (disabled.has(key)) disabled.delete(key); else disabled.add(key);
+      modules.applyCustomization({ ...draft, disabled: [...disabled] }, App.activeCharacter);
+      saveStoryQuietly();
+      window.BAOWorldModuleUI?.injectTabs?.();
+      const activePanel = document.querySelector("#game-ui .ui-tab.active")?.dataset?.panel;
+      if (activePanel) App.renderUIPanel?.(activePanel);
+      rerenderAfterQuickChange(cardId);
+      return true;
+    }
+
+    if (kind === "replace-master") {
+      const state = window.BAOPlayerTextReplace?.get?.();
+      if (!state) return false;
+      window.BAOPlayerTextReplace.set({ ...state, active: !state.active });
+      rerenderAfterQuickChange(cardId);
+      return true;
+    }
+
+    if (kind === "replace-rule") {
+      const state = window.BAOPlayerTextReplace?.get?.();
+      if (!state) return false;
+      const rules = (state.rules || []).map((rule, index) => {
+        const ruleKey = rule.id || String(index);
+        return ruleKey === key ? { ...rule, enabled: !rule.enabled } : rule;
+      });
+      window.BAOPlayerTextReplace.set({ ...state, rules });
+      rerenderAfterQuickChange(cardId);
+      return true;
+    }
+
+    if (kind === "regex-master") {
+      const state = window.BAORegex?.load?.();
+      if (!state) return false;
+      window.BAORegex.save({ ...state, active: !state.active });
+      window.BAORegexChat?.schedule?.();
+      rerenderAfterQuickChange(cardId);
+      return true;
+    }
+
+    if (kind === "regex-rule") {
+      const state = window.BAORegex?.load?.();
+      if (!state) return false;
+      const index = Number(key);
+      if (!Number.isInteger(index) || index < 0 || index >= (state.rules || []).length) return false;
+      const rules = state.rules.map((rule, i) => i === index ? { ...rule, enabled: !rule.enabled } : rule);
+      window.BAORegex.save({ ...state, rules });
+      window.BAORegexChat?.schedule?.();
+      rerenderAfterQuickChange(cardId);
+      return true;
+    }
+
+    return false;
+  };
+
+
   const inventoryHTML = data => {
     const groups = Array.isArray(data?.inventory) ? data.inventory.filter(group => group?.items?.length) : [];
     if (!groups.length) return "";
@@ -121,12 +198,13 @@
         <div class="story-extension-inventory-body">
           ${groups.map(group => `
             <section class="story-extension-inventory-group" data-extension-source-group="${esc(group.id || "")}">
-              <header><b>${esc(group.label || "其他")}</b><span>${Number(group.items.length).toLocaleString()} 項</span></header>
+              <header><b>${esc(group.label || "其他")}</b><span>${Number(group.items.length).toLocaleString()} 項</span>${quickButton(group.quick, group.id || "")}</header>
               <div class="story-extension-items">
                 ${group.items.map(item => `
                   <div class="story-extension-item" data-state="${esc(item.state || "info")}">
                     <div><b>${esc(item.label || "未命名")}</b>${item.detail ? `<small>${esc(item.detail)}</small>` : ""}</div>
                     <span>${esc(item.status || "")}</span>
+                    ${quickButton(item.quick, group.id || "")}
                   </div>`).join("")}
               </div>
             </section>`).join("")}
@@ -147,7 +225,7 @@
       <button type="button" class="secondary" data-extension-action="${esc(data.id)}">${data.id === "regex" ? "開啟工具" : "管理"} →</button>
     </article>`;
 
-  const open = () => {
+  const open = (options = {}) => {
     if (!window.GameState?.current || !App.activeCharacter) {
       window.BAOFeedback?.notify?.("先進入一個故事，再查看故事擴充。", "error");
       return;
@@ -190,6 +268,20 @@
         window.setTimeout(action, 0);
       });
     });
+    wrap.querySelectorAll("[data-extension-quick]").forEach(button => {
+      button.addEventListener("click", event => {
+        event.preventDefault();
+        event.stopPropagation();
+        const card = button.closest("[data-extension-card]");
+        const cardId = card?.dataset.extensionCard || "";
+        if (!applyQuickChange(button.dataset.extensionQuick, button.dataset.extensionKey || "", cardId)) {
+          window.BAOFeedback?.notify?.("這個項目無法快速切換，請使用完整管理工具。", "error");
+        }
+      });
+    });
+    if (options.expandCard) {
+      wrap.querySelector(`[data-extension-card="${CSS.escape(String(options.expandCard))}"] .story-extension-inventory`)?.setAttribute("open", "");
+    }
     wrap.addEventListener("keydown", event => { if (event.key === "Escape") close(); });
     wrap.querySelector("[data-extension-close]")?.focus();
   };
