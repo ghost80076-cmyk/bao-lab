@@ -308,19 +308,23 @@
       input.style.removeProperty('height');
       input.style.removeProperty('overflow-y');
       delete input.dataset.baoComposerExpanded;
+      delete input.dataset.baoComposerHeight;
       return;
     }
     // Reset first so scrollHeight reflects the full content rather than the
     // previous constrained box. Then grow only until the mobile reading area
     // would start losing too much vertical space.
+    const previousHeight = Number(input.dataset.baoComposerHeight || 0);
     input.style.height = 'auto';
     const minHeight = 52;
     const maxHeight = composerInputMaxHeight();
-    const wanted = Math.max(minHeight, Math.min(maxHeight, Math.ceil(input.scrollHeight || minHeight)));
+    const fullHeight = Math.ceil(input.scrollHeight || minHeight);
+    const wanted = Math.max(minHeight, Math.min(maxHeight, fullHeight));
     input.style.height = wanted + 'px';
-    input.style.overflowY = (input.scrollHeight || wanted) > maxHeight + 1 ? 'auto' : 'hidden';
+    input.style.overflowY = fullHeight > maxHeight + 1 ? 'auto' : 'hidden';
     input.dataset.baoComposerExpanded = wanted > minHeight + 4 ? 'true' : 'false';
-    schedule();
+    input.dataset.baoComposerHeight = String(wanted);
+    if (previousHeight && previousHeight !== wanted) schedule();
   };
 
   const bindComposerInput = input => {
