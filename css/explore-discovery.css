@@ -219,3 +219,81 @@
   .explore-toolbar{grid-template-columns:1fr}
   .explore-filter-trigger{width:100%}
 }
+
+
+/* Poster-first explore cards: discovery stays visual; details move into the lightweight preview. */
+#character-list .character-card{cursor:pointer}
+#character-list .character-card:focus-visible{
+  outline:2px solid rgba(190,174,255,.78);outline-offset:3px
+}
+#character-list .character-content>.eyebrow,
+#character-list .character-content>p,
+#character-list .character-content>.tags{display:none!important}
+#character-list .character-content h3{
+  display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;
+  margin-bottom:0;line-height:1.35
+}
+#character-list .explore-card-context{
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:4px
+}
+#character-list .explore-card-capabilities{
+  flex-wrap:nowrap;max-height:21px;margin-top:6px;overflow:hidden
+}
+#character-list .explore-card-capabilities span:nth-child(n+3){display:none}
+@media(max-width:700px){
+  #character-list .character-content{padding-top:8px}
+  #character-list .explore-card-capabilities{max-height:19px;margin-top:4px}
+}
+
+/* Catalog-only work preview. Opening this does not fetch the full character JSON. */
+.explore-work-preview{
+  width:min(920px,calc(100vw - 32px));max-width:none;max-height:min(86vh,780px);
+  margin:auto;padding:0;border:1px solid rgba(211,204,255,.18);border-radius:22px;
+  background:#11131b;color:var(--text);box-shadow:0 30px 100px rgba(0,0,0,.68);overflow:hidden
+}
+.explore-work-preview::backdrop{background:rgba(4,5,9,.76);backdrop-filter:blur(7px)}
+.explore-work-preview-panel{
+  display:grid;grid-template-columns:minmax(260px,.82fr) minmax(0,1.18fr);
+  max-height:min(86vh,780px)
+}
+.explore-work-preview-media{position:relative;min-height:520px;background:#090b10;overflow:hidden}
+.explore-work-preview-media img{display:block;width:100%;height:100%;object-fit:cover}
+.explore-work-preview-media>[data-explore-preview-rating]{
+  position:absolute;left:14px;bottom:14px;display:inline-flex;align-items:center;min-height:27px;
+  padding:4px 9px;border:1px solid rgba(255,255,255,.18);border-radius:999px;
+  background:rgba(8,10,16,.76);backdrop-filter:blur(10px);font-size:10px;font-weight:800
+}
+.explore-work-preview-media>[data-kind="mature"]{color:#ffd6df;border-color:rgba(255,160,184,.34)}
+.explore-work-preview-copy{min-width:0;overflow:auto;padding:24px}
+.explore-work-preview-head{display:flex;align-items:flex-start;justify-content:space-between;gap:18px}
+.explore-work-preview-head h3{margin:5px 0 0;font-size:clamp(23px,3vw,34px);line-height:1.15}
+.explore-work-preview-meta{margin-top:10px;color:#aaa5bd;font-size:10px;font-weight:700;line-height:1.6}
+.explore-work-preview-description{margin:18px 0 0;color:#ddd9e8;font-size:14px;line-height:1.85;white-space:pre-line}
+.explore-work-preview-capabilities{display:flex;flex-wrap:wrap;gap:7px;margin-top:17px}
+.explore-work-preview-capabilities span{
+  display:inline-flex;align-items:center;min-height:27px;padding:4px 9px;border-radius:999px;
+  border:1px solid rgba(184,169,255,.22);background:rgba(111,87,190,.12);
+  color:#ddd6ff;font-size:10px;font-weight:700
+}
+.explore-work-preview-tags{margin-top:12px}
+.explore-work-preview-actions{
+  position:sticky;bottom:-24px;display:grid;grid-template-columns:1fr 1.4fr;gap:9px;
+  margin:22px -24px -24px;padding:16px 24px 24px;
+  background:linear-gradient(180deg,rgba(17,19,27,.8),#11131b 35%);
+  border-top:1px solid rgba(255,255,255,.055);backdrop-filter:blur(14px)
+}
+@media(max-width:700px){
+  .explore-work-preview{
+    width:100vw;max-height:90dvh;margin:auto 0 0;border-radius:20px 20px 0 0;
+    border-left:0;border-right:0;border-bottom:0
+  }
+  .explore-work-preview-panel{display:block;max-height:90dvh;overflow:auto}
+  .explore-work-preview-media{height:min(46dvh,430px);min-height:0}
+  .explore-work-preview-copy{overflow:visible;padding:18px 16px calc(16px + env(safe-area-inset-bottom))}
+  .explore-work-preview-head h3{font-size:24px}
+  .explore-work-preview-description{font-size:13px;line-height:1.75}
+  .explore-work-preview-actions{
+    bottom:calc(-16px - env(safe-area-inset-bottom));margin:18px -16px calc(-16px - env(safe-area-inset-bottom));
+    padding:14px 16px calc(16px + env(safe-area-inset-bottom))
+  }
+}
