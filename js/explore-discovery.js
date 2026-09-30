@@ -32,17 +32,16 @@
     try {
       const raw = JSON.parse(localStorage.getItem(PREF_KEY) || "{}");
       return {
-        sort: ["default", "latest", "updated"].includes(raw?.sort) ? raw.sort : "default",
-        layout: ["large", "standard", "compact"].includes(raw?.layout) ? raw.layout : "standard"
+        sort: ["default", "latest", "updated"].includes(raw?.sort) ? raw.sort : "default"
       };
     } catch {
-      return { sort: "default", layout: "standard" };
+      return { sort: "default" };
     }
   };
 
   const writePreferences = () => {
     try {
-      localStorage.setItem(PREF_KEY, JSON.stringify({ sort: state.sort, layout: state.layout }));
+      localStorage.setItem(PREF_KEY, JSON.stringify({ sort: state.sort }));
     } catch (error) {
       console.warn("YoruBay explore preferences could not be saved:", error);
     }
@@ -56,8 +55,7 @@
     query: "",
     capability: "all",
     scope: "all",
-    sort: preferences.sort,
-    layout: preferences.layout
+    sort: preferences.sort
   };
 
   const manifestEntry = character =>
@@ -144,15 +142,6 @@
             <button type="button" class="text-button" data-explore-filter-close aria-label="關閉篩選">關閉</button>
           </div>
 
-          <section class="explore-filter-group" aria-labelledby="explore-layout-label">
-            <h4 id="explore-layout-label">顯示</h4>
-            <div class="explore-segmented">
-              <button type="button" data-explore-layout="large">大圖</button>
-              <button type="button" data-explore-layout="standard">標準</button>
-              <button type="button" data-explore-layout="compact">緊湊</button>
-            </div>
-          </section>
-
           <section class="explore-filter-group" aria-labelledby="explore-sort-label">
             <h4 id="explore-sort-label">排序</h4>
             <div class="explore-option-row">
@@ -234,7 +223,6 @@
       state.capability = "all";
       state.scope = "all";
       state.sort = "default";
-      state.layout = "standard";
       if (includeQuery) {
         state.query = "";
         input.value = "";
@@ -291,14 +279,6 @@
     host.querySelectorAll("[data-explore-sort]").forEach(button => {
       button.addEventListener("click", () => {
         state.sort = button.dataset.exploreSort || "default";
-        writePreferences();
-        scheduleApply();
-      });
-    });
-
-    host.querySelectorAll("[data-explore-layout]").forEach(button => {
-      button.addEventListener("click", () => {
-        state.layout = button.dataset.exploreLayout || "standard";
         writePreferences();
         scheduleApply();
       });
@@ -500,14 +480,6 @@
       button.setAttribute("aria-pressed", String(active));
     });
 
-    host.querySelectorAll("[data-explore-layout]").forEach(button => {
-      const active = button.dataset.exploreLayout === state.layout;
-      button.classList.toggle("active", active);
-      button.setAttribute("aria-pressed", String(active));
-    });
-
-    root.dataset.exploreLayout = state.layout;
-
     const input = host.querySelector("#explore-search-input");
     if (input && input.value !== state.query) input.value = state.query;
 
@@ -516,8 +488,7 @@
     const hasScope = state.scope !== "all";
     const hasCategory = state.category !== "all";
     const hasSort = state.sort !== "default";
-    const hasLayout = state.layout !== "standard";
-    const hasFilters = hasCapability || hasScope || hasCategory || hasSort || hasLayout;
+    const hasFilters = hasCapability || hasScope || hasCategory || hasSort;
     const clear = host.querySelector("[data-explore-clear]");
     const reset = host.querySelector("[data-explore-reset]");
     if (clear) clear.hidden = !hasQuery;
@@ -533,15 +504,13 @@
         },
         scope: { favorites: "收藏", recent: "最近看過", updates: "有近期更新" },
         capability: { world: "世界模擬", ui: "互動 UI" },
-        sort: { latest: "最近發布", updated: "最近更新排序" },
-        layout: { large: "大圖", compact: "緊湊" }
+        sort: { latest: "最近發布", updated: "最近更新排序" }
       };
       if (hasQuery) chips.push({ key: "query", label: "搜尋：" + core.clean(state.query) });
       if (hasCategory) chips.push({ key: "category", label: labels.category[state.category] || state.category });
       if (hasScope) chips.push({ key: "scope", label: labels.scope[state.scope] || state.scope });
       if (hasCapability) chips.push({ key: "capability", label: labels.capability[state.capability] || state.capability });
       if (hasSort) chips.push({ key: "sort", label: labels.sort[state.sort] || state.sort });
-      if (hasLayout) chips.push({ key: "layout", label: labels.layout[state.layout] || state.layout });
       activeFilters.innerHTML = chips.map(chip =>
         `<button type="button" data-explore-remove="${App.escapeAttr(chip.key)}">${App.escapeHTML(chip.label)} <span aria-hidden="true">×</span></button>`
       ).join("");
@@ -550,7 +519,7 @@
 
     const filterCount = host.querySelector("[data-explore-filter-count]");
     if (filterCount) {
-      const count = [hasCapability, hasScope, hasCategory, hasSort, hasLayout].filter(Boolean).length;
+      const count = [hasCapability, hasScope, hasCategory, hasSort].filter(Boolean).length;
       filterCount.textContent = String(count);
       filterCount.hidden = count === 0;
     }
@@ -648,7 +617,6 @@
       state.capability = "all";
       state.scope = "all";
       state.sort = "default";
-      state.layout = "standard";
       writePreferences();
       App.renderCharacters("all");
       scheduleApply();
