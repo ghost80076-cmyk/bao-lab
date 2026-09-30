@@ -72,7 +72,7 @@ test('opens the current story control center and routes to existing story tools'
     App.showView('chat');
   });
 
-  const open = page.getByRole('button', { name: '☷ 故事控制台' });
+  const open = page.getByRole('button', { name: '故事控制台', exact: true });
   await expect(open).toBeVisible();
   await open.click();
 
