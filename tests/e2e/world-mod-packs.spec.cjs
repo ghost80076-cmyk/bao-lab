@@ -6,6 +6,7 @@ async function demo(page) {
   await page.locator('#home-view [data-view="explore"]').click();
   const card = page.locator('article').filter({ hasText: '林沉風 - 見過黑暗的人' });
   await card.click();
+  await page.getByRole('button', { name: '查看作品', exact: true }).click();
   await page.getByRole('button', { name: '開始故事' }).click();
   await page.locator('#bao-setup-choice [data-bao-setup="advanced"]').click();
   for (let n = 0; n < 3; n++) await page.getByRole('button', { name: '下一步' }).click();
