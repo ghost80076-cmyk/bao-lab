@@ -81,7 +81,7 @@ const newEntry = {
   updated_at: "2026-09-28T10:00:00Z"
 };
 const updatedEntry = {
-  published_at: "2026-09-01T10:00:00Z",
+  published_at: "2026-08-01T10:00:00Z",
   updated_at: "2026-09-29T10:00:00Z"
 };
 const oldEntry = {
