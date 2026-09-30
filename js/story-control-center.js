@@ -181,6 +181,13 @@
     return result;
   };
 
+  const originalShowView = App.showView.bind(App);
+  App.showView = function(view, ...args) {
+    const result = originalShowView(view, ...args);
+    if (view === "chat") window.setTimeout(injectEntry, 0);
+    return result;
+  };
+
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", () => window.setTimeout(injectEntry, 250));
   } else window.setTimeout(injectEntry, 250);
