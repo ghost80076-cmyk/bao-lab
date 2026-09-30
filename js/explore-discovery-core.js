@@ -91,7 +91,7 @@
     const source = Array.isArray(list) ? list : [];
     const matched = source.filter(item => matches(item, state, extraFor(item) || {}));
     if (!["recent", "updates"].includes(state.scope)) return matched;
-    const key = state.scope === "updates" ? "updatedAt" : "recentAt";
+    const key = state.scope === "updates" ? "activityAt" : "recentAt";
     return matched.slice().sort((a, b) => {
       const aTime = Number((extraFor(a) || {})[key] || 0);
       const bTime = Number((extraFor(b) || {})[key] || 0);
