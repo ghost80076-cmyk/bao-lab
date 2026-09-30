@@ -68,7 +68,7 @@ test('explore page lets players search works and filter capabilities without exp
   await expect(page.locator('#explore-search-empty')).toBeVisible();
   await expect(page.locator('#explore-result-count')).toContainText('目前顯示 0 個作品');
 
-  await tools.getByRole('button', { name: '重設篩選', exact: true }).click();
+  await tools.locator('[data-explore-reset]').click();
   await expect(page.locator('#character-list [data-character-id="explore-basic-e2e"]')).toBeVisible();
 
   const dimensions = await page.evaluate(() => ({
