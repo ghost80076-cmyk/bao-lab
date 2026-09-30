@@ -171,3 +171,35 @@ test('explore surfaces NEW and UPDATED from explicit catalog timestamps', async 
   const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('yorubay:explore-continuity:v1') || '{}'));
   expect(saved.recent[0].seenUpdatedAt).toBeGreaterThan(0);
 });
+
+
+test('explore cards change information emphasis by browsing context', async ({ page }) => {
+  await page.addInitScript(() => {
+    localStorage.setItem('yorubay:explore-continuity:v1', JSON.stringify({
+      favorites: ['night-sky-magic-academy'],
+      recent: [{
+        id: 'night-sky-magic-academy',
+        viewedAt: Date.now() - 60_000,
+        seenUpdatedAt: Date.parse('2026-09-29T11:27:09Z')
+      }]
+    }));
+  });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('./');
+  await page.waitForFunction(() => Boolean(window.BAOExploreDiscovery && App.characters?.length));
+  await page.evaluate(() => App.showView('explore'));
+
+  const tools = page.locator('#explore-discovery-tools');
+  const target = page.locator('#character-list [data-character-id="night-sky-magic-academy"]');
+
+  await tools.getByRole('button', { name: '最近看過', exact: true }).click();
+  await expect(target.locator('.explore-card-context')).toContainText('上次看過');
+  await expect(target.locator('.tags')).toHaveAttribute('data-hidden-count', '5');
+  await expect(target.locator('.tags .tag:visible')).toHaveCount(3);
+
+  await tools.getByRole('button', { name: '★ 收藏', exact: true }).click();
+  await expect(target.locator('.explore-card-context')).toContainText('收藏中');
+
+  await tools.getByRole('button', { name: '最近更新', exact: true }).click();
+  await expect(target.locator('.explore-card-context')).toContainText('更新於');
+});
