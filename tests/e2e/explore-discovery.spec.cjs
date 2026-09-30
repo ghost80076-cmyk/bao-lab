@@ -1,5 +1,15 @@
 const { test, expect } = require('@playwright/test');
 
+async function chooseFilter(page, name) {
+  const tools = page.locator('#explore-discovery-tools');
+  await tools.getByRole('button', { name: '篩選', exact: true }).click();
+  const dialog = page.locator('#explore-filter-sheet');
+  await expect(dialog).toBeVisible();
+  await dialog.getByRole('button', { name, exact: true }).click();
+  await dialog.getByRole('button', { name: '完成', exact: true }).click();
+}
+
+
 test('explore page lets players search works and filter capabilities without exposing R18 by default', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('./');
@@ -13,8 +23,11 @@ test('explore page lets players search works and filter capabilities without exp
   const input = tools.locator('#explore-search-input');
   await expect(tools).toBeVisible();
   await expect(input).toBeVisible();
-  await expect(tools.getByRole('button', { name: '世界模擬', exact: true })).toBeVisible();
-  await expect(tools.getByRole('button', { name: '互動 UI', exact: true })).toBeVisible();
+  await tools.getByRole('button', { name: '篩選', exact: true }).click();
+  const filterDialog = page.locator('#explore-filter-sheet');
+  await expect(filterDialog.getByRole('button', { name: '世界模擬', exact: true })).toBeVisible();
+  await expect(filterDialog.getByRole('button', { name: '互動 UI', exact: true })).toBeVisible();
+  await filterDialog.getByRole('button', { name: '關閉', exact: true }).click();
 
   const adultVisible = await page.locator('#character-list [data-character-id="desire-district"]:visible').count();
   expect(adultVisible).toBe(0);
@@ -48,7 +61,7 @@ test('explore page lets players search works and filter capabilities without exp
   });
   await expect(page.locator('#character-list [data-character-id="explore-basic-e2e"]')).toBeVisible();
 
-  await tools.getByRole('button', { name: '世界模擬', exact: true }).click();
+  await chooseFilter(page, '世界模擬');
   await expect(page.locator('#character-list [data-character-id="explore-basic-e2e"]')).toBeHidden();
 
   await input.fill('純文字測試作品');
@@ -110,17 +123,19 @@ test('explore keeps favorites and recently viewed works on this device', async (
   await expect(favorite).toHaveAttribute('aria-pressed', 'true');
 
   const tools = page.locator('#explore-discovery-tools');
-  await tools.getByRole('button', { name: '★ 收藏', exact: true }).click();
+  await chooseFilter(page, '★ 收藏');
   await expect(target.locator('.explore-card-context')).toContainText('收藏中');
   await expect.poll(() => page.locator('#character-list [data-character-id]:visible').count()).toBe(1);
   await expect(target).toBeVisible();
 
-  await target.click();
+  await target.locator('.character-image-wrap').click();
+  await expect(page.locator('#explore-work-preview')).toBeVisible();
+  await page.locator('#explore-work-preview').getByRole('button', { name: '查看作品', exact: true }).click();
   await expect(page.locator('#detail-view')).toHaveClass(/active/);
   await page.evaluate(() => App.showView('explore'));
   await expect(page.locator('#explore-view')).toHaveClass(/active/);
 
-  await tools.getByRole('button', { name: '最近看過', exact: true }).click();
+  await chooseFilter(page, '最近看過');
   await expect.poll(() => page.locator('#character-list [data-character-id]:visible').count()).toBe(1);
   await expect(target).toBeVisible();
   await expect(target.locator('.explore-card-context')).toContainText('上次看過');
@@ -149,11 +164,13 @@ test('explore surfaces player-relative NEW and UPDATED from explicit published v
   await expect(target).toBeVisible();
   await expect(target.locator('.explore-update-badge')).toHaveText('NEW');
 
-  await tools.getByRole('button', { name: '最近更新', exact: true }).click();
+  await chooseFilter(page, '有近期更新');
   await expect(target).toBeVisible();
   await expect(page.locator('#explore-result-count')).toContainText('目前顯示');
 
-  await target.click();
+  await target.locator('.character-image-wrap').click();
+  await expect(page.locator('#explore-work-preview')).toBeVisible();
+  await page.locator('#explore-work-preview').getByRole('button', { name: '查看作品', exact: true }).click();
   await expect(page.locator('#detail-view')).toHaveClass(/active/);
   await expect(page.locator('#character-detail .explore-detail-version')).toContainText('公開版本 v1');
   let saved = await page.evaluate(() => JSON.parse(localStorage.getItem('yorubay:explore-continuity:v1') || '{}'));
@@ -181,7 +198,7 @@ test('explore surfaces player-relative NEW and UPDATED from explicit published v
   await expect(target.locator('.explore-update-badge')).toHaveText('UPDATED');
   await expect(target.locator('.explore-update-badge')).toHaveAttribute('aria-label', /v2/);
 
-  await tools.getByRole('button', { name: '最近更新', exact: true }).click();
+  await chooseFilter(page, '有近期更新');
   await expect(target.locator('.explore-card-context')).toContainText('v2');
 
   await page.evaluate(() => BAOExploreDiscovery.markViewed('night-sky-magic-academy', Date.now()));
@@ -213,14 +230,60 @@ test('explore cards change information emphasis by browsing context', async ({ p
   const tools = page.locator('#explore-discovery-tools');
   const target = page.locator('#character-list [data-character-id="night-sky-magic-academy"]');
 
-  await tools.getByRole('button', { name: '最近看過', exact: true }).click();
+  await chooseFilter(page, '最近看過');
   await expect(target.locator('.explore-card-context')).toContainText('上次看過');
-  await expect(target.locator('.tags')).toHaveAttribute('data-hidden-count', '5');
-  await expect(target.locator('.tags .tag:visible')).toHaveCount(3);
+  await expect(target.locator('.character-content > .tags')).toBeHidden();
 
-  await tools.getByRole('button', { name: '★ 收藏', exact: true }).click();
+  await chooseFilter(page, '★ 收藏');
   await expect(target.locator('.explore-card-context')).toContainText('收藏中');
 
-  await tools.getByRole('button', { name: '最近更新', exact: true }).click();
+  await chooseFilter(page, '有近期更新');
   await expect(target.locator('.explore-card-context')).toContainText('更新於');
+});
+
+
+test('explore preview stays catalog-only and repeated apply does not reinsert stable cards', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await page.goto('./');
+  await page.waitForFunction(() => Boolean(window.BAOExploreDiscovery && App.characters?.length));
+  await page.evaluate(() => App.showView('explore'));
+  await page.waitForTimeout(50);
+
+  const target = page.locator('#character-list [data-character-id="night-sky-magic-academy"]');
+  await expect(target).toBeVisible();
+  await expect(target.locator('.character-content > p')).toBeHidden();
+  await expect(target.locator('.character-content > .tags')).toBeHidden();
+
+  const stable = await page.evaluate(async () => {
+    const list = document.getElementById('character-list');
+    let childListMutations = 0;
+    const observer = new MutationObserver(records => {
+      childListMutations += records.filter(record => record.type === 'childList' && record.target === list).length;
+    });
+    observer.observe(list, { childList: true });
+
+    window.__exploreFullLoads = 0;
+    const originalLoadCharacter = App.loadCharacter.bind(App);
+    App.loadCharacter = async function(...args) {
+      window.__exploreFullLoads += 1;
+      return originalLoadCharacter(...args);
+    };
+
+    BAOExploreDiscovery.apply();
+    BAOExploreDiscovery.apply();
+    await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+    observer.disconnect();
+    return childListMutations;
+  });
+  expect(stable).toBe(0);
+
+  await target.locator('.character-image-wrap').click();
+  const preview = page.locator('#explore-work-preview');
+  await expect(preview).toBeVisible();
+  await expect(preview.locator('[data-explore-preview-description]')).not.toHaveText('');
+  await expect.poll(() => page.evaluate(() => window.__exploreFullLoads)).toBe(0);
+
+  await preview.getByRole('button', { name: '查看作品', exact: true }).click();
+  await expect(page.locator('#detail-view')).toHaveClass(/active/);
+  await expect.poll(() => page.evaluate(() => window.__exploreFullLoads)).toBe(1);
 });
