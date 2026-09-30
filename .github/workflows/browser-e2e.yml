@@ -60,8 +60,12 @@ jobs:
         run: npm ci
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
-      - name: Verify story control center and extension quick controls
-        run: npm run test:e2e -- tests/e2e/story-control-center.spec.cjs --project=chromium
+      - name: Verify story controls and portable extension packs
+        run: >-
+          npm run test:e2e --
+          tests/e2e/story-control-center.spec.cjs
+          tests/e2e/story-extension-pack.spec.cjs
+          --project=chromium
       - name: Upload story control report
         if: always()
         uses: actions/upload-artifact@v4
