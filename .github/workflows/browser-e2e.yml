@@ -13,6 +13,9 @@ jobs:
   chromium-core:
     name: Fast E2E · Chromium core
     runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.63.0-noble
+      options: --user 1001
     timeout-minutes: 15
     steps:
       - name: Checkout
@@ -24,11 +27,10 @@ jobs:
           cache: npm
       - name: Install test dependencies
         run: npm ci
-      - name: Install Chromium
-        run: npx playwright install --with-deps chromium
       - name: Run core story, resume and new UI flows
         run: |
-          specs=(tests/e2e/mobile-story-entry.spec.cjs tests/e2e/story-integrity.spec.cjs tests/e2e/mobile-tools-compact.spec.cjs tests/e2e/mobile-composer-tools.spec.cjs tests/e2e/mobile-reading-layout.spec.cjs tests/e2e/story-quick-commands.spec.cjs)
+          # mobile-story-entry + story-integrity already run in the dedicated Story entry regression workflow.
+          specs=(tests/e2e/mobile-tools-compact.spec.cjs tests/e2e/mobile-composer-tools.spec.cjs tests/e2e/mobile-reading-layout.spec.cjs tests/e2e/story-quick-commands.spec.cjs)
           for optional in tests/e2e/builder-connection-ux.spec.cjs tests/e2e/character-studio-flow.spec.cjs tests/e2e/character-studio-lifecycle.spec.cjs tests/e2e/explore-discovery.spec.cjs tests/e2e/reading-bookshelf.spec.cjs tests/e2e/scene-image-moments.spec.cjs tests/e2e/player-shell-v2.spec.cjs tests/e2e/player-feedback-ux.spec.cjs tests/e2e/linchenfeng-structured-opening.spec.cjs tests/e2e/host-club-simulator.spec.cjs tests/e2e/night-sky-magic-academy.spec.cjs tests/e2e/k-idol-survival-simulator.spec.cjs; do
             if [ -f "$optional" ]; then specs+=("$optional"); fi
           done
@@ -47,6 +49,9 @@ jobs:
   onboarding:
     name: Onboarding · Chromium
     runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.63.0-noble
+      options: --user 1001
     timeout-minutes: 6
     steps:
       - name: Checkout
@@ -58,8 +63,6 @@ jobs:
           cache: npm
       - name: Install test dependencies
         run: npm ci
-      - name: Install Chromium
-        run: npx playwright install --with-deps chromium
       - name: Verify quick-start onboarding
         run: npm run test:e2e -- tests/e2e/quick-start.spec.cjs --project=chromium
       - name: Upload onboarding report
@@ -76,6 +79,9 @@ jobs:
   story-controls:
     name: Story controls · Chromium
     runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.63.0-noble
+      options: --user 1001
     timeout-minutes: 6
     steps:
       - name: Checkout
@@ -87,8 +93,6 @@ jobs:
           cache: npm
       - name: Install test dependencies
         run: npm ci
-      - name: Install Chromium
-        run: npx playwright install --with-deps chromium
       - name: Verify story controls and portable extension packs
         run: >-
           npm run test:e2e --
@@ -109,6 +113,9 @@ jobs:
   cross-browser-smoke:
     name: Smoke · ${{ matrix.browser }}
     runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.63.0-noble
+      options: --user 1001
     timeout-minutes: 6
     strategy:
       fail-fast: false
@@ -124,8 +131,6 @@ jobs:
           cache: npm
       - name: Install test dependencies
         run: npm ci
-      - name: Install ${{ matrix.browser }}
-        run: npx playwright install --with-deps ${{ matrix.browser }}
       - name: Run cross-browser smoke flows
         run: >-
           npm run test:e2e --
@@ -147,6 +152,9 @@ jobs:
     name: Live Pages smoke
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.63.0-noble
+      options: --user 1001
     timeout-minutes: 4
     needs: chromium-core
     steps:
@@ -159,8 +167,6 @@ jobs:
           cache: npm
       - name: Install test dependencies
         run: npm ci
-      - name: Install Chromium
-        run: npx playwright install --with-deps chromium
       - name: Verify deployed Pages content
         run: node tests/pages-content-check.cjs
       - name: Verify live Pages brand shell
