@@ -4145,6 +4145,12 @@ function prepareCharacterPublication(
     updated_at:
       publicationTimestamp,
 
+    published_version:
+      1,
+
+    version_published_at:
+      publicationTimestamp,
+
     supported_modes:
       plainObject(
         cleanGameplay

@@ -66,8 +66,9 @@
     if (state.scope === "recent" && libraryInfo.recentAt) {
       return "上次看過 · " + formatActivityDate(libraryInfo.recentAt);
     }
-    if (state.scope === "updates" && updateInfo.updatedAt) {
-      return "更新於 · " + formatActivityDate(updateInfo.updatedAt);
+    if (state.scope === "updates" && updateInfo.activityAt) {
+      const version = updateInfo.publishedVersion ? " · v" + updateInfo.publishedVersion : "";
+      return "更新於 · " + formatActivityDate(updateInfo.activityAt) + version;
     }
     if (state.scope === "favorites") {
       if (updateInfo.badge === "UPDATED") return "收藏中 · 有新內容";
@@ -213,6 +214,11 @@
         if (updateBadge) {
           updateBadge.textContent = updateInfo.badge;
           updateBadge.dataset.kind = updateInfo.badge.toLowerCase();
+          const version = updateInfo.publishedVersion ? " v" + updateInfo.publishedVersion : "";
+          updateBadge.title = updateInfo.badge === "UPDATED"
+            ? "你看過這個作品，但現在有新版" + version
+            : "你還沒看過這個作品目前的版本" + version;
+          updateBadge.setAttribute("aria-label", updateBadge.title);
         }
       } else {
         updateBadge?.remove();
@@ -259,6 +265,23 @@
       }
       meta.innerHTML = labels.map(label => `<span>${App.escapeHTML(label)}</span>`).join("");
     });
+  };
+
+  const decorateDetailVersion = item => {
+    const detail = document.getElementById("character-detail");
+    if (!detail) return;
+    detail.querySelectorAll(".explore-detail-version").forEach(node => node.remove());
+    const publication = core.publicationMeta(item || {});
+    if (!publication.publishedVersion && !publication.activityAt) return;
+    const line = document.createElement("div");
+    line.className = "explore-detail-version";
+    const bits = [];
+    if (publication.publishedVersion) bits.push("公開版本 v" + publication.publishedVersion);
+    if (publication.activityAt) bits.push("更新於 " + formatActivityDate(publication.activityAt));
+    line.textContent = bits.join(" · ");
+    const title = detail.querySelector("h1");
+    if (title) title.insertAdjacentElement("afterend", line);
+    else detail.prepend(line);
   };
 
   const apply = () => {
@@ -348,6 +371,13 @@
     });
   };
 
+  const originalRenderDetail = App.renderDetail.bind(App);
+  App.renderDetail = function(...args) {
+    const result = originalRenderDetail(...args);
+    decorateDetailVersion(manifestEntry(App.activeCharacter));
+    return result;
+  };
+
   const originalRender = App.renderCharacters.bind(App);
   App.renderCharacters = function(filter = "all") {
     state.category = ["male", "female", "r18"].includes(filter) ? filter : "all";
@@ -362,7 +392,14 @@
     const publication = core.publicationMeta(item);
     const result = await originalOpenCharacter(id);
     if (String(App.activeCharacter?.id || "") === String(id || "")) {
-      writeLibrary(core.markViewed(library, id, Date.now(), publication.updatedAt));
+      decorateDetailVersion(item);
+      writeLibrary(core.markViewed(
+        library,
+        id,
+        Date.now(),
+        publication.versionPublishedAt || publication.updatedAt,
+        publication.publishedVersion
+      ));
       scheduleApply();
     }
     return result;
@@ -402,7 +439,13 @@
     markViewed(id, viewedAt) {
       const item = (App.characterManifest || []).find(entry => String(entry?.id || "") === String(id || "")) || {};
       const publication = core.publicationMeta(item);
-      writeLibrary(core.markViewed(library, id, viewedAt, publication.updatedAt));
+      writeLibrary(core.markViewed(
+        library,
+        id,
+        viewedAt,
+        publication.versionPublishedAt || publication.updatedAt,
+        publication.publishedVersion
+      ));
       scheduleApply();
       return core.libraryMeta(library, id);
     }

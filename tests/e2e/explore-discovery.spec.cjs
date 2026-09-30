@@ -137,7 +137,7 @@ test('explore keeps favorites and recently viewed works on this device', async (
 });
 
 
-test('explore surfaces NEW and UPDATED from explicit catalog timestamps', async ({ page }) => {
+test('explore surfaces player-relative NEW and UPDATED from explicit published versions', async ({ page }) => {
   await page.addInitScript(() => localStorage.removeItem('yorubay:explore-continuity:v1'));
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('./');
@@ -155,21 +155,41 @@ test('explore surfaces NEW and UPDATED from explicit catalog timestamps', async 
 
   await target.click();
   await expect(page.locator('#detail-view')).toHaveClass(/active/);
+  await expect(page.locator('#character-detail .explore-detail-version')).toContainText('公開版本 v1');
+  let saved = await page.evaluate(() => JSON.parse(localStorage.getItem('yorubay:explore-continuity:v1') || '{}'));
+  expect(saved.recent[0].seenVersion).toBe(1);
+
   await page.evaluate(() => App.showView('explore'));
   await expect(target.locator('.explore-update-badge')).toHaveCount(0);
 
+  // A catalog-only metadata edit must not look like new story content.
   await page.evaluate(() => {
     const item = App.characterManifest.find(entry => entry.id === 'night-sky-magic-academy');
-    item.updated_at = new Date(Date.now() - 60_000).toISOString();
+    item.updated_at = new Date(Date.now() - 30_000).toISOString();
+    BAOExploreDiscovery.apply();
+  });
+  await expect(target.locator('.explore-update-badge')).toHaveCount(0);
+
+  // A player-facing release increments the version and release timestamp.
+  await page.evaluate(() => {
+    const item = App.characterManifest.find(entry => entry.id === 'night-sky-magic-academy');
+    item.published_version = 2;
+    item.version_published_at = new Date(Date.now() - 60_000).toISOString();
+    item.updated_at = item.version_published_at;
     BAOExploreDiscovery.apply();
   });
   await expect(target.locator('.explore-update-badge')).toHaveText('UPDATED');
+  await expect(target.locator('.explore-update-badge')).toHaveAttribute('aria-label', /v2/);
+
+  await tools.getByRole('button', { name: '最近更新', exact: true }).click();
+  await expect(target.locator('.explore-card-context')).toContainText('v2');
 
   await page.evaluate(() => BAOExploreDiscovery.markViewed('night-sky-magic-academy', Date.now()));
   await expect(target.locator('.explore-update-badge')).toHaveCount(0);
 
-  const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('yorubay:explore-continuity:v1') || '{}'));
+  saved = await page.evaluate(() => JSON.parse(localStorage.getItem('yorubay:explore-continuity:v1') || '{}'));
   expect(saved.recent[0].seenUpdatedAt).toBeGreaterThan(0);
+  expect(saved.recent[0].seenVersion).toBe(2);
 });
 
 
@@ -180,7 +200,8 @@ test('explore cards change information emphasis by browsing context', async ({ p
       recent: [{
         id: 'night-sky-magic-academy',
         viewedAt: Date.now() - 60_000,
-        seenUpdatedAt: Date.parse('2026-09-29T11:27:09Z')
+        seenUpdatedAt: Date.parse('2026-09-29T11:27:09Z'),
+        seenVersion: 1
       }]
     }));
   });
