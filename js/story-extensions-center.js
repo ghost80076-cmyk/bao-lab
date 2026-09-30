@@ -87,6 +87,64 @@
     }
   };
 
+
+  const notify = (message, type = "success") => {
+    if (window.BAOFeedback?.notify) window.BAOFeedback.notify(message, type);
+    else window.alert(message);
+  };
+
+  const packPreviewHTML = description => `
+    <section class="story-extension-pack-preview" aria-labelledby="story-extension-pack-title">
+      <header>
+        <div>
+          <span class="story-extension-eyebrow">PORTABLE SETTINGS</span>
+          <h3 id="story-extension-pack-title">準備匯入擴充設定</h3>
+          <p>只會套用你勾選的類別；每一類都會取代該類目前的玩家設定。</p>
+        </div>
+        <button type="button" class="story-extension-pack-cancel" data-extension-pack-cancel>取消</button>
+      </header>
+      <div class="story-extension-pack-sections">
+        ${description.sections.map(section => `
+          <label class="story-extension-pack-section">
+            <input type="checkbox" data-extension-pack-section="${esc(section.id)}" checked>
+            <span><b>${esc(section.label)}</b><small>${esc(section.detail)}</small><em>${esc(section.impact)}</em></span>
+          </label>`).join("")}
+      </div>
+      <div class="story-extension-pack-excluded">
+        <b>不會帶入</b>
+        <span>${description.excluded.map(item => esc(item)).join(" · ")}</span>
+      </div>
+      <button type="button" class="primary story-extension-pack-apply" data-extension-pack-apply>套用選取設定</button>
+    </section>`;
+
+  const mountPackPreview = (wrap, description) => {
+    wrap.querySelector(".story-extension-pack-preview")?.remove();
+    const footer = wrap.querySelector(".story-extensions-note");
+    if (!footer) return;
+    footer.insertAdjacentHTML("beforebegin", packPreviewHTML(description));
+    const preview = wrap.querySelector(".story-extension-pack-preview");
+    preview?.querySelector("[data-extension-pack-cancel]")?.addEventListener("click", () => preview.remove());
+    preview?.querySelector("[data-extension-pack-apply]")?.addEventListener("click", () => {
+      const selected = [...preview.querySelectorAll("[data-extension-pack-section]:checked")]
+        .map(input => input.dataset.extensionPackSection).filter(Boolean);
+      if (!selected.length) {
+        notify("請至少勾選一類設定再套用。", "error");
+        return;
+      }
+      const labels = description.sections.filter(section => selected.includes(section.id)).map(section => section.label);
+      if (!window.confirm(`套用「${labels.join("、")}」？選取類別目前的玩家設定會被設定包取代。`)) return;
+      try {
+        const result = window.BAOStoryExtensionPack?.applyPack?.(description.pack, selected);
+        if (!result?.applied?.length) throw new Error("沒有設定被套用。");
+        notify(`已套用：${result.applied.join("、")}。`);
+        window.setTimeout(() => open(), 0);
+      } catch (error) {
+        notify(error?.message || "故事擴充設定套用失敗。", "error");
+      }
+    });
+    preview?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+  };
+
   const scopeChips = scopes => (Array.isArray(scopes) ? scopes : [])
     .map(scope => `<span class="story-extension-scope">${esc(scope)}</span>`).join("");
 
@@ -254,6 +312,12 @@
         </div>
         <footer class="story-extensions-note">
           <span>「作品提供」代表作品附帶能力，不代表自動取得權限；需要玩家同意的功能仍維持關閉。打開這個頁面本身不會啟用任何規則。</span>
+          <div class="story-extension-pack-actions">
+            <button type="button" class="secondary" data-extension-pack-export>匯出擴充設定</button>
+            <button type="button" class="secondary" data-extension-pack-import>匯入擴充設定</button>
+            <input type="file" accept=".json,application/json" data-extension-pack-file hidden>
+          </div>
+          <small>設定包只搬移玩家可攜設定；不包含故事內容、世界狀態、API Key、作品 Regex 或作者授權。</small>
         </footer>
       </section>`;
     document.body.appendChild(wrap);
@@ -279,6 +343,38 @@
         }
       });
     });
+
+    const packApi = window.BAOStoryExtensionPack;
+    const exportButton = wrap.querySelector("[data-extension-pack-export]");
+    const importButton = wrap.querySelector("[data-extension-pack-import]");
+    const importFile = wrap.querySelector("[data-extension-pack-file]");
+    if (!packApi) {
+      if (exportButton) exportButton.disabled = true;
+      if (importButton) importButton.disabled = true;
+    } else {
+      exportButton?.addEventListener("click", () => {
+        try {
+          const pack = packApi.exportCurrent();
+          const info = window.BAOStoryExtensionPackCore?.describePack?.(pack);
+          notify(info ? `擴充設定已匯出，共 ${info.sections.length} 類設定；不含故事內容與 API Key。` : "擴充設定已匯出。");
+        } catch (error) {
+          notify(error?.message || "擴充設定匯出失敗。", "error");
+        }
+      });
+      importButton?.addEventListener("click", () => importFile?.click());
+      importFile?.addEventListener("change", async event => {
+        const file = event.target.files?.[0];
+        event.target.value = "";
+        if (!file) return;
+        try {
+          const description = await packApi.readFile(file);
+          mountPackPreview(wrap, description);
+        } catch (error) {
+          notify(error?.message || "無法讀取這份擴充設定包。", "error");
+        }
+      });
+    }
+
     if (options.expandCard) {
       wrap.querySelector(`[data-extension-card="${CSS.escape(String(options.expandCard))}"] .story-extension-inventory`)?.setAttribute("open", "");
     }
