@@ -52,3 +52,38 @@
   .story-extension-card{grid-template-columns:1fr}
   .story-extension-card>button{width:100%;min-height:44px}
 }
+
+.story-extension-meta{
+  display:grid;gap:6px;margin-top:10px;padding-top:10px;border-top:1px dashed rgba(181,174,255,.14)
+}
+.story-extension-meta>div{
+  display:grid;grid-template-columns:48px minmax(0,1fr);align-items:start;gap:8px;
+  color:var(--muted);font-size:11px;line-height:1.55
+}
+.story-extension-meta b{
+  color:#8f89ad;font-size:10px;letter-spacing:.04em
+}
+.story-extension-sources,.story-extension-permissions>span{
+  display:flex;flex-wrap:wrap;gap:5px
+}
+.story-extension-source,.story-extension-permissions em{
+  display:inline-flex;align-items:center;min-height:21px;padding:2px 7px;border-radius:999px;
+  border:1px solid rgba(255,255,255,.09);background:rgba(255,255,255,.035);
+  color:#bbb5ce;font-size:9px;font-style:normal;font-weight:700
+}
+.story-extension-source[data-source="work"]{
+  border-color:rgba(190,173,255,.2);background:rgba(190,173,255,.06);color:#d6cdfa
+}
+.story-extension-source[data-source="platform"]{
+  border-color:rgba(130,224,199,.18);background:rgba(130,224,199,.05);color:#bde8dc
+}
+.story-extension-source[data-source="player"]{
+  border-color:rgba(255,209,122,.18);background:rgba(255,209,122,.05);color:#e8d3a9
+}
+.story-extension-permissions em{
+  border-color:rgba(255,255,255,.07);color:#aaa5ba
+}
+@media(max-width:720px){
+  .story-extension-meta>div{grid-template-columns:42px minmax(0,1fr);font-size:10px}
+  .story-extension-source,.story-extension-permissions em{font-size:8px}
+}
