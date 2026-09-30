@@ -11,7 +11,10 @@ on:
       - 'js/character-ui.js'
       - 'js/quick-start-mode.js'
       - 'js/player-builder-v2.js'
+      - 'js/story-start-readiness-core.js'
+      - 'js/story-start-readiness.js'
       - 'css/player-builder-v2.css'
+      - 'css/story-start-readiness.css'
       - 'css/first-run-desktop.css'
       - '.github/workflows/first-run-live.yml'
   workflow_dispatch:
@@ -32,6 +35,8 @@ jobs:
           node --check js/brand-ui.js
           node --check js/character-ui.js
           node --check js/player-builder-v2.js
+          node --check js/story-start-readiness-core.js
+          node --check js/story-start-readiness.js
           node <<'NODE'
           const fs = require('node:fs');
           const assert = require('node:assert/strict');
@@ -42,7 +47,10 @@ jobs:
           const detail = fs.readFileSync('js/character-ui.js', 'utf8');
           const quick = fs.readFileSync('js/quick-start-mode.js', 'utf8');
           const builder = fs.readFileSync('js/player-builder-v2.js', 'utf8');
+          const readinessCore = fs.readFileSync('js/story-start-readiness-core.js', 'utf8');
+          const readiness = fs.readFileSync('js/story-start-readiness.js', 'utf8');
           const builderCss = fs.readFileSync('css/player-builder-v2.css', 'utf8');
+          const readinessCss = fs.readFileSync('css/story-start-readiness.css', 'utf8');
           const css = fs.readFileSync('css/first-run-desktop.css', 'utf8');
           for (const phrase of ['href="quick-start.html"', 'id="home-continue"', 'id="home-character-count"']) assert.ok(home.includes(phrase), `Missing homepage element: ${phrase}`);
           assert.equal((home.match(/href="quick-start\.html"/g) || []).length, 1, 'Homepage should expose one canonical first-run link');
@@ -53,6 +61,9 @@ jobs:
           assert.ok(detail.includes('class="detail-first-run" href="quick-start.html"'), 'Work detail first-run link missing');
           for (const phrase of ['bao-first-run-progress', '作品已選好', '連接 AI', '開始故事', '快速開始（推薦）']) assert.ok(quick.includes(phrase), `Missing quick-start path: ${phrase}`);
           for (const phrase of ['STEP 2 · CONNECT', 'bao-first-run-ai-note', 'bao-connection-help', '使用帳號 API 額度', '使用自己的 API']) assert.ok(builder.includes(phrase), `Missing builder onboarding route: ${phrase}`);
+          for (const phrase of ['還缺 API Key', '還缺夜灣帳號登入', '還缺本機模型', '可以開始故事']) assert.ok(readinessCore.includes(phrase), `Missing readiness state: ${phrase}`);
+          for (const phrase of ['bao-start-readiness', 'data-start-ready-summary', 'data-start-ready-action', 'data-bao-ready']) assert.ok(readiness.includes(phrase), `Missing readiness UI: ${phrase}`);
+          assert.ok(readinessCss.includes('[data-ready="true"]'), 'Ready-state styling missing');
           assert.ok(!builderCss.includes('#builder-api-guide'), 'Dead builder guide CSS should be removed');
           assert.ok(css.includes('@media(min-width:1081px)'), 'Desktop styles missing');
           assert.ok(home.includes('css/first-run-desktop.css'), 'Stylesheet not loaded');
@@ -68,7 +79,7 @@ jobs:
           trap 'rm -rf "$verify_dir"' EXIT
           for attempt in $(seq 1 50); do
             matched=true
-            for file in quick-start.html api-guide.html account.html js/brand-ui.js js/character-ui.js js/quick-start-mode.js js/player-builder-v2.js css/player-builder-v2.css css/first-run-desktop.css; do
+            for file in quick-start.html api-guide.html account.html js/brand-ui.js js/character-ui.js js/quick-start-mode.js js/player-builder-v2.js js/story-start-readiness-core.js js/story-start-readiness.js css/player-builder-v2.css css/story-start-readiness.css css/first-run-desktop.css; do
               if ! curl -fsSL --max-time 15 "${SITE_URL}${file}?verify=${GITHUB_SHA}" -o "$verify_dir/content" \
                 || ! cmp -s "$file" "$verify_dir/content"; then
                 matched=false
