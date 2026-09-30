@@ -26,7 +26,11 @@
     "supported_display": {
       "text": true,
       "ui": true
-    }
+    },
+    "published_at": "2026-09-13T11:53:39Z",
+    "updated_at": "2026-09-27T13:55:43Z",
+    "revision": "2026-09-27-2",
+    "update_note": "補強情緒深度與情境提示"
   },
   {
     "id": "autonomous-npc-world",
@@ -52,7 +56,11 @@
     "supported_display": {
       "text": true,
       "ui": true
-    }
+    },
+    "published_at": "2026-09-17T16:14:31Z",
+    "updated_at": "2026-09-18T16:22:55Z",
+    "revision": "2026-09-18-2",
+    "update_note": "補回符號使用指南並調整世界提示"
   },
   {
     "id": "open-world-real-persona",
@@ -78,7 +86,10 @@
     "supported_display": {
       "text": true,
       "ui": true
-    }
+    },
+    "published_at": "2026-09-18T03:29:17Z",
+    "updated_at": "2026-09-18T03:29:17Z",
+    "revision": "2026-09-18-1"
   },
   {
     "id": "desire-district",
@@ -108,7 +119,11 @@
     "supported_display": {
       "text": true,
       "ui": true
-    }
+    },
+    "published_at": "2026-09-19T06:15:50Z",
+    "updated_at": "2026-09-19T07:23:28Z",
+    "revision": "2026-09-19-5",
+    "update_note": "強化 NPC 視覺生成與場景追蹤"
   },
   {
     "id": "kurobane-yume-kabukicho",
@@ -135,7 +150,11 @@
     "supported_display": {
       "text": true,
       "ui": true
-    }
+    },
+    "published_at": "2026-09-21T11:22:40Z",
+    "updated_at": "2026-09-28T13:58:13Z",
+    "revision": "2026-09-28-1",
+    "update_note": "調整公開分級並保留世界設定"
   },
   {
     "id": "unhealed-bonds",
@@ -164,7 +183,11 @@
     "supported_display": {
       "text": true,
       "ui": true
-    }
+    },
+    "published_at": "2026-09-27T15:14:13Z",
+    "updated_at": "2026-09-28T08:52:59Z",
+    "revision": "2026-09-28-1",
+    "update_note": "更新角色視覺"
   },
   {
     "id": "host-club-simulator",
@@ -193,7 +216,11 @@
     "supported_display": {
       "text": true,
       "ui": true
-    }
+    },
+    "published_at": "2026-09-27T15:53:56Z",
+    "updated_at": "2026-09-28T08:51:40Z",
+    "revision": "2026-09-28-2",
+    "update_note": "更新角色視覺與開場群像"
   },
   {
     "id": "night-sky-magic-academy",
@@ -222,7 +249,11 @@
     "supported_display": {
       "text": true,
       "ui": true
-    }
+    },
+    "published_at": "2026-09-27T18:02:40Z",
+    "updated_at": "2026-09-29T11:27:09Z",
+    "revision": "2026-09-29-2",
+    "update_note": "整合 Gameplay UI 主題層與作者外觀"
   },
   {
     "id": "k-idol-survival-simulator",
@@ -251,6 +282,10 @@
     "supported_display": {
       "text": true,
       "ui": true
-    }
+    },
+    "published_at": "2026-09-28T10:11:49Z",
+    "updated_at": "2026-09-28T13:09:37Z",
+    "revision": "2026-09-28-2",
+    "update_note": "更新選秀封面視覺"
   }
 ]
