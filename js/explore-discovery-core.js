@@ -49,10 +49,24 @@
       String(character.rating || "").toLowerCase() === "adult";
   }
 
+  function characterGender(character = {}) {
+    const values = [
+      ...(Array.isArray(character.audience) ? character.audience : []),
+      ...(Array.isArray(character.categories) ? character.categories : []),
+      character.gender || ""
+    ].map(value => fold(value));
+    if (values.some(value => ["male", "man", "男性"].includes(value))) return "male";
+    if (values.some(value => ["female", "woman", "女性"].includes(value))) return "female";
+    return "";
+  }
+
   function inCategory(character = {}, category = "all") {
-    const active = ["male", "female", "r18"].includes(category) ? category : "all";
+    const active = ["male", "female", "r18", "adult-male", "adult-female"].includes(category) ? category : "all";
     if (active === "all") return !isAdult(character);
-    return String(character.category || "").toLowerCase() === active;
+    if (active === "r18") return isAdult(character);
+    if (active === "adult-male") return isAdult(character) && characterGender(character) === "male";
+    if (active === "adult-female") return isAdult(character) && characterGender(character) === "female";
+    return !isAdult(character) && characterGender(character) === active;
   }
 
   function supports(character = {}, capability = "all") {
@@ -90,11 +104,15 @@
   function filter(list = [], state = {}, extraFor = () => ({})) {
     const source = Array.isArray(list) ? list : [];
     const matched = source.filter(item => matches(item, state, extraFor(item) || {}));
-    if (!["recent", "updates"].includes(state.scope)) return matched;
-    const key = state.scope === "updates" ? "activityAt" : "recentAt";
+    let sortKey = "";
+    if (state.scope === "recent") sortKey = "recentAt";
+    else if (state.scope === "updates") sortKey = "activityAt";
+    else if (state.sort === "latest") sortKey = "publishedAt";
+    else if (state.sort === "updated") sortKey = "activityAt";
+    if (!sortKey) return matched;
     return matched.slice().sort((a, b) => {
-      const aTime = Number((extraFor(a) || {})[key] || 0);
-      const bTime = Number((extraFor(b) || {})[key] || 0);
+      const aTime = Number((extraFor(a) || {})[sortKey] || 0);
+      const bTime = Number((extraFor(b) || {})[sortKey] || 0);
       return bTime - aTime;
     });
   }
@@ -214,6 +232,7 @@
     publicationMeta,
     isFresh,
     isAdult,
+    characterGender,
     inCategory,
     supports,
     haystack,
