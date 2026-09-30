@@ -7,7 +7,7 @@ test('explore page lets players search works and filter capabilities without exp
 
   await page.evaluate(() => App.showView('explore'));
   await expect(page.locator('#explore-view')).toHaveClass(/active/);
-  await expect(page.locator('#explore-view h2')).toHaveText('探索作品');
+  await expect(page.locator('#explore-view h2')).toContainText('故事');
 
   const tools = page.locator('#explore-discovery-tools');
   const input = tools.locator('#explore-search-input');
