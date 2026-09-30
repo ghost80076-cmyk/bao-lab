@@ -2,7 +2,7 @@ const { test, expect } = require('@playwright/test');
 
 async function chooseFilter(page, name) {
   const tools = page.locator('#explore-discovery-tools');
-  await tools.getByRole('button', { name: '篩選', exact: true }).click();
+  await tools.locator('[data-explore-filter-open]').click();
   const dialog = page.locator('#explore-filter-sheet');
   await expect(dialog).toBeVisible();
   await dialog.getByRole('button', { name, exact: true }).click();
@@ -23,11 +23,11 @@ test('explore page lets players search works and filter capabilities without exp
   const input = tools.locator('#explore-search-input');
   await expect(tools).toBeVisible();
   await expect(input).toBeVisible();
-  await tools.getByRole('button', { name: '篩選', exact: true }).click();
+  await tools.locator('[data-explore-filter-open]').click();
   const filterDialog = page.locator('#explore-filter-sheet');
   await expect(filterDialog.getByRole('button', { name: '世界模擬', exact: true })).toBeVisible();
   await expect(filterDialog.getByRole('button', { name: '互動 UI', exact: true })).toBeVisible();
-  await filterDialog.getByRole('button', { name: '關閉', exact: true }).click();
+  await filterDialog.locator('[data-explore-filter-close]').click();
 
   const adultVisible = await page.locator('#character-list [data-character-id="desire-district"]:visible').count();
   expect(adultVisible).toBe(0);
@@ -94,7 +94,7 @@ test('explore search matches tags and does not change the current category gate'
   await page.evaluate(() => {
     App.renderCharacters('female');
   });
-  await expect(page.locator('#explore-view')).toHaveAttribute('data-category-theme', 'female');
+  await expect.poll(() => page.evaluate(() => window.BAOExploreDiscovery?.state?.category)).toBe('female');
   await input.fill('歌舞伎町');
   const visible = page.locator('#character-list [data-character-id]:visible');
   await expect.poll(() => visible.count()).toBeGreaterThan(0);
