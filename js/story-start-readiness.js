@@ -3,6 +3,12 @@
   if (window.BAOStoryStartReadiness || !window.BAOStoryStartReadinessCore || !window.App) return;
 
   const core = window.BAOStoryStartReadinessCore;
+  if (!document.querySelector('link[href^="css/story-start-readiness.css"]')) {
+    const link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = "css/story-start-readiness.css?v=1";
+    document.head.appendChild(link);
+  }
   const view = document.getElementById("builder-view");
   if (!view) return;
   const $ = id => document.getElementById(id);
