@@ -189,7 +189,7 @@
 
       const startButton = $("start-story");
       if (startButton) {
-        startButton.dataset.baoReady = state.canStart ? "true" : "false";
+        startButton.setAttribute("data-bao-ready", state.canStart ? "true" : "false");
         startButton.title = state.canStart ? state.start.label : `還不能開始：${state.start.detail}`;
       }
       return state;
