@@ -38,11 +38,7 @@ for (const width of [390, 1280]) {
     const image = card.locator('.character-image-wrap img');
     await expect(image).toBeVisible();
     await expect.poll(() => image.evaluate(node => getComputedStyle(node).aspectRatio)).toBe(width <= 820 ? '3 / 4' : '4 / 5');
-    const firstTag = card.locator('.tag').first();
-    if (await firstTag.count()) {
-      await expect(firstTag).toBeVisible();
-      await expect.poll(() => firstTag.evaluate(node => getComputedStyle(node).borderRadius)).not.toBe('0px');
-    }
+    await expect(card.locator('.character-content > .tags')).toBeHidden();
     const imageBox = await image.boundingBox();
     expect(imageBox.height / imageBox.width).toBeGreaterThan(width <= 820 ? 1.3 : 1.2);
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width + 1);
@@ -55,6 +51,10 @@ for (const width of [390, 1280]) {
     await expect(page.locator('#custom-character-list')).toContainText('目前沒有本機匯入角色');
     await more.locator('summary').click();
     await card.click();
+    const preview = page.locator('#explore-work-preview');
+    await expect(preview).toBeVisible();
+    await expect(preview.locator('.explore-work-preview-tags .tag').first()).toBeVisible();
+    await preview.getByRole('button', { name: '查看作品', exact: true }).click();
     await expect(page.locator('#detail-view .detail-theme-shell')).toBeVisible();
     await expect(page.locator('#detail-start')).toBeVisible();
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width + 1);
