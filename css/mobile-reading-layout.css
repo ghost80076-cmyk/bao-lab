@@ -225,6 +225,7 @@
     flex:1 1 auto!important;
     min-width:0!important;
     width:auto!important;
+    box-sizing:border-box!important;
     min-height:52px!important;
     max-height:min(26dvh,168px)!important;
     resize:none!important;
