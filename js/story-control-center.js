@@ -36,12 +36,13 @@
     try { notes = window.BAOMemoryWorkbench?.readSlots?.() || []; } catch (_) {}
     let statusConfig = {};
     try { statusConfig = window.BAOCharacterStatus?.configFor?.(App.activeCharacter) || {}; } catch (_) {}
-    let worldDefs = [];
-    try { worldDefs = window.BAOWorldModules?.definitions?.(App.activeCharacter) || []; } catch (_) {}
     const narrativeState = window.BAONarrativeSettings?.get?.() || {};
     const narrativeStatus = window.BAONarrativeSettings?.statusLabel?.(narrativeState) || {};
-    let replaceState = {};
-    try { replaceState = window.BAOPlayerTextReplace?.get?.() || {}; } catch (_) {}
+    let extensions = { title: "故事擴充使用原始設定", detail: "世界、閱讀與顯示規則" };
+    try {
+      const info = window.BAOStoryExtensionsCenter?.summary?.();
+      if (info) extensions = info;
+    } catch (_) {}
     let quick = { title: "常用快捷指令", detail: "點一下填入，不會自動送出" };
     try {
       const info = window.BAOStoryQuickCommands?.summary?.();
@@ -71,10 +72,9 @@
       memory: core.memorySummary(memoryDiag, Array.isArray(notes) ? notes.length : 0),
       context,
       status: core.statusSummary(statusConfig, window.BAOSceneHTML?.prefs?.status || "native"),
-      world: core.worldSummary(worldDefs),
+      extensions,
       narrative: core.narrativeSummary(narrativeStatus),
-      quick,
-      mod: core.modSummary(replaceState)
+      quick
     };
   };
 
@@ -84,10 +84,9 @@
     memory() { window.BAOMemoryWorkbench?.open?.(); },
     context() { window.BAOContextHealth?.open?.(); },
     status() { window.BAOCharacterStatusUI?.openSettings?.(); },
-    world() { window.BAOWorldModuleManager?.open?.(); },
+    extensions() { window.BAOStoryExtensionsCenter?.open?.(); },
     narrative() { window.BAONarrativeSettings?.open?.(); },
     quick() { window.BAOStoryQuickCommands?.open?.(); },
-    mod() { document.querySelector('[data-bao-open="text-replace"]')?.click(); },
     search() { window.BAOConversationSearch?.open?.(); },
     all() { window.BAOChatToolNavigation?.openDrawer?.(); }
   };
@@ -128,10 +127,9 @@
           ${card("memory", "故事記憶", data.memory, "查看記憶")}
           ${card("context", "上下文狀態", data.context, "查看前情")}
           ${card("status", "人物／世界狀態", data.status, "管理狀態")}
-          ${card("world", "世界模組", data.world, "管理模組")}
+          ${card("extensions", "故事擴充", data.extensions, "查看作用範圍")}
           ${card("narrative", "敘事與描寫", data.narrative, "調整敘事")}
           ${card("quick", "快捷指令", data.quick, "打開指令")}
-          ${card("mod", "顯示 MOD", data.mod, "文字替換")}
         </div>
         <footer class="story-control-footer">
           <button type="button" class="secondary" data-story-control-action="search">⌕ 搜尋這個故事</button>
@@ -167,7 +165,7 @@
     button.className = "secondary story-control-entry";
     button.dataset.openStoryControl = "true";
     button.textContent = "☷ 故事控制台";
-    button.title = "查看這個故事目前使用的模型、身份、記憶、狀態與模組";
+    button.title = "查看這個故事目前使用的模型、身份、記憶、狀態與故事擴充";
     button.addEventListener("click", open);
     if (bar) {
       const all = bar.querySelector("button:last-child");
