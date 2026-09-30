@@ -41,9 +41,12 @@
 
   const extraFor = character => {
     const item = manifestEntry(character);
+    const libraryInfo = core.libraryMeta(library, character?.id);
+    const updateInfo = core.workUpdateState(item, libraryInfo);
     return {
       author: item.author || "",
-      ...core.libraryMeta(library, character?.id)
+      ...libraryInfo,
+      ...updateInfo
     };
   };
 
@@ -70,6 +73,7 @@
         <button type="button" class="filter active" data-explore-scope="all">全部作品</button>
         <button type="button" class="filter" data-explore-scope="favorites">★ 收藏</button>
         <button type="button" class="filter" data-explore-scope="recent">最近看過</button>
+        <button type="button" class="filter" data-explore-scope="updates">最近更新</button>
       </div>
       <div class="explore-capabilities" aria-label="作品能力篩選">
         <span>想找：</span>
@@ -147,6 +151,8 @@
       if (!content) return;
 
       const libraryInfo = core.libraryMeta(library, character.id);
+      const item = manifestEntry(character);
+      const updateInfo = core.workUpdateState(item, libraryInfo);
       let favoriteButton = card.querySelector("[data-explore-favorite]");
       if (!favoriteButton && imageWrap) {
         favoriteButton = document.createElement("button");
@@ -167,6 +173,21 @@
         favoriteButton.setAttribute("aria-label", (libraryInfo.favorite ? "取消收藏 " : "收藏 ") + (character.title || character.name || "作品"));
         favoriteButton.title = libraryInfo.favorite ? "取消收藏" : "收藏";
         favoriteButton.textContent = libraryInfo.favorite ? "★" : "☆";
+      }
+
+      let updateBadge = imageWrap?.querySelector(".explore-update-badge");
+      if (updateInfo.badge) {
+        if (!updateBadge && imageWrap) {
+          updateBadge = document.createElement("span");
+          updateBadge.className = "explore-update-badge";
+          imageWrap.appendChild(updateBadge);
+        }
+        if (updateBadge) {
+          updateBadge.textContent = updateInfo.badge;
+          updateBadge.dataset.kind = updateInfo.badge.toLowerCase();
+        }
+      } else {
+        updateBadge?.remove();
       }
 
       let continuity = content.querySelector(".explore-card-continuity");
@@ -216,7 +237,7 @@
     });
 
     if (list) {
-      const preferred = state.scope === "recent"
+      const preferred = ["recent", "updates"].includes(state.scope)
         ? matches.map(item => String(item.id || ""))
         : (App.characters || []).map(item => String(item.id || ""));
       const rank = new Map(preferred.map((id, index) => [id, index]));
@@ -267,6 +288,9 @@
       } else if (state.scope === "recent") {
         if (title) title.textContent = "最近還沒有看過符合條件的作品";
         if (copy) copy.textContent = "打開作品詳情後，夜灣會在這台裝置記住最近瀏覽。";
+      } else if (state.scope === "updates") {
+        if (title) title.textContent = "目前沒有近期更新的作品";
+        if (copy) copy.textContent = "只有作品目錄明確提供發布／更新時間時，夜灣才會顯示 NEW 或 UPDATED。";
       } else {
         if (title) title.textContent = "沒有找到符合條件的作品";
         if (copy) copy.textContent = "可以換一個關鍵字，或清除能力篩選後再看看。";
@@ -298,9 +322,11 @@
 
   const originalOpenCharacter = App.openCharacter.bind(App);
   App.openCharacter = async function(id) {
+    const item = (App.characterManifest || []).find(entry => String(entry?.id || "") === String(id || "")) || {};
+    const publication = core.publicationMeta(item);
     const result = await originalOpenCharacter(id);
     if (String(App.activeCharacter?.id || "") === String(id || "")) {
-      writeLibrary(core.markViewed(library, id));
+      writeLibrary(core.markViewed(library, id, Date.now(), publication.updatedAt));
       scheduleApply();
     }
     return result;
@@ -338,7 +364,9 @@
       return core.libraryMeta(library, id);
     },
     markViewed(id, viewedAt) {
-      writeLibrary(core.markViewed(library, id, viewedAt));
+      const item = (App.characterManifest || []).find(entry => String(entry?.id || "") === String(id || "")) || {};
+      const publication = core.publicationMeta(item);
+      writeLibrary(core.markViewed(library, id, viewedAt, publication.updatedAt));
       scheduleApply();
       return core.libraryMeta(library, id);
     }
