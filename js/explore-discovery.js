@@ -5,10 +5,35 @@
   const root = document.getElementById("explore-view");
   if (!core || !root || typeof App === "undefined" || window.BAOExploreDiscovery) return;
 
+  const STORAGE_KEY = "yorubay:explore-continuity:v1";
+
+  const readLibrary = () => {
+    try {
+      return core.normalizeLibrary(JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}"));
+    } catch (error) {
+      console.warn("YoruBay explore continuity could not be read:", error);
+      return core.normalizeLibrary({});
+    }
+  };
+
+  const writeLibrary = next => {
+    const safe = core.normalizeLibrary(next);
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(safe));
+    } catch (error) {
+      console.warn("YoruBay explore continuity could not be saved:", error);
+    }
+    library = safe;
+    return safe;
+  };
+
+  let library = readLibrary();
+
   const state = {
     category: "all",
     query: "",
-    capability: "all"
+    capability: "all",
+    scope: "all"
   };
 
   const manifestEntry = character =>
@@ -16,7 +41,10 @@
 
   const extraFor = character => {
     const item = manifestEntry(character);
-    return { author: item.author || "" };
+    return {
+      author: item.author || "",
+      ...core.libraryMeta(library, character?.id)
+    };
   };
 
   const ensureTools = () => {
@@ -36,6 +64,12 @@
             placeholder="搜尋標題、描述、標籤…">
           <button type="button" class="text-button explore-search-clear" data-explore-clear hidden>清除</button>
         </div>
+      </div>
+      <div class="explore-scope" aria-label="我的作品篩選">
+        <span>我的：</span>
+        <button type="button" class="filter active" data-explore-scope="all">全部作品</button>
+        <button type="button" class="filter" data-explore-scope="favorites">★ 收藏</button>
+        <button type="button" class="filter" data-explore-scope="recent">最近看過</button>
       </div>
       <div class="explore-capabilities" aria-label="作品能力篩選">
         <span>想找：</span>
@@ -74,9 +108,17 @@
     reset?.addEventListener("click", () => {
       state.query = "";
       state.capability = "all";
+      state.scope = "all";
       input.value = "";
       scheduleApply();
       input.focus();
+    });
+
+    host.querySelectorAll("[data-explore-scope]").forEach(button => {
+      button.addEventListener("click", () => {
+        state.scope = button.dataset.exploreScope || "all";
+        scheduleApply();
+      });
     });
 
     host.querySelectorAll("[data-explore-capability]").forEach(button => {
@@ -100,8 +142,49 @@
       const character = (App.characters || []).find(item => String(item?.id || "") === String(card.dataset.characterId || ""));
       if (!character) return;
 
+      const imageWrap = card.querySelector(".character-image-wrap");
       const content = card.querySelector(".character-content");
       if (!content) return;
+
+      const libraryInfo = core.libraryMeta(library, character.id);
+      let favoriteButton = card.querySelector("[data-explore-favorite]");
+      if (!favoriteButton && imageWrap) {
+        favoriteButton = document.createElement("button");
+        favoriteButton.type = "button";
+        favoriteButton.className = "explore-favorite-button";
+        favoriteButton.dataset.exploreFavorite = character.id;
+        imageWrap.appendChild(favoriteButton);
+        favoriteButton.addEventListener("click", event => {
+          event.preventDefault();
+          event.stopPropagation();
+          writeLibrary(core.toggleFavorite(library, character.id));
+          scheduleApply();
+        });
+      }
+      if (favoriteButton) {
+        favoriteButton.classList.toggle("active", libraryInfo.favorite);
+        favoriteButton.setAttribute("aria-pressed", String(libraryInfo.favorite));
+        favoriteButton.setAttribute("aria-label", (libraryInfo.favorite ? "取消收藏 " : "收藏 ") + (character.title || character.name || "作品"));
+        favoriteButton.title = libraryInfo.favorite ? "取消收藏" : "收藏";
+        favoriteButton.textContent = libraryInfo.favorite ? "★" : "☆";
+      }
+
+      let continuity = content.querySelector(".explore-card-continuity");
+      const continuityLabels = [];
+      if (libraryInfo.favorite) continuityLabels.push("已收藏");
+      if (libraryInfo.recentAt) continuityLabels.push("最近看過");
+      if (!continuityLabels.length) {
+        continuity?.remove();
+      } else {
+        if (!continuity) {
+          continuity = document.createElement("div");
+          continuity.className = "explore-card-continuity";
+          const title = content.querySelector("h3");
+          if (title) title.insertAdjacentElement("afterend", continuity);
+          else content.prepend(continuity);
+        }
+        continuity.innerHTML = continuityLabels.map(label => `<span>${App.escapeHTML(label)}</span>`).join("");
+      }
 
       let meta = content.querySelector(".explore-card-capabilities");
       const labels = core.capabilityLabels(character);
@@ -126,11 +209,32 @@
     const matches = currentMatches();
     const visible = new Set(matches.map(item => String(item.id || "")));
 
-    document.querySelectorAll("#character-list [data-character-id]").forEach(card => {
+    const list = document.getElementById("character-list");
+    const cards = [...document.querySelectorAll("#character-list [data-character-id]")];
+    cards.forEach(card => {
       card.classList.toggle("bao-explore-filter-hidden", !visible.has(String(card.dataset.characterId || "")));
     });
 
+    if (list) {
+      const preferred = state.scope === "recent"
+        ? matches.map(item => String(item.id || ""))
+        : (App.characters || []).map(item => String(item.id || ""));
+      const rank = new Map(preferred.map((id, index) => [id, index]));
+      cards.sort((a, b) =>
+        (rank.get(String(a.dataset.characterId || "")) ?? Number.MAX_SAFE_INTEGER) -
+        (rank.get(String(b.dataset.characterId || "")) ?? Number.MAX_SAFE_INTEGER)
+      );
+      const more = list.querySelector(".character-load-more");
+      cards.forEach(card => list.insertBefore(card, more || null));
+    }
+
     decorateCards();
+
+    host.querySelectorAll("[data-explore-scope]").forEach(button => {
+      const active = button.dataset.exploreScope === state.scope;
+      button.classList.toggle("active", active);
+      button.setAttribute("aria-pressed", String(active));
+    });
 
     host.querySelectorAll("[data-explore-capability]").forEach(button => {
       const active = button.dataset.exploreCapability === state.capability;
@@ -143,19 +247,35 @@
 
     const hasQuery = Boolean(core.clean(state.query));
     const hasCapability = state.capability !== "all";
+    const hasScope = state.scope !== "all";
     const clear = host.querySelector("[data-explore-clear]");
     const reset = host.querySelector("[data-explore-reset]");
     if (clear) clear.hidden = !hasQuery;
-    if (reset) reset.hidden = !(hasQuery || hasCapability);
+    if (reset) reset.hidden = !(hasQuery || hasCapability || hasScope);
 
     const count = host.querySelector("#explore-result-count");
     if (count) count.textContent = core.resultLabel(matches.length, Boolean(App.hasMoreCharacterCatalog?.()));
 
     const empty = host.querySelector("#explore-search-empty");
-    if (empty) empty.hidden = matches.length !== 0;
+    if (empty) {
+      empty.hidden = matches.length !== 0;
+      const title = empty.querySelector("b");
+      const copy = empty.querySelector("span");
+      if (state.scope === "favorites") {
+        if (title) title.textContent = "還沒有符合條件的收藏";
+        if (copy) copy.textContent = "點作品封面上的 ☆ 收藏；收藏只保存在這台裝置。";
+      } else if (state.scope === "recent") {
+        if (title) title.textContent = "最近還沒有看過符合條件的作品";
+        if (copy) copy.textContent = "打開作品詳情後，夜灣會在這台裝置記住最近瀏覽。";
+      } else {
+        if (title) title.textContent = "沒有找到符合條件的作品";
+        if (copy) copy.textContent = "可以換一個關鍵字，或清除能力篩選後再看看。";
+      }
+    }
 
     root.dataset.exploreQuery = hasQuery ? "active" : "idle";
     root.dataset.exploreCapability = state.capability;
+    root.dataset.exploreScope = state.scope;
   };
 
   let applyQueued = false;
@@ -173,6 +293,16 @@
     state.category = ["male", "female", "r18"].includes(filter) ? filter : "all";
     const result = originalRender(filter);
     scheduleApply();
+    return result;
+  };
+
+  const originalOpenCharacter = App.openCharacter.bind(App);
+  App.openCharacter = async function(id) {
+    const result = await originalOpenCharacter(id);
+    if (String(App.activeCharacter?.id || "") === String(id || "")) {
+      writeLibrary(core.markViewed(library, id));
+      scheduleApply();
+    }
     return result;
   };
 
@@ -195,8 +325,22 @@
     reset() {
       state.query = "";
       state.capability = "all";
+      state.scope = "all";
       scheduleApply();
     },
-    matches: currentMatches
+    matches: currentMatches,
+    library() {
+      return core.normalizeLibrary(library);
+    },
+    toggleFavorite(id) {
+      writeLibrary(core.toggleFavorite(library, id));
+      scheduleApply();
+      return core.libraryMeta(library, id);
+    },
+    markViewed(id, viewedAt) {
+      writeLibrary(core.markViewed(library, id, viewedAt));
+      scheduleApply();
+      return core.libraryMeta(library, id);
+    }
   });
 })();
