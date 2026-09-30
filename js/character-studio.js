@@ -253,7 +253,8 @@
   });
   window.BAOCharacterStudio = {
     readCard,
-    toExport: card => toExport(card || readCard())
+    toExport: card => toExport(card || readCard()),
+    getState: () => ({ draftId, dirty, hasDraft: Boolean(draftId) })
   };
   $('studio-preview-image').addEventListener('error', () => { $('studio-preview-image').src = DEFAULT_IMAGE; });
   (async () => {
