@@ -108,10 +108,10 @@ test('explore keeps favorites and recently viewed works on this device', async (
   await expect(favorite).toHaveAttribute('aria-pressed', 'false');
   await favorite.click();
   await expect(favorite).toHaveAttribute('aria-pressed', 'true');
-  await expect(target.locator('.explore-card-continuity')).toContainText('已收藏');
 
   const tools = page.locator('#explore-discovery-tools');
   await tools.getByRole('button', { name: '★ 收藏', exact: true }).click();
+  await expect(target.locator('.explore-card-context')).toContainText('收藏中');
   await expect.poll(() => page.locator('#character-list [data-character-id]:visible').count()).toBe(1);
   await expect(target).toBeVisible();
 
