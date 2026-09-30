@@ -29,7 +29,7 @@ jobs:
       - name: Run core story, resume and new UI flows
         run: |
           specs=(tests/e2e/mobile-story-entry.spec.cjs tests/e2e/story-integrity.spec.cjs tests/e2e/mobile-tools-compact.spec.cjs tests/e2e/mobile-composer-tools.spec.cjs tests/e2e/mobile-reading-layout.spec.cjs tests/e2e/story-quick-commands.spec.cjs)
-          for optional in tests/e2e/story-control-center.spec.cjs tests/e2e/builder-connection-ux.spec.cjs tests/e2e/character-studio-flow.spec.cjs tests/e2e/character-studio-lifecycle.spec.cjs tests/e2e/explore-discovery.spec.cjs tests/e2e/reading-bookshelf.spec.cjs tests/e2e/scene-image-moments.spec.cjs tests/e2e/player-shell-v2.spec.cjs tests/e2e/player-feedback-ux.spec.cjs tests/e2e/linchenfeng-structured-opening.spec.cjs tests/e2e/host-club-simulator.spec.cjs tests/e2e/night-sky-magic-academy.spec.cjs tests/e2e/k-idol-survival-simulator.spec.cjs; do
+          for optional in tests/e2e/builder-connection-ux.spec.cjs tests/e2e/character-studio-flow.spec.cjs tests/e2e/character-studio-lifecycle.spec.cjs tests/e2e/explore-discovery.spec.cjs tests/e2e/reading-bookshelf.spec.cjs tests/e2e/scene-image-moments.spec.cjs tests/e2e/player-shell-v2.spec.cjs tests/e2e/player-feedback-ux.spec.cjs tests/e2e/linchenfeng-structured-opening.spec.cjs tests/e2e/host-club-simulator.spec.cjs tests/e2e/night-sky-magic-academy.spec.cjs tests/e2e/k-idol-survival-simulator.spec.cjs; do
             if [ -f "$optional" ]; then specs+=("$optional"); fi
           done
           npm run test:e2e -- "${specs[@]}" --project=chromium
@@ -38,6 +38,35 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: fast-playwright-report-chromium
+          path: |
+            playwright-report
+            test-results
+          if-no-files-found: ignore
+          retention-days: 7
+
+  story-controls:
+    name: Story controls · Chromium
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install test dependencies
+        run: npm ci
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Verify story control center and extension quick controls
+        run: npm run test:e2e -- tests/e2e/story-control-center.spec.cjs --project=chromium
+      - name: Upload story control report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: story-control-playwright-report
           path: |
             playwright-report
             test-results
