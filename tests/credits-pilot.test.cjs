@@ -110,7 +110,7 @@ test('YoruBay requests clamp only above the shared 8192 Worker ceiling',async()=
 test('refuses account-session leakage to other provider and wrong URL/models',async()=>{
  const s=build();s.app.config.api=cfg;
  await assert.rejects(()=>s.api.send({type:'openrouter',key:'__YORUBAY_ACCOUNT__',baseUrl:'https://openrouter.ai/api/v1'},msgs),/不可沿用/);
- await assert.rejects(()=>s.api.send({...cfg,baseUrl:'https://evil.test/chat'},msgs),/固定後端/);
+ await assert.rejects(()=>s.api.send({...cfg,baseUrl:'https://evil.test/chat'},msgs),/固定連線路線/);
  await assert.rejects(()=>s.api.send({...cfg,model:'gemini-9-unknown'},msgs),/已開放模型/);
  assert.equal(s.calls.length,0);
 });
@@ -172,8 +172,8 @@ test('propagates quota and provider-specific upstream errors without exposing pl
  const insufficient=build({ok:false,status:402,body:{error:'insufficient_credits'}});
  await assert.rejects(()=>insufficient.api.send(cfg,msgs),/額度不足/);
  const rateLimit=build({ok:false,status:502,body:{error:'provider_rate_limited',upstream_http_status:429}});
- await assert.rejects(()=>rateLimit.api.send(cfg,msgs),/Google Gemini 回報 API 速率或配額限制/);
- await assert.rejects(()=>rateLimit.api.send({...cfg,model:'deepseek/deepseek-v4-flash-0731'},msgs),/OpenRouter 回報 API 速率或配額限制/);
+ await assert.rejects(()=>rateLimit.api.send(cfg,msgs),/Google Gemini 回報速率或配額限制/);
+ await assert.rejects(()=>rateLimit.api.send({...cfg,model:'deepseek/deepseek-v4-flash-0731'},msgs),/OpenRouter 回報速率或配額限制/);
  const upstream500=build({ok:false,status:502,body:{error:'provider_http_error',upstream_http_status:500,request_id:'610dc846-559c-4273-9ac2-e251a7db0971'}});
  await assert.rejects(()=>upstream500.api.send(cfg,msgs),error=>{
    assert.match(error.message,/夜灣連線鏈路暫時異常（HTTP 500）/);
