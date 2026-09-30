@@ -150,6 +150,9 @@
       : '只處理 AI 連線；敘事、玩家身份（Persona）與記憶先沿用預設值。';
     // If an existing flow selected another step, never silently override it.
     setMode(restricted || App.currentStep !== 1 ? 'advanced' : 'quick', restricted || App.currentStep !== 1);
+    // PlayerBuilder may have initialized before this progress UI existed.
+    // Re-sync once the nodes are present so Step 2 immediately reflects the active route.
+    queueMicrotask(() => window.BAOPlayerBuilderV2?.sync?.());
   }
   const observer = new MutationObserver(() => {
     const visible = view.classList.contains('active');
