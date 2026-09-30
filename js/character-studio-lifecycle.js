@@ -9,6 +9,7 @@
 
   let publicCatalogPromise = null;
   let scheduled = false;
+  let refreshVersion = 0;
 
   const esc = value => String(value ?? "").replace(/[&<>"']/g, ch => ({
     "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;"
@@ -140,9 +141,13 @@
 
   const refresh = async () => {
     scheduled = false;
+    const version = ++refreshVersion;
     const host = panel();
     const data = await snapshot();
-    if (!host.isConnected) return data;
+    // Form edits, draft saves and local-library writes can trigger several
+    // refreshes close together. Never let an older async catalog lookup paint
+    // over a newer creator state.
+    if (version !== refreshVersion || !host.isConnected) return data;
 
     paintStage(host.querySelector('[data-lifecycle-stage="draft"]'), data.lifecycle.draft);
     paintStage(host.querySelector('[data-lifecycle-stage="test"]'), data.lifecycle.test);
