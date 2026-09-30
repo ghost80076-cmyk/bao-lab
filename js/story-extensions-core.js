@@ -34,18 +34,27 @@
     return cleaned.length > max ? cleaned.slice(0, Math.max(1, max - 1)) + "…" : cleaned;
   };
 
-  const inventoryItem = ({ id = "", label = "", detail = "", status = "", state = "info" } = {}) => ({
+  const quickAction = (kind, key, enabled) => ({
+    kind: text(kind),
+    key: text(key),
+    enabled: enabled === true,
+    label: enabled === true ? "停用" : "啟用"
+  });
+
+  const inventoryItem = ({ id = "", label = "", detail = "", status = "", state = "info", quick = null } = {}) => ({
     id: text(id),
     label: text(label) || "未命名",
     detail: text(detail),
     status: text(status),
-    state: ["active", "paused", "pending", "info"].includes(state) ? state : "info"
+    state: ["active", "paused", "pending", "info"].includes(state) ? state : "info",
+    quick: quick?.kind ? quickAction(quick.kind, quick.key, quick.enabled) : null
   });
 
-  const inventoryGroup = (id, label, items = []) => ({
+  const inventoryGroup = (id, label, items = [], quick = null) => ({
     id: text(id),
     label: text(label),
-    items: (Array.isArray(items) ? items : []).filter(Boolean)
+    items: (Array.isArray(items) ? items : []).filter(Boolean),
+    quick: quick?.kind ? quickAction(quick.kind, quick.key, quick.enabled) : null
   });
 
   function worldInventory(input = {}) {
@@ -63,7 +72,8 @@
         label: def?.label || def?.id,
         detail,
         status: off ? "已停用" : "啟用",
-        state: off ? "paused" : "active"
+        state: off ? "paused" : "active",
+        quick: { kind: "world", key: def?.id, enabled: !off }
       });
     });
     return [
@@ -110,10 +120,16 @@
         label: complete ? compact(rule.find, 42) : "未完成的替換規則",
         detail: complete ? "→ " + compact(rule?.replace, 56) : "請先填入尋找文字",
         status,
-        state: itemState
+        state: itemState,
+        quick: complete ? { kind: "replace-rule", key: rule?.id || String(index), enabled } : null
       });
     });
-    return rules.length ? [inventoryGroup("player", "玩家建立", rules)] : [];
+    return rules.length ? [inventoryGroup(
+      "player",
+      "玩家建立",
+      rules,
+      { kind: "replace-master", key: "replace", enabled: master }
+    )] : [];
   }
 
   function regexInventory(globalState = {}, authorState = {}) {
@@ -127,7 +143,8 @@
         label: rule?.name || rule?.scriptName || compact(rule?.pattern, 48) || "規則 " + (index + 1),
         detail: compact(rule?.pattern, 70),
         status,
-        state: enabled && globalMaster ? "active" : "paused"
+        state: enabled && globalMaster ? "active" : "paused",
+        quick: { kind: "regex-rule", key: String(index), enabled }
       });
     });
     const authorItems = (Array.isArray(authorState?.rules) ? authorState.rules : []).map((rule, index) => {
@@ -148,7 +165,7 @@
       });
     });
     return [
-      inventoryGroup("player", "玩家規則", globalItems),
+      inventoryGroup("player", "玩家規則", globalItems, { kind: "regex-master", key: "regex", enabled: globalMaster }),
       inventoryGroup("work", "作品提供", authorItems)
     ].filter(group => group.items.length);
   }
@@ -296,6 +313,7 @@
 
   return Object.freeze({
     ownership,
+    quickAction,
     worldInventory,
     sceneInventory,
     replaceInventory,
