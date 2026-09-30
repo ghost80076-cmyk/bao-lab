@@ -16,12 +16,24 @@
     return Number.isFinite(parsed) ? Math.max(0, parsed) : 0;
   }
 
+  function versionNumber(value) {
+    const parsed = Number(value);
+    return Number.isInteger(parsed) && parsed > 0 ? parsed : 0;
+  }
+
   function publicationMeta(entry = {}) {
     const publishedAt = dateMs(entry.published_at || entry.publishedAt);
     const updatedAt = dateMs(entry.updated_at || entry.updatedAt) || publishedAt;
+    const publishedVersion = versionNumber(entry.published_version || entry.publishedVersion);
+    const versionPublishedAt = publishedVersion
+      ? (dateMs(entry.version_published_at || entry.versionPublishedAt) || updatedAt || publishedAt)
+      : 0;
     return {
       publishedAt,
-      updatedAt: Math.max(updatedAt, publishedAt)
+      updatedAt: Math.max(updatedAt, publishedAt),
+      publishedVersion,
+      versionPublishedAt,
+      activityAt: publishedVersion ? versionPublishedAt : Math.max(updatedAt, publishedAt)
     };
   }
 
@@ -94,7 +106,8 @@
       .map(item => ({
         id: clean(item?.id),
         viewedAt: Math.max(0, Number(item?.viewedAt) || 0),
-        seenUpdatedAt: dateMs(item?.seenUpdatedAt)
+        seenUpdatedAt: dateMs(item?.seenUpdatedAt),
+        seenVersion: versionNumber(item?.seenVersion)
       }))
       .filter(item => item.id && item.viewedAt)
       .sort((a, b) => b.viewedAt - a.viewedAt)
@@ -110,7 +123,8 @@
     return {
       favorite: safe.favorites.includes(key),
       recentAt: recent?.viewedAt || 0,
-      seenUpdatedAt: recent?.seenUpdatedAt || 0
+      seenUpdatedAt: recent?.seenUpdatedAt || 0,
+      seenVersion: recent?.seenVersion || 0
     };
   }
 
@@ -124,7 +138,7 @@
     return normalizeLibrary({ ...safe, favorites });
   }
 
-  function markViewed(library = {}, id = "", viewedAt = Date.now(), seenUpdatedAt = 0) {
+  function markViewed(library = {}, id = "", viewedAt = Date.now(), seenUpdatedAt = 0, seenVersion = 0) {
     const safe = normalizeLibrary(library);
     const key = clean(id);
     const stamp = dateMs(viewedAt);
@@ -134,7 +148,8 @@
       recent: [{
         id: key,
         viewedAt: stamp,
-        seenUpdatedAt: dateMs(seenUpdatedAt)
+        seenUpdatedAt: dateMs(seenUpdatedAt),
+        seenVersion: versionNumber(seenVersion)
       }, ...safe.recent.filter(item => item.id !== key)]
     });
   }
@@ -143,18 +158,39 @@
     const publication = publicationMeta(entry);
     const viewed = Number(libraryInfo.recentAt || 0) > 0;
     const seenUpdatedAt = dateMs(libraryInfo.seenUpdatedAt);
+    const seenVersion = versionNumber(libraryInfo.seenVersion);
     const publishedFresh = isFresh(publication.publishedAt, now, days);
-    const updatedFresh = isFresh(publication.updatedAt, now, days);
-    const changedAfterPublish = publication.updatedAt > publication.publishedAt;
+    const activityFresh = isFresh(publication.activityAt, now, days);
 
     let badge = "";
-    if (!viewed && publishedFresh) badge = "NEW";
-    else if (updatedFresh && changedAfterPublish && (!viewed || seenUpdatedAt < publication.updatedAt)) badge = "UPDATED";
+    let effectiveSeenVersion = seenVersion;
+
+    if (publication.publishedVersion) {
+      // v1 is also a valid baseline. Legacy continuity records did not store
+      // a version, so only treat them as current when their timestamp proves
+      // they saw this exact published version.
+      if (!effectiveSeenVersion && viewed && seenUpdatedAt >= publication.versionPublishedAt) {
+        effectiveSeenVersion = publication.publishedVersion;
+      }
+
+      if (!viewed && (publishedFresh || activityFresh)) {
+        badge = "NEW";
+      } else if (viewed && effectiveSeenVersion < publication.publishedVersion) {
+        badge = "UPDATED";
+      }
+    } else {
+      // Backwards-compatible timestamp behavior for older/community manifests
+      // that have not adopted explicit version metadata yet.
+      const changedAfterPublish = publication.updatedAt > publication.publishedAt;
+      if (!viewed && (publishedFresh || activityFresh)) badge = "NEW";
+      else if (activityFresh && changedAfterPublish && (!viewed || seenUpdatedAt < publication.updatedAt)) badge = "UPDATED";
+    }
 
     return {
       ...publication,
-      recentUpdate: updatedFresh,
-      badge
+      recentUpdate: activityFresh,
+      badge,
+      effectiveSeenVersion
     };
   }
 
@@ -174,6 +210,7 @@
     clean,
     fold,
     dateMs,
+    versionNumber,
     publicationMeta,
     isFresh,
     isAdult,
