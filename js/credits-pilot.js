@@ -319,7 +319,9 @@
         request_too_large: "本次故事內容超過後端大小限制。",
         provider_rate_limited: `${name} 回報 API 速率或配額限制，與 夜灣 玩家額度不同。`,
         provider_empty_text: emptyTextMessage(name, data),
-        provider_http_error: `${name} 拒絕本次請求${data?.upstream_http_status ? `（HTTP ${data.upstream_http_status}）` : ""}。`,
+        provider_http_error: Number(data?.upstream_http_status) >= 500
+          ? `夜灣連線鏈路暫時異常（HTTP ${data.upstream_http_status}）。可能是中轉或供應商服務暫時故障，請稍後重試。`
+          : `${name} 拒絕本次請求${data?.upstream_http_status ? `（HTTP ${data.upstream_http_status}）` : ""}。`,
         provider_network_error: `夜灣 後端連到 ${name} 時發生網路或逾時問題。`,
         provider_invalid_json: `${name} 回覆無法解析，請向管理員回報。`,
         provider_not_configured: "夜灣 後端尚未設定此模型金鑰。",
