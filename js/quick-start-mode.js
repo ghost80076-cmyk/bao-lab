@@ -60,10 +60,13 @@
     const preset = App.getSelectedPreset?.();
     const needsFields = !preset?.model || !preset?.base_url || preset?.route === 'custom';
     view.classList.toggle('bao-quick-custom', needsFields);
+    const expanded = needsFields || view.classList.contains('bao-quick-advanced');
+    const advancedDetails = $('api-advanced-settings');
+    if (advancedDetails && view.dataset.baoSetup === 'quick') advancedDetails.open = expanded;
     const button = $('bao-quick-technical-toggle');
     if (button) {
       button.hidden = needsFields || view.dataset.baoSetup !== 'quick';
-      button.setAttribute('aria-expanded', String(view.classList.contains('bao-quick-advanced')));
+      button.setAttribute('aria-expanded', String(expanded));
       button.textContent = view.classList.contains('bao-quick-advanced') ? '收起進階連線欄位' : '展開進階連線欄位';
     }
     const tip = $('bao-quick-api-tip');
