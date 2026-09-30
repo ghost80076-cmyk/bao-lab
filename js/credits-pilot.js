@@ -22,7 +22,7 @@
         order: Number(hosted.order || 9999),
         preset: {
           provider: PROVIDER,
-          provider_label: "YoruBay AI 點數",
+          provider_label: "夜灣燈火",
           tier: hosted.tier || "",
           label: hosted.label || model.name || model.id || upstreamRoute.model,
           model: upstreamRoute.model,
@@ -183,7 +183,7 @@
     if (types && !types.querySelector(`option[value="${PROVIDER}"]`)) {
       const option = document.createElement("option");
       option.value = PROVIDER;
-      option.textContent = "YoruBay AI 點數";
+      option.textContent = "夜灣燈火";
       types.appendChild(option);
     }
     return true;
@@ -215,9 +215,9 @@
   const pilotHint = model => {
     if (validAccountSession()) {
       const route = hostedProviderFor(model) === "openrouter" ? "OpenRouter" : "Google Gemini";
-      return `已登入 YoruBay。此模型由 YoruBay 後端轉送 ${route}，不需要自己的 API Key；成功請求會依帳號點數扣除實際 AI 使用量。故事內容不會寫入帳號資料庫。`;
+      return `已登入夜灣。這個模型會由夜灣代為連接 ${route}，不需要自己的連線金鑰；成功生成會依實際使用量消耗燈火。故事內容不會寫入帳號資料庫。`;
     }
-    return "請先點上方「YoruBay 帳號」使用邀請碼註冊或登入。YoruBay API 額度僅接受登入帳號 Session。";
+    return "請先點上方「夜灣帳號」使用邀請碼註冊或登入。夜灣燈火僅供登入帳號使用。";
   };
   const refreshBuilder = () => {
     const enabled = document.getElementById("api-type")?.value === PROVIDER;
@@ -238,7 +238,7 @@
     const hint = document.getElementById("api-hint");
     if (enabled && hint) hint.textContent = pilotHint(selectedPilotModel());
     const badge = document.getElementById("api-protocol-badge");
-    if (enabled && badge) badge.textContent = "YoruBay 點數";
+    if (enabled && badge) badge.textContent = "夜灣燈火";
     refreshBuilderFields(enabled);
   };
   const originalSync = App.syncSelectedPreset;
@@ -259,11 +259,11 @@
     }
     const upstreamProvider = hostedProviderFor(config.model);
     if (!isEndpoint(config.baseUrl) || !upstreamProvider) {
-      throw new Error("YoruBay AI 點數僅支援已開放模型及固定後端網址。請重新選擇模型預設。");
+      throw new Error("夜灣燈火目前僅支援已開放模型及固定連線路線。請重新選擇模型預設。");
     }
     const token = accountToken();
     const validSession = /^yb_s_[A-Za-z0-9_-]{30,}$/.test(token);
-    if (!validSession) throw new Error("請先登入 YoruBay 帳號。舊版 bao_ 玩家金鑰已停止用於 YoruBay API 額度。");
+    if (!validSession) throw new Error("請先登入夜灣帳號。舊版 bao_ 玩家金鑰已停止用於夜灣燈火。");
     if (!Array.isArray(messages) || !messages.length || messages.length > 100) {
       throw new Error("夜灣 每次最多傳送 100 則訊息。請縮短近期對話或改用自己的 API Key。");
     }
@@ -310,14 +310,14 @@
       const errors = {
         unauthorized: "玩家金鑰無效或已停用，請向管理員索取新金鑰。",
         insufficient_credits: "舊版測試額度不足，請向管理員補充額度。",
-        insufficient_wallet_balance: "YoruBay AI 點數不足，請儲值後再試。",
-        wallet_disabled: "這個 YoruBay 點數帳戶已停用，請聯絡管理員。",
+        insufficient_wallet_balance: "夜灣燈火不足，請添燈後再試。",
+        wallet_disabled: "這個帳號的夜灣燈火功能已停用，請聯絡管理員。",
         daily_limit_or_insufficient_balance: "後端仍在使用舊的每日次數限制；請管理員更新 Worker。",
         insufficient_balance: "玩家測試額度不足，請管理員更新 Worker。",
         invalid_request_or_model_not_allowed: "模型未開放或故事內容不符合測試版限制；請確認 Worker 的 MODELS_JSON 已包含此模型。",
         invalid_max_output_tokens: "本次輸出上限超過後端設定，請管理員更新 Worker。",
         request_too_large: "本次故事內容超過後端大小限制。",
-        provider_rate_limited: `${name} 回報 API 速率或配額限制，與 夜灣 玩家額度不同。`,
+        provider_rate_limited: `${name} 回報速率或配額限制，與你的夜灣燈火餘額無關。`,
         provider_empty_text: emptyTextMessage(name, data),
         provider_http_error: Number(data?.upstream_http_status) >= 500
           ? `夜灣連線鏈路暫時異常（HTTP ${data.upstream_http_status}）。可能是中轉或供應商服務暫時故障，請稍後重試。`
