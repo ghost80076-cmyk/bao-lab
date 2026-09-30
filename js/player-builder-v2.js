@@ -107,13 +107,18 @@
     }
 
     const quickIntro = $("bao-quick-intro");
+    const progressNote = $("bao-first-run-ai-note");
     if (quickIntro && view.dataset.baoSetup === "quick") {
       if (current === "hosted") {
-        quickIntro.textContent = "選一個模型就能開始。帳號 API 額度只處理你主動送出的模型請求。";
+        quickIntro.textContent = "使用帳號 API 額度：選一個可用模型就能開始，不需要貼自己的 API Key。";
+        if (progressNote) progressNote.textContent = accountSession() ? "帳號額度 · 選模型" : "帳號額度 · 先登入";
       } else if (currentProvider === "lmstudio") {
-        quickIntro.textContent = "先在 LM Studio 啟動 Local Server 並開啟 CORS，再從下方讀取本機模型。不需要雲端 API Key。";
+        quickIntro.textContent = "使用本地 AI：先在 LM Studio 啟動 Local Server 並開啟 CORS，再從下方讀取本機模型。不需要雲端 API Key。";
+        if (progressNote) progressNote.textContent = "LM Studio · 本機模型";
       } else {
-        quickIntro.innerHTML = '選 AI 服務商、模型，再貼上自己的 API Key。還沒有 Key？<a href="quick-start.html" target="_blank" rel="noopener noreferrer">看三步驟教學 ↗</a>';
+        quickIntro.innerHTML = '使用自己的 API：選 AI 服務商與模型，再貼上相符的 API Key。還沒有 Key？<a href="quick-start.html" target="_blank" rel="noopener noreferrer">看三步驟教學 ↗</a>';
+        const providerLabel = provider()?.selectedOptions?.[0]?.textContent?.trim() || "自己的 API";
+        if (progressNote) progressNote.textContent = `${providerLabel} · 模型與 Key`;
       }
     }
   };
@@ -140,8 +145,8 @@
       box.setAttribute("aria-label", "選擇 AI 連線方式");
       box.innerHTML = `
         <div class="bao-connection-mode-head">
-          <div><span>CONNECT</span><h4>你想怎麼使用 AI？</h4></div>
-          <small>兩種方式都不會把 API Key 寫進故事存檔。</small>
+          <div><span>STEP 2 · CONNECT</span><h4>選一種 AI 連線方式</h4></div>
+          <small>第一次玩只需要完成這裡；進階故事設定可以之後再調整。</small>
         </div>
         <div class="bao-connection-mode-grid">
           <button type="button" data-bao-connection="hosted" aria-pressed="false">
