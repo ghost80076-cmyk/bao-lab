@@ -93,6 +93,7 @@
 
     const note = $("bao-connection-note");
     const account = $("bao-connection-account");
+    const help = $("bao-connection-help");
     if (current === "hosted") {
       if (note) note.textContent = accountSession()
         ? "已登入。選擇模型後會使用帳號 API 額度，不需要貼自己的 API Key。"
@@ -101,9 +102,17 @@
         account.hidden = false;
         account.textContent = accountSession() ? "查看帳號與額度 →" : "登入／查看 API 額度 →";
       }
+      if (help) {
+        help.href = "quick-start.html";
+        help.textContent = "第一次玩？三步開始 →";
+      }
     } else {
       if (note) note.textContent = "使用自己的 API Key；模型費用與免費額度由你選擇的 AI 服務商計算。";
       if (account) account.hidden = true;
+      if (help) {
+        help.href = currentProvider === "lmstudio" ? "lm-studio-guide.html" : "api-guide.html";
+        help.textContent = currentProvider === "lmstudio" ? "LM Studio 連線教學 →" : "完整連線說明 →";
+      }
     }
 
     const quickIntro = $("bao-quick-intro");
@@ -116,7 +125,7 @@
         quickIntro.textContent = "使用本地 AI：先在 LM Studio 啟動 Local Server 並開啟 CORS，再從下方讀取本機模型。不需要雲端 API Key。";
         if (progressNote) progressNote.textContent = "LM Studio · 本機模型";
       } else {
-        quickIntro.innerHTML = '使用自己的 API：選 AI 服務商與模型，再貼上相符的 API Key。還沒有 Key？<a href="quick-start.html" target="_blank" rel="noopener noreferrer">看三步驟教學 ↗</a>';
+        quickIntro.innerHTML = '使用自己的 API：選 AI 服務商與模型，再貼上相符的 API Key。<a href="api-guide.html" target="_blank" rel="noopener noreferrer">連線遇到問題？看完整說明 ↗</a>';
         const providerLabel = provider()?.selectedOptions?.[0]?.textContent?.trim() || "自己的 API";
         if (progressNote) progressNote.textContent = `${providerLabel} · 模型與 Key`;
       }
@@ -160,7 +169,10 @@
         </div>
         <div class="bao-connection-mode-foot">
           <p id="bao-connection-note" role="status"></p>
-          <a id="bao-connection-account" href="account.html" hidden>登入／查看 API 額度 →</a>
+          <div class="bao-connection-help-links">
+            <a id="bao-connection-account" href="account.html" hidden>登入／查看 API 額度 →</a>
+            <a id="bao-connection-help" href="api-guide.html">完整連線說明 →</a>
+          </div>
         </div>`;
       const intro = $("bao-quick-intro");
       (intro || step.querySelector("h3"))?.insertAdjacentElement("afterend", box);

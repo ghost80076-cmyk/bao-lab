@@ -38,3 +38,12 @@
 @media(max-width:900px){.brand-onboarding-steps{grid-template-columns:1fr}.brand-onboarding{margin-top:8px}}
 @media(max-width:560px){.brand-actions .brand-first-run,.brand-actions .brand-manual{flex:1 1 100%;text-align:center}.brand-onboarding-links{flex-direction:column}.brand-onboarding-steps li{padding:11px 13px}}
 @media(prefers-reduced-motion:reduce){.brand-actions .brand-first-run:hover{filter:none}}
+
+.detail-actions .detail-first-run{
+  display:inline-flex;align-items:center;min-height:38px;color:#bdb4d6;font-size:11px;
+  text-decoration:none;text-underline-offset:3px
+}
+.detail-actions .detail-first-run:hover{color:#eee8ff;text-decoration:underline}
+@media(max-width:560px){
+  .detail-actions .detail-first-run{min-height:34px}
+}
