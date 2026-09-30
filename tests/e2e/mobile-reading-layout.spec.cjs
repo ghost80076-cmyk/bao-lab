@@ -24,7 +24,7 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 320, height: 568 }
     const surfaceTools = page.locator('#bao-surface-mode-toggle');
     await expect(exit).toBeVisible();
     await expect(info).toBeVisible();
-    await expect(surfaceTools).toBeVisible();
+    await expect(surfaceTools).toBeHidden();
     await expect(composerTools).toBeVisible();
     await expect(page.locator('#bao-mobile-status')).toHaveCount(0);
     await expect(page.locator('#bao-mobile-memory')).toHaveCount(0);
