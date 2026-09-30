@@ -407,10 +407,10 @@
     focusScrollTop = null;
     schedule();
   });
-  window.BAOMobileReadingLayout = { version: 13, sync, openTools, enhanceDrawer, togglePanels, openMemory, closePanels, ensureComposerTools };
+  window.BAOMobileReadingLayout = { version: 14, sync, openTools, enhanceDrawer, togglePanels, openMemory, closePanels, ensureComposerTools };
   const style = document.createElement('link');
   style.rel = 'stylesheet';
-  style.href = 'css/mobile-reading-layout.css?v=12';
+  style.href = 'css/mobile-reading-layout.css?v=14';
   document.head.append(style);
   sync();
 })();
