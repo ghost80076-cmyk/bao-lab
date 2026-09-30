@@ -44,6 +44,35 @@ jobs:
           if-no-files-found: ignore
           retention-days: 7
 
+  onboarding:
+    name: Onboarding · Chromium
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install test dependencies
+        run: npm ci
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Verify quick-start onboarding
+        run: npm run test:e2e -- tests/e2e/quick-start.spec.cjs --project=chromium
+      - name: Upload onboarding report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: onboarding-playwright-report
+          path: |
+            playwright-report
+            test-results
+          if-no-files-found: ignore
+          retention-days: 7
+
   story-controls:
     name: Story controls · Chromium
     runs-on: ubuntu-latest

@@ -112,12 +112,15 @@ test.describe('Player 2.0 shell', () => {
 
     await expect(page.locator('#builder-view')).toHaveAttribute('data-bao-setup', 'quick');
     await expect(page.locator('#bao-connection-mode')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('#bao-connection-mode')).toContainText('選一種 AI 連線方式');
+    await expect(page.locator('#bao-first-run-ai-note')).toContainText(/API|Gemini|OpenRouter|Anthropic|Claude|本機|LM Studio/i);
     await expect(page.locator('#bao-connection-mode [data-bao-connection="byok"]')).toHaveAttribute('aria-pressed', 'true');
     await expect(page.locator('#model-id').locator('xpath=..')).toBeHidden();
 
     await page.waitForFunction(() => Boolean(document.querySelector('#api-type option[value="bao-credits"]')));
     await page.locator('#bao-connection-mode [data-bao-connection="hosted"]').click();
     await expect(page.locator('#api-type')).toHaveValue('bao-credits');
+    await expect(page.locator('#bao-first-run-ai-note')).toContainText('帳號額度');
     await expect(page.locator('#bao-connection-mode [data-bao-connection="hosted"]')).toHaveAttribute('aria-pressed', 'true');
     await expect(page.locator('#bao-connection-account')).toBeVisible();
 

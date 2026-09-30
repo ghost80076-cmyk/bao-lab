@@ -35,7 +35,8 @@ for (const width of [390, 1440]) {
     await expect(page.locator('#provider-diagnostics-box')).toBeHidden();
     await expect(page.locator('.bao-demo-box')).toBeHidden();
     await expect(page.locator('#bao-demo-mode')).toBeHidden();
-    await expect(page.locator('#bao-quick-intro')).toContainText('選一個模型就能開始');
+    await expect(page.locator('#bao-quick-intro')).toContainText('使用帳號 API 額度');
+    await expect(page.locator('#bao-quick-intro')).toContainText('選一個可用模型就能開始');
 
     await page.locator('[data-bao-connection="byok"]').click();
     await expect(page.locator('.bao-demo-box')).toBeVisible();

@@ -6,6 +6,8 @@ on:
     paths:
       - 'quick-start.html'
       - 'js/brand-ui.js'
+      - 'js/quick-start-mode.js'
+      - 'js/player-builder-v2.js'
       - 'css/first-run-desktop.css'
       - '.github/workflows/first-run-live.yml'
   workflow_dispatch:
@@ -29,9 +31,13 @@ jobs:
           const assert = require('node:assert/strict');
           const home = fs.readFileSync('js/brand-ui.js', 'utf8');
           const guide = fs.readFileSync('quick-start.html', 'utf8');
+          const quick = fs.readFileSync('js/quick-start-mode.js', 'utf8');
+          const builder = fs.readFileSync('js/player-builder-v2.js', 'utf8');
           const css = fs.readFileSync('css/first-run-desktop.css', 'utf8');
           for (const phrase of ['href="quick-start.html"', 'href="api-guide.html"', 'id="home-continue"', 'id="home-character-count"']) assert.ok(home.includes(phrase), `Missing homepage element: ${phrase}`);
-          for (const phrase of ['id="step-one"', 'id="step-two"', 'id="step-three"', '開始探索', '快速開始 · 只連接 AI', 'https://openrouter.ai/keys', 'https://aistudio.google.com/apikey']) assert.ok(guide.includes(phrase), `Missing guide element: ${phrase}`);
+          for (const phrase of ['id="step-one"', 'id="step-two"', 'id="step-three"', '開始探索', '使用帳號 API 額度', '使用自己的 API Key', 'https://openrouter.ai/keys', 'https://aistudio.google.com/apikey']) assert.ok(guide.includes(phrase), `Missing guide element: ${phrase}`);
+          for (const phrase of ['bao-first-run-progress', '作品已選好', '連接 AI', '開始故事', '快速開始（推薦）']) assert.ok(quick.includes(phrase), `Missing quick-start path: ${phrase}`);
+          for (const phrase of ['STEP 2 · CONNECT', 'bao-first-run-ai-note', '使用帳號 API 額度', '使用自己的 API']) assert.ok(builder.includes(phrase), `Missing builder onboarding route: ${phrase}`);
           assert.ok(css.includes('@media(min-width:1081px)'), 'Desktop styles missing');
           assert.ok(home.includes('css/first-run-desktop.css'), 'Stylesheet not loaded');
           console.log('First-run guide, preserved navigation IDs, CSS linkage: OK');
@@ -46,7 +52,7 @@ jobs:
           trap 'rm -rf "$verify_dir"' EXIT
           for attempt in $(seq 1 50); do
             matched=true
-            for file in quick-start.html js/brand-ui.js css/first-run-desktop.css; do
+            for file in quick-start.html js/brand-ui.js js/quick-start-mode.js js/player-builder-v2.js css/first-run-desktop.css; do
               if ! curl -fsSL --max-time 15 "${SITE_URL}${file}?verify=${GITHUB_SHA}" -o "$verify_dir/content" \
                 || ! cmp -s "$file" "$verify_dir/content"; then
                 matched=false
