@@ -37,7 +37,7 @@ for (const width of [390, 1440]) {
     const dialogs = [];
     page.on('dialog', async dialog => { dialogs.push(dialog.message()); await dialog.accept(); });
     await page.locator('#start-story').click();
-    expect(dialogs.some(message => message.includes('AI 連線設定'))).toBe(true);
+    expect(dialogs.some(message => message.includes('模型連線設定'))).toBe(true);
     await expect(page.locator('#builder-view')).toHaveClass(/active/);
     await expect(page.locator('[data-step-panel="4"]')).toBeVisible();
     await page.locator('#api-key').fill('quick-start-e2e-secret');
