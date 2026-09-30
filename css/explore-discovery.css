@@ -121,7 +121,8 @@
 #explore-view[data-explore-scope="updates"] .explore-card-context{
   color:#c9c2ec
 }
-#character-list .tags.explore-tags-condensed .tag:nth-of-type(n+4){display:none}
+#character-list .tags.explore-tags-condensed .tag:nth-of-type(-n+3){display:inline-flex!important}
+#character-list .tags.explore-tags-condensed .tag:nth-of-type(n+4){display:none!important}
 #character-list .tags.explore-tags-condensed[data-hidden-count]::after{
   content:"+" attr(data-hidden-count);
   display:inline-flex;align-items:center;min-height:20px;padding:2px 7px;border-radius:999px;
