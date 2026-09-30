@@ -371,6 +371,13 @@
     });
   };
 
+  const originalRenderDetail = App.renderDetail.bind(App);
+  App.renderDetail = function(...args) {
+    const result = originalRenderDetail(...args);
+    decorateDetailVersion(manifestEntry(App.activeCharacter));
+    return result;
+  };
+
   const originalRender = App.renderCharacters.bind(App);
   App.renderCharacters = function(filter = "all") {
     state.category = ["male", "female", "r18"].includes(filter) ? filter : "all";
