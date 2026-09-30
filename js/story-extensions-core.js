@@ -28,6 +28,131 @@
     };
   }
 
+
+  const compact = (value, max = 70) => {
+    const cleaned = text(value).replace(/\s+/g, " ");
+    return cleaned.length > max ? cleaned.slice(0, Math.max(1, max - 1)) + "…" : cleaned;
+  };
+
+  const inventoryItem = ({ id = "", label = "", detail = "", status = "", state = "info" } = {}) => ({
+    id: text(id),
+    label: text(label) || "未命名",
+    detail: text(detail),
+    status: text(status),
+    state: ["active", "paused", "pending", "info"].includes(state) ? state : "info"
+  });
+
+  const inventoryGroup = (id, label, items = []) => ({
+    id: text(id),
+    label: text(label),
+    items: (Array.isArray(items) ? items : []).filter(Boolean)
+  });
+
+  function worldInventory(input = {}) {
+    const disabled = new Set(Array.isArray(input.disabled) ? input.disabled.map(text) : []);
+    const trackingLabels = { high: "高頻", medium: "一般", low: "低頻", manual: "手動" };
+    const contextLabels = { core: "每輪提供", relevant: "相關時提供", ui_only: "只顯示" };
+    const mapItems = list => (Array.isArray(list) ? list : []).map(def => {
+      const off = disabled.has(text(def?.id));
+      const detail = [
+        contextLabels[def?.context] || text(def?.context),
+        trackingLabels[def?.tracking] ? "追蹤 " + trackingLabels[def.tracking] : ""
+      ].filter(Boolean).join(" · ");
+      return inventoryItem({
+        id: def?.id,
+        label: def?.label || def?.id,
+        detail,
+        status: off ? "已停用" : "啟用",
+        state: off ? "paused" : "active"
+      });
+    });
+    return [
+      inventoryGroup("work", "作品提供", mapItems(input.work)),
+      inventoryGroup("platform", "夜灣內建", mapItems(input.platform)),
+      inventoryGroup("player", "玩家新增", mapItems(input.player))
+    ].filter(group => group.items.length);
+  }
+
+  function sceneInventory(prefs = {}) {
+    const mode = ["native", "efficient", "free"].includes(prefs?.mode) ? prefs.mode : "native";
+    const status = ["native", "author", "hidden"].includes(prefs?.status) ? prefs.status : "native";
+    const modeLabels = { native: "原生閱讀", efficient: "節省 Token 場景排版", free: "自由安全 HTML" };
+    const statusLabels = { native: "夜灣原生狀態", author: "作者狀態欄", hidden: "狀態欄隱藏" };
+    return [inventoryGroup("platform", "夜灣內建", [
+      inventoryItem({
+        id: "scene-mode",
+        label: "閱讀模式",
+        detail: modeLabels[mode],
+        status: "目前使用",
+        state: "active"
+      }),
+      inventoryItem({
+        id: "status-display",
+        label: "狀態顯示",
+        detail: statusLabels[status],
+        status: "目前使用",
+        state: "active"
+      })
+    ])];
+  }
+
+  function replaceInventory(state = {}) {
+    const master = state?.active === true;
+    const rules = (Array.isArray(state?.rules) ? state.rules : []).map((rule, index) => {
+      const complete = Boolean(text(rule?.find));
+      const enabled = rule?.enabled !== false;
+      let status = "啟用", itemState = "active";
+      if (!complete) { status = "未完成"; itemState = "pending"; }
+      else if (!enabled) { status = "規則停用"; itemState = "paused"; }
+      else if (!master) { status = "MOD 關閉"; itemState = "paused"; }
+      return inventoryItem({
+        id: rule?.id || "replace-" + (index + 1),
+        label: complete ? compact(rule.find, 42) : "未完成的替換規則",
+        detail: complete ? "→ " + compact(rule?.replace, 56) : "請先填入尋找文字",
+        status,
+        state: itemState
+      });
+    });
+    return rules.length ? [inventoryGroup("player", "玩家建立", rules)] : [];
+  }
+
+  function regexInventory(globalState = {}, authorState = {}) {
+    const globalMaster = globalState?.active === true;
+    const authorMaster = authorState?.enabled === true;
+    const globalItems = (Array.isArray(globalState?.rules) ? globalState.rules : []).map((rule, index) => {
+      const enabled = rule?.enabled !== false && Boolean(text(rule?.pattern));
+      const status = !enabled ? "規則停用" : globalMaster ? "啟用" : "總開關關閉";
+      return inventoryItem({
+        id: "player-regex-" + index,
+        label: rule?.name || rule?.scriptName || compact(rule?.pattern, 48) || "規則 " + (index + 1),
+        detail: compact(rule?.pattern, 70),
+        status,
+        state: enabled && globalMaster ? "active" : "paused"
+      });
+    });
+    const authorItems = (Array.isArray(authorState?.rules) ? authorState.rules : []).map((rule, index) => {
+      const valid = Boolean(text(rule?.pattern));
+      const ruleEnabled = rule?.enabled !== false && rule?.disabled !== true && rule?.disable !== true && valid;
+      let status = "啟用", itemState = "active";
+      if (!ruleEnabled) { status = "規則停用"; itemState = "paused"; }
+      else if (!authorMaster) { status = "等待玩家啟用"; itemState = "pending"; }
+      return inventoryItem({
+        id: "work-regex-" + index,
+        label: rule?.name || rule?.scriptName || compact(rule?.pattern, 48) || "作品規則 " + (index + 1),
+        detail: [
+          compact(rule?.pattern, 58),
+          Number.isFinite(Number(rule?.priority)) && Number(rule.priority) !== 0 ? "優先 " + Math.round(Number(rule.priority)) : ""
+        ].filter(Boolean).join(" · "),
+        status,
+        state: itemState
+      });
+    });
+    return [
+      inventoryGroup("player", "玩家規則", globalItems),
+      inventoryGroup("work", "作品提供", authorItems)
+    ].filter(group => group.items.length);
+  }
+
   function worldSummary(definitions = []) {
     const list = Array.isArray(definitions) ? definitions : [];
     const workCount = list.filter(item => item?.origin === "character" || !item?.origin).length;
@@ -51,6 +176,7 @@
         appliesTo: "目前故事",
         control: "玩家可啟用、停用或新增"
       }),
+      inventory: worldInventory(arguments[1] || {}),
       active: list.length > 0
     };
   }
@@ -80,6 +206,7 @@
         appliesTo: "這台裝置的所有故事",
         control: "玩家決定閱讀模式與狀態顯示"
       }),
+      inventory: sceneInventory(prefs),
       active: mode !== "native" || status !== "native"
     };
   }
@@ -104,6 +231,7 @@
         appliesTo: "目前故事",
         control: "玩家建立、排序與啟用"
       }),
+      inventory: replaceInventory(state),
       active
     };
   }
@@ -143,13 +271,14 @@
         control: authorAvailable.length ? "作品規則也需要玩家明確啟用" : "玩家決定是否啟用",
         permissions
       }),
+      inventory: regexInventory(globalState, authorState),
       active: total > 0
     };
   }
 
   function overview(input = {}) {
     const cards = [
-      worldSummary(input.world),
+      worldSummary(input.world, input.worldInventory),
       sceneSummary(input.scene),
       replaceSummary(input.replace),
       regexSummary(input.regex, input.authorRegex)
@@ -167,6 +296,10 @@
 
   return Object.freeze({
     ownership,
+    worldInventory,
+    sceneInventory,
+    replaceInventory,
+    regexInventory,
     worldSummary,
     sceneSummary,
     replaceSummary,
