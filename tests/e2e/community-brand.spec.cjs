@@ -27,10 +27,25 @@ test.describe('YoruBay official identity and concise community entry', () => {
     await expect(page.locator('#home-view .brand-signature')).toHaveCount(0);
     await expect(page.locator('#home-view .brand-hero-copy > .brand-kicker')).toHaveCount(0);
     await expect(page.locator('#home-view .brand-intro')).toHaveText('替你留了一盞燈。');
+    await expect(page.locator('#home-view a[href="quick-start.html"]')).toHaveCount(1);
+    await expect(page.locator('#home-view .brand-first-run')).toContainText('第一次來？三步開始');
     await expect(page.locator('#bao-contact-footer a')).toHaveAttribute('href', INVITE);
     await page.getByRole('button', { name: '關於夜灣' }).click();
     await expect(page.locator('#about-view.active')).toContainText('讓故事回到玩家手中');
     await expect(page.locator('#about-view.active')).toContainText('角色 · 世界 · 互動 · 自己的 AI');
+  });
+
+  test('work detail offers one contextual path back to the canonical three-step guide', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForFunction(() => Boolean(App.characters?.length));
+    const work = page.locator('#home-view .home-character-card').first();
+    await expect(work).toBeVisible();
+    await work.click();
+    await expect(page.locator('#detail-view')).toHaveClass(/active/);
+    const guide = page.locator('#character-detail .detail-first-run');
+    await expect(guide).toHaveCount(1);
+    await expect(guide).toHaveAttribute('href', 'quick-start.html');
+    await expect(guide).toContainText('第一次來？三步開始');
   });
 
   test('mobile navigation and mascot hero fit without horizontal page overflow', async ({ page }) => {
