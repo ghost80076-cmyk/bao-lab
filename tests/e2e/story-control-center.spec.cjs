@@ -133,6 +133,30 @@ test('opens the current story control center and routes to existing story tools'
   await sceneCard.locator('summary').click();
   await expect(sceneCard).toContainText('閱讀模式');
   await expect(sceneCard).toContainText('狀態顯示');
+  await expect(sceneCard.locator('[data-extension-quick]')).toHaveCount(0);
+
+  // Safe quick management: configured world modules can be enabled/disabled here.
+  const questRow = worldCard.locator('[data-extension-source-group="platform"] .story-extension-item').filter({ hasText: '任務' });
+  await questRow.getByRole('button', { name: '啟用', exact: true }).click();
+  await expect(worldCard.locator('[data-extension-source-group="platform"]')).toContainText('啟用');
+  expect(await page.evaluate(() => GameState.current.worldModuleCustomization.disabled.includes('quests'))).toBe(false);
+
+  // Player text MOD master switch can be changed without opening the full editor.
+  const replaceGroup = replaceCard.locator('[data-extension-source-group="player"]');
+  await replaceGroup.locator('header > .story-extension-quick').click();
+  expect(await page.evaluate(() => BAOPlayerTextReplace.get().active)).toBe(false);
+  await expect(replaceCard).toContainText('MOD 關閉');
+  await replaceCard.locator('[data-extension-source-group="player"] header > .story-extension-quick').click();
+  expect(await page.evaluate(() => BAOPlayerTextReplace.get().active)).toBe(true);
+
+  // Global player Regex can be switched quickly; authored work rules never get a quick permission button.
+  const regexPlayer = regexCard.locator('[data-extension-source-group="player"]');
+  await regexPlayer.locator('header > .story-extension-quick').click();
+  expect(await page.evaluate(() => BAORegex.load().active)).toBe(false);
+  await expect(regexCard).toContainText('總開關關閉');
+  await regexCard.locator('[data-extension-source-group="player"] header > .story-extension-quick').click();
+  expect(await page.evaluate(() => BAORegex.load().active)).toBe(true);
+  await expect(regexCard.locator('[data-extension-source-group="work"] [data-extension-quick]')).toHaveCount(0);
 
   await extensions.getByRole('button', { name: '關閉故事擴充' }).click();
 
