@@ -268,9 +268,9 @@
   };
 
   const decorateDetailVersion = item => {
-    const detail = document.querySelector("#character-detail .detail-copy");
+    const detail = document.getElementById("character-detail");
     if (!detail) return;
-    detail.querySelector(".explore-detail-version")?.remove();
+    detail.querySelectorAll(".explore-detail-version").forEach(node => node.remove());
     const publication = core.publicationMeta(item || {});
     if (!publication.publishedVersion && !publication.activityAt) return;
     const line = document.createElement("div");
