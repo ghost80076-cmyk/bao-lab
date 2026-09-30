@@ -76,8 +76,8 @@
         <button type="button" class="primary" data-lifecycle-next-action>前往下一步</button>
       </div>`;
     form.insertAdjacentElement("beforebegin", node);
-    node.querySelector("[data-lifecycle-next-action]")?.addEventListener("click", () => {
-      const action = node.dataset.nextAction || "";
+    node.querySelector("[data-lifecycle-next-action]")?.addEventListener("click", event => {
+      const action = event.currentTarget.dataset.lifecycleAction || "";
       const targets = {
         save: "studio-save-draft",
         install: "studio-install",
@@ -168,6 +168,7 @@
     if (action) {
       const actionable = ["save", "install", "doctor", "export"].includes(data.lifecycle.next.action);
       action.hidden = !actionable;
+      action.dataset.lifecycleAction = actionable ? data.lifecycle.next.action : "";
       action.textContent = data.lifecycle.next.label;
     }
 
