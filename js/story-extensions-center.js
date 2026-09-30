@@ -89,6 +89,7 @@
       <div class="story-extension-meta">
         <div><b>來源</b><span class="story-extension-sources">${sourceChips(meta.sources)}</span></div>
         <div><b>保存</b><span>${esc(meta.storage || "依工具設定")}</span></div>
+        <div><b>適用</b><span>${esc(meta.appliesTo || "目前故事")}</span></div>
         <div><b>啟用</b><span>${esc(meta.control || "玩家決定")}</span></div>
         ${permissions.length ? `<div class="story-extension-permissions"><b>授權</b><span>${permissions.map(item => `<em>${esc(item)}</em>`).join("")}</span></div>` : ""}
       </div>`;
@@ -127,7 +128,7 @@
           <button type="button" class="story-extensions-close" data-extension-close aria-label="關閉故事擴充">×</button>
         </header>
         <div class="story-extension-guide">
-          <b>先看「作用範圍、來源、保存位置與啟用權限」，再決定要不要開。</b>
+          <b>先看「作用範圍、來源、保存位置、適用故事與啟用權限」，再決定要不要開。</b>
           <span>世界模組會參與 AI 上下文與狀態；閱讀排版會影響 AI 回覆格式與畫面；玩家文字替換只改顯示。作品 Regex 仍需玩家啟用；若另外允許作者腳本，只會在隔離沙盒中執行，不能自動替玩家送出 API。</span>
         </div>
         <div class="story-extensions-list">
