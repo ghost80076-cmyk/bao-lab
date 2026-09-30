@@ -9,6 +9,7 @@ test('Host Club Simulator renders generated cast, setup and economy UI', async (
   const card = page.locator('article.character-card').filter({ hasText: '牛郎模擬器' });
   await expect(card).toBeVisible();
   await card.click();
+  await page.getByRole('button', { name: '查看作品', exact: true }).click();
 
   await expect(page.locator('.hostsim-detail')).toBeVisible();
   await expect(page.locator('.hostsim-cast-grid .hostsim-card')).toHaveCount(6);
