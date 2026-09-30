@@ -134,7 +134,9 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/bao-visual-ui.js?v=5"))
     .then(() => loadBAOScript("js/player-shell-v2.js?v=3"))
     .then(() => loadBAOScript("js/player-builder-v2.js?v=4"))
-    .catch(err => console.warn("BAO/LAB brand, mascot or Player 2.0 UI failed to load:", err));
+    .then(() => loadBAOScript("js/story-start-readiness-core.js"))
+    .then(() => loadBAOScript("js/story-start-readiness.js"))
+    .catch(err => console.warn("BAO/LAB brand, mascot, Player 2.0 UI or story-start readiness failed to load:", err));
   setTimeout(async () => {
     await Storage.ready();
     const refresh = () => {
