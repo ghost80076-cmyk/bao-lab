@@ -195,10 +195,10 @@
     }
   };
 
-  const observer = new MutationObserver(() => {
+  const visibilityObserver = new MutationObserver(() => {
     if (view.classList.contains("active")) window.setTimeout(sync, 0);
   });
-  observer.observe(view, { attributes: true, childList: true, subtree: true });
+  visibilityObserver.observe(view, { attributes: true, attributeFilter: ["class"] });
 
   view.addEventListener("input", event => {
     if (event.target?.matches?.("input,select,textarea")) window.setTimeout(sync, 0);
@@ -206,6 +206,16 @@
   view.addEventListener("change", event => {
     if (event.target?.matches?.("input,select,textarea")) window.setTimeout(sync, 0);
   });
+  view.addEventListener("click", () => {
+    if (view.classList.contains("active")) window.setTimeout(sync, 120);
+  });
+
+  let mountAttempts = 0;
+  const mountTimer = window.setInterval(() => {
+    mountAttempts += 1;
+    if (view.classList.contains("active")) sync();
+    if ($("bao-start-readiness") || mountAttempts >= 80) window.clearInterval(mountTimer);
+  }, 100);
 
   window.addEventListener("storage", event => {
     if (event.key === "yorubay:session") window.setTimeout(sync, 0);
