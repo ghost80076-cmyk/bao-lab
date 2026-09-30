@@ -18,10 +18,11 @@
     note: text(note)
   });
 
-  function ownership({ sources = [], storage = "", control = "", permissions = [] } = {}) {
+  function ownership({ sources = [], storage = "", appliesTo = "", control = "", permissions = [] } = {}) {
     return {
       sources: (Array.isArray(sources) ? sources : []).filter(item => item?.label && (item.count > 0 || item.count === null)),
       storage: text(storage),
+      appliesTo: text(appliesTo),
       control: text(control),
       permissions: (Array.isArray(permissions) ? permissions : []).map(text).filter(Boolean)
     };
@@ -47,6 +48,7 @@
           source("player", "玩家新增", playerCount)
         ],
         storage: "故事存檔",
+        appliesTo: "目前故事",
         control: "玩家可啟用、停用或新增"
       }),
       active: list.length > 0
@@ -75,6 +77,7 @@
       ownership: ownership({
         sources: [source("platform", "夜灣內建", null)],
         storage: "這台裝置",
+        appliesTo: "這台裝置的所有故事",
         control: "玩家決定閱讀模式與狀態顯示"
       }),
       active: mode !== "native" || status !== "native"
@@ -98,6 +101,7 @@
       ownership: ownership({
         sources: [source("player", "玩家建立", rules.length || null)],
         storage: "故事存檔",
+        appliesTo: "目前故事",
         control: "玩家建立、排序與啟用"
       }),
       active
@@ -135,6 +139,7 @@
           source("work", "作品提供", authorAvailable.length)
         ],
         storage: "這台裝置",
+        appliesTo: authorAvailable.length ? "玩家規則：所有故事 · 作品規則：目前作品" : "玩家規則：所有故事",
         control: authorAvailable.length ? "作品規則也需要玩家明確啟用" : "玩家決定是否啟用",
         permissions
       }),
