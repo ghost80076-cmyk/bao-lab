@@ -68,6 +68,23 @@ test('mobile composer keeps tools, input, AI assist and send in one row', async 
   }
   expect(geometry.composer.right).toBeLessThanOrEqual(geometry.viewport + 1);
 
+  const initialHeight = await input.evaluate(node => node.getBoundingClientRect().height);
+  await input.fill('第一行\n第二行\n第三行\n第四行\n第五行\n第六行');
+  await expect.poll(() => input.evaluate(node => node.getBoundingClientRect().height)).toBeGreaterThan(initialHeight + 20);
+  await expect(input).toHaveAttribute('data-bao-composer-expanded', 'true');
+
+  await input.fill(Array.from({ length: 18 }, (_, index) => '長文第' + (index + 1) + '行').join('\n'));
+  const capped = await input.evaluate(node => ({
+    height: node.getBoundingClientRect().height,
+    overflowY: getComputedStyle(node).overflowY
+  }));
+  expect(capped.height).toBeLessThanOrEqual(170);
+  expect(capped.overflowY).toBe('auto');
+
+  await input.fill('');
+  await expect.poll(() => input.evaluate(node => node.getBoundingClientRect().height)).toBeLessThanOrEqual(initialHeight + 2);
+  await expect(input).toHaveAttribute('data-bao-composer-expanded', 'false');
+
   await plus.click();
   const drawer = page.getByRole('dialog', { name: '故事功能選單' });
   await expect(drawer).toBeVisible();
