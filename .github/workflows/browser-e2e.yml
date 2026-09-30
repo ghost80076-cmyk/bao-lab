@@ -28,6 +28,7 @@ jobs:
       - name: Install test dependencies
         run: npm ci
       - name: Run core story, resume and new UI flows
+        shell: bash
         run: |
           # mobile-story-entry + story-integrity already run in the dedicated Story entry regression workflow.
           specs=(tests/e2e/mobile-tools-compact.spec.cjs tests/e2e/mobile-composer-tools.spec.cjs tests/e2e/mobile-reading-layout.spec.cjs tests/e2e/story-quick-commands.spec.cjs)
