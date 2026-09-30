@@ -168,7 +168,7 @@ test('forwards cache-aware usage returned by the Worker to BAO/LAB usage account
 });
 test('propagates quota and provider-specific upstream errors without exposing player keys',async()=>{
  const auth=build({ok:false,status:401,body:{error:'unauthorized'}});
- await assert.rejects(()=>auth.api.send(cfg,msgs),/玩家金鑰無效/);
+ await assert.rejects(()=>auth.api.send(cfg,msgs),/登入已失效/);
  const insufficient=build({ok:false,status:402,body:{error:'insufficient_credits'}});
  await assert.rejects(()=>insufficient.api.send(cfg,msgs),/額度不足/);
  const rateLimit=build({ok:false,status:502,body:{error:'provider_rate_limited',upstream_http_status:429}});
@@ -253,6 +253,22 @@ test('registers only the prioritized YoruBay hosted catalog without free or dupl
  assert.match(added[7].label,/RP 高品質.*Sonnet 4\.6/);
  assert.match(added[8].label,/豪華.*Opus 4\.6/);
  assert.equal(s.window.BAOCreditsPilot.models.length,9);
+});
+
+test('cookie-backed YoruBay session sends credentials without exposing a bearer token',async()=>{
+ const s=build();
+ const store=new Map([['yorubay:session:active','1']]);
+ s.window.localStorage={
+   getItem:key=>store.get(key)||null,
+   setItem:(key,value)=>store.set(key,String(value)),
+   removeItem:key=>store.delete(key)
+ };
+ const result=await s.api.send({...cfg,key:'__YORUBAY_ACCOUNT__',model:'gemini-3-flash-preview'},msgs);
+ assert.equal(result.text,'測試成功');
+ assert.equal(s.calls.length,1);
+ assert.equal(s.calls[0][1].credentials,'include');
+ assert.equal(Object.prototype.hasOwnProperty.call(s.calls[0][1].headers,'Authorization'),false);
+ assert.equal(s.calls[0][1].body.includes('yb_s_'),false);
 });
 
 test('uses logged-in YoruBay session token without copying it into request body',async()=>{
