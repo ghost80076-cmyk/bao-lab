@@ -225,10 +225,11 @@
     flex:1 1 auto!important;
     min-width:0!important;
     width:auto!important;
+    box-sizing:border-box!important;
     min-height:52px!important;
-    max-height:min(22dvh,150px)!important;
+    max-height:min(26dvh,168px)!important;
     resize:none!important;
-    overflow-y:auto!important;
+    overflow-y:hidden!important;
     font-size:16px!important;
     line-height:1.5!important;
     padding:14px 15px!important;

@@ -296,11 +296,57 @@
     body.prepend(quick);
   };
 
+  const composerInputMaxHeight = () => {
+    const visualHeight = Math.max(320, Math.round(window.visualViewport?.height || window.innerHeight || 640));
+    return Math.max(104, Math.min(168, Math.round(visualHeight * 0.26)));
+  };
+
+  const fitComposerInput = () => {
+    const input = document.getElementById('user-input');
+    if (!input) return;
+    if (!isMobile()) {
+      input.style.removeProperty('height');
+      input.style.removeProperty('overflow-y');
+      delete input.dataset.baoComposerExpanded;
+      delete input.dataset.baoComposerHeight;
+      delete input.dataset.baoComposerBaseHeight;
+      return;
+    }
+    // Reset first so scrollHeight reflects the full content rather than the
+    // previous constrained box. Then grow only until the mobile reading area
+    // would start losing too much vertical space.
+    const previousHeight = Number(input.dataset.baoComposerHeight || 0);
+    input.style.height = 'auto';
+    const minHeight = 52;
+    const maxHeight = composerInputMaxHeight();
+    const fullHeight = Math.ceil(input.scrollHeight || minHeight);
+    const wanted = Math.max(minHeight, Math.min(maxHeight, fullHeight));
+    input.style.height = wanted + 'px';
+    input.style.setProperty('overflow-y', fullHeight > maxHeight + 1 ? 'auto' : 'hidden', 'important');
+    if (!String(input.value || '')) input.dataset.baoComposerBaseHeight = String(wanted);
+    const baseHeight = Number(input.dataset.baoComposerBaseHeight || wanted);
+    input.dataset.baoComposerExpanded = wanted > baseHeight + 4 ? 'true' : 'false';
+    input.dataset.baoComposerHeight = String(wanted);
+    if (previousHeight && previousHeight !== wanted) schedule();
+  };
+
+  const bindComposerInput = input => {
+    if (!input || input.dataset.baoComposerAutogrow === 'true') return;
+    input.dataset.baoComposerAutogrow = 'true';
+    input.addEventListener('input', fitComposerInput);
+    input.addEventListener('change', fitComposerInput);
+    input.addEventListener('paste', () => window.requestAnimationFrame(fitComposerInput));
+    input.addEventListener('cut', () => window.requestAnimationFrame(fitComposerInput));
+  };
+
   const ensureComposerTools = () => {
     const composer = main.querySelector('.composer');
     const input = document.getElementById('user-input');
     const send = composer?.querySelector('[data-send-message],button.primary');
     if (!composer || !input || !send) return;
+
+    bindComposerInput(input);
+    fitComposerInput();
 
     let tools = composer.querySelector('#bao-mobile-composer-tools');
     if (!tools) {
@@ -341,6 +387,14 @@
     inspire.title = available
       ? '依目前故事提供 4 個下一步靈感，不會自動送出'
       : (window.BAOStoryReader?.aiToolsUnavailableMessage?.() || '連接 AI 後即可使用');
+
+    if (send.dataset.baoComposerAutogrowBound !== 'true') {
+      send.dataset.baoComposerAutogrowBound = 'true';
+      send.addEventListener('click', () => {
+        window.setTimeout(fitComposerInput, 0);
+        window.setTimeout(fitComposerInput, 120);
+      });
+    }
   };
 
   const ensureTab = () => {
@@ -394,8 +448,8 @@
       node.nodeType === 1 && (node.id === 'bao-chat-tool-drawer' || node.id === 'bao-mobile-tools-tab')))) schedule();
   });
   observer.observe(document.body, { childList: true, subtree: true });
-  window.addEventListener('resize', schedule, { passive: true });
-  window.visualViewport?.addEventListener('resize', schedule, { passive: true });
+  window.addEventListener('resize', () => { fitComposerInput(); schedule(); }, { passive: true });
+  window.visualViewport?.addEventListener('resize', () => { fitComposerInput(); schedule(); }, { passive: true });
   window.visualViewport?.addEventListener('scroll', schedule, { passive: true });
   root.addEventListener('focusin', event => {
     if (event.target?.matches?.('textarea,input,[contenteditable="true"]')) {
@@ -407,10 +461,10 @@
     focusScrollTop = null;
     schedule();
   });
-  window.BAOMobileReadingLayout = { version: 14, sync, openTools, enhanceDrawer, togglePanels, openMemory, closePanels, ensureComposerTools };
+  window.BAOMobileReadingLayout = { version: 15, sync, openTools, enhanceDrawer, togglePanels, openMemory, closePanels, ensureComposerTools, fitComposerInput };
   const style = document.createElement('link');
   style.rel = 'stylesheet';
-  style.href = 'css/mobile-reading-layout.css?v=14';
+  style.href = 'css/mobile-reading-layout.css?v=15';
   document.head.append(style);
   sync();
 })();
