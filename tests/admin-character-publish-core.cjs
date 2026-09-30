@@ -108,6 +108,8 @@ assert.deepEqual(prepared.card.import_metadata.unmapped_fields, ["future_field"]
 assert.equal(prepared.catalogEntry.author, "Test Author");
 assert.ok(Number.isFinite(Date.parse(prepared.catalogEntry.published_at)));
 assert.equal(prepared.catalogEntry.updated_at, prepared.catalogEntry.published_at);
+assert.equal(prepared.catalogEntry.published_version, 1);
+assert.equal(prepared.catalogEntry.version_published_at, prepared.catalogEntry.published_at);
 
 assert.throws(
   () => prepareCharacterPublication({
