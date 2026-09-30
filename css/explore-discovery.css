@@ -226,9 +226,9 @@
 #character-list .character-card:focus-visible{
   outline:2px solid rgba(190,174,255,.78);outline-offset:3px
 }
-#character-list .character-content>.eyebrow,
-#character-list .character-content>p,
-#character-list .character-content>.tags{display:none!important}
+#explore-view #character-list .character-card .character-content>.eyebrow,
+#explore-view #character-list .character-card .character-content>p,
+#explore-view #character-list .character-card .character-content>.tags{display:none!important}
 #character-list .character-content h3{
   display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;
   margin-bottom:0;line-height:1.35
