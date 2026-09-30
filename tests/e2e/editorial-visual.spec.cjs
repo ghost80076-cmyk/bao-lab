@@ -66,6 +66,7 @@ for (const width of [390, 1280]) {
     await page.goto('/');
     await page.locator('#home-view button[data-view="explore"]').click();
     await page.locator('article').filter({ hasText: '林沉風 - 見過黑暗的人' }).click();
+    await page.getByRole('button', { name: '查看作品', exact: true }).click();
     await page.getByRole('button', { name: '開始故事' }).click();
     await page.locator('#bao-setup-choice [data-bao-setup="advanced"]').click();
     await page.evaluate(() => {
