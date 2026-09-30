@@ -2,7 +2,7 @@ const { test, expect } = require('@playwright/test');
 
 const openBuilder = async (page, predicate = 'c.id !== "autonomous-npc-world"') => {
   await page.goto('./');
-  await page.waitForFunction(() => window.BAOQuickSetup && App.characters.length && window.Storage && window.GameState);
+  await page.waitForFunction(() => window.BAOQuickSetup && window.BAOStoryStartReadiness && App.characters.length && window.Storage && window.GameState);
   await page.evaluate(async condition => {
     const character = App.characters.find(c => condition === 'world' ? c.id === 'autonomous-npc-world' : c.id !== 'autonomous-npc-world');
     if (!character) throw new Error('Missing a suitable test character');
@@ -71,6 +71,77 @@ for (const width of [390, 1440]) {
     await expect(page.locator('#start-story')).toBeVisible();
   });
 }
+
+test('quick start shows the exact missing item and becomes ready live', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 900 });
+  await openBuilder(page);
+
+  await page.evaluate(() => {
+    const preset = App.modelPresets.find(item =>
+      !['bao-credits', 'lmstudio'].includes(item.provider) && item.model && item.base_url
+    );
+    if (!preset) throw new Error('Missing a complete BYOK preset');
+    const provider = document.getElementById('api-type');
+    provider.value = preset.provider;
+    provider.dispatchEvent(new Event('change', { bubbles: true }));
+    const index = App.modelPresets.indexOf(preset);
+    const model = document.getElementById('model-select');
+    model.value = String(index);
+    model.dispatchEvent(new Event('change', { bubbles: true }));
+    document.getElementById('api-key').value = '';
+    document.getElementById('api-key').dispatchEvent(new Event('input', { bubbles: true }));
+    BAOStoryStartReadiness.sync();
+  });
+
+  const readiness = page.locator('#bao-start-readiness');
+  await expect(readiness).toBeVisible();
+  await expect(readiness).toHaveAttribute('data-ready', 'false');
+  await expect(readiness.locator('[data-start-ready-summary]')).toHaveText('還差 1 項');
+  await expect(readiness.locator('[data-start-ready-message]')).toContainText('還缺 API Key');
+  await expect(readiness.locator('[data-start-ready-action]')).toHaveText('貼上 API Key');
+
+  const steps = page.locator('#bao-setup-choice .bao-first-run-progress li');
+  await expect(steps.nth(0)).toHaveClass(/is-done/);
+  await expect(steps.nth(0).locator('small')).toContainText('已選：');
+  await expect(steps.nth(1)).toHaveClass(/is-current/);
+  await expect(steps.nth(1).locator('small')).toContainText('還缺 API Key');
+  await expect(steps.nth(2)).toHaveClass(/is-pending/);
+  await expect(steps.nth(2).locator('small')).toContainText('還缺 API Key');
+
+  await readiness.locator('[data-start-ready-action]').click();
+  await expect(page.locator('#api-key')).toBeFocused();
+  await page.locator('#api-key').fill('readiness-only-test-key');
+
+  await expect(readiness).toHaveAttribute('data-ready', 'true');
+  await expect(readiness.locator('[data-start-ready-summary]')).toHaveText('可以開始故事');
+  await expect(steps.nth(1)).toHaveClass(/is-done/);
+  await expect(steps.nth(1).locator('small')).toContainText('已完成：');
+  await expect(steps.nth(2)).toHaveClass(/is-ready/);
+  await expect(steps.nth(2).locator('small')).toHaveText('可以開始故事');
+  await expect(page.locator('#start-story')).toHaveAttribute('data-bao-ready', 'true');
+});
+
+test('hosted quick start points to login instead of asking for an API key', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 900 });
+  await openBuilder(page);
+  await page.evaluate(() => {
+    localStorage.removeItem('yorubay:session');
+    const provider = document.getElementById('api-type');
+    if (![...provider.options].some(option => option.value === 'bao-credits')) throw new Error('Hosted route missing');
+    provider.value = 'bao-credits';
+    provider.dispatchEvent(new Event('change', { bubbles: true }));
+    BAOStoryStartReadiness.sync();
+  });
+
+  const readiness = page.locator('#bao-start-readiness');
+  await expect(readiness).toHaveAttribute('data-ready', 'false');
+  await expect(readiness.locator('[data-start-ready-message]')).toContainText('還缺夜灣帳號登入');
+  const link = readiness.locator('[data-start-ready-link]');
+  await expect(link).toBeVisible();
+  await expect(link).toHaveAttribute('href', 'account.html');
+  await expect(link).toContainText('登入／查看帳號');
+  await expect(readiness.locator('[data-start-ready-action]')).toBeHidden();
+});
 
 test('world-specific setup stays available rather than being skipped', async ({ page }) => {
   await openBuilder(page, 'world');
