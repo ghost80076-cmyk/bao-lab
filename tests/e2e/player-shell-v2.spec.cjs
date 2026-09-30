@@ -8,6 +8,9 @@ test.describe('Player 2.0 shell', () => {
     await expect(nav).toBeVisible({ timeout: 10000 });
     await expect(nav.locator('[data-player-nav]')).toHaveCount(3);
     await expect(page.locator('.topbar nav')).toBeHidden();
+    const homeSupport = page.locator('#bao-support-float');
+    await expect(homeSupport).toBeVisible();
+    await expect(homeSupport).toContainText('投餵肉包');
 
     await nav.locator('[data-player-nav="me"]').click();
     await expect(page.locator('#me-view')).toHaveClass(/active/);
