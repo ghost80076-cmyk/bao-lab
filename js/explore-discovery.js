@@ -321,9 +321,6 @@
       else if (key === "sort") {
         state.sort = "default";
         writePreferences();
-      } else if (key === "layout") {
-        state.layout = "standard";
-        writePreferences();
       }
       scheduleApply();
     });
