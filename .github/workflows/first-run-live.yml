@@ -31,7 +31,7 @@ jobs:
           const guide = fs.readFileSync('quick-start.html', 'utf8');
           const css = fs.readFileSync('css/first-run-desktop.css', 'utf8');
           for (const phrase of ['href="quick-start.html"', 'href="api-guide.html"', 'id="home-continue"', 'id="home-character-count"']) assert.ok(home.includes(phrase), `Missing homepage element: ${phrase}`);
-          for (const phrase of ['id="step-one"', 'id="step-two"', 'id="step-three"', 'https://openrouter.ai/keys', 'https://aistudio.google.com/apikey']) assert.ok(guide.includes(phrase), `Missing guide element: ${phrase}`);
+          for (const phrase of ['id="step-one"', 'id="step-two"', 'id="step-three"', '開始探索', '快速開始 · 只連接 AI', 'https://openrouter.ai/keys', 'https://aistudio.google.com/apikey']) assert.ok(guide.includes(phrase), `Missing guide element: ${phrase}`);
           assert.ok(css.includes('@media(min-width:1081px)'), 'Desktop styles missing');
           assert.ok(home.includes('css/first-run-desktop.css'), 'Stylesheet not loaded');
           console.log('First-run guide, preserved navigation IDs, CSS linkage: OK');
@@ -39,7 +39,7 @@ jobs:
       - name: Verify latest guide and stylesheet on live Pages
         shell: bash
         env:
-          SITE_URL: https://ghost80076-cmyk.github.io/bao-lab/
+          SITE_URL: https://yorubay.com/
         run: |
           set -euo pipefail
           verify_dir="$(mktemp -d)"
