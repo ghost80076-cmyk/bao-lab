@@ -13,6 +13,11 @@ for (const item of catalog) {
   assert.equal(typeof item.description, "string", `${item.id}: catalog needs description`);
   assert.equal(typeof item.supported_modes, "object", `${item.id}: catalog needs supported_modes`);
   assert.equal(typeof item.supported_display, "object", `${item.id}: catalog needs supported_display`);
+  assert.ok(item.published_at, `${item.id}: catalog needs published_at`);
+  assert.ok(item.updated_at, `${item.id}: catalog needs updated_at`);
+  assert.ok(Number.isFinite(Date.parse(item.published_at)), `${item.id}: published_at must be ISO-like`);
+  assert.ok(Number.isFinite(Date.parse(item.updated_at)), `${item.id}: updated_at must be ISO-like`);
+  assert.ok(Date.parse(item.updated_at) >= Date.parse(item.published_at), `${item.id}: updated_at cannot precede published_at`);
 
   const full = JSON.parse(fs.readFileSync(item.file, "utf8"));
   const fullId = String(full?.meta?.id || full?.id || "");
