@@ -52,6 +52,7 @@
 
   const state = {
     category: "all",
+    rating: "general",
     query: "",
     capability: "all",
     scope: "all",
@@ -162,13 +163,19 @@
           </section>
 
           <section class="explore-filter-group" aria-labelledby="explore-category-label">
-            <h4 id="explore-category-label">角色分類</h4>
+            <h4 id="explore-category-label">角色</h4>
             <div class="explore-option-row">
               <button type="button" data-explore-category="all">全部</button>
-              <button type="button" data-explore-category="male">一般男性</button>
-              <button type="button" data-explore-category="female">一般女性</button>
-              <button type="button" data-explore-category="adult-male">18+ 男性</button>
-              <button type="button" data-explore-category="adult-female">18+ 女性</button>
+              <button type="button" data-explore-category="male">男性角色</button>
+              <button type="button" data-explore-category="female">女性角色</button>
+            </div>
+          </section>
+
+          <section class="explore-filter-group" aria-labelledby="explore-rating-label">
+            <h4 id="explore-rating-label">內容分級</h4>
+            <div class="explore-option-row">
+              <button type="button" data-explore-rating="general">一般</button>
+              <button type="button" data-explore-rating="mature">成熟內容</button>
             </div>
           </section>
 
@@ -209,26 +216,36 @@
     };
 
     const setCategory = category => {
-      const next = ["all", "male", "female", "adult-male", "adult-female"].includes(category) ? category : "all";
-      if (next.startsWith("adult-") && localStorage.getItem("bao-lab:adult-confirmed") !== "yes") {
-        if (!confirm("此分類為 18+ 成人內容。請確認你已年滿 18 歲。")) return false;
+      state.category = ["all", "male", "female"].includes(category) ? category : "all";
+      scheduleApply();
+      return true;
+    };
+
+    const setRating = rating => {
+      const next = rating === "mature" ? "mature" : "general";
+      if (next === "mature" && localStorage.getItem("bao-lab:adult-confirmed") !== "yes") {
+        if (!confirm("成熟內容僅供已滿 18 歲使用者瀏覽。請確認你已年滿 18 歲。")) return false;
         localStorage.setItem("bao-lab:adult-confirmed", "yes");
       }
-      document.getElementById("adult-notice")?.classList.toggle("hidden", !next.startsWith("adult-"));
-      App.renderCharacters(next);
+      state.rating = next;
+      document.getElementById("adult-notice")?.classList.toggle("hidden", next !== "mature");
+      scheduleApply();
       return true;
     };
 
     const clearFilters = ({ includeQuery = false } = {}) => {
       state.capability = "all";
       state.scope = "all";
+      state.rating = "general";
       state.sort = "default";
       if (includeQuery) {
         state.query = "";
         input.value = "";
       }
       writePreferences();
-      setCategory("all");
+      state.category = "all";
+      document.getElementById("adult-notice")?.classList.add("hidden");
+      App.renderCharacters("all");
       scheduleApply();
     };
 
@@ -276,6 +293,10 @@
       button.addEventListener("click", () => setCategory(button.dataset.exploreCategory || "all"));
     });
 
+    host.querySelectorAll("[data-explore-rating]").forEach(button => {
+      button.addEventListener("click", () => setRating(button.dataset.exploreRating || "general"));
+    });
+
     host.querySelectorAll("[data-explore-sort]").forEach(button => {
       button.addEventListener("click", () => {
         state.sort = button.dataset.exploreSort || "default";
@@ -291,9 +312,10 @@
       if (key === "query") {
         state.query = "";
         input.value = "";
-      } else if (key === "category") {
-        setCategory("all");
-        return;
+      } else if (key === "category") state.category = "all";
+      else if (key === "rating") {
+        state.rating = "general";
+        document.getElementById("adult-notice")?.classList.add("hidden");
       } else if (key === "scope") state.scope = "all";
       else if (key === "capability") state.capability = "all";
       else if (key === "sort") {
@@ -474,6 +496,12 @@
       button.setAttribute("aria-pressed", String(active));
     });
 
+    host.querySelectorAll("[data-explore-rating]").forEach(button => {
+      const active = button.dataset.exploreRating === state.rating;
+      button.classList.toggle("active", active);
+      button.setAttribute("aria-pressed", String(active));
+    });
+
     host.querySelectorAll("[data-explore-sort]").forEach(button => {
       const active = button.dataset.exploreSort === state.sort;
       button.classList.toggle("active", active);
@@ -487,8 +515,9 @@
     const hasCapability = state.capability !== "all";
     const hasScope = state.scope !== "all";
     const hasCategory = state.category !== "all";
+    const hasRating = state.rating !== "general";
     const hasSort = state.sort !== "default";
-    const hasFilters = hasCapability || hasScope || hasCategory || hasSort;
+    const hasFilters = hasCapability || hasScope || hasCategory || hasRating || hasSort;
     const clear = host.querySelector("[data-explore-clear]");
     const reset = host.querySelector("[data-explore-reset]");
     if (clear) clear.hidden = !hasQuery;
@@ -498,16 +527,15 @@
     if (activeFilters) {
       const chips = [];
       const labels = {
-        category: {
-          male: "一般男性", female: "一般女性",
-          "adult-male": "18+ 男性", "adult-female": "18+ 女性"
-        },
+        category: { male: "男性角色", female: "女性角色" },
+        rating: { mature: "成熟內容" },
         scope: { favorites: "收藏", recent: "最近看過", updates: "有近期更新" },
         capability: { world: "世界模擬", ui: "互動 UI" },
         sort: { latest: "最近發布", updated: "最近更新排序" }
       };
       if (hasQuery) chips.push({ key: "query", label: "搜尋：" + core.clean(state.query) });
       if (hasCategory) chips.push({ key: "category", label: labels.category[state.category] || state.category });
+      if (hasRating) chips.push({ key: "rating", label: labels.rating[state.rating] || state.rating });
       if (hasScope) chips.push({ key: "scope", label: labels.scope[state.scope] || state.scope });
       if (hasCapability) chips.push({ key: "capability", label: labels.capability[state.capability] || state.capability });
       if (hasSort) chips.push({ key: "sort", label: labels.sort[state.sort] || state.sort });
@@ -519,7 +547,7 @@
 
     const filterCount = host.querySelector("[data-explore-filter-count]");
     if (filterCount) {
-      const count = [hasCapability, hasScope, hasCategory, hasSort].filter(Boolean).length;
+      const count = [hasCapability, hasScope, hasCategory, hasRating, hasSort].filter(Boolean).length;
       filterCount.textContent = String(count);
       filterCount.hidden = count === 0;
     }
@@ -571,8 +599,8 @@
 
   const originalRender = App.renderCharacters.bind(App);
   App.renderCharacters = function(filter = "all") {
-    state.category = ["male", "female", "r18", "adult-male", "adult-female"].includes(filter) ? filter : "all";
-    const result = originalRender(filter);
+    if (["male", "female"].includes(filter)) state.category = filter;
+    const result = originalRender("all");
     scheduleApply();
     return result;
   };
@@ -616,6 +644,8 @@
       state.query = "";
       state.capability = "all";
       state.scope = "all";
+      state.category = "all";
+      state.rating = "general";
       state.sort = "default";
       writePreferences();
       App.renderCharacters("all");
