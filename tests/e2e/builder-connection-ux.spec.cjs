@@ -30,13 +30,16 @@ for (const width of [390, 1440]) {
     await expect(page.locator('#model-select')).toBeVisible();
     await expect(page.locator('#api-type').locator('..')).toBeHidden();
     await expect(page.locator('#api-key').locator('..')).toBeHidden();
-    await expect(page.locator('#builder-api-guide')).toBeHidden();
+    await expect(page.locator('#builder-api-guide')).toHaveCount(0);
     await expect(page.locator('#test-api')).toBeHidden();
     await expect(page.locator('#provider-diagnostics-box')).toBeHidden();
     await expect(page.locator('.bao-demo-box')).toBeHidden();
     await expect(page.locator('#bao-demo-mode')).toBeHidden();
     await expect(page.locator('#bao-quick-intro')).toContainText('使用帳號 API 額度');
     await expect(page.locator('#bao-quick-intro')).toContainText('選一個可用模型就能開始');
+    await expect(page.locator('#bao-connection-account')).toBeVisible();
+    await expect(page.locator('#bao-connection-help')).toHaveAttribute('href', 'quick-start.html');
+    await expect(page.locator('#bao-connection-help')).toContainText('三步開始');
 
     await page.locator('[data-bao-connection="byok"]').click();
     await expect(page.locator('.bao-demo-box')).toBeVisible();
@@ -47,7 +50,7 @@ for (const width of [390, 1440]) {
     await expect(page.locator('#bao-lm-models')).toBeVisible();
     await expect(page.locator('#model-select').locator('..')).toBeHidden();
     await expect(page.locator('#api-key').locator('..')).toBeHidden();
-    await expect(page.locator('#builder-api-guide')).toBeHidden();
+    await expect(page.locator('#builder-api-guide')).toHaveCount(0);
     await expect(page.locator('#test-api')).toBeHidden();
     await expect(page.locator('#provider-diagnostics-box')).toBeHidden();
     await expect(page.locator('.bao-demo-box')).toBeHidden();
@@ -58,8 +61,13 @@ for (const width of [390, 1440]) {
     await expect(page.locator('#model-id')).toHaveValue('manual-local-model');
     await expectAllHidden(page.locator('[data-bao-gemini-cache-open]'));
     await expect(page.locator('#bao-quick-intro')).toContainText('不需要雲端 API Key');
+    await expect(page.locator('#bao-connection-account')).toBeHidden();
+    await expect(page.locator('#bao-connection-help')).toHaveAttribute('href', 'lm-studio-guide.html');
+    await expect(page.locator('#bao-connection-help')).toContainText('LM Studio 連線教學');
 
     await page.locator('#api-type').selectOption('custom');
+    await expect(page.locator('#bao-connection-help')).toHaveAttribute('href', 'api-guide.html');
+    await expect(page.locator('#bao-connection-help')).toContainText('完整連線說明');
     await expect(page.locator('#test-api')).toBeHidden();
     await expect(page.locator('[data-run-provider-quick]')).toBeVisible();
     await expect(page.locator('.bao-relay-probe')).toBeVisible();
