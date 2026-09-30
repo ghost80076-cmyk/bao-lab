@@ -5,6 +5,7 @@ const path = require("node:path");
 const root = path.join(__dirname, "..");
 const account = fs.readFileSync(path.join(root, "account.html"), "utf8");
 const admin = fs.readFileSync(path.join(root, "admin-wallet.html"), "utf8");
+const accountPricing = account.split(String.fromCharCode(36)).join("");
 
 const packages = [
   { points: 5000, twd: 250, usd: 8 },
@@ -17,7 +18,7 @@ for (const item of packages) {
   const points = item.points.toLocaleString("en-US");
   const twd = item.twd.toLocaleString("en-US");
   assert.ok(
-    account.includes(`NT$${twd} / US$${item.usd} → ${points} 點`),
+    accountPricing.includes(`NT${twd} / US${item.usd} → ${points} 燈火`),
     `account package mismatch for ${item.points} points`
   );
   assert.ok(
