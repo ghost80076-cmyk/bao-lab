@@ -9,6 +9,13 @@
     "已確認事實、記憶、Canon、狀態與固定 Schema 不得為文風改寫；結構化資料要求高於文風要求。"
   ].join("\n");
 
+  // Stable platform rule: keep scene participation in the cache-friendly system prefix,
+  // never in the per-turn user anchor. It should guide behavior without forcing extra output.
+  const SCENE_PARTICIPATION_RULE = [
+    "【場景參與】",
+    "在場 NPC 依個性、關係、目標與情境自主判斷是否介入；在場≠必須發言，可互動、觀察、沉默或離場。聚焦／私密場景降低無關介入；NPC 只依自身已知資訊反應。"
+  ].join("\n");
+
   // Only add a model patch where BAO/LAB has an observed failure mode.
   // Modern models that do not need a patch should receive no extra prose coaching.
   const MODEL_GUIDANCE = {
@@ -52,7 +59,7 @@
       const messages = await originalBuildMessages(config);
       const result = Array.isArray(messages) ? messages.map(message => ({ ...message })) : [];
       const api = config?.api || config || {};
-      const stableAdapter = [PRIORITY_PROMPT, guidanceFor(api)].filter(Boolean).join("\n\n");
+      const stableAdapter = [PRIORITY_PROMPT, SCENE_PARTICIPATION_RULE, guidanceFor(api)].filter(Boolean).join("\n\n");
 
       if (result[0]?.role === "system") {
         result[0].content = appendBlock(result[0].content, stableAdapter);
@@ -72,10 +79,11 @@
   }
 
   window.BAOPromptOrchestrator = {
-    version: 2,
+    version: 3,
     familyFor,
     guidanceFor,
     priorityPrompt: PRIORITY_PROMPT,
+    sceneParticipationRule: SCENE_PARTICIPATION_RULE,
     turnAnchor: TURN_ANCHOR
   };
 })();
