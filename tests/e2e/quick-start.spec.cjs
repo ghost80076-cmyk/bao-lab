@@ -17,6 +17,13 @@ for (const width of [390, 1440]) {
     await page.setViewportSize({ width, height: 900 });
     await openBuilder(page);
     await expect(page.locator('#builder-view')).toHaveAttribute('data-bao-setup', 'quick');
+    await expect(page.locator('#bao-setup-choice .bao-first-run-progress')).toBeVisible();
+    await expect(page.locator('#bao-setup-choice .bao-first-run-progress li')).toHaveCount(3);
+    await expect(page.locator('#bao-setup-choice .bao-first-run-progress')).toContainText('作品已選好');
+    await expect(page.locator('#bao-setup-choice .bao-first-run-progress')).toContainText('連接 AI');
+    await expect(page.locator('#bao-setup-choice .bao-first-run-progress')).toContainText('開始故事');
+    await expect(page.locator('#bao-setup-story-name')).not.toHaveText('目前作品');
+    await expect(page.locator('[data-bao-setup="quick"]')).toHaveText('快速開始（推薦）');
     await expect(page.locator('[data-step-panel="4"]')).toBeVisible();
     await expect(page.locator('.builder-step[data-step-panel="5"]')).toBeHidden();
     await expect(page.locator('#start-story')).toBeVisible();
@@ -46,12 +53,14 @@ for (const width of [390, 1440]) {
     await openBuilder(page);
     await page.locator('[data-bao-setup="advanced"]').click();
     await expect(page.locator('#builder-view')).toHaveAttribute('data-bao-setup', 'advanced');
+    await expect(page.locator('#bao-setup-choice .bao-first-run-progress')).toBeHidden();
     await expect(page.locator('[data-step-panel="1"]')).toBeVisible();
     await page.evaluate(() => App.setStep(5));
     await expect(page.locator('[data-step-panel="5"]')).toBeVisible();
     await page.locator('[name="memory-strength"][value="economy"]').check();
     const rounds = await page.evaluate(() => Number(document.getElementById('max-rounds').value));
     await page.locator('[data-bao-setup="quick"]').click();
+    await expect(page.locator('#bao-setup-choice .bao-first-run-progress')).toBeVisible();
     await expect(page.locator('[data-step-panel="4"]')).toBeVisible();
     expect(await page.evaluate(() => Number(document.getElementById('max-rounds').value))).toBe(rounds);
     await page.locator('#api-type').selectOption('custom');
