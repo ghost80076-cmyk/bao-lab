@@ -42,6 +42,34 @@ assert.deepEqual(core.filter(works, { category: "all", capability: "ui" }).map(x
 assert.deepEqual(core.filter(works, { category: "all", query: "長篇" }).map(x => x.id), ["city"]);
 assert.deepEqual(core.filter(works, { category: "all", query: "作者甲" }, () => ({ author: "作者甲" })).map(x => x.id), ["city", "room"]);
 
+
+const library = core.normalizeLibrary({
+  favorites: ["room", "room", ""],
+  recent: [
+    { id: "city", viewedAt: 100 },
+    { id: "room", viewedAt: 300 },
+    { id: "city", viewedAt: 200 }
+  ]
+});
+assert.deepEqual(library.favorites, ["room"]);
+assert.deepEqual(library.recent, [
+  { id: "room", viewedAt: 300 },
+  { id: "city", viewedAt: 200 }
+]);
+assert.deepEqual(core.libraryMeta(library, "room"), { favorite: true, recentAt: 300 });
+assert.deepEqual(core.libraryMeta(library, "adult"), { favorite: false, recentAt: 0 });
+
+const toggled = core.toggleFavorite(library, "city");
+assert.deepEqual(toggled.favorites, ["city", "room"]);
+assert.deepEqual(core.toggleFavorite(toggled, "room").favorites, ["city"]);
+
+const viewed = core.markViewed(library, "city", 500);
+assert.deepEqual(viewed.recent[0], { id: "city", viewedAt: 500 });
+
+const extraFromLibrary = item => core.libraryMeta(library, item.id);
+assert.deepEqual(core.filter(works, { category: "all", scope: "favorites" }, extraFromLibrary).map(x => x.id), ["room"]);
+assert.deepEqual(core.filter(works, { category: "all", scope: "recent" }, extraFromLibrary).map(x => x.id), ["room", "city"]);
+
 assert.deepEqual(core.capabilityLabels(works[0]), ["世界模擬"]);
 assert.deepEqual(core.capabilityLabels(works[1]), ["互動 UI"]);
 assert.equal(core.resultLabel(3, false), "目前顯示 3 個作品");
