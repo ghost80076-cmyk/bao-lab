@@ -309,6 +309,7 @@
       input.style.removeProperty('overflow-y');
       delete input.dataset.baoComposerExpanded;
       delete input.dataset.baoComposerHeight;
+      delete input.dataset.baoComposerBaseHeight;
       return;
     }
     // Reset first so scrollHeight reflects the full content rather than the
@@ -322,7 +323,9 @@
     const wanted = Math.max(minHeight, Math.min(maxHeight, fullHeight));
     input.style.height = wanted + 'px';
     input.style.setProperty('overflow-y', fullHeight > maxHeight + 1 ? 'auto' : 'hidden', 'important');
-    input.dataset.baoComposerExpanded = wanted > minHeight + 4 ? 'true' : 'false';
+    if (!String(input.value || '')) input.dataset.baoComposerBaseHeight = String(wanted);
+    const baseHeight = Number(input.dataset.baoComposerBaseHeight || wanted);
+    input.dataset.baoComposerExpanded = wanted > baseHeight + 4 ? 'true' : 'false';
     input.dataset.baoComposerHeight = String(wanted);
     if (previousHeight && previousHeight !== wanted) schedule();
   };
