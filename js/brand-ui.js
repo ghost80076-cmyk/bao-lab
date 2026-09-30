@@ -245,7 +245,7 @@
         <p class="brand-about-lead">你的模型，你的故事，你的世界。</p>
         <section class="brand-about-product" aria-label="夜灣是什麼">
           <p class="brand-about-focus">角色 · 世界 · 互動 · 自己的 AI</p>
-          <p>夜灣（YoruBay）是故事優先保存在本機（Local-first）的 AI 角色扮演與世界模擬工具。你可以使用自己的 API（BYOK）、LM Studio 本地 AI，或在開放時使用夜灣帳號 API 額度。</p>
+          <p>夜灣（YoruBay）是故事優先保存在本機（Local-first）的 AI 角色扮演與世界模擬工具。你可以使用自備連線金鑰模式（BYOK）、LM Studio 本地 AI，或在開放時使用夜灣帳號 API 額度。</p>
           <p>你可以建立角色、探索世界、整理記憶、建立故事分支並匯出備份；故事與選擇由你保留，不必被綁在單一聊天平台或單一模型。</p>
         </section>
         <div class="brand-kicker brand-creator-kicker">ABOUT THE CREATOR</div>
