@@ -9,6 +9,7 @@ test('K-idol survival simulator renders setup, generated show state and action c
   const card=page.locator('article.character-card').filter({hasText:'韓國偶像選秀模擬器'});
   await expect(card).toBeVisible();
   await card.click();
+  await page.getByRole('button', { name: '查看作品', exact: true }).click();
 
   await expect(page.locator('.idol-detail')).toBeVisible();
   await expect(page.locator('.idol-feature-grid article')).toHaveCount(4);
