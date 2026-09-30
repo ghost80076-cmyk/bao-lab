@@ -86,3 +86,19 @@
   .explore-card-continuity{margin-top:4px}
   .explore-card-continuity span{min-height:18px;padding:1px 6px;font-size:8px}
 }
+
+.explore-release-badge{
+  position:absolute;left:10px;top:10px;z-index:3;display:inline-flex;align-items:center;min-height:24px;
+  padding:3px 8px;border-radius:999px;border:1px solid rgba(255,255,255,.22);
+  background:rgba(8,10,16,.8);color:#f4efff;font-size:9px;font-weight:900;letter-spacing:.08em;
+  backdrop-filter:blur(10px);box-shadow:0 6px 18px rgba(0,0,0,.18)
+}
+.explore-release-badge[data-release-status="new"]{
+  border-color:rgba(132,232,204,.42);background:rgba(16,54,47,.8);color:#bff5e5
+}
+.explore-release-badge[data-release-status="updated"]{
+  border-color:rgba(255,207,115,.45);background:rgba(58,42,14,.82);color:#ffe0a0
+}
+@media(max-width:700px){
+  .explore-release-badge{left:8px;top:8px;min-height:22px;padding:2px 7px;font-size:8px}
+}
