@@ -98,7 +98,12 @@ for (const width of [390, 1280]) {
     // Header deduplication leaves enough room for confirmed scene context
     // beside the story title on both mobile and desktop.
     await expect(page.locator('#bao-scene-meta')).toBeVisible();
-    await expect(page.locator('#bao-surface-mode-toggle')).toBeVisible();
+    if (width <= 820) {
+      await expect(page.locator('#bao-surface-mode-toggle')).toBeHidden();
+      await expect(page.locator('#bao-mobile-composer-tools')).toBeVisible();
+    } else {
+      await expect(page.locator('#bao-surface-mode-toggle')).toBeVisible();
+    }
     await expect(page.locator('#bao-play-status-toggle')).toBeVisible();
     await expect(page.locator('#bao-immersive-toggle')).toHaveCount(0);
     await expect(page.locator('#chat-view .usage-bar')).toBeHidden();
