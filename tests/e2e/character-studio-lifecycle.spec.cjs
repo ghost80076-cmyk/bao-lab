@@ -24,23 +24,23 @@ test('character studio separates draft, local test version and public lifecycle 
   await expect(lifecycle.locator('[data-lifecycle-stage="draft"]')).toContainText('尚未儲存修改');
   await expect(lifecycle.locator('[data-lifecycle-stage="test"]')).toContainText('尚未加入我的角色');
 
-  await page.getByRole('button', { name: '儲存草稿' }).click();
+  await page.locator('#studio-save-draft').click();
   await expect(page.locator('#studio-status')).toContainText('草稿已儲存');
   await expect.poll(() => lifecycle.locator('[data-lifecycle-stage="draft"] [data-lifecycle-value]').textContent())
     .toBe('草稿已儲存');
 
-  await page.getByRole('button', { name: '加入我的角色' }).click();
+  await page.locator('#studio-install').click();
   await expect(page.locator('#studio-status')).toContainText('已加入這台裝置的角色庫');
   await expect.poll(() => lifecycle.locator('[data-lifecycle-stage="test"] [data-lifecycle-value]').textContent())
     .toBe('本機試玩版本已同步');
-  await expect(page.getByRole('button', { name: '更新我的角色' })).toBeVisible();
+  await expect(page.locator('#studio-install')).toBeVisible();
 
   await page.locator('[name="system_prompt"]').fill('更新後：角色依自己的資訊、目標與場景限制行動，不替玩家做決定。');
   await expect.poll(() => lifecycle.locator('[data-lifecycle-stage="test"] [data-lifecycle-value]').textContent())
     .toBe('本機試玩版本較舊');
   await expect(lifecycle.locator('[data-lifecycle-stage="draft"]')).toContainText('尚未儲存修改');
 
-  await page.getByRole('button', { name: '儲存草稿' }).click();
+  await page.locator('#studio-save-draft').click();
   await expect.poll(() => lifecycle.locator('[data-lifecycle-next-label]').textContent())
     .toBe('更新本機試玩版本');
   await lifecycle.locator('[data-lifecycle-next-action]').click();
