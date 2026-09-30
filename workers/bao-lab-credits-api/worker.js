@@ -16,6 +16,7 @@ const COST_BILLING_MODE = "cost_usd_v2";
 const DEFAULT_PRICING_VERSION = "2026-09-25-v1";
 const PASSWORD_ITERATIONS = 100_000;
 const DEFAULT_SESSION_TTL_DAYS = 30;
+const SESSION_COOKIE_NAME = "__Host-yorubay_session";
 const MIN_AFFORDABLE_OUTPUT_TOKENS = 64;
 
 const enc = new TextEncoder();
@@ -239,6 +240,126 @@ function tokenFrom(
   )
     ? header.slice(7)
     : "";
+}
+
+function cookieFrom(
+  request,
+  name
+) {
+  const raw =
+    request.headers.get(
+      "cookie"
+    ) || "";
+
+  for (
+    const part of
+      raw.split(";")
+  ) {
+    const item =
+      part.trim();
+
+    const prefix =
+      `${name}=`;
+
+    if (
+      item.startsWith(
+        prefix
+      )
+    ) {
+      try {
+        return decodeURIComponent(
+          item.slice(
+            prefix.length
+          )
+        );
+      } catch (_) {
+        return "";
+      }
+    }
+  }
+
+  return "";
+}
+
+function sessionTokenFrom(
+  request
+) {
+  return (
+    tokenFrom(
+      request
+    ) ||
+    cookieFrom(
+      request,
+      SESSION_COOKIE_NAME
+    )
+  );
+}
+
+function responseWithCookie(
+  response,
+  cookie
+) {
+  const headers =
+    new Headers(
+      response.headers
+    );
+
+  headers.append(
+    "set-cookie",
+    cookie
+  );
+
+  return new Response(
+    response.body,
+    {
+      status:
+        response.status,
+
+      headers,
+    }
+  );
+}
+
+function withSessionCookie(
+  response,
+  token,
+  expiresAt
+) {
+  const expires =
+    new Date(
+      expiresAt
+    );
+
+  const maxAge =
+    Number.isFinite(
+      expires.getTime()
+    )
+      ? Math.max(
+          0,
+          Math.floor(
+            (
+              expires.getTime() -
+              Date.now()
+            ) /
+              1000
+          )
+        )
+      : DEFAULT_SESSION_TTL_DAYS *
+        86400;
+
+  return responseWithCookie(
+    response,
+    `${SESSION_COOKIE_NAME}=${encodeURIComponent(token)}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${maxAge}`
+  );
+}
+
+function clearSessionCookie(
+  response
+) {
+  return responseWithCookie(
+    response,
+    `${SESSION_COOKIE_NAME}=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0`
+  );
 }
 
 async function sha256Hex(
@@ -1656,6 +1777,11 @@ function cors(
   );
 
   headers.set(
+    "access-control-allow-credentials",
+    "true"
+  );
+
+  headers.set(
     "access-control-max-age",
     "600"
   );
@@ -1681,7 +1807,7 @@ async function playerFor(
   db
 ) {
   const token =
-    tokenFrom(
+    sessionTokenFrom(
       request
     );
 
@@ -2145,37 +2271,43 @@ async function authRegister(
       env
     );
 
-  return json(
-    {
-      created:
-        true,
+  return withSessionCookie(
+    json(
+      {
+        created:
+          true,
 
-      public_id:
-        publicId,
+        public_id:
+          publicId,
 
-      username,
+        username,
 
-      display_name:
-        displayName,
+        display_name:
+          displayName,
 
-      session_token:
-        session
-          .sessionToken,
+        // Kept during the compatibility window for older cached clients.
+        // Current clients authenticate through the HttpOnly cookie.
+        session_token:
+          session
+            .sessionToken,
 
-      session_expires_at:
-        session
-          .expiresAt,
+        session_expires_at:
+          session
+            .expiresAt,
 
-      recovery_code:
-        recoveryCode,
+        recovery_code:
+          recoveryCode,
 
-      wallet_balance_microusd:
-        0,
+        wallet_balance_microusd:
+          0,
 
-      wallet_balance_usd:
-        0,
-    },
-    201
+        wallet_balance_usd:
+          0,
+      },
+      201
+    ),
+    session.sessionToken,
+    session.expiresAt
   );
 }
 
@@ -2324,25 +2456,30 @@ async function authLogin(
     )
     .run();
 
-  return json({
-    logged_in:
-      true,
+  return withSessionCookie(
+    json({
+      logged_in:
+        true,
 
-    public_id:
-      account.public_id,
+      public_id:
+        account.public_id,
 
-    username:
-      account.username,
+      username:
+        account.username,
 
-    display_name:
-      account.display_name,
+      display_name:
+        account.display_name,
 
-    session_token:
-      session.sessionToken,
+      // Compatibility only; the new frontend never persists this value.
+      session_token:
+        session.sessionToken,
 
-    session_expires_at:
-      session.expiresAt,
-  });
+      session_expires_at:
+        session.expiresAt,
+    }),
+    session.sessionToken,
+    session.expiresAt
+  );
 }
 
 async function authLogout(
@@ -2350,15 +2487,17 @@ async function authLogout(
   db
 ) {
   const token =
-    tokenFrom(
+    sessionTokenFrom(
       request
     );
 
   if (!token) {
-    return json({
-      logged_out:
-        true,
-    });
+    return clearSessionCookie(
+      json({
+        logged_out:
+          true,
+      })
+    );
   }
 
   const tokenHash =
@@ -2387,10 +2526,12 @@ async function authLogout(
     )
     .run();
 
-  return json({
-    logged_out:
-      true,
-  });
+  return clearSessionCookie(
+    json({
+      logged_out:
+        true,
+    })
+  );
 }
 
 async function authRecover(
@@ -2580,28 +2721,33 @@ async function authRecover(
       env
     );
 
-  return json({
-    recovered:
-      true,
+  return withSessionCookie(
+    json({
+      recovered:
+        true,
 
-    public_id:
-      publicId,
+      public_id:
+        publicId,
 
-    username:
-      row.username,
+      username:
+        row.username,
 
-    display_name:
-      row.display_name,
+      display_name:
+        row.display_name,
 
-    session_token:
-      session.sessionToken,
+      // Compatibility only; the new frontend never persists this value.
+      session_token:
+        session.sessionToken,
 
-    session_expires_at:
-      session.expiresAt,
+      session_expires_at:
+        session.expiresAt,
 
-    recovery_code:
-      newRecovery,
-  });
+      recovery_code:
+        newRecovery,
+    }),
+    session.sessionToken,
+    session.expiresAt
+  );
 }
 
 async function meRoute(
@@ -2669,9 +2815,10 @@ async function meRoute(
             .wallet_balance_microusd
         );
 
-  return json({
-    public_id:
-      player.public_id,
+  const response =
+    json({
+      public_id:
+        player.public_id,
 
     username:
       player.username ||
@@ -2713,11 +2860,32 @@ async function meRoute(
     daily_chat_limit:
       null,
 
-    chat_used_today_utc:
-      safeInt(
-        used?.n
-      ),
-  });
+      chat_used_today_utc:
+        safeInt(
+          used?.n
+        ),
+    });
+
+  const bearer =
+    tokenFrom(
+      request
+    );
+
+  if (
+    player.auth_type ===
+      "session" &&
+    /^yb_s_[A-Za-z0-9_-]{30,}$/.test(
+      bearer
+    )
+  ) {
+    return withSessionCookie(
+      response,
+      bearer,
+      player.expires_at
+    );
+  }
+
+  return response;
 }
 
 const HOSTED_ROUTE_CONTROL = Object.freeze({
