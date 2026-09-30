@@ -83,6 +83,11 @@ jobs:
         run: node tests/bao-doctor-core.cjs
       - name: Lazy character catalog
         run: node tests/character-catalog-lazy-core.cjs
+      - name: Explore discovery filters
+        run: |
+          node --check js/explore-discovery-core.js
+          node --check js/explore-discovery.js
+          node tests/explore-discovery-core.cjs
       - name: Character JSON import hardening
         run: node tests/character-import-core.cjs
       - name: Admin character publication
