@@ -50,13 +50,20 @@
   }
 
   function characterGender(character = {}) {
+    const explicit = fold(character.gender || "");
+    if (["male", "man", "男性"].includes(explicit)) return "male";
+    if (["female", "woman", "女性"].includes(explicit)) return "female";
+
     const values = [
       ...(Array.isArray(character.audience) ? character.audience : []),
-      ...(Array.isArray(character.categories) ? character.categories : []),
-      character.gender || ""
+      ...(Array.isArray(character.categories) ? character.categories : [])
     ].map(value => fold(value));
     if (values.some(value => ["male", "man", "男性"].includes(value))) return "male";
     if (values.some(value => ["female", "woman", "女性"].includes(value))) return "female";
+
+    const legacyCategory = fold(character.category || "");
+    if (legacyCategory === "male") return "male";
+    if (legacyCategory === "female") return "female";
     return "";
   }
 
