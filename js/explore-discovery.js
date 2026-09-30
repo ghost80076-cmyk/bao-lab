@@ -50,6 +50,34 @@
     };
   };
 
+  const formatActivityDate = value => {
+    const stamp = Number(value || 0);
+    if (!stamp) return "";
+    const date = new Date(stamp);
+    const now = new Date();
+    const start = item => new Date(item.getFullYear(), item.getMonth(), item.getDate()).getTime();
+    const days = Math.round((start(now) - start(date)) / (24 * 60 * 60 * 1000));
+    if (days === 0) return "今天";
+    if (days === 1) return "昨天";
+    return new Intl.DateTimeFormat("zh-TW", { month: "numeric", day: "numeric" }).format(date);
+  };
+
+  const cardContextText = (item, libraryInfo, updateInfo) => {
+    if (state.scope === "recent" && libraryInfo.recentAt) {
+      return "上次看過 · " + formatActivityDate(libraryInfo.recentAt);
+    }
+    if (state.scope === "updates" && updateInfo.updatedAt) {
+      return "更新於 · " + formatActivityDate(updateInfo.updatedAt);
+    }
+    if (state.scope === "favorites") {
+      if (updateInfo.badge === "UPDATED") return "收藏中 · 有新內容";
+      if (libraryInfo.recentAt) return "收藏中 · 上次看過 " + formatActivityDate(libraryInfo.recentAt);
+      return "收藏中 · 尚未開始";
+    }
+    const author = String(item?.author || "").trim();
+    return author ? "作者 · " + author : "";
+  };
+
   const ensureTools = () => {
     let host = document.getElementById("explore-discovery-tools");
     if (host) return host;
@@ -190,21 +218,29 @@
         updateBadge?.remove();
       }
 
-      let continuity = content.querySelector(".explore-card-continuity");
-      const continuityLabels = [];
-      if (libraryInfo.favorite) continuityLabels.push("已收藏");
-      if (libraryInfo.recentAt) continuityLabels.push("最近看過");
-      if (!continuityLabels.length) {
-        continuity?.remove();
+      content.querySelector(".explore-card-continuity")?.remove();
+      let context = content.querySelector(".explore-card-context");
+      const contextText = cardContextText(item, libraryInfo, updateInfo);
+      if (!contextText) {
+        context?.remove();
       } else {
-        if (!continuity) {
-          continuity = document.createElement("div");
-          continuity.className = "explore-card-continuity";
+        if (!context) {
+          context = document.createElement("div");
+          context.className = "explore-card-context";
           const title = content.querySelector("h3");
-          if (title) title.insertAdjacentElement("afterend", continuity);
-          else content.prepend(continuity);
+          if (title) title.insertAdjacentElement("afterend", context);
+          else content.prepend(context);
         }
-        continuity.innerHTML = continuityLabels.map(label => `<span>${App.escapeHTML(label)}</span>`).join("");
+        context.textContent = contextText;
+      }
+
+      const tags = content.querySelector(".tags");
+      if (tags) {
+        const tagCount = tags.querySelectorAll(".tag").length;
+        const hiddenCount = Math.max(0, tagCount - 3);
+        tags.classList.toggle("explore-tags-condensed", tagCount > 3);
+        if (hiddenCount) tags.dataset.hiddenCount = String(hiddenCount);
+        else delete tags.dataset.hiddenCount;
       }
 
       let meta = content.querySelector(".explore-card-capabilities");
