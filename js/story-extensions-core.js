@@ -144,7 +144,7 @@
         detail: compact(rule?.pattern, 70),
         status,
         state: enabled && globalMaster ? "active" : "paused",
-        quick: { kind: "regex-rule", key: String(index), enabled }
+        quick: text(rule?.pattern) && !rule?.reason ? { kind: "regex-rule", key: String(index), enabled } : null
       });
     });
     const authorItems = (Array.isArray(authorState?.rules) ? authorState.rules : []).map((rule, index) => {
