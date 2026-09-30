@@ -36,7 +36,9 @@ const works = [
 ];
 
 assert.deepEqual(core.filter(works, { category: "all" }).map(x => x.id), ["city", "room"]);
-assert.deepEqual(core.filter(works, { category: "r18" }).map(x => x.id), ["adult"]);
+assert.deepEqual(core.filter(works, { rating: "mature" }).map(x => x.id), ["adult"]);
+assert.deepEqual(core.filter(works, { category: "male", rating: "mature" }).map(x => x.id), []);
+assert.deepEqual(core.filter(works, { category: "male", rating: "general" }).map(x => x.id), ["city"]);
 assert.deepEqual(core.filter(works, { category: "all", capability: "world" }).map(x => x.id), ["city"]);
 assert.deepEqual(core.filter(works, { category: "all", capability: "ui" }).map(x => x.id), ["room"]);
 assert.deepEqual(core.filter(works, { category: "all", query: "長篇" }).map(x => x.id), ["city"]);
