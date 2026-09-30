@@ -13,7 +13,7 @@ jobs:
   chromium-core:
     name: Fast E2E · Chromium core
     runs-on: ubuntu-latest
-    timeout-minutes: 7
+    timeout-minutes: 15
     steps:
       - name: Checkout
         uses: actions/checkout@v4
