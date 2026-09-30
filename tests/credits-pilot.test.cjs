@@ -241,7 +241,7 @@ test('registers only the prioritized YoruBay hosted catalog without free or dupl
    'anthropic/claude-opus-4.6'
  ]);
  assert.equal(added.every(p=>p.provider==='bao-credits'),true);
- assert.equal(added.every(p=>p.provider_label==='YoruBay AI 點數'),true);
+ assert.equal(added.every(p=>p.provider_label==='夜灣燈火'),true);
  assert.equal(added.every(p=>p.base_url===cfg.baseUrl),true);
  assert.equal(added.some(p=>p.model==='openrouter/free'),false);
  assert.equal(added.some(p=>p.model==='gemini-3.1-flash-lite'),false);
