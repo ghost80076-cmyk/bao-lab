@@ -7,6 +7,30 @@
 
   const clean = value => String(value ?? "").trim();
   const fold = value => clean(value).toLocaleLowerCase("zh-Hant");
+  const DAY_MS = 24 * 60 * 60 * 1000;
+  const UPDATE_FRESH_DAYS = 30;
+
+  function dateMs(value) {
+    if (typeof value === "number") return Number.isFinite(value) ? Math.max(0, value) : 0;
+    const parsed = Date.parse(clean(value));
+    return Number.isFinite(parsed) ? Math.max(0, parsed) : 0;
+  }
+
+  function publicationMeta(entry = {}) {
+    const publishedAt = dateMs(entry.published_at || entry.publishedAt);
+    const updatedAt = dateMs(entry.updated_at || entry.updatedAt) || publishedAt;
+    return {
+      publishedAt,
+      updatedAt: Math.max(updatedAt, publishedAt)
+    };
+  }
+
+  function isFresh(timestamp, now = Date.now(), days = UPDATE_FRESH_DAYS) {
+    const time = dateMs(timestamp);
+    const current = dateMs(now);
+    const windowMs = Math.max(1, Number(days) || UPDATE_FRESH_DAYS) * DAY_MS;
+    return Boolean(time && current >= time && current - time <= windowMs);
+  }
 
   function isAdult(character = {}) {
     return String(character.category || "").toLowerCase() === "r18" ||
@@ -40,12 +64,13 @@
   function matches(character = {}, state = {}, extra = {}) {
     const category = state.category || "all";
     const capability = state.capability || "all";
-    const scope = ["favorites", "recent"].includes(state.scope) ? state.scope : "all";
+    const scope = ["favorites", "recent", "updates"].includes(state.scope) ? state.scope : "all";
     const query = fold(state.query || "");
     if (!inCategory(character, category)) return false;
     if (!supports(character, capability)) return false;
     if (scope === "favorites" && extra.favorite !== true) return false;
     if (scope === "recent" && !Number(extra.recentAt || 0)) return false;
+    if (scope === "updates" && !extra.recentUpdate) return false;
     if (!query) return true;
     return haystack(character, extra).includes(query);
   }
@@ -53,10 +78,11 @@
   function filter(list = [], state = {}, extraFor = () => ({})) {
     const source = Array.isArray(list) ? list : [];
     const matched = source.filter(item => matches(item, state, extraFor(item) || {}));
-    if (state.scope !== "recent") return matched;
+    if (!["recent", "updates"].includes(state.scope)) return matched;
+    const key = state.scope === "updates" ? "updatedAt" : "recentAt";
     return matched.slice().sort((a, b) => {
-      const aTime = Number((extraFor(a) || {}).recentAt || 0);
-      const bTime = Number((extraFor(b) || {}).recentAt || 0);
+      const aTime = Number((extraFor(a) || {})[key] || 0);
+      const bTime = Number((extraFor(b) || {})[key] || 0);
       return bTime - aTime;
     });
   }
@@ -67,7 +93,8 @@
     const recent = (Array.isArray(value.recent) ? value.recent : [])
       .map(item => ({
         id: clean(item?.id),
-        viewedAt: Math.max(0, Number(item?.viewedAt) || 0)
+        viewedAt: Math.max(0, Number(item?.viewedAt) || 0),
+        seenUpdatedAt: dateMs(item?.seenUpdatedAt)
       }))
       .filter(item => item.id && item.viewedAt)
       .sort((a, b) => b.viewedAt - a.viewedAt)
@@ -82,7 +109,8 @@
     const recent = safe.recent.find(item => item.id === key);
     return {
       favorite: safe.favorites.includes(key),
-      recentAt: recent?.viewedAt || 0
+      recentAt: recent?.viewedAt || 0,
+      seenUpdatedAt: recent?.seenUpdatedAt || 0
     };
   }
 
@@ -96,15 +124,38 @@
     return normalizeLibrary({ ...safe, favorites });
   }
 
-  function markViewed(library = {}, id = "", viewedAt = Date.now()) {
+  function markViewed(library = {}, id = "", viewedAt = Date.now(), seenUpdatedAt = 0) {
     const safe = normalizeLibrary(library);
     const key = clean(id);
-    const stamp = Math.max(0, Number(viewedAt) || 0);
+    const stamp = dateMs(viewedAt);
     if (!key || !stamp) return safe;
     return normalizeLibrary({
       ...safe,
-      recent: [{ id: key, viewedAt: stamp }, ...safe.recent.filter(item => item.id !== key)]
+      recent: [{
+        id: key,
+        viewedAt: stamp,
+        seenUpdatedAt: dateMs(seenUpdatedAt)
+      }, ...safe.recent.filter(item => item.id !== key)]
     });
+  }
+
+  function workUpdateState(entry = {}, libraryInfo = {}, now = Date.now(), days = UPDATE_FRESH_DAYS) {
+    const publication = publicationMeta(entry);
+    const viewed = Number(libraryInfo.recentAt || 0) > 0;
+    const seenUpdatedAt = dateMs(libraryInfo.seenUpdatedAt);
+    const publishedFresh = isFresh(publication.publishedAt, now, days);
+    const updatedFresh = isFresh(publication.updatedAt, now, days);
+    const changedAfterPublish = publication.updatedAt > publication.publishedAt;
+
+    let badge = "";
+    if (!viewed && publishedFresh) badge = "NEW";
+    else if (updatedFresh && changedAfterPublish && (!viewed || seenUpdatedAt < publication.updatedAt)) badge = "UPDATED";
+
+    return {
+      ...publication,
+      recentUpdate: updatedFresh,
+      badge
+    };
   }
 
   function capabilityLabels(character = {}) {
@@ -122,6 +173,9 @@
   return Object.freeze({
     clean,
     fold,
+    dateMs,
+    publicationMeta,
+    isFresh,
     isAdult,
     inCategory,
     supports,
@@ -132,6 +186,7 @@
     libraryMeta,
     toggleFavorite,
     markViewed,
+    workUpdateState,
     capabilityLabels,
     resultLabel
   });

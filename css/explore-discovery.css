@@ -86,3 +86,20 @@
   .explore-card-continuity{margin-top:4px}
   .explore-card-continuity span{min-height:18px;padding:1px 6px;font-size:8px}
 }
+
+.explore-update-badge{
+  position:absolute;left:10px;top:10px;z-index:3;display:inline-flex;align-items:center;
+  min-height:26px;padding:3px 8px;border-radius:999px;
+  border:1px solid rgba(255,255,255,.18);background:rgba(11,13,20,.82);
+  color:#f3efff;font-size:9px;font-weight:800;letter-spacing:.08em;
+  backdrop-filter:blur(10px);box-shadow:0 6px 18px rgba(0,0,0,.18)
+}
+.explore-update-badge[data-kind="new"]{
+  border-color:rgba(128,232,203,.42);background:rgba(18,58,50,.78);color:#bff6e6
+}
+.explore-update-badge[data-kind="updated"]{
+  border-color:rgba(191,174,255,.45);background:rgba(45,35,78,.8);color:#ddd2ff
+}
+@media(max-width:700px){
+  .explore-update-badge{left:8px;top:8px;min-height:24px;padding:2px 7px;font-size:8px}
+}

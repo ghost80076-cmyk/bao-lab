@@ -26,7 +26,9 @@
     "supported_display": {
       "text": true,
       "ui": true
-    }
+    },
+    "published_at": "2026-09-13T11:53:39Z",
+    "updated_at": "2026-09-27T13:55:43Z"
   },
   {
     "id": "autonomous-npc-world",
@@ -52,7 +54,9 @@
     "supported_display": {
       "text": true,
       "ui": true
-    }
+    },
+    "published_at": "2026-09-17T16:14:31Z",
+    "updated_at": "2026-09-18T16:22:55Z"
   },
   {
     "id": "open-world-real-persona",
@@ -78,7 +82,9 @@
     "supported_display": {
       "text": true,
       "ui": true
-    }
+    },
+    "published_at": "2026-09-18T03:29:17Z",
+    "updated_at": "2026-09-18T03:29:17Z"
   },
   {
     "id": "desire-district",
@@ -108,7 +114,9 @@
     "supported_display": {
       "text": true,
       "ui": true
-    }
+    },
+    "published_at": "2026-09-19T06:15:50Z",
+    "updated_at": "2026-09-19T07:23:28Z"
   },
   {
     "id": "kurobane-yume-kabukicho",
@@ -135,7 +143,9 @@
     "supported_display": {
       "text": true,
       "ui": true
-    }
+    },
+    "published_at": "2026-09-21T11:22:40Z",
+    "updated_at": "2026-09-28T13:58:13Z"
   },
   {
     "id": "unhealed-bonds",
@@ -164,7 +174,9 @@
     "supported_display": {
       "text": true,
       "ui": true
-    }
+    },
+    "published_at": "2026-09-27T15:14:13Z",
+    "updated_at": "2026-09-28T08:52:59Z"
   },
   {
     "id": "host-club-simulator",
@@ -193,7 +205,9 @@
     "supported_display": {
       "text": true,
       "ui": true
-    }
+    },
+    "published_at": "2026-09-27T15:53:56Z",
+    "updated_at": "2026-09-28T08:51:40Z"
   },
   {
     "id": "night-sky-magic-academy",
@@ -222,7 +236,9 @@
     "supported_display": {
       "text": true,
       "ui": true
-    }
+    },
+    "published_at": "2026-09-27T18:02:40Z",
+    "updated_at": "2026-09-29T11:27:09Z"
   },
   {
     "id": "k-idol-survival-simulator",
@@ -251,6 +267,8 @@
     "supported_display": {
       "text": true,
       "ui": true
-    }
+    },
+    "published_at": "2026-09-28T10:11:49Z",
+    "updated_at": "2026-09-28T13:09:37Z"
   }
 ]
