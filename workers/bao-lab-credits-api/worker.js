@@ -3569,6 +3569,9 @@ function characterBucket(
 function prepareCharacterPublication(
   body
 ) {
+  const publicationTimestamp =
+    new Date().toISOString();
+
   if (
     !plainObject(
       body
@@ -4135,6 +4138,12 @@ function prepareCharacterPublication(
 
     tags,
     description,
+
+    published_at:
+      publicationTimestamp,
+
+    updated_at:
+      publicationTimestamp,
 
     supported_modes:
       plainObject(
