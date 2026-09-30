@@ -25,7 +25,7 @@ body{min-height:100vh;background:#101118;color:#f5f1ff}
 .yb-primary{border:0;background:#eee8ff;color:#171821}
 .yb-secondary{border:1px solid rgba(255,255,255,.14);background:#232633;color:#eee}
 .yb-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:14px}
-.yb-note{font-size:13px;line-height:1.65;color:#aaa6b8}
+.yb-note{font-size:13px;line-height:1.65;color:#aaa6b8}.yb-help-links{display:flex;flex-wrap:wrap;gap:10px;margin:12px 0 18px}.yb-help-links a{color:#d9ccff;font-size:12px;text-decoration:none}.yb-help-links a:hover{text-decoration:underline;text-underline-offset:3px}
 .yb-error{min-height:20px;color:#ff9d9d;font-size:13px;margin-top:10px}
 .yb-box{background:#10121a;border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:14px;margin:12px 0}
 .yb-row{display:flex;justify-content:space-between;gap:16px;padding:6px 0}
@@ -54,6 +54,7 @@ body{min-height:100vh;background:#101118;color:#f5f1ff}
       <img src="assets/bao-bun.svg" width="84" height="84" alt="包包">
     </section>
     <div class="yb-local-first"><b>Local-first 保持不變</b><span>帳號不是讀取私人故事的必要條件；API Key 也不會存進帳號。</span></div>
+    <nav class="yb-help-links" aria-label="開始故事與連線說明"><a href="quick-start.html">第一次玩？三步開始 →</a><a href="api-guide.html">AI 連線完整說明 →</a></nav>
 
     <div class="yb-tabs">
       <button type="button" data-tab="login">登入</button>
