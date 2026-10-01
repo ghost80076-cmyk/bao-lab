@@ -101,7 +101,7 @@
 
   const open = () => {
     if (!GameState.current || !App.config) {
-      window.BAOFeedback?.notify?.("先進入一個故事，再開啟故事控制台。", "error");
+      window.BAOFeedback?.notify?.("先進入一個故事，再開啟故事總覽。", "error");
       return;
     }
     close();
@@ -175,7 +175,7 @@
     button.dataset.openStoryControl = "true";
     button.textContent = controls ? "故事" : "☷ 故事總覽";
     button.setAttribute("aria-label", "故事總覽");
-    button.title = "查看這個故事目前使用的模型、身份、記憶、狀態與故事擴充";
+    button.title = "看看這個故事目前使用的模型、身份、記憶、狀態與故事擴充";
     button.addEventListener("click", open);
     if (controls) {
       const tools = controls.querySelector("#bao-surface-mode-toggle");
