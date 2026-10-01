@@ -54,3 +54,10 @@
   .studio-lifecycle-next{align-items:stretch;flex-direction:column}
   .studio-lifecycle-next button{width:100%}
 }
+
+/* YoruBay workbench visual calibration */
+.studio-lifecycle{border-color:var(--yoru-card-border,rgba(241,232,218,.075));background:radial-gradient(circle at 92% 0,rgba(214,170,115,.045),transparent 32%),rgba(20,19,22,.94)}
+#studio-lifecycle-next-summary{border-color:rgba(214,170,115,.15);color:#cdbb9f;background:rgba(214,170,115,.045)}
+.studio-lifecycle-stages article{border-color:var(--yoru-card-border,rgba(241,232,218,.075));background:var(--yoru-card,#17161a)}
+.studio-lifecycle-stages article>span{background:#28252b;color:#aea8b1}
+.studio-lifecycle-next{border-color:var(--yoru-card-border,rgba(241,232,218,.075));background:rgba(14,14,17,.46)}

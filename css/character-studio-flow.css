@@ -57,3 +57,11 @@
   .studio-flow-step{flex-basis:128px;padding:8px 7px}
   .studio-flow-step>b{font-size:10px}
 }
+
+/* YoruBay workbench visual calibration */
+.studio-flow-shell{border-color:var(--yoru-card-border,rgba(241,232,218,.075));background:rgba(20,19,22,.95);box-shadow:0 10px 30px rgba(0,0,0,.14)}
+#studio-flow-progress{color:#b8b2ba}
+.studio-flow-step{border-color:var(--yoru-card-border,rgba(241,232,218,.075));background:var(--yoru-card-raised,#1d1b20)}
+.studio-flow-step>span{background:#27242a;color:#aaa5ad}
+.studio-flow-step.active{border-color:rgba(156,140,255,.30);background:rgba(156,140,255,.075)}
+.studio-flow-step.active>span{background:#776bc4}

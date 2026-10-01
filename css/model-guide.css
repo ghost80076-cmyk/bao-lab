@@ -7,3 +7,12 @@
 .helper-route-test-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:12px}.helper-route-test-row button{white-space:nowrap}
 @media(max-width:900px){.model-tier-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.model-guide-head{display:block}.model-guide-head p{margin-top:12px}.helper-route-grid{grid-template-columns:1fr}.model-facts{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:560px){.model-tier-grid{grid-template-columns:1fr}.model-guide-home{padding:18px}.model-facts{grid-template-columns:1fr 1fr}}
+
+/* YoruBay workbench visual calibration */
+.model-guide-home,.model-tier-grid article,.model-advisor,.api-route-advice,.helper-route-card{
+  border-color:var(--yoru-card-border,rgba(241,232,218,.075));
+  background:var(--yoru-card,#17161a)
+}
+.model-guide-home{box-shadow:var(--yoru-shadow-soft,0 14px 38px rgba(0,0,0,.14))}
+.model-facts span{background:var(--yoru-card-raised,#1d1b20)}
+.model-badge{border-color:var(--yoru-control-border,rgba(241,232,218,.11));color:#bdb6bf}
