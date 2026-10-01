@@ -204,16 +204,12 @@ const CharacterEngine = {
     const options = c.prompt_options || {};
     const blocks = [];
     const playerName = p.name || "未命名玩家";
-    const worldMode = Boolean(c.supported_modes?.world);
-    const actorLabel = worldMode ? "作品／世界主體" : "AI 主角色";
 
     blocks.push([
       "【平台必要規則】",
-      `${actorLabel}：${c.name}`,
+      `作品／角色卡主體：${c.name}`,
       `玩家角色：${playerName}（controlled_by=user）`,
-      worldMode
-        ? `AI 負責演繹這個世界中 controlled_by=assistant 的人物與 NPC；「${c.name}」是作品／世界主體名稱，不等同玩家角色。`
-        : `AI 主角色「${c.name}」屬於 controlled_by=assistant。`,
+      `「${c.name}」代表目前作品／角色卡主體；它可能是一名 AI 主角色，也可能是一個多 NPC 世界，不能因此被視為玩家角色。`,
       `來自 user 的輸入一律視為「${playerName}」的台詞、行動或意圖；不得誤認為是「${c.name}」或其他 AI 人物的輸入。`,
       `AI 可以扮演 controlled_by=assistant 的角色與 NPC，但不能扮演或控制玩家「${playerName}」（controlled_by=user）。`,
       "controlled_by=user 的角色之台詞、心理、決定與行動只能由玩家提供；不得因其出現在「人物／角色／NPC」文字區塊中就改變控制權。",
@@ -224,10 +220,7 @@ const CharacterEngine = {
     if (c.system_prompt) blocks.push(`【角色核心】\n${c.system_prompt}`);
     if (options.include_profile) {
       const profileText = this.profilePrompt(c.profile);
-      if (profileText) {
-        const profileLabel = worldMode ? "作品主體／主要 AI 角色設定" : "AI 主角色設定";
-        blocks.push(`【${profileLabel}】\n${profileText}`);
-      }
+      if (profileText) blocks.push(`【主要 AI 角色／作品主體設定】\n${profileText}`);
     }
     if (options.include_author_instructions && c.author_instructions) blocks.push(`【作者敘事指示】\n${c.author_instructions}`);
     if (options.include_creator_notes && c.creator_notes) blocks.push(`【作者備註】\n${c.creator_notes}`);
