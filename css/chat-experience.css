@@ -24,6 +24,11 @@ body:has(#chat-view.active) .app-shell{width:min(1710px,calc(100% - 32px));max-w
 #chat-view .bao-status-rail{min-width:0;min-height:250px;max-height:calc(100dvh - 110px);overflow:auto;overscroll-behavior:contain;align-self:start;position:relative;border:1px solid var(--story-border,rgba(255,255,255,.1));border-radius:15px;background:var(--yoru-tool,#101116);color:var(--text);padding:13px;box-shadow:0 16px 38px #0005}
 #chat-view .bao-status-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-bottom:9px;border-bottom:1px solid rgba(255,255,255,.1)}
 #chat-view .bao-status-heading h3{font-size:15px;margin:0}
+#chat-view .bao-story-info-section-head{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;margin-top:12px;padding-top:11px;border-top:1px solid rgba(255,255,255,.08)}
+#chat-view .bao-story-info-section-head strong{font-size:12px;letter-spacing:.04em;color:var(--text)}
+#chat-view .bao-story-info-section-head small{font-size:9.5px;line-height:1.35;color:var(--muted);text-align:right}
+#chat-view .bao-story-info-current-head{margin-top:9px}
+#chat-view .bao-story-info-detail{display:none}
 #chat-view .bao-status-close{width:auto;font-size:12px;padding:6px 9px}
 #chat-view .bao-rail-status-host{min-width:0;display:grid;gap:9px;margin-top:11px;font-size:13px;line-height:1.7;overflow-wrap:anywhere}
 #chat-view .bao-rail-status-host [hidden],#chat-view .bao-status-empty[hidden]{display:none!important}
@@ -33,10 +38,22 @@ body:has(#chat-view.active) .app-shell{width:min(1710px,calc(100% - 32px));max-w
 #chat-view .bao-rail-status-host :is(pre,code){white-space:pre-wrap;overflow-wrap:anywhere}
 #chat-view #bao-reading-status-backdrop{display:none}
 @media(min-width:1430px){
- #chat-view .chat-layout{grid-template-columns:210px minmax(0,1fr) minmax(250px,282px)!important}
+ #chat-view .chat-layout{grid-template-columns:210px minmax(0,1fr) minmax(300px,340px)!important}
  #chat-view .chat-layout.bao-status-collapsed{grid-template-columns:210px minmax(0,1fr)!important}
  #chat-view .chat-layout.bao-status-collapsed>.bao-status-rail{display:none}
- #chat-view .bao-status-rail{position:sticky;top:92px}
+ #chat-view .bao-status-rail{position:sticky;top:92px;padding:12px;max-height:calc(100dvh - 110px)}
+ #chat-view .bao-status-heading{position:sticky;top:-12px;z-index:4;margin:-12px -12px 0;padding:12px 12px 9px;background:linear-gradient(180deg,var(--yoru-tool,#101116) 82%,rgba(16,17,22,.92));backdrop-filter:blur(10px)}
+ #chat-view .bao-story-info-detail{display:block;margin-top:12px}
+ #chat-view .bao-story-info-detail>#game-ui{display:block;min-width:0;margin-top:8px;border:0;border-radius:0;background:transparent}
+ #chat-view .bao-story-info-detail>#game-ui.hidden{display:none!important}
+ #chat-view .bao-story-info-detail>#game-ui .ui-tabs{display:flex;gap:5px;flex-wrap:wrap;padding:0 0 9px;border-bottom:1px solid rgba(255,255,255,.08);overflow:visible}
+ #chat-view .bao-story-info-detail>#game-ui .ui-tab{padding:6px 8px;border-radius:8px;font-size:10px}
+ #chat-view .bao-story-info-detail>#game-ui #ui-panel{padding:10px 0 0;font-size:12px;line-height:1.65}
+ #chat-view .bao-story-info-detail>#game-ui .npc-grid{grid-template-columns:1fr;gap:7px}
+ #chat-view .bao-story-info-detail>#game-ui .state-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+ #chat-view .bao-story-info-detail>#game-ui :is(.npc-card,.state-box){padding:9px 10px}
+ #chat-view .bao-story-info-detail>#game-ui :is(.world-module-object,.world-module-collection){grid-template-columns:1fr;gap:7px}
+ #chat-view .bao-story-info-detail>#game-ui :is(.world-module-field,.world-module-card){padding:10px}
 }
 @media(max-width:1429px){
  #chat-view .bao-status-rail{position:fixed;z-index:151;top:12px;right:12px;bottom:12px;width:min(365px,calc(100vw - 24px));max-height:none;transform:translateX(calc(100% + 24px));visibility:hidden;pointer-events:none;transition:transform .18s ease,visibility .18s}
