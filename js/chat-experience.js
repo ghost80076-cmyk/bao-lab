@@ -12,6 +12,7 @@
   let wasOpened = false;
   let returnFocus = null;
   let initializedGroups = false;
+  let desktopManuallyCollapsed = false;
   const desktopInfoRail = window.matchMedia('(min-width: 1430px)');
 
   const ensureGameUIHome = () => {
@@ -59,8 +60,9 @@
     }
   };
 
-  function closeStatus() {
+  function closeStatus(manual = false) {
     const rail = $('bao-reading-status');
+    if (manual && desktopInfoRail.matches) desktopManuallyCollapsed = true;
     rail?.classList.remove('is-open');
     layout.classList.add('bao-status-collapsed');
     $('bao-reading-status-backdrop')?.classList.remove('is-visible');
@@ -71,6 +73,7 @@
   function openStatus() {
     const rail = $('bao-reading-status');
     if (!rail) return;
+    if (desktopInfoRail.matches) desktopManuallyCollapsed = false;
     returnFocus = document.activeElement;
     wasOpened = true;
     layout.classList.remove('bao-status-collapsed');
@@ -93,7 +96,7 @@
       const close = document.createElement('button');
       close.type = 'button'; close.className = 'bao-status-close secondary';
       close.textContent = '關閉'; close.setAttribute('aria-label', '關閉故事資訊');
-      close.addEventListener('click', closeStatus);
+      close.addEventListener('click', () => closeStatus(true));
       heading.append(title);
       if (help) heading.append(help);
       heading.append(close);
@@ -110,7 +113,7 @@
     if (!$('bao-reading-status-backdrop')) {
       const backdrop = document.createElement('div');
       backdrop.id = 'bao-reading-status-backdrop';
-      backdrop.addEventListener('click', closeStatus);
+      backdrop.addEventListener('click', () => closeStatus(true));
       root.append(backdrop);
     }
     if (!$('bao-reading-status-toggle')) {
@@ -120,7 +123,10 @@
       button.setAttribute('aria-controls', 'bao-reading-status');
       button.setAttribute('aria-expanded', 'false');
       button.addEventListener('click', () => {
-        if (rail.classList.contains('is-open')) closeStatus(); else openStatus();
+        const open = desktopInfoRail.matches
+          ? !layout.classList.contains('bao-status-collapsed')
+          : rail.classList.contains('is-open');
+        if (open) closeStatus(true); else openStatus();
       });
       main.querySelector('.chat-topline')?.append(button);
     }
@@ -139,6 +145,9 @@
       } else empty.textContent = '目前沒有可顯示的故事資訊。';
     }
     window.BAOChatToolNavigation?.compactBoard?.(rail);
+    if (desktopInfoRail.matches && root.classList.contains('active') && !desktopManuallyCollapsed) {
+      layout.classList.remove('bao-status-collapsed');
+    }
     syncInfoPlacement(rail);
     syncToggleState();
     return rail;
@@ -204,7 +213,7 @@
   const observer = new MutationObserver(schedule);
   observer.observe(root, { childList: true, subtree: true });
   document.addEventListener('keydown', event => {
-    if (event.key === 'Escape' && $('bao-reading-status')?.classList.contains('is-open')) closeStatus();
+    if (event.key === 'Escape' && $('bao-reading-status')?.classList.contains('is-open')) closeStatus(true);
   });
   const oldRenderShell = App.renderChatShell.bind(App);
   App.renderChatShell = function(...args) {
