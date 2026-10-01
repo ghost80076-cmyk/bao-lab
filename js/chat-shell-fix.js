@@ -48,7 +48,7 @@
   if (!document.querySelector('link[href^="css/chat-experience.css"]')) {
     const css = document.createElement('link');
     css.rel = 'stylesheet';
-    css.href = 'css/chat-experience.css?v=4';
+    css.href = 'css/chat-experience.css?v=5';
     document.head.append(css);
   }
   const load = src => new Promise((resolve, reject) => {
