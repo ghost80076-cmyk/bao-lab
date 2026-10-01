@@ -31,7 +31,7 @@
           ready: false,
           mode: "hosted",
           label: "還缺夜灣帳號登入",
-          detail: "登入後即可使用帳號 API 額度；不需要貼自己的 API Key。",
+          detail: "登入後即可使用夜灣燈火；不需要自己的連線金鑰。",
           action: "account"
         };
       }
@@ -39,7 +39,7 @@
         return {
           ready: false,
           mode: "hosted",
-          label: "還缺 AI 模型",
+          label: "還沒選故事模型",
           detail: "選一個目前帳號額度可使用的模型。",
           action: "model"
         };
@@ -94,7 +94,7 @@
       return {
         ready: false,
         mode: "byok",
-        label: "還缺 AI 模型",
+        label: "還沒選故事模型",
         detail: "先選擇要使用的模型。",
         action: "model"
       };
@@ -112,8 +112,8 @@
       return {
         ready: false,
         mode: "byok",
-        label: "還缺 API Key",
-        detail: "貼上這個 AI 服務商的連線金鑰後即可開始。",
+        label: "還缺連線金鑰",
+        detail: "貼上這個模型服務的連線金鑰後即可開始。",
         action: "key"
       };
     }
