@@ -256,6 +256,46 @@
     return [];
   };
 
+  const npcRoster = () => (GameState.current?.npcs || []).filter(npc => npc?.name);
+
+  const npcIsInScene = (npc, state = GameState.current) => {
+    if (!npc?.name || !state || npc.presence === "away") return false;
+    const currentLocation = String(state.location || "").trim();
+    const location = String(npc.location || "").trim();
+    return (currentLocation && location && currentLocation === location)
+      || (npc.presence === "present" && (!location || location === "未知"));
+  };
+
+  const sceneNPCs = () => npcRoster().filter(npc => npcIsInScene(npc));
+
+  const setSceneParticipants = names => {
+    const state = GameState.current;
+    if (!state) return [];
+    const known = new Set(npcRoster().map(npc => String(npc.name).trim()));
+    const selected = new Set((Array.isArray(names) ? names : []).map(name => String(name).trim()).filter(name => known.has(name)));
+    const currentLocation = String(state.location || "").trim();
+    npcRoster().forEach(npc => {
+      const name = String(npc.name).trim();
+      if (selected.has(name)) {
+        GameState.upsertNPC({ name, presence: "present", ...(currentLocation && currentLocation !== "未設定" ? { location: currentLocation } : {}) });
+      } else if (npc.presence === "present" || npcIsInScene(npc, state)) {
+        GameState.upsertNPC({ name, presence: "away" });
+      }
+    });
+    return sceneNPCs().map(npc => npc.name);
+  };
+
+  const compactRosterIndex = (options = {}) => {
+    const maxChars = Math.max(240, Math.min(1600, Number(options.maxChars || 1000)));
+    const lines = npcRoster().map(npc => {
+      const name = String(npc.name || "").trim();
+      const role = String(npc.role || "").trim();
+      return role && role !== "NPC" ? `${name}｜${role}` : name;
+    }).filter(Boolean);
+    const joined = lines.join("\n");
+    return joined.length > maxChars ? `${joined.slice(0, maxChars)}…` : joined;
+  };
+
   const namesForTurn = (text = "", options = {}) => {
     ensureState(window.App?.activeCharacter);
     const state = GameState.current;
@@ -263,8 +303,7 @@
     const hay = String(text || "").toLowerCase();
     const district = window.App?.activeCharacter?.id === "desire-district";
     const all = Object.keys(state.characterStatuses || {}).filter(name => !district || name !== window.App?.activeCharacter?.name);
-    const inScene = new Set((state.npcs || []).filter(npc => npc?.name && npc.presence !== "away" &&
-      (npc.location === state.location || (npc.presence === "present" && (!npc.location || npc.location === "未知")))).map(npc => npc.name));
+    const inScene = new Set(sceneNPCs().map(npc => npc.name));
     const viewed = new Set(selectedContextCharacters());
     const scored = all.map(name => {
       const mentioned = hay.includes(name.toLowerCase());
@@ -370,6 +409,11 @@
     namesForTurn,
     selectedContextCharacters,
     toggleContextCharacter,
-    clearContextCharacters
+    clearContextCharacters,
+    npcRoster,
+    npcIsInScene,
+    sceneNPCs,
+    setSceneParticipants,
+    compactRosterIndex
   };
 })();
