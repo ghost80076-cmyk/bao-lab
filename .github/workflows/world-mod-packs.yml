@@ -12,6 +12,13 @@ on:
       - '.github/workflows/world-mod-packs.yml'
   pull_request:
     branches: [main]
+    paths:
+      - 'js/world-mod-packs.js'
+      - 'js/world-relevance.js'
+      - 'tests/world-mod-packs-core.cjs'
+      - 'tests/e2e/world-mod-packs.spec.cjs'
+      - 'tests/e2e/world-mod-packs-mobile.spec.cjs'
+      - '.github/workflows/world-mod-packs.yml'
 
 permissions:
   contents: read
@@ -19,14 +26,18 @@ permissions:
 jobs:
   mod-pack-core-and-browser:
     runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.63.0-noble
+      options: --user 1001
+    timeout-minutes: 12
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: npm
       - run: node tests/world-mod-packs-core.cjs
       - run: npm ci
-      - run: npx playwright install --with-deps chromium firefox webkit
       - run: npx playwright test tests/e2e/world-mod-packs.spec.cjs tests/e2e/world-mod-packs-mobile.spec.cjs --project=chromium --project=firefox --project=webkit
       - name: Verify the published MOD script matches this commit
         if: github.event_name == 'push'
