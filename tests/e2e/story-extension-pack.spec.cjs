@@ -2,6 +2,7 @@ const { test, expect } = require('@playwright/test');
 const fs = require('node:fs/promises');
 
 test('exports only portable player settings and imports selected categories after review', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('./');
   await page.waitForFunction(() => Boolean(
     window.BAOStoryControlCenter &&
@@ -92,6 +93,24 @@ test('exports only portable player settings and imports selected categories afte
 
   let extensions = page.getByRole('dialog', { name: '故事擴充' });
   await expect(extensions).toBeVisible();
+  await expect(extensions.locator('.story-extensions-head .eyebrow')).toBeHidden();
+  const extensionHelp = extensions.getByRole('button', { name: '故事擴充說明' });
+  await expect(extensionHelp).toBeVisible();
+  await expect(extensions.locator('#story-extension-guide')).toBeHidden();
+  const extensionLayout = await extensions.evaluate(node => {
+    const card = node.querySelector('.story-extension-card');
+    const actions = node.querySelector('.story-extension-pack-actions');
+    return {
+      cardColumns: card ? getComputedStyle(card).gridTemplateColumns.trim().split(/\s+/).length : 0,
+      packColumns: actions ? getComputedStyle(actions).gridTemplateColumns.trim().split(/\s+/).length : 0,
+      footerNoteHidden: getComputedStyle(node.querySelector('.story-extensions-note > span')).display === 'none'
+    };
+  });
+  expect(extensionLayout).toEqual({ cardColumns: 2, packColumns: 2, footerNoteHidden: true });
+  await extensionHelp.click();
+  await expect(extensions.locator('#story-extension-guide')).toBeVisible();
+  await extensionHelp.click();
+  await expect(extensions.locator('#story-extension-guide')).toBeHidden();
 
   const [download] = await Promise.all([
     page.waitForEvent('download'),
