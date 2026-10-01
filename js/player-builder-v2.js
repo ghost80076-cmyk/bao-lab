@@ -40,9 +40,9 @@
       "bao-builder-discovery-protocol": "bao-builder-technical"
     };
     Object.entries(classes).forEach(([id, name]) => $(id)?.closest("label")?.classList.add(name));
-    setLabel("api-type", "AI 服務商");
+    setLabel("api-type", "模型服務");
     setLabel("model-select", "模型");
-    setLabel("api-key", "API Key");
+    setLabel("api-key", "連線金鑰（API Key）");
     setLabel("model-id", "模型代號（進階）");
     setLabel("base-url", "連線網址（進階）");
   };
@@ -96,18 +96,18 @@
     const help = $("bao-connection-help");
     if (current === "hosted") {
       if (note) note.textContent = accountSession()
-        ? "已登入。選擇模型後會使用帳號 API 額度，不需要貼自己的 API Key。"
-        : "先登入帳號再使用 API 額度；舊版測試玩家仍可使用既有玩家金鑰。";
+        ? "已登入。選擇模型後會使用夜灣燈火，不需要自己的連線金鑰。"
+        : "先登入夜灣帳號再使用燈火；舊版測試玩家仍可使用既有玩家金鑰。";
       if (account) {
         account.hidden = false;
-        account.textContent = accountSession() ? "查看帳號與額度 →" : "登入／查看 API 額度 →";
+        account.textContent = accountSession() ? "查看帳號與燈火 →" : "登入／查看我的燈火 →";
       }
       if (help) {
         help.href = "quick-start.html";
         help.textContent = "第一次玩？三步開始 →";
       }
     } else {
-      if (note) note.textContent = "使用自己的 API Key；模型費用與免費額度由你選擇的 AI 服務商計算。";
+      if (note) note.textContent = "使用自己的模型連線；費用與免費額度由你選擇的模型服務計算。";
       if (account) account.hidden = true;
       if (help) {
         help.href = currentProvider === "lmstudio" ? "lm-studio-guide.html" : "api-guide.html";
@@ -119,15 +119,15 @@
     const progressNote = $("bao-first-run-ai-note");
     if (quickIntro && view.dataset.baoSetup === "quick") {
       if (current === "hosted") {
-        quickIntro.textContent = "使用帳號 API 額度：選一個可用模型就能開始，不需要貼自己的 API Key。";
-        if (progressNote) progressNote.textContent = accountSession() ? "帳號額度 · 選模型" : "帳號額度 · 先登入";
+        quickIntro.textContent = "使用夜灣燈火：選一個可用模型就能開始，不需要自己的連線金鑰。";
+        if (progressNote) progressNote.textContent = accountSession() ? "夜灣燈火 · 選模型" : "夜灣燈火 · 先登入";
       } else if (currentProvider === "lmstudio") {
-        quickIntro.textContent = "使用本地 AI：先在 LM Studio 啟動 Local Server 並開啟 CORS，再從下方讀取本機模型。不需要雲端 API Key。";
+        quickIntro.textContent = "使用本機模型：先在 LM Studio 啟動 Local Server 並開啟 CORS，再從下方讀取本機模型。不需要雲端連線金鑰。";
         if (progressNote) progressNote.textContent = "LM Studio · 本機模型";
       } else {
-        quickIntro.innerHTML = '使用自己的 API：選 AI 服務商與模型，再貼上相符的 API Key。<a href="api-guide.html" target="_blank" rel="noopener noreferrer">連線遇到問題？看完整說明 ↗</a>';
+        quickIntro.innerHTML = '使用自己的模型連線：選模型服務與模型，再貼上相符的連線金鑰。<a href="api-guide.html" target="_blank" rel="noopener noreferrer">連線遇到問題？看完整說明 ↗</a>';
         const providerLabel = provider()?.selectedOptions?.[0]?.textContent?.trim() || "自己的 API";
-        if (progressNote) progressNote.textContent = `${providerLabel} · 模型與 Key`;
+        if (progressNote) progressNote.textContent = `${providerLabel} · 模型與金鑰`;
       }
     }
   };
@@ -136,7 +136,7 @@
     if (next === "hosted") {
       if (!hostedAvailable()) {
         const note = $("bao-connection-note");
-        if (note) note.textContent = "帳號 API 額度仍在載入，請稍後再試。";
+        if (note) note.textContent = "夜灣燈火仍在載入，請稍後再試。";
         return;
       }
       setProvider(HOSTED_PROVIDER);
@@ -151,26 +151,26 @@
       const box = document.createElement("section");
       box.id = "bao-connection-mode";
       box.className = "bao-connection-mode";
-      box.setAttribute("aria-label", "選擇 AI 連線方式");
+      box.setAttribute("aria-label", "選擇模型連線方式");
       box.innerHTML = `
         <div class="bao-connection-mode-head">
-          <div><span>STEP 2 · CONNECT</span><h4>選一種 AI 連線方式</h4></div>
+          <div><span>STEP 2 · CONNECT</span><h4>選一種模型連線方式</h4></div>
           <small>第一次玩只需要完成這裡；進階故事設定可以之後再調整。</small>
         </div>
         <div class="bao-connection-mode-grid">
           <button type="button" data-bao-connection="hosted" aria-pressed="false">
-            <b>使用帳號 API 額度</b>
-            <span>不用自己處理 API Key；依目前開放模型與 Wallet 扣款。</span>
+            <b>使用夜灣燈火</b>
+            <span>不需要自己的連線金鑰；生成時會依使用量消耗燈火。</span>
           </button>
           <button type="button" data-bao-connection="byok" aria-pressed="false">
-            <b>使用自己的 API</b>
-            <span>自己選服務商與模型，費用直接由服務商計算。</span>
+            <b>使用自己的模型連線</b>
+            <span>自己的服務、自己的費用，不消耗夜灣燈火。</span>
           </button>
         </div>
         <div class="bao-connection-mode-foot">
           <p id="bao-connection-note" role="status"></p>
           <div class="bao-connection-help-links">
-            <a id="bao-connection-account" href="account.html" hidden>登入／查看 API 額度 →</a>
+            <a id="bao-connection-account" href="account.html" hidden>登入／查看我的燈火 →</a>
             <a id="bao-connection-help" href="api-guide.html">完整連線說明 →</a>
           </div>
         </div>`;
@@ -182,7 +182,7 @@
 
     step.classList.add("bao-builder-ai-v2");
     const heading = step.querySelector("h3");
-    if (heading) heading.textContent = "選擇 AI";
+    if (heading) heading.textContent = "模型連線";
     markFields();
     sync();
   };
