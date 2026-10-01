@@ -32,7 +32,7 @@ test('per-card authored HTML, CSS and JS stay in an iframe and only draft player
   });
   const before = await page.evaluate(() => JSON.stringify({ messages: Chat.messages, usage: Chat.usage }));
   const panel = page.locator('#bao-author-regex-panel');
-  await panel.locator('summary').click();
+  await panel.locator(':scope > summary').click();
   await panel.locator('input[type=file]').setInputFiles({ name: 'author-regex.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(rules)) });
   await expect(panel).toContainText('已保存 2 條原始正則');
   await panel.getByLabel('在這張角色卡啟用作者介面').check();
