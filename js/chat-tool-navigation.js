@@ -18,10 +18,10 @@
   let watchedAside = null;
 
   const addStyle = () => {
-    if (document.querySelector('link[href="css/chat-tool-navigation.css"]')) return;
+    if (document.querySelector('link[href^="css/chat-tool-navigation.css"]')) return;
     const link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = 'css/chat-tool-navigation.css';
+    link.href = 'css/chat-tool-navigation.css?v=2';
     document.head.append(link);
   };
   const groupBody = (root, id) => root.querySelector(`[data-chat-tool-body="${id}"]`);
