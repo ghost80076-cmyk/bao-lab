@@ -329,12 +329,17 @@
     const textarea = editor.querySelector("textarea");
     textarea.value = String(message.content || "");
     bubble.replaceChildren(editor);
+    document.getElementById("chat-view")?.classList.add("story-reply-editing");
     textarea.focus({ preventScroll: true });
     requestAnimationFrame(() => {
       if (stream?.isConnected) stream.scrollTop = priorScrollTop;
     });
 
-    editor.querySelector("[data-cancel]").onclick = () => decorateStream();
+    const finishEditing = () => document.getElementById("chat-view")?.classList.remove("story-reply-editing");
+    editor.querySelector("[data-cancel]").onclick = () => {
+      finishEditing();
+      decorateStream();
+    };
     editor.querySelector("[data-save]").onclick = () => {
       const next = editor.querySelector("textarea").value.trim();
       if (!next) {
@@ -346,6 +351,7 @@
         invalidateDerivedMemory();
         save();
       }
+      finishEditing();
       App.renderChatShell(false);
     };
   };
