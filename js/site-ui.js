@@ -73,7 +73,7 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/world-module-ui.js"))
     .then(() => loadBAOScript("js/world-module-manager.js"))
     .then(() => loadBAOScript("js/world-relevance.js"))
-    .then(() => loadBAOScript("js/character-status-ui.js?v=2"))
+    .then(() => loadBAOScript("js/character-status-ui.js?v=3"))
     .then(() => loadBAOScript("js/world-state-hook.js"))
     .catch(err => console.warn("BAO/LAB world state or character status modules failed to load:", err));
   loadBAOScript("js/cost-control.js")
@@ -112,7 +112,7 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/story-quick-commands-core.js"))
     .then(() => loadBAOScript("js/story-quick-commands.js"))
     .then(() => loadBAOScript("js/mobile-reading-layout.js?v=16"))
-    .then(() => loadBAOScript("js/story-persona-manager.js"))
+    .then(() => loadBAOScript("js/story-persona-manager.js?v=2"))
     .then(() => loadBAOScript("js/context-health-core.js"))
     .then(() => loadBAOScript("js/context-health.js"))
     .then(() => loadBAOScript("js/story-extensions-core.js"))
