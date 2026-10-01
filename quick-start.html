@@ -13,24 +13,24 @@
 <link rel="stylesheet" href="css/bao-brand-v2.css">
 </head>
 <body class="bao-brand-document">
-<header><a href="./" aria-label="返回夜灣首頁"><img src="assets/bao-mark.svg" width="27" height="27" alt="">夜灣 YoruBay</a><a href="api-guide.html">完整 API 說明 ↗</a></header>
+<header><a href="./" aria-label="返回夜灣首頁"><img src="assets/bao-mark.svg" width="27" height="27" alt="">夜灣 YoruBay</a><a href="api-guide.html">完整連線說明 ↗</a></header>
 <main>
 <div class="eyebrow">NEW PLAYER · 三步驟</div>
 <h1>不用懂程式，也能開始玩。</h1>
-<p class="lead">選一個想走進的作品，選一種 AI 連線方式，就能開始故事。一般作品不需要先讀懂其他進階設定。</p>
+<p class="lead">選一個想走進的作品，再決定故事要怎麼連線，就能開始。一般作品不需要先讀懂其他進階設定。</p>
 <div class="steps">
 <section class="step" aria-labelledby="step-one"><span class="step-number">1</span><h2 id="step-one">選一個想走進的故事</h2><p>回首頁按「開始探索」，打開想玩的作品，再按「開始故事」。一般作品會直接進入「快速開始」；需要選開局方式的特殊世界，則會先顯示完整設定。</p><a class="btn" href="./">去探索作品 →</a></section>
 <section class="step" aria-labelledby="step-two"><span class="step-number">2</span><h2 id="step-two">選一種模型連線方式</h2><p>進入快速開始後，先選「使用夜灣燈火」或「使用自己的模型連線」。這是第一次玩真正需要做的主要設定；敘事、玩家身份（Persona）與記憶可以先沿用預設值。</p>
 <details><summary>使用夜灣燈火</summary><p>如果這個選項目前有開放，登入夜灣帳號後直接選模型即可，不需要貼自己的連線金鑰。實際可用模型與燈火以帳號頁顯示為準。</p><p><a href="account.html">登入／查看我的燈火 →</a></p></details>
-<details><summary>使用自己的 API Key</summary><p>選擇 AI 服務商（Provider）和 AI 模型（Model），再貼上同一家服務商的連線金鑰（API Key）。不同服務商的金鑰不能混用。</p><p>還沒有 Key，可以到服務商官方頁面建立：</p><p><a href="https://openrouter.ai/keys" target="_blank" rel="noopener noreferrer">OpenRouter｜建立 API Key ↗</a><br><a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer">Google AI Studio｜建立 Gemini API Key ↗</a></p></details>
-<details><summary>我想用 LM Studio 本機模型</summary><p>在「使用自己的 API」裡選「LM Studio（本地 AI）」。先在 LM Studio 載入模型並啟動 Local Server，再到 Server Settings 開啟 <strong>Enable CORS</strong>。回到夜灣後確認本機 API 網址（預設 <code>http://127.0.0.1:1234/v1</code>），再按「讀取本機模型」。本地模式預設不需要雲端 API Key。</p><p><a href="lm-studio-guide.html">查看 LM Studio 完整連線教學 →</a></p></details>
-<details><summary>「AI 模型」是什麼？</summary><p>AI 模型（Model）就是實際回覆你故事的 AI。先選你目前帳號或服務商可使用的模型。免費模型也可能有次數、地區或速率限制；付費模型可能產生費用。</p></details>
+<details><summary>使用自己的模型連線</summary><p>選擇模型服務（Provider）和模型（Model），再貼上同一家服務商的連線金鑰（API Key）。不同服務商的金鑰不能混用。</p><p>還沒有 Key，可以到服務商官方頁面建立：</p><p><a href="https://openrouter.ai/keys" target="_blank" rel="noopener noreferrer">OpenRouter｜建立 API Key ↗</a><br><a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer">Google AI Studio｜建立 Gemini API Key ↗</a></p></details>
+<details><summary>我想用 LM Studio 本機模型</summary><p>在「使用自己的模型連線」裡選「LM Studio（本機模型）」。先在 LM Studio 載入模型並啟動 Local Server，再到 Server Settings 開啟 <strong>Enable CORS</strong>。回到夜灣後確認本機 API 網址（預設 <code>http://127.0.0.1:1234/v1</code>），再按「讀取本機模型」。本地模式預設不需要雲端 API Key。</p><p><a href="lm-studio-guide.html">查看 LM Studio 完整連線教學 →</a></p></details>
+<details><summary>「模型」是什麼？</summary><p>模型（Model）就是實際接續故事內容的服務核心。先選你目前帳號或服務商可使用的模型。免費模型也可能有次數、地區或速率限制；付費模型可能產生費用。</p></details>
 </section>
 <section class="step" aria-labelledby="step-three"><span class="step-number">3</span><h2 id="step-three">按「開始故事」</h2><p>夜灣燈火選好模型、自己的模型連線完成設定，或 LM Studio 成功讀到本機模型後，直接按「開始故事」。快速開始不需要先走完五個進階步驟；想調整敘事、Persona 或記憶時，再切到「完整設定」。</p><a class="btn" href="./">回夜灣開始玩 →</a></section>
 </div>
-<div class="tip"><strong>開始前記得兩件事</strong><p>連線金鑰（API Key）不要放進角色卡、公開訊息或截圖。AI 模型使用量可能由服務商收費，免費不代表無限使用。</p><p>故事主要保存在這台裝置；聊天內容仍會送到你選擇的 AI 服務商。清除瀏覽器資料或換裝置前，請先備份故事。</p></div>
+<div class="tip"><strong>開始前記得兩件事</strong><p>連線金鑰（API Key）不要放進角色卡、公開訊息或截圖。模型使用量可能由服務商收費，免費不代表無限使用。</p><p>故事主要保存在這台裝置；聊天內容仍會送到你選擇的 AI 服務商。清除瀏覽器資料或換裝置前，請先備份故事。</p></div>
 <section class="help"><h2>卡住了怎麼辦？</h2><p><strong>金鑰無效：</strong>確認服務商選對、金鑰貼完整。<br><strong>模型不能用：</strong>檢查模型名稱、服務商的地區限制與帳戶額度。<br><strong>要自己設定連線網址：</strong>使用「展開進階連線欄位」或切到完整設定。</p><div class="actions"><a class="btn secondary" href="api-guide.html">看完整連線說明（API）↗</a><a class="btn secondary" href="./">回首頁</a></div></section>
 </main>
-<footer>夜灣 YoruBay · 你的模型，你的故事。服務商收費、免費額度與政策可能變動。</footer>
+<footer>夜灣 YoruBay · 故事在夜裡靠岸。模型與連線方式由你選擇。</footer>
 </body>
 </html>
