@@ -5,12 +5,14 @@
   if (window.BAOPlayerShellV2 || !window.App) return;
 
   const MOBILE_BREAKPOINT = 820;
-  const ACCOUNT_SESSION_KEY = "yorubay:session";
+  const LEGACY_ACCOUNT_SESSION_KEY = "yorubay:session";
+  const ACCOUNT_SESSION_HINT_KEY = "yorubay:session:active";
   const $ = id => document.getElementById(id);
   const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
   const validAccountSession = () => {
     try {
-      return /^yb_s_[A-Za-z0-9_-]{30,}$/.test(String(localStorage.getItem(ACCOUNT_SESSION_KEY) || "").trim());
+      const legacy = String(localStorage.getItem(LEGACY_ACCOUNT_SESSION_KEY) || "").trim();
+      return /^yb_s_[A-Za-z0-9_-]{30,}$/.test(legacy) || localStorage.getItem(ACCOUNT_SESSION_HINT_KEY) === "1";
     } catch (_) {
       return false;
     }
@@ -494,7 +496,7 @@
     }, 360);
     window.addEventListener("resize", () => syncNavigation());
     window.addEventListener("storage", event => {
-      if (event.key === ACCOUNT_SESSION_KEY) refreshMeView();
+      if ([LEGACY_ACCOUNT_SESSION_KEY, ACCOUNT_SESSION_HINT_KEY].includes(event.key)) refreshMeView();
     });
   };
 
