@@ -84,11 +84,11 @@ test('exports only portable player settings and imports selected categories afte
     App.showView('chat');
   });
 
-  const open = page.getByRole('button', { name: '故事控制台', exact: true });
+  const open = page.getByRole('button', { name: '故事總覽', exact: true });
   await expect(open).toBeVisible();
   await open.click();
 
-  const control = page.getByRole('dialog', { name: '本故事控制台' });
+  const control = page.getByRole('dialog', { name: '故事總覽' });
   await control.getByRole('button', { name: /故事擴充/ }).click();
 
   let extensions = page.getByRole('dialog', { name: '故事擴充' });
