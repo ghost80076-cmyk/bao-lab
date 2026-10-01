@@ -59,6 +59,25 @@ assert.equal(geminiProRouter.model, 'google/gemini-3.1-pro-preview');
 
 const sonnet = requireRoute('claude-sonnet-4.6', 'anthropic-official');
 assert.deepEqual([sonnet.pricing.input, sonnet.pricing.output, sonnet.pricing.cache], [3, 15, 0.3]);
+
+const haiku45 = requireRoute('claude-haiku-4.5', 'anthropic-official');
+assert.deepEqual([haiku45.pricing.input, haiku45.pricing.output, haiku45.pricing.cache], [1, 5, 0.1]);
+assert.equal(requireRoute('claude-haiku-4.5', 'openrouter').model, 'anthropic/claude-haiku-4.5');
+
+const sonnet5 = requireRoute('claude-sonnet-5', 'anthropic-official');
+assert.deepEqual([sonnet5.pricing.input, sonnet5.pricing.output, sonnet5.pricing.cache], [2, 10, 0.2]);
+assert.equal(requireRoute('claude-sonnet-5', 'openrouter').model, 'anthropic/claude-sonnet-5');
+
+const gptLuna = requireRoute('gpt-5.6-luna', 'openai-official');
+assert.equal(gptLuna.model, 'gpt-5.6-luna');
+assert.deepEqual([gptLuna.pricing.input, gptLuna.pricing.output, gptLuna.pricing.cache], [0.2, 1.2, 0.02]);
+assert.equal(requireRoute('gpt-5.6-luna', 'openrouter').model, 'openai/gpt-5.6-luna');
+
+const grok45 = requireRoute('grok-4.5', 'xai-official');
+assert.equal(grok45.protocol, 'openai');
+assert.equal(grok45.model, 'grok-4.5');
+assert.deepEqual([grok45.pricing.input, grok45.pricing.output, grok45.pricing.cache], [2, 6, 0.3]);
+assert.equal(requireRoute('grok-4.5', 'openrouter').model, 'x-ai/grok-4.5');
 assert.equal(requireRoute('mimo-v2.5', 'mimo-official').pricing.cache, 0.0028);
 assert.equal(requireRoute('qwen-3.7-flash', 'qwen-official').pricing.input, 0.03);
 assert.equal(requireRoute('deepseek-v4-flash-0731', 'deepseek-official').pricing.cache, 0.007);
@@ -74,7 +93,7 @@ assert.equal(zai.cache, 'automatic');
 assert.equal(zai.pricing, null, 'Z.AI volatile pricing must not be hardcoded');
 
 const hosted = registry.models.filter(model => model.hosted).sort((a, b) => a.hosted.order - b.hosted.order);
-assert.equal(hosted.length, 9, 'expected nine curated YoruBay hosted models');
+assert.equal(hosted.length, 13, 'expected thirteen curated YoruBay hosted models');
 const hostedResolved = hosted.map(model => {
   const route = model.routes.find(item => item.id === model.hosted.route_id);
   assert.ok(route, `${model.id} hosted route must resolve inside the same logical model`);
@@ -87,11 +106,15 @@ assert.deepEqual(hostedResolved, [
   { id: 'mimo-v2.5', provider: 'openrouter', model: 'xiaomi/mimo-v2.5' },
   { id: 'gemini-3-flash', provider: 'gemini', model: 'gemini-3-flash-preview' },
   { id: 'minimax-m3', provider: 'openrouter', model: 'minimax/minimax-m3' },
+  { id: 'gpt-5.6-luna', provider: 'openrouter', model: 'openai/gpt-5.6-luna' },
+  { id: 'grok-4.5', provider: 'openrouter', model: 'x-ai/grok-4.5' },
   { id: 'gemini-3.1-pro', provider: 'gemini', model: 'gemini-3.1-pro-preview' },
+  { id: 'claude-haiku-4.5', provider: 'openrouter', model: 'anthropic/claude-haiku-4.5' },
   { id: 'claude-sonnet-4.5', provider: 'openrouter', model: 'anthropic/claude-sonnet-4.5' },
+  { id: 'claude-sonnet-5', provider: 'openrouter', model: 'anthropic/claude-sonnet-5' },
   { id: 'claude-sonnet-4.6', provider: 'openrouter', model: 'anthropic/claude-sonnet-4.6' },
   { id: 'claude-opus-4.6', provider: 'openrouter', model: 'anthropic/claude-opus-4.6' }
-], 'PR A must not change the live hosted upstream choices');
+], 'hosted list should preserve existing choices and add mainstream provider options');
 
 const appSource = fs.readFileSync(path.join(root, 'js/app.js'), 'utf8');
 assert.match(appSource, /modelRegistry:\s*null/);

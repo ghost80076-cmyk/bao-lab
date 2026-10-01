@@ -158,6 +158,114 @@
       ]
     },
     {
+      "id": "claude-haiku-4.5",
+      "name": "Claude Haiku 4.5",
+      "routes": [
+        {
+          "id": "anthropic-official",
+          "provider": "anthropic",
+          "provider_label": "Anthropic Claude 官方",
+          "route": "official",
+          "protocol": "anthropic",
+          "label": "Claude Haiku 4.5 · 低成本 Claude",
+          "model": "claude-haiku-4-5",
+          "base_url": "https://api.anthropic.com/v1/messages",
+          "badge": "低成本 Claude",
+          "use_case": "想使用 Claude 風格但控制成本；RP 深度與政策限制由玩家自行比較",
+          "cache": "explicit",
+          "pricing": {
+            "input": 1,
+            "output": 5,
+            "cache": 0.1,
+            "cache_write": 1.25,
+            "note": "Cache Read 為 $0.10/M；5 分鐘 Cache Write 為 $1.25/M。"
+          },
+          "docs_url": "https://platform.claude.com/docs/en/models/haiku-4-5/overview"
+        },
+        {
+          "id": "openrouter",
+          "provider": "openrouter",
+          "provider_label": "OpenRouter",
+          "route": "router",
+          "protocol": "openai",
+          "label": "OR · Claude Haiku 4.5",
+          "model": "anthropic/claude-haiku-4.5",
+          "base_url": "https://openrouter.ai/api/v1/chat/completions",
+          "badge": "低成本 Claude",
+          "use_case": "用 OpenRouter 切換 Claude 與其他模型；適合想降低 Claude 成本的玩家",
+          "cache": "provider-dependent",
+          "explicit_cache": true,
+          "pricing": {
+            "input": 1,
+            "output": 5,
+            "cache": 0.1
+          },
+          "docs_url": "https://openrouter.ai/anthropic/claude-haiku-4.5"
+        }
+      ],
+      "hosted": {
+        "route_id": "openrouter",
+        "tier": "低成本 Claude",
+        "label": "【低成本 Claude】Claude Haiku 4.5",
+        "use_case": "玩家指定；想使用 Claude 但控制成本，RP 風格與限制自行比較",
+        "order": 65
+      }
+    },
+    {
+      "id": "claude-sonnet-5",
+      "name": "Claude Sonnet 5",
+      "routes": [
+        {
+          "id": "anthropic-official",
+          "provider": "anthropic",
+          "provider_label": "Anthropic Claude 官方",
+          "route": "official",
+          "protocol": "anthropic",
+          "label": "Claude Sonnet 5 · 新版備選",
+          "model": "claude-sonnet-5",
+          "base_url": "https://api.anthropic.com/v1/messages",
+          "badge": "新版備選",
+          "use_case": "新版 Sonnet；價格低於 4.5 / 4.6，適合玩家自行比較 RP 文風與限制",
+          "cache": "explicit",
+          "pricing": {
+            "input": 2,
+            "output": 10,
+            "cache": 0.2,
+            "cache_write": 2.5,
+            "note": "Cache Read 為 $0.20/M；5 分鐘 Cache Write 為 $2.50/M。"
+          },
+          "docs_url": "https://platform.claude.com/docs/en/models/sonnet-5/overview"
+        },
+        {
+          "id": "openrouter",
+          "provider": "openrouter",
+          "provider_label": "OpenRouter",
+          "route": "router",
+          "protocol": "openai",
+          "label": "OR · Claude Sonnet 5",
+          "model": "anthropic/claude-sonnet-5",
+          "base_url": "https://openrouter.ai/api/v1/chat/completions",
+          "badge": "新版備選",
+          "use_case": "新版 Claude 選擇；不取代 4.5 / 4.6，讓玩家自行比較",
+          "cache": "provider-dependent",
+          "explicit_cache": true,
+          "pricing": {
+            "input": 2,
+            "output": 10,
+            "cache": 0.2
+          },
+          "docs_url": "https://openrouter.ai/anthropic/claude-sonnet-5"
+        }
+      ],
+      "hosted": {
+        "route_id": "openrouter",
+        "tier": "Claude 新版",
+        "label": "【新版備選】Claude Sonnet 5",
+        "use_case": "玩家指定；新版 Sonnet 與較低價格帶，保留 4.5 / 4.6 供自行比較",
+        "order": 75
+      }
+    },
+    {
       "id": "claude-sonnet-4.6",
       "name": "Claude Sonnet 4.6",
       "routes": [
@@ -558,6 +666,109 @@
         "label": "【長篇世界】MiniMax M3",
         "use_case": "長 Context、世界模擬與成本／品質平衡；OpenRouter 路由",
         "order": 50
+      }
+    },
+    {
+      "id": "gpt-5.6-luna",
+      "name": "GPT-5.6 Luna",
+      "routes": [
+        {
+          "id": "openai-official",
+          "provider": "openai",
+          "provider_label": "OpenAI 官方",
+          "route": "official",
+          "protocol": "openai",
+          "label": "GPT-5.6 Luna · OpenAI 低成本選擇",
+          "model": "gpt-5.6-luna",
+          "base_url": "https://api.openai.com/v1/chat/completions",
+          "badge": "OpenAI",
+          "use_case": "想直接使用 GPT-5.6 系列；偏低成本與高頻使用",
+          "cache": "automatic",
+          "pricing": {
+            "input": 0.2,
+            "output": 1.2,
+            "cache": 0.02,
+            "note": "超過 272K 輸入時適用長上下文價格級距；正式計費以 OpenAI 當期文件為準。"
+          },
+          "docs_url": "https://developers.openai.com/api/docs/models/gpt-5.6-luna"
+        },
+        {
+          "id": "openrouter",
+          "provider": "openrouter",
+          "provider_label": "OpenRouter",
+          "route": "router",
+          "protocol": "openai",
+          "label": "OR · GPT-5.6 Luna",
+          "model": "openai/gpt-5.6-luna",
+          "base_url": "https://openrouter.ai/api/v1/chat/completions",
+          "badge": "OpenAI",
+          "use_case": "用 OpenRouter 直接選 GPT；作為主流 OpenAI 家族的低成本代表",
+          "cache": "provider-dependent",
+          "pricing": {
+            "input": 0.2,
+            "output": 1.2,
+            "cache": 0.02
+          },
+          "docs_url": "https://openrouter.ai/openai/gpt-5.6-luna"
+        }
+      ],
+      "hosted": {
+        "route_id": "openrouter",
+        "tier": "OpenAI 選擇",
+        "label": "【OpenAI 選擇】GPT-5.6 Luna",
+        "use_case": "玩家指定；想使用 OpenAI GPT 的低成本普及型選擇",
+        "order": 55
+      }
+    },
+    {
+      "id": "grok-4.5",
+      "name": "Grok 4.5",
+      "routes": [
+        {
+          "id": "xai-official",
+          "provider": "xai",
+          "provider_label": "xAI 官方",
+          "route": "official",
+          "protocol": "openai",
+          "label": "Grok 4.5 · xAI 官方",
+          "model": "grok-4.5",
+          "base_url": "https://api.x.ai/v1/chat/completions",
+          "badge": "xAI",
+          "use_case": "想直接使用 Grok / xAI；RP 文風、政策與價格由玩家自行衡量",
+          "cache": "automatic",
+          "pricing": {
+            "input": 2,
+            "output": 6,
+            "cache": 0.3,
+            "note": "超過 200K context 另有 higher-context pricing；正式計費以 xAI 當期文件為準。"
+          },
+          "docs_url": "https://docs.x.ai/developers/models/grok-4.5"
+        },
+        {
+          "id": "openrouter",
+          "provider": "openrouter",
+          "provider_label": "OpenRouter",
+          "route": "router",
+          "protocol": "openai",
+          "label": "OR · Grok 4.5",
+          "model": "x-ai/grok-4.5",
+          "base_url": "https://openrouter.ai/api/v1/chat/completions",
+          "badge": "xAI",
+          "use_case": "用 OpenRouter 直接選 Grok；提供 xAI 家族的 Hosted 選擇",
+          "cache": "provider-dependent",
+          "pricing": {
+            "input": 2,
+            "output": 6
+          },
+          "docs_url": "https://openrouter.ai/x-ai/grok-4.5"
+        }
+      ],
+      "hosted": {
+        "route_id": "openrouter",
+        "tier": "xAI 選擇",
+        "label": "【xAI 選擇】Grok 4.5",
+        "use_case": "玩家指定；提供 Grok / xAI 主流模型家族的直接選擇",
+        "order": 58
       }
     },
     {
