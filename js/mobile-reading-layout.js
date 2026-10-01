@@ -258,9 +258,9 @@
     const quick = document.createElement('nav');
     quick.className = 'bao-mobile-quick';
     quick.setAttribute('aria-label', '手機常用功能');
-    makeAction(quick, '☷ 故事控制台', () => {
+    makeAction(quick, '☷ 故事總覽', () => {
       if (window.BAOStoryControlCenter?.open) BAOStoryControlCenter.open();
-      else window.alert('故事控制台仍在載入，請稍後再試。');
+      else window.alert('故事總覽仍在載入，請稍後再試。');
     });
     makeAction(quick, '◔ 上下文狀態', () => {
       if (window.BAOContextHealth?.open) BAOContextHealth.open();
