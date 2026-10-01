@@ -125,6 +125,11 @@
           <article><span>Prompt Cache</span><strong>${esc(data.cache.title)}</strong><small>${esc(data.cache.detail)}</small></article>
         </div>
 
+        <footer class="context-health-footer">
+          <button type="button" class="secondary" data-context-action="memory">🧠 查看／調整記憶</button>
+          <button type="button" class="secondary" data-context-action="control">☷ 回到故事控制台</button>
+        </footer>
+
         <section class="context-health-layers">
           <div class="context-health-section-title">
             <div><h3>目前故事層</h3><p>這裡顯示哪些資料層已啟用，不假裝估算每一層的精確 Token 佔比。</p></div>
@@ -145,10 +150,7 @@
           <p>「本輪輸入」來自 Provider 回報時才會顯示；不同 Provider 對快取 Token 的回報方式可能不同，因此未知時不推算。</p>
         </details>
 
-        <footer class="context-health-footer">
-          <button type="button" class="secondary" data-context-action="memory">🧠 查看／調整記憶</button>
-          <button type="button" class="secondary" data-context-action="control">☷ 回到故事控制台</button>
-        </footer>
+
       </section>`;
 
     document.body.appendChild(wrap);
