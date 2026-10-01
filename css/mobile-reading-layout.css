@@ -138,7 +138,7 @@
     box-shadow:-10px 0 18px rgba(11,15,23,.92);
   }
   #chat-view #bao-mobile-memory.is-active{
-    border-color:rgba(156,140,255,.55)!important;
+    border-color:rgba(214,170,115,.18)!important;
     background:rgba(77,62,141,.58)!important;
     color:#fff!important;
   }
@@ -210,7 +210,7 @@
     touch-action:manipulation;
   }
   #chat-view #bao-mobile-composer-inspire{
-    border-color:rgba(181,174,255,.30)!important;
+    border-color:rgba(241,232,218,.10)!important;
     background:rgba(73,62,126,.32)!important;
     color:#ddd7ff!important;
     font-size:18px!important;
@@ -360,7 +360,7 @@
   #bao-chat-tool-drawer .bao-chat-tool-dialog-body{flex:1 1 auto;min-height:0;display:block!important;padding:12px 14px calc(14px + env(safe-area-inset-bottom,0px))!important;overflow-y:auto!important;overscroll-behavior:contain}
   #bao-chat-tool-drawer .bao-chat-tool-dialog-body>details{margin-top:10px}
   #bao-chat-tool-drawer .bao-mobile-quick{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,.09)}
-  #bao-chat-tool-drawer .bao-mobile-quick button{width:100%;min-width:0;min-height:48px;padding:10px 9px;border-radius:14px;border:1px solid rgba(255,255,255,.1);background:#1b2130;color:#f1f3f8;text-align:left;font-size:12px;font-weight:700;cursor:pointer;overflow-wrap:anywhere}
+  #bao-chat-tool-drawer .bao-mobile-quick button{width:100%;min-width:0;min-height:48px;padding:10px 9px;border-radius:14px;border:1px solid var(--story-border);background:var(--yoru-tool-raised,#1b191e);color:var(--story-text,#eeeae4);text-align:left;font-size:12px;font-weight:700;cursor:pointer;overflow-wrap:anywhere}
   #bao-chat-tool-drawer .bao-mobile-quick button:focus-visible{outline:2px solid #73e3d3;outline-offset:2px}
   #bao-chat-tool-drawer .bao-mobile-quick small,#bao-chat-tool-drawer .bao-mobile-quick .bao-mobile-usage{grid-column:1/-1;color:#9ea6b5;font-size:11px;line-height:1.55;overflow-wrap:anywhere}
   #bao-chat-tool-drawer .bao-mobile-support-link{grid-column:1/-1;display:flex;align-items:center;justify-content:center;gap:8px;min-height:46px;padding:10px;border:1px solid rgba(214,170,115,.32);border-radius:14px;background:rgba(214,170,115,.09);color:#f3d4aa;text-decoration:none;font-size:13px;font-weight:750}

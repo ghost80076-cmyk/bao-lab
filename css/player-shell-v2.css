@@ -205,7 +205,7 @@
   color:#aaa6b2;font-size:12px;cursor:pointer;
 }
 #explore-view .character-tools>.bao-gallery-more[data-player-label="local-tools"]>summary span{
-  padding:3px 7px;border-radius:999px;background:rgba(141,108,255,.10);color:#aaa0c3;font-size:9px;letter-spacing:.08em;
+  padding:3px 7px;border-radius:999px;background:rgba(241,232,218,.045);color:#aaa5aa;font-size:9px;letter-spacing:.08em;
 }
 
 /* Player 2.0 reading hierarchy: story first; chrome, state and tools stay visually separate. */
@@ -225,7 +225,7 @@
 }
 #chat-view.bao-player-reading-v2[data-bao-surface="play"] #bao-surface-controls button:hover,
 #chat-view.bao-player-reading-v2[data-bao-surface="play"] #bao-surface-controls button:focus-visible{
-  background:rgba(141,108,255,.14)!important;color:#fff;
+  background:rgba(214,170,115,.065)!important;color:var(--story-text,#eeeae4);
 }
 #chat-view.bao-player-reading-v2[data-bao-surface="play"] .chat-stream{
   padding:clamp(24px,4vw,46px) clamp(14px,4vw,44px) clamp(36px,5vw,64px)!important;
