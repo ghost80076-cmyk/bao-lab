@@ -332,13 +332,22 @@ Sources used for the reviewed pricing snapshot:
 
 ### Cloudflare rollout
 
+Cloudflare currently limits each Worker environment variable value to 5 KB. The existing production `MODELS_JSON` is already close enough to that limit that appending four more full pricing objects can exceed the dashboard limit.
+
+The Worker therefore supports a second allowlist/pricing shard:
+
+- `MODELS_JSON` — keep the current production array unchanged.
+- `MODELS_JSON_EXTRA` — put the four 2026-10-02 rollout objects here as a separate JSON array.
+
 Before exposing the browser catalog:
 
-1. read the existing production `MODELS_JSON`;
-2. merge the four entries from the rollout JSON into the existing array;
-3. do not remove or rename the existing models;
+1. deploy a Worker version that includes `MODELS_JSON_EXTRA` support;
+2. leave the existing production `MODELS_JSON` unchanged;
+3. create `MODELS_JSON_EXTRA` and paste the complete four-entry array from the rollout JSON;
 4. deploy the Worker;
 5. verify `/health` and one low-output test request for each new model.
+
+If both variables are present, the Worker concatenates both arrays for allowlisting and pricing. A malformed extra shard is ignored without discarding the valid base shard.
 
 The explicit `openrouter_max_*_microusd_per_million` fields are deliberate. If OpenRouter cannot serve a model at or below the reviewed ceiling, the request should fail closed instead of silently accepting a more expensive upstream.
 
