@@ -144,17 +144,30 @@ test.describe("Story branch tree", () => {
     await seedNestedBranches(page);
     await page.locator('[data-story-mobile-action="branches"]').click();
     await expect(page.getByRole("heading", { name: "故事分支" })).toBeVisible();
+    const modal = page.getByRole("dialog", { name: "故事分支" });
+    await expect(modal.locator(".eyebrow")).toBeHidden();
+    const help = modal.getByRole("button", { name: "故事分支說明" });
+    await expect(help).toBeVisible();
+    await expect(modal.locator("#story-branches-intro")).toBeHidden();
+    await help.click();
+    await expect(modal.locator("#story-branches-intro")).toBeVisible();
+    await help.click();
+    await expect(modal.locator("#story-branches-intro")).toBeHidden();
 
     const layout = await page.evaluate(() => ({
       viewport: innerWidth,
       pageWidth: document.documentElement.scrollWidth,
       modalWidth: Math.round(document.querySelector(".story-branches-modal").getBoundingClientRect().width),
       treeWidth: Math.round(document.querySelector(".story-branch-tree").getBoundingClientRect().width),
-      deepestWidth: Math.round(document.querySelector('.story-branch-node[data-depth="2"] .story-branch-row').getBoundingClientRect().width)
+      deepestWidth: Math.round(document.querySelector('.story-branch-node[data-depth="2"] .story-branch-row').getBoundingClientRect().width),
+      backdropAlign: getComputedStyle(document.querySelector(".story-branches-backdrop")).alignItems,
+      modalRadius: getComputedStyle(document.querySelector(".story-branches-modal")).borderBottomLeftRadius
     }));
     expect(layout.pageWidth).toBeLessThanOrEqual(layout.viewport);
     expect(layout.modalWidth).toBeLessThanOrEqual(layout.viewport);
     expect(layout.treeWidth).toBeGreaterThan(250);
     expect(layout.deepestWidth).toBeGreaterThan(220);
+    expect(layout.backdropAlign).toBe("flex-end");
+    expect(layout.modalRadius).toBe("0px");
   });
 });
