@@ -20,8 +20,8 @@ const immersive = engine.composeSystemPrompt({
 }, { persona: { name: '玩家甲' } });
 
 assert.match(immersive, /玩家角色：玩家甲（controlled_by=user）/);
-assert.match(immersive, /AI 主角色「愛德華」屬於 controlled_by=assistant/);
-assert.match(immersive, /【AI 主角色設定】/);
+assert.match(immersive, /作品／角色卡主體：愛德華/);
+assert.match(immersive, /【主要 AI 角色／作品主體設定】/);
 assert.match(immersive, /【重要 NPC｜controlled_by=assistant】/);
 assert.match(immersive, /不得因其出現在「人物／角色／NPC」文字區塊中就改變控制權/);
 
@@ -34,8 +34,8 @@ const world = engine.composeSystemPrompt({
   supported_modes: { immersive: true, world: true }
 }, { persona: { name: '玩家乙' } });
 
-assert.match(world, /作品／世界主體：自主 NPC 世界/);
-assert.match(world, /作品／世界主體名稱，不等同玩家角色/);
-assert.match(world, /【作品主體／主要 AI 角色設定】/);
+assert.match(world, /作品／角色卡主體：自主 NPC 世界/);
+assert.match(world, /可能是一名 AI 主角色，也可能是一個多 NPC 世界/);
+assert.match(world, /【主要 AI 角色／作品主體設定】/);
 
 console.log('character role boundaries: player, AI actor, NPC and world labels passed');
