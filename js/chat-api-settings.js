@@ -29,12 +29,12 @@
     const backdrop = document.createElement("div");
     backdrop.id = "bao-chat-api-backdrop";
     backdrop.innerHTML = `<section class="bao-chat-api-dialog" role="dialog" aria-modal="true" aria-labelledby="bao-chat-api-title">
-      <header><h2 id="bao-chat-api-title">目前故事的 AI 連線設定</h2><div class="bao-chat-api-head-actions"><button type="button" data-api-help aria-label="AI 連線設定說明" aria-expanded="false" aria-controls="bao-chat-api-intro">?</button><button type="button" data-api-close aria-label="關閉設定">×</button></div></header>
+      <header><h2 id="bao-chat-api-title">目前故事的模型連線</h2><div class="bao-chat-api-head-actions"><button type="button" data-api-help aria-label="模型連線說明" aria-expanded="false" aria-controls="bao-chat-api-intro">?</button><button type="button" data-api-close aria-label="關閉設定">×</button></div></header>
       <p id="bao-chat-api-intro" class="bao-chat-api-intro">直接為目前故事連接或更換模型。故事、對話、記憶與世界狀態都不會重置。</p>
       <form id="bao-chat-api-form" autocomplete="off">
         <label>模型<select name="preset"><option value="custom">自訂／保留現有連線</option>${presets.map((p, i) =>
           `<option value="${i}">${escape(p.provider_label || p.provider || "API")} · ${escape(p.label || p.model || "自訂模型")}</option>`).join("")}</select></label>
-        <label>API Key<input name="key" type="password" autocomplete="off" spellcheck="false" placeholder="${hasKey() ? "留空會維持目前金鑰（相同連線）" : "貼上自己的 API Key"}"></label>
+        <label>連線金鑰（API Key）<input name="key" type="password" autocomplete="off" spellcheck="false" placeholder="${hasKey() ? "留空會維持目前金鑰（相同連線）" : "貼上自己的連線金鑰"}"></label>
         <details class="bao-chat-api-advanced">
           <summary>進階連線設定</summary>
           <div class="bao-chat-api-advanced-body">
@@ -89,7 +89,7 @@
         cacheEnabled: App.config?.memory?.cache !== false
       };
       if (window.BAOCreditsPilot?.prepareAccountConfig?.(candidate)) return candidate;
-      if (!candidate.key) throw new Error("請輸入這個 AI 服務商的連線金鑰（API Key）。");
+      if (!candidate.key) throw new Error("請輸入這個模型服務的連線金鑰（API Key）。");
       return candidate;
     };
     field("preset").addEventListener("change", () => {
@@ -132,7 +132,7 @@
         window.BAOStoryReader?.refreshTools?.();
         close();
         input?.focus();
-      } catch (cause) { setError(cause.message || "AI 連線設定無效。"); }
+      } catch (cause) { setError(cause.message || "模型連線設定無效。"); }
     });
     backdrop.querySelector("[data-api-test]").onclick = async event => {
       const button = event.currentTarget;
@@ -172,7 +172,7 @@
     if (main && !document.getElementById("bao-chat-api-toolbar")) {
       const toolbar = document.createElement("div");
       toolbar.id = "bao-chat-api-toolbar";
-      toolbar.innerHTML = '<span data-bao-api-status aria-live="polite"></span><button type="button" class="secondary" data-bao-api-open>AI 連線／切換模型</button>';
+      toolbar.innerHTML = '<span data-bao-api-status aria-live="polite"></span><button type="button" class="secondary" data-bao-api-open>模型連線／切換模型</button>';
       main.querySelector("#chat-stream")?.before(toolbar);
       toolbar.querySelector("button").onclick = open;
     }
@@ -182,7 +182,7 @@
       button.type = "button";
       button.id = "bao-chat-api-aside";
       button.className = "secondary";
-      button.textContent = "AI 連線／切換模型";
+      button.textContent = "模型連線／切換模型";
       button.onclick = open;
       aside.querySelector("#save-slot-button")?.before(button);
     }
