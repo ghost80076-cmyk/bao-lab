@@ -25,7 +25,7 @@
     rename(sidebar.querySelector('#list-slots-button'), '手動備份清單', '檢視、讀取、匯出或刪除手動存檔；與自動存檔不同');
     rename(sidebar.querySelector('#import-save-button'), '匯入備份檔', '從本機匯入故事備份，不會自動連接模型');
     rename(sidebar.querySelector('[data-bao-open="story-tools"]'), '故事庫與完整備份', '查看所有故事和章節，也可整理前情及匯出完整故事');
-    rename(sidebar.querySelector('#bao-chat-api-aside'), 'AI 模型與連線', '選擇模型或輸入連線金鑰（API Key），不會清空故事');
+    rename(sidebar.querySelector('#bao-chat-api-aside'), '模型連線', '選擇模型或輸入連線金鑰（API Key），不會清空故事');
     const drawer = document.getElementById('bao-chat-tool-drawer');
     if (drawer) {
       for (const [name, label] of Object.entries(names)) {
@@ -42,7 +42,7 @@
         '管理存檔': '手動備份清單',
         '匯入存檔': '匯入備份檔',
         '▤ 故事管理': '故事庫與完整備份',
-        'AI 連線／切換模型': 'AI 模型與連線'
+        'AI 連線／切換模型': '模型連線'
       };
       drawer.querySelectorAll('.bao-chat-tool-proxy').forEach(button => {
         const next = labels[button.textContent.trim()];
