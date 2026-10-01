@@ -1347,7 +1347,7 @@
     close();
     const wrap = document.createElement("div");
     wrap.className = "story-tools-backdrop";
-    wrap.innerHTML = '<section class="story-tools-modal"><div class="story-tools-main"></div></section>';
+    wrap.innerHTML = '<section class="story-tools-modal" role="dialog" aria-modal="true"><div class="story-tools-main"></div></section>';
     document.body.appendChild(wrap);
     wrap.addEventListener("click", event => { if (event.target === wrap) close(); });
     home(wrap.querySelector(".story-tools-main"));
