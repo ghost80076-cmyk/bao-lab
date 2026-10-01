@@ -25,8 +25,22 @@ test('save feedback stays inside the site without native dialogs', async ({ page
 
   await page.setViewportSize({ width: 1280, height: 900 });
   await page.goto('/');
-  await page.waitForFunction(() => window.BAOFeedback && window.BAOStorageWriteGuard &&
-    window.BAORefreshSaveUI && App.characters?.length && Storage.status().ready, null, { timeout: 30000 });
+  try {
+    await page.waitForFunction(() => window.BAOFeedback && window.BAOStorageWriteGuard &&
+      window.BAORefreshSaveUI && App.characters?.length && Storage.status().ready, null, { timeout: 30000 });
+  } catch (error) {
+    const readiness = await page.evaluate(() => ({
+      readyState: document.readyState,
+      feedback: Boolean(window.BAOFeedback),
+      storageGuard: Boolean(window.BAOStorageWriteGuard),
+      refreshSaveUI: Boolean(window.BAORefreshSaveUI),
+      characters: Number(App?.characters?.length || 0),
+      modelPresets: Number(App?.modelPresets?.length || 0),
+      storage: typeof Storage?.status === 'function' ? Storage.status() : null
+    }));
+    console.log('player-feedback readiness timeout:', JSON.stringify(readiness));
+    throw error;
+  }
   await expect(page.locator('#bao-me-nav')).toHaveCount(1);
   await expect(page.locator('.topbar nav [data-open-story-library]')).toHaveCount(1);
   await page.evaluate(async () => {
