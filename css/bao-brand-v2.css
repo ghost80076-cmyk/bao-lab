@@ -1,11 +1,60 @@
 /* BAO/LAB canonical RP theme. Violet identity with paper and lamplight accents.
    Mint is reserved for a future explicit success state, not the visual brand.
    Keep the mascot artwork independent. Never override author-authored story HTML. */
-:root{color-scheme:dark;--bg:#090b10;--surface:#11141b;--surface2:#171b24;--surface3:#1d2230;--text:#f1eee8;--muted:#8d94a3;--primary:#9c8cff;--primary2:#c3b9ff;--secondary:#d6aa73;--warm:#d6aa73;--paper:#f1eee8;--lamp:#e2b66d;--success:#5dd6c0;--border:rgba(255,255,255,.08);--bao-cyan:#d6aa73;--bao-purple:#9c8cff;--bao-warm:#d6aa73;--bao-wine:#30263b;--story-border:rgba(255,255,255,.11);--story-text:#eef1f6;--story-muted:#a4abb8;--story-surface:rgba(12,15,22,.9);--story-surface-strong:rgba(9,12,18,.96)}
-html{scroll-padding-top:84px}body:has(.app-shell){background:radial-gradient(circle at 12% 0,rgba(156,140,255,.12),transparent 28%),#090b10}
+:root{
+  color-scheme:dark;
+  /* YoruBay semantic foundation. Keep these stable; later visual PRs should tune
+     semantic roles here before adding page-specific hard-coded colors. */
+  --yoru-night:#090b10;
+  --yoru-surface:#11141b;
+  --yoru-surface-raised:#171b24;
+  --yoru-surface-strong:#1d2230;
+  --yoru-reading:#0c0f15;
+  --yoru-tool:#151923;
+  --yoru-text:#f1eee8;
+  --yoru-story-text:#eef1f6;
+  --yoru-muted:#8d94a3;
+  --yoru-story-muted:#a4abb8;
+  --yoru-purple:#9c8cff;
+  --yoru-purple-soft:#c3b9ff;
+  --yoru-lantern:#d6aa73;
+  --yoru-lantern-bright:#e2b66d;
+  --yoru-success:#5dd6c0;
+  --yoru-border:rgba(255,255,255,.08);
+  --yoru-story-border:rgba(255,255,255,.11);
+  --yoru-story-surface:rgba(12,15,22,.9);
+  --yoru-story-surface-strong:rgba(9,12,18,.96);
+
+  /* Compatibility aliases for the existing UI. PR1 intentionally preserves
+     the current rendered palette while giving later work semantic controls. */
+  --bg:var(--yoru-night);
+  --surface:var(--yoru-surface);
+  --surface2:var(--yoru-surface-raised);
+  --surface3:var(--yoru-surface-strong);
+  --text:var(--yoru-text);
+  --muted:var(--yoru-muted);
+  --primary:var(--yoru-purple);
+  --primary2:var(--yoru-purple-soft);
+  --secondary:var(--yoru-lantern);
+  --warm:var(--yoru-lantern);
+  --paper:var(--yoru-text);
+  --lamp:var(--yoru-lantern-bright);
+  --success:var(--yoru-success);
+  --border:var(--yoru-border);
+  --bao-cyan:var(--yoru-lantern);
+  --bao-purple:var(--yoru-purple);
+  --bao-warm:var(--yoru-lantern);
+  --bao-wine:#30263b;
+  --story-border:var(--yoru-story-border);
+  --story-text:var(--yoru-story-text);
+  --story-muted:var(--yoru-story-muted);
+  --story-surface:var(--yoru-story-surface);
+  --story-surface-strong:var(--yoru-story-surface-strong);
+}
+html{scroll-padding-top:84px}body:has(.app-shell){background:radial-gradient(circle at 12% 0,rgba(156,140,255,.12),transparent 28%),var(--yoru-night)}
 ::selection{background:#51448a;color:#fff}a{color:#c3b9ff;text-underline-offset:3px}a:hover{color:#e0d9ff}
 button,.primary,.secondary,.filter{transition:background-color .16s ease,border-color .16s ease,box-shadow .16s ease}
-button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible{outline:2px solid #d6aa73;outline-offset:3px}button:disabled{cursor:not-allowed}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible{outline:2px solid var(--yoru-lantern);outline-offset:3px}button:disabled{cursor:not-allowed}
 /* All action buttons use the ORIGINAL violet, regardless of category. */
 .primary,.brand-actions .brand-first-run{background:linear-gradient(135deg,#9c8cff,#7465df);color:#fff;border:1px solid #9c8cff;box-shadow:none}
 .primary:hover:not(:disabled),.brand-actions .brand-first-run:hover{background:linear-gradient(135deg,#b3a7ff,#8374eb);border-color:#b3a7ff;filter:none}
@@ -59,7 +108,7 @@ input[type="checkbox"],input[type="radio"]{accent-color:#9c8cff}.note,small{over
 #bao-chat-tool-drawer .bao-chat-tool-dialog{background:#151923;border-color:var(--story-border);color:#f1eee8}#bao-chat-tool-drawer .bao-mobile-quick button{background:#202633;border-color:var(--story-border);color:#f1eee8}
 #bao-chat-tool-drawer .bao-mobile-quick button:focus-visible{outline-color:#d6aa73}.studio-panel,.studio-notice{border-color:var(--story-border)}
 /* Standalone guides share violet buttons and dark surfaces. */
-body.bao-brand-document{background:#090b10;color:#f1eee8}.bao-brand-document :is(h1,h2,h3){color:#f1eee8}.bao-brand-document :is(.eyebrow,.kicker){color:#d6aa73}
+body.bao-brand-document{background:var(--yoru-night);color:var(--yoru-text)}.bao-brand-document :is(h1,h2,h3){color:#f1eee8}.bao-brand-document :is(.eyebrow,.kicker){color:#d6aa73}
 .bao-brand-document :is(.lead,p,li){overflow-wrap:anywhere}.bao-brand-document :is(a,nav a){color:#c3b9ff}
 .bao-brand-document :is(.panel,.step,.term,.help,.closing,details){background:#11141b;border-color:var(--border)}.bao-brand-document :is(.step p,.panel p,.help p,.lead,.term span,details p,details li){color:#c0c7d2}
 .bao-brand-document :is(.btn,.button,.actions a:first-child,.open-bao){background:linear-gradient(135deg,#9c8cff,#7465df);color:#fff!important;border-color:#9c8cff}
@@ -70,6 +119,6 @@ body.bao-brand-document{background:#090b10;color:#f1eee8}.bao-brand-document :is
 .bao-brand-document.bao-mascot-page .chips span{background:rgba(156,140,255,.07);border-color:rgba(156,140,255,.2)}
 @media(max-width:900px){#home-view .brand-hero{min-height:0;gap:24px;padding-top:22px}#home-view #bao-home-portrait img{height:clamp(220px,48vw,320px)}}
 @media(max-width:560px){#home-view .brand-hero h1{font-size:clamp(35px,9vw,44px)}#home-view #bao-home-portrait img{height:clamp(210px,65vw,290px)}#home-view .brand-feature-grid article{min-height:0}#home-view .brand-feature-grid article>span{margin-bottom:15px}
- #chat-view.active{background:#090b10!important}#chat-view .chat-layout>.chat-main{background:#11141b!important}#chat-view .chat-topline{background:#151923!important;border-bottom-color:var(--story-border)!important}#chat-view .chat-stream{background:#0c0f15!important}#chat-view .composer{background:#141923!important;border-top-color:var(--story-border)!important}
+ #chat-view.active{background:var(--yoru-night)!important}#chat-view .chat-layout>.chat-main{background:#11141b!important}#chat-view .chat-topline{background:#151923!important;border-bottom-color:var(--story-border)!important}#chat-view .chat-stream{background:#0c0f15!important}#chat-view .composer{background:#141923!important;border-top-color:var(--story-border)!important}
  #bao-mobile-tools-tab{background:#292440!important;border-color:#8072bb!important;color:#f1eee8!important}#bao-mobile-tools-tab:focus-visible{outline-color:#d6aa73!important}}
 @media(prefers-reduced-motion:reduce){button,.primary,.secondary,.filter{transition:none!important}}
