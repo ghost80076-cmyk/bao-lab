@@ -6,10 +6,10 @@
   const blank = () => [{ id: "memory-1", title: "記憶 1", text: "", enabled: true }];
   let saveTimer = null;
   const ensureStyles = () => {
-    if (document.querySelector('link[href="css/memory-workbench.css"]')) return;
+    if (document.querySelector('link[href^="css/memory-workbench.css"]')) return;
     const link = document.createElement("link");
     link.rel = "stylesheet";
-    link.href = "css/memory-workbench.css";
+    link.href = "css/memory-workbench.css?v=2";
     document.head.appendChild(link);
   };
   const read = () => {
