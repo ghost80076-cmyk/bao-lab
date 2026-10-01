@@ -177,3 +177,57 @@ Worker MODELS_JSON / Hosted allowlist
 - 部署任何新模型
 
 等候下一輪資料整理後，再拆成小 PR 實作。
+
+
+## 2026-10-01 第一輪市場快照
+
+> 這一段是候選資料快照，不等於夜灣推薦榜。價格與供應狀態在正式上架前必須再次核對。
+
+### OpenRouter RP adoption 訊號
+
+OpenRouter 的 Roleplay collection 明確以「最近 7 天 prompt + completion tokens」排序，代表採用度，不代表品質。2026-10-01 的頁面仍由低成本模型主導，DeepSeek、MiMo、GLM 等佔明顯位置；這支持夜灣保留低成本長聊區，但不能直接把榜單當成品質排名。
+
+來源：
+- https://openrouter.ai/collections/roleplay/
+
+### 第一輪候選表
+
+| 模型 | 目前公開價（Input / Output，USD / 1M） | Context | 第一輪處理 |
+| --- | ---: | ---: | --- |
+| DeepSeek V4.1 Flash（OpenRouter） | 約 $0.01554 / $0.396 | 約 1.05M | **低成本主力候選**；RP adoption 很強，後續驗證文風與實際路由價格 |
+| GLM 5.3 Flash（OpenRouter） | 約 $0.02 / $0.2475 | 約 1.05M | **低成本主力候選** |
+| MiMo V2.6 Flash（OpenRouter） | 約 $0.07 / $0.28 | 約 1.05M | **候選**；先和既有 MiMo V2.5 比，不因新版直接取代 |
+| Gemini 3 Flash Preview | $0.50 / $3 | 1M | **保留**；價格清楚、已有較多使用歷史 |
+| Gemini 3.1 Flash-Lite | $0.25 / $1.50 | 1M | **低成本／輔助候選** |
+| Gemini 3.1 Pro Preview | $2 / $12（<200K）；$4 / $18（>200K） | 1M | **高品質候選**；長上下文有明確價格級距 |
+| Gemini 3.8 Flash | $0.75 / $3.75（至 2026-12-31）；2027-01-01 起 $1.50 / $7.50 | 1M | **觀察／BYOK**；雖已 GA，但已知價格會翻倍，不先進夜灣預設 Hosted |
+| Claude Haiku 4.5 | $1 / $5 | 200K | **備選**；低價 Claude，但需實測 RP 拒答與角色深度 |
+| Claude Sonnet 4.5 | $3 / $15 | 1M | **保留成熟候選**；給偏好舊版 RP 文風的玩家 |
+| Claude Sonnet 4.6 | $3 / $15 | 1M | **保留成熟候選** |
+| Claude Sonnet 5 | $2 / $10 | 1M | **強候選**；官方已把原先 introductory price 改為永久標準價，值得讓玩家自行和 4.5 / 4.6 比較 |
+| Claude Opus 4.6 | $5 / $25 | 1M | **豪華備選**；不作日常預設，也不拿來做狀態整理 |
+| Claude Sonnet 5.5 | $2 / $10 | 1M | **觀察**；2026-09-28 才發布，價格雖與 Sonnet 5 相同，但 RP 資料太新 |
+| GPT-5.6 Luna（OpenRouter standard） | $0.20 / $1.20 | 約 1.05M | **備選候選**；價格低，且已出現在 OpenRouter RP collection，值得補足非中國低成本選項 |
+| Grok 4.7 | $1.60 / $4.80 | 500K | **觀察候選**；2026-09-21 才發布，價格有吸引力，但 RP 歷史太短 |
+
+### 目前傾向
+
+第一輪先不要追求「每一家都有最新型號」，而是形成幾個價位與風格區：
+
+- **超省長聊**：DeepSeek / GLM / MiMo / Qwen
+- **敘事與文風**：Gemini 3 / 3.1 系列
+- **Claude 多代選擇**：Haiku 4.5 / Sonnet 4.5 / 4.6 / 5 / Opus 4.6
+- **非中國低成本補位**：GPT-5.6 Luna
+- **新模型觀察**：Grok 4.7、Claude Sonnet 5.5、Gemini 3.8 Flash
+
+這仍然不是最終上架名單。下一輪應該補「RP 實測／政策牆／拒答／重抽成本」後再決定 Hosted。
+
+### 本輪來源
+
+- OpenRouter Roleplay: https://openrouter.ai/collections/roleplay/
+- Anthropic pricing: https://platform.claude.com/docs/en/about-claude/pricing
+- Claude Sonnet 5: https://www.anthropic.com/research/claude-sonnet-5
+- Google Gemini pricing: https://ai.google.dev/gemini-api/docs/pricing
+- Gemini 3.8 Flash: https://ai.google.dev/gemini-api/docs/latest-model
+- GPT-5.6 Luna: https://openrouter.ai/openai/gpt-5.6-luna
+- Grok 4.7: https://openrouter.ai/x-ai/grok-4.7
