@@ -18,6 +18,16 @@
   --yoru-explore-surface-raised:#1c1a1f;
   --yoru-explore-border:rgba(241,232,218,.075);
   --yoru-cover-shadow:0 18px 44px rgba(0,0,0,.18);
+  --yoru-card:#17161a;
+  --yoru-card-raised:#1d1b20;
+  --yoru-card-border:rgba(241,232,218,.075);
+  --yoru-control:#1b1a1e;
+  --yoru-control-hover:#242126;
+  --yoru-control-border:rgba(241,232,218,.11);
+  --yoru-control-border-hover:rgba(214,170,115,.22);
+  --yoru-input:#0f0f12;
+  --yoru-input-border:rgba(241,232,218,.12);
+  --yoru-shadow-soft:0 14px 38px rgba(0,0,0,.14);
   --yoru-text:#f1eee8;
   --yoru-story-text:#eeeae4;
   --yoru-muted:#8d94a3;
@@ -62,33 +72,33 @@ html{scroll-padding-top:84px}body:has(.app-shell){background:radial-gradient(cir
 ::selection{background:#51448a;color:#fff}a{color:#c3b9ff;text-underline-offset:3px}a:hover{color:#e0d9ff}
 button,.primary,.secondary,.filter{transition:background-color .16s ease,border-color .16s ease,box-shadow .16s ease}
 button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible{outline:2px solid var(--yoru-lantern);outline-offset:3px}button:disabled{cursor:not-allowed}
-/* All action buttons use the ORIGINAL violet, regardless of category. */
-.primary,.brand-actions .brand-first-run{background:linear-gradient(135deg,#9c8cff,#7465df);color:#fff;border:1px solid #9c8cff;box-shadow:none}
-.primary:hover:not(:disabled),.brand-actions .brand-first-run:hover{background:linear-gradient(135deg,#b3a7ff,#8374eb);border-color:#b3a7ff;filter:none}
-.secondary,.brand-actions .brand-manual{background:#1d2230;color:#f1eee8;border:1px solid rgba(255,255,255,.17)}
-.secondary:hover:not(:disabled),.brand-actions .brand-manual:hover{background:#293044;border-color:rgba(195,185,255,.4);color:#fff}
-input,select,textarea{background:#0b0e14;color:var(--text);border-color:rgba(255,255,255,.15)}input::placeholder,textarea::placeholder{color:#9199a9;opacity:1}
-input:hover,select:hover,textarea:hover{border-color:rgba(195,185,255,.3)}input:focus,select:focus,textarea:focus{border-color:#9c8cff;outline:2px solid rgba(156,140,255,.2);outline-offset:1px}
-input[type="checkbox"],input[type="radio"]{accent-color:#9c8cff}.note,small{overflow-wrap:anywhere}
+/* Shared controls: violet marks the main action or a selected state; secondary
+   controls stay in the night surface and focus uses lamplight. */
+.primary{background:linear-gradient(135deg,#9588eb,#7569cf);color:#fff;border:1px solid rgba(195,185,255,.34);box-shadow:none}
+.primary:hover:not(:disabled){background:linear-gradient(135deg,#a79af0,#8275da);border-color:rgba(211,202,255,.48);filter:none}
+.secondary,.brand-actions .brand-manual,.brand-actions .brand-first-run{background:var(--yoru-control);color:var(--yoru-text);border:1px solid var(--yoru-control-border)}
+.secondary:hover:not(:disabled),.brand-actions .brand-manual:hover,.brand-actions .brand-first-run:hover{background:var(--yoru-control-hover);border-color:var(--yoru-control-border-hover);color:#f7f1e9}
+input,select,textarea{background:var(--yoru-input);color:var(--text);border-color:var(--yoru-input-border)}input::placeholder,textarea::placeholder{color:#918e94;opacity:1}
+input:hover,select:hover,textarea:hover{border-color:rgba(214,170,115,.17)}input:focus,select:focus,textarea:focus{border-color:rgba(214,170,115,.46);outline:2px solid rgba(214,170,115,.16);outline-offset:1px}
+input[type="checkbox"],input[type="radio"]{accent-color:var(--yoru-purple)}.note,small{overflow-wrap:anywhere}
 /* Brand, onboarding and discovery: no pink-tinted app surfaces. */
-.topbar{background:rgba(9,11,16,.95);border-bottom-color:var(--border)}.topbar>.brand span{color:#f1eee8}.topbar nav :is(button,a):hover{background:#1d2230;color:#fff}
+.topbar{background:rgba(9,11,16,.95);border-bottom-color:var(--border)}.topbar>.brand span{color:#f1eee8}.topbar nav :is(button,a):hover{background:var(--yoru-control);color:#f6f0e8}
 .brand-kicker,.eyebrow{color:#d6aa73}.app-shell>footer{border-top-color:var(--border)}
 #home-view .brand-hero{gap:clamp(22px,4vw,58px);min-height:clamp(510px,60vh,660px)}#home-view .brand-signature>img{border-radius:15px;padding:6px;background:#1d2230;box-shadow:none}
 #home-view .brand-hero h1{color:#f1eee8;text-wrap:balance}#home-view .brand-lead{color:#bbc3d0}#home-view .brand-principles{color:#9ea8ba;line-height:1.75}
-#home-view .brand-status-card{background:#11141b;border-color:var(--border);box-shadow:0 17px 46px #0003}
+#home-view .brand-status-card{background:var(--yoru-card);border-color:var(--yoru-card-border);box-shadow:var(--yoru-shadow-soft)}
 #home-view #bao-home-portrait{background:#1d2230;border-color:var(--border)}#home-view #bao-home-portrait img{height:clamp(220px,25vw,320px)}
 #home-view #bao-home-portrait>span{background:#141821;color:#f1eee8}#home-view #bao-home-portrait small{color:#c3b9ff}
 #home-view .brand-status-title{color:#aaa9c6}#home-view .brand-status-card dt{color:#96a0b4}#home-view .brand-status-card dd{color:#f1eee8}
 #home-view .brand-feature-grid article{background:#11141b;border-color:var(--border);border-radius:16px}#home-view .brand-feature-grid article>span{color:#c3b9ff}#home-view .brand-feature-grid p{color:#9ea6b5}
-#home-view .brand-onboarding{background:#151923;border-color:rgba(156,140,255,.2);box-shadow:none}#home-view .brand-onboarding-steps li{background:#0e1119;border-color:var(--border)}
+#home-view .brand-onboarding{background:var(--yoru-card);border-color:var(--yoru-card-border);box-shadow:none}#home-view .brand-onboarding-steps li{background:#121114;border-color:var(--yoru-card-border)}
 #home-view .brand-onboarding-steps b{color:#f1eee8}#home-view .brand-onboarding-steps span,#home-view .brand-onboarding p{color:#abb5c4}#home-view .brand-onboarding-links a{color:#c3b9ff}
-#home-view .brand-actions .brand-first-run{background:linear-gradient(135deg,#9c8cff,#7465df);border-color:#9c8cff;color:#fff;box-shadow:none}
-#home-view .brand-actions .brand-manual{background:#1d2230;border-color:rgba(255,255,255,.17);color:#f1eee8}
+#home-view .brand-actions .brand-first-run,#home-view .brand-actions .brand-manual{background:var(--yoru-control);border-color:var(--yoru-control-border);color:var(--yoru-text);box-shadow:none}
 #home-view .brand-product-intro{background:#151923!important;border-color:var(--border)!important}
 #home-view .brand-contact,#about-view .brand-contact{background:#171923;border-color:var(--border)}
 .brand-discord-nav{color:#c3b9ff!important}.brand-discord-nav:hover,.brand-discord-nav:focus-visible{background:#292440!important;color:#fff!important}
 .brand-discord-cta{background:#28243b;border-color:rgba(195,185,255,.31);color:#f1eee8}.brand-discord-cta:hover,.brand-discord-cta:focus-visible{background:#3b3454;border-color:#9c8cff}.brand-footer-discord{color:#c3b9ff!important}
-#about-view .creator-card,#about-view .bao-about-intro{background:#171923;border-color:var(--border)}#about-view .creator-copy p{color:#c8ced9}#about-view .bao-about-intro a{color:#c3b9ff}#about-view .bao-about-intro button{color:#c3b9ff;border-color:#7465df}
+#about-view .creator-card,#about-view .bao-about-intro{background:var(--yoru-card);border-color:var(--yoru-card-border)}#about-view .creator-copy p{color:#c8ced9}#about-view .bao-about-intro a{color:#c3b9ff}#about-view .bao-about-intro button{color:#c3b9ff;border-color:#7465df}
 .bao-support-float{background:rgba(43,31,22,.95);border-color:rgba(214,170,115,.34);color:#e8bd80}
 #explore-view .character-card{background:var(--yoru-explore-surface);border-color:var(--yoru-explore-border)}#explore-view .character-card:hover{border-color:rgba(241,232,218,.14);box-shadow:var(--yoru-cover-shadow)}
 #explore-view .filter{background:var(--yoru-explore-surface-raised);border-color:var(--yoru-explore-border);color:#aaa6ad}#explore-view .filter.active{background:rgba(156,140,255,.11);border-color:rgba(156,140,255,.34);color:var(--yoru-text)}#explore-view .filter:hover:not(.active){background:rgba(214,170,115,.055);border-color:rgba(214,170,115,.17);color:var(--yoru-text)}
