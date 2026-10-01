@@ -14,20 +14,40 @@ async function openStory(page) {
 }
 
 for (const viewport of [{ name: 'desktop', width: 1440, height: 900 }, { name: 'mobile', width: 390, height: 844 }]) {
-  test(`${viewport.name}: chat appearance can be opened, changed, saved and restored`, async ({ page }) => {
+  test(`${viewport.name}: chat appearance previews, applies and restores bubble styling`, async ({ page }) => {
     await page.setViewportSize({ width: viewport.width, height: viewport.height });
     await openStory(page);
     await page.locator('[data-bao-open="appearance"]:visible').click();
-    await expect(page.getByRole('heading', { name: '聊天外觀' })).toBeVisible();
     const playerModal = page.getByRole('dialog', { name: '聊天外觀' });
     await expect(playerModal).toBeVisible();
+    await expect(playerModal.locator('.bao-bubble-preview')).toBeVisible();
+    await expect(playerModal.locator('[data-appearance-tab="bubble"]')).toHaveClass(/active/);
+
+    await playerModal.locator('[data-bubble-preset="lamplight"]').click();
+    await expect(playerModal.locator('#bao-assistant-color')).toHaveValue('#211b18');
+    await expect(playerModal.locator('#bao-user-color')).toHaveValue('#3a2c24');
+    await playerModal.locator('[data-bubble-role-tab="user"]').click();
+    await expect(playerModal.locator('[data-bubble-role-panel="user"]')).toBeVisible();
+
+    await playerModal.locator('#bao-assistant-color').fill('#123456');
+    await playerModal.locator('#bao-assistant-text-color').fill('#abcdef');
+    await playerModal.locator('#bao-assistant-opacity').fill('64');
+    await playerModal.locator('#bao-user-color').fill('#654321');
+    await playerModal.locator('#bao-user-text-color').fill('#fedcba');
+    await playerModal.locator('#bao-user-opacity').fill('86');
+    await playerModal.locator('#bao-bubble-radius').fill('23');
+
+    await playerModal.locator('[data-appearance-tab="text"]').click();
+    await playerModal.locator('#bao-font-size').fill('20');
+    await playerModal.locator('#bao-font-family').selectOption('serif');
+
+    await playerModal.locator('[data-appearance-tab="background"]').click();
     if (viewport.name === 'mobile') {
       const help = playerModal.getByRole('button', { name: '設定說明' });
-      const backgroundCopy = playerModal.locator('.bao-setting-section').nth(1).locator(':scope > p');
       await expect(help).toBeVisible();
-      await expect(backgroundCopy).toBeHidden();
+      const backgroundGrid = playerModal.locator('[data-appearance-panel="background"] .bao-choice-grid').first();
       const mobileLayout = await playerModal.evaluate(node => {
-        const grid = node.querySelector('.bao-choice-grid');
+        const grid = node.querySelector('[data-appearance-panel="background"] .bao-choice-grid');
         const footer = node.querySelector('.bao-modal-footer');
         return {
           columns: getComputedStyle(grid).gridTemplateColumns.trim().split(/\s+/).length,
@@ -35,57 +55,95 @@ for (const viewport of [{ name: 'desktop', width: 1440, height: 900 }, { name: '
         };
       });
       expect(mobileLayout).toEqual({ columns: 3, footerPosition: 'sticky' });
-      await help.click();
-      await expect(backgroundCopy).toBeVisible();
-      await help.click();
-      await expect(backgroundCopy).toBeHidden();
+      await expect(backgroundGrid).toBeVisible();
     }
-    await expect(page.locator('[data-bg-mode="character"]')).toHaveClass(/active/);
-    await expect(page.locator('#bao-bg-opacity')).toHaveValue('34');
-    await expect(page.locator('#bao-bg-blur')).toHaveValue('6');
-    await page.locator('[data-bg-preset="immersive"]').click();
-    await expect(page.locator('#bao-bg-opacity')).toHaveValue('50');
-    await expect(page.locator('#bao-bg-blur')).toHaveValue('3');
-    await page.locator('[data-bg-preset="soft"]').click();
-    await expect(page.locator('#bao-bg-opacity')).toHaveValue('34');
-    await expect(page.locator('#bao-bg-blur')).toHaveValue('6');
-    await page.locator('#bao-font-size').fill('20');
-    await page.locator('[data-bg-mode="custom"]').click();
-    await page.locator('#bao-custom-bg').fill('https://example.com/test-background.png');
-    await page.locator('#bao-bg-opacity').fill('45');
-    await page.locator('#bao-bg-blur').fill('5');
-    await page.locator('#bao-assistant-color').fill('#123456');
-    await page.locator('#bao-user-color').fill('#654321');
-    await page.locator('#bao-bubble-opacity').fill('70');
-    await page.locator('.bao-modal-save').click();
+    await expect(playerModal.locator('[data-bg-mode="character"]')).toHaveClass(/active/);
+    await playerModal.locator('[data-bg-preset="immersive"]').click();
+    await expect(playerModal.locator('#bao-bg-opacity')).toHaveValue('50');
+    await expect(playerModal.locator('#bao-bg-blur')).toHaveValue('3');
+    await playerModal.locator('[data-bg-mode="custom"]').click();
+    await playerModal.locator('#bao-custom-bg').fill('https://example.com/test-background.png');
+    await playerModal.locator('#bao-bg-opacity').fill('45');
+    await playerModal.locator('#bao-bg-blur').fill('5');
+    await playerModal.getByRole('button', { name: '儲存外觀' }).click();
+
     const appearance = await page.locator('#chat-view').evaluate(node => ({
       font: node.style.getPropertyValue('--chat-font-size'),
+      fontFamily: node.style.getPropertyValue('--chat-font-family'),
       image: node.style.getPropertyValue('--chat-bg-image'),
       opacity: node.style.getPropertyValue('--chat-bg-opacity'),
       blur: node.style.getPropertyValue('--chat-bg-blur'),
       assistant: node.style.getPropertyValue('--chat-assistant'),
+      assistantText: node.style.getPropertyValue('--chat-assistant-text'),
+      assistantOpacity: node.style.getPropertyValue('--chat-assistant-opacity'),
       user: node.style.getPropertyValue('--chat-user'),
-      bubble: node.style.getPropertyValue('--chat-bubble-opacity')
+      userText: node.style.getPropertyValue('--chat-user-text'),
+      userOpacity: node.style.getPropertyValue('--chat-user-opacity'),
+      radius: node.style.getPropertyValue('--chat-bubble-radius')
     }));
-    expect(appearance).toEqual({ font: '20px', image: 'url("https://example.com/test-background.png")', opacity: '0.45', blur: '5px', assistant: '#123456', user: '#654321', bubble: '0.7' });
+    expect(appearance).toMatchObject({
+      font: '20px',
+      image: 'url("https://example.com/test-background.png")',
+      opacity: '0.45',
+      blur: '5px',
+      assistant: '#123456',
+      assistantText: '#abcdef',
+      assistantOpacity: '0.64',
+      user: '#654321',
+      userText: '#fedcba',
+      userOpacity: '0.86',
+      radius: '23px'
+    });
+    expect(appearance.fontFamily).toContain('Georgia');
+
+    const rendered = await page.evaluate(() => {
+      Chat.add('user', '測試玩家氣泡');
+      App.renderChatShell(false);
+      const assistant = document.querySelector('#chat-stream .message.assistant .bubble:not(.authored-rich-message)');
+      const user = document.querySelector('#chat-stream .message.user .bubble');
+      return {
+        assistantBg: getComputedStyle(assistant).backgroundColor,
+        assistantText: getComputedStyle(assistant).color,
+        userBg: getComputedStyle(user).backgroundColor,
+        userText: getComputedStyle(user).color,
+        radius: getComputedStyle(user).borderRadius
+      };
+    });
+    expect(rendered.assistantBg).not.toBe('rgba(0, 0, 0, 0)');
+    expect(rendered.userBg).not.toBe('rgba(0, 0, 0, 0)');
+    expect(rendered.assistantText).toBe('rgb(171, 205, 239)');
+    expect(rendered.userText).toBe('rgb(254, 220, 186)');
+    expect(rendered.radius).toBe('23px');
+
     await page.reload();
     const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('bao-lab:player-settings')).appearance);
-    expect(saved).toMatchObject({ fontSize: 20, bgMode: 'custom', customBg: 'https://example.com/test-background.png', bgOpacity: 45, bgBlur: 5, assistantColor: '#123456', userColor: '#654321', bubbleOpacity: 70 });
+    expect(saved).toMatchObject({
+      fontSize: 20,
+      fontFamily: 'serif',
+      bgMode: 'custom',
+      customBg: 'https://example.com/test-background.png',
+      bgOpacity: 45,
+      bgBlur: 5,
+      bubblePreset: 'custom',
+      assistantColor: '#123456',
+      assistantTextColor: '#abcdef',
+      assistantOpacity: 64,
+      userColor: '#654321',
+      userTextColor: '#fedcba',
+      userOpacity: 86,
+      bubbleRadius: 23
+    });
+
     await openStory(page);
     await page.locator('[data-bao-open="appearance"]:visible').click();
-    await page.locator('[data-bg-mode="character"]').click();
-    await page.locator('.bao-modal-save').click();
-    const characterImage = await page.locator('#chat-view').evaluate(node => node.style.getPropertyValue('--chat-bg-image'));
-    expect(characterImage).toContain('url(');
-    expect(characterImage).not.toContain('example.com/test-background.png');
-    await page.locator('[data-bao-open="appearance"]:visible').click();
-    await page.locator('[data-bg-mode="solid"]').click();
-    await page.locator('.bao-modal-save').click();
+    const reopened = page.getByRole('dialog', { name: '聊天外觀' });
+    await reopened.locator('[data-appearance-tab="background"]').click();
+    await reopened.locator('[data-bg-mode="solid"]').click();
+    await reopened.getByRole('button', { name: '儲存外觀' }).click();
     await expect(page.locator('#chat-view')).toHaveCSS('--chat-bg-image', 'none');
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   });
 }
-
 
 test('mobile: reply settings keeps choices ahead of explanatory copy', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
