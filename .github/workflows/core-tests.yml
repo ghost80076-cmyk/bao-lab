@@ -61,6 +61,8 @@ jobs:
         run: node tests/story-bundle-secret-core.cjs
       - name: Character readiness core
         run: node tests/character-readiness-core.cjs
+      - name: Character role boundaries
+        run: node tests/character-role-boundaries-core.cjs
       - name: Character studio creation flow
         run: |
           node --check js/character-studio-flow-core.js

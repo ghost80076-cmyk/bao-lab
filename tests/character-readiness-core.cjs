@@ -79,10 +79,10 @@ const ordinaryPrompt = CharacterEngine.composeSystemPrompt(lin, {
   ...baseContext,
   recentMessages: [{ role: "user", content: "今天工作有點累。" }]
 });
-assert.ok(ordinaryPrompt.includes("【角色完整設定】"));
+assert.ok(ordinaryPrompt.includes("【主要 AI 角色／作品主體設定】"));
 assert.ok(ordinaryPrompt.includes("低侵略型主導"));
-assert.ok(ordinaryPrompt.includes("AI 主要扮演角色：林沉風"));
-assert.equal(ordinaryPrompt.includes("AI 主要扮演角色：林沉風 - 見過黑暗的人"), false, "作品副標題不可混入角色姓名");
+assert.ok(ordinaryPrompt.includes("作品／角色卡主體：林沉風"));
+assert.equal(ordinaryPrompt.includes("作品／角色卡主體：林沉風 - 見過黑暗的人"), false, "作品副標題不可混入角色姓名");
 assert.equal(ordinaryPrompt.includes("【親密情境｜林沉風】"), false, "一般對話不應浪費 token 載入親密模組");
 assert.equal(ordinaryPrompt.includes("【依賴與界線｜林沉風】"), false, "一般對話不應載入界線情境模組");
 const intimatePrompt = CharacterEngine.composeSystemPrompt(lin, {

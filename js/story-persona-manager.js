@@ -139,17 +139,17 @@
     if (!state) return stable;
     const changes = [];
     if (!same(persona(App.config.persona), persona(state.basePersona))) {
-      changes.push('【目前玩家人物設定】', ...PLAYER_FIELDS.map(key => `${LABELS[key]}：${App.config.persona[key] || '未指定'}`), '玩家的台詞、行動與心理均由玩家自己決定。');
+      changes.push('【玩家角色｜controlled_by=user】', ...PLAYER_FIELDS.map(key => `${LABELS[key]}：${App.config.persona[key] || '未指定'}`), '此人物由玩家控制；AI 不得替玩家決定台詞、心理、選擇或行動。');
     }
     if (state.hostedCharacters.length) {
-      changes.push('【玩家自訂的 AI 扮演人物】');
+      changes.push('【玩家自訂 AI 人物｜controlled_by=assistant】');
       const primary = state.hostedCharacters.find(actor => actor.role === 'primary');
       if (primary) changes.push(`目前 AI 的主要互動人物是「${primary.name}」；原作品的角色及世界仍作背景與既有 NPC，不得覆蓋玩家的自訂人物。`);
       for (const actor of state.hostedCharacters) {
-        changes.push(`角色：${actor.name}；定位：${actor.role === 'primary' ? '主要 AI 互動人物' : '新增 NPC'}`);
+        changes.push(`角色：${actor.name}；類型：${actor.role === 'primary' ? 'AI 主角色' : 'NPC'}；controlled_by=assistant`);
         changes.push(...ACTOR_FIELDS.filter(key => key !== 'name').map(key => `${LABELS[key]}：${actor[key] || '未指定'}`));
       }
-      changes.push(`AI 可以演繹上述人物，但不得代替玩家「${App.config.persona.name || '未命名玩家'}」決定言行。`);
+      changes.push(`AI 可以演繹上述 controlled_by=assistant 的人物，但不得代替玩家「${App.config.persona.name || '未命名玩家'}」（controlled_by=user）決定言行。`);
     }
     return changes.length ? `${stable}\n\n【本輪人物覆寫】\n${changes.join('\n')}` : stable;
   };
@@ -206,7 +206,7 @@
     form.elements.namedItem('role').value = actor.role || 'additional';
   }
   function actorForm() {
-    return `<form class="bao-actor-fields" id="bao-builder-actor-form" autocomplete="off"><label>角色定位<select name="role"><option value="additional">增加 NPC（保留原作品角色）</option><option value="primary">自訂 AI 主要互動人物</option></select></label>${ACTOR_FIELDS.map(key => field(key)).join('')}<div class="bao-actor-actions"><button type="submit" class="primary">加入／更新 AI 人物</button><button type="button" class="secondary" data-new>清空，捏另一位</button></div></form>`;
+    return `<form class="bao-actor-fields" id="bao-builder-actor-form" autocomplete="off"><p class="note">這裡新增的是由 AI 演繹的人物。NPC 不等於玩家角色；若要修改自己扮演的人物，請使用「我的玩家人物」。</p><label>角色定位<select name="role"><option value="additional">增加 NPC（由 AI 演繹；保留原作品角色）</option><option value="primary">自訂 AI 主要互動人物（由 AI 演繹）</option></select></label>${ACTOR_FIELDS.map(key => field(key)).join('')}<div class="bao-actor-actions"><button type="submit" class="primary">加入／更新 AI 人物</button><button type="button" class="secondary" data-new>清空，捏另一位</button></div></form>`;
   }
   function installBuilder() {
     const panel = document.querySelector('.builder-step[data-step-panel="3"]');
@@ -232,7 +232,7 @@
     if (document.getElementById('bao-builder-actors')) return;
     const section = document.createElement('section');
     section.id = 'bao-builder-actors'; section.className = 'bao-actor-builder';
-    section.innerHTML = `<h4>捏一位 AI 人物／補充 NPC（選填）</h4><p class="note">以下只收集你自己新增的角色，不提供作者原始設定的瀏覽或編輯。可新增多位 NPC，或指定一位 AI 主角；設定只進入這份故事。</p><div id="bao-builder-actor-list"></div>${actorForm()}`;
+    section.innerHTML = `<h4>捏一位 AI 人物／補充 NPC（選填）</h4><p class="note">以下只收集你自己新增、由 AI 演繹的人物，不提供作者原始設定的瀏覽或編輯。NPC 是世界中的 AI 人物，不會改變玩家角色的控制權；指定 AI 主角也只改 AI 側的主要互動焦點。</p><div id="bao-builder-actor-list"></div>${actorForm()}`;
     panel.appendChild(section);
     const form = section.querySelector('form');
     form.onsubmit = event => {
@@ -253,7 +253,7 @@
     close();
     dialog = document.createElement('div');
     dialog.id = 'bao-actor-backdrop';
-    dialog.innerHTML = `<section class="bao-actor-dialog" role="dialog" aria-modal="true" aria-labelledby="bao-actor-title"><header><h2 id="bao-actor-title">本故事的人物設定</h2><button type="button" data-close aria-label="關閉">×</button></header><p class="note">僅可修改自己的玩家 Persona，以及自己新增的 AI 人物；不能查看或編輯作者原始角色、世界規則或核心提示。</p><label>編輯對象<select id="bao-actor-target"><option value="player">我的玩家人物</option><option value="host">自己新增的 AI 人物／NPC</option></select></label><div id="bao-actor-form"></div><p id="bao-actor-feedback" class="note" role="status"></p><footer><button type="button" class="secondary" data-close>取消</button><button type="button" class="primary" data-apply>儲存至本故事</button></footer></section>`;
+    dialog.innerHTML = `<section class="bao-actor-dialog" role="dialog" aria-modal="true" aria-labelledby="bao-actor-title"><header><h2 id="bao-actor-title">本故事的人物設定</h2><button type="button" data-close aria-label="關閉">×</button></header><p class="note">「我的玩家人物」永遠由玩家自己控制；「AI 人物／NPC」才由 AI 演繹。這裡只能修改自己的玩家 Persona 與自己新增的 AI 人物，不能查看或編輯作者原始角色、世界規則或核心提示。</p><label>編輯對象<select id="bao-actor-target"><option value="player">我的玩家人物</option><option value="host">自己新增的 AI 人物／NPC</option></select></label><div id="bao-actor-form"></div><p id="bao-actor-feedback" class="note" role="status"></p><footer><button type="button" class="secondary" data-close>取消</button><button type="button" class="primary" data-apply>儲存至本故事</button></footer></section>`;
     document.body.appendChild(dialog);
     const selector = dialog.querySelector('#bao-actor-target');
     selector.value = target === 'host' ? 'host' : 'player';
@@ -269,11 +269,11 @@
     const state = actors();
     dialog.querySelector('#bao-actor-feedback').textContent = '';
     if (dialog.querySelector('#bao-actor-target').value === 'player') {
-      box.innerHTML = `<label>套用本機玩家預設<select id="bao-actor-preset">${presetOptions()}</select></label><div class="bao-actor-actions"><button type="button" data-load>載入預設</button><button type="button" data-save>另存玩家預設</button></div><form class="bao-actor-fields" autocomplete="off">${PLAYER_FIELDS.map(key => field(key, App.config.persona[key])).join('')}</form>`;
+      box.innerHTML = `<p class="note">這是你自己扮演的玩家角色。AI 不會因為此人物出現在設定中，就取得你的台詞、心理、選擇或行動控制權。</p><label>套用本機玩家預設<select id="bao-actor-preset">${presetOptions()}</select></label><div class="bao-actor-actions"><button type="button" data-load>載入預設</button><button type="button" data-save>另存玩家預設</button></div><form class="bao-actor-fields" autocomplete="off">${PLAYER_FIELDS.map(key => field(key, App.config.persona[key])).join('')}</form>`;
       box.querySelector('[data-load]').onclick = () => {const item = presets().find(p => p.id === box.querySelector('#bao-actor-preset').value); if (!item) return alert('先選擇預設。'); PLAYER_FIELDS.forEach(key => {box.querySelector('form').elements.namedItem(key).value = item.persona[key] || '';});};
       box.querySelector('[data-save]').onclick = () => {const item = savePreset(formData(box.querySelector('form'), PLAYER_FIELDS)); if (item) {const select = box.querySelector('#bao-actor-preset'); select.innerHTML = presetOptions(); select.value = item.id;}};
     } else {
-      box.innerHTML = `<label>編輯自己新增的角色<select id="bao-actor-existing"><option value="">新增一位 AI 人物</option>${state.hostedCharacters.map(actor => `<option value="${esc(actor.id)}">${esc(actor.name)} · ${actor.role === 'primary' ? 'AI 主角' : 'NPC'}</option>`).join('')}</select></label><form class="bao-actor-fields" autocomplete="off"><label>角色定位<select name="role"><option value="additional">新增 NPC（保留原角色）</option><option value="primary">由自訂角色作為 AI 主要互動人物</option></select></label>${ACTOR_FIELDS.map(key => field(key)).join('')}</form><button type="button" class="secondary" data-remove>移除選取的自訂人物</button>`;
+      box.innerHTML = `<p class="note">這裡新增的是 AI 人物／NPC，由 AI 演繹；不會把玩家 Persona 變成 AI 可控制人物。</p><label>編輯自己新增的角色<select id="bao-actor-existing"><option value="">新增一位 AI 人物</option>${state.hostedCharacters.map(actor => `<option value="${esc(actor.id)}">${esc(actor.name)} · ${actor.role === 'primary' ? 'AI 主角' : 'NPC'}</option>`).join('')}</select></label><form class="bao-actor-fields" autocomplete="off"><label>角色定位<select name="role"><option value="additional">新增 NPC（由 AI 演繹；保留原角色）</option><option value="primary">由自訂角色作為 AI 主要互動人物</option></select></label>${ACTOR_FIELDS.map(key => field(key)).join('')}</form><button type="button" class="secondary" data-remove>移除選取的自訂人物</button>`;
       const select = box.querySelector('#bao-actor-existing');
       select.onchange = () => fillActorForm(box.querySelector('form'), state.hostedCharacters.find(actor => actor.id === select.value));
       box.querySelector('[data-remove]').onclick = () => {if (!select.value) return; state.hostedCharacters = state.hostedCharacters.filter(actor => actor.id !== select.value); state.hostedCharacter = null; persist(); renderDialog();};

@@ -86,7 +86,7 @@
       description: text('description'), avatar: avatar || DEFAULT_IMAGE,
       tags, quote: text('quote'), greeting: text('greeting'),
       system_prompt: text('system_prompt'),
-      profile: profileText ? { '人物設定': profileText } : {},
+      profile: profileText ? { 'AI 主角色設定': profileText } : {},
       world: text('world'), lore: text('lore'), npc_rules: text('npc_rules'),
       author_instructions: text('author_instructions'), creator_notes: text('creator_notes'),
       supported_modes: { immersive: true, world },
@@ -104,7 +104,7 @@
     field('avatar').value = c.avatar === DEFAULT_IMAGE || c.avatar.includes('picsum.photos/seed/bao-character') ? '' : c.avatar;
     field('tags').value = (c.tags || []).join(', ');
     field('mode').value = c.supported_modes?.world ? 'world' : 'immersive';
-    field('profile').value = typeof c.profile === 'object' ? (c.profile['人物設定'] || engine.profilePrompt(c.profile)) : String(c.profile || '');
+    field('profile').value = typeof c.profile === 'object' ? (c.profile['AI 主角色設定'] || c.profile['人物設定'] || engine.profilePrompt(c.profile)) : String(c.profile || '');
     const theme = gameplayCore?.normalizeTheme?.(c.gameplay_ui?.theme) || { preset: 'default', density: 'comfortable', radius: 'round', meter: 'soft' };
     field('gameplay_theme').value = theme.preset || 'default';
     field('gameplay_accent').value = theme.accent || '';
