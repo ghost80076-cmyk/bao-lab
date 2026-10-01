@@ -122,9 +122,10 @@
   };
 
   const close = () => document.querySelector(".bao-modal-backdrop")?.remove();
+  const isStoryLocal = () => Boolean(document.getElementById("chat-view")?.classList.contains("active") && App.config);
+  const clonePrefs = prefs => ({ ...prefs, stylePacks: [...prefs.stylePacks], customInstructions: prefs.customInstructions.map(item => ({ ...item })) });
   const activePrefs = () => {
-    const inChat = document.getElementById("chat-view")?.classList.contains("active");
-    if (inChat && App.config?.narrative) return normalizePrefs(App.config.narrative);
+    if (isStoryLocal() && App.config?.narrative) return normalizePrefs(App.config.narrative);
     return normalizePrefs(settings);
   };
 
@@ -248,6 +249,7 @@
   const openModal = () => {
     close();
     const prefs = activePrefs();
+    const storyLocal = isStoryLocal();
     const selected = new Set(prefs.stylePacks);
     const focus = worldFocus();
     const wrap = document.createElement("div");
@@ -318,7 +320,7 @@
         </div>
 
         <div class="bao-setting-section">
-          <div class="narrative-instruction-heading"><div><h3>自訂長期指令</h3><p>只放「AI 應該怎麼寫」；劇情事實、NPC 資料與關係請放記憶／Canon。每條最多 ${CUSTOM_INSTRUCTION_CHARS} 字，只套用目前故事。</p></div><span class="chip" data-instruction-total>0 / ${CUSTOM_INSTRUCTION_LIMIT}</span></div>
+          <div class="narrative-instruction-heading"><div><h3>自訂長期指令</h3><p>只放「AI 應該怎麼寫」；劇情事實、NPC 資料與關係請放記憶／Canon。每條最多 ${CUSTOM_INSTRUCTION_CHARS} 字，${storyLocal ? "只修改目前故事" : "會成為新故事的起始偏好"}。</p></div><span class="chip" data-instruction-total>0 / ${CUSTOM_INSTRUCTION_LIMIT}</span></div>
           <div class="narrative-instruction-list" data-instruction-list>${prefs.customInstructions.map(instructionCardHTML).join("")}</div>
           <button type="button" class="secondary narrative-instruction-add" data-add-instruction>＋ 新增長期指令</button>
           <div class="narrative-token-note"><strong>自動去重：</strong>夜灣原生已有「不代寫玩家」與角色資訊隔離。重複規則會提示並省略；想覆蓋平台硬規則或破壞資訊邊界的指令不會送出。其餘自訂內容會留在穩定的故事偏好層，只有修改偏好時才改變。</div>
@@ -395,11 +397,13 @@
     refreshInstructionCards(wrap);
 
     wrap.querySelector("[data-narrative-reset]").onclick = () => {
-      settings = normalizePrefs(defaults);
-      save();
-      if (document.getElementById("chat-view")?.classList.contains("active") && App.config) {
-        App.config.narrative = { ...settings, stylePacks: [...settings.stylePacks], customInstructions: settings.customInstructions.map(item => ({ ...item })) };
+      const next = normalizePrefs(defaults);
+      if (storyLocal) {
+        App.config.narrative = clonePrefs(next);
         App.saveStory?.(false);
+      } else {
+        settings = next;
+        save();
       }
       close();
       updateBuilderSummary();
@@ -414,11 +418,13 @@
       const next = normalizePrefs({ ...defaults, stylePacks, customInstructions });
       wrap.querySelectorAll("[data-pref]").forEach(el => { next[el.dataset.pref] = el.value; });
       wrap.querySelectorAll("[data-pref-check]").forEach(el => { next[el.dataset.prefCheck] = Boolean(el.checked); });
-      settings = normalizePrefs(next);
-      save();
-      if (document.getElementById("chat-view")?.classList.contains("active") && App.config) {
-        App.config.narrative = { ...settings, stylePacks: [...settings.stylePacks], customInstructions: settings.customInstructions.map(item => ({ ...item })) };
+      const normalized = normalizePrefs(next);
+      if (storyLocal) {
+        App.config.narrative = clonePrefs(normalized);
         App.saveStory?.(false);
+      } else {
+        settings = normalized;
+        save();
       }
       close();
       updateBuilderSummary();
@@ -540,7 +546,7 @@
   const originalCollect = App.collectConfig.bind(App);
   App.collectConfig = function() {
     const cfg = originalCollect();
-    cfg.narrative = { ...settings, stylePacks: [...settings.stylePacks], customInstructions: settings.customInstructions.map(item => ({ ...item })) };
+    cfg.narrative = clonePrefs(settings);
     return cfg;
   };
 
@@ -565,7 +571,7 @@
   };
 
   window.BAONarrativeSettings = {
-    get: () => ({ ...settings, stylePacks: [...settings.stylePacks], customInstructions: settings.customInstructions.map(item => ({ ...item })) }),
+    get: () => clonePrefs(settings),
     set: value => { settings = normalizePrefs(value); save(); updateBuilderSummary(); updateChatButtonState(); },
     open: openModal,
     buildPrompt: buildPreferencePrompt,
