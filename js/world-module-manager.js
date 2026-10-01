@@ -30,8 +30,8 @@
     wrap.innerHTML = `<section class="world-manager-modal" role="dialog" aria-modal="true" aria-labelledby="world-manager-title">
       <header class="world-manager-head"><div><div class="eyebrow">WORLD MODULES</div><h2 id="world-manager-title">世界模組管理</h2><p id="world-manager-intro">角色卡提供預設，玩家只在目前故事中啟用或擴充。</p></div><div class="world-manager-head-actions"><button type="button" class="world-manager-help" data-world-help aria-label="世界模組管理說明" aria-expanded="false" aria-controls="world-manager-intro">?</button><button type="button" class="text-button" data-world-close>關閉</button></div></header>
       <div class="world-manager-body"><main>
-        <section class="world-manager-card world-manager-presets-card"><h3>快速啟用</h3><p>背包、技能、任務、裝備、勢力、聲望、經濟、境界、魔法等模組可自由組合。</p><div class="world-manager-presets" data-world-presets></div></section>
         <section class="world-manager-card world-manager-order-card"><div class="world-manager-title"><div><h3>目前模組順序</h3><p>順序同時影響頁籤與 Context 顯示。</p></div><button type="button" class="secondary" data-world-add>＋ 自訂模組</button></div><div class="world-manager-order" data-world-order></div></section>
+        <section class="world-manager-card world-manager-presets-card"><h3>快速啟用</h3><p>背包、技能、任務、裝備、勢力、聲望、經濟、境界、魔法等模組可自由組合。</p><div class="world-manager-presets" data-world-presets></div></section>
         <section class="world-manager-card world-manager-custom-card-list"><h3>玩家自訂模組</h3><p>自訂模組可以是欄位物件或項目清單，並直接接入既有 World Modules tracker。</p><div class="world-manager-custom" data-world-custom></div></section>
       </main><aside class="world-manager-guide">
         <section class="world-manager-card"><h3>Context 原則</h3><p><b>核心</b>：每輪精簡提供。</p><p><b>相關時</b>：文字命中或手動查看時提供。</p><p><b>只顯示</b>：保留在介面，不送主模型。</p></section>
