@@ -53,8 +53,8 @@ body{min-height:100vh;background:#101118;color:#f5f1ff}
       </div>
       <img src="assets/bao-bun.svg" width="84" height="84" alt="包包">
     </section>
-    <div class="yb-local-first"><b>Local-first 保持不變</b><span>帳號不是讀取私人故事的必要條件；自己的連線金鑰（API Key）也不會存進帳號。</span></div>
-    <nav class="yb-help-links" aria-label="開始故事與連線說明"><a href="quick-start.html">第一次玩？三步開始 →</a><a href="api-guide.html">AI 連線完整說明 →</a></nav>
+    <div class="yb-local-first"><b>故事仍然留在你手上</b><span>登入不是讀取私人故事的必要條件；自己的連線金鑰（API Key）也不會存進帳號。</span></div>
+    <nav class="yb-help-links" aria-label="開始故事與連線說明"><a href="quick-start.html">第一次玩？三步開始 →</a><a href="api-guide.html">模型連線完整說明 →</a></nav>
 
     <div class="yb-tabs">
       <button type="button" data-tab="login">登入</button>
@@ -67,7 +67,7 @@ body{min-height:100vh;background:#101118;color:#f5f1ff}
       <form class="yb-form" id="login-form">
         <label>帳號<input name="username" autocomplete="username" required maxlength="32"></label>
         <label>密碼<input name="password" type="password" autocomplete="current-password" required maxlength="128"></label>
-        <button class="yb-primary" type="submit">登入 BAO 帳號</button>
+        <button class="yb-primary" type="submit">登入夜灣帳號</button>
       </form>
       <div class="yb-error" id="login-error"></div>
     </section>
@@ -79,9 +79,9 @@ body{min-height:100vh;background:#101118;color:#f5f1ff}
         <label>密碼<input name="password" type="password" autocomplete="new-password" required minlength="10" maxlength="128"></label>
         <label>確認密碼<input name="password_confirm" type="password" autocomplete="new-password" required minlength="10" maxlength="128"></label>
         <label>邀請碼<input name="invite_code" autocomplete="off" required maxlength="160"></label>
-        <button class="yb-primary" type="submit">建立 BAO 帳號</button>
+        <button class="yb-primary" type="submit">建立夜灣帳號</button>
       </form>
-      <p class="yb-note">邀請碼由管理員提供。密碼與恢復碼不會以明文保存在 BAO 帳號資料庫。</p>
+      <p class="yb-note">邀請碼由管理員提供。密碼與恢復碼不會以明文保存在夜灣帳號資料庫。</p>
       <div class="yb-error" id="register-error"></div>
     </section>
 
@@ -151,7 +151,7 @@ body{min-height:100vh;background:#101118;color:#f5f1ff}
     var credentials=options.credentials||"include";
     try{response=await fetch(BASE+path,Object.assign({},options,{headers:headers,credentials:credentials}));}
     catch(error){
-      var transportError=new Error("無法連線 BAO 帳號服務。");
+      var transportError=new Error("無法連線夜灣帳號服務。");
       transportError.code="transport";
       throw transportError;
     }
@@ -167,7 +167,7 @@ body{min-height:100vh;background:#101118;color:#f5f1ff}
         invalid_recovery_request:"恢復資料格式不正確。",
         invalid_recovery_credentials:"玩家編號或恢復碼不正確。"
       };
-      throw new Error(map[data&&data.error]||("BAO 帳號服務錯誤（HTTP "+response.status+"）。"));
+      throw new Error(map[data&&data.error]||("夜灣帳號服務錯誤（HTTP "+response.status+"）。"));
     }
     return data;
   }
@@ -207,7 +207,7 @@ body{min-height:100vh;background:#101118;color:#f5f1ff}
   function recovery(code){
     show("account");
     var body=document.getElementById("account-body");
-    body.innerHTML='<h3>帳號建立／恢復成功</h3><p class="yb-note">請立即保存新的恢復碼。這組明文只在現在顯示；BAO 帳號後端只保存雜湊，管理員之後也無法替你查回。</p>'+
+    body.innerHTML='<h3>帳號建立／恢復成功</h3><p class="yb-note">請立即保存新的恢復碼。這組明文只在現在顯示；夜灣帳號後端只保存雜湊，管理員之後也無法替你查回。</p>'+
       '<div class="yb-recovery" id="recovery-code"></div><div class="yb-actions"><button class="yb-primary" id="copy-recovery">複製恢復碼</button><button class="yb-secondary" id="finish">我已保存</button></div>';
     document.getElementById("recovery-code").textContent=code||"";
     document.getElementById("copy-recovery").onclick=async function(){
