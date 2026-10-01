@@ -96,8 +96,8 @@
     }).join("");
 
     const selectedText = selected.size
-      ? `下一輪將優先參考 ${selected.size} 位人物；再次點擊人物可取消。`
-      : `可選最多 ${window.BAOCharacterStatus.MAX_CONTEXT_CHARACTERS} 位人物，供下一輪回覆優先參考。`;
+      ? `下一輪將優先帶入 ${selected.size} 位人物的相關狀態；再次點擊人物可取消。`
+      : `可選最多 ${window.BAOCharacterStatus.MAX_CONTEXT_CHARACTERS} 位人物作為下一輪重點；這不代表人物目前在場。`;
     ui.innerHTML = `<div class="character-status-toolbar"><div><p>${isDistrict ? "👥 當前場景 NPC（離場角色資料仍保存在故事中）" : "角色卡預設欄位與玩家自訂欄位共同組成這份故事的實際狀態欄。"} <button type="button" class="bao-help-button" data-bao-help="next_turn_reference" aria-label="了解下一輪重點">?</button></p><small class="character-context-selection" aria-live="polite">${esc(selectedText)}</small></div>${cfg.allow_player_customize ? '<button type="button" class="secondary" data-character-status-settings>⚙ 狀態欄管理</button>' : ""}</div><div class="character-status-grid">${cards || (isDistrict ? '<div class="character-status-empty">當前場景沒有已確認的在場 NPC。</div>' : '<div class="character-status-empty">目前沒有可追蹤人物。</div>')}</div>`;
     const toggleCard = card => {
       const result = window.BAOCharacterStatus.toggleContextCharacter?.(card.dataset.characterContext || "");
