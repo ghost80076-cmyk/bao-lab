@@ -113,10 +113,10 @@
   const save = () => localStorage.setItem(KEY, JSON.stringify(settings));
 
   const ensureStyles = () => {
-    if (!document.querySelector('link[href="css/narrative-settings.css?v=2"]')) {
+    if (!document.querySelector('link[href^="css/narrative-settings.css"]')) {
       const link = document.createElement("link");
       link.rel = "stylesheet";
-      link.href = "css/narrative-settings.css?v=2";
+      link.href = "css/narrative-settings.css?v=3";
       document.head.appendChild(link);
     }
   };
@@ -254,8 +254,8 @@
     const focus = worldFocus();
     const wrap = document.createElement("div");
     wrap.className = "bao-modal-backdrop";
-    wrap.innerHTML = `<section class="bao-modal">
-      <div class="bao-modal-head"><div><div class="eyebrow">OPTIONAL NARRATIVE LAYER</div><h2>敘事與描寫設定</h2></div><button class="bao-modal-close" type="button">關閉</button></div>
+    wrap.innerHTML = `<section class="bao-modal narrative-settings-modal" role="dialog" aria-modal="true" aria-labelledby="narrative-settings-title">
+      <div class="bao-modal-head"><div><div class="eyebrow">OPTIONAL NARRATIVE LAYER</div><h2 id="narrative-settings-title">敘事與描寫設定</h2></div><div class="narrative-head-actions"><button class="narrative-help" type="button" data-narrative-help aria-label="敘事設定說明" aria-expanded="false">?</button><button class="bao-modal-close" type="button">關閉</button></div></div>
       <div class="bao-modal-body">
         <div class="bao-setting-section">
           <h3>文風包 · 可複選</h3>
@@ -377,6 +377,12 @@
     document.body.appendChild(wrap);
 
     wrap.querySelector(".bao-modal-close").onclick = close;
+    wrap.querySelector("[data-narrative-help]")?.addEventListener("click", event => {
+      const modal = event.currentTarget.closest(".narrative-settings-modal");
+      const open = !modal?.classList.contains("narrative-help-open");
+      modal?.classList.toggle("narrative-help-open", open);
+      event.currentTarget.setAttribute("aria-expanded", open ? "true" : "false");
+    });
     wrap.addEventListener("click", e => { if (e.target === wrap) close(); });
     wrap.querySelectorAll("[data-style-pack]").forEach(btn => btn.addEventListener("click", () => {
       btn.classList.toggle("active");
