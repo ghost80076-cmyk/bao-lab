@@ -115,7 +115,7 @@ test.describe('Player 2.0 shell', () => {
     await expect(page.locator('#builder-view')).toHaveAttribute('data-bao-setup', 'quick');
     await expect(page.locator('#bao-connection-mode')).toBeVisible({ timeout: 10000 });
     await expect(page.locator('#bao-connection-mode')).toContainText('選一種模型連線方式');
-    await expect(page.locator('#bao-first-run-ai-note')).toContainText(/燈火|Gemini|OpenRouter|Anthropic|Claude|本機|LM Studio/i);
+    await expect(page.locator('#bao-first-run-ai-note')).toContainText(/連線金鑰|燈火|Gemini|OpenRouter|Anthropic|Claude|本機|LM Studio/i);
     await expect(page.locator('#bao-connection-mode [data-bao-connection="byok"]')).toHaveAttribute('aria-pressed', 'true');
     await expect(page.locator('#model-id').locator('xpath=..')).toBeHidden();
 
