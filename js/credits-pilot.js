@@ -309,7 +309,7 @@
       response = await fetch(ENDPOINT, {
         method: "POST",
         headers,
-        credentials: "include",
+        credentials: legacySession ? "omit" : "include",
         body: JSON.stringify({
           provider: upstreamProvider,
           model: config.model,
