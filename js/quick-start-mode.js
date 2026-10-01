@@ -84,11 +84,11 @@
     choice.innerHTML = `
       <ol class="bao-first-run-progress" aria-label="開始故事三步驟">
         <li class="is-done"><span>1</span><div><b>作品已選好</b><small id="bao-setup-story-name">目前作品</small></div></li>
-        <li class="is-current"><span>2</span><div><b>連接 AI</b><small id="bao-first-run-ai-note">選擇連線方式與模型</small></div></li>
+        <li class="is-current"><span>2</span><div><b>模型連線</b><small id="bao-first-run-ai-note">選擇連線方式與模型</small></div></li>
         <li><span>3</span><div><b>開始故事</b><small>完成連線後直接進入故事</small></div></li>
       </ol>
       <div class="bao-setup-mode-head">
-        <div class="bao-setup-mode-copy"><h3>快速開始</h3><p id="bao-setup-note">只處理 AI 連線，其餘先用適合一般故事的預設值。</p><small>想自己調整敘事、Persona 或記憶，再切到完整設定。</small></div>
+        <div class="bao-setup-mode-copy"><h3>快速開始</h3><p id="bao-setup-note">只處理模型連線，其餘先用適合一般故事的預設值。</p><small>想自己調整敘事、Persona 或記憶，再切到完整設定。</small></div>
         <div class="bao-setup-buttons">
           <button type="button" class="secondary" data-bao-setup="quick" aria-pressed="false">快速開始（推薦）</button>
           <button type="button" class="secondary" data-bao-setup="advanced" aria-pressed="false">完整設定</button>
@@ -100,7 +100,7 @@
     if (!panel) return;
     const intro = document.createElement('div');
     intro.id = 'bao-quick-intro';
-    intro.innerHTML = '選擇 AI 服務商、選擇 AI 模型，再貼上自己的連線金鑰（API Key），就能開始。<br>還沒有金鑰？<a href="quick-start.html" target="_blank" rel="noopener noreferrer">看三步驟教學 ↗</a>　<a href="api-guide.html" target="_blank" rel="noopener noreferrer">完整連線說明（API）↗</a>';
+    intro.innerHTML = '選擇模型服務與模型，再貼上自己的連線金鑰（API Key），就能開始。<br>還沒有金鑰？<a href="quick-start.html" target="_blank" rel="noopener noreferrer">看三步驟教學 ↗</a>　<a href="api-guide.html" target="_blank" rel="noopener noreferrer">完整連線說明（API）↗</a>';
     panel.querySelector('h3')?.insertAdjacentElement('afterend', intro);
     const extra = document.createElement('div');
     extra.id = 'bao-quick-extra';
@@ -147,7 +147,7 @@
     const note = $('bao-setup-note');
     if (note) note.textContent = restricted
       ? '這個世界需要先選開局方式與世界觀，因此使用完整設定。'
-      : '只處理 AI 連線；敘事、玩家身份（Persona）與記憶先沿用預設值。';
+      : '只處理模型連線；敘事、玩家身份（Persona）與記憶先沿用預設值。';
     // If an existing flow selected another step, never silently override it.
     setMode(restricted || App.currentStep !== 1 ? 'advanced' : 'quick', restricted || App.currentStep !== 1);
     // PlayerBuilder may have initialized before this progress UI existed.
