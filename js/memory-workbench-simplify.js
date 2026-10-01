@@ -208,11 +208,67 @@
     });
   };
 
+  const installCompactControls = desk => {
+    const head = desk.querySelector(".memory-desk-head");
+    if (!head) return;
+
+    const intro = head.querySelector("p");
+    if (intro) intro.id = "memory-desk-help-copy";
+
+    let help = head.querySelector("[data-memory-help]");
+    if (!help) {
+      help = document.createElement("button");
+      help.type = "button";
+      help.className = "memory-help-toggle";
+      help.dataset.memoryHelp = "true";
+      help.textContent = "?";
+      help.setAttribute("aria-label", "記憶頁面說明");
+      help.setAttribute("aria-expanded", "false");
+      help.setAttribute("aria-controls", "memory-desk-help-copy");
+      help.addEventListener("click", () => {
+        const open = !desk.classList.contains("memory-help-open");
+        desk.classList.toggle("memory-help-open", open);
+        help.setAttribute("aria-expanded", open ? "true" : "false");
+      });
+      head.querySelector(".memory-desk-close")?.insertAdjacentElement("beforebegin", help);
+    }
+
+    let done = head.querySelector("[data-memory-editing-done]");
+    if (!done) {
+      done = document.createElement("button");
+      done.type = "button";
+      done.className = "memory-editing-done";
+      done.dataset.memoryEditingDone = "true";
+      done.textContent = "完成";
+      done.addEventListener("click", () => {
+        if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
+        desk.classList.remove("memory-editing");
+      });
+      head.querySelector(".memory-desk-close")?.insertAdjacentElement("beforebegin", done);
+    }
+
+    if (desk.dataset.memoryCompactBound === "true") return;
+    desk.dataset.memoryCompactBound = "true";
+    const editable = target => target instanceof Element && target.matches("[data-slot-text],[data-slot-title]");
+    desk.addEventListener("focusin", event => {
+      if (!editable(event.target)) return;
+      desk.classList.add("memory-editing");
+      desk.classList.remove("memory-help-open");
+      help?.setAttribute("aria-expanded", "false");
+    });
+    desk.addEventListener("focusout", () => {
+      requestAnimationFrame(() => {
+        if (!editable(document.activeElement)) desk.classList.remove("memory-editing");
+      });
+    });
+  };
+
   const simplify = root => {
     if (!root?.querySelector) return;
     const desk = root.querySelector(".memory-desk");
     if (!desk) return;
     desk.classList.add("memory-simple");
+    installCompactControls(desk);
 
     const kicker = desk.querySelector(".memory-desk-kicker");
     const heading = desk.querySelector(".memory-desk-head h2");
