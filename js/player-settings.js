@@ -52,18 +52,25 @@
 
   const ensureStyles = () => {
     if (document.querySelector('link[href^="css/player-settings.css"]')) return;
-    const link = document.createElement("link"); link.rel = "stylesheet"; link.href = "css/player-settings.css?v=2"; document.head.appendChild(link);
+    const link = document.createElement("link"); link.rel = "stylesheet"; link.href = "css/player-settings.css?v=3"; document.head.appendChild(link);
   };
 
   const closeModal = () => document.querySelector(".bao-modal-backdrop")?.remove();
   const showModal = (title, body, onReady = null, footer = true) => {
     closeModal();
     const wrap = document.createElement("div");
+    const hasHelp = /<p(?:\s|>)/i.test(body);
     wrap.className = "bao-modal-backdrop";
-    wrap.innerHTML = `<section class="bao-modal"><div class="bao-modal-head"><h2>${App.escapeHTML(title)}</h2><button class="bao-modal-close" type="button">關閉</button></div><div class="bao-modal-body">${body}</div>${footer ? '<div class="bao-modal-footer"><button class="secondary bao-modal-cancel" type="button">取消</button><button class="primary bao-modal-save" type="button">完成</button></div>' : ""}</section>`;
+    wrap.innerHTML = `<section class="bao-modal bao-player-modal" role="dialog" aria-modal="true" aria-labelledby="bao-player-modal-title"><div class="bao-modal-head"><h2 id="bao-player-modal-title">${App.escapeHTML(title)}</h2><div class="bao-modal-head-actions">${hasHelp ? '<button class="bao-modal-help" type="button" aria-label="設定說明" aria-expanded="false">?</button>' : ""}<button class="bao-modal-close" type="button">關閉</button></div></div><div class="bao-modal-body">${body}</div>${footer ? '<div class="bao-modal-footer"><button class="secondary bao-modal-cancel" type="button">取消</button><button class="primary bao-modal-save" type="button">完成</button></div>' : ""}</section>`;
     document.body.appendChild(wrap);
     wrap.querySelector(".bao-modal-close")?.addEventListener("click", closeModal);
     wrap.querySelector(".bao-modal-cancel")?.addEventListener("click", closeModal);
+    wrap.querySelector(".bao-modal-help")?.addEventListener("click", event => {
+      const modal = event.currentTarget.closest(".bao-player-modal");
+      const open = !modal?.classList.contains("bao-modal-help-open");
+      modal?.classList.toggle("bao-modal-help-open", open);
+      event.currentTarget.setAttribute("aria-expanded", open ? "true" : "false");
+    });
     wrap.addEventListener("click", e => { if (e.target === wrap) closeModal(); });
     onReady?.(wrap);
     return wrap;
