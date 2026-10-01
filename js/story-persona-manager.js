@@ -273,9 +273,14 @@
       box.querySelector('[data-load]').onclick = () => {const item = presets().find(p => p.id === box.querySelector('#bao-actor-preset').value); if (!item) return alert('先選擇預設。'); PLAYER_FIELDS.forEach(key => {box.querySelector('form').elements.namedItem(key).value = item.persona[key] || '';});};
       box.querySelector('[data-save]').onclick = () => {const item = savePreset(formData(box.querySelector('form'), PLAYER_FIELDS)); if (item) {const select = box.querySelector('#bao-actor-preset'); select.innerHTML = presetOptions(); select.value = item.id;}};
     } else {
-      box.innerHTML = `<p class="note">這裡新增的是 AI 人物／NPC，由 AI 演繹；不會把玩家 Persona 變成 AI 可控制人物。</p><label>編輯自己新增的角色<select id="bao-actor-existing"><option value="">新增一位 AI 人物</option>${state.hostedCharacters.map(actor => `<option value="${esc(actor.id)}">${esc(actor.name)} · ${actor.role === 'primary' ? 'AI 主角' : 'NPC'}</option>`).join('')}</select></label><form class="bao-actor-fields" autocomplete="off"><label>角色定位<select name="role"><option value="additional">新增 NPC（由 AI 演繹；保留原角色）</option><option value="primary">由自訂角色作為 AI 主要互動人物</option></select></label>${ACTOR_FIELDS.map(key => field(key)).join('')}</form><button type="button" class="secondary" data-remove>移除選取的自訂人物</button>`;
+      box.innerHTML = `<p class="note">這裡新增的是 AI 人物／NPC，由 AI 演繹；不會把玩家 Persona 變成 AI 可控制人物。</p><label>編輯自己新增的角色<select id="bao-actor-existing"><option value="">新增一位 AI 人物</option>${state.hostedCharacters.map(actor => `<option value="${esc(actor.id)}">${esc(actor.name)} · ${actor.role === 'primary' ? 'AI 主角' : 'NPC'}</option>`).join('')}</select></label><form class="bao-actor-fields" autocomplete="off"><label>角色定位<select name="role"><option value="additional">新增 NPC（由 AI 演繹；保留原角色）</option><option value="primary">由自訂角色作為 AI 主要互動人物</option></select></label>${ACTOR_FIELDS.map(key => field(key)).join('')}</form><div class="bao-actor-actions"><button type="button" class="secondary" data-open-roster>NPC 名冊／場景參與者</button><button type="button" class="secondary" data-remove>移除選取的自訂人物</button></div>`;
       const select = box.querySelector('#bao-actor-existing');
       select.onchange = () => fillActorForm(box.querySelector('form'), state.hostedCharacters.find(actor => actor.id === select.value));
+      box.querySelector('[data-open-roster]').onclick = () => {
+        if (!window.BAOCharacterStatusUI?.openNpcRoster) return alert('NPC 名冊工具仍在載入，請稍後再試。');
+        close();
+        window.BAOCharacterStatusUI.openNpcRoster();
+      };
       box.querySelector('[data-remove]').onclick = () => {if (!select.value) return; state.hostedCharacters = state.hostedCharacters.filter(actor => actor.id !== select.value); state.hostedCharacter = null; persist(); renderDialog();};
     }
     box.querySelector('form')?.addEventListener('submit', event => {event.preventDefault(); applyDialog();});
