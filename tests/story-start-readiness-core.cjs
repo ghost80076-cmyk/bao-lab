@@ -15,7 +15,7 @@ const core = require("../js/story-start-readiness-core.js");
   assert.equal(state.work.ready, true);
   assert.equal(state.ai.ready, false);
   assert.equal(state.ai.action, "key");
-  assert.match(state.ai.label, /API Key/);
+  assert.match(state.ai.label, /連線金鑰/);
   assert.equal(state.canStart, false);
   assert.equal(state.missing, "key");
 }
