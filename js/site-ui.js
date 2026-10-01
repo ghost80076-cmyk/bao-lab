@@ -58,7 +58,7 @@ const requestPlayerText = ({ title = "輸入名稱", label = "名稱", value = "
 window.BAOFeedback = Object.freeze({ notify: notifyPlayer, requestText: requestPlayerText });
 
 window.addEventListener("DOMContentLoaded", () => {
-  loadBAOScript("js/chat-api-settings.js?v=2")
+  loadBAOScript("js/chat-api-settings.js?v=3")
     .then(() => loadBAOScript("js/model-discovery.js"))
     .catch(err => console.warn("BAO/LAB chat API settings or model discovery failed to load:", err));
   loadBAOScript("js/autonomous-world-workbench.js")
@@ -104,7 +104,7 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/conversation-search.js"))
     .then(() => loadBAOScript("js/inspiration-copy.js"))
     .then(() => loadBAOScript("js/story-revision-state.js"))
-    .then(() => loadBAOScript("js/story-branches.js"))
+    .then(() => loadBAOScript("js/story-branches.js?v=2"))
     .then(() => loadBAOScript("js/streaming-ui.js"))
     .then(() => loadBAOScript("js/request-lifecycle.js"))
     .then(() => loadBAOScript("js/chat-tool-navigation.js"))
