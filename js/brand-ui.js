@@ -242,7 +242,7 @@
       <section class="creator-page">
         <div class="brand-kicker">ABOUT YORUBAY</div>
         <h2>讓故事回到玩家手中</h2>
-        <p class="brand-about-lead">你的模型，你的故事，你的世界。</p>
+        <p class="brand-about-lead">故事在夜裡靠岸，也留在你手上。</p>
         <section class="brand-about-product" aria-label="夜灣是什麼">
           <p class="brand-about-focus">角色 · 世界 · 互動 · 自己的燈</p>
           <p>夜灣（YoruBay）是一個讓角色、世界與長篇故事停靠的地方。故事優先留在你的裝置裡；想讓故事繼續時，可以使用自己的模型連線、LM Studio 本機模型，或借夜灣的一盞燈。</p>
