@@ -63,6 +63,7 @@ const CharacterEngine = {
       .slice(0, 12);
     const characterStatus = raw.character_status || gameplay.character_status || {};
     const gameplayUI = raw.gameplay_ui || gameplay.ui_schema || gameplay.gameplay_ui || null;
+    const playInfoSurface = raw.play_info_surface || presentation.play_info_surface || (gameplayUI ? "game-ui" : "reader-context");
     const openingRaw = raw.opening || presentation.opening || null;
     const opening = openingRaw && typeof openingRaw === "object" && !Array.isArray(openingRaw)
       ? {
@@ -109,6 +110,7 @@ const CharacterEngine = {
       dynamic_prompts: dynamicPrompts,
       character_status: characterStatus,
       gameplay_ui: gameplayUI && typeof gameplayUI === "object" && !Array.isArray(gameplayUI) ? gameplayUI : null,
+      play_info_surface: playInfoSurface === "game-ui" ? "game-ui" : "reader-context",
       npc_rules: content.npc_rules || raw.npc_rules || "",
       author_instructions: content.author_instructions || raw.author_instructions || "",
       creator_notes: content.creator_notes || raw.creator_notes || "",

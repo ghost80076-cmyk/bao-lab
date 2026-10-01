@@ -47,6 +47,7 @@ for(const name of ['REN','HARU','REI','SENA','KYO','NAGI']){
   assert.equal(status.visits,0);
 }
 
+assert.equal(card.presentation.play_info_surface,'game-ui','custom simulator UI must remain the Play information surface');
 assert.equal(card.presentation.opening.type,'hostsim');
 assert.equal(card.presentation.opening.choices.length,4);
 assert.match(card.content.system_prompt,/重要度＝玩家對該牛郎職業與業績的重要性/);

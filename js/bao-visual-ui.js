@@ -115,6 +115,15 @@
 
   const currentPanel = () => root.querySelector('.ui-tab.active')?.dataset.panel || 'npc';
 
+  const hasGameplaySurface = () => {
+    if (App.activeCharacter?.play_info_surface === 'game-ui') return true;
+    try {
+      const schema = window.BAOGameplayUI?.schemaFor?.(App.activeCharacter);
+      if (schema?.panels?.length) return true;
+    } catch {}
+    return false;
+  };
+
   const sceneValue = value => {
     const text = String(value ?? '').trim();
     return text && !/^(?:未知|未設定|未確認|—|-)$/.test(text) ? text : '';
@@ -142,9 +151,21 @@
     meta.hidden = values.length === 0;
   };
 
+  const syncStatusButtonContract = () => {
+    const button = document.getElementById('bao-play-status-toggle');
+    if (!button) return;
+    const readerContext = mode === 'play' && desktop.matches && !hasGameplaySurface();
+    button.setAttribute('aria-controls', readerContext ? 'bao-reader-context' : 'game-ui');
+    button.setAttribute('aria-label', readerContext ? '查看故事資訊' : '查看人物、事件與作品資訊');
+    button.title = readerContext
+      ? '閱讀層：現況、人物、世界與記憶'
+      : '人物、狀態、事件、記憶與作品自訂分頁';
+  };
+
   const closeStatus = () => {
     statusOpen = false;
     root.classList.remove('bao-play-status-open');
+    window.BAOReaderContext?.close?.({ notify:false });
     const button = document.getElementById('bao-play-status-toggle');
     button?.setAttribute('aria-expanded', 'false');
   };
@@ -171,6 +192,22 @@
   };
 
   const openStatus = () => {
+    // Desktop Play gets a dedicated read-only context sheet. Studio and compact
+    // layouts keep the existing game UI so editing and mobile behavior stay intact.
+    if (mode === 'play' && desktop.matches && !hasGameplaySurface() && window.BAOReaderContext?.open?.({
+      onClose: () => {
+        statusOpen = false;
+        document.getElementById('bao-play-status-toggle')?.setAttribute('aria-expanded', 'false');
+      }
+    })) {
+      statusOpen = true;
+      root.classList.remove('bao-play-status-open');
+      const button = document.getElementById('bao-play-status-toggle');
+      button?.setAttribute('aria-expanded', 'true');
+      syncStatusButtonContract();
+      return;
+    }
+
     // Migrate an already-open tab that still has the retired reader loaded.
     window.BAOImmersiveReader?.setEnabled?.(false);
     root.classList.remove('bao-immersive-on');
@@ -195,6 +232,7 @@
       button.setAttribute('aria-pressed', String(mode === 'studio'));
       button.setAttribute('aria-label', mode === 'studio' ? '返回故事閱讀' : '開啟故事工具與進階設定');
     }
+    syncStatusButtonContract();
     if (mode === 'studio') {
       closeStatus();
       if (previousMode !== mode && !desktop.matches) setTimeout(() => {
@@ -298,7 +336,10 @@
     }
   }).observe(main, { childList:true, subtree:true });
 
-  desktop.addEventListener?.('change', () => setMode(mode));
+  desktop.addEventListener?.('change', () => {
+    closeStatus();
+    setMode(mode);
+  });
   document.addEventListener('keydown', event => {
     if (event.key === 'Escape' && statusOpen) closeStatus();
   });
