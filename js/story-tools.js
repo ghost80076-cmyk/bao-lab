@@ -34,11 +34,34 @@
   };
 
   const ensureStyles = () => {
-    if (document.querySelector('link[href="css/story-tools.css"]')) return;
+    if (document.querySelector('link[href^="css/story-tools.css"]')) return;
     const link = document.createElement("link");
     link.rel = "stylesheet";
-    link.href = "css/story-tools.css";
+    link.href = "css/story-tools.css?v=2";
     document.head.appendChild(link);
+  };
+
+  const setModalMode = (host, mode, label) => {
+    const modal = host?.closest?.(".story-tools-modal");
+    if (!modal) return;
+    modal.dataset.storyToolsMode = mode || "detail";
+    const backdrop = modal.closest(".story-tools-backdrop");
+    if (backdrop) backdrop.dataset.storyToolsMode = mode || "detail";
+    modal.setAttribute("role", "dialog");
+    modal.setAttribute("aria-modal", "true");
+    if (label) modal.setAttribute("aria-label", label);
+    modal.classList.remove("story-tools-help-open", "story-library-help-open");
+  };
+
+  const bindMobileHelp = (host, selector, className) => {
+    const button = host?.querySelector?.(selector);
+    if (!button) return;
+    button.addEventListener("click", () => {
+      const modal = host.closest(".story-tools-modal");
+      const open = !modal?.classList.contains(className);
+      modal?.classList.toggle(className, open);
+      button.setAttribute("aria-expanded", open ? "true" : "false");
+    });
   };
 
   const roleFrom = value => {
@@ -769,6 +792,7 @@
   };
 
   const editor = host => {
+    setModalMode(host, "detail", "劇情摘要包編輯");
     const pack = normalizePack(draft || createPack());
     draft = pack;
     host.innerHTML = '<div class="story-tools-toolbar"><button class="secondary" type="button" data-back>← 返回</button><span class="story-tools-pill">' + (pack.playerConfirmed ? "已確認" : "待玩家確認") + '</span></div>' +
@@ -878,6 +902,7 @@
   };
 
   const previewScreen = host => {
+    setModalMode(host, "detail", "Context 預覽器");
     const data = preview();
     host.innerHTML = '<div class="story-tools-toolbar"><button class="secondary" type="button" data-back>← 返回</button><span class="story-tools-pill">約 ' + data.estimatedTokens.toLocaleString() + ' 字詞用量（tokens）</span></div>' +
       '<section class="story-tools-card"><h3>Context 預覽器</h3><p>依目前狀態建立，不呼叫模型。智慧記憶若在真正送出前觸發新摘要，實際內容可能略有變動。</p>' +
@@ -901,6 +926,7 @@
   };
 
   const importPreviewScreen = (host, parsed, filename) => {
+    setModalMode(host, "detail", "外部紀錄匯入預覽");
     const safeFile = App.escapeHTML(filename || "外部紀錄");
     if (Array.isArray(parsed.conversations) && parsed.conversations.length) {
       const options = parsed.conversations.map((item, index) =>
@@ -986,6 +1012,7 @@
   };
 
   const importScreen = host => {
+    setModalMode(host, "detail", "匯入外部紀錄");
     host.innerHTML = '<div class="story-tools-toolbar"><button class="secondary" type="button" data-back>← 返回</button></div>' +
       '<section class="story-tools-card"><h3>外部聊天歷史匯入</h3><p>支援夜灣 Context Pack（相容舊 BAO/LAB Pack）、messages JSON、Claude、ChatGPT、SillyTavern／JSONL，以及一般「名字：內容」純文字。</p>' +
       '<input type="file" data-file accept=".json,.jsonl,.txt,application/json,application/x-ndjson,text/plain"><div class="story-import-note">選檔後會先顯示格式、訊息數與說話者身分；確認前不建立草稿，也不呼叫模型。</div></section>';
@@ -1043,6 +1070,7 @@
   };
 
   const libraryScreen = async host => {
+    setModalMode(host, "library", "我的故事");
     if (!window.BAOStoryLibrary) return tell("故事書庫仍在載入，請稍後再試。");
     host.innerHTML = '<div class="story-tools-toolbar"><button class="secondary" type="button" data-back>← 返回</button><span class="story-tools-pill">INDEXEDDB STORY LIBRARY</span></div><section class="story-tools-card"><h3>我的故事</h3><p>正在讀取這台裝置上的獨立故事與篇章／分支……</p></section>';
     host.querySelector("[data-back]").onclick = () => GameState.current ? home(host) : close();
@@ -1091,11 +1119,12 @@
       }).join("");
 
       host.innerHTML = '<div class="story-tools-toolbar"><button class="secondary" type="button" data-back>← 返回</button><span class="story-tools-pill">' + stories.length + ' 個故事</span></div>' +
-        '<section class="story-library-shell"><div class="story-library-head"><div><div class="eyebrow">NIGHT READING ROOM</div><h2>我的故事</h2><p>你打開過的故事都收在這裡。同一個角色可以有多本彼此獨立的故事；記憶、Persona、世界狀態與章節／分支各自保存。釘選常玩的故事，或直接搜尋名稱與最近內容，就能更快回到昨晚停下的地方。</p></div><div class="story-tools-actions"><button type="button" class="secondary" data-story-library-import>匯入完整故事</button><input hidden type="file" data-story-library-import-file accept=".json,application/json"></div></div>' +
+        '<section class="story-library-shell"><div class="story-library-head"><div><div class="eyebrow">NIGHT READING ROOM</div><h2>我的故事</h2><p class="story-library-help-copy">你打開過的故事都收在這裡。同一個角色可以有多本彼此獨立的故事；記憶、Persona、世界狀態與章節／分支各自保存。釘選常玩的故事，或直接搜尋名稱與最近內容，就能更快回到昨晚停下的地方。</p></div><div class="story-tools-actions story-library-head-actions"><button type="button" class="story-tools-help" data-story-library-help aria-label="我的故事說明" aria-expanded="false">?</button><button type="button" class="secondary" data-story-library-import>匯入完整故事</button><input hidden type="file" data-story-library-import-file accept=".json,application/json"></div></div>' +
         (stories.length ? '<div class="story-library-controls"><label class="story-library-search"><span>搜尋故事</span><input type="search" data-story-library-search placeholder="故事名、角色或最近內容…" autocomplete="off"></label><button type="button" class="secondary story-library-pinned-filter" data-story-library-pinned aria-pressed="false">★ 只看釘選</button><span class="story-library-result" data-story-library-result></span></div>' : '') +
         (cards || '<div class="story-library-empty"><b>書架現在還是空的</b><span>從任一角色翻開第一頁；第一次自動存檔後，這段故事就會留在這裡等你回來。</span></div>') +
         (stories.length ? '<div class="story-library-empty" data-story-library-no-results hidden><b>找不到符合的故事</b><span>換個關鍵字，或取消「只看釘選」。</span></div>' : '') + '</section>';
       host.querySelector("[data-back]").onclick = () => GameState.current ? home(host) : close();
+      bindMobileHelp(host, "[data-story-library-help]", "story-library-help-open");
       const libraryImportButton = host.querySelector("[data-story-library-import]");
       const libraryImportPicker = host.querySelector("[data-story-library-import-file]");
       libraryImportButton?.addEventListener("click", () => libraryImportPicker?.click());
@@ -1237,17 +1266,18 @@
     close();
     const wrap = document.createElement("div");
     wrap.className = "story-tools-backdrop";
-    wrap.innerHTML = '<section class="story-tools-modal"><div class="story-tools-main"></div></section>';
+    wrap.innerHTML = '<section class="story-tools-modal" role="dialog" aria-modal="true"><div class="story-tools-main"></div></section>';
     document.body.appendChild(wrap);
     wrap.addEventListener("click", event => { if (event.target === wrap) close(); });
     libraryScreen(wrap.querySelector(".story-tools-main"));
   };
 
   const home = host => {
+    setModalMode(host, "home", "故事管理");
     const hasPack = Boolean(GameState.current?.contextPack);
     const hasDraft = Boolean(GameState.current?.contextPackDraft);
     const storageMode = Storage.status?.().mode === "indexedDB" ? "瀏覽器故事資料庫（IndexedDB）" : "本機儲存備用模式（localStorage）";
-    host.innerHTML = '<div class="story-tools-intro"><div><div class="eyebrow">LOCAL-FIRST STORY DESK</div><h2>故事管理</h2><p>備份、搬家、整理前情與建立續篇都在瀏覽器完成；連線金鑰（API Key）永遠不進匯出檔。</p><div class="story-preview-meta">故事儲存：' + storageMode + '</div></div><button class="story-tools-close" type="button">關閉</button></div>' +
+    host.innerHTML = '<div class="story-tools-intro story-tools-home-head"><div><div class="eyebrow">LOCAL-FIRST STORY DESK</div><h2>故事管理</h2><p class="story-tools-help-copy">備份、搬家、整理前情與建立續篇都在瀏覽器完成；連線金鑰（API Key）永遠不進匯出檔。</p><div class="story-preview-meta">故事儲存：' + storageMode + '</div></div><div class="story-tools-head-actions"><button type="button" class="story-tools-help" data-story-tools-help aria-label="故事管理說明" aria-expanded="false">?</button><button class="story-tools-close" type="button">關閉</button></div></div>' +
       '<div class="story-tools-home">' +
       '<section class="story-tools-card"><h3>我的故事</h3><p>像一座只屬於你的書架：同一個角色可以展開不同故事，每一本都有自己的記憶、Persona、世界狀態與章節／分支。</p><button class="primary" type="button" data-library>回到我的故事</button></section>' +
       '<section class="story-tools-card"><h3>完整故事備份</h3><p>包含主線與全部分支，以及對話、玩家資料（Persona）、記憶、角色狀態（Character Status）、世界狀態（World State）、世界模組、敘事偏好與劇情摘要包（Context Pack）。</p><div class="story-tools-actions"><button class="primary" type="button" data-export>匯出完整故事</button><button class="secondary" type="button" data-backup>建立本機備份</button><button class="secondary" type="button" data-import>匯入完整故事</button><input hidden type="file" data-story-file accept=".json,application/json"></div></section>' +
@@ -1255,6 +1285,7 @@
       '<section class="story-tools-card"><h3>外部聊天歷史</h3><p>先轉成可檢查的劇情摘要包（Context Pack），再由玩家確認。</p><button class="secondary" type="button" data-external>匯入外部紀錄</button></section>' +
       '<section class="story-tools-card"><h3>Context 預覽器</h3><p>查看下一輪實際使用的角色卡、記憶、狀態、模組、Persona 與敘事偏好。</p><button class="secondary" type="button" data-preview>預覽送出內容</button></section></div>';
     host.querySelector(".story-tools-close").onclick = close;
+    bindMobileHelp(host, "[data-story-tools-help]", "story-tools-help-open");
     host.querySelector("[data-library]").onclick = () => libraryScreen(host);
     host.querySelector("[data-export]").onclick = async event => {
       const button = event.currentTarget;
@@ -1318,7 +1349,7 @@
     close();
     const wrap = document.createElement("div");
     wrap.className = "story-tools-backdrop";
-    wrap.innerHTML = '<section class="story-tools-modal"><div class="story-tools-main"></div></section>';
+    wrap.innerHTML = '<section class="story-tools-modal" role="dialog" aria-modal="true"><div class="story-tools-main"></div></section>';
     document.body.appendChild(wrap);
     wrap.addEventListener("click", event => { if (event.target === wrap) close(); });
     home(wrap.querySelector(".story-tools-main"));
