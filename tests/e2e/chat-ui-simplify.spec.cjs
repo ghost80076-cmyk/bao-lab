@@ -5,10 +5,14 @@ test('phone chat keeps advanced author settings out of the reading pane but reac
   await page.goto('./');
   await page.waitForFunction(() => Boolean(window.BAOChatUISimplify && window.BAOChatToolNavigation &&
     window.BAOMobileReadingLayout && document.getElementById('bao-author-regex-panel')));
-  await page.evaluate(() => App.showView('chat'));
+  await page.evaluate(() => {
+    App.showView('chat');
+    BAOMobileReadingLayout.sync();
+  });
   await expect(page.locator('#chat-view .chat-main #bao-author-regex-panel')).toHaveCount(0);
   await expect(page.locator('#bao-author-settings-storage #bao-author-regex-panel')).toHaveCount(1);
-  await page.locator('#bao-mobile-tools-tab').click();
+  await expect(page.locator('#bao-mobile-composer-tools')).toBeVisible();
+  await page.locator('#bao-mobile-composer-tools').click();
   const drawer = page.locator('#bao-chat-tool-drawer');
   await expect(drawer).toBeVisible();
   await drawer.locator('details').filter({ hasText: '敘事、模型與外觀' }).locator('summary').click();
