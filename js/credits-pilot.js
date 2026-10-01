@@ -1,4 +1,4 @@
-/* YoruBay account wallet bridge. Player sessions stay in page memory; never add owner secrets here. */
+/* YoruBay account wallet bridge. Session secrets use HttpOnly cookies; old localStorage tokens are read only for migration. */
 (() => {
   "use strict";
   if (typeof App === "undefined" || typeof API === "undefined" || window.BAOCreditsPilot) return;
@@ -136,9 +136,25 @@
     };
     return cleaned;
   };
-  const accountToken = () => String(window.localStorage?.getItem?.("yorubay:session") || "").trim();
+  const LEGACY_SESSION_KEY = "yorubay:session";
+  const SESSION_HINT_KEY = "yorubay:session:active";
+  const accountToken = () => String(window.localStorage?.getItem?.(LEGACY_SESSION_KEY) || "").trim();
+  const accountCookieHint = () => {
+    try {
+      return window.localStorage?.getItem?.(SESSION_HINT_KEY) === "1";
+    } catch (_) {
+      return false;
+    }
+  };
+  const clearAccountSessionHint = () => {
+    try {
+      window.localStorage?.removeItem?.(SESSION_HINT_KEY);
+      window.localStorage?.removeItem?.(LEGACY_SESSION_KEY);
+    } catch (_) {}
+  };
   const accountSentinel = "__YORUBAY_ACCOUNT__";
-  const validAccountSession = () => /^yb_s_[A-Za-z0-9_-]{30,}$/.test(accountToken());
+  const validLegacySession = () => /^yb_s_[A-Za-z0-9_-]{30,}$/.test(accountToken());
+  const validAccountSession = () => validLegacySession() || accountCookieHint();
   const isAccountConnection = config => isEndpoint(config?.baseUrl) && Boolean(hostedProviderFor(config?.model));
   const isPilot = config => config?.type === PROVIDER || config?.route === PROVIDER || isAccountConnection(config);
   const isAccountReady = config => validAccountSession() && isAccountConnection(config);
@@ -262,8 +278,8 @@
       throw new Error("夜灣燈火目前僅支援已開放模型及固定連線路線。請重新選擇模型預設。");
     }
     const token = accountToken();
-    const validSession = /^yb_s_[A-Za-z0-9_-]{30,}$/.test(token);
-    if (!validSession) throw new Error("請先登入夜灣帳號。舊版 bao_ 玩家金鑰已停止用於夜灣燈火。");
+    const legacySession = /^yb_s_[A-Za-z0-9_-]{30,}$/.test(token);
+    if (!legacySession && !accountCookieHint()) throw new Error("請先登入夜灣帳號。舊版 bao_ 玩家金鑰已停止用於夜灣燈火。");
     if (!Array.isArray(messages) || !messages.length || messages.length > 100) {
       throw new Error("夜灣 每次最多傳送 100 則訊息。請縮短近期對話或改用自己的 API Key。");
     }
@@ -288,9 +304,12 @@
     const maxOutput = Number.isFinite(requested) ? Math.max(1, Math.min(outputCap, Math.floor(requested))) : Math.min(6144, outputCap);
     let response;
     try {
+      const headers = { "Content-Type": "application/json" };
+      if (legacySession) headers.Authorization = `Bearer ${token}`;
       response = await fetch(ENDPOINT, {
         method: "POST",
-        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        headers,
+        credentials: "include",
         body: JSON.stringify({
           provider: upstreamProvider,
           model: config.model,
@@ -306,9 +325,10 @@
     try { data = await response.json(); }
     catch { throw new Error(`夜灣 後端回傳了無法解析的內容（HTTP ${response.status}）。`); }
     if (!response.ok) {
+      if (response.status === 401) clearAccountSessionHint();
       const name = upstreamName(config.model);
       const errors = {
-        unauthorized: "玩家金鑰無效或已停用，請向管理員索取新金鑰。",
+        unauthorized: "登入已失效，請重新登入夜灣帳號。",
         insufficient_credits: "舊版測試額度不足，請向管理員補充額度。",
         insufficient_wallet_balance: "夜灣燈火不足，請添燈後再試。",
         wallet_disabled: "這個帳號的夜灣燈火功能已停用，請聯絡管理員。",
