@@ -104,9 +104,9 @@ test('quick start shows the exact missing item and becomes ready live', async ({
   await expect(steps.nth(0)).toHaveClass(/is-done/);
   await expect(steps.nth(0).locator('small')).toContainText('已選：');
   await expect(steps.nth(1)).toHaveClass(/is-current/);
-  await expect(steps.nth(1).locator('small')).toContainText('還缺 API Key');
+  await expect(steps.nth(1).locator('small')).toContainText('還缺連線金鑰');
   await expect(steps.nth(2)).toHaveClass(/is-pending/);
-  await expect(steps.nth(2).locator('small')).toContainText('還缺 API Key');
+  await expect(steps.nth(2).locator('small')).toContainText('還缺連線金鑰');
 
   await readiness.locator('[data-start-ready-action]').click();
   await expect(page.locator('#api-key')).toBeFocused();
