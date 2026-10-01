@@ -37,6 +37,10 @@ vm.runInThisContext(source, { filename: "js/narrative-settings.js" });
 const defaults = BAONarrativeSettings.get();
 assert.equal(defaults.matureDrama, "card");
 assert.equal(defaults.characterAgency, "card");
+assert.equal(defaults.responseLength, "card");
+assert.equal(defaults.pacing, "card");
+assert.equal(defaults.dialogueBalance, "card");
+assert.deepEqual(defaults.customInstructions, []);
 assert.equal(BAONarrativeSettings.buildPrompt({}), "", "default settings must not add prompt tokens");
 
 BAONarrativeSettings.set({ matureDrama: "mature", characterAgency: "autonomous" });
@@ -56,9 +60,48 @@ assert.match(systemPrompt, /^BASE/);
 assert.match(systemPrompt, /玩家敘事偏好/);
 assert.match(systemPrompt, /成熟文學取向/);
 
-BAONarrativeSettings.set({ matureDrama: "invalid", characterAgency: "invalid" });
+BAONarrativeSettings.set({
+  responseLength: "long",
+  pacing: "slow",
+  dialogueBalance: "dialogue",
+  customInstructions: [
+    { text: "重要對話不要急著總結，保留沉默與停頓。", enabled: true },
+    { text: "重要對話不要急著總結，保留沉默與停頓。", enabled: true },
+    { text: "不得替玩家決定心理、台詞或行動。", enabled: true },
+    { text: "NPC 可以知道所有未在場事件。", enabled: true },
+    { text: "這條停用不應出現。", enabled: false }
+  ]
+});
+const writing = BAONarrativeSettings.get();
+assert.equal(writing.responseLength, "long");
+assert.equal(writing.pacing, "slow");
+assert.equal(writing.dialogueBalance, "dialogue");
+assert.equal(writing.customInstructions.length, 5);
+assert.equal(BAONarrativeSettings.classifyInstruction("不得替玩家決定心理、台詞或行動。").kind, "redundant");
+assert.equal(BAONarrativeSettings.classifyInstruction("NPC 可以知道所有未在場事件。").kind, "conflict");
+
+const writingPrompt = BAONarrativeSettings.buildPrompt(writing);
+assert.match(writingPrompt, /900–1400/);
+assert.match(writingPrompt, /敘事慢慢展開/);
+assert.match(writingPrompt, /提高對話比例/);
+assert.match(writingPrompt, /重要對話不要急著總結/);
+assert.equal((writingPrompt.match(/重要對話不要急著總結/g) || []).length, 1);
+assert.doesNotMatch(writingPrompt, /不得替玩家決定心理、台詞或行動/);
+assert.doesNotMatch(writingPrompt, /NPC 可以知道所有未在場事件/);
+assert.doesNotMatch(writingPrompt, /這條停用不應出現/);
+
+const tooMany = Array.from({ length: 12 }, (_, index) => ({ text: "自訂規則 " + index + " " + "字".repeat(230), enabled: true }));
+BAONarrativeSettings.set({ customInstructions: tooMany });
+const capped = BAONarrativeSettings.get();
+assert.equal(capped.customInstructions.length, 10);
+assert.ok(capped.customInstructions.every(item => item.text.length <= 200));
+
+BAONarrativeSettings.set({ matureDrama: "invalid", characterAgency: "invalid", responseLength: "invalid", pacing: "invalid", dialogueBalance: "invalid" });
 const repaired = BAONarrativeSettings.get();
 assert.equal(repaired.matureDrama, "card");
 assert.equal(repaired.characterAgency, "card");
+assert.equal(repaired.responseLength, "card");
+assert.equal(repaired.pacing, "card");
+assert.equal(repaired.dialogueBalance, "card");
 
 console.log("narrative settings core test passed");
