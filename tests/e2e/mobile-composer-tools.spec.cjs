@@ -125,5 +125,5 @@ test('mobile AI assist explains why it is unavailable in local preview', async (
   const inspire = page.getByRole('button', { name: 'AI 行動靈感' });
   await expect(inspire).toBeVisible();
   await expect(inspire).toBeDisabled();
-  await expect(inspire).toHaveAttribute('title', /連接 AI 後即可使用/);
+  await expect(inspire).toHaveAttribute('title', /完成模型連線後即可使用/);
 });
