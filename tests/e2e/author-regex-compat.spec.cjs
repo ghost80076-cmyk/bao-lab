@@ -6,6 +6,28 @@ const rules = { regex_scripts: [
   { scriptName: '開屏互動', findRegex: '【開屏1】', replaceString: '<div class="author-panel"><button onclick="BAOAuthor.draft(\'查看照片\')">開啟照片</button></div>' }
 ] };
 
+async function setHiddenCheckbox(panel, labelText, checked) {
+  await panel.evaluate((root, args) => {
+    const label = [...root.querySelectorAll('label')].find(node =>
+      String(node.textContent || '').includes(args.labelText)
+    );
+    const input = label?.querySelector('input[type="checkbox"]');
+    if (!input) throw new Error('checkbox not found: ' + args.labelText);
+    if (input.checked === args.checked) return;
+    input.checked = args.checked;
+    input.dispatchEvent(new Event('change', { bubbles: true }));
+  }, { labelText, checked });
+}
+
+async function setHiddenSelect(panel, value) {
+  await panel.evaluate((root, nextValue) => {
+    const select = root.querySelector('select');
+    if (!select) throw new Error('preview mode select not found');
+    select.value = nextValue;
+    select.dispatchEvent(new Event('change', { bubbles: true }));
+  }, value);
+}
+
 test('per-card authored HTML, CSS and JS stay in an iframe and only draft player text', async ({ page }) => {
   await page.goto('./');
   await page.waitForFunction(() => Boolean(
@@ -32,14 +54,17 @@ test('per-card authored HTML, CSS and JS stay in an iframe and only draft player
   });
   const before = await page.evaluate(() => JSON.stringify({ messages: Chat.messages, usage: Chat.usage }));
   const panel = page.locator('#bao-author-regex-panel');
-  await panel.locator(':scope > summary').click();
+  // The settings panel is intentionally parked in hidden storage during play.
+  // Exercise its existing handlers without making the test depend on where the
+  // player opens advanced settings from.
+  await panel.evaluate(el => { el.open = true; });
   await panel.locator('input[type=file]').setInputFiles({ name: 'author-regex.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(rules)) });
   await expect(panel).toContainText('已保存 2 條原始正則');
-  await panel.getByLabel('在這張角色卡啟用作者介面').check();
+  await setHiddenCheckbox(panel, '在這張角色卡啟用作者介面', true);
   page.once('dialog', dialog => dialog.accept());
-  await panel.getByLabel('允許作者腳本（需自行信任來源）').check();
-  await panel.locator('select').selectOption('latest');
-  await panel.getByRole('button', { name: '開啟隔離介面預覽' }).click();
+  await setHiddenCheckbox(panel, '允許作者腳本（需自行信任來源）', true);
+  await setHiddenSelect(panel, 'latest');
+  await panel.getByRole('button', { name: '開啟隔離介面預覽' }).evaluate(button => button.click());
   const frame = page.frameLocator('iframe[title="作者正則隔離介面"]');
   await expect(frame.locator('.author-panel')).toBeVisible();
   await expect(frame.locator('.author-panel')).toHaveCSS('color', 'rgb(255, 0, 0)');
