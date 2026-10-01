@@ -278,6 +278,7 @@ test('uses logged-in YoruBay session token without copying it into request body'
  const result=await s.api.send({...cfg,key:'__YORUBAY_ACCOUNT__',model:'gemini-3-flash-preview'},msgs);
  assert.equal(result.text,'測試成功');
  assert.equal(s.calls[0][1].headers.Authorization,'Bearer '+session);
+ assert.equal(s.calls[0][1].credentials,'omit');
  assert.equal(s.calls[0][1].body.includes(session),false);
 });
 

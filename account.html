@@ -120,6 +120,21 @@ body{min-height:100vh;background:#101118;color:#f5f1ff}
     localStorage.removeItem(LEGACY_KEY);
     legacyToken="";
   }
+  function validSessionToken(value){
+    return /^yb_s_[A-Za-z0-9_-]{30,}$/.test(String(value||"").trim());
+  }
+  function rememberLegacySession(data){
+    var token=String(data&&data.session_token||"").trim();
+    if(!validSessionToken(token)) return false;
+    legacyToken=token;
+    localStorage.setItem(LEGACY_KEY,token);
+    localStorage.setItem(SESSION_HINT_KEY,"1");
+    return true;
+  }
+  function markLegacySignedIn(){
+    localStorage.setItem(SESSION_HINT_KEY,"1");
+    if(legacyToken) localStorage.setItem(LEGACY_KEY,legacyToken);
+  }
 
   function msg(id,text){document.getElementById(id).textContent=text||"";}
   function points(value){
@@ -133,8 +148,13 @@ body{min-height:100vh;background:#101118;color:#f5f1ff}
     if(options.body&&!headers.has("Content-Type")) headers.set("Content-Type","application/json");
     if(auth) headers.set("Authorization","Bearer "+auth);
     var response;
-    try{response=await fetch(BASE+path,Object.assign({},options,{headers:headers,credentials:"include"}));}
-    catch(error){throw new Error("無法連線 BAO 帳號服務。");}
+    var credentials=options.credentials||"include";
+    try{response=await fetch(BASE+path,Object.assign({},options,{headers:headers,credentials:credentials}));}
+    catch(error){
+      var transportError=new Error("無法連線 BAO 帳號服務。");
+      transportError.code="transport";
+      throw transportError;
+    }
     var data={};try{data=await response.json();}catch(e){}
     if(!response.ok){
       var map={
@@ -197,8 +217,19 @@ body{min-height:100vh;background:#101118;color:#f5f1ff}
   }
   async function refresh(silent){
     try{
-      profile=await call("/me",{method:"GET"},legacyToken);
-      markSignedIn();
+      if(legacyToken){
+        try{
+          profile=await call("/me",{method:"GET",credentials:"include"},legacyToken);
+          markSignedIn();
+        }catch(error){
+          if(error&&error.code!=="transport") throw error;
+          profile=await call("/me",{method:"GET",credentials:"omit"},legacyToken);
+          markLegacySignedIn();
+        }
+      }else{
+        profile=await call("/me",{method:"GET",credentials:"include"});
+        markSignedIn();
+      }
       show("account");
     }
     catch(error){
@@ -211,7 +242,7 @@ body{min-height:100vh;background:#101118;color:#f5f1ff}
   async function logout(){
     var old=legacyToken;
     profile=null;
-    try{await call("/auth/logout",{method:"POST"},old);}catch(e){}
+    try{await call("/auth/logout",{method:"POST",credentials:old?"omit":"include"},old);}catch(e){}
     markSignedOut();
     show("login");
   }
@@ -220,10 +251,8 @@ body{min-height:100vh;background:#101118;color:#f5f1ff}
     event.preventDefault();msg("login-error","");
     var f=event.currentTarget,button=f.querySelector("button");button.disabled=true;
     try{
-      await call("/auth/login",{method:"POST",body:JSON.stringify({username:f.elements.username.value.trim(),password:f.elements.password.value})});
-      localStorage.setItem(SESSION_HINT_KEY,"1");
-      localStorage.removeItem(LEGACY_KEY);
-      legacyToken="";
+      var data=await call("/auth/login",{method:"POST",credentials:"omit",body:JSON.stringify({username:f.elements.username.value.trim(),password:f.elements.password.value})});
+      if(!rememberLegacySession(data)) throw new Error("登入回應缺少可用的 Session，請稍後再試。");
       await refresh(true);
     }catch(error){msg("login-error",error.message);}finally{button.disabled=false;}
   };
@@ -232,12 +261,9 @@ body{min-height:100vh;background:#101118;color:#f5f1ff}
     var f=event.currentTarget;if(f.elements.password.value!==f.elements.password_confirm.value){msg("register-error","兩次輸入的密碼不一致。");return;}
     var button=f.querySelector("button");button.disabled=true;
     try{
-      var data=await call("/auth/register",{method:"POST",body:JSON.stringify({username:f.elements.username.value.trim(),display_name:f.elements.display_name.value.trim(),password:f.elements.password.value,invite_code:f.elements.invite_code.value.trim()})});
-      localStorage.setItem(SESSION_HINT_KEY,"1");
-      localStorage.removeItem(LEGACY_KEY);
-      legacyToken="";
-      profile=await call("/me",{method:"GET"});
-      markSignedIn();
+      var data=await call("/auth/register",{method:"POST",credentials:"omit",body:JSON.stringify({username:f.elements.username.value.trim(),display_name:f.elements.display_name.value.trim(),password:f.elements.password.value,invite_code:f.elements.invite_code.value.trim()})});
+      if(!rememberLegacySession(data)) throw new Error("註冊回應缺少可用的 Session，請稍後再試。");
+      await refresh(true);
       f.reset();recovery(data.recovery_code);
     }catch(error){msg("register-error",error.message);}finally{button.disabled=false;}
   };
@@ -245,12 +271,9 @@ body{min-height:100vh;background:#101118;color:#f5f1ff}
     event.preventDefault();msg("recover-error","");
     var f=event.currentTarget,button=f.querySelector("button");button.disabled=true;
     try{
-      var data=await call("/auth/recover",{method:"POST",body:JSON.stringify({public_id:f.elements.public_id.value.trim(),recovery_code:f.elements.recovery_code.value.trim(),new_password:f.elements.new_password.value})});
-      localStorage.setItem(SESSION_HINT_KEY,"1");
-      localStorage.removeItem(LEGACY_KEY);
-      legacyToken="";
-      profile=await call("/me",{method:"GET"});
-      markSignedIn();
+      var data=await call("/auth/recover",{method:"POST",credentials:"omit",body:JSON.stringify({public_id:f.elements.public_id.value.trim(),recovery_code:f.elements.recovery_code.value.trim(),new_password:f.elements.new_password.value})});
+      if(!rememberLegacySession(data)) throw new Error("恢復回應缺少可用的 Session，請稍後再試。");
+      await refresh(true);
       f.reset();recovery(data.recovery_code);
     }catch(error){msg("recover-error",error.message);}finally{button.disabled=false;}
   };
