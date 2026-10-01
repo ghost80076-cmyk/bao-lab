@@ -204,26 +204,35 @@ const CharacterEngine = {
     const options = c.prompt_options || {};
     const blocks = [];
     const playerName = p.name || "未命名玩家";
+    const worldMode = Boolean(c.supported_modes?.world);
+    const actorLabel = worldMode ? "作品／世界主體" : "AI 主角色";
 
     blocks.push([
       "【平台必要規則】",
-      `AI 主要扮演角色：${c.name}`,
-      `玩家角色：${playerName}`,
-      `來自 user 的輸入一律視為「${playerName}」的台詞、行動或意圖；不得誤認為是「${c.name}」的輸入。`,
-      `AI 可以扮演「${c.name}」與世界中的 NPC，但不能扮演玩家「${playerName}」。兩者的姓名、身份、記憶、台詞與行動不得互換。`,
-      "不得替玩家決定台詞、心理或行動；除非忠實引用玩家已輸入的原話，不得生成玩家的新台詞。",
+      `${actorLabel}：${c.name}`,
+      `玩家角色：${playerName}（controlled_by=user）`,
+      worldMode
+        ? `AI 負責演繹這個世界中 controlled_by=assistant 的人物與 NPC；「${c.name}」是作品／世界主體名稱，不等同玩家角色。`
+        : `AI 主角色「${c.name}」屬於 controlled_by=assistant。`,
+      `來自 user 的輸入一律視為「${playerName}」的台詞、行動或意圖；不得誤認為是「${c.name}」或其他 AI 人物的輸入。`,
+      `AI 可以扮演 controlled_by=assistant 的角色與 NPC，但不能扮演或控制玩家「${playerName}」（controlled_by=user）。`,
+      "controlled_by=user 的角色之台詞、心理、決定與行動只能由玩家提供；不得因其出現在「人物／角色／NPC」文字區塊中就改變控制權。",
+      "除非忠實引用玩家已輸入的原話，不得生成玩家的新台詞。",
       "角色只能依已知資訊行動，不得無理由獲得玩家未公開的資訊。"
     ].join("\n"));
 
     if (c.system_prompt) blocks.push(`【角色核心】\n${c.system_prompt}`);
     if (options.include_profile) {
       const profileText = this.profilePrompt(c.profile);
-      if (profileText) blocks.push(`【角色完整設定】\n${profileText}`);
+      if (profileText) {
+        const profileLabel = worldMode ? "作品主體／主要 AI 角色設定" : "AI 主角色設定";
+        blocks.push(`【${profileLabel}】\n${profileText}`);
+      }
     }
     if (options.include_author_instructions && c.author_instructions) blocks.push(`【作者敘事指示】\n${c.author_instructions}`);
     if (options.include_creator_notes && c.creator_notes) blocks.push(`【作者備註】\n${c.creator_notes}`);
     blocks.push([
-      "【玩家 Persona】",
+      "【玩家 Persona｜controlled_by=user】",
       `名稱：${p.name || "未命名玩家"}`,
       `性別：${p.gender || "未指定"}`,
       `身分：${p.identity || "未指定"}`,
@@ -240,7 +249,7 @@ const CharacterEngine = {
 
     if (options.include_npcs) {
       const npcText = this.npcPrompt(c.initial_state?.npcs || []);
-      if (npcText) blocks.push(`【重要 NPC】\n${npcText}`);
+      if (npcText) blocks.push(`【重要 NPC｜controlled_by=assistant】\n${npcText}`);
       if (c.npc_rules) blocks.push(`【NPC 運作規則】\n${c.npc_rules}`);
     }
 
