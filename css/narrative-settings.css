@@ -49,7 +49,7 @@
   .narrative-settings-modal .narrative-instruction-add{margin-top:8px;min-height:38px}
   .narrative-settings-modal .narrative-switch{padding:10px;border-radius:11px}
   .narrative-settings-modal .narrative-switch b{font-size:12px}
-  .narrative-settings-modal .bao-modal-footer{padding:9px 12px max(11px,env(safe-area-inset-bottom));gap:7px}
+  .narrative-settings-modal .bao-modal-footer{position:sticky;bottom:0;z-index:3;padding:9px 12px max(11px,env(safe-area-inset-bottom));gap:7px;background:#111218e8;backdrop-filter:blur(12px)}
   .narrative-settings-modal .bao-modal-footer button{min-height:40px;font-size:12px}
 }
 @media(max-width:360px){
