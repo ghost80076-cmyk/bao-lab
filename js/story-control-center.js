@@ -7,10 +7,10 @@
   const close = () => document.querySelector(".story-control-backdrop")?.remove();
 
   const ensureStyles = () => {
-    if (document.querySelector('link[href="css/story-control-center.css"]')) return;
+    if (document.querySelector('link[href^="css/story-control-center.css"]')) return;
     const link = document.createElement("link");
     link.rel = "stylesheet";
-    link.href = "css/story-control-center.css";
+    link.href = "css/story-control-center.css?v=2";
     document.head.appendChild(link);
   };
 
@@ -118,9 +118,12 @@
             <h2 id="story-control-title">本故事控制台</h2>
             <p><b>${esc(title)}</b> · ${esc(data.stats.chapter)} · 約 ${data.stats.turns.toLocaleString()} 輪</p>
           </div>
-          <button type="button" class="story-control-close" data-story-control-close aria-label="關閉故事控制台">×</button>
+          <div class="story-control-head-actions">
+            <button type="button" class="story-control-help" data-story-control-help aria-label="故事控制台說明" aria-expanded="false" aria-controls="story-control-intro">?</button>
+            <button type="button" class="story-control-close" data-story-control-close aria-label="關閉故事控制台">×</button>
+          </div>
         </header>
-        <p class="story-control-intro">這裡只整理「目前這一份故事」正在使用的設定。API Key、全站語言與其他帳號設定仍留在原本的全域入口。</p>
+        <p class="story-control-intro" id="story-control-intro">這裡只整理「目前這一份故事」正在使用的設定。API Key、全站語言與其他帳號設定仍留在原本的全域入口。</p>
         <div class="story-control-grid">
           ${card("model", "AI 模型", data.model, "切換模型")}
           ${card("persona", "玩家身份", data.persona, "調整人物")}
@@ -139,6 +142,12 @@
     document.body.appendChild(wrap);
 
     wrap.querySelector("[data-story-control-close]")?.addEventListener("click", close);
+    wrap.querySelector("[data-story-control-help]")?.addEventListener("click", event => {
+      const panel = event.currentTarget.closest(".story-control-panel");
+      const open = !panel?.classList.contains("story-control-help-open");
+      panel?.classList.toggle("story-control-help-open", open);
+      event.currentTarget.setAttribute("aria-expanded", open ? "true" : "false");
+    });
     wrap.addEventListener("click", event => { if (event.target === wrap) close(); });
     wrap.querySelectorAll("[data-story-control-action]").forEach(button => {
       button.addEventListener("click", () => {
