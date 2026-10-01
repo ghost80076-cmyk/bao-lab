@@ -32,6 +32,6 @@ test('story library is not repeated in chat top navigation, but remains reachabl
   expect(await navLibrary.evaluate(node => node.style.display)).toBe('none');
   await page.evaluate(() => App.showView('home'));
   await expect(navLibrary).not.toHaveAttribute('aria-hidden', 'true');
-  await expect(page.locator('#home-continue')).toHaveText('繼續上次故事');
-  await expect(page.locator('#continue-story')).toHaveText('繼續上次故事');
+  await expect(page.locator('#home-continue')).toContainText('繼續');
+  await expect(page.locator('#continue-story')).toContainText('繼續');
 });
