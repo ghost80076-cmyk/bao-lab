@@ -48,7 +48,7 @@
   if (!document.querySelector('link[href^="css/chat-experience.css"]')) {
     const css = document.createElement('link');
     css.rel = 'stylesheet';
-    css.href = 'css/chat-experience.css?v=2';
+    css.href = 'css/chat-experience.css?v=3';
     document.head.append(css);
   }
   const load = src => new Promise((resolve, reject) => {
@@ -61,7 +61,7 @@
     document.head.append(script);
   });
   load('js/chat-presentation-core.js')
-    .then(() => load('js/chat-experience.js?v=2'))
+    .then(() => load('js/chat-experience.js?v=3'))
     .catch(error => console.warn('BAO/LAB chat presentation did not load:', error));
   load('js/quick-start-mode.js?v=2')
     .catch(error => console.warn('BAO/LAB quick start did not load:', error));
