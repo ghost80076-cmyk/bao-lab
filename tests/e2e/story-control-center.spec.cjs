@@ -72,11 +72,11 @@ test('opens the current story control center and routes to existing story tools'
     App.showView('chat');
   });
 
-  const open = page.getByRole('button', { name: '故事控制台', exact: true });
+  const open = page.getByRole('button', { name: '故事總覽', exact: true });
   await expect(open).toBeVisible();
   await open.click();
 
-  const dialog = page.getByRole('dialog', { name: '本故事控制台' });
+  const dialog = page.getByRole('dialog', { name: '故事總覽' });
   await expect(dialog).toBeVisible();
   await expect(dialog).toContainText('mock-story-model');
   await expect(dialog).toContainText('玩家');
