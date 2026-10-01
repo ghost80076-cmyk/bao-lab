@@ -12,7 +12,35 @@
     language: "zh-Hant",
     autoMemory: true,
     demoMode: false,
-    appearance: { fontSize: 16, bgMode: "character", customBg: "", bgOpacity: 34, bgBlur: 6, assistantColor: "#171b24", userColor: "#242a37", bubbleOpacity: 76 }
+    appearance: {
+      fontSize: 16,
+      fontFamily: "system",
+      bgMode: "character",
+      customBg: "",
+      bgOpacity: 34,
+      bgBlur: 6,
+      bubblePreset: "night",
+      assistantColor: "#171b24",
+      assistantTextColor: "#e8e2d7",
+      assistantOpacity: 70,
+      userColor: "#242a37",
+      userTextColor: "#f4f0ea",
+      userOpacity: 82,
+      bubbleOpacity: 76,
+      bubbleRadius: 18
+    }
+  };
+  const bubblePresets = {
+    night: { label: "夜霧", assistantColor: "#171b24", assistantTextColor: "#e8e2d7", assistantOpacity: 70, userColor: "#242a37", userTextColor: "#f4f0ea", userOpacity: 82, bubbleRadius: 18 },
+    lamplight: { label: "燈火", assistantColor: "#211b18", assistantTextColor: "#f0e2cf", assistantOpacity: 76, userColor: "#3a2c24", userTextColor: "#fff4e5", userOpacity: 90, bubbleRadius: 20 },
+    harbor: { label: "深海", assistantColor: "#15212d", assistantTextColor: "#dfeaf4", assistantOpacity: 76, userColor: "#1f3447", userTextColor: "#eef7ff", userOpacity: 90, bubbleRadius: 18 },
+    dusk: { label: "薄暮", assistantColor: "#211b2b", assistantTextColor: "#e9e1f2", assistantOpacity: 74, userColor: "#352840", userTextColor: "#f7efff", userOpacity: 88, bubbleRadius: 22 },
+    clear: { label: "透明", assistantColor: "#171b24", assistantTextColor: "#e8e2d7", assistantOpacity: 28, userColor: "#242a37", userTextColor: "#f4f0ea", userOpacity: 42, bubbleRadius: 16 }
+  };
+  const chatFontStacks = {
+    system: 'system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC",sans-serif',
+    serif: 'Georgia,"Noto Serif TC","Times New Roman",serif',
+    rounded: '"Trebuchet MS","Noto Sans TC",system-ui,sans-serif'
   };
 
   const readJSON = (key, fallback) => { try { return JSON.parse(localStorage.getItem(key)) ?? fallback; } catch { return fallback; } };
@@ -29,6 +57,13 @@
   if (settings.replyLength === "free") settings.replyLength = "auto";
   if (!["card", "named"].includes(settings.dialogueFormat)) settings.dialogueFormat = "card";
   settings.appearance = Object.assign({}, defaults.appearance, settings.appearance || {});
+  const storedAppearance = storedSettings?.appearance && typeof storedSettings.appearance === "object" ? storedSettings.appearance : {};
+  if (!("assistantOpacity" in storedAppearance) && Number.isFinite(Number(storedAppearance.bubbleOpacity))) settings.appearance.assistantOpacity = Number(storedAppearance.bubbleOpacity);
+  if (!("userOpacity" in storedAppearance) && Number.isFinite(Number(storedAppearance.bubbleOpacity))) settings.appearance.userOpacity = Number(storedAppearance.bubbleOpacity);
+  if (!("assistantTextColor" in storedAppearance)) settings.appearance.assistantTextColor = defaults.appearance.assistantTextColor;
+  if (!("userTextColor" in storedAppearance)) settings.appearance.userTextColor = defaults.appearance.userTextColor;
+  if (!("bubbleRadius" in storedAppearance)) settings.appearance.bubbleRadius = defaults.appearance.bubbleRadius;
+  if (!("fontFamily" in storedAppearance)) settings.appearance.fontFamily = defaults.appearance.fontFamily;
   try {
     const migrated = localStorage.getItem(APPEARANCE_V2_KEY) === "yes";
     const old = storedSettings?.appearance;
@@ -52,7 +87,7 @@
 
   const ensureStyles = () => {
     if (document.querySelector('link[href^="css/player-settings.css"]')) return;
-    const link = document.createElement("link"); link.rel = "stylesheet"; link.href = "css/player-settings.css?v=3"; document.head.appendChild(link);
+    const link = document.createElement("link"); link.rel = "stylesheet"; link.href = "css/player-settings.css?v=4"; document.head.appendChild(link);
   };
 
   const closeModal = () => document.querySelector(".bao-modal-backdrop")?.remove();
@@ -139,9 +174,15 @@
     const view = document.getElementById("chat-view"); if (!view) return;
     const a = settings.appearance;
     view.style.setProperty("--chat-font-size", `${a.fontSize}px`);
+    view.style.setProperty("--chat-font-family", chatFontStacks[a.fontFamily] || chatFontStacks.system);
     view.style.setProperty("--chat-assistant", a.assistantColor);
+    view.style.setProperty("--chat-assistant-text", a.assistantTextColor || defaults.appearance.assistantTextColor);
+    view.style.setProperty("--chat-assistant-opacity", String(Number(a.assistantOpacity ?? a.bubbleOpacity ?? 76) / 100));
     view.style.setProperty("--chat-user", a.userColor);
-    view.style.setProperty("--chat-bubble-opacity", String(a.bubbleOpacity / 100));
+    view.style.setProperty("--chat-user-text", a.userTextColor || defaults.appearance.userTextColor);
+    view.style.setProperty("--chat-user-opacity", String(Number(a.userOpacity ?? a.bubbleOpacity ?? 76) / 100));
+    view.style.setProperty("--chat-bubble-opacity", String(Number(a.bubbleOpacity ?? 76) / 100));
+    view.style.setProperty("--chat-bubble-radius", `${Number(a.bubbleRadius ?? 18)}px`);
     view.style.setProperty("--chat-bg-opacity", String(a.bgOpacity / 100));
     view.style.setProperty("--chat-bg-blur", `${a.bgBlur}px`);
     let url = "";
@@ -154,11 +195,66 @@
 
   const openAppearanceSettings = () => {
     const a = settings.appearance;
-    const body = `<div class="bao-setting-section"><h3>訊息字級</h3><div class="bao-range-row"><input id="bao-font-size" type="range" min="13" max="24" value="${a.fontSize}"><b><span id="bao-font-size-value">${a.fontSize}</span>px</b></div></div>
-    <div class="bao-setting-section"><h3>閱讀背景</h3><p>背景只負責作品氣氛；正文保持開放閱讀，頂部、輸入框與資料面板才使用深色玻璃。</p><div class="bao-choice-grid"><button type="button" class="bao-choice" data-bg-preset="off"><b>關閉</b><span>純色閱讀</span></button><button type="button" class="bao-choice" data-bg-preset="soft"><b>柔和</b><span>推薦 · 夜讀</span></button><button type="button" class="bao-choice" data-bg-preset="immersive"><b>沉浸</b><span>更明顯的作品圖</span></button></div><h4 class="bao-setting-subhead">背景來源</h4><div class="bao-choice-grid">${["solid","character","custom"].map(v => `<button type="button" class="bao-choice ${a.bgMode===v?"active":""}" data-bg-mode="${v}"><b>${v==="solid"?"純色":v==="character"?"作品圖片":"自訂圖片"}</b><span>${v==="solid"?"不載入圖片":v==="character"?"優先作品背景／角色圖":"圖片網址"}</span></button>`).join("")}</div><input id="bao-custom-bg" style="margin-top:10px" placeholder="https://..." value="${App.escapeAttr(a.customBg || "")}"><div class="bao-range-row" style="margin-top:14px"><label>背景強度</label><b><span id="bao-bg-opacity-value">${a.bgOpacity}</span>%</b><input id="bao-bg-opacity" style="grid-column:1/-1" type="range" min="0" max="70" value="${a.bgOpacity}"></div><div class="bao-range-row" style="margin-top:14px"><label>背景柔焦</label><b><span id="bao-bg-blur-value">${a.bgBlur}</span>px</b><input id="bao-bg-blur" style="grid-column:1/-1" type="range" min="0" max="18" value="${a.bgBlur}"></div></div>
-    <div class="bao-setting-section"><h3>訊息氣泡</h3><div class="bao-color-row"><label>角色氣泡</label><input id="bao-assistant-color" type="color" value="${a.assistantColor}"></div><div class="bao-color-row" style="margin-top:10px"><label>玩家氣泡</label><input id="bao-user-color" type="color" value="${a.userColor}"></div><div class="bao-range-row" style="margin-top:14px"><label>氣泡透明度</label><b><span id="bao-bubble-opacity-value">${a.bubbleOpacity}</span>%</b><input id="bao-bubble-opacity" style="grid-column:1/-1" type="range" min="20" max="100" value="${a.bubbleOpacity}"></div></div>`;
+    const body = `<div class="bao-appearance-tabs" role="tablist" aria-label="聊天外觀分類">
+      <button type="button" class="active" role="tab" aria-selected="true" data-appearance-tab="bubble">聊天氣泡</button>
+      <button type="button" role="tab" aria-selected="false" data-appearance-tab="background">閱讀背景</button>
+      <button type="button" role="tab" aria-selected="false" data-appearance-tab="text">文字</button>
+    </div>
+    <div class="bao-appearance-panel" data-appearance-panel="bubble">
+      <div class="bao-bubble-preview" aria-label="聊天氣泡即時預覽">
+        <div class="bao-bubble-preview-head"><b>即時預覽</b><span>只預覽外觀，不會送出訊息</span></div>
+        <div class="bao-preview-message assistant"><div class="bao-preview-bubble">今晚還不睡嗎？</div></div>
+        <div class="bao-preview-message user"><div class="bao-preview-bubble">再陪我一下。</div></div>
+      </div>
+      <div class="bao-setting-section">
+        <h3>氣泡主題</h3>
+        <p>先選一套夜灣配色，再分別細調角色與玩家。作者自訂 HTML 不會被這裡強制染色。</p>
+        <div class="bao-bubble-presets">${Object.entries(bubblePresets).map(([key, preset]) => `<button type="button" class="bao-bubble-preset ${a.bubblePreset===key?"active":""}" data-bubble-preset="${key}"><span class="bao-preset-swatch"><i style="background:${preset.assistantColor}"></i><i style="background:${preset.userColor}"></i></span><b>${preset.label}</b></button>`).join("")}</div>
+      </div>
+      <div class="bao-setting-section">
+        <div class="bao-bubble-role-tabs" role="tablist" aria-label="氣泡角色">
+          <button type="button" class="active" role="tab" aria-selected="true" data-bubble-role-tab="assistant">角色</button>
+          <button type="button" role="tab" aria-selected="false" data-bubble-role-tab="user">玩家</button>
+        </div>
+        <div class="bao-bubble-role-panel" data-bubble-role-panel="assistant">
+          <div class="bao-color-row"><label for="bao-assistant-color">氣泡底色</label><input id="bao-assistant-color" type="color" value="${a.assistantColor}"></div>
+          <div class="bao-color-row"><label for="bao-assistant-text-color">文字顏色</label><input id="bao-assistant-text-color" type="color" value="${a.assistantTextColor || defaults.appearance.assistantTextColor}"></div>
+          <div class="bao-range-row"><label for="bao-assistant-opacity">填充透明度</label><b><span id="bao-assistant-opacity-value">${a.assistantOpacity ?? a.bubbleOpacity}</span>%</b><input id="bao-assistant-opacity" style="grid-column:1/-1" type="range" min="20" max="100" value="${a.assistantOpacity ?? a.bubbleOpacity}"></div>
+        </div>
+        <div class="bao-bubble-role-panel" data-bubble-role-panel="user" hidden>
+          <div class="bao-color-row"><label for="bao-user-color">氣泡底色</label><input id="bao-user-color" type="color" value="${a.userColor}"></div>
+          <div class="bao-color-row"><label for="bao-user-text-color">文字顏色</label><input id="bao-user-text-color" type="color" value="${a.userTextColor || defaults.appearance.userTextColor}"></div>
+          <div class="bao-range-row"><label for="bao-user-opacity">填充透明度</label><b><span id="bao-user-opacity-value">${a.userOpacity ?? a.bubbleOpacity}</span>%</b><input id="bao-user-opacity" style="grid-column:1/-1" type="range" min="20" max="100" value="${a.userOpacity ?? a.bubbleOpacity}"></div>
+        </div>
+        <div class="bao-range-row bao-bubble-radius-row"><label for="bao-bubble-radius">圓角</label><b><span id="bao-bubble-radius-value">${a.bubbleRadius ?? 18}</span>px</b><input id="bao-bubble-radius" style="grid-column:1/-1" type="range" min="6" max="28" value="${a.bubbleRadius ?? 18}"></div>
+        <p class="bao-bubble-reading-note">角色長篇回覆仍以閱讀為主；這裡只調整文字層次與輕量氣泡感，不把正文改成社群軟體式大泡泡。</p>
+      </div>
+    </div>
+    <div class="bao-appearance-panel" data-appearance-panel="background" hidden>
+      <div class="bao-setting-section"><h3>閱讀背景</h3><p>背景只負責作品氣氛；正文保持開放閱讀，頂部、輸入框與資料面板才使用深色玻璃。</p><div class="bao-choice-grid"><button type="button" class="bao-choice" data-bg-preset="off"><b>關閉</b><span>純色閱讀</span></button><button type="button" class="bao-choice" data-bg-preset="soft"><b>柔和</b><span>推薦 · 夜讀</span></button><button type="button" class="bao-choice" data-bg-preset="immersive"><b>沉浸</b><span>更明顯的作品圖</span></button></div><h4 class="bao-setting-subhead">背景來源</h4><div class="bao-choice-grid">${["solid","character","custom"].map(v => `<button type="button" class="bao-choice ${a.bgMode===v?"active":""}" data-bg-mode="${v}"><b>${v==="solid"?"純色":v==="character"?"作品圖片":"自訂圖片"}</b><span>${v==="solid"?"不載入圖片":v==="character"?"優先作品背景／角色圖":"圖片網址"}</span></button>`).join("")}</div><input id="bao-custom-bg" style="margin-top:10px" placeholder="https://..." value="${App.escapeAttr(a.customBg || "")}"><div class="bao-range-row" style="margin-top:14px"><label>背景強度</label><b><span id="bao-bg-opacity-value">${a.bgOpacity}</span>%</b><input id="bao-bg-opacity" style="grid-column:1/-1" type="range" min="0" max="70" value="${a.bgOpacity}"></div><div class="bao-range-row" style="margin-top:14px"><label>背景柔焦</label><b><span id="bao-bg-blur-value">${a.bgBlur}</span>px</b><input id="bao-bg-blur" style="grid-column:1/-1" type="range" min="0" max="18" value="${a.bgBlur}"></div></div>
+    </div>
+    <div class="bao-appearance-panel" data-appearance-panel="text" hidden>
+      <div class="bao-setting-section"><h3>故事文字</h3><p>文字設定只套用夜灣原生故事文字；作者自訂 HTML 仍保留作品自己的排版。</p>
+        <label class="bao-select-row" for="bao-font-family"><span>字型</span><select id="bao-font-family"><option value="system" ${a.fontFamily==="system"?"selected":""}>系統字型</option><option value="serif" ${a.fontFamily==="serif"?"selected":""}>夜讀襯線</option><option value="rounded" ${a.fontFamily==="rounded"?"selected":""}>圓潤無襯線</option></select></label>
+        <div class="bao-range-row"><label for="bao-font-size">訊息字級</label><b><span id="bao-font-size-value">${a.fontSize}</span>px</b><input id="bao-font-size" style="grid-column:1/-1" type="range" min="13" max="24" value="${a.fontSize}"></div>
+      </div>
+    </div>`;
     showModal("聊天外觀", body, wrap => {
       let bgMode = a.bgMode;
+      let bubblePreset = a.bubblePreset || "custom";
+      const tab = (group, value) => {
+        wrap.querySelectorAll(`[data-${group}-tab]`).forEach(button => {
+          const active = button.dataset[`${group}Tab`] === value;
+          button.classList.toggle("active", active);
+          button.setAttribute("aria-selected", active ? "true" : "false");
+        });
+        wrap.querySelectorAll(`[data-${group}-panel]`).forEach(panel => {
+          panel.hidden = panel.dataset[`${group}Panel`] !== value;
+        });
+      };
+      wrap.querySelectorAll("[data-appearance-tab]").forEach(button => button.addEventListener("click", () => tab("appearance", button.dataset.appearanceTab)));
+      wrap.querySelectorAll("[data-bubble-role-tab]").forEach(button => button.addEventListener("click", () => tab("bubbleRole", button.dataset.bubbleRoleTab)));
+
       const setRange = (id, valueId, value) => {
         const input = wrap.querySelector(`#${id}`);
         if (!input) return;
@@ -166,10 +262,56 @@
         const label = wrap.querySelector(`#${valueId}`);
         if (label) label.textContent = String(value);
       };
+      const setColor = (id, value) => {
+        const input = wrap.querySelector(`#${id}`);
+        if (input) input.value = value;
+      };
       const selectMode = mode => {
         bgMode = mode;
         wrap.querySelectorAll("[data-bg-mode]").forEach(x => x.classList.toggle("active", x.dataset.bgMode === mode));
       };
+      const markBubbleCustom = () => {
+        bubblePreset = "custom";
+        wrap.querySelectorAll("[data-bubble-preset]").forEach(x => x.classList.remove("active"));
+      };
+      const updateBubblePreview = () => {
+        const preview = wrap.querySelector(".bao-bubble-preview");
+        if (!preview) return;
+        preview.style.setProperty("--preview-assistant", wrap.querySelector("#bao-assistant-color").value);
+        preview.style.setProperty("--preview-assistant-text", wrap.querySelector("#bao-assistant-text-color").value);
+        preview.style.setProperty("--preview-assistant-opacity", String(Number(wrap.querySelector("#bao-assistant-opacity").value) / 100));
+        preview.style.setProperty("--preview-user", wrap.querySelector("#bao-user-color").value);
+        preview.style.setProperty("--preview-user-text", wrap.querySelector("#bao-user-text-color").value);
+        preview.style.setProperty("--preview-user-opacity", String(Number(wrap.querySelector("#bao-user-opacity").value) / 100));
+        preview.style.setProperty("--preview-radius", `${wrap.querySelector("#bao-bubble-radius").value}px`);
+        preview.style.setProperty("--preview-font-size", `${wrap.querySelector("#bao-font-size").value}px`);
+        preview.style.setProperty("--preview-font-family", chatFontStacks[wrap.querySelector("#bao-font-family").value] || chatFontStacks.system);
+      };
+      wrap.querySelectorAll("[data-bubble-preset]").forEach(button => button.addEventListener("click", () => {
+        const preset = bubblePresets[button.dataset.bubblePreset];
+        if (!preset) return;
+        bubblePreset = button.dataset.bubblePreset;
+        wrap.querySelectorAll("[data-bubble-preset]").forEach(x => x.classList.toggle("active", x === button));
+        setColor("bao-assistant-color", preset.assistantColor);
+        setColor("bao-assistant-text-color", preset.assistantTextColor);
+        setRange("bao-assistant-opacity", "bao-assistant-opacity-value", preset.assistantOpacity);
+        setColor("bao-user-color", preset.userColor);
+        setColor("bao-user-text-color", preset.userTextColor);
+        setRange("bao-user-opacity", "bao-user-opacity-value", preset.userOpacity);
+        setRange("bao-bubble-radius", "bao-bubble-radius-value", preset.bubbleRadius);
+        updateBubblePreview();
+      }));
+      ["bao-assistant-color","bao-assistant-text-color","bao-user-color","bao-user-text-color"].forEach(id => wrap.querySelector(`#${id}`)?.addEventListener("input", () => { markBubbleCustom(); updateBubblePreview(); }));
+      [["bao-assistant-opacity","bao-assistant-opacity-value"],["bao-user-opacity","bao-user-opacity-value"],["bao-bubble-radius","bao-bubble-radius-value"]].forEach(([input,value]) => wrap.querySelector(`#${input}`)?.addEventListener("input", e => {
+        wrap.querySelector(`#${value}`).textContent = e.target.value;
+        markBubbleCustom();
+        updateBubblePreview();
+      }));
+      [["bao-font-size","bao-font-size-value"],["bao-bg-opacity","bao-bg-opacity-value"],["bao-bg-blur","bao-bg-blur-value"]].forEach(([input,value]) => wrap.querySelector(`#${input}`)?.addEventListener("input", e => {
+        wrap.querySelector(`#${value}`).textContent = e.target.value;
+        if (input === "bao-font-size") updateBubblePreview();
+      }));
+      wrap.querySelector("#bao-font-family")?.addEventListener("change", updateBubblePreview);
       wrap.querySelectorAll("[data-bg-mode]").forEach(btn => btn.addEventListener("click", () => selectMode(btn.dataset.bgMode)));
       wrap.querySelectorAll("[data-bg-preset]").forEach(btn => btn.addEventListener("click", () => {
         const preset = btn.dataset.bgPreset;
@@ -182,9 +324,29 @@
           selectMode("character"); setRange("bao-bg-opacity","bao-bg-opacity-value",34); setRange("bao-bg-blur","bao-bg-blur-value",6);
         }
       }));
-      [["bao-font-size","bao-font-size-value"],["bao-bg-opacity","bao-bg-opacity-value"],["bao-bg-blur","bao-bg-blur-value"],["bao-bubble-opacity","bao-bubble-opacity-value"]].forEach(([input,value]) => wrap.querySelector(`#${input}`)?.addEventListener("input", e => wrap.querySelector(`#${value}`).textContent = e.target.value));
-      wrap.querySelector(".bao-modal-save").addEventListener("click", () => {
-        settings.appearance = { fontSize:Number(wrap.querySelector("#bao-font-size").value), bgMode, customBg:wrap.querySelector("#bao-custom-bg").value.trim(), bgOpacity:Number(wrap.querySelector("#bao-bg-opacity").value), bgBlur:Number(wrap.querySelector("#bao-bg-blur").value), assistantColor:wrap.querySelector("#bao-assistant-color").value, userColor:wrap.querySelector("#bao-user-color").value, bubbleOpacity:Number(wrap.querySelector("#bao-bubble-opacity").value) };
+      updateBubblePreview();
+      const save = wrap.querySelector(".bao-modal-save");
+      if (save) save.textContent = "儲存外觀";
+      save?.addEventListener("click", () => {
+        const assistantOpacity = Number(wrap.querySelector("#bao-assistant-opacity").value);
+        const userOpacity = Number(wrap.querySelector("#bao-user-opacity").value);
+        settings.appearance = {
+          fontSize: Number(wrap.querySelector("#bao-font-size").value),
+          fontFamily: wrap.querySelector("#bao-font-family").value,
+          bgMode,
+          customBg: wrap.querySelector("#bao-custom-bg").value.trim(),
+          bgOpacity: Number(wrap.querySelector("#bao-bg-opacity").value),
+          bgBlur: Number(wrap.querySelector("#bao-bg-blur").value),
+          bubblePreset,
+          assistantColor: wrap.querySelector("#bao-assistant-color").value,
+          assistantTextColor: wrap.querySelector("#bao-assistant-text-color").value,
+          assistantOpacity,
+          userColor: wrap.querySelector("#bao-user-color").value,
+          userTextColor: wrap.querySelector("#bao-user-text-color").value,
+          userOpacity,
+          bubbleOpacity: Math.round((assistantOpacity + userOpacity) / 2),
+          bubbleRadius: Number(wrap.querySelector("#bao-bubble-radius").value)
+        };
         saveSettings(); applyAppearance(); closeModal();
       });
     });
