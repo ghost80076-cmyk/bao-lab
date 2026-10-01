@@ -21,6 +21,7 @@ assert.ok(frame>=0,'lossy WebP frame header should exist');
 const width=cover.readUInt16LE(frame+3)&0x3fff;
 const height=cover.readUInt16LE(frame+5)&0x3fff;
 assert.ok(width>=1600 && height>=800,`cover should remain high resolution, got ${width}x${height}`);
+assert.equal(card.presentation.play_info_surface,'game-ui','custom simulator UI must remain the Play information surface');
 assert.equal(card.presentation.opening.type,'idolsurvival');
 assert.equal(card.presentation.opening.choices.length,4);
 assert.equal(card.gameplay.prompt.include_lore,false,'full lore should not repeat every turn');
