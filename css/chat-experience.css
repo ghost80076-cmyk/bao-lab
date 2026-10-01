@@ -58,25 +58,25 @@ body:has(#chat-view.active) .app-shell{width:min(1710px,calc(100% - 32px));max-w
  /* The editorial "play" surface used to hide every side rail on desktop.
     The new story-information rail is part of the reading surface, so keep the
     author/tool sidebar hidden while restoring only this contextual rail. */
- #chat-view[data-bao-surface="play"] .chat-layout{
+ #chat-view.view.active[data-bao-surface="play"] .chat-layout{
    grid-template-columns:minmax(0,1fr) minmax(300px,340px)!important
  }
- #chat-view[data-bao-surface="play"] .chat-layout>aside:not(.bao-status-rail){
+ #chat-view.view.active[data-bao-surface="play"] .chat-layout>aside:not(.bao-status-rail){
    display:none!important
  }
- #chat-view[data-bao-surface="play"] .bao-status-rail{
+ #chat-view.view.active[data-bao-surface="play"] .chat-layout>.bao-status-rail{
    display:block!important
  }
- #chat-view[data-bao-surface="play"] .chat-layout.bao-status-manual-collapsed{
+ #chat-view.view.active[data-bao-surface="play"] .chat-layout.bao-status-manual-collapsed{
    grid-template-columns:minmax(0,1fr)!important
  }
- #chat-view[data-bao-surface="play"] .chat-layout.bao-status-manual-collapsed>.bao-status-rail{
+ #chat-view.view.active[data-bao-surface="play"] .chat-layout.bao-status-manual-collapsed>.bao-status-rail{
    display:none!important
  }
- #chat-view[data-bao-surface="play"] #bao-reading-status-toggle{
+ #chat-view.view.active[data-bao-surface="play"] #bao-reading-status-toggle{
    display:inline-flex!important
  }
- #chat-view[data-bao-surface="play"] .bao-story-info-detail>#game-ui{
+ #chat-view.view.active[data-bao-surface="play"] .bao-story-info-detail>#game-ui{
    display:block!important;
    position:static!important;
    inset:auto!important;
@@ -85,7 +85,7 @@ body:has(#chat-view.active) .app-shell{width:min(1710px,calc(100% - 32px));max-w
    overflow:visible!important;
    box-shadow:none!important
  }
- #chat-view[data-bao-surface="play"] .bao-story-info-detail>#game-ui #bao-play-status-close{
+ #chat-view.view.active[data-bao-surface="play"] .bao-story-info-detail>#game-ui #bao-play-status-close{
    display:none!important
  }
 }
