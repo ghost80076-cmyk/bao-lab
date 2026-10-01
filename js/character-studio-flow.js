@@ -76,6 +76,25 @@
     return shell;
   };
 
+  const installEditDone = () => {
+    let button = editor.querySelector("[data-studio-edit-done]");
+    if (button) return button;
+    button = document.createElement("button");
+    button.type = "button";
+    button.className = "studio-edit-done";
+    button.dataset.studioEditDone = "1";
+    button.setAttribute("aria-label", "完成編輯");
+    button.textContent = "完成";
+    button.addEventListener("click", () => {
+      if (editable(document.activeElement)) {
+        try { document.activeElement.blur(); } catch (_) {}
+      }
+      editor.classList.remove("studio-editing");
+    });
+    editor.appendChild(button);
+    return button;
+  };
+
   const setActive = id => {
     activeStep = id;
     document.querySelectorAll("[data-flow-step]").forEach(button => {
@@ -132,6 +151,7 @@
   ensureStyles();
   installAnchors();
   makeShell();
+  installEditDone();
   form.addEventListener("input", update);
   form.addEventListener("change", update);
   const editable = node => node instanceof Element && node.matches("input,textarea,select");
