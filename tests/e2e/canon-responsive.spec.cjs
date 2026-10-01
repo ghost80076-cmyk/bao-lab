@@ -61,6 +61,14 @@ test.describe("Canon workbench responsive UI", () => {
 
     const desk = page.locator(".memory-desk");
     await expect(desk.getByRole("heading", { name: "記憶", exact: true })).toBeVisible();
+    await expect(desk.locator(".memory-desk-kicker")).toBeHidden();
+    const memoryHelp = desk.getByRole("button", { name: "記憶頁面說明" });
+    await expect(memoryHelp).toBeVisible();
+    await expect(desk.locator(".memory-desk-head p")).toBeHidden();
+    await memoryHelp.click();
+    await expect(desk.locator(".memory-desk-head p")).toBeVisible();
+    await memoryHelp.click();
+    await expect(desk.locator(".memory-desk-head p")).toBeHidden();
     await expect(desk.locator(".memory-desk-tab:not([hidden])")).toHaveCount(3);
     await expect(desk.getByRole("button", { name: "記憶狀態" })).toBeVisible();
     await expect(desk.getByRole("button", { name: "必記事項" })).toBeVisible();
@@ -68,6 +76,16 @@ test.describe("Canon workbench responsive UI", () => {
     await expect(desk.getByRole("button", { name: /AI 整理/ })).toBeHidden();
 
     await desk.getByRole("button", { name: "必記事項" }).click();
+    const memoryNote = desk.locator("[data-slot-text]").first();
+    await memoryNote.focus();
+    await expect(desk).toHaveClass(/memory-editing/);
+    await expect(desk.locator(".memory-desk-stats")).toBeHidden();
+    await expect(desk.locator(".memory-desk-nav")).toBeHidden();
+    const editingDone = desk.getByRole("button", { name: "完成" });
+    await expect(editingDone).toBeVisible();
+    await editingDone.click();
+    await expect(desk).not.toHaveClass(/memory-editing/);
+    await expect(desk.locator(".memory-desk-nav")).toBeVisible();
     await expect(desk.getByRole("button", { name: "✨ AI 幫我整理" })).toBeVisible();
     await desk.getByRole("button", { name: "✨ AI 幫我整理" }).click();
     await expect(desk.getByRole("heading", { name: "AI 幫我整理" })).toBeVisible();
