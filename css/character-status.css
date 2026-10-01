@@ -7,3 +7,66 @@
 
 .npc-roster-backdrop{position:fixed;inset:0;z-index:160;background:rgba(5,6,10,.84);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;padding:20px}.npc-roster-modal{width:min(780px,100%);max-height:92dvh;overflow:hidden;border:1px solid var(--border);border-radius:22px;background:#101117;box-shadow:0 32px 110px rgba(0,0,0,.58);display:grid;grid-template-rows:auto 1fr auto}.npc-roster-modal>header,.npc-roster-modal>footer{padding:18px 20px;background:#111219e8}.npc-roster-modal>header{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;border-bottom:1px solid var(--border)}.npc-roster-modal>header h2{margin:2px 0 5px}.npc-roster-modal>header p,.npc-roster-body p{margin:0;color:var(--muted);font-size:12px;line-height:1.6}.npc-roster-head-actions{display:flex;align-items:center;gap:8px;flex:0 0 auto}.npc-roster-help-toggle{display:none;width:34px;height:34px;border:1px solid var(--border);border-radius:10px;background:#1b1d26;color:var(--muted);font:inherit;font-weight:800;cursor:pointer}.npc-roster-body{overflow:auto;padding:18px;display:grid;gap:18px}.npc-roster-add{padding:14px;border:1px solid var(--border);border-radius:15px;background:#171820}.npc-roster-add h3,.npc-roster-section-head h3{margin:0 0 5px}.npc-roster-add textarea{box-sizing:border-box;width:100%;margin:10px 0;resize:vertical}.npc-roster-section-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:10px}.npc-roster-batch{display:flex;gap:7px;flex-wrap:wrap}.npc-roster-list{display:grid;gap:8px}.npc-roster-row{display:flex;align-items:center;gap:11px;padding:11px 12px;border:1px solid var(--border);border-radius:12px;background:#171820;cursor:pointer}.npc-roster-row input{width:18px;height:18px;flex:0 0 auto}.npc-roster-row span{display:grid;gap:3px;min-width:0}.npc-roster-row small{color:var(--muted);overflow-wrap:anywhere}.npc-roster-modal>footer{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:10px;border-top:1px solid var(--border)}.npc-roster-modal>footer button{width:100%;min-width:0;min-height:44px}.npc-roster-open{margin-left:auto}
 @media(max-width:600px){.npc-roster-backdrop{padding:0;align-items:flex-end}.npc-roster-modal{max-height:96dvh;border-radius:22px 22px 0 0}.npc-roster-body{padding:10px;gap:10px}.npc-roster-modal>header{padding:10px 12px;align-items:center}.npc-roster-modal>header .eyebrow{display:none}.npc-roster-modal>header h2{margin:0;font-size:20px}.npc-roster-modal>header p{display:none;margin-top:6px;font-size:11px;line-height:1.5}.npc-roster-modal.npc-roster-help-open>header p{display:block}.npc-roster-help-toggle{display:inline-grid;place-items:center}.npc-roster-head-actions .text-button{padding:7px 8px}.npc-roster-current{order:0}.npc-roster-add{order:1;padding:11px}.npc-roster-add h3{font-size:15px}.npc-roster-add p{font-size:11px}.npc-roster-section-head{flex-direction:column;gap:7px}.npc-roster-section-head h3{font-size:16px}.npc-roster-batch{width:100%}.npc-roster-batch button{flex:1;min-height:38px}.npc-roster-list{gap:6px}.npc-roster-row{padding:9px 10px}.npc-roster-modal>footer{padding:10px max(10px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(10px,env(safe-area-inset-left));gap:7px}.npc-roster-modal>footer button{min-height:40px}}
+
+
+/* Desktop workbench: editing stays primary; presets and guidance become a compact reference rail. */
+@media(min-width:1081px){
+  .status-manager-modal{
+    width:min(1260px,calc(100vw - 48px));
+    max-height:min(92vh,920px)
+  }
+  .status-manager-body{
+    grid-template-columns:minmax(0,1fr) 260px;
+    grid-auto-rows:min-content;
+    align-items:start;
+    gap:14px 18px;
+    padding:18px 20px 20px
+  }
+  .status-manager-body>main{display:contents}
+  .status-manager-fields-card{
+    grid-column:1;
+    grid-row:1 / span 2;
+    min-width:0
+  }
+  .status-manager-templates{
+    grid-column:2;
+    grid-row:1;
+    align-self:start
+  }
+  .status-manager-body>aside{
+    grid-column:2;
+    grid-row:2;
+    position:sticky;
+    top:0;
+    align-self:start;
+    gap:10px
+  }
+  .status-manager-body>aside .status-manager-card{
+    padding:13px;
+    border-radius:14px
+  }
+  .status-manager-body>aside .status-manager-card h3{
+    font-size:14px;
+    margin-bottom:5px
+  }
+  .status-manager-body>aside .status-manager-card p{
+    font-size:11px;
+    line-height:1.55
+  }
+  .status-manager-templates .status-template-list{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:6px
+  }
+  .status-manager-templates .status-template-list button{
+    min-width:0;
+    padding:7px 8px;
+    font-size:11px
+  }
+  .status-manager-list{gap:9px;margin-top:12px}
+  .status-manager-field{padding:12px 13px}
+  .status-manager-field-head{margin-bottom:9px}
+  .status-manager-basic{gap:8px}
+  .status-manager-details{gap:8px;margin-top:8px}
+  .status-manager-foot{padding:14px 20px}
+}
