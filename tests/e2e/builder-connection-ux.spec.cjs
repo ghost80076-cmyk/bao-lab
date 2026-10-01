@@ -35,7 +35,7 @@ for (const width of [390, 1440]) {
     await expect(page.locator('#provider-diagnostics-box')).toBeHidden();
     await expect(page.locator('.bao-demo-box')).toBeHidden();
     await expect(page.locator('#bao-demo-mode')).toBeHidden();
-    await expect(page.locator('#bao-quick-intro')).toContainText('使用帳號 API 額度');
+    await expect(page.locator('#bao-quick-intro')).toContainText('使用夜灣燈火');
     await expect(page.locator('#bao-quick-intro')).toContainText('選一個可用模型就能開始');
     await expect(page.locator('#bao-connection-account')).toBeVisible();
     await expect(page.locator('#bao-connection-help')).toHaveAttribute('href', 'quick-start.html');
@@ -60,7 +60,7 @@ for (const width of [390, 1440]) {
     await page.locator('#bao-lm-model-manual').fill('manual-local-model');
     await expect(page.locator('#model-id')).toHaveValue('manual-local-model');
     await expectAllHidden(page.locator('[data-bao-gemini-cache-open]'));
-    await expect(page.locator('#bao-quick-intro')).toContainText('不需要雲端 API Key');
+    await expect(page.locator('#bao-quick-intro')).toContainText('不需要雲端連線金鑰');
     await expect(page.locator('#bao-connection-account')).toBeHidden();
     await expect(page.locator('#bao-connection-help')).toHaveAttribute('href', 'lm-studio-guide.html');
     await expect(page.locator('#bao-connection-help')).toContainText('LM Studio 連線教學');
@@ -92,7 +92,7 @@ test('local preview does not offer AI-only message actions', async ({ page }) =>
   await expect(latest.locator('[data-rewrite]')).toBeDisabled();
   await expect(latest.locator('[data-regenerate]')).toBeDisabled();
   await expect(latest.locator('[data-inspire]')).toBeDisabled();
-  await expect(latest.locator('[data-inspire]')).toHaveAttribute('title', /連接 AI 後/);
+  await expect(latest.locator('[data-inspire]')).toHaveAttribute('title', /模型連線後/);
   await expect(latest.locator('[data-edit]')).toBeEnabled();
   await expect(latest.locator('[data-copy]')).toBeEnabled();
 });
@@ -149,7 +149,7 @@ test('reconnecting AI immediately re-enables message AI tools', async ({ page })
 
   const latest = page.locator('#chat-stream .message.assistant').last();
   await expect(latest.locator('[data-rewrite]')).toBeDisabled();
-  await expect(latest.locator('[data-inspire]')).toHaveAttribute('title', /尚未連接 AI/);
+  await expect(latest.locator('[data-inspire]')).toHaveAttribute('title', /尚未完成模型連線/);
 
   await page.evaluate(() => window.BAOChatAPISettings.open());
   const dialog = page.locator('#bao-chat-api-backdrop');

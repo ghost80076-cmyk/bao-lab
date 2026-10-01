@@ -86,7 +86,7 @@ test('story quick commands fill the composer without sending and persist custom 
   expect(await page.evaluate(() => Chat.messages.length)).toBe(beforeMessages);
 
   await page.evaluate(() => window.BAOStoryControlCenter.open());
-  const control = page.getByRole('dialog', { name: '本故事控制台' });
+  const control = page.getByRole('dialog', { name: '故事總覽' });
   await expect(control).toContainText('快捷指令');
   await expect(control).toContainText('作品 1');
   await expect(control).toContainText('我的 1');

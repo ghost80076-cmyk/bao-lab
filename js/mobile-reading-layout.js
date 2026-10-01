@@ -258,9 +258,9 @@
     const quick = document.createElement('nav');
     quick.className = 'bao-mobile-quick';
     quick.setAttribute('aria-label', '手機常用功能');
-    makeAction(quick, '☷ 故事控制台', () => {
+    makeAction(quick, '☷ 故事總覽', () => {
       if (window.BAOStoryControlCenter?.open) BAOStoryControlCenter.open();
-      else window.alert('故事控制台仍在載入，請稍後再試。');
+      else window.alert('故事總覽仍在載入，請稍後再試。');
     });
     makeAction(quick, '◔ 上下文狀態', () => {
       if (window.BAOContextHealth?.open) BAOContextHealth.open();
@@ -273,7 +273,7 @@
     makeAction(quick, '◈ 世界狀態', openStatus);
     makeAction(quick, '人物／事件', togglePanels, { 'data-bao-mobile-panel-toggle': '', 'aria-expanded': String(main.classList.contains('bao-mobile-panel-open')) });
     makeAction(quick, '🧠 記憶', openMemory);
-    makeAction(quick, 'API／切換模型', () => {
+    makeAction(quick, '模型連線／切換', () => {
       if (window.BAOChatAPISettings?.open) BAOChatAPISettings.open();
       else clickOriginal('#bao-chat-api-aside');
     });

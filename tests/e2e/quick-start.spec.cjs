@@ -20,7 +20,7 @@ for (const width of [390, 1440]) {
     await expect(page.locator('#bao-setup-choice .bao-first-run-progress')).toBeVisible();
     await expect(page.locator('#bao-setup-choice .bao-first-run-progress li')).toHaveCount(3);
     await expect(page.locator('#bao-setup-choice .bao-first-run-progress')).toContainText('作品已選好');
-    await expect(page.locator('#bao-setup-choice .bao-first-run-progress')).toContainText('連接 AI');
+    await expect(page.locator('#bao-setup-choice .bao-first-run-progress')).toContainText('模型連線');
     await expect(page.locator('#bao-setup-choice .bao-first-run-progress')).toContainText('開始故事');
     await expect(page.locator('#bao-setup-story-name')).not.toHaveText('目前作品');
     await expect(page.locator('#bao-setup-choice [data-bao-setup="quick"]')).toHaveText('快速開始（推薦）');
@@ -97,16 +97,16 @@ test('quick start shows the exact missing item and becomes ready live', async ({
   await expect(readiness).toBeVisible();
   await expect(readiness).toHaveAttribute('data-ready', 'false');
   await expect(readiness.locator('[data-start-ready-summary]')).toHaveText('還差 1 項');
-  await expect(readiness.locator('[data-start-ready-message]')).toContainText('還缺 API Key');
-  await expect(readiness.locator('[data-start-ready-action]')).toHaveText('貼上 API Key');
+  await expect(readiness.locator('[data-start-ready-message]')).toContainText('還缺連線金鑰');
+  await expect(readiness.locator('[data-start-ready-action]')).toHaveText('貼上連線金鑰');
 
   const steps = page.locator('#bao-setup-choice .bao-first-run-progress li');
   await expect(steps.nth(0)).toHaveClass(/is-done/);
   await expect(steps.nth(0).locator('small')).toContainText('已選：');
   await expect(steps.nth(1)).toHaveClass(/is-current/);
-  await expect(steps.nth(1).locator('small')).toContainText('還缺 API Key');
+  await expect(steps.nth(1).locator('small')).toContainText('還缺連線金鑰');
   await expect(steps.nth(2)).toHaveClass(/is-pending/);
-  await expect(steps.nth(2).locator('small')).toContainText('還缺 API Key');
+  await expect(steps.nth(2).locator('small')).toContainText('還缺連線金鑰');
 
   await readiness.locator('[data-start-ready-action]').click();
   await expect(page.locator('#api-key')).toBeFocused();

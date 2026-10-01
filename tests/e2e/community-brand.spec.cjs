@@ -32,7 +32,7 @@ test.describe('YoruBay official identity and concise community entry', () => {
     await expect(page.locator('#bao-contact-footer a')).toHaveAttribute('href', INVITE);
     await page.getByRole('button', { name: '關於夜灣' }).click();
     await expect(page.locator('#about-view.active')).toContainText('讓故事回到玩家手中');
-    await expect(page.locator('#about-view.active')).toContainText('角色 · 世界 · 互動 · 自己的 AI');
+    await expect(page.locator('#about-view.active')).toContainText('角色 · 世界 · 互動 · 自己的燈');
   });
 
   test('work detail offers one contextual path back to the canonical three-step guide', async ({ page }) => {
