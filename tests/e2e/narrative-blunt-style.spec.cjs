@@ -10,6 +10,26 @@ for (const width of [390, 1440]) {
     expect(await page.evaluate(() => BAONarrativeSettings.buildPrompt(BAONarrativeSettings.get()))).toBe('');
 
     await page.evaluate(() => BAONarrativeSettings.open());
+    const modal = page.getByRole('dialog', { name: '敘事與描寫設定' });
+    await expect(modal).toBeVisible();
+    if (width === 390) {
+      await expect(modal.locator('.bao-modal-head .eyebrow')).toBeHidden();
+      const help = modal.getByRole('button', { name: '敘事設定說明' });
+      await expect(help).toBeVisible();
+      const firstCopy = modal.locator('.bao-setting-section').first().locator(':scope > p');
+      await expect(firstCopy).toBeHidden();
+      const layout = await modal.evaluate(node => ({
+        packColumns: getComputedStyle(node.querySelector('.narrative-pack-grid')).gridTemplateColumns.trim().split(/\s+/).length,
+        selectColumns: getComputedStyle(node.querySelector('.narrative-select-grid')).gridTemplateColumns.trim().split(/\s+/).length,
+        footerPosition: getComputedStyle(node.querySelector('.bao-modal-footer')).position
+      }));
+      expect(layout).toEqual({ packColumns: 2, selectColumns: 2, footerPosition: 'sticky' });
+      await help.click();
+      await expect(firstCopy).toBeVisible();
+      await expect(modal.locator('.narrative-select-grid small').first()).toBeVisible();
+      await help.click();
+      await expect(firstCopy).toBeHidden();
+    }
     const blunt = page.locator('[data-style-pack="male_blunt"]');
     const visual = page.locator('[data-style-pack="male_visual"]');
     await expect(blunt).toHaveAttribute('aria-pressed', 'false');
