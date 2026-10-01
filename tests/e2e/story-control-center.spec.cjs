@@ -72,11 +72,11 @@ test('opens the current story control center and routes to existing story tools'
     App.showView('chat');
   });
 
-  const open = page.getByRole('button', { name: '故事控制台', exact: true });
+  const open = page.getByRole('button', { name: '故事總覽', exact: true });
   await expect(open).toBeVisible();
   await open.click();
 
-  const dialog = page.getByRole('dialog', { name: '本故事控制台' });
+  const dialog = page.getByRole('dialog', { name: '故事總覽' });
   await expect(dialog).toBeVisible();
   await expect(dialog).toContainText('mock-story-model');
   await expect(dialog).toContainText('玩家');
@@ -165,7 +165,7 @@ test('opens the current story control center and routes to existing story tools'
   await extensions.getByRole('button', { name: '關閉故事擴充' }).click();
 
   await open.click();
-  const reopened = page.getByRole('dialog', { name: '本故事控制台' });
+  const reopened = page.getByRole('dialog', { name: '故事總覽' });
   await reopened.getByRole('button', { name: /搜尋這個故事/ }).click();
   await expect(reopened).not.toBeVisible();
   await expect(page.getByRole('dialog', { name: '搜尋這個對話' })).toBeVisible();
