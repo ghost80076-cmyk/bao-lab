@@ -20,7 +20,7 @@ for (const width of [390, 1440]) {
     await expect(page.locator('#bao-setup-choice .bao-first-run-progress')).toBeVisible();
     await expect(page.locator('#bao-setup-choice .bao-first-run-progress li')).toHaveCount(3);
     await expect(page.locator('#bao-setup-choice .bao-first-run-progress')).toContainText('作品已選好');
-    await expect(page.locator('#bao-setup-choice .bao-first-run-progress')).toContainText('連接 AI');
+    await expect(page.locator('#bao-setup-choice .bao-first-run-progress')).toContainText('模型連線');
     await expect(page.locator('#bao-setup-choice .bao-first-run-progress')).toContainText('開始故事');
     await expect(page.locator('#bao-setup-story-name')).not.toHaveText('目前作品');
     await expect(page.locator('#bao-setup-choice [data-bao-setup="quick"]')).toHaveText('快速開始（推薦）');
