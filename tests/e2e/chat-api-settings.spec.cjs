@@ -35,9 +35,9 @@ test("resuming a story opens editable API settings, preserves the story and does
   await page.setViewportSize({ width: 390, height: 844 });
   await saveStoryWithoutPersistingKey(page);
   await page.locator("#home-continue").click();
-  const dialog = page.getByRole("dialog", { name: "目前故事的 AI 連線設定" });
+  const dialog = page.getByRole("dialog", { name: "目前故事的模型連線" });
   await expect(dialog).toBeVisible();
-  const help = dialog.getByRole("button", { name: "AI 連線設定說明" });
+  const help = dialog.getByRole("button", { name: "模型連線說明" });
   await expect(help).toBeVisible();
   await expect(dialog.locator("#bao-chat-api-intro")).toBeHidden();
   const mobileLayout = await dialog.evaluate(node => ({
@@ -81,7 +81,7 @@ test("desktop chat can reopen API settings and switch models without restarting"
   await page.setViewportSize({ width: 1440, height: 900 });
   await saveStoryWithoutPersistingKey(page);
   await page.locator("#home-continue").click();
-  const dialog = page.getByRole("dialog", { name: "目前故事的 AI 連線設定" });
+  const dialog = page.getByRole("dialog", { name: "目前故事的模型連線" });
   await expect(dialog).toBeVisible();
   await dialog.locator('[name="key"]').fill("DESKTOP_TEST_KEY");
   await dialog.getByRole("button", { name: "套用到目前故事" }).click();
