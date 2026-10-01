@@ -231,3 +231,318 @@ OpenRouter 的 Roleplay collection 明確以「最近 7 天 prompt + completion 
 - Gemini 3.8 Flash: https://ai.google.dev/gemini-api/docs/latest-model
 - GPT-5.6 Luna: https://openrouter.ai/openai/gpt-5.6-luna
 - Grok 4.7: https://openrouter.ai/x-ai/grok-4.7
+
+
+## 2026-10-01 第二輪：RP 實測／社群口碑
+
+> 這一層補的是「實際拿來扮演會發生什麼」，不是再比一次規格。  
+> 社群回報高度受 preset、provider、量化、外部 moderation 與路由影響，因此只把多個訊號重複出現的現象寫成產品提示；不把單一 Reddit 回報當成模型定論。
+
+### 參考方式
+
+目前交叉使用兩類資料：
+
+1. **可重現 RP benchmark**：看多輪角色一致性、context attention、instruction drift、agency respect、拒答／過度拒答等。
+2. **SillyTavern / RP 社群實際使用回報**：補足文風、對話自然度、重抽、provider 差異、長聊體感。
+
+其中 rp-benchmark 自己也提醒：寫作品質、failure mode、community engagement 與 willingness 是不同軸，不能壓成一個「總分」。
+
+來源：
+- https://github.com/LeviTheWeasel/rp-benchmark
+- https://www.reddit.com/r/SillyTavernAI/
+
+### Claude
+
+#### Haiku 4.5
+
+社群常見優點：
+
+- 對話自然、訊息結構好讀。
+- 細節記憶與人物個性表現有人給正面評價。
+- 相對 Sonnet / Opus 便宜。
+
+常見疑慮：
+
+- subtext / 細膩度通常被認為弱於 Sonnet。
+- 有玩家回報暗黑／成人 RP 比 Sonnet 更容易拒答。
+- 有人認為「便宜 Claude」的價格仍不一定能打贏中國低成本模型的 CP 值。
+
+**夜灣暫定：備選。**  
+可以提供給想要 Claude 風格但預算較低的玩家，不標「推薦 RP」。
+
+參考：
+- https://www.reddit.com/r/SillyTavernAI/comments/1p8nlx2/huge_list_of_recent_favorite_models_for_rp/
+- https://www.reddit.com/r/SillyTavernAI/comments/1o7gzgm/claude_haiku_45/
+
+#### Sonnet 4.5
+
+目前資料相對成熟。
+
+rp-benchmark 的多輪 failure-mode 資料裡，Sonnet 4.5 對：
+
+- 長 session / 詳細角色卡的 context attention 表現突出。
+- agency respect 與 instruction drift 也在前段。
+
+社群仍有人偏好它的舊版文風與對話記憶。
+
+**夜灣暫定：成熟候選，保留。**
+
+#### Sonnet 4.6
+
+benchmark 的 NSFW craft 與多輪品質仍在高段，但 willingness 測試與社群回報顯示它不是「完全沒有政策牆」。
+
+**夜灣暫定：成熟候選，保留。**  
+與 4.5 並存，不用強迫升級。
+
+#### Sonnet 5
+
+第一批社群回報偏正面：有人認為品質／一致性明顯高於舊 Sonnet，而且價格比 4.5 / 4.6 低；但也有回報：
+
+- prompt following 風格和舊版不同。
+- 有時更容易寫成華麗／purple prose。
+- NSFW / RP willingness 仍有版本差異。
+
+rp-benchmark 的 willingness 軸顯示 Sonnet 5 對真正硬限制能守住，但「過度拒答」仍有一定比例；因此不能因為價格低就直接把它當 4.6 的全面替代。
+
+**夜灣暫定：強候選。**  
+適合上架讓玩家自行和 4.5 / 4.6 比較，但不取代舊版。
+
+參考：
+- https://www.reddit.com/r/SillyTavernAI/comments/1ujwo47/sonnet_5_is_out/
+- https://github.com/LeviTheWeasel/rp-benchmark
+
+#### Opus 4.6
+
+目前是資料最穩的一批高階 RP 候選之一。
+
+benchmark 在多輪 failure mode、POV、lore contradiction、agency respect 等都有很強表現；社群也常把它當複雜劇情／重要場景的高品質選擇。
+
+最大問題非常明確：**價格。**  
+而且重抽一次的成本也明顯比低價模型痛。
+
+**夜灣暫定：豪華備選。**  
+提供選擇，但不鼓勵當摘要／狀態模型。
+
+參考：
+- https://www.reddit.com/r/SillyTavernAI/comments/1sdw1nf/using_claude_opus_46_was_a_mistake_for_my_wallet/
+- https://github.com/LeviTheWeasel/rp-benchmark
+
+### Gemini
+
+#### Gemini 3.1 Pro
+
+RP 社群評價不是完全一致，但「喜歡它的人非常喜歡」：
+
+常見正面：
+
+- 長篇敘事、文風、角色互動有強烈支持者。
+- 有玩家會把 Gemini 當日常主力，只在更複雜場景切 Opus。
+
+常見負面：
+
+- 有玩家覺得和 Gemini 3.0 相比，3.1 人物較扁、世界感與主動推進下降。
+- 外部 content filter / provider moderation 可能造成空回覆，容易被誤認成模型本身拒答。
+
+rp-benchmark 的多輪結果仍把 3.1 Pro 放在可用的高品質群，但不是每個 failure mode 都突出。
+
+**夜灣暫定：保留。**  
+它存在的理由不是「最新」，而是明確提供 Gemini 敘事／文風取向。
+
+參考：
+- https://www.reddit.com/r/SillyTavernAI/comments/1vqshjg/whats_the_best_for_roleplaying_right_now_i_dont/
+- https://www.reddit.com/r/SillyTavernAI/comments/1sorfrw/why_is_gemini_31_pro_so_meh/
+- https://www.reddit.com/r/SillyTavernAI/comments/1scy6uz/has_gemini_31_pro_increased_its_censorship/
+- https://github.com/LeviTheWeasel/rp-benchmark
+
+#### Gemini 3.8 Flash
+
+最新 RP 社群確實有人很喜歡，甚至把它當主力；因此「RP 一定不行」不能成立。
+
+但夜灣不只考慮品質：
+
+- 目前已知價格會在 2027-01-01 明顯調高。
+- 模型仍新，長期 RP 行為資料不夠成熟。
+
+**夜灣暫定仍維持：觀察／BYOK。**  
+品質口碑變好不改變價格穩定性的產品風險。
+
+### DeepSeek
+
+#### V4 Pro / V4 Flash
+
+benchmark 對 V4 Pro 的多輪表現很強，V4 Flash 也有不差的品質訊號；官方甚至提供 RP thinking / CoT 控制方式，代表它本身有針對 RP 使用情境做過設計。
+
+但社群的長聊體感相當分裂：
+
+- 有人認為角色定義、對話與 prose 很強。
+- 也有人回報 instruction drift、忘記格式、主動性下降、長聊後變乾。
+- provider / thinking mode 對體感差異很大。
+
+**夜灣暫定：低成本主力仍保留，但不要寫成「穩定勝過高價模型」。**
+
+參考：
+- https://www.reddit.com/r/SillyTavernAI/comments/1su8x8p/deepseek_v4_rp_guide_how_to_switch_between/
+- https://www.reddit.com/r/SillyTavernAI/comments/1sv1anm/deepseek_v4_is_great/
+- https://www.reddit.com/r/SillyTavernAI/comments/1uua4cs/deepseek_v4_is_the_worst_model_ever_to_roleplay/
+- https://github.com/LeviTheWeasel/rp-benchmark
+
+### GLM
+
+#### GLM 5.3 / 5.3 Flash
+
+這一代很能說明「新版不一定適合直接取代舊版」。
+
+正面回報：
+
+- NPC 對話與主動性比前代改善。
+- Flash 的 prose / 創意以價格來說有人很滿意。
+
+反覆出現的問題：
+
+- thinking 很慢、消耗大量 token。
+- safety reasoning / policy thinking 可能侵入正常 RP。
+- 有玩家覺得角色只看眼前文字，對先前 backstory / build-up 的利用變淺。
+- provider 差異很大。
+
+因此 **GLM 5.2 / 4.7 這些舊版仍值得一起比較，不能看到 5.3 就自動淘汰。**
+
+**夜灣暫定：5.3 Flash 可留候選，但先不把它定成 GLM 唯一主力。**
+
+參考：
+- https://www.reddit.com/r/SillyTavernAI/comments/1vumkk9/glm_53_kinda_sucks_for_roleplay/
+- https://www.reddit.com/r/SillyTavernAI/comments/1w0nh19/glm_53_vs_glm_53_flash/
+- https://www.reddit.com/r/SillyTavernAI/comments/1w1eo9k/glm_53_for_roleplay_with_or_without_thinking/
+- https://www.reddit.com/r/SillyTavernAI/comments/1ui1q23/i_hope_glm_stays_on_this_path/
+
+### MiMo
+
+#### MiMo 2.5 / 2.6
+
+2.5 Pro 在 RP benchmark 與社群都有不錯資料；2.6 剛發布時也有正面回報，常提到 scene flow 與較少重複。
+
+但最近也出現：
+
+- provider 間品質差異。
+- instruction / spatial consistency 失誤。
+- sloppiness / TPS 下降的回報。
+
+**夜灣暫定：2.5 不因 2.6 出現而淘汰；2.6 放候選／觀察。**
+
+參考：
+- https://www.reddit.com/r/SillyTavernAI/comments/1wmp2qc/mimo_26_pro_is_out_anyone_else_trying_it_for_rp/
+- https://www.reddit.com/r/SillyTavernAI/comments/1wty9fa/did_mimo_26_pro_fall_off/
+- https://github.com/LeviTheWeasel/rp-benchmark
+
+### Qwen
+
+#### Qwen 3.7 Flash
+
+價格很漂亮，但目前 RP 證據不夠強。
+
+社群常見看法是：
+
+- instruction following 有潛力。
+- Flash 型號非常便宜。
+- 但主要訓練／產品取向並不是 RP，長篇扮演品質未形成穩定口碑。
+
+**夜灣暫定：更適合摘要／狀態／輔助模型候選，不急著當主 RP 模型。**
+
+參考：
+- https://www.reddit.com/r/SillyTavernAI/comments/1vn9c4u/anyone_tried_qwen_37_flash_for_roleplay/
+
+### MiniMax M3
+
+社群評價偏混合：
+
+- 有人認為回覆速度與品質都不錯。
+- 有人仍更偏好 MiMo / GLM。
+- 有 loop、對 prompt / preset 敏感等回報。
+
+它目前仍有 RP 使用者與專用 preset，因此沒有必要移除，但也不需要抬成「高品質代表」。
+
+**夜灣暫定：保留平價／中價備選。**
+
+參考：
+- https://www.reddit.com/r/SillyTavernAI/comments/1tun983/anyone_tried_minimax_m3_for_rp_yet/
+- https://www.reddit.com/r/SillyTavernAI/comments/1uy5ffi/minimax_m3_roleplay_prompt/
+
+### GPT
+
+#### GPT-5.6 Luna
+
+目前找得到的 RP 社群訊號偏弱，甚至有一些明確負評：
+
+- 容易冗長。
+- 有玩家回報人物會變成「moral supervisor」式說教。
+- 新 OpenAI 系列被不少 RP 玩家視為更偏知識／工作用途，而不是 RP 優化。
+
+目前證據不足以支持「因為便宜就一定要放正式 Hosted」。
+
+**夜灣暫定：BYOK／觀察，不急著補 Hosted。**
+
+參考：
+- https://www.reddit.com/r/SillyTavernAI/comments/1urzvq1/gpt_56_released/
+
+### Grok
+
+#### Grok 4.7
+
+4.7 太新，而且目前 RP 社群對 Grok 的主要懷念反而集中在 4.1 / 4.2 時期。
+
+最近回報常見：
+
+- 更新後 RP / companion 體感下降。
+- moderation / censorship 比舊版更明顯的案例。
+- 也有人覺得 character RP 還可以，但共識不足。
+
+rp-benchmark 已納入 4.7 的 willingness 資料，但那只能回答「哪些內容會／不會拒答」，不能證明它的文風與長篇 RP 已成熟。
+
+**夜灣暫定：觀察，不急著 Hosted。**
+
+參考：
+- https://www.reddit.com/r/grok/comments/1wkzsdj/fanfic_writersroleplayers_do_you_think_47_will/
+- https://www.reddit.com/r/GrokAiDiscussion/comments/1wnd6w8/grok_47_is_officially_more_cnsored_than_claude/
+- https://github.com/LeviTheWeasel/rp-benchmark
+
+## 第二輪之後的候選輪廓
+
+目前先不要把它叫「排名」，比較適合夜灣的是：
+
+| 類型 | 目前較有理由保留／研究 |
+| --- | --- |
+| 超省長聊 | DeepSeek V4 Flash、MiMo 2.5、GLM 舊版／5.3 Flash 併行比較 |
+| 輔助摘要／狀態 | Qwen 3.7 Flash、Gemini 3.1 Flash-Lite |
+| 敘事／文風 | Gemini 3.1 Pro |
+| Claude 平價 | Haiku 4.5（備選） |
+| Claude 成熟 RP | Sonnet 4.5、Sonnet 4.6 |
+| Claude 新價格甜蜜點 | Sonnet 5（強候選，但不取代舊版） |
+| 豪華場景 | Opus 4.6 |
+| 先觀察 | Gemini 3.8、MiMo 2.6、GPT-5.6 Luna、Grok 4.7、新 Claude |
+
+### 目前最值得下一步驗證的不是更多新模型
+
+第三輪應該只做兩件事：
+
+1. **把目前夜灣已上架的 Hosted 模型和這份候選表對齊。**
+2. **挑少量真正可能新增的模型做固定角色卡 A/B。**
+
+第一批 A/B 可以先測：
+
+- Claude Sonnet 4.5
+- Claude Sonnet 4.6
+- Claude Sonnet 5
+- Gemini 3.1 Pro
+- DeepSeek V4 Flash
+- MiMo 2.5
+
+同一張角色卡、同一段歷史、同一批 20–30 個劇情節點，記：
+
+- 是否搶玩家控制權
+- 是否 OOC
+- 是否漏 lore
+- 是否拒答
+- 是否重複
+- 是否需要重抽
+- 每輪實際 Token / 成本
+
+這樣第三輪才會開始產生「夜灣自己的 RP 數據」，而不是永遠只抄外部社群。
