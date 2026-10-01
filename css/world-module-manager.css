@@ -10,3 +10,67 @@
 .world-preset.active{border-color:rgba(156,140,255,.28);background:rgba(156,140,255,.07)}
 .world-order-row button,.world-custom-head button{background:var(--yoru-control,#1b1a1e);border-color:var(--yoru-control-border,rgba(241,232,218,.11))}
 .world-custom-card{border-color:rgba(214,170,115,.13)}
+
+
+/* Desktop workbench: current/custom modules stay left; presets and reference stay in a narrow rail. */
+@media(min-width:1081px){
+  .world-manager-modal{
+    width:min(1260px,calc(100vw - 48px));
+    max-height:min(92vh,920px)
+  }
+  .world-manager-body{
+    grid-template-columns:minmax(0,1fr) 270px;
+    grid-auto-rows:min-content;
+    align-items:start;
+    gap:14px 18px;
+    padding:18px 20px 20px
+  }
+  .world-manager-body>main{display:contents}
+  .world-manager-order-card{
+    grid-column:1;
+    grid-row:1
+  }
+  .world-manager-custom-card-list{
+    grid-column:1;
+    grid-row:2
+  }
+  .world-manager-presets-card{
+    grid-column:2;
+    grid-row:1;
+    align-self:start
+  }
+  .world-manager-body>.world-manager-guide{
+    grid-column:2;
+    grid-row:2;
+    position:sticky;
+    top:0;
+    align-self:start;
+    gap:10px
+  }
+  .world-manager-guide .world-manager-card{
+    padding:13px;
+    border-radius:14px
+  }
+  .world-manager-guide .world-manager-card h3{
+    font-size:14px;
+    margin-bottom:5px
+  }
+  .world-manager-guide .world-manager-card p{
+    font-size:11px;
+    line-height:1.55
+  }
+  .world-manager-presets{
+    grid-template-columns:1fr 1fr;
+    gap:6px;
+    margin-top:10px
+  }
+  .world-preset{
+    min-width:0;
+    padding:8px
+  }
+  .world-preset small{font-size:9px}
+  .world-manager-order,.world-manager-custom{gap:7px;margin-top:10px}
+  .world-order-row{padding:9px 10px}
+  .world-custom-card{padding:12px}
+  .world-manager-foot{padding:14px 20px}
+}
