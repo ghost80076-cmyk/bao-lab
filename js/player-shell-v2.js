@@ -126,7 +126,7 @@
 
         <aside class="bao-player-privacy-note">
           <b>故事預設留在這台裝置。</b>
-          <span>不登入也能使用 BYOK、本地角色與本地故事；帳號不是讀取私人故事的必要條件。</span>
+          <span>不登入也能使用自己的模型連線、本機角色與本機故事；帳號不是讀取私人故事的必要條件。</span>
         </aside>
       </div>`;
     main.appendChild(section);
@@ -145,7 +145,7 @@
     if (account) {
       account.textContent = validAccountSession()
         ? "已登入。夜灣燈火會使用目前帳號；自己的模型連線仍可獨立使用。"
-        : "目前未登入。不影響 BYOK、本地故事或角色匯入；需要 Hosted 額度時再登入即可。";
+        : "目前未登入。不影響自己的模型連線、本機故事或角色匯入；需要夜灣燈火時再登入即可。";
     }
 
     const storyState = $("bao-player-story-state");
@@ -352,7 +352,7 @@
     const line = copy.querySelector(".detail-category-line span");
     if (line && !line.dataset.baoPlayerCopy) {
       line.dataset.baoPlayerCopy = "yes";
-      line.textContent = `BAO ORIGINAL · ${line.textContent}`;
+      line.textContent = `YORUBAY ORIGINAL · ${line.textContent}`;
     }
 
     let strip = copy.querySelector(".bao-detail-feature-strip");
@@ -360,7 +360,7 @@
       const features = [
         character.supported_modes?.world ? ["世界", "世界模擬"] : ["敘事", "角色沉浸"],
         character.supported_display?.ui ? ["介面", "互動 UI"] : ["介面", "純文字"],
-        ["保存", "Local-first"]
+        ["保存", "故事留在本機"]
       ];
       strip = document.createElement("div");
       strip.className = "bao-detail-feature-strip";
