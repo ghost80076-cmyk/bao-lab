@@ -67,9 +67,9 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 320, height: 568 }
     const drawerSupport = toolDialog.getByRole('link', { name: /投餵肉包/ });
     await expect(drawerSupport).toBeVisible();
     await expect(drawerSupport.locator('img[src$="assets/bao-bun.svg"]')).toHaveCount(1);
-    await expect(page.getByRole('button', { name: 'API／切換模型' })).toBeVisible();
-    await page.getByRole('button', { name: 'API／切換模型' }).click();
-    await expect(page.getByRole('heading', { name: '目前故事的 AI 連線設定' })).toBeVisible();
+    await expect(page.getByRole('button', { name: '模型連線／切換' })).toBeVisible();
+    await page.getByRole('button', { name: '模型連線／切換' }).click();
+    await expect(page.getByRole('heading', { name: '目前故事的模型連線' })).toBeVisible();
     await page.locator('[data-api-close]').click();
 
     await composerTools.click();
