@@ -40,3 +40,53 @@ test('phone retains its existing compact text and viewport layout', async ({ pag
   expect(font).toBeLessThanOrEqual(16);
   await expect(page.locator('#bao-mobile-tools-tab')).toBeVisible();
 });
+
+
+test('wide desktop keeps story information in the right rail and restores the game UI below the breakpoint', async ({ page }) => {
+  await page.setViewportSize({ width: 1600, height: 900 });
+  await page.goto('./');
+  await page.waitForFunction(() => Boolean(window.BAOChatExperience && window.GameState && App.characters?.length));
+  await page.evaluate(() => {
+    App.activeCharacter = { ...App.characters[0] };
+    App.config = {
+      persona: { name: '旅人', identity: '記者', relationship: '舊識' },
+      narrativeMode: 'world',
+      displayMode: 'ui',
+      api: { model: 'mock-desktop-info', baseUrl: 'https://example.invalid', key: 'EPHEMERAL_TEST_KEY' },
+      memory: { maxRounds: 20, maxContext: 32000, mode: 'smart', cache: true }
+    };
+    GameState.create(App.activeCharacter, App.config);
+    Chat.reset();
+    App.renderChatShell(false);
+    App.showView('chat');
+    BAOChatExperience.sync();
+  });
+
+  const rail = page.locator('#bao-reading-status');
+  await expect(rail).toBeVisible();
+  await expect(rail).toHaveAttribute('aria-label', '故事資訊');
+  await expect(rail.getByRole('heading', { name: '故事資訊' })).toBeVisible();
+  await expect(rail.locator('.bao-story-info-current-head')).toContainText('現況');
+  await expect(rail.locator('.bao-story-info-detail')).toContainText('詳細資訊');
+
+  const desktopLayout = await page.evaluate(() => ({
+    gameUiParent: document.getElementById('game-ui')?.parentElement?.className || '',
+    gameUiInMain: Boolean(document.querySelector('#chat-view .chat-main > #game-ui')),
+    gameUiInRail: Boolean(document.querySelector('#bao-reading-status .bao-story-info-detail > #game-ui')),
+    expanded: document.getElementById('bao-reading-status-toggle')?.getAttribute('aria-expanded')
+  }));
+  expect(desktopLayout.gameUiInMain).toBe(false);
+  expect(desktopLayout.gameUiInRail).toBe(true);
+  expect(desktopLayout.gameUiParent).toContain('bao-story-info-detail');
+  expect(desktopLayout.expanded).toBe('true');
+
+  await rail.getByRole('button', { name: '關閉故事資訊' }).click();
+  await expect(page.locator('#chat-view .chat-layout')).toHaveClass(/bao-status-collapsed/);
+  await expect(page.locator('#bao-reading-status-toggle')).toHaveAttribute('aria-expanded', 'false');
+  await page.evaluate(() => BAOChatExperience.openStatus());
+  await expect(page.locator('#bao-reading-status-toggle')).toHaveAttribute('aria-expanded', 'true');
+
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await expect.poll(() => page.evaluate(() => Boolean(document.querySelector('#chat-view .chat-main > #game-ui')))).toBe(true);
+  expect(await page.evaluate(() => Boolean(document.querySelector('#bao-reading-status .bao-story-info-detail > #game-ui')))).toBe(false);
+});
