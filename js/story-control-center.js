@@ -15,10 +15,10 @@
   };
 
   const routeLabel = api => {
-    if (window.BAOCreditsPilot?.isAccountReady?.(api)) return "夜灣官方額度";
+    if (window.BAOCreditsPilot?.isAccountReady?.(api)) return "夜灣燈火";
     const base = String(api?.baseUrl || api?.base_url || "");
-    if (/localhost|127\.0\.0\.1|\[?::1\]?/i.test(base)) return "本地 AI";
-    if (api?.key) return "自備 API";
+    if (/localhost|127\.0\.0\.1|\[?::1\]?/i.test(base)) return "本機模型";
+    if (api?.key) return "自己的模型連線";
     return "";
   };
 
@@ -48,7 +48,7 @@
       const info = window.BAOStoryQuickCommands?.summary?.();
       if (info) quick = { title: info.title, detail: info.detail };
     } catch (_) {}
-    let context = { title: "尚無上下文資料", detail: "完成一輪 AI 回覆後會顯示目前輸入壓力" };
+    let context = { title: "尚無上下文資料", detail: "完成一輪回覆後會顯示目前輸入壓力" };
     try {
       const health = window.BAOContextHealth?.snapshot?.();
       if (health?.pressure) {
@@ -58,7 +58,7 @@
         context = {
           title: health.pressure.label + pct,
           detail: health.pressure.input === null || health.pressure.input === undefined
-            ? health.memory?.title || "尚無 Provider 用量資料"
+            ? health.memory?.title || "尚無模型服務用量資料"
             : Number(health.pressure.input).toLocaleString() + " tok 本輪輸入 · " + (health.memory?.title || "記憶正常")
         };
       }
@@ -101,7 +101,7 @@
 
   const open = () => {
     if (!GameState.current || !App.config) {
-      window.BAOFeedback?.notify?.("先進入一個故事，再開啟故事控制台。", "error");
+      window.BAOFeedback?.notify?.("先進入一個故事，再開啟故事總覽。", "error");
       return;
     }
     close();
@@ -114,18 +114,18 @@
       <section class="story-control-panel" role="dialog" aria-modal="true" aria-labelledby="story-control-title">
         <header class="story-control-head">
           <div>
-            <div class="eyebrow">STORY CONTROL</div>
-            <h2 id="story-control-title">本故事控制台</h2>
+            <div class="eyebrow">STORY OVERVIEW</div>
+            <h2 id="story-control-title">故事總覽</h2>
             <p><b>${esc(title)}</b> · ${esc(data.stats.chapter)} · 約 ${data.stats.turns.toLocaleString()} 輪</p>
           </div>
           <div class="story-control-head-actions">
-            <button type="button" class="story-control-help" data-story-control-help aria-label="故事控制台說明" aria-expanded="false" aria-controls="story-control-intro">?</button>
-            <button type="button" class="story-control-close" data-story-control-close aria-label="關閉故事控制台">×</button>
+            <button type="button" class="story-control-help" data-story-control-help aria-label="故事總覽說明" aria-expanded="false" aria-controls="story-control-intro">?</button>
+            <button type="button" class="story-control-close" data-story-control-close aria-label="關閉故事總覽">×</button>
           </div>
         </header>
-        <p class="story-control-intro" id="story-control-intro">這裡只整理「目前這一份故事」正在使用的設定。API Key、全站語言與其他帳號設定仍留在原本的全域入口。</p>
+        <p class="story-control-intro" id="story-control-intro">這裡整理目前這一份故事正在使用的設定。連線金鑰、全站語言與其他帳號設定仍留在原本的入口。</p>
         <div class="story-control-grid">
-          ${card("model", "AI 模型", data.model, "切換模型")}
+          ${card("model", "故事模型", data.model, "切換模型")}
           ${card("persona", "玩家身份", data.persona, "調整人物")}
           ${card("memory", "故事記憶", data.memory, "查看記憶")}
           ${card("context", "上下文狀態", data.context, "查看前情")}
@@ -173,9 +173,9 @@
     button.type = "button";
     button.className = "secondary story-control-entry";
     button.dataset.openStoryControl = "true";
-    button.textContent = controls ? "故事" : "☷ 故事控制台";
-    button.setAttribute("aria-label", "故事控制台");
-    button.title = "查看這個故事目前使用的模型、身份、記憶、狀態與故事擴充";
+    button.textContent = controls ? "故事" : "☷ 故事總覽";
+    button.setAttribute("aria-label", "故事總覽");
+    button.title = "看看這個故事目前使用的模型、身份、記憶、狀態與故事擴充";
     button.addEventListener("click", open);
     if (controls) {
       const tools = controls.querySelector("#bao-surface-mode-toggle");
