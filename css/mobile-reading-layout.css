@@ -385,3 +385,41 @@
   #bao-mobile-support,#bao-mobile-tools-tab,#bao-mobile-exit{width:38px!important;min-width:38px!important;height:38px!important;min-height:38px!important}
   #chat-view .chat-title-avatar{width:36px!important;height:36px!important;flex-basis:36px!important}
 }
+
+
+/* Focused AI-reply editing on phones: the normal chat composer is unrelated
+   while revising an existing assistant reply, so give that space back to text. */
+@media(max-width:820px){
+  #chat-view.story-reply-editing .composer{
+    display:none!important;
+  }
+  #chat-view.story-reply-editing .chat-stream{
+    grid-row:2 / 6!important;
+    padding-bottom:calc(12px + env(safe-area-inset-bottom,0px))!important;
+  }
+  #chat-view.story-reply-editing .story-message-tools,
+  #chat-view.story-reply-editing .story-variant-switcher,
+  #chat-view.story-reply-editing .story-inspiration-panel{
+    display:none!important;
+  }
+  #chat-view.story-reply-editing .story-inline-editor{
+    min-height:100%;
+    gap:8px;
+  }
+  #chat-view.story-reply-editing .story-inline-editor textarea{
+    min-height:min(46dvh,420px)!important;
+    max-height:none!important;
+    resize:none!important;
+  }
+  #chat-view.story-reply-editing .story-inline-actions{
+    position:sticky;
+    bottom:0;
+    z-index:5;
+    padding:8px 0 calc(4px + env(safe-area-inset-bottom,0px));
+    background:linear-gradient(180deg,rgba(16,17,22,0),var(--yoru-tool,#101116) 28%);
+  }
+  #chat-view.story-reply-editing .story-inline-actions button{
+    min-height:44px;
+    padding-inline:16px;
+  }
+}
