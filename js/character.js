@@ -296,7 +296,7 @@ const CharacterEngine = {
       const useRosterIndex = initialNPCs.length > 4 || discoveredNPCs.length > 0;
       if (useRosterIndex) {
         const roster = this.npcIndexPrompt(initialNPCs.length > 4 ? mergedNPCs : discoveredNPCs);
-        if (roster) blocks.push(`【NPC 名冊索引】\n${roster}\n此處只表示故事中已登記的人物與身分，不代表目前在場，也不改變玩家控制權。`);
+        if (roster) blocks.push(`【NPC 名冊索引】\n${roster}\n名冊只表示故事中已登記的人物與身分，不代表目前在場，也不改變玩家控制權。`);
 
         const relevantPool = initialNPCs.length > 4 ? mergedNPCs : discoveredNPCs;
         const relevantNPCs = this.relevantNPCs(relevantPool, context, 4);
