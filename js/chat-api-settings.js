@@ -29,8 +29,8 @@
     const backdrop = document.createElement("div");
     backdrop.id = "bao-chat-api-backdrop";
     backdrop.innerHTML = `<section class="bao-chat-api-dialog" role="dialog" aria-modal="true" aria-labelledby="bao-chat-api-title">
-      <header><h2 id="bao-chat-api-title">目前故事的 AI 連線設定</h2><button type="button" data-api-close aria-label="關閉設定">×</button></header>
-      <p>直接為目前故事連接或更換模型。故事、對話、記憶與世界狀態都不會重置。</p>
+      <header><h2 id="bao-chat-api-title">目前故事的 AI 連線設定</h2><div class="bao-chat-api-head-actions"><button type="button" data-api-help aria-label="AI 連線設定說明" aria-expanded="false" aria-controls="bao-chat-api-intro">?</button><button type="button" data-api-close aria-label="關閉設定">×</button></div></header>
+      <p id="bao-chat-api-intro" class="bao-chat-api-intro">直接為目前故事連接或更換模型。故事、對話、記憶與世界狀態都不會重置。</p>
       <form id="bao-chat-api-form" autocomplete="off">
         <label>模型<select name="preset"><option value="custom">自訂／保留現有連線</option>${presets.map((p, i) =>
           `<option value="${i}">${escape(p.provider_label || p.provider || "API")} · ${escape(p.label || p.model || "自訂模型")}</option>`).join("")}</select></label>
@@ -103,6 +103,12 @@
       syncAdvanced();
     });
     backdrop.querySelector("[data-api-close]").onclick = close;
+    backdrop.querySelector("[data-api-help]")?.addEventListener("click", event => {
+      const dialog = event.currentTarget.closest(".bao-chat-api-dialog");
+      const open = !dialog?.classList.contains("bao-chat-api-help-open");
+      dialog?.classList.toggle("bao-chat-api-help-open", open);
+      event.currentTarget.setAttribute("aria-expanded", open ? "true" : "false");
+    });
     backdrop.addEventListener("click", event => { if (event.target === backdrop) close(); });
     form.addEventListener("submit", event => {
       event.preventDefault();
@@ -194,7 +200,7 @@
       #bao-chat-api-backdrop{position:fixed;inset:0;z-index:10020;display:flex;align-items:center;justify-content:center;overflow-y:auto;padding:16px;background:rgba(0,0,0,.78)}
       .bao-chat-api-dialog{width:min(100%,540px);max-height:calc(100dvh - 32px);overflow-y:auto;padding:clamp(18px,4vw,28px);background:#20232d;color:#f4f4fa;border:1px solid #62677a;border-radius:18px;box-shadow:0 16px 52px #0008}
       .bao-chat-api-dialog header,.bao-chat-api-dialog footer{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
-      .bao-chat-api-dialog header h2{margin:0;font-size:22px}.bao-chat-api-dialog header button{font-size:27px;line-height:1;color:inherit;border:0;background:none;cursor:pointer}
+      .bao-chat-api-head-actions{display:flex;align-items:center;gap:6px}.bao-chat-api-dialog header h2{margin:0;font-size:22px}.bao-chat-api-dialog header button{font-size:27px;line-height:1;color:inherit;border:0;background:none;cursor:pointer}.bao-chat-api-dialog header [data-api-help]{display:none;width:34px;height:34px;border:1px solid #4c5365;border-radius:10px;background:#171a23;font-size:15px;font-weight:800}
       .bao-chat-api-dialog p{font-size:14px;line-height:1.6;color:#d4d7e4}
       .bao-chat-api-dialog form{display:grid;gap:12px}.bao-chat-api-dialog label{display:grid;gap:5px;font-size:14px}
       .bao-chat-api-dialog input,.bao-chat-api-dialog select{box-sizing:border-box;width:100%;min-width:0;padding:10px;border:1px solid #697086;border-radius:8px;background:#141720;color:#fff;font:inherit}
@@ -203,7 +209,7 @@
       .bao-chat-api-advanced-body{display:grid;gap:11px;padding:0 12px 12px}
       .bao-chat-api-dialog .bao-chat-api-hint{margin:0;color:#c1c8d7}.bao-chat-api-dialog .bao-chat-api-error{min-height:1.5em;margin:0;color:#ffcc93}
       .bao-chat-api-dialog footer button{min-height:42px;flex:1 1 180px}
-      @media(max-width:700px){#bao-chat-api-toolbar{margin:8px 0;padding:8px 10px}#bao-chat-api-toolbar button{flex:1 1 auto}.bao-chat-api-dialog{max-height:calc(100dvh - 20px)}}`;
+      @media(max-width:700px){#bao-chat-api-toolbar{margin:8px 0;padding:8px 10px}#bao-chat-api-toolbar button{flex:1 1 auto}#bao-chat-api-backdrop{align-items:flex-end;padding:0}.bao-chat-api-dialog{width:100%;max-height:94dvh;padding:11px 10px calc(14px + env(safe-area-inset-bottom));border-radius:22px 22px 0 0}.bao-chat-api-dialog header{gap:8px;margin-bottom:4px}.bao-chat-api-dialog header h2{font-size:18px}.bao-chat-api-dialog header [data-api-help]{display:inline-grid;place-items:center}.bao-chat-api-dialog header [data-api-close]{font-size:23px}.bao-chat-api-intro{display:none;margin:4px 0 8px!important;font-size:11px!important;line-height:1.45!important}.bao-chat-api-dialog.bao-chat-api-help-open .bao-chat-api-intro{display:block}.bao-chat-api-dialog form{gap:9px}.bao-chat-api-dialog label{gap:4px;font-size:12px}.bao-chat-api-dialog input,.bao-chat-api-dialog select{padding:9px;font-size:12px}.bao-chat-api-advanced>summary{padding:9px 10px;font-size:12px}.bao-chat-api-advanced-body{gap:8px;padding:0 9px 9px}.bao-chat-api-dialog .bao-chat-api-hint{font-size:10.5px;line-height:1.45}.bao-chat-api-dialog .bao-chat-api-error{font-size:10.5px;min-height:1.2em}.bao-chat-api-dialog footer{position:sticky;bottom:calc(-14px - env(safe-area-inset-bottom));z-index:2;display:grid;grid-template-columns:1fr 1fr;gap:7px;margin:0 -10px calc(-14px - env(safe-area-inset-bottom));padding:9px 10px max(12px,env(safe-area-inset-bottom));background:#20232df2;border-top:1px solid #454b5d;backdrop-filter:blur(10px)}.bao-chat-api-dialog footer button{min-width:0;min-height:40px;padding:7px 8px;font-size:11px}}`;
     document.head.appendChild(styles);
   }
 
