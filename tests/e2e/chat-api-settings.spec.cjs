@@ -37,6 +37,19 @@ test("resuming a story opens editable API settings, preserves the story and does
   await page.locator("#home-continue").click();
   const dialog = page.getByRole("dialog", { name: "目前故事的 AI 連線設定" });
   await expect(dialog).toBeVisible();
+  const help = dialog.getByRole("button", { name: "AI 連線設定說明" });
+  await expect(help).toBeVisible();
+  await expect(dialog.locator("#bao-chat-api-intro")).toBeHidden();
+  const mobileLayout = await dialog.evaluate(node => ({
+    footerColumns: getComputedStyle(node.querySelector("footer")).gridTemplateColumns.trim().split(/\s+/).length,
+    backdropAlign: getComputedStyle(node.parentElement).alignItems,
+    bottomRadius: getComputedStyle(node).borderBottomLeftRadius
+  }));
+  expect(mobileLayout).toEqual({ footerColumns: 2, backdropAlign: "flex-end", bottomRadius: "0px" });
+  await help.click();
+  await expect(dialog.locator("#bao-chat-api-intro")).toBeVisible();
+  await help.click();
+  await expect(dialog.locator("#bao-chat-api-intro")).toBeHidden();
   await expect(dialog.locator('.bao-chat-api-advanced')).toHaveAttribute('open', '');
   await expect(dialog.locator('[name="model"]')).toHaveValue("test-model");
   await expect(dialog.locator('[name="baseUrl"]')).toHaveValue("https://example.invalid/v1/chat/completions");
