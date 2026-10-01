@@ -863,23 +863,44 @@ function sessionTtlDays(
 function modelConfigs(
   env
 ) {
-  try {
-    const parsed =
-      JSON.parse(
-        env.MODELS_JSON ||
-        "[]"
-      );
+  const configs =
+    [];
 
-    return Array.isArray(
-      parsed
-    )
-      ? parsed
-      : [];
+  for (
+    const raw
+    of [
+      env.MODELS_JSON,
+      env.MODELS_JSON_EXTRA,
+    ]
+  ) {
+    if (!raw) {
+      continue;
+    }
+
+    try {
+      const parsed =
+        JSON.parse(
+          raw
+        );
+
+      if (
+        Array.isArray(
+          parsed
+        )
+      ) {
+        configs.push(
+          ...parsed
+        );
+      }
+    }
+
+    catch {
+      // Ignore one malformed shard instead of discarding the other
+      // valid allowlist shard.
+    }
   }
 
-  catch {
-    return [];
-  }
+  return configs;
 }
 
 function modelConfig(
