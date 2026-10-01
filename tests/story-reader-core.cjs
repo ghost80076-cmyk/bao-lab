@@ -35,7 +35,7 @@ assert(css.includes("grid-template-columns:220px minmax(0,1fr)"), "desktop reade
 assert(css.includes(".chat-title-avatar"), "character portrait styling beside the story title is missing");
 assert(css.includes("object-position:center top"), "story title portrait should keep the face aligned");
 assert(css.includes("grid-template-columns:190px minmax(0,1fr)"), "tablet / narrow desktop must retain the sidebar + story layout");
-assert(css.includes("background:rgba(8,11,17,.32)!important"), "authored HTML mobile shell should stay visually integrated with the reader");
+assert(css.includes("background:rgba(18,17,20,.34)!important"), "authored HTML mobile shell should stay visually integrated with the warmer reader surface");
 assert(css.includes("overflow-x:hidden"), "authored HTML must not create a reader-wide horizontal scrollbar");
 assert(css.includes("min-width:0!important"), "authored HTML children must be allowed to shrink inside the reading column");
 assert(css.includes("white-space:pre-wrap"), "authored preformatted content must wrap inside the reading column");
