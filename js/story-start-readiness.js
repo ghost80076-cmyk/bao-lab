@@ -85,7 +85,7 @@
 
   const actionLabel = action => ({
     account: "登入帳號",
-    key: "貼上 API Key",
+    key: "貼上連線金鑰",
     model: "選擇模型",
     endpoint: "補上連線網址",
     "local-model": "設定本機模型",
