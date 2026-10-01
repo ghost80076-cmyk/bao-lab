@@ -95,6 +95,13 @@
     }[ch]));
 
     const close = () => document.querySelector('.bao-text-replace-backdrop')?.remove();
+    const ensureStyles = () => {
+      if (document.querySelector('link[href^="css/player-text-replace-mod.css"]')) return;
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = 'css/player-text-replace-mod.css?v=1';
+      document.head.appendChild(link);
+    };
 
     const statusText = state => {
       const count = state.active ? state.rules.filter(rule => rule.enabled && rule.find).length : 0;
@@ -113,41 +120,47 @@
 
     function open() {
       close();
+      ensureStyles();
       const draft = current();
       const wrap = document.createElement('div');
       wrap.className = 'bao-modal-backdrop bao-text-replace-backdrop';
-      wrap.innerHTML = `<section class="bao-modal">
+      wrap.innerHTML = `<section class="bao-modal bao-text-replace-modal" role="dialog" aria-modal="true" aria-labelledby="bao-text-replace-title">
         <div class="bao-modal-head">
-          <div><div class="eyebrow">PLAYER DISPLAY MOD</div><h2>文字替換 MOD</h2></div>
-          <button class="bao-modal-close" type="button">關閉</button>
+          <div><div class="eyebrow">PLAYER DISPLAY MOD</div><h2 id="bao-text-replace-title">文字替換 MOD</h2></div>
+          <div class="bao-text-replace-head-actions">
+            <button class="bao-text-replace-help" type="button" data-text-replace-help aria-label="文字替換說明" aria-expanded="false">?</button>
+            <button class="bao-modal-close" type="button">關閉</button>
+          </div>
         </div>
         <div class="bao-modal-body">
-          <div class="bao-setting-section">
+          <div class="bao-setting-section bao-text-replace-primary">
             <h3>只改你看到的文字</h3>
-            <p>AI 原始回覆、故事記憶、世界狀態與下一輪模型內容都不會被修改。關閉 MOD 後，畫面會重新顯示原文。</p>
-            <label class="bao-toggle"><span><b>啟用文字替換</b><br><small class="note">多條規則會依目前順序由上往下套用。</small></span><input id="bao-text-replace-active" type="checkbox" ${draft.active ? 'checked' : ''}></label>
+            <p class="bao-text-replace-help-copy">AI 原始回覆、故事記憶、世界狀態與下一輪模型內容都不會被修改。關閉 MOD 後，畫面會重新顯示原文。</p>
+            <label class="bao-toggle"><span><b>啟用文字替換</b><br><small class="note bao-text-replace-help-copy">多條規則會依目前順序由上往下套用。</small></span><input id="bao-text-replace-active" type="checkbox" ${draft.active ? 'checked' : ''}></label>
           </div>
-          <div class="bao-setting-section">
+          <div class="bao-setting-section bao-text-replace-scope">
             <h3>套用範圍</h3>
-            <p>只替換顯示值，不修改狀態欄名稱、世界模組名稱或底層資料。</p>
+            <p class="bao-text-replace-help-copy">只替換顯示值，不修改狀態欄名稱、世界模組名稱或底層資料。</p>
             <div class="bao-choice-grid two">
               <label class="bao-toggle"><span><b>故事文字</b><br><small class="note">AI 回覆正文</small></span><input id="bao-text-replace-scope-chat" type="checkbox" ${draft.scope?.chat !== false ? 'checked' : ''}></label>
               <label class="bao-toggle"><span><b>狀態顯示</b><br><small class="note">人物狀態、時間地點、世界模組與 Gameplay UI 的值</small></span><input id="bao-text-replace-scope-status" type="checkbox" ${draft.scope?.status === true ? 'checked' : ''}></label>
             </div>
           </div>
-          <div class="bao-setting-section">
-            <div style="display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap">
-              <div><h3 style="margin-bottom:4px">替換規則</h3><small class="note">不需要懂 Regex；括號、問號、+ 等符號都只當普通文字。</small></div>
+          <div class="bao-setting-section bao-text-replace-rules">
+            <div class="bao-text-replace-rules-head">
+              <div><h3>替換規則</h3><small class="note bao-text-replace-help-copy">不需要懂 Regex；括號、問號、+ 等符號都只當普通文字。</small></div>
               <button type="button" class="secondary" data-text-replace-add>＋ 新增替換</button>
             </div>
-            <div data-text-replace-list style="display:grid;gap:10px;margin-top:12px"></div>
+            <div class="bao-text-replace-list" data-text-replace-list></div>
           </div>
-          <div class="bao-setting-section">
-            <h3>預覽</h3>
-            <textarea data-text-replace-source maxlength="5000" placeholder="貼一段 AI 回覆測試看看" style="width:100%;min-height:90px"></textarea>
-            <button type="button" class="secondary" data-text-replace-preview style="margin-top:8px">預覽替換</button>
-            <textarea data-text-replace-result readonly placeholder="替換結果" style="width:100%;min-height:90px;margin-top:8px"></textarea>
-          </div>
+          <details class="bao-setting-section bao-text-replace-preview">
+            <summary>預覽替換</summary>
+            <div class="bao-text-replace-preview-body">
+              <textarea data-text-replace-source maxlength="5000" placeholder="貼一段 AI 回覆測試看看"></textarea>
+              <button type="button" class="secondary" data-text-replace-preview>產生預覽</button>
+              <textarea data-text-replace-result readonly placeholder="替換結果"></textarea>
+            </div>
+          </details>
         </div>
         <div class="bao-modal-footer">
           <button class="secondary" type="button" data-text-replace-clear>全部清除</button>
@@ -174,21 +187,21 @@
         }
         draft.rules.forEach((rule, index) => {
           const card = document.createElement('div');
-          card.className = 'bao-memory-slot';
+          card.className = 'bao-memory-slot bao-text-replace-rule';
           card.dataset.textReplaceRule = rule.id;
           card.innerHTML = `
             <div class="bao-memory-slot-head">
               <label><input type="checkbox" data-rule-enabled ${rule.enabled ? 'checked' : ''}> 使用中</label>
-              <div style="display:flex;gap:6px">
-                <button class="text-button" type="button" data-rule-up title="往上">↑</button>
-                <button class="text-button" type="button" data-rule-down title="往下">↓</button>
+              <div class="bao-text-replace-rule-actions">
+                <button class="text-button" type="button" data-rule-up title="往上" aria-label="規則往上">↑</button>
+                <button class="text-button" type="button" data-rule-down title="往下" aria-label="規則往下">↓</button>
                 <button class="text-button" type="button" data-rule-delete>刪除</button>
               </div>
             </div>
-            <div style="display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:8px;align-items:center">
-              <input data-rule-find maxlength="${MAX_FIND}" value="${escape(rule.find)}" placeholder="尋找文字">
+            <div class="bao-text-replace-rule-grid">
+              <input data-rule-find maxlength="${MAX_FIND}" value="${escape(rule.find)}" placeholder="尋找文字" aria-label="尋找文字">
               <span aria-hidden="true">→</span>
-              <input data-rule-replace maxlength="${MAX_REPLACE}" value="${escape(rule.replace)}" placeholder="替換成">
+              <input data-rule-replace maxlength="${MAX_REPLACE}" value="${escape(rule.replace)}" placeholder="替換成" aria-label="替換成">
             </div>`;
 
           const sync = () => {
@@ -283,6 +296,12 @@
       });
 
       wrap.querySelector('.bao-modal-close').addEventListener('click', close);
+      wrap.querySelector('[data-text-replace-help]')?.addEventListener('click', event => {
+        const modal = event.currentTarget.closest('.bao-text-replace-modal');
+        const openHelp = !modal?.classList.contains('bao-text-replace-help-open');
+        modal?.classList.toggle('bao-text-replace-help-open', openHelp);
+        event.currentTarget.setAttribute('aria-expanded', openHelp ? 'true' : 'false');
+      });
       wrap.addEventListener('click', event => { if (event.target === wrap) close(); });
       renderRules();
     }
