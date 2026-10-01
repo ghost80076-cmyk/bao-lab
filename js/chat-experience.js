@@ -33,7 +33,7 @@
     const button = $('bao-reading-status-toggle');
     if (!rail || !button) return;
     const visible = desktopInfoRail.matches
-      ? !layout.classList.contains('bao-status-collapsed')
+      ? !layout.classList.contains('bao-status-manual-collapsed')
       : rail.classList.contains('is-open');
     button.setAttribute('aria-expanded', String(visible));
   };
@@ -65,17 +65,19 @@
     rail?.classList.remove('is-open');
     $('bao-reading-status-backdrop')?.classList.remove('is-visible');
 
-    // Wide desktop uses the rail as persistent reading context. Navigation
-    // cleanup may ask transient surfaces to close while switching views; that
-    // must not collapse the persistent rail unless the player closed it.
-    if (desktopInfoRail.matches && root.classList.contains('active') && !manual) {
-      layout.classList.remove('bao-status-collapsed');
+    // On wide desktop this rail is persistent reading context, not a transient
+    // drawer. Generic navigation cleanup must never collapse it.
+    if (desktopInfoRail.matches && !manual) {
+      layout.classList.remove('bao-status-collapsed', 'bao-status-manual-collapsed');
       syncToggleState();
       wasOpened = false;
       return;
     }
 
-    if (manual && desktopInfoRail.matches) desktopManuallyCollapsed = true;
+    if (manual && desktopInfoRail.matches) {
+      desktopManuallyCollapsed = true;
+      layout.classList.add('bao-status-manual-collapsed');
+    }
     layout.classList.add('bao-status-collapsed');
     syncToggleState();
     if (wasOpened && returnFocus?.isConnected) returnFocus.focus();
@@ -84,7 +86,10 @@
   function openStatus() {
     const rail = $('bao-reading-status');
     if (!rail) return;
-    if (desktopInfoRail.matches) desktopManuallyCollapsed = false;
+    if (desktopInfoRail.matches) {
+      desktopManuallyCollapsed = false;
+      layout.classList.remove('bao-status-manual-collapsed');
+    }
     returnFocus = document.activeElement;
     wasOpened = true;
     layout.classList.remove('bao-status-collapsed');
@@ -135,7 +140,7 @@
       button.setAttribute('aria-expanded', 'false');
       button.addEventListener('click', () => {
         const open = desktopInfoRail.matches
-          ? !layout.classList.contains('bao-status-collapsed')
+          ? !layout.classList.contains('bao-status-manual-collapsed')
           : rail.classList.contains('is-open');
         if (open) closeStatus(true); else openStatus();
       });
@@ -156,8 +161,8 @@
       } else empty.textContent = '目前沒有可顯示的故事資訊。';
     }
     window.BAOChatToolNavigation?.compactBoard?.(rail);
-    if (desktopInfoRail.matches && root.classList.contains('active') && !desktopManuallyCollapsed) {
-      layout.classList.remove('bao-status-collapsed');
+    if (desktopInfoRail.matches && !desktopManuallyCollapsed) {
+      layout.classList.remove('bao-status-collapsed', 'bao-status-manual-collapsed');
     }
     syncInfoPlacement(rail);
     syncToggleState();
