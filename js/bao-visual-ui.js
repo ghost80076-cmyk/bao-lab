@@ -116,12 +116,12 @@
   const currentPanel = () => root.querySelector('.ui-tab.active')?.dataset.panel || 'npc';
 
   const hasGameplaySurface = () => {
+    if (App.activeCharacter?.play_info_surface === 'game-ui') return true;
     try {
       const schema = window.BAOGameplayUI?.schemaFor?.(App.activeCharacter);
       if (schema?.panels?.length) return true;
     } catch {}
-    const raw = App.activeCharacter?.gameplay_ui || App.activeCharacter?.gameplay?.ui_schema;
-    return Boolean(raw);
+    return false;
   };
 
   const sceneValue = value => {
