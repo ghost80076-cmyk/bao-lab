@@ -7,10 +7,10 @@
   const close = () => document.querySelector(".story-quick-backdrop")?.remove();
 
   const ensureStyles = () => {
-    if (document.querySelector('link[href="css/story-quick-commands.css"]')) return;
+    if (document.querySelector('link[href^="css/story-quick-commands.css"]')) return;
     const link = document.createElement("link");
     link.rel = "stylesheet";
-    link.href = "css/story-quick-commands.css";
+    link.href = "css/story-quick-commands.css?v=2";
     document.head.appendChild(link);
   };
 
@@ -87,9 +87,12 @@
           <div>
             <div class="eyebrow">QUICK COMMANDS</div>
             <h2 id="story-quick-title">快捷指令</h2>
-            <p>把常用的要求填進輸入框；夜灣不會替你送出，最後仍由你決定。</p>
+            <p id="story-quick-intro">把常用的要求填進輸入框；夜灣不會替你送出，最後仍由你決定。</p>
           </div>
-          <button type="button" class="story-quick-close" data-quick-close aria-label="關閉快捷指令">×</button>
+          <div class="story-quick-head-actions">
+            <button type="button" class="story-quick-help" data-quick-help aria-label="快捷指令說明" aria-expanded="false" aria-controls="story-quick-intro">?</button>
+            <button type="button" class="story-quick-close" data-quick-close aria-label="關閉快捷指令">×</button>
+          </div>
         </header>
 
         ${groupHTML("常用", "夜灣提供的通用故事操作。", commandGroups.builtIn)}
@@ -112,6 +115,12 @@
     document.body.appendChild(wrap);
 
     wrap.querySelector("[data-quick-close]")?.addEventListener("click", close);
+    wrap.querySelector("[data-quick-help]")?.addEventListener("click", event => {
+      const panel = event.currentTarget.closest(".story-quick-panel");
+      const open = !panel?.classList.contains("story-quick-help-open");
+      panel?.classList.toggle("story-quick-help-open", open);
+      event.currentTarget.setAttribute("aria-expanded", open ? "true" : "false");
+    });
     wrap.addEventListener("click", event => { if (event.target === wrap) close(); });
     wrap.addEventListener("keydown", event => { if (event.key === "Escape") close(); });
 
