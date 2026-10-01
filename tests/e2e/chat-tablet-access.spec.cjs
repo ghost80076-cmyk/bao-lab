@@ -3,8 +3,18 @@ const { test, expect } = require('@playwright/test');
 test('tablet with hidden sidebar can open author settings from the tool drawer', async ({ page }) => {
   await page.setViewportSize({ width: 900, height: 800 });
   await page.goto('./');
-  await page.waitForFunction(() => Boolean(window.BAOChatUISimplify && window.BAOChatToolNavigation && window.App));
-  await page.evaluate(() => App.showView('chat'));
+  await page.waitForFunction(() => Boolean(
+    window.BAOChatUISimplify &&
+    window.BAOChatToolNavigation &&
+    window.BAOChatExperience &&
+    document.querySelector('link[href^="css/chat-experience.css"]')?.sheet &&
+    window.App
+  ));
+  await page.evaluate(() => {
+    App.showView('chat');
+    BAOChatToolNavigation.sync();
+    BAOChatExperience.sync();
+  });
   await expect(page.locator('#bao-author-settings-storage #bao-author-regex-panel')).toHaveCount(1);
   await expect(page.locator('#bao-chat-tool-shortcuts')).toBeVisible();
   await page.locator('#bao-chat-tool-shortcuts').getByRole('button', { name: '全部功能' }).click();
