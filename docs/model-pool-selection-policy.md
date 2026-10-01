@@ -761,3 +761,152 @@ Opus 4.6
 > **Haiku 4.5 + Sonnet 5**
 
 其餘維持現狀，等夜灣自己的 A/B 數據再決定。
+
+
+## 2026-10-01 第四輪：把「玩家選擇權」提升為正式模型池原則
+
+前一輪把是否新增 Hosted 模型看得太偏向「它是否補足 RP 能力／價位空缺」。
+
+這不夠。
+
+夜灣的 Hosted 模型池還有另一個獨立目標：
+
+> **主流模型家族至少要有一個可直接選擇的代表，讓玩家有選擇權。**
+
+也就是說，一個模型即使不是夜灣認為最適合 RP 的型號，只要它代表一個玩家熟悉、主流、且可穩定供應的模型家族，就有存在模型選單中的合理性。
+
+這不是替玩家背書，也不是推薦它，而是避免夜灣替玩家做掉選擇。
+
+### 新的雙重進池理由
+
+模型可因以下任一理由進入 Hosted：
+
+1. **RP／價位功能理由**
+   - 明顯補足文風、邏輯、價格、速度、長上下文或高階品質的缺口。
+
+2. **主流供應商代表性理由**
+   - Claude / Gemini / OpenAI / Grok 等主流家族應至少有一個直接可選的代表。
+   - 玩家是否喜歡它的 RP 風格、政策、價格，由玩家自己判斷。
+
+因此前端應該清楚呈現差異，而不是替玩家隱藏某一家。
+
+### 依此原則重新收斂
+
+#### Anthropic / Claude
+
+需要存在：
+
+- **Claude Haiku 4.5** — 低成本 Claude
+- **Claude Sonnet 5** — 新版、目前價格較低的 Sonnet 選擇
+- **Claude Sonnet 4.5 / 4.6** — 成熟舊版 RP 選擇
+- **Claude Opus 4.6** — 高價豪華選擇
+
+Opus 4.6 已經在目前 Hosted，不需新增。
+
+#### Google / Gemini
+
+目前已有：
+
+- Gemini 3 Flash
+- Gemini 3.1 Pro
+
+因此 Google 家族的「玩家可選」已成立，不需要為了代表性再硬加 3.8。
+
+#### OpenAI / GPT
+
+目前只有 BYOK 自訂 OpenAI，Hosted 沒有具體 GPT 型號。
+
+這代表使用夜灣燈火的玩家實際上沒有 OpenAI 代表型號可直接選。
+
+因此 **應補至少一個 GPT-5.6 Hosted 選項**。
+
+第一候選：
+
+- **GPT-5.6 Luna**
+  - 理由：價格低、適合作為「我就是想用 GPT」的普及型選擇。
+  - 不需要宣稱它比 Claude / Gemini 更適合 RP。
+
+替代／後續候選：
+
+- **GPT-5.6 Sol**
+  - 能力定位更高，但要注意 OpenRouter 當期價格／促銷是否穩定。
+  - 如果未來價格確認適合，也可以與 Luna 共存，而不是二選一。
+
+#### xAI / Grok
+
+目前 Hosted 沒有 Grok。
+
+因此 **Grok 4.5 應加入候選 Hosted**，理由首先是提供 xAI / Grok 的直接選擇，而不是宣稱它是 RP 最佳。
+
+目前 OpenRouter 的 Grok 4.5 型號為：
+
+- `x-ai/grok-4.5`
+
+前端可以定位：
+
+> Grok 4.5 · xAI 選擇
+
+不要寫：
+
+> RP 推薦 / 最自由 / 無限制
+
+政策與 RP 風格仍交給玩家自行比較。
+
+### 修正後的第一批實作名單
+
+真正需要補進 Hosted 的第一批改成：
+
+1. **Claude Haiku 4.5**
+2. **Claude Sonnet 5**
+3. **GPT-5.6 Luna**（OpenAI Hosted 代表）
+4. **Grok 4.5**（xAI Hosted 代表）
+
+既有：
+
+- Gemini 3 Flash / 3.1 Pro 已代表 Google
+- Claude Sonnet 4.5 / 4.6 / Opus 4.6 已存在，但 Claude 價格梯度仍需補 Haiku / Sonnet 5
+- DeepSeek / Qwen / MiMo / MiniMax 已提供多個低成本／中國模型選擇
+
+### 模型頁的責任
+
+夜灣應該做的是：
+
+- 告訴玩家模型是誰家的
+- 告訴玩家大概價格
+- 告訴玩家可能的 RP 傾向與已知限制
+- 告訴玩家資料成熟度
+
+然後讓玩家自己決定：
+
+- 要便宜
+- 要文風
+- 要邏輯
+- 要品牌／熟悉的模型
+- 願不願意接受政策限制
+- 願不願意付更高價格
+
+這比只保留「夜灣認為最值得的幾個」更符合 BYOK / 玩家自主的產品方向。
+
+### 實作拆分修正
+
+#### PR B：補齊主流模型選擇
+
+前端 registry 先新增：
+
+- Claude Haiku 4.5
+- Claude Sonnet 5
+- GPT-5.6 Luna
+- Grok 4.5
+
+只做模型目錄、標籤、BYOK／Hosted route 定義與測試。
+
+#### PR C：Hosted 計費／allowlist
+
+確認 PR B 沒問題後，再加入：
+
+- Worker `MODELS_JSON`
+- AWS `OPENROUTER_MODELS`
+- price guard
+- usage / billing 驗證
+
+正式開放前再逐一核對 OpenRouter 當期價格，避免把促銷價硬寫成長期燈火成本。
