@@ -105,3 +105,53 @@
   .context-health-layer small{font-size:10px;line-height:1.35}
   .context-health-advanced{order:5;margin-top:10px}
 }
+
+
+/* Desktop workbench: summary and actions stay left; context layers become a parallel diagnostic column. */
+@media(min-width:1081px){
+  .context-health-panel{
+    width:min(1080px,calc(100vw - 48px));
+    max-height:min(90vh,900px);
+    display:grid;
+    grid-template-columns:minmax(0,.92fr) minmax(360px,1.08fr);
+    grid-template-areas:
+      "head head"
+      "hero layers"
+      "cards layers"
+      "footer advanced";
+    gap:12px 18px;
+    align-items:start;
+    overflow:auto
+  }
+  .context-health-head{
+    grid-area:head;
+    padding-bottom:14px;
+    border-bottom:1px solid var(--border)
+  }
+  .context-health-hero{
+    grid-area:hero;
+    margin-top:0
+  }
+  .context-health-cards{
+    grid-area:cards;
+    margin-top:0
+  }
+  .context-health-footer{
+    grid-area:footer;
+    margin-top:0;
+    padding-top:12px
+  }
+  .context-health-layers{
+    grid-area:layers;
+    margin-top:0;
+    padding:2px 0 0 18px;
+    border-left:1px solid var(--border)
+  }
+  .context-health-layer-list{margin-top:10px}
+  .context-health-layer{padding:10px 11px}
+  .context-health-advanced{
+    grid-area:advanced;
+    margin-top:0;
+    margin-left:18px
+  }
+}
