@@ -45,6 +45,19 @@ test('story quick commands fill the composer without sending and persist custom 
 
   let dialog = page.getByRole('dialog', { name: '快捷指令' });
   await expect(dialog).toBeVisible();
+  await expect(dialog.locator('.story-quick-head .eyebrow')).toBeHidden();
+  const quickHelp = dialog.getByRole('button', { name: '快捷指令說明' });
+  await expect(quickHelp).toBeVisible();
+  await expect(dialog.locator('#story-quick-intro')).toBeHidden();
+  const quickLayout = await dialog.evaluate(node => ({
+    columns: getComputedStyle(node.querySelector('.story-quick-grid')).gridTemplateColumns.trim().split(/\s+/).length,
+    groupNoteHidden: getComputedStyle(node.querySelector('.story-quick-group-head p')).display === 'none'
+  }));
+  expect(quickLayout).toEqual({ columns: 2, groupNoteHidden: true });
+  await quickHelp.click();
+  await expect(dialog.locator('#story-quick-intro')).toBeVisible();
+  await quickHelp.click();
+  await expect(dialog.locator('#story-quick-intro')).toBeHidden();
   await expect(dialog).toContainText('常用');
   await expect(dialog).toContainText('作品提供');
   await expect(dialog.getByRole('button', { name: /靜候變化/ })).toBeVisible();
