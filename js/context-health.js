@@ -7,10 +7,10 @@
   const close = () => document.querySelector(".context-health-backdrop")?.remove();
 
   const ensureStyles = () => {
-    if (document.querySelector('link[href="css/context-health.css"]')) return;
+    if (document.querySelector('link[href^="css/context-health.css"]')) return;
     const link = document.createElement("link");
     link.rel = "stylesheet";
-    link.href = "css/context-health.css";
+    link.href = "css/context-health.css?v=2";
     document.head.appendChild(link);
   };
 
@@ -98,9 +98,12 @@
           <div>
             <div class="eyebrow">CONTEXT HEALTH</div>
             <h2 id="context-health-title">上下文狀態</h2>
-            <p>看懂這個故事目前「帶了多少前情」，不用先理解 Token 工程細節。</p>
+            <p id="context-health-intro">看懂這個故事目前「帶了多少前情」，不用先理解 Token 工程細節。</p>
           </div>
-          <button type="button" class="context-health-close" data-context-health-close aria-label="關閉上下文狀態">×</button>
+          <div class="context-health-head-actions">
+            <button type="button" class="context-health-help" data-context-health-help aria-label="上下文狀態說明" aria-expanded="false" aria-controls="context-health-intro">?</button>
+            <button type="button" class="context-health-close" data-context-health-close aria-label="關閉上下文狀態">×</button>
+          </div>
         </header>
 
         <section class="context-health-hero" data-level="${esc(p.level)}">
@@ -150,6 +153,12 @@
 
     document.body.appendChild(wrap);
     wrap.querySelector("[data-context-health-close]")?.addEventListener("click", close);
+    wrap.querySelector("[data-context-health-help]")?.addEventListener("click", event => {
+      const panel = event.currentTarget.closest(".context-health-panel");
+      const open = !panel?.classList.contains("context-health-help-open");
+      panel?.classList.toggle("context-health-help-open", open);
+      event.currentTarget.setAttribute("aria-expanded", open ? "true" : "false");
+    });
     wrap.addEventListener("click", event => { if (event.target === wrap) close(); });
     wrap.addEventListener("keydown", event => { if (event.key === "Escape") close(); });
     wrap.querySelector('[data-context-action="memory"]')?.addEventListener("click", () => {
