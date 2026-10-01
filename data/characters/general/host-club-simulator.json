@@ -733,6 +733,7 @@
     }
   },
   "presentation": {
+    "play_info_surface": "game-ui",
     "supported_display": {
       "text": true,
       "ui": true
