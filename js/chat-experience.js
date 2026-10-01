@@ -62,10 +62,21 @@
 
   function closeStatus(manual = false) {
     const rail = $('bao-reading-status');
-    if (manual && desktopInfoRail.matches) desktopManuallyCollapsed = true;
     rail?.classList.remove('is-open');
-    layout.classList.add('bao-status-collapsed');
     $('bao-reading-status-backdrop')?.classList.remove('is-visible');
+
+    // Wide desktop uses the rail as persistent reading context. Navigation
+    // cleanup may ask transient surfaces to close while switching views; that
+    // must not collapse the persistent rail unless the player closed it.
+    if (desktopInfoRail.matches && root.classList.contains('active') && !manual) {
+      layout.classList.remove('bao-status-collapsed');
+      syncToggleState();
+      wasOpened = false;
+      return;
+    }
+
+    if (manual && desktopInfoRail.matches) desktopManuallyCollapsed = true;
+    layout.classList.add('bao-status-collapsed');
     syncToggleState();
     if (wasOpened && returnFocus?.isConnected) returnFocus.focus();
     wasOpened = false;
@@ -211,7 +222,7 @@
   }
   desktopInfoRail.addEventListener?.('change', schedule);
   const observer = new MutationObserver(schedule);
-  observer.observe(root, { childList: true, subtree: true });
+  observer.observe(root, { childList: true, subtree: true, attributes: true, attributeFilter: ['class'] });
   document.addEventListener('keydown', event => {
     if (event.key === 'Escape' && $('bao-reading-status')?.classList.contains('is-open')) closeStatus(true);
   });
