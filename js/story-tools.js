@@ -45,6 +45,8 @@
     const modal = host?.closest?.(".story-tools-modal");
     if (!modal) return;
     modal.dataset.storyToolsMode = mode || "detail";
+    const backdrop = modal.closest(".story-tools-backdrop");
+    if (backdrop) backdrop.dataset.storyToolsMode = mode || "detail";
     modal.setAttribute("role", "dialog");
     modal.setAttribute("aria-modal", "true");
     if (label) modal.setAttribute("aria-label", label);
