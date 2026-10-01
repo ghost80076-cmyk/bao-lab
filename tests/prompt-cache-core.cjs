@@ -37,9 +37,11 @@ global.App = {
       "【角色核心設定】\n角色固定內容",
       "【固定世界觀】\nLore",
       "【固定 Schema】\nJSON 規則",
+      "【NPC 名冊索引】\n威廉｜公爵\n瑪莉｜女僕",
       "【玩家手動記憶】\n玩家確認記憶",
       "【Canon Core · 玩家已確認】\nCanon",
       "【本輪相關世界資料】\n動態世界",
+      "【本輪相關 NPC】\n威廉：目前在場",
       "【本輪相關 Canon】\n動態 Canon"
     ].join("\n\n");
   }
@@ -53,14 +55,17 @@ vm.runInThisContext(source, { filename: "js/prompt-cache.js" });
   assert.match(parts.stable, /^平台必要規則/);
   assert.ok(parts.stable.indexOf("角色固定內容") < parts.stable.indexOf("Lore"));
   assert.ok(parts.stable.indexOf("Lore") < parts.stable.indexOf("JSON 規則"));
-  assert.doesNotMatch(parts.stable, /玩家確認記憶|動態世界/);
+  assert.match(parts.stable, /NPC 名冊索引/);
+  assert.doesNotMatch(parts.stable, /玩家確認記憶|動態世界|目前在場/);
   assert.match(parts.memory, /玩家確認記憶/);
   assert.match(parts.memory, /Canon/);
   assert.match(parts.dynamic, /動態世界/);
+  assert.match(parts.dynamic, /本輪相關 NPC/);
 
   const changed = BAOPromptCache.partitionSystemPrompt(App.buildSystemPrompt()
     .replace("玩家確認記憶", "另一份玩家記憶")
     .replace("動態世界", "另一個動態世界")
+    .replace("威廉：目前在場", "瑪莉：目前在場")
     .replace("動態 Canon", "另一個 Canon"));
   assert.equal(changed.stable, parts.stable, "memory/dynamic changes must not mutate the stable prefix");
   assert.notEqual(changed.memory, parts.memory);

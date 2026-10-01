@@ -179,6 +179,47 @@ const CharacterEngine = {
     }).join("\n");
   },
 
+  mergeNPCs(base = [], runtime = []) {
+    const merged = new Map();
+    [...(Array.isArray(base) ? base : []), ...(Array.isArray(runtime) ? runtime : [])].forEach(npc => {
+      const name = String(npc?.name || "").trim();
+      if (!name) return;
+      merged.set(name, { ...(merged.get(name) || {}), ...npc, name });
+    });
+    return [...merged.values()].slice(0, 50);
+  },
+
+  npcIndexPrompt(npcs = [], maxChars = 1200) {
+    const lines = (Array.isArray(npcs) ? npcs : []).filter(npc => npc?.name).map(npc => {
+      const name = String(npc.name).trim();
+      const role = String(npc.role || "").trim();
+      return role && role !== "NPC" ? `${name}｜${role}` : name;
+    });
+    const text = lines.join("\n");
+    return text.length > maxChars ? `${text.slice(0, maxChars)}…` : text;
+  },
+
+  relevantNPCs(npcs = [], context = {}, limit = 4) {
+    const list = Array.isArray(npcs) ? npcs : [];
+    if (list.length <= limit) return list.slice(0, limit);
+    const hay = this.recentConversationText(context, 4);
+    const currentLocation = String(context.currentLocation || "").trim();
+    return list.map((npc, index) => {
+      const name = String(npc?.name || "").trim();
+      const role = String(npc?.role || "").trim();
+      const location = String(npc?.location || "").trim();
+      let score = 0;
+      if (name && hay.includes(name.toLowerCase())) score += 10;
+      if (role && role.length >= 2 && hay.includes(role.toLowerCase())) score += 2;
+      if (npc?.presence === "present") score += 6;
+      if (currentLocation && location && currentLocation === location) score += 4;
+      return { npc, score, index };
+    }).filter(item => item.score > 0)
+      .sort((a, b) => b.score - a.score || a.index - b.index)
+      .slice(0, Math.max(1, Math.min(4, Number(limit) || 4)))
+      .map(item => item.npc);
+  },
+
   recentConversationText(context = {}, turns = 3) {
     const messages = Array.isArray(context.recentMessages) ? context.recentMessages : [];
     if (messages.length) {
@@ -241,8 +282,27 @@ const CharacterEngine = {
     if (options.include_lore && c.lore) blocks.push(`【背景與 Lore】\n${c.lore}`);
 
     if (options.include_npcs) {
-      const npcText = this.npcPrompt(c.initial_state?.npcs || []);
-      if (npcText) blocks.push(`【重要 NPC｜controlled_by=assistant】\n${npcText}`);
+      const initialNPCs = Array.isArray(c.initial_state?.npcs) ? c.initial_state.npcs : [];
+      const runtimeNPCs = Array.isArray(context.storyNPCs) ? context.storyNPCs : [];
+      const mergedNPCs = this.mergeNPCs(initialNPCs, runtimeNPCs);
+      const initialNames = new Set(initialNPCs.map(npc => String(npc?.name || "").trim()).filter(Boolean));
+      const discoveredNPCs = mergedNPCs.filter(npc => !initialNames.has(String(npc?.name || "").trim()));
+
+      if (initialNPCs.length > 0 && initialNPCs.length <= 4) {
+        const npcText = this.npcPrompt(initialNPCs);
+        if (npcText) blocks.push(`【重要 NPC｜controlled_by=assistant】\n${npcText}`);
+      }
+
+      const useRosterIndex = initialNPCs.length > 4 || discoveredNPCs.length > 0;
+      if (useRosterIndex) {
+        const roster = this.npcIndexPrompt(initialNPCs.length > 4 ? mergedNPCs : discoveredNPCs);
+        if (roster) blocks.push(`【NPC 名冊索引】\n${roster}\n名冊只表示故事中已登記的人物與身分，不代表目前在場，也不改變玩家控制權。`);
+
+        const relevantPool = initialNPCs.length > 4 ? mergedNPCs : discoveredNPCs;
+        const relevantNPCs = this.relevantNPCs(relevantPool, context, 4);
+        const relevantText = this.npcPrompt(relevantNPCs);
+        if (relevantText) blocks.push(`【本輪相關 NPC】\n${relevantText}\n以上皆為 controlled_by=assistant；只在本輪情境相關時使用。`);
+      }
       if (c.npc_rules) blocks.push(`【NPC 運作規則】\n${c.npc_rules}`);
     }
 

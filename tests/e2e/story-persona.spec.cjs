@@ -34,6 +34,7 @@ test('author prompt editor is absent and player-owned AI actors survive story sa
 
   await page.locator('#bao-actor-entry').click();
   await page.locator('#bao-actor-target').selectOption('host');
+  await expect(page.locator('[data-open-roster]')).toHaveText('NPC 名冊／場景參與者');
   await page.locator('#bao-actor-form [name="name"]').fill('自創男主');
   await page.locator('#bao-actor-form [name="role"]').selectOption('primary');
   await page.locator('[data-apply]').click();
@@ -74,4 +75,40 @@ test('step three allows creating and editing AI characters and additional NPCs',
   await expect(page.locator('#bao-builder-actor-list [data-edit]')).toHaveCount(2);
   await expect(page.locator('#bao-builder-actor-list')).toContainText('新增的 NPC');
   await expect(page.locator('#bao-builder-actors [name="system_prompt"]')).toHaveCount(0);
+});
+
+test('mobile story-persona footer keeps cancel and save actions on one aligned row', async ({ page }) => {
+  await page.setViewportSize({ width: 360, height: 740 });
+  await page.goto('./');
+  await page.waitForFunction(() => Boolean(window.BAOStoryActors && App.characters?.length));
+  await page.evaluate(() => {
+    App.activeCharacter = App.characters[0];
+    App.config = {
+      persona: { name:'手機玩家', gender:'未指定', identity:'', personality:'', relationship:'', extra:'' },
+      narrativeMode:'immersive', displayMode:'text',
+      api: {model:'mock', baseUrl:'https://example.invalid', key:'not-a-real-key'},
+      memory: {maxRounds:20, maxContext:32000, mode:'rounds', cache:true}
+    };
+    GameState.create(App.activeCharacter, App.config);
+    Chat.reset();
+    App.renderChatShell(true);
+    App.showView('chat');
+  });
+  await page.locator('#bao-actor-entry').click();
+  const cancel = page.getByRole('button', { name:'取消', exact:true });
+  const save = page.getByRole('button', { name:'儲存至本故事', exact:true });
+  await expect(cancel).toBeVisible();
+  await expect(save).toBeVisible();
+  const boxes = await page.evaluate(() => {
+    const buttons = [...document.querySelectorAll('.bao-actor-dialog footer button')];
+    return buttons.map(button => {
+      const r = button.getBoundingClientRect();
+      return { top:r.top, bottom:r.bottom, width:r.width, height:r.height };
+    });
+  });
+  expect(boxes).toHaveLength(2);
+  expect(Math.abs(boxes[0].top - boxes[1].top)).toBeLessThanOrEqual(2);
+  expect(Math.abs(boxes[0].height - boxes[1].height)).toBeLessThanOrEqual(2);
+  expect(boxes[0].width).toBeGreaterThan(80);
+  expect(boxes[1].width).toBeGreaterThan(boxes[0].width);
 });

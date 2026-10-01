@@ -92,13 +92,13 @@
       const status = GameState.current?.characterStatuses?.[name] || {};
       const picked = selected.has(name);
       const rows = fields.map(field => `<div class="character-status-field"><small>${esc(displayLabel(field, cfg.customization))}</small>${fieldValueHTML(field, status[field.key])}</div>`).join("");
-      return `<article class="character-status-card ${picked ? "context-picked" : ""}" role="button" tabindex="0" aria-pressed="${picked ? "true" : "false"}" data-character-context="${esc(name)}"><div class="character-status-head"><div><strong>${esc(name)}</strong><br><span>${esc(role)}</span></div><span>${picked ? "✓ 下一輪參考" : "＋ 加入下一輪參考"}</span></div>${rows ? `<div class="character-status-fields">${rows}</div>` : '<div class="character-status-empty">目前沒有顯示中的狀態欄位，可從「狀態欄管理」新增。</div>'}</article>`;
+      return `<article class="character-status-card ${picked ? "context-picked" : ""}" role="button" tabindex="0" aria-pressed="${picked ? "true" : "false"}" data-character-context="${esc(name)}"><div class="character-status-head"><div><strong>${esc(name)}</strong><br><span>${esc(role)}</span></div><span>${picked ? "✓ 下一輪重點" : "＋ 加入下一輪重點"}</span></div>${rows ? `<div class="character-status-fields">${rows}</div>` : '<div class="character-status-empty">目前沒有顯示中的狀態欄位，可從「狀態欄管理」新增。</div>'}</article>`;
     }).join("");
 
     const selectedText = selected.size
-      ? `下一輪將優先參考 ${selected.size} 位人物；再次點擊人物可取消。`
-      : `可選最多 ${window.BAOCharacterStatus.MAX_CONTEXT_CHARACTERS} 位人物，供下一輪回覆優先參考。`;
-    ui.innerHTML = `<div class="character-status-toolbar"><div><p>${isDistrict ? "👥 當前場景 NPC（離場角色資料仍保存在故事中）" : "角色卡預設欄位與玩家自訂欄位共同組成這份故事的實際狀態欄。"} <button type="button" class="bao-help-button" data-bao-help="next_turn_reference" aria-label="了解下一輪參考">?</button></p><small class="character-context-selection" aria-live="polite">${esc(selectedText)}</small></div>${cfg.allow_player_customize ? '<button type="button" class="secondary" data-character-status-settings>⚙ 狀態欄管理</button>' : ""}</div><div class="character-status-grid">${cards || (isDistrict ? '<div class="character-status-empty">當前場景沒有已確認的在場 NPC。</div>' : '<div class="character-status-empty">目前沒有可追蹤人物。</div>')}</div>`;
+      ? `下一輪將優先帶入 ${selected.size} 位人物的相關狀態；再次點擊人物可取消。`
+      : `可選最多 ${window.BAOCharacterStatus.MAX_CONTEXT_CHARACTERS} 位人物作為下一輪重點；這不代表人物目前在場。`;
+    ui.innerHTML = `<div class="character-status-toolbar"><div><p>${isDistrict ? "👥 當前場景 NPC（離場角色資料仍保存在故事中）" : "角色卡預設欄位與玩家自訂欄位共同組成這份故事的實際狀態欄。"} <button type="button" class="bao-help-button" data-bao-help="next_turn_reference" aria-label="了解下一輪重點">?</button></p><small class="character-context-selection" aria-live="polite">${esc(selectedText)}</small></div>${cfg.allow_player_customize ? '<button type="button" class="secondary" data-character-status-settings>⚙ 狀態欄管理</button>' : ""}</div><div class="character-status-grid">${cards || (isDistrict ? '<div class="character-status-empty">當前場景沒有已確認的在場 NPC。</div>' : '<div class="character-status-empty">目前沒有可追蹤人物。</div>')}</div>`;
     const toggleCard = card => {
       const result = window.BAOCharacterStatus.toggleContextCharacter?.(card.dataset.characterContext || "");
       if (result?.limitReached) window.BAOFeedback?.notify?.(`下一輪最多選 ${window.BAOCharacterStatus.MAX_CONTEXT_CHARACTERS} 位人物。`, "info");
@@ -116,7 +116,74 @@
       });
     });
     ui.querySelector("[data-character-status-settings]")?.addEventListener("click", openSettings);
+    injectNpcRosterButton();
     return true;
+  };
+
+  const openNpcRoster = () => {
+    if (!GameState.current) { alert("請先開始或讀取一個故事。"); return; }
+    document.querySelector(".npc-roster-backdrop")?.remove();
+    const roster = window.BAOCharacterStatus.npcRoster?.() || [];
+    const selected = new Set((window.BAOCharacterStatus.sceneNPCs?.() || []).map(npc => npc.name));
+    const wrap = document.createElement("div");
+    wrap.className = "npc-roster-backdrop";
+
+    const render = () => {
+      const latest = window.BAOCharacterStatus.npcRoster?.() || [];
+      wrap.innerHTML = `<section class="npc-roster-modal" role="dialog" aria-modal="true" aria-labelledby="npc-roster-title"><header><div><div class="eyebrow">STORY CAST</div><h2 id="npc-roster-title">NPC 名冊／場景參與者</h2><p>名冊保留整份故事的人物；勾選只代表目前場景在場。下一輪重點是另一個只用一輪的狀態參考，不會在這裡改動。</p></div><button type="button" class="text-button" data-roster-close>關閉</button></header><div class="npc-roster-body"><section class="npc-roster-add"><h3>快速補登 NPC</h3><p>可一次貼多位，每行一位；格式可用「姓名｜身分」。這裡只建立名冊與身分，完整人物設定仍可用「新增 AI 人物／NPC」。</p><textarea data-roster-bulk rows="4" placeholder="威廉｜公爵\n瑪莉｜女僕\n禁軍統領"></textarea><button type="button" class="secondary" data-roster-add>加入名冊</button></section><section><div class="npc-roster-section-head"><div><h3>目前名冊</h3><p>目前地點：${esc(GameState.current?.location || "未設定")} · 已選 ${selected.size} 位場景參與者</p></div><div class="npc-roster-batch"><button type="button" class="secondary" data-roster-all>全選在場</button><button type="button" class="secondary" data-roster-none>全部離場</button></div></div><div class="npc-roster-list">${latest.length ? latest.map(npc => {
+        const name = String(npc.name || "");
+        const checked = selected.has(name);
+        const presence = npc.presence === "present" ? "在場" : npc.presence === "away" ? "已離場" : "行蹤未知";
+        return `<label class="npc-roster-row"><input type="checkbox" data-roster-scene="${esc(name)}" ${checked ? "checked" : ""}><span><b>${esc(name)}</b><small>${esc(npc.role || "NPC")} · ${esc(presence)}${npc.location ? ` · ${esc(npc.location)}` : ""}</small></span></label>`;
+      }).join("") : '<div class="character-status-empty">名冊目前是空的，可以先用上方一次補登多位 NPC。</div>'}</div></section></div><footer><button type="button" class="secondary" data-roster-close>取消</button><button type="button" class="primary" data-roster-save>儲存場景參與者</button></footer></section>`;
+
+      wrap.querySelectorAll("[data-roster-close]").forEach(button => button.onclick = () => wrap.remove());
+      wrap.querySelectorAll("[data-roster-scene]").forEach(input => input.onchange = () => {
+        if (input.checked) selected.add(input.dataset.rosterScene);
+        else selected.delete(input.dataset.rosterScene);
+        render();
+      });
+      wrap.querySelector("[data-roster-all]")?.addEventListener("click", () => {
+        latest.forEach(npc => selected.add(String(npc.name)));
+        render();
+      });
+      wrap.querySelector("[data-roster-none]")?.addEventListener("click", () => {
+        selected.clear();
+        render();
+      });
+      wrap.querySelector("[data-roster-add]")?.addEventListener("click", () => {
+        const raw = wrap.querySelector("[data-roster-bulk]")?.value || "";
+        raw.split(/\n+/).map(line => line.trim()).filter(Boolean).slice(0, 50).forEach(line => {
+          const [name, role] = line.split(/[｜|]/).map(value => String(value || "").trim());
+          if (name) GameState.upsertNPC({ name, ...(role ? { role } : {}) });
+        });
+        App.saveStory?.(false);
+        render();
+      });
+      wrap.querySelector("[data-roster-save]")?.addEventListener("click", () => {
+        window.BAOCharacterStatus.setSceneParticipants?.([...selected]);
+        App.saveStory?.(false);
+        wrap.remove();
+        App.renderUIPanel?.("npc");
+      });
+    };
+
+    document.body.appendChild(wrap);
+    wrap.addEventListener("click", event => { if (event.target === wrap) wrap.remove(); });
+    render();
+  };
+
+  const injectNpcRosterButton = () => {
+    const ui = document.getElementById("ui-panel");
+    if (!ui || ui.querySelector("[data-npc-roster-open]")) return;
+    const host = ui.querySelector(".character-status-toolbar") || ui;
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "secondary npc-roster-open";
+    button.dataset.npcRosterOpen = "1";
+    button.textContent = "NPC 名冊／場景";
+    button.addEventListener("click", openNpcRoster);
+    host.appendChild(button);
   };
 
   const cleanDefaultFromInput = (field, raw) => {
@@ -313,6 +380,9 @@
     if (panel === "npc") {
       const cfg = window.BAOCharacterStatus.configFor(this.activeCharacter);
       if ((cfg.enabled || cfg.allow_player_customize) && renderCharactersPanel()) return;
+      const result = originalPanel(panel);
+      injectNpcRosterButton();
+      return result;
     }
     return originalPanel(panel);
   };
@@ -353,5 +423,5 @@
     return result;
   };
 
-  window.BAOCharacterStatusUI = { renderCharactersPanel, openSettings, injectBuilderSummary, TEMPLATES };
+  window.BAOCharacterStatusUI = { renderCharactersPanel, openSettings, openNpcRoster, injectBuilderSummary, TEMPLATES };
 })();
