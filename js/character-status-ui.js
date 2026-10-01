@@ -48,10 +48,10 @@
   };
 
   const ensureStyles = () => {
-    if (document.querySelector('link[href="css/character-status.css"]')) return;
+    if (document.querySelector('link[href^="css/character-status.css"]')) return;
     const link = document.createElement("link");
     link.rel = "stylesheet";
-    link.href = "css/character-status.css";
+    link.href = "css/character-status.css?v=3";
     document.head.appendChild(link);
   };
 
@@ -130,14 +130,20 @@
 
     const render = () => {
       const latest = window.BAOCharacterStatus.npcRoster?.() || [];
-      wrap.innerHTML = `<section class="npc-roster-modal" role="dialog" aria-modal="true" aria-labelledby="npc-roster-title"><header><div><div class="eyebrow">STORY CAST</div><h2 id="npc-roster-title">NPC 名冊／場景參與者</h2><p>名冊保留整份故事的人物；勾選只代表目前場景在場。下一輪重點是另一個只用一輪的狀態參考，不會在這裡改動。</p></div><button type="button" class="text-button" data-roster-close>關閉</button></header><div class="npc-roster-body"><section class="npc-roster-add"><h3>快速補登 NPC</h3><p>可一次貼多位，每行一位；格式可用「姓名｜身分」。這裡只建立名冊與身分，完整人物設定仍可用「新增 AI 人物／NPC」。</p><textarea data-roster-bulk rows="4" placeholder="威廉｜公爵\n瑪莉｜女僕\n禁軍統領"></textarea><button type="button" class="secondary" data-roster-add>加入名冊</button></section><section><div class="npc-roster-section-head"><div><h3>目前名冊</h3><p>目前地點：${esc(GameState.current?.location || "未設定")} · 已選 ${selected.size} 位場景參與者</p></div><div class="npc-roster-batch"><button type="button" class="secondary" data-roster-all>全選在場</button><button type="button" class="secondary" data-roster-none>全部離場</button></div></div><div class="npc-roster-list">${latest.length ? latest.map(npc => {
+      wrap.innerHTML = `<section class="npc-roster-modal" role="dialog" aria-modal="true" aria-labelledby="npc-roster-title"><header><div><div class="eyebrow">STORY CAST</div><h2 id="npc-roster-title">NPC 名冊／場景參與者</h2><p id="npc-roster-intro">名冊保留整份故事的人物；勾選只代表目前場景在場。下一輪重點是另一個只用一輪的狀態參考，不會在這裡改動。</p></div><div class="npc-roster-head-actions"><button type="button" class="npc-roster-help-toggle" data-roster-help aria-label="NPC 名冊說明" aria-expanded="false" aria-controls="npc-roster-intro">?</button><button type="button" class="text-button" data-roster-close>關閉</button></div></header><div class="npc-roster-body"><section class="npc-roster-add"><h3>快速補登 NPC</h3><p>可一次貼多位，每行一位；格式可用「姓名｜身分」。這裡只建立名冊與身分，完整人物設定仍可用「新增 AI 人物／NPC」。</p><textarea data-roster-bulk rows="4" placeholder="威廉｜公爵\n瑪莉｜女僕\n禁軍統領"></textarea><button type="button" class="secondary" data-roster-add>加入名冊</button></section><section class="npc-roster-current"><div class="npc-roster-section-head"><div><h3>目前名冊</h3><p>目前地點：${esc(GameState.current?.location || "未設定")} · 已選 ${selected.size} 位場景參與者</p></div><div class="npc-roster-batch"><button type="button" class="secondary" data-roster-all>全選在場</button><button type="button" class="secondary" data-roster-none>全部離場</button></div></div><div class="npc-roster-list">${latest.length ? latest.map(npc => {
         const name = String(npc.name || "");
         const checked = selected.has(name);
         const presence = npc.presence === "present" ? "在場" : npc.presence === "away" ? "已離場" : "行蹤未知";
         return `<label class="npc-roster-row"><input type="checkbox" data-roster-scene="${esc(name)}" ${checked ? "checked" : ""}><span><b>${esc(name)}</b><small>${esc(npc.role || "NPC")} · ${esc(presence)}${npc.location ? ` · ${esc(npc.location)}` : ""}</small></span></label>`;
-      }).join("") : '<div class="character-status-empty">名冊目前是空的，可以先用上方一次補登多位 NPC。</div>'}</div></section></div><footer><button type="button" class="secondary" data-roster-close>取消</button><button type="button" class="primary" data-roster-save>儲存場景參與者</button></footer></section>`;
+      }).join("") : '<div class="character-status-empty">名冊目前是空的，可以用「快速補登 NPC」加入人物。</div>'}</div></section></div><footer><button type="button" class="secondary" data-roster-close>取消</button><button type="button" class="primary" data-roster-save>儲存場景參與者</button></footer></section>`;
 
       wrap.querySelectorAll("[data-roster-close]").forEach(button => button.onclick = () => wrap.remove());
+      wrap.querySelector("[data-roster-help]")?.addEventListener("click", event => {
+        const modal = event.currentTarget.closest(".npc-roster-modal");
+        const open = !modal?.classList.contains("npc-roster-help-open");
+        modal?.classList.toggle("npc-roster-help-open", open);
+        event.currentTarget.setAttribute("aria-expanded", open ? "true" : "false");
+      });
       wrap.querySelectorAll("[data-roster-scene]").forEach(input => input.onchange = () => {
         if (input.checked) selected.add(input.dataset.rosterScene);
         else selected.delete(input.dataset.rosterScene);
@@ -210,7 +216,7 @@
     document.querySelector(".status-manager-backdrop")?.remove();
     const wrap = document.createElement("div");
     wrap.className = "status-manager-backdrop";
-    wrap.innerHTML = `<section class="status-manager-modal"><header class="status-manager-head"><div><div class="eyebrow">STORY STATUS</div><h2>狀態欄管理 <button type="button" class="bao-help-button" data-bao-help="status_manager" aria-label="了解狀態欄管理">?</button></h2><p>變更只屬於目前故事存檔，不會修改原始角色卡。</p></div><button type="button" class="text-button" data-status-close>關閉</button></header><div class="status-manager-body"><main><section class="status-manager-card"><div class="status-manager-card-title"><div><h3>快速範本</h3><p>只加入尚未套用的欄位，可複數混用。</p></div><span class="chip" data-status-count></span></div><div class="status-template-list">${Object.entries(TEMPLATES).map(([key, template]) => `<button type="button" data-status-template="${key}">＋ ${esc(template.label)}</button>`).join("")}</div></section><section class="status-manager-card"><div class="status-manager-card-title"><div><h3>目前故事欄位</h3><p>上下鍵排序；角色卡欄位保留底層定義，玩家欄位可以完整編輯或刪除。</p></div><button type="button" class="secondary" data-status-add>＋ 新增欄位</button></div><div data-status-editor class="status-manager-list"></div></section></main><aside><section class="status-manager-card status-manager-guide"><h3>AI 使用方式</h3><p><b>核心</b>：精簡放入主要故事脈絡（Context）。</p><p><b>本輪相關（Relevant）</b>：本輪相關或手動點選人物時才放入。</p><p><b>只供畫面顯示（UI Only）</b>：只顯示，不送主模型。</p><p><b>AI 自動追蹤</b>：由既有狀態追蹤器（Character Status tracker）根據已發生內容更新。</p></section><section class="status-manager-card"><h3>資料歸屬</h3><p>自訂欄位結構（schema）、數值與顯示偏好都寫進故事存檔；匯入原角色卡或開新故事不會被永久改寫。</p></section></aside></div><footer class="status-manager-foot"><button type="button" class="secondary" data-status-reset>恢復角色卡預設</button><span data-status-message></span><button type="button" class="primary" data-status-save>套用到目前故事</button></footer></section>`;
+    wrap.innerHTML = `<section class="status-manager-modal"><header class="status-manager-head"><div><div class="eyebrow">STORY STATUS</div><h2>狀態欄管理 <button type="button" class="bao-help-button" data-bao-help="status_manager" aria-label="了解狀態欄管理">?</button></h2><p>變更只屬於目前故事存檔，不會修改原始角色卡。</p></div><button type="button" class="text-button" data-status-close>關閉</button></header><div class="status-manager-body"><main><section class="status-manager-card status-manager-templates"><div class="status-manager-card-title"><div><h3>快速範本</h3><p>只加入尚未套用的欄位，可複數混用。</p></div><span class="chip" data-status-count></span></div><div class="status-template-list">${Object.entries(TEMPLATES).map(([key, template]) => `<button type="button" data-status-template="${key}">＋ ${esc(template.label)}</button>`).join("")}</div></section><section class="status-manager-card status-manager-fields-card"><div class="status-manager-card-title"><div><h3>目前故事欄位</h3><p>上下鍵排序；角色卡欄位保留底層定義，玩家欄位可以完整編輯或刪除。</p></div><button type="button" class="secondary" data-status-add>＋ 新增欄位</button></div><div data-status-editor class="status-manager-list"></div></section></main><aside><section class="status-manager-card status-manager-guide"><h3>AI 使用方式</h3><p><b>核心</b>：精簡放入主要故事脈絡（Context）。</p><p><b>本輪相關（Relevant）</b>：本輪相關或手動點選人物時才放入。</p><p><b>只供畫面顯示（UI Only）</b>：只顯示，不送主模型。</p><p><b>AI 自動追蹤</b>：由既有狀態追蹤器（Character Status tracker）根據已發生內容更新。</p></section><section class="status-manager-card"><h3>資料歸屬</h3><p>自訂欄位結構（schema）、數值與顯示偏好都寫進故事存檔；匯入原角色卡或開新故事不會被永久改寫。</p></section></aside></div><footer class="status-manager-foot"><button type="button" class="secondary" data-status-reset>恢復角色卡預設</button><span data-status-message></span><button type="button" class="primary" data-status-save>套用到目前故事</button></footer></section>`;
     document.body.appendChild(wrap);
 
     const allDraftFields = () => {
