@@ -109,6 +109,8 @@ jobs:
         run: node tests/worker-free-model-billing-core.cjs
       - name: YoruBay OpenRouter price guard
         run: node tests/worker-openrouter-cost-guard-core.cjs
+      - name: Mainstream Hosted rollout pricing
+        run: node tests/hosted-mainstream-rollout-core.cjs
       - name: YoruBay provider control
         run: node tests/provider-control-core.cjs
       - name: YoruBay admin player list
