@@ -34,6 +34,7 @@ test('author prompt editor is absent and player-owned AI actors survive story sa
 
   await page.locator('#bao-actor-entry').click();
   await page.locator('#bao-actor-target').selectOption('host');
+  await expect(page.locator('[data-open-roster]')).toHaveText('NPC 名冊／場景參與者');
   await page.locator('#bao-actor-form [name="name"]').fill('自創男主');
   await page.locator('#bao-actor-form [name="role"]').selectOption('primary');
   await page.locator('[data-apply]').click();
