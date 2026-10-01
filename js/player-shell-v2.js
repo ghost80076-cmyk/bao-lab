@@ -81,7 +81,7 @@
         <section class="bao-player-account-card" aria-labelledby="bao-player-account-title">
           <div>
             <span class="bao-player-card-label">ACCOUNT</span>
-            <h2 id="bao-player-account-title">帳號與 API 額度</h2>
+            <h2 id="bao-player-account-title">帳號與燈火</h2>
             <p id="bao-player-account-state">正在確認帳號狀態…</p>
           </div>
           <a class="primary" href="account.html">帳號與額度</a>
@@ -125,7 +125,7 @@
         </div>
 
         <aside class="bao-player-privacy-note">
-          <b>Local-first 仍是預設。</b>
+          <b>故事預設留在這台裝置。</b>
           <span>不登入也能使用 BYOK、本地角色與本地故事；帳號不是讀取私人故事的必要條件。</span>
         </aside>
       </div>`;
@@ -144,7 +144,7 @@
     const account = $("bao-player-account-state");
     if (account) {
       account.textContent = validAccountSession()
-        ? "已登入。Hosted 模型與 API 額度會使用目前帳號；BYOK 仍可獨立使用。"
+        ? "已登入。夜灣燈火會使用目前帳號；自己的模型連線仍可獨立使用。"
         : "目前未登入。不影響 BYOK、本地故事或角色匯入；需要 Hosted 額度時再登入即可。";
     }
 
@@ -293,7 +293,7 @@
     const title = head.querySelector("h2");
     if (title) title.textContent = "今晚想走進哪個故事？";
     const lead = explore.querySelector(".explore-lead");
-    if (lead) lead.textContent = "先看作品，再決定模型。可以搜尋角色、作品名稱或標籤。";
+    if (lead) lead.textContent = "先看故事，再決定今晚要怎麼繼續。可以搜尋角色、作品名稱或標籤。";
 
     if (!$("bao-explore-discovery")) {
       const bar = document.createElement("section");
@@ -373,7 +373,7 @@
     if (!copy.querySelector(".bao-detail-start-note")) {
       const note = document.createElement("div");
       note.className = "bao-detail-start-note";
-      note.innerHTML = "<b>先選故事，再選 AI。</b><span>下一步可以直接使用帳號 API 額度，或連接自己的 API；故事設定不會因為選哪個模型而消失。</span>";
+      note.innerHTML = "<b>先選故事，再決定用哪盞燈。</b><span>可以使用夜灣燈火，也可以使用自己的模型連線；換模型不會讓故事消失。</span>";
       actions.insertAdjacentElement("beforebegin", note);
     }
 
@@ -387,7 +387,7 @@
       help = document.createElement("small");
       help.id = "bao-detail-start-help";
       help.className = "bao-detail-start-help";
-      help.textContent = "接著設定玩家資料、故事偏好與 AI 連線";
+      help.textContent = "接著設定玩家資料、故事偏好與模型連線";
       actions.appendChild(help);
     }
   };
