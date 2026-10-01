@@ -9,21 +9,24 @@
   --yoru-surface:#11141b;
   --yoru-surface-raised:#171b24;
   --yoru-surface-strong:#1d2230;
-  --yoru-reading:#0c0f15;
-  --yoru-tool:#151923;
+  --yoru-reading:#141316;
+  --yoru-tool:#101116;
+  --yoru-tool-raised:#1b191e;
+  --yoru-player-bubble:#29262b;
+  --yoru-reading-glow:rgba(214,170,115,.035);
   --yoru-text:#f1eee8;
-  --yoru-story-text:#eef1f6;
+  --yoru-story-text:#eeeae4;
   --yoru-muted:#8d94a3;
-  --yoru-story-muted:#a4abb8;
+  --yoru-story-muted:#aaa6ad;
   --yoru-purple:#9c8cff;
   --yoru-purple-soft:#c3b9ff;
   --yoru-lantern:#d6aa73;
   --yoru-lantern-bright:#e2b66d;
   --yoru-success:#5dd6c0;
   --yoru-border:rgba(255,255,255,.08);
-  --yoru-story-border:rgba(255,255,255,.11);
-  --yoru-story-surface:rgba(12,15,22,.9);
-  --yoru-story-surface-strong:rgba(9,12,18,.96);
+  --yoru-story-border:rgba(241,232,218,.10);
+  --yoru-story-surface:rgba(20,19,22,.92);
+  --yoru-story-surface-strong:rgba(14,14,17,.97);
 
   /* Compatibility aliases for the existing UI. PR1 intentionally preserves
      the current rendered palette while giving later work semantic controls. */
