@@ -37,6 +37,7 @@
 .studio-flow-step.active>span{background:#6f63b9;color:#fff}
 .studio-flow-step:focus-visible{outline:2px solid var(--secondary);outline-offset:2px}
 [data-studio-flow-step]{scroll-margin-top:180px}
+.studio-edit-done{display:none}
 
 @media(max-width:1000px){
   .studio-flow-nav{
@@ -63,6 +64,13 @@
   .studio-flow-step>small{display:none}
   [data-studio-flow-step]{scroll-margin-top:82px}
   .studio-editor.studio-editing .studio-flow-shell{display:none}
+  .studio-editor.studio-editing .studio-edit-done{
+    display:inline-flex;align-items:center;justify-content:center;position:fixed;
+    top:calc(62px + env(safe-area-inset-top));right:10px;z-index:30;
+    min-width:52px;min-height:36px;padding:6px 10px;border:1px solid var(--yoru-control-border,rgba(241,232,218,.14));
+    border-radius:10px;background:rgba(27,26,30,.96);color:var(--text);font:inherit;font-size:12px;font-weight:700;
+    backdrop-filter:blur(10px);box-shadow:0 8px 24px rgba(0,0,0,.24)
+  }
 }
 
 /* YoruBay workbench visual calibration */
