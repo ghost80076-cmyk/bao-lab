@@ -13,10 +13,10 @@
   let decorating = false;
 
   const ensureStyles = () => {
-    if (document.querySelector('link[href="css/story-branches.css"]')) return;
+    if (document.querySelector('link[href^="css/story-branches.css"]')) return;
     const link = document.createElement("link");
     link.rel = "stylesheet";
-    link.href = "css/story-branches.css";
+    link.href = "css/story-branches.css?v=2";
     document.head.appendChild(link);
   };
 
@@ -153,9 +153,15 @@
     if (!refs.storyId) return alert("目前沒有可管理的故事。");
     const backdrop = document.createElement("div");
     backdrop.className = "story-tools-backdrop story-branches-backdrop";
-    backdrop.innerHTML = '<section class="story-tools-modal story-branches-modal" role="dialog" aria-modal="true" aria-label="故事分支"><main class="story-tools-main"><header class="story-tools-intro"><div><span class="eyebrow">LOCAL BRANCHES</span><h2>故事分支</h2></div><button type="button" class="story-tools-close" data-close aria-label="關閉">×</button></header><p class="note">每條故事線都有自己的對話、長期記憶、Context Pack、Token 使用量、角色與世界狀態。從舊回覆改走另一個選擇時，請建立分支，不會覆蓋原主線。</p><div class="story-branch-list"><p>正在讀取故事線……</p></div></main></section>';
+    backdrop.innerHTML = '<section class="story-tools-modal story-branches-modal" role="dialog" aria-modal="true" aria-label="故事分支"><main class="story-tools-main"><header class="story-tools-intro story-branches-head"><div><span class="eyebrow">LOCAL BRANCHES</span><h2>故事分支</h2></div><div class="story-branches-head-actions"><button type="button" class="story-branches-help" data-branch-help aria-label="故事分支說明" aria-expanded="false" aria-controls="story-branches-intro">?</button><button type="button" class="story-tools-close" data-close aria-label="關閉">×</button></div></header><p class="note story-branches-intro" id="story-branches-intro">每條故事線都有自己的對話、長期記憶、Context Pack、Token 使用量、角色與世界狀態。從舊回覆改走另一個選擇時，請建立分支，不會覆蓋原主線。</p><div class="story-branch-list"><p>正在讀取故事線……</p></div></main></section>';
     document.body.appendChild(backdrop);
     backdrop.querySelector("[data-close]").onclick = close;
+    backdrop.querySelector("[data-branch-help]")?.addEventListener("click", event => {
+      const modal = event.currentTarget.closest(".story-branches-modal");
+      const open = !modal?.classList.contains("story-branches-help-open");
+      modal?.classList.toggle("story-branches-help-open", open);
+      event.currentTarget.setAttribute("aria-expanded", open ? "true" : "false");
+    });
     backdrop.addEventListener("click", event => { if (event.target === backdrop) close(); });
 
     const chapters = await Library.listChapters(refs.storyId);

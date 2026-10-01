@@ -95,6 +95,17 @@ test('mobile story-persona footer keeps cancel and save actions on one aligned r
     App.showView('chat');
   });
   await page.locator('#bao-actor-entry').click();
+  const dialog = page.getByRole('dialog', { name:'本故事的人物設定' });
+  await expect(dialog).toBeVisible();
+  const help = dialog.getByRole('button', { name:'人物設定說明' });
+  await expect(help).toBeVisible();
+  await expect(dialog.locator('#bao-actor-intro')).toBeHidden();
+  await help.click();
+  await expect(dialog.locator('#bao-actor-intro')).toBeVisible();
+  await help.click();
+  await expect(dialog.locator('#bao-actor-intro')).toBeHidden();
+  await expect(dialog.locator('#bao-actor-form > .note')).toBeHidden();
+
   const cancel = page.getByRole('button', { name:'取消', exact:true });
   const save = page.getByRole('button', { name:'儲存至本故事', exact:true });
   await expect(cancel).toBeVisible();
@@ -111,4 +122,59 @@ test('mobile story-persona footer keeps cancel and save actions on one aligned r
   expect(Math.abs(boxes[0].height - boxes[1].height)).toBeLessThanOrEqual(2);
   expect(boxes[0].width).toBeGreaterThan(80);
   expect(boxes[1].width).toBeGreaterThan(boxes[0].width);
+});
+
+
+test('mobile status manager keeps current story fields before help and templates', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('./');
+  await page.waitForFunction(() => Boolean(window.BAOCharacterStatusUI && window.BAOStoryActors && App.characters?.length));
+  await page.evaluate(() => {
+    App.activeCharacter = App.characters[0];
+    App.config = {
+      persona: { name:'手機玩家', gender:'未指定', identity:'旅人', personality:'', relationship:'', extra:'' },
+      narrativeMode:'immersive', displayMode:'ui',
+      api: {model:'mock', baseUrl:'https://example.invalid', key:'not-a-real-key'},
+      memory: {maxRounds:20, maxContext:32000, mode:'rounds', cache:true}
+    };
+    GameState.create(App.activeCharacter, App.config);
+    Chat.reset();
+    BAOCharacterStatus.ensureState(App.activeCharacter);
+    GameState.upsertNPC?.({ name:'測試 NPC', role:'旅店老闆', presence:'present', location:GameState.current.location || '未知' });
+    App.renderChatShell(true);
+    App.showView('chat');
+  });
+
+  await page.evaluate(() => BAOCharacterStatusUI.openSettings());
+  const status = page.locator('.status-manager-modal');
+  await expect(status).toBeVisible();
+  await expect(status.locator('.status-manager-head .eyebrow')).toBeHidden();
+  await expect(status.locator('.status-manager-head p')).toBeHidden();
+  const statusOrder = await status.evaluate(node => {
+    const fields = node.querySelector('.status-manager-fields-card').getBoundingClientRect();
+    const templates = node.querySelector('.status-manager-templates').getBoundingClientRect();
+    const main = node.querySelector('.status-manager-body main').getBoundingClientRect();
+    const aside = node.querySelector('.status-manager-body aside').getBoundingClientRect();
+    return { fieldsBeforeTemplates: fields.top < templates.top, mainBeforeAside: main.top < aside.top };
+  });
+  expect(statusOrder).toEqual({ fieldsBeforeTemplates:true, mainBeforeAside:true });
+  await status.locator('[data-status-close]').click();
+
+  await page.evaluate(() => BAOCharacterStatusUI.openNpcRoster());
+  const roster = page.getByRole('dialog', { name:'NPC 名冊／場景參與者' });
+  await expect(roster).toBeVisible();
+  await expect(roster.locator('header .eyebrow')).toBeHidden();
+  await expect(roster.locator('#npc-roster-intro')).toBeHidden();
+  const rosterHelp = roster.getByRole('button', { name:'NPC 名冊說明' });
+  await expect(rosterHelp).toBeVisible();
+  const rosterOrder = await roster.evaluate(node => {
+    const current = node.querySelector('.npc-roster-current').getBoundingClientRect();
+    const add = node.querySelector('.npc-roster-add').getBoundingClientRect();
+    return current.top < add.top;
+  });
+  expect(rosterOrder).toBe(true);
+  await rosterHelp.click();
+  await expect(roster.locator('#npc-roster-intro')).toBeVisible();
+  await rosterHelp.click();
+  await expect(roster.locator('#npc-roster-intro')).toBeHidden();
 });

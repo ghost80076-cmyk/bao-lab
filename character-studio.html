@@ -8,7 +8,7 @@
 <title>角色卡創作室｜夜灣 YoruBay</title>
 <link rel="icon" type="image/svg+xml" href="assets/bao-mark.svg">
 <link rel="stylesheet" href="css/base.css">
-<link rel="stylesheet" href="css/character-studio.css">
+<link rel="stylesheet" href="css/character-studio.css?v=2">
 <link rel="stylesheet" href="css/character-studio-lifecycle.css">
 <link rel="stylesheet" href="css/bao-brand-v2.css">
 </head>
@@ -16,7 +16,7 @@
 <div class="app-shell"><header class="topbar"><a class="brand" href="./" aria-label="回夜灣首頁"><img src="assets/bao-mark.svg" alt="" width="32" height="32"><span>夜灣 YoruBay</span></a><nav><a href="./">返回首頁</a><a href="./">探索角色</a></nav></header>
 <main class="studio-main">
 <header class="studio-heading"><div><div class="eyebrow">LOCAL CHARACTER STUDIO</div><h1>角色卡創作室</h1><p>你和其他作者都能在自己的瀏覽器製作角色卡。草稿不會自動公開，也不需要提供 API 金鑰。</p></div><img src="assets/bao-bun.svg" alt="BAO 肉包" width="82" height="82"></header>
-<div class="studio-notice">🔒 草稿儲存在這台瀏覽器（IndexedDB）。「加入我的角色」才會另存到夜灣本機角色庫；公開網站的角色列表不會因此改變。請另外匯出 JSON 備份，清除網站資料可能會刪除草稿。</div>
+<div class="studio-notice">🔒 草稿只存在這台瀏覽器。請定期匯出 JSON 備份；清除網站資料可能會刪除草稿。「加入我的角色」也只加入本機角色庫，不會自動公開。</div>
 <div class="studio-layout"><aside class="studio-panel studio-sidebar"><h2>我的草稿</h2><div class="studio-actions"><button type="button" class="primary" id="studio-new">＋ 新建角色卡</button><button type="button" class="secondary" id="studio-import">匯入 JSON／PNG</button><input type="file" id="studio-file" accept=".json,.png,application/json,image/png" hidden></div><div id="studio-drafts" class="studio-drafts" aria-label="本機草稿列表"></div><p class="note">這裡列的是創作草稿，與故事存檔互相獨立。</p></aside>
 <section class="studio-panel studio-editor"><div class="studio-toolbar"><h2>編輯角色卡</h2><span id="studio-status" role="status" aria-live="polite">準備中…</span></div>
 <form id="studio-form" autocomplete="off">
@@ -53,7 +53,7 @@
 <script src="js/character-studio-flow-core.js"></script>
 <script src="js/character-studio-lifecycle-core.js"></script>
 <script src="js/character-studio.js"></script>
-<script src="js/character-studio-flow.js"></script>
+<script src="js/character-studio-flow.js?v=2"></script>
 <script src="js/bao-doctor.js"></script>
 <script src="js/character-studio-lifecycle.js"></script>
 </body></html>

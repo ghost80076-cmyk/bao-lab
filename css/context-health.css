@@ -10,6 +10,8 @@
 .context-health-head{display:flex;align-items:flex-start;justify-content:space-between;gap:18px}
 .context-health-head h2{margin:4px 0 6px;font-size:clamp(24px,4vw,34px)}
 .context-health-head p{margin:0;color:var(--muted);line-height:1.65}
+.context-health-head-actions{display:flex;align-items:center;gap:8px;flex:0 0 auto}
+.context-health-help{display:none;width:36px;height:36px;border:1px solid var(--border);border-radius:11px;background:#191a22;color:var(--muted);font:inherit;font-weight:800;cursor:pointer}
 .context-health-close{
   flex:0 0 auto;width:42px;height:42px;border:1px solid var(--border);border-radius:12px;
   background:#191a22;color:var(--text);font:inherit;font-size:22px;cursor:pointer
@@ -70,10 +72,36 @@
   .context-health-backdrop{align-items:flex-end;padding:0}
   .context-health-panel{
     width:100%;max-height:94dvh;border-radius:24px 24px 0 0;
-    padding:18px 14px calc(18px + env(safe-area-inset-bottom))
+    padding:12px 10px calc(14px + env(safe-area-inset-bottom));
+    display:flex;flex-direction:column
   }
-  .context-health-numbers{grid-template-columns:1fr}
-  .context-health-cards{grid-template-columns:1fr}
-  .context-health-footer{display:grid;grid-template-columns:1fr}
-  .context-health-footer button{width:100%;min-height:44px}
+  .context-health-head{align-items:center;gap:10px;order:0}
+  .context-health-head .eyebrow{display:none}
+  .context-health-head h2{margin:0;font-size:20px}
+  .context-health-head p{display:none;margin:5px 0 0;font-size:11px;line-height:1.5}
+  .context-health-panel.context-health-help-open .context-health-head p{display:block}
+  .context-health-help{display:inline-grid;place-items:center}
+  .context-health-close{width:36px;height:36px;border-radius:11px;font-size:20px}
+  .context-health-hero{order:1;margin-top:10px;padding:12px;border-radius:14px}
+  .context-health-hero-line{align-items:center;gap:10px}
+  .context-health-hero-line strong{font-size:18px}
+  .context-health-hero-line>b{font-size:20px}
+  .context-health-meter{margin:9px 0 8px}
+  .context-health-hero>p{font-size:11px;line-height:1.5}
+  .context-health-numbers{grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;margin-top:9px}
+  .context-health-numbers span{padding:7px 6px;border-radius:9px;font-size:9px;line-height:1.25}
+  .context-health-numbers b{font-size:11px}
+  .context-health-cards{order:2;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin-top:8px}
+  .context-health-cards article{padding:10px;border-radius:12px;gap:3px}
+  .context-health-cards span{font-size:9px}
+  .context-health-cards strong{font-size:13px;line-height:1.3}
+  .context-health-cards small{display:none}
+  .context-health-footer{order:3;display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px;padding-top:8px}
+  .context-health-footer button{width:100%;min-height:40px;padding-inline:7px;font-size:11px}
+  .context-health-layers{order:4;margin-top:12px}
+  .context-health-section-title p{display:none}
+  .context-health-layer-list{gap:6px;margin-top:8px}
+  .context-health-layer{padding:9px 10px;gap:8px}
+  .context-health-layer small{font-size:10px;line-height:1.35}
+  .context-health-advanced{order:5;margin-top:10px}
 }

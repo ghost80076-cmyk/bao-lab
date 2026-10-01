@@ -8,10 +8,10 @@
   const close = () => document.querySelector(".story-extensions-backdrop")?.remove();
 
   const ensureStyles = () => {
-    if (document.querySelector('link[href="css/story-extensions-center.css"]')) return;
+    if (document.querySelector('link[href^="css/story-extensions-center.css"]')) return;
     const link = document.createElement("link");
     link.rel = "stylesheet";
-    link.href = "css/story-extensions-center.css";
+    link.href = "css/story-extensions-center.css?v=2";
     document.head.appendChild(link);
   };
 
@@ -301,9 +301,12 @@
             <h2 id="story-extensions-title">故事擴充</h2>
             <p>${esc(data.title)} · <b>${esc(App.activeCharacter?.name || "目前故事")}</b></p>
           </div>
-          <button type="button" class="story-extensions-close" data-extension-close aria-label="關閉故事擴充">×</button>
+          <div class="story-extensions-head-actions">
+            <button type="button" class="story-extensions-help" data-extension-help aria-label="故事擴充說明" aria-expanded="false" aria-controls="story-extension-guide">?</button>
+            <button type="button" class="story-extensions-close" data-extension-close aria-label="關閉故事擴充">×</button>
+          </div>
         </header>
-        <div class="story-extension-guide">
+        <div class="story-extension-guide" id="story-extension-guide">
           <b>先看「作用範圍、來源、保存位置、適用故事與啟用權限」，再決定要不要開。</b>
           <span>世界模組會參與 AI 上下文與狀態；閱讀排版會影響 AI 回覆格式與畫面；玩家文字替換只改顯示。清單中的安全開關可以直接切換；新增、刪除、改內容與作品授權仍留在完整管理工具。作品 Regex 不會在這裡快速取得權限。</span>
         </div>
@@ -323,6 +326,12 @@
     document.body.appendChild(wrap);
 
     wrap.querySelector("[data-extension-close]")?.addEventListener("click", close);
+    wrap.querySelector("[data-extension-help]")?.addEventListener("click", event => {
+      const panel = event.currentTarget.closest(".story-extensions-panel");
+      const open = !panel?.classList.contains("story-extensions-help-open");
+      panel?.classList.toggle("story-extensions-help-open", open);
+      event.currentTarget.setAttribute("aria-expanded", open ? "true" : "false");
+    });
     wrap.addEventListener("click", event => { if (event.target === wrap) close(); });
     wrap.querySelectorAll("[data-extension-action]").forEach(button => {
       button.addEventListener("click", () => {

@@ -1,6 +1,7 @@
 const { test, expect } = require('@playwright/test');
 
 test('shows player-facing context health without pretending per-layer token precision', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('./');
   await page.waitForFunction(() => Boolean(window.BAOContextHealth && window.BAOStoryControlCenter && App.characters?.length));
 
@@ -35,6 +36,22 @@ test('shows player-facing context health without pretending per-layer token prec
 
   const dialog = page.getByRole('dialog', { name: '上下文狀態' });
   await expect(dialog).toBeVisible();
+  await expect(dialog.locator('.context-health-head .eyebrow')).toBeHidden();
+  const contextHelp = dialog.getByRole('button', { name: '上下文狀態說明' });
+  await expect(contextHelp).toBeVisible();
+  await expect(dialog.locator('#context-health-intro')).toBeHidden();
+  await contextHelp.click();
+  await expect(dialog.locator('#context-health-intro')).toBeVisible();
+  await contextHelp.click();
+  await expect(dialog.locator('#context-health-intro')).toBeHidden();
+  const mobileOrder = await dialog.evaluate(node => {
+    const footer = node.querySelector('.context-health-footer').getBoundingClientRect();
+    const layers = node.querySelector('.context-health-layers').getBoundingClientRect();
+    const numbers = getComputedStyle(node.querySelector('.context-health-numbers')).gridTemplateColumns.trim().split(/\s+/).length;
+    const cards = getComputedStyle(node.querySelector('.context-health-cards')).gridTemplateColumns.trim().split(/\s+/).length;
+    return { footerBeforeLayers: footer.top < layers.top, numbers, cards };
+  });
+  expect(mobileOrder).toEqual({ footerBeforeLayers: true, numbers: 3, cards: 2 });
   await expect(dialog).toContainText('充足');
   await expect(dialog).toContainText('32,000 tok');
   await expect(dialog).toContainText('64,000 tok');
@@ -46,6 +63,16 @@ test('shows player-facing context health without pretending per-layer token prec
   await dialog.getByRole('button', { name: /回到故事控制台/ }).click();
   const control = page.getByRole('dialog', { name: '本故事控制台' });
   await expect(control).toBeVisible();
+  await expect(control.locator('.story-control-head .eyebrow')).toBeHidden();
+  const storyHelp = control.getByRole('button', { name: '故事控制台說明' });
+  await expect(storyHelp).toBeVisible();
+  await expect(control.locator('#story-control-intro')).toBeHidden();
+  const columns = await control.locator('.story-control-grid').evaluate(node => getComputedStyle(node).gridTemplateColumns.trim().split(/\s+/).length);
+  expect(columns).toBe(2);
+  await storyHelp.click();
+  await expect(control.locator('#story-control-intro')).toBeVisible();
+  await storyHelp.click();
+  await expect(control.locator('#story-control-intro')).toBeHidden();
   await expect(control).toContainText('上下文狀態');
   await expect(control).toContainText('充足 · 50%');
 });

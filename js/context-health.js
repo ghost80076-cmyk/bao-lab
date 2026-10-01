@@ -7,10 +7,10 @@
   const close = () => document.querySelector(".context-health-backdrop")?.remove();
 
   const ensureStyles = () => {
-    if (document.querySelector('link[href="css/context-health.css"]')) return;
+    if (document.querySelector('link[href^="css/context-health.css"]')) return;
     const link = document.createElement("link");
     link.rel = "stylesheet";
-    link.href = "css/context-health.css";
+    link.href = "css/context-health.css?v=2";
     document.head.appendChild(link);
   };
 
@@ -98,9 +98,12 @@
           <div>
             <div class="eyebrow">CONTEXT HEALTH</div>
             <h2 id="context-health-title">上下文狀態</h2>
-            <p>看懂這個故事目前「帶了多少前情」，不用先理解 Token 工程細節。</p>
+            <p id="context-health-intro">看懂這個故事目前「帶了多少前情」，不用先理解 Token 工程細節。</p>
           </div>
-          <button type="button" class="context-health-close" data-context-health-close aria-label="關閉上下文狀態">×</button>
+          <div class="context-health-head-actions">
+            <button type="button" class="context-health-help" data-context-health-help aria-label="上下文狀態說明" aria-expanded="false" aria-controls="context-health-intro">?</button>
+            <button type="button" class="context-health-close" data-context-health-close aria-label="關閉上下文狀態">×</button>
+          </div>
         </header>
 
         <section class="context-health-hero" data-level="${esc(p.level)}">
@@ -122,6 +125,11 @@
           <article><span>Prompt Cache</span><strong>${esc(data.cache.title)}</strong><small>${esc(data.cache.detail)}</small></article>
         </div>
 
+        <footer class="context-health-footer">
+          <button type="button" class="secondary" data-context-action="memory">🧠 查看／調整記憶</button>
+          <button type="button" class="secondary" data-context-action="control">☷ 回到故事控制台</button>
+        </footer>
+
         <section class="context-health-layers">
           <div class="context-health-section-title">
             <div><h3>目前故事層</h3><p>這裡顯示哪些資料層已啟用，不假裝估算每一層的精確 Token 佔比。</p></div>
@@ -142,14 +150,17 @@
           <p>「本輪輸入」來自 Provider 回報時才會顯示；不同 Provider 對快取 Token 的回報方式可能不同，因此未知時不推算。</p>
         </details>
 
-        <footer class="context-health-footer">
-          <button type="button" class="secondary" data-context-action="memory">🧠 查看／調整記憶</button>
-          <button type="button" class="secondary" data-context-action="control">☷ 回到故事控制台</button>
-        </footer>
+
       </section>`;
 
     document.body.appendChild(wrap);
     wrap.querySelector("[data-context-health-close]")?.addEventListener("click", close);
+    wrap.querySelector("[data-context-health-help]")?.addEventListener("click", event => {
+      const panel = event.currentTarget.closest(".context-health-panel");
+      const open = !panel?.classList.contains("context-health-help-open");
+      panel?.classList.toggle("context-health-help-open", open);
+      event.currentTarget.setAttribute("aria-expanded", open ? "true" : "false");
+    });
     wrap.addEventListener("click", event => { if (event.target === wrap) close(); });
     wrap.addEventListener("keydown", event => { if (event.key === "Escape") close(); });
     wrap.querySelector('[data-context-action="memory"]')?.addEventListener("click", () => {
