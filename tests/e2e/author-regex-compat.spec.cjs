@@ -32,6 +32,7 @@ test('per-card authored HTML, CSS and JS stay in an iframe and only draft player
   await page.goto('./');
   await page.waitForFunction(() => Boolean(
     window.BAOAuthorRegexCore &&
+    window.BAOChatUISimplify &&
     document.querySelector('#bao-author-regex-panel') &&
     App.characters?.length &&
     window.GameState
@@ -53,18 +54,17 @@ test('per-card authored HTML, CSS and JS stay in an iframe and only draft player
     App.showView('chat');
   });
   const before = await page.evaluate(() => JSON.stringify({ messages: Chat.messages, usage: Chat.usage }));
-  const panel = page.locator('#bao-author-regex-panel');
-  // The settings panel is intentionally parked in hidden storage during play.
-  // Exercise its existing handlers without making the test depend on where the
-  // player opens advanced settings from.
-  await panel.evaluate(el => { el.open = true; });
+  await page.evaluate(() => BAOChatUISimplify.openAuthorSettings());
+  const settingsDialog = page.getByRole('dialog', { name: '角色卡自訂介面設定' });
+  await expect(settingsDialog).toBeVisible();
+  const panel = settingsDialog.locator('#bao-author-regex-panel');
   await panel.locator('input[type=file]').setInputFiles({ name: 'author-regex.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(rules)) });
   await expect(panel).toContainText('已保存 2 條原始正則');
-  await setHiddenCheckbox(panel, '在這張角色卡啟用作者介面', true);
+  await panel.getByLabel('在這張角色卡啟用作者介面').check();
   page.once('dialog', dialog => dialog.accept());
-  await setHiddenCheckbox(panel, '允許作者腳本（需自行信任來源）', true);
-  await setHiddenSelect(panel, 'latest');
-  await panel.getByRole('button', { name: '開啟隔離介面預覽' }).evaluate(button => button.click());
+  await panel.getByLabel('允許作者腳本（需自行信任來源）').check();
+  await panel.locator('select').selectOption('latest');
+  await panel.getByRole('button', { name: '開啟隔離介面預覽' }).click();
   const frame = page.frameLocator('iframe[title="作者正則隔離介面"]');
   await expect(frame.locator('.author-panel')).toBeVisible();
   await expect(frame.locator('.author-panel')).toHaveCSS('color', 'rgb(255, 0, 0)');
