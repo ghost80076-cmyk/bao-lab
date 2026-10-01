@@ -32,7 +32,7 @@ test('mobile composer keeps tools, input, AI assist and send in one row', async 
   });
 
   const plus = page.locator('#bao-mobile-composer-tools');
-  const inspire = page.getByRole('button', { name: 'AI 行動靈感' });
+  const inspire = page.getByRole('button', { name: '行動靈感' });
   const input = page.locator('#user-input');
   const send = page.getByRole('button', { name: '送出訊息' });
 
@@ -122,8 +122,8 @@ test('mobile AI assist explains why it is unavailable in local preview', async (
     window.BAOMobileReadingLayout.sync();
   });
 
-  const inspire = page.getByRole('button', { name: 'AI 行動靈感' });
+  const inspire = page.getByRole('button', { name: '行動靈感' });
   await expect(inspire).toBeVisible();
   await expect(inspire).toBeDisabled();
-  await expect(inspire).toHaveAttribute('title', /連接 AI 後即可使用/);
+  await expect(inspire).toHaveAttribute('title', /完成模型連線後即可使用/);
 });
