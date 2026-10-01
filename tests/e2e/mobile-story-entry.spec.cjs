@@ -47,12 +47,12 @@ for (const width of [390, 375, 1280]) {
         await page.locator('#continue-story').click();
       }
       await expect(page.locator('#chat-view')).toHaveClass(/active/);
-      await expect(page.getByRole('dialog', { name: '目前故事的 AI 連線設定' })).toBeVisible();
+      await expect(page.getByRole('dialog', { name: '目前故事的模型連線' })).toBeVisible();
       await page.reload();
       await expect(page.locator('#home-continue')).toBeVisible();
       await page.locator('#home-continue').click();
       await expect(page.locator('#chat-view')).toHaveClass(/active/);
-      await expect(page.getByRole('dialog', { name: '目前故事的 AI 連線設定' })).toBeVisible();
+      await expect(page.getByRole('dialog', { name: '目前故事的模型連線' })).toBeVisible();
       expect(await page.evaluate(() => Storage.loadStory()?.config?.api?.key || '')).toBe('');
       expect(errors).toEqual([]);
     } finally {
