@@ -3,3 +3,55 @@
 
 .narrative-instruction-heading{display:flex;gap:12px;align-items:flex-start;justify-content:space-between}.narrative-instruction-heading h3{margin-bottom:5px}.narrative-instruction-heading p{margin:0}.narrative-instruction-list{display:grid;gap:10px;margin-top:12px}.narrative-instruction-card{padding:12px;border:1px solid var(--border);border-radius:14px;background:#171820}.narrative-instruction-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}.narrative-instruction-top label{display:flex;align-items:center;gap:7px;color:var(--muted);font-size:12px}.narrative-instruction-top input{width:auto}.narrative-instruction-card textarea{min-height:82px;resize:vertical}.narrative-instruction-meta{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;margin-top:7px;color:var(--muted);font-size:11px;line-height:1.45}.narrative-instruction-meta [data-instruction-hint]{max-width:78%}.narrative-instruction-meta [data-kind="custom"]{color:#9be8d8}.narrative-instruction-meta [data-kind="native"],.narrative-instruction-meta [data-kind="duplicate"],.narrative-instruction-meta [data-kind="redundant"]{color:#e8c98b}.narrative-instruction-meta [data-kind="conflict"]{color:#e7a1a1}.narrative-instruction-add{margin-top:10px}.narrative-instruction-add:disabled{opacity:.45;cursor:not-allowed}
 @media(max-width:650px){.narrative-instruction-heading,.narrative-instruction-meta{align-items:stretch;flex-direction:column}.narrative-instruction-meta [data-instruction-hint]{max-width:none}}
+
+
+/* Mobile density: operation first, explanations on demand */
+.narrative-head-actions{display:flex;align-items:center;gap:7px;flex:0 0 auto}
+.narrative-help{display:none;width:34px;height:34px;border:1px solid var(--border);border-radius:10px;background:#191a22;color:var(--muted);font:inherit;font-weight:800;cursor:pointer}
+
+@media(max-width:650px){
+  .narrative-settings-modal{max-height:96dvh}
+  .narrative-settings-modal .bao-modal-head{padding:10px 12px;align-items:center}
+  .narrative-settings-modal .bao-modal-head .eyebrow{display:none}
+  .narrative-settings-modal .bao-modal-head h2{font-size:20px}
+  .narrative-settings-modal .bao-modal-close{padding:7px 5px;font-size:13px}
+  .narrative-help{display:inline-grid;place-items:center}
+  .narrative-settings-modal .bao-modal-body{padding:10px 12px}
+  .narrative-settings-modal .bao-setting-section{padding:11px 0}
+  .narrative-settings-modal .bao-setting-section>h3{margin-bottom:7px;font-size:15px}
+  .narrative-settings-modal .bao-setting-section>p,
+  .narrative-settings-modal .narrative-instruction-heading p,
+  .narrative-settings-modal .narrative-select-grid small,
+  .narrative-settings-modal .narrative-switch small.note,
+  .narrative-settings-modal .narrative-token-note:not(#narrative-pack-status){display:none}
+  .narrative-settings-modal.narrative-help-open .bao-setting-section>p{display:block;margin-bottom:8px;font-size:11px;line-height:1.5}
+  .narrative-settings-modal.narrative-help-open .narrative-instruction-heading p{display:block;font-size:11px;line-height:1.5}
+  .narrative-settings-modal.narrative-help-open .narrative-select-grid small{display:block;font-size:10px;line-height:1.4}
+  .narrative-settings-modal.narrative-help-open .narrative-switch small.note{display:inline;font-size:10px;line-height:1.4}
+  .narrative-settings-modal.narrative-help-open .narrative-token-note:not(#narrative-pack-status){display:block;font-size:10.5px;line-height:1.45}
+  .narrative-settings-modal .narrative-pack-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+  .narrative-settings-modal .narrative-pack{padding:9px 8px;border-radius:11px}
+  .narrative-settings-modal .narrative-pack b{margin-bottom:3px;font-size:12px}
+  .narrative-settings-modal .narrative-pack span{font-size:9.5px;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .narrative-settings-modal #narrative-pack-status{margin-top:7px;padding:8px 9px;font-size:10.5px;line-height:1.4}
+  .narrative-settings-modal .narrative-world-focus{margin-top:8px;padding:9px 10px}
+  .narrative-settings-modal .narrative-world-focus b{font-size:11px}
+  .narrative-settings-modal .narrative-world-focus span{font-size:9px;padding:3px 6px}
+  .narrative-settings-modal .narrative-select-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+  .narrative-settings-modal .narrative-select-grid label{gap:5px;font-size:11px}
+  .narrative-settings-modal .narrative-select-grid select{padding:8px 7px;font-size:11px}
+  .narrative-settings-modal .narrative-instruction-heading{align-items:center;flex-direction:row;gap:8px}
+  .narrative-settings-modal .narrative-instruction-heading h3{margin:0;font-size:15px}
+  .narrative-settings-modal .narrative-instruction-list{gap:7px;margin-top:8px}
+  .narrative-settings-modal .narrative-instruction-card{padding:9px;border-radius:11px}
+  .narrative-settings-modal .narrative-instruction-card textarea{min-height:72px}
+  .narrative-settings-modal .narrative-instruction-meta{margin-top:5px;font-size:9.5px}
+  .narrative-settings-modal .narrative-instruction-add{margin-top:8px;min-height:38px}
+  .narrative-settings-modal .narrative-switch{padding:10px;border-radius:11px}
+  .narrative-settings-modal .narrative-switch b{font-size:12px}
+  .narrative-settings-modal .bao-modal-footer{padding:9px 12px max(11px,env(safe-area-inset-bottom));gap:7px}
+  .narrative-settings-modal .bao-modal-footer button{min-height:40px;font-size:12px}
+}
+@media(max-width:360px){
+  .narrative-settings-modal .narrative-select-grid{grid-template-columns:1fr}
+}
