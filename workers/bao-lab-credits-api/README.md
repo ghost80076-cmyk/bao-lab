@@ -292,3 +292,85 @@ Do not put `GITHUB_TOKEN` in the browser, Pages environment, localStorage, or th
 
 The endpoint requires explicit rights confirmation, rejects duplicate published IDs, strips `preserved_source`, redacts credential-like object fields, limits card/cover sizes, validates PNG/WebP signatures, and removes the temporary branch if PR creation fails. BAO-native `meta`, `content`, `gameplay`, and `presentation` extension fields are preserved so later platform features can evolve without republishing every card.
 
+
+
+## 2026-10-02 staged mainstream Hosted rollout
+
+This rollout adds four player-choice models without replacing the existing Hosted catalog:
+
+- `anthropic/claude-haiku-4.5`
+- `anthropic/claude-sonnet-5`
+- `openai/gpt-5.6-luna`
+- `x-ai/grok-4.5`
+
+The reviewed Worker pricing delta is versioned at:
+
+`workers/bao-lab-credits-api/model-rollouts/2026-10-02-mainstream-openrouter.json`
+
+**Important:** that JSON file is a delta, not a complete replacement for production `MODELS_JSON`.
+Append or merge those four objects into the existing Cloudflare `MODELS_JSON`; replacing the entire variable with only the delta would disable previously allowed models.
+
+The four routes intentionally use OpenRouter for YoruBay Hosted so the existing Worker cost settlement and AWS relay path remain unchanged.
+
+Pricing snapshot reviewed on 2026-10-02:
+
+| Model | Input / MTok | Cache read / MTok | Cache write / MTok | Output / MTok |
+| --- | ---: | ---: | ---: | ---: |
+| Claude Haiku 4.5 | $1.00 | $0.10 | $1.25 | $5.00 |
+| Claude Sonnet 5 | $2.00 | $0.20 | $2.50 | $10.00 |
+| GPT-5.6 Luna (OpenRouter Standard) | $0.20 | $0.02 | $0.25 | $1.20 |
+| Grok 4.5 | $2.00 | $0.30 | — | $6.00 |
+
+Grok 4.5 has a higher-context tier above 200K tokens. The rollout config therefore records $4/M input, $0.60/M cache read, and $12/M output for that tier. Cache write is intentionally omitted so the Worker falls back conservatively to the active input rate.
+
+Sources used for the reviewed pricing snapshot:
+
+- https://openrouter.ai/anthropic/claude-haiku-4.5
+- https://openrouter.ai/anthropic/claude-sonnet-5
+- https://openrouter.ai/openai/gpt-5.6-luna
+- https://docs.x.ai/developers/pricing
+
+### Cloudflare rollout
+
+Cloudflare currently limits each Worker environment variable value to 5 KB. The existing production `MODELS_JSON` is already close enough to that limit that appending four more full pricing objects can exceed the dashboard limit.
+
+The Worker therefore supports a second allowlist/pricing shard:
+
+- `MODELS_JSON` — keep the current production array unchanged.
+- `MODELS_JSON_EXTRA` — put the four 2026-10-02 rollout objects here as a separate JSON array.
+
+Before exposing the browser catalog:
+
+1. deploy a Worker version that includes `MODELS_JSON_EXTRA` support;
+2. leave the existing production `MODELS_JSON` unchanged;
+3. create `MODELS_JSON_EXTRA` and paste the complete four-entry array from the rollout JSON;
+4. deploy the Worker;
+5. verify `/health` and one low-output test request for each new model.
+
+If both variables are present, the Worker concatenates both arrays for allowlisting and pricing. A malformed extra shard is ignored without discarding the valid base shard.
+
+The explicit `openrouter_max_*_microusd_per_million` fields are deliberate. If OpenRouter cannot serve a model at or below the reviewed ceiling, the request should fail closed instead of silently accepting a more expensive upstream.
+
+### AWS relay rollout
+
+For players routed through `AWS_OPENROUTER_PLAYERS`, append the same four model IDs to the existing EC2 `OPENROUTER_MODELS` environment variable:
+
+```text
+anthropic/claude-haiku-4.5
+anthropic/claude-sonnet-5
+openai/gpt-5.6-luna
+x-ai/grok-4.5
+```
+
+Do not replace the current allowlist with only these four values. Keep every currently permitted production model and append the four new IDs.
+
+After updating the EC2 environment, restart `bao-backend.service` and confirm `/health` before merging the player-facing catalog PR.
+
+### Release gate
+
+The player-facing catalog PR must stay unmerged until both server layers agree:
+
+- Cloudflare `MODELS_JSON` contains all four reviewed entries.
+- AWS `OPENROUTER_MODELS` contains all four IDs for AWS-routed players.
+
+Only after both checks pass should the browser catalog be merged and deployed.

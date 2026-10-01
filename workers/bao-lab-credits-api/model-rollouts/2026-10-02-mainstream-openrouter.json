@@ -1,0 +1,47 @@
+[
+  {
+    "provider": "openrouter",
+    "model": "anthropic/claude-haiku-4.5",
+    "input_microusd_per_million": 1000000,
+    "output_microusd_per_million": 5000000,
+    "cache_read_microusd_per_million": 100000,
+    "cache_write_microusd_per_million": 1250000,
+    "openrouter_max_prompt_microusd_per_million": 1000000,
+    "openrouter_max_completion_microusd_per_million": 5000000
+  },
+  {
+    "provider": "openrouter",
+    "model": "anthropic/claude-sonnet-5",
+    "input_microusd_per_million": 2000000,
+    "output_microusd_per_million": 10000000,
+    "cache_read_microusd_per_million": 200000,
+    "cache_write_microusd_per_million": 2500000,
+    "openrouter_max_prompt_microusd_per_million": 2000000,
+    "openrouter_max_completion_microusd_per_million": 10000000
+  },
+  {
+    "provider": "openrouter",
+    "model": "openai/gpt-5.6-luna",
+    "input_microusd_per_million": 200000,
+    "output_microusd_per_million": 1200000,
+    "cache_read_microusd_per_million": 20000,
+    "cache_write_microusd_per_million": 250000,
+    "openrouter_max_prompt_microusd_per_million": 200000,
+    "openrouter_max_completion_microusd_per_million": 1200000
+  },
+  {
+    "provider": "openrouter",
+    "model": "x-ai/grok-4.5",
+    "input_microusd_per_million": 2000000,
+    "output_microusd_per_million": 6000000,
+    "cache_read_microusd_per_million": 300000,
+    "openrouter_max_prompt_microusd_per_million": 2000000,
+    "openrouter_max_completion_microusd_per_million": 6000000,
+    "long_context_threshold_tokens": 200000,
+    "long_context_input_microusd_per_million": 4000000,
+    "long_context_output_microusd_per_million": 12000000,
+    "long_context_cache_read_microusd_per_million": 600000,
+    "long_context_openrouter_max_prompt_microusd_per_million": 4000000,
+    "long_context_openrouter_max_completion_microusd_per_million": 12000000
+  }
+]
