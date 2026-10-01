@@ -1,0 +1,60 @@
+.bao-text-replace-head-actions{display:flex;align-items:center;gap:7px;flex:0 0 auto}
+.bao-text-replace-help{display:none;width:34px;height:34px;border:1px solid var(--border);border-radius:10px;background:#191a22;color:var(--muted);font:inherit;font-weight:800;cursor:pointer}
+.bao-text-replace-rules-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.bao-text-replace-rules-head h3{margin:0 0 4px}
+.bao-text-replace-list{display:grid;gap:10px;margin-top:12px}
+.bao-text-replace-rule-actions{display:flex;gap:6px}
+.bao-text-replace-rule-grid{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:8px;align-items:center}
+.bao-text-replace-rule-grid input{min-width:0}
+.bao-text-replace-preview{margin:0}
+.bao-text-replace-preview>summary{cursor:pointer;font-weight:750}
+.bao-text-replace-preview-body{display:grid;gap:8px;margin-top:10px}
+.bao-text-replace-preview textarea{width:100%;box-sizing:border-box;min-height:90px}
+.bao-text-replace-preview [data-text-replace-preview]{justify-self:start}
+
+@media(max-width:600px){
+  .bao-text-replace-backdrop{align-items:flex-end;padding:0}
+  .bao-text-replace-modal{width:100%;max-height:96dvh;border-radius:22px 22px 0 0}
+  .bao-text-replace-modal .bao-modal-head{padding:10px 12px;align-items:center}
+  .bao-text-replace-modal .bao-modal-head .eyebrow{display:none}
+  .bao-text-replace-modal .bao-modal-head h2{font-size:20px}
+  .bao-text-replace-help{display:inline-grid;place-items:center}
+  .bao-text-replace-modal .bao-modal-close{padding:7px 5px;font-size:13px}
+  .bao-text-replace-modal .bao-modal-body{padding:9px 12px}
+  .bao-text-replace-modal .bao-setting-section{padding:9px 0}
+  .bao-text-replace-modal .bao-setting-section h3{font-size:14px}
+  .bao-text-replace-modal .bao-text-replace-help-copy{display:none}
+  .bao-text-replace-modal.bao-text-replace-help-open .bao-text-replace-help-copy{display:block}
+  .bao-text-replace-modal.bao-text-replace-help-open p.bao-text-replace-help-copy{margin:5px 0 8px;font-size:10.5px;line-height:1.45}
+  .bao-text-replace-modal.bao-text-replace-help-open small.bao-text-replace-help-copy{font-size:9.5px;line-height:1.35}
+  .bao-text-replace-modal .bao-toggle{padding:9px 10px;border-radius:11px}
+  .bao-text-replace-modal .bao-toggle b{font-size:12px}
+  .bao-text-replace-modal .bao-toggle small.note{font-size:9.5px;line-height:1.35}
+  .bao-text-replace-modal .bao-choice-grid.two{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+  .bao-text-replace-scope .bao-toggle{min-width:0}
+  .bao-text-replace-scope .bao-toggle span{min-width:0}
+  .bao-text-replace-scope .bao-toggle small.note{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .bao-text-replace-rules-head{align-items:center;flex-wrap:nowrap}
+  .bao-text-replace-rules-head>div{min-width:0}
+  .bao-text-replace-rules-head [data-text-replace-add]{flex:0 0 auto;min-height:38px;padding:7px 9px;font-size:11px}
+  .bao-text-replace-list{gap:7px;margin-top:8px}
+  .bao-text-replace-rule{margin:0!important;padding:9px!important;border-radius:11px!important}
+  .bao-text-replace-rule .bao-memory-slot-head{margin-bottom:7px;gap:7px}
+  .bao-text-replace-rule .bao-memory-slot-head label{font-size:10.5px}
+  .bao-text-replace-rule-actions{gap:3px}
+  .bao-text-replace-rule-actions .text-button{min-width:30px;min-height:30px;padding:4px 6px;font-size:10px}
+  .bao-text-replace-rule-grid{grid-template-columns:minmax(0,1fr) 14px minmax(0,1fr);gap:5px}
+  .bao-text-replace-rule-grid input{padding:8px 7px;font-size:11px}
+  .bao-text-replace-rule-grid span{text-align:center;font-size:11px}
+  .bao-text-replace-preview{border:1px solid var(--border);border-radius:11px!important;background:#15161d}
+  .bao-text-replace-preview>summary{padding:9px 10px;font-size:12px}
+  .bao-text-replace-preview-body{padding:0 9px 9px;margin-top:0}
+  .bao-text-replace-preview textarea{min-height:72px;padding:8px;font-size:11px}
+  .bao-text-replace-preview [data-text-replace-preview]{width:100%;min-height:38px}
+  .bao-text-replace-modal .bao-modal-footer{position:sticky;bottom:0;z-index:3;padding:9px 12px max(11px,env(safe-area-inset-bottom));gap:7px;background:#111218ed;backdrop-filter:blur(12px)}
+  .bao-text-replace-modal .bao-modal-footer button{min-height:40px;font-size:12px}
+}
+@media(max-width:360px){
+  .bao-text-replace-rule-grid{grid-template-columns:1fr}
+  .bao-text-replace-rule-grid span{transform:rotate(90deg)}
+}
