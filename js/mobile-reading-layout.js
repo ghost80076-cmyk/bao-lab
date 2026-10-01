@@ -462,10 +462,10 @@
     focusScrollTop = null;
     schedule();
   });
-  window.BAOMobileReadingLayout = { version: 16, sync, openTools, enhanceDrawer, togglePanels, openMemory, closePanels, ensureComposerTools, fitComposerInput };
+  window.BAOMobileReadingLayout = { version: 17, sync, openTools, enhanceDrawer, togglePanels, openMemory, closePanels, ensureComposerTools, fitComposerInput };
   const style = document.createElement('link');
   style.rel = 'stylesheet';
-  style.href = 'css/mobile-reading-layout.css?v=15';
+  style.href = 'css/mobile-reading-layout.css?v=16';
   document.head.append(style);
   sync();
 })();
