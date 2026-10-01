@@ -10,6 +10,8 @@
 .story-control-head{display:flex;align-items:flex-start;justify-content:space-between;gap:18px}
 .story-control-head h2{margin:4px 0 6px;font-size:clamp(24px,4vw,34px)}
 .story-control-head p{margin:0;color:var(--muted);line-height:1.6}
+.story-control-head-actions{display:flex;align-items:center;gap:8px;flex:0 0 auto}
+.story-control-help{display:none;width:36px;height:36px;border:1px solid var(--border);border-radius:11px;background:#191a22;color:var(--muted);font:inherit;font-weight:800;cursor:pointer}
 .story-control-close{
   flex:0 0 auto;width:42px;height:42px;border:1px solid var(--border);border-radius:12px;
   background:#191a22;color:var(--text);font:inherit;font-size:22px;cursor:pointer
@@ -36,14 +38,29 @@
 @media(max-width:720px){
   .story-control-backdrop{align-items:flex-end;padding:0}
   .story-control-panel{
-    width:100%;max-height:92dvh;border-radius:24px 24px 0 0;padding:18px 14px calc(18px + env(safe-area-inset-bottom))
+    width:100%;max-height:92dvh;border-radius:24px 24px 0 0;padding:12px 10px calc(14px + env(safe-area-inset-bottom))
   }
-  .story-control-grid{grid-template-columns:1fr}
-  .story-control-card{padding:14px}
-  .story-control-card small{min-height:0}
-  .story-control-footer{display:grid;grid-template-columns:1fr}
-  .story-control-footer button{width:100%;min-height:44px}
+  .story-control-head{align-items:center;gap:10px}
+  .story-control-head .eyebrow{display:none}
+  .story-control-head h2{margin:0 0 2px;font-size:20px}
+  .story-control-head p{font-size:11px;line-height:1.4}
+  .story-control-help{display:inline-grid;place-items:center}
+  .story-control-close{width:36px;height:36px;border-radius:11px;font-size:20px}
+  .story-control-intro{display:none;margin:8px 0 10px;padding:9px 11px;font-size:11px;line-height:1.5}
+  .story-control-panel.story-control-help-open .story-control-intro{display:block}
+  .story-control-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin-top:10px}
+  .story-control-card{min-height:88px;padding:10px;gap:3px;border-radius:13px}
+  .story-control-card-label{font-size:9px;letter-spacing:.06em}
+  .story-control-card strong{font-size:14px;line-height:1.25}
+  .story-control-card small{
+    min-height:0;font-size:10.5px;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden
+  }
+  .story-control-card-link{display:none}
+  .story-control-footer{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:10px;padding-top:10px}
+  .story-control-footer button{width:100%;min-height:40px;padding-inline:8px;font-size:12px}
 }
 @media(max-width:430px){
   .story-control-entry{font-size:12px;padding-inline:9px}
 }
+
+@media(max-width:360px){.story-control-grid{grid-template-columns:1fr}.story-control-card{min-height:72px}}
