@@ -273,7 +273,7 @@
     makeAction(quick, '◈ 世界狀態', openStatus);
     makeAction(quick, '人物／事件', togglePanels, { 'data-bao-mobile-panel-toggle': '', 'aria-expanded': String(main.classList.contains('bao-mobile-panel-open')) });
     makeAction(quick, '🧠 記憶', openMemory);
-    makeAction(quick, 'API／切換模型', () => {
+    makeAction(quick, '模型連線／切換', () => {
       if (window.BAOChatAPISettings?.open) BAOChatAPISettings.open();
       else clickOriginal('#bao-chat-api-aside');
     });
@@ -368,7 +368,7 @@
       inspire.id = 'bao-mobile-composer-inspire';
       inspire.className = 'bao-mobile-composer-action bao-mobile-composer-inspire';
       inspire.textContent = '✦';
-      inspire.setAttribute('aria-label', 'AI 行動靈感');
+      inspire.setAttribute('aria-label', '行動靈感');
       inspire.addEventListener('click', async () => {
         if (App.__requestPending) {
           window.BAOFeedback?.notify?.('目前正在生成回覆，完成後再取得行動靈感。', 'error');
