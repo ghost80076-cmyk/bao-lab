@@ -9,6 +9,30 @@ test('character studio exposes a mobile-friendly creation flow without hiding th
   await expect(flow).toBeVisible();
   await expect(flow.locator('[data-flow-step]')).toHaveCount(6);
   await expect(page.locator('#studio-flow-progress')).toHaveText('必填 2/4 · 還有 2 項');
+  await expect(page.locator('.studio-heading .eyebrow')).toBeHidden();
+  await expect(page.locator('.studio-heading p')).toBeHidden();
+
+  const mobileDensity = await page.evaluate(() => {
+    const flow = document.getElementById('studio-flow-shell').getBoundingClientRect();
+    const actions = [...document.querySelectorAll('.studio-actions button')].map(button => button.getBoundingClientRect());
+    const drafts = document.querySelector('.studio-drafts');
+    return {
+      flowHeight: flow.height,
+      actionsSameRow: actions.length >= 2 && Math.abs(actions[0].top - actions[1].top) <= 2,
+      draftsOverflowX: getComputedStyle(drafts).overflowX
+    };
+  });
+  expect(mobileDensity.flowHeight).toBeLessThanOrEqual(100);
+  expect(mobileDensity.actionsSameRow).toBe(true);
+  expect(['auto', 'scroll']).toContain(mobileDensity.draftsOverflowX);
+
+  const nameField = page.locator('[name="name"]');
+  await nameField.focus();
+  await expect(page.locator('.studio-editor')).toHaveClass(/studio-editing/);
+  await expect(flow).toBeHidden();
+  await nameField.evaluate(node => node.blur());
+  await expect(page.locator('.studio-editor')).not.toHaveClass(/studio-editing/);
+  await expect(flow).toBeVisible();
 
   const navBox = await flow.locator('.studio-flow-nav').evaluate(node => ({
     scrollWidth: node.scrollWidth,
