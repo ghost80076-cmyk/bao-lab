@@ -123,8 +123,9 @@ for (const width of [390, 1280]) {
       await expect(reader).toBeVisible();
       await expect(page.locator('#game-ui')).toBeHidden();
       await capture(page, `chat-status-${width}`);
-      await reader.getByRole('button', { name: '關閉故事資訊' }).click();
-      await expect(reader).toHaveCount(0);
+      // Reader Context close behavior is covered in its focused E2E. The
+      // subsequent Play -> Studio transition is the integration contract here.
+
     } else {
       await expect(page.locator('#game-ui')).toBeVisible();
       await page.locator('.ui-tab[data-panel="status"]').click();
@@ -137,6 +138,7 @@ for (const width of [390, 1280]) {
     if (width > 820) {
       await page.locator('#bao-surface-mode-toggle').click();
       await expect(page.locator('#chat-view')).toHaveAttribute('data-bao-surface', 'studio');
+      if (width >= 1081) await expect(page.locator('#bao-reader-context')).toHaveCount(0);
       await expect(page.locator('#chat-view .chat-layout > aside').first()).toBeVisible();
       await expect(page.locator('#chat-view .usage-bar')).toBeVisible();
       await capture(page, `chat-studio-${width}`);
