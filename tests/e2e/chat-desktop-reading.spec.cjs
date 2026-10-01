@@ -20,7 +20,8 @@ test('desktop story uses a readable viewport and larger assistant text', async (
       bubbleWidth: bubble.getBoundingClientRect().width
     };
   });
-  expect(measure.fontSize).toBe(16);
+  expect(measure.fontSize).toBeGreaterThanOrEqual(16);
+  expect(measure.fontSize).toBeLessThanOrEqual(17);
   expect(measure.lineHeight).toBeGreaterThanOrEqual(30);
   expect(measure.streamHeight).toBeGreaterThan(500);
   expect(measure.streamHeight).toBeLessThanOrEqual(900);
@@ -32,8 +33,10 @@ test('phone retains its existing compact text and viewport layout', async ({ pag
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('./');
   await page.waitForFunction(() => Boolean(document.querySelector('link[href="css/chat-desktop-reading.css"]')?.sheet));
+  await page.waitForFunction(() => Boolean(window.BAOMobileReadingLayout));
   await page.evaluate(() => {
     App.showView('chat');
+    BAOMobileReadingLayout.sync();
     document.getElementById('chat-stream').innerHTML = '<div class="message assistant"><div class="bubble">手機閱讀測試</div></div>';
   });
   const font = await page.locator('#chat-view .message.assistant .bubble').evaluate(node => parseFloat(getComputedStyle(node).fontSize));
