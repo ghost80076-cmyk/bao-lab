@@ -115,6 +115,15 @@
 
   const currentPanel = () => root.querySelector('.ui-tab.active')?.dataset.panel || 'npc';
 
+  const hasGameplaySurface = () => {
+    try {
+      const schema = window.BAOGameplayUI?.schemaFor?.(App.activeCharacter);
+      if (schema?.panels?.length) return true;
+    } catch {}
+    const raw = App.activeCharacter?.gameplay_ui || App.activeCharacter?.gameplay?.ui_schema;
+    return Boolean(raw);
+  };
+
   const sceneValue = value => {
     const text = String(value ?? '').trim();
     return text && !/^(?:未知|未設定|未確認|—|-)$/.test(text) ? text : '';
@@ -145,7 +154,7 @@
   const syncStatusButtonContract = () => {
     const button = document.getElementById('bao-play-status-toggle');
     if (!button) return;
-    const readerContext = mode === 'play' && desktop.matches;
+    const readerContext = mode === 'play' && desktop.matches && !hasGameplaySurface();
     button.setAttribute('aria-controls', readerContext ? 'bao-reader-context' : 'game-ui');
     button.setAttribute('aria-label', readerContext ? '查看故事資訊' : '查看人物、事件與作品資訊');
     button.title = readerContext
@@ -185,7 +194,7 @@
   const openStatus = () => {
     // Desktop Play gets a dedicated read-only context sheet. Studio and compact
     // layouts keep the existing game UI so editing and mobile behavior stay intact.
-    if (mode === 'play' && desktop.matches && window.BAOReaderContext?.open?.({
+    if (mode === 'play' && desktop.matches && !hasGameplaySurface() && window.BAOReaderContext?.open?.({
       onClose: () => {
         statusOpen = false;
         document.getElementById('bao-play-status-toggle')?.setAttribute('aria-expanded', 'false');
