@@ -53,7 +53,7 @@ test.describe('Player 2.0 shell', () => {
 
     await page.locator('#bao-me-nav').click();
     await expect(page.locator('#me-view')).toHaveClass(/active/);
-    await expect(page.locator('#me-view')).toContainText('Local-first');
+    await expect(page.locator('#me-view')).toContainText('故事預設留在這台裝置');
     await expect(page.locator('#me-view a[href="account.html"]')).toBeVisible();
     await expect(page.locator('#me-view a[href*="ko-fi.com"]')).toBeVisible();
   });
@@ -114,15 +114,15 @@ test.describe('Player 2.0 shell', () => {
 
     await expect(page.locator('#builder-view')).toHaveAttribute('data-bao-setup', 'quick');
     await expect(page.locator('#bao-connection-mode')).toBeVisible({ timeout: 10000 });
-    await expect(page.locator('#bao-connection-mode')).toContainText('選一種 AI 連線方式');
-    await expect(page.locator('#bao-first-run-ai-note')).toContainText(/API|Gemini|OpenRouter|Anthropic|Claude|本機|LM Studio/i);
+    await expect(page.locator('#bao-connection-mode')).toContainText('選一種模型連線方式');
+    await expect(page.locator('#bao-first-run-ai-note')).toContainText(/燈火|Gemini|OpenRouter|Anthropic|Claude|本機|LM Studio/i);
     await expect(page.locator('#bao-connection-mode [data-bao-connection="byok"]')).toHaveAttribute('aria-pressed', 'true');
     await expect(page.locator('#model-id').locator('xpath=..')).toBeHidden();
 
     await page.waitForFunction(() => Boolean(document.querySelector('#api-type option[value="bao-credits"]')));
     await page.locator('#bao-connection-mode [data-bao-connection="hosted"]').click();
     await expect(page.locator('#api-type')).toHaveValue('bao-credits');
-    await expect(page.locator('#bao-first-run-ai-note')).toContainText('帳號額度');
+    await expect(page.locator('#bao-first-run-ai-note')).toContainText('夜灣燈火');
     await expect(page.locator('#bao-connection-mode [data-bao-connection="hosted"]')).toHaveAttribute('aria-pressed', 'true');
     await expect(page.locator('#bao-connection-account')).toBeVisible();
 
@@ -135,7 +135,7 @@ test.describe('Player 2.0 shell', () => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto('/account.html');
     await expect(page.locator('.yb-account-hero h1')).toHaveText('帳號與燈火');
-    await expect(page.locator('.yb-local-first')).toContainText('Local-first');
+    await expect(page.locator('.yb-local-first')).toContainText('故事仍然留在你手上');
     await expect(page.locator('.yb-tabs')).toBeVisible();
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(391);
   });
@@ -148,8 +148,8 @@ test.describe('Player 2.0 shell', () => {
     await page.getByRole('button', { name: '查看作品', exact: true }).click();
     await expect(page.locator('#detail-view .bao-work-detail-v2')).toBeVisible();
     await expect(page.locator('#detail-view .bao-detail-feature-strip')).toBeVisible();
-    await expect(page.locator('#detail-view .bao-detail-feature-strip')).toContainText('Local-first');
-    await expect(page.locator('#detail-view .bao-detail-start-note')).toContainText('先選故事，再選 AI');
+    await expect(page.locator('#detail-view .bao-detail-feature-strip')).toContainText('故事留在本機');
+    await expect(page.locator('#detail-view .bao-detail-start-note')).toContainText('先選故事，再決定用哪盞燈');
     await expect(page.locator('#detail-start')).toBeVisible();
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(391);
   });
