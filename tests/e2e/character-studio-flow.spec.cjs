@@ -9,6 +9,32 @@ test('character studio exposes a mobile-friendly creation flow without hiding th
   await expect(flow).toBeVisible();
   await expect(flow.locator('[data-flow-step]')).toHaveCount(6);
   await expect(page.locator('#studio-flow-progress')).toHaveText('必填 2/4 · 還有 2 項');
+  await expect(page.locator('.studio-heading .eyebrow')).toBeHidden();
+  await expect(page.locator('.studio-heading p')).toBeHidden();
+
+  const mobileDensity = await page.evaluate(() => {
+    const flow = document.getElementById('studio-flow-shell').getBoundingClientRect();
+    const actions = [...document.querySelectorAll('.studio-actions button')].map(button => button.getBoundingClientRect());
+    const drafts = document.querySelector('.studio-drafts');
+    return {
+      flowHeight: flow.height,
+      actionsSameRow: actions.length >= 2 && Math.abs(actions[0].top - actions[1].top) <= 2,
+      draftsOverflowX: getComputedStyle(drafts).overflowX
+    };
+  });
+  expect(mobileDensity.flowHeight).toBeLessThanOrEqual(100);
+  expect(mobileDensity.actionsSameRow).toBe(true);
+  expect(['auto', 'scroll']).toContain(mobileDensity.draftsOverflowX);
+
+  const nameField = page.locator('[name="name"]');
+  await nameField.focus();
+  await expect(page.locator('.studio-editor')).toHaveClass(/studio-editing/);
+  await expect(flow).toBeHidden();
+  const doneEditing = page.getByRole('button', { name: '完成編輯' });
+  await expect(doneEditing).toBeVisible();
+  await doneEditing.click();
+  await expect(page.locator('.studio-editor')).not.toHaveClass(/studio-editing/);
+  await expect(flow).toBeVisible();
 
   const navBox = await flow.locator('.studio-flow-nav').evaluate(node => ({
     scrollWidth: node.scrollWidth,
@@ -32,11 +58,17 @@ test('character studio exposes a mobile-friendly creation flow without hiding th
   await expect(flow.locator('[data-flow-step="core"]')).toHaveAttribute('data-state', 'complete');
   await expect(flow.locator('[data-flow-step="opening"]')).toHaveAttribute('data-state', 'complete');
   await expect(flow.locator('[data-flow-step="finish"]')).toHaveAttribute('data-state', 'ready');
+  await expect(doneEditing).toBeVisible();
+  await doneEditing.click();
+  await expect(flow).toBeVisible();
 
   await flow.getByRole('button', { name: /人物與世界/ }).click();
   await expect(page.locator('.studio-advanced').first()).toHaveAttribute('open', '');
   await page.locator('[name="world"]').fill('一座終年多雨的港口城市。');
   await expect(flow.locator('[data-flow-step="world"]')).toHaveAttribute('data-state', 'complete');
+  await expect(doneEditing).toBeVisible();
+  await doneEditing.click();
+  await expect(flow).toBeVisible();
 
   await flow.getByRole('button', { name: /預覽與完成/ }).click();
   await page.getByRole('button', { name: '預覽', exact: true }).click();
