@@ -256,7 +256,8 @@
       desk.classList.remove("memory-help-open");
       help?.setAttribute("aria-expanded", "false");
     });
-    desk.addEventListener("focusout", () => {
+    desk.addEventListener("focusout", event => {
+      if (event.relatedTarget instanceof Element && event.relatedTarget.matches("[data-memory-editing-done]")) return;
       requestAnimationFrame(() => {
         if (!editable(document.activeElement)) desk.classList.remove("memory-editing");
       });
