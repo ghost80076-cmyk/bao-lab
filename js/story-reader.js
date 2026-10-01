@@ -189,8 +189,8 @@
     return connected && !App.config?.demoMode && !App.config?.offlineWorldPreview;
   };
   const aiToolsUnavailableMessage = () => App.config?.demoMode || App.config?.offlineWorldPreview
-    ? "目前是無 API 本機預覽；連接 AI 後即可使用"
-    : "目前尚未連接 AI；完成連線後即可使用";
+    ? "目前是本機預覽；完成模型連線後即可使用"
+    : "目前尚未完成模型連線；完成後即可使用";
 
   const parseSuggestions = input => {
     const raw = String(input || "").replace(/^\s*```(?:json)?/i, "").replace(/```\s*$/, "").trim();
