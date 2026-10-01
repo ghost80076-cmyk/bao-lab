@@ -44,3 +44,52 @@
 .memory-refine-run{background:linear-gradient(135deg,#d9b477,#bd8f55);color:#2b2118}
 .memory-health-card,.memory-quick-status{border-color:rgba(93,214,192,.16);background:rgba(93,214,192,.035)}
 @media(max-width:760px){.memory-desk-tab.active{box-shadow:inset 0 -2px 0 rgba(214,170,115,.55)}}
+
+
+/* Mobile compact memory workbench */
+.memory-help-toggle,.memory-editing-done{display:none}
+@media(max-width:760px){
+  .memory-desk-backdrop{height:100dvh;min-height:100dvh}
+  .memory-desk{height:100dvh;max-height:100dvh;grid-template-rows:auto auto 1fr}
+  .memory-simple .memory-desk-head{padding:10px 12px;gap:8px;align-items:center;flex-wrap:wrap}
+  .memory-simple .memory-desk-head>div:first-child{min-width:0;flex:1 1 auto}
+  .memory-simple .memory-desk-kicker{display:none}
+  .memory-simple .memory-desk-head h2{font-size:20px;line-height:1.2;margin:0}
+  .memory-simple .memory-desk-head p{display:none;flex-basis:100%;margin:6px 0 0;font-size:11px;line-height:1.55}
+  .memory-simple.memory-help-open .memory-desk-head p{display:block}
+  .memory-simple .memory-desk-close,.memory-simple .memory-help-toggle,.memory-simple .memory-editing-done{
+    min-height:34px;border-radius:10px;padding:6px 10px;font-size:12px
+  }
+  .memory-simple .memory-help-toggle{display:inline-flex;align-items:center;justify-content:center;width:34px;padding:0}
+  .memory-simple .memory-desk-stats{
+    display:flex;align-items:center;gap:0;overflow-x:auto;padding:7px 12px;background:#121115;border-bottom:1px solid var(--border)
+  }
+  .memory-simple .memory-desk-stat{display:flex;align-items:baseline;gap:5px;flex:0 0 auto;padding:0 10px 0 0;margin-right:10px;background:transparent}
+  .memory-simple .memory-desk-stat:last-child{margin-right:0;padding-right:0}
+  .memory-simple .memory-desk-stat span{display:inline;font-size:9px;letter-spacing:.03em;text-transform:none;white-space:nowrap}
+  .memory-simple .memory-desk-stat b{display:inline;margin:0;font-size:12px;white-space:nowrap}
+  .memory-simple .memory-desk-stat[hidden]{display:none!important}
+  .memory-simple .memory-desk-main{min-height:0}
+  .memory-simple .memory-desk-nav{padding:6px 8px;gap:4px}
+  .memory-simple .memory-desk-tab{padding:9px 6px;border-radius:9px}
+  .memory-simple .memory-desk-tab b{font-size:12px;white-space:nowrap}
+  .memory-simple .memory-desk-tab span{display:none}
+  .memory-simple .memory-desk-content{padding:12px}
+  .memory-simple .memory-pane-title{margin-bottom:10px;align-items:center}
+  .memory-simple .memory-pane-title h3{font-size:19px}
+  .memory-simple .memory-pane-title p{display:none}
+  .memory-simple .memory-note-card{padding:12px}
+  .memory-simple .memory-note-card textarea{margin-top:9px;min-height:180px}
+  .memory-simple .memory-note-top{gap:7px}
+  .memory-simple .memory-note-delete{padding:6px 2px}
+  .memory-simple.memory-editing .memory-desk-head{padding:7px 10px;flex-wrap:nowrap}
+  .memory-simple.memory-editing .memory-desk-head h2{font-size:17px}
+  .memory-simple.memory-editing .memory-desk-head p,
+  .memory-simple.memory-editing .memory-desk-stats,
+  .memory-simple.memory-editing .memory-desk-nav,
+  .memory-simple.memory-editing .memory-desk-close,
+  .memory-simple.memory-editing .memory-help-toggle{display:none!important}
+  .memory-simple.memory-editing .memory-editing-done{display:inline-flex;align-items:center;justify-content:center}
+  .memory-simple.memory-editing .memory-desk-content{padding-top:8px}
+  .memory-simple.memory-editing .memory-pane-title{display:none}
+}
