@@ -47,3 +47,69 @@
   .story-library-story>header>.story-library-actions{grid-template-columns:minmax(0,1fr) auto}
   .story-library-story>header>.story-library-actions .bao-shelf-continue{grid-column:1/-1}
 }
+
+
+/* Mobile density audit: story desk + library */
+.story-tools-head-actions,.story-library-head-actions{display:flex;align-items:center;gap:7px;flex:0 0 auto}
+.story-tools-help{display:none;width:34px;height:34px;border:1px solid var(--border);border-radius:10px;background:#171820;color:var(--muted);font:inherit;font-weight:800;cursor:pointer}
+
+@media(max-width:760px){
+  .story-tools-backdrop[data-story-tools-mode="home"],
+  .story-tools-backdrop[data-story-tools-mode="library"]{align-items:flex-end;padding:0}
+  .story-tools-modal[data-story-tools-mode="home"],
+  .story-tools-modal[data-story-tools-mode="library"]{width:100%;max-height:96dvh;border-radius:24px 24px 0 0}
+  .story-tools-modal[data-story-tools-mode="home"] .story-tools-main,
+  .story-tools-modal[data-story-tools-mode="library"] .story-tools-main{padding:11px 10px calc(14px + env(safe-area-inset-bottom))}
+  .story-tools-help{display:inline-grid;place-items:center}
+
+  .story-tools-home-head{align-items:center;margin-bottom:8px}
+  .story-tools-home-head .eyebrow{display:none}
+  .story-tools-home-head h2{margin:0;font-size:20px}
+  .story-tools-home-head .story-tools-help-copy{display:none;margin:5px 0 0;font-size:10.5px;line-height:1.45}
+  .story-tools-modal.story-tools-help-open .story-tools-home-head .story-tools-help-copy{display:block}
+  .story-tools-home-head .story-preview-meta{margin:6px 0 0;padding:6px 8px;border-radius:9px;font-size:9.5px;line-height:1.35}
+  .story-tools-home-head .story-tools-close{min-height:34px;padding:7px 10px;font-size:11px}
+
+  .story-tools-modal[data-story-tools-mode="home"] .story-tools-home{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+  .story-tools-modal[data-story-tools-mode="home"] .story-tools-card{padding:10px;border-radius:12px}
+  .story-tools-modal[data-story-tools-mode="home"] .story-tools-card:nth-child(2){grid-column:1/-1}
+  .story-tools-modal[data-story-tools-mode="home"] .story-tools-card h3{margin:0 0 7px;font-size:13px;line-height:1.35}
+  .story-tools-modal[data-story-tools-mode="home"] .story-tools-card>p{display:none;margin:0 0 8px;font-size:10px;line-height:1.45}
+  .story-tools-modal[data-story-tools-mode="home"].story-tools-help-open .story-tools-card>p{display:block}
+  .story-tools-modal[data-story-tools-mode="home"] .story-tools-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-top:0}
+  .story-tools-modal[data-story-tools-mode="home"] .story-tools-card button{min-height:38px;padding:7px 8px;font-size:10.5px}
+  .story-tools-modal[data-story-tools-mode="home"] .story-tools-card:not(:nth-child(2))>button{width:100%}
+
+  .story-tools-modal[data-story-tools-mode="library"] .story-tools-toolbar{align-items:center;margin-bottom:8px}
+  .story-tools-modal[data-story-tools-mode="library"] .story-tools-toolbar button{min-height:34px;padding:7px 10px;font-size:11px}
+  .story-tools-modal[data-story-tools-mode="library"] .story-tools-pill{padding:5px 8px;font-size:9.5px}
+  .story-tools-modal[data-story-tools-mode="library"] .story-library-shell{gap:9px}
+  .story-tools-modal[data-story-tools-mode="library"] .story-library-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:0 2px 2px}
+  .story-tools-modal[data-story-tools-mode="library"] .story-library-head .eyebrow{display:none}
+  .story-tools-modal[data-story-tools-mode="library"] .story-library-head h2{margin:0;font-size:20px}
+  .story-tools-modal[data-story-tools-mode="library"] .story-library-help-copy{display:none;margin:5px 0 0;font-size:10.5px;line-height:1.45}
+  .story-tools-modal[data-story-tools-mode="library"].story-library-help-open .story-library-help-copy{display:block}
+  .story-library-head-actions{margin:0;gap:6px}
+  .story-library-head-actions .story-tools-help{flex:0 0 auto}
+  .story-library-head-actions [data-story-library-import]{min-height:36px;padding:7px 9px;font-size:10.5px}
+  .story-tools-modal[data-story-tools-mode="library"] .story-library-controls{gap:7px;padding:9px;border-radius:11px}
+  .story-tools-modal[data-story-tools-mode="library"] .story-library-search{gap:4px;font-size:10px}
+  .story-tools-modal[data-story-tools-mode="library"] .story-library-search input{min-height:38px;padding:8px 9px;font-size:11px}
+  .story-tools-modal[data-story-tools-mode="library"] .story-library-pinned-filter{min-height:38px;padding:7px 9px;font-size:10.5px}
+  .story-tools-modal[data-story-tools-mode="library"] .story-library-result{font-size:10px}
+  .story-tools-modal[data-story-tools-mode="library"] .story-library-story{padding:11px;border-radius:14px}
+  .story-tools-modal[data-story-tools-mode="library"] .story-library-story>header{gap:8px}
+  .story-tools-modal[data-story-tools-mode="library"] .story-library-title{gap:6px}
+  .story-tools-modal[data-story-tools-mode="library"] .story-library-story>header h3{font-size:15px}
+  .story-tools-modal[data-story-tools-mode="library"] .story-library-story>header p{font-size:10.5px}
+  .story-tools-modal[data-story-tools-mode="library"] .story-library-preview{margin-top:8px;padding:8px 9px;font-size:10.5px;line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .story-tools-modal[data-story-tools-mode="library"] .story-library-chapters{margin-top:8px;gap:6px}
+  .story-tools-modal[data-story-tools-mode="library"] .story-library-chapter{padding:9px}
+  .story-tools-modal[data-story-tools-mode="library"] .story-library-chapter-copy small{font-size:9.5px}
+  .story-tools-modal[data-story-tools-mode="library"] .story-library-chapter-copy p{margin-top:5px;font-size:10px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+}
+@media(max-width:360px){
+  .story-tools-modal[data-story-tools-mode="home"] .story-tools-home{grid-template-columns:1fr}
+  .story-tools-modal[data-story-tools-mode="home"] .story-tools-card:nth-child(2){grid-column:auto}
+  .story-tools-modal[data-story-tools-mode="home"] .story-tools-actions{grid-template-columns:1fr}
+}
