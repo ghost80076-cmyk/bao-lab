@@ -40,7 +40,7 @@
           ready: false,
           mode: "hosted",
           label: "還沒選故事模型",
-          detail: "選一個目前帳號額度可使用的模型。",
+          detail: "選一個目前夜灣燈火可使用的模型。",
           action: "model"
         };
       }
@@ -56,7 +56,7 @@
       return {
         ready: true,
         mode: "hosted",
-        label: "帳號 AI 設定完成",
+        label: "夜灣燈火已準備",
         detail: model,
         action: null
       };
@@ -84,7 +84,7 @@
       return {
         ready: true,
         mode: "local",
-        label: "本地 AI 設定完成",
+        label: "本機模型已準備",
         detail: model,
         action: null
       };
@@ -120,7 +120,7 @@
     return {
       ready: true,
       mode: "byok",
-      label: "AI 設定完成",
+      label: "模型連線已準備",
       detail: model,
       action: null
     };
