@@ -85,6 +85,20 @@ assert.equal(BAOCharacterStatus.selectedContextCharacters().length, 2);
 BAOCharacterStatus.compactForPrompt("我繼續往前走", { maxCharacters: 2, consumeViewed: true });
 assert.deepEqual(BAOCharacterStatus.selectedContextCharacters(), []);
 
+GameState.current.location = "教室";
+GameState.upsertNPC({ name: "同學甲", role: "同學", location: "教室", presence: "present" });
+GameState.upsertNPC({ name: "同學乙", role: "班長", presence: "away" });
+assert.deepEqual(BAOCharacterStatus.sceneNPCs().map(npc => npc.name), ["同學甲"]);
+const scene = BAOCharacterStatus.setSceneParticipants(["同學乙"]);
+assert.deepEqual(scene, ["同學乙"]);
+assert.equal(GameState.current.npcs.find(npc => npc.name === "同學甲").presence, "away");
+assert.equal(GameState.current.npcs.find(npc => npc.name === "同學乙").presence, "present");
+assert.equal(GameState.current.npcs.find(npc => npc.name === "同學乙").location, "教室");
+const rosterIndex = BAOCharacterStatus.compactRosterIndex();
+assert.match(rosterIndex, /同學甲｜同學/);
+assert.match(rosterIndex, /同學乙｜班長/);
+assert.doesNotMatch(rosterIndex, /疲憊|緊張|羽毛筆|舊地圖/);
+
 BAOCharacterStatus.resetCustomization(character);
 assert.equal(BAOCharacterStatus.configFor(character).fields.some(field => field.key === "custom_alert"), false);
 assert.equal(GameState.current.characterStatuses[character.name].custom_alert, undefined);
