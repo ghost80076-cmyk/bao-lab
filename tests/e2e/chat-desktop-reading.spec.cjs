@@ -41,7 +41,7 @@ test('phone retains its existing compact text and viewport layout', async ({ pag
   });
   const font = await page.locator('#chat-view .message.assistant .bubble').evaluate(node => parseFloat(getComputedStyle(node).fontSize));
   expect(font).toBeLessThanOrEqual(16);
-  await expect(page.locator('#bao-mobile-tools-tab')).toBeVisible();
+  await expect(page.locator('#bao-mobile-composer-tools')).toBeVisible();
 });
 
 
@@ -82,6 +82,11 @@ test('wide desktop keeps story information in the right rail and restores the ga
   expect(desktopLayout.gameUiInRail).toBe(true);
   expect(desktopLayout.gameUiParent).toContain('bao-story-info-detail');
   expect(desktopLayout.expanded).toBe('true');
+
+  // Generic navigation cleanup must not collapse the persistent wide-desktop rail.
+  await page.evaluate(() => BAOChatExperience.closeStatus());
+  await expect(rail).toBeVisible();
+  await expect(page.locator('#bao-reading-status-toggle')).toHaveAttribute('aria-expanded', 'true');
 
   await rail.getByRole('button', { name: '關閉故事資訊' }).click();
   await expect(page.locator('#chat-view .chat-layout')).toHaveClass(/bao-status-collapsed/);
