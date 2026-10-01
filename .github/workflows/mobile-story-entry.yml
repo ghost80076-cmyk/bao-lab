@@ -12,6 +12,9 @@ permissions:
 jobs:
   story-entry:
     runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.63.0-noble
+      options: --user 1001
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
@@ -26,6 +29,5 @@ jobs:
             exit 1
           fi
       - run: npm ci
-      - run: npx playwright install --with-deps chromium
       - name: Verify phone and desktop start, resume, keys, scroll and event integrity
         run: npm run test:e2e -- tests/e2e/mobile-story-entry.spec.cjs tests/e2e/story-integrity.spec.cjs --project=chromium
