@@ -12,13 +12,59 @@
   let wasOpened = false;
   let returnFocus = null;
   let initializedGroups = false;
+  const desktopInfoRail = window.matchMedia('(min-width: 1430px)');
+
+  const ensureGameUIHome = () => {
+    const ui = $('game-ui');
+    if (!ui) return null;
+    let marker = $('bao-game-ui-home');
+    if (!marker) {
+      marker = document.createElement('span');
+      marker.id = 'bao-game-ui-home';
+      marker.hidden = true;
+      ui.before(marker);
+    }
+    return marker;
+  };
+
+  const syncToggleState = () => {
+    const rail = $('bao-reading-status');
+    const button = $('bao-reading-status-toggle');
+    if (!rail || !button) return;
+    const visible = desktopInfoRail.matches
+      ? !layout.classList.contains('bao-status-collapsed')
+      : rail.classList.contains('is-open');
+    button.setAttribute('aria-expanded', String(visible));
+  };
+
+  const syncInfoPlacement = rail => {
+    const ui = $('game-ui');
+    const marker = ensureGameUIHome();
+    if (!ui || !marker || !rail) return;
+    let detail = rail.querySelector('.bao-story-info-detail');
+    if (!detail) {
+      detail = document.createElement('section');
+      detail.className = 'bao-story-info-detail';
+      detail.setAttribute('aria-label', '故事詳細資訊');
+      const head = document.createElement('div');
+      head.className = 'bao-story-info-section-head';
+      head.innerHTML = '<strong>詳細資訊</strong><small>人物、狀態、事件、記憶與世界資料</small>';
+      detail.append(head);
+      rail.append(detail);
+    }
+    if (desktopInfoRail.matches) {
+      if (ui.parentElement !== detail) detail.append(ui);
+    } else if (ui.parentElement === detail) {
+      marker.after(ui);
+    }
+  };
 
   function closeStatus() {
     const rail = $('bao-reading-status');
     rail?.classList.remove('is-open');
     layout.classList.add('bao-status-collapsed');
     $('bao-reading-status-backdrop')?.classList.remove('is-visible');
-    $('bao-reading-status-toggle')?.setAttribute('aria-expanded', 'false');
+    syncToggleState();
     if (wasOpened && returnFocus?.isConnected) returnFocus.focus();
     wasOpened = false;
   }
@@ -30,7 +76,7 @@
     layout.classList.remove('bao-status-collapsed');
     rail.classList.add('is-open');
     $('bao-reading-status-backdrop')?.classList.add('is-visible');
-    $('bao-reading-status-toggle')?.setAttribute('aria-expanded', 'true');
+    syncToggleState();
     rail.querySelector('.bao-status-close')?.focus();
   }
   function ensureRail() {
@@ -39,23 +85,26 @@
       rail = document.createElement('aside');
       rail.id = 'bao-reading-status';
       rail.className = 'bao-status-rail';
-      rail.setAttribute('aria-label', '目前世界狀態');
+      rail.setAttribute('aria-label', '故事資訊');
       const heading = document.createElement('div');
       heading.className = 'bao-status-heading';
-      const title = document.createElement('h3'); title.textContent = '世界狀態';
+      const title = document.createElement('h3'); title.textContent = '故事資訊';
       const help = window.BAOFeatureHelp?.button?.('world_status');
       const close = document.createElement('button');
       close.type = 'button'; close.className = 'bao-status-close secondary';
-      close.textContent = '關閉'; close.setAttribute('aria-label', '關閉世界狀態');
+      close.textContent = '關閉'; close.setAttribute('aria-label', '關閉故事資訊');
       close.addEventListener('click', closeStatus);
       heading.append(title);
       if (help) heading.append(help);
       heading.append(close);
+      const sectionHead = document.createElement('div');
+      sectionHead.className = 'bao-story-info-section-head bao-story-info-current-head';
+      sectionHead.innerHTML = '<strong>現況</strong><small>時間、地點、在場人物與最近變化</small>';
       const host = document.createElement('div'); host.className = 'bao-rail-status-host';
       const info = document.createElement('p'); info.className = 'bao-status-empty note';
-      info.textContent = '目前沒有可顯示的世界狀態。';
+      info.textContent = '目前沒有可顯示的故事資訊。';
       host.append(info);
-      rail.append(heading, host);
+      rail.append(heading, sectionHead, host);
       layout.append(rail);
     }
     if (!$('bao-reading-status-backdrop')) {
@@ -67,7 +116,7 @@
     if (!$('bao-reading-status-toggle')) {
       const button = document.createElement('button');
       button.type = 'button'; button.id = 'bao-reading-status-toggle';
-      button.className = 'secondary'; button.textContent = '◈ 世界狀態';
+      button.className = 'secondary'; button.textContent = '◈ 故事資訊';
       button.setAttribute('aria-controls', 'bao-reading-status');
       button.setAttribute('aria-expanded', 'false');
       button.addEventListener('click', () => {
@@ -87,9 +136,11 @@
       if (window.BAOSceneHTML?.prefs?.status === 'hidden') {
         empty.hidden = false;
         empty.textContent = '你已在「顯示方式」中隱藏狀態欄。';
-      } else empty.textContent = '目前沒有可顯示的世界狀態。';
+      } else empty.textContent = '目前沒有可顯示的故事資訊。';
     }
     window.BAOChatToolNavigation?.compactBoard?.(rail);
+    syncInfoPlacement(rail);
+    syncToggleState();
     return rail;
   }
   function simplifyGroups() {
@@ -149,6 +200,7 @@
     scheduled = true;
     requestAnimationFrame(() => { scheduled = false; sync(); });
   }
+  desktopInfoRail.addEventListener?.('change', schedule);
   const observer = new MutationObserver(schedule);
   observer.observe(root, { childList: true, subtree: true });
   document.addEventListener('keydown', event => {
