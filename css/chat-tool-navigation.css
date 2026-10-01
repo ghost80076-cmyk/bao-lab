@@ -55,3 +55,19 @@
 #bao-chat-tool-drawer .bao-native-status-section[data-chat-section-ready]{padding:0;overflow:hidden}
 #bao-chat-tool-drawer .bao-chat-status-detail>summary{padding:10px;font-size:13px}
 #bao-chat-tool-drawer .bao-chat-status-detail-body{padding:0 8px 10px}
+@media(min-width:821px) and (max-width:1080px){
+  #chat-view.active #bao-chat-tool-shortcuts{
+    display:flex!important;
+    order:12;
+    gap:8px;
+    padding:9px 11px;
+    border-bottom:1px solid #ffffff22;
+    background:#121822;
+    flex-wrap:wrap
+  }
+  #chat-view.active #bao-chat-tool-shortcuts button{
+    flex:1 1 115px;
+    min-height:40px;
+    white-space:normal
+  }
+}
