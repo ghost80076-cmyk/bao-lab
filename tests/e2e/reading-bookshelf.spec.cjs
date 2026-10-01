@@ -50,12 +50,21 @@ for (const width of [320, 390, 900, 1280]) {
     await expect(page.locator('#chat-view .usage-bar')).toBeHidden();
     await expect(page.locator('#bao-immersive-toggle, #bao-immersive-exit')).toHaveCount(0);
     await page.locator('#bao-play-status-toggle').click();
-    await expect(page.locator('#game-ui')).toBeVisible();
     await expect(page.locator('#bao-play-status-toggle')).toHaveAttribute('aria-expanded', 'true');
-    await page.locator('.ui-tab[data-panel="status"]').click();
-    await expect(page.locator('#ui-panel .state-grid')).toBeVisible();
-    await page.locator('#bao-play-status-close').click();
-    await expect(page.locator('#game-ui')).toBeHidden();
+    if (width >= 1081) {
+      const reader = page.getByRole('dialog', { name: '故事資訊' });
+      await expect(reader).toBeVisible();
+      await expect(page.locator('#game-ui')).toBeHidden();
+      await expect(reader.getByRole('tab', { name: '現況' })).toHaveAttribute('aria-selected', 'true');
+      await reader.getByRole('button', { name: '關閉故事資訊' }).click();
+      await expect(reader).toHaveCount(0);
+    } else {
+      await expect(page.locator('#game-ui')).toBeVisible();
+      await page.locator('.ui-tab[data-panel="status"]').click();
+      await expect(page.locator('#ui-panel .state-grid')).toBeVisible();
+      await page.locator('#bao-play-status-close').click();
+      await expect(page.locator('#game-ui')).toBeHidden();
+    }
     await expect(page.locator('#bao-play-status-toggle')).toHaveAttribute('aria-expanded', 'false');
     if (width <= 820) {
       await page.locator('#bao-mobile-composer-tools').click();
