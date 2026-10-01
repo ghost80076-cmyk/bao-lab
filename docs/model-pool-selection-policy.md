@@ -546,3 +546,218 @@ rp-benchmark 已納入 4.7 的 willingness 資料，但那只能回答「哪些�
 - 每輪實際 Token / 成本
 
 這樣第三輪才會開始產生「夜灣自己的 RP 數據」，而不是永遠只抄外部社群。
+
+
+## 2026-10-01 第三輪：現有 Hosted 對照與缺口
+
+### 目前 main 的正式 Hosted 模型
+
+目前模型 registry 共有 9 個 Hosted 選項：
+
+| 類型 | 模型 | 目前路由 |
+| --- | --- | --- |
+| 超省長聊 | DeepSeek V4 Flash 0731 | OpenRouter |
+| 超省備選 | Qwen 3.7 Flash | OpenRouter |
+| 超省備選 | MiMo V2.5 | OpenRouter |
+| 日常主力 | Gemini 3 Flash | Google 官方 |
+| 長篇世界 | MiniMax M3 | OpenRouter |
+| 高品質 | Gemini 3.1 Pro | Google 官方 |
+| RP 高品質 | Claude Sonnet 4.5 | OpenRouter |
+| RP 高品質 | Claude Sonnet 4.6 | OpenRouter |
+| 豪華 | Claude Opus 4.6 | OpenRouter |
+
+另外 BYOK 已經有：
+
+- OpenRouter Free
+- Gemini 2.5 Flash 相容備選
+- Claude Opus 4.5
+- Z.AI / GLM 自訂 Model ID
+- OpenAI 官方自訂 Model ID
+- 自訂 OpenAI-compatible / Anthropic-compatible / Gemini-compatible
+
+### 和候選研究比對後的真正缺口
+
+目前不是「模型太少」，而是 **Claude 價格梯度中間少了兩格**。
+
+Claude 現在 Hosted 是：
+
+```
+Sonnet 4.5  →  Sonnet 4.6  →  Opus 4.6
+```
+
+但按照目前研究，比較合理的選擇帶應該是：
+
+```
+Haiku 4.5
+   ↓
+Sonnet 5
+   ↓
+Sonnet 4.5 / 4.6
+   ↓
+Opus 4.6
+```
+
+這樣玩家才是真的在選：
+
+- 想要 Claude 但預算低一些
+- 想試新版／價格甜蜜點
+- 想保留成熟舊版 RP 文風
+- 願意付高價追求 Opus
+
+### 第一批真正值得新增
+
+#### 1. Claude Sonnet 5 — 高優先
+
+**理由：**
+
+- 補上目前 Claude 模型池最明顯的價格／世代缺口。
+- 不需要移除 4.5 / 4.6。
+- 適合用「新版備選」定位，讓玩家自己比較。
+- 可沿用 OpenRouter Hosted 路由，不需要新增新的 AWS provider adapter。
+
+**建議標籤：**
+
+> Claude Sonnet 5 · 新版備選
+
+不要寫：
+
+> 最強 Claude / 取代 4.6 / 最佳 RP
+
+#### 2. Claude Haiku 4.5 — 中高優先
+
+**理由：**
+
+- 提供較低成本的 Claude 選擇。
+- 與目前「Claude 只有高價 Sonnet / Opus」形成清楚差異。
+- RP 表現與政策牆仍有疑慮，因此只作備選。
+
+**建議標籤：**
+
+> Claude Haiku 4.5 · 低成本 Claude
+
+不要標成：
+
+> 省錢主力 / RP 推薦
+
+### 暫時不需要新增 Hosted
+
+#### Gemini 3.8 Flash
+
+維持觀察／BYOK。
+
+原因：
+
+- 已知價格會調整。
+- 夜灣目前已有 Gemini 3 Flash + Gemini 3.1 Pro，敘事價位帶並沒有明顯缺口。
+- 上 3.8 目前只會增加選單複雜度。
+
+#### Gemini 3.1 Flash-Lite
+
+暫不急著 Hosted。
+
+原因：
+
+- 夜灣已有大量更便宜的 DeepSeek / Qwen / MiMo。
+- 如果玩家只是要「省」，現有低成本帶已經夠完整。
+- 未來可以考慮作「便宜 Gemini／輔助模型」的 BYOK preset，而不是主 Hosted。
+
+#### GPT-5.6 Luna
+
+先維持 BYOK / 自訂 OpenAI。
+
+原因：
+
+- 目前沒有足夠 RP 證據證明它能補足現有 Hosted 的缺口。
+- 單純「非中國、又便宜」還不足以成為 Hosted 理由。
+
+#### Grok 4.7
+
+維持觀察。
+
+原因：
+
+- 太新。
+- RP 口碑還不穩定。
+- 沒有必要為了品牌完整性硬上。
+
+#### MiMo 2.6
+
+先不取代 2.5。
+
+原因：
+
+- 2.5 已經有成熟使用資料。
+- 2.6 的 provider / instruction consistency 回報仍有波動。
+
+#### GLM 5.3 / 5.3 Flash
+
+先不做唯一 Hosted GLM。
+
+原因：
+
+- 夜灣已提供 Z.AI / GLM BYOK 自訂 Model ID。
+- 5.3 新版的 RP 回報分裂。
+- 如果未來真的要加入 Hosted，應該先比較 5.2 / 5.3 Flash，而不是直接把最新版當答案。
+
+### 現有 Hosted 需要「重新檢討」而不是立刻移除的模型
+
+#### Qwen 3.7 Flash
+
+目前仍有「超省」價值，但更適合被描述為：
+
+- 輔助摘要
+- 狀態整理
+- 低成本大量聊天
+
+不急著移除，但前端標籤可以避免讓玩家誤以為它是主要 RP 推薦。
+
+#### MiniMax M3
+
+先保留，不在這個 PR 移除。
+
+第三輪 A/B 時把它一起放進「是否還值得保留 Hosted」的檢查，而不是只檢查新模型。
+
+### 第一階段實作建議
+
+**只新增兩個 Hosted 候選：**
+
+1. Claude Sonnet 5
+2. Claude Haiku 4.5
+
+其他模型都先不動。
+
+這會把正式 Hosted 從 9 個增加到 11 個，但不是把所有新模型灌進選單。
+
+### 實作拆分
+
+下一個實作 PR 建議保持小範圍：
+
+#### PR B：Claude 選擇帶
+
+- 在 `data/presets/models.json` 加入 Haiku 4.5 / Sonnet 5
+- 補 Hosted label / tier / order
+- 更新 `tests/model-presets-core.cjs`
+- 不改其他模型
+
+#### PR C：Hosted 計費與 AWS allowlist
+
+在 PR B 驗證 UI / registry 沒問題後再做：
+
+- Worker `MODELS_JSON` 加入新型號與固定價格
+- AWS `OPENROUTER_MODELS` 加入 Model ID
+- 驗證 price guard / usage / billing
+- 再開給測試玩家
+
+### 結論
+
+目前沒有理由大改整個模型池。
+
+真正的缺口不是 GPT、Grok 或 Gemini 3.8，而是：
+
+> **Claude 目前只有中高價與豪華，缺少低價 Claude 與新版價格甜蜜點。**
+
+所以先補：
+
+> **Haiku 4.5 + Sonnet 5**
+
+其餘維持現狀，等夜灣自己的 A/B 數據再決定。
