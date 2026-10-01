@@ -7,10 +7,10 @@
 
   const field = name => form.elements.namedItem(name);
   const ensureStyles = () => {
-    if (document.querySelector('link[href="css/character-studio-flow.css"]')) return;
+    if (document.querySelector('link[href^="css/character-studio-flow.css"]')) return;
     const link = document.createElement("link");
     link.rel = "stylesheet";
-    link.href = "css/character-studio-flow.css";
+    link.href = "css/character-studio-flow.css?v=2";
     document.head.appendChild(link);
   };
 
@@ -134,9 +134,16 @@
   makeShell();
   form.addEventListener("input", update);
   form.addEventListener("change", update);
+  const editable = node => node instanceof Element && node.matches("input,textarea,select");
   form.addEventListener("focusin", event => {
     const id = detectStep(event.target);
     if (id) setActive(id);
+    if (editable(event.target)) editor.classList.add("studio-editing");
+  });
+  form.addEventListener("focusout", () => {
+    requestAnimationFrame(() => {
+      if (!editable(document.activeElement) || !form.contains(document.activeElement)) editor.classList.remove("studio-editing");
+    });
   });
 
   const status = document.getElementById("studio-status");
