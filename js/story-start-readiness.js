@@ -142,7 +142,7 @@
     if (workSmall) workSmall.textContent = state.work.ready ? `已選：${state.work.detail}` : state.work.detail;
     const aiSmall = ai.querySelector("small");
     if (aiSmall) {
-      const prefix = state.ai.mode === "hosted" ? "帳號額度 · " : state.ai.mode === "local" ? "LM Studio · " : "";
+      const prefix = state.ai.mode === "hosted" ? "夜灣燈火 · " : state.ai.mode === "local" ? "LM Studio · " : "";
       aiSmall.textContent = state.ai.ready ? `已完成：${state.ai.detail}` : `${prefix}${state.ai.label}`;
     }
     const startSmall = start.querySelector("small");
