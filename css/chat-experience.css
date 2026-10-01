@@ -18,10 +18,10 @@ body:has(#chat-view.active) .app-shell{width:min(1710px,calc(100% - 32px));max-w
 #chat-view #bao-scene-controls>strong,#chat-view #bao-scene-controls>small{display:none}
 #chat-view #bao-chat-tool-groups [data-chat-tool-body]>button,
 #chat-view #bao-chat-tool-groups [data-chat-tool-body]>a,
-#chat-view #bao-chat-quick-actions>button{background:#202633;color:#edf1f8;border:1px solid rgba(255,255,255,.15);border-radius:10px}
+#chat-view #bao-chat-quick-actions>button{background:var(--yoru-tool-raised,#1b191e);color:var(--story-text,#eeeae4);border:1px solid var(--story-border,rgba(241,232,218,.10));border-radius:10px}
 #chat-view #bao-chat-tool-groups [data-chat-tool-body]>button:hover,
-#chat-view #bao-chat-quick-actions>button:hover{background:#293242;border-color:rgba(93,214,192,.38)}
-#chat-view .bao-status-rail{min-width:0;min-height:250px;max-height:calc(100dvh - 110px);overflow:auto;overscroll-behavior:contain;align-self:start;position:relative;border:1px solid var(--story-border,rgba(255,255,255,.1));border-radius:15px;background:#10151e;color:var(--text);padding:13px;box-shadow:0 16px 38px #0005}
+#chat-view #bao-chat-quick-actions>button:hover{background:rgba(214,170,115,.07);border-color:rgba(214,170,115,.22)}
+#chat-view .bao-status-rail{min-width:0;min-height:250px;max-height:calc(100dvh - 110px);overflow:auto;overscroll-behavior:contain;align-self:start;position:relative;border:1px solid var(--story-border,rgba(255,255,255,.1));border-radius:15px;background:var(--yoru-tool,#101116);color:var(--text);padding:13px;box-shadow:0 16px 38px #0005}
 #chat-view .bao-status-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-bottom:9px;border-bottom:1px solid rgba(255,255,255,.1)}
 #chat-view .bao-status-heading h3{font-size:15px;margin:0}
 #chat-view .bao-status-close{width:auto;font-size:12px;padding:6px 9px}
@@ -47,7 +47,7 @@ body:has(#chat-view.active) .app-shell{width:min(1710px,calc(100% - 32px));max-w
  #chat-view .chat-layout{grid-template-columns:minmax(0,1fr)!important}
  #chat-view .chat-layout>aside:not(.bao-status-rail){display:none!important}
  #chat-view .chat-layout>.bao-status-rail{display:block!important}
- #chat-view #bao-chat-tool-shortcuts{display:flex!important;order:12;gap:8px;padding:9px 11px;border-bottom:1px solid #ffffff22;background:#121822;flex-wrap:wrap}
+ #chat-view #bao-chat-tool-shortcuts{display:flex!important;order:12;gap:8px;padding:9px 11px;border-bottom:1px solid var(--story-border,rgba(241,232,218,.10));background:var(--yoru-tool,#101116);flex-wrap:wrap}
  #chat-view #bao-chat-tool-shortcuts button{flex:1 1 115px;min-height:40px;white-space:normal}
  #chat-view .story-mobile-tools{display:none!important}
  #chat-view #bao-chat-api-toolbar{order:14}

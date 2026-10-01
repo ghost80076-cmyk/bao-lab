@@ -1,10 +1,10 @@
 :root{
-  --story-text:#eef1f6;
-  --story-muted:#a4abb8;
-  --story-surface:rgba(12,15,22,.88);
-  --story-surface-strong:rgba(9,12,18,.94);
-  --story-border:rgba(255,255,255,.09);
-  --story-shadow:0 18px 50px rgba(0,0,0,.28);
+  --story-text:var(--yoru-story-text,#eeeae4);
+  --story-muted:var(--yoru-story-muted,#aaa6ad);
+  --story-surface:var(--yoru-story-surface,rgba(20,19,22,.92));
+  --story-surface-strong:var(--yoru-story-surface-strong,rgba(14,14,17,.97));
+  --story-border:var(--yoru-story-border,rgba(241,232,218,.10));
+  --story-shadow:0 18px 50px rgba(0,0,0,.22);
 }
 
 #chat-view .chat-layout{
@@ -85,7 +85,9 @@
 #chat-view .chat-stream{
   min-height:520px;
   max-height:70vh;
-  background:linear-gradient(180deg,rgba(8,11,17,.96),rgba(11,14,21,.98));
+  background:
+    radial-gradient(circle at 50% 0,var(--yoru-reading-glow,rgba(214,170,115,.035)),transparent 34%),
+    linear-gradient(180deg,var(--yoru-reading,#141316),#111115);
   scrollbar-gutter:stable;
 }
 
@@ -102,11 +104,18 @@
 
 #chat-view .message.assistant .bubble:not(.authored-rich-message){
   color:var(--story-text)!important;
+  letter-spacing:.008em;
+}
+#chat-view .message.assistant .bubble:not(.authored-rich-message) p{
+  margin:0 0 1.05em;
+}
+#chat-view .message.assistant .bubble:not(.authored-rich-message) p:last-child{
+  margin-bottom:0;
 }
 
 #chat-view .message.user .bubble{
-  color:#f8f9fb;
-  background:rgba(38,44,58,.96);
+  color:var(--story-text);
+  background:var(--yoru-player-bubble,#29262b);
 }
 
 #chat-view .authored-rich-message{
@@ -169,7 +178,7 @@
 .story-inspiration-chip,
 .story-copy-chip{
   border:1px solid var(--story-border);
-  background:rgba(19,24,34,.9);
+  background:var(--yoru-tool-raised,#1b191e);
   color:var(--story-muted);
   border-radius:9px;
   padding:6px 9px;
@@ -182,8 +191,8 @@
 .story-inspiration-chip:hover,
 .story-copy-chip:hover{
   color:var(--story-text);
-  border-color:rgba(156,140,255,.45);
-  background:rgba(156,140,255,.1);
+  border-color:rgba(214,170,115,.24);
+  background:rgba(214,170,115,.08);
 }
 
 .story-message-tools button:disabled,
@@ -217,7 +226,7 @@
   margin-top:10px;
   padding:11px;
   border:1px solid var(--story-border);
-  background:rgba(11,15,22,.78);
+  background:rgba(18,17,20,.82);
   border-radius:12px;
   display:grid;
   gap:8px;
@@ -283,7 +292,7 @@
   display:flex;
   gap:9px;
   padding:13px;
-  background:rgba(10,13,19,.96);
+  background:var(--yoru-tool,#101116);
   border-top:1px solid var(--story-border);
 }
 
@@ -365,7 +374,7 @@
     -webkit-overflow-scrolling:touch;
     border-top:1px solid var(--story-border);
     border-bottom:1px solid var(--story-border);
-    background:rgba(9,12,18,.98);
+    background:var(--yoru-tool,#101116);
     box-shadow:0 -12px 28px rgba(0,0,0,.22);
   }
 
@@ -382,7 +391,7 @@
     border-radius:10px;
     padding:8px 11px;
     color:var(--story-text);
-    background:rgba(25,30,42,.96);
+    background:var(--yoru-tool-raised,#1b191e);
     cursor:pointer;
     font-size:13px;
   }
@@ -397,7 +406,9 @@
     min-height:58vh;
     max-height:none;
     padding:14px 10px;
-    background:linear-gradient(180deg,#0b0e15,#0d1018);
+    background:
+      radial-gradient(circle at 50% 0,var(--yoru-reading-glow,rgba(214,170,115,.035)),transparent 34%),
+      linear-gradient(180deg,var(--yoru-reading,#141316),#111115);
   }
 
   #chat-view .message .bubble{
@@ -407,7 +418,7 @@
 
   #chat-view .message.user .bubble{
     max-width:94%;
-    background:rgba(35,42,56,.82);
+    background:rgba(41,38,43,.90);
     backdrop-filter:blur(5px);
   }
 
@@ -420,7 +431,7 @@
     max-width:100%!important;
     margin:0!important;
     padding:14px 9px!important;
-    background:rgba(8,11,17,.32)!important;
+    background:rgba(18,17,20,.34)!important;
     border-radius:14px!important;
     box-shadow:none!important;
   }
@@ -431,11 +442,11 @@
   }
 
   .story-message-tools{
-    opacity:.92;
+    opacity:.76;
   }
 
   .story-inspiration-panel{
-    background:rgba(8,11,17,.8);
+    background:rgba(18,17,20,.86);
     backdrop-filter:blur(7px);
   }
 }
