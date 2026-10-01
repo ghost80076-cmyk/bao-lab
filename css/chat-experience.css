@@ -39,8 +39,8 @@ body:has(#chat-view.active) .app-shell{width:min(1710px,calc(100% - 32px));max-w
 #chat-view #bao-reading-status-backdrop{display:none}
 @media(min-width:1430px){
  #chat-view .chat-layout{grid-template-columns:210px minmax(0,1fr) minmax(300px,340px)!important}
- #chat-view .chat-layout.bao-status-collapsed{grid-template-columns:210px minmax(0,1fr)!important}
- #chat-view .chat-layout.bao-status-collapsed>.bao-status-rail{display:none}
+ #chat-view .chat-layout.bao-status-manual-collapsed{grid-template-columns:210px minmax(0,1fr)!important}
+ #chat-view .chat-layout.bao-status-manual-collapsed>.bao-status-rail{display:none}
  #chat-view .bao-status-rail{position:sticky;top:92px;padding:12px;max-height:calc(100dvh - 110px)}
  #chat-view .bao-status-heading{position:sticky;top:-12px;z-index:4;margin:-12px -12px 0;padding:12px 12px 9px;background:linear-gradient(180deg,var(--yoru-tool,#101116) 82%,rgba(16,17,22,.92));backdrop-filter:blur(10px)}
  #chat-view .bao-story-info-detail{display:block;margin-top:12px}
