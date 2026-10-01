@@ -19,6 +19,27 @@ for (const viewport of [{ name: 'desktop', width: 1440, height: 900 }, { name: '
     await openStory(page);
     await page.locator('[data-bao-open="appearance"]:visible').click();
     await expect(page.getByRole('heading', { name: '聊天外觀' })).toBeVisible();
+    const playerModal = page.getByRole('dialog', { name: '聊天外觀' });
+    await expect(playerModal).toBeVisible();
+    if (viewport.name === 'mobile') {
+      const help = playerModal.getByRole('button', { name: '設定說明' });
+      const backgroundCopy = playerModal.locator('.bao-setting-section').nth(1).locator(':scope > p');
+      await expect(help).toBeVisible();
+      await expect(backgroundCopy).toBeHidden();
+      const mobileLayout = await playerModal.evaluate(node => {
+        const grid = node.querySelector('.bao-choice-grid');
+        const footer = node.querySelector('.bao-modal-footer');
+        return {
+          columns: getComputedStyle(grid).gridTemplateColumns.trim().split(/\s+/).length,
+          footerPosition: getComputedStyle(footer).position
+        };
+      });
+      expect(mobileLayout).toEqual({ columns: 3, footerPosition: 'sticky' });
+      await help.click();
+      await expect(backgroundCopy).toBeVisible();
+      await help.click();
+      await expect(backgroundCopy).toBeHidden();
+    }
     await expect(page.locator('[data-bg-mode="character"]')).toHaveClass(/active/);
     await expect(page.locator('#bao-bg-opacity')).toHaveValue('34');
     await expect(page.locator('#bao-bg-blur')).toHaveValue('6');
@@ -64,3 +85,34 @@ for (const viewport of [{ name: 'desktop', width: 1440, height: 900 }, { name: '
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   });
 }
+
+
+test('mobile: reply settings keeps choices ahead of explanatory copy', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await openStory(page);
+  await page.locator('[data-bao-open="reply"]:visible').click();
+
+  const modal = page.getByRole('dialog', { name: '回覆設定' });
+  await expect(modal).toBeVisible();
+  const help = modal.getByRole('button', { name: '設定說明' });
+  await expect(help).toBeVisible();
+  await expect(modal.locator('.bao-setting-section').first().locator(':scope > p')).toBeHidden();
+
+  const layout = await modal.evaluate(node => {
+    const grids = [...node.querySelectorAll('.bao-choice-grid')];
+    return {
+      firstColumns: getComputedStyle(grids[0]).gridTemplateColumns.trim().split(/\s+/).length,
+      secondColumns: getComputedStyle(grids[1]).gridTemplateColumns.trim().split(/\s+/).length,
+      bodyPadding: getComputedStyle(node.querySelector('.bao-modal-body')).paddingTop
+    };
+  });
+  expect(layout.firstColumns).toBe(3);
+  expect(layout.secondColumns).toBe(2);
+  expect(parseFloat(layout.bodyPadding)).toBeLessThanOrEqual(12);
+
+  await help.click();
+  await expect(modal.locator('.bao-setting-section').first().locator(':scope > p')).toBeVisible();
+  await modal.locator('[data-setting="replyLength"][data-value="short"]').click();
+  await modal.locator('.bao-modal-save').click();
+  expect((await page.evaluate(() => BAOPlayerSettings.get())).replyLength).toBe('short');
+});
