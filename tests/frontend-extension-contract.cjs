@@ -6,6 +6,7 @@ const root = path.join(__dirname, "..");
 const read = file => fs.readFileSync(path.join(root, file), "utf8");
 const index = read("index.html");
 const siteUI = read("js/site-ui.js");
+const appSource = read("js/app.js");
 const bridge = read("js/global-bridge.js");
 const helper = read("js/helper-api-routing.js");
 const repairs = read("js/state-tracker-repairs.js");
@@ -113,10 +114,12 @@ assert.match(sameModelStateMerge, /API\.wrapSend\('same-model-state-merge:main-s
 assert.match(sameModelStateMerge, /const result = await next\(effective, prepared, \.\.\.rest\)/);
 assert.match(sameModelStateMerge, /window\.BAOSameModelStateMerge\s*=\s*\{/);
 
+assert.match(appSource, /wrapSendMessage\(id, wrapper\)/);
 assert.match(streamingUI, /API\.__streamingUIPatched/);
 assert.match(streamingUI, /API\.__streamingUIPatched\s*=\s*true/);
 assert.match(streamingUI, /API\.wrapSend\("streaming-ui:main-story", streamingWrapper\)/);
 assert.match(streamingUI, /return await next\(\{ \.\.\.config, stream: true, onDelta \}, messages, \.\.\.rest\)/);
+assert.match(streamingUI, /App\.wrapSendMessage\("streaming-ui:committed-paint", committedPaintWrapper\)/);
 
 assert.match(creditsPilot, /window\.BAOCreditsPilot/);
 assert.match(creditsPilot, /API\.wrapSend\("credits-pilot:hosted-transport", hostedCreditsWrapper\)/);
