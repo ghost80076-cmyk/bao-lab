@@ -246,6 +246,10 @@ jobs:
         run: |
           node --check js/story-tools.js
           node tests/story-tools-shell-wrapper-core.cjs
+      - name: Story control shell wrapper
+        run: |
+          node --check js/story-control-center.js
+          node tests/story-control-shell-wrapper-core.cjs
       - name: Chat API send gate
         run: |
           node --check js/chat-api-settings.js
