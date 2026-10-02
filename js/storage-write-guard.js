@@ -1,7 +1,7 @@
 /* Verify that a story save reached durable browser storage before reporting success. */
 (() => {
   'use strict';
-  if (!window.App || !window.Storage || window.BAOStorageWriteGuard) return;
+  if (window.BAOStorageWriteGuard || typeof App === 'undefined' || typeof Storage === 'undefined') return;
   const originalSave = App.saveStory;
   let generation = 0;
   const warningId = 'bao-storage-write-warning';

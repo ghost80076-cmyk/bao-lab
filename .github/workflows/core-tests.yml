@@ -47,6 +47,10 @@ jobs:
         run: node tests/story-revision-state-core.cjs
       - name: IndexedDB storage migration
         run: node tests/storage-indexeddb-core.cjs
+      - name: Storage write guard load order
+        run: |
+          node --check js/storage-write-guard.js
+          node tests/storage-write-guard-load-order.cjs
       - name: Story library core
         run: node tests/story-library-core.cjs
       - name: Long story 3000-round stress
