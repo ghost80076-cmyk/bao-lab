@@ -5931,6 +5931,9 @@ const {
   claimAuthorIdentity,
 } = WorkerAuthorOwnership;
 
+// Authenticated author-account route boundary. It owns `/me/authors` request
+// dispatch while ownership rules remain in WorkerAuthorOwnership.
+const WorkerAccountAuthorRoutes = (() => {
 async function accountAuthorRoute(
   request,
   url,
@@ -6131,6 +6134,15 @@ async function accountAuthorRoute(
     404
   );
 }
+
+  return Object.freeze({
+    accountAuthorRoute,
+  });
+})();
+
+const {
+  accountAuthorRoute,
+} = WorkerAccountAuthorRoutes;
 
 function githubSettings(
   env

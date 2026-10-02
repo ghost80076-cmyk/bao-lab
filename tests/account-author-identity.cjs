@@ -12,6 +12,11 @@ assert.match(
   /const WorkerAuthorOwnership = \(\(\) => \{/,
   "author identity persistence and claim helpers must stay grouped behind WorkerAuthorOwnership"
 );
+assert.match(
+  workerSource,
+  /const WorkerAccountAuthorRoutes = \(\(\) => \{/,
+  "authenticated author endpoints must stay behind WorkerAccountAuthorRoutes"
+);
 for (const helper of [
   "prepareAuthorIdentityClaim",
   "ensureAuthorOwnerships",
@@ -27,13 +32,17 @@ const instrumented =
     /export\s+default\s+\{/,
     "const __workerDefault = {"
   ) +
-  "\nreturn { prepareAuthorIdentityClaim, claimAuthorIdentity, ownedAuthorIdentities };";
+  "\nreturn { WorkerAccountAuthorRoutes, accountAuthorRoute, prepareAuthorIdentityClaim, claimAuthorIdentity, ownedAuthorIdentities };";
 
 const {
+  WorkerAccountAuthorRoutes,
+  accountAuthorRoute,
   prepareAuthorIdentityClaim,
   claimAuthorIdentity,
   ownedAuthorIdentities,
 } = new Function(instrumented)();
+
+assert.equal(WorkerAccountAuthorRoutes.accountAuthorRoute, accountAuthorRoute);
 
 assert.deepEqual(
   prepareAuthorIdentityClaim({ author_id: "Night-Writer" }),
@@ -137,6 +146,22 @@ function githubResponse(authors) {
 }
 
 (async () => {
+  let unauthorizedDbCalls = 0;
+  const unauthorized = await accountAuthorRoute(
+    new Request("https://api.example.test/me/authors"),
+    new URL("https://api.example.test/me/authors"),
+    {},
+    {
+      prepare() {
+        unauthorizedDbCalls += 1;
+        throw new Error("unauthenticated author routes must stop before the database");
+      },
+    }
+  );
+  assert.equal(unauthorized.status, 401);
+  assert.deepEqual(await unauthorized.json(), { error: "unauthorized" });
+  assert.equal(unauthorizedDbCalls, 0);
+
   const originalFetch = globalThis.fetch;
   const env = {
     GITHUB_TOKEN: "token",
