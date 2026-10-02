@@ -12,6 +12,11 @@ assert.match(
   /const WorkerPublicationFormat = \(\(\) => \{/,
   "publication validation and shaping helpers must stay grouped behind WorkerPublicationFormat"
 );
+assert.match(
+  workerSource,
+  /const WorkerGithubPublicationTransport = \(\(\) => \{/,
+  "GitHub publication transport must stay grouped behind WorkerGithubPublicationTransport"
+);
 for (const helper of [
   "publishError",
   "plainObject",
@@ -31,14 +36,25 @@ const instrumented =
     /export\s+default\s+\{/,
     "const __workerDefault = {"
   ) +
-  "\nreturn { prepareCharacterPublication, mergePublishedCatalogEntry, mergeAuthorProfile, githubSettings };";
+  "\nreturn { WorkerGithubPublicationTransport, prepareCharacterPublication, mergePublishedCatalogEntry, mergeAuthorProfile, githubSettings };";
 
 const {
+  WorkerGithubPublicationTransport,
   prepareCharacterPublication,
   mergePublishedCatalogEntry,
   mergeAuthorProfile,
   githubSettings,
 } = new Function(instrumented)();
+
+assert.equal(WorkerGithubPublicationTransport.githubSettings, githubSettings);
+assert.equal(
+  typeof WorkerGithubPublicationTransport.githubApi,
+  "function"
+);
+assert.equal(
+  typeof WorkerGithubPublicationTransport.createCharacterPublicationPr,
+  "function"
+);
 
 const onePixelPng =
   "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAusB9Y9ZQmcAAAAASUVORK5CYII=";

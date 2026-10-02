@@ -7,17 +7,29 @@ const workerSource = fs.readFileSync(
   "utf8"
 );
 
+assert.match(
+  workerSource,
+  /const WorkerAuthorProfilePublication = \(\(\) => \{/,
+  "author profile PR writes must stay behind WorkerAuthorProfilePublication"
+);
+
 const instrumented =
   workerSource.replace(
     /export\s+default\s+\{/,
     "const __workerDefault = {"
   ) +
-  "\nreturn { prepareAuthorProfileUpdate, createAuthorProfilePr };";
+  "\nreturn { WorkerAuthorProfilePublication, prepareAuthorProfileUpdate, createAuthorProfilePr };";
 
 const {
+  WorkerAuthorProfilePublication,
   prepareAuthorProfileUpdate,
   createAuthorProfilePr,
 } = new Function(instrumented)();
+
+assert.equal(
+  WorkerAuthorProfilePublication.createAuthorProfilePr,
+  createAuthorProfilePr
+);
 
 const env = {
   GITHUB_TOKEN: "token",
