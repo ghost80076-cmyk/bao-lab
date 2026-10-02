@@ -133,6 +133,11 @@ jobs:
           node --check js/world-modules.js
           node --check js/story-tools.js
           node tests/frontend-idempotency-core.cjs
+      - name: Prompt pipeline idempotency
+        run: |
+          node --check js/prompt-cache.js
+          node --check js/prompt-orchestrator.js
+          node tests/prompt-pipeline-idempotency.cjs
       - name: YoruBay admin player list
         run: node tests/admin-player-list-core.cjs
       - name: YoruBay admin account status
