@@ -11961,6 +11961,9 @@ const {
   costUsdChatRoute,
 } = WorkerCostChatSettlement;
 
+// The outer chat route owns only authentication, body parsing and billing-mode
+// dispatch. Reservation and settlement remain in their dedicated boundaries.
+const WorkerChatDispatch = (() => {
 async function chatRoute(
   request,
   env,
@@ -12008,6 +12011,15 @@ async function chatRoute(
         body
       );
 }
+
+  return Object.freeze({
+    chatRoute,
+  });
+})();
+
+const {
+  chatRoute,
+} = WorkerChatDispatch;
 
 export default {
   async fetch(
