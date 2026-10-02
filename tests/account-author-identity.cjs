@@ -7,6 +7,21 @@ const workerSource = fs.readFileSync(
   "utf8"
 );
 
+assert.match(
+  workerSource,
+  /const WorkerAuthorOwnership = \(\(\) => \{/,
+  "author identity persistence and claim helpers must stay grouped behind WorkerAuthorOwnership"
+);
+for (const helper of [
+  "prepareAuthorIdentityClaim",
+  "ensureAuthorOwnerships",
+  "ownedAuthorIdentities",
+  "publicAuthorIdExists",
+  "claimAuthorIdentity",
+]) {
+  assert.match(workerSource, new RegExp("\\b" + helper + "\\b"), "WorkerAuthorOwnership is missing " + helper);
+}
+
 const instrumented =
   workerSource.replace(
     /export\s+default\s+\{/,
