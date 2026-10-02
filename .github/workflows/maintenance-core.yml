@@ -83,6 +83,9 @@ jobs:
       - name: Model registry and rollout contract
         run: node tests/model-registry-contract.cjs
 
+      - name: Frontend extension-chain contract
+        run: node tests/frontend-extension-contract.cjs
+
       - name: Author regex compatibility
         run: |
           node tests/author-regex-core.test.js
