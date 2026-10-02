@@ -134,6 +134,8 @@ jobs:
         run: node tests/worker-session-security-contract.cjs
       - name: Worker session auth behavior
         run: node tests/worker-session-auth-core.cjs
+      - name: Worker account auth behavior
+        run: node tests/worker-account-auth-core.cjs
       - name: Frontend extension idempotency
         run: |
           node --check js/world-modules.js
