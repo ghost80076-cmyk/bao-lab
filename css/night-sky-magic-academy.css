@@ -17,23 +17,3 @@
 .bao-opening-nightacademy{border-color:rgba(219,187,113,.25);background:radial-gradient(circle at 86% 8%,rgba(67,88,151,.22),transparent 34%),linear-gradient(145deg,rgba(12,18,35,.98),rgba(24,30,54,.95))}.bao-opening-nightacademy .bao-opening-label{color:#ddc177}.bao-opening-nightacademy .bao-opening-post-character{border-left-color:#d6b96f;background:rgba(78,93,153,.08)}.bao-opening-nightacademy .bao-opening-choice{border-color:rgba(218,187,113,.22)}.bao-opening-nightacademy .bao-opening-choice:hover{border-color:rgba(233,207,139,.48);background:rgba(70,82,134,.16)}.bao-opening-nightacademy .bao-opening-choice span{color:#e5c879}
 @media(max-width:900px){.magic-house-grid,.magic-feature-grid{grid-template-columns:1fr 1fr}.magic-status-shell{grid-template-columns:1fr}.magic-status-card.mystery{grid-column:auto}}
 @media(max-width:620px){.magic-hero{min-height:650px}.magic-hero-art:after{background:linear-gradient(0deg,rgba(5,10,24,.98) 0%,rgba(5,10,24,.28) 62%,transparent 100%)}.magic-hero-copy{margin-left:0;padding:310px 20px 24px;min-height:650px}.magic-hero h1{font-size:38px}.magic-house-grid,.magic-feature-grid,.magic-academy-turn-choices{grid-template-columns:1fr}.magic-status-grid{grid-template-columns:1fr 1fr}.magic-skill-grid{grid-template-columns:1fr 1fr}}
-
-
-/* Turn choices stay optional on small screens: collapse the full list to one compact launcher. */
-.magic-academy-turn-choices{grid-template-columns:minmax(0,1fr)}
-.magic-academy-turn-choices[hidden],.magic-academy-turn-choices-toggle[hidden]{display:none!important}
-.magic-academy-turn-choices-head{display:flex;align-items:center;justify-content:space-between;gap:10px;min-width:0;padding:0 2px 2px}
-.magic-academy-turn-choices-head>div{display:flex;align-items:baseline;gap:8px;min-width:0;flex-wrap:wrap}
-.magic-academy-turn-choices-head strong{font-size:12px;color:#e6ca82}
-.magic-academy-turn-choices-head>div>span{font-size:10px;color:#aeb5c9}
-.magic-academy-turn-choice-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;min-width:0}
-.magic-academy-turn-choices .magic-academy-turn-choices-close{display:grid;place-items:center;flex:0 0 34px;width:34px;height:34px;min-height:34px;padding:0;border-radius:10px;background:rgba(255,255,255,.035);color:#c8c6c0;font-size:18px;line-height:1}
-.magic-academy-turn-choices .magic-academy-turn-choices-close:hover{background:rgba(214,170,115,.08);color:#f1e8da}
-.magic-academy-turn-choices-toggle{justify-self:end;width:max-content;max-width:100%;min-height:38px;margin:4px 0 8px auto;padding:7px 11px;border:1px solid rgba(211,184,116,.22);border-radius:11px;background:rgba(26,34,61,.76);color:#e6ca82;font:inherit;font-size:12px;font-weight:750;cursor:pointer}
-.magic-academy-turn-choices-toggle:hover,.magic-academy-turn-choices-toggle:focus-visible{border-color:rgba(231,202,130,.5);background:rgba(52,63,105,.58)}
-@media(max-width:620px){
-  .magic-academy-turn-choice-list{grid-template-columns:1fr}
-  .magic-academy-turn-choices{padding:8px 0 2px}
-  .magic-academy-turn-choices-head{padding-inline:2px}
-  .magic-academy-turn-choices-toggle{min-height:36px;margin-top:2px}
-}
