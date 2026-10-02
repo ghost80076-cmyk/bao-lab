@@ -88,7 +88,7 @@ test('Host Club Simulator renders generated cast, setup and economy UI', async (
     Chat.add('assistant', '今晚的初回輪桌告一段落。\n\nA. 再點 REN 坐十分鐘。\nB. 先結帳回家。\nC. 問內勤 HARU 明天有沒有班。\nD. 自由輸入');
     window.BAOHostSimUI.mountTurnChoices();
   });
-  await expect(page.locator('#hostsim-turn-choices button')).toHaveCount(4);
+  await expect(page.locator('#hostsim-turn-choices [data-hostsim-choice]')).toHaveCount(4);
   await page.locator('#hostsim-turn-choices button[data-hostsim-choice="A"]').click();
   await expect(page.locator('#user-input')).toHaveValue('再點 REN 坐十分鐘。');
 });

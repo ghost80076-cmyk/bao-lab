@@ -73,7 +73,7 @@ test('K-idol survival simulator renders setup, generated show state and action c
     Chat.add('assistant','紅燈亮起，練習室突然安靜。\n\n1. 留下來把副歌再跳五遍。\n2. 去找隊友確認走位。\n3. 先去補水休息。\n4. 問導師剛才最明顯的問題。\n5. 自由行動');
     window.BAOIdolSurvival.mountChoices();
   });
-  await expect(page.locator('#idol-survival-turn-choices button')).toHaveCount(5);
+  await expect(page.locator('#idol-survival-turn-choices [data-idol-choice]')).toHaveCount(5);
   await page.locator('#idol-survival-turn-choices button[data-idol-choice="1"]').click();
   await expect(page.locator('#user-input')).toHaveValue('留下來把副歌再跳五遍。');
 });

@@ -89,29 +89,23 @@
   };
 
   const mountTurnChoices = () => {
-    document.getElementById('hostsim-turn-choices')?.remove();
-    if (!isHostSim() || !document.getElementById('chat-view')?.classList.contains('active')) return;
+    const owner = 'host-club-simulator';
+    const dock = window.BAOActionChoiceDock;
+    dock?.clear(owner);
+    if (!dock || !isHostSim() || !document.getElementById('chat-view')?.classList.contains('active')) return;
     const last = [...(Chat.messages || [])].reverse().find(message => message?.role === 'assistant' && !message?.greeting);
     const choices = parseChoices(last?.content || '');
     if (choices.filter(item => item.key !== 'D').length < 2) return;
-    const composer = document.querySelector('#chat-view .composer');
-    if (!composer) return;
-    const wrap = document.createElement('div');
-    wrap.id = 'hostsim-turn-choices';
-    wrap.className = 'hostsim-turn-choices';
-    wrap.innerHTML = choices.map(item => `<button type="button" data-hostsim-choice="${esc(item.key)}"><span>${esc(item.key)}</span>${esc(item.text)}</button>`).join('');
-    wrap.addEventListener('click', event => {
-      const button = event.target.closest?.('[data-hostsim-choice]');
-      if (!button) return;
-      const input = document.getElementById('user-input');
-      if (!input) return;
-      const item = choices.find(choice => choice.key === button.dataset.hostsimChoice);
-      if (!item) return;
-      input.value = item.key === 'D' ? '' : item.text;
-      input.focus();
-      input.setSelectionRange?.(input.value.length,input.value.length);
+    dock.mount({
+      owner,
+      id: 'hostsim-turn-choices',
+      toggleId: 'hostsim-turn-choices-toggle',
+      className: 'hostsim-turn-choices',
+      choiceAttribute: 'data-hostsim-choice',
+      messageKey: last?.id || last?.content || '',
+      choices,
+      freeKeys: ['D']
     });
-    composer.before(wrap);
   };
 
   const mountOpeningCast = () => {
@@ -198,7 +192,10 @@
   const originalOpenBuilder = App.openBuilder.bind(App);
   App.openBuilder = function() {
     originalOpenBuilder();
-    if (this.activeCharacter?.id !== CARD_ID) return;
+    if (this.activeCharacter?.id !== CARD_ID) {
+      window.BAOActionChoiceDock?.reset('host-club-simulator');
+      return;
+    }
     const panel = document.querySelector('.builder-step[data-step-panel="3"]');
     if (!panel || panel.querySelector('#hostsim-player-setup')) return;
     const box = document.createElement('section');
@@ -322,6 +319,7 @@
 
   const originalSendMessage = App.sendMessage.bind(App);
   App.sendMessage = async function(...args) {
+    if (isHostSim()) window.BAOActionChoiceDock?.clear('host-club-simulator');
     const result = await originalSendMessage(...args);
     if (isHostSim()) setTimeout(mountTurnChoices,0);
     return result;

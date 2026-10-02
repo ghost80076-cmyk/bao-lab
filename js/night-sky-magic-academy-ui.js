@@ -30,28 +30,23 @@
     return ['1','2','3','4','5'].map(key=>({key,text:map.get(key)||''})).filter(x=>x.text);
   };
   const mountChoices=()=>{
-    document.getElementById('magic-academy-turn-choices')?.remove();
-    if(!isMagic()||!document.getElementById('chat-view')?.classList.contains('active')) return;
+    const owner='night-sky-magic-academy';
+    const dock=window.BAOActionChoiceDock;
+    dock?.clear(owner);
+    if(!dock||!isMagic()||!document.getElementById('chat-view')?.classList.contains('active')) return;
     const last=[...(Chat.messages||[])].reverse().find(m=>m?.role==='assistant'&&!m?.greeting);
     const choices=parseChoices(last?.content||'');
     if(choices.filter(x=>x.key!=='5').length<2) return;
-    const composer=document.querySelector('#chat-view .composer');
-    if(!composer) return;
-    const wrap=document.createElement('div');
-    wrap.id='magic-academy-turn-choices';
-    wrap.className='magic-academy-turn-choices';
-    wrap.innerHTML=choices.map(x=>`<button type="button" data-magic-choice="${x.key}"><span>${x.key}</span>${esc(x.text)}</button>`).join('');
-    wrap.addEventListener('click',event=>{
-      const btn=event.target.closest?.('[data-magic-choice]');
-      if(!btn) return;
-      const input=document.getElementById('user-input');
-      const choice=choices.find(x=>x.key===btn.dataset.magicChoice);
-      if(!input||!choice) return;
-      input.value=choice.key==='5'?'':choice.text;
-      input.focus();
-      input.setSelectionRange?.(input.value.length,input.value.length);
+    dock.mount({
+      owner,
+      id:'magic-academy-turn-choices',
+      toggleId:'magic-academy-turn-choices-toggle',
+      className:'magic-academy-turn-choices',
+      choiceAttribute:'data-magic-choice',
+      messageKey:last?.id||last?.content||'',
+      choices,
+      freeKeys:['5']
     });
-    composer.before(wrap);
   };
 
   const originalRenderDetail=App.renderDetail.bind(App);
@@ -184,13 +179,21 @@
   // 狀態／魔法／主線面板已遷移到角色卡 gameplay.ui_schema，由通用 Gameplay UI Engine 渲染。
 
   const originalSendMessage=App.sendMessage.bind(App);
-  App.sendMessage=async function(...args){const result=await originalSendMessage(...args);if(isMagic())setTimeout(mountChoices,0);return result;};
+  App.sendMessage=async function(...args){
+    if(isMagic()) window.BAOActionChoiceDock?.clear('night-sky-magic-academy');
+    const result=await originalSendMessage(...args);
+    if(isMagic()) setTimeout(mountChoices,0);
+    return result;
+  };
 
   const originalRenderChatShell=App.renderChatShell.bind(App);
   App.renderChatShell=function(fresh=false){
     applyInitialState();
     originalRenderChatShell(fresh);
-    if(!isMagic()) return;
+    if(!isMagic()){
+      window.BAOActionChoiceDock?.reset('night-sky-magic-academy');
+      return;
+    }
     ensureInitialState();
     const card=document.getElementById('chat-character-card');
     if(card) card.innerHTML='<div class="magic-chat-badge"><span>NIGHT SKY MAGIC ACADEMY</span><b>第一學年</b></div>';

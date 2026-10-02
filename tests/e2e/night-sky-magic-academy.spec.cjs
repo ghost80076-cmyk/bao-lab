@@ -71,11 +71,42 @@ test('Night Sky Magic Academy renders enrollment, fixed mystery, status and choi
   expect(setup.privateSeed).toBe(setup.config.mysterySeed);
   expect(setup.privateSeed.length).toBeGreaterThan(8);
 
+  // The reported regression is on phones. Switch this interaction check to a
+  // phone viewport and close the optional status panel so the choice dock is
+  // exercised in the same reading layout players use.
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.evaluate(() => window.BAOMobileReadingLayout?.closePanels?.());
+  await expect(page.locator('#game-ui')).toBeHidden();
+
   await page.evaluate(()=>{
     Chat.add('assistant','鐘聲落下，走廊重新安靜。\n\n1. 去圖書館找舊校誌。\n2. 先回宿舍認識室友。\n3. 到星象台看看。\n4. 留在大廳觀察高年級生。\n5. 自由行動');
     window.BAONightSkyAcademy.mountChoices();
   });
-  await expect(page.locator('#magic-academy-turn-choices button')).toHaveCount(5);
-  await page.locator('#magic-academy-turn-choices button[data-magic-choice="1"]').click();
+  const choices = page.locator('#magic-academy-turn-choices [data-magic-choice]');
+  const panel = page.locator('#magic-academy-turn-choices');
+  const toggle = page.locator('#magic-academy-turn-choices-toggle');
+  await expect(choices).toHaveCount(5);
+  await expect(panel).toBeVisible();
+  await expect(toggle).toBeHidden();
+
+  await panel.locator('.bao-turn-choice-close').click();
+  await expect(panel).toBeHidden();
+  await expect(toggle).toBeVisible();
+  await expect(toggle).toHaveAttribute('aria-expanded','false');
+
+  await toggle.click();
+  await expect(panel).toBeVisible();
+  await expect(toggle).toBeHidden();
+
+  await page.locator('#magic-academy-turn-choices [data-magic-choice="1"]').click();
   await expect(page.locator('#user-input')).toHaveValue('去圖書館找舊校誌。');
+  await expect(panel).toBeHidden();
+  await expect(toggle).toBeVisible();
+
+  await page.evaluate(()=>{
+    Chat.add('assistant','新的鐘聲響起。\n\n1. 前往溫室。\n2. 去餐廳找同學。\n3. 回宿舍整理筆記。\n4. 留在原地觀察。\n5. 自由行動');
+    window.BAONightSkyAcademy.mountChoices();
+  });
+  await expect(page.locator('#magic-academy-turn-choices')).toBeVisible();
+  await expect(page.locator('#magic-academy-turn-choices-toggle')).toBeHidden();
 });
