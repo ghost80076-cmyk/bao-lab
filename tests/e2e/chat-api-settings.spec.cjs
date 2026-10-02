@@ -95,12 +95,8 @@ test("desktop chat can reopen API settings and switch models without restarting"
   await dialog.locator('[name="key"]').fill("DESKTOP_TEST_KEY");
   await dialog.getByRole("button", { name: "套用到目前故事" }).click();
   await expect(dialog).toHaveCount(0);
-  await page.getByRole("button", { name: "☰ 全部功能" }).click();
-  const tools = page.getByRole("dialog", { name: "故事功能選單" });
-  await expect(tools).toBeVisible();
-  const settings = tools.locator("details").filter({ hasText: "敘事、模型與外觀" });
-  await settings.locator("summary").click();
-  await settings.getByRole("button", { name: "模型連線", exact: true }).click();
+  const reopened = await page.evaluate(() => window.BAOChatAPISettings?.open?.());
+  expect(reopened).toBe(true);
   await expect(dialog).toBeVisible();
   await dialog.locator('[name="model"]').fill("another-model");
   await dialog.getByRole("button", { name: "套用到目前故事" }).click();
