@@ -3983,6 +3983,134 @@ function prepareCharacterPublication(
         80
       );
 
+  const authorId =
+    String(
+      body.author_id ||
+      meta.creator_id ||
+      ""
+    )
+      .trim()
+      .toLowerCase()
+      .slice(
+        0,
+        64
+      );
+
+  if (
+    authorId &&
+    !/^[a-z0-9][a-z0-9_-]{1,63}$/.test(
+      authorId
+    )
+  ) {
+    throw publishError(
+      "invalid_author_id"
+    );
+  }
+
+  const authorBio =
+    String(
+      body.author_bio ||
+      ""
+    )
+      .trim()
+      .slice(
+        0,
+        1200
+      );
+
+  const authorSupportLabel =
+    String(
+      body.author_support_label ||
+      "支持作者"
+    )
+      .trim()
+      .slice(
+        0,
+        40
+      ) ||
+    "支持作者";
+
+  const authorSupportUrl =
+    String(
+      body.author_support_url ||
+      ""
+    )
+      .trim()
+      .slice(
+        0,
+        600
+      );
+
+  if (
+    authorSupportUrl &&
+    !authorId
+  ) {
+    throw publishError(
+      "author_id_required_for_support"
+    );
+  }
+
+  if (
+    authorSupportUrl
+  ) {
+    let parsedSupportUrl =
+      null;
+
+    try {
+      parsedSupportUrl =
+        new URL(
+          authorSupportUrl
+        );
+    }
+
+    catch {}
+
+    if (
+      !parsedSupportUrl ||
+      parsedSupportUrl.protocol !==
+        "https:" ||
+      parsedSupportUrl.username ||
+      parsedSupportUrl.password
+    ) {
+      throw publishError(
+        "invalid_author_support_url"
+      );
+    }
+  }
+
+  const authorProfile =
+    authorId
+      ? {
+          id:
+            authorId,
+
+          name:
+            author ||
+            authorId,
+
+          ...(authorBio
+            ? {
+                bio:
+                  authorBio,
+              }
+            : {}),
+
+          ...(authorSupportUrl
+            ? {
+                support_links: [
+                  {
+                    label:
+                      authorSupportLabel,
+
+                    url:
+                      authorSupportUrl,
+                  },
+                ],
+              }
+            : {}),
+        }
+      : null;
+
   const tags =
     cleanStringList(
       meta.tags ||
@@ -4293,6 +4421,11 @@ function prepareCharacterPublication(
         author ||
         cleanMeta.creator ||
         "",
+
+      creator_id:
+        authorId ||
+        cleanMeta.creator_id ||
+        "",
     },
 
     content: {
@@ -4399,6 +4532,13 @@ function prepareCharacterPublication(
       author;
   }
 
+  if (
+    authorId
+  ) {
+    catalogEntry.author_id =
+      authorId;
+  }
+
   return {
     id,
 
@@ -4411,6 +4551,11 @@ function prepareCharacterPublication(
       ),
 
     author,
+
+    authorId,
+
+    authorProfile,
+
     card:
       publishedCard,
     catalogEntry,
