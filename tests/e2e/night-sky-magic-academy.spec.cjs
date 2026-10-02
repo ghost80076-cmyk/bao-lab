@@ -91,7 +91,7 @@ test('Night Sky Magic Academy renders enrollment, fixed mystery, status and choi
   await expect(panel).toBeVisible();
   await expect(toggle).toBeHidden();
 
-  await choices.filter({has:page.locator('span', {hasText:'1'})}).first().click();
+  await page.locator('#magic-academy-turn-choices [data-magic-choice="1"]').click();
   await expect(page.locator('#user-input')).toHaveValue('去圖書館找舊校誌。');
   await expect(panel).toBeHidden();
   await expect(toggle).toBeVisible();
