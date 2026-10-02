@@ -1136,6 +1136,9 @@ const {
   validDisplayName,
 } = WorkerAccountValidation;
 
+// Runtime configuration boundary. Keep environment aliases, rollout allowlists
+// and account-mode decisions together so routes do not parse bindings directly.
+const WorkerRuntimeConfig = (() => {
 function getDb(
   env
 ) {
@@ -1324,6 +1327,29 @@ function sessionTtlDays(
     ? n
     : DEFAULT_SESSION_TTL_DAYS;
 }
+
+  return Object.freeze({
+    getDb,
+    globalBillingMode,
+    billingV2TestPlayers,
+    awsOpenRouterPlayers,
+    playerUsesAwsOpenRouter,
+    billingModeForPlayer,
+    registrationMode,
+    sessionTtlDays,
+  });
+})();
+
+const {
+  getDb,
+  globalBillingMode,
+  billingV2TestPlayers,
+  awsOpenRouterPlayers,
+  playerUsesAwsOpenRouter,
+  billingModeForPlayer,
+  registrationMode,
+  sessionTtlDays,
+} = WorkerRuntimeConfig;
 
 // Internal model registry / pricing boundary. Keep all pricing, model allowlist
 // and reservation math behavior stable while separating it from routes and providers.
