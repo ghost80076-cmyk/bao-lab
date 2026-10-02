@@ -2,11 +2,10 @@
   const init = () => {
     setTimeout(() => {
       if (!window.App || !window.WorldStateEngine || App.__worldStateHooked) return;
-      const originalSend = App.sendMessage.bind(App);
-      App.sendMessage = async function() {
+      const worldStateWrapper = async function(next) {
         const owner = GameState.current;
         const beforeCount = Chat.messages.length;
-        await originalSend();
+        await next();
         if (GameState.current !== owner || Chat.messages.length < beforeCount + 2) return;
         const player = Chat.messages[Chat.messages.length - 2];
         const assistant = Chat.messages[Chat.messages.length - 1];
@@ -29,6 +28,13 @@
         }
         this.saveStory(false);
       };
+      if (typeof App.wrapSendMessage === "function") {
+        App.wrapSendMessage("world-state-hook:after-turn", worldStateWrapper);
+      } else {
+        // Compatibility fallback for a mixed-cache page where world-state-hook is newer than app.js.
+        const originalSend = App.sendMessage.bind(App);
+        App.sendMessage = () => worldStateWrapper.call(App, originalSend);
+      }
       App.__worldStateHooked = true;
       // Modules are global lexical consts in the original classic scripts.
       // The optional repair scripts check window members: publish references
