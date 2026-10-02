@@ -80,6 +80,16 @@ jobs:
           node tests/story-branch-api-core.cjs
           node tests/story-helper-reconnect-core.cjs
 
+      - name: Author regex compatibility
+        run: |
+          node tests/author-regex-core.test.js
+          node tests/author-regex-layered.test.js
+
+      - name: Scene HTML provider payload guards
+        run: |
+          node tests/scene-html-provider-payload.cjs
+          node tests/scene-html-context-guard.cjs
+
       - name: Regex library and text MOD regressions
         run: |
           node --test tests/regex-library.test.cjs
