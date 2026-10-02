@@ -132,7 +132,8 @@ assert.match(requestLifecycle, /const originalSendMessage\s*=\s*App\.sendMessage
 
 assert.match(worldStateHook, /App\.__worldStateHooked/);
 assert.match(worldStateHook, /App\.__worldStateHooked\s*=\s*true/);
-assert.match(worldStateHook, /const originalSend\s*=\s*App\.sendMessage\.bind\(App\)/);
+assert.match(worldStateHook, /App\.wrapSendMessage\("world-state-hook:after-turn", worldStateWrapper\)/);
+assert.match(worldStateHook, /await next\(\)/);
 
 assert.match(chatAPISettings, /window\.BAOChatAPISettings/);
 assert.match(chatAPISettings, /App\.wrapSendMessage\("chat-api-settings:connection-gate", sendGateWrapper\)/);
