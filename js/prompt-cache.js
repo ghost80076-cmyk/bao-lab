@@ -97,7 +97,6 @@
   // WeakMap entries contain only sanitized failure metadata, not provider errors or credentials.
   const patchMemoryRequestGuard = () => {
     if (Chat.__memoryRequestGuardPatched || typeof API?.send !== "function" || typeof Chat.maybeSummarize !== "function") return;
-    const originalSend = API.send.bind(API);
     const originalSummarize = Chat.maybeSummarize;
     const cooldowns = new WeakMap();
     const failures = new WeakMap();
@@ -110,8 +109,8 @@
       if (element) element.title = message;
     };
 
-    API.send = async function(config, messages) {
-      if (!config?.__memoryTask) return originalSend(config, messages);
+    const memoryRequestWrapper = async (next, config, messages, ...rest) => {
+      if (!config?.__memoryTask) return next(config, messages, ...rest);
       const story = window.GameState?.current;
       const controller = new AbortController();
       const previousSignal = config.signal;
@@ -121,7 +120,7 @@
       let timedOut = false;
       const timer = setTimeout(() => { timedOut = true; controller.abort(); }, TIMEOUT_MS);
       try {
-        return await originalSend({ ...config, signal: controller.signal }, messages);
+        return await next({ ...config, signal: controller.signal }, messages, ...rest);
       } catch (error) {
         const authFailure = /(?:API Key 無效|驗證失敗|沒有使用此模型或 API 的權限|額度|餘額|rate limit|quota)/i.test(String(error?.message || ""));
         if (story) failures.set(story, { authFailure });
@@ -133,6 +132,14 @@
         previousSignal?.removeEventListener?.("abort", relayAbort);
       }
     };
+
+    if (typeof API.wrapSend === "function") {
+      API.wrapSend("prompt-cache:memory-request-guard", memoryRequestWrapper);
+    } else {
+      // Compatibility fallback for a mixed-cache page where prompt-cache is newer than api.js.
+      const originalSend = API.send.bind(API);
+      API.send = (config, messages, ...rest) => memoryRequestWrapper(originalSend, config, messages, ...rest);
+    }
 
     Chat.maybeSummarize = async function(config, force = false, recentRounds = null) {
       const story = window.GameState?.current;
