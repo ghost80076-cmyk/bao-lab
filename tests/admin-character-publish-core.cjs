@@ -12,10 +12,11 @@ const instrumented =
     /export\s+default\s+\{/,
     "const __workerDefault = {"
   ) +
-  "\nreturn { prepareCharacterPublication, githubSettings };";
+  "\nreturn { prepareCharacterPublication, mergePublishedCatalogEntry, githubSettings };";
 
 const {
   prepareCharacterPublication,
+  mergePublishedCatalogEntry,
   githubSettings,
 } = new Function(instrumented)();
 
@@ -85,6 +86,7 @@ const prepared = prepareCharacterPublication({
 });
 
 assert.equal(prepared.id, "community-test");
+assert.equal(prepared.mode, "create");
 assert.equal(prepared.card.meta.creator, "Test Author");
 assert.equal(prepared.bucket, "28");
 assert.equal(prepared.card.meta.avatar, "assets/community/28/community-test.png");
@@ -110,6 +112,79 @@ assert.ok(Number.isFinite(Date.parse(prepared.catalogEntry.published_at)));
 assert.equal(prepared.catalogEntry.updated_at, prepared.catalogEntry.published_at);
 assert.equal(prepared.catalogEntry.published_version, 1);
 assert.equal(prepared.catalogEntry.version_published_at, prepared.catalogEntry.published_at);
+
+const preparedUpdate = prepareCharacterPublication({
+  rights_confirmed: true,
+  publication_mode: "update",
+  author_name: "Test Author",
+  card: {
+    schema_version: "1.5",
+    meta: {
+      id: "community-test",
+      name: "Community Test v2",
+      title: "Community Test v2",
+      category: "female",
+      tags: ["updated"],
+      description: "version two",
+    },
+    content: {
+      greeting: "hello again",
+      system_prompt: "stay in character",
+    },
+    gameplay: {
+      supported_modes: { immersive: true, world: true },
+    },
+    presentation: {
+      supported_display: { text: true, ui: true },
+    },
+  },
+});
+assert.equal(preparedUpdate.mode, "update");
+
+const existingPublishedEntry = {
+  id: "community-test",
+  file: "data/characters/community/28/community-test.json",
+  name: "Community Test",
+  title: "Community Test",
+  avatar: "assets/community/28/community-test.png",
+  category: "female",
+  rating: "general",
+  tags: ["old"],
+  description: "old",
+  published_at: "2026-09-01T00:00:00.000Z",
+  updated_at: "2026-09-01T00:00:00.000Z",
+  published_version: 3,
+  version_published_at: "2026-09-15T00:00:00.000Z",
+  author: "Original Author",
+};
+
+const mergedPublishedEntry = mergePublishedCatalogEntry(
+  existingPublishedEntry,
+  {
+    ...preparedUpdate.catalogEntry,
+    file: "data/characters/community/ff/should-not-move.json",
+  },
+  "2026-10-02T00:00:00.000Z"
+);
+assert.equal(mergedPublishedEntry.file, existingPublishedEntry.file);
+assert.equal(mergedPublishedEntry.published_at, existingPublishedEntry.published_at);
+assert.equal(mergedPublishedEntry.updated_at, "2026-10-02T00:00:00.000Z");
+assert.equal(mergedPublishedEntry.version_published_at, "2026-10-02T00:00:00.000Z");
+assert.equal(mergedPublishedEntry.published_version, 4);
+assert.equal(mergedPublishedEntry.title, "Community Test v2");
+assert.equal(mergedPublishedEntry.author, "Test Author");
+
+assert.throws(
+  () => prepareCharacterPublication({
+    rights_confirmed: true,
+    publication_mode: "replace",
+    card: {
+      meta: { id: "bad-mode", name: "Bad Mode", category: "male" },
+      content: { greeting: "hello", system_prompt: "prompt" },
+    },
+  }),
+  /invalid_publication_mode/
+);
 
 assert.throws(
   () => prepareCharacterPublication({
@@ -195,6 +270,26 @@ assert.match(
   /YoruBayAdmin\.api\("\/admin\/characters\/publish-pr"/
 );
 
+assert.match(
+  uiSource,
+  /publication_mode/
+);
+
+assert.match(
+  workerSource,
+  /mergePublishedCatalogEntry/
+);
+
+assert.match(
+  workerSource,
+  /character_not_published/
+);
+
+assert.match(
+  workerSource,
+  /published_version[\s\S]*previousVersion[\s\S]*\+/
+);
+
 assert.doesNotMatch(
   uiSource,
   /api\.github\.com|GITHUB_TOKEN/
@@ -213,6 +308,16 @@ assert.match(
 assert.match(
   adminHtml,
   /id="publish-character-file"/
+);
+
+assert.match(
+  adminHtml,
+  /id="publish-mode"/
+);
+
+assert.match(
+  adminHtml,
+  /更新既有作品（v2\+）/
 );
 
 assert.match(
