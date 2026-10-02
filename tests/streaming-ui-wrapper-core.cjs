@@ -46,9 +46,18 @@ global.setTimeout = callback => { if (typeof callback === "function") callback()
 global.queueMicrotask = callback => callback();
 
 global.Chat = { messages: [] };
+let appSendCount = 0;
 global.App = {
+  __sendMessageWrapperIds: new Set(),
   formatMessage(value) { return String(value); },
-  async sendMessage() { return true; },
+  async sendMessage() { appSendCount += 1; return "sent"; },
+  wrapSendMessage(id, wrapper) {
+    if (this.__sendMessageWrapperIds.has(id)) return false;
+    const next = this.sendMessage.bind(this);
+    this.sendMessage = (...args) => wrapper.call(this, next, ...args);
+    this.__sendMessageWrapperIds.add(id);
+    return true;
+  },
   renderChatShell() { return true; }
 };
 global.API = {
@@ -77,8 +86,17 @@ assert.equal(
   true,
   "streaming UI must install through API.wrapSend"
 );
+assert.equal(
+  App.__sendMessageWrapperIds.has("streaming-ui:committed-paint"),
+  true,
+  "streaming committed repaint must install through App.wrapSendMessage"
+);
 
 (async () => {
+  const sendResult = await App.sendMessage("turn");
+  assert.equal(sendResult, "sent");
+  assert.equal(appSendCount, 1, "streaming repaint wrapper must call the underlying App.sendMessage exactly once");
+
   await API.send({ model: "main" }, [{ role: "user", content: "hello" }], "rest");
   assert.equal(received.config.stream, true, "main story request must enable streaming");
   assert.equal(typeof received.config.onDelta, "function");

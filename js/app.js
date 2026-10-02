@@ -1,5 +1,16 @@
 const App = {
   characters: [], characterManifest: [], characterCache: new Map(), communityCatalogManifest: null, communityCatalogCursor: -1, communityCatalogLoaded: new Set(), activeCharacter: null, prompts: {}, modelRegistry: null, modelPresets: [], currentStep: 1, config: {},
+  wrapSendMessage(id, wrapper){
+    const key=String(id||"").trim();
+    if(!key)throw new Error("App sendMessage wrapper 需要唯一識別碼。");
+    if(typeof wrapper!=="function")throw new Error(`App sendMessage wrapper ${key} 必須是函式。`);
+    if(!this.__sendMessageWrapperIds)this.__sendMessageWrapperIds=new Set();
+    if(this.__sendMessageWrapperIds.has(key))return false;
+    const next=this.sendMessage.bind(this);
+    this.sendMessage=async(...args)=>wrapper.call(this,next,...args);
+    this.__sendMessageWrapperIds.add(key);
+    return true;
+  },
   async init(){ this.bindNavigation(); this.bindBuilder(); await Promise.all([this.loadCharacters(),this.loadPrompts(),this.loadModels()]); this.populateAPIControls(); this.showView("home"); setTimeout(()=>window.BAORefreshSaveUI?.(),0); },
   bindNavigation(){ document.querySelectorAll("[data-view]").forEach(b=>b.addEventListener("click",()=>this.showView(b.dataset.view))); document.querySelectorAll(".filter").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll(".filter").forEach(x=>x.classList.remove("active"));b.classList.add("active");this.renderCharacters(b.dataset.filter)})); },
   bindBuilder(){ document.querySelectorAll('input[name="narrative-mode"],input[name="display-mode"]').forEach(r=>r.addEventListener("change",()=>{document.querySelectorAll(`input[name="${r.name}"]`).forEach(x=>x.closest(".choice-card").classList.remove("selected"));r.closest(".choice-card").classList.add("selected")})); document.querySelectorAll(".step").forEach(s=>s.addEventListener("click",()=>this.setStep(Number(s.dataset.step)))); document.querySelectorAll(".ui-tab").forEach(t=>t.addEventListener("click",()=>{document.querySelectorAll(".ui-tab").forEach(x=>x.classList.remove("active"));t.classList.add("active");this.renderUIPanel(t.dataset.panel)})); document.getElementById("api-type").addEventListener("change",()=>this.populateModelOptions()); document.getElementById("model-select").addEventListener("change",()=>this.syncSelectedPreset()); document.getElementById("user-input").addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();this.sendMessage()}}); },
