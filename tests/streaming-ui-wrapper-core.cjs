@@ -21,6 +21,7 @@ const stream = {
 };
 const chatView = { classList: { contains(value) { return value === "active"; } } };
 let received = null;
+let shellCalls = 0;
 
 global.window = global;
 global.CustomEvent = class CustomEvent {
@@ -49,6 +50,7 @@ global.Chat = { messages: [] };
 let appSendCount = 0;
 global.App = {
   __sendMessageWrapperIds: new Set(),
+  __renderChatShellWrapperIds: new Set(),
   formatMessage(value) { return String(value); },
   async sendMessage() { appSendCount += 1; return "sent"; },
   wrapSendMessage(id, wrapper) {
@@ -58,7 +60,14 @@ global.App = {
     this.__sendMessageWrapperIds.add(id);
     return true;
   },
-  renderChatShell() { return true; }
+  renderChatShell(...args) { shellCalls += 1; return { args }; },
+  wrapRenderChatShell(id, wrapper) {
+    if (this.__renderChatShellWrapperIds.has(id)) return false;
+    const next = this.renderChatShell.bind(this);
+    this.renderChatShell = (...args) => wrapper.call(this, next, ...args);
+    this.__renderChatShellWrapperIds.add(id);
+    return true;
+  }
 };
 global.API = {
   __sendWrapperIds: new Set(),
@@ -91,8 +100,17 @@ assert.equal(
   true,
   "streaming committed repaint must install through App.wrapSendMessage"
 );
+assert.equal(
+  App.__renderChatShellWrapperIds.has("streaming-ui:committed-paint"),
+  true,
+  "streaming shell repaint must install through App.wrapRenderChatShell"
+);
 
 (async () => {
+  const shellResult = App.renderChatShell(false, "extra");
+  assert.deepEqual(shellResult, { args: [false, "extra"] });
+  assert.equal(shellCalls, 1, "streaming shell wrapper must call the underlying render exactly once");
+
   const sendResult = await App.sendMessage("turn");
   assert.equal(sendResult, "sent");
   assert.equal(appSendCount, 1, "streaming repaint wrapper must call the underlying App.sendMessage exactly once");
