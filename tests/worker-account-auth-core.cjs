@@ -95,6 +95,49 @@ const request = body => new Request("https://api.example.test/auth", {
   assert.equal(badRecover.status, 400);
   assert.equal((await badRecover.json()).error, "invalid_recovery_request");
 
+  const deniedEnv = {
+    REGISTRATION_MODE: "open",
+    AUTH_RATE_LIMITER: {
+      async limit() {
+        return { success: false };
+      },
+    },
+  };
+  const deniedRegister = await authRegister(
+    request({
+      username: "new-reader",
+      display_name: "New Reader",
+      password: "long-enough-password",
+    }),
+    deniedEnv,
+    noDb
+  );
+  assert.equal(deniedRegister.status, 429);
+  assert.equal((await deniedRegister.json()).error, "auth_rate_limited");
+
+  const deniedLogin = await authLogin(
+    request({
+      username: "valid-reader",
+      password: "long-enough-password",
+    }),
+    deniedEnv,
+    noDb
+  );
+  assert.equal(deniedLogin.status, 429);
+  assert.equal((await deniedLogin.json()).error, "auth_rate_limited");
+
+  const deniedRecovery = await authRecover(
+    request({
+      public_id: "YR-ABCD-1234",
+      recovery_code: "A".repeat(20),
+      new_password: "long-enough-password",
+    }),
+    deniedEnv,
+    noDb
+  );
+  assert.equal(deniedRecovery.status, 429);
+  assert.equal((await deniedRecovery.json()).error, "auth_rate_limited");
+
   const logout = await authLogout(
     new Request("https://api.example.test/logout", { method: "POST" }),
     noDb

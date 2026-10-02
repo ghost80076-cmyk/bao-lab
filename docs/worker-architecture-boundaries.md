@@ -13,7 +13,7 @@ The single file now exposes explicit, frozen module-shaped boundaries. The bound
 | Responsibility | Named boundaries |
 | --- | --- |
 | HTTP, crypto and sessions | `WorkerHttp`, `WorkerCrypto`, `WorkerSessionAuth` |
-| Account input and runtime configuration | `WorkerAccountValidation`, `WorkerRuntimeConfig`, `WorkerChatInput` |
+| Account input and runtime configuration | `WorkerAccountValidation`, `WorkerRuntimeConfig`, `WorkerChatInput`, `WorkerAccountRateLimit` |
 | Account routes | `WorkerAccountAuth`, `WorkerAccountSelfRoute`, `WorkerAccountAuthorRoutes` |
 | Models, providers and controls | `WorkerModelPricing`, `WorkerProviderRouting`, `WorkerProviderControl`, `WorkerProviderTransport` |
 | Publication and author identity | `WorkerPublicationFormat`, `WorkerAuthorProfilePublication`, `WorkerAuthorOwnership`, `WorkerGithubPublicationTransport` |
@@ -40,7 +40,7 @@ Each boundary was merged independently after its contract tests and the reposito
 
 - Automate Cloudflare Worker module-graph deployment and document rollback before extracting files.
 - Consolidate the browser catalog, Worker allowlists/pricing and relay allowlist into a single model registry; the current drift tests are safeguards, not that registry.
-- Treat application-level login/register rate limiting as a separate security change because its limits, persistence and operator policy alter behavior and D1 responsibilities.
+- Configure the production `AUTH_RATE_LIMITER` binding and verify `auth_rate_limit_configured: true`; source support alone does not activate enforcement in the dashboard-deployed Worker.
 
 ## Non-negotiable compatibility rules
 

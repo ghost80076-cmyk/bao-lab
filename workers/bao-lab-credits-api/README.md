@@ -22,6 +22,20 @@ GitHub does **not** automatically deploy this file to Cloudflare. Treat the Clou
 
 Do not commit Cloudflare/AWS secrets. Keep `ADMIN_TOKEN`, `BAO_INTERNAL_TOKEN`, provider API keys, and other credentials in their platform secret stores.
 
+## Account authentication rate limiting
+
+The Worker can protect registration, login and account recovery through an optional Cloudflare Rate Limiting binding named `AUTH_RATE_LIMITER`.
+
+For the current dashboard-managed deployment, configure that binding in Cloudflare with a dedicated namespace and a reviewed simple limit. A starting policy is 10 attempts per 60 seconds per key. The Worker uses separate action keys and hashes usernames, public player IDs and registration network identifiers before calling the binding.
+
+- Login is keyed by normalized username.
+- Recovery is keyed by normalized public player ID.
+- Registration checks both normalized username and `CF-Connecting-IP` when Cloudflare provides it.
+- Binding errors fail open by default to preserve account availability. Set `AUTH_RATE_LIMIT_FAIL_CLOSED=1` only if blocking all account entry during a rate-limiter outage is the intended policy.
+- `GET /health` reports `auth_rate_limit_configured`; verify it is `true` after the production binding and Worker source are deployed.
+
+Without the binding, the code remains compatible with the existing deployment and does not claim that rate limiting is active.
+
 ## Verification performed
 
 After the production hotfix, D1 showed normal `ok` settlement with exact wallet arithmetic, including:
