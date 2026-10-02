@@ -3761,6 +3761,27 @@ function prepareCharacterPublication(
   const publicationTimestamp =
     new Date().toISOString();
 
+  const publicationMode =
+    String(
+      body?.publication_mode ||
+      "create"
+    )
+      .trim()
+      .toLowerCase();
+
+  if (
+    ![
+      "create",
+      "update",
+    ].includes(
+      publicationMode
+    )
+  ) {
+    throw publishError(
+      "invalid_publication_mode"
+    );
+  }
+
   if (
     !plainObject(
       body
@@ -4381,6 +4402,9 @@ function prepareCharacterPublication(
   return {
     id,
 
+    mode:
+      publicationMode,
+
     bucket:
       characterBucket(
         id
@@ -4391,6 +4415,84 @@ function prepareCharacterPublication(
       publishedCard,
     catalogEntry,
     cover,
+  };
+}
+
+function mergePublishedCatalogEntry(
+  existingEntry,
+  nextEntry,
+  publicationTimestamp
+) {
+  if (
+    !plainObject(
+      existingEntry
+    ) ||
+    !plainObject(
+      nextEntry
+    ) ||
+    String(
+      existingEntry.id ||
+      ""
+    ) !==
+      String(
+        nextEntry.id ||
+        ""
+      )
+  ) {
+    throw publishError(
+      "published_character_metadata_invalid",
+      409
+    );
+  }
+
+  const timestamp =
+    String(
+      publicationTimestamp ||
+      nextEntry.updated_at ||
+      new Date().toISOString()
+    )
+      .trim();
+
+  const previousVersion =
+    Math.max(
+      1,
+      safeInt(
+        Number(
+          existingEntry.published_version ||
+          1
+        )
+      )
+    );
+
+  return {
+    ...existingEntry,
+    ...nextEntry,
+
+    id:
+      existingEntry.id,
+
+    file:
+      String(
+        existingEntry.file ||
+        nextEntry.file ||
+        ""
+      ),
+
+    published_at:
+      String(
+        existingEntry.published_at ||
+        timestamp
+      ),
+
+    updated_at:
+      timestamp,
+
+    published_version:
+      previousVersion +
+      1,
+
+    version_published_at:
+      timestamp,
   };
 }
 
@@ -4596,6 +4698,12 @@ async function createCharacterPublicationPr(
     );
   }
 
+  const mode =
+    publication?.mode ===
+      "update"
+      ? "update"
+      : "create";
+
   const baseRef =
     await githubApi(
       env,
@@ -4616,10 +4724,15 @@ async function createCharacterPublicationPr(
     );
   }
 
+  const officialCatalogPath =
+    "data/characters.json";
+
   const officialCatalogFile =
     await githubApi(
       env,
-      "/contents/data/characters.json?ref=" +
+      "/contents/" +
+        officialCatalogPath +
+        "?ref=" +
         encodeURIComponent(
           settings.baseBranch
         )
@@ -4642,51 +4755,6 @@ async function createCharacterPublicationPr(
     throw new Error(
       "github_catalog_invalid"
     );
-  }
-
-  if (
-    officialCatalog.some(
-      (entry) =>
-        entry?.id ===
-        publication.id
-    )
-  ) {
-    throw publishError(
-      "character_already_published",
-      409
-    );
-  }
-
-  const characterPath =
-    publication
-      .catalogEntry
-      .file;
-
-  try {
-    await githubApi(
-      env,
-      "/contents/" +
-        characterPath +
-        "?ref=" +
-        encodeURIComponent(
-          settings.baseBranch
-        )
-    );
-
-    throw publishError(
-      "character_already_published",
-      409
-    );
-  }
-
-  catch (error) {
-    if (
-      error?.httpStatus ||
-      error?.githubStatus !==
-        404
-    ) {
-      throw error;
-    }
   }
 
   const manifestPath =
@@ -4804,24 +4872,29 @@ async function createCharacterPublicationPr(
     }
   }
 
-  let pageMeta =
-    manifest.pages[
-      manifest.pages.length -
-      1
-    ] ||
-    null;
+  const officialIndex =
+    officialCatalog.findIndex(
+      (entry) =>
+        entry?.id ===
+        publication.id
+    );
 
-  let pageEntries =
+  const loadedCommunityPages =
     [];
 
-  let pageFile =
+  let communityMatch =
     null;
 
-  if (
-    pageMeta &&
-    pageMeta.count <
-      COMMUNITY_CATALOG_PAGE_SIZE
+  for (
+    const pageMeta of
+      manifest.pages
   ) {
+    let pageFile =
+      null;
+
+    let entries =
+      [];
+
     try {
       pageFile =
         await githubApi(
@@ -4843,7 +4916,7 @@ async function createCharacterPublicationPr(
           )
         );
 
-      pageEntries =
+      entries =
         Array.isArray(
           parsed
         )
@@ -4858,58 +4931,74 @@ async function createCharacterPublicationPr(
       ) {
         throw error;
       }
+    }
 
-      pageEntries =
-        [];
+    const entryIndex =
+      entries.findIndex(
+        (entry) =>
+          entry?.id ===
+          publication.id
+      );
+
+    const loaded = {
+      pageMeta,
+      pageFile,
+      entries,
+    };
+
+    loadedCommunityPages.push(
+      loaded
+    );
+
+    if (
+      entryIndex >=
+        0
+    ) {
+      if (
+        communityMatch
+      ) {
+        throw new Error(
+          "github_catalog_duplicate_character"
+        );
+      }
+
+      communityMatch = {
+        ...loaded,
+        entryIndex,
+        entry:
+          entries[
+            entryIndex
+          ],
+      };
     }
   }
 
-  if (
-    !pageMeta ||
-    pageEntries.length >=
-      COMMUNITY_CATALOG_PAGE_SIZE
-  ) {
-    const pageNumber =
-      pageMeta
-        ? pageMeta.page +
-          1
-        : 1;
+  const existsOfficial =
+    officialIndex >=
+      0;
 
-    pageMeta = {
-      page:
-        pageNumber,
-
-      file:
-        "data/character-catalog/community/page-" +
-        String(
-          pageNumber
-        ).padStart(
-          4,
-          "0"
-        ) +
-        ".json",
-
-      count:
-        0,
-    };
-
-    manifest.pages.push(
-      pageMeta
+  const existsCommunity =
+    Boolean(
+      communityMatch
     );
 
-    pageEntries =
-      [];
-
-    pageFile =
-      null;
+  if (
+    existsOfficial &&
+    existsCommunity
+  ) {
+    throw new Error(
+      "github_catalog_duplicate_character"
+    );
   }
 
+  const exists =
+    existsOfficial ||
+    existsCommunity;
+
   if (
-    pageEntries.some(
-      (entry) =>
-        entry?.id ===
-        publication.id
-    )
+    mode ===
+      "create" &&
+    exists
   ) {
     throw publishError(
       "character_already_published",
@@ -4917,26 +5006,297 @@ async function createCharacterPublicationPr(
     );
   }
 
-  pageEntries.push(
+  if (
+    mode ===
+      "update" &&
+    !exists
+  ) {
+    throw publishError(
+      "character_not_published",
+      404
+    );
+  }
+
+  const publicationTimestamp =
+    String(
+      publication
+        .catalogEntry
+        ?.updated_at ||
+      new Date().toISOString()
+    );
+
+  let finalCatalogEntry =
+    publication.catalogEntry;
+
+  let characterPath =
     publication
       .catalogEntry
-  );
+      .file;
 
-  pageMeta.count =
-    pageEntries.length;
+  let characterFile =
+    null;
 
-  manifest.total =
-    Math.max(
-      0,
-      Number(
-        manifest.total ||
-        0
-      )
-    ) +
-    1;
+  let targetCatalogPath =
+    null;
+
+  let targetCatalogFile =
+    null;
+
+  let targetCatalogEntries =
+    null;
+
+  let targetPageMeta =
+    null;
+
+  let shouldWriteManifest =
+    false;
+
+  if (
+    mode ===
+      "update"
+  ) {
+    const existingEntry =
+      existsOfficial
+        ? officialCatalog[
+            officialIndex
+          ]
+        : communityMatch
+            .entry;
+
+    finalCatalogEntry =
+      mergePublishedCatalogEntry(
+        existingEntry,
+        publication
+          .catalogEntry,
+        publicationTimestamp
+      );
+
+    characterPath =
+      finalCatalogEntry.file;
+
+    if (
+      !characterPath
+    ) {
+      throw publishError(
+        "published_character_metadata_invalid",
+        409
+      );
+    }
+
+    try {
+      characterFile =
+        await githubApi(
+          env,
+          "/contents/" +
+            characterPath +
+            "?ref=" +
+            encodeURIComponent(
+              settings.baseBranch
+            )
+        );
+    }
+
+    catch (error) {
+      if (
+        error?.githubStatus ===
+          404
+      ) {
+        throw publishError(
+          "published_character_file_missing",
+          409
+        );
+      }
+
+      throw error;
+    }
+
+    if (
+      existsOfficial
+    ) {
+      officialCatalog[
+        officialIndex
+      ] =
+        finalCatalogEntry;
+
+      targetCatalogPath =
+        officialCatalogPath;
+
+      targetCatalogFile =
+        officialCatalogFile;
+
+      targetCatalogEntries =
+        officialCatalog;
+    }
+
+    else {
+      communityMatch
+        .entries[
+          communityMatch
+            .entryIndex
+        ] =
+          finalCatalogEntry;
+
+      communityMatch
+        .pageMeta
+        .count =
+          communityMatch
+            .entries
+            .length;
+
+      targetCatalogPath =
+        communityMatch
+          .pageMeta
+          .file;
+
+      targetCatalogFile =
+        communityMatch
+          .pageFile;
+
+      targetCatalogEntries =
+        communityMatch
+          .entries;
+
+      targetPageMeta =
+        communityMatch
+          .pageMeta;
+    }
+  }
+
+  else {
+    try {
+      await githubApi(
+        env,
+        "/contents/" +
+          characterPath +
+          "?ref=" +
+          encodeURIComponent(
+            settings.baseBranch
+          )
+      );
+
+      throw publishError(
+        "character_already_published",
+        409
+      );
+    }
+
+    catch (error) {
+      if (
+        error?.httpStatus ||
+        error?.githubStatus !==
+          404
+      ) {
+        throw error;
+      }
+    }
+
+    let pageState =
+      loadedCommunityPages[
+        loadedCommunityPages.length -
+        1
+      ] ||
+      null;
+
+    if (
+      !pageState ||
+      pageState.entries.length >=
+        COMMUNITY_CATALOG_PAGE_SIZE
+    ) {
+      const lastPage =
+        manifest.pages[
+          manifest.pages.length -
+          1
+        ] ||
+        null;
+
+      const pageNumber =
+        lastPage
+          ? lastPage.page +
+            1
+          : 1;
+
+      const pageMeta = {
+        page:
+          pageNumber,
+
+        file:
+          "data/character-catalog/community/page-" +
+          String(
+            pageNumber
+          ).padStart(
+            4,
+            "0"
+          ) +
+          ".json",
+
+        count:
+          0,
+      };
+
+      manifest.pages.push(
+        pageMeta
+      );
+
+      pageState = {
+        pageMeta,
+        pageFile:
+          null,
+        entries:
+          [],
+      };
+    }
+
+    pageState
+      .entries
+      .push(
+        finalCatalogEntry
+      );
+
+    pageState
+      .pageMeta
+      .count =
+        pageState
+          .entries
+          .length;
+
+    manifest.total =
+      Math.max(
+        0,
+        Number(
+          manifest.total ||
+          0
+        )
+      ) +
+      1;
+
+    targetCatalogPath =
+      pageState
+        .pageMeta
+        .file;
+
+    targetCatalogFile =
+      pageState
+        .pageFile;
+
+    targetCatalogEntries =
+      pageState
+        .entries;
+
+    targetPageMeta =
+      pageState
+        .pageMeta;
+
+    shouldWriteManifest =
+      true;
+  }
 
   const branch =
-    "publish/" +
+    (
+      mode ===
+        "update"
+        ? "update/"
+        : "publish/"
+    ) +
     publication.id +
     "-" +
     Date.now()
@@ -4979,7 +5339,12 @@ async function createCharacterPublicationPr(
 
         body: {
           message:
-            "Add character " +
+            (
+              mode ===
+                "update"
+                ? "Update character "
+                : "Add character "
+            ) +
             publication.id,
 
           content:
@@ -4992,6 +5357,13 @@ async function createCharacterPublicationPr(
               "\n"
             ),
 
+          ...(characterFile?.sha
+            ? {
+                sha:
+                  characterFile.sha,
+              }
+            : {}),
+
           branch,
         },
       }
@@ -5000,6 +5372,38 @@ async function createCharacterPublicationPr(
     if (
       publication.cover
     ) {
+      let coverFile =
+        null;
+
+      if (
+        mode ===
+          "update"
+      ) {
+        try {
+          coverFile =
+            await githubApi(
+              env,
+              "/contents/" +
+                publication
+                  .cover
+                  .path +
+                "?ref=" +
+                encodeURIComponent(
+                  settings.baseBranch
+                )
+            );
+        }
+
+        catch (error) {
+          if (
+            error?.githubStatus !==
+              404
+          ) {
+            throw error;
+          }
+        }
+      }
+
       await githubApi(
         env,
         "/contents/" +
@@ -5012,13 +5416,25 @@ async function createCharacterPublicationPr(
 
           body: {
             message:
-              "Add cover for " +
+              (
+                mode ===
+                  "update"
+                  ? "Update cover for "
+                  : "Add cover for "
+              ) +
               publication.id,
 
             content:
               publication
                 .cover
                 .base64,
+
+            ...(coverFile?.sha
+              ? {
+                  sha:
+                    coverFile.sha,
+                }
+              : {}),
 
             branch,
           },
@@ -5029,30 +5445,35 @@ async function createCharacterPublicationPr(
     await githubApi(
       env,
       "/contents/" +
-        pageMeta.file,
+        targetCatalogPath,
       {
         method:
           "PUT",
 
         body: {
           message:
-            "Update community catalog page " +
-            pageMeta.page,
+            (
+              mode ===
+                "update"
+                ? "Update published catalog entry "
+                : "Update community catalog page "
+            ) +
+            publication.id,
 
           content:
             utf8ToBase64(
               JSON.stringify(
-                pageEntries,
+                targetCatalogEntries,
                 null,
                 2
               ) +
               "\n"
             ),
 
-          ...(pageFile?.sha
+          ...(targetCatalogFile?.sha
             ? {
                 sha:
-                  pageFile.sha,
+                  targetCatalogFile.sha,
               }
             : {}),
 
@@ -5061,39 +5482,50 @@ async function createCharacterPublicationPr(
       }
     );
 
-    await githubApi(
-      env,
-      "/contents/" +
-        manifestPath,
-      {
-        method:
-          "PUT",
+    if (
+      shouldWriteManifest
+    ) {
+      await githubApi(
+        env,
+        "/contents/" +
+          manifestPath,
+        {
+          method:
+            "PUT",
 
-        body: {
-          message:
-            "Update community catalog manifest",
+          body: {
+            message:
+              "Update community catalog manifest",
 
-          content:
-            utf8ToBase64(
-              JSON.stringify(
-                manifest,
-                null,
-                2
-              ) +
-              "\n"
-            ),
+            content:
+              utf8ToBase64(
+                JSON.stringify(
+                  manifest,
+                  null,
+                  2
+                ) +
+                "\n"
+              ),
 
-          ...(manifestFile?.sha
-            ? {
-                sha:
-                  manifestFile.sha,
-              }
-            : {}),
+            ...(manifestFile?.sha
+              ? {
+                  sha:
+                    manifestFile.sha,
+                }
+              : {}),
 
-          branch,
-        },
-      }
-    );
+            branch,
+          },
+        }
+      );
+    }
+
+    const version =
+      Number(
+        finalCatalogEntry
+          .published_version ||
+        1
+      );
 
     const pr =
       await githubApi(
@@ -5105,11 +5537,23 @@ async function createCharacterPublicationPr(
 
           body: {
             title:
-              "Publish character: " +
+              (
+                mode ===
+                  "update"
+                  ? "Update character: "
+                  : "Publish character: "
+              ) +
               publication
                 .card
                 .meta
-                .title,
+                .title +
+              (
+                mode ===
+                  "update"
+                  ? " · v" +
+                    version
+                  : ""
+              ),
 
             head:
               branch,
@@ -5120,22 +5564,35 @@ async function createCharacterPublicationPr(
 
             body:
               [
-                "Admin character publication request.",
+                mode ===
+                  "update"
+                  ? "Admin character update request."
+                  : "Admin character publication request.",
                 "",
                 "- Character ID: " +
                   publication.id,
+                "- Publication mode: " +
+                  mode,
+                "- Published version: v" +
+                  version,
                 "- Bucket: " +
                   publication.bucket,
-                "- Catalog page: " +
-                  pageMeta.page,
+                "- Catalog path: " +
+                  targetCatalogPath,
                 "- Author label: " +
                   (
                     publication.author ||
+                    finalCatalogEntry.author ||
                     "not provided"
                   ),
                 "- Rights confirmation: confirmed by operator",
                 "- Original embedded card payload: not published",
                 "- Cover metadata: stripped/re-encoded before submission",
+                "",
+                mode ===
+                  "update"
+                  ? "The original published_at value is preserved; updated_at and version_published_at advance only in this review PR."
+                  : "This creates the first public version.",
                 "",
                 "Please review content and automated checks before merging.",
               ].join(
@@ -5156,14 +5613,24 @@ async function createCharacterPublicationPr(
 
       branch,
 
+      publication_mode:
+        mode,
+
+      published_version:
+        version,
+
       bucket:
         publication.bucket,
 
       catalog_page:
-        pageMeta.page,
+        targetPageMeta
+          ?.page ||
+        null,
 
       catalog_page_path:
-        pageMeta.file,
+        targetPageMeta
+          ?.file ||
+        targetCatalogPath,
 
       catalog_manifest_path:
         manifestPath,
@@ -5230,7 +5697,6 @@ async function createCharacterPublicationPr(
     );
   }
 }
-
 
 async function ensureAdminPlayerEvents(
   db
