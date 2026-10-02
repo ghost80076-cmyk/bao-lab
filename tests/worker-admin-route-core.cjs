@@ -19,7 +19,6 @@ const boundary = source.slice(boundaryStart, boundaryEnd);
 
 for (const pathContract of [
   "/admin/players",
-  "/admin/usage",
 ]) {
   assert.ok(boundary.includes(pathContract), `missing admin route contract: ${pathContract}`);
 }
@@ -34,6 +33,11 @@ assert.match(
   boundary,
   /await adminProviderControlRoute\(\s*request,\s*path,\s*env,\s*db\s*\)/,
   "the admin dispatcher must delegate provider-control endpoints to their subroute boundary"
+);
+assert.match(
+  boundary,
+  /await adminUsageRoute\(\s*request,\s*path,\s*url,\s*db\s*\)/,
+  "the admin dispatcher must delegate usage history to its read-only subroute boundary"
 );
 
 const instrumented =
