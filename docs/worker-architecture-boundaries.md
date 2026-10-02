@@ -6,61 +6,41 @@ The current Worker is intentionally kept as a **single deployable file** because
 
 The goal is therefore **behavior-preserving separation first, physical file extraction later**.
 
-## Current responsibilities
+## Named boundaries now in place
 
-The Worker currently combines these responsibility groups:
+The single file now exposes explicit, frozen module-shaped boundaries. The boundary registry is enforced by `tests/worker-architecture-boundaries-core.cjs`.
 
-| Boundary | Main responsibilities | Representative functions |
-| --- | --- | --- |
-| HTTP and transport | JSON responses, request size limits, CORS, response security headers | `withSecurityHeaders`, `readJsonWithLimit`, `validOrigin`, `cors` |
-| Crypto and secrets | opaque token generation, hashing, password derivation and constant-time checks | `newOpaqueToken`, `sha256Hex`, `derivePasswordHash`, `constantTimeStringEqual` |
-| Session and account auth | cookies, registration, login, logout, recovery, current-account lookup | `sessionTokenFrom`, `createSession`, `authRegister`, `authLogin`, `authLogout`, `authRecover`, `meRoute` |
-| Player and wallet access | player resolution, billing mode selection, wallet fields | `playerFor`, `billingModeForPlayer` |
-| Model registry and pricing | model allowlist, pricing, long-context rates, output reservation, cost accounting | `modelConfigs`, `modelAllowed`, `resolvedPricingRates`, `reservePlan`, `actualUsageCostMicrousd` |
-| Provider routing | hosted route selection, Gemini / OpenRouter / Anthropic request handling | `resolveHostedRoute`, `providerCall`, `providerFailureResponse` |
-| Provider controls | provider spend and administrative route controls | `ensureProviderControlTables`, `providerControlSnapshot` |
-| Author ownership | account-to-author ownership and public author identity claims | `ensureAuthorOwnerships`, `claimAuthorIdentity`, `accountAuthorRoute` |
-| Publication | character/profile sanitization, GitHub PR publication and catalog merging | `prepareCharacterPublication`, `prepareAuthorProfileUpdate`, `createAuthorProfilePr`, `createCharacterPublicationPr` |
-| Admin | admin authorization, player events and admin operations | `ensureAdminPlayerEvents`, `adminRoute` |
-| Chat billing | raw-token and cost-based hosted chat settlement | `legacyChatRoute`, `costUsdChatRoute`, `chatRoute` |
+| Responsibility | Named boundaries |
+| --- | --- |
+| HTTP, crypto and sessions | `WorkerHttp`, `WorkerCrypto`, `WorkerSessionAuth` |
+| Account input and runtime configuration | `WorkerAccountValidation`, `WorkerRuntimeConfig`, `WorkerChatInput` |
+| Account routes | `WorkerAccountAuth`, `WorkerAccountSelfRoute`, `WorkerAccountAuthorRoutes` |
+| Models, providers and controls | `WorkerModelPricing`, `WorkerProviderRouting`, `WorkerProviderControl`, `WorkerProviderTransport` |
+| Publication and author identity | `WorkerPublicationFormat`, `WorkerAuthorProfilePublication`, `WorkerAuthorOwnership`, `WorkerGithubPublicationTransport` |
+| Admin routing | `WorkerAdminAuth`, `WorkerAdminProviderControlRoutes`, `WorkerAdminPublicationRoutes`, `WorkerAdminUsageRoutes`, `WorkerAdminPlayerDirectoryRoutes`, `WorkerAdminPlayerMutationRoutes`, `WorkerAdminRoutes` |
+| Chat settlement and dispatch | `WorkerLegacyChatSettlement`, `WorkerCostChatSettlement`, `WorkerChatDispatch` |
 
-## Refactor order
+These are architectural seams, not separately deployed modules. Existing function aliases remain available inside `worker.js` so call sites and behavior stay unchanged.
 
-The safe order is:
+## Completed structural sequence
 
-1. **HTTP helpers**
-   - Keep signatures unchanged.
-   - No database access.
-   - No provider access.
-   - No business rules.
+The behavior-preserving isolation sequence is complete for the current top-level helper groups:
 
-2. **Crypto helpers**
-   - Preserve current algorithms and parameters.
-   - Password hashing and session-token hashing are security contracts and must keep regression coverage.
+1. HTTP, crypto, session and account validation primitives.
+2. Runtime environment parsing, model pricing and chat input validation.
+3. Account authentication, current-account and author-account routes.
+4. Provider routing, provider controls and provider transport.
+5. Publication formatting, author ownership and GitHub PR transport.
+6. Admin authorization and route families.
+7. Legacy and USD-wallet chat settlement plus top-level chat dispatch.
 
-3. **Model/pricing helpers**
-   - First separate pure lookup/calculation functions from environment reads.
-   - Do not change model IDs, rates or long-context thresholds during structural refactors.
+Each boundary was merged independently after its contract tests and the repository-wide required workflows passed. Physical extraction was deliberately not included.
 
-4. **Publication helpers**
-   - Keep sanitization and GitHub PR creation behavior identical.
-   - Author ownership checks stay outside publication formatting.
+## Remaining work
 
-5. **Author ownership**
-   - Separate ownership persistence from public author profile representation.
-   - Never expose account/player identifiers through public author responses.
-
-6. **Provider routing**
-   - Split route selection from provider payload construction.
-   - Keep Gemini / OpenRouter / Anthropic failure semantics unchanged.
-
-7. **Auth/session**
-   - Move only after the security contract tests are in place.
-   - Cookie flags, password derivation, token hashing and session expiry are frozen behavior during the refactor.
-
-8. **Admin and chat settlement last**
-   - These touch the broadest set of state and money-related behavior.
-   - They must not be combined with unrelated cleanup.
+- Automate Cloudflare Worker module-graph deployment and document rollback before extracting files.
+- Consolidate the browser catalog, Worker allowlists/pricing and relay allowlist into a single model registry; the current drift tests are safeguards, not that registry.
+- Treat application-level login/register rate limiting as a separate security change because its limits, persistence and operator policy alter behavior and D1 responsibilities.
 
 ## Non-negotiable compatibility rules
 
@@ -101,3 +81,14 @@ Physical extraction from `worker.js` into modules should begin only when all of 
 4. A rollback path to the previous single-file Worker is documented.
 
 Until then, the project can reduce technical debt by clarifying boundaries, consolidating tests and isolating pure functions without changing deployment mechanics.
+
+### Current status
+
+| Exit condition | Status |
+| --- | --- |
+| Automated Cloudflare module-graph deployment | Blocked: GitHub does not deploy this Worker |
+| Deployment independent of dashboard copy/paste | Blocked |
+| Security, auth, billing and provider contract coverage | In place for the current named boundaries |
+| Documented rollback for a module deployment | Blocked until the deployment path exists |
+
+Therefore `worker.js` must remain the production-compatible single-file artifact. A GitHub merge is source control only and must not be described as a Cloudflare production deployment.
