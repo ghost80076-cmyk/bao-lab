@@ -45,11 +45,10 @@
     return true;
   };
 
-  const originalSendMessage = App.sendMessage.bind(App);
-  App.sendMessage = async function() {
-    if (this.config?.demoMode) return originalSendMessage();
+  const requestLifecycleWrapper = async function(next, ...args) {
+    if (this.config?.demoMode) return next(...args);
     const text = document.getElementById("user-input")?.value.trim();
-    if (!text || !this.config?.api?.key) return originalSendMessage();
+    if (!text || !this.config?.api?.key) return next(...args);
     if (this.__requestPending) return;
 
     const controller = new AbortController();
@@ -58,7 +57,7 @@
     API.activeSignal = controller.signal;
     setPending(true);
     try {
-      return await originalSendMessage();
+      return await next(...args);
     } finally {
       if (API.activeSignal === controller.signal) API.activeSignal = null;
       if (this.__activeRequestController === controller) this.__activeRequestController = null;
@@ -66,6 +65,13 @@
       setPending(false);
     }
   };
+  if (typeof App.wrapSendMessage === "function") {
+    App.wrapSendMessage("request-lifecycle:pending", requestLifecycleWrapper);
+  } else {
+    // Compatibility fallback for a mixed-cache page where request-lifecycle is newer than app.js.
+    const originalSendMessage = App.sendMessage.bind(App);
+    App.sendMessage = (...args) => requestLifecycleWrapper.call(App, originalSendMessage, ...args);
+  }
 
   const originalExitChat = App.exitChat?.bind(App);
   if (originalExitChat) App.exitChat = function() { this.cancelGeneration?.(); return originalExitChat(); };
