@@ -39,11 +39,29 @@ The following modules currently participate in or wrap the transport path:
 | Module | Purpose |
 | --- | --- |
 | `js/global-bridge.js` | Sanitizes memory-task request copies without mutating stored/displayed messages. |
+| `js/credits-pilot.js` | Handles YoruBay-hosted account transport and hosted-context adaptation. |
+| `js/cost-control.js` | Applies budget/output caps and usage-cost accounting around requests. |
 | `js/helper-api-routing.js` | Redirects helper tasks such as memory/state work to configured helper routes. |
+| `js/same-model-state-merge.js` | Merges eligible world/state output into the main story request. |
+| `js/prompt-cache.js` | Guards memory-summary requests and cache-aware prompt behavior. |
 | `js/state-tracker-repairs.js` | Intercepts state-related requests and compatibility behavior. |
+| `js/streaming-ui.js` | Adds main-story streaming/preview behavior around the transport call. |
 | `js/api.js` | Owns the underlying provider request / retry / stream behavior. |
 
 Risk: behavior depends on wrapper installation order. A future refactor should expose an explicit request pipeline instead of repeated reassignment of `API.send`.
+
+### `App.sendMessage`
+
+The send-message path is also wrapped by several modules:
+
+| Module | Purpose |
+| --- | --- |
+| `js/chat-api-settings.js` | Prevents sends when the active story connection is incomplete and opens the connection UI. |
+| `js/world-state-hook.js` | Runs world/state follow-up work after the base story turn. |
+| `js/streaming-ui.js` | Coordinates pending/streaming UI state around the send. |
+| `js/request-lifecycle.js` | Owns request cancellation and in-flight request lifecycle state. |
+
+These wrappers are loaded in different extension chains. Their relative timing must not be assumed unless the loader explicitly guarantees it.
 
 ### `Chat.context`
 
@@ -90,8 +108,19 @@ App (base UI / story flow)
 │
 ├─ API.send
 │  ├─ global-bridge memory sanitation
+│  ├─ credits-pilot hosted transport
+│  ├─ cost-control budget / usage caps
 │  ├─ helper-api-routing helper-model routing
-│  └─ state-tracker-repairs state compatibility
+│  ├─ same-model-state-merge state coalescing
+│  ├─ prompt-cache memory request guard
+│  ├─ state-tracker-repairs state compatibility
+│  └─ streaming-ui main-story streaming
+│
+├─ App.sendMessage
+│  ├─ chat-api-settings connection readiness
+│  ├─ world-state-hook after-turn state update
+│  ├─ streaming-ui pending/paint coordination
+│  └─ request-lifecycle cancellation / in-flight state
 │
 ├─ App.renderChatShell
 │  ├─ state-tracker-repairs
@@ -106,6 +135,19 @@ App (base UI / story flow)
 ```
 
 The diagram is conceptual. Actual behavior still depends on script load order and the wrapper each module captures as its "original" function.
+
+## Indirect loader relationships
+
+Not every wrapper appears directly in `site-ui.js`.
+
+- `site-ui.js` loads `model-routing.js`; `model-routing.js` dynamically loads `helper-api-routing.js?v=3`.
+- `site-ui.js` loads `world-state-hook.js`; `world-state-hook.js` dynamically loads `state-tracker-repairs.js`.
+- `global-bridge.js` dynamically loads `credits-pilot.js`.
+- `site-ui.js` loads `story-tools.js`, then `prompt-cache.js`, `prompt-orchestrator.js`, `streaming-ui.js`, and `request-lifecycle.js` in one sequential story chain.
+- `site-ui.js` loads `global-bridge.js`, `world-modules.js`, `same-model-state-merge.js`, and `world-state-hook.js` in the world-state chain.
+- `cost-control.js` belongs to a separate provider/control chain and therefore should not depend on the story-chain finishing first.
+
+Because several chains begin from the same `DOMContentLoaded` handler, cross-chain ordering is not guaranteed. Future pipeline work should remove those hidden timing assumptions instead of relying on them.
 
 ## Refactor target
 
