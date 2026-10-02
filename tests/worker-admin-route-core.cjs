@@ -28,8 +28,7 @@ for (const pathContract of [
   assert.ok(boundary.includes(pathContract), `missing admin route contract: ${pathContract}`);
 }
 
-assert.match(boundary, /tokenFrom\(\s*request\s*\)/);
-assert.match(boundary, /env\.ADMIN_TOKEN/);
+assert.match(boundary, /adminAuthorized\(\s*request,\s*env\s*\)/);
 
 const instrumented =
   source.replace(
