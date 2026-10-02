@@ -1,7 +1,6 @@
 (() => {
   if (typeof API === "undefined" || API.__streamingUIPatched) return;
 
-  const originalSend = API.send.bind(API);
   const isMainStoryRequest = config => !config?.__connectionTest
     && !config?.__memoryTask
     && !config?.__stateTask
@@ -100,8 +99,8 @@
     setTimeout(paintCommitted, 160);
   };
 
-  API.send = async function(config, messages) {
-    if (!isMainStoryRequest(config)) return originalSend(config, messages);
+  const streamingWrapper = async (next, config, messages, ...rest) => {
+    if (!isMainStoryRequest(config)) return next(config, messages, ...rest);
     let scheduled = false;
     let pendingText = "";
     let settled = false;
@@ -125,9 +124,16 @@
       scheduled = true;
       (window.requestAnimationFrame || window.setTimeout)(render);
     };
-    try { return await originalSend({ ...config, stream: true, onDelta }, messages); }
+    try { return await next({ ...config, stream: true, onDelta }, messages, ...rest); }
     finally { settled = true; }
   };
+  if (typeof API.wrapSend === "function") {
+    API.wrapSend("streaming-ui:main-story", streamingWrapper);
+  } else {
+    // Compatibility fallback for a mixed-cache page where streaming-ui is newer than api.js.
+    const originalSend = API.send.bind(API);
+    API.send = (config, messages, ...rest) => streamingWrapper(originalSend, config, messages, ...rest);
+  }
 
   if (window.App?.sendMessage) {
     const originalSendMessage = App.sendMessage;
