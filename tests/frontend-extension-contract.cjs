@@ -101,6 +101,7 @@ assert.match(storyTools, /return pack\?\.playerConfirmed \? base \+ "\\n\\n" \+ 
 // Additional wrappers currently participating in API.send / App.sendMessage.
 const costControl = read("js/cost-control.js");
 const promptCache = read("js/prompt-cache.js");
+const promptOrchestrator = read("js/prompt-orchestrator.js");
 const sameModelStateMerge = read("js/same-model-state-merge.js");
 const streamingUI = read("js/streaming-ui.js");
 const creditsPilot = read("js/credits-pilot.js");
@@ -118,6 +119,10 @@ assert.match(promptCache, /Chat\.__memoryRequestGuardPatched\s*=\s*true/);
 assert.match(promptCache, /API\.wrapSend\("prompt-cache:memory-request-guard", memoryRequestWrapper\)/);
 assert.match(promptCache, /return await next\(\{ \.\.\.config, signal: controller\.signal \}, messages, \.\.\.rest\)/);
 
+assert.match(promptOrchestrator, /App\.wrapBuildMessages\("prompt-orchestrator:rules", orchestratorWrapper\)/);
+assert.match(promptOrchestrator, /const messages = await next\(config\)/);
+assert.match(promptOrchestrator, /App\.__promptOrchestratorPatched\s*=\s*true/);
+
 assert.match(sameModelStateMerge, /window\.BAOSameModelStateMerge/);
 assert.match(sameModelStateMerge, /API\.wrapSend\('same-model-state-merge:main-story', sameModelStateWrapper\)/);
 assert.match(sameModelStateMerge, /const result = await next\(effective, prepared, \.\.\.rest\)/);
@@ -126,6 +131,7 @@ assert.match(sameModelStateMerge, /window\.BAOSameModelStateMerge\s*=\s*\{/);
 assert.match(appSource, /wrapSendMessage\(id, wrapper\)/);
 assert.match(appSource, /wrapRenderChatShell\(id, wrapper\)/);
 assert.match(appSource, /wrapBuildSystemPrompt\(id, wrapper\)/);
+assert.match(appSource, /wrapBuildMessages\(id, wrapper\)/);
 assert.match(streamingUI, /API\.__streamingUIPatched/);
 assert.match(streamingUI, /API\.__streamingUIPatched\s*=\s*true/);
 assert.match(streamingUI, /API\.wrapSend\("streaming-ui:main-story", streamingWrapper\)/);

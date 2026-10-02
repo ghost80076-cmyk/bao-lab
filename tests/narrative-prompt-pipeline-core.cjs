@@ -49,6 +49,7 @@ global.Chat = {
 global.GameState = { current: {} };
 
 global.App = {
+  __buildMessagesWrapperIds: new Set(),
   config: {},
   activeCharacter: { id: "pipeline-test", world_focus: [] },
   escapeHTML: String,
@@ -62,7 +63,14 @@ global.App = {
   renderChatShell() {},
   openBuilder() {},
   saveStory() {},
-  getSelectedPreset() { return null; }
+  getSelectedPreset() { return null; },
+  wrapBuildMessages(id, wrapper) {
+    if (this.__buildMessagesWrapperIds.has(id)) return false;
+    const next = this.buildMessages.bind(this);
+    this.buildMessages = (...args) => wrapper.call(this, next, ...args);
+    this.__buildMessagesWrapperIds.add(id);
+    return true;
+  }
 };
 
 const run = file => vm.runInThisContext(
@@ -92,6 +100,11 @@ assert.deepEqual(App.config.narrative.stylePacks, ["female_kfilm", "cinematic", 
 
 run("js/prompt-cache.js");
 run("js/prompt-orchestrator.js");
+assert.equal(
+  App.__buildMessagesWrapperIds.has("prompt-orchestrator:rules"),
+  true,
+  "combined prompt pipeline must use App.wrapBuildMessages"
+);
 
 (async () => {
   const messages = await App.buildMessages(App.config);
