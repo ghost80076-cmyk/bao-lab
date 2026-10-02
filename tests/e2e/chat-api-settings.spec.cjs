@@ -2,31 +2,41 @@ const { test, expect } = require("@playwright/test");
 
 async function saveStoryWithoutPersistingKey(page) {
   await page.goto("/");
-  await expect(page.locator('#home-view .brand-hero h1')).toBeVisible();
-  await page.locator('#home-view [data-view="explore"]').click();
-  const card = page.locator("article").filter({ hasText: "林沉風 - 見過黑暗的人" });
-  await expect(card).toBeVisible();
-  await card.click();
-  await page.getByRole("button", { name: "開始故事" }).click();
-  await page.locator('#bao-setup-choice [data-bao-setup="advanced"]').click();
-  for (let step = 0; step < 3; step += 1) await page.getByRole("button", { name: "下一步" }).click();
-  await page.locator("#bao-demo-mode").check();
-  await page.getByRole("button", { name: "下一步" }).click();
-  await page.getByRole("button", { name: "開始故事" }).click();
-  await expect(page.locator("#user-input")).toBeVisible();
-  await expect(page.locator("#bao-chat-api-toolbar")).toBeVisible();
+  await page.waitForFunction(() =>
+    typeof App !== "undefined" &&
+    App.characters?.length > 0 &&
+    typeof Storage?.status === "function" &&
+    Storage.status().ready &&
+    typeof window.BAOChatAPISettings?.restore === "function"
+  );
+
   await page.evaluate(async () => {
-    App.config.demoMode = false;
-    App.config.api = {
-      type: "custom", protocol: "openai", model: "test-model",
-      baseUrl: "https://example.invalid/v1/chat/completions", key: "TEMPORARY_TEST_KEY"
+    const character = App.characters.find(item => item.id !== "autonomous-npc-world");
+    if (!character) throw new Error("Missing a suitable test character");
+    await App.openCharacter(character.id);
+    App.openBuilder();
+
+    const config = App.collectConfig();
+    config.demoMode = false;
+    config.offlineWorldPreview = false;
+    config.api = {
+      type: "custom",
+      route: "custom",
+      protocol: "openai",
+      model: "test-model",
+      baseUrl: "https://example.invalid/v1/chat/completions",
+      key: "TEMPORARY_TEST_KEY"
     };
-    if (GameState.current) GameState.current.config = App.config;
+
+    App.config = config;
+    Chat.reset();
+    GameState.create(App.activeCharacter, config);
     Chat.add("user", "這是一段測試劇情，不應因為補上 API Key 而消失。");
     Chat.summary = "故事的長期記憶不應消失。";
     App.saveStory(false);
     await Storage.flush();
   });
+
   await page.reload();
   await expect(page.locator("#home-continue")).toBeVisible();
 }
@@ -56,8 +66,7 @@ test("resuming a story opens editable API settings, preserves the story and does
   await dialog.locator('[name="key"]').fill("NEW_TEST_KEY");
   await dialog.getByRole("button", { name: "套用到目前故事" }).click();
   await expect(dialog).toHaveCount(0);
-  await expect(page.locator("#bao-chat-api-toolbar")).toBeVisible();
-  await expect(page.locator("#bao-chat-api-toolbar")).toContainText("test-model");
+  await expect(page.locator("#chat-model")).toHaveText("test-model");
   const result = await page.evaluate(() => ({
     key: App.config.api.key,
     savedKey: Storage.loadStory()?.config?.api?.key || "",
@@ -86,7 +95,8 @@ test("desktop chat can reopen API settings and switch models without restarting"
   await dialog.locator('[name="key"]').fill("DESKTOP_TEST_KEY");
   await dialog.getByRole("button", { name: "套用到目前故事" }).click();
   await expect(dialog).toHaveCount(0);
-  await page.locator("#bao-chat-api-toolbar button").click();
+  const reopened = await page.evaluate(() => window.BAOChatAPISettings?.open?.());
+  expect(reopened).toBe(true);
   await expect(dialog).toBeVisible();
   await dialog.locator('[name="model"]').fill("another-model");
   await dialog.getByRole("button", { name: "套用到目前故事" }).click();

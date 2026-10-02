@@ -135,7 +135,8 @@ assert.match(worldStateHook, /App\.__worldStateHooked\s*=\s*true/);
 assert.match(worldStateHook, /const originalSend\s*=\s*App\.sendMessage\.bind\(App\)/);
 
 assert.match(chatAPISettings, /window\.BAOChatAPISettings/);
-assert.match(chatAPISettings, /const originalSend\s*=\s*App\.sendMessage\.bind\(App\)/);
+assert.match(chatAPISettings, /App\.wrapSendMessage\("chat-api-settings:connection-gate", sendGateWrapper\)/);
+assert.match(chatAPISettings, /return next\(\.\.\.args\)/);
 assert.match(chatAPISettings, /window\.BAOChatAPISettings\s*=\s*\{/);
 
 assert.match(
