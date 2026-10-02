@@ -374,3 +374,8 @@ The player-facing catalog PR must stay unmerged until both server layers agree:
 - AWS `OPENROUTER_MODELS` contains all four IDs for AWS-routed players.
 
 Only after both checks pass should the browser catalog be merged and deployed.
+
+
+## Refactor safety map
+
+The current Worker remains single-file for deployment compatibility. The responsibility boundaries and safe refactor order are documented in [`docs/worker-architecture-boundaries.md`](../../docs/worker-architecture-boundaries.md).
