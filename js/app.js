@@ -44,6 +44,17 @@ const App = {
     this.__openCharacterWrapperIds.add(key);
     return true;
   },
+  wrapShowView(id, wrapper){
+    const key=String(id||"").trim();
+    if(!key)throw new Error("App showView wrapper 需要唯一識別碼。");
+    if(typeof wrapper!=="function")throw new Error(`App showView wrapper ${key} 必須是函式。`);
+    if(!this.__showViewWrapperIds)this.__showViewWrapperIds=new Set();
+    if(this.__showViewWrapperIds.has(key))return false;
+    const next=this.showView.bind(this);
+    this.showView=(...args)=>wrapper.call(this,next,...args);
+    this.__showViewWrapperIds.add(key);
+    return true;
+  },
   wrapBuildSystemPrompt(id, wrapper){
     const key=String(id||"").trim();
     if(!key)throw new Error("App buildSystemPrompt wrapper 需要唯一識別碼。");
