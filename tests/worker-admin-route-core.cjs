@@ -18,9 +18,6 @@ const boundaryEnd = source.indexOf("const {\n  ensureAdminPlayerEvents,\n  admin
 const boundary = source.slice(boundaryStart, boundaryEnd);
 
 for (const pathContract of [
-  "/admin/characters/publish-status",
-  "/admin/authors/profile-pr",
-  "/admin/characters/publish-pr",
   "/admin/players",
   "/admin/usage",
 ]) {
@@ -28,6 +25,11 @@ for (const pathContract of [
 }
 
 assert.match(boundary, /adminAuthorized\(\s*request,\s*env\s*\)/);
+assert.match(
+  boundary,
+  /await adminPublicationRoute\(\s*request,\s*path,\s*env\s*\)/,
+  "the admin dispatcher must delegate publication endpoints to their subroute boundary"
+);
 assert.match(
   boundary,
   /await adminProviderControlRoute\(\s*request,\s*path,\s*env,\s*db\s*\)/,
