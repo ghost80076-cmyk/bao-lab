@@ -200,6 +200,10 @@ jobs:
           node --check js/api.js
           node --check js/cost-control.js
           node tests/api-send-wrapper-core.cjs
+      - name: App sendMessage wrapper foundation
+        run: |
+          node --check js/app.js
+          node tests/app-send-message-wrapper-core.cjs
       - name: Global bridge memory presentation
         run: |
           node --check js/global-bridge.js
