@@ -81,7 +81,9 @@ jobs:
           node tests/story-helper-reconnect-core.cjs
 
       - name: Model registry and rollout contract
-        run: node tests/model-registry-contract.cjs
+        run: |
+          node tests/model-registry-contract.cjs
+          node tests/model-rollout-plan-core.cjs
 
       - name: Frontend extension-chain contract
         run: node tests/frontend-extension-contract.cjs

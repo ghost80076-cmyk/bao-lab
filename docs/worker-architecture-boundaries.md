@@ -39,7 +39,7 @@ Each boundary was merged independently after its contract tests and the reposito
 ## Remaining work
 
 - Automate Cloudflare Worker module-graph deployment and document rollback before extracting files.
-- Consolidate the browser catalog, Worker allowlists/pricing and relay allowlist into a single model registry; the current drift tests are safeguards, not that registry.
+- Consolidate the browser catalog and the unknown production Worker base allowlist into a single model registry. Versioned deltas now generate one validated Cloudflare/AWS deployment plan, but cannot safely replace the external production base.
 - Configure the production `AUTH_RATE_LIMITER` binding and verify `auth_rate_limit_configured: true`; source support alone does not activate enforcement in the dashboard-deployed Worker.
 
 ## Non-negotiable compatibility rules

@@ -324,6 +324,21 @@ The reviewed Worker pricing delta is versioned at:
 **Important:** that JSON file is a delta, not a complete replacement for production `MODELS_JSON`.
 Append or merge those four objects into the existing Cloudflare `MODELS_JSON`; replacing the entire variable with only the delta would disable previously allowed models.
 
+Generate a validated deployment plan from that delta instead of copying the Cloudflare and AWS values independently:
+
+```bash
+node workers/bao-lab-credits-api/build-model-rollout-plan.cjs \
+  workers/bao-lab-credits-api/model-rollouts/2026-10-02-mainstream-openrouter.json
+```
+
+The JSON output contains:
+
+- `cloudflare.value_json` for `MODELS_JSON_EXTRA`;
+- `aws.append_csv` for the IDs to append to `OPENROUTER_MODELS`;
+- `resolved_routes`, proving every delta entry resolves back to `data/presets/models.json`.
+
+The tool deliberately does not merge or replace the unknown production base allowlist.
+
 The four routes intentionally use OpenRouter for YoruBay Hosted so the existing Worker cost settlement and AWS relay path remain unchanged.
 
 Pricing snapshot reviewed on 2026-10-02:
