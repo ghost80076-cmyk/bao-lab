@@ -1,5 +1,5 @@
 (() => {
-  if (typeof GameState === "undefined" || typeof WorldStateEngine === "undefined") return;
+  if (window.BAOWorldModules || typeof GameState === "undefined" || typeof WorldStateEngine === "undefined") return;
 
   const BUILT_INS = {
     status: { label: "狀態", icon: "◈", tracking: "high", context: "core", kind: "object", triggers: ["狀態","血量","hp","生命","體力","魔力","mp","受傷","傷勢","中毒","疲勞"] },
