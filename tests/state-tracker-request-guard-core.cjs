@@ -19,7 +19,7 @@ global.document = {
 global.App = {
   __renderChatShellWrapperIds: new Set(),
   characters: [],
-  activeCharacter: { id: "test-character" },
+  activeCharacter: { id: "autonomous-npc-world" },
   openCharacter() {},
   renderChatShell(...args) { shellCalls += 1; return { args }; },
   wrapRenderChatShell(id, wrapper) {
