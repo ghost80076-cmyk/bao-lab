@@ -5,6 +5,7 @@ const vm = require("node:vm");
 
 global.window = global;
 global.App = {
+  __buildMessagesWrapperIds: new Set(),
   config: {},
   async buildMessages() {
     return [
@@ -12,12 +13,24 @@ global.App = {
       { role: "assistant", content: "上一輪" },
       { role: "user", content: "玩家最新輸入" }
     ];
+  },
+  wrapBuildMessages(id, wrapper) {
+    if (this.__buildMessagesWrapperIds.has(id)) return false;
+    const next = this.buildMessages.bind(this);
+    this.buildMessages = (...args) => wrapper.call(this, next, ...args);
+    this.__buildMessagesWrapperIds.add(id);
+    return true;
   }
 };
 
 const source = fs.readFileSync(path.join(__dirname, "..", "js", "prompt-orchestrator.js"), "utf8");
 vm.runInThisContext(source, { filename: "js/prompt-orchestrator.js" });
 
+assert.equal(
+  App.__buildMessagesWrapperIds.has("prompt-orchestrator:rules"),
+  true,
+  "prompt orchestrator must install through App.wrapBuildMessages"
+);
 assert.equal(BAOPromptOrchestrator.version, 3);
 assert.equal(BAOPromptOrchestrator.familyFor({ model: "google/gemini-3.1-pro-preview", type: "openrouter" }), "gemini");
 assert.equal(BAOPromptOrchestrator.familyFor({ model: "anthropic/claude-sonnet-4.5", type: "openrouter" }), "claude");
