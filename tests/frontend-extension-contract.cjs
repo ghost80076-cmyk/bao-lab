@@ -94,6 +94,8 @@ assert.match(repairs, /window\.BAOStateTrackerRepairs\s*=\s*\{/);
 assert.match(storyTools, /App\.wrapRenderChatShell\("story-tools:inject", storyToolsShellWrapper\)/);
 assert.match(storyTools, /next\(fresh\)/);
 assert.match(storyTools, /setTimeout\(inject, 0\)/);
+assert.match(storyTools, /App\.wrapBuildSystemPrompt\("story-tools:context-pack", contextPackPromptWrapper\)/);
+assert.match(storyTools, /return pack\?\.playerConfirmed \? base \+ "\\n\\n" \+ packPrompt\(pack\) : base;/);
 
 
 // Additional wrappers currently participating in API.send / App.sendMessage.
@@ -123,6 +125,7 @@ assert.match(sameModelStateMerge, /window\.BAOSameModelStateMerge\s*=\s*\{/);
 
 assert.match(appSource, /wrapSendMessage\(id, wrapper\)/);
 assert.match(appSource, /wrapRenderChatShell\(id, wrapper\)/);
+assert.match(appSource, /wrapBuildSystemPrompt\(id, wrapper\)/);
 assert.match(streamingUI, /API\.__streamingUIPatched/);
 assert.match(streamingUI, /API\.__streamingUIPatched\s*=\s*true/);
 assert.match(streamingUI, /API\.wrapSend\("streaming-ui:main-story", streamingWrapper\)/);

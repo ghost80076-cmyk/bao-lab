@@ -208,6 +208,14 @@ jobs:
         run: |
           node --check js/app.js
           node tests/app-render-chat-shell-wrapper-core.cjs
+      - name: App buildSystemPrompt wrapper foundation
+        run: |
+          node --check js/app.js
+          node tests/app-build-system-prompt-wrapper-core.cjs
+      - name: Confirmed Context Pack prompt
+        run: |
+          node --check js/story-tools.js
+          node tests/story-tools-context-pack-prompt-core.cjs
       - name: Story tools shell wrapper
         run: |
           node --check js/story-tools.js

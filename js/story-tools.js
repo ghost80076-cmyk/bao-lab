@@ -1380,12 +1380,18 @@
     row.appendChild(button);
   };
 
-  const originalBuild = App.buildSystemPrompt.bind(App);
-  App.buildSystemPrompt = function() {
-    const base = originalBuild();
+  const contextPackPromptWrapper = function(next, ...args) {
+    const base = next(...args);
     const pack = GameState.current?.contextPack;
     return pack?.playerConfirmed ? base + "\n\n" + packPrompt(pack) : base;
   };
+  if (typeof App.wrapBuildSystemPrompt === "function") {
+    App.wrapBuildSystemPrompt("story-tools:context-pack", contextPackPromptWrapper);
+  } else {
+    // Compatibility fallback for a mixed-cache page where story-tools is newer than app.js.
+    const originalBuild = App.buildSystemPrompt.bind(App);
+    App.buildSystemPrompt = (...args) => contextPackPromptWrapper.call(App, originalBuild, ...args);
+  }
 
   const storyToolsShellWrapper = function(next, fresh = false) {
     next(fresh);
