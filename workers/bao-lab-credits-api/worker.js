@@ -8133,76 +8133,15 @@ const {
 } = WorkerAdminUsageRoutes;
 
 
-// Authenticated admin HTTP surface. Publication formatting, provider control
-// calculations and chat settlement remain in their own boundaries.
-const WorkerAdminRoutes = (() => {
-async function ensureAdminPlayerEvents(
-  db
-) {
-  await db
-    .prepare(
-      `
-      CREATE TABLE IF NOT EXISTS admin_player_events (
-        event_id TEXT PRIMARY KEY,
-        player_id TEXT NOT NULL,
-        action TEXT NOT NULL,
-        reason TEXT,
-        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-      )
-      `
-    )
-    .run();
-}
-
-async function adminRoute(
+// Admin player directory list/create endpoints. Existing-player mutations
+// and wallet top-ups remain outside this boundary.
+const WorkerAdminPlayerDirectoryRoutes = (() => {
+async function adminPlayerDirectoryRoute(
   request,
-  url,
+  path,
   env,
   db
 ) {
-  if (
-    !adminAuthorized(
-      request,
-      env
-    )
-  ) {
-    return fail(
-      "unauthorized",
-      401
-    );
-  }
-
-  const path =
-    url.pathname;
-
-  const publicationResponse =
-    await adminPublicationRoute(
-      request,
-      path,
-      env
-    );
-
-  if (publicationResponse) {
-    return publicationResponse;
-  }
-
-
-  await ensureAdminPlayerEvents(
-    db
-  );
-
-  const providerControlResponse =
-    await adminProviderControlRoute(
-      request,
-      path,
-      env,
-      db
-    );
-
-  if (providerControlResponse) {
-    return providerControlResponse;
-  }
-
   if (
     path ===
       "/admin/players" &&
@@ -8449,6 +8388,101 @@ async function adminRoute(
       },
       201
     );
+  }
+
+  return null;
+}
+
+  return Object.freeze({
+    adminPlayerDirectoryRoute,
+  });
+})();
+
+const {
+  adminPlayerDirectoryRoute,
+} = WorkerAdminPlayerDirectoryRoutes;
+
+
+// Authenticated admin HTTP surface. Publication formatting, provider control
+// calculations and chat settlement remain in their own boundaries.
+const WorkerAdminRoutes = (() => {
+async function ensureAdminPlayerEvents(
+  db
+) {
+  await db
+    .prepare(
+      `
+      CREATE TABLE IF NOT EXISTS admin_player_events (
+        event_id TEXT PRIMARY KEY,
+        player_id TEXT NOT NULL,
+        action TEXT NOT NULL,
+        reason TEXT,
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+      )
+      `
+    )
+    .run();
+}
+
+async function adminRoute(
+  request,
+  url,
+  env,
+  db
+) {
+  if (
+    !adminAuthorized(
+      request,
+      env
+    )
+  ) {
+    return fail(
+      "unauthorized",
+      401
+    );
+  }
+
+  const path =
+    url.pathname;
+
+  const publicationResponse =
+    await adminPublicationRoute(
+      request,
+      path,
+      env
+    );
+
+  if (publicationResponse) {
+    return publicationResponse;
+  }
+
+
+  await ensureAdminPlayerEvents(
+    db
+  );
+
+  const providerControlResponse =
+    await adminProviderControlRoute(
+      request,
+      path,
+      env,
+      db
+    );
+
+  if (providerControlResponse) {
+    return providerControlResponse;
+  }
+
+  const playerDirectoryResponse =
+    await adminPlayerDirectoryRoute(
+      request,
+      path,
+      env,
+      db
+    );
+
+  if (playerDirectoryResponse) {
+    return playerDirectoryResponse;
   }
 
   const match =
