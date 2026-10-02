@@ -40,8 +40,8 @@ assert.match(
 );
 assert.match(
   boundary,
-  /\(credit\|wallet-credit\|disable\|enable\)/,
-  "existing-player mutations must remain in the authenticated admin dispatcher until isolated"
+  /await adminPlayerMutationRoute\(\s*request,\s*path,\s*db\s*\)/,
+  "the admin dispatcher must delegate existing-player writes to the mutation boundary"
 );
 
 const instrumented =

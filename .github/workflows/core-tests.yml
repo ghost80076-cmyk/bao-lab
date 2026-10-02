@@ -144,6 +144,7 @@ jobs:
           node tests/worker-admin-publication-routes-core.cjs
           node tests/worker-admin-usage-routes-core.cjs
           node tests/worker-admin-player-directory-routes-core.cjs
+          node tests/worker-admin-player-mutation-routes-core.cjs
       - name: Frontend extension idempotency
         run: |
           node --check js/world-modules.js
