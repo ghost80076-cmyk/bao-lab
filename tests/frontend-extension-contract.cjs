@@ -79,8 +79,8 @@ assert.match(bridge, /return originalSend\(config, cleaned, \.\.\.rest\)/);
 
 assert.match(helper, /API\.__helperRoutePatched/);
 assert.match(helper, /API\.__helperRoutePatched\s*=\s*true/);
-assert.match(helper, /const originalSend\s*=\s*API\.send\.bind\(API\)/);
-assert.match(helper, /return originalSend\(effective, messages\)/);
+assert.match(helper, /API\.wrapSend\("helper-api-routing:route", helperRouteWrapper\)/);
+assert.match(helper, /return next\(effective, messages, \.\.\.rest\)/);
 
 assert.match(repairs, /window\.BAOStateTrackerRepairs/);
 assert.match(repairs, /const oldSend\s*=\s*API\.send\.bind\(API\)/);

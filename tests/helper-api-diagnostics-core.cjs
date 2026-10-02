@@ -13,14 +13,23 @@ global.App = {
   }
 };
 global.API = {
+  __sendWrapperIds: new Set(),
   async send(config, messages) {
     received = { config, messages };
     return { text: "OK" };
+  },
+  wrapSend(id, wrapper) {
+    if (this.__sendWrapperIds.has(id)) return false;
+    const next = this.send.bind(this);
+    this.send = (config, messages, ...rest) => wrapper(next, config, messages, ...rest);
+    this.__sendWrapperIds.add(id);
+    return true;
   }
 };
 
 const source = fs.readFileSync(path.join(__dirname, "..", "js", "helper-api-routing.js"), "utf8");
 vm.runInThisContext(source, { filename: "js/helper-api-routing.js" });
+assert.equal(API.__sendWrapperIds.has("helper-api-routing:route"), true, "helper routing must install through API.wrapSend");
 
 (async () => {
   await API.send({ ...App.config.api, __memoryTask: true }, [{ role: "user", content: "summary" }]);

@@ -2,14 +2,13 @@
   if (typeof API === "undefined" || typeof App === "undefined" || API.__helperRoutePatched) return;
 
   const normalizeUrl = value => String(value || "").trim().replace(/\/+$/, "");
-  const originalSend = API.send.bind(API);
 
-  API.send = async function(config, messages) {
-    if (config?.__connectionTest) return originalSend(config, messages);
+  const helperRouteWrapper = async (next, config, messages, ...rest) => {
+    if (config?.__connectionTest) return next(config, messages, ...rest);
     let route = null;
     if (config?.__memoryTask) route = App.config?.memory?.summaryApi || null;
     if (config?.__stateTask) route = App.config?.cost?.stateApi || null;
-    if (!route?.model || !route?.baseUrl) return originalSend(config, messages);
+    if (!route?.model || !route?.baseUrl) return next(config, messages, ...rest);
 
     const main = App.config?.api || config || {};
     const sameEndpoint = normalizeUrl(route.baseUrl) === normalizeUrl(main.baseUrl) &&
@@ -30,8 +29,16 @@
       maxOutputTokens: config.maxOutputTokens
     };
     if (!effective.key) throw new Error('輔助模型缺少連線金鑰（API Key），請重新連接。');
-    return originalSend(effective, messages);
+    return next(effective, messages, ...rest);
   };
+
+  if (typeof API.wrapSend === "function") {
+    API.wrapSend("helper-api-routing:route", helperRouteWrapper);
+  } else {
+    // Compatibility fallback for a mixed-cache page where helper routing is newer than api.js.
+    const originalSend = API.send.bind(API);
+    API.send = (config, messages, ...rest) => helperRouteWrapper(originalSend, config, messages, ...rest);
+  }
   API.__helperRoutePatched = true;
 })();
 
