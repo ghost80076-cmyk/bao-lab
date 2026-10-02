@@ -83,8 +83,8 @@ assert.match(helper, /API\.wrapSend\("helper-api-routing:route", helperRouteWrap
 assert.match(helper, /return next\(effective, messages, \.\.\.rest\)/);
 
 assert.match(repairs, /window\.BAOStateTrackerRepairs/);
-assert.match(repairs, /const oldSend\s*=\s*API\.send\.bind\(API\)/);
-assert.match(repairs, /return await oldSend\(config, guarded\)/);
+assert.match(repairs, /API\.wrapSend\('state-tracker-repairs:presence-guard', stateTrackerWrapper\)/);
+assert.match(repairs, /return await next\(config, guarded, \.\.\.rest\)/);
 assert.match(repairs, /window\.BAOStateTrackerRepairs\s*=\s*\{/);
 
 
