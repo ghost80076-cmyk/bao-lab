@@ -17,12 +17,6 @@ const boundaryStart = source.indexOf("const WorkerAdminRoutes = (() => {");
 const boundaryEnd = source.indexOf("const {\n  ensureAdminPlayerEvents,\n  adminRoute,\n} = WorkerAdminRoutes;");
 const boundary = source.slice(boundaryStart, boundaryEnd);
 
-for (const pathContract of [
-  "/admin/players",
-]) {
-  assert.ok(boundary.includes(pathContract), `missing admin route contract: ${pathContract}`);
-}
-
 assert.match(boundary, /adminAuthorized\(\s*request,\s*env\s*\)/);
 assert.match(
   boundary,
@@ -38,6 +32,16 @@ assert.match(
   boundary,
   /await adminUsageRoute\(\s*request,\s*path,\s*url,\s*db\s*\)/,
   "the admin dispatcher must delegate usage history to its read-only subroute boundary"
+);
+assert.match(
+  boundary,
+  /await adminPlayerDirectoryRoute\(\s*request,\s*path,\s*env,\s*db\s*\)/,
+  "the admin dispatcher must delegate player list/create requests to the directory boundary"
+);
+assert.match(
+  boundary,
+  /\(credit\|wallet-credit\|disable\|enable\)/,
+  "existing-player mutations must remain in the authenticated admin dispatcher until isolated"
 );
 
 const instrumented =
