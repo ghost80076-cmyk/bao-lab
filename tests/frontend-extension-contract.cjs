@@ -14,6 +14,7 @@ const storyTools = read("js/story-tools.js");
 const storyControlCenter = read("js/story-control-center.js");
 const chatShellFix = read("js/chat-shell-fix.js");
 const chatToolNavigation = read("js/chat-tool-navigation.js");
+const playerShellV2 = read("js/player-shell-v2.js");
 
 const position = (source, token, label = token) => {
   const value = source.indexOf(token);
@@ -105,6 +106,10 @@ assert.match(storyTools, /setTimeout\(inject, 0\)/);
 assert.match(storyControlCenter, /App\.wrapRenderChatShell\("story-control-center:entry", storyControlShellWrapper\)/);
 assert.match(storyControlCenter, /window\.setTimeout\(injectEntry, 0\)/);
 assert.match(storyControlCenter, /App\.wrapShowView\("story-control-center:entry", storyControlViewWrapper\)/);
+
+assert.match(playerShellV2, /App\.wrapShowView\("player-shell-v2:navigation", playerShellViewWrapper\)/);
+assert.match(playerShellV2, /dismissNavigationSurfaces\(\);/);
+assert.match(playerShellV2, /syncNavigation\(view\);/);
 
 assert.match(chatShellFix, /App\.wrapRenderChatShell\("chat-shell-fix:header", chatHeaderWrapper\)/);
 assert.match(chatShellFix, /ensureChatHeader\(\);/);
