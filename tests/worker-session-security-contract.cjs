@@ -9,6 +9,28 @@ const source = fs.readFileSync(
 
 assert.match(
   source,
+  /const WorkerCrypto = \(\(\) => \{/,
+  "crypto and password helpers must stay grouped behind the internal WorkerCrypto boundary"
+);
+for (const helper of [
+  "bytesToB64Url",
+  "b64UrlToBytes",
+  "randomBytes",
+  "newOpaqueToken",
+  "publicPlayerId",
+  "newRecoveryCode",
+  "normalizeRecoveryCode",
+  "sha256Hex",
+  "derivePasswordHash",
+  "constantTimeStringEqual",
+  "passwordRecord",
+  "passwordMatches",
+]) {
+  assert.match(source, new RegExp("\\b" + helper + "\\b"), "WorkerCrypto boundary is missing " + helper);
+}
+
+assert.match(
+  source,
   /const SESSION_COOKIE_NAME\s*=\s*"__Host-yorubay_session"/,
   "session cookie must keep the __Host- prefix"
 );
