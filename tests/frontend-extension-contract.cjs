@@ -87,4 +87,47 @@ assert.match(repairs, /const oldSend\s*=\s*API\.send\.bind\(API\)/);
 assert.match(repairs, /return await oldSend\(config, guarded\)/);
 assert.match(repairs, /window\.BAOStateTrackerRepairs\s*=\s*\{/);
 
+
+// Additional wrappers currently participating in API.send / App.sendMessage.
+const costControl = read("js/cost-control.js");
+const promptCache = read("js/prompt-cache.js");
+const sameModelStateMerge = read("js/same-model-state-merge.js");
+const streamingUI = read("js/streaming-ui.js");
+const creditsPilot = read("js/credits-pilot.js");
+const requestLifecycle = read("js/request-lifecycle.js");
+const worldStateHook = read("js/world-state-hook.js");
+const chatAPISettings = read("js/chat-api-settings.js");
+
+assert.match(costControl, /API\.__budgetPatched/);
+assert.match(costControl, /API\.__budgetPatched\s*=\s*true/);
+assert.match(costControl, /const original\s*=\s*API\.send\.bind\(API\)/);
+
+assert.match(promptCache, /Chat\.__memoryRequestGuardPatched/);
+assert.match(promptCache, /Chat\.__memoryRequestGuardPatched\s*=\s*true/);
+assert.match(promptCache, /const originalSend\s*=\s*API\.send\.bind\(API\)/);
+
+assert.match(sameModelStateMerge, /window\.BAOSameModelStateMerge/);
+assert.match(sameModelStateMerge, /const rawSend\s*=\s*API\.send\.bind\(API\)/);
+assert.match(sameModelStateMerge, /window\.BAOSameModelStateMerge\s*=\s*\{/);
+
+assert.match(streamingUI, /API\.__streamingUIPatched/);
+assert.match(streamingUI, /API\.__streamingUIPatched\s*=\s*true/);
+assert.match(streamingUI, /const originalSend\s*=\s*API\.send\.bind\(API\)/);
+
+assert.match(creditsPilot, /window\.BAOCreditsPilot/);
+assert.match(creditsPilot, /const originalSend\s*=\s*API\.send\.bind\(API\)/);
+assert.match(creditsPilot, /window\.BAOCreditsPilot\s*=\s*Object\.freeze\(\{/);
+
+assert.match(requestLifecycle, /App\.__requestLifecyclePatched/);
+assert.match(requestLifecycle, /App\.__requestLifecyclePatched\s*=\s*true/);
+assert.match(requestLifecycle, /const originalSendMessage\s*=\s*App\.sendMessage\.bind\(App\)/);
+
+assert.match(worldStateHook, /App\.__worldStateHooked/);
+assert.match(worldStateHook, /App\.__worldStateHooked\s*=\s*true/);
+assert.match(worldStateHook, /const originalSend\s*=\s*App\.sendMessage\.bind\(App\)/);
+
+assert.match(chatAPISettings, /window\.BAOChatAPISettings/);
+assert.match(chatAPISettings, /const originalSend\s*=\s*App\.sendMessage\.bind\(App\)/);
+assert.match(chatAPISettings, /window\.BAOChatAPISettings\s*=\s*\{/);
+
 console.log("frontend-extension-contract: load order and wrapper guards ok");
