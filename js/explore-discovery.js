@@ -73,6 +73,13 @@
     };
   };
 
+  const authorHref = item => {
+    const id = String(item?.author_id || "").trim().toLowerCase();
+    return /^[a-z0-9][a-z0-9_-]{1,63}$/.test(id)
+      ? "author.html?id=" + encodeURIComponent(id)
+      : "";
+  };
+
   const formatActivityDate = value => {
     const stamp = Number(value || 0);
     if (!stamp) return "";
@@ -177,7 +184,27 @@
     const titleNode = dialog.querySelector("[data-explore-preview-title]");
     if (titleNode) titleNode.textContent = title;
     const metaNode = dialog.querySelector("[data-explore-preview-meta]");
-    if (metaNode) metaNode.textContent = meta.join(" · ");
+    if (metaNode) {
+      metaNode.replaceChildren();
+      const href = authorHref(item);
+      const parts = [];
+      if (author && href) {
+        const link = document.createElement("a");
+        link.className = "explore-author-link";
+        link.href = href;
+        link.textContent = "作者 · " + author;
+        parts.push(link);
+      } else if (author) {
+        parts.push(document.createTextNode("作者 · " + author));
+      }
+      parts.push(document.createTextNode(rating));
+      if (publication.publishedVersion) parts.push(document.createTextNode("公開版本 v" + publication.publishedVersion));
+      if (publication.activityAt) parts.push(document.createTextNode("更新於 " + formatActivityDate(publication.activityAt)));
+      parts.forEach((part, index) => {
+        if (index) metaNode.append(" · ");
+        metaNode.append(part);
+      });
+    }
     const description = dialog.querySelector("[data-explore-preview-description]");
     if (description) description.textContent = character.description || "這個作品尚未提供簡介。";
 
@@ -501,7 +528,18 @@
           if (title) title.insertAdjacentElement("afterend", context);
           else content.prepend(context);
         }
-        context.textContent = contextText;
+        context.replaceChildren();
+        const href = authorHref(item);
+        if (href && state.scope === "all" && String(item?.author || "").trim()) {
+          const link = document.createElement("a");
+          link.className = "explore-author-link";
+          link.href = href;
+          link.textContent = contextText;
+          link.addEventListener("click", event => event.stopPropagation());
+          context.appendChild(link);
+        } else {
+          context.textContent = contextText;
+        }
       }
 
       const tags = content.querySelector(".tags");
@@ -534,7 +572,27 @@
   const decorateDetailVersion = item => {
     const detail = document.getElementById("character-detail");
     if (!detail) return;
-    detail.querySelectorAll(".explore-detail-version").forEach(node => node.remove());
+    detail.querySelectorAll(".explore-detail-version,.explore-detail-author").forEach(node => node.remove());
+
+    const title = detail.querySelector("h1");
+    const author = String(item?.author || "").trim();
+    const href = authorHref(item);
+    if (author) {
+      const authorLine = document.createElement("div");
+      authorLine.className = "explore-detail-author";
+      if (href) {
+        const link = document.createElement("a");
+        link.className = "explore-author-link";
+        link.href = href;
+        link.textContent = "作者 · " + author;
+        authorLine.appendChild(link);
+      } else {
+        authorLine.textContent = "作者 · " + author;
+      }
+      if (title) title.insertAdjacentElement("afterend", authorLine);
+      else detail.prepend(authorLine);
+    }
+
     const publication = core.publicationMeta(item || {});
     if (!publication.publishedVersion && !publication.activityAt) return;
     const line = document.createElement("div");
@@ -543,8 +601,9 @@
     if (publication.publishedVersion) bits.push("公開版本 v" + publication.publishedVersion);
     if (publication.activityAt) bits.push("更新於 " + formatActivityDate(publication.activityAt));
     line.textContent = bits.join(" · ");
-    const title = detail.querySelector("h1");
-    if (title) title.insertAdjacentElement("afterend", line);
+
+    const anchor = detail.querySelector(".explore-detail-author") || title;
+    if (anchor) anchor.insertAdjacentElement("afterend", line);
     else detail.prepend(line);
   };
 
@@ -739,6 +798,33 @@
 
   ensureTools();
   scheduleApply();
+
+  const openDeepLinkedWork = async () => {
+    const id = String(new URLSearchParams(location.search).get("work") || "").trim();
+    if (!id) return;
+
+    for (let attempt = 0; attempt < 50; attempt += 1) {
+      let exists = (App.characterManifest || []).some(item => String(item?.id || "") === id);
+      if (!exists && App.hasMoreCharacterCatalog?.()) {
+        try {
+          const added = await App.loadMoreCharacters();
+          if (added) App.renderCharacters("all");
+        } catch {}
+        exists = (App.characterManifest || []).some(item => String(item?.id || "") === id);
+      }
+      if (exists) {
+        App.showView("explore");
+        scheduleApply();
+        window.setTimeout(() => openPreview(id), 40);
+        return;
+      }
+      await new Promise(resolve => window.setTimeout(resolve, 100));
+    }
+  };
+
+  window.addEventListener("load", () => {
+    window.setTimeout(openDeepLinkedWork, 0);
+  }, { once: true });
 
   window.BAOExploreDiscovery = Object.freeze({
     state,
