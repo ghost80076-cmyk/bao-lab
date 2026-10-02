@@ -1387,11 +1387,17 @@
     return pack?.playerConfirmed ? base + "\n\n" + packPrompt(pack) : base;
   };
 
-  const originalRender = App.renderChatShell.bind(App);
-  App.renderChatShell = function(fresh = false) {
-    originalRender(fresh);
+  const storyToolsShellWrapper = function(next, fresh = false) {
+    next(fresh);
     setTimeout(inject, 0);
   };
+  if (typeof App.wrapRenderChatShell === "function") {
+    App.wrapRenderChatShell("story-tools:inject", storyToolsShellWrapper);
+  } else {
+    // Compatibility fallback for a mixed-cache page where story-tools is newer than app.js.
+    const originalRender = App.renderChatShell.bind(App);
+    App.renderChatShell = (fresh = false) => storyToolsShellWrapper.call(App, originalRender, fresh);
+  }
 
   window.BAOStoryTools = { open, openLibrary, libraryScreen, restoreLibraryChapter, createPack, normalizePack, confirmationSignature, packPrompt, parseExternalText, resolveImportedMessages, preview, startSequel, chunkMessages, organizationPlan, mergeCallCount, tokenEstimate };
   ensureStyles();
