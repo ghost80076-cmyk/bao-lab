@@ -451,18 +451,25 @@
     $("bao-me-nav")?.classList.toggle("active", current === "me");
   };
 
+  const playerShellViewWrapper = function(next, view, ...args) {
+    dismissNavigationSurfaces();
+    const result = next(view, ...args);
+    if (view === "me") refreshMeView();
+    if (view === "detail") requestAnimationFrame(decorateDetail);
+    syncNavigation(view);
+    if (view !== "chat") requestAnimationFrame(() => window.BAOMobileReadingLayout?.sync?.());
+    return result;
+  };
+
   const patchViews = () => {
     if (App.__baoPlayerShellViewWrapped) return;
-    const previous = App.showView.bind(App);
-    App.showView = function(view, ...args) {
-      dismissNavigationSurfaces();
-      const result = previous(view, ...args);
-      if (view === "me") refreshMeView();
-      if (view === "detail") requestAnimationFrame(decorateDetail);
-      syncNavigation(view);
-      if (view !== "chat") requestAnimationFrame(() => window.BAOMobileReadingLayout?.sync?.());
-      return result;
-    };
+    if (typeof App.wrapShowView === "function") {
+      App.wrapShowView("player-shell-v2:navigation", playerShellViewWrapper);
+    } else {
+      // Compatibility fallback for a mixed-cache page where player-shell-v2 is newer than app.js.
+      const previous = App.showView.bind(App);
+      App.showView = (view, ...args) => playerShellViewWrapper.call(App, previous, view, ...args);
+    }
     App.__baoPlayerShellViewWrapped = true;
   };
 
