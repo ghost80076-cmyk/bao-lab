@@ -264,14 +264,13 @@
     return result;
   };
 
-  const originalSend = API.send.bind(API);
-  API.send = async function(config, messages) {
+  const hostedCreditsWrapper = async (next, config, messages, ...rest) => {
     if (!isPilot(config)) {
       const main = App.config?.api;
       if (isPilot(main) && main.key && config?.key === main.key && !isEndpoint(config?.baseUrl)) {
         throw new Error("輔助模型使用不同服務商時，必須另外填入自己的 API Key；不可沿用 YoruBay 帳號 Session。");
       }
-      return originalSend(config, messages);
+      return next(config, messages, ...rest);
     }
     const upstreamProvider = hostedProviderFor(config.model);
     if (!isEndpoint(config.baseUrl) || !upstreamProvider) {
@@ -318,9 +317,9 @@
           max_output_tokens: maxOutput,
           ...(sessionId ? { session_id: sessionId } : {})
         }),
-        signal: config.signal || this.activeSignal
+        signal: config.signal || API.activeSignal
       });
-    } catch (error) { throw this.networkError(error); }
+    } catch (error) { throw API.networkError(error); }
     let data;
     try { data = await response.json(); }
     catch { throw new Error(`夜灣 後端回傳了無法解析的內容（HTTP ${response.status}）。`); }
@@ -385,7 +384,7 @@
     const cacheWrite = Number.isInteger(data.usage?.cache_write_tokens) ? data.usage.cache_write_tokens : null;
     const result = {
       text: data.content,
-      usage: this.normalizeUsage({
+      usage: API.normalizeUsage({
         input_tokens: input,
         output_tokens: output,
         cached_tokens: cached,
@@ -418,6 +417,14 @@
     }
     return result;
   };
+
+  if (typeof API.wrapSend === "function") {
+    API.wrapSend("credits-pilot:hosted-transport", hostedCreditsWrapper);
+  } else {
+    // Compatibility fallback for a mixed-cache page where credits-pilot is newer than api.js.
+    const originalSend = API.send.bind(API);
+    API.send = (config, messages, ...rest) => hostedCreditsWrapper(originalSend, config, messages, ...rest);
+  }
 
   const refreshDialog = backdrop => {
     const preset = backdrop.querySelector('select[name="preset"]');
