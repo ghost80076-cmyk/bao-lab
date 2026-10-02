@@ -66,8 +66,7 @@ test("resuming a story opens editable API settings, preserves the story and does
   await dialog.locator('[name="key"]').fill("NEW_TEST_KEY");
   await dialog.getByRole("button", { name: "套用到目前故事" }).click();
   await expect(dialog).toHaveCount(0);
-  await expect(page.locator("#bao-chat-api-toolbar")).toBeVisible();
-  await expect(page.locator("#bao-chat-api-toolbar")).toContainText("test-model");
+  await expect(page.locator("#chat-model")).toHaveText("test-model");
   const result = await page.evaluate(() => ({
     key: App.config.api.key,
     savedKey: Storage.loadStory()?.config?.api?.key || "",
@@ -96,7 +95,8 @@ test("desktop chat can reopen API settings and switch models without restarting"
   await dialog.locator('[name="key"]').fill("DESKTOP_TEST_KEY");
   await dialog.getByRole("button", { name: "套用到目前故事" }).click();
   await expect(dialog).toHaveCount(0);
-  await page.locator("#bao-chat-api-toolbar button").click();
+  await expect(page.locator("#bao-chat-api-aside")).toBeVisible();
+  await page.locator("#bao-chat-api-aside").click();
   await expect(dialog).toBeVisible();
   await dialog.locator('[name="model"]').fill("another-model");
   await dialog.getByRole("button", { name: "套用到目前故事" }).click();
