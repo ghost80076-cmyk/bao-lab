@@ -7,6 +7,25 @@ const workerSource = fs.readFileSync(
   "utf8"
 );
 
+assert.match(
+  workerSource,
+  /const WorkerPublicationFormat = \(\(\) => \{/,
+  "publication validation and shaping helpers must stay grouped behind WorkerPublicationFormat"
+);
+for (const helper of [
+  "publishError",
+  "plainObject",
+  "redactPublishSecrets",
+  "cleanStringList",
+  "characterBucket",
+  "prepareCharacterPublication",
+  "mergePublishedCatalogEntry",
+  "mergeAuthorProfile",
+  "prepareAuthorProfileUpdate",
+]) {
+  assert.match(workerSource, new RegExp("\\b" + helper + "\\b"), "WorkerPublicationFormat is missing " + helper);
+}
+
 const instrumented =
   workerSource.replace(
     /export\s+default\s+\{/,
