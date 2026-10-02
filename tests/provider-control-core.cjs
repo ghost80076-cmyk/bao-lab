@@ -8,6 +8,20 @@ const workerSource = fs.readFileSync(
   "utf8"
 );
 
+assert.match(
+  workerSource,
+  /const WorkerProviderRouting = \(\(\) => \{/,
+  "Hosted route selection helpers must stay grouped behind WorkerProviderRouting"
+);
+for (const helper of [
+  "HOSTED_ROUTE_CONTROL",
+  "hostedLogicalModel",
+  "readHostedRouteOverride",
+  "resolveHostedRoute",
+]) {
+  assert.match(workerSource, new RegExp("\\b" + helper + "\\b"), "WorkerProviderRouting is missing " + helper);
+}
+
 const instrumented =
   workerSource.replace(
     /export\s+default\s+\{/,
