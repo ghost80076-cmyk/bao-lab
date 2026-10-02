@@ -284,6 +284,8 @@ jobs:
           node tests/worker-provider-transport-core.cjs
       - name: Worker legacy chat settlement contracts
         run: node tests/worker-legacy-chat-settlement-core.cjs
+      - name: Worker USD chat settlement contracts
+        run: node tests/worker-cost-chat-settlement-core.cjs
       - name: Bounded API retry contracts
         run: node tests/api-retry-contracts.cjs
       - name: Provider browser diagnostics

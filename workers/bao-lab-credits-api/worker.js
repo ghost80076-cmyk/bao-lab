@@ -10949,6 +10949,9 @@ const {
   legacyChatRoute,
 } = WorkerLegacyChatSettlement;
 
+// USD wallet reservation and settlement are kept separate from legacy credits,
+// provider transport and the outer chat dispatcher so money state has one owner.
+const WorkerCostChatSettlement = (() => {
 async function costUsdChatRoute(
   request,
   env,
@@ -11948,6 +11951,15 @@ async function costUsdChatRoute(
     },
   });
 }
+
+  return Object.freeze({
+    costUsdChatRoute,
+  });
+})();
+
+const {
+  costUsdChatRoute,
+} = WorkerCostChatSettlement;
 
 async function chatRoute(
   request,
