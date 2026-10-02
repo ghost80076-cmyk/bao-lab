@@ -128,6 +128,11 @@ jobs:
         run: node tests/worker-security-headers-core.cjs
       - name: Worker session security contract
         run: node tests/worker-session-security-contract.cjs
+      - name: Frontend extension idempotency
+        run: |
+          node --check js/world-modules.js
+          node --check js/story-tools.js
+          node tests/frontend-idempotency-core.cjs
       - name: YoruBay admin player list
         run: node tests/admin-player-list-core.cjs
       - name: YoruBay admin account status
