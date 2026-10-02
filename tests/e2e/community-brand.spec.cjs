@@ -31,8 +31,11 @@ test.describe('YoruBay official identity and concise community entry', () => {
     await expect(page.locator('#home-view .brand-first-run')).toContainText('第一次來？三步開始');
     await expect(page.locator('#bao-contact-footer a')).toHaveAttribute('href', INVITE);
     await page.getByRole('button', { name: '關於夜灣' }).click();
-    await expect(page.locator('#about-view.active')).toContainText('讓故事回到玩家手中');
-    await expect(page.locator('#about-view.active')).toContainText('角色 · 世界 · 互動 · 自己的燈');
+    await expect(page.locator('#about-view.active')).toContainText('一開始，我只是想讓故事好好走下去。');
+    await expect(page.locator('#about-view.active')).toContainText('故事可以換模型，但不應該因此失去自己。');
+    const aboutStory = page.locator('#about-view.active a[href="about-bao-lab.html"]');
+    await expect(aboutStory).toHaveCount(1);
+    await expect(aboutStory).toContainText('為什麼有夜灣');
   });
 
   test('work detail offers one contextual path back to the canonical three-step guide', async ({ page }) => {
