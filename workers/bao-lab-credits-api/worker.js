@@ -3021,6 +3021,9 @@ const {
   authRecover,
 } = WorkerAccountAuth;
 
+// Authenticated self-service route boundary. It owns the `/me` account summary
+// response while credential resolution remains in WorkerSessionAuth.
+const WorkerAccountSelfRoute = (() => {
 async function meRoute(
   request,
   env,
@@ -3158,6 +3161,15 @@ async function meRoute(
 
   return response;
 }
+
+  return Object.freeze({
+    meRoute,
+  });
+})();
+
+const {
+  meRoute,
+} = WorkerAccountSelfRoute;
 
 // Internal Hosted provider-routing boundary. It owns logical-model route selection
 // and persisted route overrides, but not provider spend controls or network transport.
