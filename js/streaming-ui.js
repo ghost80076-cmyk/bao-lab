@@ -136,11 +136,17 @@
   }
 
   if (window.App?.sendMessage) {
-    const originalSendMessage = App.sendMessage;
-    App.sendMessage = async function(...args) {
-      try { return await originalSendMessage.apply(this, args); }
+    const committedPaintWrapper = async function(next, ...args) {
+      try { return await next(...args); }
       finally { scheduleCommittedPaint(); }
     };
+    if (typeof App.wrapSendMessage === "function") {
+      App.wrapSendMessage("streaming-ui:committed-paint", committedPaintWrapper);
+    } else {
+      // Compatibility fallback for a mixed-cache page where streaming-ui is newer than app.js.
+      const originalSendMessage = App.sendMessage.bind(App);
+      App.sendMessage = (...args) => committedPaintWrapper(originalSendMessage, ...args);
+    }
     const originalShell = App.renderChatShell;
     App.renderChatShell = function(...args) {
       const result = originalShell.apply(this, args);
