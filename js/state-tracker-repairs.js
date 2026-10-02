@@ -27,13 +27,25 @@
     if (GameState.current) BAOCharacterStatus.ensureState(App.activeCharacter);
   };
   ensureSchema();
-  const oldOpen = App.openCharacter?.bind(App);
-  if (oldOpen) App.openCharacter = function(...args) {
+  const stateOpenWrapper = async function(next, ...args) {
     ensureSchema();
-    const result = oldOpen(...args);
-    ensureSchema();
-    return result;
+    try {
+      return await next(...args);
+    } finally {
+      // openCharacter is async; wait until the selected character really finished loading
+      // before repairing schema/state for the newly active character.
+      ensureSchema();
+    }
   };
+  if (typeof App.openCharacter === "function") {
+    if (typeof App.wrapOpenCharacter === "function") {
+      App.wrapOpenCharacter("state-tracker-repairs:schema", stateOpenWrapper);
+    } else {
+      // Compatibility fallback for a mixed-cache page where state repairs are newer than app.js.
+      const oldOpen = App.openCharacter.bind(App);
+      App.openCharacter = (...args) => stateOpenWrapper.call(App, oldOpen, ...args);
+    }
+  }
   const stateShellWrapper = function(next, ...args) {
     ensureSchema();
     return next(...args);
