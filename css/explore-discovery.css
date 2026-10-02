@@ -297,3 +297,14 @@
     padding:14px 16px calc(16px + env(safe-area-inset-bottom))
   }
 }
+
+.explore-author-link{
+  color:#d9d2ff;text-decoration:none;border-bottom:1px solid rgba(217,210,255,.24)
+}
+.explore-author-link:hover,.explore-author-link:focus-visible{
+  color:#fff3c7;border-bottom-color:rgba(255,243,199,.7);outline:none
+}
+.explore-detail-author,.explore-detail-version{
+  margin-top:5px;color:var(--muted);font-size:11px;line-height:1.5
+}
+.explore-detail-author+.explore-detail-version{margin-top:2px}
