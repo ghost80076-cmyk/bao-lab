@@ -90,6 +90,19 @@ jobs:
           node tests/scene-html-provider-payload.cjs
           node tests/scene-html-context-guard.cjs
 
+      - name: Scene HTML isolation and templates
+        run: |
+          node tests/scene-html-request-isolation.cjs
+          node tests/scene-html-memory-isolation.cjs
+          node tests/scene-template-core.cjs
+
+      - name: Yume relationship and world continuity
+        run: |
+          node --check js/yume-relationship-archive.js
+          node tests/yume-relationship-archive.cjs
+          node tests/yume-card.test.cjs
+          node tests/yume-world-continuity.cjs
+
       - name: Regex library and text MOD regressions
         run: |
           node --test tests/regex-library.test.cjs
