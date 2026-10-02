@@ -152,9 +152,8 @@
   };
 
   const mergedByStory = new WeakMap();
-  const rawSend = API.send.bind(API);
-  API.send = async function(config, messages, ...rest) {
-    if (!isMainStoryRequest(config, messages) || !dueNow(App.config)) return rawSend(config, messages, ...rest);
+  const sameModelStateWrapper = async (next, config, messages, ...rest) => {
+    if (!isMainStoryRequest(config, messages) || !dueNow(App.config)) return next(config, messages, ...rest);
     const owner = GameState.current;
     const userText = latestUserText();
     const { contract, defs, priorCount } = buildContract(App.config, userText);
@@ -170,7 +169,7 @@
         originalDelta(safeDelta, nextVisible);
       };
     }
-    const result = await rawSend(effective, prepared, ...rest);
+    const result = await next(effective, prepared, ...rest);
     if (GameState.current !== owner) return result;
     const split = splitFinal(result?.text || '');
     if (split.hasState && !split.narration) throw new Error('模型只回傳狀態資料，沒有故事正文。');
@@ -181,6 +180,13 @@
     mergedByStory.set(owner, { userText, narration: split.narration, hasState: split.hasState, parsed, defs, priorCount });
     return { ...result, text: split.narration || String(result?.text || '') };
   };
+  if (typeof API.wrapSend === 'function') {
+    API.wrapSend('same-model-state-merge:main-story', sameModelStateWrapper);
+  } else {
+    // Compatibility fallback for a mixed-cache page where this module is newer than api.js.
+    const rawSend = API.send.bind(API);
+    API.send = (config, messages, ...rest) => sameModelStateWrapper(rawSend, config, messages, ...rest);
+  }
 
   const originalUpdate = WorldStateEngine.update.bind(WorldStateEngine);
   const mark = (owner, phase, message) => {
