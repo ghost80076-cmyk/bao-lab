@@ -1,3 +1,4 @@
+// Wrapper-only regression: runtime behavior remains covered by browser and provider streaming suites.
 const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
