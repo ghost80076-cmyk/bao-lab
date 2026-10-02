@@ -138,6 +138,11 @@ jobs:
           node --check js/prompt-cache.js
           node --check js/prompt-orchestrator.js
           node tests/prompt-pipeline-idempotency.cjs
+      - name: Control and routing idempotency
+        run: |
+          node --check js/cost-control.js
+          node --check js/model-routing.js
+          node tests/control-routing-idempotency.cjs
       - name: YoruBay admin player list
         run: node tests/admin-player-list-core.cjs
       - name: YoruBay admin account status
