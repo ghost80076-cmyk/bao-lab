@@ -220,14 +220,20 @@
     installEntries();
     return result;
   };
-  const originalSend = App.sendMessage.bind(App);
-  App.sendMessage = function(...args) {
+  const sendGateWrapper = function(next, ...args) {
     if (App.config?.offlineWorldPreview || (!App.config?.demoMode && !hasKey())) {
       open();
       return Promise.resolve();
     }
-    return originalSend(...args);
+    return next(...args);
   };
+  if (typeof App.wrapSendMessage === "function") {
+    App.wrapSendMessage("chat-api-settings:connection-gate", sendGateWrapper);
+  } else {
+    // Compatibility fallback for a mixed-cache page where chat-api-settings is newer than app.js.
+    const originalSend = App.sendMessage.bind(App);
+    App.sendMessage = (...args) => sendGateWrapper(originalSend, ...args);
+  }
   installEntries();
   window.BAOChatAPISettings = { open, restore, refresh: status };
 })();
