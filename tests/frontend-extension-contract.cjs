@@ -90,6 +90,8 @@ assert.match(repairs, /return await next\(config, guarded, \.\.\.rest\)/);
 assert.match(repairs, /App\.wrapRenderChatShell\("state-tracker-repairs:schema", stateShellWrapper\)/);
 assert.match(repairs, /return next\(\.\.\.args\)/);
 assert.match(repairs, /App\.wrapRenderUIPanel\("state-tracker-repairs:decorate", statePanelWrapper\)/);
+assert.match(repairs, /App\.wrapOpenCharacter\("state-tracker-repairs:schema", stateOpenWrapper\)/);
+assert.match(repairs, /return await next\(\.\.\.args\)/);
 assert.match(repairs, /if \(panel === 'npc'\) \{ decorateNPCPresence\(\); return result; \}/);
 assert.match(repairs, /window\.BAOStateTrackerRepairs\s*=\s*\{/);
 
@@ -133,6 +135,7 @@ assert.match(sameModelStateMerge, /window\.BAOSameModelStateMerge\s*=\s*\{/);
 assert.match(appSource, /wrapSendMessage\(id, wrapper\)/);
 assert.match(appSource, /wrapRenderChatShell\(id, wrapper\)/);
 assert.match(appSource, /wrapRenderUIPanel\(id, wrapper\)/);
+assert.match(appSource, /wrapOpenCharacter\(id, wrapper\)/);
 assert.match(appSource, /wrapBuildSystemPrompt\(id, wrapper\)/);
 assert.match(appSource, /wrapBuildMessages\(id, wrapper\)/);
 assert.match(streamingUI, /API\.__streamingUIPatched/);
