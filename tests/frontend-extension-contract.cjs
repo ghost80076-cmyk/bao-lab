@@ -105,7 +105,8 @@ assert.match(costControl, /const original\s*=\s*API\.send\.bind\(API\)/);
 
 assert.match(promptCache, /Chat\.__memoryRequestGuardPatched/);
 assert.match(promptCache, /Chat\.__memoryRequestGuardPatched\s*=\s*true/);
-assert.match(promptCache, /const originalSend\s*=\s*API\.send\.bind\(API\)/);
+assert.match(promptCache, /API\.wrapSend\("prompt-cache:memory-request-guard", memoryRequestWrapper\)/);
+assert.match(promptCache, /return await next\(\{ \.\.\.config, signal: controller\.signal \}, messages, \.\.\.rest\)/);
 
 assert.match(sameModelStateMerge, /window\.BAOSameModelStateMerge/);
 assert.match(sameModelStateMerge, /const rawSend\s*=\s*API\.send\.bind\(API\)/);
