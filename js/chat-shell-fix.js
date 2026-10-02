@@ -31,13 +31,19 @@
     syncChatHeader();
   };
 
-  const originalRenderChatShell = App.renderChatShell.bind(App);
-  App.renderChatShell = function(fresh = false) {
+  const chatHeaderWrapper = function(next, fresh = false) {
     ensureChatHeader();
-    const result = originalRenderChatShell(fresh);
+    const result = next(fresh);
     syncChatHeader();
     return result;
   };
+  if (typeof App.wrapRenderChatShell === "function") {
+    App.wrapRenderChatShell("chat-shell-fix:header", chatHeaderWrapper);
+  } else {
+    // Compatibility fallback for a mixed-cache page where chat-shell-fix is newer than app.js.
+    const originalRenderChatShell = App.renderChatShell.bind(App);
+    App.renderChatShell = (fresh = false) => chatHeaderWrapper.call(App, originalRenderChatShell, fresh);
+  }
 
   ensureChatHeader();
   App.__chatShellFixed = true;
