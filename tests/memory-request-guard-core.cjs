@@ -16,11 +16,19 @@ global.GameState = { current: storyA };
 global.document = { getElementById: id => id === 'usage-guard' ? guard : null };
 global.API = {
   isOpenRouter: () => false,
+  __sendWrapperIds: new Set(),
   send(config) {
     if (!config.__memoryTask) return Promise.resolve({ text: 'ordinary chat' });
     const request = deferred();
     pending.push({ config, request });
     return request.promise;
+  },
+  wrapSend(id, wrapper) {
+    if (this.__sendWrapperIds.has(id)) return false;
+    const next = this.send.bind(this);
+    this.send = (config, messages, ...rest) => wrapper(next, config, messages, ...rest);
+    this.__sendWrapperIds.add(id);
+    return true;
   }
 };
 global.Chat = {
@@ -33,6 +41,7 @@ global.Chat = {
 };
 global.App = { config: { memory: {} }, buildSystemPrompt: () => '', getSelectedPreset: () => null };
 vm.runInThisContext(fs.readFileSync(path.join(__dirname, '..', 'js', 'prompt-cache.js'), 'utf8'), { filename: 'js/prompt-cache.js' });
+assert.equal(API.__sendWrapperIds.has('prompt-cache:memory-request-guard'), true, 'memory guard must install through API.wrapSend');
 
 (async () => {
   const send = API.send;
