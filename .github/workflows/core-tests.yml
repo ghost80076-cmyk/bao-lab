@@ -222,6 +222,10 @@ jobs:
         run: node tests/world-state-cost-core.cjs
       - name: Same-model story and state merge
         run: node tests/same-model-state-merge-core.cjs
+      - name: State tracker request guard
+        run: |
+          node --check js/state-tracker-repairs.js
+          node tests/state-tracker-request-guard-core.cjs
       - name: Display-independent state tracking
         run: node tests/display-state-tracking-core.cjs
       - name: Explicit scene metadata and greeting recovery
