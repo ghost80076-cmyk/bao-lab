@@ -178,7 +178,10 @@ body{min-height:100vh;background:#101118;color:#f5f1ff}
         github_publish_not_configured:"作者公開資料目前暫時無法送審。",
         github_publish_failed:"建立作者資料 PR 失敗，請稍後再試。"
       };
-      throw new Error(map[data&&data.error]||("夜灣帳號服務錯誤（HTTP "+response.status+"）。"));
+      var serviceError=new Error(map[data&&data.error]||("夜灣帳號服務錯誤（HTTP "+response.status+"）。"));
+      serviceError.code=data&&data.error||"http_error";
+      serviceError.status=response.status;
+      throw serviceError;
     }
     return data;
   }
@@ -195,7 +198,7 @@ body{min-height:100vh;background:#101118;color:#f5f1ff}
       var owned=await call("/me/authors",{method:"GET",credentials:"include"},legacyToken||undefined);
       if(Array.isArray(owned&&owned.authors)&&owned.authors.length) authorIdentity=owned.authors[0];
     }catch(error){
-      if(error&&error.code==="transport") return;
+      if(error&&(error.code==="transport"||error.code==="not_found"||error.status===404)) return;
       throw error;
     }
 
@@ -281,8 +284,8 @@ body{min-height:100vh;background:#101118;color:#f5f1ff}
           result.innerHTML='✓ 作者資料 PR #'+esc(data.pr_number||"—")+' 已建立；合併後公開作者頁才會更新。'+
             (data.pr_url?' <a href="'+esc(data.pr_url)+'" target="_blank" rel="noopener noreferrer">開啟 PR</a>':'');
         }
-        await loadAuthorContext();
-        render();
+        form.elements.author_id.readOnly=true;
+        button.textContent="送出作者資料更新 PR";
       }catch(errorValue){
         if(error) error.textContent=errorValue.message||String(errorValue);
       }finally{
