@@ -30,6 +30,11 @@
     published_character_file_missing: "正式作品資料存在，但角色檔案遺失；請先修復作品庫再更新。",
     published_character_metadata_invalid: "正式作品的版本資料不完整，無法安全建立更新 PR。",
     invalid_publication_mode: "發布方式無效，請重新選擇。",
+    invalid_author_id: "作者 ID 只能使用小寫英數、底線與連字號，長度 2–64 字元。",
+    author_id_required_for_support: "要提供「支持作者」連結，請先填寫穩定的作者 ID。",
+    invalid_author_support_url: "支持作者連結必須是有效的 HTTPS 網址，且不能包含帳號密碼。",
+    invalid_author_profile: "作者公開資料無效。",
+    author_identity_mismatch: "這個已發布作品已綁定其他作者 ID，不能在一般更新流程直接改綁。",
     github_publish_not_configured: "Worker 尚未設定 GitHub 發布金鑰。",
     github_publish_failed: "GitHub 建立 PR 失敗，請檢查 Worker 的 GitHub 權限與設定。",
     not_found: "目前線上 Worker 尚未部署作品發布端點。"
@@ -93,6 +98,7 @@
     const category = $("publish-category").value;
     const description = String($("publish-description").value || "").trim();
     const author = String($("publish-author").value || "").trim();
+    const authorId = String($("publish-author-id")?.value || "").trim().toLowerCase();
 
     const card = {
       schema_version: String(source.schema_version || "1.5"),
@@ -109,7 +115,8 @@
         description,
         audience: c.audience || [],
         categories: c.categories || [],
-        creator: author || c.import_metadata?.creator || sourceMeta.creator || ""
+        creator: author || c.import_metadata?.creator || sourceMeta.creator || "",
+        creator_id: authorId || sourceMeta.creator_id || ""
       },
       content: {
         ...sourceContent,
@@ -279,7 +286,11 @@
     $("publish-category").value = ["male", "female", "r18"].includes(c.category) ? c.category : "male";
     $("publish-description").value = c.description || "";
     $("publish-tags").value = (c.tags || []).join(", ");
-    $("publish-author").value = c.import_metadata?.creator || "";
+    $("publish-author-id").value = String(state.sourceCard?.meta?.creator_id || "").trim().toLowerCase();
+    $("publish-author").value = c.import_metadata?.creator || state.sourceCard?.meta?.creator || "";
+    $("publish-author-bio").value = "";
+    $("publish-author-support-label").value = "支持作者";
+    $("publish-author-support-url").value = "";
     $("publish-source-summary").textContent = "來源：" + state.sourceFormat + "｜開場 " + (c.greeting || "").length + " 字｜核心設定 " + (c.system_prompt || "").length + " 字";
     const sourcePreview = $("publish-card-preview");
     sourcePreview.textContent = (c.greeting || "").slice(0, 1200) || "沒有開場內容。";
@@ -321,7 +332,11 @@
         body: JSON.stringify({
           rights_confirmed: true,
           publication_mode: $("publish-mode")?.value === "update" ? "update" : "create",
+          author_id: String($("publish-author-id")?.value || "").trim().toLowerCase(),
           author_name: String($("publish-author").value || "").trim(),
+          author_bio: String($("publish-author-bio")?.value || "").trim(),
+          author_support_label: String($("publish-author-support-label")?.value || "支持作者").trim(),
+          author_support_url: String($("publish-author-support-url")?.value || "").trim(),
           source_format: state.sourceFormat,
           card,
           cover_data_url: state.coverDataUrl || null
@@ -348,6 +363,8 @@
         "｜Bucket：" + (data.bucket || "—") +
         "｜Catalog：" + (data.catalog_page_path || "—") +
         "｜角色：" + (data.character_path || "—") +
+        (data.author_id ? "｜作者 ID：" + data.author_id : "") +
+        (data.author_directory_path ? "｜作者資料：" + data.author_directory_path : "") +
         (data.asset_path ? "｜封面：" + data.asset_path : "");
       result.append(detail);
       setMessage(
@@ -393,7 +410,7 @@
     catch {}
   });
 
-  ["publish-id", "publish-name", "publish-title", "publish-category", "publish-description", "publish-tags", "publish-author"].forEach(id => {
+  ["publish-id", "publish-name", "publish-title", "publish-category", "publish-description", "publish-tags", "publish-author-id", "publish-author", "publish-author-bio", "publish-author-support-label", "publish-author-support-url"].forEach(id => {
     $(id)?.addEventListener("input", () => {
       state.audit = null;
       renderAudit(null);

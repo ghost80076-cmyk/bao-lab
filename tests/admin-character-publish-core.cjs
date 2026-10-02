@@ -12,11 +12,12 @@ const instrumented =
     /export\s+default\s+\{/,
     "const __workerDefault = {"
   ) +
-  "\nreturn { prepareCharacterPublication, mergePublishedCatalogEntry, githubSettings };";
+  "\nreturn { prepareCharacterPublication, mergePublishedCatalogEntry, mergeAuthorProfile, githubSettings };";
 
 const {
   prepareCharacterPublication,
   mergePublishedCatalogEntry,
+  mergeAuthorProfile,
   githubSettings,
 } = new Function(instrumented)();
 
@@ -112,6 +113,93 @@ assert.ok(Number.isFinite(Date.parse(prepared.catalogEntry.published_at)));
 assert.equal(prepared.catalogEntry.updated_at, prepared.catalogEntry.published_at);
 assert.equal(prepared.catalogEntry.published_version, 1);
 assert.equal(prepared.catalogEntry.version_published_at, prepared.catalogEntry.published_at);
+
+const preparedAuthor = prepareCharacterPublication({
+  rights_confirmed: true,
+  author_id: "test-author",
+  author_name: "測試作者",
+  author_bio: "寫長篇世界故事。",
+  author_support_label: "替作者留一盞燈",
+  author_support_url: "https://example.com/support",
+  card: {
+    meta: {
+      id: "author-work",
+      name: "Author Work",
+      title: "Author Work",
+      category: "male",
+    },
+    content: {
+      greeting: "hello",
+      system_prompt: "prompt",
+    },
+  },
+});
+assert.equal(preparedAuthor.authorId, "test-author");
+assert.equal(preparedAuthor.card.meta.creator_id, "test-author");
+assert.equal(preparedAuthor.catalogEntry.author_id, "test-author");
+assert.equal(preparedAuthor.authorProfile.id, "test-author");
+assert.equal(preparedAuthor.authorProfile.name, "測試作者");
+assert.equal(preparedAuthor.authorProfile.support_links[0].url, "https://example.com/support");
+
+const mergedAuthor = mergeAuthorProfile(
+  {
+    id: "test-author",
+    name: "舊名稱",
+    bio: "舊簡介",
+    support_links: [{ label: "支持作者", url: "https://example.com/old" }],
+    created_at: "2026-09-01T00:00:00.000Z",
+    updated_at: "2026-09-01T00:00:00.000Z",
+  },
+  {
+    id: "test-author",
+    name: "新名稱",
+  },
+  "2026-10-02T00:00:00.000Z"
+);
+assert.equal(mergedAuthor.name, "新名稱");
+assert.equal(mergedAuthor.bio, "舊簡介");
+assert.deepEqual(mergedAuthor.support_links, [
+  { label: "支持作者", url: "https://example.com/old" },
+]);
+assert.equal(mergedAuthor.created_at, "2026-09-01T00:00:00.000Z");
+assert.equal(mergedAuthor.updated_at, "2026-10-02T00:00:00.000Z");
+
+assert.throws(
+  () => prepareCharacterPublication({
+    rights_confirmed: true,
+    author_id: "Bad Author",
+    card: {
+      meta: { id: "bad-author-id", name: "Bad Author", category: "male" },
+      content: { greeting: "hello", system_prompt: "prompt" },
+    },
+  }),
+  /invalid_author_id/
+);
+
+assert.throws(
+  () => prepareCharacterPublication({
+    rights_confirmed: true,
+    author_support_url: "https://example.com/support",
+    card: {
+      meta: { id: "support-no-author", name: "Support", category: "male" },
+      content: { greeting: "hello", system_prompt: "prompt" },
+    },
+  }),
+  /author_id_required_for_support/
+);
+
+assert.throws(
+  () => prepareCharacterPublication({
+    rights_confirmed: true,
+    author_id: "test-author",
+    author_support_url: "http://example.com/support",
+    card: {
+      meta: { id: "bad-support-url", name: "Bad Support", category: "male" },
+      content: { greeting: "hello", system_prompt: "prompt" },
+    },
+  }),
+  /invalid_author_support_url/
+);
 
 const preparedUpdate = prepareCharacterPublication({
   rights_confirmed: true,
@@ -276,6 +364,16 @@ assert.match(
 );
 
 assert.match(
+  uiSource,
+  /author_id/
+);
+
+assert.match(
+  uiSource,
+  /author_support_url/
+);
+
+assert.match(
   workerSource,
   /mergePublishedCatalogEntry/
 );
@@ -313,6 +411,21 @@ assert.match(
 assert.match(
   adminHtml,
   /id="publish-mode"/
+);
+
+assert.match(
+  adminHtml,
+  /id="publish-author-id"/
+);
+
+assert.match(
+  adminHtml,
+  /id="publish-author-support-url"/
+);
+
+assert.match(
+  adminHtml,
+  /不代收、不轉金流、不抽成/
 );
 
 assert.match(

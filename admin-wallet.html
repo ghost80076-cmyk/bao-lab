@@ -236,8 +236,12 @@ code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
       <label>角色 ID
         <input id="publish-id" maxlength="64" pattern="[A-Za-z0-9][A-Za-z0-9_-]{0,63}" placeholder="character-id">
       </label>
+      <label>作者 ID
+        <input id="publish-author-id" maxlength="64" pattern="[a-z0-9][a-z0-9_-]{1,63}" placeholder="例如 baitao">
+        <span class="note">穩定識別作者；顯示名稱之後可以改。若要提供「支持作者」連結，這欄必填。</span>
+      </label>
       <label>作者顯示名稱
-        <input id="publish-author" maxlength="80" placeholder="選填">
+        <input id="publish-author" maxlength="80" placeholder="例如 白桃">
       </label>
       <label>角色／作品名稱
         <input id="publish-name" maxlength="100">
@@ -260,6 +264,22 @@ code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
     <label style="margin-top:12px">作品簡介
       <textarea id="publish-description" maxlength="3000" rows="3"></textarea>
     </label>
+
+    <details class="summary" style="margin-top:14px">
+      <summary><strong>作者公開資料與支持連結</strong></summary>
+      <p class="note">夜灣只保存作者公開資料與外部連結，不代收、不轉金流、不抽成。玩家點擊後會直接前往作者提供的頁面。</p>
+      <label>作者公開簡介
+        <textarea id="publish-author-bio" maxlength="1200" rows="3" placeholder="選填"></textarea>
+      </label>
+      <div class="grid" style="margin-top:12px">
+        <label>支持按鈕文字
+          <input id="publish-author-support-label" maxlength="40" value="支持作者">
+        </label>
+        <label>作者直接支持連結
+          <input id="publish-author-support-url" type="url" maxlength="600" inputmode="url" placeholder="https://...">
+        </label>
+      </div>
+    </details>
 
     <div class="grid" style="margin-top:14px">
       <div>

@@ -97,6 +97,7 @@ jobs:
         run: |
           node tests/admin-character-publish-core.cjs
           node tests/admin-character-publish-update.cjs
+          node tests/admin-author-profile-publish.cjs
       - name: Author structure guidance and relay probe
         run: node tests/author-diagnostics-core.cjs
       - name: Model presets and routing

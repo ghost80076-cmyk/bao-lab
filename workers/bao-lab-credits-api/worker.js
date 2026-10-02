@@ -3983,6 +3983,134 @@ function prepareCharacterPublication(
         80
       );
 
+  const authorId =
+    String(
+      body.author_id ||
+      meta.creator_id ||
+      ""
+    )
+      .trim()
+      .toLowerCase()
+      .slice(
+        0,
+        64
+      );
+
+  if (
+    authorId &&
+    !/^[a-z0-9][a-z0-9_-]{1,63}$/.test(
+      authorId
+    )
+  ) {
+    throw publishError(
+      "invalid_author_id"
+    );
+  }
+
+  const authorBio =
+    String(
+      body.author_bio ||
+      ""
+    )
+      .trim()
+      .slice(
+        0,
+        1200
+      );
+
+  const authorSupportLabel =
+    String(
+      body.author_support_label ||
+      "支持作者"
+    )
+      .trim()
+      .slice(
+        0,
+        40
+      ) ||
+    "支持作者";
+
+  const authorSupportUrl =
+    String(
+      body.author_support_url ||
+      ""
+    )
+      .trim()
+      .slice(
+        0,
+        600
+      );
+
+  if (
+    authorSupportUrl &&
+    !authorId
+  ) {
+    throw publishError(
+      "author_id_required_for_support"
+    );
+  }
+
+  if (
+    authorSupportUrl
+  ) {
+    let parsedSupportUrl =
+      null;
+
+    try {
+      parsedSupportUrl =
+        new URL(
+          authorSupportUrl
+        );
+    }
+
+    catch {}
+
+    if (
+      !parsedSupportUrl ||
+      parsedSupportUrl.protocol !==
+        "https:" ||
+      parsedSupportUrl.username ||
+      parsedSupportUrl.password
+    ) {
+      throw publishError(
+        "invalid_author_support_url"
+      );
+    }
+  }
+
+  const authorProfile =
+    authorId
+      ? {
+          id:
+            authorId,
+
+          name:
+            author ||
+            authorId,
+
+          ...(authorBio
+            ? {
+                bio:
+                  authorBio,
+              }
+            : {}),
+
+          ...(authorSupportUrl
+            ? {
+                support_links: [
+                  {
+                    label:
+                      authorSupportLabel,
+
+                    url:
+                      authorSupportUrl,
+                  },
+                ],
+              }
+            : {}),
+        }
+      : null;
+
   const tags =
     cleanStringList(
       meta.tags ||
@@ -4293,6 +4421,11 @@ function prepareCharacterPublication(
         author ||
         cleanMeta.creator ||
         "",
+
+      creator_id:
+        authorId ||
+        cleanMeta.creator_id ||
+        "",
     },
 
     content: {
@@ -4399,6 +4532,13 @@ function prepareCharacterPublication(
       author;
   }
 
+  if (
+    authorId
+  ) {
+    catalogEntry.author_id =
+      authorId;
+  }
+
   return {
     id,
 
@@ -4411,6 +4551,11 @@ function prepareCharacterPublication(
       ),
 
     author,
+
+    authorId,
+
+    authorProfile,
+
     card:
       publishedCard,
     catalogEntry,
@@ -4493,6 +4638,109 @@ function mergePublishedCatalogEntry(
 
     version_published_at:
       timestamp,
+  };
+}
+
+function mergeAuthorProfile(
+  existingProfile,
+  nextProfile,
+  timestamp
+) {
+  if (
+    !plainObject(
+      nextProfile
+    ) ||
+    !nextProfile.id
+  ) {
+    throw publishError(
+      "invalid_author_profile"
+    );
+  }
+
+  const existing =
+    plainObject(
+      existingProfile
+    )
+      ? existingProfile
+      : {};
+
+  if (
+    existing.id &&
+    existing.id !==
+      nextProfile.id
+  ) {
+    throw publishError(
+      "author_identity_mismatch",
+      409
+    );
+  }
+
+  const stamp =
+    String(
+      timestamp ||
+      new Date().toISOString()
+    );
+
+  const supportLinks =
+    Array.isArray(
+      nextProfile.support_links
+    ) &&
+    nextProfile.support_links.length
+      ? nextProfile.support_links
+      : Array.isArray(
+          existing.support_links
+        )
+        ? existing.support_links
+        : [];
+
+  return {
+    ...existing,
+
+    id:
+      nextProfile.id,
+
+    name:
+      String(
+        nextProfile.name ||
+        existing.name ||
+        nextProfile.id
+      )
+        .trim()
+        .slice(
+          0,
+          80
+        ),
+
+    ...(nextProfile.bio
+      ? {
+          bio:
+            String(
+              nextProfile.bio
+            )
+              .trim()
+              .slice(
+                0,
+                1200
+              ),
+        }
+      : existing.bio
+        ? {
+            bio:
+              existing.bio,
+          }
+        : {}),
+
+    support_links:
+      supportLinks,
+
+    created_at:
+      String(
+        existing.created_at ||
+        stamp
+      ),
+
+    updated_at:
+      stamp,
   };
 }
 
@@ -5063,6 +5311,47 @@ async function createCharacterPublicationPr(
         : communityMatch
             .entry;
 
+    if (
+      existingEntry?.author_id &&
+      publication.authorId &&
+      existingEntry.author_id !==
+        publication.authorId
+    ) {
+      throw publishError(
+        "author_identity_mismatch",
+        409
+      );
+    }
+
+    const resolvedAuthorId =
+      publication.authorId ||
+      String(
+        existingEntry?.author_id ||
+        ""
+      );
+
+    if (
+      resolvedAuthorId
+    ) {
+      publication.catalogEntry.author_id =
+        resolvedAuthorId;
+
+      publication.card.meta.creator_id =
+        resolvedAuthorId;
+    }
+
+    if (
+      !publication.catalogEntry.author &&
+      existingEntry?.author
+    ) {
+      publication.catalogEntry.author =
+        existingEntry.author;
+
+      publication.card.meta.creator =
+        publication.card.meta.creator ||
+        existingEntry.author;
+    }
+
     finalCatalogEntry =
       mergePublishedCatalogEntry(
         existingEntry,
@@ -5287,6 +5576,152 @@ async function createCharacterPublicationPr(
         .pageMeta;
 
     shouldWriteManifest =
+      true;
+  }
+
+  const authorDirectoryPath =
+    "data/authors.json";
+
+  let authorDirectoryFile =
+    null;
+
+  let authorDirectory =
+    {
+      schema_version:
+        1,
+
+      authors:
+        [],
+    };
+
+  let shouldWriteAuthorDirectory =
+    false;
+
+  if (
+    publication.authorProfile
+  ) {
+    try {
+      authorDirectoryFile =
+        await githubApi(
+          env,
+          "/contents/" +
+            authorDirectoryPath +
+            "?ref=" +
+            encodeURIComponent(
+              settings.baseBranch
+            )
+        );
+
+      const parsed =
+        JSON.parse(
+          base64ToUtf8(
+            authorDirectoryFile
+              ?.content ||
+            ""
+          )
+        );
+
+      if (
+        plainObject(
+          parsed
+        ) &&
+        Array.isArray(
+          parsed.authors
+        )
+      ) {
+        authorDirectory = {
+          schema_version:
+            1,
+
+          authors:
+            parsed.authors
+              .filter(
+                (item) =>
+                  plainObject(
+                    item
+                  ) &&
+                  typeof item.id ===
+                    "string"
+              ),
+        };
+      }
+
+      else {
+        throw new Error(
+          "github_author_directory_invalid"
+        );
+      }
+    }
+
+    catch (error) {
+      if (
+        error?.githubStatus !==
+          404
+      ) {
+        throw error;
+      }
+    }
+
+    const authorMatches =
+      authorDirectory.authors
+        .map(
+          (item, index) => ({
+            item,
+            index,
+          })
+        )
+        .filter(
+          ({ item }) =>
+            item.id ===
+            publication.authorId
+        );
+
+    if (
+      authorMatches.length >
+        1
+    ) {
+      throw new Error(
+        "github_author_directory_duplicate"
+      );
+    }
+
+    const authorIndex =
+      authorMatches[0]?.index ??
+      -1;
+
+    const mergedAuthor =
+      mergeAuthorProfile(
+        authorIndex >=
+          0
+          ? authorDirectory
+              .authors[
+                authorIndex
+              ]
+          : null,
+        publication.authorProfile,
+        publicationTimestamp
+      );
+
+    if (
+      authorIndex >=
+        0
+    ) {
+      authorDirectory
+        .authors[
+          authorIndex
+        ] =
+          mergedAuthor;
+    }
+
+    else {
+      authorDirectory
+        .authors
+        .push(
+          mergedAuthor
+        );
+    }
+
+    shouldWriteAuthorDirectory =
       true;
   }
 
@@ -5520,6 +5955,45 @@ async function createCharacterPublicationPr(
       );
     }
 
+    if (
+      shouldWriteAuthorDirectory
+    ) {
+      await githubApi(
+        env,
+        "/contents/" +
+          authorDirectoryPath,
+        {
+          method:
+            "PUT",
+
+          body: {
+            message:
+              "Update author profile " +
+              publication.authorId,
+
+            content:
+              utf8ToBase64(
+                JSON.stringify(
+                  authorDirectory,
+                  null,
+                  2
+                ) +
+                "\n"
+              ),
+
+            ...(authorDirectoryFile?.sha
+              ? {
+                  sha:
+                    authorDirectoryFile.sha,
+                }
+              : {}),
+
+            branch,
+          },
+        }
+      );
+    }
+
     const version =
       Number(
         finalCatalogEntry
@@ -5585,6 +6059,17 @@ async function createCharacterPublicationPr(
                     finalCatalogEntry.author ||
                     "not provided"
                   ),
+                "- Author ID: " +
+                  (
+                    finalCatalogEntry.author_id ||
+                    "not provided"
+                  ),
+                "- Direct support link: " +
+                  (
+                    publication.authorProfile?.support_links?.[0]?.url
+                      ? "provided (external; YoruBay does not process the payment)"
+                      : "not provided"
+                  ),
                 "- Rights confirmation: confirmed by operator",
                 "- Original embedded card payload: not published",
                 "- Cover metadata: stripped/re-encoded before submission",
@@ -5643,6 +6128,16 @@ async function createCharacterPublicationPr(
           .cover
           ?.path ||
         null,
+
+      author_id:
+        finalCatalogEntry
+          .author_id ||
+        null,
+
+      author_directory_path:
+        shouldWriteAuthorDirectory
+          ? authorDirectoryPath
+          : null,
 
       repository:
         settings.fullName,
