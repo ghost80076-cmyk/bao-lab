@@ -26,7 +26,16 @@ for (const model of registry.models) {
     assert.ok(!routeIds.has(route.id), `duplicate route id ${model.id}/${route.id}`);
     routeIds.add(route.id);
     assert.ok(route.provider, `${model.id}/${route.id} needs provider`);
-    assert.ok(route.model, `${model.id}/${route.id} needs upstream model`);
+    const isHostedRoute = model.hosted?.route_id === route.id;
+    if (!route.model) {
+      assert.ok(!isHostedRoute, `${model.id}/${route.id} hosted route needs upstream model`);
+      assert.equal(
+        route.pricing,
+        null,
+        `${model.id}/${route.id} blank model route must remain a custom BYOK route without fixed pricing`
+      );
+      continue;
+    }
     routes.push({ registryId: model.id, ...route });
   }
 
