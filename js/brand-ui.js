@@ -69,7 +69,7 @@
       <section id="home-local-story" class="brand-local-story hidden" aria-labelledby="home-local-story-title">
         <div class="brand-local-story-cover"><img id="home-local-story-cover" src="assets/bao-mark.svg" alt="" loading="lazy"></div>
         <div class="brand-local-story-copy">
-          <p class="brand-section-mark">CONTINUE READING ／ 本機故事</p>
+          <p class="brand-section-mark">本機故事</p>
           <span id="home-local-story-time" class="brand-local-story-time">上次閱讀</span>
           <h2 id="home-local-story-title">繼續你的故事</h2>
           <h3 id="home-local-story-name">你的故事</h3>
@@ -83,14 +83,14 @@
       </section>
       <section class="brand-home-explore" aria-labelledby="home-explore-title">
         <div class="brand-home-explore-head">
-          <div><p class="brand-kicker">MORE STORIES</p><h2 id="home-explore-title">更多作品，今晚也在等你。</h2><p class="brand-home-count">今夜有 <span id="home-character-count">—</span> 個故事正在等你。</p></div>
+          <div><h2 id="home-explore-title">更多作品，今晚也在等你。</h2><p class="brand-home-count">今夜有 <span id="home-character-count">—</span> 個故事正在等你。</p></div>
           <button class="text-button" id="home-all-works" type="button">查看全部作品 →</button>
         </div>
         <div id="home-character-preview" class="home-character-preview" aria-live="polite"></div>
       </section>
       <section id="home-reading" class="brand-reading-intro" aria-labelledby="home-reading-title">
         <div class="brand-reading-copy">
-          <p class="brand-section-mark">01 ／ 翻開一頁</p>
+          <p class="brand-section-mark">翻開一頁</p>
           <h2 id="home-reading-title">留一點安靜，<br>讓故事慢慢發生。</h2>
           <p>讀完這一段，再決定下一句。你可以回看前情、整理重要記憶，讓每一次選擇都有跡可循。</p>
           <p class="brand-reading-footnote">從一句話開始，也可以寫成很長的故事。</p>
@@ -103,7 +103,7 @@
             <p>「今天過得怎麼樣？」</p>
             <p>他沒有催你回答，只把另一張椅子拉開一點。燈光落在空著的那一頁，像是替還沒說出口的話，留了一個位置。</p>
           </div>
-          <footer><span>故事停在這裡，等你接下一句。</span><span aria-hidden="true">01</span></footer>
+          <footer><span>故事停在這裡，等你接下一句。</span></footer>
         </article>
       </section>
       <section id="home-library" class="brand-library-intro" aria-labelledby="home-library-title">
@@ -120,7 +120,7 @@
           <button id="home-library-open" type="button" class="brand-home-link">打開我的故事書庫 <span aria-hidden="true">→</span></button>
         </div>
         <div class="brand-library-copy">
-          <p class="brand-section-mark">02 ／ 留住故事</p>
+          <p class="brand-section-mark">留住故事</p>
           <h2 id="home-library-title">今晚先讀到這裡。<br>下次，接著寫。</h2>
           <p>把故事與章節留在自己的書庫。回來時繼續，也能保留分支，走向另一種可能。</p>
           <div class="brand-sync-note">
@@ -230,7 +230,7 @@
     preview.innerHTML = moreStories.map(character => `
       <button class="home-character-card" type="button" data-home-character="${App.escapeAttr(character.id)}">
         <img src="${App.escapeAttr(character.avatar)}" alt="${App.escapeAttr(character.name)}" loading="lazy">
-        <span><small>ORIGINAL CHARACTER</small><b>${App.escapeHTML(character.title || character.name)}</b></span>
+        <span><b>${App.escapeHTML(character.title || character.name)}</b></span>
       </button>`).join("");
     preview.querySelectorAll("[data-home-character]").forEach(card => card.addEventListener("click", () => App.openCharacter(card.dataset.homeCharacter)));
   };
