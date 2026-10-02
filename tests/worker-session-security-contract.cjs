@@ -31,6 +31,23 @@ for (const helper of [
 
 assert.match(
   source,
+  /const WorkerSessionAuth = \(\(\) => \{/,
+  "session credential, cookie and persistence helpers must stay grouped behind WorkerSessionAuth"
+);
+for (const helper of [
+  "tokenFrom",
+  "cookieFrom",
+  "sessionTokenFrom",
+  "withSessionCookie",
+  "clearSessionCookie",
+  "playerFor",
+  "createSession",
+]) {
+  assert.match(source, new RegExp("\\b" + helper + "\\b"), "WorkerSessionAuth is missing " + helper);
+}
+
+assert.match(
+  source,
   /const SESSION_COOKIE_NAME\s*=\s*"__Host-yorubay_session"/,
   "session cookie must keep the __Host- prefix"
 );
