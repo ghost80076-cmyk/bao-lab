@@ -36,26 +36,72 @@ const safeMoneyInt = (n) =>
     ? n
     : 0;
 
+function withSecurityHeaders(
+  response
+) {
+  const headers =
+    new Headers(
+      response.headers
+    );
+
+  headers.set(
+    "x-content-type-options",
+    "nosniff"
+  );
+
+  headers.set(
+    "x-frame-options",
+    "DENY"
+  );
+
+  headers.set(
+    "referrer-policy",
+    "no-referrer"
+  );
+
+  headers.set(
+    "permissions-policy",
+    "camera=(), microphone=(), geolocation=()"
+  );
+
+  headers.set(
+    "content-security-policy",
+    "default-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'"
+  );
+
+  return new Response(
+    response.body,
+    {
+      status:
+        response.status,
+
+      statusText:
+        response.statusText,
+
+      headers,
+    }
+  );
+}
+
 const json = (
   data,
   status = 200
 ) =>
-  new Response(
-    JSON.stringify(data),
-    {
-      status,
+  withSecurityHeaders(
+    new Response(
+      JSON.stringify(data),
+      {
+        status,
 
-      headers: {
-        "content-type":
-          "application/json; charset=utf-8",
+        headers: {
+          "content-type":
+            "application/json; charset=utf-8",
 
-        "cache-control":
-          "no-store",
-
-        "x-content-type-options":
-          "nosniff",
-      },
-    }
+          "cache-control":
+            "no-store",
+        },
+      }
+    )
   );
 
 const fail = (
@@ -1773,6 +1819,11 @@ function cors(
   response,
   origin
 ) {
+  response =
+    withSecurityHeaders(
+      response
+    );
+
   if (!origin) {
     return response;
   }
