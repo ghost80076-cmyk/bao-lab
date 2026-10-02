@@ -5496,6 +5496,22 @@ async function claimAuthorIdentity(
     );
   }
 
+  const currentOwned =
+    await ownedAuthorIdentities(
+      db,
+      player.id
+    );
+
+  if (
+    currentOwned.length >=
+      1
+  ) {
+    throw publishError(
+      "author_identity_limit_reached",
+      409
+    );
+  }
+
   if (
     await publicAuthorIdExists(
       env,
