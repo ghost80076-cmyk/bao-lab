@@ -22,6 +22,20 @@ for (const helper of [
   assert.match(workerSource, new RegExp("\\b" + helper + "\\b"), "WorkerProviderRouting is missing " + helper);
 }
 
+assert.match(
+  workerSource,
+  /const WorkerProviderControl = \(\(\) => \{/,
+  "provider admin-control helpers must stay grouped behind WorkerProviderControl"
+);
+for (const helper of [
+  "PROVIDER_CONTROL",
+  "ensureProviderControlTables",
+  "providerCumulativeSpendMicrousd",
+  "providerControlSnapshot",
+]) {
+  assert.match(workerSource, new RegExp("\\b" + helper + "\\b"), "WorkerProviderControl is missing " + helper);
+}
+
 const instrumented =
   workerSource.replace(
     /export\s+default\s+\{/,
