@@ -75,7 +75,31 @@ test('Night Sky Magic Academy renders enrollment, fixed mystery, status and choi
     Chat.add('assistant','鐘聲落下，走廊重新安靜。\n\n1. 去圖書館找舊校誌。\n2. 先回宿舍認識室友。\n3. 到星象台看看。\n4. 留在大廳觀察高年級生。\n5. 自由行動');
     window.BAONightSkyAcademy.mountChoices();
   });
-  await expect(page.locator('#magic-academy-turn-choices button')).toHaveCount(5);
-  await page.locator('#magic-academy-turn-choices button[data-magic-choice="1"]').click();
+  const choices = page.locator('#magic-academy-turn-choices [data-magic-choice]');
+  const panel = page.locator('#magic-academy-turn-choices');
+  const toggle = page.locator('#magic-academy-turn-choices-toggle');
+  await expect(choices).toHaveCount(5);
+  await expect(panel).toBeVisible();
+  await expect(toggle).toBeHidden();
+
+  await panel.locator('[data-magic-choice-collapse]').click();
+  await expect(panel).toBeHidden();
+  await expect(toggle).toBeVisible();
+  await expect(toggle).toHaveAttribute('aria-expanded','false');
+
+  await toggle.click();
+  await expect(panel).toBeVisible();
+  await expect(toggle).toBeHidden();
+
+  await choices.filter({has:page.locator('span', {hasText:'1'})}).first().click();
   await expect(page.locator('#user-input')).toHaveValue('去圖書館找舊校誌。');
+  await expect(panel).toBeHidden();
+  await expect(toggle).toBeVisible();
+
+  await page.evaluate(()=>{
+    Chat.add('assistant','新的鐘聲響起。\n\n1. 前往溫室。\n2. 去餐廳找同學。\n3. 回宿舍整理筆記。\n4. 留在原地觀察。\n5. 自由行動');
+    window.BAONightSkyAcademy.mountChoices();
+  });
+  await expect(page.locator('#magic-academy-turn-choices')).toBeVisible();
+  await expect(page.locator('#magic-academy-turn-choices-toggle')).toBeHidden();
 });
