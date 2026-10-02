@@ -51,12 +51,13 @@ assert(/loadBAOScript\("js\/story-reader\.js(?:\?v=\d+)?"\)/.test(siteUI), "stor
 assert(siteUI.includes('loadBAOScript("js/request-lifecycle.js")'), "request lifecycle guard is not loaded after the story reader");
 assert(css.includes(".story-cancel-generation"), "responsive cancel-generation styling is missing");
 assert(brandUI.includes('.topbar nav [data-view="${view}"]'), "brand labels must target nav controls without replacing the BAO/LAB logo");
-assert(brandUI.includes("自己的模型連線"), "player-facing copy must describe BYOK as a model-connection choice, not as a single key");
+assert(brandUI.includes("故事可以換模型，但不應該因此失去自己。"), "About teaser must keep model choice tied to story ownership");
+assert(brandUI.includes('href="about-bao-lab.html"'), "About teaser must link to the full YoruBay story");
 assert(!brandUI.includes("自備連線金鑰（BYOK）"), "homepage must not label BYOK as an individual connection key");
 assert(!brandUI.includes('class="brand-feature-grid"'), "homepage must keep the entry flow focused instead of repeating a four-card product summary");
 assert(!brandUI.includes('class="brand-contact" aria-labelledby="brand-contact-title"'), "homepage must not repeat the Discord contact panel");
 assert(!brandUI.includes('id = "bao-contact-nav"'), "navigation must not duplicate the About page with a contact-only entry");
-assert(brandUI.includes("讓故事回到玩家手中"), "About page must contain the concise BAO/LAB product introduction");
+assert(brandUI.includes("一開始，我只是想讓故事好好走下去。"), "About teaser must open with the founder-story entry");
 assert(brandCSS.includes("overflow-x:auto"), "mobile topbar navigation must scroll instead of squeezing labels vertically");
 assert(brandCSS.includes("white-space:nowrap"), "topbar labels must not wrap one character per line");
 assert(brandCSS.includes("word-break:keep-all"), "mobile topbar labels must keep Chinese words horizontal");
