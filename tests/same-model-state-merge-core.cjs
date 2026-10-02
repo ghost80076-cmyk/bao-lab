@@ -41,6 +41,7 @@ global.App = {
   }
 };
 global.API = {
+  __sendWrapperIds: new Set(),
   async send(config, messages) {
     sent.push({ config, messages });
     const withContract = JSON.stringify(messages).includes('BAO_STATE_V1');
@@ -57,10 +58,18 @@ global.API = {
     if (!withContract) return { text: '故事一', usage: {} };
     if (providerMode === 'missing') return { text: '故事缺狀態', usage: {} };
     return { text: '故事二\n<BAO_STATE>{"time":"午夜","events":["門打開"]}</BAO_STATE>', usage: {} };
+  },
+  wrapSend(id, wrapper) {
+    if (this.__sendWrapperIds.has(id)) return false;
+    const next = this.send.bind(this);
+    this.send = (config, messages, ...rest) => wrapper(next, config, messages, ...rest);
+    this.__sendWrapperIds.add(id);
+    return true;
   }
 };
 
 vm.runInThisContext(fs.readFileSync(path.join(__dirname, '..', 'js', 'same-model-state-merge.js'), 'utf8'), { filename: 'js/same-model-state-merge.js' });
+assert.equal(API.__sendWrapperIds.has('same-model-state-merge:main-story'), true, 'same-model merge must install through API.wrapSend');
 
 (async () => {
   Chat.messages.push({ role: 'user', content: '第一輪' });
