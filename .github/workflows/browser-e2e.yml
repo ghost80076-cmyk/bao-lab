@@ -33,6 +33,7 @@ jobs:
               tests/e2e/character-studio-flow.spec.cjs
               tests/e2e/character-studio-lifecycle.spec.cjs
               tests/e2e/explore-discovery.spec.cjs
+              tests/e2e/author-profile.spec.cjs
               tests/e2e/reading-bookshelf.spec.cjs
               tests/e2e/scene-image-moments.spec.cjs
           - group: cards-simulators
