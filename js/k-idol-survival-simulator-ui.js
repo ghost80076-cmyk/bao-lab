@@ -24,28 +24,23 @@
   };
 
   const mountChoices=()=>{
-    document.getElementById('idol-survival-turn-choices')?.remove();
-    if(!isIdol()||!document.getElementById('chat-view')?.classList.contains('active')) return;
+    const owner='k-idol-survival-simulator';
+    const dock=window.BAOActionChoiceDock;
+    dock?.clear(owner);
+    if(!dock||!isIdol()||!document.getElementById('chat-view')?.classList.contains('active')) return;
     const last=[...(Chat.messages||[])].reverse().find(m=>m?.role==='assistant'&&!m?.greeting);
     const choices=parseChoices(last?.content||'');
     if(choices.filter(x=>x.key!=='5').length<2) return;
-    const composer=document.querySelector('#chat-view .composer');
-    if(!composer) return;
-    const wrap=document.createElement('div');
-    wrap.id='idol-survival-turn-choices';
-    wrap.className='idol-survival-turn-choices';
-    wrap.innerHTML=choices.map(x=>`<button type="button" data-idol-choice="${x.key}"><span>${x.key}</span>${esc(x.text)}</button>`).join('');
-    wrap.addEventListener('click',event=>{
-      const btn=event.target.closest?.('[data-idol-choice]');
-      if(!btn) return;
-      const input=document.getElementById('user-input');
-      const choice=choices.find(x=>x.key===btn.dataset.idolChoice);
-      if(!input||!choice) return;
-      input.value=choice.key==='5'?'':choice.text;
-      input.focus();
-      input.setSelectionRange?.(input.value.length,input.value.length);
+    dock.mount({
+      owner,
+      id:'idol-survival-turn-choices',
+      toggleId:'idol-survival-turn-choices-toggle',
+      className:'idol-survival-turn-choices',
+      choiceAttribute:'data-idol-choice',
+      messageKey:last?.id||last?.content||'',
+      choices,
+      freeKeys:['5']
     });
-    composer.before(wrap);
   };
 
   const meter=(label,value,max=100)=>{
@@ -104,7 +99,10 @@
   const originalOpenBuilder=App.openBuilder.bind(App);
   App.openBuilder=function(){
     originalOpenBuilder();
-    if(!isIdol()) return;
+    if(!isIdol()){
+      window.BAOActionChoiceDock?.reset('k-idol-survival-simulator');
+      return;
+    }
     const panel=document.querySelector('.builder-step[data-step-panel="3"]');
     if(panel&&!panel.querySelector('#idol-survival-setup')){
       const box=document.createElement('section');
@@ -253,6 +251,7 @@
 
   const originalSendMessage=App.sendMessage.bind(App);
   App.sendMessage=async function(...args){
+    if(isIdol()) window.BAOActionChoiceDock?.clear('k-idol-survival-simulator');
     const result=await originalSendMessage(...args);
     if(isIdol()) setTimeout(mountChoices,0);
     return result;
