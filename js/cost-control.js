@@ -1,4 +1,6 @@
 (() => {
+  if (window.BAOCostControl) return;
+
   const numberValue = (id, fallback = 0) => {
     const n = Number(document.getElementById(id)?.value);
     return Number.isFinite(n) ? n : fallback;

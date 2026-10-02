@@ -1,5 +1,5 @@
 (() => {
-  if (typeof App === "undefined") return;
+  if (window.BAOModelRouting || typeof App === "undefined") return;
 
   const loadExtra = src => {
     if (document.querySelector(`script[src="${src}"]`)) return;
@@ -243,6 +243,8 @@
     loadExtra("js/helper-api-routing.js?v=3");
     loadExtra("js/model-guide.js");
   };
+
+  window.BAOModelRouting = Object.freeze({ installed: true });
 
   if (document.readyState === "loading") window.addEventListener("DOMContentLoaded", () => setTimeout(init, 50));
   else setTimeout(init, 50);
