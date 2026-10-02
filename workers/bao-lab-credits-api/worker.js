@@ -2149,6 +2149,9 @@ const {
   reservePlan,
 } = WorkerModelPricing;
 
+// Chat input boundary. It owns transport-safe message projection and hosted
+// conversation identifiers before either value reaches provider dispatch.
+const WorkerChatInput = (() => {
 function normalizeMessages(
   messages
 ) {
@@ -2258,6 +2261,17 @@ function normalizeHostedSessionId(
 
   return normalized;
 }
+
+  return Object.freeze({
+    normalizeMessages,
+    normalizeHostedSessionId,
+  });
+})();
+
+const {
+  normalizeMessages,
+  normalizeHostedSessionId,
+} = WorkerChatInput;
 
 // Internal account-auth route boundary. It owns registration/login/logout/recovery
 // request policy while session primitives remain in WorkerSessionAuth.

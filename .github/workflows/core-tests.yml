@@ -121,7 +121,9 @@ jobs:
       - name: YoruBay zero-cost model billing
         run: node tests/worker-free-model-billing-core.cjs
       - name: YoruBay OpenRouter price guard
-        run: node tests/worker-openrouter-cost-guard-core.cjs
+        run: |
+          node tests/worker-openrouter-cost-guard-core.cjs
+          node tests/worker-chat-input-core.cjs
       - name: Mainstream Hosted rollout pricing
         run: node tests/hosted-mainstream-rollout-core.cjs
       - name: Worker model config shards
