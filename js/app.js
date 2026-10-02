@@ -33,6 +33,17 @@ const App = {
     this.__renderUIPanelWrapperIds.add(key);
     return true;
   },
+  wrapOpenCharacter(id, wrapper){
+    const key=String(id||"").trim();
+    if(!key)throw new Error("App openCharacter wrapper 需要唯一識別碼。");
+    if(typeof wrapper!=="function")throw new Error(`App openCharacter wrapper ${key} 必須是函式。`);
+    if(!this.__openCharacterWrapperIds)this.__openCharacterWrapperIds=new Set();
+    if(this.__openCharacterWrapperIds.has(key))return false;
+    const next=this.openCharacter.bind(this);
+    this.openCharacter=async(...args)=>wrapper.call(this,next,...args);
+    this.__openCharacterWrapperIds.add(key);
+    return true;
+  },
   wrapBuildSystemPrompt(id, wrapper){
     const key=String(id||"").trim();
     if(!key)throw new Error("App buildSystemPrompt wrapper 需要唯一識別碼。");
