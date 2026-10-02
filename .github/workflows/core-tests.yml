@@ -224,6 +224,12 @@ jobs:
         run: |
           node --check js/app.js
           node tests/app-open-character-wrapper-core.cjs
+      - name: App showView wrapper foundation
+        run: |
+          node --check js/app.js
+          node tests/app-show-view-wrapper-core.cjs
+      - name: Story control view wrapper
+        run: node tests/story-control-view-wrapper-core.cjs
       - name: State tracker async character repair
         run: |
           node --check js/state-tracker-repairs.js

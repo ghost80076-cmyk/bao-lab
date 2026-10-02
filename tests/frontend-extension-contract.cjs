@@ -104,6 +104,7 @@ assert.match(storyTools, /setTimeout\(inject, 0\)/);
 
 assert.match(storyControlCenter, /App\.wrapRenderChatShell\("story-control-center:entry", storyControlShellWrapper\)/);
 assert.match(storyControlCenter, /window\.setTimeout\(injectEntry, 0\)/);
+assert.match(storyControlCenter, /App\.wrapShowView\("story-control-center:entry", storyControlViewWrapper\)/);
 
 assert.match(chatShellFix, /App\.wrapRenderChatShell\("chat-shell-fix:header", chatHeaderWrapper\)/);
 assert.match(chatShellFix, /ensureChatHeader\(\);/);
@@ -150,6 +151,7 @@ assert.match(appSource, /wrapSendMessage\(id, wrapper\)/);
 assert.match(appSource, /wrapRenderChatShell\(id, wrapper\)/);
 assert.match(appSource, /wrapRenderUIPanel\(id, wrapper\)/);
 assert.match(appSource, /wrapOpenCharacter\(id, wrapper\)/);
+assert.match(appSource, /wrapShowView\(id, wrapper\)/);
 assert.match(appSource, /wrapBuildSystemPrompt\(id, wrapper\)/);
 assert.match(appSource, /wrapBuildMessages\(id, wrapper\)/);
 assert.match(streamingUI, /API\.__streamingUIPatched/);

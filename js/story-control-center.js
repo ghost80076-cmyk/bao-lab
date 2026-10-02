@@ -197,12 +197,18 @@
     App.renderChatShell = (...args) => storyControlShellWrapper.call(App, originalRender, ...args);
   }
 
-  const originalShowView = App.showView.bind(App);
-  App.showView = function(view, ...args) {
-    const result = originalShowView(view, ...args);
+  const storyControlViewWrapper = function(next, view, ...args) {
+    const result = next(view, ...args);
     if (view === "chat") window.setTimeout(injectEntry, 0);
     return result;
   };
+  if (typeof App.wrapShowView === "function") {
+    App.wrapShowView("story-control-center:entry", storyControlViewWrapper);
+  } else {
+    // Compatibility fallback for a mixed-cache page where story-control-center is newer than app.js.
+    const originalShowView = App.showView.bind(App);
+    App.showView = (view, ...args) => storyControlViewWrapper.call(App, originalShowView, view, ...args);
+  }
 
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", () => window.setTimeout(injectEntry, 250));
