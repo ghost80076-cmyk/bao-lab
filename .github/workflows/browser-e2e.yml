@@ -102,7 +102,11 @@ jobs:
       - name: Install test dependencies
         run: npm ci
       - name: Verify quick-start onboarding
-        run: npm run test:e2e -- tests/e2e/quick-start.spec.cjs --project=chromium
+        run: >-
+          npm run test:e2e --
+          tests/e2e/quick-start.spec.cjs
+          tests/e2e/account-author-identity.spec.cjs
+          --project=chromium
       - name: Upload onboarding report
         if: always()
         uses: actions/upload-artifact@v4
