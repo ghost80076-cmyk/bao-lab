@@ -200,6 +200,10 @@ jobs:
           node --check js/api.js
           node --check js/cost-control.js
           node tests/api-send-wrapper-core.cjs
+      - name: Global bridge memory presentation
+        run: |
+          node --check js/global-bridge.js
+          node tests/global-bridge-memory-presentation.cjs
       - name: Provider request contracts
         run: node tests/api-provider-contracts.cjs
       - name: Provider failure and cancellation contracts

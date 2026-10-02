@@ -74,8 +74,8 @@ assert.match(bridge, /!Chat\.__baoContextPresentationGuard/);
 assert.match(bridge, /Chat\.__baoContextPresentationGuard\s*=\s*true/);
 assert.match(bridge, /!API\.__baoMemoryPresentationGuard/);
 assert.match(bridge, /API\.__baoMemoryPresentationGuard\s*=\s*true/);
-assert.match(bridge, /const originalSend\s*=\s*API\.send\.bind\(API\)/);
-assert.match(bridge, /return originalSend\(config, cleaned, \.\.\.rest\)/);
+assert.match(bridge, /API\.wrapSend\("global-bridge:memory-presentation", memoryPresentationWrapper\)/);
+assert.match(bridge, /return next\(config, cleaned, \.\.\.rest\)/);
 
 assert.match(helper, /API\.__helperRoutePatched/);
 assert.match(helper, /API\.__helperRoutePatched\s*=\s*true/);
