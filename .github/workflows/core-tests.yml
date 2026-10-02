@@ -274,6 +274,10 @@ jobs:
         run: node tests/api-provider-contracts.cjs
       - name: Provider failure and cancellation contracts
         run: node tests/api-failure-contracts.cjs
+      - name: Worker provider transport contracts
+        run: |
+          node --check workers/bao-lab-credits-api/worker.js
+          node tests/worker-provider-transport-core.cjs
       - name: Bounded API retry contracts
         run: node tests/api-retry-contracts.cjs
       - name: Provider browser diagnostics
