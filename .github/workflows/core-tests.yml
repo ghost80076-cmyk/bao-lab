@@ -140,6 +140,7 @@ jobs:
         run: |
           node tests/worker-admin-auth-core.cjs
           node tests/worker-admin-route-core.cjs
+          node tests/worker-admin-provider-control-routes-core.cjs
       - name: Frontend extension idempotency
         run: |
           node --check js/world-modules.js
