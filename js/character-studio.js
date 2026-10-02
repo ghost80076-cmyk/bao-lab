@@ -19,6 +19,7 @@
   let dirty = false;
   let loading = false;
   let builtInIds = null;
+  let showArchived = false;
 
   const id = () => `custom-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
   const safeImage = value => /^(https:\/\/[^\s]+|assets\/[a-zA-Z0-9_./-]+)$/.test(String(value || '')) ? value : DEFAULT_IMAGE;
@@ -120,10 +121,18 @@
   async function refreshList() {
     const list = $('studio-drafts');
     const records = (await database('list')).sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+    const archivedCount = records.filter(item => Boolean(item.archivedAt)).length;
+    const visible = records.filter(item => Boolean(item.archivedAt) === showArchived);
+    const toggle = $('studio-toggle-archived');
+    if (toggle) {
+      toggle.setAttribute('aria-pressed', String(showArchived));
+      toggle.textContent = showArchived ? '返回草稿' : `查看封存 (${archivedCount})`;
+    }
     list.replaceChildren();
-    if (!records.length) { const p = document.createElement('p'); p.className = 'note'; p.textContent = '尚無草稿。按「新建角色卡」開始。'; list.append(p); }
-    for (const item of records) {
-      const row = document.createElement('div'); row.className = 'studio-draft-row';
+    if (!visible.length) { const p = document.createElement('p'); p.className = 'note'; p.textContent = showArchived ? '封存區目前是空的。' : '尚無草稿。按「新建角色卡」開始。'; list.append(p); }
+    for (const item of visible) {
+      const archived = Boolean(item.archivedAt);
+      const row = document.createElement('div'); row.className = 'studio-draft-row' + (archived ? ' archived' : '');
       const button = document.createElement('button'); button.type = 'button'; button.className = 'studio-draft' + (item.draftId === draftId ? ' active' : '');
       row.dataset.draftId = item.draftId;
       button.dataset.draftId = item.draftId;
@@ -131,19 +140,42 @@
       const desc = document.createElement('small'); desc.textContent = item.card?.id || '尚未指定 ID';
       const date = document.createElement('span'); date.textContent = new Date(item.updatedAt).toLocaleString('zh-TW');
       button.append(title, desc, date);
+      button.disabled = archived;
       button.addEventListener('click', async () => {
         if (item.draftId === draftId || !confirmDiscard()) return;
         try { const record = await database('get', item.draftId); if (!record) throw new Error('這份草稿已不存在。'); showCard(record.card, record.draftId); await refreshList(); }
         catch (error) { status(error.message); }
       });
-      const remove = document.createElement('button'); remove.type = 'button'; remove.className = 'studio-delete'; remove.textContent = '刪除草稿';
-      remove.setAttribute('aria-label', `刪除草稿 ${item.card?.name || '未命名角色'}`);
+      const remove = document.createElement('button'); remove.type = 'button'; remove.className = 'studio-delete'; remove.textContent = archived ? '永久刪除' : '封存草稿';
+      remove.setAttribute('aria-label', `${archived ? '永久刪除' : '封存草稿'} ${item.card?.name || '未命名角色'}`);
       remove.addEventListener('click', async () => {
-        if (!window.confirm(`確定刪除「${item.card?.name || '未命名角色'}」的創作草稿？已加入角色庫的版本不受影響。`)) return;
-        try { await database('delete', item.draftId); if (draftId === item.draftId) showCard({ id: id(), name: '', avatar: DEFAULT_IMAGE }, null); await refreshList(); status('草稿已刪除；角色庫與故事存檔沒有改動。'); }
+        const name = item.card?.name || '未命名角色';
+        const message = archived
+          ? `確定永久刪除「${name}」的封存草稿？這個動作無法復原；已加入角色庫的版本不受影響。`
+          : `確定封存「${name}」？之後可從封存區還原；已加入角色庫的版本不受影響。`;
+        if (!window.confirm(message)) return;
+        try {
+          if (archived) await database('delete', item.draftId);
+          else await database('put', { ...item, archivedAt: Date.now() });
+          if (draftId === item.draftId) showCard({ id: id(), name: '', avatar: DEFAULT_IMAGE }, null);
+          await refreshList();
+          status(archived ? '封存草稿已永久刪除；角色庫與故事存檔沒有改動。' : '草稿已封存，可從封存區還原。');
+        }
         catch (error) { status(error.message); }
       });
-      row.append(button, remove); list.append(row);
+      row.append(button);
+      if (archived) {
+        const restore = document.createElement('button'); restore.type = 'button'; restore.className = 'studio-restore'; restore.textContent = '還原草稿';
+        restore.setAttribute('aria-label', `還原草稿 ${item.card?.name || '未命名角色'}`);
+        restore.addEventListener('click', async () => {
+          try {
+            const restored = { ...item }; delete restored.archivedAt; restored.updatedAt = Date.now();
+            await database('put', restored); showArchived = false; await refreshList(); status('草稿已還原。');
+          } catch (error) { status(error.message); }
+        });
+        row.append(restore);
+      }
+      row.append(remove); list.append(row);
     }
     return records;
   }
@@ -226,6 +258,7 @@
     const normalized = engine.normalize(result.character);
     const existing = await database('list');
     if (existing.length >= MAX_DRAFTS) throw new Error('本機草稿已達 100 張，請先備份並清理。');
+    showArchived = false;
     showCard(normalized, null);
     dirty = true;
     const details = result.converted ? '酒館 V2 已轉換；來源進階功能未必能在本站使用，請檢查內容後再加入角色庫。' : '夜灣角色卡已載入，請確認後儲存草稿。';
@@ -242,12 +275,13 @@
   form.addEventListener('change', () => { if (!loading) { dirty = true; status('尚未儲存修改'); } });
   form.addEventListener('submit', event => event.preventDefault());
   window.addEventListener('beforeunload', event => { if (dirty) { event.preventDefault(); event.returnValue = ''; } });
-  run('studio-new', async () => { if (!confirmDiscard()) return; showCard({ id: id(), name: '', avatar: DEFAULT_IMAGE }, null); await refreshList(); });
+  run('studio-new', async () => { if (!confirmDiscard()) return; showArchived = false; showCard({ id: id(), name: '', avatar: DEFAULT_IMAGE }, null); await refreshList(); });
   run('studio-save-draft', saveDraft);
   run('studio-preview-button', preview);
   run('studio-export', download);
   run('studio-install', install);
   $('studio-import').addEventListener('click', () => $('studio-file').click());
+  $('studio-toggle-archived').addEventListener('click', async () => { showArchived = !showArchived; await refreshList(); });
   $('studio-file').addEventListener('change', async event => {
     const file = event.target.files?.[0]; if (!file) return;
     try { await importDraft(file); await refreshList(); } catch (error) { status('✕ ' + (error?.message || '匯入失敗')); }

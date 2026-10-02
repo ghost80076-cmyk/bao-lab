@@ -159,6 +159,7 @@
         if (installedCard) installedExport = studio.toExport(installedCard);
       } catch (_) {}
       const badges = core.draftCardBadges({
+        archived: Boolean(record.archivedAt),
         installed: Boolean(installedCard),
         synced: Boolean(installedCard && core.sameVersion(currentExport, installedExport)),
         publicKnown: catalog !== null,

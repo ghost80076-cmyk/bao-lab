@@ -12,3 +12,11 @@
 #studio-form input,#studio-form select,#studio-form textarea{background:var(--yoru-input,#0f0f12);border-color:var(--yoru-input-border,rgba(241,232,218,.12))}
 .studio-advanced{border-color:var(--yoru-card-border,rgba(241,232,218,.075));background:rgba(18,17,20,.42)}
 .studio-preview{background:#141316;border-color:rgba(214,170,115,.14);box-shadow:none}
+
+/* Reversible draft archive controls. */
+.studio-delete,.studio-restore{width:100%;text-align:right;background:transparent;border:0;border-radius:7px;font-size:12px;padding:5px 8px;cursor:pointer}
+.studio-delete{color:#f0b5bd}.studio-restore{color:#a9eee2}
+.studio-delete:hover{background:rgba(240,181,189,.12)}.studio-restore:hover{background:rgba(117,223,206,.1)}
+.studio-draft:focus-visible,.studio-delete:focus-visible,.studio-restore:focus-visible{outline:2px solid var(--yoru-lantern,var(--secondary));outline-offset:2px}
+.studio-draft:disabled{cursor:default;opacity:.78}
+@media(max-width:530px){.studio-actions #studio-toggle-archived{grid-column:1/-1}.studio-delete,.studio-restore{font-size:10px;padding:4px 6px}}
