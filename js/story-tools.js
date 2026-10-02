@@ -1,5 +1,5 @@
 (() => {
-  if (typeof App === "undefined" || typeof Chat === "undefined" || typeof Storage === "undefined") return;
+  if (window.BAOStoryTools || typeof App === "undefined" || typeof Chat === "undefined" || typeof Storage === "undefined") return;
 
   const SCHEMA = "bao-lab-context-pack";
   let draft = null;
