@@ -18,9 +18,17 @@ global.document = {
 };
 global.App = {
   __renderChatShellWrapperIds: new Set(),
+  __openCharacterWrapperIds: new Set(),
   characters: [],
   activeCharacter: { id: "autonomous-npc-world" },
-  openCharacter() {},
+  async openCharacter(...args) { return { args }; },
+  wrapOpenCharacter(id, wrapper) {
+    if (this.__openCharacterWrapperIds.has(id)) return false;
+    const next = this.openCharacter.bind(this);
+    this.openCharacter = (...args) => wrapper.call(this, next, ...args);
+    this.__openCharacterWrapperIds.add(id);
+    return true;
+  },
   renderChatShell(...args) { shellCalls += 1; return { args }; },
   wrapRenderChatShell(id, wrapper) {
     if (this.__renderChatShellWrapperIds.has(id)) return false;
@@ -79,6 +87,11 @@ assert.equal(
   App.__renderChatShellWrapperIds.has("state-tracker-repairs:schema"),
   true,
   "state tracker shell repair must install through App.wrapRenderChatShell"
+);
+assert.equal(
+  App.__openCharacterWrapperIds.has("state-tracker-repairs:schema"),
+  true,
+  "state tracker character repair must install through App.wrapOpenCharacter"
 );
 const ensureBeforeShell = ensureStateCalls;
 const shellResult = App.renderChatShell(true, "extra");
