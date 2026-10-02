@@ -11,6 +11,7 @@ const bridge = read("js/global-bridge.js");
 const helper = read("js/helper-api-routing.js");
 const repairs = read("js/state-tracker-repairs.js");
 const storyTools = read("js/story-tools.js");
+const storyControlCenter = read("js/story-control-center.js");
 const chatShellFix = read("js/chat-shell-fix.js");
 const chatToolNavigation = read("js/chat-tool-navigation.js");
 
@@ -100,6 +101,9 @@ assert.match(repairs, /window\.BAOStateTrackerRepairs\s*=\s*\{/);
 assert.match(storyTools, /App\.wrapRenderChatShell\("story-tools:inject", storyToolsShellWrapper\)/);
 assert.match(storyTools, /next\(fresh\)/);
 assert.match(storyTools, /setTimeout\(inject, 0\)/);
+
+assert.match(storyControlCenter, /App\.wrapRenderChatShell\("story-control-center:entry", storyControlShellWrapper\)/);
+assert.match(storyControlCenter, /window\.setTimeout\(injectEntry, 0\)/);
 
 assert.match(chatShellFix, /App\.wrapRenderChatShell\("chat-shell-fix:header", chatHeaderWrapper\)/);
 assert.match(chatShellFix, /ensureChatHeader\(\);/);
