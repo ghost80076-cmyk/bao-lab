@@ -7980,6 +7980,159 @@ const {
 } = WorkerAdminPublicationRoutes;
 
 
+// Read-only admin usage history and presentation.
+const WorkerAdminUsageRoutes = (() => {
+async function adminUsageRoute(
+  request,
+  path,
+  url,
+  db
+) {
+  if (
+    path ===
+      "/admin/usage" &&
+    request.method ===
+      "GET"
+  ) {
+    const id =
+      url.searchParams.get(
+        "player_id"
+      );
+
+    if (
+      !id ||
+      !/^[0-9a-f-]{36}$/.test(
+        id
+      )
+    ) {
+      return fail(
+        "player_id_required"
+      );
+    }
+
+    const rows =
+      await db
+        .prepare(
+          `
+          SELECT
+            request_id,
+            provider,
+            model,
+            request_kind,
+
+            input_tokens,
+            fresh_input_tokens,
+            cached_tokens,
+            cache_write_tokens,
+
+            output_tokens,
+            reasoning_tokens,
+
+            provider_cost_microusd,
+            cost_microusd,
+            settled_cost_microusd,
+
+            balance_before_microusd,
+            balance_after_microusd,
+
+            billing_mode,
+            pricing_version,
+            status,
+            created_at
+
+          FROM api_usage
+
+          WHERE
+            player_id = ?
+
+          ORDER BY
+            created_at DESC
+
+          LIMIT 100
+          `
+        )
+        .bind(
+          id
+        )
+        .all();
+
+    return json({
+      usage:
+        rows.results.map(
+          (row) => ({
+            ...row,
+
+            provider_cost_usd:
+              row
+                .provider_cost_microusd ==
+              null
+                ? null
+                : row
+                    .provider_cost_microusd /
+                  1_000_000,
+
+            actual_cost_usd:
+              row.billing_mode ===
+                COST_BILLING_MODE &&
+              row
+                .cost_microusd !=
+                null
+                ? row
+                    .cost_microusd /
+                  1_000_000
+                : null,
+
+            settled_cost_usd:
+              row
+                .settled_cost_microusd ==
+              null
+                ? null
+                : row
+                    .settled_cost_microusd /
+                  1_000_000,
+
+            balance_before_usd:
+              row
+                .balance_before_microusd ==
+              null
+                ? null
+                : row
+                    .balance_before_microusd /
+                  1_000_000,
+
+            balance_after_usd:
+              row
+                .balance_after_microusd ==
+              null
+                ? null
+                : row
+                    .balance_after_microusd /
+                  1_000_000,
+
+            charged_legacy_credits:
+              row.billing_mode ===
+                LEGACY_BILLING_MODE
+                ? row
+                    .cost_microusd
+                : null,
+          })
+        ),
+    });
+  }
+
+  return null;
+}
+
+  return Object.freeze({
+    adminUsageRoute,
+  });
+})();
+
+const {
+  adminUsageRoute,
+} = WorkerAdminUsageRoutes;
+
+
 // Authenticated admin HTTP surface. Publication formatting, provider control
 // calculations and chat settlement remain in their own boundaries.
 const WorkerAdminRoutes = (() => {
@@ -8908,136 +9061,16 @@ async function adminRoute(
     });
   }
 
-  if (
-    path ===
-      "/admin/usage" &&
-    request.method ===
-      "GET"
-  ) {
-    const id =
-      url.searchParams.get(
-        "player_id"
-      );
+  const usageResponse =
+    await adminUsageRoute(
+      request,
+      path,
+      url,
+      db
+    );
 
-    if (
-      !id ||
-      !/^[0-9a-f-]{36}$/.test(
-        id
-      )
-    ) {
-      return fail(
-        "player_id_required"
-      );
-    }
-
-    const rows =
-      await db
-        .prepare(
-          `
-          SELECT
-            request_id,
-            provider,
-            model,
-            request_kind,
-
-            input_tokens,
-            fresh_input_tokens,
-            cached_tokens,
-            cache_write_tokens,
-
-            output_tokens,
-            reasoning_tokens,
-
-            provider_cost_microusd,
-            cost_microusd,
-            settled_cost_microusd,
-
-            balance_before_microusd,
-            balance_after_microusd,
-
-            billing_mode,
-            pricing_version,
-            status,
-            created_at
-
-          FROM api_usage
-
-          WHERE
-            player_id = ?
-
-          ORDER BY
-            created_at DESC
-
-          LIMIT 100
-          `
-        )
-        .bind(
-          id
-        )
-        .all();
-
-    return json({
-      usage:
-        rows.results.map(
-          (row) => ({
-            ...row,
-
-            provider_cost_usd:
-              row
-                .provider_cost_microusd ==
-              null
-                ? null
-                : row
-                    .provider_cost_microusd /
-                  1_000_000,
-
-            actual_cost_usd:
-              row.billing_mode ===
-                COST_BILLING_MODE &&
-              row
-                .cost_microusd !=
-                null
-                ? row
-                    .cost_microusd /
-                  1_000_000
-                : null,
-
-            settled_cost_usd:
-              row
-                .settled_cost_microusd ==
-              null
-                ? null
-                : row
-                    .settled_cost_microusd /
-                  1_000_000,
-
-            balance_before_usd:
-              row
-                .balance_before_microusd ==
-              null
-                ? null
-                : row
-                    .balance_before_microusd /
-                  1_000_000,
-
-            balance_after_usd:
-              row
-                .balance_after_microusd ==
-              null
-                ? null
-                : row
-                    .balance_after_microusd /
-                  1_000_000,
-
-            charged_legacy_credits:
-              row.billing_mode ===
-                LEGACY_BILLING_MODE
-                ? row
-                    .cost_microusd
-                : null,
-          })
-        ),
-    });
+  if (usageResponse) {
+    return usageResponse;
   }
 
   return fail(
