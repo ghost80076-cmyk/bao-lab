@@ -89,7 +89,7 @@ test('Night Sky Magic Academy renders enrollment, fixed mystery, status and choi
   await expect(panel).toBeVisible();
   await expect(toggle).toBeHidden();
 
-  await panel.locator('[data-magic-choice-collapse]').click();
+  await panel.locator('.bao-turn-choice-close').click();
   await expect(panel).toBeHidden();
   await expect(toggle).toBeVisible();
   await expect(toggle).toHaveAttribute('aria-expanded','false');
