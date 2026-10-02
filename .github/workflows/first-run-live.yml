@@ -61,7 +61,7 @@ jobs:
           assert.ok(detail.includes('class="detail-first-run" href="quick-start.html"'), 'Work detail first-run link missing');
           for (const phrase of ['bao-first-run-progress', '作品已選好', '模型連線', '開始故事', '快速開始（推薦）']) assert.ok(quick.includes(phrase), `Missing quick-start path: ${phrase}`);
           for (const phrase of ['STEP 2 · CONNECT', 'bao-first-run-ai-note', 'bao-connection-help', '使用夜灣燈火', '使用自己的模型連線']) assert.ok(builder.includes(phrase), `Missing builder onboarding route: ${phrase}`);
-          for (const phrase of ['還缺 API Key', '還缺夜灣帳號登入', '還缺本機模型', '可以開始故事']) assert.ok(readinessCore.includes(phrase), `Missing readiness state: ${phrase}`);
+          for (const phrase of ['還缺連線金鑰', '還缺夜灣帳號登入', '還缺本機模型', '可以開始故事']) assert.ok(readinessCore.includes(phrase), `Missing readiness state: ${phrase}`);
           for (const phrase of ['bao-start-readiness', 'data-start-ready-summary', 'data-start-ready-action', 'data-bao-ready']) assert.ok(readiness.includes(phrase), `Missing readiness UI: ${phrase}`);
           assert.ok(readinessCss.includes('[data-ready="true"]'), 'Ready-state styling missing');
           assert.ok(!builderCss.includes('#builder-api-guide'), 'Dead builder guide CSS should be removed');
