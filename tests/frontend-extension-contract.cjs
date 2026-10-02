@@ -128,7 +128,8 @@ assert.match(creditsPilot, /window\.BAOCreditsPilot\s*=\s*Object\.freeze\(\{/);
 
 assert.match(requestLifecycle, /App\.__requestLifecyclePatched/);
 assert.match(requestLifecycle, /App\.__requestLifecyclePatched\s*=\s*true/);
-assert.match(requestLifecycle, /const originalSendMessage\s*=\s*App\.sendMessage\.bind\(App\)/);
+assert.match(requestLifecycle, /App\.wrapSendMessage\("request-lifecycle:pending", requestLifecycleWrapper\)/);
+assert.match(requestLifecycle, /return await next\(\.\.\.args\)/);
 
 assert.match(worldStateHook, /App\.__worldStateHooked/);
 assert.match(worldStateHook, /App\.__worldStateHooked\s*=\s*true/);
