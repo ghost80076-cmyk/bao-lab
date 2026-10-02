@@ -53,8 +53,8 @@
     const last=[...(Chat.messages||[])].reverse().find(m=>m?.role==='assistant'&&!m?.greeting);
     const choices=parseChoices(last?.content||'');
     if(choices.filter(x=>x.key!=='5').length<2) return;
-    const composer=document.querySelector('#chat-view .composer');
-    if(!composer) return;
+    const stream=document.getElementById('chat-stream');
+    if(!stream) return;
     const messageId=String(last?.id||'');
     if(messageId!==choicesMessageId){
       choicesMessageId=messageId;
@@ -93,9 +93,10 @@
       syncChoicesCollapsed(wrap,toggle,true);
     });
 
-    composer.before(toggle);
-    composer.before(wrap);
+    const stayAtBottom=(stream.scrollHeight-stream.scrollTop-stream.clientHeight)<96;
+    stream.append(toggle,wrap);
     syncChoicesCollapsed(wrap,toggle,choicesCollapsed);
+    if(stayAtBottom) requestAnimationFrame(()=>{stream.scrollTop=stream.scrollHeight;});
   };
 
   const originalRenderDetail=App.renderDetail.bind(App);
