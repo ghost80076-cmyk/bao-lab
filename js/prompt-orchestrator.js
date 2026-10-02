@@ -1,7 +1,7 @@
 /* BAO/LAB prompt orchestration: keep only high-value constraints, targeted model patches and a tiny turn anchor. */
 (() => {
   "use strict";
-  if (typeof App === "undefined") return;
+  if (window.BAOPromptOrchestrator || typeof App === "undefined") return;
 
   const PRIORITY_PROMPT = [
     "【平台硬規則】",
