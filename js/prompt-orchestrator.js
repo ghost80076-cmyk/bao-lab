@@ -53,28 +53,34 @@
     return [base, extra].filter(Boolean).join("\n\n");
   };
 
-  const originalBuildMessages = typeof App.buildMessages === "function" ? App.buildMessages.bind(App) : null;
-  if (originalBuildMessages && !App.__promptOrchestratorPatched) {
-    App.buildMessages = async function(config = this.config) {
-      const messages = await originalBuildMessages(config);
-      const result = Array.isArray(messages) ? messages.map(message => ({ ...message })) : [];
-      const api = config?.api || config || {};
-      const stableAdapter = [PRIORITY_PROMPT, SCENE_PARTICIPATION_RULE, guidanceFor(api)].filter(Boolean).join("\n\n");
+  const orchestratorWrapper = async function(next, config = this.config) {
+    const messages = await next(config);
+    const result = Array.isArray(messages) ? messages.map(message => ({ ...message })) : [];
+    const api = config?.api || config || {};
+    const stableAdapter = [PRIORITY_PROMPT, SCENE_PARTICIPATION_RULE, guidanceFor(api)].filter(Boolean).join("\n\n");
 
-      if (result[0]?.role === "system") {
-        result[0].content = appendBlock(result[0].content, stableAdapter);
-      } else {
-        result.unshift({ role: "system", content: stableAdapter });
-      }
+    if (result[0]?.role === "system") {
+      result[0].content = appendBlock(result[0].content, stableAdapter);
+    } else {
+      result.unshift({ role: "system", content: stableAdapter });
+    }
 
-      const lastIndex = result.length - 1;
-      if (lastIndex >= 0 && result[lastIndex]?.role === "user") {
-        result[lastIndex].content = appendBlock(result[lastIndex].content, TURN_ANCHOR);
-      } else {
-        result.push({ role: "user", content: TURN_ANCHOR });
-      }
-      return result;
-    };
+    const lastIndex = result.length - 1;
+    if (lastIndex >= 0 && result[lastIndex]?.role === "user") {
+      result[lastIndex].content = appendBlock(result[lastIndex].content, TURN_ANCHOR);
+    } else {
+      result.push({ role: "user", content: TURN_ANCHOR });
+    }
+    return result;
+  };
+  if (typeof App.buildMessages === "function" && !App.__promptOrchestratorPatched) {
+    if (typeof App.wrapBuildMessages === "function") {
+      App.wrapBuildMessages("prompt-orchestrator:rules", orchestratorWrapper);
+    } else {
+      // Compatibility fallback for a mixed-cache page where prompt-orchestrator is newer than app.js.
+      const originalBuildMessages = App.buildMessages.bind(App);
+      App.buildMessages = (config = App.config) => orchestratorWrapper.call(App, originalBuildMessages, config);
+    }
     App.__promptOrchestratorPatched = true;
   }
 
