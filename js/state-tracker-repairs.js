@@ -171,9 +171,8 @@
     }
   };
 
-  const oldPanel = App.renderUIPanel.bind(App);
-  App.renderUIPanel = function(panel) {
-    const result = oldPanel(panel);
+  const statePanelWrapper = function(next, panel) {
+    const result = next(panel);
     if (panel === 'npc') { decorateNPCPresence(); return result; }
     if (panel !== 'status') return result;
     const ui = document.getElementById('ui-panel');
@@ -191,5 +190,12 @@
     ui.appendChild(note);
     return result;
   };
+  if (typeof App.wrapRenderUIPanel === "function") {
+    App.wrapRenderUIPanel("state-tracker-repairs:decorate", statePanelWrapper);
+  } else {
+    // Compatibility fallback for a mixed-cache page where state repairs are newer than app.js.
+    const oldPanel = App.renderUIPanel.bind(App);
+    App.renderUIPanel = panel => statePanelWrapper.call(App, oldPanel, panel);
+  }
   window.BAOStateTrackerRepairs = { installSchema, ensureSchema, decorateNPCPresence };
 })();

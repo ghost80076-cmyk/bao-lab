@@ -22,6 +22,17 @@ const App = {
     this.__renderChatShellWrapperIds.add(key);
     return true;
   },
+  wrapRenderUIPanel(id, wrapper){
+    const key=String(id||"").trim();
+    if(!key)throw new Error("App renderUIPanel wrapper 需要唯一識別碼。");
+    if(typeof wrapper!=="function")throw new Error(`App renderUIPanel wrapper ${key} 必須是函式。`);
+    if(!this.__renderUIPanelWrapperIds)this.__renderUIPanelWrapperIds=new Set();
+    if(this.__renderUIPanelWrapperIds.has(key))return false;
+    const next=this.renderUIPanel.bind(this);
+    this.renderUIPanel=(...args)=>wrapper.call(this,next,...args);
+    this.__renderUIPanelWrapperIds.add(key);
+    return true;
+  },
   wrapBuildSystemPrompt(id, wrapper){
     const key=String(id||"").trim();
     if(!key)throw new Error("App buildSystemPrompt wrapper 需要唯一識別碼。");
