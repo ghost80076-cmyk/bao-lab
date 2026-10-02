@@ -75,19 +75,25 @@
     return snapshot;
   };
   let lastError = '';
-  const oldSend = API.send.bind(API);
-  API.send = async function(config, messages) {
+  const stateTrackerWrapper = async (next, config, messages, ...rest) => {
     try {
       if (config?.__stateTask) lastError = '';
       const guarded = config?.__stateTask ? (messages || []).map(message => message?.role === 'system'
         ? { ...message, content: `${message.content}\nNPC 的 presence 可為 present、away 或 unknown。npcs 是 PATCH，不是全員名單。僅在本輪敘事明確證實進場、離場或行蹤不明時更新 presence；地點改變不能自動認定原 NPC 仍在場。已有的 presence 應依「目前狀態」延續；只在確有變化時於 npcs 回傳 presence。` }
         : message) : messages;
-      return await oldSend(config, guarded);
+      return await next(config, guarded, ...rest);
     } catch (error) {
       if (config?.__stateTask) lastError = String(error?.message || error).slice(0, 240);
       throw error;
     }
   };
+  if (typeof API.wrapSend === 'function') {
+    API.wrapSend('state-tracker-repairs:presence-guard', stateTrackerWrapper);
+  } else {
+    // Compatibility fallback for a mixed-cache page where state repairs are newer than api.js.
+    const oldSend = API.send.bind(API);
+    API.send = (config, messages, ...rest) => stateTrackerWrapper(oldSend, config, messages, ...rest);
+  }
   const oldUpdate = WorldStateEngine.update.bind(WorldStateEngine);
   WorldStateEngine.update = async function(...args) {
     lastError = '';
