@@ -3343,403 +3343,421 @@ const {
   resolveHostedRoute,
 } = WorkerProviderRouting;
 
-const PROVIDER_CONTROL = Object.freeze({
-  gemini: {
-    label: "Google Gemini",
-    default_threshold_microusd: 2_000_000,
-  },
-  openrouter: {
-    label: "OpenRouter",
-    default_threshold_microusd: 2_000_000,
-  },
-});
-
-async function ensureProviderControlTables(
-  db
-) {
-  await db.batch(
-    [
-      db.prepare(
-        `
-        CREATE TABLE IF NOT EXISTS hosted_route_overrides (
-          model_id TEXT PRIMARY KEY,
-          route_id TEXT NOT NULL,
-          updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-        )
-        `
-      ),
-
-      db.prepare(
-        `
-        CREATE TABLE IF NOT EXISTS provider_balance_anchors (
-          provider TEXT PRIMARY KEY,
-          anchor_balance_microusd INTEGER NOT NULL,
-          anchor_spent_microusd INTEGER NOT NULL,
-          low_balance_threshold_microusd INTEGER NOT NULL DEFAULT 2000000,
-          updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-        )
-        `
-      ),
-    ]
-  );
-}
-
-async function providerCumulativeSpendMicrousd(
-  db,
-  provider
-) {
-  const row =
-    await db
-      .prepare(
-        `
-        SELECT
-          COALESCE(
-            SUM(
-              CASE
-                WHEN provider_cost_microusd IS NOT NULL
-                  THEN provider_cost_microusd
-                WHEN settled_cost_microusd IS NOT NULL
-                  THEN settled_cost_microusd
-                ELSE cost_microusd
-              END
-            ),
-            0
-          ) AS spent_microusd
-
-        FROM api_usage
-
-        WHERE
-          provider = ?
-
-          AND billing_mode = ?
-
-          AND status IN (
-            'ok',
-            'over_budget'
-          )
-        `
-      )
-      .bind(
-        provider,
-        COST_BILLING_MODE
-      )
-      .first();
-
-  return safeMoneyInt(
-    Number(
-      row?.spent_microusd ||
-      0
-    )
-  );
-}
-
-async function providerControlSnapshot(
-  env,
-  db
-) {
-  await ensureProviderControlTables(
+// Internal provider-admin control boundary. It owns provider control tables,
+// tracked spend snapshots and low-balance status, not request routing or transport.
+const WorkerProviderControl = (() => {
+  const PROVIDER_CONTROL = Object.freeze({
+    gemini: {
+      label: "Google Gemini",
+      default_threshold_microusd: 2_000_000,
+    },
+    openrouter: {
+      label: "OpenRouter",
+      default_threshold_microusd: 2_000_000,
+    },
+  });
+  
+  async function ensureProviderControlTables(
     db
-  );
-
-  const [
-    routeRows,
-    balanceRows,
-  ] =
-    await Promise.all(
-      [
-        db
-          .prepare(
-            `
-            SELECT
-              model_id,
-              route_id,
-              updated_at
-
-            FROM hosted_route_overrides
-            `
-          )
-          .all(),
-
-        db
-          .prepare(
-            `
-            SELECT
-              provider,
-              anchor_balance_microusd,
-              anchor_spent_microusd,
-              low_balance_threshold_microusd,
-              updated_at
-
-            FROM provider_balance_anchors
-            `
-          )
-          .all(),
-      ]
-    );
-
-  const overrides =
-    new Map(
-      (
-        routeRows.results ||
-        []
-      ).map(
-        (row) => [
-          row.model_id,
-          row,
-        ]
-      )
-    );
-
-  const anchors =
-    new Map(
-      (
-        balanceRows.results ||
-        []
-      ).map(
-        (row) => [
-          row.provider,
-          row,
-        ]
-      )
-    );
-
-  const routes = [];
-
-  for (
-    const [
-      modelId,
-      config,
-    ]
-    of Object.entries(
-      HOSTED_ROUTE_CONTROL
-    )
   ) {
-    const saved =
-      overrides.get(
-        modelId
-      );
-
-    const savedRouteId =
-      config.routes[
-        saved?.route_id
+    await db.batch(
+      [
+        db.prepare(
+          `
+          CREATE TABLE IF NOT EXISTS hosted_route_overrides (
+            model_id TEXT PRIMARY KEY,
+            route_id TEXT NOT NULL,
+            updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+          )
+          `
+        ),
+  
+        db.prepare(
+          `
+          CREATE TABLE IF NOT EXISTS provider_balance_anchors (
+            provider TEXT PRIMARY KEY,
+            anchor_balance_microusd INTEGER NOT NULL,
+            anchor_spent_microusd INTEGER NOT NULL,
+            low_balance_threshold_microusd INTEGER NOT NULL DEFAULT 2000000,
+            updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+          )
+          `
+        ),
       ]
-        ? saved.route_id
-        : null;
-
-    const desiredRouteId =
-      savedRouteId ||
-      config.default_route;
-
-    const desiredRoute =
-      config.routes[
-        desiredRouteId
-      ];
-
-    const desiredAvailable =
-      Boolean(
-        modelConfig(
-          env,
-          desiredRoute.provider,
-          desiredRoute.model
+    );
+  }
+  
+  async function providerCumulativeSpendMicrousd(
+    db,
+    provider
+  ) {
+    const row =
+      await db
+        .prepare(
+          `
+          SELECT
+            COALESCE(
+              SUM(
+                CASE
+                  WHEN provider_cost_microusd IS NOT NULL
+                    THEN provider_cost_microusd
+                  WHEN settled_cost_microusd IS NOT NULL
+                    THEN settled_cost_microusd
+                  ELSE cost_microusd
+                END
+              ),
+              0
+            ) AS spent_microusd
+  
+          FROM api_usage
+  
+          WHERE
+            provider = ?
+  
+            AND billing_mode = ?
+  
+            AND status IN (
+              'ok',
+              'over_budget'
+            )
+          `
+        )
+        .bind(
+          provider,
+          COST_BILLING_MODE
+        )
+        .first();
+  
+    return safeMoneyInt(
+      Number(
+        row?.spent_microusd ||
+        0
+      )
+    );
+  }
+  
+  async function providerControlSnapshot(
+    env,
+    db
+  ) {
+    await ensureProviderControlTables(
+      db
+    );
+  
+    const [
+      routeRows,
+      balanceRows,
+    ] =
+      await Promise.all(
+        [
+          db
+            .prepare(
+              `
+              SELECT
+                model_id,
+                route_id,
+                updated_at
+  
+              FROM hosted_route_overrides
+              `
+            )
+            .all(),
+  
+          db
+            .prepare(
+              `
+              SELECT
+                provider,
+                anchor_balance_microusd,
+                anchor_spent_microusd,
+                low_balance_threshold_microusd,
+                updated_at
+  
+              FROM provider_balance_anchors
+              `
+            )
+            .all(),
+        ]
+      );
+  
+    const overrides =
+      new Map(
+        (
+          routeRows.results ||
+          []
+        ).map(
+          (row) => [
+            row.model_id,
+            row,
+          ]
         )
       );
-
-    const defaultRoute =
-      config.routes[
-        config.default_route
-      ];
-
-    const effectiveRouteId =
-      desiredAvailable
-        ? desiredRouteId
-        : (
-            modelConfig(
-              env,
-              defaultRoute.provider,
-              defaultRoute.model
-            )
-              ? config
-                  .default_route
-              : desiredRouteId
-          );
-
-    routes.push({
-      model_id:
-        modelId,
-
-      label:
-        config.label,
-
-      default_route_id:
-        config.default_route,
-
-      saved_route_id:
-        savedRouteId,
-
-      effective_route_id:
-        effectiveRouteId,
-
-      fallback:
-        effectiveRouteId !==
-        desiredRouteId,
-
-      updated_at:
-        saved?.updated_at ||
-        null,
-
-      routes:
-        Object.entries(
-          config.routes
+  
+    const anchors =
+      new Map(
+        (
+          balanceRows.results ||
+          []
         ).map(
-          ([
-            routeId,
-            route,
-          ]) => ({
-            route_id:
-              routeId,
-
-            label:
-              route.label,
-
-            provider:
-              route.provider,
-
-            model:
-              route.model,
-
-            available:
-              Boolean(
-                modelConfig(
-                  env,
-                  route.provider,
-                  route.model
-                )
-              ),
-          })
-        ),
-    });
-  }
-
-  const providers = [];
-
-  for (
-    const [
-      provider,
-      info,
-    ]
-    of Object.entries(
-      PROVIDER_CONTROL
-    )
-  ) {
-    const cumulative =
-      await providerCumulativeSpendMicrousd(
-        db,
-        provider
+          (row) => [
+            row.provider,
+            row,
+          ]
+        )
       );
-
-    const anchor =
-      anchors.get(
-        provider
-      );
-
-    const anchored =
-      Boolean(
-        anchor
-      );
-
-    const anchorBalance =
-      anchored
-        ? safeMoneyInt(
-            Number(
-              anchor
-                .anchor_balance_microusd
-            )
+  
+    const routes = [];
+  
+    for (
+      const [
+        modelId,
+        config,
+      ]
+      of Object.entries(
+        HOSTED_ROUTE_CONTROL
+      )
+    ) {
+      const saved =
+        overrides.get(
+          modelId
+        );
+  
+      const savedRouteId =
+        config.routes[
+          saved?.route_id
+        ]
+          ? saved.route_id
+          : null;
+  
+      const desiredRouteId =
+        savedRouteId ||
+        config.default_route;
+  
+      const desiredRoute =
+        config.routes[
+          desiredRouteId
+        ];
+  
+      const desiredAvailable =
+        Boolean(
+          modelConfig(
+            env,
+            desiredRoute.provider,
+            desiredRoute.model
           )
-        : null;
-
-    const anchorSpent =
-      anchored
-        ? safeMoneyInt(
-            Number(
-              anchor
-                .anchor_spent_microusd
-            )
-          )
-        : cumulative;
-
-    const trackedSpend =
-      anchored
-        ? Math.max(
-            0,
-            cumulative -
-              anchorSpent
-          )
-        : 0;
-
-    const remaining =
-      anchored
-        ? anchorBalance -
-          trackedSpend
-        : null;
-
-    const threshold =
-      anchored
-        ? safeMoneyInt(
-            Number(
-              anchor
-                .low_balance_threshold_microusd
-            )
-          )
-        : info
-            .default_threshold_microusd;
-
-    let status =
-      "untracked";
-
-    if (anchored) {
-      status =
-        remaining <= 0
-          ? "empty"
+        );
+  
+      const defaultRoute =
+        config.routes[
+          config.default_route
+        ];
+  
+      const effectiveRouteId =
+        desiredAvailable
+          ? desiredRouteId
           : (
-              remaining <=
-                threshold
-                ? "low"
-                : "ok"
+              modelConfig(
+                env,
+                defaultRoute.provider,
+                defaultRoute.model
+              )
+                ? config
+                    .default_route
+                : desiredRouteId
             );
+  
+      routes.push({
+        model_id:
+          modelId,
+  
+        label:
+          config.label,
+  
+        default_route_id:
+          config.default_route,
+  
+        saved_route_id:
+          savedRouteId,
+  
+        effective_route_id:
+          effectiveRouteId,
+  
+        fallback:
+          effectiveRouteId !==
+          desiredRouteId,
+  
+        updated_at:
+          saved?.updated_at ||
+          null,
+  
+        routes:
+          Object.entries(
+            config.routes
+          ).map(
+            ([
+              routeId,
+              route,
+            ]) => ({
+              route_id:
+                routeId,
+  
+              label:
+                route.label,
+  
+              provider:
+                route.provider,
+  
+              model:
+                route.model,
+  
+              available:
+                Boolean(
+                  modelConfig(
+                    env,
+                    route.provider,
+                    route.model
+                  )
+                ),
+            })
+          ),
+      });
     }
-
-    providers.push({
-      provider,
-      label:
-        info.label,
-
-      anchored,
-
-      anchor_balance_microusd:
-        anchorBalance,
-
-      tracked_spent_microusd:
-        trackedSpend,
-
-      estimated_remaining_microusd:
-        remaining,
-
-      low_balance_threshold_microusd:
-        threshold,
-
-      status,
-
-      updated_at:
-        anchor?.updated_at ||
-        null,
-    });
+  
+    const providers = [];
+  
+    for (
+      const [
+        provider,
+        info,
+      ]
+      of Object.entries(
+        PROVIDER_CONTROL
+      )
+    ) {
+      const cumulative =
+        await providerCumulativeSpendMicrousd(
+          db,
+          provider
+        );
+  
+      const anchor =
+        anchors.get(
+          provider
+        );
+  
+      const anchored =
+        Boolean(
+          anchor
+        );
+  
+      const anchorBalance =
+        anchored
+          ? safeMoneyInt(
+              Number(
+                anchor
+                  .anchor_balance_microusd
+              )
+            )
+          : null;
+  
+      const anchorSpent =
+        anchored
+          ? safeMoneyInt(
+              Number(
+                anchor
+                  .anchor_spent_microusd
+              )
+            )
+          : cumulative;
+  
+      const trackedSpend =
+        anchored
+          ? Math.max(
+              0,
+              cumulative -
+                anchorSpent
+            )
+          : 0;
+  
+      const remaining =
+        anchored
+          ? anchorBalance -
+            trackedSpend
+          : null;
+  
+      const threshold =
+        anchored
+          ? safeMoneyInt(
+              Number(
+                anchor
+                  .low_balance_threshold_microusd
+              )
+            )
+          : info
+              .default_threshold_microusd;
+  
+      let status =
+        "untracked";
+  
+      if (anchored) {
+        status =
+          remaining <= 0
+            ? "empty"
+            : (
+                remaining <=
+                  threshold
+                  ? "low"
+                  : "ok"
+              );
+      }
+  
+      providers.push({
+        provider,
+        label:
+          info.label,
+  
+        anchored,
+  
+        anchor_balance_microusd:
+          anchorBalance,
+  
+        tracked_spent_microusd:
+          trackedSpend,
+  
+        estimated_remaining_microusd:
+          remaining,
+  
+        low_balance_threshold_microusd:
+          threshold,
+  
+        status,
+  
+        updated_at:
+          anchor?.updated_at ||
+          null,
+      });
+    }
+  
+    return {
+      routes,
+      providers,
+    };
   }
 
-  return {
-    routes,
-    providers,
-  };
-}
+  return Object.freeze({
+    PROVIDER_CONTROL,
+    ensureProviderControlTables,
+    providerCumulativeSpendMicrousd,
+    providerControlSnapshot,
+  });
+})();
+
+const {
+  PROVIDER_CONTROL,
+  ensureProviderControlTables,
+  providerCumulativeSpendMicrousd,
+  providerControlSnapshot,
+} = WorkerProviderControl;
 
 // Internal publication formatting boundary. This block owns validation,
 // sanitization and catalog/profile shaping only; ownership and GitHub transport stay outside.
