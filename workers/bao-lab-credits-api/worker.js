@@ -7513,6 +7513,9 @@ async function createCharacterPublicationPr(
   }
 }
 
+// Authenticated admin HTTP surface. Publication formatting, provider control
+// calculations and chat settlement remain in their own boundaries.
+const WorkerAdminRoutes = (() => {
 async function ensureAdminPlayerEvents(
   db
 ) {
@@ -8952,6 +8955,17 @@ async function adminRoute(
     404
   );
 }
+
+  return Object.freeze({
+    ensureAdminPlayerEvents,
+    adminRoute,
+  });
+})();
+
+const {
+  ensureAdminPlayerEvents,
+  adminRoute,
+} = WorkerAdminRoutes;
 
 // Internal provider network-transport boundary. It owns provider payloads,
 // upstream HTTP calls, response normalization and provider-facing error mapping.
