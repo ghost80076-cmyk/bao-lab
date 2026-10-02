@@ -11,13 +11,33 @@
     if (document.querySelector('link[href^="css/reader-context.css"]')) return;
     const link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = 'css/reader-context.css?v=1';
+    link.href = 'css/reader-context.css?v=2';
     document.head.appendChild(link);
   };
 
   const text = value => {
     const raw = String(value ?? '').trim();
     return raw && !/^(?:未知|未設定|未確認|—|-)$/.test(raw) ? raw : '';
+  };
+
+  const eventText = value => {
+    if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') return text(value);
+    if (!value || typeof value !== 'object' || Array.isArray(value)) return '';
+    for (const key of ['text', 'summary', 'description', 'event', 'title', 'label']) {
+      const candidate = value[key];
+      if (typeof candidate !== 'string' && typeof candidate !== 'number' && typeof candidate !== 'boolean') continue;
+      const normalized = text(candidate);
+      if (normalized) return normalized;
+    }
+    return '';
+  };
+
+  const worldFieldLabel = (fields, key) => {
+    const field = (Array.isArray(fields) ? fields : []).find(item => item?.key === key);
+    const label = typeof field?.label === 'string' ? text(field.label) : '';
+    if (!label) return '';
+    if (label === key && /^[a-z0-9_-]+$/i.test(key)) return '';
+    return label;
   };
 
   const sceneNPCs = state => {
@@ -47,6 +67,28 @@
     return String(value);
   };
 
+  const compactWorldValue = (value, fields = [], depth = 0) => {
+    if (value === null || value === undefined || value === '') return '—';
+    if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') return String(value);
+    if (Array.isArray(value)) {
+      const parts = value.slice(0, 4).map(item => {
+        if (item && typeof item === 'object' && !Array.isArray(item)) return compactWorldValue(item, fields, depth + 1);
+        return compactValue(item, depth + 1);
+      }).filter(part => part && part !== '—');
+      return parts.join('、') || '—';
+    }
+    if (typeof value === 'object') {
+      const entries = Object.entries(value).slice(0, depth ? 4 : 6);
+      if (!entries.length) return '—';
+      return entries.map(([key, item]) => {
+        const rendered = compactValue(item, depth + 1);
+        const label = worldFieldLabel(fields, key);
+        return label ? `${label}：${rendered}` : rendered;
+      }).filter(part => part && part !== '—').join(' · ') || '—';
+    }
+    return compactValue(value, depth);
+  };
+
   const characterStatusRows = name => {
     const state = window.GameState?.current || {};
     const raw = state.characterStatuses?.[name];
@@ -70,7 +112,7 @@
   const snapshot = () => {
     const state = window.GameState?.current || {};
     const present = sceneNPCs(state);
-    const recentEvents = (Array.isArray(state.events) ? state.events : []).filter(Boolean).slice(0, 4);
+    const recentEvents = (Array.isArray(state.events) ? state.events : []).map(eventText).filter(Boolean).slice(0, 4);
     const people = [];
 
     if (App.activeCharacter?.name) {
@@ -108,6 +150,7 @@
       label: def.label || def.id,
       icon: def.icon || '◇',
       context: def.context || '',
+      fields: Array.isArray(def.fields) ? def.fields : [],
       value: state.modules?.[def.id]
     }));
 
@@ -236,7 +279,7 @@
         const contextLabel = item.context === 'core' ? '核心' : item.context === 'relevant' ? '相關時' : '只顯示';
         head.append(el('span', 'reader-context-context', contextLabel));
       }
-      card.append(head, el('p', '', compactValue(item.value)));
+      card.append(head, el('p', '', compactWorldValue(item.value, item.fields)));
       list.append(card);
     });
     host.append(list);
