@@ -27,6 +27,19 @@
     return signature(current) === signature(installed);
   }
 
+  function draftCardBadges(input = {}) {
+    const badges = [{ key: "draft", label: "草稿", tone: "muted" }];
+    if (input.installed === true) {
+      badges.push(input.synced === true
+        ? { key: "local-synced", label: "本機已同步", tone: "good" }
+        : { key: "local-outdated", label: "本機待更新", tone: "warn" });
+    }
+    if (input.publicKnown !== false && input.published === true) {
+      badges.push({ key: "published", label: "已公開", tone: "good" });
+    }
+    return badges;
+  }
+
   function derive(input = {}) {
     const hasDraft = input.hasDraft === true;
     const dirty = input.dirty === true;
@@ -99,5 +112,5 @@
     return { draft, test, readiness, publication, next };
   }
 
-  return Object.freeze({ clean, stable, signature, sameVersion, derive });
+  return Object.freeze({ clean, stable, signature, sameVersion, draftCardBadges, derive });
 });
