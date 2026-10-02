@@ -272,13 +272,19 @@
     close.focus();
   };
 
-  const originalRender = App.renderChatShell.bind(App);
-  App.renderChatShell = function(...args) {
-    const result = originalRender(...args);
+  const toolNavigationShellWrapper = function(next, ...args) {
+    const result = next(...args);
     watchSidebar();
     schedule();
     return result;
   };
+  if (typeof App.wrapRenderChatShell === "function") {
+    App.wrapRenderChatShell("chat-tool-navigation:sync", toolNavigationShellWrapper);
+  } else {
+    // Compatibility fallback for a mixed-cache page where chat-tool-navigation is newer than app.js.
+    const originalRender = App.renderChatShell.bind(App);
+    App.renderChatShell = (...args) => toolNavigationShellWrapper.call(App, originalRender, ...args);
+  }
   window.BAOChatToolNavigation = { sync, openDrawer, closeDrawer, compactBoard };
   watchSidebar();
   schedule();
