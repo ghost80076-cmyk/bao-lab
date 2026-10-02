@@ -25,7 +25,11 @@
     character_text_too_large: "核心設定或開場文字超出安全上限。",
     invalid_cover_image: "封面資料無效，請重新選擇圖片。",
     cover_image_too_large: "封面壓縮後仍超過 1.2 MB。",
-    character_already_published: "這個角色 ID 已存在正式作品庫，第一版不允許直接覆蓋。",
+    character_already_published: "這個角色 ID 已存在正式作品庫；若要發布新版，請切換成「更新既有作品」。",
+    character_not_published: "找不到這個角色 ID 的正式作品；若是第一次發布，請切換成「發布新作品」。",
+    published_character_file_missing: "正式作品資料存在，但角色檔案遺失；請先修復作品庫再更新。",
+    published_character_metadata_invalid: "正式作品的版本資料不完整，無法安全建立更新 PR。",
+    invalid_publication_mode: "發布方式無效，請重新選擇。",
     github_publish_not_configured: "Worker 尚未設定 GitHub 發布金鑰。",
     github_publish_failed: "GitHub 建立 PR 失敗，請檢查 Worker 的 GitHub 權限與設定。",
     not_found: "目前線上 Worker 尚未部署作品發布端點。"
@@ -181,7 +185,16 @@
   function updateButton() {
     const button = $("publish-create-pr");
     if (!button) return;
+    const mode = $("publish-mode")?.value === "update" ? "update" : "create";
+    button.textContent = mode === "update" ? "建立作品更新 PR" : "建立上架 PR";
     button.disabled = !(state.character && state.audit?.ok && $("publish-rights").checked);
+
+    const note = $("publish-mode-note");
+    if (note) {
+      note.textContent = mode === "update"
+        ? "更新模式只接受已存在的角色 ID。最初 published_at 會保留，公開版本自動 +1；更新仍先進 GitHub PR，不會直接部署。"
+        : "新作品模式只接受尚未發布的角色 ID，會建立公開版本 v1。若 ID 已存在，請改用更新模式。";
+    }
   }
 
   function validateCard() {
@@ -307,6 +320,7 @@
         method: "POST",
         body: JSON.stringify({
           rights_confirmed: true,
+          publication_mode: $("publish-mode")?.value === "update" ? "update" : "create",
           author_name: String($("publish-author").value || "").trim(),
           source_format: state.sourceFormat,
           card,
@@ -328,13 +342,20 @@
       }
       const detail = document.createElement("div");
       detail.className = "note";
-      detail.textContent = "分支：" + (data.branch || "—") +
+      detail.textContent = "方式：" + (data.publication_mode === "update" ? "更新既有作品" : "發布新作品") +
+        "｜公開版本：v" + (data.published_version || 1) +
+        "｜分支：" + (data.branch || "—") +
         "｜Bucket：" + (data.bucket || "—") +
-        "｜Catalog page：" + (data.catalog_page || "—") +
+        "｜Catalog：" + (data.catalog_page_path || "—") +
         "｜角色：" + (data.character_path || "—") +
         (data.asset_path ? "｜封面：" + data.asset_path : "");
       result.append(detail);
-      setMessage("✓ 已建立上架 PR；尚未直接部署正式站。請先看 Actions 與 PR 內容。", true);
+      setMessage(
+        data.publication_mode === "update"
+          ? "✓ 已建立作品更新 PR；尚未直接部署正式站。合併後玩家才會看到新版與 UPDATED。"
+          : "✓ 已建立上架 PR；尚未直接部署正式站。請先看 Actions 與 PR 內容。",
+        true
+      );
     } catch (error) {
       setMessage("建立 PR 失敗：" + friendly(error));
       throw error;
@@ -386,5 +407,6 @@
   });
 
   $("publish-rights")?.addEventListener("change", updateButton);
+  $("publish-mode")?.addEventListener("change", updateButton);
   updateButton();
 })();

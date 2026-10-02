@@ -227,6 +227,12 @@ code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
     <div id="publish-source-summary" class="note">尚未載入角色卡。</div>
 
     <div class="grid" style="margin-top:14px">
+      <label>發布方式
+        <select id="publish-mode">
+          <option value="create">發布新作品（v1）</option>
+          <option value="update">更新既有作品（v2+）</option>
+        </select>
+      </label>
       <label>角色 ID
         <input id="publish-id" maxlength="64" pattern="[A-Za-z0-9][A-Za-z0-9_-]{0,63}" placeholder="character-id">
       </label>
@@ -269,9 +275,11 @@ code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
 
     <div id="publish-audit" class="summary note">尚未驗證。</div>
 
+    <div id="publish-mode-note" class="summary note">發布新作品會建立 v1；若角色 ID 已存在，請切換成「更新既有作品」。更新會保留最初發布時間，並在 PR 中遞增公開版本。</div>
+
     <label class="publish-rights">
       <input id="publish-rights" type="checkbox">
-      <span>我已確認提交者本人擁有這份角色設定與圖片的公開／授權權利，允許 YoruBay 將轉換後作品公開發布。</span>
+      <span>我已確認提交者本人擁有這份角色設定與圖片的公開／授權權利，允許 YoruBay 將轉換後作品公開發布或更新。</span>
     </label>
 
     <div class="actions">
