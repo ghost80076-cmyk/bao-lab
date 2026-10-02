@@ -37,6 +37,9 @@ test('mobile world module manager puts active story modules before presets and g
   await expect(dialog).toBeVisible();
   await expect(dialog.locator('.world-manager-head .eyebrow')).toBeHidden();
   await expect(dialog.locator('#world-manager-intro')).toBeHidden();
+  await expect(dialog.locator('[data-world-section="official"]')).toContainText('官方模組');
+  await expect(dialog.locator('[data-world-section="official"]')).toContainText('作品預設');
+  await expect(dialog.locator('[data-world-section="mine"]')).toContainText('我的模組');
 
   const help = dialog.getByRole('button', { name:'世界模組管理說明' });
   await expect(help).toBeVisible();
