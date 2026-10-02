@@ -158,6 +158,8 @@ assert.match(worldStateHook, /await next\(\)/);
 assert.match(chatAPISettings, /window\.BAOChatAPISettings/);
 assert.match(chatAPISettings, /App\.wrapSendMessage\("chat-api-settings:connection-gate", sendGateWrapper\)/);
 assert.match(chatAPISettings, /return next\(\.\.\.args\)/);
+assert.match(chatAPISettings, /App\.wrapRenderChatShell\("chat-api-settings:entries", chatApiShellWrapper\)/);
+assert.match(chatAPISettings, /const result = next\(\.\.\.args\)/);
 assert.match(chatAPISettings, /window\.BAOChatAPISettings\s*=\s*\{/);
 
 assert.match(
