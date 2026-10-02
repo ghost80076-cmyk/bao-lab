@@ -10223,6 +10223,10 @@ const {
   providerFailureResponse,
 } = WorkerProviderTransport;
 
+// Legacy credit reservation and settlement remain behavior-compatible, but
+// now live behind a named boundary instead of sharing the Worker route scope.
+// Provider routing/transport and model pricing stay outside this block.
+const WorkerLegacyChatSettlement = (() => {
 async function legacyChatRoute(
   request,
   env,
@@ -10935,6 +10939,15 @@ async function legacyChatRoute(
     },
   });
 }
+
+  return Object.freeze({
+    legacyChatRoute,
+  });
+})();
+
+const {
+  legacyChatRoute,
+} = WorkerLegacyChatSettlement;
 
 async function costUsdChatRoute(
   request,
