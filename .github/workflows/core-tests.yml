@@ -212,6 +212,14 @@ jobs:
         run: |
           node --check js/app.js
           node tests/app-render-ui-panel-wrapper-core.cjs
+      - name: App openCharacter wrapper foundation
+        run: |
+          node --check js/app.js
+          node tests/app-open-character-wrapper-core.cjs
+      - name: State tracker async character repair
+        run: |
+          node --check js/state-tracker-repairs.js
+          node tests/state-tracker-open-character-core.cjs
       - name: State tracker panel wrapper
         run: node tests/state-tracker-panel-wrapper-core.cjs
       - name: App buildSystemPrompt wrapper foundation
