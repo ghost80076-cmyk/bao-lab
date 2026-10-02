@@ -34,11 +34,17 @@
     ensureSchema();
     return result;
   };
-  const oldShell = App.renderChatShell.bind(App);
-  App.renderChatShell = function(...args) {
+  const stateShellWrapper = function(next, ...args) {
     ensureSchema();
-    return oldShell(...args);
+    return next(...args);
   };
+  if (typeof App.wrapRenderChatShell === "function") {
+    App.wrapRenderChatShell("state-tracker-repairs:schema", stateShellWrapper);
+  } else {
+    // Compatibility fallback for a mixed-cache page where state repairs are newer than app.js.
+    const oldShell = App.renderChatShell.bind(App);
+    App.renderChatShell = (...args) => stateShellWrapper.call(App, oldShell, ...args);
+  }
 
   // A state response is a PATCH, never an entire event history. Support both
   // the legacy `events` and the more explicit `new_events` response format.
