@@ -8403,88 +8403,13 @@ const {
 } = WorkerAdminPlayerDirectoryRoutes;
 
 
-// Authenticated admin HTTP surface. Publication formatting, provider control
-// calculations and chat settlement remain in their own boundaries.
-const WorkerAdminRoutes = (() => {
-async function ensureAdminPlayerEvents(
-  db
-) {
-  await db
-    .prepare(
-      `
-      CREATE TABLE IF NOT EXISTS admin_player_events (
-        event_id TEXT PRIMARY KEY,
-        player_id TEXT NOT NULL,
-        action TEXT NOT NULL,
-        reason TEXT,
-        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-      )
-      `
-    )
-    .run();
-}
-
-async function adminRoute(
+// Existing-player status, legacy credit and USD wallet mutation endpoints.
+const WorkerAdminPlayerMutationRoutes = (() => {
+async function adminPlayerMutationRoute(
   request,
-  url,
-  env,
+  path,
   db
 ) {
-  if (
-    !adminAuthorized(
-      request,
-      env
-    )
-  ) {
-    return fail(
-      "unauthorized",
-      401
-    );
-  }
-
-  const path =
-    url.pathname;
-
-  const publicationResponse =
-    await adminPublicationRoute(
-      request,
-      path,
-      env
-    );
-
-  if (publicationResponse) {
-    return publicationResponse;
-  }
-
-
-  await ensureAdminPlayerEvents(
-    db
-  );
-
-  const providerControlResponse =
-    await adminProviderControlRoute(
-      request,
-      path,
-      env,
-      db
-    );
-
-  if (providerControlResponse) {
-    return providerControlResponse;
-  }
-
-  const playerDirectoryResponse =
-    await adminPlayerDirectoryRoute(
-      request,
-      path,
-      env,
-      db
-    );
-
-  if (playerDirectoryResponse) {
-    return playerDirectoryResponse;
-  }
-
   const match =
     path.match(
       /^\/admin\/players\/([0-9a-f-]{36})\/(credit|wallet-credit|disable|enable)$/
@@ -9093,6 +9018,112 @@ async function adminRoute(
         after /
         1_000_000,
     });
+  }
+
+  return null;
+}
+
+  return Object.freeze({
+    adminPlayerMutationRoute,
+  });
+})();
+
+const {
+  adminPlayerMutationRoute,
+} = WorkerAdminPlayerMutationRoutes;
+
+
+// Authenticated admin HTTP surface. Publication formatting, provider control
+// calculations and chat settlement remain in their own boundaries.
+const WorkerAdminRoutes = (() => {
+async function ensureAdminPlayerEvents(
+  db
+) {
+  await db
+    .prepare(
+      `
+      CREATE TABLE IF NOT EXISTS admin_player_events (
+        event_id TEXT PRIMARY KEY,
+        player_id TEXT NOT NULL,
+        action TEXT NOT NULL,
+        reason TEXT,
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+      )
+      `
+    )
+    .run();
+}
+
+async function adminRoute(
+  request,
+  url,
+  env,
+  db
+) {
+  if (
+    !adminAuthorized(
+      request,
+      env
+    )
+  ) {
+    return fail(
+      "unauthorized",
+      401
+    );
+  }
+
+  const path =
+    url.pathname;
+
+  const publicationResponse =
+    await adminPublicationRoute(
+      request,
+      path,
+      env
+    );
+
+  if (publicationResponse) {
+    return publicationResponse;
+  }
+
+
+  await ensureAdminPlayerEvents(
+    db
+  );
+
+  const providerControlResponse =
+    await adminProviderControlRoute(
+      request,
+      path,
+      env,
+      db
+    );
+
+  if (providerControlResponse) {
+    return providerControlResponse;
+  }
+
+  const playerDirectoryResponse =
+    await adminPlayerDirectoryRoute(
+      request,
+      path,
+      env,
+      db
+    );
+
+  if (playerDirectoryResponse) {
+    return playerDirectoryResponse;
+  }
+
+  const playerMutationResponse =
+    await adminPlayerMutationRoute(
+      request,
+      path,
+      db
+    );
+
+  if (playerMutationResponse) {
+    return playerMutationResponse;
   }
 
   const usageResponse =
