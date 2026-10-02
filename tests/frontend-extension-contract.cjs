@@ -97,6 +97,7 @@ const creditsPilot = read("js/credits-pilot.js");
 const requestLifecycle = read("js/request-lifecycle.js");
 const worldStateHook = read("js/world-state-hook.js");
 const chatAPISettings = read("js/chat-api-settings.js");
+const modelRouting = read("js/model-routing.js");
 
 assert.match(costControl, /API\.__budgetPatched/);
 assert.match(costControl, /API\.__budgetPatched\s*=\s*true/);
@@ -129,5 +130,16 @@ assert.match(worldStateHook, /const originalSend\s*=\s*App\.sendMessage\.bind\(A
 assert.match(chatAPISettings, /window\.BAOChatAPISettings/);
 assert.match(chatAPISettings, /const originalSend\s*=\s*App\.sendMessage\.bind\(App\)/);
 assert.match(chatAPISettings, /window\.BAOChatAPISettings\s*=\s*\{/);
+
+assert.match(
+  modelRouting,
+  /loadExtra\("js\/helper-api-routing\.js\?v=3"\)/,
+  "model-routing must continue to load helper-api-routing"
+);
+assert.match(
+  worldStateHook,
+  /'js\/state-tracker-repairs\.js'/,
+  "world-state-hook must continue to load state-tracker-repairs"
+);
 
 console.log("frontend-extension-contract: load order and wrapper guards ok");
