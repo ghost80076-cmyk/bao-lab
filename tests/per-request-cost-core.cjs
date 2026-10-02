@@ -10,8 +10,14 @@ global.document = {
   getElementById() { return null; },
   querySelector() { return null; }
 };
-global.addEventListener = () => {};
-global.setTimeout = () => {};
+let domReadyHandler = null;
+global.addEventListener = (event, handler) => {
+  if (event === "DOMContentLoaded") domReadyHandler = handler;
+};
+global.setTimeout = handler => {
+  if (typeof handler === "function") handler();
+  return 0;
+};
 global.API = {
   send: async () => ({}),
   __sendWrapperIds: new Set(),
@@ -47,6 +53,7 @@ global.App = {
 
 const source = fs.readFileSync(path.join(__dirname, "..", "js", "cost-control.js"), "utf8");
 vm.runInThisContext(source, { filename: "js/cost-control.js" });
+domReadyHandler?.();
 
 assert.equal(API.__sendWrapperIds.has("cost-control:budget"), true, "cost-control must install through API.wrapSend");
 
