@@ -214,12 +214,18 @@
   }
 
   App.resumeSavedStory = () => restore(Storage.loadStory());
-  const originalRender = App.renderChatShell.bind(App);
-  App.renderChatShell = function(...args) {
-    const result = originalRender(...args);
+  const chatApiShellWrapper = function(next, ...args) {
+    const result = next(...args);
     installEntries();
     return result;
   };
+  if (typeof App.wrapRenderChatShell === "function") {
+    App.wrapRenderChatShell("chat-api-settings:entries", chatApiShellWrapper);
+  } else {
+    // Compatibility fallback for a mixed-cache page where chat-api-settings is newer than app.js.
+    const originalRender = App.renderChatShell.bind(App);
+    App.renderChatShell = (...args) => chatApiShellWrapper.call(App, originalRender, ...args);
+  }
   const sendGateWrapper = function(next, ...args) {
     if (App.config?.offlineWorldPreview || (!App.config?.demoMode && !hasKey())) {
       open();

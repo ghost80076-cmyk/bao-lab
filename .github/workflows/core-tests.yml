@@ -228,6 +228,8 @@ jobs:
         run: |
           node --check js/chat-api-settings.js
           node tests/chat-api-send-gate-core.cjs
+      - name: Chat API shell entries
+        run: node tests/chat-api-shell-wrapper-core.cjs
       - name: Global bridge memory presentation
         run: |
           node --check js/global-bridge.js
