@@ -10,6 +10,7 @@ const appSource = read("js/app.js");
 const bridge = read("js/global-bridge.js");
 const helper = read("js/helper-api-routing.js");
 const repairs = read("js/state-tracker-repairs.js");
+const storyTools = read("js/story-tools.js");
 
 const position = (source, token, label = token) => {
   const value = source.indexOf(token);
@@ -89,6 +90,10 @@ assert.match(repairs, /return await next\(config, guarded, \.\.\.rest\)/);
 assert.match(repairs, /App\.wrapRenderChatShell\("state-tracker-repairs:schema", stateShellWrapper\)/);
 assert.match(repairs, /return next\(\.\.\.args\)/);
 assert.match(repairs, /window\.BAOStateTrackerRepairs\s*=\s*\{/);
+
+assert.match(storyTools, /App\.wrapRenderChatShell\("story-tools:inject", storyToolsShellWrapper\)/);
+assert.match(storyTools, /next\(fresh\)/);
+assert.match(storyTools, /setTimeout\(inject, 0\)/);
 
 
 // Additional wrappers currently participating in API.send / App.sendMessage.
