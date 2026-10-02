@@ -36,86 +36,292 @@ const safeMoneyInt = (n) =>
     ? n
     : 0;
 
-function withSecurityHeaders(
-  response
-) {
-  const headers =
-    new Headers(
-      response.headers
+// Internal HTTP/transport boundary. Keep this module-shaped block self-contained so
+// it can later move to a Cloudflare Worker module without changing route callers.
+const WorkerHttp = (() => {
+  function withSecurityHeaders(
+    response
+  ) {
+    const headers =
+      new Headers(
+        response.headers
+      );
+  
+    headers.set(
+      "x-content-type-options",
+      "nosniff"
+    );
+  
+    headers.set(
+      "x-frame-options",
+      "DENY"
+    );
+  
+    headers.set(
+      "referrer-policy",
+      "no-referrer"
+    );
+  
+    headers.set(
+      "permissions-policy",
+      "camera=(), microphone=(), geolocation=()"
+    );
+  
+    headers.set(
+      "content-security-policy",
+      "default-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'"
+    );
+  
+    return new Response(
+      response.body,
+      {
+        status:
+          response.status,
+  
+        statusText:
+          response.statusText,
+  
+        headers,
+      }
+    );
+  }
+  
+  const json = (
+    data,
+    status = 200
+  ) =>
+    withSecurityHeaders(
+      new Response(
+        JSON.stringify(data),
+        {
+          status,
+  
+          headers: {
+            "content-type":
+              "application/json; charset=utf-8",
+  
+            "cache-control":
+              "no-store",
+          },
+        }
+      )
+    );
+  
+  const fail = (
+    error,
+    status = 400,
+    extra = {}
+  ) =>
+    json(
+      {
+        error,
+        ...extra,
+      },
+      status
     );
 
-  headers.set(
-    "x-content-type-options",
-    "nosniff"
-  );
-
-  headers.set(
-    "x-frame-options",
-    "DENY"
-  );
-
-  headers.set(
-    "referrer-policy",
-    "no-referrer"
-  );
-
-  headers.set(
-    "permissions-policy",
-    "camera=(), microphone=(), geolocation=()"
-  );
-
-  headers.set(
-    "content-security-policy",
-    "default-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'"
-  );
-
-  return new Response(
-    response.body,
-    {
-      status:
-        response.status,
-
-      statusText:
-        response.statusText,
-
-      headers,
+  async function readJsonWithLimit(
+    request,
+    maxBytes = MAX_BODY_BYTES
+  ) {
+    if (!request.body) {
+      throw new Error(
+        "empty_body"
+      );
     }
-  );
-}
-
-const json = (
-  data,
-  status = 200
-) =>
-  withSecurityHeaders(
-    new Response(
-      JSON.stringify(data),
-      {
-        status,
-
-        headers: {
-          "content-type":
-            "application/json; charset=utf-8",
-
-          "cache-control":
-            "no-store",
-        },
+  
+    const reader =
+      request.body.getReader();
+  
+    const decoder =
+      new TextDecoder();
+  
+    let size =
+      0;
+  
+    let text =
+      "";
+  
+    while (true) {
+      const {
+        value,
+        done,
+      } =
+        await reader.read();
+  
+      if (done) {
+        break;
       }
-    )
-  );
+  
+      size +=
+        value.byteLength;
+  
+      if (
+        size >
+        maxBytes
+      ) {
+        await reader.cancel();
+  
+        throw new Error(
+          "request_too_large"
+        );
+      }
+  
+      text +=
+        decoder.decode(
+          value,
+          {
+            stream:
+              true,
+          }
+        );
+    }
+  
+    text +=
+      decoder.decode();
+  
+    try {
+      return JSON.parse(
+        text
+      );
+    }
+  
+    catch {
+      throw new Error(
+        "invalid_json"
+      );
+    }
+  }
+  
+  async function readJson(
+    request
+  ) {
+    return readJsonWithLimit(
+      request,
+      MAX_BODY_BYTES
+    );
+  }
 
-const fail = (
-  error,
-  status = 400,
-  extra = {}
-) =>
-  json(
-    {
-      error,
-      ...extra,
-    },
-    status
-  );
+  function validOrigin(
+    request,
+    env
+  ) {
+    const origin =
+      request.headers.get(
+        "origin"
+      );
+  
+    if (!origin) {
+      return {
+        allowed:
+          true,
+  
+        origin:
+          null,
+      };
+    }
+  
+    const allowed =
+      String(
+        env.ALLOWED_ORIGIN ||
+        ""
+      )
+        .split(",")
+        .map(
+          (x) =>
+            x.trim()
+        )
+        .filter(Boolean);
+  
+    return {
+      allowed:
+        allowed.includes(
+          origin
+        ),
+  
+      origin,
+    };
+  }
+  
+  function cors(
+    response,
+    origin
+  ) {
+    response =
+      withSecurityHeaders(
+        response
+      );
+  
+    if (!origin) {
+      return response;
+    }
+  
+    const headers =
+      new Headers(
+        response.headers
+      );
+  
+    headers.set(
+      "access-control-allow-origin",
+      origin
+    );
+  
+    headers.set(
+      "access-control-allow-methods",
+      "GET, POST, OPTIONS"
+    );
+  
+    headers.set(
+      "access-control-allow-headers",
+      "authorization, content-type"
+    );
+  
+    headers.set(
+      "access-control-allow-credentials",
+      "true"
+    );
+  
+    headers.set(
+      "access-control-max-age",
+      "600"
+    );
+  
+    headers.set(
+      "vary",
+      "Origin"
+    );
+  
+    return new Response(
+      response.body,
+      {
+        status:
+          response.status,
+  
+        headers,
+      }
+    );
+  }
+
+  return Object.freeze({
+    withSecurityHeaders,
+    json,
+    fail,
+    readJsonWithLimit,
+    readJson,
+    validOrigin,
+    cors,
+  });
+})();
+
+const {
+  withSecurityHeaders,
+  json,
+  fail,
+  readJsonWithLimit,
+  readJson,
+  validOrigin,
+  cors,
+} = WorkerHttp;
 
 function bytesToB64Url(
   bytes
@@ -633,88 +839,6 @@ function validDisplayName(
   )
     ? name
     : null;
-}
-
-async function readJsonWithLimit(
-  request,
-  maxBytes = MAX_BODY_BYTES
-) {
-  if (!request.body) {
-    throw new Error(
-      "empty_body"
-    );
-  }
-
-  const reader =
-    request.body.getReader();
-
-  const decoder =
-    new TextDecoder();
-
-  let size =
-    0;
-
-  let text =
-    "";
-
-  while (true) {
-    const {
-      value,
-      done,
-    } =
-      await reader.read();
-
-    if (done) {
-      break;
-    }
-
-    size +=
-      value.byteLength;
-
-    if (
-      size >
-      maxBytes
-    ) {
-      await reader.cancel();
-
-      throw new Error(
-        "request_too_large"
-      );
-    }
-
-    text +=
-      decoder.decode(
-        value,
-        {
-          stream:
-            true,
-        }
-      );
-  }
-
-  text +=
-    decoder.decode();
-
-  try {
-    return JSON.parse(
-      text
-    );
-  }
-
-  catch {
-    throw new Error(
-      "invalid_json"
-    );
-  }
-}
-
-async function readJson(
-  request
-) {
-  return readJsonWithLimit(
-    request,
-    MAX_BODY_BYTES
-  );
 }
 
 function getDb(
@@ -1772,106 +1896,6 @@ function normalizeHostedSessionId(
   }
 
   return normalized;
-}
-
-function validOrigin(
-  request,
-  env
-) {
-  const origin =
-    request.headers.get(
-      "origin"
-    );
-
-  if (!origin) {
-    return {
-      allowed:
-        true,
-
-      origin:
-        null,
-    };
-  }
-
-  const allowed =
-    String(
-      env.ALLOWED_ORIGIN ||
-      ""
-    )
-      .split(",")
-      .map(
-        (x) =>
-          x.trim()
-      )
-      .filter(Boolean);
-
-  return {
-    allowed:
-      allowed.includes(
-        origin
-      ),
-
-    origin,
-  };
-}
-
-function cors(
-  response,
-  origin
-) {
-  response =
-    withSecurityHeaders(
-      response
-    );
-
-  if (!origin) {
-    return response;
-  }
-
-  const headers =
-    new Headers(
-      response.headers
-    );
-
-  headers.set(
-    "access-control-allow-origin",
-    origin
-  );
-
-  headers.set(
-    "access-control-allow-methods",
-    "GET, POST, OPTIONS"
-  );
-
-  headers.set(
-    "access-control-allow-headers",
-    "authorization, content-type"
-  );
-
-  headers.set(
-    "access-control-allow-credentials",
-    "true"
-  );
-
-  headers.set(
-    "access-control-max-age",
-    "600"
-  );
-
-  headers.set(
-    "vary",
-    "Origin"
-  );
-
-  return new Response(
-    response.body,
-    {
-      status:
-        response.status,
-
-      headers,
-    }
-  );
 }
 
 async function playerFor(
