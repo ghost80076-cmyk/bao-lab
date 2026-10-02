@@ -11,6 +11,7 @@ const bridge = read("js/global-bridge.js");
 const helper = read("js/helper-api-routing.js");
 const repairs = read("js/state-tracker-repairs.js");
 const storyTools = read("js/story-tools.js");
+const chatShellFix = read("js/chat-shell-fix.js");
 
 const position = (source, token, label = token) => {
   const value = source.indexOf(token);
@@ -98,6 +99,10 @@ assert.match(repairs, /window\.BAOStateTrackerRepairs\s*=\s*\{/);
 assert.match(storyTools, /App\.wrapRenderChatShell\("story-tools:inject", storyToolsShellWrapper\)/);
 assert.match(storyTools, /next\(fresh\)/);
 assert.match(storyTools, /setTimeout\(inject, 0\)/);
+
+assert.match(chatShellFix, /App\.wrapRenderChatShell\("chat-shell-fix:header", chatHeaderWrapper\)/);
+assert.match(chatShellFix, /ensureChatHeader\(\);/);
+assert.match(chatShellFix, /syncChatHeader\(\);/);
 assert.match(storyTools, /App\.wrapBuildSystemPrompt\("story-tools:context-pack", contextPackPromptWrapper\)/);
 assert.match(storyTools, /return pack\?\.playerConfirmed \? base \+ "\\n\\n" \+ packPrompt\(pack\) : base;/);
 
