@@ -5215,6 +5215,9 @@ const {
   prepareAuthorProfileUpdate,
 } = WorkerPublicationFormat;
 
+// Author-profile publication boundary. It owns the profile-specific GitHub PR
+// transaction while shared API transport is provided below.
+const WorkerAuthorProfilePublication = (() => {
 async function createAuthorProfilePr(
   env,
   prepared
@@ -5595,6 +5598,15 @@ async function createAuthorProfilePr(
     );
   }
 }
+
+  return Object.freeze({
+    createAuthorProfilePr,
+  });
+})();
+
+const {
+  createAuthorProfilePr,
+} = WorkerAuthorProfilePublication;
 
 // Internal author-ownership boundary. Public author identity claims are kept
 // separate from account/session routes and from public author-profile formatting.
@@ -6144,6 +6156,9 @@ const {
   accountAuthorRoute,
 } = WorkerAccountAuthorRoutes;
 
+// Shared GitHub publication transport and character-publication transaction.
+// Keep repository settings, HTTP policy, and character PR writes off route code.
+const WorkerGithubPublicationTransport = (() => {
 function githubSettings(
   env
 ) {
@@ -7592,6 +7607,19 @@ async function createCharacterPublicationPr(
     );
   }
 }
+
+  return Object.freeze({
+    githubSettings,
+    githubApi,
+    createCharacterPublicationPr,
+  });
+})();
+
+const {
+  githubSettings,
+  githubApi,
+  createCharacterPublicationPr,
+} = WorkerGithubPublicationTransport;
 
 // Admin access intentionally remains a separate bearer-token contract from
 // player sessions and account authentication.
