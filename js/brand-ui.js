@@ -240,27 +240,15 @@
     if (!about) return;
     about.innerHTML = `
       <section class="creator-page">
-        <div class="brand-kicker">ABOUT YORUBAY</div>
-        <h2>讓故事回到玩家手中</h2>
-        <p class="brand-about-lead">你的模型，你的故事，你的世界。</p>
-        <section class="brand-about-product" aria-label="夜灣是什麼">
-          <p class="brand-about-focus">角色 · 世界 · 互動 · 自己的燈</p>
-          <p>夜灣（YoruBay）是一個讓角色、世界與長篇故事停靠的地方。故事優先留在你的裝置裡；想讓故事繼續時，可以使用自己的模型連線、LM Studio 本機模型，或借夜灣的一盞燈。</p>
-          <p>你可以建立角色、探索世界、整理記憶、保留故事分支並匯出備份。模型可以換，服務可以換，但故事與選擇仍然留在你手上。</p>
+        <div class="brand-kicker">關於夜灣</div>
+        <h2>一開始，我只是想讓故事好好走下去。</h2>
+        <p class="brand-about-lead">我曾經也是一個 AI RP 玩家。</p>
+        <section class="brand-about-product" aria-label="為什麼有夜灣">
+          <p>我遇過失憶、斷線，也看過喜歡我作品的玩家，為了讓故事繼續而付出高得讓我不忍心的費用。</p>
+          <p>所以，我開始做夜灣。</p>
+          <p class="brand-about-focus">故事可以換模型，但不應該因此失去自己。</p>
+          <a class="primary" href="about-bao-lab.html">為什麼有夜灣 →</a>
         </section>
-        <div class="brand-kicker brand-creator-kicker">ABOUT THE CREATOR</div>
-        <h3>關於班長</h3>
-        <div class="creator-copy">
-          <p>一開始只是做角色卡。做著做著，開始在意角色聊久了會不會忘記、NPC 能不能有自己的生活、世界能不能不等玩家下指令也繼續走。</p>
-          <p>於是一路改提示詞、測試長篇互動、研究世界設定、HTML、角色記憶與 NPC 自主性。很多東西都是先想到一個奇怪的玩法，再想辦法把它真的做出來。</p>
-          <p>這裡就是我把那些作品和實驗整理在一起的地方。角色、世界、戀愛、劇情、互動介面都有，也會繼續慢慢增加。</p>
-          <p>我比較希望玩家可以選自己想用的模型，所以作品由我整理；故事要用自己的模型連線、本機模型，或借夜灣的一盞燈，都由玩家自己決定。</p>
-        </div>
-        <div class="creator-card">
-          <div><span>方格子 / DC</span><b>班長</b></div>
-          <div><span>LunaTalk</span><b>肉包</b></div>
-          <div><span>在做的東西</span><b>角色卡 / 世界模擬 / 長篇敘事 / HTML 互動</b></div>
-        </div>
       </section>`;
   };
 
