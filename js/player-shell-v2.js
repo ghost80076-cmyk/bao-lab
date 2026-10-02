@@ -71,7 +71,6 @@
       <div class="bao-player-hub">
         <header class="bao-player-hub-head">
           <div>
-            <p class="bao-player-kicker">MY BAO</p>
             <h1>我的</h1>
             <p>故事留在你的裝置；登入只用於你主動使用的線上服務。</p>
           </div>
@@ -80,7 +79,6 @@
 
         <section class="bao-player-account-card" aria-labelledby="bao-player-account-title">
           <div>
-            <span class="bao-player-card-label">ACCOUNT</span>
             <h2 id="bao-player-account-title">帳號與燈火</h2>
             <p id="bao-player-account-state">正在確認帳號狀態…</p>
           </div>
@@ -89,7 +87,6 @@
 
         <div class="bao-player-grid">
           <section class="bao-player-panel">
-            <span class="bao-player-card-label">STORIES</span>
             <h2>我的故事</h2>
             <p id="bao-player-story-state">故事優先保存在目前裝置。</p>
             <div class="bao-player-actions">
@@ -99,21 +96,18 @@
           </section>
 
           <section class="bao-player-panel">
-            <span class="bao-player-card-label">SYNC</span>
             <h2>跨裝置</h2>
             <p>需要時再連結自己的 Google 雲端硬碟。API Key 不會跟著故事同步。</p>
             <button class="secondary" type="button" data-bao-player-action="drive">雲端故事</button>
           </section>
 
           <section class="bao-player-panel">
-            <span class="bao-player-card-label">LOCAL LAB</span>
             <h2>角色實驗室</h2>
             <p>匯入、修改、測試自己的角色卡；草稿仍留在這台裝置。</p>
             <a class="secondary" href="character-studio.html">打開角色實驗室</a>
           </section>
 
           <section class="bao-player-panel">
-            <span class="bao-player-card-label">夜灣 YoruBay</span>
             <h2>作品與說明</h2>
             <p>回到作品區找新的故事，或查看夜灣的使用方式與理念。</p>
             <div class="bao-player-actions">
