@@ -126,6 +126,8 @@ jobs:
         run: node tests/provider-control-core.cjs
       - name: Worker response security headers
         run: node tests/worker-security-headers-core.cjs
+      - name: Worker session security contract
+        run: node tests/worker-session-security-contract.cjs
       - name: YoruBay admin player list
         run: node tests/admin-player-list-core.cjs
       - name: YoruBay admin account status
