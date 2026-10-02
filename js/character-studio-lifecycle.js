@@ -139,6 +139,50 @@
     if (label) label.textContent = value.label;
   };
 
+  const refreshDraftCards = async () => {
+    const list = document.getElementById("studio-drafts");
+    if (!list || typeof studio.listDrafts !== "function") return [];
+    await engine.readyCustomLibrary?.();
+    const [records, catalog] = await Promise.all([studio.listDrafts(), publicCatalog()]);
+    const installed = new Map(engine.loadCustom().map(card => [String(card.id || ""), card]));
+
+    for (const record of records) {
+      const row = [...list.children].find(node => node.dataset?.draftId === String(record.draftId));
+      const button = row?.querySelector(".studio-draft");
+      if (!button) continue;
+      let currentExport = null;
+      let installedExport = null;
+      const characterId = String(record.card?.id || "");
+      const installedCard = installed.get(characterId) || null;
+      try {
+        currentExport = studio.toExport(record.card);
+        if (installedCard) installedExport = studio.toExport(installedCard);
+      } catch (_) {}
+      const badges = core.draftCardBadges({
+        installed: Boolean(installedCard),
+        synced: Boolean(installedCard && core.sameVersion(currentExport, installedExport)),
+        publicKnown: catalog !== null,
+        published: Boolean(catalog?.has(characterId))
+      });
+      let host = button.querySelector(".studio-draft-statuses");
+      if (!host) {
+        host = document.createElement("span");
+        host.className = "studio-draft-statuses";
+        host.setAttribute("aria-label", "作品狀態");
+        button.append(host);
+      }
+      host.replaceChildren(...badges.map(badge => {
+        const item = document.createElement("span");
+        item.className = "studio-draft-status";
+        item.dataset.state = badge.key;
+        item.dataset.tone = badge.tone;
+        item.textContent = badge.label;
+        return item;
+      }));
+    }
+    return records;
+  };
+
   const refresh = async () => {
     scheduled = false;
     const version = ++refreshVersion;
@@ -178,6 +222,7 @@
     host.title = data.publicEntry?.author
       ? "公開作品作者：" + esc(data.publicEntry.author)
       : "本機作品狀態";
+    await refreshDraftCards();
     return data;
   };
 
@@ -199,9 +244,11 @@
 
   const status = document.getElementById("studio-status");
   if (status) new MutationObserver(schedule).observe(status, { childList: true, subtree: true, characterData: true });
+  const draftList = document.getElementById("studio-drafts");
+  if (draftList) new MutationObserver(schedule).observe(draftList, { childList: true });
 
   panel();
   schedule();
 
-  window.BAOCharacterStudioLifecycle = Object.freeze({ refresh, snapshot, publicCatalog });
+  window.BAOCharacterStudioLifecycle = Object.freeze({ refresh, refreshDraftCards, snapshot, publicCatalog });
 })();
