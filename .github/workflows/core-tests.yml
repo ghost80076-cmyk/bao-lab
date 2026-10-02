@@ -191,6 +191,11 @@ jobs:
           node --check js/story-quick-commands-core.js
           node --check js/story-quick-commands.js
           node tests/story-quick-commands-core.cjs
+      - name: API send wrapper foundation
+        run: |
+          node --check js/api.js
+          node --check js/cost-control.js
+          node tests/api-send-wrapper-core.cjs
       - name: Provider request contracts
         run: node tests/api-provider-contracts.cjs
       - name: Provider failure and cancellation contracts
