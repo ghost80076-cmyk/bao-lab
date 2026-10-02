@@ -7,6 +7,8 @@ const source = fs.readFileSync(path.join(__dirname, "..", "js", "state-tracker-r
 const owner = { npcs: [], stateTracker: null };
 let received = null;
 let failProvider = false;
+let ensureStateCalls = 0;
+let shellCalls = 0;
 
 global.window = global;
 global.document = {
@@ -15,15 +17,23 @@ global.document = {
   head: { appendChild() {} }
 };
 global.App = {
+  __renderChatShellWrapperIds: new Set(),
   characters: [],
-  activeCharacter: null,
+  activeCharacter: { id: "autonomous-npc-world" },
   openCharacter() {},
-  renderChatShell() {},
+  renderChatShell(...args) { shellCalls += 1; return { args }; },
+  wrapRenderChatShell(id, wrapper) {
+    if (this.__renderChatShellWrapperIds.has(id)) return false;
+    const next = this.renderChatShell.bind(this);
+    this.renderChatShell = (...args) => wrapper.call(this, next, ...args);
+    this.__renderChatShellWrapperIds.add(id);
+    return true;
+  },
   renderUIPanel() {}
 };
 global.GameState = { current: owner };
 global.BAOCharacterStatus = {
-  ensureState() {},
+  ensureState() { ensureStateCalls += 1; },
   configFor() { return { fields: [] }; }
 };
 global.BAOHelperData = {
@@ -65,6 +75,16 @@ assert.equal(
   true,
   "state tracker repairs must install through API.wrapSend"
 );
+assert.equal(
+  App.__renderChatShellWrapperIds.has("state-tracker-repairs:schema"),
+  true,
+  "state tracker shell repair must install through App.wrapRenderChatShell"
+);
+const ensureBeforeShell = ensureStateCalls;
+const shellResult = App.renderChatShell(true, "extra");
+assert.equal(shellCalls, 1, "base renderChatShell must run exactly once");
+assert.equal(ensureStateCalls, ensureBeforeShell + 1, "state schema must be ensured before shell rendering");
+assert.deepEqual(shellResult, { args: [true, "extra"] }, "shell return value and args must pass through");
 
 (async () => {
   const stateMessages = [

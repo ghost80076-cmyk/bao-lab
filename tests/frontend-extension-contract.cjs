@@ -86,6 +86,8 @@ assert.match(helper, /return next\(effective, messages, \.\.\.rest\)/);
 assert.match(repairs, /window\.BAOStateTrackerRepairs/);
 assert.match(repairs, /API\.wrapSend\('state-tracker-repairs:presence-guard', stateTrackerWrapper\)/);
 assert.match(repairs, /return await next\(config, guarded, \.\.\.rest\)/);
+assert.match(repairs, /App\.wrapRenderChatShell\("state-tracker-repairs:schema", stateShellWrapper\)/);
+assert.match(repairs, /return next\(\.\.\.args\)/);
 assert.match(repairs, /window\.BAOStateTrackerRepairs\s*=\s*\{/);
 
 
@@ -115,6 +117,7 @@ assert.match(sameModelStateMerge, /const result = await next\(effective, prepare
 assert.match(sameModelStateMerge, /window\.BAOSameModelStateMerge\s*=\s*\{/);
 
 assert.match(appSource, /wrapSendMessage\(id, wrapper\)/);
+assert.match(appSource, /wrapRenderChatShell\(id, wrapper\)/);
 assert.match(streamingUI, /API\.__streamingUIPatched/);
 assert.match(streamingUI, /API\.__streamingUIPatched\s*=\s*true/);
 assert.match(streamingUI, /API\.wrapSend\("streaming-ui:main-story", streamingWrapper\)/);
