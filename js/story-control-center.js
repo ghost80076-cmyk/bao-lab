@@ -184,12 +184,18 @@
     } else host.appendChild(button);
   };
 
-  const originalRender = App.renderChatShell.bind(App);
-  App.renderChatShell = function(...args) {
-    const result = originalRender(...args);
+  const storyControlShellWrapper = function(next, ...args) {
+    const result = next(...args);
     window.setTimeout(injectEntry, 0);
     return result;
   };
+  if (typeof App.wrapRenderChatShell === "function") {
+    App.wrapRenderChatShell("story-control-center:entry", storyControlShellWrapper);
+  } else {
+    // Compatibility fallback for a mixed-cache page where story-control-center is newer than app.js.
+    const originalRender = App.renderChatShell.bind(App);
+    App.renderChatShell = (...args) => storyControlShellWrapper.call(App, originalRender, ...args);
+  }
 
   const originalShowView = App.showView.bind(App);
   App.showView = function(view, ...args) {
