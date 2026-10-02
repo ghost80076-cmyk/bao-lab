@@ -7,6 +7,29 @@ const source = fs.readFileSync(
   "utf8"
 );
 
+assert.match(
+  source,
+  /const WorkerModelPricing = \(\(\) => \{/,
+  "model allowlist and pricing helpers must stay grouped behind WorkerModelPricing"
+);
+for (const helper of [
+  "modelConfigs",
+  "modelConfig",
+  "modelAllowed",
+  "pricingRate",
+  "longContextActive",
+  "resolvedPricingRates",
+  "openRouterPriceGuard",
+  "costBucketsMicrousd",
+  "usageForStorage",
+  "computedUsageCostMicrousd",
+  "actualUsageCostMicrousd",
+  "estimatedPromptTokens",
+  "reservePlan",
+]) {
+  assert.match(source, new RegExp("\\b" + helper + "\\b"), "WorkerModelPricing boundary is missing " + helper);
+}
+
 const instrumented =
   source.replace(
     /export\s+default\s+\{/,
