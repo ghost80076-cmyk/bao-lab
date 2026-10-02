@@ -119,7 +119,8 @@ assert.match(streamingUI, /API\.wrapSend\("streaming-ui:main-story", streamingWr
 assert.match(streamingUI, /return await next\(\{ \.\.\.config, stream: true, onDelta \}, messages, \.\.\.rest\)/);
 
 assert.match(creditsPilot, /window\.BAOCreditsPilot/);
-assert.match(creditsPilot, /const originalSend\s*=\s*API\.send\.bind\(API\)/);
+assert.match(creditsPilot, /API\.wrapSend\("credits-pilot:hosted-transport", hostedCreditsWrapper\)/);
+assert.match(creditsPilot, /return next\(config, messages, \.\.\.rest\)/);
 assert.match(creditsPilot, /window\.BAOCreditsPilot\s*=\s*Object\.freeze\(\{/);
 
 assert.match(requestLifecycle, /App\.__requestLifecyclePatched/);

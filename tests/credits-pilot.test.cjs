@@ -7,7 +7,20 @@ const code = fs.readFileSync(path.join(__dirname, '../js/credits-pilot.js'), 'ut
 const registry = JSON.parse(fs.readFileSync(path.join(__dirname, '../data/presets/models.json'), 'utf8'));
 function build(response={ok:true,status:200,body:{content:'測試成功',usage:{input_tokens:10,output_tokens:6,charged_credits:1}}}) {
   const calls=[]; const options=[];
-  const api={send:async()=>({text:'BYOK works',usage:{}}),contentToText:x=>String(x),normalizeUsage:u=>u,networkError:e=>e};
+  const api={
+    __sendWrapperIds:new Set(),
+    send:async()=>({text:'BYOK works',usage:{}}),
+    contentToText:x=>String(x),
+    normalizeUsage:u=>u,
+    networkError:e=>e,
+    wrapSend(id,wrapper){
+      if(this.__sendWrapperIds.has(id)) return false;
+      const next=this.send.bind(this);
+      this.send=(config,messages,...rest)=>wrapper(next,config,messages,...rest);
+      this.__sendWrapperIds.add(id);
+      return true;
+    }
+  };
   const app={config:{api:null},modelRegistry:registry,modelPresets:[{provider:'gemini',label:'original',model:'original',base_url:'https://google',protocol:'gemini'}],populateAPIControls(){},syncSelectedPreset(){}};
   const elements={'api-type':{value:'',querySelector:()=>null,appendChild:o=>options.push(o),addEventListener:()=>{}},'api-key':{value:'',closest:()=>({firstChild:{nodeType:3}}),addEventListener:()=>{}},'api-hint':{textContent:''},'api-protocol-badge':{textContent:''}};
   const document={readyState:'loading',getElementById:id=>elements[id],createElement:()=>({}),addEventListener(){},body:{}};
@@ -18,6 +31,7 @@ function build(response={ok:true,status:200,body:{content:'測試成功',usage:{
   };
   const context={API:api,App:app,document,window,TextEncoder,MutationObserver:class{observe(){}},fetch:async(url,opt)=>{calls.push([url,opt]);return {ok:response.ok,status:response.status,json:async()=>response.body}}};
   vm.runInNewContext(code,context);
+  assert.equal(api.__sendWrapperIds.has('credits-pilot:hosted-transport'),true,'credits pilot must install through API.wrapSend');
   return {app,api,calls,options,window,elements};
 }
 const token='yb_s_'+'A'.repeat(43);
