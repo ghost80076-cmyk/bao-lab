@@ -7513,6 +7513,31 @@ async function createCharacterPublicationPr(
   }
 }
 
+// Admin access intentionally remains a separate bearer-token contract from
+// player sessions and account authentication.
+const WorkerAdminAuth = (() => {
+  function adminAuthorized(
+    request,
+    env
+  ) {
+    return Boolean(
+      env.ADMIN_TOKEN &&
+      tokenFrom(
+        request
+      ) ===
+        env.ADMIN_TOKEN
+    );
+  }
+
+  return Object.freeze({
+    adminAuthorized,
+  });
+})();
+
+const {
+  adminAuthorized,
+} = WorkerAdminAuth;
+
 // Authenticated admin HTTP surface. Publication formatting, provider control
 // calculations and chat settlement remain in their own boundaries.
 const WorkerAdminRoutes = (() => {
@@ -7541,11 +7566,10 @@ async function adminRoute(
   db
 ) {
   if (
-    !env.ADMIN_TOKEN ||
-    tokenFrom(
-      request
-    ) !==
-    env.ADMIN_TOKEN
+    !adminAuthorized(
+      request,
+      env
+    )
   ) {
     return fail(
       "unauthorized",
