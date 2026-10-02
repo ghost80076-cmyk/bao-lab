@@ -123,6 +123,18 @@ const API = {
     }
   },
 
+  wrapSend(id, wrapper) {
+    const key = String(id || "").trim();
+    if (!key) throw new Error("API send wrapper 需要唯一識別碼。");
+    if (typeof wrapper !== "function") throw new Error(`API send wrapper ${key} 必須是函式。`);
+    if (!this.__sendWrapperIds) this.__sendWrapperIds = new Set();
+    if (this.__sendWrapperIds.has(key)) return false;
+    const next = this.send.bind(this);
+    this.send = async (config, messages, ...rest) => wrapper(next, config, messages, ...rest);
+    this.__sendWrapperIds.add(key);
+    return true;
+  },
+
   async send(config, messages) {
     if (!config.key) throw new Error("請先填入連線金鑰（API Key）。");
     if (!config.model) throw new Error("請填入模型代號（Model ID）。");
