@@ -1074,6 +1074,9 @@ const {
   createSession,
 } = WorkerSessionAuth;
 
+// Account credential/profile input validation shared by register, login and
+// recovery routes. Normalization rules remain separate from session policy.
+const WorkerAccountValidation = (() => {
 function validUsername(
   value
 ) {
@@ -1119,6 +1122,19 @@ function validDisplayName(
     ? name
     : null;
 }
+
+  return Object.freeze({
+    validUsername,
+    validPassword,
+    validDisplayName,
+  });
+})();
+
+const {
+  validUsername,
+  validPassword,
+  validDisplayName,
+} = WorkerAccountValidation;
 
 function getDb(
   env
