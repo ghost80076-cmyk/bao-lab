@@ -109,7 +109,8 @@ assert.match(promptCache, /API\.wrapSend\("prompt-cache:memory-request-guard", m
 assert.match(promptCache, /return await next\(\{ \.\.\.config, signal: controller\.signal \}, messages, \.\.\.rest\)/);
 
 assert.match(sameModelStateMerge, /window\.BAOSameModelStateMerge/);
-assert.match(sameModelStateMerge, /const rawSend\s*=\s*API\.send\.bind\(API\)/);
+assert.match(sameModelStateMerge, /API\.wrapSend\('same-model-state-merge:main-story', sameModelStateWrapper\)/);
+assert.match(sameModelStateMerge, /const result = await next\(effective, prepared, \.\.\.rest\)/);
 assert.match(sameModelStateMerge, /window\.BAOSameModelStateMerge\s*=\s*\{/);
 
 assert.match(streamingUI, /API\.__streamingUIPatched/);
