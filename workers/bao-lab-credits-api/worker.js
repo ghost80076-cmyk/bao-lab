@@ -7538,210 +7538,15 @@ const {
   adminAuthorized,
 } = WorkerAdminAuth;
 
-// Authenticated admin HTTP surface. Publication formatting, provider control
-// calculations and chat settlement remain in their own boundaries.
-const WorkerAdminRoutes = (() => {
-async function ensureAdminPlayerEvents(
-  db
-) {
-  await db
-    .prepare(
-      `
-      CREATE TABLE IF NOT EXISTS admin_player_events (
-        event_id TEXT PRIMARY KEY,
-        player_id TEXT NOT NULL,
-        action TEXT NOT NULL,
-        reason TEXT,
-        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-      )
-      `
-    )
-    .run();
-}
-
-async function adminRoute(
+// Admin provider-control HTTP subroutes. Provider accounting and snapshots stay
+// in WorkerProviderControl; this boundary owns only request validation/persistence.
+const WorkerAdminProviderControlRoutes = (() => {
+async function adminProviderControlRoute(
   request,
-  url,
+  path,
   env,
   db
 ) {
-  if (
-    !adminAuthorized(
-      request,
-      env
-    )
-  ) {
-    return fail(
-      "unauthorized",
-      401
-    );
-  }
-
-  const path =
-    url.pathname;
-
-  if (
-    path ===
-      "/admin/characters/publish-status" &&
-    request.method ===
-      "GET"
-  ) {
-    const settings =
-      githubSettings(
-        env
-      );
-
-    return json({
-      configured:
-        settings
-          .configured,
-
-      repository:
-        settings
-          .fullName,
-
-      base_branch:
-        settings
-          .baseBranch,
-
-      mode:
-        "pull_request_only",
-    });
-  }
-
-  if (
-    path ===
-      "/admin/authors/profile-pr" &&
-    request.method ===
-      "POST"
-  ) {
-    let prepared;
-
-    try {
-      prepared =
-        prepareAuthorProfileUpdate(
-          await readJsonWithLimit(
-            request,
-            MAX_ADMIN_PUBLISH_BODY_BYTES
-          )
-        );
-    }
-
-    catch (error) {
-      if (
-        error?.httpStatus
-      ) {
-        return fail(
-          error.message,
-          error.httpStatus
-        );
-      }
-
-      throw error;
-    }
-
-    try {
-      const result =
-        await createAuthorProfilePr(
-          env,
-          prepared
-        );
-
-      return json(
-        {
-          created:
-            true,
-
-          ...result,
-        },
-        201
-      );
-    }
-
-    catch (error) {
-      if (
-        error?.httpStatus
-      ) {
-        return fail(
-          error.message,
-          error.httpStatus
-        );
-      }
-
-      throw error;
-    }
-  }
-
-  if (
-    path ===
-      "/admin/characters/publish-pr" &&
-    request.method ===
-      "POST"
-  ) {
-    let publication;
-
-    try {
-      publication =
-        prepareCharacterPublication(
-          await readJsonWithLimit(
-            request,
-            MAX_ADMIN_PUBLISH_BODY_BYTES
-          )
-        );
-    }
-
-    catch (error) {
-      if (
-        error
-          ?.httpStatus
-      ) {
-        return fail(
-          error.message,
-          error.httpStatus
-        );
-      }
-
-      throw error;
-    }
-
-    try {
-      const result =
-        await createCharacterPublicationPr(
-          env,
-          publication
-        );
-
-      return json(
-        {
-          created:
-            true,
-
-          ...result,
-        },
-        201
-      );
-    }
-
-    catch (error) {
-      if (
-        error
-          ?.httpStatus
-      ) {
-        return fail(
-          error.message,
-          error.httpStatus
-        );
-      }
-
-      throw error;
-    }
-  }
-
-
-  await ensureAdminPlayerEvents(
-    db
-  );
-
   if (
     path ===
       "/admin/provider-control" &&
@@ -7982,6 +7787,235 @@ async function adminRoute(
         db
       )
     );
+  }
+
+  return null;
+}
+
+  return Object.freeze({
+    adminProviderControlRoute,
+  });
+})();
+
+const {
+  adminProviderControlRoute,
+} = WorkerAdminProviderControlRoutes;
+
+
+// Authenticated admin HTTP surface. Publication formatting, provider control
+// calculations and chat settlement remain in their own boundaries.
+const WorkerAdminRoutes = (() => {
+async function ensureAdminPlayerEvents(
+  db
+) {
+  await db
+    .prepare(
+      `
+      CREATE TABLE IF NOT EXISTS admin_player_events (
+        event_id TEXT PRIMARY KEY,
+        player_id TEXT NOT NULL,
+        action TEXT NOT NULL,
+        reason TEXT,
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+      )
+      `
+    )
+    .run();
+}
+
+async function adminRoute(
+  request,
+  url,
+  env,
+  db
+) {
+  if (
+    !adminAuthorized(
+      request,
+      env
+    )
+  ) {
+    return fail(
+      "unauthorized",
+      401
+    );
+  }
+
+  const path =
+    url.pathname;
+
+  if (
+    path ===
+      "/admin/characters/publish-status" &&
+    request.method ===
+      "GET"
+  ) {
+    const settings =
+      githubSettings(
+        env
+      );
+
+    return json({
+      configured:
+        settings
+          .configured,
+
+      repository:
+        settings
+          .fullName,
+
+      base_branch:
+        settings
+          .baseBranch,
+
+      mode:
+        "pull_request_only",
+    });
+  }
+
+  if (
+    path ===
+      "/admin/authors/profile-pr" &&
+    request.method ===
+      "POST"
+  ) {
+    let prepared;
+
+    try {
+      prepared =
+        prepareAuthorProfileUpdate(
+          await readJsonWithLimit(
+            request,
+            MAX_ADMIN_PUBLISH_BODY_BYTES
+          )
+        );
+    }
+
+    catch (error) {
+      if (
+        error?.httpStatus
+      ) {
+        return fail(
+          error.message,
+          error.httpStatus
+        );
+      }
+
+      throw error;
+    }
+
+    try {
+      const result =
+        await createAuthorProfilePr(
+          env,
+          prepared
+        );
+
+      return json(
+        {
+          created:
+            true,
+
+          ...result,
+        },
+        201
+      );
+    }
+
+    catch (error) {
+      if (
+        error?.httpStatus
+      ) {
+        return fail(
+          error.message,
+          error.httpStatus
+        );
+      }
+
+      throw error;
+    }
+  }
+
+  if (
+    path ===
+      "/admin/characters/publish-pr" &&
+    request.method ===
+      "POST"
+  ) {
+    let publication;
+
+    try {
+      publication =
+        prepareCharacterPublication(
+          await readJsonWithLimit(
+            request,
+            MAX_ADMIN_PUBLISH_BODY_BYTES
+          )
+        );
+    }
+
+    catch (error) {
+      if (
+        error
+          ?.httpStatus
+      ) {
+        return fail(
+          error.message,
+          error.httpStatus
+        );
+      }
+
+      throw error;
+    }
+
+    try {
+      const result =
+        await createCharacterPublicationPr(
+          env,
+          publication
+        );
+
+      return json(
+        {
+          created:
+            true,
+
+          ...result,
+        },
+        201
+      );
+    }
+
+    catch (error) {
+      if (
+        error
+          ?.httpStatus
+      ) {
+        return fail(
+          error.message,
+          error.httpStatus
+        );
+      }
+
+      throw error;
+    }
+  }
+
+
+  await ensureAdminPlayerEvents(
+    db
+  );
+
+  const providerControlResponse =
+    await adminProviderControlRoute(
+      request,
+      path,
+      env,
+      db
+    );
+
+  if (providerControlResponse) {
+    return providerControlResponse;
   }
 
   if (
