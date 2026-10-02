@@ -31,6 +31,7 @@
     published_character_metadata_invalid: "正式作品的版本資料不完整，無法安全建立更新 PR。",
     invalid_publication_mode: "發布方式無效，請重新選擇。",
     invalid_author_id: "作者 ID 只能使用小寫英數、底線與連字號，長度 2–64 字元。",
+    author_name_required: "作者公開頁需要作者顯示名稱。",
     author_id_required_for_support: "要提供「支持作者」連結，請先填寫穩定的作者 ID。",
     invalid_author_support_url: "支持作者連結必須是有效的 HTTPS 網址，且不能包含帳號密碼。",
     invalid_author_profile: "作者公開資料無效。",
@@ -51,6 +52,30 @@
     const raw = String(error?.message || error || "操作失敗");
     const key = raw.replace(/^HTTP \d+\s*/, "").trim();
     return errorLabels[key] || errorLabels[error?.code] || raw;
+  }
+
+  function authorPayload() {
+    return {
+      author_id: String($("publish-author-id")?.value || "").trim().toLowerCase(),
+      author_name: String($("publish-author")?.value || "").trim(),
+      author_bio: String($("publish-author-bio")?.value || "").trim(),
+      author_support_label: String($("publish-author-support-label")?.value || "支持作者").trim(),
+      author_support_url: String($("publish-author-support-url")?.value || "").trim()
+    };
+  }
+
+  function setAuthorMessage(text, ok = false) {
+    const el = $("publish-author-message");
+    if (!el) return;
+    el.textContent = text || "";
+    el.className = ok ? "success" : "note";
+  }
+
+  function updateAuthorProfileButton() {
+    const button = $("publish-author-profile-pr");
+    if (!button) return;
+    const payload = authorPayload();
+    button.disabled = !(payload.author_id && payload.author_name);
   }
 
   function tagsFromInput() {
@@ -318,6 +343,51 @@
     setMessage("✓ 已更新發布封面。", true);
   }
 
+  async function publishAuthorProfile() {
+    if (!window.YoruBayAdmin?.isAuthenticated?.()) throw new Error("請先在上方完成管理員登入。");
+
+    const payload = authorPayload();
+    if (!payload.author_id) throw new Error("invalid_author_id");
+    if (!payload.author_name) throw new Error("author_name_required");
+
+    const button = $("publish-author-profile-pr");
+    if (button) button.disabled = true;
+    setAuthorMessage("正在建立作者資料 PR…");
+
+    try {
+      const data = await window.YoruBayAdmin.api("/admin/authors/profile-pr", {
+        method: "POST",
+        body: JSON.stringify(payload)
+      });
+
+      setAuthorMessage(
+        "✓ 作者資料 PR #" + (data.pr_number || "—") +
+        " 已建立；作品內容與 published_version 不會變動。",
+        true
+      );
+
+      if (data.pr_url) {
+        const result = $("publish-result");
+        if (result) {
+          const line = document.createElement("div");
+          line.className = "note";
+          const link = document.createElement("a");
+          link.href = data.pr_url;
+          link.target = "_blank";
+          link.rel = "noopener noreferrer";
+          link.textContent = "開啟作者資料 PR #" + (data.pr_number || "—");
+          line.appendChild(link);
+          result.prepend(line);
+        }
+      }
+    } catch (error) {
+      setAuthorMessage("建立作者資料 PR 失敗：" + friendly(error));
+      throw error;
+    } finally {
+      updateAuthorProfileButton();
+    }
+  }
+
   async function publish() {
     if (!window.YoruBayAdmin?.isAuthenticated?.()) throw new Error("請先在上方完成管理員登入。");
     const card = validateCard();
@@ -410,20 +480,28 @@
     catch {}
   });
 
+  $("publish-author-profile-pr")?.addEventListener("click", async () => {
+    try { await publishAuthorProfile(); }
+    catch {}
+  });
+
   ["publish-id", "publish-name", "publish-title", "publish-category", "publish-description", "publish-tags", "publish-author-id", "publish-author", "publish-author-bio", "publish-author-support-label", "publish-author-support-url"].forEach(id => {
     $(id)?.addEventListener("input", () => {
       state.audit = null;
       renderAudit(null);
       updateButton();
+      updateAuthorProfileButton();
     });
     $(id)?.addEventListener("change", () => {
       state.audit = null;
       renderAudit(null);
       updateButton();
+      updateAuthorProfileButton();
     });
   });
 
   $("publish-rights")?.addEventListener("change", updateButton);
   $("publish-mode")?.addEventListener("change", updateButton);
   updateButton();
+  updateAuthorProfileButton();
 })();
