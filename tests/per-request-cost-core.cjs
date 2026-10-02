@@ -12,7 +12,17 @@ global.document = {
 };
 global.addEventListener = () => {};
 global.setTimeout = () => {};
-global.API = { send: async () => ({}) };
+global.API = {
+  send: async () => ({}),
+  __sendWrapperIds: new Set(),
+  wrapSend(id, wrapper) {
+    if (this.__sendWrapperIds.has(id)) return false;
+    const next = this.send.bind(this);
+    this.send = (config, messages, ...rest) => wrapper(next, config, messages, ...rest);
+    this.__sendWrapperIds.add(id);
+    return true;
+  }
+};
 global.Chat = {
   usage: { prompt: 0, completion: 0, cached: 0, total: 0 },
   usageLedger: [
@@ -37,6 +47,8 @@ global.App = {
 
 const source = fs.readFileSync(path.join(__dirname, "..", "js", "cost-control.js"), "utf8");
 vm.runInThisContext(source, { filename: "js/cost-control.js" });
+
+assert.equal(API.__sendWrapperIds.has("cost-control:budget"), true, "cost-control must install through API.wrapSend");
 
 const result = BAOCostControl.cumulativeCost();
 assert.equal(result.actualCalls, 1, "YoruBay-like backend charge should be counted as actual");
