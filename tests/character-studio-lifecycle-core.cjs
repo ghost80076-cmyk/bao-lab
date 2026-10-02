@@ -11,6 +11,16 @@ assert.equal(core.sameVersion(
   { a: 1, nested: { b: 3 } }
 ), false);
 
+assert.deepEqual(core.draftCardBadges({ installed: false, publicKnown: true, published: false }), [
+  { key: "draft", label: "草稿", tone: "muted" }
+]);
+assert.deepEqual(core.draftCardBadges({ installed: true, synced: false, publicKnown: true, published: true }), [
+  { key: "draft", label: "草稿", tone: "muted" },
+  { key: "local-outdated", label: "本機待更新", tone: "warn" },
+  { key: "published", label: "已公開", tone: "good" }
+]);
+assert.equal(core.draftCardBadges({ installed: true, synced: true })[1].label, "本機已同步");
+
 {
   const state = core.derive({
     hasDraft: false,
