@@ -8890,681 +8890,361 @@ async function adminRoute(
   );
 }
 
-async function geminiErrorHint(
-  response
-) {
-  try {
-    const payload =
-      await response.json();
-
-    // Gemini errors may arrive either directly from Google or wrapped by the
-    // AWS Sydney relay. Build one internal diagnostic string from known wrapper
-    // locations. It is used only for classification and is never returned to
-    // the player.
-    const diagnosticParts =
-      [
-        payload?.error
-          ?.message,
-        typeof payload?.error ===
-          "string"
-          ? payload.error
-          : null,
-        payload?.message,
-        payload?.detail,
-        payload?.reason,
-        payload?.hint,
-        payload?.category,
-        payload?.body?.error
-          ?.message,
-        payload?.body?.message,
-        payload?.google?.error
-          ?.message,
-        payload?.google?.message,
-        payload?.upstream?.error
-          ?.message,
-        payload?.upstream?.message,
-        payload?.provider_error
-          ?.message,
-        payload?.response?.error
-          ?.message,
-        payload?.data?.error
-          ?.message,
-        payload?.cause?.message,
-      ]
-        .filter(
-          (value) =>
-            typeof value ===
-              "string" &&
-            value.trim()
-        )
-        .join(" ");
-
-    let serialized =
-      "";
-
+// Internal provider network-transport boundary. It owns provider payloads,
+// upstream HTTP calls, response normalization and provider-facing error mapping.
+// Route selection, pricing and wallet settlement stay outside this block.
+const WorkerProviderTransport = (() => {
+  async function geminiErrorHint(
+    response
+  ) {
     try {
-      serialized =
-        JSON.stringify(
-          payload
-        );
-    }
-
-    catch {
-      serialized =
-        "";
-    }
-
-    const message =
-      `${diagnosticParts} ${serialized}`
-        .toLowerCase()
-        .slice(
-          0,
-          12000
-        );
-
-    const knownStatuses =
-      new Set(
+      const payload =
+        await response.json();
+  
+      // Gemini errors may arrive either directly from Google or wrapped by the
+      // AWS Sydney relay. Build one internal diagnostic string from known wrapper
+      // locations. It is used only for classification and is never returned to
+      // the player.
+      const diagnosticParts =
         [
-          "INVALID_ARGUMENT",
-          "FAILED_PRECONDITION",
-          "PERMISSION_DENIED",
-          "UNAUTHENTICATED",
-          "RESOURCE_EXHAUSTED",
-          "NOT_FOUND",
-          "UNAVAILABLE",
+          payload?.error
+            ?.message,
+          typeof payload?.error ===
+            "string"
+            ? payload.error
+            : null,
+          payload?.message,
+          payload?.detail,
+          payload?.reason,
+          payload?.hint,
+          payload?.category,
+          payload?.body?.error
+            ?.message,
+          payload?.body?.message,
+          payload?.google?.error
+            ?.message,
+          payload?.google?.message,
+          payload?.upstream?.error
+            ?.message,
+          payload?.upstream?.message,
+          payload?.provider_error
+            ?.message,
+          payload?.response?.error
+            ?.message,
+          payload?.data?.error
+            ?.message,
+          payload?.cause?.message,
         ]
-      );
-
-    const statusCandidates =
-      [
-        payload?.error
-          ?.status,
-        payload?.status,
-        payload?.provider_status,
-        payload?.providerStatus,
-        payload?.body?.error
-          ?.status,
-        payload?.google?.error
-          ?.status,
-        payload?.upstream?.error
-          ?.status,
-        payload?.response?.error
-          ?.status,
-        payload?.data?.error
-          ?.status,
-      ];
-
-    const providerStatus =
-      statusCandidates
-        .map(
-          (value) =>
-            String(
-              value ||
-              ""
-            )
-              .trim()
-              .toUpperCase()
-        )
-        .find(
-          (value) =>
-            knownStatuses.has(
-              value
-            )
-        ) ||
-      null;
-
-    if (
-      /user location is not supported|location is not supported for (the )?api|not available in your (location|region|country)|unsupported (location|region|country)/.test(
-        message
-      )
-    ) {
-      return {
-        hint:
-          "region",
-
-        providerStatus,
-      };
-    }
-
-    if (
-      /billing|billing account|enable billing|paid tier|paid plan|payment|required payment|prepay|prepaid|purchase|credit balance|insufficient provider credit/.test(
-        message
-      )
-    ) {
-      return {
-        hint:
-          "billing",
-
-        providerStatus,
-      };
-    }
-
-    if (
-      /model[_ -]?not[_ -]?allowed|model[^a-z0-9]{0,8}(is )?not allowed|allowlist|whitelist|unsupported model/.test(
-        message
-      )
-    ) {
-      return {
-        hint:
-          "model_not_allowed",
-
-        providerStatus,
-      };
-    }
-
-    if (
-      /thought.?signature|thought_signature/.test(
-        message
-      )
-    ) {
-      return {
-        hint:
-          "thought_signature",
-
-        providerStatus,
-      };
-    }
-
-    if (
-      /max.?output.?tokens|generation.?config|thinking.?budget|thinking.?level/.test(
-        message
-      )
-    ) {
-      return {
-        hint:
-          "generation_config",
-
-        providerStatus,
-      };
-    }
-
-    if (
-      /system.?instruction/.test(
-        message
-      )
-    ) {
-      return {
-        hint:
-          "system_instruction",
-
-        providerStatus,
-      };
-    }
-
-    if (
-      /contents|turns?|parts?|roles?|conversation/.test(
-        message
-      )
-    ) {
-      return {
-        hint:
-          "message_format",
-
-        providerStatus,
-      };
-    }
-
-    if (
-      /context.length|token.limit|too.many.tokens|input.too.long|request.too.large/.test(
-        message
-      )
-    ) {
-      return {
-        hint:
-          "context_limit",
-
-        providerStatus,
-      };
-    }
-
-    if (
-      /(model.{0,80}(not.found|not.supported|not.available|deprecated|does not exist|unknown))|((not.found|not.supported|not.available|deprecated).{0,80}model)/.test(
-        message
-      ) ||
-      providerStatus ===
-        "NOT_FOUND"
-    ) {
-      return {
-        hint:
-          "model_unavailable",
-
-        providerStatus,
-      };
-    }
-
-    if (
-      /api.?key|api_key|invalid key|key invalid|authentication|unauthenticated/.test(
-        message
-      ) ||
-      providerStatus ===
-        "UNAUTHENTICATED"
-    ) {
-      return {
-        hint:
-          "api_key",
-
-        providerStatus,
-      };
-    }
-
-    if (
-      /permission denied|permission_denied|forbidden|not authorized|access denied|access not configured/.test(
-        message
-      ) ||
-      providerStatus ===
-        "PERMISSION_DENIED"
-    ) {
-      return {
-        hint:
-          "permission",
-
-        providerStatus,
-      };
-    }
-
-    if (
-      /quota|resource exhausted|resource_exhausted|rate limit/.test(
-        message
-      ) ||
-      providerStatus ===
-        "RESOURCE_EXHAUSTED"
-    ) {
-      return {
-        hint:
-          "quota",
-
-        providerStatus,
-      };
-    }
-
-    if (
-      /invalid.argument|invalid.request|bad request/.test(
-        message
-      ) ||
-      providerStatus ===
-        "INVALID_ARGUMENT"
-    ) {
-      return {
-        hint:
-          "invalid_argument",
-
-        providerStatus,
-      };
-    }
-
-    if (
-      providerStatus ===
-        "FAILED_PRECONDITION"
-    ) {
-      return {
-        hint:
-          "precondition",
-
-        providerStatus,
-      };
-    }
-
-    if (
-      providerStatus ===
-        "UNAVAILABLE"
-    ) {
-      return {
-        hint:
-          "unavailable",
-
-        providerStatus,
-      };
-    }
-
-    return {
-      hint:
-        "unknown",
-
-      providerStatus,
-    };
-  }
-
-  catch {
-    return {
-      hint:
-        "invalid_error_payload",
-
-      providerStatus:
-        null,
-    };
-  }
-}
-
-function anthropicPayload(
-  messages,
-  model,
-  maxOutput
-) {
-  const systemParts =
-    messages
-      .filter(
-        (m) =>
-          m.role ===
-          "system"
-      )
-      .map(
-        (m) => ({
-          type:
-            "text",
-
-          text:
-            m.content,
-        })
-      );
-
-  const conversation =
-    messages
-      .filter(
-        (m) =>
-          m.role !==
-          "system"
-      )
-      .map(
-        (m) => ({
-          role:
-            m.role ===
-              "assistant"
-              ? "assistant"
-              : "user",
-
-          content:
-            m.content,
-        })
-      );
-
-  const payload = {
-    model,
-
-    max_tokens:
-      maxOutput,
-
-    messages:
-      conversation,
-
-    stream:
-      false,
-  };
-
-  if (
-    systemParts.length
-  ) {
-    payload.system =
-      systemParts;
-  }
-
-  return payload;
-}
-
-async function providerCall(
-  env,
-  provider,
-  model,
-  messages,
-  maxOutput,
-  player = null,
-  sessionId = ""
-) {
-  let endpoint;
-  let init;
-  let usingAwsRelay =
-    false;
-
-  const configuredModel =
-    modelConfig(
-      env,
-      provider,
-      model
-    );
-
-  const openRouterGuard =
-    provider ===
-      "openrouter"
-      ? openRouterPriceGuard(
-          configuredModel,
-          estimatedPromptTokens(
-            messages
+          .filter(
+            (value) =>
+              typeof value ===
+                "string" &&
+              value.trim()
           )
-        )
-      : null;
-
-  if (
-    provider ===
-    "openrouter"
-  ) {
-    const useAwsRelay =
-      playerUsesAwsOpenRouter(
-        env,
-        player
-      );
-
-    if (
-      useAwsRelay
-    ) {
-      if (
-        !env.AWS_RELAY_URL ||
-        !env.BAO_INTERNAL_TOKEN
-      ) {
-        return {
-          ok:
-            false,
-
-          category:
-            "relay_not_configured",
-        };
-      }
-
-      let relayBase;
-
+          .join(" ");
+  
+      let serialized =
+        "";
+  
       try {
-        relayBase =
-          new URL(
-            env.AWS_RELAY_URL
+        serialized =
+          JSON.stringify(
+            payload
           );
-
-        if (
-          relayBase.protocol !==
-            "https:" ||
-          relayBase.username ||
-          relayBase.password
-        ) {
-          throw new Error(
-            "bad_relay"
-          );
-        }
       }
-
+  
       catch {
-        return {
-          ok:
-            false,
-
-          category:
-            "relay_not_configured",
-        };
+        serialized =
+          "";
       }
-
-      endpoint =
-        new URL(
-          "/v1/chat",
-          relayBase
-        ).toString();
-
-      usingAwsRelay =
-        true;
-
-      init = {
-        method:
-          "POST",
-
-        headers: {
-          authorization:
-            `Bearer ${env.BAO_INTERNAL_TOKEN}`,
-
-          "content-type":
-            "application/json",
-        },
-
-        body:
-          JSON.stringify(
-            {
-              provider:
-                "openrouter",
-
-              model,
-              messages,
-
-              max_output_tokens:
-                maxOutput,
-
-              openrouter_provider:
-                openRouterGuard
-                  ?.provider,
-
-              ...(sessionId
-                ? {
-                    session_id:
-                      sessionId,
-                  }
-                : {}),
-            }
-          ),
-      };
-    }
-
-    else {
+  
+      const message =
+        `${diagnosticParts} ${serialized}`
+          .toLowerCase()
+          .slice(
+            0,
+            12000
+          );
+  
+      const knownStatuses =
+        new Set(
+          [
+            "INVALID_ARGUMENT",
+            "FAILED_PRECONDITION",
+            "PERMISSION_DENIED",
+            "UNAUTHENTICATED",
+            "RESOURCE_EXHAUSTED",
+            "NOT_FOUND",
+            "UNAVAILABLE",
+          ]
+        );
+  
+      const statusCandidates =
+        [
+          payload?.error
+            ?.status,
+          payload?.status,
+          payload?.provider_status,
+          payload?.providerStatus,
+          payload?.body?.error
+            ?.status,
+          payload?.google?.error
+            ?.status,
+          payload?.upstream?.error
+            ?.status,
+          payload?.response?.error
+            ?.status,
+          payload?.data?.error
+            ?.status,
+        ];
+  
+      const providerStatus =
+        statusCandidates
+          .map(
+            (value) =>
+              String(
+                value ||
+                ""
+              )
+                .trim()
+                .toUpperCase()
+          )
+          .find(
+            (value) =>
+              knownStatuses.has(
+                value
+              )
+          ) ||
+        null;
+  
       if (
-        !env.OPENROUTER_API_KEY
+        /user location is not supported|location is not supported for (the )?api|not available in your (location|region|country)|unsupported (location|region|country)/.test(
+          message
+        )
       ) {
         return {
-          ok:
-            false,
-
-          category:
-            "provider_not_configured",
+          hint:
+            "region",
+  
+          providerStatus,
         };
       }
-
-      endpoint =
-        "https://openrouter.ai/api/v1/chat/completions";
-
-      init = {
-        method:
-          "POST",
-
-        headers: {
-          authorization:
-            `Bearer ${env.OPENROUTER_API_KEY}`,
-
-          "content-type":
-            "application/json",
-        },
-
-        body:
-          JSON.stringify(
-            {
-              model,
-              messages,
-
-              max_tokens:
-                maxOutput,
-
-              stream:
-                false,
-
-              provider:
-                openRouterGuard
-                  ?.provider,
-
-              ...(sessionId
-                ? {
-                    session_id:
-                      sessionId,
-                  }
-                : {}),
-
-              usage: {
-                include:
-                  true,
-              },
-            }
-          ),
-      };
-    }
-  }
-
-  else if (
-    provider ===
-    "gemini"
-  ) {
-    if (
-      !env.AWS_RELAY_URL ||
-      !env.BAO_INTERNAL_TOKEN
-    ) {
-      return {
-        ok:
-          false,
-
-        category:
-          "provider_not_configured",
-      };
-    }
-
-    if (
-      !/^[a-zA-Z0-9._-]{1,100}$/.test(
-        model
-      )
-    ) {
-      return {
-        ok:
-          false,
-
-        category:
-          "invalid_model",
-      };
-    }
-
-    let relayBase;
-
-    try {
-      relayBase =
-        new URL(
-          env.AWS_RELAY_URL
-        );
-
+  
       if (
-        relayBase.protocol !==
-          "https:" ||
-        relayBase.username ||
-        relayBase.password
+        /billing|billing account|enable billing|paid tier|paid plan|payment|required payment|prepay|prepaid|purchase|credit balance|insufficient provider credit/.test(
+          message
+        )
       ) {
-        throw new Error(
-          "bad_relay"
-        );
+        return {
+          hint:
+            "billing",
+  
+          providerStatus,
+        };
       }
+  
+      if (
+        /model[_ -]?not[_ -]?allowed|model[^a-z0-9]{0,8}(is )?not allowed|allowlist|whitelist|unsupported model/.test(
+          message
+        )
+      ) {
+        return {
+          hint:
+            "model_not_allowed",
+  
+          providerStatus,
+        };
+      }
+  
+      if (
+        /thought.?signature|thought_signature/.test(
+          message
+        )
+      ) {
+        return {
+          hint:
+            "thought_signature",
+  
+          providerStatus,
+        };
+      }
+  
+      if (
+        /max.?output.?tokens|generation.?config|thinking.?budget|thinking.?level/.test(
+          message
+        )
+      ) {
+        return {
+          hint:
+            "generation_config",
+  
+          providerStatus,
+        };
+      }
+  
+      if (
+        /system.?instruction/.test(
+          message
+        )
+      ) {
+        return {
+          hint:
+            "system_instruction",
+  
+          providerStatus,
+        };
+      }
+  
+      if (
+        /contents|turns?|parts?|roles?|conversation/.test(
+          message
+        )
+      ) {
+        return {
+          hint:
+            "message_format",
+  
+          providerStatus,
+        };
+      }
+  
+      if (
+        /context.length|token.limit|too.many.tokens|input.too.long|request.too.large/.test(
+          message
+        )
+      ) {
+        return {
+          hint:
+            "context_limit",
+  
+          providerStatus,
+        };
+      }
+  
+      if (
+        /(model.{0,80}(not.found|not.supported|not.available|deprecated|does not exist|unknown))|((not.found|not.supported|not.available|deprecated).{0,80}model)/.test(
+          message
+        ) ||
+        providerStatus ===
+          "NOT_FOUND"
+      ) {
+        return {
+          hint:
+            "model_unavailable",
+  
+          providerStatus,
+        };
+      }
+  
+      if (
+        /api.?key|api_key|invalid key|key invalid|authentication|unauthenticated/.test(
+          message
+        ) ||
+        providerStatus ===
+          "UNAUTHENTICATED"
+      ) {
+        return {
+          hint:
+            "api_key",
+  
+          providerStatus,
+        };
+      }
+  
+      if (
+        /permission denied|permission_denied|forbidden|not authorized|access denied|access not configured/.test(
+          message
+        ) ||
+        providerStatus ===
+          "PERMISSION_DENIED"
+      ) {
+        return {
+          hint:
+            "permission",
+  
+          providerStatus,
+        };
+      }
+  
+      if (
+        /quota|resource exhausted|resource_exhausted|rate limit/.test(
+          message
+        ) ||
+        providerStatus ===
+          "RESOURCE_EXHAUSTED"
+      ) {
+        return {
+          hint:
+            "quota",
+  
+          providerStatus,
+        };
+      }
+  
+      if (
+        /invalid.argument|invalid.request|bad request/.test(
+          message
+        ) ||
+        providerStatus ===
+          "INVALID_ARGUMENT"
+      ) {
+        return {
+          hint:
+            "invalid_argument",
+  
+          providerStatus,
+        };
+      }
+  
+      if (
+        providerStatus ===
+          "FAILED_PRECONDITION"
+      ) {
+        return {
+          hint:
+            "precondition",
+  
+          providerStatus,
+        };
+      }
+  
+      if (
+        providerStatus ===
+          "UNAVAILABLE"
+      ) {
+        return {
+          hint:
+            "unavailable",
+  
+          providerStatus,
+        };
+      }
+  
+      return {
+        hint:
+          "unknown",
+  
+        providerStatus,
+      };
     }
-
+  
     catch {
       return {
-        ok:
-          false,
-
-        category:
-          "relay_not_configured",
+        hint:
+          "invalid_error_payload",
+  
+        providerStatus:
+          null,
       };
     }
-
-    endpoint =
-      new URL(
-        "/v1/chat",
-        relayBase
-      ).toString();
-
-    const system =
+  }
+  
+  function anthropicPayload(
+    messages,
+    model,
+    maxOutput
+  ) {
+    const systemParts =
       messages
         .filter(
           (m) =>
@@ -9572,14 +9252,16 @@ async function providerCall(
             "system"
         )
         .map(
-          (m) =>
-            m.content
-        )
-        .join(
-          "\n\n"
+          (m) => ({
+            type:
+              "text",
+  
+            text:
+              m.content,
+          })
         );
-
-    const contents =
+  
+    const conversation =
       messages
         .filter(
           (m) =>
@@ -9591,555 +9273,892 @@ async function providerCall(
             role:
               m.role ===
                 "assistant"
-                ? "model"
+                ? "assistant"
                 : "user",
-
+  
+            content:
+              m.content,
+          })
+        );
+  
+    const payload = {
+      model,
+  
+      max_tokens:
+        maxOutput,
+  
+      messages:
+        conversation,
+  
+      stream:
+        false,
+    };
+  
+    if (
+      systemParts.length
+    ) {
+      payload.system =
+        systemParts;
+    }
+  
+    return payload;
+  }
+  
+  async function providerCall(
+    env,
+    provider,
+    model,
+    messages,
+    maxOutput,
+    player = null,
+    sessionId = ""
+  ) {
+    let endpoint;
+    let init;
+    let usingAwsRelay =
+      false;
+  
+    const configuredModel =
+      modelConfig(
+        env,
+        provider,
+        model
+      );
+  
+    const openRouterGuard =
+      provider ===
+        "openrouter"
+        ? openRouterPriceGuard(
+            configuredModel,
+            estimatedPromptTokens(
+              messages
+            )
+          )
+        : null;
+  
+    if (
+      provider ===
+      "openrouter"
+    ) {
+      const useAwsRelay =
+        playerUsesAwsOpenRouter(
+          env,
+          player
+        );
+  
+      if (
+        useAwsRelay
+      ) {
+        if (
+          !env.AWS_RELAY_URL ||
+          !env.BAO_INTERNAL_TOKEN
+        ) {
+          return {
+            ok:
+              false,
+  
+            category:
+              "relay_not_configured",
+          };
+        }
+  
+        let relayBase;
+  
+        try {
+          relayBase =
+            new URL(
+              env.AWS_RELAY_URL
+            );
+  
+          if (
+            relayBase.protocol !==
+              "https:" ||
+            relayBase.username ||
+            relayBase.password
+          ) {
+            throw new Error(
+              "bad_relay"
+            );
+          }
+        }
+  
+        catch {
+          return {
+            ok:
+              false,
+  
+            category:
+              "relay_not_configured",
+          };
+        }
+  
+        endpoint =
+          new URL(
+            "/v1/chat",
+            relayBase
+          ).toString();
+  
+        usingAwsRelay =
+          true;
+  
+        init = {
+          method:
+            "POST",
+  
+          headers: {
+            authorization:
+              `Bearer ${env.BAO_INTERNAL_TOKEN}`,
+  
+            "content-type":
+              "application/json",
+          },
+  
+          body:
+            JSON.stringify(
+              {
+                provider:
+                  "openrouter",
+  
+                model,
+                messages,
+  
+                max_output_tokens:
+                  maxOutput,
+  
+                openrouter_provider:
+                  openRouterGuard
+                    ?.provider,
+  
+                ...(sessionId
+                  ? {
+                      session_id:
+                        sessionId,
+                    }
+                  : {}),
+              }
+            ),
+        };
+      }
+  
+      else {
+        if (
+          !env.OPENROUTER_API_KEY
+        ) {
+          return {
+            ok:
+              false,
+  
+            category:
+              "provider_not_configured",
+          };
+        }
+  
+        endpoint =
+          "https://openrouter.ai/api/v1/chat/completions";
+  
+        init = {
+          method:
+            "POST",
+  
+          headers: {
+            authorization:
+              `Bearer ${env.OPENROUTER_API_KEY}`,
+  
+            "content-type":
+              "application/json",
+          },
+  
+          body:
+            JSON.stringify(
+              {
+                model,
+                messages,
+  
+                max_tokens:
+                  maxOutput,
+  
+                stream:
+                  false,
+  
+                provider:
+                  openRouterGuard
+                    ?.provider,
+  
+                ...(sessionId
+                  ? {
+                      session_id:
+                        sessionId,
+                    }
+                  : {}),
+  
+                usage: {
+                  include:
+                    true,
+                },
+              }
+            ),
+        };
+      }
+    }
+  
+    else if (
+      provider ===
+      "gemini"
+    ) {
+      if (
+        !env.AWS_RELAY_URL ||
+        !env.BAO_INTERNAL_TOKEN
+      ) {
+        return {
+          ok:
+            false,
+  
+          category:
+            "provider_not_configured",
+        };
+      }
+  
+      if (
+        !/^[a-zA-Z0-9._-]{1,100}$/.test(
+          model
+        )
+      ) {
+        return {
+          ok:
+            false,
+  
+          category:
+            "invalid_model",
+        };
+      }
+  
+      let relayBase;
+  
+      try {
+        relayBase =
+          new URL(
+            env.AWS_RELAY_URL
+          );
+  
+        if (
+          relayBase.protocol !==
+            "https:" ||
+          relayBase.username ||
+          relayBase.password
+        ) {
+          throw new Error(
+            "bad_relay"
+          );
+        }
+      }
+  
+      catch {
+        return {
+          ok:
+            false,
+  
+          category:
+            "relay_not_configured",
+        };
+      }
+  
+      endpoint =
+        new URL(
+          "/v1/chat",
+          relayBase
+        ).toString();
+  
+      const system =
+        messages
+          .filter(
+            (m) =>
+              m.role ===
+              "system"
+          )
+          .map(
+            (m) =>
+              m.content
+          )
+          .join(
+            "\n\n"
+          );
+  
+      const contents =
+        messages
+          .filter(
+            (m) =>
+              m.role !==
+              "system"
+          )
+          .map(
+            (m) => ({
+              role:
+                m.role ===
+                  "assistant"
+                  ? "model"
+                  : "user",
+  
+              parts: [
+                {
+                  text:
+                    m.content,
+                },
+              ],
+            })
+          );
+  
+      const payload = {
+        contents,
+  
+        generationConfig: {
+          maxOutputTokens:
+            maxOutput,
+        },
+      };
+  
+      if (system) {
+        payload.systemInstruction =
+          {
             parts: [
               {
                 text:
-                  m.content,
+                  system,
               },
             ],
-          })
-        );
-
-    const payload = {
-      contents,
-
-      generationConfig: {
-        maxOutputTokens:
-          maxOutput,
-      },
-    };
-
-    if (system) {
-      payload.systemInstruction =
-        {
-          parts: [
-            {
-              text:
-                system,
-            },
-          ],
-        };
-    }
-
-    init = {
-      method:
-        "POST",
-
-      headers: {
-        authorization:
-          `Bearer ${env.BAO_INTERNAL_TOKEN}`,
-
-        "content-type":
-          "application/json",
-      },
-
-      body:
-        JSON.stringify(
-          {
-            model,
-            payload,
-          }
-        ),
-    };
-  }
-
-  else if (
-    provider ===
-    "anthropic"
-  ) {
-    if (
-      !env.ANTHROPIC_API_KEY
-    ) {
-      return {
-        ok:
-          false,
-
-        category:
-          "provider_not_configured",
-      };
-    }
-
-    if (
-      !/^[a-zA-Z0-9._-]{1,120}$/.test(
-        model
-      )
-    ) {
-      return {
-        ok:
-          false,
-
-        category:
-          "invalid_model",
-      };
-    }
-
-    endpoint =
-      "https://api.anthropic.com/v1/messages";
-
-    init = {
-      method:
-        "POST",
-
-      headers: {
-        "x-api-key":
-          env.ANTHROPIC_API_KEY,
-
-        "anthropic-version":
-          "2023-06-01",
-
-        "content-type":
-          "application/json",
-      },
-
-      body:
-        JSON.stringify(
-          anthropicPayload(
-            messages,
-            model,
-            maxOutput
-          )
-        ),
-    };
-  }
-
-  else {
-    return {
-      ok:
-        false,
-
-      category:
-        "invalid_provider",
-    };
-  }
-
-  let response;
-
-  try {
-    response =
-      await fetch(
-        endpoint,
-        {          ...init,
-
-          signal:
-            AbortSignal.timeout(
-              75_000
-            ),
-        }
-      );
-  }
-
-  catch {
-    return {
-      ok:
-        false,
-
-      category:
-        (
-          provider ===
-            "gemini" ||
-          usingAwsRelay
-        )
-          ? "relay_network_error"
-          : "provider_network_error",
-    };
-  }
-
-  if (
-    !response.ok
-  ) {
-    const diagnostic =
-      provider ===
-        "gemini"
-        ? await geminiErrorHint(
-            response
-          )
-        : {
-            hint:
-              "unknown",
-
-            providerStatus:
-              null,
           };
-
-    const category =
+      }
+  
+      init = {
+        method:
+          "POST",
+  
+        headers: {
+          authorization:
+            `Bearer ${env.BAO_INTERNAL_TOKEN}`,
+  
+          "content-type":
+            "application/json",
+        },
+  
+        body:
+          JSON.stringify(
+            {
+              model,
+              payload,
+            }
+          ),
+      };
+    }
+  
+    else if (
       provider ===
-        "gemini" &&
-      response.status ===
-        400
-        ? `google_bad_request_${diagnostic.hint}`
-        : "provider_http_error";
-
-    return {
-      ok:
-        false,
-
-      category,
-
-      upstreamStatus:
-        response.status,
-
-      providerStatus:
-        diagnostic
-          .providerStatus,
-    };
-  }
-
-  let data;
-
-  try {
-    data =
-      await response.json();
-  }
-
-  catch {
-    return {
-      ok:
-        false,
-
-      category:
-        "provider_invalid_json",
-    };
-  }
-
-  if (
-    provider ===
-    "openrouter"
-  ) {
-    const text =
-      data.choices?.[0]
-        ?.message
-        ?.content;
-
-    const usage =
-      data.usage ||
-      {};
-
-    const providerCost =
-      Number(
-        usage.cost
-      );
-
-    return {
-      ok:
-        typeof text ===
-          "string" &&
-        !!text.trim(),
-
-      text,
-
-      input:
-        safeInt(
-          usage.prompt_tokens
-        ),
-
-      output:
-        safeInt(
-          usage
-            .completion_tokens
-        ),
-
-      cached:
-        safeInt(
-          usage
-            .prompt_tokens_details
-            ?.cached_tokens
-        ),
-
-      cacheWrite:
-        safeInt(
-          usage
-            .prompt_tokens_details
-            ?.cache_write_tokens
-        ),
-
-      reasoning:
-        safeInt(
-          usage
-            .completion_tokens_details
-            ?.reasoning_tokens
-        ),
-
-      providerCost:
-        Number.isFinite(
-          providerCost
-        ) &&
-        providerCost >= 0
-          ? providerCost
-          : null,
-
-      category:
-        "provider_empty_text",
-    };
-  }
-
-  if (
-    provider ===
-    "anthropic"
-  ) {
-    const text =
-      Array.isArray(
-        data.content
-      )
-        ? data.content
-            .filter(
-              (b) =>
-                b?.type ===
-                  "text" &&
-                typeof b.text ===
-                  "string"
+      "anthropic"
+    ) {
+      if (
+        !env.ANTHROPIC_API_KEY
+      ) {
+        return {
+          ok:
+            false,
+  
+          category:
+            "provider_not_configured",
+        };
+      }
+  
+      if (
+        !/^[a-zA-Z0-9._-]{1,120}$/.test(
+          model
+        )
+      ) {
+        return {
+          ok:
+            false,
+  
+          category:
+            "invalid_model",
+        };
+      }
+  
+      endpoint =
+        "https://api.anthropic.com/v1/messages";
+  
+      init = {
+        method:
+          "POST",
+  
+        headers: {
+          "x-api-key":
+            env.ANTHROPIC_API_KEY,
+  
+          "anthropic-version":
+            "2023-06-01",
+  
+          "content-type":
+            "application/json",
+        },
+  
+        body:
+          JSON.stringify(
+            anthropicPayload(
+              messages,
+              model,
+              maxOutput
             )
-            .map(
-              (b) =>
-                b.text
+          ),
+      };
+    }
+  
+    else {
+      return {
+        ok:
+          false,
+  
+        category:
+          "invalid_provider",
+      };
+    }
+  
+    let response;
+  
+    try {
+      response =
+        await fetch(
+          endpoint,
+          {          ...init,
+  
+            signal:
+              AbortSignal.timeout(
+                75_000
+              ),
+          }
+        );
+    }
+  
+    catch {
+      return {
+        ok:
+          false,
+  
+        category:
+          (
+            provider ===
+              "gemini" ||
+            usingAwsRelay
+          )
+            ? "relay_network_error"
+            : "provider_network_error",
+      };
+    }
+  
+    if (
+      !response.ok
+    ) {
+      const diagnostic =
+        provider ===
+          "gemini"
+          ? await geminiErrorHint(
+              response
             )
-            .join("")
-        : "";
-
+          : {
+              hint:
+                "unknown",
+  
+              providerStatus:
+                null,
+            };
+  
+      const category =
+        provider ===
+          "gemini" &&
+        response.status ===
+          400
+          ? `google_bad_request_${diagnostic.hint}`
+          : "provider_http_error";
+  
+      return {
+        ok:
+          false,
+  
+        category,
+  
+        upstreamStatus:
+          response.status,
+  
+        providerStatus:
+          diagnostic
+            .providerStatus,
+      };
+    }
+  
+    let data;
+  
+    try {
+      data =
+        await response.json();
+    }
+  
+    catch {
+      return {
+        ok:
+          false,
+  
+        category:
+          "provider_invalid_json",
+      };
+    }
+  
+    if (
+      provider ===
+      "openrouter"
+    ) {
+      const text =
+        data.choices?.[0]
+          ?.message
+          ?.content;
+  
+      const usage =
+        data.usage ||
+        {};
+  
+      const providerCost =
+        Number(
+          usage.cost
+        );
+  
+      return {
+        ok:
+          typeof text ===
+            "string" &&
+          !!text.trim(),
+  
+        text,
+  
+        input:
+          safeInt(
+            usage.prompt_tokens
+          ),
+  
+        output:
+          safeInt(
+            usage
+              .completion_tokens
+          ),
+  
+        cached:
+          safeInt(
+            usage
+              .prompt_tokens_details
+              ?.cached_tokens
+          ),
+  
+        cacheWrite:
+          safeInt(
+            usage
+              .prompt_tokens_details
+              ?.cache_write_tokens
+          ),
+  
+        reasoning:
+          safeInt(
+            usage
+              .completion_tokens_details
+              ?.reasoning_tokens
+          ),
+  
+        providerCost:
+          Number.isFinite(
+            providerCost
+          ) &&
+          providerCost >= 0
+            ? providerCost
+            : null,
+  
+        category:
+          "provider_empty_text",
+      };
+    }
+  
+    if (
+      provider ===
+      "anthropic"
+    ) {
+      const text =
+        Array.isArray(
+          data.content
+        )
+          ? data.content
+              .filter(
+                (b) =>
+                  b?.type ===
+                    "text" &&
+                  typeof b.text ===
+                    "string"
+              )
+              .map(
+                (b) =>
+                  b.text
+              )
+              .join("")
+          : "";
+  
+      const usage =
+        data.usage ||
+        {};
+  
+      const freshInput =
+        safeInt(
+          usage.input_tokens
+        );
+  
+      const cacheWrite =
+        safeInt(
+          usage
+            .cache_creation_input_tokens
+        );
+  
+      const cached =
+        safeInt(
+          usage
+            .cache_read_input_tokens
+        );
+  
+      const input =
+        freshInput +
+        cacheWrite +
+        cached;
+  
+      const output =
+        safeInt(
+          usage.output_tokens
+        );
+  
+      const reasoning =
+        safeInt(
+          usage
+            .output_tokens_details
+            ?.thinking_tokens
+        );
+  
+      return {
+        ok:
+          typeof text ===
+            "string" &&
+          !!text.trim(),
+  
+        text,
+        input,
+        freshInput,
+        output,
+        cached,
+        cacheWrite,
+        reasoning,
+  
+        providerCost:
+          null,
+  
+        category:
+          "provider_empty_text",
+  
+        finishReason:
+          String(
+            data.stop_reason ||
+            ""
+          )
+            .replace(
+              /[^a-zA-Z0-9_-]/g,
+              ""
+            )
+            .slice(
+              0,
+              40
+            ),
+      };
+    }
+  
+    const text =
+      data.candidates?.[0]
+        ?.content
+        ?.parts
+        ?.filter(
+          (p) =>
+            typeof p.text ===
+              "string"
+        )
+        .map(
+          (p) =>
+            p.text
+        )
+        .join("");
+  
     const usage =
-      data.usage ||
+      data.usageMetadata ||
       {};
-
-    const freshInput =
+  
+    const input =
       safeInt(
-        usage.input_tokens
+        usage.promptTokenCount
       );
-
-    const cacheWrite =
-      safeInt(
-        usage
-          .cache_creation_input_tokens
-      );
-
+  
     const cached =
       safeInt(
         usage
-          .cache_read_input_tokens
+          .cachedContentTokenCount
       );
-
-    const input =
-      freshInput +
-      cacheWrite +
-      cached;
-
-    const output =
-      safeInt(
-        usage.output_tokens
-      );
-
+  
     const reasoning =
       safeInt(
-        usage
-          .output_tokens_details
-          ?.thinking_tokens
+        usage.thoughtsTokenCount
       );
-
+  
+    const output =
+      integer(
+        usage.totalTokenCount,
+        0,
+        1e9
+      ) &&
+      integer(
+        input,
+        0,
+        1e9
+      )
+        ? Math.max(
+            0,
+            usage.totalTokenCount -
+            input
+          )
+        : safeInt(
+            usage
+              .candidatesTokenCount
+          ) +
+          reasoning;
+  
     return {
       ok:
         typeof text ===
           "string" &&
         !!text.trim(),
-
+  
       text,
+  
       input,
-      freshInput,
+  
+      freshInput:
+        Math.max(
+          0,
+          input -
+          cached
+        ),
+  
       output,
       cached,
-      cacheWrite,
+  
+      cacheWrite:
+        0,
+  
       reasoning,
-
+  
       providerCost:
         null,
-
+  
       category:
         "provider_empty_text",
-
+  
       finishReason:
         String(
-          data.stop_reason ||
+          data.candidates?.[0]
+            ?.finishReason ||
+          data.promptFeedback
+            ?.blockReason ||
           ""
         )
           .replace(
-            /[^a-zA-Z0-9_-]/g,
+            /[^A-Z_]/g,
             ""
           )
           .slice(
             0,
-            40
+            32
           ),
     };
   }
-
-  const text =
-    data.candidates?.[0]
-      ?.content
-      ?.parts
-      ?.filter(
-        (p) =>
-          typeof p.text ===
-            "string"
+  
+  function providerFailureResponse(
+    result,
+    requestId
+  ) {
+    const extra = {
+      request_id:
+        requestId,
+    };
+  
+    if (
+      integer(
+        result
+          .upstreamStatus,
+        400,
+        599
       )
-      .map(
-        (p) =>
-          p.text
-      )
-      .join("");
-
-  const usage =
-    data.usageMetadata ||
-    {};
-
-  const input =
-    safeInt(
-      usage.promptTokenCount
-    );
-
-  const cached =
-    safeInt(
-      usage
-        .cachedContentTokenCount
-    );
-
-  const reasoning =
-    safeInt(
-      usage.thoughtsTokenCount
-    );
-
-  const output =
-    integer(
-      usage.totalTokenCount,
-      0,
-      1e9
-    ) &&
-    integer(
-      input,
-      0,
-      1e9
-    )
-      ? Math.max(
-          0,
-          usage.totalTokenCount -
-          input
-        )
-      : safeInt(
-          usage
-            .candidatesTokenCount
-        ) +
-        reasoning;
-
-  return {
-    ok:
-      typeof text ===
-        "string" &&
-      !!text.trim(),
-
-    text,
-
-    input,
-
-    freshInput:
-      Math.max(
-        0,
-        input -
-        cached
-      ),
-
-    output,
-    cached,
-
-    cacheWrite:
-      0,
-
-    reasoning,
-
-    providerCost:
-      null,
-
-    category:
-      "provider_empty_text",
-
-    finishReason:
-      String(
-        data.candidates?.[0]
-          ?.finishReason ||
-        data.promptFeedback
-          ?.blockReason ||
-        ""
-      )
-        .replace(
-          /[^A-Z_]/g,
-          ""
-        )
-        .slice(
-          0,
-          32
-        ),
-  };
-}
-
-function providerFailureResponse(
-  result,
-  requestId
-) {
-  const extra = {
-    request_id:
-      requestId,
-  };
-
-  if (
-    integer(
+    ) {
+      extra.upstream_http_status =
+        result
+          .upstreamStatus;
+    }
+  
+    if (
       result
-        .upstreamStatus,
-      400,
-      599
-    )
-  ) {
-    extra.upstream_http_status =
+        .providerStatus
+    ) {
+      extra.provider_status =
+        result
+          .providerStatus;
+    }
+  
+    if (
       result
-        .upstreamStatus;
-  }
-
-  if (
-    result
-      .providerStatus
-  ) {
-    extra.provider_status =
+        .finishReason
+    ) {
+      extra.finish_reason =
+        result
+          .finishReason;
+    }
+  
+    if (
+      result.category ===
+        "provider_http_error" &&
       result
-        .providerStatus;
-  }
-
-  if (
-    result
-      .finishReason
-  ) {
-    extra.finish_reason =
-      result
-        .finishReason;
-  }
-
-  if (
-    result.category ===
-      "provider_http_error" &&
-    result
-      .upstreamStatus ===
-      429
-  ) {
+        .upstreamStatus ===
+        429
+    ) {
+      return fail(
+        "provider_rate_limited",
+        502,
+        extra
+      );
+    }
+  
     return fail(
-      "provider_rate_limited",
+      result.category ||
+        "provider_request_failed",
       502,
       extra
     );
   }
 
-  return fail(
-    result.category ||
-      "provider_request_failed",
-    502,
-    extra
-  );
-}
+  return Object.freeze({
+    geminiErrorHint,
+    anthropicPayload,
+    providerCall,
+    providerFailureResponse,
+  });
+})();
+
+const {
+  geminiErrorHint,
+  anthropicPayload,
+  providerCall,
+  providerFailureResponse,
+} = WorkerProviderTransport;
 
 async function legacyChatRoute(
   request,
