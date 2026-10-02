@@ -125,6 +125,8 @@
     for (const item of records) {
       const row = document.createElement('div'); row.className = 'studio-draft-row';
       const button = document.createElement('button'); button.type = 'button'; button.className = 'studio-draft' + (item.draftId === draftId ? ' active' : '');
+      row.dataset.draftId = item.draftId;
+      button.dataset.draftId = item.draftId;
       const title = document.createElement('strong'); title.textContent = item.card?.name || '未命名角色';
       const desc = document.createElement('small'); desc.textContent = item.card?.id || '尚未指定 ID';
       const date = document.createElement('span'); date.textContent = new Date(item.updatedAt).toLocaleString('zh-TW');
@@ -254,6 +256,7 @@
   window.BAOCharacterStudio = {
     readCard,
     toExport: card => toExport(card || readCard()),
+    listDrafts: () => database('list'),
     getState: () => ({ draftId, dirty, hasDraft: Boolean(draftId) })
   };
   $('studio-preview-image').addEventListener('error', () => { $('studio-preview-image').src = DEFAULT_IMAGE; });
