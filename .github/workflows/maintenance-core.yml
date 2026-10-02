@@ -1,0 +1,99 @@
+name: Maintenance core
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  maintenance-core:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Character library recovery
+        run: node --test tests/character-library-repair-core.cjs
+
+      - name: Google Drive sync syntax
+        run: |
+          node --check js/google-drive-sync.js
+          node --check js/google-drive-config.js
+          node --check js/site-ui.js
+
+      - name: Google Drive sync mocked API
+        run: node tests/google-drive-sync-core.cjs
+
+      - name: LM Studio syntax and transport
+        run: |
+          node --check js/lm-studio-core.js
+          node --check js/lm-studio.js
+          node --check js/helper-api-routing.js
+          node tests/lm-studio-core.cjs
+
+      - name: LM Studio guide and loader contract
+        run: |
+          node <<'NODE'
+          const fs = require('node:fs');
+          const load = fs.readFileSync('js/helper-api-routing.js', 'utf8');
+          const lm = fs.readFileSync('js/lm-studio.js', 'utf8');
+          const discovery = fs.readFileSync('js/model-discovery.js', 'utf8');
+          const guide = fs.readFileSync('lm-studio-guide.html', 'utf8');
+          const ok =
+            load.includes('js/lm-studio-core.js') &&
+            load.includes('js/lm-studio.js') &&
+            lm.includes('bao-lm-endpoint') &&
+            lm.includes('http://127.0.0.1:1234/v1') &&
+            lm.includes("genericModelLabel.hidden = selected") &&
+            lm.includes("connectionSummary.hidden = selected") &&
+            discovery.includes('bao-builder-model-discovery') &&
+            discovery.includes("preset?.route === 'custom'") &&
+            discovery.includes("value === 'lmstudio'") &&
+            guide.includes('Enable CORS') &&
+            guide.includes('Settings → Developer') &&
+            guide.includes('Start Server');
+          if (!ok) process.exit(1);
+          NODE
+
+      - name: Story persona and cache regression
+        run: node tests/story-persona-core.cjs
+
+      - name: Story persona syntax
+        run: |
+          node --check js/story-persona-manager.js
+          node --check js/site-ui.js
+          node --check js/global-bridge.js
+
+      - name: Story rollback and branch recovery
+        run: |
+          node tests/story-rollback-core.cjs
+          node tests/story-branch-api-core.cjs
+          node tests/story-helper-reconnect-core.cjs
+
+      - name: Regex library and text MOD regressions
+        run: |
+          node --test tests/regex-library.test.cjs
+          node --test tests/author-regex-text-mod.test.cjs
+          node --test tests/player-text-replace-mod.test.cjs
+
+      - name: Regex integration syntax
+        run: |
+          node --check js/regex-library.js
+          node --check js/regex-chat.js
+          node --check js/player-text-replace-mod.js
+          node --check js/character-status-ui.js
+          node --check js/world-module-ui.js
+          node --check js/gameplay-ui.js
+          node --check js/app.js
+          node --check js/author-regex-text-mod.js
+          node --check js/author-regex-core.js
