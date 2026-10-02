@@ -135,7 +135,9 @@ jobs:
       - name: Worker session auth behavior
         run: node tests/worker-session-auth-core.cjs
       - name: Worker account auth behavior
-        run: node tests/worker-account-auth-core.cjs
+        run: |
+          node tests/worker-account-validation-core.cjs
+          node tests/worker-account-auth-core.cjs
       - name: Worker admin route boundary
         run: |
           node tests/worker-admin-auth-core.cjs
