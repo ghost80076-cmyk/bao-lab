@@ -30,14 +30,20 @@
   // Smart-memory summaries bypass Chat.context. Sanitize their request copies too,
   // without changing Chat.messages or the source signature used to detect stale summaries.
   if (typeof API !== "undefined" && typeof API.send === "function" && !API.__baoMemoryPresentationGuard) {
-    const originalSend = API.send.bind(API);
-    API.send = function(config, messages, ...rest) {
-      if (!config?.__memoryTask || !Array.isArray(messages)) return originalSend(config, messages, ...rest);
+    const memoryPresentationWrapper = (next, config, messages, ...rest) => {
+      if (!config?.__memoryTask || !Array.isArray(messages)) return next(config, messages, ...rest);
       const cleaned = messages.map(message => message.role === "user" && typeof message.content === "string"
         ? { ...message, content: narrativeText(message.content) }
         : message);
-      return originalSend(config, cleaned, ...rest);
+      return next(config, cleaned, ...rest);
     };
+    if (typeof API.wrapSend === "function") {
+      API.wrapSend("global-bridge:memory-presentation", memoryPresentationWrapper);
+    } else {
+      // Compatibility fallback for a mixed-cache page where global-bridge is newer than api.js.
+      const originalSend = API.send.bind(API);
+      API.send = (config, messages, ...rest) => memoryPresentationWrapper(originalSend, config, messages, ...rest);
+    }
     API.__baoMemoryPresentationGuard = true;
   }
   // Optional UI only. Keep Node/test harnesses with partial DOMs working.
