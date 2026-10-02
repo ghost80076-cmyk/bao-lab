@@ -124,6 +124,8 @@ jobs:
         run: node tests/worker-model-config-shards-core.cjs
       - name: YoruBay provider control
         run: node tests/provider-control-core.cjs
+      - name: Worker response security headers
+        run: node tests/worker-security-headers-core.cjs
       - name: YoruBay admin player list
         run: node tests/admin-player-list-core.cjs
       - name: YoruBay admin account status
