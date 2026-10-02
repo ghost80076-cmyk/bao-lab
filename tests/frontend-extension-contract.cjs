@@ -115,7 +115,8 @@ assert.match(sameModelStateMerge, /window\.BAOSameModelStateMerge\s*=\s*\{/);
 
 assert.match(streamingUI, /API\.__streamingUIPatched/);
 assert.match(streamingUI, /API\.__streamingUIPatched\s*=\s*true/);
-assert.match(streamingUI, /const originalSend\s*=\s*API\.send\.bind\(API\)/);
+assert.match(streamingUI, /API\.wrapSend\("streaming-ui:main-story", streamingWrapper\)/);
+assert.match(streamingUI, /return await next\(\{ \.\.\.config, stream: true, onDelta \}, messages, \.\.\.rest\)/);
 
 assert.match(creditsPilot, /window\.BAOCreditsPilot/);
 assert.match(creditsPilot, /const originalSend\s*=\s*API\.send\.bind\(API\)/);
