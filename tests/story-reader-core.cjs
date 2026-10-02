@@ -9,6 +9,8 @@ const chat = fs.readFileSync("js/chat.js", "utf8");
 const siteUI = fs.readFileSync("js/site-ui.js", "utf8");
 const brandUI = fs.readFileSync("js/brand-ui.js", "utf8");
 const brandCSS = fs.readFileSync("css/brand-home.css", "utf8");
+const readerContextJS = fs.readFileSync("js/reader-context.js", "utf8");
+const readerContextCSS = fs.readFileSync("css/reader-context.css", "utf8");
 
 assert(js.includes('linchenfeng: "https://i.meee.com.tw/UHKTM1O.jpg"'), "Lin Chenfeng image override is missing");
 assert(js.includes("originalContent"), "message originalContent support is missing");
@@ -63,5 +65,11 @@ assert(brandCSS.includes("white-space:nowrap"), "topbar labels must not wrap one
 assert(brandCSS.includes("word-break:keep-all"), "mobile topbar labels must keep Chinese words horizontal");
 assert(brandCSS.includes("writing-mode:horizontal-tb"), "mobile topbar labels must use horizontal writing mode");
 assert(brandCSS.includes("body:has(#chat-view.active) .bao-support-float{display:none}"), "support button should not cover mobile story content");
+
+assert(readerContextJS.includes("map(eventText).filter(Boolean)"), "reader context must normalize structured events before rendering");
+assert(readerContextJS.includes("worldFieldLabel"), "reader context must use world-module field labels instead of leaking internal keys");
+assert(readerContextJS.includes("compactWorldValue(item.value, item.fields)"), "reader context world cards must render labeled player-facing values");
+assert(readerContextCSS.includes("body.bao-reader-context-open #chat-view.active"), "desktop reader must reserve space for the open context panel");
+assert(readerContextCSS.includes("width:calc(100% - 476px)"), "desktop context panel must not cover the reading column");
 
 console.log("story-reader-core: ok");
