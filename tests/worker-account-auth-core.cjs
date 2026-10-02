@@ -1,0 +1,115 @@
+const assert = require("node:assert/strict");
+const fs = require("node:fs");
+const path = require("node:path");
+
+const source = fs.readFileSync(
+  path.join(__dirname, "../workers/bao-lab-credits-api/worker.js"),
+  "utf8"
+);
+
+assert.match(
+  source,
+  /const WorkerAccountAuth = \(\(\) => \{/,
+  "account auth route handlers must stay grouped behind WorkerAccountAuth"
+);
+for (const helper of [
+  "authRegister",
+  "authLogin",
+  "authLogout",
+  "authRecover",
+]) {
+  assert.match(source, new RegExp("\\b" + helper + "\\b"), "WorkerAccountAuth is missing " + helper);
+}
+
+const instrumented =
+  source.replace(
+    /export\s+default\s+\{/,
+    "const __workerDefault = {"
+  ) +
+  "\nreturn { authRegister, authLogin, authLogout, authRecover };";
+
+const {
+  authRegister,
+  authLogin,
+  authLogout,
+  authRecover,
+} = new Function(instrumented)();
+
+const request = body => new Request("https://api.example.test/auth", {
+  method: "POST",
+  headers: { "content-type": "application/json" },
+  body: JSON.stringify(body),
+});
+
+(async () => {
+  const noDb = {
+    prepare() {
+      throw new Error("database must not be touched for invalid input");
+    },
+    batch() {
+      throw new Error("database must not be touched for invalid input");
+    },
+  };
+
+  const badRegister = await authRegister(
+    request({ username: "x", password: "short" }),
+    { REGISTRATION_MODE: "open" },
+    noDb
+  );
+  assert.equal(badRegister.status, 400);
+  assert.equal((await badRegister.json()).error, "invalid_registration");
+
+  const badInvite = await authRegister(
+    request({
+      username: "valid-user",
+      display_name: "Valid User",
+      password: "long-enough-password",
+      invite_code: "wrong",
+    }),
+    {
+      REGISTRATION_MODE: "invite",
+      REGISTRATION_INVITE_CODE: "right-code",
+    },
+    noDb
+  );
+  assert.equal(badInvite.status, 403);
+  assert.equal((await badInvite.json()).error, "invalid_invite_code");
+
+  const badLogin = await authLogin(
+    request({ username: "x", password: "short" }),
+    {},
+    noDb
+  );
+  assert.equal(badLogin.status, 401);
+  assert.equal((await badLogin.json()).error, "invalid_credentials");
+
+  const badRecover = await authRecover(
+    request({
+      public_id: "bad",
+      recovery_code: "short",
+      new_password: "short",
+    }),
+    {},
+    noDb
+  );
+  assert.equal(badRecover.status, 400);
+  assert.equal((await badRecover.json()).error, "invalid_recovery_request");
+
+  const logout = await authLogout(
+    new Request("https://api.example.test/logout", { method: "POST" }),
+    noDb
+  );
+  assert.equal(logout.status, 200);
+  assert.equal((await logout.clone().json()).logged_out, true);
+  const setCookie = logout.headers.get("set-cookie");
+  assert.match(setCookie, /^__Host-yorubay_session=/);
+  assert.match(setCookie, /Max-Age=0/);
+  assert.match(setCookie, /HttpOnly/);
+  assert.match(setCookie, /Secure/);
+  assert.match(setCookie, /SameSite=Lax/);
+
+  console.log("worker account auth core test passed");
+})().catch(error => {
+  console.error(error);
+  process.exitCode = 1;
+});
