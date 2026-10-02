@@ -20,6 +20,7 @@ assert.deepEqual(core.draftCardBadges({ installed: true, synced: false, publicKn
   { key: "published", label: "已公開", tone: "good" }
 ]);
 assert.equal(core.draftCardBadges({ installed: true, synced: true })[1].label, "本機已同步");
+assert.equal(core.draftCardBadges({ archived: true })[0].label, "已封存");
 
 {
   const state = core.derive({

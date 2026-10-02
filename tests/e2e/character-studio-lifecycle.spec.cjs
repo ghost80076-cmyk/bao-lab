@@ -78,3 +78,31 @@ test('known public IDs are labeled as public without pretending the draft was pu
   ).toBe('已在公開作品庫');
   await expect(page.locator('#studio-lifecycle')).toContainText('公開作品');
 });
+
+test('draft archive is reversible and does not delete the draft immediately', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('./character-studio.html');
+  await page.waitForFunction(() => Boolean(window.BAOCharacterStudioLifecycle && window.BAOCharacterStudio));
+
+  await page.locator('[name="name"]').fill('封存測試作品');
+  await page.locator('[name="id"]').fill('creator-archive-e2e');
+  await page.locator('[name="system_prompt"]').fill('角色依自己的資訊與動機行動。');
+  await page.locator('[name="greeting"]').fill('港口的燈亮了。');
+  await page.locator('#studio-save-draft').click();
+
+  const archive = page.getByRole('button', { name: '封存草稿 封存測試作品' });
+  page.once('dialog', dialog => dialog.accept());
+  await archive.click();
+  await expect(page.locator('#studio-status')).toContainText('草稿已封存');
+  await expect(page.locator('#studio-drafts .studio-draft-row')).toHaveCount(0);
+  await expect(page.locator('#studio-toggle-archived')).toHaveText('查看封存 (1)');
+
+  await page.locator('#studio-toggle-archived').click();
+  const archived = page.locator('#studio-drafts .studio-draft-row');
+  await expect(archived).toHaveCount(1);
+  await expect(archived.locator('.studio-draft-status')).toContainText('已封存');
+  await archived.getByRole('button', { name: '還原草稿 封存測試作品' }).click();
+  await expect(page.locator('#studio-status')).toContainText('草稿已還原');
+  await expect(page.locator('#studio-toggle-archived')).toHaveText('查看封存 (0)');
+  await expect(page.locator('#studio-drafts .studio-draft')).toContainText('封存測試作品');
+});

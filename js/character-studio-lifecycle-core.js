@@ -28,7 +28,9 @@
   }
 
   function draftCardBadges(input = {}) {
-    const badges = [{ key: "draft", label: "草稿", tone: "muted" }];
+    const badges = [input.archived === true
+      ? { key: "archived", label: "已封存", tone: "muted" }
+      : { key: "draft", label: "草稿", tone: "muted" }];
     if (input.installed === true) {
       badges.push(input.synced === true
         ? { key: "local-synced", label: "本機已同步", tone: "good" }
