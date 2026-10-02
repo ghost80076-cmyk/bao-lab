@@ -183,7 +183,7 @@ Optional long-context tier:
 
 The threshold and tier values are per-model configuration. Do not assume every provider or model uses a 200K boundary.
 
-The current YoruBay Hosted transport still limits normalized prompt payloads to `MAX_PROMPT_BYTES = 96_000`, so a 200K-token tier is not normally reachable today. Tier support is added now so future context-window expansion cannot silently invalidate Wallet reservation logic.
+The current YoruBay Hosted transport limits normalized prompt payloads to `MAX_PROMPT_BYTES = 192_000`, so a 200K-token tier is not normally reachable today. Tier support is retained so future context-window expansion cannot silently invalidate Wallet reservation logic.
 
 ### AWS relay requirement
 
