@@ -137,6 +137,8 @@ assert.match(streamingUI, /API\.__streamingUIPatched\s*=\s*true/);
 assert.match(streamingUI, /API\.wrapSend\("streaming-ui:main-story", streamingWrapper\)/);
 assert.match(streamingUI, /return await next\(\{ \.\.\.config, stream: true, onDelta \}, messages, \.\.\.rest\)/);
 assert.match(streamingUI, /App\.wrapSendMessage\("streaming-ui:committed-paint", committedPaintWrapper\)/);
+assert.match(streamingUI, /App\.wrapRenderChatShell\("streaming-ui:committed-paint", shellCommittedPaintWrapper\)/);
+assert.match(streamingUI, /const result = next\(\.\.\.args\)/);
 
 assert.match(creditsPilot, /window\.BAOCreditsPilot/);
 assert.match(creditsPilot, /API\.wrapSend\("credits-pilot:hosted-transport", hostedCreditsWrapper\)/);

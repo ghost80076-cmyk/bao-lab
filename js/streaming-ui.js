@@ -147,12 +147,18 @@
       const originalSendMessage = App.sendMessage.bind(App);
       App.sendMessage = (...args) => committedPaintWrapper(originalSendMessage, ...args);
     }
-    const originalShell = App.renderChatShell;
-    App.renderChatShell = function(...args) {
-      const result = originalShell.apply(this, args);
+    const shellCommittedPaintWrapper = function(next, ...args) {
+      const result = next(...args);
       scheduleCommittedPaint();
       return result;
     };
+    if (typeof App.wrapRenderChatShell === "function") {
+      App.wrapRenderChatShell("streaming-ui:committed-paint", shellCommittedPaintWrapper);
+    } else {
+      // Compatibility fallback for a mixed-cache page where streaming-ui is newer than app.js.
+      const originalShell = App.renderChatShell.bind(App);
+      App.renderChatShell = (...args) => shellCommittedPaintWrapper.call(App, originalShell, ...args);
+    }
   }
   const stream = document.getElementById("chat-stream");
   if (stream) new MutationObserver(scheduleCommittedPaint).observe(stream, { childList: true });
