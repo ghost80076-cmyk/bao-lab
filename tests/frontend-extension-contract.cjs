@@ -95,7 +95,7 @@ assert.match(storyTools, /App\.wrapRenderChatShell\("story-tools:inject", storyT
 assert.match(storyTools, /next\(fresh\)/);
 assert.match(storyTools, /setTimeout\(inject, 0\)/);
 assert.match(storyTools, /App\.wrapBuildSystemPrompt\("story-tools:context-pack", contextPackPromptWrapper\)/);
-assert.match(storyTools, /pack\?\.playerConfirmed \? base \+ "\\\\n\\\\n" \+ packPrompt\(pack\) : base/);
+assert.match(storyTools, /return pack\?\.playerConfirmed \? base \+ "\\n\\n" \+ packPrompt\(pack\) : base;/);
 
 
 // Additional wrappers currently participating in API.send / App.sendMessage.
