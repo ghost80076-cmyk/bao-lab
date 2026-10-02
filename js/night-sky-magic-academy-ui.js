@@ -21,24 +21,6 @@
     defense:'defense',creatures:'creatures',divination:'divination',flight:'flight',runes:'runes'
   };
 
-  let choicesCollapsed=false;
-  let choicesMessageId='';
-  const clearChoices=()=>{
-    document.getElementById('magic-academy-turn-choices')?.remove();
-    document.getElementById('magic-academy-turn-choices-toggle')?.remove();
-  };
-  const syncChoicesCollapsed=(wrap,toggle,collapsed)=>{
-    choicesCollapsed=Boolean(collapsed);
-    if(wrap){
-      wrap.hidden=choicesCollapsed;
-      wrap.setAttribute('aria-hidden',String(choicesCollapsed));
-    }
-    if(toggle){
-      toggle.hidden=!choicesCollapsed;
-      toggle.setAttribute('aria-expanded',String(!choicesCollapsed));
-    }
-  };
-
   const parseChoices=raw=>{
     const map=new Map();
     String(raw||'').split(/\r?\n/).slice(-18).forEach(line=>{
@@ -48,55 +30,23 @@
     return ['1','2','3','4','5'].map(key=>({key,text:map.get(key)||''})).filter(x=>x.text);
   };
   const mountChoices=()=>{
-    clearChoices();
-    if(!isMagic()||!document.getElementById('chat-view')?.classList.contains('active')) return;
+    const owner='night-sky-magic-academy';
+    const dock=window.BAOActionChoiceDock;
+    dock?.clear(owner);
+    if(!dock||!isMagic()||!document.getElementById('chat-view')?.classList.contains('active')) return;
     const last=[...(Chat.messages||[])].reverse().find(m=>m?.role==='assistant'&&!m?.greeting);
     const choices=parseChoices(last?.content||'');
     if(choices.filter(x=>x.key!=='5').length<2) return;
-    const stream=document.getElementById('chat-stream');
-    if(!stream) return;
-    const messageId=String(last?.id||'');
-    if(messageId!==choicesMessageId){
-      choicesMessageId=messageId;
-      choicesCollapsed=false;
-    }
-
-    const wrap=document.createElement('section');
-    wrap.id='magic-academy-turn-choices';
-    wrap.className='magic-academy-turn-choices';
-    wrap.setAttribute('aria-label','本輪行動建議');
-    wrap.innerHTML=`<div class="magic-academy-turn-choices-head"><div><strong>行動建議</strong><span>點選後只會填入輸入框</span></div><button type="button" class="magic-academy-turn-choices-close" data-magic-choice-collapse aria-label="收合行動建議" title="收合">×</button></div><div class="magic-academy-turn-choice-list">${choices.map(x=>`<button type="button" data-magic-choice="${x.key}"><span>${x.key}</span>${esc(x.text)}</button>`).join('')}</div>`;
-
-    const toggle=document.createElement('button');
-    toggle.type='button';
-    toggle.id='magic-academy-turn-choices-toggle';
-    toggle.className='magic-academy-turn-choices-toggle';
-    toggle.textContent='⌁ 行動建議';
-    toggle.setAttribute('aria-controls','magic-academy-turn-choices');
-    toggle.setAttribute('aria-label','展開行動建議');
-
-    wrap.querySelector('[data-magic-choice-collapse]')?.addEventListener('click',()=>syncChoicesCollapsed(wrap,toggle,true));
-    toggle.addEventListener('click',()=>{
-      syncChoicesCollapsed(wrap,toggle,false);
-      wrap.querySelector('[data-magic-choice]')?.focus({preventScroll:true});
+    dock.mount({
+      owner,
+      id:'magic-academy-turn-choices',
+      toggleId:'magic-academy-turn-choices-toggle',
+      className:'magic-academy-turn-choices',
+      choiceAttribute:'data-magic-choice',
+      messageKey:last?.id||last?.content||'',
+      choices,
+      freeKeys:['5']
     });
-    wrap.addEventListener('click',event=>{
-      const btn=event.target.closest?.('[data-magic-choice]');
-      if(!btn) return;
-      const input=document.getElementById('user-input');
-      const choice=choices.find(x=>x.key===btn.dataset.magicChoice);
-      if(!input||!choice) return;
-      input.value=choice.key==='5'?'':choice.text;
-      input.dispatchEvent(new Event('input',{bubbles:true}));
-      input.focus();
-      input.setSelectionRange?.(input.value.length,input.value.length);
-      syncChoicesCollapsed(wrap,toggle,true);
-    });
-
-    const stayAtBottom=(stream.scrollHeight-stream.scrollTop-stream.clientHeight)<96;
-    stream.append(toggle,wrap);
-    syncChoicesCollapsed(wrap,toggle,choicesCollapsed);
-    if(stayAtBottom) requestAnimationFrame(()=>{stream.scrollTop=stream.scrollHeight;});
   };
 
   const originalRenderDetail=App.renderDetail.bind(App);
@@ -230,7 +180,7 @@
 
   const originalSendMessage=App.sendMessage.bind(App);
   App.sendMessage=async function(...args){
-    if(isMagic()) clearChoices();
+    if(isMagic()) window.BAOActionChoiceDock?.clear('night-sky-magic-academy');
     const result=await originalSendMessage(...args);
     if(isMagic()) setTimeout(mountChoices,0);
     return result;
@@ -241,9 +191,7 @@
     applyInitialState();
     originalRenderChatShell(fresh);
     if(!isMagic()){
-      clearChoices();
-      choicesCollapsed=false;
-      choicesMessageId='';
+      window.BAOActionChoiceDock?.reset('night-sky-magic-academy');
       return;
     }
     ensureInitialState();
