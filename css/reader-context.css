@@ -210,3 +210,16 @@
     width:460px
   }
 }
+
+
+/* Keep the desktop reader visible beside the context panel instead of beneath it. */
+@media(min-width:1280px){
+  body.bao-reader-context-open #chat-view.active{
+    width:calc(100% - 476px);
+  }
+}
+@media(min-width:1500px){
+  body.bao-reader-context-open #chat-view.active{
+    width:calc(100% - 500px);
+  }
+}
