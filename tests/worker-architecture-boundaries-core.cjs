@@ -18,6 +18,7 @@ const expected = [
   "WorkerRuntimeConfig",
   "WorkerModelPricing",
   "WorkerChatInput",
+  "WorkerAccountRateLimit",
   "WorkerAccountAuth",
   "WorkerAccountSelfRoute",
   "WorkerProviderRouting",

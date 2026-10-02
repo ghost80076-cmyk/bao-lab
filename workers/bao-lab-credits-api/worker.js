@@ -2273,6 +2273,158 @@ const {
   normalizeHostedSessionId,
 } = WorkerChatInput;
 
+// Optional Cloudflare Rate Limiting binding boundary for account credentials.
+// Keys are hashed before leaving this module; missing bindings preserve the
+// current deployment behavior until the production Worker is configured.
+const WorkerAccountRateLimit = (() => {
+  function authRateLimitConfigured(
+    env
+  ) {
+    return (
+      typeof env
+        ?.AUTH_RATE_LIMITER
+        ?.limit ===
+      "function"
+    );
+  }
+
+  function authNetworkIdentity(
+    request
+  ) {
+    const ip =
+      String(
+        request.headers.get(
+          "cf-connecting-ip"
+        ) ||
+        ""
+      ).trim();
+
+    return ip
+      ? "network:" + ip
+      : "";
+  }
+
+  async function authRateLimitKey(
+    action,
+    identity
+  ) {
+    return (
+      "yorubay-auth-v1:" +
+      action +
+      ":" +
+      await sha256Hex(
+        String(
+          identity ||
+          ""
+        )
+          .trim()
+          .toLowerCase()
+      )
+    );
+  }
+
+  async function accountAuthAllowed(
+    env,
+    action,
+    identities
+  ) {
+    if (
+      !authRateLimitConfigured(
+        env
+      )
+    ) {
+      return true;
+    }
+
+    const unique =
+      [
+        ...new Set(
+          identities
+            .map(
+              (value) =>
+                String(
+                  value ||
+                  ""
+                ).trim()
+            )
+            .filter(Boolean)
+        ),
+      ];
+
+    try {
+      for (
+        const identity
+        of unique
+      ) {
+        const result =
+          await env
+            .AUTH_RATE_LIMITER
+            .limit({
+              key:
+                await authRateLimitKey(
+                  action,
+                  identity
+                ),
+            });
+
+        if (
+          !result
+            ?.success
+        ) {
+          return false;
+        }
+      }
+
+      return true;
+    }
+
+    catch (error) {
+      console.error(
+        "auth_rate_limit_error",
+        String(
+          error?.message ||
+          error
+        ).slice(
+          0,
+          200
+        )
+      );
+
+      return (
+        String(
+          env
+            .AUTH_RATE_LIMIT_FAIL_CLOSED ||
+          ""
+        ) !==
+        "1"
+      );
+    }
+  }
+
+  function authRateLimited() {
+    return fail(
+      "auth_rate_limited",
+      429
+    );
+  }
+
+  return Object.freeze({
+    authRateLimitConfigured,
+    authNetworkIdentity,
+    authRateLimitKey,
+    accountAuthAllowed,
+    authRateLimited,
+  });
+})();
+
+const {
+  authRateLimitConfigured,
+  authNetworkIdentity,
+  authRateLimitKey,
+  accountAuthAllowed,
+  authRateLimited,
+} = WorkerAccountRateLimit;
+
 // Internal account-auth route boundary. It owns registration/login/logout/recovery
 // request policy while session primitives remain in WorkerSessionAuth.
 const WorkerAccountAuth = (() => {
@@ -2356,6 +2508,24 @@ const WorkerAccountAuth = (() => {
             "10-128 characters",
         }
       );
+    }
+
+    if (
+      !(
+        await accountAuthAllowed(
+          env,
+          "register",
+          [
+            "username:" +
+              username,
+            authNetworkIdentity(
+              request
+            ),
+          ]
+        )
+      )
+    ) {
+      return authRateLimited();
     }
   
     const existing =
@@ -2596,6 +2766,21 @@ const WorkerAccountAuth = (() => {
         401
       );
     }
+
+    if (
+      !(
+        await accountAuthAllowed(
+          env,
+          "login",
+          [
+            "username:" +
+              username,
+          ]
+        )
+      )
+    ) {
+      return authRateLimited();
+    }
   
     const account =
       await db
@@ -2832,6 +3017,21 @@ const WorkerAccountAuth = (() => {
         "invalid_recovery_request",
         400
       );
+    }
+
+    if (
+      !(
+        await accountAuthAllowed(
+          env,
+          "recover",
+          [
+            "public_id:" +
+              publicId,
+          ]
+        )
+      )
+    ) {
+      return authRateLimited();
     }
   
     const row =
@@ -12466,6 +12666,11 @@ export default {
 
             registration_mode:
               registrationMode(
+                env
+              ),
+
+            auth_rate_limit_configured:
+              authRateLimitConfigured(
                 env
               ),
 

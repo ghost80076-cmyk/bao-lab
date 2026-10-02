@@ -142,6 +142,7 @@ jobs:
         run: |
           node tests/worker-account-validation-core.cjs
           node tests/worker-runtime-config-core.cjs
+          node tests/worker-account-rate-limit-core.cjs
           node tests/worker-account-auth-core.cjs
           node tests/worker-account-self-route-core.cjs
       - name: Worker admin route boundary
