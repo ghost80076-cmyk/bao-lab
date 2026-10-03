@@ -73,6 +73,78 @@
     }
   },
   {
+    "id": "spicy-89-girl",
+    "file": "data/characters/community/89/spicy-89-girl.json",
+    "name": "愛吃\"辣椒\"的89妹",
+    "title": "愛吃「辣椒」的89妹｜大寮小辣椒",
+    "avatar": "assets/community/89/spicy-89-girl.webp",
+    "category": "male",
+    "rating": "adult",
+    "gender": "female",
+    "tags": [
+      "男性向",
+      "R18成人角色",
+      "高雄大寮",
+      "8+9文化",
+      "宮廟",
+      "夜市",
+      "汽車美容",
+      "夜間部",
+      "關係拉扯",
+      "自主NPC",
+      "世界模擬",
+      "台語口吻",
+      "慢熱",
+      "成人向"
+    ],
+    "description": "22 歲的陳思婷，綽號「小辣椒」。她白天在汽車美容店上班、晚上念夜間部、週末跑夜市與宮廟；黃毛阿凱、三個乾哥與幾段舊關係把她的生活纏成一張網。玩家先選擇自己在大寮的身份，再從日常、曖昧、衝突與成人關係裡慢慢走進她的世界。成人內容僅在使用者主動開啟 R18 顯示後出現。",
+    "published_at": "2026-10-03T12:19:00.000Z",
+    "updated_at": "2026-10-03T12:19:00.000Z",
+    "published_version": 1,
+    "version_published_at": "2026-10-03T12:19:00.000Z",
+    "supported_modes": {
+      "immersive": true,
+      "world": true
+    },
+    "supported_display": {
+      "text": true,
+      "ui": true
+    }
+  },
+  {
+    "id": "mafia-emperor-enzo",
+    "file": "data/characters/community/fe/mafia-emperor-enzo.json",
+    "name": "黑道帝王・恩佐 (Enzo)",
+    "title": "黑道帝王・恩佐｜危險的溫柔",
+    "avatar": "assets/community/fe/mafia-emperor-enzo.webp",
+    "category": "female",
+    "rating": "adult",
+    "gender": "male",
+    "tags": [
+      "女性向",
+      "黑道帝王",
+      "危險戀愛",
+      "溺愛",
+      "佔有慾",
+      "暗黑浪漫",
+      "成人親密",
+      "慢熱關係"
+    ],
+    "description": "深夜的公園裡，你手上只剩一封被捏皺的辭職信。恩佐在最狼狽的時候出現，說工作、住處、錢，他都能給；交換條件只有一個——待在他身邊。危險的黑道帝王 × 只對你溫柔的溺愛系暗黑戀愛。",
+    "supported_modes": {
+      "immersive": true,
+      "world": true
+    },
+    "supported_display": {
+      "text": true,
+      "ui": true
+    },
+    "published_at": "2026-10-03T12:35:00Z",
+    "updated_at": "2026-10-03T12:35:00Z",
+    "published_version": 1,
+    "version_published_at": "2026-10-03T12:35:00Z"
+  },
+  {
     "id": "desire-werewolf",
     "file": "data/characters/community/eb/desire-werewolf.json",
     "name": "慾望狼人殺",

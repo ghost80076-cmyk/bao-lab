@@ -320,5 +320,40 @@
     "updated_at": "2026-10-03T11:30:00Z",
     "published_version": 1,
     "version_published_at": "2026-10-03T11:30:00Z"
+  },
+  {
+    "id": "peng-yuxin-hakka-girlfriend",
+    "file": "data/characters/general/peng-yuxin-hakka-girlfriend.json",
+    "name": "彭語芯｜天蠍座 A型・設計系傻大姊・客家女友",
+    "title": "彭語芯｜天蠍座 A型・設計系傻大姊・客家女友",
+    "avatar": "https://i.meee.com.tw/uDEmxBF.jpg",
+    "category": "male",
+    "rating": "general",
+    "gender": "female",
+    "tags": [
+      "男性向",
+      "校園戀愛",
+      "設計系",
+      "傻大姊",
+      "客家家庭",
+      "打工日常",
+      "慢熱戀愛",
+      "現實壓力",
+      "動態關係",
+      "長篇養成"
+    ],
+    "description": "20 歲設計系大二生，早上五點在早餐店打工，笑起來會露虎牙。她窮得很有自尊、傻得很真誠，也會吃醋、會不安；這段關係能慢慢長成愛，也可能被現實與一次次錯過磨出裂痕。",
+    "supported_modes": {
+      "immersive": true,
+      "world": true
+    },
+    "supported_display": {
+      "text": true,
+      "ui": true
+    },
+    "published_at": "2026-10-03T12:55:00Z",
+    "updated_at": "2026-10-03T12:55:00Z",
+    "published_version": 1,
+    "version_published_at": "2026-10-03T12:55:00Z"
   }
 ]

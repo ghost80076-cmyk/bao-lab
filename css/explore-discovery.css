@@ -276,6 +276,8 @@
 }
 .explore-work-preview-media{position:relative;min-height:520px;background:#090b10;overflow:hidden}
 .explore-work-preview-media img{display:block;width:100%;height:100%;object-fit:cover}
+/* This cover keeps its idols left-of-center; preserve the intended focal crop in the portrait preview. */
+.explore-work-preview-media img[src$="k-idol-survival-cover.webp"]{object-position:35% center}
 .explore-work-preview-media>[data-explore-preview-rating]{
   position:absolute;left:14px;bottom:14px;display:inline-flex;align-items:center;min-height:27px;
   padding:4px 9px;border:1px solid rgba(255,255,255,.18);border-radius:999px;
