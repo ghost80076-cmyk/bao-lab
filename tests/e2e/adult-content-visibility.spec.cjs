@@ -30,12 +30,19 @@ test("adult content stays hidden until the player enables it locally", async ({ 
   await expect(toggle).toBeChecked();
 
   await page.evaluate(() => App.showView("explore"));
+  await expect(page.locator('#character-list [data-character-id="desire-district"]')).toBeVisible();
+  await expect(page.locator('#character-list [data-character-id="desire-werewolf"]')).toBeVisible();
+  await expect(page.locator('#character-list [data-character-id="linchenfeng"]')).toBeVisible();
   await page.locator('[data-explore-filter-open]').click();
   const adultControls = page.locator('[data-explore-adult-controls]');
   await expect(adultControls).toBeVisible();
+  await expect(adultControls.getByRole('button', { name: '全部', exact: true })).toHaveClass(/active/);
   await adultControls.getByRole('button', { name: '成熟內容', exact: true }).click();
   await page.getByRole('button', { name: '完成', exact: true }).click();
   await expect(page.locator('#character-list [data-character-id="desire-district"]')).toBeVisible();
+  await expect(page.locator('#character-list [data-character-id="desire-werewolf"]')).toBeVisible();
+  await expect(page.locator('#character-list [data-character-id="linchenfeng"]')).toHaveCount(1);
+  await expect(page.locator('#character-list [data-character-id="linchenfeng"]')).toHaveClass(/bao-explore-filter-hidden/);
 
   await page.reload();
   await page.waitForFunction(() => window.BAOContentPreferences && window.BAOExploreDiscovery);
