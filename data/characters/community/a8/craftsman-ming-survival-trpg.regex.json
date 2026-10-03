@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "type": "yorubay-author-regex-mod",
+  "scope": "assistant_display",
+  "characterId": "craftsman-ming-survival-trpg",
+  "regex_scripts": [
+    {
+      "scriptName": "匠道大明｜穿越開卷",
+      "description": "把開場標記轉成暖褐古卷；只改顯示。",
+      "priority": 80,
+      "findRegex": "【YB:MING:OPENING】\\s*([\\s\\S]*?)\\s*【/YB:MING:OPENING】",
+      "flags": "g",
+      "replaceString": "<style>.yb-ming-opening{font-family:ui-serif,\"Noto Serif TC\",serif;background:linear-gradient(145deg,#241810,#352417);color:#f0dfbd;border:1px solid #745b3b;border-left:4px solid #b08a53;border-radius:16px;padding:20px;box-shadow:0 14px 34px rgba(0,0,0,.28);line-height:1.9;white-space:pre-wrap}.yb-ming-opening:before{content:\"匠道大明 · 穿越者生存錄\";display:block;color:#d5b278;font-size:12px;letter-spacing:.12em;margin-bottom:10px}</style><section class=\"yb-ming-opening\">$1</section>"
+    },
+    {
+      "scriptName": "匠道大明｜行事判定",
+      "description": "把 1d100 檢定標記轉成簡短判定札。",
+      "priority": 65,
+      "findRegex": "【YB:MING:CHECK】\\s*([\\s\\S]*?)\\s*【/YB:MING:CHECK】",
+      "flags": "g",
+      "replaceString": "<style>.yb-ming-check{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;background:#1c1712;color:#eadfc8;border:1px solid #66543d;border-left:3px solid #c2985d;border-radius:12px;padding:12px 14px;line-height:1.75;white-space:pre-wrap}.yb-ming-check:before{content:\"1D100 · 行事判定\";display:block;color:#d8b77f;font-weight:700;font-size:12px;margin-bottom:6px}</style><section class=\"yb-ming-check\">$1</section>"
+    },
+    {
+      "scriptName": "匠道大明｜匠道突破",
+      "description": "把真正的境界突破轉成匠札。",
+      "priority": 55,
+      "findRegex": "【YB:MING:CRAFT】\\s*([\\s\\S]*?)\\s*【/YB:MING:CRAFT】",
+      "flags": "g",
+      "replaceString": "<style>.yb-ming-craft{font-family:ui-serif,\"Noto Serif TC\",serif;background:linear-gradient(135deg,#2c2015,#1d1712);color:#f1dfb8;border:1px solid #796142;border-radius:14px;padding:15px 16px;line-height:1.85;white-space:pre-wrap}.yb-ming-craft:before{content:\"匠道有進\";display:block;color:#e0b76f;font-weight:800;letter-spacing:.1em;margin-bottom:7px}</style><section class=\"yb-ming-craft\">$1</section>"
+    },
+    {
+      "scriptName": "匠道大明｜可用行動",
+      "description": "把文字決策點整理成古卷提示；原生 Gameplay UI 仍是主要操作面板。",
+      "priority": 40,
+      "findRegex": "【YB:MING:ACTIONS】\\s*([\\s\\S]*?)\\s*【/YB:MING:ACTIONS】",
+      "flags": "g",
+      "replaceString": "<style>.yb-ming-actions{font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif;background:linear-gradient(135deg,#302219,#211812);color:#eadcc4;border:1px solid #6d5840;border-radius:14px;padding:14px 16px;line-height:1.8;white-space:pre-wrap}.yb-ming-actions:before{content:\"眼下可行之事\";display:block;color:#d2ae74;font-weight:700;margin-bottom:7px}.yb-ming-actions:after{content:\"也可直接自由輸入，不受選項限制。\";display:block;color:#a99882;font-size:12px;margin-top:8px}</style><section class=\"yb-ming-actions\">$1</section>"
+    }
+  ]
+}
