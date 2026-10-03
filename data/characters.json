@@ -425,5 +425,40 @@
     "updated_at": "2026-10-03T13:51:00Z",
     "published_version": 1,
     "version_published_at": "2026-10-03T13:51:00Z"
+  },
+  {
+    "id": "awakened-silver-dawn",
+    "file": "data/characters/community/d0/awakened-silver-dawn.json",
+    "name": "覺醒者：破曉之銀",
+    "title": "覺醒者：破曉之銀",
+    "avatar": "assets/bao-world-core.webp",
+    "category": "general",
+    "rating": "general",
+    "gender": "all",
+    "tags": [
+      "一般向",
+      "都市異能",
+      "世界模擬",
+      "高危戰鬥",
+      "勢力衝突",
+      "身分謎團",
+      "自主NPC",
+      "資訊隔離",
+      "身體負荷",
+      "多結局"
+    ],
+    "description": "現代都市的日常之下，覺醒者在暗處彼此追獵。你的能量偏偏是不存在於常規紀錄中的銀色。力量能重構規則，身體卻未必撐得住；而每一次暴露，都會讓更多人開始尋找你。",
+    "supported_modes": {
+      "immersive": true,
+      "world": true
+    },
+    "supported_display": {
+      "text": true,
+      "ui": true
+    },
+    "published_at": "2026-10-03T14:01:00Z",
+    "updated_at": "2026-10-03T14:01:00Z",
+    "published_version": 1,
+    "version_published_at": "2026-10-03T14:01:00Z"
   }
 ]
