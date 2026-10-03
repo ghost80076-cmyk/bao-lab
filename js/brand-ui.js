@@ -277,6 +277,8 @@
     a.href = "https://ko-fi.com/roger2486";
     a.target = "_blank";
     a.rel = "noopener";
+    a.setAttribute("aria-label", "投餵肉包・支持夜灣");
+    a.title = "投餵肉包・支持夜灣";
     a.innerHTML = '<img class="bao-support-icon" src="assets/bao-bun.svg" width="24" height="24" alt=""><span>投餵肉包</span>';
     document.body.appendChild(a);
   };
