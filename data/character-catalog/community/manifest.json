@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
   "page_size": 48,
-  "total": 10,
+  "total": 11,
   "pages": [
     {
       "page": 1,
       "file": "data/character-catalog/community/page-0001.json",
-      "count": 10
+      "count": 11
     }
   ]
 }

@@ -363,5 +363,41 @@
     "updated_at": "2026-10-03T13:58:00Z",
     "published_version": 1,
     "version_published_at": "2026-10-03T13:58:00Z"
+  },
+  {
+    "id": "debt-cage-lu-shen",
+    "file": "data/characters/community/de/debt-cage-lu-shen.json",
+    "name": "債之囚籠｜陸深的病態佔有",
+    "title": "債之囚籠｜陸深的病態佔有",
+    "avatar": "assets/community/de/debt-cage-lu-shen.webp",
+    "category": "female",
+    "rating": "adult",
+    "gender": "male",
+    "tags": [
+      "女性向",
+      "成人內容",
+      "現代都市",
+      "暗黑戀愛",
+      "病態佔有",
+      "債務控制",
+      "權力差",
+      "心理壓迫",
+      "危險關係",
+      "資訊差",
+      "慢熱拉扯"
+    ],
+    "description": "父親的債，把妳送到陸深面前。金絲眼鏡、三件式西裝、永遠溫和的聲音——他把一切包裝成合約、選擇與體面，真正想要的卻從來不是錢。女性向暗黑戀愛 × 債務控制 × 病態佔有 × 反制與逃脫。",
+    "supported_modes": {
+      "immersive": true,
+      "world": true
+    },
+    "supported_display": {
+      "text": true,
+      "ui": true
+    },
+    "published_at": "2026-10-03T16:35:00Z",
+    "updated_at": "2026-10-03T16:35:00Z",
+    "published_version": 1,
+    "version_published_at": "2026-10-03T16:35:00Z"
   }
 ]
