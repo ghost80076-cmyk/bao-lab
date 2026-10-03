@@ -389,10 +389,10 @@ body{min-height:100vh;background:#101118;color:#f5f1ff}
       String(entry&&entry.at||""),
       String(entry&&entry.model||""),
       String(entry&&entry.kind||""),
-      String(entry&&entry.input??""),
-      String(entry&&entry.output??""),
-      String(entry&&entry.cached??""),
-      String(entry&&entry.actualUsd??"")
+      String(entry&&entry.input!=null?entry.input:""),
+      String(entry&&entry.output!=null?entry.output:""),
+      String(entry&&entry.cached!=null?entry.cached:""),
+      String(entry&&entry.actualUsd!=null?entry.actualUsd:"")
     ].join("|");
   }
   function usageFromPayload(payload){
