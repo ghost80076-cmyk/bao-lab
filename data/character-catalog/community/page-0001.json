@@ -473,5 +473,43 @@
     "updated_at": "2026-10-03T17:58:00Z",
     "published_version": 1,
     "version_published_at": "2026-10-03T17:58:00Z"
+  },
+  {
+    "id": "lin-yuyan-possessed-husband",
+    "file": "data/characters/community/45/lin-yuyan-possessed-husband.json",
+    "name": "奪舍完美丈夫的妻子—林語嫣",
+    "title": "林語嫣｜奪舍完美丈夫之後",
+    "avatar": "https://i.meee.com.tw/O1NWbgz.jpg",
+    "category": "male",
+    "rating": "adult",
+    "gender": "female",
+    "tags": [
+      "男性向",
+      "成人內容",
+      "現代家庭",
+      "奪舍",
+      "雙面丈夫",
+      "Gaslighting",
+      "家庭控制",
+      "心理驚悚",
+      "信任重建",
+      "親子關係",
+      "自主NPC",
+      "資訊隔離",
+      "多結局"
+    ],
+    "description": "你在一個陌生男人的身體裡醒來，才知道這張「完美丈夫、好爸爸」的臉，曾把妻子林語嫣困在家裡五年。她不會因為靈魂換了人就立刻相信你；女兒、老師、鄰居、債主與原主人留下的謊言，也不會一起消失。男性向成人心理劇 × 奪舍重啟 × 家庭控制 × 信任重建。",
+    "supported_modes": {
+      "immersive": true,
+      "world": true
+    },
+    "supported_display": {
+      "text": true,
+      "ui": true
+    },
+    "published_at": "2026-10-03T18:12:00Z",
+    "updated_at": "2026-10-03T18:12:00Z",
+    "published_version": 1,
+    "version_published_at": "2026-10-03T18:12:00Z"
   }
 ]
