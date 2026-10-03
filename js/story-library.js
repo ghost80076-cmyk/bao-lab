@@ -363,6 +363,36 @@
         .sort((a, b) => String(a.createdAt || "").localeCompare(String(b.createdAt || "")));
     },
 
+    async conversationSearchIndex(storyId) {
+      if (!storyId) return { chapters: [], records: [] };
+      const all = await this.allRecords();
+      const chapters = all
+        .filter(record => record.kind === "chapter" && record.storyId === storyId)
+        .sort((a, b) => String(a.createdAt || "").localeCompare(String(b.createdAt || "")))
+        .map(record => ({ chapterId: record.chapterId, label: record.label || "章節", createdAt: record.createdAt || "" }));
+      const records = [];
+      chapters.forEach(chapter => {
+        let turn = 0;
+        all.filter(record => record.kind === "message" && record.storyId === storyId && record.chapterId === chapter.chapterId)
+          .sort((a, b) => Number(a.seq || 0) - Number(b.seq || 0))
+          .forEach(record => {
+            const role = record.role === "user" ? "user" : "assistant";
+            if (role === "user") turn += 1;
+            records.push({
+              index: Number(record.seq || 0),
+              id: String(record.messageId || record.id || ""),
+              role,
+              turn,
+              content: String(record.content || ""),
+              createdAt: String(record.createdAt || ""),
+              chapterId: chapter.chapterId,
+              chapterLabel: chapter.label
+            });
+          });
+      });
+      return { chapters, records };
+    },
+
     async renameStory(storyId, title) {
       const nextTitle = String(title || "").trim().slice(0, 100);
       if (!nextTitle || !await this.open()) return false;

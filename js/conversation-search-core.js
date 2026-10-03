@@ -33,9 +33,7 @@
     return days ? current.getTime() - days * 86400000 : null;
   };
 
-  const search = ({ messages = [], greeting = '', greetingCreatedAt = '', query = '', role = 'all', date = 'all', now = Date.now(), limit = 100 } = {}) => {
-    const terms = termsFor(query);
-    if (!terms.length) return { total: 0, results: [], truncated: false };
+  const messageRecords = ({ messages = [], greeting = '', greetingCreatedAt = '', chapterId = '', chapterLabel = '' } = {}) => {
     const sourceMessages = Array.isArray(messages) ? messages : [];
     const records = [];
     const greetingText = String(greeting || '').trim();
@@ -43,7 +41,7 @@
     const greetingAlreadyStored = Boolean(greetingText && first?.role !== 'user' && (
       first?.greeting === true || normalize(first?.content) === normalize(greetingText)
     ));
-    if (greetingText && !greetingAlreadyStored) records.push({ index: -1, id: 'story-greeting', role: 'assistant', turn: 0, content: greetingText, createdAt: greetingCreatedAt });
+    if (greetingText && !greetingAlreadyStored) records.push({ index: -1, id: 'story-greeting', role: 'assistant', turn: 0, content: greetingText, createdAt: greetingCreatedAt, chapterId, chapterLabel });
     let turn = 0;
     sourceMessages.forEach((message, index) => {
       const messageRole = message?.role === 'user' ? 'user' : 'assistant';
@@ -54,12 +52,34 @@
         role: messageRole,
         turn,
         content: String(message?.content || ''),
-        createdAt: String(message?.createdAt || '')
+        createdAt: String(message?.createdAt || ''),
+        chapterId: String(message?.chapterId || chapterId || ''),
+        chapterLabel: String(message?.chapterLabel || chapterLabel || '')
       });
     });
+    return records;
+  };
+
+  const search = ({ records = null, messages = [], greeting = '', greetingCreatedAt = '', chapterId = '', chapterLabel = '', query = '', role = 'all', chapter = 'all', date = 'all', now = Date.now(), limit = 100 } = {}) => {
+    const terms = termsFor(query);
+    if (!terms.length) return { total: 0, results: [], truncated: false };
+    const sourceRecords = Array.isArray(records)
+      ? records.map((record, index) => ({
+          ...record,
+          index: Number(record?.index ?? index),
+          id: String(record?.id || `message-${index}`),
+          role: record?.role === 'user' ? 'user' : 'assistant',
+          turn: Math.max(0, Number(record?.turn || 0)),
+          content: String(record?.content || ''),
+          createdAt: String(record?.createdAt || ''),
+          chapterId: String(record?.chapterId || ''),
+          chapterLabel: String(record?.chapterLabel || '')
+        }))
+      : messageRecords({ messages, greeting, greetingCreatedAt, chapterId, chapterLabel });
     const threshold = dateThreshold(date, now);
-    const matches = records.filter(record => {
+    const matches = sourceRecords.filter(record => {
       if (role !== 'all' && record.role !== role) return false;
+      if (chapter !== 'all' && record.chapterId !== chapter) return false;
       if (threshold !== null) {
         const createdAt = Date.parse(record.createdAt);
         if (Number.isNaN(createdAt) || createdAt < threshold || createdAt > new Date(now).getTime()) return false;
@@ -75,7 +95,7 @@
     };
   };
 
-  const api = Object.freeze({ normalize, termsFor, makeSnippet, dateThreshold, search });
+  const api = Object.freeze({ normalize, termsFor, makeSnippet, dateThreshold, messageRecords, search });
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   if (typeof window !== 'undefined') window.BAOConversationSearchCore = api;
 })();
