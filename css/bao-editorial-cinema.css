@@ -174,8 +174,8 @@ body:has(#explore-view.active) .bao-mascot-avatar,body:has(#detail-view.active) 
 }
 #explore-view .character-image-wrap img{aspect-ratio:2/3;object-position:center 18%}
 #explore-view .character-content{
-  padding:82px 18px 18px;
-  background:linear-gradient(180deg,transparent 0%,rgba(6,7,13,.46) 24%,rgba(6,7,13,.94) 68%,#070810 100%);
+  padding:24px 18px 16px;
+  background:linear-gradient(180deg,transparent 0%,rgba(6,7,13,.30) 42%,rgba(6,7,13,.90) 78%,#070810 100%);
 }
 #explore-view .character-content h3{font-size:clamp(18px,1.7vw,22px);line-height:1.32;letter-spacing:.01em}
 #explore-view .character-content p{color:#d3d3dc}
@@ -254,7 +254,7 @@ body:has(#detail-view.active) .bao-mascot-avatar{width:44px;height:44px}
   #home-view #bao-home-portrait img{aspect-ratio:4/5;object-position:center 16%}
   #explore-view .section-head h2{font-size:clamp(34px,10vw,46px)}
   #explore-view .category-portals{margin-bottom:17px}
-  #explore-view .character-content{padding:28px 10px 9px}
+  #explore-view .character-content{padding:20px 10px 10px}
   #explore-view .character-content h3{font-size:14px;line-height:1.32}
   #explore-view .character-content p{font-size:10.5px;-webkit-line-clamp:1}
   #explore-view .character-content .tags{display:flex!important;gap:4px;max-height:24px}
