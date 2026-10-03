@@ -133,7 +133,7 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/bao-mascot.js?v=4"))
     .then(() => loadBAOScript("js/reader-context.js?v=2"))
     .then(() => loadBAOScript("js/bao-visual-ui.js?v=9"))
-    .then(() => loadBAOScript("js/player-shell-v2.js?v=3"))
+    .then(() => loadBAOScript("js/player-shell-v2.js?v=4"))
     .then(() => loadBAOScript("js/player-builder-v2.js?v=4"))
     .then(() => loadBAOScript("js/story-start-readiness-core.js"))
     .then(() => loadBAOScript("js/story-start-readiness.js"))
@@ -223,18 +223,10 @@ window.addEventListener("DOMContentLoaded", () => {
     });
 
     document.querySelectorAll(".adult-filter").forEach(btn => btn.addEventListener("click", e => {
-      if (localStorage.getItem("bao-lab:adult-confirmed") === "yes") {
-        document.getElementById("adult-notice")?.classList.remove("hidden");
-        return;
-      }
+      if (window.BAOContentPreferences?.isAdultContentEnabled?.()) return;
+      e.preventDefault();
       e.stopImmediatePropagation();
-      if (confirm("此分類為 18+ 成人內容。請確認你已年滿 18 歲。")) {
-        localStorage.setItem("bao-lab:adult-confirmed", "yes");
-        document.getElementById("adult-notice")?.classList.remove("hidden");
-        App.renderCharacters(btn.dataset.filter);
-        document.querySelectorAll(".filter").forEach(x=>x.classList.remove("active"));
-        btn.classList.add("active");
-      }
+      window.BAOContentPreferences?.guard?.({ rating: "adult" });
     }), true);
 
     refresh();
