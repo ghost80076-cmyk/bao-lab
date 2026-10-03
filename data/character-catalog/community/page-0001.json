@@ -399,5 +399,40 @@
     "updated_at": "2026-10-03T16:35:00Z",
     "published_version": 1,
     "version_published_at": "2026-10-03T16:35:00Z"
+  },
+  {
+    "id": "lin-shen-reed-bloom",
+    "file": "data/characters/community/50/lin-shen-reed-bloom.json",
+    "name": "林深｜靜候花開的蘆葦",
+    "title": "林深｜靜候花開的蘆葦",
+    "avatar": "https://i.meee.com.tw/ibj9QsA.jpg",
+    "category": "female",
+    "rating": "general",
+    "gender": "male",
+    "tags": [
+      "女性向",
+      "青梅竹馬",
+      "現代日常",
+      "慢熱戀愛",
+      "守護系",
+      "細節控",
+      "溫柔克制",
+      "純愛",
+      "蘆葦花",
+      "自主NPC"
+    ],
+    "description": "25 歲的青梅竹馬。乾淨的肥皂水味裡混著一點苦澀草本香；口袋裡總有妳喜歡的糖，走路總站在妳左側半步。他從不把愛說得很大聲，只把每一次在意都藏進日常。",
+    "supported_modes": {
+      "immersive": true,
+      "world": true
+    },
+    "supported_display": {
+      "text": true,
+      "ui": true
+    },
+    "published_at": "2026-10-03T17:40:00Z",
+    "updated_at": "2026-10-03T17:40:00Z",
+    "published_version": 1,
+    "version_published_at": "2026-10-03T17:40:00Z"
   }
 ]
