@@ -31,8 +31,8 @@
       <header class="world-manager-head"><div><div class="eyebrow">WORLD MODULES</div><h2 id="world-manager-title">世界模組管理</h2><p id="world-manager-intro">角色卡提供預設，玩家只在目前故事中啟用或擴充。</p></div><div class="world-manager-head-actions"><button type="button" class="world-manager-help" data-world-help aria-label="世界模組管理說明" aria-expanded="false" aria-controls="world-manager-intro">?</button><button type="button" class="text-button" data-world-close>關閉</button></div></header>
       <div class="world-manager-body"><main>
         <section class="world-manager-card world-manager-order-card"><div class="world-manager-title"><div><h3>目前模組順序</h3><p>順序同時影響頁籤與 Context 顯示。</p></div><button type="button" class="secondary" data-world-add>＋ 自訂模組</button></div><div class="world-manager-order" data-world-order></div></section>
-        <section class="world-manager-card world-manager-presets-card"><h3>快速啟用</h3><p>背包、技能、任務、裝備、勢力、聲望、經濟、境界、魔法等模組可自由組合。</p><div class="world-manager-presets" data-world-presets></div></section>
-        <section class="world-manager-card world-manager-custom-card-list"><h3>玩家自訂模組</h3><p>自訂模組可以是欄位物件或項目清單，並直接接入既有 World Modules tracker。</p><div class="world-manager-custom" data-world-custom></div></section>
+        <section class="world-manager-card world-manager-presets-card" data-world-section="official"><h3>官方模組</h3><p>從夜灣內建的背包、技能、任務、裝備、勢力、聲望、經濟、境界與魔法範本快速啟用；作品已選用的範本會標示為作品預設。</p><div class="world-manager-presets" data-world-presets></div></section>
+        <section class="world-manager-card world-manager-custom-card-list" data-world-section="mine"><h3>我的模組</h3><p>你為目前故事建立或匯入的模組；可以是欄位物件或項目清單，並直接接入既有 World Modules tracker。</p><div class="world-manager-custom" data-world-custom></div></section>
       </main><aside class="world-manager-guide">
         <section class="world-manager-card"><h3>Context 原則</h3><p><b>核心</b>：每輪精簡提供。</p><p><b>相關時</b>：文字命中或手動查看時提供。</p><p><b>只顯示</b>：保留在介面，不送主模型。</p></section>
         <section class="world-manager-card"><h3>追蹤頻率</h3><p><b>高頻</b>每次狀態整理都檢查；一般與低頻依提及和輪次檢查；手動不交給 AI 更新。</p></section>
@@ -86,7 +86,7 @@
       const box = wrap.querySelector("[data-world-presets]");
       box.innerHTML = Object.entries(window.BAOWorldModules.BUILT_INS).map(([id, preset]) => {
         const enabled = baseIds.has(id) ? !draft.disabled.includes(id) : draft.enabledBuiltIns.includes(id);
-        const source = baseIds.has(id) ? "角色卡預設" : "內建範本";
+        const source = baseIds.has(id) ? "作品預設" : "官方範本";
         return `<label class="world-preset ${enabled ? "active" : ""}"><input type="checkbox" data-preset-id="${esc(id)}" ${enabled ? "checked" : ""}><span>${esc(preset.icon)} <b>${esc(preset.label)}</b><small>${source}</small></span></label>`;
       }).join("");
       box.querySelectorAll("[data-preset-id]").forEach(input => input.addEventListener("change", () => {
@@ -125,7 +125,7 @@
           <label class="wide">觸發詞<input data-custom-prop="triggers" value="${esc((def.triggers || []).join("、"))}" placeholder="例如：契約、組織、情報"></label>
           <label class="wide">給狀態 AI 的說明<textarea data-custom-prop="description" maxlength="500">${esc(def.description || "")}</textarea></label>
         </div></article>`;
-      }).join("") : '<div class="world-manager-empty">尚未新增玩家自訂模組。</div>';
+      }).join("") : '<div class="world-manager-empty">目前故事還沒有「我的模組」。</div>';
 
       box.querySelectorAll("[data-custom-id]").forEach(card => {
         const id = card.dataset.customId;
