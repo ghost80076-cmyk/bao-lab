@@ -109,7 +109,7 @@
   function updateLabels() {
     const state = actors();
     if (!state) return;
-    const primary = state.hostedCharacters.find(item => item.role === 'primary');
+    const primary = state.hostedCharacters.filter(actorAllowed).find(item => item.role === 'primary');
     const name = primary?.name || App.activeCharacter.name;
     const player = document.getElementById('chat-persona');
     const title = document.getElementById('chat-title');
@@ -247,7 +247,12 @@
   function refreshBuilderActors() {
     const list = document.getElementById('bao-builder-actor-list');
     if (!list) return;
-    list.innerHTML = builderActors.length ? builderActors.map(actor => `<div class="bao-actor-item"><span>${esc(actor.name)} · ${actor.role === 'primary' ? 'AI 主角' : '額外 NPC'}</span><button type="button" data-edit="${esc(actor.id)}">編輯</button><button type="button" data-remove="${esc(actor.id)}">移除</button></div>`).join('') : '<p class="note">目前沒有額外 AI 人物；可直接使用原作品開始故事。</p>';
+    const visible = builderActors.filter(actorAllowed);
+    const pausedCount = builderActors.length - visible.length;
+    const cards = visible.map(actor => `<div class="bao-actor-item"><span>${esc(actor.name)} · ${actor.role === 'primary' ? 'AI 主角' : '額外 NPC'}${actor.portable?.packId ? ' · 官方可攜' : ''}</span><button type="button" data-edit="${esc(actor.id)}">編輯</button><button type="button" data-remove="${esc(actor.id)}">移除</button></div>`).join('');
+    const paused = pausedCount ? `<p class="note">有 ${pausedCount} 位成人官方角色因成人內容已關閉而暫停；重新開啟後會恢復，資料沒有刪除。</p>` : '';
+    list.innerHTML = cards || paused || '<p class="note">目前沒有額外 AI 人物；可直接使用原作品開始故事。</p>';
+    if (cards && paused) list.insertAdjacentHTML('beforeend', paused);
     list.querySelectorAll('[data-edit]').forEach(button => button.onclick = () => {
       const actor = builderActors.find(item => item.id === button.dataset.edit);
       if (actor) fillActorForm(document.getElementById('bao-builder-actor-form'), actor);
@@ -413,9 +418,11 @@
   }
   window.addEventListener?.('yorubay:content-preferences-changed', event => {
     if (event.detail?.adultContentEnabled) {
-      loadAdultPack().then(refreshPortablePickers).catch(error => console.warn('YoruBay adult story actor pack preload failed:', error));
+      loadAdultPack().then(() => {refreshPortablePickers(); refreshBuilderActors(); updateLabels();}).catch(error => console.warn('YoruBay adult story actor pack preload failed:', error));
     } else {
       refreshPortablePickers();
+      refreshBuilderActors();
+      updateLabels();
       if (dialog && dialog.querySelector('#bao-actor-target')?.value === 'host') renderDialog();
     }
   });
