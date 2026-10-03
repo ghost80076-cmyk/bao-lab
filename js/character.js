@@ -17,18 +17,21 @@ const CharacterEngine = {
     const id = String(raw.id || meta.id || `custom-${Date.now()}`).trim();
     const name = String(raw.name || meta.name || "未命名角色").trim();
     const title = String(raw.title || meta.title || name).trim();
-    const rating = raw.rating || meta.rating || "general";
+    const rawRating = String(raw.rating || meta.rating || "general").toLowerCase();
     const audience = raw.audience || meta.audience || [];
     const categories = raw.categories || meta.categories || [];
     const tags = raw.tags || meta.tags || [];
     const audienceList = Array.isArray(audience) ? audience : [audience].filter(Boolean);
     const explicitCategory = String(raw.category || meta.category || "").toLowerCase();
     const legacyAudience = audienceList.map(x => String(x).toLowerCase());
-    const category = ["male", "female", "r18"].includes(explicitCategory)
+    const category = ["general", "male", "female"].includes(explicitCategory)
       ? explicitCategory
-      : rating === "adult"
-        ? "r18"
-        : legacyAudience.includes("female") ? "female" : "male";
+      : legacyAudience.some(value => ["female", "女性", "女性向"].includes(value))
+        ? "female"
+        : legacyAudience.some(value => ["male", "男性", "男性向"].includes(value))
+          ? "male"
+          : "general";
+    const rating = rawRating === "adult" || explicitCategory === "r18" ? "adult" : "general";
     const focusRaw = raw.world_focus || content.world_focus || gameplay.world_focus || [];
     const worldFocus = (Array.isArray(focusRaw) ? focusRaw : [focusRaw])
       .filter(Boolean)
@@ -91,7 +94,7 @@ const CharacterEngine = {
       title,
       avatar: raw.avatar || meta.avatar || "https://picsum.photos/seed/bao-character/800/1000",
       reading_background: raw.reading_background || presentation.reading_background || presentation.background || raw.background || "",
-      rating: category === "r18" ? "adult" : "general",
+      rating,
       category,
       gender: raw.gender || meta.gender || "",
       audience: audienceList,
@@ -149,7 +152,8 @@ const CharacterEngine = {
     if (!c.name) errors.push("缺少 name");
     if (!c.system_prompt) errors.push("缺少 system_prompt / content.system_prompt");
     if (!c.greeting) errors.push("缺少 greeting / content.greeting");
-    if (!["male", "female", "r18"].includes(c.category)) errors.push("category 必須是 male、female 或 r18");
+    if (!["general", "male", "female"].includes(c.category)) errors.push("category 必須是 general、male 或 female");
+    if (!["general", "adult"].includes(c.rating)) errors.push("rating 必須是 general 或 adult");
     return { ok: errors.length === 0, errors, character: c };
   },
 
