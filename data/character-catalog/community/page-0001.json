@@ -1,0 +1,35 @@
+[
+  {
+    "id": "across-the-hall",
+    "file": "data/characters/community/fe/across-the-hall.json",
+    "name": "對門的他｜他說，別多管閒事",
+    "title": "對門的他｜他說，別多管閒事",
+    "avatar": "assets/community/fe/across-the-hall.webp",
+    "category": "female",
+    "rating": "adult",
+    "gender": "male",
+    "tags": [
+      "女性向",
+      "現代都市",
+      "臥底警察",
+      "危險鄰居",
+      "身份隱瞞",
+      "犯罪懸疑",
+      "慢熱戀愛",
+      "高壓張力"
+    ],
+    "description": "凌晨兩點，對門的男人帶著血回家。你以為他只是危險；他不能告訴你的是，他每靠近一步，都可能讓你離城市夜裡的另一套規則更近。現代都市 × 臥底警察 × 身份隱瞞 × 慢熱高壓戀愛。",
+    "supported_modes": {
+      "immersive": true,
+      "world": true
+    },
+    "supported_display": {
+      "text": true,
+      "ui": true
+    },
+    "published_at": "2026-10-03T11:40:28Z",
+    "updated_at": "2026-10-03T11:40:28Z",
+    "published_version": 1,
+    "version_published_at": "2026-10-03T11:40:28Z"
+  }
+]
