@@ -21,8 +21,8 @@ const frame=cover.indexOf(Buffer.from([0x9d,0x01,0x2a]));
 assert.ok(frame>=0,'lossy WebP frame header should exist');
 const width=cover.readUInt16LE(frame+3)&0x3fff;
 const height=cover.readUInt16LE(frame+5)&0x3fff;
-assert.equal(width,648);
-assert.equal(height,1152);
+assert.equal(width,220);
+assert.equal(height,391);
 
 assert.equal(card.presentation.play_info_surface,'game-ui');
 assert.equal(card.presentation.opening.choices.length,4);
