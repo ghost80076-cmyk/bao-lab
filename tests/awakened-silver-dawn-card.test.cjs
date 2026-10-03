@@ -11,11 +11,13 @@ assert.equal(card.meta.id, 'awakened-silver-dawn');
 assert.equal(card.meta.category, 'general');
 assert.equal(card.meta.rating, 'general');
 assert.equal(card.meta.gender, 'all');
+assert.equal(card.meta.avatar, 'https://i.meee.com.tw/BH3KBth.jpg');
 assert.ok(card.meta.tags.includes('都市異能'));
 assert.ok(card.meta.tags.includes('資訊隔離'));
 assert.ok(card.meta.tags.includes('身體負荷'));
 
 assert.equal(card.presentation.play_info_surface, 'game-ui');
+assert.equal(card.presentation.reading_background, 'https://i.meee.com.tw/BH3KBth.jpg');
 assert.equal(card.presentation.opening.choices.length, 4);
 assert.doesNotMatch(card.content.greeting, /<script|onclick=|document\.execCommand/i);
 assert.doesNotMatch(JSON.stringify(card), /<親密場景>|性喚起時的能量光芒|呻吟聲/);
