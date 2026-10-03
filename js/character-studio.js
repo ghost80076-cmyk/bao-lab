@@ -264,6 +264,16 @@
     const details = result.converted ? '酒館 V2 已轉換；來源進階功能未必能在本站使用，請檢查內容後再加入角色庫。' : '夜灣角色卡已載入，請確認後儲存草稿。';
     status(details);
   }
+  async function createDraft(mode = 'immersive') {
+    if (!confirmDiscard()) return false;
+    showArchived = false;
+    showCard({
+      id: id(), name: '', avatar: DEFAULT_IMAGE,
+      supported_modes: { immersive: true, world: mode === 'world' }
+    }, null);
+    await refreshList();
+    return true;
+  }
   function run(buttonId, action) {
     $(buttonId).addEventListener('click', async () => {
       const button = $(buttonId); button.disabled = true;
@@ -275,7 +285,7 @@
   form.addEventListener('change', () => { if (!loading) { dirty = true; status('尚未儲存修改'); } });
   form.addEventListener('submit', event => event.preventDefault());
   window.addEventListener('beforeunload', event => { if (dirty) { event.preventDefault(); event.returnValue = ''; } });
-  run('studio-new', async () => { if (!confirmDiscard()) return; showArchived = false; showCard({ id: id(), name: '', avatar: DEFAULT_IMAGE }, null); await refreshList(); });
+  run('studio-new', () => createDraft('immersive'));
   run('studio-save-draft', saveDraft);
   run('studio-preview-button', preview);
   run('studio-export', download);
@@ -291,6 +301,7 @@
     readCard,
     toExport: card => toExport(card || readCard()),
     listDrafts: () => database('list'),
+    createDraft,
     getState: () => ({ draftId, dirty, hasDraft: Boolean(draftId) })
   };
   $('studio-preview-image').addEventListener('error', () => { $('studio-preview-image').src = DEFAULT_IMAGE; });

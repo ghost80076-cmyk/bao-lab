@@ -7,6 +7,9 @@ test('character studio exposes a mobile-friendly creation flow without hiding th
 
   const flow = page.locator('#studio-flow-shell');
   await expect(flow).toBeVisible();
+  const creationRoutes = page.locator('.studio-actions [data-creation-route]');
+  await expect(creationRoutes).toHaveCount(5);
+  await expect(creationRoutes).toHaveText(['＋ 角色作品', '＋ 世界作品', '故事開場', '世界書', '匯入作品']);
   await expect(flow.locator('[data-flow-step]')).toHaveCount(6);
   await expect(page.locator('#studio-flow-progress')).toHaveText('必填 2/4 · 還有 2 項');
   await expect(page.locator('.studio-heading .eyebrow')).toBeHidden();
@@ -25,6 +28,16 @@ test('character studio exposes a mobile-friendly creation flow without hiding th
   expect(mobileDensity.flowHeight).toBeLessThanOrEqual(100);
   expect(mobileDensity.actionsSameRow).toBe(true);
   expect(['auto', 'scroll']).toContain(mobileDensity.draftsOverflowX);
+
+  await page.getByRole('button', { name: '＋ 世界作品' }).click();
+  await expect(page.locator('[name="mode"]')).toHaveValue('world');
+  await page.getByRole('button', { name: '＋ 角色作品' }).click();
+  await expect(page.locator('[name="mode"]')).toHaveValue('immersive');
+  await page.locator('[data-creation-route="opening"]').click();
+  await expect(flow.locator('[data-flow-step="opening"]')).toHaveAttribute('aria-current', 'step');
+  await page.locator('[data-creation-route="lorebook"]').click();
+  await expect(page.locator('.studio-advanced').first()).toHaveAttribute('open', '');
+  await expect(page.locator('[name="lore"]')).toBeVisible();
 
   const nameField = page.locator('[name="name"]');
   await nameField.focus();

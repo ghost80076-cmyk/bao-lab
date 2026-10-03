@@ -10,7 +10,7 @@
     if (document.querySelector('link[href^="css/character-studio-flow.css"]')) return;
     const link = document.createElement("link");
     link.rel = "stylesheet";
-    link.href = "css/character-studio-flow.css?v=2";
+    link.href = "css/character-studio-flow.css?v=3";
     document.head.appendChild(link);
   };
 
@@ -40,6 +40,64 @@
   })[id] || null;
 
   let activeStep = "basic";
+
+  const installCreationRoutes = () => {
+    const actions = document.querySelector(".studio-actions");
+    const newCharacter = document.getElementById("studio-new");
+    const importButton = document.getElementById("studio-import");
+    if (!actions || !newCharacter || !importButton || actions.dataset.creationRoutes === "1") return;
+    actions.dataset.creationRoutes = "1";
+    actions.setAttribute("aria-label", "創作入口");
+
+    newCharacter.textContent = "＋ 角色作品";
+    newCharacter.dataset.creationRoute = "character";
+    newCharacter.title = "建立以單一角色互動為主的新作品";
+    newCharacter.addEventListener("click", () => go("basic", true));
+
+    const newWorld = document.createElement("button");
+    newWorld.type = "button";
+    newWorld.className = "secondary";
+    newWorld.dataset.creationRoute = "world";
+    newWorld.textContent = "＋ 世界作品";
+    newWorld.title = "建立多人物或持續運作世界的新作品";
+    newWorld.addEventListener("click", async () => {
+      const button = newWorld;
+      button.disabled = true;
+      try {
+        const created = await window.BAOCharacterStudio?.createDraft?.("world");
+        if (created) go("basic", true);
+      } finally {
+        button.disabled = false;
+      }
+    });
+
+    const opening = document.createElement("button");
+    opening.type = "button";
+    opening.className = "secondary";
+    opening.dataset.creationRoute = "opening";
+    opening.textContent = "故事開場";
+    opening.title = "編輯目前作品的第一幕";
+    opening.addEventListener("click", () => go("opening", true));
+
+    const lore = document.createElement("button");
+    lore.type = "button";
+    lore.className = "secondary";
+    lore.dataset.creationRoute = "lorebook";
+    lore.textContent = "世界書";
+    lore.title = "編輯目前作品的背景資料與按需世界書";
+    lore.addEventListener("click", () => {
+      if (!go("world")) return;
+      const input = field("lore");
+      input?.scrollIntoView({ behavior: "smooth", block: "center" });
+      if (window.matchMedia("(min-width: 821px)").matches) window.setTimeout(() => input?.focus({ preventScroll: true }), 220);
+    });
+
+    importButton.textContent = "匯入作品";
+    importButton.dataset.creationRoute = "import";
+    importButton.title = "匯入夜灣 JSON 或 SillyTavern JSON／PNG";
+    newCharacter.after(newWorld);
+    importButton.before(opening, lore);
+  };
 
   const installAnchors = () => {
     core.STEPS.forEach(step => {
@@ -151,6 +209,7 @@
   ensureStyles();
   installAnchors();
   makeShell();
+  installCreationRoutes();
   installEditDone();
   form.addEventListener("input", update);
   form.addEventListener("change", update);
@@ -171,5 +230,5 @@
     .observe(status, { childList: true, subtree: true, characterData: true });
 
   update();
-  window.BAOCharacterStudioFlow = Object.freeze({ update, go, values, targetFor });
+  window.BAOCharacterStudioFlow = Object.freeze({ update, go, values, targetFor, installCreationRoutes });
 })();
