@@ -381,9 +381,9 @@
       const data = formData(form, ACTOR_FIELDS);
       if (!trim(data.name)) return void (feedback.textContent = '請填寫 AI 人物名稱。');
       const select = dialog.querySelector('#bao-actor-existing');
-      const existing = state.hostedCharacters.find(item => item.id === select.value);
-      const actor = normalizeActor({...data, id:select.value || id(), role:form.elements.namedItem('role').value, portable:form._portableMeta || existing?.portable});
       const state = actors();
+      const existing = state.hostedCharacters.find(item => item.id === select.value);
+      const actor = normalizeActor({...data, id:select.value || form.dataset.actorId || id(), role:form.elements.namedItem('role').value, portable:form._portableMeta || existing?.portable});
       state.hostedCharacters = addOrUpdate(state.hostedCharacters, actor);
       state.hostedCharacter = null;
     }
