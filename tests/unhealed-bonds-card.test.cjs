@@ -11,7 +11,10 @@ const webpDimensions=file=>{
 const card=require('../data/characters/general/unhealed-bonds.json');
 const manifest=require('../data/characters.json');
 
-const manifestEntry=manifest.find(entry=>entry.id===card.meta.id);\nassert.ok(manifestEntry,'manifest should include unhealed-bonds');\nassert.equal(manifestEntry.category,'female');\nassert.equal(manifestEntry.rating,'general');
+const manifestEntry=manifest.find(entry=>entry.id===card.meta.id);
+assert.ok(manifestEntry,'manifest should include unhealed-bonds');
+assert.equal(manifestEntry.category,'female');
+assert.equal(manifestEntry.rating,'general');
 assert.equal(card.meta.category,'female');
 assert.equal(card.meta.rating,'general');
 assert.equal(card.meta.gender,'male');
