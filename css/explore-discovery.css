@@ -88,7 +88,7 @@
 }
 
 .explore-update-badge{
-  position:absolute;left:12px;top:46px;z-index:3;display:inline-flex;align-items:center;
+  display:inline-flex;align-items:center;
   min-height:26px;padding:3px 8px;border-radius:999px;
   border:1px solid rgba(255,255,255,.18);background:rgba(11,13,20,.82);
   color:#f3efff;font-size:9px;font-weight:800;letter-spacing:.08em;
@@ -100,8 +100,18 @@
 .explore-update-badge[data-kind="updated"]{
   border-color:rgba(191,174,255,.45);background:rgba(45,35,78,.8);color:#ddd2ff
 }
+#explore-view #character-list .explore-card-badge-row{
+  position:absolute;left:10px;top:10px;z-index:3;
+  display:flex;align-items:flex-start;gap:6px;max-width:calc(100% - 58px);
+}
+#explore-view #character-list .explore-card-badge-row>.category-badge,
+#explore-view #character-list .explore-card-badge-row>.explore-update-badge{
+  position:static!important;inset:auto!important;margin:0!important;
+  flex:0 0 auto;white-space:nowrap;
+}
 @media(max-width:700px){
-  .explore-update-badge{left:8px;top:38px;min-height:24px;padding:2px 7px;font-size:8px}
+  .explore-update-badge{min-height:24px;padding:2px 7px;font-size:8px}
+  #explore-view #character-list .explore-card-badge-row{left:8px;top:8px;gap:5px;max-width:calc(100% - 50px)}
 }
 
 /* Context-aware work card hierarchy. */
