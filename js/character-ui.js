@@ -1,9 +1,9 @@
 (() => {
   if (typeof App === 'undefined' || typeof CharacterEngine === 'undefined') return;
   const categoryMeta = {
-    general:{label:'一般向',en:'GENERAL',desc:'不限定主要受眾的作品。',kicker:'GENERAL STORY'},
-    female:{label:'女性向',en:'FEMALE ORIENTED',desc:'以偏好女性向作品的讀者為主要受眾。',kicker:'FEMALE ORIENTED'},
-    male:{label:'男性向',en:'MALE ORIENTED',desc:'以偏好男性向作品的讀者為主要受眾。',kicker:'MALE ORIENTED'}
+    general:{label:'一般向',en:'GENERAL',desc:'不限定主要性別受眾的作品。',kicker:'GENERAL STORY'},
+    female:{label:'女性向',en:'FEMALE ORIENTED',desc:'主要面向女性讀者的作品。',kicker:'FEMALE ORIENTED'},
+    male:{label:'男性向',en:'MALE ORIENTED',desc:'主要面向男性讀者的作品。',kicker:'MALE ORIENTED'}
   };
   const workCategory = character => {
     const resolved = window.BAOExploreDiscoveryCore?.workCategory?.(character);
