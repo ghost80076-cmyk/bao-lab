@@ -250,5 +250,44 @@
     "updated_at": "2026-10-03T13:52:00Z",
     "published_version": 1,
     "version_published_at": "2026-10-03T13:52:00Z"
+  },
+  {
+    "id": "desire-academy-city",
+    "file": "data/characters/community/da/desire-academy-city.json",
+    "name": "慾望學園都市",
+    "title": "慾望學園都市｜成人片場 × 校園劇場模擬器",
+    "avatar": "assets/community/da/desire-academy-city.webp",
+    "category": "male",
+    "rating": "adult",
+    "gender": "all",
+    "tags": [
+      "男性向",
+      "R18成人遊戲",
+      "成人片場",
+      "校園劇場",
+      "AV演員",
+      "演員圖鑑",
+      "技能養成",
+      "數值系統",
+      "多NPC",
+      "世界模擬",
+      "幕後劇場",
+      "角色扮演",
+      "狀態UI",
+      "成人向"
+    ],
+    "description": "一座看似私立學園的巨大成人片場。所有固定角色其實都是 21+ 的虛構專業成人演員；學生、老師、人妻、女僕與禁忌關係都只是鏡頭內劇本。玩家可在「開機」與「Cut」之間切換，養成演技、親密技巧、體力、即興、鏡頭感與搭檔默契，解鎖演員圖鑑、技能與新片場。",
+    "supported_modes": {
+      "immersive": true,
+      "world": true
+    },
+    "supported_display": {
+      "text": true,
+      "ui": true
+    },
+    "published_at": "2026-10-03T14:00:00Z",
+    "updated_at": "2026-10-03T14:00:00Z",
+    "published_version": 1,
+    "version_published_at": "2026-10-03T14:00:00Z"
   }
 ]
