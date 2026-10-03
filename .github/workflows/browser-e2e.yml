@@ -141,6 +141,7 @@ jobs:
           npm run test:e2e --
           tests/e2e/story-control-center.spec.cjs
           tests/e2e/story-extension-pack.spec.cjs
+          tests/e2e/commentary-mods.spec.cjs
           tests/e2e/reader-context-desktop.spec.cjs
           tests/e2e/chat-api-settings.spec.cjs
           --project=chromium
