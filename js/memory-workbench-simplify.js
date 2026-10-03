@@ -110,7 +110,7 @@
       button.type = "button";
       button.className = "secondary memory-ai-helper";
       button.dataset.memoryAiHelper = "true";
-      button.textContent = "✨ AI 幫我整理";
+      button.textContent = "手動整理";
       button.addEventListener("click", () => window.BAOMemoryWorkbench.refresh(root, "refine"));
       add.insertAdjacentElement("afterend", button);
     }
@@ -122,7 +122,7 @@
     const title = pane.querySelector(".memory-pane-title");
     const heading = title?.querySelector("h3");
     const copy = title?.querySelector("p");
-    if (heading) heading.textContent = "AI 幫我整理";
+    if (heading) heading.textContent = "手動整理";
     if (copy) copy.textContent = "進階工具：從既有對話整理出草稿，再由你決定要不要寫成必記事項。";
     const pill = title?.querySelector(".memory-pill");
     if (pill) pill.textContent = "進階";
