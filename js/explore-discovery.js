@@ -8,6 +8,7 @@
   const STORAGE_KEY = "yorubay:explore-continuity:v1";
   const PREF_KEY = "yorubay:explore-preferences:v1";
   const adultEnabled = () => Boolean(window.BAOContentPreferences?.isAdultContentEnabled?.());
+  const defaultRating = () => adultEnabled() ? "all" : "general";
 
   const readLibrary = () => {
     try {
@@ -53,7 +54,7 @@
 
   const state = {
     category: "all",
-    rating: "general",
+    rating: defaultRating(),
     query: "",
     capability: "all",
     scope: "all",
@@ -307,6 +308,7 @@
           <section class="explore-filter-group" aria-labelledby="explore-rating-label" data-explore-adult-controls ${adultEnabled() ? "" : "hidden"}>
             <h4 id="explore-rating-label">內容分級</h4>
             <div class="explore-option-row">
+              <button type="button" data-explore-rating="all">全部</button>
               <button type="button" data-explore-rating="general">一般</button>
               <button type="button" data-explore-rating="mature">成熟內容</button>
             </div>
@@ -355,13 +357,16 @@
     };
 
     const setRating = rating => {
-      const next = rating === "mature" ? "mature" : "general";
-      if (next === "mature" && !adultEnabled()) {
+      const next = ["all", "general", "mature"].includes(rating) ? rating : defaultRating();
+      if ((next === "all" || next === "mature") && !adultEnabled()) {
         window.BAOContentPreferences?.guard?.({ rating: "adult" });
         return false;
       }
       state.rating = next;
-      document.getElementById("adult-notice")?.classList.toggle("hidden", next !== "mature");
+      document.getElementById("adult-notice")?.classList.toggle(
+        "hidden",
+        !adultEnabled() || next === "general"
+      );
       App.renderCharacters("all");
       return true;
     };
@@ -369,7 +374,7 @@
     const clearFilters = ({ includeQuery = false } = {}) => {
       state.capability = "all";
       state.scope = "all";
-      state.rating = "general";
+      state.rating = defaultRating();
       state.sort = "default";
       if (includeQuery) {
         state.query = "";
@@ -377,7 +382,7 @@
       }
       writePreferences();
       state.category = "all";
-      document.getElementById("adult-notice")?.classList.add("hidden");
+      document.getElementById("adult-notice")?.classList.toggle("hidden", !adultEnabled());
       App.renderCharacters("all");
       scheduleApply();
     };
@@ -447,8 +452,8 @@
         input.value = "";
       } else if (key === "category") state.category = "all";
       else if (key === "rating") {
-        state.rating = "general";
-        document.getElementById("adult-notice")?.classList.add("hidden");
+        state.rating = defaultRating();
+        document.getElementById("adult-notice")?.classList.toggle("hidden", !adultEnabled());
       } else if (key === "scope") state.scope = "all";
       else if (key === "capability") state.capability = "all";
       else if (key === "sort") {
@@ -624,7 +629,7 @@
 
   const apply = () => {
     const host = ensureTools();
-    if (!adultEnabled() && state.rating === "mature") {
+    if (!adultEnabled() && state.rating !== "general") {
       state.rating = "general";
       state.category = "all";
     }
@@ -704,7 +709,7 @@
     const hasCapability = state.capability !== "all";
     const hasScope = state.scope !== "all";
     const hasCategory = state.category !== "all";
-    const hasRating = state.rating !== "general";
+    const hasRating = state.rating !== defaultRating();
     const hasSort = state.sort !== "default";
     const hasFilters = hasCapability || hasScope || hasCategory || hasRating || hasSort;
     const clear = host.querySelector("[data-explore-clear]");
@@ -717,7 +722,7 @@
       const chips = [];
       const labels = {
         category: { general: "一般向", female: "女性向", male: "男性向" },
-        rating: { mature: "成熟內容" },
+        rating: { all: "全部分級", general: "一般內容", mature: "成熟內容" },
         scope: { favorites: "收藏", recent: "最近看過", updates: "有近期更新" },
         capability: { world: "世界模擬", ui: "互動 UI" },
         sort: { latest: "最近發布", updated: "最近更新排序" }
@@ -838,14 +843,18 @@
     const enabled = adultEnabled();
     const adultControls = root.querySelector("[data-explore-adult-controls]");
     if (adultControls) adultControls.hidden = !enabled;
-    if (!enabled && state.rating === "mature") {
-      state.rating = "general";
+    if (enabled) {
+      state.rating = "all";
       state.category = "all";
-      closePreview();
+      document.getElementById("adult-notice")?.classList.remove("hidden");
       App.renderCharacters("all");
       return;
     }
-    scheduleApply();
+    state.rating = "general";
+    state.category = "all";
+    document.getElementById("adult-notice")?.classList.add("hidden");
+    closePreview();
+    App.renderCharacters("all");
   });
 
   const observer = new MutationObserver(records => {
