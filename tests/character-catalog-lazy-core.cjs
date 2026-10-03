@@ -9,7 +9,8 @@ for (const item of catalog) {
   assert.ok(item.file, `${item.id}: catalog entry needs file`);
   assert.ok(item.name, `${item.id}: catalog entry needs name`);
   assert.ok(item.avatar, `${item.id}: catalog entry needs avatar`);
-  assert.ok(["male", "female", "r18"].includes(item.category), `${item.id}: catalog category must already be normalized`);
+  assert.ok(["general", "male", "female"].includes(item.category), `${item.id}: catalog category must already be normalized`);
+  assert.ok(["general", "adult"].includes(item.rating), `${item.id}: catalog rating must already be normalized`);
   assert.equal(typeof item.description, "string", `${item.id}: catalog needs description`);
   assert.equal(typeof item.supported_modes, "object", `${item.id}: catalog needs supported_modes`);
   assert.equal(typeof item.supported_display, "object", `${item.id}: catalog needs supported_display`);
