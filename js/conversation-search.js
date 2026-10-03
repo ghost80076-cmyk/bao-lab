@@ -8,15 +8,23 @@
   let returnFocus = null;
 
   const ensureStyles = () => {
-    if (document.querySelector('link[href="css/conversation-search.css"]')) return;
+    if (document.querySelector('link[href^="css/conversation-search.css"]')) return;
     const link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = 'css/conversation-search.css';
+    link.href = 'css/conversation-search.css?v=2';
     document.head.append(link);
   };
 
   const roleLabel = role => role === 'user' ? '玩家' : 'AI';
-  const turnLabel = result => result.index < 0 ? '故事開場' : `第 ${Math.max(1, result.turn)} 輪 · ${roleLabel(result.role)}`;
+  const dateLabel = value => {
+    const date = new Date(value || '');
+    return Number.isNaN(date.getTime()) ? '' : date.toLocaleDateString('zh-TW', { month: '2-digit', day: '2-digit' });
+  };
+  const turnLabel = result => {
+    const turn = result.index < 0 ? '故事開場' : `第 ${Math.max(1, result.turn)} 輪 · ${roleLabel(result.role)}`;
+    const date = dateLabel(result.createdAt);
+    return date ? `${turn} · ${date}` : turn;
+  };
 
   const locateMessage = index => {
     const stream = document.getElementById('chat-stream');
@@ -43,6 +51,7 @@
   };
 
   const activeRole = () => dialog?.querySelector('[data-search-role].active')?.dataset.searchRole || 'all';
+  const activeDate = () => dialog?.querySelector('[data-search-date].active')?.dataset.searchDate || 'all';
 
   const render = () => {
     if (!dialog) return;
@@ -61,8 +70,10 @@
     const found = core.search({
       messages: Chat.messages,
       greeting: App.activeCharacter?.greeting || App.activeCharacter?.content?.greeting || '',
+      greetingCreatedAt: window.BAOStoryLibrary?.refs?.().chapterCreatedAt || '',
       query,
       role: activeRole(),
+      date: activeDate(),
       limit: 100
     });
     status.textContent = found.total
@@ -114,6 +125,12 @@
           <button type="button" data-search-role="user">只看玩家</button>
           <button type="button" data-search-role="assistant">只看 AI</button>
         </div>
+        <div class="conversation-search-filters conversation-search-date-filters" aria-label="搜尋日期">
+          <button type="button" class="active" data-search-date="all">全部日期</button>
+          <button type="button" data-search-date="today">今天</button>
+          <button type="button" data-search-date="7d">近 7 天</button>
+          <button type="button" data-search-date="30d">近 30 天</button>
+        </div>
         <p class="conversation-search-status" data-search-status aria-live="polite"></p>
         <div class="conversation-search-results" data-search-results></div>
       </section>`;
@@ -122,6 +139,10 @@
     dialog.querySelector('[data-search-input]').addEventListener('input', scheduleRender);
     dialog.querySelectorAll('[data-search-role]').forEach(button => button.addEventListener('click', () => {
       dialog.querySelectorAll('[data-search-role]').forEach(item => item.classList.toggle('active', item === button));
+      render();
+    }));
+    dialog.querySelectorAll('[data-search-date]').forEach(button => button.addEventListener('click', () => {
+      dialog.querySelectorAll('[data-search-date]').forEach(item => item.classList.toggle('active', item === button));
       render();
     }));
     dialog.addEventListener('click', event => { if (event.target === dialog) close(); });

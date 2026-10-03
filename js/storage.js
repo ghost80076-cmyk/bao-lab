@@ -128,7 +128,9 @@ const Storage = {
     clean.config.api = Object.assign({}, clean.config.api || {}, { key: "" });
     clean.state = clean.state && typeof clean.state === "object" ? clean.state : {};
     clean.state.config = clean.config;
-    clean.chat.messages = Array.isArray(clean.chat.messages) ? clean.chat.messages : [];
+    const savedAt = Number.isNaN(Date.parse(clean.savedAt)) ? new Date().toISOString() : clean.savedAt;
+    clean.chat.messages = (Array.isArray(clean.chat.messages) ? clean.chat.messages : [])
+      .map(message => ({ ...message, createdAt: message?.createdAt || savedAt }));
     if (window.Chat?.ensureMessageIds) clean.chat.messages = Chat.ensureMessageIds(clean.chat.messages);
     return clean;
   },

@@ -259,20 +259,25 @@
       };
     },
 
-    messageRecords(payload, refs) {
+    messageRecords(payload, refs, previous = []) {
       const messages = Array.isArray(payload.chat?.messages) ? payload.chat.messages : [];
-      return messages.map((message, index) => ({
-        id: "message:" + refs.storyId + ":" + refs.chapterId + ":" + String(index).padStart(8, "0"),
-        kind: "message",
-        storyId: refs.storyId,
-        chapterId: refs.chapterId,
-        seq: index,
-        messageId: String(message.id || ""),
-        role: message.role,
-        content: String(message.content || ""),
-        createdAt: message.createdAt || payload.savedAt,
-        updatedAt: payload.savedAt
-      }));
+      const byMessageId = new Map(previous.filter(record => record.messageId).map(record => [String(record.messageId), record]));
+      const bySequence = new Map(previous.map(record => [Number(record.seq), record]));
+      return messages.map((message, index) => {
+        const existing = byMessageId.get(String(message.id || "")) || bySequence.get(index);
+        return {
+          id: "message:" + refs.storyId + ":" + refs.chapterId + ":" + String(index).padStart(8, "0"),
+          kind: "message",
+          storyId: refs.storyId,
+          chapterId: refs.chapterId,
+          seq: index,
+          messageId: String(message.id || ""),
+          role: message.role,
+          content: String(message.content || ""),
+          createdAt: message.createdAt || existing?.createdAt || payload.savedAt,
+          updatedAt: payload.savedAt
+        };
+      });
     },
 
     checkpointRecord(payload, refs) {
@@ -308,7 +313,7 @@
       const story = this.storyRecord(payload, refs, previousStory);
       const chapter = this.chapterRecord(payload, refs, previousChapter);
       const snapshot = this.snapshotRecord(payload, refs);
-      const messages = this.messageRecords(payload, refs);
+      const messages = this.messageRecords(payload, refs, staleMessages);
       const checkpoint = this.checkpointRecord(payload, refs);
       await this.transaction("readwrite", store => {
         staleMessages.forEach(record => store.delete(record.id));
@@ -410,7 +415,7 @@
       payload.chat = payload.chat || {};
       payload.chat.messages = sourceMessages
         .filter(record => Number(record.seq) <= Number(point.seq))
-        .map(record => ({ ...(record.messageId ? { id: record.messageId } : {}), role: record.role, content: record.content }));
+        .map(record => ({ ...(record.messageId ? { id: record.messageId } : {}), role: record.role, content: record.content, createdAt: record.createdAt }));
       payload.chat.summarizedUntil = Math.min(Number(payload.chat.summarizedUntil || 0), payload.chat.messages.length);
       const refs = this.beginBranch({ label, messageId, seq: point.seq, preview: point.content });
       payload.label = refs.chapterLabel;
@@ -503,7 +508,7 @@
       if (!snapshot?.payload) return null;
       const messages = records.filter(record => record.kind === "message" && record.storyId === storyId && record.chapterId === target.chapterId)
         .sort((a, b) => Number(a.seq || 0) - Number(b.seq || 0))
-        .map(record => ({ ...(record.messageId ? { id: record.messageId } : {}), role: record.role, content: record.content }));
+        .map(record => ({ ...(record.messageId ? { id: record.messageId } : {}), role: record.role, content: record.content, createdAt: record.createdAt }));
       const payload = this.clone(snapshot.payload);
       payload.chat = payload.chat || {};
       payload.chat.messages = messages;

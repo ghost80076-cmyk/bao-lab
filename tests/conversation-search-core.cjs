@@ -2,10 +2,10 @@ const assert = require('node:assert/strict');
 const core = require('../js/conversation-search-core.js');
 
 const messages = [
-  { id: 'u1', role: 'user', content: '我在雨夜走進港口。' },
-  { id: 'a1', role: 'assistant', content: '林沉風撐著傘，在港口等你。' },
-  { id: 'u2', role: 'user', content: '我問他，那封信還留著嗎？' },
-  { id: 'a2', role: 'assistant', content: '「一直都在。」他把信放在桌上。' }
+  { id: 'u1', role: 'user', content: '我在雨夜走進港口。', createdAt: '2026-09-01T12:00:00.000Z' },
+  { id: 'a1', role: 'assistant', content: '林沉風撐著傘，在港口等你。', createdAt: '2026-10-02T12:00:00.000Z' },
+  { id: 'u2', role: 'user', content: '我問他，那封信還留著嗎？', createdAt: '2026-10-03T08:00:00.000Z' },
+  { id: 'a2', role: 'assistant', content: '「一直都在。」他把信放在桌上。', createdAt: '2026-09-15T12:00:00.000Z' }
 ];
 
 assert.equal(core.normalize('ＡＢＣ  雨夜'), 'abc 雨夜');
@@ -23,6 +23,15 @@ assert.equal(player.results[0].turn, 2);
 const assistant = core.search({ messages, query: '信', role: 'assistant' });
 assert.equal(assistant.total, 1);
 assert.equal(assistant.results[0].id, 'a2');
+
+const recentPort = core.search({ messages, query: '港口', date: '7d', now: '2026-10-03T12:00:00.000Z' });
+assert.equal(recentPort.total, 1);
+assert.equal(recentPort.results[0].id, 'a1');
+
+const todayLetter = core.search({ messages, query: '信', date: 'today', now: '2026-10-03T12:00:00.000Z' });
+assert.equal(todayLetter.total, 1);
+assert.equal(todayLetter.results[0].id, 'u2');
+assert.equal(core.dateThreshold('30d', '2026-10-03T12:00:00.000Z'), Date.parse('2026-09-03T12:00:00.000Z'));
 
 const greetingStored = core.search({
   messages: [{ id: 'g1', role: 'assistant', content: '歡迎回到港口。', greeting: true }, ...messages],

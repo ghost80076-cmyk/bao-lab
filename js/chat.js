@@ -29,11 +29,13 @@ const Chat = {
     return `msg-${random}`;
   },
   normalizeMessage(message = {}) {
+    const createdAt = String(message.createdAt || '').trim();
     return {
       ...message,
       id: String(message.id || this.createMessageId()),
       role: String(message.role || "assistant"),
-      content: String(message.content || "")
+      content: String(message.content || ""),
+      createdAt: Number.isNaN(Date.parse(createdAt)) ? new Date().toISOString() : createdAt
     };
   },
   ensureMessageIds(messages = this.messages) {
