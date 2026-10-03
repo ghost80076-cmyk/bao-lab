@@ -295,11 +295,11 @@
           </section>
 
           <section class="explore-filter-group" aria-labelledby="explore-category-label">
-            <h4 id="explore-category-label">角色</h4>
+            <h4 id="explore-category-label">作品定位</h4>
             <div class="explore-option-row">
               <button type="button" data-explore-category="all">全部</button>
-              <button type="button" data-explore-category="male">男性角色</button>
-              <button type="button" data-explore-category="female">女性角色</button>
+              <button type="button" data-explore-category="male">男性向</button>
+              <button type="button" data-explore-category="female">女性向</button>
             </div>
           </section>
 
