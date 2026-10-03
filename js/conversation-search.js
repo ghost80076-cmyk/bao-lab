@@ -13,7 +13,7 @@
     if (document.querySelector('link[href^="css/conversation-search.css"]')) return;
     const link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = 'css/conversation-search.css?v=3';
+    link.href = 'css/conversation-search.css?v=4';
     document.head.append(link);
   };
 
@@ -25,7 +25,8 @@
   const turnLabel = result => {
     const turn = result.index < 0 ? '故事開場' : `第 ${Math.max(1, result.turn)} 輪 · ${roleLabel(result.role)}`;
     const date = dateLabel(result.createdAt);
-    return [result.chapterLabel, turn, date].filter(Boolean).join(' · ');
+    const changes = (result.changes || []).map(value => value === 'memory' ? '記憶更新' : '狀態更新');
+    return [result.chapterLabel, turn, date, ...changes].filter(Boolean).join(' · ');
   };
 
   const sameConnection = (left = {}, right = {}) => {
@@ -89,6 +90,7 @@
   const activeRole = () => dialog?.querySelector('[data-search-role].active')?.dataset.searchRole || 'all';
   const activeDate = () => dialog?.querySelector('[data-search-date].active')?.dataset.searchDate || 'all';
   const activeChapter = () => dialog?.querySelector('[data-search-chapter]')?.value || 'all';
+  const activeChange = () => dialog?.querySelector('[data-search-change].active')?.dataset.searchChange || 'all';
 
   const render = () => {
     if (!dialog) return;
@@ -100,7 +102,7 @@
       status.textContent = '正在整理這本故事的章節…';
       return;
     }
-    if (!query.trim()) {
+    if (!query.trim() && activeChange() === 'all') {
       status.textContent = '輸入人物、地點、台詞或事件關鍵字。';
       const empty = document.createElement('p');
       empty.className = 'conversation-search-empty';
@@ -124,6 +126,7 @@
       role: activeRole(),
       date: activeDate(),
       chapter: activeChapter(),
+      change: activeChange(),
       limit: 100
     });
     status.textContent = found.total
@@ -218,6 +221,11 @@
           <button type="button" data-search-date="7d">近 7 天</button>
           <button type="button" data-search-date="30d">近 30 天</button>
         </div>
+        <div class="conversation-search-filters conversation-search-date-filters" aria-label="變化類型">
+          <button type="button" class="active" data-search-change="all">全部內容</button>
+          <button type="button" data-search-change="memory">記憶更新</button>
+          <button type="button" data-search-change="state">狀態更新</button>
+        </div>
         <p class="conversation-search-status" data-search-status aria-live="polite"></p>
         <div class="conversation-search-results" data-search-results></div>
       </section>`;
@@ -231,6 +239,10 @@
     }));
     dialog.querySelectorAll('[data-search-date]').forEach(button => button.addEventListener('click', () => {
       dialog.querySelectorAll('[data-search-date]').forEach(item => item.classList.toggle('active', item === button));
+      render();
+    }));
+    dialog.querySelectorAll('[data-search-change]').forEach(button => button.addEventListener('click', () => {
+      dialog.querySelectorAll('[data-search-change]').forEach(item => item.classList.toggle('active', item === button));
       render();
     }));
     dialog.addEventListener('click', event => { if (event.target === dialog) close(); });

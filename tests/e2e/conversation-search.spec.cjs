@@ -61,6 +61,12 @@ test('searches every chapter and safely switches to an older result', async ({ p
     Storage.saveStory();
     await BAOStoryLibrary.flush();
     const first = { ...BAOStoryLibrary.refs() };
+    Chat.add('user', '我沿著鐘聲走向高處。');
+    Chat.add('assistant', '鐘樓的門在雨中打開。');
+    Chat.summary = '玩家從港口走到了鐘樓。';
+    GameState.current.location = '鐘樓';
+    Storage.saveStory();
+    await BAOStoryLibrary.flush();
 
     BAOStoryLibrary.beginChapter('第二章');
     App.config.api = { protocol: 'openai', model: 'mock-two', baseUrl: 'https://other.invalid', key: 'SECOND-CHAPTER-SECRET' };
@@ -82,6 +88,13 @@ test('searches every chapter and safely switches to an older result', async ({ p
   const chapterSelect = dialog.getByLabel('章節');
   await expect(chapterSelect).toBeVisible();
   await expect(chapterSelect.locator('option')).toHaveCount(3);
+  await dialog.getByRole('button', { name: '記憶更新' }).click();
+  await expect(dialog.locator('[data-search-status]')).toHaveText('找到 1 則');
+  await expect(dialog.locator('.conversation-search-result-meta')).toContainText('記憶更新');
+  await dialog.getByRole('button', { name: '狀態更新' }).click();
+  await expect(dialog.locator('[data-search-status]')).toHaveText('找到 1 則');
+  await expect(dialog.locator('.conversation-search-result-meta')).toContainText('狀態更新');
+  await dialog.getByRole('button', { name: '全部內容' }).click();
   await dialog.getByRole('searchbox').fill('港口');
   await expect(dialog.locator('[data-search-status]')).toHaveText('找到 2 則');
   await expect(dialog.locator('.conversation-search-result-meta')).toHaveText([/序章/, /第二章/]);

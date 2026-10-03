@@ -23,6 +23,35 @@
       catch { return JSON.parse(JSON.stringify(value == null ? null : value)); }
     },
 
+    stableValue(value) {
+      if (Array.isArray(value)) return value.map(item => this.stableValue(item));
+      if (!value || typeof value !== "object") return value;
+      return Object.keys(value).sort().reduce((output, key) => {
+        output[key] = this.stableValue(value[key]);
+        return output;
+      }, {});
+    },
+
+    checkpointSignatures(payload = {}) {
+      const rawState = payload.state && typeof payload.state === "object" ? payload.state : {};
+      const state = {};
+      Object.keys(rawState).forEach(key => {
+        if (["config", "memory", "memorySlots", "pendingStateTurns"].includes(key)) return;
+        state[key] = rawState[key];
+      });
+      const summary = String(payload.chat?.summary || "");
+      const memory = {
+        summary,
+        records: Array.isArray(rawState.memory) ? rawState.memory : [],
+        slots: Array.isArray(rawState.memorySlots) ? rawState.memorySlots : []
+      };
+      return {
+        state: JSON.stringify(this.stableValue(state)),
+        memory: JSON.stringify(this.stableValue(memory)),
+        hasSummary: Boolean(summary.trim())
+      };
+    },
+
     id(prefix) {
       if (globalThis.crypto?.randomUUID) return prefix + "-" + crypto.randomUUID();
       return prefix + "-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 10);
@@ -372,6 +401,18 @@
         .map(record => ({ chapterId: record.chapterId, label: record.label || "章節", createdAt: record.createdAt || "" }));
       const records = [];
       chapters.forEach(chapter => {
+        const changesBySequence = new Map();
+        let previous = null;
+        all.filter(record => record.kind === "checkpoint" && record.storyId === storyId && record.chapterId === chapter.chapterId)
+          .sort((a, b) => Number(a.seq || 0) - Number(b.seq || 0))
+          .forEach(checkpoint => {
+            const current = this.checkpointSignatures(checkpoint.payload || {});
+            const changes = [];
+            if (previous && current.state !== previous.state) changes.push("state");
+            if ((previous && current.memory !== previous.memory) || (!previous && current.hasSummary)) changes.push("memory");
+            changesBySequence.set(Number(checkpoint.seq || 0), changes);
+            previous = current;
+          });
         let turn = 0;
         all.filter(record => record.kind === "message" && record.storyId === storyId && record.chapterId === chapter.chapterId)
           .sort((a, b) => Number(a.seq || 0) - Number(b.seq || 0))
@@ -386,7 +427,8 @@
               content: String(record.content || ""),
               createdAt: String(record.createdAt || ""),
               chapterId: chapter.chapterId,
-              chapterLabel: chapter.label
+              chapterLabel: chapter.label,
+              changes: changesBySequence.get(Number(record.seq || 0)) || []
             });
           });
       });

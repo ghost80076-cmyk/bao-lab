@@ -35,6 +35,14 @@ const secondChapter = core.search({ records: chapterRecords, query: '信', chapt
 assert.equal(secondChapter.total, 2);
 assert.equal(secondChapter.results.every(item => item.chapterId === 'chapter-2'), true);
 
+const changeRecords = chapterRecords.map(record => record.id === 'a1' ? { ...record, changes: ['memory', 'state'] } : record);
+const stateChanges = core.search({ records: changeRecords, query: '', change: 'state' });
+assert.equal(stateChanges.total, 1);
+assert.equal(stateChanges.results[0].id, 'a1');
+const memoryPort = core.search({ records: changeRecords, query: '港口', change: 'memory' });
+assert.equal(memoryPort.total, 1);
+assert.deepEqual(core.search({ records: changeRecords, query: '' }), { total: 0, results: [], truncated: false });
+
 const recentPort = core.search({ messages, query: '港口', date: '7d', now: '2026-10-03T12:00:00.000Z' });
 assert.equal(recentPort.total, 1);
 assert.equal(recentPort.results[0].id, 'a1');
