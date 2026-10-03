@@ -86,6 +86,7 @@ assert.equal(originalCard.system_prompt, '原角色設定');
   assert.equal(App.characters[0].name, '人物庫新版本');
   assert.equal(App.config.persona.name, '玩家乙');
   assert.equal(state.current.storyActors.hostedCharacters.length, 3);
-  assert.equal(state.current.storyActors.hostedCharacters[1].name, '旅館老闆');\n  assert.equal(state.current.storyActors.hostedCharacters[2].name, '成人官方角色');
+  assert.equal(state.current.storyActors.hostedCharacters[1].name, '旅館老闆');
+  assert.equal(state.current.storyActors.hostedCharacters[2].name, '成人官方角色');
   console.log('story persona core: author-editor safety, multiple AI actors and save/restore passed');
 })().catch(error => { console.error(error); process.exitCode = 1; });
