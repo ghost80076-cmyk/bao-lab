@@ -288,5 +288,37 @@
     "updated_at": "2026-09-28T13:09:37Z",
     "published_version": 1,
     "version_published_at": "2026-09-28T13:09:37Z"
+  },
+  {
+    "id": "narcissus-simulator",
+    "file": "data/characters/general/narcissus-simulator.json",
+    "name": "水仙模擬器｜與另一個自己的深度探索",
+    "title": "水仙模擬器｜與另一個自己的深度探索",
+    "avatar": "assets/narcissus-simulator-cover.webp",
+    "category": "general",
+    "rating": "general",
+    "gender": "all",
+    "tags": [
+      "自我探索",
+      "情感治癒",
+      "鏡像關係",
+      "自主NPC",
+      "多人生階段",
+      "長篇關係",
+      "互動敘事"
+    ],
+    "description": "建立另一個自己——現在的你、過去的你、性轉的你、理想中的你，或從未成為的你。讓他／她成為獨立的人，與你相遇、相愛、衝突、和解；有時你會因此發現：原來那時候的我，也值得被愛。",
+    "supported_modes": {
+      "immersive": true,
+      "world": true
+    },
+    "supported_display": {
+      "text": true,
+      "ui": true
+    },
+    "published_at": "2026-10-03T11:30:00Z",
+    "updated_at": "2026-10-03T11:30:00Z",
+    "published_version": 1,
+    "version_published_at": "2026-10-03T11:30:00Z"
   }
 ]
