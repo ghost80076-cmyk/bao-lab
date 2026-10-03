@@ -113,10 +113,14 @@ assert.equal(
   LEGACY_BILLING_MODE
 );
 
-for (const mode of ["closed", "invite", "open"]) {
+for (const mode of ["closed", "open"]) {
   assert.equal(WorkerRuntimeConfig.registrationMode({ REGISTRATION_MODE: mode }), mode);
 }
-assert.equal(WorkerRuntimeConfig.registrationMode({}), "closed");
+assert.equal(WorkerRuntimeConfig.registrationMode({}), "open");
+assert.equal(
+  WorkerRuntimeConfig.registrationMode({ REGISTRATION_MODE: "invite" }),
+  "open"
+);
 assert.equal(
   WorkerRuntimeConfig.registrationMode({ REGISTRATION_MODE: "OPEN" }),
   "open"

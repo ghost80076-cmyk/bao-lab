@@ -59,22 +59,6 @@ const request = body => new Request("https://api.example.test/auth", {
   assert.equal(badRegister.status, 400);
   assert.equal((await badRegister.json()).error, "invalid_registration");
 
-  const badInvite = await authRegister(
-    request({
-      username: "valid-user",
-      display_name: "Valid User",
-      password: "long-enough-password",
-      invite_code: "wrong",
-    }),
-    {
-      REGISTRATION_MODE: "invite",
-      REGISTRATION_INVITE_CODE: "right-code",
-    },
-    noDb
-  );
-  assert.equal(badInvite.status, 403);
-  assert.equal((await badInvite.json()).error, "invalid_invite_code");
-
   const badLogin = await authLogin(
     request({ username: "x", password: "short" }),
     {},
