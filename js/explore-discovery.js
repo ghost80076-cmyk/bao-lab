@@ -557,21 +557,10 @@
         else delete tags.dataset.hiddenCount;
       }
 
-      let meta = content.querySelector(".explore-card-capabilities");
-      const labels = core.capabilityLabels(character);
-      if (!labels.length) {
-        meta?.remove();
-        return;
-      }
-
-      if (!meta) {
-        meta = document.createElement("div");
-        meta.className = "explore-card-capabilities";
-        const tags = content.querySelector(".tags");
-        if (tags) tags.insertAdjacentElement("beforebegin", meta);
-        else content.appendChild(meta);
-      }
-      meta.innerHTML = labels.map(label => `<span>${App.escapeHTML(label)}</span>`).join("");
+      // Capability metadata already has a compact card row in the gallery presentation.
+      // Keep these labels available to filters and the work preview, but never inject a
+      // second "世界模擬 / 互動 UI" row over the poster.
+      content.querySelector(".explore-card-capabilities")?.remove();
     });
   };
 

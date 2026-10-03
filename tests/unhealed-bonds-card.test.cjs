@@ -11,9 +11,12 @@ const webpDimensions=file=>{
 const card=require('../data/characters/general/unhealed-bonds.json');
 const manifest=require('../data/characters.json');
 
-assert.ok(manifest.some(entry=>entry.id===card.meta.id),'manifest should include unhealed-bonds');
-assert.equal(card.meta.category,'r18');
-assert.equal(card.meta.rating,'adult');
+const manifestEntry=manifest.find(entry=>entry.id===card.meta.id);
+assert.ok(manifestEntry,'manifest should include unhealed-bonds');
+assert.equal(manifestEntry.category,'female');
+assert.equal(manifestEntry.rating,'general');
+assert.equal(card.meta.category,'female');
+assert.equal(card.meta.rating,'general');
 assert.equal(card.meta.gender,'male');
 assert.ok(fs.existsSync(path.join(__dirname,'..',card.meta.avatar)),'generated cover/avatar asset should exist');
 assert.match(card.meta.avatar,/\.webp$/,'published cover should use a direct browser image instead of an embedded SVG thumbnail');
@@ -57,4 +60,4 @@ assert.match(card.content.author_instructions,/親密度/);
 assert.ok(card.content.system_prompt.length<700,'recurring relationship core should stay compact');
 assert.doesNotMatch(JSON.stringify(card),/金泳勳|李賢在|李柱延|池昌民|金善旴|孫英宰|TBZ/);
 
-console.log('PASS Unhealed Bonds card, adult cast, relationship axes, opening UI and generated art');
+console.log('PASS Unhealed Bonds general women-oriented card, adult cast, relationship axes, opening UI and generated art');

@@ -163,6 +163,20 @@ test('explore surfaces player-relative NEW and UPDATED from explicit published v
   const target = page.locator('#character-list [data-character-id="night-sky-magic-academy"]');
   await expect(target).toBeVisible();
   await expect(target.locator('.explore-update-badge')).toHaveText('NEW');
+  await expect(target.locator('.explore-card-capabilities')).toHaveCount(0);
+
+  await page.waitForFunction(() =>
+    [...document.styleSheets].some(sheet => String(sheet.href || '').includes('bao-editorial-cinema.css'))
+  );
+  const badgeLayout = await target.evaluate(card => {
+    const category = card.querySelector('.category-badge')?.getBoundingClientRect();
+    const update = card.querySelector('.explore-update-badge')?.getBoundingClientRect();
+    return category && update
+      ? { categoryBottom: category.bottom, updateTop: update.top }
+      : null;
+  });
+  expect(badgeLayout).not.toBeNull();
+  expect(badgeLayout.updateTop).toBeGreaterThanOrEqual(badgeLayout.categoryBottom + 2);
 
   await chooseFilter(page, '有近期更新');
   await expect(target).toBeVisible();
