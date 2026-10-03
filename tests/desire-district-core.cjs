@@ -10,7 +10,7 @@ assert.equal(registry.filter(entry => entry.id === 'desire-district').length, 1,
 const card = JSON.parse(fs.readFileSync(path.join(root, item.file), 'utf8'));
 assert.equal(card.schema_version, '1.5');
 assert.equal(card.meta.id, item.id);
-assert.equal(card.meta.category, 'r18');
+assert.equal(card.meta.category, 'general');
 assert.equal(card.meta.rating, 'adult');
 assert.equal(card.meta.avatar, 'https://i.meee.com.tw/nfkc3T3.jpg');
 assert.ok(card.content.greeting.includes('貓姐兒'));
