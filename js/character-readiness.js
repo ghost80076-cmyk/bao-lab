@@ -25,8 +25,8 @@
     const presentation = raw.presentation || {};
     const explicitCategory = asText(raw.category || meta.category).toLowerCase();
 
-    if (explicitCategory && !["male", "female", "r18"].includes(explicitCategory)) {
-      warnings.push("category 建議明確使用 male、female 或 r18，避免依舊格式推斷。");
+    if (explicitCategory && !["general", "male", "female", "r18"].includes(explicitCategory)) {
+      warnings.push("category 建議使用 general、female 或 male；舊 r18 只作相容讀取。");
     }
     if (!asText(c.description)) warnings.push("缺少角色列表簡介 description；不影響執行，但玩家難以理解作品定位。");
     if (!asText(c.avatar)) warnings.push("缺少 avatar；會使用預設圖片。");
@@ -34,7 +34,7 @@
 
     const identityParts = [
       Boolean(asText(c.id)), Boolean(asText(c.name)),
-      ["male", "female", "r18"].includes(c.category),
+      ["general", "male", "female"].includes(c.category),
       Boolean(asText(c.description)), Boolean(asText(c.avatar))
     ];
     addSection("identity", "角色識別", 15, identityParts.filter(Boolean).length / identityParts.length,
