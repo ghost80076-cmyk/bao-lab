@@ -362,6 +362,47 @@
     };
   }
 
+  function actorSummary(input = null) {
+    if (!input || typeof input !== "object") return null;
+    const enabled = input.enabled === true;
+    const roleActive = input.roleActive === true;
+    const roleLabel = text(input.roleLabel);
+    const actorName = text(input.actorName);
+    const item = inventoryItem({
+      id: "actor-mode",
+      label: "🎭 演員模式",
+      detail: roleActive
+        ? (roleLabel ? "目前戲中身份：" + roleLabel : "目前正在扮演；角色由故事內自然成立")
+        : "角色本體與戲中身份分離；目前停留在角色本體",
+      status: enabled ? "啟用" : "未啟用",
+      state: enabled ? "active" : "paused"
+    });
+    return {
+      id: "actor",
+      eyebrow: "角色層 MOD",
+      title: enabled
+        ? (roleActive && roleLabel ? "演員模式 · " + roleLabel : "演員模式已啟用")
+        : "演員模式未啟用",
+      detail: enabled
+        ? (actorName ? actorName + " 保留本體，同時維持獨立的戲中角色層" : "角色本體與戲中身份分離")
+        : "讓同一個角色以演員身分進入另一個長期身份，而不是把原角色覆蓋掉",
+      scopes: ["主提示詞", "不增加模型請求", "故事內"],
+      ownership: ownership({
+        sources: [source("platform", "夜灣內建", 1)],
+        storage: "故事存檔",
+        appliesTo: "目前故事",
+        control: "玩家明確啟用；停止扮演只退出戲中身份，不刪除角色本體",
+        permissions: [
+          "演員知道 ≠ 戲中角色知道",
+          "已成立角色具有慣性",
+          "不取代世界引擎與 NPC 自主性"
+        ]
+      }),
+      inventory: [inventoryGroup("platform", "夜灣官方示範", [item])],
+      active: enabled
+    };
+  }
+
   function overview(input = {}) {
     const cards = [
       worldSummary(input.world, input.worldInventory),
@@ -369,6 +410,8 @@
       replaceSummary(input.replace),
       regexSummary(input.regex, input.authorRegex)
     ];
+    const actor = actorSummary(input.actor);
+    if (actor) cards.push(actor);
     const commentary = commentarySummary(input.commentary);
     if (commentary) cards.push(commentary);
     const interpretation = interpretationSummary(input.interpretation);
@@ -397,6 +440,7 @@
     regexSummary,
     commentarySummary,
     interpretationSummary,
+    actorSummary,
     overview
   });
 });

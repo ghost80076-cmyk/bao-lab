@@ -295,4 +295,34 @@ const core = require("../js/story-extensions-core.js");
   assert.match(overview.detail, /雙向解讀/);
 }
 
+
+{
+  const actor = core.actorSummary({
+    enabled: true,
+    roleActive: true,
+    roleLabel: "有戒心的新鄰居",
+    actorName: "鏡月"
+  });
+  assert.equal(actor.title, "演員模式 · 有戒心的新鄰居");
+  assert.deepEqual(actor.scopes, ["主提示詞", "不增加模型請求", "故事內"]);
+  assert.match(actor.detail, /鏡月/);
+  assert.match(actor.ownership.permissions.join(" · "), /演員知道 ≠ 戲中角色知道/);
+  assert.equal(actor.inventory[0].items[0].status, "啟用");
+  assert.equal(actor.active, true);
+}
+
+{
+  const overview = core.overview({
+    actor: {
+      enabled: true,
+      roleActive: false,
+      roleLabel: "",
+      actorName: "鏡月"
+    }
+  });
+  assert.equal(overview.cards.length, 5);
+  assert.equal(overview.activeCount, 1);
+  assert.match(overview.detail, /角色層 MOD/);
+}
+
 console.log("story extensions core test passed");

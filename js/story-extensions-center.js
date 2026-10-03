@@ -54,7 +54,8 @@
       regex,
       authorRegex: readAuthorRegex(),
       commentary: window.BAOCommentaryMods?.summary?.() || null,
-      interpretation: window.BAOInterpretationMods?.summary?.() || null
+      interpretation: window.BAOInterpretationMods?.summary?.() || null,
+      actor: window.BAOActorMode?.summary?.() || null
     });
   };
 
@@ -94,6 +95,10 @@
     interpretation() {
       if (window.BAOInterpretationMods?.open) window.BAOInterpretationMods.open();
       else window.BAOFeedback?.notify?.("雙向解讀 MOD 仍在載入。", "error");
+    },
+    actor() {
+      if (window.BAOActorMode?.open) window.BAOActorMode.open();
+      else window.BAOFeedback?.notify?.("演員模式仍在載入。", "error");
     }
   };
 
