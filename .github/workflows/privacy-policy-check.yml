@@ -1,37 +1,56 @@
-name: Published privacy policy
+name: Published policy center
 
 on:
   push:
     branches: [main]
     paths:
-      - privacy.html
       - index.html
+      - account.html
+      - policies.html
+      - terms.html
+      - privacy.html
+      - age-content-policy.html
+      - lights-refund-policy.html
+      - creator-policy.html
+      - css/policy.css
       - .github/workflows/privacy-policy-check.yml
   workflow_dispatch:
 
 jobs:
-  privacy:
+  policies:
     runs-on: ubuntu-latest
     timeout-minutes: 8
     steps:
       - uses: actions/checkout@v4
-      - name: Check committed policy and homepage link
+      - name: Check committed policy center
         run: |
-          grep -Fq 'href="privacy.html"' index.html
-          grep -Fq '夜灣隱私權政策' privacy.html
+          node tests/policy-center-core.cjs
           grep -Fq 'https://www.googleapis.com/auth/drive.appdata' privacy.html
-      - name: Verify the policy and link are live on GitHub Pages
+          grep -Fq '購買前查看燈火與退款政策' account.html
+      - name: Verify policy center is live on GitHub Pages
         run: |
           set -euo pipefail
           root='https://yorubay.com/'
+          pages=(
+            'policies.html'
+            'terms.html'
+            'privacy.html'
+            'age-content-policy.html'
+            'lights-refund-policy.html'
+            'creator-policy.html'
+          )
           for attempt in $(seq 1 24); do
-            if curl -fsSL --max-time 15 "$root" | grep -Fq 'href="privacy.html"' \
-              && curl -fsSL --max-time 15 "${root}privacy.html" | grep -Fq '夜灣隱私權政策'; then
-              echo 'PASS: published homepage links to the live privacy policy.'
+            ok=1
+            curl -fsSL --max-time 15 "$root" | grep -Fq 'href="terms.html"' || ok=0
+            for page in "${pages[@]}"; do
+              curl -fsSL --max-time 15 "${root}${page}" | grep -Fq '夜灣' || ok=0
+            done
+            if [ "$ok" -eq 1 ]; then
+              echo 'PASS: published policy center is live and linked.'
               exit 0
             fi
             echo "Waiting for GitHub Pages deployment ($attempt/24) ..."
             sleep 10
           done
-          echo 'FAIL: privacy policy or homepage link was not visible on the published site.' >&2
+          echo 'FAIL: policy center or homepage links were not visible on the published site.' >&2
           exit 1
