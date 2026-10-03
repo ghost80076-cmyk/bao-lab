@@ -254,6 +254,11 @@ function githubResponse(authors) {
   assert.match(accountHtml, /\/me\/authors\/claim/);
   assert.match(accountHtml, /\/me\/authors\/profile-pr/);
   assert.match(accountHtml, /夜灣不代收、不轉金流、不抽成/);
+  assert.match(accountHtml, /<b>我的消費<\/b>/);
+  assert.match(accountHtml, /readLocalUsageEntries/);
+  assert.match(accountHtml, /indexedDB\.open\("bao-lab"\)/);
+  assert.match(accountHtml, /不會額外查詢夜灣伺服器/);
+  assert.doesNotMatch(accountHtml, /\/me\/usage|\/me\/wallet-ledger/);
   assert.match(workerSource, /CREATE TABLE IF NOT EXISTS author_ownerships/);
   assert.match(workerSource, /author_identity_not_owned/);
 
