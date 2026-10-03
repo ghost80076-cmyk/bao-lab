@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "type": "yorubay-author-regex-mod",
+  "scope": "assistant_display",
+  "characterId": "dark-military-war-simulator",
+  "regex_scripts": [
+    {
+      "scriptName": "黑暗軍旅｜徵召令",
+      "description": "把開場標記轉成鐵灰軍令閱讀卡；只改顯示，不改 Prompt、記憶、骰點與世界狀態。",
+      "priority": 80,
+      "findRegex": "【YB:WAR:OPENING】\\s*([\\s\\S]*?)\\s*【/YB:WAR:OPENING】",
+      "flags": "g",
+      "replaceString": "<style>.yb-war-opening{font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif;background:linear-gradient(145deg,#17191c,#25282d);color:#e6e2da;border:1px solid #555b61;border-left:4px solid #8f3e3e;border-radius:16px;padding:20px;box-shadow:0 14px 34px rgba(0,0,0,.3);line-height:1.9;white-space:pre-wrap}.yb-war-opening:before{content:\"IMPERIAL FIELD OFFICE · CONSCRIPTION FILE\";display:block;color:#c9b38c;font-size:11px;letter-spacing:.14em;margin-bottom:10px}.yb-war-opening strong{color:#e6c9a2}</style><section class=\"yb-war-opening\">$1</section>"
+    },
+    {
+      "scriptName": "黑暗軍旅｜檢定報告",
+      "description": "把 TRPG 檢定標記轉成戰地紀錄卡；骰點與結果仍由故事狀態記錄。",
+      "priority": 60,
+      "findRegex": "【YB:WAR:CHECK】\\s*([\\s\\S]*?)\\s*【/YB:WAR:CHECK】",
+      "flags": "g",
+      "replaceString": "<style>.yb-war-check{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;background:#1c1f22;color:#d8d6d0;border:1px solid #4b5055;border-left:3px solid #b08a5b;border-radius:12px;padding:12px 14px;line-height:1.75;white-space:pre-wrap}.yb-war-check:before{content:\"1D100 FIELD CHECK\";display:block;color:#c9b38c;font-weight:700;font-size:12px;margin-bottom:6px}</style><section class=\"yb-war-check\">$1</section>"
+    },
+    {
+      "scriptName": "黑暗軍旅｜可用行動",
+      "description": "把文字中的決策節點整理成軍令選單；真正的快速草稿由夜灣原生 Gameplay UI 行動面板提供。",
+      "priority": 40,
+      "findRegex": "【YB:WAR:ACTIONS】\\s*([\\s\\S]*?)\\s*【/YB:WAR:ACTIONS】",
+      "flags": "g",
+      "replaceString": "<style>.yb-war-actions{font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif;background:linear-gradient(135deg,#24272b,#191b1e);color:#e3dfd6;border:1px solid #50555a;border-radius:14px;padding:14px 16px;line-height:1.8;white-space:pre-wrap}.yb-war-actions:before{content:\"下一步行動\";display:block;color:#c9b38c;font-weight:700;margin-bottom:7px}.yb-war-actions:after{content:\"可直接自由輸入，不受選項限制。\";display:block;color:#989a9c;font-size:12px;margin-top:8px}</style><section class=\"yb-war-actions\">$1</section>"
+    }
+  ]
+}
