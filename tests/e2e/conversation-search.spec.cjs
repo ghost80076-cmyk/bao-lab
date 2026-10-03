@@ -14,7 +14,8 @@ test('searches the current local story and jumps to the selected message', async
     GameState.create(App.activeCharacter, App.config);
     Chat.reset();
     const greeting = Chat.add('assistant', App.activeCharacter.greeting); greeting.greeting = true;
-    Chat.add('user', '我在雨夜走進港口。');
+    const oldPort = Chat.add('user', '我在雨夜走進港口。');
+    oldPort.createdAt = new Date(Date.now() - 10 * 86400000).toISOString();
     Chat.add('assistant', '他撐著傘，在港口等你。');
     Chat.add('user', '我問起那封信。');
     Chat.add('assistant', '他把那封信放在桌上。');
@@ -29,6 +30,11 @@ test('searches the current local story and jumps to the selected message', async
   await dialog.getByRole('searchbox').fill('港口');
   await expect(dialog.locator('[data-search-status]')).toHaveText('找到 2 則');
   await expect(dialog.locator('.conversation-search-result')).toHaveCount(2);
+  await dialog.getByRole('button', { name: '近 7 天' }).click();
+  await expect(dialog.locator('[data-search-status]')).toHaveText('找到 1 則');
+  await expect(dialog.locator('.conversation-search-result-meta')).toContainText('AI');
+  await dialog.getByRole('button', { name: '全部日期' }).click();
+  await expect(dialog.locator('[data-search-status]')).toHaveText('找到 2 則');
   await dialog.getByRole('button', { name: '只看 AI' }).click();
   await expect(dialog.locator('[data-search-status]')).toHaveText('找到 1 則');
   await dialog.locator('.conversation-search-result').click();

@@ -200,6 +200,7 @@ function makeContext() {
   await Storage.ready();
   assert.equal(Storage.status().mode, "indexedDB");
   assert.equal(Storage.loadStory().label, "legacy-auto");
+  assert.equal(Storage.loadStory().chat.messages[0].createdAt, legacyAuto.savedAt, "legacy messages inherit the save time for date search");
   assert.equal(Storage.listSlots().length, 2);
   assert.ok(Storage.listSlots().some(item => item.id === queuedDuringMigration.id), "pending slot survives migration");
   assert.ok(Storage.listSlots().some(item => item.id === "slot-1"));

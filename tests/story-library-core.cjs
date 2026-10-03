@@ -177,6 +177,7 @@ vm.runInThisContext(code, { filename: "js/story-library.js" });
   assert.equal(restored.chat.messages.length, 2);
   assert.equal(restored.chat.messages[1].content, "第一章回覆");
   assert.deepEqual(restored.chat.messages.map(message => message.id), ["msg-first-user", "msg-first-assistant"]);
+  assert.equal(restored.chat.messages.every(message => !Number.isNaN(Date.parse(message.createdAt))), true);
   assert.equal(restored.config.api.key, "");
   assert.equal(restored._library.storyId, firstRefs.storyId);
 
@@ -196,6 +197,7 @@ vm.runInThisContext(code, { filename: "js/story-library.js" });
   assert.equal(branchRefs.parentChapterId, firstRefs.chapterId);
   assert.equal(branchRefs.branchPointMessageId, "msg-first-assistant");
   assert.equal(branch.chat.messages.length, 2);
+  assert.deepEqual(branch.chat.messages.map(message => message.createdAt), restored.chat.messages.map(message => message.createdAt));
   assert.equal(branch.state.time, "夜晚");
   assert.deepEqual(branch.chat.usage, {});
   assert.equal(branch.config.api.key, "");
