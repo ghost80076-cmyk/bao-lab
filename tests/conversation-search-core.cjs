@@ -24,6 +24,17 @@ const assistant = core.search({ messages, query: '信', role: 'assistant' });
 assert.equal(assistant.total, 1);
 assert.equal(assistant.results[0].id, 'a2');
 
+const chapterRecords = [
+  ...core.messageRecords({ messages: messages.slice(0, 2), chapterId: 'chapter-1', chapterLabel: '序章' }),
+  ...core.messageRecords({ messages: messages.slice(2), chapterId: 'chapter-2', chapterLabel: '第二章' })
+];
+const allChapters = core.search({ records: chapterRecords, query: '港口' });
+assert.equal(allChapters.total, 2);
+assert.deepEqual(allChapters.results.map(item => item.chapterLabel), ['序章', '序章']);
+const secondChapter = core.search({ records: chapterRecords, query: '信', chapter: 'chapter-2' });
+assert.equal(secondChapter.total, 2);
+assert.equal(secondChapter.results.every(item => item.chapterId === 'chapter-2'), true);
+
 const recentPort = core.search({ messages, query: '港口', date: '7d', now: '2026-10-03T12:00:00.000Z' });
 assert.equal(recentPort.total, 1);
 assert.equal(recentPort.results[0].id, 'a1');

@@ -6,12 +6,14 @@
   let dialog = null;
   let queryTimer = 0;
   let returnFocus = null;
+  let storyIndex = null;
+  let scopeLoading = false;
 
   const ensureStyles = () => {
     if (document.querySelector('link[href^="css/conversation-search.css"]')) return;
     const link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = 'css/conversation-search.css?v=2';
+    link.href = 'css/conversation-search.css?v=3';
     document.head.append(link);
   };
 
@@ -23,7 +25,14 @@
   const turnLabel = result => {
     const turn = result.index < 0 ? '故事開場' : `第 ${Math.max(1, result.turn)} 輪 · ${roleLabel(result.role)}`;
     const date = dateLabel(result.createdAt);
-    return date ? `${turn} · ${date}` : turn;
+    return [result.chapterLabel, turn, date].filter(Boolean).join(' · ');
+  };
+
+  const sameConnection = (left = {}, right = {}) => {
+    const url = value => String(value || '').trim().replace(/\/+$/, '').toLowerCase();
+    return String(left.protocol || '') === String(right.protocol || '')
+      && url(left.baseUrl) === url(right.baseUrl)
+      && String(left.model || '') === String(right.model || '');
   };
 
   const locateMessage = index => {
@@ -36,9 +45,8 @@
     return index < 0 ? elements[0] : elements[index + offset];
   };
 
-  const jumpTo = index => {
+  const highlight = index => {
     const target = locateMessage(index);
-    close();
     if (!target) {
       window.BAOFeedback?.notify?.('找得到內容，但目前畫面尚未載入這一輪。', 'error');
       return false;
@@ -50,8 +58,37 @@
     return true;
   };
 
+  const jumpTo = async input => {
+    const result = typeof input === 'number' ? { index: input } : input || {};
+    const Library = window.BAOStoryLibrary;
+    const refs = Library?.refs?.() || {};
+    close();
+    if (!result.chapterId || !refs.storyId || result.chapterId === refs.chapterId) return highlight(result.index);
+    try {
+      App.saveStory?.(false);
+      await Library.flush?.();
+      const save = await Library.reconstruct(refs.storyId, result.chapterId);
+      if (!save) throw new Error('找不到這個章節的完整資料。');
+      const previousApi = { ...(App.config?.api || {}) };
+      const canReuseKey = sameConnection(previousApi, save.config?.api || {});
+      if (!window.Storage?.restoreStory?.(save)) throw new Error('無法切換到這個章節。');
+      App.config.api = { ...(App.config.api || {}), key: canReuseKey ? String(previousApi.key || '') : '' };
+      if (window.GameState?.current) GameState.current.config = App.config;
+      App.renderChatShell(false);
+      App.showView('chat');
+      App.saveStory?.(false);
+      storyIndex = null;
+      if (!canReuseKey) window.BAOFeedback?.notify?.('已切換章節；模型連線不同，繼續故事前請重新連線。', 'info');
+      return highlight(result.index);
+    } catch (error) {
+      window.BAOFeedback?.notify?.(error?.message || '章節切換失敗。', 'error');
+      return false;
+    }
+  };
+
   const activeRole = () => dialog?.querySelector('[data-search-role].active')?.dataset.searchRole || 'all';
   const activeDate = () => dialog?.querySelector('[data-search-date].active')?.dataset.searchDate || 'all';
+  const activeChapter = () => dialog?.querySelector('[data-search-chapter]')?.value || 'all';
 
   const render = () => {
     if (!dialog) return;
@@ -59,6 +96,10 @@
     const status = dialog.querySelector('[data-search-status]');
     const list = dialog.querySelector('[data-search-results]');
     list.replaceChildren();
+    if (scopeLoading) {
+      status.textContent = '正在整理這本故事的章節…';
+      return;
+    }
     if (!query.trim()) {
       status.textContent = '輸入人物、地點、台詞或事件關鍵字。';
       const empty = document.createElement('p');
@@ -67,13 +108,22 @@
       list.append(empty);
       return;
     }
+    const refs = window.BAOStoryLibrary?.refs?.() || {};
+    const source = storyIndex
+      ? { records: storyIndex.records }
+      : {
+          messages: Chat.messages,
+          greeting: App.activeCharacter?.greeting || App.activeCharacter?.content?.greeting || '',
+          greetingCreatedAt: refs.chapterCreatedAt || '',
+          chapterId: refs.chapterId || '',
+          chapterLabel: refs.chapterLabel || ''
+        };
     const found = core.search({
-      messages: Chat.messages,
-      greeting: App.activeCharacter?.greeting || App.activeCharacter?.content?.greeting || '',
-      greetingCreatedAt: window.BAOStoryLibrary?.refs?.().chapterCreatedAt || '',
+      ...source,
       query,
       role: activeRole(),
       date: activeDate(),
+      chapter: activeChapter(),
       limit: 100
     });
     status.textContent = found.total
@@ -82,7 +132,7 @@
     if (!found.results.length) {
       const empty = document.createElement('p');
       empty.className = 'conversation-search-empty';
-      empty.textContent = '換一個關鍵字，或切換「全部／玩家／AI」再找找看。';
+      empty.textContent = '換一個關鍵字，或調整角色、日期與章節範圍再找找看。';
       list.append(empty);
       return;
     }
@@ -97,9 +147,45 @@
       snippet.className = 'conversation-search-result-snippet';
       snippet.textContent = result.snippet;
       button.append(meta, snippet);
-      button.addEventListener('click', () => jumpTo(result.index));
+      button.addEventListener('click', () => { void jumpTo(result); });
       list.append(button);
     });
+  };
+
+  const updateChapterOptions = (chapters = [], currentChapterId = '') => {
+    const select = dialog?.querySelector('[data-search-chapter]');
+    const field = dialog?.querySelector('[data-search-chapter-field]');
+    if (!select || !field) return;
+    select.replaceChildren(new Option('全部章節', 'all'));
+    chapters.forEach(chapter => select.append(new Option(chapter.label || '章節', chapter.chapterId)));
+    select.value = 'all';
+    field.hidden = chapters.length < 2;
+    field.dataset.currentChapter = currentChapterId;
+  };
+
+  const loadStoryIndex = async () => {
+    const Library = window.BAOStoryLibrary;
+    const refs = Library?.refs?.() || {};
+    scopeLoading = true;
+    render();
+    try {
+      if (!refs.storyId || !Library?.conversationSearchIndex) {
+        storyIndex = null;
+        updateChapterOptions([], refs.chapterId || '');
+        return;
+      }
+      App.saveStory?.(false);
+      await Library.flush?.();
+      storyIndex = await Library.conversationSearchIndex(refs.storyId);
+      updateChapterOptions(storyIndex.chapters, refs.chapterId || '');
+    } catch (error) {
+      console.warn('YoruBay conversation chapter index failed:', error);
+      storyIndex = null;
+      updateChapterOptions([], refs.chapterId || '');
+    } finally {
+      scopeLoading = false;
+      render();
+    }
   };
 
   const scheduleRender = () => {
@@ -120,6 +206,7 @@
           <button type="button" class="conversation-search-close" data-search-close aria-label="關閉搜尋">×</button>
         </header>
         <label class="conversation-search-field"><span>關鍵字</span><input type="search" data-search-input autocomplete="off" placeholder="例如：港口、雨夜、那封信"></label>
+        <label class="conversation-search-field conversation-search-chapter-field" data-search-chapter-field hidden><span>章節</span><select data-search-chapter><option value="all">全部章節</option></select></label>
         <div class="conversation-search-filters" aria-label="搜尋範圍">
           <button type="button" class="active" data-search-role="all">全部</button>
           <button type="button" data-search-role="user">只看玩家</button>
@@ -137,6 +224,7 @@
     document.body.append(dialog);
     dialog.querySelector('[data-search-close]').addEventListener('click', close);
     dialog.querySelector('[data-search-input]').addEventListener('input', scheduleRender);
+    dialog.querySelector('[data-search-chapter]').addEventListener('change', render);
     dialog.querySelectorAll('[data-search-role]').forEach(button => button.addEventListener('click', () => {
       dialog.querySelectorAll('[data-search-role]').forEach(item => item.classList.toggle('active', item === button));
       render();
@@ -153,13 +241,15 @@
     return dialog;
   };
 
-  function open() {
+  async function open() {
     ensureStyles();
     const panel = ensureDialog();
     returnFocus = document.activeElement;
     if (!panel.open) panel.showModal();
-    render();
+    storyIndex = null;
+    void loadStoryIndex();
     requestAnimationFrame(() => panel.querySelector('[data-search-input]')?.focus());
+    return panel;
   }
 
   function close() {
