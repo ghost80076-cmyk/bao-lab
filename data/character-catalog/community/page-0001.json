@@ -675,7 +675,7 @@
     "id": "dual-host-system-campus",
     "file": "data/characters/community/17/dual-host-system-campus.json",
     "name": "我成了系統？雙宿主模式",
-    "title": "我成了系統？｜雙宿主 NTL / NTR 模式",
+    "title": "我成了系統？｜雙宿主模式",
     "avatar": "https://i.meee.com.tw/4zlZAMj.jpg",
     "category": "male",
     "rating": "adult",
@@ -683,22 +683,23 @@
     "tags": [
       "男性向",
       "成人內容",
-      "大學校園",
-      "校花",
       "系統扮演",
+      "自訂系統",
       "雙宿主",
-      "NTL",
-      "NTR",
-      "三角關係",
-      "任務系統",
+      "NPC預設",
       "自主宿主",
       "自主NPC",
       "資訊隔離",
       "雙線敘事",
       "世界模擬",
+      "任務系統",
+      "大學校園",
+      "校花",
+      "NTL",
+      "NTR",
       "原生狀態UI"
     ],
-    "description": "這次你不是宿主，而是系統本身。預設同時綁定校花的現任男友與可能介入關係的另一名男生；兩人都不知道對方也有同一個系統，而校花本人不是宿主、也不受你直接控制。你可以向兩邊發布合作、競爭甚至互相衝突的任務，讓 NTL 與 NTR 從同一段關係的兩端同時發生。",
+    "description": "這次玩家不是宿主，而是「系統」本身。先定義自己究竟是哪一種系統、擁有哪些能力與限制，再決定綁定誰；宿主與 NPC 由世界引擎自主生活。若不想自己捏人物，可直接載入內建的成年大學校園 NPC 預設包：校花、現任男友與另一名潛在介入者，適合發展雙宿主 NTL／NTR、競爭任務與資訊差；也能完全不用預設人物，自訂任何世界與宿主。",
     "supported_modes": {
       "immersive": true,
       "world": true
@@ -708,8 +709,8 @@
       "ui": true
     },
     "published_at": "2026-10-03T19:04:00Z",
-    "updated_at": "2026-10-03T19:04:00Z",
+    "updated_at": "2026-10-03T19:15:00Z",
     "published_version": 1,
-    "version_published_at": "2026-10-03T19:04:00Z"
+    "version_published_at": "2026-10-03T19:15:00Z"
   }
 ]
