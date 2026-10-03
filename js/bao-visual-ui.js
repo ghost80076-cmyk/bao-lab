@@ -66,7 +66,7 @@
     if (!document.querySelector('script[data-bao-bookshelf]')) {
       const bookshelf = document.createElement('script');
       bookshelf.dataset.baoBookshelf = '1';
-      bookshelf.src = 'js/bookshelf-enhance.js';
+      bookshelf.src = 'js/bookshelf-enhance.js?v=2';
       document.head.appendChild(bookshelf);
     }
     if (!document.querySelector('script[data-bao-scene-image]')) {

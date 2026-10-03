@@ -1108,7 +1108,7 @@
           '<header><div><div class="story-library-title"><h3>' + App.escapeHTML(story.title || story.characterName || "未命名故事") + '</h3>' +
           (story.pinned ? '<span class="story-library-pinned">★ 已釘選</span>' : '') +
           (activeStory ? '<span class="story-library-active">目前故事</span>' : '') + '</div>' +
-          '<p>' + App.escapeHTML(story.characterName || "未知角色") + ' · ' + chapters.length + ' 個章節 · 上次閱讀 ' + App.escapeHTML(formatLibraryDate(story.updatedAt)) + '</p></div>' +
+          '<p>' + App.escapeHTML(story.characterName || "未知角色") + ' · ' + chapters.length + ' 個章節 · 上次閱讀 ' + App.escapeHTML(formatLibraryDate(story.lastOpenedAt || story.updatedAt)) + '</p></div>' +
           '<div class="story-library-actions">' +
           (continueChapterIndex >= 0 ? '<button type="button" class="primary bao-shelf-continue" data-library-action="continue-story" data-story-index="' + storyIndex + '" data-chapter-index="' + continueChapterIndex + '">繼續</button>' : '') +
           '<button type="button" class="secondary story-library-pin" data-library-action="pin-story" data-story-index="' + storyIndex + '">' + (story.pinned ? '取消釘選' : '釘選') + '</button>' +
