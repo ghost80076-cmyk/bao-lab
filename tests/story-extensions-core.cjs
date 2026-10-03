@@ -180,6 +180,20 @@ const core = require("../js/story-extensions-core.js");
 }
 
 {
+  const commentary = core.commentarySummary({
+    enabledCount: 0,
+    availableCount: 1,
+    labels: [],
+    items: [{ id: "director-commentary", label: "🎬 導演旁白", description: "夜灣官方示範", enabled: false }]
+  });
+  assert.equal(commentary.title, "場外人格未啟用");
+  assert.match(commentary.detail, /可插拔/);
+  assert.match(commentary.ownership.control, /未啟用時不產生額外模型請求/);
+  assert.equal(commentary.inventory[0].items[0].label, "🎬 導演旁白");
+  assert.equal(commentary.active, false);
+}
+
+{
   const overview = core.overview({
     commentary: {
       enabledCount: 1,
