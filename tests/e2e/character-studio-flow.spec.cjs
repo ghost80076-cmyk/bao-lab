@@ -35,7 +35,7 @@ test('character studio exposes a mobile-friendly creation flow without hiding th
   await expect(page.locator('[name="mode"]')).toHaveValue('immersive');
   await page.locator('[data-creation-route="opening"]').click();
   await expect(flow.locator('[data-flow-step="opening"]')).toHaveAttribute('aria-current', 'step');
-  await page.locator('[data-creation-route="lore"]').click();
+  await page.locator('[data-creation-route="lorebook"]').click();
   await expect(page.locator('.studio-advanced').first()).toHaveAttribute('open', '');
   await expect(page.locator('[name="lore"]')).toBeVisible();
 
