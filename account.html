@@ -173,6 +173,7 @@ body{min-height:100vh;background:#101118;color:#f5f1ff}
         author_identity_limit_reached:"目前每個帳號先提供一個作者身份；之後若需要筆名或團隊身份再擴充。",
         author_name_required:"請填寫玩家會看到的作者名稱。",
         invalid_author_support_url:"支持作者連結必須是 HTTPS 網址。",
+        author_support_limit_reached:"最多可以設定 5 個外部支持方式。",
         author_identity_not_owned:"這個作者身份不屬於目前登入帳號。",
         github_publish_not_configured:"作者公開資料目前暫時無法送審。",
         github_publish_failed:"建立作者資料 PR 失敗，請稍後再試。"
@@ -212,17 +213,26 @@ body{min-height:100vh;background:#101118;color:#f5f1ff}
       }
     }catch(e){}
   }
+  function supportRowMarkup(link){
+    var item=link&&typeof link==="object"?link:{};
+    var label=String(item.label||"支持作者").trim()||"支持作者";
+    var url=String(item.url||"").trim();
+    return '<div class="yb-support-row" data-support-row>'+
+      '<label>按鈕文字<input name="author_support_label" maxlength="40" value="'+esc(label)+'" placeholder="例如 支持作者"></label>'+
+      '<label>外部支持連結<input name="author_support_url" type="url" maxlength="600" inputmode="url" value="'+esc(url)+'" placeholder="https://..."></label>'+
+      '<button class="yb-support-remove" type="button" data-remove-support aria-label="移除這個支持方式">移除</button>'+
+      '</div>';
+  }
   function authorSection(){
     var claimed=authorIdentity&&authorIdentity.author_id;
     var authorId=claimed||"";
     var published=authorId?authorProfiles[authorId]||null:null;
     var name=published&&published.name||profile&&profile.display_name||"";
     var bio=published&&published.bio||"";
-    var support=published&&Array.isArray(published.support_links)&&published.support_links[0]||null;
-    var supportLabel=support&&support.label||"支持作者";
-    var supportUrl=support&&support.url||"";
+    var supportLinks=published&&Array.isArray(published.support_links)?published.support_links.slice(0,5):[];
+    if(!supportLinks.length) supportLinks=[{label:"支持作者",url:""}];
     var intro=claimed
-      ?"這個作者 ID 已綁定目前帳號。顯示名稱、簡介與支持連結可以改；作者 ID 本身保持穩定。"
+      ?"這個作者 ID 已綁定目前帳號。顯示名稱、簡介與支持方式可以改；作者 ID 本身保持穩定。"
       :"作者身份是可選的公開身份，不等於登入帳號。第一次發布作品前建立一次即可。";
     var publicLink=published
       ? '<a class="yb-secondary" href="author.html?id='+encodeURIComponent(authorId)+'">查看公開作者頁</a>'
@@ -232,8 +242,11 @@ body{min-height:100vh;background:#101118;color:#f5f1ff}
       '<label>作者 ID<input name="author_id" required maxlength="64" pattern="[a-z0-9][a-z0-9_-]{1,63}" placeholder="例如 yoru-writer" value="'+esc(authorId)+'" '+(claimed?"readonly":"")+'><small class="yb-note">公開穩定識別碼；建立後不跟著顯示名稱改動。</small></label>'+
       '<label>作者顯示名稱<input name="author_name" required maxlength="80" value="'+esc(name)+'" placeholder="玩家看到的作者名稱"></label>'+
       '<label>作者公開簡介<textarea name="author_bio" maxlength="1200" rows="3" placeholder="選填">'+esc(bio)+'</textarea></label>'+
-      '<label>支持按鈕文字<input name="author_support_label" maxlength="40" value="'+esc(supportLabel)+'"></label>'+
-      '<label>作者直接支持連結<input name="author_support_url" type="url" maxlength="600" inputmode="url" value="'+esc(supportUrl)+'" placeholder="https://..."><small class="yb-note">玩家會直接前往作者提供的外部頁面；夜灣不代收、不轉金流、不抽成。</small></label>'+
+      '<div class="yb-support-editor">'+
+        '<div class="yb-support-head"><div><b>外部支持方式</b><p class="yb-note">最多 5 個 HTTPS 公開連結。玩家會直接前往作者提供的頁面；夜灣不代收、不轉金流、不抽成。</p></div>'+
+        '<button class="yb-secondary" id="author-add-support" type="button">＋ 新增支持方式</button></div>'+
+        '<div class="yb-support-list" id="author-support-list">'+supportLinks.map(supportRowMarkup).join("")+'</div>'+
+      '</div>'+
       '<div class="yb-actions"><button class="yb-primary" type="submit">'+(claimed?"送出作者資料更新 PR":"建立作者身份並送出公開資料 PR")+'</button>'+publicLink+'</div>'+
       '<div class="yb-error" id="author-error"></div><div class="yb-note" id="author-result">'+
       (claimed&&!published?"作者身份已建立；公開作者頁要等第一支作者資料 PR 合併後才會出現。":"")+
@@ -242,6 +255,40 @@ body{min-height:100vh;background:#101118;color:#f5f1ff}
   function bindAuthorForm(){
     var form=document.getElementById("author-profile-form");
     if(!form) return;
+    var supportList=document.getElementById("author-support-list");
+    var addSupport=document.getElementById("author-add-support");
+    function supportRows(){
+      return supportList?Array.prototype.slice.call(supportList.querySelectorAll("[data-support-row]")):[];
+    }
+    function updateSupportControls(){
+      if(addSupport) addSupport.disabled=supportRows().length>=5;
+    }
+    if(addSupport){
+      addSupport.onclick=function(){
+        if(!supportList||supportRows().length>=5) return;
+        supportList.insertAdjacentHTML("beforeend",supportRowMarkup({label:"支持作者",url:""}));
+        updateSupportControls();
+      };
+    }
+    if(supportList){
+      supportList.onclick=function(event){
+        var remove=event.target.closest("[data-remove-support]");
+        if(!remove) return;
+        var row=remove.closest("[data-support-row]");
+        var rows=supportRows();
+        if(!row) return;
+        if(rows.length<=1){
+          var labelInput=row.querySelector('[name="author_support_label"]');
+          var urlInput=row.querySelector('[name="author_support_url"]');
+          if(labelInput) labelInput.value="支持作者";
+          if(urlInput) urlInput.value="";
+        }else{
+          row.remove();
+        }
+        updateSupportControls();
+      };
+    }
+    updateSupportControls();
     form.onsubmit=async function(event){
       event.preventDefault();
       var button=form.querySelector('button[type="submit"]');
@@ -251,12 +298,19 @@ body{min-height:100vh;background:#101118;color:#f5f1ff}
       if(result) result.textContent="";
       button.disabled=true;
       try{
+        var links=supportRows().map(function(row){
+          var labelInput=row.querySelector('[name="author_support_label"]');
+          var urlInput=row.querySelector('[name="author_support_url"]');
+          return {
+            label:String(labelInput&&labelInput.value||"支持作者").trim()||"支持作者",
+            url:String(urlInput&&urlInput.value||"").trim()
+          };
+        }).filter(function(link){return Boolean(link.url);});
         var payload={
           author_id:String(form.elements.author_id.value||"").trim().toLowerCase(),
           author_name:String(form.elements.author_name.value||"").trim(),
           author_bio:String(form.elements.author_bio.value||"").trim(),
-          author_support_label:String(form.elements.author_support_label.value||"支持作者").trim(),
-          author_support_url:String(form.elements.author_support_url.value||"").trim()
+          support_links:links
         };
 
         if(!authorIdentity){
