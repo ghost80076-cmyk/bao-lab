@@ -31,7 +31,7 @@
     const supportLinks = (Array.isArray(value.support_links) ? value.support_links : [])
       .map(safeSupportLink)
       .filter(Boolean)
-      .slice(0, 3);
+      .slice(0, 5);
     return {
       id,
       name: clean(value.name || id).slice(0, 80) || id,

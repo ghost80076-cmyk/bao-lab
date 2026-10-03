@@ -93,6 +93,10 @@ test('account creates an optional author identity separately from registration',
   await form.locator('[name="author_bio"]').fill('把故事留在夜裡。');
   await form.locator('[name="author_support_label"]').fill('替作者留一盞燈');
   await form.locator('[name="author_support_url"]').fill('https://example.com/support');
+  await form.getByRole('button', { name: '新增支持方式' }).click();
+  await expect(form.locator('[data-support-row]')).toHaveCount(2);
+  await form.locator('[name="author_support_label"]').nth(1).fill('街口支持');
+  await form.locator('[name="author_support_url"]').nth(1).fill('https://example.com/jkopay');
 
   await form.getByRole('button', { name: '建立作者身份並送出公開資料 PR' }).click();
 
@@ -108,8 +112,10 @@ test('account creates an optional author identity separately from registration',
     author_id: 'night-writer',
     author_name: '夜裡寫故事的人',
     author_bio: '把故事留在夜裡。',
-    author_support_label: '替作者留一盞燈',
-    author_support_url: 'https://example.com/support'
+    support_links: [
+      { label: '替作者留一盞燈', url: 'https://example.com/support' },
+      { label: '街口支持', url: 'https://example.com/jkopay' }
+    ]
   });
 });
 

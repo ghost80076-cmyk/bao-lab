@@ -74,6 +74,47 @@ assert.throws(
   /invalid_author_support_url/
 );
 
+const multipleSupport = prepareAuthorProfileUpdate({
+  author_id: "good-author",
+  author_name: "Good",
+  support_links: [
+    { label: "Ko-fi", url: "https://example.com/kofi" },
+    { label: "街口支持", url: "https://example.com/jkopay" },
+    { label: "重複", url: "https://example.com/kofi" }
+  ]
+});
+assert.deepEqual(multipleSupport.profile.support_links, [
+  { label: "Ko-fi", url: "https://example.com/kofi" },
+  { label: "街口支持", url: "https://example.com/jkopay" }
+]);
+
+assert.throws(
+  () => prepareAuthorProfileUpdate({
+    author_id: "good-author",
+    author_name: "Good",
+    support_links: [
+      { url: "https://example.com/1" },
+      { url: "https://example.com/2" },
+      { url: "https://example.com/3" },
+      { url: "https://example.com/4" },
+      { url: "https://example.com/5" },
+      { url: "https://example.com/6" }
+    ]
+  }),
+  /author_support_limit_reached/
+);
+
+assert.throws(
+  () => prepareAuthorProfileUpdate({
+    author_id: "good-author",
+    author_name: "Good",
+    support_links: [
+      { label: "不安全", url: "http://example.com" }
+    ]
+  }),
+  /invalid_author_support_url/
+);
+
 (async () => {
   const writes = [];
   const originalFetch = globalThis.fetch;
