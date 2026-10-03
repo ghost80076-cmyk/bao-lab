@@ -1,0 +1,43 @@
+.bao-commentary-mod-backdrop{
+  position:fixed;inset:0;z-index:430;display:grid;place-items:center;padding:20px;
+  background:rgba(6,6,9,.78);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)
+}
+.bao-commentary-mod-panel{
+  width:min(720px,100%);max-height:min(84vh,820px);overflow:auto;padding:24px;
+  border:1px solid rgba(241,232,218,.10);border-radius:22px;background:#17161a;box-shadow:0 30px 90px rgba(0,0,0,.46)
+}
+.bao-commentary-mod-panel>header{display:flex;justify-content:space-between;gap:20px;align-items:flex-start}
+.bao-commentary-mod-panel h2{margin:4px 0 8px;color:#f0e9f2;font-size:24px}
+.bao-commentary-mod-panel header p{max-width:570px;margin:0;color:#aaa5b0;line-height:1.7}
+.bao-commentary-mod-close{border:0;background:transparent;color:#aaa4ae;font-size:28px;cursor:pointer}
+.bao-commentary-mod-warning{display:grid;gap:5px;margin:20px 0;padding:14px 15px;border:1px solid rgba(223,180,110,.13);border-radius:14px;background:rgba(223,180,110,.045)}
+.bao-commentary-mod-warning b{color:#dfbd84}
+.bao-commentary-mod-warning span{color:#aaa5ad;font-size:12px;line-height:1.65}
+.bao-commentary-mod-list{display:grid;gap:10px}
+.bao-commentary-mod-choice{display:flex;gap:12px;align-items:flex-start;padding:15px;border:1px solid rgba(241,232,218,.08);border-radius:15px;background:rgba(10,10,13,.32);cursor:pointer}
+.bao-commentary-mod-choice input{width:18px;height:18px;margin-top:2px;accent-color:#b7a2ef}
+.bao-commentary-mod-choice span{display:grid;gap:5px}
+.bao-commentary-mod-choice b{color:#ece5ee}
+.bao-commentary-mod-choice small{color:#96919d;line-height:1.6}
+.bao-commentary-mod-link-note{margin-top:12px;padding:11px 13px;border-radius:12px;background:rgba(167,132,224,.07);color:#c7b8d7;font-size:12px;line-height:1.65}
+.bao-commentary-mod-actions{display:flex;justify-content:flex-end;gap:9px;margin-top:20px}
+.bao-commentary-mod-commands{margin-top:16px;color:#918c97;font-size:11px}
+.bao-commentary-mod-commands summary{cursor:pointer;color:#aaa5b0}
+.bao-commentary-mod-commands div{margin-top:9px;line-height:1.8}
+.bao-commentary-mod-block{
+  width:min(100%,760px);margin:-24px auto 30px;border:1px solid rgba(181,143,221,.10);border-radius:13px;
+  background:rgba(22,19,25,.52)
+}
+.bao-commentary-mod-block>summary{display:flex;justify-content:space-between;gap:12px;padding:10px 12px;color:#b9afc1;font-size:11px;cursor:pointer;list-style:none}
+.bao-commentary-mod-block>summary::-webkit-details-marker{display:none}
+.bao-commentary-mod-block>summary small{color:#77727e}
+.bao-commentary-mod-content{padding:2px 14px 14px;color:#c8c0ca;font-size:12.5px;line-height:1.85}
+@media(max-width:820px){
+  .bao-commentary-mod-backdrop{padding:10px}
+  .bao-commentary-mod-panel{max-height:90vh;padding:18px;border-radius:18px}
+  .bao-commentary-mod-panel h2{font-size:21px}
+  .bao-commentary-mod-actions{display:grid;grid-template-columns:1fr 1fr}
+  .bao-commentary-mod-actions button{width:100%}
+  .bao-commentary-mod-block{width:calc(100% - 10px);margin:-19px auto 24px}
+  .bao-commentary-mod-content{font-size:12px}
+}

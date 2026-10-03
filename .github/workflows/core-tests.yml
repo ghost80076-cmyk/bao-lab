@@ -203,6 +203,12 @@ jobs:
           node --check js/story-control-center-core.js
           node --check js/story-control-center.js
           node tests/story-control-center-core.cjs
+      - name: Commentary MOD isolation
+        run: |
+          node --check js/commentary-mods-core.js
+          node --check js/commentary-mods.js
+          node --check js/commentary-mods-adult-pack.js
+          node tests/commentary-mods-core.cjs
       - name: Story extension scopes
         run: |
           node --check js/story-extensions-core.js
