@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "type": "yorubay-author-regex-mod",
+  "scope": "assistant_display",
+  "characterId": "aetheria-three-factions",
+  "regex_scripts": [
+    {
+      "scriptName": "艾瑟莉亞｜開場卷軸",
+      "description": "把開場標記轉成黑金成人奇幻閱讀卡；只改顯示，不改故事原文、模型 Prompt、記憶或世界狀態。",
+      "priority": 80,
+      "findRegex": "【YB:AETHERIA:OPENING】\\s*([\\s\\S]*?)\\s*【/YB:AETHERIA:OPENING】",
+      "flags": "g",
+      "replaceString": "<style>.yb-ae-opening{font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif;background:linear-gradient(145deg,#17181d,#24252d);color:#f1ede3;border:1px solid #655a43;border-radius:18px;padding:20px;box-shadow:0 14px 34px rgba(0,0,0,.28);line-height:1.9;white-space:pre-wrap}.yb-ae-opening:before{content:\"AETHERIA · NEUTRALIS\";display:block;color:#d4af37;font-size:12px;letter-spacing:.16em;margin-bottom:10px}.yb-ae-opening strong{color:#ead9a0}</style><section class=\"yb-ae-opening\">$1</section>"
+    },
+    {
+      "scriptName": "艾瑟莉亞｜今日行情",
+      "description": "把公開市場行情整理成黑金資訊卡；實際行情仍由原生 Gameplay UI 狀態追蹤。",
+      "priority": 60,
+      "findRegex": "【YB:AETHERIA:MARKET】\\s*([\\s\\S]*?)\\s*【/YB:AETHERIA:MARKET】",
+      "flags": "g",
+      "replaceString": "<style>.yb-ae-market{font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif;background:#1f2026;color:#ddd7ca;border:1px solid #4f493c;border-left:3px solid #d4af37;border-radius:14px;padding:14px 16px;line-height:1.8;white-space:pre-wrap}.yb-ae-market:before{content:\"⚗ 今日公開行情\";display:block;color:#d4af37;font-weight:700;margin-bottom:7px}</style><section class=\"yb-ae-market\">$1</section>"
+    },
+    {
+      "scriptName": "艾瑟莉亞｜起始行動",
+      "description": "把文字開場中的起始選項整理成閱讀選單；真正可點擊草稿由夜灣原生 Gameplay UI 的「行動」面板提供。",
+      "priority": 40,
+      "findRegex": "【YB:AETHERIA:ACTIONS】\\s*([\\s\\S]*?)\\s*【/YB:AETHERIA:ACTIONS】",
+      "flags": "g",
+      "replaceString": "<style>.yb-ae-actions{font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif;background:linear-gradient(135deg,#26232a,#1b1d22);color:#eee8dc;border:1px solid #5d5140;border-radius:16px;padding:15px 17px;line-height:1.8;white-space:pre-wrap}.yb-ae-actions:before{content:\"你準備從哪裡開始？\";display:block;color:#d4af37;font-weight:700;margin-bottom:8px}.yb-ae-actions:after{content:\"也可以直接自由輸入；原生「行動」面板可快速填入草稿。\";display:block;color:#9e978b;font-size:12px;margin-top:9px}</style><section class=\"yb-ae-actions\">$1</section>"
+    }
+  ]
+}
