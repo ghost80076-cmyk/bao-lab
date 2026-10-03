@@ -7,7 +7,7 @@
     "category": "general",
     "rating": "adult",
     "gender": "all",
-    "avatar": "assets/community/eb/ktv-flight-chess.webp",
+    "avatar": "https://i.meee.com.tw/NDOyMt1.jpg",
     "tags": [
       "R18成人遊戲",
       "KTV",
@@ -858,7 +858,7 @@
       "text": true,
       "ui": true
     },
-    "reading_background": "assets/community/eb/ktv-flight-chess.webp",
+    "reading_background": "https://i.meee.com.tw/NDOyMt1.jpg",
     "opening": {
       "type": "noir",
       "label": "KTV FLIGHT CHESS / ADULT PARTY × BDSM",
