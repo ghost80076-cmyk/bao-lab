@@ -5,7 +5,6 @@ test('Night Sky Magic Academy renders enrollment, fixed mystery, status and choi
   await page.waitForFunction(() => App.characters?.some(c => c.id === 'night-sky-magic-academy') && Storage.status().ready, null, { timeout: 15000 });
 
   await page.locator('#home-view [data-view="explore"]').click();
-  await page.getByRole('button', { name: '男性' }).click();
   const card=page.locator('article.character-card').filter({hasText:'夜穹魔法學院'});
   await expect(card).toBeVisible();
   await card.click();
