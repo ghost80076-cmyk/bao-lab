@@ -89,6 +89,8 @@ jobs:
         run: node tests/aetheria-three-factions-card.test.cjs
       - name: Dark Military War Simulator card
         run: node tests/dark-military-war-simulator-card.test.cjs
+      - name: Craftsman Ming Survival TRPG card
+        run: node tests/craftsman-ming-survival-trpg-card.test.cjs
       - name: Debt Cage Lu Shen card
         run: node tests/debt-cage-lu-shen-card.test.cjs
       - name: Campus Rival 24H Command card
