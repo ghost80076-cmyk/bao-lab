@@ -899,3 +899,39 @@ body:has(#home-view.active) .bao-mascot-launch,body:has(#explore-view.active) .b
 @media(max-width:360px){
   #chat-view[data-bao-surface="play"] .chat-title-copy .eyebrow{max-width:38vw}
 }
+
+
+/* Poster metadata lock: keep the artwork dominant and anchor the live title low. */
+#explore-view #character-list .character-content{
+  height:34%;
+  min-height:0;
+  padding:0!important;
+  background:linear-gradient(180deg,transparent 0%,rgba(6,7,13,.22) 28%,rgba(6,7,13,.88) 74%,#070810 100%)!important;
+}
+#explore-view #character-list .character-content h3{
+  position:absolute;
+  left:18px;
+  right:18px;
+  bottom:14px;
+  margin:0!important;
+}
+#explore-view #character-list .character-content .explore-card-context{
+  position:absolute;
+  left:18px;
+  right:18px;
+  bottom:calc(14px + 3.2em);
+  margin:0;
+}
+@media(max-width:700px){
+  #explore-view #character-list .character-content{height:32%}
+  #explore-view #character-list .character-content h3{
+    left:10px;
+    right:10px;
+    bottom:10px;
+  }
+  #explore-view #character-list .character-content .explore-card-context{
+    left:10px;
+    right:10px;
+    bottom:calc(10px + 3em);
+  }
+}
