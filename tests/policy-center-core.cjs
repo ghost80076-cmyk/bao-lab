@@ -38,6 +38,9 @@ if (!age.includes('涉及未成年人的性內容：零容忍')) throw new Error
 
 const lights = fs.readFileSync('lights-refund-policy.html', 'utf8');
 if (!lights.includes('不可在使用者間轉讓、交易或兌換現金')) throw new Error('Lights policy must define transfer/cash-out limits.');
+if (!lights.includes('第三方是否實際產生成本')) throw new Error('Lights failure settlement must follow actual third-party cost.');
+if (!lights.includes('不承諾替使用者吸收第三方已實際發生的模型成本')) throw new Error('Lights policy must not promise platform-funded refunds for already-incurred provider cost.');
+if (!lights.includes('重複扣款、計價錯誤、預留額度未正確釋放')) throw new Error('Lights policy must refund confirmed billing errors.');
 if (!lights.includes('不以本政策預先排除消費者依法享有')) throw new Error('Lights policy must preserve mandatory consumer rights.');
 if (!lights.includes('事前清楚告知並取得消費者同意')) throw new Error('Lights policy must not claim a blanket digital-service cooling-off exception.');
 
