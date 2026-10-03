@@ -87,6 +87,22 @@ const CharacterEngine = {
           note: String(openingRaw.note || "").trim().slice(0, 500)
         }
       : null;
+    const actorModeRaw = raw.actor_mode || gameplay.actor_mode || null;
+    const actorMode = actorModeRaw && typeof actorModeRaw === "object" && !Array.isArray(actorModeRaw)
+      ? {
+          enabled: actorModeRaw.enabled === true,
+          role_active: actorModeRaw.role_active === true,
+          default_role: {
+            label: String(actorModeRaw.default_role?.label || "").trim().slice(0, 120),
+            identity: String(actorModeRaw.default_role?.identity || "").trim().slice(0, 1200),
+            relationship: String(actorModeRaw.default_role?.relationship || "").trim().slice(0, 800),
+            personality: String(actorModeRaw.default_role?.personality || "").trim().slice(0, 1200),
+            voice: String(actorModeRaw.default_role?.voice || "").trim().slice(0, 1000),
+            motive: String(actorModeRaw.default_role?.motive || "").trim().slice(0, 1000),
+            knowledge: String(actorModeRaw.default_role?.knowledge || "").trim().slice(0, 1200)
+          }
+        }
+      : null;
 
     return {
       id,
@@ -111,6 +127,7 @@ const CharacterEngine = {
       world_focus: worldFocus,
       world_modules: worldModules,
       dynamic_prompts: dynamicPrompts,
+      actor_mode: actorMode,
       character_status: characterStatus,
       gameplay_ui: gameplayUI && typeof gameplayUI === "object" && !Array.isArray(gameplayUI) ? gameplayUI : null,
       play_info_surface: playInfoSurface === "game-ui" ? "game-ui" : "reader-context",
