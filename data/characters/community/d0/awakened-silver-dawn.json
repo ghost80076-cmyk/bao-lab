@@ -4,7 +4,7 @@
     "id": "awakened-silver-dawn",
     "name": "覺醒者：破曉之銀",
     "title": "覺醒者：破曉之銀",
-    "avatar": "assets/bao-world-core.webp",
+    "avatar": "https://i.meee.com.tw/BH3KBth.jpg",
     "category": "general",
     "rating": "general",
     "gender": "all",
@@ -973,7 +973,7 @@
       "text": true,
       "ui": true
     },
-    "reading_background": "assets/bao-world-core.webp",
+    "reading_background": "https://i.meee.com.tw/BH3KBth.jpg",
     "opening": {
       "type": "urban-noir",
       "label": "SILVER DAWN / DAY 0",
