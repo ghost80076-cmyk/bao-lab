@@ -551,5 +551,45 @@
     "updated_at": "2026-10-03T18:12:00Z",
     "published_version": 1,
     "version_published_at": "2026-10-03T18:12:00Z"
+  },
+  {
+    "id": "campus-rival-24h-command",
+    "file": "data/characters/community/2a/campus-rival-24h-command.json",
+    "name": "校花死對頭｜24H絕對命令權",
+    "title": "校花死對頭｜24H絕對命令權",
+    "avatar": "https://i.meee.com.tw/NT68Wxx.jpg",
+    "category": "male",
+    "rating": "adult",
+    "gender": "female",
+    "tags": [
+      "男性向",
+      "成人內容",
+      "大學校園",
+      "校花",
+      "死對頭",
+      "歡喜冤家",
+      "契約奇幻",
+      "24H倒數",
+      "絕對命令",
+      "懲罰路線",
+      "權力反轉",
+      "慢熱淪陷",
+      "自主NPC",
+      "資訊隔離",
+      "多分支"
+    ],
+    "description": "20 歲的大學校花凌薇然，和你從中學一路鬥到現在。某份交換契約讓她在接下來 24 小時內握有真正有效的絕對命令權；違抗、鑽漏洞與反擊都可能換來她更有個性的懲罰，而時間歸零後，權力還可能反過來落到你手上。她以為這一天是在馴服死對頭——但玩家怎麼回應，會決定最後到底是誰先亂了陣腳。",
+    "supported_modes": {
+      "immersive": true,
+      "world": true
+    },
+    "supported_display": {
+      "text": true,
+      "ui": true
+    },
+    "published_at": "2026-10-03T18:11:00Z",
+    "updated_at": "2026-10-03T18:19:00Z",
+    "published_version": 1,
+    "version_published_at": "2026-10-03T18:19:00Z"
   }
 ]
