@@ -538,5 +538,44 @@
     "updated_at": "2026-10-03T18:19:00Z",
     "published_version": 1,
     "version_published_at": "2026-10-03T18:19:00Z"
+  },
+  {
+    "id": "dark-military-war-simulator",
+    "file": "data/characters/community/45/dark-military-war-simulator.json",
+    "name": "黑暗軍旅模擬系統",
+    "title": "黑暗軍旅模擬系統｜帝國戰爭生存 TRPG",
+    "avatar": "https://i.meee.com.tw/81WhE0w.jpg",
+    "category": "general",
+    "rating": "adult",
+    "gender": "all",
+    "tags": [
+      "成人題材",
+      "黑暗軍旅",
+      "TRPG",
+      "戰爭生存",
+      "世界模擬",
+      "1d100檢定",
+      "階級制度",
+      "派系政治",
+      "戰俘與佔領區",
+      "道德後果",
+      "自主NPC",
+      "資訊隔離",
+      "多結局",
+      "原生狀態UI"
+    ],
+    "description": "一張以帝國戰爭為舞台的黑暗軍旅 TRPG 世界卡。先建立你的帝國、戰區、入伍背景與能力，再從新兵一路面對前線、階級、派系、戰俘、軍紀、腐敗與戰敗風險。世界不等玩家，軍功也不會自動抹去你留下的責任與證據。",
+    "supported_modes": {
+      "immersive": true,
+      "world": true
+    },
+    "supported_display": {
+      "text": true,
+      "ui": true
+    },
+    "published_at": "2026-10-03T18:25:00Z",
+    "updated_at": "2026-10-03T18:25:00Z",
+    "published_version": 1,
+    "version_published_at": "2026-10-03T18:25:00Z"
   }
 ]
