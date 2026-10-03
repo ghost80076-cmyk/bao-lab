@@ -34,6 +34,7 @@ test("adult content stays hidden until the player enables it locally", async ({ 
     window.BAOContentPreferences &&
     document.querySelector('.category-portal[data-category="r18"]')
   );
+  await page.evaluate(() => App.showView("explore"));
   await expect(page.locator('.category-portal[data-category="r18"]')).toBeVisible();
 
   await page.evaluate(() => App.showView("me"));
