@@ -16,8 +16,8 @@ function readPack(file, globalName) {
 const general = readPack("story-actors-general-pack.js", "BAOGeneralStoryActorPack");
 const adult = readPack("story-actors-adult-pack.js", "BAOAdultStoryActorPack");
 
-assert.deepEqual(general.actors.map(item => item.id), ["jingyue", "guchen"]);
-assert.deepEqual(adult.actors.map(item => item.id), ["jiuyue", "shuanger"]);
+assert.deepEqual(Array.from(general.actors, item => item.id), ["jingyue", "guchen"]);
+assert.deepEqual(Array.from(adult.actors, item => item.id), ["jiuyue", "shuanger"]);
 
 {
   const visible = core.availableCatalog(general.actors, adult.actors, { adultEnabled: false });
