@@ -223,6 +223,14 @@ jobs:
           node --check js/actor-mode-core.js
           node --check js/actor-mode.js
           node tests/actor-mode-core.cjs
+      - name: Portable official story actors
+        run: |
+          node --check js/story-actor-pack-core.js
+          node --check js/story-actors-general-pack.js
+          node --check js/story-actors-adult-pack.js
+          node --check js/story-persona-manager.js
+          node tests/story-actor-pack-core.cjs
+          node tests/story-persona-core.cjs
       - name: Story extension scopes
         run: |
           node --check js/story-extensions-core.js
