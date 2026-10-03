@@ -87,6 +87,8 @@ jobs:
         run: node tests/desire-academy-city-card.test.cjs
       - name: Debt Cage Lu Shen card
         run: node tests/debt-cage-lu-shen-card.test.cjs
+      - name: Campus Rival 24H Command card
+        run: node tests/campus-rival-24h-command-card.test.cjs
       - name: Reborn Di Daughter Regent card
         run: node tests/reborn-di-daughter-regent-card.test.cjs
       - name: Lin Shen Reed Bloom card
