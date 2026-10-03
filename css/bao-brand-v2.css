@@ -139,3 +139,125 @@ body.bao-brand-document{background:var(--yoru-night);color:var(--yoru-text)}.bao
  #chat-view.active{background:var(--yoru-night)!important}#chat-view .chat-layout>.chat-main{background:var(--yoru-reading)!important}#chat-view .chat-topline{background:var(--yoru-tool)!important;border-bottom-color:var(--story-border)!important}#chat-view .chat-stream{background:var(--yoru-reading)!important}#chat-view .composer{background:var(--yoru-tool)!important;border-top-color:var(--story-border)!important}
  #bao-mobile-tools-tab{background:var(--yoru-tool-raised)!important;border-color:rgba(214,170,115,.18)!important;color:var(--story-text)!important}#bao-mobile-tools-tab:focus-visible{outline-color:var(--yoru-lantern)!important}}
 @media(prefers-reduced-motion:reduce){button,.primary,.secondary,.filter{transition:none!important}}
+
+
+/* YoruBay Brand System 2.0
+   Formal brand = night harbor + lamplight.
+   BAO/包包 remains the mascot layer, so mascot-specific pink and playful surfaces
+   stay intentionally independent from the main product identity. */
+:root{
+  --yoru-night:#080d14;
+  --yoru-surface:#101721;
+  --yoru-surface-raised:#161f2b;
+  --yoru-surface-strong:#1b2633;
+  --yoru-reading:#13161a;
+  --yoru-tool:#0d1219;
+  --yoru-tool-raised:#171d25;
+  --yoru-card:#15191f;
+  --yoru-card-raised:#1b2028;
+  --yoru-control:#191d23;
+  --yoru-control-hover:#22272e;
+  --yoru-input:#0c1117;
+  --yoru-text:#f2eee7;
+  --yoru-story-text:#eee9e1;
+  --yoru-muted:#9399a4;
+  --yoru-harbor:#708298;
+  --yoru-harbor-soft:#9aa9b8;
+  --yoru-purple:#8b8199;
+  --yoru-purple-soft:#b9b0c4;
+  --yoru-lantern:#d6aa73;
+  --yoru-lantern-bright:#efc77f;
+  --yoru-lantern-soft:#ecd8b6;
+  --primary:var(--yoru-lantern);
+  --primary2:var(--yoru-lantern-soft);
+  --secondary:var(--yoru-lantern-bright);
+}
+body:has(.app-shell){
+  background:
+    radial-gradient(circle at 82% 5%,rgba(214,170,115,.065),transparent 24%),
+    radial-gradient(circle at 10% 0,rgba(112,130,152,.10),transparent 31%),
+    var(--yoru-night);
+}
+::selection{background:#70583b;color:#fff8eb}
+a{color:#e3c79d}a:hover{color:#f1ddbd}
+.primary{
+  background:linear-gradient(135deg,#e0b775,#bd8e53);
+  color:#19130c;
+  border:1px solid rgba(255,225,176,.42);
+  box-shadow:0 10px 28px rgba(119,79,35,.13);
+}
+.primary:hover:not(:disabled){
+  background:linear-gradient(135deg,#ecc889,#c99a5b);
+  border-color:rgba(255,235,203,.62);
+  color:#120e09;
+  filter:none;
+}
+input[type="checkbox"],input[type="radio"]{accent-color:var(--yoru-lantern)}
+.topbar{background:rgba(8,13,20,.94)}
+.topbar>.brand .brand-wordmark small{color:#a8a099}
+.brand-kicker,.eyebrow{color:var(--yoru-lantern)}
+#home-view .brand-cinematic-hero::before{
+  background:
+    radial-gradient(circle at 76% 31%,rgba(214,170,115,.10),transparent 27%),
+    radial-gradient(circle at 18% 13%,rgba(112,130,152,.11),transparent 23%),
+    linear-gradient(120deg,#15171b 0%,#080d14 49%,#14171c 100%);
+}
+#home-view .brand-cinematic-hero .brand-actions .primary{
+  background:linear-gradient(135deg,#e0b775,#bd8e53);
+  color:#19130c;
+  border-color:rgba(255,225,176,.48);
+  box-shadow:0 13px 34px rgba(119,79,35,.18);
+}
+#home-view .brand-cinematic-hero .brand-actions .primary:hover{
+  background:linear-gradient(135deg,#ecc889,#c99a5b);
+  border-color:rgba(255,235,203,.64);
+}
+#home-view .brand-library-sample{
+  background:linear-gradient(140deg,rgba(31,39,49,.88),rgba(14,16,20,.82));
+  border-color:rgba(236,216,182,.12);
+}
+#home-view .brand-feature-grid article>span,
+#home-view .brand-onboarding-links a{color:var(--yoru-lantern-soft)}
+#home-view .brand-product-intro{background:#14191f!important}
+#explore-view .filter.active{
+  background:rgba(214,170,115,.10);
+  border-color:rgba(214,170,115,.34);
+  color:var(--yoru-text);
+}
+#explore-view .filter:hover:not(.active){
+  background:rgba(214,170,115,.055);
+  border-color:rgba(214,170,115,.19);
+}
+#builder-view .stepper .step.active,#builder-view .steps .step.active{
+  background:rgba(214,170,115,.075);
+  border-color:rgba(214,170,115,.31);
+  color:var(--yoru-text);
+}
+#builder-view .choice-card.selected,
+#builder-view .bao-setup-buttons button[aria-pressed="true"]{
+  background:rgba(214,170,115,.065);
+  border-color:rgba(214,170,115,.30);
+}
+#builder-view .api-key-primary{
+  background:rgba(214,170,115,.045);
+  border-color:rgba(214,170,115,.23);
+}
+.bao-brand-document :is(a,nav a){color:#e3c79d}
+.bao-brand-document :is(.btn,.button,.actions a:first-child,.open-bao){
+  background:linear-gradient(135deg,#e0b775,#bd8e53);
+  color:#19130c!important;
+  border-color:#d6aa73;
+}
+.bao-brand-document .principle{
+  border-left-color:#d6aa73!important;
+  background:#171b20!important;
+  color:#f4ede3!important;
+}
+.bao-brand-document .closing{
+  background:#14191f!important;
+  border-color:rgba(214,170,115,.22)!important;
+}
+.bao-brand-document .step-number{
+  background:#29231b;
+  color:#efcf9d;
+}
