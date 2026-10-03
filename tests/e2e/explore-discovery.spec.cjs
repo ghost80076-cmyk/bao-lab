@@ -80,6 +80,24 @@ test('explore page lets players search works and filter capabilities without exp
   expect(dimensions.toolsRight).toBeLessThanOrEqual(dimensions.viewport + 1);
 });
 
+test('female-oriented filtering follows the work label even when the lead character is male', async ({ page }) => {
+  await page.goto('./');
+  await page.waitForFunction(() => Boolean(window.BAOExploreDiscovery && App.characters?.length));
+  await page.getByRole('button', { name: '作品', exact: true }).click();
+
+  await chooseFilter(page, '女性向');
+  await expect(page.locator('#character-list [data-character-id="linchenfeng"]')).toBeVisible();
+  await expect(page.locator('#character-list [data-character-id="unhealed-bonds"]')).toBeVisible();
+
+  const visibleIds = await page.locator('#character-list [data-character-id]:visible')
+    .evaluateAll(nodes => nodes.map(node => node.dataset.characterId));
+  const categories = await page.evaluate(ids =>
+    ids.map(id => App.characters.find(item => item.id === id)?.category), visibleIds
+  );
+  expect(categories.length).toBeGreaterThan(0);
+  expect(categories.every(category => category === 'female')).toBe(true);
+});
+
 test('explore search matches tags and does not change the current category gate', async ({ page }) => {
   await page.goto('./');
   await page.waitForFunction(() => Boolean(window.BAOExploreDiscovery && App.characters?.length));
@@ -172,11 +190,17 @@ test('explore surfaces player-relative NEW and UPDATED from explicit published v
     const category = card.querySelector('.category-badge')?.getBoundingClientRect();
     const update = card.querySelector('.explore-update-badge')?.getBoundingClientRect();
     return category && update
-      ? { categoryBottom: category.bottom, updateTop: update.top }
+      ? {
+          categoryTop: category.top,
+          categoryRight: category.right,
+          updateTop: update.top,
+          updateLeft: update.left
+        }
       : null;
   });
   expect(badgeLayout).not.toBeNull();
-  expect(badgeLayout.updateTop).toBeGreaterThanOrEqual(badgeLayout.categoryBottom + 2);
+  expect(Math.abs(badgeLayout.updateTop - badgeLayout.categoryTop)).toBeLessThanOrEqual(2);
+  expect(badgeLayout.updateLeft).toBeGreaterThanOrEqual(badgeLayout.categoryRight + 4);
 
   await chooseFilter(page, '有近期更新');
   await expect(target).toBeVisible();

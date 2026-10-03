@@ -67,10 +67,27 @@
     return "";
   }
 
+  function workCategory(character = {}) {
+    const values = [
+      ...(Array.isArray(character.audience) ? character.audience : []),
+      ...(Array.isArray(character.categories) ? character.categories : [])
+    ].map(value => fold(value));
+    if (values.some(value => ["male", "man", "男性", "男性向"].includes(value))) return "male";
+    if (values.some(value => ["female", "woman", "女性", "女性向"].includes(value))) return "female";
+
+    const category = fold(character.category || "");
+    if (["male", "男性", "男性向"].includes(category)) return "male";
+    if (["female", "女性", "女性向"].includes(category)) return "female";
+
+    // Legacy imported cards may only have a character gender. Use it only when
+    // no explicit work/audience classification exists.
+    return characterGender(character);
+  }
+
   function inCategory(character = {}, category = "all") {
     const active = ["male", "female"].includes(category) ? category : "all";
     if (active === "all") return true;
-    return characterGender(character) === active;
+    return workCategory(character) === active;
   }
 
   function inRating(character = {}, rating = "general") {
@@ -245,6 +262,7 @@
     isFresh,
     isAdult,
     characterGender,
+    workCategory,
     inCategory,
     inRating,
     supports,

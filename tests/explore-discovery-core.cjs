@@ -44,6 +44,16 @@ assert.deepEqual(core.filter(works, { category: "all", capability: "ui" }).map(x
 assert.deepEqual(core.filter(works, { category: "all", query: "長篇" }).map(x => x.id), ["city"]);
 assert.deepEqual(core.filter(works, { category: "all", query: "作者甲" }, () => ({ author: "作者甲" })).map(x => x.id), ["city", "room"]);
 
+const femaleAudienceMaleCharacter = {
+  id: "female-audience-male-character",
+  category: "female",
+  rating: "general",
+  gender: "male"
+};
+assert.equal(core.workCategory(femaleAudienceMaleCharacter), "female");
+assert.equal(core.inCategory(femaleAudienceMaleCharacter, "female"), true);
+assert.equal(core.inCategory(femaleAudienceMaleCharacter, "male"), false);
+
 
 const library = core.normalizeLibrary({
   favorites: ["room", "room", ""],
