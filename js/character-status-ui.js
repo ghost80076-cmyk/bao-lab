@@ -83,12 +83,17 @@
     const isDistrict = App.activeCharacter?.id === "desire-district";
     const sceneNPCs = (GameState.current?.npcs || []).filter(npc => npc?.name && npc.presence !== "away" &&
       (npc.location === GameState.current?.location || (npc.presence === "present" && (!npc.location || npc.location === "未知"))));
-    const names = isDistrict ? sceneNPCs.map(npc => npc.name) : [App.activeCharacter?.name, ...(GameState.current?.npcs || []).map(n => n?.name)].filter(Boolean);
+    const names = isDistrict
+      ? sceneNPCs.map(npc => npc.name)
+      : (window.BAOCharacterStatus.statusNames?.(App.activeCharacter) || Object.keys(GameState.current?.characterStatuses || {}));
     const fields = visibleFields(cfg);
     const selected = new Set(window.BAOCharacterStatus.selectedContextCharacters?.() || []);
     const cards = [...new Set(names)].map(name => {
       const npc = (GameState.current?.npcs || []).find(n => n.name === name);
-      const role = name === App.activeCharacter?.name ? "主要角色" : (npc?.role || "NPC");
+      const npcRole = String(npc?.role || "").trim();
+      const role = npcRole && npcRole !== "NPC"
+        ? npcRole
+        : (window.BAOCharacterStatus.isPrimaryCharacterName?.(name, App.activeCharacter) ? "主要角色" : "NPC");
       const status = GameState.current?.characterStatuses?.[name] || {};
       const picked = selected.has(name);
       const rows = fields.map(field => `<div class="character-status-field"><small>${esc(displayLabel(field, cfg.customization))}</small>${fieldValueHTML(field, status[field.key])}</div>`).join("");

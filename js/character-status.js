@@ -133,10 +133,85 @@
 
   const defaultStatus = cfg => Object.fromEntries(cfg.fields.map(f => [f.key, cleanValue(f, f.default)]));
 
-  const trackedNames = character => [
-    ...(character?.id === "desire-district" ? [] : [character?.name || window.App?.activeCharacter?.name]),
-    ...(GameState.current?.npcs || []).map(n => n?.name)
-  ].filter(Boolean);
+  const schemaVersionFor = character => {
+    const raw = character?.schema_version ?? character?.meta?.schema_version ?? "";
+    const value = Number.parseFloat(String(raw));
+    return Number.isFinite(value) ? value : 0;
+  };
+
+  const initialStatusMapFor = character =>
+    character?.initial_state?.character_statuses
+    || character?.gameplay?.initial_state?.character_statuses
+    || {};
+
+  const initialStatusNamesFor = character => Object.keys(initialStatusMapFor(character))
+    .map(name => String(name || "").trim())
+    .filter(Boolean);
+
+  const initialNPCNamesFor = character => {
+    const raw = character?.initial_state?.npcs || character?.gameplay?.initial_state?.npcs || [];
+    return (Array.isArray(raw) ? raw : [])
+      .map(npc => String(npc?.name || "").trim())
+      .filter(Boolean);
+  };
+
+  const configuredPrimaryNamesFor = character => {
+    const raw = character?.character_status || character?.gameplay?.character_status || {};
+    const value = raw.primary_character_name ?? raw.primary_character ?? raw.subject_name ?? [];
+    return (Array.isArray(value) ? value : [value])
+      .map(name => String(name || "").trim())
+      .filter(Boolean);
+  };
+
+  const cardDisplayNameFor = character => String(character?.name || window.App?.activeCharacter?.name || "").trim();
+
+  const authorDeclaredCharacterNames = character => new Set([
+    ...configuredPrimaryNamesFor(character),
+    ...initialStatusNamesFor(character),
+    ...initialNPCNamesFor(character)
+  ]);
+
+  const usesExplicitCharacterSemantics = character => schemaVersionFor(character) >= 1.5;
+
+  const shouldSuppressCardDisplayName = character => {
+    if (!usesExplicitCharacterSemantics(character)) return false;
+    const name = cardDisplayNameFor(character);
+    return Boolean(name) && !authorDeclaredCharacterNames(character).has(name);
+  };
+
+  const trackedNames = character => {
+    const names = [
+      ...configuredPrimaryNamesFor(character),
+      ...initialStatusNamesFor(character),
+      ...(GameState.current?.npcs || []).map(npc => npc?.name)
+    ];
+    if (!usesExplicitCharacterSemantics(character) && character?.id !== "desire-district") {
+      names.unshift(cardDisplayNameFor(character));
+    }
+    return [...new Set(names.map(name => String(name || "").trim()).filter(Boolean))];
+  };
+
+  const statusNames = character => {
+    const names = Object.keys(GameState.current?.characterStatuses || {});
+    if (!shouldSuppressCardDisplayName(character)) return names;
+    const displayName = cardDisplayNameFor(character);
+    return names.filter(name => name !== displayName);
+  };
+
+  const primaryCharacterNamesFor = character => {
+    const configured = configuredPrimaryNamesFor(character);
+    if (configured.length) return configured;
+    const initialStatuses = initialStatusNamesFor(character);
+    if (initialStatuses.length === 1) return initialStatuses;
+    const initialNPCs = initialNPCNamesFor(character);
+    if (initialNPCs.length === 1) return initialNPCs;
+    const displayName = cardDisplayNameFor(character);
+    if (displayName && !shouldSuppressCardDisplayName(character)) return [displayName];
+    return [];
+  };
+
+  const isPrimaryCharacterName = (name, character) => primaryCharacterNamesFor(character)
+    .includes(String(name || "").trim());
 
   const ensureState = character => {
     if (!GameState.current) return null;
@@ -154,8 +229,16 @@
     }
     if (!cfg.enabled) return cfg;
 
-    const initial = c?.initial_state?.character_statuses || c?.gameplay?.initial_state?.character_statuses || {};
-    [...new Set(trackedNames(c))].forEach(name => {
+    const initial = initialStatusMapFor(c);
+    if (shouldSuppressCardDisplayName(c)) {
+      const invalidName = cardDisplayNameFor(c);
+      delete GameState.current.characterStatuses[invalidName];
+      if (Array.isArray(GameState.current.uiContextCharacters)) {
+        GameState.current.uiContextCharacters = GameState.current.uiContextCharacters.filter(name => name !== invalidName);
+      }
+      if (GameState.current.uiContextCharacter === invalidName) delete GameState.current.uiContextCharacter;
+    }
+    trackedNames(c).forEach(name => {
       const existing = GameState.current.characterStatuses[name] || initial?.[name] || {};
       const next = defaultStatus(cfg);
       cfg.fields.forEach(field => {
@@ -227,7 +310,7 @@
     if (!state) return [];
     const raw = Array.isArray(state.uiContextCharacters) ? state.uiContextCharacters : [];
     if (!raw.length && state.uiContextCharacter) raw.push(String(state.uiContextCharacter));
-    const known = new Set(Object.keys(state.characterStatuses || {}));
+    const known = new Set(statusNames(window.App?.activeCharacter));
     const next = [...new Set(raw.map(name => String(name || "").trim()).filter(name => name && known.has(name)))]
       .slice(0, MAX_CONTEXT_CHARACTERS);
     state.uiContextCharacters = next;
@@ -302,7 +385,7 @@
     if (!state) return [];
     const hay = String(text || "").toLowerCase();
     const district = window.App?.activeCharacter?.id === "desire-district";
-    const all = Object.keys(state.characterStatuses || {}).filter(name => !district || name !== window.App?.activeCharacter?.name);
+    const all = statusNames(window.App?.activeCharacter).filter(name => !district || name !== window.App?.activeCharacter?.name);
     const inScene = new Set(sceneNPCs().map(npc => npc.name));
     const viewed = new Set(selectedContextCharacters());
     const scored = all.map(name => {
@@ -407,6 +490,8 @@
     snapshotForTracker,
     compactForPrompt,
     namesForTurn,
+    statusNames,
+    isPrimaryCharacterName,
     selectedContextCharacters,
     toggleContextCharacter,
     clearContextCharacters,

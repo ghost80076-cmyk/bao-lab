@@ -7,7 +7,7 @@
     "category": "male",
     "rating": "adult",
     "gender": "female",
-    "avatar": "assets/community/89/spicy-89-girl.webp",
+    "avatar": "https://i.meee.com.tw/9fgA5aC.jpg",
     "tags": [
       "男性向",
       "R18成人角色",
@@ -295,7 +295,8 @@
           "track": true,
           "default": "曖昧糾纏；越來越想拉開距離"
         }
-      ]
+      ],
+      "primary_character_name": "陳思婷"
     },
     "world_modules": [
       {
@@ -858,7 +859,7 @@
       "text": true,
       "ui": true
     },
-    "reading_background": "assets/community/89/spicy-89-girl.webp",
+    "reading_background": "https://i.meee.com.tw/9fgA5aC.jpg",
     "opening": {
       "type": "noir",
       "label": "DALIAO / SUMMER 2024",

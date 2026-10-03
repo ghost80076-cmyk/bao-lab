@@ -66,14 +66,14 @@ window.addEventListener("DOMContentLoaded", () => {
     .catch(err => console.warn("BAO/LAB autonomous world workbench or display failed to load:", err));
   loadBAOScript("js/global-bridge.js")
     .then(() => loadBAOScript("js/world-state.js"))
-    .then(() => loadBAOScript("js/character-status.js?v=2"))
+    .then(() => loadBAOScript("js/character-status.js?v=3"))
     .then(() => loadBAOScript("js/world-modules.js"))
     .then(() => loadBAOScript("js/world-state-cost.js"))
     .then(() => loadBAOScript("js/same-model-state-merge.js"))
     .then(() => loadBAOScript("js/world-module-ui.js"))
     .then(() => loadBAOScript("js/world-module-manager.js?v=4"))
     .then(() => loadBAOScript("js/world-relevance.js"))
-    .then(() => loadBAOScript("js/character-status-ui.js?v=4"))
+    .then(() => loadBAOScript("js/character-status-ui.js?v=5"))
     .then(() => loadBAOScript("js/world-state-hook.js"))
     .catch(err => console.warn("BAO/LAB world state or character status modules failed to load:", err));
   loadBAOScript("js/cost-control.js")
