@@ -58,7 +58,7 @@ body{min-height:100vh;background:#101118;color:#f5f1ff}
 
     <div class="yb-tabs">
       <button type="button" data-tab="login">登入</button>
-      <button type="button" data-tab="register">使用邀請碼註冊</button>
+      <button type="button" data-tab="register">建立帳號</button>
       <button type="button" data-tab="recover">恢復帳號</button>
       <button type="button" data-tab="account" hidden>我的帳號</button>
     </div>
@@ -78,10 +78,9 @@ body{min-height:100vh;background:#101118;color:#f5f1ff}
         <label>登入帳號<input name="username" autocomplete="username" required maxlength="32" placeholder="3–32 字元，英文／數字／._-"></label>
         <label>密碼<input name="password" type="password" autocomplete="new-password" required minlength="10" maxlength="128"></label>
         <label>確認密碼<input name="password_confirm" type="password" autocomplete="new-password" required minlength="10" maxlength="128"></label>
-        <label>邀請碼<input name="invite_code" autocomplete="off" required maxlength="160"></label>
         <button class="yb-primary" type="submit">建立夜灣帳號</button>
       </form>
-      <p class="yb-note">邀請碼由管理員提供。密碼與恢復碼不會以明文保存在夜灣帳號資料庫。</p>
+      <p class="yb-note">公開註冊已開放。密碼與恢復碼不會以明文保存在夜灣帳號資料庫。</p>
       <div class="yb-error" id="register-error"></div>
     </section>
 
@@ -164,7 +163,6 @@ body{min-height:100vh;background:#101118;color:#f5f1ff}
         invalid_credentials:"帳號或密碼不正確。",
         invalid_registration:"帳號資料不符合規則。帳號需 3–32 字元，密碼至少 10 字元。",
         username_taken:"這個帳號名稱已有人使用。",
-        invalid_invite_code:"邀請碼無效或已更新，請向管理員確認。",
         registration_closed:"目前尚未開放新帳號註冊。",
         invalid_recovery_request:"恢復資料格式不正確。",
         invalid_recovery_credentials:"玩家編號或恢復碼不正確。",
@@ -390,7 +388,7 @@ body{min-height:100vh;background:#101118;color:#f5f1ff}
     var f=event.currentTarget;if(f.elements.password.value!==f.elements.password_confirm.value){msg("register-error","兩次輸入的密碼不一致。");return;}
     var button=f.querySelector("button");button.disabled=true;
     try{
-      var data=await call("/auth/register",{method:"POST",credentials:"omit",body:JSON.stringify({username:f.elements.username.value.trim(),display_name:f.elements.display_name.value.trim(),password:f.elements.password.value,invite_code:f.elements.invite_code.value.trim()})});
+      var data=await call("/auth/register",{method:"POST",credentials:"omit",body:JSON.stringify({username:f.elements.username.value.trim(),display_name:f.elements.display_name.value.trim(),password:f.elements.password.value})});
       if(!rememberLegacySession(data)) throw new Error("註冊回應缺少可用的 Session，請稍後再試。");
       await refresh(true);
       f.reset();recovery(data.recovery_code);
