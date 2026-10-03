@@ -33,6 +33,9 @@ assert.match(card.content.system_prompt, /鏡頭內／幕後/);
 assert.match(card.content.system_prompt, /數值色情遊戲/);
 assert.match(card.content.system_prompt, /不得聲稱角色就是現實存在的 AV 女優/);
 assert.match(card.content.system_prompt, /不得替玩家輸出新台詞/);
+assert.match(card.content.system_prompt, /動態演員生態/);
+assert.match(card.content.system_prompt, /臨演／客串 → 常駐配角 → 核心演員/);
+assert.match(card.content.system_prompt, /不要為了熱鬧而每輪亂生新人/);
 
 const builder = card.gameplay.ui_schema.builder;
 const roleField = builder.fields.find(item => item.key === 'stage_role');
@@ -53,12 +56,12 @@ for (const name of ['東條有希','瑞原凜','宇都宮沙希','夢佳','高�
 }
 
 const moduleIds = new Set(card.gameplay.world_modules.map(item => item.id));
-for (const id of ['production_state','player_casting','player_stats','scene_score','skill_book','cast_roster','relations','scene_participants','open_threads','production_log']) {
+for (const id of ['production_state','player_casting','player_stats','scene_score','skill_book','cast_roster','relations','scene_participants','open_threads','production_log','cast_pipeline','production_people']) {
   assert.ok(moduleIds.has(id), `missing world module ${id}`);
 }
 
 const promptIds = new Set(card.content.dynamic_prompts.map(item => item.id));
-for (const id of ['camera-layer','performer-dex','scene-scoring','adult-scene','taboo-script','world-motion']) {
+for (const id of ['camera-layer','performer-dex','scene-scoring','adult-scene','taboo-script','world-motion','cast-generation','cast-promotion']) {
   assert.ok(promptIds.has(id), `missing dynamic prompt ${id}`);
 }
 
@@ -66,6 +69,9 @@ const normalized = GameplayUI.normalize(card.gameplay.ui_schema);
 assert.ok(normalized, 'Gameplay UI schema should normalize');
 assert.deepEqual(normalized.panels.map(panel => panel.id), ['studio','stats','cast','skills','actions']);
 assert.equal(normalized.theme.preset, 'noir');
+assert.ok(card.gameplay.initial_state.modules.cast_pipeline.some(item => item.includes('核心｜')));
+assert.ok(card.gameplay.initial_state.modules.cast_pipeline.some(item => item.includes('常駐配角')));
+assert.ok(card.gameplay.initial_state.modules.production_people.length >= 1);
 
 const opening = JSON.stringify(card.presentation.opening);
 assert.doesNotMatch(opening, /<script\b/i);
