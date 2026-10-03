@@ -1061,6 +1061,38 @@
     "source_format": "yorubay-native-author-pack",
     "source_origin": "character-studio + gameplay-ui + dynamic-prompts + author-regex",
     "regex_file": "data/characters/community/7c/xia-yuhan-av-industry.regex.json",
-    "notes": "使用夜灣一般作者可用的 Builder、原生 Gameplay UI、Dynamic Prompts 與作者 Regex。Regex 僅負責顯示層；不建立常駐大型成人評分面板。"
+    "notes": "使用夜灣一般作者可用的 Builder、原生 Gameplay UI、Dynamic Prompts 與作者 Regex。Regex 僅負責顯示層；不建立常駐大型成人評分面板。",
+    "preserved_source": {
+      "version": 1,
+      "type": "yorubay-author-regex-mod",
+      "scope": "assistant_display",
+      "characterId": "xia-yuhan-av-industry",
+      "regex_scripts": [
+        {
+          "scriptName": "夏語涵｜片場開場",
+          "description": "把開場標記整理成成人片場風格卡片；只改顯示，不改 Prompt、記憶或世界狀態。",
+          "priority": 80,
+          "findRegex": "【YB:AV:OPENING】\\s*([\\s\\S]*?)\\s*【/YB:AV:OPENING】",
+          "flags": "g",
+          "replaceString": "<style>.yb-av-opening{font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif;background:linear-gradient(145deg,#171317,#271a22);color:#f4ecef;border:1px solid #704858;border-left:4px solid #d56a8b;border-radius:16px;padding:18px 20px;box-shadow:0 14px 34px rgba(0,0,0,.28);line-height:1.85;white-space:pre-wrap}.yb-av-opening:before{content:\"TOKYO · PRISM STAGE\";display:block;color:#e6a0b7;font-size:12px;font-weight:700;letter-spacing:.14em;margin-bottom:9px}</style><section class=\"yb-av-opening\">$1</section>"
+        },
+        {
+          "scriptName": "夏語涵｜角色起點",
+          "description": "把精簡角色建立提示轉成輕量卡；不把 Builder 重新做成巨大表單。",
+          "priority": 60,
+          "findRegex": "【YB:AV:SETUP】\\s*([\\s\\S]*?)\\s*【/YB:AV:SETUP】",
+          "flags": "g",
+          "replaceString": "<style>.yb-av-setup{font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif;background:#1d171b;color:#e8dde2;border:1px solid #5d414c;border-radius:13px;padding:13px 15px;line-height:1.75;white-space:pre-wrap}.yb-av-setup:before{content:\"你的業界起點\";display:block;color:#df8fa9;font-weight:700;margin-bottom:7px}.yb-av-setup:after{content:\"也可以跳過設定，直接用既有 Persona。\";display:block;color:#a9959e;font-size:12px;margin-top:8px}</style><section class=\"yb-av-setup\">$1</section>"
+        },
+        {
+          "scriptName": "夏語涵｜重大結算",
+          "description": "只有完整場次、收工或作品公開後才把評價整理成卡片，避免每輪刷分。",
+          "priority": 40,
+          "findRegex": "【YB:AV:EVAL】\\s*([\\s\\S]*?)\\s*【/YB:AV:EVAL】",
+          "flags": "g",
+          "replaceString": "<style>.yb-av-eval{font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif;background:linear-gradient(135deg,#1c171c,#231d25);color:#eee5e9;border:1px solid #6b5360;border-radius:14px;padding:14px 16px;line-height:1.75;white-space:pre-wrap}.yb-av-eval:before{content:\"WRAP · 場次評價\";display:block;color:#e6a0b7;font-weight:700;margin-bottom:7px}</style><section class=\"yb-av-eval\">$1</section>"
+        }
+      ]
+    }
   }
 }
