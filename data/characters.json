@@ -657,5 +657,42 @@
     "updated_at": "2026-10-03T19:35:00Z",
     "published_version": 1,
     "version_published_at": "2026-10-03T19:35:00Z"
+  },
+  {
+    "id": "zhutian-cultivation-fortune-strife",
+    "file": "data/characters/community/28/zhutian-cultivation-fortune-strife.json",
+    "name": "諸天修仙界：氣運爭鋒",
+    "title": "諸天修仙界｜氣運爭鋒",
+    "avatar": "https://i.meee.com.tw/hpeZ6ff.jpg",
+    "category": "general",
+    "rating": "general",
+    "gender": "all",
+    "tags": [
+      "一般向",
+      "修仙世界",
+      "多位面",
+      "氣運爭鋒",
+      "天命者",
+      "金手指",
+      "宗門勢力",
+      "長篇養成",
+      "自主NPC",
+      "資訊隔離",
+      "世界模擬",
+      "原生狀態UI"
+    ],
+    "description": "多位面修仙沙盒世界。建立自己的境界、氣運與金手指，在宗門、秘境、諸天城與跨界機緣中成長；其他天命者也會各自修煉、爭奪、結盟與失敗。氣運會改變機會，但不會替任何人作弊。",
+    "supported_modes": {
+      "immersive": true,
+      "world": true
+    },
+    "supported_display": {
+      "text": true,
+      "ui": true
+    },
+    "published_at": "2026-10-03T19:57:00Z",
+    "updated_at": "2026-10-03T19:57:00Z",
+    "published_version": 1,
+    "version_published_at": "2026-10-03T19:57:00Z"
   }
 ]

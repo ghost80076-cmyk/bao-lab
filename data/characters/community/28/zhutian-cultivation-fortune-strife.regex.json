@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "type": "yorubay-author-regex-mod",
+  "scope": "assistant_display",
+  "characterId": "zhutian-cultivation-fortune-strife",
+  "regex_scripts": [
+    {
+      "scriptName": "諸天修仙界｜入世卷",
+      "description": "把開場標記轉成玄金卷軸卡；只改顯示，不改 Prompt、記憶與世界狀態。",
+      "priority": 80,
+      "findRegex": "【YB:CULT:OPENING】\\s*([\\s\\S]*?)\\s*【/YB:CULT:OPENING】",
+      "flags": "g",
+      "replaceString": "<style>.yb-cult-opening{font-family:ui-serif,\"Noto Serif TC\",serif;background:linear-gradient(145deg,#111714,#202a22);color:#e8e1ce;border:1px solid #6c765f;border-left:4px solid #b99a52;border-radius:16px;padding:20px;box-shadow:0 14px 34px rgba(0,0,0,.3);line-height:1.9;white-space:pre-wrap}.yb-cult-opening:before{content:\"諸天錄 · 氣運爭鋒\";display:block;color:#d6b96b;font-size:12px;letter-spacing:.16em;margin-bottom:10px}.yb-cult-opening strong{color:#f0d98e}</style><section class=\"yb-cult-opening\">$1</section>"
+    },
+    {
+      "scriptName": "諸天修仙界｜天機異動",
+      "description": "把重大氣運、機緣或突破異象整理成事件卡；不把未知真相直接透露給玩家。",
+      "priority": 60,
+      "findRegex": "【YB:CULT:OMEN】\\s*([\\s\\S]*?)\\s*【/YB:CULT:OMEN】",
+      "flags": "g",
+      "replaceString": "<style>.yb-cult-omen{font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif;background:linear-gradient(135deg,#171b25,#252538);color:#e8e4f3;border:1px solid #676180;border-left:3px solid #8f82c9;border-radius:13px;padding:13px 15px;line-height:1.8;white-space:pre-wrap}.yb-cult-omen:before{content:\"天機異動\";display:block;color:#c9bff0;font-weight:700;margin-bottom:6px}</style><section class=\"yb-cult-omen\">$1</section>"
+    },
+    {
+      "scriptName": "諸天修仙界｜可用行動",
+      "description": "把開場或關鍵節點的行動提示整理成輕量卡；玩家自由輸入永遠有效。",
+      "priority": 40,
+      "findRegex": "【YB:CULT:ACTIONS】\\s*([\\s\\S]*?)\\s*【/YB:CULT:ACTIONS】",
+      "flags": "g",
+      "replaceString": "<style>.yb-cult-actions{font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif;background:#171d19;color:#ddd9cd;border:1px solid #566058;border-radius:14px;padding:14px 16px;line-height:1.8;white-space:pre-wrap}.yb-cult-actions:before{content:\"下一步\";display:block;color:#d6b96b;font-weight:700;margin-bottom:7px}.yb-cult-actions:after{content:\"可直接自由輸入，不受提示限制。\";display:block;color:#90998f;font-size:12px;margin-top:8px}</style><section class=\"yb-cult-actions\">$1</section>"
+    }
+  ]
+}
