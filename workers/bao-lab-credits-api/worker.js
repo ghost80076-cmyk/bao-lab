@@ -4367,14 +4367,37 @@ const WorkerPublicationFormat = (() => {
           160
         );
   
-    const category =
+    const rawCategory =
       String(
         meta.category ||
         raw.category ||
-        ""
+        "general"
       )
         .trim()
         .toLowerCase();
+
+    const rawRating =
+      String(
+        meta.rating ||
+        raw.rating ||
+        "general"
+      )
+        .trim()
+        .toLowerCase();
+
+    const category =
+      rawCategory ===
+        "r18"
+        ? "general"
+        : rawCategory;
+
+    const rating =
+      rawCategory ===
+        "r18" ||
+      rawRating ===
+        "adult"
+        ? "adult"
+        : "general";
   
     const description =
       String(
@@ -4426,15 +4449,28 @@ const WorkerPublicationFormat = (() => {
   
     if (
       ![
+        "general",
         "male",
         "female",
-        "r18",
       ].includes(
         category
       )
     ) {
       throw publishError(
         "invalid_character_category"
+      );
+    }
+
+    if (
+      ![
+        "general",
+        "adult",
+      ].includes(
+        rating
+      )
+    ) {
+      throw publishError(
+        "invalid_character_rating"
       );
     }
   
@@ -4886,12 +4922,7 @@ const WorkerPublicationFormat = (() => {
         title,
         avatar,
         category,
-  
-        rating:
-          category ===
-            "r18"
-            ? "adult"
-            : "general",
+        rating,
   
         description,
         tags,
@@ -4940,12 +4971,7 @@ const WorkerPublicationFormat = (() => {
       title,
       avatar,
       category,
-  
-      rating:
-        category ===
-          "r18"
-          ? "adult"
-          : "general",
+      rating,
   
       gender:
         String(
