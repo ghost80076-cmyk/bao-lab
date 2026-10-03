@@ -26,6 +26,13 @@ test.describe('YoruBay official identity and concise community entry', () => {
     await expect(page.locator('.brand-home-count')).toContainText('個故事正在等你。');
     await expect(page.locator('#home-view .brand-signature')).toHaveCount(0);
     await expect(page.locator('#home-view .brand-hero-copy > .brand-kicker')).toHaveCount(0);
+    const homeWorkIds = await page.locator('#home-feature-stage, #home-view .home-character-card')
+      .evaluateAll(nodes => nodes.map(node => node.dataset.homeCharacter).filter(Boolean));
+    const adultLeaks = await page.evaluate(ids => ids.filter(id => {
+      const character = (App.characters || []).find(item => String(item?.id || '') === String(id));
+      return window.BAOContentPreferences?.isAdult?.(character);
+    }), homeWorkIds);
+    expect(adultLeaks).toEqual([]);
     await expect(page.locator('#home-view .brand-intro')).toHaveText('替你留了一盞燈。');
     await expect(page.locator('#home-view a[href="quick-start.html"]')).toHaveCount(1);
     await expect(page.locator('#home-view .brand-first-run')).toContainText('第一次來？三步開始');

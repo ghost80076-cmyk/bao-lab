@@ -206,7 +206,13 @@
   window.BAORefreshHomeCharacterPreview = () => {
     const home = document.getElementById("home-view");
     const preview = document.getElementById("home-character-preview");
-    const characters = (App.characters || []).filter(character => character?.category !== "r18");
+    const characters = (App.characters || []).filter(character => {
+      const preferences = window.BAOContentPreferences;
+      if (preferences?.canExpose) return preferences.canExpose(character);
+      return String(character?.category || "").toLowerCase() !== "r18"
+        && String(character?.rating || "").toLowerCase() !== "adult"
+        && character?.adult_content !== true;
+    });
     if (!home || !preview || !characters.length) return;
     const nightly = nightlyCharacters(characters);
     const count = document.getElementById("home-character-count");
@@ -290,6 +296,12 @@
         return result;
       };
       App.__baoNightHomeRefreshWrapped = true;
+    }
+    if (!window.__baoHomeAdultVisibilityBound) {
+      window.addEventListener("yorubay:content-preferences-changed", () => {
+        window.BAORefreshHomeCharacterPreview?.();
+      });
+      window.__baoHomeAdultVisibilityBound = true;
     }
     setTimeout(() => {
       setNavLabel("home", "首頁");
