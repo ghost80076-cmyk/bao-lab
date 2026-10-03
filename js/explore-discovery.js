@@ -476,6 +476,17 @@
       const content = card.querySelector(".character-content");
       if (!content) return;
 
+      let badgeRow = imageWrap?.querySelector(".explore-card-badge-row");
+      const categoryBadge = imageWrap?.querySelector(".category-badge");
+      if (imageWrap && categoryBadge && !badgeRow) {
+        badgeRow = document.createElement("div");
+        badgeRow.className = "explore-card-badge-row";
+        imageWrap.appendChild(badgeRow);
+        badgeRow.appendChild(categoryBadge);
+      } else if (badgeRow && categoryBadge && categoryBadge.parentElement !== badgeRow) {
+        badgeRow.prepend(categoryBadge);
+      }
+
       const libraryInfo = core.libraryMeta(library, character.id);
       const item = manifestEntry(character);
       const updateInfo = core.workUpdateState(item, libraryInfo);
@@ -503,10 +514,10 @@
 
       let updateBadge = imageWrap?.querySelector(".explore-update-badge");
       if (updateInfo.badge) {
-        if (!updateBadge && imageWrap) {
+        if (!updateBadge && (badgeRow || imageWrap)) {
           updateBadge = document.createElement("span");
           updateBadge.className = "explore-update-badge";
-          imageWrap.appendChild(updateBadge);
+          (badgeRow || imageWrap).appendChild(updateBadge);
         }
         if (updateBadge) {
           updateBadge.textContent = updateInfo.badge;
@@ -690,7 +701,7 @@
     if (activeFilters) {
       const chips = [];
       const labels = {
-        category: { male: "男性角色", female: "女性角色" },
+        category: { male: "男性向", female: "女性向" },
         rating: { mature: "成熟內容" },
         scope: { favorites: "收藏", recent: "最近看過", updates: "有近期更新" },
         capability: { world: "世界模擬", ui: "互動 UI" },
