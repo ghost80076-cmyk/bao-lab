@@ -9,7 +9,7 @@ assert.equal(card.meta.category,'female');
 assert.equal(card.meta.rating,'adult');
 assert.equal(card.meta.gender,'male');
 assert.equal(card.presentation.play_info_surface,'game-ui');
-assert.equal(card.meta.avatar,'https://i.meee.com.tw/HXPCkBs.jpg');
+assert.equal(card.meta.avatar,'assets/community/de/debt-cage-lu-shen.jpg');
 assert.match(card.content.system_prompt,/陸深.*30 歲/);
 assert.match(card.content.system_prompt,/玩家可以拒簽、談判、拖延/);
 assert.match(card.content.system_prompt,/親密不能作為債務償還、懲罰、報復/);
