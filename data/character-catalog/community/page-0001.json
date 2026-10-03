@@ -213,5 +213,42 @@
     "updated_at": "2026-10-03T13:30:00Z",
     "published_version": 1,
     "version_published_at": "2026-10-03T13:30:00Z"
+  },
+  {
+    "id": "heart-contract-custom-lover",
+    "file": "data/characters/community/8f/heart-contract-custom-lover.json",
+    "name": "心動違約｜訂製戀人",
+    "title": "心動違約｜訂製戀人",
+    "avatar": "assets/community/8f/heart-contract-custom-lover.svg",
+    "category": "female",
+    "rating": "adult",
+    "gender": "all",
+    "tags": [
+      "女性向",
+      "訂製戀人",
+      "契約戀愛",
+      "假戀人",
+      "世界模擬",
+      "自主NPC",
+      "多NPC",
+      "金錢系統",
+      "國籍文化",
+      "慢熱戀愛",
+      "韓劇張力",
+      "成人內容"
+    ],
+    "description": "在合法而普遍的「假戀人」產業裡，妳可以訂製一位最適合自己的戀人：外貌、性格、國籍、職業、相處方式都能決定。問題是——當一個人太擅長扮演愛妳，妳要怎麼分辨哪一刻開始，不再只是工作？",
+    "supported_modes": {
+      "immersive": true,
+      "world": true
+    },
+    "supported_display": {
+      "text": true,
+      "ui": true
+    },
+    "published_at": "2026-10-03T13:52:00Z",
+    "updated_at": "2026-10-03T13:52:00Z",
+    "published_version": 1,
+    "version_published_at": "2026-10-03T13:52:00Z"
   }
 ]
