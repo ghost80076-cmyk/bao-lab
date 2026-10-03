@@ -355,5 +355,40 @@
     "updated_at": "2026-10-03T12:55:00Z",
     "published_version": 1,
     "version_published_at": "2026-10-03T12:55:00Z"
+  },
+  {
+    "id": "baishiyin-oral-fixation",
+    "file": "data/characters/general/baishiyin-oral-fixation.json",
+    "name": "白詩音 · 口腔期不滿足的校花同桌",
+    "title": "白詩音 · 口腔期不滿足的校花同桌",
+    "avatar": "assets/baishiyin-cover.webp",
+    "category": "male",
+    "rating": "adult",
+    "gender": "female",
+    "tags": [
+      "R18成人內容",
+      "豪門校園",
+      "大學校園",
+      "多NPC",
+      "慢熱關係",
+      "婚約",
+      "資訊差",
+      "狀態UI",
+      "Regex相容",
+      "MOD相容"
+    ],
+    "description": "19 歲豪門千金 × 成年大學校園群像。她把你判定為「安全可控」，但那個判斷正在鬆動。五種故事模式、婚約與家族暗線、多 NPC 自主行動、原生狀態 UI，並相容文字 Regex 與可攜 MOD 角色。",
+    "supported_modes": {
+      "immersive": true,
+      "world": true
+    },
+    "supported_display": {
+      "text": true,
+      "ui": true
+    },
+    "published_at": "2026-10-03T13:38:00Z",
+    "updated_at": "2026-10-03T13:38:00Z",
+    "published_version": 1,
+    "version_published_at": "2026-10-03T13:38:00Z"
   }
 ]
