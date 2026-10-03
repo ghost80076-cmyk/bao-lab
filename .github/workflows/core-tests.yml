@@ -91,6 +91,8 @@ jobs:
         run: node tests/dark-military-war-simulator-card.test.cjs
       - name: Craftsman Ming Survival TRPG card
         run: node tests/craftsman-ming-survival-trpg-card.test.cjs
+      - name: Zhutian Cultivation Fortune Strife card
+        run: node tests/zhutian-cultivation-fortune-strife-card.test.cjs
       - name: Baitao Roommate Triangle card
         run: node tests/baitao-roommate-triangle-card.test.cjs
       - name: Debt Cage Lu Shen card
