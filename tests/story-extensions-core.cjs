@@ -162,6 +162,38 @@ const core = require("../js/story-extensions-core.js");
 }
 
 {
+  const commentary = core.commentarySummary({
+    enabledCount: 2,
+    availableCount: 2,
+    labels: ["🔥 淫魔班長", "💕 魅魔肉包"],
+    items: [
+      { id: "yinmo-monitor", label: "🔥 淫魔班長", description: "A", enabled: true },
+      { id: "succubus-bun", label: "💕 魅魔肉包", description: "B", enabled: true }
+    ]
+  });
+  assert.equal(commentary.title, "2 個場外人格正在運作");
+  assert.deepEqual(commentary.scopes, ["額外模型請求", "不進主記憶", "故事內"]);
+  assert.equal(commentary.ownership.storage, "故事存檔");
+  assert.match(commentary.ownership.permissions.join(" · "), /不寫入 NPC/);
+  assert.equal(commentary.inventory[0].items.length, 2);
+  assert.equal(commentary.active, true);
+}
+
+{
+  const overview = core.overview({
+    commentary: {
+      enabledCount: 1,
+      availableCount: 2,
+      labels: ["🔥 淫魔班長"],
+      items: [{ id: "yinmo-monitor", label: "🔥 淫魔班長", enabled: true }]
+    }
+  });
+  assert.equal(overview.cards.length, 5);
+  assert.equal(overview.activeCount, 1);
+  assert.match(overview.detail, /場外人格/);
+}
+
+{
   const overview = core.overview({
     world: [{ id: "status", label: "狀態" }],
     scene: { mode: "native", status: "native" },
