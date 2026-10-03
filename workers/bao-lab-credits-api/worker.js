@@ -4466,7 +4466,7 @@ const WorkerPublicationFormat = (() => {
         "general",
         "adult",
       ].includes(
-        rating
+        rawRating
       )
     ) {
       throw publishError(
