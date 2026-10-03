@@ -322,6 +322,46 @@
     };
   }
 
+
+  function interpretationSummary(input = null) {
+    if (!input || typeof input !== "object") return null;
+    const stageLabels = {
+      pre_response_advisor: "生成前顧問",
+      post_response_observer: "生成後觀察"
+    };
+    const items = (Array.isArray(input.items) ? input.items : []).map(item => inventoryItem({
+      id: item?.id,
+      label: item?.label || item?.id,
+      detail: [stageLabels[item?.stage] || "", item?.description || ""].filter(Boolean).join(" · "),
+      status: item?.enabled === true ? "啟用" : "未啟用",
+      state: item?.enabled === true ? "active" : "paused"
+    }));
+    const activeCount = Math.max(0, Number(input.enabledCount) || 0);
+    const availableCount = Math.max(0, Number(input.availableCount) || items.length);
+    const requestCount = Math.max(0, Number(input.requestCount) || 0);
+    const labels = (Array.isArray(input.labels) ? input.labels : []).map(text).filter(Boolean);
+    return {
+      id: "interpretation",
+      eyebrow: "雙向解讀",
+      title: activeCount ? `${activeCount} 個解讀模組正在運作` : "雙向解讀未啟用",
+      detail: activeCount ? labels.join("＋") : "玩家→NPC 的生成前顧問＋NPC→玩家的生成後觀察；兩邊可獨立開關",
+      scopes: ["生成前顧問", "生成後觀察", "不進主記憶"],
+      ownership: ownership({
+        sources: [source("platform", "夜灣內建", availableCount)],
+        storage: "故事存檔",
+        appliesTo: "目前故事",
+        control: "玩家明確啟用；肉包可能影響當輪生成，但沒有劇情決定權",
+        permissions: [
+          "肉包：只提供低優先級摘要",
+          "班長：只讀本輪可見正文",
+          requestCount ? `每輪最多 ${requestCount} 次額外模型請求` : "未啟用時不增加模型請求"
+        ]
+      }),
+      inventory: items.length ? [inventoryGroup("platform", "夜灣官方示範", items)] : [],
+      active: activeCount > 0
+    };
+  }
+
   function overview(input = {}) {
     const cards = [
       worldSummary(input.world, input.worldInventory),
@@ -331,6 +371,8 @@
     ];
     const commentary = commentarySummary(input.commentary);
     if (commentary) cards.push(commentary);
+    const interpretation = interpretationSummary(input.interpretation);
+    if (interpretation) cards.push(interpretation);
     const active = cards.filter(card => card.active);
     return {
       cards,
@@ -354,6 +396,7 @@
     replaceSummary,
     regexSummary,
     commentarySummary,
+    interpretationSummary,
     overview
   });
 });

@@ -53,7 +53,8 @@
       replace,
       regex,
       authorRegex: readAuthorRegex(),
-      commentary: window.BAOCommentaryMods?.summary?.() || null
+      commentary: window.BAOCommentaryMods?.summary?.() || null,
+      interpretation: window.BAOInterpretationMods?.summary?.() || null
     });
   };
 
@@ -89,6 +90,10 @@
     commentary() {
       if (window.BAOCommentaryMods?.open) window.BAOCommentaryMods.open();
       else window.BAOFeedback?.notify?.("場外人格 MOD 仍在載入。", "error");
+    },
+    interpretation() {
+      if (window.BAOInterpretationMods?.open) window.BAOInterpretationMods.open();
+      else window.BAOFeedback?.notify?.("雙向解讀 MOD 仍在載入。", "error");
     }
   };
 
@@ -313,7 +318,7 @@
         </header>
         <div class="story-extension-guide" id="story-extension-guide">
           <b>先看「作用範圍、來源、保存位置、適用故事與啟用權限」，再決定要不要開。</b>
-          <span>世界模組會參與 AI 上下文與狀態；閱讀排版會影響 AI 回覆格式與畫面；玩家文字替換只改顯示。清單中的安全開關可以直接切換；新增、刪除、改內容與作品授權仍留在完整管理工具。作品 Regex 不會在這裡快速取得權限。</span>
+          <span>世界模組會參與 AI 上下文與狀態；閱讀排版會影響 AI 回覆格式與畫面；玩家文字替換只改顯示。雙向解讀中的肉包會提供低優先級的當輪生成參考，班長只在正文後做觀察；兩者都不寫入主記憶。清單中的安全開關可以直接切換；新增、刪除、改內容與作品授權仍留在完整管理工具。作品 Regex 不會在這裡快速取得權限。</span>
         </div>
         <div class="story-extensions-list">
           ${data.cards.map(card).join("")}
