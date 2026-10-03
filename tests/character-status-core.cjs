@@ -105,4 +105,40 @@ assert.equal(GameState.current.characterStatuses[character.name].custom_alert, u
 assert.equal(JSON.stringify(character), originalCard);
 assert.equal(WorldStateEngine.enabled({ narrativeMode: "immersive", displayMode: "text" }), true);
 
+const modernCard = {
+  schema_version: "1.5",
+  name: '愛吃"辣椒"的89妹',
+  character_status: {
+    enabled: true,
+    fields: [{ key: "condition", label: "狀態", type: "text", context: "core", track: true, default: "正常" }]
+  },
+  initial_state: { npcs: [{ name: "陳思婷", role: "NPC" }] }
+};
+App.activeCharacter = modernCard;
+GameState.create(modernCard, App.config);
+assert.equal(Object.hasOwn(GameState.current.characterStatuses, modernCard.name), false);
+assert.equal(Object.hasOwn(GameState.current.characterStatuses, "陳思婷"), true);
+assert.deepEqual(BAOCharacterStatus.statusNames(modernCard), ["陳思婷"]);
+assert.equal(BAOCharacterStatus.isPrimaryCharacterName("陳思婷", modernCard), true);
+
+GameState.current.characterStatuses[modernCard.name] = { condition: "舊版誤建" };
+GameState.current.uiContextCharacters = [modernCard.name, "陳思婷"];
+BAOCharacterStatus.ensureState(modernCard);
+assert.equal(Object.hasOwn(GameState.current.characterStatuses, modernCard.name), false, "schema 1.5 work title must not survive as a person");
+assert.deepEqual(BAOCharacterStatus.selectedContextCharacters(), ["陳思婷"]);
+
+const simulatorCard = {
+  schema_version: "1.5",
+  name: "模擬世界",
+  character_status: {
+    enabled: true,
+    fields: [{ key: "condition", label: "狀態", type: "text", context: "core", track: true, default: "正常" }]
+  },
+  initial_state: { npcs: [] }
+};
+App.activeCharacter = simulatorCard;
+GameState.create(simulatorCard, App.config);
+assert.deepEqual(BAOCharacterStatus.statusNames(simulatorCard), []);
+assert.equal(Object.hasOwn(GameState.current.characterStatuses, "模擬世界"), false);
+
 console.log("character status core test passed");
