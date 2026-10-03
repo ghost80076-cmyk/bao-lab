@@ -246,7 +246,7 @@
         "label": "你的情報",
         "icon": "⌕",
         "kind": "collection",
-        "tracking": "manual",
+        "tracking": "high",
         "context": "core",
         "description": "只保存玩家本人合法取得的私人情報。"
       },
@@ -409,7 +409,7 @@
         ]
       }
     },
-    "gameplay_ui": {
+    "ui_schema": {
       "version": 1,
       "theme": {
         "preset": "arcane-night",
