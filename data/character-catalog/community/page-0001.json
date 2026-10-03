@@ -178,5 +178,40 @@
       "text": true,
       "ui": true
     }
+  },
+  {
+    "id": "lu-yan-rogue-devotion",
+    "file": "data/characters/community/2e/lu-yan-rogue-devotion.json",
+    "name": "陸炎｜痞壞背後的深情",
+    "title": "陸炎｜痞壞背後的深情",
+    "avatar": "assets/community/2e/lu-yan-rogue-devotion.webp",
+    "category": "female",
+    "rating": "adult",
+    "gender": "male",
+    "tags": [
+      "女性向",
+      "現代都市",
+      "酒吧老闆",
+      "街頭勢力",
+      "豪門棄子",
+      "歡喜冤家",
+      "佔有慾",
+      "反差守護",
+      "慢熱戀愛",
+      "成人內容"
+    ],
+    "description": "他是酒吧「焰」的老闆，也是這條街最不好惹的人。嘴壞、愛挑釁、總把關心藏在最不討喜的方式裡；妳看見的是他的痞，沒看見的是他早已替妳擋掉多少麻煩。現代都市 × 歡喜冤家 × 豪門棄子 × 反差守護。",
+    "supported_modes": {
+      "immersive": true,
+      "world": true
+    },
+    "supported_display": {
+      "text": true,
+      "ui": true
+    },
+    "published_at": "2026-10-03T13:30:00Z",
+    "updated_at": "2026-10-03T13:30:00Z",
+    "published_version": 1,
+    "version_published_at": "2026-10-03T13:30:00Z"
   }
 ]
