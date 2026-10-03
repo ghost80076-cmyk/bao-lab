@@ -95,6 +95,16 @@
             </div>
           </section>
 
+          <section class="bao-player-panel" data-bao-content-visibility>
+            <h2>內容顯示</h2>
+            <p>成人作品與成人 MOD 預設不會出現在夜灣介面；需要時由你在這台裝置主動開啟。</p>
+            <label class="bao-content-visibility-toggle">
+              <input type="checkbox" data-bao-adult-content-toggle>
+              <span><b>顯示成人內容</b><small>僅供已滿 18 歲使用者。這個選擇只保存在這台裝置，不綁夜灣帳號。</small></span>
+            </label>
+            <small class="bao-content-visibility-state" data-bao-adult-content-state></small>
+          </section>
+
           <section class="bao-player-panel">
             <h2>跨裝置</h2>
             <p>需要時再連結自己的 Google 雲端硬碟。API Key 不會跟著故事同步。</p>
@@ -130,11 +140,48 @@
     section.querySelector('[data-bao-player-action="drive"]')?.addEventListener("click", openDrive);
     section.querySelector('[data-bao-player-action="explore"]')?.addEventListener("click", () => App.showView("explore"));
     section.querySelector('[data-bao-player-action="about"]')?.addEventListener("click", () => App.showView("about"));
+
+    const adultToggle = section.querySelector("[data-bao-adult-content-toggle]");
+    const syncAdultContent = () => {
+      const api = window.BAOContentPreferences;
+      const enabled = Boolean(api?.isAdultContentEnabled?.());
+      if (adultToggle) {
+        adultToggle.checked = enabled;
+        adultToggle.disabled = !api;
+      }
+      const state = section.querySelector("[data-bao-adult-content-state]");
+      if (state) state.textContent = enabled
+        ? "成人內容已顯示；作品區與成人 MOD 入口現在可見。"
+        : "成人內容目前隱藏。";
+    };
+    adultToggle?.addEventListener("change", event => {
+      const api = window.BAOContentPreferences;
+      if (!api) {
+        event.currentTarget.checked = false;
+        return;
+      }
+      const requested = Boolean(event.currentTarget.checked);
+      const changed = api.setAdultContentEnabled(requested, { confirmAge: true });
+      if (!changed) event.currentTarget.checked = api.isAdultContentEnabled();
+      syncAdultContent();
+    });
+    window.addEventListener("yorubay:content-preferences-changed", syncAdultContent);
+    syncAdultContent();
     return section;
   };
 
   const refreshMeView = () => {
     renderMeView();
+    const adultToggle = document.querySelector("[data-bao-adult-content-toggle]");
+    const adultState = document.querySelector("[data-bao-adult-content-state]");
+    const adultEnabled = Boolean(window.BAOContentPreferences?.isAdultContentEnabled?.());
+    if (adultToggle) {
+      adultToggle.checked = adultEnabled;
+      adultToggle.disabled = !window.BAOContentPreferences;
+    }
+    if (adultState) adultState.textContent = adultEnabled
+      ? "成人內容已顯示；作品區與成人 MOD 入口現在可見。"
+      : "成人內容目前隱藏。";
     const account = $("bao-player-account-state");
     if (account) {
       account.textContent = validAccountSession()

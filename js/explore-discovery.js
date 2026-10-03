@@ -7,6 +7,7 @@
 
   const STORAGE_KEY = "yorubay:explore-continuity:v1";
   const PREF_KEY = "yorubay:explore-preferences:v1";
+  const adultEnabled = () => Boolean(window.BAOContentPreferences?.isAdultContentEnabled?.());
 
   const readLibrary = () => {
     try {
@@ -157,6 +158,10 @@
     const key = String(id || "");
     const character = (App.characters || []).find(item => String(item?.id || "") === key);
     if (!character) return false;
+    if (window.BAOContentPreferences?.isAdult?.(character) && !adultEnabled()) {
+      window.BAOContentPreferences?.guard?.(character);
+      return false;
+    }
 
     const dialog = ensurePreview();
     const item = manifestEntry(character);
@@ -298,7 +303,7 @@
             </div>
           </section>
 
-          <section class="explore-filter-group" aria-labelledby="explore-rating-label">
+          <section class="explore-filter-group" aria-labelledby="explore-rating-label" data-explore-adult-controls ${adultEnabled() ? "" : "hidden"}>
             <h4 id="explore-rating-label">內容分級</h4>
             <div class="explore-option-row">
               <button type="button" data-explore-rating="general">一般</button>
@@ -350,13 +355,14 @@
 
     const setRating = rating => {
       const next = rating === "mature" ? "mature" : "general";
-      if (next === "mature" && localStorage.getItem("bao-lab:adult-confirmed") !== "yes") {
-        if (!confirm("成熟內容僅供已滿 18 歲使用者瀏覽。請確認你已年滿 18 歲。")) return false;
-        localStorage.setItem("bao-lab:adult-confirmed", "yes");
+      if (next === "mature" && !adultEnabled()) {
+        window.BAOContentPreferences?.guard?.({ rating: "adult" });
+        return false;
       }
       state.rating = next;
+      if (next === "mature") state.category = "all";
       document.getElementById("adult-notice")?.classList.toggle("hidden", next !== "mature");
-      scheduleApply();
+      App.renderCharacters(next === "mature" ? "r18" : "all");
       return true;
     };
 
@@ -609,6 +615,12 @@
 
   const apply = () => {
     const host = ensureTools();
+    if (!adultEnabled() && state.rating === "mature") {
+      state.rating = "general";
+      state.category = "all";
+    }
+    const adultControls = host?.querySelector("[data-explore-adult-controls]");
+    if (adultControls) adultControls.hidden = !adultEnabled();
     const matches = currentMatches();
     const visible = new Set(matches.map(item => String(item.id || "")));
 
@@ -761,15 +773,36 @@
 
   const originalRender = App.renderCharacters.bind(App);
   App.renderCharacters = function(filter = "all") {
-    if (["male", "female"].includes(filter)) state.category = filter;
-    const result = originalRender("all");
+    if (filter === "r18") {
+      if (!adultEnabled()) {
+        state.rating = "general";
+        state.category = "all";
+        const blocked = originalRender("all");
+        scheduleApply();
+        return blocked;
+      }
+      state.rating = "mature";
+      state.category = "all";
+    } else if (["male", "female"].includes(filter)) {
+      state.category = filter;
+      state.rating = "general";
+    } else if (filter === "all" && state.rating !== "mature") {
+      state.category = "all";
+    }
+    const result = originalRender(state.rating === "mature" && adultEnabled() ? "r18" : "all");
     scheduleApply();
     return result;
   };
 
   const originalOpenCharacter = App.openCharacter.bind(App);
   App.openCharacter = async function(id) {
+    const character = (App.characters || []).find(entry => String(entry?.id || "") === String(id || "")) || null;
     const item = (App.characterManifest || []).find(entry => String(entry?.id || "") === String(id || "")) || {};
+    const adultTarget = character || item;
+    if (window.BAOContentPreferences?.isAdult?.(adultTarget) && !adultEnabled()) {
+      window.BAOContentPreferences?.guard?.(adultTarget);
+      return false;
+    }
     const publication = core.publicationMeta(item);
     const result = await originalOpenCharacter(id);
     if (String(App.activeCharacter?.id || "") === String(id || "")) {
@@ -785,6 +818,20 @@
     }
     return result;
   };
+
+  window.addEventListener("yorubay:content-preferences-changed", () => {
+    const enabled = adultEnabled();
+    const adultControls = root.querySelector("[data-explore-adult-controls]");
+    if (adultControls) adultControls.hidden = !enabled;
+    if (!enabled && state.rating === "mature") {
+      state.rating = "general";
+      state.category = "all";
+      closePreview();
+      App.renderCharacters("all");
+      return;
+    }
+    scheduleApply();
+  });
 
   const observer = new MutationObserver(records => {
     const relevant = records.some(record =>

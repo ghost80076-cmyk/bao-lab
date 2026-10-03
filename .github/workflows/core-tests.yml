@@ -89,6 +89,12 @@ jobs:
         run: node tests/bao-doctor-core.cjs
       - name: Lazy character catalog
         run: node tests/character-catalog-lazy-core.cjs
+      - name: Adult content visibility
+        run: |
+          node --check js/content-preferences-core.js
+          node --check js/content-preferences.js
+          node --check js/character-ui.js
+          node tests/content-preferences-core.cjs
       - name: Explore discovery filters and work versions
         run: |
           node --check js/explore-discovery-core.js

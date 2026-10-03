@@ -43,6 +43,15 @@
 .bao-player-panel>a.secondary{display:inline-flex;text-decoration:none}
 .bao-player-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:18px}
 .bao-player-panel>button,.bao-player-panel>a{margin-top:18px}
+.bao-content-visibility-toggle{
+  display:flex;align-items:flex-start;gap:12px;margin-top:18px;padding:14px 15px;
+  border:1px solid rgba(241,232,218,.08);border-radius:14px;background:rgba(12,12,15,.35);cursor:pointer;
+}
+.bao-content-visibility-toggle input{flex:0 0 auto;width:18px;height:18px;margin-top:2px;accent-color:#b9a6ff}
+.bao-content-visibility-toggle span{display:grid;gap:4px}
+.bao-content-visibility-toggle b{color:#e9e2ee;font-size:14px}
+.bao-content-visibility-toggle small,.bao-content-visibility-state{color:#908d99;font-size:11px;line-height:1.6}
+.bao-content-visibility-state{display:block;margin-top:9px}
 .bao-player-privacy-note{
   display:flex;align-items:flex-start;gap:10px;padding:17px 20px;border-radius:16px;color:#a9a5b0;line-height:1.7;
 }
@@ -76,6 +85,8 @@
   .bao-player-panel p{min-height:0}
   .bao-player-actions{margin-top:14px}
   .bao-player-panel>button,.bao-player-panel>a{margin-top:14px}
+  .bao-content-visibility-toggle{margin-top:14px;padding:12px 13px}
+  .bao-content-visibility-toggle b{font-size:13px}
   .bao-player-privacy-note{display:block;padding:15px 16px;font-size:12px}
   .bao-player-privacy-note b{display:block;margin-bottom:4px}
 

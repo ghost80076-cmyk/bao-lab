@@ -86,7 +86,8 @@
       return;
     }
 
-    const authoredWorks = core.worksForAuthor(works, author.id);
+    const authoredWorks = core.worksForAuthor(works, author.id)
+      .filter(item => window.BAOContentPreferences?.canExpose?.(item) !== false);
     document.title = author.name + "｜作者｜夜灣 YoruBay";
 
     root.innerHTML = `
