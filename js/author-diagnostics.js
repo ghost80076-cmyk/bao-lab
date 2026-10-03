@@ -39,8 +39,11 @@
     required.forEach(([path, value, fix]) => { if (!value) add('error', path, '缺少必填文字。', fix); });
     const id = required[0][1];
     if (id && !/^[a-zA-Z0-9][a-zA-Z0-9_-]{0,63}$/.test(id)) add('error', '$.meta.id', 'ID 含有不允許的字元或長度超出範圍。', '使用 1～64 個英數、底線或連字號，並以英數開頭。');
-    const category = text(meta.category || raw.category).toLowerCase();
-    if (category && !['male', 'female', 'r18'].includes(category)) add('error', '$.meta.category', '不支援的作品分類。', '請填 male、female 或 r18；這是作品受眾分類，不是角色性別。');
+    const rawCategory = text(meta.category || raw.category || 'general').toLowerCase();
+    const category = rawCategory === 'r18' ? 'general' : rawCategory;
+    const rating = text(meta.rating || raw.rating || (rawCategory === 'r18' ? 'adult' : 'general')).toLowerCase();
+    if (!['general', 'female', 'male'].includes(category)) add('error', '$.meta.category', '不支援的作品取向。', '請填 general、female 或 male；這描述作品主要受眾，不是角色性別。');
+    if (!['general', 'adult'].includes(rating)) add('error', '$.meta.rating', '不支援的內容分級。', '請填 general 或 adult；成人內容與作品取向分開設定。');
     const avatar = text(meta.avatar || raw.avatar);
     if (avatar && !/^(https:\/\/|assets\/)/i.test(avatar)) add('error', '$.meta.avatar', '圖片來源格式不支援。', '改用 https:// 開頭的圖片連結或 assets/ 本站圖片路徑。');
     if (!text(meta.description || raw.description)) add('notice', '$.meta.description', '尚未填寫作品列表簡介。', '補一句作品定位；不影響匯入與聊天。');

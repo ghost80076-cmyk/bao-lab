@@ -7,7 +7,7 @@ const card=require('../data/characters/general/k-idol-survival-simulator.json');
 const manifest=require('../data/characters.json');
 
 assert.ok(manifest.some(entry=>entry.id===card.meta.id),'manifest should include k-idol-survival-simulator');
-assert.equal(card.meta.category,'male');
+assert.equal(card.meta.category,'general');
 assert.equal(card.meta.rating,'general');
 assert.equal(card.meta.gender,'all');
 assert.ok(fs.existsSync(path.join(__dirname,'..',card.meta.avatar)),'idol survival cover should exist');

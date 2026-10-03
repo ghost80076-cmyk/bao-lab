@@ -98,6 +98,33 @@ test('female-oriented filtering follows the work label even when the lead charac
   expect(categories.every(category => category === 'female')).toBe(true);
 });
 
+test('poster cards keep audience/update badges compact and the title in the lower half', async ({ page }) => {
+  await page.addInitScript(() => localStorage.removeItem('yorubay:explore-continuity:v1'));
+  await page.setViewportSize({ width: 1180, height: 820 });
+  await page.goto('./');
+  await page.waitForFunction(() => Boolean(window.BAOExploreDiscovery && App.characters?.length));
+  await page.getByRole('button', { name: '作品', exact: true }).click();
+
+  const card = page.locator('#character-list [data-character-id="linchenfeng"]');
+  await expect(card).toBeVisible();
+  await expect(card.locator('.category-badge')).toHaveText('女性向');
+  await expect(card.locator('.explore-update-badge')).toHaveText('NEW');
+
+  const layout = await card.evaluate(node => {
+    const cardRect = node.getBoundingClientRect();
+    const category = node.querySelector('.category-badge')?.getBoundingClientRect();
+    const update = node.querySelector('.explore-update-badge')?.getBoundingClientRect();
+    const title = node.querySelector('.character-content h3')?.getBoundingClientRect();
+    return { card: cardRect.toJSON(), category: category?.toJSON(), update: update?.toJSON(), title: title?.toJSON() };
+  });
+  expect(layout.category).toBeTruthy();
+  expect(layout.update).toBeTruthy();
+  expect(layout.title).toBeTruthy();
+  expect(Math.abs(layout.update.top - layout.category.top)).toBeLessThanOrEqual(2);
+  expect(layout.update.left).toBeGreaterThanOrEqual(layout.category.right + 4);
+  expect(layout.title.top).toBeGreaterThanOrEqual(layout.card.top + layout.card.height * 0.55);
+});
+
 test('explore search matches tags and does not change the current category gate', async ({ page }) => {
   await page.goto('./');
   await page.waitForFunction(() => Boolean(window.BAOExploreDiscovery && App.characters?.length));
@@ -186,22 +213,6 @@ test('explore surfaces player-relative NEW and UPDATED from explicit published v
   await page.waitForFunction(() =>
     [...document.styleSheets].some(sheet => String(sheet.href || '').includes('bao-editorial-cinema.css'))
   );
-  const badgeLayout = await target.evaluate(card => {
-    const category = card.querySelector('.category-badge')?.getBoundingClientRect();
-    const update = card.querySelector('.explore-update-badge')?.getBoundingClientRect();
-    return category && update
-      ? {
-          categoryTop: category.top,
-          categoryRight: category.right,
-          updateTop: update.top,
-          updateLeft: update.left
-        }
-      : null;
-  });
-  expect(badgeLayout).not.toBeNull();
-  expect(Math.abs(badgeLayout.updateTop - badgeLayout.categoryTop)).toBeLessThanOrEqual(2);
-  expect(badgeLayout.updateLeft).toBeGreaterThanOrEqual(badgeLayout.categoryRight + 4);
-
   await chooseFilter(page, '有近期更新');
   await expect(target).toBeVisible();
   await expect(page.locator('#explore-result-count')).toContainText('目前顯示');

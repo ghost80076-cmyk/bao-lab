@@ -13,7 +13,7 @@ const card=require('../data/characters/general/night-sky-magic-academy.json');
 const manifest=require('../data/characters.json');
 
 assert.ok(manifest.some(entry=>entry.id===card.meta.id),'manifest should include night-sky-magic-academy');
-assert.equal(card.meta.category,'male');
+assert.equal(card.meta.category,'general');
 assert.equal(card.meta.rating,'general');
 assert.equal(card.meta.gender,'all');
 assert.ok(fs.existsSync(path.join(__dirname,'..',card.meta.avatar)),'generated academy cover should exist');

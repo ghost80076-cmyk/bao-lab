@@ -38,7 +38,7 @@
     "name": "自主NPC世界(成熟內容支援)",
     "title": "自主NPC世界(成熟內容支援)",
     "avatar": "https://i.meee.com.tw/CZubuJ9.jpg",
-    "category": "male",
+    "category": "general",
     "rating": "general",
     "gender": "",
     "tags": [
@@ -68,7 +68,7 @@
     "name": "開放世界：真實人格模擬器",
     "title": "開放世界：真實人格模擬器",
     "avatar": "https://i.meee.com.tw/4Fl2azt.jpg",
-    "category": "male",
+    "category": "general",
     "rating": "general",
     "gender": "",
     "tags": [
@@ -98,7 +98,7 @@
     "name": "慾望街區：紅燈區模擬器",
     "title": "慾望街區：紅燈區模擬器",
     "avatar": "https://i.meee.com.tw/nfkc3T3.jpg",
-    "category": "r18",
+    "category": "general",
     "rating": "adult",
     "gender": "all",
     "tags": [
@@ -132,7 +132,7 @@
     "name": "黑羽 ゆめ｜歌舞伎町・午前零時",
     "title": "歌舞伎町・午前零時：黑羽 ゆめ",
     "avatar": "assets/yume-yume-close-v3.webp",
-    "category": "female",
+    "category": "general",
     "rating": "general",
     "gender": "female",
     "tags": [
@@ -196,7 +196,7 @@
     "name": "牛郎模擬器｜歌舞伎町・最後指名",
     "title": "牛郎模擬器｜歌舞伎町・最後指名",
     "avatar": "assets/hostsim-hero-v2.webp",
-    "category": "male",
+    "category": "female",
     "rating": "general",
     "gender": "male",
     "tags": [
@@ -229,7 +229,7 @@
     "name": "夜穹魔法學院｜第一學年",
     "title": "夜穹魔法學院｜第一學年",
     "avatar": "assets/night-sky-academy-cover-v2.webp",
-    "category": "male",
+    "category": "general",
     "rating": "general",
     "gender": "all",
     "tags": [
@@ -262,7 +262,7 @@
     "name": "韓國偶像選秀模擬器｜最後一席",
     "title": "韓國偶像選秀模擬器｜最後一席",
     "avatar": "assets/k-idol-survival-cover.webp",
-    "category": "male",
+    "category": "general",
     "rating": "general",
     "gender": "all",
     "tags": [

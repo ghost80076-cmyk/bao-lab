@@ -11,7 +11,7 @@ const card=require('../data/characters/general/host-club-simulator.json');
 const manifest=require('../data/characters.json');
 
 assert.ok(manifest.some(entry=>entry.id===card.meta.id),'manifest should include host-club-simulator');
-assert.equal(card.meta.category,'male');
+assert.equal(card.meta.category,'female');
 assert.equal(card.meta.rating,'general');
 assert.equal(card.meta.gender,'male');
 assert.doesNotMatch(card.content.greeting,/R18|18\+ 成人向/,'public catalog should not expose R18 badge');

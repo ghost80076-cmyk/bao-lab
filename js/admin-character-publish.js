@@ -20,7 +20,8 @@
     invalid_character_card: "角色卡資料無效。",
     invalid_character_id: "角色 ID 只能使用英數、底線與連字號，最多 64 字元。",
     character_required_fields_missing: "角色卡缺少名稱、核心設定或開場白。",
-    invalid_character_category: "作品分區必須是男性向、女性向或 R18。",
+    invalid_character_category: "作品取向必須是一般向、女性向或男性向。",
+    invalid_character_rating: "內容分級必須是一般內容或成人內容。",
     character_card_too_large: "角色資料過大，請先精簡。",
     character_text_too_large: "核心設定或開場文字超出安全上限。",
     invalid_cover_image: "封面資料無效，請重新選擇圖片。",
@@ -121,6 +122,7 @@
     const name = String($("publish-name").value || "").trim();
     const title = String($("publish-title").value || name).trim();
     const category = $("publish-category").value;
+    const rating = $("publish-rating")?.value === "adult" ? "adult" : "general";
     const description = String($("publish-description").value || "").trim();
     const author = String($("publish-author").value || "").trim();
     const authorId = String($("publish-author-id")?.value || "").trim().toLowerCase();
@@ -134,7 +136,7 @@
         title,
         avatar: c.avatar,
         category,
-        rating: category === "r18" ? "adult" : "general",
+        rating,
         gender: c.gender || "",
         tags: tagsFromInput(),
         description,
@@ -308,7 +310,8 @@
     $("publish-id").value = c.id || "";
     $("publish-name").value = c.name || "";
     $("publish-title").value = c.title || c.name || "";
-    $("publish-category").value = ["male", "female", "r18"].includes(c.category) ? c.category : "male";
+    $("publish-category").value = ["general", "male", "female"].includes(c.category) ? c.category : "general";
+    if ($("publish-rating")) $("publish-rating").value = c.rating === "adult" ? "adult" : "general";
     $("publish-description").value = c.description || "";
     $("publish-tags").value = (c.tags || []).join(", ");
     $("publish-author-id").value = String(state.sourceCard?.meta?.creator_id || "").trim().toLowerCase();
@@ -485,7 +488,7 @@
     catch {}
   });
 
-  ["publish-id", "publish-name", "publish-title", "publish-category", "publish-description", "publish-tags", "publish-author-id", "publish-author", "publish-author-bio", "publish-author-support-label", "publish-author-support-url"].forEach(id => {
+  ["publish-id", "publish-name", "publish-title", "publish-category", "publish-rating", "publish-description", "publish-tags", "publish-author-id", "publish-author", "publish-author-bio", "publish-author-support-label", "publish-author-support-url"].forEach(id => {
     $(id)?.addEventListener("input", () => {
       state.audit = null;
       renderAudit(null);

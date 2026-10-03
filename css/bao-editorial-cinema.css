@@ -26,7 +26,7 @@
 #explore-view .character-image-wrap img{display:block;width:100%;aspect-ratio:2/3;height:auto;object-fit:cover;object-position:center 20%}
 #explore-view .character-image-wrap::after{display:none}
 #explore-view .character-card .category-badge{top:12px;bottom:auto;left:12px;border:1px solid rgba(255,255,255,.16);background:rgba(9,12,17,.75);color:#f0eef5}
-#explore-view .character-content{position:absolute;inset:auto 0 0;padding:72px 19px 19px;background:linear-gradient(180deg,transparent 0%,rgba(6,8,14,.82) 32%,rgba(6,8,14,.97) 100%);color:#f3efe9;pointer-events:none}
+#explore-view .character-content{position:absolute;inset:auto 0 0;padding:34px 19px 16px;background:linear-gradient(180deg,transparent 0%,rgba(6,8,14,.68) 42%,rgba(6,8,14,.96) 100%);color:#f3efe9;pointer-events:none}
 #explore-view .character-content h3{color:#fff;font-size:clamp(18px,2vw,23px);line-height:1.4;margin:6px 0 7px;text-shadow:0 1px 10px #0008}
 #explore-view .character-content .eyebrow{color:#d6ccfa}
 #explore-view .character-content p{color:#e0dfe6;min-height:0;line-height:1.65;margin:0;font-size:12px;-webkit-line-clamp:2}
@@ -174,10 +174,10 @@ body:has(#explore-view.active) .bao-mascot-avatar,body:has(#detail-view.active) 
 }
 #explore-view .character-image-wrap img{aspect-ratio:2/3;object-position:center 18%}
 #explore-view .character-content{
-  padding:82px 18px 18px;
-  background:linear-gradient(180deg,transparent 0%,rgba(6,7,13,.46) 24%,rgba(6,7,13,.94) 68%,#070810 100%);
+  padding:24px 18px 16px;
+  background:linear-gradient(180deg,transparent 0%,rgba(6,7,13,.30) 42%,rgba(6,7,13,.90) 78%,#070810 100%);
 }
-#explore-view .character-content h3{font-size:clamp(19px,2vw,25px);letter-spacing:.01em}
+#explore-view .character-content h3{font-size:clamp(18px,1.7vw,22px);line-height:1.32;letter-spacing:.01em}
 #explore-view .character-content p{color:#d3d3dc}
 #explore-view .character-content .tags{display:flex!important;gap:6px;max-height:31px;overflow:hidden}
 #explore-view .character-content .tag,
@@ -254,8 +254,8 @@ body:has(#detail-view.active) .bao-mascot-avatar{width:44px;height:44px}
   #home-view #bao-home-portrait img{aspect-ratio:4/5;object-position:center 16%}
   #explore-view .section-head h2{font-size:clamp(34px,10vw,46px)}
   #explore-view .category-portals{margin-bottom:17px}
-  #explore-view .character-content{padding:62px 10px 10px}
-  #explore-view .character-content h3{font-size:15px}
+  #explore-view .character-content{padding:20px 10px 10px}
+  #explore-view .character-content h3{font-size:14px;line-height:1.32}
   #explore-view .character-content p{font-size:10.5px;-webkit-line-clamp:1}
   #explore-view .character-content .tags{display:flex!important;gap:4px;max-height:24px}
   #explore-view .character-content .tag{font-size:9px!important;padding:2px 6px!important}
@@ -898,4 +898,40 @@ body:has(#home-view.active) .bao-mascot-launch,body:has(#explore-view.active) .b
 }
 @media(max-width:360px){
   #chat-view[data-bao-surface="play"] .chat-title-copy .eyebrow{max-width:38vw}
+}
+
+
+/* Poster metadata lock: keep the artwork dominant and anchor the live title low. */
+#explore-view #character-list .character-content{
+  height:34%;
+  min-height:0;
+  padding:0!important;
+  background:linear-gradient(180deg,transparent 0%,rgba(6,7,13,.22) 28%,rgba(6,7,13,.88) 74%,#070810 100%)!important;
+}
+#explore-view #character-list .character-content h3{
+  position:absolute;
+  left:18px;
+  right:18px;
+  bottom:14px;
+  margin:0!important;
+}
+#explore-view #character-list .character-content .explore-card-context{
+  position:absolute;
+  left:18px;
+  right:18px;
+  bottom:calc(14px + 3.2em);
+  margin:0;
+}
+@media(max-width:700px){
+  #explore-view #character-list .character-content{height:32%}
+  #explore-view #character-list .character-content h3{
+    left:10px;
+    right:10px;
+    bottom:10px;
+  }
+  #explore-view #character-list .character-content .explore-card-context{
+    left:10px;
+    right:10px;
+    bottom:calc(10px + 3em);
+  }
 }

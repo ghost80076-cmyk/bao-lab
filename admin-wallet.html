@@ -249,11 +249,18 @@ code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
       <label>正式標題
         <input id="publish-title" maxlength="160">
       </label>
-      <label>作品分區
+      <label>作品取向
         <select id="publish-category">
-          <option value="male">男性向</option>
+          <option value="general">一般向</option>
           <option value="female">女性向</option>
-          <option value="r18">R18</option>
+          <option value="male">男性向</option>
+        </select>
+        <small>取向描述主要受眾，不代表角色性別。</small>
+      </label>
+      <label>內容分級
+        <select id="publish-rating">
+          <option value="general">一般內容</option>
+          <option value="adult">成人內容（18+）</option>
         </select>
       </label>
       <label>標籤

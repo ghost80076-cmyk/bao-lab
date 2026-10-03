@@ -4,17 +4,24 @@
     "id": "example-character",
     "name": "角色名稱",
     "avatar": "https://example.com/character.jpg",
-    "category": "female",
+    "category": "general",
     "gender": "female",
-    "tags": ["慢熱", "現代"],
-    "description": "角色列表上顯示的簡介。"
+    "tags": [
+      "慢熱",
+      "現代"
+    ],
+    "description": "角色列表上顯示的簡介。",
+    "rating": "general"
   },
   "content": {
     "quote": "角色代表性台詞。",
     "greeting": "故事開場白。",
     "system_prompt": "角色核心人格、行為邏輯、語氣與不可破壞的設定。",
     "world": "世界背景、時代、社會規則、場所與世界運作方式。",
-    "world_focus": ["這個世界特別重要的元素", "例如魔法、種族特徵、命定印記或特殊制度"],
+    "world_focus": [
+      "這個世界特別重要的元素",
+      "例如魔法、種族特徵、命定印記或特殊制度"
+    ],
     "lore": "角色過往、已知事件、重要人物關係、秘密與背景知識。",
     "npc_rules": "NPC 的自主性、資訊隔離、離場與事件推進規則。",
     "author_instructions": "敘事鏡頭、對話格式、節奏、文風等作者級指示。",
@@ -104,8 +111,18 @@
         "context": "core",
         "description": "經常影響下一輪敘事的核心狀態。",
         "fields": [
-          {"key": "hp", "label": "體力", "type": "number", "min": 0, "max": 100},
-          {"key": "condition", "label": "狀態", "type": "text"}
+          {
+            "key": "hp",
+            "label": "體力",
+            "type": "number",
+            "min": 0,
+            "max": 100
+          },
+          {
+            "key": "condition",
+            "label": "狀態",
+            "type": "text"
+          }
         ]
       },
       {
@@ -115,7 +132,13 @@
         "kind": "collection",
         "tracking": "medium",
         "context": "relevant",
-        "triggers": ["背包", "物品", "拿出", "放入", "撿起"],
+        "triggers": [
+          "背包",
+          "物品",
+          "拿出",
+          "放入",
+          "撿起"
+        ],
         "description": "物品、裝備、消耗品與任務道具。"
       },
       {
@@ -172,11 +195,17 @@
         }
       },
       "modules": {
-        "status": {"hp": 100, "condition": "正常"},
+        "status": {
+          "hp": 100,
+          "condition": "正常"
+        },
         "inventory": [],
         "skills": [],
         "quests": [],
-        "economy": {"currency": "金幣", "amount": 0}
+        "economy": {
+          "currency": "金幣",
+          "amount": 0
+        }
       }
     }
   },
@@ -187,7 +216,12 @@
     },
     "ui": {
       "type": "basic",
-      "panels": ["npc", "status", "events", "memory"]
+      "panels": [
+        "npc",
+        "status",
+        "events",
+        "memory"
+      ]
     },
     "narrative": {
       "recommended_styles": [],

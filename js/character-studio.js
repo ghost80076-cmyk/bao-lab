@@ -83,7 +83,7 @@
     return {
       ...base,
       id: text('id'), name, title: name,
-      category: text('category'), rating: text('category') === 'r18' ? 'adult' : 'general',
+      category: text('category') || 'general', rating: text('rating') === 'adult' ? 'adult' : 'general',
       description: text('description'), avatar: avatar || DEFAULT_IMAGE,
       tags, quote: text('quote'), greeting: text('greeting'),
       system_prompt: text('system_prompt'),
@@ -101,7 +101,7 @@
     loading = true;
     base = c;
     draftId = chosenDraftId;
-    for (const key of ['id', 'name', 'category', 'description', 'quote', 'greeting', 'system_prompt', 'world', 'lore', 'npc_rules', 'author_instructions', 'creator_notes']) field(key).value = c[key] || '';
+    for (const key of ['id', 'name', 'category', 'rating', 'description', 'quote', 'greeting', 'system_prompt', 'world', 'lore', 'npc_rules', 'author_instructions', 'creator_notes']) field(key).value = c[key] || '';
     field('avatar').value = c.avatar === DEFAULT_IMAGE || c.avatar.includes('picsum.photos/seed/bao-character') ? '' : c.avatar;
     field('tags').value = (c.tags || []).join(', ');
     field('mode').value = c.supported_modes?.world ? 'world' : 'immersive';

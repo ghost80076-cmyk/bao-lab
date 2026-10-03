@@ -295,11 +295,12 @@
           </section>
 
           <section class="explore-filter-group" aria-labelledby="explore-category-label">
-            <h4 id="explore-category-label">作品定位</h4>
+            <h4 id="explore-category-label">作品取向</h4>
             <div class="explore-option-row">
               <button type="button" data-explore-category="all">全部</button>
-              <button type="button" data-explore-category="male">男性向</button>
+              <button type="button" data-explore-category="general">一般向</button>
               <button type="button" data-explore-category="female">女性向</button>
+              <button type="button" data-explore-category="male">男性向</button>
             </div>
           </section>
 
@@ -348,7 +349,7 @@
     };
 
     const setCategory = category => {
-      state.category = ["all", "male", "female"].includes(category) ? category : "all";
+      state.category = ["all", "general", "male", "female"].includes(category) ? category : "all";
       scheduleApply();
       return true;
     };
@@ -360,9 +361,8 @@
         return false;
       }
       state.rating = next;
-      if (next === "mature") state.category = "all";
       document.getElementById("adult-notice")?.classList.toggle("hidden", next !== "mature");
-      App.renderCharacters(next === "mature" ? "r18" : "all");
+      App.renderCharacters("all");
       return true;
     };
 
@@ -477,14 +477,18 @@
       if (!content) return;
 
       let badgeRow = imageWrap?.querySelector(".explore-card-badge-row");
-      const categoryBadge = imageWrap?.querySelector(".category-badge");
-      if (imageWrap && categoryBadge && !badgeRow) {
+      const staticBadges = imageWrap
+        ? [...imageWrap.querySelectorAll(":scope > .category-badge, :scope > .rating-badge")]
+        : [];
+      if (imageWrap && staticBadges.length && !badgeRow) {
         badgeRow = document.createElement("div");
         badgeRow.className = "explore-card-badge-row";
         imageWrap.appendChild(badgeRow);
-        badgeRow.appendChild(categoryBadge);
-      } else if (badgeRow && categoryBadge && categoryBadge.parentElement !== badgeRow) {
-        badgeRow.prepend(categoryBadge);
+      }
+      if (badgeRow) {
+        staticBadges.forEach(badge => {
+          if (badge.parentElement !== badgeRow) badgeRow.appendChild(badge);
+        });
       }
 
       const libraryInfo = core.libraryMeta(library, character.id);
@@ -514,10 +518,15 @@
 
       let updateBadge = imageWrap?.querySelector(".explore-update-badge");
       if (updateInfo.badge) {
-        if (!updateBadge && (badgeRow || imageWrap)) {
+        if (!badgeRow && imageWrap) {
+          badgeRow = document.createElement("div");
+          badgeRow.className = "explore-card-badge-row";
+          imageWrap.appendChild(badgeRow);
+        }
+        if (!updateBadge && badgeRow) {
           updateBadge = document.createElement("span");
           updateBadge.className = "explore-update-badge";
-          (badgeRow || imageWrap).appendChild(updateBadge);
+          badgeRow.appendChild(updateBadge);
         }
         if (updateBadge) {
           updateBadge.textContent = updateInfo.badge;
@@ -652,7 +661,7 @@
 
     decorateCards();
 
-    const portalCategory = state.rating === "mature" ? "r18" : state.category;
+    const portalCategory = state.category;
     document.querySelectorAll("#category-portals .category-portal").forEach(button => {
       button.classList.toggle("active", button.dataset.category === portalCategory);
     });
@@ -707,7 +716,7 @@
     if (activeFilters) {
       const chips = [];
       const labels = {
-        category: { male: "男性向", female: "女性向" },
+        category: { general: "一般向", female: "女性向", male: "男性向" },
         rating: { mature: "成熟內容" },
         scope: { favorites: "收藏", recent: "最近看過", updates: "有近期更新" },
         capability: { world: "世界模擬", ui: "互動 UI" },
@@ -789,13 +798,13 @@
       }
       state.rating = "mature";
       state.category = "all";
-    } else if (["male", "female"].includes(filter)) {
+    } else if (["general", "male", "female"].includes(filter)) {
       state.category = filter;
-      state.rating = "general";
-    } else if (filter === "all" && state.rating !== "mature") {
-      state.category = "all";
+    } else if (filter === "all") {
+      // "all" refreshes the rendered catalog, but keeps the independent
+      // orientation/rating filters selected by the player.
     }
-    const result = originalRender(state.rating === "mature" && adultEnabled() ? "r18" : "all");
+    const result = originalRender("all");
     scheduleApply();
     return result;
   };
