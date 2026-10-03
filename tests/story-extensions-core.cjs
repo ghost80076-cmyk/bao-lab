@@ -227,4 +227,72 @@ const core = require("../js/story-extensions-core.js");
   assert.equal(overview.title, "使用作品原始設定");
 }
 
+
+{
+  const interpretation = core.interpretationSummary({
+    enabledCount: 2,
+    availableCount: 2,
+    requestCount: 2,
+    labels: ["🎀 肉包", "📘 班長"],
+    items: [
+      {
+        id: "bun-interpreter",
+        label: "🎀 肉包",
+        stage: "pre_response_advisor",
+        description: "玩家行為顧問",
+        enabled: true
+      },
+      {
+        id: "class-monitor",
+        label: "📘 班長",
+        stage: "post_response_observer",
+        description: "NPC 表現解讀",
+        enabled: true
+      }
+    ]
+  });
+  assert.equal(interpretation.title, "2 個解讀模組正在運作");
+  assert.deepEqual(interpretation.scopes, ["生成前顧問", "生成後觀察", "不進主記憶"]);
+  assert.match(interpretation.ownership.control, /沒有劇情決定權/);
+  assert.match(interpretation.ownership.permissions.join(" · "), /最多 2 次額外模型請求/);
+  assert.match(interpretation.inventory[0].items[0].detail, /生成前顧問/);
+  assert.match(interpretation.inventory[0].items[1].detail, /生成後觀察/);
+  assert.equal(interpretation.active, true);
+}
+
+{
+  const interpretation = core.interpretationSummary({
+    enabledCount: 0,
+    availableCount: 2,
+    requestCount: 0,
+    labels: [],
+    items: [
+      { id: "bun-interpreter", label: "🎀 肉包", stage: "pre_response_advisor", enabled: false },
+      { id: "class-monitor", label: "📘 班長", stage: "post_response_observer", enabled: false }
+    ]
+  });
+  assert.equal(interpretation.title, "雙向解讀未啟用");
+  assert.match(interpretation.detail, /可獨立開關/);
+  assert.match(interpretation.ownership.permissions.join(" · "), /未啟用時不增加模型請求/);
+  assert.equal(interpretation.active, false);
+}
+
+{
+  const overview = core.overview({
+    interpretation: {
+      enabledCount: 1,
+      availableCount: 2,
+      requestCount: 1,
+      labels: ["🎀 肉包"],
+      items: [
+        { id: "bun-interpreter", label: "🎀 肉包", stage: "pre_response_advisor", enabled: true },
+        { id: "class-monitor", label: "📘 班長", stage: "post_response_observer", enabled: false }
+      ]
+    }
+  });
+  assert.equal(overview.cards.length, 5);
+  assert.equal(overview.activeCount, 1);
+  assert.match(overview.detail, /雙向解讀/);
+}
+
 console.log("story extensions core test passed");
