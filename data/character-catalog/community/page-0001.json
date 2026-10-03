@@ -31,5 +31,45 @@
     "updated_at": "2026-10-03T11:40:28Z",
     "published_version": 1,
     "version_published_at": "2026-10-03T11:40:28Z"
+  },
+  {
+    "id": "ktv-flight-chess",
+    "file": "data/characters/community/eb/ktv-flight-chess.json",
+    "name": "🔥 KTV飛行棋（聯誼、四人、真心話、大冒險）",
+    "title": "🔥 KTV飛行棋｜成人派對・BDSM 主導版",
+    "avatar": "assets/community/eb/ktv-flight-chess.webp",
+    "category": "general",
+    "rating": "adult",
+    "gender": "all",
+    "tags": [
+      "R18成人遊戲",
+      "KTV",
+      "四人聯誼",
+      "飛行棋",
+      "真心話大冒險",
+      "自主NPC",
+      "骰子遊戲",
+      "關係養成",
+      "狀態追蹤",
+      "成人派對",
+      "BDSM",
+      "D/s",
+      "主導服從",
+      "SM",
+      "雙版本"
+    ],
+    "description": "四名成年人在私密 KTV 包間玩的成人飛行棋，內建兩套棋盤：40 格成人派對版，以及 49 格 BDSM／D/s 主導版。三名 NPC 依性格、關係、角色傾向與界線自主反應；支援自訂性別組合、主導／服從／Switch、暫停、跳過、改抽與遊戲外互動。成人內容僅在使用者主動開啟 R18 顯示後出現。",
+    "published_at": "2026-10-03T11:55:00.000Z",
+    "updated_at": "2026-10-03T11:55:00.000Z",
+    "published_version": 1,
+    "version_published_at": "2026-10-03T11:55:00.000Z",
+    "supported_modes": {
+      "immersive": true,
+      "world": true
+    },
+    "supported_display": {
+      "text": true,
+      "ui": true
+    }
   }
 ]
