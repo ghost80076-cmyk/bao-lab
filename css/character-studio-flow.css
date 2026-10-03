@@ -38,6 +38,9 @@
 .studio-flow-step:focus-visible{outline:2px solid var(--secondary);outline-offset:2px}
 [data-studio-flow-step]{scroll-margin-top:180px}
 .studio-edit-done{display:none}
+.studio-actions[data-creation-routes="1"]{grid-template-columns:repeat(2,minmax(0,1fr))}
+.studio-actions[data-creation-routes="1"] [data-creation-route]{min-width:0;padding-inline:10px;font-size:12px}
+.studio-actions[data-creation-routes="1"] #studio-toggle-archived{grid-column:1/-1}
 
 @media(max-width:1000px){
   .studio-flow-nav{
@@ -71,6 +74,7 @@
     border-radius:10px;background:rgba(27,26,30,.96);color:var(--text);font:inherit;font-size:12px;font-weight:700;
     backdrop-filter:blur(10px);box-shadow:0 8px 24px rgba(0,0,0,.24)
   }
+  .studio-actions[data-creation-routes="1"] [data-creation-route]{min-height:38px;padding-inline:6px;font-size:11px}
 }
 
 /* YoruBay workbench visual calibration */
