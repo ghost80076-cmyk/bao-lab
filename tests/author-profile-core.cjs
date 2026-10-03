@@ -20,6 +20,11 @@ const registry = core.normalizeRegistry({
       bio: "寫故事的人",
       support_links: [
         { label: "支持作者", url: "https://example.com/baitao" },
+        { label: "Ko-fi", url: "https://example.com/kofi" },
+        { label: "街口支持", url: "https://example.com/jkopay" },
+        { label: "第四個", url: "https://example.com/four" },
+        { label: "第五個", url: "https://example.com/five" },
+        { label: "第六個會被截掉", url: "https://example.com/six" },
         { label: "不安全", url: "javascript:alert(1)" }
       ]
     },
@@ -29,7 +34,8 @@ const registry = core.normalizeRegistry({
 });
 assert.equal(registry.authors.length, 1);
 assert.equal(registry.authors[0].name, "白桃");
-assert.equal(registry.authors[0].support_links.length, 1);
+assert.equal(registry.authors[0].support_links.length, 5);
+assert.equal(registry.authors[0].support_links[4].label, "第五個");
 
 const works = core.worksForAuthor([
   {
