@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "type": "yorubay-author-regex-mod",
+  "scope": "assistant_display",
+  "characterId": "dual-host-system-campus",
+  "regex_scripts": [
+    {
+      "scriptName": "雙宿主系統｜雙線開場",
+      "description": "把雙宿主開場標記轉成雙線系統終端；只改顯示。",
+      "priority": 80,
+      "findRegex": "【YB:DUAL:OPENING】\\s*([\\s\\S]*?)\\s*【/YB:DUAL:OPENING】",
+      "flags": "g",
+      "replaceString": "<style>.yb-dual-opening{font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif;background:linear-gradient(145deg,#171723,#252338);color:#eeeaf6;border:1px solid #5e5878;border-left:4px solid #a48bd4;border-radius:16px;padding:20px;box-shadow:0 14px 34px rgba(0,0,0,.3);line-height:1.9;white-space:pre-wrap}.yb-dual-opening:before{content:\"DUAL HOST LINK · UNIVERSITY CAMPUS\";display:block;color:#c9b7ea;font-size:11px;letter-spacing:.14em;margin-bottom:10px}</style><section class=\"yb-dual-opening\">$1</section>"
+    },
+    {
+      "scriptName": "雙宿主系統｜連線狀態",
+      "description": "把宿主連線摘要整理成系統連線卡。",
+      "priority": 70,
+      "findRegex": "【YB:DUAL:LINK】\\s*([\\s\\S]*?)\\s*【/YB:DUAL:LINK】",
+      "flags": "g",
+      "replaceString": "<style>.yb-dual-link{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;background:#181923;color:#d9d7e3;border:1px solid #4b4d61;border-radius:12px;padding:13px 15px;line-height:1.75;white-space:pre-wrap}.yb-dual-link:before{content:\"SYSTEM LINK STATUS\";display:block;color:#9fc6ff;font-weight:700;font-size:12px;margin-bottom:6px}</style><section class=\"yb-dual-link\">$1</section>"
+    },
+    {
+      "scriptName": "雙宿主系統｜任務封包",
+      "description": "把有效任務標記轉成簡潔任務卡；持久任務仍由原生 Gameplay UI 追蹤。",
+      "priority": 60,
+      "findRegex": "【YB:DUAL:TASK】\\s*([\\s\\S]*?)\\s*【/YB:DUAL:TASK】",
+      "flags": "g",
+      "replaceString": "<style>.yb-dual-task{font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif;background:linear-gradient(135deg,#212333,#171821);color:#eceaf3;border:1px solid #575a72;border-left:3px solid #7da8e8;border-radius:13px;padding:14px 16px;line-height:1.8;white-space:pre-wrap}.yb-dual-task:before{content:\"TASK PACKET\";display:block;color:#a9c8f4;font-weight:800;font-size:12px;margin-bottom:6px}</style><section class=\"yb-dual-task\">$1</section>"
+    },
+    {
+      "scriptName": "雙宿主系統｜關係警報",
+      "description": "把關係或資訊衝突的短暫提示整理成警報卡。",
+      "priority": 50,
+      "findRegex": "【YB:DUAL:ALERT】\\s*([\\s\\S]*?)\\s*【/YB:DUAL:ALERT】",
+      "flags": "g",
+      "replaceString": "<style>.yb-dual-alert{font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif;background:#2b2028;color:#f2e8ed;border:1px solid #754f65;border-radius:12px;padding:12px 14px;line-height:1.75;white-space:pre-wrap}.yb-dual-alert:before{content:\"RELATION / INFO ALERT\";display:block;color:#e5a9c7;font-weight:800;font-size:12px;margin-bottom:6px}</style><section class=\"yb-dual-alert\">$1</section>"
+    }
+  ]
+}
