@@ -577,5 +577,45 @@
     "updated_at": "2026-10-03T18:25:00Z",
     "published_version": 1,
     "version_published_at": "2026-10-03T18:25:00Z"
+  },
+  {
+    "id": "craftsman-ming-survival-trpg",
+    "file": "data/characters/community/a8/craftsman-ming-survival-trpg.json",
+    "name": "匠道大明：穿越者生存指南",
+    "title": "匠道大明｜穿越者生存 TRPG",
+    "avatar": "https://i.meee.com.tw/b7ijyZF.jpg",
+    "category": "general",
+    "rating": "general",
+    "gender": "all",
+    "tags": [
+      "一般向",
+      "架空大明",
+      "TRPG",
+      "穿越生存",
+      "匠道",
+      "百業世界",
+      "經營",
+      "階級社會",
+      "妖獸",
+      "多匠道",
+      "1d100檢定",
+      "自主NPC",
+      "資訊隔離",
+      "世界模擬",
+      "原生狀態UI"
+    ],
+    "description": "身無分文、沒有戶籍，也沒有任何職業身份。你帶著 21 世紀的記憶掉進架空大明，必須先活過今天，再從木匠、鐵匠、醫者、廚師、獵人、仵作、戲班、牙行等千行百業中找到自己的路。匠道可以由技入道，但現代知識不是無敵外掛，階級、行會、稅賦、妖獸與人情世故都會真正留下後果。",
+    "supported_modes": {
+      "immersive": true,
+      "world": true
+    },
+    "supported_display": {
+      "text": true,
+      "ui": true
+    },
+    "published_at": "2026-10-03T18:40:00Z",
+    "updated_at": "2026-10-03T18:40:00Z",
+    "published_version": 1,
+    "version_published_at": "2026-10-03T18:40:00Z"
   }
 ]
