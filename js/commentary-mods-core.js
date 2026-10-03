@@ -16,6 +16,7 @@
       messageId: text(item?.messageId).slice(0, 120),
       content: text(item?.content).slice(0, 16000),
       modIds: unique(item?.modIds).slice(0, 8),
+      adult: item?.adult === true,
       createdAt: text(item?.createdAt).slice(0, 40)
     })).filter(item => item.messageId && item.content);
     return {
@@ -124,6 +125,7 @@
       messageId: text(output.messageId).slice(0, 120),
       content: text(output.content).slice(0, 16000),
       modIds: unique(output.modIds).slice(0, 8),
+      adult: output.adult === true,
       createdAt: text(output.createdAt || new Date().toISOString()).slice(0, 40)
     };
     if (!next.messageId || !next.content) return normalized;
