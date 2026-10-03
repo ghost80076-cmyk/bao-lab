@@ -399,5 +399,44 @@
     "updated_at": "2026-10-03T16:35:00Z",
     "published_version": 1,
     "version_published_at": "2026-10-03T16:35:00Z"
+  },
+  {
+    "id": "reborn-di-daughter-regent",
+    "file": "data/characters/community/64/reborn-di-daughter-regent.json",
+    "name": "💎 重生嫡女：宮鬥復仇，攝政王只寵我一人",
+    "title": "💎 重生嫡女｜宮鬥復仇・攝政王入局",
+    "avatar": "https://i.meee.com.tw/J30iqUS.jpg",
+    "category": "female",
+    "rating": "general",
+    "gender": "male",
+    "tags": [
+      "女性向",
+      "古代重生",
+      "嫡女",
+      "宅鬥",
+      "宮鬥",
+      "復仇",
+      "攝政王",
+      "權謀",
+      "婚約",
+      "慢熱感情",
+      "自主NPC",
+      "資訊隔離",
+      "多結局",
+      "一般向"
+    ],
+    "description": "死在冷宮之後，妳睜眼回到十六歲——距離前世第一場毀掉名聲的局，還有整整六個月。沈清雅、柳姨娘、蕭景行、皇權與兵權都還沒有走到前世的位置；而七日後，攝政王慕容夜也將第一次真正進入妳的棋局。女性向重生復仇 × 宅鬥宮鬥 × 權謀慢熱 × 可改寫時間線。",
+    "supported_modes": {
+      "immersive": true,
+      "world": true
+    },
+    "supported_display": {
+      "text": true,
+      "ui": true
+    },
+    "published_at": "2026-10-03T17:40:00Z",
+    "updated_at": "2026-10-03T17:40:00Z",
+    "published_version": 1,
+    "version_published_at": "2026-10-03T17:40:00Z"
   }
 ]
