@@ -308,13 +308,13 @@
       id: "commentary",
       eyebrow: "場外人格",
       title: activeCount ? `${activeCount} 個場外人格正在運作` : "場外人格未啟用",
-      detail: activeCount ? labels.join("＋") : "成人內容開啟後，可由玩家自行選擇場外評論人格",
+      detail: activeCount ? labels.join("＋") : "可插拔的旁白／評論 MOD；由玩家自行選擇是否啟用",
       scopes: ["額外模型請求", "不進主記憶", "故事內"],
       ownership: ownership({
         sources: [source("platform", "夜灣內建", Math.max(0, Number(input.availableCount) || items.length))],
         storage: "故事存檔",
         appliesTo: "目前故事",
-        control: "玩家明確啟用；關閉成人內容後立即停止",
+        control: "玩家明確啟用；未啟用時不產生額外模型請求",
         permissions: ["只讀本輪可見正文", "不寫入 NPC／世界狀態"]
       }),
       inventory: items.length ? [inventoryGroup("platform", "可用人格", items)] : [],
