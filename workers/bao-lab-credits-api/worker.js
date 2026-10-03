@@ -1296,12 +1296,15 @@ function registrationMode(
   const mode =
     String(
       env.REGISTRATION_MODE ||
-      "closed"
+      "open"
     ).toLowerCase();
+
+  if (mode === "invite") {
+    return "open";
+  }
 
   return [
     "closed",
-    "invite",
     "open",
   ].includes(
     mode
@@ -2449,31 +2452,6 @@ const WorkerAccountAuth = (() => {
       await readJson(
         request
       );
-  
-    if (
-      registrationMode(
-        env
-      ) ===
-      "invite"
-    ) {
-      if (
-        !env
-          .REGISTRATION_INVITE_CODE ||
-        String(
-          body?.invite_code ||
-          ""
-        ) !==
-        String(
-          env
-            .REGISTRATION_INVITE_CODE
-        )
-      ) {
-        return fail(
-          "invalid_invite_code",
-          403
-        );
-      }
-    }
   
     const username =
       validUsername(
