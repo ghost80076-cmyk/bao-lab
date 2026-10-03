@@ -10,6 +10,7 @@
   const packCore = window.BAOStoryActorPackCore || null;
   let adultPackPromise = null;
   const LABELS = {name:'名稱',gender:'性別',age:'年齡',identity:'身分',appearance:'外貌',personality:'個性',background:'背景',abilities:'能力',relationship:'與角色的關係',extra:'補充設定',voice:'說話風格'};
+  const ACTOR_LABELS = {...LABELS, identity:'本世界身分', personality:'個性／這次怎麼演', relationship:'與玩家／其他人物的關係'};
   const MULTI = new Set(['appearance', 'personality', 'background', 'abilities', 'relationship', 'extra', 'voice']);
   const clone = value => Storage.clone(value);
   const esc = value => App.escapeHTML(String(value ?? ''));
@@ -198,7 +199,7 @@
         const portablePrompt = packCore?.portablePrompt?.(actor);
         if (portablePrompt) changes.push(portablePrompt);
         changes.push(`角色：${actor.name}；類型：${actor.role === 'primary' ? 'AI 主角色' : 'NPC'}；controlled_by=assistant`);
-        changes.push(...ACTOR_FIELDS.filter(key => key !== 'name').map(key => `${LABELS[key]}：${actor[key] || '未指定'}`));
+        changes.push(...ACTOR_FIELDS.filter(key => key !== 'name').map(key => `${ACTOR_LABELS[key]}：${actor[key] || '未指定'}`));
       }
       changes.push('上述 AI 人物可以互相互動，也可以與原作品 NPC 建立自己的關係、合作、競爭、衝突或離場生活；不要讓所有人物只圍繞玩家。');
       changes.push(`AI 可以演繹上述 controlled_by=assistant 的人物，但不得代替玩家「${App.config.persona.name || '未命名玩家'}」（controlled_by=user）決定言行。`);
@@ -224,6 +225,10 @@
   function field(key, value = '') {
     const content = esc(value);
     return `<label>${esc(LABELS[key] || key)}${MULTI.has(key) ? `<textarea name="${key}" rows="3">${content}</textarea>` : `<input name="${key}" value="${content}">`}</label>`;
+  }
+  function actorField(key, value = '') {
+    const content = esc(value);
+    return `<label>${esc(ACTOR_LABELS[key] || key)}${MULTI.has(key) ? `<textarea name="${key}" rows="3">${content}</textarea>` : `<input name="${key}" value="${content}">`}</label>`;
   }
   const formData = (form, fields) => Object.fromEntries(fields.map(key => [key, form.elements.namedItem(key)?.value || '']));
   function readBuilder() {
@@ -281,7 +286,7 @@
     };
   }
   function actorForm() {
-    return `<form class="bao-actor-fields" id="bao-builder-actor-form" autocomplete="off"><p class="note">這裡新增的是由 AI 演繹的人物。你可以自己捏一位，也可以從官方可攜角色帶入後，再決定他／她在這個世界的身份、與玩家關係和這次怎麼演。</p><label>角色定位<select name="role"><option value="additional">增加 NPC（由 AI 演繹；保留原作品角色）</option><option value="primary">自訂 AI 主要互動人物（由 AI 演繹）</option></select></label>${ACTOR_FIELDS.map(key => field(key)).join('')}<div class="bao-actor-actions"><button type="submit" class="primary">加入／更新 AI 人物</button><button type="button" class="secondary" data-new>清空，捏另一位</button></div></form>`;
+    return `<form class="bao-actor-fields" id="bao-builder-actor-form" autocomplete="off"><p class="note">這裡新增的是由 AI 演繹的人物。你可以自己捏一位，也可以從官方可攜角色帶入後，再決定他／她在這個世界的身份、與玩家關係和這次怎麼演。</p><label>角色定位<select name="role"><option value="additional">增加 NPC（由 AI 演繹；保留原作品角色）</option><option value="primary">自訂 AI 主要互動人物（由 AI 演繹）</option></select></label>${ACTOR_FIELDS.map(key => actorField(key)).join('')}<div class="bao-actor-actions"><button type="submit" class="primary">加入／更新 AI 人物</button><button type="button" class="secondary" data-new>清空，捏另一位</button></div></form>`;
   }
   function installBuilder() {
     const panel = document.querySelector('.builder-step[data-step-panel="3"]');
@@ -356,7 +361,7 @@
       box.querySelector('[data-save]').onclick = () => {const item = savePreset(formData(box.querySelector('form'), PLAYER_FIELDS)); if (item) {const select = box.querySelector('#bao-actor-preset'); select.innerHTML = presetOptions(); select.value = item.id;}};
     } else {
       const visibleActors = state.hostedCharacters.filter(actorAllowed);
-      box.innerHTML = `<p class="note">這裡新增的是 AI 人物／NPC，由 AI 演繹。也可以從官方可攜角色庫直接帶入目前故事，再修改本世界身份與關係。成人官方角色只在成人內容開啟時顯示；關閉後既有資料保留但暫停注入。</p>${portablePicker()}<label>編輯已加入的角色<select id="bao-actor-existing"><option value="">新增一位 AI 人物</option>${visibleActors.map(actor => `<option value="${esc(actor.id)}">${esc(actor.name)} · ${actor.role === 'primary' ? 'AI 主角' : 'NPC'}${actor.portable?.packId ? ' · 官方可攜' : ''}</option>`).join('')}</select></label><form class="bao-actor-fields" autocomplete="off"><label>角色定位<select name="role"><option value="additional">新增 NPC（由 AI 演繹；保留原角色）</option><option value="primary">由自訂角色作為 AI 主要互動人物</option></select></label>${ACTOR_FIELDS.map(key => field(key)).join('')}</form><div class="bao-actor-actions"><button type="button" class="secondary" data-open-roster>NPC 名冊／場景參與者</button><button type="button" class="secondary" data-remove>移除選取的自訂人物</button></div>`;
+      box.innerHTML = `<p class="note">這裡新增的是 AI 人物／NPC，由 AI 演繹。也可以從官方可攜角色庫直接帶入目前故事，再修改本世界身份與關係。成人官方角色只在成人內容開啟時顯示；關閉後既有資料保留但暫停注入。</p>${portablePicker()}<label>編輯已加入的角色<select id="bao-actor-existing"><option value="">新增一位 AI 人物</option>${visibleActors.map(actor => `<option value="${esc(actor.id)}">${esc(actor.name)} · ${actor.role === 'primary' ? 'AI 主角' : 'NPC'}${actor.portable?.packId ? ' · 官方可攜' : ''}</option>`).join('')}</select></label><form class="bao-actor-fields" autocomplete="off"><label>角色定位<select name="role"><option value="additional">新增 NPC（由 AI 演繹；保留原角色）</option><option value="primary">由自訂角色作為 AI 主要互動人物</option></select></label>${ACTOR_FIELDS.map(key => actorField(key)).join('')}</form><div class="bao-actor-actions"><button type="button" class="secondary" data-open-roster>NPC 名冊／場景參與者</button><button type="button" class="secondary" data-remove>移除選取的自訂人物</button></div>`;
       const select = box.querySelector('#bao-actor-existing');
       select.onchange = () => fillActorForm(box.querySelector('form'), state.hostedCharacters.find(actor => actor.id === select.value));
       bindPortablePicker(box, box.querySelector('form'));
