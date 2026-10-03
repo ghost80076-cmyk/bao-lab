@@ -52,7 +52,8 @@
       scene,
       replace,
       regex,
-      authorRegex: readAuthorRegex()
+      authorRegex: readAuthorRegex(),
+      commentary: window.BAOCommentaryMods?.summary?.() || null
     });
   };
 
@@ -84,6 +85,10 @@
     },
     regex() {
       window.open("regex-manager.html", "_blank", "noopener");
+    },
+    commentary() {
+      if (window.BAOCommentaryMods?.open) window.BAOCommentaryMods.open();
+      else window.BAOFeedback?.notify?.("場外人格 MOD 仍在載入。", "error");
     }
   };
 
