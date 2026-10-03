@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="1200" viewBox="0 0 900 1200">
+<defs>
+  <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#071315"/><stop offset=".42" stop-color="#0c1d1e"/><stop offset="1" stop-color="#240d0b"/></linearGradient>
+  <radialGradient id="amber"><stop offset="0" stop-color="#f2ad61" stop-opacity=".9"/><stop offset="1" stop-color="#f2ad61" stop-opacity="0"/></radialGradient>
+  <radialGradient id="red"><stop offset="0" stop-color="#d84f3b" stop-opacity=".9"/><stop offset="1" stop-color="#d84f3b" stop-opacity="0"/></radialGradient>
+  <linearGradient id="coat" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#1e2424"/><stop offset="1" stop-color="#080b0b"/></linearGradient>
+  <filter id="blur"><feGaussianBlur stdDeviation="20"/></filter>
+  <filter id="soft"><feGaussianBlur stdDeviation="4"/></filter>
+</defs>
+<rect width="900" height="1200" fill="url(#bg)"/>
+<g opacity=".75" filter="url(#blur)">
+  <circle cx="145" cy="430" r="105" fill="url(#amber)"/><circle cx="715" cy="325" r="120" fill="url(#red)"/>
+  <circle cx="765" cy="655" r="90" fill="url(#amber)"/><circle cx="170" cy="720" r="75" fill="url(#red)"/>
+  <circle cx="520" cy="215" r="58" fill="url(#amber)"/>
+</g>
+<g opacity=".24" stroke="#d7e8e2" stroke-width="3">
+  <path d="M70 0L-30 360M160 0L35 450M250 0L90 580M350 0L170 660M470 0L280 720M610 0L390 840M760 0L520 920M880 0L660 980"/>
+</g>
+<ellipse cx="455" cy="1020" rx="310" ry="55" fill="#000" opacity=".45" filter="url(#soft)"/>
+<g transform="translate(210 230)">
+  <path d="M250 50c95 0 160 76 160 184 0 80-34 141-75 178l-13 98c62 34 109 98 134 190l55 200H-5l55-200c25-92 72-156 134-190l-13-98c-41-37-75-98-75-178C96 126 155 50 250 50z" fill="#b68d70"/>
+  <path d="M104 225c6-130 67-205 164-205 87 0 151 55 164 172-40-44-84-62-143-60-64 2-113 25-185 93z" fill="#0b1010"/>
+  <path d="M151 404c31 37 65 54 99 54 34 0 68-17 99-54l-8 94c-28 44-60 66-91 66-31 0-63-22-91-66z" fill="#8a634f"/>
+  <path d="M79 541c49-35 100-54 171-54s122 19 171 54l74 359H5z" fill="url(#coat)"/>
+  <path d="M179 492l71 79 71-79 35 36-106 222-106-222z" fill="#e8e0d5"/>
+  <path d="M239 567h22l22 194-33 61-33-61z" fill="#442727"/>
+  <rect x="391" y="688" width="14" height="12" rx="4" fill="#d7a675"/>
+</g>
+<rect x="56" y="64" width="788" height="1072" rx="26" fill="none" stroke="#d7a675" stroke-opacity=".35"/>
+<text x="82" y="116" fill="#d7a675" font-size="22" font-family="Arial, sans-serif" letter-spacing="6">RENTAL LOVE</text>
+<text x="82" y="1000" fill="#fff5ea" font-size="58" font-weight="700" font-family="Arial, 'Noto Sans TC', sans-serif">心動違約</text>
+<text x="84" y="1050" fill="#d7a675" font-size="28" font-family="Arial, 'Noto Sans TC', sans-serif" letter-spacing="4">訂製戀人</text>
+<text x="84" y="1094" fill="#d4c8bd" font-size="18" font-family="Arial, 'Noto Sans TC', sans-serif">有些吻按小時計費。有些，沒有辦法結帳。</text>
+</svg>
