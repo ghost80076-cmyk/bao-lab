@@ -33,9 +33,9 @@ test('character studio exposes a mobile-friendly creation flow without hiding th
   await expect(page.locator('[name="mode"]')).toHaveValue('world');
   await page.getByRole('button', { name: '＋ 角色作品' }).click();
   await expect(page.locator('[name="mode"]')).toHaveValue('immersive');
-  await page.getByRole('button', { name: '故事開場' }).click();
+  await page.locator('[data-creation-route="opening"]').click();
   await expect(flow.locator('[data-flow-step="opening"]')).toHaveAttribute('aria-current', 'step');
-  await page.getByRole('button', { name: '世界書' }).click();
+  await page.locator('[data-creation-route="lore"]').click();
   await expect(page.locator('.studio-advanced').first()).toHaveAttribute('open', '');
   await expect(page.locator('[name="lore"]')).toBeVisible();
 
