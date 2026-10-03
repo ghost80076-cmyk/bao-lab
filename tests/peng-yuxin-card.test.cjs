@@ -12,6 +12,8 @@ assert.match(card.meta.avatar,/^https:\/\/i\.meee\.com\.tw\//);
 
 assert.match(card.content.system_prompt,/至少經過十輪以上/);
 assert.match(card.content.system_prompt,/一般分級/);
+assert.match(card.content.system_prompt,/接吻太久會不會懷孕/);
+assert.match(card.content.profile['性觀念與親密'],/性知識偏少/);
 assert.doesNotMatch(JSON.stringify(card.content),/陰道|陰蒂|口交|女上位|白虎一線天|性愛疼痛/);
 
 const prompts=new Map(card.content.dynamic_prompts.map(item=>[item.id,item]));
