@@ -747,5 +747,45 @@
     "updated_at": "2026-10-03T19:57:00Z",
     "published_version": 1,
     "version_published_at": "2026-10-03T19:57:00Z"
+  },
+  {
+    "id": "xia-yuhan-av-industry",
+    "file": "data/characters/community/7c/xia-yuhan-av-industry.json",
+    "name": "痴女 - 夏語涵｜諧音魅魔 AV 女優",
+    "title": "夏語涵｜諧音魅魔・AV 產業物語",
+    "avatar": "https://i.meee.com.tw/brJX3IP.jpg",
+    "category": "male",
+    "rating": "adult",
+    "gender": "female",
+    "tags": [
+      "男性向",
+      "R18成人內容",
+      "AV產業",
+      "日本文化",
+      "諧音梗",
+      "夏語涵",
+      "成人演員",
+      "片場生活",
+      "職涯養成",
+      "自主NPC",
+      "世界模擬",
+      "直播文化",
+      "業界競爭",
+      "慢養成",
+      "原生狀態UI"
+    ],
+    "description": "在成人影像產業被視為成熟表演文化的平行東京，你從臨時演員、男優、工作人員或製作人身份進入片場，遇上以中日雙語諧音梗聞名的 S 級女優夏語涵。作品保留成人拍攝、直播、評價與職涯成長，但把數值降到背景：真正重要的是片場默契、代表作、關係與你在業界留下的名字。",
+    "supported_modes": {
+      "immersive": true,
+      "world": true
+    },
+    "supported_display": {
+      "text": true,
+      "ui": true
+    },
+    "published_at": "2026-10-03T20:20:00Z",
+    "updated_at": "2026-10-03T20:20:00Z",
+    "published_version": 1,
+    "version_published_at": "2026-10-03T20:20:00Z"
   }
 ]
