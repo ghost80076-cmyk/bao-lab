@@ -329,6 +329,8 @@ test('explore preview stays catalog-only and repeated apply does not reinsert st
   await target.locator('.character-image-wrap').click();
   const preview = page.locator('#explore-work-preview');
   await expect(preview).toBeVisible();
+  await expect(preview.getByText('STORY PREVIEW', { exact: true })).toHaveCount(0);
+  await expect(preview.locator('.explore-work-preview-head h3')).toBeVisible();
   await expect(preview.locator('[data-explore-preview-description]')).not.toHaveText('');
   await expect.poll(() => page.evaluate(() => window.__exploreFullLoads)).toBe(0);
 

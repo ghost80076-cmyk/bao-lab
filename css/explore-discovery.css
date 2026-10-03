@@ -286,7 +286,7 @@
 .explore-work-preview-media>[data-kind="mature"]{color:#ffd6df;border-color:rgba(255,160,184,.34)}
 .explore-work-preview-copy{min-width:0;overflow:auto;padding:24px}
 .explore-work-preview-head{display:flex;align-items:flex-start;justify-content:space-between;gap:18px}
-.explore-work-preview-head h3{margin:5px 0 0;font-size:clamp(23px,3vw,34px);line-height:1.15}
+.explore-work-preview-head h3{margin:0;font-size:clamp(23px,3vw,34px);line-height:1.15}
 .explore-work-preview-meta{margin-top:10px;color:#aaa5bd;font-size:10px;font-weight:700;line-height:1.6}
 .explore-work-preview-description{margin:18px 0 0;color:#ddd9e8;font-size:14px;line-height:1.85;white-space:pre-line}
 .explore-work-preview-capabilities{display:flex;flex-wrap:wrap;gap:7px;margin-top:17px}

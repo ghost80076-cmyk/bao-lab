@@ -129,7 +129,7 @@
     dialog.innerHTML = '<div class="explore-work-preview-panel">'
       + '<div class="explore-work-preview-media"><img data-explore-preview-image alt=""><span data-explore-preview-rating></span></div>'
       + '<div class="explore-work-preview-copy">'
-      + '<div class="explore-work-preview-head"><div><span class="eyebrow">STORY PREVIEW</span><h3 id="explore-work-preview-title" data-explore-preview-title></h3></div>'
+      + '<div class="explore-work-preview-head"><div><h3 id="explore-work-preview-title" data-explore-preview-title></h3></div>'
       + '<button type="button" class="text-button" data-explore-preview-close aria-label="關閉作品預覽">關閉</button></div>'
       + '<div class="explore-work-preview-meta" data-explore-preview-meta></div>'
       + '<p class="explore-work-preview-description" data-explore-preview-description></p>'
