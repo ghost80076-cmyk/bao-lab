@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "type": "yorubay-author-regex-mod",
+  "scope": "assistant_display",
+  "characterId": "lin-shen-reed-bloom",
+  "regex_scripts": [
+    {
+      "scriptName": "林深｜河岸蘆葦開場",
+      "description": "把開場標記轉成暖色蘆葦主題閱讀卡，不改故事原文、記憶或模型 Prompt。",
+      "priority": 80,
+      "findRegex": "【YB:LINSHEN:OPENING】\\s*([\\s\\S]*?)\\s*【/YB:LINSHEN:OPENING】",
+      "flags": "g",
+      "replaceString": "<style>.yb-ls-opening{font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif;background:linear-gradient(145deg,#f7f3e9,#e9e7dd);color:#454139;border:1px solid #d9c8a8;border-radius:18px;padding:20px 20px 18px;box-shadow:0 14px 34px rgba(96,75,43,.12);line-height:1.9;white-space:pre-wrap}.yb-ls-opening:before{content:\"河岸蘆葦叢旁  ·  夏夜 21:30\";display:block;color:#a67a45;font-size:12px;letter-spacing:.12em;margin-bottom:10px}</style><section class=\"yb-ls-opening\">$1</section>"
+    },
+    {
+      "scriptName": "林深｜可選回應",
+      "description": "把開場回應選項排成暖色選單；實際可點擊草稿由夜灣原生 Gameplay UI 的「回應」面板提供，不需要作者腳本。",
+      "priority": 60,
+      "findRegex": "【YB:LINSHEN:ACTIONS】[\\s\\S]*?【/YB:LINSHEN:ACTIONS】",
+      "flags": "g",
+      "replaceString": "<style>.yb-ls-actions{font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif;background:#f5f2e9;border:1px solid #c7b48c;border-radius:16px;padding:14px;color:#514c43}.yb-ls-actions b{display:block;color:#7f9278;margin-bottom:8px}.yb-ls-actions ol{margin:0;padding-left:1.35rem;display:grid;gap:7px}.yb-ls-actions li{background:#fffaf0;border:1px solid #d7c9ad;border-radius:10px;padding:8px 10px}.yb-ls-actions small{display:block;margin-top:9px;color:#7a756c}</style><section class=\"yb-ls-actions\"><b>妳可以怎麼回應</b><ol><li>接過溫可可，問他怎麼知道。</li><li>問他為什麼總站在左邊。</li><li>直接問他為什麼對妳這麼好。</li><li>先不回答，陪他看河面與蘆葦。</li></ol><small>可直接自由輸入，或使用夜灣原生「回應」面板快速填入草稿。</small></section>"
+    },
+    {
+      "scriptName": "林深｜可能情緒觀察",
+      "description": "只把模型明確標記為「可能情緒」的可觀察線索做成柔和提示卡；內容仍是推測，不是讀心。",
+      "priority": 40,
+      "findRegex": "【妳觀察到的可能情緒】\\s*([\\s\\S]*?)\\s*【/觀察】",
+      "flags": "g",
+      "replaceString": "<style>.yb-ls-observe{font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif;background:linear-gradient(135deg,#97879b,#b5a5b8);color:white;border-radius:15px;padding:15px 17px;line-height:1.75;box-shadow:0 10px 26px rgba(91,72,96,.18)}.yb-ls-observe b{display:block;margin-bottom:6px}.yb-ls-observe small{display:block;margin-top:7px;color:#eee4ef}</style><aside class=\"yb-ls-observe\"><b>💭 妳觀察到的可能情緒</b><div>$1</div><small>這只是從表情、語氣與動作得到的推測。</small></aside>"
+    }
+  ]
+}
