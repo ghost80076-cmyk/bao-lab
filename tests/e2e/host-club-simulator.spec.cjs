@@ -5,7 +5,6 @@ test('Host Club Simulator renders generated cast, setup and economy UI', async (
   await page.waitForFunction(() => App.characters?.some(c => c.id === 'host-club-simulator') && Storage.status().ready, null, { timeout: 15000 });
 
   await page.locator('#home-view [data-view="explore"]').click();
-  await page.getByRole('button', { name: '男性' }).click();
   const card = page.locator('article.character-card').filter({ hasText: '牛郎模擬器' });
   await expect(card).toBeVisible();
   await card.click();
