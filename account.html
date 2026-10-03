@@ -34,7 +34,18 @@ body{min-height:100vh;background:#101118;color:#f5f1ff}
 .yb-recovery{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;word-break:break-all;background:#0d0f16;border:1px dashed rgba(255,255,255,.22);border-radius:12px;padding:12px;margin:10px 0}
 .yb-packages{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:10px 0}
 .yb-package{background:#222532;border-radius:11px;padding:11px;font-size:13px}
-@media(max-width:600px){.yb-card{padding:18px}.yb-packages{grid-template-columns:1fr}}
+.yb-usage-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.yb-usage-head .yb-note{margin:4px 0 0}
+.yb-usage-total{font-size:24px;font-weight:850;margin:12px 0 2px}
+.yb-usage-meta{font-size:12px;line-height:1.6;color:#aaa6b8}
+.yb-usage-list{display:grid;gap:8px;margin-top:12px}
+.yb-usage-item{background:#171923;border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:10px 11px}
+.yb-usage-item-main{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.yb-usage-item-model{font-size:13px;font-weight:750;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.yb-usage-item-points{font-size:13px;font-weight:800;white-space:nowrap}
+.yb-usage-item-sub{margin-top:4px;color:#8f8b9f;font-size:11px;line-height:1.55}
+.yb-usage-empty{padding:12px 0 2px;color:#aaa6b8;font-size:13px;line-height:1.65}
+@media(max-width:600px){.yb-card{padding:18px}.yb-packages{grid-template-columns:1fr}.yb-usage-head{align-items:stretch;flex-direction:column}.yb-usage-head .yb-secondary{align-self:flex-start}}
 </style>
 <link rel="stylesheet" href="css/account-v2.css?v=2">
 </head>
@@ -347,6 +358,146 @@ body{min-height:100vh;background:#101118;color:#f5f1ff}
     };
   }
 
+  function usagePointsFromUsd(value){
+    var n=Number(value);
+    if(!Number.isFinite(n)||n<=0) return 0;
+    return n*1000;
+  }
+  function formatUsagePoints(value){
+    var n=Number(value||0);
+    if(!Number.isFinite(n)) n=0;
+    return n.toLocaleString("zh-TW",{minimumFractionDigits:0,maximumFractionDigits:2})+" 點";
+  }
+  function usageKindLabel(kind){
+    var labels={
+      chat:"故事",
+      memory:"記憶",
+      "memory-repair":"記憶修復",
+      state:"世界狀態",
+      "story-tool":"故事工具",
+      auxiliary:"輔助"
+    };
+    return labels[String(kind||"")]||"模型請求";
+  }
+  function formatUsageTime(value){
+    var date=new Date(value);
+    if(Number.isNaN(date.getTime())) return "時間未知";
+    return date.toLocaleString("zh-TW",{month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",hour12:false});
+  }
+  function localUsageSignature(entry){
+    return [
+      String(entry&&entry.at||""),
+      String(entry&&entry.model||""),
+      String(entry&&entry.kind||""),
+      String(entry&&entry.input!=null?entry.input:""),
+      String(entry&&entry.output!=null?entry.output:""),
+      String(entry&&entry.cached!=null?entry.cached:""),
+      String(entry&&entry.actualUsd!=null?entry.actualUsd:"")
+    ].join("|");
+  }
+  function usageFromPayload(payload){
+    var ledger=payload&&payload.chat&&Array.isArray(payload.chat.usageLedger)?payload.chat.usageLedger:[];
+    return ledger.filter(function(entry){
+      return entry&&typeof entry==="object"&&Number.isFinite(Number(entry.actualUsd))&&Number(entry.actualUsd)>0;
+    });
+  }
+  function readLegacyStoryPayloads(){
+    var payloads=[];
+    try{
+      var autosave=JSON.parse(localStorage.getItem("bao-lab:story:autosave")||"null");
+      if(autosave) payloads.push(autosave);
+    }catch(e){}
+    try{
+      var slots=JSON.parse(localStorage.getItem("bao-lab:story:slots")||"[]");
+      if(Array.isArray(slots)) payloads=payloads.concat(slots);
+    }catch(e){}
+    return payloads;
+  }
+  function readIndexedStoryPayloads(){
+    if(typeof indexedDB==="undefined") return Promise.resolve([]);
+    return new Promise(function(resolve){
+      var request;
+      try{request=indexedDB.open("bao-lab");}
+      catch(e){resolve([]);return;}
+      request.onerror=function(){resolve([]);};
+      request.onupgradeneeded=function(){
+        try{request.transaction.abort();}catch(e){}
+        resolve([]);
+      };
+      request.onsuccess=function(){
+        var db=request.result;
+        if(!db.objectStoreNames.contains("stories")){db.close();resolve([]);return;}
+        var tx=db.transaction("stories","readonly");
+        var getAll=tx.objectStore("stories").getAll();
+        getAll.onerror=function(){db.close();resolve([]);};
+        getAll.onsuccess=function(){
+          var records=Array.isArray(getAll.result)?getAll.result:[];
+          db.close();
+          resolve(records.map(function(record){return record&&record.payload;}).filter(Boolean));
+        };
+      };
+    });
+  }
+  async function readLocalUsageEntries(){
+    var payloads=readLegacyStoryPayloads();
+    try{payloads=payloads.concat(await readIndexedStoryPayloads());}catch(e){}
+    var seen=new Set();
+    var entries=[];
+    payloads.forEach(function(payload){
+      usageFromPayload(payload).forEach(function(entry){
+        var key=localUsageSignature(entry);
+        if(seen.has(key)) return;
+        seen.add(key);
+        entries.push(entry);
+      });
+    });
+    entries.sort(function(a,b){return String(b.at||"").localeCompare(String(a.at||""));});
+    return entries;
+  }
+  async function renderLocalUsage(){
+    var total=document.getElementById("local-usage-total");
+    var meta=document.getElementById("local-usage-meta");
+    var list=document.getElementById("local-usage-list");
+    if(!total||!meta||!list) return;
+    total.textContent="讀取本機紀錄…";
+    meta.textContent="";
+    list.innerHTML="";
+    try{
+      var entries=await readLocalUsageEntries();
+      var allPoints=entries.reduce(function(sum,entry){return sum+usagePointsFromUsd(entry.actualUsd);},0);
+      var now=new Date();
+      var monthPoints=entries.reduce(function(sum,entry){
+        var date=new Date(entry.at);
+        return !Number.isNaN(date.getTime())&&date.getFullYear()===now.getFullYear()&&date.getMonth()===now.getMonth()
+          ? sum+usagePointsFromUsd(entry.actualUsd)
+          : sum;
+      },0);
+      total.textContent="本機已記錄消耗 "+formatUsagePoints(allPoints);
+      meta.textContent=entries.length
+        ? "本月 "+formatUsagePoints(monthPoints)+" · "+entries.length.toLocaleString("zh-TW")+" 筆已知扣款。這裡只讀取這台裝置的故事存檔，不會額外查詢夜灣伺服器。"
+        : "這台裝置目前沒有可辨識的燈火扣款紀錄。舊版本、其他裝置或已清除的本機資料不會出現在這裡。";
+      if(!entries.length){
+        list.innerHTML='<div class="yb-usage-empty">官方目前剩餘燈火，以上方「同步最新燈火」顯示為準。</div>';
+        return;
+      }
+      list.innerHTML=entries.slice(0,12).map(function(entry){
+        var model=String(entry.model||"未知模型");
+        var input=Number.isFinite(Number(entry.input))?Number(entry.input).toLocaleString("zh-TW"):"—";
+        var output=Number.isFinite(Number(entry.output))?Number(entry.output).toLocaleString("zh-TW"):"—";
+        var cached=Number.isFinite(Number(entry.cached))&&Number(entry.cached)>0?" · Cache "+Number(entry.cached).toLocaleString("zh-TW"):"";
+        return '<div class="yb-usage-item">'+
+          '<div class="yb-usage-item-main"><span class="yb-usage-item-model">'+esc(model)+' · '+esc(usageKindLabel(entry.kind))+'</span>'+
+          '<span class="yb-usage-item-points">−'+esc(formatUsagePoints(usagePointsFromUsd(entry.actualUsd)))+'</span></div>'+
+          '<div class="yb-usage-item-sub">'+esc(formatUsageTime(entry.at))+' · Input '+esc(input)+' · Output '+esc(output)+esc(cached)+'</div>'+
+          '</div>';
+      }).join("");
+      if(entries.length>12) list.insertAdjacentHTML("beforeend",'<div class="yb-usage-meta">先顯示最近 12 筆；完整本機紀錄仍保留在故事存檔中。</div>');
+    }catch(error){
+      total.textContent="本機消費紀錄暫時無法讀取";
+      meta.textContent="這不影響帳號餘額或故事。可以重新整理頁面後再試。";
+    }
+  }
+
   function show(name){
     if(name==="account"&&!profile) name="login";
     document.querySelectorAll("[data-panel]").forEach(function(p){p.hidden=p.dataset.panel!==name;});
@@ -365,6 +516,7 @@ body{min-height:100vh;background:#101118;color:#f5f1ff}
       '<div class="yb-note">我的燈火</div><div class="yb-wallet" id="v-wallet"></div>'+
       '<div class="yb-note" id="v-billing"></div>'+
       '<div class="yb-actions"><button class="yb-secondary" id="copy-id">複製玩家編號</button><button class="yb-secondary" id="refresh">同步最新燈火</button></div>'+
+      '<div class="yb-box" id="local-usage"><div class="yb-usage-head"><div><b>我的消費</b><p class="yb-note">查看這台裝置已保存的夜灣燈火消耗，不會因為打開這裡就一直查詢後端。</p></div><button class="yb-secondary" id="reload-local-usage" type="button">重新讀取本機紀錄</button></div><div class="yb-usage-total" id="local-usage-total">讀取本機紀錄…</div><div class="yb-usage-meta" id="local-usage-meta"></div><div class="yb-usage-list" id="local-usage-list"></div></div>'+
       authorSection()+
       '<div class="yb-box"><b>替故事添一盞燈</b><p class="yb-note">完成付款後提供玩家編號，管理員確認後會把燈火加入帳號。燈火只在使用夜灣提供的模型服務時消耗；使用自己的模型連線不會消耗。失敗請求若第三方未產生成本會返還；若已產生實際模型用量，則按實際用量結算。</p>'+
       '<div class="yb-packages"><div class="yb-package">NT$250 / US$8 → 5,000 燈火</div><div class="yb-package">NT$500 / US$16 → 10,000 燈火</div><div class="yb-package">NT$1,000 / US$32 → 20,000 燈火</div><div class="yb-package">NT$2,500 / US$80 → 50,000 燈火</div></div><p class="yb-note"><a href="lights-refund-policy.html">購買前查看燈火與退款政策 →</a></p></div>'+
@@ -379,7 +531,9 @@ body{min-height:100vh;background:#101118;color:#f5f1ff}
       catch(e){window.prompt("複製玩家編號：",profile.public_id||"");}
     };
     document.getElementById("refresh").onclick=function(){refresh(false);};
+    document.getElementById("reload-local-usage").onclick=renderLocalUsage;
     document.getElementById("logout").onclick=logout;
+    renderLocalUsage();
     bindAuthorForm();
   }
   function recovery(code){
