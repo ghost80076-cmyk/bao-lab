@@ -25,7 +25,7 @@ for(const marker of ['YB:DUAL:OPENING','YB:DUAL:LINK','YB:DUAL:ACTIONS']) {
 }
 
 const promptIds=new Set(card.content.dynamic_prompts.map(x=>x.id));
-for(const id of ['task-issue','host-conflict','dual-secrecy','ntl-ntr-tension','ruotang-agency','campus-life','time-skip','system-reward','offscreen-life','custom-world']) {
+for(const id of ['system-definition','npc-preset-load','task-issue','host-conflict','dual-secrecy','ntl-ntr-tension','ruotang-agency','campus-life','time-skip','system-reward','offscreen-life','custom-world']) {
   assert.ok(promptIds.has(id),'missing '+id);
 }
 
@@ -41,7 +41,10 @@ const ui=GameplayUI.normalize(card.gameplay.ui_schema);
 assert.ok(ui);
 assert.ok(ui.builder.fields.some(x=>x.key==='world_preset'));
 assert.ok(ui.builder.fields.some(x=>x.key==='binding_mode'&&x.default==='雙宿主｜互不知曉'));
-assert.ok(ui.builder.fields.some(x=>x.key==='host_a_name'));
+assert.ok(ui.builder.fields.some(x=>x.key==='system_type'));
+assert.ok(ui.builder.fields.some(x=>x.key==='npc_preset'&&x.default==='不載入｜我自己設定'));
+assert.equal(card.gameplay.initial_state.npcs.length,0);
+assert.equal(card.gameplay.initial_state.modules.system.system_type,'未定義｜由玩家決定');
 assert.deepEqual(ui.panels.map(x=>x.id),['links','hostA','hostB','focus','relations','tasks','actions']);
 
 assert.equal(regex.type,'yorubay-author-regex-mod');
