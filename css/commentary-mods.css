@@ -17,7 +17,8 @@
 .bao-commentary-mod-choice{display:flex;gap:12px;align-items:flex-start;padding:15px;border:1px solid rgba(241,232,218,.08);border-radius:15px;background:rgba(10,10,13,.32);cursor:pointer}
 .bao-commentary-mod-choice input{width:18px;height:18px;margin-top:2px;accent-color:#b7a2ef}
 .bao-commentary-mod-choice span{display:grid;gap:5px}
-.bao-commentary-mod-choice b{color:#ece5ee}
+.bao-commentary-mod-choice b{display:flex;align-items:center;flex-wrap:wrap;gap:7px;color:#ece5ee}
+.bao-commentary-mod-badge{display:inline-flex;align-items:center;padding:2px 7px;border:1px solid rgba(223,189,132,.16);border-radius:999px;background:rgba(223,189,132,.06);color:#c9ad7b;font-size:9px;font-style:normal;font-weight:600;letter-spacing:.04em}
 .bao-commentary-mod-choice small{color:#96919d;line-height:1.6}
 .bao-commentary-mod-link-note{margin-top:12px;padding:11px 13px;border-radius:12px;background:rgba(167,132,224,.07);color:#c7b8d7;font-size:12px;line-height:1.65}
 .bao-commentary-mod-actions{display:flex;justify-content:flex-end;gap:9px;margin-top:20px}

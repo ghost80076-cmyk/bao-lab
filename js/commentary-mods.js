@@ -3,14 +3,20 @@
   if (window.BAOCommentaryMods || !window.App || !window.BAOCommentaryModsCore) return;
 
   const core = window.BAOCommentaryModsCore;
-  const PACK_SRC = "js/commentary-mods-adult-pack.js?v=1";
-  let packPromise = null;
+  const ADULT_PACK_SRC = "js/commentary-mods-adult-pack.js?v=1";
+  const ADULT_MOD_IDS = new Set(["yinmo-monitor", "succubus-bun"]);
+  const ICON_BY_ID = Object.freeze({
+    "director-commentary": "🎬",
+    "yinmo-monitor": "🔥",
+    "succubus-bun": "💕"
+  });
+  let adultPackPromise = null;
 
   const ensureStyles = () => {
     if (document.querySelector('link[href^="css/commentary-mods.css"]')) return;
     const link = document.createElement("link");
     link.rel = "stylesheet";
-    link.href = "css/commentary-mods.css?v=1";
+    link.href = "css/commentary-mods.css?v=2";
     document.head.appendChild(link);
   };
 
@@ -21,30 +27,36 @@
   };
   const esc = value => App.escapeHTML(String(value ?? ""));
 
-  const loadPack = () => {
+  const generalCatalog = () => core.sanitizeCatalog(window.BAOGeneralCommentaryPack?.mods || []);
+  const adultCatalog = () => core.sanitizeCatalog(window.BAOAdultCommentaryPack?.mods || []);
+
+  const loadAdultPack = () => {
     if (!adultEnabled()) return Promise.resolve([]);
-    if (window.BAOAdultCommentaryPack?.mods) return Promise.resolve(core.sanitizeCatalog(window.BAOAdultCommentaryPack.mods));
-    if (packPromise) return packPromise;
-    packPromise = new Promise((resolve, reject) => {
-      const existing = document.querySelector(`script[src="${PACK_SRC}"]`);
+    if (window.BAOAdultCommentaryPack?.mods) return Promise.resolve(adultCatalog());
+    if (adultPackPromise) return adultPackPromise;
+    adultPackPromise = new Promise((resolve, reject) => {
+      const existing = document.querySelector(`script[src="${ADULT_PACK_SRC}"]`);
       if (existing) {
-        existing.addEventListener("load", () => resolve(core.sanitizeCatalog(window.BAOAdultCommentaryPack?.mods || [])), { once: true });
+        existing.addEventListener("load", () => resolve(adultCatalog()), { once: true });
         existing.addEventListener("error", reject, { once: true });
         return;
       }
       const script = document.createElement("script");
-      script.src = PACK_SRC;
-      script.onload = () => resolve(core.sanitizeCatalog(window.BAOAdultCommentaryPack?.mods || []));
+      script.src = ADULT_PACK_SRC;
+      script.onload = () => resolve(adultCatalog());
       script.onerror = () => {
-        packPromise = null;
+        adultPackPromise = null;
         reject(new Error("成人場外人格模組載入失敗。"));
       };
       document.head.appendChild(script);
     });
-    return packPromise;
+    return adultPackPromise;
   };
 
-  const catalog = () => core.availableCatalog(window.BAOAdultCommentaryPack?.mods || [], { adultEnabled: adultEnabled() });
+  const catalog = () => core.availableCatalog(
+    [...generalCatalog(), ...(adultEnabled() ? adultCatalog() : [])],
+    { adultEnabled: adultEnabled() }
+  );
 
   const ensureState = () => {
     if (!window.GameState?.current) return core.normalizeState({});
@@ -80,9 +92,18 @@
     return "";
   };
 
+  const outputContainsAdult = output => output?.adult === true ||
+    (Array.isArray(output?.modIds) && output.modIds.some(id => ADULT_MOD_IDS.has(String(id || ""))));
+
+  const outputIcons = output => {
+    const icons = [...new Set((Array.isArray(output?.modIds) ? output.modIds : [])
+      .map(id => ICON_BY_ID[String(id || "")] || "◈"))];
+    return icons.join("") || "◈";
+  };
+
   const renderAll = () => {
     document.querySelectorAll(".bao-commentary-mod-block").forEach(node => node.remove());
-    if (!adultEnabled() || !window.GameState?.current) return;
+    if (!window.GameState?.current) return;
     const state = ensureState();
     const stream = document.getElementById("chat-stream");
     if (!stream) return;
@@ -92,25 +113,28 @@
       const output = core.outputFor(state, message.id);
       const host = nodes[index];
       if (!output || !host) return;
-      const icons = output.modIds.includes("yinmo-monitor") && output.modIds.includes("succubus-bun")
-        ? "🔥💕" : output.modIds.includes("yinmo-monitor") ? "🔥" : output.modIds.includes("succubus-bun") ? "💕" : "◈";
+      if (!adultEnabled() && outputContainsAdult(output)) return;
       const details = document.createElement("details");
       details.className = "bao-commentary-mod-block";
       details.dataset.messageId = String(message.id || "");
       details.innerHTML = `
-        <summary><span>${icons} 場外人格</span><small>展開碎碎念</small></summary>
+        <summary><span>${outputIcons(output)} 場外人格</span><small>展開旁白</small></summary>
         <div class="bao-commentary-mod-content">${App.formatMessage(output.content)}</div>`;
       host.insertAdjacentElement("afterend", details);
     });
   };
 
   const generateFor = async (message = null, options = {}) => {
-    if (!adultEnabled() || App.config?.demoMode) return false;
+    if (App.config?.demoMode) return false;
     const target = message || lastAssistant();
     if (!target?.id || !String(target.content || "").trim()) return false;
     let state = ensureState();
     if (!options.force && core.outputFor(state, target.id)) return false;
-    await loadPack();
+
+    if (adultEnabled()) {
+      try { await loadAdultPack(); }
+      catch (error) { console.warn("YoruBay adult commentary pack load failed:", error); }
+    }
     const mods = activeMods();
     if (!mods.length) return false;
 
@@ -136,6 +160,7 @@
         messageId: target.id,
         content,
         modIds: mods.map(item => item.id),
+        adult: mods.some(item => item.adult === true),
         createdAt: new Date().toISOString()
       });
       saveState(state);
@@ -150,18 +175,36 @@
 
   const close = () => document.querySelector(".bao-commentary-mod-backdrop")?.remove();
 
+  const commandHelp = () => {
+    const commands = ["【召喚導演旁白】", "【遣回導演旁白】"];
+    if (adultEnabled()) commands.push(
+      "【召喚淫魔班長】",
+      "【召喚魅魔肉包】",
+      "【召喚淫魔雙子】",
+      "【只留淫魔班長】",
+      "【只留魅魔肉包】",
+      "【雙子全開】",
+      "【遣回淫魔雙子】"
+    );
+    return commands.join(" · ");
+  };
+
   const open = async () => {
     if (!window.GameState?.current || !App.activeCharacter) {
       notify("先進入一個故事，再設定場外人格。", "error");
       return;
     }
-    if (!adultEnabled()) {
-      window.BAOContentPreferences?.guard?.({ adult_content: true });
+
+    if (adultEnabled()) {
+      try { await loadAdultPack(); }
+      catch (error) { notify("成人 MOD 暫時載入失敗；一般旁白仍可使用。", "error"); }
+    }
+    const mods = catalog();
+    if (!mods.length) {
+      notify("場外人格 MOD 仍在載入。", "error");
       return;
     }
-    let mods;
-    try { mods = await loadPack(); }
-    catch (error) { notify(error.message || "場外人格載入失敗。", "error"); return; }
+
     close();
     const state = ensureState();
     const active = new Set(state.enabled);
@@ -173,31 +216,42 @@
           <div>
             <span class="eyebrow">OFF-STAGE PERSONAS</span>
             <h2 id="bao-commentary-mod-title">場外人格 MOD</h2>
-            <p>只讀取本輪可見正文，另外產生折疊評論；不寫回主對話、角色記憶或世界狀態。</p>
+            <p>把旁白、吐槽或觀察者插在正文之外；只讀本輪可見內容，不寫回主對話、角色記憶或世界狀態。</p>
           </div>
           <button type="button" class="bao-commentary-mod-close" data-commentary-close aria-label="關閉場外人格設定">×</button>
         </header>
         <div class="bao-commentary-mod-warning">
-          <b>成人內容已開啟</b>
-          <span>每個啟用中的場外人格會共用一次額外模型請求，因此每輪會增加 Token／燈火用量。關閉成人內容後，這些評論與入口會立即隱藏，但故事資料不會被刪除。</span>
+          <b>啟用後會多一次模型請求</b>
+          <span>所有啟用中的場外人格每輪共用一次額外請求，不會一個 MOD 打一次。未啟用時不增加 Token／燈火用量。</span>
         </div>
+        ${adultEnabled() ? `
+          <div class="bao-commentary-mod-warning" data-commentary-adult-note>
+            <b>成人內容已開啟</b>
+            <span>成人 MOD 只在這個模式下顯示。關閉成人內容後，成人評論會立即隱藏並停止執行，但故事資料不會被刪除。</span>
+          </div>` : ""}
         <div class="bao-commentary-mod-list">
-          ${mods.map(mod => `
-            <label class="bao-commentary-mod-choice">
-              <input type="checkbox" data-commentary-mod="${esc(mod.id)}" ${active.has(mod.id) ? "checked" : ""}>
-              <span><b>${esc(mod.label)}</b><small>${esc(mod.description)}</small></span>
-            </label>`).join("")}
+          ${mods.map(mod => {
+            const badge = mod.badge || (mod.adult ? "R18" : "");
+            return `
+              <label class="bao-commentary-mod-choice">
+                <input type="checkbox" data-commentary-mod="${esc(mod.id)}" ${active.has(mod.id) ? "checked" : ""}>
+                <span>
+                  <b>${esc(mod.label)}${badge ? `<em class="bao-commentary-mod-badge">${esc(badge)}</em>` : ""}</b>
+                  <small>${esc(mod.description)}</small>
+                </span>
+              </label>`;
+          }).join("")}
         </div>
         <div class="bao-commentary-mod-link-note" ${active.has("yinmo-monitor") && active.has("succubus-bun") ? "" : "hidden"} data-commentary-twins>
-          🔥💕 兩個 MOD 同時啟用時，會自動追加「雙子互動」；不需要第三個開關。
+          🔥💕 兩個成人 MOD 同時啟用時，會自動追加「雙子互動」；不需要第三個開關。
         </div>
         <div class="bao-commentary-mod-actions">
           <button type="button" class="secondary" data-commentary-latest>評論目前最後一輪</button>
           <button type="button" class="primary" data-commentary-done>完成</button>
         </div>
         <details class="bao-commentary-mod-commands">
-          <summary>保留舊版召喚指令</summary>
-          <div>【召喚淫魔班長】 · 【召喚魅魔肉包】 · 【召喚淫魔雙子】 · 【只留淫魔班長】 · 【只留魅魔肉包】 · 【雙子全開】 · 【遣回淫魔雙子】</div>
+          <summary>文字召喚指令</summary>
+          <div>${esc(commandHelp())}</div>
         </details>
       </section>`;
     document.body.appendChild(wrap);
@@ -228,29 +282,36 @@
   };
 
   const summary = () => {
-    if (!adultEnabled()) return null;
     const state = ensureState();
     const mods = catalog();
-    const active = core.activeMods(state, mods, { adultEnabled: true });
+    if (!mods.length) return null;
+    const active = core.activeMods(state, mods, { adultEnabled: adultEnabled() });
     const enabled = new Set(state.enabled);
     return {
       id: "commentary",
       enabledCount: active.length,
       availableCount: mods.length,
       labels: active.map(item => item.label),
-      items: mods.map(item => ({ id: item.id, label: item.label, description: item.description, enabled: enabled.has(item.id) })),
+      items: mods.map(item => ({
+        id: item.id,
+        label: item.label,
+        description: item.description,
+        enabled: enabled.has(item.id)
+      })),
       active: active.length > 0
     };
   };
 
   const handleCommand = async raw => {
-    if (!adultEnabled()) return false;
-    await loadPack();
+    if (adultEnabled()) {
+      try { await loadAdultPack(); }
+      catch (error) { console.warn("YoruBay adult commentary pack command load failed:", error); }
+    }
     const action = core.command(raw, catalog());
     if (!action) return false;
     const next = saveState(core.applyCommand(ensureState(), action));
-    const labels = core.activeMods(next, catalog(), { adultEnabled: true }).map(item => item.label);
-    notify(labels.length ? `場外人格已切換：${labels.join("＋")}。` : "場外人格已全部遣回。");
+    const labels = core.activeMods(next, catalog(), { adultEnabled: adultEnabled() }).map(item => item.label);
+    notify(labels.length ? `場外人格已切換：${labels.join("＋")}。` : "場外人格已全部關閉。");
     return true;
   };
 
@@ -263,7 +324,7 @@
           window.BAOContentPreferences?.guard?.({ adult_content: true });
           return false;
         }
-        if (adultEnabled() && await handleCommand(raw)) {
+        if (await handleCommand(raw)) {
           if (input) input.value = "";
           return true;
         }
@@ -271,7 +332,6 @@
 
       const before = new Set((Chat.messages || []).filter(item => item?.role === "assistant").map(item => String(item.id || "")));
       const result = await next(...args);
-      if (!adultEnabled()) return result;
       const target = [...(Chat.messages || [])].reverse().find(item => item?.role === "assistant" && !before.has(String(item.id || "")));
       if (target) await generateFor(target, { notify: false });
       return result;
@@ -288,15 +348,15 @@
 
   window.addEventListener("yorubay:content-preferences-changed", event => {
     if (event.detail?.adultContentEnabled) {
-      loadPack().catch(error => console.warn("YoruBay adult commentary pack preload failed:", error));
+      loadAdultPack().catch(error => console.warn("YoruBay adult commentary pack preload failed:", error));
     } else {
       close();
-      renderAll();
     }
+    renderAll();
   });
 
   ensureStyles();
-  if (adultEnabled()) loadPack().catch(error => console.warn("YoruBay adult commentary pack preload failed:", error));
+  if (adultEnabled()) loadAdultPack().catch(error => console.warn("YoruBay adult commentary pack preload failed:", error));
 
   window.BAOCommentaryMods = Object.freeze({
     open,

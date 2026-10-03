@@ -208,8 +208,9 @@ jobs:
       - name: Commentary MOD isolation
         run: |
           node --check js/commentary-mods-core.js
-          node --check js/commentary-mods.js
+          node --check js/commentary-mods-general-pack.js
           node --check js/commentary-mods-adult-pack.js
+          node --check js/commentary-mods.js
           node tests/commentary-mods-core.cjs
       - name: Story extension scopes
         run: |
