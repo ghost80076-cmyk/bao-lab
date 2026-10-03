@@ -635,6 +635,10 @@
     }
     const adultControls = host?.querySelector("[data-explore-adult-controls]");
     if (adultControls) adultControls.hidden = !adultEnabled();
+    document.getElementById("adult-notice")?.classList.toggle(
+      "hidden",
+      !adultEnabled() || state.rating === "general"
+    );
     const matches = currentMatches();
     const visible = new Set(matches.map(item => String(item.id || "")));
 
