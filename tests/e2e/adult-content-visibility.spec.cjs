@@ -3,8 +3,10 @@ if (process.env.BAO_LIVE_URL) test.use({ baseURL: process.env.BAO_LIVE_URL });
 
 test("adult content stays hidden until the player enables it locally", async ({ page }) => {
   await page.addInitScript(() => {
+    if (sessionStorage.getItem("yorubay:adult-visibility-test-ready") === "yes") return;
     localStorage.removeItem("yorubay:content-preferences:v1");
     localStorage.removeItem("bao-lab:adult-confirmed");
+    sessionStorage.setItem("yorubay:adult-visibility-test-ready", "yes");
   });
   await page.goto("./");
   await page.waitForFunction(() =>
