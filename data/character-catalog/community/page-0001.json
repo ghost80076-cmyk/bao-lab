@@ -475,6 +475,46 @@
     "version_published_at": "2026-10-03T17:58:00Z"
   },
   {
+    "id": "aetheria-three-factions",
+    "file": "data/characters/community/ae/aetheria-three-factions.json",
+    "name": "艾瑟莉亞大陸 - 三大勢力",
+    "title": "艾瑟莉亞大陸｜三大勢力・生命精華紀元",
+    "avatar": "https://i.meee.com.tw/GxAeyMx.jpg",
+    "category": "male",
+    "rating": "adult",
+    "gender": "all",
+    "tags": [
+      "男性向",
+      "R18成人奇幻",
+      "生命精華",
+      "體液煉金",
+      "三大勢力",
+      "多NPC",
+      "世界模擬",
+      "勢力角力",
+      "道德困境",
+      "精華市場",
+      "黑市交易",
+      "煉金術",
+      "自主NPC",
+      "資訊隔離",
+      "原生狀態UI"
+    ],
+    "description": "三百年前，艾瑟莉亞發現能從成年人的生命精華、情緒與體液中提煉魔法資源，文明因此被重新塑形。聖潔教會、慾望教團與自由煉金師公會圍繞精華來源、交易、權力與道德長期角力；玩家從中立之港進入這個會自行運作、會變化、也會反過來改變人的成人奇幻世界。",
+    "supported_modes": {
+      "immersive": true,
+      "world": true
+    },
+    "supported_display": {
+      "text": true,
+      "ui": true
+    },
+    "published_at": "2026-10-03T18:04:00Z",
+    "updated_at": "2026-10-03T18:04:00Z",
+    "published_version": 1,
+    "version_published_at": "2026-10-03T18:04:00Z"
+  },
+  {
     "id": "lin-yuyan-possessed-husband",
     "file": "data/characters/community/45/lin-yuyan-possessed-husband.json",
     "name": "奪舍完美丈夫的妻子—林語嫣",
