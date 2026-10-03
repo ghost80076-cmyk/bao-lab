@@ -81,6 +81,8 @@ jobs:
         run: node tests/unhealed-bonds-card.test.cjs
       - name: Host Club Simulator card
         run: node tests/host-club-simulator-card.test.cjs
+      - name: Desire Werewolf card
+        run: node tests/desire-werewolf-card.test.cjs
       - name: Night Sky Magic Academy card
         run: node tests/night-sky-magic-academy-card.test.cjs
       - name: K-idol survival simulator card
