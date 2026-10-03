@@ -295,7 +295,7 @@
           </section>
 
           <section class="explore-filter-group" aria-labelledby="explore-category-label">
-            <h4 id="explore-category-label">作品定位</h4>
+            <h4 id="explore-category-label">作品取向</h4>
             <div class="explore-option-row">
               <button type="button" data-explore-category="all">全部</button>
               <button type="button" data-explore-category="general">一般向</button>
