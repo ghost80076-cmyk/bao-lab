@@ -670,5 +670,46 @@
     "updated_at": "2026-10-03T18:40:00Z",
     "published_version": 1,
     "version_published_at": "2026-10-03T18:40:00Z"
+  },
+  {
+    "id": "dual-host-system-campus",
+    "file": "data/characters/community/17/dual-host-system-campus.json",
+    "name": "我成了系統？雙宿主模式",
+    "title": "我成了系統？｜雙宿主 NTL / NTR 模式",
+    "avatar": "https://i.meee.com.tw/4zlZAMj.jpg",
+    "category": "male",
+    "rating": "adult",
+    "gender": "all",
+    "tags": [
+      "男性向",
+      "成人內容",
+      "大學校園",
+      "校花",
+      "系統扮演",
+      "雙宿主",
+      "NTL",
+      "NTR",
+      "三角關係",
+      "任務系統",
+      "自主宿主",
+      "自主NPC",
+      "資訊隔離",
+      "雙線敘事",
+      "世界模擬",
+      "原生狀態UI"
+    ],
+    "description": "這次你不是宿主，而是系統本身。預設同時綁定校花的現任男友與可能介入關係的另一名男生；兩人都不知道對方也有同一個系統，而校花本人不是宿主、也不受你直接控制。你可以向兩邊發布合作、競爭甚至互相衝突的任務，讓 NTL 與 NTR 從同一段關係的兩端同時發生。",
+    "supported_modes": {
+      "immersive": true,
+      "world": true
+    },
+    "supported_display": {
+      "text": true,
+      "ui": true
+    },
+    "published_at": "2026-10-03T19:04:00Z",
+    "updated_at": "2026-10-03T19:04:00Z",
+    "published_version": 1,
+    "version_published_at": "2026-10-03T19:04:00Z"
   }
 ]
