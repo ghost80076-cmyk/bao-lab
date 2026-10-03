@@ -60,3 +60,17 @@
 .bao-opening-idolsurvival .bao-opening-choice span{color:#ff9cd5}
 @media(max-width:900px){.idol-feature-grid{grid-template-columns:1fr 1fr}.idol-status-shell{grid-template-columns:1fr}.idol-status-card.stage,.idol-status-card.pressure{grid-column:auto}}
 @media(max-width:620px){.idol-hero{min-height:650px}.idol-hero-art img{object-position:38% top;transform:scale(1.04)}.idol-hero-art:after{background:linear-gradient(0deg,rgba(6,7,15,.98) 0%,rgba(6,7,15,.28) 62%,transparent 100%)}.idol-hero-copy{margin-left:0;padding:310px 20px 24px;min-height:650px}.idol-hero h1{font-size:38px}.idol-feature-grid,.idol-survival-turn-choices{grid-template-columns:1fr}.idol-status-grid,.idol-grade-grid{grid-template-columns:1fr 1fr}.idol-pressure-grid{grid-template-columns:1fr}}
+
+
+/* K-idol catalog cover focal crop */
+#explore-view .character-image-wrap img[src$="k-idol-survival-cover.webp"]{
+  object-position:left 18%!important;
+  transform:scale(1.22)!important;
+  transform-origin:left 22%;
+}
+#explore-view .character-card:hover .character-image-wrap img[src$="k-idol-survival-cover.webp"]{
+  transform:scale(1.26)!important;
+}
+.explore-work-preview-media img[src$="k-idol-survival-cover.webp"]{
+  object-position:left center!important;
+}
