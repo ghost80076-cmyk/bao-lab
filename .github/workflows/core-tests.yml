@@ -85,6 +85,8 @@ jobs:
         run: node tests/desire-werewolf-card.test.cjs
       - name: Desire Academy City card
         run: node tests/desire-academy-city-card.test.cjs
+      - name: Xia Yuhan AV industry card
+        run: node tests/xia-yuhan-av-industry-card.test.cjs
       - name: Aetheria Three Factions card
         run: node tests/aetheria-three-factions-card.test.cjs
       - name: Dark Military War Simulator card
