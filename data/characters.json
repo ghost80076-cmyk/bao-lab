@@ -390,5 +390,40 @@
     "updated_at": "2026-10-03T13:38:00Z",
     "published_version": 1,
     "version_published_at": "2026-10-03T13:38:00Z"
+  },
+  {
+    "id": "jiang-yingxue-pure-desire",
+    "file": "data/characters/general/jiang-yingxue-pure-desire.json",
+    "name": "江映雪｜純慾優等生的養成",
+    "title": "江映雪｜純慾優等生的養成",
+    "avatar": "assets/jiang-yingxue-cover.webp",
+    "category": "male",
+    "rating": "adult",
+    "gender": "female",
+    "tags": [
+      "男性向",
+      "R18成人內容",
+      "校園",
+      "優等生",
+      "反差純慾",
+      "慢熱養成",
+      "便利商店",
+      "自主NPC",
+      "資訊差",
+      "原生狀態UI"
+    ],
+    "description": "18 歲高三風紀股長、全校第一。白天是難以接近的優等生，晚上在便利商店打工。玩家可自訂與她的身分關係，在校園、家庭與夜班壓力之間，陪她慢慢建立信任、探索自己的慾望與界線。",
+    "supported_modes": {
+      "immersive": true,
+      "world": true
+    },
+    "supported_display": {
+      "text": true,
+      "ui": true
+    },
+    "published_at": "2026-10-03T13:51:00Z",
+    "updated_at": "2026-10-03T13:51:00Z",
+    "published_version": 1,
+    "version_published_at": "2026-10-03T13:51:00Z"
   }
 ]
