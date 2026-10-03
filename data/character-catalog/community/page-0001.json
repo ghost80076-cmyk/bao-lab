@@ -298,7 +298,7 @@
     "file": "data/characters/community/d0/awakened-silver-dawn.json",
     "name": "覺醒者：破曉之銀",
     "title": "覺醒者：破曉之銀",
-    "avatar": "assets/bao-world-core.webp",
+    "avatar": "https://i.meee.com.tw/BH3KBth.jpg",
     "category": "general",
     "rating": "general",
     "gender": "all",
@@ -324,9 +324,9 @@
       "ui": true
     },
     "published_at": "2026-10-03T14:01:00Z",
-    "updated_at": "2026-10-03T14:01:00Z",
-    "published_version": 1,
-    "version_published_at": "2026-10-03T14:01:00Z"
+    "updated_at": "2026-10-03T17:31:00Z",
+    "published_version": 2,
+    "version_published_at": "2026-10-03T17:31:00Z"
   },
   {
     "id": "gu-muhan-rival",
