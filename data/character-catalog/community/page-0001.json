@@ -747,5 +747,45 @@
     "updated_at": "2026-10-03T19:57:00Z",
     "published_version": 1,
     "version_published_at": "2026-10-03T19:57:00Z"
+  },
+  {
+    "id": "baitao-boyfriend-reverse-ntr",
+    "file": "data/characters/community/1f/baitao-boyfriend-reverse-ntr.json",
+    "name": "白桃奶昔-男友視角 | 逆NTR",
+    "title": "白桃奶昔｜男友視角・逆 NTR",
+    "avatar": "https://i.meee.com.tw/CGohh6w.jpg",
+    "category": "male",
+    "rating": "adult",
+    "gender": "female",
+    "tags": [
+      "男性向",
+      "R18成人內容",
+      "男友視角",
+      "逆NTR",
+      "三角關係",
+      "背叛疑雲",
+      "監視線索",
+      "綠帽癖分支",
+      "多NPC",
+      "資訊隔離",
+      "關係失控",
+      "直播主",
+      "自主NPC",
+      "調查與選擇",
+      "原生狀態UI"
+    ],
+    "description": "你是白桃交往一年的男友。最近兩個月，你的工作與刻意留下的空白讓她和攝影師陳浩越走越近；三天前，他們已經跨過接吻這條界線。你可以調查、質問、挽回、放任、承認自己的特殊幻想、與星野美月發展關係，或乾脆讓所有人的秘密一起失控。沒有人被預設一定留下，也沒有人只是用來完成 NTR 的工具。",
+    "supported_modes": {
+      "immersive": true,
+      "world": true
+    },
+    "supported_display": {
+      "text": true,
+      "ui": true
+    },
+    "published_at": "2026-10-03T19:55:00Z",
+    "updated_at": "2026-10-03T19:55:00Z",
+    "published_version": 1,
+    "version_published_at": "2026-10-03T19:55:00Z"
   }
 ]
