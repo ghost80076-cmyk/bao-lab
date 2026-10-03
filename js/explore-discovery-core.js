@@ -72,20 +72,22 @@
       ...(Array.isArray(character.audience) ? character.audience : []),
       ...(Array.isArray(character.categories) ? character.categories : [])
     ].map(value => fold(value));
-    if (values.some(value => ["male", "man", "男性", "男性向"].includes(value))) return "male";
     if (values.some(value => ["female", "woman", "女性", "女性向"].includes(value))) return "female";
+    if (values.some(value => ["male", "man", "男性", "男性向"].includes(value))) return "male";
+    if (values.some(value => ["general", "all", "一般", "一般向", "大眾", "大眾向"].includes(value))) return "general";
 
     const category = fold(character.category || "");
-    if (["male", "男性", "男性向"].includes(category)) return "male";
     if (["female", "女性", "女性向"].includes(category)) return "female";
+    if (["male", "男性", "男性向"].includes(category)) return "male";
+    if (["general", "一般", "一般向", "大眾", "大眾向", "r18"].includes(category)) return "general";
 
-    // Legacy imported cards may only have a character gender. Use it only when
-    // no explicit work/audience classification exists.
-    return characterGender(character);
+    // No explicit audience/orientation means "一般向". Character gender must
+    // never decide whether a work is 女性向 or 男性向.
+    return "general";
   }
 
   function inCategory(character = {}, category = "all") {
-    const active = ["male", "female"].includes(category) ? category : "all";
+    const active = ["general", "male", "female"].includes(category) ? category : "all";
     if (active === "all") return true;
     return workCategory(character) === active;
   }
