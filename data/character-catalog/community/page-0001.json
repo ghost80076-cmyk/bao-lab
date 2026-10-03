@@ -327,5 +327,41 @@
     "updated_at": "2026-10-03T14:01:00Z",
     "published_version": 1,
     "version_published_at": "2026-10-03T14:01:00Z"
+  },
+  {
+    "id": "gu-muhan-rival",
+    "file": "data/characters/community/6c/gu-muhan-rival.json",
+    "name": "顧慕寒-霸總的死對頭是我",
+    "title": "顧慕寒｜霸總的死對頭是我",
+    "avatar": "assets/community/6c/gu-muhan-rival.webp",
+    "category": "female",
+    "rating": "adult",
+    "gender": "male",
+    "tags": [
+      "女性向",
+      "校園戀愛",
+      "死對頭",
+      "年輕霸總",
+      "豪門繼承人",
+      "青梅竹馬",
+      "三角關係",
+      "歡喜冤家",
+      "慢熱拉扯",
+      "自主NPC",
+      "成人內容"
+    ],
+    "description": "顧慕寒以為林婉清是自己最熟悉、最應該守住的人；偏偏妳——他的死對頭——總能讓他失去原本的節奏。商學院宿敵 × 年輕創投老闆 × 青梅竹馬修羅場 × 校園與商戰雙線。",
+    "supported_modes": {
+      "immersive": true,
+      "world": true
+    },
+    "supported_display": {
+      "text": true,
+      "ui": true
+    },
+    "published_at": "2026-10-03T13:58:00Z",
+    "updated_at": "2026-10-03T13:58:00Z",
+    "published_version": 1,
+    "version_published_at": "2026-10-03T13:58:00Z"
   }
 ]
