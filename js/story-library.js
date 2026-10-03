@@ -17,6 +17,7 @@
     _writeQueue: Promise.resolve(),
     _pendingNextChapter: false,
     _installed: false,
+    _openedAtByStory: new Map(),
 
     clone(value) {
       try { return structuredClone(value); }
@@ -250,6 +251,7 @@
         title: previous?.title || payload.characterName || "未命名故事",
         pinned: Boolean(previous?.pinned),
         createdAt: refs.storyCreatedAt,
+        lastOpenedAt: this._openedAtByStory.get(refs.storyId) || previous?.lastOpenedAt || previous?.updatedAt || refs.storyCreatedAt || payload.savedAt,
         updatedAt: payload.savedAt,
         activeChapterId: refs.chapterId,
         lastMessagePreview: String(last).slice(0, 160)
@@ -382,7 +384,7 @@
         }))
         .sort((a, b) => {
           if (Boolean(a.pinned) !== Boolean(b.pinned)) return a.pinned ? -1 : 1;
-          return String(b.updatedAt || "").localeCompare(String(a.updatedAt || ""));
+          return String(b.lastOpenedAt || b.updatedAt || "").localeCompare(String(a.lastOpenedAt || a.updatedAt || ""));
         });
     },
 
@@ -451,6 +453,19 @@
       const record = (await this.allRecords()).find(item => item.kind === "story" && item.storyId === storyId);
       if (!record) return false;
       record.pinned = Boolean(pinned);
+      await this.transaction("readwrite", store => store.put(record));
+      return this.clone(record);
+    },
+
+    async markStoryOpened(storyId, openedAt = new Date().toISOString()) {
+      if (!storyId) return false;
+      const value = String(openedAt || "");
+      const normalized = Number.isNaN(Date.parse(value)) ? new Date().toISOString() : value;
+      this._openedAtByStory.set(storyId, normalized);
+      if (!await this.open()) return false;
+      const record = (await this.allRecords()).find(item => item.kind === "story" && item.storyId === storyId);
+      if (!record) return false;
+      record.lastOpenedAt = normalized;
       await this.transaction("readwrite", store => store.put(record));
       return this.clone(record);
     },
@@ -649,6 +664,8 @@
         const restored = originalRestore(input);
         if (!restored) return false;
         if (!this.adoptRefs(input)) this.beginStory("第一章");
+        const refs = this.refs();
+        if (refs.storyId) void this.markStoryOpened(refs.storyId);
         return true;
       };
 

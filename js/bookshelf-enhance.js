@@ -39,6 +39,10 @@
   };
   const findCharacter = story => (window.App?.characters || []).find(card =>
     String(card?.id || card?.meta?.id || '') === String(story.characterId || ''));
+  const formatOpenedAt = value => {
+    const date = new Date(value || '');
+    return Number.isNaN(date.getTime()) ? '' : date.toLocaleString('zh-TW', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+  };
   const installToolbar = (shell, stories, cards) => {
     const head = shell.querySelector(".story-library-head");
     if (!head || shell.querySelector(".bao-shelf-toolbar")) return;
@@ -121,7 +125,8 @@
         if (active) {
           const progress = document.createElement('p');
           progress.className = 'bao-shelf-progress';
-          progress.textContent = `上次閱讀：${active.label || '未命名章節'}`;
+          const openedAt = formatOpenedAt(story.lastOpenedAt || story.updatedAt);
+          progress.textContent = `上次閱讀：${active.label || '未命名章節'}${openedAt ? ` · ${openedAt}` : ''}`;
           header.after(progress);
           const chapterIndex = chapters.indexOf(active);
           const loadButton = chapterRows[chapterIndex]?.querySelector('[data-library-action="load"]');

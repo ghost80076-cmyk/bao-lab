@@ -140,7 +140,14 @@ for (const width of [320, 390, 900, 1280]) {
 test('bookshelf links the active chapter to the existing restore flow', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await openDemoStory(page);
-  await page.evaluate(async () => { App.saveStory(false); await BAOStoryLibrary.flush(); App.showView('home'); });
+  await page.evaluate(async () => {
+    App.saveStory(false);
+    await BAOStoryLibrary.flush();
+    const storyId = BAOStoryLibrary.refs().storyId;
+    await BAOStoryLibrary.markStoryOpened(storyId, '2020-01-02T03:04:05.000Z');
+    window.__bookshelfStoryId = storyId;
+    App.showView('home');
+  });
   await expect(page.locator('#home-local-story')).toBeVisible();
   await expect(page.locator('#home-local-story-name')).toContainText('林沉風');
   await expect(page.locator('#home-resume-story')).toBeVisible();
@@ -164,4 +171,8 @@ test('bookshelf links the active chapter to the existing restore flow', async ({
   await continueButton.click();
   await expect(page.locator('#chat-view')).toHaveClass(/active/);
   await expect(page.locator('#user-input')).toBeVisible();
+  await page.waitForFunction(async () => {
+    const story = (await BAOStoryLibrary.listStories()).find(item => item.storyId === window.__bookshelfStoryId);
+    return Date.parse(story?.lastOpenedAt || '') > Date.parse('2020-01-02T03:04:05.000Z');
+  });
 });

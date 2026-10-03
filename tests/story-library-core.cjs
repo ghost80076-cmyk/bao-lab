@@ -151,6 +151,13 @@ vm.runInThisContext(code, { filename: "js/story-library.js" });
   assert.equal(stories.length, 1);
   assert.equal(stories[0].chapterCount, 1);
   assert.equal(stories[0].characterName, "林塵封");
+  const openedStory = await BAOStoryLibrary.markStoryOpened(firstRefs.storyId, "2020-01-02T03:04:05.000Z");
+  assert.equal(openedStory.lastOpenedAt, "2020-01-02T03:04:05.000Z");
+  assert.equal((await BAOStoryLibrary.listStories())[0].lastOpenedAt, "2020-01-02T03:04:05.000Z");
+  const pendingOpen = BAOStoryLibrary.markStoryOpened(firstRefs.storyId, "2021-02-03T04:05:06.000Z");
+  assert.equal(Storage.saveStory(), true);
+  await Promise.all([pendingOpen, BAOStoryLibrary.flush()]);
+  assert.equal((await BAOStoryLibrary.listStories())[0].lastOpenedAt, "2021-02-03T04:05:06.000Z", "an immediate save must not race away the opened time");
 
   const renamedStory = await BAOStoryLibrary.renameStory(firstRefs.storyId, "舊城夜談");
   assert.equal(renamedStory.title, "舊城夜談");
@@ -161,6 +168,7 @@ vm.runInThisContext(code, { filename: "js/story-library.js" });
   await BAOStoryLibrary.flush();
   stories = await BAOStoryLibrary.listStories();
   assert.equal(stories[0].title, "舊城夜談");
+  assert.equal(stories[0].lastOpenedAt, "2021-02-03T04:05:06.000Z", "saving content must not rewrite the last-opened time");
 
   const pinnedStory = await BAOStoryLibrary.setStoryPinned(firstRefs.storyId, true);
   assert.equal(pinnedStory.pinned, true);
@@ -287,6 +295,7 @@ vm.runInThisContext(code, { filename: "js/story-library.js" });
   assert.equal(code.includes("if (!restored) return false"), true);
   assert.equal(code.includes("return Boolean(database)"), true);
   assert.equal(code.includes("async setStoryPinned(storyId, pinned = true)"), true);
+  assert.equal(code.includes("async markStoryOpened(storyId, openedAt = new Date().toISOString())"), true);
   assert.equal(code.includes("if (Boolean(a.pinned) !== Boolean(b.pinned))"), true);
   console.log("story library core test passed");
 })().catch(error => {
