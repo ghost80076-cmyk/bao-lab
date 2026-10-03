@@ -293,6 +293,35 @@
     };
   }
 
+  function commentarySummary(input = null) {
+    if (!input || typeof input !== "object") return null;
+    const items = (Array.isArray(input.items) ? input.items : []).map(item => inventoryItem({
+      id: item?.id,
+      label: item?.label || item?.id,
+      detail: item?.description || "",
+      status: item?.enabled === true ? "啟用" : "未啟用",
+      state: item?.enabled === true ? "active" : "paused"
+    }));
+    const activeCount = Math.max(0, Number(input.enabledCount) || 0);
+    const labels = (Array.isArray(input.labels) ? input.labels : []).map(text).filter(Boolean);
+    return {
+      id: "commentary",
+      eyebrow: "場外人格",
+      title: activeCount ? `${activeCount} 個場外人格正在運作` : "場外人格未啟用",
+      detail: activeCount ? labels.join("＋") : "成人內容開啟後，可由玩家自行選擇場外評論人格",
+      scopes: ["額外模型請求", "不進主記憶", "故事內"],
+      ownership: ownership({
+        sources: [source("platform", "夜灣內建", Math.max(0, Number(input.availableCount) || items.length))],
+        storage: "故事存檔",
+        appliesTo: "目前故事",
+        control: "玩家明確啟用；關閉成人內容後立即停止",
+        permissions: ["只讀本輪可見正文", "不寫入 NPC／世界狀態"]
+      }),
+      inventory: items.length ? [inventoryGroup("platform", "可用人格", items)] : [],
+      active: activeCount > 0
+    };
+  }
+
   function overview(input = {}) {
     const cards = [
       worldSummary(input.world, input.worldInventory),
@@ -300,6 +329,8 @@
       replaceSummary(input.replace),
       regexSummary(input.regex, input.authorRegex)
     ];
+    const commentary = commentarySummary(input.commentary);
+    if (commentary) cards.push(commentary);
     const active = cards.filter(card => card.active);
     return {
       cards,
@@ -322,6 +353,7 @@
     sceneSummary,
     replaceSummary,
     regexSummary,
+    commentarySummary,
     overview
   });
 });
