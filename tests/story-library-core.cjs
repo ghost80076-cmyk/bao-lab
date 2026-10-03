@@ -240,6 +240,8 @@ vm.runInThisContext(code, { filename: "js/story-library.js" });
   assert.equal(searchIndex.records.length, 6);
   assert.deepEqual(searchIndex.records.filter(record => record.chapterId === secondRefs.chapterId).map(record => record.turn), [1, 1]);
   assert.equal(searchIndex.records.at(-1).chapterLabel, "續篇");
+  assert.deepEqual(searchIndex.records.find(record => record.id === "msg-first-assistant").changes, ["memory"]);
+  assert.deepEqual(searchIndex.records.find(record => record.id === "msg-source-assistant").changes, ["state", "memory"]);
   assert.equal(await BAOStoryLibrary.deleteChapter(firstRefs.storyId, secondRefs.chapterId), false);
   assert.equal(await BAOStoryLibrary.deleteChapter(firstRefs.storyId, firstRefs.chapterId), true);
   const chaptersAfterDelete = await BAOStoryLibrary.listChapters(firstRefs.storyId);

@@ -54,15 +54,16 @@
         content: String(message?.content || ''),
         createdAt: String(message?.createdAt || ''),
         chapterId: String(message?.chapterId || chapterId || ''),
-        chapterLabel: String(message?.chapterLabel || chapterLabel || '')
+        chapterLabel: String(message?.chapterLabel || chapterLabel || ''),
+        changes: Array.isArray(message?.changes) ? message.changes.filter(value => value === 'memory' || value === 'state') : []
       });
     });
     return records;
   };
 
-  const search = ({ records = null, messages = [], greeting = '', greetingCreatedAt = '', chapterId = '', chapterLabel = '', query = '', role = 'all', chapter = 'all', date = 'all', now = Date.now(), limit = 100 } = {}) => {
+  const search = ({ records = null, messages = [], greeting = '', greetingCreatedAt = '', chapterId = '', chapterLabel = '', query = '', role = 'all', chapter = 'all', date = 'all', change = 'all', now = Date.now(), limit = 100 } = {}) => {
     const terms = termsFor(query);
-    if (!terms.length) return { total: 0, results: [], truncated: false };
+    if (!terms.length && change === 'all') return { total: 0, results: [], truncated: false };
     const sourceRecords = Array.isArray(records)
       ? records.map((record, index) => ({
           ...record,
@@ -73,13 +74,15 @@
           content: String(record?.content || ''),
           createdAt: String(record?.createdAt || ''),
           chapterId: String(record?.chapterId || ''),
-          chapterLabel: String(record?.chapterLabel || '')
+          chapterLabel: String(record?.chapterLabel || ''),
+          changes: Array.isArray(record?.changes) ? record.changes.filter(value => value === 'memory' || value === 'state') : []
         }))
       : messageRecords({ messages, greeting, greetingCreatedAt, chapterId, chapterLabel });
     const threshold = dateThreshold(date, now);
     const matches = sourceRecords.filter(record => {
       if (role !== 'all' && record.role !== role) return false;
       if (chapter !== 'all' && record.chapterId !== chapter) return false;
+      if (change !== 'all' && !record.changes.includes(change)) return false;
       if (threshold !== null) {
         const createdAt = Date.parse(record.createdAt);
         if (Number.isNaN(createdAt) || createdAt < threshold || createdAt > new Date(now).getTime()) return false;
