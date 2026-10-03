@@ -652,6 +652,12 @@
 
     decorateCards();
 
+    const portalCategory = state.rating === "mature" ? "r18" : state.category;
+    document.querySelectorAll("#category-portals .category-portal").forEach(button => {
+      button.classList.toggle("active", button.dataset.category === portalCategory);
+    });
+    document.getElementById("explore-view")?.setAttribute("data-category-theme", portalCategory || "all");
+
     host.querySelectorAll("[data-explore-scope]").forEach(button => {
       const active = button.dataset.exploreScope === state.scope;
       button.classList.toggle("active", active);
