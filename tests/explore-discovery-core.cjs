@@ -27,7 +27,7 @@ const works = [
   {
     id: "adult",
     title: "成人作品",
-    category: "r18",
+    category: "general",
     rating: "adult",
     tags: ["R18"],
     supported_modes: { immersive: true, world: true },
@@ -39,6 +39,7 @@ assert.deepEqual(core.filter(works, { category: "all" }).map(x => x.id), ["city"
 assert.deepEqual(core.filter(works, { rating: "mature" }).map(x => x.id), ["adult"]);
 assert.deepEqual(core.filter(works, { category: "male", rating: "mature" }).map(x => x.id), []);
 assert.deepEqual(core.filter(works, { category: "male", rating: "general" }).map(x => x.id), ["city"]);
+assert.deepEqual(core.filter(works, { category: "general", rating: "mature" }).map(x => x.id), ["adult"]);
 assert.deepEqual(core.filter(works, { category: "all", capability: "world" }).map(x => x.id), ["city"]);
 assert.deepEqual(core.filter(works, { category: "all", capability: "ui" }).map(x => x.id), ["room"]);
 assert.deepEqual(core.filter(works, { category: "all", query: "長篇" }).map(x => x.id), ["city"]);
@@ -53,6 +54,15 @@ const femaleAudienceMaleCharacter = {
 assert.equal(core.workCategory(femaleAudienceMaleCharacter), "female");
 assert.equal(core.inCategory(femaleAudienceMaleCharacter, "female"), true);
 assert.equal(core.inCategory(femaleAudienceMaleCharacter, "male"), false);
+
+const unspecifiedAudienceFemaleCharacter = {
+  id: "unspecified-audience-female-character",
+  rating: "general",
+  gender: "female"
+};
+assert.equal(core.workCategory(unspecifiedAudienceFemaleCharacter), "general");
+assert.equal(core.inCategory(unspecifiedAudienceFemaleCharacter, "female"), false);
+assert.equal(core.inCategory(unspecifiedAudienceFemaleCharacter, "general"), true);
 
 
 const library = core.normalizeLibrary({
