@@ -22,8 +22,8 @@ test('official portable actors join any story and adult actors obey the local co
     return {name:App.activeCharacter.name};
   });
 
-  await page.locator('#bao-actor-entry').click();
-  await page.locator('#bao-actor-target').selectOption('host');
+  await page.evaluate(() => BAOStoryActors.open('host'));
+  await expect(page.getByRole('dialog', {name:'本故事的人物設定'})).toBeVisible();
   const picker = page.locator('[data-portable-actor-select]');
   await expect(picker.locator('option[value="jingyue"]')).toHaveCount(1);
   await expect(picker.locator('option[value="guchen"]')).toHaveCount(1);
@@ -53,8 +53,8 @@ test('official portable actors join any story and adult actors obey the local co
   expect(snapshot.prompt).toContain('原作品');
 
   await page.evaluate(() => BAOContentPreferences.setAdultContentEnabled(true, {confirmAge:false}));
-  await page.locator('#bao-actor-entry').click();
-  await page.locator('#bao-actor-target').selectOption('host');
+  await page.evaluate(() => BAOStoryActors.open('host'));
+  await expect(page.getByRole('dialog', {name:'本故事的人物設定'})).toBeVisible();
   const adultPicker = page.locator('[data-portable-actor-select]');
   await expect(adultPicker.locator('option[value="jiuyue"]')).toHaveCount(1);
   await expect(adultPicker.locator('option[value="shuanger"]')).toHaveCount(1);
@@ -89,8 +89,8 @@ test('official portable actors join any story and adult actors obey the local co
   expect(snapshot.prompt).toContain('鏡月');
   expect(snapshot.prompt).not.toContain('玖月');
 
-  await page.locator('#bao-actor-entry').click();
-  await page.locator('#bao-actor-target').selectOption('host');
+  await page.evaluate(() => BAOStoryActors.open('host'));
+  await expect(page.getByRole('dialog', {name:'本故事的人物設定'})).toBeVisible();
   await expect(page.locator('[data-portable-actor-select] option[value="jiuyue"]')).toHaveCount(0);
   await expect(page.locator('#bao-actor-existing')).not.toContainText('玖月');
   await page.getByRole('button', {name:'取消', exact:true}).click();
