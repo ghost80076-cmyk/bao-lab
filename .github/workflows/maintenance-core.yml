@@ -88,6 +88,9 @@ jobs:
       - name: Frontend extension-chain contract
         run: node tests/frontend-extension-contract.cjs
 
+      - name: Player-facing terminology contract
+        run: node tests/plain-language-ui-core.cjs
+
       - name: Author regex compatibility
         run: |
           node tests/author-regex-core.test.js
