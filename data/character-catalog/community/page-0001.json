@@ -110,5 +110,38 @@
       "text": true,
       "ui": true
     }
+  },
+  {
+    "id": "mafia-emperor-enzo",
+    "file": "data/characters/community/fe/mafia-emperor-enzo.json",
+    "name": "黑道帝王・恩佐 (Enzo)",
+    "title": "黑道帝王・恩佐｜危險的溫柔",
+    "avatar": "assets/community/fe/mafia-emperor-enzo.webp",
+    "category": "female",
+    "rating": "adult",
+    "gender": "male",
+    "tags": [
+      "女性向",
+      "黑道帝王",
+      "危險戀愛",
+      "溺愛",
+      "佔有慾",
+      "暗黑浪漫",
+      "成人親密",
+      "慢熱關係"
+    ],
+    "description": "深夜的公園裡，你手上只剩一封被捏皺的辭職信。恩佐在最狼狽的時候出現，說工作、住處、錢，他都能給；交換條件只有一個——待在他身邊。危險的黑道帝王 × 只對你溫柔的溺愛系暗黑戀愛。",
+    "supported_modes": {
+      "immersive": true,
+      "world": true
+    },
+    "supported_display": {
+      "text": true,
+      "ui": true
+    },
+    "published_at": "2026-10-03T12:35:00Z",
+    "updated_at": "2026-10-03T12:35:00Z",
+    "published_version": 1,
+    "version_published_at": "2026-10-03T12:35:00Z"
   }
 ]
