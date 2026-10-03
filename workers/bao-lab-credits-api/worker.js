@@ -5286,19 +5286,24 @@ const WorkerPublicationFormat = (() => {
           1200
         );
   
-    const supportLabel =
-      String(
-        body.author_support_label ||
-        "支持作者"
+    const suppliedSupportLinks =
+      Array.isArray(
+        body.support_links
       )
-        .trim()
-        .slice(
-          0,
-          40
-        ) ||
-      "支持作者";
+        ? body.support_links
+        : null;
   
-    const supportUrl =
+    if (
+      suppliedSupportLinks &&
+      suppliedSupportLinks.length >
+        5
+    ) {
+      throw publishError(
+        "author_support_limit_reached"
+      );
+    }
+  
+    const legacySupportUrl =
       String(
         body.author_support_url ||
         ""
@@ -5309,9 +5314,67 @@ const WorkerPublicationFormat = (() => {
           600
         );
   
-    if (
-      supportUrl
+    const rawSupportLinks =
+      suppliedSupportLinks ||
+      (
+        legacySupportUrl
+          ? [
+              {
+                label:
+                  body.author_support_label,
+                url:
+                  legacySupportUrl,
+              },
+            ]
+          : []
+      );
+  
+    const supportLinks =
+      [];
+    const seenSupportUrls =
+      new Set();
+  
+    for (
+      const rawLink of
+        rawSupportLinks
     ) {
+      if (
+        !plainObject(
+          rawLink
+        )
+      ) {
+        throw publishError(
+          "invalid_author_support_url"
+        );
+      }
+  
+      const supportLabel =
+        String(
+          rawLink.label ||
+          "支持作者"
+        )
+          .trim()
+          .slice(
+            0,
+            40
+          ) ||
+        "支持作者";
+  
+      const supportUrl =
+        String(
+          rawLink.url ||
+          ""
+        )
+          .trim()
+          .slice(
+            0,
+            600
+          );
+  
+      if (!supportUrl) {
+        continue;
+      }
+  
       let parsed =
         null;
   
@@ -5335,6 +5398,28 @@ const WorkerPublicationFormat = (() => {
           "invalid_author_support_url"
         );
       }
+  
+      const normalizedUrl =
+        parsed.href;
+  
+      if (
+        seenSupportUrls.has(
+          normalizedUrl
+        )
+      ) {
+        continue;
+      }
+  
+      seenSupportUrls.add(
+        normalizedUrl
+      );
+  
+      supportLinks.push({
+        label:
+          supportLabel,
+        url:
+          normalizedUrl,
+      });
     }
   
     return {
@@ -5349,17 +5434,7 @@ const WorkerPublicationFormat = (() => {
         bio,
   
         support_links:
-          supportUrl
-            ? [
-                {
-                  label:
-                    supportLabel,
-  
-                  url:
-                    supportUrl,
-                },
-              ]
-            : [],
+          supportLinks,
       },
     };
   }
