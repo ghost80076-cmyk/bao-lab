@@ -617,5 +617,45 @@
     "updated_at": "2026-10-03T18:40:00Z",
     "published_version": 1,
     "version_published_at": "2026-10-03T18:40:00Z"
+  },
+  {
+    "id": "baitao-roommate-triangle",
+    "file": "data/characters/community/1f/baitao-roommate-triangle.json",
+    "name": "白桃奶昔 - 好友的女友 | 三人同居中",
+    "title": "白桃奶昔｜好友的女友・三人同居中",
+    "avatar": "https://i.meee.com.tw/80Nq2T6.jpg",
+    "category": "male",
+    "rating": "adult",
+    "gender": "female",
+    "tags": [
+      "男性向",
+      "R18成人內容",
+      "現代同居",
+      "好友的女友",
+      "三角關係",
+      "NTR分支",
+      "禁忌曖昧",
+      "戀愛拉扯",
+      "道德困境",
+      "直播主",
+      "自主NPC",
+      "多NPC",
+      "資訊隔離",
+      "慢熱關係",
+      "原生狀態UI"
+    ],
+    "description": "你搬進多年好友林宇軒與女友白桃的公寓，三人同居從今天正式開始。白桃渴望陪伴、宇軒忙於工作，而你同時是室友與他最信任的朋友。曖昧、克制、背叛、坦白、分手或重新建立界線都可能發生；沒有誰被預設成攻略目標，也沒有固定結局。",
+    "supported_modes": {
+      "immersive": true,
+      "world": true
+    },
+    "supported_display": {
+      "text": true,
+      "ui": true
+    },
+    "published_at": "2026-10-03T19:35:00Z",
+    "updated_at": "2026-10-03T19:35:00Z",
+    "published_version": 1,
+    "version_published_at": "2026-10-03T19:35:00Z"
   }
 ]
