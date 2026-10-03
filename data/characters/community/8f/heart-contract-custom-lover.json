@@ -4,7 +4,7 @@
     "id": "heart-contract-custom-lover",
     "name": "心動違約｜訂製戀人",
     "title": "心動違約｜訂製戀人",
-    "avatar": "assets/community/8f/heart-contract-custom-lover.svg",
+    "avatar": "assets/community/8f/heart-contract-custom-lover.webp",
     "category": "female",
     "rating": "adult",
     "gender": "all",
@@ -1002,7 +1002,7 @@
       "text": true,
       "ui": true
     },
-    "reading_background": "assets/community/8f/heart-contract-custom-lover.svg",
+    "reading_background": "assets/community/8f/heart-contract-custom-lover.webp",
     "opening": {
       "type": "noir-romance",
       "label": "RENTAL LOVE / 19:30",
