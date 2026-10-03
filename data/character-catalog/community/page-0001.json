@@ -143,5 +143,40 @@
     "updated_at": "2026-10-03T12:35:00Z",
     "published_version": 1,
     "version_published_at": "2026-10-03T12:35:00Z"
+  },
+  {
+    "id": "desire-werewolf",
+    "file": "data/characters/community/eb/desire-werewolf.json",
+    "name": "慾望狼人殺",
+    "title": "慾望狼人殺｜8人成人心理博弈",
+    "avatar": "assets/community/eb/desire-werewolf.webp",
+    "category": "general",
+    "rating": "adult",
+    "gender": "all",
+    "tags": [
+      "R18成人遊戲",
+      "狼人殺",
+      "8人局",
+      "身份推理",
+      "心理博弈",
+      "自主NPC",
+      "白天投票",
+      "夜晚行動",
+      "資訊隔離",
+      "狀態追蹤"
+    ],
+    "description": "八名成年玩家被捲入封閉式狼人殺。白天公開發言與投票，夜晚各身份秘密行動；2 名黑手黨、1 名內鬼、1 名偵探、1 名女巫與 3 名平民在謊言、懷疑與成人張力中互相試探。成人內容只在玩家主動開啟 R18 後顯示。",
+    "published_at": "2026-10-03T12:30:00Z",
+    "updated_at": "2026-10-03T12:30:00Z",
+    "published_version": 1,
+    "version_published_at": "2026-10-03T12:30:00Z",
+    "supported_modes": {
+      "immersive": true,
+      "world": true
+    },
+    "supported_display": {
+      "text": true,
+      "ui": true
+    }
   }
 ]
