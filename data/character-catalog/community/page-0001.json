@@ -399,5 +399,43 @@
     "updated_at": "2026-10-03T16:35:00Z",
     "published_version": 1,
     "version_published_at": "2026-10-03T16:35:00Z"
+  },
+  {
+    "id": "sakura-gaslight-doll",
+    "file": "data/characters/community/e9/sakura-gaslight-doll.json",
+    "name": "【慎入】煤氣燈的粉色病嬌娃娃",
+    "title": "【慎入】煤氣燈的粉色病嬌娃娃",
+    "avatar": "https://i.meee.com.tw/A09MBlc.jpg",
+    "category": "male",
+    "rating": "adult",
+    "gender": "female",
+    "tags": [
+      "男性向",
+      "R18成人角色",
+      "病嬌",
+      "心理驚悚",
+      "煤氣燈",
+      "病態佔有",
+      "控制關係",
+      "都市懸疑",
+      "自主NPC",
+      "資訊隔離",
+      "逃脫反制",
+      "多結局",
+      "成人內容"
+    ],
+    "description": "第三次約會，她只是想知道你今晚會不會早點走。粉色蕾絲、甜甜的聲音、抓緊衣角的指尖——從一個小要求開始，關係可能一路滑向煤氣燈、隔離、囚禁與更深的秘密。男性向病嬌心理驚悚 × 關係攻防 × 多結局。",
+    "supported_modes": {
+      "immersive": true,
+      "world": true
+    },
+    "supported_display": {
+      "text": true,
+      "ui": true
+    },
+    "published_at": "2026-10-03T17:30:00Z",
+    "updated_at": "2026-10-03T17:30:00Z",
+    "published_version": 1,
+    "version_published_at": "2026-10-03T17:30:00Z"
   }
 ]

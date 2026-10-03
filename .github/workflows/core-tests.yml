@@ -87,6 +87,8 @@ jobs:
         run: node tests/desire-academy-city-card.test.cjs
       - name: Debt Cage Lu Shen card
         run: node tests/debt-cage-lu-shen-card.test.cjs
+      - name: Sakura gaslight doll card
+        run: node tests/sakura-gaslight-doll-card.test.cjs
       - name: Night Sky Magic Academy card
         run: node tests/night-sky-magic-academy-card.test.cjs
       - name: K-idol survival simulator card
