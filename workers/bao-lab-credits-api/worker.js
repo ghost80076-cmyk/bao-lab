@@ -10371,6 +10371,29 @@ const WorkerProviderTransport = (() => {
       };
     }
   
+    const route =
+      (
+        provider ===
+          "gemini" ||
+        usingAwsRelay
+      )
+        ? "aws_relay"
+        : provider ===
+            "openrouter"
+          ? "direct_openrouter"
+          : provider ===
+              "anthropic"
+            ? "direct_anthropic"
+            : "provider_direct";
+  
+    const requestBytes =
+      enc.encode(
+        String(
+          init?.body ||
+          ""
+        )
+      ).length;
+  
     let response;
   
     try {
@@ -10400,6 +10423,9 @@ const WorkerProviderTransport = (() => {
           )
             ? "relay_network_error"
             : "provider_network_error",
+  
+        route,
+        requestBytes,
       };
     }
   
@@ -10408,7 +10434,9 @@ const WorkerProviderTransport = (() => {
     ) {
       const diagnostic =
         provider ===
-          "gemini"
+          "gemini" &&
+        response.status !==
+          413
           ? await geminiErrorHint(
               response
             )
@@ -10421,12 +10449,18 @@ const WorkerProviderTransport = (() => {
             };
   
       const category =
-        provider ===
-          "gemini" &&
         response.status ===
-          400
-          ? `google_bad_request_${diagnostic.hint}`
-          : "provider_http_error";
+          413
+          ? route ===
+              "aws_relay"
+            ? "relay_request_too_large"
+            : "provider_request_too_large"
+          : provider ===
+              "gemini" &&
+            response.status ===
+              400
+            ? `google_bad_request_${diagnostic.hint}`
+            : "provider_http_error";
   
       return {
         ok:
@@ -10440,6 +10474,9 @@ const WorkerProviderTransport = (() => {
         providerStatus:
           diagnostic
             .providerStatus,
+  
+        route,
+        requestBytes,
       };
     }
   
@@ -10743,6 +10780,32 @@ const WorkerProviderTransport = (() => {
       request_id:
         requestId,
     };
+  
+    if (
+      [
+        "aws_relay",
+        "direct_openrouter",
+        "direct_anthropic",
+        "provider_direct",
+      ].includes(
+        result.route
+      )
+    ) {
+      extra.route =
+        result.route;
+    }
+  
+    if (
+      integer(
+        result
+          .requestBytes,
+        1,
+        10_000_000
+      )
+    ) {
+      extra.request_bytes =
+        result.requestBytes;
+    }
   
     if (
       integer(
