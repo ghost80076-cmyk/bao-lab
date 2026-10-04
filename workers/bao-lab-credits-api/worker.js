@@ -11,6 +11,11 @@ import {
   normalizeMessages,
 } from "./modules/chat-input.js";
 
+import {
+  WorkerAdminAuth,
+  adminAuthorized,
+} from "./modules/admin-auth.js";
+
 // Hosted prompt limits are transport / abuse guards, not model context-window limits.
 // The browser aims substantially below these values and compacts smart-memory stories
 // before reaching the hard ceiling.
@@ -7938,31 +7943,6 @@ const {
   githubApi,
   createCharacterPublicationPr,
 } = WorkerGithubPublicationTransport;
-
-// Admin access intentionally remains a separate bearer-token contract from
-// player sessions and account authentication.
-const WorkerAdminAuth = (() => {
-  function adminAuthorized(
-    request,
-    env
-  ) {
-    return Boolean(
-      env.ADMIN_TOKEN &&
-      tokenFrom(
-        request
-      ) ===
-        env.ADMIN_TOKEN
-    );
-  }
-
-  return Object.freeze({
-    adminAuthorized,
-  });
-})();
-
-const {
-  adminAuthorized,
-} = WorkerAdminAuth;
 
 // Admin provider-control HTTP subroutes. Provider accounting and snapshots stay
 // in WorkerProviderControl; this boundary owns only request validation/persistence.

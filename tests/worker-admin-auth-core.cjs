@@ -4,10 +4,31 @@ const fs = require("node:fs");
 const path = require("node:path");
 
 const source = loadWorkerTestSource();
+const workerSource = fs.readFileSync(
+  path.join(__dirname, "../workers/bao-lab-credits-api/worker.js"),
+  "utf8"
+);
+const moduleSource = fs.readFileSync(
+  path.join(
+    __dirname,
+    "../workers/bao-lab-credits-api/modules/admin-auth.js"
+  ),
+  "utf8"
+);
 
 assert.match(
-  source,
-  /const WorkerAdminAuth = \(\(\) => \{/,
+  workerSource,
+  /from "\.\/modules\/admin-auth\.js";/,
+  "the Worker entry must import the extracted admin auth module"
+);
+assert.doesNotMatch(
+  workerSource,
+  /function adminAuthorized\(/,
+  "admin auth implementation must not remain duplicated in worker.js"
+);
+assert.match(
+  moduleSource,
+  /const WorkerAdminAuth = Object\.freeze\(/,
   "admin bearer-token policy must stay separate from player session auth"
 );
 
