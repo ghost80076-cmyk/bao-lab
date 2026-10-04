@@ -27,7 +27,31 @@ Do not commit Cloudflare/AWS secrets. Keep `ADMIN_TOKEN`, `BAO_INTERNAL_TOKEN`, 
 
 The Worker can protect registration, login and account recovery through an optional Cloudflare Rate Limiting binding named `AUTH_RATE_LIMITER`.
 
-For the current dashboard-managed deployment, configure that binding in Cloudflare with a dedicated namespace and a reviewed simple limit. A starting policy is 10 attempts per 60 seconds per key. The Worker uses separate action keys and hashes usernames, public player IDs and registration network identifiers before calling the binding.
+The production Worker is currently dashboard-managed, but Cloudflare's Rate
+Limiting API binding is configured through Wrangler 4.36 or later. Add a
+dedicated namespace to the deployment configuration; choose a positive integer
+that is not shared with an unrelated limiter in the same Cloudflare account:
+
+```jsonc
+{
+  "ratelimits": [
+    {
+      "name": "AUTH_RATE_LIMITER",
+      "namespace_id": "1001",
+      "simple": {
+        "limit": 10,
+        "period": 60
+      }
+    }
+  ]
+}
+```
+
+The starting policy is 10 attempts per 60 seconds per key. The Worker uses
+separate action keys and hashes usernames, public player IDs and registration
+network identifiers before calling the binding. Cloudflare currently does not
+show Rate Limiting bindings in the dashboard, so `/health`, the production
+audit and Worker logs are the verification surfaces.
 
 - Login is keyed by normalized username.
 - Recovery is keyed by normalized public player ID.
@@ -36,6 +60,19 @@ For the current dashboard-managed deployment, configure that binding in Cloudfla
 - `GET /health` reports `auth_rate_limit_configured`; verify it is `true` after the production binding and Worker source are deployed.
 
 Without the binding, the code remains compatible with the existing deployment and does not claim that rate limiting is active.
+
+Because public registration is enabled, production acceptance requires both
+`auth_rate_limit_configured` and `public_registration_protected` to be `true`.
+After binding and deploying the reviewed Worker source, run:
+
+```bash
+npm run audit:production-security
+```
+
+The audit also verifies the deployed security contract version, credentialed
+CORS, HSTS, response hardening headers, blocked foreign origins and preflight
+behavior. Cookie-authenticated state changes require a configured allowed
+`Origin`; Bearer clients remain available without a browser Origin header.
 
 ## Verification performed
 

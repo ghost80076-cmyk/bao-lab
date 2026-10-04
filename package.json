@@ -2,6 +2,7 @@
   "name": "bao-lab",
   "private": true,
   "scripts": {
+    "audit:production-security": "node tests/production-security-smoke.cjs",
     "test:e2e": "playwright test"
   },
   "devDependencies": {

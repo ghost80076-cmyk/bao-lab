@@ -17,6 +17,7 @@ const DEFAULT_PRICING_VERSION = "2026-09-25-v1";
 const PASSWORD_ITERATIONS = 100_000;
 const DEFAULT_SESSION_TTL_DAYS = 30;
 const SESSION_COOKIE_NAME = "__Host-yorubay_session";
+const SECURITY_CONTRACT_VERSION = "2026-10-04-1";
 const MIN_AFFORDABLE_OUTPUT_TOKENS = 64;
 
 const enc = new TextEncoder();
@@ -75,6 +76,11 @@ const WorkerHttp = (() => {
     headers.set(
       "content-security-policy",
       "default-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'"
+    );
+
+    headers.set(
+      "strict-transport-security",
+      "max-age=31536000; includeSubDomains"
     );
   
     return new Response(
@@ -247,6 +253,62 @@ const WorkerHttp = (() => {
       origin,
     };
   }
+
+  function trustedCookieMutation(
+    request,
+    origin
+  ) {
+    if (
+      [
+        "GET",
+        "HEAD",
+        "OPTIONS",
+      ].includes(
+        request.method
+      )
+    ) {
+      return true;
+    }
+
+    const authorization =
+      request.headers.get(
+        "authorization"
+      ) || "";
+
+    if (
+      authorization.startsWith(
+        "Bearer "
+      )
+    ) {
+      return true;
+    }
+
+    const cookie =
+      request.headers.get(
+        "cookie"
+      ) || "";
+
+    const hasSessionCookie =
+      cookie
+        .split(";")
+        .some(
+          (part) =>
+            part
+              .trim()
+              .startsWith(
+                SESSION_COOKIE_NAME +
+                "="
+              )
+        );
+
+    return (
+      !hasSessionCookie ||
+      Boolean(
+        origin?.origin &&
+        origin?.allowed
+      )
+    );
+  }
   
   function cors(
     response,
@@ -314,6 +376,7 @@ const WorkerHttp = (() => {
     readJsonWithLimit,
     readJson,
     validOrigin,
+    trustedCookieMutation,
     cors,
   });
 })();
@@ -325,6 +388,7 @@ const {
   readJsonWithLimit,
   readJson,
   validOrigin,
+  trustedCookieMutation,
   cors,
 } = WorkerHttp;
 
@@ -13001,6 +13065,18 @@ export default {
     }
 
     if (
+      !trustedCookieMutation(
+        request,
+        origin
+      )
+    ) {
+      return fail(
+        "origin_required",
+        403
+      );
+    }
+
+    if (
       request.method ===
       "OPTIONS"
     ) {
@@ -13122,6 +13198,18 @@ export default {
               authRateLimitConfigured(
                 env
               ),
+
+            public_registration_protected:
+              registrationMode(
+                env
+              ) !==
+                "open" ||
+              authRateLimitConfigured(
+                env
+              ),
+
+            security_contract_version:
+              SECURITY_CONTRACT_VERSION,
 
             session_ttl_days:
               sessionTtlDays(

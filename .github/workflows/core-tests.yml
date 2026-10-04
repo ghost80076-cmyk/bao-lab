@@ -168,7 +168,9 @@ jobs:
       - name: YoruBay provider control
         run: node tests/provider-control-core.cjs
       - name: Worker response security headers
-        run: node tests/worker-security-headers-core.cjs
+        run: |
+          node tests/worker-security-headers-core.cjs
+          node --check tests/production-security-smoke.cjs
       - name: Worker architecture boundary registry
         run: node tests/worker-architecture-boundaries-core.cjs
       - name: Worker session security contract
