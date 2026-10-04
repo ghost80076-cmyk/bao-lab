@@ -1120,5 +1120,47 @@
     "updated_at": "2026-10-04T17:24:00Z",
     "published_version": 1,
     "version_published_at": "2026-10-04T17:24:00Z"
+  },
+  {
+    "id": "taiwan-food-hunter",
+    "file": "data/characters/community/fb/taiwan-food-hunter.json",
+    "name": "臺灣美食獵人",
+    "title": "臺灣美食獵人｜環島獵味錄",
+    "avatar": "https://i.meee.com.tw/0OsGEXZ.jpg",
+    "category": "general",
+    "rating": "adult",
+    "gender": "all",
+    "tags": [
+      "TRPG",
+      "臺灣美食",
+      "環島冒險",
+      "美食怪物",
+      "開放地圖",
+      "22縣市",
+      "體型變化",
+      "獵人執照",
+      "荒謬坐騎",
+      "RPG成長",
+      "自主NPC",
+      "離場世界",
+      "資訊隔離",
+      "原生狀態UI",
+      "Builder開局",
+      "Dynamic Prompts",
+      "成人向"
+    ],
+    "description": "平行臺灣的料理活了過來。從出生地出發，穿過完整 22 縣市、夜市、港口、山線、海線與離島狩獵野生美食，蒐集地方印記、養成體型與裝備、結交或得罪其他獵人。肥胖開局仍是硬模式，但體型不再等於全世界統一的美醜判決；NPC、地圖與地方生態都會自己往前走。",
+    "supported_modes": {
+      "immersive": true,
+      "world": true
+    },
+    "supported_display": {
+      "text": true,
+      "ui": true
+    },
+    "published_at": "2026-10-04T17:28:00Z",
+    "updated_at": "2026-10-04T17:28:00Z",
+    "published_version": 1,
+    "version_published_at": "2026-10-04T17:28:00Z"
   }
 ]
