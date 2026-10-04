@@ -10688,6 +10688,98 @@ const WorkerProviderTransport = (() => {
     }
   
     if (
+      !response.ok &&
+      provider ===
+        "openrouter" &&
+      usingAwsRelay &&
+      response.status ===
+        400 &&
+      openRouterMessages !==
+        messages
+    ) {
+      let relayError =
+        null;
+
+      try {
+        relayError =
+          await response
+            .clone()
+            .json();
+      }
+
+      catch {
+        relayError =
+          null;
+      }
+
+      if (
+        relayError
+          ?.error ===
+        "invalid_messages"
+      ) {
+        let fallbackBody;
+
+        try {
+          fallbackBody =
+            JSON.parse(
+              init.body
+            );
+        }
+
+        catch {
+          fallbackBody =
+            null;
+        }
+
+        if (
+          fallbackBody &&
+          typeof fallbackBody ===
+            "object"
+        ) {
+          fallbackBody.messages =
+            messages;
+
+          init = {
+            ...init,
+
+            body:
+              JSON.stringify(
+                fallbackBody
+              ),
+          };
+
+          try {
+            response =
+              await fetch(
+                endpoint,
+                {
+                  ...init,
+
+                  signal:
+                    AbortSignal.timeout(
+                      75_000
+                    ),
+                }
+              );
+          }
+
+          catch {
+            return {
+              ok:
+                false,
+
+              category:
+                "relay_network_error",
+
+              route,
+              requestBytes,
+            };
+          }
+        }
+      }
+    }
+
+    if (
       !response.ok
     ) {
       const diagnostic =
