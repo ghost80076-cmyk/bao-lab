@@ -2,6 +2,7 @@
   "schema_version": 1,
   "main_module": "worker.js",
   "modules": [
+    "modules/account-rate-limit.js",
     "modules/account-validation.js",
     "modules/admin-auth.js",
     "modules/author-profile-publication.js",
