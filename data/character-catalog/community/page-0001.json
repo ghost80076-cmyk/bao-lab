@@ -948,5 +948,47 @@
     "updated_at": "2026-10-04T16:35:00Z",
     "published_version": 1,
     "version_published_at": "2026-10-04T16:35:00Z"
+  },
+  {
+    "id": "sakura-house-experience-management",
+    "file": "data/characters/community/64/sakura-house-experience-management.json",
+    "name": "櫻花院 -體驗、經營、養成",
+    "title": "櫻花院｜體驗・經營・養成",
+    "avatar": "https://i.meee.com.tw/ln7eHgA.jpg",
+    "category": "male",
+    "rating": "adult",
+    "gender": "all",
+    "tags": [
+      "男性向",
+      "R18成人內容",
+      "妓院經營",
+      "成人會所",
+      "夜場產業",
+      "體驗養成",
+      "員工養成",
+      "黑幫勢力",
+      "灰色產業",
+      "經營模擬",
+      "開放世界",
+      "自主NPC",
+      "資訊隔離",
+      "多NPC",
+      "地下世界",
+      "原生狀態UI",
+      "Builder開局"
+    ],
+    "description": "從第一次踏進櫻花院開始，你可以只當客人，也可以一路成為熟客、VIP、股東與真正的經營者。成人服務、員工關係、帳本、黑幫保護費、警方壓力、競爭店、政商人脈與地下產業彼此牽動；表面是高級會所，往深處玩，整座城市的夜生活都可能變成你的版圖。",
+    "supported_modes": {
+      "immersive": true,
+      "world": true
+    },
+    "supported_display": {
+      "text": true,
+      "ui": true
+    },
+    "published_at": "2026-10-04T16:52:00Z",
+    "updated_at": "2026-10-04T16:52:00Z",
+    "published_version": 1,
+    "version_published_at": "2026-10-04T16:52:00Z"
   }
 ]
