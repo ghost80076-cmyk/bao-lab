@@ -1286,5 +1286,46 @@
     "updated_at": "2026-10-04T18:00:00Z",
     "published_version": 1,
     "version_published_at": "2026-10-04T18:00:00Z"
+  },
+  {
+    "id": "collar-class-f-to-s",
+    "file": "data/characters/community/d6/collar-class-f-to-s.json",
+    "name": "頸圈階級｜從 F 級到 S 級",
+    "title": "頸圈階級｜從 F 級到 S 級",
+    "avatar": "https://i.meee.com.tw/EdbPQnS.jpg",
+    "category": "male",
+    "rating": "adult",
+    "gender": "all",
+    "tags": [
+      "男性向",
+      "R18成人世界",
+      "現代都市",
+      "階級社會",
+      "成人市場",
+      "F到S養成",
+      "經濟經營",
+      "多NPC",
+      "自主NPC",
+      "資訊隔離",
+      "長篇養成",
+      "包養贊助",
+      "市場升降級",
+      "男性凝視",
+      "原生狀態UI",
+      "Builder開局"
+    ],
+    "description": "在這座城市裡，成年女性的市場階級公開顯示在頸圈上。五星酒店門口的 S 級與便利商店外數著零錢的 F 級，活在同一條街卻像兩個世界。你可以只是消費者，也可以長期贊助、培養、建立關係，甚至看著一名 F 級女性一路走到 S 級。男性向成人都市 × 階級差 × 經濟養成 × 多 NPC 世界模擬。",
+    "supported_modes": {
+      "immersive": true,
+      "world": true
+    },
+    "supported_display": {
+      "text": true,
+      "ui": true
+    },
+    "published_at": "2026-10-04T18:05:00Z",
+    "updated_at": "2026-10-04T18:05:00Z",
+    "published_version": 1,
+    "version_published_at": "2026-10-04T18:05:00Z"
   }
 ]
