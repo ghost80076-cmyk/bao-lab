@@ -13,6 +13,24 @@ assert.match(
   "USD wallet reservation and settlement must stay grouped behind WorkerCostChatSettlement"
 );
 
+assert.match(
+  source,
+  /status\s*=\s*'unverified_refunded'/,
+  "ambiguous provider usage must be recorded as refunded rather than left held"
+);
+
+assert.match(
+  source,
+  /billing_refunded:\s*true/,
+  "ambiguous transport failures must tell the client that the reservation was refunded"
+);
+
+assert.match(
+  source,
+  /settlement_status:\s*"unverified_refunded"/,
+  "successful content with unverifiable usage must be delivered as a refunded fallback"
+);
+
 const instrumented =
   source.replace(
     /export\s+default\s+\{/,

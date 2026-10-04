@@ -339,6 +339,9 @@
         relay_request_too_large: "夜灣 AWS 中繼拒絕了這個過大的請求（HTTP 413）。這是請求大小限制，不是內容審查。",
         provider_request_too_large: `${name} 拒絕了這個過大的請求（HTTP 413）。這是請求大小限制，不是內容審查。`,
         provider_rate_limited: `${name} 回報速率或配額限制，與你的夜灣燈火餘額無關。`,
+        provider_usage_unverified: data?.billing_refunded
+          ? `夜灣與 ${name} 的連線結果無法完整確認；本次預留燈火已全數退回，請重新生成。`
+          : `夜灣暫時無法確認 ${name} 的本次使用量；請稍後重試。若燈火餘額異常，請回報診斷編號。`,
         provider_empty_text: emptyTextMessage(name, data),
         provider_http_error: Number(data?.upstream_http_status) >= 500
           ? `夜灣連線鏈路暫時異常（HTTP ${data.upstream_http_status}）。可能是中轉或供應商服務暫時故障，請稍後重試。`

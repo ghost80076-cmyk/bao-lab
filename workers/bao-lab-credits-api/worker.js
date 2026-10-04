@@ -31,6 +31,11 @@ const safeInt = (n) =>
     ? n
     : 0;
 
+const usageInt = (n) =>
+  integer(n, 0, 1_000_000_000)
+    ? n
+    : null;
+
 const safeMoneyInt = (n) =>
   integer(n, 0, 9_000_000_000_000)
     ? n
@@ -9956,6 +9961,121 @@ const WorkerProviderTransport = (() => {
     return payload;
   }
   
+  async function recoverOpenRouterUsage(
+    env,
+    generationId
+  ) {
+    const id =
+      String(
+        generationId ||
+        ""
+      ).trim();
+
+    if (
+      !env.OPENROUTER_API_KEY ||
+      !/^gen-[A-Za-z0-9_-]{8,200}$/.test(
+        id
+      )
+    ) {
+      return null;
+    }
+
+    try {
+      const response =
+        await fetch(
+          "https://openrouter.ai/api/v1/generation?id=" +
+            encodeURIComponent(
+              id
+            ),
+          {
+            method:
+              "GET",
+
+            headers: {
+              authorization:
+                `Bearer ${env.OPENROUTER_API_KEY}`,
+
+              accept:
+                "application/json",
+            },
+
+            signal:
+              AbortSignal.timeout(
+                5_000
+              ),
+          }
+        );
+
+      if (
+        !response.ok
+      ) {
+        return null;
+      }
+
+      const payload =
+        await response.json();
+
+      const data =
+        payload?.data ||
+        {};
+
+      const input =
+        usageInt(
+          data.tokens_prompt ??
+          data.native_tokens_prompt
+        );
+
+      const output =
+        usageInt(
+          data.tokens_completion ??
+          data.native_tokens_completion
+        );
+
+      if (
+        input === null ||
+        output === null
+      ) {
+        return null;
+      }
+
+      const rawCost =
+        Number(
+          data.total_cost ??
+          data.usage
+        );
+
+      return {
+        input,
+        output,
+
+        cached:
+          safeInt(
+            data.native_tokens_cached
+          ),
+
+        cacheWrite:
+          0,
+
+        reasoning:
+          safeInt(
+            data.native_tokens_reasoning
+          ),
+
+        providerCost:
+          Number.isFinite(
+            rawCost
+          ) &&
+          rawCost >= 0
+            ? rawCost
+            : null,
+      };
+    }
+
+    catch {
+      return null;
+    }
+  }
+
   async function providerCall(
     env,
     provider,
@@ -10505,69 +10625,125 @@ const WorkerProviderTransport = (() => {
         data.choices?.[0]
           ?.message
           ?.content;
-  
+
       const usage =
         data.usage ||
         {};
-  
-      const providerCost =
+
+      let input =
+        usageInt(
+          usage.prompt_tokens
+        );
+
+      let output =
+        usageInt(
+          usage
+            .completion_tokens
+        );
+
+      let cached =
+        safeInt(
+          usage
+            .prompt_tokens_details
+            ?.cached_tokens
+        );
+
+      let cacheWrite =
+        safeInt(
+          usage
+            .prompt_tokens_details
+            ?.cache_write_tokens
+        );
+
+      let reasoning =
+        safeInt(
+          usage
+            .completion_tokens_details
+            ?.reasoning_tokens
+        );
+
+      let providerCost =
         Number(
           usage.cost
         );
-  
+
+      providerCost =
+        Number.isFinite(
+          providerCost
+        ) &&
+        providerCost >= 0
+          ? providerCost
+          : null;
+
+      const generationId =
+        String(
+          data.id ||
+          response.headers.get(
+            "x-generation-id"
+          ) ||
+          ""
+        ).trim();
+
+      if (
+        (
+          input === null ||
+          output === null
+        ) &&
+        generationId
+      ) {
+        const recovered =
+          await recoverOpenRouterUsage(
+            env,
+            generationId
+          );
+
+        if (recovered) {
+          input =
+            input ??
+            recovered.input;
+
+          output =
+            output ??
+            recovered.output;
+
+          cached =
+            recovered.cached;
+
+          cacheWrite =
+            recovered.cacheWrite;
+
+          reasoning =
+            recovered.reasoning;
+
+          providerCost =
+            providerCost ??
+            recovered.providerCost;
+        }
+      }
+
       return {
         ok:
           typeof text ===
             "string" &&
           !!text.trim(),
-  
+
         text,
-  
-        input:
-          safeInt(
-            usage.prompt_tokens
-          ),
-  
-        output:
-          safeInt(
-            usage
-              .completion_tokens
-          ),
-  
-        cached:
-          safeInt(
-            usage
-              .prompt_tokens_details
-              ?.cached_tokens
-          ),
-  
-        cacheWrite:
-          safeInt(
-            usage
-              .prompt_tokens_details
-              ?.cache_write_tokens
-          ),
-  
-        reasoning:
-          safeInt(
-            usage
-              .completion_tokens_details
-              ?.reasoning_tokens
-          ),
-  
-        providerCost:
-          Number.isFinite(
-            providerCost
-          ) &&
-          providerCost >= 0
-            ? providerCost
-            : null,
-  
+        input,
+        output,
+        cached,
+        cacheWrite,
+        reasoning,
+        providerCost,
+
+        generationId:
+          generationId ||
+          null,
+
         category:
           "provider_empty_text",
       };
     }
-  
+
     if (
       provider ===
       "anthropic"
@@ -10596,7 +10772,7 @@ const WorkerProviderTransport = (() => {
         {};
   
       const freshInput =
-        safeInt(
+        usageInt(
           usage.input_tokens
         );
   
@@ -10613,12 +10789,14 @@ const WorkerProviderTransport = (() => {
         );
   
       const input =
-        freshInput +
-        cacheWrite +
-        cached;
+        freshInput === null
+          ? null
+          : freshInput +
+            cacheWrite +
+            cached;
   
       const output =
-        safeInt(
+        usageInt(
           usage.output_tokens
         );
   
@@ -10685,7 +10863,7 @@ const WorkerProviderTransport = (() => {
       {};
   
     const input =
-      safeInt(
+      usageInt(
         usage.promptTokenCount
       );
   
@@ -10700,27 +10878,30 @@ const WorkerProviderTransport = (() => {
         usage.thoughtsTokenCount
       );
   
+    const total =
+      usageInt(
+        usage.totalTokenCount
+      );
+
+    const candidateOutput =
+      usageInt(
+        usage
+          .candidatesTokenCount
+      );
+
     const output =
-      integer(
-        usage.totalTokenCount,
-        0,
-        1e9
-      ) &&
-      integer(
-        input,
-        0,
-        1e9
-      )
+      total !== null &&
+      input !== null
         ? Math.max(
             0,
-            usage.totalTokenCount -
+            total -
             input
           )
-        : safeInt(
-            usage
-              .candidatesTokenCount
-          ) +
-          reasoning;
+        : candidateOutput ===
+            null
+          ? null
+          : candidateOutput +
+            reasoning;
   
     return {
       ok:
@@ -10733,11 +10914,13 @@ const WorkerProviderTransport = (() => {
       input,
   
       freshInput:
-        Math.max(
-          0,
-          input -
-          cached
-        ),
+        input === null
+          ? null
+          : Math.max(
+              0,
+              input -
+              cached
+            ),
   
       output,
       cached,
@@ -10863,6 +11046,7 @@ const WorkerProviderTransport = (() => {
   return Object.freeze({
     geminiErrorHint,
     anthropicPayload,
+    recoverOpenRouterUsage,
     providerCall,
     providerFailureResponse,
   });
@@ -10871,6 +11055,7 @@ const WorkerProviderTransport = (() => {
 const {
   geminiErrorHint,
   anthropicPayload,
+  recoverOpenRouterUsage,
   providerCall,
   providerFailureResponse,
 } = WorkerProviderTransport;
@@ -11914,44 +12099,65 @@ async function costUsdChatRoute(
     if (
       ambiguousTransportFailure
     ) {
-      const heldBalance =
-        Math.max(
-          0,
-          walletBalance -
-            plan.reserveMicrousd
-        );
+      await db.batch(
+        [
+          db
+            .prepare(
+              `
+              UPDATE wallets
 
-      await db
-        .prepare(
-          `
-          UPDATE api_usage
+              SET
+                balance_microusd =
+                  balance_microusd +
+                  ?,
 
-          SET
-            cost_microusd = 0,
-            settled_cost_microusd = 0,
+                updated_at =
+                  CURRENT_TIMESTAMP
 
-            balance_before_microusd = ?,
-            balance_after_microusd = ?,
+              WHERE
+                player_id = ?
+              `
+            )
+            .bind(
+              plan
+                .reserveMicrousd,
 
-            billing_mode = ?,
-            pricing_version = ?,
+              player.id
+            ),
 
-            status = 'unverified'
+          db
+            .prepare(
+              `
+              UPDATE api_usage
 
-          WHERE
-            request_id = ?
-          `
-        )
-        .bind(
-          walletBalance,
-          heldBalance,
+              SET
+                cost_microusd = 0,
+                settled_cost_microusd = 0,
 
-          COST_BILLING_MODE,
-          pricingVersion,
+                balance_before_microusd = ?,
+                balance_after_microusd = ?,
 
-          requestId
-        )
-        .run();
+                billing_mode = ?,
+                pricing_version = ?,
+
+                status =
+                  'unverified_refunded'
+
+              WHERE
+                request_id = ?
+              `
+            )
+            .bind(
+              walletBalance,
+              walletBalance,
+
+              COST_BILLING_MODE,
+              pricingVersion,
+
+              requestId
+            ),
+        ]
+      );
 
       return fail(
         "provider_usage_unverified",
@@ -11959,6 +12165,9 @@ async function costUsdChatRoute(
         {
           request_id:
             requestId,
+
+          billing_refunded:
+            true,
         }
       );
     }
@@ -12046,17 +12255,36 @@ async function costUsdChatRoute(
     );
 
   if (!verified) {
-    const heldBalance =
-      Math.max(
-        0,
-        walletBalance -
-          plan.reserveMicrousd
-      );
+    await db.batch(
+      [
+        db
+          .prepare(
+            `
+            UPDATE wallets
 
-    await db
-      .prepare(
-        `
-        UPDATE api_usage
+            SET
+              balance_microusd =
+                balance_microusd +
+                ?,
+
+              updated_at =
+                CURRENT_TIMESTAMP
+
+            WHERE
+              player_id = ?
+            `
+          )
+          .bind(
+            plan
+              .reserveMicrousd,
+
+            player.id
+          ),
+
+        db
+          .prepare(
+            `
+            UPDATE api_usage
 
             SET
               input_tokens = ?,
@@ -12068,23 +12296,17 @@ async function costUsdChatRoute(
 
               provider_cost_microusd = ?,
 
-              cost_microusd =
-                0,
+              cost_microusd = 0,
+              settled_cost_microusd = 0,
 
-              settled_cost_microusd =
-                0,
-
-              balance_before_microusd =
-                ?,
-
-              balance_after_microusd =
-                ?,
+              balance_before_microusd = ?,
+              balance_after_microusd = ?,
 
               billing_mode = ?,
               pricing_version = ?,
 
               status =
-                'unverified'
+                'unverified_refunded'
 
             WHERE
               request_id = ?
@@ -12102,23 +12324,108 @@ async function costUsdChatRoute(
               .providerCostMicrousd,
 
             walletBalance,
-            heldBalance,
+            walletBalance,
 
             COST_BILLING_MODE,
             pricingVersion,
 
             requestId
-        )
-        .run();
-
-    return fail(
-      "provider_usage_unverified",
-      502,
-      {
-        request_id:
-          requestId,
-      }
+          ),
+      ]
     );
+
+    return json({
+      request_id:
+        requestId,
+
+      provider,
+      model,
+
+      hosted_route: {
+        logical_model_id:
+          resolvedRoute
+            .logical_model_id,
+
+        route_id:
+          resolvedRoute
+            .route_id,
+
+        overridden:
+          resolvedRoute
+            .overridden,
+
+        fallback:
+          resolvedRoute
+            .fallback,
+      },
+
+      content:
+        result.text,
+
+      usage: {
+        input_tokens:
+          null,
+
+        fresh_input_tokens:
+          null,
+
+        cached_tokens:
+          null,
+
+        cache_write_tokens:
+          null,
+
+        output_tokens:
+          null,
+
+        reasoning_tokens:
+          null,
+
+        provider_cost_microusd:
+          stored
+            .providerCostMicrousd,
+
+        provider_cost_usd:
+          stored
+            .providerCostMicrousd ==
+          null
+            ? null
+            : stored
+                .providerCostMicrousd /
+              1_000_000,
+
+        actual_cost_microusd:
+          0,
+
+        actual_cost_usd:
+          0,
+
+        charged_microusd:
+          0,
+
+        charged_usd:
+          0,
+
+        wallet_balance_microusd:
+          walletBalance,
+
+        wallet_balance_usd:
+          walletBalance /
+          1_000_000,
+
+        billing_mode:
+          COST_BILLING_MODE,
+
+        pricing_version:
+          pricingVersion,
+
+        settlement_status:
+          "unverified_refunded",
+
+        estimated_or_unverified:
+          true,
+      },
+    });
   }
 
   const actualCost =
