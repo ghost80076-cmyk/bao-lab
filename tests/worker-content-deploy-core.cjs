@@ -142,7 +142,7 @@ const productionGraph = loadWorkerModuleManifest(
 assert.equal(productionGraph.mainModule, "worker.js");
 assert.deepEqual(
   productionGraph.modules.map(module => module.name),
-  ["modules/account-validation.js", "modules/admin-auth.js", "modules/chat-input.js", "modules/publication-format.js", "worker.js"],
+  ["modules/account-validation.js", "modules/admin-auth.js", "modules/chat-input.js", "modules/github-publication-transport.js", "modules/publication-format.js", "worker.js"],
   "production must contain only the reviewed extracted boundaries"
 );
 assert.equal(
@@ -162,6 +162,10 @@ assert.ok(
 assert.ok(
   productionBody.get("modules/chat-input.js"),
   "the extracted chat input module must be included in the upload"
+);
+assert.ok(
+  productionBody.get("modules/github-publication-transport.js"),
+  "the extracted GitHub publication transport module must be included in the upload"
 );
 assert.ok(
   productionBody.get("modules/publication-format.js"),

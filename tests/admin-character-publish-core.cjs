@@ -15,6 +15,13 @@ const publicationModuleSource = fs.readFileSync(
   ),
   "utf8"
 );
+const githubPublicationTransportSource = fs.readFileSync(
+  path.join(
+    __dirname,
+    "../workers/bao-lab-credits-api/modules/github-publication-transport.js"
+  ),
+  "utf8"
+);
 
 assert.match(
   workerEntrySource,
@@ -32,7 +39,17 @@ assert.match(
   "publication validation and shaping helpers must stay grouped behind WorkerPublicationFormat"
 );
 assert.match(
-  workerSource,
+  workerEntrySource,
+  /from "\.\/modules\/github-publication-transport\.js";/,
+  "the Worker entry must import the extracted GitHub publication transport module"
+);
+assert.doesNotMatch(
+  workerEntrySource,
+  /function githubSettings\(/,
+  "GitHub publication transport implementation must not remain duplicated in worker.js"
+);
+assert.match(
+  githubPublicationTransportSource,
   /const WorkerGithubPublicationTransport = \(\(\) => \{/,
   "GitHub publication transport must stay grouped behind WorkerGithubPublicationTransport"
 );
