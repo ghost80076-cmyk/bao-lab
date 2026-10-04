@@ -27,7 +27,7 @@ for(const id of ['player','scene','qiaorou_visible','relationship','known_anomal
 
 const ui=GameplayUI.normalize(card.gameplay.ui_schema);
 assert.ok(ui);
-assert.equal(ui.theme.preset,'soft');
+assert.equal(ui.theme.preset,'default');
 assert.equal(ui.theme.accent,'#c9859b');
 assert.deepEqual(ui.panels.map(x=>x.id),['now','qiaorou','relationship','clues','people','threads','actions']);
 assert.ok(ui.builder);
