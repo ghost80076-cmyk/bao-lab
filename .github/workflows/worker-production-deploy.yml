@@ -39,6 +39,7 @@ jobs:
           node --check workers/bao-lab-credits-api/modules/admin-publication-routes.js
           node --check workers/bao-lab-credits-api/modules/admin-usage-routes.js
           node --check workers/bao-lab-credits-api/modules/author-profile-publication.js
+          node --check workers/bao-lab-credits-api/modules/author-ownership.js
           node --check workers/bao-lab-credits-api/modules/chat-input.js
           node --check workers/bao-lab-credits-api/modules/crypto.js
           node --check workers/bao-lab-credits-api/modules/github-publication-transport.js
