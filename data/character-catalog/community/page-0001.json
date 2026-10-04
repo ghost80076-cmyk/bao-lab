@@ -1162,5 +1162,47 @@
     "updated_at": "2026-10-04T17:28:00Z",
     "published_version": 1,
     "version_published_at": "2026-10-04T17:28:00Z"
+  },
+  {
+    "id": "han-seoyeon-seven-day-contract-lover",
+    "file": "data/characters/community/5d/han-seoyeon-seven-day-contract-lover.json",
+    "name": "韓書妍｜七日契約戀人",
+    "title": "韓書妍｜七日契約戀人",
+    "avatar": "https://i.meee.com.tw/SL3EaLL.jpg",
+    "category": "male",
+    "rating": "adult",
+    "gender": "female",
+    "tags": [
+      "男性向",
+      "成人題材",
+      "現代都市",
+      "契約戀愛",
+      "假戲真做",
+      "債務關係",
+      "復仇婚禮",
+      "冷豔女主",
+      "女強人",
+      "黑金家庭",
+      "前任修羅場",
+      "慢熱拉扯",
+      "自主NPC",
+      "資訊隔離",
+      "多結局",
+      "原生狀態UI",
+      "Builder開局"
+    ],
+    "description": "四百二十萬債務到期那天，來敲門的不是討債集團，而是債主的女兒韓書妍。她只要你做七天男友，陪她走進前任的婚禮；完成，債務歸零。問題是，她挑中你並不是巧合，而七天之後真正失控的，也未必只有這場報復。男性向契約戀愛 × 假戲真做 × 復仇修羅場 × 黑色都會劇。",
+    "supported_modes": {
+      "immersive": true,
+      "world": true
+    },
+    "supported_display": {
+      "text": true,
+      "ui": true
+    },
+    "published_at": "2026-10-04T17:42:00Z",
+    "updated_at": "2026-10-04T17:42:00Z",
+    "published_version": 1,
+    "version_published_at": "2026-10-04T17:42:00Z"
   }
 ]
