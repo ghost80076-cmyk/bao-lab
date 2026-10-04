@@ -90,6 +90,11 @@ assert.equal(
   1,
   "the extracted crypto boundary must exist exactly once"
 );
+assert.equal(
+  actual.filter(boundary => boundary === "WorkerAuthorProfilePublication").length,
+  1,
+  "the extracted author profile publication boundary must exist exactly once"
+);
 
 const architecture = fs.readFileSync(
   path.join(__dirname, "../docs/worker-architecture-boundaries.md"),

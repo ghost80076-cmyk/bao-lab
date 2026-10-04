@@ -2,7 +2,7 @@
 
 This file is the refactor map for `workers/bao-lab-credits-api/worker.js`.
 
-The Worker now has seven reviewed physical extractions. The production manifest contains the `worker.js` main module plus `modules/account-validation.js`, `modules/chat-input.js`, `modules/admin-auth.js`, `modules/publication-format.js`, `modules/github-publication-transport.js`, `modules/runtime-config.js` and `modules/crypto.js`; every other responsibility remains in the main file. The first multi-module deployment completed a successful production rollback-and-restore rehearsal on 2026-10-04.
+The Worker now has eight reviewed physical extractions. The production manifest contains the `worker.js` main module plus `modules/account-validation.js`, `modules/chat-input.js`, `modules/admin-auth.js`, `modules/author-profile-publication.js`, `modules/publication-format.js`, `modules/github-publication-transport.js`, `modules/runtime-config.js` and `modules/crypto.js`; every other responsibility remains in the main file. The first multi-module deployment completed a successful production rollback-and-restore rehearsal on 2026-10-04.
 
 The goal is **behavior-preserving extraction, one low-dependency boundary at a time**.
 
@@ -20,7 +20,7 @@ The Worker graph exposes explicit, frozen module-shaped boundaries. The boundary
 | Admin routing | `WorkerAdminAuth`, `WorkerAdminProviderControlRoutes`, `WorkerAdminPublicationRoutes`, `WorkerAdminUsageRoutes`, `WorkerAdminPlayerDirectoryRoutes`, `WorkerAdminPlayerMutationRoutes`, `WorkerAdminRoutes` |
 | Chat settlement and dispatch | `WorkerLegacyChatSettlement`, `WorkerCostChatSettlement`, `WorkerChatDispatch` |
 
-`WorkerAccountValidation`, `WorkerChatInput`, `WorkerAdminAuth`, `WorkerPublicationFormat`, `WorkerGithubPublicationTransport`, `WorkerRuntimeConfig` and `WorkerCrypto` are separately deployed modules. The remaining boundaries are still architectural seams inside `worker.js`; imported function names preserve the existing call sites and behavior.
+`WorkerAccountValidation`, `WorkerChatInput`, `WorkerAdminAuth`, `WorkerAuthorProfilePublication`, `WorkerPublicationFormat`, `WorkerGithubPublicationTransport`, `WorkerRuntimeConfig` and `WorkerCrypto` are separately deployed modules. The remaining boundaries are still architectural seams inside `worker.js`; imported function names preserve the existing call sites and behavior.
 
 ## Completed structural sequence
 
@@ -34,7 +34,7 @@ The behavior-preserving isolation sequence is complete for the current top-level
 6. Admin authorization and route families.
 7. Legacy and USD-wallet chat settlement plus top-level chat dispatch.
 
-Each boundary was isolated independently after its contract tests and the repository-wide required workflows passed. Physical extraction began with account validation, then chat input, followed by the isolated admin Bearer-auth boundary, publication formatting, GitHub publication transport, runtime configuration parsing and cryptographic helpers. Crypto algorithms and the PBKDF2 work factor remain unchanged and now have a dedicated behavior contract.
+Each boundary was isolated independently after its contract tests and the repository-wide required workflows passed. Physical extraction began with account validation, then chat input, followed by the isolated admin Bearer-auth boundary, publication formatting, GitHub publication transport, runtime configuration parsing, cryptographic helpers and author-profile publication. Publication modules remain outside the player RP request path, while crypto algorithms and the PBKDF2 work factor remain unchanged under a dedicated behavior contract.
 
 ## Remaining work
 
@@ -89,4 +89,4 @@ Until then, the project can reduce technical debt by clarifying boundaries, cons
 | Security, auth, billing and provider contract coverage | In place for the current named boundaries |
 | Documented rollback for a module deployment | Complete: procedure documented and the first production rollback-and-restore rehearsal passed on 2026-10-04 |
 
-Therefore `worker.js` remains the main module while account validation, chat input, admin auth, publication formatting, GitHub publication transport, runtime configuration and crypto are extracted dependencies. A GitHub merge is source control only unless it changes a path watched by `worker-production-deploy.yml`; watched changes trigger the guarded production deployment automatically.
+Therefore `worker.js` remains the main module while account validation, chat input, admin auth, author-profile publication, publication formatting, GitHub publication transport, runtime configuration and crypto are extracted dependencies. A GitHub merge is source control only unless it changes a path watched by `worker-production-deploy.yml`; watched changes trigger the guarded production deployment automatically.

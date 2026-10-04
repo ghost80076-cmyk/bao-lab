@@ -4,9 +4,30 @@ const fs = require("node:fs");
 const path = require("node:path");
 
 const workerSource = loadWorkerTestSource();
+const workerEntrySource = fs.readFileSync(
+  path.join(__dirname, "../workers/bao-lab-credits-api/worker.js"),
+  "utf8"
+);
+const authorProfilePublicationModuleSource = fs.readFileSync(
+  path.join(
+    __dirname,
+    "../workers/bao-lab-credits-api/modules/author-profile-publication.js"
+  ),
+  "utf8"
+);
 
 assert.match(
-  workerSource,
+  workerEntrySource,
+  /from "\.\/modules\/author-profile-publication\.js";/,
+  "the Worker entry must import the extracted author profile publication module"
+);
+assert.doesNotMatch(
+  workerEntrySource,
+  /function createAuthorProfilePr\(/,
+  "author profile publication implementation must not remain duplicated in worker.js"
+);
+assert.match(
+  authorProfilePublicationModuleSource,
   /const WorkerAuthorProfilePublication = \(\(\) => \{/,
   "author profile PR writes must stay behind WorkerAuthorProfilePublication"
 );
