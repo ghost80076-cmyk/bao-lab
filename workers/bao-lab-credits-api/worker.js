@@ -10807,6 +10807,8 @@ const WorkerProviderTransport = (() => {
         : 75_000;
   
     let response;
+    const transportStartedAt =
+      Date.now();
   
     try {
       response =
@@ -10822,7 +10824,14 @@ const WorkerProviderTransport = (() => {
         );
     }
   
-    catch {
+    catch (error) {
+      const elapsedMs =
+        Math.max(
+          0,
+          Date.now() -
+            transportStartedAt
+        );
+
       return {
         ok:
           false,
@@ -10838,6 +10847,21 @@ const WorkerProviderTransport = (() => {
   
         route,
         requestBytes,
+
+        elapsedMs,
+        transportTimeoutMs,
+
+        transportFailure:
+          error?.name ===
+            "TimeoutError" ||
+          elapsedMs >=
+            Math.max(
+              0,
+              transportTimeoutMs -
+                1_000
+            )
+            ? "timeout"
+            : "network",
       };
     }
   
@@ -10917,7 +10941,14 @@ const WorkerProviderTransport = (() => {
               );
           }
 
-          catch {
+          catch (error) {
+            const elapsedMs =
+              Math.max(
+                0,
+                Date.now() -
+                  transportStartedAt
+              );
+
             return {
               ok:
                 false,
@@ -10927,6 +10958,21 @@ const WorkerProviderTransport = (() => {
 
               route,
               requestBytes,
+
+              elapsedMs,
+              transportTimeoutMs,
+
+              transportFailure:
+                error?.name ===
+                  "TimeoutError" ||
+                elapsedMs >=
+                  Math.max(
+                    0,
+                    transportTimeoutMs -
+                      1_000
+                  )
+                  ? "timeout"
+                  : "network",
             };
           }
         }
@@ -12597,6 +12643,55 @@ async function costUsdChatRoute(
 
           billing_refunded:
             true,
+
+          route:
+            [
+              "aws_relay",
+              "direct_openrouter",
+              "direct_anthropic",
+              "provider_direct",
+            ].includes(
+              result.route
+            )
+              ? result.route
+              : undefined,
+
+          request_bytes:
+            integer(
+              result.requestBytes,
+              1,
+              10_000_000
+            )
+              ? result.requestBytes
+              : undefined,
+
+          elapsed_ms:
+            integer(
+              result.elapsedMs,
+              0,
+              600_000
+            )
+              ? result.elapsedMs
+              : undefined,
+
+          timeout_ms:
+            integer(
+              result.transportTimeoutMs,
+              1,
+              600_000
+            )
+              ? result.transportTimeoutMs
+              : undefined,
+
+          transport_failure:
+            [
+              "timeout",
+              "network",
+            ].includes(
+              result.transportFailure
+            )
+              ? result.transportFailure
+              : undefined,
         }
       );
     }

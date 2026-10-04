@@ -28,6 +28,22 @@ assert.match(
   "AWS relay must have more timeout headroom than direct provider calls"
 );
 
+assert.match(
+  source,
+  /transportFailure:\s*error\?\.name\s*===\s*"TimeoutError"/,
+  "provider transport failures must distinguish timeout from network interruption"
+);
+assert.match(
+  source,
+  /elapsed_ms:\s*integer\(\s*result\.elapsedMs/,
+  "ambiguous refunded responses must expose safe elapsed timing"
+);
+assert.match(
+  source,
+  /transport_failure:\s*\[\s*"timeout",\s*"network",/,
+  "ambiguous refunded responses must expose a safe failure kind"
+);
+
 const instrumented =
   source.replace(
     /export\s+default\s+\{/,
