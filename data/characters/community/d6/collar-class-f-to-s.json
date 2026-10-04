@@ -1192,7 +1192,7 @@
         },
         {
           "id": "people",
-          "label": "人物",
+          "label": "人物／紀錄",
           "sections": [
             {
               "type": "list",
@@ -1200,13 +1200,7 @@
               "path": "modules.people",
               "empty": "目前沒有其他重要人物。",
               "limit": 12
-            }
-          ]
-        },
-        {
-          "id": "events",
-          "label": "紀錄",
-          "sections": [
+            },
             {
               "type": "list",
               "title": "最近事件",
