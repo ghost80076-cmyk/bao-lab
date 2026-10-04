@@ -22,6 +22,12 @@ for (const helper of [
   assert.match(source, new RegExp("\\b" + helper + "\\b"), "WorkerProviderTransport is missing " + helper);
 }
 
+assert.match(
+  source,
+  /const transportTimeoutMs\s*=\s*route\s*===\s*"aws_relay"\s*\?\s*85_000\s*:\s*75_000/,
+  "AWS relay must have more timeout headroom than direct provider calls"
+);
+
 const instrumented =
   source.replace(
     /export\s+default\s+\{/,
