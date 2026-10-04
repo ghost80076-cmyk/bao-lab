@@ -325,6 +325,32 @@
     },
     "world_modules": [
       {
+        "id": "play_setup",
+        "label": "開局方向",
+        "icon": "◆",
+        "kind": "object",
+        "tracking": "medium",
+        "context": "core",
+        "description": "Builder 選擇的起點與敘事重心；不是世界中的公開數值。",
+        "fields": [
+          {
+            "key": "start_route",
+            "label": "開場路線",
+            "type": "text"
+          },
+          {
+            "key": "story_focus",
+            "label": "故事重心",
+            "type": "text"
+          },
+          {
+            "key": "class_intensity",
+            "label": "階級差強度",
+            "type": "text"
+          }
+        ]
+      },
+      {
         "id": "player_finance",
         "label": "你的資產",
         "icon": "¤",
@@ -822,6 +848,11 @@
           "offscreen_activity": "開場前剛結束一段低價工作，沒有立即接到下一單",
           "other_relationships": [],
           "market_pressure": "房租與低評分讓她短期議價能力偏弱"
+        },
+        "play_setup": {
+          "start_route": "中央車站商圈｜F／E 級較多",
+          "story_focus": "F→S 長線養成",
+          "class_intensity": "寫實（推薦）"
         }
       }
     },
@@ -845,7 +876,7 @@
             "key": "start_route",
             "label": "開場路線",
             "type": "select",
-            "target_path": "modules.scene.district",
+            "target_path": "modules.play_setup.start_route",
             "options": [
               "中央車站商圈｜F／E 級較多",
               "成人市場 APP｜自己篩選",
@@ -873,34 +904,26 @@
           {
             "key": "cash",
             "label": "初始現金",
-            "type": "select",
+            "type": "number",
             "target_path": "modules.player_finance.cash",
-            "options": [
-              45000,
-              100000,
-              300000,
-              1000000
-            ],
-            "default": 45000
+            "default": 45000,
+            "min": 0,
+            "max": 999999999
           },
           {
             "key": "monthly_income",
             "label": "月收入",
-            "type": "select",
+            "type": "number",
             "target_path": "modules.player_finance.monthly_income",
-            "options": [
-              45000,
-              80000,
-              150000,
-              500000
-            ],
-            "default": 45000
+            "default": 45000,
+            "min": 0,
+            "max": 999999999
           },
           {
             "key": "story_focus",
             "label": "故事重心",
             "type": "select",
-            "target_path": "modules.market.trend",
+            "target_path": "modules.play_setup.story_focus",
             "options": [
               "F→S 長線養成",
               "市場探索／多 NPC",
@@ -915,7 +938,7 @@
             "key": "class_intensity",
             "label": "階級差強度",
             "type": "select",
-            "target_path": "modules.market.market_heat",
+            "target_path": "modules.play_setup.class_intensity",
             "options": [
               "寫實（推薦）",
               "更殘酷",
