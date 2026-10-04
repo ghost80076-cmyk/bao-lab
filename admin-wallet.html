@@ -196,7 +196,7 @@ code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
     <div class="control-heading">
       <div>
         <h2>4. 上游供應商與 Hosted 路由</h2>
-        <p class="note">這裡只控制 YoruBay 帳號玩家的上游。BYOK 玩家仍使用自己的 API Key，不受影響。供應商餘額是管理員輸入的「目前官方餘額」基準，之後由 YoruBay 已記錄的實際成本往下估算。</p>
+        <p class="note">這裡只控制 YoruBay 帳號玩家的上游。BYOK 玩家仍使用自己的 API Key，不受影響。供應商餘額是管理員手動校正的官方餘額基準；下方剩餘額只是夜灣依「已知上游成本」推估，不是供應商即時餘額。外部 API Key、供應商四捨五入或尚未回報的成本仍可能造成差異。</p>
       </div>
       <span class="status-pill">ADMIN ONLY</span>
     </div>
@@ -462,10 +462,11 @@ code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
       return '<div class="provider-card" data-provider-card="'+String(p.provider)+'">'+
         '<div class="control-heading"><h3>'+String(p.label||p.provider)+'</h3><span class="status-pill '+st[1]+'">'+st[0]+'</span></div>'+
         '<div class="provider-metrics">'+
-          '<div class="metric"><span>預估剩餘</span><b>'+usdFromMicro(p.estimated_remaining_microusd)+'</b></div>'+
-          '<div class="metric"><span>本次基準後已記錄消耗</span><b>'+usdFromMicro(p.tracked_spent_microusd)+'</b></div>'+
-          '<div class="metric"><span>上次輸入官方餘額</span><b>'+usdFromMicro(p.anchor_balance_microusd)+'</b></div>'+
+          '<div class="metric"><span>估算剩餘（非即時）</span><b>'+usdFromMicro(p.estimated_remaining_microusd)+'</b></div>'+
+          '<div class="metric"><span>基準後已知上游成本</span><b>'+usdFromMicro(p.tracked_spent_microusd)+'</b></div>'+
+          '<div class="metric"><span>上次校正官方餘額</span><b>'+usdFromMicro(p.anchor_balance_microusd)+'</b></div>'+
         '</div>'+
+        '<p class="note">資金池優先採用供應商回報成本；即使夜灣因使用量無法確認而把燈火退回玩家，只要供應商已回報實際成本，仍會計入這裡，但不會再次扣玩家燈火。</p>'+
         '<div class="provider-form">'+
           '<label>重新校正目前官方餘額（US$）<input data-role="balance" type="number" min="0" step="0.01" placeholder="例如 10.00"></label>'+
           '<label>低餘額提醒門檻（US$）<input data-role="threshold" type="number" min="0" step="0.01" value="'+threshold.toFixed(2)+'"></label>'+
