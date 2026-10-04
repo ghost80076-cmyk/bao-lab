@@ -91,4 +91,16 @@ assert.match(
   "credentialed session requests must retain explicit CORS credentials"
 );
 
+assert.match(
+  source,
+  /function trustedCookieMutation\([\s\S]*hasSessionCookie[\s\S]*origin\?\.origin[\s\S]*origin\?\.allowed/,
+  "cookie-authenticated mutations without a trusted Origin must be rejected"
+);
+
+assert.match(
+  source,
+  /"strict-transport-security"[\s\S]*"max-age=31536000; includeSubDomains"/,
+  "Worker responses must keep HTTPS pinned with HSTS"
+);
+
 console.log("worker-session-security-contract: ok");
