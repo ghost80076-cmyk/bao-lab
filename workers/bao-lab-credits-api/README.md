@@ -17,32 +17,34 @@ The checked-in `worker.js` is reconstructed from the saved **YoruBay_Worker_v6.2
 
 The AWS Gunicorn 90-second value is a runtime/systemd setting and is documented here; it is not configured by this Worker source.
 
-## Important deployment rule
+## Production deployment rule
 
-GitHub does **not** automatically deploy this file to Cloudflare. Treat the Cloudflare dashboard deployment as production until an explicit Worker CI/deploy workflow is introduced.
+Changes to the production Worker paths are automatically deployed after they are merged to `main`. The guarded workflow validates the Worker boundary, replaces only the script content and runs the production security audit afterward. Manual dispatch remains available as a fallback.
 
 Do not commit Cloudflare/AWS secrets. Keep `ADMIN_TOKEN`, `BAO_INTERNAL_TOKEN`, provider API keys, and other credentials in their platform secret stores.
 
 ### Guarded content-only deployment
 
-The manual GitHub Actions workflow `Deploy production Worker` replaces only
+The GitHub Actions workflow `Deploy production Worker` replaces only
 the production Worker's module content through Cloudflare's content endpoint.
 That endpoint does not change Worker configuration or metadata, so the D1
 database, rate limiter, variables, secrets, routes and observability settings
 remain attached.
 
-The workflow is deliberately manual until its production credentials have
-been configured and a first supervised deployment has passed. Add these as
-GitHub Actions repository secrets:
+The first supervised credentialed deployment has passed. The workflow now runs
+automatically when a watched Worker path changes on `main`, and can still be
+started manually. These GitHub Actions repository secrets are required:
 
 - `CLOUDFLARE_ACCOUNT_ID`
 - `CLOUDFLARE_API_TOKEN` scoped to this account with Workers Scripts Write
-- `CLOUDFLARE_WORKER_NAME` (`yorubay-credits-pilot` for the current service)
+- `CLOUDFLARE_WORKER_NAME` (`bao-lab-credits-api` for the current Worker script)
 
-The workflow validates the Worker boundaries before deployment and runs the
-production security audit afterward. Cloudflare Worker Versions remains the
-rollback surface. Do not change this workflow to deploy on every `main` push
-until the first supervised run has been verified.
+The path filter deliberately excludes frontend-only changes. The current
+packager uploads `worker.js` as one main module; do not physically extract the
+Worker boundaries into separate files until module-graph packaging has its own
+contract tests and a supervised rollback rehearsal. Follow
+[`docs/worker-production-rollback.md`](../../docs/worker-production-rollback.md)
+if a deployed Worker change must be reverted.
 
 ## Account authentication rate limiting
 
