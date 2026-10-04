@@ -868,5 +868,46 @@
     "updated_at": "2026-10-04T13:20:00Z",
     "published_version": 1,
     "version_published_at": "2026-10-04T13:20:00Z"
+  },
+  {
+    "id": "xinglan-academy",
+    "file": "data/characters/community/bc/xinglan-academy.json",
+    "name": "星瀾學園",
+    "title": "星瀾學園｜春季群像世界",
+    "avatar": "https://i.meee.com.tw/HOn2ey4.jpg",
+    "category": "male",
+    "rating": "general",
+    "gender": "all",
+    "tags": [
+      "男性向",
+      "大學校園",
+      "校園群像",
+      "多NPC",
+      "世界模擬",
+      "戀愛自由",
+      "自主NPC",
+      "資訊隔離",
+      "關係三軸",
+      "多世界模式",
+      "社團生活",
+      "學生會",
+      "神秘轉學生",
+      "前任關係",
+      "原生狀態UI",
+      "Builder開局"
+    ],
+    "description": "位於城市邊緣的成人大學部住宿學園。八名核心人物各自有課表、社團、前任、競爭與秘密，但沒有人等著被攻略。開局可選現代寫實、異能秘聞、修煉學園或多種族共學；信任、親近、張力三軸只記錄關係，不會用數值硬觸發告白、獨佔或黑化。",
+    "supported_modes": {
+      "immersive": true,
+      "world": true
+    },
+    "supported_display": {
+      "text": true,
+      "ui": true
+    },
+    "published_at": "2026-10-04T15:56:00Z",
+    "updated_at": "2026-10-04T15:56:00Z",
+    "published_version": 1,
+    "version_published_at": "2026-10-04T15:56:00Z"
   }
 ]
