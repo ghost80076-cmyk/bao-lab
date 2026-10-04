@@ -41,10 +41,11 @@ const instrumented =
     /export\s+default\s+\{/,
     "const __workerDefault = {"
   ) +
-  "\nreturn { HOSTED_ROUTE_CONTROL, hostedLogicalModel, resolveHostedRoute };";
+  "\nreturn { HOSTED_ROUTE_CONTROL, PROVIDER_CONTROL, hostedLogicalModel, resolveHostedRoute };";
 
 const {
   HOSTED_ROUTE_CONTROL,
+  PROVIDER_CONTROL,
   hostedLogicalModel,
   resolveHostedRoute,
 } = new Function(instrumented)();
@@ -56,6 +57,19 @@ assert.equal(
 assert.equal(
   HOSTED_ROUTE_CONTROL["gemini-3.1-pro"].default_route,
   "google-official"
+);
+
+assert.equal(
+  PROVIDER_CONTROL.gemini.balance_mode,
+  "native_snapshot"
+);
+assert.equal(
+  PROVIDER_CONTROL.gemini.official_balance_currency,
+  "TWD"
+);
+assert.equal(
+  PROVIDER_CONTROL.openrouter.balance_mode,
+  "usd_estimate"
 );
 
 assert.deepEqual(
@@ -181,11 +195,23 @@ const dbWithOverride = routeId => ({
   );
   assert.match(
     workerSource,
+    /CREATE TABLE IF NOT EXISTS provider_native_balance_snapshots/
+  );
+  assert.match(
+    workerSource,
     /\/admin\/provider-control\/route/
   );
   assert.match(
     workerSource,
     /\/admin\/provider-control\/balance/
+  );
+  assert.match(
+    workerSource,
+    /balance_minor/
+  );
+  assert.match(
+    workerSource,
+    /official_balance_currency/
   );
   assert.match(
     workerSource,
@@ -232,6 +258,22 @@ const dbWithOverride = routeId => ({
   assert.match(
     adminHtml,
     /重新校正目前官方餘額/
+  );
+  assert.match(
+    adminHtml,
+    /Google 官方餘額快照/
+  );
+  assert.match(
+    adminHtml,
+    /不換算（TWD \/ USD）/
+  );
+  assert.match(
+    adminHtml,
+    /重新校正 Google 官方餘額（NT\$）/
+  );
+  assert.match(
+    adminHtml,
+    /balance_minor/
   );
   assert.match(
     adminHtml,
