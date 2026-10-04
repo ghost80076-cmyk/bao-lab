@@ -23,6 +23,27 @@ GitHub does **not** automatically deploy this file to Cloudflare. Treat the Clou
 
 Do not commit Cloudflare/AWS secrets. Keep `ADMIN_TOKEN`, `BAO_INTERNAL_TOKEN`, provider API keys, and other credentials in their platform secret stores.
 
+### Guarded content-only deployment
+
+The manual GitHub Actions workflow `Deploy production Worker` replaces only
+the production Worker's module content through Cloudflare's content endpoint.
+That endpoint does not change Worker configuration or metadata, so the D1
+database, rate limiter, variables, secrets, routes and observability settings
+remain attached.
+
+The workflow is deliberately manual until its production credentials have
+been configured and a first supervised deployment has passed. Add these as
+GitHub Actions repository secrets:
+
+- `CLOUDFLARE_ACCOUNT_ID`
+- `CLOUDFLARE_API_TOKEN` scoped to this account with Workers Scripts Write
+- `CLOUDFLARE_WORKER_NAME` (`yorubay-credits-pilot` for the current service)
+
+The workflow validates the Worker boundaries before deployment and runs the
+production security audit afterward. Cloudflare Worker Versions remains the
+rollback surface. Do not change this workflow to deploy on every `main` push
+until the first supervised run has been verified.
+
 ## Account authentication rate limiting
 
 The Worker can protect registration, login and account recovery through an optional Cloudflare Rate Limiting binding named `AUTH_RATE_LIMITER`.

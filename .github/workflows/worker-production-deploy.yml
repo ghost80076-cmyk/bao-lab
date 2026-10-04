@@ -1,0 +1,40 @@
+name: Deploy production Worker
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-worker
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Verify deployment boundary
+        run: |
+          node --check workers/bao-lab-credits-api/worker.js
+          node tests/worker-content-deploy-core.cjs
+          node tests/worker-security-headers-core.cjs
+          node tests/worker-session-security-contract.cjs
+          node tests/worker-account-rate-limit-core.cjs
+          node tests/worker-account-auth-core.cjs
+          node tests/worker-provider-transport-core.cjs
+      - name: Replace production Worker content
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_WORKER_NAME: ${{ secrets.CLOUDFLARE_WORKER_NAME }}
+        run: node scripts/deploy-worker-content.cjs
+      - name: Verify production security contract
+        run: npm run audit:production-security

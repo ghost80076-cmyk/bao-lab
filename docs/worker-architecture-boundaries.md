@@ -40,7 +40,7 @@ Each boundary was merged independently after its contract tests and the reposito
 
 - Automate Cloudflare Worker module-graph deployment and document rollback before extracting files.
 - Consolidate the browser catalog and the unknown production Worker base allowlist into a single model registry. Versioned deltas now generate one validated Cloudflare/AWS deployment plan, but cannot safely replace the external production base.
-- Configure the production `AUTH_RATE_LIMITER` binding and verify `auth_rate_limit_configured: true`; source support alone does not activate enforcement in the dashboard-deployed Worker.
+- Promote the guarded content-only production workflow from manual dispatch to automatic deployment only after a supervised credentialed run has passed.
 
 ## Non-negotiable compatibility rules
 
@@ -86,9 +86,9 @@ Until then, the project can reduce technical debt by clarifying boundaries, cons
 
 | Exit condition | Status |
 | --- | --- |
-| Automated Cloudflare module-graph deployment | Blocked: GitHub does not deploy this Worker |
-| Deployment independent of dashboard copy/paste | Blocked |
+| Automated Cloudflare module-graph deployment | Blocked: the guarded workflow currently replaces only the single-file module content |
+| Deployment independent of dashboard copy/paste | Prepared: manual GitHub workflow awaits a supervised credentialed run |
 | Security, auth, billing and provider contract coverage | In place for the current named boundaries |
-| Documented rollback for a module deployment | Blocked until the deployment path exists |
+| Documented rollback for a module deployment | Partial: Cloudflare Worker Versions covers the single-file workflow; multi-module rollback remains blocked |
 
 Therefore `worker.js` must remain the production-compatible single-file artifact. A GitHub merge is source control only and must not be described as a Cloudflare production deployment.
