@@ -196,7 +196,7 @@ code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
     <div class="control-heading">
       <div>
         <h2>4. 上游供應商與 Hosted 路由</h2>
-        <p class="note">這裡只控制 YoruBay 帳號玩家的上游。BYOK 玩家仍使用自己的 API Key，不受影響。供應商餘額是管理員手動校正的官方餘額基準；下方剩餘額只是夜灣依「已知上游成本」推估，不是供應商即時餘額。外部 API Key、供應商四捨五入或尚未回報的成本仍可能造成差異。</p>
+        <p class="note">這裡只控制 YoruBay 帳號玩家的上游。BYOK 玩家仍使用自己的 API Key，不受影響。OpenRouter 以 USD 基準估算剩餘；Google 官方帳戶則保留原生 TWD 餘額快照，與夜灣 USD 上游成本分開顯示，不做假精準的匯率換算。</p>
       </div>
       <span class="status-pill">ADMIN ONLY</span>
     </div>
@@ -446,8 +446,16 @@ code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
     if(!Number.isFinite(n)) return "—";
     return "US$"+(n/1000000).toFixed(2);
   }
+  function nativeMoneyFromMinor(value,currency){
+    if(value===null||value===undefined) return "尚未設定";
+    var n=Number(value);
+    if(!Number.isFinite(n)) return "—";
+    if(currency==="TWD") return "NT$"+(n/100).toFixed(2);
+    return String(currency||"")+" "+(n/100).toFixed(2);
+  }
   function providerStatus(status){
     return status==="ok"?["正常","status-ok"]:
+      status==="reported"?["已校正","status-ok"]:
       status==="low"?["偏低","status-low"]:
       status==="empty"?["已用盡／低於零","status-empty"]:
       ["尚未追蹤","status-untracked"];
@@ -458,8 +466,27 @@ code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
     var providers=Array.isArray(providerControl.providers)?providerControl.providers:[];
     $("provider-balances").innerHTML=providers.map(function(p){
       var st=providerStatus(p.status);
+      var isNative=p.balance_mode==="native_snapshot";
+      if(isNative){
+        var currency=String(p.official_balance_currency||"TWD");
+        return '<div class="provider-card" data-provider-card="'+String(p.provider)+'" data-balance-mode="native_snapshot" data-currency="'+currency+'">'+
+          '<div class="control-heading"><h3>'+String(p.label||p.provider)+'</h3><span class="status-pill '+st[1]+'">'+st[0]+'</span></div>'+
+          '<div class="provider-metrics">'+
+            '<div class="metric"><span>Google 官方餘額快照</span><b>'+nativeMoneyFromMinor(p.reported_balance_minor,currency)+'</b></div>'+
+            '<div class="metric"><span>校正後夜灣已知上游成本</span><b>'+usdFromMicro(p.tracked_spent_microusd)+'</b></div>'+
+            '<div class="metric"><span>估算剩餘</span><b>不換算（TWD / USD）</b></div>'+
+          '</div>'+
+          '<p class="note">Google 官方帳戶以 TWD 顯示餘額，夜灣上游成本帳本以 USD 記錄。這裡刻意不套用匯率，也不把兩種幣別直接相減；官方餘額與夜灣成本分開看。</p>'+
+          '<div class="provider-form">'+
+            '<label>重新校正 Google 官方餘額（NT$）<input data-role="balance" type="number" min="0" step="0.01" placeholder="例如 294.00"></label>'+
+            '<div></div>'+
+            '<div class="actions"><button class="secondary" type="button" data-save-provider="'+String(p.provider)+'">儲存官方餘額快照</button></div>'+
+          '</div>'+
+        '</div>';
+      }
+
       var threshold=Number(p.low_balance_threshold_microusd||0)/1000000;
-      return '<div class="provider-card" data-provider-card="'+String(p.provider)+'">'+
+      return '<div class="provider-card" data-provider-card="'+String(p.provider)+'" data-balance-mode="usd_estimate" data-currency="USD">'+
         '<div class="control-heading"><h3>'+String(p.label||p.provider)+'</h3><span class="status-pill '+st[1]+'">'+st[0]+'</span></div>'+
         '<div class="provider-metrics">'+
           '<div class="metric"><span>估算剩餘（非即時）</span><b>'+usdFromMicro(p.estimated_remaining_microusd)+'</b></div>'+
@@ -468,7 +495,7 @@ code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
         '</div>'+
         '<p class="note">資金池優先採用供應商回報成本；若發生「玩家已退款但供應商已計費」，只要供應商已回報實際成本，仍會計入這裡，但不會再次扣玩家燈火。</p>'+
         '<div class="provider-form">'+
-          '<label>重新校正目前官方餘額（US$）<input data-role="balance" type="number" min="0" step="0.01" placeholder="例如 10.00"></label>'+
+          '<label>重新校正目前官方餘額（US$）<input data-role="balance" type="number" min="0" step="0.01" placeholder="例如 7.49"></label>'+
           '<label>低餘額提醒門檻（US$）<input data-role="threshold" type="number" min="0" step="0.01" value="'+threshold.toFixed(2)+'"></label>'+
           '<div class="actions"><button class="secondary" type="button" data-save-provider="'+String(p.provider)+'">儲存目前餘額基準</button></div>'+
         '</div>'+
@@ -733,6 +760,34 @@ code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
     if(!button) return;
     var provider=button.dataset.saveProvider;
     var card=button.closest("[data-provider-card]");
+    var mode=String(card.dataset.balanceMode||"usd_estimate");
+
+    if(mode==="native_snapshot"){
+      var currency=String(card.dataset.currency||"TWD").toUpperCase();
+      var balanceMinor=minorUnits(card.querySelector('[data-role="balance"]').value,currency);
+      if(balanceMinor===null){
+        setMessage("provider-control-message","請輸入 Google 官方目前顯示的 TWD 餘額。");
+        return;
+      }
+      if(!confirm("確認把 "+provider+" 的 Google 官方餘額快照設為 "+nativeMoneyFromMinor(balanceMinor,currency)+"？\n夜灣會從這個時間點重新累計 USD 上游成本，但不會用匯率把兩者相減。")) return;
+      button.disabled=true;
+      try{
+        var nativeData=await api("/admin/provider-control/balance",{
+          method:"POST",
+          body:JSON.stringify({
+            provider:provider,
+            currency:currency,
+            balance_minor:balanceMinor
+          })
+        });
+        renderProviderControl(nativeData);
+        setMessage("provider-control-message","Google 官方 TWD 餘額快照已更新。",true);
+      }catch(e){
+        setMessage("provider-control-message","官方餘額快照更新失敗："+e.message);
+      }finally{button.disabled=false;}
+      return;
+    }
+
     var balance=microusdFromUsd(card.querySelector('[data-role="balance"]').value);
     var threshold=microusdFromUsd(card.querySelector('[data-role="threshold"]').value);
     if(balance===null||threshold===null){
