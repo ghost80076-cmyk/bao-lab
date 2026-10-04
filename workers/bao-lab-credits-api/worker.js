@@ -10799,11 +10799,11 @@ const WorkerProviderTransport = (() => {
 
     // AWS relay adds another network hop and can legitimately need more
     // wall-clock time than direct provider calls. Keep this below the
-    // current 90s Gunicorn timeout so the relay still owns the final cutoff.
+    // current 180s Gunicorn timeout so the relay still owns the outer cutoff.
     const transportTimeoutMs =
       route ===
         "aws_relay"
-        ? 85_000
+        ? 170_000
         : 75_000;
   
     let response;
