@@ -48,7 +48,8 @@
   const requestLifecycleWrapper = async function(next, ...args) {
     if (this.config?.demoMode) return next(...args);
     const text = document.getElementById("user-input")?.value.trim();
-    if (!text || !this.config?.api?.key) return next(...args);
+    const accountReady = Boolean(window.BAOCreditsPilot?.isAccountReady?.(this.config?.api));
+    if (!text || (!this.config?.api?.key && !accountReady)) return next(...args);
     if (this.__requestPending) return;
 
     const controller = new AbortController();
