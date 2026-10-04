@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "type": "yorubay-author-regex-mod",
+  "scope": "assistant_display",
+  "characterId": "sakura-house-experience-management",
+  "regex_scripts": [
+    {
+      "scriptName": "櫻花院｜夜場開場",
+      "description": "把櫻花院開場整理成暖暗夜場卡；只處理顯示，不修改世界狀態、記憶或 Prompt。",
+      "priority": 80,
+      "findRegex": "【YB:SAKURA:OPENING】\\s*([\\s\\S]*?)\\s*【/YB:SAKURA:OPENING】",
+      "flags": "g",
+      "replaceString": "<style>.yb-sakura-opening{font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif;background:linear-gradient(145deg,#171214,#271a1f);color:#f4ece8;border:1px solid #68434e;border-left:4px solid #c9788f;border-radius:18px;padding:19px 21px;box-shadow:0 14px 34px rgba(0,0,0,.3);line-height:1.9;white-space:pre-wrap}.yb-sakura-opening:before{content:\"SAKURA HOUSE · NIGHT BUSINESS\";display:block;color:#e3a3b4;font-size:12px;font-weight:700;letter-spacing:.14em;margin-bottom:9px}</style><section class=\"yb-sakura-opening\">$1</section>"
+    },
+    {
+      "scriptName": "櫻花院｜營業結算",
+      "description": "重大結算、日結或營運節點才顯示帳本卡；平常數值由原生 Gameplay UI 追蹤。",
+      "priority": 60,
+      "findRegex": "【YB:SAKURA:LEDGER】\\s*([\\s\\S]*?)\\s*【/YB:SAKURA:LEDGER】",
+      "flags": "g",
+      "replaceString": "<style>.yb-sakura-ledger{font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif;background:#1c1817;color:#eee5dc;border:1px solid #66523f;border-radius:14px;padding:14px 16px;line-height:1.8;white-space:pre-wrap}.yb-sakura-ledger:before{content:\"帳本 · 營業結算\";display:block;color:#d6b177;font-weight:700;margin-bottom:7px}</style><section class=\"yb-sakura-ledger\">$1</section>"
+    },
+    {
+      "scriptName": "櫻花院｜地下世界事件",
+      "description": "黑幫、警方、競爭店、政商壓力等重大地下事件用獨立卡片呈現，不常駐。",
+      "priority": 40,
+      "findRegex": "【YB:SAKURA:UNDERWORLD】\\s*([\\s\\S]*?)\\s*【/YB:SAKURA:UNDERWORLD】",
+      "flags": "g",
+      "replaceString": "<style>.yb-sakura-underworld{font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif;background:linear-gradient(135deg,#151517,#21191d);color:#ece7e8;border:1px solid #563b44;border-left:3px solid #a95368;border-radius:14px;padding:14px 16px;line-height:1.8;white-space:pre-wrap}.yb-sakura-underworld:before{content:\"UNDERWORLD · 地下動態\";display:block;color:#d68194;font-weight:700;letter-spacing:.08em;margin-bottom:7px}</style><section class=\"yb-sakura-underworld\">$1</section>"
+    }
+  ]
+}
