@@ -119,6 +119,8 @@ jobs:
         run: node tests/han-seoyeon-seven-day-contract-lover-card.test.cjs
       - name: Lin Qiaorou slow-burn yandere card
         run: node tests/lin-qiaorou-always-nearby-card.test.cjs
+      - name: Collar Class F-to-S world card
+        run: node tests/collar-class-f-to-s-card.test.cjs
       - name: Nangong Wen Runaway Bride card
         run: node tests/nangong-wen-runaway-bride-card.test.cjs
       - name: Campus Rival 24H Command card
