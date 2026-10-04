@@ -827,5 +827,46 @@
     "updated_at": "2026-10-03T20:20:00Z",
     "published_version": 1,
     "version_published_at": "2026-10-03T20:20:00Z"
+  },
+  {
+    "id": "elze-survival-world",
+    "file": "data/characters/community/e7/elze-survival-world.json",
+    "name": "異世界求生錄：艾爾澤大陸",
+    "title": "異世界求生錄｜艾爾澤大陸",
+    "avatar": "https://i.meee.com.tw/CvCfmDN.jpg",
+    "category": "male",
+    "rating": "adult",
+    "gender": "all",
+    "tags": [
+      "男性向",
+      "R18成人奇幻",
+      "異世界求生",
+      "世界模擬",
+      "多種族",
+      "冒險公會",
+      "生存冒險",
+      "戰爭衝突",
+      "永久死亡",
+      "材料獵殺",
+      "道德困境",
+      "領地發展",
+      "多NPC",
+      "自主NPC",
+      "資訊隔離",
+      "原生狀態UI"
+    ],
+    "description": "艾爾澤是一座不會遷就玩家的多種族奇幻大陸。從職業覺醒、公會委託與野外求生開始，戰爭、材料獵殺、種族衝突、商路與領地都會自行運轉；NPC 可能成長、離開、受傷或永久死亡。這不是固定攻略線，而是一場能從無名冒險者一路走到據點領主的長篇生存沙盒。",
+    "supported_modes": {
+      "immersive": true,
+      "world": true
+    },
+    "supported_display": {
+      "text": true,
+      "ui": true
+    },
+    "published_at": "2026-10-04T13:20:00Z",
+    "updated_at": "2026-10-04T13:20:00Z",
+    "published_version": 1,
+    "version_published_at": "2026-10-04T13:20:00Z"
   }
 ]

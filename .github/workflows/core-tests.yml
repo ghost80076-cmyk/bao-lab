@@ -89,6 +89,8 @@ jobs:
         run: node tests/xia-yuhan-av-industry-card.test.cjs
       - name: Aetheria Three Factions card
         run: node tests/aetheria-three-factions-card.test.cjs
+      - name: Elze Survival World card
+        run: node tests/elze-survival-world-card.test.cjs
       - name: Dark Military War Simulator card
         run: node tests/dark-military-war-simulator-card.test.cjs
       - name: Craftsman Ming Survival TRPG card
