@@ -399,7 +399,23 @@
       const rateDiagnostic = data?.error === 'provider_rate_limited' && (routeLabel || retryAfterSeconds)
         ? `（${[routeLabel ? `路徑：${routeLabel}` : '', retryAfterSeconds ? `建議 ${retryAfterSeconds} 秒後再試` : ''].filter(Boolean).join('；')}）`
         : '';
-      const upstreamError = new Error(`${detail}${sizeDiagnostic}${rateDiagnostic}${googleStatus}${diagnosticId}`);
+      const elapsedMs = Number.isInteger(data?.elapsed_ms) && data.elapsed_ms >= 0
+        ? Math.min(600000, data.elapsed_ms) : 0;
+      const timeoutMs = Number.isInteger(data?.timeout_ms) && data.timeout_ms > 0
+        ? Math.min(600000, data.timeout_ms) : 0;
+      const transportFailure = ['timeout', 'network'].includes(data?.transport_failure)
+        ? data.transport_failure : '';
+      const transportDiagnostic = data?.error === 'provider_usage_unverified' &&
+        (routeLabel || requestBytes || elapsedMs || timeoutMs || transportFailure)
+        ? `（${[
+            routeLabel ? `路徑：${routeLabel}` : '',
+            requestBytes ? `送出大小：約 ${(requestBytes / 1024).toFixed(1)} KB` : '',
+            elapsedMs ? `約 ${(elapsedMs / 1000).toFixed(1)} 秒後中斷` : '',
+            transportFailure === 'timeout' ? '判定：逾時' : transportFailure === 'network' ? '判定：網路中斷' : '',
+            timeoutMs ? `截止：${(timeoutMs / 1000).toFixed(0)} 秒` : ''
+          ].filter(Boolean).join('；')}）`
+        : '';
+      const upstreamError = new Error(`${detail}${transportDiagnostic}${sizeDiagnostic}${rateDiagnostic}${googleStatus}${diagnosticId}`);
       const finishReason = String(data?.finish_reason || "").trim().toUpperCase();
       if (data?.error === "provider_empty_text" && providerBlockReasons.has(finishReason)) {
         upstreamError.code = "BAO_PROVIDER_BLOCKED";
