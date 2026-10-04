@@ -101,6 +101,8 @@ jobs:
         run: node tests/craftsman-ming-survival-trpg-card.test.cjs
       - name: Medieval Guild Dynasty Simulator card
         run: node tests/medieval-guild-dynasty-simulator-card.test.cjs
+      - name: Taiwan Food Hunter card
+        run: node tests/taiwan-food-hunter-card.test.cjs
       - name: Zhutian Cultivation Fortune Strife card
         run: node tests/zhutian-cultivation-fortune-strife-card.test.cjs
       - name: Baitao Roommate Triangle card

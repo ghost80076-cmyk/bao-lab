@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "type": "yorubay-author-regex-mod",
+  "scope": "assistant_display",
+  "characterId": "taiwan-food-hunter",
+  "regex_scripts": [
+    {
+      "scriptName": "臺灣美食獵人｜環島開卷",
+      "description": "把開場標記轉成夜市與公路感的暖暗卡片；只改顯示層。",
+      "priority": 80,
+      "findRegex": "【YB:FOODHUNT:OPENING】\\s*([\\s\\S]*?)\\s*【/YB:FOODHUNT:OPENING】",
+      "flags": "g",
+      "replaceString": "<style>.yb-foodhunt-opening{font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif;background:linear-gradient(145deg,#191816,#2b241b);color:#f5ead7;border:1px solid #725c3b;border-left:4px solid #e1a94f;border-radius:18px;padding:20px;box-shadow:0 14px 34px rgba(0,0,0,.3);line-height:1.9;white-space:pre-wrap}.yb-foodhunt-opening:before{content:\"TAIWAN FOOD HUNTER · 環島獵味錄\";display:block;color:#f0bd67;font-size:12px;letter-spacing:.12em;margin-bottom:10px}</style><section class=\"yb-foodhunt-opening\">$1</section>"
+    },
+    {
+      "scriptName": "臺灣美食獵人｜地方獵報",
+      "description": "把玩家已知的地方怪物、封路與認證情報轉成獵報。",
+      "priority": 60,
+      "findRegex": "【YB:FOODHUNT:BULLETIN】\\s*([\\s\\S]*?)\\s*【/YB:FOODHUNT:BULLETIN】",
+      "flags": "g",
+      "replaceString": "<style>.yb-foodhunt-bulletin{font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif;background:#201d18;color:#eee4d4;border:1px solid #5f574a;border-left:3px solid #e18a4a;border-radius:14px;padding:14px 16px;line-height:1.8;white-space:pre-wrap}.yb-foodhunt-bulletin:before{content:\"📍 地方獵報\";display:block;color:#eda66d;font-weight:800;margin-bottom:7px}</style><section class=\"yb-foodhunt-bulletin\">$1</section>"
+    },
+    {
+      "scriptName": "臺灣美食獵人｜公開檢定",
+      "description": "把真正發生的 1d100 狩獵檢定顯示成判定卡。",
+      "priority": 55,
+      "findRegex": "【YB:FOODHUNT:CHECK】\\s*([\\s\\S]*?)\\s*【/YB:FOODHUNT:CHECK】",
+      "flags": "g",
+      "replaceString": "<style>.yb-foodhunt-check{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;background:#171a18;color:#e8eee8;border:1px solid #53665b;border-left:3px solid #82b793;border-radius:12px;padding:12px 14px;line-height:1.75;white-space:pre-wrap}.yb-foodhunt-check:before{content:\"🎲 1D100 · 狩獵判定\";display:block;color:#9fd0aa;font-weight:800;font-size:12px;margin-bottom:6px}</style><section class=\"yb-foodhunt-check\">$1</section>"
+    },
+    {
+      "scriptName": "臺灣美食獵人｜日結",
+      "description": "把一天結束摘要整理成旅行日誌；完整資料仍由 Gameplay UI 保存。",
+      "priority": 45,
+      "findRegex": "【YB:FOODHUNT:DAY_END】\\s*([\\s\\S]*?)\\s*【/YB:FOODHUNT:DAY_END】",
+      "flags": "g",
+      "replaceString": "<style>.yb-foodhunt-day{font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif;background:linear-gradient(135deg,#26211b,#191714);color:#ece5d8;border:1px solid #655745;border-radius:14px;padding:14px 16px;line-height:1.8;white-space:pre-wrap}.yb-foodhunt-day:before{content:\"🌙 今日獵味日誌\";display:block;color:#d9b36d;font-weight:800;margin-bottom:7px}.yb-foodhunt-day:after{content:\"完整地圖、身體與執照狀態請看原生狀態面板。\";display:block;color:#a79b88;font-size:12px;margin-top:8px}</style><section class=\"yb-foodhunt-day\">$1</section>"
+    }
+  ]
+}
