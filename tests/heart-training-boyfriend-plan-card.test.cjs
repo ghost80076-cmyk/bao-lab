@@ -15,7 +15,7 @@ assert.equal(card.presentation.play_info_surface,'game-ui');
 assert.match(card.content.system_prompt,/角色不是玩家完成任務後得到的獎品/);
 assert.match(card.content.system_prompt,/自主演化/);
 assert.match(card.content.system_prompt,/不記得 APP 內的養成過程/);
-assert.doesNotMatch(card.content.system_prompt,/0.?20 陌生人/);
+assert.match(card.content.system_prompt,/不要使用「0–20 陌生人/);
 assert.doesNotMatch(card.content.greeting,/<hc-collapse|<p class=|<div class=/i);
 
 const promptIds=new Set(card.content.dynamic_prompts.map(x=>x.id));
