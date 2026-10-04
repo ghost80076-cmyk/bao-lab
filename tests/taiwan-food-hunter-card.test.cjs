@@ -53,7 +53,7 @@ assert.equal(card.gameplay.initial_state.modules.map_progress.length,22);
 const ui=GameplayUI.normalize(card.gameplay.ui_schema);
 assert.ok(ui);
 assert.equal(ui.theme.preset,'noir');
-assert.equal(ui.theme.accent,'#E1A94F');
+assert.equal(ui.theme.accent.toLowerCase(),'#e1a94f');
 assert.deepEqual(ui.panels.map(x=>x.id),['now','hunter','body','map','hunt','people','gear','actions']);
 assert.ok(ui.builder.fields.some(x=>x.key==='age'&&x.min===18));
 assert.ok(ui.builder.fields.some(x=>x.key==='constitution'));
