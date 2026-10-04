@@ -1,10 +1,27 @@
 const assert = require("node:assert/strict");
+const { loadWorkerTestSource } = require("./helpers/worker-test-source.cjs");
 const fs = require("node:fs");
 const path = require("node:path");
 
-const source = fs.readFileSync(
+const source = loadWorkerTestSource();
+const workerEntrySource = fs.readFileSync(
   path.join(__dirname, "../workers/bao-lab-credits-api/worker.js"),
   "utf8"
+);
+const cryptoModuleSource = fs.readFileSync(
+  path.join(__dirname, "../workers/bao-lab-credits-api/modules/crypto.js"),
+  "utf8"
+);
+
+assert.match(
+  workerEntrySource,
+  /from "\.\/modules\/crypto\.js";/,
+  "the Worker entry must import the extracted crypto module"
+);
+assert.doesNotMatch(
+  workerEntrySource,
+  /const WorkerCrypto =/,
+  "crypto implementation must not remain duplicated in worker.js"
 );
 
 assert.match(
