@@ -111,6 +111,8 @@ jobs:
         run: node tests/debt-cage-lu-shen-card.test.cjs
       - name: Lu Jingchen Cold Shell Desire card
         run: node tests/lu-jingchen-cold-shell-desire-card.test.cjs
+      - name: Nangong Wen Runaway Bride card
+        run: node tests/nangong-wen-runaway-bride-card.test.cjs
       - name: Campus Rival 24H Command card
         run: node tests/campus-rival-24h-command-card.test.cjs
       - name: Lin Yuyan Possessed Husband card
