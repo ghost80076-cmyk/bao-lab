@@ -7,6 +7,7 @@ on:
       - js/credits-pilot.js
       - js/global-bridge.js
       - tests/credits-pilot.test.cjs
+      - tests/credits-pilot-413-core.cjs
       - .github/workflows/credits-pilot-integration.yml
   workflow_dispatch:
 
@@ -27,6 +28,7 @@ jobs:
           node --check js/credits-pilot.js
           node --check js/global-bridge.js
           node --test tests/credits-pilot.test.cjs
+          node --test tests/credits-pilot-413-core.cjs
       - name: Verify deployed Pages adapter and loader
         shell: bash
         run: |
