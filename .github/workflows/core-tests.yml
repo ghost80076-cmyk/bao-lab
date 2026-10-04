@@ -172,6 +172,7 @@ jobs:
           node tests/worker-security-headers-core.cjs
           node --check tests/production-security-smoke.cjs
           node tests/worker-content-deploy-core.cjs
+          node tests/worker-production-deploy-workflow-core.cjs
       - name: Worker architecture boundary registry
         run: node tests/worker-architecture-boundaries-core.cjs
       - name: Worker session security contract
