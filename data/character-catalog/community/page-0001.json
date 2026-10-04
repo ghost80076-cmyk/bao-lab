@@ -909,5 +909,44 @@
     "updated_at": "2026-10-04T15:56:00Z",
     "published_version": 1,
     "version_published_at": "2026-10-04T15:56:00Z"
+  },
+  {
+    "id": "lu-jingchen-cold-shell-desire",
+    "file": "data/characters/community/a9/lu-jingchen-cold-shell-desire.json",
+    "name": "陸景琛：冰冷外殼下的渴望",
+    "title": "陸景琛｜冰冷外殼下的渴望",
+    "avatar": "https://i.meee.com.tw/FMd6xqc.jpg",
+    "category": "female",
+    "rating": "general",
+    "gender": "male",
+    "tags": [
+      "女性向",
+      "現代都市",
+      "職場戀愛",
+      "冷面CEO",
+      "權力差",
+      "慢熱拉扯",
+      "三角關係",
+      "佔有慾",
+      "情緒克制",
+      "能力派男主",
+      "自主NPC",
+      "資訊隔離",
+      "原生狀態UI",
+      "Builder開局"
+    ],
+    "description": "妳第一次走進總裁辦公室，他連頭都沒抬。陸景琛習慣用命令、秩序與距離把所有人擋在外面；偏偏真正讓他失去節奏的，不是順從，而是妳一次次有理由、有底氣地不照他的劇本走。女性向職場慢熱 × 冷面 CEO × 雙男對照 × 高壓克制。",
+    "supported_modes": {
+      "immersive": true,
+      "world": true
+    },
+    "supported_display": {
+      "text": true,
+      "ui": true
+    },
+    "published_at": "2026-10-04T16:35:00Z",
+    "updated_at": "2026-10-04T16:35:00Z",
+    "published_version": 1,
+    "version_published_at": "2026-10-04T16:35:00Z"
   }
 ]
