@@ -142,7 +142,7 @@ const productionGraph = loadWorkerModuleManifest(
 assert.equal(productionGraph.mainModule, "worker.js");
 assert.deepEqual(
   productionGraph.modules.map(module => module.name),
-  ["modules/account-validation.js", "modules/admin-auth.js", "modules/author-profile-publication.js", "modules/chat-input.js", "modules/crypto.js", "modules/github-publication-transport.js", "modules/http.js", "modules/publication-format.js", "modules/runtime-config.js", "worker.js"],
+  ["modules/account-rate-limit.js", "modules/account-validation.js", "modules/admin-auth.js", "modules/author-profile-publication.js", "modules/chat-input.js", "modules/crypto.js", "modules/github-publication-transport.js", "modules/http.js", "modules/publication-format.js", "modules/runtime-config.js", "worker.js"],
   "production must contain only the reviewed extracted boundaries"
 );
 assert.equal(
@@ -151,6 +151,10 @@ assert.equal(
 );
 const productionBody = buildWorkerUploadBody(productionGraph);
 assert.equal(productionBody.get("metadata"), '{"main_module":"worker.js"}');
+assert.ok(
+  productionBody.get("modules/account-rate-limit.js"),
+  "the extracted account rate limit module must be included in the upload"
+);
 assert.ok(
   productionBody.get("modules/account-validation.js"),
   "the extracted account validation module must be included in the upload"
