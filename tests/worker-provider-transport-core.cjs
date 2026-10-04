@@ -73,6 +73,17 @@ const jsonResponse = (body, status = 200) =>
         if (body?.model === "openai/too-large") {
           return jsonResponse({ error: { message: "payload too large" } }, 413);
         }
+        if (body?.model === "openai/rate-limited") {
+          return new Response(JSON.stringify({
+            error: { message: "Rate limit exceeded: 20 requests per minute" },
+          }), {
+            status: 429,
+            headers: {
+              "content-type": "application/json",
+              "retry-after": "7",
+            },
+          });
+        }
         return jsonResponse({
           choices: [{ message: { content: "OpenRouter OK" } }],
           usage: {
@@ -258,6 +269,34 @@ const jsonResponse = (body, status = 200) =>
     assert.equal(directFailureBody.upstream_http_status, 413);
     assert.equal(directFailureBody.request_bytes, directTooLarge.requestBytes);
     assert.equal(directFailureBody.request_id, "req-direct-413");
+
+    const directRateLimited = await providerCall(
+      {
+        OPENROUTER_API_KEY: "or-secret",
+      },
+      "openrouter",
+      "openai/rate-limited",
+      messages,
+      512
+    );
+
+    assert.equal(directRateLimited.ok, false);
+    assert.equal(directRateLimited.category, "provider_http_error");
+    assert.equal(directRateLimited.upstreamStatus, 429);
+    assert.equal(directRateLimited.rateLimitScope, "rate");
+    assert.equal(directRateLimited.retryAfterSeconds, 7);
+
+    const directRateFailure = providerFailureResponse(
+      directRateLimited,
+      "req-direct-429"
+    );
+    const directRateFailureBody = await directRateFailure.json();
+    assert.equal(directRateFailure.status, 502);
+    assert.equal(directRateFailureBody.error, "provider_rate_limited");
+    assert.equal(directRateFailureBody.route, "direct_openrouter");
+    assert.equal(directRateFailureBody.rate_limit_scope, "rate");
+    assert.equal(directRateFailureBody.retry_after_seconds, 7);
+    assert.equal(directRateFailureBody.request_id, "req-direct-429");
 
     const relayTooLarge = await providerCall(
       {
