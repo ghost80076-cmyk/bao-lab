@@ -231,7 +231,20 @@
       open();
       return Promise.resolve();
     }
-    return next(...args);
+    // One visible story turn may own only one main send at a time. This blocks
+    // double Enter / double tap bursts without changing provider or billing logic.
+    if (App.__chatSendInFlight) return Promise.resolve();
+    App.__chatSendInFlight = true;
+    let task;
+    try {
+      task = next(...args);
+    } catch (error) {
+      App.__chatSendInFlight = false;
+      throw error;
+    }
+    return Promise.resolve(task).finally(() => {
+      App.__chatSendInFlight = false;
+    });
   };
   if (typeof App.wrapSendMessage === "function") {
     App.wrapSendMessage("chat-api-settings:connection-gate", sendGateWrapper);
