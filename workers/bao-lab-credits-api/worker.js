@@ -10203,6 +10203,151 @@ const WorkerProviderTransport = (() => {
     }
   }
 
+  function retryAfterSeconds(
+    response
+  ) {
+    const raw =
+      String(
+        response?.headers?.get?.(
+          "retry-after"
+        ) ||
+        ""
+      ).trim();
+
+    if (
+      !raw
+    ) {
+      return null;
+    }
+
+    const numeric =
+      Number(
+        raw
+      );
+
+    if (
+      Number.isFinite(
+        numeric
+      ) &&
+      numeric >= 0
+    ) {
+      return Math.min(
+        3600,
+        Math.ceil(
+          numeric
+        )
+      );
+    }
+
+    const timestamp =
+      Date.parse(
+        raw
+      );
+
+    if (
+      !Number.isFinite(
+        timestamp
+      )
+    ) {
+      return null;
+    }
+
+    return Math.min(
+      3600,
+      Math.max(
+        0,
+        Math.ceil(
+          (
+            timestamp -
+            Date.now()
+          ) /
+          1000
+        )
+      )
+    );
+  }
+
+  async function rateLimitDiagnostic(
+    response
+  ) {
+    let scope =
+      "unknown";
+
+    try {
+      const payload =
+        await response
+          .clone()
+          .json();
+
+      const raw =
+        [
+          payload?.error?.message,
+          payload?.message,
+          payload?.error?.code,
+          payload?.code,
+          typeof payload?.error === "string"
+            ? payload.error
+            : "",
+        ]
+          .filter(
+            value =>
+              typeof value ===
+                "string" ||
+              typeof value ===
+                "number"
+          )
+          .join(
+            " "
+          )
+          .toLowerCase()
+          .slice(
+            0,
+            1200
+          );
+
+      if (
+        /insufficient|quota|credit|balance|budget|spend(?:ing)?|daily|weekly|monthly/.test(
+          raw
+        )
+      ) {
+        scope =
+          "quota";
+      }
+
+      else if (
+        /rate.?limit|too many requests|\brpm\b|\btpm\b|requests per|tokens per/.test(
+          raw
+        )
+      ) {
+        scope =
+          "rate";
+      }
+
+      else if (
+        /provider|upstream|capacity|overload|temporar(?:y|ily)|unavailable/.test(
+          raw
+        )
+      ) {
+        scope =
+          "provider";
+      }
+    }
+
+    catch {
+      // Do not forward raw upstream error bodies. Only the safe enum below
+      // leaves the Worker.
+    }
+
+    return {
+      scope,
+
+      retryAfterSeconds:
+        retryAfterSeconds(
+          response
+        ),
+    };
+  }
+
   async function providerCall(
     env,
     provider,
@@ -10690,6 +10835,14 @@ const WorkerProviderTransport = (() => {
     if (
       !response.ok
     ) {
+      const rateLimit =
+        response.status ===
+          429
+          ? await rateLimitDiagnostic(
+              response
+            )
+          : null;
+
       const diagnostic =
         provider ===
           "gemini" &&
@@ -10732,6 +10885,14 @@ const WorkerProviderTransport = (() => {
         providerStatus:
           diagnostic
             .providerStatus,
+
+        rateLimitScope:
+          rateLimit
+            ?.scope,
+
+        retryAfterSeconds:
+          rateLimit
+            ?.retryAfterSeconds,
   
         route,
         requestBytes,
@@ -11148,6 +11309,35 @@ const WorkerProviderTransport = (() => {
       extra.provider_status =
         result
           .providerStatus;
+    }
+
+    if (
+      [
+        "rate",
+        "quota",
+        "provider",
+        "unknown",
+      ].includes(
+        result
+          .rateLimitScope
+      )
+    ) {
+      extra.rate_limit_scope =
+        result
+          .rateLimitScope;
+    }
+
+    if (
+      integer(
+        result
+          .retryAfterSeconds,
+        1,
+        3600
+      )
+    ) {
+      extra.retry_after_seconds =
+        result
+          .retryAfterSeconds;
     }
   
     if (
