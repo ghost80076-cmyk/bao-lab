@@ -20,7 +20,7 @@ assert.match(card.content.system_prompt,/22 個縣市/);
 assert.match(card.content.system_prompt,/新竹市／新竹縣/);
 assert.match(card.content.system_prompt,/嘉義市／嘉義縣/);
 assert.match(card.content.system_prompt,/食材偏好/);
-assert.match(card.content.system_prompt,/體型偏見可以存在/);
+assert.match(card.content.system_prompt,/有些 NPC 可能體型歧視/);
 assert.match(card.content.system_prompt,/1d100/);
 assert.match(card.content.system_prompt,/原生狀態 UI/);
 assert.doesNotMatch(card.content.greeting,/<details|<pre|hc-collapse|onclick/);
