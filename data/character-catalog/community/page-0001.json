@@ -990,5 +990,55 @@
     "updated_at": "2026-10-04T16:52:00Z",
     "published_version": 1,
     "version_published_at": "2026-10-04T16:52:00Z"
+  },
+  {
+    "id": "medieval-guild-dynasty-simulator",
+    "file": "data/characters/community/bf/medieval-guild-dynasty-simulator.json",
+    "name": "中世紀模擬",
+    "title": "中世紀模擬｜五族競逐",
+    "avatar": "https://i.meee.com.tw/lgQj30n.jpg",
+    "category": "general",
+    "rating": "adult",
+    "gender": "all",
+    "tags": [
+      "成人向",
+      "中世紀模擬",
+      "TRPG",
+      "行會經營",
+      "家族競爭",
+      "五族競逐",
+      "王朝傳承",
+      "商業經營",
+      "市場模擬",
+      "公職選舉",
+      "政治鬥爭",
+      "犯罪沙盒",
+      "資源競標",
+      "自主NPC",
+      "離場世界",
+      "資訊隔離",
+      "原生狀態UI",
+      "Builder開局",
+      "歷史感",
+      "城市衛生",
+      "公共澡堂",
+      "理髮外科",
+      "成人城市經濟",
+      "權力交換",
+      "庇護政治"
+    ],
+    "description": "五個家族從農奴階級同時起跑。你經營產業、培養工人、搶資源、競選公職、締結婚姻或踏進灰色世界；另外四家也用同一套金錢、聲望、法律與時間規則在背景成長。它們會合作、破產、搶標、拉票、下黑手，甚至斷嗣——這不是等你觸發的劇本，而是一場會自己往前走的家族競爭沙盒。",
+    "supported_modes": {
+      "immersive": true,
+      "world": true
+    },
+    "supported_display": {
+      "text": true,
+      "ui": true
+    },
+    "published_at": "2026-10-04T16:41:00Z",
+    "updated_at": "2026-10-05T01:00:00Z",
+    "published_version": 1,
+    "version_published_at": "2026-10-05T01:00:00Z"
   }
 ]
