@@ -113,6 +113,8 @@ jobs:
         run: node tests/debt-cage-lu-shen-card.test.cjs
       - name: Lu Jingchen Cold Shell Desire card
         run: node tests/lu-jingchen-cold-shell-desire-card.test.cjs
+      - name: Lu Yan Rogue Devotion card
+        run: node tests/lu-yan-rogue-devotion-card.test.cjs
       - name: Heart Training Boyfriend Plan card
         run: node tests/heart-training-boyfriend-plan-card.test.cjs
       - name: Pheromone Bond ABO Simulator card
