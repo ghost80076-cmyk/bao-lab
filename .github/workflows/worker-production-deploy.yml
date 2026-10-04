@@ -34,6 +34,7 @@ jobs:
         run: |
           node --check workers/bao-lab-credits-api/worker.js
           node --check workers/bao-lab-credits-api/modules/account-validation.js
+          node --check workers/bao-lab-credits-api/modules/admin-auth.js
           node --check workers/bao-lab-credits-api/modules/chat-input.js
           node tests/worker-content-deploy-core.cjs
           node tests/worker-production-deploy-workflow-core.cjs
