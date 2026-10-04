@@ -4,9 +4,30 @@ const fs = require("node:fs");
 const path = require("node:path");
 
 const workerSource = loadWorkerTestSource();
+const workerEntrySource = fs.readFileSync(
+  path.join(__dirname, "../workers/bao-lab-credits-api/worker.js"),
+  "utf8"
+);
+const publicationModuleSource = fs.readFileSync(
+  path.join(
+    __dirname,
+    "../workers/bao-lab-credits-api/modules/publication-format.js"
+  ),
+  "utf8"
+);
 
 assert.match(
-  workerSource,
+  workerEntrySource,
+  /from "\.\/modules\/publication-format\.js";/,
+  "the Worker entry must import the extracted publication format module"
+);
+assert.doesNotMatch(
+  workerEntrySource,
+  /function prepareCharacterPublication\(/,
+  "publication format implementation must not remain duplicated in worker.js"
+);
+assert.match(
+  publicationModuleSource,
   /const WorkerPublicationFormat = \(\(\) => \{/,
   "publication validation and shaping helpers must stay grouped behind WorkerPublicationFormat"
 );
