@@ -23,6 +23,8 @@ assert.match(
 
 for (const watchedPath of [
   "workers/bao-lab-credits-api/worker.js",
+  "workers/bao-lab-credits-api/modules/**",
+  "workers/bao-lab-credits-api/deployment-manifest.json",
   "scripts/deploy-worker-content.cjs",
   ".github/workflows/worker-production-deploy.yml",
 ]) {
@@ -45,6 +47,12 @@ const auditIndex = source.indexOf("- name: Verify production security contract")
 assert.ok(verifyIndex >= 0, "pre-deploy verification step is missing");
 assert.ok(deployIndex > verifyIndex, "deployment must happen only after pre-deploy verification");
 assert.ok(auditIndex > deployIndex, "production security audit must run after deployment");
+
+assert.match(
+  source,
+  /YORUBAY_WORKER_MANIFEST:\s*workers\/bao-lab-credits-api\/deployment-manifest\.json/,
+  "production deployment must load the reviewed Worker module manifest"
+);
 
 assert.match(
   source,

@@ -2,7 +2,7 @@
 
 This file is the refactor map for `workers/bao-lab-credits-api/worker.js`.
 
-The current Worker is intentionally kept as a **single deployable file** because the production workflow still uploads one main module. Refactors must preserve that constraint until the same guarded workflow can validate, upload and roll back a multi-module Worker graph.
+The current Worker is intentionally kept as a **single deployable file**. The production workflow now loads a reviewed module manifest and can upload a validated module graph, but that manifest lists only `worker.js`. Refactors must preserve the single-file artifact until the guarded workflow has rehearsed rollback with the first physical extraction.
 
 The goal is therefore **behavior-preserving separation first, physical file extraction later**.
 
@@ -38,7 +38,6 @@ Each boundary was merged independently after its contract tests and the reposito
 
 ## Remaining work
 
-- Connect the guarded workflow to a reviewed module manifest. The deployment packager can now validate and encode a JavaScript module graph, while the production CLI deliberately continues to supply only `worker.js`.
 - Consolidate the browser catalog and the unknown production Worker base allowlist into a single model registry. Versioned deltas now generate one validated Cloudflare/AWS deployment plan, but cannot safely replace the external production base.
 - Rehearse rollback with the first multi-module candidate before allowing it to replace the single-file production artifact.
 
@@ -86,7 +85,7 @@ Until then, the project can reduce technical debt by clarifying boundaries, cons
 
 | Exit condition | Status |
 | --- | --- |
-| Automated Cloudflare module-graph deployment | Prepared: the packager accepts a validated JavaScript module graph; the guarded workflow still supplies only `worker.js` until the first extraction PR is reviewed |
+| Automated Cloudflare module-graph deployment | Complete: the guarded workflow loads a versioned manifest, validates its paths and uploads the declared graph; the manifest intentionally lists only `worker.js` today |
 | Deployment independent of dashboard copy/paste | Complete: watched Worker changes merged to `main` deploy automatically, with manual dispatch retained as a fallback |
 | Security, auth, billing and provider contract coverage | In place for the current named boundaries |
 | Documented rollback for a module deployment | Single-file procedure documented in `docs/worker-production-rollback.md`; multi-module rehearsal remains blocked |
