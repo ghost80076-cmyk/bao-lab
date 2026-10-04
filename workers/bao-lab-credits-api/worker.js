@@ -1266,10 +1266,30 @@ function awsOpenRouterPlayers(
   );
 }
 
+function awsOpenRouterRoutingEnabled(
+  env
+) {
+  return (
+    String(
+      env.AWS_OPENROUTER_ROUTING_ENABLED ||
+      ""
+    ).trim() ===
+    "1"
+  );
+}
+
 function playerUsesAwsOpenRouter(
   env,
   player
 ) {
+  if (
+    !awsOpenRouterRoutingEnabled(
+      env
+    )
+  ) {
+    return false;
+  }
+
   const allowed =
     awsOpenRouterPlayers(
       env
@@ -1405,6 +1425,7 @@ function sessionTtlDays(
     globalBillingMode,
     billingV2TestPlayers,
     awsOpenRouterPlayers,
+    awsOpenRouterRoutingEnabled,
     playerUsesAwsOpenRouter,
     billingModeForPlayer,
     registrationMode,
@@ -1417,6 +1438,7 @@ const {
   globalBillingMode,
   billingV2TestPlayers,
   awsOpenRouterPlayers,
+  awsOpenRouterRoutingEnabled,
   playerUsesAwsOpenRouter,
   billingModeForPlayer,
   registrationMode,
@@ -13526,6 +13548,18 @@ export default {
               awsOpenRouterPlayers(
                 env
               ).size,
+
+            aws_openrouter_routing_enabled:
+              awsOpenRouterRoutingEnabled(
+                env
+              ),
+
+            openrouter_route:
+              awsOpenRouterRoutingEnabled(
+                env
+              )
+                ? "selected_players_aws_relay"
+                : "direct",
 
             anthropic_configured:
               Boolean(
