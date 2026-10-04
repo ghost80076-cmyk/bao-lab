@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "type": "yorubay-author-regex-mod",
+  "scope": "assistant_display",
+  "characterId": "elze-survival-world",
+  "regex_scripts": [
+    {
+      "scriptName": "艾爾澤｜開場卷軸",
+      "description": "把世界開場標記轉成暖暗奇幻閱讀卡；只改顯示，不改 Prompt、記憶或世界狀態。",
+      "priority": 80,
+      "findRegex": "【YB:ELZE:OPENING】\\s*([\\s\\S]*?)\\s*【/YB:ELZE:OPENING】",
+      "flags": "g",
+      "replaceString": "<style>.yb-elze-opening{font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif;background:linear-gradient(145deg,#171715,#25221d);color:#f2eadc;border:1px solid #65543d;border-radius:18px;padding:20px;box-shadow:0 14px 34px rgba(0,0,0,.28);line-height:1.9;white-space:pre-wrap}.yb-elze-opening:before{content:\"ELZE CONTINENT · SURVIVAL RECORD\";display:block;color:#d1ad6f;font-size:12px;letter-spacing:.15em;margin-bottom:10px}</style><section class=\"yb-elze-opening\">$1</section>"
+    },
+    {
+      "scriptName": "艾爾澤｜危險公告",
+      "description": "把開場中的世界危險與懸賞情報整理成公告卡；實際世界狀態仍由原生 Gameplay UI 追蹤。",
+      "priority": 60,
+      "findRegex": "【YB:ELZE:NOTICE】\\s*([\\s\\S]*?)\\s*【/YB:ELZE:NOTICE】",
+      "flags": "g",
+      "replaceString": "<style>.yb-elze-notice{font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif;background:#211d19;color:#e8ddcb;border:1px solid #644938;border-left:3px solid #b56e52;border-radius:14px;padding:14px 16px;line-height:1.8;white-space:pre-wrap}.yb-elze-notice:before{content:\"⚔ 冒險者公會公開情報\";display:block;color:#d79a79;font-weight:700;margin-bottom:7px}</style><section class=\"yb-elze-notice\">$1</section>"
+    },
+    {
+      "scriptName": "艾爾澤｜覺醒儀式",
+      "description": "把預設開局的職業覺醒片段整理成魔法陣卡；角色建立與真正職業狀態由原生 Gameplay UI 管理。",
+      "priority": 40,
+      "findRegex": "【YB:ELZE:AWAKENING】\\s*([\\s\\S]*?)\\s*【/YB:ELZE:AWAKENING】",
+      "flags": "g",
+      "replaceString": "<style>.yb-elze-awakening{font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif;background:radial-gradient(circle at 50% 0,#2c2b28,#191918 70%);color:#eee8dc;border:1px solid #625f55;border-radius:16px;padding:16px 18px;line-height:1.85;white-space:pre-wrap}.yb-elze-awakening:before{content:\"✦ 職業覺醒\";display:block;color:#b9c8dd;font-weight:700;letter-spacing:.08em;margin-bottom:8px}</style><section class=\"yb-elze-awakening\">$1</section>"
+    }
+  ]
+}
