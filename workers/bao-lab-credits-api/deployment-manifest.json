@@ -5,6 +5,7 @@
     "modules/account-rate-limit.js",
     "modules/account-validation.js",
     "modules/admin-auth.js",
+    "modules/admin-publication-routes.js",
     "modules/author-profile-publication.js",
     "modules/chat-input.js",
     "modules/crypto.js",
