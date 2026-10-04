@@ -5,6 +5,8 @@ const DEFAULT_WORKER_PATH = path.join(
   __dirname,
   "../workers/bao-lab-credits-api/worker.js"
 );
+const DEFAULT_MAIN_MODULE = "worker.js";
+const JAVASCRIPT_MODULE_TYPE = "application/javascript+module";
 
 function required(value, name) {
   const normalized = String(value || "").trim();
@@ -42,11 +44,90 @@ function validateWorkerSource(source) {
   return text;
 }
 
+function validateWorkerModuleName(name) {
+  const normalized = String(name || "").trim();
+  if (!normalized) throw new Error("Worker module name is required");
+  if (normalized.length > 256) throw new Error("Worker module name is too long");
+  if (
+    !/^[a-z0-9][a-z0-9._/-]*$/i.test(normalized) ||
+    normalized.toLowerCase() === "metadata" ||
+    normalized.includes("//") ||
+    normalized.split("/").some(segment => segment === "." || segment === "..")
+  ) {
+    throw new Error(`Worker module name is unsafe: ${normalized}`);
+  }
+  return normalized;
+}
+
+function normalizeWorkerModules({
+  source,
+  modules,
+  mainModule = DEFAULT_MAIN_MODULE,
+}) {
+  const normalizedMainModule = validateWorkerModuleName(mainModule);
+  if (source !== undefined && modules !== undefined) {
+    throw new Error("Provide Worker source or modules, not both");
+  }
+
+  const inputModules = modules === undefined
+    ? [{ name: normalizedMainModule, content: source }]
+    : modules;
+  if (!Array.isArray(inputModules) || inputModules.length === 0) {
+    throw new Error("Worker module graph is empty");
+  }
+
+  const seen = new Set();
+  const normalizedModules = inputModules.map(module => {
+    const name = validateWorkerModuleName(module?.name);
+    if (seen.has(name)) throw new Error(`Duplicate Worker module: ${name}`);
+    seen.add(name);
+
+    const content = String(module?.content ?? "");
+    if (!content.trim()) throw new Error(`Worker module is empty: ${name}`);
+
+    return {
+      name,
+      content,
+      contentType: JAVASCRIPT_MODULE_TYPE,
+    };
+  });
+
+  const main = normalizedModules.find(module => module.name === normalizedMainModule);
+  if (!main) {
+    throw new Error(`Worker main module is missing: ${normalizedMainModule}`);
+  }
+  validateWorkerSource(main.content);
+
+  return {
+    mainModule: normalizedMainModule,
+    modules: normalizedModules,
+  };
+}
+
+function buildWorkerUploadBody(options) {
+  const graph = normalizeWorkerModules(options);
+  const body = new FormData();
+  body.append(
+    "metadata",
+    JSON.stringify({ main_module: graph.mainModule })
+  );
+  for (const module of graph.modules) {
+    body.append(
+      module.name,
+      new Blob([module.content], { type: module.contentType }),
+      module.name
+    );
+  }
+  return body;
+}
+
 async function deployWorkerContent({
   accountId,
   apiToken,
   workerName,
   source,
+  modules,
+  mainModule = DEFAULT_MAIN_MODULE,
   fetchImpl = globalThis.fetch,
 }) {
   if (typeof fetchImpl !== "function") {
@@ -54,18 +135,7 @@ async function deployWorkerContent({
   }
 
   const token = required(apiToken, "CLOUDFLARE_API_TOKEN");
-  const body = new FormData();
-  body.append(
-    "metadata",
-    JSON.stringify({ main_module: "worker.js" })
-  );
-  body.append(
-    "worker.js",
-    new Blob([validateWorkerSource(source)], {
-      type: "application/javascript+module",
-    }),
-    "worker.js"
-  );
+  const body = buildWorkerUploadBody({ source, modules, mainModule });
 
   const response = await fetchImpl(
     workerContentUrl(accountId, workerName),
@@ -125,7 +195,10 @@ if (require.main === module) {
 }
 
 module.exports = {
+  buildWorkerUploadBody,
   deployWorkerContent,
+  normalizeWorkerModules,
+  validateWorkerModuleName,
   validateWorkerSource,
   workerContentUrl,
 };

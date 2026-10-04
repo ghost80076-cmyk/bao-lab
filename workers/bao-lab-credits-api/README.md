@@ -39,10 +39,11 @@ started manually. These GitHub Actions repository secrets are required:
 - `CLOUDFLARE_API_TOKEN` scoped to this account with Workers Scripts Write
 - `CLOUDFLARE_WORKER_NAME` (`bao-lab-credits-api` for the current Worker script)
 
-The path filter deliberately excludes frontend-only changes. The current
-packager uploads `worker.js` as one main module; do not physically extract the
-Worker boundaries into separate files until module-graph packaging has its own
-contract tests and a supervised rollback rehearsal. Follow
+The path filter deliberately excludes frontend-only changes. The deployment
+packager can validate and encode multiple JavaScript modules, but the production
+CLI deliberately continues to upload only `worker.js`. Do not physically extract
+the Worker boundaries into separate files until a reviewed module manifest is
+connected to the workflow and a supervised rollback rehearsal passes. Follow
 [`docs/worker-production-rollback.md`](../../docs/worker-production-rollback.md)
 if a deployed Worker change must be reverted.
 
