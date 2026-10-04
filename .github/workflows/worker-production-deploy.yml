@@ -34,13 +34,13 @@ jobs:
           node tests/worker-account-rate-limit-core.cjs
           node tests/worker-account-auth-core.cjs
           node tests/worker-provider-transport-core.cjs
-      - name: Resolve one-time Cloudflare deploy target
+      - name: Resolve target and replace production Worker content
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          GITHUB_ENV_PATH: ${{ github.env }}
         run: |
           node <<'NODE'
           const fs = require("node:fs");
+          const { deployWorkerContent } = require("./scripts/deploy-worker-content.cjs");
           (async () => {
             const token = String(process.env.CLOUDFLARE_API_TOKEN || "").trim();
             if (!token) throw new Error("CLOUDFLARE_API_TOKEN is required");
@@ -55,17 +55,18 @@ jobs:
             if (accounts.length !== 1 || !/^[a-f0-9]{32}$/i.test(String(accounts[0]?.id || ""))) {
               throw new Error(`Cloudflare account discovery expected exactly one accessible account (found ${accounts.length})`);
             }
-            fs.appendFileSync(process.env.GITHUB_ENV_PATH, `CLOUDFLARE_ACCOUNT_ID=${accounts[0].id}\n`);
-            fs.appendFileSync(process.env.GITHUB_ENV_PATH, "CLOUDFLARE_WORKER_NAME=yorubay-credits-pilot\n");
-            console.log("Cloudflare deployment target resolved without exposing account details.");
+            const source = fs.readFileSync("workers/bao-lab-credits-api/worker.js", "utf8");
+            const result = await deployWorkerContent({
+              accountId: accounts[0].id,
+              apiToken: token,
+              workerName: "yorubay-credits-pilot",
+              source
+            });
+            console.log(`Cloudflare Worker content deployed successfully (HTTP ${result.status})`);
           })().catch(error => {
             console.error(error.message);
             process.exitCode = 1;
           });
           NODE
-      - name: Replace production Worker content
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-        run: node scripts/deploy-worker-content.cjs
       - name: Verify production security contract
         run: npm run audit:production-security
