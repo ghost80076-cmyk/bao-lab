@@ -188,11 +188,48 @@ const jsonResponse = (body, status = 200) =>
     assert.equal(orRequest.init.headers.authorization, "Bearer or-secret");
     assert.equal(orRequest.body.model, "openai/test-model");
     assert.equal(orRequest.body.session_id, "story:session-1");
+    assert.equal(orRequest.body.messages[0].content, "system");
     assert.equal(orRequest.body.max_tokens, 512);
     assert.equal(orRequest.body.stream, false);
     assert.deepEqual(orRequest.body.usage, { include: true });
     assert.equal(orRequest.body.provider.max_price.prompt, 0.1);
     assert.equal(orRequest.body.provider.max_price.completion, 0.2);
+
+    const claudeDirect = await providerCall(
+      {
+        OPENROUTER_API_KEY: "or-secret",
+        MODELS_JSON: JSON.stringify([{
+          provider: "openrouter",
+          model: "anthropic/claude-sonnet-4.5",
+          input_microusd_per_million: 3000000,
+          output_microusd_per_million: 15000000,
+        }]),
+      },
+      "openrouter",
+      "anthropic/claude-sonnet-4.5",
+      messages,
+      512,
+      null,
+      "story:claude-cache"
+    );
+
+    assert.equal(claudeDirect.ok, true);
+
+    const claudeRequest = requests.find(
+      item => item.url === "https://openrouter.ai/api/v1/chat/completions" &&
+        item.body?.model === "anthropic/claude-sonnet-4.5"
+    );
+    assert.ok(claudeRequest);
+    assert.equal(claudeRequest.body.session_id, "story:claude-cache");
+    assert.deepEqual(
+      claudeRequest.body.messages[0].content,
+      [{
+        type: "text",
+        text: "system",
+        cache_control: { type: "ephemeral" },
+      }]
+    );
+    assert.equal(claudeRequest.body.messages[1].content, "hello");
 
     const directTooLarge = await providerCall(
       {
@@ -241,6 +278,23 @@ const jsonResponse = (body, status = 200) =>
     assert.equal(relayTooLarge.upstreamStatus, 413);
     assert.equal(relayTooLarge.route, "aws_relay");
     assert.ok(relayTooLarge.requestBytes > 0);
+
+    const relayClaudeRequest = requests.find(
+      item => item.url === "https://relay.example/v1/chat" &&
+        item.body?.provider === "openrouter" &&
+        item.body?.model === "anthropic/claude-sonnet-4.6"
+    );
+    assert.ok(relayClaudeRequest);
+    assert.equal(relayClaudeRequest.body.session_id, "story:session-413");
+    assert.deepEqual(
+      relayClaudeRequest.body.messages[0].content,
+      [{
+        type: "text",
+        text: "system",
+        cache_control: { type: "ephemeral" },
+      }]
+    );
+    assert.equal(relayClaudeRequest.body.messages[1].content, "hello");
 
     const relayFailure = providerFailureResponse(
       relayTooLarge,
