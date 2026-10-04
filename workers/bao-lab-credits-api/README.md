@@ -478,4 +478,4 @@ Only after both checks pass should the browser catalog be merged and deployed.
 
 ## Refactor safety map
 
-The current Worker uses a reviewed module manifest and keeps all but the extracted account-rate-limit, account-validation, chat-input, admin-auth, admin-publication-routes, author-profile-publication, publication-format, GitHub-publication-transport, runtime-config, crypto and HTTP boundaries in `worker.js`. The responsibility boundaries and safe refactor order are documented in [`docs/worker-architecture-boundaries.md`](../../docs/worker-architecture-boundaries.md).
+The current Worker uses a reviewed module manifest and keeps all but the extracted account-rate-limit, account-validation, chat-input, admin-auth, admin-publication-routes, admin-usage-routes, author-profile-publication, publication-format, GitHub-publication-transport, runtime-config, crypto and HTTP boundaries in `worker.js`. The responsibility boundaries and safe refactor order are documented in [`docs/worker-architecture-boundaries.md`](../../docs/worker-architecture-boundaries.md).
