@@ -6,6 +6,8 @@ on:
       - main
     paths:
       - workers/bao-lab-credits-api/worker.js
+      - workers/bao-lab-credits-api/modules/**
+      - workers/bao-lab-credits-api/deployment-manifest.json
       - scripts/deploy-worker-content.cjs
       - .github/workflows/worker-production-deploy.yml
   workflow_dispatch:
@@ -43,6 +45,7 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_WORKER_NAME: ${{ secrets.CLOUDFLARE_WORKER_NAME }}
+          YORUBAY_WORKER_MANIFEST: workers/bao-lab-credits-api/deployment-manifest.json
         run: node scripts/deploy-worker-content.cjs
       - name: Verify production security contract
         run: npm run audit:production-security

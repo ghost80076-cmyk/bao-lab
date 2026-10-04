@@ -1,9 +1,14 @@
 const assert = require("node:assert/strict");
+const fs = require("node:fs");
+const os = require("node:os");
+const path = require("node:path");
 
 const {
   buildWorkerUploadBody,
   deployWorkerContent,
+  loadWorkerModuleManifest,
   normalizeWorkerModules,
+  parseWorkerModuleManifest,
   validateWorkerModuleName,
   validateWorkerSource,
   workerContentUrl,
@@ -35,6 +40,115 @@ for (const unsafeName of [
 ]) {
   assert.throws(() => validateWorkerModuleName(unsafeName), /unsafe/);
 }
+
+assert.deepEqual(
+  parseWorkerModuleManifest(JSON.stringify({
+    schema_version: 1,
+    main_module: "worker.js",
+    modules: ["worker.js", "modules/health.js"],
+  })),
+  {
+    mainModule: "worker.js",
+    modules: ["modules/health.js", "worker.js"],
+  }
+);
+assert.throws(
+  () => parseWorkerModuleManifest("not JSON"),
+  /invalid JSON/
+);
+assert.throws(
+  () => parseWorkerModuleManifest(JSON.stringify({
+    schema_version: 2,
+    main_module: "worker.js",
+    modules: ["worker.js"],
+  })),
+  /schema_version must be 1/
+);
+assert.throws(
+  () => parseWorkerModuleManifest(JSON.stringify({
+    schema_version: 1,
+    main_module: "worker.js",
+    modules: ["worker.js", "worker.js"],
+  })),
+  /Duplicate Worker manifest module/
+);
+assert.throws(
+  () => parseWorkerModuleManifest(JSON.stringify({
+    schema_version: 1,
+    main_module: "worker.js",
+    modules: ["../worker.js"],
+  })),
+  /unsafe/
+);
+assert.throws(
+  () => parseWorkerModuleManifest(JSON.stringify({
+    schema_version: 1,
+    main_module: "worker.js",
+    modules: ["worker.js"],
+    deploy_everything: true,
+  })),
+  /unsupported field/
+);
+
+const fixtureDirectory = fs.mkdtempSync(
+  path.join(os.tmpdir(), "worker-deployment-manifest-")
+);
+fs.mkdirSync(path.join(fixtureDirectory, "modules"));
+fs.writeFileSync(
+  path.join(fixtureDirectory, "worker.js"),
+  "import { ok } from './modules/health.js'; export default { fetch: ok };"
+);
+fs.writeFileSync(
+  path.join(fixtureDirectory, "modules/health.js"),
+  "export function ok() { return new Response('ok'); }"
+);
+const fixtureManifestPath = path.join(fixtureDirectory, "deployment-manifest.json");
+fs.writeFileSync(
+  fixtureManifestPath,
+  JSON.stringify({
+    schema_version: 1,
+    main_module: "worker.js",
+    modules: ["worker.js", "modules/health.js"],
+  })
+);
+const fixtureGraph = loadWorkerModuleManifest(fixtureManifestPath);
+assert.equal(fixtureGraph.mainModule, "worker.js");
+assert.deepEqual(
+  fixtureGraph.modules.map(module => module.name),
+  ["modules/health.js", "worker.js"]
+);
+
+fs.writeFileSync(
+  fixtureManifestPath,
+  JSON.stringify({
+    schema_version: 1,
+    main_module: "worker.js",
+    modules: ["worker.js", "modules/missing.js"],
+  })
+);
+assert.throws(
+  () => loadWorkerModuleManifest(fixtureManifestPath),
+  /module is missing: modules\/missing\.js/
+);
+fs.rmSync(fixtureDirectory, { recursive: true, force: true });
+
+const productionWorkerDirectory = path.join(
+  __dirname,
+  "../workers/bao-lab-credits-api"
+);
+const productionGraph = loadWorkerModuleManifest(
+  path.join(productionWorkerDirectory, "deployment-manifest.json")
+);
+assert.equal(productionGraph.mainModule, "worker.js");
+assert.deepEqual(
+  productionGraph.modules.map(module => module.name),
+  ["worker.js"],
+  "production must remain a single-file Worker until rollback rehearsal passes"
+);
+assert.equal(
+  productionGraph.modules[0].content,
+  fs.readFileSync(path.join(productionWorkerDirectory, "worker.js"), "utf8")
+);
 
 const moduleBody = buildWorkerUploadBody({
   mainModule: "worker.js",
