@@ -193,6 +193,29 @@ const dbWithOverride = routeId => ({
     "provider spend must only use USD billing records"
   );
 
+  const providerSpendStart = workerSource.indexOf(
+    "async function providerCumulativeSpendMicrousd("
+  );
+  const providerSpendEnd = workerSource.indexOf(
+    "async function providerControlSnapshot(",
+    providerSpendStart
+  );
+  const providerSpendSource = workerSource.slice(
+    providerSpendStart,
+    providerSpendEnd
+  );
+
+  assert.match(
+    providerSpendSource,
+    /WHEN provider_cost_microusd IS NOT NULL[^]*THEN provider_cost_microusd/,
+    "known upstream provider cost must be counted even when player settlement was refunded"
+  );
+  assert.doesNotMatch(
+    providerSpendSource,
+    /WHERE[^]*billing_mode = \?[^]*AND status IN/,
+    "provider balance tracking must not discard refunded or unverified rows with known upstream cost"
+  );
+
   const adminHtml = fs.readFileSync(
     path.join(root, "admin-wallet.html"),
     "utf8"
@@ -209,6 +232,14 @@ const dbWithOverride = routeId => ({
   assert.match(
     adminHtml,
     /重新校正目前官方餘額/
+  );
+  assert.match(
+    adminHtml,
+    /估算剩餘（非即時）/
+  );
+  assert.match(
+    adminHtml,
+    /玩家已退款但供應商已計費/
   );
   assert.match(
     adminHtml,

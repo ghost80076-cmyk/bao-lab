@@ -291,8 +291,10 @@ The authenticated `admin-wallet.html` page can manage two owner-side concerns wi
 1. **Provider balance anchors** for `gemini` and `openrouter`.
    - The admin enters the provider's current real balance in USD and a low-balance warning threshold.
    - The Worker stores that balance together with the cumulative YoruBay USD-billing spend at that moment.
-   - Future estimated remaining balance is calculated as `anchor balance - YoruBay provider spend since the anchor`.
-   - This is an internal estimate, not a live query to Google or OpenRouter. Re-anchor whenever the upstream account is topped up or manually adjusted.
+   - Provider spend follows known upstream cost first. If a provider reports a real cost for a request that YoruBay later refunds because usage could not be verified, that upstream cost still reduces the provider-pool estimate without charging the player again.
+   - When no provider-reported cost is available, only settled `ok` / `over_budget` rows fall back to YoruBay's calculated cost.
+   - Future estimated remaining balance is calculated as `anchor balance - YoruBay known upstream spend since the anchor`.
+   - This is an internal estimate, not a live query to Google or OpenRouter. External API-key usage, provider rounding, or missing upstream cost metadata can still create drift. Re-anchor whenever the upstream account is topped up or manually adjusted.
 
 2. **Hosted Gemini route overrides**.
    - `gemini-3-flash-preview` and `gemini-3.1-pro-preview` default to the existing Google Gemini route.
