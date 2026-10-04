@@ -2,7 +2,7 @@
 
 This file is the refactor map for `workers/bao-lab-credits-api/worker.js`.
 
-The current Worker is intentionally kept as a **single deployable file** because the present operational flow still supports single-file Cloudflare deployment. Refactors must preserve that constraint until deployment is automated for a multi-module Worker.
+The current Worker is intentionally kept as a **single deployable file** because the production workflow still uploads one main module. Refactors must preserve that constraint until the same guarded workflow can validate, upload and roll back a multi-module Worker graph.
 
 The goal is therefore **behavior-preserving separation first, physical file extraction later**.
 
@@ -38,9 +38,9 @@ Each boundary was merged independently after its contract tests and the reposito
 
 ## Remaining work
 
-- Automate Cloudflare Worker module-graph deployment and document rollback before extracting files.
+- Extend the guarded deployment packager from one main module to a validated module graph before extracting files.
 - Consolidate the browser catalog and the unknown production Worker base allowlist into a single model registry. Versioned deltas now generate one validated Cloudflare/AWS deployment plan, but cannot safely replace the external production base.
-- Promote the guarded content-only production workflow from manual dispatch to automatic deployment only after a supervised credentialed run has passed.
+- Rehearse rollback with the first multi-module candidate before allowing it to replace the single-file production artifact.
 
 ## Non-negotiable compatibility rules
 
@@ -86,9 +86,9 @@ Until then, the project can reduce technical debt by clarifying boundaries, cons
 
 | Exit condition | Status |
 | --- | --- |
-| Automated Cloudflare module-graph deployment | Blocked: the guarded workflow currently replaces only the single-file module content |
-| Deployment independent of dashboard copy/paste | Prepared: manual GitHub workflow awaits a supervised credentialed run |
+| Automated Cloudflare module-graph deployment | Blocked: the guarded workflow currently uploads only `worker.js` as the main module |
+| Deployment independent of dashboard copy/paste | Complete: watched Worker changes merged to `main` deploy automatically, with manual dispatch retained as a fallback |
 | Security, auth, billing and provider contract coverage | In place for the current named boundaries |
-| Documented rollback for a module deployment | Partial: Cloudflare Worker Versions covers the single-file workflow; multi-module rollback remains blocked |
+| Documented rollback for a module deployment | Single-file procedure documented in `docs/worker-production-rollback.md`; multi-module rehearsal remains blocked |
 
-Therefore `worker.js` must remain the production-compatible single-file artifact. A GitHub merge is source control only and must not be described as a Cloudflare production deployment.
+Therefore `worker.js` must remain the production-compatible single-file artifact. A GitHub merge is source control only unless it changes a path watched by `worker-production-deploy.yml`; watched changes now trigger the guarded production deployment automatically.

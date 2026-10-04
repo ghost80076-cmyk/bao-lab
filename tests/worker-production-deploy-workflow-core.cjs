@@ -6,6 +6,14 @@ const source = fs.readFileSync(
   path.join(__dirname, "../.github/workflows/worker-production-deploy.yml"),
   "utf8"
 );
+const workerReadme = fs.readFileSync(
+  path.join(__dirname, "../workers/bao-lab-credits-api/README.md"),
+  "utf8"
+);
+const rollbackRunbook = fs.readFileSync(
+  path.join(__dirname, "../docs/worker-production-rollback.md"),
+  "utf8"
+);
 
 assert.match(
   source,
@@ -42,6 +50,32 @@ assert.match(
   source,
   /group: production-worker\s*\n\s*cancel-in-progress: false/,
   "production deployments must remain serialized"
+);
+
+assert.match(
+  workerReadme,
+  /automatically deployed after they are merged to `main`/,
+  "Worker documentation must describe the active auto-deploy contract"
+);
+assert.doesNotMatch(
+  workerReadme,
+  /GitHub does \*\*not\*\* automatically deploy/,
+  "Worker documentation must not retain the retired manual-only contract"
+);
+
+for (const healthUrl of [
+  "https://api.yorubay.com/health",
+  "https://bao-lab-credits-api.ghost80076.workers.dev/health",
+]) {
+  assert.ok(
+    rollbackRunbook.includes(healthUrl),
+    "rollback runbook must verify " + healthUrl
+  );
+}
+assert.match(
+  rollbackRunbook,
+  /npm run audit:production-security/,
+  "rollback runbook must require the production security audit"
 );
 
 console.log("production Worker auto-deploy workflow contract passed");
