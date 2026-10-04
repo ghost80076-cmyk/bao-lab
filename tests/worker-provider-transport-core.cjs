@@ -50,6 +50,9 @@ const jsonResponse = (body, status = 200) =>
       requests.push({ url: String(url), init, body });
 
       if (String(url) === "https://openrouter.ai/api/v1/chat/completions") {
+        if (body?.model === "openai/too-large") {
+          return jsonResponse({ error: { message: "payload too large" } }, 413);
+        }
         return jsonResponse({
           choices: [{ message: { content: "OpenRouter OK" } }],
           usage: {
@@ -63,6 +66,9 @@ const jsonResponse = (body, status = 200) =>
       }
 
       if (String(url) === "https://relay.example/v1/chat") {
+        if (body?.provider === "openrouter") {
+          return jsonResponse({ error: "request_too_large" }, 413);
+        }
         return jsonResponse({
           candidates: [{ content: { parts: [{ text: "Gemini OK" }] }, finishReason: "STOP" }],
           usageMetadata: {
@@ -133,6 +139,66 @@ const jsonResponse = (body, status = 200) =>
     assert.deepEqual(orRequest.body.usage, { include: true });
     assert.equal(orRequest.body.provider.max_price.prompt, 0.1);
     assert.equal(orRequest.body.provider.max_price.completion, 0.2);
+
+    const directTooLarge = await providerCall(
+      {
+        OPENROUTER_API_KEY: "or-secret",
+      },
+      "openrouter",
+      "openai/too-large",
+      messages,
+      512
+    );
+
+    assert.equal(directTooLarge.ok, false);
+    assert.equal(directTooLarge.category, "provider_request_too_large");
+    assert.equal(directTooLarge.upstreamStatus, 413);
+    assert.equal(directTooLarge.route, "direct_openrouter");
+    assert.ok(directTooLarge.requestBytes > 0);
+
+    const directFailure = providerFailureResponse(
+      directTooLarge,
+      "req-direct-413"
+    );
+    const directFailureBody = await directFailure.json();
+    assert.equal(directFailure.status, 502);
+    assert.equal(directFailureBody.error, "provider_request_too_large");
+    assert.equal(directFailureBody.route, "direct_openrouter");
+    assert.equal(directFailureBody.upstream_http_status, 413);
+    assert.equal(directFailureBody.request_bytes, directTooLarge.requestBytes);
+    assert.equal(directFailureBody.request_id, "req-direct-413");
+
+    const relayTooLarge = await providerCall(
+      {
+        AWS_RELAY_URL: "https://relay.example",
+        BAO_INTERNAL_TOKEN: "relay-secret",
+        AWS_OPENROUTER_PLAYERS: "P1",
+      },
+      "openrouter",
+      "anthropic/claude-sonnet-4.6",
+      messages,
+      512,
+      { id: "P1" },
+      "story:session-413"
+    );
+
+    assert.equal(relayTooLarge.ok, false);
+    assert.equal(relayTooLarge.category, "relay_request_too_large");
+    assert.equal(relayTooLarge.upstreamStatus, 413);
+    assert.equal(relayTooLarge.route, "aws_relay");
+    assert.ok(relayTooLarge.requestBytes > 0);
+
+    const relayFailure = providerFailureResponse(
+      relayTooLarge,
+      "req-relay-413"
+    );
+    const relayFailureBody = await relayFailure.json();
+    assert.equal(relayFailure.status, 502);
+    assert.equal(relayFailureBody.error, "relay_request_too_large");
+    assert.equal(relayFailureBody.route, "aws_relay");
+    assert.equal(relayFailureBody.upstream_http_status, 413);
+    assert.equal(relayFailureBody.request_bytes, relayTooLarge.requestBytes);
+    assert.equal(relayFailureBody.request_id, "req-relay-413");
 
     const gemini = await providerCall(
       {
