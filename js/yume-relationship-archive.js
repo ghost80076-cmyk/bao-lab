@@ -71,6 +71,7 @@
 #bao-yume-archive .y-note{font-size:12px;color:#c6aec1;line-height:1.6}
 @media(min-width:680px){#bao-yume-archive .y-people{grid-template-columns:repeat(6,minmax(0,1fr))}}
 @media(max-width:480px){#bao-yume-archive .y-panel{padding:10px}#bao-yume-archive .y-network{max-width:280px}}
+@media(max-width:820px){#bao-yume-archive:has(.y-panel){max-height:calc(100dvh - 190px);overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;touch-action:pan-y;padding-bottom:env(safe-area-inset-bottom,0px)}#bao-yume-archive .y-panel{min-height:0}}
 `;
     doc.head.appendChild(css);
   }
