@@ -85,6 +85,11 @@ assert.match(
 );
 assert.match(
   source,
+  /node --check workers\/bao-lab-credits-api\/modules\/author-ownership\.js/,
+  "the extracted author ownership module must pass syntax validation before deployment"
+);
+assert.match(
+  source,
   /node --check workers\/bao-lab-credits-api\/modules\/chat-input\.js/,
   "the extracted chat input module must pass syntax validation before deployment"
 );

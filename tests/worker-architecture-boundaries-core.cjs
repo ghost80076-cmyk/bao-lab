@@ -115,6 +115,11 @@ assert.equal(
   1,
   "the extracted admin usage routes boundary must exist exactly once"
 );
+assert.equal(
+  actual.filter(boundary => boundary === "WorkerAuthorOwnership").length,
+  1,
+  "the extracted author ownership boundary must exist exactly once"
+);
 
 const architecture = fs.readFileSync(
   path.join(__dirname, "../docs/worker-architecture-boundaries.md"),

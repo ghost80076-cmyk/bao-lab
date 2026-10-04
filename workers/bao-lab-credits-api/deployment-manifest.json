@@ -8,6 +8,7 @@
     "modules/admin-publication-routes.js",
     "modules/admin-usage-routes.js",
     "modules/author-profile-publication.js",
+    "modules/author-ownership.js",
     "modules/chat-input.js",
     "modules/crypto.js",
     "modules/github-publication-transport.js",

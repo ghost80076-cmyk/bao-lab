@@ -4,9 +4,30 @@ const fs = require("node:fs");
 const path = require("node:path");
 
 const workerSource = loadWorkerTestSource();
+const workerEntrySource = fs.readFileSync(
+  path.join(__dirname, "../workers/bao-lab-credits-api/worker.js"),
+  "utf8"
+);
+const ownershipModuleSource = fs.readFileSync(
+  path.join(
+    __dirname,
+    "../workers/bao-lab-credits-api/modules/author-ownership.js"
+  ),
+  "utf8"
+);
 
 assert.match(
-  workerSource,
+  workerEntrySource,
+  /from "\.\/modules\/author-ownership\.js";/,
+  "the Worker entry must import the extracted author ownership module"
+);
+assert.doesNotMatch(
+  workerEntrySource,
+  /function prepareAuthorIdentityClaim\(/,
+  "author ownership implementation must not remain duplicated in worker.js"
+);
+assert.match(
+  ownershipModuleSource,
   /const WorkerAuthorOwnership = \(\(\) => \{/,
   "author identity persistence and claim helpers must stay grouped behind WorkerAuthorOwnership"
 );
