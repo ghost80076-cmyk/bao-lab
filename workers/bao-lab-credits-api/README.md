@@ -42,10 +42,10 @@ started manually. These GitHub Actions repository secrets are required:
 The path filter deliberately excludes frontend-only changes. The deployment
 packager loads the versioned `deployment-manifest.json`, rejects unsafe or
 missing module paths and uploads the listed JavaScript module graph in a
-deterministic order. The reviewed manifest currently lists only `worker.js`, so
-the production artifact and behavior remain single-file. Do not physically
-extract the Worker boundaries into separate files until a supervised rollback
-rehearsal passes. Follow
+deterministic order. The first physical extraction moves only the pure
+`WorkerAccountValidation` boundary into `modules/account-validation.js`; the
+main entry remains `worker.js`. Do not extract another boundary until this
+two-module deployment completes a supervised rollback rehearsal. Follow
 [`docs/worker-production-rollback.md`](../../docs/worker-production-rollback.md)
 if a deployed Worker change must be reverted.
 
@@ -474,4 +474,4 @@ Only after both checks pass should the browser catalog be merged and deployed.
 
 ## Refactor safety map
 
-The current Worker remains single-file for deployment compatibility. The responsibility boundaries and safe refactor order are documented in [`docs/worker-architecture-boundaries.md`](../../docs/worker-architecture-boundaries.md).
+The current Worker uses a reviewed module manifest and keeps all but the first pure account-validation boundary in `worker.js`. The responsibility boundaries and safe refactor order are documented in [`docs/worker-architecture-boundaries.md`](../../docs/worker-architecture-boundaries.md).

@@ -1,14 +1,22 @@
 const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
+const {
+  loadWorkerModuleManifest,
+} = require("../scripts/deploy-worker-content.cjs");
 
-const workerSource = fs.readFileSync(
-  path.join(__dirname, "../workers/bao-lab-credits-api/worker.js"),
-  "utf8"
+const workerDirectory = path.join(
+  __dirname,
+  "../workers/bao-lab-credits-api"
 );
-
-const actual = [...workerSource.matchAll(/^const (Worker[A-Za-z0-9]+) = \(\(\) => \{/gm)]
-  .map(match => match[1]);
+const graph = loadWorkerModuleManifest(
+  path.join(workerDirectory, "deployment-manifest.json")
+);
+const actual = graph.modules.flatMap(module => [
+  ...module.content.matchAll(
+    /^const (Worker[A-Za-z0-9]+) = (?:\(\(\) => \{|Object\.freeze\()/gm
+  ),
+]).map(match => match[1]);
 
 const expected = [
   "WorkerHttp",
@@ -42,9 +50,15 @@ const expected = [
 ];
 
 assert.deepEqual(
-  actual,
-  expected,
-  "worker boundary additions, removals or reorderings must update the architecture map deliberately"
+  [...actual].sort(),
+  [...expected].sort(),
+  "worker boundary additions or removals must update the architecture map deliberately"
+);
+
+assert.equal(
+  actual.filter(boundary => boundary === "WorkerAccountValidation").length,
+  1,
+  "the extracted account validation boundary must exist exactly once"
 );
 
 const architecture = fs.readFileSync(

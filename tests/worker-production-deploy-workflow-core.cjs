@@ -53,6 +53,11 @@ assert.match(
   /YORUBAY_WORKER_MANIFEST:\s*workers\/bao-lab-credits-api\/deployment-manifest\.json/,
   "production deployment must load the reviewed Worker module manifest"
 );
+assert.match(
+  source,
+  /node --check workers\/bao-lab-credits-api\/modules\/account-validation\.js/,
+  "the extracted account validation module must pass syntax validation before deployment"
+);
 
 assert.match(
   source,

@@ -1,15 +1,34 @@
 const assert = require("node:assert/strict");
+const { loadWorkerTestSource } = require("./helpers/worker-test-source.cjs");
 const fs = require("node:fs");
 const path = require("node:path");
 
-const source = fs.readFileSync(
+const source = loadWorkerTestSource();
+const workerSource = fs.readFileSync(
   path.join(__dirname, "../workers/bao-lab-credits-api/worker.js"),
+  "utf8"
+);
+const moduleSource = fs.readFileSync(
+  path.join(
+    __dirname,
+    "../workers/bao-lab-credits-api/modules/account-validation.js"
+  ),
   "utf8"
 );
 
 assert.match(
-  source,
-  /const WorkerAccountValidation = \(\(\) => \{/,
+  workerSource,
+  /from "\.\/modules\/account-validation\.js";/,
+  "the Worker entry must import the extracted account validation module"
+);
+assert.doesNotMatch(
+  workerSource,
+  /function validUsername\(/,
+  "account validation implementation must not remain duplicated in worker.js"
+);
+assert.match(
+  moduleSource,
+  /const WorkerAccountValidation = Object\.freeze\(/,
   "account input normalization must stay behind WorkerAccountValidation"
 );
 

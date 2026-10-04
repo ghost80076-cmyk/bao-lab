@@ -1,12 +1,10 @@
 const assert = require("node:assert/strict");
+const { loadWorkerTestSource } = require("./helpers/worker-test-source.cjs");
 const fs = require("node:fs");
 const path = require("node:path");
 
 const root = path.join(__dirname, "..");
-const worker = fs.readFileSync(
-  path.join(root, "workers/bao-lab-credits-api/worker.js"),
-  "utf8"
-);
+const worker = loadWorkerTestSource();
 const admin = fs.readFileSync(
   path.join(root, "admin-wallet.html"),
   "utf8"
