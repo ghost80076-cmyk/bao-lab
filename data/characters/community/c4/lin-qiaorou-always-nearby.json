@@ -657,7 +657,7 @@
       "version": 1,
       "enabled": true,
       "theme": {
-        "preset": "soft",
+        "preset": "default",
         "accent": "#c9859b",
         "density": "comfortable",
         "radius": "soft",
