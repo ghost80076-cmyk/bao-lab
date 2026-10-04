@@ -91,6 +91,8 @@ jobs:
         run: node tests/aetheria-three-factions-card.test.cjs
       - name: Elze Survival World card
         run: node tests/elze-survival-world-card.test.cjs
+      - name: Xinglan Academy card
+        run: node tests/xinglan-academy-card.test.cjs
       - name: Dark Military War Simulator card
         run: node tests/dark-military-war-simulator-card.test.cjs
       - name: Craftsman Ming Survival TRPG card
