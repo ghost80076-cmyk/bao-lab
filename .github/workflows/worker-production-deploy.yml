@@ -2,10 +2,6 @@ name: Deploy production Worker
 
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths:
-      - ".github/workflows/worker-production-deploy.yml"
 
 permissions:
   contents: read
