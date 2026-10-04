@@ -1246,5 +1246,45 @@
     "updated_at": "2026-10-04T17:44:00Z",
     "published_version": 1,
     "version_published_at": "2026-10-04T17:44:00Z"
+  },
+  {
+    "id": "lin-qiaorou-always-nearby",
+    "file": "data/characters/community/c4/lin-qiaorou-always-nearby.json",
+    "name": "林巧柔｜她總是剛好在你身邊",
+    "title": "林巧柔｜她總是剛好在你身邊",
+    "avatar": "https://i.meee.com.tw/uF0mMWA.jpg",
+    "category": "male",
+    "rating": "adult",
+    "gender": "female",
+    "tags": [
+      "男性向",
+      "青梅竹馬",
+      "大學日常",
+      "病態依戀",
+      "病嬌",
+      "慢燒懸疑",
+      "佔有慾",
+      "控制慾",
+      "監控疑雲",
+      "修羅場",
+      "自主NPC",
+      "資訊隔離",
+      "多結局",
+      "原生狀態UI",
+      "Builder開局"
+    ],
+    "description": "每天早上七點十分，她總能剛好出現在門口；你喜歡吃什麼、幾點有課、最近和誰走得近，她似乎都記得。林巧柔是和你一起長大的青梅竹馬，也是最熟悉你生活的人。問題只在於——有些事情，你從來不記得告訴過她。男性向青梅竹馬 × 慢燒病嬌 × 日常懸疑 × 關係拉扯。",
+    "supported_modes": {
+      "immersive": true,
+      "world": true
+    },
+    "supported_display": {
+      "text": true,
+      "ui": true
+    },
+    "published_at": "2026-10-04T18:00:00Z",
+    "updated_at": "2026-10-04T18:00:00Z",
+    "published_version": 1,
+    "version_published_at": "2026-10-04T18:00:00Z"
   }
 ]
