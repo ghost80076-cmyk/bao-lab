@@ -4,10 +4,31 @@ const fs = require("node:fs");
 const path = require("node:path");
 
 const source = loadWorkerTestSource();
+const workerSource = fs.readFileSync(
+  path.join(__dirname, "../workers/bao-lab-credits-api/worker.js"),
+  "utf8"
+);
+const moduleSource = fs.readFileSync(
+  path.join(
+    __dirname,
+    "../workers/bao-lab-credits-api/modules/chat-input.js"
+  ),
+  "utf8"
+);
 
 assert.match(
-  source,
-  /const WorkerChatInput = \(\(\) => \{/,
+  workerSource,
+  /from "\.\/modules\/chat-input\.js";/,
+  "the Worker entry must import the extracted chat input module"
+);
+assert.doesNotMatch(
+  workerSource,
+  /function normalizeMessages\(/,
+  "chat input implementation must not remain duplicated in worker.js"
+);
+assert.match(
+  moduleSource,
+  /const WorkerChatInput = Object\.freeze\(/,
   "chat payload validation must stay behind WorkerChatInput"
 );
 
