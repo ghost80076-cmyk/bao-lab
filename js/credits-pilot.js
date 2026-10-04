@@ -336,6 +336,8 @@
         invalid_request_or_model_not_allowed: "模型未開放或故事內容不符合測試版限制；請確認 Worker 的 MODELS_JSON 已包含此模型。",
         invalid_max_output_tokens: "本次輸出上限超過後端設定，請管理員更新 Worker。",
         request_too_large: "本次故事內容超過後端大小限制。",
+        relay_request_too_large: "夜灣 AWS 中繼拒絕了這個過大的請求（HTTP 413）。這是請求大小限制，不是內容審查。",
+        provider_request_too_large: `${name} 拒絕了這個過大的請求（HTTP 413）。這是請求大小限制，不是內容審查。`,
         provider_rate_limited: `${name} 回報速率或配額限制，與你的夜灣燈火餘額無關。`,
         provider_empty_text: emptyTextMessage(name, data),
         provider_http_error: Number(data?.upstream_http_status) >= 500
@@ -368,7 +370,19 @@
       const googleStatus = ['INVALID_ARGUMENT', 'FAILED_PRECONDITION', 'PERMISSION_DENIED', 'UNAUTHENTICATED',
         'RESOURCE_EXHAUSTED', 'NOT_FOUND', 'UNAVAILABLE'].includes(data?.provider_status)
         ? `（供應商：${data.provider_status}）` : '';
-      const upstreamError = new Error(`${detail}${googleStatus}${diagnosticId}`);
+      const isSizeFailure = data?.error === 'relay_request_too_large' || data?.error === 'provider_request_too_large';
+      const routeLabel = data?.route === 'aws_relay'
+        ? '夜灣 AWS 中繼'
+        : data?.route === 'direct_openrouter'
+          ? 'OpenRouter 直連'
+          : data?.route === 'direct_anthropic'
+            ? 'Anthropic 直連'
+            : '';
+      const requestBytes = Number.isInteger(data?.request_bytes) && data.request_bytes > 0 ? data.request_bytes : 0;
+      const sizeDiagnostic = isSizeFailure && (routeLabel || requestBytes)
+        ? `（${[routeLabel ? `路徑：${routeLabel}` : '', requestBytes ? `送出大小：約 ${(requestBytes / 1024).toFixed(1)} KB` : ''].filter(Boolean).join('；')}）`
+        : '';
+      const upstreamError = new Error(`${detail}${sizeDiagnostic}${googleStatus}${diagnosticId}`);
       const finishReason = String(data?.finish_reason || "").trim().toUpperCase();
       if (data?.error === "provider_empty_text" && providerBlockReasons.has(finishReason)) {
         upstreamError.code = "BAO_PROVIDER_BLOCKED";

@@ -150,6 +150,7 @@ jobs:
         run: |
           node --check js/credits-pilot.js
           node --test tests/credits-pilot.test.cjs
+          node --test tests/credits-pilot-413-core.cjs
       - name: YoruBay package pricing consistency
         run: node tests/yorubay-package-pricing-core.cjs
       - name: YoruBay policy center
