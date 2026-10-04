@@ -18,7 +18,7 @@ import {
   createAuthorProfilePr,
 } from "./author-profile-publication.js";
 
-const MAX_ADMIN_PUBLISH_BODY_BYTES = 2_500_000;
+const ADMIN_PUBLICATION_MAX_BODY_BYTES = 2_500_000;
 
 // Admin publication HTTP subroutes.
 const WorkerAdminPublicationRoutes = (() => {
@@ -69,7 +69,7 @@ async function adminPublicationRoute(
         prepareAuthorProfileUpdate(
           await readJsonWithLimit(
             request,
-            MAX_ADMIN_PUBLISH_BODY_BYTES
+            ADMIN_PUBLICATION_MAX_BODY_BYTES
           )
         );
     }
@@ -132,7 +132,7 @@ async function adminPublicationRoute(
         prepareCharacterPublication(
           await readJsonWithLimit(
             request,
-            MAX_ADMIN_PUBLISH_BODY_BYTES
+            ADMIN_PUBLICATION_MAX_BODY_BYTES
           )
         );
     }
@@ -197,7 +197,6 @@ const {
 } = WorkerAdminPublicationRoutes;
 
 export {
-  MAX_ADMIN_PUBLISH_BODY_BYTES,
   WorkerAdminPublicationRoutes,
   adminPublicationRoute,
 };
