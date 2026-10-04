@@ -55,6 +55,11 @@ assert.match(
 );
 assert.match(
   source,
+  /node --check workers\/bao-lab-credits-api\/modules\/account-rate-limit\.js/,
+  "the extracted account rate limit module must pass syntax validation before deployment"
+);
+assert.match(
+  source,
   /node --check workers\/bao-lab-credits-api\/modules\/account-validation\.js/,
   "the extracted account validation module must pass syntax validation before deployment"
 );
