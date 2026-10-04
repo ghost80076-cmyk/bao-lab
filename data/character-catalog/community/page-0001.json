@@ -1288,6 +1288,49 @@
     "version_published_at": "2026-10-04T18:00:00Z"
   },
   {
+    "id": "pheromone-bond-abo-simulator",
+    "file": "data/characters/community/94/pheromone-bond-abo-simulator.json",
+    "name": "信息素羈絆｜ABO命定關係模擬器",
+    "title": "信息素羈絆｜ABO命定關係模擬器",
+    "avatar": "https://i.meee.com.tw/nyIts73.jpg",
+    "category": "female",
+    "rating": "adult",
+    "gender": "all",
+    "tags": [
+      "女性向",
+      "ABO",
+      "信息素",
+      "Alpha",
+      "Beta",
+      "Omega",
+      "命定相性",
+      "慢熱戀愛",
+      "甜虐拉扯",
+      "多角關係",
+      "自主NPC",
+      "信息隔離",
+      "抑制劑",
+      "標記羈絆",
+      "多世界風格",
+      "多結局",
+      "原生狀態UI",
+      "Builder開局"
+    ],
+    "description": "在這個世界裡，第二性別與信息素會影響距離、本能與社會規則，卻不替任何人決定愛誰。選擇 Alpha／Beta／Omega、相性規則與世界制度，從一次意外的信息素暴露開始，走向慢熱甜寵、命定拉扯、階級壓迫、政治陰謀或多角關係。女性向 ABO 關係模擬 × 自主 NPC × 多結局。",
+    "supported_modes": {
+      "immersive": true,
+      "world": true
+    },
+    "supported_display": {
+      "text": true,
+      "ui": true
+    },
+    "published_at": "2026-10-04T18:02:00.000Z",
+    "updated_at": "2026-10-04T18:02:00.000Z",
+    "published_version": 1,
+    "version_published_at": "2026-10-04T18:02:00.000Z"
+  },
+  {
     "id": "collar-class-f-to-s",
     "file": "data/characters/community/d6/collar-class-f-to-s.json",
     "name": "頸圈階級｜從 F 級到 S 級",
