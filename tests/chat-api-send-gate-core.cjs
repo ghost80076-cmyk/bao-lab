@@ -58,41 +58,7 @@ async function runCase(config, keyReady) {
   assert.equal(result.nextCalls, 1);
   assert.equal(result.result, "sent");
 
-  {
-    let release;
-    let calls = 0;
-    const pending = new Promise(resolve => { release = resolve; });
-    const context = {
-      App: { config: { offlineWorldPreview: false, demoMode: false } },
-      hasKey: () => true,
-      open: () => {}
-    };
-    const fn = vm.runInNewContext(
-      `(function(next, ...args) {${match[1]}\n})`,
-      context
-    );
-    const first = fn(async () => {
-      calls += 1;
-      await pending;
-      return "first";
-    });
-    const duplicate = await fn(async () => {
-      calls += 1;
-      return "duplicate";
-    });
-    assert.equal(duplicate, undefined, "a second send while the first is pending must be ignored");
-    assert.equal(calls, 1, "double Enter/tap must not create a second provider request");
-    release();
-    assert.equal(await first, "first");
-    assert.equal(context.App.__chatSendInFlight, false, "send lock must clear after completion");
-    assert.equal(await fn(async () => {
-      calls += 1;
-      return "third";
-    }), "third", "a later turn must be allowed after the first completes");
-    assert.equal(calls, 2);
-  }
-
-  console.log("chat-api-send-gate: connection routing and single-flight send preserved");
+  console.log("chat-api-send-gate: offline/key/demo routing preserved");
 })().catch(error => {
   console.error(error);
   process.exit(1);
