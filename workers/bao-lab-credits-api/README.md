@@ -288,13 +288,13 @@ Do not accept arbitrary browser-supplied provider routing. The browser never sen
 
 The authenticated `admin-wallet.html` page can manage two owner-side concerns without exposing them to players:
 
-1. **Provider balance anchors** for `gemini` and `openrouter`.
-   - The admin enters the provider's current real balance in USD and a low-balance warning threshold.
-   - The Worker stores that balance together with the cumulative YoruBay USD-billing spend at that moment.
-   - Provider spend follows known upstream cost first. If a provider reports a real cost for a request that YoruBay later refunds because usage could not be verified, that upstream cost still reduces the provider-pool estimate without charging the player again.
+1. **Provider balance tracking** for `gemini` and `openrouter`.
+   - OpenRouter stays on the USD anchor model: the admin enters the current official USD balance and low-balance threshold, and the Worker estimates remaining USD as `anchor balance - known upstream spend since the anchor`.
+   - Google Gemini uses a native-currency snapshot instead. The admin records the official Google Billing balance exactly as shown in TWD, while YoruBay continues to record provider spend in USD.
+   - Gemini's TWD balance and YoruBay's USD spend are deliberately displayed side by side rather than converted or subtracted. The Worker does not apply an implicit FX rate.
+   - Provider spend follows known upstream cost first. If a provider reports a real cost for a request that YoruBay later refunds because usage could not be verified, that upstream cost is still tracked without charging the player again.
    - When no provider-reported cost is available, only settled `ok` / `over_budget` rows fall back to YoruBay's calculated cost.
-   - Future estimated remaining balance is calculated as `anchor balance - YoruBay known upstream spend since the anchor`.
-   - This is an internal estimate, not a live query to Google or OpenRouter. External API-key usage, provider rounding, or missing upstream cost metadata can still create drift. Re-anchor whenever the upstream account is topped up or manually adjusted.
+   - These are internal snapshots/estimates, not live provider queries. External API-key usage, provider rounding, or missing upstream cost metadata can still create drift. Re-anchor or refresh the snapshot whenever the upstream account is topped up or manually adjusted.
 
 2. **Hosted Gemini route overrides**.
    - `gemini-3-flash-preview` and `gemini-3.1-pro-preview` default to the existing Google Gemini route.
@@ -305,7 +305,8 @@ The authenticated `admin-wallet.html` page can manage two owner-side concerns wi
 The control tables are created lazily after an authenticated admin request:
 
 - `hosted_route_overrides`
-- `provider_balance_anchors`
+- `provider_balance_anchors` (USD estimate providers such as OpenRouter)
+- `provider_native_balance_snapshots` (native-currency snapshots such as Google Gemini TWD)
 
 Admin endpoints:
 
