@@ -142,8 +142,8 @@ const productionGraph = loadWorkerModuleManifest(
 assert.equal(productionGraph.mainModule, "worker.js");
 assert.deepEqual(
   productionGraph.modules.map(module => module.name),
-  ["modules/account-validation.js", "worker.js"],
-  "production must contain only the reviewed first extraction candidate"
+  ["modules/account-validation.js", "modules/chat-input.js", "worker.js"],
+  "production must contain only the reviewed extracted boundaries"
 );
 assert.equal(
   productionGraph.modules.find(module => module.name === "worker.js").content,
@@ -154,6 +154,10 @@ assert.equal(productionBody.get("metadata"), '{"main_module":"worker.js"}');
 assert.ok(
   productionBody.get("modules/account-validation.js"),
   "the extracted account validation module must be included in the upload"
+);
+assert.ok(
+  productionBody.get("modules/chat-input.js"),
+  "the extracted chat input module must be included in the upload"
 );
 assert.ok(productionBody.get("worker.js"), "the main Worker module must be included");
 
