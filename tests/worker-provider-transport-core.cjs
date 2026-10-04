@@ -225,7 +225,11 @@ const jsonResponse = (body, status = 200) =>
     assert.equal(gemini.output, 30);
     assert.equal(gemini.finishReason, "STOP");
 
-    const geminiRequest = requests.find(item => item.url === "https://relay.example/v1/chat");
+    const geminiRequest = requests.find(
+      item =>
+        item.url === "https://relay.example/v1/chat" &&
+        item.body?.model === "gemini-test"
+    );
     assert.ok(geminiRequest);
     assert.equal(geminiRequest.init.headers.authorization, "Bearer relay-secret");
     assert.equal(geminiRequest.body.model, "gemini-test");
