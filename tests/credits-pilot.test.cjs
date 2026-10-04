@@ -209,9 +209,23 @@ test('propagates quota and provider-specific upstream errors without exposing pl
  const rateLimit=build({ok:false,status:502,body:{error:'provider_rate_limited',upstream_http_status:429}});
  await assert.rejects(()=>rateLimit.api.send(cfg,msgs),/Google Gemini 回報速率或配額限制/);
  await assert.rejects(()=>rateLimit.api.send({...cfg,model:'deepseek/deepseek-v4-flash-0731'},msgs),/OpenRouter 回報速率或配額限制/);
- const unverified=build({ok:false,status:502,body:{error:'provider_usage_unverified',billing_refunded:true,request_id:'2bcbe50f-9d5f-4c43-8d6f-d339e49bff45'}});
+ const unverified=build({ok:false,status:502,body:{
+   error:'provider_usage_unverified',
+   billing_refunded:true,
+   request_id:'2bcbe50f-9d5f-4c43-8d6f-d339e49bff45',
+   route:'direct_openrouter',
+   request_bytes:133120,
+   elapsed_ms:75012,
+   timeout_ms:75000,
+   transport_failure:'timeout'
+ }});
  await assert.rejects(()=>unverified.api.send({...cfg,model:'anthropic/claude-sonnet-4.6'},msgs),error=>{
    assert.match(error.message,/本次預留燈火已全數退回/);
+   assert.match(error.message,/OpenRouter 直連/);
+   assert.match(error.message,/130\.0 KB/);
+   assert.match(error.message,/75\.0 秒後中斷/);
+   assert.match(error.message,/判定：逾時/);
+   assert.match(error.message,/截止：75 秒/);
    assert.match(error.message,/診斷編號/);
    return true;
  });
