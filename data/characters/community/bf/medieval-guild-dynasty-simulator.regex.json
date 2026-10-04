@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "type": "yorubay-author-regex-mod",
+  "scope": "assistant_display",
+  "characterId": "medieval-guild-dynasty-simulator",
+  "regex_scripts": [
+    {
+      "scriptName": "中世紀模擬｜行會紀元開卷",
+      "description": "把開場標記轉成羊皮紙風格；只改顯示。",
+      "priority": 80,
+      "findRegex": "【YB:MEDIEVAL:OPENING】\\s*([\\s\\S]*?)\\s*【/YB:MEDIEVAL:OPENING】",
+      "flags": "g",
+      "replaceString": "<style>.yb-medieval-opening{font-family:ui-serif,\"Noto Serif TC\",serif;background:linear-gradient(145deg,#23180f,#382718);color:#f1e2c1;border:1px solid #765b37;border-left:4px solid #c19755;border-radius:16px;padding:20px;box-shadow:0 14px 34px rgba(0,0,0,.3);line-height:1.9;white-space:pre-wrap}.yb-medieval-opening:before{content:\"中世紀模擬 · 五族競逐\";display:block;color:#dfbd80;font-size:12px;letter-spacing:.14em;margin-bottom:10px}</style><section class=\"yb-medieval-opening\">$1</section>"
+    },
+    {
+      "scriptName": "中世紀模擬｜公開判定",
+      "description": "把真正發生的 1d100 公開檢定顯示成判定札。",
+      "priority": 65,
+      "findRegex": "【YB:MEDIEVAL:CHECK】\\s*([\\s\\S]*?)\\s*【/YB:MEDIEVAL:CHECK】",
+      "flags": "g",
+      "replaceString": "<style>.yb-medieval-check{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;background:#1d1710;color:#eadfc9;border:1px solid #6d5739;border-left:3px solid #c79d5d;border-radius:12px;padding:12px 14px;line-height:1.75;white-space:pre-wrap}.yb-medieval-check:before{content:\"1D100 · 公開判定\";display:block;color:#ddb97b;font-weight:800;font-size:12px;margin-bottom:6px}</style><section class=\"yb-medieval-check\">$1</section>"
+    },
+    {
+      "scriptName": "中世紀模擬｜城鎮公告",
+      "description": "把玩家已知的市場、公職與城鎮消息整理成公告板。",
+      "priority": 55,
+      "findRegex": "【YB:MEDIEVAL:BULLETIN】\\s*([\\s\\S]*?)\\s*【/YB:MEDIEVAL:BULLETIN】",
+      "flags": "g",
+      "replaceString": "<style>.yb-medieval-bulletin{font-family:ui-serif,\"Noto Serif TC\",serif;background:linear-gradient(135deg,#2a2117,#1f1811);color:#eee0c5;border:1px dashed #8a6b43;border-radius:14px;padding:15px 16px;line-height:1.85;white-space:pre-wrap}.yb-medieval-bulletin:before{content:\"城鎮公告板\";display:block;color:#d9b474;font-weight:800;letter-spacing:.1em;margin-bottom:7px}</style><section class=\"yb-medieval-bulletin\">$1</section>"
+    },
+    {
+      "scriptName": "中世紀模擬｜日結帳簿",
+      "description": "一天結束時把摘要轉成簡潔帳簿；完整資料仍由 Gameplay UI 保存。",
+      "priority": 45,
+      "findRegex": "【YB:MEDIEVAL:DAY_END】\\s*([\\s\\S]*?)\\s*【/YB:MEDIEVAL:DAY_END】",
+      "flags": "g",
+      "replaceString": "<style>.yb-medieval-day{font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif;background:linear-gradient(135deg,#302217,#211810);color:#eee0c8;border:1px solid #725a3d;border-radius:14px;padding:14px 16px;line-height:1.8;white-space:pre-wrap}.yb-medieval-day:before{content:\"今日帳簿\";display:block;color:#d7af70;font-weight:800;margin-bottom:7px}.yb-medieval-day:after{content:\"完整家族、產業與市場狀態請看原生狀態面板。\";display:block;color:#aa9980;font-size:12px;margin-top:8px}</style><section class=\"yb-medieval-day\">$1</section>"
+    }
+  ]
+}
