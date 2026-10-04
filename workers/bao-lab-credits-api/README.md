@@ -9,10 +9,11 @@ The checked-in `worker.js` is reconstructed from the saved **YoruBay_Worker_v6.2
 - Cloudflare upstream timeout: **75 seconds**
 - AWS relay application timeout: **65 seconds**
 - Gunicorn timeout on EC2: **90 seconds**
-- Gemini relay/network ambiguity is recorded as `unverified` instead of `failed`
-- `unverified` cost-USD requests keep the conservative reservation held instead of refunding it immediately
+- Provider/relay network ambiguity is recorded as `unverified_refunded` and the player's cost-USD reservation is returned immediately
+- successful OpenRouter responses with incomplete usage metadata attempt `/api/v1/generation` recovery by generation ID before settlement
+- if successful content still cannot be verified, the content is delivered and the reservation is refunded instead of returning a paid 502
 - explicit provider failures continue through the existing `failed` + refund path
-- successful requests still settle from actual token usage
+- successful verified requests still settle from actual token usage
 
 The AWS Gunicorn 90-second value is a runtime/systemd setting and is documented here; it is not configured by this Worker source.
 
@@ -43,7 +44,7 @@ After the production hotfix, D1 showed normal `ok` settlement with exact wallet 
 - Gemini 3.1 Flash-Lite: `994423 - 1305 = 993118`
 - Gemini 3.1 Pro: `3994510 - 52104 = 3942406`
 
-The `unverified` branch is intended for ambiguous transport/usage outcomes and should be inspected through D1 when it occurs.
+`unverified_refunded` is the auditable fallback for ambiguous transport/usage outcomes. It must not leave a player's reservation held; inspect these rows through D1 when they occur.
 
 
 ## Selected-player OpenRouter AWS routing
