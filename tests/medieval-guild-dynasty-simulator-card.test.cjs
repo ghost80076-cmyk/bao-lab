@@ -25,6 +25,14 @@ assert.match(card.content.system_prompt,/生活質感/);
 assert.match(card.content.system_prompt,/不要使用「中世紀人從不洗澡」/);
 assert.match(card.content.system_prompt,/理髮外科/);
 assert.match(card.content.system_prompt,/權力交換與庇護政治/);
+assert.match(card.content.system_prompt,/職業不是標籤/);
+assert.match(card.content.system_prompt,/衍生能力/);
+assert.match(card.content.system_prompt,/競爭家族公開情報/);
+assert.match(card.content.system_prompt,/rank_progress/);
+assert.match(card.content.greeting,/農奴 → 平民 → 佃農 → 居民 → 市民/);
+assert.match(card.content.greeting,/職業路線/);
+assert.match(card.content.lore,/農民｜500金｜STR\+1｜CON\+1/);
+assert.match(card.content.lore,/煉金師｜1250金｜INT\+3｜PER\+1/);
 assert.doesNotMatch(card.content.system_prompt,/1歲即成年|一歲即成年/);
 assert.doesNotMatch(card.content.greeting,/hc-btn|<input|<details|onclick/);
 
@@ -37,7 +45,8 @@ for(const id of [
   'opening-rival-generation','action-point-time','skill-check','business-settlement',
   'rival-family-turn','market-season','resource-auction','office-election',
   'crime-law','transport-risk','workers','family-succession','combat',
-  'time-skip','public-bulletin','medieval-sensory-life','bath-barber-grooming','adult-power-intimacy','patronage-power-network'
+  'time-skip','public-bulletin','medieval-sensory-life','bath-barber-grooming','adult-power-intimacy','patronage-power-network',
+  'occupation-package','derived-stat-refresh','rank-advancement','rival-public-intel'
 ]){
   assert.ok(promptIds.has(id),'missing '+id);
 }
@@ -47,7 +56,8 @@ for(const id of [
   'scene','player','attributes','action_points','survival','house','economy',
   'businesses','workers','rival_families','rival_strategy','market','resources',
   'offices','law','skills','check','scene_participants','known_people',
-  'inventory','rumours','active_matters','day_ledger','event_log','urban_life','power_network'
+  'inventory','rumours','active_matters','day_ledger','event_log','urban_life','power_network',
+  'derived_stats','rank_progress'
 ]){
   assert.ok(moduleIds.has(id),'missing '+id);
 }
@@ -62,6 +72,15 @@ assert.ok(ui.builder.fields.some(x=>x.key==='occupation'));
 assert.ok(ui.builder.fields.some(x=>x.key==='house_name'));
 assert.ok(ui.builder.fields.some(x=>x.key==='seat'));
 assert.ok(ui.builder.fields.some(x=>x.key==='rival_tone'));
+assert.match(ui.builder.description,/職業加成在15點之外套用/);
+const founderPanel=ui.panels.find(x=>x.id==='founder');
+assert.ok(founderPanel.sections.some(x=>x.title==='衍生能力'));
+assert.ok(founderPanel.sections.some(x=>x.title==='階級晉升'));
+assert.ok(founderPanel.sections.find(x=>x.title==='主屬性').items.every(x=>x.max===10));
+assert.equal(card.gameplay.initial_state.modules.rank_progress.current,'農奴');
+assert.equal(card.gameplay.initial_state.modules.rank_progress.next,'平民');
+assert.equal(card.gameplay.initial_state.modules.derived_stats.con,3);
+assert.match(JSON.stringify(card.gameplay.ui_schema.panels),/四大家族｜公開情報/);
 assert.deepEqual(
   ui.panels.map(x=>x.id),
   ['now','founder','house','business','world','intel','trpg','actions']
