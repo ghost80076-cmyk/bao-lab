@@ -44,6 +44,7 @@ jobs:
           node tests/worker-production-deploy-workflow-core.cjs
           node tests/worker-security-headers-core.cjs
           node tests/worker-session-security-contract.cjs
+          node tests/worker-crypto-core.cjs
           node tests/worker-account-rate-limit-core.cjs
           node tests/worker-account-auth-core.cjs
           node tests/worker-provider-transport-core.cjs
