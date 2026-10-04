@@ -115,6 +115,8 @@ jobs:
         run: node tests/lu-jingchen-cold-shell-desire-card.test.cjs
       - name: Heart Training Boyfriend Plan card
         run: node tests/heart-training-boyfriend-plan-card.test.cjs
+      - name: Pheromone Bond ABO Simulator card
+        run: node tests/pheromone-bond-abo-simulator-card.test.cjs
       - name: Han Seoyeon Seven-Day Contract Lover card
         run: node tests/han-seoyeon-seven-day-contract-lover-card.test.cjs
       - name: Lin Qiaorou slow-burn yandere card
