@@ -60,6 +60,11 @@ assert.equal(
   1,
   "the extracted account validation boundary must exist exactly once"
 );
+assert.equal(
+  actual.filter(boundary => boundary === "WorkerChatInput").length,
+  1,
+  "the extracted chat input boundary must exist exactly once"
+);
 
 const architecture = fs.readFileSync(
   path.join(__dirname, "../docs/worker-architecture-boundaries.md"),
