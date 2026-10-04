@@ -5,6 +5,7 @@
     "modules/account-validation.js",
     "modules/admin-auth.js",
     "modules/chat-input.js",
+    "modules/crypto.js",
     "modules/github-publication-transport.js",
     "modules/publication-format.js",
     "modules/runtime-config.js",
