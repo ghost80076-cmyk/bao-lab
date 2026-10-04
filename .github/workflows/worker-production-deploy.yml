@@ -39,11 +39,13 @@ jobs:
           node --check workers/bao-lab-credits-api/modules/chat-input.js
           node --check workers/bao-lab-credits-api/modules/crypto.js
           node --check workers/bao-lab-credits-api/modules/github-publication-transport.js
+          node --check workers/bao-lab-credits-api/modules/http.js
           node --check workers/bao-lab-credits-api/modules/publication-format.js
           node --check workers/bao-lab-credits-api/modules/runtime-config.js
           node tests/worker-content-deploy-core.cjs
           node tests/worker-production-deploy-workflow-core.cjs
           node tests/worker-security-headers-core.cjs
+          node tests/worker-http-core.cjs
           node tests/worker-session-security-contract.cjs
           node tests/worker-crypto-core.cjs
           node tests/worker-account-rate-limit-core.cjs

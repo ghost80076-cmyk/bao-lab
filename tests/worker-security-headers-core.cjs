@@ -8,14 +8,31 @@ const workerPath = path.join(
   "../workers/bao-lab-credits-api/worker.js"
 );
 const source = fs.readFileSync(workerPath, "utf8");
+const httpModuleSource = fs.readFileSync(
+  path.join(
+    __dirname,
+    "../workers/bao-lab-credits-api/modules/http.js"
+  ),
+  "utf8"
+);
 
 assert.match(
   source,
+  /from "\.\/modules\/http\.js";/,
+  "the Worker entry must import the extracted HTTP module"
+);
+assert.doesNotMatch(
+  source,
+  /const WorkerHttp =/,
+  "HTTP implementation must not remain duplicated in worker.js"
+);
+assert.match(
+  httpModuleSource,
   /const WorkerHttp = \(\(\) => \{/,
-  "HTTP helpers must remain grouped behind the internal WorkerHttp boundary"
+  "HTTP helpers must remain grouped behind WorkerHttp"
 );
 for (const helper of ["withSecurityHeaders", "json", "fail", "readJsonWithLimit", "readJson", "validOrigin", "trustedCookieMutation", "cors"]) {
-  assert.match(source, new RegExp("\\b" + helper + "\\b"), "WorkerHttp boundary is missing " + helper);
+  assert.match(httpModuleSource, new RegExp("\\b" + helper + "\\b"), "WorkerHttp boundary is missing " + helper);
 }
 
 async function loadWorker() {
