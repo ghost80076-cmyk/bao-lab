@@ -1040,5 +1040,46 @@
     "updated_at": "2026-10-05T01:00:00Z",
     "published_version": 1,
     "version_published_at": "2026-10-05T01:00:00Z"
+  },
+  {
+    "id": "nangong-wen-runaway-bride",
+    "file": "data/characters/community/22/nangong-wen-runaway-bride.json",
+    "name": "南宮玟｜逃婚？我等著妳",
+    "title": "南宮玟｜逃婚？我等著妳・病態獨佔",
+    "avatar": "https://i.meee.com.tw/AUgowzF.jpg",
+    "category": "female",
+    "rating": "adult",
+    "gender": "male",
+    "tags": [
+      "女性向",
+      "成人題材",
+      "現代豪門",
+      "大學校園",
+      "青梅竹馬",
+      "婚約",
+      "病態獨佔",
+      "逃婚追逐",
+      "甜虐拉扯",
+      "三角關係",
+      "家族博弈",
+      "自主NPC",
+      "資訊隔離",
+      "多結局",
+      "原生狀態UI",
+      "Builder開局"
+    ],
+    "description": "妳和南宮玟從小一路比到大，他總像比妳早一步看見終點。直到兩家公開婚約，他沒有逼妳立刻點頭，反而像在等妳出招。逃婚、拆婚約、假意順從、選擇別人、重新談條件，或真的走向他——每一條路都會讓這段青梅竹馬關係露出不同的裂縫與執念。女性向豪門校園 × 病態獨佔 × 逃婚追逐 × 甜虐多結局。",
+    "supported_modes": {
+      "immersive": true,
+      "world": true
+    },
+    "supported_display": {
+      "text": true,
+      "ui": true
+    },
+    "published_at": "2026-10-04T17:20:00Z",
+    "updated_at": "2026-10-04T17:20:00Z",
+    "published_version": 1,
+    "version_published_at": "2026-10-04T17:20:00Z"
   }
 ]
