@@ -40,6 +40,10 @@ global.document = {
 
 let sendCalls = 0;
 global.API = { activeSignal: null };
+global.BAOCreditsPilot = {
+  ready: false,
+  isAccountReady() { return this.ready; }
+};
 let baseMode = "abortable";
 let exitCalls = 0;
 global.App = {
@@ -111,6 +115,22 @@ assert.equal(
   const noKey = await App.sendMessage("no-key");
   assert.deepEqual(noKey, { ok: true, args: ["no-key"] });
   assert.equal(App.__requestPending, false);
+
+  // Hosted account sessions must use the same single-flight lock even before
+  // prepareAccountConfig has populated the account sentinel key.
+  baseMode = "abortable";
+  BAOCreditsPilot.ready = true;
+  input.value = "燈火故事";
+  const hostedCallsBefore = sendCalls;
+  const hostedPending = App.sendMessage("hosted");
+  await Promise.resolve();
+  await App.sendMessage("hosted-duplicate");
+  assert.equal(sendCalls, hostedCallsBefore + 1, "hosted duplicate sends must be suppressed");
+  assert.equal(App.__requestPending, true);
+  assert.equal(App.cancelGeneration(), true);
+  await assert.rejects(hostedPending, { name: "AbortError" });
+  assert.equal(App.__requestPending, false);
+  BAOCreditsPilot.ready = false;
 
   // exitChat must cancel an active request before leaving the story.
   baseMode = "abortable";
