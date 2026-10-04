@@ -2,7 +2,7 @@
 
 This file is the refactor map for `workers/bao-lab-credits-api/worker.js`.
 
-The Worker now has its first deliberately small physical extraction. The production manifest contains the `worker.js` main module plus `modules/account-validation.js`; every other responsibility remains in the main file. No further boundary should move until this two-module graph has passed the guarded deployment and rollback rehearsal.
+The Worker now has two deliberately small physical extractions. The production manifest contains the `worker.js` main module plus `modules/account-validation.js` and `modules/chat-input.js`; every other responsibility remains in the main file. The first multi-module deployment completed a successful production rollback-and-restore rehearsal on 2026-10-04.
 
 The goal is **behavior-preserving extraction, one low-dependency boundary at a time**.
 
@@ -20,7 +20,7 @@ The Worker graph exposes explicit, frozen module-shaped boundaries. The boundary
 | Admin routing | `WorkerAdminAuth`, `WorkerAdminProviderControlRoutes`, `WorkerAdminPublicationRoutes`, `WorkerAdminUsageRoutes`, `WorkerAdminPlayerDirectoryRoutes`, `WorkerAdminPlayerMutationRoutes`, `WorkerAdminRoutes` |
 | Chat settlement and dispatch | `WorkerLegacyChatSettlement`, `WorkerCostChatSettlement`, `WorkerChatDispatch` |
 
-`WorkerAccountValidation` is the first separately deployed module. The remaining boundaries are still architectural seams inside `worker.js`; imported function names preserve the existing call sites and behavior.
+`WorkerAccountValidation` and `WorkerChatInput` are separately deployed modules. The remaining boundaries are still architectural seams inside `worker.js`; imported function names preserve the existing call sites and behavior.
 
 ## Completed structural sequence
 
@@ -34,12 +34,11 @@ The behavior-preserving isolation sequence is complete for the current top-level
 6. Admin authorization and route families.
 7. Legacy and USD-wallet chat settlement plus top-level chat dispatch.
 
-Each boundary was isolated independently after its contract tests and the repository-wide required workflows passed. Physical extraction begins with account validation because it is pure and has no D1, session, billing, provider or runtime-binding dependency.
+Each boundary was isolated independently after its contract tests and the repository-wide required workflows passed. Physical extraction began with account validation, then chat input, because both are low-dependency boundaries with no D1, session, billing, provider or runtime-binding dependency.
 
 ## Remaining work
 
 - Consolidate the browser catalog and the unknown production Worker base allowlist into a single model registry. Versioned deltas now generate one validated Cloudflare/AWS deployment plan, but cannot safely replace the external production base.
-- Rehearse rollback from the first two-module deployment to the previous single-file version, verify production, then restore the reviewed two-module version.
 
 ## Non-negotiable compatibility rules
 
@@ -85,9 +84,9 @@ Until then, the project can reduce technical debt by clarifying boundaries, cons
 
 | Exit condition | Status |
 | --- | --- |
-| Automated Cloudflare module-graph deployment | Complete: the guarded workflow loads, validates and uploads `worker.js` plus the extracted account-validation module |
+| Automated Cloudflare module-graph deployment | Complete: the guarded workflow loads, validates and uploads `worker.js` plus the reviewed extracted modules |
 | Deployment independent of dashboard copy/paste | Complete: watched Worker changes merged to `main` deploy automatically, with manual dispatch retained as a fallback |
 | Security, auth, billing and provider contract coverage | In place for the current named boundaries |
-| Documented rollback for a module deployment | Procedure documented in `docs/worker-production-rollback.md`; first production rehearsal is required before another extraction |
+| Documented rollback for a module deployment | Complete: procedure documented and the first production rollback-and-restore rehearsal passed on 2026-10-04 |
 
-Therefore `worker.js` remains the main module while account validation is the only extracted dependency. A GitHub merge is source control only unless it changes a path watched by `worker-production-deploy.yml`; watched changes trigger the guarded production deployment automatically.
+Therefore `worker.js` remains the main module while account validation and chat input are extracted dependencies. A GitHub merge is source control only unless it changes a path watched by `worker-production-deploy.yml`; watched changes trigger the guarded production deployment automatically.
