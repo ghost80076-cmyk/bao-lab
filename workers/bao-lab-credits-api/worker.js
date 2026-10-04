@@ -9615,6 +9615,69 @@ const {
 // upstream HTTP calls, response normalization and provider-facing error mapping.
 // Route selection, pricing and wallet settlement stay outside this block.
 const WorkerProviderTransport = (() => {
+  // Hosted OpenRouter requests keep the stable system prefix as the first
+  // system message. Claude requires an explicit cache breakpoint when the
+  // selected endpoint may be Bedrock or Vertex; top-level automatic caching
+  // would exclude those endpoints. Keep the rest of the conversation as plain
+  // strings so only the stable prefix is cached.
+  function openRouterExplicitCacheMessages(
+    model,
+    messages
+  ) {
+    if (
+      !/^anthropic\/claude-/i.test(
+        String(model || "")
+      ) ||
+      !Array.isArray(messages)
+    ) {
+      return messages;
+    }
+
+    const stableIndex =
+      messages.findIndex(
+        (message) =>
+          message?.role ===
+            "system" &&
+          typeof message
+            ?.content ===
+            "string" &&
+          message.content.trim()
+      );
+
+    if (
+      stableIndex <
+      0
+    ) {
+      return messages;
+    }
+
+    return messages.map(
+      (message, index) =>
+        index ===
+        stableIndex
+          ? {
+              ...message,
+
+              content: [
+                {
+                  type:
+                    "text",
+
+                  text:
+                    message
+                      .content,
+
+                  cache_control: {
+                    type:
+                      "ephemeral",
+                  },
+                },
+              ],
+            }
+          : message
+    );
+  }
+
   async function geminiErrorHint(
     response
   ) {
@@ -10144,7 +10207,8 @@ const WorkerProviderTransport = (() => {
     env,
     provider,
     model,
-    messages,
+    messages:
+      openRouterMessages,
     maxOutput,
     player = null,
     sessionId = ""
@@ -10171,6 +10235,15 @@ const WorkerProviderTransport = (() => {
             )
           )
         : null;
+
+    const openRouterMessages =
+      provider ===
+        "openrouter"
+        ? openRouterExplicitCacheMessages(
+            model,
+            messages
+          )
+        : messages;
   
     if (
       provider ===
@@ -10256,7 +10329,8 @@ const WorkerProviderTransport = (() => {
                   "openrouter",
   
                 model,
-                messages,
+                messages:
+                  openRouterMessages,
   
                 max_output_tokens:
                   maxOutput,
