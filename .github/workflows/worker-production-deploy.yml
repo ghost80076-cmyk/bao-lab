@@ -2,10 +2,6 @@ name: Deploy production Worker
 
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths:
-      - ".github/workflows/worker-production-deploy.yml"
 
 permissions:
   contents: read
@@ -34,39 +30,11 @@ jobs:
           node tests/worker-account-rate-limit-core.cjs
           node tests/worker-account-auth-core.cjs
           node tests/worker-provider-transport-core.cjs
-      - name: Resolve target and replace production Worker content
+      - name: Replace production Worker content
         env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-        run: |
-          node <<'NODE'
-          const fs = require("node:fs");
-          const { deployWorkerContent } = require("./scripts/deploy-worker-content.cjs");
-          (async () => {
-            const token = String(process.env.CLOUDFLARE_API_TOKEN || "").trim();
-            if (!token) throw new Error("CLOUDFLARE_API_TOKEN is required");
-            const response = await fetch("https://api.cloudflare.com/client/v4/accounts?per_page=50", {
-              headers: { authorization: `Bearer ${token}`, accept: "application/json" }
-            });
-            const payload = await response.json().catch(() => null);
-            const accounts = Array.isArray(payload?.result) ? payload.result : [];
-            if (!response.ok || payload?.success === false) {
-              throw new Error(`Cloudflare account discovery failed (HTTP ${response.status})`);
-            }
-            if (accounts.length !== 1 || !/^[a-f0-9]{32}$/i.test(String(accounts[0]?.id || ""))) {
-              throw new Error(`Cloudflare account discovery expected exactly one accessible account (found ${accounts.length})`);
-            }
-            const source = fs.readFileSync("workers/bao-lab-credits-api/worker.js", "utf8");
-            const result = await deployWorkerContent({
-              accountId: accounts[0].id,
-              apiToken: token,
-              workerName: "yorubay-credits-pilot",
-              source
-            });
-            console.log(`Cloudflare Worker content deployed successfully (HTTP ${result.status})`);
-          })().catch(error => {
-            console.error(error.message);
-            process.exitCode = 1;
-          });
-          NODE
+          CLOUDFLARE_WORKER_NAME: ${{ secrets.CLOUDFLARE_WORKER_NAME }}
+        run: node scripts/deploy-worker-content.cjs
       - name: Verify production security contract
         run: npm run audit:production-security
