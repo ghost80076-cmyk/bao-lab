@@ -34,6 +34,18 @@ import {
 } from "./modules/github-publication-transport.js";
 
 import {
+  WorkerRuntimeConfig,
+  awsOpenRouterPlayers,
+  billingModeForPlayer,
+  billingV2TestPlayers,
+  getDb,
+  globalBillingMode,
+  playerUsesAwsOpenRouter,
+  registrationMode,
+  sessionTtlDays,
+} from "./modules/runtime-config.js";
+
+import {
   WorkerAdminAuth,
   adminAuthorized,
 } from "./modules/admin-auth.js";
@@ -1180,221 +1192,7 @@ const {
 
 // Runtime configuration boundary. Keep environment aliases, rollout allowlists
 // and account-mode decisions together so routes do not parse bindings directly.
-const WorkerRuntimeConfig = (() => {
-function getDb(
-  env
-) {
-  return (
-    env["資料庫"] ||
-    env.DB
-  );
-}
 
-function globalBillingMode(
-  env
-) {
-  return (
-    env.BILLING_MODE ===
-    COST_BILLING_MODE
-  )
-    ? COST_BILLING_MODE
-    : LEGACY_BILLING_MODE;
-}
-
-function billingV2TestPlayers(
-  env
-) {
-  return new Set(
-    String(
-      env.BILLING_V2_TEST_PLAYERS ||
-      ""
-    )
-      .split(",")
-      .map(
-        (x) =>
-          x
-            .trim()
-            .toUpperCase()
-      )
-      .filter(Boolean)
-  );
-}
-
-function awsOpenRouterPlayers(
-  env
-) {
-  return new Set(
-    String(
-      env.AWS_OPENROUTER_PLAYERS ||
-      ""
-    )
-      .split(",")
-      .map(
-        (x) =>
-          x
-            .trim()
-            .toUpperCase()
-      )
-      .filter(Boolean)
-  );
-}
-
-function playerUsesAwsOpenRouter(
-  env,
-  player
-) {
-  const allowed =
-    awsOpenRouterPlayers(
-      env
-    );
-
-  if (
-    !allowed.size ||
-    !player
-  ) {
-    return false;
-  }
-
-  return [
-    player.id,
-    player.public_id,
-    player.username,
-  ]
-    .map(
-      (value) =>
-        String(
-          value || ""
-        )
-          .trim()
-          .toUpperCase()
-    )
-    .some(
-      (value) =>
-        value &&
-        allowed.has(
-          value
-        )
-    );
-}
-
-function billingModeForPlayer(
-  env,
-  player
-) {
-  // Account sessions have a dedicated USD wallet.
-  // Keep legacy bao_ tokens on the existing billing path.
-  if (
-    player.auth_type ===
-      "session" &&
-    player.wallet_billing_mode ===
-      COST_BILLING_MODE
-  ) {
-    return COST_BILLING_MODE;
-  }
-
-  if (
-    globalBillingMode(
-      env
-    ) ===
-    COST_BILLING_MODE
-  ) {
-    return (
-      COST_BILLING_MODE
-    );
-  }
-
-  const test =
-    billingV2TestPlayers(
-      env
-    );
-
-  if (!test.size) {
-    return (
-      LEGACY_BILLING_MODE
-    );
-  }
-
-  return (
-    test.has(
-      String(
-        player.id ||
-        ""
-      ).toUpperCase()
-    ) ||
-    test.has(
-      String(
-        player.public_id ||
-        ""
-      ).toUpperCase()
-    )
-  )
-    ? COST_BILLING_MODE
-    : LEGACY_BILLING_MODE;
-}
-
-function registrationMode(
-  env
-) {
-  const mode =
-    String(
-      env.REGISTRATION_MODE ||
-      "open"
-    ).toLowerCase();
-
-  if (mode === "invite") {
-    return "open";
-  }
-
-  return [
-    "closed",
-    "open",
-  ].includes(
-    mode
-  )
-    ? mode
-    : "closed";
-}
-
-function sessionTtlDays(
-  env
-) {
-  const n =
-    Number(
-      env.SESSION_TTL_DAYS ||
-      DEFAULT_SESSION_TTL_DAYS
-    );
-
-  return integer(
-    n,
-    1,
-    365
-  )
-    ? n
-    : DEFAULT_SESSION_TTL_DAYS;
-}
-
-  return Object.freeze({
-    getDb,
-    globalBillingMode,
-    billingV2TestPlayers,
-    awsOpenRouterPlayers,
-    playerUsesAwsOpenRouter,
-    billingModeForPlayer,
-    registrationMode,
-    sessionTtlDays,
-  });
-})();
-
-const {
-  getDb,
-  globalBillingMode,
-  billingV2TestPlayers,
-  awsOpenRouterPlayers,
-  playerUsesAwsOpenRouter,
-  billingModeForPlayer,
-  registrationMode,
-  sessionTtlDays,
-} = WorkerRuntimeConfig;
 
 // Internal model registry / pricing boundary. Keep all pricing, model allowlist
 // and reservation math behavior stable while separating it from routes and providers.

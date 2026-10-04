@@ -4,9 +4,30 @@ const fs = require("node:fs");
 const path = require("node:path");
 
 const source = loadWorkerTestSource();
+const workerEntrySource = fs.readFileSync(
+  path.join(__dirname, "../workers/bao-lab-credits-api/worker.js"),
+  "utf8"
+);
+const runtimeModuleSource = fs.readFileSync(
+  path.join(
+    __dirname,
+    "../workers/bao-lab-credits-api/modules/runtime-config.js"
+  ),
+  "utf8"
+);
 
 assert.match(
-  source,
+  workerEntrySource,
+  /from "\.\/modules\/runtime-config\.js";/,
+  "the Worker entry must import the extracted runtime config module"
+);
+assert.doesNotMatch(
+  workerEntrySource,
+  /function globalBillingMode\(/,
+  "runtime config implementation must not remain duplicated in worker.js"
+);
+assert.match(
+  runtimeModuleSource,
   /const WorkerRuntimeConfig = \(\(\) => \{/,
   "runtime binding parsing must stay behind WorkerRuntimeConfig"
 );
