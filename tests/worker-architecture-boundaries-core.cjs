@@ -100,6 +100,11 @@ assert.equal(
   1,
   "the extracted HTTP boundary must exist exactly once"
 );
+assert.equal(
+  actual.filter(boundary => boundary === "WorkerAccountRateLimit").length,
+  1,
+  "the extracted account rate limit boundary must exist exactly once"
+);
 
 const architecture = fs.readFileSync(
   path.join(__dirname, "../docs/worker-architecture-boundaries.md"),
