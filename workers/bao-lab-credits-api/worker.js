@@ -3714,11 +3714,27 @@ const WorkerProviderControl = (() => {
             COALESCE(
               SUM(
                 CASE
+                  -- Provider balance tracking follows upstream spend, not
+                  -- whether YoruBay charged or refunded the player. A provider
+                  -- can still bill a successful response whose token usage is
+                  -- incomplete, so any known upstream cost must be counted.
                   WHEN provider_cost_microusd IS NOT NULL
                     THEN provider_cost_microusd
-                  WHEN settled_cost_microusd IS NOT NULL
+
+                  WHEN status IN (
+                    'ok',
+                    'over_budget'
+                  )
+                    AND settled_cost_microusd IS NOT NULL
                     THEN settled_cost_microusd
-                  ELSE cost_microusd
+
+                  WHEN status IN (
+                    'ok',
+                    'over_budget'
+                  )
+                    THEN cost_microusd
+
+                  ELSE 0
                 END
               ),
               0
@@ -3730,11 +3746,6 @@ const WorkerProviderControl = (() => {
             provider = ?
   
             AND billing_mode = ?
-  
-            AND status IN (
-              'ok',
-              'over_budget'
-            )
           `
         )
         .bind(
