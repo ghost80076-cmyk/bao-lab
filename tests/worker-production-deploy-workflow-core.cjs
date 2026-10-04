@@ -104,6 +104,11 @@ assert.match(
   /node tests\/worker-crypto-core\.cjs/,
   "crypto behavior contract must run before production deployment"
 );
+assert.match(
+  source,
+  /node tests\/worker-http-core\.cjs/,
+  "HTTP behavior contract must run before production deployment"
+);
 
 assert.match(
   source,
