@@ -2,6 +2,7 @@
   "schema_version": 1,
   "main_module": "worker.js",
   "modules": [
+    "modules/account-validation.js",
     "worker.js"
   ]
 }

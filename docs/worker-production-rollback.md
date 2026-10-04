@@ -1,14 +1,16 @@
 # Production Worker rollback
 
-This runbook covers the current single-file deployment of Cloudflare Worker
-`bao-lab-credits-api`. Use it when a production Worker deployment succeeds but
-introduces a regression.
+This runbook covers the first multi-module deployment of Cloudflare Worker
+`bao-lab-credits-api`. Its reviewed graph contains `worker.js` and the pure
+`modules/account-validation.js` dependency. Use this procedure both for an
+incident and for the supervised first-extraction rollback rehearsal.
 
 ## Immediate rollback
 
 1. Open Cloudflare **Workers & Pages** and select `bao-lab-credits-api`.
 2. Open **Deployments**.
-3. Find the most recent known-good version, open its three-dot menu and select
+3. Find the most recent known-good single-file version immediately before the
+   account-validation extraction, open its three-dot menu and select
    **Rollback**.
 4. Confirm both production health endpoints return HTTP 200 and `"ok": true`:
    - `https://api.yorubay.com/health`
@@ -43,6 +45,8 @@ configuration and remain outside the content-only deployment boundary.
 - The revert PR's Worker contract tests pass.
 - The GitHub `Deploy production Worker` run for the revert is green.
 
-This runbook does not authorize physical multi-module extraction. The first
-multi-module candidate must add module-graph packaging tests and rehearse this
-rollback path before it can replace the single-file artifact.
+For the supervised rehearsal, confirm the single-file rollback passes every
+acceptance check above. Then select the reviewed two-module deployment from the
+deployment history and use **Rollback** again to restore it. Repeat the health
+and security checks. Do not extract a second boundary until both directions
+have been verified.

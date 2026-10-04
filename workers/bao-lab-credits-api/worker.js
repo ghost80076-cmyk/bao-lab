@@ -1,3 +1,10 @@
+import {
+  WorkerAccountValidation,
+  validDisplayName,
+  validPassword,
+  validUsername,
+} from "./modules/account-validation.js";
+
 // Hosted prompt limits are transport / abuse guards, not model context-window limits.
 // The browser aims substantially below these values and compacts smart-memory stories
 // before reaching the hard ceiling.
@@ -1142,68 +1149,6 @@ const {
   playerFor,
   createSession,
 } = WorkerSessionAuth;
-
-// Account credential/profile input validation shared by register, login and
-// recovery routes. Normalization rules remain separate from session policy.
-const WorkerAccountValidation = (() => {
-function validUsername(
-  value
-) {
-  const username =
-    String(
-      value || ""
-    )
-      .trim()
-      .toLowerCase();
-
-  return /^[a-z0-9][a-z0-9._-]{2,31}$/.test(
-    username
-  )
-    ? username
-    : null;
-}
-
-function validPassword(
-  value
-) {
-  return (
-    typeof value ===
-      "string" &&
-    value.length >=
-      10 &&
-    value.length <=
-      128
-  );
-}
-
-function validDisplayName(
-  value
-) {
-  const name =
-    String(
-      value || ""
-    ).trim();
-
-  return (
-    name.length >= 1 &&
-    name.length <= 50
-  )
-    ? name
-    : null;
-}
-
-  return Object.freeze({
-    validUsername,
-    validPassword,
-    validDisplayName,
-  });
-})();
-
-const {
-  validUsername,
-  validPassword,
-  validDisplayName,
-} = WorkerAccountValidation;
 
 // Runtime configuration boundary. Keep environment aliases, rollout allowlists
 // and account-mode decisions together so routes do not parse bindings directly.

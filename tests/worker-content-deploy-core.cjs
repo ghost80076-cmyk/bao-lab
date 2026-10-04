@@ -142,13 +142,20 @@ const productionGraph = loadWorkerModuleManifest(
 assert.equal(productionGraph.mainModule, "worker.js");
 assert.deepEqual(
   productionGraph.modules.map(module => module.name),
-  ["worker.js"],
-  "production must remain a single-file Worker until rollback rehearsal passes"
+  ["modules/account-validation.js", "worker.js"],
+  "production must contain only the reviewed first extraction candidate"
 );
 assert.equal(
-  productionGraph.modules[0].content,
+  productionGraph.modules.find(module => module.name === "worker.js").content,
   fs.readFileSync(path.join(productionWorkerDirectory, "worker.js"), "utf8")
 );
+const productionBody = buildWorkerUploadBody(productionGraph);
+assert.equal(productionBody.get("metadata"), '{"main_module":"worker.js"}');
+assert.ok(
+  productionBody.get("modules/account-validation.js"),
+  "the extracted account validation module must be included in the upload"
+);
+assert.ok(productionBody.get("worker.js"), "the main Worker module must be included");
 
 const moduleBody = buildWorkerUploadBody({
   mainModule: "worker.js",

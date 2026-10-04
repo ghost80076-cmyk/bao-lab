@@ -1,11 +1,13 @@
 const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
+const { pathToFileURL } = require("node:url");
 
-const source = fs.readFileSync(
-  path.join(__dirname, "../workers/bao-lab-credits-api/worker.js"),
-  "utf8"
+const workerPath = path.join(
+  __dirname,
+  "../workers/bao-lab-credits-api/worker.js"
 );
+const source = fs.readFileSync(workerPath, "utf8");
 
 assert.match(
   source,
@@ -17,8 +19,7 @@ for (const helper of ["withSecurityHeaders", "json", "fail", "readJsonWithLimit"
 }
 
 async function loadWorker() {
-  const encoded = Buffer.from(source, "utf8").toString("base64");
-  return import(`data:text/javascript;base64,${encoded}`);
+  return import(pathToFileURL(workerPath).href);
 }
 
 function assertSecurityHeaders(response) {

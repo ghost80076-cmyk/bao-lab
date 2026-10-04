@@ -33,6 +33,7 @@ jobs:
       - name: Verify deployment boundary
         run: |
           node --check workers/bao-lab-credits-api/worker.js
+          node --check workers/bao-lab-credits-api/modules/account-validation.js
           node tests/worker-content-deploy-core.cjs
           node tests/worker-production-deploy-workflow-core.cjs
           node tests/worker-security-headers-core.cjs
