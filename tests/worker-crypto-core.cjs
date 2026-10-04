@@ -45,7 +45,7 @@ const { pathToFileURL } = require("node:url");
 
   assert.equal(
     await sha256Hex("yorubay"),
-    "0678762aeb68a12b5b0022a96aa89062125a1d0d4e94a408206365e35f6f3c82"
+    "454df51cfd2d1586cdada4bd541ce03f4246691b2273b47db2a3cdc06d077cc0"
   );
   assert.equal(constantTimeStringEqual("same", "same"), true);
   assert.equal(constantTimeStringEqual("same", "diff"), false);
