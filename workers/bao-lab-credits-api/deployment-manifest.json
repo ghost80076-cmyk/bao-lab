@@ -8,6 +8,7 @@
     "modules/chat-input.js",
     "modules/crypto.js",
     "modules/github-publication-transport.js",
+    "modules/http.js",
     "modules/publication-format.js",
     "modules/runtime-config.js",
     "worker.js"
