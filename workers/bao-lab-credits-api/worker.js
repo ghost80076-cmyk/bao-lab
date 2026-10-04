@@ -3664,10 +3664,13 @@ const WorkerProviderControl = (() => {
   const PROVIDER_CONTROL = Object.freeze({
     gemini: {
       label: "Google Gemini",
-      default_threshold_microusd: 2_000_000,
+      official_balance_currency: "TWD",
+      balance_mode: "native_snapshot",
     },
     openrouter: {
       label: "OpenRouter",
+      official_balance_currency: "USD",
+      balance_mode: "usd_estimate",
       default_threshold_microusd: 2_000_000,
     },
   });
@@ -3694,6 +3697,18 @@ const WorkerProviderControl = (() => {
             anchor_balance_microusd INTEGER NOT NULL,
             anchor_spent_microusd INTEGER NOT NULL,
             low_balance_threshold_microusd INTEGER NOT NULL DEFAULT 2000000,
+            updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+          )
+          `
+        ),
+
+        db.prepare(
+          `
+          CREATE TABLE IF NOT EXISTS provider_native_balance_snapshots (
+            provider TEXT PRIMARY KEY,
+            currency TEXT NOT NULL,
+            balance_minor INTEGER NOT NULL,
+            anchor_spent_microusd INTEGER NOT NULL,
             updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
           )
           `
@@ -3773,6 +3788,7 @@ const WorkerProviderControl = (() => {
     const [
       routeRows,
       balanceRows,
+      nativeBalanceRows,
     ] =
       await Promise.all(
         [
@@ -3803,6 +3819,21 @@ const WorkerProviderControl = (() => {
               `
             )
             .all(),
+
+          db
+            .prepare(
+              `
+              SELECT
+                provider,
+                currency,
+                balance_minor,
+                anchor_spent_microusd,
+                updated_at
+
+              FROM provider_native_balance_snapshots
+              `
+            )
+            .all(),
         ]
       );
   
@@ -3823,6 +3854,19 @@ const WorkerProviderControl = (() => {
       new Map(
         (
           balanceRows.results ||
+          []
+        ).map(
+          (row) => [
+            row.provider,
+            row,
+          ]
+        )
+      );
+
+    const nativeBalances =
+      new Map(
+        (
+          nativeBalanceRows.results ||
           []
         ).map(
           (row) => [
@@ -3965,6 +4009,89 @@ const WorkerProviderControl = (() => {
           db,
           provider
         );
+
+      if (
+        info.balance_mode ===
+          "native_snapshot"
+      ) {
+        const nativeBalance =
+          nativeBalances.get(
+            provider
+          );
+
+        const anchored =
+          Boolean(
+            nativeBalance &&
+            nativeBalance.currency ===
+              info.official_balance_currency
+          );
+
+        const anchorSpent =
+          anchored
+            ? safeMoneyInt(
+                Number(
+                  nativeBalance
+                    .anchor_spent_microusd
+                )
+              )
+            : cumulative;
+
+        providers.push({
+          provider,
+
+          label:
+            info.label,
+
+          balance_mode:
+            info.balance_mode,
+
+          official_balance_currency:
+            info.official_balance_currency,
+
+          anchored,
+
+          reported_balance_minor:
+            anchored
+              ? safeMoneyInt(
+                  Number(
+                    nativeBalance
+                      .balance_minor
+                  )
+                )
+              : null,
+
+          tracked_spent_microusd:
+            anchored
+              ? Math.max(
+                  0,
+                  cumulative -
+                    anchorSpent
+                )
+              : 0,
+
+          // Intentionally unavailable: Google reports this account balance in
+          // TWD while YoruBay's provider-cost ledger is USD. We do not apply
+          // an implicit FX rate and pretend the mixed-currency subtraction is
+          // an exact remaining balance.
+          estimated_remaining_microusd:
+            null,
+
+          low_balance_threshold_microusd:
+            null,
+
+          status:
+            anchored
+              ? "reported"
+              : "untracked",
+
+          updated_at:
+            nativeBalance
+              ?.updated_at ||
+            null,
+        });
+
+        continue;
+      }
   
       const anchor =
         anchors.get(
@@ -4039,8 +4166,15 @@ const WorkerProviderControl = (() => {
   
       providers.push({
         provider,
+
         label:
           info.label,
+
+        balance_mode:
+          info.balance_mode,
+
+        official_balance_currency:
+          info.official_balance_currency,
   
         anchored,
   
@@ -8161,6 +8295,105 @@ async function adminProviderControlRoute(
         .trim()
         .toLowerCase();
 
+    const info =
+      PROVIDER_CONTROL[
+        provider
+      ];
+
+    if (!info) {
+      return fail(
+        "invalid_provider_balance"
+      );
+    }
+
+    const currentSpend =
+      await providerCumulativeSpendMicrousd(
+        db,
+        provider
+      );
+
+    if (
+      info.balance_mode ===
+        "native_snapshot"
+    ) {
+      const currency =
+        String(
+          body?.currency ||
+          ""
+        )
+          .trim()
+          .toUpperCase();
+
+      const balanceMinor =
+        Number(
+          body
+            ?.balance_minor
+        );
+
+      if (
+        currency !==
+          info.official_balance_currency ||
+        !integer(
+          balanceMinor,
+          0,
+          9_000_000_000_000
+        )
+      ) {
+        return fail(
+          "invalid_provider_balance"
+        );
+      }
+
+      await db
+        .prepare(
+          `
+          INSERT INTO provider_native_balance_snapshots (
+            provider,
+            currency,
+            balance_minor,
+            anchor_spent_microusd,
+            updated_at
+          )
+
+          VALUES (
+            ?,
+            ?,
+            ?,
+            ?,
+            CURRENT_TIMESTAMP
+          )
+
+          ON CONFLICT(provider)
+          DO UPDATE SET
+            currency =
+              excluded.currency,
+
+            balance_minor =
+              excluded.balance_minor,
+
+            anchor_spent_microusd =
+              excluded.anchor_spent_microusd,
+
+            updated_at =
+              CURRENT_TIMESTAMP
+          `
+        )
+        .bind(
+          provider,
+          currency,
+          balanceMinor,
+          currentSpend
+        )
+        .run();
+
+      return json(
+        await providerControlSnapshot(
+          env,
+          db
+        )
+      );
+    }
+
     const balance =
       Number(
         body
@@ -8168,10 +8401,8 @@ async function adminProviderControlRoute(
       );
 
     const defaultThreshold =
-      PROVIDER_CONTROL[
-        provider
-      ]
-        ?.default_threshold_microusd;
+      info
+        .default_threshold_microusd;
 
     const threshold =
       Number(
@@ -8181,9 +8412,6 @@ async function adminProviderControlRoute(
       );
 
     if (
-      !PROVIDER_CONTROL[
-        provider
-      ] ||
       !integer(
         balance,
         0,
@@ -8199,12 +8427,6 @@ async function adminProviderControlRoute(
         "invalid_provider_balance"
       );
     }
-
-    const currentSpend =
-      await providerCumulativeSpendMicrousd(
-        db,
-        provider
-      );
 
     await db
       .prepare(
