@@ -91,6 +91,12 @@ assert.match(
 
 assert.match(
   source,
+  /node tests\/worker-crypto-core\.cjs/,
+  "crypto behavior contract must run before production deployment"
+);
+
+assert.match(
+  source,
   /group: production-worker\s*\n\s*cancel-in-progress: false/,
   "production deployments must remain serialized"
 );
