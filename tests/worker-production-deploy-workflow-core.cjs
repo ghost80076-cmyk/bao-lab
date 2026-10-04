@@ -68,6 +68,11 @@ assert.match(
   /node --check workers\/bao-lab-credits-api\/modules\/chat-input\.js/,
   "the extracted chat input module must pass syntax validation before deployment"
 );
+assert.match(
+  source,
+  /node --check workers\/bao-lab-credits-api\/modules\/publication-format\.js/,
+  "the extracted publication format module must pass syntax validation before deployment"
+);
 
 assert.match(
   source,
