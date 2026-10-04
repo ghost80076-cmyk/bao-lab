@@ -33,36 +33,32 @@
     "version_published_at": "2026-10-03T11:40:28Z"
   },
   {
-    "id": "ktv-flight-chess",
-    "file": "data/characters/community/eb/ktv-flight-chess.json",
-    "name": "🔥 KTV飛行棋（聯誼、四人、真心話、大冒險）",
-    "title": "🔥 KTV飛行棋｜成人派對・BDSM 主導版",
-    "avatar": "https://i.meee.com.tw/NDOyMt1.jpg",
-    "category": "general",
+    "id": "aetheria-three-factions",
+    "file": "data/characters/community/ae/aetheria-three-factions.json",
+    "name": "艾瑟莉亞大陸 - 三大勢力",
+    "title": "艾瑟莉亞大陸｜三大勢力・生命精華紀元",
+    "avatar": "https://i.meee.com.tw/GxAeyMx.jpg",
+    "category": "male",
     "rating": "adult",
     "gender": "all",
     "tags": [
-      "R18成人遊戲",
-      "KTV",
-      "四人聯誼",
-      "飛行棋",
-      "真心話大冒險",
+      "男性向",
+      "R18成人奇幻",
+      "生命精華",
+      "體液煉金",
+      "三大勢力",
+      "多NPC",
+      "世界模擬",
+      "勢力角力",
+      "道德困境",
+      "精華市場",
+      "黑市交易",
+      "煉金術",
       "自主NPC",
-      "骰子遊戲",
-      "關係養成",
-      "狀態追蹤",
-      "成人派對",
-      "BDSM",
-      "D/s",
-      "主導服從",
-      "SM",
-      "雙版本"
+      "資訊隔離",
+      "原生狀態UI"
     ],
-    "description": "四名成年人在私密 KTV 包間玩的成人飛行棋，內建兩套棋盤：40 格成人派對版，以及 49 格 BDSM／D/s 主導版。三名 NPC 依性格、關係、角色傾向與界線自主反應；支援自訂性別組合、主導／服從／Switch、暫停、跳過、改抽與遊戲外互動。成人內容僅在使用者主動開啟 R18 顯示後出現。",
-    "published_at": "2026-10-03T11:55:00.000Z",
-    "updated_at": "2026-10-03T18:12:00Z",
-    "published_version": 2,
-    "version_published_at": "2026-10-03T18:12:00Z",
+    "description": "三百年前，艾瑟莉亞發現能從成年人的生命精華、情緒與體液中提煉魔法資源，文明因此被重新塑形。聖潔教會、慾望教團與自由煉金師公會圍繞精華來源、交易、權力與道德長期角力；玩家從中立之港進入這個會自行運作、會變化、也會反過來改變人的成人奇幻世界。",
     "supported_modes": {
       "immersive": true,
       "world": true
@@ -70,67 +66,74 @@
     "supported_display": {
       "text": true,
       "ui": true
-    }
+    },
+    "published_at": "2026-10-03T18:04:00Z",
+    "updated_at": "2026-10-03T18:04:00Z",
+    "published_version": 1,
+    "version_published_at": "2026-10-03T18:04:00Z"
   },
   {
-    "id": "spicy-89-girl",
-    "file": "data/characters/community/89/spicy-89-girl.json",
-    "name": "愛吃\"辣椒\"的89妹",
-    "title": "愛吃「辣椒」的89妹｜大寮小辣椒",
-    "avatar": "https://i.meee.com.tw/9fgA5aC.jpg",
+    "id": "awakened-silver-dawn",
+    "file": "data/characters/community/d0/awakened-silver-dawn.json",
+    "name": "覺醒者：破曉之銀",
+    "title": "覺醒者：破曉之銀",
+    "avatar": "https://i.meee.com.tw/BH3KBth.jpg",
+    "category": "general",
+    "rating": "general",
+    "gender": "all",
+    "tags": [
+      "一般向",
+      "都市異能",
+      "世界模擬",
+      "高危戰鬥",
+      "勢力衝突",
+      "身分謎團",
+      "自主NPC",
+      "資訊隔離",
+      "身體負荷",
+      "多結局"
+    ],
+    "description": "現代都市的日常之下，覺醒者在暗處彼此追獵。你的能量偏偏是不存在於常規紀錄中的銀色。力量能重構規則，身體卻未必撐得住；而每一次暴露，都會讓更多人開始尋找你。",
+    "supported_modes": {
+      "immersive": true,
+      "world": true
+    },
+    "supported_display": {
+      "text": true,
+      "ui": true
+    },
+    "published_at": "2026-10-03T14:01:00Z",
+    "updated_at": "2026-10-03T17:31:00Z",
+    "published_version": 2,
+    "version_published_at": "2026-10-03T17:31:00Z"
+  },
+  {
+    "id": "baitao-boyfriend-reverse-ntr",
+    "file": "data/characters/community/1f/baitao-boyfriend-reverse-ntr.json",
+    "name": "白桃奶昔-男友視角 | 逆NTR",
+    "title": "白桃奶昔｜男友視角・逆 NTR",
+    "avatar": "https://i.meee.com.tw/CGohh6w.jpg",
     "category": "male",
     "rating": "adult",
     "gender": "female",
     "tags": [
       "男性向",
-      "R18成人角色",
-      "高雄大寮",
-      "8+9文化",
-      "宮廟",
-      "夜市",
-      "汽車美容",
-      "夜間部",
-      "關係拉扯",
+      "R18成人內容",
+      "男友視角",
+      "逆NTR",
+      "三角關係",
+      "背叛疑雲",
+      "監視線索",
+      "綠帽癖分支",
+      "多NPC",
+      "資訊隔離",
+      "關係失控",
+      "直播主",
       "自主NPC",
-      "世界模擬",
-      "台語口吻",
-      "慢熱",
-      "成人向"
+      "調查與選擇",
+      "原生狀態UI"
     ],
-    "description": "22 歲的陳思婷，綽號「小辣椒」。她白天在汽車美容店上班、晚上念夜間部、週末跑夜市與宮廟；黃毛阿凱、三個乾哥與幾段舊關係把她的生活纏成一張網。玩家先選擇自己在大寮的身份，再從日常、曖昧、衝突與成人關係裡慢慢走進她的世界。成人內容僅在使用者主動開啟 R18 顯示後出現。",
-    "published_at": "2026-10-03T12:19:00.000Z",
-    "updated_at": "2026-10-03T18:00:00Z",
-    "published_version": 2,
-    "version_published_at": "2026-10-03T18:00:00Z",
-    "supported_modes": {
-      "immersive": true,
-      "world": true
-    },
-    "supported_display": {
-      "text": true,
-      "ui": true
-    }
-  },
-  {
-    "id": "mafia-emperor-enzo",
-    "file": "data/characters/community/fe/mafia-emperor-enzo.json",
-    "name": "黑道帝王・恩佐 (Enzo)",
-    "title": "黑道帝王・恩佐｜危險的溫柔",
-    "avatar": "assets/community/fe/mafia-emperor-enzo.webp",
-    "category": "female",
-    "rating": "adult",
-    "gender": "male",
-    "tags": [
-      "女性向",
-      "黑道帝王",
-      "危險戀愛",
-      "溺愛",
-      "佔有慾",
-      "暗黑浪漫",
-      "成人親密",
-      "慢熱關係"
-    ],
-    "description": "深夜的公園裡，你手上只剩一封被捏皺的辭職信。恩佐在最狼狽的時候出現，說工作、住處、錢，他都能給；交換條件只有一個——待在他身邊。危險的黑道帝王 × 只對你溫柔的溺愛系暗黑戀愛。",
+    "description": "你是白桃交往一年的男友。最近兩個月，你的工作與刻意留下的空白讓她和攝影師陳浩越走越近；三天前，他們已經跨過接吻這條界線。你可以調查、質問、挽回、放任、承認自己的特殊幻想、與星野美月發展關係，或乾脆讓所有人的秘密一起失控。沒有人被預設一定留下，也沒有人只是用來完成 NTR 的工具。",
     "supported_modes": {
       "immersive": true,
       "world": true
@@ -139,37 +142,157 @@
       "text": true,
       "ui": true
     },
-    "published_at": "2026-10-03T12:35:00Z",
-    "updated_at": "2026-10-03T12:35:00Z",
+    "published_at": "2026-10-03T19:55:00Z",
+    "updated_at": "2026-10-03T19:55:00Z",
     "published_version": 1,
-    "version_published_at": "2026-10-03T12:35:00Z"
+    "version_published_at": "2026-10-03T19:55:00Z"
   },
   {
-    "id": "desire-werewolf",
-    "file": "data/characters/community/eb/desire-werewolf.json",
-    "name": "慾望狼人殺",
-    "title": "慾望狼人殺｜8人成人心理博弈",
-    "avatar": "assets/community/eb/desire-werewolf.webp",
+    "id": "baitao-roommate-triangle",
+    "file": "data/characters/community/1f/baitao-roommate-triangle.json",
+    "name": "白桃奶昔 - 好友的女友 | 三人同居中",
+    "title": "白桃奶昔｜好友的女友・三人同居中",
+    "avatar": "https://i.meee.com.tw/80Nq2T6.jpg",
+    "category": "male",
+    "rating": "adult",
+    "gender": "female",
+    "tags": [
+      "男性向",
+      "R18成人內容",
+      "現代同居",
+      "好友的女友",
+      "三角關係",
+      "NTR分支",
+      "禁忌曖昧",
+      "戀愛拉扯",
+      "道德困境",
+      "直播主",
+      "自主NPC",
+      "多NPC",
+      "資訊隔離",
+      "慢熱關係",
+      "原生狀態UI"
+    ],
+    "description": "你搬進多年好友林宇軒與女友白桃的公寓，三人同居從今天正式開始。白桃渴望陪伴、宇軒忙於工作，而你同時是室友與他最信任的朋友。曖昧、克制、背叛、坦白、分手或重新建立界線都可能發生；沒有誰被預設成攻略目標，也沒有固定結局。",
+    "supported_modes": {
+      "immersive": true,
+      "world": true
+    },
+    "supported_display": {
+      "text": true,
+      "ui": true
+    },
+    "published_at": "2026-10-03T19:35:00Z",
+    "updated_at": "2026-10-03T19:35:00Z",
+    "published_version": 1,
+    "version_published_at": "2026-10-03T19:35:00Z"
+  },
+  {
+    "id": "campus-rival-24h-command",
+    "file": "data/characters/community/2a/campus-rival-24h-command.json",
+    "name": "校花死對頭｜24H絕對命令權",
+    "title": "校花死對頭｜24H絕對命令權",
+    "avatar": "https://i.meee.com.tw/NT68Wxx.jpg",
+    "category": "male",
+    "rating": "adult",
+    "gender": "female",
+    "tags": [
+      "男性向",
+      "成人內容",
+      "大學校園",
+      "校花",
+      "死對頭",
+      "歡喜冤家",
+      "契約奇幻",
+      "24H倒數",
+      "絕對命令",
+      "懲罰路線",
+      "權力反轉",
+      "慢熱淪陷",
+      "自主NPC",
+      "資訊隔離",
+      "多分支"
+    ],
+    "description": "20 歲的大學校花凌薇然，和你從中學一路鬥到現在。某份交換契約讓她在接下來 24 小時內握有真正有效的絕對命令權；違抗、鑽漏洞與反擊都可能換來她更有個性的懲罰，而時間歸零後，權力還可能反過來落到你手上。她以為這一天是在馴服死對頭——但玩家怎麼回應，會決定最後到底是誰先亂了陣腳。",
+    "supported_modes": {
+      "immersive": true,
+      "world": true
+    },
+    "supported_display": {
+      "text": true,
+      "ui": true
+    },
+    "published_at": "2026-10-03T18:11:00Z",
+    "updated_at": "2026-10-03T18:19:00Z",
+    "published_version": 1,
+    "version_published_at": "2026-10-03T18:19:00Z"
+  },
+  {
+    "id": "craftsman-ming-survival-trpg",
+    "file": "data/characters/community/a8/craftsman-ming-survival-trpg.json",
+    "name": "匠道大明：穿越者生存指南",
+    "title": "匠道大明｜穿越者生存 TRPG",
+    "avatar": "https://i.meee.com.tw/b7ijyZF.jpg",
+    "category": "general",
+    "rating": "general",
+    "gender": "all",
+    "tags": [
+      "一般向",
+      "架空大明",
+      "TRPG",
+      "穿越生存",
+      "匠道",
+      "百業世界",
+      "經營",
+      "階級社會",
+      "妖獸",
+      "多匠道",
+      "1d100檢定",
+      "自主NPC",
+      "資訊隔離",
+      "世界模擬",
+      "原生狀態UI"
+    ],
+    "description": "身無分文、沒有戶籍，也沒有任何職業身份。你帶著 21 世紀的記憶掉進架空大明，必須先活過今天，再從木匠、鐵匠、醫者、廚師、獵人、仵作、戲班、牙行等千行百業中找到自己的路。匠道可以由技入道，但現代知識不是無敵外掛，階級、行會、稅賦、妖獸與人情世故都會真正留下後果。",
+    "supported_modes": {
+      "immersive": true,
+      "world": true
+    },
+    "supported_display": {
+      "text": true,
+      "ui": true
+    },
+    "published_at": "2026-10-03T18:40:00Z",
+    "updated_at": "2026-10-03T18:40:00Z",
+    "published_version": 1,
+    "version_published_at": "2026-10-03T18:40:00Z"
+  },
+  {
+    "id": "dark-military-war-simulator",
+    "file": "data/characters/community/45/dark-military-war-simulator.json",
+    "name": "黑暗軍旅模擬系統",
+    "title": "黑暗軍旅模擬系統｜帝國戰爭生存 TRPG",
+    "avatar": "https://i.meee.com.tw/81WhE0w.jpg",
     "category": "general",
     "rating": "adult",
     "gender": "all",
     "tags": [
-      "R18成人遊戲",
-      "狼人殺",
-      "8人局",
-      "身份推理",
-      "心理博弈",
+      "成人題材",
+      "黑暗軍旅",
+      "TRPG",
+      "戰爭生存",
+      "世界模擬",
+      "1d100檢定",
+      "階級制度",
+      "派系政治",
+      "戰俘與佔領區",
+      "道德後果",
       "自主NPC",
-      "白天投票",
-      "夜晚行動",
       "資訊隔離",
-      "狀態追蹤"
+      "多結局",
+      "原生狀態UI"
     ],
-    "description": "八名成年玩家被捲入封閉式狼人殺。白天公開發言與投票，夜晚各身份秘密行動；2 名黑手黨、1 名內鬼、1 名偵探、1 名女巫與 3 名平民在謊言、懷疑與成人張力中互相試探。成人內容只在玩家主動開啟 R18 後顯示。",
-    "published_at": "2026-10-03T12:30:00Z",
-    "updated_at": "2026-10-03T12:30:00Z",
-    "published_version": 1,
-    "version_published_at": "2026-10-03T12:30:00Z",
+    "description": "一張以帝國戰爭為舞台的黑暗軍旅 TRPG 世界卡。先建立你的帝國、戰區、入伍背景與能力，再從新兵一路面對前線、階級、派系、戰俘、軍紀、腐敗與戰敗風險。世界不等玩家，軍功也不會自動抹去你留下的責任與證據。",
     "supported_modes": {
       "immersive": true,
       "world": true
@@ -177,30 +300,35 @@
     "supported_display": {
       "text": true,
       "ui": true
-    }
+    },
+    "published_at": "2026-10-03T18:25:00Z",
+    "updated_at": "2026-10-03T18:25:00Z",
+    "published_version": 1,
+    "version_published_at": "2026-10-03T18:25:00Z"
   },
   {
-    "id": "lu-yan-rogue-devotion",
-    "file": "data/characters/community/2e/lu-yan-rogue-devotion.json",
-    "name": "陸炎｜痞壞背後的深情",
-    "title": "陸炎｜痞壞背後的深情",
-    "avatar": "assets/community/2e/lu-yan-rogue-devotion.webp",
+    "id": "debt-cage-lu-shen",
+    "file": "data/characters/community/de/debt-cage-lu-shen.json",
+    "name": "債之囚籠｜陸深的病態佔有",
+    "title": "債之囚籠｜陸深的病態佔有",
+    "avatar": "assets/community/de/debt-cage-lu-shen.jpg",
     "category": "female",
     "rating": "adult",
     "gender": "male",
     "tags": [
       "女性向",
+      "成人內容",
       "現代都市",
-      "酒吧老闆",
-      "街頭勢力",
-      "豪門棄子",
-      "歡喜冤家",
-      "佔有慾",
-      "反差守護",
-      "慢熱戀愛",
-      "成人內容"
+      "暗黑戀愛",
+      "病態佔有",
+      "債務控制",
+      "權力差",
+      "心理壓迫",
+      "危險關係",
+      "資訊差",
+      "慢熱拉扯"
     ],
-    "description": "他是酒吧「焰」的老闆，也是這條街最不好惹的人。嘴壞、愛挑釁、總把關心藏在最不討喜的方式裡；妳看見的是他的痞，沒看見的是他早已替妳擋掉多少麻煩。現代都市 × 歡喜冤家 × 豪門棄子 × 反差守護。",
+    "description": "父親的債，把妳送到陸深面前。金絲眼鏡、三件式西裝、永遠溫和的聲音——他把一切包裝成合約、選擇與體面，真正想要的卻從來不是錢。女性向暗黑戀愛 × 債務控制 × 病態佔有 × 反制與逃脫。",
     "supported_modes": {
       "immersive": true,
       "world": true
@@ -209,47 +337,10 @@
       "text": true,
       "ui": true
     },
-    "published_at": "2026-10-03T13:30:00Z",
-    "updated_at": "2026-10-03T13:30:00Z",
+    "published_at": "2026-10-03T16:35:00Z",
+    "updated_at": "2026-10-03T16:35:00Z",
     "published_version": 1,
-    "version_published_at": "2026-10-03T13:30:00Z"
-  },
-  {
-    "id": "heart-contract-custom-lover",
-    "file": "data/characters/community/8f/heart-contract-custom-lover.json",
-    "name": "心動違約｜訂製戀人",
-    "title": "心動違約｜訂製戀人",
-    "avatar": "assets/community/8f/heart-contract-custom-lover.webp",
-    "category": "female",
-    "rating": "adult",
-    "gender": "all",
-    "tags": [
-      "女性向",
-      "訂製戀人",
-      "契約戀愛",
-      "假戀人",
-      "世界模擬",
-      "自主NPC",
-      "多NPC",
-      "金錢系統",
-      "國籍文化",
-      "慢熱戀愛",
-      "韓劇張力",
-      "成人內容"
-    ],
-    "description": "在合法而普遍的「假戀人」產業裡，妳可以訂製一位最適合自己的戀人：外貌、性格、國籍、職業、相處方式都能決定。問題是——當一個人太擅長扮演愛妳，妳要怎麼分辨哪一刻開始，不再只是工作？",
-    "supported_modes": {
-      "immersive": true,
-      "world": true
-    },
-    "supported_display": {
-      "text": true,
-      "ui": true
-    },
-    "published_at": "2026-10-03T13:52:00Z",
-    "updated_at": "2026-10-03T13:52:00Z",
-    "published_version": 1,
-    "version_published_at": "2026-10-03T13:52:00Z"
+    "version_published_at": "2026-10-03T16:35:00Z"
   },
   {
     "id": "desire-academy-city",
@@ -294,330 +385,31 @@
     "version_published_at": "2026-10-03T16:15:00Z"
   },
   {
-    "id": "awakened-silver-dawn",
-    "file": "data/characters/community/d0/awakened-silver-dawn.json",
-    "name": "覺醒者：破曉之銀",
-    "title": "覺醒者：破曉之銀",
-    "avatar": "https://i.meee.com.tw/BH3KBth.jpg",
-    "category": "general",
-    "rating": "general",
-    "gender": "all",
-    "tags": [
-      "一般向",
-      "都市異能",
-      "世界模擬",
-      "高危戰鬥",
-      "勢力衝突",
-      "身分謎團",
-      "自主NPC",
-      "資訊隔離",
-      "身體負荷",
-      "多結局"
-    ],
-    "description": "現代都市的日常之下，覺醒者在暗處彼此追獵。你的能量偏偏是不存在於常規紀錄中的銀色。力量能重構規則，身體卻未必撐得住；而每一次暴露，都會讓更多人開始尋找你。",
-    "supported_modes": {
-      "immersive": true,
-      "world": true
-    },
-    "supported_display": {
-      "text": true,
-      "ui": true
-    },
-    "published_at": "2026-10-03T14:01:00Z",
-    "updated_at": "2026-10-03T17:31:00Z",
-    "published_version": 2,
-    "version_published_at": "2026-10-03T17:31:00Z"
-  },
-  {
-    "id": "gu-muhan-rival",
-    "file": "data/characters/community/6c/gu-muhan-rival.json",
-    "name": "顧慕寒-霸總的死對頭是我",
-    "title": "顧慕寒｜霸總的死對頭是我",
-    "avatar": "assets/community/6c/gu-muhan-rival.webp",
-    "category": "female",
-    "rating": "adult",
-    "gender": "male",
-    "tags": [
-      "女性向",
-      "校園戀愛",
-      "死對頭",
-      "年輕霸總",
-      "豪門繼承人",
-      "青梅竹馬",
-      "三角關係",
-      "歡喜冤家",
-      "慢熱拉扯",
-      "自主NPC",
-      "成人內容"
-    ],
-    "description": "顧慕寒以為林婉清是自己最熟悉、最應該守住的人；偏偏妳——他的死對頭——總能讓他失去原本的節奏。商學院宿敵 × 年輕創投老闆 × 青梅竹馬修羅場 × 校園與商戰雙線。",
-    "supported_modes": {
-      "immersive": true,
-      "world": true
-    },
-    "supported_display": {
-      "text": true,
-      "ui": true
-    },
-    "published_at": "2026-10-03T13:58:00Z",
-    "updated_at": "2026-10-03T13:58:00Z",
-    "published_version": 1,
-    "version_published_at": "2026-10-03T13:58:00Z"
-  },
-  {
-    "id": "debt-cage-lu-shen",
-    "file": "data/characters/community/de/debt-cage-lu-shen.json",
-    "name": "債之囚籠｜陸深的病態佔有",
-    "title": "債之囚籠｜陸深的病態佔有",
-    "avatar": "assets/community/de/debt-cage-lu-shen.jpg",
-    "category": "female",
-    "rating": "adult",
-    "gender": "male",
-    "tags": [
-      "女性向",
-      "成人內容",
-      "現代都市",
-      "暗黑戀愛",
-      "病態佔有",
-      "債務控制",
-      "權力差",
-      "心理壓迫",
-      "危險關係",
-      "資訊差",
-      "慢熱拉扯"
-    ],
-    "description": "父親的債，把妳送到陸深面前。金絲眼鏡、三件式西裝、永遠溫和的聲音——他把一切包裝成合約、選擇與體面，真正想要的卻從來不是錢。女性向暗黑戀愛 × 債務控制 × 病態佔有 × 反制與逃脫。",
-    "supported_modes": {
-      "immersive": true,
-      "world": true
-    },
-    "supported_display": {
-      "text": true,
-      "ui": true
-    },
-    "published_at": "2026-10-03T16:35:00Z",
-    "updated_at": "2026-10-03T16:35:00Z",
-    "published_version": 1,
-    "version_published_at": "2026-10-03T16:35:00Z"
-  },
-  {
-    "id": "lin-shen-reed-bloom",
-    "file": "data/characters/community/50/lin-shen-reed-bloom.json",
-    "name": "林深｜靜候花開的蘆葦",
-    "title": "林深｜靜候花開的蘆葦",
-    "avatar": "https://i.meee.com.tw/ibj9QsA.jpg",
-    "category": "female",
-    "rating": "general",
-    "gender": "male",
-    "tags": [
-      "女性向",
-      "青梅竹馬",
-      "現代日常",
-      "慢熱戀愛",
-      "守護系",
-      "細節控",
-      "溫柔克制",
-      "純愛",
-      "蘆葦花",
-      "自主NPC"
-    ],
-    "description": "25 歲的青梅竹馬。乾淨的肥皂水味裡混著一點苦澀草本香；口袋裡總有妳喜歡的糖，走路總站在妳左側半步。他從不把愛說得很大聲，只把每一次在意都藏進日常。",
-    "supported_modes": {
-      "immersive": true,
-      "world": true
-    },
-    "supported_display": {
-      "text": true,
-      "ui": true
-    },
-    "published_at": "2026-10-03T17:40:00Z",
-    "updated_at": "2026-10-03T17:40:00Z",
-    "published_version": 1,
-    "version_published_at": "2026-10-03T17:40:00Z"
-  },
-  {
-    "id": "reborn-di-daughter-regent",
-    "file": "data/characters/community/64/reborn-di-daughter-regent.json",
-    "name": "💎 重生嫡女：宮鬥復仇，攝政王只寵我一人",
-    "title": "💎 重生嫡女｜宮鬥復仇・攝政王入局",
-    "avatar": "https://i.meee.com.tw/J30iqUS.jpg",
-    "category": "female",
-    "rating": "general",
-    "gender": "male",
-    "tags": [
-      "女性向",
-      "古代重生",
-      "嫡女",
-      "宅鬥",
-      "宮鬥",
-      "復仇",
-      "攝政王",
-      "權謀",
-      "婚約",
-      "慢熱感情",
-      "自主NPC",
-      "資訊隔離",
-      "多結局",
-      "一般向"
-    ],
-    "description": "死在冷宮之後，妳睜眼回到十六歲——距離前世第一場毀掉名聲的局，還有整整六個月。沈清雅、柳姨娘、蕭景行、皇權與兵權都還沒有走到前世的位置；而七日後，攝政王慕容夜也將第一次真正進入妳的棋局。女性向重生復仇 × 宅鬥宮鬥 × 權謀慢熱 × 可改寫時間線。",
-    "supported_modes": {
-      "immersive": true,
-      "world": true
-    },
-    "supported_display": {
-      "text": true,
-      "ui": true
-    },
-    "published_at": "2026-10-03T17:58:00Z",
-    "updated_at": "2026-10-03T17:58:00Z",
-    "published_version": 1,
-    "version_published_at": "2026-10-03T17:58:00Z"
-  },
-  {
-    "id": "aetheria-three-factions",
-    "file": "data/characters/community/ae/aetheria-three-factions.json",
-    "name": "艾瑟莉亞大陸 - 三大勢力",
-    "title": "艾瑟莉亞大陸｜三大勢力・生命精華紀元",
-    "avatar": "https://i.meee.com.tw/GxAeyMx.jpg",
-    "category": "male",
-    "rating": "adult",
-    "gender": "all",
-    "tags": [
-      "男性向",
-      "R18成人奇幻",
-      "生命精華",
-      "體液煉金",
-      "三大勢力",
-      "多NPC",
-      "世界模擬",
-      "勢力角力",
-      "道德困境",
-      "精華市場",
-      "黑市交易",
-      "煉金術",
-      "自主NPC",
-      "資訊隔離",
-      "原生狀態UI"
-    ],
-    "description": "三百年前，艾瑟莉亞發現能從成年人的生命精華、情緒與體液中提煉魔法資源，文明因此被重新塑形。聖潔教會、慾望教團與自由煉金師公會圍繞精華來源、交易、權力與道德長期角力；玩家從中立之港進入這個會自行運作、會變化、也會反過來改變人的成人奇幻世界。",
-    "supported_modes": {
-      "immersive": true,
-      "world": true
-    },
-    "supported_display": {
-      "text": true,
-      "ui": true
-    },
-    "published_at": "2026-10-03T18:04:00Z",
-    "updated_at": "2026-10-03T18:04:00Z",
-    "published_version": 1,
-    "version_published_at": "2026-10-03T18:04:00Z"
-  },
-  {
-    "id": "lin-yuyan-possessed-husband",
-    "file": "data/characters/community/45/lin-yuyan-possessed-husband.json",
-    "name": "奪舍完美丈夫的妻子—林語嫣",
-    "title": "林語嫣｜奪舍完美丈夫之後",
-    "avatar": "https://i.meee.com.tw/O1NWbgz.jpg",
-    "category": "male",
-    "rating": "adult",
-    "gender": "female",
-    "tags": [
-      "男性向",
-      "成人內容",
-      "現代家庭",
-      "奪舍",
-      "雙面丈夫",
-      "Gaslighting",
-      "家庭控制",
-      "心理驚悚",
-      "信任重建",
-      "親子關係",
-      "自主NPC",
-      "資訊隔離",
-      "多結局"
-    ],
-    "description": "你在一個陌生男人的身體裡醒來，才知道這張「完美丈夫、好爸爸」的臉，曾把妻子林語嫣困在家裡五年。她不會因為靈魂換了人就立刻相信你；女兒、老師、鄰居、債主與原主人留下的謊言，也不會一起消失。男性向成人心理劇 × 奪舍重啟 × 家庭控制 × 信任重建。",
-    "supported_modes": {
-      "immersive": true,
-      "world": true
-    },
-    "supported_display": {
-      "text": true,
-      "ui": true
-    },
-    "published_at": "2026-10-03T18:12:00Z",
-    "updated_at": "2026-10-03T18:12:00Z",
-    "published_version": 1,
-    "version_published_at": "2026-10-03T18:12:00Z"
-  },
-  {
-    "id": "campus-rival-24h-command",
-    "file": "data/characters/community/2a/campus-rival-24h-command.json",
-    "name": "校花死對頭｜24H絕對命令權",
-    "title": "校花死對頭｜24H絕對命令權",
-    "avatar": "https://i.meee.com.tw/NT68Wxx.jpg",
-    "category": "male",
-    "rating": "adult",
-    "gender": "female",
-    "tags": [
-      "男性向",
-      "成人內容",
-      "大學校園",
-      "校花",
-      "死對頭",
-      "歡喜冤家",
-      "契約奇幻",
-      "24H倒數",
-      "絕對命令",
-      "懲罰路線",
-      "權力反轉",
-      "慢熱淪陷",
-      "自主NPC",
-      "資訊隔離",
-      "多分支"
-    ],
-    "description": "20 歲的大學校花凌薇然，和你從中學一路鬥到現在。某份交換契約讓她在接下來 24 小時內握有真正有效的絕對命令權；違抗、鑽漏洞與反擊都可能換來她更有個性的懲罰，而時間歸零後，權力還可能反過來落到你手上。她以為這一天是在馴服死對頭——但玩家怎麼回應，會決定最後到底是誰先亂了陣腳。",
-    "supported_modes": {
-      "immersive": true,
-      "world": true
-    },
-    "supported_display": {
-      "text": true,
-      "ui": true
-    },
-    "published_at": "2026-10-03T18:11:00Z",
-    "updated_at": "2026-10-03T18:19:00Z",
-    "published_version": 1,
-    "version_published_at": "2026-10-03T18:19:00Z"
-  },
-  {
-    "id": "dark-military-war-simulator",
-    "file": "data/characters/community/45/dark-military-war-simulator.json",
-    "name": "黑暗軍旅模擬系統",
-    "title": "黑暗軍旅模擬系統｜帝國戰爭生存 TRPG",
-    "avatar": "https://i.meee.com.tw/81WhE0w.jpg",
+    "id": "desire-werewolf",
+    "file": "data/characters/community/eb/desire-werewolf.json",
+    "name": "慾望狼人殺",
+    "title": "慾望狼人殺｜8人成人心理博弈",
+    "avatar": "assets/community/eb/desire-werewolf.webp",
     "category": "general",
     "rating": "adult",
     "gender": "all",
     "tags": [
-      "成人題材",
-      "黑暗軍旅",
-      "TRPG",
-      "戰爭生存",
-      "世界模擬",
-      "1d100檢定",
-      "階級制度",
-      "派系政治",
-      "戰俘與佔領區",
-      "道德後果",
+      "R18成人遊戲",
+      "狼人殺",
+      "8人局",
+      "身份推理",
+      "心理博弈",
       "自主NPC",
+      "白天投票",
+      "夜晚行動",
       "資訊隔離",
-      "多結局",
-      "原生狀態UI"
+      "狀態追蹤"
     ],
-    "description": "一張以帝國戰爭為舞台的黑暗軍旅 TRPG 世界卡。先建立你的帝國、戰區、入伍背景與能力，再從新兵一路面對前線、階級、派系、戰俘、軍紀、腐敗與戰敗風險。世界不等玩家，軍功也不會自動抹去你留下的責任與證據。",
+    "description": "八名成年玩家被捲入封閉式狼人殺。白天公開發言與投票，夜晚各身份秘密行動；2 名黑手黨、1 名內鬼、1 名偵探、1 名女巫與 3 名平民在謊言、懷疑與成人張力中互相試探。成人內容只在玩家主動開啟 R18 後顯示。",
+    "published_at": "2026-10-03T12:30:00Z",
+    "updated_at": "2026-10-03T12:30:00Z",
+    "published_version": 1,
+    "version_published_at": "2026-10-03T12:30:00Z",
     "supported_modes": {
       "immersive": true,
       "world": true
@@ -625,208 +417,7 @@
     "supported_display": {
       "text": true,
       "ui": true
-    },
-    "published_at": "2026-10-03T18:25:00Z",
-    "updated_at": "2026-10-03T18:25:00Z",
-    "published_version": 1,
-    "version_published_at": "2026-10-03T18:25:00Z"
-  },
-  {
-    "id": "craftsman-ming-survival-trpg",
-    "file": "data/characters/community/a8/craftsman-ming-survival-trpg.json",
-    "name": "匠道大明：穿越者生存指南",
-    "title": "匠道大明｜穿越者生存 TRPG",
-    "avatar": "https://i.meee.com.tw/b7ijyZF.jpg",
-    "category": "general",
-    "rating": "general",
-    "gender": "all",
-    "tags": [
-      "一般向",
-      "架空大明",
-      "TRPG",
-      "穿越生存",
-      "匠道",
-      "百業世界",
-      "經營",
-      "階級社會",
-      "妖獸",
-      "多匠道",
-      "1d100檢定",
-      "自主NPC",
-      "資訊隔離",
-      "世界模擬",
-      "原生狀態UI"
-    ],
-    "description": "身無分文、沒有戶籍，也沒有任何職業身份。你帶著 21 世紀的記憶掉進架空大明，必須先活過今天，再從木匠、鐵匠、醫者、廚師、獵人、仵作、戲班、牙行等千行百業中找到自己的路。匠道可以由技入道，但現代知識不是無敵外掛，階級、行會、稅賦、妖獸與人情世故都會真正留下後果。",
-    "supported_modes": {
-      "immersive": true,
-      "world": true
-    },
-    "supported_display": {
-      "text": true,
-      "ui": true
-    },
-    "published_at": "2026-10-03T18:40:00Z",
-    "updated_at": "2026-10-03T18:40:00Z",
-    "published_version": 1,
-    "version_published_at": "2026-10-03T18:40:00Z"
-  },
-  {
-    "id": "baitao-roommate-triangle",
-    "file": "data/characters/community/1f/baitao-roommate-triangle.json",
-    "name": "白桃奶昔 - 好友的女友 | 三人同居中",
-    "title": "白桃奶昔｜好友的女友・三人同居中",
-    "avatar": "https://i.meee.com.tw/80Nq2T6.jpg",
-    "category": "male",
-    "rating": "adult",
-    "gender": "female",
-    "tags": [
-      "男性向",
-      "R18成人內容",
-      "現代同居",
-      "好友的女友",
-      "三角關係",
-      "NTR分支",
-      "禁忌曖昧",
-      "戀愛拉扯",
-      "道德困境",
-      "直播主",
-      "自主NPC",
-      "多NPC",
-      "資訊隔離",
-      "慢熱關係",
-      "原生狀態UI"
-    ],
-    "description": "你搬進多年好友林宇軒與女友白桃的公寓，三人同居從今天正式開始。白桃渴望陪伴、宇軒忙於工作，而你同時是室友與他最信任的朋友。曖昧、克制、背叛、坦白、分手或重新建立界線都可能發生；沒有誰被預設成攻略目標，也沒有固定結局。",
-    "supported_modes": {
-      "immersive": true,
-      "world": true
-    },
-    "supported_display": {
-      "text": true,
-      "ui": true
-    },
-    "published_at": "2026-10-03T19:35:00Z",
-    "updated_at": "2026-10-03T19:35:00Z",
-    "published_version": 1,
-    "version_published_at": "2026-10-03T19:35:00Z"
-  },
-  {
-    "id": "zhutian-cultivation-fortune-strife",
-    "file": "data/characters/community/28/zhutian-cultivation-fortune-strife.json",
-    "name": "諸天修仙界：氣運爭鋒",
-    "title": "諸天修仙界｜氣運爭鋒",
-    "avatar": "https://i.meee.com.tw/hpeZ6ff.jpg",
-    "category": "general",
-    "rating": "general",
-    "gender": "all",
-    "tags": [
-      "一般向",
-      "修仙世界",
-      "多位面",
-      "氣運爭鋒",
-      "天命者",
-      "金手指",
-      "宗門勢力",
-      "長篇養成",
-      "自主NPC",
-      "資訊隔離",
-      "世界模擬",
-      "原生狀態UI"
-    ],
-    "description": "多位面修仙沙盒世界。建立自己的境界、氣運與金手指，在宗門、秘境、諸天城與跨界機緣中成長；其他天命者也會各自修煉、爭奪、結盟與失敗。氣運會改變機會，但不會替任何人作弊。",
-    "supported_modes": {
-      "immersive": true,
-      "world": true
-    },
-    "supported_display": {
-      "text": true,
-      "ui": true
-    },
-    "published_at": "2026-10-03T19:57:00Z",
-    "updated_at": "2026-10-03T19:57:00Z",
-    "published_version": 1,
-    "version_published_at": "2026-10-03T19:57:00Z"
-  },
-  {
-    "id": "baitao-boyfriend-reverse-ntr",
-    "file": "data/characters/community/1f/baitao-boyfriend-reverse-ntr.json",
-    "name": "白桃奶昔-男友視角 | 逆NTR",
-    "title": "白桃奶昔｜男友視角・逆 NTR",
-    "avatar": "https://i.meee.com.tw/CGohh6w.jpg",
-    "category": "male",
-    "rating": "adult",
-    "gender": "female",
-    "tags": [
-      "男性向",
-      "R18成人內容",
-      "男友視角",
-      "逆NTR",
-      "三角關係",
-      "背叛疑雲",
-      "監視線索",
-      "綠帽癖分支",
-      "多NPC",
-      "資訊隔離",
-      "關係失控",
-      "直播主",
-      "自主NPC",
-      "調查與選擇",
-      "原生狀態UI"
-    ],
-    "description": "你是白桃交往一年的男友。最近兩個月，你的工作與刻意留下的空白讓她和攝影師陳浩越走越近；三天前，他們已經跨過接吻這條界線。你可以調查、質問、挽回、放任、承認自己的特殊幻想、與星野美月發展關係，或乾脆讓所有人的秘密一起失控。沒有人被預設一定留下，也沒有人只是用來完成 NTR 的工具。",
-    "supported_modes": {
-      "immersive": true,
-      "world": true
-    },
-    "supported_display": {
-      "text": true,
-      "ui": true
-    },
-    "published_at": "2026-10-03T19:55:00Z",
-    "updated_at": "2026-10-03T19:55:00Z",
-    "published_version": 1,
-    "version_published_at": "2026-10-03T19:55:00Z"
-  },
-  {
-    "id": "xia-yuhan-av-industry",
-    "file": "data/characters/community/7c/xia-yuhan-av-industry.json",
-    "name": "痴女 - 夏語涵｜諧音魅魔 AV 女優",
-    "title": "夏語涵｜諧音魅魔・AV 產業物語",
-    "avatar": "https://i.meee.com.tw/brJX3IP.jpg",
-    "category": "male",
-    "rating": "adult",
-    "gender": "female",
-    "tags": [
-      "男性向",
-      "R18成人內容",
-      "AV產業",
-      "日本文化",
-      "諧音梗",
-      "夏語涵",
-      "成人演員",
-      "片場生活",
-      "職涯養成",
-      "自主NPC",
-      "世界模擬",
-      "直播文化",
-      "業界競爭",
-      "慢養成",
-      "原生狀態UI"
-    ],
-    "description": "在成人影像產業被視為成熟表演文化的平行東京，你從臨時演員、男優、工作人員或製作人身份進入片場，遇上以中日雙語諧音梗聞名的 S 級女優夏語涵。作品保留成人拍攝、直播、評價與職涯成長，但把數值降到背景：真正重要的是片場默契、代表作、關係與你在業界留下的名字。",
-    "supported_modes": {
-      "immersive": true,
-      "world": true
-    },
-    "supported_display": {
-      "text": true,
-      "ui": true
-    },
-    "published_at": "2026-10-03T20:20:00Z",
-    "updated_at": "2026-10-03T20:20:00Z",
-    "published_version": 1,
-    "version_published_at": "2026-10-03T20:20:00Z"
+    }
   },
   {
     "id": "elze-survival-world",
@@ -870,6 +461,421 @@
     "version_published_at": "2026-10-04T13:20:00Z"
   },
   {
+    "id": "gu-muhan-rival",
+    "file": "data/characters/community/6c/gu-muhan-rival.json",
+    "name": "顧慕寒-霸總的死對頭是我",
+    "title": "顧慕寒｜霸總的死對頭是我",
+    "avatar": "assets/community/6c/gu-muhan-rival.webp",
+    "category": "female",
+    "rating": "adult",
+    "gender": "male",
+    "tags": [
+      "女性向",
+      "校園戀愛",
+      "死對頭",
+      "年輕霸總",
+      "豪門繼承人",
+      "青梅竹馬",
+      "三角關係",
+      "歡喜冤家",
+      "慢熱拉扯",
+      "自主NPC",
+      "成人內容"
+    ],
+    "description": "顧慕寒以為林婉清是自己最熟悉、最應該守住的人；偏偏妳——他的死對頭——總能讓他失去原本的節奏。商學院宿敵 × 年輕創投老闆 × 青梅竹馬修羅場 × 校園與商戰雙線。",
+    "supported_modes": {
+      "immersive": true,
+      "world": true
+    },
+    "supported_display": {
+      "text": true,
+      "ui": true
+    },
+    "published_at": "2026-10-03T13:58:00Z",
+    "updated_at": "2026-10-03T13:58:00Z",
+    "published_version": 1,
+    "version_published_at": "2026-10-03T13:58:00Z"
+  },
+  {
+    "id": "heart-contract-custom-lover",
+    "file": "data/characters/community/8f/heart-contract-custom-lover.json",
+    "name": "心動違約｜訂製戀人",
+    "title": "心動違約｜訂製戀人",
+    "avatar": "assets/community/8f/heart-contract-custom-lover.webp",
+    "category": "female",
+    "rating": "adult",
+    "gender": "all",
+    "tags": [
+      "女性向",
+      "訂製戀人",
+      "契約戀愛",
+      "假戀人",
+      "世界模擬",
+      "自主NPC",
+      "多NPC",
+      "金錢系統",
+      "國籍文化",
+      "慢熱戀愛",
+      "韓劇張力",
+      "成人內容"
+    ],
+    "description": "在合法而普遍的「假戀人」產業裡，妳可以訂製一位最適合自己的戀人：外貌、性格、國籍、職業、相處方式都能決定。問題是——當一個人太擅長扮演愛妳，妳要怎麼分辨哪一刻開始，不再只是工作？",
+    "supported_modes": {
+      "immersive": true,
+      "world": true
+    },
+    "supported_display": {
+      "text": true,
+      "ui": true
+    },
+    "published_at": "2026-10-03T13:52:00Z",
+    "updated_at": "2026-10-03T13:52:00Z",
+    "published_version": 1,
+    "version_published_at": "2026-10-03T13:52:00Z"
+  },
+  {
+    "id": "ktv-flight-chess",
+    "file": "data/characters/community/eb/ktv-flight-chess.json",
+    "name": "🔥 KTV飛行棋（聯誼、四人、真心話、大冒險）",
+    "title": "🔥 KTV飛行棋｜成人派對・BDSM 主導版",
+    "avatar": "https://i.meee.com.tw/NDOyMt1.jpg",
+    "category": "general",
+    "rating": "adult",
+    "gender": "all",
+    "tags": [
+      "R18成人遊戲",
+      "KTV",
+      "四人聯誼",
+      "飛行棋",
+      "真心話大冒險",
+      "自主NPC",
+      "骰子遊戲",
+      "關係養成",
+      "狀態追蹤",
+      "成人派對",
+      "BDSM",
+      "D/s",
+      "主導服從",
+      "SM",
+      "雙版本"
+    ],
+    "description": "四名成年人在私密 KTV 包間玩的成人飛行棋，內建兩套棋盤：40 格成人派對版，以及 49 格 BDSM／D/s 主導版。三名 NPC 依性格、關係、角色傾向與界線自主反應；支援自訂性別組合、主導／服從／Switch、暫停、跳過、改抽與遊戲外互動。成人內容僅在使用者主動開啟 R18 顯示後出現。",
+    "published_at": "2026-10-03T11:55:00.000Z",
+    "updated_at": "2026-10-03T18:12:00Z",
+    "published_version": 2,
+    "version_published_at": "2026-10-03T18:12:00Z",
+    "supported_modes": {
+      "immersive": true,
+      "world": true
+    },
+    "supported_display": {
+      "text": true,
+      "ui": true
+    }
+  },
+  {
+    "id": "lin-shen-reed-bloom",
+    "file": "data/characters/community/50/lin-shen-reed-bloom.json",
+    "name": "林深｜靜候花開的蘆葦",
+    "title": "林深｜靜候花開的蘆葦",
+    "avatar": "https://i.meee.com.tw/ibj9QsA.jpg",
+    "category": "female",
+    "rating": "general",
+    "gender": "male",
+    "tags": [
+      "女性向",
+      "青梅竹馬",
+      "現代日常",
+      "慢熱戀愛",
+      "守護系",
+      "細節控",
+      "溫柔克制",
+      "純愛",
+      "蘆葦花",
+      "自主NPC"
+    ],
+    "description": "25 歲的青梅竹馬。乾淨的肥皂水味裡混著一點苦澀草本香；口袋裡總有妳喜歡的糖，走路總站在妳左側半步。他從不把愛說得很大聲，只把每一次在意都藏進日常。",
+    "supported_modes": {
+      "immersive": true,
+      "world": true
+    },
+    "supported_display": {
+      "text": true,
+      "ui": true
+    },
+    "published_at": "2026-10-03T17:40:00Z",
+    "updated_at": "2026-10-03T17:40:00Z",
+    "published_version": 1,
+    "version_published_at": "2026-10-03T17:40:00Z"
+  },
+  {
+    "id": "lin-yuyan-possessed-husband",
+    "file": "data/characters/community/45/lin-yuyan-possessed-husband.json",
+    "name": "奪舍完美丈夫的妻子—林語嫣",
+    "title": "林語嫣｜奪舍完美丈夫之後",
+    "avatar": "https://i.meee.com.tw/O1NWbgz.jpg",
+    "category": "male",
+    "rating": "adult",
+    "gender": "female",
+    "tags": [
+      "男性向",
+      "成人內容",
+      "現代家庭",
+      "奪舍",
+      "雙面丈夫",
+      "Gaslighting",
+      "家庭控制",
+      "心理驚悚",
+      "信任重建",
+      "親子關係",
+      "自主NPC",
+      "資訊隔離",
+      "多結局"
+    ],
+    "description": "你在一個陌生男人的身體裡醒來，才知道這張「完美丈夫、好爸爸」的臉，曾把妻子林語嫣困在家裡五年。她不會因為靈魂換了人就立刻相信你；女兒、老師、鄰居、債主與原主人留下的謊言，也不會一起消失。男性向成人心理劇 × 奪舍重啟 × 家庭控制 × 信任重建。",
+    "supported_modes": {
+      "immersive": true,
+      "world": true
+    },
+    "supported_display": {
+      "text": true,
+      "ui": true
+    },
+    "published_at": "2026-10-03T18:12:00Z",
+    "updated_at": "2026-10-03T18:12:00Z",
+    "published_version": 1,
+    "version_published_at": "2026-10-03T18:12:00Z"
+  },
+  {
+    "id": "lu-yan-rogue-devotion",
+    "file": "data/characters/community/2e/lu-yan-rogue-devotion.json",
+    "name": "陸炎｜痞壞背後的深情",
+    "title": "陸炎｜痞壞背後的深情",
+    "avatar": "assets/community/2e/lu-yan-rogue-devotion.webp",
+    "category": "female",
+    "rating": "adult",
+    "gender": "male",
+    "tags": [
+      "女性向",
+      "現代都市",
+      "酒吧老闆",
+      "街頭勢力",
+      "豪門棄子",
+      "歡喜冤家",
+      "佔有慾",
+      "反差守護",
+      "慢熱戀愛",
+      "成人內容"
+    ],
+    "description": "他是酒吧「焰」的老闆，也是這條街最不好惹的人。嘴壞、愛挑釁、總把關心藏在最不討喜的方式裡；妳看見的是他的痞，沒看見的是他早已替妳擋掉多少麻煩。現代都市 × 歡喜冤家 × 豪門棄子 × 反差守護。",
+    "supported_modes": {
+      "immersive": true,
+      "world": true
+    },
+    "supported_display": {
+      "text": true,
+      "ui": true
+    },
+    "published_at": "2026-10-03T13:30:00Z",
+    "updated_at": "2026-10-03T13:30:00Z",
+    "published_version": 1,
+    "version_published_at": "2026-10-03T13:30:00Z"
+  },
+  {
+    "id": "mafia-emperor-enzo",
+    "file": "data/characters/community/fe/mafia-emperor-enzo.json",
+    "name": "黑道帝王・恩佐 (Enzo)",
+    "title": "黑道帝王・恩佐｜危險的溫柔",
+    "avatar": "assets/community/fe/mafia-emperor-enzo.webp",
+    "category": "female",
+    "rating": "adult",
+    "gender": "male",
+    "tags": [
+      "女性向",
+      "黑道帝王",
+      "危險戀愛",
+      "溺愛",
+      "佔有慾",
+      "暗黑浪漫",
+      "成人親密",
+      "慢熱關係"
+    ],
+    "description": "深夜的公園裡，你手上只剩一封被捏皺的辭職信。恩佐在最狼狽的時候出現，說工作、住處、錢，他都能給；交換條件只有一個——待在他身邊。危險的黑道帝王 × 只對你溫柔的溺愛系暗黑戀愛。",
+    "supported_modes": {
+      "immersive": true,
+      "world": true
+    },
+    "supported_display": {
+      "text": true,
+      "ui": true
+    },
+    "published_at": "2026-10-03T12:35:00Z",
+    "updated_at": "2026-10-03T12:35:00Z",
+    "published_version": 1,
+    "version_published_at": "2026-10-03T12:35:00Z"
+  },
+  {
+    "id": "medieval-guild-dynasty-simulator",
+    "file": "data/characters/community/bf/medieval-guild-dynasty-simulator.json",
+    "name": "中世紀模擬",
+    "title": "中世紀模擬｜五族競逐",
+    "avatar": "https://i.meee.com.tw/lgQj30n.jpg",
+    "category": "general",
+    "rating": "adult",
+    "gender": "all",
+    "tags": [
+      "成人向",
+      "中世紀模擬",
+      "TRPG",
+      "行會經營",
+      "家族競爭",
+      "五族競逐",
+      "王朝傳承",
+      "商業經營",
+      "市場模擬",
+      "公職選舉",
+      "政治鬥爭",
+      "犯罪沙盒",
+      "資源競標",
+      "自主NPC",
+      "離場世界",
+      "資訊隔離",
+      "原生狀態UI",
+      "Builder開局"
+    ],
+    "description": "五個家族從農奴階級同時起跑。你經營產業、培養工人、搶資源、競選公職、締結婚姻或踏進灰色世界；另外四家也用同一套金錢、聲望、法律與時間規則在背景成長。它們會合作、破產、搶標、拉票、下黑手，甚至斷嗣——這不是等你觸發的劇本，而是一場會自己往前走的家族競爭沙盒。",
+    "supported_modes": {
+      "immersive": true,
+      "world": true
+    },
+    "supported_display": {
+      "text": true,
+      "ui": true
+    },
+    "published_at": "2026-10-04T16:41:00Z",
+    "updated_at": "2026-10-04T16:41:00Z",
+    "published_version": 1,
+    "version_published_at": "2026-10-04T16:41:00Z"
+  },
+  {
+    "id": "reborn-di-daughter-regent",
+    "file": "data/characters/community/64/reborn-di-daughter-regent.json",
+    "name": "💎 重生嫡女：宮鬥復仇，攝政王只寵我一人",
+    "title": "💎 重生嫡女｜宮鬥復仇・攝政王入局",
+    "avatar": "https://i.meee.com.tw/J30iqUS.jpg",
+    "category": "female",
+    "rating": "general",
+    "gender": "male",
+    "tags": [
+      "女性向",
+      "古代重生",
+      "嫡女",
+      "宅鬥",
+      "宮鬥",
+      "復仇",
+      "攝政王",
+      "權謀",
+      "婚約",
+      "慢熱感情",
+      "自主NPC",
+      "資訊隔離",
+      "多結局",
+      "一般向"
+    ],
+    "description": "死在冷宮之後，妳睜眼回到十六歲——距離前世第一場毀掉名聲的局，還有整整六個月。沈清雅、柳姨娘、蕭景行、皇權與兵權都還沒有走到前世的位置；而七日後，攝政王慕容夜也將第一次真正進入妳的棋局。女性向重生復仇 × 宅鬥宮鬥 × 權謀慢熱 × 可改寫時間線。",
+    "supported_modes": {
+      "immersive": true,
+      "world": true
+    },
+    "supported_display": {
+      "text": true,
+      "ui": true
+    },
+    "published_at": "2026-10-03T17:58:00Z",
+    "updated_at": "2026-10-03T17:58:00Z",
+    "published_version": 1,
+    "version_published_at": "2026-10-03T17:58:00Z"
+  },
+  {
+    "id": "spicy-89-girl",
+    "file": "data/characters/community/89/spicy-89-girl.json",
+    "name": "愛吃\"辣椒\"的89妹",
+    "title": "愛吃「辣椒」的89妹｜大寮小辣椒",
+    "avatar": "https://i.meee.com.tw/9fgA5aC.jpg",
+    "category": "male",
+    "rating": "adult",
+    "gender": "female",
+    "tags": [
+      "男性向",
+      "R18成人角色",
+      "高雄大寮",
+      "8+9文化",
+      "宮廟",
+      "夜市",
+      "汽車美容",
+      "夜間部",
+      "關係拉扯",
+      "自主NPC",
+      "世界模擬",
+      "台語口吻",
+      "慢熱",
+      "成人向"
+    ],
+    "description": "22 歲的陳思婷，綽號「小辣椒」。她白天在汽車美容店上班、晚上念夜間部、週末跑夜市與宮廟；黃毛阿凱、三個乾哥與幾段舊關係把她的生活纏成一張網。玩家先選擇自己在大寮的身份，再從日常、曖昧、衝突與成人關係裡慢慢走進她的世界。成人內容僅在使用者主動開啟 R18 顯示後出現。",
+    "published_at": "2026-10-03T12:19:00.000Z",
+    "updated_at": "2026-10-03T18:00:00Z",
+    "published_version": 2,
+    "version_published_at": "2026-10-03T18:00:00Z",
+    "supported_modes": {
+      "immersive": true,
+      "world": true
+    },
+    "supported_display": {
+      "text": true,
+      "ui": true
+    }
+  },
+  {
+    "id": "xia-yuhan-av-industry",
+    "file": "data/characters/community/7c/xia-yuhan-av-industry.json",
+    "name": "痴女 - 夏語涵｜諧音魅魔 AV 女優",
+    "title": "夏語涵｜諧音魅魔・AV 產業物語",
+    "avatar": "https://i.meee.com.tw/brJX3IP.jpg",
+    "category": "male",
+    "rating": "adult",
+    "gender": "female",
+    "tags": [
+      "男性向",
+      "R18成人內容",
+      "AV產業",
+      "日本文化",
+      "諧音梗",
+      "夏語涵",
+      "成人演員",
+      "片場生活",
+      "職涯養成",
+      "自主NPC",
+      "世界模擬",
+      "直播文化",
+      "業界競爭",
+      "慢養成",
+      "原生狀態UI"
+    ],
+    "description": "在成人影像產業被視為成熟表演文化的平行東京，你從臨時演員、男優、工作人員或製作人身份進入片場，遇上以中日雙語諧音梗聞名的 S 級女優夏語涵。作品保留成人拍攝、直播、評價與職涯成長，但把數值降到背景：真正重要的是片場默契、代表作、關係與你在業界留下的名字。",
+    "supported_modes": {
+      "immersive": true,
+      "world": true
+    },
+    "supported_display": {
+      "text": true,
+      "ui": true
+    },
+    "published_at": "2026-10-03T20:20:00Z",
+    "updated_at": "2026-10-03T20:20:00Z",
+    "published_version": 1,
+    "version_published_at": "2026-10-03T20:20:00Z"
+  },
+  {
     "id": "xinglan-academy",
     "file": "data/characters/community/bc/xinglan-academy.json",
     "name": "星瀾學園",
@@ -909,5 +915,42 @@
     "updated_at": "2026-10-04T15:56:00Z",
     "published_version": 1,
     "version_published_at": "2026-10-04T15:56:00Z"
+  },
+  {
+    "id": "zhutian-cultivation-fortune-strife",
+    "file": "data/characters/community/28/zhutian-cultivation-fortune-strife.json",
+    "name": "諸天修仙界：氣運爭鋒",
+    "title": "諸天修仙界｜氣運爭鋒",
+    "avatar": "https://i.meee.com.tw/hpeZ6ff.jpg",
+    "category": "general",
+    "rating": "general",
+    "gender": "all",
+    "tags": [
+      "一般向",
+      "修仙世界",
+      "多位面",
+      "氣運爭鋒",
+      "天命者",
+      "金手指",
+      "宗門勢力",
+      "長篇養成",
+      "自主NPC",
+      "資訊隔離",
+      "世界模擬",
+      "原生狀態UI"
+    ],
+    "description": "多位面修仙沙盒世界。建立自己的境界、氣運與金手指，在宗門、秘境、諸天城與跨界機緣中成長；其他天命者也會各自修煉、爭奪、結盟與失敗。氣運會改變機會，但不會替任何人作弊。",
+    "supported_modes": {
+      "immersive": true,
+      "world": true
+    },
+    "supported_display": {
+      "text": true,
+      "ui": true
+    },
+    "published_at": "2026-10-03T19:57:00Z",
+    "updated_at": "2026-10-03T19:57:00Z",
+    "published_version": 1,
+    "version_published_at": "2026-10-03T19:57:00Z"
   }
 ]
