@@ -4,9 +4,30 @@ const fs = require("node:fs");
 const path = require("node:path");
 
 const source = loadWorkerTestSource();
+const workerEntrySource = fs.readFileSync(
+  path.join(__dirname, "../workers/bao-lab-credits-api/worker.js"),
+  "utf8"
+);
+const moduleSource = fs.readFileSync(
+  path.join(
+    __dirname,
+    "../workers/bao-lab-credits-api/modules/admin-publication-routes.js"
+  ),
+  "utf8"
+);
 
 assert.match(
-  source,
+  workerEntrySource,
+  /from "\.\/modules\/admin-publication-routes\.js";/,
+  "the Worker entry must import the extracted admin publication routes module"
+);
+assert.doesNotMatch(
+  workerEntrySource,
+  /function adminPublicationRoute\(/,
+  "admin publication route implementation must not remain duplicated in worker.js"
+);
+assert.match(
+  moduleSource,
   /const WorkerAdminPublicationRoutes = \(\(\) => \{/,
   "admin publication endpoints must stay behind their own subroute boundary"
 );

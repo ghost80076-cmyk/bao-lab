@@ -77,6 +77,11 @@ import {
 } from "./modules/author-profile-publication.js";
 
 import {
+  WorkerAdminPublicationRoutes,
+  adminPublicationRoute,
+} from "./modules/admin-publication-routes.js";
+
+import {
   WorkerRuntimeConfig,
   awsOpenRouterPlayers,
   billingModeForPlayer,
@@ -3958,180 +3963,7 @@ const {
 
 // Admin publication HTTP subroutes. Formatting and GitHub transport stay in
 // their dedicated publication boundaries; this block owns endpoint orchestration.
-const WorkerAdminPublicationRoutes = (() => {
-async function adminPublicationRoute(
-  request,
-  path,
-  env
-) {
-  if (
-    path ===
-      "/admin/characters/publish-status" &&
-    request.method ===
-      "GET"
-  ) {
-    const settings =
-      githubSettings(
-        env
-      );
 
-    return json({
-      configured:
-        settings
-          .configured,
-
-      repository:
-        settings
-          .fullName,
-
-      base_branch:
-        settings
-          .baseBranch,
-
-      mode:
-        "pull_request_only",
-    });
-  }
-
-  if (
-    path ===
-      "/admin/authors/profile-pr" &&
-    request.method ===
-      "POST"
-  ) {
-    let prepared;
-
-    try {
-      prepared =
-        prepareAuthorProfileUpdate(
-          await readJsonWithLimit(
-            request,
-            MAX_ADMIN_PUBLISH_BODY_BYTES
-          )
-        );
-    }
-
-    catch (error) {
-      if (
-        error?.httpStatus
-      ) {
-        return fail(
-          error.message,
-          error.httpStatus
-        );
-      }
-
-      throw error;
-    }
-
-    try {
-      const result =
-        await createAuthorProfilePr(
-          env,
-          prepared
-        );
-
-      return json(
-        {
-          created:
-            true,
-
-          ...result,
-        },
-        201
-      );
-    }
-
-    catch (error) {
-      if (
-        error?.httpStatus
-      ) {
-        return fail(
-          error.message,
-          error.httpStatus
-        );
-      }
-
-      throw error;
-    }
-  }
-
-  if (
-    path ===
-      "/admin/characters/publish-pr" &&
-    request.method ===
-      "POST"
-  ) {
-    let publication;
-
-    try {
-      publication =
-        prepareCharacterPublication(
-          await readJsonWithLimit(
-            request,
-            MAX_ADMIN_PUBLISH_BODY_BYTES
-          )
-        );
-    }
-
-    catch (error) {
-      if (
-        error
-          ?.httpStatus
-      ) {
-        return fail(
-          error.message,
-          error.httpStatus
-        );
-      }
-
-      throw error;
-    }
-
-    try {
-      const result =
-        await createCharacterPublicationPr(
-          env,
-          publication
-        );
-
-      return json(
-        {
-          created:
-            true,
-
-          ...result,
-        },
-        201
-      );
-    }
-
-    catch (error) {
-      if (
-        error
-          ?.httpStatus
-      ) {
-        return fail(
-          error.message,
-          error.httpStatus
-        );
-      }
-
-      throw error;
-    }
-  }
-
-  return null;
-}
-
-  return Object.freeze({
-    adminPublicationRoute,
-  });
-})();
-
-const {
-  adminPublicationRoute,
-} = WorkerAdminPublicationRoutes;
 
 
 // Read-only admin usage history and presentation.
