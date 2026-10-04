@@ -326,6 +326,15 @@
     if (!response.ok) {
       if (response.status === 401) clearAccountSessionHint();
       const name = upstreamName(config.model);
+      const rateLimitScope = ["rate", "quota", "provider", "unknown"].includes(data?.rate_limit_scope)
+        ? data.rate_limit_scope : "unknown";
+      const rateLimitMessage = rateLimitScope === "quota"
+        ? `${name} 回報 API 配額、預算或帳戶限制，與你的夜灣燈火餘額無關。`
+        : rateLimitScope === "rate"
+          ? `${name} 暫時要求降低請求速率，與你的夜灣燈火餘額無關。`
+          : rateLimitScope === "provider"
+            ? `${name} 的上游供應商目前限流或容量不足，與你的夜灣燈火餘額無關。`
+            : `${name} 回報速率或配額限制，與你的夜灣燈火餘額無關。`;
       const errors = {
         unauthorized: "登入已失效，請重新登入夜灣帳號。",
         insufficient_credits: "舊版測試額度不足，請向管理員補充額度。",
@@ -338,7 +347,7 @@
         request_too_large: "本次故事內容超過後端大小限制。",
         relay_request_too_large: "夜灣 AWS 中繼拒絕了這個過大的請求（HTTP 413）。這是請求大小限制，不是內容審查。",
         provider_request_too_large: `${name} 拒絕了這個過大的請求（HTTP 413）。這是請求大小限制，不是內容審查。`,
-        provider_rate_limited: `${name} 回報速率或配額限制，與你的夜灣燈火餘額無關。`,
+        provider_rate_limited: rateLimitMessage,
         provider_usage_unverified: data?.billing_refunded
           ? `夜灣與 ${name} 的連線結果無法完整確認；本次預留燈火已全數退回，請重新生成。`
           : `夜灣暫時無法確認 ${name} 的本次使用量；請稍後重試。若燈火餘額異常，請回報診斷編號。`,
@@ -385,7 +394,12 @@
       const sizeDiagnostic = isSizeFailure && (routeLabel || requestBytes)
         ? `（${[routeLabel ? `路徑：${routeLabel}` : '', requestBytes ? `送出大小：約 ${(requestBytes / 1024).toFixed(1)} KB` : ''].filter(Boolean).join('；')}）`
         : '';
-      const upstreamError = new Error(`${detail}${sizeDiagnostic}${googleStatus}${diagnosticId}`);
+      const retryAfterSeconds = Number.isInteger(data?.retry_after_seconds) && data.retry_after_seconds > 0
+        ? Math.min(3600, data.retry_after_seconds) : 0;
+      const rateDiagnostic = data?.error === 'provider_rate_limited' && (routeLabel || retryAfterSeconds)
+        ? `（${[routeLabel ? `路徑：${routeLabel}` : '', retryAfterSeconds ? `建議 ${retryAfterSeconds} 秒後再試` : ''].filter(Boolean).join('；')}）`
+        : '';
+      const upstreamError = new Error(`${detail}${sizeDiagnostic}${rateDiagnostic}${googleStatus}${diagnosticId}`);
       const finishReason = String(data?.finish_reason || "").trim().toUpperCase();
       if (data?.error === "provider_empty_text" && providerBlockReasons.has(finishReason)) {
         upstreamError.code = "BAO_PROVIDER_BLOCKED";
