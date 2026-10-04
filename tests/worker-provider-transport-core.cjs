@@ -15,6 +15,7 @@ assert.match(
 for (const helper of [
   "geminiErrorHint",
   "anthropicPayload",
+  "recoverOpenRouterUsage",
   "providerCall",
   "providerFailureResponse",
 ]) {
@@ -49,7 +50,26 @@ const jsonResponse = (body, status = 200) =>
       const body = init.body ? JSON.parse(init.body) : null;
       requests.push({ url: String(url), init, body });
 
+      if (String(url).startsWith("https://openrouter.ai/api/v1/generation?id=")) {
+        return jsonResponse({
+          data: {
+            id: "gen-recovery123",
+            tokens_prompt: 77,
+            tokens_completion: 11,
+            native_tokens_cached: 7,
+            native_tokens_reasoning: 3,
+            total_cost: 0.000456,
+          },
+        });
+      }
+
       if (String(url) === "https://openrouter.ai/api/v1/chat/completions") {
+        if (body?.model === "openai/usage-recovery") {
+          return jsonResponse({
+            id: "gen-recovery123",
+            choices: [{ message: { content: "Recovered usage" } }],
+          });
+        }
         if (body?.model === "openai/too-large") {
           return jsonResponse({ error: { message: "payload too large" } }, 413);
         }
@@ -129,7 +149,41 @@ const jsonResponse = (body, status = 200) =>
     assert.equal(openRouter.reasoning, 4);
     assert.equal(openRouter.providerCost, 0.000123);
 
-    const orRequest = requests.find(item => item.url.includes("openrouter.ai"));
+    const recoveredUsage = await providerCall(
+      {
+        OPENROUTER_API_KEY: "or-secret",
+        MODELS_JSON: JSON.stringify([{
+          provider: "openrouter",
+          model: "openai/usage-recovery",
+          input_microusd_per_million: 100000,
+          output_microusd_per_million: 200000,
+        }]),
+      },
+      "openrouter",
+      "openai/usage-recovery",
+      messages,
+      512
+    );
+
+    assert.equal(recoveredUsage.ok, true);
+    assert.equal(recoveredUsage.text, "Recovered usage");
+    assert.equal(recoveredUsage.input, 77);
+    assert.equal(recoveredUsage.output, 11);
+    assert.equal(recoveredUsage.cached, 7);
+    assert.equal(recoveredUsage.reasoning, 3);
+    assert.equal(recoveredUsage.providerCost, 0.000456);
+
+    const recoveryRequest = requests.find(
+      item => item.url.includes("/api/v1/generation?id=gen-recovery123")
+    );
+    assert.ok(recoveryRequest);
+    assert.equal(recoveryRequest.init.method, "GET");
+    assert.equal(recoveryRequest.init.headers.authorization, "Bearer or-secret");
+
+    const orRequest = requests.find(
+      item => item.url === "https://openrouter.ai/api/v1/chat/completions" &&
+        item.body?.model === "openai/test-model"
+    );
     assert.ok(orRequest);
     assert.equal(orRequest.init.headers.authorization, "Bearer or-secret");
     assert.equal(orRequest.body.model, "openai/test-model");
