@@ -86,6 +86,25 @@ const jsonResponse = (body, status = 200) =>
       }
 
       if (String(url) === "https://relay.example/v1/chat") {
+        if (
+          body?.provider === "openrouter" &&
+          body?.model === "anthropic/claude-sonnet-4.5"
+        ) {
+          const firstContent = body?.messages?.[0]?.content;
+          if (Array.isArray(firstContent)) {
+            return jsonResponse({ error: "invalid_messages" }, 400);
+          }
+          return jsonResponse({
+            choices: [{ message: { content: "Relay Claude OK" } }],
+            usage: {
+              prompt_tokens: 90,
+              completion_tokens: 18,
+              prompt_tokens_details: { cached_tokens: 0, cache_write_tokens: 0 },
+              completion_tokens_details: { reasoning_tokens: 0 },
+              cost: 0.000321,
+            },
+          });
+        }
         if (body?.provider === "openrouter") {
           return jsonResponse({ error: "request_too_large" }, 413);
         }
@@ -230,6 +249,44 @@ const jsonResponse = (body, status = 200) =>
       }]
     );
     assert.equal(claudeRequest.body.messages[1].content, "hello");
+
+    const relayCompatibility = await providerCall(
+      {
+        AWS_RELAY_URL: "https://relay.example",
+        BAO_INTERNAL_TOKEN: "relay-secret",
+        AWS_OPENROUTER_PLAYERS: "P1",
+      },
+      "openrouter",
+      "anthropic/claude-sonnet-4.5",
+      messages,
+      512,
+      { id: "P1" },
+      "story:relay-cache-fallback"
+    );
+
+    assert.equal(relayCompatibility.ok, true);
+    assert.equal(relayCompatibility.text, "Relay Claude OK");
+
+    const relayCompatibilityRequests = requests.filter(
+      item =>
+        item.url === "https://relay.example/v1/chat" &&
+        item.body?.provider === "openrouter" &&
+        item.body?.model === "anthropic/claude-sonnet-4.5"
+    );
+
+    assert.equal(relayCompatibilityRequests.length, 2);
+    assert.deepEqual(
+      relayCompatibilityRequests[0].body.messages[0].content,
+      [{
+        type: "text",
+        text: "system",
+        cache_control: { type: "ephemeral" },
+      }]
+    );
+    assert.equal(
+      relayCompatibilityRequests[1].body.messages[0].content,
+      "system"
+    );
 
     const directTooLarge = await providerCall(
       {
