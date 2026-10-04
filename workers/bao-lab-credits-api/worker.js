@@ -10207,8 +10207,7 @@ const WorkerProviderTransport = (() => {
     env,
     provider,
     model,
-    messages:
-      openRouterMessages,
+    messages,
     maxOutput,
     player = null,
     sessionId = ""
@@ -10382,7 +10381,8 @@ const WorkerProviderTransport = (() => {
             JSON.stringify(
               {
                 model,
-                messages,
+                messages:
+                  openRouterMessages,
   
                 max_tokens:
                   maxOutput,
