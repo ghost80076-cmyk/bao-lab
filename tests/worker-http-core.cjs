@@ -151,7 +151,7 @@ function assertSecurityHeaders(response) {
   assert.equal(trustedCookieMutation(cookieMutation, allowedOrigin), true);
 
   const corsResponse = cors(
-    new Response("ok", { status: 204 }),
+    new Response("ok", { status: 200 }),
     "https://yorubay.com"
   );
   assert.equal(
