@@ -1081,5 +1081,44 @@
     "updated_at": "2026-10-04T17:20:00Z",
     "published_version": 1,
     "version_published_at": "2026-10-04T17:20:00Z"
+  },
+  {
+    "id": "heart-training-boyfriend-plan",
+    "file": "data/characters/community/b8/heart-training-boyfriend-plan.json",
+    "name": "心動養成計畫｜妳的理想型正在生成",
+    "title": "心動養成計畫｜妳的理想型正在生成",
+    "avatar": "https://i.meee.com.tw/wm0SKmQ.jpg",
+    "category": "female",
+    "rating": "general",
+    "gender": "male",
+    "tags": [
+      "女性向",
+      "現代戀愛",
+      "養成系",
+      "隱藏設定",
+      "現實化",
+      "自主男主",
+      "理想型",
+      "秘密戀愛",
+      "慢熱",
+      "輕懸疑",
+      "多結局",
+      "資訊隔離",
+      "原生狀態UI",
+      "Builder開局"
+    ],
+    "description": "妳只是想在神祕 APP 裡養成一個理想型。直到某天，城市裡真的多了一個和設定幾乎一樣的男人——但他不認識妳，還開始做出妳從沒設定過的選擇。女性向養成 × 現實戀愛 × 隱藏真相 × 自主男主。",
+    "supported_modes": {
+      "immersive": true,
+      "world": true
+    },
+    "supported_display": {
+      "text": true,
+      "ui": true
+    },
+    "published_at": "2026-10-04T17:24:00Z",
+    "updated_at": "2026-10-04T17:24:00Z",
+    "published_version": 1,
+    "version_published_at": "2026-10-04T17:24:00Z"
   }
 ]
