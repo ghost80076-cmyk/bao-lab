@@ -4,9 +4,30 @@ const fs = require("node:fs");
 const path = require("node:path");
 
 const source = loadWorkerTestSource();
+const workerEntrySource = fs.readFileSync(
+  path.join(__dirname, "../workers/bao-lab-credits-api/worker.js"),
+  "utf8"
+);
+const rateLimitModuleSource = fs.readFileSync(
+  path.join(
+    __dirname,
+    "../workers/bao-lab-credits-api/modules/account-rate-limit.js"
+  ),
+  "utf8"
+);
 
 assert.match(
-  source,
+  workerEntrySource,
+  /from "\.\/modules\/account-rate-limit\.js";/,
+  "the Worker entry must import the extracted account rate limit module"
+);
+assert.doesNotMatch(
+  workerEntrySource,
+  /function authRateLimitConfigured\(/,
+  "account rate limit implementation must not remain duplicated in worker.js"
+);
+assert.match(
+  rateLimitModuleSource,
   /const WorkerAccountRateLimit = \(\(\) => \{/,
   "account rate limiting must stay behind WorkerAccountRateLimit"
 );
