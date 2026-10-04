@@ -44,8 +44,9 @@ packager loads the versioned `deployment-manifest.json`, rejects unsafe or
 missing module paths and uploads the listed JavaScript module graph in a
 deterministic order. The reviewed module graph now extracts `WorkerAccountValidation`,
 `WorkerChatInput`, the isolated `WorkerAdminAuth` boundary,
-`WorkerPublicationFormat`, `WorkerGithubPublicationTransport` and
-`WorkerRuntimeConfig` into reviewed modules; the main entry remains `worker.js`. The first
+`WorkerPublicationFormat`, `WorkerGithubPublicationTransport`,
+`WorkerRuntimeConfig` and `WorkerCrypto` into reviewed modules; the main entry
+remains `worker.js`. The first
 multi-module deployment completed a successful rollback-and-restore rehearsal
 on 2026-10-04. Continue structural cleanup one low-dependency boundary per PR.
 Follow
@@ -477,4 +478,4 @@ Only after both checks pass should the browser catalog be merged and deployed.
 
 ## Refactor safety map
 
-The current Worker uses a reviewed module manifest and keeps all but the extracted account-validation, chat-input, admin-auth, publication-format, GitHub-publication-transport and runtime-config boundaries in `worker.js`. The responsibility boundaries and safe refactor order are documented in [`docs/worker-architecture-boundaries.md`](../../docs/worker-architecture-boundaries.md).
+The current Worker uses a reviewed module manifest and keeps all but the extracted account-validation, chat-input, admin-auth, publication-format, GitHub-publication-transport, runtime-config and crypto boundaries in `worker.js`. The responsibility boundaries and safe refactor order are documented in [`docs/worker-architecture-boundaries.md`](../../docs/worker-architecture-boundaries.md).

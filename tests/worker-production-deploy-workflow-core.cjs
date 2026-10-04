@@ -70,6 +70,11 @@ assert.match(
 );
 assert.match(
   source,
+  /node --check workers\/bao-lab-credits-api\/modules\/crypto\.js/,
+  "the extracted crypto module must pass syntax validation before deployment"
+);
+assert.match(
+  source,
   /node --check workers\/bao-lab-credits-api\/modules\/github-publication-transport\.js/,
   "the extracted GitHub publication transport module must pass syntax validation before deployment"
 );
@@ -82,6 +87,12 @@ assert.match(
   source,
   /node --check workers\/bao-lab-credits-api\/modules\/runtime-config\.js/,
   "the extracted runtime config module must pass syntax validation before deployment"
+);
+
+assert.match(
+  source,
+  /node tests\/worker-crypto-core\.cjs/,
+  "crypto behavior contract must run before production deployment"
 );
 
 assert.match(
