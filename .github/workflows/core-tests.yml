@@ -87,6 +87,8 @@ jobs:
         run: node tests/desire-academy-city-card.test.cjs
       - name: Xia Yuhan AV industry card
         run: node tests/xia-yuhan-av-industry-card.test.cjs
+      - name: Sakura House adult management card
+        run: node tests/sakura-house-experience-management-card.test.cjs
       - name: Aetheria Three Factions card
         run: node tests/aetheria-three-factions-card.test.cjs
       - name: Elze Survival World card
