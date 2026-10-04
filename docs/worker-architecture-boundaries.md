@@ -2,7 +2,7 @@
 
 This file is the refactor map for `workers/bao-lab-credits-api/worker.js`.
 
-The Worker now has twelve reviewed physical extractions. The production manifest contains the `worker.js` main module plus `modules/account-rate-limit.js`, `modules/account-validation.js`, `modules/chat-input.js`, `modules/admin-auth.js`, `modules/admin-publication-routes.js`, `modules/author-profile-publication.js`, `modules/publication-format.js`, `modules/github-publication-transport.js`, `modules/runtime-config.js`, `modules/crypto.js` and `modules/http.js`; every other responsibility remains in the main file. The first multi-module deployment completed a successful production rollback-and-restore rehearsal on 2026-10-04.
+The Worker now has twelve reviewed physical extractions. The production manifest contains the `worker.js` main module plus `modules/account-rate-limit.js`, `modules/account-validation.js`, `modules/chat-input.js`, `modules/admin-auth.js`, `modules/admin-publication-routes.js`, `modules/admin-usage-routes.js`, `modules/author-profile-publication.js`, `modules/publication-format.js`, `modules/github-publication-transport.js`, `modules/runtime-config.js`, `modules/crypto.js` and `modules/http.js`; every other responsibility remains in the main file. The first multi-module deployment completed a successful production rollback-and-restore rehearsal on 2026-10-04.
 
 The goal is **behavior-preserving extraction, one low-dependency boundary at a time**.
 
