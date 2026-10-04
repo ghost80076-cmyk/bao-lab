@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "type": "yorubay-author-regex-mod",
+  "scope": "assistant_display",
+  "characterId": "xinglan-academy",
+  "regex_scripts": [
+    {
+      "scriptName": "星瀾｜學期開場",
+      "description": "把星瀾學園開場標記轉成暮色校園閱讀卡；只改顯示，不改 Prompt、記憶或世界狀態。",
+      "priority": 80,
+      "findRegex": "【YB:XINGLAN:OPENING】\\s*([\\s\\S]*?)\\s*【/YB:XINGLAN:OPENING】",
+      "flags": "g",
+      "replaceString": "<style>.yb-xinglan-opening{font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif;background:linear-gradient(145deg,#171923,#25283a);color:#f1f2f7;border:1px solid #555d7d;border-radius:18px;padding:20px;box-shadow:0 14px 34px rgba(0,0,0,.28);line-height:1.9;white-space:pre-wrap}.yb-xinglan-opening:before{content:\"XINGLAN ACADEMY · SPRING TERM\";display:block;color:#aebce8;font-size:12px;letter-spacing:.15em;margin-bottom:10px}</style><section class=\"yb-xinglan-opening\">$1</section>"
+    },
+    {
+      "scriptName": "星瀾｜世界模式",
+      "description": "把四種世界模式整理成開局說明卡；真正選擇由原生 Builder 寫入世界狀態。",
+      "priority": 60,
+      "findRegex": "【YB:XINGLAN:MODE】\\s*([\\s\\S]*?)\\s*【/YB:XINGLAN:MODE】",
+      "flags": "g",
+      "replaceString": "<style>.yb-xinglan-mode{font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif;background:#1d202d;color:#e8ebf6;border:1px solid #4e5878;border-left:3px solid #91a8e6;border-radius:14px;padding:14px 16px;line-height:1.82;white-space:pre-wrap}.yb-xinglan-mode:before{content:\"◈ 世界模式\";display:block;color:#b7c5ed;font-weight:700;margin-bottom:7px}</style><section class=\"yb-xinglan-mode\">$1</section>"
+    },
+    {
+      "scriptName": "星瀾｜中央廣場",
+      "description": "把預設第一幕整理成校園場景卡；人物、關係與事件仍由原生 Gameplay UI 追蹤。",
+      "priority": 40,
+      "findRegex": "【YB:XINGLAN:ORIENTATION】\\s*([\\s\\S]*?)\\s*【/YB:XINGLAN:ORIENTATION】",
+      "flags": "g",
+      "replaceString": "<style>.yb-xinglan-scene{font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif;background:radial-gradient(circle at 80% 0,#30364c,#181a24 72%);color:#eef0f8;border:1px solid #565d77;border-radius:16px;padding:16px 18px;line-height:1.86;white-space:pre-wrap}.yb-xinglan-scene:before{content:\"✦ 中央廣場 · 08:10\";display:block;color:#d3b879;font-weight:700;letter-spacing:.08em;margin-bottom:8px}</style><section class=\"yb-xinglan-scene\">$1</section>"
+    }
+  ]
+}
