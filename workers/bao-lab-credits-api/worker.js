@@ -5,6 +5,12 @@ import {
   validUsername,
 } from "./modules/account-validation.js";
 
+import {
+  WorkerChatInput,
+  normalizeHostedSessionId,
+  normalizeMessages,
+} from "./modules/chat-input.js";
+
 // Hosted prompt limits are transport / abuse guards, not model context-window limits.
 // The browser aims substantially below these values and compacts smart-memory stories
 // before reaching the hard ceiling.
@@ -13,9 +19,7 @@ const MAX_ADMIN_PUBLISH_BODY_BYTES = 2_500_000;
 const MAX_PUBLISH_CARD_BYTES = 500_000;
 const MAX_PUBLISH_COVER_BYTES = 1_200_000;
 const COMMUNITY_CATALOG_PAGE_SIZE = 48;
-const MAX_PROMPT_BYTES = 192_000;
 const MAX_OUTPUT = 8192;
-const MAX_MESSAGES = 100;
 
 const LEGACY_CREDIT_TOKEN_UNIT = 100;
 const LEGACY_BILLING_MODE = "raw_tokens_v1";
@@ -2165,130 +2169,6 @@ const {
   estimatedPromptTokens,
   reservePlan,
 } = WorkerModelPricing;
-
-// Chat input boundary. It owns transport-safe message projection and hosted
-// conversation identifiers before either value reaches provider dispatch.
-const WorkerChatInput = (() => {
-function normalizeMessages(
-  messages
-) {
-  if (
-    !Array.isArray(
-      messages
-    ) ||
-    !messages.length ||
-    messages.length >
-      MAX_MESSAGES
-  ) {
-    return null;
-  }
-
-  if (
-    !messages.every(
-      (m) =>
-        m &&
-        [
-          "system",
-          "user",
-          "assistant",
-        ].includes(
-          m.role
-        ) &&
-        typeof m.content ===
-          "string" &&
-        m.content.length >
-          0 &&
-        m.content.length <=
-          80_000
-    )
-  ) {
-    return null;
-  }
-
-  if (
-    !messages.some(
-      (m) =>
-        m.role ===
-        "user"
-    )
-  ) {
-    return null;
-  }
-
-  const simple =
-    messages.map(
-      ({
-        role,
-        content,
-      }) => ({
-        role,
-        content,
-      })
-    );
-
-  const bytes =
-    enc.encode(
-      JSON.stringify(
-        simple
-      )
-    ).length;
-
-  return (
-    bytes <=
-    MAX_PROMPT_BYTES
-  )
-    ? simple
-    : null;
-}
-
-function normalizeHostedSessionId(
-  value
-) {
-  if (
-    value ===
-      undefined ||
-    value ===
-      null ||
-    value ===
-      ""
-  ) {
-    return "";
-  }
-
-  if (
-    typeof value !==
-      "string"
-  ) {
-    return null;
-  }
-
-  const normalized =
-    value.trim();
-
-  if (
-    !normalized ||
-    normalized.length >
-      256 ||
-    !/^[A-Za-z0-9._:-]+$/.test(
-      normalized
-    )
-  ) {
-    return null;
-  }
-
-  return normalized;
-}
-
-  return Object.freeze({
-    normalizeMessages,
-    normalizeHostedSessionId,
-  });
-})();
-
-const {
-  normalizeMessages,
-  normalizeHostedSessionId,
-} = WorkerChatInput;
 
 // Optional Cloudflare Rate Limiting binding boundary for account credentials.
 // Keys are hashed before leaving this module; missing bindings preserve the

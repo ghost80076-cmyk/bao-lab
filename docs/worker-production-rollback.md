@@ -1,17 +1,16 @@
 # Production Worker rollback
 
-This runbook covers the first multi-module deployment of Cloudflare Worker
-`bao-lab-credits-api`. Its reviewed graph contains `worker.js` and the pure
-`modules/account-validation.js` dependency. Use this procedure both for an
-incident and for the supervised first-extraction rollback rehearsal.
+This runbook covers the reviewed multi-module deployment of Cloudflare Worker
+`bao-lab-credits-api`. Its current graph contains `worker.js` plus the pure
+`modules/account-validation.js` and `modules/chat-input.js` dependencies.
+Use this procedure whenever a production Worker deployment introduces a regression.
 
 ## Immediate rollback
 
 1. Open Cloudflare **Workers & Pages** and select `bao-lab-credits-api`.
 2. Open **Deployments**.
-3. Find the most recent known-good single-file version immediately before the
-   account-validation extraction, open its three-dot menu and select
-   **Rollback**.
+3. Find the most recent known-good deployment immediately before the faulty
+   Worker change, open its three-dot menu and select **Rollback**.
 4. Confirm both production health endpoints return HTTP 200 and `"ok": true`:
    - `https://api.yorubay.com/health`
    - `https://bao-lab-credits-api.ghost80076.workers.dev/health`
@@ -45,8 +44,13 @@ configuration and remain outside the content-only deployment boundary.
 - The revert PR's Worker contract tests pass.
 - The GitHub `Deploy production Worker` run for the revert is green.
 
-For the supervised rehearsal, confirm the single-file rollback passes every
-acceptance check above. Then select the reviewed two-module deployment from the
-deployment history and use **Rollback** again to restore it. Repeat the health
-and security checks. Do not extract a second boundary until both directions
-have been verified.
+## Rehearsal history
+
+The first multi-module rollback rehearsal passed on 2026-10-04. Production was
+rolled back from the account-validation two-module deployment to the previous
+single-file version, `/health` and account login were verified, then the
+reviewed two-module deployment was restored and both checks passed again.
+
+Subsequent one-boundary structural extractions use the same guarded deployment
+and rollback path. Repeat a full two-direction rehearsal if deployment mechanics,
+bindings or rollback behavior change.

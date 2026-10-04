@@ -3,6 +3,7 @@
   "main_module": "worker.js",
   "modules": [
     "modules/account-validation.js",
+    "modules/chat-input.js",
     "worker.js"
   ]
 }

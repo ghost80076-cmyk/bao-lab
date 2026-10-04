@@ -42,10 +42,12 @@ started manually. These GitHub Actions repository secrets are required:
 The path filter deliberately excludes frontend-only changes. The deployment
 packager loads the versioned `deployment-manifest.json`, rejects unsafe or
 missing module paths and uploads the listed JavaScript module graph in a
-deterministic order. The first physical extraction moves only the pure
-`WorkerAccountValidation` boundary into `modules/account-validation.js`; the
-main entry remains `worker.js`. Do not extract another boundary until this
-two-module deployment completes a supervised rollback rehearsal. Follow
+deterministic order. The reviewed module graph now extracts the pure `WorkerAccountValidation`
+and `WorkerChatInput` boundaries into `modules/account-validation.js` and
+`modules/chat-input.js`; the main entry remains `worker.js`. The first
+multi-module deployment completed a successful rollback-and-restore rehearsal
+on 2026-10-04. Continue structural cleanup one low-dependency boundary per PR.
+Follow
 [`docs/worker-production-rollback.md`](../../docs/worker-production-rollback.md)
 if a deployed Worker change must be reverted.
 
@@ -474,4 +476,4 @@ Only after both checks pass should the browser catalog be merged and deployed.
 
 ## Refactor safety map
 
-The current Worker uses a reviewed module manifest and keeps all but the first pure account-validation boundary in `worker.js`. The responsibility boundaries and safe refactor order are documented in [`docs/worker-architecture-boundaries.md`](../../docs/worker-architecture-boundaries.md).
+The current Worker uses a reviewed module manifest and keeps all but the extracted account-validation and chat-input boundaries in `worker.js`. The responsibility boundaries and safe refactor order are documented in [`docs/worker-architecture-boundaries.md`](../../docs/worker-architecture-boundaries.md).
