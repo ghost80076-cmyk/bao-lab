@@ -1,6 +1,13 @@
 name: Deploy production Worker
 
 on:
+  push:
+    branches:
+      - main
+    paths:
+      - workers/bao-lab-credits-api/worker.js
+      - scripts/deploy-worker-content.cjs
+      - .github/workflows/worker-production-deploy.yml
   workflow_dispatch:
 
 permissions:
