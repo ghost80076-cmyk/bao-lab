@@ -38,7 +38,7 @@ Each boundary was merged independently after its contract tests and the reposito
 
 ## Remaining work
 
-- Extend the guarded deployment packager from one main module to a validated module graph before extracting files.
+- Connect the guarded workflow to a reviewed module manifest. The deployment packager can now validate and encode a JavaScript module graph, while the production CLI deliberately continues to supply only `worker.js`.
 - Consolidate the browser catalog and the unknown production Worker base allowlist into a single model registry. Versioned deltas now generate one validated Cloudflare/AWS deployment plan, but cannot safely replace the external production base.
 - Rehearse rollback with the first multi-module candidate before allowing it to replace the single-file production artifact.
 
@@ -86,7 +86,7 @@ Until then, the project can reduce technical debt by clarifying boundaries, cons
 
 | Exit condition | Status |
 | --- | --- |
-| Automated Cloudflare module-graph deployment | Blocked: the guarded workflow currently uploads only `worker.js` as the main module |
+| Automated Cloudflare module-graph deployment | Prepared: the packager accepts a validated JavaScript module graph; the guarded workflow still supplies only `worker.js` until the first extraction PR is reviewed |
 | Deployment independent of dashboard copy/paste | Complete: watched Worker changes merged to `main` deploy automatically, with manual dispatch retained as a fallback |
 | Security, auth, billing and provider contract coverage | In place for the current named boundaries |
 | Documented rollback for a module deployment | Single-file procedure documented in `docs/worker-production-rollback.md`; multi-module rehearsal remains blocked |
