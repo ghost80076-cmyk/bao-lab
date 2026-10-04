@@ -24,7 +24,7 @@ for (const helper of [
 
 assert.match(
   source,
-  /const transportTimeoutMs\s*=\s*route\s*===\s*"aws_relay"\s*\?\s*85_000\s*:\s*75_000/,
+  /const transportTimeoutMs\s*=\s*route\s*===\s*"aws_relay"\s*\?\s*170_000\s*:\s*75_000/,
   "AWS relay must have more timeout headroom than direct provider calls"
 );
 
