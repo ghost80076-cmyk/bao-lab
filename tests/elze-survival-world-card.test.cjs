@@ -38,7 +38,7 @@ for(const id of ['scene','player','survival','economy','guild','factions','scene
 const ui=GameplayUI.normalize(card.gameplay.ui_schema);
 assert.ok(ui);
 assert.equal(ui.theme.preset,'noir');
-assert.equal(ui.theme.accent,'#D1AD6F');
+assert.equal(ui.theme.accent,'#d1ad6f');
 assert.deepEqual(ui.panels.map(x=>x.id),['now','you','survival','guild','world','people','territory','actions']);
 assert.ok(ui.builder);
 assert.ok(ui.builder.fields.some(x=>x.key==='age'&&x.min===21));
