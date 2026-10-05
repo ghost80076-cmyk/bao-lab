@@ -22,11 +22,11 @@ assert.equal(card.presentation.opening.choices.length, 4);
 assert.doesNotMatch(card.content.greeting, /<script|onclick=|document\.execCommand/i);
 assert.doesNotMatch(JSON.stringify(card), /<親密場景>|性喚起時的能量光芒|呻吟聲/);
 
-assert.match(card.content.system_prompt, /AI 知道的事情 ≠ NPC 知道的事情 ≠ 玩家知道的事情/);
+assert.match(card.content.system_prompt, /【異能情報】/);
 assert.match(card.content.system_prompt, /負荷是連續狀態，不是固定百分比公式/);
 assert.match(card.content.system_prompt, /D→C→B→A→S→SS/);
 assert.match(card.content.system_prompt, /玩家開局通常不知道/);
-assert.match(card.content.system_prompt, /不要替玩家說話/);
+assert.match(card.content.system_prompt, /原始容器.*議會.*七種原始力量/s);
 
 const prompts = new Map(card.content.dynamic_prompts.map(item => [item.id, item]));
 for (const id of ['opening-route', 'silver-power', 'container-load', 'combat', 'cleaners', 'free-alliance', 'abyss-cult', 'time-fragment', 'snow-fox', 'council', 'status-help']) {

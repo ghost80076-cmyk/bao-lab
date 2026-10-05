@@ -14,12 +14,12 @@ assert.equal(card.meta.avatar,'https://i.meee.com.tw/GxAeyMx.jpg');
 assert.equal(card.presentation.reading_background,card.meta.avatar);
 assert.equal(card.presentation.play_info_surface,'game-ui');
 
-assert.match(card.content.system_prompt,/作品名稱.*不是角色名稱/);
+assert.match(card.content.system_prompt,/【精華與勢力情報】/);
 assert.match(card.content.system_prompt,/21 歲以上/);
 assert.match(card.content.system_prompt,/生命精華/);
 assert.match(card.content.system_prompt,/性相關體液/);
-assert.match(card.content.system_prompt,/玩家視角/);
-assert.match(card.content.system_prompt,/資訊隔離/);
+assert.match(card.content.system_prompt,/三大勢力/);
+assert.match(card.content.system_prompt,/黑市路線/);
 assert.match(card.content.system_prompt,/艾莉西亞/);
 assert.match(card.content.system_prompt,/莉莉絲｜22 歲/);
 assert.match(card.content.system_prompt,/卡珊德拉/);

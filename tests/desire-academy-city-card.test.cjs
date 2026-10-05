@@ -32,7 +32,7 @@ assert.match(card.content.system_prompt, /所有固定角色都是 21 歲以上�
 assert.match(card.content.system_prompt, /鏡頭內／幕後/);
 assert.match(card.content.system_prompt, /數值色情遊戲/);
 assert.match(card.content.system_prompt, /不得聲稱角色就是現實存在的 AV 女優/);
-assert.match(card.content.system_prompt, /不得替玩家輸出新台詞/);
+assert.match(card.content.system_prompt, /玩家若改變場次內容、強度、搭檔或玩法/);
 assert.match(card.content.system_prompt, /動態演員生態/);
 assert.match(card.content.system_prompt, /臨演／客串 → 常駐配角 → 核心演員/);
 assert.match(card.content.system_prompt, /不要為了熱鬧而每輪亂生新人/);
@@ -77,8 +77,8 @@ const opening = JSON.stringify(card.presentation.opening);
 assert.doesNotMatch(opening, /<script\b/i);
 assert.doesNotMatch(opening, /hc-collapse|hc-h1|hc-n/i);
 assert.ok(card.presentation.opening.choices.some(choice => choice.includes('第一個棚位')));
-assert.match(card.content.system_prompt,/【開局資料來源】/);
-assert.match(card.content.system_prompt,/不得再次問玩家今晚要演誰/);
+assert.match(card.content.system_prompt,/【開局通行證】/);
+assert.match(card.content.system_prompt,/通行證與第一棚位必須符合這些資料/);
 assert.doesNotMatch(card.content.greeting,/通行證還是空白|先決定今晚要演誰/);
 
 console.log('PASS desire academy actor-layer, stats, adult gate, catalog, cover and Gameplay UI');

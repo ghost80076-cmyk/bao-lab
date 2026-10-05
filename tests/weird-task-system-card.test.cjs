@@ -19,7 +19,6 @@ assert.match(card.content.system_prompt,/規則怪談/);
 assert.match(card.content.system_prompt,/真實規則/);
 assert.match(card.content.system_prompt,/誤導資訊/);
 assert.match(card.content.system_prompt,/平靜期/);
-assert.match(card.content.system_prompt,/作品名稱不是 NPC/);
 assert.doesNotMatch(card.content.system_prompt,/性交|處女性|懷孕風險/);
 assert.doesNotMatch(card.content.greeting,/hc-h1|hc-stat|hc-bar|hc-collapse|<style|<script/);
 

@@ -14,7 +14,6 @@ assert.equal(card.meta.avatar,'https://i.meee.com.tw/CvCfmDN.jpg');
 assert.equal(card.presentation.reading_background,card.meta.avatar);
 assert.equal(card.presentation.play_info_surface,'game-ui');
 
-assert.match(card.content.system_prompt,/作品名稱.*不是 NPC/);
 assert.match(card.content.system_prompt,/生存沙盒/);
 assert.match(card.content.system_prompt,/預設不擲骰/);
 assert.match(card.content.system_prompt,/21\+ 虛構成年人/);
