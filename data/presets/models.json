@@ -495,9 +495,9 @@
           "use_case": "便宜主聊天或輔助整理",
           "cache": "provider-dependent",
           "pricing": {
-            "input": 0.05,
-            "output": 0.16,
-            "cache": 0.013,
+            "input": 0.021,
+            "output": 0.32,
+            "cache": 0.016,
             "note": "OpenRouter 路由價格可能隨供應商調整。"
           },
           "docs_url": "https://openrouter.ai/deepseek/deepseek-v4-flash-0731"
