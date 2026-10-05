@@ -5,16 +5,22 @@ on:
     branches: [main]
     paths:
       - scripts/audit-production-model-registry.cjs
+      - scripts/apply-production-model-registry.cjs
       - tests/production-model-registry-audit-core.cjs
+      - tests/production-model-binding-deploy-core.cjs
       - .github/workflows/production-model-registry-audit.yml
+      - .github/workflows/production-model-binding-deploy.yml
       - data/presets/models.json
       - workers/bao-lab-credits-api/model-rollouts/**
   push:
     branches: [main]
     paths:
       - scripts/audit-production-model-registry.cjs
+      - scripts/apply-production-model-registry.cjs
       - tests/production-model-registry-audit-core.cjs
+      - tests/production-model-binding-deploy-core.cjs
       - .github/workflows/production-model-registry-audit.yml
+      - .github/workflows/production-model-binding-deploy.yml
       - data/presets/models.json
       - workers/bao-lab-credits-api/model-rollouts/**
   workflow_dispatch:
@@ -37,6 +43,7 @@ jobs:
         run: |
           node --check scripts/audit-production-model-registry.cjs
           node tests/production-model-registry-audit-core.cjs
+          node tests/production-model-binding-deploy-core.cjs
           node tests/model-registry-contract.cjs
           node tests/model-rollout-plan-core.cjs
           node tests/model-deployment-plan-core.cjs
