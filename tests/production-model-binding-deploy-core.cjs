@@ -196,6 +196,28 @@ assert.throws(
   assert.equal(dryRun.reason, "dry_run");
   assert.equal(dryRunPatchCalls, 0);
 
+  const sensitiveSettings = {
+    bindings: [
+      ...settings.bindings,
+      { name: "OPENROUTER_API_KEY", type: "secret_text" },
+    ],
+  };
+  await assert.rejects(
+    deployProductionModelRegistry({
+      accountId: "a".repeat(32),
+      apiToken: "test-token",
+      workerName: "yorubay-credits-pilot",
+      registry: { schema: "fixture" },
+      plan,
+      settings: sensitiveSettings,
+      confirmation: APPLY_CONFIRMATION,
+      async fetchImpl() {
+        throw new Error("sensitive binding guard must run before PATCH");
+      },
+    }),
+    /apply blocked: production has secret bindings/
+  );
+
   let applyCalls = 0;
   const applied = await deployProductionModelRegistry({
     accountId: "a".repeat(32),
