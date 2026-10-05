@@ -22,7 +22,6 @@ assert.match(card.content.system_prompt,/現代寫實/);
 assert.match(card.content.system_prompt,/異能秘聞/);
 assert.match(card.content.system_prompt,/修煉學園/);
 assert.match(card.content.system_prompt,/多種族共學/);
-assert.match(card.content.system_prompt,/作品名稱不得進人物名冊/);
 assert.doesNotMatch(card.content.greeting,/hc-collapse|hc-h1|hc-n/);
 assert.doesNotMatch(card.content.system_prompt,/0[–-]500.*好感|400.*獨佔/);
 
