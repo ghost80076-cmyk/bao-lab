@@ -339,7 +339,7 @@
     close();
     dialog = document.createElement('div');
     dialog.id = 'bao-actor-backdrop';
-    dialog.innerHTML = `<section class="bao-actor-dialog" role="dialog" aria-modal="true" aria-labelledby="bao-actor-title"><header><h2 id="bao-actor-title">本故事的人物設定</h2><div class="bao-actor-head-actions"><button type="button" class="bao-actor-help" data-actor-help aria-label="人物設定說明" aria-expanded="false" aria-controls="bao-actor-intro">?</button><button type="button" data-close aria-label="關閉">×</button></div></header><p class="note bao-actor-intro" id="bao-actor-intro">「我的玩家人物」永遠由玩家自己控制；「AI 人物／NPC」才由 AI 演繹。這裡可以管理自己新增的人物與官方可攜角色，但不會開放作者原始角色、世界規則或核心提示給玩家編輯。</p><label class="bao-actor-target-label">編輯對象<select id="bao-actor-target"><option value="player">我的玩家人物</option><option value="host">AI 人物／NPC／官方可攜角色</option></select></label><div id="bao-actor-form"></div><p id="bao-actor-feedback" class="note" role="status"></p><footer><button type="button" class="secondary" data-close>取消</button><button type="button" class="primary" data-apply>儲存至本故事</button></footer></section>`;
+    dialog.innerHTML = `<section class="bao-actor-dialog" role="dialog" aria-modal="true" aria-labelledby="bao-actor-title"><header><h2 id="bao-actor-title">本故事的人物設定</h2><div class="bao-actor-head-actions"><button type="button" class="bao-actor-help" data-actor-help aria-label="人物設定說明" aria-expanded="false" aria-controls="bao-actor-intro">?</button><button type="button" data-close aria-label="關閉">×</button></div></header><p class="note bao-actor-intro" id="bao-actor-intro">「我的玩家人物」永遠由玩家自己控制；「AI 人物／NPC」才由 AI 演繹。這裡可以管理自己新增的人物與官方可攜角色，但不會開放作者原始角色、世界規則或核心提示給玩家編輯。</p><label class="bao-actor-target-label">編輯對象<select id="bao-actor-target"><option value="player">我的玩家人物</option><option value="host">AI 人物／NPC／官方可攜角色</option></select></label><div id="bao-actor-form"></div><p id="bao-actor-feedback" class="note" role="status"></p><footer><button type="button" class="secondary" data-close>取消</button><button type="button" class="secondary" data-add-more hidden>儲存並新增下一位</button><button type="button" class="primary" data-apply>儲存至本故事</button></footer></section>`;
     document.body.appendChild(dialog);
     const selector = dialog.querySelector('#bao-actor-target');
     selector.value = target === 'host' ? 'host' : 'player';
@@ -352,7 +352,8 @@
       event.currentTarget.setAttribute('aria-expanded', open ? 'true' : 'false');
     });
     dialog.addEventListener('click', event => {if (event.target === dialog) close();});
-    dialog.querySelector('[data-apply]').onclick = applyDialog;
+    dialog.querySelector('[data-add-more]').onclick = () => applyDialog(true);
+    dialog.querySelector('[data-apply]').onclick = () => applyDialog(false);
     renderDialog();
   }
   function renderDialog() {
@@ -360,7 +361,12 @@
     const box = dialog.querySelector('#bao-actor-form');
     const state = actors();
     dialog.querySelector('#bao-actor-feedback').textContent = '';
-    if (dialog.querySelector('#bao-actor-target').value === 'player') {
+    const target = dialog.querySelector('#bao-actor-target').value;
+    const addMore = dialog.querySelector('[data-add-more]');
+    const apply = dialog.querySelector('[data-apply]');
+    if (addMore) addMore.hidden = target !== 'host';
+    if (apply) apply.textContent = target === 'host' ? '儲存並返回故事' : '儲存至本故事';
+    if (target === 'player') {
       box.innerHTML = `<p class="note">這是你自己扮演的玩家角色。AI 不會因為此人物出現在設定中，就取得你的台詞、心理、選擇或行動控制權。</p><label>套用本機玩家預設<select id="bao-actor-preset">${presetOptions()}</select></label><div class="bao-actor-actions"><button type="button" data-load>載入預設</button><button type="button" data-save>另存玩家預設</button></div><form class="bao-actor-fields" autocomplete="off">${PLAYER_FIELDS.map(key => field(key, App.config.persona[key])).join('')}</form>`;
       box.querySelector('[data-load]').onclick = () => {const item = presets().find(p => p.id === box.querySelector('#bao-actor-preset').value); if (!item) return alert('先選擇預設。'); PLAYER_FIELDS.forEach(key => {box.querySelector('form').elements.namedItem(key).value = item.persona[key] || '';});};
       box.querySelector('[data-save]').onclick = () => {const item = savePreset(formData(box.querySelector('form'), PLAYER_FIELDS)); if (item) {const select = box.querySelector('#bao-actor-preset'); select.innerHTML = presetOptions(); select.value = item.id;}};
@@ -377,28 +383,57 @@
       };
       box.querySelector('[data-remove]').onclick = () => {if (!select.value) return; state.hostedCharacters = state.hostedCharacters.filter(actor => actor.id !== select.value); state.hostedCharacter = null; persist(); renderDialog();};
     }
-    box.querySelector('form')?.addEventListener('submit', event => {event.preventDefault(); applyDialog();});
+    box.querySelector('form')?.addEventListener('submit', event => {event.preventDefault(); applyDialog(target === 'host');});
   }
-  function applyDialog() {
+  function applyDialog(keepOpen = false) {
     if (!dialog) return;
     const form = dialog.querySelector('#bao-actor-form form');
     const feedback = dialog.querySelector('#bao-actor-feedback');
-    if (dialog.querySelector('#bao-actor-target').value === 'player') {
+    const target = dialog.querySelector('#bao-actor-target').value;
+    if (target === 'player') {
       const p = persona(formData(form, PLAYER_FIELDS));
       if (!p.name) return void (feedback.textContent = '請填寫玩家名稱。');
       App.config.persona = p;
-    } else {
-      const data = formData(form, ACTOR_FIELDS);
-      if (!trim(data.name)) return void (feedback.textContent = '請填寫 AI 人物名稱。');
-      const select = dialog.querySelector('#bao-actor-existing');
-      const state = actors();
-      const existing = state.hostedCharacters.find(item => item.id === select.value);
-      const actor = normalizeActor({...data, id:select.value || form.dataset.actorId || id(), role:form.elements.namedItem('role').value, portable:form._portableMeta || existing?.portable});
-      state.hostedCharacters = addOrUpdate(state.hostedCharacters, actor);
-      state.hostedCharacter = null;
+      persist();
+      close();
+      return;
     }
+
+    const data = formData(form, ACTOR_FIELDS);
+    const hasDraft = ACTOR_FIELDS.some(key => trim(data[key])) || Boolean(form._portableMeta);
+    if (!trim(data.name)) {
+      if (!keepOpen && !hasDraft) {
+        close();
+        return;
+      }
+      feedback.textContent = '請填寫 AI 人物名稱。';
+      return;
+    }
+
+    const select = dialog.querySelector('#bao-actor-existing');
+    const state = actors();
+    const existing = state.hostedCharacters.find(item => item.id === select.value);
+    const actor = normalizeActor({...data, id:select.value || form.dataset.actorId || id(), role:form.elements.namedItem('role').value, portable:form._portableMeta || existing?.portable});
+    state.hostedCharacters = addOrUpdate(state.hostedCharacters, actor);
+    state.hostedCharacter = null;
     persist();
-    close();
+
+    if (!keepOpen) {
+      close();
+      return;
+    }
+
+    const savedName = actor.name;
+    renderDialog();
+    if (!dialog) return;
+    const nextForm = dialog.querySelector('#bao-actor-form form');
+    const nextSelect = dialog.querySelector('#bao-actor-existing');
+    if (nextSelect) nextSelect.value = '';
+    if (nextForm) {
+      fillActorForm(nextForm);
+      nextForm.elements.namedItem('name')?.focus();
+    }
+    dialog.querySelector('#bao-actor-feedback').textContent = `已儲存「${savedName}」。可以繼續新增下一位 AI 人物。`;
   }
   function close() {dialog?.remove(); dialog = null;}
   function installChatEntry() {
@@ -413,7 +448,7 @@
   if (!document.getElementById('bao-actor-styles')) {
     const style = document.createElement('style');
     style.id = 'bao-actor-styles';
-    style.textContent = `.bao-portable-actor-picker{display:grid;gap:7px;margin:10px 0 14px;padding:12px;border:1px solid #6a6074;border-radius:11px;background:#282432}.bao-portable-actor-picker b{color:#eee6f1}.bao-portable-actor-picker span{color:#aaa3b0;font-size:12px;line-height:1.5}.bao-portable-actor-picker select{width:100%;padding:9px}.bao-portable-actor-picker button{min-height:38px}.bao-actor-builder{margin:16px 0;padding:14px;border:1px solid #5d6279;border-radius:12px;background:#232634}.bao-actor-builder h4{margin:0 0 6px}.bao-actor-builder select{width:100%;max-width:100%;margin:8px 0;padding:10px}.bao-actor-actions{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}.bao-actor-actions button{min-height:38px;flex:1 1 145px}.bao-persona-more{display:grid;gap:10px;margin-top:10px}.bao-actor-item{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:8px;border-bottom:1px solid #555}.bao-actor-item span{flex:1 1 160px}.bao-actor-item button{width:auto}#bao-actor-backdrop{position:fixed;inset:0;z-index:10030;display:flex;align-items:center;justify-content:center;overflow:auto;padding:14px;background:rgba(0,0,0,.78)}.bao-actor-dialog{box-sizing:border-box;width:min(100%,700px);max-height:calc(100dvh - 28px);overflow:auto;padding:clamp(16px,3vw,26px);border:1px solid #686d81;border-radius:16px;background:#222632;color:#f4f4f8;box-shadow:0 18px 60px #0009}.bao-actor-dialog header{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}.bao-actor-dialog footer{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:10px;align-items:stretch}.bao-actor-dialog header h2{margin:0;font-size:21px}.bao-actor-head-actions{display:flex;align-items:center;gap:8px}.bao-actor-help{display:none}.bao-actor-dialog header button{font-size:26px;border:0;background:none;color:inherit;cursor:pointer}.bao-actor-dialog label{display:grid;gap:5px;margin:8px 0;font-size:14px}.bao-actor-dialog input,.bao-actor-dialog textarea,.bao-actor-dialog select{box-sizing:border-box;width:100%;min-width:0;padding:10px;border:1px solid #6a7184;border-radius:8px;background:#141821;color:#fff;font:inherit}.bao-actor-dialog textarea{resize:vertical}.bao-actor-fields{display:grid;gap:6px}.bao-actor-dialog footer button{width:100%;min-width:0;min-height:44px;margin:0}#bao-actor-feedback{min-height:1.4em;color:#ffcc93}@media(max-width:700px){#bao-actor-backdrop{align-items:flex-end;padding:0}.bao-actor-dialog{width:100%;max-height:96dvh;border-radius:18px 18px 0 0;padding:10px 12px max(12px,env(safe-area-inset-bottom))}.bao-actor-dialog header{position:sticky;top:-10px;z-index:2;margin:-10px -12px 8px;padding:10px 12px;background:#222632f2;backdrop-filter:blur(10px)}.bao-actor-dialog header h2{font-size:20px}.bao-actor-head-actions{display:flex;align-items:center;gap:6px}.bao-actor-help{display:inline-grid!important;place-items:center;width:34px;height:34px!important;border:1px solid #686d81!important;border-radius:10px!important;background:#191d27!important;color:#d8dbe5!important;font-size:15px!important;font-weight:800}.bao-actor-dialog header [data-close]{width:34px;height:34px;font-size:22px}.bao-actor-intro{display:none;margin:6px 0 8px;font-size:11px;line-height:1.5}.bao-actor-dialog.bao-actor-help-open>.bao-actor-intro{display:block}.bao-actor-target-label{margin:4px 0 8px!important;font-size:12px!important}.bao-actor-target-label select{padding:8px!important}.bao-actor-dialog #bao-actor-form>.note{display:none}.bao-actor-dialog label{margin:6px 0;font-size:13px}.bao-actor-dialog input,.bao-actor-dialog textarea,.bao-actor-dialog select{padding:9px}.bao-actor-fields{gap:4px}.bao-actor-actions{gap:6px;margin:6px 0}.bao-actor-actions button{flex:1 1 calc(50% - 6px);min-height:38px}.bao-actor-dialog footer{position:sticky;bottom:0;z-index:2;margin:8px -12px -12px;padding:8px 12px max(12px,env(safe-area-inset-bottom));background:#222632f2;backdrop-filter:blur(10px);gap:7px}.bao-actor-dialog footer button{min-height:40px}}`;
+    style.textContent = `.bao-portable-actor-picker{display:grid;gap:7px;margin:10px 0 14px;padding:12px;border:1px solid #6a6074;border-radius:11px;background:#282432}.bao-portable-actor-picker b{color:#eee6f1}.bao-portable-actor-picker span{color:#aaa3b0;font-size:12px;line-height:1.5}.bao-portable-actor-picker select{width:100%;padding:9px}.bao-portable-actor-picker button{min-height:38px}.bao-actor-builder{margin:16px 0;padding:14px;border:1px solid #5d6279;border-radius:12px;background:#232634}.bao-actor-builder h4{margin:0 0 6px}.bao-actor-builder select{width:100%;max-width:100%;margin:8px 0;padding:10px}.bao-actor-actions{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}.bao-actor-actions button{min-height:38px;flex:1 1 145px}.bao-persona-more{display:grid;gap:10px;margin-top:10px}.bao-actor-item{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:8px;border-bottom:1px solid #555}.bao-actor-item span{flex:1 1 160px}.bao-actor-item button{width:auto}#bao-actor-backdrop{position:fixed;inset:0;z-index:10030;display:flex;align-items:center;justify-content:center;overflow:auto;padding:14px;background:rgba(0,0,0,.78)}.bao-actor-dialog{box-sizing:border-box;width:min(100%,700px);max-height:calc(100dvh - 28px);overflow:auto;padding:clamp(16px,3vw,26px);border:1px solid #686d81;border-radius:16px;background:#222632;color:#f4f4f8;box-shadow:0 18px 60px #0009}.bao-actor-dialog header{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}.bao-actor-dialog footer{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;align-items:stretch}.bao-actor-dialog header h2{margin:0;font-size:21px}.bao-actor-head-actions{display:flex;align-items:center;gap:8px}.bao-actor-help{display:none}.bao-actor-dialog header button{font-size:26px;border:0;background:none;color:inherit;cursor:pointer}.bao-actor-dialog label{display:grid;gap:5px;margin:8px 0;font-size:14px}.bao-actor-dialog input,.bao-actor-dialog textarea,.bao-actor-dialog select{box-sizing:border-box;width:100%;min-width:0;padding:10px;border:1px solid #6a7184;border-radius:8px;background:#141821;color:#fff;font:inherit}.bao-actor-dialog textarea{resize:vertical}.bao-actor-fields{display:grid;gap:6px}.bao-actor-dialog footer button{width:100%;min-width:0;min-height:44px;margin:0}#bao-actor-feedback{min-height:1.4em;color:#ffcc93}@media(max-width:700px){#bao-actor-backdrop{align-items:flex-end;padding:0}.bao-actor-dialog{width:100%;max-height:96dvh;border-radius:18px 18px 0 0;padding:10px 12px max(12px,env(safe-area-inset-bottom))}.bao-actor-dialog header{position:sticky;top:-10px;z-index:2;margin:-10px -12px 8px;padding:10px 12px;background:#222632f2;backdrop-filter:blur(10px)}.bao-actor-dialog header h2{font-size:20px}.bao-actor-head-actions{display:flex;align-items:center;gap:6px}.bao-actor-help{display:inline-grid!important;place-items:center;width:34px;height:34px!important;border:1px solid #686d81!important;border-radius:10px!important;background:#191d27!important;color:#d8dbe5!important;font-size:15px!important;font-weight:800}.bao-actor-dialog header [data-close]{width:34px;height:34px;font-size:22px}.bao-actor-intro{display:none;margin:6px 0 8px;font-size:11px;line-height:1.5}.bao-actor-dialog.bao-actor-help-open>.bao-actor-intro{display:block}.bao-actor-target-label{margin:4px 0 8px!important;font-size:12px!important}.bao-actor-target-label select{padding:8px!important}.bao-actor-dialog #bao-actor-form>.note{display:none}.bao-actor-dialog label{margin:6px 0;font-size:13px}.bao-actor-dialog input,.bao-actor-dialog textarea,.bao-actor-dialog select{padding:9px}.bao-actor-fields{gap:4px}.bao-actor-actions{gap:6px;margin:6px 0}.bao-actor-actions button{flex:1 1 calc(50% - 6px);min-height:38px}.bao-actor-dialog footer{position:sticky;bottom:0;z-index:2;margin:8px -12px -12px;padding:8px 12px max(12px,env(safe-area-inset-bottom));background:#222632f2;backdrop-filter:blur(10px);gap:7px}.bao-actor-dialog footer button{min-height:40px}}`;
     document.head.appendChild(style);
   }
   window.addEventListener?.('yorubay:content-preferences-changed', event => {
