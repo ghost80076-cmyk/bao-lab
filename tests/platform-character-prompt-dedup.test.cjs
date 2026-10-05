@@ -39,6 +39,7 @@ for (const relative of cards) {
 
 const characterEngine = fs.readFileSync(path.join(root, 'js/character.js'), 'utf8');
 assert.match(characterEngine, /玩家資料、開局選項與結構化初始狀態若已提供/);
+assert.match(characterEngine, /作品名稱、世界名稱、狀態模組與介面標籤不是 NPC/);
 
 const relevance = fs.readFileSync(path.join(root, 'js/world-relevance.js'), 'utf8');
 assert.match(relevance, /compactForPrompt\(\)/);
