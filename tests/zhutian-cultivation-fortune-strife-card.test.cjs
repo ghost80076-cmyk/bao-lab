@@ -37,6 +37,16 @@ assert.ok(ui.builder.fields.some(x=>x.key==='fortune_grade'));
 assert.ok(ui.builder.fields.some(x=>x.key==='goldfinger_type'));
 assert.deepEqual(ui.panels.map(x=>x.id),['now','cultivator','fate','arts','resources','world','threads','actions']);
 
+assert.equal(card.gameplay.initial_state.world_clock.version,1);
+assert.equal(card.gameplay.initial_state.world_clock.tick_minutes,0);
+assert.equal(card.gameplay.initial_state.world_clock.next_event_seq,1);
+assert.deepEqual(card.gameplay.initial_state.world_clock.scheduled_events,[]);
+assert.match(card.content.system_prompt,/夜灣的【世界時鐘】只負責故事內部的相對時間累積/);
+assert.match(card.content.system_prompt,/scene\.calendar 與 time 仍是玩家看見的修仙曆法與時辰/);
+assert.match(card.content.dynamic_prompts.find(x=>x.id==='time-offscreen').content,/讓夜灣世界時鐘一次同步前進/);
+assert.match(card.content.dynamic_prompts.find(x=>x.id==='time-offscreen').content,/不代表自動完成/);
+assert.match(card.content.dynamic_prompts.find(x=>x.id==='time-offscreen').content,/不要為了填排程自行創造新事件/);
+
 assert.equal(regex.type,'yorubay-author-regex-mod');
 assert.equal(regex.characterId,card.meta.id);
 assert.equal(regex.regex_scripts.length,3);
