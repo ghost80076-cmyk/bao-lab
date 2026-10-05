@@ -4,9 +4,30 @@ const fs = require("node:fs");
 const path = require("node:path");
 
 const source = loadWorkerTestSource();
+const workerEntrySource = fs.readFileSync(
+  path.join(__dirname, "../workers/bao-lab-credits-api/worker.js"),
+  "utf8"
+);
+const moduleSource = fs.readFileSync(
+  path.join(
+    __dirname,
+    "../workers/bao-lab-credits-api/modules/admin-player-mutation-routes.js"
+  ),
+  "utf8"
+);
 
 assert.match(
-  source,
+  workerEntrySource,
+  /from "\.\/modules\/admin-player-mutation-routes\.js";/,
+  "the Worker entry must import the extracted admin player mutation routes module"
+);
+assert.doesNotMatch(
+  workerEntrySource,
+  /function adminPlayerMutationRoute\(/,
+  "admin player mutation route implementation must not remain duplicated in worker.js"
+);
+assert.match(
+  moduleSource,
   /const WorkerAdminPlayerMutationRoutes = \(\(\) => \{/,
   "existing-player mutations must stay behind their own admin subroute boundary"
 );
