@@ -86,7 +86,7 @@
     }
     for (const key of ["resolve", "cancel"]) {
       if (!Array.isArray(raw[key])) continue;
-      const ids = [...new Set(raw[key].map(String).filter(id => /^wc-\\d+$/.test(id)))].slice(0, 20);
+      const ids = [...new Set(raw[key].map(String).filter(id => /^wc-\d+$/.test(id)))].slice(0, 20);
       if (ids.length) out[key] = ids;
     }
     return out;
