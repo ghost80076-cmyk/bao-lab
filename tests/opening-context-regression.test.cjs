@@ -2,6 +2,8 @@
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const pathMod=require('node:path');
+const fs=require('node:fs');
+const pathMod=require('node:path');
 
 const cards={
   weird:require('../data/characters/community/8f/weird-task-system.json'),
@@ -40,4 +42,8 @@ for(const key of ['contract','jingchen','roommate','qiaorou','reborn','baitao','
   assert.doesNotMatch(opening,/Builder|Persona|Gameplay UI/,key+' presentation leaked platform setup language');
 }
 
-console.log('PASS opening-context regression for setup-sensitive cards');
+const characterEngine=fs.readFileSync(pathMod.join(__dirname,'..','js','character.js'),'utf8');
+assert.match(characterEngine,/玩家資料、開局選項與結構化初始狀態若已提供/);
+assert.match(characterEngine,/不得要求玩家重新填寫、重新選擇或重演建立流程/);
+
+console.log('PASS opening-context regression with platform-global setup continuity');
