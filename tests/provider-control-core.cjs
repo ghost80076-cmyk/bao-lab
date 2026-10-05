@@ -5,9 +5,27 @@ const path = require("node:path");
 
 const root = path.join(__dirname, "..");
 const workerSource = loadWorkerTestSource();
+const workerEntrySource = fs.readFileSync(
+  path.join(root, "workers/bao-lab-credits-api/worker.js"),
+  "utf8"
+);
+const providerRoutingModuleSource = fs.readFileSync(
+  path.join(root, "workers/bao-lab-credits-api/modules/provider-routing.js"),
+  "utf8"
+);
 
 assert.match(
-  workerSource,
+  workerEntrySource,
+  /from "\.\/modules\/provider-routing\.js";/,
+  "the Worker entry must import the extracted provider routing module"
+);
+assert.doesNotMatch(
+  workerEntrySource,
+  /const WorkerProviderRouting =/,
+  "provider routing implementation must not remain duplicated in worker.js"
+);
+assert.match(
+  providerRoutingModuleSource,
   /const WorkerProviderRouting = \(\(\) => \{/,
   "Hosted route selection helpers must stay grouped behind WorkerProviderRouting"
 );
