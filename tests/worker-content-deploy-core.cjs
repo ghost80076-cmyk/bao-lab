@@ -142,7 +142,7 @@ const productionGraph = loadWorkerModuleManifest(
 assert.equal(productionGraph.mainModule, "worker.js");
 assert.deepEqual(
   productionGraph.modules.map(module => module.name),
-  ["modules/account-rate-limit.js", "modules/account-validation.js", "modules/admin-auth.js", "modules/admin-player-directory-routes.js", "modules/admin-player-mutation-routes.js", "modules/admin-publication-routes.js", "modules/admin-usage-routes.js", "modules/author-ownership.js", "modules/author-profile-publication.js", "modules/chat-input.js", "modules/crypto.js", "modules/github-publication-transport.js", "modules/http.js", "modules/model-pricing.js", "modules/publication-format.js", "modules/runtime-config.js", "worker.js"],
+  ["modules/account-rate-limit.js", "modules/account-validation.js", "modules/admin-auth.js", "modules/admin-player-directory-routes.js", "modules/admin-player-mutation-routes.js", "modules/admin-publication-routes.js", "modules/admin-usage-routes.js", "modules/author-ownership.js", "modules/author-profile-publication.js", "modules/chat-input.js", "modules/crypto.js", "modules/github-publication-transport.js", "modules/http.js", "modules/model-pricing.js", "modules/publication-format.js", "modules/provider-routing.js", "modules/runtime-config.js", "worker.js"],
   "production must contain only the reviewed extracted boundaries"
 );
 assert.equal(
@@ -210,6 +210,10 @@ assert.ok(
 assert.ok(
   productionBody.get("modules/publication-format.js"),
   "the extracted publication format module must be included in the upload"
+);
+assert.ok(
+  productionBody.get("modules/provider-routing.js"),
+  "the extracted provider routing module must be included in the upload"
 );
 assert.ok(
   productionBody.get("modules/runtime-config.js"),
