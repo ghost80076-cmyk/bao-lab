@@ -130,6 +130,11 @@ assert.match(
 );
 assert.match(
   source,
+  /node --check workers\/bao-lab-credits-api\/modules\/provider-routing\.js/,
+  "the extracted provider routing module must pass syntax validation before deployment"
+);
+assert.match(
+  source,
   /node --check workers\/bao-lab-credits-api\/modules\/runtime-config\.js/,
   "the extracted runtime config module must pass syntax validation before deployment"
 );
