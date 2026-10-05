@@ -4,124 +4,317 @@ Status: experiment only; no production runtime behavior changed by this document
 
 ## Goal
 
-Combine two director concepts without turning YoruBay into a general-purpose agent runtime:
+Build a YoruBay-native narrative control layer without turning YoruBay into a general-purpose agent runtime.
 
-1. **Director Profile** — the author's creative direction: genre grammar, pacing, event preferences, framing, tone, escalation style, and anti-patterns.
-2. **World Director** — state-aware orchestration: decide what the world/NPCs naturally do next from current world state, relationships, time, unresolved threads, off-screen activity, and scheduled events.
+The design separates four concepts that must not be mixed together:
+
+1. **Writing Style Pack** — how the prose is written.
+2. **Director Style** — how this work tends to develop dramatically.
+3. **Director Judge Template** — what signals matter when deciding whether/how the world should move.
+4. **Director State** — the compact, dynamic judgment produced after the current turn for use on the next turn.
 
 The director never controls the player, never becomes an NPC, and never receives secrets or tool execution authority.
 
 ## Core rule
 
-> The author defines how this story tends to move. The world state determines what is currently possible. The director selects a plausible next pressure/event. The RP model performs it.
+> Writing Style decides how to write. Director Style decides how the story tends to move. The Judge Template decides what to pay attention to. Director State records what is currently brewing.
 
-## First experiment: reuse the existing world-state call
+World state and causality always constrain the director. A director suggestion is not permission to violate player agency, NPC knowledge boundaries, or established facts.
 
-Prefer a single existing world-state-model call rather than adding a new model call. Extend its structured result with an optional `director_state` block.
+## Turn timing: judge after the turn, use on the next turn
 
-Suggested shape:
+The first experiment does **not** require a Director call before the main RP call.
 
-```json
-{
-  "world_state": {},
-  "director_state": {
-    "schema_version": 1,
-    "temperature": 0,
-    "pace": "quiet|building|active|climax|cooldown",
-    "stagnation": 0,
-    "active_threads": [],
-    "offscreen_actions": [],
-    "candidate_event": null,
-    "surface_now": false,
-    "reason": ""
-  }
-}
-```
-
-`temperature` and `stagnation` are bounded 0-100 signals, not prose-generation temperatures.
-
-### Director Profile input
-
-A card may optionally provide a compact profile:
-
-```json
-{
-  "mode": "custom",
-  "identity": "Korean romantic drama director",
-  "pacing": ["slow burn", "emotional restraint", "earned escalation"],
-  "event_preferences": ["daily-life intersections", "misunderstandings", "relationship pressure"],
-  "avoid": ["forced confession", "random catastrophe", "player mind-reading"]
-}
-```
-
-This is creative guidance, not an executable prompt/tool capability.
-
-## Decision boundaries
-
-The World Director may:
-- choose plausible off-screen NPC actions;
-- advance unresolved world pressures;
-- surface an already-supported event when timing is appropriate;
-- recommend quiet/cooldown turns;
-- respect scheduled events and world time;
-- maintain active threads/foreshadowing.
-
-The World Director must not:
-- write the final RP prose;
-- speak or decide for the player;
-- invent knowledge an NPC could not possess;
-- force an event merely because the story is quiet;
-- access API keys, credentials, arbitrary files, HTTP tools, shell/code execution, or external agent tools;
-- override card/world causality.
-
-## Integration rule
-
-The main RP context should receive only the minimum director result needed for the current turn. Internal reasoning/reason fields should not be exposed to players by default.
-
-Example handoff:
+Instead:
 
 ```text
-[WORLD DIRECTION]
-Pace: building
-Off-screen: Rival family messenger reached the younger brother.
-Surface now: false
-Constraint: do not reveal the contact to the player until an observable consequence exists.
+Turn N input
+  -> main RP output
+  -> existing post-turn world-state update
+       -> new World State
+       -> new Director State N
+  -> persist both
+
+Turn N+1 context
+  -> stable rules / card / Director Style / Writing Style
+  -> World State
+  -> relevant context
+  -> Director State N
+  -> recent chat
+  -> newest player input
+  -> main RP output
 ```
 
-## Modes (future, only after evaluation)
+This means Director State is a **next-turn plan/pressure snapshot**, not a same-turn pre-generation plan.
 
-- **Off** — no independent director processing. Director Profile may remain ordinary card guidance.
-- **Auto** — director processing only when existing state-update cadence or deterministic triggers require it.
-- **Always** — independent director evaluation each turn; this may require an additional model call and must clearly disclose extra token/cost impact.
+A new player input may invalidate the previous suggestion. The RP model must re-check it against the newest input and current causality instead of forcing it.
 
-Do not ship Always mode until the single-call experiment is evaluated.
+## Cache placement
 
-## Evaluation
+### Stable / cache-friendly
 
-Compare baseline vs single-call director on representative YoruBay cards:
+- YoruBay global RP rules
+- card/world/character definition
+- Director Style
+- Writing Style Pack
+
+### Dynamic / after the stable prefix
+
+- memory/world state
+- relevant context
+- previous Director State
+- recent chat
+- newest player input
+
+Do not put per-turn Director State inside the stable prefix. Director Style and Writing Style are independent stable controls.
+
+## Writing Style Pack: HOW to write
+
+Writing Style must only control prose presentation, for example:
+
+- sentence rhythm and density;
+- dialogue/narration balance;
+- concrete vs lyrical description;
+- viewpoint presentation;
+- amount of sensory detail;
+- formatting conventions.
+
+It must not decide plot events, force relationship progression, schedule NPC actions, or create dramatic incidents.
+
+Example:
+
+```json
+{
+  "id": "cinematic_realism",
+  "label": "電影感寫實",
+  "traits": [
+    "concrete action and sensory detail",
+    "natural dialogue",
+    "limited abstract emotion labels",
+    "restrained metaphor"
+  ]
+}
+```
+
+## Director Style: HOW the story tends to move
+
+Director Style is stable creative guidance. It should describe dramatic grammar rather than prose style.
+
+Example:
+
+```json
+{
+  "id": "k_romance_slowburn",
+  "label": "韓式慢熱戀愛",
+  "pacing": ["slow burn", "earned escalation", "room for silence"],
+  "event_preferences": [
+    "daily-life intersections",
+    "relationship pressure",
+    "missed timing",
+    "social or work complications"
+  ],
+  "avoid": [
+    "forced confession",
+    "random catastrophe for drama",
+    "convenient coincidence without setup",
+    "player mind-reading"
+  ]
+}
+```
+
+Director Style must not contain prose instructions such as "use poetic sentences" or "describe eye contact in detail". Those belong to Writing Style.
+
+## Director Judge Templates: WHAT to evaluate
+
+The judge template changes the decision priorities without changing prose style. First experiment ships six conceptual templates.
+
+### 1. General
+
+For works that do not fit a specialized mode.
+
+Priorities:
+- unresolved threads;
+- current world pressure;
+- stagnation;
+- plausible NPC initiative;
+- cooldown after major events.
+
+### 2. Character / Romance
+
+Priorities:
+- relationship pressure and accumulated interaction;
+- unspoken needs/conflicts;
+- social/work/family intersections;
+- timing of relationship breakthroughs;
+- NPC initiative that remains in-character.
+
+Guardrails:
+- no sudden confession without buildup;
+- no forced coincidence merely to create romance;
+- quiet daily-life turns are valid;
+- relationship progress is not mandatory every turn.
+
+### 3. TRPG / Sandbox
+
+Priorities:
+- world clock;
+- NPC off-screen actions;
+- quest deadlines and scheduled events;
+- faction/resource changes;
+- consequences of player absence or delay.
+
+Guardrails:
+- the world may move without the player;
+- off-screen events do not automatically become player knowledge;
+- do not manufacture encounters just because the player is idle.
+
+### 4. Intrigue / Faction Competition
+
+Priorities:
+- actor goals and incentives;
+- information asymmetry;
+- alliances, negotiations, leverage and resources;
+- reaction chains between factions;
+- plans advancing while the player is elsewhere.
+
+Guardrails:
+- preserve knowledge boundaries;
+- actors need plausible motives/resources;
+- hidden plans surface only through observable consequences or valid information channels.
+
+### 5. Survival / Adventure
+
+Priorities:
+- environment and travel;
+- resources and scarcity;
+- wounds/fatigue/conditions;
+- weather and hazards;
+- hostile actors and changing terrain.
+
+Guardrails:
+- danger should arise from established conditions;
+- no arbitrary punishment to maintain excitement;
+- recovery and quiet travel are valid states.
+
+### 6. Mystery / Horror
+
+Priorities:
+- clue state;
+- threat progression;
+- unresolved anomalies;
+- foreshadowing;
+- reveal timing and information boundaries.
+
+Guardrails:
+- do not reveal the answer because the director knows it;
+- advance hidden threats without leaking hidden state;
+- prefer observable traces before exposition;
+- quiet unease is valid; a scare is not required every turn.
+
+## Optional author tuning
+
+Templates may later expose simple creator-facing sliders instead of raw prompt editing. Example dimensions:
+
+- event initiative;
+- NPC off-screen activity;
+- world autonomy;
+- relationship progression speed;
+- conflict intensity;
+- daily-life / quiet-turn tolerance;
+- random-event tolerance.
+
+The UI should translate these controls into bounded configuration. Authors should not need to edit Director State JSON or internal prompts.
+
+## Director State schema
+
+The existing post-turn world-state processing is the preferred place to generate this compact block.
+
+```json
+{
+  "schema_version": 1,
+  "judge_template": "romance",
+  "temperature": 0,
+  "pace": "quiet|building|active|climax|cooldown",
+  "stagnation": 0,
+  "active_threads": [],
+  "offscreen_actions": [],
+  "next_pressure": null,
+  "candidate_event": null,
+  "surface_condition": null,
+  "surface_now": false,
+  "cooldown": false
+}
+```
+
+`temperature` and `stagnation` are bounded 0-100 narrative signals, not model-generation temperatures.
+
+`candidate_event` may be `null`. "Nothing should happen yet" is a valid director decision.
+
+`surface_condition` is preferred over unconditional event forcing. It can express conditions such as "surface this thread only if the player meets the mutual friend or another valid information channel appears".
+
+Internal chain-of-thought/reasoning must not be stored or exposed. If diagnostics are needed, store only a short categorical reason code such as `quiet_turn`, `thread_ready`, `deadline`, or `cooldown`.
+
+## Main-model handoff
+
+Only the minimum useful result should be injected into the next turn.
+
+Example:
+
+```text
+[WORLD DIRECTION — previous post-turn state]
+Pace: building
+Active thread: former partner has contacted a mutual friend.
+Player knowledge: not known.
+Surface condition: only through a plausible information channel.
+Constraint: do not force a coincidence; newest player action and world causality take priority.
+```
+
+The handoff is guidance, not an instruction to force an event.
+
+## Feature switch
+
+The player-facing concept should begin simple:
+
+- **AI Director: Off** — no Director State generation/injection.
+- **AI Director: On** — use the work's Director Style + Judge Template and generate Director State during the normal post-turn state update when technically compatible.
+
+A future independent real-time Director mode may be evaluated separately. Do not silently add a second model call under the ordinary On switch.
+
+If a future mode requires an extra model call, the UI must clearly disclose the additional model usage/cost/latency before the player enables it.
+
+## Single-call experiment
+
+Prefer reusing the existing world-state-model call rather than adding a new call. Extend its structured result with an optional `director_state` block.
+
+Pass only stable Director Style + Judge Template configuration into that state-update task, then persist the returned Director State for the following turn.
+
+### Pass criteria
+
+Test representative YoruBay works:
 
 1. romance / slow burn;
 2. TRPG / simulation;
 3. faction or family competition;
-4. open-world survival.
+4. open-world survival;
+5. mystery / horror.
 
 Score:
+- world-state accuracy;
 - character autonomy;
 - causal consistency;
 - off-screen world activity;
 - pacing quality;
+- quiet-turn quality;
 - unwanted event forcing;
 - player-agency violations;
-- world-state accuracy;
+- information leakage;
 - added input/output tokens;
 - latency;
-- cache-prefix impact.
+- stable-prefix/cache impact.
 
-### Pass criteria
+Proceed to runtime implementation only if the combined state-update call improves world activity/pacing without materially degrading state accuracy, player agency, latency, or cache behavior.
 
-Proceed to runtime implementation only if the single-call variant improves world activity/pacing without materially degrading state accuracy, player agency, latency, or cache behavior.
-
-If state quality degrades because the model is doing two jobs, keep world-state generation unchanged and test an **optional separate Director call** behind a feature flag. That separate call must use a low-cost structured-output model by default and remain opt-in/Auto rather than silently doubling every turn's calls.
+If state quality degrades because the model is doing two jobs, keep world-state generation unchanged and test an **optional separate Director call** behind a feature flag. That separate call must remain explicit and opt-in rather than silently doubling every turn's calls.
 
 ## Security boundary
 
