@@ -168,6 +168,9 @@ const drift = compareProductionModelRegistry({
             model: "anthropic/claude-haiku-4.5",
             input_microusd_per_million: 999,
             output_microusd_per_million: 5000000,
+            cache_read_microusd_per_million: 100000,
+            openrouter_max_prompt_microusd_per_million: 1000000,
+            openrouter_max_completion_microusd_per_million: 5000000,
           },
           {
             provider: "openrouter",
