@@ -76,6 +76,9 @@ assert.ok(card.gameplay.initial_state.modules.production_people.length >= 1);
 const opening = JSON.stringify(card.presentation.opening);
 assert.doesNotMatch(opening, /<script\b/i);
 assert.doesNotMatch(opening, /hc-collapse|hc-h1|hc-n/i);
-assert.ok(card.presentation.opening.choices.some(choice => choice.includes('Scene 001')));
+assert.ok(card.presentation.opening.choices.some(choice => choice.includes('第一個棚位')));
+assert.match(card.content.system_prompt,/【開局資料來源】/);
+assert.match(card.content.system_prompt,/不得再次問玩家今晚要演誰/);
+assert.doesNotMatch(card.content.greeting,/通行證還是空白|先決定今晚要演誰/);
 
 console.log('PASS desire academy actor-layer, stats, adult gate, catalog, cover and Gameplay UI');

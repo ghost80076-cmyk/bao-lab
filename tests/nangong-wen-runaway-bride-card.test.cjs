@@ -51,6 +51,7 @@ assert.ok(ui.builder.fields.some(x => x.key === 'inner_thoughts' && x.options.in
 
 assert.equal(card.gameplay.initial_state.modules.player.inner_thoughts, '隱藏');
 assert.match(card.presentation.opening.posts.map(x => x.content).join('\n'), /不是全知/);
-assert.match(card.presentation.opening.note, /Builder/);
+assert.doesNotMatch(card.presentation.opening.note, /Builder|Persona|Gameplay UI/);
+assert.match(card.presentation.opening.note, /開局前已經確定/);
 
 console.log('PASS Nangong Wen runaway bride female dark romance card');
