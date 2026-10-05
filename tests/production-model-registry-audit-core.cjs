@@ -173,7 +173,7 @@ assert.throws(
     /\/accounts\/a{32}\/workers\/scripts\/bao-lab-credits-api\/settings$/
   );
   assert.equal(authorization, "Bearer test-token");
-  assert.equal(result, settings);
+  assert.deepEqual(result, settings);
 
   await assert.rejects(
     fetchWorkerSettings({
