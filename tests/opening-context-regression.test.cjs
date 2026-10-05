@@ -1,5 +1,7 @@
 'use strict';
 const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const pathMod=require('node:path');
 
 const cards={
   weird:require('../data/characters/community/8f/weird-task-system.json'),
@@ -19,9 +21,9 @@ const cards={
   heartPlan:require('../data/characters/community/b8/heart-training-boyfriend-plan.json')
 };
 
-for(const key of ['weird','academy','contract','aetheria','sakura','collar','jingchen','roommate','qiaorou']){
-  assert.match(cards[key].content.system_prompt,/【開局資料來源】/,key+' missing opening handoff contract');
-}
+const characterEngine=fs.readFileSync(pathMod.join(__dirname,'..','js','character.js'),'utf8');
+assert.match(characterEngine,/玩家資料、開局選項與結構化初始狀態若已提供/,'platform missing opening handoff contract');
+assert.match(characterEngine,/不得要求玩家重新填寫、重新選擇或重演建立流程/,'platform missing no-rebuild contract');
 
 assert.doesNotMatch(cards.weird.content.greeting,/Builder|預設為 22 歲大學生、獨居套房/);
 assert.doesNotMatch(cards.academy.content.greeting,/通行證還是空白|先決定今晚要演誰|你可以是新入學/);
