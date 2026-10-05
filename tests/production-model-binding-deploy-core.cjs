@@ -1,87 +1,191 @@
 const assert = require("node:assert/strict");
 
 const {
+  buildModelDeploymentPlan,
+} = require("../workers/bao-lab-credits-api/build-model-deployment-plan.cjs");
+const {
   APPLY_CONFIRMATION,
-  buildBindingsPatch,
+  assertVersionBehaviorPreserved,
+  buildVersionPlan,
+  buildVersionUploadBody,
   deployProductionModelRegistry,
-  patchWorkerSettings,
+  requireSingleActiveVersion,
   summarizeChanges,
 } = require("../scripts/apply-production-model-registry.cjs");
 
-const plan = {
-  cloudflare: {
-    MODELS_JSON: {
-      entries: [
+const registry = {
+  schema: "bao-model-registry/v1",
+  models: [
+    {
+      id: "gemini-flash",
+      routes: [
         {
+          id: "official",
           provider: "gemini",
           model: "gemini-3-flash-preview",
-          input_microusd_per_million: 500000,
-          output_microusd_per_million: 3000000,
+          worker: {
+            binding: "MODELS_JSON",
+            pricing: {
+              input: 0.5,
+              output: 3,
+            },
+          },
         },
       ],
+      hosted: { route_id: "official" },
     },
-    MODELS_JSON_EXTRA: {
-      entries: [
+    {
+      id: "claude-haiku",
+      routes: [
         {
+          id: "openrouter",
           provider: "openrouter",
           model: "anthropic/claude-haiku-4.5",
-          input_microusd_per_million: 1000000,
-          output_microusd_per_million: 5000000,
+          worker: {
+            binding: "MODELS_JSON_EXTRA",
+            pricing: {
+              input: 1,
+              output: 5,
+            },
+            openrouter_max_price: {
+              prompt: 1,
+              completion: 5,
+            },
+            aws_openrouter_relay: true,
+          },
         },
       ],
-    },
-  },
-  aws: {
-    variable: "OPENROUTER_MODELS",
-    entries: ["anthropic/claude-haiku-4.5"],
-  },
-};
-
-const unrelatedBinding = {
-  name: "DB",
-  type: "d1",
-  database_id: "db-id",
-};
-
-const settings = {
-  bindings: [
-    unrelatedBinding,
-    {
-      name: "MODELS_JSON",
-      type: "plain_text",
-      text: JSON.stringify([
-        {
-          provider: "gemini",
-          model: "gemini-3-flash-preview",
-          input_microusd_per_million: 400000,
-          output_microusd_per_million: 3000000,
-        },
-      ]),
-    },
-    {
-      name: "MODELS_JSON_EXTRA",
-      type: "plain_text",
-      text: JSON.stringify([]),
+      hosted: { route_id: "openrouter" },
     },
   ],
 };
 
-const patch = buildBindingsPatch(settings, plan);
-assert.equal(patch.target_binding_count, 2);
-assert.equal(patch.preserved_binding_count, 1);
-assert.deepEqual(patch.bindings[0], unrelatedBinding);
-assert.deepEqual(patch.changes.MODELS_JSON.added, []);
-assert.deepEqual(patch.changes.MODELS_JSON.changed, [
+const plan = buildModelDeploymentPlan(registry);
+const graph = {
+  mainModule: "worker.js",
+  modules: [
+    {
+      name: "worker.js",
+      content: "export default { async fetch() { return new Response('ok'); } };",
+      contentType: "application/javascript+module",
+    },
+    {
+      name: "modules/helper.js",
+      content: "export const helper = true;",
+      contentType: "application/javascript+module",
+    },
+  ],
+};
+
+const currentBase = [
+  {
+    provider: "gemini",
+    model: "gemini-3-flash-preview",
+    input_microusd_per_million: 400000,
+    output_microusd_per_million: 3000000,
+  },
+];
+
+const settings = {
+  cache_options: {
+    enabled: false,
+    cross_version_cache: true,
+  },
+  compatibility_date: "2026-09-01",
+  compatibility_flags: ["nodejs_compat"],
+  usage_model: "standard",
+  bindings: [
+    {
+      name: "DB",
+      type: "d1",
+      database_id: "db-id",
+    },
+    {
+      name: "OPENROUTER_API_KEY",
+      type: "secret_text",
+    },
+    {
+      name: "MODELS_JSON",
+      type: "plain_text",
+      text: JSON.stringify(currentBase),
+    },
+    {
+      name: "MODELS_JSON_EXTRA",
+      type: "plain_text",
+      text: "[]",
+    },
+  ],
+};
+
+const versionPlan = buildVersionPlan(
+  settings,
+  plan,
+  graph,
+  "a".repeat(40)
+);
+
+assert.equal(versionPlan.target_binding_count, 2);
+assert.equal(versionPlan.inherited_binding_count, 2);
+assert.deepEqual(versionPlan.inherited_binding_types, {
+  d1: 1,
+  secret_text: 1,
+});
+assert.deepEqual(versionPlan.changes.MODELS_JSON.changed, [
   "gemini:gemini-3-flash-preview",
 ]);
-assert.deepEqual(patch.changes.MODELS_JSON_EXTRA.added, [
+assert.deepEqual(versionPlan.changes.MODELS_JSON_EXTRA.added, [
   "openrouter:anthropic/claude-haiku-4.5",
 ]);
 
-const nextBase = JSON.parse(
-  patch.bindings.find(binding => binding.name === "MODELS_JSON").text
+const metadataBindings = versionPlan.metadata.bindings;
+const secretInheritance = metadataBindings.find(
+  binding => binding.name === "OPENROUTER_API_KEY"
 );
-assert.equal(nextBase[0].input_microusd_per_million, 500000);
+assert.deepEqual(secretInheritance, {
+  name: "OPENROUTER_API_KEY",
+  type: "inherit",
+  version_id: "latest",
+});
+assert.equal("text" in secretInheritance, false);
+
+const d1Inheritance = metadataBindings.find(
+  binding => binding.name === "DB"
+);
+assert.equal(d1Inheritance.type, "inherit");
+assert.equal(d1Inheritance.version_id, "latest");
+
+const nextBaseBinding = metadataBindings.find(
+  binding => binding.name === "MODELS_JSON"
+);
+assert.equal(nextBaseBinding.type, "plain_text");
+assert.equal(
+  JSON.parse(nextBaseBinding.text)[0].input_microusd_per_million,
+  500000
+);
+
+assert.deepEqual(versionPlan.metadata.cache_options, settings.cache_options);
+assert.equal(
+  versionPlan.metadata.compatibility_date,
+  settings.compatibility_date
+);
+assert.deepEqual(
+  versionPlan.metadata.compatibility_flags,
+  settings.compatibility_flags
+);
+assert.equal(versionPlan.metadata.usage_model, "standard");
+assert.equal(
+  versionPlan.metadata.annotations["workers/commit_sha"],
+  "a".repeat(40)
+);
+
+const uploadBody = buildVersionUploadBody(versionPlan);
+const uploadMetadata = JSON.parse(uploadBody.get("metadata"));
+assert.equal(uploadMetadata.main_module, "worker.js");
+assert.equal(uploadBody.get("worker.js").name, "worker.js");
+assert.equal(
+  uploadBody.get("modules/helper.js").name,
+  "modules/helper.js"
+);
 
 assert.deepEqual(
   summarizeChanges(
@@ -96,152 +200,349 @@ assert.deepEqual(
 
 assert.throws(
   () =>
-    buildBindingsPatch(
+    buildVersionPlan(
       {
-        bindings: [
-          {
-            name: "MODELS_JSON",
-            type: "plain_text",
-            text: JSON.stringify([
-              { provider: "gemini", model: "legacy-model" },
-            ]),
-          },
-          {
-            name: "MODELS_JSON_EXTRA",
-            type: "plain_text",
-            text: "[]",
-          },
-        ],
+        ...settings,
+        bindings: settings.bindings.map(binding =>
+          binding.name === "MODELS_JSON"
+            ? {
+                ...binding,
+                text: JSON.stringify([
+                  { provider: "gemini", model: "legacy-model" },
+                ]),
+              }
+            : binding
+        ),
       },
-      plan
+      plan,
+      graph
     ),
   /would remove production models/
 );
 
-assert.throws(
-  () =>
-    buildBindingsPatch(
+assert.equal(
+  requireSingleActiveVersion({
+    versions: [
       {
-        bindings: [
-          {
-            name: "MODELS_JSON",
-            type: "secret_text",
-          },
-          {
-            name: "MODELS_JSON_EXTRA",
-            type: "plain_text",
-            text: "[]",
-          },
-        ],
+        percentage: 100,
+        version_id: "old-version",
       },
-      plan
-    ),
-  /secret_text/
+    ],
+  }),
+  "old-version"
 );
 
-(async () => {
-  let captured = null;
+assert.throws(
+  () =>
+    requireSingleActiveVersion({
+      versions: [
+        { percentage: 50, version_id: "a" },
+        { percentage: 50, version_id: "b" },
+      ],
+    }),
+  /not on a single 100% version/
+);
 
-  await patchWorkerSettings({
-    accountId: "a".repeat(32),
-    apiToken: "test-token",
-    workerName: "yorubay-credits-pilot",
-    bindings: patch.bindings,
-    async fetchImpl(url, init) {
-      captured = { url, init };
-      return new Response(
-        JSON.stringify({
-          success: true,
-          result: { bindings: patch.bindings },
-        }),
-        { status: 200 }
-      );
+const currentVersion = {
+  id: "old-version",
+  resources: {
+    script: {
+      etag: "same-code-etag",
     },
-  });
+    script_runtime: {
+      compatibility_date: "2026-09-01",
+      compatibility_flags: ["nodejs_compat"],
+      limits: null,
+      usage_model: "standard",
+    },
+  },
+};
 
-  assert.match(
-    captured.url,
-    /\/accounts\/a{32}\/workers\/scripts\/yorubay-credits-pilot\/settings$/
-  );
-  assert.equal(captured.init.method, "PATCH");
-  assert.equal(captured.init.headers.authorization, "Bearer test-token");
-  const body = JSON.parse(captured.init.body);
-  assert.ok(Array.isArray(body.bindings));
-  assert.equal(body.settings, undefined);
-  assert.equal(
-    body.annotations["workers/message"],
-    "Sync YoruBay model bindings from data/presets/models.json"
-  );
-  assert.deepEqual(
-    body.bindings.find(binding => binding.name === "DB"),
-    unrelatedBinding
-  );
+const candidateVersion = {
+  id: "new-version",
+  resources: {
+    script: {
+      etag: "same-code-etag",
+    },
+    script_runtime: {
+      compatibility_date: "2026-09-01",
+      compatibility_flags: ["nodejs_compat"],
+      limits: null,
+      usage_model: "standard",
+    },
+  },
+};
 
-  let dryRunPatchCalls = 0;
+assert.doesNotThrow(() =>
+  assertVersionBehaviorPreserved(currentVersion, candidateVersion)
+);
+
+assert.throws(
+  () =>
+    assertVersionBehaviorPreserved(currentVersion, {
+      ...candidateVersion,
+      resources: {
+        ...candidateVersion.resources,
+        script: { etag: "different-code" },
+      },
+    }),
+  /candidate Worker code differs/
+);
+
+assert.throws(
+  () =>
+    assertVersionBehaviorPreserved(currentVersion, {
+      ...candidateVersion,
+      resources: {
+        ...candidateVersion.resources,
+        script_runtime: {
+          ...candidateVersion.resources.script_runtime,
+          compatibility_date: "2026-10-01",
+        },
+      },
+    }),
+  /runtime settings differ/
+);
+
+function jsonResponse(result, status = 200) {
+  return new Response(
+    JSON.stringify({
+      success: status >= 200 && status < 300,
+      result,
+      errors: [],
+    }),
+    {
+      status,
+      headers: {
+        "content-type": "application/json",
+      },
+    }
+  );
+}
+
+function syncedSettings() {
+  return {
+    ...settings,
+    bindings: settings.bindings.map(binding => {
+      if (binding.name === "MODELS_JSON") {
+        return {
+          ...binding,
+          text: plan.cloudflare.MODELS_JSON.value_json,
+        };
+      }
+
+      if (binding.name === "MODELS_JSON_EXTRA") {
+        return {
+          ...binding,
+          text: plan.cloudflare.MODELS_JSON_EXTRA.value_json,
+        };
+      }
+
+      return binding;
+    }),
+  };
+}
+
+(async () => {
+  let dryRunCalls = 0;
   const dryRun = await deployProductionModelRegistry({
     accountId: "a".repeat(32),
     apiToken: "test-token",
     workerName: "yorubay-credits-pilot",
-    registry: { schema: "fixture" },
+    registry,
     plan,
+    graph,
     settings,
     confirmation: "",
-    async fetchImpl() {
-      dryRunPatchCalls += 1;
-      throw new Error("dry-run must not issue a PATCH");
+    fetchImpl: async () => {
+      dryRunCalls += 1;
+      throw new Error("dry-run must not issue a production write");
     },
   });
+
   assert.equal(dryRun.mode, "dry-run");
   assert.equal(dryRun.applied, false);
   assert.equal(dryRun.reason, "dry_run");
-  assert.equal(dryRunPatchCalls, 0);
+  assert.equal(dryRunCalls, 0);
 
-  const sensitiveSettings = {
-    bindings: [
-      ...settings.bindings,
-      { name: "OPENROUTER_API_KEY", type: "secret_text" },
-    ],
-  };
+  const requests = [];
+  const apply = await deployProductionModelRegistry({
+    accountId: "a".repeat(32),
+    apiToken: "test-token",
+    workerName: "yorubay-credits-pilot",
+    registry,
+    plan,
+    graph,
+    settings,
+    confirmation: APPLY_CONFIRMATION,
+    commitSha: "b".repeat(40),
+    rolloutEntries: [],
+    fetchImpl: async (url, init = {}) => {
+      const method = init.method || "GET";
+      requests.push({ url, method, init });
+
+      if (method === "GET" && /\/deployments\?per_page=1$/.test(url)) {
+        return jsonResponse({
+          deployments: [
+            {
+              id: "deployment-old",
+              versions: [
+                {
+                  percentage: 100,
+                  version_id: "old-version",
+                },
+              ],
+            },
+          ],
+        });
+      }
+
+      if (method === "GET" && /\/versions\/old-version$/.test(url)) {
+        return jsonResponse(currentVersion);
+      }
+
+      if (
+        method === "POST" &&
+        /\/versions\?bindings_inherit=strict$/.test(url)
+      ) {
+        assert.ok(init.body instanceof FormData);
+        const metadata = JSON.parse(init.body.get("metadata"));
+        assert.equal(metadata.main_module, "worker.js");
+        assert.ok(
+          metadata.bindings.some(
+            binding =>
+              binding.name === "OPENROUTER_API_KEY" &&
+              binding.type === "inherit" &&
+              binding.version_id === "latest"
+          )
+        );
+        assert.equal(
+          metadata.bindings.some(
+            binding =>
+              binding.name === "OPENROUTER_API_KEY" &&
+              Object.prototype.hasOwnProperty.call(binding, "text")
+          ),
+          false
+        );
+        return jsonResponse(candidateVersion);
+      }
+
+      if (method === "POST" && /\/deployments$/.test(url)) {
+        const body = JSON.parse(init.body);
+        assert.deepEqual(body.versions, [
+          {
+            percentage: 100,
+            version_id: "new-version",
+          },
+        ]);
+        return jsonResponse({
+          id: "deployment-new",
+          versions: body.versions,
+        });
+      }
+
+      if (method === "GET" && /\/settings$/.test(url)) {
+        return jsonResponse(syncedSettings());
+      }
+
+      throw new Error(`unexpected request: ${method} ${url}`);
+    },
+  });
+
+  assert.equal(apply.applied, true);
+  assert.equal(apply.reason, "version_deployed");
+  assert.equal(apply.previous_version_id, "old-version");
+  assert.equal(apply.version_id, "new-version");
+  assert.equal(apply.deployment_id, "deployment-new");
+  assert.equal(apply.verification_ok, true);
+
+  assert.equal(
+    requests.some(
+      request =>
+        request.method === "PATCH" &&
+        /\/settings$/.test(request.url)
+    ),
+    false,
+    "the safe deploy path must never PATCH /settings"
+  );
+
+  let deploymentPosts = 0;
   await assert.rejects(
     deployProductionModelRegistry({
       accountId: "a".repeat(32),
       apiToken: "test-token",
       workerName: "yorubay-credits-pilot",
-      registry: { schema: "fixture" },
+      registry,
       plan,
-      settings: sensitiveSettings,
+      graph,
+      settings,
       confirmation: APPLY_CONFIRMATION,
-      async fetchImpl() {
-        throw new Error("sensitive binding guard must run before PATCH");
+      rolloutEntries: [],
+      fetchImpl: async (url, init = {}) => {
+        const method = init.method || "GET";
+
+        if (method === "GET" && /\/deployments\?per_page=1$/.test(url)) {
+          return jsonResponse({
+            deployments: [
+              {
+                id: "deployment-old",
+                versions: [
+                  {
+                    percentage: 100,
+                    version_id: "old-version",
+                  },
+                ],
+              },
+            ],
+          });
+        }
+
+        if (method === "GET" && /\/versions\/old-version$/.test(url)) {
+          return jsonResponse(currentVersion);
+        }
+
+        if (
+          method === "POST" &&
+          /\/versions\?bindings_inherit=strict$/.test(url)
+        ) {
+          return jsonResponse(candidateVersion);
+        }
+
+        if (method === "POST" && /\/deployments$/.test(url)) {
+          deploymentPosts += 1;
+          const body = JSON.parse(init.body);
+
+          if (deploymentPosts === 1) {
+            assert.equal(body.versions[0].version_id, "new-version");
+            return jsonResponse({ id: "deployment-new" });
+          }
+
+          assert.deepEqual(body.versions, [
+            {
+              percentage: 100,
+              version_id: "old-version",
+            },
+          ]);
+          return jsonResponse({ id: "deployment-rollback" });
+        }
+
+        if (method === "GET" && /\/settings$/.test(url)) {
+          return jsonResponse(settings);
+        }
+
+        throw new Error(`unexpected rollback test request: ${method} ${url}`);
       },
     }),
-    /apply blocked: production has secret bindings/
+    /previous Worker version was restored/
   );
 
-  let applyCalls = 0;
-  const applied = await deployProductionModelRegistry({
-    accountId: "a".repeat(32),
-    apiToken: "test-token",
-    workerName: "yorubay-credits-pilot",
-    registry: { schema: "fixture" },
-    plan,
-    settings,
-    confirmation: APPLY_CONFIRMATION,
-    async fetchImpl(_url, init) {
-      applyCalls += 1;
-      assert.equal(init.method, "PATCH");
-      return new Response(
-        JSON.stringify({ success: true, result: { bindings: patch.bindings } }),
-        { status: 200 }
-      );
-    },
-  });
-  assert.equal(applied.mode, "apply");
-  assert.equal(applied.applied, true);
-  assert.equal(applied.reason, "patched");
-  assert.equal(applyCalls, 1);
+  assert.equal(
+    deploymentPosts,
+    2,
+    "failed post-deploy audit must trigger a rollback deployment"
+  );
 
-  console.log("production model binding deploy core test passed");
+  console.log("production model binding inherit deploy core test passed");
 })().catch(error => {
   console.error(error);
   process.exitCode = 1;
