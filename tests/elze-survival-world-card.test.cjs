@@ -25,7 +25,7 @@ for(const marker of ['YB:ELZE:OPENING','YB:ELZE:NOTICE']) {
   assert.match(card.content.greeting,new RegExp(marker));
 }
 assert.doesNotMatch(card.content.greeting,/YB:ELZE:AWAKENING/);
-assert.match(card.content.system_prompt,/【開局資料來源】/);
+assert.match(card.content.system_prompt,/【開局落點】/);
 assert.match(card.content.system_prompt,/非覺醒神殿開局不得被強制拉回神殿/);
 
 const promptIds=new Set(card.content.dynamic_prompts.map(x=>x.id));
