@@ -83,6 +83,17 @@ assert.ok(founderPanel.sections.find(x=>x.title==='主屬性').items.every(x=>x.
 assert.equal(card.gameplay.initial_state.modules.rank_progress.current,'農奴');
 assert.equal(card.gameplay.initial_state.modules.rank_progress.next,'平民');
 assert.equal(card.gameplay.initial_state.modules.derived_stats.con,3);
+assert.equal(card.gameplay.initial_state.world_clock.version,1);
+assert.equal(card.gameplay.initial_state.world_clock.tick_minutes,0);
+assert.equal(card.gameplay.initial_state.world_clock.next_event_seq,2);
+assert.deepEqual(card.gameplay.initial_state.world_clock.scheduled_events,[
+  {id:'wc-1',label:'城鎮議會公布第一批低階公職',due_tick_minutes:2880,status:'pending'}
+]);
+assert.match(card.content.greeting,/第 3 日上午公布第一批低階公職/);
+assert.match(card.content.system_prompt,/夜灣的【世界時鐘】是故事內部的相對時間軸/);
+assert.match(card.content.dynamic_prompts.find(x=>x.id==='action-point-time').text,/世界時鐘能同步累加/);
+assert.match(card.content.dynamic_prompts.find(x=>x.id==='time-skip').text,/依序處理跨過期限的既有排程/);
+assert.match(card.content.dynamic_prompts.find(x=>x.id==='office-election').text,/到期不代表選舉或任命已自動完成/);
 assert.match(JSON.stringify(card.gameplay.ui_schema.panels),/四大家族｜公開情報/);
 assert.deepEqual(
   ui.panels.map(x=>x.id),
