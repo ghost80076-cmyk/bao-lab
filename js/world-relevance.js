@@ -28,7 +28,9 @@
     });
 
     GameState.current.lastRelevantModules = picked.ids || [];
-    if (!picked.text) return prompt;\n\n    return prompt + "\n\n【本輪相關世界資料】\n" + picked.text + "\n只把這些資料視為目前事實；不要為了提到資料而刻意改變劇情。";
+    if (!picked.text) return prompt;
+
+    return prompt + "\n\n【本輪相關世界資料】\n" + picked.text + "\n只把這些資料視為目前事實；不要為了提到資料而刻意改變劇情。";
   };
 
   document.addEventListener("click", event => {
