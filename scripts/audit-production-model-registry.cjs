@@ -19,6 +19,10 @@ const PRICE_FIELDS = [
 ];
 
 const SAFE_WORKER_METADATA_FIELDS = [
+  "input_microusd_per_million",
+  "output_microusd_per_million",
+  "cache_read_microusd_per_million",
+  "cache_write_microusd_per_million",
   "long_context_threshold_tokens",
   "long_context_input_microusd_per_million",
   "long_context_output_microusd_per_million",
