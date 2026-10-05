@@ -26,9 +26,12 @@ assert.match(card.content.system_prompt,/作品名稱不得進人物名冊/);
 assert.doesNotMatch(card.content.greeting,/hc-collapse|hc-h1|hc-n/);
 assert.doesNotMatch(card.content.system_prompt,/0[–-]500.*好感|400.*獨佔/);
 
-for(const marker of ['YB:XINGLAN:OPENING','YB:XINGLAN:MODE','YB:XINGLAN:ORIENTATION']){
+for(const marker of ['YB:XINGLAN:OPENING','YB:XINGLAN:ORIENTATION']){
   assert.match(card.content.greeting,new RegExp(marker));
 }
+assert.doesNotMatch(card.content.greeting,/YB:XINGLAN:MODE/);
+assert.match(card.content.system_prompt,/【開局資料來源】/);
+assert.match(card.content.system_prompt,/不得再要求玩家選一次模式/);
 
 assert.equal(card.gameplay.initial_state.npcs.length,8);
 assert.ok(card.gameplay.initial_state.npcs.every(x=>Number(x.age)>=18));

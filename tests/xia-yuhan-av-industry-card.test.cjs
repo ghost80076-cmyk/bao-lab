@@ -23,7 +23,10 @@ assert.match(card.content.system_prompt,/Cut/);
 assert.doesNotMatch(card.content.system_prompt,/800 字以上/);
 assert.doesNotMatch(card.content.system_prompt,/每個階段都要有詳細/);
 
-for(const marker of ['YB:AV:OPENING','YB:AV:SETUP']) assert.match(card.content.greeting,new RegExp(marker));
+assert.match(card.content.greeting,/YB:AV:OPENING/);
+assert.doesNotMatch(card.content.greeting,/YB:AV:SETUP/);
+assert.match(card.content.system_prompt,/【開局資料來源】/);
+assert.match(card.content.system_prompt,/不得再問一次姓名/);
 
 const promptIds=new Set(card.content.dynamic_prompts.map(x=>x.id));
 for(const pid of ['xia-wordplay','on-camera','cut-backstage','adult-scene','scene-evaluation','audience-live','industry-motion','npc-lifecycle']) assert.ok(promptIds.has(pid),'missing '+pid);
