@@ -43,6 +43,13 @@ assert.ok(ui.builder.fields.some(x=>x.key==='age'&&x.min===21));
 assert.ok(ui.builder.fields.some(x=>x.key==='empire_type'));
 assert.ok(ui.builder.fields.some(x=>x.key==='theater_choice'));
 assert.deepEqual(ui.panels.map(x=>x.id),['now','soldier','stats','survival','power','people','orders','actions']);
+assert.equal(card.gameplay.initial_state.world_clock.version,1);
+assert.equal(card.gameplay.initial_state.world_clock.tick_minutes,0);
+assert.deepEqual(card.gameplay.initial_state.world_clock.scheduled_events,[]);
+assert.match(card.content.system_prompt,/夜灣的【世界時鐘】只負責故事內部的相對時間累積/);
+assert.match(card.content.system_prompt,/不得硬造精確期限/);
+assert.match(card.content.dynamic_prompts.find(x=>x.id==='rank-career').text,/只能隨真正經過的世界時間累積/);
+assert.match(card.content.dynamic_prompts.find(x=>x.id==='time-offscreen').text,/不代表自動完成任務、自動升遷或自動失敗/);
 
 assert.equal(regex.type,'yorubay-author-regex-mod');
 assert.equal(regex.characterId,card.meta.id);
