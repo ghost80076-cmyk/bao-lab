@@ -9,6 +9,9 @@ const GameState = {
       events: Array.isArray(base.events) && base.events.length ? base.events : ["故事剛剛開始。"],
       npcs: Array.isArray(base.npcs) ? base.npcs : [],
       memory: [],
+      ...((base.world_clock || base.worldClock) && typeof (base.world_clock || base.worldClock) === "object" && !Array.isArray(base.world_clock || base.worldClock)
+        ? { worldClock: structuredClone(base.world_clock || base.worldClock) }
+        : {}),
       // Manually entered world and NPC notes belong to this story, not every story in the browser.
       memorySlots: [],
       config
