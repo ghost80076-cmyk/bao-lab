@@ -86,6 +86,11 @@ assert.equal(
   "the extracted runtime config boundary must exist exactly once"
 );
 assert.equal(
+  actual.filter(boundary => boundary === "WorkerModelPricing").length,
+  1,
+  "the extracted model pricing boundary must exist exactly once"
+);
+assert.equal(
   actual.filter(boundary => boundary === "WorkerCrypto").length,
   1,
   "the extracted crypto boundary must exist exactly once"
