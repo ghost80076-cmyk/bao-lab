@@ -225,7 +225,7 @@
     const card = App.activeCharacter;
     if (!card) return;
     const scene = sceneAt(index);
-    const { panel, status, close } = dialog(
+    const { overlay, panel, status, close, urls, dismiss, cleanup } = dialog(
       '將此刻化成畫面',
       '夜灣只用你目前選擇的文字模型整理提示詞，不會直接呼叫圖片／影片生成服務。BYOK 依你的服務商計費；夜灣燈火依既有文字模型規則計費。'
     );
