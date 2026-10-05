@@ -36,9 +36,18 @@ The behavior-preserving isolation sequence is complete for the current top-level
 
 Each boundary was isolated independently after its contract tests and the repository-wide required workflows passed. Physical extraction began with account validation, then chat input, followed by the isolated admin Bearer-auth boundary, publication formatting, GitHub publication transport, runtime configuration parsing, cryptographic helpers, author-profile publication, the shared HTTP/CORS boundary, account credential rate limiting, the admin publication subroutes, the read-only admin usage-history route, admin player-directory routes, admin player-mutation routes, model pricing, provider routing and author identity ownership. Rate-limit hashing reuses the extracted crypto boundary, while publication subroutes compose the extracted HTTP and publication modules.
 
+## Model registry consolidation status
+
+The browser catalog and Cloudflare Worker model allowlist are now generated from the same `data/presets/models.json` registry.
+
+- The registry generates the complete Cloudflare `MODELS_JSON` and `MODELS_JSON_EXTRA` deployment plan plus the expected AWS relay `OPENROUTER_MODELS` allowlist.
+- Production Cloudflare bindings are audited against that generated plan after model-registry changes.
+- A manual-only guarded deployment path creates a new Worker Version, replaces only the two model bindings, inherits every other production binding with Cloudflare `bindings_inherit=strict`, verifies that Worker code/runtime are unchanged, deploys the candidate version, and rolls back automatically if the post-deploy registry audit fails.
+- The production Cloudflare audit is currently aligned with the registry.
+
 ## Remaining work
 
-- Consolidate the browser catalog and the unknown production Worker base allowlist into a single model registry. Versioned deltas now generate one validated Cloudflare/AWS deployment plan, but cannot safely replace the external production base.
+- The AWS relay remains an external deployment boundary. The registry is already its source of expected model state, and `scripts/audit-aws-openrouter-models.cjs` can verify an EC2 relay's current `OPENROUTER_MODELS` value against the generated plan, but the repository does not yet have an authenticated AWS/SSM/SSH deployment path. Do not invent one until that operational credential path is explicitly established.
 
 ## Non-negotiable compatibility rules
 
