@@ -17,7 +17,7 @@ assert.match(card.content.system_prompt,/升階不是經驗值滿自動升級/);
 assert.match(card.content.system_prompt,/所有可進入成人市場.*21 歲以上/);
 assert.match(card.content.system_prompt,/男性向鏡頭/);
 assert.match(card.content.system_prompt,/付款.*不等於.*同意|階級.*不等於.*同意/);
-assert.match(card.content.system_prompt,/NPC 不會在玩家離開後凍結/);
+assert.match(card.content.npc_rules,/離場後繼續生活/);
 assert.doesNotMatch(card.content.greeting,/<hc-collapse|<hc-btn|世界引擎私語/i);
 
 const promptIds=new Set(card.content.dynamic_prompts.map(x=>x.id));
@@ -49,8 +49,8 @@ for(const key of ['trust','affection','dependency','fear','boundary']) assert.ok
 
 assert.ok(card.presentation.opening.choices.length>=4);
 assert.match(card.presentation.opening.note,/F 級.*S 級/);
-assert.match(card.content.system_prompt,/【開局資料來源】/);
-assert.match(card.content.system_prompt,/不得固定寫成中央車站與 NT\$45,000/);
+assert.match(card.content.system_prompt,/【開局路線】/);
+assert.match(card.content.system_prompt,/不得固定寫成中央車站或 NT\$45,000/);
 assert.doesNotMatch(card.content.greeting,/你往捷運站方向走了三百公尺|NT\$45,000/);
 
 console.log('PASS Collar Class F-to-S world card');
