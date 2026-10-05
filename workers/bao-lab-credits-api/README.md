@@ -44,7 +44,7 @@ packager loads the versioned `deployment-manifest.json`, rejects unsafe or
 missing module paths and uploads the listed JavaScript module graph in a
 deterministic order. The reviewed module graph now extracts `WorkerAccountRateLimit`,
 `WorkerAccountValidation`, `WorkerChatInput`, the isolated `WorkerAdminAuth`
-boundary, `WorkerAdminPlayerDirectoryRoutes`, `WorkerAdminPublicationRoutes`,
+boundary, `WorkerAdminPlayerDirectoryRoutes`, `WorkerAdminPlayerMutationRoutes`, `WorkerAdminPublicationRoutes`,
 `WorkerAdminUsageRoutes`, `WorkerAuthorOwnership`, `WorkerAuthorProfilePublication`, `WorkerPublicationFormat`,
 `WorkerGithubPublicationTransport`, `WorkerRuntimeConfig`, `WorkerCrypto` and
 `WorkerHttp` into reviewed modules; the main entry remains `worker.js`. The first
@@ -479,4 +479,4 @@ Only after both checks pass should the browser catalog be merged and deployed.
 
 ## Refactor safety map
 
-The current Worker uses a reviewed module manifest and keeps all but the extracted account-rate-limit, account-validation, chat-input, admin-auth, admin-player-directory-routes, admin-publication-routes, admin-usage-routes, author-ownership, author-profile-publication, publication-format, GitHub-publication-transport, runtime-config, crypto and HTTP boundaries in `worker.js`. The responsibility boundaries and safe refactor order are documented in [`docs/worker-architecture-boundaries.md`](../../docs/worker-architecture-boundaries.md).
+The current Worker uses a reviewed module manifest and keeps all but the extracted account-rate-limit, account-validation, chat-input, admin-auth, admin-player-directory-routes, admin-player-mutation-routes, admin-publication-routes, admin-usage-routes, author-ownership, author-profile-publication, publication-format, GitHub-publication-transport, runtime-config, crypto and HTTP boundaries in `worker.js`. The responsibility boundaries and safe refactor order are documented in [`docs/worker-architecture-boundaries.md`](../../docs/worker-architecture-boundaries.md).
