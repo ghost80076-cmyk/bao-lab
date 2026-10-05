@@ -65,11 +65,41 @@
     });
     return result;
   };
+  const worldClockPatch = raw => {
+    if (!object(raw)) return {};
+    const out = {};
+    const boundedMinutes = value => {
+      const number = Number(value);
+      if (!Number.isFinite(number) || number < 0) return null;
+      return Math.min(52560000, Math.floor(number));
+    };
+    const advance = boundedMinutes(raw.advance_minutes ?? raw.advanceMinutes);
+    if (advance !== null && advance > 0) out.advance_minutes = advance;
+    if (Array.isArray(raw.schedule)) {
+      const schedule = raw.schedule.slice(0, 12).map(item => {
+        if (!object(item)) return null;
+        const label = String(item.label || "").trim().slice(0, 160);
+        const minutes = boundedMinutes(item.in_minutes ?? item.inMinutes);
+        return label && minutes !== null ? { label, in_minutes: minutes } : null;
+      }).filter(Boolean);
+      if (schedule.length) out.schedule = schedule;
+    }
+    for (const key of ["resolve", "cancel"]) {
+      if (!Array.isArray(raw[key])) continue;
+      const ids = [...new Set(raw[key].map(String).filter(id => /^wc-\\d+$/.test(id)))].slice(0, 20);
+      if (ids.length) out[key] = ids;
+    }
+    return out;
+  };
   const moduleSchemas = defs => Object.fromEntries(defs.filter(d => d.tracking !== "manual").map(d => [d.id, { kind: d.kind, fields: fieldsFor(d) }]));
   const stateUpdate = (data, defs = []) => {
     if (!object(data)) return null;
     const out = pickFields(data, ["time", "location"].map(key => ({ key, type: "text" })));
     if (Array.isArray(data.events)) out.events = data.events.filter(v => typeof v === "string").slice(0, 8).map(v => v.slice(0, 300));
+    if (object(data.world_clock)) {
+      const clock = worldClockPatch(data.world_clock);
+      if (Object.keys(clock).length) out.world_clock = clock;
+    }
     if (Array.isArray(data.npcs)) out.npcs = data.npcs.filter(object).slice(0, 30).map(n => {
       const clean = pickFields(n, ["name", "role", "mood", "location", "relationship"].map(key => ({ key, type: "text" })));
       if (typeof n.relationship === "number" && Number.isFinite(n.relationship)) clean.relationship = n.relationship;
@@ -99,5 +129,5 @@
     }
     return out;
   };
-  window.BAOHelperData = { memoryRules, memoryText, stateUpdate, moduleSchemas };
+  window.BAOHelperData = { memoryRules, memoryText, stateUpdate, moduleSchemas, worldClockPatch };
 })();
