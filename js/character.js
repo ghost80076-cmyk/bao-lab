@@ -154,7 +154,10 @@ const CharacterEngine = {
         events: Array.isArray(initial.events) ? initial.events : [],
         npcs: Array.isArray(initial.npcs) ? initial.npcs : [],
         modules: initial.modules && typeof initial.modules === "object" && !Array.isArray(initial.modules) ? initial.modules : {},
-        character_statuses: initial.character_statuses && typeof initial.character_statuses === "object" && !Array.isArray(initial.character_statuses) ? initial.character_statuses : {}
+        character_statuses: initial.character_statuses && typeof initial.character_statuses === "object" && !Array.isArray(initial.character_statuses) ? initial.character_statuses : {},
+        world_clock: initial.world_clock && typeof initial.world_clock === "object" && !Array.isArray(initial.world_clock)
+          ? initial.world_clock
+          : (initial.worldClock && typeof initial.worldClock === "object" && !Array.isArray(initial.worldClock) ? initial.worldClock : null)
       },
       import_metadata: importMetadata,
       schema_version: raw.schema_version || "1.5",
