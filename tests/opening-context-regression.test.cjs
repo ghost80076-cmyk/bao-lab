@@ -2,8 +2,6 @@
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const pathMod=require('node:path');
-const fs=require('node:fs');
-const pathMod=require('node:path');
 
 const cards={
   weird:require('../data/characters/community/8f/weird-task-system.json'),
