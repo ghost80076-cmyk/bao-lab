@@ -125,11 +125,9 @@ async function patchWorkerSettings({
         "content-type": "application/json",
       },
       body: JSON.stringify({
-        settings: {
-          bindings,
-          annotations: {
-            "workers/message": "Sync YoruBay model bindings from data/presets/models.json",
-          },
+        bindings,
+        annotations: {
+          "workers/message": "Sync YoruBay model bindings from data/presets/models.json",
         },
       }),
     }
