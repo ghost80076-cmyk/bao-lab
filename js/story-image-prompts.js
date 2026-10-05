@@ -1,4 +1,4 @@
-/* Story image prompts: local author metadata, optional player-owned text API. No image API or platform credits. */
+/* Story Scene Prompt: portable per-scene image/video prompts using the current text-model route. No image/video provider is called here. */
 (() => {
   if (typeof App === 'undefined' || typeof Chat === 'undefined') return;
   const profileOf = card => card?.image_prompt_profile || card?.presentation?.image_prompt_profile || '';
@@ -28,35 +28,175 @@
     try { await navigator.clipboard.writeText(value); status.textContent = '已複製提示詞。'; }
     catch { status.textContent = '瀏覽器無法自動複製，請選取文字後手動複製。'; }
   };
-  const openPlayer = () => {
+  const selectField = (label, options) => {
+    const wrap = document.createElement('label'); wrap.style.cssText = 'display:grid;gap:6px;min-width:150px;flex:1';
+    const caption = document.createElement('span'); caption.textContent = label;
+    const field = document.createElement('select');
+    field.style.cssText = 'width:100%;box-sizing:border-box;padding:8px;background:var(--panel,#222);color:inherit;border:1px solid #647082;border-radius:9px';
+    for (const [value, text] of options) {
+      const option = document.createElement('option'); option.value = value; option.textContent = text; field.append(option);
+    }
+    wrap.append(caption, field); return { wrap, field };
+  };
+  const sceneAt = index => {
+    const list = Chat.messages || [];
+    const fallback = list.findLastIndex(message => message.role === 'assistant');
+    const position = Number.isInteger(index) && list[index]?.role === 'assistant' ? index : fallback;
+    const selected = position >= 0 ? list[position] : null;
+    const context = selected ? list.slice(Math.max(0, position - 7), position + 1)
+      .map(message => `${message.role === 'user' ? '玩家' : '敘事'}：${plain(message.content).slice(0, 1400)}`).join('\n').slice(0, 9000) : '';
+    return { index: position, id: String(selected?.id || ''), context };
+  };
+  const extractJson = raw => {
+    const text = plain(raw).trim();
+    if (!text) return null;
+    const candidates = [
+      text.replace(/^\`\`\`(?:json)?\\s*/i, '').replace(/\\s*\`\`\`$/i, ''),
+      text.slice(text.indexOf('{'), text.lastIndexOf('}') + 1)
+    ].filter(Boolean);
+    for (const candidate of candidates) {
+      try {
+        const value = JSON.parse(candidate);
+        if (value && typeof value === 'object' && !Array.isArray(value)) return value;
+      } catch {}
+    }
+    return null;
+  };
+  const normalizeResult = raw => {
+    const parsed = extractJson(raw);
+    if (!parsed) return { understanding:'', image_prompt:plain(raw), video_prompt:'', negative_prompt:'', continuity_prompt:'' };
+    return {
+      understanding: plain(parsed.understanding),
+      image_prompt: plain(parsed.image_prompt),
+      video_prompt: plain(parsed.video_prompt),
+      negative_prompt: plain(parsed.negative_prompt),
+      continuity_prompt: plain(parsed.continuity_prompt)
+    };
+  };
+  const currentTextConfig = () => {
+    const source = App.config?.api;
+    if (!source) return null;
+    window.BAOCreditsPilot?.prepareAccountConfig?.(source);
+    const hostedReady = Boolean(window.BAOCreditsPilot?.isAccountReady?.(source));
+    if (!source.model || !source.baseUrl || (!source.key && !hostedReady)) return null;
+    const requested = Number(source.maxOutputTokens || 2200);
+    const config = { ...source, __storyTool:true, maxOutputTokens:Number.isFinite(requested) ? Math.min(requested, 2200) : 2200 };
+    return typeof App.applyProviderContext === 'function' ? App.applyProviderContext(config) : config;
+  };
+  const buildVisualMessages = ({ card, profile, scene, mode, style, composition, instruction }) => [
+    { role:'system', content:[
+      '你是夜灣的 Visual Director／畫面提示詞編輯器。',
+      '把指定故事場景翻譯成可攜式圖片／影片提示詞，不續寫故事，也不改寫 canonical story state。',
+      '優先順序：玩家本次畫面要求 > 指定場景可觀察事實 > 角色固定外觀與 continuity > 作品視覺設定 > 中性預設。',
+      '不得創造未出現的人物、傷勢、武器、服裝變化、關係或劇情事實。',
+      '鏡頭要求要轉成生成模型較能理解的 viewpoint、shot、angle、lens、perspective、framing 等攝影語言。',
+      '提示詞保持 provider-neutral，不假設玩家使用哪個生圖或生影片網站。',
+      '只輸出 JSON，不要 Markdown 或額外說明。',
+      'JSON 必須有 understanding、image_prompt、video_prompt、negative_prompt、continuity_prompt 五個字串欄位。'
+    ].join('\n') },
+    { role:'user', content:[
+      `角色／作品：${plain(card.name)}`,
+      `輸出模式：${mode}`,
+      `視覺風格：${style}`,
+      `構圖／鏡位：${composition}`,
+      `玩家補充要求：${plain(instruction) || '無'}`,
+      '',
+      '角色固定外觀、畫風與世界視覺設定：',
+      plain(profile) || '未提供',
+      '',
+      '截至指定回覆的故事場景：',
+      scene.context || '目前沒有可分析的 AI 劇情。',
+      '',
+      '只整理指定回覆當下的畫面。understanding 用中文簡述你理解的場景；若模式不需要圖片或影片，對應欄位輸出空字串。'
+    ].join('\n') }
+  ];
+  const bundle = output => [
+    output.understanding && `AI 理解的畫面\n${output.understanding}`,
+    output.image_prompt && `圖片 Prompt\n${output.image_prompt}`,
+    output.video_prompt && `影片 Prompt\n${output.video_prompt}`,
+    output.negative_prompt && `Negative Prompt\n${output.negative_prompt}`,
+    output.continuity_prompt && `角色一致性\n${output.continuity_prompt}`
+  ].filter(Boolean).join('\n\n');
+  const openPlayer = (index = null) => {
     const card = App.activeCharacter;
     if (!card) return;
-    const { panel, status, close } = dialog('劇情配圖提示詞', '複製作者設定不需要 API；AI 分析只使用你目前連接的文字模型 API，可能產生服務商費用。夜灣不提供模型額度或生圖 API。');
-    const profile = textarea('作者視覺設定（可自行修改，不會改動角色卡）', plain(profileOf(card)), 5);
-    const result = textarea('圖片提示詞（生成後可編輯、複製到自己的生圖網站）', '', 9);
-    const actions = document.createElement('div'); actions.style.cssText = 'display:flex;gap:8px;flex-wrap:wrap';
-    const copyAuthor = button('複製作者設定', () => copy(profile.field.value, status));
-    const copyResult = button('複製圖片提示詞', () => copy(result.field.value, status));
-    const generate = button('用我的文字模型分析當前劇情', async () => {
-      const config = App.config?.api;
-      if (!config?.key || !config?.model || !config?.baseUrl) { status.textContent = '請先連接自己的文字模型 API；夜灣不提供免費 API。'; return; }
-      if (!Chat.messages?.length) { status.textContent = '目前尚無對話；可先複製作者設定。'; return; }
-      generate.disabled = true; status.textContent = '正在使用你的文字模型製作提示詞……';
+    const scene = sceneAt(index);
+    const { panel, status, close } = dialog(
+      '將此刻化成畫面',
+      '夜灣只用你目前選擇的文字模型整理提示詞，不會直接呼叫圖片／影片生成服務。BYOK 依你的服務商計費；夜灣燈火依既有文字模型規則計費。'
+    );
+    const sceneInfo = document.createElement('small');
+    sceneInfo.textContent = scene.index >= 0
+      ? `指定場景：第 ${scene.index + 1} 則訊息（只讀到這一幕，不帶入後面的故事）`
+      : '目前尚無 AI 回覆，可先查看作者視覺設定。';
+
+    const controls = document.createElement('div'); controls.style.cssText = 'display:flex;gap:8px;flex-wrap:wrap';
+    const mode = selectField('輸出', [['image','圖片 Prompt'],['video','影片 Prompt'],['both','圖片＋影片'],['auto','自動判斷']]);
+    const style = selectField('風格', [['auto','自動'],['photorealistic','寫實'],['cinematic','電影感'],['anime','動漫'],['illustration','插畫']]);
+    const composition = selectField('構圖／鏡位', [['auto','自動'],['close-up','特寫'],['medium-shot','半身'],['full-body','全身'],['first-person','第一人稱'],['wide-angle','廣角']]);
+    controls.append(mode.wrap, style.wrap, composition.wrap);
+
+    const instruction = textarea('這次想怎麼拍？（可留空）', '', 3);
+    instruction.field.placeholder = '例如：低機位、由下往上、近大遠小';
+
+    const profileDetails = document.createElement('details');
+    const profileSummary = document.createElement('summary'); profileSummary.textContent = '作者視覺設定／角色固定外觀';
+    const profile = textarea('視覺 continuity（只影響這次 Prompt，不會改動角色卡）', plain(profileOf(card)), 5);
+    profileDetails.append(profileSummary, profile.wrap);
+
+    const understanding = textarea('AI 理解的畫面', '', 4);
+    const imagePrompt = textarea('圖片 Prompt', '', 7);
+    const videoPrompt = textarea('影片 Prompt', '', 7);
+    const negativePrompt = textarea('Negative Prompt（外部工具不一定支援）', '', 4);
+    const continuityPrompt = textarea('角色一致性／跨張固定資訊', '', 4);
+
+    const generate = button('生成畫面提示詞', async () => {
+      if (!scene.context) { status.textContent = '目前沒有可分析的 AI 劇情。'; return; }
+      const config = currentTextConfig();
+      if (!config || !window.API?.send) {
+        status.textContent = '請先完成文字模型連線；BYOK 需要 API Key，夜灣燈火需要先登入帳號。';
+        return;
+      }
+      generate.disabled = true; status.textContent = '正在把這一幕整理成畫面提示詞……';
       try {
-        const history = Chat.messages.slice(-8).map(m => `${m.role === 'user' ? '玩家' : '敘事'}：${plain(m.content).slice(0, 1400)}`).join('\n').slice(0, 9000);
-        const messages = [
-          { role: 'system', content: '你是圖片提示詞編輯。只根據已提供的劇情和角色視覺設定，產生一段可直接複製的圖片生成提示詞。保留角色固定外觀；只描繪當前已知場景，不創造新人物、受傷、武器或劇情事實。不要輸出 HTML、JSON 或說明。' },
-          { role: 'user', content: `角色：${plain(card.name)}\n作者視覺設定：\n${plain(profile.field.value) || '未提供'}\n\n最近劇情（僅供畫面參考）：\n${history}\n\n請產生目前場景的圖片提示詞。` }
-        ];
-        const apiConfig = typeof App.applyProviderContext === 'function' ? App.applyProviderContext(config) : config;
-        const response = await API.send(apiConfig, messages);
-        result.field.value = plain(response?.text);
-        status.textContent = result.field.value ? '已產生提示詞。請確認內容後再複製；沒有自動生圖，也不會寫入故事。' : '模型沒有回傳提示詞。';
-      } catch (error) { status.textContent = `提示詞產生失敗：${error?.message || '未知錯誤'}`; }
-      finally { generate.disabled = false; }
+        const response = await API.send(config, buildVisualMessages({
+          card, profile:profile.field.value, scene,
+          mode:mode.field.value, style:style.field.value, composition:composition.field.value,
+          instruction:instruction.field.value
+        }));
+        const parsed = normalizeResult(response?.text);
+        understanding.field.value = parsed.understanding;
+        imagePrompt.field.value = parsed.image_prompt;
+        videoPrompt.field.value = parsed.video_prompt;
+        negativePrompt.field.value = parsed.negative_prompt;
+        continuityPrompt.field.value = parsed.continuity_prompt;
+        status.textContent = parsed.image_prompt || parsed.video_prompt
+          ? '提示詞已生成。可修改後複製到你喜歡的生成工具；不會更動故事。'
+          : '文字模型沒有回傳可用的畫面提示詞。';
+      } catch (error) {
+        status.textContent = `提示詞產生失敗：${error?.message || '未知錯誤'}`;
+      } finally { generate.disabled = false; }
     });
-    actions.append(copyAuthor, generate, copyResult);
-    panel.append(profile.wrap, result.wrap, actions, status, close);
+
+    const output = () => ({
+      understanding:understanding.field.value,
+      image_prompt:imagePrompt.field.value,
+      video_prompt:videoPrompt.field.value,
+      negative_prompt:negativePrompt.field.value,
+      continuity_prompt:continuityPrompt.field.value
+    });
+    const actions = document.createElement('div'); actions.style.cssText = 'display:flex;gap:8px;flex-wrap:wrap';
+    actions.append(
+      generate,
+      button('複製圖片 Prompt', () => copy(imagePrompt.field.value, status)),
+      button('複製影片 Prompt', () => copy(videoPrompt.field.value, status)),
+      button('複製完整 Prompt', () => copy(bundle(output()), status))
+    );
+    panel.append(
+      sceneInfo, controls, instruction.wrap, profileDetails,
+      understanding.wrap, imagePrompt.wrap, videoPrompt.wrap, negativePrompt.wrap, continuityPrompt.wrap,
+      actions, status, close
+    );
   };
   const openAuthor = () => {
     const { panel, status, close } = dialog('作者圖片提示詞設定', '匯入夜灣角色 JSON，填寫視覺設定並下載修改後的角色卡。此操作完全在本機進行，不呼叫 API。');
@@ -86,18 +226,49 @@
   };
   const mount = () => {
     const chat = document.getElementById('chat-view');
-    if (chat && !chat.querySelector('[data-bao-image-prompt]')) {
-      const target = chat.querySelector('.chat-tools, .chat-actions, .chat-header, .chat-sidebar, aside') || chat;
-      const trigger = button('劇情配圖提示詞', openPlayer); trigger.dataset.baoImagePrompt = '1';
-      target.append(trigger);
+    if (!chat) return;
+    const aside = chat.querySelector('.chat-layout > aside');
+    if (aside && !aside.querySelector('[data-bao-image-latest]')) {
+      const trigger = button('🎨 將此刻化成畫面', () => openPlayer());
+      trigger.dataset.baoImageLatest = '1'; trigger.className = 'secondary'; aside.append(trigger);
     }
+
+    const stream = document.getElementById('chat-stream');
+    const nodes = [...(stream?.querySelectorAll(':scope > .message') || [])];
+    const messages = Chat.messages || [];
+    const offset = nodes.length - messages.length;
+    if (offset === 0 || offset === 1) {
+      for (let i = 0; i < messages.length; i++) {
+        const item = messages[i], node = nodes[i + offset];
+        if (item?.role !== 'assistant' || !node?.classList.contains('assistant') || node.querySelector('[data-bao-scene-prompt]')) continue;
+        const trigger = button('🎨 畫面', () => openPlayer(i));
+        trigger.dataset.baoScenePrompt = '1'; trigger.className = 'bao-scene-prompt-action';
+        trigger.style.cssText = 'margin:5px 8px;padding:5px 9px;border:1px solid #53687b;border-radius:9px;background:#21303c;color:#eaf9f6;font-size:12px';
+        node.append(trigger);
+      }
+    }
+
     const tools = document.querySelector('.character-tools');
     if (tools && !tools.querySelector('[data-bao-author-image-prompt]')) {
-      const trigger = button('作者圖片提示詞設定', openAuthor); trigger.dataset.baoAuthorImagePrompt = '1'; tools.append(trigger);
+      const trigger = button('作者畫面提示詞設定', openAuthor);
+      trigger.dataset.baoAuthorImagePrompt = '1'; tools.append(trigger);
     }
   };
-  mount();
-  let attempts = 0;
-  const timer = setInterval(() => { mount(); if (++attempts >= 60) clearInterval(timer); }, 250);
-  window.BAOStoryImagePrompts = { openPlayer, openAuthor, mount, profileOf };
+  let pending = false;
+  const schedule = () => {
+    if (pending) return;
+    pending = true;
+    requestAnimationFrame(() => { pending = false; mount(); });
+  };
+  const stream = document.getElementById('chat-stream');
+  if (stream) new MutationObserver(mutations => {
+    if (mutations.some(mutation => [...mutation.addedNodes, ...mutation.removedNodes]
+      .some(node => node.nodeType === 1 && node.classList?.contains('message')))) schedule();
+  }).observe(stream, { childList:true });
+  const previous = App.renderChatShell?.bind(App);
+  if (previous) App.renderChatShell = (...args) => { const result = previous(...args); schedule(); return result; };
+  schedule();
+  const api = Object.freeze({ openPlayer, openAuthor, mount, profileOf, normalizeResult, buildVisualMessages });
+  window.BAOStoryImagePrompts = api;
+  window.BAOStoryImageMoments = api;
 })();
