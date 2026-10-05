@@ -47,8 +47,10 @@ for(const key of ['presentation','social','market_skill','intimacy_openness','au
 const rel=card.gameplay.initial_state.modules.relationship;
 for(const key of ['trust','affection','dependency','fear','boundary']) assert.ok(Object.hasOwn(rel,key),'missing relationship '+key);
 
-assert.ok(card.presentation.opening.choices.length>=5);
-assert.match(card.presentation.opening.posts.map(x=>x.content).join('\n'),/S 級/);
-assert.match(card.presentation.opening.posts.map(x=>x.content).join('\n'),/F 級/);
+assert.ok(card.presentation.opening.choices.length>=4);
+assert.match(card.presentation.opening.note,/F 級.*S 級/);
+assert.match(card.content.system_prompt,/【開局資料來源】/);
+assert.match(card.content.system_prompt,/不得固定寫成中央車站與 NT\$45,000/);
+assert.doesNotMatch(card.content.greeting,/你往捷運站方向走了三百公尺|NT\$45,000/);
 
 console.log('PASS Collar Class F-to-S world card');
