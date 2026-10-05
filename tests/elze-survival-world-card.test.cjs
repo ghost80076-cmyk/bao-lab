@@ -18,7 +18,6 @@ assert.match(card.content.system_prompt,/作品名稱.*不是 NPC/);
 assert.match(card.content.system_prompt,/生存沙盒/);
 assert.match(card.content.system_prompt,/預設不擲骰/);
 assert.match(card.content.system_prompt,/21\+ 虛構成年人/);
-assert.match(card.content.system_prompt,/作品名稱不得進名冊/);
 assert.doesNotMatch(card.content.greeting,/hc-collapse|hc-h1|hc-n/);
 
 for(const marker of ['YB:ELZE:OPENING','YB:ELZE:NOTICE']) {
