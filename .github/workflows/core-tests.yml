@@ -425,6 +425,10 @@ jobs:
         run: node tests/world-state-cost-core.cjs
       - name: Same-model story and state merge
         run: node tests/same-model-state-merge-core.cjs
+      - name: Story world clock and scheduled events
+        run: |
+          node --check js/world-clock.js
+          node tests/world-clock-core.cjs
       - name: World-state after-turn hook
         run: |
           node --check js/world-state-hook.js
