@@ -12,10 +12,20 @@
     const heading = document.createElement('h2'); heading.textContent = title;
     const help = document.createElement('p'); help.textContent = description;
     const status = document.createElement('p'); status.setAttribute('role', 'status'); status.setAttribute('aria-live', 'polite');
-    const close = document.createElement('button'); close.type = 'button'; close.textContent = '關閉'; close.addEventListener('click', () => overlay.remove());
+    const urls = new Set();
+    const previousFocus = document.activeElement;
+    const cleanup = () => { urls.forEach(url => URL.revokeObjectURL(url)); urls.clear(); };
+    const dismiss = () => {
+      if (!overlay.isConnected) return;
+      cleanup(); overlay.remove(); previousFocus?.isConnected && previousFocus.focus?.();
+      document.removeEventListener('keydown', onKey);
+    };
+    const onKey = event => { if (event.key === 'Escape') dismiss(); };
+    const close = document.createElement('button'); close.type = 'button'; close.textContent = '關閉'; close.addEventListener('click', dismiss);
     panel.append(heading, help); overlay.append(panel); document.body.append(overlay);
-    overlay.addEventListener('click', event => { if (event.target === overlay) overlay.remove(); });
-    return { overlay, panel, status, close };
+    overlay.addEventListener('click', event => { if (event.target === overlay) dismiss(); });
+    document.addEventListener('keydown', onKey);
+    return { overlay, panel, status, close, urls, dismiss, cleanup };
   };
   const button = (label, action) => { const el = document.createElement('button'); el.type = 'button'; el.textContent = label; el.addEventListener('click', action); return el; };
   const textarea = (label, value, rows = 8) => {
@@ -117,6 +127,100 @@
     output.negative_prompt && `Negative Prompt\n${output.negative_prompt}`,
     output.continuity_prompt && `角色一致性\n${output.continuity_prompt}`
   ].filter(Boolean).join('\n\n');
+  const album = {
+    ready:null,
+    open() {
+      if (this.ready) return this.ready;
+      this.ready = new Promise((resolve, reject) => {
+        if (!window.indexedDB) return reject(new Error('瀏覽器未提供圖片資料庫。'));
+        const request = indexedDB.open('bao-lab-scene-images', 1);
+        request.onupgradeneeded = () => {
+          const db = request.result;
+          const store = db.createObjectStore('images', { keyPath:'id' });
+          store.createIndex('storyId', 'storyId', { unique:false });
+        };
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error || new Error('無法開啟圖片資料庫。'));
+      }).catch(error => { this.ready = null; throw error; });
+      return this.ready;
+    },
+    async query(mode, callback) {
+      const db = await this.open();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction('images', mode);
+        let value;
+        try { value = callback(tx.objectStore('images')); }
+        catch (error) { reject(error); return; }
+        tx.oncomplete = () => resolve(value?.result);
+        tx.onerror = () => reject(tx.error || new Error('圖片資料庫操作失敗。'));
+        tx.onabort = () => reject(tx.error || new Error('圖片資料庫寫入中止。'));
+      });
+    },
+    list: storyId => album.query('readonly', store => store.index('storyId').getAll(storyId)),
+    add: record => album.query('readwrite', store => store.put(record)),
+    delete: id => album.query('readwrite', store => store.delete(id))
+  };
+  const storyRefs = () => window.BAOStoryLibrary?.refs?.() || {};
+  const addGallery = (view, scene) => {
+    const { panel, status, urls, overlay } = view;
+    const section = document.createElement('details');
+    section.style.cssText = 'display:grid;gap:9px;padding-top:10px;border-top:1px solid #596171';
+    const summary = document.createElement('summary'); summary.textContent = '本機劇情圖集（可選）';
+    const note = document.createElement('small');
+    note.textContent = '你可以把外部工具生成好的圖片存回這個故事。圖片只留在目前瀏覽器，不會自動上傳夜灣，也不會送進 AI。';
+    const picker = document.createElement('input'); picker.type = 'file'; picker.accept = 'image/png,image/jpeg,image/webp';
+    picker.setAttribute('aria-label', '選擇要存入本機圖集的圖片');
+    const grid = document.createElement('div'); grid.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:9px';
+    const current = storyRefs();
+    if (!current.storyId || !current.chapterId) {
+      picker.disabled = true;
+      note.textContent += ' 目前沒有已建立的故事章節，暫不能收藏。';
+    }
+    const paint = async () => {
+      urls.forEach(url => URL.revokeObjectURL(url)); urls.clear();
+      grid.replaceChildren();
+      if (!current.storyId) return;
+      const records = (await album.list(current.storyId)).sort((a,b) => String(b.createdAt).localeCompare(String(a.createdAt)));
+      for (const item of records) {
+        if (!overlay.isConnected) return;
+        const card = document.createElement('div'); card.style.cssText = 'min-width:0;display:grid;gap:6px;padding:6px;border:1px solid #566072;border-radius:9px';
+        const image = document.createElement('img');
+        const url = URL.createObjectURL(item.file); urls.add(url);
+        image.src = url; image.alt = plain(item.name || '故事圖片');
+        image.style.cssText = 'width:100%;height:115px;object-fit:cover;border-radius:6px';
+        const label = document.createElement('small');
+        label.textContent = `${item.chapterLabel || '章節'} · ${item.messageLabel || '場景'}`;
+        const remove = button('刪除圖片', async () => {
+          if (!window.confirm('確定從這台裝置刪除這張圖片？無法復原。')) return;
+          try { await album.delete(item.id); await paint(); status.textContent = '圖片已從本機圖集刪除。'; }
+          catch (error) { status.textContent = `刪除失敗：${error.message}`; }
+        });
+        card.append(image, label, remove); grid.append(card);
+      }
+      if (!records.length) grid.textContent = '這個故事還沒有收藏圖片。';
+    };
+    picker.addEventListener('change', async () => {
+      const image = picker.files?.[0]; picker.value = '';
+      if (!image) return;
+      if (!['image/png','image/jpeg','image/webp'].includes(image.type) || image.size === 0 || image.size > 5*1024*1024) {
+        status.textContent = '只支援 PNG／JPG／WebP，單張不超過 5 MB。'; return;
+      }
+      try {
+        await album.add({
+          id:window.crypto?.randomUUID?.() || `image-${Date.now()}-${Math.random()}`,
+          storyId:current.storyId, chapterId:current.chapterId,
+          messageId:scene.id || `legacy-${scene.index}`,
+          chapterLabel:current.chapterLabel || '章節',
+          messageLabel:scene.index >= 0 ? `訊息 ${scene.index + 1}` : '目前場景',
+          characterId:String(window.App?.activeCharacter?.id || ''),
+          name:plain(image.name), file:image, createdAt:new Date().toISOString()
+        });
+        await paint(); status.textContent = '圖片已存入這台裝置的本機圖集。';
+      } catch (error) { status.textContent = `圖片儲存失敗：${error?.message || '儲存空間可能不足'}`; }
+    });
+    section.append(summary, note, picker, grid); panel.append(section);
+    void paint().catch(error => { grid.textContent = '圖片庫目前無法使用。'; status.textContent = error.message; });
+  };
   const openPlayer = (index = null) => {
     const card = App.activeCharacter;
     if (!card) return;
@@ -195,8 +299,10 @@
     panel.append(
       sceneInfo, controls, instruction.wrap, profileDetails,
       understanding.wrap, imagePrompt.wrap, videoPrompt.wrap, negativePrompt.wrap, continuityPrompt.wrap,
-      actions, status, close
+      actions
     );
+    addGallery({ overlay, panel, status, close, urls, dismiss, cleanup }, scene);
+    panel.append(status, close);
   };
   const openAuthor = () => {
     const { panel, status, close } = dialog('作者圖片提示詞設定', '匯入夜灣角色 JSON，填寫視覺設定並下載修改後的角色卡。此操作完全在本機進行，不呼叫 API。');
@@ -268,7 +374,7 @@
   const previous = App.renderChatShell?.bind(App);
   if (previous) App.renderChatShell = (...args) => { const result = previous(...args); schedule(); return result; };
   schedule();
-  const api = Object.freeze({ openPlayer, openAuthor, mount, profileOf, normalizeResult, buildVisualMessages });
+  const api = Object.freeze({ openPlayer, openAuthor, mount, profileOf, normalizeResult, buildVisualMessages, album });
   window.BAOStoryImagePrompts = api;
   window.BAOStoryImageMoments = api;
 })();
