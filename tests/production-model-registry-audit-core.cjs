@@ -97,6 +97,9 @@ assert.deepEqual(
       binding: "MODELS_JSON",
       key: "gemini:gemini-3-flash-preview",
       worker_metadata: {
+        input_microusd_per_million: 500000,
+        output_microusd_per_million: 3000000,
+        cache_read_microusd_per_million: 50000,
         long_context_threshold_tokens: 200000,
       },
     },
@@ -104,6 +107,9 @@ assert.deepEqual(
       binding: "MODELS_JSON_EXTRA",
       key: "openrouter:anthropic/claude-haiku-4.5",
       worker_metadata: {
+        input_microusd_per_million: 1000000,
+        output_microusd_per_million: 5000000,
+        cache_read_microusd_per_million: 100000,
         openrouter_max_prompt_microusd_per_million: 1000000,
         openrouter_max_completion_microusd_per_million: 5000000,
       },
