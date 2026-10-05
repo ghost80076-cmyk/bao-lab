@@ -15,7 +15,7 @@ assert.equal(card.presentation.play_info_surface,'game-ui');
 assert.match(card.content.system_prompt,/ABO 是世界規則，不是人格模板/);
 assert.match(card.content.system_prompt,/高相性只表示身體／信息素層面的反應更強，不能自動等於命定愛情/);
 assert.match(card.content.system_prompt,/Beta 不是背景板/);
-assert.match(card.content.system_prompt,/不要每輪輸出舊式 hc-collapse、HTML 問卷/);
+assert.doesNotMatch([card.content.system_prompt,card.content.author_instructions,...card.content.dynamic_prompts.map(x=>x.text)].join('\n'),/Builder|Gameplay UI|Dynamic Prompts|Regex|Persona/);
 assert.doesNotMatch(card.content.greeting,/<hc-collapse|<hc-btn|<div class=|<style|<script/i);
 assert.doesNotMatch(card.content.system_prompt,/Alpha天生強勢|Omega生而敏感|一見鍾情、難以抗拒吸引/);
 
