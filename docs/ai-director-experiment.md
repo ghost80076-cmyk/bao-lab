@@ -2,6 +2,29 @@
 
 Status: experiment only; no production runtime behavior changed by this document.
 
+## Product definition — do not drift from this
+
+**AI Director is not a plot generator and not a per-turn event generator.**
+
+It is a backstage narrative-judgment layer operating on top of YoruBay's continuously simulated world. Its job is to use the work's stable directing preferences together with actual world state to manage:
+
+- pacing and dramatic pressure;
+- off-screen NPC/world progression;
+- unresolved threads and foreshadowing;
+- event maturity/readiness;
+- when hidden developments may become observable;
+- when the best decision is to leave the scene alone.
+
+The world does not exist to entertain the player every turn. NPCs may act off-screen, plans may advance without the player, opportunities may expire, and events may remain hidden until a valid information channel exists.
+
+**"Nothing should happen yet" is a first-class Director decision.** Quiet turns, recovery, waiting, ordinary life, travel, and unresolved tension are valid states. The Director must never create an incident merely because a turn feels quiet.
+
+The Director does not write the final RP prose. It does not become a character. It does not decide what the player thinks, says, feels, or does. It does not make its previous plan a command. The newest player action and established world causality may invalidate any previous Director suggestion.
+
+A concise product rule:
+
+> The world keeps living. The Director watches what is actually happening, applies this work's directing grammar, and decides what should keep developing, what is mature enough to surface, and what should remain quiet or hidden. The RP model performs only what is valid now.
+
 ## Goal
 
 Build a YoruBay-native narrative control layer without turning YoruBay into a general-purpose agent runtime.
@@ -20,6 +43,20 @@ The director never controls the player, never becomes an NPC, and never receives
 > Writing Style decides how to write. Director Style decides how the story tends to move. The Judge Template decides what to pay attention to. Director State records what is currently brewing.
 
 World state and causality always constrain the director. A director suggestion is not permission to violate player agency, NPC knowledge boundaries, or established facts.
+
+### Authority order
+
+When guidance conflicts, use this order:
+
+1. player agency and newest explicit player action;
+2. established facts, physical/causal world logic, time and state;
+3. character cognition and information boundaries;
+4. NPC autonomy and existing motivations;
+5. Director State from the previous post-turn judgment;
+6. Director Style preferences;
+7. Writing Style presentation preferences.
+
+Director guidance may shape possibilities inside the world; it may not rewrite the world to satisfy itself.
 
 ## Turn timing: judge after the turn, use on the next turn
 
