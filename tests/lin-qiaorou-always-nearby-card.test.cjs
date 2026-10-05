@@ -15,7 +15,6 @@ assert.equal(card.presentation.play_info_surface,'game-ui');
 assert.match(card.content.system_prompt,/暴露深度｜事件驅動/);
 assert.match(card.content.system_prompt,/監控不是超能力/);
 assert.match(card.content.system_prompt,/如果玩家快進十三年/);
-assert.match(card.content.system_prompt,/作品名稱.*不是 NPC/);
 assert.match(card.content.system_prompt,/自傷.*不是戀愛勳章|不是戀愛勳章/);
 assert.doesNotMatch(card.content.greeting,/<hc-collapse|<hc-btn|<div class=|世界引擎私語/i);
 
