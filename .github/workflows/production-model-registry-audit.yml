@@ -39,6 +39,7 @@ jobs:
           node tests/production-model-registry-audit-core.cjs
           node tests/model-registry-contract.cjs
           node tests/model-rollout-plan-core.cjs
+          node tests/model-deployment-plan-core.cjs
 
   production-audit:
     if: github.event_name != 'pull_request'
