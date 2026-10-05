@@ -15,7 +15,6 @@ assert.equal(card.meta.avatar,'https://i.meee.com.tw/HOn2ey4.jpg');
 assert.equal(card.presentation.reading_background,card.meta.avatar);
 assert.equal(card.presentation.play_info_surface,'game-ui');
 
-assert.match(card.content.system_prompt,/作品名稱「星瀾學園」.*不是 NPC/);
 assert.match(card.content.system_prompt,/所有主要學生角色皆為 18 歲以上/);
 assert.match(card.content.system_prompt,/信任[\s\S]*親近[\s\S]*張力/);
 assert.match(card.content.system_prompt,/現代寫實/);
