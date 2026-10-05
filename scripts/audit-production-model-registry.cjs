@@ -18,6 +18,18 @@ const PRICE_FIELDS = [
   ["cache_write_microusd_per_million", "cache_write"],
 ];
 
+const SAFE_WORKER_METADATA_FIELDS = [
+  "long_context_threshold_tokens",
+  "long_context_input_microusd_per_million",
+  "long_context_output_microusd_per_million",
+  "long_context_cache_read_microusd_per_million",
+  "long_context_cache_write_microusd_per_million",
+  "openrouter_max_prompt_microusd_per_million",
+  "openrouter_max_completion_microusd_per_million",
+  "long_context_openrouter_max_prompt_microusd_per_million",
+  "long_context_openrouter_max_completion_microusd_per_million",
+];
+
 function required(value, name) {
   const normalized = String(value || "").trim();
   if (!normalized) throw new Error(`${name} is required`);
@@ -111,6 +123,30 @@ function expectedMicrousd(pricing, field) {
   return Number.isFinite(value) ? Math.round(value * 1_000_000) : null;
 }
 
+function productionInventory(baseEntries, extraEntries) {
+  const summarize = (entry, binding) => {
+    const workerMetadata = {};
+
+    for (const field of SAFE_WORKER_METADATA_FIELDS) {
+      if (Number.isSafeInteger(entry?.[field]) && entry[field] >= 0) {
+        workerMetadata[field] = entry[field];
+      }
+    }
+
+    return {
+      binding,
+      key: entryKey(entry),
+      fields: Object.keys(entry).sort(),
+      worker_metadata: workerMetadata,
+    };
+  };
+
+  return [
+    ...baseEntries.map(entry => summarize(entry, "MODELS_JSON")),
+    ...extraEntries.map(entry => summarize(entry, "MODELS_JSON_EXTRA")),
+  ];
+}
+
 function compareProductionModelRegistry({
   settings,
   registry,
@@ -170,6 +206,7 @@ function compareProductionModelRegistry({
       base_count: baseEntries.length,
       extra_count: extraEntries.length,
       combined_count: productionEntries.length,
+      inventory: productionInventory(baseEntries, extraEntries),
     },
     registry: {
       logical_model_count: registry.models.length,
@@ -269,5 +306,6 @@ module.exports = {
   fetchWorkerSettings,
   loadRolloutEntries,
   parseBindingArray,
+  productionInventory,
   registryRoutes,
 };

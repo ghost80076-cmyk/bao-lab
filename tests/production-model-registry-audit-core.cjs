@@ -48,6 +48,7 @@ const settings = {
           input_microusd_per_million: 500000,
           output_microusd_per_million: 3000000,
           cache_read_microusd_per_million: 50000,
+          long_context_threshold_tokens: 200000,
         },
       ]),
     },
@@ -61,6 +62,8 @@ const settings = {
           input_microusd_per_million: 1000000,
           output_microusd_per_million: 5000000,
           cache_read_microusd_per_million: 100000,
+          openrouter_max_prompt_microusd_per_million: 1000000,
+          openrouter_max_completion_microusd_per_million: 5000000,
         },
       ]),
     },
@@ -80,11 +83,40 @@ const report = compareProductionModelRegistry({
 });
 
 assert.equal(report.ok, true);
-assert.deepEqual(report.production, {
-  base_count: 1,
-  extra_count: 1,
-  combined_count: 2,
-});
+assert.equal(report.production.base_count, 1);
+assert.equal(report.production.extra_count, 1);
+assert.equal(report.production.combined_count, 2);
+assert.deepEqual(
+  report.production.inventory.map(item => ({
+    binding: item.binding,
+    key: item.key,
+    worker_metadata: item.worker_metadata,
+  })),
+  [
+    {
+      binding: "MODELS_JSON",
+      key: "gemini:gemini-3-flash-preview",
+      worker_metadata: {
+        long_context_threshold_tokens: 200000,
+      },
+    },
+    {
+      binding: "MODELS_JSON_EXTRA",
+      key: "openrouter:anthropic/claude-haiku-4.5",
+      worker_metadata: {
+        openrouter_max_prompt_microusd_per_million: 1000000,
+        openrouter_max_completion_microusd_per_million: 5000000,
+      },
+    },
+  ]
+);
+assert.ok(
+  report.production.inventory[0].fields.includes("input_microusd_per_million")
+);
+assert.ok(
+  !JSON.stringify(report.production.inventory).includes("test-token"),
+  "production inventory must never contain credentials"
+);
 assert.equal(report.registry.logical_model_count, 2);
 assert.equal(report.registry.hosted_route_count, 2);
 assert.deepEqual(report.findings.production_missing_from_registry, []);
