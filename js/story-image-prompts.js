@@ -51,7 +51,7 @@
     const text = plain(raw).trim();
     if (!text) return null;
     const candidates = [
-      text.replace(/^\`\`\`(?:json)?\\s*/i, '').replace(/\\s*\`\`\`$/i, ''),
+      text.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, ''),
       text.slice(text.indexOf('{'), text.lastIndexOf('}') + 1)
     ].filter(Boolean);
     for (const candidate of candidates) {
