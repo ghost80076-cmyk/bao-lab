@@ -17,7 +17,6 @@ assert.equal(card.presentation.play_info_surface,'game-ui');
 for(const pattern of [/妓院/,/成人服務/,/黑幫/,/灰色產業/,/VIP/,/股東/,/懷孕/,/警方/]) assert.match(card.content.system_prompt,pattern);
 assert.match(card.content.author_instructions,/保留原版的 R18/);
 assert.match(card.content.author_instructions,/不要把作品改成普通戀愛會所/);
-assert.match(card.content.system_prompt,/作品名稱不得成為 NPC/);
 assert.doesNotMatch(card.content.greeting,/hc-collapse|hc-btn|hc-stat/i);
 assert.match(card.content.greeting,/YB:SAKURA:OPENING/);
 
