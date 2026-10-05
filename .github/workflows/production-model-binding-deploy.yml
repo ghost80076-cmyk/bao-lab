@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: "Run a read-only dry-run or apply the registry-generated Cloudflare model bindings"
+        description: "Dry-run or create a strict-inherit Worker Version and deploy registry-generated model bindings"
         required: true
         type: choice
         default: dry-run
@@ -61,7 +61,7 @@ jobs:
           CLOUDFLARE_WORKER_NAME: ${{ secrets.CLOUDFLARE_WORKER_NAME }}
         run: node scripts/apply-production-model-registry.cjs
 
-      - name: Apply production model binding sync
+      - name: Upload strict-inherit Worker version and deploy model bindings
         if: inputs.mode == 'apply'
         env:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
@@ -70,7 +70,7 @@ jobs:
           YORUBAY_MODEL_BINDINGS_APPLY: ${{ inputs.confirmation }}
         run: node scripts/apply-production-model-registry.cjs
 
-      - name: Verify production registry after apply
+      - name: Verify production registry after version deployment
         if: inputs.mode == 'apply'
         env:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
