@@ -38,8 +38,9 @@ const WorldStateEngine = {
       "根據本輪玩家輸入與故事回覆，只更新有明確依據的世界狀態。",
       "不得自行新增未發生的劇情。沒有變化的欄位請保留原值。",
       "npcs 是人物狀態的 PATCH，不是全島完整名單；只依場景可證實的人物進出更新 presence：present（在場）、away（離場）、unknown（不確定）。轉場後不能把原登記員自動視為在場，既有人物資料仍要保留。",
+      "world_clock 是可選 PATCH。只有故事明確經過一段時間時才寫 advance_minutes；只有文本明確建立日期、期限、約定、旅程耗時或倒數時才 schedule。不得自行創造伏筆或未發生事件。resolve/cancel 只能引用目前狀態中已存在的 wc-* ID。",
       "只輸出一個 JSON 物件，不要 Markdown，不要解釋。",
-      "格式：{\"time\":\"\",\"location\":\"\",\"events\":[\"\"],\"npcs\":[{\"name\":\"\",\"role\":\"\",\"mood\":\"\",\"location\":\"\",\"relationship\":\"\",\"presence\":\"present\"}]}",
+      "格式：{\"time\":\"\",\"location\":\"\",\"events\":[\"\"],\"npcs\":[{\"name\":\"\",\"role\":\"\",\"mood\":\"\",\"location\":\"\",\"relationship\":\"\",\"presence\":\"present\"}],\"world_clock\":{\"advance_minutes\":0,\"schedule\":[{\"label\":\"\",\"in_minutes\":0}],\"resolve\":[\"wc-1\"],\"cancel\":[\"wc-2\"]}}",
       `【目前狀態】\n${JSON.stringify(this.stateSnapshot())}`,
       `【玩家】\n${playerText}`,
       `【故事回覆】\n${assistantText}`
