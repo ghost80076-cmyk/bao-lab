@@ -141,9 +141,9 @@
     let attempts = 0;
     const timer = setInterval(() => { if (loadBindingEditor() || ++attempts >= 60) clearInterval(timer); }, 150);
   }
-  if (!document.querySelector('script[src="js/story-image-prompts.js"]')) {
+  if (!document.querySelector('script[src^="js/story-image-prompts.js"]')) {
     const script = document.createElement('script');
-    script.src = 'js/story-image-prompts.js';
+    script.src = 'js/story-image-prompts.js?v=2';
     script.onerror = () => console.warn('BAO/LAB story image prompt controls failed to load');
     document.head.appendChild(script);
   }
