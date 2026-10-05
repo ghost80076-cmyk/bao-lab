@@ -70,6 +70,11 @@ assert.match(
 );
 assert.match(
   source,
+  /node --check workers\/bao-lab-credits-api\/modules\/admin-player-directory-routes\.js/,
+  "the extracted admin player directory routes module must pass syntax validation before deployment"
+);
+assert.match(
+  source,
   /node --check workers\/bao-lab-credits-api\/modules\/admin-publication-routes\.js/,
   "the extracted admin publication routes module must pass syntax validation before deployment"
 );
