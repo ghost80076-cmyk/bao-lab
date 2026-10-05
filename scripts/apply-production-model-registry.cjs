@@ -95,11 +95,26 @@ function buildBindingsPatch(settings, plan) {
     return replacementBinding(binding, desiredByName.get(binding.name));
   });
 
+  const preservedBindings = bindings.filter(
+    binding => !TARGET_BINDINGS.includes(binding?.name)
+  );
+  const preservedBindingTypes = {};
+  for (const binding of preservedBindings) {
+    const type = String(binding?.type || "unknown");
+    preservedBindingTypes[type] = (preservedBindingTypes[type] || 0) + 1;
+  }
+  const sensitivePreservedBindings = preservedBindings
+    .filter(binding => binding?.type === "secret_text" || binding?.type === "secret_key")
+    .map(binding => String(binding?.name || "(unnamed)"))
+    .sort();
+
   return {
     bindings: nextBindings,
     changes,
     target_binding_count: TARGET_BINDINGS.length,
-    preserved_binding_count: bindings.length - TARGET_BINDINGS.length,
+    preserved_binding_count: preservedBindings.length,
+    preserved_binding_types: preservedBindingTypes,
+    sensitive_preserved_bindings: sensitivePreservedBindings,
   };
 }
 
@@ -181,6 +196,8 @@ async function deployProductionModelRegistry(options = {}) {
     has_changes: hasChanges,
     target_binding_count: patch.target_binding_count,
     preserved_binding_count: patch.preserved_binding_count,
+    preserved_binding_types: patch.preserved_binding_types,
+    sensitive_preserved_binding_count: patch.sensitive_preserved_bindings.length,
     changes: patch.changes,
     aws: {
       variable: plan.aws.variable,
@@ -195,6 +212,13 @@ async function deployProductionModelRegistry(options = {}) {
 
   if (confirmation !== APPLY_CONFIRMATION) {
     return { ...report, applied: false, reason: "dry_run" };
+  }
+
+  if (patch.sensitive_preserved_bindings.length) {
+    throw new Error(
+      "apply blocked: production has secret bindings that cannot be safely round-tripped by this tool: " +
+        patch.sensitive_preserved_bindings.join(", ")
+    );
   }
 
   await patchWorkerSettings({
