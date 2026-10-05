@@ -89,6 +89,9 @@ jobs:
       - name: AWS SSM OIDC workflow contract
         run: node tests/aws-ssm-oidc-workflow-core.cjs
 
+      - name: AWS relay live audit contract
+        run: node tests/aws-relay-live-audit-core.cjs
+
       - name: Frontend extension-chain contract
         run: node tests/frontend-extension-contract.cjs
 
