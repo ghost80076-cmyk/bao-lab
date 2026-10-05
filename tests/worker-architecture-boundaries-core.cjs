@@ -116,6 +116,11 @@ assert.equal(
   "the extracted admin usage routes boundary must exist exactly once"
 );
 assert.equal(
+  actual.filter(boundary => boundary === "WorkerAdminPlayerDirectoryRoutes").length,
+  1,
+  "the extracted admin player directory routes boundary must exist exactly once"
+);
+assert.equal(
   actual.filter(boundary => boundary === "WorkerAuthorOwnership").length,
   1,
   "the extracted author ownership boundary must exist exactly once"
