@@ -9,8 +9,8 @@ for (const width of [390, 1440]) {
     await page.waitForFunction(() => window.App?.characters?.some(c => c.id === 'autonomous-npc-world') &&
       Storage.status().ready && App.__nativeAutonomousWorldStart && document.getElementById('bao-demo-mode') &&
       window.BAOStateTrackerRepairs && window.BAOCharacterStatusUI, null, { timeout: 15000 });
-    await page.evaluate(() => {
-      App.openCharacter('autonomous-npc-world');
+    await page.evaluate(async () => {
+      await App.openCharacter('autonomous-npc-world');
       App.openBuilder();
       // The native world entry intentionally removes the legacy offline world builder.
       if (document.getElementById('autonomous-world-setup')) throw new Error('Legacy world builder unexpectedly remained visible');
