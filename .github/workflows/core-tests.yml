@@ -27,13 +27,429 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Model registry consolidation contract
-        run: node tests/model-registry-contract-core.cjs
-      - name: Existing core suite
+      - name: Author status binding and persistence
+        run: node tests/author-status-binding-core.cjs
+      - name: Character status core
+        run: node tests/character-status-core.cjs
+      - name: Native mature status pack
+        run: node tests/native-status-packs-core.cjs
+      - name: World template and usage integrity
+        run: node tests/status-usage-integrity-core.cjs
+      - name: Story integrity and NPC state regression
+        run: node tests/story-integrity-core.cjs
+      - name: Story flow core
+        run: node tests/story-flow-core.cjs
+      - name: Context Pack resumable organization
+        run: node tests/context-pack-resume-core.cjs
+      - name: Story Reader core
+        run: node tests/story-reader-core.cjs
+      - name: Story revision state consistency
+        run: node tests/story-revision-state-core.cjs
+      - name: IndexedDB storage migration
+        run: node tests/storage-indexeddb-core.cjs
+      - name: Storage write guard load order
         run: |
-          set -e
-          for test in tests/*core.cjs tests/*.test.cjs; do
-            [ -f "$test" ] || continue
-            [ "$test" = "tests/model-registry-contract-core.cjs" ] && continue
-            node "$test"
-          done
+          node --check js/storage-write-guard.js
+          node tests/storage-write-guard-load-order.cjs
+      - name: Story library core
+        run: node tests/story-library-core.cjs
+      - name: Long story 3000-round stress
+        run: node tests/long-story-stress-core.cjs
+      - name: Story bundle backup
+        run: node tests/story-backup-core.cjs
+      - name: Legacy BAO/LAB to YoruBay compatibility
+        run: node tests/legacy-brand-compat-core.cjs
+      - name: Story backup corruption and rollback
+        run: node tests/story-backup-recovery-core.cjs
+      - name: Story bundle nested credential sanitization
+        run: node tests/story-bundle-secret-core.cjs
+      - name: Character readiness core
+        run: node tests/character-readiness-core.cjs
+      - name: Character role boundaries
+        run: node tests/character-role-boundaries-core.cjs
+      - name: Character studio creation flow
+        run: |
+          node --check js/character-studio-flow-core.js
+          node --check js/character-studio-flow.js
+          node tests/character-studio-flow-core.cjs
+      - name: Character studio lifecycle
+        run: |
+          node --check js/character-studio-lifecycle-core.js
+          node --check js/character-studio-lifecycle.js
+          node tests/character-studio-lifecycle-core.cjs
+      - name: Unhealed Bonds card
+        run: node tests/unhealed-bonds-card.test.cjs
+      - name: Host Club Simulator card
+        run: node tests/host-club-simulator-card.test.cjs
+      - name: Desire Werewolf card
+        run: node tests/desire-werewolf-card.test.cjs
+      - name: Desire Academy City card
+        run: node tests/desire-academy-city-card.test.cjs
+      - name: Xia Yuhan AV industry card
+        run: node tests/xia-yuhan-av-industry-card.test.cjs
+      - name: Sakura House adult management card
+        run: node tests/sakura-house-experience-management-card.test.cjs
+      - name: Aetheria Three Factions card
+        run: node tests/aetheria-three-factions-card.test.cjs
+      - name: Elze Survival World card
+        run: node tests/elze-survival-world-card.test.cjs
+      - name: Xinglan Academy card
+        run: node tests/xinglan-academy-card.test.cjs
+      - name: Dark Military War Simulator card
+        run: node tests/dark-military-war-simulator-card.test.cjs
+      - name: Craftsman Ming Survival TRPG card
+        run: node tests/craftsman-ming-survival-trpg-card.test.cjs
+      - name: Medieval Guild Dynasty Simulator card
+        run: node tests/medieval-guild-dynasty-simulator-card.test.cjs
+      - name: Taiwan Food Hunter card
+        run: node tests/taiwan-food-hunter-card.test.cjs
+      - name: Builder opening handoff regression
+        run: node tests/builder-opening-handoff-regression.test.cjs
+      - name: Opening context regression
+        run: node tests/opening-context-regression.test.cjs
+      - name: Zhutian Cultivation Fortune Strife card
+        run: node tests/zhutian-cultivation-fortune-strife-card.test.cjs
+      - name: Baitao Roommate Triangle card
+        run: node tests/baitao-roommate-triangle-card.test.cjs
+      - name: Baitao Boyfriend Reverse NTR card
+        run: node tests/baitao-boyfriend-reverse-ntr-card.test.cjs
+      - name: Debt Cage Lu Shen card
+        run: node tests/debt-cage-lu-shen-card.test.cjs
+      - name: Lu Yan Rogue Devotion card
+        run: node tests/lu-yan-rogue-devotion-card.test.cjs
+      - name: Platform character prompt dedup
+        run: node tests/platform-character-prompt-dedup.test.cjs
+      - name: Lu Jingchen Cold Shell Desire card
+        run: node tests/lu-jingchen-cold-shell-desire-card.test.cjs
+      - name: Heart Training Boyfriend Plan card
+        run: node tests/heart-training-boyfriend-plan-card.test.cjs
+      - name: Pheromone Bond ABO Simulator card
+        run: node tests/pheromone-bond-abo-simulator-card.test.cjs
+      - name: Han Seoyeon Seven-Day Contract Lover card
+        run: node tests/han-seoyeon-seven-day-contract-lover-card.test.cjs
+      - name: Lin Qiaorou slow-burn yandere card
+        run: node tests/lin-qiaorou-always-nearby-card.test.cjs
+      - name: Collar Class F-to-S world card
+        run: node tests/collar-class-f-to-s-card.test.cjs
+      - name: Nangong Wen Runaway Bride card
+        run: node tests/nangong-wen-runaway-bride-card.test.cjs
+      - name: Campus Rival 24H Command card
+        run: node tests/campus-rival-24h-command-card.test.cjs
+      - name: Lin Yuyan Possessed Husband card
+        run: node tests/lin-yuyan-possessed-husband-card.test.cjs
+      - name: Reborn Di Daughter Regent card
+        run: node tests/reborn-di-daughter-regent-card.test.cjs
+      - name: Lin Shen Reed Bloom card
+        run: node tests/lin-shen-reed-bloom-card.test.cjs
+      - name: Night Sky Magic Academy card
+        run: node tests/night-sky-magic-academy-card.test.cjs
+      - name: K-idol survival simulator card
+        run: node tests/k-idol-survival-simulator-card.test.cjs
+      - name: BAO Doctor static diagnostics
+        run: node tests/bao-doctor-core.cjs
+      - name: Lazy character catalog
+        run: node tests/character-catalog-lazy-core.cjs
+      - name: Adult content visibility
+        run: |
+          node --check js/content-preferences-core.js
+          node --check js/content-preferences.js
+          node --check js/character-ui.js
+          node tests/content-preferences-core.cjs
+      - name: Explore discovery filters and work versions
+        run: |
+          node --check js/explore-discovery-core.js
+          node --check js/explore-discovery.js
+          node tests/explore-discovery-core.cjs
+      - name: Author profile core
+        run: |
+          node --check js/author-profile-core.js
+          node --check js/author-profile.js
+          node tests/author-profile-core.cjs
+          node tests/catalog-version-metadata.cjs
+      - name: Character JSON import hardening
+        run: node tests/character-import-core.cjs
+      - name: Admin character publication
+        run: |
+          node tests/admin-character-publish-core.cjs
+          node tests/admin-character-publish-update.cjs
+          node tests/admin-author-profile-publish.cjs
+          node tests/admin-author-profile-update.cjs
+      - name: Author structure guidance and relay probe
+        run: node tests/author-diagnostics-core.cjs
+      - name: Model presets and routing
+        run: node tests/model-presets-core.cjs
+      - name: YoruBay invited credits bridge
+        run: |
+          node --check js/credits-pilot.js
+          node --test tests/credits-pilot.test.cjs
+          node --test tests/credits-pilot-413-core.cjs
+      - name: YoruBay package pricing consistency
+        run: node tests/yorubay-package-pricing-core.cjs
+      - name: YoruBay policy center
+        run: node tests/policy-center-core.cjs
+      - name: YoruBay zero-cost model billing
+        run: node tests/worker-free-model-billing-core.cjs
+      - name: YoruBay OpenRouter price guard
+        run: |
+          node tests/worker-openrouter-cost-guard-core.cjs
+          node tests/worker-chat-input-core.cjs
+      - name: Mainstream Hosted rollout pricing
+        run: node tests/hosted-mainstream-rollout-core.cjs
+      - name: Worker model config shards
+        run: node tests/worker-model-config-shards-core.cjs
+      - name: YoruBay provider control
+        run: node tests/provider-control-core.cjs
+      - name: Worker response security headers
+        run: |
+          node tests/worker-security-headers-core.cjs
+          node --check tests/production-security-smoke.cjs
+          node tests/worker-content-deploy-core.cjs
+          node tests/worker-production-deploy-workflow-core.cjs
+      - name: Worker architecture boundary registry
+        run: node tests/worker-architecture-boundaries-core.cjs
+      - name: Worker session security contract
+        run: node tests/worker-session-security-contract.cjs
+      - name: Worker session auth behavior
+        run: node tests/worker-session-auth-core.cjs
+      - name: Worker account auth behavior
+        run: |
+          node tests/worker-account-validation-core.cjs
+          node tests/worker-runtime-config-core.cjs
+          node tests/worker-account-rate-limit-core.cjs
+          node tests/worker-account-auth-core.cjs
+          node tests/worker-account-self-route-core.cjs
+      - name: Worker admin route boundary
+        run: |
+          node tests/worker-admin-auth-core.cjs
+          node tests/worker-admin-route-core.cjs
+          node tests/worker-admin-provider-control-routes-core.cjs
+          node tests/worker-admin-publication-routes-core.cjs
+          node tests/worker-admin-usage-routes-core.cjs
+          node tests/worker-admin-player-directory-routes-core.cjs
+          node tests/worker-admin-player-mutation-routes-core.cjs
+      - name: Frontend extension idempotency
+        run: |
+          node --check js/world-modules.js
+          node --check js/story-tools.js
+          node tests/frontend-idempotency-core.cjs
+      - name: Prompt pipeline idempotency
+        run: |
+          node --check js/prompt-cache.js
+          node --check js/prompt-orchestrator.js
+          node tests/prompt-pipeline-idempotency.cjs
+      - name: Control and routing idempotency
+        run: |
+          node --check js/cost-control.js
+          node --check js/model-routing.js
+          node tests/control-routing-idempotency.cjs
+      - name: YoruBay admin player list
+        run: node tests/admin-player-list-core.cjs
+      - name: YoruBay admin account status
+        run: node tests/admin-account-status-core.cjs
+      - name: YoruBay account author identity
+        run: |
+          node tests/account-author-identity.cjs
+          node --check workers/bao-lab-credits-api/worker.js
+      - name: Canon workbench
+        run: node tests/canon-workbench-core.cjs
+      - name: Mature narrative and character agency settings
+        run: node tests/narrative-settings-core.cjs
+      - name: Narrative selection to final request pipeline
+        run: node tests/narrative-prompt-pipeline-core.cjs
+      - name: Stable chat message IDs
+        run: node tests/chat-message-id-core.cjs
+      - name: Local conversation search
+        run: node tests/conversation-search-core.cjs
+      - name: Story start readiness
+        run: |
+          node --check js/story-start-readiness-core.js
+          node --check js/story-start-readiness.js
+          node tests/story-start-readiness-core.cjs
+      - name: Current story control center
+        run: |
+          node --check js/story-control-center-core.js
+          node --check js/story-control-center.js
+          node tests/story-control-center-core.cjs
+      - name: Commentary MOD isolation
+        run: |
+          node --check js/commentary-mods-core.js
+          node --check js/commentary-mods-general-pack.js
+          node --check js/commentary-mods-adult-pack.js
+          node --check js/commentary-mods.js
+          node tests/commentary-mods-core.cjs
+      - name: Two-way interpretation MODs
+        run: |
+          node --check js/interpretation-mods-core.js
+          node --check js/interpretation-mods-official-pack.js
+          node --check js/interpretation-mods.js
+          node tests/interpretation-mods-core.cjs
+      - name: Actor mode role layer
+        run: |
+          node --check js/actor-mode-core.js
+          node --check js/actor-mode.js
+          node tests/actor-mode-core.cjs
+      - name: Portable official story actors
+        run: |
+          node --check js/story-actor-pack-core.js
+          node --check js/story-actors-general-pack.js
+          node --check js/story-actors-adult-pack.js
+          node --check js/story-persona-manager.js
+          node tests/story-actor-pack-core.cjs
+          node tests/story-persona-core.cjs
+      - name: Story extension scopes
+        run: |
+          node --check js/story-extensions-core.js
+          node --check js/story-extensions-center.js
+          node tests/story-extensions-core.cjs
+      - name: Portable story extension packs
+        run: |
+          node --check js/story-extension-pack-core.js
+          node --check js/story-extension-pack.js
+          node tests/story-extension-pack-core.cjs
+      - name: Player-facing context health
+        run: |
+          node --check js/context-health-core.js
+          node --check js/context-health.js
+          node tests/context-health-core.cjs
+      - name: Story quick commands
+        run: |
+          node --check js/story-quick-commands-core.js
+          node --check js/story-quick-commands.js
+          node tests/story-quick-commands-core.cjs
+      - name: API send wrapper foundation
+        run: |
+          node --check js/api.js
+          node --check js/cost-control.js
+          node tests/api-send-wrapper-core.cjs
+      - name: App sendMessage wrapper foundation
+        run: |
+          node --check js/app.js
+          node tests/app-send-message-wrapper-core.cjs
+      - name: App renderChatShell wrapper foundation
+        run: |
+          node --check js/app.js
+          node tests/app-render-chat-shell-wrapper-core.cjs
+      - name: Chat shell header wrapper
+        run: |
+          node --check js/chat-shell-fix.js
+          node tests/chat-shell-fix-wrapper-core.cjs
+      - name: Chat tool navigation shell wrapper
+        run: |
+          node --check js/chat-tool-navigation.js
+          node tests/chat-tool-navigation-shell-wrapper-core.cjs
+      - name: App renderUIPanel wrapper foundation
+        run: |
+          node --check js/app.js
+          node tests/app-render-ui-panel-wrapper-core.cjs
+      - name: App openCharacter wrapper foundation
+        run: |
+          node --check js/app.js
+          node tests/app-open-character-wrapper-core.cjs
+      - name: App showView wrapper foundation
+        run: |
+          node --check js/app.js
+          node tests/app-show-view-wrapper-core.cjs
+      - name: Player shell showView wrapper
+        run: |
+          node --check js/player-shell-v2.js
+          node tests/player-shell-show-view-wrapper-core.cjs
+      - name: Story control view wrapper
+        run: node tests/story-control-view-wrapper-core.cjs
+      - name: State tracker async character repair
+        run: |
+          node --check js/state-tracker-repairs.js
+          node tests/state-tracker-open-character-core.cjs
+      - name: State tracker panel wrapper
+        run: node tests/state-tracker-panel-wrapper-core.cjs
+      - name: App buildSystemPrompt wrapper foundation
+        run: |
+          node --check js/app.js
+          node tests/app-build-system-prompt-wrapper-core.cjs
+      - name: App buildMessages wrapper foundation
+        run: |
+          node --check js/app.js
+          node tests/app-build-messages-wrapper-core.cjs
+      - name: Confirmed Context Pack prompt
+        run: |
+          node --check js/story-tools.js
+          node tests/story-tools-context-pack-prompt-core.cjs
+      - name: Story tools shell wrapper
+        run: |
+          node --check js/story-tools.js
+          node tests/story-tools-shell-wrapper-core.cjs
+      - name: Story control shell wrapper
+        run: |
+          node --check js/story-control-center.js
+          node tests/story-control-shell-wrapper-core.cjs
+      - name: Chat API send gate
+        run: |
+          node --check js/chat-api-settings.js
+          node tests/chat-api-send-gate-core.cjs
+      - name: Chat API shell entries
+        run: node tests/chat-api-shell-wrapper-core.cjs
+      - name: Global bridge memory presentation
+        run: |
+          node --check js/global-bridge.js
+          node tests/global-bridge-memory-presentation.cjs
+      - name: Provider request contracts
+        run: node tests/api-provider-contracts.cjs
+      - name: Provider failure and cancellation contracts
+        run: node tests/api-failure-contracts.cjs
+      - name: Worker provider transport contracts
+        run: |
+          node --check workers/bao-lab-credits-api/worker.js
+          node tests/worker-provider-transport-core.cjs
+      - name: Worker legacy chat settlement contracts
+        run: node tests/worker-legacy-chat-settlement-core.cjs
+      - name: Worker USD chat settlement contracts
+        run: node tests/worker-cost-chat-settlement-core.cjs
+      - name: Worker chat dispatch contracts
+        run: node tests/worker-chat-dispatch-core.cjs
+      - name: Bounded API retry contracts
+        run: node tests/api-retry-contracts.cjs
+      - name: Provider browser diagnostics
+        run: node tests/provider-diagnostics-core.cjs
+      - name: Provider streaming contracts
+        run: node tests/api-streaming-contracts.cjs
+      - name: Streaming UI wrapper
+        run: |
+          node --check js/streaming-ui.js
+          node tests/streaming-ui-wrapper-core.cjs
+      - name: Helper API connection diagnostics
+        run: node tests/helper-api-diagnostics-core.cjs
+      - name: Generation request lifecycle
+        run: node tests/request-lifecycle-core.cjs
+      - name: Accumulated world state turns
+        run: node tests/world-state-cost-core.cjs
+      - name: Same-model story and state merge
+        run: node tests/same-model-state-merge-core.cjs
+      - name: World-state after-turn hook
+        run: |
+          node --check js/world-state-hook.js
+          node tests/world-state-after-turn-hook-core.cjs
+      - name: State tracker request guard
+        run: |
+          node --check js/state-tracker-repairs.js
+          node tests/state-tracker-request-guard-core.cjs
+      - name: Display-independent state tracking
+        run: node tests/display-state-tracking-core.cjs
+      - name: Explicit scene metadata and greeting recovery
+        run: node tests/explicit-scene-state-core.cjs
+      - name: Prompt cache pipeline
+        run: node tests/prompt-cache-core.cjs
+      - name: Prompt orchestration adapters
+        run: node tests/prompt-orchestrator-core.cjs
+      - name: Cache cost panel
+        run: node tests/cache-cost-panel-core.cjs
+      - name: Per-request multi-model cost accounting
+        run: node tests/per-request-cost-core.cjs
+      - name: Memory request isolation and cooldown
+        run: node tests/memory-request-guard-core.cjs
+      - name: Helper context isolation and memory lifecycle
+        run: node tests/helper-context-core.cjs
+      - name: Memory app greeting and post-turn integrity
+        run: node tests/memory-app-integrity-core.cjs
+      - name: Contextual lorebook and legacy compatibility
+        run: node tests/lorebook-core.cjs
+      - name: Yume world-card relevant context
+        run: node tests/yume-relevant-context.cjs
