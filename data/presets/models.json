@@ -51,7 +51,21 @@
             "cache": 0.2,
             "note": "標準價；提示超過 200K 時價格提高。"
           },
-          "docs_url": "https://ai.google.dev/gemini-api/docs/pricing"
+          "docs_url": "https://ai.google.dev/gemini-api/docs/pricing",
+          "worker": {
+            "binding": "MODELS_JSON",
+            "long_context": {
+              "threshold_tokens": 200000,
+              "input": 4,
+              "output": 18,
+              "cache": 0.4
+            },
+            "pricing": {
+              "input": 2,
+              "output": 12,
+              "cache": 0.2
+            }
+          }
         },
         {
           "id": "openrouter",
@@ -72,7 +86,20 @@
             "cache": 0.2,
             "note": "路由供應商可能有不同價格；Flex 路由可能更便宜。"
           },
-          "docs_url": "https://openrouter.ai/google/gemini-3.1-pro-preview"
+          "docs_url": "https://openrouter.ai/google/gemini-3.1-pro-preview",
+          "worker": {
+            "binding": "MODELS_JSON",
+            "openrouter_max_price": {
+              "prompt": 2,
+              "completion": 12
+            },
+            "pricing": {
+              "input": 2,
+              "output": 12,
+              "cache": 0.2,
+              "cache_write": 0.375
+            }
+          }
         }
       ],
       "hosted": {
@@ -105,7 +132,15 @@
             "cache": 0.05,
             "note": "標準價；實際計費請以 Google 當期價格頁為準。"
           },
-          "docs_url": "https://ai.google.dev/gemini-api/docs/pricing"
+          "docs_url": "https://ai.google.dev/gemini-api/docs/pricing",
+          "worker": {
+            "binding": "MODELS_JSON",
+            "pricing": {
+              "input": 0.5,
+              "output": 3,
+              "cache": 0.05
+            }
+          }
         },
         {
           "id": "openrouter",
@@ -125,7 +160,20 @@
             "output": 3,
             "cache": 0.05
           },
-          "docs_url": "https://openrouter.ai/google/gemini-3-flash-preview"
+          "docs_url": "https://openrouter.ai/google/gemini-3-flash-preview",
+          "worker": {
+            "binding": "MODELS_JSON",
+            "openrouter_max_price": {
+              "prompt": 0.5,
+              "completion": 3
+            },
+            "pricing": {
+              "input": 0.5,
+              "output": 3,
+              "cache": 0.05,
+              "cache_write": 0.08333
+            }
+          }
         }
       ],
       "hosted": {
@@ -200,7 +248,21 @@
             "output": 5,
             "cache": 0.1
           },
-          "docs_url": "https://openrouter.ai/anthropic/claude-haiku-4.5"
+          "docs_url": "https://openrouter.ai/anthropic/claude-haiku-4.5",
+          "worker": {
+            "binding": "MODELS_JSON_EXTRA",
+            "aws_openrouter_relay": true,
+            "openrouter_max_price": {
+              "prompt": 1,
+              "completion": 5
+            },
+            "pricing": {
+              "input": 1,
+              "output": 5,
+              "cache": 0.1,
+              "cache_write": 1.25
+            }
+          }
         }
       ],
       "hosted": {
@@ -254,7 +316,21 @@
             "output": 10,
             "cache": 0.2
           },
-          "docs_url": "https://openrouter.ai/anthropic/claude-sonnet-5"
+          "docs_url": "https://openrouter.ai/anthropic/claude-sonnet-5",
+          "worker": {
+            "binding": "MODELS_JSON_EXTRA",
+            "aws_openrouter_relay": true,
+            "openrouter_max_price": {
+              "prompt": 2,
+              "completion": 10
+            },
+            "pricing": {
+              "input": 2,
+              "output": 10,
+              "cache": 0.2,
+              "cache_write": 2.5
+            }
+          }
         }
       ],
       "hosted": {
@@ -308,7 +384,21 @@
             "output": 15,
             "cache": 0.3
           },
-          "docs_url": "https://openrouter.ai/anthropic/claude-sonnet-4.6"
+          "docs_url": "https://openrouter.ai/anthropic/claude-sonnet-4.6",
+          "worker": {
+            "binding": "MODELS_JSON",
+            "aws_openrouter_relay": true,
+            "openrouter_max_price": {
+              "prompt": 4,
+              "completion": 18
+            },
+            "pricing": {
+              "input": 3,
+              "output": 15,
+              "cache": 0.3,
+              "cache_write": 3.75
+            }
+          }
         }
       ],
       "hosted": {
@@ -347,7 +437,21 @@
           "id": "openrouter-hosted",
           "provider": "openrouter",
           "model": "anthropic/claude-sonnet-4.5",
-          "byok": false
+          "byok": false,
+          "worker": {
+            "binding": "MODELS_JSON",
+            "aws_openrouter_relay": true,
+            "openrouter_max_price": {
+              "prompt": 4,
+              "completion": 18
+            },
+            "pricing": {
+              "input": 3,
+              "output": 15,
+              "cache": 0.3,
+              "cache_write": 3.75
+            }
+          }
         }
       ],
       "hosted": {
@@ -400,7 +504,21 @@
             "output": 25,
             "cache": 0.5
           },
-          "docs_url": "https://openrouter.ai/anthropic/claude-opus-4.6"
+          "docs_url": "https://openrouter.ai/anthropic/claude-opus-4.6",
+          "worker": {
+            "binding": "MODELS_JSON",
+            "aws_openrouter_relay": true,
+            "openrouter_max_price": {
+              "prompt": 6.5,
+              "completion": 30
+            },
+            "pricing": {
+              "input": 5,
+              "output": 25,
+              "cache": 0.5,
+              "cache_write": 6.25
+            }
+          }
         }
       ],
       "hosted": {
@@ -500,7 +618,21 @@
             "cache": 0.016,
             "note": "OpenRouter 路由價格可能隨供應商調整。"
           },
-          "docs_url": "https://openrouter.ai/deepseek/deepseek-v4-flash-0731"
+          "docs_url": "https://openrouter.ai/deepseek/deepseek-v4-flash-0731",
+          "worker": {
+            "binding": "MODELS_JSON",
+            "aws_openrouter_relay": true,
+            "openrouter_max_price": {
+              "prompt": 0.1,
+              "completion": 0.5
+            },
+            "pricing": {
+              "input": 0.021,
+              "output": 0.32,
+              "cache": 0.016,
+              "cache_write": 0.021
+            }
+          }
         }
       ],
       "hosted": {
@@ -553,7 +685,21 @@
             "cache": 0.00255,
             "note": "顯示目前代表性路由價格，實際依 provider 而異。"
           },
-          "docs_url": "https://openrouter.ai/xiaomi/mimo-v2.5"
+          "docs_url": "https://openrouter.ai/xiaomi/mimo-v2.5",
+          "worker": {
+            "binding": "MODELS_JSON",
+            "aws_openrouter_relay": true,
+            "openrouter_max_price": {
+              "prompt": 0.25,
+              "completion": 0.5
+            },
+            "pricing": {
+              "input": 0.119,
+              "output": 0.238,
+              "cache": 0.00255,
+              "cache_write": 0.119
+            }
+          }
         }
       ],
       "hosted": {
@@ -605,7 +751,21 @@
             "output": 0.13,
             "cache": 0.006
           },
-          "docs_url": "https://openrouter.ai/qwen/qwen3.7-flash"
+          "docs_url": "https://openrouter.ai/qwen/qwen3.7-flash",
+          "worker": {
+            "binding": "MODELS_JSON",
+            "aws_openrouter_relay": true,
+            "openrouter_max_price": {
+              "prompt": 0.1,
+              "completion": 0.4
+            },
+            "pricing": {
+              "input": 0.03,
+              "output": 0.13,
+              "cache": 0.006,
+              "cache_write": 0.03
+            }
+          }
         }
       ],
       "hosted": {
@@ -657,7 +817,21 @@
             "output": 0.96,
             "cache": 0.05
           },
-          "docs_url": "https://openrouter.ai/minimax/minimax-m3"
+          "docs_url": "https://openrouter.ai/minimax/minimax-m3",
+          "worker": {
+            "binding": "MODELS_JSON",
+            "aws_openrouter_relay": true,
+            "openrouter_max_price": {
+              "prompt": 0.5,
+              "completion": 2
+            },
+            "pricing": {
+              "input": 0.23,
+              "output": 0.96,
+              "cache": 0.05,
+              "cache_write": 0.23
+            }
+          }
         }
       ],
       "hosted": {
@@ -709,7 +883,21 @@
             "output": 1.2,
             "cache": 0.02
           },
-          "docs_url": "https://openrouter.ai/openai/gpt-5.6-luna"
+          "docs_url": "https://openrouter.ai/openai/gpt-5.6-luna",
+          "worker": {
+            "binding": "MODELS_JSON_EXTRA",
+            "aws_openrouter_relay": true,
+            "openrouter_max_price": {
+              "prompt": 0.2,
+              "completion": 1.2
+            },
+            "pricing": {
+              "input": 0.2,
+              "output": 1.2,
+              "cache": 0.02,
+              "cache_write": 0.25
+            }
+          }
         }
       ],
       "hosted": {
@@ -760,7 +948,30 @@
             "input": 2,
             "output": 6
           },
-          "docs_url": "https://openrouter.ai/x-ai/grok-4.5"
+          "docs_url": "https://openrouter.ai/x-ai/grok-4.5",
+          "worker": {
+            "binding": "MODELS_JSON_EXTRA",
+            "aws_openrouter_relay": true,
+            "openrouter_max_price": {
+              "prompt": 2,
+              "completion": 6
+            },
+            "long_context": {
+              "threshold_tokens": 200000,
+              "input": 4,
+              "output": 12,
+              "cache": 0.6,
+              "max_price": {
+                "prompt": 4,
+                "completion": 12
+              }
+            },
+            "pricing": {
+              "input": 2,
+              "output": 6,
+              "cache": 0.3
+            }
+          }
         }
       ],
       "hosted": {

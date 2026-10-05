@@ -84,6 +84,7 @@ jobs:
         run: |
           node tests/model-registry-contract.cjs
           node tests/model-rollout-plan-core.cjs
+          node tests/model-deployment-plan-core.cjs
 
       - name: Frontend extension-chain contract
         run: node tests/frontend-extension-contract.cjs

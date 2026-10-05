@@ -17,6 +17,16 @@ const registry = {
           provider: "gemini",
           model: "gemini-3-flash-preview",
           pricing: { input: 0.5, output: 3, cache: 0.05 },
+          worker: {
+            binding: "MODELS_JSON",
+            pricing: { input: 0.5, output: 3, cache: 0.05 },
+            long_context: {
+              threshold_tokens: 200000,
+              input: 1,
+              output: 6,
+              cache: 0.1,
+            },
+          },
         },
       ],
       hosted: { route_id: "google-official" },
@@ -29,6 +39,12 @@ const registry = {
           provider: "openrouter",
           model: "anthropic/claude-haiku-4.5",
           pricing: { input: 1, output: 5, cache: 0.1 },
+          worker: {
+            binding: "MODELS_JSON_EXTRA",
+            pricing: { input: 1, output: 5, cache: 0.1 },
+            openrouter_max_price: { prompt: 1, completion: 5 },
+            aws_openrouter_relay: true,
+          },
         },
       ],
       hosted: { route_id: "openrouter" },
@@ -49,6 +65,9 @@ const settings = {
           output_microusd_per_million: 3000000,
           cache_read_microusd_per_million: 50000,
           long_context_threshold_tokens: 200000,
+          long_context_input_microusd_per_million: 1000000,
+          long_context_output_microusd_per_million: 6000000,
+          long_context_cache_read_microusd_per_million: 100000,
         },
       ]),
     },
@@ -101,6 +120,9 @@ assert.deepEqual(
         output_microusd_per_million: 3000000,
         cache_read_microusd_per_million: 50000,
         long_context_threshold_tokens: 200000,
+        long_context_input_microusd_per_million: 1000000,
+        long_context_output_microusd_per_million: 6000000,
+        long_context_cache_read_microusd_per_million: 100000,
       },
     },
     {
@@ -129,6 +151,10 @@ assert.deepEqual(report.findings.production_missing_from_registry, []);
 assert.deepEqual(report.findings.hosted_missing_from_production, []);
 assert.deepEqual(report.findings.rollout_missing_from_production, []);
 assert.deepEqual(report.findings.pricing_drift, []);
+assert.deepEqual(report.findings.generated_missing_from_production, []);
+assert.deepEqual(report.findings.production_missing_from_generated, []);
+assert.deepEqual(report.findings.generated_binding_drift, []);
+assert.deepEqual(report.findings.generated_config_drift, []);
 
 const drift = compareProductionModelRegistry({
   settings: {
@@ -142,6 +168,9 @@ const drift = compareProductionModelRegistry({
             model: "anthropic/claude-haiku-4.5",
             input_microusd_per_million: 999,
             output_microusd_per_million: 5000000,
+            cache_read_microusd_per_million: 100000,
+            openrouter_max_prompt_microusd_per_million: 1000000,
+            openrouter_max_completion_microusd_per_million: 5000000,
           },
           {
             provider: "openrouter",
@@ -162,6 +191,17 @@ assert.deepEqual(drift.findings.production_missing_from_registry, [
   "openrouter:server-only/model",
 ]);
 assert.deepEqual(drift.findings.pricing_drift, [
+  {
+    key: "openrouter:anthropic/claude-haiku-4.5",
+    field: "input_microusd_per_million",
+    expected: 1000000,
+    actual: 999,
+  },
+]);
+assert.deepEqual(drift.findings.production_missing_from_generated, [
+  "openrouter:server-only/model",
+]);
+assert.deepEqual(drift.findings.generated_config_drift, [
   {
     key: "openrouter:anthropic/claude-haiku-4.5",
     field: "input_microusd_per_million",
