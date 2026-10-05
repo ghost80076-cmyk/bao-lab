@@ -1,5 +1,7 @@
 'use strict';
 const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const pathMod=require('node:path');
 
 const targets=[
   ['諸天修仙界','../data/characters/community/28/zhutian-cultivation-fortune-strife.json'],
@@ -20,14 +22,14 @@ for(const [label,path] of targets){
   const card=require(path);
   const greeting=String(card.content?.greeting||'');
   const opening=JSON.stringify(card.presentation?.opening||{});
-  const systemPrompt=String(card.content?.system_prompt||'');
-
   assert.ok(card.gameplay,'missing gameplay for '+label);
   assert.ok(greeting.length>80,'opening too short for '+label);
   assert.doesNotMatch(greeting,setupLeak,label+' greeting leaked setup UI/meta language');
   assert.doesNotMatch(opening,setupLeak,label+' presentation leaked setup UI/meta language');
-  assert.match(systemPrompt,/【開局資料來源】/,label+' missing established-builder handoff rule');
-  assert.match(systemPrompt,/不得再次要求玩家建立角色/,label+' missing no-rebuild contract');
 }
 
-console.log('PASS builder opening handoff regression for 10 world cards');
+const characterEngine=fs.readFileSync(pathMod.join(__dirname,'..','js','character.js'),'utf8');
+assert.match(characterEngine,/玩家資料、開局選項與結構化初始狀態若已提供/,'platform missing established setup handoff rule');
+assert.match(characterEngine,/不得要求玩家重新填寫、重新選擇或重演建立流程/,'platform missing no-rebuild contract');
+
+console.log('PASS builder opening handoff regression for 10 world cards with platform-global setup continuity');

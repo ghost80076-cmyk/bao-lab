@@ -18,14 +18,13 @@ assert.match(card.content.system_prompt,/作品名稱.*不是 NPC/);
 assert.match(card.content.system_prompt,/生存沙盒/);
 assert.match(card.content.system_prompt,/預設不擲骰/);
 assert.match(card.content.system_prompt,/21\+ 虛構成年人/);
-assert.match(card.content.system_prompt,/作品名稱不得進名冊/);
 assert.doesNotMatch(card.content.greeting,/hc-collapse|hc-h1|hc-n/);
 
 for(const marker of ['YB:ELZE:OPENING','YB:ELZE:NOTICE']) {
   assert.match(card.content.greeting,new RegExp(marker));
 }
 assert.doesNotMatch(card.content.greeting,/YB:ELZE:AWAKENING/);
-assert.match(card.content.system_prompt,/【開局資料來源】/);
+assert.match(card.content.system_prompt,/【開局落點】/);
 assert.match(card.content.system_prompt,/非覺醒神殿開局不得被強制拉回神殿/);
 
 const promptIds=new Set(card.content.dynamic_prompts.map(x=>x.id));

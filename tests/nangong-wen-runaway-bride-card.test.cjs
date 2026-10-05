@@ -20,7 +20,6 @@ for (const pattern of [/青梅竹馬/, /豪門婚約/, /逃婚/, /病態獨佔/,
 assert.doesNotMatch(card.content.greeting, /<p>|<hr>|hc-collapse|hc-btn|hc-stat/i);
 assert.match(card.content.author_instructions, /榜一／榜二競爭/);
 assert.match(card.content.author_instructions, /想逃？我等著/);
-assert.match(card.content.system_prompt, /作品名稱不是 NPC/);
 
 const promptIds = new Set(card.content.dynamic_prompts.map(x => x.id));
 for (const id of ['escape-plan','nangong-pursuit','engagement-negotiation','suqing-thread','linye-thread','old-rivalry','boundary-breach','inner-thoughts','relationship-turn','time-skip','multi-npc']) {

@@ -23,9 +23,9 @@
       "例如魔法、種族特徵、命定印記或特殊制度"
     ],
     "lore": "角色過往、已知事件、重要人物關係、秘密與背景知識。",
-    "npc_rules": "NPC 的自主性、資訊隔離、離場與事件推進規則。",
-    "author_instructions": "敘事鏡頭、對話格式、節奏、文風等作者級指示。",
-    "creator_notes": "只給作者看的備註。預設不會送給模型。"
+    "npc_rules": "只寫本作品特有的 NPC 運作邏輯，例如特殊身份、資訊來源、離場事件或勢力行為；通用玩家控制權與基本資訊隔離由夜灣全局處理。",
+    "author_instructions": "只寫本作品特有的敘事鏡頭、對話格式、節奏與文風，不重複平台全局規則。",
+    "creator_notes": "只給作者看的備註。可記錄 Builder、Gameplay UI、Dynamic Prompts、Regex 等實作分工；預設不會送給模型。"
   },
   "gameplay": {
     "supported_modes": {

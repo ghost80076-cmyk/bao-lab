@@ -22,14 +22,14 @@ assert.match(card.content.system_prompt,/嘉義市／嘉義縣/);
 assert.match(card.content.system_prompt,/食材偏好/);
 assert.match(card.content.system_prompt,/有些 NPC 可能體型歧視/);
 assert.match(card.content.system_prompt,/1d100/);
-assert.match(card.content.system_prompt,/原生狀態 UI/);
+assert.doesNotMatch(card.content.system_prompt,/原生狀態 UI|Gameplay UI|Builder/);
 assert.doesNotMatch(card.content.greeting,/<details|<pre|hc-collapse|onclick/);
 assert.doesNotMatch(card.content.greeting,/Character Builder|地方認證改採|這次地圖不只/);
 assert.match(card.content.greeting,/成為美食獵人後的第一天/);
-assert.match(card.content.system_prompt,/開場與第一輪不得再次要求玩家填寫/);
+assert.match(card.content.system_prompt,/birthplace 決定第一幕所在縣市/);
 const openingPrompt=card.content.dynamic_prompts.find(x=>x.id==='opening-build');
 assert.ok(openingPrompt);
-assert.match(openingPrompt.text,/不得再次詢問、重設或要求玩家重填/);
+assert.doesNotMatch(openingPrompt.text,/Builder|不得再次詢問、重設或要求玩家重填/);
 assert.match(openingPrompt.text,/以 birthplace 作為第一幕所在縣市/);
 assert.doesNotMatch(card.presentation.opening.posts.map(x=>x.content).join('\n'),/22 縣市|食材偏好|Builder|性別不再綁定/);
 
