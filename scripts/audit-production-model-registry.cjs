@@ -2,6 +2,9 @@
 
 const fs = require("node:fs");
 const path = require("node:path");
+const {
+  buildModelDeploymentPlan,
+} = require("../workers/bao-lab-credits-api/build-model-deployment-plan.cjs");
 
 const repoRoot = path.resolve(__dirname, "..");
 const registryPath = path.join(repoRoot, "data/presets/models.json");
@@ -151,6 +154,42 @@ function productionInventory(baseEntries, extraEntries) {
   ];
 }
 
+function generatedDeploymentEntries(plan) {
+  return [
+    ...plan.cloudflare.MODELS_JSON.entries.map(entry => ({
+      binding: "MODELS_JSON",
+      entry,
+    })),
+    ...plan.cloudflare.MODELS_JSON_EXTRA.entries.map(entry => ({
+      binding: "MODELS_JSON_EXTRA",
+      entry,
+    })),
+  ];
+}
+
+function configFieldDrift(expected, actual, key) {
+  const drift = [];
+  const fields = new Set([
+    ...Object.keys(expected || {}),
+    ...Object.keys(actual || {}),
+  ]);
+
+  for (const field of [...fields].sort()) {
+    const expectedValue = expected?.[field];
+    const actualValue = actual?.[field];
+    if (expectedValue !== actualValue) {
+      drift.push({
+        key,
+        field,
+        expected: expectedValue ?? null,
+        actual: actualValue ?? null,
+      });
+    }
+  }
+
+  return drift;
+}
+
 function compareProductionModelRegistry({
   settings,
   registry,
@@ -160,6 +199,12 @@ function compareProductionModelRegistry({
   const baseEntries = parseBindingArray(bindings, "MODELS_JSON");
   const extraEntries = parseBindingArray(bindings, "MODELS_JSON_EXTRA");
   const productionEntries = [...baseEntries, ...extraEntries];
+  const productionWithBinding = [
+    ...baseEntries.map(entry => ({ binding: "MODELS_JSON", entry })),
+    ...extraEntries.map(entry => ({ binding: "MODELS_JSON_EXTRA", entry })),
+  ];
+  const generatedPlan = buildModelDeploymentPlan(registry);
+  const generatedWithBinding = generatedDeploymentEntries(generatedPlan);
 
   const routes = registryRoutes(registry);
   const registryByKey = new Map(routes.map(route => [entryKey(route), route]));
@@ -167,6 +212,40 @@ function compareProductionModelRegistry({
   const duplicateProductionKeys = [];
   const productionMissingFromRegistry = [];
   const pricingDrift = [];
+  const generatedByKey = new Map(
+    generatedWithBinding.map(item => [entryKey(item.entry), item])
+  );
+  const productionByKey = new Map(
+    productionWithBinding.map(item => [entryKey(item.entry), item])
+  );
+  const generatedMissingFromProduction = [];
+  const productionMissingFromGenerated = [];
+  const generatedBindingDrift = [];
+  const generatedConfigDrift = [];
+
+  for (const [key, generated] of generatedByKey) {
+    const production = productionByKey.get(key);
+    if (!production) {
+      generatedMissingFromProduction.push(key);
+      continue;
+    }
+
+    if (generated.binding !== production.binding) {
+      generatedBindingDrift.push({
+        key,
+        expected: generated.binding,
+        actual: production.binding,
+      });
+    }
+
+    generatedConfigDrift.push(
+      ...configFieldDrift(generated.entry, production.entry, key)
+    );
+  }
+
+  for (const key of productionByKey.keys()) {
+    if (!generatedByKey.has(key)) productionMissingFromGenerated.push(key);
+  }
 
   for (const entry of productionEntries) {
     const key = entryKey(entry);
@@ -224,6 +303,10 @@ function compareProductionModelRegistry({
       hosted_missing_from_production: hostedMissingFromProduction,
       rollout_missing_from_production: rolloutMissingFromProduction,
       pricing_drift: pricingDrift,
+      generated_missing_from_production: generatedMissingFromProduction,
+      production_missing_from_generated: productionMissingFromGenerated,
+      generated_binding_drift: generatedBindingDrift,
+      generated_config_drift: generatedConfigDrift,
     },
   };
 
@@ -306,8 +389,10 @@ if (require.main === module) {
 module.exports = {
   auditProductionModelRegistry,
   compareProductionModelRegistry,
+  configFieldDrift,
   entryKey,
   fetchWorkerSettings,
+  generatedDeploymentEntries,
   loadRolloutEntries,
   parseBindingArray,
   productionInventory,
