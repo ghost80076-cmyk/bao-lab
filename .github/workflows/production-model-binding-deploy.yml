@@ -1,0 +1,79 @@
+name: Production model binding deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "Run a read-only dry-run or apply the registry-generated Cloudflare model bindings"
+        required: true
+        type: choice
+        default: dry-run
+        options:
+          - dry-run
+          - apply
+      confirmation:
+        description: "For apply only, enter APPLY_REGISTRY_MODEL_BINDINGS"
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-model-binding-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Verify deploy contracts
+        run: |
+          node --check scripts/apply-production-model-registry.cjs
+          node tests/production-model-binding-deploy-core.cjs
+          node tests/model-deployment-plan-core.cjs
+          node tests/production-model-registry-audit-core.cjs
+
+      - name: Guard apply confirmation
+        if: inputs.mode == 'apply'
+        env:
+          CONFIRMATION: ${{ inputs.confirmation }}
+        run: |
+          if [ "$CONFIRMATION" != "APPLY_REGISTRY_MODEL_BINDINGS" ]; then
+            echo "Apply blocked: confirmation must equal APPLY_REGISTRY_MODEL_BINDINGS"
+            exit 2
+          fi
+
+      - name: Dry-run production model binding sync
+        if: inputs.mode == 'dry-run'
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_WORKER_NAME: ${{ secrets.CLOUDFLARE_WORKER_NAME }}
+        run: node scripts/apply-production-model-registry.cjs
+
+      - name: Apply production model binding sync
+        if: inputs.mode == 'apply'
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_WORKER_NAME: ${{ secrets.CLOUDFLARE_WORKER_NAME }}
+          YORUBAY_MODEL_BINDINGS_APPLY: ${{ inputs.confirmation }}
+        run: node scripts/apply-production-model-registry.cjs
+
+      - name: Verify production registry after apply
+        if: inputs.mode == 'apply'
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_WORKER_NAME: ${{ secrets.CLOUDFLARE_WORKER_NAME }}
+        run: node scripts/audit-production-model-registry.cjs
