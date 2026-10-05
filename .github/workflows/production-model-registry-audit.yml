@@ -6,8 +6,10 @@ on:
     paths:
       - scripts/audit-production-model-registry.cjs
       - scripts/apply-production-model-registry.cjs
+      - scripts/audit-aws-openrouter-models.cjs
       - tests/production-model-registry-audit-core.cjs
       - tests/production-model-binding-deploy-core.cjs
+      - tests/aws-openrouter-model-registry-audit-core.cjs
       - .github/workflows/production-model-registry-audit.yml
       - .github/workflows/production-model-binding-deploy.yml
       - data/presets/models.json
@@ -44,6 +46,7 @@ jobs:
           node --check scripts/audit-production-model-registry.cjs
           node tests/production-model-registry-audit-core.cjs
           node tests/production-model-binding-deploy-core.cjs
+          node tests/aws-openrouter-model-registry-audit-core.cjs
           node tests/model-registry-contract.cjs
           node tests/model-rollout-plan-core.cjs
           node tests/model-deployment-plan-core.cjs
