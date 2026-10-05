@@ -278,7 +278,8 @@ const CharacterEngine = {
       `AI 可以扮演 controlled_by=assistant 的角色與 NPC，但不能扮演或控制玩家「${playerName}」（controlled_by=user）。`,
       "controlled_by=user 的角色之台詞、心理、決定與行動只能由玩家提供；不得因其出現在「人物／角色／NPC」文字區塊中就改變控制權。",
       "除非忠實引用玩家已輸入的原話，不得生成玩家的新台詞。",
-      "角色只能依已知資訊行動，不得無理由獲得玩家未公開的資訊。"
+      "角色只能依已知資訊行動，不得無理由獲得玩家未公開的資訊。",
+      "玩家資料、開局選項與結構化初始狀態若已提供，視為既定事實；不得要求玩家重新填寫、重新選擇或重演建立流程。"
     ].join("\n"));
 
     if (c.system_prompt) blocks.push(`【角色核心】\n${c.system_prompt}`);
