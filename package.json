@@ -3,7 +3,8 @@
   "private": true,
   "scripts": {
     "audit:production-security": "node tests/production-security-smoke.cjs",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "audit:aws-models": "node scripts/audit-aws-openrouter-models.cjs"
   },
   "devDependencies": {
     "@playwright/test": "1.63.0"
