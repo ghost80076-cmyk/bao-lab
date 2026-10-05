@@ -1,0 +1,60 @@
+name: Production model registry audit
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - scripts/audit-production-model-registry.cjs
+      - tests/production-model-registry-audit-core.cjs
+      - .github/workflows/production-model-registry-audit.yml
+      - data/presets/models.json
+      - workers/bao-lab-credits-api/model-rollouts/**
+  push:
+    branches: [main]
+    paths:
+      - scripts/audit-production-model-registry.cjs
+      - tests/production-model-registry-audit-core.cjs
+      - .github/workflows/production-model-registry-audit.yml
+      - data/presets/models.json
+      - workers/bao-lab-credits-api/model-rollouts/**
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Verify audit implementation
+        run: |
+          node --check scripts/audit-production-model-registry.cjs
+          node tests/production-model-registry-audit-core.cjs
+          node tests/model-registry-contract.cjs
+          node tests/model-rollout-plan-core.cjs
+
+  production-audit:
+    if: github.event_name != 'pull_request'
+    needs: contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Compare production Worker model bindings with registry
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_WORKER_NAME: ${{ secrets.CLOUDFLARE_WORKER_NAME }}
+        run: node scripts/audit-production-model-registry.cjs
