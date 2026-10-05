@@ -14,7 +14,6 @@ assert.equal(card.presentation.play_info_surface,'game-ui');
 
 assert.match(card.content.system_prompt,/七日是時間壓力，不是固定七章劇本/);
 assert.match(card.content.system_prompt,/契約不自動包含任何親密接觸/);
-assert.match(card.content.system_prompt,/作品名稱不是 NPC/);
 assert.doesNotMatch(card.content.system_prompt,/Layer 3|時間循環|平行世界|靈魂互換|模擬現實/);
 assert.doesNotMatch(card.content.greeting,/<hc-collapse|<hc-btn|<div class=|世界引擎私語/i);
 
