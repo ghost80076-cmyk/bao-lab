@@ -58,6 +58,13 @@ for(const id of [
 }
 
 assert.equal(card.gameplay.initial_state.modules.map_progress.length,22);
+assert.equal(card.gameplay.initial_state.world_clock.version,1);
+assert.equal(card.gameplay.initial_state.world_clock.tick_minutes,0);
+assert.deepEqual(card.gameplay.initial_state.world_clock.scheduled_events,[]);
+assert.match(card.content.system_prompt,/夜灣的【世界時鐘】只負責故事內部的相對時間累積/);
+assert.match(card.content.dynamic_prompts.find(x=>x.id==='travel-route').text,/讓夜灣世界時鐘同步前進/);
+assert.match(card.content.dynamic_prompts.find(x=>x.id==='time-skip').text,/不代表自動完成、失敗或結算/);
+assert.match(card.content.dynamic_prompts.find(x=>x.id==='day-end').text,/不額外增加一天/);
 const ui=GameplayUI.normalize(card.gameplay.ui_schema);
 assert.ok(ui);
 assert.equal(ui.theme.preset,'noir');

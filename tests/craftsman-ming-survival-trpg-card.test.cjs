@@ -44,6 +44,13 @@ assert.ok(ui.builder.fields.some(x=>x.key==='age'&&x.min>=18));
 assert.ok(ui.builder.fields.some(x=>x.key==='modern_background'));
 assert.ok(ui.builder.fields.some(x=>x.key==='start_region'));
 assert.deepEqual(ui.panels.map(x=>x.id),['now','traveler','survival','crafts','money','people','work','actions']);
+assert.equal(card.gameplay.initial_state.world_clock.version,1);
+assert.equal(card.gameplay.initial_state.world_clock.tick_minutes,0);
+assert.deepEqual(card.gameplay.initial_state.world_clock.scheduled_events,[]);
+assert.match(card.content.system_prompt,/夜灣的【世界時鐘】只負責故事內部的相對時間累積/);
+assert.match(card.content.dynamic_prompts.find(x=>x.id==='survival-pressure').text,/不要按對話輪數機械扣點/);
+assert.match(card.content.dynamic_prompts.find(x=>x.id==='business-ledger').text,/不要硬造精確期限/);
+assert.match(card.content.dynamic_prompts.find(x=>x.id==='time-offscreen').text,/不代表自動完工、付款或失敗/);
 
 assert.equal(regex.type,'yorubay-author-regex-mod');
 assert.equal(regex.characterId,card.meta.id);
