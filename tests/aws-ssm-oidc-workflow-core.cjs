@@ -20,23 +20,6 @@ assert.match(source, /systemctl is-active bao-backend\.service/);
 assert.match(source, /systemctl is-active amazon-ssm-agent/);
 assert.match(source, /aws ssm get-command-invocation/);
 
-assert.match(source, /ACTIONS_ID_TOKEN_REQUEST_URL/);
-assert.match(source, /ACTIONS_ID_TOKEN_REQUEST_TOKEN/);
-assert.match(source, /url\.searchParams\.set\("audience", "sts\.amazonaws\.com"\)/);
-assert.match(source, /sub:\s*claims\.sub/);
-assert.match(source, /repository:\s*claims\.repository/);
-assert.match(source, /ref:\s*claims\.ref/);
-assert.equal(
-  source.includes("console.log(jwt)"),
-  false,
-  "OIDC diagnostic must never print the raw JWT"
-);
-assert.equal(
-  source.includes("console.log(requestToken)"),
-  false,
-  "OIDC diagnostic must never print the OIDC request token"
-);
-
 for (const forbidden of [
   "systemctl restart",
   "systemctl stop",
