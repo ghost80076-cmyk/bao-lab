@@ -209,7 +209,8 @@
         time: state.time || "未設定",
         location: state.location || "未設定",
         events: clone(state.events || []),
-        npcs: clone(state.npcs || [])
+        npcs: clone(state.npcs || []),
+        ...(state.worldClock ? { worldClock: clone(state.worldClock) } : {})
       },
       modules: clone(state.modules || {}),
       openThreads: [],
@@ -722,6 +723,8 @@
     if (world.location != null) state.location = world.location;
     if (Array.isArray(world.events)) state.events = clone(world.events);
     if (Array.isArray(world.npcs)) state.npcs = clone(world.npcs);
+    const carriedClock = world.worldClock || world.world_clock;
+    if (carriedClock && typeof carriedClock === "object" && !Array.isArray(carriedClock)) state.worldClock = clone(carriedClock);
     if (Object.keys(pack.characterStatuses).length) state.characterStatuses = clone(pack.characterStatuses);
     if (Object.keys(pack.modules).length) state.modules = Object.assign({}, state.modules || {}, clone(pack.modules));
     Chat.summary = "";
@@ -765,7 +768,8 @@
         time: state.time,
         location: state.location,
         events: clone(state.events || []),
-        npcs: clone(state.npcs || [])
+        npcs: clone(state.npcs || []),
+        ...(state.worldClock ? { worldClock: clone(state.worldClock) } : {})
       },
       "Persona": Storage.scrubSecrets(clone(App.config?.persona || {})),
       "敘事偏好": clone(App.config?.narrative || window.BAONarrativeSettings?.get?.() || {}),
