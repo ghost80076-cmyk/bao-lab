@@ -16,10 +16,10 @@ assert.equal(card.presentation.play_info_surface,'game-ui');
 
 assert.match(card.content.system_prompt,/TRPG/);
 assert.match(card.content.system_prompt,/1d100/);
-assert.match(card.content.system_prompt,/資訊隔離/);
+assert.match(card.content.system_prompt,/【匠業情報】/);
 assert.match(card.content.system_prompt,/現代知識/);
 assert.match(card.content.system_prompt,/不要顯示經驗值/);
-assert.match(card.content.system_prompt,/作品名稱不是 NPC/);
+assert.match(card.content.system_prompt,/【市井與行會人物】/);
 assert.doesNotMatch(card.content.system_prompt,/1歲即成年|一歲即成年/);
 assert.doesNotMatch(card.content.greeting,/hc-btn|<input|<details|onclick/);
 

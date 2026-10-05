@@ -33,7 +33,7 @@ assert.match(card.content.system_prompt, /黑手黨×2/);
 assert.match(card.content.system_prompt, /偵探×1/);
 assert.match(card.content.system_prompt, /女巫×1/);
 assert.match(card.content.system_prompt, /玩家固定為 8 號/);
-assert.match(card.content.system_prompt, /資訊隔離/);
+assert.match(card.content.system_prompt, /【身份秘密】/);
 assert.match(card.content.system_prompt, /成人內容屬可選演出層/);
 
 const promptIds = new Set(card.content.dynamic_prompts.map(item => item.id));

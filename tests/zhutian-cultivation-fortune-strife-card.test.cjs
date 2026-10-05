@@ -16,8 +16,8 @@ assert.equal(card.presentation.play_info_surface,'game-ui');
 
 assert.match(card.content.system_prompt,/氣運不是作者作弊碼|氣運代表/);
 assert.match(card.content.system_prompt,/越階是例外/);
-assert.match(card.content.system_prompt,/離場事件先屬於「世界真相」/);
-assert.match(card.content.system_prompt,/作品名稱不是 NPC/);
+assert.match(card.content.system_prompt,/【機緣與位面情報】/);
+assert.match(card.content.system_prompt,/天命者.*不會因玩家出現就自動成為朋友或宿敵/s);
 assert.doesNotMatch(card.content.system_prompt,/林動|蕭炎|唐三|韓立|方運|雲韻|小醫仙|比比東/);
 assert.doesNotMatch(card.content.greeting,/完整狀態欄|胸圍|體液|興奮度/);
 

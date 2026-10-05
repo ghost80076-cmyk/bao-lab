@@ -14,9 +14,9 @@ assert.ok(card.meta.tags.includes('NTR分支'));
 assert.ok(card.meta.tags.includes('原生狀態UI'));
 
 assert.equal(card.gameplay.character_status.primary_character_name, '白桃奶昔');
-assert.match(card.content.system_prompt, /作品名稱只是作品名稱，不是人物/);
+assert.match(card.content.system_prompt, /【三人資訊落差】/);
 assert.match(card.content.system_prompt, /林宇軒不是為了製造 NTR 而存在的工具人/);
-assert.match(card.content.system_prompt, /不要因三次選擇就永久把玩家判定/);
+assert.match(card.content.system_prompt, /三個人都是真正的角色/);
 assert.match(card.content.system_prompt, /三人同居的第一天/);
 assert.match(card.content.system_prompt, /慾望不等於行動/);
 

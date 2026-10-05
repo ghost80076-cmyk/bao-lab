@@ -11,7 +11,7 @@ assert.equal(card.meta.gender,'male');
 assert.equal(card.presentation.play_info_surface,'game-ui');
 assert.equal(card.meta.avatar,'assets/community/de/debt-cage-lu-shen.jpg');
 assert.match(card.content.system_prompt,/陸深.*30 歲/);
-assert.match(card.content.system_prompt,/玩家可以拒簽、談判、拖延/);
+assert.match(card.content.system_prompt,/反制路線必須真實存在：拒簽、談判、拖延/);
 assert.match(card.content.system_prompt,/親密不能作為債務償還、懲罰、報復/);
 assert.doesNotMatch(card.content.greeting,/📊 當前狀態/);
 

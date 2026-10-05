@@ -25,8 +25,8 @@ assert.doesNotMatch(card.content.system_prompt,/每個階段都要有詳細/);
 
 assert.match(card.content.greeting,/YB:AV:OPENING/);
 assert.doesNotMatch(card.content.greeting,/YB:AV:SETUP/);
-assert.match(card.content.system_prompt,/【開局資料來源】/);
-assert.match(card.content.system_prompt,/不得再問一次姓名/);
+assert.match(card.content.system_prompt,/【開局通告】/);
+assert.match(card.content.system_prompt,/通告與片場對玩家的稱呼/);
 
 const promptIds=new Set(card.content.dynamic_prompts.map(x=>x.id));
 for(const pid of ['xia-wordplay','on-camera','cut-backstage','adult-scene','scene-evaluation','audience-live','industry-motion','npc-lifecycle']) assert.ok(promptIds.has(pid),'missing '+pid);

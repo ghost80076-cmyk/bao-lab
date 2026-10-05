@@ -17,10 +17,10 @@ assert.ok(card.meta.tags.includes('逆NTR'));
 assert.ok(card.meta.tags.includes('監視線索'));
 
 assert.equal(card.gameplay.character_status.primary_character_name, '白桃奶昔');
-assert.match(card.content.system_prompt, /作品名稱只是作品名稱，不是人物/);
-assert.match(card.content.system_prompt, /玩家是否真的有綠帽癖/);
-assert.match(card.content.system_prompt, /只有當 Builder／Persona 明確設定監視器存在時/);
-assert.match(card.content.system_prompt, /不要替玩家假定性興奮或身體反應/);
+assert.match(card.content.system_prompt, /【證據可見性】/);
+assert.match(card.content.system_prompt, /綠帽題材可以成立，但不是單線腳本/);
+assert.match(card.content.system_prompt, /只有當既定設定／既有玩家資料明確設定監視器存在時/);
+assert.match(card.content.system_prompt, /玩家是否因被綠而興奮、痛苦、麻木或矛盾/);
 assert.match(card.content.system_prompt, /陳浩.*不是擁有.*必勝數值/s);
 assert.match(card.content.system_prompt, /蘇晴是不是玩家的幫手.*不是固定真相/s);
 assert.match(card.content.system_prompt, /證據鏈/);
