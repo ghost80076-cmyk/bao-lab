@@ -7,12 +7,21 @@
   const scrub = value => Storage.scrubSecrets ? Storage.scrubSecrets(clone(value)) : clone(value);
   const isBundle = value => Boolean(value && typeof value === 'object' && value.schema === SCHEMA && Array.isArray(value.chapters));
 
+  // Story bundles are portable player saves, not character-card exports. The full
+  // character snapshot contains author-owned prompts/lore and must stay local.
+  const stripAuthorCard = payload => {
+    if (!payload || typeof payload !== 'object') return payload;
+    delete payload.character;
+    return payload;
+  };
+  const sanitizePortablePayload = payload => stripAuthorCard(Storage.sanitizeImportedStory(payload));
+
   const sanitizeCheckpoint = checkpoint => {
     if (!checkpoint || typeof checkpoint !== 'object') return null;
     const messageId = String(checkpoint.messageId || '');
     const seq = Number(checkpoint.seq);
     if (!messageId || !Number.isFinite(seq) || seq < 0 || !checkpoint.payload || typeof checkpoint.payload !== 'object') return null;
-    const payload = scrub(checkpoint.payload);
+    const payload = stripAuthorCard(scrub(checkpoint.payload));
     payload.config = payload.config && typeof payload.config === 'object' ? payload.config : {};
     payload.config.api = Object.assign({}, payload.config.api || {}, { key: '' });
     payload.state = payload.state && typeof payload.state === 'object' ? payload.state : {};
@@ -27,7 +36,7 @@
     const story = input.story && typeof input.story === 'object' ? scrub(input.story) : {};
     const chapters = input.chapters.map((entry, index) => {
       if (!entry || typeof entry !== 'object' || !entry.payload) throw new Error(`完整故事備份的第 ${index + 1} 個章節無效。`);
-      const payload = Storage.sanitizeImportedStory(entry.payload);
+      const payload = sanitizePortablePayload(entry.payload);
       const lib = payload._library && typeof payload._library === 'object' ? payload._library : {};
       const chapterId = String(entry.chapterId || lib.chapterId || '');
       if (!chapterId) throw new Error(`完整故事備份的第 ${index + 1} 個章節缺少 chapterId。`);
@@ -46,7 +55,6 @@
     if (!chapters.length) throw new Error('完整故事備份沒有任何章節。');
     const ids = new Set(chapters.map(chapter => chapter.chapterId));
     if (ids.size !== chapters.length) throw new Error('完整故事備份包含重複的 chapterId。');
-    // Validate the whole branch graph before any IndexedDB writes. Never silently turn a broken branch into a root.
     for (const chapter of chapters) {
       if (chapter.parentChapterId && !ids.has(chapter.parentChapterId)) throw new Error(`章節「${chapter.label}」的父章節不存在。`);
       const seen = new Set([chapter.chapterId]);
@@ -86,7 +94,7 @@
         createdAt: chapter.createdAt || payload._library?.chapterCreatedAt || payload.savedAt,
         updatedAt: chapter.updatedAt || payload.savedAt,
         branchPointMessageId: chapter.branchPointMessageId || '', branchPointSeq: Number(chapter.branchPointSeq ?? -1),
-        branchPointPreview: chapter.branchPointPreview || '', payload: Storage.sanitizeImportedStory(payload), checkpoints
+        branchPointPreview: chapter.branchPointPreview || '', payload: sanitizePortablePayload(payload), checkpoints
       });
     }
     const refs = Library.refs();
@@ -210,7 +218,7 @@
       button.disabled = true; button.textContent = '整理完整故事…';
       try {
         const bundle = await exportCurrentStory();
-        alert(`完整故事備份已建立，共 ${bundle.chapters.length} 個章節／分支。連線金鑰（API Key）不會寫入備份。`);
+        alert(`完整故事備份已建立，共 ${bundle.chapters.length} 個章節／分支。作者角色卡原始設定與連線金鑰（API Key）不會寫入備份。`);
       } catch (error) { alert(error?.message || '完整故事備份失敗。'); }
       finally { button.disabled = false; button.textContent = original; }
     });
