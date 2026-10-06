@@ -44,9 +44,9 @@ async function start(page) {
   const panel = page.locator('#bao-author-regex-panel');
   await setPanelOpen(panel, true);
   await panel.locator('input[type=file]').setInputFiles({ name: 'legacy-test.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(fixture)) });
-  await expect(panel).toContainText('已保存 1 條原始正則');
-  await setLabeledCheckbox(panel, '在這張角色卡啟用作者介面', true);
-  await setLabeledCheckbox(panel, '跨回合常駐作者介面（不必每輪重建）', true);
+  await expect(panel).toContainText('已匯入 1 個自訂介面設定');
+  await setLabeledCheckbox(panel, '啟用自訂介面', true);
+  await setLabeledCheckbox(panel, '保留互動介面', true);
   return panel;
 }
 
@@ -58,7 +58,7 @@ test('legacy textarea action drafts only after a player click, no extra API or s
   await frame.getByRole('button', { name: '查看圖鑑' }).click();
   await expect(page.locator('#user-input')).toHaveValue(''); // Untrusted JS must not run in static view.
   page.once('dialog', dialog => dialog.accept());
-  await setLabeledCheckbox(panel, '允許作者腳本（需自行信任來源）', true);
+  await setLabeledCheckbox(panel, '允許互動腳本', true);
   await expect(frame.locator('#legacy-menu')).toBeVisible();
   await expect(frame.locator('.bao-author-legacy-input')).toHaveCount(1);
   const before = await page.evaluate(() => JSON.stringify({ messages: Chat.messages, usage: Chat.usage, state: GameState.current }));
@@ -66,7 +66,7 @@ test('legacy textarea action drafts only after a player click, no extra API or s
   await expect(page.locator('#user-input')).toHaveValue('查看圖鑑');
   expect(await page.evaluate(() => window.__legacyApiCalls)).toBe(0);
   expect(await page.evaluate(() => JSON.stringify({ messages: Chat.messages, usage: Chat.usage, state: GameState.current }))).toBe(before);
-  await setLabeledCheckbox(panel, '在這張角色卡啟用作者介面', false);
+  await setLabeledCheckbox(panel, '啟用自訂介面', false);
   await expect(dock).toHaveCount(0);
 });
 
@@ -74,7 +74,7 @@ test('mobile: isolated legacy UI does not shrink the main composer', async ({ pa
   await page.setViewportSize({ width: 390, height: 844 });
   const panel = await start(page);
   page.once('dialog', dialog => dialog.accept());
-  await setLabeledCheckbox(panel, '允許作者腳本（需自行信任來源）', true);
+  await setLabeledCheckbox(panel, '允許互動腳本', true);
   await setPanelOpen(panel, false);
   await expect(panel).not.toHaveAttribute('open', '');
 
