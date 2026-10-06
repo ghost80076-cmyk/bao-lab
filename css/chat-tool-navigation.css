@@ -55,3 +55,11 @@
 #bao-chat-tool-drawer .bao-native-status-section[data-chat-section-ready]{padding:0;overflow:hidden}
 #bao-chat-tool-drawer .bao-chat-status-detail>summary{padding:10px;font-size:13px}
 #bao-chat-tool-drawer .bao-chat-status-detail-body{padding:0 8px 10px}
+/* Tablet bridge: the desktop sidebar is hidden through 1080px, so keep one
+   direct route to the story drawer between phone and desktop layouts. */
+@media(min-width:821px) and (max-width:1080px){
+  #chat-view.active .chat-main > #bao-chat-tool-shortcuts{
+    display:flex!important;
+    visibility:visible!important;
+  }
+}
