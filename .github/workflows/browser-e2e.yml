@@ -2,9 +2,9 @@ name: Fast Browser E2E
 
 on:
   push:
-    branches: [main, integrate/pr36-pr35-20260922]
+    branches: [main]
   pull_request:
-    branches: [main, integrate/pr36-pr35-20260922]
+    branches: [main]
 
 permissions:
   contents: read
@@ -27,6 +27,8 @@ jobs:
               tests/e2e/mobile-composer-tools.spec.cjs
               tests/e2e/mobile-reading-layout.spec.cjs
               tests/e2e/story-quick-commands.spec.cjs
+              tests/e2e/mobile-story-entry.spec.cjs
+              tests/e2e/story-integrity.spec.cjs
           - group: product-explore
             specs: |
               tests/e2e/builder-connection-ux.spec.cjs
@@ -38,6 +40,7 @@ jobs:
               tests/e2e/author-profile.spec.cjs
               tests/e2e/reading-bookshelf.spec.cjs
               tests/e2e/scene-image-moments.spec.cjs
+              tests/e2e/gameplay-ui-engine.spec.cjs
           - group: cards-simulators
             specs: |
               tests/e2e/player-shell-v2.spec.cjs
