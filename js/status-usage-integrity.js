@@ -82,7 +82,7 @@
     const note = document.createElement('p');
     note.dataset.statusTracker = 'true';
     note.className = 'note';
-    const phases = { waiting: '待整理', updating: '整理中', updated: '已更新', unchanged: '已檢查／無變化', failed: '更新失敗' };
+    const phases = { waiting: '待整理', updating: '整理中', updated: '已更新', unchanged: '已檢查／無變化', failed: '暫未更新' };
     const pending = Number(tracker?.pending || 0);
     note.textContent = tracker
       ? `狀態模型：${phases[tracker.phase] || '待確認'} · ${tracker.message || ''}${pending ? `（待處理 ${pending} 輪）` : ''}`
