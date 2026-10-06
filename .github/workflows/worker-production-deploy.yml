@@ -34,6 +34,7 @@ jobs:
         run: |
           node --check workers/bao-lab-credits-api/worker.js
           node --check workers/bao-lab-credits-api/modules/account-rate-limit.js
+          node --check workers/bao-lab-credits-api/modules/account-self-route.js
           node --check workers/bao-lab-credits-api/modules/account-validation.js
           node --check workers/bao-lab-credits-api/modules/admin-auth.js
           node --check workers/bao-lab-credits-api/modules/admin-player-directory-routes.js
@@ -61,6 +62,7 @@ jobs:
           node tests/worker-session-security-contract.cjs
           node tests/worker-crypto-core.cjs
           node tests/worker-account-rate-limit-core.cjs
+          node tests/worker-account-self-route-core.cjs
           node tests/worker-account-auth-core.cjs
           node tests/worker-provider-transport-core.cjs
       - name: Replace production Worker content
