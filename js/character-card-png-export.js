@@ -2,6 +2,9 @@
 (() => {
   'use strict';
   const PNG_SIG = new Uint8Array([137,80,78,71,13,10,26,10]);
+  const PNG_LIMIT = 10 * 1024 * 1024;
+  const METADATA_LIMIT = 1024 * 1024;
+  const WARNING_RATIO = 0.8;
   const encoder = new TextEncoder();
   const bytes = value => value instanceof Uint8Array ? value : new Uint8Array(value);
   const concat = parts => { const size = parts.reduce((sum,p)=>sum+p.length,0), out=new Uint8Array(size); let offset=0; for(const part of parts){out.set(part,offset);offset+=part.length;} return out; };
@@ -11,6 +14,19 @@
   const chunk=(type,data)=>{const typeBytes=encoder.encode(type),payload=bytes(data),body=concat([typeBytes,payload]);return concat([u32(payload.length),body,u32(crc32(body))]);};
   const base64Utf8=value=>{const data=encoder.encode(value);let binary='';for(let i=0;i<data.length;i+=0x8000)binary+=String.fromCharCode(...data.subarray(i,i+0x8000));return btoa(binary);};
   const textChunk=(keyword,value)=>chunk('tEXt',concat([encoder.encode(keyword),new Uint8Array([0]),encoder.encode(value)]));
+  const kb = value => Math.max(1, Math.round(value / 1024));
+  const mb = value => (value / (1024 * 1024)).toFixed(value >= 9 * 1024 * 1024 ? 1 : 2).replace(/\.00$/, '');
+  const notify = message => { if (typeof window.BAOToast === 'function') window.BAOToast(message); else window.alert(message); };
+
+  function metadataSize(card){ return encoder.encode(JSON.stringify(card)).length; }
+  function warnMetadata(size){
+    if(size > METADATA_LIMIT) throw new Error(`角色卡資料超過 1 MB（${kb(size)} KB / 1 MB）。請精簡重複的世界設定或背景資料後再匯出。`);
+    if(size >= METADATA_LIMIT * WARNING_RATIO) notify(`角色卡資料較大（${kb(size)} KB / 1 MB）\n建議精簡重複的世界設定或背景資料，以維持角色卡的可攜性。`);
+  }
+  function warnCover(size){
+    if(size > PNG_LIMIT) throw new Error(`封面超過 10 MB（${mb(size)} MB / 10 MB）。建議縮小圖片後再匯出角色卡 PNG。這不會影響角色設定內容。`);
+    if(size >= PNG_LIMIT * WARNING_RATIO) notify(`封面圖片較大（${mb(size)} MB / 10 MB）\n建議縮小圖片後再匯出角色卡 PNG。這不會影響角色設定內容。`);
+  }
 
   function embedChara(pngBytes,card){
     const source=bytes(pngBytes);if(source.length<20||PNG_SIG.some((v,i)=>source[i]!==v))throw new Error('封面不是有效的 PNG。');
@@ -28,15 +44,15 @@
   async function coverBytes(card){
     const src=String(card?.avatar||'').trim();if(!src)throw new Error('請先設定角色圖片；PNG 角色卡需要一張可讀取的 PNG 封面。');let response;
     try{response=await fetch(src);}catch(_){throw new Error('無法讀取角色圖片。若是外部網址，可能被圖片來源的 CORS 限制；可改用本站 assets 圖片。');}
-    if(!response.ok)throw new Error(`角色圖片讀取失敗（HTTP ${response.status}）。`);const blob=await response.blob();if(blob.type&&blob.type!=='image/png')throw new Error('目前匯出角色卡 PNG 需要 PNG 格式封面。');const data=new Uint8Array(await blob.arrayBuffer());if(data.length>10*1024*1024)throw new Error('角色圖片超過 10 MB，請先壓縮。');return data;
+    if(!response.ok)throw new Error(`角色圖片讀取失敗（HTTP ${response.status}）。`);const blob=await response.blob();if(blob.type&&blob.type!=='image/png')throw new Error('目前匯出角色卡 PNG 需要 PNG 格式封面。');const data=new Uint8Array(await blob.arrayBuffer());warnCover(data.length);return data;
   }
 
   async function exportPng(card,yoruExport){
-    const v2=toV2(card,yoruExport),cover=await coverBytes(card),output=embedChara(cover,v2),url=URL.createObjectURL(new Blob([output],{type:'image/png'}));
+    const v2=toV2(card,yoruExport);warnMetadata(metadataSize(v2));const cover=await coverBytes(card),output=embedChara(cover,v2),url=URL.createObjectURL(new Blob([output],{type:'image/png'}));
     const link=document.createElement('a');link.href=url;link.download=`${card.id||'yorubay-character'}.png`;document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);return{bytes:output.length,card:v2};
   }
 
-  window.BAOCharacterPngExport=Object.freeze({toV2,embedChara,exportPng});
+  window.BAOCharacterPngExport=Object.freeze({toV2,embedChara,exportPng,metadataSize,limits:{png:PNG_LIMIT,metadata:METADATA_LIMIT,warningRatio:WARNING_RATIO}});
 
   /* When a YoruBay-exported V2 card comes back, restore its native payload instead of flattening it. */
   const importer=window.BAOCharacterImport;
