@@ -1,0 +1,77 @@
+name: Apply production model registry
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: Dry-run first. Apply requires the fingerprint printed by a fresh dry-run.
+        required: true
+        default: dry-run
+        type: choice
+        options:
+          - dry-run
+          - apply
+      expected_current_fingerprint:
+        description: Required only for apply; copy current_fingerprint from a fresh dry-run.
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-worker
+  cancel-in-progress: false
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Verify guarded apply implementation
+        run: |
+          node --check scripts/apply-worker-model-bindings.cjs
+          node tests/worker-model-binding-apply-core.cjs
+          node tests/model-deployment-plan-core.cjs
+          node tests/production-model-registry-audit-core.cjs
+
+  model-bindings:
+    needs: contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_WORKER_NAME: ${{ secrets.CLOUDFLARE_WORKER_NAME }}
+      YORUBAY_APPLY_MODE: ${{ inputs.mode }}
+      YORUBAY_EXPECTED_FINGERPRINT: ${{ inputs.expected_current_fingerprint }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Dry-run or apply model bindings
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [[ "${YORUBAY_APPLY_MODE}" == "apply" ]]; then
+            if [[ ! "${YORUBAY_EXPECTED_FINGERPRINT}" =~ ^[a-fA-F0-9]{64}$ ]]; then
+              echo "apply requires the 64-character current_fingerprint from a fresh dry-run" >&2
+              exit 2
+            fi
+
+            node scripts/apply-worker-model-bindings.cjs               --apply               "--expect-current=${YORUBAY_EXPECTED_FINGERPRINT}"
+
+            node scripts/audit-production-model-registry.cjs
+          else
+            node scripts/apply-worker-model-bindings.cjs
+          fi
