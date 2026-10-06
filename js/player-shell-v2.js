@@ -95,6 +95,14 @@
             </div>
           </section>
 
+          <section class="bao-player-panel">
+            <h2>我的人物</h2>
+            <p>先捏好常用的玩家角色與 AI 人物／NPC；開始故事前或故事進行中都能直接帶入。</p>
+            <div class="bao-player-actions">
+              <button class="primary" type="button" data-bao-player-action="people">打開我的人物庫</button>
+            </div>
+          </section>
+
           <section class="bao-player-panel" data-bao-content-visibility>
             <h2>內容顯示</h2>
             <p>成人作品與成人 MOD 預設不會出現在夜灣介面；需要時由你在這台裝置主動開啟。</p>
@@ -138,6 +146,11 @@
     section.querySelector('[data-bao-player-action="stories"]')?.addEventListener("click", openStoryLibrary);
     section.querySelector('[data-bao-player-action="resume"]')?.addEventListener("click", resumeStory);
     section.querySelector('[data-bao-player-action="drive"]')?.addEventListener("click", openDrive);
+    section.querySelector('[data-bao-player-action="people"]')?.addEventListener("click", () => {
+      const people = window.BAOStoryActors;
+      if (people?.openLibrary) people.openLibrary("player");
+      else window.alert("人物庫仍在載入，請稍後再試。");
+    });
     section.querySelector('[data-bao-player-action="explore"]')?.addEventListener("click", () => App.showView("explore"));
     section.querySelector('[data-bao-player-action="about"]')?.addEventListener("click", () => App.showView("about"));
 
