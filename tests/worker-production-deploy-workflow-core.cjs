@@ -138,7 +138,17 @@ assert.match(
   /node --check workers\/bao-lab-credits-api\/modules\/runtime-config\.js/,
   "the extracted runtime config module must pass syntax validation before deployment"
 );
+assert.match(
+  source,
+  /node --check workers\/bao-lab-credits-api\/modules\/session-auth\.js/,
+  "the extracted session auth module must pass syntax validation before deployment"
+);
 
+assert.match(
+  source,
+  /node tests\/worker-session-auth-core\.cjs/,
+  "session auth behavior contract must run before production deployment"
+);
 assert.match(
   source,
   /node tests\/worker-crypto-core\.cjs/,
