@@ -25,6 +25,19 @@
       "created_at": "2026-10-05T16:15:13.626Z",
       "updated_at": "2026-10-05T16:15:13.626Z",
       "bio": ""
+    },
+    {
+      "id": "ashboneai",
+      "name": "骨灰粉-Ashbone.app",
+      "support_links": [
+        {
+          "label": "支持作者",
+          "url": "https://ashbone.app/"
+        }
+      ],
+      "created_at": "2026-10-04T06:01:44.256Z",
+      "updated_at": "2026-10-04T06:01:44.256Z",
+      "bio": ""
     }
   ]
 }
