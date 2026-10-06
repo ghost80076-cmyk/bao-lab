@@ -9,7 +9,7 @@
     const fixed = String(input || '').replace(entryPattern, (whole, label, triggerList, body) => {
       const triggers = [...new Set(triggerList.split(/[,，、;；|｜]+/).map(s => s.trim().toLocaleLowerCase()).filter(Boolean))].slice(0, 16);
       const text = body.trim();
-      if (!triggers.length || !text || entries.length >= 32) return whole; // Never discard unparsed content.
+      if (!triggers.length || !text || entries.length >= 32) return whole;
       entries.push({ label: label.trim(), triggers, text });
       return '';
     }).trim();
@@ -68,27 +68,50 @@
   engine.__baoLorebookPatched = true;
   window.BAOLorebook = { parse, select };
 
-  // The studio keeps using the existing lore text field, exports and local drafts.
   const initStudio = () => {
     const area = document.querySelector('#studio-form textarea[name="lore"]');
     const add = document.getElementById('studio-add-lore-entry');
     const hint = document.getElementById('studio-lore-status');
     if (!area || !add || !hint) return;
+
+    const label = area.closest('label');
+    if (label?.firstChild?.nodeType === Node.TEXT_NODE) label.firstChild.textContent = '延伸世界設定（需要時才讀取）';
+    area.placeholder = '人物、地點、組織或事件的詳細資料，可以用下方「＋ 新增一筆延伸設定」建立。固定每輪都要讓 AI 知道的基本規則，請寫在上方「世界設定」。';
+    const loreHelp = label?.querySelector('small');
+    if (loreHelp) loreHelp.textContent = '這裡也叫「世界書 / Lorebook」。平常不會一直把每筆延伸設定送給 AI；故事提到設定的關鍵字時，夜灣才會自動帶入相關內容。舊角色卡的一般背景文字仍會照原本方式使用。';
+    add.textContent = '＋ 新增一筆延伸設定';
+    add.title = '建立人物、地點、組織或事件的詳細設定；故事提到關鍵字時才提供給 AI';
+
+    const profile = document.querySelector('#studio-form textarea[name="profile"]');
+    const profileHelp = profile?.closest('label')?.querySelector('small');
+    if (profileHelp) profileHelp.textContent = '單角色作品可放主要角色資料；多 NPC 世界只放固定主角或作品主體。其他人物、地點與組織的詳細資料，建議放在下方「延伸世界設定」。';
+    const world = document.querySelector('#studio-form textarea[name="world"]');
+    const worldHelp = world?.closest('label')?.querySelector('small');
+    if (worldHelp) worldHelp.textContent = '放這個世界每次都要記得的基本規則，例如時代、社會制度、力量體系。這裡會每輪提供給 AI；人物或地點的長篇細節建議改放「延伸世界設定」。';
+
     const update = () => {
       const result = parse(area.value);
       const unclosed = (area.value.match(/【世界書：/g) || []).length - result.entries.length;
       hint.textContent = unclosed > 0
-        ? `已辨識 ${result.entries.length} 條按需資料；另有 ${unclosed} 條格式未完成，未辨識的文字仍會每輪發送。`
-        : `已辨識 ${result.entries.length} 條按需資料；未包在世界書標記內的文字仍會每輪發送。`;
+        ? `已建立 ${result.entries.length} 筆需要時才讀取的設定；另有 ${unclosed} 筆格式尚未完成。`
+        : `已建立 ${result.entries.length} 筆延伸設定。故事提到設定的關鍵字時，夜灣才會把相關內容提供給 AI。`;
     };
     add.addEventListener('click', () => {
-      const title = '新地點';
-      const sample = `\n\n【世界書：${title}｜${title},別稱】\n請填寫與這個地點、人物或勢力有關的資料。\n【/世界書】`;
-      area.value += sample;
+      const title = window.prompt('這筆設定叫什麼？\n只是方便你辨認，例如：魔法學院、王都、林老師。', '魔法學院');
+      if (title === null) return;
+      const cleanTitle = title.trim().slice(0, 60);
+      if (!cleanTitle) return;
+      const keywords = window.prompt('故事出現哪些詞時，要讓 AI 想起這筆設定？\n可用逗號分隔，例如：魔法學院,學院,校長', cleanTitle);
+      if (keywords === null) return;
+      const cleanKeywords = keywords.trim().slice(0, 200);
+      if (!cleanKeywords) return;
+      const body = window.prompt('AI 需要知道什麼？\n寫下人物、地點、組織或事件的詳細設定。', '請在這裡填寫詳細設定。');
+      if (body === null) return;
+      const cleanBody = body.trim();
+      if (!cleanBody) return;
+      area.value += `\n\n【世界書：${cleanTitle}｜${cleanKeywords}】\n${cleanBody}\n【/世界書】`;
       area.dispatchEvent(new Event('input', { bubbles: true }));
       area.focus();
-      const start = area.value.lastIndexOf(title);
-      if (start >= 0) area.setSelectionRange(start, start + title.length);
     });
     area.addEventListener('input', update);
     document.getElementById('studio-form')?.addEventListener('change', update);
