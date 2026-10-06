@@ -269,18 +269,111 @@
     }
   };
 
+  const SUPPORT_CHANNELS = Object.freeze([
+    {
+      id: "opay",
+      label: "歐付寶｜台灣支持",
+      note: "台灣付款",
+      url: "https://payment.opay.tw/Broadcaster/Donate/1669AF2DA4DAC7850F570F6BC70C42FE"
+    },
+    {
+      id: "kofi",
+      label: "Ko-fi｜海外支持",
+      note: "海外付款",
+      url: "https://ko-fi.com/yorubay"
+    }
+  ]);
+
+  const ensureSupportPicker = () => {
+    let picker = document.getElementById("yorubay-support-picker");
+    if (picker) return picker;
+
+    const style = document.createElement("style");
+    style.id = "yorubay-support-picker-style";
+    style.textContent = `
+      #yorubay-support-picker[hidden]{display:none!important}
+      #yorubay-support-picker{position:fixed;inset:0;z-index:12000;display:grid;place-items:center;padding:20px}
+      #yorubay-support-picker .yb-support-backdrop{position:absolute;inset:0;background:rgba(4,5,8,.72);backdrop-filter:blur(5px)}
+      #yorubay-support-picker .yb-support-panel{position:relative;width:min(420px,100%);padding:22px;border:1px solid rgba(214,170,115,.25);border-radius:20px;background:#15161d;box-shadow:0 24px 80px rgba(0,0,0,.48)}
+      #yorubay-support-picker .yb-support-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}
+      #yorubay-support-picker h2{margin:3px 0 6px;font-size:22px}
+      #yorubay-support-picker p{margin:0;color:#aaa6ad;font-size:13px;line-height:1.7}
+      #yorubay-support-picker .yb-support-close{width:34px;height:34px;border:1px solid rgba(255,255,255,.1);border-radius:999px;background:#202129;color:#eee;cursor:pointer}
+      #yorubay-support-picker .yb-support-options{display:grid;gap:10px;margin-top:18px}
+      #yorubay-support-picker .yb-support-option{display:grid;gap:2px;padding:13px 14px;border:1px solid rgba(255,255,255,.11);border-radius:13px;background:#1c1d25;color:#f2eee8;text-decoration:none}
+      #yorubay-support-picker .yb-support-option:hover{border-color:rgba(214,170,115,.34);background:#24242d}
+      #yorubay-support-picker .yb-support-option b{font-size:14px}
+      #yorubay-support-picker .yb-support-option span{color:#9f9aa8;font-size:11px}
+    `;
+    document.head.appendChild(style);
+
+    picker = document.createElement("div");
+    picker.id = "yorubay-support-picker";
+    picker.hidden = true;
+    picker.innerHTML = `
+      <div class="yb-support-backdrop" data-support-close></div>
+      <section class="yb-support-panel" role="dialog" aria-modal="true" aria-labelledby="yorubay-support-title">
+        <div class="yb-support-head">
+          <div>
+            <div class="eyebrow">SUPPORT</div>
+            <h2 id="yorubay-support-title">投餵肉包</h2>
+            <p>選擇你方便的支持方式。台灣可使用歐付寶，海外可使用 Ko-fi。</p>
+          </div>
+          <button class="yb-support-close" type="button" data-support-close aria-label="關閉">×</button>
+        </div>
+        <div class="yb-support-options">
+          ${SUPPORT_CHANNELS.map(channel => `<a class="yb-support-option" href="${channel.url}" target="_blank" rel="noopener noreferrer external"><b>${channel.label}</b><span>${channel.note}</span></a>`).join("")}
+        </div>
+      </section>`;
+    document.body.appendChild(picker);
+
+    picker.addEventListener("click", event => {
+      if (event.target.closest("[data-support-close]")) picker.hidden = true;
+    });
+    document.addEventListener("keydown", event => {
+      if (event.key === "Escape" && !picker.hidden) picker.hidden = true;
+    });
+    return picker;
+  };
+
+  const openSupportPicker = (title = "投餵肉包") => {
+    const picker = ensureSupportPicker();
+    const heading = picker.querySelector("#yorubay-support-title");
+    if (heading) heading.textContent = title;
+    picker.hidden = false;
+    picker.querySelector(".yb-support-close")?.focus();
+  };
+
+  const wireSupportEntries = () => {
+    document.querySelectorAll("a").forEach(a => {
+      const legacyMeatbun = a.textContent.includes("投餵肉包") && a.href.includes("ko-fi.com/");
+      if (!legacyMeatbun && a.dataset.yorubaySupport !== "project") return;
+      if (a.dataset.yorubaySupportBound === "1") return;
+      a.dataset.yorubaySupport = "project";
+      a.dataset.yorubaySupportBound = "1";
+      a.href = "#yorubay-support";
+      a.removeAttribute("target");
+      a.removeAttribute("rel");
+      a.addEventListener("click", event => {
+        event.preventDefault();
+        openSupportPicker("投餵肉包");
+      });
+    });
+  };
+
   const renderSupport = () => {
-    if (document.getElementById("bao-support-float")) return;
-    const a = document.createElement("a");
-    a.id = "bao-support-float";
-    a.className = "bao-support-float";
-    a.href = "https://ko-fi.com/roger2486";
-    a.target = "_blank";
-    a.rel = "noopener";
-    a.setAttribute("aria-label", "投餵肉包・支持夜灣");
-    a.title = "投餵肉包・支持夜灣";
-    a.innerHTML = '<img class="bao-support-icon" src="assets/bao-bun.svg" width="24" height="24" alt=""><span>投餵肉包</span>';
-    document.body.appendChild(a);
+    if (!document.getElementById("bao-support-float")) {
+      const a = document.createElement("a");
+      a.id = "bao-support-float";
+      a.className = "bao-support-float";
+      a.href = "#yorubay-support";
+      a.dataset.yorubaySupport = "project";
+      a.setAttribute("aria-label", "投餵肉包・選擇支持方式");
+      a.title = "投餵肉包・支持夜灣";
+      a.innerHTML = '<img class="bao-support-icon" src="assets/bao-bun.svg" width="24" height="24" alt=""><span>投餵肉包</span>';
+      document.body.appendChild(a);
+    }
+    wireSupportEntries();
   };
 
   const initBrandUI = () => {
