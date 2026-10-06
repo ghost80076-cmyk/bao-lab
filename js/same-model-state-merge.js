@@ -51,7 +51,14 @@
     for (let index = messages.length - 1; index >= 0; index -= 1) {
       if (messages[index]?.role !== 'user' || typeof messages[index].content !== 'string') continue;
       const sent = messages[index].content.trim();
-      return sent === latest || sent.endsWith(latest) || sent.includes(`【玩家最新輸入】\n${latest}`);
+      // Prompt orchestration may append a platform turn anchor after the raw
+      // player text. Treat an exact player-text prefix followed by a newline as
+      // the same turn, while keeping a boundary so "abc" never matches
+      // unrelated "abcd..." content.
+      return sent === latest ||
+        sent.startsWith(`${latest}\n`) ||
+        sent.endsWith(latest) ||
+        sent.includes(`【玩家最新輸入】\n${latest}`);
     }
     return false;
   };
