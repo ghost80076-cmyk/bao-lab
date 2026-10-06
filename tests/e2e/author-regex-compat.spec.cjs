@@ -7,6 +7,7 @@ const rules = { regex_scripts: [
 ] };
 
 test('per-card authored HTML, CSS and JS stay in an iframe and only draft player text', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('./');
   await page.waitForFunction(() => Boolean(window.BAOAuthorRegexCore && document.querySelector('#bao-author-regex-panel') && App.characters?.length));
   await page.evaluate(async () => {
@@ -24,9 +25,7 @@ test('per-card authored HTML, CSS and JS stay in an iframe and only draft player
   });
   const before = await page.evaluate(() => JSON.stringify({ messages: Chat.messages, usage: Chat.usage }));
   const panel = page.locator('#bao-author-regex-panel');
-  await page.evaluate(() => window.BAOChatUISimplify?.openAuthorSettings?.());
-  await expect(panel).toBeVisible();
-  await expect(panel).toHaveAttribute('open', '');
+  await panel.locator(':scope > summary').click();
   await panel.locator('input[type=file]').setInputFiles({ name: 'author-regex.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(rules)) });
   await expect(panel).toContainText('已匯入 2 個自訂介面設定');
   await panel.getByLabel('啟用自訂介面').check();
