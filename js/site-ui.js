@@ -69,8 +69,8 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/character-status.js?v=3"))
     .then(() => loadBAOScript("js/world-modules.js"))
     .then(() => loadBAOScript("js/world-clock.js?v=1"))
-    .then(() => loadBAOScript("js/world-state-cost.js"))
-    .then(() => loadBAOScript("js/same-model-state-merge.js?v=2"))
+    .then(() => loadBAOScript("js/world-state-cost.js?v=2"))
+    .then(() => loadBAOScript("js/same-model-state-merge.js?v=3"))
     .then(() => loadBAOScript("js/world-module-ui.js"))
     .then(() => loadBAOScript("js/world-module-manager.js?v=4"))
     .then(() => loadBAOScript("js/world-relevance.js"))
@@ -79,7 +79,7 @@ window.addEventListener("DOMContentLoaded", () => {
     .catch(err => console.warn("BAO/LAB world state or character status modules failed to load:", err));
   loadBAOScript("js/cost-control.js")
     .then(() => loadBAOScript("js/provider-browser-compat.js"))
-    .then(() => loadBAOScript("js/model-routing.js?v=3"))
+    .then(() => loadBAOScript("js/model-routing.js?v=4"))
     .then(() => loadBAOScript("js/provider-diagnostics.js"))
     .catch(err => console.warn("BAO/LAB cost, provider compatibility, model routing or provider diagnostics controls failed to load:", err));
   loadBAOScript("js/storage-write-guard.js?v=2")
