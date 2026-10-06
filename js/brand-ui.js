@@ -280,7 +280,7 @@
       id: "kofi",
       label: "Ko-fi｜海外支持",
       note: "海外付款",
-      url: "https://ko-fi.com/roger2486"
+      url: "https://ko-fi.com/yorubay"
     }
   ]);
 
@@ -346,7 +346,7 @@
 
   const wireSupportEntries = () => {
     document.querySelectorAll("a").forEach(a => {
-      const legacyMeatbun = a.textContent.includes("投餵肉包") && a.href.includes("ko-fi.com/roger2486");
+      const legacyMeatbun = a.textContent.includes("投餵肉包") && a.href.includes("ko-fi.com/");
       if (!legacyMeatbun && a.dataset.yorubaySupport !== "project") return;
       if (a.dataset.yorubaySupportBound === "1") return;
       a.dataset.yorubaySupport = "project";
