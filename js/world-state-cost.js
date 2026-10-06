@@ -146,7 +146,10 @@
     // ever-larger prompt. Successful batches are removed below; queued turns stay
     // intact for the next update, so cost is bounded without dropping story data.
     const batch = pending.slice(0, interval);
-    const helperModel = config?.cost?.stateModel || "";
+    // Only an explicit stateApi may select a different model. A bare
+    // stateModel value is legacy metadata and must never be sent to the current
+    // main endpoint, or old saves can repeatedly fail status extraction.
+    const helperModel = helper?.model || "";
     const patched = {
       ...config,
       api: {
