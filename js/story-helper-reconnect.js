@@ -123,9 +123,10 @@
           App.config.cost ||= {};
           const update = (kind, settings, routeName, modelName, modeName) => {
             const route = changes[kind];
+            const prior = settings[routeName];
             settings[routeName] = route;
             settings[modeName] = route ? 'separate' : 'same';
-            settings[modelName] = route?.model || '';
+            settings[modelName] = route?.model || (kind === 'state' ? '' : (prior ? '' : settings[modelName] || ''));
           };
           update('state', App.config.cost, 'stateApi', 'stateModel', 'stateApiMode');
           update('memory', App.config.memory, 'summaryApi', 'summaryModel', 'summaryApiMode');
