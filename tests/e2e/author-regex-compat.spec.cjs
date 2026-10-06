@@ -22,6 +22,7 @@ test('per-card authored HTML, CSS and JS stay in an iframe and only draft player
     Chat.add('user', '請開啟畫面');
     Chat.add('assistant', '【開屏】【開屏1】');
     App.renderChatShell(false); App.showView('chat');
+    window.BAOChatUISimplify?.sync?.();
   });
   const before = await page.evaluate(() => JSON.stringify({ messages: Chat.messages, usage: Chat.usage }));
   const panel = page.locator('#bao-author-regex-panel');
