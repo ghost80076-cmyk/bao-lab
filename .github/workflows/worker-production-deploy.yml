@@ -50,10 +50,12 @@ jobs:
           node --check workers/bao-lab-credits-api/modules/publication-format.js
           node --check workers/bao-lab-credits-api/modules/provider-routing.js
           node --check workers/bao-lab-credits-api/modules/runtime-config.js
+          node --check workers/bao-lab-credits-api/modules/session-auth.js
           node tests/worker-content-deploy-core.cjs
           node tests/worker-production-deploy-workflow-core.cjs
           node tests/worker-security-headers-core.cjs
           node tests/worker-http-core.cjs
+          node tests/worker-session-auth-core.cjs
           node tests/worker-session-security-contract.cjs
           node tests/worker-crypto-core.cjs
           node tests/worker-account-rate-limit-core.cjs
