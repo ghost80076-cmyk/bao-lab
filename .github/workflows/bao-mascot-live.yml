@@ -3,6 +3,15 @@ name: BAO mascot live smoke
 on:
   push:
     branches: [main]
+    paths:
+      - 'bao-mascot.html'
+      - 'assets/bao-human-v2.webp'
+      - 'js/bao-mascot.js'
+      - 'js/bao-image-quality.js'
+      - 'js/bao-visual-ui.js'
+      - 'css/bao-mascot.css'
+      - 'css/bao-image-quality.css'
+      - '.github/workflows/bao-mascot-live.yml'
   workflow_dispatch:
 
 permissions:
