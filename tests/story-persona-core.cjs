@@ -34,6 +34,7 @@ const document = {
   head: { appendChild() {} },
   getElementById: () => null,
   querySelector: () => null,
+  querySelectorAll: () => [],
   createElement: () => ({ id: '', style: {}, textContent: '' })
 };
 const sandbox = {
