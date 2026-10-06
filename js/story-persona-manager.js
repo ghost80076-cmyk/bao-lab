@@ -201,13 +201,12 @@
     });
   }
   function actorPresetPicker() {
-    return `<section class="bao-local-actor-picker"><b>我的 AI 人物庫（本機）</b><span>先捏好人物，再帶進不同故事；加入後是故事自己的副本，不會互相改動。</span><select data-actor-preset-select>${actorPresetOptions()}</select><div class="bao-actor-actions"><button type="button" class="secondary" data-actor-preset-apply>帶入人物設定</button><button type="button" class="secondary" data-actor-preset-save>存到我的人物庫</button><button type="button" class="secondary" data-actor-library-open>管理人物庫</button></div></section>`;
+    return `<section class="bao-local-actor-picker"><b>我的 AI 人物庫（本機）</b><span>先捏好人物，再帶進不同故事；加入後是故事自己的副本，不會互相改動。</span><select data-actor-preset-select>${actorPresetOptions()}</select><div class="bao-actor-actions"><button type="button" class="secondary" data-actor-preset-apply>帶入人物設定</button><button type="button" class="secondary" data-actor-preset-save>存到我的人物庫</button></div></section>`;
   }
   function bindActorPresetPicker(root, form) {
     const select = root.querySelector('[data-actor-preset-select]');
     const apply = root.querySelector('[data-actor-preset-apply]');
     const save = root.querySelector('[data-actor-preset-save]');
-    const manage = root.querySelector('[data-actor-library-open]');
     if (apply && select && form) apply.onclick = () => {
       const item = actorPresets().find(entry => entry.id === select.value);
       if (!item) return alert('先選擇我的 AI 人物。');
@@ -219,7 +218,6 @@
       const role = form.elements.namedItem('role')?.value || 'additional';
       saveActorPreset({...data, role, portable:form._portableMeta});
     };
-    if (manage) manage.onclick = () => openLibrary('actor');
   }
   function actorList(raw) {
     const list = Array.isArray(raw?.hostedCharacters) ? raw.hostedCharacters : (raw?.hostedCharacter ? [raw.hostedCharacter] : []);
@@ -431,6 +429,103 @@
   function actorForm() {
     return `<form class="bao-actor-fields" id="bao-builder-actor-form" autocomplete="off"><p class="note">這裡新增的是由 AI 演繹的人物。你可以自己捏一位，也可以從官方可攜角色帶入後，再決定他／她在這個世界的身份、與玩家關係和這次怎麼演。</p><label>角色定位<select name="role"><option value="additional">增加 NPC（由 AI 演繹；保留原作品角色）</option><option value="primary">自訂 AI 主要互動人物（由 AI 演繹）</option></select></label>${ACTOR_FIELDS.map(key => actorField(key)).join('')}<div class="bao-actor-actions"><button type="submit" class="primary">加入／更新 AI 人物</button><button type="button" class="secondary" data-new>清空，捏另一位</button></div></form>`;
   }
+  const librarySnippet = value => esc(trim(value, 110));
+  function libraryCard(mode, record) {
+    if (mode === 'actor') {
+      const actor = record.actor || {};
+      const meta = [actor.gender, actor.identity, actor.role === 'primary' ? 'AI 主角' : 'NPC'].filter(Boolean).join(' · ');
+      const detail = actor.personality || actor.background || actor.relationship || '尚未填寫更多設定';
+      return `<article class="bao-library-card"><div><b>${esc(record.label || actor.name || '未命名 AI 人物')}</b><span>${esc(actor.name || '未命名')} ${meta ? '· ' + esc(meta) : ''}</span><small>${librarySnippet(detail)}</small></div><div class="bao-library-card-actions"><button type="button" class="secondary" data-library-edit="${esc(record.id)}">編輯</button><button type="button" class="secondary" data-library-copy="${esc(record.id)}">複製</button><button type="button" class="secondary" data-library-delete="${esc(record.id)}">刪除</button></div></article>`;
+    }
+    const p = record.persona || {};
+    const meta = [p.gender, p.identity].filter(Boolean).join(' · ');
+    const detail = p.personality || p.background || p.relationship || '尚未填寫更多設定';
+    return `<article class="bao-library-card"><div><b>${esc(record.label || p.name || '未命名玩家角色')}</b><span>${esc(p.name || '未命名')} ${meta ? '· ' + esc(meta) : ''}</span><small>${librarySnippet(detail)}</small></div><div class="bao-library-card-actions"><button type="button" class="secondary" data-library-edit="${esc(record.id)}">編輯</button><button type="button" class="secondary" data-library-copy="${esc(record.id)}">複製</button><button type="button" class="secondary" data-library-delete="${esc(record.id)}">刪除</button></div></article>`;
+  }
+  function openLibrary(mode = 'player') {
+    close();
+    dialog = document.createElement('div');
+    dialog.id = 'bao-actor-backdrop';
+    dialog.innerHTML = `<section class="bao-actor-dialog bao-library-dialog" role="dialog" aria-modal="true" aria-labelledby="bao-library-title"><header><div><h2 id="bao-library-title">我的人物庫</h2><p class="note">人物保存在這台裝置。先在這裡捏好，開始故事前或故事進行中都能帶入。</p></div><button type="button" data-close aria-label="關閉">×</button></header><nav class="bao-library-tabs" aria-label="人物庫分類"><button type="button" data-library-mode="player">我的玩家角色</button><button type="button" data-library-mode="actor">我的 AI 人物 / NPC</button></nav><div id="bao-persona-library-body"></div></section>`;
+    document.body.appendChild(dialog);
+    dialog.querySelectorAll('[data-close]').forEach(button => button.onclick = close);
+    dialog.addEventListener('click', event => {if (event.target === dialog) close();});
+    dialog.querySelectorAll('[data-library-mode]').forEach(button => button.onclick = () => renderLibrary(button.dataset.libraryMode));
+    renderLibrary(mode === 'actor' ? 'actor' : 'player');
+  }
+  function renderLibrary(mode = 'player') {
+    if (!dialog) return;
+    const body = dialog.querySelector('#bao-persona-library-body');
+    if (!body) return;
+    dialog.querySelectorAll('[data-library-mode]').forEach(button => button.classList.toggle('active', button.dataset.libraryMode === mode));
+    const items = mode === 'actor' ? actorPresets() : presets();
+    const empty = mode === 'actor' ? '還沒有保存 AI 人物。你可以先在這裡捏好 NPC，再帶進任何故事。' : '還沒有保存玩家角色。你可以先建立常用 Persona，之後直接套用。';
+    body.innerHTML = `<div class="bao-library-toolbar"><button type="button" class="primary" data-library-new>＋ ${mode === 'actor' ? '新增 AI 人物 / NPC' : '新增玩家角色'}</button><span>${items.length} 個本機人物</span></div><div class="bao-library-list">${items.length ? items.map(item => libraryCard(mode, item)).join('') : `<p class="note">${empty}</p>`}</div>`;
+    body.querySelector('[data-library-new]')?.addEventListener('click', () => renderLibraryEditor(mode));
+    body.querySelectorAll('[data-library-edit]').forEach(button => button.onclick = () => renderLibraryEditor(mode, button.dataset.libraryEdit));
+    body.querySelectorAll('[data-library-copy]').forEach(button => button.onclick = () => {
+      const now = new Date().toISOString();
+      if (mode === 'actor') {
+        const item = actorPresets().find(entry => entry.id === button.dataset.libraryCopy);
+        if (!item) return;
+        const copy = {id:id(), label:`${item.label || item.actor.name}（副本）`, actor:{...clone(item.actor), id:''}, savedAt:now};
+        if (storeActorPresets([copy, ...actorPresets()])) { refreshActorPresetPickers(); renderLibrary(mode); }
+      } else {
+        const item = presets().find(entry => entry.id === button.dataset.libraryCopy);
+        if (!item) return;
+        const copy = {id:id(), label:`${item.label || item.persona.name}（副本）`, persona:persona(item.persona), savedAt:now};
+        if (storePresets([copy, ...presets()])) renderLibrary(mode);
+      }
+    });
+    body.querySelectorAll('[data-library-delete]').forEach(button => button.onclick = () => {
+      if (mode === 'actor') {
+        const item = actorPresets().find(entry => entry.id === button.dataset.libraryDelete);
+        if (!item || !confirm(`刪除 AI 人物「${item.label || item.actor.name}」？只會刪除人物庫模板，不影響已加入的故事。`)) return;
+        if (storeActorPresets(actorPresets().filter(entry => entry.id !== item.id))) { refreshActorPresetPickers(); renderLibrary(mode); }
+      } else {
+        const item = presets().find(entry => entry.id === button.dataset.libraryDelete);
+        if (!item || !confirm(`刪除玩家角色「${item.label || item.persona.name}」？只會刪除人物庫模板，不影響既有故事。`)) return;
+        if (storePresets(presets().filter(entry => entry.id !== item.id))) renderLibrary(mode);
+      }
+    });
+  }
+  function renderLibraryEditor(mode, recordId = '') {
+    if (!dialog) return;
+    const body = dialog.querySelector('#bao-persona-library-body');
+    if (!body) return;
+    const record = mode === 'actor'
+      ? actorPresets().find(item => item.id === recordId)
+      : presets().find(item => item.id === recordId);
+    const label = record?.label || '';
+    const values = mode === 'actor' ? (record?.actor || {}) : (record?.persona || {});
+    const fields = mode === 'actor'
+      ? `<label>預設角色定位<select name="role"><option value="additional" ${values.role !== 'primary' ? 'selected' : ''}>NPC／額外人物</option><option value="primary" ${values.role === 'primary' ? 'selected' : ''}>AI 主要互動人物</option></select></label>${ACTOR_FIELDS.map(key => actorField(key, values[key])).join('')}`
+      : PLAYER_FIELDS.map(key => field(key, values[key])).join('');
+    body.innerHTML = `<form class="bao-actor-fields bao-library-editor" autocomplete="off"><label>人物庫名稱<input name="libraryLabel" maxlength="80" value="${esc(label)}" placeholder="例如：常用的我、青梅竹馬"></label>${fields}<div class="bao-actor-actions"><button type="submit" class="primary">儲存到我的人物庫</button><button type="button" class="secondary" data-library-cancel>取消</button></div></form>`;
+    const form = body.querySelector('form');
+    form.querySelector('[data-library-cancel]').onclick = () => renderLibrary(mode);
+    form.onsubmit = event => {
+      event.preventDefault();
+      const now = new Date().toISOString();
+      const libraryLabel = trim(form.elements.namedItem('libraryLabel')?.value, 80);
+      if (mode === 'actor') {
+        const data = formData(form, ACTOR_FIELDS);
+        if (!trim(data.name)) return alert('請先為 AI 人物命名。');
+        const actor = normalizeActor({...data, id:'', role:form.elements.namedItem('role')?.value || 'additional', portable:record?.actor?.portable});
+        actor.id = '';
+        const next = {id:record?.id || id(), label:libraryLabel || actor.name, actor, savedAt:record?.savedAt || now, updatedAt:now};
+        if (!storeActorPresets([next, ...actorPresets().filter(item => item.id !== next.id)])) return;
+        refreshActorPresetPickers();
+      } else {
+        const p = persona(formData(form, PLAYER_FIELDS));
+        if (!trim(p.name)) return alert('請先填寫玩家名稱。');
+        const next = {id:record?.id || id(), label:libraryLabel || p.name, persona:p, savedAt:record?.savedAt || now, updatedAt:now};
+        if (!storePresets([next, ...presets().filter(item => item.id !== next.id)])) return;
+      }
+      renderLibrary(mode);
+    };
+    form.elements.namedItem(mode === 'actor' ? 'name' : 'name')?.focus();
+  }
   function installBuilder() {
     const panel = document.querySelector('.builder-step[data-step-panel="3"]');
     if (!panel) return;
@@ -443,12 +538,13 @@
     if (!document.getElementById('bao-persona-presets')) {
       const box = document.createElement('section');
       box.id = 'bao-persona-presets'; box.className = 'bao-actor-builder';
-      box.innerHTML = `<h4>我的玩家人物庫（本機）</h4><p class="note">套用到不同故事時，各故事的人物資料互不連動。</p><p class="note" id="bao-persona-draft-status" aria-live="polite">角色草稿會自動保存在這台裝置。</p><select aria-label="玩家人物預設">${presetOptions()}</select><div class="bao-actor-actions"><button type="button" data-action="apply">套用玩家人物</button><button type="button" data-action="save">儲存目前玩家人物</button><button type="button" data-action="copy">複製預設</button><button type="button" data-action="delete">刪除預設</button><button type="button" data-action="clear-draft">重新填寫</button></div>`;
+      box.innerHTML = `<h4>我的玩家人物庫（本機）</h4><p class="note">套用到不同故事時，各故事的人物資料互不連動。</p><p class="note" id="bao-persona-draft-status" aria-live="polite">角色草稿會自動保存在這台裝置。</p><select aria-label="玩家人物預設">${presetOptions()}</select><div class="bao-actor-actions"><button type="button" data-action="apply">套用玩家人物</button><button type="button" data-action="save">儲存目前玩家人物</button><button type="button" data-action="library">管理我的人物庫</button><button type="button" data-action="copy">複製預設</button><button type="button" data-action="delete">刪除預設</button><button type="button" data-action="clear-draft">重新填寫</button></div>`;
       panel.prepend(box);
       const select = box.querySelector('select');
       const refresh = chosen => {select.innerHTML = presetOptions(); if (chosen) select.value = chosen;};
       box.querySelector('[data-action="apply"]').onclick = () => {const item = presets().find(p => p.id === select.value); if (item) {fillBuilder(item.persona); queueBuilderDraftSave();} else alert('先選擇玩家人物。');};
       box.querySelector('[data-action="save"]').onclick = () => {const item = savePreset(readBuilder()); if (item) refresh(item.id);};
+      box.querySelector('[data-action="library"]').onclick = () => openLibrary('player');
       box.querySelector('[data-action="copy"]').onclick = () => {const item = presets().find(p => p.id === select.value); if (!item) return alert('先選擇預設。'); const copy = savePreset(item.persona, `${item.label}（副本）`); if (copy) refresh(copy.id);};
       box.querySelector('[data-action="delete"]').onclick = () => {const item = presets().find(p => p.id === select.value); if (item && confirm(`刪除本機玩家預設「${item.label}」？`) && storePresets(presets().filter(p => p.id !== item.id))) refresh();};
       box.querySelector('[data-action="clear-draft"]').onclick = () => {if (confirm('確定清除目前尚未完成的玩家資料並重新填寫？本機人物預設不會被刪除。')) clearBuilderDraft(draftCharacterId(), {resetForm:true});};
@@ -456,7 +552,7 @@
     if (document.getElementById('bao-builder-actors')) return;
     const section = document.createElement('section');
     section.id = 'bao-builder-actors'; section.className = 'bao-actor-builder';
-    section.innerHTML = `<h4>加入 AI 人物／補充 NPC（選填）</h4><p class="note">可以自己捏人物，也可以把官方可攜角色帶進目前作品。原作者角色與世界規則仍保留；加入的人物由 AI 演繹，不會取得玩家角色控制權。</p>${portablePicker()}<div id="bao-builder-actor-list"></div>${actorForm()}`;
+    section.innerHTML = `<h4>加入 AI 人物／補充 NPC（選填）</h4><p class="note">可以自己捏人物、從我的人物庫帶入，或使用官方可攜角色。帶入後會成為這個故事自己的副本。</p>${actorPresetPicker()}${portablePicker()}<div id="bao-builder-actor-list"></div>${actorForm()}`;
     panel.appendChild(section);
     const form = section.querySelector('form');
     form.onsubmit = event => {
@@ -469,6 +565,7 @@
       refreshBuilderActors();
     };
     form.querySelector('[data-new]').onclick = () => fillActorForm(form);
+    bindActorPresetPicker(section, form);
     bindPortablePicker(section, form);
     refreshBuilderActors();
   }
@@ -511,9 +608,10 @@
       box.querySelector('[data-save]').onclick = () => {const item = savePreset(formData(box.querySelector('form'), PLAYER_FIELDS)); if (item) {const select = box.querySelector('#bao-actor-preset'); select.innerHTML = presetOptions(); select.value = item.id;}};
     } else {
       const visibleActors = state.hostedCharacters.filter(actorAllowed);
-      box.innerHTML = `<p class="note">這裡新增的是 AI 人物／NPC，由 AI 演繹。也可以從官方可攜角色庫直接帶入目前故事，再修改本世界身份與關係。成人官方角色只在成人內容開啟時顯示；關閉後既有資料保留但暫停注入。</p>${portablePicker()}<label>編輯已加入的角色<select id="bao-actor-existing"><option value="">新增一位 AI 人物</option>${visibleActors.map(actor => `<option value="${esc(actor.id)}">${esc(actor.name)} · ${actor.role === 'primary' ? 'AI 主角' : 'NPC'}${actor.portable?.packId ? ' · 官方可攜' : ''}</option>`).join('')}</select></label><form class="bao-actor-fields" autocomplete="off"><label>角色定位<select name="role"><option value="additional">新增 NPC（由 AI 演繹；保留原角色）</option><option value="primary">由自訂角色作為 AI 主要互動人物</option></select></label>${ACTOR_FIELDS.map(key => actorField(key)).join('')}</form><div class="bao-actor-actions"><button type="button" class="secondary" data-open-roster>NPC 名冊／場景參與者</button><button type="button" class="secondary" data-remove>移除選取的自訂人物</button></div>`;
+      box.innerHTML = `<p class="note">這裡新增的是 AI 人物／NPC，由 AI 演繹。可以直接從「我的 AI 人物庫」帶入已捏好的人物，再依這個世界調整身份與關係。</p>${actorPresetPicker()}${portablePicker()}<label>編輯已加入的角色<select id="bao-actor-existing"><option value="">新增一位 AI 人物</option>${visibleActors.map(actor => `<option value="${esc(actor.id)}">${esc(actor.name)} · ${actor.role === 'primary' ? 'AI 主角' : 'NPC'}${actor.portable?.packId ? ' · 官方可攜' : ''}</option>`).join('')}</select></label><form class="bao-actor-fields" autocomplete="off"><label>角色定位<select name="role"><option value="additional">新增 NPC（由 AI 演繹；保留原角色）</option><option value="primary">由自訂角色作為 AI 主要互動人物</option></select></label>${ACTOR_FIELDS.map(key => actorField(key)).join('')}</form><div class="bao-actor-actions"><button type="button" class="secondary" data-open-roster>NPC 名冊／場景參與者</button><button type="button" class="secondary" data-remove>移除選取的自訂人物</button></div>`;
       const select = box.querySelector('#bao-actor-existing');
       select.onchange = () => fillActorForm(box.querySelector('form'), state.hostedCharacters.find(actor => actor.id === select.value));
+      bindActorPresetPicker(box, box.querySelector('form'));
       bindPortablePicker(box, box.querySelector('form'));
       box.querySelector('[data-open-roster]').onclick = () => {
         if (!window.BAOCharacterStatusUI?.openNpcRoster) return alert('NPC 名冊工具仍在載入，請稍後再試。');
