@@ -68,7 +68,7 @@ test('author Regex metadata is bounded', () => {
 test('editor exposes description, priority and JSON export without touching model data', () => {
   assert.match(source, /說明/);
   assert.match(source, /優先序（-100～100，越大越先）/);
-  assert.match(source, /匯出 JSON/);
+  assert.match(source, /匯出設定/);
   assert.match(source, /yorubay-author-regex-mod/);
   assert.match(source, /不包含 API Key、聊天內容或故事存檔/);
 });
