@@ -39,13 +39,22 @@ const document = {
 const sandbox = {
   App, Storage, GameState: state, CharacterEngine: { normalize: card => Storage.clone(card) },
   document, console, Date, Math, JSON, Promise,
-  localStorage: { getItem: key => browserStorage.get(key) || null, setItem: (key, value) => browserStorage.set(key, value) },
+  localStorage: { getItem: key => browserStorage.get(key) || null, setItem: (key, value) => browserStorage.set(key, value), removeItem: key => browserStorage.delete(key) },
   prompt: () => '人物乙', alert: () => {}, confirm: () => true
 };
 sandbox.window = sandbox;
 vm.runInNewContext(source, sandbox, { filename: 'story-persona-manager.js' });
 assert.ok(sandbox.BAOStoryActors, 'module initialized');
+const draftKey = 'bao-lab:persona-builder-draft-v1:world';
+browserStorage.set(draftKey, JSON.stringify({
+  version: 1,
+  characterId: 'world',
+  persona: { name: '未完成玩家', gender: '女性', identity: '旅人', relationship: '', personality: '安靜', extra: '' },
+  savedAt: '2026-10-06T00:00:00.000Z'
+}));
+assert.equal(sandbox.BAOStoryActors.readBuilderDraft().persona.name, '未完成玩家', 'unfinished persona draft can be recovered locally');
 App.startStory();
+assert.equal(browserStorage.has(draftKey), false, 'successful story creation clears the recovered draft');
 assert.notStrictEqual(App.activeCharacter, originalCard, 'story owns an independent character copy');
 assert.equal(state.current.storyActors.basePersona.name, '玩家甲');
 assert.deepEqual(Array.from(state.current.storyActors.hostedCharacters), []);
@@ -77,6 +86,7 @@ assert.equal(originalCard.system_prompt, '原角色設定');
   assert.equal(preset.persona.name, '人物乙');
   assert.equal(sandbox.BAOStoryActors.readPresets().length, 1);
   assert.ok(!browserStorage.get('bao-lab:persona-presets-v1').includes('apiKey'));
+  assert.ok(!source.includes("DRAFT_KEY_PREFIX}${'${'}App.config.api"), 'draft storage must never include API config');
   App.saveStory();
   const saved = Storage.clone(Storage.lastSave);
   App.characters[0].name = '人物庫新版本';
