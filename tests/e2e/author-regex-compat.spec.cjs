@@ -9,18 +9,18 @@ const rules = { regex_scripts: [
 test('per-card authored HTML, CSS and JS stay in an iframe and only draft player text', async ({ page }) => {
   await page.goto('./');
   await page.waitForFunction(() => Boolean(window.BAOAuthorRegexCore && document.querySelector('#bao-author-regex-panel') && App.characters?.length));
-  await page.locator('#home-view [data-view="explore"]').click();
-  await page.locator('article').filter({ hasText: '林沉風 - 見過黑暗的人' }).click();
-  await page.getByRole('button', { name: '開始故事' }).click();
-  await page.locator('#bao-setup-choice [data-bao-setup="advanced"]').click();
-  for (let i = 0; i < 3; i++) await page.getByRole('button', { name: '下一步' }).click();
-  await page.locator('#bao-demo-mode').check();
-  await page.getByRole('button', { name: '下一步' }).click();
-  await page.getByRole('button', { name: '開始故事' }).click();
-  await page.evaluate(() => {
+  await page.evaluate(async () => {
+    await App.openCharacter(App.characters[0].id);
+    App.config = {
+      narrativeMode: 'immersive', displayMode: 'text',
+      persona: { name: '測試玩家', gender: '未指定', identity: '', personality: '', relationship: '', extra: '' },
+      api: { type: 'custom', protocol: 'openai', model: 'offline-test', baseUrl: '', key: '' },
+      memory: { mode: 'smart', maxRounds: 20, maxContext: 32000, cache: false }
+    };
+    Chat.reset(); GameState.create(App.activeCharacter, App.config);
     Chat.add('user', '請開啟畫面');
     Chat.add('assistant', '【開屏】【開屏1】');
-    App.renderChatShell(false);
+    App.renderChatShell(false); App.showView('chat');
   });
   const before = await page.evaluate(() => JSON.stringify({ messages: Chat.messages, usage: Chat.usage }));
   const panel = page.locator('#bao-author-regex-panel');
