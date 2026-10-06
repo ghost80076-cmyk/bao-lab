@@ -166,6 +166,7 @@ jobs:
           node --check js/author-profile-core.js
           node --check js/author-profile.js
           node tests/author-profile-core.cjs
+          node tests/catalog-author-linkage.cjs
           node tests/catalog-version-metadata.cjs
       - name: Character JSON import hardening
         run: node tests/character-import-core.cjs
