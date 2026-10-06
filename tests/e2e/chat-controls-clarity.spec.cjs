@@ -8,7 +8,7 @@ test('labels distinguish auto-save, named backup and story library without losin
   await expect(page.locator('#list-slots-button')).toHaveText('手動備份清單');
   await expect(page.locator('#import-save-button')).toHaveText('匯入備份檔');
   await expect(page.locator('#chat-view #bao-chat-quick-actions button[onclick*="App.saveStory"]')).toHaveText('快速儲存');
-  await expect(page.locator('#bao-chat-api-aside')).toHaveText('AI 模型與連線');
+  await expect(page.locator('#bao-chat-api-aside')).toHaveText('模型連線');
   await page.waitForFunction(() => Boolean(document.querySelector('[data-bao-open="story-tools"]')));
   await expect(page.locator('[data-bao-open="story-tools"]')).toHaveText('故事庫與完整備份');
   await page.evaluate(() => window.BAOChatToolNavigation.openDrawer());
