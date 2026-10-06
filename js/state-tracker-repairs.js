@@ -118,7 +118,8 @@
     const owner = GameState.current;
     const result = await oldUpdate(...args);
     if (owner && owner === GameState.current && owner.stateTracker?.phase === 'failed' && lastError) {
-      owner.stateTracker.message = `狀態 API 呼叫失敗：${lastError}。請檢查狀態模型的連線、Key 與額度；待下輪重試。`;
+      owner.stateTracker.diagnostic = `狀態 API 呼叫失敗：${lastError}`;
+      owner.stateTracker.message = '狀態更新暫時沒有完成，已保留目前資料。繼續故事即可，系統會在下一輪自動重試。';
     }
     lastError = '';
     return result;
@@ -195,7 +196,7 @@
     note.className = 'note';
     note.setAttribute('role', 'status');
     const labels = { waiting: '待整理', updating: '整理中', updated: '已更新',
-      unchanged: '已檢查、無變化', failed: '更新失敗' };
+      unchanged: '已檢查、無變化', failed: '暫未更新' };
     note.textContent = tracker
       ? `狀態模型：${labels[tracker.phase] || '待確認'}。${tracker.message || ''}`
       : '狀態模型：尚未完成第一次整理；初始數值不是 AI 已確認的劇情。';

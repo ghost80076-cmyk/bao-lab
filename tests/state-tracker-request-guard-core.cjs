@@ -120,9 +120,11 @@ assert.deepEqual(shellResult, { args: [true, "extra"] }, "shell return value and
   failProvider = true;
   await WorldStateEngine.update();
   assert.equal(owner.stateTracker.phase, "failed");
-  assert.match(owner.stateTracker.message, /狀態 API 呼叫失敗/);
-  assert.match(owner.stateTracker.message, /quota exceeded for state route/);
-  assert.match(owner.stateTracker.message, /連線、Key 與額度/);
+  assert.match(owner.stateTracker.message, /繼續故事即可/);
+  assert.match(owner.stateTracker.message, /下一輪自動重試/);
+  assert.doesNotMatch(owner.stateTracker.message, /quota exceeded|API|Key|額度/);
+  assert.match(owner.stateTracker.diagnostic, /狀態 API 呼叫失敗/);
+  assert.match(owner.stateTracker.diagnostic, /quota exceeded for state route/);
 
   console.log("state-tracker-request-guard: shared wrapper preserves presence rules and diagnostics");
 })().catch(error => {
