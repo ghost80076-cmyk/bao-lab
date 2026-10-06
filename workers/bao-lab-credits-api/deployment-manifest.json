@@ -20,6 +20,7 @@
     "modules/model-pricing.js",
     "modules/publication-format.js",
     "modules/number-utils.js",
+    "modules/provider-control.js",
     "modules/provider-routing.js",
     "modules/runtime-config.js",
     "modules/session-auth.js",
