@@ -46,6 +46,7 @@ jobs:
           node --check workers/bao-lab-credits-api/modules/admin-usage-routes.js
           node --check workers/bao-lab-credits-api/modules/author-profile-publication.js
           node --check workers/bao-lab-credits-api/modules/author-ownership.js
+          node --check workers/bao-lab-credits-api/modules/billing-constants.js
           node --check workers/bao-lab-credits-api/modules/chat-input.js
           node --check workers/bao-lab-credits-api/modules/crypto.js
           node --check workers/bao-lab-credits-api/modules/github-publication-transport.js
@@ -69,6 +70,7 @@ jobs:
           node tests/worker-account-self-route-core.cjs
           node tests/worker-account-auth-core.cjs
           node tests/account-author-identity.cjs
+          node tests/worker-provider-control-esm-core.mjs
           node tests/worker-provider-transport-core.cjs
       - name: Replace production Worker content
         env:
