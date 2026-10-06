@@ -3,6 +3,7 @@
   "main_module": "worker.js",
   "modules": [
     "modules/account-rate-limit.js",
+    "modules/account-self-route.js",
     "modules/account-validation.js",
     "modules/admin-auth.js",
     "modules/admin-player-directory-routes.js",
