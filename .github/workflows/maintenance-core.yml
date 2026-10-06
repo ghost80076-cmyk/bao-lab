@@ -89,6 +89,8 @@ jobs:
           node tests/model-registry-contract.cjs
           node tests/model-rollout-plan-core.cjs
           node tests/model-deployment-plan-core.cjs
+          node tests/worker-model-binding-apply-core.cjs
+          node tests/worker-model-binding-apply-workflow-core.cjs
 
       - name: AWS SSM OIDC workflow contract
         run: node tests/aws-ssm-oidc-workflow-core.cjs
