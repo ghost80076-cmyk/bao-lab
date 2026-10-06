@@ -116,3 +116,42 @@
 
   return Object.freeze({ clean, stable, signature, sameVersion, draftCardBadges, derive });
 });
+
+/* Character Studio PNG export enhancement. */
+if (typeof window !== "undefined" && typeof document !== "undefined") {
+  window.addEventListener("DOMContentLoaded", () => {
+    const row = document.querySelector(".studio-button-row");
+    if (!row || document.getElementById("studio-export-png")) return;
+    const script = document.createElement("script");
+    script.src = "js/character-card-png-export.js?v=1";
+    script.onload = () => {
+      const jsonButton = document.getElementById("studio-export");
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "secondary";
+      button.id = "studio-export-png";
+      button.textContent = "匯出角色卡 PNG";
+      button.title = "輸出 Character Card V2 相容 PNG，並保留夜灣完整設定";
+      button.addEventListener("click", async () => {
+        const status = document.getElementById("studio-status");
+        button.disabled = true;
+        try {
+          const studio = window.BAOCharacterStudio;
+          const exporter = window.BAOCharacterPngExport;
+          if (!studio || !exporter) throw new Error("PNG 匯出元件尚未載入，請重新整理後再試。");
+          const card = studio.readCard();
+          if (!card.name || !card.id || !card.greeting || !card.system_prompt) throw new Error("請先填寫名稱、角色 ID、核心設定與初始訊息。");
+          const result = await exporter.exportPng(card, studio.toExport(card));
+          if (status) status.textContent = `✓ 已產生角色卡 PNG（${Math.ceil(result.bytes / 1024)} KB）。可匯入支援 Character Card V2 的工具；夜灣設定已保留在 extensions.yorubay。`;
+        } catch (error) {
+          if (status) status.textContent = "✕ " + (error?.message || "PNG 匯出失敗");
+        } finally {
+          button.disabled = false;
+        }
+      });
+      if (jsonButton) jsonButton.after(button);
+      else row.append(button);
+    };
+    document.head.append(script);
+  });
+}
