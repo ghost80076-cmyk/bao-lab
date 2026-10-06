@@ -26,7 +26,7 @@ test('per-card authored HTML, CSS and JS stay in an iframe and only draft player
   const panel = page.locator('#bao-author-regex-panel');
   await panel.locator(':scope > summary').click();
   await panel.locator('input[type=file]').setInputFiles({ name: 'author-regex.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(rules)) });
-  await expect(panel).toContainText('已保存 2 條原始正則');
+  await expect(panel).toContainText('已匯入 2 個自訂介面設定');
   await panel.getByLabel('啟用自訂介面').check();
   page.once('dialog', dialog => dialog.accept());
   await panel.getByLabel('允許互動腳本').check();
