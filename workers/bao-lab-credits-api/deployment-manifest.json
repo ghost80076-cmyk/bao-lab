@@ -11,6 +11,7 @@
     "modules/admin-player-mutation-routes.js",
     "modules/admin-provider-control-routes.js",
     "modules/admin-publication-routes.js",
+    "modules/admin-routes.js",
     "modules/admin-usage-routes.js",
     "modules/author-profile-publication.js",
     "modules/author-ownership.js",

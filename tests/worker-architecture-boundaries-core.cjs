@@ -141,6 +141,11 @@ assert.equal(
   "the extracted admin provider control routes boundary must exist exactly once"
 );
 assert.equal(
+  actual.filter(boundary => boundary === "WorkerAdminRoutes").length,
+  1,
+  "the extracted admin dispatcher boundary must exist exactly once"
+);
+assert.equal(
   actual.filter(boundary => boundary === "WorkerAdminUsageRoutes").length,
   1,
   "the extracted admin usage routes boundary must exist exactly once"
