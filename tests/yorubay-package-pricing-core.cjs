@@ -18,8 +18,13 @@ for (const item of packages) {
   const points = item.points.toLocaleString("en-US");
   const twd = item.twd.toLocaleString("en-US");
   assert.ok(
+    accountPricing.includes(`NT${twd} → ${points} 燈火`),
+    `account TWD package mismatch for ${item.points} points`
+  );
+  assert.equal(
     accountPricing.includes(`NT${twd} / US${item.usd} → ${points} 燈火`),
-    `account package mismatch for ${item.points} points`
+    false,
+    `account must not advertise USD package pricing for ${item.points} points`
   );
   assert.ok(
     admin.includes(`data-pay-twd="${item.twd}" data-pay-usd="${item.usd}" data-points="${item.points}"`),
