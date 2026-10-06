@@ -30,7 +30,9 @@
     "published_at": "2026-09-13T11:53:39Z",
     "updated_at": "2026-09-27T13:55:43Z",
     "published_version": 1,
-    "version_published_at": "2026-09-27T13:55:43Z"
+    "version_published_at": "2026-09-27T13:55:43Z",
+    "author": "班長",
+    "author_id": "banzhang"
   },
   {
     "id": "autonomous-npc-world",
@@ -60,7 +62,9 @@
     "published_at": "2026-09-17T16:14:31Z",
     "updated_at": "2026-09-18T16:22:55Z",
     "published_version": 1,
-    "version_published_at": "2026-09-18T16:22:55Z"
+    "version_published_at": "2026-09-18T16:22:55Z",
+    "author": "班長",
+    "author_id": "banzhang"
   },
   {
     "id": "open-world-real-persona",
@@ -90,7 +94,9 @@
     "published_at": "2026-09-18T03:29:17Z",
     "updated_at": "2026-09-18T03:29:17Z",
     "published_version": 1,
-    "version_published_at": "2026-09-18T03:29:17Z"
+    "version_published_at": "2026-09-18T03:29:17Z",
+    "author": "班長",
+    "author_id": "banzhang"
   },
   {
     "id": "desire-district",
@@ -124,7 +130,9 @@
     "published_at": "2026-09-19T06:15:50Z",
     "updated_at": "2026-09-19T07:23:28Z",
     "published_version": 1,
-    "version_published_at": "2026-09-19T07:23:28Z"
+    "version_published_at": "2026-09-19T07:23:28Z",
+    "author": "班長",
+    "author_id": "banzhang"
   },
   {
     "id": "kurobane-yume-kabukicho",
@@ -155,7 +163,9 @@
     "published_at": "2026-09-21T11:22:40Z",
     "updated_at": "2026-09-28T13:58:13Z",
     "published_version": 1,
-    "version_published_at": "2026-09-28T13:58:13Z"
+    "version_published_at": "2026-09-28T13:58:13Z",
+    "author": "班長",
+    "author_id": "banzhang"
   },
   {
     "id": "unhealed-bonds",
@@ -188,7 +198,9 @@
     "published_at": "2026-09-27T15:14:13Z",
     "updated_at": "2026-09-28T08:52:59Z",
     "published_version": 1,
-    "version_published_at": "2026-09-28T08:52:59Z"
+    "version_published_at": "2026-09-28T08:52:59Z",
+    "author": "班長",
+    "author_id": "banzhang"
   },
   {
     "id": "host-club-simulator",
@@ -221,7 +233,9 @@
     "published_at": "2026-09-27T15:53:56Z",
     "updated_at": "2026-09-28T08:51:40Z",
     "published_version": 1,
-    "version_published_at": "2026-09-28T08:51:40Z"
+    "version_published_at": "2026-09-28T08:51:40Z",
+    "author": "班長",
+    "author_id": "banzhang"
   },
   {
     "id": "night-sky-magic-academy",
@@ -254,7 +268,9 @@
     "published_at": "2026-09-27T18:02:40Z",
     "updated_at": "2026-09-29T11:27:09Z",
     "published_version": 1,
-    "version_published_at": "2026-09-29T11:27:09Z"
+    "version_published_at": "2026-09-29T11:27:09Z",
+    "author": "班長",
+    "author_id": "banzhang"
   },
   {
     "id": "k-idol-survival-simulator",
@@ -287,7 +303,9 @@
     "published_at": "2026-09-28T10:11:49Z",
     "updated_at": "2026-09-28T13:09:37Z",
     "published_version": 1,
-    "version_published_at": "2026-09-28T13:09:37Z"
+    "version_published_at": "2026-09-28T13:09:37Z",
+    "author": "班長",
+    "author_id": "banzhang"
   },
   {
     "id": "narcissus-simulator",
@@ -319,7 +337,9 @@
     "published_at": "2026-10-03T11:30:00Z",
     "updated_at": "2026-10-03T11:30:00Z",
     "published_version": 1,
-    "version_published_at": "2026-10-03T11:30:00Z"
+    "version_published_at": "2026-10-03T11:30:00Z",
+    "author": "班長",
+    "author_id": "banzhang"
   },
   {
     "id": "peng-yuxin-hakka-girlfriend",
@@ -354,7 +374,9 @@
     "published_at": "2026-10-03T12:55:00Z",
     "updated_at": "2026-10-03T12:55:00Z",
     "published_version": 1,
-    "version_published_at": "2026-10-03T12:55:00Z"
+    "version_published_at": "2026-10-03T12:55:00Z",
+    "author": "班長",
+    "author_id": "banzhang"
   },
   {
     "id": "baishiyin-oral-fixation",
@@ -389,7 +411,9 @@
     "published_at": "2026-10-03T13:38:00Z",
     "updated_at": "2026-10-03T13:38:00Z",
     "published_version": 1,
-    "version_published_at": "2026-10-03T13:38:00Z"
+    "version_published_at": "2026-10-03T13:38:00Z",
+    "author": "班長",
+    "author_id": "banzhang"
   },
   {
     "id": "jiang-yingxue-pure-desire",
@@ -424,7 +448,9 @@
     "published_at": "2026-10-03T13:51:00Z",
     "updated_at": "2026-10-03T13:51:00Z",
     "published_version": 1,
-    "version_published_at": "2026-10-03T13:51:00Z"
+    "version_published_at": "2026-10-03T13:51:00Z",
+    "author": "班長",
+    "author_id": "banzhang"
   },
   {
     "id": "awakened-silver-dawn",
@@ -459,7 +485,9 @@
     "published_at": "2026-10-03T14:01:00Z",
     "updated_at": "2026-10-03T17:31:00Z",
     "published_version": 2,
-    "version_published_at": "2026-10-03T17:31:00Z"
+    "version_published_at": "2026-10-03T17:31:00Z",
+    "author": "班長",
+    "author_id": "banzhang"
   },
   {
     "id": "lin-yuyan-possessed-husband",
@@ -497,7 +525,9 @@
     "published_at": "2026-10-03T18:12:00Z",
     "updated_at": "2026-10-03T18:12:00Z",
     "published_version": 1,
-    "version_published_at": "2026-10-03T18:12:00Z"
+    "version_published_at": "2026-10-03T18:12:00Z",
+    "author": "班長",
+    "author_id": "banzhang"
   },
   {
     "id": "campus-rival-24h-command",
@@ -537,7 +567,9 @@
     "published_at": "2026-10-03T18:11:00Z",
     "updated_at": "2026-10-03T18:19:00Z",
     "published_version": 1,
-    "version_published_at": "2026-10-03T18:19:00Z"
+    "version_published_at": "2026-10-03T18:19:00Z",
+    "author": "班長",
+    "author_id": "banzhang"
   },
   {
     "id": "dark-military-war-simulator",
@@ -576,7 +608,9 @@
     "published_at": "2026-10-03T18:25:00Z",
     "updated_at": "2026-10-03T18:25:00Z",
     "published_version": 1,
-    "version_published_at": "2026-10-03T18:25:00Z"
+    "version_published_at": "2026-10-03T18:25:00Z",
+    "author": "班長",
+    "author_id": "banzhang"
   },
   {
     "id": "craftsman-ming-survival-trpg",
@@ -616,7 +650,9 @@
     "published_at": "2026-10-03T18:40:00Z",
     "updated_at": "2026-10-03T18:40:00Z",
     "published_version": 1,
-    "version_published_at": "2026-10-03T18:40:00Z"
+    "version_published_at": "2026-10-03T18:40:00Z",
+    "author": "班長",
+    "author_id": "banzhang"
   },
   {
     "id": "baitao-roommate-triangle",
@@ -656,7 +692,9 @@
     "published_at": "2026-10-03T19:35:00Z",
     "updated_at": "2026-10-03T19:35:00Z",
     "published_version": 1,
-    "version_published_at": "2026-10-03T19:35:00Z"
+    "version_published_at": "2026-10-03T19:35:00Z",
+    "author": "班長",
+    "author_id": "banzhang"
   },
   {
     "id": "zhutian-cultivation-fortune-strife",
@@ -693,7 +731,9 @@
     "published_at": "2026-10-03T19:57:00Z",
     "updated_at": "2026-10-03T19:57:00Z",
     "published_version": 1,
-    "version_published_at": "2026-10-03T19:57:00Z"
+    "version_published_at": "2026-10-03T19:57:00Z",
+    "author": "班長",
+    "author_id": "banzhang"
   },
   {
     "id": "baitao-boyfriend-reverse-ntr",
@@ -733,6 +773,8 @@
     "published_at": "2026-10-03T19:55:00Z",
     "updated_at": "2026-10-03T19:55:00Z",
     "published_version": 1,
-    "version_published_at": "2026-10-03T19:55:00Z"
+    "version_published_at": "2026-10-03T19:55:00Z",
+    "author": "班長",
+    "author_id": "banzhang"
   }
 ]
