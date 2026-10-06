@@ -45,8 +45,8 @@ async function importRules(page) {
   const panel = page.locator('#bao-author-regex-panel');
   await setPanelOpen(panel, true);
   await panel.locator('input[type=file]').setInputFiles({ name: 'author-regex.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(rules)) });
-  await expect(panel).toContainText('已保存 2 條原始正則');
-  await setLabeledCheckbox(panel, '在這張角色卡啟用作者介面', true);
+  await expect(panel).toContainText('已匯入 2 個自訂介面設定');
+  await setLabeledCheckbox(panel, '啟用自訂介面', true);
   return panel;
 }
 
@@ -59,7 +59,7 @@ test('author card renders inline, can toggle original, and drafts without extra 
   const before = await page.evaluate(() => JSON.stringify({ messages: Chat.messages, usage: Chat.usage, state: GameState.current }));
   const panel = await importRules(page);
   page.once('dialog', dialog => dialog.accept());
-  await setLabeledCheckbox(panel, '允許作者腳本（需自行信任來源）', true);
+  await setLabeledCheckbox(panel, '允許互動腳本', true);
   const host = page.locator('#chat-stream .bao-author-inline');
   await expect(host).toHaveCount(1);
   const frame = page.frameLocator('iframe[title="聊天內作者隔離介面"]');
@@ -72,7 +72,7 @@ test('author card renders inline, can toggle original, and drafts without extra 
   await frame.getByRole('button', { name: '查看照片' }).click();
   await expect(page.locator('#user-input')).toHaveValue('查看照片');
   expect(await page.evaluate(() => JSON.stringify({ messages: Chat.messages, usage: Chat.usage, state: GameState.current }))).toBe(before);
-  await setLabeledCheckbox(panel, '在這張角色卡啟用作者介面', false);
+  await setLabeledCheckbox(panel, '啟用自訂介面', false);
   await expect(host).toHaveCount(0);
   await expect(page.locator('#chat-stream .message.assistant').last().locator(':scope > .bubble')).toBeVisible();
 });
@@ -94,7 +94,7 @@ test('inline static HTML and CSS remain visible without script permission, and J
   await frame.getByRole('button', { name: '查看照片' }).click();
   await expect(page.locator('#user-input')).toHaveValue('');
   page.once('dialog', dialog => dialog.accept());
-  await setLabeledCheckbox(panel, '允許作者腳本（需自行信任來源）', true);
+  await setLabeledCheckbox(panel, '允許互動腳本', true);
   // The old static iframe remains visible while the worker prepares the new one.
   // Wait for the permission-triggered remount rather than asserting against it.
   await expect(page.locator('iframe[title="聊天內作者隔離介面"]')).toHaveAttribute('sandbox', 'allow-scripts');
