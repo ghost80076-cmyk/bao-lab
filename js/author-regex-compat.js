@@ -71,7 +71,7 @@
     input.value = event.data.value;
     input.dispatchEvent(new Event('input', { bubbles: true }));
     close(); input.focus();
-    say('作者介面已填入玩家輸入框；請確認文字後自行按「送出」。沒有呼叫 API。');
+    say('自訂介面已把內容填入輸入框；確認後再自行送出。');
   });
   function workerRender(text, rules, allowScripts) {
     return new Promise((resolve, reject) => {
@@ -104,11 +104,11 @@
     const bar = document.createElement('div');
     bar.style.cssText = 'display:flex;align-items:center;gap:10px;padding:12px;justify-content:space-between;flex-wrap:wrap';
     const title = document.createElement('strong');
-    title.textContent = `作者介面（本機預覽）｜${htmlResult.name || '文字正則'}`;
+    title.textContent = `自訂介面預覽｜${htmlResult.name || '自訂畫面'}`;
     const back = document.createElement('button'); back.type = 'button'; back.textContent = '關閉預覽 ✕';
     back.addEventListener('click', close); bar.append(title, back);
     const note = document.createElement('small'); note.style.cssText = 'padding:0 12px 10px;color:#e6cce6';
-    note.textContent = '介面僅在隔離視窗運作；作者按鈕只能填入草稿，無法自行呼叫 API 或寫入故事。';
+    note.textContent = '這個畫面只在本機預覽。互動按鈕只會把文字填進輸入框，不會自行送出。';
     currentFrame = document.createElement('iframe');
     currentFrame.title = '作者正則隔離介面'; currentFrame.referrerPolicy = 'no-referrer';
     currentFrame.setAttribute('sandbox', currentScripts ? 'allow-scripts' : '');
@@ -128,14 +128,14 @@
     if (scriptCheckbox) scriptCheckbox.checked = data.allowScripts;
     if (externalCheckbox) externalCheckbox.checked = data.allowExternalAssets;
     if (stateCheckbox) stateCheckbox.checked = data.allowStateSharing;
-    say(`這張卡已保存 ${data.rules.length} 條正則；含腳本 ${data.rules.filter(r => r.script).length} 條；格式不相容 ${data.rules.filter(r => r.reason).length} 條。`);
+    say(`已設定：${data.rules.length} 個；其中 ${data.rules.filter(r => r.reason).length} 個需要檢查格式。`);
   };
   const importData = raw => {
     const id = cardId(); if (!id) throw new Error('請先進入一張角色卡的故事。');
     const rules = Core.normalize(raw);
     const current = empty(); current.rules = rules;
     save(id, current); showCount();
-    say(`已保存 ${rules.length} 條原始正則，預設全部不執行。請檢查來源，再自行啟用；原始角色卡與故事未修改。`);
+    say(`已匯入 ${rules.length} 個自訂介面設定，預設不啟用。確認來源後再開啟即可。`);
   };
   function mount() {
     if (panel?.isConnected) return;
@@ -143,71 +143,111 @@
     if (!aside || document.getElementById('bao-author-regex-panel')) return;
     panel = document.createElement('details'); panel.id = 'bao-author-regex-panel';
     panel.style.cssText = 'padding:12px;margin:12px 0;border:1px solid #987a9c;border-radius:10px;display:grid;gap:8px';
-    const summary = document.createElement('summary'); summary.textContent = '作者正則介面（測試版）'; panel.append(summary);
-    const intro = document.createElement('p'); intro.style.fontSize = '12px';
-    intro.textContent = '按角色保存正則；HTML／CSS 可在不執行腳本時顯示，外部圖片、作者 JavaScript、世界狀態與介面偏好存檔分別授權。本工具不加入提示詞、不修改劇情與記憶。'; panel.append(intro);
-    const makeButton = (label, action) => { const b = document.createElement('button'); b.type = 'button'; b.textContent = label; b.style.margin = '4px'; b.addEventListener('click', action); panel.append(b); return b; };
-    makeButton('匯入正則 JSON', () => fileInput.click());
+    const summary = document.createElement('summary'); summary.textContent = '🧩 自訂介面'; panel.append(summary);
+    const intro = document.createElement('p'); intro.style.cssText = 'font-size:12px;line-height:1.6';
+    intro.textContent = '為這張作品加入特殊排版、按鈕或互動畫面。一般情況不需要設定。'; panel.append(intro);
+
+    const actions = document.createElement('div');
+    actions.style.cssText = 'display:flex;gap:8px;flex-wrap:wrap';
+    panel.append(actions);
+    const makeButton = (label, action, host = panel) => {
+      const b = document.createElement('button'); b.type = 'button'; b.textContent = label; b.style.margin = '4px';
+      b.addEventListener('click', action); host.append(b); return b;
+    };
+    makeButton('匯入設定', () => fileInput.click(), actions);
     fileInput = document.createElement('input'); fileInput.type = 'file'; fileInput.accept = '.json,application/json'; fileInput.hidden = true;
     fileInput.addEventListener('change', async () => {
       const file = fileInput.files?.[0]; fileInput.value = ''; if (!file) return;
-      try { if (file.size > 1024 * 1024) throw new Error('檔案超過 1 MB，請使用較小的正則包。');
-        importData(JSON.parse(await file.text())); } catch (error) { say('匯入失敗：' + error.message); }
+      try {
+        if (file.size > 1024 * 1024) throw new Error('檔案超過 1 MB，請使用較小的設定檔。');
+        importData(JSON.parse(await file.text()));
+      } catch (error) { say('匯入失敗：' + error.message); }
     }); panel.append(fileInput);
-    const cardImport = makeButton('從本張角色卡來源讀取正則', () => {
-      try { if (!sourceFromCard()) throw new Error('這張卡沒有保留可讀取的來源檔。'); importData(sourceFromCard()); }
+    const cardImport = makeButton('從角色卡讀取', () => {
+      try { if (!sourceFromCard()) throw new Error('這張卡沒有保留可讀取的來源設定。'); importData(sourceFromCard()); }
       catch (error) { say('讀取失敗：' + error.message); }
-    }); cardImport.title = '僅支援已保留原始 extensions.regex_scripts 的角色卡';
-    const makeToggle = (label, checked, change) => {
+    }, actions);
+    cardImport.title = '從角色卡來源讀取已保存的自訂介面設定';
+
+    const makeToggle = (host, label, checked, change) => {
       const line = document.createElement('label'); line.style.cssText = 'display:block;margin:8px 0;font-size:13px';
       const input = document.createElement('input'); input.type = 'checkbox'; input.checked = checked;
-      input.addEventListener('change', () => change(input)); line.append(input, document.createTextNode(' ' + label)); panel.append(line); return input;
+      input.addEventListener('change', () => change(input));
+      line.append(input, document.createTextNode(' ' + label)); host.append(line); return input;
     };
-    activeCheckbox = makeToggle('在這張角色卡啟用作者介面', false, input => {
+    activeCheckbox = makeToggle(panel, '啟用自訂介面', false, input => {
       const id = cardId(); if (!id) { input.checked = false; return; }
       const data = load(id); data.enabled = input.checked;
       try { save(id, data); showCount(); } catch (error) { input.checked = false; say('保存失敗：' + error.message); }
     });
-    scriptCheckbox = makeToggle('允許作者腳本（需自行信任來源）', false, input => {
-      const id = cardId(); if (!id) { input.checked = false; return; }
-      if (input.checked && !confirm('作者 JavaScript 可在隔離視窗執行；世界狀態須另外授權。沙盒無法保證防止所有對外傳送或跳轉。確定信任來源並允許腳本嗎？')) { input.checked = false; return; }
-      const data = load(id); data.allowScripts = input.checked;
-      try { save(id, data); showCount(); } catch (error) { input.checked = false; say('保存失敗：' + error.message); }
-    });
-    stateCheckbox = makeToggle('允許作者腳本讀取本故事的世界狀態', false, input => {
-      const id = cardId(); if (!id) { input.checked = false; return; }
-      if (input.checked && !confirm('作者腳本可取得本故事的部分時間、地點、NPC 與角色狀態。已讀取的資料無法追回，確定允許嗎？')) { input.checked = false; return; }
-      const data = load(id); data.allowStateSharing = input.checked;
-      try { save(id, data); close(); showCount(); } catch (error) { input.checked = false; say('保存失敗：' + error.message); }
-    });
-    externalCheckbox = makeToggle('允許作者介面載入外部圖片／字型／媒體', false, input => {
-      const id = cardId(); if (!id) { input.checked = false; return; }
-      if (input.checked && !confirm('外部資源的提供者可能得知 IP、讀取時間與網址中包含的資訊。僅信任來源時才開啟，確定嗎？')) { input.checked = false; return; }
-      const data = load(id); data.allowExternalAssets = input.checked;
-      try { save(id, data); showCount(); } catch (error) { input.checked = false; say('保存失敗：' + error.message); }
-    });
-    sourceSelect = document.createElement('select'); sourceSelect.style.cssText = 'max-width:100%;margin:8px 0';
+
+    const previewLabel = document.createElement('label');
+    previewLabel.textContent = '預覽內容';
+    previewLabel.style.cssText = 'display:grid;gap:4px;font-size:13px';
+    sourceSelect = document.createElement('select'); sourceSelect.style.cssText = 'max-width:100%;margin:4px 0 8px';
     [['greeting','開場畫面'],['latest','最新 AI 回覆']].forEach(([value, label]) => {
       const option = document.createElement('option'); option.value = value; option.textContent = label; sourceSelect.append(option);
-    }); panel.append(sourceSelect);
-    const preview = makeButton('開啟隔離介面預覽', async () => {
+    });
+    previewLabel.append(sourceSelect); panel.append(previewLabel);
+    const preview = makeButton('預覽自訂介面', async () => {
       const id = cardId(), data = load(id);
-      if (!id || !data.enabled || !data.rules.length) { say('請先匯入正則並勾選「在這張角色卡啟用」。'); return; }
+      if (!id || !data.enabled || !data.rules.length) { say('請先匯入設定並勾選「啟用自訂介面」。'); return; }
       const latest = [...Chat.messages].reverse().find(message => message.role === 'assistant');
       const text = sourceSelect.value === 'latest' ? latest?.content : App.activeCharacter?.greeting;
       if (!text) { say('目前沒有可預覽的 AI 回覆，請改選開場畫面。'); return; }
-      preview.disabled = true; say('正則比對中；不會呼叫 AI……');
+      preview.disabled = true; say('正在準備預覽，不會呼叫 AI……');
       try {
         const result = await workerRender(text, data.rules, data.allowScripts);
-        if (id !== cardId()) { say('已切換故事，取消舊角色的預覽。'); return; }
-        if (!result?.matched) { say('這段文字未符合任何已啟用的正則；不會憑空生成介面。'); return; }
-        show(result, id, data.allowExternalAssets); say(result.blocked ? '已顯示靜態介面；作者腳本尚未獲授權。' : '已在隔離視窗呈現。關閉後原本劇情仍保留。');
+        if (id !== cardId()) { say('已切換故事，取消舊作品的預覽。'); return; }
+        if (!result?.matched) { say('這段內容沒有符合目前設定，因此沒有自訂介面可以顯示。'); return; }
+        show(result, id, data.allowExternalAssets);
+        say(result.blocked ? '已顯示靜態介面；互動腳本尚未獲得權限。' : '預覽已開啟。關閉後原本劇情仍會保留。');
       } catch (error) { say('預覽失敗：' + error.message); }
       finally { preview.disabled = false; }
     });
-    status = document.createElement('p'); status.setAttribute('role', 'status'); status.style.cssText = 'font-size:12px;line-height:1.6;overflow-wrap:anywhere';
+
+    const advanced = document.createElement('details');
+    advanced.id = 'bao-author-interface-advanced';
+    advanced.style.cssText = 'margin-top:8px;padding-top:8px;border-top:1px dashed #7c637f';
+    const advancedSummary = document.createElement('summary'); advancedSummary.textContent = '⚙️ 進階設定';
+    const advancedNote = document.createElement('p'); advancedNote.style.cssText = 'font-size:12px;line-height:1.6';
+    advancedNote.textContent = '一般情況不需要修改。只有信任作品來源時才開啟額外權限。';
+    advanced.append(advancedSummary, advancedNote);
+
+    scriptCheckbox = makeToggle(advanced, '允許互動腳本', false, input => {
+      const id = cardId(); if (!id) { input.checked = false; return; }
+      if (input.checked && !confirm('這會允許作品內的互動腳本在隔離視窗執行。只在信任作品來源時開啟。確定允許嗎？')) { input.checked = false; return; }
+      const data = load(id); data.allowScripts = input.checked;
+      try { save(id, data); showCount(); } catch (error) { input.checked = false; say('保存失敗：' + error.message); }
+    });
+    stateCheckbox = makeToggle(advanced, '允許讀取故事狀態', false, input => {
+      const id = cardId(); if (!id) { input.checked = false; return; }
+      if (input.checked && !confirm('互動介面可讀取這個故事的部分時間、地點、NPC 與角色狀態。確定允許嗎？')) { input.checked = false; return; }
+      const data = load(id); data.allowStateSharing = input.checked;
+      try { save(id, data); close(); showCount(); } catch (error) { input.checked = false; say('保存失敗：' + error.message); }
+    });
+    externalCheckbox = makeToggle(advanced, '允許外部圖片、字型與媒體', false, input => {
+      const id = cardId(); if (!id) { input.checked = false; return; }
+      if (input.checked && !confirm('外部資源提供者可能得知 IP、讀取時間等連線資訊。只在信任來源時開啟。確定允許嗎？')) { input.checked = false; return; }
+      const data = load(id); data.allowExternalAssets = input.checked;
+      try { save(id, data); showCount(); } catch (error) { input.checked = false; say('保存失敗：' + error.message); }
+    });
+    panel.append(advanced);
+
+    const developer = document.createElement('details');
+    developer.id = 'bao-author-interface-developer';
+    developer.style.cssText = 'margin-top:4px';
+    const developerSummary = document.createElement('summary'); developerSummary.textContent = '開發者設定';
+    const developerNote = document.createElement('p'); developerNote.style.cssText = 'font-size:12px;line-height:1.6';
+    developerNote.textContent = '匯入舊式規則或調整進階文字替換時使用。一般作者可以忽略。';
+    developer.append(developerSummary, developerNote); panel.append(developer);
+
+    status = document.createElement('p'); status.setAttribute('role', 'status');
+    status.style.cssText = 'font-size:12px;line-height:1.6;overflow-wrap:anywhere';
     panel.append(status);
-    aside.append(panel); panel.addEventListener('toggle', () => { if (panel.open) showCount(); }); showCount();
+    aside.append(panel);
+    panel.addEventListener('toggle', () => { if (panel.open) showCount(); });
+    showCount();
   }
   const originalShowView = App.showView.bind(App);
   App.showView = function(...args) { if (args[0] !== 'chat') close(); return originalShowView(...args); };
