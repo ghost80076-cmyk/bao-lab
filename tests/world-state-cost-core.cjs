@@ -28,6 +28,10 @@ vm.runInThisContext(source, { filename: "js/world-state-cost.js" });
 
   assert.equal(await WorldStateEngine.update(config, "玩家三", "角色三"), null);
   assert.equal(GameState.current.stateTracker.phase, "failed");
+  assert.match(GameState.current.stateTracker.message, /繼續故事即可/);
+  assert.match(GameState.current.stateTracker.message, /下一輪自動重試/);
+  assert.doesNotMatch(GameState.current.stateTracker.message, /JSON|API|輸出長度/);
+  assert.match(GameState.current.stateTracker.diagnostic, /JSON/);
   assert.equal(attempts.length, 1);
   assert.match(attempts[0].playerText, /玩家一/);
   assert.match(attempts[0].playerText, /玩家二/);
