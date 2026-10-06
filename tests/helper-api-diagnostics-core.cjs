@@ -38,6 +38,12 @@ assert.equal(API.__sendWrapperIds.has("helper-api-routing:route"), true, "helper
   await API.send({ ...App.config.api, __stateTask: true }, [{ role: "user", content: "state" }]);
   assert.equal(received.config.model, "state-model", "state tasks must use the configured state route");
 
+  App.config.cost.stateApiMode = "same";
+  await API.send({ ...App.config.api, __stateTask: true }, [{ role: "user", content: "same-state" }]);
+  assert.equal(received.config.model, "main-model",
+    "explicit same mode must ignore a leftover stateApi object");
+  App.config.cost.stateApiMode = "separate";
+
   await API.send({ ...App.config.api, __memoryTask: true, __connectionTest: true }, [{ role: "user", content: "diagnostic" }]);
   assert.equal(received.config.model, "main-model", "a main connection diagnostic must never be redirected to the memory route");
   assert.equal(received.config.__connectionTest, true);
