@@ -116,6 +116,11 @@ assert.equal(
   "the extracted account rate limit boundary must exist exactly once"
 );
 assert.equal(
+  actual.filter(boundary => boundary === "WorkerAccountSelfRoute").length,
+  1,
+  "the extracted account self route boundary must exist exactly once"
+);
+assert.equal(
   actual.filter(boundary => boundary === "WorkerAdminPublicationRoutes").length,
   1,
   "the extracted admin publication routes boundary must exist exactly once"
