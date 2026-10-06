@@ -9,7 +9,7 @@
     const fixed = String(input || '').replace(entryPattern, (whole, label, triggerList, body) => {
       const triggers = [...new Set(triggerList.split(/[,，、;；|｜]+/).map(s => s.trim().toLocaleLowerCase()).filter(Boolean))].slice(0, 16);
       const text = body.trim();
-      if (!triggers.length || !text || entries.length >= 32) return whole; // Never discard unparsed content.
+      if (!triggers.length || !text || entries.length >= 32) return whole;
       entries.push({ label: label.trim(), triggers, text });
       return '';
     }).trim();
@@ -68,7 +68,6 @@
   engine.__baoLorebookPatched = true;
   window.BAOLorebook = { parse, select };
 
-  // The studio keeps using the existing lore text field, exports and local drafts.
   const initStudio = () => {
     const area = document.querySelector('#studio-form textarea[name="lore"]');
     const add = document.getElementById('studio-add-lore-entry');
@@ -78,17 +77,25 @@
       const result = parse(area.value);
       const unclosed = (area.value.match(/【世界書：/g) || []).length - result.entries.length;
       hint.textContent = unclosed > 0
-        ? `已辨識 ${result.entries.length} 條按需資料；另有 ${unclosed} 條格式未完成，未辨識的文字仍會每輪發送。`
-        : `已辨識 ${result.entries.length} 條按需資料；未包在世界書標記內的文字仍會每輪發送。`;
+        ? `已建立 ${result.entries.length} 筆需要時才讀取的設定；另有 ${unclosed} 筆格式尚未完成。`
+        : `已建立 ${result.entries.length} 筆延伸設定。故事提到設定的關鍵字時，夜灣才會把相關內容提供給 AI。`;
     };
     add.addEventListener('click', () => {
-      const title = '新地點';
-      const sample = `\n\n【世界書：${title}｜${title},別稱】\n請填寫與這個地點、人物或勢力有關的資料。\n【/世界書】`;
-      area.value += sample;
+      const title = window.prompt('這筆設定叫什麼？\n只是方便你辨認，例如：魔法學院、王都、林老師。', '魔法學院');
+      if (title === null) return;
+      const cleanTitle = title.trim().slice(0, 60);
+      if (!cleanTitle) return;
+      const keywords = window.prompt('故事出現哪些詞時，要讓 AI 想起這筆設定？\n可用逗號分隔，例如：魔法學院,學院,校長', cleanTitle);
+      if (keywords === null) return;
+      const cleanKeywords = keywords.trim().slice(0, 200);
+      if (!cleanKeywords) return;
+      const body = window.prompt('AI 需要知道什麼？\n寫下人物、地點、組織或事件的詳細設定。', '請在這裡填寫詳細設定。');
+      if (body === null) return;
+      const cleanBody = body.trim();
+      if (!cleanBody) return;
+      area.value += `\n\n【世界書：${cleanTitle}｜${cleanKeywords}】\n${cleanBody}\n【/世界書】`;
       area.dispatchEvent(new Event('input', { bubbles: true }));
       area.focus();
-      const start = area.value.lastIndexOf(title);
-      if (start >= 0) area.setSelectionRange(start, start + title.length);
     });
     area.addEventListener('input', update);
     document.getElementById('studio-form')?.addEventListener('change', update);
