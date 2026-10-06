@@ -9,12 +9,13 @@
     if (!Array.isArray(GameState.current.pendingStateTurns)) GameState.current.pendingStateTurns = [];
     return GameState.current.pendingStateTurns;
   };
-  const report = (owner, phase, message) => {
+  const report = (owner, phase, message, diagnostic = "") => {
     if (!owner || GameState.current !== owner) return;
     owner.stateTracker = {
       ...(owner.stateTracker || {}),
       phase,
       message,
+      diagnostic: String(diagnostic || "").slice(0, 500),
       pending: queue().length,
       checkedAt: new Date().toISOString(),
       ...(phase === "updated" || phase === "unchanged" ? { successAt: new Date().toISOString() } : {})
@@ -127,7 +128,7 @@
     persistenceHint = true;
     const interval = this.interval(config);
     if (pending.length < interval) {
-      report(owner, "waiting", `${scenePatch ? '已同步回覆明示的時間／地點；' : ''}累積 ${pending.length}／${interval} 輪，尚未呼叫狀態模型。`);
+      report(owner, "waiting", `${scenePatch ? '已同步回覆明示的時間／地點；' : ''}已累積 ${pending.length}／${interval} 輪。繼續故事即可，系統會在達到整理回合時自動更新。`);
       return scenePatch;
     }
     const originalApi = config?.api;
@@ -157,12 +158,17 @@
     };
     const combinedPlayer = batch.map((turn, index) => `第 ${index + 1} 輪：${turn.player}`).join("\n\n");
     const combinedAssistant = batch.map((turn, index) => `第 ${index + 1} 輪：${turn.assistant}`).join("\n\n");
-    report(owner, "updating", `正在整理 ${batch.length} 輪${pending.length > batch.length ? `（其餘 ${pending.length - batch.length} 輪排隊）` : ""}；此操作會呼叫狀態 API。`);
+    report(owner, "updating", `正在整理 ${batch.length} 輪${pending.length > batch.length ? `（其餘 ${pending.length - batch.length} 輪排隊）` : ""}，完成後會自動套用最新狀態。`);
     try {
       const result = await originalUpdate(patched, combinedPlayer, combinedAssistant);
       if (GameState.current !== owner) return null;
       if (result === null || result === undefined) {
-        report(owner, "failed", `${scenePatch ? '時間／地點已同步；' : ''}狀態模型未產生可套用的 JSON，或呼叫失敗；其餘舊值已保留，待下輪重試。請檢查模型連線與輸出長度。`);
+        report(
+          owner,
+          "failed",
+          `${scenePatch ? '時間／地點已同步；' : ''}狀態更新暫時沒有完成，已保留目前資料。繼續故事即可，系統會在下一輪自動重試。`,
+          "狀態模型未產生可套用的 JSON，或狀態呼叫未取得有效結果。"
+        );
         return scenePatch;
       }
       pending.splice(0, batch.length);
@@ -170,7 +176,12 @@
       report(owner, changed ? "updated" : "unchanged", changed ? "狀態模型已回傳並套用本輪更新。" : "狀態模型已成功檢查，但沒有可確認的變化。");
       return result;
     } catch (error) {
-      if (GameState.current === owner) report(owner, "failed", `狀態整理失敗：${String(error?.message || error).slice(0, 180)}。待下輪重試。`);
+      if (GameState.current === owner) report(
+        owner,
+        "failed",
+        "狀態更新暫時沒有完成，已保留目前資料。繼續故事即可，系統會在下一輪自動重試。",
+        `狀態整理失敗：${String(error?.message || error).slice(0, 180)}`
+      );
       return scenePatch;
     }
   };
