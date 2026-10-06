@@ -145,6 +145,11 @@ assert.match(
 );
 assert.match(
   source,
+  /node --check workers\/bao-lab-credits-api\/modules\/provider-control\.js/,
+  "the extracted provider control module must pass syntax validation before deployment"
+);
+assert.match(
+  source,
   /node --check workers\/bao-lab-credits-api\/modules\/provider-routing\.js/,
   "the extracted provider routing module must pass syntax validation before deployment"
 );
@@ -183,6 +188,11 @@ assert.match(
   source,
   /node tests\/worker-number-utils-core\.cjs/,
   "numeric helper behavior contract must run before production deployment"
+);
+assert.match(
+  source,
+  /node tests\/provider-control-core\.cjs/,
+  "provider control behavior contract must run before production deployment"
 );
 assert.match(
   source,
