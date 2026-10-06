@@ -15,6 +15,7 @@
 
   const isIOS = () => /iphone|ipad|ipod/i.test(navigator.userAgent);
   const isSafari = () => /safari/i.test(navigator.userAgent) && !/crios|fxios|edgios|chrome|android/i.test(navigator.userAgent);
+  const isHomeVisible = () => document.querySelector('#home-view.view.active, #home-view.active') !== null;
 
   const removePrompt = () => document.getElementById('yorubay-install-prompt')?.remove();
 
@@ -30,6 +31,9 @@
   const renderPrompt = ({ fallback = false } = {}) => {
     if (isStandalone() || recentlyDismissed() || document.getElementById('yorubay-install-prompt')) return;
     if (!deferredPrompt && !fallback) return;
+    // The fallback is an onboarding hint, not a modal that should interrupt someone
+    // who has already opened Explore, setup, or a story.
+    if (fallback && !isHomeVisible()) return;
 
     const nativeInstall = Boolean(deferredPrompt);
     const el = document.createElement('aside');
