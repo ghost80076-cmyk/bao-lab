@@ -2,9 +2,9 @@ name: Story entry regression
 
 on:
   push:
-    branches: [fix/mobile-story-entry-20260919, main]
+    branches: [main]
   pull_request:
-    branches: [main, integrate/pr36-pr35-20260922]
+    branches: [main]
 
 permissions:
   contents: read
@@ -12,22 +12,17 @@ permissions:
 jobs:
   story-entry:
     runs-on: ubuntu-latest
-    container:
-      image: mcr.microsoft.com/playwright:v1.63.0-noble
-      options: --user 1001
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: npm
       - name: Verify relocated button insertion stays safe
         run: |
           if grep -R -nE 'aside\.insertBefore\((button|box),[[:space:]]*(exit|aside\.querySelector\("\.text-button"\))\)' js/; then
             echo 'Unsafe sidebar insertion found' >&2
             exit 1
           fi
-      - run: npm ci
-      - name: Verify phone and desktop start, resume, keys, scroll and event integrity
-        run: npm run test:e2e -- tests/e2e/mobile-story-entry.spec.cjs tests/e2e/story-integrity.spec.cjs --project=chromium
+      - name: Browser coverage
+        run: echo "Story-entry browser regressions are covered by Fast Browser E2E."
