@@ -47,11 +47,13 @@ jobs:
           node --check workers/bao-lab-credits-api/modules/github-publication-transport.js
           node --check workers/bao-lab-credits-api/modules/http.js
           node --check workers/bao-lab-credits-api/modules/model-pricing.js
+          node --check workers/bao-lab-credits-api/modules/number-utils.js
           node --check workers/bao-lab-credits-api/modules/publication-format.js
           node --check workers/bao-lab-credits-api/modules/provider-routing.js
           node --check workers/bao-lab-credits-api/modules/runtime-config.js
           node --check workers/bao-lab-credits-api/modules/session-auth.js
           node tests/worker-content-deploy-core.cjs
+          node tests/worker-number-utils-core.cjs
           node tests/worker-production-deploy-workflow-core.cjs
           node tests/worker-security-headers-core.cjs
           node tests/worker-http-core.cjs

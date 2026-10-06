@@ -129,6 +129,13 @@ import {
 } from "./modules/runtime-config.js";
 
 import {
+  integer,
+  safeInt,
+  safeMoneyInt,
+  usageInt,
+} from "./modules/number-utils.js";
+
+import {
   WorkerModelPricing,
   actualUsageCostMicrousd,
   ceilDivBigInt,
@@ -174,26 +181,6 @@ const SECURITY_CONTRACT_VERSION = "2026-10-04-1";
 const MIN_AFFORDABLE_OUTPUT_TOKENS = 64;
 
 const enc = new TextEncoder();
-
-const integer = (n, min, max) =>
-  Number.isSafeInteger(n) &&
-  n >= min &&
-  n <= max;
-
-const safeInt = (n) =>
-  integer(n, 0, 1_000_000_000)
-    ? n
-    : 0;
-
-const usageInt = (n) =>
-  integer(n, 0, 1_000_000_000)
-    ? n
-    : null;
-
-const safeMoneyInt = (n) =>
-  integer(n, 0, 9_000_000_000_000)
-    ? n
-    : 0;
 
 // Internal HTTP/transport boundary. Keep this module-shaped block self-contained so
 // it can later move to a Cloudflare Worker module without changing route callers.

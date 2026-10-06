@@ -198,6 +198,8 @@ jobs:
         run: node tests/hosted-mainstream-rollout-core.cjs
       - name: Worker model config shards
         run: node tests/worker-model-config-shards-core.cjs
+      - name: Worker numeric helper contracts
+        run: node tests/worker-number-utils-core.cjs
       - name: YoruBay provider control
         run: node tests/provider-control-core.cjs
       - name: Worker response security headers
