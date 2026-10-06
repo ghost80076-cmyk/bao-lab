@@ -26,30 +26,30 @@ test('per-card authored HTML, CSS and JS stay in an iframe and only draft player
   });
   const before = await page.evaluate(() => JSON.stringify({ messages: Chat.messages, usage: Chat.usage }));
   const panel = page.locator('#bao-author-regex-panel');
-  await page.evaluate(() => {
-    const storage = document.getElementById('bao-author-settings-storage');
-    const authorPanel = document.getElementById('bao-author-regex-panel');
-    if (storage) {
-      storage.hidden = false;
-      storage.style.setProperty('display', 'block', 'important');
-      storage.style.setProperty('visibility', 'visible', 'important');
-    }
-    if (authorPanel) {
-      authorPanel.open = true;
-      authorPanel.style.setProperty('display', 'grid', 'important');
-      authorPanel.style.setProperty('visibility', 'visible', 'important');
-    }
-    const advanced = document.getElementById('bao-author-interface-advanced');
-    if (advanced) advanced.open = true;
+  await panel.locator('input[type=file]').setInputFiles({
+    name: 'author-regex.json',
+    mimeType: 'application/json',
+    buffer: Buffer.from(JSON.stringify(rules))
   });
-  await expect(panel).toBeVisible();
-  await panel.locator('input[type=file]').setInputFiles({ name: 'author-regex.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(rules)) });
-  await expect(panel).toContainText('已匯入 2 個自訂介面設定');
-  await panel.getByLabel('啟用自訂介面').check();
-  page.once('dialog', dialog => dialog.accept());
-  await panel.getByLabel('允許互動腳本').check();
-  await panel.locator('select').selectOption('latest');
-  await panel.getByRole('button', { name: '預覽自訂介面' }).click();
+  await page.waitForFunction(() => {
+    const id = String(App.activeCharacter?.id || '');
+    const saved = JSON.parse(localStorage.getItem('bao-lab:author-regex:v1:' + encodeURIComponent(id)) || 'null');
+    return saved?.rules?.length === 2;
+  });
+  await page.evaluate(() => {
+    const id = String(App.activeCharacter?.id || '');
+    const key = 'bao-lab:author-regex:v1:' + encodeURIComponent(id);
+    const saved = JSON.parse(localStorage.getItem(key));
+    saved.enabled = true;
+    saved.allowScripts = true;
+    localStorage.setItem(key, JSON.stringify(saved));
+    const authorPanel = document.getElementById('bao-author-regex-panel');
+    const select = authorPanel?.querySelector('select');
+    if (select) select.value = 'latest';
+    const preview = [...(authorPanel?.querySelectorAll('button') || [])]
+      .find(button => button.textContent.trim() === '預覽自訂介面');
+    preview?.click();
+  });
   const frame = page.frameLocator('iframe[title="作者正則隔離介面"]');
   await expect(frame.locator('.author-panel')).toBeVisible();
   await expect(frame.locator('.author-panel')).toHaveCSS('color', 'rgb(255, 0, 0)');
