@@ -73,6 +73,22 @@
     const add = document.getElementById('studio-add-lore-entry');
     const hint = document.getElementById('studio-lore-status');
     if (!area || !add || !hint) return;
+
+    const label = area.closest('label');
+    if (label?.firstChild?.nodeType === Node.TEXT_NODE) label.firstChild.textContent = '延伸世界設定（需要時才讀取）';
+    area.placeholder = '人物、地點、組織或事件的詳細資料，可以用下方「＋ 新增一筆延伸設定」建立。固定每輪都要讓 AI 知道的基本規則，請寫在上方「世界設定」。';
+    const loreHelp = label?.querySelector('small');
+    if (loreHelp) loreHelp.textContent = '這裡也叫「世界書 / Lorebook」。平常不會一直把每筆延伸設定送給 AI；故事提到設定的關鍵字時，夜灣才會自動帶入相關內容。舊角色卡的一般背景文字仍會照原本方式使用。';
+    add.textContent = '＋ 新增一筆延伸設定';
+    add.title = '建立人物、地點、組織或事件的詳細設定；故事提到關鍵字時才提供給 AI';
+
+    const profile = document.querySelector('#studio-form textarea[name="profile"]');
+    const profileHelp = profile?.closest('label')?.querySelector('small');
+    if (profileHelp) profileHelp.textContent = '單角色作品可放主要角色資料；多 NPC 世界只放固定主角或作品主體。其他人物、地點與組織的詳細資料，建議放在下方「延伸世界設定」。';
+    const world = document.querySelector('#studio-form textarea[name="world"]');
+    const worldHelp = world?.closest('label')?.querySelector('small');
+    if (worldHelp) worldHelp.textContent = '放這個世界每次都要記得的基本規則，例如時代、社會制度、力量體系。這裡會每輪提供給 AI；人物或地點的長篇細節建議改放「延伸世界設定」。';
+
     const update = () => {
       const result = parse(area.value);
       const unclosed = (area.value.match(/【世界書：/g) || []).length - result.entries.length;
