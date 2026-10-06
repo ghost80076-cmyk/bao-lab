@@ -59,7 +59,7 @@ assert.equal(appended.length, 1);
 assert.equal(appended[0].dataset.worldStateTracker, "true");
 assert.equal(appended[0].className, "note");
 assert.equal(appended[0].attrs.role, "status");
-assert.match(appended[0].textContent, /狀態模型：更新失敗。quota/);
+assert.match(appended[0].textContent, /狀態模型：暫未更新。quota/);
 
 existingTracker = true;
 result = wrapper(next, "status");
