@@ -25,6 +25,6 @@ assert.match(
   "model-routing must publish an installation marker"
 );
 assert.match(routing, /App\.__providerHintPatched/);
-assert.match(routing, /loadExtra\("js\/helper-api-routing\.js\?v=3"\)/);
+assert.match(routing, /loadExtra\("js\/helper-api-routing\.js\?v=4"\)/);
 
 console.log("control-routing-idempotency: control modules install once");
