@@ -13,6 +13,10 @@ const providerRoutingModuleSource = fs.readFileSync(
   path.join(root, "workers/bao-lab-credits-api/modules/provider-routing.js"),
   "utf8"
 );
+const providerControlModuleSource = fs.readFileSync(
+  path.join(root, "workers/bao-lab-credits-api/modules/provider-control.js"),
+  "utf8"
+);
 
 assert.match(
   workerEntrySource,
@@ -39,7 +43,17 @@ for (const helper of [
 }
 
 assert.match(
-  workerSource,
+  workerEntrySource,
+  /from "\.\/modules\/provider-control\.js";/,
+  "the Worker entry must import the extracted provider control module"
+);
+assert.doesNotMatch(
+  workerEntrySource,
+  /const WorkerProviderControl = \(\(\) => \{/,
+  "provider control implementation must not remain duplicated in worker.js"
+);
+assert.match(
+  providerControlModuleSource,
   /const WorkerProviderControl = \(\(\) => \{/,
   "provider admin-control helpers must stay grouped behind WorkerProviderControl"
 );
