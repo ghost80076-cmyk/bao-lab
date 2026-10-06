@@ -49,18 +49,19 @@
   function mount() {
     const panel = document.getElementById('bao-author-regex-panel');
     if (!panel || panel.querySelector('[data-bao-text-regex-mod]')) return;
+    const developer = document.getElementById('bao-author-interface-developer') || panel;
 
     const root = document.createElement('details');
     root.dataset.baoTextRegexMod = '1';
     root.style.cssText = 'margin-top:10px;padding-top:10px;border-top:1px dashed #7c637f';
 
     const summary = document.createElement('summary');
-    summary.textContent = '作品文字 Regex MOD';
+    summary.textContent = '文字替換（進階）';
     summary.style.cssText = 'cursor:pointer;font-weight:700';
 
     const intro = document.createElement('p');
     intro.style.cssText = 'font-size:12px;line-height:1.6';
-    intro.textContent = '每張作品各自保存。只改 AI 回覆的前端顯示，不改原始故事、記憶、狀態、Prompt 或 API 請求。進階 HTML／CSS／腳本規則仍請使用 JSON 匯入。';
+    intro.textContent = '把指定文字替換成另一段文字，只影響畫面顯示。這是進階功能，一般作者不需要設定。不改原始故事、記憶、狀態、Prompt 或 API 請求。';
 
     const stage = document.createElement('small');
     stage.style.cssText = 'display:block;margin:6px 0 10px;opacity:.82';
@@ -76,19 +77,19 @@
 
     const add = document.createElement('button');
     add.type = 'button';
-    add.textContent = '＋ 新增文字 MOD';
+    add.textContent = '＋ 新增文字替換';
 
     const commit = document.createElement('button');
     commit.type = 'button';
-    commit.textContent = '儲存 MOD';
+    commit.textContent = '儲存文字替換';
 
     const exportButton = document.createElement('button');
     exportButton.type = 'button';
-    exportButton.textContent = '匯出 JSON';
+    exportButton.textContent = '匯出設定';
 
     controls.append(add, commit, exportButton);
     root.append(summary, intro, stage, controls, list, status);
-    panel.append(root);
+    developer.append(root);
 
     let draft = [];
 
@@ -98,7 +99,7 @@
       list.replaceChildren();
       if (!draft.length) {
         const emptyNote = document.createElement('small');
-        emptyNote.textContent = '目前沒有手動文字 MOD。';
+        emptyNote.textContent = '目前沒有文字替換設定。';
         list.append(emptyNote);
         return;
       }
@@ -159,7 +160,7 @@
 
         if (rule.rich || rule.script) {
           const note = document.createElement('small');
-          note.textContent = '這是進階介面規則，文字 MOD 編輯器不會修改它。';
+          note.textContent = '這是其他進階介面設定，文字替換工具不會修改它。';
           note.style.cssText = 'color:#f0c9a8';
           card.append(note);
         }
@@ -182,7 +183,7 @@
         : plainRule(rule, index));
       render();
       const editable = draft.filter(rule => !rule.__locked).length;
-      say(`目前 ${editable} 條文字 MOD；另有 ${draft.length - editable} 條進階規則。`);
+      say(`目前 ${editable} 個文字替換；另有 ${draft.length - editable} 個其他進階設定。`);
     }
 
     add.addEventListener('click', () => {
@@ -238,7 +239,7 @@
         ? { ...rule, __locked: true }
         : plainRule(rule, index));
       render();
-      say('✓ 已儲存這張作品的文字 Regex MOD；不會改寫故事原文或送進模型。');
+      say('✓ 已儲存這張作品的文字替換；不會改寫故事原文或送進模型。');
       window.BAOAuthorInline?.refresh?.();
     });
 

@@ -24,13 +24,13 @@ async function setup(page) {
     API.send = () => { window.__authorTestApiCalls++; throw new Error('Author UI cannot call API'); };
   });
   const panel = page.locator('#bao-author-regex-panel');
-  await panel.locator('summary').click();
+  await panel.locator(':scope > summary').click();
   await panel.locator('input[type=file]').setInputFiles({ name: 'phone-regex.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(rules)) });
-  await expect(panel).toContainText('已保存 1 條原始正則');
-  await panel.getByLabel('在這張角色卡啟用作者介面').check();
+  await expect(panel).toContainText('已匯入 1 個自訂介面設定');
+  await panel.getByLabel('啟用自訂介面').check();
   page.once('dialog', dialog => dialog.accept());
-  await panel.getByLabel('允許作者腳本（需自行信任來源）').check();
-  await panel.getByLabel('跨回合常駐作者介面（不必每輪重建）').check();
+  await panel.getByLabel('允許互動腳本').check();
+  await panel.getByLabel('保留互動介面').check();
   const frame = page.frameLocator('iframe[title="跨回合作者隔離介面"]');
   await expect(frame.locator('#phone-ui')).toBeVisible();
   return { panel, frame };
@@ -41,7 +41,7 @@ test('UI preference is opt-in, saved in story bundle, restored across reload, ne
   await frame.getByRole('button', { name: '記住相簿' }).click();
   expect(await page.evaluate(() => Storage.buildStoryPayload('before').authorUi)).toBeUndefined();
   page.once('dialog', dialog => dialog.accept());
-  await panel.getByLabel('允許常駐作者介面儲存少量顯示偏好到本故事').check();
+  await panel.getByLabel('保存介面偏好').check();
   await expect(frame.locator('#phone-tab')).toHaveText('初始頁');
   await frame.getByRole('button', { name: '記住相簿' }).click();
   await expect(frame.locator('#phone-tab')).toHaveText('photos');

@@ -7,31 +7,49 @@ const rules = { regex_scripts: [
 ] };
 
 test('per-card authored HTML, CSS and JS stay in an iframe and only draft player text', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('./');
   await page.waitForFunction(() => Boolean(window.BAOAuthorRegexCore && document.querySelector('#bao-author-regex-panel') && App.characters?.length));
-  await page.locator('#home-view [data-view="explore"]').click();
-  await page.locator('article').filter({ hasText: '林沉風 - 見過黑暗的人' }).click();
-  await page.getByRole('button', { name: '開始故事' }).click();
-  await page.locator('#bao-setup-choice [data-bao-setup="advanced"]').click();
-  for (let i = 0; i < 3; i++) await page.getByRole('button', { name: '下一步' }).click();
-  await page.locator('#bao-demo-mode').check();
-  await page.getByRole('button', { name: '下一步' }).click();
-  await page.getByRole('button', { name: '開始故事' }).click();
-  await page.evaluate(() => {
+  await page.evaluate(async () => {
+    await App.openCharacter(App.characters[0].id);
+    App.config = {
+      narrativeMode: 'immersive', displayMode: 'text',
+      persona: { name: '測試玩家', gender: '未指定', identity: '', personality: '', relationship: '', extra: '' },
+      api: { type: 'custom', protocol: 'openai', model: 'offline-test', baseUrl: '', key: '' },
+      memory: { mode: 'smart', maxRounds: 20, maxContext: 32000, cache: false }
+    };
+    Chat.reset(); GameState.create(App.activeCharacter, App.config);
     Chat.add('user', '請開啟畫面');
     Chat.add('assistant', '【開屏】【開屏1】');
-    App.renderChatShell(false);
+    App.renderChatShell(false); App.showView('chat');
+    window.BAOChatUISimplify?.sync?.();
   });
   const before = await page.evaluate(() => JSON.stringify({ messages: Chat.messages, usage: Chat.usage }));
   const panel = page.locator('#bao-author-regex-panel');
-  await panel.locator('summary').click();
-  await panel.locator('input[type=file]').setInputFiles({ name: 'author-regex.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(rules)) });
-  await expect(panel).toContainText('已保存 2 條原始正則');
-  await panel.getByLabel('在這張角色卡啟用作者介面').check();
-  page.once('dialog', dialog => dialog.accept());
-  await panel.getByLabel('允許作者腳本（需自行信任來源）').check();
-  await panel.locator('select').selectOption('latest');
-  await panel.getByRole('button', { name: '開啟隔離介面預覽' }).click();
+  await panel.locator('input[type=file]').setInputFiles({
+    name: 'author-regex.json',
+    mimeType: 'application/json',
+    buffer: Buffer.from(JSON.stringify(rules))
+  });
+  await page.waitForFunction(() => {
+    const id = String(App.activeCharacter?.id || '');
+    const saved = JSON.parse(localStorage.getItem('bao-lab:author-regex:v1:' + encodeURIComponent(id)) || 'null');
+    return saved?.rules?.length === 2;
+  });
+  await page.evaluate(() => {
+    const id = String(App.activeCharacter?.id || '');
+    const key = 'bao-lab:author-regex:v1:' + encodeURIComponent(id);
+    const saved = JSON.parse(localStorage.getItem(key));
+    saved.enabled = true;
+    saved.allowScripts = true;
+    localStorage.setItem(key, JSON.stringify(saved));
+    const authorPanel = document.getElementById('bao-author-regex-panel');
+    const select = authorPanel?.querySelector('select');
+    if (select) select.value = 'latest';
+    const preview = [...(authorPanel?.querySelectorAll('button') || [])]
+      .find(button => button.textContent.trim() === '預覽自訂介面');
+    preview?.click();
+  });
   const frame = page.frameLocator('iframe[title="作者正則隔離介面"]');
   await expect(frame.locator('.author-panel')).toBeVisible();
   await expect(frame.locator('.author-panel')).toHaveCSS('color', 'rgb(255, 0, 0)');

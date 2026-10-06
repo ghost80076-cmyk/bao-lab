@@ -8,11 +8,11 @@ test('phone chat keeps advanced author settings out of the reading pane but reac
   await page.evaluate(() => App.showView('chat'));
   await expect(page.locator('#chat-view .chat-main #bao-author-regex-panel')).toHaveCount(0);
   await expect(page.locator('#bao-author-settings-storage #bao-author-regex-panel')).toHaveCount(1);
-  await page.locator('#bao-mobile-tools-tab').click();
+  await page.locator('#bao-mobile-composer-tools').click();
   const drawer = page.locator('#bao-chat-tool-drawer');
   await expect(drawer).toBeVisible();
   await drawer.locator('details').filter({ hasText: '敘事、模型與外觀' }).locator('summary').click();
-  await drawer.getByRole('button', { name: '角色卡自訂介面（進階）' }).click();
+  await drawer.getByRole('button', { name: '自訂介面' }).click();
   const dialog = page.getByRole('dialog', { name: '角色卡自訂介面設定' });
   await expect(dialog).toBeVisible();
   await expect(dialog.locator('#bao-author-regex-panel')).toHaveAttribute('open', '');
@@ -61,7 +61,7 @@ test('phone author dock begins collapsed and can be expanded without removing th
   });
   const dock = page.locator('#bao-author-dock');
   await expect(dock).not.toHaveAttribute('open', '');
-  await expect(dock.locator('summary')).toContainText('故事互動面板');
+  await expect(dock.locator('summary')).toContainText('自訂介面');
   await dock.locator('summary').click();
   await expect(dock.locator('#test-author-ui')).toBeVisible();
 });
