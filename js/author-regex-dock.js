@@ -85,7 +85,7 @@
   function sendState() {
     if (!active || active.story !== GameState.current || active.owner !== cardId() || !inChat()) return;
     const value = snapshot();
-    active.stateLabel.textContent = `世界狀態：${value.time || '未設定'} · ${value.location || '未設定'} · NPC ${value.npcs.length} 位`;
+    active.stateLabel.textContent = `故事狀態：${value.time || '未設定'} · ${value.location || '未設定'} · NPC ${value.npcs.length} 位`;
     if (active.allowScripts && active.allowStateSharing && settings(active.owner)?.allowStateSharing === true
       && active.ready && active.frame?.isConnected)
       active.frame.contentWindow?.postMessage({ baoAuthor: 'v1', token: active.token, type: 'state', value }, '*');
@@ -159,12 +159,12 @@
     const root = document.createElement('details');
     root.id = 'bao-author-dock'; root.open = true;
     root.style.cssText = 'margin:8px 0;border:1px solid #987a9c;border-radius:12px;overflow:hidden;background:#181722;color:#fff;flex-shrink:0';
-    const summary = document.createElement('summary'); summary.textContent = `常駐作者介面 · ${result.name || '正則排版'}`;
+    const summary = document.createElement('summary'); summary.textContent = `自訂介面 · ${result.name || '互動畫面'}`;
     summary.style.cssText = 'padding:10px 12px;cursor:pointer;font-weight:600';
     const bar = document.createElement('div');
     bar.style.cssText = 'display:flex;gap:8px;align-items:center;justify-content:space-between;padding:0 12px 8px;flex-wrap:wrap';
     const stateLabel = document.createElement('span'); stateLabel.style.cssText = 'font-size:12px;overflow-wrap:anywhere';
-    const reload = document.createElement('button'); reload.type = 'button'; reload.textContent = '重新選取介面';
+    const reload = document.createElement('button'); reload.type = 'button'; reload.textContent = '重新整理介面';
     reload.style.cssText = 'width:auto;padding:5px 10px;font-size:12px';
     reload.addEventListener('click', () => { clear(); schedule(); });
     bar.append(stateLabel, reload);
@@ -185,15 +185,16 @@
   function attachControl() {
     const panel = document.getElementById('bao-author-regex-panel');
     if (!panel) return;
+    const host = document.getElementById('bao-author-interface-advanced') || panel;
     if (!control || !control.isConnected) {
       const label = document.createElement('label');
       label.style.cssText = 'display:block;margin:8px 0;font-size:13px';
       control = document.createElement('input'); control.type = 'checkbox';
-      label.append(control, document.createTextNode(' 跨回合常駐作者介面（不必每輪重建）'));
+      label.append(control, document.createTextNode(' 保留互動介面'));
       const note = document.createElement('small');
       note.style.cssText = 'display:block;line-height:1.6';
-      note.textContent = '選用後固定一個命中的介面；腳本、世界狀態及介面偏好存檔分別授權。切換故事會銷毀介面。';
-      panel.append(label, note);
+      note.textContent = '開啟後，符合條件的互動介面會留在聊天上方，不必每輪重新建立。切換故事時會關閉。';
+      host.append(label, note);
       control.addEventListener('change', () => {
         const id = cardId();
         try { if (!id) throw new Error('請先進入角色故事'); localStorage.setItem(key(id), control.checked ? '1' : '0'); }
@@ -205,19 +206,19 @@
       const label = document.createElement('label');
       label.style.cssText = 'display:block;margin:8px 0;font-size:13px';
       persistControl = document.createElement('input'); persistControl.type = 'checkbox';
-      label.append(persistControl, document.createTextNode(' 允許常駐作者介面儲存少量顯示偏好到本故事'));
+      label.append(persistControl, document.createTextNode(' 保存介面偏好'));
       const note = document.createElement('small'); note.style.cssText = 'display:block;line-height:1.6';
-      note.textContent = '例如手機分頁、圖鑑選項；每次最多 4 KB，隨故事備份匯出。只開 JavaScript 不代表允許存檔。';
-      panel.append(label, note);
+      note.textContent = '例如手機分頁或圖鑑選項；每次最多 4 KB，會跟著故事備份保存。';
+      host.append(label, note);
       persistControl.addEventListener('change', () => {
         const id = cardId();
         try {
           if (!id) throw new Error('請先進入角色故事');
-          if (persistControl.checked && !confirm('作者可將少量顯示偏好寫入此故事及匯出的備份。請勿在作者介面輸入密碼或金鑰。確定允許嗎？')) {
+          if (persistControl.checked && !confirm('這會允許互動介面把少量顯示偏好保存到這個故事與備份中。請勿在介面輸入密碼或金鑰。確定允許嗎？')) {
             persistControl.checked = false; return;
           }
           const saved = JSON.parse(localStorage.getItem(PREFIX + encodeURIComponent(id)) || 'null');
-          if (!saved || !Array.isArray(saved.rules)) throw new Error('請先匯入作者正則');
+          if (!saved || !Array.isArray(saved.rules)) throw new Error('請先匯入自訂介面設定');
           saved.allowUiPersistence = persistControl.checked;
           localStorage.setItem(PREFIX + encodeURIComponent(id), JSON.stringify(saved));
           clear(); schedule();
