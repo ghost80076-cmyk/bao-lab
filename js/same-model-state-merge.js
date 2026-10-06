@@ -30,9 +30,12 @@
   const eligible = config => {
     if (!config || !GameState.current || !WorldStateEngine.enabled?.(config)) return false;
     if (explicitSeparateStateRoute(config)) return false;
+    // stateModel without an explicit stateApi is a legacy/stale field. "Same"
+    // mode means the story model owns the state appendix regardless of that
+    // leftover value; otherwise old saves can silently route status to a model
+    // name that does not belong to the current provider endpoint.
     const mainModel = String(config?.api?.model || '').trim();
-    const stateModel = String(config?.cost?.stateModel || '').trim();
-    return Boolean(mainModel) && (!stateModel || stateModel === mainModel);
+    return Boolean(mainModel);
   };
   const taskRequest = config => Boolean(config?.__connectionTest || config?.__memoryTask || config?.__stateTask ||
     config?.__storyTool || config?.__auxiliaryTask);
