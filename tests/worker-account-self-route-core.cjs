@@ -5,6 +5,34 @@ const path = require("node:path");
 
 const source = loadWorkerTestSource();
 
+const workerEntrySource = fs.readFileSync(
+  path.join(__dirname, "../workers/bao-lab-credits-api/worker.js"),
+  "utf8"
+);
+const selfRouteModuleSource = fs.readFileSync(
+  path.join(
+    __dirname,
+    "../workers/bao-lab-credits-api/modules/account-self-route.js"
+  ),
+  "utf8"
+);
+
+assert.match(
+  workerEntrySource,
+  /from "\.\/modules\/account-self-route\.js";/,
+  "the Worker entry must import the extracted account self route module"
+);
+assert.doesNotMatch(
+  workerEntrySource,
+  /const WorkerAccountSelfRoute = \(\(\) => \{/,
+  "account self route implementation must not remain duplicated in worker.js"
+);
+assert.match(
+  selfRouteModuleSource,
+  /const WorkerAccountSelfRoute = \(\(\) => \{/,
+  "account self route implementation must live in its module"
+);
+
 assert.match(
   source,
   /const WorkerAccountSelfRoute = \(\(\) => \{/,
