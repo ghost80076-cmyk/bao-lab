@@ -93,6 +93,25 @@ assert.equal(originalCard.system_prompt, '原角色設定');
   assert.equal(sandbox.BAOStoryActors.readActorPresets()[0].actor.identity, '傭兵');
   assert.ok(!browserStorage.get('bao-lab:actor-presets-v1').includes('apiKey'));
   assert.equal(typeof sandbox.BAOStoryActors.openLibrary, 'function', 'people library is exposed for the My hub');
+
+  const collected = sandbox.BAOStoryActors.saveVisibleNpcPreset({
+    name: '公爵乙',
+    role: '王國公爵',
+    personality: '作者隱藏個性',
+    relationship: '作者隱藏關係',
+    notes: 'SECRET_AUTHOR_NOTE',
+    system_prompt: 'SECRET_SYSTEM_PROMPT'
+  });
+  assert.equal(collected.ok, true);
+  assert.equal(collected.created, true);
+  const collectedActor = sandbox.BAOStoryActors.readActorPresets().find(item => item.actor.name === '公爵乙').actor;
+  assert.equal(collectedActor.identity, '王國公爵');
+  assert.equal(collectedActor.personality, '', 'roster collection must not copy hidden personality');
+  assert.equal(collectedActor.relationship, '', 'roster collection must not copy hidden relationship');
+  assert.ok(!JSON.stringify(collectedActor).includes('SECRET_AUTHOR_NOTE'));
+  assert.ok(!JSON.stringify(collectedActor).includes('SECRET_SYSTEM_PROMPT'));
+  const duplicate = sandbox.BAOStoryActors.saveVisibleNpcPreset({ name: '公爵乙', role: '王國公爵', notes: 'DIFFERENT_SECRET' });
+  assert.equal(duplicate.created, false, 'same visible NPC identity should not create duplicate library entries');
   assert.ok(!source.includes("DRAFT_KEY_PREFIX}${'${'}App.config.api"), 'draft storage must never include API config');
   App.saveStory();
   const saved = Storage.clone(Storage.lastSave);
