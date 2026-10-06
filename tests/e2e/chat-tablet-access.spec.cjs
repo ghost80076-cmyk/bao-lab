@@ -11,6 +11,6 @@ test('tablet with hidden sidebar can open author settings from the tool drawer',
   const drawer = page.locator('#bao-chat-tool-drawer');
   await expect(drawer).toBeVisible();
   await drawer.locator('details').filter({ hasText: '敘事、模型與外觀' }).locator('summary').click();
-  await drawer.getByRole('button', { name: '角色卡自訂介面（進階）' }).click();
+  await drawer.getByRole('button', { name: '自訂介面' }).click();
   await expect(page.getByRole('dialog', { name: '角色卡自訂介面設定' })).toBeVisible();
 });
