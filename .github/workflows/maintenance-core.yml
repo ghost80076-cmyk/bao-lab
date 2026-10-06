@@ -29,6 +29,9 @@ jobs:
       - name: Character library recovery
         run: node --test tests/character-library-repair-core.cjs
 
+      - name: YoruBay PNG native roundtrip
+        run: node tests/yorubay-png-roundtrip-core.cjs
+
       - name: Google Drive sync syntax
         run: |
           node --check js/google-drive-sync.js
