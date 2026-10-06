@@ -68,9 +68,9 @@
     const editor = panel();
     if (!editor) return;
     const summary = editor.querySelector(':scope > summary');
-    if (summary && summary.textContent !== '自訂排版與互動（正則）') {
-      summary.textContent = '自訂排版與互動（正則）';
-      summary.title = '進階功能：匯入或啟用角色卡作者提供的排版與互動規則';
+    if (summary && summary.textContent !== '🧩 自訂介面') {
+      summary.textContent = '🧩 自訂介面';
+      summary.title = '為這張作品管理特殊排版、按鈕與互動畫面';
     }
     if (!compact.matches) {
       close();
@@ -89,8 +89,8 @@
       trigger.type = 'button';
       trigger.id = 'bao-author-settings-open';
       trigger.className = 'secondary';
-      trigger.textContent = '角色卡自訂介面（進階）';
-      trigger.title = '管理作者排版與互動規則；一般聊天不需要設定';
+      trigger.textContent = '自訂介面';
+      trigger.title = '管理這張作品的特殊排版與互動畫面；一般聊天不需要設定';
       trigger.addEventListener('click', open);
       host.append(trigger);
     } else if (trigger && host && trigger.parentElement !== host) host.append(trigger);
@@ -110,8 +110,8 @@
     const owner = String(window.App?.activeCharacter?.id || '');
     const summary = root.querySelector(':scope > summary');
     if (summary) {
-      summary.textContent = summary.textContent.replace(/^常駐作者介面/, '故事互動面板').replace('正則排版', '自訂排版');
-      summary.title = '點此展開或收起作者設計的互動介面';
+      summary.textContent = summary.textContent.replace(/^常駐作者介面/, '自訂介面').replace(/^故事互動面板/, '自訂介面').replace('正則排版', '互動畫面').replace('自訂排版', '互動畫面');
+      summary.title = '展開或收起這張作品的互動介面';
     }
     if (compact.matches) root.open = choices.get(owner) === true;
     root.addEventListener('toggle', () => { if (compact.matches) choices.set(owner, root.open); });
@@ -123,8 +123,8 @@
     dock();
     const link = document.querySelector('.topbar nav [data-bao-regex-link]');
     if (link && link.textContent !== '排版工具') {
-      link.textContent = '排版工具';
-      link.title = '進階：文字替換與正則規則';
+      link.textContent = '文字工具';
+      link.title = '進階：文字替換規則';
     }
   };
   const schedule = () => {
