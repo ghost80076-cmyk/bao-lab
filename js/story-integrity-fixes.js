@@ -151,7 +151,9 @@
     const section = App.config[helperSection(kind)] ||= {};
     section[helperModeName(kind)] = mode;
     section[helperRouteName(kind)] = mode === 'separate' ? route : null;
-    section[helperModelName(kind)] = model || App.config.api?.model || '';
+    section[helperModelName(kind)] = mode === 'separate'
+      ? (model || '')
+      : (kind === 'state' ? '' : (model || App.config.api?.model || ''));
   };
   const validUrl = url => /^https:\/\/[^\s]+$/i.test(url) || /^http:\/\/(?:localhost|127\.0\.0\.1|\[::1\])(?::\d+)?(?:\/|$)/i.test(url);
   const attachHelperControls = dialog => {
@@ -219,7 +221,7 @@
         for (const [kind, control] of Object.entries(controls)) {
           const mode = control.choice.value;
           if (mode === 'same') {
-            proposed[kind] = { mode, route: null, model: control.model || control.prior?.model || nextMain.model };
+            proposed[kind] = { mode, route: null, model: kind === 'state' ? '' : (control.model || control.prior?.model || nextMain.model) };
             continue;
           }
           const candidate = { ...control.prior, model: control.fields.model.value.trim(),
@@ -245,6 +247,7 @@
       setTimeout(() => {
         if (document.getElementById('bao-chat-api-backdrop') === dialog || GameState.current !== owner || !App.config?.api?.key) return;
         for (const [kind, item] of Object.entries(proposed)) setHelper(kind, item.mode, item.route, item.model);
+        window.BAOStoryHelperReconnect?.normalizeStateRoute?.(App.config);
         owner.config = App.config;
         App.saveStory?.(false);
         window.BAOChatAPISettings?.refresh?.();
