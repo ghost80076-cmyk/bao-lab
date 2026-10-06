@@ -55,6 +55,11 @@ assert.match(
 );
 assert.match(
   source,
+  /node --check workers\/bao-lab-credits-api\/modules\/account-author-routes\.js/,
+  "the extracted account author routes module must pass syntax validation before deployment"
+);
+assert.match(
+  source,
   /node --check workers\/bao-lab-credits-api\/modules\/account-rate-limit\.js/,
   "the extracted account rate limit module must pass syntax validation before deployment"
 );
@@ -163,6 +168,11 @@ assert.match(
   source,
   /node tests\/worker-account-self-route-core\.cjs/,
   "account self route behavior contract must run before production deployment"
+);
+assert.match(
+  source,
+  /node tests\/account-author-identity\.cjs/,
+  "account author identity contract must run before production deployment"
 );
 assert.match(
   source,
