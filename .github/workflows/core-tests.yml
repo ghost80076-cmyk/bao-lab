@@ -201,7 +201,9 @@ jobs:
       - name: Worker numeric helper contracts
         run: node tests/worker-number-utils-core.cjs
       - name: YoruBay provider control
-        run: node tests/provider-control-core.cjs
+        run: |
+          node tests/provider-control-core.cjs
+          node tests/worker-provider-control-esm-core.mjs
       - name: Worker response security headers
         run: |
           node tests/worker-security-headers-core.cjs

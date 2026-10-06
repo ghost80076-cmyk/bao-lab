@@ -6,6 +6,11 @@ import {
 } from "./modules/account-validation.js";
 
 import {
+  COST_BILLING_MODE,
+  LEGACY_BILLING_MODE,
+} from "./modules/billing-constants.js";
+
+import {
   WorkerChatInput,
   normalizeHostedSessionId,
   normalizeMessages,
@@ -186,8 +191,6 @@ import {
 const MAX_OUTPUT = 8192;
 
 const LEGACY_CREDIT_TOKEN_UNIT = 100;
-const LEGACY_BILLING_MODE = "raw_tokens_v1";
-const COST_BILLING_MODE = "cost_usd_v2";
 const DEFAULT_PRICING_VERSION = "2026-09-25-v1";
 const SECURITY_CONTRACT_VERSION = "2026-10-04-1";
 const MIN_AFFORDABLE_OUTPUT_TOKENS = 64;

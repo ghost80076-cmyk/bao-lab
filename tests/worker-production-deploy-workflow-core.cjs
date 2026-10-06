@@ -120,6 +120,11 @@ assert.match(
 );
 assert.match(
   source,
+  /node --check workers\/bao-lab-credits-api\/modules\/billing-constants\.js/,
+  "the shared billing constants module must pass syntax validation before deployment"
+);
+assert.match(
+  source,
   /node --check workers\/bao-lab-credits-api\/modules\/chat-input\.js/,
   "the extracted chat input module must pass syntax validation before deployment"
 );
@@ -183,6 +188,11 @@ assert.match(
   source,
   /node tests\/worker-account-self-route-core\.cjs/,
   "account self route behavior contract must run before production deployment"
+);
+assert.match(
+  source,
+  /node tests\/worker-provider-control-esm-core\.mjs/,
+  "standalone provider-control ES module behavior must run before production deployment"
 );
 assert.match(
   source,
