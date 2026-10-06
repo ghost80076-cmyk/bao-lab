@@ -140,6 +140,11 @@ assert.match(
 );
 assert.match(
   source,
+  /node --check workers\/bao-lab-credits-api\/modules\/provider-control\.js/,
+  "the extracted provider control module must pass syntax validation before deployment"
+);
+assert.match(
+  source,
   /node --check workers\/bao-lab-credits-api\/modules\/publication-format\.js/,
   "the extracted publication format module must pass syntax validation before deployment"
 );

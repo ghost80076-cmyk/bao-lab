@@ -96,6 +96,11 @@ assert.equal(
   "the extracted provider routing boundary must exist exactly once"
 );
 assert.equal(
+  actual.filter(boundary => boundary === "WorkerProviderControl").length,
+  1,
+  "the extracted provider control boundary must exist exactly once"
+);
+assert.equal(
   actual.filter(boundary => boundary === "WorkerCrypto").length,
   1,
   "the extracted crypto boundary must exist exactly once"
