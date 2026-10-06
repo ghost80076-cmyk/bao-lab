@@ -123,7 +123,6 @@
           App.config.cost ||= {};
           const update = (kind, settings, routeName, modelName, modeName) => {
             const route = changes[kind];
-            const prior = settings[routeName];
             settings[routeName] = route;
             settings[modeName] = route ? 'separate' : 'same';
             settings[modelName] = route?.model || '';
