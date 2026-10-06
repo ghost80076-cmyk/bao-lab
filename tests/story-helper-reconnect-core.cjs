@@ -40,6 +40,14 @@ assert.equal(config.memory.summaryApi.key, '');
 assert.equal(helper.missing(config), true);
 console.log('PASS same main connection can share session key, protocol changes cannot');
 
+config = { api: api('https://main.example/v1', 'openai', 'CURRENT_MAIN'),
+  cost: { stateApi: null, stateModel: 'stale-other-model', stateApiMode: 'separate' }, memory: {} };
+assert.equal(helper.normalizeStateRoute(config), true);
+assert.equal(config.cost.stateApi, null);
+assert.equal(config.cost.stateModel, '');
+assert.equal(config.cost.stateApiMode, 'same');
+console.log('PASS legacy stateModel without explicit route is normalized to same-model mode');
+
 const saved = { config: { api: api('https://main.example/v1'),
   cost: { stateApi: api('https://state.example/v1', 'openai', 'KEY_IN_SAVED_STORY') },
   memory: { summaryApi: api('https://new-memory.example/v1', 'gemini', 'ALSO_IN_SAVED_STORY') } } };
