@@ -173,7 +173,7 @@ test('resuming shows saved main, state and memory model metadata; only keys need
     expect(serialized).toContain(metadata);
 });
 
-test('same-provider helper model is restored without requesting a second key', async ({ page }) => {
+test('legacy same-mode helper model is normalized without requesting a second key', async ({ page }) => {
   await startStory(page);
   await page.evaluate(async () => {
     App.config.cost ||= {};
@@ -190,11 +190,11 @@ test('same-provider helper model is restored without requesting a second key', a
   const dialog = page.getByRole('dialog', { name: '目前故事的模型連線' });
   const state = dialog.locator('.bao-helper-reconnect fieldset').first();
   await expect(state.locator('select').first()).toHaveValue('same');
-  await expect(state).toContainText('state-on-main-provider');
+  await expect(state).not.toContainText('state-on-main-provider');
   await dialog.locator('input[name=key]').fill('ONE_MAIN_KEY');
   await dialog.getByRole('button', { name: '套用到目前故事' }).click();
   await expect.poll(() => page.evaluate(() => [App.config.api.key, App.config.cost.stateModel, App.config.cost.stateApiMode].join('|')))
-    .toBe('ONE_MAIN_KEY|state-on-main-provider|same');
+    .toBe('ONE_MAIN_KEY||same');
   expect(await page.evaluate(() => App.config.cost.stateApi)).toBe(null);
 });
 

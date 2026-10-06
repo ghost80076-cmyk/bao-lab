@@ -19,7 +19,11 @@ const hookSource = fs.readFileSync(path.join(__dirname, "..", "js", "world-state
 vm.runInThisContext(source, { filename: "js/world-state-cost.js" });
 
 (async () => {
-  const config = { narrativeMode: "world", api: { model: "main", key: "mock-only" }, cost: { stateInterval: 3, stateModel: "tracker" } };
+  const config = { narrativeMode: "world", api: { model: "main", key: "mock-only" }, cost: {
+    stateInterval: 3,
+    stateModel: "tracker",
+    stateApi: { model: "tracker", baseUrl: "https://state.example/v1", key: "state-key" }
+  } };
   assert.equal(await WorldStateEngine.update(config, "玩家一", "角色一"), null);
   assert.equal(GameState.current.stateTracker.phase, "waiting");
   assert.equal(await WorldStateEngine.update(config, "玩家二", "角色二"), null);
@@ -64,6 +68,17 @@ vm.runInThisContext(source, { filename: "js/world-state-cost.js" });
   assert.match(hookSource, /pendingChanged/);
   assert.match(hookSource, /this\.saveStory\(false\)/, "skipped tracker turns must be persisted locally");
   assert.match(hookSource, /this\.renderUIPanel\('npc'\)/, "status diagnostics must be refreshed after failed checks");
+
+  GameState.current = {};
+  const staleConfig = {
+    narrativeMode: "world",
+    api: { model: "main", key: "mock-only" },
+    cost: { stateInterval: 1, stateModel: "legacy-wrong-model", stateApi: null }
+  };
+  await WorldStateEngine.update(staleConfig, "舊存檔玩家", "舊存檔故事");
+  assert.equal(attempts.at(-1).config.api.model, "main",
+    "a stale stateModel without stateApi must never replace the main endpoint model");
+
   console.log("world state cost core test passed");
 })().catch(error => {
   console.error(error);

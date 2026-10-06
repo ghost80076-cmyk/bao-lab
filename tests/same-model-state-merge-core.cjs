@@ -115,6 +115,11 @@ assert.equal(API.__sendWrapperIds.has('same-model-state-merge:main-story'), true
     narration: '正文', stateText: '{"location":"街道"}', hasState: true
   });
 
+  App.config.cost.stateApi = null;
+  App.config.cost.stateModel = 'legacy-stale-model';
+  assert.equal(BAOSameModelStateMerge.eligible(App.config), true,
+    'legacy stateModel without stateApi must not disable same-model status merging');
+
   App.config.cost.stateApi = { model: 'gemini-test', baseUrl: 'https://example.test/v1', key: 'other' };
   assert.equal(BAOSameModelStateMerge.eligible(App.config), false, 'explicit separate state route must preserve two-request mode');
   await WorldStateEngine.update(App.config, '分開', '分開故事');
