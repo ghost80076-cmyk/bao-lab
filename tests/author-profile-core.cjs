@@ -51,11 +51,32 @@ const works = core.worksForAuthor([
     published_version: 2
   },
   {
+    id: "new",
+    author_id: "baitao",
+    updated_at: "2026-09-30T00:00:00Z",
+    published_version: 1
+  },
+  {
     id: "other",
     author_id: "someone-else"
   }
 ], "baitao");
 assert.deepEqual(works.map(item => item.id), ["new", "old"]);
 assert.match(core.publicationLabel(works[0]), /^v2/);
+assert.equal(works.length, 2, "duplicate catalog entries must count as one public work");
+
+const directory = core.directoryEntries({
+  authors: [
+    { id: "baitao", name: "白桃" },
+    { id: "someone-else", name: "另一位作者" }
+  ]
+}, [
+  ...works,
+  { id: "other", author_id: "someone-else" }
+]);
+assert.deepEqual(
+  directory.map(author => [author.id, author.work_count]),
+  [["baitao", 2], ["someone-else", 1]]
+);
 
 console.log("author profile core test passed");
