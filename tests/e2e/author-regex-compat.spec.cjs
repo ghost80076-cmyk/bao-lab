@@ -24,14 +24,14 @@ test('per-card authored HTML, CSS and JS stay in an iframe and only draft player
   });
   const before = await page.evaluate(() => JSON.stringify({ messages: Chat.messages, usage: Chat.usage }));
   const panel = page.locator('#bao-author-regex-panel');
-  await panel.locator('summary').click();
+  await panel.locator(':scope > summary').click();
   await panel.locator('input[type=file]').setInputFiles({ name: 'author-regex.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(rules)) });
   await expect(panel).toContainText('已保存 2 條原始正則');
-  await panel.getByLabel('在這張角色卡啟用作者介面').check();
+  await panel.getByLabel('啟用自訂介面').check();
   page.once('dialog', dialog => dialog.accept());
-  await panel.getByLabel('允許作者腳本（需自行信任來源）').check();
+  await panel.getByLabel('允許互動腳本').check();
   await panel.locator('select').selectOption('latest');
-  await panel.getByRole('button', { name: '開啟隔離介面預覽' }).click();
+  await panel.getByRole('button', { name: '預覽自訂介面' }).click();
   const frame = page.frameLocator('iframe[title="作者正則隔離介面"]');
   await expect(frame.locator('.author-panel')).toBeVisible();
   await expect(frame.locator('.author-panel')).toHaveCSS('color', 'rgb(255, 0, 0)');
