@@ -518,8 +518,10 @@ body{min-height:100vh;background:#101118;color:#f5f1ff}
       '<div class="yb-actions"><button class="yb-secondary" id="copy-id">複製玩家編號</button><button class="yb-secondary" id="refresh">同步最新燈火</button></div>'+
       '<div class="yb-box" id="local-usage"><div class="yb-usage-head"><div><b>我的消費</b><p class="yb-note">查看這台裝置已保存的夜灣燈火消耗，不會因為打開這裡就一直查詢後端。</p></div><button class="yb-secondary" id="reload-local-usage" type="button">重新讀取本機紀錄</button></div><div class="yb-usage-total" id="local-usage-total">讀取本機紀錄…</div><div class="yb-usage-meta" id="local-usage-meta"></div><div class="yb-usage-list" id="local-usage-list"></div></div>'+
       authorSection()+
-      '<div class="yb-box"><b>替故事添一盞燈</b><p class="yb-note">完成付款後提供玩家編號，管理員確認後會把燈火加入帳號。燈火只在使用夜灣提供的模型服務時消耗；使用自己的模型連線不會消耗。失敗請求若第三方未產生成本會返還；若已產生實際模型用量，則按實際用量結算。</p>'+
-      '<div class="yb-packages"><div class="yb-package">NT$250 / US$8 → 5,000 燈火</div><div class="yb-package">NT$500 / US$16 → 10,000 燈火</div><div class="yb-package">NT$1,000 / US$32 → 20,000 燈火</div><div class="yb-package">NT$2,500 / US$80 → 50,000 燈火</div></div><p class="yb-note"><a href="lights-refund-policy.html">購買前查看燈火與退款政策 →</a></p></div>'+
+      '<div class="yb-box"><b>替故事添一盞燈</b><p class="yb-note">夜灣燈火是使用夜灣提供之 AI 模型服務的數位額度；使用自己的模型連線不會消耗。台灣線上付款功能目前準備中，正式上線後會以付款頁的交易結果入帳。</p>'+
+      '<div class="yb-packages"><div class="yb-package">NT$250 → 5,000 燈火</div><div class="yb-package">NT$500 → 10,000 燈火</div><div class="yb-package">NT$1,000 → 20,000 燈火</div><div class="yb-package">NT$2,500 → 50,000 燈火</div></div>'+
+      '<p class="yb-note">🌍 海外玩家想單純支持夜灣，可以前往 <a href="https://ko-fi.com/yorubay" target="_blank" rel="noopener noreferrer external">Ko-fi 留一盞燈</a>；Ko-fi 支持不會自動轉換為燈火。海外若需要購買燈火，請先聯絡班長。</p>'+
+      '<p class="yb-note"><a href="lights.html">查看公開燈火方案與購買說明 →</a> · <a href="lights-refund-policy.html">燈火與退款政策 →</a></p></div>'+
       '<div class="yb-actions"><a class="yb-primary" href="index.html">回到夜灣</a><button class="yb-secondary" id="logout">登出</button></div>';
     document.getElementById("v-display").textContent=profile.display_name||"—";
     document.getElementById("v-user").textContent=profile.username||"—";
