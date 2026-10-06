@@ -93,6 +93,56 @@ const clone = data => structuredClone(data);
   assert.equal(pngDraft.character.meta.name, sillyV2.data.name);
   assert.equal(pngDraft.cover instanceof Blob, true, 'the original PNG should be retained as the local cover');
   assert.equal(Buffer.from(await pngDraft.cover.arrayBuffer()).includes(Buffer.from('chara\0')), false, 'the stored cover must strip embedded character metadata and possible secrets');
+
+  const nativeRoundtripCard = clone(card);
+  nativeRoundtripCard.meta.id = 'png-test-character';
+  nativeRoundtripCard.meta.name = 'PNG測試角色';
+  nativeRoundtripCard.meta.title = 'PNG測試角色';
+  nativeRoundtripCard.content.greeting = '這是夜灣原生 PNG 開場。';
+  nativeRoundtripCard.content.system_prompt = '這是夜灣原生核心設定。';
+  nativeRoundtripCard.gameplay.world_modules = [
+    { id: 'clock', name: '時鐘', fields: [{ key: 'hour', label: '小時' }] }
+  ];
+  nativeRoundtripCard.presentation.opening = { layout: 'story' };
+
+  const yoruV2 = {
+    spec: 'chara_card_v2',
+    spec_version: '2.0',
+    data: {
+      name: 'PNG測試角色',
+      description: 'V2 fallback description',
+      first_mes: 'V2 fallback greeting',
+      extensions: {
+        yorubay: {
+          schema: 'yorubay-character-1.5',
+          character: nativeRoundtripCard
+        }
+      }
+    }
+  };
+
+  const yoruPngDraft = await BAOCharacterImport.prepareFile(pngFile(yoruV2));
+  assert.equal(yoruPngDraft.converted, false, 'YoruBay PNG must restore the native card instead of flattening through the SillyTavern converter');
+  assert.equal(yoruPngDraft.format, 'YoruBay Character Card PNG');
+  assert.equal(yoruPngDraft.origin, 'PNG metadata');
+  assert.equal(yoruPngDraft.character.id, 'png-test-character');
+  assert.equal(yoruPngDraft.character.name, 'PNG測試角色');
+  assert.equal(yoruPngDraft.character.greeting, '這是夜灣原生 PNG 開場。');
+  assert.equal(yoruPngDraft.character.system_prompt, '這是夜灣原生核心設定。');
+  assert.equal(yoruPngDraft.character.world_modules[0].id, 'clock');
+  assert.equal(yoruPngDraft.character.opening.layout, 'story');
+  assert.equal(yoruPngDraft.character.import_metadata.source_format, 'yorubay-character-card-v2');
+  assert.equal(yoruPngDraft.character.import_metadata.roundtrip_restored, true);
+  assert.equal(yoruPngDraft.cover instanceof Blob, true);
+  assert.equal(Buffer.from(await yoruPngDraft.cover.arrayBuffer()).includes(Buffer.from('chara\0')), false, 'restored YoruBay PNG cover must also strip embedded metadata');
+
+  const invalidYoruV2 = clone(yoruV2);
+  delete invalidYoruV2.data.extensions.yorubay.character.content.greeting;
+  await assert.rejects(
+    BAOCharacterImport.prepareFile(pngFile(invalidYoruV2)),
+    /greeting/,
+    'an invalid embedded native YoruBay card must not silently fall back to flattened V2 conversion'
+  );
   assert.equal((await BAOCharacterImport.prepareFile(pngWithLargeImageChunk(sillyV2))).character.meta.name, sillyV2.data.name, 'large image chunks must not be mistaken for oversized character metadata');
   const ordinaryLargePng = pngFile(sillyV2);
   ordinaryLargePng.size = 2 * 1024 * 1024;
