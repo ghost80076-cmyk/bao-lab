@@ -122,7 +122,7 @@ const promptCache = fs.readFileSync(path.join(__dirname, "..", "js", "prompt-cac
 assert.match(promptCache, /"世界時鐘"/, "world clock prompt must stay in the dynamic cache partition");
 
 const siteUI = fs.readFileSync(path.join(__dirname, "..", "js", "site-ui.js"), "utf8");
-assert.match(siteUI, /world-modules\.js"[\s\S]*world-clock\.js\?v=1[\s\S]*world-state-cost\.js"/);
+assert.match(siteUI, /world-modules\.js"[\s\S]*world-clock\.js\?v=1[\s\S]*world-state-cost\.js\?v=2"/);
 
 const sameModel = fs.readFileSync(path.join(__dirname, "..", "js", "same-model-state-merge.js"), "utf8");
 assert.match(sameModel, /world_clock/);

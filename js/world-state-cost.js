@@ -136,7 +136,9 @@
       report(owner, "failed", `${scenePatch ? '時間／地點已同步；' : ''}主模型連線金鑰（API Key）未填，其他狀態未更新。`);
       return scenePatch;
     }
-    const helper = config?.cost?.stateApi;
+    const helper = String(config?.cost?.stateApiMode || '').trim() === 'same'
+      ? null
+      : config?.cost?.stateApi;
     if (helper?.model && helper?.baseUrl && !helper.key) {
       report(owner, "failed", `${scenePatch ? '時間／地點已同步；' : ''}獨立狀態模型的連線金鑰（API Key）尚未重新填入，請到 AI 連線設定補上。`);
       return scenePatch;

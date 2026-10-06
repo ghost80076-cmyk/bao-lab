@@ -48,6 +48,18 @@ assert.equal(config.cost.stateModel, '');
 assert.equal(config.cost.stateApiMode, 'same');
 console.log('PASS legacy stateModel without explicit route is normalized to same-model mode');
 
+config = { api: api('https://main.example/v1', 'openai', 'CURRENT_MAIN'),
+  cost: {
+    stateApi: api('https://main.example/v1', 'openai', 'LEGACY_ROUTE_KEY'),
+    stateModel: 'legacy-same-provider-model',
+    stateApiMode: 'same'
+  }, memory: {} };
+assert.equal(helper.normalizeStateRoute(config), true);
+assert.equal(config.cost.stateApi, null);
+assert.equal(config.cost.stateModel, '');
+assert.equal(config.cost.stateApiMode, 'same');
+console.log('PASS explicit same mode clears a populated legacy stateApi object');
+
 const saved = { config: { api: api('https://main.example/v1'),
   cost: { stateApi: api('https://state.example/v1', 'openai', 'KEY_IN_SAVED_STORY') },
   memory: { summaryApi: api('https://new-memory.example/v1', 'gemini', 'ALSO_IN_SAVED_STORY') } } };

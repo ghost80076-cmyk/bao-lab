@@ -79,6 +79,21 @@ vm.runInThisContext(source, { filename: "js/world-state-cost.js" });
   assert.equal(attempts.at(-1).config.api.model, "main",
     "a stale stateModel without stateApi must never replace the main endpoint model");
 
+  GameState.current = {};
+  const contradictorySameConfig = {
+    narrativeMode: "world",
+    api: { model: "main", key: "mock-only" },
+    cost: {
+      stateInterval: 1,
+      stateApiMode: "same",
+      stateModel: "legacy-helper",
+      stateApi: { model: "legacy-helper", baseUrl: "https://main.example/v1", key: "legacy-key" }
+    }
+  };
+  await WorldStateEngine.update(contradictorySameConfig, "同模型玩家", "同模型故事");
+  assert.equal(attempts.at(-1).config.api.model, "main",
+    "explicit same mode must ignore a populated legacy stateApi route");
+
   console.log("world state cost core test passed");
 })().catch(error => {
   console.error(error);

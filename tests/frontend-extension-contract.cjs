@@ -191,7 +191,7 @@ assert.match(chatAPISettings, /window\.BAOChatAPISettings\s*=\s*\{/);
 
 assert.match(
   modelRouting,
-  /loadExtra\("js\/helper-api-routing\.js\?v=3"\)/,
+  /loadExtra\("js\/helper-api-routing\.js\?v=4"\)/,
   "model-routing must continue to load helper-api-routing"
 );
 assert.match(

@@ -15,12 +15,27 @@
     if (!config || typeof config !== 'object') return false;
     config.cost ||= {};
     const route = config.cost.stateApi;
+    const mode = String(config.cost.stateApiMode || '').trim();
+
+    // An explicit "same" choice is authoritative, even for legacy saves that
+    // still contain a fully populated stateApi object from older routing code.
+    if (mode === 'same') {
+      const changed = Boolean(route || config.cost.stateModel);
+      config.cost.stateApi = null;
+      config.cost.stateModel = '';
+      return changed;
+    }
+
+    // With no explicit modern mode, a complete helper route is treated as the
+    // legacy representation of an intentionally separate state model.
     if (isSeparate(route)) {
+      const changed = mode !== 'separate' || config.cost.stateModel !== (route.model || '');
       config.cost.stateApiMode = 'separate';
       config.cost.stateModel = route.model || '';
-      return false;
+      return changed;
     }
-    const changed = Boolean(config.cost.stateApi || config.cost.stateModel || config.cost.stateApiMode === 'separate');
+
+    const changed = Boolean(config.cost.stateApi || config.cost.stateModel || mode === 'separate');
     config.cost.stateApi = null;
     config.cost.stateApiMode = 'same';
     config.cost.stateModel = '';
@@ -48,6 +63,7 @@
   let attempts = 0;
 
   function enhance() {
+    normalizeStateRoute(App.config);
     const backdrop = document.getElementById('bao-chat-api-backdrop');
     const form = backdrop?.querySelector('form');
     if (!form || form.querySelector('.bao-helper-reconnect')) return;
