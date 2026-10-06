@@ -50,6 +50,7 @@ jobs:
           node --check workers/bao-lab-credits-api/modules/http.js
           node --check workers/bao-lab-credits-api/modules/model-pricing.js
           node --check workers/bao-lab-credits-api/modules/number-utils.js
+          node --check workers/bao-lab-credits-api/modules/provider-control.js
           node --check workers/bao-lab-credits-api/modules/publication-format.js
           node --check workers/bao-lab-credits-api/modules/provider-routing.js
           node --check workers/bao-lab-credits-api/modules/runtime-config.js
