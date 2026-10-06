@@ -1,4 +1,22 @@
 {
   "schema_version": 1,
-  "authors": []
+  "authors": [
+    {
+      "id": "banzhang",
+      "name": "班長",
+      "bio": "夜灣 YoruBay 的建立者，也是角色與世界設定的創作者。喜歡我的作品或想支持我繼續創作，可以透過下方方式留一點支持。",
+      "support_links": [
+        {
+          "label": "🇹🇼 歐付寶｜支持班長",
+          "url": "https://payment.opay.tw/Broadcaster/Donate/1669AF2DA4DAC7850F570F6BC70C42FE"
+        },
+        {
+          "label": "🌍 Ko-fi｜支持班長",
+          "url": "https://ko-fi.com/yorubay"
+        }
+      ],
+      "created_at": "2026-10-06T12:46:10.807Z",
+      "updated_at": "2026-10-06T12:46:10.807Z"
+    }
+  ]
 }
