@@ -38,10 +38,15 @@ assert.match(
   /const WorkerAccountAuthorRoutes = \(\(\) => \{/,
   "account author route implementation must live in its module"
 );
-assert.match(
+assert.doesNotMatch(
   workerEntrySource,
   /from "\.\/modules\/author-ownership\.js";/,
-  "the Worker entry must import the extracted author ownership module"
+  "the Worker entry should not retain a direct author ownership dependency"
+);
+assert.match(
+  accountAuthorModuleSource,
+  /from "\.\/author-ownership\.js";/,
+  "account author routes must consume the extracted author ownership module"
 );
 assert.doesNotMatch(
   workerEntrySource,
