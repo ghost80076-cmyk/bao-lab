@@ -11,7 +11,23 @@
   const snapshot = config => ({
     main: config?.api || {}, state: getRoute(config, 'state'), memory: getRoute(config, 'memory')
   });
+  const normalizeStateRoute = config => {
+    if (!config || typeof config !== 'object') return false;
+    config.cost ||= {};
+    const route = config.cost.stateApi;
+    if (isSeparate(route)) {
+      config.cost.stateApiMode = 'separate';
+      config.cost.stateModel = route.model || '';
+      return false;
+    }
+    const changed = Boolean(config.cost.stateApi || config.cost.stateModel || config.cost.stateApiMode === 'separate');
+    config.cost.stateApi = null;
+    config.cost.stateApiMode = 'same';
+    config.cost.stateModel = '';
+    return changed;
+  };
   const reconcile = (previous, config) => {
+    normalizeStateRoute(config);
     for (const kind of ['state', 'memory']) {
       const route = getRoute(config, kind);
       if (!isSeparate(route)) continue;
@@ -110,7 +126,7 @@
             const prior = settings[routeName];
             settings[routeName] = route;
             settings[modeName] = route ? 'separate' : 'same';
-            settings[modelName] = route?.model || (prior ? '' : settings[modelName] || '');
+            settings[modelName] = route?.model || '';
           };
           update('state', App.config.cost, 'stateApi', 'stateModel', 'stateApiMode');
           update('memory', App.config.memory, 'summaryApi', 'summaryModel', 'summaryApiMode');
@@ -155,6 +171,6 @@
     };
     enhance();
   }
-  window.BAOStoryHelperReconnect = { sameConnection, reconcile, missing, enhance, install };
+  window.BAOStoryHelperReconnect = { sameConnection, reconcile, missing, normalizeStateRoute, enhance, install };
   install();
 })();
