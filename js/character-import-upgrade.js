@@ -154,9 +154,52 @@
     if (typeof engine.audit === "function") { const report=engine.audit(raw); if (!report.ok) throw new Error("角色卡結構錯誤："+report.errors.join("；")); }
     return engine.normalize(raw);
   }
+  function restoreYoruBayRoundtrip(raw, origin, cover) {
+    if (raw?.spec !== "chara_card_v2" || !object(raw.data)) return null;
+    const extension = raw.data.extensions?.yorubay;
+    if (!object(extension) || !object(extension.character)) return null;
+
+    const marker = text(extension.schema);
+    const embedded = clone(extension.character);
+    const nativeVersion = text(embedded.schema_version);
+    const markerLooksYoruBay = /^yorubay-character-1(?:\.|$)/i.test(marker);
+    const nativeLooksYoruBay = /^1(?:\.|$)/.test(nativeVersion);
+    if (!markerLooksYoruBay && !nativeLooksYoruBay) return null;
+
+    const character = inspect(embedded);
+    character.import_metadata = {
+      ...(object(character.import_metadata) ? character.import_metadata : {}),
+      source_format: "yorubay-character-card-v2",
+      source_origin: origin || "Character Card V2",
+      roundtrip_restored: true
+    };
+
+    return {
+      converted: false,
+      format: origin === "PNG metadata"
+        ? "YoruBay Character Card PNG"
+        : "YoruBay Character Card V2",
+      origin,
+      character,
+      report: {
+        mapped: ["夜灣完整角色資料", "Character Card V2 相容資料"],
+        preserved: ["Gameplay UI、世界／NPC 規則與夜灣擴充欄位"],
+        unavailable: []
+      },
+      cover: cover || null
+    };
+  }
+
   async function prepareFile(file) {
     const {raw,origin,cover}=await parseFile(file);
-    if (raw?.spec === "chara_card_v2" || raw?.spec === "chara_card_v3") { const draft=convertSillyTavern(raw,origin); draft.cover=cover||null; inspect(draft.character); return draft; }
+    if (raw?.spec === "chara_card_v2" || raw?.spec === "chara_card_v3") {
+      const roundtrip = restoreYoruBayRoundtrip(raw, origin, cover);
+      if (roundtrip) return roundtrip;
+      const draft=convertSillyTavern(raw,origin);
+      draft.cover=cover||null;
+      inspect(draft.character);
+      return draft;
+    }
     return {converted:false,format:"BAO/LAB JSON",origin,character:inspect(raw),report:null,cover:null};
   }
   async function saveCharacter(raw, cover = null) {
