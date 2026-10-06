@@ -2,14 +2,7 @@ name: Core tests
 
 on:
   push:
-    branches:
-      - main
-      - feat/indexeddb-story-storage
-      - feat/story-library-model
-      - feat/character-readiness
-      - feat/model-guide-and-api-presets
-      - feat-story-reader-rebuild
-      - fix-story-reader-desktop-layout
+    branches: [main]
   pull_request:
     branches:
       - main
