@@ -191,6 +191,24 @@
     refreshActorPresetPickers();
     return record;
   }
+  function saveVisibleNpcPreset(input = {}) {
+    const name = trim(input?.name, 160);
+    const visibleRole = trim(input?.role, 240);
+    if (!name) return {ok:false, created:false, reason:'missing-name'};
+    const identity = visibleRole && visibleRole !== 'NPC' ? visibleRole : '';
+    const existing = actorPresets().find(item => trim(item?.actor?.name, 160) === name && trim(item?.actor?.identity, 240) === identity);
+    if (existing) return {ok:true, created:false, record:existing};
+    const record = {
+      id:id(),
+      label:name,
+      actor:actorTemplate({name, identity, role:'additional'}),
+      source:'story-roster-visible-v1',
+      savedAt:new Date().toISOString()
+    };
+    if (!storeActorPresets([record, ...actorPresets()])) return {ok:false, created:false, reason:'storage'};
+    refreshActorPresetPickers();
+    return {ok:true, created:true, record};
+  }
   function actorPresetOptions() {
     return '<option value="">選擇我的 AI 人物…</option>' + actorPresets().map(item => `<option value="${esc(item.id)}">${esc(item.label)} · ${esc(item.actor.name)}</option>`).join('');
   }
@@ -708,5 +726,5 @@
   if (adultEnabled()) loadAdultPack().then(refreshPortablePickers).catch(error => console.warn('YoruBay adult story actor pack preload failed:', error));
 
   installChatEntry();
-  window.BAOStoryActors = {open, openLibrary, close, actors, readPresets:presets, savePreset, readActorPresets:actorPresets, saveActorPreset, readBuilderDraft, clearBuilderDraft, installBuilder, updateLabels, portableCatalog, loadAdultPack};
+  window.BAOStoryActors = {open, openLibrary, close, actors, readPresets:presets, savePreset, readActorPresets:actorPresets, saveActorPreset, saveVisibleNpcPreset, readBuilderDraft, clearBuilderDraft, installBuilder, updateLabels, portableCatalog, loadAdultPack};
 })();

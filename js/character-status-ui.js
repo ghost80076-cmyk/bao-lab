@@ -51,7 +51,7 @@
     if (document.querySelector('link[href^="css/character-status.css"]')) return;
     const link = document.createElement("link");
     link.rel = "stylesheet";
-    link.href = "css/character-status.css?v=4";
+    link.href = "css/character-status.css?v=5";
     document.head.appendChild(link);
   };
 
@@ -135,11 +135,11 @@
 
     const render = () => {
       const latest = window.BAOCharacterStatus.npcRoster?.() || [];
-      wrap.innerHTML = `<section class="npc-roster-modal" role="dialog" aria-modal="true" aria-labelledby="npc-roster-title"><header><div><div class="eyebrow">STORY CAST</div><h2 id="npc-roster-title">NPC 名冊／場景參與者</h2><p id="npc-roster-intro">名冊保留整份故事的人物；勾選只代表目前場景在場。下一輪重點是另一個只用一輪的狀態參考，不會在這裡改動。</p></div><div class="npc-roster-head-actions"><button type="button" class="npc-roster-help-toggle" data-roster-help aria-label="NPC 名冊說明" aria-expanded="false" aria-controls="npc-roster-intro">?</button><button type="button" class="text-button" data-roster-close>關閉</button></div></header><div class="npc-roster-body"><section class="npc-roster-current"><div class="npc-roster-section-head"><div><h3>目前名冊</h3><p>目前地點：${esc(GameState.current?.location || "未設定")} · 已選 ${selected.size} 位場景參與者</p></div><div class="npc-roster-batch"><button type="button" class="secondary" data-roster-all>全選在場</button><button type="button" class="secondary" data-roster-none>全部離場</button></div></div><div class="npc-roster-list">${latest.length ? latest.map(npc => {
+      wrap.innerHTML = `<section class="npc-roster-modal" role="dialog" aria-modal="true" aria-labelledby="npc-roster-title"><header><div><div class="eyebrow">STORY CAST</div><h2 id="npc-roster-title">NPC 名冊／場景參與者</h2><p id="npc-roster-intro">名冊保留整份故事的人物；勾選只代表目前場景在場。收藏到我的人物庫時只會帶走這裡已顯示的姓名與身分，不會讀取作者隱藏設定。</p></div><div class="npc-roster-head-actions"><button type="button" class="npc-roster-help-toggle" data-roster-help aria-label="NPC 名冊說明" aria-expanded="false" aria-controls="npc-roster-intro">?</button><button type="button" class="text-button" data-roster-close>關閉</button></div></header><div class="npc-roster-body"><section class="npc-roster-current"><div class="npc-roster-section-head"><div><h3>目前名冊</h3><p>目前地點：${esc(GameState.current?.location || "未設定")} · 已選 ${selected.size} 位場景參與者</p></div><div class="npc-roster-batch"><button type="button" class="secondary" data-roster-all>全選在場</button><button type="button" class="secondary" data-roster-none>全部離場</button></div></div><div class="npc-roster-list">${latest.length ? latest.map(npc => {
         const name = String(npc.name || "");
         const checked = selected.has(name);
         const presence = npc.presence === "present" ? "在場" : npc.presence === "away" ? "已離場" : "行蹤未知";
-        return `<label class="npc-roster-row"><input type="checkbox" data-roster-scene="${esc(name)}" ${checked ? "checked" : ""}><span><b>${esc(name)}</b><small>${esc(npc.role || "NPC")} · ${esc(presence)}${npc.location ? ` · ${esc(npc.location)}` : ""}</small></span></label>`;
+        return `<div class="npc-roster-item"><label class="npc-roster-row"><input type="checkbox" data-roster-scene="${esc(name)}" ${checked ? "checked" : ""}><span><b>${esc(name)}</b><small>${esc(npc.role || "NPC")} · ${esc(presence)}${npc.location ? ` · ${esc(npc.location)}` : ""}</small></span></label><button type="button" class="secondary npc-roster-collect" data-roster-collect="${esc(name)}">收藏到我的人物庫</button></div>`;
       }).join("") : '<div class="character-status-empty">名冊目前是空的，可以用「快速補登 NPC」加入人物。</div>'}</div></section><section class="npc-roster-add"><h3>快速補登 NPC</h3><p>可一次貼多位，每行一位；格式可用「姓名｜身分」。這裡只建立名冊與身分，完整人物設定仍可用「新增 AI 人物／NPC」。</p><textarea data-roster-bulk rows="4" placeholder="威廉｜公爵\n瑪莉｜女僕\n禁軍統領"></textarea><button type="button" class="secondary" data-roster-add>加入名冊</button></section></div><footer><button type="button" class="secondary" data-roster-close>取消</button><button type="button" class="primary" data-roster-save>儲存場景參與者</button></footer></section>`;
 
       wrap.querySelectorAll("[data-roster-close]").forEach(button => button.onclick = () => wrap.remove());
@@ -153,6 +153,26 @@
         if (input.checked) selected.add(input.dataset.rosterScene);
         else selected.delete(input.dataset.rosterScene);
         render();
+      });
+      wrap.querySelectorAll("[data-roster-collect]").forEach(button => button.onclick = () => {
+        const name = String(button.dataset.rosterCollect || "").trim();
+        const npc = latest.find(item => String(item?.name || "").trim() === name);
+        const api = window.BAOStoryActors;
+        if (!api?.saveVisibleNpcPreset) {
+          alert("我的人物庫仍在載入，請稍後再試。");
+          return;
+        }
+        const result = api.saveVisibleNpcPreset({
+          name,
+          role:String(npc?.role || "NPC").trim()
+        });
+        if (!result?.ok) {
+          alert("這位 NPC 目前無法收藏到人物庫。");
+          return;
+        }
+        alert(result.created
+          ? "已收藏「" + name + "」到我的 AI 人物庫。只保存名冊已顯示的姓名與身分；其他設定可到「我的」再補充。"
+          : "「" + name + "」已經存在我的 AI 人物庫。");
       });
       wrap.querySelector("[data-roster-all]")?.addEventListener("click", () => {
         latest.forEach(npc => selected.add(String(npc.name)));
