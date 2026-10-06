@@ -70,7 +70,7 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/world-modules.js"))
     .then(() => loadBAOScript("js/world-clock.js?v=1"))
     .then(() => loadBAOScript("js/world-state-cost.js"))
-    .then(() => loadBAOScript("js/same-model-state-merge.js"))
+    .then(() => loadBAOScript("js/same-model-state-merge.js?v=2"))
     .then(() => loadBAOScript("js/world-module-ui.js"))
     .then(() => loadBAOScript("js/world-module-manager.js?v=4"))
     .then(() => loadBAOScript("js/world-relevance.js"))

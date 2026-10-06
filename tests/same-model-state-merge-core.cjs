@@ -7,6 +7,8 @@ const sent = [];
 let separateUpdates = 0;
 let providerMode = 'normal';
 const owner = { pendingStateTurns: [], moduleDefinitions: [], time: '晚上', location: '房間', events: [], npcs: [] };
+const TURN_ANCHOR = '【本輪】依玩家最新輸入延續一輪；保持已確認事實與資訊邊界，不代寫玩家。';
+const orchestrated = text => `${text}\n\n${TURN_ANCHOR}`;
 
 global.window = global;
 global.document = {};
@@ -73,7 +75,7 @@ assert.equal(API.__sendWrapperIds.has('same-model-state-merge:main-story'), true
 
 (async () => {
   Chat.messages.push({ role: 'user', content: '第一輪' });
-  let result = await API.send(App.config.api, [{ role: 'user', content: '第一輪' }]);
+  let result = await API.send(App.config.api, [{ role: 'user', content: orchestrated('第一輪') }]);
   assert.equal(result.text, '故事一');
   assert.equal(JSON.stringify(sent[0].messages).includes('BAO_STATE_V1'), false, 'first turn should not add state output before interval');
   await WorldStateEngine.update(App.config, '第一輪', '故事一');
@@ -83,7 +85,11 @@ assert.equal(API.__sendWrapperIds.has('same-model-state-merge:main-story'), true
 
   Chat.messages.push({ role: 'assistant', content: '故事一' }, { role: 'user', content: '第二輪' });
   const streamed = [];
-  result = await API.send({ ...App.config.api, onDelta: (_delta, full) => streamed.push(full) }, [{ role: 'user', content: '第二輪' }]);
+  assert.equal(BAOSameModelStateMerge.isMainStoryRequest(App.config.api, [{ role: 'user', content: orchestrated('第二輪') }]), true,
+    'prompt orchestrator turn anchor must still count as the current main story request');
+  assert.equal(BAOSameModelStateMerge.isMainStoryRequest(App.config.api, [{ role: 'user', content: '第二輪錯誤前綴' }]), false,
+    'latest-user prefix matching must keep a newline boundary');
+  result = await API.send({ ...App.config.api, onDelta: (_delta, full) => streamed.push(full) }, [{ role: 'user', content: orchestrated('第二輪') }]);
   assert.equal(result.text, '故事二', 'state appendix must be stripped from committed story text');
   assert.match(JSON.stringify(sent[1].messages), /BAO_STATE_V1/, 'due turn should request state inside the main story call');
   assert.ok(streamed.every(text => !text.includes('<BAO_STATE>') && !text.includes('{"time"')), 'stream preview must never expose machine state appendix');
@@ -101,7 +107,7 @@ assert.equal(API.__sendWrapperIds.has('same-model-state-merge:main-story'), true
   owner.pendingStateTurns.push({ player: '舊輪', assistant: '舊故事' });
   Chat.messages.push({ role: 'assistant', content: '故事二' }, { role: 'user', content: '第三輪' });
   const beforeMissing = sent.length;
-  result = await API.send(App.config.api, [{ role: 'user', content: '第三輪' }]);
+  result = await API.send(App.config.api, [{ role: 'user', content: orchestrated('第三輪') }]);
   assert.equal(result.text, '故事缺狀態');
   assert.equal(sent.length, beforeMissing + 1);
   await WorldStateEngine.update(App.config, '第三輪', '故事缺狀態');
