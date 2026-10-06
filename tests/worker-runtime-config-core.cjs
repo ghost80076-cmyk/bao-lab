@@ -37,13 +37,13 @@ const instrumented =
     /export\s+default\s+\{/,
     "const __workerDefault = {"
   ) +
-  "\nreturn { WorkerRuntimeConfig, LEGACY_BILLING_MODE, COST_BILLING_MODE, DEFAULT_SESSION_TTL_DAYS };";
+  "\nreturn { WorkerRuntimeConfig, LEGACY_BILLING_MODE, COST_BILLING_MODE, RUNTIME_DEFAULT_SESSION_TTL_DAYS };";
 
 const {
   WorkerRuntimeConfig,
   LEGACY_BILLING_MODE,
   COST_BILLING_MODE,
-  DEFAULT_SESSION_TTL_DAYS,
+  RUNTIME_DEFAULT_SESSION_TTL_DAYS,
 } = new Function(instrumented)();
 
 const primaryDb = { name: "primary" };
@@ -149,20 +149,20 @@ assert.equal(
   "closed"
 );
 
-assert.equal(WorkerRuntimeConfig.sessionTtlDays({}), DEFAULT_SESSION_TTL_DAYS);
+assert.equal(WorkerRuntimeConfig.sessionTtlDays({}), RUNTIME_DEFAULT_SESSION_TTL_DAYS);
 assert.equal(WorkerRuntimeConfig.sessionTtlDays({ SESSION_TTL_DAYS: "1" }), 1);
 assert.equal(WorkerRuntimeConfig.sessionTtlDays({ SESSION_TTL_DAYS: "365" }), 365);
 assert.equal(
   WorkerRuntimeConfig.sessionTtlDays({ SESSION_TTL_DAYS: "0" }),
-  DEFAULT_SESSION_TTL_DAYS
+  RUNTIME_DEFAULT_SESSION_TTL_DAYS
 );
 assert.equal(
   WorkerRuntimeConfig.sessionTtlDays({ SESSION_TTL_DAYS: "366" }),
-  DEFAULT_SESSION_TTL_DAYS
+  RUNTIME_DEFAULT_SESSION_TTL_DAYS
 );
 assert.equal(
   WorkerRuntimeConfig.sessionTtlDays({ SESSION_TTL_DAYS: "1.5" }),
-  DEFAULT_SESSION_TTL_DAYS
+  RUNTIME_DEFAULT_SESSION_TTL_DAYS
 );
 
 console.log("worker runtime config core test passed");
