@@ -1,0 +1,24 @@
+name: PWA install contract
+
+on:
+  pull_request:
+    paths:
+      - 'manifest.webmanifest'
+      - 'sw.js'
+      - 'js/pwa-install.js'
+      - 'css/pwa-install.css'
+      - 'tests/pwa-install-contract.test.mjs'
+      - 'pwa-head.html'
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node --test tests/pwa-install-contract.test.mjs

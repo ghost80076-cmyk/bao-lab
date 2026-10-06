@@ -1,0 +1,23 @@
+name: PWA production activation
+
+on:
+  pull_request:
+    paths:
+      - 'index.html'
+      - 'manifest.webmanifest'
+      - 'js/pwa-install.js'
+      - 'css/pwa-install.css'
+      - 'tests/pwa-index-required.test.mjs'
+
+permissions:
+  contents: read
+
+jobs:
+  activation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node --test tests/pwa-index-required.test.mjs
