@@ -24,6 +24,7 @@
     return config?.narrativeMode === 'world' ? 2 : 3;
   };
   const explicitSeparateStateRoute = config => {
+    if (String(config?.cost?.stateApiMode || '').trim() === 'same') return false;
     const route = config?.cost?.stateApi;
     return Boolean(route?.model && route?.baseUrl);
   };
