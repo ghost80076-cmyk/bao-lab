@@ -34,6 +34,7 @@ const document = {
   head: { appendChild() {} },
   getElementById: () => null,
   querySelector: () => null,
+  querySelectorAll: () => [],
   createElement: () => ({ id: '', style: {}, textContent: '' })
 };
 const sandbox = {
@@ -86,6 +87,12 @@ assert.equal(originalCard.system_prompt, '原角色設定');
   assert.equal(preset.persona.name, '人物乙');
   assert.equal(sandbox.BAOStoryActors.readPresets().length, 1);
   assert.ok(!browserStorage.get('bao-lab:persona-presets-v1').includes('apiKey'));
+  const actorPreset = sandbox.BAOStoryActors.saveActorPreset({ name: 'NPC 甲', gender: '女性', identity: '傭兵', personality: '冷靜', role: 'additional' }, 'NPC 甲');
+  assert.equal(actorPreset.actor.name, 'NPC 甲');
+  assert.equal(sandbox.BAOStoryActors.readActorPresets().length, 1);
+  assert.equal(sandbox.BAOStoryActors.readActorPresets()[0].actor.identity, '傭兵');
+  assert.ok(!browserStorage.get('bao-lab:actor-presets-v1').includes('apiKey'));
+  assert.equal(typeof sandbox.BAOStoryActors.openLibrary, 'function', 'people library is exposed for the My hub');
   assert.ok(!source.includes("DRAFT_KEY_PREFIX}${'${'}App.config.api"), 'draft storage must never include API config');
   App.saveStory();
   const saved = Storage.clone(Storage.lastSave);
