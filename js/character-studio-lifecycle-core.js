@@ -36,56 +36,121 @@
         ? { key: "local-synced", label: "本機已同步", tone: "good" }
         : { key: "local-outdated", label: "本機待更新", tone: "warn" });
     }
-    if (input.publicKnown !== false && input.published === true) badges.push({ key: "published", label: "已公開", tone: "good" });
+    if (input.publicKnown !== false && input.published === true) {
+      badges.push({ key: "published", label: "已公開", tone: "good" });
+    }
     return badges;
   }
 
   function derive(input = {}) {
-    const hasDraft = input.hasDraft === true, dirty = input.dirty === true, installed = input.installed === true, synced = input.synced === true;
-    const audit = input.audit && typeof input.audit === "object" ? input.audit : {}, publicKnown = input.publicKnown !== false, published = input.published === true;
-    const draft = dirty ? { key:"dirty",label:"尚未儲存修改",tone:"warn" } : hasDraft ? { key:"saved",label:"草稿已儲存",tone:"good" } : { key:"new",label:"新草稿",tone:"muted" };
-    const test = !installed ? { key:"not-installed",label:"尚未加入我的角色",tone:"muted" } : synced ? { key:"synced",label:"本機試玩版本已同步",tone:"good" } : { key:"outdated",label:"本機試玩版本較舊",tone:"warn" };
-    const readiness = (audit.errors || []).length ? { key:"blocked",label:"需要修正",tone:"bad" } : audit.longFormReady ? { key:"long-ready",label:"長篇測試就緒",tone:"good" } : audit.ready ? { key:"ready",label:"可開始測玩",tone:"good" } : { key:"needs-work",label:"建議補強",tone:"warn" };
-    const publication = !publicKnown ? { key:"unknown",label:"公開狀態暫時無法確認",tone:"muted" } : published ? { key:"published",label:"已在公開作品庫",tone:"good" } : { key:"private",label:"尚未上架",tone:"muted" };
-    let next = { action:"save",label:"先儲存草稿",detail:"把目前修改固定成一個本機版本，再進行試玩與檢查。" };
+    const hasDraft = input.hasDraft === true;
+    const dirty = input.dirty === true;
+    const installed = input.installed === true;
+    const synced = input.synced === true;
+    const audit = input.audit && typeof input.audit === "object" ? input.audit : {};
+    const publicKnown = input.publicKnown !== false;
+    const published = input.published === true;
+
+    const draft = dirty
+      ? { key: "dirty", label: "尚未儲存修改", tone: "warn" }
+      : hasDraft
+        ? { key: "saved", label: "草稿已儲存", tone: "good" }
+        : { key: "new", label: "新草稿", tone: "muted" };
+
+    const test = !installed
+      ? { key: "not-installed", label: "尚未加入我的角色", tone: "muted" }
+      : synced
+        ? { key: "synced", label: "本機試玩版本已同步", tone: "good" }
+        : { key: "outdated", label: "本機試玩版本較舊", tone: "warn" };
+
+    const readiness = (audit.errors || []).length
+      ? { key: "blocked", label: "需要修正", tone: "bad" }
+      : audit.longFormReady
+        ? { key: "long-ready", label: "長篇測試就緒", tone: "good" }
+        : audit.ready
+          ? { key: "ready", label: "可開始測玩", tone: "good" }
+          : { key: "needs-work", label: "建議補強", tone: "warn" };
+
+    const publication = !publicKnown
+      ? { key: "unknown", label: "公開狀態暫時無法確認", tone: "muted" }
+      : published
+        ? { key: "published", label: "已在公開作品庫", tone: "good" }
+        : { key: "private", label: "尚未上架", tone: "muted" };
+
+    let next = {
+      action: "save",
+      label: "先儲存草稿",
+      detail: "把目前修改固定成一個本機版本，再進行試玩與檢查。"
+    };
+
     if (!dirty && hasDraft) {
-      if (!installed || !synced) next = { action:"install",label:installed?"更新本機試玩版本":"加入我的角色並試玩",detail:"這一步只更新你這台裝置的角色庫，不會公開作品。" };
-      else if ((audit.errors || []).length || !audit.ready) next = { action:"doctor",label:"執行 BAO Doctor",detail:"先修正結構問題與必要欄位，再準備送審版本。" };
-      else if (published) next = { action:"published",label:"目前公開版本已存在",detail:"現行上架端點不允許直接覆蓋既有公開作品；更新／下架流程會另行處理。" };
-      else next = { action:"export",label:"匯出送審 JSON",detail:"目前公開上架仍由管理員審核；匯出檔不會自動發布。" };
+      if (!installed || !synced) {
+        next = {
+          action: "install",
+          label: installed ? "更新本機試玩版本" : "加入我的角色並試玩",
+          detail: "這一步只更新你這台裝置的角色庫，不會公開作品。"
+        };
+      } else if ((audit.errors || []).length || !audit.ready) {
+        next = {
+          action: "doctor",
+          label: "執行 BAO Doctor",
+          detail: "先修正結構問題與必要欄位，再準備送審版本。"
+        };
+      } else if (published) {
+        next = {
+          action: "published",
+          label: "目前公開版本已存在",
+          detail: "現行上架端點不允許直接覆蓋既有公開作品；更新／下架流程會另行處理。"
+        };
+      } else {
+        next = {
+          action: "export",
+          label: "匯出送審 JSON",
+          detail: "目前公開上架仍由管理員審核；匯出檔不會自動發布。"
+        };
+      }
     }
+
     return { draft, test, readiness, publication, next };
   }
 
   return Object.freeze({ clean, stable, signature, sameVersion, draftCardBadges, derive });
 });
 
-/* Character Studio PNG export enhancement: loaded here to avoid changing the base editor flow. */
-if (typeof window !== 'undefined' && typeof document !== 'undefined') {
-  window.addEventListener('DOMContentLoaded', () => {
-    const row = document.querySelector('.studio-button-row');
-    if (!row || document.getElementById('studio-export-png')) return;
-    const script = document.createElement('script');
-    script.src = 'js/character-card-png-export.js?v=1';
+/* Character Studio PNG export enhancement. */
+if (typeof window !== "undefined" && typeof document !== "undefined") {
+  window.addEventListener("DOMContentLoaded", () => {
+    const row = document.querySelector(".studio-button-row");
+    if (!row || document.getElementById("studio-export-png")) return;
+    const script = document.createElement("script");
+    script.src = "js/character-card-png-export.js?v=1";
     script.onload = () => {
-      const jsonButton = document.getElementById('studio-export');
-      const button = document.createElement('button');
-      button.type = 'button'; button.className = 'secondary'; button.id = 'studio-export-png'; button.textContent = '匯出角色卡 PNG';
-      button.title = '輸出 SillyTavern Character Card V2 相容 PNG，並保留夜灣完整設定';
-      button.addEventListener('click', async () => {
-        const status = document.getElementById('studio-status');
+      const jsonButton = document.getElementById("studio-export");
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "secondary";
+      button.id = "studio-export-png";
+      button.textContent = "匯出角色卡 PNG";
+      button.title = "輸出 Character Card V2 相容 PNG，並保留夜灣完整設定";
+      button.addEventListener("click", async () => {
+        const status = document.getElementById("studio-status");
         button.disabled = true;
         try {
-          const studio = window.BAOCharacterStudio, exporter = window.BAOCharacterPngExport;
-          if (!studio || !exporter) throw new Error('PNG 匯出元件尚未載入，請重新整理後再試。');
+          const studio = window.BAOCharacterStudio;
+          const exporter = window.BAOCharacterPngExport;
+          if (!studio || !exporter) throw new Error("PNG 匯出元件尚未載入，請重新整理後再試。");
           const card = studio.readCard();
-          if (!card.name || !card.id || !card.greeting || !card.system_prompt) throw new Error('請先填寫名稱、角色 ID、核心設定與初始訊息。');
+          if (!card.name || !card.id || !card.greeting || !card.system_prompt) throw new Error("請先填寫名稱、角色 ID、核心設定與初始訊息。");
           const result = await exporter.exportPng(card, studio.toExport(card));
           if (status) status.textContent = `✓ 已產生角色卡 PNG（${Math.ceil(result.bytes / 1024)} KB）。可匯入支援 Character Card V2 的工具；夜灣設定已保留在 extensions.yorubay。`;
-        } catch (error) { if (status) status.textContent = '✕ ' + (error?.message || 'PNG 匯出失敗'); }
-        finally { button.disabled = false; }
+        } catch (error) {
+          if (status) status.textContent = "✕ " + (error?.message || "PNG 匯出失敗");
+        } finally {
+          button.disabled = false;
+        }
       });
-      if (jsonButton) jsonButton.after(button); else row.append(button);
+      if (jsonButton) jsonButton.after(button);
+      else row.append(button);
     };
     document.head.append(script);
   });
