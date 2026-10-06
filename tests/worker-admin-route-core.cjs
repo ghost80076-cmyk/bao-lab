@@ -4,9 +4,27 @@ const fs = require("node:fs");
 const path = require("node:path");
 
 const source = loadWorkerTestSource();
+const workerEntrySource = fs.readFileSync(
+  path.join(__dirname, "../workers/bao-lab-credits-api/worker.js"),
+  "utf8"
+);
+const adminRoutesModuleSource = fs.readFileSync(
+  path.join(__dirname, "../workers/bao-lab-credits-api/modules/admin-routes.js"),
+  "utf8"
+);
 
 assert.match(
-  source,
+  workerEntrySource,
+  /from "\.\/modules\/admin-routes\.js";/,
+  "the Worker entry must import the extracted admin dispatcher"
+);
+assert.doesNotMatch(
+  workerEntrySource,
+  /const WorkerAdminRoutes =/,
+  "admin dispatcher implementation must not remain duplicated in worker.js"
+);
+assert.match(
+  adminRoutesModuleSource,
   /const WorkerAdminRoutes = \(\(\) => \{/,
   "authenticated admin endpoints must stay grouped behind WorkerAdminRoutes"
 );

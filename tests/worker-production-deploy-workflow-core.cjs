@@ -100,6 +100,11 @@ assert.match(
 );
 assert.match(
   source,
+  /node --check workers\/bao-lab-credits-api\/modules\/admin-routes\.js/,
+  "the extracted admin dispatcher module must pass syntax validation before deployment"
+);
+assert.match(
+  source,
   /node --check workers\/bao-lab-credits-api\/modules\/admin-usage-routes\.js/,
   "the extracted admin usage routes module must pass syntax validation before deployment"
 );
