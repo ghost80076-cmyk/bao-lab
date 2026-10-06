@@ -3,6 +3,16 @@ name: Chat experience deploy verification
 on:
   push:
     branches: [main]
+    paths:
+      - 'js/chat-presentation-core.js'
+      - 'js/chat-experience.js'
+      - 'js/chat-shell-fix.js'
+      - 'js/world-module-manager.js'
+      - 'js/character-status-ui.js'
+      - 'js/player-settings.js'
+      - 'css/chat-experience.css'
+      - 'tests/chat-presentation-core.cjs'
+      - '.github/workflows/chat-experience-live.yml'
   workflow_dispatch:
 
 permissions:
