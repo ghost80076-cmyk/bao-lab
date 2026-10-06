@@ -26,7 +26,7 @@ async function setup(page) {
   const panel = page.locator('#bao-author-regex-panel');
   await panel.locator(':scope > summary').click();
   await panel.locator('input[type=file]').setInputFiles({ name: 'phone-regex.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(rules)) });
-  await expect(panel).toContainText('已保存 1 條原始正則');
+  await expect(panel).toContainText('已匯入 1 個自訂介面設定');
   await panel.getByLabel('啟用自訂介面').check();
   page.once('dialog', dialog => dialog.accept());
   await panel.getByLabel('允許互動腳本').check();
