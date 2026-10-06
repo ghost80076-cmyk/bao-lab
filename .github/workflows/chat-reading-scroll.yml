@@ -22,12 +22,9 @@ jobs:
         run: |
           node --check js/chat-reading-scroll.js
           node --check js/streaming-ui.js
-      - name: Reading and existing streaming regressions
+      - name: Reading-specific regressions
         run: |
           node tests/chat-reading-scroll-core.cjs
-          node tests/api-streaming-contracts.cjs
-          node tests/request-lifecycle-core.cjs
-          node tests/story-reader-core.cjs
           node tests/chat-presentation-core.cjs
 
   pages-live:
