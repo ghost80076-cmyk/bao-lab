@@ -142,7 +142,7 @@ const productionGraph = loadWorkerModuleManifest(
 assert.equal(productionGraph.mainModule, "worker.js");
 assert.deepEqual(
   productionGraph.modules.map(module => module.name),
-  ["modules/account-rate-limit.js", "modules/account-self-route.js", "modules/account-validation.js", "modules/admin-auth.js", "modules/admin-player-directory-routes.js", "modules/admin-player-mutation-routes.js", "modules/admin-publication-routes.js", "modules/admin-usage-routes.js", "modules/author-ownership.js", "modules/author-profile-publication.js", "modules/chat-input.js", "modules/crypto.js", "modules/github-publication-transport.js", "modules/http.js", "modules/model-pricing.js", "modules/number-utils.js", "modules/provider-routing.js", "modules/publication-format.js", "modules/runtime-config.js", "modules/session-auth.js", "worker.js"],
+  ["modules/account-author-routes.js", "modules/account-rate-limit.js", "modules/account-self-route.js", "modules/account-validation.js", "modules/admin-auth.js", "modules/admin-player-directory-routes.js", "modules/admin-player-mutation-routes.js", "modules/admin-publication-routes.js", "modules/admin-usage-routes.js", "modules/author-ownership.js", "modules/author-profile-publication.js", "modules/chat-input.js", "modules/crypto.js", "modules/github-publication-transport.js", "modules/http.js", "modules/model-pricing.js", "modules/number-utils.js", "modules/provider-routing.js", "modules/publication-format.js", "modules/runtime-config.js", "modules/session-auth.js", "worker.js"],
   "production must contain only the reviewed extracted boundaries"
 );
 assert.equal(
@@ -151,6 +151,10 @@ assert.equal(
 );
 const productionBody = buildWorkerUploadBody(productionGraph);
 assert.equal(productionBody.get("metadata"), '{"main_module":"worker.js"}');
+assert.ok(
+  productionBody.get("modules/account-author-routes.js"),
+  "the extracted account author routes module must be included in the upload"
+);
 assert.ok(
   productionBody.get("modules/account-rate-limit.js"),
   "the extracted account rate limit module must be included in the upload"
