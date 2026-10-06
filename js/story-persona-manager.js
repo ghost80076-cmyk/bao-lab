@@ -28,12 +28,13 @@
     if (!packId) return null;
     return {packId, label:trim(input?.label,160), rating:input?.rating === 'adult' ? 'adult' : 'general', core:trim(input?.core,16000), actorMode:input?.actorMode === true};
   };
-  const normalizeActor = input => {
-    const actor = {id: trim(input?.id, 100) || id(), ...clean(input, ACTOR_FIELDS), role: input?.role === 'primary' ? 'primary' : 'additional'};
+  const actorTemplate = input => {
+    const actor = {...clean(input, ACTOR_FIELDS), role: input?.role === 'primary' ? 'primary' : 'additional'};
     const portable = portableMeta(input?.portable);
     if (portable) actor.portable = portable;
     return actor;
   };
+  const normalizeActor = input => ({id: trim(input?.id, 100) || id(), ...actorTemplate(input)});
   const actorAllowed = actor => actor?.portable?.rating !== 'adult' || adultEnabled();
   const same = (left, right) => JSON.stringify(left) === JSON.stringify(right);
   let builderActors = [];
@@ -167,7 +168,7 @@
     try {
       const list = JSON.parse(localStorage.getItem(ACTOR_KEY) || '[]');
       return Array.isArray(list)
-        ? list.filter(item => item?.id && item?.actor).map(item => ({...item, actor:normalizeActor(item.actor)})).slice(0, 100)
+        ? list.filter(item => item?.id && item?.actor).map(item => ({...item, actor:actorTemplate(item.actor)})).slice(0, 100)
         : [];
     } catch { return []; }
   }
@@ -176,14 +177,14 @@
     catch { alert('AI 人物庫未能寫入這台裝置，請檢查儲存空間。'); return false; }
   }
   function saveActorPreset(actor, proposedName) {
-    const cleanActor = normalizeActor({...actor, id:''});
+    const cleanActor = actorTemplate(actor);
     if (!trim(cleanActor.name)) { alert('請先為 AI 人物命名。'); return null; }
     const chosen = window.prompt('替這份 AI 人物取一個人物庫名稱：', trim(proposedName || cleanActor.name, 80) || '我的 AI 人物');
     if (chosen === null) return null;
     const record = {
       id:id(),
       label:trim(chosen, 80) || cleanActor.name || '未命名人物',
-      actor:{...cleanActor, id:''},
+      actor:cleanActor,
       savedAt:new Date().toISOString()
     };
     if (!storeActorPresets([record, ...actorPresets()])) return null;
@@ -468,7 +469,7 @@
       if (mode === 'actor') {
         const item = actorPresets().find(entry => entry.id === button.dataset.libraryCopy);
         if (!item) return;
-        const copy = {id:id(), label:`${item.label || item.actor.name}（副本）`, actor:{...clone(item.actor), id:''}, savedAt:now};
+        const copy = {id:id(), label:`${item.label || item.actor.name}（副本）`, actor:actorTemplate(item.actor), savedAt:now};
         if (storeActorPresets([copy, ...actorPresets()])) { refreshActorPresetPickers(); renderLibrary(mode); }
       } else {
         const item = presets().find(entry => entry.id === button.dataset.libraryCopy);
@@ -511,8 +512,7 @@
       if (mode === 'actor') {
         const data = formData(form, ACTOR_FIELDS);
         if (!trim(data.name)) return alert('請先為 AI 人物命名。');
-        const actor = normalizeActor({...data, id:'', role:form.elements.namedItem('role')?.value || 'additional', portable:record?.actor?.portable});
-        actor.id = '';
+        const actor = actorTemplate({...data, role:form.elements.namedItem('role')?.value || 'additional', portable:record?.actor?.portable});
         const next = {id:record?.id || id(), label:libraryLabel || actor.name, actor, savedAt:record?.savedAt || now, updatedAt:now};
         if (!storeActorPresets([next, ...actorPresets().filter(item => item.id !== next.id)])) return;
         refreshActorPresetPickers();
