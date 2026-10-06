@@ -4,6 +4,7 @@
   if (window.BAOStoryActors || !window.App || !window.Storage) return;
 
   const KEY = 'bao-lab:persona-presets-v1';
+  const ACTOR_KEY = 'bao-lab:actor-presets-v1';
   const DRAFT_KEY_PREFIX = 'bao-lab:persona-builder-draft-v1:';
   const DRAFT_SAVE_DELAY = 650;
   const ADULT_PACK_SRC = 'js/story-actors-adult-pack.js?v=1';
@@ -161,6 +162,64 @@
     };
     panel.addEventListener('input', handle);
     panel.addEventListener('change', handle);
+  }
+  function actorPresets() {
+    try {
+      const list = JSON.parse(localStorage.getItem(ACTOR_KEY) || '[]');
+      return Array.isArray(list)
+        ? list.filter(item => item?.id && item?.actor).map(item => ({...item, actor:normalizeActor(item.actor)})).slice(0, 100)
+        : [];
+    } catch { return []; }
+  }
+  function storeActorPresets(list) {
+    try { localStorage.setItem(ACTOR_KEY, JSON.stringify(list.slice(0, 100))); return true; }
+    catch { alert('AI 人物庫未能寫入這台裝置，請檢查儲存空間。'); return false; }
+  }
+  function saveActorPreset(actor, proposedName) {
+    const cleanActor = normalizeActor({...actor, id:''});
+    if (!trim(cleanActor.name)) { alert('請先為 AI 人物命名。'); return null; }
+    const chosen = window.prompt('替這份 AI 人物取一個人物庫名稱：', trim(proposedName || cleanActor.name, 80) || '我的 AI 人物');
+    if (chosen === null) return null;
+    const record = {
+      id:id(),
+      label:trim(chosen, 80) || cleanActor.name || '未命名人物',
+      actor:{...cleanActor, id:''},
+      savedAt:new Date().toISOString()
+    };
+    if (!storeActorPresets([record, ...actorPresets()])) return null;
+    refreshActorPresetPickers();
+    return record;
+  }
+  function actorPresetOptions() {
+    return '<option value="">選擇我的 AI 人物…</option>' + actorPresets().map(item => `<option value="${esc(item.id)}">${esc(item.label)} · ${esc(item.actor.name)}</option>`).join('');
+  }
+  function refreshActorPresetPickers() {
+    document.querySelectorAll('[data-actor-preset-select]').forEach(select => {
+      const chosen = select.value;
+      select.innerHTML = actorPresetOptions();
+      if ([...select.options].some(option => option.value === chosen)) select.value = chosen;
+    });
+  }
+  function actorPresetPicker() {
+    return `<section class="bao-local-actor-picker"><b>我的 AI 人物庫（本機）</b><span>先捏好人物，再帶進不同故事；加入後是故事自己的副本，不會互相改動。</span><select data-actor-preset-select>${actorPresetOptions()}</select><div class="bao-actor-actions"><button type="button" class="secondary" data-actor-preset-apply>帶入人物設定</button><button type="button" class="secondary" data-actor-preset-save>存到我的人物庫</button><button type="button" class="secondary" data-actor-library-open>管理人物庫</button></div></section>`;
+  }
+  function bindActorPresetPicker(root, form) {
+    const select = root.querySelector('[data-actor-preset-select]');
+    const apply = root.querySelector('[data-actor-preset-apply]');
+    const save = root.querySelector('[data-actor-preset-save]');
+    const manage = root.querySelector('[data-actor-library-open]');
+    if (apply && select && form) apply.onclick = () => {
+      const item = actorPresets().find(entry => entry.id === select.value);
+      if (!item) return alert('先選擇我的 AI 人物。');
+      fillActorForm(form, {...clone(item.actor), id:''});
+      form.elements.namedItem('name')?.focus();
+    };
+    if (save && form) save.onclick = () => {
+      const data = formData(form, ACTOR_FIELDS);
+      const role = form.elements.namedItem('role')?.value || 'additional';
+      saveActorPreset({...data, role, portable:form._portableMeta});
+    };
+    if (manage) manage.onclick = () => openLibrary('actor');
   }
   function actorList(raw) {
     const list = Array.isArray(raw?.hostedCharacters) ? raw.hostedCharacters : (raw?.hostedCharacter ? [raw.hostedCharacter] : []);
