@@ -57,12 +57,32 @@
   function worksForAuthor(list = [], authorId = "") {
     const key = clean(authorId).toLowerCase();
     if (!validAuthorId(key)) return [];
-    return (Array.isArray(list) ? list : [])
-      .filter(item => clean(item?.author_id).toLowerCase() === key)
+
+    const byId = new Map();
+    for (const item of (Array.isArray(list) ? list : [])) {
+      if (clean(item?.author_id).toLowerCase() !== key) continue;
+      const id = clean(item?.id);
+      if (!id || byId.has(id)) continue;
+      byId.set(id, item);
+    }
+
+    return [...byId.values()].sort((a, b) => {
+      const left = Date.parse(a?.version_published_at || a?.updated_at || a?.published_at || "") || 0;
+      const right = Date.parse(b?.version_published_at || b?.updated_at || b?.published_at || "") || 0;
+      return right - left;
+    });
+  }
+
+  function directoryEntries(registryValue = {}, works = []) {
+    const registry = normalizeRegistry(registryValue);
+    return registry.authors
+      .map(author => ({
+        ...author,
+        work_count: worksForAuthor(works, author.id).length
+      }))
       .sort((a, b) => {
-        const left = Date.parse(a?.version_published_at || a?.updated_at || a?.published_at || "") || 0;
-        const right = Date.parse(b?.version_published_at || b?.updated_at || b?.published_at || "") || 0;
-        return right - left;
+        if (b.work_count !== a.work_count) return b.work_count - a.work_count;
+        return a.name.localeCompare(b.name, "zh-Hant");
       });
   }
 
@@ -85,6 +105,7 @@
     normalizeAuthor,
     normalizeRegistry,
     worksForAuthor,
+    directoryEntries,
     publicationLabel
   });
 });

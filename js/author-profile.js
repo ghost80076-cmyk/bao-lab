@@ -42,7 +42,10 @@
         <div class="eyebrow">AUTHOR</div>
         <h1>找不到這位作者</h1>
         <p>${esc(message || "這個作者頁目前不存在，可能尚未公開或連結已失效。")}</p>
-        <a class="primary" href="./">返回夜灣</a>
+        <div class="author-state-actions">
+          <a class="primary" href="author.html">查看所有作者</a>
+          <a class="secondary" href="./">返回夜灣</a>
+        </div>
       </section>`;
   }
 
@@ -66,8 +69,56 @@
       </article>`;
   }
 
+  function authorCard(author) {
+    const bio = author.bio || "這位作者尚未填寫公開介紹。";
+    return `
+      <article class="author-directory-card">
+        <div class="author-directory-card-head">
+          <div>
+            <div class="eyebrow">AUTHOR</div>
+            <h2><a href="author.html?id=${encodeURIComponent(author.id)}">${esc(author.name)}</a></h2>
+            <p class="author-profile-id">@${esc(author.id)}</p>
+          </div>
+          <span class="author-directory-count">${author.work_count} 部作品</span>
+        </div>
+        <p class="author-directory-bio">${esc(bio)}</p>
+        <div class="author-directory-actions">
+          <a class="primary" href="author.html?id=${encodeURIComponent(author.id)}">查看作者與作品 →</a>
+          ${author.support_links.length ? '<span class="author-directory-support">有作者支持連結</span>' : ""}
+        </div>
+      </article>`;
+  }
+
+  function renderDirectory(registry, works) {
+    const visibleWorks = (Array.isArray(works) ? works : [])
+      .filter(item => window.BAOContentPreferences?.canExpose?.(item) !== false);
+    const authors = core.directoryEntries(registry, visibleWorks);
+    document.title = "作者｜夜灣 YoruBay";
+
+    root.innerHTML = `
+      <section class="author-directory-hero">
+        <div class="eyebrow">CREATORS</div>
+        <h1>夜灣作者</h1>
+        <p>從作品找到創作者，也能從創作者回到他公開的故事。作者頁與支持連結都是公開資訊；夜灣不代收、不轉金流、不抽成。</p>
+        <div class="author-profile-summary">${authors.length} 位公開作者</div>
+      </section>
+
+      <section class="author-directory">
+        <div class="author-works-head">
+          <div>
+            <div class="eyebrow">DIRECTORY</div>
+            <h2>所有作者</h2>
+          </div>
+          <a class="text-button" href="./">探索作品</a>
+        </div>
+        <div class="author-directory-grid">
+          ${authors.length ? authors.map(authorCard).join("") : '<p class="note">目前還沒有公開作者。</p>'}
+        </div>
+      </section>`;
+  }
+
   async function render() {
-    if (!core.validAuthorId(authorId)) {
+    if (authorId && !core.validAuthorId(authorId)) {
       renderMissing("作者 ID 格式無效。");
       return;
     }
@@ -80,6 +131,12 @@
     ]);
 
     const registry = core.normalizeRegistry(registryRaw);
+
+    if (!authorId) {
+      renderDirectory(registry, works);
+      return;
+    }
+
     const author = registry.authors.find(item => item.id === authorId);
     if (!author) {
       renderMissing("這位作者目前沒有公開作者頁。");
@@ -115,7 +172,7 @@
             <div class="eyebrow">STORIES</div>
             <h2>${esc(author.name)} 的故事</h2>
           </div>
-          <a class="text-button" href="./">回到探索</a>
+          <a class="text-button" href="author.html">所有作者</a>
         </div>
         <div class="author-work-grid">
           ${authoredWorks.length ? authoredWorks.map(workCard).join("") : '<p class="note">目前還沒有公開作品。</p>'}

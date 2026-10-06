@@ -62,11 +62,14 @@ body.author-page{
   .author-profile-copy{padding:20px}
   .author-support-card{padding:18px}
   .author-work-grid{grid-template-columns:1fr}
+  .author-directory-grid{grid-template-columns:1fr}
   .author-work-card{grid-template-columns:118px minmax(0,1fr)}
   .author-work-cover{min-height:160px}
 }
 @media(max-width:520px){
   .author-topbar{margin-bottom:18px}
+  .author-topbar-actions{gap:4px}
+  .author-topbar-actions .text-button{padding-left:8px;padding-right:8px}
   .author-profile-copy,.author-support-card,.author-profile-state{border-radius:17px}
   .author-profile-copy h1{font-size:32px}
   .author-profile-bio{font-size:14px}
@@ -77,3 +80,33 @@ body.author-page{
   .author-work-copy h2{font-size:15px}
   .author-work-tags{display:none}
 }
+
+.author-topbar-actions{display:flex;align-items:center;gap:8px}
+.author-directory-hero{
+  border:1px solid var(--author-border);border-radius:22px;background:var(--author-panel);
+  box-shadow:0 22px 60px rgba(0,0,0,.2);padding:28px
+}
+.author-directory-hero h1{margin:5px 0 10px;font-size:clamp(32px,5vw,52px);line-height:1.05}
+.author-directory-hero p{max-width:760px;margin:0;color:#e6e3f0;font-size:15px;line-height:1.8}
+.author-directory{margin-top:34px}
+.author-directory-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.author-directory-card{
+  min-width:0;padding:20px;border:1px solid var(--author-border);border-radius:18px;
+  background:rgba(16,18,27,.82)
+}
+.author-directory-card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}
+.author-directory-card h2{margin:5px 0 2px;font-size:22px}
+.author-directory-card h2 a{color:inherit;text-decoration:none}
+.author-directory-count{
+  flex:0 0 auto;padding:5px 9px;border:1px solid rgba(205,196,255,.14);
+  border-radius:999px;background:rgba(205,196,255,.06);color:#d4cdef;font-size:10px;font-weight:800
+}
+.author-directory-bio{
+  display:-webkit-box;min-height:48px;margin:16px 0 0;color:var(--muted);font-size:13px;
+  line-height:1.65;overflow:hidden;-webkit-line-clamp:2;-webkit-box-orient:vertical
+}
+.author-directory-actions{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:18px}
+.author-directory-actions .primary{display:inline-flex;text-decoration:none}
+.author-directory-support{color:var(--muted);font-size:10px}
+.author-state-actions{display:flex;flex-wrap:wrap;gap:9px;margin-top:12px}
+.author-state-actions .primary,.author-state-actions .secondary{display:inline-flex;text-decoration:none}
