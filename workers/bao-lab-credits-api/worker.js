@@ -33,7 +33,6 @@ import {
   fail,
   json,
   readJson,
-  readJsonWithLimit,
   trustedCookieMutation,
   validOrigin,
   withSecurityHeaders,
@@ -57,6 +56,11 @@ import {
 } from "./modules/account-self-route.js";
 
 import {
+  WorkerAccountAuthorRoutes,
+  accountAuthorRoute,
+} from "./modules/account-author-routes.js";
+
+import {
   WorkerAccountRateLimit,
   accountAuthAllowed,
   authNetworkIdentity,
@@ -73,7 +77,6 @@ import {
   mergeAuthorProfile,
   mergePublishedCatalogEntry,
   plainObject,
-  prepareAuthorProfileUpdate,
   prepareCharacterPublication,
   publishError,
   redactPublishSecrets,
@@ -86,20 +89,6 @@ import {
   githubApi,
   githubSettings,
 } from "./modules/github-publication-transport.js";
-
-import {
-  WorkerAuthorProfilePublication,
-  createAuthorProfilePr,
-} from "./modules/author-profile-publication.js";
-
-import {
-  WorkerAuthorOwnership,
-  claimAuthorIdentity,
-  ensureAuthorOwnerships,
-  ownedAuthorIdentities,
-  prepareAuthorIdentityClaim,
-  publicAuthorIdExists,
-} from "./modules/author-ownership.js";
 
 import {
   WorkerAdminPublicationRoutes,
@@ -175,7 +164,6 @@ import {
 // Hosted prompt limits are transport / abuse guards, not model context-window limits.
 // The browser aims substantially below these values and compacts smart-memory stories
 // before reaching the hard ceiling.
-const MAX_ADMIN_PUBLISH_BODY_BYTES = 2_500_000;
 const MAX_OUTPUT = 8192;
 
 const LEGACY_CREDIT_TOKEN_UNIT = 100;
@@ -1553,219 +1541,6 @@ const {
 // Internal author-ownership boundary. Public author identity claims are kept
 // separate from account/session routes and from public author-profile formatting.
 
-
-// Authenticated author-account route boundary. It owns `/me/authors` request
-// dispatch while ownership rules remain in WorkerAuthorOwnership.
-const WorkerAccountAuthorRoutes = (() => {
-async function accountAuthorRoute(
-  request,
-  url,
-  env,
-  db
-) {
-  const player =
-    await playerFor(
-      request,
-      db
-    );
-
-  if (
-    !player ||
-    !player.enabled
-  ) {
-    return fail(
-      "unauthorized",
-      401
-    );
-  }
-
-  if (
-    player.auth_type !==
-      "session" ||
-    !player.username
-  ) {
-    return fail(
-      "account_required",
-      403
-    );
-  }
-
-  if (
-    url.pathname ===
-      "/me/authors" &&
-    request.method ===
-      "GET"
-  ) {
-    return json({
-      authors:
-        await ownedAuthorIdentities(
-          db,
-          player.id
-        ),
-    });
-  }
-
-  if (
-    url.pathname ===
-      "/me/authors/claim" &&
-    request.method ===
-      "POST"
-  ) {
-    try {
-      const claimed =
-        await claimAuthorIdentity(
-          env,
-          db,
-          player,
-          await readJson(
-            request
-          )
-        );
-
-      return json(
-        {
-          claimed:
-            true,
-
-          ...claimed,
-        },
-        claimed.existing
-          ? 200
-          : 201
-      );
-    }
-
-    catch (error) {
-      if (
-        error?.httpStatus
-      ) {
-        return fail(
-          error.message,
-          error.httpStatus
-        );
-      }
-
-      throw error;
-    }
-  }
-
-  if (
-    url.pathname ===
-      "/me/authors/profile-pr" &&
-    request.method ===
-      "POST"
-  ) {
-    const body =
-      await readJsonWithLimit(
-        request,
-        MAX_ADMIN_PUBLISH_BODY_BYTES
-      );
-
-    let prepared;
-
-    try {
-      prepared =
-        prepareAuthorProfileUpdate(
-          body
-        );
-    }
-
-    catch (error) {
-      if (
-        error?.httpStatus
-      ) {
-        return fail(
-          error.message,
-          error.httpStatus
-        );
-      }
-
-      throw error;
-    }
-
-    await ensureAuthorOwnerships(
-      db
-    );
-
-    const owned =
-      await db
-        .prepare(
-          `
-          SELECT
-            author_id
-
-          FROM author_ownerships
-
-          WHERE
-            author_id = ?
-
-            AND
-            player_id = ?
-
-          LIMIT 1
-          `
-        )
-        .bind(
-          prepared.authorId,
-          player.id
-        )
-        .first();
-
-    if (
-      !owned
-    ) {
-      return fail(
-        "author_identity_not_owned",
-        403
-      );
-    }
-
-    try {
-      const result =
-        await createAuthorProfilePr(
-          env,
-          prepared
-        );
-
-      return json(
-        {
-          created:
-            true,
-
-          ...result,
-        },
-        201
-      );
-    }
-
-    catch (error) {
-      if (
-        error?.httpStatus
-      ) {
-        return fail(
-          error.message,
-          error.httpStatus
-        );
-      }
-
-      throw error;
-    }
-  }
-
-  return fail(
-    "not_found",
-    404
-  );
-}
-
-  return Object.freeze({
-    accountAuthorRoute,
-  });
-})();
-
-const {
-  accountAuthorRoute,
-} = WorkerAccountAuthorRoutes;
 
 // Shared GitHub publication transport and character-publication transaction.
 // Keep repository settings, HTTP policy, and character PR writes off route code.

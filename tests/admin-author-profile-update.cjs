@@ -15,11 +15,35 @@ const authorProfilePublicationModuleSource = fs.readFileSync(
   ),
   "utf8"
 );
+const accountAuthorRoutesModuleSource = fs.readFileSync(
+  path.join(
+    __dirname,
+    "../workers/bao-lab-credits-api/modules/account-author-routes.js"
+  ),
+  "utf8"
+);
+const adminPublicationRoutesModuleSource = fs.readFileSync(
+  path.join(
+    __dirname,
+    "../workers/bao-lab-credits-api/modules/admin-publication-routes.js"
+  ),
+  "utf8"
+);
 
-assert.match(
+assert.doesNotMatch(
   workerEntrySource,
   /from "\.\/modules\/author-profile-publication\.js";/,
-  "the Worker entry must import the extracted author profile publication module"
+  "the Worker entry should not retain a direct author profile publication dependency"
+);
+assert.match(
+  accountAuthorRoutesModuleSource,
+  /from "\.\/author-profile-publication\.js";/,
+  "account author routes must consume the extracted author profile publication module"
+);
+assert.match(
+  adminPublicationRoutesModuleSource,
+  /from "\.\/author-profile-publication\.js";/,
+  "admin publication routes must consume the extracted author profile publication module"
 );
 assert.doesNotMatch(
   workerEntrySource,

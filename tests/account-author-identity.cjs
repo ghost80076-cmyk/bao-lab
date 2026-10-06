@@ -15,11 +15,38 @@ const ownershipModuleSource = fs.readFileSync(
   ),
   "utf8"
 );
+const accountAuthorModuleSource = fs.readFileSync(
+  path.join(
+    __dirname,
+    "../workers/bao-lab-credits-api/modules/account-author-routes.js"
+  ),
+  "utf8"
+);
 
 assert.match(
   workerEntrySource,
+  /from "\.\/modules\/account-author-routes\.js";/,
+  "the Worker entry must import the extracted account author routes module"
+);
+assert.doesNotMatch(
+  workerEntrySource,
+  /const WorkerAccountAuthorRoutes = \(\(\) => \{/,
+  "account author route implementation must not remain duplicated in worker.js"
+);
+assert.match(
+  accountAuthorModuleSource,
+  /const WorkerAccountAuthorRoutes = \(\(\) => \{/,
+  "account author route implementation must live in its module"
+);
+assert.doesNotMatch(
+  workerEntrySource,
   /from "\.\/modules\/author-ownership\.js";/,
-  "the Worker entry must import the extracted author ownership module"
+  "the Worker entry should not retain a direct author ownership dependency"
+);
+assert.match(
+  accountAuthorModuleSource,
+  /from "\.\/author-ownership\.js";/,
+  "account author routes must consume the extracted author ownership module"
 );
 assert.doesNotMatch(
   workerEntrySource,
