@@ -1,18 +1,18 @@
 const assert = require("node:assert/strict");
-const { loadWorkerTestSource } = require("./helpers/worker-test-source.cjs");
 const fs = require("node:fs");
 const path = require("node:path");
+const { pathToFileURL } = require("node:url");
 
-const source = loadWorkerTestSource();
 const workerEntrySource = fs.readFileSync(
   path.join(__dirname, "../workers/bao-lab-credits-api/worker.js"),
   "utf8"
 );
+const modulePath = path.join(
+  __dirname,
+  "../workers/bao-lab-credits-api/modules/admin-publication-routes.js"
+);
 const moduleSource = fs.readFileSync(
-  path.join(
-    __dirname,
-    "../workers/bao-lab-credits-api/modules/admin-publication-routes.js"
-  ),
+  modulePath,
   "utf8"
 );
 
@@ -32,9 +32,16 @@ assert.match(
   "admin publication endpoints must stay behind their own subroute boundary"
 );
 
-const boundaryStart = source.indexOf("const WorkerAdminPublicationRoutes = (() => {");
-const boundaryEnd = source.indexOf("const {\n  adminPublicationRoute,\n} = WorkerAdminPublicationRoutes;");
-const boundary = source.slice(boundaryStart, boundaryEnd);
+const boundaryStart = moduleSource.indexOf(
+  "const WorkerAdminPublicationRoutes = (() => {"
+);
+const boundaryEnd = moduleSource.indexOf(
+  "const {\n  adminPublicationRoute,\n} = WorkerAdminPublicationRoutes;"
+);
+const boundary = moduleSource.slice(
+  boundaryStart,
+  boundaryEnd
+);
 
 for (const route of [
   "/admin/characters/publish-status",
@@ -50,24 +57,17 @@ assert.doesNotMatch(
   "publication subroutes must not absorb provider, player or usage administration"
 );
 
-const instrumented =
-  source.replace(
-    /export\s+default\s+\{/,
-    "const __workerDefault = {"
-  ) +
-  "\nreturn { WorkerAdminPublicationRoutes, adminPublicationRoute };";
-
-const {
-  WorkerAdminPublicationRoutes,
-  adminPublicationRoute,
-} = new Function(instrumented)();
-
-assert.equal(
-  WorkerAdminPublicationRoutes.adminPublicationRoute,
-  adminPublicationRoute
-);
-
 (async () => {
+  const {
+    WorkerAdminPublicationRoutes,
+    adminPublicationRoute,
+  } = await import(pathToFileURL(modulePath).href);
+
+  assert.equal(
+    WorkerAdminPublicationRoutes.adminPublicationRoute,
+    adminPublicationRoute
+  );
+
   const unmatched = await adminPublicationRoute(
     new Request("https://worker.test/admin/players"),
     "/admin/players",
