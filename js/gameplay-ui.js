@@ -69,6 +69,27 @@
     return cacheSchema;
   };
 
+  const syncPlayerIdentityLabel = () => {
+    const node = document.getElementById('chat-persona');
+    const spec = App.activeCharacter?.gameplay_ui?.player_identity;
+    const sourcePath = String(spec?.source_path || '').trim();
+    if (!node || !Core.isTargetPath(sourcePath)) return false;
+    const current = Core.getPath(GameState.current || {}, sourcePath);
+    const variants = Array.isArray(spec?.variants) ? spec.variants.slice(0, 8) : [];
+    const rule = variants.find(item => item && String(item.value || '').slice(0, 80) === String(current));
+    const defaultLabel = String(spec?.default_label || '').trim().slice(0, 80);
+    let label = String(rule?.label || '').trim().slice(0, 80) || defaultLabel;
+    if (rule?.use_persona) {
+      const personaName = String(App.config?.persona?.name || '').trim();
+      label = personaName && personaName !== '未命名玩家'
+        ? personaName
+        : (String(rule?.fallback || '').trim().slice(0, 80) || defaultLabel || '玩家');
+    }
+    if (!label) return false;
+    if (node.textContent !== label) node.textContent = label;
+    return true;
+  };
+
   const formatValue = value => {
     if (value === undefined || value === null || value === '') return '—';
     if (typeof value === 'boolean') return value ? '是' : '否';
@@ -287,8 +308,31 @@
     const result = originalRenderChat(...args);
     syncTabs();
     activateInitialPanel();
+    syncPlayerIdentityLabel();
     return result;
   };
 
-  window.BAOGameplayUI = Object.freeze({ schemaFor, mountBuilder, renderPanel, syncTabs, activateInitialPanel, applyTheme, clearTheme });
+  const personaMeta = document.getElementById('chat-persona');
+  if (personaMeta) {
+    let personaSyncQueued = false;
+    new MutationObserver(() => {
+      if (personaSyncQueued) return;
+      personaSyncQueued = true;
+      queueMicrotask(() => {
+        personaSyncQueued = false;
+        syncPlayerIdentityLabel();
+      });
+    }).observe(personaMeta, { childList: true, subtree: true, characterData: true });
+  }
+
+  const originalApplyUpdate = typeof GameState.applyUpdate === 'function' ? GameState.applyUpdate.bind(GameState) : null;
+  if (originalApplyUpdate) {
+    GameState.applyUpdate = function(...args) {
+      const result = originalApplyUpdate(...args);
+      queueMicrotask(syncPlayerIdentityLabel);
+      return result;
+    };
+  }
+
+  window.BAOGameplayUI = Object.freeze({ schemaFor, mountBuilder, renderPanel, syncTabs, activateInitialPanel, syncPlayerIdentityLabel, applyTheme, clearTheme });
 })();

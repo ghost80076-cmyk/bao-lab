@@ -71,3 +71,49 @@ test('gameplay schema renders builder, applies state, and drafts actions without
   });
   expect(drafted).toBe('我採取穩健策略迎戰，優先保命並觀察對手破綻。');
 });
+
+
+test('dual host system card maps global Persona display to system identity without changing Persona data', async ({ page }) => {
+  await ready(page);
+  const card = await page.evaluate(async () => (await fetch('data/characters/community/db/dual-host-system-mode.json')).json());
+
+  await page.evaluate(raw => {
+    App.activeCharacter = CharacterEngine.normalize(raw);
+    App.config = {
+      narrativeMode: 'world',
+      displayMode: 'text',
+      persona: { name: '未命名玩家', gender: '未指定', identity: '', personality: '', relationship: '', extra: '' },
+      gameplaySetup: { player_mode: '純系統' },
+      api: { type: 'custom', protocol: 'openai', model: 'offline-test', baseUrl: '', key: '' },
+      memory: { mode: 'smart', maxRounds: 20, maxContext: 32000, cache: false }
+    };
+    Chat.reset();
+    GameState.create(App.activeCharacter, App.config);
+    App.renderChatShell(true);
+    App.showView('chat');
+  }, card);
+
+  const identitySnapshot = await page.evaluate(() => ({
+    sourcePath: App.activeCharacter?.gameplay_ui?.player_identity?.source_path || '',
+    playerMode: GameState.current?.modules?.system_core?.player_mode || ''
+  }));
+  expect(identitySnapshot).toEqual({
+    sourcePath: 'modules.system_core.player_mode',
+    playerMode: '純系統'
+  });
+  await expect(page.locator('#chat-persona')).toHaveText('系統本體');
+
+  await page.evaluate(() => {
+    App.config.persona.name = '班長測試化身';
+    GameState.current.modules.system_core.player_mode = '系統＋化身';
+    BAOGameplayUI.syncPlayerIdentityLabel();
+  });
+  await expect(page.locator('#chat-persona')).toHaveText('班長測試化身');
+
+  await page.evaluate(() => {
+    App.config.persona.name = '未命名玩家';
+    BAOGameplayUI.syncPlayerIdentityLabel();
+  });
+  await expect(page.locator('#chat-persona')).toHaveText('系統化身');
+  expect(await page.evaluate(() => App.config.persona.name)).toBe('未命名玩家');
+});
