@@ -129,3 +129,16 @@
   .bao-bubble-role-tabs{margin-bottom:10px}
   .bao-select-row{grid-template-columns:1fr 150px;gap:8px}
 }
+
+
+/* Keep player and platform-rendered story typography aligned with the saved chat appearance.
+   Author-provided rich HTML keeps its own explicit typography; the platform scene card is ours. */
+#chat-view .message.user > .bubble,
+#chat-view .message.assistant > .bubble:not(.authored-rich-message){
+  font-size:var(--chat-font-size)!important;
+  font-family:var(--chat-font-family)!important;
+}
+#chat-view .message.assistant > .bubble .bao-scene-card{
+  font-size:var(--chat-font-size)!important;
+  font-family:var(--chat-font-family)!important;
+}

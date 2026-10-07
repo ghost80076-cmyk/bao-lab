@@ -101,11 +101,27 @@ for (const viewport of [{ name: 'desktop', width: 1440, height: 900 }, { name: '
       App.renderChatShell(false);
       const assistant = document.querySelector('#chat-stream .message.assistant .bubble:not(.authored-rich-message)');
       const user = document.querySelector('#chat-stream .message.user .bubble');
+      const platformMessage = document.createElement('div');
+      platformMessage.className = 'message assistant';
+      platformMessage.innerHTML = '<div class="bubble authored-rich-message"><section class="bao-scene-card"><div>平台場景正文</div></section></div>';
+      document.querySelector('#chat-stream').append(platformMessage);
+      const platformScene = platformMessage.querySelector('.bao-scene-card');
+
+      const authorMessage = document.createElement('div');
+      authorMessage.className = 'message assistant';
+      authorMessage.innerHTML = '<div class="bubble authored-rich-message"><p style="font-size:13px">作者固定字級</p></div>';
+      document.querySelector('#chat-stream').append(authorMessage);
+      const authorText = authorMessage.querySelector('p');
+
       return {
         assistantBg: getComputedStyle(assistant).backgroundColor,
         assistantText: getComputedStyle(assistant).color,
+        assistantFontSize: getComputedStyle(assistant).fontSize,
         userBg: getComputedStyle(user).backgroundColor,
         userText: getComputedStyle(user).color,
+        userFontSize: getComputedStyle(user).fontSize,
+        platformSceneFontSize: getComputedStyle(platformScene).fontSize,
+        authorTextFontSize: getComputedStyle(authorText).fontSize,
         radius: getComputedStyle(user).borderRadius
       };
     });
@@ -113,6 +129,10 @@ for (const viewport of [{ name: 'desktop', width: 1440, height: 900 }, { name: '
     expect(rendered.userBg).not.toBe('rgba(0, 0, 0, 0)');
     expect(rendered.assistantText).toBe('rgb(171, 205, 239)');
     expect(rendered.userText).toBe('rgb(254, 220, 186)');
+    expect(rendered.assistantFontSize).toBe('20px');
+    expect(rendered.userFontSize).toBe('20px');
+    expect(rendered.platformSceneFontSize).toBe('20px');
+    expect(rendered.authorTextFontSize).toBe('13px');
     expect(rendered.radius).toBe('23px');
 
     await page.reload();
