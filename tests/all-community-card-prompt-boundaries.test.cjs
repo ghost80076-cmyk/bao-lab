@@ -17,7 +17,7 @@ for (const bucket of fs.readdirSync(communityRoot)) {
   }
 }
 
-assert.equal(files.length, 35, 'unexpected formal community card count');
+assert.equal(files.length, 36, 'unexpected formal community card count');
 
 const implementationJargon = /Builder|Gameplay UI|Dynamic Prompts|Author Regex|作者 Regex|\bRegex\b|Persona|原生 Gameplay UI|原生狀態 UI|夜灣原生 UI/;
 const duplicatePlatformRules = /不得替玩家|不能替玩家|不替玩家|玩家控制權是硬規則|作品名稱[^\n]*(?:不是|不得)[^\n]*(?:NPC|人物)/;
