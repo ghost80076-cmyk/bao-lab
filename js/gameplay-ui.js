@@ -69,6 +69,24 @@
     return cacheSchema;
   };
 
+  const syncPlayerIdentityLabel = () => {
+    const node = document.getElementById('chat-persona');
+    const spec = App.activeCharacter?.player_identity;
+    if (!node || !spec?.source_path) return false;
+    const current = Core.getPath(GameState.current || {}, spec.source_path);
+    const rule = (spec.variants || []).find(item => String(item.value) === String(current));
+    let label = rule?.label || spec.default_label || '';
+    if (rule?.use_persona) {
+      const personaName = String(App.config?.persona?.name || '').trim();
+      label = personaName && personaName !== '未命名玩家'
+        ? personaName
+        : (rule.fallback || spec.default_label || '玩家');
+    }
+    if (!label) return false;
+    node.textContent = label;
+    return true;
+  };
+
   const formatValue = value => {
     if (value === undefined || value === null || value === '') return '—';
     if (typeof value === 'boolean') return value ? '是' : '否';
@@ -287,8 +305,18 @@
     const result = originalRenderChat(...args);
     syncTabs();
     activateInitialPanel();
+    syncPlayerIdentityLabel();
     return result;
   };
 
-  window.BAOGameplayUI = Object.freeze({ schemaFor, mountBuilder, renderPanel, syncTabs, activateInitialPanel, applyTheme, clearTheme });
+  const originalApplyUpdate = typeof GameState.applyUpdate === 'function' ? GameState.applyUpdate.bind(GameState) : null;
+  if (originalApplyUpdate) {
+    GameState.applyUpdate = function(...args) {
+      const result = originalApplyUpdate(...args);
+      queueMicrotask(syncPlayerIdentityLabel);
+      return result;
+    };
+  }
+
+  window.BAOGameplayUI = Object.freeze({ schemaFor, mountBuilder, renderPanel, syncTabs, activateInitialPanel, syncPlayerIdentityLabel, applyTheme, clearTheme });
 })();
