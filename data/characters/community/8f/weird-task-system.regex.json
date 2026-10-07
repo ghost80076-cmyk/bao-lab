@@ -6,11 +6,11 @@
   "regex_scripts": [
     {
       "scriptName": "詭異任務｜午夜啟動",
-      "description": "把開場標記轉成黑紅終端機畫面；點擊揭露只屬於顯示效果，不改故事狀態。",
+      "description": "把開場標記轉成黑紅終端機畫面；獎勵說明使用原生展開元件，不依賴腳本。",
       "priority": 90,
       "findRegex": "【YB:ODD:OPENING】\\s*([\\s\\S]*?)\\s*【/YB:ODD:OPENING】",
       "flags": "g",
-      "replaceString": "<style>.yb-odd-open{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;background:linear-gradient(180deg,#090909,#190404);color:#d0caca;border:1px solid #681717;border-left:4px solid #b32626;border-radius:15px;padding:18px 18px 16px;box-shadow:0 16px 38px rgba(0,0,0,.36);line-height:1.9;white-space:pre-wrap;position:relative;overflow:hidden}.yb-odd-open:before{content:\"23:47 · UNKNOWN APPLICATION\";display:block;color:#d95353;font-size:11px;letter-spacing:.16em;margin-bottom:10px}.yb-odd-open:after{content:\"\";position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(255,255,255,.018) 0 1px,transparent 1px 4px);mix-blend-mode:screen}.yb-odd-reveal{color:#ef6b6b;border-bottom:1px dashed #8a4a4a;cursor:pointer}</style><section class=\"yb-odd-open\">$1<br><br><span class=\"yb-odd-reveal\" onclick=\"this.textContent='獎勵：尚未確認';this.style.color='#e8c76a';this.style.borderBottom='none'\">點擊查看獎勵說明</span></section>"
+      "replaceString": "<style>.yb-odd-open{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;background:linear-gradient(180deg,#090909,#190404);color:#d0caca;border:1px solid #681717;border-left:4px solid #b32626;border-radius:15px;padding:18px 18px 16px;box-shadow:0 16px 38px rgba(0,0,0,.36);line-height:1.9;white-space:pre-wrap;position:relative;overflow:hidden}.yb-odd-open:before{content:\"23:47 · UNKNOWN APPLICATION\";display:block;color:#d95353;font-size:11px;letter-spacing:.16em;margin-bottom:10px}.yb-odd-open:after{content:\"\";position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(255,255,255,.018) 0 1px,transparent 1px 4px);mix-blend-mode:screen}.yb-odd-reveal{color:#ef6b6b}.yb-odd-reveal summary{display:inline-block;cursor:pointer;border-bottom:1px dashed #8a4a4a}.yb-odd-reveal[open] summary{color:#e8c76a;border-bottom:none}.yb-odd-reward{margin-top:8px;color:#e8c76a}</style><section class=\"yb-odd-open\">$1<br><br><details class=\"yb-odd-reveal\"><summary>點擊查看獎勵說明</summary><div class=\"yb-odd-reward\">獎勵：尚未確認</div></details></section>"
     },
     {
       "scriptName": "詭異任務｜系統通知",

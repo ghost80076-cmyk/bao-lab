@@ -118,6 +118,8 @@ jobs:
         run: node tests/lu-yan-rogue-devotion-card.test.cjs
       - name: Platform character prompt dedup
         run: node tests/platform-character-prompt-dedup.test.cjs
+      - name: Community card UI and Regex audit
+        run: node tests/community-card-ui-regex-audit.test.cjs
       - name: All community card prompt boundaries
         run: node tests/all-community-card-prompt-boundaries.test.cjs
       - name: Lu Jingchen Cold Shell Desire card
