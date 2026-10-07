@@ -1,19 +1,22 @@
 const assert = require("node:assert/strict");
-const { loadWorkerTestSource } = require("./helpers/worker-test-source.cjs");
 const fs = require("node:fs");
 const path = require("node:path");
-
-const source = loadWorkerTestSource();
+const { pathToFileURL } = require("node:url");
 
 const workerEntrySource = fs.readFileSync(
   path.join(__dirname, "../workers/bao-lab-credits-api/worker.js"),
   "utf8"
 );
+const selfRouteModulePath = path.join(
+  __dirname,
+  "../workers/bao-lab-credits-api/modules/account-self-route.js"
+);
+const billingConstantsModulePath = path.join(
+  __dirname,
+  "../workers/bao-lab-credits-api/modules/billing-constants.js"
+);
 const selfRouteModuleSource = fs.readFileSync(
-  path.join(
-    __dirname,
-    "../workers/bao-lab-credits-api/modules/account-self-route.js"
-  ),
+  selfRouteModulePath,
   "utf8"
 );
 
@@ -33,28 +36,17 @@ assert.match(
   "account self route implementation must live in its module"
 );
 
-assert.match(
-  source,
-  /const WorkerAccountSelfRoute = \(\(\) => \{/,
-  "the authenticated account summary must stay behind WorkerAccountSelfRoute"
-);
-
-const instrumented =
-  source.replace(
-    /export\s+default\s+\{/,
-    "const __workerDefault = {"
-  ) +
-  "\nreturn { WorkerAccountSelfRoute, meRoute, COST_BILLING_MODE };";
-
-const {
-  WorkerAccountSelfRoute,
-  meRoute,
-  COST_BILLING_MODE,
-} = new Function(instrumented)();
-
-assert.equal(WorkerAccountSelfRoute.meRoute, meRoute);
-
 (async () => {
+  const {
+    WorkerAccountSelfRoute,
+    meRoute,
+  } = await import(pathToFileURL(selfRouteModulePath).href);
+  const {
+    COST_BILLING_MODE,
+  } = await import(pathToFileURL(billingConstantsModulePath).href);
+
+  assert.equal(WorkerAccountSelfRoute.meRoute, meRoute);
+
   let unauthorizedDbCalls = 0;
   const unauthorized = await meRoute(
     new Request("https://api.example.test/me"),
