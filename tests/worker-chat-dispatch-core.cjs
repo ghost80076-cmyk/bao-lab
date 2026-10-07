@@ -1,9 +1,13 @@
 const assert = require("node:assert/strict");
-const { loadWorkerTestSource } = require("./helpers/worker-test-source.cjs");
 const fs = require("node:fs");
 const path = require("node:path");
+const { pathToFileURL } = require("node:url");
 
-const source = loadWorkerTestSource();
+const modulePath = path.join(
+  __dirname,
+  "../workers/bao-lab-credits-api/modules/chat-dispatch.js"
+);
+const source = fs.readFileSync(modulePath, "utf8");
 
 assert.match(
   source,
@@ -26,21 +30,14 @@ assert.doesNotMatch(
   "the dispatch boundary must not take ownership of settlement SQL"
 );
 
-const instrumented =
-  source.replace(
-    /export\s+default\s+\{/,
-    "const __workerDefault = {"
-  ) +
-  "\nreturn { WorkerChatDispatch, chatRoute };";
-
-const {
-  WorkerChatDispatch,
-  chatRoute,
-} = new Function(instrumented)();
-
-assert.equal(WorkerChatDispatch.chatRoute, chatRoute);
-
 (async () => {
+  const {
+    WorkerChatDispatch,
+    chatRoute,
+  } = await import(pathToFileURL(modulePath).href);
+
+  assert.equal(WorkerChatDispatch.chatRoute, chatRoute);
+
   const unauthorized = await chatRoute(
     new Request("https://worker.test/v1/chat", {
       method: "POST",

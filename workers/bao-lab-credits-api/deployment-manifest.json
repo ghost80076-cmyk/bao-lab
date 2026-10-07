@@ -17,6 +17,7 @@
     "modules/author-profile-publication.js",
     "modules/author-ownership.js",
     "modules/billing-constants.js",
+    "modules/chat-dispatch.js",
     "modules/chat-input.js",
     "modules/cost-chat-settlement.js",
     "modules/crypto.js",
