@@ -1,5 +1,7 @@
 // Pure hosted chat input normalization shared by provider dispatch paths.
 // Keep this module independent of runtime bindings, storage, billing and providers.
+// Output limits are transport / abuse guards, not model context-window limits.
+const MAX_OUTPUT = 8192;
 const MAX_PROMPT_BYTES = 192_000;
 const MAX_MESSAGES = 100;
 const chatInputEncoder = new TextEncoder();
@@ -115,11 +117,13 @@ function normalizeHostedSessionId(
 }
 
 const WorkerChatInput = Object.freeze({
+  MAX_OUTPUT,
   normalizeMessages,
   normalizeHostedSessionId,
 });
 
 export {
+  MAX_OUTPUT,
   WorkerChatInput,
   normalizeHostedSessionId,
   normalizeMessages,
