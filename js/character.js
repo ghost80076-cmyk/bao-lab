@@ -87,24 +87,6 @@ const CharacterEngine = {
           note: String(openingRaw.note || "").trim().slice(0, 500)
         }
       : null;
-    const playerIdentityRaw = raw.player_identity || presentation.player_identity || null;
-    const playerIdentity = playerIdentityRaw && typeof playerIdentityRaw === "object" && !Array.isArray(playerIdentityRaw)
-      ? {
-          source_path: /^modules\.[A-Za-z][A-Za-z0-9_-]*(?:\.[A-Za-z][A-Za-z0-9_-]*){0,4}$/.test(String(playerIdentityRaw.source_path || "").trim())
-            ? String(playerIdentityRaw.source_path).trim()
-            : "",
-          default_label: String(playerIdentityRaw.default_label || "").trim().slice(0, 80),
-          variants: (Array.isArray(playerIdentityRaw.variants) ? playerIdentityRaw.variants : [])
-            .map(item => item && typeof item === "object" && !Array.isArray(item) ? {
-              value: String(item.value || "").trim().slice(0, 80),
-              label: String(item.label || "").trim().slice(0, 80),
-              use_persona: item.use_persona === true,
-              fallback: String(item.fallback || "").trim().slice(0, 80)
-            } : null)
-            .filter(item => item && item.value && (item.label || item.use_persona))
-            .slice(0, 8)
-        }
-      : null;
     const actorModeRaw = raw.actor_mode || gameplay.actor_mode || null;
     const actorMode = actorModeRaw && typeof actorModeRaw === "object" && !Array.isArray(actorModeRaw)
       ? {
@@ -149,7 +131,6 @@ const CharacterEngine = {
       character_status: characterStatus,
       gameplay_ui: gameplayUI && typeof gameplayUI === "object" && !Array.isArray(gameplayUI) ? gameplayUI : null,
       play_info_surface: playInfoSurface === "game-ui" ? "game-ui" : "reader-context",
-      player_identity: playerIdentity && playerIdentity.source_path && (playerIdentity.default_label || playerIdentity.variants.length) ? playerIdentity : null,
       npc_rules: content.npc_rules || raw.npc_rules || "",
       author_instructions: content.author_instructions || raw.author_instructions || "",
       creator_notes: content.creator_notes || raw.creator_notes || "",
