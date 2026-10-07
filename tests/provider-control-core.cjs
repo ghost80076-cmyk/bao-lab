@@ -1,20 +1,35 @@
 const assert = require("node:assert/strict");
-const { loadWorkerTestSource } = require("./helpers/worker-test-source.cjs");
 const fs = require("node:fs");
 const path = require("node:path");
+const { pathToFileURL } = require("node:url");
 
 const root = path.join(__dirname, "..");
-const workerSource = loadWorkerTestSource();
 const workerEntrySource = fs.readFileSync(
   path.join(root, "workers/bao-lab-credits-api/worker.js"),
   "utf8"
 );
+const providerRoutingModulePath = path.join(
+  root,
+  "workers/bao-lab-credits-api/modules/provider-routing.js"
+);
+const providerControlModulePath = path.join(
+  root,
+  "workers/bao-lab-credits-api/modules/provider-control.js"
+);
+const adminProviderControlRoutesModulePath = path.join(
+  root,
+  "workers/bao-lab-credits-api/modules/admin-provider-control-routes.js"
+);
 const providerRoutingModuleSource = fs.readFileSync(
-  path.join(root, "workers/bao-lab-credits-api/modules/provider-routing.js"),
+  providerRoutingModulePath,
   "utf8"
 );
 const providerControlModuleSource = fs.readFileSync(
-  path.join(root, "workers/bao-lab-credits-api/modules/provider-control.js"),
+  providerControlModulePath,
+  "utf8"
+);
+const adminProviderControlRoutesModuleSource = fs.readFileSync(
+  adminProviderControlRoutesModulePath,
   "utf8"
 );
 
@@ -39,7 +54,11 @@ for (const helper of [
   "readHostedRouteOverride",
   "resolveHostedRoute",
 ]) {
-  assert.match(workerSource, new RegExp("\\b" + helper + "\\b"), "WorkerProviderRouting is missing " + helper);
+  assert.match(
+    providerRoutingModuleSource,
+    new RegExp("\\b" + helper + "\\b"),
+    "WorkerProviderRouting is missing " + helper
+  );
 }
 
 assert.match(
@@ -63,96 +82,95 @@ for (const helper of [
   "providerCumulativeSpendMicrousd",
   "providerControlSnapshot",
 ]) {
-  assert.match(workerSource, new RegExp("\\b" + helper + "\\b"), "WorkerProviderControl is missing " + helper);
+  assert.match(
+    providerControlModuleSource,
+    new RegExp("\\b" + helper + "\\b"),
+    "WorkerProviderControl is missing " + helper
+  );
 }
 
-const instrumented =
-  workerSource.replace(
-    /export\s+default\s+\{/,
-    "const __workerDefault = {"
-  ) +
-  "\nreturn { HOSTED_ROUTE_CONTROL, PROVIDER_CONTROL, hostedLogicalModel, resolveHostedRoute };";
-
-const {
-  HOSTED_ROUTE_CONTROL,
-  PROVIDER_CONTROL,
-  hostedLogicalModel,
-  resolveHostedRoute,
-} = new Function(instrumented)();
-
-assert.equal(
-  HOSTED_ROUTE_CONTROL["gemini-3-flash"].default_route,
-  "google-official"
-);
-assert.equal(
-  HOSTED_ROUTE_CONTROL["gemini-3.1-pro"].default_route,
-  "google-official"
-);
-
-assert.equal(
-  PROVIDER_CONTROL.gemini.balance_mode,
-  "native_snapshot"
-);
-assert.equal(
-  PROVIDER_CONTROL.gemini.official_balance_currency,
-  "TWD"
-);
-assert.equal(
-  PROVIDER_CONTROL.openrouter.balance_mode,
-  "usd_estimate"
-);
-
-assert.deepEqual(
-  hostedLogicalModel(
-    "gemini",
-    "gemini-3.1-pro-preview"
-  ).modelId,
-  "gemini-3.1-pro"
-);
-
-assert.deepEqual(
-  hostedLogicalModel(
-    "openrouter",
-    "google/gemini-3.1-pro-preview"
-  ).modelId,
-  "gemini-3.1-pro"
-);
-
-const envBoth = {
-  MODELS_JSON: JSON.stringify([
-    {
-      provider: "gemini",
-      model: "gemini-3.1-pro-preview",
-      input_microusd_per_million: 2000000,
-      output_microusd_per_million: 12000000,
-    },
-    {
-      provider: "openrouter",
-      model: "google/gemini-3.1-pro-preview",
-      input_microusd_per_million: 2000000,
-      output_microusd_per_million: 12000000,
-    },
-  ]),
-};
-
-const dbWithOverride = routeId => ({
-  prepare(sql) {
-    return {
-      bind() {
-        return {
-          async first() {
-            if (/FROM hosted_route_overrides/.test(sql)) {
-              return routeId ? { route_id: routeId } : null;
-            }
-            return null;
-          },
-        };
-      },
-    };
-  },
-});
-
 (async () => {
+  const {
+    HOSTED_ROUTE_CONTROL,
+    hostedLogicalModel,
+    resolveHostedRoute,
+  } = await import(pathToFileURL(providerRoutingModulePath).href);
+  const { PROVIDER_CONTROL } = await import(
+    pathToFileURL(providerControlModulePath).href
+  );
+
+  assert.equal(
+    HOSTED_ROUTE_CONTROL["gemini-3-flash"].default_route,
+    "google-official"
+  );
+  assert.equal(
+    HOSTED_ROUTE_CONTROL["gemini-3.1-pro"].default_route,
+    "google-official"
+  );
+
+  assert.equal(
+    PROVIDER_CONTROL.gemini.balance_mode,
+    "native_snapshot"
+  );
+  assert.equal(
+    PROVIDER_CONTROL.gemini.official_balance_currency,
+    "TWD"
+  );
+  assert.equal(
+    PROVIDER_CONTROL.openrouter.balance_mode,
+    "usd_estimate"
+  );
+
+  assert.deepEqual(
+    hostedLogicalModel(
+      "gemini",
+      "gemini-3.1-pro-preview"
+    ).modelId,
+    "gemini-3.1-pro"
+  );
+
+  assert.deepEqual(
+    hostedLogicalModel(
+      "openrouter",
+      "google/gemini-3.1-pro-preview"
+    ).modelId,
+    "gemini-3.1-pro"
+  );
+
+  const envBoth = {
+    MODELS_JSON: JSON.stringify([
+      {
+        provider: "gemini",
+        model: "gemini-3.1-pro-preview",
+        input_microusd_per_million: 2000000,
+        output_microusd_per_million: 12000000,
+      },
+      {
+        provider: "openrouter",
+        model: "google/gemini-3.1-pro-preview",
+        input_microusd_per_million: 2000000,
+        output_microusd_per_million: 12000000,
+      },
+    ]),
+  };
+
+  const dbWithOverride = routeId => ({
+    prepare(sql) {
+      return {
+        bind() {
+          return {
+            async first() {
+              if (/FROM hosted_route_overrides/.test(sql)) {
+                return routeId ? { route_id: routeId } : null;
+              }
+              return null;
+            },
+          };
+        },
+      };
+    },
+  });
+
   const routed = await resolveHostedRoute(
     dbWithOverride("openrouter"),
     envBoth,
@@ -216,47 +234,47 @@ const dbWithOverride = routeId => ({
   assert.equal(unchanged.overridden, false);
 
   assert.match(
-    workerSource,
-    /CREATE TABLE IF NOT EXISTS hosted_route_overrides/
+    providerRoutingModuleSource,
+    /FROM hosted_route_overrides/
   );
   assert.match(
-    workerSource,
+    providerControlModuleSource,
     /CREATE TABLE IF NOT EXISTS provider_balance_anchors/
   );
   assert.match(
-    workerSource,
+    providerControlModuleSource,
     /CREATE TABLE IF NOT EXISTS provider_native_balance_snapshots/
   );
   assert.match(
-    workerSource,
+    adminProviderControlRoutesModuleSource,
     /\/admin\/provider-control\/route/
   );
   assert.match(
-    workerSource,
+    adminProviderControlRoutesModuleSource,
     /\/admin\/provider-control\/balance/
   );
   assert.match(
-    workerSource,
+    providerControlModuleSource,
     /balance_minor/
   );
   assert.match(
-    workerSource,
+    providerControlModuleSource,
     /official_balance_currency/
   );
   assert.match(
-    workerSource,
+    providerControlModuleSource,
     /billing_mode = \?[^]*COST_BILLING_MODE/,
     "provider spend must only use USD billing records"
   );
 
-  const providerSpendStart = workerSource.indexOf(
+  const providerSpendStart = providerControlModuleSource.indexOf(
     "async function providerCumulativeSpendMicrousd("
   );
-  const providerSpendEnd = workerSource.indexOf(
+  const providerSpendEnd = providerControlModuleSource.indexOf(
     "async function providerControlSnapshot(",
     providerSpendStart
   );
-  const providerSpendSource = workerSource.slice(
+  const providerSpendSource = providerControlModuleSource.slice(
     providerSpendStart,
     providerSpendEnd
   );
