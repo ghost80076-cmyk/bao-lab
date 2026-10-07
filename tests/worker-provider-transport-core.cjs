@@ -1,9 +1,18 @@
 const assert = require("node:assert/strict");
-const { loadWorkerTestSource } = require("./helpers/worker-test-source.cjs");
 const fs = require("node:fs");
 const path = require("node:path");
+const { pathToFileURL } = require("node:url");
 
-const source = loadWorkerTestSource();
+const modulePath = path.join(
+  __dirname,
+  "../workers/bao-lab-credits-api/modules/provider-transport.js"
+);
+const workerPath = path.join(
+  __dirname,
+  "../workers/bao-lab-credits-api/worker.js"
+);
+const source = fs.readFileSync(modulePath, "utf8");
+const workerSource = fs.readFileSync(workerPath, "utf8");
 
 assert.match(
   source,
@@ -32,28 +41,15 @@ assert.match(
   "provider transport failures must distinguish timeout from network interruption"
 );
 assert.match(
-  source,
+  workerSource,
   /elapsed_ms:\s*integer\(\s*result\.elapsedMs/,
   "ambiguous refunded responses must expose safe elapsed timing"
 );
 assert.match(
-  source,
+  workerSource,
   /transport_failure:\s*\[\s*"timeout",\s*"network",/,
   "ambiguous refunded responses must expose a safe failure kind"
 );
-
-const instrumented =
-  source.replace(
-    /export\s+default\s+\{/,
-    "const __workerDefault = {"
-  ) +
-  "\nreturn { providerCall, providerFailureResponse, anthropicPayload };";
-
-const {
-  providerCall,
-  providerFailureResponse,
-  anthropicPayload,
-} = new Function(instrumented)();
 
 const jsonResponse = (body, status = 200) =>
   new Response(JSON.stringify(body), {
@@ -62,6 +58,17 @@ const jsonResponse = (body, status = 200) =>
   });
 
 (async () => {
+  const {
+    WorkerProviderTransport,
+    providerCall,
+    providerFailureResponse,
+    anthropicPayload,
+  } = await import(pathToFileURL(modulePath).href);
+
+  assert.equal(WorkerProviderTransport.providerCall, providerCall);
+  assert.equal(WorkerProviderTransport.providerFailureResponse, providerFailureResponse);
+  assert.equal(WorkerProviderTransport.anthropicPayload, anthropicPayload);
+
   const originalFetch = globalThis.fetch;
   const requests = [];
 
