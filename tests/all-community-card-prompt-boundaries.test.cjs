@@ -41,4 +41,4 @@ assert.match(engine, /不得生成玩家的新台詞/);
 assert.match(engine, /結構化初始狀態若已提供/);
 assert.match(engine, /狀態模組與介面標籤不是 NPC/);
 
-console.log('PASS all 35 community cards keep platform-global rules out of model-bound card prompts');
+console.log('PASS all 36 community cards keep platform-global rules out of model-bound card prompts');
