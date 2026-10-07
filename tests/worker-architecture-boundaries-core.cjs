@@ -47,6 +47,7 @@ const expected = [
   "WorkerLegacyChatSettlement",
   "WorkerCostChatSettlement",
   "WorkerChatDispatch",
+  "WorkerHealthRoute",
 ];
 
 assert.deepEqual(

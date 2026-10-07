@@ -22,6 +22,7 @@
     "modules/cost-chat-settlement.js",
     "modules/crypto.js",
     "modules/github-publication-transport.js",
+    "modules/health-route.js",
     "modules/http.js",
     "modules/legacy-chat-settlement.js",
     "modules/model-pricing.js",

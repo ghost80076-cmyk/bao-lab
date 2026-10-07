@@ -2,7 +2,7 @@
 
 This file is the refactor map for `workers/bao-lab-credits-api/worker.js`.
 
-The Worker now has twenty-six reviewed physical extraction modules. The production manifest contains the `worker.js` main module plus `modules/account-auth.js`, `modules/account-rate-limit.js`, `modules/account-validation.js`, `modules/chat-input.js`, `modules/admin-auth.js`, `modules/admin-player-directory-routes.js`, `modules/admin-player-mutation-routes.js`, `modules/admin-provider-control-routes.js`, `modules/admin-publication-routes.js`, `modules/admin-routes.js`, `modules/admin-usage-routes.js`, `modules/author-ownership.js`, `modules/billing-constants.js`, `modules/author-profile-publication.js`, `modules/publication-format.js`, `modules/github-publication-transport.js`, `modules/runtime-config.js`, `modules/crypto.js`, `modules/http.js`, `modules/model-pricing.js`, `modules/provider-control.js` and `modules/provider-routing.js`; every other responsibility remains in the main file. The first multi-module deployment completed a successful production rollback-and-restore rehearsal on 2026-10-04.
+The Worker now has thirty-one reviewed physical extraction modules. The production manifest contains the `worker.js` main module plus the modules represented in the boundary table below, along with shared billing constants and numeric guards. The first multi-module deployment completed a successful production rollback-and-restore rehearsal on 2026-10-04.
 
 The goal is **behavior-preserving extraction, one low-dependency boundary at a time**.
 
@@ -19,8 +19,9 @@ The Worker graph exposes explicit, frozen module-shaped boundaries. The boundary
 | Publication and author identity | `WorkerPublicationFormat`, `WorkerAuthorProfilePublication`, `WorkerAuthorOwnership`, `WorkerGithubPublicationTransport` |
 | Admin routing | `WorkerAdminAuth`, `WorkerAdminProviderControlRoutes`, `WorkerAdminPublicationRoutes`, `WorkerAdminUsageRoutes`, `WorkerAdminPlayerDirectoryRoutes`, `WorkerAdminPlayerMutationRoutes`, `WorkerAdminRoutes` |
 | Chat settlement and dispatch | `WorkerLegacyChatSettlement`, `WorkerCostChatSettlement`, `WorkerChatDispatch` |
+| Entry diagnostics | `WorkerHealthRoute` |
 
-`WorkerAccountAuth`, `WorkerAccountAuthorRoutes`, `WorkerAccountRateLimit`, `WorkerAccountSelfRoute`, `WorkerAccountValidation`, `WorkerChatInput`, `WorkerSessionAuth`, `WorkerAdminAuth`, `WorkerAdminPlayerDirectoryRoutes`, `WorkerAdminPlayerMutationRoutes`, `WorkerAdminProviderControlRoutes`, `WorkerAdminRoutes`, `WorkerAdminPublicationRoutes`, `WorkerAdminUsageRoutes`, `WorkerAuthorOwnership`, `WorkerAuthorProfilePublication`, `WorkerPublicationFormat`, `WorkerGithubPublicationTransport`, `WorkerRuntimeConfig`, `WorkerModelPricing`, `WorkerProviderControl`, `WorkerProviderRouting`, `WorkerCrypto` and `WorkerHttp` are separately deployed modules. Shared billing modes and numeric guards are separately deployed in `modules/billing-constants.js` and `modules/number-utils.js`. The remaining boundaries are still architectural seams inside `worker.js`; imported function names preserve the existing call sites and behavior.
+Every named boundary in the table is a separately deployed module. Shared billing modes and numeric guards are separately deployed in `modules/billing-constants.js` and `modules/number-utils.js`; imported function names preserve the existing call sites and behavior.
 
 ## Completed structural sequence
 
@@ -33,6 +34,7 @@ The behavior-preserving isolation sequence is complete for the current top-level
 5. Publication formatting, author ownership and GitHub PR transport.
 6. Admin authorization and route families.
 7. Legacy and USD-wallet chat settlement plus top-level chat dispatch.
+8. Read-only health and production diagnostics.
 
 Each boundary was isolated independently after its contract tests and the repository-wide required workflows passed. Physical extraction began with account validation, then chat input, followed by the isolated admin Bearer-auth boundary, publication formatting, GitHub publication transport, runtime configuration parsing, cryptographic helpers, author-profile publication, the shared HTTP/CORS boundary, account credential rate limiting, the admin publication subroutes, the read-only admin usage-history route, admin player-directory routes, admin player-mutation routes, model pricing, provider routing, author identity ownership and account authentication. Rate-limit hashing reuses the extracted crypto boundary, while account authentication now imports validation, rate limiting, crypto, session and billing dependencies explicitly.
 

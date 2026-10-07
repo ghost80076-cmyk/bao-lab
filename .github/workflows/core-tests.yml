@@ -208,6 +208,7 @@ jobs:
       - name: Worker response security headers
         run: |
           node tests/worker-security-headers-core.cjs
+          node tests/worker-health-route-core.cjs
           node --check tests/production-security-smoke.cjs
           node tests/worker-content-deploy-core.cjs
           node tests/worker-production-deploy-workflow-core.cjs
