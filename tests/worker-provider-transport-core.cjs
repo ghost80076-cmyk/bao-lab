@@ -7,12 +7,12 @@ const modulePath = path.join(
   __dirname,
   "../workers/bao-lab-credits-api/modules/provider-transport.js"
 );
-const workerPath = path.join(
+const costSettlementPath = path.join(
   __dirname,
-  "../workers/bao-lab-credits-api/worker.js"
+  "../workers/bao-lab-credits-api/modules/cost-chat-settlement.js"
 );
 const source = fs.readFileSync(modulePath, "utf8");
-const workerSource = fs.readFileSync(workerPath, "utf8");
+const costSettlementSource = fs.readFileSync(costSettlementPath, "utf8");
 
 assert.match(
   source,
@@ -41,12 +41,12 @@ assert.match(
   "provider transport failures must distinguish timeout from network interruption"
 );
 assert.match(
-  workerSource,
+  costSettlementSource,
   /elapsed_ms:\s*integer\(\s*result\.elapsedMs/,
   "ambiguous refunded responses must expose safe elapsed timing"
 );
 assert.match(
-  workerSource,
+  costSettlementSource,
   /transport_failure:\s*\[\s*"timeout",\s*"network",/,
   "ambiguous refunded responses must expose a safe failure kind"
 );

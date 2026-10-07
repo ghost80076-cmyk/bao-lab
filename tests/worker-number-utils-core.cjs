@@ -8,15 +8,22 @@ const workerEntrySource = fs.readFileSync(
   path.join(__dirname, "../workers/bao-lab-credits-api/worker.js"),
   "utf8"
 );
+const costSettlementSource = fs.readFileSync(
+  path.join(
+    __dirname,
+    "../workers/bao-lab-credits-api/modules/cost-chat-settlement.js"
+  ),
+  "utf8"
+);
 const moduleSource = fs.readFileSync(
   path.join(__dirname, "../workers/bao-lab-credits-api/modules/number-utils.js"),
   "utf8"
 );
 
 assert.match(
-  workerEntrySource,
-  /from "\.\/modules\/number-utils\.js";/,
-  "worker entry must import the extracted numeric helpers"
+  costSettlementSource,
+  /from "\.\/number-utils\.js";/,
+  "USD settlement must import the extracted numeric helpers"
 );
 assert.doesNotMatch(
   workerEntrySource,
