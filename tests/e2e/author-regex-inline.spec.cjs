@@ -148,3 +148,40 @@ test('official community sidecar regex auto-binds and renders without manual imp
   expect(stored.rules.length).toBe(6);
   await expect(page.locator('#chat-stream .message.assistant').first().locator(':scope > .bubble')).toBeHidden();
 });
+
+
+test('KTV official sidecar renders the real opening without exposed markers', async ({ page }) => {
+  await page.goto('./');
+  await page.waitForFunction(() => Boolean(window.BAOAuthorInline && App.characters?.some(c => c.id === 'ktv-flight-chess')));
+  await page.evaluate(async () => {
+    localStorage.removeItem('bao-lab:author-regex:v1:' + encodeURIComponent('ktv-flight-chess'));
+    const character = await App.loadCharacter('ktv-flight-chess');
+    if (!character) throw new Error('ktv-flight-chess did not load');
+    App.activeCharacter = character;
+    App.config = {
+      narrativeMode: 'world', displayMode: 'text',
+      persona: { name: '測試玩家', gender: '未指定', identity: '', personality: '', relationship: '', extra: '' },
+      api: { type: 'custom', protocol: 'openai', model: 'offline-test', baseUrl: '', key: '' },
+      memory: { mode: 'smart', maxRounds: 20, maxContext: 32000, cache: false }
+    };
+    Chat.reset();
+    GameState.create(App.activeCharacter, App.config);
+    App.renderChatShell(true);
+    App.showView('chat');
+  });
+
+  const host = page.locator('#chat-stream .bao-author-inline');
+  await expect(host).toHaveCount(1);
+  const frame = page.frameLocator('iframe[title="聊天內作者隔離介面"]');
+  await expect(frame.locator('.yb-ktv-opening')).toBeVisible();
+  await expect(frame.locator('body')).toContainText('骰子被推到桌子中央');
+  await expect(frame.locator('body')).not.toContainText('【YB:KTV:OPENING】');
+
+  const stored = await page.evaluate(() => JSON.parse(
+    localStorage.getItem('bao-lab:author-regex:v1:' + encodeURIComponent('ktv-flight-chess'))
+  ));
+  expect(stored.enabled).toBe(true);
+  expect(stored.allowScripts).toBe(false);
+  expect(stored.source).toBe('official-sidecar');
+  expect(stored.rules.length).toBe(5);
+});

@@ -3,6 +3,7 @@ on:
   push:
     paths:
       - 'js/author-regex-core.js'
+      - 'data/characters/community/**/*.regex.json'
       - 'js/author-regex-card-bind.js'
       - 'js/author-regex-compat.js'
       - 'js/author-regex-inline.js'
@@ -15,6 +16,7 @@ on:
   pull_request:
     paths:
       - 'js/author-regex-core.js'
+      - 'data/characters/community/**/*.regex.json'
       - 'js/author-regex-compat.js'
       - 'js/author-regex-inline.js'
       - 'js/author-regex-dock.js'
