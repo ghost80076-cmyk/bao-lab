@@ -116,7 +116,9 @@ test('official community sidecar regex auto-binds and renders without manual imp
   await page.waitForFunction(() => Boolean(window.BAOAuthorInline && App.characters?.some(c => c.id === 'dual-host-system-mode')));
   await page.evaluate(async () => {
     localStorage.removeItem('bao-lab:author-regex:v1:' + encodeURIComponent('dual-host-system-mode'));
-    await App.openCharacter('dual-host-system-mode');
+    const character = await App.loadCharacter('dual-host-system-mode');
+    if (!character) throw new Error('dual-host-system-mode did not load');
+    App.activeCharacter = character;
     App.config = {
       narrativeMode: 'world', displayMode: 'text',
       persona: { name: '未命名玩家', gender: '未指定', identity: '', personality: '', relationship: '', extra: '' },
