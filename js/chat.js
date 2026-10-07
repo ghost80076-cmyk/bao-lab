@@ -54,6 +54,16 @@ const Chat = {
     this.messages.push(message);
     return message;
   },
+  modelContent(message = {}) {
+    const semantic = String(message?.context_content || "").trim();
+    return semantic || String(message?.content || "");
+  },
+  modelMessages(messages = []) {
+    return (Array.isArray(messages) ? messages : []).map(message => {
+      if (message?.role !== "assistant" || !String(message?.context_content || "").trim()) return message;
+      return { ...message, content: this.modelContent(message) };
+    });
+  },
   turnCount(messages = this.messages) { return (Array.isArray(messages) ? messages : []).filter(message => message?.role === "user").length; },
   recent(maxRounds, mode) { if (mode === "full") return this.messages; return this.messages.slice(-Math.max(1, maxRounds) * 2); },
   pressure(config) { const limit = Math.max(1, Number(config?.memory?.maxContext || 64000)); return this.lastStoryPromptTokens > 0 ? this.lastStoryPromptTokens / limit : 0; },
@@ -77,9 +87,9 @@ const Chat = {
     if (mode === "full") {
       this.contextGuard = { level: "manual", ratio: this.pressure(config), recentRounds: configuredRounds };
       this.renderGuard();
-      return [...this.messages];
+      return this.modelMessages(this.messages);
     }
-    if (mode === "rounds") return this.messages.slice(-this.protectedRounds(config) * 2);
+    if (mode === "rounds") return this.modelMessages(this.messages.slice(-this.protectedRounds(config) * 2));
     const rounds = this.protectedRounds(config);
     // Integrity invariant: raw source may be omitted only after a successful
     // summary covers it. Under pressure we prefer a larger request (or an
@@ -100,7 +110,7 @@ const Chat = {
     this.renderGuard();
     const result = [];
     if (this.summary) result.push({ role: "system", content: `【長期記憶摘要】\n以下內容是較早對話的壓縮記憶，請保持人物關係、重要事件、承諾、偏好與未解決事項的一致性。\n${this.summary}` });
-    result.push(...recent);
+    result.push(...this.modelMessages(recent));
     return result;
   },
 
@@ -181,14 +191,14 @@ const Chat = {
     let chars = 0;
     let boundedEnd = start;
     for (let i = start; i < end; i++) {
-      const size = String(this.messages[i]?.content || "").length;
+      const size = this.modelContent(this.messages[i]).length;
       if (boundedEnd > start && chars + size > charBudget) break;
       chars += size;
       boundedEnd = i + 1;
     }
     end = boundedEnd;
     const chunk = this.messages.slice(start, end);
-    const sourceSignature = JSON.stringify(chunk.map(m => [m.id, m.content]));
+    const sourceSignature = JSON.stringify(chunk.map(m => [m.id, m.content, m.context_content || ""]));
     if (!chunk.length) return;
     this.summarizing = true;
     this.memoryHealth = {
@@ -199,7 +209,7 @@ const Chat = {
       repaired: false
     };
     try {
-      const transcript = chunk.map(m => `${m.role === "user" ? "玩家" : "角色/系統"}：${m.content}`).join("\n\n");
+      const transcript = chunk.map(m => `${m.role === "user" ? "玩家" : "角色/系統"}：${m.role === "assistant" ? this.modelContent(m) : m.content}`).join("\n\n");
       const prompt = [
         "你是角色扮演長期記憶整理器。",
         "請把舊對話壓縮成精簡但可延續劇情的記憶。",
@@ -227,7 +237,7 @@ const Chat = {
         return;
       }
       if (window.GameState?.current !== owner || this.summary !== previousSummary || this.summarizedUntil !== start
-        || JSON.stringify(this.messages.slice(start, end).map(m => [m.id, m.content])) !== sourceSignature) return;
+        || JSON.stringify(this.messages.slice(start, end).map(m => [m.id, m.content, m.context_content || ""])) !== sourceSignature) return;
       this.summary = summary;
       this.summarizedUntil = end;
       this.memoryHealth = {

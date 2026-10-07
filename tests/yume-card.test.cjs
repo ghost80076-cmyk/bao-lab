@@ -21,6 +21,10 @@ assert.ok(fs.existsSync(path.join(__dirname,'../assets/yume-misaki-work-v3.webp'
 assert.match(card.content.greeting,/src="assets\/yume-yume-rain-v4\.webp"/);
 assert.match(card.content.greeting,/傘、ある/);
 assert.match(card.content.greeting,/① 回應ゆめ/);
+assert.match(card.content.greeting_context,/歌舞伎町 02:47/);
+assert.match(card.content.greeting_context,/傘、ある/);
+assert.doesNotMatch(card.content.greeting_context,/<[^>]+>/);
+assert.ok(card.content.greeting_context.length < card.content.greeting.length,"semantic greeting context stays lighter than rendered greeting");
 assert.doesNotMatch(card.content.greeting,/你們是三週前|沒有完美結局/);
 assert.equal(card.gameplay.initial_state.time,'日期未定 02:47');
 assert.match(card.gameplay.initial_state.location,/便利店門前/);
@@ -38,6 +42,7 @@ vm.runInNewContext(fs.readFileSync(path.join(__dirname,'../js/character.js'),'ut
 const engine=engineContext.engine;
 const normalized=engine.normalize(card);
 assert.equal(normalized.prompt_options.include_profile,false,'author-only profile data must not be sent every turn');
+assert.equal(normalized.greeting_context,card.content.greeting_context);
 assert.equal(normalized.character_status.fields.find(field=>field.key==='traits').label,'🏷️ 當前標籤');
 const worldMode=require('../data/prompts/world.json');
 const prompt=engine.composeSystemPrompt(card,{persona:{name:'測試玩家'},modePrompt:worldMode.prompt,displayMode:'ui'});

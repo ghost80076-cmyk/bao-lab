@@ -119,6 +119,7 @@ const CharacterEngine = {
       description: raw.description || meta.description || "",
       quote: raw.quote || content.quote || "",
       greeting: raw.greeting || content.greeting || "",
+      greeting_context: String(raw.greeting_context || content.greeting_context || "").trim(),
       opening,
       system_prompt: raw.system_prompt || content.system_prompt || "",
       profile: raw.profile || content.profile || {},
