@@ -2,6 +2,7 @@
   "schema_version": 1,
   "main_module": "worker.js",
   "modules": [
+    "modules/account-auth.js",
     "modules/account-author-routes.js",
     "modules/account-rate-limit.js",
     "modules/account-self-route.js",

@@ -1,9 +1,13 @@
 const assert = require("node:assert/strict");
-const { loadWorkerTestSource } = require("./helpers/worker-test-source.cjs");
 const fs = require("node:fs");
 const path = require("node:path");
+const { pathToFileURL } = require("node:url");
 
-const source = loadWorkerTestSource();
+const modulePath = path.join(
+  __dirname,
+  "../workers/bao-lab-credits-api/modules/account-auth.js"
+);
+const source = fs.readFileSync(modulePath, "utf8");
 
 assert.match(
   source,
@@ -19,20 +23,6 @@ for (const helper of [
   assert.match(source, new RegExp("\\b" + helper + "\\b"), "WorkerAccountAuth is missing " + helper);
 }
 
-const instrumented =
-  source.replace(
-    /export\s+default\s+\{/,
-    "const __workerDefault = {"
-  ) +
-  "\nreturn { authRegister, authLogin, authLogout, authRecover };";
-
-const {
-  authRegister,
-  authLogin,
-  authLogout,
-  authRecover,
-} = new Function(instrumented)();
-
 const request = body => new Request("https://api.example.test/auth", {
   method: "POST",
   headers: { "content-type": "application/json" },
@@ -40,6 +30,19 @@ const request = body => new Request("https://api.example.test/auth", {
 });
 
 (async () => {
+  const {
+    WorkerAccountAuth,
+    authRegister,
+    authLogin,
+    authLogout,
+    authRecover,
+  } = await import(pathToFileURL(modulePath).href);
+
+  assert.equal(WorkerAccountAuth.authRegister, authRegister);
+  assert.equal(WorkerAccountAuth.authLogin, authLogin);
+  assert.equal(WorkerAccountAuth.authLogout, authLogout);
+  assert.equal(WorkerAccountAuth.authRecover, authRecover);
+
   const noDb = {
     prepare() {
       throw new Error("database must not be touched for invalid input");
@@ -133,7 +136,7 @@ const request = body => new Request("https://api.example.test/auth", {
   assert.match(setCookie, /Secure/);
   assert.match(setCookie, /SameSite=Lax/);
 
-  console.log("worker account auth core test passed");
+  console.log("worker account auth standalone ES module test passed");
 })().catch(error => {
   console.error(error);
   process.exitCode = 1;

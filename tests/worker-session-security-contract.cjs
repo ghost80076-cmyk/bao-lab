@@ -12,11 +12,20 @@ const cryptoModuleSource = fs.readFileSync(
   path.join(__dirname, "../workers/bao-lab-credits-api/modules/crypto.js"),
   "utf8"
 );
+const accountAuthModuleSource = fs.readFileSync(
+  path.join(__dirname, "../workers/bao-lab-credits-api/modules/account-auth.js"),
+  "utf8"
+);
 
 assert.match(
   workerEntrySource,
-  /from "\.\/modules\/crypto\.js";/,
-  "the Worker entry must import the extracted crypto module"
+  /from "\.\/modules\/account-auth\.js";/,
+  "the Worker entry must import the extracted account auth module"
+);
+assert.match(
+  accountAuthModuleSource,
+  /from "\.\/crypto\.js";/,
+  "the account auth module must explicitly import the extracted crypto dependency"
 );
 assert.doesNotMatch(
   workerEntrySource,
