@@ -51,4 +51,16 @@ const characterUi = read("js/character-ui.js");
 assert.match(characterUi, /builder-author-link/, "story setup must populate the author link");
 assert.match(characterUi, /author\.html\?id=/, "story setup author link must target the public profile");
 
+const exploreDiscovery = read("js/explore-discovery.js");
+assert.match(exploreDiscovery, /data-explore-preview-author/, "work preview must keep the author visible");
+assert.doesNotMatch(exploreDiscovery, /data-explore-view=/, "catalog cards must not duplicate the existing work preview with a second detail mode");
+assert.doesNotMatch(exploreDiscovery, /explore-card-author/, "catalog cards must keep author metadata inside the work preview instead of the poster");
+
+const exploreCss = read("css/explore-discovery.css");
+assert.match(
+  exploreCss,
+  /\.character-card \.explore-card-capabilities\{display:none!important\}/,
+  "catalog posters must keep capability labels out of the cover layer"
+);
+
 console.log("public author discovery linkage test passed");
