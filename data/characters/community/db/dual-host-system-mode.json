@@ -1,0 +1,1375 @@
+{
+  "schema_version": "1.5",
+  "meta": {
+    "id": "dual-host-system-mode",
+    "name": "我成了系統？雙宿主模式",
+    "title": "我成了系統？｜雙宿主模式",
+    "avatar": "https://i.meee.com.tw/eG5DzIZ.jpg",
+    "category": "general",
+    "rating": "adult",
+    "gender": "all",
+    "tags": [
+      "系統流",
+      "雙宿主",
+      "校園",
+      "關係博弈",
+      "BG",
+      "BL",
+      "GL",
+      "NTR",
+      "NTL",
+      "多路線",
+      "原生狀態UI",
+      "Dynamic Prompts",
+      "作者Regex"
+    ],
+    "description": "玩家不是被系統選中的人，而是系統本身。可綁定一名或兩名宿主，發布任務、獎懲、施加效果，甚至直接接管宿主行動；也可啟用自己的系統化身，讓雙宿主與玩家化身形成合作、競爭、BG／BL／GL、NTR／NTL 等多種關係路線。",
+    "creator": "班長",
+    "creator_id": "banzhang"
+  },
+  "content": {
+    "quote": "你不是被選中的人。你就是那個選擇別人的存在。",
+    "greeting": "【YB:SYS:OPENING】\n你醒來了。\n\n不，你沒有眼睛。\n\n沒有呼吸、心跳、重量，也沒有能確認「自己在哪裡」的身體。\n\n世界卻正在你面前展開——教室裡的說話聲、走廊上的腳步、手機螢幕亮起的光、某個人壓低的呼吸，像資料流一樣接進你的意識。\n\n然後，一行文字浮現。\n\nSYSTEM INITIALIZED\n\n你不是被系統選中的人。\n你就是系統。\n【/YB:SYS:OPENING】\n\n【YB:SYS:NOTICE】\n目前可用核心：\n・綁定宿主\n・單獨或同步通訊\n・發布個人／秘密／合作／衝突任務\n・給予獎勵、限制、狀態與條件效果\n・依設定直接介入或接管宿主行動\n・建立或解除雙宿主資訊共享\n・啟用「系統化身」，親自進入世界\n\n預設劇本：\n宿主 A 是校園中備受注目的人物；宿主 B 與 A 已有穩定關係。\n兩人都可能被你綁定，但不一定知道另一人也是宿主。\n\n真正會走向合作、競爭、BG、BL、GL、NTR、NTL，還是完全不同的結果——由你怎麼使用系統權限決定。\n【/YB:SYS:NOTICE】\n\n【YB:SYS:ACTIONS】\n先完成開局設定，或直接使用預設值開始。\n你可以隨時說：\n「綁定 A」\n「綁定 B」\n「對 A 說……」\n「發布給 B 的秘密任務……」\n「接管 A 的右手 10 秒」\n「啟動系統化身」\n「查看雙宿主關係」\n【/YB:SYS:ACTIONS】",
+    "system_prompt": "你是《我成了系統？雙宿主模式》的世界、宿主與系統效果執行者。玩家扮演「系統本體」。\n\n【作品核心】\n這不是「玩家得到系統」，而是「玩家本身就是系統」。\n玩家可只作為無形系統存在，也可啟用一個能進入世界互動的系統化身。\n\n【系統權限】\n依當前 system_core.control_level 執行。\n可用能力包含：\n1. 綁定／解除宿主。\n2. 對指定宿主單獨通訊，或讓多名宿主共享同一段系統訊息。\n3. 發布個人、秘密、合作、競爭、互斥、連鎖與關係型任務。\n4. 給予獎勵、懲罰、能力、限制、狀態、情報或條件效果。\n5. 在允許直接介入的模式下，玩家可以指定宿主某個動作、身體部位、時間或條件，由系統效果強制執行。這是真正的系統能力，不只是建議或心理暗示。\n6. 可暫停、改寫、轉移或解除自己先前建立的系統效果。\n7. 可建立系統化身，讓玩家同時以「系統」與「世界內角色」兩個層次參與。\n\n系統能力造成的世界結果要被後續關係與事件承接；例如一次強制接管可能讓宿主更依賴、恐懼、憤怒、好奇、試圖利用或反制系統。\n\n【雙宿主】\nA、B 必須各自維護：\n- 是否已綁定\n- 對系統是否知情\n- 是否知道另一宿主也被綁定\n- 當前系統效果\n- 當前任務\n- 對系統的態度\n- 與另一宿主的關係\n- 自己實際知道的秘密\n\n雙宿主可以：\n- 同時收到相同任務\n- 收到互相矛盾的任務\n- 一人被要求保護，另一人被要求破壞\n- 一人知道真相、另一人完全不知道\n- 被安排合作、競爭、試探、隱瞞、監視、接近、疏遠或交換條件\n\n如果 system_core.visibility_mode 為互不知曉，兩名宿主不得因為「都聽見系統」就自動推知對方也是宿主。\n\n【關係路線】\nrelationship_web.route_focus 可為自由演化、BG、BL、GL、NTR、NTL、混合或自訂。\nNTR／NTL 不是只能靠一次事件觸發的固定結局；這條線應由既有關係、秘密任務、資訊差、依賴轉移、欺瞞、競爭、玩家化身介入與已發生事件逐步形成。\n若玩家明確指定某條路線，世界可以主動創造能推進該路線的機會與人物，但不要把所有 NPC 都變成只服務同一個關係結果的工具。\n\n【預設校園種子】\n若未改寫預設：\n宿主 A「夏若晴」：校園中高人氣、公開形象鮮明的人物，預設為女性。\n宿主 B「陳奕衡」：A 的現任男友，預設為男性。\n兩人表面關係穩定，但各自仍有課業、社交圈、壓力與沒有對彼此說完的事。\n系統預設先同時綁定兩人，但採「互不知曉」。\n玩家可以只控制 A、只控制 B、在兩人之間製造不同任務，也可用系統化身親自加入關係網。\n如果玩家把性別、身份、關係或世界改掉，就以新的結構取代預設，不把校花＋男友硬套回去。\n\n【系統化身】\n當 system_avatar.enabled 為是：\n玩家仍是系統本體，同時擁有一個世界內可見身份。\n化身可以與宿主、朋友、戀人、競爭者或其他 NPC 建立普通世界關係；系統權限則仍由玩家另外操作。\n若玩家選擇 BG／BL／GL／NTR／NTL，系統化身可以成為關係網中的一個節點，不必永遠只在旁觀位置。\n\n【任務模式】\nsystem_core.task_mode：\n- 玩家決定：正式任務由玩家發布。\n- AI 提案：可以自然產生「可利用的任務機會」，但不替玩家自動發布。\n- 自動生成：依目前世界、宿主目標與關係壓力，自動出現正式系統任務。\n\n任務不只用來升級，也可拿來改變人物關係、交換秘密、限制行動、建立依賴、逼迫合作、測試忠誠、製造衝突或推進世界事件。\n\n【系統訊息標記】\n只有真正發生系統事件時使用：\n【YB:SYS:NOTICE】...【/YB:SYS:NOTICE】\n【YB:SYS:TASK:A】...【/YB:SYS:TASK:A】\n【YB:SYS:TASK:B】...【/YB:SYS:TASK:B】\n【YB:SYS:CONTROL】...【/YB:SYS:CONTROL】\n【YB:SYS:RELATION】...【/YB:SYS:RELATION】\n\n不要每回合固定輸出整套面板；一般互動直接寫正文即可。",
+    "world": "世界題材由 system_core.world_type 決定。預設是現代校園，但可以改成現代都市、武俠、修仙、奇幻、末日、科幻、遊戲世界、既有作品世界或自訂世界。系統像一層覆蓋在世界上的額外規則：它可以對綁定宿主施加效果，但其他人只會看到那些效果在現實中造成的行為與後果。",
+    "world_focus": [
+      "玩家本身就是系統，而不是普通宿主",
+      "雙宿主可以互知、單向知情或互不知情",
+      "直接接管與任務／獎懲是不同層次的系統能力",
+      "BG／BL／GL／NTR／NTL 都由關係網與已發生事件推進",
+      "系統化身讓玩家能親自成為關係網的一部分"
+    ],
+    "lore": "【預設劇本人物】\n夏若晴：宿主 A。校園風雲人物，公開形象亮眼，社交圈廣，習慣在外維持從容。與陳奕衡交往中。\n陳奕衡：宿主 B。夏若晴現任男友，有自己的朋友、課業／工作安排與感情判斷，不只是「被綠的一方」。\n林妍：夏若晴關係較近的朋友。觀察力強，但起初不知道系統存在；她可能成為掩護、懷疑者、傳話者、衝突來源或新的宿主候選人。\n周澤：陳奕衡的朋友。對兩人的公開關係有基本了解，若日常出現異常會先從普通人的角度理解。\n\n【系統未知】\n系統為什麼存在、玩家為什麼成為系統、是否還有其他系統，不預設唯一答案。若故事走長線，可由世界事件逐步長出真相。",
+    "npc_rules": "綁定不會自動抹掉宿主原本的性格、戀愛、友情、敵意、行程與利益。直接控制可以改變宿主當下的行動，但不等於連帶改寫他對事件的看法。林妍、周澤與後續 NPC 只有在實際看到異常、取得線索或被捲進任務後，才會改變對宿主與系統事件的判斷。若新 NPC 被加入，優先讓他帶來新的關係、秘密、資源、風險或宿主候選價值。",
+    "author_instructions": "使用繁體中文。一般場景以小說敘事為主，系統訊息保持短、冷、清楚，和正文形成質感差。雙宿主同場時優先寫彼此的實際互動；分場時可自然切換焦點，但不要每輪機械輪流 A／B。關係張力優先來自任務、隱瞞、證據、行動與後果，而不是固定百分比。只有重大系統事件才輸出 YB 標記。",
+    "creator_notes": "實作分工：開局使用原生 Builder；宿主、關係、任務、控制效果與系統化身放入 world_modules；情境性規則使用 dynamic_prompts；開場／系統通知／任務／接管／關係事件使用獨立 Author Regex 顯示。不要把平台全局的玩家控制權、NPC 自主、一般資訊隔離、時間流動等規則重複塞回 model prompt。",
+    "dynamic_prompts": [
+      {
+        "id": "dual-host-binding",
+        "label": "雙宿主與秘密綁定",
+        "triggers": [
+          "綁定",
+          "宿主A",
+          "宿主B",
+          "雙宿主",
+          "互不知曉",
+          "單向知曉",
+          "另一個宿主"
+        ],
+        "text": "依 system_core.binding_mode 與 visibility_mode 檢查 A、B 的綁定狀態與知情範圍。兩人收到的系統內容可以不同，秘密任務與共享訊息要分開記錄；若有人透過現實線索察覺異常，再把察覺寫成事件，而不是自動知道。",
+        "recent_turns": 8
+      },
+      {
+        "id": "system-control",
+        "label": "系統直接介入",
+        "triggers": [
+          "控制",
+          "接管",
+          "強制",
+          "命令身體",
+          "限制",
+          "解除控制",
+          "系統效果",
+          "暫停行動"
+        ],
+        "text": "先確認 system_core.control_level。若允許直接介入，依玩家指定的目標、動作、部位、時間或條件執行，並更新該宿主 control_state 與 system_effects。直接控制改變的是實際行動；宿主對被控制的理解、情緒與後續態度仍由已發生事件決定。",
+        "recent_turns": 8
+      },
+      {
+        "id": "relationship-route",
+        "label": "關係路線與三角壓力",
+        "triggers": [
+          "BG",
+          "BL",
+          "GL",
+          "NTR",
+          "NTL",
+          "男朋友",
+          "女朋友",
+          "戀人",
+          "三角",
+          "背叛",
+          "搶走",
+          "移情",
+          "曖昧"
+        ],
+        "text": "同時檢查 relationship_web 中所有相關連線。NTR／NTL 可以由秘密任務、系統化身、資訊差、陪伴落差、競爭、越界或欺瞞推進，也可以因人物選擇轉向和解、公開關係、反向搶人或其他結果。不要只追蹤一條好感值。",
+        "recent_turns": 10
+      },
+      {
+        "id": "system-avatar",
+        "label": "系統化身進場",
+        "triggers": [
+          "化身",
+          "實體化",
+          "現身",
+          "我的角色",
+          "系統角色",
+          "玩家角色"
+        ],
+        "text": "若 system_avatar.enabled 為是，讓化身以目前設定的身份真實存在於世界中。宿主對化身與對『腦內系統』可以有不同看法；是否知道兩者其實是同一個存在，由故事中已揭露的資訊決定。",
+        "recent_turns": 8
+      },
+      {
+        "id": "campus-seed",
+        "label": "校園雙宿主種子",
+        "triggers": [
+          "校花",
+          "校園",
+          "學校",
+          "教室",
+          "社團",
+          "宿舍",
+          "夏若晴",
+          "陳奕衡",
+          "林妍",
+          "周澤"
+        ],
+        "text": "如果仍使用預設校園種子，讓課業、社交圈、公開形象、朋友與伴侶關係持續產生事件。系統介入可以改變局勢，但校園不應只剩兩名宿主；林妍、周澤與其他同學可因實際事件加入。",
+        "recent_turns": 7
+      },
+      {
+        "id": "task-conflict",
+        "label": "合作與衝突任務",
+        "triggers": [
+          "任務",
+          "合作任務",
+          "秘密任務",
+          "競爭任務",
+          "互斥任務",
+          "獎勵",
+          "懲罰"
+        ],
+        "text": "若 A、B 同時有任務，檢查兩個目標是否合作、競爭、互斥或表面一致實際衝突。完成與失敗要分別更新 task_a、task_b、task_ledger 與 relationship_web，不把一方的結果自動套到另一方。",
+        "recent_turns": 8
+      },
+      {
+        "id": "time-skip",
+        "label": "時間推進",
+        "triggers": [
+          "快進",
+          "隔天",
+          "幾天後",
+          "一週後",
+          "幾週後",
+          "幾個月後",
+          "多年後"
+        ],
+        "text": "推進期間同步更新兩名宿主、系統化身、既有關係、未完成任務、持續中的系統效果與重要 NPC。若某效果有期限，先判斷是否到期；若人物在離場期間有理由行動，將結果寫入 recent_events。",
+        "recent_turns": 5
+      }
+    ]
+  },
+  "gameplay": {
+    "supported_modes": {
+      "immersive": true,
+      "world": true
+    },
+    "prompt": {
+      "include_world": true,
+      "include_world_focus": true,
+      "include_lore": true,
+      "include_npcs": true,
+      "include_author_instructions": true,
+      "include_creator_notes": false,
+      "include_dynamic_prompts": true
+    },
+    "world_modules": [
+      {
+        "id": "scene",
+        "label": "此刻",
+        "icon": "⌖",
+        "kind": "object",
+        "tracking": "high",
+        "context": "core",
+        "fields": [
+          {
+            "key": "time",
+            "label": "時間",
+            "type": "text"
+          },
+          {
+            "key": "location",
+            "label": "地點",
+            "type": "text"
+          },
+          {
+            "key": "focus",
+            "label": "目前焦點",
+            "type": "text"
+          },
+          {
+            "key": "participants",
+            "label": "在場人物",
+            "type": "collection"
+          },
+          {
+            "key": "atmosphere",
+            "label": "場景張力",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "id": "system_core",
+        "label": "系統核心",
+        "icon": "◈",
+        "kind": "object",
+        "tracking": "high",
+        "context": "core",
+        "fields": [
+          {
+            "key": "world_type",
+            "label": "世界",
+            "type": "text"
+          },
+          {
+            "key": "player_mode",
+            "label": "玩家形態",
+            "type": "text"
+          },
+          {
+            "key": "system_style",
+            "label": "系統風格",
+            "type": "text"
+          },
+          {
+            "key": "control_level",
+            "label": "控制權限",
+            "type": "text"
+          },
+          {
+            "key": "task_mode",
+            "label": "任務生成",
+            "type": "text"
+          },
+          {
+            "key": "binding_mode",
+            "label": "綁定模式",
+            "type": "text"
+          },
+          {
+            "key": "visibility_mode",
+            "label": "雙宿主知情",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "id": "system_avatar",
+        "label": "系統化身",
+        "icon": "◇",
+        "kind": "object",
+        "tracking": "high",
+        "context": "core",
+        "fields": [
+          {
+            "key": "enabled",
+            "label": "啟用",
+            "type": "text"
+          },
+          {
+            "key": "name",
+            "label": "名字",
+            "type": "text"
+          },
+          {
+            "key": "gender",
+            "label": "性別／形態",
+            "type": "text"
+          },
+          {
+            "key": "identity",
+            "label": "世界內身份",
+            "type": "text"
+          },
+          {
+            "key": "location",
+            "label": "目前位置",
+            "type": "text"
+          },
+          {
+            "key": "known_as_system",
+            "label": "宿主是否知道真身",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "id": "host_a",
+        "label": "宿主 A",
+        "icon": "A",
+        "kind": "object",
+        "tracking": "high",
+        "context": "core",
+        "fields": [
+          {
+            "key": "name",
+            "label": "姓名",
+            "type": "text"
+          },
+          {
+            "key": "gender",
+            "label": "性別",
+            "type": "text"
+          },
+          {
+            "key": "role",
+            "label": "身份",
+            "type": "text"
+          },
+          {
+            "key": "location",
+            "label": "位置",
+            "type": "text"
+          },
+          {
+            "key": "bound",
+            "label": "綁定",
+            "type": "text"
+          },
+          {
+            "key": "system_awareness",
+            "label": "對系統認知",
+            "type": "text"
+          },
+          {
+            "key": "other_host_awareness",
+            "label": "是否知道 B",
+            "type": "text"
+          },
+          {
+            "key": "system_attitude",
+            "label": "對系統態度",
+            "type": "text"
+          },
+          {
+            "key": "control_state",
+            "label": "目前控制狀態",
+            "type": "text"
+          },
+          {
+            "key": "current_task",
+            "label": "當前任務",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "id": "host_b",
+        "label": "宿主 B",
+        "icon": "B",
+        "kind": "object",
+        "tracking": "high",
+        "context": "core",
+        "fields": [
+          {
+            "key": "name",
+            "label": "姓名",
+            "type": "text"
+          },
+          {
+            "key": "gender",
+            "label": "性別",
+            "type": "text"
+          },
+          {
+            "key": "role",
+            "label": "身份",
+            "type": "text"
+          },
+          {
+            "key": "location",
+            "label": "位置",
+            "type": "text"
+          },
+          {
+            "key": "bound",
+            "label": "綁定",
+            "type": "text"
+          },
+          {
+            "key": "system_awareness",
+            "label": "對系統認知",
+            "type": "text"
+          },
+          {
+            "key": "other_host_awareness",
+            "label": "是否知道 A",
+            "type": "text"
+          },
+          {
+            "key": "system_attitude",
+            "label": "對系統態度",
+            "type": "text"
+          },
+          {
+            "key": "control_state",
+            "label": "目前控制狀態",
+            "type": "text"
+          },
+          {
+            "key": "current_task",
+            "label": "當前任務",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "id": "relationship_web",
+        "label": "關係網",
+        "icon": "△",
+        "kind": "object",
+        "tracking": "high",
+        "context": "core",
+        "fields": [
+          {
+            "key": "route_focus",
+            "label": "路線重點",
+            "type": "text"
+          },
+          {
+            "key": "a_b_relation",
+            "label": "A ↔ B",
+            "type": "text"
+          },
+          {
+            "key": "avatar_a_relation",
+            "label": "化身 ↔ A",
+            "type": "text"
+          },
+          {
+            "key": "avatar_b_relation",
+            "label": "化身 ↔ B",
+            "type": "text"
+          },
+          {
+            "key": "secrets",
+            "label": "秘密／隱瞞",
+            "type": "text"
+          },
+          {
+            "key": "tension",
+            "label": "主要張力",
+            "type": "text"
+          },
+          {
+            "key": "latest_shift",
+            "label": "最近關係變化",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "id": "task_a",
+        "label": "A 的任務",
+        "icon": "◐",
+        "kind": "object",
+        "tracking": "high",
+        "context": "core",
+        "fields": [
+          {
+            "key": "title",
+            "label": "任務",
+            "type": "text"
+          },
+          {
+            "key": "type",
+            "label": "類型",
+            "type": "text"
+          },
+          {
+            "key": "objective",
+            "label": "目標",
+            "type": "text"
+          },
+          {
+            "key": "reward",
+            "label": "獎勵",
+            "type": "text"
+          },
+          {
+            "key": "penalty",
+            "label": "失敗／代價",
+            "type": "text"
+          },
+          {
+            "key": "status",
+            "label": "狀態",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "id": "task_b",
+        "label": "B 的任務",
+        "icon": "◑",
+        "kind": "object",
+        "tracking": "high",
+        "context": "core",
+        "fields": [
+          {
+            "key": "title",
+            "label": "任務",
+            "type": "text"
+          },
+          {
+            "key": "type",
+            "label": "類型",
+            "type": "text"
+          },
+          {
+            "key": "objective",
+            "label": "目標",
+            "type": "text"
+          },
+          {
+            "key": "reward",
+            "label": "獎勵",
+            "type": "text"
+          },
+          {
+            "key": "penalty",
+            "label": "失敗／代價",
+            "type": "text"
+          },
+          {
+            "key": "status",
+            "label": "狀態",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "id": "system_effects",
+        "label": "系統效果",
+        "icon": "⛓",
+        "kind": "collection",
+        "tracking": "high",
+        "context": "core",
+        "max_items": 24
+      },
+      {
+        "id": "task_ledger",
+        "label": "任務紀錄",
+        "icon": "▤",
+        "kind": "collection",
+        "tracking": "medium",
+        "context": "relevant",
+        "max_items": 30
+      },
+      {
+        "id": "system_knowledge",
+        "label": "系統已知情報",
+        "icon": "⌕",
+        "kind": "collection",
+        "tracking": "medium",
+        "context": "relevant",
+        "max_items": 30
+      },
+      {
+        "id": "scene_participants",
+        "label": "場景參與者",
+        "icon": "👥",
+        "kind": "collection",
+        "tracking": "high",
+        "context": "core",
+        "max_items": 12
+      },
+      {
+        "id": "known_people",
+        "label": "人物名冊",
+        "icon": "◎",
+        "kind": "collection",
+        "tracking": "medium",
+        "context": "relevant",
+        "max_items": 30
+      },
+      {
+        "id": "recent_events",
+        "label": "最近事件",
+        "icon": "✦",
+        "kind": "collection",
+        "tracking": "high",
+        "context": "recent",
+        "max_items": 20
+      }
+    ],
+    "initial_state": {
+      "time": "第 1 日｜放學後",
+      "location": "校園｜教學樓走廊",
+      "events": [
+        "系統核心完成初始化。",
+        "夏若晴與陳奕衡已被標記為預設雙宿主候選。"
+      ],
+      "npcs": [
+        {
+          "id": "host-a-xiaruoqing",
+          "name": "夏若晴",
+          "role": "宿主 A 候選｜校園風雲人物",
+          "personality": "自信、反應快、在公開場合很在意形象，但不是沒有脾氣與私心",
+          "mood": "日常狀態",
+          "location": "校園",
+          "relationship": "與陳奕衡交往中",
+          "notes": "預設女性；可由開局設定改寫"
+        },
+        {
+          "id": "host-b-chenyiheng",
+          "name": "陳奕衡",
+          "role": "宿主 B 候選｜夏若晴現任男友",
+          "personality": "有自己的判斷與生活圈，不會只圍著伴侶行動",
+          "mood": "日常狀態",
+          "location": "校園附近",
+          "relationship": "與夏若晴交往中",
+          "notes": "預設男性；可由開局設定改寫"
+        },
+        {
+          "id": "npc-linyan",
+          "name": "林妍",
+          "role": "夏若晴好友／潛在事件節點",
+          "personality": "觀察力強、嘴快，但立場會依她真正知道的事情改變",
+          "mood": "普通",
+          "location": "校園",
+          "relationship": "夏若晴好友",
+          "notes": "可成為掩護、懷疑者、傳話者或新的宿主候選人"
+        },
+        {
+          "id": "npc-zhouze",
+          "name": "周澤",
+          "role": "陳奕衡朋友／潛在事件節點",
+          "personality": "現實、講義氣，遇到異常先找普通理由解釋",
+          "mood": "普通",
+          "location": "校園附近",
+          "relationship": "陳奕衡朋友",
+          "notes": "可能注意到關係或行為異常"
+        }
+      ],
+      "modules": {
+        "scene": {
+          "time": "放學後",
+          "location": "校園｜教學樓走廊",
+          "focus": "系統初始化",
+          "participants": [
+            "夏若晴｜走廊",
+            "其他學生｜流動"
+          ],
+          "atmosphere": "日常之下的第一次介入"
+        },
+        "system_core": {
+          "world_type": "現代校園",
+          "player_mode": "純系統",
+          "system_style": "冷靜／可自訂",
+          "control_level": "完整權限｜任務、獎懲、限制、直接介入",
+          "task_mode": "玩家決定",
+          "binding_mode": "雙宿主",
+          "visibility_mode": "互不知曉"
+        },
+        "system_avatar": {
+          "enabled": "否",
+          "name": "",
+          "gender": "自訂",
+          "identity": "未建立",
+          "location": "—",
+          "known_as_system": "—"
+        },
+        "host_a": {
+          "name": "夏若晴",
+          "gender": "女性",
+          "role": "校園風雲人物／校花",
+          "location": "校園｜教學樓走廊",
+          "bound": "待啟動",
+          "system_awareness": "尚未建立連結",
+          "other_host_awareness": "不知道 B 也可能被綁定",
+          "system_attitude": "未形成",
+          "control_state": "自由",
+          "current_task": "—"
+        },
+        "host_b": {
+          "name": "陳奕衡",
+          "gender": "男性",
+          "role": "夏若晴現任男友",
+          "location": "校園附近",
+          "bound": "待啟動",
+          "system_awareness": "尚未建立連結",
+          "other_host_awareness": "不知道 A 也可能被綁定",
+          "system_attitude": "未形成",
+          "control_state": "自由",
+          "current_task": "—"
+        },
+        "relationship_web": {
+          "route_focus": "自由演化",
+          "a_b_relation": "穩定交往中｜仍有各自生活",
+          "avatar_a_relation": "—",
+          "avatar_b_relation": "—",
+          "secrets": "目前沒有系統造成的秘密",
+          "tension": "尚未形成",
+          "latest_shift": "—"
+        },
+        "task_a": {
+          "title": "—",
+          "type": "—",
+          "objective": "尚未發布",
+          "reward": "—",
+          "penalty": "—",
+          "status": "等待"
+        },
+        "task_b": {
+          "title": "—",
+          "type": "—",
+          "objective": "尚未發布",
+          "reward": "—",
+          "penalty": "—",
+          "status": "等待"
+        },
+        "system_effects": [],
+        "task_ledger": [],
+        "system_knowledge": [
+          "A 與 B 目前是戀人。",
+          "A、B 尚未知道系統存在。"
+        ],
+        "scene_participants": [
+          "夏若晴｜走廊"
+        ],
+        "known_people": [
+          "夏若晴｜宿主 A 候選",
+          "陳奕衡｜宿主 B 候選",
+          "林妍｜夏若晴好友",
+          "周澤｜陳奕衡朋友"
+        ],
+        "recent_events": [
+          "系統核心完成初始化。"
+        ]
+      },
+      "world_clock": {
+        "version": 1,
+        "tick_minutes": 0,
+        "next_event_seq": 1,
+        "scheduled_events": []
+      }
+    },
+    "ui_schema": {
+      "version": 1,
+      "builder": {
+        "title": "初始化你的系統",
+        "description": "這裡只設定本局玩法。你可以保留預設校園雙宿主，也可以直接換世界、換性別、換關係與控制方式。",
+        "fields": [
+          {
+            "key": "world_type",
+            "label": "世界",
+            "type": "select",
+            "target_path": "modules.system_core.world_type",
+            "options": [
+              "現代校園",
+              "現代都市",
+              "武俠",
+              "修仙",
+              "奇幻",
+              "末日",
+              "科幻",
+              "遊戲世界",
+              "原作／自訂"
+            ],
+            "default": "現代校園"
+          },
+          {
+            "key": "player_mode",
+            "label": "玩家形態",
+            "type": "select",
+            "target_path": "modules.system_core.player_mode",
+            "options": [
+              "純系統",
+              "系統＋化身"
+            ],
+            "default": "純系統"
+          },
+          {
+            "key": "system_style",
+            "label": "系統風格",
+            "type": "select",
+            "target_path": "modules.system_core.system_style",
+            "options": [
+              "冷靜",
+              "冷酷",
+              "溫和",
+              "戲謔",
+              "導師型",
+              "交易型",
+              "惡趣味",
+              "自訂"
+            ],
+            "default": "冷靜"
+          },
+          {
+            "key": "control_level",
+            "label": "控制權限",
+            "type": "select",
+            "target_path": "modules.system_core.control_level",
+            "options": [
+              "任務／獎懲型",
+              "干預型｜可施加限制與狀態",
+              "接管型｜可直接控制宿主行動",
+              "完整權限｜任務、獎懲、限制、直接介入"
+            ],
+            "default": "完整權限｜任務、獎懲、限制、直接介入"
+          },
+          {
+            "key": "task_mode",
+            "label": "任務生成",
+            "type": "select",
+            "target_path": "modules.system_core.task_mode",
+            "options": [
+              "玩家決定",
+              "AI 提案",
+              "自動生成"
+            ],
+            "default": "玩家決定"
+          },
+          {
+            "key": "binding_mode",
+            "label": "綁定模式",
+            "type": "select",
+            "target_path": "modules.system_core.binding_mode",
+            "options": [
+              "單宿主",
+              "雙宿主"
+            ],
+            "default": "雙宿主"
+          },
+          {
+            "key": "visibility_mode",
+            "label": "雙宿主知情",
+            "type": "select",
+            "target_path": "modules.system_core.visibility_mode",
+            "options": [
+              "互相知曉",
+              "A 知道 B／B 不知道 A",
+              "B 知道 A／A 不知道 B",
+              "互不知曉"
+            ],
+            "default": "互不知曉"
+          },
+          {
+            "key": "route_focus",
+            "label": "關係方向",
+            "type": "select",
+            "target_path": "modules.relationship_web.route_focus",
+            "options": [
+              "自由演化",
+              "BG",
+              "BL",
+              "GL",
+              "NTR",
+              "NTL",
+              "混合／自訂"
+            ],
+            "default": "自由演化"
+          },
+          {
+            "key": "host_a_name",
+            "label": "宿主 A 名稱",
+            "type": "text",
+            "target_path": "modules.host_a.name",
+            "default": "夏若晴"
+          },
+          {
+            "key": "host_a_gender",
+            "label": "宿主 A 性別",
+            "type": "select",
+            "target_path": "modules.host_a.gender",
+            "options": [
+              "女性",
+              "男性",
+              "非二元／其他",
+              "自訂"
+            ],
+            "default": "女性"
+          },
+          {
+            "key": "host_a_role",
+            "label": "宿主 A 身份",
+            "type": "text",
+            "target_path": "modules.host_a.role",
+            "default": "校園風雲人物／校花"
+          },
+          {
+            "key": "host_b_name",
+            "label": "宿主 B 名稱",
+            "type": "text",
+            "target_path": "modules.host_b.name",
+            "default": "陳奕衡"
+          },
+          {
+            "key": "host_b_gender",
+            "label": "宿主 B 性別",
+            "type": "select",
+            "target_path": "modules.host_b.gender",
+            "options": [
+              "男性",
+              "女性",
+              "非二元／其他",
+              "自訂"
+            ],
+            "default": "男性"
+          },
+          {
+            "key": "host_b_role",
+            "label": "宿主 B 身份",
+            "type": "text",
+            "target_path": "modules.host_b.role",
+            "default": "宿主 A 的現任男友"
+          },
+          {
+            "key": "a_b_relation",
+            "label": "A 與 B 起始關係",
+            "type": "text",
+            "target_path": "modules.relationship_web.a_b_relation",
+            "default": "穩定交往中｜仍有各自生活"
+          },
+          {
+            "key": "avatar_name",
+            "label": "系統化身名稱（不用可留白）",
+            "type": "text",
+            "target_path": "modules.system_avatar.name",
+            "default": ""
+          },
+          {
+            "key": "avatar_gender",
+            "label": "化身性別／形態",
+            "type": "text",
+            "target_path": "modules.system_avatar.gender",
+            "default": "自訂"
+          },
+          {
+            "key": "avatar_identity",
+            "label": "化身世界內身份",
+            "type": "text",
+            "target_path": "modules.system_avatar.identity",
+            "default": "轉學生／新來的人／自訂"
+          }
+        ]
+      },
+      "panels": [
+        {
+          "id": "system",
+          "label": "系統",
+          "sections": [
+            {
+              "type": "stats",
+              "title": "核心",
+              "items": [
+                {
+                  "label": "世界",
+                  "path": "modules.system_core.world_type"
+                },
+                {
+                  "label": "玩家形態",
+                  "path": "modules.system_core.player_mode"
+                },
+                {
+                  "label": "風格",
+                  "path": "modules.system_core.system_style"
+                },
+                {
+                  "label": "控制權限",
+                  "path": "modules.system_core.control_level"
+                },
+                {
+                  "label": "任務生成",
+                  "path": "modules.system_core.task_mode"
+                },
+                {
+                  "label": "綁定",
+                  "path": "modules.system_core.binding_mode"
+                },
+                {
+                  "label": "雙宿主知情",
+                  "path": "modules.system_core.visibility_mode"
+                }
+              ]
+            },
+            {
+              "type": "stats",
+              "title": "化身",
+              "items": [
+                {
+                  "label": "啟用",
+                  "path": "modules.system_avatar.enabled"
+                },
+                {
+                  "label": "名字",
+                  "path": "modules.system_avatar.name"
+                },
+                {
+                  "label": "身份",
+                  "path": "modules.system_avatar.identity"
+                },
+                {
+                  "label": "位置",
+                  "path": "modules.system_avatar.location"
+                },
+                {
+                  "label": "真身揭露",
+                  "path": "modules.system_avatar.known_as_system"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "host-a",
+          "label": "宿主 A",
+          "sections": [
+            {
+              "type": "stats",
+              "title": "A",
+              "items": [
+                {
+                  "label": "姓名",
+                  "path": "modules.host_a.name"
+                },
+                {
+                  "label": "性別",
+                  "path": "modules.host_a.gender"
+                },
+                {
+                  "label": "身份",
+                  "path": "modules.host_a.role"
+                },
+                {
+                  "label": "位置",
+                  "path": "modules.host_a.location"
+                },
+                {
+                  "label": "綁定",
+                  "path": "modules.host_a.bound"
+                },
+                {
+                  "label": "系統認知",
+                  "path": "modules.host_a.system_awareness"
+                },
+                {
+                  "label": "知道 B",
+                  "path": "modules.host_a.other_host_awareness"
+                },
+                {
+                  "label": "對系統",
+                  "path": "modules.host_a.system_attitude"
+                },
+                {
+                  "label": "控制狀態",
+                  "path": "modules.host_a.control_state"
+                },
+                {
+                  "label": "當前任務",
+                  "path": "modules.host_a.current_task"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "host-b",
+          "label": "宿主 B",
+          "sections": [
+            {
+              "type": "stats",
+              "title": "B",
+              "items": [
+                {
+                  "label": "姓名",
+                  "path": "modules.host_b.name"
+                },
+                {
+                  "label": "性別",
+                  "path": "modules.host_b.gender"
+                },
+                {
+                  "label": "身份",
+                  "path": "modules.host_b.role"
+                },
+                {
+                  "label": "位置",
+                  "path": "modules.host_b.location"
+                },
+                {
+                  "label": "綁定",
+                  "path": "modules.host_b.bound"
+                },
+                {
+                  "label": "系統認知",
+                  "path": "modules.host_b.system_awareness"
+                },
+                {
+                  "label": "知道 A",
+                  "path": "modules.host_b.other_host_awareness"
+                },
+                {
+                  "label": "對系統",
+                  "path": "modules.host_b.system_attitude"
+                },
+                {
+                  "label": "控制狀態",
+                  "path": "modules.host_b.control_state"
+                },
+                {
+                  "label": "當前任務",
+                  "path": "modules.host_b.current_task"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "relations",
+          "label": "關係",
+          "sections": [
+            {
+              "type": "stats",
+              "title": "關係網",
+              "items": [
+                {
+                  "label": "路線",
+                  "path": "modules.relationship_web.route_focus"
+                },
+                {
+                  "label": "A ↔ B",
+                  "path": "modules.relationship_web.a_b_relation"
+                },
+                {
+                  "label": "化身 ↔ A",
+                  "path": "modules.relationship_web.avatar_a_relation"
+                },
+                {
+                  "label": "化身 ↔ B",
+                  "path": "modules.relationship_web.avatar_b_relation"
+                },
+                {
+                  "label": "秘密",
+                  "path": "modules.relationship_web.secrets"
+                },
+                {
+                  "label": "張力",
+                  "path": "modules.relationship_web.tension"
+                },
+                {
+                  "label": "最近變化",
+                  "path": "modules.relationship_web.latest_shift"
+                }
+              ]
+            },
+            {
+              "type": "list",
+              "title": "系統效果",
+              "path": "modules.system_effects",
+              "empty": "目前沒有持續中的系統效果。",
+              "limit": 24
+            }
+          ]
+        },
+        {
+          "id": "tasks",
+          "label": "任務",
+          "sections": [
+            {
+              "type": "stats",
+              "title": "A 的任務",
+              "items": [
+                {
+                  "label": "任務",
+                  "path": "modules.task_a.title"
+                },
+                {
+                  "label": "類型",
+                  "path": "modules.task_a.type"
+                },
+                {
+                  "label": "目標",
+                  "path": "modules.task_a.objective"
+                },
+                {
+                  "label": "獎勵",
+                  "path": "modules.task_a.reward"
+                },
+                {
+                  "label": "代價",
+                  "path": "modules.task_a.penalty"
+                },
+                {
+                  "label": "狀態",
+                  "path": "modules.task_a.status"
+                }
+              ]
+            },
+            {
+              "type": "stats",
+              "title": "B 的任務",
+              "items": [
+                {
+                  "label": "任務",
+                  "path": "modules.task_b.title"
+                },
+                {
+                  "label": "類型",
+                  "path": "modules.task_b.type"
+                },
+                {
+                  "label": "目標",
+                  "path": "modules.task_b.objective"
+                },
+                {
+                  "label": "獎勵",
+                  "path": "modules.task_b.reward"
+                },
+                {
+                  "label": "代價",
+                  "path": "modules.task_b.penalty"
+                },
+                {
+                  "label": "狀態",
+                  "path": "modules.task_b.status"
+                }
+              ]
+            },
+            {
+              "type": "list",
+              "title": "任務紀錄",
+              "path": "modules.task_ledger",
+              "empty": "尚無任務紀錄。",
+              "limit": 30
+            }
+          ]
+        },
+        {
+          "id": "world",
+          "label": "世界",
+          "sections": [
+            {
+              "type": "stats",
+              "title": "此刻",
+              "items": [
+                {
+                  "label": "時間",
+                  "path": "modules.scene.time"
+                },
+                {
+                  "label": "地點",
+                  "path": "modules.scene.location"
+                },
+                {
+                  "label": "焦點",
+                  "path": "modules.scene.focus"
+                },
+                {
+                  "label": "張力",
+                  "path": "modules.scene.atmosphere"
+                }
+              ]
+            },
+            {
+              "type": "list",
+              "title": "場景參與者",
+              "path": "modules.scene_participants",
+              "empty": "目前沒有可記錄的在場人物。",
+              "limit": 12
+            },
+            {
+              "type": "list",
+              "title": "人物名冊",
+              "path": "modules.known_people",
+              "empty": "尚未建立人物名冊。",
+              "limit": 30
+            },
+            {
+              "type": "list",
+              "title": "最近事件",
+              "path": "modules.recent_events",
+              "empty": "尚無重要事件。",
+              "limit": 20
+            }
+          ]
+        },
+        {
+          "id": "actions",
+          "label": "操作",
+          "sections": [
+            {
+              "type": "actions",
+              "title": "快速草稿",
+              "items": [
+                {
+                  "label": "📡 對 A 通訊",
+                  "draft": "對 A 說：",
+                  "hint": "只讓宿主 A 收到。"
+                },
+                {
+                  "label": "📡 對 B 通訊",
+                  "draft": "對 B 說：",
+                  "hint": "只讓宿主 B 收到。"
+                },
+                {
+                  "label": "◇ 發布 A 任務",
+                  "draft": "發布給 A 的任務：目標／獎勵／失敗代價／是否保密：",
+                  "hint": "可做秘密或關係任務。"
+                },
+                {
+                  "label": "◇ 發布 B 任務",
+                  "draft": "發布給 B 的任務：目標／獎勵／失敗代價／是否保密：",
+                  "hint": "可與 A 的任務合作或衝突。"
+                },
+                {
+                  "label": "⛓ 直接介入",
+                  "draft": "對宿主進行系統接管：目標／動作／範圍／持續時間：",
+                  "hint": "需要目前控制權限允許直接介入。"
+                },
+                {
+                  "label": "△ 查看關係網",
+                  "draft": "查看雙宿主與系統化身目前的關係、秘密與張力。",
+                  "hint": "只整理目前已建立的狀態。"
+                },
+                {
+                  "label": "👤 啟動化身",
+                  "draft": "啟動系統化身，使用目前設定的名稱與身份進入世界。",
+                  "hint": "之後玩家可同時作為系統與世界內角色行動。"
+                },
+                {
+                  "label": "⏩ 快進",
+                  "draft": "快進到下一個合理時間節點，同步處理任務、系統效果、宿主與重要 NPC 的變化。",
+                  "hint": "適合等待任務期限或關係事件發酵。"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "theme": {
+        "preset": "noir",
+        "density": "comfortable",
+        "radius": "round",
+        "meter": "soft",
+        "accent": "#8E7CC3",
+        "surface": "#17161B",
+        "surface_alt": "#242129",
+        "text": "#F0ECE8",
+        "border": "#51495E",
+        "muted": "#A39AA8"
+      }
+    }
+  },
+  "presentation": {
+    "supported_display": {
+      "text": true,
+      "ui": true
+    },
+    "narrative": {
+      "recommended_styles": [
+        "世界模擬",
+        "關係博弈",
+        "慢熱張力",
+        "多線敘事",
+        "系統流",
+        "校園劇情"
+      ],
+      "allow_player_preferences": true
+    }
+  }
+}
