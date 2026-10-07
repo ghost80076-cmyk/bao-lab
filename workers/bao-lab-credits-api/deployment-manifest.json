@@ -21,6 +21,7 @@
     "modules/crypto.js",
     "modules/github-publication-transport.js",
     "modules/http.js",
+    "modules/legacy-chat-settlement.js",
     "modules/model-pricing.js",
     "modules/publication-format.js",
     "modules/number-utils.js",

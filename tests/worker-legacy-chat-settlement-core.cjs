@@ -1,32 +1,18 @@
 const assert = require("node:assert/strict");
-const { loadWorkerTestSource } = require("./helpers/worker-test-source.cjs");
 const fs = require("node:fs");
 const path = require("node:path");
+const { pathToFileURL } = require("node:url");
 
-const source = loadWorkerTestSource();
+const modulePath = path.join(
+  __dirname,
+  "../workers/bao-lab-credits-api/modules/legacy-chat-settlement.js"
+);
+const source = fs.readFileSync(modulePath, "utf8");
 
 assert.match(
   source,
   /const WorkerLegacyChatSettlement = \(\(\) => \{/,
   "legacy chat reservation and settlement must stay grouped behind WorkerLegacyChatSettlement"
-);
-
-const instrumented =
-  source.replace(
-    /export\s+default\s+\{/,
-    "const __workerDefault = {"
-  ) +
-  "\nreturn { WorkerLegacyChatSettlement, legacyChatRoute };";
-
-const {
-  WorkerLegacyChatSettlement,
-  legacyChatRoute,
-} = new Function(instrumented)();
-
-assert.equal(
-  WorkerLegacyChatSettlement.legacyChatRoute,
-  legacyChatRoute,
-  "the public compatibility alias must point at the isolated legacy settlement route"
 );
 
 const env = {
@@ -54,6 +40,17 @@ const requestBody = {
 const errorCode = async response => (await response.json()).error;
 
 (async () => {
+  const {
+    WorkerLegacyChatSettlement,
+    legacyChatRoute,
+  } = await import(pathToFileURL(modulePath).href);
+
+  assert.equal(
+    WorkerLegacyChatSettlement.legacyChatRoute,
+    legacyChatRoute,
+    "the public compatibility alias must point at the isolated legacy settlement route"
+  );
+
   const invalidSession = await legacyChatRoute(
     new Request("https://worker.test/v1/chat", { method: "POST" }),
     env,
