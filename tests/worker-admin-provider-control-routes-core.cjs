@@ -1,15 +1,18 @@
 const assert = require("node:assert/strict");
-const { loadWorkerTestSource } = require("./helpers/worker-test-source.cjs");
 const fs = require("node:fs");
 const path = require("node:path");
+const { pathToFileURL } = require("node:url");
 
-const source = loadWorkerTestSource();
 const workerEntrySource = fs.readFileSync(
   path.join(__dirname, "../workers/bao-lab-credits-api/worker.js"),
   "utf8"
 );
+const routeModulePath = path.join(
+  __dirname,
+  "../workers/bao-lab-credits-api/modules/admin-provider-control-routes.js"
+);
 const routeModuleSource = fs.readFileSync(
-  path.join(__dirname, "../workers/bao-lab-credits-api/modules/admin-provider-control-routes.js"),
+  routeModulePath,
   "utf8"
 );
 
@@ -29,9 +32,16 @@ assert.match(
   "provider-control admin endpoints must stay behind their own subroute boundary"
 );
 
-const boundaryStart = source.indexOf("const WorkerAdminProviderControlRoutes = (() => {");
-const boundaryEnd = source.indexOf("const {\n  adminProviderControlRoute,\n} = WorkerAdminProviderControlRoutes;");
-const boundary = source.slice(boundaryStart, boundaryEnd);
+const boundaryStart = routeModuleSource.indexOf(
+  "const WorkerAdminProviderControlRoutes = (() => {"
+);
+const boundaryEnd = routeModuleSource.indexOf(
+  "const {\n  adminProviderControlRoute,\n} = WorkerAdminProviderControlRoutes;"
+);
+const boundary = routeModuleSource.slice(
+  boundaryStart,
+  boundaryEnd
+);
 
 for (const route of [
   "/admin/provider-control",
@@ -47,24 +57,17 @@ assert.doesNotMatch(
   "provider-control subroutes must not absorb player or usage administration"
 );
 
-const instrumented =
-  source.replace(
-    /export\s+default\s+\{/,
-    "const __workerDefault = {"
-  ) +
-  "\nreturn { WorkerAdminProviderControlRoutes, adminProviderControlRoute };";
-
-const {
-  WorkerAdminProviderControlRoutes,
-  adminProviderControlRoute,
-} = new Function(instrumented)();
-
-assert.equal(
-  WorkerAdminProviderControlRoutes.adminProviderControlRoute,
-  adminProviderControlRoute
-);
-
 (async () => {
+  const {
+    WorkerAdminProviderControlRoutes,
+    adminProviderControlRoute,
+  } = await import(pathToFileURL(routeModulePath).href);
+
+  assert.equal(
+    WorkerAdminProviderControlRoutes.adminProviderControlRoute,
+    adminProviderControlRoute
+  );
+
   let touchedDatabase = false;
   const unmatched = await adminProviderControlRoute(
     new Request("https://worker.test/admin/players"),
