@@ -1440,5 +1440,45 @@
     "version_published_at": "2026-10-04T18:05:00Z",
     "author": "班長",
     "author_id": "banzhang"
+  },
+  {
+    "id": "dual-host-system-mode",
+    "file": "data/characters/community/db/dual-host-system-mode.json",
+    "name": "我成了系統？雙宿主模式",
+    "title": "我成了系統？｜雙宿主模式",
+    "avatar": "https://i.meee.com.tw/eG5DzIZ.jpg",
+    "category": "general",
+    "rating": "adult",
+    "gender": "all",
+    "tags": [
+      "系統流",
+      "雙宿主",
+      "校園",
+      "關係博弈",
+      "BG",
+      "BL",
+      "GL",
+      "NTR",
+      "NTL",
+      "多路線",
+      "原生狀態UI",
+      "Dynamic Prompts",
+      "作者Regex"
+    ],
+    "description": "玩家不是被系統選中的人，而是系統本身。可綁定一名或兩名宿主，發布任務、獎懲、施加效果，甚至直接接管宿主行動；也可啟用自己的系統化身，讓雙宿主與玩家化身形成合作、競爭、BG／BL／GL、NTR／NTL 等多種關係路線。",
+    "supported_modes": {
+      "immersive": true,
+      "world": true
+    },
+    "supported_display": {
+      "text": true,
+      "ui": true
+    },
+    "published_at": "2026-10-07T12:36:00Z",
+    "updated_at": "2026-10-07T12:36:00Z",
+    "published_version": 1,
+    "version_published_at": "2026-10-07T12:36:00Z",
+    "author": "班長",
+    "author_id": "banzhang"
   }
 ]
