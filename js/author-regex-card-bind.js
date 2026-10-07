@@ -50,8 +50,13 @@
   }
 
   function sidecarPath(character) {
-    if (character?.source !== 'built-in') return '';
-    const file = String(character?.catalog_file || '').trim();
+    const id = String(character?.id || '').trim();
+    const manifestFile = String(
+      app.characterManifest?.find?.(item => String(item?.id || '') === id)?.file || ''
+    ).trim();
+    const file = String(character?.catalog_file || manifestFile || '').trim();
+    const official = character?.source === 'built-in' || /^data\/characters\//.test(manifestFile);
+    if (!official) return '';
     if (!/^data\/characters\/[A-Za-z0-9_./-]+\.json$/.test(file) || file.endsWith('.regex.json')) return '';
     return file.replace(/\.json$/, '.regex.json');
   }
