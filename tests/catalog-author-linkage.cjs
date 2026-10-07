@@ -55,7 +55,7 @@ const exploreDiscovery = read("js/explore-discovery.js");
 assert.match(exploreDiscovery, /link\.className = "explore-author-link"/, "work preview must keep the author link visible");
 assert.match(exploreDiscovery, /link\.textContent = "作者 · " \+ author/, "work preview must render the author label");
 assert.doesNotMatch(exploreDiscovery, /data-explore-view=/, "catalog cards must not duplicate the existing work preview with a second detail mode");
-assert.doesNotMatch(exploreDiscovery, /explore-card-author/, "catalog cards must keep author metadata inside the work preview instead of the poster");
+assert.doesNotMatch(exploreDiscovery, /className = "explore-card-author"/, "catalog cards must not create an author row on the poster");
 
 const exploreCss = read("css/explore-discovery.css");
 assert.match(
