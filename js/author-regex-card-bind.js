@@ -97,8 +97,8 @@
     const character = app.activeCharacter;
     if (!character?.id) return false;
     if (localStorage.getItem(keyFor(character.id)) !== null) return false;
-    if (bindImported(character)) return true;
-    return bindOfficialSidecar(character);
+    if (await bindOfficialSidecar(character)) return true;
+    return bindImported(character);
   }
 
   const renderShell = app.renderChatShell.bind(app);
