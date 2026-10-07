@@ -1,0 +1,48 @@
+{
+  "version": 1,
+  "type": "yorubay-author-regex-mod",
+  "scope": "assistant_display",
+  "characterId": "ktv-flight-chess",
+  "regex_scripts": [
+    {
+      "scriptName": "KTV飛行棋｜開場",
+      "description": "私密包間開場卡，只改顯示。",
+      "priority": 90,
+      "findRegex": "【YB:KTV:OPENING】\\s*([\\s\\S]*?)\\s*【/YB:KTV:OPENING】",
+      "flags": "g",
+      "replaceString": "<style>.yb-ktv-opening{font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif;background:radial-gradient(circle at 85% 10%,rgba(192,132,252,.16),transparent 34%),linear-gradient(145deg,#17131d,#211526);color:#f6eef8;border:1px solid #5b3d69;border-radius:18px;padding:18px 18px 19px;line-height:1.85;white-space:pre-wrap;box-shadow:0 16px 36px rgba(0,0,0,.32)}.yb-ktv-opening:before{content:\"PRIVATE ROOM · FLIGHT CHESS\";display:block;color:#d8b4fe;font-size:11px;font-weight:800;letter-spacing:.14em;margin-bottom:10px}.yb-ktv-opening:after{content:\"四人已入局\";display:block;color:#a990b3;font-size:12px;letter-spacing:.08em;margin-top:12px}</style><section class=\"yb-ktv-opening\">$1</section>"
+    },
+    {
+      "scriptName": "KTV飛行棋｜擲骰",
+      "description": "骰點與落點提示卡。",
+      "priority": 80,
+      "findRegex": "【YB:KTV:ROLL】\\s*([\\s\\S]*?)\\s*【/YB:KTV:ROLL】",
+      "flags": "g",
+      "replaceString": "<style>.yb-ktv-roll{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;background:#19151e;color:#f5edf7;border:1px solid #5b3d69;border-left:4px solid #c084fc;border-radius:13px;padding:12px 14px;line-height:1.7;white-space:pre-wrap}.yb-ktv-roll:before{content:\"🎲 DICE\";display:block;color:#d8b4fe;font-size:12px;font-weight:900;letter-spacing:.1em;margin-bottom:5px}</style><section class=\"yb-ktv-roll\">$1</section>"
+    },
+    {
+      "scriptName": "KTV飛行棋｜本格任務",
+      "description": "落格任務顯示。",
+      "priority": 75,
+      "findRegex": "【YB:KTV:TASK】\\s*([\\s\\S]*?)\\s*【/YB:KTV:TASK】",
+      "flags": "g",
+      "replaceString": "<style>.yb-ktv-task{font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif;background:linear-gradient(135deg,#241525,#2c192d);color:#faeef6;border:1px solid #71465f;border-left:4px solid #e879a9;border-radius:14px;padding:14px 16px;line-height:1.8;white-space:pre-wrap}.yb-ktv-task:before{content:\"THIS TILE\";display:block;color:#f0a6c7;font-size:11px;font-weight:900;letter-spacing:.12em;margin-bottom:6px}</style><section class=\"yb-ktv-task\">$1</section>"
+    },
+    {
+      "scriptName": "KTV飛行棋｜狀態痕跡",
+      "description": "衣著、身體、道具與包間痕跡的輕量提示。",
+      "priority": 60,
+      "findRegex": "【YB:KTV:TRACE】\\s*([\\s\\S]*?)\\s*【/YB:KTV:TRACE】",
+      "flags": "g",
+      "replaceString": "<style>.yb-ktv-trace{font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif;background:#17151a;color:#ded3e2;border:1px solid #44384a;border-radius:11px;padding:11px 14px;line-height:1.75;white-space:pre-wrap}.yb-ktv-trace:before{content:\"TRACE\";display:block;color:#aa91b4;font-size:10px;font-weight:800;letter-spacing:.14em;margin-bottom:5px}</style><section class=\"yb-ktv-trace\">$1</section>"
+    },
+    {
+      "scriptName": "KTV飛行棋｜關係變動",
+      "description": "四人關係或氣氛出現重大變化時顯示。",
+      "priority": 55,
+      "findRegex": "【YB:KTV:SHIFT】\\s*([\\s\\S]*?)\\s*【/YB:KTV:SHIFT】",
+      "flags": "g",
+      "replaceString": "<style>.yb-ktv-shift{font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif;background:linear-gradient(135deg,#1b1521,#251829);color:#efe4f2;border:1px solid #594164;border-radius:12px;padding:12px 15px;line-height:1.8;white-space:pre-wrap}.yb-ktv-shift:before{content:\"RELATION SHIFT\";display:block;color:#c9a7d8;font-size:10px;font-weight:900;letter-spacing:.13em;margin-bottom:5px}</style><section class=\"yb-ktv-shift\">$1</section>"
+    }
+  ]
+}
