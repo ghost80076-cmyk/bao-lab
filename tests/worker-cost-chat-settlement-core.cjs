@@ -1,9 +1,13 @@
 const assert = require("node:assert/strict");
-const { loadWorkerTestSource } = require("./helpers/worker-test-source.cjs");
 const fs = require("node:fs");
 const path = require("node:path");
+const { pathToFileURL } = require("node:url");
 
-const source = loadWorkerTestSource();
+const modulePath = path.join(
+  __dirname,
+  "../workers/bao-lab-credits-api/modules/cost-chat-settlement.js"
+);
+const source = fs.readFileSync(modulePath, "utf8");
 
 assert.match(
   source,
@@ -27,24 +31,6 @@ assert.match(
   source,
   /settlement_status:\s*"unverified_refunded"/,
   "successful content with unverifiable usage must be delivered as a refunded fallback"
-);
-
-const instrumented =
-  source.replace(
-    /export\s+default\s+\{/,
-    "const __workerDefault = {"
-  ) +
-  "\nreturn { WorkerCostChatSettlement, costUsdChatRoute };";
-
-const {
-  WorkerCostChatSettlement,
-  costUsdChatRoute,
-} = new Function(instrumented)();
-
-assert.equal(
-  WorkerCostChatSettlement.costUsdChatRoute,
-  costUsdChatRoute,
-  "the public compatibility alias must point at the isolated USD settlement route"
 );
 
 const pricedEnv = {
@@ -77,6 +63,17 @@ const request = () =>
 const errorCode = async response => (await response.json()).error;
 
 (async () => {
+  const {
+    WorkerCostChatSettlement,
+    costUsdChatRoute,
+  } = await import(pathToFileURL(modulePath).href);
+
+  assert.equal(
+    WorkerCostChatSettlement.costUsdChatRoute,
+    costUsdChatRoute,
+    "the public compatibility alias must point at the isolated USD settlement route"
+  );
+
   const disabled = await costUsdChatRoute(
     request(),
     pricedEnv,

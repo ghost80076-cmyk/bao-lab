@@ -18,6 +18,7 @@
     "modules/author-ownership.js",
     "modules/billing-constants.js",
     "modules/chat-input.js",
+    "modules/cost-chat-settlement.js",
     "modules/crypto.js",
     "modules/github-publication-transport.js",
     "modules/http.js",
