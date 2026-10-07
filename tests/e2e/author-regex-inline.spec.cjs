@@ -135,7 +135,9 @@ test('official community sidecar regex auto-binds and renders without manual imp
   await expect(host).toHaveCount(1);
   const frame = page.frameLocator('iframe[title="聊天內作者隔離介面"]');
   await expect(frame.locator('body')).toContainText('SYSTEM INITIALIZED');
-  await expect(frame.locator('body')).toContainText('SYSTEM KERNEL · DUAL HOST PROTOCOL');
+  await expect(frame.locator('.yb-sys-open')).toBeVisible();
+  const beforeContent = await frame.locator('.yb-sys-open').evaluate(el => getComputedStyle(el, '::before').content);
+  expect(beforeContent).toContain('SYSTEM KERNEL');
 
   const stored = await page.evaluate(() => JSON.parse(
     localStorage.getItem('bao-lab:author-regex:v1:' + encodeURIComponent('dual-host-system-mode'))
