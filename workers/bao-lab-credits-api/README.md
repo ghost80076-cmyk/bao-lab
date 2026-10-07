@@ -49,7 +49,9 @@ deterministic order. The reviewed module graph now extracts `WorkerAccountAuth`,
 `WorkerAdminPublicationRoutes`, `WorkerAdminRoutes`, `WorkerAdminUsageRoutes`,
 `WorkerAuthorOwnership`, `WorkerAuthorProfilePublication`, `WorkerPublicationFormat`,
 `WorkerGithubPublicationTransport`, `WorkerRuntimeConfig`, `WorkerModelPricing`,
-`WorkerProviderControl`, `WorkerProviderRouting`, `WorkerCrypto` and `WorkerHttp`
+`WorkerProviderControl`, `WorkerProviderRouting`, `WorkerProviderTransport`,
+`WorkerLegacyChatSettlement`, `WorkerCostChatSettlement`, `WorkerChatDispatch`,
+`WorkerHealthRoute`, `WorkerCrypto` and `WorkerHttp`
 into reviewed modules; the main entry remains `worker.js`. The first
 multi-module deployment completed a successful rollback-and-restore rehearsal
 on 2026-10-04. Continue structural cleanup one low-dependency boundary per PR.
