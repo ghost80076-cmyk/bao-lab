@@ -86,7 +86,7 @@
         : (String(rule?.fallback || '').trim().slice(0, 80) || defaultLabel || '玩家');
     }
     if (!label) return false;
-    node.textContent = label;
+    if (node.textContent !== label) node.textContent = label;
     return true;
   };
 
@@ -311,6 +311,19 @@
     syncPlayerIdentityLabel();
     return result;
   };
+
+  const personaMeta = document.getElementById('chat-persona');
+  if (personaMeta) {
+    let personaSyncQueued = false;
+    new MutationObserver(() => {
+      if (personaSyncQueued) return;
+      personaSyncQueued = true;
+      queueMicrotask(() => {
+        personaSyncQueued = false;
+        syncPlayerIdentityLabel();
+      });
+    }).observe(personaMeta, { childList: true, subtree: true, characterData: true });
+  }
 
   const originalApplyUpdate = typeof GameState.applyUpdate === 'function' ? GameState.applyUpdate.bind(GameState) : null;
   if (originalApplyUpdate) {
