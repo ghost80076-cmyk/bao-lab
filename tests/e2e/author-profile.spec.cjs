@@ -99,7 +99,8 @@ test('explore preview links stable author IDs to author pages', async ({ page })
 
   await preview.locator('[data-explore-preview-close]').first().click();
   const card = page.locator('#character-list [data-character-id="night-sky-magic-academy"]');
-  await expect(card.locator('.explore-author-link')).toHaveAttribute('href', 'author.html?id=baitao');
+  await expect(card.locator('.explore-author-link')).toHaveCount(0);
+  await expect(card).toContainText('夜穹魔法學院');
 });
 
 test('author work links deep-link back into the explore preview', async ({ page }) => {

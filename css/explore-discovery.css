@@ -246,7 +246,9 @@
 }
 #explore-view #character-list .character-card .character-content>.eyebrow,
 #explore-view #character-list .character-card .character-content>p,
-#explore-view #character-list .character-card .character-content>.tags{display:none!important}
+#explore-view #character-list .character-card .character-content>.tags,
+#explore-view #character-list .character-card .explore-card-author,
+#explore-view #character-list .character-card .explore-card-capabilities{display:none!important}
 #character-list .character-content h3{
   display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;
   margin-bottom:0;line-height:1.35
