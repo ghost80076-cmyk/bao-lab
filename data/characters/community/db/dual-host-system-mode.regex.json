@@ -8,7 +8,7 @@
       "scriptName": "雙宿主系統｜啟動畫面",
       "description": "把開場初始化標記轉成低調的系統啟動畫面；只改顯示。",
       "priority": 90,
-      "findRegex": "【YB:SYS:OPENING】\\\\s*([\\\\s\\\\S]*?)\\\\s*【/YB:SYS:OPENING】",
+      "findRegex": "【YB:SYS:OPENING】\\s*([\\s\\S]*?)\\s*【/YB:SYS:OPENING】",
       "flags": "g",
       "replaceString": "<style>.yb-sys-open{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;background:linear-gradient(145deg,#151419,#211d28);color:#eeeaf0;border:1px solid #50475b;border-left:4px solid #8e7cc3;border-radius:16px;padding:19px;line-height:1.9;white-space:pre-wrap;box-shadow:0 14px 34px rgba(0,0,0,.28)}.yb-sys-open:before{content:\"SYSTEM KERNEL · DUAL HOST PROTOCOL\";display:block;color:#c7b9e8;font-size:11px;letter-spacing:.13em;margin-bottom:10px}</style><section class=\"yb-sys-open\">$1</section>"
     },
@@ -16,7 +16,7 @@
       "scriptName": "雙宿主系統｜系統通知",
       "description": "系統提示卡。",
       "priority": 80,
-      "findRegex": "【YB:SYS:NOTICE】\\\\s*([\\\\s\\\\S]*?)\\\\s*【/YB:SYS:NOTICE】",
+      "findRegex": "【YB:SYS:NOTICE】\\s*([\\s\\S]*?)\\s*【/YB:SYS:NOTICE】",
       "flags": "g",
       "replaceString": "<style>.yb-sys-note{font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif;background:#1b1920;color:#ede9ef;border:1px solid #4a4352;border-radius:13px;padding:14px 16px;line-height:1.8;white-space:pre-wrap}.yb-sys-note:before{content:\"SYSTEM NOTICE\";display:block;color:#b9a9df;font-weight:800;font-size:12px;letter-spacing:.12em;margin-bottom:7px}</style><section class=\"yb-sys-note\">$1</section>"
     },
@@ -24,7 +24,7 @@
       "scriptName": "雙宿主系統｜宿主任務",
       "description": "A／B 宿主任務卡。",
       "priority": 70,
-      "findRegex": "【YB:SYS:TASK:([AB])】\\\\s*([\\\\s\\\\S]*?)\\\\s*【/YB:SYS:TASK:\\\\1】",
+      "findRegex": "【YB:SYS:TASK:([AB])】\\s*([\\s\\S]*?)\\s*【/YB:SYS:TASK:\\1】",
       "flags": "g",
       "replaceString": "<style>.yb-sys-task{font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif;background:linear-gradient(135deg,#171820,#23202d);color:#f0edf2;border:1px solid #514a60;border-left:3px solid #9b8bd6;border-radius:13px;padding:14px 16px;line-height:1.8;white-space:pre-wrap}.yb-sys-task:before{content:\"HOST \" attr(data-host) \" · ACTIVE TASK\";display:block;color:#c9bce9;font-size:12px;font-weight:900;letter-spacing:.1em;margin-bottom:7px}</style><section class=\"yb-sys-task\" data-host=\"$1\">$2</section>"
     },
@@ -32,7 +32,7 @@
       "scriptName": "雙宿主系統｜控制介入",
       "description": "直接接管或系統效果啟動時的顯示卡。",
       "priority": 65,
-      "findRegex": "【YB:SYS:CONTROL】\\\\s*([\\\\s\\\\S]*?)\\\\s*【/YB:SYS:CONTROL】",
+      "findRegex": "【YB:SYS:CONTROL】\\s*([\\s\\S]*?)\\s*【/YB:SYS:CONTROL】",
       "flags": "g",
       "replaceString": "<style>.yb-sys-control{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;background:#171419;color:#f1e9ed;border:1px solid #684553;border-left:4px solid #c05a78;border-radius:12px;padding:13px 15px;line-height:1.75;white-space:pre-wrap}.yb-sys-control:before{content:\"CONTROL OVERRIDE\";display:block;color:#ef8eaa;font-weight:900;font-size:12px;letter-spacing:.12em;margin-bottom:6px}</style><section class=\"yb-sys-control\">$1</section>"
     },
@@ -40,7 +40,7 @@
       "scriptName": "雙宿主系統｜關係變動",
       "description": "重大關係變動的輕量顯示。",
       "priority": 55,
-      "findRegex": "【YB:SYS:RELATION】\\\\s*([\\\\s\\\\S]*?)\\\\s*【/YB:SYS:RELATION】",
+      "findRegex": "【YB:SYS:RELATION】\\s*([\\s\\S]*?)\\s*【/YB:SYS:RELATION】",
       "flags": "g",
       "replaceString": "<style>.yb-sys-rel{font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif;background:#1d1a1f;color:#eee9ed;border:1px solid #554650;border-radius:12px;padding:13px 15px;line-height:1.8;white-space:pre-wrap}.yb-sys-rel:before{content:\"RELATION SHIFT\";display:block;color:#d7a8c4;font-weight:800;font-size:12px;margin-bottom:6px}</style><section class=\"yb-sys-rel\">$1</section>"
     },
@@ -48,7 +48,7 @@
       "scriptName": "雙宿主系統｜開局操作提示",
       "description": "把開局指令示例整理成提示卡。",
       "priority": 40,
-      "findRegex": "【YB:SYS:ACTIONS】\\\\s*([\\\\s\\\\S]*?)\\\\s*【/YB:SYS:ACTIONS】",
+      "findRegex": "【YB:SYS:ACTIONS】\\s*([\\s\\S]*?)\\s*【/YB:SYS:ACTIONS】",
       "flags": "g",
       "replaceString": "<style>.yb-sys-actions{font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif;background:#1b1a20;color:#ddd8e2;border:1px solid #494451;border-radius:12px;padding:13px 15px;line-height:1.8;white-space:pre-wrap}.yb-sys-actions:before{content:\"可直接輸入\";display:block;color:#b9a9df;font-weight:700;margin-bottom:6px}.yb-sys-actions:after{content:\"也可以完全自由輸入，不受示例限制。\";display:block;color:#948c9c;font-size:12px;margin-top:8px}</style><section class=\"yb-sys-actions\">$1</section>"
     }

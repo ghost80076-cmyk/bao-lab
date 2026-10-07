@@ -45,6 +45,9 @@ assert.equal(regex.regex_scripts.length, 6);
 for (const item of regex.regex_scripts) {
   assert.doesNotThrow(() => new RegExp(item.findRegex, item.flags || 'g'));
 }
+const openingRule = regex.regex_scripts.find(x => x.findRegex.includes('YB:SYS:OPENING'));
+assert.ok(openingRule, 'missing opening regex');
+assert.equal(new RegExp(openingRule.findRegex, openingRule.flags || 'g').test(card.content.greeting), true, 'opening regex must match the real greeting');
 assert.ok(regex.regex_scripts.some(x => x.findRegex.includes('YB:SYS:CONTROL')));
 assert.ok(regex.regex_scripts.some(x => x.findRegex.includes('YB:SYS:TASK')));
 
