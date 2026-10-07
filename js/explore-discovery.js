@@ -34,16 +34,17 @@
     try {
       const raw = JSON.parse(localStorage.getItem(PREF_KEY) || "{}");
       return {
-        sort: ["default", "latest", "updated"].includes(raw?.sort) ? raw.sort : "default"
+        sort: ["default", "latest", "updated"].includes(raw?.sort) ? raw.sort : "default",
+        view: ["poster", "detail"].includes(raw?.view) ? raw.view : "poster"
       };
     } catch {
-      return { sort: "default" };
+      return { sort: "default", view: "poster" };
     }
   };
 
   const writePreferences = () => {
     try {
-      localStorage.setItem(PREF_KEY, JSON.stringify({ sort: state.sort }));
+      localStorage.setItem(PREF_KEY, JSON.stringify({ sort: state.sort, view: state.view }));
     } catch (error) {
       console.warn("YoruBay explore preferences could not be saved:", error);
     }
@@ -58,7 +59,8 @@
     query: "",
     capability: "all",
     scope: "all",
-    sort: preferences.sort
+    sort: preferences.sort,
+    view: preferences.view
   };
 
   const manifestEntry = character =>
@@ -107,6 +109,10 @@
       if (libraryInfo.recentAt) return "收藏中 · 上次看過 " + formatActivityDate(libraryInfo.recentAt);
       return "收藏中 · 尚未開始";
     }
+    return "";
+  };
+
+  const cardAuthorText = item => {
     const author = String(item?.author || "").trim();
     return author ? "作者 · " + author : "";
   };
@@ -263,7 +269,13 @@
       <div id="explore-active-filters" class="explore-active-filters" aria-label="目前篩選條件" hidden></div>
       <div class="explore-result-line">
         <span id="explore-result-count" role="status" aria-live="polite">整理作品中…</span>
-        <button type="button" class="text-button" data-explore-reset hidden>全部重設</button>
+        <div class="explore-result-actions">
+          <div class="explore-view-toggle" role="group" aria-label="作品顯示方式">
+            <button type="button" data-explore-view="poster" aria-pressed="false">▦ 封面</button>
+            <button type="button" data-explore-view="detail" aria-pressed="false">☷ 詳細</button>
+          </div>
+          <button type="button" class="text-button" data-explore-reset hidden>全部重設</button>
+        </div>
       </div>
       <div id="explore-search-empty" class="explore-search-empty" hidden>
         <b>沒有找到符合條件的作品</b>
@@ -338,6 +350,15 @@
     const reset = host.querySelector("[data-explore-reset]");
     const dialog = host.querySelector("#explore-filter-sheet");
 
+    const syncViewMode = () => {
+      root.dataset.exploreView = state.view;
+      host.querySelectorAll("[data-explore-view]").forEach(button => {
+        const active = button.dataset.exploreView === state.view;
+        button.classList.toggle("active", active);
+        button.setAttribute("aria-pressed", String(active));
+      });
+    };
+
     const closeDialog = () => {
       if (!dialog) return;
       if (typeof dialog.close === "function" && dialog.open) dialog.close();
@@ -403,6 +424,15 @@
       clearFilters({ includeQuery: true });
       input.focus();
     });
+
+    host.querySelectorAll("[data-explore-view]").forEach(button => {
+      button.addEventListener("click", () => {
+        state.view = button.dataset.exploreView === "detail" ? "detail" : "poster";
+        writePreferences();
+        syncViewMode();
+      });
+    });
+    syncViewMode();
 
     host.querySelector("[data-explore-filter-open]")?.addEventListener("click", openDialog);
     host.querySelector("[data-explore-filter-close]")?.addEventListener("click", closeDialog);
@@ -547,6 +577,33 @@
       }
 
       content.querySelector(".explore-card-continuity")?.remove();
+
+      let authorLine = content.querySelector(".explore-card-author");
+      const authorText = cardAuthorText(item);
+      if (!authorText) {
+        authorLine?.remove();
+      } else {
+        if (!authorLine) {
+          authorLine = document.createElement("div");
+          authorLine.className = "explore-card-author";
+          const title = content.querySelector("h3");
+          if (title) title.insertAdjacentElement("afterend", authorLine);
+          else content.prepend(authorLine);
+        }
+        authorLine.replaceChildren();
+        const href = authorHref(item);
+        if (href) {
+          const link = document.createElement("a");
+          link.className = "explore-author-link";
+          link.href = href;
+          link.textContent = authorText;
+          link.addEventListener("click", event => event.stopPropagation());
+          authorLine.appendChild(link);
+        } else {
+          authorLine.textContent = authorText;
+        }
+      }
+
       let context = content.querySelector(".explore-card-context");
       const contextText = cardContextText(item, libraryInfo, updateInfo);
       if (!contextText) {
@@ -555,22 +612,12 @@
         if (!context) {
           context = document.createElement("div");
           context.className = "explore-card-context";
-          const title = content.querySelector("h3");
-          if (title) title.insertAdjacentElement("afterend", context);
+          const anchor = content.querySelector(".explore-card-author") || content.querySelector("h3");
+          if (anchor) anchor.insertAdjacentElement("afterend", context);
           else content.prepend(context);
         }
         context.replaceChildren();
-        const href = authorHref(item);
-        if (href && state.scope === "all" && String(item?.author || "").trim()) {
-          const link = document.createElement("a");
-          link.className = "explore-author-link";
-          link.href = href;
-          link.textContent = contextText;
-          link.addEventListener("click", event => event.stopPropagation());
-          context.appendChild(link);
-        } else {
-          context.textContent = contextText;
-        }
+        context.textContent = contextText;
       }
 
       const tags = content.querySelector(".tags");

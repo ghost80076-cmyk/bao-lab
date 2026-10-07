@@ -1,0 +1,91 @@
+/* Explore card view modes: poster-first by default, readable detail list on demand. */
+.explore-result-actions{display:flex;align-items:center;justify-content:flex-end;gap:10px;min-width:0}
+.explore-view-toggle{
+  display:inline-flex;align-items:center;gap:2px;padding:2px;border:1px solid rgba(211,204,255,.13);
+  border-radius:10px;background:rgba(8,10,16,.62)
+}
+.explore-view-toggle button{
+  min-height:30px;padding:4px 9px;border:0;border-radius:8px;background:transparent;color:#9692a8;
+  font:inherit;font-size:10px;font-weight:700;white-space:nowrap;cursor:pointer
+}
+.explore-view-toggle button:hover,.explore-view-toggle button:focus-visible{color:#eeeaff;outline:none}
+.explore-view-toggle button.active{
+  background:rgba(111,87,190,.2);color:#f3efff;box-shadow:inset 0 0 0 1px rgba(184,169,255,.2)
+}
+
+/* Author remains visible in every card mode and links to the public author page when available. */
+#character-list .explore-card-author{
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:4px;
+  color:#c8c2de;font-size:9px;font-weight:700;letter-spacing:.02em;line-height:1.45
+}
+
+/* Detailed mode reuses the same semantic card markup instead of relying on hover. */
+#explore-view[data-explore-view="detail"] #character-list.character-grid{
+  grid-template-columns:repeat(2,minmax(0,1fr));gap:14px
+}
+#explore-view[data-explore-view="detail"] #character-list .character-card{
+  display:grid;grid-template-columns:150px minmax(0,1fr);min-height:218px;
+  overflow:hidden;transform:none!important
+}
+#explore-view[data-explore-view="detail"] #character-list .character-card:hover{transform:none!important}
+#explore-view[data-explore-view="detail"] #character-list .character-image-wrap{
+  min-width:0;min-height:218px;height:100%;overflow:hidden
+}
+#explore-view[data-explore-view="detail"] #character-list .character-image-wrap>img{
+  display:block;width:100%;height:100%;aspect-ratio:auto!important;object-fit:cover;object-position:center 18%
+}
+#explore-view[data-explore-view="detail"] #character-list .character-content{
+  min-width:0;padding:16px 16px 14px!important
+}
+#explore-view[data-explore-view="detail"] #character-list .character-content>.eyebrow{display:none!important}
+#explore-view[data-explore-view="detail"] #character-list .character-content h3{
+  margin:0;line-height:1.38;-webkit-line-clamp:2
+}
+#explore-view[data-explore-view="detail"] #character-list .explore-card-author{
+  margin-top:6px;color:#d6d0ea;font-size:10px
+}
+#explore-view[data-explore-view="detail"] #character-list .character-content>p{
+  display:-webkit-box!important;-webkit-box-orient:vertical;-webkit-line-clamp:3!important;
+  margin:10px 0 0;color:#aaa7b6;font-size:12px;line-height:1.72;overflow:hidden
+}
+#explore-view[data-explore-view="detail"] #character-list .character-content>.tags{
+  display:flex!important;margin-top:11px;max-height:48px;overflow:hidden
+}
+#explore-view[data-explore-view="detail"] #character-list .character-content>.tags .tag{
+  padding:3px 6px;font-size:9px
+}
+#explore-view[data-explore-view="detail"] #character-list .explore-card-context{
+  margin-top:4px;font-size:9px
+}
+
+@media(max-width:980px){
+  #explore-view[data-explore-view="detail"] #character-list.character-grid{grid-template-columns:1fr}
+}
+@media(max-width:700px){
+  .explore-result-line{align-items:center}
+  .explore-result-actions{gap:6px}
+  .explore-view-toggle button{min-height:28px;padding:3px 7px;font-size:9px}
+  #character-list .explore-card-author{font-size:8px}
+  #explore-view[data-explore-view="detail"] #character-list .character-card{
+    grid-template-columns:96px minmax(0,1fr);min-height:150px;border-radius:14px
+  }
+  #explore-view[data-explore-view="detail"] #character-list .character-image-wrap{min-height:150px}
+  #explore-view[data-explore-view="detail"] #character-list .character-content{padding:11px 12px 10px!important}
+  #explore-view[data-explore-view="detail"] #character-list .character-content h3{-webkit-line-clamp:2;font-size:14px}
+  #explore-view[data-explore-view="detail"] #character-list .explore-card-author{margin-top:4px;font-size:9px}
+  #explore-view[data-explore-view="detail"] #character-list .character-content>p{
+    margin-top:7px;-webkit-line-clamp:2!important;font-size:10px;line-height:1.6
+  }
+  #explore-view[data-explore-view="detail"] #character-list .character-content>.tags{
+    margin-top:7px;max-height:22px;flex-wrap:nowrap
+  }
+  #explore-view[data-explore-view="detail"] #character-list .character-content>.tags .tag{
+    flex:0 0 auto;padding:2px 5px;font-size:8px
+  }
+}
+@media(max-width:430px){
+  .explore-result-line{gap:8px}
+  .explore-result-actions{margin-left:auto}
+  .explore-view-toggle button{padding-inline:6px}
+  #explore-view[data-explore-view="detail"] #character-list .character-card{grid-template-columns:88px minmax(0,1fr)}
+}
