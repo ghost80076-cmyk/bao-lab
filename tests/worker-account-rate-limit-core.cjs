@@ -1,9 +1,8 @@
 const assert = require("node:assert/strict");
-const { loadWorkerTestSource } = require("./helpers/worker-test-source.cjs");
 const fs = require("node:fs");
 const path = require("node:path");
+const { pathToFileURL } = require("node:url");
 
-const source = loadWorkerTestSource();
 const workerEntrySource = fs.readFileSync(
   path.join(__dirname, "../workers/bao-lab-credits-api/worker.js"),
   "utf8"
@@ -32,41 +31,39 @@ assert.match(
   "account rate limiting must stay behind WorkerAccountRateLimit"
 );
 
-const instrumented =
-  source.replace(
-    /export\s+default\s+\{/,
-    "const __workerDefault = {"
-  ) +
-  "\nreturn { WorkerAccountRateLimit, authRateLimitConfigured, authNetworkIdentity, authRateLimitKey, accountAuthAllowed, authRateLimited };";
-
-const {
-  WorkerAccountRateLimit,
-  authRateLimitConfigured,
-  authNetworkIdentity,
-  authRateLimitKey,
-  accountAuthAllowed,
-  authRateLimited,
-} = new Function(instrumented)();
-
-assert.equal(WorkerAccountRateLimit.authRateLimitConfigured, authRateLimitConfigured);
-assert.equal(WorkerAccountRateLimit.accountAuthAllowed, accountAuthAllowed);
-assert.equal(authRateLimitConfigured({}), false);
-assert.equal(
-  authRateLimitConfigured({ AUTH_RATE_LIMITER: { limit() {} } }),
-  true
-);
-assert.equal(
-  authNetworkIdentity(new Request("https://api.example.test/auth", {
-    headers: { "cf-connecting-ip": "203.0.113.7" },
-  })),
-  "network:203.0.113.7"
-);
-assert.equal(
-  authNetworkIdentity(new Request("https://api.example.test/auth")),
-  ""
+const modulePath = path.join(
+  __dirname,
+  "../workers/bao-lab-credits-api/modules/account-rate-limit.js"
 );
 
 (async () => {
+  const {
+    WorkerAccountRateLimit,
+    authRateLimitConfigured,
+    authNetworkIdentity,
+    authRateLimitKey,
+    accountAuthAllowed,
+    authRateLimited,
+  } = await import(pathToFileURL(modulePath).href);
+
+  assert.equal(WorkerAccountRateLimit.authRateLimitConfigured, authRateLimitConfigured);
+  assert.equal(WorkerAccountRateLimit.accountAuthAllowed, accountAuthAllowed);
+  assert.equal(authRateLimitConfigured({}), false);
+  assert.equal(
+    authRateLimitConfigured({ AUTH_RATE_LIMITER: { limit() {} } }),
+    true
+  );
+  assert.equal(
+    authNetworkIdentity(new Request("https://api.example.test/auth", {
+      headers: { "cf-connecting-ip": "203.0.113.7" },
+    })),
+    "network:203.0.113.7"
+  );
+  assert.equal(
+    authNetworkIdentity(new Request("https://api.example.test/auth")),
+    ""
+  );
+
   const key = await authRateLimitKey("login", "username:NightPilot");
   assert.match(key, /^yorubay-auth-v1:login:[a-f0-9]{64}$/);
   assert.doesNotMatch(key, /nightpilot/i);
