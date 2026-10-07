@@ -1,18 +1,18 @@
 const assert = require("node:assert/strict");
-const { loadWorkerTestSource } = require("./helpers/worker-test-source.cjs");
 const fs = require("node:fs");
 const path = require("node:path");
+const { pathToFileURL } = require("node:url");
 
-const source = loadWorkerTestSource();
 const workerSource = fs.readFileSync(
   path.join(__dirname, "../workers/bao-lab-credits-api/worker.js"),
   "utf8"
 );
+const modulePath = path.join(
+  __dirname,
+  "../workers/bao-lab-credits-api/modules/admin-auth.js"
+);
 const moduleSource = fs.readFileSync(
-  path.join(
-    __dirname,
-    "../workers/bao-lab-credits-api/modules/admin-auth.js"
-  ),
+  modulePath,
   "utf8"
 );
 
@@ -32,44 +32,42 @@ assert.match(
   "admin bearer-token policy must stay separate from player session auth"
 );
 
-const instrumented =
-  source.replace(
-    /export\s+default\s+\{/,
-    "const __workerDefault = {"
-  ) +
-  "\nreturn { WorkerAdminAuth, adminAuthorized };";
+(async () => {
+  const {
+    WorkerAdminAuth,
+    adminAuthorized,
+  } = await import(pathToFileURL(modulePath).href);
 
-const {
-  WorkerAdminAuth,
-  adminAuthorized,
-} = new Function(instrumented)();
+  assert.equal(WorkerAdminAuth.adminAuthorized, adminAuthorized);
 
-assert.equal(WorkerAdminAuth.adminAuthorized, adminAuthorized);
+  const request = token =>
+    new Request("https://worker.test/admin/players", {
+      headers: token
+        ? { authorization: `Bearer ${token}` }
+        : {},
+    });
 
-const request = token =>
-  new Request("https://worker.test/admin/players", {
-    headers: token
-      ? { authorization: `Bearer ${token}` }
-      : {},
-  });
+  assert.equal(adminAuthorized(request(), {}), false);
+  assert.equal(
+    adminAuthorized(request("admin-secret"), {}),
+    false,
+    "a matching header cannot authorize admin access when ADMIN_TOKEN is unset"
+  );
+  assert.equal(
+    adminAuthorized(request(), { ADMIN_TOKEN: "admin-secret" }),
+    false
+  );
+  assert.equal(
+    adminAuthorized(request("wrong-secret"), { ADMIN_TOKEN: "admin-secret" }),
+    false
+  );
+  assert.equal(
+    adminAuthorized(request("admin-secret"), { ADMIN_TOKEN: "admin-secret" }),
+    true
+  );
 
-assert.equal(adminAuthorized(request(), {}), false);
-assert.equal(
-  adminAuthorized(request("admin-secret"), {}),
-  false,
-  "a matching header cannot authorize admin access when ADMIN_TOKEN is unset"
-);
-assert.equal(
-  adminAuthorized(request(), { ADMIN_TOKEN: "admin-secret" }),
-  false
-);
-assert.equal(
-  adminAuthorized(request("wrong-secret"), { ADMIN_TOKEN: "admin-secret" }),
-  false
-);
-assert.equal(
-  adminAuthorized(request("admin-secret"), { ADMIN_TOKEN: "admin-secret" }),
-  true
-);
-
-console.log("worker admin auth core test passed");
+  console.log("worker admin auth core test passed");
+})().catch(error => {
+  console.error(error);
+  process.exitCode = 1;
+});
