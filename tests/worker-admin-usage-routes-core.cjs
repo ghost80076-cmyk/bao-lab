@@ -1,18 +1,18 @@
 const assert = require("node:assert/strict");
-const { loadWorkerTestSource } = require("./helpers/worker-test-source.cjs");
 const fs = require("node:fs");
 const path = require("node:path");
+const { pathToFileURL } = require("node:url");
 
-const source = loadWorkerTestSource();
 const workerEntrySource = fs.readFileSync(
   path.join(__dirname, "../workers/bao-lab-credits-api/worker.js"),
   "utf8"
 );
+const modulePath = path.join(
+  __dirname,
+  "../workers/bao-lab-credits-api/modules/admin-usage-routes.js"
+);
 const moduleSource = fs.readFileSync(
-  path.join(
-    __dirname,
-    "../workers/bao-lab-credits-api/modules/admin-usage-routes.js"
-  ),
+  modulePath,
   "utf8"
 );
 
@@ -32,9 +32,16 @@ assert.match(
   "admin usage history must stay behind its read-only subroute boundary"
 );
 
-const boundaryStart = source.indexOf("const WorkerAdminUsageRoutes = (() => {");
-const boundaryEnd = source.indexOf("const {\n  adminUsageRoute,\n} = WorkerAdminUsageRoutes;");
-const boundary = source.slice(boundaryStart, boundaryEnd);
+const boundaryStart = moduleSource.indexOf(
+  "const WorkerAdminUsageRoutes = (() => {"
+);
+const boundaryEnd = moduleSource.indexOf(
+  "const {\n  adminUsageRoute,\n} = WorkerAdminUsageRoutes;"
+);
+const boundary = moduleSource.slice(
+  boundaryStart,
+  boundaryEnd
+);
 
 assert.match(boundary, /"\/admin\/usage"/);
 assert.match(boundary, /FROM api_usage/);
@@ -45,21 +52,17 @@ assert.doesNotMatch(
   "usage history subroutes must remain read-only and separate from player administration"
 );
 
-const instrumented =
-  source.replace(
-    /export\s+default\s+\{/,
-    "const __workerDefault = {"
-  ) +
-  "\nreturn { WorkerAdminUsageRoutes, adminUsageRoute };";
-
-const {
-  WorkerAdminUsageRoutes,
-  adminUsageRoute,
-} = new Function(instrumented)();
-
-assert.equal(WorkerAdminUsageRoutes.adminUsageRoute, adminUsageRoute);
-
 (async () => {
+  const {
+    WorkerAdminUsageRoutes,
+    adminUsageRoute,
+  } = await import(pathToFileURL(modulePath).href);
+
+  assert.equal(
+    WorkerAdminUsageRoutes.adminUsageRoute,
+    adminUsageRoute
+  );
+
   let touchedDatabase = false;
   const db = {
     prepare() {
