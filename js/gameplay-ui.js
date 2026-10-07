@@ -71,16 +71,19 @@
 
   const syncPlayerIdentityLabel = () => {
     const node = document.getElementById('chat-persona');
-    const spec = App.activeCharacter?.player_identity;
-    if (!node || !spec?.source_path) return false;
-    const current = Core.getPath(GameState.current || {}, spec.source_path);
-    const rule = (spec.variants || []).find(item => String(item.value) === String(current));
-    let label = rule?.label || spec.default_label || '';
+    const spec = App.activeCharacter?.gameplay_ui?.player_identity;
+    const sourcePath = String(spec?.source_path || '').trim();
+    if (!node || !Core.isTargetPath(sourcePath)) return false;
+    const current = Core.getPath(GameState.current || {}, sourcePath);
+    const variants = Array.isArray(spec?.variants) ? spec.variants.slice(0, 8) : [];
+    const rule = variants.find(item => item && String(item.value || '').slice(0, 80) === String(current));
+    const defaultLabel = String(spec?.default_label || '').trim().slice(0, 80);
+    let label = String(rule?.label || '').trim().slice(0, 80) || defaultLabel;
     if (rule?.use_persona) {
       const personaName = String(App.config?.persona?.name || '').trim();
       label = personaName && personaName !== '未命名玩家'
         ? personaName
-        : (rule.fallback || spec.default_label || '玩家');
+        : (String(rule?.fallback || '').trim().slice(0, 80) || defaultLabel || '玩家');
     }
     if (!label) return false;
     node.textContent = label;
