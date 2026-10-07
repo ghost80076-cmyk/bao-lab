@@ -93,6 +93,14 @@ test('dual host system card maps global Persona display to system identity witho
     App.showView('chat');
   }, card);
 
+  const identitySnapshot = await page.evaluate(() => ({
+    sourcePath: App.activeCharacter?.gameplay_ui?.player_identity?.source_path || '',
+    playerMode: GameState.current?.modules?.system_core?.player_mode || ''
+  }));
+  expect(identitySnapshot).toEqual({
+    sourcePath: 'modules.system_core.player_mode',
+    playerMode: '純系統'
+  });
   await expect(page.locator('#chat-persona')).toHaveText('系統本體');
 
   await page.evaluate(() => {
