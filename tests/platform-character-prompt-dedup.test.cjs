@@ -18,7 +18,7 @@ function listJson(dir) {
 }
 
 const cardFiles = listJson(communityRoot);
-assert.equal(cardFiles.length, 35, 'expected all 35 formal community cards');
+assert.equal(cardFiles.length, 35, 'expected all 36 formal community cards');
 
 const implementationJargon = /Builder|Gameplay UI|Dynamic Prompts|Author Regex|作者 Regex|\bRegex\b|Persona|原生 UI|原生 Gameplay UI|原生 Game UI|結構化狀態|情境規則|顯示層規則/;
 const duplicatePlatformRules = /不得替玩家|不替玩家(?:說話|生成|決定|做決定)|不能替玩家|玩家控制權|玩家主權|玩家只由玩家本人控制|玩家只能控制自己的|作品名稱[^\n]*(?:不是|不得)[^\n]*(?:NPC|人物)|作品標題[^\n]*(?:不是|不得)[^\n]*(?:NPC|人物)/;
@@ -71,4 +71,4 @@ assert.match(weird.content.system_prompt, /普通人不會知道系統任務內�
 const food = JSON.parse(fs.readFileSync(path.join(root, 'data/characters/community/fb/taiwan-food-hunter.json'), 'utf8'));
 assert.match(food.content.system_prompt, /birthplace 決定第一幕所在縣市/);
 
-console.log('PASS all 35 community cards keep platform-global rules out of model-bound prompts');
+console.log('PASS all 36 community cards keep platform-global rules out of model-bound prompts');
