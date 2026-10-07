@@ -1352,6 +1352,21 @@
         "text": "#F0ECE8",
         "border": "#51495E",
         "muted": "#A39AA8"
+      },
+      "player_identity": {
+        "source_path": "modules.system_core.player_mode",
+        "default_label": "系統本體",
+        "variants": [
+          {
+            "value": "純系統",
+            "label": "系統本體"
+          },
+          {
+            "value": "系統＋化身",
+            "use_persona": true,
+            "fallback": "系統化身"
+          }
+        ]
       }
     }
   },
@@ -1370,21 +1385,6 @@
         "校園劇情"
       ],
       "allow_player_preferences": true
-    },
-    "player_identity": {
-      "source_path": "modules.system_core.player_mode",
-      "default_label": "系統本體",
-      "variants": [
-        {
-          "value": "純系統",
-          "label": "系統本體"
-        },
-        {
-          "value": "系統＋化身",
-          "use_persona": true,
-          "fallback": "系統化身"
-        }
-      ]
     }
   }
 }
