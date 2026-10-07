@@ -87,7 +87,7 @@
 
   const ensureStyles = () => {
     if (document.querySelector('link[href^="css/player-settings.css"]')) return;
-    const link = document.createElement("link"); link.rel = "stylesheet"; link.href = "css/player-settings.css?v=4"; document.head.appendChild(link);
+    const link = document.createElement("link"); link.rel = "stylesheet"; link.href = "css/player-settings.css?v=6"; document.head.appendChild(link);
   };
 
   const closeModal = () => document.querySelector(".bao-modal-backdrop")?.remove();
