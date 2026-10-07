@@ -15,9 +15,9 @@ assert.equal(card.meta.creator, '班長');
 assert.equal(card.meta.creator_id, 'banzhang');
 assert.equal(card.meta.rating, 'adult');
 assert.equal(card.meta.avatar, 'https://i.meee.com.tw/eG5DzIZ.jpg');
-assert.equal(card.presentation.player_identity.source_path, 'modules.system_core.player_mode');
-assert.equal(card.presentation.player_identity.variants.find(x => x.value === '純系統').label, '系統本體');
-assert.equal(card.presentation.player_identity.variants.find(x => x.value === '系統＋化身').fallback, '系統化身');
+assert.equal(card.gameplay.ui_schema.player_identity.source_path, 'modules.system_core.player_mode');
+assert.equal(card.gameplay.ui_schema.player_identity.variants.find(x => x.value === '純系統').label, '系統本體');
+assert.equal(card.gameplay.ui_schema.player_identity.variants.find(x => x.value === '系統＋化身').fallback, '系統化身');
 
 assert.match(card.content.system_prompt, /玩家本身就是系統/);
 assert.match(card.content.system_prompt, /直接介入/);
