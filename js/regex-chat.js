@@ -124,7 +124,7 @@
       style.textContent = '.bao-author-inline iframe[hidden]{display:none!important}';
       document.head.appendChild(style);
       const cardBind = document.createElement('script');
-      cardBind.src = 'js/author-regex-card-bind.js';
+      cardBind.src = 'js/author-regex-card-bind.js?v=2';
       cardBind.onload = () => {
         const inline = document.createElement('script');
         inline.src = 'js/author-regex-inline.js';
