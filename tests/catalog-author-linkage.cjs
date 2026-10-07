@@ -52,7 +52,8 @@ assert.match(characterUi, /builder-author-link/, "story setup must populate the 
 assert.match(characterUi, /author\.html\?id=/, "story setup author link must target the public profile");
 
 const exploreDiscovery = read("js/explore-discovery.js");
-assert.match(exploreDiscovery, /data-explore-preview-author/, "work preview must keep the author visible");
+assert.match(exploreDiscovery, /link\.className = "explore-author-link"/, "work preview must keep the author link visible");
+assert.match(exploreDiscovery, /link\.textContent = "作者 · " \+ author/, "work preview must render the author label");
 assert.doesNotMatch(exploreDiscovery, /data-explore-view=/, "catalog cards must not duplicate the existing work preview with a second detail mode");
 assert.doesNotMatch(exploreDiscovery, /explore-card-author/, "catalog cards must keep author metadata inside the work preview instead of the poster");
 
