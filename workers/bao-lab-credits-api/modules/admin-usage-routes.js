@@ -36,6 +36,13 @@ async function adminUsageRoute(
       );
     }
 
+    // Admin-only pagination; never return all usage rows in a single response.
+    const rawPage = url.searchParams.get("page") || "0";
+    if (!/^(0|[1-9][0-9]{0,3})$/.test(rawPage)) {
+      return fail("invalid_usage_page");
+    }
+    const page = Number(rawPage);
+    const pageSize = 100;
     const rows =
       await db
         .prepare(
@@ -72,19 +79,26 @@ async function adminUsageRoute(
             player_id = ?
 
           ORDER BY
-            created_at DESC
+            created_at DESC,
+            request_id DESC
 
-          LIMIT 100
+          LIMIT 101 OFFSET ?
           `
         )
         .bind(
-          id
+          id,
+          page * pageSize
         )
         .all();
 
+    const pageRows = (rows.results || []).slice(0, pageSize);
+    const hasMore = (rows.results || []).length > pageSize;
     return json({
+      page,
+      has_more: hasMore,
+      next_page: hasMore ? page + 1 : null,
       usage:
-        rows.results.map(
+        pageRows.map(
           (row) => ({
             ...row,
 

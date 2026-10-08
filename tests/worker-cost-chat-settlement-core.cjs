@@ -17,7 +17,7 @@ assert.match(
 
 assert.match(
   source,
-  /status\s*=\s*'unverified_refunded'/,
+  /refundReservation\("unverified_refunded"/,
   "ambiguous provider usage must be recorded as refunded rather than left held"
 );
 

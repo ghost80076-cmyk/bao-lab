@@ -9,6 +9,13 @@
     "已確認事實、記憶、Canon、狀態與固定 Schema 不得為文風改寫；結構化資料要求高於文風要求。"
   ].join("\n");
 
+  const PLAYER_AGENCY_RULE = [
+    "【玩家自主權】",
+    "對話選項與行動建議只能提出玩家自身可選的行動，不得代玩家決定 NPC 的意志、行動或結果。",
+    "可延續玩家明示行動並補足合理感官、環境及細微動作；不得擴張玩家意圖、代作重大承諾或不可逆的主動決策。",
+    "NPC 與世界仍依因果自主反應，合理後果不等於替玩家決定。"
+  ].join("\n");
+
   // Stable platform rule: keep scene participation in the cache-friendly system prefix,
   // never in the per-turn user anchor. It should guide behavior without forcing extra output.
   const SCENE_PARTICIPATION_RULE = [
@@ -57,7 +64,7 @@
     const messages = await next(config);
     const result = Array.isArray(messages) ? messages.map(message => ({ ...message })) : [];
     const api = config?.api || config || {};
-    const stableAdapter = [PRIORITY_PROMPT, SCENE_PARTICIPATION_RULE, guidanceFor(api)].filter(Boolean).join("\n\n");
+    const stableAdapter = [PRIORITY_PROMPT, PLAYER_AGENCY_RULE, SCENE_PARTICIPATION_RULE, guidanceFor(api)].filter(Boolean).join("\n\n");
 
     if (result[0]?.role === "system") {
       result[0].content = appendBlock(result[0].content, stableAdapter);
@@ -89,6 +96,7 @@
     familyFor,
     guidanceFor,
     priorityPrompt: PRIORITY_PROMPT,
+    playerAgencyRule: PLAYER_AGENCY_RULE,
     sceneParticipationRule: SCENE_PARTICIPATION_RULE,
     turnAnchor: TURN_ANCHOR
   };

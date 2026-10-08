@@ -21,6 +21,8 @@ assert.match(unrelated, /三年前都市融入/);
 assert.doesNotMatch(unrelated, /院長艾琳|商會坐落/);
 const relevant = engine.composeSystemPrompt(card, { recentMessages: [{ role: 'user', content: '進入魔法學院' }] });
 assert.match(relevant, /院長艾琳/);
+assert.match(relevant, /〔魔法學院〕/);
+assert.doesNotMatch(relevant, /【魔法學院】/);
 assert.doesNotMatch(relevant, /商會坐落/);
 assert.match(relevant, /魔法與科技共存/);
 ctx.window.GameState.current.location = '地下商會';

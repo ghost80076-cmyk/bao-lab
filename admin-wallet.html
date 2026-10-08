@@ -58,6 +58,13 @@ button{border-radius:12px;padding:10px 14px;font:inherit;font-weight:700;cursor:
 .player-table button{padding:7px 10px;font-size:12px}
 .player-table .status-note{display:block;margin-top:4px;color:#aaa6b8;font-size:11px;max-width:220px}
 .player-actions{display:flex;justify-content:flex-end;gap:6px;flex-wrap:wrap}
+.usage-table{min-width:1000px}
+.usage-table .money{white-space:nowrap;font-variant-numeric:tabular-nums}
+.usage-table .usage-detail{display:block;color:#aaa6b8;font-size:11px;margin-top:4px}
+.usage-table code{font-size:11px}
+#usage-player-name{color:#e5ddff}
+#usage-summary{line-height:1.9}
+#usage-more[hidden]{display:none}
 .danger{border:1px solid rgba(255,157,157,.35);background:#2a1b21;color:#ffb4b4}
 .restore{border:1px solid rgba(143,224,189,.32);background:#17241f;color:#9ae7c5}
 .player-empty{padding:18px;color:#aaa6b8;text-align:center}
@@ -141,6 +148,31 @@ code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
       <div class="row"><span>帳號狀態</span><b id="p-status"></b></div>
       <div class="row"><span>最近管理紀錄</span><b id="p-status-note"></b></div>
       <div class="row"><span>內部 ID</span><b id="p-internal"></b></div>
+      <div class="actions"><button id="view-player-usage" class="primary" type="button">查看這位玩家的 API 消耗明細</button></div>
+    </div>
+  </section>
+
+  <section class="card" id="player-usage-card" hidden>
+    <div class="control-heading">
+      <h2>玩家 API 消耗明細</h2>
+      <span id="usage-player-name" class="status-pill"></span>
+    </div>
+    <p class="note">僅顯示夜灣 Hosted API 帳本，不含玩家自備 API（BYOK）。玩家實扣與上游成本分開列示；舊制消耗不當成美元。</p>
+    <div id="usage-summary" class="summary note">尚未載入紀錄。</div>
+    <div id="usage-message" class="error" role="status" aria-live="polite"></div>
+    <div class="player-list-scroll" style="margin-top:12px">
+      <table class="player-table usage-table">
+        <thead><tr>
+          <th>時間</th><th>用途／模型</th><th>輸入 Token</th><th>快取 Token</th>
+          <th>輸出／思考 Token</th><th>玩家實扣 (USD)</th><th>上游成本 (USD)</th><th>狀態</th>
+        </tr></thead>
+        <tbody id="usage-rows"><tr><td colspan="8" class="player-empty">尚未載入。</td></tr></tbody>
+      </table>
+    </div>
+    <div class="actions">
+      <button id="usage-refresh" class="secondary" type="button">重新整理</button>
+      <button id="usage-more" class="secondary" type="button" hidden>載入更早的 100 筆</button>
+      <button id="usage-close" class="secondary" type="button">關閉明細</button>
     </div>
   </section>
 
@@ -329,6 +361,10 @@ code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
   var players=[];
   var selected=null;
   var providerControl=null;
+  var usageRows=[];
+  var usagePage=0;
+  var usageHasMore=false;
+  var usageRequestSeq=0;
 
   var $=function(id){return document.getElementById(id);};
   function points(value){
@@ -394,6 +430,7 @@ code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
           '<button class="secondary" type="button" data-select-player="'+escapeHTML(p.id)+'">'+
             (selected&&selected.id===p.id?"已選取":"選取／加值")+
           '</button>'+
+          '<button class="secondary" type="button" data-usage-player="'+escapeHTML(p.id)+'">用量明細</button>'+
           (Number(p.enabled)===0
             ?'<button class="restore" type="button" data-enable-player="'+escapeHTML(p.id)+'">恢復帳號</button>'
             :'<button class="danger" type="button" data-disable-player="'+escapeHTML(p.id)+'">停用帳號</button>')+
@@ -402,6 +439,7 @@ code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
     }).join(""):'<tr><td colspan="7"><div class="player-empty">找不到符合的玩家。</div></td></tr>';
   }
   function selectPlayer(player){
+    resetUsagePanel();
     selected=player||null;
     if(selected){
       $("public-id").value=selected.public_id||"";
@@ -410,6 +448,108 @@ code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
     renderSelected();
     renderPlayerList();
     if(selected) setMessage("player-message","已選取 "+(selected.username||selected.public_id||"玩家")+"。",true);
+  }
+
+  function resetUsagePanel(){
+    usageRequestSeq++;
+    usageRows=[];
+    usagePage=0;
+    usageHasMore=false;
+    $("player-usage-card").hidden=true;
+    $("usage-rows").innerHTML='<tr><td colspan="8" class="player-empty">尚未載入。</td></tr>';
+    $("usage-summary").textContent="尚未載入紀錄。";
+    $("usage-more").hidden=true;
+    setMessage("usage-message","");
+  }
+  function usageUsd(value){
+    if(value===null||value===undefined||value==="") return "—";
+    var n=Number(value);
+    return Number.isFinite(n)?"US$"+n.toFixed(6):"—";
+  }
+  function usageToken(value){
+    if(value===null||value===undefined) return "—";
+    var n=Number(value);
+    return Number.isFinite(n)?n.toLocaleString("zh-TW"):"—";
+  }
+  function renderUsage(){
+    var knownCharge=0,knownUpstream=0,legacy=0,missingCharge=0,missingUpstream=0;
+    var chargedCount=0,upstreamCount=0;
+    usageRows.forEach(function(row){
+      if(row.billing_mode==="cost_usd_v2"&&row.settled_cost_usd!=null&&Number.isFinite(Number(row.settled_cost_usd))){
+        knownCharge+=Number(row.settled_cost_usd);
+        chargedCount++;
+      }else if(row.billing_mode==="raw_tokens_v1"){
+        legacy++;
+      }else{
+        missingCharge++;
+      }
+      if(row.provider_cost_usd!=null&&Number.isFinite(Number(row.provider_cost_usd))){
+        knownUpstream+=Number(row.provider_cost_usd);
+        upstreamCount++;
+      }else{
+        missingUpstream++;
+      }
+    });
+    $("usage-summary").textContent=
+      "目前載入 "+usageRows.length+" 筆｜玩家已知實扣 "+usageUsd(knownCharge)+"（"+chargedCount+" 筆）"+
+      "｜上游已知成本 "+usageUsd(knownUpstream)+"（"+upstreamCount+" 筆）"+
+      (legacy?"｜舊制紀錄 "+legacy+" 筆（非美元）":"")+
+      (missingCharge?"｜未能確認美元實扣 "+missingCharge+" 筆":"")+
+      (missingUpstream?"｜無上游成本資料 "+missingUpstream+" 筆":"")+
+      "。合計僅包含目前載入的紀錄，不等於全部歷史或 Google 實際帳單。";
+    var statusLabels={ok:"成功",failed:"失敗",over_budget:"超額",unverified_refunded:"未確認，已退回",refunded:"已退回"};
+    $("usage-rows").innerHTML=usageRows.length?usageRows.map(function(row){
+      var isLegacy=row.billing_mode==="raw_tokens_v1";
+      var charge=isLegacy
+        ? (row.charged_legacy_credits==null?"舊制（非美元）":usageToken(row.charged_legacy_credits)+" 舊制額度")
+        : usageUsd(row.settled_cost_usd);
+      return '<tr>'+
+        '<td>'+escapeHTML(formatDate(row.created_at))+
+          '<span class="usage-detail"><code>'+escapeHTML(row.request_id||"")+'</code></span></td>'+
+        '<td><b>'+escapeHTML(row.request_kind||"chat")+'</b>'+
+          '<span class="usage-detail">'+escapeHTML(row.provider||"—")+' / '+escapeHTML(row.model||"—")+'</span></td>'+
+        '<td>'+escapeHTML(usageToken(row.input_tokens))+'</td>'+
+        '<td>'+escapeHTML(usageToken(row.cached_tokens))+'</td>'+
+        '<td>'+escapeHTML(usageToken(row.output_tokens))+' / '+escapeHTML(usageToken(row.reasoning_tokens))+'</td>'+
+        '<td class="money"><b>'+escapeHTML(charge)+'</b></td>'+
+        '<td class="money">'+escapeHTML(usageUsd(row.provider_cost_usd))+'</td>'+
+        '<td>'+escapeHTML(statusLabels[row.status]||row.status||"—")+'</td>'+
+      '</tr>';
+    }).join(""):'<tr><td colspan="8" class="player-empty">沒有這位玩家的用量紀錄。</td></tr>';
+    $("usage-more").hidden=!usageHasMore;
+  }
+  async function loadPlayerUsage(page){
+    if(!selected||!adminToken) return;
+    var playerId=selected.id;
+    var sequence=++usageRequestSeq;
+    $("usage-refresh").disabled=true;
+    $("usage-more").disabled=true;
+    setMessage("usage-message","正在載入第 "+(page+1)+" 頁紀錄…");
+    try{
+      var data=await api("/admin/usage?player_id="+encodeURIComponent(playerId)+"&page="+page,{method:"GET"});
+      if(sequence!==usageRequestSeq||!selected||selected.id!==playerId) return;
+      var rows=Array.isArray(data.usage)?data.usage:[];
+      usageRows=page===0?rows:usageRows.concat(rows);
+      usagePage=page;
+      usageHasMore=Boolean(data.has_more);
+      renderUsage();
+      setMessage("usage-message","已載入 "+usageRows.length+" 筆紀錄。",true);
+    }catch(e){
+      if(sequence!==usageRequestSeq) return;
+      setMessage("usage-message","讀取用量失敗："+e.message);
+    }finally{
+      if(sequence===usageRequestSeq){
+        $("usage-refresh").disabled=false;
+        $("usage-more").disabled=false;
+      }
+    }
+  }
+  function openPlayerUsage(){
+    if(!selected||!adminToken) return;
+    $("player-usage-card").hidden=false;
+    $("usage-player-name").textContent=(selected.display_name||selected.username||selected.public_id||"玩家")+" / "+(selected.public_id||"");
+    loadPlayerUsage(0);
+    $("player-usage-card").scrollIntoView({behavior:"smooth",block:"start"});
   }
   async function refreshPlayers(preferredId){
     var data=await api("/admin/players",{method:"GET"});
@@ -619,9 +759,22 @@ code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
     selectPlayer(found);
   };
 
+  $("view-player-usage").onclick=openPlayerUsage;
+  $("usage-refresh").onclick=function(){loadPlayerUsage(0);};
+  $("usage-more").onclick=function(){if(usageHasMore) loadPlayerUsage(usagePage+1);};
+  $("usage-close").onclick=resetUsagePanel;
+
   $("player-list-filter").addEventListener("input",renderPlayerList);
   $("player-list-sort").addEventListener("change",renderPlayerList);
   $("player-list-body").addEventListener("click",async function(event){
+    var usageButton=event.target.closest("[data-usage-player]");
+    if(usageButton){
+      var usagePlayer=players.find(function(p){return p.id===usageButton.dataset.usagePlayer;})||null;
+      if(!usagePlayer) return;
+      selectPlayer(usagePlayer);
+      openPlayerUsage();
+      return;
+    }
     var selectButton=event.target.closest("[data-select-player]");
     if(selectButton){
       var player=players.find(function(p){return p.id===selectButton.dataset.selectPlayer;})||null;

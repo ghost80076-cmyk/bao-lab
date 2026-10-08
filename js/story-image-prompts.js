@@ -161,6 +161,27 @@
     delete: id => album.query('readwrite', store => store.delete(id))
   };
   const storyRefs = () => window.BAOStoryLibrary?.refs?.() || {};
+  const latestForStory = async storyId => {
+    const id = String(storyId || '').trim();
+    if (!id) return null;
+    const records = await album.list(id);
+    return (Array.isArray(records) ? records : [])
+      .sort((a,b) => String(b.createdAt || '').localeCompare(String(a.createdAt || '')))[0] || null;
+  };
+  const latestForCurrentStory = async () => {
+    const current = storyRefs();
+    const storyId = String(current.storyId || '').trim();
+    if (!storyId) return null;
+    const records = (await album.list(storyId) || [])
+      .sort((a,b) => String(b.createdAt || '').localeCompare(String(a.createdAt || '')));
+    const latestAssistantId = [...(window.Chat?.messages || [])].reverse()
+      .find(message => message?.role === 'assistant')?.id || '';
+    return records.find(item => latestAssistantId && item.messageId === latestAssistantId)
+      || records.find(item => current.chapterId && item.chapterId === current.chapterId)
+      || records[0]
+      || null;
+  };
+  const notifyAlbumChanged = () => window.dispatchEvent(new CustomEvent('bao:story-image-album-changed'));
   const addGallery = (view, scene) => {
     const { panel, status, urls, overlay } = view;
     const section = document.createElement('details');
@@ -192,7 +213,7 @@
         label.textContent = `${item.chapterLabel || '章節'} · ${item.messageLabel || '場景'}`;
         const remove = button('刪除圖片', async () => {
           if (!window.confirm('確定從這台裝置刪除這張圖片？無法復原。')) return;
-          try { await album.delete(item.id); await paint(); status.textContent = '圖片已從本機圖集刪除。'; }
+          try { await album.delete(item.id); notifyAlbumChanged(); await paint(); status.textContent = '圖片已從本機圖集刪除。'; }
           catch (error) { status.textContent = `刪除失敗：${error.message}`; }
         });
         card.append(image, label, remove); grid.append(card);
@@ -215,7 +236,7 @@
           characterId:String(window.App?.activeCharacter?.id || ''),
           name:plain(image.name), file:image, createdAt:new Date().toISOString()
         });
-        await paint(); status.textContent = '圖片已存入這台裝置的本機圖集。';
+        notifyAlbumChanged(); await paint(); status.textContent = '圖片已存入這台裝置的本機圖集。';
       } catch (error) { status.textContent = `圖片儲存失敗：${error?.message || '儲存空間可能不足'}`; }
     });
     section.append(summary, note, picker, grid); panel.append(section);
@@ -374,7 +395,8 @@
   const previous = App.renderChatShell?.bind(App);
   if (previous) App.renderChatShell = (...args) => { const result = previous(...args); schedule(); return result; };
   schedule();
-  const api = Object.freeze({ openPlayer, openAuthor, mount, profileOf, normalizeResult, buildVisualMessages, album });
+  const api = Object.freeze({ openPlayer, openAuthor, mount, profileOf, normalizeResult, buildVisualMessages, album, storyRefs, latestForStory, latestForCurrentStory });
   window.BAOStoryImagePrompts = api;
   window.BAOStoryImageMoments = api;
+  window.dispatchEvent(new CustomEvent('bao:story-image-module-ready'));
 })();

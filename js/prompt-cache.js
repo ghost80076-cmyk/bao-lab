@@ -2,8 +2,8 @@
   if (window.BAOPromptCache || typeof App === "undefined" || typeof Chat === "undefined") return;
 
   const MEMORY_HEADERS = new Set(["玩家手動記憶", "Context Pack · 玩家已確認的前情", "Canon Core · 玩家已確認"]);
-  const DYNAMIC_HEADERS = new Set(["本輪動態角色規則", "目前核心狀態", "本輪相關世界資料", "本輪人物狀態", "本輪相關 NPC", "本輪相關 Canon", "世界時鐘"]);
-  const headerOf = block => String(block.match(/^【([^】]+)】/)?.[1] || "").trim();
+  const DYNAMIC_HEADERS = new Set(["本輪動態角色規則", "目前核心狀態", "本輪相關世界資料", "本輪人物狀態", "本輪相關 NPC", "本輪相關 Canon", "世界時鐘", "本輪人物覆寫", "本輪相關世界書"]);
+  const headerOf = block => String(block.match(/^【([^】]+)】/)?.[1] || "").split("｜")[0].trim();
   const cacheMetricKnown = usage => usage?.cached_tokens !== null && usage?.cached_tokens !== undefined && Number.isFinite(Number(usage.cached_tokens));
 
   const partitionSystemPrompt = prompt => {
@@ -153,16 +153,28 @@
       failures.delete(story);
       const priorSummary = this.summary;
       const priorCursor = this.summarizedUntil;
+      const priorHealth = this.memoryHealth;
       try {
         await originalSummarize.call(this, config, force, recentRounds);
-        const failure = failures.get(story);
-        if (failure) {
-          const delay = failure.authFailure ? AUTH_COOLDOWN_MS : COOLDOWN_MS;
-          cooldowns.set(story, Date.now() + delay);
+        const requestFailure = failures.get(story);
+        // Format/empty-output failures return normally from Chat.maybeSummarize.
+        // They need cooldown too, or every subsequent turn can pay for another
+        // summary + repair request without advancing the summary cursor.
+        const healthFailure = this.memoryHealth !== priorHealth && this.memoryHealth?.phase === 'failed';
+        if (requestFailure || healthFailure) {
+          const authFailure = requestFailure?.authFailure ||
+            /(?:API Key|連線金鑰|權限|驗證|配額|餘額|rate limit|quota|401|403)/i.test(String(this.memoryHealth?.message || ''));
+          const delay = authFailure ? AUTH_COOLDOWN_MS : COOLDOWN_MS;
+          const retryAt = Date.now() + delay;
+          cooldowns.set(story, retryAt);
+          if (this.memoryHealth?.phase === 'failed') this.memoryHealth = {
+            ...this.memoryHealth, cooldownUntil: new Date(retryAt).toISOString()
+          };
           notice(`記憶整理失敗，已暫停 ${Math.ceil(delay / 60000)} 分鐘；原始對話仍保留。`);
         } else if (this.summary !== priorSummary || this.summarizedUntil !== priorCursor) {
           cooldowns.delete(story);
-          notice("");
+          if (this.memoryHealth) this.memoryHealth = { ...this.memoryHealth, cooldownUntil: '' };
+          notice('');
         }
       } finally {
         failures.delete(story);
@@ -176,9 +188,9 @@
   patchMemoryRequestGuard();
   window.BAOPromptCache = { partitionSystemPrompt, storySessionId, cacheMetricKnown };
   // The small Node unit-test DOM has no querySelector/head; load only inside real browsers.
-  if (typeof document.querySelector === 'function' && document.head && !document.querySelector('script[src="js/gemini-explicit-cache.js"]')) {
+  if (typeof document.querySelector === 'function' && document.head && !document.querySelector('script[src="js/gemini-explicit-cache.js?v=2"]')) {
     const script = document.createElement('script');
-    script.src = 'js/gemini-explicit-cache.js';
+    script.src = 'js/gemini-explicit-cache.js?v=2';
     script.onerror = () => console.warn('BAO/LAB optional Gemini cache controls failed to load');
     document.head.appendChild(script);
   }

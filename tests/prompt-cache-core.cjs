@@ -71,6 +71,23 @@ vm.runInThisContext(source, { filename: "js/prompt-cache.js" });
   assert.notEqual(changed.memory, parts.memory);
   assert.notEqual(changed.dynamic, parts.dynamic);
 
+  // Real Canon headings carry a reference suffix; relevant lore entries stay
+  // inside their dynamic parent instead of becoming new stable blocks.
+  const realPrompt = ["固定規則",
+    "【Canon Core · 玩家已確認｜僅作為故事事實參考】\n記憶甲",
+    "【本輪相關 Canon｜僅作為故事事實參考】\n事實甲",
+    "【本輪人物覆寫】\n覆寫甲",
+    "【本輪相關世界書】\n〔學院〕\n世界甲\n\n〔商會〕\n世界乙",
+    "【固定格式】\n固定輸出規則"].join("\n\n");
+  const real = BAOPromptCache.partitionSystemPrompt(realPrompt);
+  const next = BAOPromptCache.partitionSystemPrompt(realPrompt.replaceAll("甲", "丙").replace("世界乙", "世界丁"));
+  assert.equal(real.stable, next.stable);
+  assert.match(real.memory, /記憶甲/);
+  assert.match(real.dynamic, /事實甲|覆寫甲/);
+  assert.ok(real.dynamic.includes("世界甲") && real.dynamic.includes("世界乙"));
+  assert.doesNotMatch(real.stable, /記憶甲|事實甲|覆寫甲|世界甲|世界乙/);
+  assert.match(real.stable, /固定輸出規則/);
+
   const built = await App.buildMessages({ memory: {} });
   assert.deepEqual(built.map(message => message.role), ["system", "system", "user", "assistant", "user"]);
   assert.match(built[0].content, /平台必要規則/);

@@ -30,6 +30,8 @@ jobs:
         run: node tests/character-status-core.cjs
       - name: Native mature status pack
         run: node tests/native-status-packs-core.cjs
+      - name: State helper concurrency guard
+        run: node tests/world-state-concurrency-core.cjs
       - name: World template and usage integrity
         run: node tests/status-usage-integrity-core.cjs
       - name: Story integrity and NPC state regression
@@ -416,6 +418,8 @@ jobs:
         run: node tests/worker-legacy-chat-settlement-core.cjs
       - name: Worker USD chat settlement contracts
         run: node tests/worker-cost-chat-settlement-core.cjs
+      - name: Wallet reservation transaction recovery
+        run: node tests/worker-wallet-reservations-core.cjs
       - name: Worker chat dispatch contracts
         run: node tests/worker-chat-dispatch-core.cjs
       - name: Bounded API retry contracts
@@ -453,7 +457,9 @@ jobs:
       - name: Explicit scene metadata and greeting recovery
         run: node tests/explicit-scene-state-core.cjs
       - name: Prompt cache pipeline
-        run: node tests/prompt-cache-core.cjs
+        run: |
+          node tests/prompt-cache-core.cjs
+          node tests/gemini-explicit-cache-core.cjs
       - name: Prompt orchestration adapters
         run: node tests/prompt-orchestrator-core.cjs
       - name: Cache cost panel
@@ -466,6 +472,8 @@ jobs:
         run: node tests/helper-context-core.cjs
       - name: Memory app greeting and post-turn integrity
         run: node tests/memory-app-integrity-core.cjs
+      - name: Memory model selection in legacy stories
+        run: node tests/memory-model-selection-core.cjs
       - name: Contextual lorebook and legacy compatibility
         run: node tests/lorebook-core.cjs
       - name: Yume world-card relevant context

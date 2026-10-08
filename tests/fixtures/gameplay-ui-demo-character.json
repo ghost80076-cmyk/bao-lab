@@ -19,9 +19,102 @@
         "max_qi": 380,
         "strength": 8,
         "agility": 8,
-        "origin": "散修"
+        "origin": "散修",
+        "skills": [
+          {
+            "name": "流雲步",
+            "level": "Lv.2",
+            "cost": "12 氣",
+            "cooldown": "2 回合",
+            "description": "短距離閃身，適合脫離包圍。"
+          }
+        ]
+      },
+      "quest_log": {
+        "quests": [
+          {
+            "title": "北門妖獸",
+            "status": "進行中",
+            "summary": "前往北門調查妖獸目擊情報。",
+            "progress": "1 / 3",
+            "reward": "80 靈石"
+          }
+        ]
+      },
+      "party": {
+        "members": [
+          {
+            "name": "阿璃",
+            "role": "劍修",
+            "status": "同行",
+            "hp": 92,
+            "max_hp": 100,
+            "notes": "擅長近戰與護衛。"
+          }
+        ]
+      },
+      "scene": {
+        "area": "東城",
+        "status": "公開區域",
+        "destinations": [
+          {
+            "id": "north_gate",
+            "name": "北門",
+            "summary": "最近有妖獸目擊情報。",
+            "current": false,
+            "draft": "我前往北門調查妖獸目擊情報。"
+          },
+          {
+            "id": "inn",
+            "name": "客棧",
+            "summary": "目前落腳處。",
+            "current": true
+          }
+        ]
+      },
+      "relationship": {
+        "status": "剛認識"
+      },
+      "history": {
+        "events": [
+          {
+            "title": "抵達青雲城",
+            "summary": "玩家第一次踏入青雲城。",
+            "tag": "主線",
+            "time": "第 1 輪"
+          },
+          {
+            "title": "聽見北門傳聞",
+            "summary": "客棧掌櫃提到北門最近有妖獸出沒。",
+            "tag": "線索",
+            "time": "第 2 輪"
+          }
+        ]
       }
-    }
+    },
+    "events": [
+      "城東告示：三日後開啟宗門試煉。",
+      "客棧掌櫃提到北門最近有妖獸出沒。"
+    ],
+    "npcs": [
+      {
+        "name": "行商",
+        "role": "旅商",
+        "mood": "警戒",
+        "location": "青雲城",
+        "relationship": "剛認識",
+        "presence": "present",
+        "notes": "知道北門妖獸的傳聞。"
+      },
+      {
+        "name": "阿璃",
+        "role": "劍修",
+        "mood": "平靜",
+        "location": "青雲城",
+        "relationship": "同行者",
+        "presence": "present"
+      }
+    ]
   },
   "gameplay_ui": {
     "version": 1,
@@ -104,6 +197,33 @@
         ]
       },
       {
+        "id": "world",
+        "label": "世界",
+        "sections": [
+          {
+            "type": "stats",
+            "title": "當前場景",
+            "items": [
+              {
+                "label": "時間",
+                "path": "time"
+              },
+              {
+                "label": "地點",
+                "path": "location"
+              }
+            ]
+          },
+          {
+            "type": "list",
+            "title": "近期事件",
+            "path": "events",
+            "empty": "目前沒有新的事件。",
+            "limit": 6
+          }
+        ]
+      },
+      {
         "id": "combat",
         "label": "戰鬥",
         "sections": [
@@ -118,6 +238,122 @@
             ]
           }
         ]
+      },
+      {
+        "id": "adventure",
+        "label": "冒險",
+        "sections": [
+          {
+            "type": "cards",
+            "title": "人物圖鑑",
+            "path": "npcs",
+            "variant": "codex",
+            "limit": 8
+          },
+          {
+            "type": "cards",
+            "title": "任務",
+            "path": "modules.quest_log.quests",
+            "variant": "quest",
+            "limit": 6
+          },
+          {
+            "type": "cards",
+            "title": "隊伍",
+            "path": "modules.party.members",
+            "variant": "party",
+            "limit": 6
+          },
+          {
+            "type": "cards",
+            "title": "技能",
+            "path": "modules.player.skills",
+            "variant": "skill",
+            "limit": 8
+          }
+        ]
+      },
+      {
+        "id": "archive",
+        "label": "檔案",
+        "sections": [
+          {
+            "type": "tabs",
+            "id": "story_archive",
+            "title": "STORY ARCHIVE",
+            "default_tab": "live",
+            "tabs": [
+              {
+                "id": "live",
+                "label": "即時狀態",
+                "sections": [
+                  {
+                    "type": "location_archive",
+                    "title": "LOCATION ARCHIVE",
+                    "scene_source": "reading-background",
+                    "scene_fit": "contain",
+                    "time_path": "time",
+                    "location_path": "location",
+                    "area_path": "modules.scene.area",
+                    "status_path": "modules.scene.status",
+                    "destinations_path": "modules.scene.destinations",
+                    "limit": 6
+                  }
+                ]
+              },
+              {
+                "id": "relation",
+                "label": "關係狀態",
+                "sections": [
+                  {
+                    "type": "stats",
+                    "title": "關係",
+                    "items": [
+                      {
+                        "label": "目前關係",
+                        "path": "modules.relationship.status"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "id": "changes",
+                "label": "本輪變動",
+                "sections": [
+                  {
+                    "type": "timeline",
+                    "mode": "round_diff",
+                    "title": "本輪變動",
+                    "items": [
+                      {
+                        "label": "地點",
+                        "path": "location"
+                      },
+                      {
+                        "label": "關係",
+                        "path": "modules.relationship.status"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "id": "history",
+                "label": "完整歷程",
+                "sections": [
+                  {
+                    "type": "timeline",
+                    "mode": "history",
+                    "title": "完整歷程",
+                    "path": "modules.history.events",
+                    "limit": 12
+                  }
+                ]
+              }
+            ]
+          }
+        ]
       }
     ],
     "theme": {
@@ -126,6 +362,11 @@
       "density": "compact",
       "radius": "soft",
       "meter": "glow"
+    },
+    "layout": {
+      "preset": "rpg-dashboard",
+      "left_panel": "status",
+      "right_panel": "world"
     }
   },
   "world_modules": [
@@ -181,6 +422,77 @@
           "type": "text"
         }
       ]
+    },
+    {
+      "id": "quest_log",
+      "label": "任務",
+      "kind": "object",
+      "fields": [
+        {
+          "key": "quests",
+          "label": "任務清單",
+          "type": "list"
+        }
+      ]
+    },
+    {
+      "id": "party",
+      "label": "隊伍",
+      "kind": "object",
+      "fields": [
+        {
+          "key": "members",
+          "label": "隊伍成員",
+          "type": "list"
+        }
+      ]
+    },
+    {
+      "id": "scene",
+      "label": "場景",
+      "kind": "object",
+      "fields": [
+        {
+          "key": "area",
+          "label": "區域",
+          "type": "text"
+        },
+        {
+          "key": "status",
+          "label": "場景狀態",
+          "type": "text"
+        },
+        {
+          "key": "destinations",
+          "label": "可前往地點",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "id": "relationship",
+      "label": "關係",
+      "kind": "object",
+      "fields": [
+        {
+          "key": "status",
+          "label": "關係狀態",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "id": "history",
+      "label": "歷程",
+      "kind": "object",
+      "fields": [
+        {
+          "key": "events",
+          "label": "歷程事件",
+          "type": "text"
+        }
+      ]
     }
-  ]
+  ],
+  "reading_background": "assets/bao-mark.svg"
 }

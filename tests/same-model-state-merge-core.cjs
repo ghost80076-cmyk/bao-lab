@@ -59,6 +59,8 @@ global.API = {
     }
     if (!withContract) return { text: '故事一', usage: {} };
     if (providerMode === 'missing') return { text: '故事缺狀態', usage: {} };
+    if (providerMode === 'incomplete') return { text: '故事二<BAO_STATE>{"time":"沒有結尾"}', usage: {} };
+    if (providerMode === 'malformed') return { text: '故事二<BAO_STATE>{bad}</BAO_STATE>', usage: {} };
     return { text: '故事二\n<BAO_STATE>{"time":"午夜","events":["門打開"]}</BAO_STATE>', usage: {} };
   },
   wrapSend(id, wrapper) {
@@ -114,7 +116,44 @@ assert.equal(API.__sendWrapperIds.has('same-model-state-merge:main-story'), true
   assert.equal(separateUpdates, 0, 'missing appendix must not trigger a paid fallback request');
   assert.equal(owner.pendingStateTurns.length, 2);
   assert.equal(owner.stateTracker.phase, 'failed');
+  assert.equal(owner.stateTracker.diagnostic, 'missing_appendix');
   assert.match(owner.stateTracker.message, /不會補發第二次 API/);
+
+  // Do not misapply a structurally complete-looking JSON payload if the closing
+  // marker was truncated; neither failure mode may make a second API request.
+  App.config.cost.stateInterval = 1;
+  owner.pendingStateTurns = [];
+  providerMode = 'incomplete';
+  Chat.messages.push({ role: 'assistant', content: '故事缺狀態' }, { role: 'user', content: '截斷回合' });
+  result = await API.send(App.config.api, [{ role: 'user', content: orchestrated('截斷回合') }]);
+  assert.equal(result.text, '故事二');
+  await WorldStateEngine.update(App.config, '截斷回合', '故事二');
+  assert.equal(owner.stateTracker.diagnostic, 'incomplete_appendix');
+  assert.notEqual(owner.time, '沒有結尾');
+
+  providerMode = 'malformed';
+  Chat.messages.push({ role: 'assistant', content: '故事二' }, { role: 'user', content: '格式錯誤回合' });
+  result = await API.send(App.config.api, [{ role: 'user', content: orchestrated('格式錯誤回合') }]);
+  await WorldStateEngine.update(App.config, '格式錯誤回合', '故事二');
+  assert.equal(owner.stateTracker.diagnostic, 'invalid_json');
+  assert.equal(separateUpdates, 0);
+
+  // Old sessions can accrue many failures. Do not silently discard turns above
+  // the former twelve-turn queue limit; each recovery processes a bounded batch.
+  owner.pendingStateTurns = [];
+  providerMode = 'missing';
+  for (let i = 0; i < 16; i++) {
+    await WorldStateEngine.update(App.config, `長篇玩家${i}`, `長篇故事${i}`);
+  }
+  assert.equal(owner.pendingStateTurns.length, 16, 'long-story backlog must never be truncated');
+  providerMode = 'normal';
+  Chat.messages.push({ role: 'assistant', content: '故事二' }, { role: 'user', content: '長篇恢復' });
+  result = await API.send(App.config.api, [{ role: 'user', content: orchestrated('長篇恢復') }]);
+  await WorldStateEngine.update(App.config, '長篇恢復', result.text);
+  assert.equal(owner.stateTracker.phase, 'updated');
+  assert.equal(owner.pendingStateTurns.length, 12, 'recovering one request must consume only four old turns');
+  owner.pendingStateTurns = [];
+  App.config.cost.stateInterval = 2;
 
   assert.equal(BAOSameModelStateMerge.visibleText('正文<BAO_STA'), '正文');
   assert.deepEqual(BAOSameModelStateMerge.splitFinal('正文<BAO_STATE>{"location":"街道"}</BAO_STATE>'), {

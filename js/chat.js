@@ -54,6 +54,16 @@ const Chat = {
     this.messages.push(message);
     return message;
   },
+  modelContent(message = {}) {
+    const semantic = String(message?.context_content || "").trim();
+    return semantic || String(message?.content || "");
+  },
+  modelMessages(messages = []) {
+    return (Array.isArray(messages) ? messages : []).map(message => {
+      if (message?.role !== "assistant" || !String(message?.context_content || "").trim()) return message;
+      return { ...message, content: this.modelContent(message) };
+    });
+  },
   turnCount(messages = this.messages) { return (Array.isArray(messages) ? messages : []).filter(message => message?.role === "user").length; },
   recent(maxRounds, mode) { if (mode === "full") return this.messages; return this.messages.slice(-Math.max(1, maxRounds) * 2); },
   pressure(config) { const limit = Math.max(1, Number(config?.memory?.maxContext || 64000)); return this.lastStoryPromptTokens > 0 ? this.lastStoryPromptTokens / limit : 0; },
@@ -77,9 +87,9 @@ const Chat = {
     if (mode === "full") {
       this.contextGuard = { level: "manual", ratio: this.pressure(config), recentRounds: configuredRounds };
       this.renderGuard();
-      return [...this.messages];
+      return this.modelMessages(this.messages);
     }
-    if (mode === "rounds") return this.messages.slice(-this.protectedRounds(config) * 2);
+    if (mode === "rounds") return this.modelMessages(this.messages.slice(-this.protectedRounds(config) * 2));
     const rounds = this.protectedRounds(config);
     // Integrity invariant: raw source may be omitted only after a successful
     // summary covers it. Under pressure we prefer a larger request (or an
@@ -100,7 +110,7 @@ const Chat = {
     this.renderGuard();
     const result = [];
     if (this.summary) result.push({ role: "system", content: `【長期記憶摘要】\n以下內容是較早對話的壓縮記憶，請保持人物關係、重要事件、承諾、偏好與未解決事項的一致性。\n${this.summary}` });
-    result.push(...recent);
+    result.push(...this.modelMessages(recent));
     return result;
   },
 
@@ -121,7 +131,8 @@ const Chat = {
       recentRounds,
       hasSummary: Boolean(this.summary),
       health: { ...(this.memoryHealth || {}) },
-      model: config?.memory?.summaryApi?.model || config?.memory?.summaryModel || config?.api?.model || ""
+      model: config?.memory?.summaryApiMode !== "same" && config?.memory?.summaryApi?.model && config?.memory?.summaryApi?.baseUrl
+        ? config.memory.summaryApi.model : (config?.api?.model || "")
     };
   },
 
@@ -157,9 +168,11 @@ const Chat = {
     const overflow = this.messages.length - keepMessages;
     const interval = Math.max(2, Number(config?.memory?.summaryInterval || 4)) * 2;
     if (overflow - this.summarizedUntil < (force ? 4 : interval)) return;
-    const memoryApi = config?.memory?.summaryApi?.model && config?.memory?.summaryApi?.baseUrl
-      ? config.memory.summaryApi
-      : config?.api;
+    // A saved summaryModel without an explicit separate route is legacy metadata.
+    // In "same" mode it must never overwrite the active provider's model ID.
+    const separateMemory = config?.memory?.summaryApiMode !== "same" &&
+      Boolean(config?.memory?.summaryApi?.model && config?.memory?.summaryApi?.baseUrl);
+    const memoryApi = separateMemory ? config.memory.summaryApi : config?.api;
     window.BAOCreditsPilot?.prepareAccountConfig?.(memoryApi);
     if (!memoryApi?.key && !window.BAOCreditsPilot?.isAccountReady?.(memoryApi)) {
       this.memoryHealth = {
@@ -167,7 +180,7 @@ const Chat = {
         phase: "failed",
         message: "記憶整理模型尚未連線；原始對話仍完整保留。",
         lastFailureAt: new Date().toISOString(),
-        lastModel: memoryApi?.model || config?.memory?.summaryModel || config?.api?.model || ""
+        lastModel: memoryApi?.model || ""
       };
       return;
     }
@@ -181,25 +194,25 @@ const Chat = {
     let chars = 0;
     let boundedEnd = start;
     for (let i = start; i < end; i++) {
-      const size = String(this.messages[i]?.content || "").length;
+      const size = this.modelContent(this.messages[i]).length;
       if (boundedEnd > start && chars + size > charBudget) break;
       chars += size;
       boundedEnd = i + 1;
     }
     end = boundedEnd;
     const chunk = this.messages.slice(start, end);
-    const sourceSignature = JSON.stringify(chunk.map(m => [m.id, m.content]));
+    const sourceSignature = JSON.stringify(chunk.map(m => [m.id, m.content, m.context_content || ""]));
     if (!chunk.length) return;
     this.summarizing = true;
     this.memoryHealth = {
       ...(this.memoryHealth || {}),
       phase: "running",
       message: `正在整理 ${this.turnCount(chunk)} 輪舊對話。`,
-      lastModel: config?.memory?.summaryApi?.model || config?.memory?.summaryModel || config?.api?.model || "",
+      lastModel: memoryApi?.model || "",
       repaired: false
     };
     try {
-      const transcript = chunk.map(m => `${m.role === "user" ? "玩家" : "角色/系統"}：${m.content}`).join("\n\n");
+      const transcript = chunk.map(m => `${m.role === "user" ? "玩家" : "角色/系統"}：${m.role === "assistant" ? this.modelContent(m) : m.content}`).join("\n\n");
       const prompt = [
         "你是角色扮演長期記憶整理器。",
         "請把舊對話壓縮成精簡但可延續劇情的記憶。",
@@ -211,7 +224,6 @@ const Chat = {
         force ? "目前 Context 使用率偏高，請進一步壓縮，輸出新的完整摘要，盡量控制在 600～1200 字。" : "請輸出新的完整長期記憶摘要，建議 800～1600 字以內。"
       ].filter(Boolean).join("\n\n");
       const summaryConfig = { ...memoryApi, __memoryTask: true, cacheEnabled: false };
-      if (!config?.memory?.summaryApi?.model && config?.memory?.summaryModel) summaryConfig.model = config.memory.summaryModel;
       const result = await API.send(summaryConfig, [{ role: "system", content: "你是 Observer，不是作者。只輸出記憶規格 JSON，不要續寫故事或模仿正文文風。" }, { role: "user", content: prompt }]);
       const normalized = await this.normalizeMemoryResult(summaryConfig, result?.text || "");
       const summary = normalized.summary;
@@ -227,7 +239,7 @@ const Chat = {
         return;
       }
       if (window.GameState?.current !== owner || this.summary !== previousSummary || this.summarizedUntil !== start
-        || JSON.stringify(this.messages.slice(start, end).map(m => [m.id, m.content])) !== sourceSignature) return;
+        || JSON.stringify(this.messages.slice(start, end).map(m => [m.id, m.content, m.context_content || ""])) !== sourceSignature) return;
       this.summary = summary;
       this.summarizedUntil = end;
       this.memoryHealth = {
@@ -245,7 +257,7 @@ const Chat = {
         phase: "failed",
         message: String(err?.message || "記憶整理失敗；原始對話仍完整保留。").slice(0, 220),
         lastFailureAt: new Date().toISOString(),
-        lastModel: config?.memory?.summaryApi?.model || config?.memory?.summaryModel || config?.api?.model || ""
+        lastModel: memoryApi?.model || ""
       };
       console.warn("BAO/LAB memory summary failed:", err);
     }
@@ -356,7 +368,10 @@ const Chat = {
     if (App?.config?.memory?.mode === "smart") {
       const diag = this.memoryDiagnostics(App.config);
       if (this.summarizing || diag.health.phase === "running") return `${rounds} 輪 · 整理中`;
-      if (diag.health.phase === "failed") return `${rounds} 輪 · 摘要失敗`;
+      if (diag.health.phase === "failed") {
+        const retryAt = Date.parse(diag.health.cooldownUntil || "");
+        return `${rounds} 輪 · ${Number.isFinite(retryAt) && retryAt > Date.now() ? "摘要暫停待重試" : "摘要失敗"}`;
+      }
       if (this.summary) return `${rounds} 輪 · 已摘要 ${diag.coveredRounds} 輪`;
       if (diag.pendingRounds > 0) return `${rounds} 輪 · 待整理 ${diag.pendingRounds} 輪`;
       return `${rounds} 輪 · 近期原文`;

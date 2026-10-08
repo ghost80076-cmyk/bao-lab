@@ -1,5 +1,5 @@
 /* Gameplay UI Engine theme layer. Presets are platform-owned; authors only choose safe tokens from schema. */
-#game-ui[data-gameplay-theme],.gameplay-builder[data-gameplay-theme]{
+#game-ui[data-gameplay-theme],.gameplay-builder[data-gameplay-theme],.gameplay-dashboard-panel[data-gameplay-theme],.gameplay-scene-stage[data-gameplay-theme]{
   --gameplay-accent:#d6a94f;
   --gameplay-surface:#171715;
   --gameplay-surface-alt:#20201d;
@@ -11,16 +11,16 @@
   --gameplay-section-padding:14px;
   --gameplay-gap:12px
 }
-#game-ui[data-gameplay-theme="arcane-night"],.gameplay-builder[data-gameplay-theme="arcane-night"]{
+#game-ui[data-gameplay-theme="arcane-night"],.gameplay-builder[data-gameplay-theme="arcane-night"],.gameplay-dashboard-panel[data-gameplay-theme="arcane-night"],.gameplay-scene-stage[data-gameplay-theme="arcane-night"]{
   --gameplay-accent:#d8bc75;--gameplay-surface:#10172a;--gameplay-surface-alt:#19223b;--gameplay-text:#f1ead8;--gameplay-border:rgba(216,188,117,.25);--gameplay-muted:#9fa8bd
 }
-#game-ui[data-gameplay-theme="stage-neon"],.gameplay-builder[data-gameplay-theme="stage-neon"]{
+#game-ui[data-gameplay-theme="stage-neon"],.gameplay-builder[data-gameplay-theme="stage-neon"],.gameplay-dashboard-panel[data-gameplay-theme="stage-neon"],.gameplay-scene-stage[data-gameplay-theme="stage-neon"]{
   --gameplay-accent:#d8a8ff;--gameplay-surface:#17121f;--gameplay-surface-alt:#24182f;--gameplay-text:#f6efff;--gameplay-border:rgba(216,168,255,.24);--gameplay-muted:#beaeca
 }
-#game-ui[data-gameplay-theme="parchment"],.gameplay-builder[data-gameplay-theme="parchment"]{
+#game-ui[data-gameplay-theme="parchment"],.gameplay-builder[data-gameplay-theme="parchment"],.gameplay-dashboard-panel[data-gameplay-theme="parchment"],.gameplay-scene-stage[data-gameplay-theme="parchment"]{
   --gameplay-accent:#9a6b32;--gameplay-surface:#eadfbe;--gameplay-surface-alt:#f2e8cc;--gameplay-text:#40301f;--gameplay-border:rgba(95,68,35,.25);--gameplay-muted:#77634c
 }
-#game-ui[data-gameplay-theme="noir"],.gameplay-builder[data-gameplay-theme="noir"]{
+#game-ui[data-gameplay-theme="noir"],.gameplay-builder[data-gameplay-theme="noir"],.gameplay-dashboard-panel[data-gameplay-theme="noir"],.gameplay-scene-stage[data-gameplay-theme="noir"]{
   --gameplay-accent:#d8d8d8;--gameplay-surface:#111214;--gameplay-surface-alt:#1b1d20;--gameplay-text:#eeeeef;--gameplay-border:rgba(255,255,255,.14);--gameplay-muted:#a5a7aa
 }
 [data-gameplay-density="compact"]{--gameplay-section-padding:10px;--gameplay-gap:8px}
@@ -44,9 +44,140 @@
 .gameplay-stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px}.gameplay-stat-grid>div{padding:10px;border-radius:var(--gameplay-small-radius);background:var(--gameplay-surface-alt);border:1px solid color-mix(in srgb,var(--gameplay-border) 72%,transparent)}.gameplay-stat-grid small{display:block;color:var(--gameplay-muted);margin-bottom:4px}.gameplay-stat-grid b{overflow-wrap:anywhere;color:var(--gameplay-text)}
 .gameplay-list{display:grid;gap:6px}.gameplay-list>div{padding:7px 9px;border-radius:var(--gameplay-small-radius);background:var(--gameplay-surface-alt)}.gameplay-list>span{color:var(--gameplay-muted)}
 .gameplay-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.gameplay-actions small{color:var(--gameplay-muted)}.gameplay-actions button{border-color:var(--gameplay-border)}.gameplay-actions button:hover{border-color:var(--gameplay-accent)}
+
+.gameplay-card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:9px}
+.gameplay-data-card{display:grid;gap:7px;padding:11px;border:1px solid color-mix(in srgb,var(--gameplay-border) 82%,transparent);border-radius:var(--gameplay-small-radius);background:var(--gameplay-surface-alt);min-width:0}
+.gameplay-data-card header{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.gameplay-data-card header strong{color:var(--gameplay-text);overflow-wrap:anywhere}
+.gameplay-data-card header span{flex:0 0 auto;padding:2px 7px;border:1px solid var(--gameplay-border);border-radius:999px;color:var(--gameplay-accent);font-size:.72rem}
+.gameplay-data-card p{margin:0;color:var(--gameplay-muted);font-size:.84rem;line-height:1.45;overflow-wrap:anywhere}
+.gameplay-data-card .gameplay-card-lead{color:var(--gameplay-text);font-weight:600}
+.gameplay-card-tags{display:flex;flex-wrap:wrap;gap:5px}
+.gameplay-card-tags small{padding:3px 6px;border-radius:999px;background:color-mix(in srgb,var(--gameplay-accent) 8%,transparent);color:var(--gameplay-muted)}
+.gameplay-data-card[data-card-variant="quest"]{border-left:3px solid var(--gameplay-accent)}
+.gameplay-data-card[data-card-variant="party"] header span{color:var(--gameplay-text)}
+.gameplay-data-card[data-card-variant="skill"] header span{font-weight:700}
+.gameplay-card-empty{color:var(--gameplay-muted)}
+
+/* Gameplay UI v1.4: reusable archive tabs, location archive, and timeline. */
+.gameplay-tabbed-archive{overflow:hidden}
+.gameplay-archive-tabs{display:flex;gap:0;margin:calc(var(--gameplay-section-padding) * -1) calc(var(--gameplay-section-padding) * -1) 12px;overflow-x:auto;scrollbar-width:none;border-bottom:1px solid var(--gameplay-border)}
+.gameplay-archive-tabs::-webkit-scrollbar{display:none}
+.gameplay-archive-tab{flex:0 0 auto;min-width:108px;padding:11px 14px;border:0;border-radius:0;background:transparent;color:var(--gameplay-muted);white-space:nowrap}
+.gameplay-archive-tab:hover{background:color-mix(in srgb,var(--gameplay-accent) 7%,transparent)}
+.gameplay-archive-tab.active{background:color-mix(in srgb,var(--gameplay-accent) 18%,var(--gameplay-surface));color:var(--gameplay-text);box-shadow:inset 0 -2px var(--gameplay-accent)}
+.gameplay-archive-pane{display:grid;gap:var(--gameplay-gap)}
+.gameplay-archive-pane[hidden]{display:none!important}
+.gameplay-archive-pane>.gameplay-ui-section{box-shadow:none}
+.gameplay-tabbed-archive>.gameplay-archive-pane>.gameplay-ui-section{background:var(--gameplay-surface-alt)}
+
+.gameplay-location-archive{display:grid;gap:12px}
+.gameplay-location-title{display:grid;gap:3px}
+.gameplay-location-title>span{font-size:.68rem;letter-spacing:.14em;color:var(--gameplay-muted)}
+.gameplay-location-title>h4{margin:0;font-size:1rem}
+.gameplay-location-media{position:relative;min-height:180px;aspect-ratio:16/9;overflow:hidden;border-radius:var(--gameplay-small-radius);background:var(--gameplay-surface-alt);border:1px solid var(--gameplay-border)}
+.gameplay-location-media img{width:100%;height:100%;display:block;object-fit:cover}
+.gameplay-location-archive[data-scene-fit="contain"] .gameplay-location-media img{object-fit:contain}
+.gameplay-location-placeholder{display:none;position:absolute;inset:0;place-items:center;color:color-mix(in srgb,var(--gameplay-accent) 52%,var(--gameplay-muted));font-size:1.1rem;letter-spacing:.2em;background:linear-gradient(145deg,var(--gameplay-surface),var(--gameplay-surface-alt))}
+.gameplay-location-archive.is-empty .gameplay-location-placeholder{display:grid}
+.gameplay-location-facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.gameplay-location-facts>div{padding:10px;border-radius:var(--gameplay-small-radius);background:var(--gameplay-surface-alt);border:1px solid color-mix(in srgb,var(--gameplay-border) 78%,transparent)}
+.gameplay-location-facts small{display:block;margin-bottom:4px;font-size:.68rem;letter-spacing:.09em;color:var(--gameplay-muted)}
+.gameplay-location-facts b{display:block;color:var(--gameplay-text);overflow-wrap:anywhere}
+.gameplay-location-index{display:grid;gap:8px}
+.gameplay-location-index h5{margin:0;color:var(--gameplay-accent);font-size:.8rem;letter-spacing:.1em}
+.gameplay-destination-list{display:grid;gap:8px}
+.gameplay-destination-card{display:grid;gap:6px;padding:10px;border:1px solid var(--gameplay-border);border-radius:var(--gameplay-small-radius);background:var(--gameplay-surface-alt)}
+.gameplay-destination-card.is-current{border-color:color-mix(in srgb,var(--gameplay-accent) 62%,var(--gameplay-border));box-shadow:inset 3px 0 var(--gameplay-accent)}
+.gameplay-destination-card header{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.gameplay-destination-card header span{padding:2px 7px;border-radius:999px;background:color-mix(in srgb,var(--gameplay-accent) 14%,transparent);color:var(--gameplay-accent);font-size:.7rem}
+.gameplay-destination-card p{margin:0;color:var(--gameplay-muted);font-size:.84rem;line-height:1.45}
+.gameplay-destination-card button{justify-self:end}
+
+.gameplay-timeline-list{display:grid;gap:0}
+.gameplay-timeline-entry{position:relative;display:grid;grid-template-columns:14px minmax(0,1fr);gap:9px;padding:0 0 13px}
+.gameplay-timeline-entry:last-child{padding-bottom:0}
+.gameplay-timeline-entry>i{position:relative;width:9px;height:9px;margin-top:5px;border:2px solid var(--gameplay-accent);border-radius:50%;background:var(--gameplay-surface)}
+.gameplay-timeline-entry:not(:last-child)>i:after{content:"";position:absolute;top:9px;left:2px;width:1px;height:calc(100% + 12px);background:var(--gameplay-border)}
+.gameplay-timeline-entry header{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.gameplay-timeline-entry header span{font-size:.7rem;color:var(--gameplay-accent)}
+.gameplay-timeline-entry small{display:block;margin-top:2px;color:var(--gameplay-muted)}
+.gameplay-timeline-entry p{margin:5px 0 0;color:var(--gameplay-muted);line-height:1.45}
+.gameplay-timeline-entry.is-diff p{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.gameplay-timeline-entry.is-diff p span{padding:3px 6px;border-radius:6px;background:var(--gameplay-surface-alt);color:var(--gameplay-text)}
+.gameplay-timeline-entry.is-diff p b{color:var(--gameplay-accent)}
 #game-ui[data-gameplay-theme] .ui-tabs .gameplay-ui-tab.active,#game-ui[data-gameplay-theme] .ui-tabs [data-gameplay-original-label].active{border-color:var(--gameplay-accent);color:var(--gameplay-accent)}
 
 @media(max-width:680px){
   .gameplay-builder-head{display:grid}.gameplay-builder-attribute{grid-template-columns:1fr auto}.gameplay-builder-attribute>span{grid-column:1/-1;text-align:left}.gameplay-builder-fields{grid-template-columns:1fr}.gameplay-stat-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
-  #game-ui[data-gameplay-theme]{--gameplay-section-padding:11px;--gameplay-gap:9px}
+  #game-ui[data-gameplay-theme]{--gameplay-section-padding:11px;--gameplay-gap:9px}.gameplay-card-grid{grid-template-columns:1fr}.gameplay-archive-tab{min-width:104px;padding:10px 12px}.gameplay-location-media{min-height:150px}.gameplay-location-facts{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+
+
+/* Gameplay UI v1.1: platform-owned responsive RPG dashboard layout. */
+.gameplay-dashboard-panel{display:grid;gap:10px;margin:10px 0;color:var(--gameplay-text)}
+.gameplay-dashboard-panel-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:0 2px 7px;border-bottom:1px solid var(--gameplay-border)}
+.gameplay-dashboard-panel-head span{font-size:.62rem;letter-spacing:.14em;color:var(--gameplay-muted)}
+.gameplay-dashboard-panel-head b{font-size:.82rem;color:var(--gameplay-accent);text-align:right}
+.gameplay-dashboard-panel .gameplay-ui-section{padding:11px;border-radius:var(--gameplay-small-radius)}
+.gameplay-dashboard-panel .gameplay-ui-section h4{font-size:.82rem;margin-bottom:8px}
+.gameplay-dashboard-panel .gameplay-stat-grid{grid-template-columns:1fr}
+.gameplay-dashboard-panel .gameplay-stat-grid>div{padding:8px}
+.gameplay-dashboard-panel .gameplay-actions{display:grid}
+.gameplay-dashboard-panel .gameplay-actions button{width:100%;text-align:left}
+.gameplay-dashboard-panel .gameplay-actions small{display:block}
+
+@media(min-width:1081px){
+  #chat-view[data-gameplay-layout="rpg-dashboard"] #game-ui{display:none!important}
+  #chat-view[data-gameplay-layout="rpg-dashboard"] .chat-layout>aside:not(.bao-status-rail){border-color:var(--story-border,rgba(255,255,255,.1));background:var(--yoru-tool,#101116)}
+  #chat-view[data-gameplay-layout="rpg-dashboard"] #bao-gameplay-dashboard-left{margin:8px 0 12px;padding:10px 0;border-top:1px solid var(--gameplay-border);border-bottom:1px solid var(--gameplay-border)}
+  #chat-view[data-gameplay-layout="rpg-dashboard"] #bao-gameplay-dashboard-right{margin:0 0 12px;padding:0 0 12px;border-bottom:1px solid var(--gameplay-border)}
+}
+@media(min-width:1430px){
+  #chat-view[data-gameplay-layout="rpg-dashboard"] .chat-layout{grid-template-columns:minmax(220px,250px) minmax(0,1fr) minmax(270px,310px)!important}
+  #chat-view[data-gameplay-layout="rpg-dashboard"] .chat-layout.bao-status-collapsed{grid-template-columns:minmax(220px,250px) minmax(0,1fr)!important}
+}
+@media(max-width:1080px){
+  #bao-gameplay-dashboard-left{display:none!important}
+  .gameplay-dashboard-panel .gameplay-stat-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+
+
+/* Gameplay UI v1.2: Scene RPG keeps one persistent visual stage beside the story. */
+.gameplay-scene-stage{display:none;min-width:0;color:var(--gameplay-text)}
+.gameplay-scene-visual{position:relative;height:100%;min-height:0;overflow:hidden;border:1px solid var(--gameplay-border);border-radius:var(--gameplay-radius);background:var(--gameplay-surface);box-shadow:0 20px 52px #0006}
+.gameplay-scene-visual>img{width:100%;height:100%;display:block;object-fit:cover;background:var(--gameplay-surface-alt)}
+.gameplay-scene-stage[data-scene-fit="contain"] .gameplay-scene-visual>img{object-fit:contain}
+.gameplay-scene-placeholder{display:none;position:absolute;inset:0;place-items:center;align-content:center;gap:7px;text-align:center;color:var(--gameplay-muted);background:linear-gradient(145deg,var(--gameplay-surface),var(--gameplay-surface-alt))}
+.gameplay-scene-placeholder b{font-size:clamp(2rem,5vw,4.6rem);letter-spacing:.16em;color:color-mix(in srgb,var(--gameplay-accent) 45%,transparent)}
+.gameplay-scene-placeholder span{font-size:.84rem}
+.gameplay-scene-stage.is-empty .gameplay-scene-placeholder{display:grid}
+.gameplay-scene-shade{position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,transparent 52%,rgba(0,0,0,.72) 100%)}
+.gameplay-scene-meta{position:absolute;left:18px;right:18px;bottom:17px;display:flex;align-items:end;justify-content:space-between;gap:14px;color:#fff;text-shadow:0 2px 12px #000}
+.gameplay-scene-meta span{font-size:.74rem;opacity:.78}
+.gameplay-scene-meta strong{font-size:clamp(1rem,1.45vw,1.35rem);text-align:right}
+
+@media(min-width:1280px){
+  #chat-view[data-gameplay-layout="scene-rpg"] .chat-layout,
+  #chat-view[data-gameplay-layout="scene-rpg"] .chat-layout.bao-status-collapsed{
+    grid-template-columns:minmax(180px,205px) minmax(420px,1.15fr) minmax(390px,.9fr)!important;
+    align-items:stretch
+  }
+  #chat-view[data-gameplay-layout="scene-rpg"] .gameplay-scene-stage{
+    display:block;position:sticky;top:92px;height:calc(100dvh - 116px);max-height:820px;align-self:start
+  }
+  #chat-view[data-gameplay-layout="scene-rpg"] .chat-main{min-height:calc(100dvh - 116px)}
+  #chat-view[data-gameplay-layout="scene-rpg"] .bao-status-rail,
+  #chat-view[data-gameplay-layout="scene-rpg"] #bao-reading-status-toggle{display:none!important}
+  #chat-view[data-gameplay-layout="scene-rpg"] .chat-stream{min-height:420px;max-height:none}
+  #chat-view[data-gameplay-layout="scene-rpg"] #game-ui{display:block!important}
+}
+@media(min-width:1600px){
+  #chat-view[data-gameplay-layout="scene-rpg"] .chat-layout,
+  #chat-view[data-gameplay-layout="scene-rpg"] .chat-layout.bao-status-collapsed{
+    grid-template-columns:minmax(190px,220px) minmax(540px,1.28fr) minmax(430px,.86fr)!important
+  }
+}
+@media(max-width:1279px){
+  #chat-view[data-gameplay-layout="scene-rpg"] .gameplay-scene-stage{display:none!important}
 }

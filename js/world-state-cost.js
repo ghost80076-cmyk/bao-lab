@@ -3,6 +3,7 @@
 
   const originalUpdate = WorldStateEngine.update.bind(WorldStateEngine);
   let persistenceHint = false;
+  const activeOwners = new WeakSet();
 
   const queue = () => {
     if (!window.GameState?.current) return [];
@@ -124,8 +125,10 @@
     window.BAOStatusUsageIntegrity?.registerNamedNPCs?.(assistantText);
     const pending = queue();
     pending.push({ player: String(playerText || ""), assistant: String(assistantText || "") });
-    if (pending.length > 12) pending.splice(0, pending.length - 12);
+    if (!activeOwners.has(owner) && pending.length > 12) pending.splice(0, pending.length - 12);
     persistenceHint = true;
+    // Queue newer turns while one request is in flight; never resend its batch.
+    if (activeOwners.has(owner)) return scenePatch;
     const interval = this.interval(config);
     if (pending.length < interval) {
       report(owner, "waiting", `${scenePatch ? '已同步回覆明示的時間／地點；' : ''}已累積 ${pending.length}／${interval} 輪。繼續故事即可，系統會在達到整理回合時自動更新。`);
@@ -164,6 +167,7 @@
     const combinedPlayer = batch.map((turn, index) => `第 ${index + 1} 輪：${turn.player}`).join("\n\n");
     const combinedAssistant = batch.map((turn, index) => `第 ${index + 1} 輪：${turn.assistant}`).join("\n\n");
     report(owner, "updating", `正在整理 ${batch.length} 輪${pending.length > batch.length ? `（其餘 ${pending.length - batch.length} 輪排隊）` : ""}，完成後會自動套用最新狀態。`);
+    activeOwners.add(owner);
     try {
       const result = await originalUpdate(patched, combinedPlayer, combinedAssistant);
       if (GameState.current !== owner) return null;
@@ -188,6 +192,8 @@
         `狀態整理失敗：${String(error?.message || error).slice(0, 180)}`
       );
       return scenePatch;
+    } finally {
+      activeOwners.delete(owner);
     }
   };
 

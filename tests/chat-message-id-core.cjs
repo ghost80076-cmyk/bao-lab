@@ -38,4 +38,10 @@ assert.equal(Chat.ensureMessageIds(migrated)[1].id, "msg-stable", "existing IDs 
 const preservedTime = Chat.ensureMessageIds([{ role: "assistant", content: "舊訊息", createdAt: "2026-09-14T01:02:03.000Z" }]);
 assert.equal(preservedTime[0].createdAt, "2026-09-14T01:02:03.000Z", "existing message time must remain stable");
 
+const renderedGreeting = Chat.normalizeMessage({ role: "assistant", content: "<style>.op{color:red}</style><div class=\"op\">華麗開場</div>", context_content: "雨夜，角色在屋簷下向玩家開口。" });
+const modelGreeting = Chat.modelMessages([renderedGreeting])[0];
+assert.equal(modelGreeting.content, "雨夜，角色在屋簷下向玩家開口。", "authored semantic context replaces rendered greeting for model input");
+assert.match(renderedGreeting.content, /<style>/, "rendered greeting remains untouched for UI and backups");
+assert.equal(renderedGreeting.context_content, "雨夜，角色在屋簷下向玩家開口。");
+
 console.log("chat message ID core test passed");

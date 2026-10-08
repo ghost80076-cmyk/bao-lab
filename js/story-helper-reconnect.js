@@ -41,8 +41,32 @@
     config.cost.stateModel = '';
     return changed;
   };
+  const normalizeMemoryRoute = config => {
+    if (!config || typeof config !== 'object') return false;
+    config.memory ||= {};
+    const route = config.memory.summaryApi;
+    const mode = String(config.memory.summaryApiMode || '').trim();
+    if (mode === 'same') {
+      const changed = Boolean(route || config.memory.summaryModel);
+      config.memory.summaryApi = null;
+      config.memory.summaryModel = '';
+      return changed;
+    }
+    if (isSeparate(route)) {
+      const changed = mode !== 'separate' || config.memory.summaryModel !== route.model;
+      config.memory.summaryApiMode = 'separate';
+      config.memory.summaryModel = route.model;
+      return changed;
+    }
+    const changed = Boolean(route || config.memory.summaryModel || mode === 'separate');
+    config.memory.summaryApi = null;
+    config.memory.summaryApiMode = 'same';
+    config.memory.summaryModel = '';
+    return changed;
+  };
   const reconcile = (previous, config) => {
     normalizeStateRoute(config);
+    normalizeMemoryRoute(config);
     for (const kind of ['state', 'memory']) {
       const route = getRoute(config, kind);
       if (!isSeparate(route)) continue;
@@ -64,6 +88,7 @@
 
   function enhance() {
     normalizeStateRoute(App.config);
+    normalizeMemoryRoute(App.config);
     const backdrop = document.getElementById('bao-chat-api-backdrop');
     const form = backdrop?.querySelector('form');
     if (!form || form.querySelector('.bao-helper-reconnect')) return;
@@ -139,10 +164,9 @@
           App.config.cost ||= {};
           const update = (kind, settings, routeName, modelName, modeName) => {
             const route = changes[kind];
-            const prior = settings[routeName];
             settings[routeName] = route;
             settings[modeName] = route ? 'separate' : 'same';
-            settings[modelName] = route?.model || (kind === 'state' ? '' : (prior ? '' : settings[modelName] || ''));
+            settings[modelName] = route?.model || '';
           };
           update('state', App.config.cost, 'stateApi', 'stateModel', 'stateApiMode');
           update('memory', App.config.memory, 'summaryApi', 'summaryModel', 'summaryApiMode');
@@ -187,6 +211,6 @@
     };
     enhance();
   }
-  window.BAOStoryHelperReconnect = { sameConnection, reconcile, missing, normalizeStateRoute, enhance, install };
+  window.BAOStoryHelperReconnect = { sameConnection, reconcile, missing, normalizeStateRoute, normalizeMemoryRoute, enhance, install };
   install();
 })();

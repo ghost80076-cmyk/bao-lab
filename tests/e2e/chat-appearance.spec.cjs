@@ -38,7 +38,7 @@ for (const viewport of [{ name: 'desktop', width: 1440, height: 900 }, { name: '
     await playerModal.locator('#bao-bubble-radius').fill('23');
 
     await playerModal.locator('[data-appearance-tab="text"]').click();
-    await playerModal.locator('#bao-font-size').fill('20');
+    await playerModal.locator('#bao-font-size').fill('24');
     await playerModal.locator('#bao-font-family').selectOption('serif');
 
     await playerModal.locator('[data-appearance-tab="background"]').click();
@@ -82,7 +82,7 @@ for (const viewport of [{ name: 'desktop', width: 1440, height: 900 }, { name: '
       radius: node.style.getPropertyValue('--chat-bubble-radius')
     }));
     expect(appearance).toMatchObject({
-      font: '20px',
+      font: '24px',
       image: 'url("https://example.com/test-background.png")',
       opacity: '0.45',
       blur: '5px',
@@ -129,16 +129,16 @@ for (const viewport of [{ name: 'desktop', width: 1440, height: 900 }, { name: '
     expect(rendered.userBg).not.toBe('rgba(0, 0, 0, 0)');
     expect(rendered.assistantText).toBe('rgb(171, 205, 239)');
     expect(rendered.userText).toBe('rgb(254, 220, 186)');
-    expect(rendered.assistantFontSize).toBe('20px');
-    expect(rendered.userFontSize).toBe('20px');
-    expect(rendered.platformSceneFontSize).toBe('20px');
+    expect(rendered.assistantFontSize).toBe('24px');
+    expect(rendered.userFontSize).toBe('24px');
+    expect(rendered.platformSceneFontSize).toBe('24px');
     expect(rendered.authorTextFontSize).toBe('13px');
     expect(rendered.radius).toBe('23px');
 
     await page.reload();
     const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('bao-lab:player-settings')).appearance);
     expect(saved).toMatchObject({
-      fontSize: 20,
+      fontSize: 24,
       fontFamily: 'serif',
       bgMode: 'custom',
       customBg: 'https://example.com/test-background.png',

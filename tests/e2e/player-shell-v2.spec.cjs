@@ -169,3 +169,26 @@ test.describe('Player 2.0 shell', () => {
   });
 
 });
+
+// The production reading hierarchy has stronger selectors than the generic appearance styles.
+for (const width of [1440, 390]) {
+  test(`reading hierarchy at ${width}px honors maximum message font size`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto('/');
+    await page.evaluate(() => {
+      const view = document.querySelector('#chat-view');
+      view.classList.add('bao-player-reading-v2');
+      view.dataset.baoSurface = 'play';
+      view.style.setProperty('--chat-font-size', '24px');
+      document.querySelector('#chat-stream').innerHTML = '<div class="message user"><div class="bubble">我抬起眼睛，為什麼要幫助我？</div></div><div class="message assistant"><div class="bubble">河邊的冷風吹過。</div></div>';
+    });
+    for (const role of ['user', 'assistant']) {
+      await expect(page.locator(`#chat-stream .message.${role} .bubble`)).toHaveCSS('font-size', '24px');
+    }
+    // Existing messages also follow subsequent setting changes without a rerender.
+    await page.locator('#chat-view').evaluate(node => node.style.setProperty('--chat-font-size', '18px'));
+    for (const role of ['user', 'assistant']) {
+      await expect(page.locator(`#chat-stream .message.${role} .bubble`)).toHaveCSS('font-size', '18px');
+    }
+  });
+}

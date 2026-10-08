@@ -1,4 +1,4 @@
-# BAO/LAB Gameplay UI Engine v1
+# BAO/LAB Gameplay UI Engine v1.4
 
 這是一個**角色卡明確 opt-in 才會啟用**的通用遊戲介面層。它不取代既有角色卡 UI，也不要求現有作品遷移。
 
@@ -98,6 +98,116 @@ Gameplay UI 的資料結構與外觀分離。作者不需要寫專屬 JS，也�
   }
 }
 ```
+
+## v1.4 Archive Layer
+
+Gameplay UI 新增三個平台原生 section，用來取代作品各自手寫的分頁 HTML／地點檔案／歷程面板。
+
+### `tabs`
+
+`tabs` 是安全的 section 容器；每個 tab 只能再放一般 section，禁止 tabs 巢狀 tabs，避免 DOM 與互動無限巢狀。
+
+```json
+{
+  "type": "tabs",
+  "id": "story_archive",
+  "default_tab": "live",
+  "tabs": [
+    { "id": "live", "label": "即時狀態", "sections": [] },
+    { "id": "relation", "label": "關係狀態", "sections": [] },
+    { "id": "changes", "label": "本輪變動", "sections": [] },
+    { "id": "history", "label": "完整歷程", "sections": [] }
+  ]
+}
+```
+
+手機版 tab bar 橫向滑動，不把大量分頁擠成多行。
+
+### `location_archive`
+
+顯示場景圖、時間、地點、區域／狀態與可前往地點。圖片來源沿用 Scene RPG 的 `story-gallery` / `reading-background` / `avatar`；本機故事圖不會送進模型。
+
+目的地資料可以包含 `name`、`summary`、`current`、`draft`。`draft` 只填入玩家輸入框，不會自動送出。
+
+### `timeline`
+
+- `mode: history`：讀取作者指定的安全 `path`，把事件資料畫成歷程時間線。
+- `mode: round_diff`：只比較作者在 `items[].path` 明確列出的玩家可見狀態。更新前後由前端比較，不要求模型另外撰寫「本輪變動」。
+
+`round_diff` 不掃描整份 GameState，只能監看既有安全 display path（`time` / `location` / `events` / `npcs` / `modules.*`），因此不會自動碰 API 設定或未宣告的隱藏資料。
+## v1.3 Native data cards
+
+`panels[].sections[]` 新增 `cards`，用同一套安全 renderer 顯示結構化遊戲資料，不需要模型輸出 HTML。
+
+支援四種 `variant`：
+
+- `codex`：人物圖鑑，適合直接讀 `npcs`；Renderer 只顯示玩家可見欄位，不顯示 NPC `notes`／內部筆記。
+- `quest`：任務卡，建議資料放在 `modules.quest_log.quests`。
+- `party`：隊伍成員卡，建議資料放在 `modules.party.members`。
+- `skill`：技能卡，建議資料放在 `modules.player.skills`。
+
+範例：
+
+```json
+{
+  "type": "cards",
+  "title": "任務",
+  "path": "modules.quest_log.quests",
+  "variant": "quest",
+  "limit": 6
+}
+```
+
+`cards` 仍只允許 Gameplay UI 原本的安全 display path：`time` / `location` / `events` / `npcs` / `modules.*`。variant 只決定前端如何整理欄位，不會新增模型呼叫，也不會把 DOM / HTML 放進故事 Context。
+## v1.1 Layout Layer
+
+角色卡可以選擇平台內建的版面 preset，而不是自己注入 HTML / CSS。
+
+目前支援：
+
+- `standard`：沿用原本 Gameplay UI tabs。
+- `rpg-dashboard`：桌機使用夜灣現有三欄骨架；左欄顯示指定 gameplay panel，中間保留故事閱讀與輸入，右欄把指定 gameplay panel 放進既有世界狀態 rail。窄螢幕會退回原本 tabs / 狀態抽屜，不另做一套手機 DOM。
+- `scene-rpg`：寬螢幕新增單一持續存在的場景舞台，中央偏左顯示場景圖，右側保留原本故事、Gameplay UI 與自由輸入。場景圖優先可讀玩家本機故事圖集；沒有圖時才回退作品閱讀背景或封面。1280px 以下自動退回原本聊天版面。
+
+範例：
+
+```json
+{
+  "gameplay_ui": {
+    "version": 1,
+    "layout": {
+      "preset": "rpg-dashboard",
+      "left_panel": "status",
+      "right_panel": "world"
+    },
+    "panels": [
+      { "id": "status", "label": "狀態", "sections": [] },
+      { "id": "world", "label": "世界", "sections": [] }
+    ]
+  }
+}
+```
+
+`left_panel` / `right_panel` 只能引用同一份 schema 已存在的 panel id。平台不接受 selector、任意 DOM 位置、URL、CSS 或 JavaScript。沒有宣告 layout 的舊卡等同 `standard`，完全維持原流程。
+
+
+Scene RPG 範例：
+
+```json
+{
+  "gameplay_ui": {
+    "version": 1,
+    "layout": {
+      "preset": "scene-rpg",
+      "right_panel": "world",
+      "scene_source": "story-gallery",
+      "scene_fit": "cover"
+    }
+  }
+}
+```
+
+`scene_source` 只接受平台列舉值：`story-gallery`、`reading-background`、`avatar`。預設 `story-gallery`，找不到本機場景圖時仍會回退作品背景／封面。作者不能直接在 layout 注入圖片 URL；若需要固定背景，沿用角色卡既有的 `reading_background` / `avatar` 欄位。 `scene_fit` 只接受 `cover` 或 `contain`。
 
 ## 不在 v1 範圍
 
