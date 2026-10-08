@@ -764,7 +764,8 @@ const WorkerProviderTransport = (() => {
     messages,
     maxOutput,
     player = null,
-    sessionId = ""
+    sessionId = "",
+    requestKind = "chat"
   ) {
     let endpoint;
     let init;
@@ -1080,6 +1081,11 @@ const WorkerProviderTransport = (() => {
         },
       };
   
+      // Only standalone status helpers use low thinking; story generation keeps its defaults.
+      if (requestKind === "status" && /^gemini-3(?:[.-])/.test(model)) {
+        payload.generationConfig.thinkingConfig = { thinkingLevel: "low" };
+      }
+
       if (system) {
         payload.systemInstruction =
           {

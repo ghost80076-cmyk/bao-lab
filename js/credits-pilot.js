@@ -431,6 +431,7 @@
     const cacheWrite = Number.isInteger(data.usage?.cache_write_tokens) ? data.usage.cache_write_tokens : null;
     const result = {
       text: data.content,
+      finishReason: data.finish_reason || null,
       usage: API.normalizeUsage({
         input_tokens: input,
         output_tokens: output,

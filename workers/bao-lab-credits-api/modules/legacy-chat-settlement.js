@@ -294,7 +294,8 @@ async function legacyChatRoute(
       messages,
       maxOutput,
       player,
-      sessionId
+      sessionId,
+      kind
     );
 
   if (
@@ -694,6 +695,7 @@ async function legacyChatRoute(
 
     content:
       result.text,
+    finish_reason: result.finishReason || null,
 
     usage: {
       input_tokens:
