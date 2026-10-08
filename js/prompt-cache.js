@@ -2,8 +2,8 @@
   if (window.BAOPromptCache || typeof App === "undefined" || typeof Chat === "undefined") return;
 
   const MEMORY_HEADERS = new Set(["玩家手動記憶", "Context Pack · 玩家已確認的前情", "Canon Core · 玩家已確認"]);
-  const DYNAMIC_HEADERS = new Set(["本輪動態角色規則", "目前核心狀態", "本輪相關世界資料", "本輪人物狀態", "本輪相關 NPC", "本輪相關 Canon", "世界時鐘"]);
-  const headerOf = block => String(block.match(/^【([^】]+)】/)?.[1] || "").trim();
+  const DYNAMIC_HEADERS = new Set(["本輪動態角色規則", "目前核心狀態", "本輪相關世界資料", "本輪人物狀態", "本輪相關 NPC", "本輪相關 Canon", "世界時鐘", "本輪人物覆寫", "本輪相關世界書"]);
+  const headerOf = block => String(block.match(/^【([^】]+)】/)?.[1] || "").split("｜")[0].trim();
   const cacheMetricKnown = usage => usage?.cached_tokens !== null && usage?.cached_tokens !== undefined && Number.isFinite(Number(usage.cached_tokens));
 
   const partitionSystemPrompt = prompt => {
@@ -188,9 +188,9 @@
   patchMemoryRequestGuard();
   window.BAOPromptCache = { partitionSystemPrompt, storySessionId, cacheMetricKnown };
   // The small Node unit-test DOM has no querySelector/head; load only inside real browsers.
-  if (typeof document.querySelector === 'function' && document.head && !document.querySelector('script[src="js/gemini-explicit-cache.js"]')) {
+  if (typeof document.querySelector === 'function' && document.head && !document.querySelector('script[src="js/gemini-explicit-cache.js?v=2"]')) {
     const script = document.createElement('script');
-    script.src = 'js/gemini-explicit-cache.js';
+    script.src = 'js/gemini-explicit-cache.js?v=2';
     script.onerror = () => console.warn('BAO/LAB optional Gemini cache controls failed to load');
     document.head.appendChild(script);
   }

@@ -98,7 +98,7 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/story-backup.js"))
     .then(() => loadBAOScript("js/google-drive-config.js"))
     .then(() => loadBAOScript("js/google-drive-sync.js"))
-    .then(() => loadBAOScript("js/prompt-cache.js?v=2"))
+    .then(() => loadBAOScript("js/prompt-cache.js?v=3"))
     .then(() => loadBAOScript("js/prompt-orchestrator.js"))
     .then(() => loadBAOScript("js/story-reader.js?v=4"))
     .then(() => loadBAOScript("js/conversation-search-core.js?v=4"))

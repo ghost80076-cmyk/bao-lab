@@ -455,7 +455,9 @@ jobs:
       - name: Explicit scene metadata and greeting recovery
         run: node tests/explicit-scene-state-core.cjs
       - name: Prompt cache pipeline
-        run: node tests/prompt-cache-core.cjs
+        run: |
+          node tests/prompt-cache-core.cjs
+          node tests/gemini-explicit-cache-core.cjs
       - name: Prompt orchestration adapters
         run: node tests/prompt-orchestrator-core.cjs
       - name: Cache cost panel
