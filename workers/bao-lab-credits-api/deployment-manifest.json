@@ -33,6 +33,7 @@
     "modules/provider-routing.js",
     "modules/runtime-config.js",
     "modules/session-auth.js",
-    "worker.js"
+    "worker.js",
+    "modules/wallet-reservations.js"
   ]
 }
