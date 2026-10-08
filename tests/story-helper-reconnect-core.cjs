@@ -60,6 +60,23 @@ assert.equal(config.cost.stateModel, '');
 assert.equal(config.cost.stateApiMode, 'same');
 console.log('PASS explicit same mode clears a populated legacy stateApi object');
 
+config = { api: api('https://main.example/v1', 'openai', 'MAIN'),
+  cost: {}, memory: { summaryApi: null, summaryModel: 'obsolete-memory-model' } };
+assert.equal(helper.normalizeMemoryRoute(config), true);
+assert.equal(config.memory.summaryApiMode, 'same');
+assert.equal(config.memory.summaryModel, '');
+console.log('PASS stale memory-only model ID is removed when main provider owns summaries');
+
+config = { api: api('https://main.example/v1', 'openai', 'MAIN'),
+  cost: {}, memory: { summaryApiMode: 'same',
+    summaryApi: api('https://other.example/v1', 'gemini', 'STORED_KEY'),
+    summaryModel: 'obsolete-memory-model' } };
+assert.equal(helper.normalizeMemoryRoute(config), true);
+assert.equal(config.memory.summaryApi, null);
+assert.equal(config.memory.summaryModel, '');
+console.log('PASS explicit same memory choice overrides a legacy independent route');
+
+
 const saved = { config: { api: api('https://main.example/v1'),
   cost: { stateApi: api('https://state.example/v1', 'openai', 'KEY_IN_SAVED_STORY') },
   memory: { summaryApi: api('https://new-memory.example/v1', 'gemini', 'ALSO_IN_SAVED_STORY') } } };

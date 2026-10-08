@@ -8,7 +8,7 @@ const deferred = () => {
   const promise = new Promise((yes, no) => { resolve = yes; reject = no; });
   return { promise, resolve, reject };
 };
-const storyA = {}, storyB = {};
+const storyA = {}, storyB = {}, storyC = {};
 const pending = [];
 const guard = { title: '' };
 global.window = global;
@@ -32,11 +32,14 @@ global.API = {
   }
 };
 global.Chat = {
-  summary: '', summarizedUntil: 0,
+  summary: '', summarizedUntil: 0, memoryHealth: { phase: 'idle' },
   async context() { return []; },
   async maybeSummarize(config) {
     try { await API.send({ ...config, __memoryTask: true }, []); }
-    catch (_) { /* Production summarizer also catches provider failures. */ }
+    catch (_) { return; /* Production summarizer also catches provider failures. */ }
+    if (config.simulateInvalidSummary) this.memoryHealth = {
+      phase: 'failed', message: '模型回覆仍不符合記憶 JSON 格式。'
+    };
   }
 };
 global.App = { config: { memory: {} }, buildSystemPrompt: () => '', getSelectedPreset: () => null };
@@ -81,5 +84,16 @@ assert.equal(API.__sendWrapperIds.has('prompt-cache:memory-request-guard'), true
   pending[2].request.resolve({ text: 'ok' });
   await third;
   assert.equal(API.send, send);
+
+  GameState.current = storyC;
+  const malformed = Chat.maybeSummarize({ simulateInvalidSummary: true });
+  assert.equal(pending.length, 5);
+  pending[4].request.resolve({ text: 'invalid summary' });
+  await malformed;
+  assert.equal(Chat.memoryHealth.phase, 'failed');
+  assert.ok(Date.parse(Chat.memoryHealth.cooldownUntil) > Date.now(),
+    'normal-return malformed JSON must also enter cooldown');
+  await Chat.maybeSummarize({ simulateInvalidSummary: true });
+  assert.equal(pending.length, 5, 'failed formatting cannot charge for a new summary every turn');
   console.log('memory request guard core test passed');
 })().catch(error => { console.error(error); process.exitCode = 1; });
