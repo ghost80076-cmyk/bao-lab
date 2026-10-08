@@ -92,7 +92,10 @@ test('gameplay schema renders builder, applies state, and drafts actions without
   await expect(page.locator('#ui-panel .gameplay-card-grid[data-card-variant="skill"]')).toContainText('12 氣');
 
   await page.evaluate(() => {
-    App.activeCharacter.gameplay_ui.layout = { preset: 'standard' };
+    App.activeCharacter.gameplay_ui = {
+      ...App.activeCharacter.gameplay_ui,
+      layout: { preset: 'standard' }
+    };
     window.BAOChatExperience?.sync?.();
     BAOGameplayUI.syncDashboardLayout();
     BAOGameplayUI.renderPanel('archive');
