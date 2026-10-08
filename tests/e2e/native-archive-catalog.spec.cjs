@@ -62,9 +62,9 @@ for (const viewport of [{ width: 1440, height: 1000 }, { width: 390, height: 844
       expect(overflow, work.id + ': no narrow archive overflow').toBe(false);
       // The new renderer remains independent from author Regex and text mode.
       await page.evaluate(() => { App.config.displayMode = 'text'; App.renderChatShell(false); });
-      await expect(page.locator('#chat-stream')).not.toContainText('【YB:');
+      await expect.poll(() => page.locator('#chat-stream').innerText()).not.toContain('【YB:');
       for (const frame of page.frames().filter(f => f !== page.mainFrame())) {
-        const body = await frame.locator('body').textContent();
+        const body = await frame.locator('body').innerText();
         expect(body || '', work.id + ': sidecar consumed greeting markers').not.toContain('【YB:');
       }
     }
