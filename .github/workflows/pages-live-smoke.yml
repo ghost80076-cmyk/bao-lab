@@ -74,7 +74,7 @@ jobs:
           for attempt in $(seq 1 24); do
             loader="$(curl --fail --silent --show-error --location --max-time 15 "${SITE_URL}js/prompt-cache.js" || true)"
             cache="$(curl --fail --silent --show-error --location --max-time 15 "${SITE_URL}js/gemini-explicit-cache.js" || true)"
-            if grep -Fq "script.src = 'js/gemini-explicit-cache.js'" <<<"${loader}" \
+            if grep -Fq "script.src = 'js/gemini-explicit-cache.js?v=2'" <<<"${loader}" \
               && grep -Fq 'window.BAOGeminiExplicitCache = { open, inspect, create, remove }' <<<"${cache}" \
               && grep -Fq 'Gemini 顯式快取（進階）' <<<"${cache}"; then
               ok=1
@@ -122,6 +122,9 @@ jobs:
           grep -Fq 'Allow: /' <<<"${robots}"
           grep -Fq 'Sitemap: https://yorubay.com/sitemap.xml' <<<"${robots}"
           grep -Fq '<loc>https://yorubay.com/</loc>' <<<"${sitemap}"
+          grep -Fq '<loc>https://yorubay.com/quick-start.html</loc>' <<<"${sitemap}"
+          grep -Fq '<loc>https://yorubay.com/api-guide.html</loc>' <<<"${sitemap}"
+          grep -Fq '<loc>https://yorubay.com/author.html</loc>' <<<"${sitemap}"
           printf 'robots.txt and sitemap.xml verified.\n'
 
       - name: Verify social preview image
