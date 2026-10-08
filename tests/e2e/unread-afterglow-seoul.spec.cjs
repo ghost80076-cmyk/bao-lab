@@ -35,13 +35,11 @@ test('desktop builder writes genuine setup and visible UI never renders backstag
   await builder.locator('[data-gameplay-field="social_overlap"]').selectOption('高度重疊');
   await builder.locator('[data-gameplay-field="contact_rhythm"]').selectOption('社群互動較頻繁');
   const snapshot = await page.evaluate(() => {
-    const state = structuredClone(App.activeCharacter.initial_state);
-    const fields = {};
-    for (const el of document.querySelectorAll('#bao-gameplay-builder [data-gameplay-field]')) {
-      fields[el.getAttribute('data-gameplay-field')] = el.value;
-    }
-    BAOGameplayUICore.applyBuilderValues(App.activeCharacter.gameplay_ui, fields, state);
-    return state.modules.session_setup;
+    const config = App.collectConfig();
+    config.displayMode = 'ui';
+    App.config = config;
+    GameState.create(App.activeCharacter, config);
+    return GameState.current.modules.session_setup;
   });
   expect(snapshot.social_overlap).toBe('高度重疊');
   expect(snapshot.contact_rhythm).toBe('社群互動較頻繁');
