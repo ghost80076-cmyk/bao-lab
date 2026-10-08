@@ -16,7 +16,9 @@
   const THEME_DENSITIES = Object.freeze(['comfortable', 'compact']);
   const THEME_RADII = Object.freeze(['round', 'soft', 'sharp']);
   const THEME_METERS = Object.freeze(['soft', 'solid', 'glow']);
-  const LAYOUT_PRESETS = Object.freeze(['standard', 'rpg-dashboard']);
+  const LAYOUT_PRESETS = Object.freeze(['standard', 'rpg-dashboard', 'scene-rpg']);
+  const SCENE_SOURCES = Object.freeze(['story-gallery', 'reading-background', 'avatar']);
+  const SCENE_FITS = Object.freeze(['cover', 'contain']);
   const SAFE_KEY = /^[a-zA-Z][a-zA-Z0-9_-]{0,39}$/;
   const SAFE_COLOR = /^#[0-9a-fA-F]{3}([0-9a-fA-F]{3})?$/;
   const BLOCKED_KEYS = new Set(['__proto__', 'prototype', 'constructor']);
@@ -201,7 +203,7 @@
   function normalizeLayout(raw, panels = []) {
     const source = isObject(raw) ? raw : {};
     const preset = enumValue(source.preset, LAYOUT_PRESETS, 'standard');
-    if (preset === 'standard') return { preset: 'standard', left_panel: '', right_panel: '' };
+    if (preset === 'standard') return { preset: 'standard', left_panel: '', right_panel: '', scene_source: 'story-gallery', scene_fit: 'cover' };
     const ids = new Set((Array.isArray(panels) ? panels : []).map(panel => panel.id));
     const panelId = value => {
       const id = key(value);
@@ -209,10 +211,21 @@
     };
     const left = panelId(source.left_panel || source.left);
     const rightCandidate = panelId(source.right_panel || source.right);
+    if (preset === 'scene-rpg') {
+      return {
+        preset,
+        left_panel: '',
+        right_panel: rightCandidate,
+        scene_source: enumValue(source.scene_source, SCENE_SOURCES, 'story-gallery'),
+        scene_fit: enumValue(source.scene_fit, SCENE_FITS, 'cover')
+      };
+    }
     return {
       preset,
       left_panel: left,
-      right_panel: rightCandidate && rightCandidate !== left ? rightCandidate : ''
+      right_panel: rightCandidate && rightCandidate !== left ? rightCandidate : '',
+      scene_source: 'story-gallery',
+      scene_fit: 'cover'
     };
   }
 
@@ -313,7 +326,7 @@
 
   return Object.freeze({
     MAX_PANELS, MAX_SECTIONS, MAX_ITEMS, MAX_ATTRIBUTES, MAX_FIELDS,
-    THEME_PRESETS, THEME_DENSITIES, THEME_RADII, THEME_METERS, LAYOUT_PRESETS,
+    THEME_PRESETS, THEME_DENSITIES, THEME_RADII, THEME_METERS, LAYOUT_PRESETS, SCENE_SOURCES, SCENE_FITS,
     normalize, normalizeTheme, normalizeLayout, builderDefaults, attributeCost, remainingPoints, normalizeBuilderValues,
     applyBuilderValues, getPath, setPath, isTargetPath, isDisplayPath
   });
