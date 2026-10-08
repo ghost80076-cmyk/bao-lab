@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,interactive-widget=resizes-content">
-<title>夜灣 YoruBay｜故事在本機、自己選 AI 的角色扮演工具</title>
-<meta name="description" content="夜灣（YoruBay）是故事優先留在本機、由玩家自選 AI 服務的角色扮演／世界模擬工具。連線金鑰（API Key）不會寫入故事備份。">
+<title>夜灣 YoruBay｜AI 角色扮演、AI 聊天與世界模擬</title>
+<meta name="description" content="夜灣 YoruBay 是 Local-first、BYOK 的 AI 角色扮演、AI 聊天與世界模擬平台。玩家可自選 AI 模型與 API，讓角色、記憶與長篇故事持續發展。">
 <meta name="robots" content="index,follow,max-image-preview:large">
 <meta name="theme-color" content="#080d14">
 <meta name="application-name" content="夜灣 YoruBay">
@@ -14,7 +14,7 @@
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="夜灣 YoruBay">
 <meta property="og:locale" content="zh_TW">
-<meta property="og:title" content="夜灣 YoruBay｜故事在本機、自己選 AI 的角色扮演工具">
+<meta property="og:title" content="夜灣 YoruBay｜AI 角色扮演、AI 聊天與世界模擬">
 <meta property="og:description" content="在夜灣選一個故事、接上自己的 AI；故事、記憶與狀態優先保存在本機。">
 <meta property="og:url" content="https://yorubay.com/">
 <meta property="og:image" content="https://yorubay.com/assets/bao-social-card.png">
@@ -24,7 +24,7 @@
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="夜灣 YoruBay — 夜晚停靠、進入故事的港灣">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="夜灣 YoruBay｜故事在本機、自己選 AI 的角色扮演工具">
+<meta name="twitter:title" content="夜灣 YoruBay｜AI 角色扮演、AI 聊天與世界模擬">
 <meta name="twitter:description" content="用自己的連線金鑰（API Key）開始 AI 角色扮演與世界模擬；故事、記憶與狀態優先保存在本機。">
 <meta name="twitter:image" content="https://yorubay.com/assets/bao-social-card.png">
 <meta name="twitter:image:alt" content="夜灣 YoruBay — 夜晚停靠、進入故事的港灣">
@@ -52,7 +52,7 @@
 <link rel="stylesheet" href="css/pwa-install.css?v=1">
 </head><body>
 <div class="app-shell"><header class="topbar"><a class="brand" href="#" data-view="home" aria-label="夜灣首頁"><img class="bao-mark" src="assets/bao-mark.svg" width="32" height="32" alt=""><span class="brand-wordmark"><strong>夜灣</strong><small>YoruBay</small></span></a><nav><button data-view="home">首頁</button><button data-view="explore">作品</button><a href="author.html">作者</a><button id="continue-story" class="hidden">繼續上次故事</button><button id="bao-me-nav" type="button">我的</button><button type="button" data-open-story-library>我的故事</button><button data-view="about">關於夜灣</button></nav></header><main>
-<section id="home-view" class="view active"><div class="hero"><div><h1>今晚，想走進<br>誰的故事？</h1><p>替你留了一盞燈。</p><div class="hero-actions"><button class="primary" data-view="explore">開始探索</button><button id="home-continue" class="secondary hidden">繼續閱讀</button></div></div><div class="hero-card"><b>故事在這裡靠岸</b><span>每一個世界，都有一個等你靠岸的位置。</span></div></div></section>
+<section id="home-view" class="view active"><div class="hero"><div><h1>今晚，想走進<br>誰的故事？</h1><p>替你留了一盞燈。</p><p class="seo-intro">夜灣 YoruBay 是以故事與角色為核心的 AI 角色扮演、AI 聊天與世界模擬平台。使用自己的 API 與喜歡的 AI 模型，讓角色、記憶與長篇故事留在自己的裝置上繼續發展。</p><div class="hero-actions"><button class="primary" data-view="explore">開始探索</button><button id="home-continue" class="secondary hidden">繼續閱讀</button></div></div><div class="hero-card"><b>故事在這裡靠岸</b><span>每一個世界，都有一個等你靠岸的位置。</span></div></div></section>
 <section id="explore-view" class="view"><div class="section-head"><div><h2>探索作品</h2></div></div><div id="adult-notice" class="note hidden">成熟內容僅供已滿 18 歲使用者瀏覽。年齡確認只保存在這台裝置。 <a href="age-content-policy.html">查看年齡與內容政策</a></div><div id="character-list" class="character-grid"></div></section>
 <section id="detail-view" class="view"><div id="character-detail"></div></section>
 <section id="builder-view" class="view"><div class="builder-head"><button class="text-button" onclick="App.showCharacterDetail()">← 返回角色</button><div><div class="eyebrow">STORY SETUP</div><h2>建立故事</h2><span id="builder-character-chip" class="chip"></span><a id="builder-author-link" class="text-button hidden" href="author.html">作者</a></div></div><div class="steps"><button class="step active" data-step="1">1 敘事</button><button class="step" data-step="2">2 顯示</button><button class="step" data-step="3">3 玩家</button><button class="step" data-step="4">4 模型連線</button><button class="step" data-step="5">5 記憶</button></div><div class="builder-panel">
