@@ -58,11 +58,59 @@
 .gameplay-data-card[data-card-variant="party"] header span{color:var(--gameplay-text)}
 .gameplay-data-card[data-card-variant="skill"] header span{font-weight:700}
 .gameplay-card-empty{color:var(--gameplay-muted)}
+
+/* Gameplay UI v1.4: reusable archive tabs, location archive, and timeline. */
+.gameplay-tabbed-archive{overflow:hidden}
+.gameplay-archive-tabs{display:flex;gap:0;margin:calc(var(--gameplay-section-padding) * -1) calc(var(--gameplay-section-padding) * -1) 12px;overflow-x:auto;scrollbar-width:none;border-bottom:1px solid var(--gameplay-border)}
+.gameplay-archive-tabs::-webkit-scrollbar{display:none}
+.gameplay-archive-tab{flex:0 0 auto;min-width:108px;padding:11px 14px;border:0;border-radius:0;background:transparent;color:var(--gameplay-muted);white-space:nowrap}
+.gameplay-archive-tab:hover{background:color-mix(in srgb,var(--gameplay-accent) 7%,transparent)}
+.gameplay-archive-tab.active{background:color-mix(in srgb,var(--gameplay-accent) 18%,var(--gameplay-surface));color:var(--gameplay-text);box-shadow:inset 0 -2px var(--gameplay-accent)}
+.gameplay-archive-pane{display:grid;gap:var(--gameplay-gap)}
+.gameplay-archive-pane[hidden]{display:none!important}
+.gameplay-archive-pane>.gameplay-ui-section{box-shadow:none}
+.gameplay-tabbed-archive>.gameplay-archive-pane>.gameplay-ui-section{background:var(--gameplay-surface-alt)}
+
+.gameplay-location-archive{display:grid;gap:12px}
+.gameplay-location-title{display:grid;gap:3px}
+.gameplay-location-title>span{font-size:.68rem;letter-spacing:.14em;color:var(--gameplay-muted)}
+.gameplay-location-title>h4{margin:0;font-size:1rem}
+.gameplay-location-media{position:relative;min-height:180px;aspect-ratio:16/9;overflow:hidden;border-radius:var(--gameplay-small-radius);background:var(--gameplay-surface-alt);border:1px solid var(--gameplay-border)}
+.gameplay-location-media img{width:100%;height:100%;display:block;object-fit:cover}
+.gameplay-location-archive[data-scene-fit="contain"] .gameplay-location-media img{object-fit:contain}
+.gameplay-location-placeholder{display:none;position:absolute;inset:0;place-items:center;color:color-mix(in srgb,var(--gameplay-accent) 52%,var(--gameplay-muted));font-size:1.1rem;letter-spacing:.2em;background:linear-gradient(145deg,var(--gameplay-surface),var(--gameplay-surface-alt))}
+.gameplay-location-archive.is-empty .gameplay-location-placeholder{display:grid}
+.gameplay-location-facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.gameplay-location-facts>div{padding:10px;border-radius:var(--gameplay-small-radius);background:var(--gameplay-surface-alt);border:1px solid color-mix(in srgb,var(--gameplay-border) 78%,transparent)}
+.gameplay-location-facts small{display:block;margin-bottom:4px;font-size:.68rem;letter-spacing:.09em;color:var(--gameplay-muted)}
+.gameplay-location-facts b{display:block;color:var(--gameplay-text);overflow-wrap:anywhere}
+.gameplay-location-index{display:grid;gap:8px}
+.gameplay-location-index h5{margin:0;color:var(--gameplay-accent);font-size:.8rem;letter-spacing:.1em}
+.gameplay-destination-list{display:grid;gap:8px}
+.gameplay-destination-card{display:grid;gap:6px;padding:10px;border:1px solid var(--gameplay-border);border-radius:var(--gameplay-small-radius);background:var(--gameplay-surface-alt)}
+.gameplay-destination-card.is-current{border-color:color-mix(in srgb,var(--gameplay-accent) 62%,var(--gameplay-border));box-shadow:inset 3px 0 var(--gameplay-accent)}
+.gameplay-destination-card header{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.gameplay-destination-card header span{padding:2px 7px;border-radius:999px;background:color-mix(in srgb,var(--gameplay-accent) 14%,transparent);color:var(--gameplay-accent);font-size:.7rem}
+.gameplay-destination-card p{margin:0;color:var(--gameplay-muted);font-size:.84rem;line-height:1.45}
+.gameplay-destination-card button{justify-self:end}
+
+.gameplay-timeline-list{display:grid;gap:0}
+.gameplay-timeline-entry{position:relative;display:grid;grid-template-columns:14px minmax(0,1fr);gap:9px;padding:0 0 13px}
+.gameplay-timeline-entry:last-child{padding-bottom:0}
+.gameplay-timeline-entry>i{position:relative;width:9px;height:9px;margin-top:5px;border:2px solid var(--gameplay-accent);border-radius:50%;background:var(--gameplay-surface)}
+.gameplay-timeline-entry:not(:last-child)>i:after{content:"";position:absolute;top:9px;left:2px;width:1px;height:calc(100% + 12px);background:var(--gameplay-border)}
+.gameplay-timeline-entry header{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.gameplay-timeline-entry header span{font-size:.7rem;color:var(--gameplay-accent)}
+.gameplay-timeline-entry small{display:block;margin-top:2px;color:var(--gameplay-muted)}
+.gameplay-timeline-entry p{margin:5px 0 0;color:var(--gameplay-muted);line-height:1.45}
+.gameplay-timeline-entry.is-diff p{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.gameplay-timeline-entry.is-diff p span{padding:3px 6px;border-radius:6px;background:var(--gameplay-surface-alt);color:var(--gameplay-text)}
+.gameplay-timeline-entry.is-diff p b{color:var(--gameplay-accent)}
 #game-ui[data-gameplay-theme] .ui-tabs .gameplay-ui-tab.active,#game-ui[data-gameplay-theme] .ui-tabs [data-gameplay-original-label].active{border-color:var(--gameplay-accent);color:var(--gameplay-accent)}
 
 @media(max-width:680px){
   .gameplay-builder-head{display:grid}.gameplay-builder-attribute{grid-template-columns:1fr auto}.gameplay-builder-attribute>span{grid-column:1/-1;text-align:left}.gameplay-builder-fields{grid-template-columns:1fr}.gameplay-stat-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
-  #game-ui[data-gameplay-theme]{--gameplay-section-padding:11px;--gameplay-gap:9px}.gameplay-card-grid{grid-template-columns:1fr}
+  #game-ui[data-gameplay-theme]{--gameplay-section-padding:11px;--gameplay-gap:9px}.gameplay-card-grid{grid-template-columns:1fr}.gameplay-archive-tab{min-width:104px;padding:10px 12px}.gameplay-location-media{min-height:150px}.gameplay-location-facts{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 
 
