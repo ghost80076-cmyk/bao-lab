@@ -6,7 +6,8 @@
   const helperRouteWrapper = async (next, config, messages, ...rest) => {
     if (config?.__connectionTest) return next(config, messages, ...rest);
     let route = null;
-    if (config?.__memoryTask) route = App.config?.memory?.summaryApi || null;
+    if (config?.__memoryTask && String(App.config?.memory?.summaryApiMode || '').trim() !== 'same')
+      route = App.config?.memory?.summaryApi || null;
     if (config?.__stateTask && String(App.config?.cost?.stateApiMode || '').trim() !== 'same')
       route = App.config?.cost?.stateApi || null;
     if (!route?.model || !route?.baseUrl) return next(config, messages, ...rest);
@@ -54,7 +55,7 @@
     script.onerror = reject;
     document.head.appendChild(script);
   });
-  load('js/story-helper-reconnect.js?v=2')
+  load('js/story-helper-reconnect.js?v=3')
     .catch(error => console.warn('BAO/LAB story helper API reconnect did not load:', error));
   load('js/lm-studio-core.js').then(() => load('js/lm-studio.js?v=3'))
     .catch(error => console.warn('BAO/LAB LM Studio local provider did not load:', error));
