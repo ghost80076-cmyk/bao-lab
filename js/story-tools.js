@@ -1049,6 +1049,21 @@
     try {
       const save = await BAOStoryLibrary.reconstruct(storyId, chapterId);
       if (!save) throw new Error("找不到這個章節的完整資料。");
+      // Portable story backups omit the author card. A fresh device only has
+      // catalog entries until the full work is loaded, so resolve it first.
+      try {
+        while (!App.characters.some(item => item.id === save.characterId) && App.hasMoreCharacterCatalog?.()) {
+          await App.loadMoreCharacters();
+        }
+        await App.loadCharacter?.(save.characterId);
+      } catch (error) {
+        if (!save.character) throw new Error("無法載入這個故事的作品設定，請確認網路連線後重試。", { cause: error });
+        console.warn("BAO/LAB library character preload failed; using story snapshot:", error);
+      }
+      const character = App.characters.find(item => item.id === save.characterId);
+      if ((!character || character.catalog_only) && !save.character) {
+        throw new Error("找不到這個故事的完整作品設定，請先匯入對應角色卡後再試。");
+      }
       let key = "";
       if (!save.config?.demoMode) {
         const entered = window.prompt("連線金鑰（API Key）不會儲存在故事書庫。請貼上金鑰才能繼續：", "");
@@ -1413,3 +1428,4 @@
   ensureStyles();
   setTimeout(inject, 240);
 })();
+
