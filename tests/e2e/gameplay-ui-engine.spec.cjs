@@ -90,6 +90,63 @@ test('gameplay schema renders builder, applies state, and drafts actions without
   await expect(page.locator('#ui-panel .gameplay-card-grid[data-card-variant="party"]')).toContainText('92 / 100');
   await expect(page.locator('#ui-panel .gameplay-card-grid[data-card-variant="skill"]')).toContainText('流雲步');
   await expect(page.locator('#ui-panel .gameplay-card-grid[data-card-variant="skill"]')).toContainText('12 氣');
+
+  await page.evaluate(() => {
+    App.activeCharacter.gameplay_ui = {
+      ...App.activeCharacter.gameplay_ui,
+      layout: { preset: 'standard' }
+    };
+    App.config.displayMode = 'ui';
+    App.renderChatShell(false);
+    App.showView('chat');
+    window.BAOChatExperience?.sync?.();
+    BAOGameplayUI.syncDashboardLayout();
+    BAOGameplayUI.renderPanel('archive');
+  });
+  const archive = page.locator('#ui-panel .gameplay-tabbed-archive');
+  await expect(archive).toHaveCount(1);
+  await expect(archive.locator('.gameplay-archive-tab')).toHaveCount(4);
+  await expect(archive.locator('.gameplay-location-archive')).toContainText('青雲城');
+  await expect(archive.locator('.gameplay-location-archive')).toContainText('東城');
+  await expect(archive.locator('.gameplay-location-archive')).toContainText('北門');
+  await expect(archive.locator('.gameplay-location-media img')).toHaveAttribute('src', /assets\/bao-mark\.svg/);
+
+  const locationDraft = await page.evaluate(() => {
+    const button = [...document.querySelectorAll('#ui-panel .gameplay-destination-card button')]
+      .find(node => node.closest('.gameplay-destination-card')?.textContent?.includes('北門'));
+    button?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    return document.getElementById('user-input')?.value || '';
+  });
+  expect(locationDraft).toBe('我前往北門調查妖獸目擊情報。');
+
+  await page.evaluate(() => document.querySelector('#ui-panel [data-gameplay-archive-tab="relation"]')?.click());
+  await expect(archive.locator('[data-gameplay-archive-pane="relation"]')).not.toHaveAttribute('hidden', '');
+  await expect(archive.locator('[data-gameplay-archive-pane="relation"]')).toContainText('剛認識');
+
+  await expect.poll(() => page.evaluate(() => Boolean(window.BAOWorldModules))).toBe(true);
+  await page.evaluate(() => {
+    GameState.applyUpdate({
+      location: '北門',
+      modules: { relationship: { status: '同行者' } }
+    });
+  });
+  await page.evaluate(() => BAOGameplayUI.renderPanel('archive'));
+  const rerenderedArchive = page.locator('#ui-panel .gameplay-tabbed-archive');
+  await page.evaluate(() => document.querySelector('#ui-panel [data-gameplay-archive-tab="changes"]')?.click());
+  await expect(rerenderedArchive.locator('[data-gameplay-archive-pane="changes"]')).not.toHaveAttribute('hidden', '');
+  const diffTimeline = rerenderedArchive.locator('[data-timeline-mode="round_diff"]');
+  await expect(diffTimeline).toContainText('地點');
+  await expect(diffTimeline).toContainText('青雲城');
+  await expect(diffTimeline).toContainText('北門');
+  await expect(diffTimeline).toContainText('關係');
+  await expect(diffTimeline).toContainText('剛認識');
+  await expect(diffTimeline).toContainText('同行者');
+
+  await page.evaluate(() => document.querySelector('#ui-panel [data-gameplay-archive-tab="history"]')?.click());
+  await expect(rerenderedArchive.locator('[data-gameplay-archive-pane="history"]')).not.toHaveAttribute('hidden', '');
+  const history = rerenderedArchive.locator('[data-gameplay-archive-pane="history"]');
+  await expect(history).toContainText('抵達青雲城');
+  await expect(history).toContainText('聽見北門傳聞');
 });
 
 

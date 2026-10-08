@@ -1,4 +1,4 @@
-# BAO/LAB Gameplay UI Engine v1.3
+# BAO/LAB Gameplay UI Engine v1.4
 
 這是一個**角色卡明確 opt-in 才會啟用**的通用遊戲介面層。它不取代既有角色卡 UI，也不要求現有作品遷移。
 
@@ -99,6 +99,42 @@ Gameplay UI 的資料結構與外觀分離。作者不需要寫專屬 JS，也�
 }
 ```
 
+## v1.4 Archive Layer
+
+Gameplay UI 新增三個平台原生 section，用來取代作品各自手寫的分頁 HTML／地點檔案／歷程面板。
+
+### `tabs`
+
+`tabs` 是安全的 section 容器；每個 tab 只能再放一般 section，禁止 tabs 巢狀 tabs，避免 DOM 與互動無限巢狀。
+
+```json
+{
+  "type": "tabs",
+  "id": "story_archive",
+  "default_tab": "live",
+  "tabs": [
+    { "id": "live", "label": "即時狀態", "sections": [] },
+    { "id": "relation", "label": "關係狀態", "sections": [] },
+    { "id": "changes", "label": "本輪變動", "sections": [] },
+    { "id": "history", "label": "完整歷程", "sections": [] }
+  ]
+}
+```
+
+手機版 tab bar 橫向滑動，不把大量分頁擠成多行。
+
+### `location_archive`
+
+顯示場景圖、時間、地點、區域／狀態與可前往地點。圖片來源沿用 Scene RPG 的 `story-gallery` / `reading-background` / `avatar`；本機故事圖不會送進模型。
+
+目的地資料可以包含 `name`、`summary`、`current`、`draft`。`draft` 只填入玩家輸入框，不會自動送出。
+
+### `timeline`
+
+- `mode: history`：讀取作者指定的安全 `path`，把事件資料畫成歷程時間線。
+- `mode: round_diff`：只比較作者在 `items[].path` 明確列出的玩家可見狀態。更新前後由前端比較，不要求模型另外撰寫「本輪變動」。
+
+`round_diff` 不掃描整份 GameState，只能監看既有安全 display path（`time` / `location` / `events` / `npcs` / `modules.*`），因此不會自動碰 API 設定或未宣告的隱藏資料。
 ## v1.3 Native data cards
 
 `panels[].sections[]` 新增 `cards`，用同一套安全 renderer 顯示結構化遊戲資料，不需要模型輸出 HTML。
