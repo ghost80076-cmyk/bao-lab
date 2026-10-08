@@ -461,6 +461,67 @@
     return String(character.reading_background || character.avatar || '');
   };
 
+  const cleanupLocationObjectURLs = () => {
+    for (const [node, url] of locationObjectURLs.entries()) {
+      if (node?.isConnected) continue;
+      try { URL.revokeObjectURL(url); } catch (_) {}
+      locationObjectURLs.delete(node);
+    }
+  };
+
+  const hydrateLocationArchives = async root => {
+    if (!root) return;
+    cleanupLocationObjectURLs();
+    const nodes = [];
+    if (root.matches?.('[data-gameplay-location-archive]')) nodes.push(root);
+    root.querySelectorAll?.('[data-gameplay-location-archive]').forEach(node => nodes.push(node));
+    if (!nodes.length) return;
+    const token = ++locationHydrateToken;
+    for (const node of nodes) {
+      if (!node?.isConnected) continue;
+      const image = node.querySelector('.gameplay-location-media img');
+      if (!image) continue;
+      const source = node.dataset.sceneSource || 'story-gallery';
+      let src = '';
+      let alt = '目前場景';
+      let localURL = '';
+      if (source === 'story-gallery') {
+        try {
+          const latest = await window.BAOStoryImageMoments?.latestForCurrentStory?.();
+          if (token !== locationHydrateToken || !node.isConnected) {
+            if (localURL) URL.revokeObjectURL(localURL);
+            return;
+          }
+          if (latest?.file instanceof Blob) {
+            localURL = URL.createObjectURL(latest.file);
+            src = localURL;
+            alt = String(latest.name || latest.messageLabel || '本機故事場景');
+          }
+        } catch (_) {}
+      }
+      if (!src) src = fallbackSceneURL(source);
+      if (token !== locationHydrateToken || !node.isConnected) {
+        if (localURL) URL.revokeObjectURL(localURL);
+        return;
+      }
+      const previous = locationObjectURLs.get(node);
+      if (previous && previous !== localURL) {
+        try { URL.revokeObjectURL(previous); } catch (_) {}
+        locationObjectURLs.delete(node);
+      }
+      if (localURL) locationObjectURLs.set(node, localURL);
+      if (src) {
+        image.src = src;
+        image.alt = alt;
+        node.classList.remove('is-empty');
+      } else {
+        image.removeAttribute('src');
+        image.alt = '';
+        node.classList.add('is-empty');
+      }
+    }
+  };
+
   const ensureSceneStage = (layout, schema) => {
     const main = layout.querySelector(':scope > .chat-main');
     if (!main) return null;
@@ -710,9 +771,19 @@
   const originalApplyUpdate = typeof GameState.applyUpdate === 'function' ? GameState.applyUpdate.bind(GameState) : null;
   if (originalApplyUpdate) {
     GameState.applyUpdate = function(...args) {
+      const owner = this.current;
+      const schema = schemaFor(App.activeCharacter);
+      const watchItems = roundDiffWatchItems(schema);
+      const before = owner && watchItems.length ? snapshotRoundDiff(owner, watchItems) : null;
       const result = originalApplyUpdate(...args);
       queueMicrotask(() => {
+        if (owner && GameState.current === owner && before && watchItems.length) {
+          const after = snapshotRoundDiff(owner, watchItems);
+          roundDiffByState.set(owner, computeRoundDiff(before, after, watchItems));
+        }
         syncPlayerIdentityLabel();
+        const activePanel = document.querySelector('#game-ui .ui-tab.active')?.dataset.panel || '';
+        if (activePanel) renderPanel(activePanel);
         scheduleDashboardSync();
       });
       return result;
@@ -721,9 +792,9 @@
 
   const dashboardLayout = document.querySelector('#chat-view .chat-layout');
   if (dashboardLayout) new MutationObserver(scheduleDashboardSync).observe(dashboardLayout, { childList: true });
-  window.addEventListener('bao:story-image-album-changed', scheduleDashboardSync);
-  window.addEventListener('bao:story-image-module-ready', scheduleDashboardSync);
+  window.addEventListener('bao:story-image-album-changed', () => { scheduleDashboardSync(); void hydrateLocationArchives(document); });
+  window.addEventListener('bao:story-image-module-ready', () => { scheduleDashboardSync(); void hydrateLocationArchives(document); });
   scheduleDashboardSync();
 
-  window.BAOGameplayUI = Object.freeze({ schemaFor, mountBuilder, renderPanel, syncTabs, activateInitialPanel, syncPlayerIdentityLabel, syncGameplayLayout, syncDashboardLayout, scheduleDashboardSync, applyTheme, clearTheme });
+  window.BAOGameplayUI = Object.freeze({ schemaFor, mountBuilder, renderPanel, syncTabs, activateInitialPanel, syncPlayerIdentityLabel, syncGameplayLayout, syncDashboardLayout, scheduleDashboardSync, applyTheme, clearTheme, hydrateLocationArchives });
 })();
