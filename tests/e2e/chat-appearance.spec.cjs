@@ -38,7 +38,7 @@ for (const viewport of [{ name: 'desktop', width: 1440, height: 900 }, { name: '
     await playerModal.locator('#bao-bubble-radius').fill('23');
 
     await playerModal.locator('[data-appearance-tab="text"]').click();
-    await playerModal.locator('#bao-font-size').fill('20');
+    await playerModal.locator('#bao-font-size').fill('24');
     await playerModal.locator('#bao-font-family').selectOption('serif');
 
     await playerModal.locator('[data-appearance-tab="background"]').click();
@@ -82,7 +82,7 @@ for (const viewport of [{ name: 'desktop', width: 1440, height: 900 }, { name: '
       radius: node.style.getPropertyValue('--chat-bubble-radius')
     }));
     expect(appearance).toMatchObject({
-      font: '20px',
+      font: '24px',
       image: 'url("https://example.com/test-background.png")',
       opacity: '0.45',
       blur: '5px',
@@ -129,16 +129,16 @@ for (const viewport of [{ name: 'desktop', width: 1440, height: 900 }, { name: '
     expect(rendered.userBg).not.toBe('rgba(0, 0, 0, 0)');
     expect(rendered.assistantText).toBe('rgb(171, 205, 239)');
     expect(rendered.userText).toBe('rgb(254, 220, 186)');
-    expect(rendered.assistantFontSize).toBe('20px');
-    expect(rendered.userFontSize).toBe('20px');
-    expect(rendered.platformSceneFontSize).toBe('20px');
+    expect(rendered.assistantFontSize).toBe('24px');
+    expect(rendered.userFontSize).toBe('24px');
+    expect(rendered.platformSceneFontSize).toBe('24px');
     expect(rendered.authorTextFontSize).toBe('13px');
     expect(rendered.radius).toBe('23px');
 
     await page.reload();
     const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('bao-lab:player-settings')).appearance);
     expect(saved).toMatchObject({
-      fontSize: 20,
+      fontSize: 24,
       fontFamily: 'serif',
       bgMode: 'custom',
       customBg: 'https://example.com/test-background.png',
@@ -194,3 +194,26 @@ test('mobile: reply settings keeps choices ahead of explanatory copy', async ({ 
   await modal.locator('.bao-modal-save').click();
   expect((await page.evaluate(() => BAOPlayerSettings.get())).replyLength).toBe('short');
 });
+
+// The production reading hierarchy has stronger selectors than the generic appearance styles.
+for (const width of [1440, 390]) {
+  test(`reading hierarchy at ${width}px honors maximum message font size`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto('/');
+    await page.evaluate(() => {
+      const view = document.querySelector('#chat-view');
+      view.classList.add('bao-player-reading-v2');
+      view.dataset.baoSurface = 'play';
+      view.style.setProperty('--chat-font-size', '24px');
+      document.querySelector('#chat-stream').innerHTML = '<div class="message user"><div class="bubble">我抬起眼睛，為什麼要幫助我？</div></div><div class="message assistant"><div class="bubble">河邊的冷風吹過。</div></div>';
+    });
+    for (const role of ['user', 'assistant']) {
+      await expect(page.locator(`#chat-stream .message.${role} .bubble`)).toHaveCSS('font-size', '24px');
+    }
+    // Existing messages also follow subsequent setting changes without a rerender.
+    await page.locator('#chat-view').evaluate(node => node.style.setProperty('--chat-font-size', '18px'));
+    for (const role of ['user', 'assistant']) {
+      await expect(page.locator(`#chat-stream .message.${role} .bubble`)).toHaveCSS('font-size', '18px');
+    }
+  });
+}
