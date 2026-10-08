@@ -1,0 +1,38 @@
+name: Work Title NPC Regression
+on:
+  pull_request:
+    branches: [main]
+    paths: ['js/character-status.js', 'js/site-ui.js', 'data/characters/**', 'tests/character-status-core.cjs', 'tests/e2e/work-title-npc.spec.cjs', '.github/workflows/work-title-npc.yml']
+  push:
+    branches: [main]
+    paths: ['js/character-status.js', 'js/site-ui.js', 'tests/e2e/work-title-npc.spec.cjs', '.github/workflows/work-title-npc.yml']
+permissions:
+  contents: read
+jobs:
+  title-regression:
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.63.0-noble
+      options: --user 1001
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: node tests/character-status-core.cjs
+      - run: npx playwright test tests/e2e/work-title-npc.spec.cjs --project=chromium
+      - name: Production NPC and status subjects
+        if: github.event_name == 'push'
+        env:
+          BAO_LIVE_URL: https://yorubay.com/
+        run: npx playwright test tests/e2e/work-title-npc.spec.cjs --project=chromium
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: work-title-npc-report
+          path: |
+            test-results/
+            playwright-report/

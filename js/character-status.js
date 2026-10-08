@@ -179,6 +179,13 @@
     return Boolean(name) && !authorDeclaredCharacterNames(character).has(name);
   };
 
+  const isWorkTitleName = (name, character) => {
+    const value = String(name || "").trim();
+    if (!value || !usesExplicitCharacterSemantics(character)) return false;
+    const titles = [cardDisplayNameFor(character), String(character?.title || "").trim()];
+    return titles.includes(value) && !authorDeclaredCharacterNames(character).has(value);
+  };
+
   const trackedNames = character => {
     const names = [
       ...configuredPrimaryNamesFor(character),
@@ -188,15 +195,11 @@
     if (!usesExplicitCharacterSemantics(character) && character?.id !== "desire-district") {
       names.unshift(cardDisplayNameFor(character));
     }
-    return [...new Set(names.map(name => String(name || "").trim()).filter(Boolean))];
+    return [...new Set(names.map(name => String(name || "").trim()).filter(name => name && !isWorkTitleName(name, character)))];
   };
 
-  const statusNames = character => {
-    const names = Object.keys(GameState.current?.characterStatuses || {});
-    if (!shouldSuppressCardDisplayName(character)) return names;
-    const displayName = cardDisplayNameFor(character);
-    return names.filter(name => name !== displayName);
-  };
+  const statusNames = character => Object.keys(GameState.current?.characterStatuses || {})
+    .filter(name => !isWorkTitleName(name, character));
 
   const primaryCharacterNamesFor = character => {
     const configured = configuredPrimaryNamesFor(character);
@@ -227,17 +230,20 @@
     if (!GameState.current.characterStatuses || typeof GameState.current.characterStatuses !== "object" || Array.isArray(GameState.current.characterStatuses)) {
       GameState.current.characterStatuses = {};
     }
-    if (!cfg.enabled) return cfg;
-
     const initial = initialStatusMapFor(c);
-    if (shouldSuppressCardDisplayName(c)) {
-      const invalidName = cardDisplayNameFor(c);
-      delete GameState.current.characterStatuses[invalidName];
-      if (Array.isArray(GameState.current.uiContextCharacters)) {
-        GameState.current.uiContextCharacters = GameState.current.uiContextCharacters.filter(name => name !== invalidName);
+    if (usesExplicitCharacterSemantics(c)) {
+      Object.keys(GameState.current.characterStatuses).forEach(name => {
+        if (isWorkTitleName(name, c)) delete GameState.current.characterStatuses[name];
+      });
+      if (Array.isArray(GameState.current.npcs)) {
+        GameState.current.npcs = GameState.current.npcs.filter(npc => !isWorkTitleName(npc?.name, c));
       }
-      if (GameState.current.uiContextCharacter === invalidName) delete GameState.current.uiContextCharacter;
+      if (Array.isArray(GameState.current.uiContextCharacters)) {
+        GameState.current.uiContextCharacters = GameState.current.uiContextCharacters.filter(name => !isWorkTitleName(name, c));
+      }
+      if (isWorkTitleName(GameState.current.uiContextCharacter, c)) delete GameState.current.uiContextCharacter;
     }
+    if (!cfg.enabled) return cfg;
     trackedNames(c).forEach(name => {
       const existing = GameState.current.characterStatuses[name] || initial?.[name] || {};
       const next = defaultStatus(cfg);
@@ -258,6 +264,7 @@
 
   const originalUpsert = GameState.upsertNPC.bind(GameState);
   GameState.upsertNPC = function(npc = {}) {
+    if (isWorkTitleName(npc?.name, window.App?.activeCharacter)) return;
     originalUpsert(npc);
     const cfg = ensureState(window.App?.activeCharacter) || configFor(window.App?.activeCharacter);
     if (!cfg.enabled || !npc?.name || !npc?.status || typeof npc.status !== "object") return;
@@ -274,7 +281,7 @@
     const cfg = ensureState(window.App?.activeCharacter) || configFor(window.App?.activeCharacter);
     if (!cfg.enabled || !update?.character_statuses || typeof update.character_statuses !== "object" || Array.isArray(update.character_statuses)) return;
     Object.entries(update.character_statuses).slice(0, 20).forEach(([name, patch]) => {
-      if (!name || !patch || typeof patch !== "object" || Array.isArray(patch)) return;
+      if (!name || isWorkTitleName(name, window.App?.activeCharacter) || !patch || typeof patch !== "object" || Array.isArray(patch)) return;
       const current = this.current.characterStatuses[name] || defaultStatus(cfg);
       cfg.fields.forEach(field => {
         if (patch[field.key] !== undefined) current[field.key] = cleanValue(field, patch[field.key]);
@@ -339,7 +346,7 @@
     return [];
   };
 
-  const npcRoster = () => (GameState.current?.npcs || []).filter(npc => npc?.name);
+  const npcRoster = () => (GameState.current?.npcs || []).filter(npc => npc?.name && !isWorkTitleName(npc.name, window.App?.activeCharacter));
 
   const npcIsInScene = (npc, state = GameState.current) => {
     if (!npc?.name || !state || npc.presence === "away") return false;

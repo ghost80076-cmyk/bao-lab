@@ -66,7 +66,7 @@ window.addEventListener("DOMContentLoaded", () => {
     .catch(err => console.warn("BAO/LAB autonomous world workbench or display failed to load:", err));
   loadBAOScript("js/global-bridge.js")
     .then(() => loadBAOScript("js/world-state.js"))
-    .then(() => loadBAOScript("js/character-status.js?v=3"))
+    .then(() => loadBAOScript("js/character-status.js?v=4"))
     .then(() => loadBAOScript("js/world-modules.js"))
     .then(() => loadBAOScript("js/world-clock.js?v=1"))
     .then(() => loadBAOScript("js/world-state-cost.js?v=2"))

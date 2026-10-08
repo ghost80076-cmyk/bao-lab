@@ -142,3 +142,45 @@ assert.deepEqual(BAOCharacterStatus.statusNames(simulatorCard), []);
 assert.equal(Object.hasOwn(GameState.current.characterStatuses, "模擬世界"), false);
 
 console.log("character status core test passed");
+
+// Exercise all published cards and both model update ingress paths.
+run("js/character.js");
+const catalog = [...require('../data/characters.json'), ...require('../data/character-catalog/community/page-0001.json')];
+const visited = new Set();
+for (const item of catalog) {
+  if (visited.has(item.id)) continue;
+  visited.add(item.id);
+  const raw = JSON.parse(fs.readFileSync(path.join(__dirname, '..', item.file), 'utf8'));
+  const original = JSON.stringify(raw);
+  const c = CharacterEngine.normalize(raw);
+  App.activeCharacter = c;
+  GameState.create(c, App.config);
+  const declared = new Set([
+    ...(c.initial_state.npcs || []).map(n => n.name),
+    ...Object.keys(c.initial_state.character_statuses || {}),
+    ...[].concat(c.character_status.primary_character_name || c.character_status.primary_character || c.character_status.subject_name || [])
+  ]);
+  const legitimateTitleActor = declared.has(c.name);
+  GameState.applyUpdate({ npcs: [{name:c.name, status:{condition:'誤建'}}], character_statuses: {[c.name]:{condition:'誤建'}} });
+  if (!legitimateTitleActor) {
+    assert.equal(GameState.current.npcs.some(n => n.name === c.name), false, item.id + ': model NPC title rejected');
+    assert.equal(Object.hasOwn(GameState.current.characterStatuses, c.name), false, item.id + ': model status title rejected');
+    GameState.upsertNPC({name:' ' + c.name + ' ', status:{condition:'誤建'}});
+    GameState.current.npcs.push({name:c.name});
+    GameState.current.characterStatuses[c.name] = {condition:'舊存檔誤建'};
+    BAOCharacterStatus.ensureState(c);
+    assert.equal(GameState.current.npcs.some(n => n.name.trim() === c.name), false, item.id + ': saved title NPC repaired');
+    assert.equal(Object.hasOwn(GameState.current.characterStatuses, c.name), false, item.id + ': saved title status repaired');
+  } else {
+    assert.equal(GameState.current.npcs.some(n => n.name === c.name), true, item.id + ': explicitly declared actor retained');
+  }
+  if (c.title !== c.name && !declared.has(c.title)) {
+    GameState.applyUpdate({npcs:[{name:c.title}], character_statuses:{[c.title]:{condition:'誤建'}}});
+    assert.equal(GameState.current.npcs.some(n => n.name === c.title), false, item.id + ': display title alias rejected');
+    assert.equal(Object.hasOwn(GameState.current.characterStatuses, c.title), false);
+  }
+  GameState.upsertNPC({name:'新登場人物', role:'路人'});
+  assert.equal(GameState.current.npcs.some(n => n.name === '新登場人物'), true, item.id + ': genuine discovered NPC retained');
+  assert.equal(JSON.stringify(raw), original, item.id + ': source card unchanged');
+}
+console.log('All ' + visited.size + ' published cards: work titles rejected, saved pollution repaired, real actors retained');

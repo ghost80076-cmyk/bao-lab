@@ -47,7 +47,7 @@ increasing(index, [
 increasing(siteUI, [
   'loadBAOScript("js/global-bridge.js")',
   'loadBAOScript("js/world-state.js")',
-  'loadBAOScript("js/character-status.js?v=3")',
+  'loadBAOScript("js/character-status.js?v=4")',
   'loadBAOScript("js/world-modules.js")',
   'loadBAOScript("js/world-state-hook.js")'
 ], "world-state extension");
