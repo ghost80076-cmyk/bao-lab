@@ -168,7 +168,19 @@
     return (Array.isArray(records) ? records : [])
       .sort((a,b) => String(b.createdAt || '').localeCompare(String(a.createdAt || '')))[0] || null;
   };
-  const latestForCurrentStory = async () => latestForStory(storyRefs().storyId);
+  const latestForCurrentStory = async () => {
+    const current = storyRefs();
+    const storyId = String(current.storyId || '').trim();
+    if (!storyId) return null;
+    const records = (await album.list(storyId) || [])
+      .sort((a,b) => String(b.createdAt || '').localeCompare(String(a.createdAt || '')));
+    const latestAssistantId = [...(window.Chat?.messages || [])].reverse()
+      .find(message => message?.role === 'assistant')?.id || '';
+    return records.find(item => latestAssistantId && item.messageId === latestAssistantId)
+      || records.find(item => current.chapterId && item.chapterId === current.chapterId)
+      || records[0]
+      || null;
+  };
   const notifyAlbumChanged = () => window.dispatchEvent(new CustomEvent('bao:story-image-album-changed'));
   const addGallery = (view, scene) => {
     const { panel, status, urls, overlay } = view;
