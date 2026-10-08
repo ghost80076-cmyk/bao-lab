@@ -16,6 +16,7 @@
   const THEME_DENSITIES = Object.freeze(['comfortable', 'compact']);
   const THEME_RADII = Object.freeze(['round', 'soft', 'sharp']);
   const THEME_METERS = Object.freeze(['soft', 'solid', 'glow']);
+  const LAYOUT_PRESETS = Object.freeze(['standard', 'rpg-dashboard']);
   const SAFE_KEY = /^[a-zA-Z][a-zA-Z0-9_-]{0,39}$/;
   const SAFE_COLOR = /^#[0-9a-fA-F]{3}([0-9a-fA-F]{3})?$/;
   const BLOCKED_KEYS = new Set(['__proto__', 'prototype', 'constructor']);
@@ -197,6 +198,24 @@
     return { id, label: label(raw.label, id), sections };
   }
 
+  function normalizeLayout(raw, panels = []) {
+    const source = isObject(raw) ? raw : {};
+    const preset = enumValue(source.preset, LAYOUT_PRESETS, 'standard');
+    if (preset === 'standard') return { preset: 'standard', left_panel: '', right_panel: '' };
+    const ids = new Set((Array.isArray(panels) ? panels : []).map(panel => panel.id));
+    const panelId = value => {
+      const id = key(value);
+      return id && ids.has(id) ? id : '';
+    };
+    const left = panelId(source.left_panel || source.left);
+    const rightCandidate = panelId(source.right_panel || source.right);
+    return {
+      preset,
+      left_panel: left,
+      right_panel: rightCandidate && rightCandidate !== left ? rightCandidate : ''
+    };
+  }
+
   function normalize(raw) {
     if (!isObject(raw) || raw.enabled === false) return null;
     const version = finite(raw.version, 1);
@@ -214,10 +233,12 @@
     const uniqueAttributes = attributes.filter(item => !seenBuilder.has(item.key) && seenBuilder.add(item.key));
     const uniqueFields = fields.filter(item => !seenBuilder.has(item.key) && seenBuilder.add(item.key));
     if (!uniqueAttributes.length && !uniqueFields.length && !uniquePanels.length) return null;
+    const layout = normalizeLayout(raw.layout, uniquePanels);
     return {
       version: 1,
       enabled: true,
       theme: normalizeTheme(raw.theme),
+      layout,
       builder: {
         title: label(builderRaw.title, '角色設定'),
         description: String(builderRaw.description || '').trim().slice(0, 300),
@@ -292,8 +313,8 @@
 
   return Object.freeze({
     MAX_PANELS, MAX_SECTIONS, MAX_ITEMS, MAX_ATTRIBUTES, MAX_FIELDS,
-    THEME_PRESETS, THEME_DENSITIES, THEME_RADII, THEME_METERS,
-    normalize, normalizeTheme, builderDefaults, attributeCost, remainingPoints, normalizeBuilderValues,
+    THEME_PRESETS, THEME_DENSITIES, THEME_RADII, THEME_METERS, LAYOUT_PRESETS,
+    normalize, normalizeTheme, normalizeLayout, builderDefaults, attributeCost, remainingPoints, normalizeBuilderValues,
     applyBuilderValues, getPath, setPath, isTargetPath, isDisplayPath
   });
 });
