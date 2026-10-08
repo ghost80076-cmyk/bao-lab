@@ -131,7 +131,8 @@ const Chat = {
       recentRounds,
       hasSummary: Boolean(this.summary),
       health: { ...(this.memoryHealth || {}) },
-      model: config?.memory?.summaryApi?.model || config?.memory?.summaryModel || config?.api?.model || ""
+      model: config?.memory?.summaryApiMode !== "same" && config?.memory?.summaryApi?.model && config?.memory?.summaryApi?.baseUrl
+        ? config.memory.summaryApi.model : (config?.api?.model || "")
     };
   },
 
@@ -167,9 +168,11 @@ const Chat = {
     const overflow = this.messages.length - keepMessages;
     const interval = Math.max(2, Number(config?.memory?.summaryInterval || 4)) * 2;
     if (overflow - this.summarizedUntil < (force ? 4 : interval)) return;
-    const memoryApi = config?.memory?.summaryApi?.model && config?.memory?.summaryApi?.baseUrl
-      ? config.memory.summaryApi
-      : config?.api;
+    // A saved summaryModel without an explicit separate route is legacy metadata.
+    // In "same" mode it must never overwrite the active provider's model ID.
+    const separateMemory = config?.memory?.summaryApiMode !== "same" &&
+      Boolean(config?.memory?.summaryApi?.model && config?.memory?.summaryApi?.baseUrl);
+    const memoryApi = separateMemory ? config.memory.summaryApi : config?.api;
     window.BAOCreditsPilot?.prepareAccountConfig?.(memoryApi);
     if (!memoryApi?.key && !window.BAOCreditsPilot?.isAccountReady?.(memoryApi)) {
       this.memoryHealth = {
@@ -177,7 +180,7 @@ const Chat = {
         phase: "failed",
         message: "記憶整理模型尚未連線；原始對話仍完整保留。",
         lastFailureAt: new Date().toISOString(),
-        lastModel: memoryApi?.model || config?.memory?.summaryModel || config?.api?.model || ""
+        lastModel: memoryApi?.model || ""
       };
       return;
     }
@@ -205,7 +208,7 @@ const Chat = {
       ...(this.memoryHealth || {}),
       phase: "running",
       message: `正在整理 ${this.turnCount(chunk)} 輪舊對話。`,
-      lastModel: config?.memory?.summaryApi?.model || config?.memory?.summaryModel || config?.api?.model || "",
+      lastModel: memoryApi?.model || "",
       repaired: false
     };
     try {
@@ -221,7 +224,6 @@ const Chat = {
         force ? "目前 Context 使用率偏高，請進一步壓縮，輸出新的完整摘要，盡量控制在 600～1200 字。" : "請輸出新的完整長期記憶摘要，建議 800～1600 字以內。"
       ].filter(Boolean).join("\n\n");
       const summaryConfig = { ...memoryApi, __memoryTask: true, cacheEnabled: false };
-      if (!config?.memory?.summaryApi?.model && config?.memory?.summaryModel) summaryConfig.model = config.memory.summaryModel;
       const result = await API.send(summaryConfig, [{ role: "system", content: "你是 Observer，不是作者。只輸出記憶規格 JSON，不要續寫故事或模仿正文文風。" }, { role: "user", content: prompt }]);
       const normalized = await this.normalizeMemoryResult(summaryConfig, result?.text || "");
       const summary = normalized.summary;
@@ -255,7 +257,7 @@ const Chat = {
         phase: "failed",
         message: String(err?.message || "記憶整理失敗；原始對話仍完整保留。").slice(0, 220),
         lastFailureAt: new Date().toISOString(),
-        lastModel: config?.memory?.summaryApi?.model || config?.memory?.summaryModel || config?.api?.model || ""
+        lastModel: memoryApi?.model || ""
       };
       console.warn("BAO/LAB memory summary failed:", err);
     }
@@ -366,7 +368,10 @@ const Chat = {
     if (App?.config?.memory?.mode === "smart") {
       const diag = this.memoryDiagnostics(App.config);
       if (this.summarizing || diag.health.phase === "running") return `${rounds} 輪 · 整理中`;
-      if (diag.health.phase === "failed") return `${rounds} 輪 · 摘要失敗`;
+      if (diag.health.phase === "failed") {
+        const retryAt = Date.parse(diag.health.cooldownUntil || "");
+        return `${rounds} 輪 · ${Number.isFinite(retryAt) && retryAt > Date.now() ? "摘要暫停待重試" : "摘要失敗"}`;
+      }
       if (this.summary) return `${rounds} 輪 · 已摘要 ${diag.coveredRounds} 輪`;
       if (diag.pendingRounds > 0) return `${rounds} 輪 · 待整理 ${diag.pendingRounds} 輪`;
       return `${rounds} 輪 · 近期原文`;
