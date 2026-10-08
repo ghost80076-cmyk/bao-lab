@@ -16,11 +16,13 @@ for (const viewport of [{ width: 1440, height: 1000 }, { width: 390, height: 844
       }, { timeout: 180000, intervals: [5000] }).toBe(true);
     }
     await page.goto('./');
-    await page.waitForFunction(() => typeof App !== 'undefined' && window.BAOGameplayUI && window.BAOWorldModules && window.BAOAuthorInline);
+    await page.waitForFunction(() => typeof App !== 'undefined' && window.BAOGameplayUI && window.BAOWorldModules && window.BAOAuthorInline && App.characters?.length);
     for (const work of works) {
       const result = await page.evaluate(async ({ work }) => {
         const raw = await (await fetch(work.file + '?archive-smoke=' + Date.now())).json();
-        const character = CharacterEngine.normalize(raw);
+        localStorage.removeItem('bao-lab:author-regex:v1:' + encodeURIComponent(work.id));
+        const character = await App.loadCharacter(work.id);
+        if (!character) throw new Error(work.id + ': catalog load failed');
         const schema = BAOGameplayUICore.normalize(character.gameplay_ui);
         if (schema?.panels[0]?.sections[0]?.type !== 'tabs') throw new Error(work.id + ': production archive missing');
         App.activeCharacter = character;
@@ -30,7 +32,8 @@ for (const viewport of [{ width: 1440, height: 1000 }, { width: 390, height: 844
         GameState.create(character, App.config);
         App.renderChatShell(true);
         App.showView('chat');
-        BAOGameplayUI.renderPanel(schema.panels[0].id);
+        BAOGameplayUI.syncTabs();
+        BAOGameplayUI.activateInitialPanel();
         const tabs = schema.panels[0].sections[0];
         const watch = tabs.tabs.find(t => t.id === 'changes').sections[0].items[0];
         const before = BAOGameplayUICore.getPath(GameState.current, watch.path);
@@ -44,6 +47,10 @@ for (const viewport of [{ width: 1440, height: 1000 }, { width: 390, height: 844
         BAOGameplayUI.renderPanel(schema.panels[0].id);
         return { before: String(before), after: String(after), panel: schema.panels[0].id, greeting: raw.content.greeting };
       }, {work});
+      // Play keeps status closed by default. Exercise the real player entry point.
+      const info = page.locator('#bao-play-status-toggle');
+      if (await info.getAttribute('aria-expanded') !== 'true') await info.click();
+      await page.locator('#game-ui .ui-tab[data-panel="' + result.panel + '"]').click();
       const archive = page.locator('#ui-panel .gameplay-tabbed-archive').first();
       await expect(archive).toBeVisible();
       await archive.locator('[data-gameplay-archive-tab="changes"]').click();
