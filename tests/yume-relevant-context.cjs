@@ -35,9 +35,9 @@ const yumePrompt = engine.composeSystemPrompt(card, {
   displayMode: 'ui',
   recentMessages: [{ role: 'user', content: '我看向ゆめ' }]
 });
-assert.match(yumePrompt, /【黑羽ゆめ】/);
+assert.match(yumePrompt, /〔黑羽ゆめ〕/);
 assert.match(yumePrompt, /依附焦慮/);
-assert.doesNotMatch(yumePrompt, /【六人私下設定：桜井りな】/);
+assert.doesNotMatch(yumePrompt, /[【〔]六人私下設定：桜井りな[】〕]/);
 assert.doesNotMatch(yumePrompt, /童年曾遭父親性侵/);
 
 engineContext.window.GameState.current = {
@@ -51,9 +51,9 @@ const ryuseiPrompt = engine.composeSystemPrompt(card, {
   displayMode: 'ui',
   recentMessages: [{ role: 'user', content: '我留在這裡觀察' }]
 });
-assert.match(ryuseiPrompt, /【琉星】/);
+assert.match(ryuseiPrompt, /〔琉星〕/);
 assert.match(ryuseiPrompt, /ACQUA 的資深 Host/);
-assert.doesNotMatch(ryuseiPrompt, /【六人私下設定：あいり】/);
+assert.doesNotMatch(ryuseiPrompt, /[【〔]六人私下設定：あいり[】〕]/);
 
 engineContext.window.GameState.current = {
   location: '中野',
@@ -66,8 +66,8 @@ const misakiPrompt = engine.composeSystemPrompt(card, {
   displayMode: 'ui',
   recentMessages: [{ role: 'user', content: '我沒有提任何人的名字' }]
 });
-assert.match(misakiPrompt, /【田中美咲】/);
+assert.match(misakiPrompt, /〔田中美咲〕/);
 assert.match(misakiPrompt, /兩年前離開夜職/);
-assert.doesNotMatch(misakiPrompt, /【六人私下設定：桜井りな】/);
+assert.doesNotMatch(misakiPrompt, /[【〔]六人私下設定：桜井りな[】〕]/);
 
 console.log('PASS Yume relevant context: cover character is an entry point, active world NPCs load on demand.');
