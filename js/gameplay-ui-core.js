@@ -12,6 +12,7 @@
   const MAX_ATTRIBUTES = 16;
   const MAX_FIELDS = 20;
   const MAX_OPTIONS = 40;
+  const MAX_TABS = 8;
   const THEME_PRESETS = Object.freeze(['default', 'arcane-night', 'stage-neon', 'parchment', 'noir']);
   const THEME_DENSITIES = Object.freeze(['comfortable', 'compact']);
   const THEME_RADII = Object.freeze(['round', 'soft', 'sharp']);
@@ -20,6 +21,7 @@
   const SCENE_SOURCES = Object.freeze(['story-gallery', 'reading-background', 'avatar']);
   const SCENE_FITS = Object.freeze(['cover', 'contain']);
   const CARD_VARIANTS = Object.freeze(['codex', 'quest', 'party', 'skill']);
+  const TIMELINE_MODES = Object.freeze(['history', 'round_diff']);
   const SAFE_KEY = /^[a-zA-Z][a-zA-Z0-9_-]{0,39}$/;
   const SAFE_COLOR = /^#[0-9a-fA-F]{3}([0-9a-fA-F]{3})?$/;
   const BLOCKED_KEYS = new Set(['__proto__', 'prototype', 'constructor']);
@@ -173,9 +175,9 @@
     return { label: label(raw.label, `項目 ${index + 1}`), path, suffix: String(raw.suffix || '').slice(0, 20) };
   }
 
-  function normalizeSection(raw, index) {
+  function normalizeSection(raw, index, depth = 0) {
     if (!isObject(raw)) return null;
-    const type = ['meters', 'stats', 'list', 'actions', 'cards'].includes(raw.type) ? raw.type : 'stats';
+    const type = ['meters', 'stats', 'list', 'actions', 'cards', 'tabs', 'location_archive', 'timeline'].includes(raw.type) ? raw.type : 'stats';
     if (type === 'list') {
       const path = String(raw.path || '').trim();
       if (!isDisplayPath(path)) return null;
@@ -191,6 +193,83 @@
         variant: enumValue(raw.variant, CARD_VARIANTS, 'codex'),
         empty: String(raw.empty || '目前沒有資料。').slice(0, 120),
         limit: Math.max(1, Math.min(30, finite(raw.limit, 8)))
+      };
+    }
+    if (type === 'tabs') {
+      if (depth >= 1) return null;
+      const tabs = (Array.isArray(raw.tabs) ? raw.tabs : []).map((tab, tabIndex) => {
+        if (!isObject(tab)) return null;
+        const id = key(tab.id || `tab_${tabIndex + 1}`);
+        if (!id) return null;
+        const sections = (Array.isArray(tab.sections) ? tab.sections : [])
+          .map((section, sectionIndex) => normalizeSection(section, sectionIndex, depth + 1))
+          .filter(Boolean)
+          .slice(0, MAX_SECTIONS);
+        if (!sections.length) return null;
+        return { id, label: label(tab.label, id), sections };
+      }).filter(Boolean).slice(0, MAX_TABS);
+      const seen = new Set();
+      const uniqueTabs = tabs.filter(tab => !seen.has(tab.id) && seen.add(tab.id));
+      if (!uniqueTabs.length) return null;
+      const requested = key(raw.default_tab);
+      return {
+        type,
+        id: key(raw.id || `tabs_${index + 1}`) || `tabs_${index + 1}`,
+        title: label(raw.title, ''),
+        default_tab: uniqueTabs.some(tab => tab.id === requested) ? requested : uniqueTabs[0].id,
+        tabs: uniqueTabs
+      };
+    }
+    if (type === 'location_archive') {
+      const timePath = isDisplayPath(raw.time_path || 'time') ? String(raw.time_path || 'time') : 'time';
+      const locationPath = isDisplayPath(raw.location_path || 'location') ? String(raw.location_path || 'location') : 'location';
+      const areaPath = String(raw.area_path || '').trim();
+      const statusPath = String(raw.status_path || '').trim();
+      const destinationsPath = String(raw.destinations_path || '').trim();
+      return {
+        type,
+        title: label(raw.title, 'LOCATION ARCHIVE'),
+        scene_source: enumValue(raw.scene_source, SCENE_SOURCES, 'story-gallery'),
+        scene_fit: enumValue(raw.scene_fit, SCENE_FITS, 'cover'),
+        time_path: timePath,
+        location_path: locationPath,
+        area_path: areaPath && isDisplayPath(areaPath) ? areaPath : '',
+        status_path: statusPath && isDisplayPath(statusPath) ? statusPath : '',
+        destinations_path: destinationsPath && isDisplayPath(destinationsPath) ? destinationsPath : '',
+        empty: String(raw.empty || '目前沒有可前往地點。').slice(0, 120),
+        limit: Math.max(1, Math.min(20, finite(raw.limit, 8)))
+      };
+    }
+    if (type === 'timeline') {
+      const mode = enumValue(raw.mode, TIMELINE_MODES, 'history');
+      if (mode === 'history') {
+        const path = String(raw.path || '').trim();
+        if (!isDisplayPath(path)) return null;
+        return {
+          type,
+          mode,
+          title: label(raw.title, '完整歷程'),
+          path,
+          empty: String(raw.empty || '目前沒有歷程。').slice(0, 120),
+          limit: Math.max(1, Math.min(30, finite(raw.limit, 12)))
+        };
+      }
+      let items = (Array.isArray(raw.items) ? raw.items : [])
+        .map((item, itemIndex) => normalizePanelItem(item, 'stats', itemIndex))
+        .filter(Boolean)
+        .slice(0, MAX_ITEMS);
+      if (!items.length) items = [
+        { label: '時間', path: 'time', suffix: '' },
+        { label: '地點', path: 'location', suffix: '' }
+      ];
+      const seenPaths = new Set();
+      items = items.filter(item => !seenPaths.has(item.path) && seenPaths.add(item.path));
+      return {
+        type,
+        mode,
+        title: label(raw.title, '本輪變動'),
+        items,
+        empty: String(raw.empty || '本輪沒有可見狀態變動。').slice(0, 120)
       };
     }
     const items = (Array.isArray(raw.items) ? raw.items : [])
@@ -338,8 +417,8 @@
   }
 
   return Object.freeze({
-    MAX_PANELS, MAX_SECTIONS, MAX_ITEMS, MAX_ATTRIBUTES, MAX_FIELDS,
-    THEME_PRESETS, THEME_DENSITIES, THEME_RADII, THEME_METERS, LAYOUT_PRESETS, SCENE_SOURCES, SCENE_FITS, CARD_VARIANTS,
+    MAX_PANELS, MAX_SECTIONS, MAX_ITEMS, MAX_ATTRIBUTES, MAX_FIELDS, MAX_TABS,
+    THEME_PRESETS, THEME_DENSITIES, THEME_RADII, THEME_METERS, LAYOUT_PRESETS, SCENE_SOURCES, SCENE_FITS, CARD_VARIANTS, TIMELINE_MODES,
     normalize, normalizeTheme, normalizeLayout, builderDefaults, attributeCost, remainingPoints, normalizeBuilderValues,
     applyBuilderValues, getPath, setPath, isTargetPath, isDisplayPath
   });
