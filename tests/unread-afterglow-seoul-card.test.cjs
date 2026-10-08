@@ -36,6 +36,13 @@ const normalized = UI.normalize(card.gameplay.ui_schema);
 assert.ok(normalized, 'UI schema normalization failed');
 assert.equal(normalized.theme.preset, 'noir');
 assert.deepEqual(normalized.panels.map(p => p.id), ['now', 'people', 'signals', 'messages', 'events', 'actions']);
+const uiById = Object.fromEntries(normalized.panels.map(panel => [panel.id, panel]));
+assert.equal(uiById.signals.sections[1].type, 'cards');
+assert.equal(uiById.signals.sections[1].variant, 'quest');
+assert.equal(uiById.messages.sections[0].type, 'cards');
+assert.equal(uiById.messages.sections[1].type, 'cards');
+assert.ok(card.gameplay.initial_state.modules.signal_ledger[0].summary.includes('兩人關係未確認'));
+assert.ok(card.gameplay.initial_state.modules.people.every(item => typeof item === 'string'));
 const paths = [];
 for (const panel of normalized.panels) for (const section of panel.sections) {
   if (section.path) paths.push(section.path);
