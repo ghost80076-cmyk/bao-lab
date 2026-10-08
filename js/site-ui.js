@@ -92,7 +92,7 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/canon-workbench.js"))
     .then(() => loadBAOScript("js/memory-workbench-simplify.js?v=2"))
     .then(() => loadBAOScript("js/chat-markup.js"))
-    .then(() => loadBAOScript("js/story-tools.js?v=3"))
+    .then(() => loadBAOScript("js/story-tools.js?v=4"))
     .then(() => loadBAOScript("js/context-pack-resume.js"))
     .then(() => loadBAOScript("js/story-library.js"))
     .then(() => loadBAOScript("js/story-backup.js"))
@@ -244,3 +244,4 @@ window.addEventListener("DOMContentLoaded", () => {
     window.BAORefreshSaveUI = refresh;
   }, 180);
 });
+
