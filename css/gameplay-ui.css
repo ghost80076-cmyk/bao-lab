@@ -44,11 +44,25 @@
 .gameplay-stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px}.gameplay-stat-grid>div{padding:10px;border-radius:var(--gameplay-small-radius);background:var(--gameplay-surface-alt);border:1px solid color-mix(in srgb,var(--gameplay-border) 72%,transparent)}.gameplay-stat-grid small{display:block;color:var(--gameplay-muted);margin-bottom:4px}.gameplay-stat-grid b{overflow-wrap:anywhere;color:var(--gameplay-text)}
 .gameplay-list{display:grid;gap:6px}.gameplay-list>div{padding:7px 9px;border-radius:var(--gameplay-small-radius);background:var(--gameplay-surface-alt)}.gameplay-list>span{color:var(--gameplay-muted)}
 .gameplay-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.gameplay-actions small{color:var(--gameplay-muted)}.gameplay-actions button{border-color:var(--gameplay-border)}.gameplay-actions button:hover{border-color:var(--gameplay-accent)}
+
+.gameplay-card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:9px}
+.gameplay-data-card{display:grid;gap:7px;padding:11px;border:1px solid color-mix(in srgb,var(--gameplay-border) 82%,transparent);border-radius:var(--gameplay-small-radius);background:var(--gameplay-surface-alt);min-width:0}
+.gameplay-data-card header{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.gameplay-data-card header strong{color:var(--gameplay-text);overflow-wrap:anywhere}
+.gameplay-data-card header span{flex:0 0 auto;padding:2px 7px;border:1px solid var(--gameplay-border);border-radius:999px;color:var(--gameplay-accent);font-size:.72rem}
+.gameplay-data-card p{margin:0;color:var(--gameplay-muted);font-size:.84rem;line-height:1.45;overflow-wrap:anywhere}
+.gameplay-data-card .gameplay-card-lead{color:var(--gameplay-text);font-weight:600}
+.gameplay-card-tags{display:flex;flex-wrap:wrap;gap:5px}
+.gameplay-card-tags small{padding:3px 6px;border-radius:999px;background:color-mix(in srgb,var(--gameplay-accent) 8%,transparent);color:var(--gameplay-muted)}
+.gameplay-data-card[data-card-variant="quest"]{border-left:3px solid var(--gameplay-accent)}
+.gameplay-data-card[data-card-variant="party"] header span{color:var(--gameplay-text)}
+.gameplay-data-card[data-card-variant="skill"] header span{font-weight:700}
+.gameplay-card-empty{color:var(--gameplay-muted)}
 #game-ui[data-gameplay-theme] .ui-tabs .gameplay-ui-tab.active,#game-ui[data-gameplay-theme] .ui-tabs [data-gameplay-original-label].active{border-color:var(--gameplay-accent);color:var(--gameplay-accent)}
 
 @media(max-width:680px){
   .gameplay-builder-head{display:grid}.gameplay-builder-attribute{grid-template-columns:1fr auto}.gameplay-builder-attribute>span{grid-column:1/-1;text-align:left}.gameplay-builder-fields{grid-template-columns:1fr}.gameplay-stat-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
-  #game-ui[data-gameplay-theme]{--gameplay-section-padding:11px;--gameplay-gap:9px}
+  #game-ui[data-gameplay-theme]{--gameplay-section-padding:11px;--gameplay-gap:9px}.gameplay-card-grid{grid-template-columns:1fr}
 }
 
 

@@ -19,6 +19,7 @@
   const LAYOUT_PRESETS = Object.freeze(['standard', 'rpg-dashboard', 'scene-rpg']);
   const SCENE_SOURCES = Object.freeze(['story-gallery', 'reading-background', 'avatar']);
   const SCENE_FITS = Object.freeze(['cover', 'contain']);
+  const CARD_VARIANTS = Object.freeze(['codex', 'quest', 'party', 'skill']);
   const SAFE_KEY = /^[a-zA-Z][a-zA-Z0-9_-]{0,39}$/;
   const SAFE_COLOR = /^#[0-9a-fA-F]{3}([0-9a-fA-F]{3})?$/;
   const BLOCKED_KEYS = new Set(['__proto__', 'prototype', 'constructor']);
@@ -174,11 +175,23 @@
 
   function normalizeSection(raw, index) {
     if (!isObject(raw)) return null;
-    const type = ['meters', 'stats', 'list', 'actions'].includes(raw.type) ? raw.type : 'stats';
+    const type = ['meters', 'stats', 'list', 'actions', 'cards'].includes(raw.type) ? raw.type : 'stats';
     if (type === 'list') {
       const path = String(raw.path || '').trim();
       if (!isDisplayPath(path)) return null;
       return { type, title: label(raw.title, ''), path, empty: String(raw.empty || '目前沒有資料。').slice(0, 120), limit: Math.max(1, Math.min(30, finite(raw.limit, 8))) };
+    }
+    if (type === 'cards') {
+      const path = String(raw.path || '').trim();
+      if (!isDisplayPath(path)) return null;
+      return {
+        type,
+        title: label(raw.title, ''),
+        path,
+        variant: enumValue(raw.variant, CARD_VARIANTS, 'codex'),
+        empty: String(raw.empty || '目前沒有資料。').slice(0, 120),
+        limit: Math.max(1, Math.min(30, finite(raw.limit, 8)))
+      };
     }
     const items = (Array.isArray(raw.items) ? raw.items : [])
       .map((item, itemIndex) => normalizePanelItem(item, type, itemIndex))
@@ -326,7 +339,7 @@
 
   return Object.freeze({
     MAX_PANELS, MAX_SECTIONS, MAX_ITEMS, MAX_ATTRIBUTES, MAX_FIELDS,
-    THEME_PRESETS, THEME_DENSITIES, THEME_RADII, THEME_METERS, LAYOUT_PRESETS, SCENE_SOURCES, SCENE_FITS,
+    THEME_PRESETS, THEME_DENSITIES, THEME_RADII, THEME_METERS, LAYOUT_PRESETS, SCENE_SOURCES, SCENE_FITS, CARD_VARIANTS,
     normalize, normalizeTheme, normalizeLayout, builderDefaults, attributeCost, remainingPoints, normalizeBuilderValues,
     applyBuilderValues, getPath, setPath, isTargetPath, isDisplayPath
   });
