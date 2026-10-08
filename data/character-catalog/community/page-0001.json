@@ -1509,10 +1509,11 @@
       "ui": true
     },
     "published_at": "2026-10-08T18:00:00Z",
-    "updated_at": "2026-10-08T19:24:25Z",
-    "published_version": 2,
-    "version_published_at": "2026-10-08T19:24:25Z",
+    "updated_at": "2026-10-08T20:38:00Z",
+    "published_version": 3,
+    "version_published_at": "2026-10-08T20:38:00Z",
     "author": "班長",
-    "author_id": "banzhang"
+    "author_id": "banzhang",
+    "avatar": "https://i.meee.com.tw/973ZQLP.png"
   }
 ]
