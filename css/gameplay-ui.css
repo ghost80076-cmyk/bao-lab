@@ -96,7 +96,8 @@
 .gameplay-scene-meta strong{font-size:clamp(1rem,1.45vw,1.35rem);text-align:right}
 
 @media(min-width:1280px){
-  #chat-view[data-gameplay-layout="scene-rpg"] .chat-layout{
+  #chat-view[data-gameplay-layout="scene-rpg"] .chat-layout,
+  #chat-view[data-gameplay-layout="scene-rpg"] .chat-layout.bao-status-collapsed{
     grid-template-columns:minmax(180px,205px) minmax(420px,1.15fr) minmax(390px,.9fr)!important;
     align-items:stretch
   }
@@ -110,7 +111,8 @@
   #chat-view[data-gameplay-layout="scene-rpg"] #game-ui{display:block!important}
 }
 @media(min-width:1600px){
-  #chat-view[data-gameplay-layout="scene-rpg"] .chat-layout{
+  #chat-view[data-gameplay-layout="scene-rpg"] .chat-layout,
+  #chat-view[data-gameplay-layout="scene-rpg"] .chat-layout.bao-status-collapsed{
     grid-template-columns:minmax(190px,220px) minmax(540px,1.28fr) minmax(430px,.86fr)!important
   }
 }
