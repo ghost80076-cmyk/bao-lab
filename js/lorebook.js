@@ -63,7 +63,7 @@
     const base = original.call(this, { ...c, lore: fixed }, context);
     const relevant = select(entries, context);
     if (!relevant.length) return base;
-    return base + '\n\n【本輪相關世界書】\n' + relevant.map(entry => `【${entry.label}】\n${entry.text}`).join('\n\n') + '\n僅在情境相關時使用上述背景，不要為了帶入設定而強行改變劇情。';
+    return base + '\n\n【本輪相關世界書】\n' + relevant.map(entry => `〔${entry.label}〕\n${entry.text}`).join('\n\n') + '\n僅在情境相關時使用上述背景，不要為了帶入設定而強行改變劇情。';
   };
   engine.__baoLorebookPatched = true;
   window.BAOLorebook = { parse, select };
