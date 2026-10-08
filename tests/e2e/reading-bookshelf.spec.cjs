@@ -7,6 +7,12 @@ async function openDemoStory(page) {
   await page.getByRole('button', { name: '查看作品', exact: true }).click();
   await page.getByRole('button', { name: '開始故事' }).click();
   await page.locator('#bao-setup-choice [data-bao-setup="advanced"]').click();
+  // This flow exercises native status panels; text mode has separate coverage.
+  await page.evaluate(() => {
+    const input = document.querySelector('input[name="display-mode"][value="ui"]');
+    input.checked = true;
+    input.dispatchEvent(new Event('change', { bubbles: true }));
+  });
   for (let i = 0; i < 3; i += 1) await page.locator('#next-step').click();
   await page.locator('#bao-demo-mode').check();
   await page.locator('#next-step').click();
