@@ -55,20 +55,20 @@ for (const display of paths) {
   assert.doesNotMatch(display, /^modules\.(?:relationship_edges|offscreen_facts)/, 'private relationship data leaked to UI');
 }
 const keys = new Set(normalized.builder.fields.map(f => f.key));
-for (const key of ['entry_scene', 'starting_distance', 'social_circle', 'tempo', 'lead_name', 'extra_note']) assert.ok(keys.has(key), 'builder missing ' + key);
+for (const key of ['social_overlap', 'contact_rhythm', 'social_circle', 'tempo', 'address_style', 'extra_note']) assert.ok(keys.has(key), 'builder missing ' + key);
 const alternate = structuredClone(card.gameplay.initial_state);
 assert.equal(UI.applyBuilderValues(card.gameplay.ui_schema, {
-  entry_scene: '朋友生日聚會',
-  starting_distance: '已經曖昧一陣子',
-  social_circle: '校園舊識',
-  lead_name: '徐延宇',
+  social_overlap: '高度重疊',
+  contact_rhythm: '社群互動較頻繁',
+  social_circle: '城市夜生活',
+  address_style: '較熟時用暱稱',
   tempo: '一般都市節奏',
   extra_note: '彼此兩週沒聯絡'
 }, alternate), true, 'builder state was not written');
-assert.equal(alternate.modules.session_setup.entry_scene, '朋友生日聚會');
-assert.equal(alternate.modules.session_setup.starting_distance, '已經曖昧一陣子');
-assert.equal(alternate.modules.session_setup.social_circle, '校園舊識');
-assert.equal(alternate.modules.session_setup.lead_name, '徐延宇');
+assert.equal(alternate.modules.session_setup.social_overlap, '高度重疊');
+assert.equal(alternate.modules.session_setup.contact_rhythm, '社群互動較頻繁');
+assert.equal(alternate.modules.session_setup.social_circle, '城市夜生活');
+assert.equal(alternate.modules.session_setup.address_style, '較熟時用暱稱');
 assert.equal(alternate.modules.session_setup.extra_note, '彼此兩週沒聯絡');
 
 assert.equal(regex.characterId, card.meta.id);
