@@ -1,9 +1,9 @@
 const { test, expect } = require('@playwright/test');
 const fs = require('node:fs');
 
-const capture = async (page, name) => {
+const capture = async (page, name, fullPage = true) => {
   fs.mkdirSync('test-results/editorial', { recursive: true });
-  await page.screenshot({ path: `test-results/editorial/${name}.png`, fullPage: true, animations: 'disabled' });
+  await page.screenshot({ path: `test-results/editorial/${name}.png`, fullPage, animations: 'disabled' });
 };
 
 for (const width of [390, 1280]) {
@@ -123,7 +123,9 @@ for (const width of [390, 1280]) {
       const reader = page.getByRole('dialog', { name: '故事資訊' });
       await expect(reader).toBeVisible();
       await expect(page.locator('#game-ui')).toBeHidden();
-      await capture(page, `chat-status-${width}`);
+      // Fixed status sheets are captured in the real viewport; full-page capture
+      // temporarily resizes the page and can close responsive overlays.
+      await capture(page, `chat-status-${width}`, false);
       // Reader Context close behavior is covered in its focused E2E. The
       // subsequent Play -> Studio transition is the integration contract here.
 
@@ -135,7 +137,9 @@ for (const width of [390, 1280]) {
       }
       await page.locator('.ui-tab[data-panel="status"]').click();
       await expect(page.locator('#ui-panel .state-grid')).toBeVisible();
-      await capture(page, `chat-status-${width}`);
+      // Fixed status sheets are captured in the real viewport; full-page capture
+      // temporarily resizes the page and can close responsive overlays.
+      await capture(page, `chat-status-${width}`, false);
       await page.locator('#bao-play-status-close').click();
       await expect(page.locator('#game-ui')).toBeHidden();
     }
