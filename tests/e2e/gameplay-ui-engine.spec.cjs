@@ -91,7 +91,12 @@ test('gameplay schema renders builder, applies state, and drafts actions without
   await expect(page.locator('#ui-panel .gameplay-card-grid[data-card-variant="skill"]')).toContainText('流雲步');
   await expect(page.locator('#ui-panel .gameplay-card-grid[data-card-variant="skill"]')).toContainText('12 氣');
 
-  await page.evaluate(() => BAOGameplayUI.renderPanel('archive'));
+  await page.setViewportSize({ width: 900, height: 900 });
+  await page.evaluate(() => {
+    window.BAOChatExperience?.sync?.();
+    BAOGameplayUI.syncDashboardLayout();
+    BAOGameplayUI.renderPanel('archive');
+  });
   const archive = page.locator('#ui-panel .gameplay-tabbed-archive');
   await expect(archive).toBeVisible();
   await expect(archive.locator('.gameplay-archive-tab')).toHaveCount(4);
