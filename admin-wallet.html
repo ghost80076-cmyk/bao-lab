@@ -449,6 +449,108 @@ code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
     renderPlayerList();
     if(selected) setMessage("player-message","已選取 "+(selected.username||selected.public_id||"玩家")+"。",true);
   }
+
+  function resetUsagePanel(){
+    usageRequestSeq++;
+    usageRows=[];
+    usagePage=0;
+    usageHasMore=false;
+    $("player-usage-card").hidden=true;
+    $("usage-rows").innerHTML='<tr><td colspan="8" class="player-empty">尚未載入。</td></tr>';
+    $("usage-summary").textContent="尚未載入紀錄。";
+    $("usage-more").hidden=true;
+    setMessage("usage-message","");
+  }
+  function usageUsd(value){
+    if(value===null||value===undefined||value==="") return "—";
+    var n=Number(value);
+    return Number.isFinite(n)?"US$"+n.toFixed(6):"—";
+  }
+  function usageToken(value){
+    if(value===null||value===undefined) return "—";
+    var n=Number(value);
+    return Number.isFinite(n)?n.toLocaleString("zh-TW"):"—";
+  }
+  function renderUsage(){
+    var knownCharge=0,knownUpstream=0,legacy=0,missingCharge=0,missingUpstream=0;
+    var chargedCount=0,upstreamCount=0;
+    usageRows.forEach(function(row){
+      if(row.billing_mode==="cost_usd_v2"&&row.settled_cost_usd!=null&&Number.isFinite(Number(row.settled_cost_usd))){
+        knownCharge+=Number(row.settled_cost_usd);
+        chargedCount++;
+      }else if(row.billing_mode==="raw_tokens_v1"){
+        legacy++;
+      }else{
+        missingCharge++;
+      }
+      if(row.provider_cost_usd!=null&&Number.isFinite(Number(row.provider_cost_usd))){
+        knownUpstream+=Number(row.provider_cost_usd);
+        upstreamCount++;
+      }else{
+        missingUpstream++;
+      }
+    });
+    $("usage-summary").textContent=
+      "目前載入 "+usageRows.length+" 筆｜玩家已知實扣 "+usageUsd(knownCharge)+"（"+chargedCount+" 筆）"+
+      "｜上游已知成本 "+usageUsd(knownUpstream)+"（"+upstreamCount+" 筆）"+
+      (legacy?"｜舊制紀錄 "+legacy+" 筆（非美元）":"")+
+      (missingCharge?"｜未能確認美元實扣 "+missingCharge+" 筆":"")+
+      (missingUpstream?"｜無上游成本資料 "+missingUpstream+" 筆":"")+
+      "。合計僅包含目前載入的紀錄，不等於全部歷史或 Google 實際帳單。";
+    var statusLabels={ok:"成功",failed:"失敗",over_budget:"超額",unverified_refunded:"未確認，已退回",refunded:"已退回"};
+    $("usage-rows").innerHTML=usageRows.length?usageRows.map(function(row){
+      var isLegacy=row.billing_mode==="raw_tokens_v1";
+      var charge=isLegacy
+        ? (row.charged_legacy_credits==null?"舊制（非美元）":usageToken(row.charged_legacy_credits)+" 舊制額度")
+        : usageUsd(row.settled_cost_usd);
+      return '<tr>'+
+        '<td>'+escapeHTML(formatDate(row.created_at))+
+          '<span class="usage-detail"><code>'+escapeHTML(row.request_id||"")+'</code></span></td>'+
+        '<td><b>'+escapeHTML(row.request_kind||"chat")+'</b>'+
+          '<span class="usage-detail">'+escapeHTML(row.provider||"—")+' / '+escapeHTML(row.model||"—")+'</span></td>'+
+        '<td>'+escapeHTML(usageToken(row.input_tokens))+'</td>'+
+        '<td>'+escapeHTML(usageToken(row.cached_tokens))+'</td>'+
+        '<td>'+escapeHTML(usageToken(row.output_tokens))+' / '+escapeHTML(usageToken(row.reasoning_tokens))+'</td>'+
+        '<td class="money"><b>'+escapeHTML(charge)+'</b></td>'+
+        '<td class="money">'+escapeHTML(usageUsd(row.provider_cost_usd))+'</td>'+
+        '<td>'+escapeHTML(statusLabels[row.status]||row.status||"—")+'</td>'+
+      '</tr>';
+    }).join(""):'<tr><td colspan="8" class="player-empty">沒有這位玩家的用量紀錄。</td></tr>';
+    $("usage-more").hidden=!usageHasMore;
+  }
+  async function loadPlayerUsage(page){
+    if(!selected||!adminToken) return;
+    var playerId=selected.id;
+    var sequence=++usageRequestSeq;
+    $("usage-refresh").disabled=true;
+    $("usage-more").disabled=true;
+    setMessage("usage-message","正在載入第 "+(page+1)+" 頁紀錄…");
+    try{
+      var data=await api("/admin/usage?player_id="+encodeURIComponent(playerId)+"&page="+page,{method:"GET"});
+      if(sequence!==usageRequestSeq||!selected||selected.id!==playerId) return;
+      var rows=Array.isArray(data.usage)?data.usage:[];
+      usageRows=page===0?rows:usageRows.concat(rows);
+      usagePage=page;
+      usageHasMore=Boolean(data.has_more);
+      renderUsage();
+      setMessage("usage-message","已載入 "+usageRows.length+" 筆紀錄。",true);
+    }catch(e){
+      if(sequence!==usageRequestSeq) return;
+      setMessage("usage-message","讀取用量失敗："+e.message);
+    }finally{
+      if(sequence===usageRequestSeq){
+        $("usage-refresh").disabled=false;
+        $("usage-more").disabled=false;
+      }
+    }
+  }
+  function openPlayerUsage(){
+    if(!selected||!adminToken) return;
+    $("player-usage-card").hidden=false;
+    $("usage-player-name").textContent=(selected.display_name||selected.username||selected.public_id||"玩家")+" / "+(selected.public_id||"");
+    loadPlayerUsage(0);
+    $("player-usage-card").scrollIntoView({behavior:"smooth",block:"start"});
+  }
   async function refreshPlayers(preferredId){
     var data=await api("/admin/players",{method:"GET"});
     players=Array.isArray(data.players)?data.players:[];
@@ -657,9 +759,22 @@ code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
     selectPlayer(found);
   };
 
+  $("view-player-usage").onclick=openPlayerUsage;
+  $("usage-refresh").onclick=function(){loadPlayerUsage(0);};
+  $("usage-more").onclick=function(){if(usageHasMore) loadPlayerUsage(usagePage+1);};
+  $("usage-close").onclick=resetUsagePanel;
+
   $("player-list-filter").addEventListener("input",renderPlayerList);
   $("player-list-sort").addEventListener("change",renderPlayerList);
   $("player-list-body").addEventListener("click",async function(event){
+    var usageButton=event.target.closest("[data-usage-player]");
+    if(usageButton){
+      var usagePlayer=players.find(function(p){return p.id===usageButton.dataset.usagePlayer;})||null;
+      if(!usagePlayer) return;
+      selectPlayer(usagePlayer);
+      openPlayerUsage();
+      return;
+    }
     var selectButton=event.target.closest("[data-select-player]");
     if(selectButton){
       var player=players.find(function(p){return p.id===selectButton.dataset.selectPlayer;})||null;
