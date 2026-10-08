@@ -99,6 +99,36 @@ Gameplay UI 的資料結構與外觀分離。作者不需要寫專屬 JS，也�
 }
 ```
 
+## v1.1 Layout Layer
+
+角色卡可以選擇平台內建的版面 preset，而不是自己注入 HTML / CSS。
+
+目前支援：
+
+- `standard`：沿用原本 Gameplay UI tabs。
+- `rpg-dashboard`：桌機使用夜灣現有三欄骨架；左欄顯示指定 gameplay panel，中間保留故事閱讀與輸入，右欄把指定 gameplay panel 放進既有世界狀態 rail。窄螢幕會退回原本 tabs / 狀態抽屜，不另做一套手機 DOM。
+
+範例：
+
+```json
+{
+  "gameplay_ui": {
+    "version": 1,
+    "layout": {
+      "preset": "rpg-dashboard",
+      "left_panel": "status",
+      "right_panel": "world"
+    },
+    "panels": [
+      { "id": "status", "label": "狀態", "sections": [] },
+      { "id": "world", "label": "世界", "sections": [] }
+    ]
+  }
+}
+```
+
+`left_panel` / `right_panel` 只能引用同一份 schema 已存在的 panel id。平台不接受 selector、任意 DOM 位置、URL、CSS 或 JavaScript。沒有宣告 layout 的舊卡等同 `standard`，完全維持原流程。
+
 ## 不在 v1 範圍
 
 - 真正的戰鬥規則／傷害公式
