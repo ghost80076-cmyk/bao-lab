@@ -107,10 +107,7 @@ const paidNoBalance = reservePlan(
 
 assert.equal(paidNoBalance.ok, false);
 
-assert.match(
-  source,
-  /plan\s*\.\s*reserveMicrousd\s*>\s*0/,
-  "zero-reserve requests should skip the wallet debit UPDATE"
-);
+// Zero-cost reservation and settlement are exercised against SQLite in
+// worker-wallet-reservations-core.cjs; success does not depend on a no-op debit.
 
 console.log("worker free-model billing core test passed");

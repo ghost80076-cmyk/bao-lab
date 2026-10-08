@@ -1,4 +1,11 @@
 import {
+  ensureWalletReservations,
+  reserveWallet,
+  settleWallet,
+  recoverExpiredWalletReservations,
+} from "./wallet-reservations.js";
+
+import {
   COST_BILLING_MODE,
 } from "./billing-constants.js";
 
@@ -139,13 +146,9 @@ async function costUsdChatRoute(
     );
   }
 
-  const walletBalance =
-    safeMoneyInt(
-      player
-        .wallet_balance_microusd
-    );
+  let walletBalance = safeMoneyInt(player.wallet_balance_microusd);
 
-  const plan =
+  let plan =
     reservePlan(
       config,
       messages,
@@ -159,6 +162,14 @@ async function costUsdChatRoute(
       503
     );
   }
+
+  await ensureWalletReservations(db);
+  await recoverExpiredWalletReservations(db, player.id);
+  const currentWallet = await db.prepare(
+    'SELECT balance_microusd FROM wallets WHERE player_id = ?'
+  ).bind(player.id).first();
+  walletBalance = safeMoneyInt(currentWallet?.balance_microusd);
+  plan = reservePlan(config, messages, requestedMaxOutput, walletBalance);
 
   if (!plan.ok) {
     return fail(
@@ -245,84 +256,17 @@ async function costUsdChatRoute(
     );
   }
 
-  let reserveDebit = {
-    meta: {
-      changes:
-        1,
-    },
-  };
-
-  // A fully free model has nothing to reserve. Avoid relying on a
-  // database no-op UPDATE being reported as a changed row.
-  if (
-    plan
-      .reserveMicrousd >
-    0
-  ) {
-    reserveDebit =
-      await db
-        .prepare(
-          `
-          UPDATE wallets
-
-          SET
-            balance_microusd =
-              balance_microusd -
-              ?,
-
-            updated_at =
-              CURRENT_TIMESTAMP
-
-          WHERE
-            player_id = ?
-
-            AND
-            enabled = 1
-
-            AND
-            balance_microusd >= ?
-          `
-        )
-        .bind(
-          plan
-            .reserveMicrousd,
-
-          player.id,
-
-          plan
-            .reserveMicrousd
-        )
-        .run();
+  const reserved = await reserveWallet(db, requestId, player.id, plan.reserveMicrousd);
+  if (!reserved) {
+    await db.prepare("UPDATE api_usage SET status = 'denied' WHERE request_id = ?")
+      .bind(requestId).run();
+    return fail("insufficient_wallet_balance", 402);
   }
 
-  if (
-    !reserveDebit
-      .meta
-      .changes
-  ) {
-    await db
-      .prepare(
-        `
-        UPDATE api_usage
-
-        SET
-          status =
-            'denied'
-
-        WHERE
-          request_id = ?
-        `
-      )
-      .bind(
-        requestId
-      )
-      .run();
-
-    return fail(
-      "insufficient_wallet_balance",
-      402
-    );
-  }
+  const refundReservation = (status, stored = {}) => settleWallet(db, {
+    requestId, playerId: player.id, actualCost: 0, stored, status,
+    billingMode: COST_BILLING_MODE, pricingVersion, provider, model, refund: true,
+  });
 
   const result =
     await providerCall(
@@ -349,65 +293,7 @@ async function costUsdChatRoute(
     if (
       ambiguousTransportFailure
     ) {
-      await db.batch(
-        [
-          db
-            .prepare(
-              `
-              UPDATE wallets
-
-              SET
-                balance_microusd =
-                  balance_microusd +
-                  ?,
-
-                updated_at =
-                  CURRENT_TIMESTAMP
-
-              WHERE
-                player_id = ?
-              `
-            )
-            .bind(
-              plan
-                .reserveMicrousd,
-
-              player.id
-            ),
-
-          db
-            .prepare(
-              `
-              UPDATE api_usage
-
-              SET
-                cost_microusd = 0,
-                settled_cost_microusd = 0,
-
-                balance_before_microusd = ?,
-                balance_after_microusd = ?,
-
-                billing_mode = ?,
-                pricing_version = ?,
-
-                status =
-                  'unverified_refunded'
-
-              WHERE
-                request_id = ?
-              `
-            )
-            .bind(
-              walletBalance,
-              walletBalance,
-
-              COST_BILLING_MODE,
-              pricingVersion,
-
-              requestId
-            ),
-        ]
-      );
+      await refundReservation("unverified_refunded");
 
       return fail(
         "provider_usage_unverified",
@@ -471,64 +357,7 @@ async function costUsdChatRoute(
       );
     }
 
-    await db.batch(
-      [
-        db
-          .prepare(
-            `
-            UPDATE wallets
-
-            SET
-              balance_microusd =
-                balance_microusd +
-                ?,
-
-              updated_at =
-                CURRENT_TIMESTAMP
-
-            WHERE
-              player_id = ?
-            `
-          )
-          .bind(
-            plan
-              .reserveMicrousd,
-
-            player.id
-          ),
-
-        db
-          .prepare(
-            `
-            UPDATE api_usage
-
-            SET
-              cost_microusd =
-                0,
-
-              settled_cost_microusd =
-                0,
-
-              balance_before_microusd =
-                ?,
-
-              balance_after_microusd =
-                ?,
-
-              status =
-                'failed'
-
-            WHERE
-              request_id = ?
-            `
-          )
-          .bind(
-            walletBalance,
-            walletBalance,
-            requestId
-          ),
-      ]
-    );
+    await refundReservation("failed");
 
     return providerFailureResponse(
       result,
@@ -554,84 +383,7 @@ async function costUsdChatRoute(
     );
 
   if (!verified) {
-    await db.batch(
-      [
-        db
-          .prepare(
-            `
-            UPDATE wallets
-
-            SET
-              balance_microusd =
-                balance_microusd +
-                ?,
-
-              updated_at =
-                CURRENT_TIMESTAMP
-
-            WHERE
-              player_id = ?
-            `
-          )
-          .bind(
-            plan
-              .reserveMicrousd,
-
-            player.id
-          ),
-
-        db
-          .prepare(
-            `
-            UPDATE api_usage
-
-            SET
-              input_tokens = ?,
-              fresh_input_tokens = ?,
-              cached_tokens = ?,
-              cache_write_tokens = ?,
-              output_tokens = ?,
-              reasoning_tokens = ?,
-
-              provider_cost_microusd = ?,
-
-              cost_microusd = 0,
-              settled_cost_microusd = 0,
-
-              balance_before_microusd = ?,
-              balance_after_microusd = ?,
-
-              billing_mode = ?,
-              pricing_version = ?,
-
-              status =
-                'unverified_refunded'
-
-            WHERE
-              request_id = ?
-            `
-          )
-          .bind(
-            stored.input,
-            stored.freshInput,
-            stored.cached,
-            stored.cacheWrite,
-            stored.output,
-            stored.reasoning,
-
-            stored
-              .providerCostMicrousd,
-
-            walletBalance,
-            walletBalance,
-
-            COST_BILLING_MODE,
-            pricingVersion,
-
-            requestId
-          ),
-      ]
-    );
+    const refunded = await refundReservation("unverified_refunded", stored);
 
     return json({
       request_id:
@@ -707,10 +459,10 @@ async function costUsdChatRoute(
           0,
 
         wallet_balance_microusd:
-          walletBalance,
+          safeMoneyInt(refunded?.balance_after_microusd),
 
         wallet_balance_usd:
-          walletBalance /
+          safeMoneyInt(refunded?.balance_after_microusd) /
           1_000_000,
 
         billing_mode:
@@ -742,50 +494,7 @@ async function costUsdChatRoute(
       1_000_000_000_000
     )
   ) {
-    await db.batch(
-      [
-        db
-          .prepare(
-            `
-            UPDATE wallets
-
-            SET
-              balance_microusd =
-                balance_microusd +
-                ?,
-
-              updated_at =
-                CURRENT_TIMESTAMP
-
-            WHERE
-              player_id = ?
-            `
-          )
-          .bind(
-            plan
-              .reserveMicrousd,
-
-            player.id
-          ),
-
-        db
-          .prepare(
-            `
-            UPDATE api_usage
-
-            SET
-              status =
-                'pricing_error'
-
-            WHERE
-              request_id = ?
-            `
-          )
-          .bind(
-            requestId
-          ),
-      ]
-    );
+    await refundReservation("pricing_error", stored);
 
     return fail(
       "pricing_calculation_failed",
@@ -797,284 +506,18 @@ async function costUsdChatRoute(
     );
   }
 
-  let charged =
-    actualCost;
-
-  let settlementStatus =
-    "ok";
-
-  if (
-    actualCost <=
-    plan
-      .reserveMicrousd
-  ) {
-    const refund =
-      plan
-        .reserveMicrousd -
-      actualCost;
-
-    if (
-      refund > 0
-    ) {
-      await db
-        .prepare(
-          `
-          UPDATE wallets
-
-          SET
-            balance_microusd =
-              balance_microusd +
-              ?,
-
-            updated_at =
-              CURRENT_TIMESTAMP
-
-          WHERE
-            player_id = ?
-          `
-        )
-        .bind(
-          refund,
-          player.id
-        )
-        .run();
-    }
+  const settlement = await settleWallet(db, {
+    requestId, playerId: player.id, actualCost, stored,
+    billingMode: COST_BILLING_MODE, pricingVersion, provider, model,
+  });
+  if (settlement?.state !== 'settled') {
+    return fail('reservation_already_refunded', 409, {
+      request_id: requestId, billing_refunded: true,
+    });
   }
-
-  else {
-    const extra =
-      actualCost -
-      plan
-        .reserveMicrousd;
-
-    const extraDebit =
-      await db
-        .prepare(
-          `
-          UPDATE wallets
-
-          SET
-            balance_microusd =
-              balance_microusd -
-              ?,
-
-            updated_at =
-              CURRENT_TIMESTAMP
-
-          WHERE
-            player_id = ?
-
-            AND
-            enabled = 1
-
-            AND
-            balance_microusd >= ?
-          `
-        )
-        .bind(
-          extra,
-          player.id,
-          extra
-        )
-        .run();
-
-    if (
-      !extraDebit
-        .meta
-        .changes
-    ) {
-      const remaining =
-        await db
-          .prepare(
-            `
-            SELECT
-              balance_microusd
-
-            FROM wallets
-
-            WHERE
-              player_id = ?
-            `
-          )
-          .bind(
-            player.id
-          )
-          .first();
-
-      const collectable =
-        safeMoneyInt(
-          remaining
-            ?.balance_microusd
-        );
-
-      if (
-        collectable > 0
-      ) {
-        await db
-          .prepare(
-            `
-            UPDATE wallets
-
-            SET
-              balance_microusd =
-                0,
-
-              updated_at =
-                CURRENT_TIMESTAMP
-
-            WHERE
-              player_id = ?
-            `
-          )
-          .bind(
-            player.id
-          )
-          .run();
-      }
-
-      charged =
-        plan
-          .reserveMicrousd +
-        collectable;
-
-      settlementStatus =
-        "over_budget";
-    }
-  }
-
-  const finalWallet =
-    await db
-      .prepare(
-        `
-        SELECT
-          balance_microusd
-
-        FROM wallets
-
-        WHERE
-          player_id = ?
-        `
-      )
-      .bind(
-        player.id
-      )
-      .first();
-
-  const balanceAfter =
-    safeMoneyInt(
-      finalWallet
-        ?.balance_microusd
-    );
-
-  const balanceBefore =
-    balanceAfter +
-    charged;
-
-  const ledgerId =
-    crypto.randomUUID();
-
-  await db.batch(
-    [
-      db
-        .prepare(
-          `
-          UPDATE api_usage
-
-          SET
-            input_tokens = ?,
-            fresh_input_tokens = ?,
-            cached_tokens = ?,
-            cache_write_tokens = ?,
-            output_tokens = ?,
-            reasoning_tokens = ?,
-
-            provider_cost_microusd = ?,
-
-            cost_microusd = ?,
-            settled_cost_microusd = ?,
-
-            balance_before_microusd = ?,
-            balance_after_microusd = ?,
-
-            billing_mode = ?,
-            pricing_version = ?,
-            status = ?
-
-          WHERE
-            request_id = ?
-          `
-        )
-        .bind(
-          stored.input,
-          stored.freshInput,
-          stored.cached,
-          stored.cacheWrite,
-          stored.output,
-          stored.reasoning,
-
-          stored
-            .providerCostMicrousd,
-
-          actualCost,
-          charged,
-
-          balanceBefore,
-          balanceAfter,
-
-          COST_BILLING_MODE,
-          pricingVersion,
-          settlementStatus,
-
-          requestId
-        ),
-
-      db
-        .prepare(
-          `
-          INSERT INTO wallet_ledger (
-            ledger_id,
-            player_id,
-            entry_type,
-            amount_microusd,
-
-            balance_before_microusd,
-            balance_after_microusd,
-
-            request_id,
-            reference_id,
-            note
-          )
-
-          VALUES (
-            ?,
-            ?,
-            'usage',
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?
-          )
-          `
-        )
-        .bind(
-          ledgerId,
-          player.id,
-
-          -charged,
-
-          balanceBefore,
-          balanceAfter,
-
-          requestId,
-
-          `${provider}:${model}`,
-
-          settlementStatus
-        ),
-    ]
-  );
+  const charged = settlement.charged_microusd;
+  const settlementStatus = settlement.settlement_status;
+  const balanceAfter = settlement.balance_after_microusd;
 
   return json({
     request_id:
