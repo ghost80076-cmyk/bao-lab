@@ -56,6 +56,20 @@ assert.equal(badLayout.preset, 'rpg-dashboard');
 assert.equal(badLayout.left_panel, '');
 assert.equal(badLayout.right_panel, '');
 assert.equal(Core.normalizeLayout({ preset: 'javascript:alert(1)' }, schema.panels).preset, 'standard');
+const sceneLayout = Core.normalizeLayout({
+  preset: 'scene-rpg',
+  right_panel: 'world',
+  scene_source: 'reading-background',
+  scene_fit: 'contain'
+}, schema.panels);
+assert.equal(sceneLayout.preset, 'scene-rpg');
+assert.equal(sceneLayout.left_panel, '');
+assert.equal(sceneLayout.right_panel, 'world');
+assert.equal(sceneLayout.scene_source, 'reading-background');
+assert.equal(sceneLayout.scene_fit, 'contain');
+const safeSceneDefaults = Core.normalizeLayout({ preset: 'scene-rpg', scene_source: 'javascript:1', scene_fit: 'stretch' }, schema.panels);
+assert.equal(safeSceneDefaults.scene_source, 'story-gallery');
+assert.equal(safeSceneDefaults.scene_fit, 'cover');
 const unsafe = JSON.parse(JSON.stringify(card.gameplay_ui));
 unsafe.builder.fields.push({ key: 'bad', label: 'bad', type: 'text', target_path: 'config.api.key' });
 unsafe.panels.push({ id: 'secret', label: 'secret', sections: [{ type: 'stats', items: [{ label: 'key', path: 'config.api.key' }] }] });

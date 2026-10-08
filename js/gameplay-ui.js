@@ -8,6 +8,8 @@
   let cacheCharacter = null;
   let cacheRaw = null;
   let cacheSchema = null;
+  let sceneObjectURL = '';
+  let sceneSyncToken = 0;
 
   const esc = value => App.escapeHTML(String(value ?? ''));
   const displayValue = value => {
@@ -238,14 +240,112 @@
     return true;
   };
 
-  const syncDashboardLayout = () => {
+  const releaseSceneObjectURL = () => {
+    if (!sceneObjectURL) return;
+    try { URL.revokeObjectURL(sceneObjectURL); } catch (_) {}
+    sceneObjectURL = '';
+  };
+
+  const removeSceneStage = () => {
+    releaseSceneObjectURL();
+    sceneSyncToken += 1;
+    document.getElementById('bao-gameplay-scene-stage')?.remove();
+  };
+
+  const fallbackSceneURL = source => {
+    const character = App.activeCharacter || {};
+    if (source === 'avatar') return String(character.avatar || '');
+    return String(character.reading_background || character.avatar || '');
+  };
+
+  const ensureSceneStage = (layout, schema) => {
+    const main = layout.querySelector(':scope > .chat-main');
+    if (!main) return null;
+    let stage = document.getElementById('bao-gameplay-scene-stage');
+    if (!stage) {
+      stage = document.createElement('section');
+      stage.id = 'bao-gameplay-scene-stage';
+      stage.className = 'gameplay-scene-stage';
+      stage.innerHTML = '<div class="gameplay-scene-visual"><img alt=""><div class="gameplay-scene-placeholder"><b>SCENE</b><span>尚未加入場景圖片</span></div><div class="gameplay-scene-shade"></div><div class="gameplay-scene-meta"><span data-scene-time>—</span><strong data-scene-location>—</strong></div></div>';
+      layout.insertBefore(stage, main);
+    }
+    applyTheme(stage, schema);
+    stage.dataset.sceneFit = schema?.layout?.scene_fit || 'cover';
+    const time = stage.querySelector('[data-scene-time]');
+    const location = stage.querySelector('[data-scene-location]');
+    if (time) time.textContent = displayValue(formatValue(GameState.current?.time));
+    if (location) location.textContent = displayValue(formatValue(GameState.current?.location));
+    return stage;
+  };
+
+  const paintSceneStage = async (stage, spec) => {
+    if (!stage) return;
+    const token = ++sceneSyncToken;
+    const image = stage.querySelector('img');
+    if (!image) return;
+    let src = '';
+    let alt = '目前場景';
+    let localURL = '';
+
+    if (spec?.scene_source === 'story-gallery') {
+      try {
+        const latest = await window.BAOStoryImageMoments?.latestForCurrentStory?.();
+        if (token !== sceneSyncToken || !stage.isConnected) return;
+        if (latest?.file instanceof Blob) {
+          localURL = URL.createObjectURL(latest.file);
+          src = localURL;
+          alt = String(latest.name || latest.messageLabel || '本機故事場景');
+        }
+      } catch (_) {}
+    }
+    if (!src) src = fallbackSceneURL(spec?.scene_source);
+    if (token !== sceneSyncToken || !stage.isConnected) {
+      if (localURL) URL.revokeObjectURL(localURL);
+      return;
+    }
+    releaseSceneObjectURL();
+    if (localURL) sceneObjectURL = localURL;
+    if (src) {
+      image.src = src;
+      image.alt = alt;
+      stage.classList.remove('is-empty');
+    } else {
+      image.removeAttribute('src');
+      image.alt = '';
+      stage.classList.add('is-empty');
+    }
+  };
+
+  const clearLayoutChrome = () => {
+    removeDashboardHost('bao-gameplay-dashboard-left');
+    removeDashboardHost('bao-gameplay-dashboard-right');
+    removeSceneStage();
+  };
+
+  const syncGameplayLayout = () => {
     const root = document.getElementById('chat-view');
     const layout = root?.querySelector('.chat-layout');
     const schema = schemaFor(App.activeCharacter);
     const spec = schema?.layout;
-    const enabled = Boolean(root && layout && App.config?.displayMode === 'ui' && spec?.preset === 'rpg-dashboard');
+    const enabled = Boolean(root && layout && App.config?.displayMode === 'ui' && spec);
     if (!root || !layout) return false;
-    if (!enabled) {
+    if (!enabled || spec.preset === 'standard') {
+      delete root.dataset.gameplayLayout;
+      clearLayoutChrome();
+      return false;
+    }
+
+    if (spec.preset === 'scene-rpg') {
+      removeDashboardHost('bao-gameplay-dashboard-left');
+      removeDashboardHost('bao-gameplay-dashboard-right');
+      root.dataset.gameplayLayout = 'scene-rpg';
+      const stage = ensureSceneStage(layout, schema);
+      void paintSceneStage(stage, spec);
+      return true;
+    }
+
+    removeSceneStage();
+    if (spec.preset !== 'rpg-dashboard') {
       delete root.dataset.gameplayLayout;
       removeDashboardHost('bao-gameplay-dashboard-left');
       removeDashboardHost('bao-gameplay-dashboard-right');
@@ -285,13 +385,15 @@
     return true;
   };
 
+  const syncDashboardLayout = syncGameplayLayout;
+
   let dashboardSyncQueued = false;
   const scheduleDashboardSync = () => {
     if (dashboardSyncQueued) return;
     dashboardSyncQueued = true;
     requestAnimationFrame(() => {
       dashboardSyncQueued = false;
-      syncDashboardLayout();
+      syncGameplayLayout();
     });
   };
 
@@ -336,7 +438,8 @@
 
   const activateInitialPanel = () => {
     const schema = schemaFor(App.activeCharacter);
-    const first = schema?.panels?.[0];
+    const preferredId = schema?.layout?.preset === 'scene-rpg' ? schema.layout.right_panel : '';
+    const first = schema?.panels?.find(panel => panel.id === preferredId) || schema?.panels?.[0];
     const tabs = document.querySelector('#game-ui .ui-tabs');
     if (!first || !tabs || App.config?.displayMode !== 'ui') return;
     tabs.querySelectorAll('.ui-tab').forEach(item => item.classList.toggle('active', item.dataset.panel === first.id));
@@ -415,7 +518,9 @@
 
   const dashboardLayout = document.querySelector('#chat-view .chat-layout');
   if (dashboardLayout) new MutationObserver(scheduleDashboardSync).observe(dashboardLayout, { childList: true });
+  window.addEventListener('bao:story-image-album-changed', scheduleDashboardSync);
+  window.addEventListener('bao:story-image-module-ready', scheduleDashboardSync);
   scheduleDashboardSync();
 
-  window.BAOGameplayUI = Object.freeze({ schemaFor, mountBuilder, renderPanel, syncTabs, activateInitialPanel, syncPlayerIdentityLabel, syncDashboardLayout, scheduleDashboardSync, applyTheme, clearTheme });
+  window.BAOGameplayUI = Object.freeze({ schemaFor, mountBuilder, renderPanel, syncTabs, activateInitialPanel, syncPlayerIdentityLabel, syncGameplayLayout, syncDashboardLayout, scheduleDashboardSync, applyTheme, clearTheme });
 })();

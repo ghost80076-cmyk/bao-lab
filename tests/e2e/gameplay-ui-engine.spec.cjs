@@ -82,6 +82,53 @@ test('gameplay schema renders builder, applies state, and drafts actions without
 });
 
 
+
+test('scene-rpg uses one persistent scene stage and keeps story controls on the right', async ({ page }) => {
+  await page.setViewportSize({ width: 1600, height: 900 });
+  await ready(page);
+  await expect.poll(() => page.evaluate(() => Boolean(window.BAOStoryImageMoments?.latestForCurrentStory))).toBe(true);
+  const card = await page.evaluate(async () => (await fetch('tests/fixtures/gameplay-ui-demo-character.json')).json());
+
+  await page.evaluate(raw => {
+    raw.reading_background = 'assets/bao-mark.svg';
+    raw.gameplay_ui.layout = {
+      preset: 'scene-rpg',
+      right_panel: 'world',
+      scene_source: 'reading-background',
+      scene_fit: 'contain'
+    };
+    App.activeCharacter = CharacterEngine.normalize(raw);
+    App.config = {
+      narrativeMode: 'world',
+      displayMode: 'ui',
+      persona: { name: '測試玩家', gender: '', identity: '', personality: '', relationship: '', extra: '' },
+      api: { type: 'custom', protocol: 'openai', model: 'offline-test', baseUrl: '', key: '' },
+      memory: { mode: 'smart', maxRounds: 20, maxContext: 32000, cache: false }
+    };
+    Chat.reset();
+    GameState.create(App.activeCharacter, App.config);
+    App.renderChatShell(true);
+    App.showView('chat');
+    BAOGameplayUI.syncTabs();
+    BAOGameplayUI.activateInitialPanel();
+    BAOGameplayUI.syncGameplayLayout();
+  }, card);
+
+  const root = page.locator('#chat-view');
+  const stage = page.locator('#bao-gameplay-scene-stage');
+  await expect(root).toHaveAttribute('data-gameplay-layout', 'scene-rpg');
+  await expect(stage).toHaveCount(1);
+  await expect(stage).toBeVisible();
+  await expect(stage).toHaveAttribute('data-scene-fit', 'contain');
+  await expect(stage.locator('[data-scene-location]')).toHaveText('青雲城');
+  await expect(stage.locator('[data-scene-time]')).toContainText('玄曆 30 年');
+  await expect(stage.locator('img')).toHaveAttribute('src', /assets\/bao-mark\.svg/);
+  await expect(page.locator('#ui-panel')).toContainText('青雲城');
+  await expect(page.locator('#ui-panel')).toContainText('宗門試煉');
+  await expect(page.locator('#user-input')).toBeVisible();
+  expect(await page.locator('#bao-gameplay-scene-stage').count()).toBe(1);
+});
+
 test('dual host system card maps global Persona display to system identity without changing Persona data', async ({ page }) => {
   await ready(page);
   const card = await page.evaluate(async () => (await fetch('data/characters/community/db/dual-host-system-mode.json')).json());
