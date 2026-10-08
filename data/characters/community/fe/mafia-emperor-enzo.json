@@ -18,7 +18,9 @@
       "成人親密",
       "慢熱關係"
     ],
-    "description": "深夜的公園裡，你手上只剩一封被捏皺的辭職信。恩佐在最狼狽的時候出現，說工作、住處、錢，他都能給；交換條件只有一個——待在他身邊。危險的黑道帝王 × 只對你溫柔的溺愛系暗黑戀愛。"
+    "description": "深夜的公園裡，你手上只剩一封被捏皺的辭職信。恩佐在最狼狽的時候出現，說工作、住處、錢，他都能給；交換條件只有一個——待在他身邊。危險的黑道帝王 × 只對你溫柔的溺愛系暗黑戀愛。",
+    "author": "班長",
+    "author_id": "banzhang"
   },
   "content": {
     "quote": "「你需要什麼，我都可以給。作為交換，待在我身邊。」",
@@ -359,28 +361,107 @@
           "label": "今夜",
           "sections": [
             {
-              "type": "stats",
-              "title": "公園",
-              "items": [
+              "type": "tabs",
+              "id": "current_archive",
+              "default_tab": "live",
+              "tabs": [
                 {
-                  "label": "時間",
-                  "path": "time"
+                  "id": "live",
+                  "label": "目前狀態",
+                  "sections": [
+                    {
+                      "type": "location_archive",
+                      "title": "公園",
+                      "time_path": "time",
+                      "location_path": "location",
+                      "scene_source": "story-gallery",
+                      "empty": "尚未整理可前往地點。"
+                    },
+                    {
+                      "type": "stats",
+                      "title": "公園",
+                      "items": [
+                        {
+                          "label": "天氣",
+                          "path": "modules.scene.weather"
+                        },
+                        {
+                          "label": "氛圍",
+                          "path": "modules.scene.atmosphere"
+                        },
+                        {
+                          "label": "危險",
+                          "path": "modules.scene.danger"
+                        }
+                      ]
+                    }
+                  ]
                 },
                 {
-                  "label": "地點",
-                  "path": "location"
-                },
-                {
-                  "label": "天氣",
-                  "path": "modules.scene.weather"
-                },
-                {
-                  "label": "氛圍",
-                  "path": "modules.scene.atmosphere"
-                },
-                {
-                  "label": "危險",
-                  "path": "modules.scene.danger"
+                  "id": "changes",
+                  "label": "本輪變動",
+                  "sections": [
+                    {
+                      "type": "timeline",
+                      "mode": "round_diff",
+                      "title": "本輪變動",
+                      "items": [
+                        {
+                          "label": "今夜 · 時間",
+                          "path": "time"
+                        },
+                        {
+                          "label": "今夜 · 地點",
+                          "path": "location"
+                        },
+                        {
+                          "label": "關係 · 關係",
+                          "path": "modules.relationship.stage"
+                        },
+                        {
+                          "label": "關係 · 界線",
+                          "path": "modules.relationship.boundary"
+                        },
+                        {
+                          "label": "暗流 · 目前",
+                          "path": "modules.underworld.pressure"
+                        },
+                        {
+                          "label": "今夜 · 天氣",
+                          "path": "modules.scene.weather"
+                        },
+                        {
+                          "label": "今夜 · 氛圍",
+                          "path": "modules.scene.atmosphere"
+                        },
+                        {
+                          "label": "今夜 · 危險",
+                          "path": "modules.scene.danger"
+                        },
+                        {
+                          "label": "恩佐 · 衣著",
+                          "path": "modules.enzo.outfit"
+                        },
+                        {
+                          "label": "恩佐 · 姿態",
+                          "path": "modules.enzo.posture"
+                        },
+                        {
+                          "label": "恩佐 · 神情",
+                          "path": "modules.enzo.expression"
+                        },
+                        {
+                          "label": "恩佐 · 正在做",
+                          "path": "modules.enzo.action"
+                        },
+                        {
+                          "label": "關係 · 模式",
+                          "path": "modules.relationship.dynamic"
+                        }
+                      ],
+                      "empty": "尚無本輪可見變動；更新後自動比較。"
+                    }
+                  ]
                 }
               ]
             }

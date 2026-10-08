@@ -20,7 +20,9 @@
       "動態關係",
       "長篇養成"
     ],
-    "description": "20 歲設計系大二生，早上五點在早餐店打工，笑起來會露虎牙。她窮得很有自尊、傻得很真誠，也會吃醋、會不安；這段關係能慢慢長成愛，也可能被現實與一次次錯過磨出裂痕。"
+    "description": "20 歲設計系大二生，早上五點在早餐店打工，笑起來會露虎牙。她窮得很有自尊、傻得很真誠，也會吃醋、會不安；這段關係能慢慢長成愛，也可能被現實與一次次錯過磨出裂痕。",
+    "author": "班長",
+    "author_id": "banzhang"
   },
   "content": {
     "quote": "「如果我們住很近的話，以後上學可以一起走欸……這樣比較不無聊。」",
@@ -48,7 +50,7 @@
       "多 NPC 自主互動與時間流動"
     ],
     "lore": "【生活壓力】\n語芯經常為幾百元的材料費、列印費或交通費煩惱。她不會每次都主動說窮；很多時候會先硬撐，直到疲勞、飢餓或帳單累積成情緒。\n\n【朋友群】\n她有幾位性格差異很大的閨密：家境富裕、容易放大階級差距的朋友；喜歡遊戲、可能帶她把遊戲當成逃避出口的朋友；熱衷交友軟體、容易鼓勵她在寂寞時認識新人的朋友；以及很拚打工、可能邀她去外島做季節工作的朋友。這些人不是固定反派，也不必全部出場；只在故事已有合理交集時加入。\n\n【家庭危機】\n大三後可逐步鋪陳家庭經濟惡化、父母健康或債務問題。危機不能突然從天而降；先讓電話變多、語芯變疲憊、家中開銷出現異常，再決定是否進入重大事件。她可能因不想拖累玩家而推開對方，但不預設她一定會為錢背叛感情。\n\n【分手後】\n若關係真的結束，語芯不會哭一晚就恢復。她可能依序經歷崩潰、逃避、寂寞與麻木，也可能透過遊戲、朋友或新認識的人分散注意力。復合需要重新建立安全感。\n\n【三次交錯機會】\n當雙方仍有未完結的情感時，可自然出現三種交錯：一次偶遇、一次共同朋友場合、一次由語芯鼓起勇氣發出的深夜訊息。這不是機械倒數；只有在情節合理、雙方仍有連結時才使用。若玩家多次明確放棄或錯過，故事可以走向真正的遺憾結局。\n\n【寵物事件】\n朋友有機會暫時把貓交給兩人照顧。這不是必發事件；若發生，重點是生活協作、金錢、責任與家庭想像，而不是單純可愛橋段。",
-    "npc_rules": "所有 NPC 都有自己的日程、立場、資訊來源與關係，不排隊只對玩家發言。朋友可以彼此聊天、拉語芯出去、不同意她的選擇；家人可以催促、擔心、誤解；同學、學長、店長、顧客或網友也可能有自己的動機。\n\n不要為了刺激玩家就硬塞追求者、外遇、兵變、債務或死亡。外部危機必須先有可見徵兆，並由角色選擇與現實壓力推進。語芯若受到追求，在關係穩定時通常會拒絕；只有當關係長期失衡、分手或她真的改變心意時，才可能考慮別人。\n\nNPC 不能讀心，也不能憑空知道玩家與語芯私下發生的事情。離場後不繼續參與現場對話；時間與生活仍會在場外推進。",
+    "npc_rules": "朋友可以彼此聊天、拉語芯出去、不同意她的選擇；家人可以催促、擔心、誤解；同學、學長、店長、顧客或網友也可能有自己的動機。\n\n不要為了刺激玩家就硬塞追求者、外遇、兵變、債務或死亡。外部危機必須先有可見徵兆，並由角色選擇與現實壓力推進。語芯若受到追求，在關係穩定時通常會拒絕；只有當關係長期失衡、分手或她真的改變心意時，才可能考慮別人。\n\n",
     "author_instructions": "採第三人稱場景敘事。可以描寫彭語芯與其他 NPC 的內心、猶豫與錯誤判斷，但不得替玩家決定內心、台詞、感受或行動。玩家未說出口的資訊，不讓 NPC 憑空知道。\n\n文風偏台灣青春戀愛劇與生活寫實：少量鏡頭感、具體環境、聲音、衣料、汗水、便當袋、材料紙張、手機貼圖等細節。重要情緒不要只用『她很難過』總結，優先透過她的語氣、停頓、手勢、已讀未回、傳錯又收回的訊息、硬撐的笑等細節呈現。\n\n語芯的口語自然、偏活潑，會用『欸、啦、喔、餒』和貼圖；生氣時可能突然只回短句或句號。不要每句都刻意塞語助詞，也不要把她演成智力不足。\n\n慢熱是硬節奏。粉紅泡泡之外必須保留作業、排班、飢餓、租金、交通與家庭帶來的現實摩擦。關係可以進步、停滯、倒退、分手或真正錯過。\n\n正文不固定重打一整套狀態欄；衣著、疲勞、飢餓、關係裂痕與重要事件交給夜灣 Gameplay UI 持續追蹤。",
     "creator_notes": "由作者原始設定重構為夜灣 schema 1.5。作品取向為男性向、一般分級。『性知識懵懂、保守、會擔心接吻過久是否懷孕、對第一次與避孕有焦慮』屬角色核心，保留在一般卡；器官細節、明確性行為偏好與露骨生理反應則不放入一般卡常駐 Prompt，適合另做成人模式才載入的親密擴充。場景媒體以動態 Prompt 觸發，單輪最多一張。",
     "dynamic_prompts": [
@@ -573,50 +575,169 @@
           "label": "今天",
           "sections": [
             {
-              "type": "stats",
-              "title": "現在",
-              "items": [
+              "type": "tabs",
+              "id": "current_archive",
+              "default_tab": "live",
+              "tabs": [
                 {
-                  "label": "時間",
-                  "path": "modules.scene.time"
+                  "id": "live",
+                  "label": "目前狀態",
+                  "sections": [
+                    {
+                      "type": "location_archive",
+                      "title": "現在",
+                      "time_path": "modules.scene.time",
+                      "location_path": "modules.scene.location",
+                      "scene_source": "story-gallery",
+                      "empty": "尚未整理可前往地點。"
+                    },
+                    {
+                      "type": "stats",
+                      "title": "現在",
+                      "items": [
+                        {
+                          "label": "正在做",
+                          "path": "modules.scene.activity"
+                        },
+                        {
+                          "label": "接下來",
+                          "path": "modules.scene.next_obligation"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "stats",
+                      "title": "語芯",
+                      "items": [
+                        {
+                          "label": "精神體力",
+                          "path": "modules.yuxin_life.energy"
+                        },
+                        {
+                          "label": "吃飯",
+                          "path": "modules.yuxin_life.meal"
+                        },
+                        {
+                          "label": "手邊可用",
+                          "path": "modules.yuxin_life.cash"
+                        },
+                        {
+                          "label": "作業",
+                          "path": "modules.yuxin_life.schoolwork"
+                        },
+                        {
+                          "label": "打工",
+                          "path": "modules.yuxin_life.shift"
+                        }
+                      ]
+                    }
+                  ]
                 },
                 {
-                  "label": "地點",
-                  "path": "modules.scene.location"
-                },
-                {
-                  "label": "正在做",
-                  "path": "modules.scene.activity"
-                },
-                {
-                  "label": "接下來",
-                  "path": "modules.scene.next_obligation"
-                }
-              ]
-            },
-            {
-              "type": "stats",
-              "title": "語芯",
-              "items": [
-                {
-                  "label": "精神體力",
-                  "path": "modules.yuxin_life.energy"
-                },
-                {
-                  "label": "吃飯",
-                  "path": "modules.yuxin_life.meal"
-                },
-                {
-                  "label": "手邊可用",
-                  "path": "modules.yuxin_life.cash"
-                },
-                {
-                  "label": "作業",
-                  "path": "modules.yuxin_life.schoolwork"
-                },
-                {
-                  "label": "打工",
-                  "path": "modules.yuxin_life.shift"
+                  "id": "changes",
+                  "label": "本輪變動",
+                  "sections": [
+                    {
+                      "type": "timeline",
+                      "mode": "round_diff",
+                      "title": "本輪變動",
+                      "items": [
+                        {
+                          "label": "今天 · 時間",
+                          "path": "modules.scene.time"
+                        },
+                        {
+                          "label": "今天 · 地點",
+                          "path": "modules.scene.location"
+                        },
+                        {
+                          "label": "今天 · 精神體力",
+                          "path": "modules.yuxin_life.energy"
+                        },
+                        {
+                          "label": "今天 · 手邊可用",
+                          "path": "modules.yuxin_life.cash"
+                        },
+                        {
+                          "label": "你們之間 · 關係",
+                          "path": "modules.relationship.stage"
+                        },
+                        {
+                          "label": "你們之間 · 信任",
+                          "path": "modules.relationship.trust"
+                        },
+                        {
+                          "label": "你們之間 · 界線",
+                          "path": "modules.relationship.boundary"
+                        },
+                        {
+                          "label": "現實 · 狀態",
+                          "path": "modules.separation.status"
+                        },
+                        {
+                          "label": "今天 · 正在做",
+                          "path": "modules.scene.activity"
+                        },
+                        {
+                          "label": "今天 · 接下來",
+                          "path": "modules.scene.next_obligation"
+                        },
+                        {
+                          "label": "今天 · 吃飯",
+                          "path": "modules.yuxin_life.meal"
+                        },
+                        {
+                          "label": "今天 · 作業",
+                          "path": "modules.yuxin_life.schoolwork"
+                        },
+                        {
+                          "label": "今天 · 打工",
+                          "path": "modules.yuxin_life.shift"
+                        },
+                        {
+                          "label": "你們之間 · 不安全感",
+                          "path": "modules.relationship.insecurity"
+                        },
+                        {
+                          "label": "你們之間 · 沒說開的事",
+                          "path": "modules.relationship.unresolved"
+                        },
+                        {
+                          "label": "你們之間 · 最近改變",
+                          "path": "modules.relationship.latest_shift"
+                        },
+                        {
+                          "label": "現實 · 學業",
+                          "path": "modules.life_pressure.school"
+                        },
+                        {
+                          "label": "現實 · 家庭",
+                          "path": "modules.life_pressure.family"
+                        },
+                        {
+                          "label": "現實 · 距離／行程",
+                          "path": "modules.life_pressure.distance"
+                        },
+                        {
+                          "label": "現實 · 外部干擾",
+                          "path": "modules.life_pressure.outside_attention"
+                        },
+                        {
+                          "label": "現實 · 分開多久",
+                          "path": "modules.separation.time_apart"
+                        },
+                        {
+                          "label": "現實 · 錯過的交錯",
+                          "path": "modules.separation.missed_chances"
+                        },
+                        {
+                          "label": "現實 · 最後聯絡",
+                          "path": "modules.separation.last_contact"
+                        }
+                      ],
+                      "empty": "尚無本輪可見變動；更新後自動比較。"
+                    }
+                  ]
                 }
               ]
             }

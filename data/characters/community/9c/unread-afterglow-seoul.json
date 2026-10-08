@@ -21,7 +21,9 @@
     "rating": "general",
     "title": "未讀餘溫｜首爾關係觀察誌",
     "creator": "班長",
-    "creator_id": "banzhang"
+    "creator_id": "banzhang",
+    "author": "班長",
+    "author_id": "banzhang"
   },
   "content": {
     "quote": "有些訊息已讀了，餘溫卻還沒散。",
@@ -618,28 +620,111 @@
           "label": "此刻",
           "sections": [
             {
-              "type": "stats",
-              "title": "現場",
-              "items": [
+              "type": "tabs",
+              "id": "current_archive",
+              "default_tab": "live",
+              "tabs": [
                 {
-                  "label": "時間",
-                  "path": "modules.scene.time"
+                  "id": "live",
+                  "label": "目前狀態",
+                  "sections": [
+                    {
+                      "type": "location_archive",
+                      "title": "現場",
+                      "time_path": "modules.scene.time",
+                      "location_path": "modules.scene.location",
+                      "scene_source": "story-gallery",
+                      "empty": "尚未整理可前往地點。"
+                    },
+                    {
+                      "type": "stats",
+                      "title": "現場",
+                      "items": [
+                        {
+                          "label": "氛圍",
+                          "path": "modules.scene.atmosphere"
+                        },
+                        {
+                          "label": "在場",
+                          "path": "modules.scene.participants"
+                        },
+                        {
+                          "label": "正在發生",
+                          "path": "modules.scene.focus"
+                        }
+                      ]
+                    }
+                  ]
                 },
                 {
-                  "label": "地點",
-                  "path": "modules.scene.location"
-                },
-                {
-                  "label": "氛圍",
-                  "path": "modules.scene.atmosphere"
-                },
-                {
-                  "label": "在場",
-                  "path": "modules.scene.participants"
-                },
-                {
-                  "label": "正在發生",
-                  "path": "modules.scene.focus"
+                  "id": "changes",
+                  "label": "本輪變動",
+                  "sections": [
+                    {
+                      "type": "timeline",
+                      "mode": "round_diff",
+                      "title": "本輪變動",
+                      "items": [
+                        {
+                          "label": "此刻 · 時間",
+                          "path": "modules.scene.time"
+                        },
+                        {
+                          "label": "此刻 · 地點",
+                          "path": "modules.scene.location"
+                        },
+                        {
+                          "label": "訊號 · 目前稱謂",
+                          "path": "modules.public_bond.stage"
+                        },
+                        {
+                          "label": "訊號 · 已知界線",
+                          "path": "modules.public_bond.known_boundary"
+                        },
+                        {
+                          "label": "此刻 · 氛圍",
+                          "path": "modules.scene.atmosphere"
+                        },
+                        {
+                          "label": "此刻 · 在場",
+                          "path": "modules.scene.participants"
+                        },
+                        {
+                          "label": "此刻 · 正在發生",
+                          "path": "modules.scene.focus"
+                        },
+                        {
+                          "label": "人物 · 名字",
+                          "path": "modules.focus_person.name"
+                        },
+                        {
+                          "label": "人物 · 身分",
+                          "path": "modules.focus_person.known_role"
+                        },
+                        {
+                          "label": "人物 · 動作",
+                          "path": "modules.focus_person.visible_action"
+                        },
+                        {
+                          "label": "人物 · 已知行程",
+                          "path": "modules.focus_person.known_schedule"
+                        },
+                        {
+                          "label": "人物 · 最近聯絡",
+                          "path": "modules.focus_person.last_contact"
+                        },
+                        {
+                          "label": "訊號 · 最近互動",
+                          "path": "modules.public_bond.last_interaction"
+                        },
+                        {
+                          "label": "訊號 · 未解問題",
+                          "path": "modules.public_bond.unanswered_question"
+                        }
+                      ],
+                      "empty": "尚無本輪可見變動；更新後自動比較。"
+                    }
+                  ]
                 }
               ]
             }

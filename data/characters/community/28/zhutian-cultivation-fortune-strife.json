@@ -22,7 +22,9 @@
       "世界模擬",
       "原生狀態UI"
     ],
-    "description": "多位面修仙沙盒世界。建立自己的境界、氣運與金手指，在宗門、秘境、諸天城與跨界機緣中成長；其他天命者也會各自修煉、爭奪、結盟與失敗。氣運會改變機會，但不會替任何人作弊。"
+    "description": "多位面修仙沙盒世界。建立自己的境界、氣運與金手指，在宗門、秘境、諸天城與跨界機緣中成長；其他天命者也會各自修煉、爭奪、結盟與失敗。氣運會改變機會，但不會替任何人作弊。",
+    "author": "班長",
+    "author_id": "banzhang"
   },
   "content": {
     "quote": "大道不只一條，天命也從來不只一人。",
@@ -757,37 +759,157 @@
           "label": "此刻",
           "sections": [
             {
-              "type": "stats",
-              "title": "天地",
-              "items": [
+              "type": "tabs",
+              "id": "current_archive",
+              "default_tab": "live",
+              "tabs": [
                 {
-                  "label": "時間",
-                  "path": "modules.scene.calendar"
+                  "id": "live",
+                  "label": "目前狀態",
+                  "sections": [
+                    {
+                      "type": "location_archive",
+                      "title": "天地",
+                      "time_path": "modules.scene.calendar",
+                      "location_path": "modules.scene.location",
+                      "scene_source": "story-gallery",
+                      "empty": "尚未整理可前往地點。",
+                      "area_path": "modules.scene.plane"
+                    },
+                    {
+                      "type": "stats",
+                      "title": "天地",
+                      "items": [
+                        {
+                          "label": "環境",
+                          "path": "modules.scene.environment"
+                        },
+                        {
+                          "label": "靈氣",
+                          "path": "modules.scene.spiritual_qi"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "list",
+                      "title": "場景參與者",
+                      "path": "modules.scene_participants",
+                      "empty": "目前沒有需要特別標記的人物。",
+                      "limit": 14
+                    }
+                  ]
                 },
                 {
-                  "label": "地點",
-                  "path": "modules.scene.location"
-                },
-                {
-                  "label": "位面",
-                  "path": "modules.scene.plane"
-                },
-                {
-                  "label": "環境",
-                  "path": "modules.scene.environment"
-                },
-                {
-                  "label": "靈氣",
-                  "path": "modules.scene.spiritual_qi"
+                  "id": "changes",
+                  "label": "本輪變動",
+                  "sections": [
+                    {
+                      "type": "timeline",
+                      "mode": "round_diff",
+                      "title": "本輪變動",
+                      "items": [
+                        {
+                          "label": "此刻 · 時間",
+                          "path": "modules.scene.calendar"
+                        },
+                        {
+                          "label": "此刻 · 地點",
+                          "path": "modules.scene.location"
+                        },
+                        {
+                          "label": "此刻 · 位面",
+                          "path": "modules.scene.plane"
+                        },
+                        {
+                          "label": "此刻 · 環境",
+                          "path": "modules.scene.environment"
+                        },
+                        {
+                          "label": "此刻 · 靈氣",
+                          "path": "modules.scene.spiritual_qi"
+                        },
+                        {
+                          "label": "修士 · 姓名",
+                          "path": "modules.player.name"
+                        },
+                        {
+                          "label": "修士 · 性別",
+                          "path": "modules.player.gender"
+                        },
+                        {
+                          "label": "修士 · 年齡",
+                          "path": "modules.player.age"
+                        },
+                        {
+                          "label": "修士 · 出身",
+                          "path": "modules.player.origin"
+                        },
+                        {
+                          "label": "修士 · 性格",
+                          "path": "modules.player.temperament"
+                        },
+                        {
+                          "label": "修士 · 境界",
+                          "path": "modules.cultivation.realm"
+                        },
+                        {
+                          "label": "修士 · 壽元",
+                          "path": "modules.cultivation.lifespan"
+                        },
+                        {
+                          "label": "修士 · 狀態",
+                          "path": "modules.cultivation.condition"
+                        },
+                        {
+                          "label": "修士 · 修煉進度",
+                          "path": "modules.cultivation.progress"
+                        },
+                        {
+                          "label": "修士 · 神識",
+                          "path": "modules.cultivation.divine_sense"
+                        },
+                        {
+                          "label": "修士 · 靈力",
+                          "path": "modules.cultivation.spiritual_power"
+                        },
+                        {
+                          "label": "修士 · 體力",
+                          "path": "modules.cultivation.stamina"
+                        },
+                        {
+                          "label": "氣運 · 氣運層級",
+                          "path": "modules.fortune.grade"
+                        },
+                        {
+                          "label": "氣運 · 近期趨勢",
+                          "path": "modules.fortune.trend"
+                        },
+                        {
+                          "label": "氣運 · 主要因果",
+                          "path": "modules.fortune.causes"
+                        },
+                        {
+                          "label": "氣運 · 氣運",
+                          "path": "modules.fortune.value"
+                        },
+                        {
+                          "label": "氣運 · 類型",
+                          "path": "modules.goldfinger.type"
+                        },
+                        {
+                          "label": "氣運 · 名稱",
+                          "path": "modules.goldfinger.name"
+                        },
+                        {
+                          "label": "氣運 · 能力",
+                          "path": "modules.goldfinger.ability"
+                        }
+                      ],
+                      "empty": "尚無本輪可見變動；更新後自動比較。"
+                    }
+                  ]
                 }
               ]
-            },
-            {
-              "type": "list",
-              "title": "場景參與者",
-              "path": "modules.scene_participants",
-              "empty": "目前沒有需要特別標記的人物。",
-              "limit": 14
             }
           ]
         },
@@ -1012,11 +1134,12 @@
               "limit": 16
             },
             {
-              "type": "list",
+              "type": "timeline",
               "title": "最近事件",
               "path": "modules.event_log",
               "empty": "尚未累積事件。",
-              "limit": 12
+              "limit": 12,
+              "mode": "history"
             }
           ]
         },

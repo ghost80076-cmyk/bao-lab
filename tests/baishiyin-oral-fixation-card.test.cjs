@@ -67,10 +67,12 @@ const statusPrompt = card.gameplay.dynamic_prompts.find(item => item.id === 'sta
 assert.ok(statusPrompt);
 for (const trigger of ['狀態面板', '狀態欄', '顯示狀態']) assert.ok(statusPrompt.triggers.includes(trigger));
 assert.match(statusPrompt.text, /<YORUBAY_STATUS>/);
-assert.match(statusPrompt.text, /只使用目前世界狀態與玩家已知／可觀察資訊/);
+assert.match(statusPrompt.text, /(?:只|僅)使用目前世界狀態與玩家已知／可觀察資訊/);
 
 const preserved = card.import_metadata?.preserved_source;
-const rules = regexCore.normalize(preserved);
+const sidecar = require('../data/characters/general/baishiyin-oral-fixation.regex.json');
+assert.equal(sidecar.characterId, card.meta.id);
+const rules = regexCore.normalize(sidecar);
 assert.equal(rules.length, 1);
 assert.equal(rules[0].reason, '');
 assert.equal(rules[0].rich, true);
@@ -97,6 +99,18 @@ assert.equal(rendered.rich, true);
 assert.match(rendered.html, /YORUBAY · STATUS/);
 assert.match(rendered.html, /日常慢熱模式/);
 assert.match(rendered.html, /只顯示玩家已知／可觀察資訊/);
+
+// The formal sidecar must consume multiline and empty values without eating prose.
+for (const fixture of [sample, sample.replaceAll('：', '： ').replaceAll('\n', '\r\n'), sample.replace('白詩音：表面平靜', '白詩音：').replace('觀察者：鏡淺', '觀察者：')]) {
+  const surrounding = '正文前段。\n' + fixture + '\n正文後段。';
+  const output = regexCore.render(surrounding, rules, false);
+  assert.equal(output.matched, true);
+  assert.match(output.html, /正文前段。/);
+  assert.match(output.html, /正文後段。/);
+  assert.doesNotMatch(output.html, /<YORUBAY_STATUS>/);
+}
+assert.equal(regexCore.render('正文中的場景：教室，時間：午後。', rules, false).matched, false);
+assert.doesNotMatch(sidecar.regex_scripts[0].replaceString, /body\s*\{/);
 
 const statusFields = new Map(card.gameplay.character_status.fields.map(field => [field.key, field]));
 for (const key of ['trust', 'attraction', 'boundary', 'known_information']) assert.ok(statusFields.has(key));

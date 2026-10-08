@@ -7,6 +7,12 @@ async function openDemoStory(page) {
   await page.getByRole('button', { name: '查看作品', exact: true }).click();
   await page.getByRole('button', { name: '開始故事' }).click();
   await page.locator('#bao-setup-choice [data-bao-setup="advanced"]').click();
+  // This flow exercises native status panels; text mode has separate coverage.
+  await page.evaluate(() => {
+    const input = document.querySelector('input[name="display-mode"][value="ui"]');
+    input.checked = true;
+    input.dispatchEvent(new Event('change', { bubbles: true }));
+  });
   for (let i = 0; i < 3; i += 1) await page.locator('#next-step').click();
   await page.locator('#bao-demo-mode').check();
   await page.locator('#next-step').click();
@@ -51,7 +57,8 @@ for (const width of [320, 390, 900, 1280]) {
     await expect(page.locator('#bao-immersive-toggle, #bao-immersive-exit')).toHaveCount(0);
     await page.locator('#bao-play-status-toggle').click();
     await expect(page.locator('#bao-play-status-toggle')).toHaveAttribute('aria-expanded', 'true');
-    if (width >= 1081) {
+    const nativeArchive = await page.evaluate(() => Boolean(App.activeCharacter?.gameplay_ui?.panels?.length));
+    if (width >= 1081 && !nativeArchive) {
       const reader = page.getByRole('dialog', { name: '故事資訊' });
       await expect(reader).toBeVisible();
       await expect(page.locator('#game-ui')).toBeHidden();
@@ -60,6 +67,10 @@ for (const width of [320, 390, 900, 1280]) {
       await expect(reader).toHaveCount(0);
     } else {
       await expect(page.locator('#game-ui')).toBeVisible();
+      if (nativeArchive) {
+        await page.locator('#game-ui .gameplay-ui-tab').first().click();
+        await expect(page.locator('#ui-panel .gameplay-tabbed-archive')).toBeVisible();
+      }
       await page.locator('.ui-tab[data-panel="status"]').click();
       await expect(page.locator('#ui-panel .state-grid')).toBeVisible();
       await page.locator('#bao-play-status-close').click();

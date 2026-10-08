@@ -27,7 +27,9 @@
       "角色晉升",
       "自動生成NPC"
     ],
-    "description": "一座看似私立學園的巨大成人片場。九名核心角色只是固定班底；AI 會依片場、通告與劇情生成 21+ 虛構客串演員、常駐配角與工作人員，重要人物可從臨演一路晉升為核心演員。玩家可在「開機」與「Cut」之間切換，養成演出能力、解鎖演員圖鑑、技能與新片場。"
+    "description": "一座看似私立學園的巨大成人片場。九名核心角色只是固定班底；AI 會依片場、通告與劇情生成 21+ 虛構客串演員、常駐配角與工作人員，重要人物可從臨演一路晉升為核心演員。玩家可在「開機」與「Cut」之間切換，養成演出能力、解鎖演員圖鑑、技能與新片場。",
+    "author": "班長",
+    "author_id": "banzhang"
   },
   "content": {
     "quote": "「這裡沒有真正的學園生活。只有一座大到足以讓人忘記攝影機存在的劇場。」",
@@ -740,41 +742,152 @@
           "label": "片場",
           "sections": [
             {
-              "type": "stats",
-              "title": "現在",
-              "items": [
+              "type": "tabs",
+              "id": "current_archive",
+              "default_tab": "live",
+              "tabs": [
                 {
-                  "label": "層次",
-                  "path": "modules.production_state.layer"
+                  "id": "live",
+                  "label": "目前狀態",
+                  "sections": [
+                    {
+                      "type": "stats",
+                      "title": "現在",
+                      "items": [
+                        {
+                          "label": "層次",
+                          "path": "modules.production_state.layer"
+                        },
+                        {
+                          "label": "場次",
+                          "path": "modules.production_state.scene"
+                        },
+                        {
+                          "label": "時間",
+                          "path": "modules.production_state.time"
+                        },
+                        {
+                          "label": "片場",
+                          "path": "modules.production_state.location"
+                        },
+                        {
+                          "label": "狀態",
+                          "path": "modules.production_state.status"
+                        },
+                        {
+                          "label": "導演提示",
+                          "path": "modules.production_state.director_note"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "list",
+                      "title": "場景參與者",
+                      "path": "modules.scene_participants",
+                      "empty": "目前只有工作人員在場。",
+                      "limit": 10
+                    }
+                  ]
                 },
                 {
-                  "label": "場次",
-                  "path": "modules.production_state.scene"
-                },
-                {
-                  "label": "時間",
-                  "path": "modules.production_state.time"
-                },
-                {
-                  "label": "片場",
-                  "path": "modules.production_state.location"
-                },
-                {
-                  "label": "狀態",
-                  "path": "modules.production_state.status"
-                },
-                {
-                  "label": "導演提示",
-                  "path": "modules.production_state.director_note"
+                  "id": "changes",
+                  "label": "本輪變動",
+                  "sections": [
+                    {
+                      "type": "timeline",
+                      "mode": "round_diff",
+                      "title": "本輪變動",
+                      "items": [
+                        {
+                          "label": "片場 · 時間",
+                          "path": "modules.production_state.time"
+                        },
+                        {
+                          "label": "片場 · 片場",
+                          "path": "modules.production_state.location"
+                        },
+                        {
+                          "label": "片場 · 狀態",
+                          "path": "modules.production_state.status"
+                        },
+                        {
+                          "label": "能力 · 等級",
+                          "path": "modules.player_stats.level"
+                        },
+                        {
+                          "label": "能力 · 片場聲望",
+                          "path": "modules.player_stats.reputation"
+                        },
+                        {
+                          "label": "片場 · 層次",
+                          "path": "modules.production_state.layer"
+                        },
+                        {
+                          "label": "片場 · 場次",
+                          "path": "modules.production_state.scene"
+                        },
+                        {
+                          "label": "片場 · 導演提示",
+                          "path": "modules.production_state.director_note"
+                        },
+                        {
+                          "label": "能力 · 經驗",
+                          "path": "modules.player_stats.xp"
+                        },
+                        {
+                          "label": "能力 · 演技",
+                          "path": "modules.player_stats.acting"
+                        },
+                        {
+                          "label": "能力 · 親密技巧",
+                          "path": "modules.player_stats.intimacy"
+                        },
+                        {
+                          "label": "能力 · 體力",
+                          "path": "modules.player_stats.stamina"
+                        },
+                        {
+                          "label": "能力 · 即興",
+                          "path": "modules.player_stats.improv"
+                        },
+                        {
+                          "label": "能力 · 鏡頭感",
+                          "path": "modules.player_stats.camera"
+                        },
+                        {
+                          "label": "能力 · 對手默契",
+                          "path": "modules.player_stats.chemistry"
+                        },
+                        {
+                          "label": "能力 · 完成度",
+                          "path": "modules.scene_score.completion"
+                        },
+                        {
+                          "label": "能力 · 演技",
+                          "path": "modules.scene_score.acting"
+                        },
+                        {
+                          "label": "能力 · 技巧",
+                          "path": "modules.scene_score.technique"
+                        },
+                        {
+                          "label": "能力 · 默契",
+                          "path": "modules.scene_score.chemistry"
+                        },
+                        {
+                          "label": "能力 · 鏡頭感",
+                          "path": "modules.scene_score.camera"
+                        },
+                        {
+                          "label": "能力 · 總評",
+                          "path": "modules.scene_score.grade"
+                        }
+                      ],
+                      "empty": "尚無本輪可見變動；更新後自動比較。"
+                    }
+                  ]
                 }
               ]
-            },
-            {
-              "type": "list",
-              "title": "場景參與者",
-              "path": "modules.scene_participants",
-              "empty": "目前只有工作人員在場。",
-              "limit": 10
             }
           ]
         },
@@ -909,11 +1022,12 @@
               "limit": 10
             },
             {
-              "type": "list",
+              "type": "timeline",
               "title": "最近片場紀錄",
               "path": "modules.production_log",
               "empty": "尚未有紀錄。",
-              "limit": 8
+              "limit": 8,
+              "mode": "history"
             }
           ]
         },

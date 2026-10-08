@@ -25,7 +25,9 @@
       "資訊隔離",
       "原生狀態UI"
     ],
-    "description": "三百年前，艾瑟莉亞發現能從成年人的生命精華、情緒與體液中提煉魔法資源，文明因此被重新塑形。聖潔教會、慾望教團與自由煉金師公會圍繞精華來源、交易、權力與道德長期角力；玩家從中立之港進入這個會自行運作、會變化、也會反過來改變人的成人奇幻世界。"
+    "description": "三百年前，艾瑟莉亞發現能從成年人的生命精華、情緒與體液中提煉魔法資源，文明因此被重新塑形。聖潔教會、慾望教團與自由煉金師公會圍繞精華來源、交易、權力與道德長期角力；玩家從中立之港進入這個會自行運作、會變化、也會反過來改變人的成人奇幻世界。",
+    "author": "班長",
+    "author_id": "banzhang"
   },
   "content": {
     "quote": "「在艾瑟莉亞，慾望不是祕密；它是一種會被定價、被交易，也會反過來改變人的力量。」",
@@ -591,37 +593,140 @@
           "label": "此刻",
           "sections": [
             {
-              "type": "stats",
-              "title": "中立之港",
-              "items": [
+              "type": "tabs",
+              "id": "current_archive",
+              "default_tab": "live",
+              "tabs": [
                 {
-                  "label": "時間",
-                  "path": "modules.scene.time"
+                  "id": "live",
+                  "label": "目前狀態",
+                  "sections": [
+                    {
+                      "type": "location_archive",
+                      "title": "中立之港",
+                      "time_path": "modules.scene.time",
+                      "location_path": "modules.scene.location",
+                      "scene_source": "story-gallery",
+                      "empty": "尚未整理可前往地點。"
+                    },
+                    {
+                      "type": "stats",
+                      "title": "中立之港",
+                      "items": [
+                        {
+                          "label": "氣氛",
+                          "path": "modules.scene.atmosphere"
+                        },
+                        {
+                          "label": "局部風險",
+                          "path": "modules.scene.local_risk"
+                        },
+                        {
+                          "label": "環境動向",
+                          "path": "modules.scene.next_change"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "list",
+                      "title": "場景參與者",
+                      "path": "modules.scene_participants",
+                      "empty": "目前沒有需要特別標記的人物。",
+                      "limit": 12
+                    }
+                  ]
                 },
                 {
-                  "label": "地點",
-                  "path": "modules.scene.location"
-                },
-                {
-                  "label": "氣氛",
-                  "path": "modules.scene.atmosphere"
-                },
-                {
-                  "label": "局部風險",
-                  "path": "modules.scene.local_risk"
-                },
-                {
-                  "label": "環境動向",
-                  "path": "modules.scene.next_change"
+                  "id": "changes",
+                  "label": "本輪變動",
+                  "sections": [
+                    {
+                      "type": "timeline",
+                      "mode": "round_diff",
+                      "title": "本輪變動",
+                      "items": [
+                        {
+                          "label": "此刻 · 時間",
+                          "path": "modules.scene.time"
+                        },
+                        {
+                          "label": "此刻 · 地點",
+                          "path": "modules.scene.location"
+                        },
+                        {
+                          "label": "此刻 · 氣氛",
+                          "path": "modules.scene.atmosphere"
+                        },
+                        {
+                          "label": "此刻 · 局部風險",
+                          "path": "modules.scene.local_risk"
+                        },
+                        {
+                          "label": "此刻 · 環境動向",
+                          "path": "modules.scene.next_change"
+                        },
+                        {
+                          "label": "你 · 名字",
+                          "path": "modules.player.name"
+                        },
+                        {
+                          "label": "你 · 年齡",
+                          "path": "modules.player.age"
+                        },
+                        {
+                          "label": "你 · 職業／身份",
+                          "path": "modules.player.role"
+                        },
+                        {
+                          "label": "你 · 出身",
+                          "path": "modules.player.origin"
+                        },
+                        {
+                          "label": "你 · 公開立場",
+                          "path": "modules.player.affiliation"
+                        },
+                        {
+                          "label": "你 · 專長",
+                          "path": "modules.player.specialty"
+                        },
+                        {
+                          "label": "你 · 故事重點",
+                          "path": "modules.player.story_focus"
+                        },
+                        {
+                          "label": "精華市場 · 普通白",
+                          "path": "modules.market.white"
+                        },
+                        {
+                          "label": "精華市場 · 優質綠",
+                          "path": "modules.market.green"
+                        },
+                        {
+                          "label": "精華市場 · 稀有藍",
+                          "path": "modules.market.blue"
+                        },
+                        {
+                          "label": "精華市場 · 史詩紫",
+                          "path": "modules.market.purple"
+                        },
+                        {
+                          "label": "精華市場 · 傳說金",
+                          "path": "modules.market.gold"
+                        },
+                        {
+                          "label": "精華市場 · 行情",
+                          "path": "modules.market.trend"
+                        },
+                        {
+                          "label": "精華市場 · 事件",
+                          "path": "modules.market.market_event"
+                        }
+                      ],
+                      "empty": "尚無本輪可見變動；更新後自動比較。"
+                    }
+                  ]
                 }
               ]
-            },
-            {
-              "type": "list",
-              "title": "場景參與者",
-              "path": "modules.scene_participants",
-              "empty": "目前沒有需要特別標記的人物。",
-              "limit": 12
             }
           ]
         },
@@ -764,11 +869,12 @@
               "limit": 12
             },
             {
-              "type": "list",
+              "type": "timeline",
               "title": "最近事件",
               "path": "modules.event_log",
               "empty": "尚未累積事件紀錄。",
-              "limit": 10
+              "limit": 10,
+              "mode": "history"
             }
           ]
         },

@@ -18,7 +18,9 @@
       "隱藏主線",
       "多結局"
     ],
-    "description": "收到一封只在月光下顯字的錄取信，進入一所古老魔法學院。分院、課程、社團、朋友、競爭、學院分與慢慢浮出的秘密，都會因你的選擇改變。"
+    "description": "收到一封只在月光下顯字的錄取信，進入一所古老魔法學院。分院、課程、社團、朋友、競爭、學院分與慢慢浮出的秘密，都會因你的選擇改變。",
+    "author": "班長",
+    "author_id": "banzhang"
   },
   "content": {
     "quote": "入學通知只寫了你被錄取，沒有告訴你這座學院為什麼早就知道你的名字。",
@@ -34,8 +36,8 @@
       "線索與真相分離"
     ],
     "lore": "作者用背景資料。完整人設不必每輪注入；角色、學院與事件細節由 Dynamic Prompt 在相關時才加入。",
-    "npc_rules": "資訊隔離是硬規則。NPC 只能依目擊、被告知、可靠轉述、課堂公開資訊或合理調查知道事情。角色可以拒絕、競爭、誤會、冷淡、合作、道歉、離場，也可以在玩家不在場時改變彼此關係。不要讓所有重要事件都剛好發生在玩家面前。",
-    "author_instructions": "語氣帶英倫魔法學院的古典感，但避免模仿任何特定作品文風。場景用石階、燭火、墨水、雨霧、鐘聲、塔樓、溫室、木桌、制服細節、飛行器具與魔法現象建立沉浸感。不要用現代網路梗破壞氛圍。\n玩家的情緒只能依其設定與可見行為合理推測，不替玩家決定心理或台詞。危險行為要有合理後果；聰明準備、課堂努力與風險判斷要得到具體回報。",
+    "npc_rules": "NPC 只能依目擊、被告知、可靠轉述、課堂公開資訊或合理調查知道事情。角色可以拒絕、競爭、誤會、冷淡、合作、道歉、離場，也可以在玩家不在場時改變彼此關係。不要讓所有重要事件都剛好發生在玩家面前。",
+    "author_instructions": "語氣帶英倫魔法學院的古典感，但避免模仿任何特定作品文風。場景用石階、燭火、墨水、雨霧、鐘聲、塔樓、溫室、木桌、制服細節、飛行器具與魔法現象建立沉浸感。不要用現代網路梗破壞氛圍。\n危險行為要有合理後果；聰明準備、課堂努力與風險判斷要得到具體回報。",
     "dynamic_prompts": [
       {
         "id": "house_crimson",
@@ -829,52 +831,175 @@
           "label": "狀態",
           "sections": [
             {
-              "type": "stats",
-              "title": "學院生活",
-              "items": [
+              "type": "tabs",
+              "id": "current_archive",
+              "default_tab": "live",
+              "tabs": [
                 {
-                  "label": "日期",
-                  "path": "modules.academy_life.date"
+                  "id": "live",
+                  "label": "目前狀態",
+                  "sections": [
+                    {
+                      "type": "location_archive",
+                      "title": "學院生活",
+                      "time_path": "modules.academy_life.date",
+                      "location_path": "modules.academy_life.location",
+                      "scene_source": "story-gallery",
+                      "empty": "尚未整理可前往地點。"
+                    },
+                    {
+                      "type": "stats",
+                      "title": "學院生活",
+                      "items": [
+                        {
+                          "label": "時段",
+                          "path": "modules.academy_life.time_slot"
+                        },
+                        {
+                          "label": "所屬學院",
+                          "path": "modules.academy_life.house"
+                        },
+                        {
+                          "label": "年級",
+                          "path": "modules.academy_life.year"
+                        },
+                        {
+                          "label": "學院分",
+                          "path": "modules.academy_life.house_points"
+                        },
+                        {
+                          "label": "違規紀錄",
+                          "path": "modules.academy_life.violations"
+                        },
+                        {
+                          "label": "下一堂課",
+                          "path": "modules.schoolwork.next_class"
+                        },
+                        {
+                          "label": "待完成作業",
+                          "path": "modules.schoolwork.assignments"
+                        },
+                        {
+                          "label": "禁閉／處分",
+                          "path": "modules.schoolwork.detention"
+                        },
+                        {
+                          "label": "社團／活動",
+                          "path": "modules.schoolwork.activity"
+                        }
+                      ]
+                    }
+                  ]
                 },
                 {
-                  "label": "時段",
-                  "path": "modules.academy_life.time_slot"
-                },
-                {
-                  "label": "地點",
-                  "path": "modules.academy_life.location"
-                },
-                {
-                  "label": "所屬學院",
-                  "path": "modules.academy_life.house"
-                },
-                {
-                  "label": "年級",
-                  "path": "modules.academy_life.year"
-                },
-                {
-                  "label": "學院分",
-                  "path": "modules.academy_life.house_points"
-                },
-                {
-                  "label": "違規紀錄",
-                  "path": "modules.academy_life.violations"
-                },
-                {
-                  "label": "下一堂課",
-                  "path": "modules.schoolwork.next_class"
-                },
-                {
-                  "label": "待完成作業",
-                  "path": "modules.schoolwork.assignments"
-                },
-                {
-                  "label": "禁閉／處分",
-                  "path": "modules.schoolwork.detention"
-                },
-                {
-                  "label": "社團／活動",
-                  "path": "modules.schoolwork.activity"
+                  "id": "changes",
+                  "label": "本輪變動",
+                  "sections": [
+                    {
+                      "type": "timeline",
+                      "mode": "round_diff",
+                      "title": "本輪變動",
+                      "items": [
+                        {
+                          "label": "狀態 · 日期",
+                          "path": "modules.academy_life.date"
+                        },
+                        {
+                          "label": "狀態 · 地點",
+                          "path": "modules.academy_life.location"
+                        },
+                        {
+                          "label": "主線 · 主線階段",
+                          "path": "modules.mystery_state.phase"
+                        },
+                        {
+                          "label": "狀態 · 時段",
+                          "path": "modules.academy_life.time_slot"
+                        },
+                        {
+                          "label": "狀態 · 所屬學院",
+                          "path": "modules.academy_life.house"
+                        },
+                        {
+                          "label": "狀態 · 年級",
+                          "path": "modules.academy_life.year"
+                        },
+                        {
+                          "label": "狀態 · 學院分",
+                          "path": "modules.academy_life.house_points"
+                        },
+                        {
+                          "label": "狀態 · 違規紀錄",
+                          "path": "modules.academy_life.violations"
+                        },
+                        {
+                          "label": "狀態 · 下一堂課",
+                          "path": "modules.schoolwork.next_class"
+                        },
+                        {
+                          "label": "狀態 · 待完成作業",
+                          "path": "modules.schoolwork.assignments"
+                        },
+                        {
+                          "label": "狀態 · 禁閉／處分",
+                          "path": "modules.schoolwork.detention"
+                        },
+                        {
+                          "label": "狀態 · 社團／活動",
+                          "path": "modules.schoolwork.activity"
+                        },
+                        {
+                          "label": "魔法 · 基礎術式",
+                          "path": "modules.magic_skills.charms"
+                        },
+                        {
+                          "label": "魔法 · 魔藥",
+                          "path": "modules.magic_skills.potions"
+                        },
+                        {
+                          "label": "魔法 · 植物魔法",
+                          "path": "modules.magic_skills.herbology"
+                        },
+                        {
+                          "label": "魔法 · 變形",
+                          "path": "modules.magic_skills.transfiguration"
+                        },
+                        {
+                          "label": "魔法 · 防禦",
+                          "path": "modules.magic_skills.defense"
+                        },
+                        {
+                          "label": "魔法 · 神奇生物",
+                          "path": "modules.magic_skills.creatures"
+                        },
+                        {
+                          "label": "魔法 · 占卜感知",
+                          "path": "modules.magic_skills.divination"
+                        },
+                        {
+                          "label": "魔法 · 飛行",
+                          "path": "modules.magic_skills.flight"
+                        },
+                        {
+                          "label": "魔法 · 古代魔文",
+                          "path": "modules.magic_skills.runes"
+                        },
+                        {
+                          "label": "主線 · 已確認線索",
+                          "path": "modules.mystery_state.clue_count"
+                        },
+                        {
+                          "label": "主線 · 危險度",
+                          "path": "modules.mystery_state.threat"
+                        },
+                        {
+                          "label": "主線 · 目前異常",
+                          "path": "modules.mystery_state.active_thread"
+                        }
+                      ],
+                      "empty": "尚無本輪可見變動；更新後自動比較。"
+                    }
+                  ]
                 }
               ]
             }

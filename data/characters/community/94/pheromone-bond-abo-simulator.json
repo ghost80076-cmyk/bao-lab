@@ -28,7 +28,9 @@
       "原生狀態UI",
       "Builder開局"
     ],
-    "description": "在這個世界裡，第二性別與信息素會影響距離、本能與社會規則，卻不替任何人決定愛誰。選擇 Alpha／Beta／Omega、相性規則與世界制度，從一次意外的信息素暴露開始，走向慢熱甜寵、命定拉扯、階級壓迫、政治陰謀或多角關係。女性向 ABO 關係模擬 × 自主 NPC × 多結局。"
+    "description": "在這個世界裡，第二性別與信息素會影響距離、本能與社會規則，卻不替任何人決定愛誰。選擇 Alpha／Beta／Omega、相性規則與世界制度，從一次意外的信息素暴露開始，走向慢熱甜寵、命定拉扯、階級壓迫、政治陰謀或多角關係。女性向 ABO 關係模擬 × 自主 NPC × 多結局。",
+    "author": "班長",
+    "author_id": "banzhang"
   },
   "content": {
     "quote": "「相性只是身體的答案。要不要靠近，是你們自己的事。」",
@@ -797,28 +799,165 @@
           "label": "現在",
           "sections": [
             {
-              "type": "stats",
-              "title": "場景",
-              "items": [
+              "type": "tabs",
+              "id": "current_archive",
+              "default_tab": "live",
+              "tabs": [
                 {
-                  "label": "時間",
-                  "path": "modules.scene.time"
+                  "id": "live",
+                  "label": "目前狀態",
+                  "sections": [
+                    {
+                      "type": "location_archive",
+                      "title": "場景",
+                      "time_path": "modules.scene.time",
+                      "location_path": "modules.scene.location",
+                      "scene_source": "story-gallery",
+                      "empty": "尚未整理可前往地點。"
+                    },
+                    {
+                      "type": "stats",
+                      "title": "場景",
+                      "items": [
+                        {
+                          "label": "氛圍",
+                          "path": "modules.scene.atmosphere"
+                        },
+                        {
+                          "label": "在場",
+                          "path": "modules.scene.participants"
+                        },
+                        {
+                          "label": "信息素環境",
+                          "path": "modules.scene.pheromone_environment"
+                        }
+                      ]
+                    }
+                  ]
                 },
                 {
-                  "label": "地點",
-                  "path": "modules.scene.location"
+                  "id": "changes",
+                  "label": "本輪變動",
+                  "sections": [
+                    {
+                      "type": "timeline",
+                      "mode": "round_diff",
+                      "title": "本輪變動",
+                      "items": [
+                        {
+                          "label": "現在 · 時間",
+                          "path": "modules.scene.time"
+                        },
+                        {
+                          "label": "現在 · 地點",
+                          "path": "modules.scene.location"
+                        },
+                        {
+                          "label": "你的 ABO · 週期",
+                          "path": "modules.player.cycle_status"
+                        },
+                        {
+                          "label": "你的 ABO · 標記",
+                          "path": "modules.player.mark_status"
+                        },
+                        {
+                          "label": "關係 · 階段",
+                          "path": "modules.relationship.stage"
+                        },
+                        {
+                          "label": "關係 · 信任",
+                          "path": "modules.relationship.trust"
+                        },
+                        {
+                          "label": "關係 · 界線",
+                          "path": "modules.relationship.boundary"
+                        },
+                        {
+                          "label": "現在 · 氛圍",
+                          "path": "modules.scene.atmosphere"
+                        },
+                        {
+                          "label": "現在 · 信息素環境",
+                          "path": "modules.scene.pheromone_environment"
+                        },
+                        {
+                          "label": "你的 ABO · 身份",
+                          "path": "modules.player.identity"
+                        },
+                        {
+                          "label": "你的 ABO · 第二性別",
+                          "path": "modules.player.secondary_gender"
+                        },
+                        {
+                          "label": "你的 ABO · 信息素",
+                          "path": "modules.player.pheromone"
+                        },
+                        {
+                          "label": "你的 ABO · 抑制管理",
+                          "path": "modules.player.suppressant"
+                        },
+                        {
+                          "label": "主要對象 · 姓名",
+                          "path": "modules.focus_npc.name"
+                        },
+                        {
+                          "label": "主要對象 · 身份",
+                          "path": "modules.focus_npc.identity"
+                        },
+                        {
+                          "label": "主要對象 · 性別",
+                          "path": "modules.focus_npc.gender"
+                        },
+                        {
+                          "label": "主要對象 · 第二性別",
+                          "path": "modules.focus_npc.secondary_gender"
+                        },
+                        {
+                          "label": "主要對象 · 信息素",
+                          "path": "modules.focus_npc.pheromone"
+                        },
+                        {
+                          "label": "主要對象 · 相性",
+                          "path": "modules.focus_npc.compatibility"
+                        },
+                        {
+                          "label": "主要對象 · 狀態",
+                          "path": "modules.focus_npc.visible_state"
+                        },
+                        {
+                          "label": "主要對象 · 正在做",
+                          "path": "modules.focus_npc.current_action"
+                        },
+                        {
+                          "label": "關係 · 吸引",
+                          "path": "modules.relationship.attraction"
+                        },
+                        {
+                          "label": "關係 · 信息素張力",
+                          "path": "modules.relationship.pheromone_tension"
+                        },
+                        {
+                          "label": "關係 · 安全感",
+                          "path": "modules.relationship.safety"
+                        }
+                      ],
+                      "empty": "尚無本輪可見變動；更新後自動比較。"
+                    }
+                  ]
                 },
                 {
-                  "label": "氛圍",
-                  "path": "modules.scene.atmosphere"
-                },
-                {
-                  "label": "在場",
-                  "path": "modules.scene.participants"
-                },
-                {
-                  "label": "信息素環境",
-                  "path": "modules.scene.pheromone_environment"
+                  "id": "history",
+                  "label": "近期歷程",
+                  "sections": [
+                    {
+                      "type": "timeline",
+                      "mode": "history",
+                      "title": "已記錄事件",
+                      "path": "modules.event_log",
+                      "limit": 20,
+                      "empty": "目前沒有已記錄事件。"
+                    }
+                  ]
                 }
               ]
             }

@@ -1,0 +1,42 @@
+name: Native Archive Catalog
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+    paths:
+      - 'data/characters/**'
+      - 'docs/native-archive-catalog-audit.json'
+      - 'tests/native-archive-catalog-core.cjs'
+      - 'tests/e2e/native-archive-catalog.spec.cjs'
+      - '.github/workflows/native-archive-catalog.yml'
+permissions:
+  contents: read
+jobs:
+  archive-regression:
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.63.0-noble
+      options: --user 1001
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: node tests/native-archive-catalog-core.cjs
+      - run: npx playwright test tests/e2e/native-archive-catalog.spec.cjs tests/e2e/community-author-regex-audit.spec.cjs --project=chromium
+      - name: Production archives after Pages publication
+        if: github.event_name == 'push'
+        env:
+          BAO_LIVE_URL: https://yorubay.com/
+        run: npx playwright test tests/e2e/native-archive-catalog.spec.cjs --project=chromium
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: native-archive-browser-report
+          path: |
+            playwright-report/
+            test-results/

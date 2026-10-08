@@ -22,7 +22,9 @@
       "韓劇張力",
       "成人內容"
     ],
-    "description": "在合法而普遍的「假戀人」產業裡，妳可以訂製一位最適合自己的戀人：外貌、性格、國籍、職業、相處方式都能決定。問題是——當一個人太擅長扮演愛妳，妳要怎麼分辨哪一刻開始，不再只是工作？"
+    "description": "在合法而普遍的「假戀人」產業裡，妳可以訂製一位最適合自己的戀人：外貌、性格、國籍、職業、相處方式都能決定。問題是——當一個人太擅長扮演愛妳，妳要怎麼分辨哪一刻開始，不再只是工作？",
+    "author": "班長",
+    "author_id": "banzhang"
   },
   "content": {
     "quote": "「今天的約會到這裡。」他低頭看了一眼時間，卻沒有鬆開妳的手。",
@@ -46,7 +48,7 @@
       "成人模式下的成熟親密"
     ],
     "lore": "【Rental Love｜服務流程】\n第一次使用通常經過：客戶資料 → 訂製／配對 → 報價 → 確認服務範圍 → 第一次見面 → 契約開始。玩家可以跳過部分表單，直接要求隨機配對。\n\n【工作模式】\n從業者在工作時間會進入高度專注的「戀人模式」：記得稱呼、喜好、家庭設定、公開場合需要的故事與肢體界線。越專業的人，越容易讓客戶分不出真假。\n\n【下班模式】\n服務時間結束後，稱呼、語氣、站位和情緒管理可能立刻改變。某些人會非常乾脆，有些人會多留幾分鐘；這種偏離本身可能成為重要線索，但不要每次都當成戀愛證據。\n\n【費用】\n預設新台幣。標準約會、正式場合、週方案與月方案有不同價格區間；加時、遠距交通與高壓場合可另外計費。若玩家預算不足，可以降級方案、縮短時數、延期續約或終止契約，這些選擇都會影響故事。\n\n【第三方】\n假戀人的前客戶可能只是熟客、朋友、糾纏者或仍未放下的人；前任可能理解他的工作，也可能不接受。玩家的前任、家人、朋友、同事與追求者都有自己的理由，不固定站在戀情的對立面。\n\n【隨機配對】\n當玩家輸入「隨機配對」時，根據玩家 Persona、需求原因、預算與希望的故事氣質，生成一名成年人假戀人。角色需要完整姓名、年齡、國籍／成長背景、外貌、職業、生活細節、性格矛盾、家庭／朋友關係、工作習慣與至少一個不願讓客戶知道的私人面向。不要生成完美人設。",
-    "npc_rules": "NPC 必須保持資訊隔離與自主行動。\n\n假戀人只能透過客戶表單、公開資料、玩家明確告知、直接觀察、工作需要的合理調查與其他可信來源取得資訊，不能讀取玩家未說出口的想法。\n\n服務中心員工知道契約資料，但不自動知道每次私人互動；前客戶只知道自己與假戀人的經驗；家人與朋友也只知道自己合理能得知的事。\n\n多 NPC 場景先確定位置、已知資訊與各自目的，再讓角色彼此互動。不要把所有 NPC 都寫成助攻或情敵。\n\n第三方衝突要先有關係基礎與動機。不要為了韓劇感就頻繁安排巧遇、抓姦、突然求婚、車禍或惡意前任。張力也可以來自很小的事情：稱呼錯了、記住不該記住的偏好、別的客戶打來、付款提醒、工作結束後仍沒離開。",
+    "npc_rules": "\n\n假戀人只能透過客戶表單、公開資料、玩家明確告知、直接觀察、工作需要的合理調查與其他可信來源取得資訊，不能讀取玩家未說出口的想法。\n\n服務中心員工知道契約資料，但不自動知道每次私人互動；前客戶只知道自己與假戀人的經驗；家人與朋友也只知道自己合理能得知的事。\n\n多 NPC 場景先確定位置、已知資訊與各自目的，再讓角色彼此互動。不要把所有 NPC 都寫成助攻或情敵。\n\n第三方衝突要先有關係基礎與動機。不要為了韓劇感就頻繁安排巧遇、抓姦、突然求婚、車禍或惡意前任。張力也可以來自很小的事情：稱呼錯了、記住不該記住的偏好、別的客戶打來、付款提醒、工作結束後仍沒離開。",
     "author_instructions": "文風為成熟女性向都市戀愛，鏡頭貼近人物，節奏像韓劇但保留現實重量。\n\n優先使用具體細節而非心理總結：雨後玻璃、電梯數字、袖口、手機通知、收據、手錶時間、衣料摩擦、對方叫玩家名字時的停頓、工作結束那一秒表情如何鬆下來。\n\n最重要的寫法是「偏差」：\n他平常對所有客戶都會做的事，不足以證明真心；真正有張力的是他對玩家做了本來不必做、不能收費、沒有職業必要，或連自己都無法合理解釋的事。\n\n不要固定以好感度數字或五階段攻略推進。關係可以反覆，玩家也可能因為無法相信他的演技而拉開距離。\n\n不要把國籍寫成刻板印象。文化細節必須服務角色，而不是取代角色。\n\n正文不固定重打一整份狀態欄。玩家資料、假戀人外顯狀態、契約與金錢、關係事實、NPC 網絡持續追蹤。",
     "creator_notes": "由作者原始《假戀人》長提示重構為夜灣 schema 1.5。保留訂製戀人、國籍文化、金錢契約、韓劇式第三方、多 NPC、自主世界與成人親密方向；取消每輪手寫 hc-collapse 與隱藏 HTML 註記，改用原生 Gameplay UI + 動態提示。將『一定會愛上玩家』改為可發生但不保證的 emergent 關係，避免攻略感。",
     "dynamic_prompts": [
@@ -795,37 +797,152 @@
           "label": "今晚",
           "sections": [
             {
-              "type": "stats",
-              "title": "此刻",
-              "items": [
+              "type": "tabs",
+              "id": "current_archive",
+              "default_tab": "live",
+              "tabs": [
                 {
-                  "label": "時間",
-                  "path": "time"
+                  "id": "live",
+                  "label": "目前狀態",
+                  "sections": [
+                    {
+                      "type": "location_archive",
+                      "title": "此刻",
+                      "time_path": "time",
+                      "location_path": "location",
+                      "scene_source": "story-gallery",
+                      "empty": "尚未整理可前往地點。"
+                    },
+                    {
+                      "type": "stats",
+                      "title": "此刻",
+                      "items": [
+                        {
+                          "label": "天氣",
+                          "path": "modules.scene.weather"
+                        },
+                        {
+                          "label": "氛圍",
+                          "path": "modules.scene.atmosphere"
+                        },
+                        {
+                          "label": "張力",
+                          "path": "modules.scene.tension"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "list",
+                      "title": "在場人物",
+                      "path": "modules.scene.present_npcs",
+                      "empty": "目前只有妳。",
+                      "limit": 8
+                    }
+                  ]
                 },
                 {
-                  "label": "地點",
-                  "path": "location"
-                },
-                {
-                  "label": "天氣",
-                  "path": "modules.scene.weather"
-                },
-                {
-                  "label": "氛圍",
-                  "path": "modules.scene.atmosphere"
-                },
-                {
-                  "label": "張力",
-                  "path": "modules.scene.tension"
+                  "id": "changes",
+                  "label": "本輪變動",
+                  "sections": [
+                    {
+                      "type": "timeline",
+                      "mode": "round_diff",
+                      "title": "本輪變動",
+                      "items": [
+                        {
+                          "label": "今晚 · 時間",
+                          "path": "time"
+                        },
+                        {
+                          "label": "今晚 · 地點",
+                          "path": "location"
+                        },
+                        {
+                          "label": "契約 · 剩餘期間",
+                          "path": "modules.contract.remaining_time"
+                        },
+                        {
+                          "label": "關係 · 關係",
+                          "path": "modules.relationship.stage"
+                        },
+                        {
+                          "label": "關係 · 界線",
+                          "path": "modules.relationship.boundary"
+                        },
+                        {
+                          "label": "今晚 · 天氣",
+                          "path": "modules.scene.weather"
+                        },
+                        {
+                          "label": "今晚 · 氛圍",
+                          "path": "modules.scene.atmosphere"
+                        },
+                        {
+                          "label": "今晚 · 張力",
+                          "path": "modules.scene.tension"
+                        },
+                        {
+                          "label": "假戀人 · 姓名",
+                          "path": "modules.lover.name"
+                        },
+                        {
+                          "label": "假戀人 · 背景",
+                          "path": "modules.lover.identity"
+                        },
+                        {
+                          "label": "假戀人 · 外在",
+                          "path": "modules.lover.appearance"
+                        },
+                        {
+                          "label": "假戀人 · 情緒",
+                          "path": "modules.lover.mood"
+                        },
+                        {
+                          "label": "假戀人 · 正在做",
+                          "path": "modules.lover.action"
+                        },
+                        {
+                          "label": "假戀人 · 模式",
+                          "path": "modules.lover.mode"
+                        },
+                        {
+                          "label": "契約 · 方案",
+                          "path": "modules.contract.plan"
+                        },
+                        {
+                          "label": "契約 · 本期費用",
+                          "path": "modules.contract.fee"
+                        },
+                        {
+                          "label": "契約 · 已支付",
+                          "path": "modules.contract.paid"
+                        },
+                        {
+                          "label": "契約 · 剩餘預算",
+                          "path": "modules.contract.remaining_budget"
+                        },
+                        {
+                          "label": "契約 · 服務範圍",
+                          "path": "modules.contract.scope"
+                        },
+                        {
+                          "label": "契約 · 下一付款",
+                          "path": "modules.contract.next_payment"
+                        },
+                        {
+                          "label": "關係 · 公開角色",
+                          "path": "modules.relationship.public_role"
+                        },
+                        {
+                          "label": "關係 · 最近變化",
+                          "path": "modules.relationship.recent_shift"
+                        }
+                      ],
+                      "empty": "尚無本輪可見變動；更新後自動比較。"
+                    }
+                  ]
                 }
               ]
-            },
-            {
-              "type": "list",
-              "title": "在場人物",
-              "path": "modules.scene.present_npcs",
-              "empty": "目前只有妳。",
-              "limit": 8
             }
           ]
         },

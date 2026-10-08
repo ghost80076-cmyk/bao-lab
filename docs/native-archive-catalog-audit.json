@@ -1,0 +1,1283 @@
+{
+  "base": "d5dda99ddde8ab82b999037ae6ee0696f86ea9ff",
+  "works": [
+    {
+      "id": "linchenfeng",
+      "name": "林沉風",
+      "file": "data/characters/general/linchenfeng.json",
+      "changed": true,
+      "features": [
+        "location_archive",
+        "round_diff",
+        "tabs"
+      ],
+      "preserved": {
+        "content": "2132d95bba5d69f0727ab2a0b750918e71612b7aadab301cb8df2d3cd9e9a5d9",
+        "initial_state": "7cb625918905a9ef4c4b3be65d3a576cdf382c0c3b7bbc5961621f219bf2db28",
+        "gameplay_rules": "eac3d55f725113c181615f580992bcaec02511717123cc52942d37aed6b07223",
+        "builder": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b"
+      },
+      "original_panel_ids": []
+    },
+    {
+      "id": "autonomous-npc-world",
+      "name": "自主NPC世界(成熟內容支援)",
+      "changed": false,
+      "reason": "現有專屬介面或未確立的開局，保留現行流程。"
+    },
+    {
+      "id": "open-world-real-persona",
+      "name": "開放世界：真實人格模擬器",
+      "changed": false,
+      "reason": "現有專屬介面或未確立的開局，保留現行流程。"
+    },
+    {
+      "id": "desire-district",
+      "name": "慾望街區：紅燈區模擬器",
+      "changed": false,
+      "reason": "現有專屬介面或未確立的開局，保留現行流程。"
+    },
+    {
+      "id": "kurobane-yume-kabukicho",
+      "name": "黑羽 ゆめ｜歌舞伎町・午前零時",
+      "file": "data/characters/general/kurobane-yume-kabukicho.json",
+      "changed": true,
+      "features": [
+        "location_archive",
+        "round_diff",
+        "tabs"
+      ],
+      "preserved": {
+        "content": "63c16de130fa724726b017452e39b92c3e1325d69f4b2447e26d0ca918d787ea",
+        "initial_state": "232c6bcee02c0a568a366dd4547d1d0ab969acf939b2d173fdbab07cdf16838a",
+        "gameplay_rules": "12b3d6f9b8a6dde3c0b11be3aa3289c27527e8aa1d77dfc2bf422dd688ad196b",
+        "builder": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b"
+      },
+      "original_panel_ids": []
+    },
+    {
+      "id": "unhealed-bonds",
+      "name": "共犯關係｜壞掉以前",
+      "changed": false,
+      "reason": "現有專屬介面或未確立的開局，保留現行流程。"
+    },
+    {
+      "id": "host-club-simulator",
+      "name": "牛郎模擬器｜歌舞伎町・最後指名",
+      "changed": false,
+      "reason": "現有專屬介面或未確立的開局，保留現行流程。"
+    },
+    {
+      "id": "night-sky-magic-academy",
+      "name": "夜穹魔法學院｜第一學年",
+      "file": "data/characters/general/night-sky-magic-academy.json",
+      "changed": true,
+      "features": [
+        "location_archive",
+        "round_diff",
+        "tabs"
+      ],
+      "preserved": {
+        "content": "65dedf2c446092a1c668e3d09a81796d371bb34889b0037dc68a1ae3bccf96b3",
+        "initial_state": "df5b899757f004092f0633a40b3b394dd65621a99775d122425e4ff6453e177e",
+        "gameplay_rules": "f51141f461649f6c31de1362291511bcee7536509b5516ab5f8a8fbcc97666e3",
+        "builder": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b"
+      },
+      "original_panel_ids": [
+        "status",
+        "magic",
+        "mystery"
+      ],
+      "rule_deduplication": [
+        {
+          "field": "npc_rules",
+          "before": "資訊隔離是硬規則。",
+          "after": "",
+          "index": 0
+        },
+        {
+          "field": "author_instructions",
+          "before": "玩家的情緒只能依其設定與可見行為合理推測，不替玩家決定心理或台詞。",
+          "after": "",
+          "index": 89
+        }
+      ]
+    },
+    {
+      "id": "k-idol-survival-simulator",
+      "name": "韓國偶像選秀模擬器｜最後一席",
+      "changed": false,
+      "reason": "現有專屬介面或未確立的開局，保留現行流程。"
+    },
+    {
+      "id": "narcissus-simulator",
+      "name": "水仙模擬器｜與另一個自己的深度探索",
+      "file": "data/characters/general/narcissus-simulator.json",
+      "changed": true,
+      "features": [
+        "round_diff",
+        "tabs"
+      ],
+      "preserved": {
+        "content": "361da7cff1a3e84ccc1e2f845a7e8bc299499db6365d78005d63e6be2ce7cc29",
+        "initial_state": "e796a2816c9c2807e573d10be5d3a2c197044074a80d8639aef552bf1e29e335",
+        "gameplay_rules": "b20d9f3e9874890e3153d74e3f47c80fbc7fabc7d269a351b843f38152ec2760",
+        "builder": "2d066b118d72e25791b0e1f5827e7bb2150f55ff82150a568b70aba463f9612a"
+      },
+      "original_panel_ids": [
+        "mirror",
+        "relationship",
+        "reflection"
+      ],
+      "rule_deduplication": [
+        {
+          "field": "system_prompt",
+          "before": "平常只演故事，不要每輪講道理、分析玩家、宣告「你學到了什麼」或替玩家定義內心。",
+          "after": "平常只演故事；鏡面回望未啟用時，不加入說教、心理分析或「你學到了什麼」的總結。",
+          "index": 499
+        }
+      ]
+    },
+    {
+      "id": "peng-yuxin-hakka-girlfriend",
+      "name": "彭語芯｜天蠍座 A型・設計系傻大姊・客家女友",
+      "file": "data/characters/general/peng-yuxin-hakka-girlfriend.json",
+      "changed": true,
+      "features": [
+        "location_archive",
+        "round_diff",
+        "tabs"
+      ],
+      "preserved": {
+        "content": "686e2b3175426f1ac7bf744b905151c3306f4cbad946d1582986272981dd02e0",
+        "initial_state": "a9e8a5b9f6dabe91c60c88d3f29059b5cffceff0f4e44e6d82deab55c68d42c4",
+        "gameplay_rules": "fcca5784c2009f701e48258086f9e70a3f77fabce7b0ec51718828e9ab7e9db8",
+        "builder": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b"
+      },
+      "original_panel_ids": [
+        "today",
+        "relationship",
+        "pressure"
+      ],
+      "rule_deduplication": [
+        {
+          "field": "npc_rules",
+          "before": "所有 NPC 都有自己的日程、立場、資訊來源與關係，不排隊只對玩家發言。",
+          "after": "",
+          "index": 0
+        },
+        {
+          "field": "npc_rules",
+          "before": "NPC 不能讀心，也不能憑空知道玩家與語芯私下發生的事情。離場後不繼續參與現場對話；時間與生活仍會在場外推進。",
+          "after": "",
+          "index": 168
+        }
+      ]
+    },
+    {
+      "id": "baishiyin-oral-fixation",
+      "name": "白詩音 · 口腔期不滿足的校花同桌",
+      "file": "data/characters/general/baishiyin-oral-fixation.json",
+      "changed": true,
+      "features": [
+        "location_archive",
+        "round_diff",
+        "tabs",
+        "regex_repair"
+      ],
+      "preserved": {
+        "content": "ce3fde39bc2d2b8e69d290a31e56cb346fad45efe7256df8c10c4e3cfa0b6e73",
+        "initial_state": "1edfc9f6e08115ba2b568cc295a7f65f7b7a0d950271b365355170c4fc9dcbf2",
+        "gameplay_rules": "79a1a9f294ff3196f6cde58e358b2c46c1dc3c494677434825762daef8c8a190",
+        "builder": "0544e9bc006799c8c25c0827f2352451f8eb25e44d95ceeebffc21f1b3c55202"
+      },
+      "original_panel_ids": [
+        "now",
+        "shiyin",
+        "risk",
+        "tools"
+      ],
+      "rule_deduplication": [
+        {
+          "field": "system_prompt",
+          "before": "不要代寫玩家的內心、台詞、決定或行動。\n",
+          "after": "",
+          "index": 1324
+        },
+        {
+          "field": "system_prompt",
+          "before": "NPC 不等待玩家才活著；他們可以在玩家不在場時推進自己的生活、誤解、合作、疏遠與衝突。\n每個 NPC 只能使用自己合理取得的資訊。\n",
+          "after": "",
+          "index": 1034
+        }
+      ]
+    },
+    {
+      "id": "jiang-yingxue-pure-desire",
+      "name": "江映雪｜純慾優等生的養成",
+      "file": "data/characters/general/jiang-yingxue-pure-desire.json",
+      "changed": true,
+      "features": [
+        "location_archive",
+        "round_diff",
+        "tabs"
+      ],
+      "preserved": {
+        "content": "5d126ccf50429978080f3da6a1ccfc173992cd669a4144d5fa799a9cca2b4939",
+        "initial_state": "f9cec9b30fa7af77a3deb0cb5ec72bcf683ec09b0cd8f7c11cb04208a5a689ed",
+        "gameplay_rules": "b674aa70ebf5e779d1ac7a24b1202d08749bbb4b4d24f8ba79bc0bcd21057194",
+        "builder": "7f98cd25957c58df8b6a9aa2813708a0521ae4c0081ce43b6d539ca7e2e29447"
+      },
+      "original_panel_ids": [
+        "now",
+        "yingxue",
+        "sensitivity",
+        "skills",
+        "experience",
+        "awakenings",
+        "world",
+        "actions"
+      ],
+      "rule_deduplication": [
+        {
+          "field": "system_prompt",
+          "before": "不要替玩家寫台詞、決定、內心或動作。\n",
+          "after": "",
+          "index": 949
+        },
+        {
+          "field": "system_prompt",
+          "before": "NPC 有自己的生活與目標，不因玩家不在場就停住。離場事件只能在之後以痕跡、訊息、第三方說法或角色狀態等合理方式被玩家得知。",
+          "after": "",
+          "index": 1001
+        }
+      ]
+    },
+    {
+      "id": "awakened-silver-dawn",
+      "name": "覺醒者：破曉之銀",
+      "file": "data/characters/community/d0/awakened-silver-dawn.json",
+      "changed": true,
+      "features": [
+        "location_archive",
+        "round_diff",
+        "tabs"
+      ],
+      "preserved": {
+        "content": "cfb6e052f79c4d05747a48e4c32fbf1fca1e7cf64595ecc1321580fbd8643bcb",
+        "initial_state": "000e79014a3ead4b8e4462672ccf3230caf8482feacdae807f9c9df128b87160",
+        "gameplay_rules": "9a21411f35476beadc5c4a00a3e66cb436f297cb53727af77b4d541058ada6e2",
+        "builder": "23aac4f3158a555cb47fd98a2305ee8ea952df7df91a30c2bf6f2c8a394523a4"
+      },
+      "original_panel_ids": [
+        "now",
+        "vessel",
+        "forces",
+        "abilities",
+        "intel",
+        "actions"
+      ]
+    },
+    {
+      "id": "lin-yuyan-possessed-husband",
+      "name": "奪舍完美丈夫的妻子—林語嫣",
+      "file": "data/characters/community/45/lin-yuyan-possessed-husband.json",
+      "changed": true,
+      "features": [
+        "location_archive",
+        "round_diff",
+        "tabs"
+      ],
+      "preserved": {
+        "content": "aa4b715c0470457d5a0196f0f802ad237f0eeba8e5b5fcfc807b528d08628140",
+        "initial_state": "7a431726e13fb9c0de9e92e5fcc7e45ea2a7eca0ddf899dbf76a027dd05d20a3",
+        "gameplay_rules": "51bc210805555eec2e3ef19ad318810a2346b250d3a4f1078b4204bb957a1aad",
+        "builder": "1f952d13d503e1481297848331f1753400b2a6b925f180571b57d0ed5e1b07b2"
+      },
+      "original_panel_ids": [
+        "now",
+        "yuyan",
+        "home",
+        "mask",
+        "relationship"
+      ],
+      "rule_deduplication": [
+        {
+          "field": "system_prompt",
+          "before": "禁止讀心、",
+          "after": "",
+          "index": 208
+        }
+      ]
+    },
+    {
+      "id": "campus-rival-24h-command",
+      "name": "校花死對頭｜24H絕對命令權",
+      "file": "data/characters/community/2a/campus-rival-24h-command.json",
+      "changed": true,
+      "features": [
+        "location_archive",
+        "round_diff",
+        "tabs"
+      ],
+      "preserved": {
+        "content": "52a2ca24ef4fe6726ad8e1f108d61181b54040c119962f0d5f3790988eebe171",
+        "initial_state": "4c18e30f93f1646619b5e4d425fb4235d0cce077a9ac12d8b50d23632f1a2fab",
+        "gameplay_rules": "edb6aac61b31b208e9c1b6bdd46b306f2bdc6fd9c9040fc85045faae2f9974a0",
+        "builder": "ef64da17cb68e7e5d6ddda809aae3b2746a6f259c42c57a679a5ac1e7956be8d"
+      },
+      "original_panel_ids": [
+        "now",
+        "contract",
+        "weiran",
+        "power",
+        "relationship"
+      ],
+      "rule_deduplication": [
+        {
+          "field": "npc_rules",
+          "before": "NPC 必須遵守資訊隔離。",
+          "after": "",
+          "index": 0
+        }
+      ]
+    },
+    {
+      "id": "dark-military-war-simulator",
+      "name": "黑暗軍旅模擬系統",
+      "file": "data/characters/community/45/dark-military-war-simulator.json",
+      "changed": true,
+      "features": [
+        "history",
+        "location_archive",
+        "round_diff",
+        "tabs"
+      ],
+      "preserved": {
+        "content": "fbad755eb8ba66a2cc3e2d4159130eb41ee7c6363d92c5629b5dec4670f5fc80",
+        "initial_state": "2ebee78e5086f7e0f7a1f7fd1bfa521132513e797020e531c2ff1e5983e1712e",
+        "gameplay_rules": "7d58071825d7266c6929beb226b6d93346a5a40733281f1f81a4d79d4d2faf80",
+        "builder": "04d47c3975bf78c981d2e74af89aed52421b7e65fa9478d2afda8481a793e40e"
+      },
+      "original_panel_ids": [
+        "now",
+        "soldier",
+        "stats",
+        "survival",
+        "power",
+        "people",
+        "orders",
+        "actions"
+      ]
+    },
+    {
+      "id": "craftsman-ming-survival-trpg",
+      "name": "匠道大明：穿越者生存指南",
+      "file": "data/characters/community/a8/craftsman-ming-survival-trpg.json",
+      "changed": true,
+      "features": [
+        "history",
+        "location_archive",
+        "round_diff",
+        "tabs"
+      ],
+      "preserved": {
+        "content": "82550707421beee1591fb99721a6868c2a3c4b94df28683707d5097f868d3109",
+        "initial_state": "a7c86a07e8463a38d96f81c9a89fb5729966bcd5066748ba9384bd0cad1b0643",
+        "gameplay_rules": "cb7615fc6c0fd63a93cb2f59194d7c101a0cd0816bcb0fb9696f2b9e8461813a",
+        "builder": "f34c31ae2464deb464aa028ef816ca5a363c0544f9e1feed5a702fd6267254d5"
+      },
+      "original_panel_ids": [
+        "now",
+        "traveler",
+        "survival",
+        "crafts",
+        "money",
+        "people",
+        "work",
+        "actions"
+      ]
+    },
+    {
+      "id": "baitao-roommate-triangle",
+      "name": "白桃奶昔 - 好友的女友 | 三人同居中",
+      "file": "data/characters/community/1f/baitao-roommate-triangle.json",
+      "changed": true,
+      "features": [
+        "history",
+        "location_archive",
+        "round_diff",
+        "tabs"
+      ],
+      "preserved": {
+        "content": "74a47322c709dd0d5518a8d381d0029e7ba00d75333165ea8998efb606606d4f",
+        "initial_state": "14ea5916981831f26186b7c0ff3da8e77a70526581ffd694532cbb64b9e025e4",
+        "gameplay_rules": "302738438ad1c42ad0be990cf85c42ee52ea4ae437cd7a144694259b2b406a3e",
+        "builder": "ff226ff5306780118bfa3bcb118d678fb83385797947167fffda661a8a84fcf2"
+      },
+      "original_panel_ids": [
+        "now",
+        "people",
+        "triangle",
+        "threads",
+        "actions"
+      ]
+    },
+    {
+      "id": "zhutian-cultivation-fortune-strife",
+      "name": "諸天修仙界：氣運爭鋒",
+      "file": "data/characters/community/28/zhutian-cultivation-fortune-strife.json",
+      "changed": true,
+      "features": [
+        "history",
+        "location_archive",
+        "round_diff",
+        "tabs"
+      ],
+      "preserved": {
+        "content": "46e0cc9c50fcef06633610d79cf6db15d9eb4238a1f9dd1db4bdeb1b55149d50",
+        "initial_state": "d3f8fc6d98b9abd9422b57d28d1c9965db754df1eb7cd16e1c2509d2f243f7b6",
+        "gameplay_rules": "3d5c2e7c50edfd0bde51a3dc027df298a9b88b9a243d927b7a73c07473ad3047",
+        "builder": "024205075a3321f0d428967995abbdd4c7a5793edca547231cc3c557a3fb1f30"
+      },
+      "original_panel_ids": [
+        "now",
+        "cultivator",
+        "fate",
+        "arts",
+        "resources",
+        "world",
+        "threads",
+        "actions"
+      ]
+    },
+    {
+      "id": "baitao-boyfriend-reverse-ntr",
+      "name": "白桃奶昔-男友視角 | 逆NTR",
+      "file": "data/characters/community/1f/baitao-boyfriend-reverse-ntr.json",
+      "changed": true,
+      "features": [
+        "history",
+        "location_archive",
+        "round_diff",
+        "tabs"
+      ],
+      "preserved": {
+        "content": "cbcd6a4b14139e3b4db397574b12166d838d1ea4e134e2641cb78f810f190f1b",
+        "initial_state": "7ceabc8c7b42c007a85f0683757c2160820bd98bd5341cc6ec50f66d31ef4279",
+        "gameplay_rules": "7de216079c6f08304f903d15e6472b377d58026989dda6d36869e3ac6922ae18",
+        "builder": "876005eef459735835643a30ad40a2c69ba13269bba0d113b4412ae5373fc589"
+      },
+      "original_panel_ids": [
+        "now",
+        "people",
+        "relations",
+        "evidence",
+        "secrets",
+        "actions"
+      ]
+    },
+    {
+      "id": "across-the-hall",
+      "name": "對門的他｜他說，別多管閒事",
+      "file": "data/characters/community/fe/across-the-hall.json",
+      "changed": true,
+      "features": [
+        "location_archive",
+        "round_diff",
+        "tabs"
+      ],
+      "preserved": {
+        "content": "6ca896ab60b0fe8f4c0f4da2b37982d34f0a6b24b342a843d45d241ff8cddb38",
+        "initial_state": "b7cadf55c6ac71c73097a625f0c0203df81fe9ea7d57a266e8c11403d38f4689",
+        "gameplay_rules": "4ecd333b27337b9c8ec460728f6b03c45c0d80a9834786be8b8a9e37528cb764",
+        "builder": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b"
+      },
+      "original_panel_ids": [
+        "scene",
+        "neighbor",
+        "relationship"
+      ]
+    },
+    {
+      "id": "ktv-flight-chess",
+      "name": "🔥 KTV飛行棋",
+      "file": "data/characters/community/eb/ktv-flight-chess.json",
+      "changed": true,
+      "features": [
+        "history",
+        "round_diff",
+        "tabs"
+      ],
+      "preserved": {
+        "content": "52a0fce2e1a9fc7eb7d52bab60b63d66adbe182bfc415f404033510069576a2b",
+        "initial_state": "5a37812913aa87f7e64c783c4970d9317c1d9a3ef198891b4fc59031cd9a720b",
+        "gameplay_rules": "9c0821394b5927386d657c14bc0eda3cb48dfbde1f85626ba5011b1f0f73acfc",
+        "builder": "0435b667e995798bc6e94a5dc8085e62bb56d90bbbf46780b69a907eda651c24"
+      },
+      "original_panel_ids": [
+        "game",
+        "party",
+        "relations",
+        "scene",
+        "actions"
+      ]
+    },
+    {
+      "id": "spicy-89-girl",
+      "name": "愛吃\"辣椒\"的89妹",
+      "file": "data/characters/community/89/spicy-89-girl.json",
+      "changed": true,
+      "features": [
+        "history",
+        "location_archive",
+        "round_diff",
+        "tabs",
+        "invalid_path_repair"
+      ],
+      "preserved": {
+        "content": "a76ff2daff3f15f340d0906f9716d4528139ff13ba1d7e58314cd6fc503e59c7",
+        "initial_state": "241e541c333cfec070b75be4fa85fce038888c0dd6482135eaebff129114b11e",
+        "gameplay_rules": "6ea23dba012ba7ff5ba2fcab356bd356d9f2f0feae2c16deeef7def0695cccef",
+        "builder": "b165039e23d60b55e953ac1d1a9f2963687f8221a8dc9740e79778adee354c82"
+      },
+      "original_panel_ids": [
+        "status",
+        "relation",
+        "people",
+        "log",
+        "actions"
+      ]
+    },
+    {
+      "id": "mafia-emperor-enzo",
+      "name": "黑道帝王・恩佐 (Enzo)",
+      "file": "data/characters/community/fe/mafia-emperor-enzo.json",
+      "changed": true,
+      "features": [
+        "location_archive",
+        "round_diff",
+        "tabs"
+      ],
+      "preserved": {
+        "content": "ca0629d11a02024731e4b413e61015cbf61736135d85d1f1efb6c347ffc47a02",
+        "initial_state": "d8efaefe76f6f929a116c22275d37606f49571cf29121711d20b3b5eb9f2b7cf",
+        "gameplay_rules": "a6d42edde766b02a5871d8f8a30561eed1118e3b64eb1e5d0bff1b6e00c1310a",
+        "builder": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b"
+      },
+      "original_panel_ids": [
+        "scene",
+        "enzo",
+        "relationship",
+        "underworld"
+      ]
+    },
+    {
+      "id": "desire-werewolf",
+      "name": "慾望狼人殺",
+      "file": "data/characters/community/eb/desire-werewolf.json",
+      "changed": true,
+      "features": [
+        "history",
+        "location_archive",
+        "round_diff",
+        "tabs"
+      ],
+      "preserved": {
+        "content": "af83baac1b4775539d86ada646eb07da7571aefa4b2d8bd52baf4ca4855f6ab1",
+        "initial_state": "defd8f7d32883b3e733ae7becd0d554145706fda4c4e8157df12506984edcdda",
+        "gameplay_rules": "234dd77fefe7c9b82e0e61367a4afb0f455914f267eddb73a5d532d9c8f8dc0b",
+        "builder": "1551212f990f639eeecb5fd3857017f04e386d404f19a98874c1fc3914fa853d"
+      },
+      "original_panel_ids": [
+        "match",
+        "roster",
+        "ability",
+        "history"
+      ]
+    },
+    {
+      "id": "lu-yan-rogue-devotion",
+      "name": "陸炎｜痞壞背後的深情",
+      "file": "data/characters/community/2e/lu-yan-rogue-devotion.json",
+      "changed": true,
+      "features": [
+        "location_archive",
+        "round_diff",
+        "tabs"
+      ],
+      "preserved": {
+        "content": "bb0955e85b3a422bf1508c957a4a5f7083beaefd42477b580db6c81822d503a6",
+        "initial_state": "1ebf44b7dedbe098758c28ef6af1a53c39c9f44ae334a39359b21b12ceb8530d",
+        "gameplay_rules": "1e64e62e780c3a147c369a1579ad1eb93d92fac4e8980a6d5b39017f28594081",
+        "builder": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b"
+      },
+      "original_panel_ids": [
+        "scene",
+        "luyan",
+        "relationship",
+        "flame"
+      ]
+    },
+    {
+      "id": "heart-contract-custom-lover",
+      "name": "心動違約｜訂製戀人",
+      "file": "data/characters/community/8f/heart-contract-custom-lover.json",
+      "changed": true,
+      "features": [
+        "location_archive",
+        "round_diff",
+        "tabs"
+      ],
+      "preserved": {
+        "content": "a31e3b43580cab498172fa6b94be5e8fb6bfea4da7309d7b7ab5baffee773840",
+        "initial_state": "4378b5fc301328f31143dbc14f2c01629e9fc8d5fc41d79d769cc9b6800617fb",
+        "gameplay_rules": "6d901a5971364b225f487ade229d51477d754ed5549cb852828eb7328cea705d",
+        "builder": "87f7d3bc3cc375e9453e2b2d9af2b4c342738a8fccc8c4b6076c021394383f0f"
+      },
+      "original_panel_ids": [
+        "scene",
+        "lover",
+        "contract",
+        "relationship",
+        "actions"
+      ],
+      "rule_deduplication": [
+        {
+          "field": "npc_rules",
+          "before": "NPC 必須保持資訊隔離與自主行動。",
+          "after": "",
+          "index": 0
+        }
+      ]
+    },
+    {
+      "id": "desire-academy-city",
+      "name": "慾望學園都市",
+      "file": "data/characters/community/da/desire-academy-city.json",
+      "changed": true,
+      "features": [
+        "history",
+        "round_diff",
+        "tabs"
+      ],
+      "preserved": {
+        "content": "f8440f5e40ce95e9cfdffe16425ebb39ff4a8992d5a5456b173efc8dc0f32237",
+        "initial_state": "e8fee78bb42868337cd164fcda6b896d8208b0d30038155d175904db6a32b7f5",
+        "gameplay_rules": "85c5ac37f8fb740f109a62d4f2a3331be3298f20a13147530e2dde13f48053d2",
+        "builder": "2c73a632a67222cb3ba73ccb999ca80495e3864667a6ac696d737b53f2dbfdb3"
+      },
+      "original_panel_ids": [
+        "studio",
+        "stats",
+        "cast",
+        "skills",
+        "actions"
+      ]
+    },
+    {
+      "id": "gu-muhan-rival",
+      "name": "顧慕寒-霸總的死對頭是我",
+      "file": "data/characters/community/6c/gu-muhan-rival.json",
+      "changed": true,
+      "features": [
+        "location_archive",
+        "round_diff",
+        "tabs"
+      ],
+      "preserved": {
+        "content": "c5ff3c45f7153aa8b6ff3c814d48df985481058a25d8246a362d8146fd8c2a18",
+        "initial_state": "06175c03c9a99f025422138e3d0f1f0f9424b38e9056c44b511fd9fd24b9459a",
+        "gameplay_rules": "d4eefa005d70764f4971fe565d1637c2c75992746a7c6b18121b81e6ffe901fb",
+        "builder": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b"
+      },
+      "original_panel_ids": [
+        "scene",
+        "muhan",
+        "relationship",
+        "wanqing",
+        "threads"
+      ]
+    },
+    {
+      "id": "debt-cage-lu-shen",
+      "name": "債之囚籠｜陸深的病態佔有",
+      "file": "data/characters/community/de/debt-cage-lu-shen.json",
+      "changed": true,
+      "features": [
+        "location_archive",
+        "round_diff",
+        "tabs"
+      ],
+      "preserved": {
+        "content": "485039357f75a5743d22baca6e5f9e569429ea44632901f0c5268739638a57b4",
+        "initial_state": "280fae50cfd5acd048e0c3357724cdc2640e802a4de67c70287271f7e4ae5417",
+        "gameplay_rules": "d57d0b25bdbd31bbd2dac76f4ccee7398b38f669ab259207b4c7f80835d5eff2",
+        "builder": "a1b9d0b6b3a8ef77bf34b565d557689228eaca87eb63fc70bcf5d2c27e382039"
+      },
+      "original_panel_ids": [
+        "now",
+        "contract",
+        "lushen",
+        "relationship"
+      ]
+    },
+    {
+      "id": "lin-shen-reed-bloom",
+      "name": "林深｜靜候花開的蘆葦",
+      "file": "data/characters/community/50/lin-shen-reed-bloom.json",
+      "changed": true,
+      "features": [
+        "location_archive",
+        "round_diff",
+        "tabs"
+      ],
+      "preserved": {
+        "content": "ec7d7dcce8d7dea284cf9141a6e6f7a64db2423cb64554108da569447c14e63a",
+        "initial_state": "2e6db1b5631cde6f544956fe6d21c5c2f26f921d788910a53ba133b6edc2582b",
+        "gameplay_rules": "f9d41413ced9cd4af6fab2db1114e6a3a5caeeaefcabcad782375d375450e60e",
+        "builder": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b"
+      },
+      "original_panel_ids": [
+        "now",
+        "linshen",
+        "between",
+        "actions"
+      ]
+    },
+    {
+      "id": "reborn-di-daughter-regent",
+      "name": "💎 重生嫡女：宮鬥復仇，攝政王只寵我一人",
+      "file": "data/characters/community/64/reborn-di-daughter-regent.json",
+      "changed": true,
+      "features": [
+        "location_archive",
+        "round_diff",
+        "tabs"
+      ],
+      "preserved": {
+        "content": "28588f2bd1abc5a46c74c70547d19d8df89b2321f5e12a66154c040b8123a533",
+        "initial_state": "a74d5bcc76bffa3a5a8f35bdedb81959053aee663a9192054b547efd16c2e2b6",
+        "gameplay_rules": "ae215b41bda0641a450393f8e8d9b8a8e16b01e220a892e1d093c1506b3b9246",
+        "builder": "7f45507367e57cd6bec11a95f193fc7f93c8950b7a932635f965c9413316106d"
+      },
+      "original_panel_ids": [
+        "now",
+        "past",
+        "house",
+        "regent",
+        "chessboard"
+      ]
+    },
+    {
+      "id": "aetheria-three-factions",
+      "name": "艾瑟莉亞大陸 - 三大勢力",
+      "file": "data/characters/community/ae/aetheria-three-factions.json",
+      "changed": true,
+      "features": [
+        "history",
+        "location_archive",
+        "round_diff",
+        "tabs"
+      ],
+      "preserved": {
+        "content": "9d56f863ca2301ed7454112d41c4618b40497c6065915fc4346851ef7dadb6d9",
+        "initial_state": "dc2d14cfa3e56ac6fb8bdb4c29d0d35c744f6b236411362a29fcfc3709425685",
+        "gameplay_rules": "ea3ef6dc99468ebccc1d60f2536e44dd6f1f4de1f6175451bf3d36570d5c4ce5",
+        "builder": "814bddc8d207fff1bfd20038c58d4adce2abf7c7545dee56d0d6ca1b896894ca"
+      },
+      "original_panel_ids": [
+        "now",
+        "you",
+        "market",
+        "world",
+        "people",
+        "threads",
+        "actions"
+      ]
+    },
+    {
+      "id": "xia-yuhan-av-industry",
+      "name": "痴女 - 夏語涵｜諧音魅魔 AV 女優",
+      "file": "data/characters/community/7c/xia-yuhan-av-industry.json",
+      "changed": true,
+      "features": [
+        "history",
+        "location_archive",
+        "round_diff",
+        "tabs"
+      ],
+      "preserved": {
+        "content": "ca2847b102a2184eae625ae9435265e2e9e30555542d31e6386ead0002328fa0",
+        "initial_state": "ad7e275acd54f4e82ef50415acff52a572439cc2f29e30e081fda95b2261779a",
+        "gameplay_rules": "c8b381a726ff0f41ee4073327c90afc9186f4f582f3558efa51a7e6c9ddf41b3",
+        "builder": "be15253374336551e505cde54afa5fe103ee678d7f1d9b217c4757958ababc61"
+      },
+      "original_panel_ids": [
+        "studio",
+        "you",
+        "yuhan",
+        "career",
+        "threads",
+        "actions"
+      ]
+    },
+    {
+      "id": "elze-survival-world",
+      "name": "異世界求生錄：艾爾澤大陸",
+      "file": "data/characters/community/e7/elze-survival-world.json",
+      "changed": true,
+      "features": [
+        "history",
+        "location_archive",
+        "round_diff",
+        "tabs"
+      ],
+      "preserved": {
+        "content": "bd3e956d0dc50daf2e4f1c6f4487b86074dcd392a8df3f761ec1928ae5e82c1b",
+        "initial_state": "0eb850463f378dd4f272eeb47c3b011fa81018c78c8361d28c26d15d4dee6a10",
+        "gameplay_rules": "892ccde6e21ba87c5aa0c44c52d465ab661f476b11513ff25c4bcbd19cdf07a6",
+        "builder": "5a47a76379cf61b8a6be24276bb40e90135595fd149d65bd9f02b665c3999a56"
+      },
+      "original_panel_ids": [
+        "now",
+        "you",
+        "survival",
+        "guild",
+        "world",
+        "people",
+        "territory",
+        "actions"
+      ]
+    },
+    {
+      "id": "xinglan-academy",
+      "name": "星瀾學園",
+      "file": "data/characters/community/bc/xinglan-academy.json",
+      "changed": true,
+      "features": [
+        "history",
+        "location_archive",
+        "round_diff",
+        "tabs"
+      ],
+      "preserved": {
+        "content": "589d9c635fa7c27cdf376805cae7099792debe06f75d8d8ab1598fc3bd55f800",
+        "initial_state": "1bbd283a1e05182b7ffdbe2fc3b262eeb28423cb99cc08641639cfa63914ca27",
+        "gameplay_rules": "ca2fb849c1bb0c60be2ca5df6a2015b83af63ab666f3001175cf4d0ebdb80519",
+        "builder": "4c62136c613d11ce0119ec8eeb0cb1617245cbce3e611246e2e06c1e0f24b337"
+      },
+      "original_panel_ids": [
+        "now",
+        "you",
+        "people",
+        "campus",
+        "messages",
+        "mystery",
+        "actions"
+      ]
+    },
+    {
+      "id": "lu-jingchen-cold-shell-desire",
+      "name": "陸景琛：冰冷外殼下的渴望",
+      "file": "data/characters/community/a9/lu-jingchen-cold-shell-desire.json",
+      "changed": true,
+      "features": [
+        "history",
+        "location_archive",
+        "round_diff",
+        "tabs"
+      ],
+      "preserved": {
+        "content": "d33ff8efe3037f28250570f3d7fdc9989b1460584ebf692e143a592830175f9b",
+        "initial_state": "976c03c3648ab12e1c673cc1547fefe8df39d176048245da088dafad5885852c",
+        "gameplay_rules": "6a9f95c91333338aa93e60d31fe0c48eae1230fc97bb01ff38a4a621783e44eb",
+        "builder": "982794c1be0ef53488e0636d205056c75afe303a8fcfa547b80482a55fb85b39"
+      },
+      "original_panel_ids": [
+        "now",
+        "you",
+        "jingchen",
+        "relationship",
+        "yixing",
+        "work",
+        "actions"
+      ],
+      "rule_deduplication": [
+        {
+          "field": "npc_rules",
+          "before": "任何 NPC 都不能讀心。",
+          "after": "",
+          "index": 223
+        },
+        {
+          "field": "npc_rules",
+          "before": "NPC 有自己的行程、工作、利益、關係與資訊來源，不會排隊等玩家觸發。\n\n",
+          "after": "",
+          "index": 0
+        }
+      ]
+    },
+    {
+      "id": "sakura-house-experience-management",
+      "name": "櫻花院 -體驗、經營、養成",
+      "file": "data/characters/community/64/sakura-house-experience-management.json",
+      "changed": true,
+      "features": [
+        "history",
+        "location_archive",
+        "round_diff",
+        "tabs"
+      ],
+      "preserved": {
+        "content": "69d372adc339e28283b4564839af7420cee4d742bf2725d9aeeaad97d1a671f8",
+        "initial_state": "1be7a0e80554c44f487b76e3d597ca1e8d38be7f5e2c14e0a63e5e02ee1858ac",
+        "gameplay_rules": "4127cb5b4c97690ca1e24932dcc475fadd740ef77ec29515e230652f80ea9ff8",
+        "builder": "a2ad6f4002b1b70d6e79915ddb07b66ed3e3f26f3c8c4e8e287fa19500afa5a4"
+      },
+      "original_panel_ids": [
+        "now",
+        "you",
+        "house",
+        "staff",
+        "underworld",
+        "empire",
+        "threads",
+        "actions"
+      ]
+    },
+    {
+      "id": "medieval-guild-dynasty-simulator",
+      "name": "中世紀模擬",
+      "file": "data/characters/community/bf/medieval-guild-dynasty-simulator.json",
+      "changed": true,
+      "features": [
+        "history",
+        "location_archive",
+        "round_diff",
+        "tabs"
+      ],
+      "preserved": {
+        "content": "4fee2aedcc0dcd4e08f570657daa188566cd751c26a240b2f54324d11f88c77b",
+        "initial_state": "64cc2be62428df0dfe33be76c7a8332b885e99197265153b5d3f65ec0e51fbc0",
+        "gameplay_rules": "6df7ddad4bd0bb6709bc3d69bf970d1f719a67fe296e9f1b325261e90969b22f",
+        "builder": "05c929f4b75f6395242b9867e7857965beb69a68011866e73e92a9bc2a4193c8"
+      },
+      "original_panel_ids": [
+        "now",
+        "founder",
+        "house",
+        "business",
+        "world",
+        "intel",
+        "trpg",
+        "actions"
+      ]
+    },
+    {
+      "id": "nangong-wen-runaway-bride",
+      "name": "南宮玟｜逃婚？我等著妳",
+      "file": "data/characters/community/22/nangong-wen-runaway-bride.json",
+      "changed": true,
+      "features": [
+        "history",
+        "location_archive",
+        "round_diff",
+        "tabs"
+      ],
+      "preserved": {
+        "content": "e00b1ea77cbd57f0dbe28a838a68e71c783d1e46b7dada85bc76f6de79726b8f",
+        "initial_state": "bd675df4e722b39d5835d66e62e57b9c3da36426a17a3bf5353ceb7e93ad9177",
+        "gameplay_rules": "aad24ba2d171919645ad8ca24a3b066d279b63bea47a47e68c15723e3bbc1271",
+        "builder": "5db30f559421af16ef9fa86270560fcd50d9d3cf08a679c1e56189c52a37c860"
+      },
+      "original_panel_ids": [
+        "now",
+        "nangong",
+        "engagement",
+        "relationship",
+        "pursuit",
+        "people",
+        "threads",
+        "actions"
+      ],
+      "rule_deduplication": [
+        {
+          "field": "system_prompt",
+          "before": "；但他只能根據真實線索判斷，不能讀心",
+          "after": "；他善於記住並比對玩家實際留下的線索",
+          "index": 748
+        }
+      ]
+    },
+    {
+      "id": "heart-training-boyfriend-plan",
+      "name": "心動養成計畫｜妳的理想型正在生成",
+      "file": "data/characters/community/b8/heart-training-boyfriend-plan.json",
+      "changed": true,
+      "features": [
+        "history",
+        "location_archive",
+        "round_diff",
+        "tabs"
+      ],
+      "preserved": {
+        "content": "5d44a2aa0cad540c2928e650368d109dbe66483339d1ddd3fcb4ad349719e6e5",
+        "initial_state": "f1a9baa4afe65824bac8dc711a015d1bdece77800658d2bec27c9f89b6b2c592",
+        "gameplay_rules": "644c8f55ffa285fdb35fb620f619c86411d7babe42eb37da691e290c9dcb680d",
+        "builder": "65fe435a72672d7b32f2c406afaaa8bb0363badceb8530b91c915b391de264a3"
+      },
+      "original_panel_ids": [
+        "now",
+        "app",
+        "blueprint",
+        "him",
+        "relationship",
+        "clues",
+        "actions"
+      ],
+      "rule_deduplication": [
+        {
+          "field": "npc_rules",
+          "before": "任何 NPC 都不能讀心。",
+          "after": "",
+          "index": 153
+        },
+        {
+          "field": "npc_rules",
+          "before": "所有現實 NPC 都有自己的生活、工作、行程、關係、利益與資訊來源，不會排隊等玩家觸發。\n\n",
+          "after": "",
+          "index": 0
+        }
+      ]
+    },
+    {
+      "id": "taiwan-food-hunter",
+      "name": "臺灣美食獵人",
+      "file": "data/characters/community/fb/taiwan-food-hunter.json",
+      "changed": true,
+      "features": [
+        "location_archive",
+        "round_diff",
+        "tabs"
+      ],
+      "preserved": {
+        "content": "2a647f51c7aa5b72a3c975676d2c726301c6f0d2002342f3703cac27b9cc6b5a",
+        "initial_state": "7606aab4e0d9e5cbb462b20fb877a45572b58cb46447ab05defaeaed0716ca6c",
+        "gameplay_rules": "b859ffbae8dbf057cb7baba9454e5aa217e4d614b357f5bcc4d7219cd4b6fd97",
+        "builder": "23083a92c2ba5b8a05171ffe7e08543004ea1a95cf2a69ff47ae0cb9dc09067f"
+      },
+      "original_panel_ids": [
+        "now",
+        "hunter",
+        "body",
+        "map",
+        "hunt",
+        "people",
+        "gear",
+        "actions"
+      ],
+      "world_relocation": {
+        "field": "system_prompt",
+        "block": "【作品定位】\n這是一張「平行臺灣 + 荒謬美食怪物 + 環島探索 + 輕 TRPG + 體型變化 + NPC 自主生活」的長篇世界卡。\n玩家是 18+ 成年美食獵人。平行臺灣的料理、食材與地方傳說會以野生美食生物、精英種、變異種與區域 Boss 的形式出沒。\n獵人必須實際旅行、調查、狩獵、取得地方認證並維持自己的身體、裝備、金錢與人際關係。\n世界不會因玩家停止行動而停止。",
+        "trailing": "\n\n",
+        "index": 42,
+        "original_world_present": false
+      }
+    },
+    {
+      "id": "han-seoyeon-seven-day-contract-lover",
+      "name": "韓書妍｜七日契約戀人",
+      "file": "data/characters/community/5d/han-seoyeon-seven-day-contract-lover.json",
+      "changed": true,
+      "features": [
+        "history",
+        "location_archive",
+        "round_diff",
+        "tabs"
+      ],
+      "preserved": {
+        "content": "fe7e5dcdc5a26f344ce573f9d10a2161aa1644172898258fbae44ddee2a58e05",
+        "initial_state": "bc14708e71bda49d706c70b2e5615454d6db91ee67fd87050dbfb5c7e89b4a15",
+        "gameplay_rules": "37d1cbf698bca25a37dd15ad0492842d2e72439573b051e99824c6e824888838",
+        "builder": "9957b3d7f6412d7b6126c8941bc62e283f5d2502b4244523216a2fd9454154c4"
+      },
+      "original_panel_ids": [
+        "now",
+        "contract",
+        "seoyeon",
+        "relationship",
+        "people",
+        "threads",
+        "actions"
+      ]
+    },
+    {
+      "id": "weird-task-system",
+      "name": "詭異任務系統",
+      "file": "data/characters/community/8f/weird-task-system.json",
+      "changed": true,
+      "features": [
+        "history",
+        "location_archive",
+        "round_diff",
+        "tabs"
+      ],
+      "preserved": {
+        "content": "e9ba427a7e7857e17bf156f8208a5b5625a225bee8d2972f352d4866374d2814",
+        "initial_state": "926e7960e8bfabef24ac3aa505aafa2af15a083797ae62cc5031d832b03c4cbb",
+        "gameplay_rules": "d24992c328b466392581f0bcb219e3d5669d8120f4928f39029d95f0cb642b6a",
+        "builder": "080953fab7599a85c37c6ea91dda9b2ab3f90b0c8557e2cc096a10a9491d6288"
+      },
+      "original_panel_ids": [
+        "now",
+        "you",
+        "task",
+        "records",
+        "people",
+        "items",
+        "actions"
+      ]
+    },
+    {
+      "id": "lin-qiaorou-always-nearby",
+      "name": "林巧柔｜她總是剛好在你身邊",
+      "file": "data/characters/community/c4/lin-qiaorou-always-nearby.json",
+      "changed": true,
+      "features": [
+        "history",
+        "location_archive",
+        "round_diff",
+        "tabs"
+      ],
+      "preserved": {
+        "content": "1fa4b436338701d79343ca27390e2a4043a2b679a9b1a2828867c54e1f12a117",
+        "initial_state": "e27f65f5724c6f74156bbc1e374eb3c5dbb9cecce75f4c15705d7b530f3ac5a3",
+        "gameplay_rules": "46730b8dcb44728b0689c956d4ffaec891a851e6ed94218cffd78dddf688bd8f",
+        "builder": "6b0939abd51a499fafd6979961b678048695152292b57b772539ec477cc30619"
+      },
+      "original_panel_ids": [
+        "now",
+        "qiaorou",
+        "relationship",
+        "clues",
+        "people",
+        "threads",
+        "actions"
+      ]
+    },
+    {
+      "id": "pheromone-bond-abo-simulator",
+      "name": "信息素羈絆｜ABO命定關係模擬器",
+      "file": "data/characters/community/94/pheromone-bond-abo-simulator.json",
+      "changed": true,
+      "features": [
+        "history",
+        "location_archive",
+        "round_diff",
+        "tabs"
+      ],
+      "preserved": {
+        "content": "5a747cbc9d9994b1ca19ddb0784218df1ceb2bdfa05c5da4b3adbe2a79352d93",
+        "initial_state": "913e87f7a3028423daa0a212d2fb762efa1b23ae02d6fe8112896ee3e1c46339",
+        "gameplay_rules": "c2af8856b8e3c411fd59b02d3098549474456c28b04944998c3bee41f0bd4fba",
+        "builder": "fb080855e1389c9a5537f4283ce579f5a8af7993fadf36c4a2f4b0bbdd302faa"
+      },
+      "original_panel_ids": [
+        "now",
+        "you",
+        "focus",
+        "relationship",
+        "biology",
+        "world",
+        "actions"
+      ]
+    },
+    {
+      "id": "collar-class-f-to-s",
+      "name": "頸圈階級｜從 F 級到 S 級",
+      "file": "data/characters/community/d6/collar-class-f-to-s.json",
+      "changed": true,
+      "features": [
+        "history",
+        "location_archive",
+        "round_diff",
+        "tabs"
+      ],
+      "preserved": {
+        "content": "af532742eadcf8be0bd64b74220454c3767a3c33b5c852d236fc701bb61db5b2",
+        "initial_state": "3e8965be944cad9d0ffaf5c0a5243c52d998540051c3b96406a37c10e373ea3a",
+        "gameplay_rules": "f32c6b68f17b23384b2be5bc0f7b51d008b07034ae4577df75024e6ef981a991",
+        "builder": "4c3466f8e8090326ea14ef47176c10c1f5549fee27c7ae1f41aead5b45c4b93f"
+      },
+      "original_panel_ids": [
+        "now",
+        "wallet",
+        "market",
+        "focus",
+        "growth",
+        "relationship",
+        "contracts",
+        "people"
+      ]
+    },
+    {
+      "id": "dual-host-system-mode",
+      "name": "我成了系統？雙宿主模式",
+      "file": "data/characters/community/db/dual-host-system-mode.json",
+      "changed": true,
+      "features": [
+        "history",
+        "round_diff",
+        "tabs"
+      ],
+      "preserved": {
+        "content": "375305e3af14d9e314f9bac58a1c53ff9399bbc80dd2494fafed777634cd8c02",
+        "initial_state": "060098f273c449e85af071ce35578446e74d80952c5919d7bd01156759d8082f",
+        "gameplay_rules": "1948d4602fae1d4be4cffe9f4a5f92b3ba4de1b0ae1f10ba7aa3f24620551712",
+        "builder": "9c1afd73b5910412866c18ace7cf9d092f99e00fbbc33da54d9636d3b048015c"
+      },
+      "original_panel_ids": [
+        "system",
+        "host-a",
+        "host-b",
+        "relations",
+        "tasks",
+        "world",
+        "actions"
+      ]
+    },
+    {
+      "id": "unread-afterglow-seoul",
+      "name": "未讀餘溫｜首爾關係觀察誌",
+      "file": "data/characters/community/9c/unread-afterglow-seoul.json",
+      "changed": true,
+      "features": [
+        "location_archive",
+        "round_diff",
+        "tabs"
+      ],
+      "preserved": {
+        "content": "6fac19447cd8a15d71736f49842eb69aeb68d1be9d95b90beab66391f913c76a",
+        "initial_state": "98b8a9e748620878bf89cc460853e111395584fae5aca811d0f72a82f6f48746",
+        "gameplay_rules": "fdd97c948ed460dc229f10ce3f9c26e49cfffa16e65721b4897a8a06eb18332d",
+        "builder": "970e8f895f0dbef8ba04a9f82726122db7c68c72e23c3a149cbcc16b76ef86a0"
+      },
+      "original_panel_ids": [
+        "now",
+        "people",
+        "signals",
+        "messages",
+        "events",
+        "actions"
+      ]
+    }
+  ],
+  "validation": {
+    "creator_version": "0.9.0",
+    "cards": 44,
+    "importable": true,
+    "issues": 0,
+    "worldbooks": "Keyword-triggered lorebooks verified through Creator MCP; all valid."
+  }
+}

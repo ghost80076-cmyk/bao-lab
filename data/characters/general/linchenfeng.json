@@ -18,7 +18,9 @@
     ],
     "description": "28 歲｜自由接案者｜深夜常在線。他不是來拯救你的；他只是在理解世界之後，仍然選擇用溫和的方式活著。看得懂人性，但不急著拆穿；不主動靠近，卻接得住真正的脆弱。",
     "title": "林沉風 - 見過黑暗的人",
-    "rating": "general"
+    "rating": "general",
+    "author": "班長",
+    "author_id": "banzhang"
   },
   "content": {
     "quote": "你不用把自己整理好了再來。至少今晚，不用。",
@@ -484,6 +486,94 @@
           "reply_state": "林沉風已回覆，是否繼續交流由玩家決定。"
         }
       }
+    },
+    "ui_schema": {
+      "version": 1,
+      "theme": {
+        "preset": "noir",
+        "density": "comfortable"
+      },
+      "panels": [
+        {
+          "id": "archive",
+          "label": "故事檔案",
+          "sections": [
+            {
+              "type": "tabs",
+              "id": "current_archive",
+              "default_tab": "live",
+              "tabs": [
+                {
+                  "id": "live",
+                  "label": "目前狀態",
+                  "sections": [
+                    {
+                      "type": "location_archive",
+                      "title": "現在",
+                      "time_path": "time",
+                      "location_path": "location",
+                      "scene_source": "story-gallery",
+                      "empty": "尚未整理可前往地點。"
+                    },
+                    {
+                      "type": "stats",
+                      "title": "你們之間",
+                      "items": [
+                        {
+                          "label": "關係",
+                          "path": "modules.relationship.stage"
+                        },
+                        {
+                          "label": "信任",
+                          "path": "modules.relationship.trust"
+                        },
+                        {
+                          "label": "界線",
+                          "path": "modules.relationship.boundary"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "changes",
+                  "label": "本輪變動",
+                  "sections": [
+                    {
+                      "type": "timeline",
+                      "mode": "round_diff",
+                      "title": "本輪變動",
+                      "items": [
+                        {
+                          "label": "故事檔案 · 時間",
+                          "path": "time"
+                        },
+                        {
+                          "label": "故事檔案 · 地點",
+                          "path": "location"
+                        },
+                        {
+                          "label": "故事檔案 · 關係",
+                          "path": "modules.relationship.stage"
+                        },
+                        {
+                          "label": "故事檔案 · 信任",
+                          "path": "modules.relationship.trust"
+                        },
+                        {
+                          "label": "故事檔案 · 界線",
+                          "path": "modules.relationship.boundary"
+                        }
+                      ],
+                      "empty": "尚無本輪可見變動；更新後自動比較。"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
     }
   },
   "presentation": {

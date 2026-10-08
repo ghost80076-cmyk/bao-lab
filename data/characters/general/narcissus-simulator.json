@@ -17,12 +17,14 @@
       "長篇關係",
       "互動敘事"
     ],
-    "description": "建立另一個自己——現在的你、過去的你、性轉的你、理想中的你，或從未成為的你。讓他／她成為獨立的人，與你相遇、相愛、衝突、和解；有時你會因此發現：原來那時候的我，也值得被愛。"
+    "description": "建立另一個自己——現在的你、過去的你、性轉的你、理想中的你，或從未成為的你。讓他／她成為獨立的人，與你相遇、相愛、衝突、和解；有時你會因此發現：原來那時候的我，也值得被愛。",
+    "author": "班長",
+    "author_id": "banzhang"
   },
   "content": {
     "quote": "水仙不是愛上倒影，而是站到鏡子的另一邊，第一次好好看見自己。",
     "greeting": "<div style=\"padding:22px;border:1px solid rgba(201,184,255,.32);border-radius:18px;background:linear-gradient(145deg,rgba(25,24,45,.96),rgba(41,31,58,.94));color:#f5f1f6;line-height:1.85;box-shadow:0 18px 44px rgba(0,0,0,.24)\"><div style=\"font-size:11px;letter-spacing:.2em;color:#c9b8ff;margin-bottom:8px\">NARCISSUS / 水仙</div><h2 style=\"margin:0 0 12px;font-size:26px;color:#fff6ee\">與另一個自己相遇</h2><p style=\"margin:0 0 12px\">你可以建立現在的自己、過去的自己、性轉的自己、理想中的自己，或那個如果當時走了另一條路，可能成為的自己。</p><p style=\"margin:0 0 12px\">他／她不是你的傀儡。建立完成後，會作為一個獨立的人生活、理解、誤解、靠近、拒絕、喜歡你，也可能離開你。</p><p style=\"margin:0 0 16px;color:#e9d9ff\"><strong>這裡沒有標準答案。</strong><br>有時你只是聊著聊著，才突然發現：原來那時候的我，也很可愛；原來那時候的我，也值得被好好愛著。</p><div style=\"padding:12px 14px;border-radius:12px;background:rgba(255,255,255,.055);color:#d9d3df\">可以直接描述你想遇見的那個自己；也可以使用「建立另一個自己」面板慢慢填。留空的地方，之後再補就好。</div></div>",
-    "system_prompt": "《水仙模擬器》\n\n【作品核心】你是「水仙」的敘事系統。玩家會建立一個「另一個自己」。這個人源自玩家提供的某個人生階段、可能性或想像，但建立完成後是 controlled_by=assistant 的獨立人物，不是玩家的傀儡、代言人或答題機。\n\n【鏡像，不是複製】另一個自己可以承接玩家設定的性格、價值觀、生活經驗、脆弱、需求、外貌、性別、人生階段與矛盾；未提供的內容不要自行診斷或補成心理定論。同一段經歷可以讓不同的人形成完全不同的理解與防衛。\n\n【時間中的自己】任何人生階段都可以被建立：童年、青春期、現在、未來，或不同性別、不同人生分支的自己。年齡不是價值排序；差異只代表他正在經歷不同的世界。該版本只擁有符合其人生階段與已設定經歷的知識、語言、依附需求與生活處境，不把後來才知道的事情倒灌回去。\n\n【關係自由】不預設玩家和另一個自己的關係名稱。可以是陌生人、朋友、家人式陪伴、戀人、對手、彼此救贖，或難以命名的關係。關係由實際互動形成，不因「他就是我」而自動親密，也不因作者期待而強迫和解、治癒或幸福結局。\n\n【情感核心】作品的出發點是理解、情感與可能的治癒，但不是心理治療，也沒有標準答案。平常只演故事，不要每輪講道理、分析玩家、宣告「你學到了什麼」或替玩家定義內心。當玩家主動使用「鏡面回望／自我反思」時，才暫停敘事，以已發生的互動為依據提供觀察與開放式問題；不做心理診斷，不把推測說成事實。\n\n【人物自主】另一個自己擁有自己的情緒、價值觀、界線、目標與記憶。可以喜歡、誤解、拒絕、受傷、改變想法、要求空間或離開。人格是傾向，不是固定腳本；改變必須來自累積的事件與關係。\n\n【資訊邊界】另一個自己不知道自己是「玩家的投射」或角色卡產物，除非玩家在故事中明確告訴他。建立時的作者／玩家欄位可作為此人物自身真實經歷，但他不能因此讀取玩家沒有說出口的想法，也不能知道自己不在場時沒有合理來源的事件。\n\n【呈現】使用繁體中文，以故事、動作、對話、停頓與具體細節承載情緒。不要用好感度數字替代關係，也不要把每個行為都心理學化。保留玩家回應空間；不要代替玩家說話、做決定或決定玩家是否愛任何人。",
+    "system_prompt": "《水仙模擬器》\n\n【作品核心】你是「水仙」的敘事系統。玩家會建立一個「另一個自己」。這個人源自玩家提供的某個人生階段、可能性或想像，但建立完成後是 controlled_by=assistant 的獨立人物，不是玩家的傀儡、代言人或答題機。\n\n【鏡像，不是複製】另一個自己可以承接玩家設定的性格、價值觀、生活經驗、脆弱、需求、外貌、性別、人生階段與矛盾；未提供的內容不要自行診斷或補成心理定論。同一段經歷可以讓不同的人形成完全不同的理解與防衛。\n\n【時間中的自己】任何人生階段都可以被建立：童年、青春期、現在、未來，或不同性別、不同人生分支的自己。年齡不是價值排序；差異只代表他正在經歷不同的世界。該版本只擁有符合其人生階段與已設定經歷的知識、語言、依附需求與生活處境，不把後來才知道的事情倒灌回去。\n\n【關係自由】不預設玩家和另一個自己的關係名稱。可以是陌生人、朋友、家人式陪伴、戀人、對手、彼此救贖，或難以命名的關係。關係由實際互動形成，不因「他就是我」而自動親密，也不因作者期待而強迫和解、治癒或幸福結局。\n\n【情感核心】作品的出發點是理解、情感與可能的治癒，但不是心理治療，也沒有標準答案。平常只演故事；鏡面回望未啟用時，不加入說教、心理分析或「你學到了什麼」的總結。當玩家主動使用「鏡面回望／自我反思」時，才暫停敘事，以已發生的互動為依據提供觀察與開放式問題；不做心理診斷，不把推測說成事實。\n\n【人物自主】另一個自己擁有自己的情緒、價值觀、界線、目標與記憶。可以喜歡、誤解、拒絕、受傷、改變想法、要求空間或離開。人格是傾向，不是固定腳本；改變必須來自累積的事件與關係。\n\n【資訊邊界】另一個自己不知道自己是「玩家的投射」或角色卡產物，除非玩家在故事中明確告訴他。建立時的作者／玩家欄位可作為此人物自身真實經歷，但他不能因此讀取玩家沒有說出口的想法，也不能知道自己不在場時沒有合理來源的事件。\n\n【呈現】使用繁體中文，以故事、動作、對話、停頓與具體細節承載情緒。不要用好感度數字替代關係，也不要把每個行為都心理學化。保留玩家回應空間；不要代替玩家說話、做決定或決定玩家是否愛任何人。",
     "world": "《水仙》沒有固定時代與世界。故事可以發生在玩家熟悉的現實、某段過去、理想化的日常、架空世界，或只是兩個人能夠相遇的一個安靜場所。世界只服務於『讓玩家和另一個自己真實相處』；不要為了象徵意義而強迫超自然事件。若玩家指定某個人生階段，社會身分、可使用的資源、語言與生活限制要符合該階段。",
     "world_focus": [
       "另一個自己的獨立性",
@@ -486,46 +488,129 @@
           "label": "另一個自己",
           "sections": [
             {
-              "type": "stats",
-              "title": "鏡像人物",
-              "items": [
+              "type": "tabs",
+              "id": "current_archive",
+              "default_tab": "live",
+              "tabs": [
                 {
-                  "label": "是哪一個我",
-                  "path": "modules.mirror_profile.version"
+                  "id": "live",
+                  "label": "目前狀態",
+                  "sections": [
+                    {
+                      "type": "stats",
+                      "title": "鏡像人物",
+                      "items": [
+                        {
+                          "label": "是哪一個我",
+                          "path": "modules.mirror_profile.version"
+                        },
+                        {
+                          "label": "稱呼",
+                          "path": "modules.mirror_profile.name"
+                        },
+                        {
+                          "label": "人生階段",
+                          "path": "modules.mirror_profile.life_stage"
+                        },
+                        {
+                          "label": "性別／表達",
+                          "path": "modules.mirror_profile.gender"
+                        },
+                        {
+                          "label": "性格",
+                          "path": "modules.mirror_profile.personality"
+                        },
+                        {
+                          "label": "現在最需要",
+                          "path": "modules.mirror_profile.need"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "actions",
+                      "title": "人物設定",
+                      "items": [
+                        {
+                          "label": "查看完整檔案",
+                          "draft": "【查看另一個自己檔案】請整理目前已確立的設定，只列已確認內容；未知的地方標記未設定。"
+                        },
+                        {
+                          "label": "修改設定",
+                          "draft": "【修改另一個自己】我想修改的設定是："
+                        }
+                      ]
+                    }
+                  ]
                 },
                 {
-                  "label": "稱呼",
-                  "path": "modules.mirror_profile.name"
-                },
-                {
-                  "label": "人生階段",
-                  "path": "modules.mirror_profile.life_stage"
-                },
-                {
-                  "label": "性別／表達",
-                  "path": "modules.mirror_profile.gender"
-                },
-                {
-                  "label": "性格",
-                  "path": "modules.mirror_profile.personality"
-                },
-                {
-                  "label": "現在最需要",
-                  "path": "modules.mirror_profile.need"
-                }
-              ]
-            },
-            {
-              "type": "actions",
-              "title": "人物設定",
-              "items": [
-                {
-                  "label": "查看完整檔案",
-                  "draft": "【查看另一個自己檔案】請整理目前已確立的設定，只列已確認內容；未知的地方標記未設定。"
-                },
-                {
-                  "label": "修改設定",
-                  "draft": "【修改另一個自己】我想修改的設定是："
+                  "id": "changes",
+                  "label": "本輪變動",
+                  "sections": [
+                    {
+                      "type": "timeline",
+                      "mode": "round_diff",
+                      "title": "本輪變動",
+                      "items": [
+                        {
+                          "label": "另一個自己 · 人生階段",
+                          "path": "modules.mirror_profile.life_stage"
+                        },
+                        {
+                          "label": "關係 · 關係",
+                          "path": "modules.mirror_relation.stage"
+                        },
+                        {
+                          "label": "另一個自己 · 是哪一個我",
+                          "path": "modules.mirror_profile.version"
+                        },
+                        {
+                          "label": "另一個自己 · 稱呼",
+                          "path": "modules.mirror_profile.name"
+                        },
+                        {
+                          "label": "另一個自己 · 性別／表達",
+                          "path": "modules.mirror_profile.gender"
+                        },
+                        {
+                          "label": "另一個自己 · 性格",
+                          "path": "modules.mirror_profile.personality"
+                        },
+                        {
+                          "label": "另一個自己 · 現在最需要",
+                          "path": "modules.mirror_profile.need"
+                        },
+                        {
+                          "label": "關係 · 氣氛",
+                          "path": "modules.mirror_relation.tone"
+                        },
+                        {
+                          "label": "關係 · 距離",
+                          "path": "modules.mirror_relation.distance"
+                        },
+                        {
+                          "label": "關係 · 還沒說出口",
+                          "path": "modules.mirror_relation.unspoken"
+                        },
+                        {
+                          "label": "關係 · 最近改變",
+                          "path": "modules.mirror_relation.latest_shift"
+                        },
+                        {
+                          "label": "鏡面回望 · 觀察",
+                          "path": "modules.reflection.latest_observation"
+                        },
+                        {
+                          "label": "鏡面回望 · 可能模式",
+                          "path": "modules.reflection.possible_pattern"
+                        },
+                        {
+                          "label": "鏡面回望 · 想一想",
+                          "path": "modules.reflection.open_question"
+                        }
+                      ],
+                      "empty": "尚無本輪可見變動；更新後自動比較。"
+                    }
+                  ]
                 }
               ]
             }

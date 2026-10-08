@@ -46,7 +46,9 @@ assert.deepEqual(ui.panels.map(x=>x.id),['now','you','task','records','people','
 assert.equal(regex.type,'yorubay-author-regex-mod');
 assert.equal(regex.characterId,card.meta.id);
 assert.equal(regex.regex_scripts.length,4);
-assert.deepEqual(card.import_metadata.preserved_source,regex);
+assert.equal(card.import_metadata.preserved_source.characterId,regex.characterId);
+assert.deepEqual(card.import_metadata.preserved_source.regex_scripts.map(x=>x.findRegex),regex.regex_scripts.map(x=>x.findRegex));
+assert.doesNotMatch(JSON.stringify(regex.regex_scripts), /onclick=/, 'current sidecar must use native details rather than archived inline handlers');
 const normalizedRegex=AuthorRegex.normalize(regex);
 assert.equal(normalizedRegex.length,4);
 assert.ok(normalizedRegex.some(rule=>rule.pattern.includes('YB:ODD:OPENING')&&rule.rich));

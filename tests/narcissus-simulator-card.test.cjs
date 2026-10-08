@@ -49,12 +49,14 @@ const version=ui.builder.fields.find(field=>field.key==='mirror_version');
 for(const option of ['現在的我','過去的我','童年的我','青春期的我','性轉的我','理想中的我','自訂']){
   assert.ok(version.options.includes(option),`missing mirror version option ${option}`);
 }
-const actionLabels=ui.panels.flatMap(panel=>panel.sections)
+const leaves=sections=>sections.flatMap(section=>section.type==='tabs'?section.tabs.flatMap(tab=>leaves(tab.sections)):[section]);
+const actionLabels=ui.panels.flatMap(panel=>leaves(panel.sections))
   .filter(section=>section.type==='actions')
   .flatMap(section=>section.items.map(item=>item.label));
 for(const label of ['查看完整檔案','修改設定','他／她眼中的我','關係狀態','鏡面回望','自我反思']){
   assert.ok(actionLabels.includes(label),`missing author-tool action ${label}`);
 }
 
-assert.doesNotMatch(JSON.stringify(card),/好感度\s*[+\-]|信任度\s*[+\-]|性慾值/);
+assert.doesNotMatch(JSON.stringify(ui.panels),/好感度\s*[+\-]|信任度\s*[+\-]|性慾值/);
+assert.match(card.content.author_instructions, /不使用好感度、信任度、性慾值等數字/);
 console.log('PASS Narcissus emotional core, mirror builder, qualitative relationship tools and cover');

@@ -27,7 +27,9 @@
       "原生狀態UI",
       "Builder開局"
     ],
-    "description": "從第一次踏進櫻花院開始，你可以只當客人，也可以一路成為熟客、VIP、股東與真正的經營者。成人服務、員工關係、帳本、黑幫保護費、警方壓力、競爭店、政商人脈與地下產業彼此牽動；表面是高級會所，往深處玩，整座城市的夜生活都可能變成你的版圖。"
+    "description": "從第一次踏進櫻花院開始，你可以只當客人，也可以一路成為熟客、VIP、股東與真正的經營者。成人服務、員工關係、帳本、黑幫保護費、警方壓力、競爭店、政商人脈與地下產業彼此牽動；表面是高級會所，往深處玩，整座城市的夜生活都可能變成你的版圖。",
+    "author": "班長",
+    "author_id": "banzhang"
   },
   "content": {
     "quote": "「來這裡的人，一開始都說只是想看看。」——小雅",
@@ -918,33 +920,144 @@
           "label": "此刻",
           "sections": [
             {
-              "type": "stats",
-              "title": "現在",
-              "items": [
+              "type": "tabs",
+              "id": "current_archive",
+              "default_tab": "live",
+              "tabs": [
                 {
-                  "label": "時間",
-                  "path": "modules.scene.time"
+                  "id": "live",
+                  "label": "目前狀態",
+                  "sections": [
+                    {
+                      "type": "location_archive",
+                      "title": "現在",
+                      "time_path": "modules.scene.time",
+                      "location_path": "modules.scene.location",
+                      "scene_source": "story-gallery",
+                      "empty": "尚未整理可前往地點。"
+                    },
+                    {
+                      "type": "stats",
+                      "title": "現在",
+                      "items": [
+                        {
+                          "label": "氛圍",
+                          "path": "modules.scene.atmosphere"
+                        },
+                        {
+                          "label": "眼前事件",
+                          "path": "modules.scene.current_event"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "list",
+                      "title": "在場人物",
+                      "path": "modules.scene.participants",
+                      "empty": "目前沒有重要人物在場。",
+                      "limit": 12
+                    }
+                  ]
                 },
                 {
-                  "label": "地點",
-                  "path": "modules.scene.location"
-                },
-                {
-                  "label": "氛圍",
-                  "path": "modules.scene.atmosphere"
-                },
-                {
-                  "label": "眼前事件",
-                  "path": "modules.scene.current_event"
+                  "id": "changes",
+                  "label": "本輪變動",
+                  "sections": [
+                    {
+                      "type": "timeline",
+                      "mode": "round_diff",
+                      "title": "本輪變動",
+                      "items": [
+                        {
+                          "label": "此刻 · 時間",
+                          "path": "modules.scene.time"
+                        },
+                        {
+                          "label": "此刻 · 地點",
+                          "path": "modules.scene.location"
+                        },
+                        {
+                          "label": "你 · 現金",
+                          "path": "modules.player.cash"
+                        },
+                        {
+                          "label": "你 · 聲望",
+                          "path": "modules.player.reputation"
+                        },
+                        {
+                          "label": "櫻花院 · 營業狀態",
+                          "path": "modules.venue.open_status"
+                        },
+                        {
+                          "label": "櫻花院 · 公開口碑",
+                          "path": "modules.venue.public_reputation"
+                        },
+                        {
+                          "label": "地下 · 黑幫壓力",
+                          "path": "modules.risk.gang_pressure"
+                        },
+                        {
+                          "label": "此刻 · 氛圍",
+                          "path": "modules.scene.atmosphere"
+                        },
+                        {
+                          "label": "此刻 · 眼前事件",
+                          "path": "modules.scene.current_event"
+                        },
+                        {
+                          "label": "你 · 身份",
+                          "path": "modules.player.identity"
+                        },
+                        {
+                          "label": "你 · 體力",
+                          "path": "modules.player.stamina"
+                        },
+                        {
+                          "label": "你 · 成人經驗／技巧",
+                          "path": "modules.player.adult_experience"
+                        },
+                        {
+                          "label": "櫻花院 · 會所等級",
+                          "path": "modules.venue.tier"
+                        },
+                        {
+                          "label": "櫻花院 · 員工數",
+                          "path": "modules.venue.staff_count"
+                        },
+                        {
+                          "label": "櫻花院 · 今日客流",
+                          "path": "modules.venue.daily_flow"
+                        },
+                        {
+                          "label": "櫻花院 · 今日收入",
+                          "path": "modules.finance.today_revenue"
+                        },
+                        {
+                          "label": "櫻花院 · 今日支出",
+                          "path": "modules.finance.today_expense"
+                        },
+                        {
+                          "label": "櫻花院 · 分紅",
+                          "path": "modules.finance.shareholder_dividend"
+                        },
+                        {
+                          "label": "櫻花院 · 最近結算",
+                          "path": "modules.finance.last_settlement"
+                        },
+                        {
+                          "label": "地下 · 執法／曝光",
+                          "path": "modules.risk.heat"
+                        },
+                        {
+                          "label": "地下 · 員工壓力",
+                          "path": "modules.risk.staff_stress"
+                        }
+                      ],
+                      "empty": "尚無本輪可見變動；更新後自動比較。"
+                    }
+                  ]
                 }
               ]
-            },
-            {
-              "type": "list",
-              "title": "在場人物",
-              "path": "modules.scene.participants",
-              "empty": "目前沒有重要人物在場。",
-              "limit": 12
             }
           ]
         },
@@ -1152,11 +1265,12 @@
               "limit": 16
             },
             {
-              "type": "list",
+              "type": "timeline",
               "title": "最近紀錄",
               "path": "modules.event_log.recent",
               "empty": "尚無紀錄。",
-              "limit": 12
+              "limit": 12,
+              "mode": "history"
             }
           ]
         },

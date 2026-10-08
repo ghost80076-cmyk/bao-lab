@@ -27,7 +27,9 @@
       "Dynamic Prompts",
       "作者Regex"
     ],
-    "description": "午夜 23:47，一個從未安裝過的 APP 出現在手機裡。它會發布看似簡單、實際藏著規則漏洞的任務；真正危險的往往不是鬼，而是你不知道哪一條規則是真的。這是一張沒有固定主線的規則怪談生存 TRPG：任務會從日常空間長出來，線索、污染、其他受選者與重複出現的異常會逐漸構成屬於這一局的長線真相。"
+    "description": "午夜 23:47，一個從未安裝過的 APP 出現在手機裡。它會發布看似簡單、實際藏著規則漏洞的任務；真正危險的往往不是鬼，而是你不知道哪一條規則是真的。這是一張沒有固定主線的規則怪談生存 TRPG：任務會從日常空間長出來，線索、污染、其他受選者與重複出現的異常會逐漸構成屬於這一局的長線真相。",
+    "author": "班長",
+    "author_id": "banzhang"
   },
   "content": {
     "quote": "最可怕的不是規則很多，而是你不知道哪一條從來沒有寫在上面。",
@@ -731,37 +733,171 @@
           "label": "此刻",
           "sections": [
             {
-              "type": "stats",
-              "title": "場景",
-              "items": [
+              "type": "tabs",
+              "id": "current_archive",
+              "default_tab": "live",
+              "tabs": [
                 {
-                  "label": "日期",
-                  "path": "modules.scene.date"
+                  "id": "live",
+                  "label": "目前狀態",
+                  "sections": [
+                    {
+                      "type": "location_archive",
+                      "title": "場景",
+                      "time_path": "modules.scene.date",
+                      "location_path": "modules.scene.location",
+                      "scene_source": "story-gallery",
+                      "empty": "尚未整理可前往地點。",
+                      "status_path": "modules.scene.normality"
+                    },
+                    {
+                      "type": "stats",
+                      "title": "場景",
+                      "items": [
+                        {
+                          "label": "時間",
+                          "path": "modules.scene.time"
+                        },
+                        {
+                          "label": "異常壓力",
+                          "path": "modules.scene.anomaly_pressure"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "list",
+                      "title": "場景參與者",
+                      "path": "modules.scene_participants",
+                      "empty": "目前只有你。",
+                      "limit": 14
+                    }
+                  ]
                 },
                 {
-                  "label": "時間",
-                  "path": "modules.scene.time"
+                  "id": "changes",
+                  "label": "本輪變動",
+                  "sections": [
+                    {
+                      "type": "timeline",
+                      "mode": "round_diff",
+                      "title": "本輪變動",
+                      "items": [
+                        {
+                          "label": "此刻 · 日期",
+                          "path": "modules.scene.date"
+                        },
+                        {
+                          "label": "此刻 · 時間",
+                          "path": "modules.scene.time"
+                        },
+                        {
+                          "label": "此刻 · 地點",
+                          "path": "modules.scene.location"
+                        },
+                        {
+                          "label": "此刻 · 異常壓力",
+                          "path": "modules.scene.anomaly_pressure"
+                        },
+                        {
+                          "label": "任務 · 難度",
+                          "path": "modules.active_task.rank"
+                        },
+                        {
+                          "label": "任務 · 狀態",
+                          "path": "modules.active_task.status"
+                        },
+                        {
+                          "label": "此刻 · 表面狀態",
+                          "path": "modules.scene.normality"
+                        },
+                        {
+                          "label": "你 · 姓名",
+                          "path": "modules.player.name"
+                        },
+                        {
+                          "label": "你 · 年齡",
+                          "path": "modules.player.age"
+                        },
+                        {
+                          "label": "你 · 身份",
+                          "path": "modules.player.identity"
+                        },
+                        {
+                          "label": "你 · 居住",
+                          "path": "modules.player.living"
+                        },
+                        {
+                          "label": "你 · 偏好",
+                          "path": "modules.player.story_focus"
+                        },
+                        {
+                          "label": "你 · 精神值",
+                          "path": "modules.condition.mental"
+                        },
+                        {
+                          "label": "你 · 污染度",
+                          "path": "modules.condition.pollution"
+                        },
+                        {
+                          "label": "你 · 疲勞",
+                          "path": "modules.condition.fatigue"
+                        },
+                        {
+                          "label": "你 · 傷勢",
+                          "path": "modules.condition.injuries"
+                        },
+                        {
+                          "label": "你 · 感知",
+                          "path": "modules.condition.perception"
+                        },
+                        {
+                          "label": "任務 · 名稱",
+                          "path": "modules.active_task.title"
+                        },
+                        {
+                          "label": "任務 · 目標",
+                          "path": "modules.active_task.objective"
+                        },
+                        {
+                          "label": "任務 · 期限",
+                          "path": "modules.active_task.deadline"
+                        },
+                        {
+                          "label": "物品 · 連結",
+                          "path": "modules.system_link.connection"
+                        },
+                        {
+                          "label": "物品 · 關注",
+                          "path": "modules.system_link.attention"
+                        },
+                        {
+                          "label": "物品 · 完成",
+                          "path": "modules.system_link.completed"
+                        },
+                        {
+                          "label": "物品 · 失敗",
+                          "path": "modules.system_link.failed"
+                        }
+                      ],
+                      "empty": "尚無本輪可見變動；更新後自動比較。"
+                    }
+                  ]
                 },
                 {
-                  "label": "地點",
-                  "path": "modules.scene.location"
-                },
-                {
-                  "label": "表面狀態",
-                  "path": "modules.scene.normality"
-                },
-                {
-                  "label": "異常壓力",
-                  "path": "modules.scene.anomaly_pressure"
+                  "id": "history",
+                  "label": "近期歷程",
+                  "sections": [
+                    {
+                      "type": "timeline",
+                      "mode": "history",
+                      "title": "已記錄事件",
+                      "path": "modules.event_log",
+                      "limit": 20,
+                      "empty": "目前沒有已記錄事件。"
+                    }
+                  ]
                 }
               ]
-            },
-            {
-              "type": "list",
-              "title": "場景參與者",
-              "path": "modules.scene_participants",
-              "empty": "目前只有你。",
-              "limit": 14
             }
           ]
         },

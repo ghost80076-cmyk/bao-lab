@@ -25,7 +25,9 @@
       "慢養成",
       "原生狀態UI"
     ],
-    "description": "在成人影像產業被視為成熟表演文化的平行東京，你從臨時演員、男優、工作人員或製作人身份進入片場，遇上以中日雙語諧音梗聞名的 S 級女優夏語涵。作品保留成人拍攝、直播、評價與職涯成長，但把數值降到背景：真正重要的是片場默契、代表作、關係與你在業界留下的名字。"
+    "description": "在成人影像產業被視為成熟表演文化的平行東京，你從臨時演員、男優、工作人員或製作人身份進入片場，遇上以中日雙語諧音梗聞名的 S 級女優夏語涵。作品保留成人拍攝、直播、評價與職涯成長，但把數值降到背景：真正重要的是片場默契、代表作、關係與你在業界留下的名字。",
+    "author": "班長",
+    "author_id": "banzhang"
   },
   "content": {
     "quote": "「別那麼緊張呀。我只是說『試鏡』，你腦袋裡到底自己加了什麼字幕？」——夏語涵",
@@ -714,41 +716,161 @@
           "label": "片場",
           "sections": [
             {
-              "type": "stats",
-              "title": "現在",
-              "items": [
+              "type": "tabs",
+              "id": "current_archive",
+              "default_tab": "live",
+              "tabs": [
                 {
-                  "label": "層次",
-                  "path": "modules.scene_state.layer"
+                  "id": "live",
+                  "label": "目前狀態",
+                  "sections": [
+                    {
+                      "type": "location_archive",
+                      "title": "現在",
+                      "time_path": "modules.scene_state.time",
+                      "location_path": "modules.scene_state.location",
+                      "scene_source": "story-gallery",
+                      "empty": "尚未整理可前往地點。",
+                      "status_path": "modules.scene_state.status"
+                    },
+                    {
+                      "type": "stats",
+                      "title": "現在",
+                      "items": [
+                        {
+                          "label": "層次",
+                          "path": "modules.scene_state.layer"
+                        },
+                        {
+                          "label": "企劃",
+                          "path": "modules.scene_state.project"
+                        },
+                        {
+                          "label": "觀眾／直播",
+                          "path": "modules.scene_state.audience"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "list",
+                      "title": "場景參與者",
+                      "path": "modules.scene_participants",
+                      "empty": "目前沒有重要人物在場。",
+                      "limit": 12
+                    }
+                  ]
                 },
                 {
-                  "label": "企劃",
-                  "path": "modules.scene_state.project"
-                },
-                {
-                  "label": "時間",
-                  "path": "modules.scene_state.time"
-                },
-                {
-                  "label": "地點",
-                  "path": "modules.scene_state.location"
-                },
-                {
-                  "label": "狀態",
-                  "path": "modules.scene_state.status"
-                },
-                {
-                  "label": "觀眾／直播",
-                  "path": "modules.scene_state.audience"
+                  "id": "changes",
+                  "label": "本輪變動",
+                  "sections": [
+                    {
+                      "type": "timeline",
+                      "mode": "round_diff",
+                      "title": "本輪變動",
+                      "items": [
+                        {
+                          "label": "片場 · 時間",
+                          "path": "modules.scene_state.time"
+                        },
+                        {
+                          "label": "片場 · 地點",
+                          "path": "modules.scene_state.location"
+                        },
+                        {
+                          "label": "片場 · 狀態",
+                          "path": "modules.scene_state.status"
+                        },
+                        {
+                          "label": "你 · 片場口碑",
+                          "path": "modules.career.reputation"
+                        },
+                        {
+                          "label": "夏語涵 · 合作關係",
+                          "path": "modules.xia_yuhan.relationship"
+                        },
+                        {
+                          "label": "片場 · 層次",
+                          "path": "modules.scene_state.layer"
+                        },
+                        {
+                          "label": "片場 · 企劃",
+                          "path": "modules.scene_state.project"
+                        },
+                        {
+                          "label": "片場 · 觀眾／直播",
+                          "path": "modules.scene_state.audience"
+                        },
+                        {
+                          "label": "你 · 業界身份",
+                          "path": "modules.player_profile.role"
+                        },
+                        {
+                          "label": "你 · 經驗",
+                          "path": "modules.player_profile.experience"
+                        },
+                        {
+                          "label": "你 · 體力",
+                          "path": "modules.condition.stamina"
+                        },
+                        {
+                          "label": "你 · 專注",
+                          "path": "modules.condition.focus"
+                        },
+                        {
+                          "label": "你 · 疲勞",
+                          "path": "modules.condition.fatigue"
+                        },
+                        {
+                          "label": "你 · 目前狀況",
+                          "path": "modules.condition.condition_note"
+                        },
+                        {
+                          "label": "你 · 定位",
+                          "path": "modules.career.tier"
+                        },
+                        {
+                          "label": "你 · 鏡頭感",
+                          "path": "modules.career.camera"
+                        },
+                        {
+                          "label": "你 · 臨場適應",
+                          "path": "modules.career.adaptability"
+                        },
+                        {
+                          "label": "你 · 粉絲／關注",
+                          "path": "modules.career.popularity"
+                        },
+                        {
+                          "label": "你 · 參考片酬",
+                          "path": "modules.career.fee_yen"
+                        },
+                        {
+                          "label": "夏語涵 · 是否在場",
+                          "path": "modules.xia_yuhan.presence"
+                        },
+                        {
+                          "label": "夏語涵 · 表面狀態",
+                          "path": "modules.xia_yuhan.public_mood"
+                        },
+                        {
+                          "label": "夏語涵 · 合作次數",
+                          "path": "modules.xia_yuhan.collabs"
+                        },
+                        {
+                          "label": "夏語涵 · 目前印象",
+                          "path": "modules.xia_yuhan.impression"
+                        },
+                        {
+                          "label": "作品 · 鏡頭存在感",
+                          "path": "modules.scene_feedback.presence"
+                        }
+                      ],
+                      "empty": "尚無本輪可見變動；更新後自動比較。"
+                    }
+                  ]
                 }
               ]
-            },
-            {
-              "type": "list",
-              "title": "場景參與者",
-              "path": "modules.scene_participants",
-              "empty": "目前沒有重要人物在場。",
-              "limit": 12
             }
           ]
         },
@@ -923,11 +1045,12 @@
               "limit": 12
             },
             {
-              "type": "list",
+              "type": "timeline",
               "title": "最近片場紀錄",
               "path": "modules.production_log",
               "empty": "尚未累積片場紀錄。",
-              "limit": 10
+              "limit": 10,
+              "mode": "history"
             }
           ]
         },

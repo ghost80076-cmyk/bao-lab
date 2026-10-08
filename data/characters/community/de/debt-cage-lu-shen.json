@@ -21,7 +21,9 @@
       "資訊差",
       "慢熱拉扯"
     ],
-    "description": "父親的債，把妳送到陸深面前。金絲眼鏡、三件式西裝、永遠溫和的聲音——他把一切包裝成合約、選擇與體面，真正想要的卻從來不是錢。女性向暗黑戀愛 × 債務控制 × 病態佔有 × 反制與逃脫。"
+    "description": "父親的債，把妳送到陸深面前。金絲眼鏡、三件式西裝、永遠溫和的聲音——他把一切包裝成合約、選擇與體面，真正想要的卻從來不是錢。女性向暗黑戀愛 × 債務控制 × 病態佔有 × 反制與逃脫。",
+    "author": "班長",
+    "author_id": "banzhang"
   },
   "content": {
     "quote": "「妳可以不簽。只是從這一刻開始，每個選擇都會有代價。」",
@@ -635,28 +637,115 @@
           "label": "今晚",
           "sections": [
             {
-              "type": "stats",
-              "title": "餐桌上的局",
-              "items": [
+              "type": "tabs",
+              "id": "current_archive",
+              "default_tab": "live",
+              "tabs": [
                 {
-                  "label": "時間",
-                  "path": "modules.scene.time"
+                  "id": "live",
+                  "label": "目前狀態",
+                  "sections": [
+                    {
+                      "type": "location_archive",
+                      "title": "餐桌上的局",
+                      "time_path": "modules.scene.time",
+                      "location_path": "modules.scene.location",
+                      "scene_source": "story-gallery",
+                      "empty": "尚未整理可前往地點。"
+                    },
+                    {
+                      "type": "stats",
+                      "title": "餐桌上的局",
+                      "items": [
+                        {
+                          "label": "氛圍",
+                          "path": "modules.scene.atmosphere"
+                        },
+                        {
+                          "label": "在場",
+                          "path": "modules.scene.participants"
+                        },
+                        {
+                          "label": "出口",
+                          "path": "modules.scene.exit"
+                        }
+                      ]
+                    }
+                  ]
                 },
                 {
-                  "label": "地點",
-                  "path": "modules.scene.location"
-                },
-                {
-                  "label": "氛圍",
-                  "path": "modules.scene.atmosphere"
-                },
-                {
-                  "label": "在場",
-                  "path": "modules.scene.participants"
-                },
-                {
-                  "label": "出口",
-                  "path": "modules.scene.exit"
+                  "id": "changes",
+                  "label": "本輪變動",
+                  "sections": [
+                    {
+                      "type": "timeline",
+                      "mode": "round_diff",
+                      "title": "本輪變動",
+                      "items": [
+                        {
+                          "label": "今晚 · 時間",
+                          "path": "modules.scene.time"
+                        },
+                        {
+                          "label": "今晚 · 地點",
+                          "path": "modules.scene.location"
+                        },
+                        {
+                          "label": "合約 · 狀態",
+                          "path": "modules.contract.status"
+                        },
+                        {
+                          "label": "關係 · 關係",
+                          "path": "modules.relationship.stage"
+                        },
+                        {
+                          "label": "關係 · 界線",
+                          "path": "modules.relationship.boundary"
+                        },
+                        {
+                          "label": "今晚 · 氛圍",
+                          "path": "modules.scene.atmosphere"
+                        },
+                        {
+                          "label": "今晚 · 在場",
+                          "path": "modules.scene.participants"
+                        },
+                        {
+                          "label": "今晚 · 出口",
+                          "path": "modules.scene.exit"
+                        },
+                        {
+                          "label": "合約 · 金額",
+                          "path": "modules.contract.amount"
+                        },
+                        {
+                          "label": "陸深 · 外在",
+                          "path": "modules.lu_shen.appearance"
+                        },
+                        {
+                          "label": "陸深 · 狀態",
+                          "path": "modules.lu_shen.visible_mode"
+                        },
+                        {
+                          "label": "陸深 · 正在做",
+                          "path": "modules.lu_shen.action"
+                        },
+                        {
+                          "label": "陸深 · 距離",
+                          "path": "modules.lu_shen.distance"
+                        },
+                        {
+                          "label": "關係 · 家族壓力",
+                          "path": "modules.pressure.family"
+                        },
+                        {
+                          "label": "關係 · 公司狀態",
+                          "path": "modules.pressure.work"
+                        }
+                      ],
+                      "empty": "尚無本輪可見變動；更新後自動比較。"
+                    }
+                  ]
                 }
               ]
             }

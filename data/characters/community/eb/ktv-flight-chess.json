@@ -25,7 +25,9 @@
     ],
     "description": "四個人、一間私密 KTV、一顆骰子。40 格高級版與 49 格 SM 版把四人的關係、慾望與試探一路推向失控；三名 NPC 各自有性格與關係反應，衣著、身體狀態、痕跡、道具與棋盤位置會持續留下來。",
     "creator": "班長",
-    "creator_id": "banzhang"
+    "creator_id": "banzhang",
+    "author": "班長",
+    "author_id": "banzhang"
   },
   "content": {
     "quote": "「骰子只決定你走幾格。今晚真正會走到哪裡，沒人知道。」",
@@ -885,70 +887,193 @@
           "label": "棋盤",
           "sections": [
             {
-              "type": "stats",
-              "title": "本回合",
-              "items": [
+              "type": "tabs",
+              "id": "current_archive",
+              "default_tab": "live",
+              "tabs": [
                 {
-                  "label": "階段",
-                  "path": "modules.game_progress.phase"
+                  "id": "live",
+                  "label": "目前狀態",
+                  "sections": [
+                    {
+                      "type": "stats",
+                      "title": "本回合",
+                      "items": [
+                        {
+                          "label": "階段",
+                          "path": "modules.game_progress.phase"
+                        },
+                        {
+                          "label": "版本",
+                          "path": "modules.session_setup.game_variant"
+                        },
+                        {
+                          "label": "輪次",
+                          "path": "modules.game_progress.round"
+                        },
+                        {
+                          "label": "順序",
+                          "path": "modules.game_progress.turn_order"
+                        },
+                        {
+                          "label": "當前玩家",
+                          "path": "modules.game_progress.current_player"
+                        },
+                        {
+                          "label": "骰點",
+                          "path": "modules.game_progress.die"
+                        },
+                        {
+                          "label": "落點",
+                          "path": "modules.game_progress.tile"
+                        },
+                        {
+                          "label": "本格",
+                          "path": "modules.game_progress.task"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "stats",
+                      "title": "玩家",
+                      "items": [
+                        {
+                          "label": "棋位",
+                          "path": "modules.player_state.board_position"
+                        },
+                        {
+                          "label": "情緒",
+                          "path": "modules.player_state.mood"
+                        },
+                        {
+                          "label": "衣著",
+                          "path": "modules.player_state.outfit"
+                        },
+                        {
+                          "label": "身體",
+                          "path": "modules.player_state.body_state"
+                        },
+                        {
+                          "label": "痕跡",
+                          "path": "modules.player_state.visible_traces"
+                        },
+                        {
+                          "label": "道具",
+                          "path": "modules.player_state.held_props"
+                        }
+                      ]
+                    }
+                  ]
                 },
                 {
-                  "label": "版本",
-                  "path": "modules.session_setup.game_variant"
-                },
-                {
-                  "label": "輪次",
-                  "path": "modules.game_progress.round"
-                },
-                {
-                  "label": "順序",
-                  "path": "modules.game_progress.turn_order"
-                },
-                {
-                  "label": "當前玩家",
-                  "path": "modules.game_progress.current_player"
-                },
-                {
-                  "label": "骰點",
-                  "path": "modules.game_progress.die"
-                },
-                {
-                  "label": "落點",
-                  "path": "modules.game_progress.tile"
-                },
-                {
-                  "label": "本格",
-                  "path": "modules.game_progress.task"
-                }
-              ]
-            },
-            {
-              "type": "stats",
-              "title": "玩家",
-              "items": [
-                {
-                  "label": "棋位",
-                  "path": "modules.player_state.board_position"
-                },
-                {
-                  "label": "情緒",
-                  "path": "modules.player_state.mood"
-                },
-                {
-                  "label": "衣著",
-                  "path": "modules.player_state.outfit"
-                },
-                {
-                  "label": "身體",
-                  "path": "modules.player_state.body_state"
-                },
-                {
-                  "label": "痕跡",
-                  "path": "modules.player_state.visible_traces"
-                },
-                {
-                  "label": "道具",
-                  "path": "modules.player_state.held_props"
+                  "id": "changes",
+                  "label": "本輪變動",
+                  "sections": [
+                    {
+                      "type": "timeline",
+                      "mode": "round_diff",
+                      "title": "本輪變動",
+                      "items": [
+                        {
+                          "label": "棋盤 · 階段",
+                          "path": "modules.game_progress.phase"
+                        },
+                        {
+                          "label": "棋盤 · 版本",
+                          "path": "modules.session_setup.game_variant"
+                        },
+                        {
+                          "label": "棋盤 · 輪次",
+                          "path": "modules.game_progress.round"
+                        },
+                        {
+                          "label": "棋盤 · 順序",
+                          "path": "modules.game_progress.turn_order"
+                        },
+                        {
+                          "label": "棋盤 · 當前玩家",
+                          "path": "modules.game_progress.current_player"
+                        },
+                        {
+                          "label": "棋盤 · 骰點",
+                          "path": "modules.game_progress.die"
+                        },
+                        {
+                          "label": "棋盤 · 落點",
+                          "path": "modules.game_progress.tile"
+                        },
+                        {
+                          "label": "棋盤 · 本格",
+                          "path": "modules.game_progress.task"
+                        },
+                        {
+                          "label": "棋盤 · 棋位",
+                          "path": "modules.player_state.board_position"
+                        },
+                        {
+                          "label": "棋盤 · 情緒",
+                          "path": "modules.player_state.mood"
+                        },
+                        {
+                          "label": "棋盤 · 衣著",
+                          "path": "modules.player_state.outfit"
+                        },
+                        {
+                          "label": "棋盤 · 身體",
+                          "path": "modules.player_state.body_state"
+                        },
+                        {
+                          "label": "棋盤 · 痕跡",
+                          "path": "modules.player_state.visible_traces"
+                        },
+                        {
+                          "label": "棋盤 · 道具",
+                          "path": "modules.player_state.held_props"
+                        },
+                        {
+                          "label": "四人 · 姓名",
+                          "path": "modules.npc_1_state.name"
+                        },
+                        {
+                          "label": "四人 · 棋位",
+                          "path": "modules.npc_1_state.board_position"
+                        },
+                        {
+                          "label": "四人 · 好感",
+                          "path": "modules.npc_1_state.affinity"
+                        },
+                        {
+                          "label": "四人 · 慾望",
+                          "path": "modules.npc_1_state.desire"
+                        },
+                        {
+                          "label": "四人 · 衣著",
+                          "path": "modules.npc_1_state.outfit"
+                        },
+                        {
+                          "label": "四人 · 身體",
+                          "path": "modules.npc_1_state.body_state"
+                        },
+                        {
+                          "label": "四人 · 痕跡",
+                          "path": "modules.npc_1_state.visible_traces"
+                        },
+                        {
+                          "label": "四人 · 道具",
+                          "path": "modules.npc_1_state.held_props"
+                        },
+                        {
+                          "label": "四人 · 姓名",
+                          "path": "modules.npc_2_state.name"
+                        },
+                        {
+                          "label": "四人 · 棋位",
+                          "path": "modules.npc_2_state.board_position"
+                        }
+                      ],
+                      "empty": "尚無本輪可見變動；更新後自動比較。"
+                    }
+                  ]
                 }
               ]
             }
@@ -1106,11 +1231,12 @@
               "limit": 24
             },
             {
-              "type": "list",
+              "type": "timeline",
               "title": "最近事件",
               "path": "modules.game_log",
               "empty": "骰子還沒落下。",
-              "limit": 16
+              "limit": 16,
+              "mode": "history"
             }
           ]
         },

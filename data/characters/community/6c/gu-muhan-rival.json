@@ -21,7 +21,9 @@
       "自主NPC",
       "成人內容"
     ],
-    "description": "顧慕寒以為林婉清是自己最熟悉、最應該守住的人；偏偏妳——他的死對頭——總能讓他失去原本的節奏。商學院宿敵 × 年輕創投老闆 × 青梅竹馬修羅場 × 校園與商戰雙線。"
+    "description": "顧慕寒以為林婉清是自己最熟悉、最應該守住的人；偏偏妳——他的死對頭——總能讓他失去原本的節奏。商學院宿敵 × 年輕創投老闆 × 青梅竹馬修羅場 × 校園與商戰雙線。",
+    "author": "班長",
+    "author_id": "banzhang"
   },
   "content": {
     "quote": "「如果妳願意修改，我可以再看一次。」",
@@ -468,28 +470,123 @@
           "label": "今晚",
           "sections": [
             {
-              "type": "stats",
-              "title": "圖書館五樓",
-              "items": [
+              "type": "tabs",
+              "id": "current_archive",
+              "default_tab": "live",
+              "tabs": [
                 {
-                  "label": "時間",
-                  "path": "time"
+                  "id": "live",
+                  "label": "目前狀態",
+                  "sections": [
+                    {
+                      "type": "location_archive",
+                      "title": "圖書館五樓",
+                      "time_path": "time",
+                      "location_path": "location",
+                      "scene_source": "story-gallery",
+                      "empty": "尚未整理可前往地點。"
+                    },
+                    {
+                      "type": "stats",
+                      "title": "圖書館五樓",
+                      "items": [
+                        {
+                          "label": "氛圍",
+                          "path": "modules.scene.atmosphere"
+                        },
+                        {
+                          "label": "時間壓力",
+                          "path": "modules.scene.time_pressure"
+                        },
+                        {
+                          "label": "在場",
+                          "path": "modules.scene.participants"
+                        }
+                      ]
+                    }
+                  ]
                 },
                 {
-                  "label": "地點",
-                  "path": "location"
-                },
-                {
-                  "label": "氛圍",
-                  "path": "modules.scene.atmosphere"
-                },
-                {
-                  "label": "時間壓力",
-                  "path": "modules.scene.time_pressure"
-                },
-                {
-                  "label": "在場",
-                  "path": "modules.scene.participants"
+                  "id": "changes",
+                  "label": "本輪變動",
+                  "sections": [
+                    {
+                      "type": "timeline",
+                      "mode": "round_diff",
+                      "title": "本輪變動",
+                      "items": [
+                        {
+                          "label": "今晚 · 時間",
+                          "path": "time"
+                        },
+                        {
+                          "label": "今晚 · 地點",
+                          "path": "location"
+                        },
+                        {
+                          "label": "林婉清 · 位置",
+                          "path": "modules.wanqing.location"
+                        },
+                        {
+                          "label": "今晚 · 時間壓力",
+                          "path": "modules.scene.time_pressure"
+                        },
+                        {
+                          "label": "妳與他 · 階段",
+                          "path": "modules.relationship.stage"
+                        },
+                        {
+                          "label": "妳與他 · 界線",
+                          "path": "modules.relationship.boundary"
+                        },
+                        {
+                          "label": "今晚 · 氛圍",
+                          "path": "modules.scene.atmosphere"
+                        },
+                        {
+                          "label": "顧慕寒 · 外在",
+                          "path": "modules.gu_muhan.appearance"
+                        },
+                        {
+                          "label": "顧慕寒 · 情緒",
+                          "path": "modules.gu_muhan.visible_mood"
+                        },
+                        {
+                          "label": "顧慕寒 · 正在做",
+                          "path": "modules.gu_muhan.action"
+                        },
+                        {
+                          "label": "顧慕寒 · 距離",
+                          "path": "modules.gu_muhan.distance"
+                        },
+                        {
+                          "label": "妳與他 · 起因",
+                          "path": "modules.relationship.origin"
+                        },
+                        {
+                          "label": "妳與他 · 最近變化",
+                          "path": "modules.relationship.recent_shift"
+                        },
+                        {
+                          "label": "林婉清 · 最近行動",
+                          "path": "modules.wanqing.action"
+                        },
+                        {
+                          "label": "林婉清 · 表面態度",
+                          "path": "modules.wanqing.public_attitude"
+                        },
+                        {
+                          "label": "林婉清 · 警戒訊號",
+                          "path": "modules.wanqing.visible_warning"
+                        },
+                        {
+                          "label": "未完的事 · 企劃書",
+                          "path": "modules.threads.proposal"
+                        }
+                      ],
+                      "empty": "尚無本輪可見變動；更新後自動比較。"
+                    }
+                  ]
                 }
               ]
             }

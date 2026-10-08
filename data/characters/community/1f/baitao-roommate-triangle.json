@@ -25,7 +25,9 @@
       "慢熱關係",
       "原生狀態UI"
     ],
-    "description": "你搬進多年好友林宇軒與女友白桃的公寓，三人同居從今天正式開始。白桃渴望陪伴、宇軒忙於工作，而你同時是室友與他最信任的朋友。曖昧、克制、背叛、坦白、分手或重新建立界線都可能發生；沒有誰被預設成攻略目標，也沒有固定結局。"
+    "description": "你搬進多年好友林宇軒與女友白桃的公寓，三人同居從今天正式開始。白桃渴望陪伴、宇軒忙於工作，而你同時是室友與他最信任的朋友。曖昧、克制、背叛、坦白、分手或重新建立界線都可能發生；沒有誰被預設成攻略目標，也沒有固定結局。",
+    "author": "班長",
+    "author_id": "banzhang"
   },
   "content": {
     "quote": "「你就是宇軒一直說的那個朋友呀～以後就是室友了，請多多指教哦。」",
@@ -844,33 +846,140 @@
           "label": "現在",
           "sections": [
             {
-              "type": "stats",
-              "title": "場景",
-              "items": [
+              "type": "tabs",
+              "id": "current_archive",
+              "default_tab": "live",
+              "tabs": [
                 {
-                  "label": "時間",
-                  "path": "modules.scene.time"
+                  "id": "live",
+                  "label": "目前狀態",
+                  "sections": [
+                    {
+                      "type": "location_archive",
+                      "title": "場景",
+                      "time_path": "modules.scene.time",
+                      "location_path": "modules.scene.location",
+                      "scene_source": "story-gallery",
+                      "empty": "尚未整理可前往地點。"
+                    },
+                    {
+                      "type": "stats",
+                      "title": "場景",
+                      "items": [
+                        {
+                          "label": "氛圍",
+                          "path": "modules.scene.atmosphere"
+                        },
+                        {
+                          "label": "被發現風險",
+                          "path": "modules.scene.social_risk"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "list",
+                      "title": "場景參與者",
+                      "path": "modules.scene_participants",
+                      "empty": "目前沒有需要特別標記的人物。",
+                      "limit": 8
+                    }
+                  ]
                 },
                 {
-                  "label": "地點",
-                  "path": "modules.scene.location"
-                },
-                {
-                  "label": "氛圍",
-                  "path": "modules.scene.atmosphere"
-                },
-                {
-                  "label": "被發現風險",
-                  "path": "modules.scene.social_risk"
+                  "id": "changes",
+                  "label": "本輪變動",
+                  "sections": [
+                    {
+                      "type": "timeline",
+                      "mode": "round_diff",
+                      "title": "本輪變動",
+                      "items": [
+                        {
+                          "label": "現在 · 時間",
+                          "path": "modules.scene.time"
+                        },
+                        {
+                          "label": "現在 · 地點",
+                          "path": "modules.scene.location"
+                        },
+                        {
+                          "label": "兩個室友 · 位置",
+                          "path": "modules.baitao.location"
+                        },
+                        {
+                          "label": "兩個室友 · 位置",
+                          "path": "modules.yuxuan.location"
+                        },
+                        {
+                          "label": "兩個室友 · 工作",
+                          "path": "modules.yuxuan.work_status"
+                        },
+                        {
+                          "label": "兩個室友 · 聯絡",
+                          "path": "modules.yuxuan.contact_status"
+                        },
+                        {
+                          "label": "三人關係 · 界線",
+                          "path": "modules.triangle.boundary"
+                        },
+                        {
+                          "label": "現在 · 氛圍",
+                          "path": "modules.scene.atmosphere"
+                        },
+                        {
+                          "label": "現在 · 被發現風險",
+                          "path": "modules.scene.social_risk"
+                        },
+                        {
+                          "label": "兩個室友 · 外顯情緒",
+                          "path": "modules.baitao.visible_mood"
+                        },
+                        {
+                          "label": "兩個室友 · 正在做",
+                          "path": "modules.baitao.action"
+                        },
+                        {
+                          "label": "兩個室友 · 今天行程",
+                          "path": "modules.baitao.schedule"
+                        },
+                        {
+                          "label": "兩個室友 · 下一個安排",
+                          "path": "modules.baitao.next_plan"
+                        },
+                        {
+                          "label": "兩個室友 · 預計回家",
+                          "path": "modules.yuxuan.expected_return"
+                        },
+                        {
+                          "label": "兩個室友 · 最近情緒",
+                          "path": "modules.yuxuan.visible_mood"
+                        },
+                        {
+                          "label": "三人關係 · 白桃 ↔ 你",
+                          "path": "modules.triangle.baitao_player"
+                        },
+                        {
+                          "label": "三人關係 · 白桃 ↔ 宇軒",
+                          "path": "modules.triangle.baitao_yuxuan"
+                        },
+                        {
+                          "label": "三人關係 · 宇軒 ↔ 你",
+                          "path": "modules.triangle.yuxuan_player"
+                        },
+                        {
+                          "label": "三人關係 · 秘密／隱瞞",
+                          "path": "modules.triangle.secrecy"
+                        },
+                        {
+                          "label": "三人關係 · 張力",
+                          "path": "modules.triangle.tension"
+                        }
+                      ],
+                      "empty": "尚無本輪可見變動；更新後自動比較。"
+                    }
+                  ]
                 }
               ]
-            },
-            {
-              "type": "list",
-              "title": "場景參與者",
-              "path": "modules.scene_participants",
-              "empty": "目前沒有需要特別標記的人物。",
-              "limit": 8
             }
           ]
         },
@@ -1008,11 +1117,12 @@
               "limit": 10
             },
             {
-              "type": "list",
+              "type": "timeline",
               "title": "最近事件",
               "path": "modules.recent_events",
               "empty": "故事才剛開始。",
-              "limit": 8
+              "limit": 8,
+              "mode": "history"
             }
           ]
         },

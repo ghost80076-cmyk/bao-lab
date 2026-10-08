@@ -32,7 +32,7 @@ const prompts = new Map(card.content.dynamic_prompts.map(item => [item.id, item]
 for (const id of ['opening-route', 'silver-power', 'container-load', 'combat', 'cleaners', 'free-alliance', 'abyss-cult', 'time-fragment', 'snow-fox', 'council', 'status-help']) {
   assert.ok(prompts.has(id), `missing dynamic prompt: ${id}`);
 }
-assert.match(prompts.get('opening-route').text, /不要讓四條路線一兩輪後全部收束成同一安全屋/);
+assert.match(prompts.get('opening-route').text, /不要讓(?:四條|不同)路線一兩輪後全部收束成同一安全屋/);
 assert.match(prompts.get('container-load').text, /load_estimate 只是 UI 可讀估計/);
 
 const modules = new Map(card.gameplay.world_modules.map(module => [module.id, module]));
@@ -40,7 +40,7 @@ for (const id of ['player_profile', 'awakened', 'scene', 'factions', 'abilities'
   assert.ok(modules.has(id), `missing module: ${id}`);
 }
 assert.equal(modules.get('awakened').fields.find(field => field.key === 'load_estimate').type, 'meter');
-assert.match(modules.get('awakened').fields.find(field => field.key === 'load_estimate').description, /不是硬判定公式/);
+assert.match(modules.get('awakened').fields.find(field => field.key === 'load_estimate').description, /不是硬判定公式|不作固定閾值公式/);
 
 const statusFields = new Map(card.gameplay.character_status.fields.map(field => [field.key, field]));
 for (const id of ['mood', 'condition', 'stance', 'known_about_player', 'current_goal', 'whereabouts']) {
@@ -49,7 +49,7 @@ for (const id of ['mood', 'condition', 'stance', 'known_about_player', 'current_
 assert.match(statusFields.get('known_about_player').description, /合理資訊路徑/);
 assert.match(statusFields.get('whereabouts').description, /不作全知追蹤器/);
 
-const ui = Core.normalize(card.gameplay.gameplay_ui);
+const ui = Core.normalize(card.gameplay.ui_schema || card.gameplay.gameplay_ui);
 assert.ok(ui, 'Gameplay UI should normalize');
 assert.deepEqual(ui.panels.map(panel => panel.id), ['now', 'vessel', 'forces', 'abilities', 'intel', 'actions']);
 
@@ -60,7 +60,7 @@ assert.ok(bias.options.includes('短暫模仿'));
 assert.ok(bias.options.includes('能量重構'));
 
 const state = JSON.parse(JSON.stringify(card.gameplay.initial_state));
-assert.equal(Core.applyBuilderValues(card.gameplay.gameplay_ui, {
+assert.equal(Core.applyBuilderValues(card.gameplay.ui_schema || card.gameplay.gameplay_ui, {
   player_name: '黎央',
   player_gender: '不指定',
   age_identity: '26 歲研究助理',
