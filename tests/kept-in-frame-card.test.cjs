@@ -1,0 +1,44 @@
+'use strict';
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const vm=require('node:vm');
+const card=require('../data/characters/community/c4/kept-in-frame-lin-youzhen.json');
+const sidecar=require('../data/characters/community/c4/kept-in-frame-lin-youzhen.regex.json');
+const UI=require('../js/gameplay-ui-core.js');
+const Regex=require('../js/author-regex-core.js');
+const sandbox={console}; vm.createContext(sandbox);
+vm.runInContext(fs.readFileSync(require.resolve('../js/character.js'),'utf8')+'\nthis.engine=CharacterEngine;',sandbox);
+const engine=sandbox.engine;
+assert.equal(engine.validate(card).ok,true);
+const normalized=engine.normalize(card);
+assert.equal(normalized.world_modules.length,11);
+assert.equal(card.meta.author_id,'banzhang');
+assert.equal(card.meta.author,'班長');
+assert.equal(sidecar.characterId,card.meta.id);
+assert.equal(card.meta.avatar,'https://i.meee.com.tw/BOyBmyt.png');
+const state=structuredClone(card.gameplay.initial_state);
+assert.ok(UI.applyBuilderValues(card.gameplay.ui_schema,{relationship:'戀人',focus:'家族探索',world_mode:'奇幻延伸',tempo:'較密集事件',address:'小名',extra_note:'已認識三年'},state));
+assert.equal(state.modules.session_setup.relationship,'戀人');
+assert.equal(state.modules.session_setup.world_mode,'奇幻延伸');
+assert.equal(state.modules.session_setup.extra_note,'已認識三年');
+assert.equal(state.npcs[0].name,'林祐真');
+assert.equal(state.npcs.length,1);
+assert.ok(!state.npcs.some(n=>n.name===card.meta.name));
+const paths=[];
+function walk(v){if(!v||typeof v!=='object')return;for(const[k,x]of Object.entries(v)){if(k.endsWith('path')&&typeof x==='string')paths.push(x);else walk(x);}}
+walk(card.gameplay.ui_schema);
+for(const p of paths)assert.notEqual(UI.getPath(state,p),undefined,'unresolved '+p);
+assert.ok(paths.every(p=>! /character_core|private_facts|relationship_vectors/.test(p)));
+assert.equal(engine.relevantDynamicPrompts(card,{latestUserText:'我想拍照'}).length,1);
+assert.equal(engine.relevantDynamicPrompts(card,{latestUserText:'我想拍照'})[0].id,'photography');
+assert.equal(engine.relevantDynamicPrompts(card,{recentMessages:[{content:'今天天氣如何'}]}).length,0);
+const rules=Regex.normalize(sidecar);
+for(const input of [card.content.greeting,'攝影筆記｜21:00\n照片背面寫著：週六。\n\n正文，不能吃掉。','攝影筆記|21:00\r\n第二行。\r\n\r\n正文，不能吃掉。']){
+ const r=Regex.render(input,rules,false); assert.ok(r.matched); assert.ok(r.rich); assert.match(r.html,/yb-kept-note/);assert.doesNotMatch(r.html,/【YB:/);
+ if(input.includes('不能吃掉'))assert.match(r.html,/正文，不能吃掉/);
+}
+for(const input of ['','攝影筆記｜21:00\n\n普通正文','普通正文提到攝影筆記，但不是通知'])assert.equal(Regex.render(input,rules,false).matched,false);
+assert.doesNotMatch(JSON.stringify(sidecar),/font-size|!important|<script|<style/);
+assert.doesNotMatch(card.content.greeting,/<[a-z]|【YB:/);
+assert.equal(card.gameplay.initial_state.modules.private_facts.length,0);
+console.log('PASS kept-in-frame: native import, Builder state, UI paths, privacy, dynamic activation/exit and real Regex outputs');

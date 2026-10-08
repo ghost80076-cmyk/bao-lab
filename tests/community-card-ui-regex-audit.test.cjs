@@ -27,7 +27,7 @@ function pairedSample(marker) {
 }
 
 const cards = listJson(communityRoot);
-assert.equal(cards.length, 37, 'expected all 36 formal community cards');
+assert.equal(cards.length, JSON.parse(fs.readFileSync(path.join(root, 'data/character-catalog/community/manifest.json'), 'utf8')).total, 'formal cards must match catalog total');
 
 const sidecars = [];
 const failures = [];
@@ -112,7 +112,7 @@ for (const file of cards) {
   void rel;
 }
 
-assert.equal(sidecars.length, 15, 'expected 15 official regex sidecars');
+assert.equal(sidecars.length, 16, 'expected 16 official regex sidecars including Kept in Frame');
 assert.deepEqual(failures, [], 'community UI/Regex audit must stay clean');
 
 console.log(JSON.stringify({

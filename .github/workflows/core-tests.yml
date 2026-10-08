@@ -78,6 +78,8 @@ jobs:
           node --check js/character-studio-lifecycle-core.js
           node --check js/character-studio-lifecycle.js
           node tests/character-studio-lifecycle-core.cjs
+      - name: Kept in Frame native card
+        run: node tests/kept-in-frame-card.test.cjs
       - name: Unhealed Bonds card
         run: node tests/unhealed-bonds-card.test.cjs
       - name: Host Club Simulator card

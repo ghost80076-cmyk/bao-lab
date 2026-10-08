@@ -49,6 +49,7 @@ jobs:
             specs: |
               tests/e2e/player-shell-v2.spec.cjs
               tests/e2e/player-feedback-ux.spec.cjs
+              tests/e2e/kept-in-frame.spec.cjs
               tests/e2e/linchenfeng-structured-opening.spec.cjs
               tests/e2e/host-club-simulator.spec.cjs
               tests/e2e/night-sky-magic-academy.spec.cjs

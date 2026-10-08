@@ -17,7 +17,7 @@ for (const bucket of fs.readdirSync(communityRoot)) {
   }
 }
 
-assert.equal(files.length, 37, 'unexpected formal community card count');
+assert.equal(files.length, JSON.parse(fs.readFileSync(path.join(root, 'data/character-catalog/community/manifest.json'), 'utf8')).total, 'formal cards must match catalog total');
 
 const implementationJargon = /Builder|Gameplay UI|Dynamic Prompts|Author Regex|作者 Regex|\bRegex\b|Persona|原生 Gameplay UI|原生狀態 UI|夜灣原生 UI/;
 const duplicatePlatformRules = /不得替玩家|不能替玩家|不替玩家|玩家控制權是硬規則|作品名稱[^\n]*(?:不是|不得)[^\n]*(?:NPC|人物)/;
@@ -41,4 +41,4 @@ assert.match(engine, /不得生成玩家的新台詞/);
 assert.match(engine, /結構化初始狀態若已提供/);
 assert.match(engine, /狀態模組與介面標籤不是 NPC/);
 
-console.log('PASS all 37 community cards keep platform-global rules out of model-bound card prompts');
+console.log('PASS all catalog community cards keep platform-global rules out of model-bound card prompts');
