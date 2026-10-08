@@ -3,6 +3,7 @@ if (process.env.BAO_LIVE_URL) test.use({ baseURL: process.env.BAO_LIVE_URL });
 for (const width of [1440, 390]) {
   test(`work titles never become NPCs or status subjects at ${width}px`, async ({page}) => {
     test.setTimeout(180000);
+    page.setDefaultTimeout(15000);
     if (process.env.BAO_LIVE_URL) {
       await expect.poll(async () => (await page.request.get('js/character-status.js?title-fix=' + Date.now())).text(), {timeout:120000,intervals:[5000]}).toContain('const isWorkTitleName');
     }
@@ -31,6 +32,9 @@ for (const width of [1440, 390]) {
       expect(snapshot.statuses, id).not.toContain(snapshot.fakeTitle);
       expect(snapshot.names).toContain(snapshot.validName);
       if (id === 'linchenfeng') expect(snapshot.names).toContain('林沉風');
+      const info = page.locator('#bao-play-status-toggle');
+      if (await info.getAttribute('aria-expanded') !== 'true') await info.click();
+      await page.locator('#game-ui .ui-tab[data-panel="npc"]').click();
       await page.locator('[data-npc-roster-open]').click();
       const roster = page.getByRole('dialog',{name:'NPC 名冊／場景參與者'});
       await expect(roster).toBeVisible();
