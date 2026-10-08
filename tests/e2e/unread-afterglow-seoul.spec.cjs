@@ -32,8 +32,8 @@ test('desktop builder writes genuine setup and visible UI never renders backstag
   });
   const builder = page.locator('#bao-gameplay-builder');
   await expect(builder).toBeVisible();
-  await builder.locator('[data-gameplay-field="entry_scene"]').selectOption('朋友生日聚會');
-  await builder.locator('[data-gameplay-field="starting_distance"]').selectOption('已經曖昧一陣子');
+  await builder.locator('[data-gameplay-field="social_overlap"]').selectOption('高度重疊');
+  await builder.locator('[data-gameplay-field="contact_rhythm"]').selectOption('社群互動較頻繁');
   const snapshot = await page.evaluate(() => {
     const state = structuredClone(App.activeCharacter.initial_state);
     const fields = {};
@@ -43,8 +43,8 @@ test('desktop builder writes genuine setup and visible UI never renders backstag
     BAOGameplayUICore.applyBuilderValues(App.activeCharacter.gameplay_ui, fields, state);
     return state.modules.session_setup;
   });
-  expect(snapshot.entry_scene).toBe('朋友生日聚會');
-  expect(snapshot.starting_distance).toBe('已經曖昧一陣子');
+  expect(snapshot.social_overlap).toBe('高度重疊');
+  expect(snapshot.contact_rhythm).toBe('社群互動較頻繁');
 
   await init(page, 'ui');
   await page.evaluate(() => BAOGameplayUI.renderPanel('signals'));
