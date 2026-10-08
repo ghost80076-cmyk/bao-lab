@@ -100,6 +100,18 @@ assert.match(rendered.html, /YORUBAY · STATUS/);
 assert.match(rendered.html, /日常慢熱模式/);
 assert.match(rendered.html, /只顯示玩家已知／可觀察資訊/);
 
+// The formal sidecar must consume multiline and empty values without eating prose.
+for (const fixture of [sample, sample.replaceAll('：', '： ').replaceAll('\n', '\r\n'), sample.replace('白詩音：表面平靜', '白詩音：').replace('觀察者：鏡淺', '觀察者：')]) {
+  const surrounding = '正文前段。\n' + fixture + '\n正文後段。';
+  const output = regexCore.render(surrounding, rules, false);
+  assert.equal(output.matched, true);
+  assert.match(output.html, /正文前段。/);
+  assert.match(output.html, /正文後段。/);
+  assert.doesNotMatch(output.html, /<YORUBAY_STATUS>/);
+}
+assert.equal(regexCore.render('正文中的場景：教室，時間：午後。', rules, false).matched, false);
+assert.doesNotMatch(sidecar.regex_scripts[0].replaceString, /body\s*\{/);
+
 const statusFields = new Map(card.gameplay.character_status.fields.map(field => [field.key, field]));
 for (const key of ['trust', 'attraction', 'boundary', 'known_information']) assert.ok(statusFields.has(key));
 assert.match(statusFields.get('attraction').description, /不等於同意/);

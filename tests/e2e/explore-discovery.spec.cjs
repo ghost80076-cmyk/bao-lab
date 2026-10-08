@@ -204,6 +204,7 @@ test('explore surfaces player-relative NEW and UPDATED from explicit published v
   await page.waitForFunction(() => Boolean(window.BAOExploreDiscovery && App.characters?.length));
   await page.evaluate(() => App.showView('explore'));
 
+  const publishedVersion = await page.evaluate(() => App.characterManifest.find(entry => entry.id === 'night-sky-magic-academy').published_version);
   const tools = page.locator('#explore-discovery-tools');
   const target = page.locator('#character-list [data-character-id="night-sky-magic-academy"]');
   await expect(target).toBeVisible();
@@ -221,9 +222,9 @@ test('explore surfaces player-relative NEW and UPDATED from explicit published v
   await expect(page.locator('#explore-work-preview')).toBeVisible();
   await page.locator('#explore-work-preview').getByRole('button', { name: '查看作品', exact: true }).click();
   await expect(page.locator('#detail-view')).toHaveClass(/active/);
-  await expect(page.locator('#character-detail .explore-detail-version')).toContainText('公開版本 v1');
+  await expect(page.locator('#character-detail .explore-detail-version')).toContainText('公開版本 v' + publishedVersion);
   let saved = await page.evaluate(() => JSON.parse(localStorage.getItem('yorubay:explore-continuity:v1') || '{}'));
-  expect(saved.recent[0].seenVersion).toBe(1);
+  expect(saved.recent[0].seenVersion).toBe(publishedVersion);
 
   await page.evaluate(() => App.showView('explore'));
   await expect(target.locator('.explore-update-badge')).toHaveCount(0);
@@ -239,23 +240,23 @@ test('explore surfaces player-relative NEW and UPDATED from explicit published v
   // A player-facing release increments the version and release timestamp.
   await page.evaluate(() => {
     const item = App.characterManifest.find(entry => entry.id === 'night-sky-magic-academy');
-    item.published_version = 2;
+    item.published_version += 1;
     item.version_published_at = new Date(Date.now() - 60_000).toISOString();
     item.updated_at = item.version_published_at;
     BAOExploreDiscovery.apply();
   });
   await expect(target.locator('.explore-update-badge')).toHaveText('UPDATED');
-  await expect(target.locator('.explore-update-badge')).toHaveAttribute('aria-label', /v2/);
+  await expect(target.locator('.explore-update-badge')).toHaveAttribute('aria-label', '你看過這個作品，但現在有新版 v' + (publishedVersion + 1));
 
   await chooseFilter(page, '有近期更新');
-  await expect(target.locator('.explore-card-context')).toContainText('v2');
+  await expect(target.locator('.explore-card-context')).toContainText('v' + (publishedVersion + 1));
 
   await page.evaluate(() => BAOExploreDiscovery.markViewed('night-sky-magic-academy', Date.now()));
   await expect(target.locator('.explore-update-badge')).toHaveCount(0);
 
   saved = await page.evaluate(() => JSON.parse(localStorage.getItem('yorubay:explore-continuity:v1') || '{}'));
   expect(saved.recent[0].seenUpdatedAt).toBeGreaterThan(0);
-  expect(saved.recent[0].seenVersion).toBe(2);
+  expect(saved.recent[0].seenVersion).toBe(publishedVersion + 1);
 });
 
 
