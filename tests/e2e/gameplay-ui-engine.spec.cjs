@@ -96,10 +96,12 @@ test('gameplay schema renders builder, applies state, and drafts actions without
       ...App.activeCharacter.gameplay_ui,
       layout: { preset: 'standard' }
     };
+    App.config.displayMode = 'ui';
+    App.renderChatShell(false);
+    App.showView('chat');
     window.BAOChatExperience?.sync?.();
     BAOGameplayUI.syncDashboardLayout();
     BAOGameplayUI.renderPanel('archive');
-    document.getElementById('game-ui')?.style.removeProperty('display');
   });
   const archive = page.locator('#ui-panel .gameplay-tabbed-archive');
   await expect(archive).toBeVisible();
