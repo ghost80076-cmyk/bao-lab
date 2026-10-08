@@ -19,12 +19,63 @@
         "max_qi": 380,
         "strength": 8,
         "agility": 8,
-        "origin": "散修"
+        "origin": "散修",
+        "skills": [
+          {
+            "name": "流雲步",
+            "level": "Lv.2",
+            "cost": "12 氣",
+            "cooldown": "2 回合",
+            "description": "短距離閃身，適合脫離包圍。"
+          }
+        ]
+      },
+      "quest_log": {
+        "quests": [
+          {
+            "title": "北門妖獸",
+            "status": "進行中",
+            "summary": "前往北門調查妖獸目擊情報。",
+            "progress": "1 / 3",
+            "reward": "80 靈石"
+          }
+        ]
+      },
+      "party": {
+        "members": [
+          {
+            "name": "阿璃",
+            "role": "劍修",
+            "status": "同行",
+            "hp": 92,
+            "max_hp": 100,
+            "notes": "擅長近戰與護衛。"
+          }
+        ]
       }
     },
     "events": [
       "城東告示：三日後開啟宗門試煉。",
       "客棧掌櫃提到北門最近有妖獸出沒。"
+    ],
+    "npcs": [
+      {
+        "name": "行商",
+        "role": "旅商",
+        "mood": "警戒",
+        "location": "青雲城",
+        "relationship": "剛認識",
+        "presence": "present",
+        "notes": "知道北門妖獸的傳聞。"
+      },
+      {
+        "name": "阿璃",
+        "role": "劍修",
+        "mood": "平靜",
+        "location": "青雲城",
+        "relationship": "同行者",
+        "presence": "present"
+      }
     ]
   },
   "gameplay_ui": {
@@ -149,6 +200,40 @@
             ]
           }
         ]
+      },
+      {
+        "id": "adventure",
+        "label": "冒險",
+        "sections": [
+          {
+            "type": "cards",
+            "title": "人物圖鑑",
+            "path": "npcs",
+            "variant": "codex",
+            "limit": 8
+          },
+          {
+            "type": "cards",
+            "title": "任務",
+            "path": "modules.quest_log.quests",
+            "variant": "quest",
+            "limit": 6
+          },
+          {
+            "type": "cards",
+            "title": "隊伍",
+            "path": "modules.party.members",
+            "variant": "party",
+            "limit": 6
+          },
+          {
+            "type": "cards",
+            "title": "技能",
+            "path": "modules.player.skills",
+            "variant": "skill",
+            "limit": 8
+          }
+        ]
       }
     ],
     "theme": {
@@ -215,6 +300,30 @@
           "key": "origin",
           "label": "出身",
           "type": "text"
+        }
+      ]
+    },
+    {
+      "id": "quest_log",
+      "label": "任務",
+      "kind": "object",
+      "fields": [
+        {
+          "key": "quests",
+          "label": "任務清單",
+          "type": "list"
+        }
+      ]
+    },
+    {
+      "id": "party",
+      "label": "隊伍",
+      "kind": "object",
+      "fields": [
+        {
+          "key": "members",
+          "label": "隊伍成員",
+          "type": "list"
         }
       ]
     }
