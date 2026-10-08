@@ -31,7 +31,7 @@ assert.equal(
   true,
   "prompt orchestrator must install through App.wrapBuildMessages"
 );
-assert.equal(BAOPromptOrchestrator.version, 3);
+assert.equal(BAOPromptOrchestrator.version, 3);\nassert.match(BAOPromptOrchestrator.playerAgencyRule, /對話選項與行動建議/);\nassert.match(BAOPromptOrchestrator.playerAgencyRule, /不可逆/);
 assert.equal(BAOPromptOrchestrator.familyFor({ model: "google/gemini-3.1-pro-preview", type: "openrouter" }), "gemini");
 assert.equal(BAOPromptOrchestrator.familyFor({ model: "anthropic/claude-sonnet-4.5", type: "openrouter" }), "claude");
 assert.equal(BAOPromptOrchestrator.familyFor({ model: "deepseek/deepseek-v4.1" }), "deepseek");
@@ -57,7 +57,7 @@ for (const model of ["gpt-5.6", "google/gemini-3.1-pro-preview", "anthropic/clau
 (async () => {
   const gemini = await App.buildMessages({ api: { type: "openrouter", model: "google/gemini-3.1-pro-preview" } });
   assert.match(gemini[0].content, /平台硬規則/);
-  assert.match(gemini[0].content, /場景參與/);
+  assert.match(gemini[0].content, /場景參與/);\n  assert.match(gemini[0].content, /玩家自主權/);\n  assert.match(gemini[0].content, /NPC 與世界仍依因果自主反應/);
   assert.match(gemini[0].content, /在場≠必須發言/);
   assert.match(gemini[0].content, /只依自身已知資訊反應/);
   assert.doesNotMatch(gemini[0].content, /模型補丁/);
