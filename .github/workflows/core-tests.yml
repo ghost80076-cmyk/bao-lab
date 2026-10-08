@@ -140,6 +140,8 @@ jobs:
         run: node tests/nangong-wen-runaway-bride-card.test.cjs
       - name: Campus Rival 24H Command card
         run: node tests/campus-rival-24h-command-card.test.cjs
+      - name: Unread Afterglow Seoul card
+        run: node tests/unread-afterglow-seoul-card.test.cjs
       - name: Dual Host System Mode card
         run: node tests/dual-host-system-mode-card.test.cjs
       - name: KTV Flight Chess card
