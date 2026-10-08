@@ -153,16 +153,28 @@
       failures.delete(story);
       const priorSummary = this.summary;
       const priorCursor = this.summarizedUntil;
+      const priorHealth = this.memoryHealth;
       try {
         await originalSummarize.call(this, config, force, recentRounds);
-        const failure = failures.get(story);
-        if (failure) {
-          const delay = failure.authFailure ? AUTH_COOLDOWN_MS : COOLDOWN_MS;
-          cooldowns.set(story, Date.now() + delay);
+        const requestFailure = failures.get(story);
+        // Format/empty-output failures return normally from Chat.maybeSummarize.
+        // They need cooldown too, or every subsequent turn can pay for another
+        // summary + repair request without advancing the summary cursor.
+        const healthFailure = this.memoryHealth !== priorHealth && this.memoryHealth?.phase === 'failed';
+        if (requestFailure || healthFailure) {
+          const authFailure = requestFailure?.authFailure ||
+            /(?:API Key|連線金鑰|權限|驗證|配額|餘額|rate limit|quota|401|403)/i.test(String(this.memoryHealth?.message || ''));
+          const delay = authFailure ? AUTH_COOLDOWN_MS : COOLDOWN_MS;
+          const retryAt = Date.now() + delay;
+          cooldowns.set(story, retryAt);
+          if (this.memoryHealth?.phase === 'failed') this.memoryHealth = {
+            ...this.memoryHealth, cooldownUntil: new Date(retryAt).toISOString()
+          };
           notice(`記憶整理失敗，已暫停 ${Math.ceil(delay / 60000)} 分鐘；原始對話仍保留。`);
         } else if (this.summary !== priorSummary || this.summarizedUntil !== priorCursor) {
           cooldowns.delete(story);
-          notice("");
+          if (this.memoryHealth) this.memoryHealth = { ...this.memoryHealth, cooldownUntil: '' };
+          notice('');
         }
       } finally {
         failures.delete(story);
