@@ -5,7 +5,7 @@ if (process.env.BAO_LIVE_URL) test.use({ baseURL: process.env.BAO_LIVE_URL });
 
 for (const viewport of [{ width: 1440, height: 1000 }, { width: 390, height: 844 }]) {
   test(`formal native archives open and update at ${viewport.width}px`, async ({ page }) => {
-    test.setTimeout(240000);
+    test.setTimeout(process.env.BAO_LIVE_URL ? 480000 : 240000);
     await page.setViewportSize(viewport);
     if (process.env.BAO_LIVE_URL) {
       // A push may start this workflow before Pages has finished publishing it.
@@ -13,7 +13,7 @@ for (const viewport of [{ width: 1440, height: 1000 }, { width: 390, height: 844
         const r = await page.request.get('docs/native-archive-catalog-audit.json?archive-smoke=' + Date.now());
         if (!r.ok()) return false;
         try { return (await r.json()).works.filter(w => w.changed).length === 44; } catch { return false; }
-      }, { timeout: 180000, intervals: [5000] }).toBe(true);
+      }, { timeout: 300000, intervals: [5000] }).toBe(true);
     }
     await page.goto('./');
     await page.waitForFunction(() => typeof App !== 'undefined' && window.BAOGameplayUI && window.BAOWorldModules && window.BAOAuthorInline && App.characters?.length);

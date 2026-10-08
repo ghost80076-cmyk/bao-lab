@@ -118,7 +118,8 @@ for (const width of [390, 1280]) {
     await capture(page, `chat-play-${width}`);
 
     await page.locator('#bao-play-status-toggle').click();
-    if (width >= 1081) {
+    const nativeArchive = await page.evaluate(() => Boolean(App.activeCharacter?.gameplay_ui?.panels?.length));
+    if (width >= 1081 && !nativeArchive) {
       const reader = page.getByRole('dialog', { name: '故事資訊' });
       await expect(reader).toBeVisible();
       await expect(page.locator('#game-ui')).toBeHidden();
@@ -128,6 +129,10 @@ for (const width of [390, 1280]) {
 
     } else {
       await expect(page.locator('#game-ui')).toBeVisible();
+      if (nativeArchive) {
+        await page.locator('#game-ui .gameplay-ui-tab').first().click();
+        await expect(page.locator('#ui-panel .gameplay-tabbed-archive')).toBeVisible();
+      }
       await page.locator('.ui-tab[data-panel="status"]').click();
       await expect(page.locator('#ui-panel .state-grid')).toBeVisible();
       await capture(page, `chat-status-${width}`);
