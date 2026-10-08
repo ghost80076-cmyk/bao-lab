@@ -203,21 +203,96 @@
     return '';
   };
 
-  const renderPanel = panelId => {
-    const schema = schemaFor(App.activeCharacter);
-    const panel = schema?.panels.find(item => item.id === panelId);
-    const ui = document.getElementById('ui-panel');
-    applyTheme(document.getElementById('game-ui'), schema);
-    if (!panel || !ui || !GameState.current) return false;
-    ui.innerHTML = `<div class="gameplay-ui-panel" data-gameplay-panel="${esc(panel.id)}">${panel.sections.map(section => sectionHTML(section, GameState.current)).join('')}</div>`;
-    ui.querySelectorAll('[data-gameplay-draft-text]').forEach(button => button.addEventListener('click', () => {
+  const panelHTML = (panel, state) => `<div class="gameplay-ui-panel" data-gameplay-panel="${esc(panel.id)}">${panel.sections.map(section => sectionHTML(section, state)).join('')}</div>`;
+
+  const bindDraftActions = root => {
+    root?.querySelectorAll?.('[data-gameplay-draft-text]').forEach(button => button.addEventListener('click', () => {
       const input = document.getElementById('user-input');
       if (!input) return;
       input.value = button.dataset.gameplayDraftText || '';
       input.focus();
       input.setSelectionRange?.(input.value.length, input.value.length);
     }));
+  };
+
+  const renderPanel = panelId => {
+    const schema = schemaFor(App.activeCharacter);
+    const panel = schema?.panels.find(item => item.id === panelId);
+    const ui = document.getElementById('ui-panel');
+    applyTheme(document.getElementById('game-ui'), schema);
+    if (!panel || !ui || !GameState.current) return false;
+    ui.innerHTML = panelHTML(panel, GameState.current);
+    bindDraftActions(ui);
     return true;
+  };
+
+  const dashboardPanelHTML = (panel, state) => `<div class="gameplay-dashboard-panel-head"><span>GAMEPLAY</span><b>${esc(panel.label)}</b></div>${panelHTML(panel, state)}`;
+
+  const removeDashboardHost = id => document.getElementById(id)?.remove();
+
+  const renderDashboardHost = (host, panel, schema) => {
+    if (!host || !panel || !GameState.current) return false;
+    applyTheme(host, schema);
+    host.innerHTML = dashboardPanelHTML(panel, GameState.current);
+    bindDraftActions(host);
+    return true;
+  };
+
+  const syncDashboardLayout = () => {
+    const root = document.getElementById('chat-view');
+    const layout = root?.querySelector('.chat-layout');
+    const schema = schemaFor(App.activeCharacter);
+    const spec = schema?.layout;
+    const enabled = Boolean(root && layout && App.config?.displayMode === 'ui' && spec?.preset === 'rpg-dashboard');
+    if (!root || !layout) return false;
+    if (!enabled) {
+      delete root.dataset.gameplayLayout;
+      removeDashboardHost('bao-gameplay-dashboard-left');
+      removeDashboardHost('bao-gameplay-dashboard-right');
+      return false;
+    }
+
+    root.dataset.gameplayLayout = 'rpg-dashboard';
+    const leftPanel = schema.panels.find(panel => panel.id === spec.left_panel);
+    const rightPanel = schema.panels.find(panel => panel.id === spec.right_panel);
+    const leftAside = layout.querySelector(':scope > aside:not(.bao-status-rail)');
+
+    if (leftAside && leftPanel) {
+      let host = document.getElementById('bao-gameplay-dashboard-left');
+      if (!host) {
+        host = document.createElement('section');
+        host.id = 'bao-gameplay-dashboard-left';
+        host.className = 'gameplay-dashboard-panel gameplay-dashboard-left';
+        const anchor = leftAside.querySelector('#chat-character-card');
+        if (anchor) anchor.insertAdjacentElement('afterend', host);
+        else leftAside.prepend(host);
+      }
+      renderDashboardHost(host, leftPanel, schema);
+    } else removeDashboardHost('bao-gameplay-dashboard-left');
+
+    const statusHost = document.querySelector('#bao-reading-status .bao-rail-status-host');
+    if (statusHost && rightPanel) {
+      let host = document.getElementById('bao-gameplay-dashboard-right');
+      if (!host) {
+        host = document.createElement('section');
+        host.id = 'bao-gameplay-dashboard-right';
+        host.className = 'gameplay-dashboard-panel gameplay-dashboard-right';
+        statusHost.prepend(host);
+      }
+      renderDashboardHost(host, rightPanel, schema);
+    } else removeDashboardHost('bao-gameplay-dashboard-right');
+
+    return true;
+  };
+
+  let dashboardSyncQueued = false;
+  const scheduleDashboardSync = () => {
+    if (dashboardSyncQueued) return;
+    dashboardSyncQueued = true;
+    requestAnimationFrame(() => {
+      dashboardSyncQueued = false;
+      syncDashboardLayout();
+    });
   };
 
   const cleanupTabs = () => {
@@ -309,6 +384,7 @@
     syncTabs();
     activateInitialPanel();
     syncPlayerIdentityLabel();
+    scheduleDashboardSync();
     return result;
   };
 
@@ -329,10 +405,17 @@
   if (originalApplyUpdate) {
     GameState.applyUpdate = function(...args) {
       const result = originalApplyUpdate(...args);
-      queueMicrotask(syncPlayerIdentityLabel);
+      queueMicrotask(() => {
+        syncPlayerIdentityLabel();
+        scheduleDashboardSync();
+      });
       return result;
     };
   }
 
-  window.BAOGameplayUI = Object.freeze({ schemaFor, mountBuilder, renderPanel, syncTabs, activateInitialPanel, syncPlayerIdentityLabel, applyTheme, clearTheme });
+  const dashboardLayout = document.querySelector('#chat-view .chat-layout');
+  if (dashboardLayout) new MutationObserver(scheduleDashboardSync).observe(dashboardLayout, { childList: true });
+  scheduleDashboardSync();
+
+  window.BAOGameplayUI = Object.freeze({ schemaFor, mountBuilder, renderPanel, syncTabs, activateInitialPanel, syncPlayerIdentityLabel, syncDashboardLayout, scheduleDashboardSync, applyTheme, clearTheme });
 })();
