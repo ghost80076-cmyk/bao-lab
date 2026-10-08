@@ -83,6 +83,7 @@ test('gameplay schema renders builder, applies state, and drafts actions without
   await page.evaluate(() => BAOGameplayUI.renderPanel('adventure'));
   await expect(page.locator('#ui-panel [data-card-variant="codex"]')).toContainText('行商');
   await expect(page.locator('#ui-panel [data-card-variant="codex"]')).toContainText('青雲城');
+  await expect(page.locator('#ui-panel [data-card-variant="codex"]')).not.toContainText('知道北門妖獸的傳聞。');
   await expect(page.locator('#ui-panel [data-card-variant="quest"]')).toContainText('北門妖獸');
   await expect(page.locator('#ui-panel [data-card-variant="quest"]')).toContainText('1 / 3');
   await expect(page.locator('#ui-panel [data-card-variant="party"]')).toContainText('阿璃');
