@@ -10,6 +10,10 @@
   let cacheSchema = null;
   let sceneObjectURL = '';
   let sceneSyncToken = 0;
+  const archiveTabSelection = new Map();
+  const roundDiffByState = new WeakMap();
+  const locationObjectURLs = new Map();
+  let locationHydrateToken = 0;
 
   const esc = value => App.escapeHTML(String(value ?? ''));
   const displayValue = value => {
@@ -243,7 +247,100 @@
     return `<article class="gameplay-data-card" data-card-variant="skill"><header><strong>${esc(title)}</strong>${level ? `<span>${esc(level)}</span>` : ''}</header>${description ? `<p>${esc(description)}</p>` : ''}<div class="gameplay-card-tags">${cost ? `<small>消耗 · ${esc(cost)}</small>` : ''}${cooldown ? `<small>冷卻 · ${esc(cooldown)}</small>` : ''}</div></article>`;
   };
 
-  const sectionHTML = (section, state) => {
+  const timelineEntryHTML = (entry, index) => {
+    if (!entry || typeof entry !== 'object' || Array.isArray(entry)) {
+      const text = cardText(entry);
+      return text ? `<article class="gameplay-timeline-entry"><i></i><div><strong>紀錄 ${index + 1}</strong><p>${esc(text)}</p></div></article>` : '';
+    }
+    const first = (...keys) => {
+      for (const key of keys) {
+        const value = cardText(entry[key]);
+        if (value) return value;
+      }
+      return '';
+    };
+    const title = first('title', 'name', 'label') || `紀錄 ${index + 1}`;
+    const summary = first('summary', 'description', 'text', 'event');
+    const tag = first('tag', 'status', 'type');
+    const time = first('time', 'date', 'chapter');
+    return `<article class="gameplay-timeline-entry"><i></i><div><header><strong>${esc(title)}</strong>${tag ? `<span>${esc(tag)}</span>` : ''}</header>${time ? `<small>${esc(time)}</small>` : ''}${summary ? `<p>${esc(summary)}</p>` : ''}</div></article>`;
+  };
+
+  const summarizeDiffValue = value => {
+    if (value === undefined || value === null || value === '') return '—';
+    if (Array.isArray(value)) {
+      if (!value.length) return '—';
+      return value.slice(0, 8).map(item => {
+        if (!item || typeof item !== 'object' || Array.isArray(item)) return cardText(item);
+        const title = cardText(item.name || item.title || item.label || item.id);
+        const state = cardText(item.status || item.progress || item.relationship || item.state);
+        return [title, state ? `（${state}）` : ''].join('') || '項目';
+      }).filter(Boolean).join('、');
+    }
+    if (typeof value === 'object') {
+      const title = cardText(value.name || value.title || value.label || value.status || value.state || value.value);
+      if (title) return title;
+      try {
+        const json = JSON.stringify(value);
+        return json.length > 180 ? `${json.slice(0, 180)}…` : json;
+      } catch (_) { return '已更新'; }
+    }
+    return displayValue(String(value));
+  };
+
+  const roundDiffWatchItems = schema => {
+    const out = [];
+    const seen = new Set();
+    const visit = sections => (Array.isArray(sections) ? sections : []).forEach(section => {
+      if (section?.type === 'timeline' && section.mode === 'round_diff') {
+        (section.items || []).forEach(item => {
+          if (!item?.path || seen.has(item.path)) return;
+          seen.add(item.path);
+          out.push({ label: item.label || item.path, path: item.path });
+        });
+      }
+      if (section?.type === 'tabs') (section.tabs || []).forEach(tab => visit(tab.sections));
+    });
+    (schema?.panels || []).forEach(panel => visit(panel.sections));
+    return out;
+  };
+
+  const snapshotRoundDiff = (state, items) => {
+    const values = new Map();
+    (items || []).forEach(item => values.set(item.path, clone(Core.getPath(state || {}, item.path))));
+    return values;
+  };
+
+  const computeRoundDiff = (before, after, items) => (items || []).flatMap(item => {
+    const previous = before?.get(item.path);
+    const current = after?.get(item.path);
+    let same = false;
+    try { same = JSON.stringify(previous) === JSON.stringify(current); } catch (_) { same = previous === current; }
+    return same ? [] : [{ path: item.path, label: item.label, before: previous, after: current }];
+  });
+
+  const locationArchiveHTML = (section, state) => {
+    const time = displayValue(formatValue(Core.getPath(state, section.time_path)));
+    const location = displayValue(formatValue(Core.getPath(state, section.location_path)));
+    const area = section.area_path ? displayValue(formatValue(Core.getPath(state, section.area_path))) : '';
+    const status = section.status_path ? displayValue(formatValue(Core.getPath(state, section.status_path))) : '';
+    const rawDestinations = section.destinations_path ? Core.getPath(state, section.destinations_path) : [];
+    const destinations = Array.isArray(rawDestinations) ? rawDestinations.slice(0, section.limit) : [];
+    const cards = destinations.map((entry, index) => {
+      if (!entry || typeof entry !== 'object' || Array.isArray(entry)) {
+        const name = cardText(entry) || `地點 ${index + 1}`;
+        return `<article class="gameplay-destination-card"><header><strong>${esc(name)}</strong></header></article>`;
+      }
+      const name = cardText(entry.name || entry.title || entry.label) || `地點 ${index + 1}`;
+      const summary = cardText(entry.summary || entry.description);
+      const current = entry.current === true || String(entry.status || '').toLowerCase() === 'current';
+      const draft = cardText(entry.draft);
+      return `<article class="gameplay-destination-card${current ? ' is-current' : ''}"><header><strong>${esc(name)}</strong>${current ? '<span>目前</span>' : ''}</header>${summary ? `<p>${esc(summary)}</p>` : ''}${draft ? `<button type="button" class="secondary" data-gameplay-draft-text="${esc(draft)}">前往</button>` : ''}</article>`;
+    }).join('');
+    return `<section class="gameplay-ui-section gameplay-location-archive" data-gameplay-location-archive data-scene-source="${esc(section.scene_source)}" data-scene-fit="${esc(section.scene_fit)}"><div class="gameplay-location-title"><span>STORY LOCATION</span><h4>${esc(section.title)}</h4></div><div class="gameplay-location-media"><img alt=""><div class="gameplay-location-placeholder">SCENE</div></div><div class="gameplay-location-facts"><div><small>TIME</small><b>${esc(time)}</b></div><div><small>LOCATION</small><b>${esc(location)}</b></div>${section.area_path ? `<div><small>AREA</small><b>${esc(area)}</b></div>` : ''}${section.status_path ? `<div><small>STATUS</small><b>${esc(status)}</b></div>` : ''}</div><div class="gameplay-location-index"><h5>LOCATION INDEX</h5><div class="gameplay-destination-list">${cards || `<span class="gameplay-card-empty">${esc(displayValue(section.empty))}</span>`}</div></div></section>`;
+  };
+
+  const sectionHTML = (section, state, contextKey = 'panel') => {
     const heading = section.title ? `<h4>${esc(section.title)}</h4>` : '';
     if (section.type === 'meters') return `<section class="gameplay-ui-section">${heading}<div class="gameplay-meter-grid">${section.items.map(item => meterHTML(item, state)).join('')}</div></section>`;
     if (section.type === 'stats') return `<section class="gameplay-ui-section">${heading}<div class="gameplay-stat-grid">${section.items.map(item => `<div><small>${esc(item.label)}</small><b>${esc(displayValue(formatValue(Core.getPath(state, item.path))))}${item.suffix ? ` ${esc(displayValue(item.suffix))}` : ''}</b></div>`).join('')}</div></section>`;
@@ -258,11 +355,32 @@
       const cards = list.map((item, index) => gameplayCardHTML(item, section.variant, index)).filter(Boolean).join('');
       return `<section class="gameplay-ui-section">${heading}<div class="gameplay-card-grid" data-card-variant="${esc(section.variant)}">${cards || `<span class="gameplay-card-empty">${esc(displayValue(section.empty))}</span>`}</div></section>`;
     }
+    if (section.type === 'tabs') {
+      const selectionKey = `${contextKey}:${section.id}`;
+      const remembered = archiveTabSelection.get(selectionKey);
+      const active = section.tabs.some(tab => tab.id === remembered) ? remembered : section.default_tab;
+      const buttons = section.tabs.map(tab => `<button type="button" class="gameplay-archive-tab${tab.id === active ? ' active' : ''}" role="tab" aria-selected="${tab.id === active ? 'true' : 'false'}" data-gameplay-archive-tab="${esc(tab.id)}">${esc(tab.label)}</button>`).join('');
+      const panes = section.tabs.map(tab => `<div class="gameplay-archive-pane" data-gameplay-archive-pane="${esc(tab.id)}" ${tab.id === active ? '' : 'hidden'}>${tab.sections.map(child => sectionHTML(child, state, `${selectionKey}:${tab.id}`)).join('')}</div>`).join('');
+      return `<section class="gameplay-ui-section gameplay-tabbed-archive" data-gameplay-tabset="${esc(selectionKey)}">${heading}<div class="gameplay-archive-tabs" role="tablist">${buttons}</div>${panes}</section>`;
+    }
+    if (section.type === 'location_archive') return locationArchiveHTML(section, state);
+    if (section.type === 'timeline') {
+      if (section.mode === 'history') {
+        const value = Core.getPath(state, section.path);
+        const list = Array.isArray(value) ? value.slice(0, section.limit) : [];
+        const entries = list.map((entry, index) => timelineEntryHTML(entry, index)).filter(Boolean).join('');
+        return `<section class="gameplay-ui-section gameplay-timeline">${heading}<div class="gameplay-timeline-list">${entries || `<span class="gameplay-card-empty">${esc(displayValue(section.empty))}</span>`}</div></section>`;
+      }
+      const allowed = new Set((section.items || []).map(item => item.path));
+      const diffs = (roundDiffByState.get(state) || []).filter(item => allowed.has(item.path));
+      const entries = diffs.map(item => `<article class="gameplay-timeline-entry is-diff"><i></i><div><strong>${esc(item.label)}</strong><p><span>${esc(summarizeDiffValue(item.before))}</span><b>→</b><span>${esc(summarizeDiffValue(item.after))}</span></p></div></article>`).join('');
+      return `<section class="gameplay-ui-section gameplay-timeline" data-timeline-mode="round_diff">${heading}<div class="gameplay-timeline-list">${entries || `<span class="gameplay-card-empty">${esc(displayValue(section.empty))}</span>`}</div></section>`;
+    }
     if (section.type === 'actions') return `<section class="gameplay-ui-section">${heading}<div class="gameplay-actions">${section.items.map((item, index) => `<button type="button" class="secondary" data-gameplay-draft="${index}" data-gameplay-draft-text="${esc(item.draft)}">${esc(item.label)}</button>${item.hint ? `<small>${esc(item.hint)}</small>` : ''}`).join('')}</div></section>`;
     return '';
   };
 
-  const panelHTML = (panel, state) => `<div class="gameplay-ui-panel" data-gameplay-panel="${esc(panel.id)}">${panel.sections.map(section => sectionHTML(section, state)).join('')}</div>`;
+  const panelHTML = (panel, state) => `<div class="gameplay-ui-panel" data-gameplay-panel="${esc(panel.id)}">${panel.sections.map(section => sectionHTML(section, state, panel.id)).join('')}</div>`;
 
   const bindDraftActions = root => {
     root?.querySelectorAll?.('[data-gameplay-draft-text]').forEach(button => button.addEventListener('click', () => {
@@ -274,6 +392,34 @@
     }));
   };
 
+  const bindArchiveTabs = root => {
+    root?.querySelectorAll?.('[data-gameplay-tabset]').forEach(tabset => {
+      const key = tabset.dataset.gameplayTabset || '';
+      tabset.querySelectorAll(':scope > .gameplay-archive-tabs [data-gameplay-archive-tab]').forEach(button => {
+        button.addEventListener('click', () => {
+          const id = button.dataset.gameplayArchiveTab || '';
+          if (!id) return;
+          archiveTabSelection.set(key, id);
+          tabset.querySelectorAll(':scope > .gameplay-archive-tabs [data-gameplay-archive-tab]').forEach(item => {
+            const active = item.dataset.gameplayArchiveTab === id;
+            item.classList.toggle('active', active);
+            item.setAttribute('aria-selected', active ? 'true' : 'false');
+          });
+          tabset.querySelectorAll(':scope > .gameplay-archive-pane').forEach(pane => {
+            pane.hidden = pane.dataset.gameplayArchivePane !== id;
+          });
+          void hydrateLocationArchives(tabset);
+        });
+      });
+    });
+  };
+
+  const bindGameplayInteractions = root => {
+    bindDraftActions(root);
+    bindArchiveTabs(root);
+    void hydrateLocationArchives(root);
+  };
+
   const renderPanel = panelId => {
     const schema = schemaFor(App.activeCharacter);
     const panel = schema?.panels.find(item => item.id === panelId);
@@ -281,7 +427,7 @@
     applyTheme(document.getElementById('game-ui'), schema);
     if (!panel || !ui || !GameState.current) return false;
     ui.innerHTML = panelHTML(panel, GameState.current);
-    bindDraftActions(ui);
+    bindGameplayInteractions(ui);
     return true;
   };
 
@@ -293,7 +439,7 @@
     if (!host || !panel || !GameState.current) return false;
     applyTheme(host, schema);
     host.innerHTML = dashboardPanelHTML(panel, GameState.current);
-    bindDraftActions(host);
+    bindGameplayInteractions(host);
     return true;
   };
 
