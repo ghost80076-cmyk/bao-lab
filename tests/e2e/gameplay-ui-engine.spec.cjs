@@ -81,15 +81,15 @@ test('gameplay schema renders builder, applies state, and drafts actions without
   expect(drafted).toBe('我採取穩健策略迎戰，優先保命並觀察對手破綻。');
 
   await page.evaluate(() => BAOGameplayUI.renderPanel('adventure'));
-  await expect(page.locator('#ui-panel [data-card-variant="codex"]')).toContainText('行商');
-  await expect(page.locator('#ui-panel [data-card-variant="codex"]')).toContainText('青雲城');
-  await expect(page.locator('#ui-panel [data-card-variant="codex"]')).not.toContainText('知道北門妖獸的傳聞。');
-  await expect(page.locator('#ui-panel [data-card-variant="quest"]')).toContainText('北門妖獸');
-  await expect(page.locator('#ui-panel [data-card-variant="quest"]')).toContainText('1 / 3');
-  await expect(page.locator('#ui-panel [data-card-variant="party"]')).toContainText('阿璃');
-  await expect(page.locator('#ui-panel [data-card-variant="party"]')).toContainText('92 / 100');
-  await expect(page.locator('#ui-panel [data-card-variant="skill"]')).toContainText('流雲步');
-  await expect(page.locator('#ui-panel [data-card-variant="skill"]')).toContainText('12 氣');
+  await expect(page.locator('#ui-panel .gameplay-card-grid[data-card-variant="codex"]')).toContainText('行商');
+  await expect(page.locator('#ui-panel .gameplay-card-grid[data-card-variant="codex"]')).toContainText('青雲城');
+  await expect(page.locator('#ui-panel .gameplay-card-grid[data-card-variant="codex"]')).not.toContainText('知道北門妖獸的傳聞。');
+  await expect(page.locator('#ui-panel .gameplay-card-grid[data-card-variant="quest"]')).toContainText('北門妖獸');
+  await expect(page.locator('#ui-panel .gameplay-card-grid[data-card-variant="quest"]')).toContainText('1 / 3');
+  await expect(page.locator('#ui-panel .gameplay-card-grid[data-card-variant="party"]')).toContainText('阿璃');
+  await expect(page.locator('#ui-panel .gameplay-card-grid[data-card-variant="party"]')).toContainText('92 / 100');
+  await expect(page.locator('#ui-panel .gameplay-card-grid[data-card-variant="skill"]')).toContainText('流雲步');
+  await expect(page.locator('#ui-panel .gameplay-card-grid[data-card-variant="skill"]')).toContainText('12 氣');
 });
 
 
