@@ -218,8 +218,7 @@
       const mood = first('mood');
       const location = first('location');
       const relation = first('relationship', 'relation');
-      const notes = first('notes', 'summary', 'description');
-      return `<article class="gameplay-data-card" data-card-variant="codex"><header><strong>${esc(title)}</strong>${presence ? `<span>${esc(presence)}</span>` : ''}</header>${role ? `<p class="gameplay-card-lead">${esc(role)}</p>` : ''}<div class="gameplay-card-tags">${location ? `<small>📍 ${esc(location)}</small>` : ''}${mood ? `<small>情緒 · ${esc(mood)}</small>` : ''}${relation ? `<small>關係 · ${esc(relation)}</small>` : ''}</div>${notes ? `<p>${esc(notes)}</p>` : ''}</article>`;
+      return `<article class="gameplay-data-card" data-card-variant="codex"><header><strong>${esc(title)}</strong>${presence ? `<span>${esc(presence)}</span>` : ''}</header>${role ? `<p class="gameplay-card-lead">${esc(role)}</p>` : ''}<div class="gameplay-card-tags">${location ? `<small>📍 ${esc(location)}</small>` : ''}${mood ? `<small>情緒 · ${esc(mood)}</small>` : ''}${relation ? `<small>關係 · ${esc(relation)}</small>` : ''}</div></article>`;
     }
     if (variant === 'quest') {
       const title = first('title', 'name', 'quest') || `任務 ${index + 1}`;
