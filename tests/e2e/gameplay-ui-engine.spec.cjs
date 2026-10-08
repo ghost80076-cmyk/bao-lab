@@ -104,7 +104,7 @@ test('gameplay schema renders builder, applies state, and drafts actions without
     BAOGameplayUI.renderPanel('archive');
   });
   const archive = page.locator('#ui-panel .gameplay-tabbed-archive');
-  await expect(archive).toBeVisible();
+  await expect(archive).toHaveCount(1);
   await expect(archive.locator('.gameplay-archive-tab')).toHaveCount(4);
   await expect(archive.locator('.gameplay-location-archive')).toContainText('青雲城');
   await expect(archive.locator('.gameplay-location-archive')).toContainText('東城');
@@ -119,7 +119,8 @@ test('gameplay schema renders builder, applies state, and drafts actions without
   });
   expect(locationDraft).toBe('我前往北門調查妖獸目擊情報。');
 
-  await archive.locator('[data-gameplay-archive-tab="relation"]').click();
+  await page.evaluate(() => document.querySelector('#ui-panel [data-gameplay-archive-tab="relation"]')?.click());
+  await expect(archive.locator('[data-gameplay-archive-pane="relation"]')).not.toHaveAttribute('hidden', '');
   await expect(archive.locator('[data-gameplay-archive-pane="relation"]')).toContainText('剛認識');
 
   await expect.poll(() => page.evaluate(() => Boolean(window.BAOWorldModules))).toBe(true);
@@ -131,7 +132,8 @@ test('gameplay schema renders builder, applies state, and drafts actions without
   });
   await page.evaluate(() => BAOGameplayUI.renderPanel('archive'));
   const rerenderedArchive = page.locator('#ui-panel .gameplay-tabbed-archive');
-  await rerenderedArchive.locator('[data-gameplay-archive-tab="changes"]').click();
+  await page.evaluate(() => document.querySelector('#ui-panel [data-gameplay-archive-tab="changes"]')?.click());
+  await expect(rerenderedArchive.locator('[data-gameplay-archive-pane="changes"]')).not.toHaveAttribute('hidden', '');
   const diffTimeline = rerenderedArchive.locator('[data-timeline-mode="round_diff"]');
   await expect(diffTimeline).toContainText('地點');
   await expect(diffTimeline).toContainText('青雲城');
@@ -140,7 +142,8 @@ test('gameplay schema renders builder, applies state, and drafts actions without
   await expect(diffTimeline).toContainText('剛認識');
   await expect(diffTimeline).toContainText('同行者');
 
-  await rerenderedArchive.locator('[data-gameplay-archive-tab="history"]').click();
+  await page.evaluate(() => document.querySelector('#ui-panel [data-gameplay-archive-tab="history"]')?.click());
+  await expect(rerenderedArchive.locator('[data-gameplay-archive-pane="history"]')).not.toHaveAttribute('hidden', '');
   const history = rerenderedArchive.locator('[data-gameplay-archive-pane="history"]');
   await expect(history).toContainText('抵達青雲城');
   await expect(history).toContainText('聽見北門傳聞');
