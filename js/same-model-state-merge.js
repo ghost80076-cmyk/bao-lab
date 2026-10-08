@@ -5,7 +5,7 @@
 
   const OPEN = '<BAO_STATE>';
   const CLOSE = '</BAO_STATE>';
-  const MAX_QUEUE = 12;
+  // Retain all unprocessed turns in the local story; cap only what each request sends.
   const MAX_MERGED_BACKLOG = 4;
   const normalizeUrl = value => String(value || '').trim().replace(/\/+$/, '');
   const clip = (value, max = 6000) => {
@@ -185,11 +185,18 @@
     if (GameState.current !== owner) return result;
     const split = splitFinal(result?.text || '');
     if (split.hasState && !split.narration) throw new Error('模型只回傳狀態資料，沒有故事正文。');
+    // An opening marker without its closing marker is a truncated appendix.
+    // Never apply a partial PATCH or charge for a silent second request.
+    const upper = String(result?.text || '').toUpperCase();
+    const stateComplete = split.hasState && upper.lastIndexOf(CLOSE) > upper.lastIndexOf(OPEN);
     let parsed = null;
-    if (split.hasState) {
+    if (stateComplete) {
       try { parsed = WorldStateEngine.parse?.(split.stateText) || null; } catch {}
     }
-    mergedByStory.set(owner, { userText, narration: split.narration, hasState: split.hasState, parsed, defs, priorCount });
+    const stateIssue = !split.hasState ? 'missing_appendix'
+      : !stateComplete ? 'incomplete_appendix'
+        : !parsed ? 'invalid_json' : '';
+    mergedByStory.set(owner, { userText, narration: split.narration, hasState: split.hasState, parsed, defs, priorCount, stateIssue });
     return { ...result, text: split.narration || String(result?.text || '') };
   };
   if (typeof API.wrapSend === 'function') {
@@ -201,12 +208,13 @@
   }
 
   const originalUpdate = WorldStateEngine.update.bind(WorldStateEngine);
-  const mark = (owner, phase, message) => {
+  const mark = (owner, phase, message, diagnostic = '') => {
     if (!owner || GameState.current !== owner) return;
     owner.stateTracker = {
       ...(owner.stateTracker || {}),
       phase,
       message,
+      diagnostic,
       pending: queueFor(owner).length,
       checkedAt: new Date().toISOString(),
       ...(phase === 'updated' || phase === 'unchanged' ? { successAt: new Date().toISOString() } : {})
@@ -216,7 +224,6 @@
   const enqueue = (owner, playerText, assistantText) => {
     const pending = queueFor(owner);
     pending.push({ player: String(playerText || ''), assistant: String(assistantText || '') });
-    if (pending.length > MAX_QUEUE) pending.splice(0, pending.length - MAX_QUEUE);
     WorldStateEngine.markPersistenceHint?.();
     return pending;
   };
@@ -240,14 +247,21 @@
       String(merged.narration || '') === String(assistantText || '');
     if (!matchesTurn || !merged?.hasState || !merged?.parsed) {
       enqueue(owner, playerText, assistantText);
-      mark(owner, 'failed', `${scenePatch ? '時間／地點已同步；' : ''}本輪故事已保留，但同模型沒有回傳可用的狀態附錄；不會補發第二次 API，待下一次狀態批次再整理。`);
+      const reason = !matchesTurn ? 'turn_mismatch' : (merged.stateIssue || 'invalid_json');
+      const why = {
+        turn_mismatch: '狀態附錄與本輪故事沒有對上',
+        missing_appendix: '模型未附帶狀態資料',
+        incomplete_appendix: '模型輸出的狀態資料不完整',
+        invalid_json: '模型回傳的狀態格式無法解析'
+      }[reason] || '狀態資料無法使用';
+      mark(owner, 'failed', `${scenePatch ? '時間／地點已同步；' : ''}${why}，故事已保留；不會補發第二次 API，待下一次狀態批次再整理。`, reason);
       return scenePatch;
     }
 
     const clean = window.BAOHelperData.stateUpdate(merged.parsed, merged.defs || []);
     if (!clean) {
       enqueue(owner, playerText, assistantText);
-      mark(owner, 'failed', `${scenePatch ? '時間／地點已同步；' : ''}本輪故事已保留，但狀態附錄格式無法套用；不會補發第二次 API，待下一次狀態批次再整理。`);
+      mark(owner, 'failed', `${scenePatch ? '時間／地點已同步；' : ''}本輪故事已保留，但狀態附錄格式無法套用；不會補發第二次 API，待下一次狀態批次再整理。`, 'invalid_patch');
       return scenePatch;
     }
     if (GameState.current !== owner) return null;
