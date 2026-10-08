@@ -40,7 +40,7 @@ for (const width of [1440, 390]) {
       await expect(roster).toBeVisible();
       await expect(roster.locator('.npc-roster-row b')).not.toContainText([snapshot.fakeTitle]);
       await expect(roster).toContainText(snapshot.validName);
-      await roster.locator('[data-roster-close]').click();
+      await roster.getByRole('button', {name:'關閉',exact:true}).click();
     }
   });
 }
