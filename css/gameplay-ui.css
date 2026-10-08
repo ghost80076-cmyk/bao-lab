@@ -1,5 +1,5 @@
 /* Gameplay UI Engine theme layer. Presets are platform-owned; authors only choose safe tokens from schema. */
-#game-ui[data-gameplay-theme],.gameplay-builder[data-gameplay-theme]{
+#game-ui[data-gameplay-theme],.gameplay-builder[data-gameplay-theme],.gameplay-dashboard-panel[data-gameplay-theme]{
   --gameplay-accent:#d6a94f;
   --gameplay-surface:#171715;
   --gameplay-surface-alt:#20201d;
@@ -11,16 +11,16 @@
   --gameplay-section-padding:14px;
   --gameplay-gap:12px
 }
-#game-ui[data-gameplay-theme="arcane-night"],.gameplay-builder[data-gameplay-theme="arcane-night"]{
+#game-ui[data-gameplay-theme="arcane-night"],.gameplay-builder[data-gameplay-theme="arcane-night"],.gameplay-dashboard-panel[data-gameplay-theme="arcane-night"]{
   --gameplay-accent:#d8bc75;--gameplay-surface:#10172a;--gameplay-surface-alt:#19223b;--gameplay-text:#f1ead8;--gameplay-border:rgba(216,188,117,.25);--gameplay-muted:#9fa8bd
 }
-#game-ui[data-gameplay-theme="stage-neon"],.gameplay-builder[data-gameplay-theme="stage-neon"]{
+#game-ui[data-gameplay-theme="stage-neon"],.gameplay-builder[data-gameplay-theme="stage-neon"],.gameplay-dashboard-panel[data-gameplay-theme="stage-neon"]{
   --gameplay-accent:#d8a8ff;--gameplay-surface:#17121f;--gameplay-surface-alt:#24182f;--gameplay-text:#f6efff;--gameplay-border:rgba(216,168,255,.24);--gameplay-muted:#beaeca
 }
-#game-ui[data-gameplay-theme="parchment"],.gameplay-builder[data-gameplay-theme="parchment"]{
+#game-ui[data-gameplay-theme="parchment"],.gameplay-builder[data-gameplay-theme="parchment"],.gameplay-dashboard-panel[data-gameplay-theme="parchment"]{
   --gameplay-accent:#9a6b32;--gameplay-surface:#eadfbe;--gameplay-surface-alt:#f2e8cc;--gameplay-text:#40301f;--gameplay-border:rgba(95,68,35,.25);--gameplay-muted:#77634c
 }
-#game-ui[data-gameplay-theme="noir"],.gameplay-builder[data-gameplay-theme="noir"]{
+#game-ui[data-gameplay-theme="noir"],.gameplay-builder[data-gameplay-theme="noir"],.gameplay-dashboard-panel[data-gameplay-theme="noir"]{
   --gameplay-accent:#d8d8d8;--gameplay-surface:#111214;--gameplay-surface-alt:#1b1d20;--gameplay-text:#eeeeef;--gameplay-border:rgba(255,255,255,.14);--gameplay-muted:#a5a7aa
 }
 [data-gameplay-density="compact"]{--gameplay-section-padding:10px;--gameplay-gap:8px}
@@ -49,4 +49,33 @@
 @media(max-width:680px){
   .gameplay-builder-head{display:grid}.gameplay-builder-attribute{grid-template-columns:1fr auto}.gameplay-builder-attribute>span{grid-column:1/-1;text-align:left}.gameplay-builder-fields{grid-template-columns:1fr}.gameplay-stat-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
   #game-ui[data-gameplay-theme]{--gameplay-section-padding:11px;--gameplay-gap:9px}
+}
+
+
+/* Gameplay UI v1.1: platform-owned responsive RPG dashboard layout. */
+.gameplay-dashboard-panel{display:grid;gap:10px;margin:10px 0;color:var(--gameplay-text)}
+.gameplay-dashboard-panel-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:0 2px 7px;border-bottom:1px solid var(--gameplay-border)}
+.gameplay-dashboard-panel-head span{font-size:.62rem;letter-spacing:.14em;color:var(--gameplay-muted)}
+.gameplay-dashboard-panel-head b{font-size:.82rem;color:var(--gameplay-accent);text-align:right}
+.gameplay-dashboard-panel .gameplay-ui-section{padding:11px;border-radius:var(--gameplay-small-radius)}
+.gameplay-dashboard-panel .gameplay-ui-section h4{font-size:.82rem;margin-bottom:8px}
+.gameplay-dashboard-panel .gameplay-stat-grid{grid-template-columns:1fr}
+.gameplay-dashboard-panel .gameplay-stat-grid>div{padding:8px}
+.gameplay-dashboard-panel .gameplay-actions{display:grid}
+.gameplay-dashboard-panel .gameplay-actions button{width:100%;text-align:left}
+.gameplay-dashboard-panel .gameplay-actions small{display:block}
+
+@media(min-width:1081px){
+  #chat-view[data-gameplay-layout="rpg-dashboard"] #game-ui{display:none!important}
+  #chat-view[data-gameplay-layout="rpg-dashboard"] .chat-layout>aside:not(.bao-status-rail){border-color:var(--story-border,rgba(255,255,255,.1));background:var(--yoru-tool,#101116)}
+  #chat-view[data-gameplay-layout="rpg-dashboard"] #bao-gameplay-dashboard-left{margin:8px 0 12px;padding:10px 0;border-top:1px solid var(--gameplay-border);border-bottom:1px solid var(--gameplay-border)}
+  #chat-view[data-gameplay-layout="rpg-dashboard"] #bao-gameplay-dashboard-right{margin:0 0 12px;padding:0 0 12px;border-bottom:1px solid var(--gameplay-border)}
+}
+@media(min-width:1430px){
+  #chat-view[data-gameplay-layout="rpg-dashboard"] .chat-layout{grid-template-columns:minmax(220px,250px) minmax(0,1fr) minmax(270px,310px)!important}
+  #chat-view[data-gameplay-layout="rpg-dashboard"] .chat-layout.bao-status-collapsed{grid-template-columns:minmax(220px,250px) minmax(0,1fr)!important}
+}
+@media(max-width:1080px){
+  #bao-gameplay-dashboard-left{display:none!important}
+  .gameplay-dashboard-panel .gameplay-stat-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
 }

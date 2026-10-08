@@ -53,8 +53,17 @@ test('gameplay schema renders builder, applies state, and drafts actions without
     BAOGameplayUI.renderPanel('status');
   });
 
+  await page.evaluate(() => {
+    window.BAOChatExperience?.sync?.();
+    BAOGameplayUI.syncDashboardLayout();
+  });
   const panel = page.locator('#ui-panel');
   const gameUI = page.locator('#game-ui');
+  await expect(page.locator('#chat-view')).toHaveAttribute('data-gameplay-layout', 'rpg-dashboard');
+  await expect(page.locator('#bao-gameplay-dashboard-left')).toContainText('700 / 810');
+  await expect(page.locator('#bao-gameplay-dashboard-left')).toContainText('世家子弟');
+  await expect(page.locator('#bao-gameplay-dashboard-right')).toContainText('青雲城');
+  await expect(page.locator('#bao-gameplay-dashboard-right')).toContainText('宗門試煉');
   await expect(gameUI).toHaveAttribute('data-gameplay-theme', 'stage-neon');
   await expect(gameUI).toHaveAttribute('data-gameplay-meter', 'glow');
   await expect(panel).toContainText('700 / 810');
