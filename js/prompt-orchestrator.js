@@ -95,7 +95,8 @@
     version: 3,
     familyFor,
     guidanceFor,
-    priorityPrompt: PRIORITY_PROMPT,\n    playerAgencyRule: PLAYER_AGENCY_RULE,
+    priorityPrompt: PRIORITY_PROMPT,
+    playerAgencyRule: PLAYER_AGENCY_RULE,
     sceneParticipationRule: SCENE_PARTICIPATION_RULE,
     turnAnchor: TURN_ANCHOR
   };
