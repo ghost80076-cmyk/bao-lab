@@ -1,4 +1,4 @@
-# BAO/LAB Gameplay UI Engine v1.2
+# BAO/LAB Gameplay UI Engine v1.3
 
 這是一個**角色卡明確 opt-in 才會啟用**的通用遊戲介面層。它不取代既有角色卡 UI，也不要求現有作品遷移。
 
@@ -99,6 +99,30 @@ Gameplay UI 的資料結構與外觀分離。作者不需要寫專屬 JS，也�
 }
 ```
 
+## v1.3 Native data cards
+
+`panels[].sections[]` 新增 `cards`，用同一套安全 renderer 顯示結構化遊戲資料，不需要模型輸出 HTML。
+
+支援四種 `variant`：
+
+- `codex`：人物圖鑑，適合直接讀 `npcs`。
+- `quest`：任務卡，建議資料放在 `modules.quest_log.quests`。
+- `party`：隊伍成員卡，建議資料放在 `modules.party.members`。
+- `skill`：技能卡，建議資料放在 `modules.player.skills`。
+
+範例：
+
+```json
+{
+  "type": "cards",
+  "title": "任務",
+  "path": "modules.quest_log.quests",
+  "variant": "quest",
+  "limit": 6
+}
+```
+
+`cards` 仍只允許 Gameplay UI 原本的安全 display path：`time` / `location` / `events` / `npcs` / `modules.*`。variant 只決定前端如何整理欄位，不會新增模型呼叫，也不會把 DOM / HTML 放進故事 Context。
 ## v1.1 Layout Layer
 
 角色卡可以選擇平台內建的版面 preset，而不是自己注入 HTML / CSS。
