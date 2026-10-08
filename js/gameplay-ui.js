@@ -192,6 +192,58 @@
     return `<div class="gameplay-meter"><div><span>${esc(item.label)}</span><b>${esc(displayValue(value))} / ${esc(displayValue(max))}${item.suffix ? ` ${esc(displayValue(item.suffix))}` : ''}</b></div><i><em style="width:${ratio}%"></em></i></div>`;
   };
 
+  const cardText = value => {
+    if (value === undefined || value === null || value === '') return '';
+    if (Array.isArray(value)) return value.map(item => cardText(item)).filter(Boolean).join('、');
+    if (typeof value === 'object') return '';
+    return displayValue(String(value));
+  };
+
+  const gameplayCardHTML = (entry, variant, index) => {
+    if (!entry || typeof entry !== 'object' || Array.isArray(entry)) {
+      const text = cardText(entry);
+      return text ? `<article class="gameplay-data-card" data-card-variant="${esc(variant)}"><strong>${esc(text)}</strong></article>` : '';
+    }
+    const first = (...keys) => {
+      for (const key of keys) {
+        const value = cardText(entry[key]);
+        if (value) return value;
+      }
+      return '';
+    };
+    const presence = first('presence', 'status', 'state');
+    if (variant === 'codex') {
+      const title = first('name', 'title') || `人物 ${index + 1}`;
+      const role = first('role', 'identity', 'class');
+      const mood = first('mood');
+      const location = first('location');
+      const relation = first('relationship', 'relation');
+      const notes = first('notes', 'summary', 'description');
+      return `<article class="gameplay-data-card" data-card-variant="codex"><header><strong>${esc(title)}</strong>${presence ? `<span>${esc(presence)}</span>` : ''}</header>${role ? `<p class="gameplay-card-lead">${esc(role)}</p>` : ''}<div class="gameplay-card-tags">${location ? `<small>📍 ${esc(location)}</small>` : ''}${mood ? `<small>情緒 · ${esc(mood)}</small>` : ''}${relation ? `<small>關係 · ${esc(relation)}</small>` : ''}</div>${notes ? `<p>${esc(notes)}</p>` : ''}</article>`;
+    }
+    if (variant === 'quest') {
+      const title = first('title', 'name', 'quest') || `任務 ${index + 1}`;
+      const summary = first('summary', 'description', 'objective');
+      const progress = first('progress');
+      const reward = first('reward');
+      return `<article class="gameplay-data-card" data-card-variant="quest"><header><strong>${esc(title)}</strong>${presence ? `<span>${esc(presence)}</span>` : ''}</header>${summary ? `<p>${esc(summary)}</p>` : ''}<div class="gameplay-card-tags">${progress ? `<small>進度 · ${esc(progress)}</small>` : ''}${reward ? `<small>報酬 · ${esc(reward)}</small>` : ''}</div></article>`;
+    }
+    if (variant === 'party') {
+      const title = first('name', 'title') || `成員 ${index + 1}`;
+      const role = first('role', 'class', 'job');
+      const hp = first('hp');
+      const maxHp = first('max_hp', 'maxHp');
+      const note = first('notes', 'summary', 'condition');
+      return `<article class="gameplay-data-card" data-card-variant="party"><header><strong>${esc(title)}</strong>${presence ? `<span>${esc(presence)}</span>` : ''}</header>${role ? `<p class="gameplay-card-lead">${esc(role)}</p>` : ''}<div class="gameplay-card-tags">${hp ? `<small>HP · ${esc(hp)}${maxHp ? ` / ${esc(maxHp)}` : ''}</small>` : ''}</div>${note ? `<p>${esc(note)}</p>` : ''}</article>`;
+    }
+    const title = first('name', 'title') || `技能 ${index + 1}`;
+    const level = first('level', 'rank');
+    const cost = first('cost', 'mp_cost', 'energy_cost');
+    const cooldown = first('cooldown');
+    const description = first('description', 'summary', 'effect');
+    return `<article class="gameplay-data-card" data-card-variant="skill"><header><strong>${esc(title)}</strong>${level ? `<span>${esc(level)}</span>` : ''}</header>${description ? `<p>${esc(description)}</p>` : ''}<div class="gameplay-card-tags">${cost ? `<small>消耗 · ${esc(cost)}</small>` : ''}${cooldown ? `<small>冷卻 · ${esc(cooldown)}</small>` : ''}</div></article>`;
+  };
+
   const sectionHTML = (section, state) => {
     const heading = section.title ? `<h4>${esc(section.title)}</h4>` : '';
     if (section.type === 'meters') return `<section class="gameplay-ui-section">${heading}<div class="gameplay-meter-grid">${section.items.map(item => meterHTML(item, state)).join('')}</div></section>`;
@@ -200,6 +252,12 @@
       const value = Core.getPath(state, section.path);
       const list = Array.isArray(value) ? value.slice(0, section.limit) : [];
       return `<section class="gameplay-ui-section">${heading}<div class="gameplay-list">${list.length ? list.map(item => `<div>• ${esc(displayValue(formatValue(item)))}</div>`).join('') : `<span>${esc(displayValue(section.empty))}</span>`}</div></section>`;
+    }
+    if (section.type === 'cards') {
+      const value = Core.getPath(state, section.path);
+      const list = Array.isArray(value) ? value.slice(0, section.limit) : [];
+      const cards = list.map((item, index) => gameplayCardHTML(item, section.variant, index)).filter(Boolean).join('');
+      return `<section class="gameplay-ui-section">${heading}<div class="gameplay-card-grid" data-card-variant="${esc(section.variant)}">${cards || `<span class="gameplay-card-empty">${esc(displayValue(section.empty))}</span>`}</div></section>`;
     }
     if (section.type === 'actions') return `<section class="gameplay-ui-section">${heading}<div class="gameplay-actions">${section.items.map((item, index) => `<button type="button" class="secondary" data-gameplay-draft="${index}" data-gameplay-draft-text="${esc(item.draft)}">${esc(item.label)}</button>${item.hint ? `<small>${esc(item.hint)}</small>` : ''}`).join('')}</div></section>`;
     return '';
