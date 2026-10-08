@@ -105,7 +105,7 @@ Gameplay UI 的資料結構與外觀分離。作者不需要寫專屬 JS，也�
 
 支援四種 `variant`：
 
-- `codex`：人物圖鑑，適合直接讀 `npcs`。
+- `codex`：人物圖鑑，適合直接讀 `npcs`；Renderer 只顯示玩家可見欄位，不顯示 NPC `notes`／內部筆記。
 - `quest`：任務卡，建議資料放在 `modules.quest_log.quests`。
 - `party`：隊伍成員卡，建議資料放在 `modules.party.members`。
 - `skill`：技能卡，建議資料放在 `modules.player.skills`。
