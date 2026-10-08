@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "type": "yorubay-author-regex-mod",
+  "scope": "assistant_display",
+  "characterId": "unread-afterglow-seoul",
+  "regex_scripts": [
+    {
+      "scriptName": "未讀餘溫｜KKT",
+      "description": "把已經出現的純文字通知轉成閱讀卡；純文字模式原文可讀，沒有裸露標記。",
+      "priority": 60,
+      "findRegex": "^KKT｜((?:[01]\\d|2[0-3]):[0-5]\\d)[ \\t]*\\r?\\n([^\\r\\n]+)",
+      "flags": "gm",
+      "replaceString": "<aside class=\"yb-afterglow-notice\" style=\"box-sizing:border-box;max-width:100%;overflow-wrap:anywhere;background:#292027;color:inherit;border:1px solid #715565;border-left:3px solid #b98191;border-radius:12px;padding:.75em .95em;line-height:1.7\"><strong style=\"display:block;color:#e3afc0;font-weight:650\">KKT · $1</strong><span style=\"display:block;white-space:pre-wrap\">$2</span></aside>"
+    },
+    {
+      "scriptName": "未讀餘溫｜Instagram Story",
+      "description": "把已經出現的純文字通知轉成閱讀卡；純文字模式原文可讀，沒有裸露標記。",
+      "priority": 60,
+      "findRegex": "^Instagram Story｜((?:[01]\\d|2[0-3]):[0-5]\\d)[ \\t]*\\r?\\n([^\\r\\n]+)",
+      "flags": "gm",
+      "replaceString": "<aside class=\"yb-afterglow-notice\" style=\"box-sizing:border-box;max-width:100%;overflow-wrap:anywhere;background:#292027;color:inherit;border:1px solid #715565;border-left:3px solid #b98191;border-radius:12px;padding:.75em .95em;line-height:1.7\"><strong style=\"display:block;color:#e3afc0;font-weight:650\">Instagram Story · $1</strong><span style=\"display:block;white-space:pre-wrap\">$2</span></aside>"
+    }
+  ]
+}

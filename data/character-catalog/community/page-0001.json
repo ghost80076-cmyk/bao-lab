@@ -1478,5 +1478,41 @@
     "version_published_at": "2026-10-07T12:36:00Z",
     "author": "班長",
     "author_id": "banzhang"
+  },
+  {
+    "id": "unread-afterglow-seoul",
+    "file": "data/characters/community/9c/unread-afterglow-seoul.json",
+    "name": "未讀餘溫｜首爾關係觀察誌",
+    "title": "未讀餘溫｜首爾關係觀察誌",
+    "category": "female",
+    "rating": "general",
+    "gender": "male",
+    "tags": [
+      "女性向",
+      "韓系都市",
+      "社交觀察",
+      "曖昧拉扯",
+      "KKT",
+      "Instagram",
+      "群像",
+      "多向關係",
+      "Builder",
+      "原生UI"
+    ],
+    "description": "他只是把菜單推過來，你卻不知道那是不是邀請。從首爾的酒吧、朋友群聊與深夜 KKT 開始，以訊號簿、聯絡回音和社交求證推進一段沒有固定答案的曖昧關係。",
+    "supported_modes": {
+      "immersive": true,
+      "world": true
+    },
+    "supported_display": {
+      "text": true,
+      "ui": true
+    },
+    "published_at": "2026-10-08T18:00:00Z",
+    "updated_at": "2026-10-08T18:00:00Z",
+    "published_version": 1,
+    "version_published_at": "2026-10-08T18:00:00Z",
+    "author": "班長",
+    "author_id": "banzhang"
   }
 ]
