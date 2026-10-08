@@ -386,4 +386,5 @@
   const api = Object.freeze({ openPlayer, openAuthor, mount, profileOf, normalizeResult, buildVisualMessages, album, storyRefs, latestForStory, latestForCurrentStory });
   window.BAOStoryImagePrompts = api;
   window.BAOStoryImageMoments = api;
+  window.dispatchEvent(new CustomEvent('bao:story-image-module-ready'));
 })();
