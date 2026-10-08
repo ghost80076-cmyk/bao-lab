@@ -50,7 +50,7 @@
           "深夜",
           "ㅋㅋㅋ"
         ],
-        "text": "依現有 contact_log、角色回訊習慣和時間安排決定延遲或簡短回覆，只記玩家已實際收到的內容。",
+        "text": "依現有 contact_log、角色回訊習慣和時間安排決定延遲或簡短回覆，只記玩家已實際收到的內容。 聯絡紀錄每項使用 title（渠道與時間）、summary（可見訊息）與 status（已讀／未讀），不當作好感測量。",
         "recent_turns": 8
       },
       {
@@ -94,7 +94,7 @@
           "看到",
           "誤會"
         ],
-        "text": "來源、確認程度、實際發生和角色誤解需分開，已證實的幕後事實不再任意改寫。",
+        "text": "來源、確認程度、實際發生和角色誤解需分開，已證實的幕後事實不再任意改寫。 新線索補上 title、summary、status 供原生卡片顯示，但幕後證據不寫進公開項目。",
         "recent_turns": 8
       },
       {
@@ -239,23 +239,18 @@
           "unanswered_question": "門口那名女生與他是什麼關係？"
         },
         "people": [
-          {
-            "name": "姜允載",
-            "summary": "昭妍的朋友、活動企劃",
-            "status": "正在交談"
-          },
-          {
-            "name": "金昭妍",
-            "summary": "共同朋友",
-            "status": "門外接電話"
-          }
+          "姜允載｜昭妍的朋友、活動企劃｜正在交談",
+          "金昭妍｜共同朋友｜門外接電話"
         ],
         "signal_ledger": [
           {
             "time": "22:36",
             "source": "親眼所見",
             "fact": "姜允載替一位女生撿起圍巾；對方叫他允載",
-            "verification": "行為已確認；兩人關係未確認"
+            "verification": "行為已確認；兩人關係未確認",
+            "title": "22:36｜線索",
+            "summary": "親眼所見：姜允載替一位女生撿起圍巾；對方叫他允載；行為已確認；兩人關係未確認",
+            "status": "待查證"
           }
         ],
         "contact_log": [],
@@ -264,7 +259,8 @@
             "title": "今晚聚會",
             "time": "週五夜",
             "location": "乙支路小酒吧",
-            "status": "進行中"
+            "status": "進行中",
+            "summary": "週五夜｜乙支路小酒吧"
           }
         ],
         "recent_events": [
@@ -465,7 +461,8 @@
         "kind": "collection",
         "tracking": "medium",
         "context": "relevant",
-        "max_items": 30
+        "max_items": 30,
+        "description": "玩家已認識的人物簡述，以易讀文字保存，只包括玩家已知資訊。"
       },
       {
         "id": "signal_ledger",
@@ -474,7 +471,8 @@
         "kind": "collection",
         "tracking": "high",
         "context": "relevant",
-        "max_items": 30
+        "max_items": 30,
+        "description": "訊號紀錄保留 time、source、fact、verification，同時寫 title（時間／來源）、summary（可見事實與查證程度）、status（待查證／已確認），方便原生卡片閱讀。"
       },
       {
         "id": "contact_log",
@@ -483,7 +481,8 @@
         "kind": "collection",
         "tracking": "medium",
         "context": "recent",
-        "max_items": 30
+        "max_items": 30,
+        "description": "收到或送出的可見訊息；每項 title（來源與時間）、summary（可見內容）、status（讀取情況）；不包含角色心中原因。"
       },
       {
         "id": "planned_events",
@@ -492,7 +491,8 @@
         "kind": "collection",
         "tracking": "medium",
         "context": "relevant",
-        "max_items": 30
+        "max_items": 30,
+        "description": "玩家知道的邀約和聚會；每項 title、time、location、summary（時間與地點）、status。"
       },
       {
         "id": "recent_events",
@@ -510,7 +510,8 @@
         "kind": "collection",
         "tracking": "medium",
         "context": "relevant",
-        "max_items": 30
+        "max_items": 30,
+        "description": "幕後關係多向向量；僅記錄有意義的改變，不在 UI 公開。"
       },
       {
         "id": "offscreen_facts",
@@ -519,7 +520,8 @@
         "kind": "collection",
         "tracking": "medium",
         "context": "relevant",
-        "max_items": 30
+        "max_items": 30,
+        "description": "已定的私下事實，供未來事件一致性使用；尚未查證時不可成為公開線索。"
       }
     ],
     "ui_schema": {
@@ -707,11 +709,11 @@
               ]
             },
             {
-              "type": "list",
+              "type": "cards",
               "title": "訊號證據簿",
               "path": "modules.signal_ledger",
-              "limit": 12,
-              "empty": "沒有新的可見內容。"
+              "variant": "quest",
+              "limit": 12
             }
           ]
         },
@@ -720,18 +722,18 @@
           "label": "聯絡",
           "sections": [
             {
-              "type": "list",
+              "type": "cards",
               "title": "KKT／Instagram／通話",
               "path": "modules.contact_log",
-              "limit": 12,
-              "empty": "沒有新的可見內容。"
+              "variant": "quest",
+              "limit": 12
             },
             {
-              "type": "list",
-              "title": "行程與邀約",
+              "type": "cards",
+              "title": "已知聚會與邀約",
               "path": "modules.planned_events",
-              "limit": 12,
-              "empty": "沒有新的可見內容。"
+              "variant": "quest",
+              "limit": 8
             }
           ]
         },
