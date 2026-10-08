@@ -468,6 +468,17 @@ const jsonResponse = (body, status = 200) =>
     assert.equal(geminiRequest.body.payload.systemInstruction.parts[0].text, "system");
     assert.equal(geminiRequest.body.payload.contents[0].role, "user");
 
+    for (const [model, kind, expected] of [
+      ["gemini-3.1-pro-preview", "status", "low"],
+      ["gemini-3.1-pro-preview", "chat", undefined],
+      ["gemini-2.5-pro", "status", undefined]
+    ]) {
+      await providerCall({ AWS_RELAY_URL: "https://relay.example", BAO_INTERNAL_TOKEN: "relay-secret" },
+        "gemini", model, messages, 2400, null, "", kind);
+      const payload = requests.at(-1).body.payload;
+      assert.equal(payload.generationConfig.thinkingConfig?.thinkingLevel, expected);
+    }
+
     const anthropic = await providerCall(
       {
         ANTHROPIC_API_KEY: "anthropic-secret",

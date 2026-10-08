@@ -52,8 +52,12 @@ const WorldStateEngine = {
         { role: "user", content: prompt }
       ]);
       const data = window.BAOHelperData.stateUpdate(this.parse(result?.text || ""), []);
+      if (GameState.current) GameState.current.stateRequestDiagnostics = {
+        ...(GameState.current.stateRequestDiagnostics || {}), parsed: Boolean(data), applied: false
+      };
       if (!data) return null;
       GameState.applyUpdate(data);
+      if (GameState.current?.stateRequestDiagnostics) GameState.current.stateRequestDiagnostics.applied = true;
       return data;
     } catch (err) {
       console.warn("BAO/LAB world state update failed:", err);

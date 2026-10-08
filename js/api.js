@@ -232,6 +232,9 @@ const API = {
     const limit = Number(config.maxOutputTokens || 0);
     const generationConfig = {};
     if (limit > 0) generationConfig.maxOutputTokens = Math.floor(limit);
+    if (config.__stateTask && /^gemini-3(?:[.-])/.test(config.model || "")) {
+      generationConfig.thinkingConfig = { thinkingLevel: "low" };
+    }
     if (config.__memoryTask || Object.prototype.hasOwnProperty.call(config, "__responseSchema")) {
       const legacyMemorySchema = {
         type: "object",
@@ -260,7 +263,7 @@ const API = {
     const data = await this.readJSON(response);
     if (!response.ok) throw new Error(this.friendlyError(response.status, data, "Gemini API"));
     const text = (data?.candidates?.[0]?.content?.parts || []).map(p => typeof p?.text === "string" ? p.text : "").filter(Boolean).join("\n");
-    return { text: text || this.geminiEmptyResponseMessage(data), usage: this.normalizeUsage(data?.usageMetadata || {}, "gemini") };
+    return { text: text || this.geminiEmptyResponseMessage(data), finishReason: data?.candidates?.[0]?.finishReason || null, usage: this.normalizeUsage(data?.usageMetadata || {}, "gemini") };
   },
 
   networkError(err) {
@@ -348,16 +351,17 @@ const API = {
     return { text: text || "模型沒有回傳內容。", usage: this.normalizeUsage(usage, "anthropic") };
   },
   async readGeminiStream(response, config) {
-    let text = "", usage = {}, lastData = null;
+    let text = "", usage = {}, lastData = null, finishReason = null;
     await this.readSSE(response, ({ data: raw }) => {
       const data = this.parseStreamJSON(raw, "Gemini API");
       if (data?.error) throw this.streamEventError(data, "Gemini API");
       lastData = data;
+      finishReason = data?.candidates?.[0]?.finishReason || finishReason;
       const delta = (data?.candidates?.[0]?.content?.parts || []).map(part => typeof part?.text === "string" ? part.text : "").filter(Boolean).join("");
       if (delta) { text += delta; this.emitDelta(config, delta, text); }
       if (data?.usageMetadata) usage = data.usageMetadata;
     });
-    return { text: text || this.geminiEmptyResponseMessage(lastData || {}), usage: this.normalizeUsage(usage, "gemini") };
+    return { text: text || this.geminiEmptyResponseMessage(lastData || {}), finishReason, usage: this.normalizeUsage(usage, "gemini") };
   },
   contentToText(content) { if (typeof content === "string") return content; if (Array.isArray(content)) return content.map(p => typeof p === "string" ? p : (p?.text || "")).filter(Boolean).join("\n"); return content == null ? "" : String(content); },
   geminiEmptyResponseMessage(data) { const finishReason = data?.candidates?.[0]?.finishReason; const blockReason = data?.promptFeedback?.blockReason; if (blockReason) return `Gemini 未產生內容（${blockReason}）。`; if (finishReason) return `Gemini 未產生文字內容（${finishReason}）。`; return "Gemini 沒有回傳文字內容。"; },

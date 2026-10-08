@@ -27,7 +27,7 @@ const sandbox = {
   document: { querySelector: () => null, getElementById: () => null },
   App: app, GameState: gameState, BAOCharacterStatus: status,
   WorldStateEngine: {}, Chat: chat,
-  API: { send: async (config, messages) => { calls.push({ config, messages }); return { text: '{}' }; } }
+  API: { send: async (config, messages) => { calls.push({ config, messages }); return { text: '{}', finishReason: config.testFinishReason || 'STOP' }; } }
 };
 sandbox.window = sandbox;
 const source = fs.readFileSync(path.join(__dirname, '..', 'js', 'status-usage-integrity.js'), 'utf8');
@@ -51,5 +51,8 @@ assert.equal(sandbox.BAOStatusUsageIntegrity.registerNamedNPCs('林慕晴：「�
   assert.equal(calls[1].config.maxOutputTokens, 900, 'player-selected smaller limit must be respected');
   await sandbox.API.send({}, [{ role: 'user', content: '正常回覆' }]);
   assert.equal(calls[2].messages[0].content, '正常回覆', 'ordinary story payload must remain unchanged');
+  await assert.rejects(sandbox.API.send({ __stateTask: true, testFinishReason: 'MAX_TOKENS' }, []), /截斷/);
+  assert.equal(state.stateRequestDiagnostics.finishReason, 'MAX_TOKENS');
+  assert.equal(state.stateRequestDiagnostics.applied, false);
   console.log('status usage integrity core test passed');
 })().catch(error => { console.error(error); process.exitCode = 1; });

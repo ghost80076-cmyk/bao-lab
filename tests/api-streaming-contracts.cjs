@@ -88,6 +88,20 @@ global.fetch = async (url, options) => {
   assert.equal(gemini.usage.total_tokens, 37);
   assert.match(requests[3].url, /gemini-stream:streamGenerateContent\?alt=sse$/);
 
+  global.fetch = async (url, options) => {
+    requests.push({ url: String(url), body: JSON.parse(options.body), options });
+    return new Response(JSON.stringify({ candidates: [{ content: { parts: [{ text: '{}' }] }, finishReason: 'STOP' }] }),
+      { headers: { 'content-type': 'application/json' } });
+  };
+  for (const [model, stateTask, expected] of [
+    ['gemini-3.1-pro-preview', true, 'low'],
+    ['gemini-3.1-pro-preview', false, undefined],
+    ['gemini-2.5-pro', true, undefined]
+  ]) {
+    const helperResult = await API.sendGemini({ model, key: 'test', __stateTask: stateTask }, messages);
+    assert.equal(helperResult.finishReason, 'STOP');
+    assert.equal(requests.at(-1).body.generationConfig?.thinkingConfig?.thinkingLevel, expected);
+  }
   console.log("API streaming contracts test passed (OpenAI-compatible, Z.AI, Anthropic, Gemini)");
 })().catch(error => {
   console.error(error);

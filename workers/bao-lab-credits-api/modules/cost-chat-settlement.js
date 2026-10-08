@@ -333,7 +333,8 @@ async function costUsdChatRoute(
       plan
         .effectiveMaxOutput,
       player,
-      sessionId
+      sessionId,
+      kind
     );
 
   if (
@@ -659,6 +660,7 @@ async function costUsdChatRoute(
 
       content:
         result.text,
+      finish_reason: result.finishReason || null,
 
       usage: {
         input_tokens:
@@ -1101,6 +1103,7 @@ async function costUsdChatRoute(
 
     content:
       result.text,
+    finish_reason: result.finishReason || null,
 
     usage: {
       input_tokens:
