@@ -1,4 +1,4 @@
-# BAO/LAB Gameplay UI Engine v1
+# BAO/LAB Gameplay UI Engine v1.2
 
 這是一個**角色卡明確 opt-in 才會啟用**的通用遊戲介面層。它不取代既有角色卡 UI，也不要求現有作品遷移。
 
@@ -107,6 +107,7 @@ Gameplay UI 的資料結構與外觀分離。作者不需要寫專屬 JS，也�
 
 - `standard`：沿用原本 Gameplay UI tabs。
 - `rpg-dashboard`：桌機使用夜灣現有三欄骨架；左欄顯示指定 gameplay panel，中間保留故事閱讀與輸入，右欄把指定 gameplay panel 放進既有世界狀態 rail。窄螢幕會退回原本 tabs / 狀態抽屜，不另做一套手機 DOM。
+- `scene-rpg`：寬螢幕新增單一持續存在的場景舞台，中央偏左顯示場景圖，右側保留原本故事、Gameplay UI 與自由輸入。場景圖優先可讀玩家本機故事圖集；沒有圖時才回退作品閱讀背景或封面。1280px 以下自動退回原本聊天版面。
 
 範例：
 
@@ -128,6 +129,25 @@ Gameplay UI 的資料結構與外觀分離。作者不需要寫專屬 JS，也�
 ```
 
 `left_panel` / `right_panel` 只能引用同一份 schema 已存在的 panel id。平台不接受 selector、任意 DOM 位置、URL、CSS 或 JavaScript。沒有宣告 layout 的舊卡等同 `standard`，完全維持原流程。
+
+
+Scene RPG 範例：
+
+```json
+{
+  "gameplay_ui": {
+    "version": 1,
+    "layout": {
+      "preset": "scene-rpg",
+      "right_panel": "world",
+      "scene_source": "story-gallery",
+      "scene_fit": "cover"
+    }
+  }
+}
+```
+
+`scene_source` 只接受平台列舉值：`story-gallery`、`reading-background`、`avatar`。預設 `story-gallery`，找不到本機場景圖時仍會回退作品背景／封面。作者不能直接在 layout 注入圖片 URL；若需要固定背景，沿用角色卡既有的 `reading_background` / `avatar` 欄位。 `scene_fit` 只接受 `cover` 或 `contain`。
 
 ## 不在 v1 範圍
 
