@@ -86,6 +86,7 @@ test('gameplay schema renders builder, applies state, and drafts actions without
 test('scene-rpg uses one persistent scene stage and keeps story controls on the right', async ({ page }) => {
   await page.setViewportSize({ width: 1600, height: 900 });
   await ready(page);
+  await expect.poll(() => page.evaluate(() => Boolean(window.BAOStoryImageMoments?.latestForCurrentStory))).toBe(true);
   const card = await page.evaluate(async () => (await fetch('tests/fixtures/gameplay-ui-demo-character.json')).json());
 
   await page.evaluate(raw => {
