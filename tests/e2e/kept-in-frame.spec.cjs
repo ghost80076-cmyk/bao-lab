@@ -26,6 +26,8 @@ for(const viewport of [{width:1280,height:900},{width:390,height:844}]){
   await page.evaluate(()=>{App.config.displayMode='text';App.renderChatShell(true);});
   await expect(page.locator('#chat-stream')).toContainText('林祐真');
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+2)).toBe(true);
+  // Mature catalog entries are deliberately hidden until the reader opts in.
+  await page.evaluate(()=>BAOContentPreferences.setAdultContentEnabled(true,{confirmAge:false}));
   await page.goto('./author.html?id=banzhang');
   await expect(page.locator('body')).toContainText('留影｜林祐真');
  });
