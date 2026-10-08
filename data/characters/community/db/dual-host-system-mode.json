@@ -25,7 +25,9 @@
     ],
     "description": "玩家不是被系統選中的人，而是系統本身。可綁定一名或兩名宿主，發布任務、獎懲、施加效果，甚至直接接管宿主行動；也可啟用自己的系統化身，讓雙宿主與玩家化身形成合作、競爭、BG／BL／GL、NTR／NTL 等多種關係路線。",
     "creator": "班長",
-    "creator_id": "banzhang"
+    "creator_id": "banzhang",
+    "author": "班長",
+    "author_id": "banzhang"
   },
   "content": {
     "quote": "你不是被選中的人。你就是那個選擇別人的存在。",
@@ -954,62 +956,185 @@
           "label": "系統",
           "sections": [
             {
-              "type": "stats",
-              "title": "核心",
-              "items": [
+              "type": "tabs",
+              "id": "current_archive",
+              "default_tab": "live",
+              "tabs": [
                 {
-                  "label": "世界",
-                  "path": "modules.system_core.world_type"
+                  "id": "live",
+                  "label": "目前狀態",
+                  "sections": [
+                    {
+                      "type": "stats",
+                      "title": "核心",
+                      "items": [
+                        {
+                          "label": "世界",
+                          "path": "modules.system_core.world_type"
+                        },
+                        {
+                          "label": "玩家形態",
+                          "path": "modules.system_core.player_mode"
+                        },
+                        {
+                          "label": "風格",
+                          "path": "modules.system_core.system_style"
+                        },
+                        {
+                          "label": "控制權限",
+                          "path": "modules.system_core.control_level"
+                        },
+                        {
+                          "label": "任務生成",
+                          "path": "modules.system_core.task_mode"
+                        },
+                        {
+                          "label": "綁定",
+                          "path": "modules.system_core.binding_mode"
+                        },
+                        {
+                          "label": "雙宿主知情",
+                          "path": "modules.system_core.visibility_mode"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "stats",
+                      "title": "化身",
+                      "items": [
+                        {
+                          "label": "啟用",
+                          "path": "modules.system_avatar.enabled"
+                        },
+                        {
+                          "label": "名字",
+                          "path": "modules.system_avatar.name"
+                        },
+                        {
+                          "label": "身份",
+                          "path": "modules.system_avatar.identity"
+                        },
+                        {
+                          "label": "位置",
+                          "path": "modules.system_avatar.location"
+                        },
+                        {
+                          "label": "真身揭露",
+                          "path": "modules.system_avatar.known_as_system"
+                        }
+                      ]
+                    }
+                  ]
                 },
                 {
-                  "label": "玩家形態",
-                  "path": "modules.system_core.player_mode"
-                },
-                {
-                  "label": "風格",
-                  "path": "modules.system_core.system_style"
-                },
-                {
-                  "label": "控制權限",
-                  "path": "modules.system_core.control_level"
-                },
-                {
-                  "label": "任務生成",
-                  "path": "modules.system_core.task_mode"
-                },
-                {
-                  "label": "綁定",
-                  "path": "modules.system_core.binding_mode"
-                },
-                {
-                  "label": "雙宿主知情",
-                  "path": "modules.system_core.visibility_mode"
-                }
-              ]
-            },
-            {
-              "type": "stats",
-              "title": "化身",
-              "items": [
-                {
-                  "label": "啟用",
-                  "path": "modules.system_avatar.enabled"
-                },
-                {
-                  "label": "名字",
-                  "path": "modules.system_avatar.name"
-                },
-                {
-                  "label": "身份",
-                  "path": "modules.system_avatar.identity"
-                },
-                {
-                  "label": "位置",
-                  "path": "modules.system_avatar.location"
-                },
-                {
-                  "label": "真身揭露",
-                  "path": "modules.system_avatar.known_as_system"
+                  "id": "changes",
+                  "label": "本輪變動",
+                  "sections": [
+                    {
+                      "type": "timeline",
+                      "mode": "round_diff",
+                      "title": "本輪變動",
+                      "items": [
+                        {
+                          "label": "系統 · 位置",
+                          "path": "modules.system_avatar.location"
+                        },
+                        {
+                          "label": "宿主 A · 位置",
+                          "path": "modules.host_a.location"
+                        },
+                        {
+                          "label": "宿主 B · 位置",
+                          "path": "modules.host_b.location"
+                        },
+                        {
+                          "label": "世界 · 時間",
+                          "path": "modules.scene.time"
+                        },
+                        {
+                          "label": "世界 · 地點",
+                          "path": "modules.scene.location"
+                        },
+                        {
+                          "label": "系統 · 控制權限",
+                          "path": "modules.system_core.control_level"
+                        },
+                        {
+                          "label": "關係 · A ↔ B",
+                          "path": "modules.relationship_web.a_b_relation"
+                        },
+                        {
+                          "label": "關係 · 化身 ↔ A",
+                          "path": "modules.relationship_web.avatar_a_relation"
+                        },
+                        {
+                          "label": "關係 · 化身 ↔ B",
+                          "path": "modules.relationship_web.avatar_b_relation"
+                        },
+                        {
+                          "label": "任務 · 狀態",
+                          "path": "modules.task_a.status"
+                        },
+                        {
+                          "label": "任務 · 狀態",
+                          "path": "modules.task_b.status"
+                        },
+                        {
+                          "label": "系統 · 世界",
+                          "path": "modules.system_core.world_type"
+                        },
+                        {
+                          "label": "系統 · 玩家形態",
+                          "path": "modules.system_core.player_mode"
+                        },
+                        {
+                          "label": "系統 · 風格",
+                          "path": "modules.system_core.system_style"
+                        },
+                        {
+                          "label": "系統 · 任務生成",
+                          "path": "modules.system_core.task_mode"
+                        },
+                        {
+                          "label": "系統 · 綁定",
+                          "path": "modules.system_core.binding_mode"
+                        },
+                        {
+                          "label": "系統 · 雙宿主知情",
+                          "path": "modules.system_core.visibility_mode"
+                        },
+                        {
+                          "label": "系統 · 啟用",
+                          "path": "modules.system_avatar.enabled"
+                        },
+                        {
+                          "label": "系統 · 名字",
+                          "path": "modules.system_avatar.name"
+                        },
+                        {
+                          "label": "系統 · 身份",
+                          "path": "modules.system_avatar.identity"
+                        },
+                        {
+                          "label": "系統 · 真身揭露",
+                          "path": "modules.system_avatar.known_as_system"
+                        },
+                        {
+                          "label": "宿主 A · 姓名",
+                          "path": "modules.host_a.name"
+                        },
+                        {
+                          "label": "宿主 A · 性別",
+                          "path": "modules.host_a.gender"
+                        },
+                        {
+                          "label": "宿主 A · 身份",
+                          "path": "modules.host_a.role"
+                        }
+                      ],
+                      "empty": "尚無本輪可見變動；更新後自動比較。"
+                    }
+                  ]
                 }
               ]
             }
@@ -1280,11 +1405,12 @@
               "limit": 30
             },
             {
-              "type": "list",
+              "type": "timeline",
               "title": "最近事件",
               "path": "modules.recent_events",
               "empty": "尚無重要事件。",
-              "limit": 20
+              "limit": 20,
+              "mode": "history"
             }
           ]
         },

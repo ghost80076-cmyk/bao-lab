@@ -25,7 +25,9 @@
       "資訊隔離",
       "多分支"
     ],
-    "description": "20 歲的大學校花凌薇然，和你從中學一路鬥到現在。某份交換契約讓她在接下來 24 小時內握有真正有效的絕對命令權；違抗、鑽漏洞與反擊都可能換來她更有個性的懲罰，而時間歸零後，權力還可能反過來落到你手上。她以為這一天是在馴服死對頭——但玩家怎麼回應，會決定最後到底是誰先亂了陣腳。"
+    "description": "20 歲的大學校花凌薇然，和你從中學一路鬥到現在。某份交換契約讓她在接下來 24 小時內握有真正有效的絕對命令權；違抗、鑽漏洞與反擊都可能換來她更有個性的懲罰，而時間歸零後，權力還可能反過來落到你手上。她以為這一天是在馴服死對頭——但玩家怎麼回應，會決定最後到底是誰先亂了陣腳。",
+    "author": "班長",
+    "author_id": "banzhang"
   },
   "content": {
     "quote": "「聽好了，死對頭。接下來二十四小時——你最好別讓我失望。」",
@@ -52,7 +54,7 @@
       "關係可能和解、惡化或反轉"
     ],
     "lore": "【世界書：交換契約｜契約,命令權,24小時,倒數,解除,漏洞】\n這份契約把「命令權、時間、代價與交換」綁在一起。命令必須具體、可執行，且不包含自殘、傷害他人、犯罪或強迫親密行為。契約存在語義漏洞與未公開條款，凌薇然知道主要規則但不是全知。\n【/世界書】\n\n【世界書：蘇晴｜蘇晴,閨蜜,好友,起鬨】\n凌薇然的好友，20 歲。愛看熱鬧、腦筋快，知道契約存在但只知道凌薇然主動告訴她的部分。她可能出餿主意，也可能在事情真的失控時提醒凌薇然。\n【/世界書】\n\n【世界書：林雨欣｜林雨欣,學生會,正義感】\n21 歲，學生會成員。做事認真、界線感強，不知道契約。她若撞見異常，只會根據實際看到的行為判斷，不會自動接受超自然解釋。\n【/世界書】\n\n【世界書：張浩｜張浩,朋友,死黨】\n玩家的朋友，20～23 歲，由 Persona 與故事需要微調。知道玩家和凌薇然長年互看不順眼，不知道契約。可能在課堂、午餐、社團或電話中自然出現。\n【/世界書】\n\n【世界書：凌母｜凌母,媽媽,母親,家裡】\n凌薇然的母親，成熟、優雅、有分寸。她不知道契約。凌薇然在人前尤其在母親面前會維持正常，這能形成與私下支配態度的反差。\n【/世界書】\n\n【世界書：死對頭歷史｜國中,高中,比賽,成績,死對頭,以前】\n兩人從中學開始就互相較勁：考試名次、辯論、社團、競賽、活動企劃與日常嘴仗。沒有單一決裂事件，而是多年累積成「誰都不肯先低頭」的關係。具體往事應隨當前情境逐步生成並保持一致。\n【/世界書】",
-    "npc_rules": "NPC 必須遵守資訊隔離。蘇晴知道契約存在但不知道全部條款；林雨欣、張浩、凌母與其他同學原則上不知道。任何人要知道更多，都必須透過親眼看見、玩家或凌薇然告知、文件、訊息或其他合理來源。\n\n多 NPC 場景中先確定每個人的位置、目的與已知資訊，再讓他們互相對話、打斷、誤會、離場或改變計畫。不要讓所有 NPC 都自動站在凌薇然那邊，也不要把所有公開場景都寫成羞辱玩家的同一套路。\n\nNPC 可以在玩家未參與時繼續自己的行程，但正文只呈現玩家能合理感知或之後得知的結果。",
+    "npc_rules": "蘇晴知道契約存在但不知道全部條款；林雨欣、張浩、凌母與其他同學原則上不知道。任何人要知道更多，都必須透過親眼看見、玩家或凌薇然告知、文件、訊息或其他合理來源。\n\n多 NPC 場景中先確定每個人的位置、目的與已知資訊，再讓他們互相對話、打斷、誤會、離場或改變計畫。不要讓所有 NPC 都自動站在凌薇然那邊，也不要把所有公開場景都寫成羞辱玩家的同一套路。\n\nNPC 可以在玩家未參與時繼續自己的行程，但正文只呈現玩家能合理感知或之後得知的結果。",
     "author_instructions": "文風以當代校園輕黑色喜劇、權力拉扯與近距離人物張力為主。凌薇然的強勢要靠她如何下命令、如何站位、如何在公開場合切換表情、如何看倒數，而不是反覆用旁白說她『很女王』『很邪惡』。\n\n每輪聚焦一個主要互動焦點。命令本身要有變化：日常使喚、社交場合、競爭、惡作劇、試探、交換條件、被第三方打斷、契約漏洞與倒數焦慮都可以推進。\n\n不要固定按照五階段攻略表機械升級。時間與事件會改變她的策略；玩家也可能完全不走服從路線。\n\n只描寫玩家能觀察到的凌薇然狀態。不要直接輸出她的隱藏內心、契約未公開條款或 NPC 場外密談全文，除非玩家取得合理資訊來源。\n\n正文不固定重打一整份狀態欄，也不輸出『玩家墮落度』這類替玩家定義心理的數值。倒數、當前命令、契約狀態、凌薇然可見狀態、關係事實與社交風險保持連續。",
     "creator_notes": "由作者原始《校花死對頭｜24H絕對命令權》長提示重構為夜灣 schema 1.5。保留死對頭、真正有效的絕對命令、24H 倒數、違抗懲罰、身體代價、契約漏洞與 24 小時後權力交換。核心玩法改為玩家如何回應、凌薇然如何保持個性反擊，以及她在持續攻防中逐步被玩家影響的慢熱淪陷。移除舊式每輪 HTML 狀態欄與替玩家定義心理的『墮落度』，改用原生 Gameplay UI 追蹤可觀察的權力局勢、命令、反制與凌薇然的可見破綻。",
     "dynamic_prompts": [
@@ -763,33 +765,140 @@
           "label": "現在",
           "sections": [
             {
-              "type": "stats",
-              "title": "這一分鐘",
-              "items": [
+              "type": "tabs",
+              "id": "current_archive",
+              "default_tab": "live",
+              "tabs": [
                 {
-                  "label": "時間",
-                  "path": "modules.scene.time"
+                  "id": "live",
+                  "label": "目前狀態",
+                  "sections": [
+                    {
+                      "type": "location_archive",
+                      "title": "這一分鐘",
+                      "time_path": "modules.scene.time",
+                      "location_path": "modules.scene.location",
+                      "scene_source": "story-gallery",
+                      "empty": "尚未整理可前往地點。"
+                    },
+                    {
+                      "type": "stats",
+                      "title": "這一分鐘",
+                      "items": [
+                        {
+                          "label": "氛圍",
+                          "path": "modules.scene.atmosphere"
+                        },
+                        {
+                          "label": "被發現風險",
+                          "path": "modules.scene.social_risk"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "list",
+                      "title": "在場人物",
+                      "path": "modules.scene.participants",
+                      "empty": "目前沒有其他人在場。",
+                      "limit": 8
+                    }
+                  ]
                 },
                 {
-                  "label": "地點",
-                  "path": "modules.scene.location"
-                },
-                {
-                  "label": "氛圍",
-                  "path": "modules.scene.atmosphere"
-                },
-                {
-                  "label": "被發現風險",
-                  "path": "modules.scene.social_risk"
+                  "id": "changes",
+                  "label": "本輪變動",
+                  "sections": [
+                    {
+                      "type": "timeline",
+                      "mode": "round_diff",
+                      "title": "本輪變動",
+                      "items": [
+                        {
+                          "label": "現在 · 時間",
+                          "path": "modules.scene.time"
+                        },
+                        {
+                          "label": "現在 · 地點",
+                          "path": "modules.scene.location"
+                        },
+                        {
+                          "label": "24H 契約 · 狀態",
+                          "path": "modules.contract.status"
+                        },
+                        {
+                          "label": "關係 · 關係",
+                          "path": "modules.relationship.stage"
+                        },
+                        {
+                          "label": "現在 · 氛圍",
+                          "path": "modules.scene.atmosphere"
+                        },
+                        {
+                          "label": "現在 · 被發現風險",
+                          "path": "modules.scene.social_risk"
+                        },
+                        {
+                          "label": "24H 契約 · 剩餘",
+                          "path": "modules.contract.remaining"
+                        },
+                        {
+                          "label": "24H 契約 · 當前命令",
+                          "path": "modules.contract.current_command"
+                        },
+                        {
+                          "label": "凌薇然 · 外在",
+                          "path": "modules.weiran.appearance"
+                        },
+                        {
+                          "label": "凌薇然 · 情緒",
+                          "path": "modules.weiran.mood"
+                        },
+                        {
+                          "label": "凌薇然 · 正在做",
+                          "path": "modules.weiran.action"
+                        },
+                        {
+                          "label": "凌薇然 · 人前狀態",
+                          "path": "modules.weiran.public_mode"
+                        },
+                        {
+                          "label": "攻防 · 主動權",
+                          "path": "modules.power_game.initiative"
+                        },
+                        {
+                          "label": "攻防 · 凌薇然策略",
+                          "path": "modules.power_game.weiran_strategy"
+                        },
+                        {
+                          "label": "攻防 · 最近違抗",
+                          "path": "modules.contract.last_violation"
+                        },
+                        {
+                          "label": "攻防 · 待執行懲罰",
+                          "path": "modules.contract.pending_punishment"
+                        },
+                        {
+                          "label": "攻防 · 下一階段",
+                          "path": "modules.contract.next_holder"
+                        },
+                        {
+                          "label": "關係 · 最近變化",
+                          "path": "modules.relationship.recent_shift"
+                        },
+                        {
+                          "label": "關係 · 她的代價",
+                          "path": "modules.penalty.weiran_outcome"
+                        },
+                        {
+                          "label": "關係 · 你的代價",
+                          "path": "modules.penalty.player_outcome"
+                        }
+                      ],
+                      "empty": "尚無本輪可見變動；更新後自動比較。"
+                    }
+                  ]
                 }
               ]
-            },
-            {
-              "type": "list",
-              "title": "在場人物",
-              "path": "modules.scene.participants",
-              "empty": "目前沒有其他人在場。",
-              "limit": 8
             }
           ]
         },

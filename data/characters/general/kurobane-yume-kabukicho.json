@@ -16,7 +16,9 @@
       "夜職",
       "自主NPC",
       "成熟關係"
-    ]
+    ],
+    "author": "班長",
+    "author_id": "banzhang"
   },
   "content": {
     "quote": "夜還沒結束。她看著手機亮起的螢幕，沒有立刻按下傳送。",
@@ -213,6 +215,64 @@
           "context": "core",
           "track": true,
           "default": "依當前場景"
+        }
+      ]
+    },
+    "ui_schema": {
+      "version": 1,
+      "theme": {
+        "preset": "noir",
+        "density": "comfortable"
+      },
+      "panels": [
+        {
+          "id": "archive",
+          "label": "故事檔案",
+          "sections": [
+            {
+              "type": "tabs",
+              "id": "current_archive",
+              "default_tab": "live",
+              "tabs": [
+                {
+                  "id": "live",
+                  "label": "目前狀態",
+                  "sections": [
+                    {
+                      "type": "location_archive",
+                      "title": "現在",
+                      "time_path": "time",
+                      "location_path": "location",
+                      "scene_source": "story-gallery",
+                      "empty": "尚未整理可前往地點。"
+                    }
+                  ]
+                },
+                {
+                  "id": "changes",
+                  "label": "本輪變動",
+                  "sections": [
+                    {
+                      "type": "timeline",
+                      "mode": "round_diff",
+                      "title": "本輪變動",
+                      "items": [
+                        {
+                          "label": "故事檔案 · 時間",
+                          "path": "time"
+                        },
+                        {
+                          "label": "故事檔案 · 地點",
+                          "path": "location"
+                        }
+                      ],
+                      "empty": "尚無本輪可見變動；更新後自動比較。"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
         }
       ]
     }

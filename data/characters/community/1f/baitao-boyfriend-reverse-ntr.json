@@ -25,7 +25,9 @@
       "調查與選擇",
       "原生狀態UI"
     ],
-    "description": "你是白桃交往一年的男友。最近兩個月，你的工作與刻意留下的空白讓她和攝影師陳浩越走越近；三天前，他們已經跨過接吻這條界線。你可以調查、質問、挽回、放任、承認自己的特殊幻想、與星野美月發展關係，或乾脆讓所有人的秘密一起失控。沒有人被預設一定留下，也沒有人只是用來完成 NTR 的工具。"
+    "description": "你是白桃交往一年的男友。最近兩個月，你的工作與刻意留下的空白讓她和攝影師陳浩越走越近；三天前，他們已經跨過接吻這條界線。你可以調查、質問、挽回、放任、承認自己的特殊幻想、與星野美月發展關係，或乾脆讓所有人的秘密一起失控。沒有人被預設一定留下，也沒有人只是用來完成 NTR 的工具。",
+    "author": "班長",
+    "author_id": "banzhang"
   },
   "content": {
     "quote": "「怎麼啦？人家臉上有東西嗎～」",
@@ -1041,33 +1043,170 @@
           "label": "現在",
           "sections": [
             {
-              "type": "stats",
-              "title": "場景",
-              "items": [
+              "type": "tabs",
+              "id": "current_archive",
+              "default_tab": "live",
+              "tabs": [
                 {
-                  "label": "時間",
-                  "path": "modules.scene.time"
+                  "id": "live",
+                  "label": "目前狀態",
+                  "sections": [
+                    {
+                      "type": "location_archive",
+                      "title": "場景",
+                      "time_path": "modules.scene.time",
+                      "location_path": "modules.scene.location",
+                      "scene_source": "story-gallery",
+                      "empty": "尚未整理可前往地點。"
+                    },
+                    {
+                      "type": "stats",
+                      "title": "場景",
+                      "items": [
+                        {
+                          "label": "氛圍",
+                          "path": "modules.scene.atmosphere"
+                        },
+                        {
+                          "label": "眼前風險",
+                          "path": "modules.scene.immediate_risk"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "list",
+                      "title": "場景參與者",
+                      "path": "modules.scene_participants",
+                      "empty": "目前沒有需要特別標記的人物。",
+                      "limit": 8
+                    }
+                  ]
                 },
                 {
-                  "label": "地點",
-                  "path": "modules.scene.location"
+                  "id": "changes",
+                  "label": "本輪變動",
+                  "sections": [
+                    {
+                      "type": "timeline",
+                      "mode": "round_diff",
+                      "title": "本輪變動",
+                      "items": [
+                        {
+                          "label": "現在 · 時間",
+                          "path": "modules.scene.time"
+                        },
+                        {
+                          "label": "現在 · 地點",
+                          "path": "modules.scene.location"
+                        },
+                        {
+                          "label": "人物 · 位置",
+                          "path": "modules.baitao.location"
+                        },
+                        {
+                          "label": "人物 · 已知位置",
+                          "path": "modules.chenhao.location"
+                        },
+                        {
+                          "label": "人物 · 目前能證明",
+                          "path": "modules.chenhao.evidence_level"
+                        },
+                        {
+                          "label": "關係 · 界線",
+                          "path": "modules.relationship_web.current_boundary"
+                        },
+                        {
+                          "label": "現在 · 氛圍",
+                          "path": "modules.scene.atmosphere"
+                        },
+                        {
+                          "label": "現在 · 眼前風險",
+                          "path": "modules.scene.immediate_risk"
+                        },
+                        {
+                          "label": "人物 · 外顯情緒",
+                          "path": "modules.baitao.visible_mood"
+                        },
+                        {
+                          "label": "人物 · 正在做",
+                          "path": "modules.baitao.action"
+                        },
+                        {
+                          "label": "人物 · 已知行程",
+                          "path": "modules.baitao.schedule"
+                        },
+                        {
+                          "label": "人物 · 下一個已知安排",
+                          "path": "modules.baitao.next_known_plan"
+                        },
+                        {
+                          "label": "人物 · 身份",
+                          "path": "modules.chenhao.known_role"
+                        },
+                        {
+                          "label": "人物 · 已知接觸",
+                          "path": "modules.chenhao.contact_with_baitao"
+                        },
+                        {
+                          "label": "人物 · 最近可確認",
+                          "path": "modules.chenhao.last_observed"
+                        },
+                        {
+                          "label": "人物 · 蘇晴",
+                          "path": "modules.support_cast.suqing"
+                        },
+                        {
+                          "label": "人物 · 蘇晴立場",
+                          "path": "modules.support_cast.suqing_alignment"
+                        },
+                        {
+                          "label": "人物 · 美月",
+                          "path": "modules.support_cast.mizuki"
+                        },
+                        {
+                          "label": "人物 · 美月知道什麼",
+                          "path": "modules.support_cast.mizuki_knowledge"
+                        },
+                        {
+                          "label": "關係 · 你 ↔ 白桃",
+                          "path": "modules.relationship_web.player_baitao"
+                        },
+                        {
+                          "label": "關係 · 白桃 ↔ 陳浩",
+                          "path": "modules.relationship_web.baitao_chenhao"
+                        },
+                        {
+                          "label": "關係 · 你 ↔ 美月",
+                          "path": "modules.relationship_web.player_mizuki"
+                        },
+                        {
+                          "label": "關係 · 你 ↔ 蘇晴",
+                          "path": "modules.relationship_web.player_suqing"
+                        },
+                        {
+                          "label": "關係 · 張力",
+                          "path": "modules.relationship_web.tension"
+                        }
+                      ],
+                      "empty": "尚無本輪可見變動；更新後自動比較。"
+                    }
+                  ]
                 },
                 {
-                  "label": "氛圍",
-                  "path": "modules.scene.atmosphere"
-                },
-                {
-                  "label": "眼前風險",
-                  "path": "modules.scene.immediate_risk"
+                  "id": "history",
+                  "label": "近期歷程",
+                  "sections": [
+                    {
+                      "type": "timeline",
+                      "mode": "history",
+                      "title": "已記錄事件",
+                      "path": "modules.recent_events",
+                      "limit": 20,
+                      "empty": "目前沒有已記錄事件。"
+                    }
+                  ]
                 }
               ]
-            },
-            {
-              "type": "list",
-              "title": "場景參與者",
-              "path": "modules.scene_participants",
-              "empty": "目前沒有需要特別標記的人物。",
-              "limit": 8
             }
           ]
         },

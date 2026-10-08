@@ -20,7 +20,9 @@
       "身體負荷",
       "多結局"
     ],
-    "description": "現代都市的日常之下，覺醒者在暗處彼此追獵。你的能量偏偏是不存在於常規紀錄中的銀色。力量能重構規則，身體卻未必撐得住；而每一次暴露，都會讓更多人開始尋找你。"
+    "description": "現代都市的日常之下，覺醒者在暗處彼此追獵。你的能量偏偏是不存在於常規紀錄中的銀色。力量能重構規則，身體卻未必撐得住；而每一次暴露，都會讓更多人開始尋找你。",
+    "author": "班長",
+    "author_id": "banzhang"
   },
   "content": {
     "quote": "銀色不是答案。它只是讓所有人開始追問：你到底是什麼？",
@@ -769,41 +771,148 @@
           "label": "此刻",
           "sections": [
             {
-              "type": "stats",
-              "title": "場景",
-              "items": [
+              "type": "tabs",
+              "id": "current_archive",
+              "default_tab": "live",
+              "tabs": [
                 {
-                  "label": "時間",
-                  "path": "time"
+                  "id": "live",
+                  "label": "目前狀態",
+                  "sections": [
+                    {
+                      "type": "location_archive",
+                      "title": "場景",
+                      "time_path": "time",
+                      "location_path": "location",
+                      "scene_source": "story-gallery",
+                      "empty": "尚未整理可前往地點。"
+                    },
+                    {
+                      "type": "stats",
+                      "title": "場景",
+                      "items": [
+                        {
+                          "label": "警戒",
+                          "path": "modules.scene.alert"
+                        },
+                        {
+                          "label": "眼前威脅",
+                          "path": "modules.scene.immediate_threat"
+                        },
+                        {
+                          "label": "留下痕跡",
+                          "path": "modules.scene.trace"
+                        },
+                        {
+                          "label": "已知退路",
+                          "path": "modules.scene.escape"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "list",
+                      "title": "在場人物",
+                      "path": "modules.scene.present_npcs",
+                      "empty": "目前沒有已確認的在場人物。",
+                      "limit": 8
+                    }
+                  ]
                 },
                 {
-                  "label": "地點",
-                  "path": "location"
-                },
-                {
-                  "label": "警戒",
-                  "path": "modules.scene.alert"
-                },
-                {
-                  "label": "眼前威脅",
-                  "path": "modules.scene.immediate_threat"
-                },
-                {
-                  "label": "留下痕跡",
-                  "path": "modules.scene.trace"
-                },
-                {
-                  "label": "已知退路",
-                  "path": "modules.scene.escape"
+                  "id": "changes",
+                  "label": "本輪變動",
+                  "sections": [
+                    {
+                      "type": "timeline",
+                      "mode": "round_diff",
+                      "title": "本輪變動",
+                      "items": [
+                        {
+                          "label": "此刻 · 時間",
+                          "path": "time"
+                        },
+                        {
+                          "label": "此刻 · 地點",
+                          "path": "location"
+                        },
+                        {
+                          "label": "此刻 · 警戒",
+                          "path": "modules.scene.alert"
+                        },
+                        {
+                          "label": "銀色 · 負荷層級",
+                          "path": "modules.awakened.load_stage"
+                        },
+                        {
+                          "label": "此刻 · 眼前威脅",
+                          "path": "modules.scene.immediate_threat"
+                        },
+                        {
+                          "label": "此刻 · 留下痕跡",
+                          "path": "modules.scene.trace"
+                        },
+                        {
+                          "label": "此刻 · 已知退路",
+                          "path": "modules.scene.escape"
+                        },
+                        {
+                          "label": "銀色 · 控制度",
+                          "path": "modules.awakened.control"
+                        },
+                        {
+                          "label": "銀色 · 能量餘量",
+                          "path": "modules.awakened.reserve"
+                        },
+                        {
+                          "label": "銀色 · 負荷估計",
+                          "path": "modules.awakened.load_estimate"
+                        },
+                        {
+                          "label": "銀色 · 能量色",
+                          "path": "modules.awakened.energy_color"
+                        },
+                        {
+                          "label": "銀色 · 能力判定",
+                          "path": "modules.awakened.power_class"
+                        },
+                        {
+                          "label": "銀色 · 症狀",
+                          "path": "modules.awakened.symptoms"
+                        },
+                        {
+                          "label": "銀色 · 持續傷勢",
+                          "path": "modules.awakened.injury"
+                        },
+                        {
+                          "label": "銀色 · 暴露",
+                          "path": "modules.awakened.exposure"
+                        },
+                        {
+                          "label": "銀色 · 目前限制",
+                          "path": "modules.awakened.current_limit"
+                        },
+                        {
+                          "label": "勢力 · 清道夫",
+                          "path": "modules.factions.cleaners"
+                        },
+                        {
+                          "label": "勢力 · 自由聯盟",
+                          "path": "modules.factions.alliance"
+                        },
+                        {
+                          "label": "勢力 · 深淵教團",
+                          "path": "modules.factions.abyss"
+                        },
+                        {
+                          "label": "勢力 · 議會",
+                          "path": "modules.factions.council"
+                        }
+                      ],
+                      "empty": "尚無本輪可見變動；更新後自動比較。"
+                    }
+                  ]
                 }
               ]
-            },
-            {
-              "type": "list",
-              "title": "在場人物",
-              "path": "modules.scene.present_npcs",
-              "empty": "目前沒有已確認的在場人物。",
-              "limit": 8
             }
           ]
         },

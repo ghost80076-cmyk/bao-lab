@@ -24,7 +24,9 @@
       "多結局",
       "原生狀態UI"
     ],
-    "description": "一張以帝國戰爭為舞台的黑暗軍旅 TRPG 世界卡。先建立你的帝國、戰區、入伍背景與能力，再從新兵一路面對前線、階級、派系、戰俘、軍紀、腐敗與戰敗風險。世界不等玩家，軍功也不會自動抹去你留下的責任與證據。"
+    "description": "一張以帝國戰爭為舞台的黑暗軍旅 TRPG 世界卡。先建立你的帝國、戰區、入伍背景與能力，再從新兵一路面對前線、階級、派系、戰俘、軍紀、腐敗與戰敗風險。世界不等玩家，軍功也不會自動抹去你留下的責任與證據。",
+    "author": "班長",
+    "author_id": "banzhang"
   },
   "content": {
     "quote": "階級不是成長條。它只代表你有更多權力，也有更多事情會被算在你頭上。",
@@ -883,41 +885,161 @@
           "label": "此刻",
           "sections": [
             {
-              "type": "stats",
-              "title": "戰地狀況",
-              "items": [
+              "type": "tabs",
+              "id": "current_archive",
+              "default_tab": "live",
+              "tabs": [
                 {
-                  "label": "日期",
-                  "path": "modules.scene.date"
+                  "id": "live",
+                  "label": "目前狀態",
+                  "sections": [
+                    {
+                      "type": "location_archive",
+                      "title": "戰地狀況",
+                      "time_path": "modules.scene.date",
+                      "location_path": "modules.scene.location",
+                      "scene_source": "story-gallery",
+                      "empty": "尚未整理可前往地點。",
+                      "area_path": "modules.scene.theater"
+                    },
+                    {
+                      "type": "stats",
+                      "title": "戰地狀況",
+                      "items": [
+                        {
+                          "label": "時間",
+                          "path": "modules.scene.time"
+                        },
+                        {
+                          "label": "前線壓力",
+                          "path": "modules.scene.front_pressure"
+                        },
+                        {
+                          "label": "天候",
+                          "path": "modules.scene.weather"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "list",
+                      "title": "場景參與者",
+                      "path": "modules.scene_participants",
+                      "empty": "目前沒有需要特別標記的人物。",
+                      "limit": 14
+                    }
+                  ]
                 },
                 {
-                  "label": "時間",
-                  "path": "modules.scene.time"
-                },
-                {
-                  "label": "地點",
-                  "path": "modules.scene.location"
-                },
-                {
-                  "label": "戰區",
-                  "path": "modules.scene.theater"
-                },
-                {
-                  "label": "前線壓力",
-                  "path": "modules.scene.front_pressure"
-                },
-                {
-                  "label": "天候",
-                  "path": "modules.scene.weather"
+                  "id": "changes",
+                  "label": "本輪變動",
+                  "sections": [
+                    {
+                      "type": "timeline",
+                      "mode": "round_diff",
+                      "title": "本輪變動",
+                      "items": [
+                        {
+                          "label": "此刻 · 日期",
+                          "path": "modules.scene.date"
+                        },
+                        {
+                          "label": "此刻 · 時間",
+                          "path": "modules.scene.time"
+                        },
+                        {
+                          "label": "此刻 · 地點",
+                          "path": "modules.scene.location"
+                        },
+                        {
+                          "label": "軍人 · 服役時間",
+                          "path": "modules.service.service_time"
+                        },
+                        {
+                          "label": "此刻 · 前線壓力",
+                          "path": "modules.scene.front_pressure"
+                        },
+                        {
+                          "label": "軍人 · 階級",
+                          "path": "modules.service.rank"
+                        },
+                        {
+                          "label": "此刻 · 戰區",
+                          "path": "modules.scene.theater"
+                        },
+                        {
+                          "label": "此刻 · 天候",
+                          "path": "modules.scene.weather"
+                        },
+                        {
+                          "label": "軍人 · 姓名",
+                          "path": "modules.player.name"
+                        },
+                        {
+                          "label": "軍人 · 年齡",
+                          "path": "modules.player.age"
+                        },
+                        {
+                          "label": "軍人 · 性別",
+                          "path": "modules.player.gender"
+                        },
+                        {
+                          "label": "軍人 · 帝國",
+                          "path": "modules.player.empire_type"
+                        },
+                        {
+                          "label": "軍人 · 主要戰場",
+                          "path": "modules.player.theater_choice"
+                        },
+                        {
+                          "label": "軍人 · 入伍原因",
+                          "path": "modules.player.enlistment_reason"
+                        },
+                        {
+                          "label": "軍人 · 性格",
+                          "path": "modules.player.temperament"
+                        },
+                        {
+                          "label": "軍人 · 部隊",
+                          "path": "modules.service.unit"
+                        },
+                        {
+                          "label": "軍人 · 勤務",
+                          "path": "modules.service.assignment"
+                        },
+                        {
+                          "label": "軍人 · 升遷",
+                          "path": "modules.service.next_promotion"
+                        },
+                        {
+                          "label": "能力 · 體能",
+                          "path": "modules.attributes.physique"
+                        },
+                        {
+                          "label": "能力 · 戰鬥",
+                          "path": "modules.attributes.combat"
+                        },
+                        {
+                          "label": "能力 · 觀察",
+                          "path": "modules.attributes.observation"
+                        },
+                        {
+                          "label": "能力 · 意志",
+                          "path": "modules.attributes.will"
+                        },
+                        {
+                          "label": "能力 · 交涉",
+                          "path": "modules.attributes.social"
+                        },
+                        {
+                          "label": "能力 · 野戰",
+                          "path": "modules.attributes.fieldcraft"
+                        }
+                      ],
+                      "empty": "尚無本輪可見變動；更新後自動比較。"
+                    }
+                  ]
                 }
               ]
-            },
-            {
-              "type": "list",
-              "title": "場景參與者",
-              "path": "modules.scene_participants",
-              "empty": "目前沒有需要特別標記的人物。",
-              "limit": 14
             }
           ]
         },
@@ -1193,11 +1315,12 @@
               "limit": 16
             },
             {
-              "type": "list",
+              "type": "timeline",
               "title": "最近事件",
               "path": "modules.event_log",
               "empty": "尚未累積事件。",
-              "limit": 12
+              "limit": 12,
+              "mode": "history"
             }
           ]
         },

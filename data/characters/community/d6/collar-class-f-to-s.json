@@ -26,7 +26,9 @@
       "原生狀態UI",
       "Builder開局"
     ],
-    "description": "在這座城市裡，成年女性的市場階級公開顯示在頸圈上。五星酒店門口的 S 級與便利商店外數著零錢的 F 級，活在同一條街卻像兩個世界。你可以只是消費者，也可以長期贊助、培養、建立關係，甚至看著一名 F 級女性一路走到 S 級。男性向成人都市 × 階級差 × 經濟養成 × 多 NPC 世界模擬。"
+    "description": "在這座城市裡，成年女性的市場階級公開顯示在頸圈上。五星酒店門口的 S 級與便利商店外數著零錢的 F 級，活在同一條街卻像兩個世界。你可以只是消費者，也可以長期贊助、培養、建立關係，甚至看著一名 F 級女性一路走到 S 級。男性向成人都市 × 階級差 × 經濟養成 × 多 NPC 世界模擬。",
+    "author": "班長",
+    "author_id": "banzhang"
   },
   "content": {
     "quote": "「F 級不是她是什麼人，只是這座城市現在願意給她多少資源。」",
@@ -954,24 +956,144 @@
           "label": "現在",
           "sections": [
             {
-              "type": "stats",
-              "title": "場景",
-              "items": [
+              "type": "tabs",
+              "id": "current_archive",
+              "default_tab": "live",
+              "tabs": [
                 {
-                  "label": "時間",
-                  "path": "modules.scene.time"
+                  "id": "live",
+                  "label": "目前狀態",
+                  "sections": [
+                    {
+                      "type": "location_archive",
+                      "title": "場景",
+                      "time_path": "modules.scene.time",
+                      "location_path": "modules.scene.location",
+                      "scene_source": "story-gallery",
+                      "empty": "尚未整理可前往地點。",
+                      "area_path": "modules.scene.district"
+                    },
+                    {
+                      "type": "stats",
+                      "title": "場景",
+                      "items": [
+                        {
+                          "label": "在場",
+                          "path": "modules.scene.participants"
+                        }
+                      ]
+                    }
+                  ]
                 },
                 {
-                  "label": "地點",
-                  "path": "modules.scene.location"
-                },
-                {
-                  "label": "區域",
-                  "path": "modules.scene.district"
-                },
-                {
-                  "label": "在場",
-                  "path": "modules.scene.participants"
+                  "id": "changes",
+                  "label": "本輪變動",
+                  "sections": [
+                    {
+                      "type": "timeline",
+                      "mode": "round_diff",
+                      "title": "本輪變動",
+                      "items": [
+                        {
+                          "label": "現在 · 時間",
+                          "path": "modules.scene.time"
+                        },
+                        {
+                          "label": "現在 · 地點",
+                          "path": "modules.scene.location"
+                        },
+                        {
+                          "label": "資產 · 現金",
+                          "path": "modules.player_finance.cash"
+                        },
+                        {
+                          "label": "焦點人物 · 階級",
+                          "path": "modules.focus_npc.rank"
+                        },
+                        {
+                          "label": "焦點人物 · 名聲",
+                          "path": "modules.focus_npc.reputation"
+                        },
+                        {
+                          "label": "養成 · 下一階段",
+                          "path": "modules.growth.next_rank"
+                        },
+                        {
+                          "label": "你與她 · 信任",
+                          "path": "modules.relationship.trust"
+                        },
+                        {
+                          "label": "你與她 · 界線",
+                          "path": "modules.relationship.boundary"
+                        },
+                        {
+                          "label": "現在 · 區域",
+                          "path": "modules.scene.district"
+                        },
+                        {
+                          "label": "資產 · 月收入",
+                          "path": "modules.player_finance.monthly_income"
+                        },
+                        {
+                          "label": "資產 · 固定支出",
+                          "path": "modules.player_finance.fixed_costs"
+                        },
+                        {
+                          "label": "資產 · 贊助支出",
+                          "path": "modules.player_finance.sponsorship_costs"
+                        },
+                        {
+                          "label": "資產 · 住處",
+                          "path": "modules.player_finance.housing"
+                        },
+                        {
+                          "label": "資產 · 職業",
+                          "path": "modules.player_finance.occupation"
+                        },
+                        {
+                          "label": "市場 · 熱度",
+                          "path": "modules.market.market_heat"
+                        },
+                        {
+                          "label": "市場 · 常見階級",
+                          "path": "modules.market.visible_range"
+                        },
+                        {
+                          "label": "市場 · 價格帶",
+                          "path": "modules.market.price_band"
+                        },
+                        {
+                          "label": "市場 · 風向",
+                          "path": "modules.market.trend"
+                        },
+                        {
+                          "label": "市場 · 升降級",
+                          "path": "modules.market.rank_event"
+                        },
+                        {
+                          "label": "焦點人物 · 姓名",
+                          "path": "modules.focus_npc.name"
+                        },
+                        {
+                          "label": "焦點人物 · 年齡",
+                          "path": "modules.focus_npc.age"
+                        },
+                        {
+                          "label": "焦點人物 · 價格",
+                          "path": "modules.focus_npc.public_price"
+                        },
+                        {
+                          "label": "焦點人物 · 評分",
+                          "path": "modules.focus_npc.rating"
+                        },
+                        {
+                          "label": "焦點人物 · 住處",
+                          "path": "modules.focus_npc.housing"
+                        }
+                      ],
+                      "empty": "尚無本輪可見變動；更新後自動比較。"
+                    }
+                  ]
                 }
               ]
             }
@@ -1202,11 +1324,12 @@
               "limit": 12
             },
             {
-              "type": "list",
+              "type": "timeline",
               "title": "最近事件",
               "path": "modules.event_log",
               "empty": "尚無紀錄。",
-              "limit": 12
+              "limit": 12,
+              "mode": "history"
             }
           ]
         }

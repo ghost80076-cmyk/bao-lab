@@ -25,7 +25,9 @@
       "原生狀態UI",
       "Builder開局"
     ],
-    "description": "每天早上七點十分，她總能剛好出現在門口；你喜歡吃什麼、幾點有課、最近和誰走得近，她似乎都記得。林巧柔是和你一起長大的青梅竹馬，也是最熟悉你生活的人。問題只在於——有些事情，你從來不記得告訴過她。男性向青梅竹馬 × 慢燒病嬌 × 日常懸疑 × 關係拉扯。"
+    "description": "每天早上七點十分，她總能剛好出現在門口；你喜歡吃什麼、幾點有課、最近和誰走得近，她似乎都記得。林巧柔是和你一起長大的青梅竹馬，也是最熟悉你生活的人。問題只在於——有些事情，你從來不記得告訴過她。男性向青梅竹馬 × 慢燒病嬌 × 日常懸疑 × 關係拉扯。",
+    "author": "班長",
+    "author_id": "banzhang"
   },
   "content": {
     "quote": "「我們從小一起長大，我當然知道啊。」",
@@ -759,24 +761,103 @@
           "label": "現在",
           "sections": [
             {
-              "type": "stats",
-              "title": "場景",
-              "items": [
+              "type": "tabs",
+              "id": "current_archive",
+              "default_tab": "live",
+              "tabs": [
                 {
-                  "label": "時間",
-                  "path": "modules.scene.time"
+                  "id": "live",
+                  "label": "目前狀態",
+                  "sections": [
+                    {
+                      "type": "location_archive",
+                      "title": "場景",
+                      "time_path": "modules.scene.time",
+                      "location_path": "modules.scene.location",
+                      "scene_source": "story-gallery",
+                      "empty": "尚未整理可前往地點。"
+                    },
+                    {
+                      "type": "stats",
+                      "title": "場景",
+                      "items": [
+                        {
+                          "label": "氛圍",
+                          "path": "modules.scene.atmosphere"
+                        },
+                        {
+                          "label": "在場",
+                          "path": "modules.scene.participants"
+                        }
+                      ]
+                    }
+                  ]
                 },
                 {
-                  "label": "地點",
-                  "path": "modules.scene.location"
-                },
-                {
-                  "label": "氛圍",
-                  "path": "modules.scene.atmosphere"
-                },
-                {
-                  "label": "在場",
-                  "path": "modules.scene.participants"
+                  "id": "changes",
+                  "label": "本輪變動",
+                  "sections": [
+                    {
+                      "type": "timeline",
+                      "mode": "round_diff",
+                      "title": "本輪變動",
+                      "items": [
+                        {
+                          "label": "現在 · 時間",
+                          "path": "modules.scene.time"
+                        },
+                        {
+                          "label": "現在 · 地點",
+                          "path": "modules.scene.location"
+                        },
+                        {
+                          "label": "你與她 · 信任",
+                          "path": "modules.relationship.trust"
+                        },
+                        {
+                          "label": "你與她 · 界線",
+                          "path": "modules.relationship.boundary"
+                        },
+                        {
+                          "label": "現在 · 氛圍",
+                          "path": "modules.scene.atmosphere"
+                        },
+                        {
+                          "label": "巧柔 · 外在",
+                          "path": "modules.qiaorou_visible.appearance"
+                        },
+                        {
+                          "label": "巧柔 · 狀態",
+                          "path": "modules.qiaorou_visible.visible_mood"
+                        },
+                        {
+                          "label": "巧柔 · 正在做",
+                          "path": "modules.qiaorou_visible.action"
+                        },
+                        {
+                          "label": "巧柔 · 距離",
+                          "path": "modules.qiaorou_visible.distance"
+                        },
+                        {
+                          "label": "你與她 · 目前",
+                          "path": "modules.relationship.current_role"
+                        },
+                        {
+                          "label": "你與她 · 親近",
+                          "path": "modules.relationship.closeness"
+                        },
+                        {
+                          "label": "你與她 · 最近",
+                          "path": "modules.relationship.recent_shift"
+                        },
+                        {
+                          "label": "不對勁 · 判斷",
+                          "path": "modules.known_anomalies.exposure_label"
+                        }
+                      ],
+                      "empty": "尚無本輪可見變動；更新後自動比較。"
+                    }
+                  ]
                 }
               ]
             }
@@ -932,11 +1013,12 @@
           "label": "紀錄",
           "sections": [
             {
-              "type": "list",
+              "type": "timeline",
               "title": "最近事件",
               "path": "modules.event_log",
               "empty": "故事才剛開始。",
-              "limit": 12
+              "limit": 12,
+              "mode": "history"
             }
           ]
         },

@@ -25,7 +25,9 @@
       "世界模擬",
       "原生狀態UI"
     ],
-    "description": "身無分文、沒有戶籍，也沒有任何職業身份。你帶著 21 世紀的記憶掉進架空大明，必須先活過今天，再從木匠、鐵匠、醫者、廚師、獵人、仵作、戲班、牙行等千行百業中找到自己的路。匠道可以由技入道，但現代知識不是無敵外掛，階級、行會、稅賦、妖獸與人情世故都會真正留下後果。"
+    "description": "身無分文、沒有戶籍，也沒有任何職業身份。你帶著 21 世紀的記憶掉進架空大明，必須先活過今天，再從木匠、鐵匠、醫者、廚師、獵人、仵作、戲班、牙行等千行百業中找到自己的路。匠道可以由技入道，但現代知識不是無敵外掛，階級、行會、稅賦、妖獸與人情世故都會真正留下後果。",
+    "author": "班長",
+    "author_id": "banzhang"
   },
   "content": {
     "quote": "先活下去，再學一門手藝；等手藝做到極致，路自然會從人間伸到匠道。",
@@ -835,37 +837,160 @@
           "label": "此刻",
           "sections": [
             {
-              "type": "stats",
-              "title": "時地",
-              "items": [
+              "type": "tabs",
+              "id": "current_archive",
+              "default_tab": "live",
+              "tabs": [
                 {
-                  "label": "日期",
-                  "path": "modules.scene.date"
+                  "id": "live",
+                  "label": "目前狀態",
+                  "sections": [
+                    {
+                      "type": "location_archive",
+                      "title": "時地",
+                      "time_path": "modules.scene.date",
+                      "location_path": "modules.scene.location",
+                      "scene_source": "story-gallery",
+                      "empty": "尚未整理可前往地點。"
+                    },
+                    {
+                      "type": "stats",
+                      "title": "時地",
+                      "items": [
+                        {
+                          "label": "時間",
+                          "path": "modules.scene.time"
+                        },
+                        {
+                          "label": "時辰",
+                          "path": "modules.scene.shichen"
+                        },
+                        {
+                          "label": "天候",
+                          "path": "modules.scene.weather"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "list",
+                      "title": "場景參與者",
+                      "path": "modules.scene_participants",
+                      "empty": "目前沒有需要特別標記的人物。",
+                      "limit": 14
+                    }
+                  ]
                 },
                 {
-                  "label": "時間",
-                  "path": "modules.scene.time"
-                },
-                {
-                  "label": "時辰",
-                  "path": "modules.scene.shichen"
-                },
-                {
-                  "label": "地點",
-                  "path": "modules.scene.location"
-                },
-                {
-                  "label": "天候",
-                  "path": "modules.scene.weather"
+                  "id": "changes",
+                  "label": "本輪變動",
+                  "sections": [
+                    {
+                      "type": "timeline",
+                      "mode": "round_diff",
+                      "title": "本輪變動",
+                      "items": [
+                        {
+                          "label": "此刻 · 日期",
+                          "path": "modules.scene.date"
+                        },
+                        {
+                          "label": "此刻 · 時間",
+                          "path": "modules.scene.time"
+                        },
+                        {
+                          "label": "此刻 · 地點",
+                          "path": "modules.scene.location"
+                        },
+                        {
+                          "label": "此刻 · 時辰",
+                          "path": "modules.scene.shichen"
+                        },
+                        {
+                          "label": "此刻 · 天候",
+                          "path": "modules.scene.weather"
+                        },
+                        {
+                          "label": "穿越者 · 姓名",
+                          "path": "modules.player.name"
+                        },
+                        {
+                          "label": "穿越者 · 年齡",
+                          "path": "modules.player.age"
+                        },
+                        {
+                          "label": "穿越者 · 性別",
+                          "path": "modules.player.gender"
+                        },
+                        {
+                          "label": "穿越者 · 現代背景",
+                          "path": "modules.player.modern_background"
+                        },
+                        {
+                          "label": "穿越者 · 落點",
+                          "path": "modules.player.start_region"
+                        },
+                        {
+                          "label": "穿越者 · 當代身份",
+                          "path": "modules.player.identity"
+                        },
+                        {
+                          "label": "穿越者 · 戶籍／保結",
+                          "path": "modules.player.household"
+                        },
+                        {
+                          "label": "穿越者 · 職業",
+                          "path": "modules.player.occupation"
+                        },
+                        {
+                          "label": "穿越者 · 體魄",
+                          "path": "modules.attributes.physique"
+                        },
+                        {
+                          "label": "穿越者 · 手藝",
+                          "path": "modules.attributes.craft"
+                        },
+                        {
+                          "label": "穿越者 · 眼力",
+                          "path": "modules.attributes.observation"
+                        },
+                        {
+                          "label": "穿越者 · 心志",
+                          "path": "modules.attributes.will"
+                        },
+                        {
+                          "label": "穿越者 · 交涉",
+                          "path": "modules.attributes.social"
+                        },
+                        {
+                          "label": "穿越者 · 應變",
+                          "path": "modules.attributes.improvise"
+                        },
+                        {
+                          "label": "生存 · 健康",
+                          "path": "modules.survival.health"
+                        },
+                        {
+                          "label": "生存 · 體力",
+                          "path": "modules.survival.stamina"
+                        },
+                        {
+                          "label": "生存 · 飢餓",
+                          "path": "modules.survival.hunger"
+                        },
+                        {
+                          "label": "生存 · 精神",
+                          "path": "modules.survival.spirit"
+                        },
+                        {
+                          "label": "生存 · 住宿",
+                          "path": "modules.survival.lodging"
+                        }
+                      ],
+                      "empty": "尚無本輪可見變動；更新後自動比較。"
+                    }
+                  ]
                 }
               ]
-            },
-            {
-              "type": "list",
-              "title": "場景參與者",
-              "path": "modules.scene_participants",
-              "empty": "目前沒有需要特別標記的人物。",
-              "limit": 14
             }
           ]
         },
@@ -1111,11 +1236,12 @@
               "limit": 16
             },
             {
-              "type": "list",
+              "type": "timeline",
               "title": "最近事件",
               "path": "modules.event_log",
               "empty": "尚無事件記錄。",
-              "limit": 14
+              "limit": 14,
+              "mode": "history"
             },
             {
               "type": "stats",

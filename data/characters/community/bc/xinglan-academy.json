@@ -26,7 +26,9 @@
       "原生狀態UI",
       "Builder開局"
     ],
-    "description": "位於城市邊緣的成人大學部住宿學園。八名核心人物各自有課表、社團、前任、競爭與秘密，但沒有人等著被攻略。開局可選現代寫實、異能秘聞、修煉學園或多種族共學；信任、親近、張力三軸只記錄關係，不會用數值硬觸發告白、獨佔或黑化。"
+    "description": "位於城市邊緣的成人大學部住宿學園。八名核心人物各自有課表、社團、前任、競爭與秘密，但沒有人等著被攻略。開局可選現代寫實、異能秘聞、修煉學園或多種族共學；信任、親近、張力三軸只記錄關係，不會用數值硬觸發告白、獨佔或黑化。",
+    "author": "班長",
+    "author_id": "banzhang"
   },
   "content": {
     "quote": "新學期會把人帶到同一條走廊，但接下來要不要並肩，誰也不能替誰決定。",
@@ -741,37 +743,120 @@
           "label": "現在",
           "sections": [
             {
-              "type": "stats",
-              "title": "這一刻",
-              "items": [
+              "type": "tabs",
+              "id": "current_archive",
+              "default_tab": "live",
+              "tabs": [
                 {
-                  "label": "時間",
-                  "path": "modules.scene.time"
+                  "id": "live",
+                  "label": "目前狀態",
+                  "sections": [
+                    {
+                      "type": "location_archive",
+                      "title": "這一刻",
+                      "time_path": "modules.scene.time",
+                      "location_path": "modules.scene.location",
+                      "scene_source": "story-gallery",
+                      "empty": "尚未整理可前往地點。"
+                    },
+                    {
+                      "type": "stats",
+                      "title": "這一刻",
+                      "items": [
+                        {
+                          "label": "天氣",
+                          "path": "modules.scene.weather"
+                        },
+                        {
+                          "label": "氛圍",
+                          "path": "modules.scene.atmosphere"
+                        },
+                        {
+                          "label": "下一個行程",
+                          "path": "modules.scene.next_commitment"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "list",
+                      "title": "場景參與者",
+                      "path": "modules.scene_participants",
+                      "empty": "目前沒有可辨識的重要人物在場。",
+                      "limit": 10
+                    }
+                  ]
                 },
                 {
-                  "label": "地點",
-                  "path": "modules.scene.location"
-                },
-                {
-                  "label": "天氣",
-                  "path": "modules.scene.weather"
-                },
-                {
-                  "label": "氛圍",
-                  "path": "modules.scene.atmosphere"
-                },
-                {
-                  "label": "下一個行程",
-                  "path": "modules.scene.next_commitment"
+                  "id": "changes",
+                  "label": "本輪變動",
+                  "sections": [
+                    {
+                      "type": "timeline",
+                      "mode": "round_diff",
+                      "title": "本輪變動",
+                      "items": [
+                        {
+                          "label": "現在 · 時間",
+                          "path": "modules.scene.time"
+                        },
+                        {
+                          "label": "現在 · 地點",
+                          "path": "modules.scene.location"
+                        },
+                        {
+                          "label": "現在 · 天氣",
+                          "path": "modules.scene.weather"
+                        },
+                        {
+                          "label": "現在 · 氛圍",
+                          "path": "modules.scene.atmosphere"
+                        },
+                        {
+                          "label": "現在 · 下一個行程",
+                          "path": "modules.scene.next_commitment"
+                        },
+                        {
+                          "label": "你 · 名字",
+                          "path": "modules.player.name"
+                        },
+                        {
+                          "label": "你 · 年齡",
+                          "path": "modules.player.age"
+                        },
+                        {
+                          "label": "你 · 背景",
+                          "path": "modules.player.background"
+                        },
+                        {
+                          "label": "你 · 故事重心",
+                          "path": "modules.player.story_focus"
+                        },
+                        {
+                          "label": "你 · 世界模式",
+                          "path": "modules.campus.world_mode"
+                        },
+                        {
+                          "label": "學園 · 學期",
+                          "path": "modules.campus.term"
+                        },
+                        {
+                          "label": "學園 · 週次",
+                          "path": "modules.campus.week"
+                        },
+                        {
+                          "label": "學園 · 校園氣氛",
+                          "path": "modules.campus.public_mood"
+                        },
+                        {
+                          "label": "學園 · 近期大事件",
+                          "path": "modules.campus.major_event"
+                        }
+                      ],
+                      "empty": "尚無本輪可見變動；更新後自動比較。"
+                    }
+                  ]
                 }
               ]
-            },
-            {
-              "type": "list",
-              "title": "場景參與者",
-              "path": "modules.scene_participants",
-              "empty": "目前沒有可辨識的重要人物在場。",
-              "limit": 10
             }
           ]
         },
@@ -901,11 +986,12 @@
               "limit": 12
             },
             {
-              "type": "list",
+              "type": "timeline",
               "title": "最近紀錄",
               "path": "modules.event_log",
               "empty": "尚未有重要紀錄。",
-              "limit": 10
+              "limit": 10,
+              "mode": "history"
             }
           ]
         },

@@ -39,7 +39,9 @@
       "階級晉升",
       "家族情報戰"
     ],
-    "description": "五個家族從農奴階級同時起跑。先分配五大主屬性、選擇真正會改變起始金錢／能力／技能／產業的職業，再靠經營、行會、政治、犯罪、婚姻與情報一路往男爵爬；另外四家也用同一套職業、衍生屬性、階級、金錢、聲望與法律規則在背景成長。"
+    "description": "五個家族從農奴階級同時起跑。先分配五大主屬性、選擇真正會改變起始金錢／能力／技能／產業的職業，再靠經營、行會、政治、犯罪、婚姻與情報一路往男爵爬；另外四家也用同一套職業、衍生屬性、階級、金錢、聲望與法律規則在背景成長。",
+    "author": "班長",
+    "author_id": "banzhang"
   },
   "content": {
     "quote": "你的對手不是四條支線，而是四個也想把姓氏留到最後的家族。",
@@ -1646,59 +1648,182 @@
           "label": "此刻",
           "sections": [
             {
-              "type": "stats",
-              "title": "時間與地點",
-              "items": [
+              "type": "tabs",
+              "id": "current_archive",
+              "default_tab": "live",
+              "tabs": [
                 {
-                  "label": "日期",
-                  "path": "modules.scene.date"
+                  "id": "live",
+                  "label": "目前狀態",
+                  "sections": [
+                    {
+                      "type": "location_archive",
+                      "title": "時間與地點",
+                      "time_path": "modules.scene.date",
+                      "location_path": "modules.scene.location",
+                      "scene_source": "story-gallery",
+                      "empty": "尚未整理可前往地點。"
+                    },
+                    {
+                      "type": "stats",
+                      "title": "時間與地點",
+                      "items": [
+                        {
+                          "label": "季節",
+                          "path": "modules.scene.season"
+                        },
+                        {
+                          "label": "時段",
+                          "path": "modules.scene.period"
+                        },
+                        {
+                          "label": "天候",
+                          "path": "modules.scene.weather"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "stats",
+                      "title": "行動點",
+                      "items": [
+                        {
+                          "label": "每日上限",
+                          "path": "modules.action_points.max"
+                        },
+                        {
+                          "label": "剩餘AP",
+                          "path": "modules.action_points.left"
+                        },
+                        {
+                          "label": "上次消耗",
+                          "path": "modules.action_points.last_cost"
+                        },
+                        {
+                          "label": "上次行動",
+                          "path": "modules.action_points.last_action"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "list",
+                      "title": "場景參與者",
+                      "path": "modules.scene_participants",
+                      "empty": "目前沒有需要特別標記的人物。",
+                      "limit": 16
+                    }
+                  ]
                 },
                 {
-                  "label": "季節",
-                  "path": "modules.scene.season"
-                },
-                {
-                  "label": "時段",
-                  "path": "modules.scene.period"
-                },
-                {
-                  "label": "地點",
-                  "path": "modules.scene.location"
-                },
-                {
-                  "label": "天候",
-                  "path": "modules.scene.weather"
+                  "id": "changes",
+                  "label": "本輪變動",
+                  "sections": [
+                    {
+                      "type": "timeline",
+                      "mode": "round_diff",
+                      "title": "本輪變動",
+                      "items": [
+                        {
+                          "label": "此刻 · 日期",
+                          "path": "modules.scene.date"
+                        },
+                        {
+                          "label": "此刻 · 地點",
+                          "path": "modules.scene.location"
+                        },
+                        {
+                          "label": "此刻 · 剩餘AP",
+                          "path": "modules.action_points.left"
+                        },
+                        {
+                          "label": "家主 · 階位",
+                          "path": "modules.player.rank"
+                        },
+                        {
+                          "label": "家主 · 等級",
+                          "path": "modules.player.level"
+                        },
+                        {
+                          "label": "家主 · 聲望",
+                          "path": "modules.player.reputation"
+                        },
+                        {
+                          "label": "家主 · HP",
+                          "path": "modules.survival.hp"
+                        },
+                        {
+                          "label": "家主 · 狀態",
+                          "path": "modules.rank_progress.status"
+                        },
+                        {
+                          "label": "產業 · 現金",
+                          "path": "modules.economy.cash"
+                        },
+                        {
+                          "label": "城鎮 · 疾病壓力",
+                          "path": "modules.urban_life.disease_pressure"
+                        },
+                        {
+                          "label": "此刻 · 季節",
+                          "path": "modules.scene.season"
+                        },
+                        {
+                          "label": "此刻 · 時段",
+                          "path": "modules.scene.period"
+                        },
+                        {
+                          "label": "此刻 · 天候",
+                          "path": "modules.scene.weather"
+                        },
+                        {
+                          "label": "此刻 · 每日上限",
+                          "path": "modules.action_points.max"
+                        },
+                        {
+                          "label": "此刻 · 上次消耗",
+                          "path": "modules.action_points.last_cost"
+                        },
+                        {
+                          "label": "此刻 · 上次行動",
+                          "path": "modules.action_points.last_action"
+                        },
+                        {
+                          "label": "家主 · 姓名",
+                          "path": "modules.player.name"
+                        },
+                        {
+                          "label": "家主 · 年齡",
+                          "path": "modules.player.age"
+                        },
+                        {
+                          "label": "家主 · 性別",
+                          "path": "modules.player.gender"
+                        },
+                        {
+                          "label": "家主 · 信仰",
+                          "path": "modules.player.faith"
+                        },
+                        {
+                          "label": "家主 · 職業",
+                          "path": "modules.player.occupation"
+                        },
+                        {
+                          "label": "家主 · STR",
+                          "path": "modules.attributes.str"
+                        },
+                        {
+                          "label": "家主 · DEX",
+                          "path": "modules.attributes.dex"
+                        },
+                        {
+                          "label": "家主 · INT",
+                          "path": "modules.attributes.int"
+                        }
+                      ],
+                      "empty": "尚無本輪可見變動；更新後自動比較。"
+                    }
+                  ]
                 }
               ]
-            },
-            {
-              "type": "stats",
-              "title": "行動點",
-              "items": [
-                {
-                  "label": "每日上限",
-                  "path": "modules.action_points.max"
-                },
-                {
-                  "label": "剩餘AP",
-                  "path": "modules.action_points.left"
-                },
-                {
-                  "label": "上次消耗",
-                  "path": "modules.action_points.last_cost"
-                },
-                {
-                  "label": "上次行動",
-                  "path": "modules.action_points.last_action"
-                }
-              ]
-            },
-            {
-              "type": "list",
-              "title": "場景參與者",
-              "path": "modules.scene_participants",
-              "empty": "目前沒有需要特別標記的人物。",
-              "limit": 16
             }
           ]
         },
@@ -2138,11 +2263,12 @@
               "limit": 20
             },
             {
-              "type": "list",
+              "type": "timeline",
               "title": "最近事件",
               "path": "modules.event_log",
               "empty": "尚無事件記錄。",
-              "limit": 18
+              "limit": 18,
+              "mode": "history"
             },
             {
               "type": "list",

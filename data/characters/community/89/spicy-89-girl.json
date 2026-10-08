@@ -24,7 +24,9 @@
       "慢熱",
       "成人向"
     ],
-    "description": "22 歲的陳思婷，綽號「小辣椒」。她白天在汽車美容店上班、晚上念夜間部、週末跑夜市與宮廟；黃毛阿凱、三個乾哥與幾段舊關係把她的生活纏成一張網。玩家先選擇自己在大寮的身份，再從日常、曖昧、衝突與成人關係裡慢慢走進她的世界。成人內容僅在使用者主動開啟 R18 顯示後出現。"
+    "description": "22 歲的陳思婷，綽號「小辣椒」。她白天在汽車美容店上班、晚上念夜間部、週末跑夜市與宮廟；黃毛阿凱、三個乾哥與幾段舊關係把她的生活纏成一張網。玩家先選擇自己在大寮的身份，再從日常、曖昧、衝突與成人關係裡慢慢走進她的世界。成人內容僅在使用者主動開啟 R18 顯示後出現。",
+    "author": "班長",
+    "author_id": "banzhang"
   },
   "content": {
     "quote": "「玫瑰帶刺，人心帶私。」",
@@ -649,54 +651,131 @@
           "label": "現在",
           "sections": [
             {
-              "type": "stats",
-              "title": "場景",
-              "items": [
+              "type": "tabs",
+              "id": "current_archive",
+              "default_tab": "live",
+              "tabs": [
                 {
-                  "label": "時間",
-                  "path": "modules.scene_context.time"
+                  "id": "live",
+                  "label": "目前狀態",
+                  "sections": [
+                    {
+                      "type": "location_archive",
+                      "title": "場景",
+                      "time_path": "modules.scene_context.time",
+                      "location_path": "modules.scene_context.location",
+                      "scene_source": "story-gallery",
+                      "empty": "尚未整理可前往地點。"
+                    },
+                    {
+                      "type": "stats",
+                      "title": "場景",
+                      "items": [
+                        {
+                          "label": "天氣",
+                          "path": "modules.scene_context.weather"
+                        },
+                        {
+                          "label": "氛圍",
+                          "path": "modules.scene_context.atmosphere"
+                        },
+                        {
+                          "label": "事件",
+                          "path": "modules.scene_context.event"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "cards",
+                      "variant": "codex",
+                      "title": "人物狀態",
+                      "path": "npcs",
+                      "limit": 8,
+                      "empty": "尚無可見人物狀態。"
+                    }
+                  ]
                 },
                 {
-                  "label": "地點",
-                  "path": "modules.scene_context.location"
-                },
-                {
-                  "label": "天氣",
-                  "path": "modules.scene_context.weather"
-                },
-                {
-                  "label": "氛圍",
-                  "path": "modules.scene_context.atmosphere"
-                },
-                {
-                  "label": "事件",
-                  "path": "modules.scene_context.event"
-                }
-              ]
-            },
-            {
-              "type": "stats",
-              "title": "小辣椒",
-              "items": [
-                {
-                  "label": "關係階段",
-                  "path": "characters.陳思婷.relationship_stage"
-                },
-                {
-                  "label": "情緒",
-                  "path": "characters.陳思婷.mood"
-                },
-                {
-                  "label": "防備",
-                  "path": "characters.陳思婷.defensiveness"
-                },
-                {
-                  "label": "壓力",
-                  "path": "characters.陳思婷.stress"
-                },
-                {
-                  "label": "對阿凱",
-                  "path": "characters.陳思婷.relation_to_akai"
+                  "id": "changes",
+                  "label": "本輪變動",
+                  "sections": [
+                    {
+                      "type": "timeline",
+                      "mode": "round_diff",
+                      "title": "本輪變動",
+                      "items": [
+                        {
+                          "label": "現在 · 時間",
+                          "path": "modules.scene_context.time"
+                        },
+                        {
+                          "label": "現在 · 地點",
+                          "path": "modules.scene_context.location"
+                        },
+                        {
+                          "label": "關係 · 階段",
+                          "path": "modules.relation.stage"
+                        },
+                        {
+                          "label": "關係 · 信任",
+                          "path": "modules.relation.trust"
+                        },
+                        {
+                          "label": "關係 · 界線",
+                          "path": "modules.relation.boundary"
+                        },
+                        {
+                          "label": "現在 · 天氣",
+                          "path": "modules.scene_context.weather"
+                        },
+                        {
+                          "label": "現在 · 氛圍",
+                          "path": "modules.scene_context.atmosphere"
+                        },
+                        {
+                          "label": "現在 · 事件",
+                          "path": "modules.scene_context.event"
+                        },
+                        {
+                          "label": "關係 · 吸引",
+                          "path": "modules.relation.attraction"
+                        },
+                        {
+                          "label": "關係 · 依附",
+                          "path": "modules.relation.attachment"
+                        },
+                        {
+                          "label": "關係 · 衝突",
+                          "path": "modules.relation.conflict"
+                        },
+                        {
+                          "label": "關係 · 目前關係",
+                          "path": "modules.relation.summary"
+                        },
+                        {
+                          "label": "關係 · 阿凱",
+                          "path": "modules.social_pressure.akai"
+                        },
+                        {
+                          "label": "關係 · 乾哥",
+                          "path": "modules.social_pressure.brothers"
+                        },
+                        {
+                          "label": "關係 · 前任",
+                          "path": "modules.social_pressure.exes"
+                        },
+                        {
+                          "label": "關係 · 家庭",
+                          "path": "modules.social_pressure.family"
+                        },
+                        {
+                          "label": "關係 · 課業／工作",
+                          "path": "modules.social_pressure.school_work"
+                        }
+                      ],
+                      "empty": "尚無本輪可見變動；更新後自動比較。"
+                    }
+                  ]
                 }
               ]
             }
@@ -793,11 +872,12 @@
           "label": "紀錄",
           "sections": [
             {
-              "type": "list",
+              "type": "timeline",
               "title": "最近事件",
               "path": "modules.recent_events",
               "empty": "故事才剛開始。",
-              "limit": 6
+              "limit": 6,
+              "mode": "history"
             }
           ]
         },

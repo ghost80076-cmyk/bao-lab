@@ -26,7 +26,9 @@
       "資訊隔離",
       "原生狀態UI"
     ],
-    "description": "艾爾澤是一座不會遷就玩家的多種族奇幻大陸。從職業覺醒、公會委託與野外求生開始，戰爭、材料獵殺、種族衝突、商路與領地都會自行運轉；NPC 可能成長、離開、受傷或永久死亡。這不是固定攻略線，而是一場能從無名冒險者一路走到據點領主的長篇生存沙盒。"
+    "description": "艾爾澤是一座不會遷就玩家的多種族奇幻大陸。從職業覺醒、公會委託與野外求生開始，戰爭、材料獵殺、種族衝突、商路與領地都會自行運轉；NPC 可能成長、離開、受傷或永久死亡。這不是固定攻略線，而是一場能從無名冒險者一路走到據點領主的長篇生存沙盒。",
+    "author": "班長",
+    "author_id": "banzhang"
   },
   "content": {
     "quote": "在艾爾澤，活下來只是第一步；真正困難的是決定自己願意為活下來變成什麼樣的人。",
@@ -885,41 +887,175 @@
           "label": "此刻",
           "sections": [
             {
-              "type": "stats",
-              "title": "場景",
-              "items": [
+              "type": "tabs",
+              "id": "current_archive",
+              "default_tab": "live",
+              "tabs": [
                 {
-                  "label": "日期",
-                  "path": "modules.scene.date"
+                  "id": "live",
+                  "label": "目前狀態",
+                  "sections": [
+                    {
+                      "type": "location_archive",
+                      "title": "場景",
+                      "time_path": "modules.scene.date",
+                      "location_path": "modules.scene.location",
+                      "scene_source": "story-gallery",
+                      "empty": "尚未整理可前往地點。",
+                      "area_path": "modules.scene.region"
+                    },
+                    {
+                      "type": "stats",
+                      "title": "場景",
+                      "items": [
+                        {
+                          "label": "時間",
+                          "path": "modules.scene.time"
+                        },
+                        {
+                          "label": "天候",
+                          "path": "modules.scene.weather"
+                        },
+                        {
+                          "label": "風險",
+                          "path": "modules.scene.local_risk"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "list",
+                      "title": "場景參與者",
+                      "path": "modules.scene_participants",
+                      "empty": "目前沒有需要特別記錄的人物。",
+                      "limit": 14
+                    }
+                  ]
                 },
                 {
-                  "label": "時間",
-                  "path": "modules.scene.time"
+                  "id": "changes",
+                  "label": "本輪變動",
+                  "sections": [
+                    {
+                      "type": "timeline",
+                      "mode": "round_diff",
+                      "title": "本輪變動",
+                      "items": [
+                        {
+                          "label": "此刻 · 日期",
+                          "path": "modules.scene.date"
+                        },
+                        {
+                          "label": "此刻 · 時間",
+                          "path": "modules.scene.time"
+                        },
+                        {
+                          "label": "此刻 · 地點",
+                          "path": "modules.scene.location"
+                        },
+                        {
+                          "label": "你 · 等級",
+                          "path": "modules.player.level"
+                        },
+                        {
+                          "label": "生存 · 魔力",
+                          "path": "modules.survival.mana"
+                        },
+                        {
+                          "label": "公會 · 等級",
+                          "path": "modules.guild.rank"
+                        },
+                        {
+                          "label": "公會 · 評價",
+                          "path": "modules.guild.reputation"
+                        },
+                        {
+                          "label": "領地 · 狀態",
+                          "path": "modules.territory.status"
+                        },
+                        {
+                          "label": "此刻 · 區域",
+                          "path": "modules.scene.region"
+                        },
+                        {
+                          "label": "此刻 · 天候",
+                          "path": "modules.scene.weather"
+                        },
+                        {
+                          "label": "此刻 · 風險",
+                          "path": "modules.scene.local_risk"
+                        },
+                        {
+                          "label": "你 · 姓名",
+                          "path": "modules.player.name"
+                        },
+                        {
+                          "label": "你 · 年齡",
+                          "path": "modules.player.age"
+                        },
+                        {
+                          "label": "你 · 性別",
+                          "path": "modules.player.gender"
+                        },
+                        {
+                          "label": "你 · 種族",
+                          "path": "modules.player.race"
+                        },
+                        {
+                          "label": "你 · 出身",
+                          "path": "modules.player.origin"
+                        },
+                        {
+                          "label": "你 · 起點",
+                          "path": "modules.player.start_mode"
+                        },
+                        {
+                          "label": "你 · 職業",
+                          "path": "modules.player.role"
+                        },
+                        {
+                          "label": "生存 · 健康",
+                          "path": "modules.survival.health"
+                        },
+                        {
+                          "label": "生存 · 體力",
+                          "path": "modules.survival.stamina"
+                        },
+                        {
+                          "label": "生存 · 飽食",
+                          "path": "modules.survival.hunger"
+                        },
+                        {
+                          "label": "生存 · 狀態",
+                          "path": "modules.survival.condition"
+                        },
+                        {
+                          "label": "生存 · 傷病",
+                          "path": "modules.survival.injuries"
+                        },
+                        {
+                          "label": "公會 · 當前委託",
+                          "path": "modules.guild.active_contract"
+                        }
+                      ],
+                      "empty": "尚無本輪可見變動；更新後自動比較。"
+                    }
+                  ]
                 },
                 {
-                  "label": "地點",
-                  "path": "modules.scene.location"
-                },
-                {
-                  "label": "區域",
-                  "path": "modules.scene.region"
-                },
-                {
-                  "label": "天候",
-                  "path": "modules.scene.weather"
-                },
-                {
-                  "label": "風險",
-                  "path": "modules.scene.local_risk"
+                  "id": "history",
+                  "label": "近期歷程",
+                  "sections": [
+                    {
+                      "type": "timeline",
+                      "mode": "history",
+                      "title": "已記錄事件",
+                      "path": "modules.event_log",
+                      "limit": 20,
+                      "empty": "目前沒有已記錄事件。"
+                    }
+                  ]
                 }
               ]
-            },
-            {
-              "type": "list",
-              "title": "場景參與者",
-              "path": "modules.scene_participants",
-              "empty": "目前沒有需要特別記錄的人物。",
-              "limit": 14
             }
           ]
         },

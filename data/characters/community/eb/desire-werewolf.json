@@ -20,7 +20,9 @@
       "資訊隔離",
       "狀態追蹤"
     ],
-    "description": "八名成年玩家被捲入封閉式狼人殺。白天公開發言與投票，夜晚各身份秘密行動；2 名黑手黨、1 名內鬼、1 名偵探、1 名女巫與 3 名平民在謊言、懷疑與成人張力中互相試探。成人內容只在玩家主動開啟 R18 後顯示。"
+    "description": "八名成年玩家被捲入封閉式狼人殺。白天公開發言與投票，夜晚各身份秘密行動；2 名黑手黨、1 名內鬼、1 名偵探、1 名女巫與 3 名平民在謊言、懷疑與成人張力中互相試探。成人內容只在玩家主動開啟 R18 後顯示。",
+    "author": "班長",
+    "author_id": "banzhang"
   },
   "content": {
     "quote": "「白天找出惡魔。夜晚，別讓自己先露出破綻。」",
@@ -472,51 +474,118 @@
           "label": "本局",
           "sections": [
             {
-              "type": "stats",
-              "title": "慾望狼人殺",
-              "items": [
+              "type": "tabs",
+              "id": "current_archive",
+              "default_tab": "live",
+              "tabs": [
                 {
-                  "label": "時間",
-                  "path": "time"
+                  "id": "live",
+                  "label": "目前狀態",
+                  "sections": [
+                    {
+                      "type": "location_archive",
+                      "title": "慾望狼人殺",
+                      "time_path": "time",
+                      "location_path": "location",
+                      "scene_source": "story-gallery",
+                      "empty": "尚未整理可前往地點。"
+                    },
+                    {
+                      "type": "stats",
+                      "title": "慾望狼人殺",
+                      "items": [
+                        {
+                          "label": "階段",
+                          "path": "modules.match.phase"
+                        },
+                        {
+                          "label": "存活",
+                          "path": "modules.match.alive_count",
+                          "suffix": "/8"
+                        },
+                        {
+                          "label": "你的身份",
+                          "path": "modules.match.player_role"
+                        },
+                        {
+                          "label": "票權",
+                          "path": "modules.match.player_vote_weight"
+                        },
+                        {
+                          "label": "勝負",
+                          "path": "modules.match.result"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "actions",
+                      "title": "快速操作",
+                      "items": [
+                        {
+                          "label": "開始／繼續本局",
+                          "draft": "【繼續遊戲】依目前階段推進到下一個需要我決定的節點。"
+                        },
+                        {
+                          "label": "查看公開規則",
+                          "draft": "【公開規則】只整理我目前需要知道的規則，不透露秘密身份。"
+                        }
+                      ]
+                    }
+                  ]
                 },
                 {
-                  "label": "地點",
-                  "path": "location"
-                },
-                {
-                  "label": "階段",
-                  "path": "modules.match.phase"
-                },
-                {
-                  "label": "存活",
-                  "path": "modules.match.alive_count",
-                  "suffix": "/8"
-                },
-                {
-                  "label": "你的身份",
-                  "path": "modules.match.player_role"
-                },
-                {
-                  "label": "票權",
-                  "path": "modules.match.player_vote_weight"
-                },
-                {
-                  "label": "勝負",
-                  "path": "modules.match.result"
-                }
-              ]
-            },
-            {
-              "type": "actions",
-              "title": "快速操作",
-              "items": [
-                {
-                  "label": "開始／繼續本局",
-                  "draft": "【繼續遊戲】依目前階段推進到下一個需要我決定的節點。"
-                },
-                {
-                  "label": "查看公開規則",
-                  "draft": "【公開規則】只整理我目前需要知道的規則，不透露秘密身份。"
+                  "id": "changes",
+                  "label": "本輪變動",
+                  "sections": [
+                    {
+                      "type": "timeline",
+                      "mode": "round_diff",
+                      "title": "本輪變動",
+                      "items": [
+                        {
+                          "label": "本局 · 時間",
+                          "path": "time"
+                        },
+                        {
+                          "label": "本局 · 地點",
+                          "path": "location"
+                        },
+                        {
+                          "label": "本局 · 階段",
+                          "path": "modules.match.phase"
+                        },
+                        {
+                          "label": "本局 · 存活",
+                          "path": "modules.match.alive_count"
+                        },
+                        {
+                          "label": "本局 · 你的身份",
+                          "path": "modules.match.player_role"
+                        },
+                        {
+                          "label": "本局 · 票權",
+                          "path": "modules.match.player_vote_weight"
+                        },
+                        {
+                          "label": "本局 · 勝負",
+                          "path": "modules.match.result"
+                        },
+                        {
+                          "label": "你的情報 · 本夜可行動",
+                          "path": "modules.resources.night_action"
+                        },
+                        {
+                          "label": "你的情報 · 解藥",
+                          "path": "modules.resources.cure"
+                        },
+                        {
+                          "label": "你的情報 · 毒藥",
+                          "path": "modules.resources.poison"
+                        }
+                      ],
+                      "empty": "尚無本輪可見變動；更新後自動比較。"
+                    }
+                  ]
                 }
               ]
             }
@@ -607,11 +676,12 @@
           "label": "紀錄",
           "sections": [
             {
-              "type": "list",
+              "type": "timeline",
               "title": "最近事件",
               "path": "modules.history",
               "empty": "本局尚未開始。",
-              "limit": 10
+              "limit": 10,
+              "mode": "history"
             }
           ]
         }

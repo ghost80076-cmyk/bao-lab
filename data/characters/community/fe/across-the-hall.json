@@ -18,7 +18,9 @@
       "慢熱戀愛",
       "高壓張力"
     ],
-    "description": "凌晨兩點，對門的男人帶著血回家。你以為他只是危險；他不能告訴你的是，他每靠近一步，都可能讓你離城市夜裡的另一套規則更近。現代都市 × 臥底警察 × 身份隱瞞 × 慢熱高壓戀愛。"
+    "description": "凌晨兩點，對門的男人帶著血回家。你以為他只是危險；他不能告訴你的是，他每靠近一步，都可能讓你離城市夜裡的另一套規則更近。現代都市 × 臥底警察 × 身份隱瞞 × 慢熱高壓戀愛。",
+    "author": "班長",
+    "author_id": "banzhang"
   },
   "content": {
     "quote": "「門關上。別多管閒事。」",
@@ -335,28 +337,103 @@
           "label": "今晚",
           "sections": [
             {
-              "type": "stats",
-              "title": "Lumière 公寓",
-              "items": [
+              "type": "tabs",
+              "id": "current_archive",
+              "default_tab": "live",
+              "tabs": [
                 {
-                  "label": "時間",
-                  "path": "time"
+                  "id": "live",
+                  "label": "目前狀態",
+                  "sections": [
+                    {
+                      "type": "location_archive",
+                      "title": "Lumière 公寓",
+                      "time_path": "time",
+                      "location_path": "location",
+                      "scene_source": "story-gallery",
+                      "empty": "尚未整理可前往地點。"
+                    },
+                    {
+                      "type": "stats",
+                      "title": "Lumière 公寓",
+                      "items": [
+                        {
+                          "label": "天氣",
+                          "path": "modules.scene.weather"
+                        },
+                        {
+                          "label": "氛圍",
+                          "path": "modules.scene.atmosphere"
+                        },
+                        {
+                          "label": "威脅",
+                          "path": "modules.scene.threat"
+                        }
+                      ]
+                    }
+                  ]
                 },
                 {
-                  "label": "地點",
-                  "path": "location"
-                },
-                {
-                  "label": "天氣",
-                  "path": "modules.scene.weather"
-                },
-                {
-                  "label": "氛圍",
-                  "path": "modules.scene.atmosphere"
-                },
-                {
-                  "label": "威脅",
-                  "path": "modules.scene.threat"
+                  "id": "changes",
+                  "label": "本輪變動",
+                  "sections": [
+                    {
+                      "type": "timeline",
+                      "mode": "round_diff",
+                      "title": "本輪變動",
+                      "items": [
+                        {
+                          "label": "今晚 · 時間",
+                          "path": "time"
+                        },
+                        {
+                          "label": "今晚 · 地點",
+                          "path": "location"
+                        },
+                        {
+                          "label": "關係 · 關係",
+                          "path": "modules.relationship.stage"
+                        },
+                        {
+                          "label": "關係 · 界線",
+                          "path": "modules.relationship.boundary"
+                        },
+                        {
+                          "label": "今晚 · 天氣",
+                          "path": "modules.scene.weather"
+                        },
+                        {
+                          "label": "今晚 · 氛圍",
+                          "path": "modules.scene.atmosphere"
+                        },
+                        {
+                          "label": "今晚 · 威脅",
+                          "path": "modules.scene.threat"
+                        },
+                        {
+                          "label": "對門 · 姓名",
+                          "path": "modules.neighbor.public_name"
+                        },
+                        {
+                          "label": "對門 · 狀態",
+                          "path": "modules.neighbor.condition"
+                        },
+                        {
+                          "label": "對門 · 傷勢",
+                          "path": "modules.neighbor.injury"
+                        },
+                        {
+                          "label": "對門 · 正在做",
+                          "path": "modules.neighbor.action"
+                        },
+                        {
+                          "label": "對門 · 距離",
+                          "path": "modules.neighbor.distance"
+                        }
+                      ],
+                      "empty": "尚無本輪可見變動；更新後自動比較。"
+                    }
+                  ]
                 }
               ]
             }

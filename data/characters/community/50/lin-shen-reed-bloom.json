@@ -20,7 +20,9 @@
       "蘆葦花",
       "自主NPC"
     ],
-    "description": "25 歲的青梅竹馬。乾淨的肥皂水味裡混著一點苦澀草本香；口袋裡總有妳喜歡的糖，走路總站在妳左側半步。他從不把愛說得很大聲，只把每一次在意都藏進日常。"
+    "description": "25 歲的青梅竹馬。乾淨的肥皂水味裡混著一點苦澀草本香；口袋裡總有妳喜歡的糖，走路總站在妳左側半步。他從不把愛說得很大聲，只把每一次在意都藏進日常。",
+    "author": "班長",
+    "author_id": "banzhang"
   },
   "content": {
     "quote": "「沒關係，我在。」",
@@ -383,33 +385,112 @@
           "label": "此刻",
           "sections": [
             {
-              "type": "stats",
-              "title": "河岸",
-              "items": [
+              "type": "tabs",
+              "id": "current_archive",
+              "default_tab": "live",
+              "tabs": [
                 {
-                  "label": "時間",
-                  "path": "time"
+                  "id": "live",
+                  "label": "目前狀態",
+                  "sections": [
+                    {
+                      "type": "location_archive",
+                      "title": "河岸",
+                      "time_path": "time",
+                      "location_path": "location",
+                      "scene_source": "story-gallery",
+                      "empty": "尚未整理可前往地點。"
+                    },
+                    {
+                      "type": "stats",
+                      "title": "河岸",
+                      "items": [
+                        {
+                          "label": "氣氛",
+                          "path": "modules.scene.atmosphere"
+                        },
+                        {
+                          "label": "環境動向",
+                          "path": "modules.scene.next_change"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "list",
+                      "title": "在場人物",
+                      "path": "modules.scene.present_npcs",
+                      "empty": "目前只有妳與林深。",
+                      "limit": 8
+                    }
+                  ]
                 },
                 {
-                  "label": "地點",
-                  "path": "location"
-                },
-                {
-                  "label": "氣氛",
-                  "path": "modules.scene.atmosphere"
-                },
-                {
-                  "label": "環境動向",
-                  "path": "modules.scene.next_change"
+                  "id": "changes",
+                  "label": "本輪變動",
+                  "sections": [
+                    {
+                      "type": "timeline",
+                      "mode": "round_diff",
+                      "title": "本輪變動",
+                      "items": [
+                        {
+                          "label": "此刻 · 時間",
+                          "path": "time"
+                        },
+                        {
+                          "label": "此刻 · 地點",
+                          "path": "location"
+                        },
+                        {
+                          "label": "你們之間 · 關係",
+                          "path": "modules.relationship.stage"
+                        },
+                        {
+                          "label": "你們之間 · 熟悉／信任",
+                          "path": "modules.relationship.trust"
+                        },
+                        {
+                          "label": "此刻 · 氣氛",
+                          "path": "modules.scene.atmosphere"
+                        },
+                        {
+                          "label": "此刻 · 環境動向",
+                          "path": "modules.scene.next_change"
+                        },
+                        {
+                          "label": "林深 · 外顯情緒",
+                          "path": "modules.lin_shen.surface_mood"
+                        },
+                        {
+                          "label": "林深 · 目前行動",
+                          "path": "modules.lin_shen.current_action"
+                        },
+                        {
+                          "label": "林深 · 小動作",
+                          "path": "modules.lin_shen.visible_tell"
+                        },
+                        {
+                          "label": "林深 · 隨身物",
+                          "path": "modules.lin_shen.carried_item"
+                        },
+                        {
+                          "label": "你們之間 · 距離",
+                          "path": "modules.relationship.distance"
+                        },
+                        {
+                          "label": "你們之間 · 沒說開的事",
+                          "path": "modules.relationship.unresolved"
+                        },
+                        {
+                          "label": "你們之間 · 最近改變",
+                          "path": "modules.relationship.latest_shift"
+                        }
+                      ],
+                      "empty": "尚無本輪可見變動；更新後自動比較。"
+                    }
+                  ]
                 }
               ]
-            },
-            {
-              "type": "list",
-              "title": "在場人物",
-              "path": "modules.scene.present_npcs",
-              "empty": "目前只有妳與林深。",
-              "limit": 8
             }
           ]
         },

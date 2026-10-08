@@ -24,7 +24,9 @@
       "多結局",
       "一般向"
     ],
-    "description": "死在冷宮之後，妳睜眼回到十六歲——距離前世第一場毀掉名聲的局，還有整整六個月。沈清雅、柳姨娘、蕭景行、皇權與兵權都還沒有走到前世的位置；而七日後，攝政王慕容夜也將第一次真正進入妳的棋局。女性向重生復仇 × 宅鬥宮鬥 × 權謀慢熱 × 可改寫時間線。"
+    "description": "死在冷宮之後，妳睜眼回到十六歲——距離前世第一場毀掉名聲的局，還有整整六個月。沈清雅、柳姨娘、蕭景行、皇權與兵權都還沒有走到前世的位置；而七日後，攝政王慕容夜也將第一次真正進入妳的棋局。女性向重生復仇 × 宅鬥宮鬥 × 權謀慢熱 × 可改寫時間線。",
+    "author": "班長",
+    "author_id": "banzhang"
   },
   "content": {
     "quote": "前世是記憶，不是命運。從妳醒來的這一刻起，所有人都只能重新落子。",
@@ -670,58 +672,173 @@
           "label": "此刻",
           "sections": [
             {
-              "type": "stats",
-              "title": "蘭芳院",
-              "items": [
+              "type": "tabs",
+              "id": "current_archive",
+              "default_tab": "live",
+              "tabs": [
                 {
-                  "label": "日期",
-                  "path": "modules.scene.date"
+                  "id": "live",
+                  "label": "目前狀態",
+                  "sections": [
+                    {
+                      "type": "location_archive",
+                      "title": "蘭芳院",
+                      "time_path": "modules.scene.date",
+                      "location_path": "modules.scene.location",
+                      "scene_source": "story-gallery",
+                      "empty": "尚未整理可前往地點。"
+                    },
+                    {
+                      "type": "stats",
+                      "title": "蘭芳院",
+                      "items": [
+                        {
+                          "label": "時辰",
+                          "path": "modules.scene.shichen"
+                        },
+                        {
+                          "label": "天氣",
+                          "path": "modules.scene.weather"
+                        },
+                        {
+                          "label": "在場",
+                          "path": "modules.scene.participants"
+                        },
+                        {
+                          "label": "氛圍",
+                          "path": "modules.scene.atmosphere"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "stats",
+                      "title": "這一世的妳",
+                      "items": [
+                        {
+                          "label": "姓名",
+                          "path": "modules.player.name"
+                        },
+                        {
+                          "label": "年齡",
+                          "path": "modules.player.age"
+                        },
+                        {
+                          "label": "性格",
+                          "path": "modules.player.personality"
+                        },
+                        {
+                          "label": "能力",
+                          "path": "modules.player.golden_finger"
+                        },
+                        {
+                          "label": "眼下優先",
+                          "path": "modules.player.first_goal"
+                        }
+                      ]
+                    }
+                  ]
                 },
                 {
-                  "label": "時辰",
-                  "path": "modules.scene.shichen"
-                },
-                {
-                  "label": "地點",
-                  "path": "modules.scene.location"
-                },
-                {
-                  "label": "天氣",
-                  "path": "modules.scene.weather"
-                },
-                {
-                  "label": "在場",
-                  "path": "modules.scene.participants"
-                },
-                {
-                  "label": "氛圍",
-                  "path": "modules.scene.atmosphere"
-                }
-              ]
-            },
-            {
-              "type": "stats",
-              "title": "這一世的妳",
-              "items": [
-                {
-                  "label": "姓名",
-                  "path": "modules.player.name"
-                },
-                {
-                  "label": "年齡",
-                  "path": "modules.player.age"
-                },
-                {
-                  "label": "性格",
-                  "path": "modules.player.personality"
-                },
-                {
-                  "label": "能力",
-                  "path": "modules.player.golden_finger"
-                },
-                {
-                  "label": "眼下優先",
-                  "path": "modules.player.first_goal"
+                  "id": "changes",
+                  "label": "本輪變動",
+                  "sections": [
+                    {
+                      "type": "timeline",
+                      "mode": "round_diff",
+                      "title": "本輪變動",
+                      "items": [
+                        {
+                          "label": "此刻 · 日期",
+                          "path": "modules.scene.date"
+                        },
+                        {
+                          "label": "此刻 · 地點",
+                          "path": "modules.scene.location"
+                        },
+                        {
+                          "label": "慕容夜 · 關係",
+                          "path": "modules.regent.status"
+                        },
+                        {
+                          "label": "此刻 · 時辰",
+                          "path": "modules.scene.shichen"
+                        },
+                        {
+                          "label": "此刻 · 天氣",
+                          "path": "modules.scene.weather"
+                        },
+                        {
+                          "label": "此刻 · 氛圍",
+                          "path": "modules.scene.atmosphere"
+                        },
+                        {
+                          "label": "此刻 · 姓名",
+                          "path": "modules.player.name"
+                        },
+                        {
+                          "label": "此刻 · 年齡",
+                          "path": "modules.player.age"
+                        },
+                        {
+                          "label": "此刻 · 性格",
+                          "path": "modules.player.personality"
+                        },
+                        {
+                          "label": "此刻 · 能力",
+                          "path": "modules.player.golden_finger"
+                        },
+                        {
+                          "label": "此刻 · 眼下優先",
+                          "path": "modules.player.first_goal"
+                        },
+                        {
+                          "label": "前世 · 下一節點",
+                          "path": "modules.foreknowledge.next_forecast"
+                        },
+                        {
+                          "label": "前世 · 相遇窗口",
+                          "path": "modules.foreknowledge.regent_window"
+                        },
+                        {
+                          "label": "前世 · 可靠度",
+                          "path": "modules.foreknowledge.reliability"
+                        },
+                        {
+                          "label": "國公府 · 母親",
+                          "path": "modules.household.mother"
+                        },
+                        {
+                          "label": "國公府 · 父親",
+                          "path": "modules.household.father"
+                        },
+                        {
+                          "label": "國公府 · 沈清雅",
+                          "path": "modules.household.qingya"
+                        },
+                        {
+                          "label": "國公府 · 柳姨娘",
+                          "path": "modules.household.liu"
+                        },
+                        {
+                          "label": "國公府 · 蕭景行",
+                          "path": "modules.household.xiao"
+                        },
+                        {
+                          "label": "慕容夜 · 公開資訊",
+                          "path": "modules.regent.public_info"
+                        },
+                        {
+                          "label": "慕容夜 · 最近相遇",
+                          "path": "modules.regent.last_encounter"
+                        },
+                        {
+                          "label": "慕容夜 · 可見印象",
+                          "path": "modules.regent.visible_impression"
+                        }
+                      ],
+                      "empty": "尚無本輪可見變動；更新後自動比較。"
+                    }
+                  ]
                 }
               ]
             }

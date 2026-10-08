@@ -67,10 +67,12 @@ const statusPrompt = card.gameplay.dynamic_prompts.find(item => item.id === 'sta
 assert.ok(statusPrompt);
 for (const trigger of ['狀態面板', '狀態欄', '顯示狀態']) assert.ok(statusPrompt.triggers.includes(trigger));
 assert.match(statusPrompt.text, /<YORUBAY_STATUS>/);
-assert.match(statusPrompt.text, /只使用目前世界狀態與玩家已知／可觀察資訊/);
+assert.match(statusPrompt.text, /(?:只|僅)使用目前世界狀態與玩家已知／可觀察資訊/);
 
 const preserved = card.import_metadata?.preserved_source;
-const rules = regexCore.normalize(preserved);
+const sidecar = require('../data/characters/general/baishiyin-oral-fixation.regex.json');
+assert.equal(sidecar.characterId, card.meta.id);
+const rules = regexCore.normalize(sidecar);
 assert.equal(rules.length, 1);
 assert.equal(rules[0].reason, '');
 assert.equal(rules[0].rich, true);
