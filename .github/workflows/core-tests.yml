@@ -466,6 +466,8 @@ jobs:
         run: node tests/helper-context-core.cjs
       - name: Memory app greeting and post-turn integrity
         run: node tests/memory-app-integrity-core.cjs
+      - name: Memory model selection in legacy stories
+        run: node tests/memory-model-selection-core.cjs
       - name: Contextual lorebook and legacy compatibility
         run: node tests/lorebook-core.cjs
       - name: Yume world-card relevant context
