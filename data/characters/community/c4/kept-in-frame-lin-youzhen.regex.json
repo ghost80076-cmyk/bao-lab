@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "yorubay-author-regex-mod",
+  "scope": "assistant_display",
+  "characterId": "kept-in-frame-lin-youzhen",
+  "regex_scripts": [
+    {
+      "scriptName": "留影｜攝影筆記",
+      "description": "可讀純文字筆記轉為隔離顯示卡，不改正文。",
+      "priority": 60,
+      "findRegex": "^攝影筆記[｜|]([^\\r\\n]+)[ \\t]*\\r?\\n([^\\r\\n]+)",
+      "flags": "gm",
+      "replaceString": "<aside class=\"yb-kept-note\" style=\"box-sizing:border-box;max-width:100%;overflow-wrap:anywhere;background:#292724;color:inherit;border:1px solid #655e51;border-left:3px solid #b3a28a;border-radius:12px;padding:.75em .95em;line-height:1.7\"><strong style=\"display:block;color:#d7c9b6\">攝影筆記 · $1</strong><span style=\"white-space:pre-wrap\">$2</span></aside>"
+    }
+  ]
+}

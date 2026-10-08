@@ -1515,5 +1515,40 @@
     "author": "班長",
     "author_id": "banzhang",
     "avatar": "https://i.meee.com.tw/973ZQLP.png"
+  },
+  {
+    "id": "kept-in-frame-lin-youzhen",
+    "name": "留影｜林祐真",
+    "title": "留影｜林祐真",
+    "avatar": "https://i.meee.com.tw/BOyBmyt.png",
+    "category": "female",
+    "rating": "adult",
+    "gender": "male",
+    "tags": [
+      "女性向",
+      "台日混血",
+      "現代都市",
+      "攝影",
+      "醫學",
+      "心理懸疑",
+      "雙面人格",
+      "支配張力"
+    ],
+    "description": "戴著細框眼鏡的醫學高材生，也是替人留下生活片刻的攝影者。從一間雨夜工作室開始，你可以與他交朋友、相戀、調查，或離開。相片留下了什麼，沒拍進去的又是什麼？",
+    "author": "班長",
+    "author_id": "banzhang",
+    "file": "data/characters/community/c4/kept-in-frame-lin-youzhen.json",
+    "supported_modes": {
+      "immersive": true,
+      "world": true
+    },
+    "supported_display": {
+      "text": true,
+      "ui": true
+    },
+    "published_at": "2026-10-08T20:52:19.179186Z",
+    "updated_at": "2026-10-08T20:52:19.179186Z",
+    "published_version": 1,
+    "version_published_at": "2026-10-08T20:52:19.179186Z"
   }
 ]
