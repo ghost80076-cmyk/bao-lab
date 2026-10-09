@@ -42,6 +42,10 @@ for (const width of [390, 1440]) {
         API.send = send;
       }
     }, patch);
+    // Play mode deliberately hides the compatibility status panel behind the
+    // newer reading surface. This regression exercises the card redraw handler
+    // directly; shell visibility and navigation are covered by browser-e2e.
+    const clickStatusCard = locator => locator.evaluate(card => card.click());
 
     const inScene = await applyModelResponse({ npcs: [
       { name: '阿青', role: '店員', location: '書店', presence: 'present' },
@@ -53,7 +57,7 @@ for (const width of [390, 1440]) {
     await expect(card.locator('[data-npc-presence]')).toHaveText('在場');
     await expect(page.locator('.character-status-card[data-character-context="小周"] [data-npc-presence]')).toHaveText('行蹤未知');
     // Selecting a character redraws the private status panel without App.renderUIPanel.
-    await card.click();
+    await clickStatusCard(card);
     await expect(card.locator('[data-npc-presence]')).toHaveText('在場');
 
     const left = await applyModelResponse({ npcs: [{ name: '阿青', presence: 'away' }] });
@@ -62,7 +66,7 @@ for (const width of [390, 1440]) {
     // A later patch that does not mention presence must not overwrite it.
     await applyModelResponse({ npcs: [{ name: '阿青', mood: '平靜' }] });
     await expect(card.locator('[data-npc-presence]')).toHaveText('已離場');
-    await card.click();
+    await clickStatusCard(card);
     await expect(card.locator('[data-npc-presence]')).toHaveText('已離場');
 
     await page.evaluate(async () => {
@@ -93,7 +97,7 @@ for (const width of [390, 1440]) {
     expect(restored).toEqual({ ok: true, leaked: false, presence: 'away', unknown: 'unknown' });
     await expect(page.locator('.character-status-card[data-character-context="阿青"] [data-npc-presence]')).toHaveText('已離場');
     await expect(page.locator('.character-status-card[data-character-context="小周"] [data-npc-presence]')).toHaveText('行蹤未知');
-    await page.locator('.character-status-card[data-character-context="小周"]').click();
+    await clickStatusCard(page.locator('.character-status-card[data-character-context="小周"]'));
     await expect(page.locator('.character-status-card[data-character-context="小周"] [data-npc-presence]')).toHaveText('行蹤未知');
   });
 }
