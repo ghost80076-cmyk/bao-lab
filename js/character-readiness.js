@@ -124,6 +124,13 @@
     if (npcNames.length !== unique(npcNames).length) warnings.push("initial_state.npcs 出現重複名稱；長篇追蹤時可能混淆同名 NPC。");
     npcs.forEach((npc, index) => {
       if (!asText(npc?.name)) errors.push(`initial_state.npcs[${index}] 缺少 name。`);
+      if (npc?.aliases !== undefined && (!Array.isArray(npc.aliases) || npc.aliases.some(alias => !asText(alias)))) {
+        errors.push(`initial_state.npcs[${index}].aliases 必須是非空文字陣列。`);
+      }
+      if (npc?.appearance !== undefined && !asText(npc.appearance)) errors.push(`initial_state.npcs[${index}].appearance 必須是文字。`);
+      if (npc?.outfit !== undefined && !asText(npc.outfit)) errors.push(`initial_state.npcs[${index}].outfit 必須是文字。`);
+      if (npc?.npc_id !== undefined) warnings.push(`initial_state.npcs[${index}].npc_id 會由故事建立時分配，不應預填。`);
+      if (npc?.first_seen !== undefined) warnings.push(`initial_state.npcs[${index}].first_seen 會由故事首次確認在場時建立，不應預填。`);
     });
 
     const gameplayNeeded = worldMode || c.supported_display?.ui === true;

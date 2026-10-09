@@ -195,7 +195,10 @@ const CharacterEngine = {
     return npcs.map((npc, i) => {
       const parts = [
         npc.name ? `名稱：${npc.name}` : `NPC ${i + 1}`,
+        Array.isArray(npc.aliases) && npc.aliases.length ? `別名：${npc.aliases.join("、")}` : "",
         npc.role ? `身分：${npc.role}` : "",
+        npc.appearance ? `固定外貌：${npc.appearance}` : "",
+        npc.outfit ? `當前穿著：${npc.outfit}` : "",
         npc.personality ? `個性：${npc.personality}` : "",
         npc.relationship ? `關係：${npc.relationship}` : "",
         npc.mood ? `初始情緒：${npc.mood}` : "",
@@ -219,8 +222,10 @@ const CharacterEngine = {
   npcIndexPrompt(npcs = [], maxChars = 1200) {
     const lines = (Array.isArray(npcs) ? npcs : []).filter(npc => npc?.name).map(npc => {
       const name = String(npc.name).trim();
+      const aliases = (Array.isArray(npc.aliases) ? npc.aliases : []).map(alias => String(alias || "").trim()).filter(Boolean).slice(0, 3);
       const role = String(npc.role || "").trim();
-      return role && role !== "NPC" ? `${name}｜${role}` : name;
+      const label = aliases.length ? `${name}（${aliases.join("／")}）` : name;
+      return role && role !== "NPC" ? `${label}｜${role}` : label;
     });
     const text = lines.join("\n");
     return text.length > maxChars ? `${text.slice(0, maxChars)}…` : text;
@@ -233,10 +238,12 @@ const CharacterEngine = {
     const currentLocation = String(context.currentLocation || "").trim();
     return list.map((npc, index) => {
       const name = String(npc?.name || "").trim();
+      const aliases = (Array.isArray(npc?.aliases) ? npc.aliases : []).map(alias => String(alias || "").trim().toLowerCase()).filter(Boolean);
       const role = String(npc?.role || "").trim();
       const location = String(npc?.location || "").trim();
       let score = 0;
       if (name && hay.includes(name.toLowerCase())) score += 10;
+      if (aliases.some(alias => hay.includes(alias))) score += 9;
       if (role && role.length >= 2 && hay.includes(role.toLowerCase())) score += 2;
       if (npc?.presence === "present") score += 6;
       if (currentLocation && location && currentLocation === location) score += 4;
@@ -318,7 +325,9 @@ const CharacterEngine = {
       const discoveredNPCs = mergedNPCs.filter(npc => !initialNames.has(String(npc?.name || "").trim()));
 
       if (initialNPCs.length > 0 && initialNPCs.length <= 4) {
-        const npcText = this.npcPrompt(initialNPCs);
+        const currentInitialNPCs = initialNPCs.map(initial => mergedNPCs.find(npc =>
+          String(npc?.name || "").trim() === String(initial?.name || "").trim()) || initial);
+        const npcText = this.npcPrompt(currentInitialNPCs);
         if (npcText) blocks.push(`【重要 NPC｜controlled_by=assistant】\n${npcText}`);
       }
 
