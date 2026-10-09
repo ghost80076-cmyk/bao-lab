@@ -65,6 +65,9 @@
     });
     return result;
   };
+  const cleanTextList = (value, maxItems = 8, maxChars = 80) => Array.isArray(value)
+    ? [...new Set(value.filter(item => typeof item === "string").map(item => item.trim().slice(0, maxChars)).filter(Boolean))].slice(0, maxItems)
+    : [];
   const worldClockPatch = raw => {
     if (!object(raw)) return {};
     const out = {};
@@ -101,8 +104,12 @@
       if (Object.keys(clock).length) out.world_clock = clock;
     }
     if (Array.isArray(data.npcs)) out.npcs = data.npcs.filter(object).slice(0, 30).map(n => {
-      const clean = pickFields(n, ["name", "role", "mood", "location", "relationship"].map(key => ({ key, type: "text" })));
+      const clean = pickFields(n, ["name", "role", "mood", "location", "relationship", "appearance", "outfit"].map(key => ({ key, type: "text" })));
+      if (/^npc-\d+$/.test(String(n.npc_id || ""))) clean.npc_id = String(n.npc_id);
       if (typeof n.relationship === "number" && Number.isFinite(n.relationship)) clean.relationship = n.relationship;
+      const aliases = cleanTextList(n.aliases);
+      if (aliases.length) clean.aliases = aliases;
+      if (n.appearance_change === true) clean.appearance_change = true;
       if (["present", "away", "unknown"].includes(n.presence)) clean.presence = n.presence;
       return clean;
     }).filter(n => n.name?.trim() && safeKey(n.name));

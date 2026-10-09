@@ -110,6 +110,7 @@
   };
 
   const snapshot = () => {
+    window.GameState?.ensureNPCIds?.();
     const state = window.GameState?.current || {};
     const present = sceneNPCs(state);
     const recentEvents = (Array.isArray(state.events) ? state.events : []).map(eventText).filter(Boolean).slice(0, 4);
@@ -131,6 +132,10 @@
       people.push({
         name: npc.name,
         role: npc.role || 'NPC',
+        aliases: Array.isArray(npc.aliases) ? npc.aliases : [],
+        appearance: text(npc.appearance),
+        outfit: text(npc.outfit),
+        firstSeen: npc.first_seen && typeof npc.first_seen === 'object' ? npc.first_seen : null,
         mood: text(npc.mood),
         location: text(npc.location),
         relationship: npc.relationship === undefined || npc.relationship === null ? '' : String(npc.relationship),
@@ -244,6 +249,10 @@
       card.append(top);
 
       const meta = [
+        person.aliases?.length && { label:'別名', value:person.aliases.join('、') },
+        person.appearance && { label:'固定外貌', value:person.appearance },
+        person.outfit && { label:'當前穿著', value:person.outfit },
+        person.firstSeen && { label:'首次登場', value:[person.firstSeen.time, person.firstSeen.location, Number.isFinite(Number(person.firstSeen.turn)) ? `第 ${Number(person.firstSeen.turn)} 輪` : ''].filter(Boolean).join(' · ') },
         person.mood && { label:'情緒', value:person.mood },
         person.location && { label:'位置', value:person.location },
         person.relationship && { label:'關係', value:person.relationship }

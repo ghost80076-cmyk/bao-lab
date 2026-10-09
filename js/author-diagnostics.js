@@ -76,6 +76,23 @@
     if (object(initial.modules)) Object.keys(initial.modules).forEach(id => {
       if (!moduleIds.has(id)) add('notice', `$.gameplay.initial_state.modules.${id}`, '初始狀態引用了未定義的世界模組。', `在 world_modules 補上 id「${id}」，或移除此初始值。`);
     });
+    (Array.isArray(initial.npcs) ? initial.npcs : []).forEach((npc, index) => {
+      const path = `$.gameplay.initial_state.npcs[${index}]`;
+      if (npc?.aliases !== undefined && (!Array.isArray(npc.aliases) || npc.aliases.some(alias => typeof alias !== 'string'))) {
+        add('error', `${path}.aliases`, 'NPC 別名必須是文字陣列。', '例如 ["阿晴", "林記者"]；沒有別名時省略或使用 []。');
+      }
+      for (const key of ['appearance', 'outfit']) {
+        if (npc?.[key] !== undefined && typeof npc[key] !== 'string') {
+          add('error', `${path}.${key}`, `${key} 必須是文字。`, key === 'appearance' ? '只填不隨換裝改變的固定外貌。' : '只填故事開場時的當前穿著。');
+        }
+      }
+      for (const key of ['npc_id', 'first_seen']) {
+        if (npc?.[key] === undefined) continue;
+        add('notice', `${path}.${key}`, `${key} 是故事執行期資料，角色卡不能預填。`, key === 'npc_id'
+          ? '移除此欄；夜灣會在建立故事時分配穩定人物 ID。'
+          : '移除此欄；夜灣會在人物首次確認在場時自動建立。');
+      }
+    });
     let score = null;
     try {
       if (typeof CharacterEngine.audit === 'function') {

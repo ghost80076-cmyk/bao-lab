@@ -55,7 +55,7 @@
   const rawSend = API.send.bind(API);
   API.send = async function(config, messages) {
     if (!config?.__stateTask) return rawSend(config, messages);
-    const extra = '人物建檔：如果故事回覆明確出現具名 NPC（例如「姓名：台詞」），而目前 npcs 清單尚未有此人，請在 npcs 回傳其真實姓名與有據可查的資訊；不要把角色卡／世界模板名稱當成 NPC，也不要杜撰姓名、數值或玩家心理。新 NPC 的 character_statuses 只填本輪能證實有變動的欄位；未知欄位沿用預設。';
+    const extra = '人物建檔：如果故事回覆明確出現具名 NPC（例如「姓名：台詞」），而目前 npcs 清單尚未有此人，請在 npcs 回傳其真實姓名與有據可查的資訊；可記錄文本已證實的 aliases、固定 appearance 與當前 outfit。更新既有人物時沿用目前狀態的 npc_id，新人物不填 npc_id。不要把角色卡／世界模板名稱當成 NPC，也不要杜撰姓名、外貌、數值或玩家心理。既有 appearance 必須沿用；只有故事明確造成長期外貌變化時才同時回傳 appearance_change:true，只有明確換裝才更新 outfit；first_seen 由系統建立，不得輸出。新 NPC 的 character_statuses 只填本輪能證實有變動的欄位；未知欄位沿用預設。';
     const updated = (messages || []).map((message, index) => index === 0 && message.role === 'system'
       ? { ...message, content: `${message.content}\n${extra}` } : message);
     const configuredLimit = Number(App.config?.api?.maxOutputTokens);
