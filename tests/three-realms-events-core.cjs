@@ -4,8 +4,8 @@ const fs = require('node:fs');
 const crypto = require('node:crypto');
 const core = require('../js/three-realms-events-core.js');
 const portable = require('../js/story-extension-pack-core.js');
-assert.equal(core.profiles.length, 24);
-assert.equal(core.commands.length, 24);
+assert.equal(core.profiles.length, 25);
+assert.equal(core.commands.length, 25);
 assert.equal(core.preset.tracking, 'manual');
 assert.equal(core.preset.context, 'ui_only');
 for (const profile of core.profiles) {
@@ -57,7 +57,7 @@ assert.equal(core.requested('【機緣事件】').id, 'fortune');
 assert.equal(core.commands.filter(c => c.source === 'event').length, 11);
 assert.equal(core.commands.filter(c => c.source === 'generator').length, 2);
 assert.equal(core.commands.filter(c => c.source === 'query').length, 7);
-assert.equal(core.commands.filter(c => c.source === 'workshop').length, 4);
+assert.equal(core.commands.filter(c => c.source === 'workshop').length, 5);
 assert.equal(core.requested('【系統指令】融合 世界甲 和 世界乙 世界觀').id, 'workshop-fusion');
 assert.equal(core.requested('【系統指令】自訂世界觀：浮空修仙世界').id, 'workshop-custom');
 assert.equal(core.requested('【系統指令】切換到 世界甲 世界觀').id, 'workshop-switch');
@@ -83,17 +83,23 @@ const pack = portable.buildPack({ world: { enabledBuiltIns: [core.id] } });
 assert.deepEqual(pack.sections.world.enabledBuiltIns, [core.id], 'portable settings preserve the opted-in feature');
 const provenance = JSON.parse(fs.readFileSync('data/three-realms-event-director-provenance.json'));
 assert.equal(provenance.source_visibility, '公開');
-assert.deepEqual(provenance.records.map(r => r.source_index), [...Array.from({ length: 13 }, (_, i) => i + 173), 43,44,45,46,47,48,51,32,49,50,41]);
+assert.deepEqual(provenance.records.map(r => r.source_index), [...Array.from({ length: 13 }, (_, i) => i + 173), 43,44,45,46,47,48,51,32,49,50,41,54]);
 for (const record of provenance.records) {
   const profile = core.profiles.find(p => p.id === record.profile_id);
   const canonical = JSON.stringify(profile, (_key, value) => value && !Array.isArray(value) && typeof value === 'object' ? Object.fromEntries(Object.keys(value).sort().map(k => [k, value[k]])) : value);
   assert.equal(crypto.createHash('sha256').update(canonical).digest('hex'), record.profile_sha256);
   assert.match(record.source_sha256, /^[a-f0-9]{64}$/);
 }
-console.log('Three Realms events: 11 event, 2 character and 7 query and 4 world-design profiles, explicit requests, opt-in, realm selection, bounded tail prompts, persistence and provenance passed.');
+console.log('Three Realms events: 11 event, 2 character and 7 query and 5 world/story-design profiles, explicit requests, opt-in, realm selection, bounded tail prompts, persistence and provenance passed.');
 
 const genre = core.buildPrompt({enabled:true,latestUser:'【玄幻世界構思】'});
 assert.match(genre,/三界九域及所在界域/);
 assert.match(genre,/通用草案/);
 assert.match(genre,/不能直接授予或寫入存檔/);
 assert.equal(core.buildPrompt({enabled:false,latestUser:'【玄幻世界構思】'}),'');
+
+const exit = core.buildPrompt({enabled:true,latestUser:'【角色退場構思】'});
+assert.match(exit,/不能把構思變成已死亡/);
+assert.match(exit,/普通世界不能用片場解釋/);
+assert.match(exit,/名冊、人物狀態與時間維持原狀/);
+assert.equal(core.requested('我在討論角色退場構思，不要求執行'),null);
