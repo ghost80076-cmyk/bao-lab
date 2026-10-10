@@ -1,0 +1,634 @@
+{
+  "schema": "yorubay-worldbook-source-map",
+  "version": 1,
+  "source_book_id": "b43bd078-1b19-46e8-bfc8-952660be367d",
+  "source_visibility": "公開",
+  "source_entry_count": 191,
+  "migrated_source_entries": 14,
+  "generated_entries": 73,
+  "records": [
+    {
+      "source_index": 71,
+      "source_title": "信仰系統-基本概念",
+      "source_sha256": "e3098f47c5b49ee8b537bab934419a980fb14405b06cd76a30b47cde45042c5a",
+      "source_chars": 799,
+      "destinations": [
+        {
+          "pack_id": "three-realms-systems-faith",
+          "entry_id": "source-71-0",
+          "start": 0,
+          "end": 69,
+          "content_sha256": "47bea5e9345e3920888e107db2eaa50e8f5dc03f5193f4e362492492f3710ce5"
+        },
+        {
+          "pack_id": "three-realms-systems-faith",
+          "entry_id": "source-71-1",
+          "start": 69,
+          "end": 207,
+          "content_sha256": "9dcf47aeebaa483abe50d470eedba899ad5743b3e768b15ba716fd91f62b66cd"
+        },
+        {
+          "pack_id": "three-realms-systems-faith",
+          "entry_id": "source-71-2",
+          "start": 207,
+          "end": 371,
+          "content_sha256": "289fed8691820de9e6a6549a280f195a30e20d6cd7e1ee2ba43f2f200d00fd54"
+        },
+        {
+          "pack_id": "three-realms-systems-faith",
+          "entry_id": "source-71-3",
+          "start": 371,
+          "end": 572,
+          "content_sha256": "5d1adf25829a5595976c36677c036463ff16d96620d4c7eeb8a34c87c6bb2c08"
+        },
+        {
+          "pack_id": "three-realms-systems-faith",
+          "entry_id": "source-71-4",
+          "start": 572,
+          "end": 799,
+          "content_sha256": "6f6ac00a35b059df5eb9c758a495ce68d95e0ca6285fec5f368fc579e1f78c5b"
+        }
+      ]
+    },
+    {
+      "source_index": 72,
+      "source_title": "信仰系統-信徒獲取",
+      "source_sha256": "920b265854096cec056c7548648e9f411789895c12ac1dcbebd15b9be3010732",
+      "source_chars": 754,
+      "destinations": [
+        {
+          "pack_id": "three-realms-systems-faith",
+          "entry_id": "source-72-0",
+          "start": 0,
+          "end": 173,
+          "content_sha256": "8ccfec46f55277ee99eca9e0e7ae4ac687899911a6c802781ed0d0d6e10d6b04"
+        },
+        {
+          "pack_id": "three-realms-systems-faith",
+          "entry_id": "source-72-1",
+          "start": 173,
+          "end": 375,
+          "content_sha256": "71aec9cadef86cf4dea8fbb77e00842a173f7d8c0832f63b21590de54e7b4ae1"
+        },
+        {
+          "pack_id": "three-realms-systems-faith",
+          "entry_id": "source-72-2",
+          "start": 375,
+          "end": 518,
+          "content_sha256": "7079a907b8596cd53266d34117a843899e47aafc42837e42fe53af6fa808497c"
+        },
+        {
+          "pack_id": "three-realms-systems-faith",
+          "entry_id": "source-72-3",
+          "start": 518,
+          "end": 754,
+          "content_sha256": "913a20d7e8aa51d8a847a870d0db6e781cf3b04040305c1da88209688c162aff"
+        }
+      ]
+    },
+    {
+      "source_index": 73,
+      "source_title": "信仰系統-神職體系",
+      "source_sha256": "e97dd07a32a71dc1a05e5ff6a9745322572dacd4714a36e68e3c911fe54c0dea",
+      "source_chars": 660,
+      "destinations": [
+        {
+          "pack_id": "three-realms-systems-faith",
+          "entry_id": "source-73-0",
+          "start": 0,
+          "end": 200,
+          "content_sha256": "1a80a9046ee415df0c0e3151a709100f026b3b0cef0271e38f2996aead9a84e5"
+        },
+        {
+          "pack_id": "three-realms-systems-faith",
+          "entry_id": "source-73-1",
+          "start": 200,
+          "end": 337,
+          "content_sha256": "064bc5e067425ae01a8317e6625bfb6c337147b4544c9b8b8e5ef6c6e4a9c9ab"
+        },
+        {
+          "pack_id": "three-realms-systems-faith",
+          "entry_id": "source-73-2",
+          "start": 337,
+          "end": 462,
+          "content_sha256": "b33a60028dc6212633d6e18f9bc323d482ab8437dd7aca8f5c8bc12bf61b5173"
+        },
+        {
+          "pack_id": "three-realms-systems-faith",
+          "entry_id": "source-73-3",
+          "start": 462,
+          "end": 660,
+          "content_sha256": "4ed3b0a9a83db7772d9f0245e587ab853c80230c0e09b498db63e26564ab4e6f"
+        }
+      ]
+    },
+    {
+      "source_index": 74,
+      "source_title": "信仰系統-神職賜予",
+      "source_sha256": "0bb3e6ea0a76dc8643dc4ea151107194fe6866f7a861c81c43830aabb381491f",
+      "source_chars": 790,
+      "destinations": [
+        {
+          "pack_id": "three-realms-systems-faith",
+          "entry_id": "source-74-0",
+          "start": 0,
+          "end": 67,
+          "content_sha256": "852a9f803f36eab88ea4a5e038810e0c655d0e9e40916452ec87a34cdabb95fd"
+        },
+        {
+          "pack_id": "three-realms-systems-faith",
+          "entry_id": "source-74-1",
+          "start": 67,
+          "end": 291,
+          "content_sha256": "dfcea68565635a84ee8ff2bd0a429c50d5f34182c33485d41c978e336b34b5a5"
+        },
+        {
+          "pack_id": "three-realms-systems-faith",
+          "entry_id": "source-74-2",
+          "start": 291,
+          "end": 450,
+          "content_sha256": "1adb64b9a12e81adbabc7a17947b7d11923ee9f2d54427ce7bb04ba29d0d7d2a"
+        },
+        {
+          "pack_id": "three-realms-systems-faith",
+          "entry_id": "source-74-3",
+          "start": 450,
+          "end": 581,
+          "content_sha256": "bfbbb03fb64ae4de07fbcf043740ad6e619faad96dd2299e2f19cdd758ee8452"
+        },
+        {
+          "pack_id": "three-realms-systems-faith",
+          "entry_id": "source-74-4",
+          "start": 581,
+          "end": 790,
+          "content_sha256": "bcd72b0fd0c42105c1e667152e096df9b3b424c4b6a0dd5e3c00f941252c7796"
+        }
+      ]
+    },
+    {
+      "source_index": 75,
+      "source_title": "信仰系統-信仰戰爭",
+      "source_sha256": "526645610e710fd243ff5fe7e363e20dee2ba01fdebe13ff49dd7658dc014017",
+      "source_chars": 708,
+      "destinations": [
+        {
+          "pack_id": "three-realms-systems-faith",
+          "entry_id": "source-75-0",
+          "start": 0,
+          "end": 68,
+          "content_sha256": "117ba32807cd61993665ba42228acf7073f4bef236b6a58445d443f77eee17d6"
+        },
+        {
+          "pack_id": "three-realms-systems-faith",
+          "entry_id": "source-75-1",
+          "start": 68,
+          "end": 215,
+          "content_sha256": "dfbf2d118777a0e3de351c0aac5704764511ee5d6d8286d4120d92be78726a44"
+        },
+        {
+          "pack_id": "three-realms-systems-faith",
+          "entry_id": "source-75-2",
+          "start": 215,
+          "end": 344,
+          "content_sha256": "745b03fd3f6ee9e62c5576b341bb7e878b840c714eafbbda9aaf67724bf9c976"
+        },
+        {
+          "pack_id": "three-realms-systems-faith",
+          "entry_id": "source-75-3",
+          "start": 344,
+          "end": 497,
+          "content_sha256": "bd51e35394f8c20c73ff5b59ac08117b50ea40dc4e8704572d23d5d7d5bb1f57"
+        },
+        {
+          "pack_id": "three-realms-systems-faith",
+          "entry_id": "source-75-4",
+          "start": 497,
+          "end": 708,
+          "content_sha256": "936aa0822f4d1887fa87cec2ceef9f010372a3ce650c5a7ca69ed27962366018"
+        }
+      ]
+    },
+    {
+      "source_index": 76,
+      "source_title": "業力系統-基本概念",
+      "source_sha256": "9e9cf19e528f0261531cb4a0b5c5e9f14aa430a1363a592110b135d1bd62532f",
+      "source_chars": 638,
+      "destinations": [
+        {
+          "pack_id": "three-realms-systems-karma",
+          "entry_id": "source-76-0",
+          "start": 0,
+          "end": 62,
+          "content_sha256": "08b3d322d921e9e626dc7933b6f39cd45803cdd0f061054b9b276d0d07400b90"
+        },
+        {
+          "pack_id": "three-realms-systems-karma",
+          "entry_id": "source-76-1",
+          "start": 62,
+          "end": 244,
+          "content_sha256": "8ed958e32f5114d8eeffda93fdb59a3b9dac496be364b84adb5e817de36bae5a"
+        },
+        {
+          "pack_id": "three-realms-systems-karma",
+          "entry_id": "source-76-2",
+          "start": 244,
+          "end": 406,
+          "content_sha256": "b263319baa744e34278a5f57df5b5d563f6661394247bef10e3c8f96e02e9d6f"
+        },
+        {
+          "pack_id": "three-realms-systems-karma",
+          "entry_id": "source-76-3",
+          "start": 406,
+          "end": 638,
+          "content_sha256": "65fee5092b4a51108a77d3361f1103bfca4f9005fd03fc9b0f8d1e9edba1ff69"
+        }
+      ]
+    },
+    {
+      "source_index": 77,
+      "source_title": "業力系統-業力積累",
+      "source_sha256": "de4d94ffff7bb356532446ed3bb3b4dfa400e9c57f839817c20f2695e442aa29",
+      "source_chars": 859,
+      "destinations": [
+        {
+          "pack_id": "three-realms-systems-karma",
+          "entry_id": "source-77-0",
+          "start": 0,
+          "end": 224,
+          "content_sha256": "be1d9e7e28d701619ca2bc60ac9aa5978962c6a62dbe0563d4853194f021c634"
+        },
+        {
+          "pack_id": "three-realms-systems-karma",
+          "entry_id": "source-77-1",
+          "start": 224,
+          "end": 378,
+          "content_sha256": "fdbb77d9798b83c12684d261257a5952995b44563591479007d94802550c79ea"
+        },
+        {
+          "pack_id": "three-realms-systems-karma",
+          "entry_id": "source-77-2",
+          "start": 378,
+          "end": 536,
+          "content_sha256": "6e1a5ff083fda7ef1e85832ab8d7f73d0844c4c779ceb992567c6618fccd3835"
+        },
+        {
+          "pack_id": "three-realms-systems-karma",
+          "entry_id": "source-77-3",
+          "start": 536,
+          "end": 636,
+          "content_sha256": "527d1e3b2118c920a14b02f376772ed24251504df1fd2aefd3e739340dd842fc"
+        },
+        {
+          "pack_id": "three-realms-systems-karma",
+          "entry_id": "source-77-4",
+          "start": 636,
+          "end": 859,
+          "content_sha256": "55c392ca6263fe40a4edbea781e41c0d2a12651ffe23225d6453ead26fd6f6fb"
+        }
+      ]
+    },
+    {
+      "source_index": 78,
+      "source_title": "業力系統-業力消除",
+      "source_sha256": "f64981c12039dcdbf7a8fec1478a0c5b4c9e74b97bfb71d1c0b72725eb1dc742",
+      "source_chars": 840,
+      "destinations": [
+        {
+          "pack_id": "three-realms-systems-karma",
+          "entry_id": "source-78-0",
+          "start": 0,
+          "end": 245,
+          "content_sha256": "83b89a05513ece40fc7f4978c39a2119456d86f2aa36e9478bf992200dce0a8e"
+        },
+        {
+          "pack_id": "three-realms-systems-karma",
+          "entry_id": "source-78-1",
+          "start": 245,
+          "end": 503,
+          "content_sha256": "75165de96c3c006fee4b24ef09c795d4af49919aa541b87fff75df6b3084f185"
+        },
+        {
+          "pack_id": "three-realms-systems-karma",
+          "entry_id": "source-78-2",
+          "start": 503,
+          "end": 647,
+          "content_sha256": "77607c96887939b0823e2d28fc487bafeb9260ca3935cdf9c10b3dd38f2d8e5f"
+        },
+        {
+          "pack_id": "three-realms-systems-karma",
+          "entry_id": "source-78-3",
+          "start": 647,
+          "end": 840,
+          "content_sha256": "60f86a134356ee40160d69287a81c77836a68e9aa7e30038b7ca784b49ec26e9"
+        }
+      ]
+    },
+    {
+      "source_index": 79,
+      "source_title": "業力系統-心魔",
+      "source_sha256": "423f659b75cdefe77ef25ec91b51f705bcd20a1fcf2b54450a20b00fb41314fa",
+      "source_chars": 967,
+      "destinations": [
+        {
+          "pack_id": "three-realms-systems-heart-fall",
+          "entry_id": "source-79-0",
+          "start": 0,
+          "end": 74,
+          "content_sha256": "dedf6fe0eb2e6d043fcbce9adde827d6019e5b048b130405910d902b6fb372dd"
+        },
+        {
+          "pack_id": "three-realms-systems-heart-fall",
+          "entry_id": "source-79-1",
+          "start": 74,
+          "end": 179,
+          "content_sha256": "76ddab0dbda0a472fe6798922440bca57680c07990c408b83c57926e5d660fae"
+        },
+        {
+          "pack_id": "three-realms-systems-heart-fall",
+          "entry_id": "source-79-2",
+          "start": 179,
+          "end": 321,
+          "content_sha256": "52f11d867eab95f9b5aa4eba1bfdf3e49c81606b209bcc07399d47eac6f1927f"
+        },
+        {
+          "pack_id": "three-realms-systems-heart-fall",
+          "entry_id": "source-79-3",
+          "start": 321,
+          "end": 483,
+          "content_sha256": "023bdfb65b899b573327fa6741b732f049950f2d041c33a223ff547cce989598"
+        },
+        {
+          "pack_id": "three-realms-systems-heart-fall",
+          "entry_id": "source-79-4",
+          "start": 483,
+          "end": 660,
+          "content_sha256": "c9a6686d50d80fe6c96734f86ec456819f11fe253fe9c45fb9b7915c38861c0f"
+        },
+        {
+          "pack_id": "three-realms-systems-heart-fall",
+          "entry_id": "source-79-5",
+          "start": 660,
+          "end": 804,
+          "content_sha256": "2a42a1057e62b4f56cd224493f522a7a0378a6325d09f907e483e165071bba07"
+        },
+        {
+          "pack_id": "three-realms-systems-heart-fall",
+          "entry_id": "source-79-6",
+          "start": 804,
+          "end": 967,
+          "content_sha256": "5762d2348c7f237c946232f6a2c096e004c3c9dcb9d471f2a31eef051a8b45d1"
+        }
+      ]
+    },
+    {
+      "source_index": 80,
+      "source_title": "業力系統-墮落機制",
+      "source_sha256": "af94b7421618cafc90cc728284cbf03b77cf8d1806c0ab4c2ba419b0c2167cec",
+      "source_chars": 839,
+      "destinations": [
+        {
+          "pack_id": "three-realms-systems-heart-fall",
+          "entry_id": "source-80-0",
+          "start": 0,
+          "end": 57,
+          "content_sha256": "e1a15cdd501e115dbf0c746f4b325008362b21c928b1588937e7477590e47910"
+        },
+        {
+          "pack_id": "three-realms-systems-heart-fall",
+          "entry_id": "source-80-1",
+          "start": 57,
+          "end": 203,
+          "content_sha256": "927e104794e470513e675a00f8827dd34a8b26a9d3b08e8627971b6ee9f06518"
+        },
+        {
+          "pack_id": "three-realms-systems-heart-fall",
+          "entry_id": "source-80-2",
+          "start": 203,
+          "end": 350,
+          "content_sha256": "e6bf6784c93cd5a42eb35f023d1a4e4066b770a6fa8b583605523e4641127be1"
+        },
+        {
+          "pack_id": "three-realms-systems-heart-fall",
+          "entry_id": "source-80-3",
+          "start": 350,
+          "end": 506,
+          "content_sha256": "20e2603d7f0776a0854265d851581251240faea5a466bb0f87559d66d8fe1c80"
+        },
+        {
+          "pack_id": "three-realms-systems-heart-fall",
+          "entry_id": "source-80-4",
+          "start": 506,
+          "end": 634,
+          "content_sha256": "cda17fa2ae7605ee23845c0b3869a2574cae278d8f60412d334768e808408056"
+        },
+        {
+          "pack_id": "three-realms-systems-heart-fall",
+          "entry_id": "source-80-5",
+          "start": 634,
+          "end": 839,
+          "content_sha256": "a147f86bb28df7d5272af121d46403c282e80e8db9a991ab163c148d0d6a2248"
+        }
+      ]
+    },
+    {
+      "source_index": 81,
+      "source_title": "飛升機制-下界飛升中界",
+      "source_sha256": "b2b757d049d25b1d6d7961d64445c9350087bcb86053ecca2d24ceb5a929e0f9",
+      "source_chars": 1252,
+      "destinations": [
+        {
+          "pack_id": "three-realms-systems-ascension",
+          "entry_id": "source-81-0",
+          "start": 0,
+          "end": 69,
+          "content_sha256": "dc6c5e3b911c52dc27b72c6c1e80af0b49526f71ab2adfaac7903756f4feecca"
+        },
+        {
+          "pack_id": "three-realms-systems-ascension",
+          "entry_id": "source-81-1",
+          "start": 69,
+          "end": 392,
+          "content_sha256": "78f2810539bcd5662851719416cef5a0040fcd5a915cd8cfa7b9ac3d919c38e1"
+        },
+        {
+          "pack_id": "three-realms-systems-ascension",
+          "entry_id": "source-81-2",
+          "start": 392,
+          "end": 690,
+          "content_sha256": "3187c006cc84e4df7db765104f211fd92834f1c7190edc9f61bddcf62a04a755"
+        },
+        {
+          "pack_id": "three-realms-systems-ascension",
+          "entry_id": "source-81-3",
+          "start": 690,
+          "end": 834,
+          "content_sha256": "cce0c490c3c5340852409efe6341dad47edb8ce9bec1804715742e92c5457a4c"
+        },
+        {
+          "pack_id": "three-realms-systems-ascension",
+          "entry_id": "source-81-4",
+          "start": 834,
+          "end": 1023,
+          "content_sha256": "98428e97534e6b5498d64911ffc8f905e2d26d95820ceb71ba75319b3ee52f56"
+        },
+        {
+          "pack_id": "three-realms-systems-ascension",
+          "entry_id": "source-81-5",
+          "start": 1023,
+          "end": 1252,
+          "content_sha256": "5221302648f10c5b45c293b5ffe041900b7abc93dc30d3a152add79536761429"
+        }
+      ]
+    },
+    {
+      "source_index": 82,
+      "source_title": "飛升機制-中界飛升上界",
+      "source_sha256": "5234c315aeac2268219cb92b9bd993451078d3f90626e526b2026707664a3966",
+      "source_chars": 1370,
+      "destinations": [
+        {
+          "pack_id": "three-realms-systems-ascension",
+          "entry_id": "source-82-0",
+          "start": 0,
+          "end": 66,
+          "content_sha256": "15bd2aa8fed162e867bdeb316083136d8db0be7a5a374b3c7d4a9bdccf13704d"
+        },
+        {
+          "pack_id": "three-realms-systems-ascension",
+          "entry_id": "source-82-1",
+          "start": 66,
+          "end": 200,
+          "content_sha256": "d0fc0b4a6377b2d69138327cde8451288eaeeb6661979eb9c0e8b2e17210563d"
+        },
+        {
+          "pack_id": "three-realms-systems-ascension",
+          "entry_id": "source-82-2",
+          "start": 200,
+          "end": 564,
+          "content_sha256": "dd357664d8d6574639e4c7c3f723f0ac8b510246a13b07dc731faee542f6b2a4"
+        },
+        {
+          "pack_id": "three-realms-systems-ascension",
+          "entry_id": "source-82-3",
+          "start": 564,
+          "end": 721,
+          "content_sha256": "f9930f22754336bdc25a62b0eaa21b80b002a2bfa2b7af3db9ea99dcd99774f5"
+        },
+        {
+          "pack_id": "three-realms-systems-ascension",
+          "entry_id": "source-82-4",
+          "start": 721,
+          "end": 871,
+          "content_sha256": "8bf2c39303af999b353694d76bf5649a731b4036a2bfdbc86b6ca847ebcfbb48"
+        },
+        {
+          "pack_id": "three-realms-systems-ascension",
+          "entry_id": "source-82-5",
+          "start": 871,
+          "end": 1000,
+          "content_sha256": "f2847c1e2bd8108a93515331ea43a57b4445ca58cfa439c40ef9e22b518e3ca4"
+        },
+        {
+          "pack_id": "three-realms-systems-ascension",
+          "entry_id": "source-82-6",
+          "start": 1000,
+          "end": 1155,
+          "content_sha256": "f367a2d943ab17a283d0d44a162f10bc3052f480e3f810fdd26dcf34a090a070"
+        },
+        {
+          "pack_id": "three-realms-systems-ascension",
+          "entry_id": "source-82-7",
+          "start": 1155,
+          "end": 1370,
+          "content_sha256": "cc87c54f64f31c25834f9352c57ceaac6e52ec130243c08fd99aae47d1781641"
+        }
+      ]
+    },
+    {
+      "source_index": 83,
+      "source_title": "飛升機制-飛升後適應",
+      "source_sha256": "df36644e4352881a25287e70bd3a8e3879bd44314c41e95e02d723208d57fd20",
+      "source_chars": 795,
+      "destinations": [
+        {
+          "pack_id": "three-realms-systems-ascension",
+          "entry_id": "source-83-0",
+          "start": 0,
+          "end": 229,
+          "content_sha256": "060788bbdb9dd8b03660f7f7e110f8a4ba060d6dceadb31cb6a1ad9ba82d390b"
+        },
+        {
+          "pack_id": "three-realms-systems-ascension",
+          "entry_id": "source-83-1",
+          "start": 229,
+          "end": 475,
+          "content_sha256": "edc004a46419a017cccb14af77b6ed9f51faf1878fc99630dc2821b420a62d97"
+        },
+        {
+          "pack_id": "three-realms-systems-ascension",
+          "entry_id": "source-83-2",
+          "start": 475,
+          "end": 603,
+          "content_sha256": "7d329e25a061ce8e5374ed0c2dea10b60429b723ae3c42aa297d246529658561"
+        },
+        {
+          "pack_id": "three-realms-systems-ascension",
+          "entry_id": "source-83-3",
+          "start": 603,
+          "end": 795,
+          "content_sha256": "9c9970dc068d970ff81589e35c60abdbda6398c4adfe1b726624aac598768fcd"
+        }
+      ]
+    },
+    {
+      "source_index": 84,
+      "source_title": "飛升機制-降臨機制",
+      "source_sha256": "a645a8264beddcc2a1ac8f5c480d5975615a698a90a70e367db3545a2953daa7",
+      "source_chars": 1082,
+      "destinations": [
+        {
+          "pack_id": "three-realms-systems-ascension",
+          "entry_id": "source-84-0",
+          "start": 0,
+          "end": 56,
+          "content_sha256": "5a6a5a68d3d4bddd95444dd3324f3727ce8a5a146577fee8f60bc5dac1e1c211"
+        },
+        {
+          "pack_id": "three-realms-systems-ascension",
+          "entry_id": "source-84-1",
+          "start": 56,
+          "end": 270,
+          "content_sha256": "85307462ade847eeabec24e13e977c657ff4a71b2c705d66f6db5d088ffad7ac"
+        },
+        {
+          "pack_id": "three-realms-systems-ascension",
+          "entry_id": "source-84-2",
+          "start": 270,
+          "end": 484,
+          "content_sha256": "9c860ae3e76de6420741a7c4a86942841e7bbf25f3b89824aa42dbde3929709c"
+        },
+        {
+          "pack_id": "three-realms-systems-ascension",
+          "entry_id": "source-84-3",
+          "start": 484,
+          "end": 699,
+          "content_sha256": "0fec1011f90d6dfe23c4e840301baac0bae7ef095d0a6ea6f3917edbb30631cd"
+        },
+        {
+          "pack_id": "three-realms-systems-ascension",
+          "entry_id": "source-84-4",
+          "start": 699,
+          "end": 855,
+          "content_sha256": "27c79d40b5249ed14d21abffea2180da9391466ed811ead97bfdddc30419aa21"
+        },
+        {
+          "pack_id": "three-realms-systems-ascension",
+          "entry_id": "source-84-5",
+          "start": 855,
+          "end": 1082,
+          "content_sha256": "6bf868573d8f3537e9fbce080a836162b0da696b6df9449e6bbcc359b6723b56"
+        }
+      ]
+    }
+  ]
+}
