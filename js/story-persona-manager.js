@@ -65,7 +65,18 @@
     });
     return adultPackPromise;
   };
-  const portableOptions = () => '<option value="">選擇官方可攜角色…</option>' + portableCatalog().map(item => `<option value="${esc(item.id)}">${esc(item.label)}${item.rating === 'adult' ? ' · 18+' : ''}</option>`).join('');
+  const portableOptions = () => {
+    const catalog = portableCatalog();
+    const groups = [
+      ['一般可攜角色', item => item.rating !== 'adult' && !item.id.startsWith('three-realms-archetype-')],
+      ['三界原創人物範本', item => item.id.startsWith('three-realms-archetype-')],
+      ['成人可攜角色 · 18+', item => item.rating === 'adult']
+    ];
+    return '<option value="">選擇官方可攜角色…</option>' + groups.map(([label, matches]) => {
+      const items = catalog.filter(matches);
+      return items.length ? `<optgroup label="${esc(label)}">${items.map(item => `<option value="${esc(item.id)}">${esc(item.label)}${item.rating === 'adult' ? ' · 18+' : ''}</option>`).join('')}</optgroup>` : '';
+    }).join('');
+  };
   const portablePicker = () => `<section class="bao-portable-actor-picker"><b>官方可攜角色</b><span>把角色帶進目前世界；原作品人物不會被替換。</span><select data-portable-actor-select>${portableOptions()}</select><button type="button" class="secondary" data-portable-actor-apply>帶入這個角色</button></section>`;
   const refreshPortablePickers = () => document.querySelectorAll('[data-portable-actor-select]').forEach(select => {
     const chosen = select.value;
