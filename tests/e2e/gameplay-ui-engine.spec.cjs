@@ -311,3 +311,30 @@ test('native effect buttons commit a purchase once per click without sending a c
   await page.evaluate(() => document.querySelector('#ui-panel [data-gameplay-draft-text]')?.click());
   await expect(page.locator('#user-input')).toHaveValue('請問這裡的罐頭多少錢？');
 });
+
+test('custom builder choices keep drafts and bind actual text to initial state', async ({ page }) => {
+  await ready(page);
+  await page.evaluate(async () => {
+    const raw = await (await fetch('data/characters/community/28/zhutian-cultivation-fortune-strife.json')).json();
+    App.activeCharacter = CharacterEngine.normalize(raw);
+    App.openBuilder(); App.setStep(3);
+  });
+  const select = page.locator('[data-gameplay-field="origin"]');
+  const custom = page.locator('[data-gameplay-custom="origin"]');
+  await expect(custom).toBeHidden();
+  await select.selectOption('其他／自訂');
+  await expect(custom).toBeVisible();
+  await custom.fill('星海旅人');
+  await select.selectOption('散修');
+  await expect(custom).toBeHidden();
+  await select.selectOption('其他／自訂');
+  await expect(custom).toHaveValue('星海旅人');
+  await page.evaluate(() => { App.openBuilder(); App.setStep(3); });
+  await expect(custom).toHaveValue('星海旅人');
+  const result = await page.evaluate(() => {
+    const config = App.collectConfig();
+    const state = GameState.create(App.activeCharacter, config);
+    return { saved: config.gameplaySetup.origin, state: state.modules.player.origin };
+  });
+  expect(result).toEqual({ saved: '星海旅人', state: '星海旅人' });
+});
