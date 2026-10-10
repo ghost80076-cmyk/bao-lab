@@ -82,3 +82,11 @@ test('no world module reference is appended to single-character text-only mode',
   h.App.config={narrativeMode:'immersive',displayMode:'text'};
   assert.equal(h.App.buildSystemPrompt(), '請根據玩家回應推進故事。');
 });
+
+test('streaming preview hides incomplete JSON echo but preserves story prose', () => {
+  const h = setup();
+  const raw = '女侍向你欠身。\n【目前核心狀態】\n{"此刻":{"calendar":"靈曆';
+  assert.equal(h.window.BAOWorldModuleUI.stripInternalStateEcho(raw, {partial:true}), '女侍向你欠身。');
+  assert.equal(h.window.BAOWorldModuleUI.stripInternalStateEcho('【目前核心狀態】', {partial:true}), '正在生成敘事……');
+  assert.equal(h.window.BAOWorldModuleUI.stripInternalStateEcho(raw), raw, 'incomplete or malformed text must not be modified as committed content');
+});
