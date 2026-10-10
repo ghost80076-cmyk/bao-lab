@@ -97,7 +97,7 @@ test('text mode shows structured state and preserves legacy [STATUS] without exp
 
   await page.setViewportSize({ width: 390, height: 844 });
   await expect(dock).toBeVisible();
-  expect(await dock.evaluate(el => el.closest('#chat-stream') !== null)).toBe(true);
+  expect(await dock.evaluate(el => el.previousElementSibling?.id === 'chat-stream')).toBe(true);
 });
 
 test('a standalone legacy greeting does not remain HTML-escaped', async ({ page }) => {
