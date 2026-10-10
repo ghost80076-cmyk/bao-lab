@@ -139,3 +139,11 @@ Core.applyBuilderValues(customSchema, { origin: { option: '自訂', custom: '星
 assert.equal(customState.modules.player.origin, '星海旅人');
 customSchema.builder.fields[0].custom_option = '';
 assert.equal(Core.normalizeBuilderValues(customSchema, { origin: '星海旅人' }).origin, '散修');
+const cultivationCard = JSON.parse(fs.readFileSync('data/characters/community/28/zhutian-cultivation-fortune-strife.json', 'utf8'));
+const cultivationSchema = Core.normalize(cultivationCard.gameplay.ui_schema);
+const customFields = cultivationSchema.builder.fields.filter(field => field.custom_option);
+assert.deepEqual(customFields.map(field => field.key), ['gender', 'origin', 'realm', 'fortune_grade', 'goldfinger_type', 'temperament', 'start_location']);
+const cultivationValues = Object.fromEntries(customFields.map(field => [field.key, { option: field.custom_option, custom: '自訂內容：' + field.key }]));
+const cultivationState = structuredClone(cultivationCard.gameplay.initial_state);
+Core.applyBuilderValues(cultivationSchema, cultivationValues, cultivationState);
+for (const field of customFields) assert.equal(Core.getPath(cultivationState, field.target_path), '自訂內容：' + field.key);
