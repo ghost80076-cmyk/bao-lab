@@ -37,6 +37,7 @@ assert.equal(ids.size, 1, 'duplicate script installation cannot stack wrappers')
   assert.equal(context.BAOThreeRealmsEvents.commands().length, 11);
   assert.equal(modules.definitions(context.App.activeCharacter).find(d => d.id === core.id).tracking, 'manual');
   assert.equal(context.BAOThreeRealmsEvents.commands('generator').length, 2);
+  assert.equal(context.BAOThreeRealmsEvents.commands('query').length, 7);
   const original = JSON.stringify(GameState.current);
   const output = await context.App.buildMessages();
   assert.equal(output.length, 3);
@@ -47,6 +48,10 @@ assert.equal(ids.size, 1, 'duplicate script installation cannot stack wrappers')
   context.Chat.messages = [{ role: 'user', content: '【原作角色】\n玩家作品的夜舟' }];
   const generated = await context.App.buildMessages();
   assert.match(generated[1].content, /原作角色/);
+  assert.equal(JSON.stringify(GameState.current), original);
+  context.Chat.messages = [{ role: 'user', content: '【系統指令】整理物品清單' }];
+  const query = await context.App.buildMessages();
+  assert.match(query[1].content, /缺失資訊標明未確認/);
   assert.equal(JSON.stringify(GameState.current), original);
   GameState.current = JSON.parse(original);
   modules.ensureState(context.App.activeCharacter);

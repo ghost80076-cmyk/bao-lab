@@ -8,17 +8,17 @@
   const id = 'three_realms_events';
   const MAX_PROMPT = 1800;
   const preset = {
-    label: '三界事件與角色引導', icon: '✧', tracking: 'manual', context: 'ui_only', kind: 'object', fields: [],
-    triggers: [], description: '啟用後，在快捷指令選擇機運、危機、探索等事件或角色構思；明確送出要求才引導本輪敘事，沿用主模型。'
+    label: '三界故事引導', icon: '✧', tracking: 'manual', context: 'ui_only', kind: 'object', fields: [],
+    triggers: [], description: '啟用後，在快捷指令選擇機運、危機、探索等事件、角色構思或查詢整理；明確送出要求才引導本輪敘事，沿用主模型。'
   };
-  const commands = profiles.map(p => ({ id: 'three-realms-' + p.id, label: p.label, text: '【' + p.label + '】', source: p.category || 'event' }));
+  const commands = profiles.map(p => ({ id: 'three-realms-' + p.id, label: p.label, text: p.command || '【' + p.label + '】', source: p.category || 'event' }));
   function requested(text = '') {
     const value = String(text).trim();
     const exact = profiles.find(p => p.aliases.includes(value));
     if (exact) return exact;
     const visible = value.replace(/```[\s\S]*?(?:```|$)/g, '');
     for (const line of visible.split(/\r?\n/)) {
-      const match = profiles.find(p => p.aliases.some(alias => line.trim() === '【' + alias + '】'));
+      const match = profiles.find(p => p.aliases.some(alias => line.trim() === '【' + alias + '】' || (p.category === 'query' && alias.startsWith('【系統指令】') && line.trim() === alias)));
       if (match) return match;
     }
     return null;
@@ -27,6 +27,17 @@
     if (!enabled) return '';
     const profile = requested(latestUser);
     if (!profile) return '';
+    if (profile.category === 'query') {
+      const prompt = [
+        '【三界查詢整理｜' + profile.label + '】',
+        '玩家明確要求整理本故事資訊，沿用當前作品與已確認的對話、存檔資料。只使用已知事實；缺失資訊標明未確認，不能替角色編造過往、物品、關係或能力。',
+        '按玩家本輪需求採用原文的相關分類，不必輸出空白模板。參考分類：' + profile.layout.join('、') + '。',
+        '未見人物、離場動態、可能發展與已發生事件必須區分；可能性不能寫成確定結果。回答以故事內姓名與資訊為主，不混入演員身份或來源模板。',
+        '這是資訊整理，不推進時間、不建立新任務或物品、不改變角色關係，不自動切換或融合世界。正文與原生面板維持既有格式。'
+      ].join('\n');
+      if (prompt.length > MAX_PROMPT) throw new Error('三界查詢提示超過預算。');
+      return prompt;
+    }
     const realm = String(route).startsWith('下界') ? '下界' : ['中界', '上界'].includes(route) ? route : '';
     const blocks = [
       '【三界事件引導｜' + profile.label + '】',
