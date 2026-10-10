@@ -4,8 +4,8 @@ const fs = require('node:fs');
 const crypto = require('node:crypto');
 const core = require('../js/three-realms-events-core.js');
 const portable = require('../js/story-extension-pack-core.js');
-assert.equal(core.profiles.length, 11);
-assert.equal(core.commands.length, 11);
+assert.equal(core.profiles.length, 13);
+assert.equal(core.commands.length, 13);
 assert.equal(core.preset.tracking, 'manual');
 assert.equal(core.preset.context, 'ui_only');
 for (const profile of core.profiles) {
@@ -31,6 +31,12 @@ assert.equal(core.requested('我想去坊市\n【探索事件】').id, 'explorat
 assert.equal(core.requested('【神秘事件】\n【機運事件】').id, 'mystery', 'use the first requested command, not profile ordering');
 assert.equal(core.requested('奇遇事件').id, 'fortune');
 assert.equal(core.requested('【機緣事件】').id, 'fortune');
+assert.equal(core.commands.filter(c => c.source === 'event').length, 11);
+assert.equal(core.commands.filter(c => c.source === 'generator').length, 2);
+assert.equal(core.requested('【原作角色】\n作品：玩家作品，角色：夜舟').id, 'crossover-npc');
+for (const text of ['他是氣運之子', '不要原作角色', '「氣運之子」']) assert.equal(core.requested(text), null);
+assert.match(core.buildPrompt({ enabled: true, latestUser: '原作角色' }), /先詢問，不自行選定角色/);
+assert.match(core.buildPrompt({ enabled: true, latestUser: '氣運之子' }), /不直接建立名冊/);
 const messages = [{ role: 'system', content: 'stable-prefix' }, { role: 'assistant', content: '【危機事件】' }, { role: 'user', content: '【探索事件】' }];
 const copy = JSON.stringify(messages);
 const options = { enabled: true, latestUser: '【探索事件】', route: '中界' };
@@ -47,11 +53,11 @@ const pack = portable.buildPack({ world: { enabledBuiltIns: [core.id] } });
 assert.deepEqual(pack.sections.world.enabledBuiltIns, [core.id], 'portable settings preserve the opted-in feature');
 const provenance = JSON.parse(fs.readFileSync('data/three-realms-event-director-provenance.json'));
 assert.equal(provenance.source_visibility, '公開');
-assert.deepEqual(provenance.records.map(r => r.source_index), Array.from({ length: 11 }, (_, i) => i + 173));
+assert.deepEqual(provenance.records.map(r => r.source_index), Array.from({ length: 13 }, (_, i) => i + 173));
 for (const record of provenance.records) {
   const profile = core.profiles.find(p => p.id === record.profile_id);
   const canonical = JSON.stringify(profile, (_key, value) => value && !Array.isArray(value) && typeof value === 'object' ? Object.fromEntries(Object.keys(value).sort().map(k => [k, value[k]])) : value);
   assert.equal(crypto.createHash('sha256').update(canonical).digest('hex'), record.profile_sha256);
   assert.match(record.source_sha256, /^[a-f0-9]{64}$/);
 }
-console.log('Three Realms events: 11 profiles, explicit requests, opt-in, realm selection, bounded tail prompts, persistence and provenance passed.');
+console.log('Three Realms events: 11 event and 2 character profiles, explicit requests, opt-in, realm selection, bounded tail prompts, persistence and provenance passed.');

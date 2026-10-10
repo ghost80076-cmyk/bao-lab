@@ -143,6 +143,7 @@ test('Three Realms events are opt-in, fill without sending, and guide only the r
   });
   let quick = page.getByRole('dialog', { name: '快捷指令' });
   await expect(quick.locator('[data-quick-source="event"]')).toHaveCount(0);
+  await expect(quick.locator('[data-quick-source="generator"]')).toHaveCount(0);
   await quick.getByRole('button', { name: '關閉快捷指令' }).click();
   await page.evaluate(() => BAOWorldModuleManager.open());
   const manager = page.getByRole('dialog', { name: '世界模組管理' });
@@ -156,6 +157,7 @@ test('Three Realms events are opt-in, fill without sending, and guide only the r
   quick = page.getByRole('dialog', { name: '快捷指令' });
   await expect(quick.locator('[data-quick-source="event"]')).toHaveCount(11);
   await expect(quick.locator('[data-quick-id="three-realms-exploration"]')).toBeVisible();
+  await expect(quick.locator('[data-quick-source="generator"]')).toHaveCount(2);
   const before = await page.evaluate(() => Chat.messages.length);
   await quick.locator('[data-quick-id="three-realms-exploration"]').click();
   await expect(page.locator('#user-input')).toHaveValue('我想去坊市\n【探索事件】');
@@ -175,10 +177,22 @@ test('Three Realms events are opt-in, fill without sending, and guide only the r
     return (await App.buildMessages(App.config)).filter(m => typeof m.content === 'string' && m.content.includes('【三界事件引導｜')).length;
   });
   expect(next).toBe(0);
+  await page.locator('#user-input').fill('玩家作品的夜舟');
+  await page.evaluate(() => BAOStoryQuickCommands.open());
+  quick = page.getByRole('dialog', { name: '快捷指令' });
+  await quick.locator('[data-quick-id="three-realms-crossover-npc"]').click();
+  await expect(page.locator('#user-input')).toHaveValue('玩家作品的夜舟\n【原作角色】');
+  expect(await page.evaluate(() => Chat.messages.length)).toBe(before + 3);
+  const characterPrompt = await page.evaluate(async () => {
+    Chat.add('user', document.getElementById('user-input').value);
+    return (await App.buildMessages(App.config)).filter(m => typeof m.content === 'string' && m.content.includes('【三界事件引導｜原作角色】')).length;
+  });
+  expect(characterPrompt).toBe(1);
   await page.evaluate(() => BAOWorldModuleManager.open());
   await manager.locator('[data-preset-id="three_realms_events"]').uncheck();
   await manager.getByRole('button', { name: '套用到目前故事' }).click();
   await page.evaluate(() => BAOStoryQuickCommands.open());
   quick = page.getByRole('dialog', { name: '快捷指令' });
   await expect(quick.locator('[data-quick-source="event"]')).toHaveCount(0);
+  await expect(quick.locator('[data-quick-source="generator"]')).toHaveCount(0);
 });

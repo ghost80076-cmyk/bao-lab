@@ -31,10 +31,12 @@ load('three-realms-events');
 assert.equal(ids.size, 1, 'duplicate script installation cannot stack wrappers');
 (async () => {
   assert.equal(context.BAOThreeRealmsEvents.commands().length, 0);
+  assert.equal(context.BAOThreeRealmsEvents.commands('generator').length, 0);
   assert.equal((await context.App.buildMessages()).length, 2);
   modules.applyCustomization({ enabledBuiltIns: [core.id] });
   assert.equal(context.BAOThreeRealmsEvents.commands().length, 11);
   assert.equal(modules.definitions(context.App.activeCharacter).find(d => d.id === core.id).tracking, 'manual');
+  assert.equal(context.BAOThreeRealmsEvents.commands('generator').length, 2);
   const original = JSON.stringify(GameState.current);
   const output = await context.App.buildMessages();
   assert.equal(output.length, 3);
@@ -42,6 +44,10 @@ assert.equal(ids.size, 1, 'duplicate script installation cannot stack wrappers')
   assert.match(output[1].content, /所在界域未確認/);
   assert.equal(output[0].content, 'stable');
   assert.equal(JSON.stringify(GameState.current), original, 'prompt building must not advance time or grant resources');
+  context.Chat.messages = [{ role: 'user', content: '【原作角色】\n玩家作品的夜舟' }];
+  const generated = await context.App.buildMessages();
+  assert.match(generated[1].content, /原作角色/);
+  assert.equal(JSON.stringify(GameState.current), original);
   GameState.current = JSON.parse(original);
   modules.ensureState(context.App.activeCharacter);
   assert.equal(context.BAOThreeRealmsEvents.commands().length, 11, 'story snapshot retains opt-in');
