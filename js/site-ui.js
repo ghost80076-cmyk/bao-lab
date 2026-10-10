@@ -115,7 +115,7 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/chat-experience-repairs.js?v=2"))
     .then(() => loadBAOScript("js/story-quick-commands-core.js"))
     .then(() => loadBAOScript("js/story-quick-commands.js?v=2"))
-    .then(() => loadBAOScript("js/mobile-reading-layout.js?v=16"))
+    .then(() => loadBAOScript("js/mobile-reading-layout.js?v=17"))
     .then(() => loadBAOScript("js/story-actor-pack-core.js?v=1"))
     .then(() => loadBAOScript("js/story-actors-general-pack.js?v=1"))
     .then(() => loadBAOScript("js/story-persona-manager.js?v=7"))

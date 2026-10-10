@@ -174,6 +174,92 @@
     author.replaceChildren(heading, ...rows);
     author.dataset.fingerprint = fingerprint;
   };
+  // Legacy [STATUS] is authored output, not a write-back channel to GameState.
+  // Show it alongside the native snapshot so the reader never silently loses it.
+  const latestAuthoredStatus = () => {
+    const last = [...(Chat.messages || [])].reverse().find(message => message?.role === 'assistant');
+    const matches = [...String(last?.content || '').matchAll(/\[STATUS\]([\s\S]*?)\[\/STATUS\]/gi)];
+    return String(matches.at(-1)?.[1] || '').trim();
+  };
+  const statusText = value => {
+    if (value == null || value === '') return '—';
+    if (typeof value === 'object') {
+      try { return JSON.stringify(value); } catch { return '—'; }
+    }
+    return String(value);
+  };
+  const paintInlineStatus = () => {
+    const stream = document.getElementById('chat-stream');
+    const state = GameState?.current;
+    if (!stream || !state || !App.activeCharacter) return;
+    if (!document.getElementById('bao-inline-story-status-style')) {
+      const inlineStatusStyle = document.createElement('style');
+      inlineStatusStyle.id = 'bao-inline-story-status-style';
+      inlineStatusStyle.textContent = "#bao-inline-story-status{order:22;max-height:190px;overflow:auto;margin:10px 10px 14px;padding:12px 14px;border:1px solid var(--line,#7775);border-radius:12px;background:rgba(127,127,127,.07);overflow-wrap:anywhere}#bao-inline-story-status[hidden]{display:none!important}#bao-inline-story-status summary{cursor:pointer;font-weight:700}#bao-inline-story-status .bao-inline-story-status-body{display:grid;gap:10px;padding-top:10px}#bao-inline-story-status section{padding:8px 10px;border:1px solid #7773;border-radius:8px}#bao-inline-story-status section strong{display:block;margin-bottom:4px}#bao-inline-story-status .bao-inline-story-status-lines{white-space:pre-wrap;font-size:.9em;line-height:1.65}";
+      document.head.appendChild(inlineStatusStyle);
+    }
+    let panel = document.getElementById('bao-inline-story-status');
+    if (!panel) {
+      panel = document.createElement('details');
+      panel.id = 'bao-inline-story-status';
+      panel.open = true;
+      const summary = document.createElement('summary');
+      summary.textContent = '📋 目前故事狀態';
+      const body = document.createElement('div');
+      body.className = 'bao-inline-story-status-body';
+      panel.append(summary, body);
+    }
+    panel.hidden = prefs.status === 'hidden';
+    // Keep it outside #chat-stream: streaming and story tools expect the last
+    // direct child there to be the most recent message.
+    if (panel.previousElementSibling !== stream) stream.insertAdjacentElement('afterend', panel);
+    if (panel.hidden) return;
+    const body = panel.querySelector('.bao-inline-story-status-body');
+    const fragment = document.createDocumentFragment();
+    const addSection = (heading, lines) => {
+      if (!lines?.length) return;
+      const section = document.createElement('section');
+      const title = document.createElement('strong');
+      title.textContent = heading;
+      const text = document.createElement('div');
+      text.className = 'bao-inline-story-status-lines';
+      text.textContent = lines.join('\n');
+      section.append(title, text);
+      fragment.append(section);
+    };
+    if (prefs.status === 'native') {
+      addSection('世界', [
+        '時間：' + statusText(state.time),
+        '地點：' + statusText(state.location)
+      ]);
+      const names = Object.keys(state.characterStatuses || {}).slice(0, 32);
+      const cfg = window.BAOCharacterStatus?.configFor?.(App.activeCharacter);
+      const fields = (cfg?.fields || []).filter(field => !cfg?.customization?.hidden?.includes(field.key));
+      names.forEach(name => {
+        const values = state.characterStatuses[name] || {};
+        const lines = fields.length
+          ? fields.filter(field => values[field.key] !== undefined).map(field => (cfg.customization?.labels?.[field.key] || field.label || field.key) + '：' + statusText(values[field.key]))
+          : Object.entries(values).map(([key, value]) => key + '：' + statusText(value));
+        addSection('人物 · ' + name, lines);
+      });
+      (state.moduleDefinitions || []).slice(0, 32).forEach(def => {
+        const value = state.modules?.[def.id];
+        if (value == null) return;
+        const lines = value && typeof value === 'object' && !Array.isArray(value)
+          ? Object.entries(value).map(([key, item]) =>
+            (def.fields?.find(field => field.key === key)?.label || key) + '：' + statusText(item))
+          : [statusText(value)];
+        addSection((def.icon || '◈') + ' ' + (def.label || def.id), lines);
+      });
+    } else if (prefs.status === 'author') {
+      const authored = document.getElementById('bao-scene-author-status');
+      if (authored?.textContent?.trim()) addSection('作者狀態欄', [authored.textContent.trim()]);
+    }
+    const authoredStatus = latestAuthoredStatus();
+    if (authoredStatus) addSection('劇本回覆附帶狀態（原文）', [authoredStatus]);
+    if (!fragment.childNodes.length) addSection('故事狀態', ['目前沒有可顯示的狀態資料。']);
+    body.replaceChildren(fragment);
+  };
   const refresh = () => {
     const stream = document.getElementById('chat-stream');
     if (stream && App.activeCharacter) {
@@ -208,6 +294,7 @@
       }
     }
     paintStatus();
+    paintInlineStatus();
   };
   const originalPrompt = App.buildSystemPrompt.bind(App);
   App.buildSystemPrompt = function(...args) {
@@ -256,7 +343,7 @@
       return result;
     };
   });
-  window.BAOSceneHTML = { prefs, render, renderStructuredOpening, refresh, sceneTemplates, sharedStatus, paintStatus };
+  window.BAOSceneHTML = { prefs, render, renderStructuredOpening, refresh, sceneTemplates, sharedStatus, paintStatus: (...args) => { const result = paintStatus(...args); paintInlineStatus(); return result; }, paintInlineStatus };
   mount();
   const stream = document.getElementById('chat-stream');
   if (stream) {

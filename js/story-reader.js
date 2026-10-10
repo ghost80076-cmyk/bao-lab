@@ -126,7 +126,12 @@
   const rewriteRichBubble = (bubble, message) => {
     if (!bubble || !message) return;
     const content = String(message.content || "");
-    if (message.role === "assistant" && /<[a-z][\s\S]*>/i.test(content) && window.BAOChatMarkup?.sanitize) {
+    if (message.role === "assistant" && window.BAOSceneHTML?.render) {
+      // The selected reader owns native/efficient/free rendering for every
+      // committed assistant message, including the authored greeting.
+      bubble.innerHTML = BAOSceneHTML.render(content, Boolean(message.greeting));
+      bubble.classList.toggle("authored-rich-message", BAOSceneHTML.prefs?.mode !== "native");
+    } else if (message.role === "assistant" && /<[a-z][\s\S]*>/i.test(content) && window.BAOChatMarkup?.sanitize) {
       bubble.innerHTML = BAOChatMarkup.sanitize(content);
       bubble.classList.add("authored-rich-message");
     } else {
@@ -472,7 +477,20 @@
   };
 
   const decorateGreeting = element => {
-    if (!element || element.querySelector(".story-message-tools")) return;
+    if (!element) return;
+    // A standalone opening is not in Chat.messages; repaint from the original
+    // card instead of leaving the HTML-escaped bootstrap bubble on screen.
+    const bubble = element.querySelector(".bubble");
+    const greeting = App.activeCharacter?.greeting || App.activeCharacter?.content?.greeting || "";
+    if (bubble && greeting) {
+      const html = window.BAOSceneHTML?.render
+        ? BAOSceneHTML.render(greeting, true)
+        : window.BAOChatMarkup?.sanitize ? BAOChatMarkup.sanitize(greeting) : App.formatMessage(greeting);
+      if (bubble.innerHTML !== html) bubble.innerHTML = html;
+      bubble.dataset.authoredGreeting = "true";
+      element.dataset.storyGreeting = "true";
+    }
+    if (element.querySelector(".story-message-tools")) return;
     const tools = document.createElement("div");
     tools.className = "story-message-tools";
     tools.innerHTML = '<button type="button" data-copy>⧉ 複製開場</button>';
