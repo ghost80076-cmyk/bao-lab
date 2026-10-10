@@ -59,7 +59,7 @@ increasing(siteUI, [
   'loadBAOScript("js/story-tools.js?v=4")',
   'loadBAOScript("js/prompt-cache.js',
   'loadBAOScript("js/prompt-orchestrator.js")',
-  'loadBAOScript("js/streaming-ui.js")',
+  'loadBAOScript("js/streaming-ui.js',
   'loadBAOScript("js/request-lifecycle.js")'
 ], "story extension");
 
