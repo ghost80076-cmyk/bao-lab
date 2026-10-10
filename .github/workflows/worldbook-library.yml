@@ -7,6 +7,7 @@ on:
       - 'js/worldbook-library*.js'
       - 'data/worldbook-library.json'
       - 'tests/worldbook-library-core.cjs'
+      - 'tests/worldbook-library-runtime.cjs'
       - 'js/site-ui.js'
       - '.github/workflows/worldbook-library.yml'
   push:
@@ -32,4 +33,5 @@ jobs:
           node --check js/worldbook-library-core.js
           node --check js/worldbook-library.js
           node tests/worldbook-library-core.cjs
+          node tests/worldbook-library-runtime.cjs
           node tests/lorebook-core.cjs
