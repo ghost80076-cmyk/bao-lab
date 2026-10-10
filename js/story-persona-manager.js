@@ -80,7 +80,7 @@
     } catch { return []; }
   }
   function storePresets(list) {
-    try { localStorage.setItem(KEY, JSON.stringify(list.slice(0, 100))); return true; }
+    try { localStorage.setItem(KEY, JSON.stringify(list.slice(0, 100))); refreshPresetPickers(); return true; }
     catch { alert('人物預設未能寫入這台裝置，請檢查儲存空間。'); return false; }
   }
   function savePreset(p, proposedName) {
@@ -91,6 +91,15 @@
   }
   function presetOptions() {
     return '<option value="">選擇本機玩家人物…</option>' + presets().map(p => `<option value="${esc(p.id)}">${esc(p.label)} · ${esc(p.persona.name)}</option>`).join('');
+  }
+  // Keep the builder and in-story dropdowns in sync with the same local persona library.
+  // Rebuilding options must not overwrite an existing valid selection or persona form.
+  function refreshPresetPickers() {
+    document.querySelectorAll('#bao-persona-presets > select, #bao-actor-preset').forEach(select => {
+      const selectedId = select.value;
+      select.innerHTML = presetOptions();
+      if (selectedId && [...select.options].some(option => option.value === selectedId)) select.value = selectedId;
+    });
   }
   const draftCharacterId = () => trim(App.activeCharacter?.id || 'global', 160) || 'global';
   const draftKey = characterId => `${DRAFT_KEY_PREFIX}${encodeURIComponent(trim(characterId, 160) || 'global')}`;
@@ -567,6 +576,8 @@
       box.querySelector('[data-action="delete"]').onclick = () => {const item = presets().find(p => p.id === select.value); if (item && confirm(`刪除本機玩家預設「${item.label}」？`) && storePresets(presets().filter(p => p.id !== item.id))) refresh();};
       box.querySelector('[data-action="clear-draft"]').onclick = () => {if (confirm('確定清除目前尚未完成的玩家資料並重新填寫？本機人物預設不會被刪除。')) clearBuilderDraft(draftCharacterId(), {resetForm:true});};
     }
+    // The builder may be reused across stories; always reload presets on entry.
+    refreshPresetPickers();
     if (document.getElementById('bao-builder-actors')) return;
     const section = document.createElement('section');
     section.id = 'bao-builder-actors'; section.className = 'bao-actor-builder';
@@ -706,6 +717,11 @@
     style.textContent = `.bao-portable-actor-picker,.bao-local-actor-picker{display:grid;gap:7px;margin:10px 0 14px;padding:12px;border:1px solid #6a6074;border-radius:11px;background:#282432}.bao-portable-actor-picker b,.bao-local-actor-picker b{color:#eee6f1}.bao-portable-actor-picker span,.bao-local-actor-picker span{color:#aaa3b0;font-size:12px;line-height:1.5}.bao-portable-actor-picker select,.bao-local-actor-picker select{width:100%;padding:9px}.bao-portable-actor-picker button,.bao-local-actor-picker button{min-height:38px}.bao-actor-builder{margin:16px 0;padding:14px;border:1px solid #5d6279;border-radius:12px;background:#232634}.bao-actor-builder h4{margin:0 0 6px}.bao-actor-builder select{width:100%;max-width:100%;margin:8px 0;padding:10px}.bao-actor-actions{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}.bao-actor-actions button{min-height:38px;flex:1 1 145px}.bao-persona-more{display:grid;gap:10px;margin-top:10px}.bao-actor-item{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:8px;border-bottom:1px solid #555}.bao-actor-item span{flex:1 1 160px}.bao-actor-item button{width:auto}#bao-actor-backdrop{position:fixed;inset:0;z-index:10030;display:flex;align-items:center;justify-content:center;overflow:auto;padding:14px;background:rgba(0,0,0,.78)}.bao-actor-dialog{box-sizing:border-box;width:min(100%,700px);max-height:calc(100dvh - 28px);overflow:auto;padding:clamp(16px,3vw,26px);border:1px solid #686d81;border-radius:16px;background:#222632;color:#f4f4f8;box-shadow:0 18px 60px #0009}.bao-actor-dialog header{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}.bao-actor-dialog footer{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;align-items:stretch}.bao-actor-dialog header h2{margin:0;font-size:21px}.bao-actor-head-actions{display:flex;align-items:center;gap:8px}.bao-actor-help{display:none}.bao-actor-dialog header button{font-size:26px;border:0;background:none;color:inherit;cursor:pointer}.bao-actor-dialog label{display:grid;gap:5px;margin:8px 0;font-size:14px}.bao-actor-dialog input,.bao-actor-dialog textarea,.bao-actor-dialog select{box-sizing:border-box;width:100%;min-width:0;padding:10px;border:1px solid #6a7184;border-radius:8px;background:#141821;color:#fff;font:inherit}.bao-actor-dialog textarea{resize:vertical}.bao-actor-fields{display:grid;gap:6px}.bao-actor-dialog footer button{width:100%;min-width:0;min-height:44px;margin:0}#bao-actor-feedback{min-height:1.4em;color:#ffcc93}.bao-library-dialog{width:min(100%,820px)}.bao-library-dialog header>div{min-width:0}.bao-library-dialog header .note{margin:5px 0 0;max-width:620px}.bao-library-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}.bao-library-tabs button{min-height:40px;padding:8px 12px;border:1px solid #62697c;border-radius:10px;background:#191d27;color:#d9dce6;cursor:pointer}.bao-library-tabs button.active{background:#353a4c;color:#fff;border-color:#8e94aa}.bao-library-toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:8px 0 12px}.bao-library-toolbar span{color:#aaa3b0;font-size:12px}.bao-library-list{display:grid;gap:9px}.bao-library-card{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;padding:12px;border:1px solid #555d70;border-radius:12px;background:#191d27}.bao-library-card>div:first-child{display:grid;gap:4px;min-width:0}.bao-library-card b{font-size:15px}.bao-library-card span,.bao-library-card small{color:#b2b6c3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.bao-library-card small{font-size:12px}.bao-library-card-actions{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}.bao-library-card-actions button{min-height:36px;width:auto}.bao-library-editor{padding-top:4px}@media(max-width:700px){#bao-actor-backdrop{align-items:flex-end;padding:0}.bao-actor-dialog{width:100%;max-height:96dvh;border-radius:18px 18px 0 0;padding:10px 12px max(12px,env(safe-area-inset-bottom))}.bao-actor-dialog header{position:sticky;top:-10px;z-index:2;margin:-10px -12px 8px;padding:10px 12px;background:#222632f2;backdrop-filter:blur(10px)}.bao-actor-dialog header h2{font-size:20px}.bao-actor-head-actions{display:flex;align-items:center;gap:6px}.bao-actor-help{display:inline-grid!important;place-items:center;width:34px;height:34px!important;border:1px solid #686d81!important;border-radius:10px!important;background:#191d27!important;color:#d8dbe5!important;font-size:15px!important;font-weight:800}.bao-actor-dialog header [data-close]{width:34px;height:34px;font-size:22px}.bao-actor-intro{display:none;margin:6px 0 8px;font-size:11px;line-height:1.5}.bao-actor-dialog.bao-actor-help-open>.bao-actor-intro{display:block}.bao-actor-target-label{margin:4px 0 8px!important;font-size:12px!important}.bao-actor-target-label select{padding:8px!important}.bao-actor-dialog #bao-actor-form>.note{display:none}.bao-actor-dialog label{margin:6px 0;font-size:13px}.bao-actor-dialog input,.bao-actor-dialog textarea,.bao-actor-dialog select{padding:9px}.bao-actor-fields{gap:4px}.bao-actor-actions{gap:6px;margin:6px 0}.bao-actor-actions button{flex:1 1 calc(50% - 6px);min-height:38px}.bao-library-card{grid-template-columns:1fr}.bao-library-card-actions{justify-content:flex-start}.bao-library-card-actions button{flex:1 1 88px}.bao-actor-dialog footer{position:sticky;bottom:0;z-index:2;margin:8px -12px -12px;padding:8px 12px max(12px,env(safe-area-inset-bottom));background:#222632f2;backdrop-filter:blur(10px);gap:7px}.bao-actor-dialog footer button{min-height:40px}}`;
     document.head.appendChild(style);
   }
+  // Changes made in another tab do not trigger storage events in the source tab.
+  // Local writes refresh via storePresets(); external writes use this event.
+  window.addEventListener?.('storage', event => {
+    if (event.key === KEY) refreshPresetPickers();
+  });
   window.addEventListener?.('pagehide', () => {
     const builderView = document.getElementById('builder-view');
     if (!builderView?.classList?.contains('active')) return;

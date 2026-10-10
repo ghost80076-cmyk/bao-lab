@@ -1,0 +1,26 @@
+name: Persona picker sync
+
+on:
+  pull_request:
+    paths:
+      - 'js/story-persona-manager.js'
+      - 'tests/story-persona-picker-sync.test.cjs'
+      - '.github/workflows/persona-picker-sync.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'js/story-persona-manager.js'
+      - 'tests/story-persona-picker-sync.test.cjs'
+      - '.github/workflows/persona-picker-sync.yml'
+
+jobs:
+  persona-picker:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Persona library picker regression
+        run: node --test tests/story-persona-picker-sync.test.cjs
