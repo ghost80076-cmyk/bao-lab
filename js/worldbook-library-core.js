@@ -56,7 +56,9 @@
   }
   function slug(value) {
     const name = String(value || "").toLowerCase().replace(/[^a-z0-9_-]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 70);
-    return name || "legacy-worldbook";
+    let hash = 2166136261;
+    for (const char of String(value || "")) hash = Math.imul(hash ^ char.codePointAt(0), 16777619);
+    return (name || "legacy-worldbook") + "-" + (hash >>> 0).toString(36);
   }
   /* Import preserves original text. Rule-class entries require manual review and are NOT sent automatically. */
   function migrateLegacy(source, name = "LunaTalk 世界書") {
@@ -66,11 +68,13 @@
     const entries = source.entries.map((entry, index) => {
       const keywords = unique(entry.keywords || entry.keys || entry.triggers || [], 16);
       const category = text(entry.category, 32);
+      const title = text(entry.title, 100) || "原始條目 " + (index+1);
+      const recallTerms = keywords.length ? keywords : (entry.title ? [title] : []);
       return {
-        id: "entry-" + (index+1), title: text(entry.title, 100) || "原始條目 " + (index+1),
-        category, mode: keywords.length ? "keyword" : "foundation",
-        keywords, content: String(entry.content || "").trim(),
-        review_required: ["規則", "自訂"].includes(category)
+        id: "entry-" + (index+1), title,
+        category, mode: recallTerms.length ? "keyword" : "foundation",
+        keywords: recallTerms, content: String(entry.content || "").trim(),
+        review_required: !recallTerms.length || ["規則", "自訂"].includes(category)
       };
     });
     return normalizePack({
