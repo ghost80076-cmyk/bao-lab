@@ -617,7 +617,10 @@
       if (!await this.open()) return false;
       const records = (await this.allRecords()).filter(record => record.storyId === storyId);
       if (!records.length) return false;
-      await this.transaction("readwrite", store => records.forEach(record => store.delete(record.id)));
+      await this.transaction("readwrite", store => {
+        records.forEach(record => store.delete(record.id));
+        store.put({ id: "deletion:" + storyId, kind: "deletion", storyId, deletedAt: new Date().toISOString() });
+      });
       if (this.refs().storyId === storyId) this.clearRefs();
       return true;
     },

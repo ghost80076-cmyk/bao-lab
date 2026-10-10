@@ -13,6 +13,8 @@ async function run() {
   const id = 'story-12345678';
   const local = { storyId: id, title: '測試故事', updatedAt: '2026-09-20T01:00:00Z' };
   const remote = [];
+  let localExists = true;
+  const deletions = [];
   const calls = [];
   const bundle = () => ({
     schema: 'bao-lab-story-bundle', version: 1, exportedAt: local.updatedAt,
@@ -22,10 +24,17 @@ async function run() {
   const response = (value, status = 200) => ({ ok: status < 400, status, json: async () => value });
   const fetch = async (url, options = {}) => {
     calls.push({ url: String(url), method: options.method || 'GET' });
+    if (options.method === 'DELETE') {
+      const index = remote.findIndex(file => String(url).endsWith('/' + file.id));
+      if (index >= 0) remote.splice(index, 1);
+      return response({}, 204);
+    }
     if (String(url).includes('/about?')) return response({ user: { permissionId: 'test-account' } });
     // Upload URLs also end in /files?, so match the specific upload endpoint first.
     if (String(url).includes('/upload/drive/v3/files?')) {
-      const item = { id: 'drive-file-1', name: 'bao-lab-story-v1-' + id + '.json', version: '1' };
+      const body = await options.body.text();
+      const marker = body.includes('bao-lab-deleted-v1-');
+      const item = { id: marker ? 'deletion-file' : 'drive-file-1', name: (marker ? 'bao-lab-deleted-v1-' : 'bao-lab-story-v1-') + id + '.json', version: '1' };
       remote.push(item);
       return response(item);
     }
@@ -33,7 +42,8 @@ async function run() {
     throw new Error('Unexpected request: ' + url);
   };
   const lib = { open: async () => true, install() {}, flush: async () => true,
-    listStories: async () => [local], refs: () => ({ storyId: '', chapterId: '' }) };
+    listStories: async () => localExists ? [local] : [], allRecords: async () => deletions,
+    deleteStory: async () => { localExists = false; return true; }, refs: () => ({ storyId: '', chapterId: '' }) };
   const Storage = { saveStory: () => true };
   const google = { accounts: { oauth2: { initTokenClient: () => {
     const client = { callback: null, requestAccessToken() {
@@ -64,6 +74,21 @@ async function run() {
   const conflict = await sync.sync();
   assert.equal(conflict.conflicts, 1, 'Concurrent edits must not overwrite the cloud');
   assert.equal(calls.filter(call => call.method === 'PATCH').length, 0);
+  localExists = false;
+  deletions.push({ kind: 'deletion', storyId: id, deletedAt: '2026-09-21T00:00:00Z' });
+  const deleted = await sync.sync();
+  assert.equal(deleted.downloaded, 0, 'Local deletion must never download the old remote story');
+  assert.equal(deleted.errors.length, 0);
+  assert.ok(remote.some(file => file.name.startsWith('bao-lab-deleted-v1-')), 'Deletion must propagate to offline devices');
+  deletions.length = 0; // A different device has no local deletion history.
+  localExists = true;
+  const offline = await sync.sync();
+  assert.equal(offline.conflicts, 1, 'Unsynced local edits survive remote deletion');
+  assert.equal(offline.uploaded, 0, 'An offline device cannot resurrect a deleted story');
+  local.updatedAt = '2026-09-20T01:00:00Z';
+  const unchanged = await sync.sync();
+  assert.equal(unchanged.errors.length, 0);
+  assert.equal(localExists, false, 'An unchanged copy follows the remote deletion');
   sync.disconnect();
   assert.equal(sync.connected(), false);
   console.log('Google Drive sync core: upload, unchanged skip, conflict preservation and disconnect passed.');
