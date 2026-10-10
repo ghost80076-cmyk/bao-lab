@@ -116,6 +116,19 @@
           (flagged ? " · " + flagged + " 條規則待審（不自動召回）" : "");
         copy.append(heading, note);
         label.append(check, copy); article.append(label); listing.append(article);
+        if (pack.meta.visibility !== "public") {
+          const remove = document.createElement("button");
+          remove.type = "button"; remove.className = "secondary"; remove.textContent = "移除";
+          remove.onclick = () => {
+            if (!confirm("移除私人世界書「" + pack.meta.name + "」？原作品檔案不會受影響。")) return;
+            const current = cfg();
+            if (!current) return;
+            current.installed = (current.installed || []).filter(item => item?.meta?.id !== pack.meta.id);
+            current.enabled = (current.enabled || []).filter(id => id !== pack.meta.id);
+            save(); void render();
+          };
+          article.append(remove);
+        }
         check.onchange = () => {
           const current = cfg();
           if (!current) return;
