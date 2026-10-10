@@ -40,7 +40,42 @@
     const note = $('studio-gameplay-theme-status');
     if (note) note.textContent = enabled
       ? '這張卡已有 Gameplay UI schema；外觀設定會跟著草稿、角色庫與匯出 JSON 保存。'
-      : '這張卡目前沒有 Gameplay UI schema，因此不會新增空白 UI。匯入已有 Gameplay UI 的卡後即可調整外觀。';
+      : '這張卡目前沒有 Gameplay UI schema；下方加入操作按鈕後會建立面板，也可匯入已有互動 UI 的卡。';
+  };
+
+  function renderInventoryActions() {
+    const list = $('studio-action-list');
+    if (!list) return;
+    list.replaceChildren();
+    const visit = sections => (Array.isArray(sections) ? sections : []).forEach(section => {
+      if (!section || typeof section !== 'object') return;
+      if (section.type === 'tabs') (Array.isArray(section.tabs) ? section.tabs : []).forEach(tab => visit(tab?.sections));
+      if (section.type === 'actions') (Array.isArray(section.items) ? section.items : []).filter(item => item?.effect).forEach(item => {
+        const row = document.createElement('li'); row.textContent = item.label || '原生操作'; list.append(row);
+      });
+    });
+    (Array.isArray(base.gameplay_ui?.panels) ? base.gameplay_ui.panels : []).forEach(panel => visit(panel?.sections));
+  }
+  function addInventoryAction() {
+    const options = {
+      kind: text('action_kind'), label: text('action_label'), itemName: text('action_item_name'), itemId: text('action_item_id'),
+      quantity: Number(text('action_quantity')), price: Number(text('action_price')), balance: Number(text('action_balance')),
+      panelId: text('action_panel_id'), inventoryId: text('action_inventory_id'), currencyId: text('action_currency_id'),
+      currencyField: text('action_currency_field'), event: text('action_event')
+    };
+    base = window.BAOCharacterStudioActionsCore.addInventoryAction(readCard(), options);
+    syncGameplayThemeControls(true);
+    renderInventoryActions();
+    dirty = true;
+    $('studio-action-status').textContent = '已加入「' + options.label + '」。請儲存草稿或匯出；初始資源與背包已一併設定。';
+    status('已加入原生操作，尚未儲存修改');
+  }
+  const syncPurchaseFields = () => {
+    form.querySelectorAll('[data-purchase-field]').forEach(label => {
+      label.hidden = text('action_kind') !== 'purchase';
+      label.style.display = label.hidden ? 'none' : '';
+      label.querySelector('input').disabled = label.hidden;
+    });
   };
 
   function openDB() {
@@ -113,6 +148,8 @@
     field('gameplay_radius').value = theme.radius || 'round';
     field('gameplay_meter').value = theme.meter || 'soft';
     syncGameplayThemeControls(Boolean(c.gameplay_ui));
+    renderInventoryActions();
+    if ($('studio-action-status')) $('studio-action-status').textContent = '消耗按鈕可在取得物品前建立；玩家有庫存後才能使用。';
     $('studio-preview').classList.add('hidden');
     loading = false;
     dirty = false;
@@ -285,6 +322,9 @@
   form.addEventListener('change', () => { if (!loading) { dirty = true; status('尚未儲存修改'); } });
   form.addEventListener('submit', event => event.preventDefault());
   window.addEventListener('beforeunload', event => { if (dirty) { event.preventDefault(); event.returnValue = ''; } });
+  run('studio-add-inventory-action', addInventoryAction);
+  field('action_kind').addEventListener('change', syncPurchaseFields);
+  syncPurchaseFields();
   run('studio-new', () => createDraft('immersive'));
   run('studio-save-draft', saveDraft);
   run('studio-preview-button', preview);

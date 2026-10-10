@@ -37,6 +37,28 @@
 <label>數值條<select name="gameplay_meter" data-gameplay-theme-control><option value="soft">柔和漸層</option><option value="solid">單色</option><option value="glow">發光</option></select></label>
 </div>
 <small id="studio-gameplay-theme-status" class="note" role="status" aria-live="polite"></small>
+<h3>建立購買／消耗按鈕</h3>
+<p class="note">設定一次後，玩家按鈕會直接扣款、增減背包並存入故事，不需要 AI 計算。資源或庫存不足時整筆取消。初始資源只在新建欄位時使用；已有資料會保留。</p>
+<div class="studio-grid">
+<label>操作類型<select name="action_kind"><option value="purchase">購買物品</option><option value="consume">消耗物品</option></select></label>
+<label>按鈕文字<input name="action_label" maxlength="60" value="購買罐頭"></label>
+<label>物品名稱<input name="action_item_name" maxlength="120" value="罐頭"></label>
+<label>物品 ID<input name="action_item_id" maxlength="40" value="cans"><small>購買和消耗同一物品時，使用相同 ID。</small></label>
+<label>物品數量<input name="action_quantity" type="number" min="1" max="1000000" step="1" value="2"></label>
+<label data-purchase-field>扣除資源<input name="action_price" type="number" min="1" max="1000000" step="1" value="15"></label>
+<label data-purchase-field>初始資源<input name="action_balance" type="number" min="0" max="1000000000" step="1" value="20"></label>
+</div>
+<label>操作事件（選填）<input name="action_event" maxlength="160" placeholder="例：花費15晶核購入2份罐頭"></label>
+<details><summary>指定面板與資源欄位</summary><div class="studio-grid">
+<label>面板 ID<input name="action_panel_id" maxlength="40" value="resource-actions"></label>
+<label>背包模組 ID<input name="action_inventory_id" maxlength="40" value="inventory"></label>
+<label data-purchase-field>資源模組 ID<input name="action_currency_id" maxlength="40" value="economy"></label>
+<label data-purchase-field>資源欄位 ID<input name="action_currency_field" maxlength="40" value="crystals"></label>
+</div><p class="note">ID 使用英文字母開頭，後接英數、底線或連字號。若原卡同名模組的類型不同，請使用另一個 ID。</p></details>
+<button type="button" class="secondary" id="studio-add-inventory-action">＋ 加入操作按鈕</button>
+<p id="studio-action-status" class="note" role="status" aria-live="polite">消耗按鈕可在取得物品前建立；玩家有庫存後才能使用。</p>
+<ul id="studio-action-list" aria-label="已設定的原生操作"></ul>
+
 </details>
 <div class="studio-button-row"><button type="button" class="secondary" id="studio-preview-button">預覽</button><button type="button" class="secondary" id="studio-doctor">BAO Doctor</button><button type="button" class="secondary" id="studio-save-draft">儲存草稿</button><button type="button" class="secondary" id="studio-export">匯出夜灣 JSON</button><button type="button" class="primary" id="studio-install">加入我的角色</button></div><p class="note">BAO Doctor v1 只分析目前角色卡結構與長篇準備度，不會呼叫 AI，也不會假裝判斷尚未實測的記憶／Context／模型問題。</p>
 </form><section id="studio-preview" class="studio-preview hidden" aria-label="角色卡預覽"><h3>本機預覽（不會呼叫 AI）</h3><img id="studio-preview-image" alt="角色圖片預覽" src="assets/bao-bun.svg"><h4 id="studio-preview-name"></h4><p id="studio-preview-description"></p><div class="studio-preview-label">初始訊息</div><p id="studio-preview-greeting"></p><div class="studio-preview-label">核心設定摘要</div><p id="studio-preview-prompt"></p></section>
@@ -52,6 +74,7 @@
 <script src="js/gameplay-ui-core.js?v=2"></script>
 <script src="js/character-studio-flow-core.js"></script>
 <script src="js/character-studio-lifecycle-core.js"></script>
+<script src="js/character-studio-actions-core.js"></script>
 <script src="js/character-studio.js"></script>
 <script src="js/character-studio-flow.js?v=3"></script>
 <script src="js/bao-doctor.js"></script>

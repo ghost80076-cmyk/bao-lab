@@ -43,6 +43,7 @@ jobs:
           node --check js/gameplay-ui-core.js
           node --check js/gameplay-ui.js
           node tests/gameplay-actions-core.cjs
+          node tests/character-studio-actions-core.cjs
       - name: Story scene prompt core
         run: node tests/story-scene-prompt-core.cjs
       - name: Story flow core
