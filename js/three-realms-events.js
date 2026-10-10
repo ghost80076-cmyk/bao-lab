@@ -7,10 +7,13 @@
   App.wrapBuildMessages('three-realms-events:requested-event', async function(next, ...args) {
     const owner = window.GameState?.current;
     const active = enabled();
-    const latestUser = [...(window.Chat?.messages || [])].reverse().find(m => m.role === 'user')?.content || '';
+    const latestTurn = [...(window.Chat?.messages || [])].reverse().find(m => m.role === 'user');
+    const latestUser = latestTurn?.content || '';
     const route = owner?.modules?.three_realms_cultivation?.route || '';
     const messages = await next(...args);
     if (!owner || window.GameState?.current !== owner) return messages;
+    const currentTurn = [...(window.Chat?.messages || [])].reverse().find(m => m.role === 'user');
+    if (currentTurn !== latestTurn || currentTurn?.content !== latestUser) return messages;
     return core.append(messages, { enabled: active && enabled(), latestUser, route });
   });
   window.BAOThreeRealmsEvents = Object.freeze({ enabled, commands });

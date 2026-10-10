@@ -46,6 +46,10 @@ for (const profile of core.profiles) {
 for (const input of ['繼續', 'NPC說機運事件很好', '不要危機事件', '「危機事件」', '```\n【危機事件】\n```']) {
   assert.equal(core.buildPrompt({ enabled: true, latestUser: input }), '', input);
 }
+for (const input of ['~~~js\n【探索事件】\n~~~', '````\n```\n【探索事件】\n````', '```\n【探索事件】', '~~~\n【系統指令】自訂世界觀：範例', '    【探索事件】', '\t【探索事件】', '    探索事件']) assert.equal(core.requested(input), null, input);
+assert.equal(core.requested('~~~js\n【探索事件】\n~~~\n【情感事件】').id, 'emotion');
+assert.equal(core.requested('````\n```\n【探索事件】\n````\n【神秘事件】').id, 'mystery');
+assert.equal(core.requested('   【探索事件】').id, 'exploration');
 assert.equal(core.requested('我想去坊市\n【探索事件】').id, 'exploration');
 assert.equal(core.requested('【神秘事件】\n【機運事件】').id, 'mystery', 'use the first requested command, not profile ordering');
 assert.equal(core.requested('奇遇事件').id, 'fortune');

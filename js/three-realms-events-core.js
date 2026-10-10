@@ -13,11 +13,24 @@
   };
   const commands = profiles.map(p => ({ id: 'three-realms-' + p.id, label: p.label, text: p.command || '【' + p.label + '】', source: p.category || 'event' }));
   function requested(text = '') {
-    const value = String(text).trim();
-    const exact = profiles.find(p => p.aliases.includes(value));
+    const raw = String(text).replace(/\r\n?/g, '\n');
+    const value = raw.trim();
+    const first = raw.split('\n').find(line => line.trim()) || '';
+    const indented = line => /^(?: {4}|\t)/.test(line);
+    const exact = !indented(first) && profiles.find(p => p.aliases.includes(value));
     if (exact) return exact;
-    const visible = value.replace(/```[\s\S]*?(?:```|$)/g, '');
-    for (const line of visible.split(/\r?\n/)) {
+    let fence = null;
+    for (const line of raw.split('\n')) {
+      if (fence) {
+        if (new RegExp('^ {0,3}' + fence.char + '{' + fence.length + ',}\\s*$').test(line)) fence = null;
+        continue;
+      }
+      const opening = line.match(/^ {0,3}(`{3,}|~{3,})(.*)$/);
+      if (opening && (opening[1][0] !== '`' || !opening[2].includes('`'))) {
+        fence = { char: opening[1][0], length: opening[1].length };
+        continue;
+      }
+      if (indented(line)) continue;
       const match = profiles.find(p => p.aliases.some(alias => line.trim() === '【' + alias + '】' || (p.category === 'query' && alias.startsWith('【系統指令】') && line.trim() === alias)));
       if (match) return match;
       const legacy = profiles.find(p => p.category === 'workshop' && p.legacy_pattern && new RegExp(p.legacy_pattern).test(line.trim()));
