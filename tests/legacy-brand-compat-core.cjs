@@ -50,6 +50,36 @@ global.Storage = Storage;
   assert.equal(normalizedEarlyStory.schema, 'bao-lab-story');
   assert.equal(normalizedEarlyStory.version, 1);
 
+  const captureImportError = payload => {
+    try { Storage.sanitizeImportedStory(payload); }
+    catch (error) { return error; }
+    return null;
+  };
+  const nativeCardError = captureImportError({
+    schema_version: '1.5',
+    meta: { id: 'creator-card', name: 'Creator Card' },
+    content: { greeting: '開場', system_prompt: '角色核心' }
+  });
+  assert.ok(nativeCardError);
+  assert.equal(nativeCardError.code, 'YORUBAY_CHARACTER_CARD_IN_STORY_IMPORT');
+  assert.match(nativeCardError.message, /作品 → 本機角色與匯入/);
+
+  const v2CardError = captureImportError({
+    spec: 'chara_card_v2',
+    data: { name: '酒館角色' }
+  });
+  assert.ok(v2CardError);
+  assert.equal(v2CardError.code, 'YORUBAY_CHARACTER_CARD_IN_STORY_IMPORT');
+
+  const creatorReportError = captureImportError({
+    source_format: 'character-card-v2',
+    draft: { name: '尚未匯出的角色' },
+    capability_audit: { worldbook: '已轉換' }
+  });
+  assert.ok(creatorReportError);
+  assert.equal(creatorReportError.code, 'YORUBAY_CREATOR_REPORT_IN_STORY_IMPORT');
+  assert.match(creatorReportError.message, /還不是可匯入檔案/);
+
   // 2. Full story bundles exported under the BAO/LAB name remain valid.
   global.BAOStoryLibrary = {};
   load('js/story-backup.js');

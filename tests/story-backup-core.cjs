@@ -106,6 +106,9 @@ const storyToolsSource = fs.readFileSync(path.join(__dirname, '..', 'js', 'story
 assert.match(storyToolsSource, /data-story-library-import/);
 assert.match(storyToolsSource, /const importStoryFile = async file/);
 assert.match(storyToolsSource, /BAOStoryBackup\.importBundle\(parsed\)/);
+assert.match(storyToolsSource, /YORUBAY_CHARACTER_CARD_IN_STORY_IMPORT/);
+assert.match(storyToolsSource, /App\.showView\?\.\("explore"\)/);
+assert.match(storyToolsSource, /details\.bao-gallery-more/);
 
 (async () => {
   const bundle = await BAOStoryBackup.buildBundle('story-old');

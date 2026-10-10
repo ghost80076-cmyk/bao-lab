@@ -119,8 +119,35 @@ const Storage = {
     return Boolean(save && typeof save === "object" && save.characterId && save.config && save.chat && Array.isArray(save.chat.messages || []));
   },
 
+  importedPayloadKind(value) {
+    if (!value || typeof value !== "object" || Array.isArray(value)) return "unknown";
+    if (this.validateStory(value)) return "story";
+    if (
+      (value.schema_version && value.meta && value.content) ||
+      (value.meta && value.content && (value.meta.id || value.id)) ||
+      (/^chara_card_v[23]$/.test(String(value.spec || "")) && value.data)
+    ) return "character";
+    if (value.draft && (value.capability_audit || value.worldbook || value.source_format)) return "creator-report";
+    return "unknown";
+  },
+
   sanitizeImportedStory(save) {
-    if (!this.validateStory(save)) throw new Error("這不是有效的夜灣故事存檔。");
+    if (!this.validateStory(save)) {
+      const kind = this.importedPayloadKind(save);
+      const error = new Error(
+        kind === "character"
+          ? "這份檔案看起來是角色卡，不是完整故事備份。請到「作品 → 本機角色與匯入（進階）→ 匯入角色卡（JSON／PNG）」上傳。"
+          : kind === "creator-report"
+            ? "這是 YoruBay Creator 的遷移分析報告，還不是可匯入檔案。請先讓 Creator 完成「產生夜灣角色卡 JSON」與檔案準備，再到角色卡匯入入口上傳。"
+            : "這不是有效的夜灣故事存檔。完整故事備份請在這裡匯入；角色卡請到「作品 → 本機角色與匯入」。",
+      );
+      error.code = kind === "character"
+        ? "YORUBAY_CHARACTER_CARD_IN_STORY_IMPORT"
+        : kind === "creator-report"
+          ? "YORUBAY_CREATOR_REPORT_IN_STORY_IMPORT"
+          : "YORUBAY_INVALID_STORY_IMPORT";
+      throw error;
+    }
     const clean = this.scrubSecrets(this.clone(save));
     clean.schema = clean.schema || this.storySchema;
     clean.version = Math.max(1, Number(clean.version || 1));
