@@ -129,15 +129,16 @@ test('Three Realms archetypes require explicit apply and persist as independent 
   await form.locator('[name="name"]').fill('本場同行');
   await form.locator('[name="identity"]').fill('商隊護衛');
   await page.locator('[data-apply]').click();
-  const saved = await page.evaluate(() => {
+  const saved = await page.evaluate(async () => {
     App.saveStory(false);
     const state = Storage.loadStory().state;
     GameState.current = JSON.parse(JSON.stringify(state));
     const actor = GameState.current.storyActors.hostedCharacters[0];
-    return {count:GameState.current.storyActors.hostedCharacters.length,name:actor.name,identity:actor.identity,relationship:actor.relationship,packId:actor.portable.packId,actorMode:actor.portable.actorMode,sourceName:App.activeCharacter.name,templateName:BAOThreeRealmsStoryActorPack.actors.find(a => a.id===actor.portable.packId).name,prompt:BAOStoryActorPackCore.portablePrompt(actor)};
+    return {count:GameState.current.storyActors.hostedCharacters.length,name:actor.name,identity:actor.identity,relationship:actor.relationship,packId:actor.portable.packId,actorMode:actor.portable.actorMode,sourceName:App.activeCharacter.name,templateName:BAOThreeRealmsStoryActorPack.actors.find(a => a.id===actor.portable.packId).name,prompt:(await App.buildMessages(App.config)).map(message => message.content || '').join('\n')};
   });
   expect(saved.prompt).toContain('本場人物：本場同行');
-  expect(saved.prompt).not.toContain('顧行舟');
+  expect(saved.prompt).not.toContain('【原創人物｜顧行舟】');
+  expect(saved.prompt).not.toContain('【官方可攜角色｜三界原型｜顧行舟');
   delete saved.prompt;
   expect(saved).toEqual({count:1,name:'本場同行',identity:'商隊護衛',relationship:'',packId:'three-realms-archetype-14',actorMode:false,sourceName,templateName:'顧行舟'});
 });
