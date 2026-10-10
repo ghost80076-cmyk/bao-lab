@@ -150,3 +150,53 @@ test('a standalone legacy greeting does not remain HTML-escaped', async ({ page 
   await expect(greeting).toContainText('歌舞伎町');
   expect(await greeting.innerText()).not.toContain('<div class=');
 });
+
+for (const displayMode of ['text', 'ui']) {
+  test(`persisted intimacy theme renders Yume opening and status safely in ${displayMode}`, async ({ page }) => {
+    await page.addInitScript(() => localStorage.setItem('bao-lab:scene-view-v1', JSON.stringify({ enabled: true, type: 'intimacy' })));
+    await prepareYume(page);
+    await page.waitForFunction(() => Boolean(window.BAOSceneChat && window.BAOSceneRenderIntegrity));
+    await page.evaluate(mode => {
+      App.config.displayMode = mode;
+      App.renderChatShell(false);
+      BAOSceneRenderIntegrity.reconcile();
+    }, displayMode);
+    const bubble = page.locator('#chat-stream > .message.assistant .bubble').first();
+    await expect(bubble.locator('.bao-scene-heading')).toHaveText('成人親密');
+    await expect(bubble).not.toContainText('<div class=');
+    await expect(bubble.locator('.bao-yume-opening img')).toHaveAttribute('src', 'assets/yume-yume-rain-v4.webp');
+    await page.evaluate(() => {
+      Chat.add('user', '繼續');
+      Chat.add('assistant', '<p>門邊的雨聲。</p><img src="javascript:alert(1)" onerror="window.__unsafe=true"><script>window.__unsafe=true</script>\n[STATUS]氣運：120[/STATUS]');
+      App.renderChatShell(false);
+      BAOStoryReader.decorateStream();
+      BAOSceneRenderIntegrity.reconcile();
+    });
+    const last = page.locator('#chat-stream > .message.assistant .bubble').last();
+    await expect(last).toContainText('門邊的雨聲。');
+    await expect(last).not.toContainText('<p>');
+    await expect(last).not.toContainText('[STATUS]');
+    await expect(page.locator('#bao-inline-story-status')).toContainText('氣運：120');
+    expect(await last.locator('script,[onerror],[src^="javascript:"]').count()).toBe(0);
+    expect(await page.evaluate(() => window.__unsafe)).toBeUndefined();
+    await page.evaluate(() => {
+      BAOSceneChat.prefs.enabled = false;
+      BAOSceneChat.paint();
+      BAOSceneHTML.prefs.mode = 'native';
+      BAOSceneHTML.refresh();
+      BAOSceneChat.prefs.enabled = true;
+      BAOSceneChat.prefs.type = 'mystery';
+      BAOSceneChat.paint();
+    });
+    await expect(bubble).not.toContainText('<div class=');
+    await expect(bubble).toContainText('Club Rose');
+    await page.evaluate(() => {
+      BAOSceneHTML.prefs.mode = 'efficient';
+      Chat.reset();
+      App.renderChatShell(true);
+      BAOSceneRenderIntegrity.reconcile();
+    });
+    await expect(bubble).not.toContainText('<div class=');
+    await expect(bubble.locator('.bao-yume-opening img')).toHaveCount(1);
+  });
+}
