@@ -65,11 +65,12 @@ test('text mode shows structured state and preserves legacy [STATUS] without exp
   await page.evaluate(() => {
     GameState.current.time = '靈曆三千年・辰時';
     GameState.current.location = '青嵐坊市';
-    GameState.current.moduleDefinitions = [{
-      id: 'cultivation', icon: '☯', label: '修為', kind: 'object',
+    App.activeCharacter.world_modules = [{
+      id: 'cultivation', icon: '☯', label: '修為', kind: 'object', context: 'core', tracking: 'medium',
       fields: [{ key: 'realm', label: '境界' }, { key: 'power', label: '靈力' }]
     }];
-    GameState.current.modules = { cultivation: { realm: '凡俗', power: 80 } };
+    BAOWorldModules.ensureState(App.activeCharacter);
+    GameState.current.modules.cultivation = { realm: '凡俗', power: 80 };
     Chat.add('user', '我走進茶樓');
     Chat.add('assistant', '侍者遞來一盞茶。\n[STATUS]\n氣運：120\n關係：陌生\n[/STATUS]');
     App.renderChatShell(false);
