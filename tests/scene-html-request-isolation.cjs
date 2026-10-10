@@ -23,6 +23,6 @@ for (const mode of ['native', 'efficient', 'free']) {
 }
 function awaitContext() { return [{ role: 'user', content: '繼續故事' }]; }
 assert.match(read('js/global-bridge.js'), /window\.App\s*=\s*App/);
-assert.match(read('js/chat-markup.js'), /script\.src\s*=\s*['"]js\/scene-html-modes\.js['"]/);
+assert.match(read('js/chat-markup.js'), /script\.src\s*=\s*['"]js\/scene-html-modes\.js(?:\?v=\d+)?['"]/);
 console.log('PASS: scene module initializes, loader and global bridge are present, and author template is absent from three main-prompt modes.');
 console.log('LIMITATION: historical assistant HTML and actual provider request payloads are not covered by this test.');
