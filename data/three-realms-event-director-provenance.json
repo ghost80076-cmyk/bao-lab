@@ -94,6 +94,55 @@
       "source_sha256": "62b8dd254f97bd5d296d3cd1764dee2ed1889e4fcd74268557cfb3c626b2a155",
       "profile_id": "crossover-npc",
       "profile_sha256": "9952c954a232c2e81dd2b47049fe50e53001d301fea4bca8f6f452240c5836aa"
+    },
+    {
+      "source_index": 43,
+      "source_title": "整理關係網路",
+      "source_sha256": "b9ab17c478b09e55c8e0bdef21938999d0028407a940b933d9079fd3381916e7",
+      "profile_id": "query-relations",
+      "profile_sha256": "ba249d46f2d6865d3b79b2f7eb52d8077de3ed8bde42592685dc43fd1d232379"
+    },
+    {
+      "source_index": 44,
+      "source_title": "總結劇情",
+      "source_sha256": "ed38d2ec50bff55322bac112e5a8b19cc44335c7cb61c9066563269eeadec4a5",
+      "profile_id": "query-recap",
+      "profile_sha256": "de64d192d8e8d52e546dd56f6b32068435e5ecb31f1a16e6e6cb97ec4c383c7d"
+    },
+    {
+      "source_index": 45,
+      "source_title": "列出重要事件",
+      "source_sha256": "416618d482b81f54da45facf1d3082dda90c5015eaac6efa75b4ca8943da7f5f",
+      "profile_id": "query-timeline",
+      "profile_sha256": "600ab68d8088a0157257a66dc408e821e57fc3b44e3a32ca3500f4bf84902718"
+    },
+    {
+      "source_index": 46,
+      "source_title": "整理物品清單",
+      "source_sha256": "1b1375d455e5fae8cd2f46bfa22c45fd4f181688cb33ab2e4e6d7bc943ae2974",
+      "profile_id": "query-inventory",
+      "profile_sha256": "778a80e145bc54bbd2e91f52e42464e0df35e461d812eefe8d61459d361294de"
+    },
+    {
+      "source_index": 47,
+      "source_title": "世界觀查詢類指令",
+      "source_sha256": "bc3308373feecf7fac2ee795edbf299b69482f78230ca5d33569d81753f3442b",
+      "profile_id": "query-world",
+      "profile_sha256": "3ee814d538edca9e883776ef63260cb4815968446717f89f67a22a28bef9ec7a"
+    },
+    {
+      "source_index": 48,
+      "source_title": "介紹世界背景",
+      "source_sha256": "44ad17e982afd07721ae470e0b37d0cad6895073f848371db2a015245724d92d",
+      "profile_id": "query-background",
+      "profile_sha256": "ba6624c8fb6957588751573ad3f5320479dc7aabbe6ec4a24a3fc547bea7d666"
+    },
+    {
+      "source_index": 51,
+      "source_title": "整理人物檔案",
+      "source_sha256": "6025140ef8a758ed64fdbd2964688e05c436f769d47c447e3016297f0f8e077b",
+      "profile_id": "query-npcs",
+      "profile_sha256": "4965b48ff22f8f158e2e008ae97f591ab2d859f33e742fcf97cda5190c623ae6"
     }
   ]
 }
