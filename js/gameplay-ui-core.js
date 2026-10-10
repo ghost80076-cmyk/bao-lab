@@ -143,6 +143,7 @@
       type,
       target_path: targetPath,
       options,
+      custom_option: type === 'select' && options.includes(raw.custom_option) ? raw.custom_option : '',
       default: defaultValue,
       min: type === 'number' && Number.isFinite(Number(raw.min)) ? Number(raw.min) : undefined,
       max: type === 'number' && Number.isFinite(Number(raw.max)) ? Number(raw.max) : undefined,
@@ -433,7 +434,13 @@
     });
     s.builder.fields.forEach(field => {
       const value = input[field.key];
-      if (field.type === 'select') values[field.key] = field.options.includes(String(value)) ? String(value) : field.default;
+      if (field.type === 'select') {
+        const option = isObject(value) ? String(value.option ?? '') : String(value ?? field.default);
+        const custom = isObject(value) ? String(value.custom ?? '').trim().slice(0, 240) : option.trim().slice(0, 240);
+        if (field.custom_option && (option === field.custom_option || !field.options.includes(option))) {
+          values[field.key] = custom && custom !== field.custom_option ? custom : '';
+        } else values[field.key] = field.options.includes(option) ? option : field.default;
+      }
       else if (field.type === 'number') {
         let n = finite(value, field.default);
         if (Number.isFinite(field.min)) n = Math.max(field.min, n);

@@ -227,3 +227,9 @@ Scene RPG 範例：
 當匯入／編輯的角色卡已經具有 Gameplay UI schema 時，創作室會開放「互動 UI 外觀」設定，讓作者選擇主題、主色、密度、圓角與 meter 樣式。若角色卡沒有 Gameplay UI schema，這些控制會停用，不會偷偷建立一份空白 UI。
 
 目前這是 Theme 編輯器，不是完整 Gameplay UI schema Builder；panel、section、state path 的圖形化作者工具可在後續版本加入。
+
+### 自訂選單值
+
+Builder 的 `select` 欄位可宣告 `custom_option`，值必須是 `options` 中的一個選項，例如 `"custom_option": "其他／自訂"`。選取它會展開最多 240 字的文字欄，沿用 `placeholder`。切換預設選項或重新開啟同一作品的設定會保留本次草稿。
+
+UI 草稿使用 `{ option, custom }`；`gameplaySetup` 與世界狀態只儲存修剪後的實際文字，未填則為空字串，交由開場承接未指定值。沒有 `custom_option` 的選單仍只接受列出的選項。自訂內容作為資料保存，不執行 HTML 或 JavaScript。

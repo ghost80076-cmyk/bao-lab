@@ -126,3 +126,24 @@ assert.equal(cleaned.panels.some(panel => panel.id === 'secret'), false);
 assert.equal(Core.normalize(null), null);
 assert.equal(Core.normalize({ version: 2, panels: [] }), null);
 console.log('Gameplay UI Engine core PASS: opt-in schema, safe archive tabs, location archives, timelines, and state binding');
+
+// Custom selects survive normalization, persistence, and initial world binding.
+const customSchema = structuredClone(schema);
+customSchema.builder.fields = [{ key: 'origin', type: 'select', options: ['散修', '自訂'], custom_option: '自訂', default: '散修', target_path: 'modules.player.origin' }];
+assert.equal(Core.normalizeBuilderValues(customSchema, { origin: { option: '自訂', custom: '  星海旅人  ' } }).origin, '星海旅人');
+assert.equal(Core.normalizeBuilderValues(customSchema, { origin: '星海旅人' }).origin, '星海旅人');
+assert.equal(Core.normalizeBuilderValues(customSchema, { origin: { option: '自訂', custom: '' } }).origin, '');
+assert.equal(Core.normalizeBuilderValues(customSchema, { origin: 'x'.repeat(300) }).origin.length, 240);
+const customState = { modules: { player: {} } };
+Core.applyBuilderValues(customSchema, { origin: { option: '自訂', custom: '星海旅人' } }, customState);
+assert.equal(customState.modules.player.origin, '星海旅人');
+customSchema.builder.fields[0].custom_option = '';
+assert.equal(Core.normalizeBuilderValues(customSchema, { origin: '星海旅人' }).origin, '散修');
+const cultivationCard = JSON.parse(fs.readFileSync('data/characters/community/28/zhutian-cultivation-fortune-strife.json', 'utf8'));
+const cultivationSchema = Core.normalize(cultivationCard.gameplay.ui_schema);
+const customFields = cultivationSchema.builder.fields.filter(field => field.custom_option);
+assert.deepEqual(customFields.map(field => field.key), ['gender', 'origin', 'realm', 'fortune_grade', 'goldfinger_type', 'temperament', 'start_location']);
+const cultivationValues = Object.fromEntries(customFields.map(field => [field.key, { option: field.custom_option, custom: '自訂內容：' + field.key }]));
+const cultivationState = structuredClone(cultivationCard.gameplay.initial_state);
+Core.applyBuilderValues(cultivationSchema, cultivationValues, cultivationState);
+for (const field of customFields) assert.equal(Core.getPath(cultivationState, field.target_path), '自訂內容：' + field.key);

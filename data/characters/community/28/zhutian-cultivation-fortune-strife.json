@@ -640,7 +640,9 @@
               "非二元／其他",
               "自訂"
             ],
-            "default": "自訂"
+            "default": "自訂",
+            "custom_option": "自訂",
+            "placeholder": "請輸入自訂性別"
           },
           {
             "key": "age",
@@ -664,7 +666,9 @@
               "妖族",
               "其他／自訂"
             ],
-            "default": "散修"
+            "default": "散修",
+            "custom_option": "其他／自訂",
+            "placeholder": "請輸入自訂出身"
           },
           {
             "key": "realm",
@@ -679,7 +683,9 @@
               "金丹初期",
               "自訂"
             ],
-            "default": "煉氣初期"
+            "default": "煉氣初期",
+            "custom_option": "自訂",
+            "placeholder": "請輸入自訂起始境界"
           },
           {
             "key": "fortune_grade",
@@ -693,7 +699,9 @@
               "天命候選",
               "自訂"
             ],
-            "default": "尋常偏盛"
+            "default": "尋常偏盛",
+            "custom_option": "自訂",
+            "placeholder": "請輸入自訂氣運起點"
           },
           {
             "key": "goldfinger_type",
@@ -710,7 +718,9 @@
               "預知類",
               "其他／自訂"
             ],
-            "default": "無"
+            "default": "無",
+            "custom_option": "其他／自訂",
+            "placeholder": "請輸入自訂金手指類型"
           },
           {
             "key": "goldfinger_detail",
@@ -734,7 +744,9 @@
               "仁厚",
               "其他／自訂"
             ],
-            "default": "穩健"
+            "default": "穩健",
+            "custom_option": "其他／自訂",
+            "placeholder": "請輸入自訂性格傾向"
           },
           {
             "key": "start_location",
@@ -749,7 +761,9 @@
               "荒野秘境入口",
               "其他／自訂"
             ],
-            "default": "青嵐坊市外"
+            "default": "青嵐坊市外",
+            "custom_option": "其他／自訂",
+            "placeholder": "請輸入自訂開局地點"
           }
         ]
       },

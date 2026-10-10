@@ -114,7 +114,9 @@
   const fieldControl = (field, value) => {
     const common = `data-gameplay-field="${esc(field.key)}"`;
     if (field.type === 'select') {
-      return `<select ${common}>${field.options.map(option => `<option value="${esc(option)}" ${String(value) === option ? 'selected' : ''}>${esc(option)}</option>`).join('')}</select>`;
+      const selected = typeof value === 'object' ? value.option : value;
+      const custom = typeof value === 'object' ? value.custom || '' : '';
+      return `<select ${common}>${field.options.map(option => `<option value="${esc(option)}" ${String(selected) === option ? 'selected' : ''}>${esc(option)}</option>`).join('')}</select>${field.custom_option ? `<input data-gameplay-custom="${esc(field.key)}" type="text" maxlength="240" value="${esc(custom)}" placeholder="${esc(field.placeholder || '請輸入自訂' + field.label)}" aria-label="${esc('自訂' + field.label)}" ${selected === field.custom_option ? '' : 'hidden'}>` : ''}`;
     }
     if (field.type === 'number') {
       const min = Number.isFinite(field.min) ? ` min="${field.min}"` : '';
@@ -166,18 +168,29 @@
         const current = Number(values[attr.key] ?? attr.base);
         if (button.dataset.gameplayStep === 'minus') values[attr.key] = Math.max(attr.base, current - attr.step);
         else if (Core.remainingPoints(activeSchema, values) > 0) values[attr.key] = Math.min(attr.max, current + attr.step);
-        Object.assign(values, Core.normalizeBuilderValues(activeSchema, values));
+        const normalized = Core.normalizeBuilderValues(activeSchema, values);
+        activeSchema.builder.attributes.forEach(item => { values[item.key] = normalized[item.key]; });
         renderBuilder(box, activeSchema, values);
       });
       const updateField = event => {
-        const input = event.target.closest?.('[data-gameplay-field]');
+        const input = event.target.closest?.('[data-gameplay-field], [data-gameplay-custom]');
         if (!input) return;
         const activeSchema = schemaFor(App.activeCharacter);
         if (!activeSchema) return;
-        const field = activeSchema.builder.fields.find(item => item.key === input.dataset.gameplayField);
+        const field = activeSchema.builder.fields.find(item => item.key === (input.dataset.gameplayField || input.dataset.gameplayCustom));
         if (!field) return;
         const values = builderValue(activeSchema);
-        values[field.key] = field.type === 'boolean' ? input.checked : input.value;
+        if (field.custom_option) {
+          const previous = values[field.key];
+          const draft = typeof previous === 'object' ? previous : { option: previous, custom: '' };
+          if (input.dataset.gameplayCustom) draft.custom = input.value;
+          else {
+            draft.option = input.value;
+            const customInput = Array.from(box.querySelectorAll('[data-gameplay-custom]')).find(node => node.dataset.gameplayCustom === field.key);
+            if (customInput) customInput.hidden = draft.option !== field.custom_option;
+          }
+          values[field.key] = draft;
+        } else values[field.key] = field.type === 'boolean' ? input.checked : input.value;
       };
       box.addEventListener('input', updateField);
       box.addEventListener('change', updateField);
@@ -750,7 +763,7 @@
   const originalOpenBuilder = App.openBuilder.bind(App);
   App.openBuilder = function(...args) {
     const result = originalOpenBuilder(...args);
-    mountBuilder(true);
+    mountBuilder();
     return result;
   };
 
