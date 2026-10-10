@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - 'js/world-module-ui.js'
+      - 'js/world-relevance.js'
       - 'js/streaming-ui.js'
       - 'tests/world-module-internal-state-echo.test.cjs'
       - '.github/workflows/world-module-state-echo.yml'
@@ -11,6 +12,7 @@ on:
     branches: [main]
     paths:
       - 'js/world-module-ui.js'
+      - 'js/world-relevance.js'
       - 'js/streaming-ui.js'
       - 'tests/world-module-internal-state-echo.test.cjs'
       - '.github/workflows/world-module-state-echo.yml'
