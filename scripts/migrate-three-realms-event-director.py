@@ -75,10 +75,14 @@ def build(source, root):
             profile['legacy_pattern'] = {'switch': '^【系統指令】切換到', 'fusion': '^【系統指令】融合', 'custom': '^【系統指令】自訂世界觀(?:[:：]|$)'}[kind]
         profiles.append(profile)
         records.append({'source_index': index, 'source_title': original['title'], 'source_sha256': digest(raw), 'profile_id': profile['id'], 'profile_sha256': digest(json.dumps(profile, ensure_ascii=False, sort_keys=True, separators=(',', ':')))})
+    original = source['entries'][41]
+    profile = {'id': 'workshop-xuanhuan', 'label': '玄幻世界構思', 'aliases': ['玄幻世界構思'], 'category': 'workshop', 'layout': ['世界背景與基調', '宗門與勢力', '修煉路線與資源', '日常與歷練', '角色身份提案', '待確認事項'], 'guidance': '以靈氣、宗門、功法、丹藥、陣法、妖獸和秘境作為可選元素，兼顧修煉、歷練、同門日常與情義。先確認是否使用三界九域及所在界域；若玩家只指定玄幻類型，提出通用草案而不把三界梯度當既定規則。保持已有境界路線，不將下界鬥氣、中界修仙、上界梯度混為同一套。場景比例只是風格方向，不宣稱百分比排程或可靠亂數。新的宗門、能力、資源、過往與人物關係都只是提案，不能直接授予或寫入存檔。'}
+    profiles.append(profile)
+    records.append({'source_index': 41, 'source_title': original['title'], 'source_sha256': digest(original['content']), 'profile_id': profile['id'], 'profile_sha256': digest(json.dumps(profile, ensure_ascii=False, sort_keys=True, separators=(',', ':')))})
     js = '(function(root) {\n  "use strict";\n  const profiles = ' + json.dumps(profiles, ensure_ascii=False, indent=2) + ';\n  if (typeof module === "object" && module.exports) module.exports = profiles;\n  if (root) root.BAOThreeRealmsEventProfiles = profiles;\n})(typeof window === "undefined" ? null : window);\n'
     (root / 'js/three-realms-event-profiles.js').write_text(js)
     path.write_text(json.dumps({'schema': 'yorubay-native-instruction-provenance', 'version': 1, 'source_book_id': BOOK_ID, 'source_visibility': '公開', 'records': records}, ensure_ascii=False, indent=2) + '\n')
-    print('Compiled 11 event, 2 character and 7 query and 3 world-design sources into native profiles.')
+    print('Compiled 11 event, 2 character and 7 query and 4 world-design sources into native profiles.')
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)

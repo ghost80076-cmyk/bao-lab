@@ -39,6 +39,13 @@ def build(source, root):
     actors = {r['source_index']: r for r in json.loads(actors_path.read_text())['records']} if actors_path.exists() else {}
     if set(actors) - set(range(32)) or set(actors) & (set(native) | set(facts)):
         raise ValueError('Actor provenance overlaps another migration category')
+    rule_path = root / 'data/three-realms-native-rule-provenance.json'
+    rules = {r['source_index']: r for r in json.loads(rule_path.read_text())['records']} if rule_path.exists() else {}
+    if set(rules) & (set(native) | set(facts) | set(actors)):
+        raise ValueError('Rule provenance overlaps another migration category')
+    for rule in rules.values():
+        if any(not (root / ref).is_file() for ref in rule['references']):
+            raise ValueError('Rule implementation reference missing')
     catalog = json.loads((root / 'data/worldbook-library.json').read_text())
     packs = [p for p in catalog['packs'] if p['meta']['id'].startswith('three-realms-') and not p['meta']['id'].endswith('-demo')]
     records = []
@@ -68,6 +75,11 @@ def build(source, root):
             if actors[index]['source_sha256'] != record['source_sha256']:
                 raise ValueError('Actor source fingerprint differs')
             record.update(status='native_actor_archetype', references=['data/three-realms-actor-provenance.json'], actor_id=actors[index]['actor_id'], fidelity=actors[index]['fidelity'])
+        elif index in rules:
+            rule = rules[index]
+            if rule['source_sha256'] != record['source_sha256']:
+                raise ValueError('Rule source fingerprint differs')
+            record.update(status='native_rule_supported', references=['data/three-realms-native-rule-provenance.json', *rule['references']], fidelity=rule['fidelity'], follow_up=rule['follow_up'])
         elif index < 32:
             record.update(status='pending_actor_review', references=[], follow_up=True)
         else:

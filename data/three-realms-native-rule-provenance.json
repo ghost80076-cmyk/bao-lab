@@ -1,0 +1,65 @@
+{
+  "schema": "yorubay-native-rule-provenance",
+  "version": 1,
+  "source_book_id": "b43bd078-1b19-46e8-bfc8-952660be367d",
+  "records": [
+    {
+      "source_index": 33,
+      "source_sha256": "ec5b0ba7e7d03507c13f7226374539770a5fbdaf2f73db0aa5f2958cf0d57f71",
+      "fidelity": "explicit-character-world-adaptation",
+      "references": [
+        "js/story-actor-pack-core.js",
+        "js/story-persona-manager.js",
+        "data/prompts/world.json"
+      ],
+      "follow_up": true,
+      "decision": "只在玩家明確選用演員型人物時採用表演層與角色層隔離；一般世界人物保持人物身份。自動比例調度與全域隱藏演員規則未採用。"
+    },
+    {
+      "source_index": 34,
+      "source_sha256": "90c34cd54987003193254fad3b479aa3546af078a84b56e083d08d2523c89c94",
+      "fidelity": "existing-world-and-confirmed-state-contract",
+      "references": [
+        "data/prompts/world.json",
+        "js/world-state.js",
+        "js/world-clock.js"
+      ],
+      "follow_up": false,
+      "decision": "沿用人物動機、因果與漸進互動；世界時間及狀態以已確認事件更新，不添加強制自動數值變化。"
+    },
+    {
+      "source_index": 35,
+      "source_sha256": "45fc07139187b182a3826b0a4bc8bc7e8d17d8ebe91b2a46238722237bf421f0",
+      "fidelity": "existing-npc-agency-and-optional-daily-life-archetypes",
+      "references": [
+        "data/prompts/world.json",
+        "js/three-realms-story-actor-pack.js"
+      ],
+      "follow_up": false,
+      "decision": "人物有職責、日常、朋友、目標和拒絕空間；新範本提供日常與弱點，無每輪強制事件。"
+    },
+    {
+      "source_index": 37,
+      "source_sha256": "b301414ca02145bc4cfa579cea5443def226d76d6ae965980162620cd142b1e6",
+      "fidelity": "existing-gradual-relationship-and-descriptive-status",
+      "references": [
+        "data/prompts/immersive.json",
+        "js/character-status-ui.js"
+      ],
+      "follow_up": false,
+      "decision": "關係由實際互動成立，文字範本保存已確認階段；好感與氣氛不替代角色意願，不建立自動升級或數值閾值。"
+    },
+    {
+      "source_index": 42,
+      "source_sha256": "24c868c31867a4f233851a0be228b441d03e668b6921af61221951f37be4d50b",
+      "fidelity": "optional-original-character-selection",
+      "references": [
+        "js/three-realms-story-actor-pack.js",
+        "js/story-persona-manager.js",
+        "js/three-realms-events-core.js"
+      ],
+      "follow_up": true,
+      "decision": "以可改名的原創人物範本與按需角色構思支援玩家選角。原始真人角色池與無提示的自動加入未採用，自动選角仍需獨立評測。"
+    }
+  ]
+}
