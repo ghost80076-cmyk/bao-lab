@@ -80,6 +80,20 @@
       "source_sha256": "d473c06087eee8ed1bf3dc1df186c512c6cdfc4745def112f6706eb49575e53e",
       "profile_id": "mystery",
       "profile_sha256": "05f529525211d0eaebb0bfcea76509ac024efdfb69ae4d9cfc6341dfee5c14dc"
+    },
+    {
+      "source_index": 184,
+      "source_title": "氣運之子系統",
+      "source_sha256": "eb67e9dd2e6f8b9eccdcc4dbb3430fb55593254837a803500d162577d3dd0a55",
+      "profile_id": "fortunate-npc",
+      "profile_sha256": "ffeda2155874bb190d63cb3f236c4fd0fa0fbf1562d510ca5e048088018f9e79"
+    },
+    {
+      "source_index": 185,
+      "source_title": "原作角色條目",
+      "source_sha256": "62b8dd254f97bd5d296d3cd1764dee2ed1889e4fcd74268557cfb3c626b2a155",
+      "profile_id": "crossover-npc",
+      "profile_sha256": "9952c954a232c2e81dd2b47049fe50e53001d301fea4bca8f6f452240c5836aa"
     }
   ]
 }

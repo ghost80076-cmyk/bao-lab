@@ -3,7 +3,7 @@
   if (window.BAOThreeRealmsEvents || !window.BAOThreeRealmsEventsCore || !window.App || !window.BAOWorldModules) return;
   const core = window.BAOThreeRealmsEventsCore;
   const enabled = () => Boolean(window.GameState?.current && window.BAOWorldModules.definitions(App.activeCharacter).some(d => d.id === core.id));
-  const commands = () => enabled() ? core.commands.map(c => ({ ...c })) : [];
+  const commands = (category = 'event') => enabled() ? core.commands.filter(c => c.source === category).map(c => ({ ...c })) : [];
   App.wrapBuildMessages('three-realms-events:requested-event', async function(next, ...args) {
     const owner = window.GameState?.current;
     const active = enabled();
