@@ -348,6 +348,7 @@ jobs:
           node --check js/three-realms-events.js
           node tests/three-realms-events-core.cjs
           node tests/three-realms-events-runtime.cjs
+          python3 scripts/evaluate-three-realms-director.py --self-test
       - name: Story quick commands
         run: |
           node --check js/story-quick-commands-core.js
