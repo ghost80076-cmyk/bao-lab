@@ -22,6 +22,7 @@ test('core chat shell never exposes authored greeting source even if scene rende
     const opening = Chat.add('assistant', App.activeCharacter.greeting);
     opening.greeting = true;
     App.renderChatShell(true);
+    App.showView('chat');
   });
 
   const bubble = page.locator('#chat-stream > .message.assistant .bubble').first();
