@@ -110,6 +110,6 @@
     script.onerror = () => reject(new Error(`無法載入場景模組：${src}`));
     document.head.append(script);
   });
-  load('js/scene-presentation-core.js').then(() => load('js/scene-chat-integration.js'))
+  load('js/scene-presentation-core.js').then(() => load('js/scene-chat-integration.js?v=2'))
     .catch(error => console.error(error));
 })();

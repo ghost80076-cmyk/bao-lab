@@ -196,6 +196,7 @@ jobs:
           npm run test:e2e --
           tests/e2e/mobile-story-entry.spec.cjs
           tests/e2e/story-integrity.spec.cjs
+          tests/e2e/story-status-opening-compat.spec.cjs
           --project=${{ matrix.browser }}
       - name: Upload smoke report
         if: always()

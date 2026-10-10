@@ -152,7 +152,7 @@ test('a standalone legacy greeting does not remain HTML-escaped', async ({ page 
 });
 
 for (const displayMode of ['text', 'ui']) {
-  test(`persisted intimacy theme renders Yume opening and status safely in ${displayMode}`, async ({ page }) => {
+  test(`persisted intimacy theme renders Yume opening and status safely in ${displayMode}`, async ({ page }, testInfo) => {
     await page.addInitScript(() => localStorage.setItem('bao-lab:scene-view-v1', JSON.stringify({ enabled: true, type: 'intimacy' })));
     await prepareYume(page);
     await page.waitForFunction(() => Boolean(window.BAOSceneChat && window.BAOSceneRenderIntegrity));
@@ -167,7 +167,7 @@ for (const displayMode of ['text', 'ui']) {
     await expect(bubble.locator('.bao-yume-opening img')).toHaveAttribute('src', 'assets/yume-yume-rain-v4.webp');
     await page.evaluate(() => {
       Chat.add('user', '繼續');
-      Chat.add('assistant', '<p>門邊的雨聲。</p><img src="javascript:alert(1)" onerror="window.__unsafe=true"><script>window.__unsafe=true</script>\n[STATUS]氣運：120[/STATUS]');
+      Chat.add('assistant', '<p>門邊的雨聲。It\'s raining.</p><img src="javascript:alert(1)" onerror="window.__unsafe=true"><script>window.__unsafe=true</script>\n[STATUS]氣運：120[/STATUS]');
       App.renderChatShell(false);
       BAOStoryReader.decorateStream();
       BAOSceneRenderIntegrity.reconcile();
@@ -179,6 +179,19 @@ for (const displayMode of ['text', 'ui']) {
     await expect(page.locator('#bao-inline-story-status')).toContainText('氣運：120');
     expect(await last.locator('script,[onerror],[src^="javascript:"]').count()).toBe(0);
     expect(await page.evaluate(() => window.__unsafe)).toBeUndefined();
+    const restored = await page.evaluate(() => {
+      const original = JSON.stringify(Chat.messages);
+      const save = Storage.buildStoryPayload('theme-compat-roundtrip');
+      Chat.reset();
+      if (!Storage.restoreStory(save)) throw new Error('Story restore failed');
+      App.renderChatShell(false);
+      BAOSceneRenderIntegrity.reconcile();
+      return JSON.stringify(Chat.messages) === original;
+    });
+    expect(restored).toBe(true);
+    await expect(bubble).not.toContainText('<div class=');
+    await expect(page.locator('#bao-inline-story-status')).toContainText('氣運：120');
+
     await page.evaluate(() => {
       BAOSceneChat.prefs.enabled = false;
       BAOSceneChat.paint();
@@ -198,5 +211,6 @@ for (const displayMode of ['text', 'ui']) {
     });
     await expect(bubble).not.toContainText('<div class=');
     await expect(bubble.locator('.bao-yume-opening img')).toHaveCount(1);
+    await page.screenshot({ path: testInfo.outputPath('yume-themed-opening.png'), fullPage: true });
   });
 }
