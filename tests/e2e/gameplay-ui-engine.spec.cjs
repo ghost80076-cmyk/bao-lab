@@ -292,7 +292,7 @@ test('native effect buttons commit a purchase once per click without sending a c
   let result = await page.evaluate(() => ({
     crystals: GameState.current.modules.economy.crystals,
     cans: GameState.current.modules.supplies.cans,
-    log: GameState.current.events.filter(x => x.includes('購買罐頭')).length,
+    log: GameState.current.events.filter(x => typeof x === 'string' && x.includes('購買罐頭')).length,
     messages: Chat.messages.length
   }));
   expect(result).toEqual({ crystals: 5, cans: 1, log: 1, messages: 0 });
@@ -301,7 +301,7 @@ test('native effect buttons commit a purchase once per click without sending a c
   result = await page.evaluate(() => ({
     crystals: GameState.current.modules.economy.crystals,
     cans: GameState.current.modules.supplies.cans,
-    log: GameState.current.events.filter(x => x.includes('購買罐頭')).length
+    log: GameState.current.events.filter(x => typeof x === 'string' && x.includes('購買罐頭')).length
   }));
   expect(result).toEqual({ crystals: 5, cans: 1, log: 1 });
   await page.evaluate(() => document.querySelector('#ui-panel [data-gameplay-draft-text]')?.click());
