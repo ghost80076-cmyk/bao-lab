@@ -1,7 +1,7 @@
 /* Scene presentation belongs to the story, never to a second world-state store. */
 (() => {
   'use strict';
-  if (window.BAOSceneStoryPreferences || !window.BAOSceneHTML || !window.Storage || !window.GameState || !window.App) return;
+  if (window.BAOSceneStoryPreferences || !window.BAOSceneHTML || typeof Storage === 'undefined' || typeof GameState === 'undefined' || typeof App === 'undefined') return;
 
   const KEY = 'bao-lab:scene-html-preferences';
   const MODES = new Set(['native', 'efficient', 'free']);

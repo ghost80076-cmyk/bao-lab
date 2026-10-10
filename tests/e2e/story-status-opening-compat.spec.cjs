@@ -1,5 +1,41 @@
 const { test, expect } = require('@playwright/test');
 
+
+test('core chat shell never exposes authored greeting source even if scene renderer is late', async ({ page }) => {
+  await page.route('**/js/scene-html-modes.js*', route => route.abort());
+  await page.goto('/');
+  await page.waitForFunction(() => Boolean(
+    App.characters?.length && window.BAOChatMarkup && Storage.status().ready
+  ), null, { timeout: 15000 });
+  expect(await page.evaluate(() => Boolean(window.BAOSceneHTML))).toBe(false);
+
+  await page.evaluate(async () => {
+    App.activeCharacter = await App.loadCharacter('kurobane-yume-kabukicho');
+    App.config = {
+      narrativeMode: 'world', displayMode: 'text',
+      persona: { name: '玩家', gender: '未指定', identity: '', relationship: '', personality: '', extra: '' },
+      api: { model: 'mock-local', baseUrl: 'https://invalid.example/v1', key: 'fake-for-test' },
+      memory: { mode: 'smart', maxRounds: 20, maxContext: 64000, cache: true }
+    };
+    Chat.reset();
+    GameState.create(App.activeCharacter, App.config);
+    const opening = Chat.add('assistant', App.activeCharacter.greeting);
+    opening.greeting = true;
+    App.renderChatShell(true);
+    App.showView('chat');
+  });
+
+  const bubble = page.locator('#chat-stream > .message.assistant .bubble').first();
+  await expect(bubble.locator('.bao-yume-opening')).toBeVisible();
+  await expect(bubble.locator('img')).toHaveAttribute('src', 'assets/yume-yume-rain-v4.webp');
+  await expect(bubble).toContainText('Club Rose');
+  expect(await bubble.innerText()).not.toContain('<div class=');
+
+  await page.evaluate(() => App.renderChatShell(false));
+  await expect(bubble.locator('.bao-yume-opening')).toBeVisible();
+  expect(await bubble.innerText()).not.toContain('<div class=');
+});
+
 async function prepareYume(page, mode = 'efficient') {
   await page.goto('/');
   await page.waitForFunction(() => Boolean(

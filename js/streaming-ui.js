@@ -79,7 +79,7 @@
       // Always use the same renderer as story loading and scene refresh. A
       // separate HTML shortcut used to include [STATUS] and other metadata in
       // the displayed story, creating a second version of the same response.
-      const html = renderer?.render ? renderer.render(source)
+      const html = renderer?.render ? renderer.render(source, Boolean(message.greeting))
         : window.BAOChatMarkup?.sanitize ? BAOChatMarkup.sanitize(source) : App.formatMessage(source);
       if (bubble.innerHTML !== html) bubble.innerHTML = html;
       bubble.classList.toggle("authored-rich-message", mode !== "native");
