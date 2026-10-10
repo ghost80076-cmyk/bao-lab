@@ -95,7 +95,7 @@
     return out;
   };
   const moduleSchemas = defs => Object.fromEntries(defs.filter(d => d.tracking !== "manual").map(d => [d.id, { kind: d.kind, fields: fieldsFor(d) }]));
-  const stateUpdate = (data, defs = []) => {
+  const stateUpdate = (data, defs = [], sourceText = "") => {
     if (!object(data)) return null;
     const out = pickFields(data, ["time", "location"].map(key => ({ key, type: "text" })));
     if (Array.isArray(data.events)) out.events = data.events.filter(v => typeof v === "string").slice(0, 8).map(v => v.slice(0, 300));
@@ -129,6 +129,12 @@
           const items = value.filter(object).slice(0, 100).map(item => pickFields(item, schema)).filter(item => Object.keys(item).length);
           if (!value.length || items.length) out.modules[def.id] = items;
         } else if (def.kind === "object" && object(value)) {
+          if (def.id === window.BAOThreeRealmsCultivation?.id) {
+            const checked = window.BAOThreeRealmsCultivation.validatePatch(window.GameState?.current?.modules?.[def.id], value, sourceText);
+            if (checked.ok) out.modules[def.id] = checked.value;
+            if (window.GameState?.current) window.GameState.current.cultivationUpdateWarning = checked.ok ? "" : checked.reason;
+            return;
+          }
           const clean = pickFields(value, schema);
           if (Object.keys(clean).length) out.modules[def.id] = { ...window.GameState?.current?.modules?.[def.id], ...clean };
         }

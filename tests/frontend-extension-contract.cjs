@@ -36,7 +36,7 @@ increasing(index, [
   'src="js/storage.js"',
   'src="js/state.js"',
   'src="js/api.js"',
-  'src="js/helper-data.js"',
+  'src="js/helper-data.js?v=2"',
   'src="js/chat.js',
   'src="js/character.js"',
   'src="js/app.js"',
@@ -48,8 +48,9 @@ increasing(siteUI, [
   'loadBAOScript("js/global-bridge.js")',
   'loadBAOScript("js/world-state.js")',
   'loadBAOScript("js/character-status.js?v=4")',
-  'loadBAOScript("js/world-modules.js")',
-  'loadBAOScript("js/world-state-hook.js")'
+  'loadBAOScript("js/three-realms-cultivation-core.js?v=1")',
+  'loadBAOScript("js/world-modules.js?v=2")',
+  'loadBAOScript("js/world-state-hook.js?v=2")'
 ], "world-state extension");
 
 // Story chain: story-tools is installed before prompt/cache orchestration and request lifecycle.
@@ -65,7 +66,7 @@ increasing(siteUI, [
 // Modules without their own global idempotency guard currently rely on the loader;
 // protect against accidentally adding a second loader while the wrapper design is unchanged.
 assert.equal(
-  siteUI.split('loadBAOScript("js/world-modules.js")').length - 1,
+  siteUI.split('loadBAOScript("js/world-modules.js?v=2")').length - 1,
   1,
   "world-modules must be loaded exactly once by site-ui"
 );
@@ -196,7 +197,7 @@ assert.match(
 );
 assert.match(
   worldStateHook,
-  /'js\/state-tracker-repairs\.js'/,
+  /'js\/state-tracker-repairs\.js(?:\?v=\d+)?'/,
   "world-state-hook must continue to load state-tracker-repairs"
 );
 

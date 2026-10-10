@@ -43,7 +43,7 @@
       if (typeof API !== 'undefined') window.API = API;
       if (typeof BAOCharacterStatus !== 'undefined') window.BAOCharacterStatus = BAOCharacterStatus;
       if (typeof BAOHelperData !== 'undefined') window.BAOHelperData = BAOHelperData;
-      for (const src of ['js/story-integrity-fixes.js', 'js/state-tracker-repairs.js']) {
+      for (const src of ['js/story-integrity-fixes.js', 'js/state-tracker-repairs.js?v=2']) {
         if (document.querySelector(`script[src="${src}"]`)) continue;
         const script = document.createElement('script');
         script.src = src;

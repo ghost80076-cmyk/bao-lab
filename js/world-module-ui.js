@@ -18,7 +18,7 @@
   const objectHTML = (def,value) => {
     const obj = value && typeof value === "object" && !Array.isArray(value) ? value : {};
     const keys = def.fields?.length ? def.fields.map(f => f.key).filter(k => obj[k] !== undefined) : Object.keys(obj);
-    if (!keys.length) return '<div class="world-module-empty">目前沒有資料。</div>';
+    if (!keys.length) return `<div class="world-module-empty">${def.id === window.BAOThreeRealmsCultivation?.id ? '尚未確認修煉狀態。請在故事中說明你的修煉路線與境界；修煉、突破或渡劫明確發生後，狀態會隨故事整理更新。' : '目前沒有資料。'}</div>`;
     return `<div class="world-module-object">${keys.map(key => `<div class="world-module-field"><small>${esc(labelFor(def,key))}</small><b>${esc(displayValue(pretty(obj[key])))}</b></div>`).join("")}</div>`;
   };
   const collectionHTML = value => {
@@ -40,6 +40,12 @@
     const value = GameState.current?.modules?.[id];
     const context = def.context === "core" ? "核心狀態會精簡提供給敘事模型" : def.context === "ui_only" ? "只顯示於介面" : "需要時才使用，避免每輪增加 Context";
     ui.innerHTML = `<section class="world-module-panel"><div class="world-module-head"><div><h3>${esc(def.icon)} ${esc(def.label)}</h3>${def.description ? `<p>${esc(def.description)}</p>` : ""}<div class="world-module-context-note">${esc(context)}</div></div><span class="world-module-badge">${esc(trackLabel(def.tracking))}追蹤</span></div>${def.kind === "collection" ? collectionHTML(value) : objectHTML(def,value)}</section>`;
+    if (def.id === window.BAOThreeRealmsCultivation?.id && GameState.current?.cultivationUpdateWarning) {
+      const note = document.createElement('p');
+      note.className = 'world-module-context-note';
+      note.textContent = GameState.current.cultivationUpdateWarning;
+      ui.querySelector('.world-module-panel')?.appendChild(note);
+    }
   };
   const injectTabs = () => {
     if (App.config?.displayMode !== "ui") return;
