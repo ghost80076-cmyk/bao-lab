@@ -1,0 +1,228 @@
+{
+  "schema": "yorubay-native-actor-provenance",
+  "version": 1,
+  "source_book_id": "b43bd078-1b19-46e8-bfc8-952660be367d",
+  "implementation": "js/three-realms-story-actor-pack.js",
+  "records": [
+    {
+      "source_index": 0,
+      "source_sha256": "91507b19fe7b7163e3ea12e0e555517be92ac27726d518a5e69d047b6cf512b1",
+      "actor_id": "three-realms-archetype-00",
+      "actor_sha256": "c40e75e6532ebaae02ceb624020bf53d25f61838e86dfa9eece9572b95d90bc1",
+      "fidelity": "abstract-fictional-general-character-not-verbatim"
+    },
+    {
+      "source_index": 1,
+      "source_sha256": "5440287aee8b4c987074ab02a90c830666dfb00822fb0ab1d1e9e4ce27820d4e",
+      "actor_id": "three-realms-archetype-01",
+      "actor_sha256": "48471a4c74eba3f9d49ebed3726dcc5f69a4d2fefdb5fe5f645836bb29d16985",
+      "fidelity": "abstract-fictional-general-character-not-verbatim"
+    },
+    {
+      "source_index": 2,
+      "source_sha256": "daf4dcf842959b77da198cea7e05835a73f6b453d4f6be32ea939a0700c8d170",
+      "actor_id": "three-realms-archetype-02",
+      "actor_sha256": "db747ee4f484643cce2b80bad76c105a80d4554c0a4528f81758a916672da777",
+      "fidelity": "abstract-fictional-general-character-not-verbatim"
+    },
+    {
+      "source_index": 3,
+      "source_sha256": "bb6d4b5bcd98d337d9b148d18773c1fad63db8b2d866195363958f6a473ce411",
+      "actor_id": "three-realms-archetype-03",
+      "actor_sha256": "18381603a3111e64ec2a8dca7f3153208ff5ec99c91ee3b665be44f6890c55af",
+      "fidelity": "abstract-fictional-general-character-not-verbatim"
+    },
+    {
+      "source_index": 4,
+      "source_sha256": "90f9af26455788d2cc4cd48e462bf71ebbad6d31759491f7a4d6b211044be162",
+      "actor_id": "three-realms-archetype-04",
+      "actor_sha256": "f00b31d04c7f5f5f659687b0d64062232dfcafbb9cc745f976b913d5bbd12e6e",
+      "fidelity": "abstract-fictional-general-character-not-verbatim"
+    },
+    {
+      "source_index": 5,
+      "source_sha256": "dcba649a8a8a2158f455362cdbcc63d56e6c8da1466651c4cfff32f490b6c5ab",
+      "actor_id": "three-realms-archetype-05",
+      "actor_sha256": "9d1b2d98004c3b9953baa0a46bef2b1dc9c1b25ba20ab6e6567aa8c7a81a112e",
+      "fidelity": "abstract-fictional-general-character-not-verbatim"
+    },
+    {
+      "source_index": 6,
+      "source_sha256": "cc7f21df7a8b39b65370a5285aeff2dad79d0c558198a617febd06bad9f3742f",
+      "actor_id": "three-realms-archetype-06",
+      "actor_sha256": "ad7ee340fdab41e05abf7c65e1da8e1dc969487330d0428880c6678d5bb25e99",
+      "fidelity": "abstract-fictional-general-character-not-verbatim"
+    },
+    {
+      "source_index": 7,
+      "source_sha256": "7dbfabee3b4a2ebb2f513c84aa96336e8ab3bd634b9aadaff8f5ec1f2be9a9bd",
+      "actor_id": "three-realms-archetype-07",
+      "actor_sha256": "262d636d8a5d0ea8d4db34c750b28cd2da353423fdce948495b88762437b0f79",
+      "fidelity": "abstract-fictional-general-character-not-verbatim"
+    },
+    {
+      "source_index": 8,
+      "source_sha256": "e8b0172578c96b9f16d210d4662a3f4f27ad6d558b0181bc45855a45fdaf7ac6",
+      "actor_id": "three-realms-archetype-08",
+      "actor_sha256": "0df5713580b4aad0159240efca9a61502696e87efe728574bb98205b670dfddf",
+      "fidelity": "abstract-fictional-general-character-not-verbatim"
+    },
+    {
+      "source_index": 9,
+      "source_sha256": "7c46f9509db8e9f08f977642312311244f3fc19aa30e04e579df05cbec4e263b",
+      "actor_id": "three-realms-archetype-09",
+      "actor_sha256": "988131aa5c9059e6bf7f34996f43fd9b6230e156cf5b71960f2217a222646f63",
+      "fidelity": "abstract-fictional-general-character-not-verbatim"
+    },
+    {
+      "source_index": 10,
+      "source_sha256": "2745361e34c826473c91271b16c34c5fa639fa681c3f84123cae8b924d59a6c9",
+      "actor_id": "three-realms-archetype-10",
+      "actor_sha256": "5d7d53bcb61d1ce97a97dfb8dbad01ef2a6402a51077f3a88bed2d5a59c999b9",
+      "fidelity": "abstract-fictional-general-character-not-verbatim"
+    },
+    {
+      "source_index": 11,
+      "source_sha256": "b49a1085a6fc95111b1daf7a10816048133e0c7dda8d4d6cf492530758b675f9",
+      "actor_id": "three-realms-archetype-11",
+      "actor_sha256": "6139cd7f2e70de19f23a0302aa6657f6db752a8662de8b035092580889e3d600",
+      "fidelity": "abstract-fictional-general-character-not-verbatim"
+    },
+    {
+      "source_index": 12,
+      "source_sha256": "7df19cde042e44920525ac07529edb0e8ed32d6f1c1edb6f2a9e6d8a9f25561f",
+      "actor_id": "three-realms-archetype-12",
+      "actor_sha256": "6a3e81c3c8fdc19f595aee2b4e830b465254649dcb67c9e490c369e774aa4b6c",
+      "fidelity": "abstract-fictional-general-character-not-verbatim"
+    },
+    {
+      "source_index": 13,
+      "source_sha256": "32396a569a236011c058b8fc2d7f4ef5d0dc0a7c31919f5338c1c531a547276c",
+      "actor_id": "three-realms-archetype-13",
+      "actor_sha256": "0cd8da9bcc55eddace21b156776b2f774dcc2b9a80fd584448386911bba0ae33",
+      "fidelity": "abstract-fictional-general-character-not-verbatim"
+    },
+    {
+      "source_index": 14,
+      "source_sha256": "7bdc320f6de4df3e08f1def2d8105fcde421d9d26508e25466f898e6a98cdef4",
+      "actor_id": "three-realms-archetype-14",
+      "actor_sha256": "45b650fbac660c59fd4cb7326f279084ecb7eda03ac286aaaa29fa03c249b10d",
+      "fidelity": "abstract-fictional-general-character-not-verbatim"
+    },
+    {
+      "source_index": 15,
+      "source_sha256": "121c99b4f50e50ae9820cc8a33a8349aaf581b77a8456f8466d143eafcabfa92",
+      "actor_id": "three-realms-archetype-15",
+      "actor_sha256": "6761593402de9cd480998ea614f12a11f7479eb902a80e7c17c6daea25e22d86",
+      "fidelity": "abstract-fictional-general-character-not-verbatim"
+    },
+    {
+      "source_index": 16,
+      "source_sha256": "90655193101f5bd01e45fb9e2e0c17adbaa286b09cfbdb275ea9272c6fec5747",
+      "actor_id": "three-realms-archetype-16",
+      "actor_sha256": "67661d1d0070dd3930b4485f2307633c833110090a0b185fe179b19f8e2b1ec7",
+      "fidelity": "abstract-fictional-general-character-not-verbatim"
+    },
+    {
+      "source_index": 17,
+      "source_sha256": "0dbccd8804ec95ee0ca72e147456845f10af585d1b0ba1123ee1a63da8e83a43",
+      "actor_id": "three-realms-archetype-17",
+      "actor_sha256": "3c6d4dee7754243cb52143c04b210de54a0fe4ed4ef440233bbf9ad9d7b42554",
+      "fidelity": "abstract-fictional-general-character-not-verbatim"
+    },
+    {
+      "source_index": 18,
+      "source_sha256": "72531b7a0e25c0d07518fbfe4dd0e3ad896e4842ac980732f63a8614c00e1c99",
+      "actor_id": "three-realms-archetype-18",
+      "actor_sha256": "2647ac962df617bb5aa7d252f8fd192d33858fcbe0b069f3edae6becdf9ee56a",
+      "fidelity": "abstract-fictional-general-character-not-verbatim"
+    },
+    {
+      "source_index": 19,
+      "source_sha256": "f8871dd893fc17d1a4291310a080de566fd808d3a845d76096df39d104199c8e",
+      "actor_id": "three-realms-archetype-19",
+      "actor_sha256": "8da4fccc088f7e52aaeeb232fffb55f5b57558dcac7a31608fe28043542da590",
+      "fidelity": "abstract-fictional-general-character-not-verbatim"
+    },
+    {
+      "source_index": 20,
+      "source_sha256": "df9b16bb715689ec07d1bac722f376d070d4a8e25b8d78477e8aadf68360fb15",
+      "actor_id": "three-realms-archetype-20",
+      "actor_sha256": "7421d3da7957ef43bb3ecbe7686bee90c30a8524aa1bcc523fab818e96b04f4e",
+      "fidelity": "abstract-fictional-general-character-not-verbatim"
+    },
+    {
+      "source_index": 21,
+      "source_sha256": "360f2047cf46de1203e29839c97866f2a8ee8e9d58d0c12e36b69437c8d80c87",
+      "actor_id": "three-realms-archetype-21",
+      "actor_sha256": "878bc1ef1bd634a797b6d6c1e7523745132a8bba09e5a4cb1090d9479c66fe3c",
+      "fidelity": "abstract-fictional-general-character-not-verbatim"
+    },
+    {
+      "source_index": 22,
+      "source_sha256": "b72472498468871e557180e89aa8b42a4ba53f2cab6f7ff29d0e9119d757b639",
+      "actor_id": "three-realms-archetype-22",
+      "actor_sha256": "5a8c050c6a13de90d68a10d4c54d002f860066d498c28cf1fa0b417aa52c5ccc",
+      "fidelity": "abstract-fictional-general-character-not-verbatim"
+    },
+    {
+      "source_index": 23,
+      "source_sha256": "87d9b74450d4c4b6f6c6ff73afe36f200bbf55b69f257eac15a6123b6f75c32d",
+      "actor_id": "three-realms-archetype-23",
+      "actor_sha256": "3c77acf33468b721bc2822aabc4b7af7cd4cb457450aaa1ec1f0297ac86b0021",
+      "fidelity": "abstract-fictional-general-character-not-verbatim"
+    },
+    {
+      "source_index": 25,
+      "source_sha256": "85999c5630fe5635bfa66985d52c4f6ca997d89cf2598978eff6bfa90c33f8c0",
+      "actor_id": "three-realms-archetype-25",
+      "actor_sha256": "637eb4c82262ef55e0047bdd641dafb7753675b4f69f942ba8500f7b5adda4e3",
+      "fidelity": "abstract-fictional-general-character-not-verbatim"
+    },
+    {
+      "source_index": 26,
+      "source_sha256": "3390b4addcd8eb6a979c7a5a17a567cc1362c575abe9d28d147a99e4e2336be6",
+      "actor_id": "three-realms-archetype-26",
+      "actor_sha256": "695c2c003fee9bf1a55184acf4ed6dbe8a5b12d822b9bd6c9c592810b3d4b0dc",
+      "fidelity": "abstract-fictional-general-character-not-verbatim"
+    },
+    {
+      "source_index": 27,
+      "source_sha256": "1efb35fa701e28b59b37c04b4fdcc4ef0ca2d4aa3e461e4eec51f6d5db86b93b",
+      "actor_id": "three-realms-archetype-27",
+      "actor_sha256": "75946a5758bb40658a39c02e6bda8dca00b0a508ad3e203b20068c87f5026798",
+      "fidelity": "abstract-fictional-general-character-not-verbatim"
+    },
+    {
+      "source_index": 28,
+      "source_sha256": "3581fcfe0d73f4d6828d7e17b6cda29589f0a26519db87760ee3049c140fdd8f",
+      "actor_id": "three-realms-archetype-28",
+      "actor_sha256": "67cebdb01815e34b0b7ae513a0263dafb08dd6e8ccc5c8f94de48145a378b283",
+      "fidelity": "abstract-fictional-general-character-not-verbatim"
+    },
+    {
+      "source_index": 29,
+      "source_sha256": "d4aaa3293232c9e736327b97e30e1e437f2657c33425f6f8d19e495494ddeba5",
+      "actor_id": "three-realms-archetype-29",
+      "actor_sha256": "ea4afaf307166154e8ab8bee2f0fec1c85366ad86987c822254757d2ec84ced2",
+      "fidelity": "abstract-fictional-general-character-not-verbatim"
+    },
+    {
+      "source_index": 30,
+      "source_sha256": "07ca841ae52c247fd436464d1e2296f99b7c7aa2a183af66492cf4890b1c077d",
+      "actor_id": "three-realms-archetype-30",
+      "actor_sha256": "e71df029c0fc89659f04c64497fe9d768b6d57a633f3fdaa8e36a1a751af5595",
+      "fidelity": "abstract-fictional-general-character-not-verbatim"
+    },
+    {
+      "source_index": 31,
+      "source_sha256": "eca15078ff5a2ddd5c9428e2176a5116bd60776f65d29bed77cf4412bf50e41b",
+      "actor_id": "three-realms-archetype-31",
+      "actor_sha256": "85127f3f81e91f731ea6994e91ac94a39307243856ff990d63f93f46179b3cfc",
+      "fidelity": "abstract-fictional-general-character-not-verbatim"
+    }
+  ],
+  "deferred_source_indexes": [
+    24
+  ]
+}

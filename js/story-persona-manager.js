@@ -41,7 +41,7 @@
   let dialog = null;
   let draftTimer = null;
 
-  const generalPortableCatalog = () => packCore?.sanitizeCatalog?.(window.BAOGeneralStoryActorPack?.actors || []) || [];
+  const generalPortableCatalog = () => packCore?.sanitizeCatalog?.([...(window.BAOGeneralStoryActorPack?.actors || []), ...(window.BAOThreeRealmsStoryActorPack?.actors || [])]) || [];
   const adultPortableCatalog = () => packCore?.sanitizeCatalog?.(window.BAOAdultStoryActorPack?.actors || []) || [];
   const portableCatalog = () => packCore?.availableCatalog
     ? packCore.availableCatalog(generalPortableCatalog(), adultPortableCatalog(), {adultEnabled: adultEnabled()})

@@ -206,4 +206,6 @@ assert.match(
   "world-state-hook must continue to load state-tracker-repairs"
 );
 
+assert.ok(siteUI.indexOf("three-realms-story-actor-pack.js") < siteUI.indexOf("story-persona-manager.js"), "Three Realms archetypes must load before the character picker");
+
 console.log("frontend-extension-contract: load order and wrapper guards ok");
