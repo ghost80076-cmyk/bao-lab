@@ -61,16 +61,16 @@
   // A state response is a PATCH, never an entire event history. Support both
   // the legacy `events` and the more explicit `new_events` response format.
   const oldStateUpdate = BAOHelperData.stateUpdate;
-  BAOHelperData.stateUpdate = function(data, definitions) {
+  BAOHelperData.stateUpdate = function(data, definitions, ...rest) {
     if (data && Array.isArray(data.new_events)) {
-      const updated = oldStateUpdate({ ...data, events: data.new_events }, definitions);
+      const updated = oldStateUpdate({ ...data, events: data.new_events }, definitions, ...rest);
       if (updated) {
         updated.new_events = updated.events || [];
         delete updated.events;
       }
       return updated;
     }
-    return oldStateUpdate(data, definitions);
+    return oldStateUpdate(data, definitions, ...rest);
   };
   // Structured history is for the UI and saves; keep the model's history
   // compact by sending plain texts, not IDs, bookkeeping, or source metadata.

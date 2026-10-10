@@ -7,7 +7,7 @@ const context = { console, structuredClone, setTimeout() {} };
 context.window = context;
 vm.createContext(context);
 const load = file => vm.runInContext(fs.readFileSync(path.join(__dirname, '../js', `${file}.js`), 'utf8'), context);
-for (const file of ['state', 'helper-data', 'world-state', 'three-realms-cultivation-core', 'world-modules']) load(file);
+for (const file of ['state', 'helper-data', 'world-state', 'character-status', 'three-realms-cultivation-core', 'world-modules']) load(file);
 vm.runInContext('window.GameState = GameState; window.WorldStateEngine = WorldStateEngine;', context);
 const { GameState, WorldStateEngine, BAOWorldModules: Modules, BAOHelperData: Helper, BAOThreeRealmsCultivation: Core } = context;
 const config = { narrativeMode: 'world', displayMode: 'ui', cost: { stateInterval: 1 }, api: { model: 'mock', baseUrl: 'https://example.invalid/v1', key: 'test-only' } };
@@ -23,6 +23,10 @@ context.API = {
   async send(api, messages) { requests.push({ api, messages }); return { text: JSON.stringify(reply) }; },
   wrapSend(id, wrapper) { const next = this.send.bind(this); this.send = (...args) => wrapper(next, ...args); }
 };
+context.App.renderChatShell = () => {};
+context.App.renderUIPanel = () => {};
+load('state-tracker-repairs');
+assert.ok(context.BAOStateTrackerRepairs, 'production state repair wrappers are part of this runtime test');
 (async () => {
   await WorldStateEngine.update(config, '我是鬥宗，鬥氣30，上限100', '師父確認了你的境界。');
   assert.equal(GameState.current.modules[Core.id].realm, '鬥宗');

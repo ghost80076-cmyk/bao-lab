@@ -50,7 +50,7 @@ increasing(siteUI, [
   'loadBAOScript("js/character-status.js?v=4")',
   'loadBAOScript("js/three-realms-cultivation-core.js?v=1")',
   'loadBAOScript("js/world-modules.js?v=2")',
-  'loadBAOScript("js/world-state-hook.js")'
+  'loadBAOScript("js/world-state-hook.js?v=2")'
 ], "world-state extension");
 
 // Story chain: story-tools is installed before prompt/cache orchestration and request lifecycle.
@@ -197,7 +197,7 @@ assert.match(
 );
 assert.match(
   worldStateHook,
-  /'js\/state-tracker-repairs\.js'/,
+  /'js\/state-tracker-repairs\.js(?:\?v=\d+)?'/,
   "world-state-hook must continue to load state-tracker-repairs"
 );
 
