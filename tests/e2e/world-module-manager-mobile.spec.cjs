@@ -238,6 +238,8 @@ test('Three Realms descriptive status template is optional, unknown by default a
     App.activeCharacter = { ...App.characters[0], id: 'three-realms-status-mobile', character_status: { enabled: true, allow_player_customize: true, fields: [] } };
     App.config = { narrativeMode: 'world', displayMode: 'ui', api: { model: 'mock' }, persona: { name: '修士' }, memory: { mode: 'smart', maxRounds: 20, maxContext: 32000 } };
     GameState.create(App.activeCharacter, App.config);
+    GameState.current.npcs = [{ name: '測試修士', identity: '已登場的修士' }];
+    BAOCharacterStatus.ensureState(App.activeCharacter);
     Chat.reset();
     App.renderChatShell(true);
     App.showView('chat');
@@ -253,7 +255,7 @@ test('Three Realms descriptive status template is optional, unknown by default a
   const applied = await page.evaluate(() => {
     const fields = BAOCharacterStatus.configFor(App.activeCharacter).fields;
     App.saveStory(false);
-    return { count: fields.length, values: fields.map(f => GameState.current.characterStatuses[App.activeCharacter.name][f.key]), types: fields.map(f => f.type), originalFields: App.activeCharacter.character_status.fields.length, saved: Storage.loadStory()?.state?.characterStatusCustomization?.customFields?.length };
+    return { count: fields.length, values: fields.map(f => GameState.current.characterStatuses['測試修士'][f.key]), types: fields.map(f => f.type), originalFields: App.activeCharacter.character_status.fields.length, saved: Storage.loadStory()?.state?.characterStatusCustomization?.customFields?.length };
   });
   expect(applied.count).toBe(6);
   expect(applied.values).toEqual(Array(6).fill('未確認'));
