@@ -20,6 +20,7 @@
   let loading = false;
   let builtInIds = null;
   let showArchived = false;
+  let editingAction = null;
 
   const id = () => `custom-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
   const safeImage = value => /^(https:\/\/[^\s]+|assets\/[a-zA-Z0-9_./-]+)$/.test(String(value || '')) ? value : DEFAULT_IMAGE;
@@ -43,18 +44,50 @@
       : '這張卡目前沒有 Gameplay UI schema；下方加入操作按鈕後會建立面板，也可匯入已有互動 UI 的卡。';
   };
 
+  function finishActionEdit() {
+    editingAction = null;
+    $('studio-add-inventory-action').textContent = '＋ 加入操作按鈕';
+    $('studio-cancel-action-edit').hidden = true;
+    $('studio-cancel-action-edit').style.display = 'none';
+    for (const name of ['action_kind','action_panel_id','action_inventory_id','action_currency_id','action_currency_field','action_item_id','action_balance']) field(name).disabled = false;
+    syncPurchaseFields();
+  }
   function renderInventoryActions() {
     const list = $('studio-action-list');
     if (!list) return;
     list.replaceChildren();
-    const visit = sections => (Array.isArray(sections) ? sections : []).forEach(section => {
+    const visit = (sections, panel, tabLocation = {}) => (Array.isArray(sections) ? sections : []).forEach((section, index) => {
       if (!section || typeof section !== 'object') return;
-      if (section.type === 'tabs') (Array.isArray(section.tabs) ? section.tabs : []).forEach(tab => visit(tab?.sections));
-      if (section.type === 'actions') (Array.isArray(section.items) ? section.items : []).filter(item => item?.effect).forEach(item => {
-        const row = document.createElement('li'); row.textContent = item.label || '原生操作'; list.append(row);
+      if (section.type === 'tabs' && tabLocation.tab === undefined) (Array.isArray(section.tabs) ? section.tabs : []).forEach((tab, tabIndex) => visit(tab?.sections,panel,{section:index,tab:tabIndex}));
+      if (section.type !== 'actions' || !Array.isArray(section.items)) return;
+      section.items.forEach((item,itemIndex) => {
+        if (!item?.effect) return;
+        const location = {panel,...tabLocation,...(tabLocation.tab === undefined ? {section:index} : {nestedSection:index}),item:itemIndex};
+        const row = document.createElement('li'), label = document.createElement('span'); label.textContent = item.label || '原生操作'; row.append(label);
+        const options = window.BAOCharacterStudioActionsCore.inventoryActionOptions(base,location);
+        if (options) {
+          const edit = document.createElement('button'); edit.type = 'button'; edit.className = 'secondary'; edit.textContent = '編輯'; edit.setAttribute('aria-label','編輯 '+label.textContent);
+          edit.addEventListener('click', () => {
+            editingAction = location;
+            const fields = {kind:'kind',label:'label',item_name:'itemName',item_id:'itemId',quantity:'quantity',price:'price',balance:'balance',panel_id:'panelId',inventory_id:'inventoryId',currency_id:'currencyId',currency_field:'currencyField',event:'event'};
+            for (const [name,key] of Object.entries(fields)) field('action_'+name).value = options[key] ?? '';
+            syncPurchaseFields();
+            for (const name of ['action_kind','action_panel_id','action_inventory_id','action_currency_id','action_currency_field','action_item_id','action_balance']) field(name).disabled = true;
+            $('studio-add-inventory-action').textContent = '儲存按鈕修改'; $('studio-cancel-action-edit').hidden = false; $('studio-cancel-action-edit').style.display = '';
+            $('studio-action-status').textContent = '正在編輯「'+label.textContent+'」。資源、背包與物品 ID 保留；修改後請再儲存草稿。';
+          }); row.append(edit);
+        }
+        const remove = document.createElement('button'); remove.type = 'button'; remove.className = 'secondary'; remove.textContent = '移除'; remove.setAttribute('aria-label','移除 '+label.textContent);
+        remove.addEventListener('click', () => {
+          try {
+            base = window.BAOCharacterStudioActionsCore.removeInventoryAction(readCard(),location);
+            finishActionEdit(); renderInventoryActions(); syncGameplayThemeControls(Boolean(base.gameplay_ui)); dirty = true;
+            $('studio-action-status').textContent = '已移除「'+label.textContent+'」，資源與背包資料保留。'; status('按鈕已移除，尚未儲存修改');
+          } catch(error) { status('✕ '+error.message); }
+        }); row.append(remove); list.append(row);
       });
     });
-    (Array.isArray(base.gameplay_ui?.panels) ? base.gameplay_ui.panels : []).forEach(panel => visit(panel?.sections));
+    (Array.isArray(base.gameplay_ui?.panels) ? base.gameplay_ui.panels : []).forEach((panel,index) => visit(panel?.sections,index));
   }
   function addInventoryAction() {
     const options = {
@@ -63,11 +96,13 @@
       panelId: text('action_panel_id'), inventoryId: text('action_inventory_id'), currencyId: text('action_currency_id'),
       currencyField: text('action_currency_field'), event: text('action_event')
     };
-    base = window.BAOCharacterStudioActionsCore.addInventoryAction(readCard(), options);
+    const updating = Boolean(editingAction);
+    base = updating ? window.BAOCharacterStudioActionsCore.updateInventoryAction(readCard(),editingAction,options) : window.BAOCharacterStudioActionsCore.addInventoryAction(readCard(), options);
+    finishActionEdit();
     syncGameplayThemeControls(true);
     renderInventoryActions();
     dirty = true;
-    $('studio-action-status').textContent = '已加入「' + options.label + '」。請儲存草稿或匯出；初始資源與背包已一併設定。';
+    $('studio-action-status').textContent = (updating ? '已更新「' : '已加入「') + options.label + '」。請儲存草稿或匯出；初始資源與背包已一併設定。';
     status('已加入原生操作，尚未儲存修改');
   }
   const syncPurchaseFields = () => {
@@ -148,6 +183,7 @@
     field('gameplay_radius').value = theme.radius || 'round';
     field('gameplay_meter').value = theme.meter || 'soft';
     syncGameplayThemeControls(Boolean(c.gameplay_ui));
+    finishActionEdit();
     renderInventoryActions();
     if ($('studio-action-status')) $('studio-action-status').textContent = '消耗按鈕可在取得物品前建立；玩家有庫存後才能使用。';
     $('studio-preview').classList.add('hidden');
@@ -323,6 +359,7 @@
   form.addEventListener('submit', event => event.preventDefault());
   window.addEventListener('beforeunload', event => { if (dirty) { event.preventDefault(); event.returnValue = ''; } });
   run('studio-add-inventory-action', addInventoryAction);
+  $('studio-cancel-action-edit').addEventListener('click', () => { finishActionEdit(); $('studio-action-status').textContent = '已取消編輯，原按鈕保留。'; });
   field('action_kind').addEventListener('change', syncPurchaseFields);
   syncPurchaseFields();
   run('studio-new', () => createDraft('immersive'));

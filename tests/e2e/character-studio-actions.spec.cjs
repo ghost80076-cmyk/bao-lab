@@ -55,3 +55,27 @@ test('invalid legacy inventory is not silently rewritten by author form',async({
  await expect(page.locator('#studio-status')).toContainText('既有背包需使用唯一物品 id');
  expect(await page.evaluate(()=>BAOCharacterStudio.toExport())).toEqual(before);
 });
+test('author edits and removes existing actions without resetting resources',async({page})=>{
+ await page.goto('./character-studio.html');
+ await page.locator('#studio-gameplay-theme > summary').click();
+ await page.locator('#studio-add-inventory-action').click();
+ await page.getByRole('button',{name:'編輯 購買罐頭',exact:true}).click();
+ await expect(page.locator('[name="action_item_id"]')).toBeDisabled();
+ await page.locator('[name="action_label"]').fill('買三份罐頭');
+ await page.locator('[name="action_quantity"]').fill('3');
+ await page.locator('[name="action_price"]').fill('10');
+ await page.locator('#studio-add-inventory-action').click();
+ await expect(page.locator('#studio-action-list li')).toHaveCount(1);
+ await expect(page.locator('#studio-action-status')).toContainText('已更新「買三份罐頭」');
+ const card=await page.evaluate(()=>BAOCharacterStudio.readCard());
+ expect(card.initial_state.modules.economy.crystals).toBe(20);
+ const action=card.gameplay_ui.panels[0].sections.find(s=>s.type==='actions').items[0];
+ expect(action.effect.changes[0].delta).toBe(-10);expect(action.effect.items[0].delta).toBe(3);
+ await page.getByRole('button',{name:'編輯 買三份罐頭',exact:true}).click();
+ await page.locator('[name="action_price"]').fill('2');
+ await page.locator('#studio-cancel-action-edit').click();
+ expect(await page.evaluate(()=>BAOCharacterStudio.readCard().gameplay_ui.panels[0].sections.find(s=>s.type==='actions').items[0].effect.changes[0].delta)).toBe(-10);
+ await page.getByRole('button',{name:'移除 買三份罐頭',exact:true}).click();
+ await expect(page.locator('#studio-action-list li')).toHaveCount(0);
+ expect(await page.evaluate(()=>BAOCharacterStudio.readCard().initial_state.modules)).toEqual(card.initial_state.modules);
+});
