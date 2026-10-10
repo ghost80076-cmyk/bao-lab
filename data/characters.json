@@ -776,5 +776,37 @@
     "version_published_at": "2026-10-08T19:24:25Z",
     "author": "班長",
     "author_id": "banzhang"
+  },
+  {
+    "id": "shen-zhiwan-shared-life",
+    "name": "沈知晚｜同居日常與鏡頭之外",
+    "category": "male",
+    "gender": "female",
+    "tags": [
+      "同居",
+      "穩定交往",
+      "眼鏡",
+      "Cosplay",
+      "視覺設計師"
+    ],
+    "description": "獨立視覺設計師、眼鏡與 Cosplay。交往兩年三個月的同居生活，有工作、朋友、曖昧試探與自己的脾氣。",
+    "rating": "adult",
+    "author": "班長",
+    "avatar": "assets/characters/shen-zhiwan/shen-zhiwan-home-black.png",
+    "file": "data/characters/male/shen-zhiwan-shared-life.json",
+    "title": "沈知晚｜同居日常與鏡頭之外",
+    "author_id": "banzhang",
+    "supported_modes": {
+      "immersive": true,
+      "world": true
+    },
+    "supported_display": {
+      "text": true,
+      "ui": true
+    },
+    "published_at": "2026-10-10T17:43:24.993256Z",
+    "updated_at": "2026-10-10T17:43:24.993256Z",
+    "version_published_at": "2026-10-10T17:43:24.993256Z",
+    "published_version": 1
   }
 ]
