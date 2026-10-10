@@ -78,14 +78,22 @@
 
   const renderAuthoredGreeting = () => {
     const character = App.activeCharacter;
-    if (!character || Chat.messages.length) return false;
+    if (!character?.greeting) return false;
     const stream = document.getElementById("chat-stream");
-    const bubble = stream?.querySelector(".message.assistant .bubble");
+    const nodes = [...(stream?.querySelectorAll(":scope > .message") || [])];
+    const messages = Chat.messages || [];
+    const first = nodes[0];
+    const standalone = nodes.length === messages.length + 1 && first?.classList.contains("assistant");
+    const storedGreeting = nodes.length === messages.length && messages[0]?.role === "assistant" && messages[0]?.greeting;
+    if ((!standalone && !storedGreeting) || !first?.classList.contains("assistant")) return false;
+    const bubble = first.querySelector(".bubble");
     if (!bubble) return false;
-
-    bubble.innerHTML = window.BAOSceneHTML ? window.BAOSceneHTML.render(character.greeting || "", true) : sanitize(character.greeting || "");
-    bubble.classList.add("authored-rich-message");
+    const html = window.BAOSceneHTML?.render
+      ? BAOSceneHTML.render(character.greeting, true) : sanitize(character.greeting);
+    if (bubble.innerHTML !== html) bubble.innerHTML = html;
+    bubble.classList.toggle("authored-rich-message", window.BAOSceneHTML?.prefs?.mode !== "native");
     bubble.dataset.authoredGreeting = "true";
+    if (standalone) first.dataset.storyGreeting = "true";
     return true;
   };
 
