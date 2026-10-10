@@ -14,7 +14,7 @@
     if (document.querySelector('link[href^="css/world-module-manager.css"]')) return;
     const link = document.createElement("link");
     link.rel = "stylesheet";
-    link.href = "css/world-module-manager.css?v=3";
+    link.href = "css/world-module-manager.css?v=4";
     document.head.appendChild(link);
   };
 
