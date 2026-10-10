@@ -1,0 +1,783 @@
+{
+  "schema": "yorubay-worldbook-source-map",
+  "version": 1,
+  "source_book_id": "b43bd078-1b19-46e8-bfc8-952660be367d",
+  "source_visibility": "公開",
+  "source_entry_count": 191,
+  "migrated_source_entries": 9,
+  "generated_entries": 100,
+  "records": [
+    {
+      "source_index": 163,
+      "source_title": "天劫系統-基本概念",
+      "source_sha256": "fd3f16ad986a431ab031a50824394a5a0041116a798361f3dbef65a0ff006d63",
+      "source_chars": 1858,
+      "destinations": [
+        {
+          "pack_id": "three-realms-cosmic-tribulations",
+          "entry_id": "source-163-0",
+          "start": 0,
+          "end": 62,
+          "content_sha256": "0ebc5dbc4307dd57e873b5f047ec611f318d63824a01dccf443af10e1928e184"
+        },
+        {
+          "pack_id": "three-realms-cosmic-tribulations",
+          "entry_id": "source-163-1",
+          "start": 62,
+          "end": 393,
+          "content_sha256": "b2ce673e8325e8b3a4eecba2538b832d9598f0d3e0f6aed5b70dc0478c004036"
+        },
+        {
+          "pack_id": "three-realms-cosmic-tribulations",
+          "entry_id": "source-163-2",
+          "start": 393,
+          "end": 543,
+          "content_sha256": "f822e08adb060b249129e2b0ebaa5e0f5e6c01e4185280c15aa7541fbea17b59"
+        },
+        {
+          "pack_id": "three-realms-cosmic-tribulations",
+          "entry_id": "source-163-3",
+          "start": 543,
+          "end": 731,
+          "content_sha256": "829c34b587c605aad7330916dc48a03888508c0f3e52c4dfc63a84689df7b4d9"
+        },
+        {
+          "pack_id": "three-realms-cosmic-tribulations",
+          "entry_id": "source-163-4",
+          "start": 731,
+          "end": 896,
+          "content_sha256": "436be04b2ab01f55bad2c24f573ea1b11a8bdc8c0799d156dcd46f80cde6977c"
+        },
+        {
+          "pack_id": "three-realms-cosmic-tribulations",
+          "entry_id": "source-163-5",
+          "start": 896,
+          "end": 1046,
+          "content_sha256": "1b9524a52924bf40c52a32a06fe6eb174ad2d9739eaa88433f655dcabc6a2aaf"
+        },
+        {
+          "pack_id": "three-realms-cosmic-tribulations",
+          "entry_id": "source-163-6",
+          "start": 1046,
+          "end": 1210,
+          "content_sha256": "493c44a2bdbf81eb54e7efaffdaeb36091bc092b6c2f5150eedf490c3941ecc4"
+        },
+        {
+          "pack_id": "three-realms-cosmic-tribulations",
+          "entry_id": "source-163-7",
+          "start": 1210,
+          "end": 1357,
+          "content_sha256": "ac0ad846e09a2ac8e0021919f07eeded6343a3dcb0e0eaccd6353673862d3604"
+        },
+        {
+          "pack_id": "three-realms-cosmic-tribulations",
+          "entry_id": "source-163-8",
+          "start": 1357,
+          "end": 1535,
+          "content_sha256": "a7bed79ecc8a6242c9d673c37208c9c4235f302e001a9445c53e207ca1f02124"
+        },
+        {
+          "pack_id": "three-realms-cosmic-tribulations",
+          "entry_id": "source-163-9",
+          "start": 1535,
+          "end": 1693,
+          "content_sha256": "9136a120ab4f0cde7046e72ed9ead14c9545af9a634dc32d463659cf3b0f86b2"
+        },
+        {
+          "pack_id": "three-realms-cosmic-tribulations",
+          "entry_id": "source-163-10",
+          "start": 1693,
+          "end": 1858,
+          "content_sha256": "39127aae7e3f694eab7d05cfd0d81842ff881d11fdd32f0fa6612b328e922847"
+        }
+      ]
+    },
+    {
+      "source_index": 164,
+      "source_title": "天劫系統-基本概念",
+      "source_sha256": "f80a3a471825653d5a29893546ea527ae211949942a98e5e0190b4966cbe4418",
+      "source_chars": 577,
+      "destinations": [
+        {
+          "pack_id": "three-realms-cosmic-tribulations",
+          "entry_id": "source-164-0",
+          "start": 0,
+          "end": 171,
+          "content_sha256": "e63cd17918101f8c3670378f9c41e25d55ec6fdb84cbaf7f1df16eb052adf3a7"
+        },
+        {
+          "pack_id": "three-realms-cosmic-tribulations",
+          "entry_id": "source-164-1",
+          "start": 171,
+          "end": 297,
+          "content_sha256": "a284d35d41a88045527fe44d69ff8a4fa73576134586d406837340f3be92d7ae"
+        },
+        {
+          "pack_id": "three-realms-cosmic-tribulations",
+          "entry_id": "source-164-2",
+          "start": 297,
+          "end": 409,
+          "content_sha256": "56560b561f12c2d92184e3169f6ca8d136e46ef35f844d8437e51cd33ca11c21"
+        },
+        {
+          "pack_id": "three-realms-cosmic-tribulations",
+          "entry_id": "source-164-3",
+          "start": 409,
+          "end": 577,
+          "content_sha256": "8078ac274dfea1b956edcbc7db7c7304a6673fe4f652029a04387e10149b49a5"
+        }
+      ]
+    },
+    {
+      "source_index": 165,
+      "source_title": "氣運系統-基本概念",
+      "source_sha256": "e4e1446ab3429f8e6b16613ec25968df393f4d78a81f692c618c28ffff072049",
+      "source_chars": 1940,
+      "destinations": [
+        {
+          "pack_id": "three-realms-cosmic-fortune",
+          "entry_id": "source-165-0",
+          "start": 0,
+          "end": 73,
+          "content_sha256": "c9fdfb66870813743eca4bb9ff9e0c21ea58033f83ac95edafa7083578e8551c"
+        },
+        {
+          "pack_id": "three-realms-cosmic-fortune",
+          "entry_id": "source-165-1",
+          "start": 73,
+          "end": 122,
+          "content_sha256": "cad61afe980dadf41d530144017dbe1febaadf112bd6ea38f0103d88daa43eeb"
+        },
+        {
+          "pack_id": "three-realms-cosmic-fortune",
+          "entry_id": "source-165-2",
+          "start": 122,
+          "end": 159,
+          "content_sha256": "b92d898ab85a65831c362eec1c3c2916d11267aed032256fffb650b9d7f0084e"
+        },
+        {
+          "pack_id": "three-realms-cosmic-fortune",
+          "entry_id": "source-165-3",
+          "start": 159,
+          "end": 195,
+          "content_sha256": "12b59e9d26e53dce3224595d6339d7decf2221413c1c66e4f8decc7aaf4ab874"
+        },
+        {
+          "pack_id": "three-realms-cosmic-fortune",
+          "entry_id": "source-165-4",
+          "start": 195,
+          "end": 231,
+          "content_sha256": "094c0ac38380ab971c28cf2479ccca66217a015115c72b97b552d4c59a45e80d"
+        },
+        {
+          "pack_id": "three-realms-cosmic-fortune",
+          "entry_id": "source-165-5",
+          "start": 231,
+          "end": 267,
+          "content_sha256": "c7d44ef8db09b3bd1c3a86fa5012084595c75f2b75acea2a3a140e6ad16a8a14"
+        },
+        {
+          "pack_id": "three-realms-cosmic-fortune",
+          "entry_id": "source-165-6",
+          "start": 267,
+          "end": 303,
+          "content_sha256": "43fa210c81a79acc65f5c9d9c129cbe69c3d7c0b414142b3c6282ae3546384e6"
+        },
+        {
+          "pack_id": "three-realms-cosmic-fortune",
+          "entry_id": "source-165-7",
+          "start": 303,
+          "end": 344,
+          "content_sha256": "9f9051664e9de5e67161784efbbe879c325efc756c9c0ca5327d076321193439"
+        },
+        {
+          "pack_id": "three-realms-cosmic-fortune",
+          "entry_id": "source-165-8",
+          "start": 344,
+          "end": 569,
+          "content_sha256": "341d4399fe400ed24b195b114f2328e40cd65e3b06bddd980cf3259583f4ab67"
+        },
+        {
+          "pack_id": "three-realms-cosmic-fortune",
+          "entry_id": "source-165-9",
+          "start": 569,
+          "end": 790,
+          "content_sha256": "18d8f26f718cf6dbd65a9e93cd1a8d6aea4eb54a9bcce9b15e88105d57c14ce5"
+        },
+        {
+          "pack_id": "three-realms-cosmic-fortune",
+          "entry_id": "source-165-10",
+          "start": 790,
+          "end": 971,
+          "content_sha256": "8f298e819993f7d0305e04205f86532611411c34677b6a8e574a9f5d9b50b365"
+        },
+        {
+          "pack_id": "three-realms-cosmic-fortune",
+          "entry_id": "source-165-11",
+          "start": 971,
+          "end": 1192,
+          "content_sha256": "8516577a9ca2bdd3aac51dd1c8fc8e114b40eecf94e99e459721bad52fe456cb"
+        },
+        {
+          "pack_id": "three-realms-cosmic-fortune",
+          "entry_id": "source-165-12",
+          "start": 1192,
+          "end": 1369,
+          "content_sha256": "c1cbac80913b2f3ee7c9de3f2bbdc8107f2bcd626720766fc02269466f034e96"
+        },
+        {
+          "pack_id": "three-realms-cosmic-fortune",
+          "entry_id": "source-165-13",
+          "start": 1369,
+          "end": 1552,
+          "content_sha256": "965fcac137a0d846af26ad288ddfcadac97370a9d752aca46e3536740288bcf8"
+        },
+        {
+          "pack_id": "three-realms-cosmic-fortune",
+          "entry_id": "source-165-14",
+          "start": 1552,
+          "end": 1680,
+          "content_sha256": "a680e5eaade2bebc69f1d9b82894824c525f1ab96e017c635a3f74fad593420e"
+        },
+        {
+          "pack_id": "three-realms-cosmic-fortune",
+          "entry_id": "source-165-15",
+          "start": 1680,
+          "end": 1824,
+          "content_sha256": "c473fc947fd3c02bb31d8a16980c5cb07a00c6dbaddbb55efe8382bb3f88e2ac"
+        },
+        {
+          "pack_id": "three-realms-cosmic-fortune",
+          "entry_id": "source-165-16",
+          "start": 1824,
+          "end": 1940,
+          "content_sha256": "f2b63e5665afe5aeb61ebf986c298bfa125c10eadade2a12249044e8040521ce"
+        }
+      ]
+    },
+    {
+      "source_index": 166,
+      "source_title": "因果系統-基本概念",
+      "source_sha256": "cfcc437730d88311efb206cea05aec4ae0e29966c65d6ed87ea22d9c247614ba",
+      "source_chars": 1799,
+      "destinations": [
+        {
+          "pack_id": "three-realms-cosmic-karma",
+          "entry_id": "source-166-0",
+          "start": 0,
+          "end": 63,
+          "content_sha256": "34f5fa3d0ec277ba31a091729b1ea63bb95ed89adbb9023dd55c1aef4fc94775"
+        },
+        {
+          "pack_id": "three-realms-cosmic-karma",
+          "entry_id": "source-166-1",
+          "start": 63,
+          "end": 221,
+          "content_sha256": "313153e2db93059675c543f55a0853146dcde1033c79e323c44fa55fcdcf15c4"
+        },
+        {
+          "pack_id": "three-realms-cosmic-karma",
+          "entry_id": "source-166-2",
+          "start": 221,
+          "end": 416,
+          "content_sha256": "bfc671b19332518bb761ecc62f113e0937813de562301ee41ca3a763b3655a85"
+        },
+        {
+          "pack_id": "three-realms-cosmic-karma",
+          "entry_id": "source-166-3",
+          "start": 416,
+          "end": 612,
+          "content_sha256": "28bbca4cd2e5b0b39cc3601582b7cebf2606ae49dc75279719d65b215cfe25e6"
+        },
+        {
+          "pack_id": "three-realms-cosmic-karma",
+          "entry_id": "source-166-4",
+          "start": 612,
+          "end": 781,
+          "content_sha256": "746a4f32c30c72f3e3907424d5d678c552fe576dc5f11e59a54f058e2096032d"
+        },
+        {
+          "pack_id": "three-realms-cosmic-karma",
+          "entry_id": "source-166-5",
+          "start": 781,
+          "end": 952,
+          "content_sha256": "b76934739baa51ffea5676bfc3c8466a6359c0cd5fdfb298f4d4b69a71a9142e"
+        },
+        {
+          "pack_id": "three-realms-cosmic-karma",
+          "entry_id": "source-166-6",
+          "start": 952,
+          "end": 1095,
+          "content_sha256": "d9edfac1dc1eab9bd7ce3d40bac38bdb3d0b97f646dcb2a050a0f4ea4cf1442f"
+        },
+        {
+          "pack_id": "three-realms-cosmic-karma",
+          "entry_id": "source-166-7",
+          "start": 1095,
+          "end": 1285,
+          "content_sha256": "78661c1cc1ec9d03a5c1e46199dbd246b4be44c4da77c3de8a9decdf1df43712"
+        },
+        {
+          "pack_id": "three-realms-cosmic-karma",
+          "entry_id": "source-166-8",
+          "start": 1285,
+          "end": 1438,
+          "content_sha256": "92647a5d71843d91fe1df0dd2e54b36095774b70d3628fea95fdf0c02779340b"
+        },
+        {
+          "pack_id": "three-realms-cosmic-karma",
+          "entry_id": "source-166-9",
+          "start": 1438,
+          "end": 1558,
+          "content_sha256": "b65b5866438652b0d3f6aa9925ed57935a4cf9488953bb4f3404da86d27762ad"
+        },
+        {
+          "pack_id": "three-realms-cosmic-karma",
+          "entry_id": "source-166-10",
+          "start": 1558,
+          "end": 1679,
+          "content_sha256": "783de20315cb55834112ca02cf4998b20d53bba45712bbdda73953201b31888a"
+        },
+        {
+          "pack_id": "three-realms-cosmic-karma",
+          "entry_id": "source-166-11",
+          "start": 1679,
+          "end": 1799,
+          "content_sha256": "c8811341395d9749cdaf8b3511edd340ecef667f5163a69ede66063af83d6fcd"
+        }
+      ]
+    },
+    {
+      "source_index": 167,
+      "source_title": "因果系統-基本概念",
+      "source_sha256": "9e01d89f20e39cd02bee9c34259ece504f107e60f365585d0de298ff8931bcda",
+      "source_chars": 400,
+      "destinations": [
+        {
+          "pack_id": "three-realms-cosmic-karma",
+          "entry_id": "source-167-0",
+          "start": 0,
+          "end": 154,
+          "content_sha256": "448003d472aa4b71fe9a3fca3ede85589602df7da3d99b34387102f3db3c161a"
+        },
+        {
+          "pack_id": "three-realms-cosmic-karma",
+          "entry_id": "source-167-1",
+          "start": 154,
+          "end": 400,
+          "content_sha256": "763045badb65fa023a72a1ac757211b65925bd07b32e1c69653f86627050a1da"
+        }
+      ]
+    },
+    {
+      "source_index": 186,
+      "source_title": "上界-基本概念",
+      "source_sha256": "06f36f9bb587977fd9bca1af8191d10be81cbc776a4ae39a68847318b01ad7d0",
+      "source_chars": 1740,
+      "destinations": [
+        {
+          "pack_id": "three-realms-cosmic-upper-overview",
+          "entry_id": "source-186-0",
+          "start": 0,
+          "end": 55,
+          "content_sha256": "750126ad5804f743b3a59606203ec540a5c32939869e93b7113a7a6af503b53a"
+        },
+        {
+          "pack_id": "three-realms-cosmic-upper-overview",
+          "entry_id": "source-186-1",
+          "start": 55,
+          "end": 307,
+          "content_sha256": "6091c707477f2cd96057f45a97c4989e24293c8ec1a56d57f67fff0ba61838ca"
+        },
+        {
+          "pack_id": "three-realms-cosmic-upper-overview",
+          "entry_id": "source-186-2",
+          "start": 307,
+          "end": 365,
+          "content_sha256": "e81d3b4765e91ec0833ec86f84b1c821000f9bc5e7bc6bffaabb5dbbe23ac4c3"
+        },
+        {
+          "pack_id": "three-realms-cosmic-upper-overview",
+          "entry_id": "source-186-3",
+          "start": 365,
+          "end": 414,
+          "content_sha256": "9acb2c0fb5e5ca1bc2749daaf42079caf9f279ec573d2fc936b9f7ed7c2c99fc"
+        },
+        {
+          "pack_id": "three-realms-cosmic-upper-overview",
+          "entry_id": "source-186-4",
+          "start": 414,
+          "end": 463,
+          "content_sha256": "f4ddf5e221590f2bbd00ad06bf86b221b02009e4aaaeaed3debaf9227784d21c"
+        },
+        {
+          "pack_id": "three-realms-cosmic-upper-overview",
+          "entry_id": "source-186-5",
+          "start": 463,
+          "end": 517,
+          "content_sha256": "a687a703d237529fdc2bf8444d29d45138610c35ccfd1b09c205cd1f48356f45"
+        },
+        {
+          "pack_id": "three-realms-cosmic-upper-overview",
+          "entry_id": "source-186-6",
+          "start": 517,
+          "end": 574,
+          "content_sha256": "10143a2edb1e404363f1e4bea2649c716df88e16fc92250f14f15e49e30869d1"
+        },
+        {
+          "pack_id": "three-realms-cosmic-upper-overview",
+          "entry_id": "source-186-7",
+          "start": 574,
+          "end": 633,
+          "content_sha256": "d68308c28381ef9aaa254133ade754ba78a291618ed6b3289f47826411ee8cc2"
+        },
+        {
+          "pack_id": "three-realms-cosmic-upper-overview",
+          "entry_id": "source-186-8",
+          "start": 633,
+          "end": 683,
+          "content_sha256": "da024aca443f11214508b4d1f4d3ed781e149affefb141684e5fefb8579c22e8"
+        },
+        {
+          "pack_id": "three-realms-cosmic-upper-overview",
+          "entry_id": "source-186-9",
+          "start": 683,
+          "end": 732,
+          "content_sha256": "ddbd6a345108f25d7cb8024e36d235761bcacccd4e2946be4556955d611e1aa2"
+        },
+        {
+          "pack_id": "three-realms-cosmic-upper-overview",
+          "entry_id": "source-186-10",
+          "start": 732,
+          "end": 781,
+          "content_sha256": "15717a75b2735434707f68aeef1afca6abfaebd7ec0000267d7b8ba515d53f90"
+        },
+        {
+          "pack_id": "three-realms-cosmic-upper-overview",
+          "entry_id": "source-186-11",
+          "start": 781,
+          "end": 831,
+          "content_sha256": "b18bbac596f96010a062a9fcf2f096d8fef05d8e515a17270e01f3169511c216"
+        },
+        {
+          "pack_id": "three-realms-cosmic-upper-overview",
+          "entry_id": "source-186-12",
+          "start": 831,
+          "end": 881,
+          "content_sha256": "adcf76701315b26c15d44b358479e54f999d9e7f2ecca2f5370503b7c805bcd9"
+        },
+        {
+          "pack_id": "three-realms-cosmic-upper-overview",
+          "entry_id": "source-186-13",
+          "start": 881,
+          "end": 932,
+          "content_sha256": "1a1605c44bae4ebf63e75c8f94ea76562ee34f3792d43eb72e5a48b85399c202"
+        },
+        {
+          "pack_id": "three-realms-cosmic-upper-overview",
+          "entry_id": "source-186-14",
+          "start": 932,
+          "end": 984,
+          "content_sha256": "54df91a504148000a4d2764b49b1aea06739738c83e89ef5987e9f6d8ade141e"
+        },
+        {
+          "pack_id": "three-realms-cosmic-upper-overview",
+          "entry_id": "source-186-15",
+          "start": 984,
+          "end": 1035,
+          "content_sha256": "697326397cd7732abe9191ed479f7cab1f07618e46c57a80187009ad55de4960"
+        },
+        {
+          "pack_id": "three-realms-cosmic-upper-overview",
+          "entry_id": "source-186-16",
+          "start": 1035,
+          "end": 1085,
+          "content_sha256": "0a9bc8ac13907f16057e0ead944642f765d428aad7dfdbd4c5b3ed72fab55e27"
+        },
+        {
+          "pack_id": "three-realms-cosmic-upper-overview",
+          "entry_id": "source-186-17",
+          "start": 1085,
+          "end": 1135,
+          "content_sha256": "49b36e2fa7d08adc4725c161485d99a45f84a41092f8a77e147a220230706f04"
+        },
+        {
+          "pack_id": "three-realms-cosmic-upper-overview",
+          "entry_id": "source-186-18",
+          "start": 1135,
+          "end": 1342,
+          "content_sha256": "2486a1f29a968a7e6d2b3ddf774c9e6c4fc275ee7e6255668fdb4c9c72947649"
+        },
+        {
+          "pack_id": "three-realms-cosmic-upper-overview",
+          "entry_id": "source-186-19",
+          "start": 1342,
+          "end": 1526,
+          "content_sha256": "073ce7ced26c82796e7f6d64686aec5d12021fcd9f556bdd17470b1f4cfe5930"
+        },
+        {
+          "pack_id": "three-realms-cosmic-upper-overview",
+          "entry_id": "source-186-20",
+          "start": 1526,
+          "end": 1740,
+          "content_sha256": "33cb373c80a1b3806338f98237163291d67fb3657877058a01d4c0a728481729"
+        }
+      ]
+    },
+    {
+      "source_index": 188,
+      "source_title": "上界資源系統",
+      "source_sha256": "0948eb130cad33efad26aa40d2b0958f984d8f8460e61c4a15bc930b1e83d0f8",
+      "source_chars": 748,
+      "destinations": [
+        {
+          "pack_id": "three-realms-cosmic-upper-resources",
+          "entry_id": "source-188-0",
+          "start": 0,
+          "end": 240,
+          "content_sha256": "dcfce790aa06172371ffec10932919a8e7e2647001a76712e355758975da33ae"
+        },
+        {
+          "pack_id": "three-realms-cosmic-upper-resources",
+          "entry_id": "source-188-1",
+          "start": 240,
+          "end": 389,
+          "content_sha256": "d69cb19d4945866cdc20d26deeb7d7a5426d3d6cbb36b22a2b24a5165392ba78"
+        },
+        {
+          "pack_id": "three-realms-cosmic-upper-resources",
+          "entry_id": "source-188-2",
+          "start": 389,
+          "end": 528,
+          "content_sha256": "2492c4a7da4a30a3b5c6c229a231746e61e64e62a08441e234e2073731fcb100"
+        },
+        {
+          "pack_id": "three-realms-cosmic-upper-resources",
+          "entry_id": "source-188-3",
+          "start": 528,
+          "end": 748,
+          "content_sha256": "8a025f5a4c66e403ae70de0ebcb071f3f022ad1d6ebe4343675a6539ef17f898"
+        }
+      ]
+    },
+    {
+      "source_index": 189,
+      "source_title": "上界法則系統-神之法則",
+      "source_sha256": "b5eb8ddc57a974d6398fc267a8513794926d1ca7fd7493671bee63e210480a52",
+      "source_chars": 831,
+      "destinations": [
+        {
+          "pack_id": "three-realms-cosmic-upper-laws",
+          "entry_id": "source-189-0",
+          "start": 0,
+          "end": 65,
+          "content_sha256": "87c4b39d7edd0f685bc550526ad8154fc1f9b395941116a29fc540d1bb3de9f6"
+        },
+        {
+          "pack_id": "three-realms-cosmic-upper-laws",
+          "entry_id": "source-189-1",
+          "start": 65,
+          "end": 248,
+          "content_sha256": "ea96f2b69934e4a5f836eb54ec8e40b96a55bd30f9a4719fb2051c40b10afcc5"
+        },
+        {
+          "pack_id": "three-realms-cosmic-upper-laws",
+          "entry_id": "source-189-2",
+          "start": 248,
+          "end": 541,
+          "content_sha256": "c2e5cda038ed891c6011dbe1f58f4d3179ba0664a523ba48581386f60d3a3853"
+        },
+        {
+          "pack_id": "three-realms-cosmic-upper-laws",
+          "entry_id": "source-189-3",
+          "start": 541,
+          "end": 605,
+          "content_sha256": "eb240bb5837d64383a81779f71d16521c1a98e3c1e29a96b654e80371c61746d"
+        },
+        {
+          "pack_id": "three-realms-cosmic-upper-laws",
+          "entry_id": "source-189-4",
+          "start": 605,
+          "end": 649,
+          "content_sha256": "c3bdf09d46c2c239b301165267e663b62b9a6e0248bbcfd9872651966c8d53b9"
+        },
+        {
+          "pack_id": "three-realms-cosmic-upper-laws",
+          "entry_id": "source-189-5",
+          "start": 649,
+          "end": 690,
+          "content_sha256": "996af25fb13c0dba8048e98da49bd9f688f2553ec3ce6b03cf83a76ff4cee90a"
+        },
+        {
+          "pack_id": "three-realms-cosmic-upper-laws",
+          "entry_id": "source-189-6",
+          "start": 690,
+          "end": 732,
+          "content_sha256": "50b980db5685b56e91f91a1c24bddd3c7cb82dd30f59ab6e99dd5a11593c2359"
+        },
+        {
+          "pack_id": "three-realms-cosmic-upper-laws",
+          "entry_id": "source-189-7",
+          "start": 732,
+          "end": 831,
+          "content_sha256": "e5b6743d8c219153cd8d003b0bbb0f32e12d256f678db61ff7d41029ee0de3b5"
+        }
+      ]
+    },
+    {
+      "source_index": 190,
+      "source_title": "上界血脈系統",
+      "source_sha256": "34430fe3ba5313d4540b544a3da10c71c5a06c4b43e147a65f2501630e1636a8",
+      "source_chars": 1990,
+      "destinations": [
+        {
+          "pack_id": "three-realms-cosmic-upper-bloodlines",
+          "entry_id": "source-190-0",
+          "start": 0,
+          "end": 69,
+          "content_sha256": "4306e27325f8025e29d5a6ab02f83e8c573b7d85043c01db92fa383d9271008d"
+        },
+        {
+          "pack_id": "three-realms-cosmic-upper-bloodlines",
+          "entry_id": "source-190-1",
+          "start": 69,
+          "end": 576,
+          "content_sha256": "047c7885f25a17674453936ed76c65af015162767eb3231e73136ac8b31ec3bf"
+        },
+        {
+          "pack_id": "three-realms-cosmic-upper-bloodlines",
+          "entry_id": "source-190-2",
+          "start": 576,
+          "end": 852,
+          "content_sha256": "4b53f34e1d2750c4354d3135e8b574984c22100bfa2f7b8ae15d3d5efc78fa13"
+        },
+        {
+          "pack_id": "three-realms-cosmic-upper-bloodlines",
+          "entry_id": "source-190-3",
+          "start": 852,
+          "end": 930,
+          "content_sha256": "8e099853dd19da78e2359a4584c2ebffffaf9d5bccc68db369eb94acce15a556"
+        },
+        {
+          "pack_id": "three-realms-cosmic-upper-bloodlines",
+          "entry_id": "source-190-4",
+          "start": 930,
+          "end": 992,
+          "content_sha256": "17bd1ad16357d7006def5de181ec1561e861a1dd6fbbf322dfaa3b4dc11d017f"
+        },
+        {
+          "pack_id": "three-realms-cosmic-upper-bloodlines",
+          "entry_id": "source-190-5",
+          "start": 992,
+          "end": 1054,
+          "content_sha256": "f9dfa053e1f6ee3be8e83be19c91d16dd4f0c3fe48b8612416d2833ea7f7b8fe"
+        },
+        {
+          "pack_id": "three-realms-cosmic-upper-bloodlines",
+          "entry_id": "source-190-6",
+          "start": 1054,
+          "end": 1109,
+          "content_sha256": "d690a363936635aade8710f15c5cf887cc06d855a49b1ae5461b2cab2534a165"
+        },
+        {
+          "pack_id": "three-realms-cosmic-upper-bloodlines",
+          "entry_id": "source-190-7",
+          "start": 1109,
+          "end": 1152,
+          "content_sha256": "725eebaa8070d35202c040434cc3e4e26e2162299049a84a1bba401768da8d9f"
+        },
+        {
+          "pack_id": "three-realms-cosmic-upper-bloodlines",
+          "entry_id": "source-190-8",
+          "start": 1152,
+          "end": 1195,
+          "content_sha256": "3da841edfd8b4cb34638befa2fccec13eace76d9dd69b546b6764f409dc7dd4f"
+        },
+        {
+          "pack_id": "three-realms-cosmic-upper-bloodlines",
+          "entry_id": "source-190-9",
+          "start": 1195,
+          "end": 1239,
+          "content_sha256": "88639057dd0f11094ed7fed3499cc222b9c27aea449cc5097560c9ef3e223640"
+        },
+        {
+          "pack_id": "three-realms-cosmic-upper-bloodlines",
+          "entry_id": "source-190-10",
+          "start": 1239,
+          "end": 1282,
+          "content_sha256": "9c5b9bccd504d69770e908008f04fffc66940e665bcf51fc38f3672af1423615"
+        },
+        {
+          "pack_id": "three-realms-cosmic-upper-bloodlines",
+          "entry_id": "source-190-11",
+          "start": 1282,
+          "end": 1327,
+          "content_sha256": "7cf4d7527510b856088c4aaa315c814915f19073742c17d109f0f165aaa0dcf9"
+        },
+        {
+          "pack_id": "three-realms-cosmic-upper-bloodlines",
+          "entry_id": "source-190-12",
+          "start": 1327,
+          "end": 1374,
+          "content_sha256": "cfef4581c35722284a076f280378dab019aef117a96d710ac148fc967b3dcae9"
+        },
+        {
+          "pack_id": "three-realms-cosmic-upper-bloodlines",
+          "entry_id": "source-190-13",
+          "start": 1374,
+          "end": 1432,
+          "content_sha256": "25152e31465afadad7069f947822fdac1c4b0cb504a2aca82ad8d642ea580e6d"
+        },
+        {
+          "pack_id": "three-realms-cosmic-upper-bloodlines",
+          "entry_id": "source-190-14",
+          "start": 1432,
+          "end": 1479,
+          "content_sha256": "f9e5bbb1b8ade432775ea6560a4cfb7d14bdb9a7e46382da72a974316c56cb9e"
+        },
+        {
+          "pack_id": "three-realms-cosmic-upper-bloodlines",
+          "entry_id": "source-190-15",
+          "start": 1479,
+          "end": 1526,
+          "content_sha256": "3ab7de8e2729e74c8ce14a9df7aca5a172e7bad31067402d3267aad488564e23"
+        },
+        {
+          "pack_id": "three-realms-cosmic-upper-bloodlines",
+          "entry_id": "source-190-16",
+          "start": 1526,
+          "end": 1573,
+          "content_sha256": "545ef80b88ed85b6b68c92cd93b69cfa5257720a8a444ea3b628f127453201f5"
+        },
+        {
+          "pack_id": "three-realms-cosmic-upper-bloodlines",
+          "entry_id": "source-190-17",
+          "start": 1573,
+          "end": 1625,
+          "content_sha256": "785f993cbe9cf2b42aee6ecf418f4efa7a48899229558090bb89d91c0408e4a5"
+        },
+        {
+          "pack_id": "three-realms-cosmic-upper-bloodlines",
+          "entry_id": "source-190-18",
+          "start": 1625,
+          "end": 1694,
+          "content_sha256": "37e7897f639fb4c06d508ada052dfe20fcd50f64cefc7c7968a81ff2659b5bd9"
+        },
+        {
+          "pack_id": "three-realms-cosmic-upper-bloodlines",
+          "entry_id": "source-190-19",
+          "start": 1694,
+          "end": 1940,
+          "content_sha256": "bbd080a861bc169ece9da1fc0c755a5041526ccb875350df5a3c19d57bb8c41d"
+        },
+        {
+          "pack_id": "three-realms-cosmic-upper-bloodlines",
+          "entry_id": "source-190-20",
+          "start": 1940,
+          "end": 1990,
+          "content_sha256": "0a155bf147abfbff397935bbd4d59a1480d56ae231b4d8eb608dbc6fb59b74f2"
+        }
+      ]
+    }
+  ]
+}
