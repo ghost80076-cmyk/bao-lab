@@ -111,6 +111,106 @@
           "content": "西方大陸以煉丹聞名，丹宗林立、丹藥貿易發達；丹域是主要核心地帶。"
         }
       ]
+    },
+    {
+      "schema": "yorubay-worldbook-pack",
+      "version": 1,
+      "meta": {
+        "id": "everyday-scene-reference",
+        "name": "通用模擬增強｜生活場景參考",
+        "world": "general",
+        "classification": "reference",
+        "author": "夜灣編輯示例",
+        "release": "0.1.0",
+        "visibility": "public",
+        "source": "夜灣新編通用場景參考（非 LunaTalk 原文）"
+      },
+      "entries": [
+        {
+          "id": "daily-transport",
+          "title": "通勤與交通場景",
+          "category": "場景",
+          "mode": "keyword",
+          "keywords": [
+            "通勤",
+            "捷運",
+            "公車",
+            "塞車",
+            "搭車"
+          ],
+          "content": "通勤可能受尖峰時段、班次、天氣或臨時交通狀況影響；具體延誤必須由故事中已建立的時間、地點與事件決定，不能因為載入此資料就捏造事故。"
+        },
+        {
+          "id": "shop-life",
+          "title": "商店與咖啡廳場景",
+          "category": "場景",
+          "mode": "keyword",
+          "keywords": [
+            "咖啡廳",
+            "餐廳",
+            "商店",
+            "點餐"
+          ],
+          "content": "一般商業場所可涉及排隊、菜單、店員輪班、付款、營業時間與顧客互動；商家是否開門、價格與人物關係，仍以故事當前已確認的事實為準。"
+        },
+        {
+          "id": "rainy-day",
+          "title": "雨天與戶外活動",
+          "category": "場景",
+          "mode": "keyword",
+          "keywords": [
+            "下雨",
+            "暴雨",
+            "颱風",
+            "淋雨"
+          ],
+          "content": "降雨可能改變視線、道路濕滑、外出意願、衣物乾濕與交通安排，但不等於已發生停電、傷害或事故；僅作為情境細節選材。"
+        }
+      ]
+    },
+    {
+      "schema": "yorubay-worldbook-pack",
+      "version": 1,
+      "meta": {
+        "id": "sunrise-investigation-demo",
+        "name": "曙光市｜調查題材擴充示例",
+        "world": "sunrise-city",
+        "classification": "scenario",
+        "author": "夜灣編輯示例",
+        "release": "0.1.0",
+        "visibility": "public",
+        "source": "夜灣新編劇情參考（不包含原作幕後真相）"
+      },
+      "entries": [
+        {
+          "id": "public-investigation",
+          "title": "公開調查線索",
+          "category": "事件",
+          "mode": "keyword",
+          "keywords": [
+            "調查",
+            "報案",
+            "證據",
+            "警局"
+          ],
+          "content": "可以從目擊者證詞、公開通報、現場可見痕跡及合法取得的資料展開調查。真正幕後原因、NPC 私密意圖與尚未獲得的證據仍屬未知。"
+        },
+        {
+          "id": "case-timeline",
+          "title": "案件公開時間線",
+          "category": "事件",
+          "mode": "keyword",
+          "keywords": [
+            "案件",
+            "時間線",
+            "案發"
+          ],
+          "requires": [
+            "investigation-established"
+          ],
+          "content": "只有故事狀態確認正在調查特定案件後，才對已揭露的時間與地點資訊進行整理；不得自行產生新證據或宣告真兇。"
+        }
+      ]
     }
   ]
 }
