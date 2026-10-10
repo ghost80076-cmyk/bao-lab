@@ -9,13 +9,14 @@
   "status_counts": {
     "native_actor_archetype": 31,
     "pending_actor_review": 1,
-    "native_prompt": 23,
-    "pending_rule_review": 16,
+    "native_prompt": 24,
+    "native_rule_supported": 5,
+    "pending_rule_review": 10,
     "native_cultivation": 4,
     "factual": 115,
     "native_status_template": 1
   },
-  "remaining_review_entries": 18,
+  "remaining_review_entries": 14,
   "records": [
     {
       "source_index": 0,
@@ -381,31 +382,42 @@
       "source_index": 33,
       "source_title": "演員與世界觀融合",
       "source_sha256": "ec5b0ba7e7d03507c13f7226374539770a5fbdaf2f73db0aa5f2958cf0d57f71",
-      "status": "pending_rule_review",
+      "status": "native_rule_supported",
       "references": [
-        "docs/worldbook-native-gap-audit-2026-10-10.md"
+        "data/three-realms-native-rule-provenance.json",
+        "js/story-actor-pack-core.js",
+        "js/story-persona-manager.js",
+        "data/prompts/world.json"
       ],
+      "fidelity": "explicit-character-world-adaptation",
       "follow_up": true
     },
     {
       "source_index": 34,
       "source_title": "世界基礎規則-世界觀",
       "source_sha256": "90c34cd54987003193254fad3b479aa3546af078a84b56e083d08d2523c89c94",
-      "status": "pending_rule_review",
+      "status": "native_rule_supported",
       "references": [
-        "docs/worldbook-native-gap-audit-2026-10-10.md"
+        "data/three-realms-native-rule-provenance.json",
+        "data/prompts/world.json",
+        "js/world-state.js",
+        "js/world-clock.js"
       ],
-      "follow_up": true
+      "fidelity": "existing-world-and-confirmed-state-contract",
+      "follow_up": false
     },
     {
       "source_index": 35,
       "source_title": "NPC 日常行為",
       "source_sha256": "45fc07139187b182a3826b0a4bc8bc7e8d17d8ebe91b2a46238722237bf421f0",
-      "status": "pending_rule_review",
+      "status": "native_rule_supported",
       "references": [
-        "docs/worldbook-native-gap-audit-2026-10-10.md"
+        "data/three-realms-native-rule-provenance.json",
+        "data/prompts/world.json",
+        "js/three-realms-story-actor-pack.js"
       ],
-      "follow_up": true
+      "fidelity": "existing-npc-agency-and-optional-daily-life-archetypes",
+      "follow_up": false
     },
     {
       "source_index": 36,
@@ -421,11 +433,14 @@
       "source_index": 37,
       "source_title": "親密關係發展-好感度",
       "source_sha256": "b301414ca02145bc4cfa579cea5443def226d76d6ae965980162620cd142b1e6",
-      "status": "pending_rule_review",
+      "status": "native_rule_supported",
       "references": [
-        "docs/worldbook-native-gap-audit-2026-10-10.md"
+        "data/three-realms-native-rule-provenance.json",
+        "data/prompts/immersive.json",
+        "js/character-status-ui.js"
       ],
-      "follow_up": true
+      "fidelity": "existing-gradual-relationship-and-descriptive-status",
+      "follow_up": false
     },
     {
       "source_index": 38,
@@ -461,20 +476,25 @@
       "source_index": 41,
       "source_title": "玄幻劇本",
       "source_sha256": "6fef46ac9d8f00806048436b0e675bb746e462568c1c995af772488f3b4270d1",
-      "status": "pending_rule_review",
+      "status": "native_prompt",
       "references": [
-        "docs/worldbook-native-gap-audit-2026-10-10.md"
+        "data/three-realms-event-director-provenance.json"
       ],
-      "follow_up": true
+      "profile_id": "workshop-xuanhuan",
+      "fidelity": "adapted-instruction-profile-not-verbatim"
     },
     {
       "source_index": 42,
       "source_title": "角色池系統(演員、歌手、偶像)",
       "source_sha256": "24c868c31867a4f233851a0be228b441d03e668b6921af61221951f37be4d50b",
-      "status": "pending_rule_review",
+      "status": "native_rule_supported",
       "references": [
-        "docs/worldbook-native-gap-audit-2026-10-10.md"
+        "data/three-realms-native-rule-provenance.json",
+        "js/three-realms-story-actor-pack.js",
+        "js/story-persona-manager.js",
+        "js/three-realms-events-core.js"
       ],
+      "fidelity": "optional-original-character-selection",
       "follow_up": true
     },
     {
