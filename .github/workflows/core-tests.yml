@@ -512,5 +512,6 @@ jobs:
           node tests/three-realms-cosmic-lore-core.cjs
           node tests/three-realms-secret-lore-core.cjs
           node tests/three-realms-systems-core.cjs
+          node tests/three-realms-fire-artifacts-core.cjs
       - name: Yume world-card relevant context
         run: node tests/yume-relevant-context.cjs

@@ -53,6 +53,10 @@ def keywords(index, label, content):
         if index == 136 and label == "不滅金身甲":
             return ["下界不滅金身甲", "法寶不滅金身甲"]
         return [label]
+    if index == 135 and label == "異火":
+        return ["下界煉器異火"]
+    if index == 134 and label in {"法寶等級", "法寶類型", "煉器師等級", "煉器材料"}:
+        return ["下界" + label]
     if index == 135 and label == "器靈":
         return ["下界器靈", "法寶器靈"]
     if label == "基本概念":
@@ -83,7 +87,7 @@ def build(source, root):
         pack = {"schema": "yorubay-worldbook-pack", "version": 1, "meta": {
             "id": "three-realms-encyclopedia-" + key, "name": "三界九域｜" + label,
             "world": "three-realms", "classification": "world", "author": "班長／肉包",
-            "release": "1.0.1" if key == "artifacts" else "1.0.0", "visibility": "public",
+            "release": "1.0.2" if key == "artifacts" else "1.0.0", "visibility": "public",
             "source": "三界九域仙界-修仙｜公開原文百科分章（2026-10-10）"
         }, "entries": []}
         for index in indices:
