@@ -1,5 +1,5 @@
 (() => {
-  if (typeof App === "undefined" || typeof Chat === "undefined") return;
+  if (typeof App === "undefined" || typeof Chat === "undefined" || window.BAOChatMarkup) return;
 
   const allowedTags = new Set([
     "DIV","P","SPAN","BR","STRONG","B","EM","I","U","S","SMALL","MARK",
