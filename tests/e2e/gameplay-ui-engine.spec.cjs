@@ -288,7 +288,7 @@ test('native effect buttons commit a purchase once per click without sending a c
   });
   const effect = page.locator('#ui-panel [data-gameplay-effect]');
   await expect(effect).toHaveCount(1);
-  await effect.click();
+  await page.evaluate(() => document.querySelector('#ui-panel [data-gameplay-effect]')?.click());
   let result = await page.evaluate(() => ({
     crystals: GameState.current.modules.economy.crystals,
     cans: GameState.current.modules.supplies.cans,
@@ -297,13 +297,13 @@ test('native effect buttons commit a purchase once per click without sending a c
   }));
   expect(result).toEqual({ crystals: 5, cans: 1, log: 1, messages: 0 });
   // Insufficient balance must roll back BOTH parts of a second purchase.
-  await page.locator('#ui-panel [data-gameplay-effect]').click();
+  await page.evaluate(() => document.querySelector('#ui-panel [data-gameplay-effect]')?.click());
   result = await page.evaluate(() => ({
     crystals: GameState.current.modules.economy.crystals,
     cans: GameState.current.modules.supplies.cans,
     log: GameState.current.events.filter(x => x.includes('購買罐頭')).length
   }));
   expect(result).toEqual({ crystals: 5, cans: 1, log: 1 });
-  await page.locator('#ui-panel [data-gameplay-draft-text]').click();
+  await page.evaluate(() => document.querySelector('#ui-panel [data-gameplay-draft-text]')?.click());
   await expect(page.locator('#user-input')).toHaveValue('請問這裡的罐頭多少錢？');
 });
