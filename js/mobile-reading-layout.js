@@ -391,6 +391,9 @@
     if (send.dataset.baoComposerAutogrowBound !== 'true') {
       send.dataset.baoComposerAutogrowBound = 'true';
       send.addEventListener('click', () => {
+        // Sending returns the phone to the story surface. Keeping the compact
+        // info panel open can overlap the newly rendered assistant tools.
+        if (main.classList.contains('bao-mobile-panel-open')) closePanels();
         window.setTimeout(fitComposerInput, 0);
         window.setTimeout(fitComposerInput, 120);
       });
