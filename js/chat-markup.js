@@ -120,16 +120,16 @@
 
   window.BAOChatMarkup = { sanitize, renderAuthoredGreeting };
   const loadSceneStoryPreferences = () => {
-    if (!window.BAOSceneHTML || window.BAOSceneStoryPreferences || document.querySelector('script[src="js/scene-story-preferences.js"]')) return;
+    if (!window.BAOSceneHTML || window.BAOSceneStoryPreferences || document.querySelector('script[src^="js/scene-story-preferences.js"]')) return;
     const settings = document.createElement('script');
-    settings.src = 'js/scene-story-preferences.js';
+    settings.src = 'js/scene-story-preferences.js?v=2';
     settings.onerror = () => console.warn('BAO/LAB per-story scene preferences failed to load');
     document.head.appendChild(settings);
   };
-  let sceneScript = document.querySelector('script[src="js/scene-html-modes.js"]');
+  let sceneScript = document.querySelector('script[src^="js/scene-html-modes.js"]');
   if (!sceneScript) {
     const script = document.createElement('script');
-    script.src = 'js/scene-html-modes.js';
+    script.src = 'js/scene-html-modes.js?v=2';
     script.onerror = () => console.warn('BAO/LAB scene HTML controls failed to load');
     script.addEventListener('load', loadSceneStoryPreferences, { once: true });
     document.head.appendChild(script);
