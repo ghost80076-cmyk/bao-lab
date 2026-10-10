@@ -100,8 +100,36 @@
     const base = originalBuild();
     if (this.config?.narrativeMode !== "world" && this.config?.displayMode !== "ui") return base;
     const core = window.BAOWorldModules.compactForPrompt();
-    return core ? `${base}\n\n【目前核心狀態】\n${core}\n以上只視為目前事實，不要為了提到狀態而刻意改寫劇情。` : base;
+    return core ? `${base}\n\n【內部世界狀態｜僅供敘事模型參考】\n以下 JSON 是世界引擎已儲存的事實，不是回覆模板，也不是本輪要產生的狀態更新。\n${core}\n【內部狀態輸出禁令】\n請根據上述事實自然延續玩家當前故事；不得在回覆中複製「目前核心狀態」、內部世界狀態標題、JSON 原文、鍵名清單或逐欄數值。原生 Gameplay UI 會獨立顯示狀態，敘事只描述玩家能感知且與本輪情節相關的資訊。不要因為取得狀態而刻意改寫劇情。` : base;
   };
+  // Some models echo the exact internal state block instead of writing prose.
+  // Remove only a trailing, clearly marked JSON dump from a MAIN story reply;
+  // never parse model text as trusted state or hide arbitrary authored content.
+  const stripInternalStateEcho = text => {
+    const source = String(text ?? "");
+    const pattern = /(^|\r?\n)[ \t]*【(?:目前核心狀態|內部世界狀態｜僅供敘事模型參考)】[ \t]*\r?\n[ \t]*(?=\{)/g;
+    let found;
+    let marker;
+    while ((found = pattern.exec(source))) marker = found;
+    if (!marker) return source;
+    const tail = source.slice(marker.index + marker[1].length).trim();
+    if (!/^【[^\n]+】\s*\r?\n\s*\{/.test(tail) || !/\}\s*$/.test(tail)) return source;
+    const prose = source.slice(0, marker.index).trimEnd();
+    return prose || '（模型本輪只回傳內部狀態資料，未生成有效劇情。請重新輸入上一輪指令。）';
+  };
+  if (typeof API !== "undefined" && typeof API.wrapSend === "function") {
+    API.wrapSend("world-module-ui:internal-state-echo", async (next, config, messages, ...rest) => {
+      const mainStory = !config?.__connectionTest && !config?.__memoryTask
+        && !config?.__stateTask && !config?.__storyTool && !config?.__auxiliaryTask
+        && Array.isArray(messages) && messages.some(message =>
+          typeof message?.content === "string" && message.content.includes("【內部世界狀態｜僅供敘事模型參考】")
+        );
+      const result = await next(config, messages, ...rest);
+      if (!mainStory || typeof result?.text !== "string") return result;
+      const cleaned = stripInternalStateEcho(result.text);
+      return cleaned === result.text ? result : {...result, text: cleaned};
+    });
+  }
   ensureStyles();
-  window.BAOWorldModuleUI = { injectTabs, renderModule, injectBuilderSummary };
+  window.BAOWorldModuleUI = { injectTabs, renderModule, injectBuilderSummary, stripInternalStateEcho };
 })();
