@@ -100,6 +100,8 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/google-drive-sync.js"))
     .then(() => loadBAOScript("js/prompt-cache.js?v=3"))
     .then(() => loadBAOScript("js/prompt-orchestrator.js"))
+    .then(() => loadBAOScript("js/worldbook-library-core.js?v=1"))
+    .then(() => loadBAOScript("js/worldbook-library.js?v=1"))
     .then(() => loadBAOScript("js/story-reader.js?v=4"))
     .then(() => loadBAOScript("js/conversation-search-core.js?v=4"))
     .then(() => loadBAOScript("js/conversation-search.js?v=4"))

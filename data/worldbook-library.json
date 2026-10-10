@@ -1,0 +1,216 @@
+{
+  "schema": "yorubay-worldbook-library-catalog",
+  "version": 1,
+  "packs": [
+    {
+      "schema": "yorubay-worldbook-pack",
+      "version": 1,
+      "meta": {
+        "id": "sunrise-geography-demo",
+        "name": "曙光市｜城市地理試用包",
+        "world": "sunrise-city",
+        "classification": "world",
+        "author": "班長／肉包",
+        "release": "0.1.0",
+        "visibility": "public",
+        "source": "LunaTalk 囚徒的自白：公開地理節選（非完整原文）"
+      },
+      "entries": [
+        {
+          "id": "city-overview",
+          "title": "曙光市基本設定",
+          "category": "地點",
+          "mode": "foundation",
+          "keywords": [],
+          "content": "曙光市是東部沿海、約八百萬人口的國際化大都市，由漁港發展為金融、貿易與科技中心。五大區域為中央商業區、港口工業區、北山住宅區、東區平民區、南區貧民窟。社會矛盾包括貧富差距、治安與異能者衝突。"
+        },
+        {
+          "id": "central-business",
+          "title": "中央商業區（CBD）",
+          "category": "地點",
+          "mode": "keyword",
+          "keywords": [
+            "中央商業區",
+            "CBD",
+            "曙光金融大廈"
+          ],
+          "content": "中央商業區位於曙光市中心，緊鄰海濱；企業總部、金融機構與摩天樓集中於此。此區警備及監控密集，富裕階層、企業高管與合法登記異能者較常活動。"
+        },
+        {
+          "id": "port-district",
+          "title": "港口工業區",
+          "category": "地點",
+          "mode": "keyword",
+          "keywords": [
+            "港口工業區",
+            "碼頭",
+            "港口",
+            "倉儲區"
+          ],
+          "content": "曙光市西部沿海的港口工業區包含碼頭、工廠與倉儲區。走私與幫派活動造成秩序問題，同時也是工人、運輸業者與小商販維持生活的工作地點。"
+        }
+      ]
+    },
+    {
+      "schema": "yorubay-worldbook-pack",
+      "version": 1,
+      "meta": {
+        "id": "three-realms-geography-demo",
+        "name": "三界九域｜下界地理試用包",
+        "world": "three-realms",
+        "classification": "world",
+        "author": "班長／肉包",
+        "release": "0.1.0",
+        "visibility": "public",
+        "source": "LunaTalk 三界九域仙界－修仙：公開地理節選（非完整原文）"
+      },
+      "entries": [
+        {
+          "id": "lower-realm",
+          "title": "下界地圖整體概況",
+          "category": "地點",
+          "mode": "foundation",
+          "keywords": [],
+          "content": "下界是修煉者的起點，由多個大陸和海洋組成，靈氣濃度相對較低。中央大陸靈氣濃度較高、強者與頂級宗門林立；東方以劍修、劍宗聞名；西方以煉丹與丹宗聞名；南方以煉器與器宗聞名；北方則以鬥氣修煉著稱。"
+        },
+        {
+          "id": "central-continent",
+          "title": "中央大陸",
+          "category": "地點",
+          "mode": "keyword",
+          "keywords": [
+            "中央大陸",
+            "天柱山",
+            "天心城"
+          ],
+          "content": "中央大陸是下界最大的大陸與權力中心，頂級宗門與世家集中，中央區域的靈氣濃度與勢力密度最高。"
+        },
+        {
+          "id": "eastern-continent",
+          "title": "東方大陸",
+          "category": "地點",
+          "mode": "keyword",
+          "keywords": [
+            "東方大陸",
+            "劍域",
+            "劍宗"
+          ],
+          "content": "東方大陸以劍修聞名，劍域是核心區域，頂級劍宗聚集，劍道文化濃厚。"
+        },
+        {
+          "id": "western-continent",
+          "title": "西方大陸",
+          "category": "地點",
+          "mode": "keyword",
+          "keywords": [
+            "西方大陸",
+            "丹域",
+            "丹宗",
+            "藥山"
+          ],
+          "content": "西方大陸以煉丹聞名，丹宗林立、丹藥貿易發達；丹域是主要核心地帶。"
+        }
+      ]
+    },
+    {
+      "schema": "yorubay-worldbook-pack",
+      "version": 1,
+      "meta": {
+        "id": "everyday-scene-reference",
+        "name": "通用模擬增強｜生活場景參考",
+        "world": "general",
+        "classification": "reference",
+        "author": "夜灣編輯示例",
+        "release": "0.1.0",
+        "visibility": "public",
+        "source": "夜灣新編通用場景參考（非 LunaTalk 原文）"
+      },
+      "entries": [
+        {
+          "id": "daily-transport",
+          "title": "通勤與交通場景",
+          "category": "場景",
+          "mode": "keyword",
+          "keywords": [
+            "通勤",
+            "捷運",
+            "公車",
+            "塞車",
+            "搭車"
+          ],
+          "content": "通勤可能受尖峰時段、班次、天氣或臨時交通狀況影響；具體延誤必須由故事中已建立的時間、地點與事件決定，不能因為載入此資料就捏造事故。"
+        },
+        {
+          "id": "shop-life",
+          "title": "商店與咖啡廳場景",
+          "category": "場景",
+          "mode": "keyword",
+          "keywords": [
+            "咖啡廳",
+            "餐廳",
+            "商店",
+            "點餐"
+          ],
+          "content": "一般商業場所可涉及排隊、菜單、店員輪班、付款、營業時間與顧客互動；商家是否開門、價格與人物關係，仍以故事當前已確認的事實為準。"
+        },
+        {
+          "id": "rainy-day",
+          "title": "雨天與戶外活動",
+          "category": "場景",
+          "mode": "keyword",
+          "keywords": [
+            "下雨",
+            "暴雨",
+            "颱風",
+            "淋雨"
+          ],
+          "content": "降雨可能改變視線、道路濕滑、外出意願、衣物乾濕與交通安排，但不等於已發生停電、傷害或事故；僅作為情境細節選材。"
+        }
+      ]
+    },
+    {
+      "schema": "yorubay-worldbook-pack",
+      "version": 1,
+      "meta": {
+        "id": "sunrise-investigation-demo",
+        "name": "曙光市｜調查題材擴充示例",
+        "world": "sunrise-city",
+        "classification": "scenario",
+        "author": "夜灣編輯示例",
+        "release": "0.1.0",
+        "visibility": "public",
+        "source": "夜灣新編劇情參考（不包含原作幕後真相）"
+      },
+      "entries": [
+        {
+          "id": "public-investigation",
+          "title": "公開調查線索",
+          "category": "事件",
+          "mode": "keyword",
+          "keywords": [
+            "調查",
+            "報案",
+            "證據",
+            "警局"
+          ],
+          "content": "可以從目擊者證詞、公開通報、現場可見痕跡及合法取得的資料展開調查。真正幕後原因、NPC 私密意圖與尚未獲得的證據仍屬未知。"
+        },
+        {
+          "id": "case-timeline",
+          "title": "案件公開時間線",
+          "category": "事件",
+          "mode": "keyword",
+          "keywords": [
+            "案件",
+            "時間線",
+            "案發"
+          ],
+          "requires": [
+            "investigation-established"
+          ],
+          "content": "只有故事狀態確認正在調查特定案件後，才對已揭露的時間與地點資訊進行整理；不得自行產生新證據或宣告真兇。"
+        }
+      ]
+    }
+  ]
+}

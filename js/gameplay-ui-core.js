@@ -477,17 +477,39 @@
       for (const { path, next } of pending) {
         if (!setPath(shadow, path, next)) return { ok: false, reason: '遊戲動作無法寫入狀態。' };
       }
+      const versions = { ...(state.gameplayActionVersions || {}) };
+      for (const { path } of pending) versions[path] = (Number(versions[path]) || 0) + 1;
       state.modules = modules;
+      state.gameplayActionVersions = versions;
     } catch (_) {
       return { ok: false, reason: '遊戲動作未完成，狀態保持不變。' };
     }
     return { ok: true, effect };
   }
 
+  function captureActionVersions(state) {
+    return { ...(state?.gameplayActionVersions || {}) };
+  }
+
+  // Preserve local commits made after a model request began. Future requests
+  // still accept narrative changes: this is a race guard, not a permanent lock.
+  function reconcileActionUpdate(state, update, baseline = {}) {
+    if (!isObject(update?.modules)) return update;
+    const clean = clone(update);
+    for (const [path, version] of Object.entries(state?.gameplayActionVersions || {})) {
+      const parts = splitPath(path);
+      if (parts.length < 3 || parts[0] !== 'modules' || !isTargetPath(path)) continue;
+      if (version === baseline[path] || !isObject(clean.modules[parts[1]])) continue;
+      const current = getPath(state, path);
+      if (Number.isSafeInteger(current) && current >= 0) setPath(clean, path, current);
+    }
+    return clean;
+  }
+
   return Object.freeze({
     MAX_PANELS, MAX_SECTIONS, MAX_ITEMS, MAX_ATTRIBUTES, MAX_FIELDS, MAX_TABS,
     THEME_PRESETS, THEME_DENSITIES, THEME_RADII, THEME_METERS, LAYOUT_PRESETS, SCENE_SOURCES, SCENE_FITS, CARD_VARIANTS, TIMELINE_MODES,
     normalize, normalizeTheme, normalizeLayout, builderDefaults, attributeCost, remainingPoints, normalizeBuilderValues,
-    applyBuilderValues, normalizeActionEffect, executeActionEffect, getPath, setPath, isTargetPath, isDisplayPath
+    captureActionVersions, reconcileActionUpdate, applyBuilderValues, normalizeActionEffect, executeActionEffect, getPath, setPath, isTargetPath, isDisplayPath
   });
 });

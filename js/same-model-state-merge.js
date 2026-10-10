@@ -127,7 +127,7 @@
       `【先前尚未成功整理的輪次】\n${prior}`,
       '本輪玩家最新輸入已在本次請求上方，不要重複敘述；你即將產生的本輪故事正文也屬於狀態判斷依據。'
     ].join('\n\n');
-    return { contract, defs, priorCount: priorTurns.length };
+    return { contract, defs, priorCount: priorTurns.length, actionBaseline: window.BAOGameplayUICore?.captureActionVersions(owner) };
   };
   const appendContract = (messages, contract) => {
     const copy = (messages || []).map(message => ({ ...message }));
@@ -169,7 +169,7 @@
     if (!isMainStoryRequest(config, messages) || !dueNow(App.config)) return next(config, messages, ...rest);
     const owner = GameState.current;
     const userText = latestUserText();
-    const { contract, defs, priorCount } = buildContract(App.config, userText);
+    const { contract, defs, priorCount, actionBaseline } = buildContract(App.config, userText);
     const prepared = appendContract(messages, contract);
     const originalDelta = config?.onDelta;
     let previousVisible = '';
@@ -197,7 +197,7 @@
     const stateIssue = !split.hasState ? 'missing_appendix'
       : !stateComplete ? 'incomplete_appendix'
         : !parsed ? 'invalid_json' : '';
-    mergedByStory.set(owner, { userText, narration: split.narration, hasState: split.hasState, parsed, defs, priorCount, stateIssue });
+    mergedByStory.set(owner, { userText, narration: split.narration, hasState: split.hasState, parsed, defs, priorCount, stateIssue, actionBaseline });
     return { ...result, text: split.narration || String(result?.text || '') };
   };
   if (typeof API.wrapSend === 'function') {
@@ -266,7 +266,7 @@
       return scenePatch;
     }
     if (GameState.current !== owner) return null;
-    GameState.applyUpdate(clean);
+    GameState.applyUpdate(window.BAOGameplayUICore?.reconcileActionUpdate(owner, clean, merged.actionBaseline) || clean);
     pending.splice(0, Math.min(merged.priorCount || 0, pending.length));
     WorldStateEngine.markPersistenceHint?.();
     const changed = Object.keys(clean).some(key => key === 'character_statuses'

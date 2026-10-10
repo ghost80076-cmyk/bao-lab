@@ -96,3 +96,23 @@ assert.equal(Core.executeActionEffect(collState, { changes: [{ path: 'modules.in
 assert.equal(Object.prototype.polluted, undefined, 'prototype pollution must not occur');
 
 console.log('gameplay atomic action core: OK');
+
+const racing = makeState();
+const baseline = Core.captureActionVersions(racing);
+assert.equal(Core.executeActionEffect(racing, purchase).ok, true);
+const stale = { modules: { economy: { crystals: 20, other: { value: 9 } }, supplies: { cans: 0 } } };
+const reconciled = Core.reconcileActionUpdate(racing, stale, baseline);
+assert.equal(reconciled.modules.economy.crystals, 5, 'late AI result cannot undo a debit');
+assert.equal(reconciled.modules.supplies.cans, 1, 'late AI result cannot undo a grant');
+assert.equal(reconciled.modules.economy.other.value, 9, 'unrelated AI updates still apply');
+assert.equal(stale.modules.economy.crystals, 20, 'input update is not mutated');
+const freshBaseline = Core.captureActionVersions(racing);
+assert.deepEqual(Core.reconcileActionUpdate(racing, stale, freshBaseline), stale, 'future requests can update counters normally');
+const restored = JSON.parse(JSON.stringify(racing));
+assert.deepEqual(Core.captureActionVersions(restored), freshBaseline, 'versions survive story backup');
+assert.equal(Core.executeActionEffect(racing, purchase).ok, false);
+assert.deepEqual(Core.captureActionVersions(racing), freshBaseline, 'failed transaction does not advance versions');
+const omitted = Core.reconcileActionUpdate(racing, { modules: { economy: { other: { value: 11 } } } }, baseline);
+assert.equal(omitted.modules.economy.crystals, 5, 'full module replacement preserves even omitted locally modified fields');
+assert.equal(omitted.modules.supplies, undefined, 'untouched modules are not invented');
+console.log('gameplay action race reconciliation: OK');
