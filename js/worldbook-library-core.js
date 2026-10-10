@@ -103,7 +103,7 @@
       if (pack.meta.world !== "general" && compatibleWorld && compatibleWorld !== pack.meta.world) continue;
       for (const entry of pack.entries || []) {
         if (entry.review_required || (entry.requires || []).some(flag => !flags.has(flag))) continue;
-        let score = entry.mode === "foundation" ? 300 : 0;
+        let score = entry.mode === "foundation" ? 120 : 0;
         if (entry.mode !== "foundation") {
           for (const kw of entry.keywords || []) {
             if (kw.length < 2) continue;
