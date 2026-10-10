@@ -482,5 +482,11 @@ jobs:
         run: node tests/memory-model-selection-core.cjs
       - name: Contextual lorebook and legacy compatibility
         run: node tests/lorebook-core.cjs
+      - name: Opt-in worldbook library and LunaTalk migration
+        run: |
+          node --check js/worldbook-library-core.js
+          node --check js/worldbook-library.js
+          node tests/worldbook-library-core.cjs
+          node tests/worldbook-library-runtime.cjs
       - name: Yume world-card relevant context
         run: node tests/yume-relevant-context.cjs
