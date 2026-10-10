@@ -256,6 +256,9 @@ jobs:
           node tests/worker-admin-player-mutation-routes-core.cjs
       - name: Frontend extension idempotency
         run: |
+          node --check js/three-realms-cultivation-core.js
+          node tests/three-realms-cultivation-core.cjs
+          node tests/three-realms-cultivation-runtime.cjs
           node --check js/world-modules.js
           node --check js/story-tools.js
           node tests/frontend-idempotency-core.cjs

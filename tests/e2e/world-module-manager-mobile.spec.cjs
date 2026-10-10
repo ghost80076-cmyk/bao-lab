@@ -1,5 +1,48 @@
 const { test, expect } = require('@playwright/test');
 
+test('Three Realms cultivation can be enabled, viewed and restored per story on mobile', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('./');
+  await page.waitForFunction(() => Boolean(window.BAOWorldModuleManager && window.BAOThreeRealmsCultivation && App.characters?.length));
+  await page.evaluate(() => {
+    App.activeCharacter = { ...App.characters[0], id: 'three-realms-state-test', world_modules: [] };
+    App.config = { narrativeMode: 'world', displayMode: 'ui', api: { model: 'mock' }, persona: { name: '修士' }, memory: { mode: 'smart', maxRounds: 20, maxContext: 32000 } };
+    GameState.create(App.activeCharacter, App.config);
+    Chat.reset();
+    App.renderChatShell(true);
+    App.showView('chat');
+    BAOWorldModuleManager.open();
+  });
+  const dialog = page.getByRole('dialog', { name: '世界模組管理' });
+  await expect(dialog.getByText('三界修煉', { exact: true })).toBeVisible();
+  await dialog.locator('[data-preset-id="three_realms_cultivation"]').check();
+  await dialog.getByRole('button', { name: '套用到目前故事' }).click();
+  await page.evaluate(() => BAOWorldModuleUI.renderModule('three_realms_cultivation'));
+  const panel = page.locator('#ui-panel');
+  await expect(panel).toContainText('尚未確認修煉狀態');
+  await page.evaluate(() => {
+    const source = '我是鬥宗，鬥氣30，上限100，業力輕微';
+    const update = BAOHelperData.stateUpdate({ modules: { three_realms_cultivation: {
+      route: '下界鬥氣', realm: '鬥宗', energy: 30, energy_max: 100, karma: '輕微', evidence: source
+    } } }, GameState.current.moduleDefinitions, source);
+    GameState.applyUpdate(update);
+    GameState.current = JSON.parse(JSON.stringify(GameState.current));
+    BAOWorldModules.ensureState(App.activeCharacter);
+    BAOWorldModuleUI.renderModule('three_realms_cultivation');
+    App.saveStory(false);
+  });
+  await expect(panel).toContainText('下界鬥氣');
+  await expect(panel).toContainText('鬥宗');
+  await expect(panel).toContainText('剩餘力量');
+  await expect(panel).toContainText('輕微');
+  expect(await panel.evaluate(node => node.scrollWidth <= node.clientWidth + 1)).toBe(true);
+  await page.evaluate(() => BAOWorldModuleManager.open());
+  await dialog.locator('[data-preset-id="three_realms_cultivation"]').uncheck();
+  await dialog.getByRole('button', { name: '套用到目前故事' }).click();
+  const state = await page.evaluate(() => ({ active: BAOWorldModules.definitions(App.activeCharacter).some(d => d.id === 'three_realms_cultivation'), realm: GameState.current.modules.three_realms_cultivation.realm }));
+  expect(state).toEqual({ active: false, realm: '鬥宗' });
+});
+
 test('mobile world module manager puts active story modules before presets and guides', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('./');

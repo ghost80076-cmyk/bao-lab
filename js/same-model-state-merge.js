@@ -119,6 +119,7 @@
       'npcs 只更新有明確變化的人物；presence 只能是 present、away、unknown。不要因轉場自動認定人物仍在場。',
       '更新既有 NPC 時沿用目前狀態的 npc_id；新 NPC 不填 npc_id，由系統建立。新 NPC 可填 aliases、固定 appearance 與當前 outfit。既有 appearance 必須沿用；只有故事明確造成長期外貌變化時才同時回傳 appearance_change:true。只有明確換裝才更新 outfit。first_seen 由系統建立，不得輸出。別名對應到既有人物時使用正式姓名，不能重複建檔。',
       'modules 只使用允許的 module_id 與欄位；character_statuses 只使用允許的 field_key。無法確定的欄位直接省略。',
+      defs.some(def => def.id === window.BAOThreeRealmsCultivation?.id) ? window.BAOThreeRealmsCultivation.rules : '',
       'world_clock 是可選 PATCH：只有明確經過時間才寫 advance_minutes；只有明確日期、期限、約定、旅程耗時或倒數才 schedule。不得自行創造劇情。resolve/cancel 只能使用目前狀態已有的 wc-* ID。',
       '即使狀態附錄無法完成，也優先保留完整故事正文；不要因狀態附錄而拒絕或省略正文。',
       `【目前狀態】\n${clip(JSON.stringify(snapshot), 12000)}`,
@@ -259,7 +260,8 @@
       return scenePatch;
     }
 
-    const clean = window.BAOHelperData.stateUpdate(merged.parsed, merged.defs || []);
+    const cultivationSource = [...pending.slice(0, merged.priorCount || 0).flatMap(turn => [turn.player, turn.assistant]), playerText, assistantText].join('\n');
+    const clean = window.BAOHelperData.stateUpdate(merged.parsed, merged.defs || [], cultivationSource);
     if (!clean) {
       enqueue(owner, playerText, assistantText);
       mark(owner, 'failed', `${scenePatch ? '時間／地點已同步；' : ''}本輪故事已保留，但狀態附錄格式無法套用；不會補發第二次 API，待下一次狀態批次再整理。`, 'invalid_patch');

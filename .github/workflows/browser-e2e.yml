@@ -33,6 +33,7 @@ jobs:
               tests/e2e/story-quick-commands.spec.cjs
               tests/e2e/mobile-story-entry.spec.cjs
               tests/e2e/story-integrity.spec.cjs
+              tests/e2e/world-module-manager-mobile.spec.cjs
           - group: product-explore
             specs: |
               tests/e2e/builder-connection-ux.spec.cjs

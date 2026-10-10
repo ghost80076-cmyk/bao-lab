@@ -2,6 +2,7 @@
   if (window.BAOWorldModules || typeof GameState === "undefined" || typeof WorldStateEngine === "undefined") return;
 
   const BUILT_INS = {
+    ...(window.BAOThreeRealmsCultivation ? { [window.BAOThreeRealmsCultivation.id]: window.BAOThreeRealmsCultivation.preset } : {}),
     status: { label: "狀態", icon: "◈", tracking: "high", context: "core", kind: "object", triggers: ["狀態","血量","hp","生命","體力","魔力","mp","受傷","傷勢","中毒","疲勞"] },
     inventory: { label: "背包", icon: "▣", tracking: "medium", context: "relevant", kind: "collection", triggers: ["背包","物品","道具","行囊","儲物","口袋","撿起","拿出","放入","丟掉","使用道具","消耗品"] },
     skills: { label: "技能", icon: "✦", tracking: "medium", context: "relevant", kind: "collection", triggers: ["技能","能力","天賦","招式","武學","功法","法術","施法","咒語","絕招"] },
@@ -35,13 +36,13 @@
       id,
       label: String(source.label || preset.label || id).slice(0, 40),
       icon: String(source.icon || preset.icon || "•").slice(0, 4),
-      description: String(source.description || "").slice(0, 500),
+      description: String(source.description || preset.description || "").slice(0, 500),
       tracking,
       context,
       kind,
       enabled: source.enabled !== false,
       triggers,
-      fields: Array.isArray(source.fields) ? source.fields.slice(0, 24).map(f => ({
+      fields: Array.isArray(source.fields || preset.fields) ? (source.fields || preset.fields).slice(0, 24).map(f => ({
         key: String(f?.key || "").trim().slice(0, 40),
         label: String(f?.label || f?.key || "").trim().slice(0, 40),
         type: ["text", "number", "meter", "boolean"].includes(f?.type) ? f.type : "text",
@@ -184,7 +185,8 @@
 
   const moduleRules = defs => defs.map(def => {
     const fields = def.fields.length ? `；欄位：${def.fields.map(f => `${f.label}(${f.key})`).join("、")}` : "";
-    return `- ${def.label} [${def.id}]：${def.description || "依目前資料追蹤變化"}${fields}`;
+    const rules = def.id === window.BAOThreeRealmsCultivation?.id ? `\n${window.BAOThreeRealmsCultivation.rules}` : "";
+    return `- ${def.label} [${def.id}]：${def.description || "依目前資料追蹤變化"}${fields}${rules}`;
   }).join("\n");
 
   const moduleSnapshot = defs => {
@@ -257,7 +259,7 @@
         { role: "user", content: prompt }
       ]);
       if (GameState.current !== owner) return null;
-      const data = window.BAOHelperData.stateUpdate(this.parse(result?.text || ""), defs);
+      const data = window.BAOHelperData.stateUpdate(this.parse(result?.text || ""), defs, `${playerText}\n${assistantText}`);
       if (GameState.current) GameState.current.stateRequestDiagnostics = {
         ...(GameState.current.stateRequestDiagnostics || {}), parsed: Boolean(data), applied: false
       };
@@ -283,6 +285,7 @@
     if (!defs.length) return "";
     const payload = {};
     defs.forEach(d => { payload[d.label] = GameState.current.modules?.[d.id]; });
+    if (defs.some(d => d.id === window.BAOThreeRealmsCultivation?.id)) payload['三界修煉規則'] = window.BAOThreeRealmsCultivation.rules;
     const text = JSON.stringify(payload);
     return text.length > 2400 ? text.slice(0, 2400) + "…" : text;
   };

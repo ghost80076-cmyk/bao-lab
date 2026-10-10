@@ -87,7 +87,7 @@
       box.innerHTML = Object.entries(window.BAOWorldModules.BUILT_INS).map(([id, preset]) => {
         const enabled = baseIds.has(id) ? !draft.disabled.includes(id) : draft.enabledBuiltIns.includes(id);
         const source = baseIds.has(id) ? "作品預設" : "官方範本";
-        return `<label class="world-preset ${enabled ? "active" : ""}"><input type="checkbox" data-preset-id="${esc(id)}" ${enabled ? "checked" : ""}><span>${esc(preset.icon)} <b>${esc(preset.label)}</b><small>${source}</small></span></label>`;
+        return `<label class="world-preset ${enabled ? "active" : ""}"><input type="checkbox" data-preset-id="${esc(id)}" ${enabled ? "checked" : ""}><span>${esc(preset.icon)} <b>${esc(preset.label)}</b><small>${source}${id === window.BAOThreeRealmsCultivation?.id ? ' · 境界、業力、突破與飛升' : ''}</small></span></label>`;
       }).join("");
       box.querySelectorAll("[data-preset-id]").forEach(input => input.addEventListener("change", () => {
         setEnabled(input.dataset.presetId, input.checked);
