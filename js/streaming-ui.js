@@ -12,7 +12,7 @@
   // Render the visible portion with the same reader used for saved messages,
   // without modifying the raw response stored in Chat.messages or sent to APIs.
   const renderStreamingPreview = text => {
-    let preview = String(text || "");
+    let preview = window.BAOWorldModuleUI?.stripInternalStateEcho?.(String(text || ""), {partial:true}) ?? String(text || "");
     const upper = preview.toUpperCase();
     const openStatus = upper.lastIndexOf("[STATUS]");
     if (openStatus > upper.lastIndexOf("[/STATUS]")) preview = preview.slice(0, openStatus);
