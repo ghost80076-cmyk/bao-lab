@@ -68,13 +68,15 @@
     return `${safeBase.slice(0, baseLimit)}:${suffix}`;
   };
   let lastContextBudget = null;
-  const basicMessagesValid = messages => (
+  const messageFormatValid = messages => (
     Array.isArray(messages) &&
     messages.length > 0 &&
-    messages.length <= 100 &&
     messages.some(m => m.role === "user") &&
-    !messages.some(m => !["user", "assistant", "system"].includes(m.role) || !m.content || m.content.length > 80000)
+    !messages.some(m => !["user", "assistant", "system"].includes(m.role) || !m.content)
   );
+  const basicMessagesValid = messages => messageFormatValid(messages)
+    && messages.length <= 100
+    && messages.every(m => m.content.length <= 80000);
   const rebuildForRounds = async rounds => {
     if (typeof App.buildMessages !== "function") return null;
     const source = App.config || {};
@@ -96,7 +98,7 @@
       && !config?.__storyTool && !config?.__connectionTest;
     const smart = App.config?.memory?.mode === "smart";
     const chat = window.Chat;
-    if (initialBytes > HOSTED_SOFT_PROMPT_BYTES && isStoryChat && smart
+    if ((initialBytes > HOSTED_SOFT_PROMPT_BYTES || !basicMessagesValid(cleaned)) && isStoryChat && smart
         && chat?.maybeSummarize && typeof App.buildMessages === "function") {
       const configured = Math.max(4, Number(App.config?.memory?.maxRounds || 20));
       const candidates = [...new Set([Math.min(configured, 8), 4])];
@@ -279,14 +281,17 @@
     const token = accountToken();
     const legacySession = /^yb_s_[A-Za-z0-9_-]{30,}$/.test(token);
     if (!legacySession && !accountCookieHint()) throw new Error("請先登入夜灣帳號。舊版 bao_ 玩家金鑰已停止用於夜灣燈火。");
-    if (!Array.isArray(messages) || !messages.length || messages.length > 100) {
-      throw new Error("夜灣 每次最多傳送 100 則訊息。請縮短近期對話或改用自己的 API Key。");
+    if (!Array.isArray(messages) || !messages.length || messages.some(m => !m || typeof m !== "object")) {
+      throw new Error("本次訊息格式無效；故事不會刪除。");
     }
     let cleaned = cleanMessages(messages);
-    if (!basicMessagesValid(cleaned)) {
+    if (!messageFormatValid(cleaned)) {
       throw new Error("本次內容包含無法安全送出的訊息格式或單則內容過大；故事不會刪除。");
     }
     cleaned = await adaptHostedContext(config, cleaned);
+    if (!basicMessagesValid(cleaned)) {
+      throw new Error("本次送出的上下文仍超過 100 則訊息或單則 80,000 字元的限制。智慧記憶會先嘗試整理；若仍超限，請確認摘要是否成功，或使用記憶工作台整理。完整故事紀錄不會刪除。");
+    }
     const hostedBytes = promptBytes(cleaned);
     if (hostedBytes > HOSTED_HARD_PROMPT_BYTES) {
       if (App.config?.memory?.mode === "smart") {
