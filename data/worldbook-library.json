@@ -1,0 +1,116 @@
+{
+  "schema": "yorubay-worldbook-library-catalog",
+  "version": 1,
+  "packs": [
+    {
+      "schema": "yorubay-worldbook-pack",
+      "version": 1,
+      "meta": {
+        "id": "sunrise-geography-demo",
+        "name": "曙光市｜城市地理試用包",
+        "world": "sunrise-city",
+        "classification": "world",
+        "author": "班長／肉包",
+        "release": "0.1.0",
+        "visibility": "public",
+        "source": "LunaTalk 囚徒的自白：公開地理節選（非完整原文）"
+      },
+      "entries": [
+        {
+          "id": "city-overview",
+          "title": "曙光市基本設定",
+          "category": "地點",
+          "mode": "foundation",
+          "keywords": [],
+          "content": "曙光市是東部沿海、約八百萬人口的國際化大都市，由漁港發展為金融、貿易與科技中心。五大區域為中央商業區、港口工業區、北山住宅區、東區平民區、南區貧民窟。社會矛盾包括貧富差距、治安與異能者衝突。"
+        },
+        {
+          "id": "central-business",
+          "title": "中央商業區（CBD）",
+          "category": "地點",
+          "mode": "keyword",
+          "keywords": [
+            "中央商業區",
+            "CBD",
+            "曙光金融大廈"
+          ],
+          "content": "中央商業區位於曙光市中心，緊鄰海濱；企業總部、金融機構與摩天樓集中於此。此區警備及監控密集，富裕階層、企業高管與合法登記異能者較常活動。"
+        },
+        {
+          "id": "port-district",
+          "title": "港口工業區",
+          "category": "地點",
+          "mode": "keyword",
+          "keywords": [
+            "港口工業區",
+            "碼頭",
+            "港口",
+            "倉儲區"
+          ],
+          "content": "曙光市西部沿海的港口工業區包含碼頭、工廠與倉儲區。走私與幫派活動造成秩序問題，同時也是工人、運輸業者與小商販維持生活的工作地點。"
+        }
+      ]
+    },
+    {
+      "schema": "yorubay-worldbook-pack",
+      "version": 1,
+      "meta": {
+        "id": "three-realms-geography-demo",
+        "name": "三界九域｜下界地理試用包",
+        "world": "three-realms",
+        "classification": "world",
+        "author": "班長／肉包",
+        "release": "0.1.0",
+        "visibility": "public",
+        "source": "LunaTalk 三界九域仙界－修仙：公開地理節選（非完整原文）"
+      },
+      "entries": [
+        {
+          "id": "lower-realm",
+          "title": "下界地圖整體概況",
+          "category": "地點",
+          "mode": "foundation",
+          "keywords": [],
+          "content": "下界是修煉者的起點，由多個大陸和海洋組成，靈氣濃度相對較低。中央大陸靈氣濃度較高、強者與頂級宗門林立；東方以劍修、劍宗聞名；西方以煉丹與丹宗聞名；南方以煉器與器宗聞名；北方則以鬥氣修煉著稱。"
+        },
+        {
+          "id": "central-continent",
+          "title": "中央大陸",
+          "category": "地點",
+          "mode": "keyword",
+          "keywords": [
+            "中央大陸",
+            "天柱山",
+            "天心城"
+          ],
+          "content": "中央大陸是下界最大的大陸與權力中心，頂級宗門與世家集中，中央區域的靈氣濃度與勢力密度最高。"
+        },
+        {
+          "id": "eastern-continent",
+          "title": "東方大陸",
+          "category": "地點",
+          "mode": "keyword",
+          "keywords": [
+            "東方大陸",
+            "劍域",
+            "劍宗"
+          ],
+          "content": "東方大陸以劍修聞名，劍域是核心區域，頂級劍宗聚集，劍道文化濃厚。"
+        },
+        {
+          "id": "western-continent",
+          "title": "西方大陸",
+          "category": "地點",
+          "mode": "keyword",
+          "keywords": [
+            "西方大陸",
+            "丹域",
+            "丹宗",
+            "藥山"
+          ],
+          "content": "西方大陸以煉丹聞名，丹宗林立、丹藥貿易發達；丹域是主要核心地帶。"
+        }
+      ]
+    }
+  ]
+}
