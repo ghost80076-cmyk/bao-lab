@@ -35,6 +35,11 @@ test('Three Realms cultivation can be enabled, viewed and restored per story on 
   await expect(panel).toContainText('鬥宗');
   await expect(panel).toContainText('剩餘力量');
   await expect(panel).toContainText('輕微');
+  const saved = await page.evaluate(() => {
+    const save = Storage.loadStory();
+    return { realm: save?.state?.modules?.three_realms_cultivation?.realm, enabled: save?.state?.worldModuleCustomization?.enabledBuiltIns?.includes('three_realms_cultivation') };
+  });
+  expect(saved).toEqual({ realm: '鬥宗', enabled: true });
   expect(await panel.evaluate(node => node.scrollWidth <= node.clientWidth + 1)).toBe(true);
   await page.evaluate(() => BAOWorldModuleManager.open());
   await dialog.locator('[data-preset-id="three_realms_cultivation"]').uncheck();
