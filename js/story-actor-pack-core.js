@@ -80,9 +80,11 @@
   function portablePrompt(actor = {}) {
     const meta = normalizePortableMeta(actor.portable);
     if (!meta?.core) return "";
+    const archetype = meta.packId.startsWith("three-realms-archetype-");
     return [
-      `【官方可攜角色｜${meta.label || meta.packId}】`,
-      meta.core,
+      archetype ? "【官方可攜角色｜三界原創人物範本】" : `【官方可攜角色｜${meta.label || meta.packId}】`,
+      ...(archetype ? [`本場人物：${text(actor.name, 120) || "未指定"}。這份性格核心屬於此人物；以本場姓名識別，不另建立範本人物。`] : []),
+      archetype ? meta.core.replace(/^【原創人物｜[^】]*】/, "【本場人物核心】") : meta.core,
       "這是被插入目前故事的獨立 AI 人物。原作品、原 NPC 與世界規則繼續存在；不要因為可攜角色加入就覆蓋原作人物。",
       "可攜角色的核心人格位於本場身份之下；本場身份、與玩家關係、當前演法與已發生事件可以改變表現，但不能憑空改寫其核心人格。",
       "可攜角色彼此之間、與原作品 NPC 之間都可自然建立關係、衝突、合作或疏遠；不能只和玩家互動。",

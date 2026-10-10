@@ -134,7 +134,10 @@ test('Three Realms archetypes require explicit apply and persist as independent 
     const state = Storage.loadStory().state;
     GameState.current = JSON.parse(JSON.stringify(state));
     const actor = GameState.current.storyActors.hostedCharacters[0];
-    return {count:GameState.current.storyActors.hostedCharacters.length,name:actor.name,identity:actor.identity,relationship:actor.relationship,packId:actor.portable.packId,actorMode:actor.portable.actorMode,sourceName:App.activeCharacter.name,templateName:BAOThreeRealmsStoryActorPack.actors.find(a => a.id===actor.portable.packId).name};
+    return {count:GameState.current.storyActors.hostedCharacters.length,name:actor.name,identity:actor.identity,relationship:actor.relationship,packId:actor.portable.packId,actorMode:actor.portable.actorMode,sourceName:App.activeCharacter.name,templateName:BAOThreeRealmsStoryActorPack.actors.find(a => a.id===actor.portable.packId).name,prompt:BAOStoryActorPackCore.portablePrompt(actor)};
   });
+  expect(saved.prompt).toContain('本場人物：本場同行');
+  expect(saved.prompt).not.toContain('顧行舟');
+  delete saved.prompt;
   expect(saved).toEqual({count:1,name:'本場同行',identity:'商隊護衛',relationship:'',packId:'three-realms-archetype-14',actorMode:false,sourceName,templateName:'顧行舟'});
 });
