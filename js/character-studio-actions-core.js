@@ -79,5 +79,56 @@
     card.play_info_surface = 'game-ui';
     return card;
   }
-  return {addInventoryAction};
+  function resolveAction(card, location) {
+    if (!object(location) || !['panel','section','item'].every(k => integer(location[k],0,100))) fail('操作位置無效，請重新選擇。');
+    const panel = card.gameplay_ui?.panels?.[location.panel];
+    const outer = panel?.sections?.[location.section];
+    let sections = panel?.sections, section = outer, index = location.section, tab;
+    if (location.tab !== undefined) {
+      if (!integer(location.tab,0,7) || !integer(location.nestedSection,0,9) || outer?.type !== 'tabs') fail('分頁操作位置無效。');
+      tab = outer.tabs?.[location.tab]; sections = tab?.sections; index = location.nestedSection; section = sections?.[index];
+    }
+    const action = section?.items?.[location.item];
+    if (!Array.isArray(sections) || section?.type !== 'actions' || !object(action) || !action.effect) fail('找不到原生操作，請重新選擇。');
+    return {panel,outer,sections,section,index,tab,action};
+  }
+  function inventoryActionOptions(card, location) {
+    const {panel,action} = resolveAction(card,location), raw = action.effect;
+    const effect = core.normalizeActionEffect(raw);
+    if (!effect || Object.keys(raw).some(k => !['changes','items','event'].includes(k)) || effect.items?.length !== 1 || effect.changes.length > 1) return null;
+    const item = effect.items[0], counter = effect.changes[0];
+    if (Object.keys(raw.items[0]).some(k=>!['path','id','name','delta'].includes(k)) || (counter && Object.keys(raw.changes[0]).some(k=>!['path','delta'].includes(k)))) return null;
+    const purchase = item.delta > 0 && counter?.delta < 0 && counter.path.split('.').length === 3;
+    const consume = item.delta < 0 && !counter;
+    if (!purchase && !consume) return null;
+    const inventoryId = item.path.split('.')[1];
+    const row = card.initial_state?.modules?.[inventoryId]?.find?.(row=>row?.id===item.id);
+    const parts = counter?.path.split('.') || [];
+    return {kind:purchase?'purchase':'consume',label:action.label,itemId:item.id,itemName:item.name || row?.name || item.id,
+      quantity:Math.abs(item.delta),price:counter?Math.abs(counter.delta):15,balance:purchase?core.getPath({modules:card.initial_state?.modules},counter.path):20,
+      inventoryId,currencyId:parts[1] || 'economy',currencyField:parts[2] || 'crystals',panelId:panel.id,event:effect.event};
+  }
+  function updateInventoryAction(source, location, values) {
+    const original = inventoryActionOptions(source,location);
+    if (!original) fail('此按鈕包含多重或特殊操作，請透過 Creator MCP 編輯。');
+    const options = {...original};
+    for (const key of ['label','itemName','quantity','price','event']) if (Object.hasOwn(values,key)) options[key] = values[key];
+    const prepared = addInventoryAction({...source,gameplay_ui:null},options);
+    const action = prepared.gameplay_ui.panels[0].sections.find(section=>section.type==='actions').items[0];
+    prepared.gameplay_ui = clone(source.gameplay_ui);
+    const target = resolveAction(prepared,location);
+    target.section.items[location.item] = {...target.action,label:action.label,effect:action.effect};
+    return prepared;
+  }
+  function removeInventoryAction(source, location) {
+    const card = clone(source), target = resolveAction(card,location);
+    target.section.items.splice(location.item,1);
+    if (!target.section.items.length) target.sections.splice(target.index,1);
+    if (target.tab && !target.sections.length) target.outer.tabs.splice(location.tab,1);
+    if (target.tab && !target.outer.tabs.length) target.panel.sections.splice(location.section,1);
+    if (!target.panel.sections.length) card.gameplay_ui.panels.splice(location.panel,1);
+    if (!card.gameplay_ui.panels.length) card.gameplay_ui = null;
+    return card;
+  }
+  return {addInventoryAction, inventoryActionOptions, updateInventoryAction, removeInventoryAction};
 });
