@@ -37,6 +37,11 @@
     const def = (GameState.current?.moduleDefinitions || []).find(x => x.id === id);
     const ui = document.getElementById("ui-panel");
     if (!def || !ui) return;
+    if (def.id === window.BAOThreeRealmsEventsCore?.id) {
+      ui.innerHTML = `<section class="world-module-panel"><div class="world-module-head"><div><h3>${esc(def.icon)} ${esc(def.label)}</h3><p>選擇事件指令、填入輸入框，再由你送出。只有明確要求的那一輪會使用事件引導。</p></div><span class="world-module-badge">按需引導</span></div><button type="button" class="secondary" data-open-three-realms-events>開啟事件指令</button></section>`;
+      ui.querySelector('[data-open-three-realms-events]')?.addEventListener('click', () => window.BAOStoryQuickCommands?.open?.());
+      return;
+    }
     const value = GameState.current?.modules?.[id];
     const context = def.context === "core" ? "核心狀態會精簡提供給敘事模型" : def.context === "ui_only" ? "只顯示於介面" : "需要時才使用，避免每輪增加 Context";
     ui.innerHTML = `<section class="world-module-panel"><div class="world-module-head"><div><h3>${esc(def.icon)} ${esc(def.label)}</h3>${def.description ? `<p>${esc(def.description)}</p>` : ""}<div class="world-module-context-note">${esc(context)}</div></div><span class="world-module-badge">${esc(trackLabel(def.tracking))}追蹤</span></div>${def.kind === "collection" ? collectionHTML(value) : objectHTML(def,value)}</section>`;

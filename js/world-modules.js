@@ -2,6 +2,7 @@
   if (window.BAOWorldModules || typeof GameState === "undefined" || typeof WorldStateEngine === "undefined") return;
 
   const BUILT_INS = {
+    ...(window.BAOThreeRealmsEventsCore ? { [window.BAOThreeRealmsEventsCore.id]: window.BAOThreeRealmsEventsCore.preset } : {}),
     ...(window.BAOThreeRealmsCultivation ? { [window.BAOThreeRealmsCultivation.id]: window.BAOThreeRealmsCultivation.preset } : {}),
     status: { label: "狀態", icon: "◈", tracking: "high", context: "core", kind: "object", triggers: ["狀態","血量","hp","生命","體力","魔力","mp","受傷","傷勢","中毒","疲勞"] },
     inventory: { label: "背包", icon: "▣", tracking: "medium", context: "relevant", kind: "collection", triggers: ["背包","物品","道具","行囊","儲物","口袋","撿起","拿出","放入","丟掉","使用道具","消耗品"] },

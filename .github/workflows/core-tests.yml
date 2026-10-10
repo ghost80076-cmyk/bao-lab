@@ -341,6 +341,13 @@ jobs:
           node --check js/context-health-core.js
           node --check js/context-health.js
           node tests/context-health-core.cjs
+      - name: Three Realms native event guidance
+        run: |
+          node --check js/three-realms-event-profiles.js
+          node --check js/three-realms-events-core.js
+          node --check js/three-realms-events.js
+          node tests/three-realms-events-core.cjs
+          node tests/three-realms-events-runtime.cjs
       - name: Story quick commands
         run: |
           node --check js/story-quick-commands-core.js
