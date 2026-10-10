@@ -7,206 +7,279 @@
   "factual_chapters": 752,
   "factual_packs": 45,
   "status_counts": {
-    "pending_actor_review": 32,
+    "native_actor_archetype": 31,
+    "pending_actor_review": 1,
     "native_prompt": 23,
     "pending_rule_review": 16,
     "native_cultivation": 4,
     "factual": 115,
     "native_status_template": 1
   },
-  "remaining_review_entries": 49,
+  "remaining_review_entries": 18,
   "records": [
     {
       "source_index": 0,
       "source_title": "成熟魅惑-女角色",
       "source_sha256": "91507b19fe7b7163e3ea12e0e555517be92ac27726d518a5e69d047b6cf512b1",
-      "status": "pending_actor_review",
-      "references": [],
-      "follow_up": true
+      "status": "native_actor_archetype",
+      "references": [
+        "data/three-realms-actor-provenance.json"
+      ],
+      "actor_id": "three-realms-archetype-00",
+      "fidelity": "abstract-fictional-general-character-not-verbatim"
     },
     {
       "source_index": 1,
       "source_title": "成熟姐姐-女角色",
       "source_sha256": "5440287aee8b4c987074ab02a90c830666dfb00822fb0ab1d1e9e4ce27820d4e",
-      "status": "pending_actor_review",
-      "references": [],
-      "follow_up": true
+      "status": "native_actor_archetype",
+      "references": [
+        "data/three-realms-actor-provenance.json"
+      ],
+      "actor_id": "three-realms-archetype-01",
+      "fidelity": "abstract-fictional-general-character-not-verbatim"
     },
     {
       "source_index": 2,
       "source_title": "清純妹妹-女角色",
       "source_sha256": "daf4dcf842959b77da198cea7e05835a73f6b453d4f6be32ea939a0700c8d170",
-      "status": "pending_actor_review",
-      "references": [],
-      "follow_up": true
+      "status": "native_actor_archetype",
+      "references": [
+        "data/three-realms-actor-provenance.json"
+      ],
+      "actor_id": "three-realms-archetype-02",
+      "fidelity": "abstract-fictional-general-character-not-verbatim"
     },
     {
       "source_index": 3,
       "source_title": "清純女神-女角色",
       "source_sha256": "bb6d4b5bcd98d337d9b148d18773c1fad63db8b2d866195363958f6a473ce411",
-      "status": "pending_actor_review",
-      "references": [],
-      "follow_up": true
+      "status": "native_actor_archetype",
+      "references": [
+        "data/three-realms-actor-provenance.json"
+      ],
+      "actor_id": "three-realms-archetype-03",
+      "fidelity": "abstract-fictional-general-character-not-verbatim"
     },
     {
       "source_index": 4,
       "source_title": "性感女王-女角色",
       "source_sha256": "90f9af26455788d2cc4cd48e462bf71ebbad6d31759491f7a4d6b211044be162",
-      "status": "pending_actor_review",
-      "references": [],
-      "follow_up": true
+      "status": "native_actor_archetype",
+      "references": [
+        "data/three-realms-actor-provenance.json"
+      ],
+      "actor_id": "three-realms-archetype-04",
+      "fidelity": "abstract-fictional-general-character-not-verbatim"
     },
     {
       "source_index": 5,
       "source_title": "活力少女-女角色",
       "source_sha256": "dcba649a8a8a2158f455362cdbcc63d56e6c8da1466651c4cfff32f490b6c5ab",
-      "status": "pending_actor_review",
-      "references": [],
-      "follow_up": true
+      "status": "native_actor_archetype",
+      "references": [
+        "data/three-realms-actor-provenance.json"
+      ],
+      "actor_id": "three-realms-archetype-05",
+      "fidelity": "abstract-fictional-general-character-not-verbatim"
     },
     {
       "source_index": 6,
       "source_title": "冷豔美人-女角色",
       "source_sha256": "cc7f21df7a8b39b65370a5285aeff2dad79d0c558198a617febd06bad9f3742f",
-      "status": "pending_actor_review",
-      "references": [],
-      "follow_up": true
+      "status": "native_actor_archetype",
+      "references": [
+        "data/three-realms-actor-provenance.json"
+      ],
+      "actor_id": "three-realms-archetype-06",
+      "fidelity": "abstract-fictional-general-character-not-verbatim"
     },
     {
       "source_index": 7,
       "source_title": "甜美偶像-角色",
       "source_sha256": "7dbfabee3b4a2ebb2f513c84aa96336e8ab3bd634b9aadaff8f5ec1f2be9a9bd",
-      "status": "pending_actor_review",
-      "references": [],
-      "follow_up": true
+      "status": "native_actor_archetype",
+      "references": [
+        "data/three-realms-actor-provenance.json"
+      ],
+      "actor_id": "three-realms-archetype-07",
+      "fidelity": "abstract-fictional-general-character-not-verbatim"
     },
     {
       "source_index": 8,
       "source_title": "性感歌姬-角色",
       "source_sha256": "e8b0172578c96b9f16d210d4662a3f4f27ad6d558b0181bc45855a45fdaf7ac6",
-      "status": "pending_actor_review",
-      "references": [],
-      "follow_up": true
+      "status": "native_actor_archetype",
+      "references": [
+        "data/three-realms-actor-provenance.json"
+      ],
+      "actor_id": "three-realms-archetype-08",
+      "fidelity": "abstract-fictional-general-character-not-verbatim"
     },
     {
       "source_index": 9,
       "source_title": "鄰家甜心-角色",
       "source_sha256": "7c46f9509db8e9f08f977642312311244f3fc19aa30e04e579df05cbec4e263b",
-      "status": "pending_actor_review",
-      "references": [],
-      "follow_up": true
+      "status": "native_actor_archetype",
+      "references": [
+        "data/three-realms-actor-provenance.json"
+      ],
+      "actor_id": "three-realms-archetype-09",
+      "fidelity": "abstract-fictional-general-character-not-verbatim"
     },
     {
       "source_index": 10,
       "source_title": "氣質女神-角色",
       "source_sha256": "2745361e34c826473c91271b16c34c5fa639fa681c3f84123cae8b924d59a6c9",
-      "status": "pending_actor_review",
-      "references": [],
-      "follow_up": true
+      "status": "native_actor_archetype",
+      "references": [
+        "data/three-realms-actor-provenance.json"
+      ],
+      "actor_id": "three-realms-archetype-10",
+      "fidelity": "abstract-fictional-general-character-not-verbatim"
     },
     {
       "source_index": 11,
       "source_title": "古典美人-角色",
       "source_sha256": "b49a1085a6fc95111b1daf7a10816048133e0c7dda8d4d6cf492530758b675f9",
-      "status": "pending_actor_review",
-      "references": [],
-      "follow_up": true
+      "status": "native_actor_archetype",
+      "references": [
+        "data/three-realms-actor-provenance.json"
+      ],
+      "actor_id": "three-realms-archetype-11",
+      "fidelity": "abstract-fictional-general-character-not-verbatim"
     },
     {
       "source_index": 12,
       "source_title": "八卦閨蜜-角色",
       "source_sha256": "7df19cde042e44920525ac07529edb0e8ed32d6f1c1edb6f2a9e6d8a9f25561f",
-      "status": "pending_actor_review",
-      "references": [],
-      "follow_up": true
+      "status": "native_actor_archetype",
+      "references": [
+        "data/three-realms-actor-provenance.json"
+      ],
+      "actor_id": "three-realms-archetype-12",
+      "fidelity": "abstract-fictional-general-character-not-verbatim"
     },
     {
       "source_index": 13,
       "source_title": "溫柔閨蜜",
       "source_sha256": "32396a569a236011c058b8fc2d7f4ef5d0dc0a7c31919f5338c1c531a547276c",
-      "status": "pending_actor_review",
-      "references": [],
-      "follow_up": true
+      "status": "native_actor_archetype",
+      "references": [
+        "data/three-realms-actor-provenance.json"
+      ],
+      "actor_id": "three-realms-archetype-13",
+      "fidelity": "abstract-fictional-general-character-not-verbatim"
     },
     {
       "source_index": 14,
       "source_title": "競爭對手",
       "source_sha256": "7bdc320f6de4df3e08f1def2d8105fcde421d9d26508e25466f898e6a98cdef4",
-      "status": "pending_actor_review",
-      "references": [],
-      "follow_up": true
+      "status": "native_actor_archetype",
+      "references": [
+        "data/three-realms-actor-provenance.json"
+      ],
+      "actor_id": "three-realms-archetype-14",
+      "fidelity": "abstract-fictional-general-character-not-verbatim"
     },
     {
       "source_index": 15,
       "source_title": "成熟前輩",
       "source_sha256": "121c99b4f50e50ae9820cc8a33a8349aaf581b77a8456f8466d143eafcabfa92",
-      "status": "pending_actor_review",
-      "references": [],
-      "follow_up": true
+      "status": "native_actor_archetype",
+      "references": [
+        "data/three-realms-actor-provenance.json"
+      ],
+      "actor_id": "three-realms-archetype-15",
+      "fidelity": "abstract-fictional-general-character-not-verbatim"
     },
     {
       "source_index": 16,
       "source_title": "溫柔長輩",
       "source_sha256": "90655193101f5bd01e45fb9e2e0c17adbaa286b09cfbdb275ea9272c6fec5747",
-      "status": "pending_actor_review",
-      "references": [],
-      "follow_up": true
+      "status": "native_actor_archetype",
+      "references": [
+        "data/three-realms-actor-provenance.json"
+      ],
+      "actor_id": "three-realms-archetype-16",
+      "fidelity": "abstract-fictional-general-character-not-verbatim"
     },
     {
       "source_index": 17,
       "source_title": "陽光大男孩",
       "source_sha256": "0dbccd8804ec95ee0ca72e147456845f10af585d1b0ba1123ee1a63da8e83a43",
-      "status": "pending_actor_review",
-      "references": [],
-      "follow_up": true
+      "status": "native_actor_archetype",
+      "references": [
+        "data/three-realms-actor-provenance.json"
+      ],
+      "actor_id": "three-realms-archetype-17",
+      "fidelity": "abstract-fictional-general-character-not-verbatim"
     },
     {
       "source_index": 18,
       "source_title": "溫柔學長",
       "source_sha256": "72531b7a0e25c0d07518fbfe4dd0e3ad896e4842ac980732f63a8614c00e1c99",
-      "status": "pending_actor_review",
-      "references": [],
-      "follow_up": true
+      "status": "native_actor_archetype",
+      "references": [
+        "data/three-realms-actor-provenance.json"
+      ],
+      "actor_id": "three-realms-archetype-18",
+      "fidelity": "abstract-fictional-general-character-not-verbatim"
     },
     {
       "source_index": 19,
       "source_title": "冷酷學弟",
       "source_sha256": "f8871dd893fc17d1a4291310a080de566fd808d3a845d76096df39d104199c8e",
-      "status": "pending_actor_review",
-      "references": [],
-      "follow_up": true
+      "status": "native_actor_archetype",
+      "references": [
+        "data/three-realms-actor-provenance.json"
+      ],
+      "actor_id": "three-realms-archetype-19",
+      "fidelity": "abstract-fictional-general-character-not-verbatim"
     },
     {
       "source_index": 20,
       "source_title": "斯文敗類",
       "source_sha256": "df9b16bb715689ec07d1bac722f376d070d4a8e25b8d78477e8aadf68360fb15",
-      "status": "pending_actor_review",
-      "references": [],
-      "follow_up": true
+      "status": "native_actor_archetype",
+      "references": [
+        "data/three-realms-actor-provenance.json"
+      ],
+      "actor_id": "three-realms-archetype-20",
+      "fidelity": "abstract-fictional-general-character-not-verbatim"
     },
     {
       "source_index": 21,
       "source_title": "霸道總裁",
       "source_sha256": "360f2047cf46de1203e29839c97866f2a8ee8e9d58d0c12e36b69437c8d80c87",
-      "status": "pending_actor_review",
-      "references": [],
-      "follow_up": true
+      "status": "native_actor_archetype",
+      "references": [
+        "data/three-realms-actor-provenance.json"
+      ],
+      "actor_id": "three-realms-archetype-21",
+      "fidelity": "abstract-fictional-general-character-not-verbatim"
     },
     {
       "source_index": 22,
       "source_title": "溫柔大叔",
       "source_sha256": "b72472498468871e557180e89aa8b42a4ba53f2cab6f7ff29d0e9119d757b639",
-      "status": "pending_actor_review",
-      "references": [],
-      "follow_up": true
+      "status": "native_actor_archetype",
+      "references": [
+        "data/three-realms-actor-provenance.json"
+      ],
+      "actor_id": "three-realms-archetype-22",
+      "fidelity": "abstract-fictional-general-character-not-verbatim"
     },
     {
       "source_index": 23,
       "source_title": "痴女女王-女角色",
       "source_sha256": "87d9b74450d4c4b6f6c6ff73afe36f200bbf55b69f257eac15a6123b6f75c32d",
-      "status": "pending_actor_review",
-      "references": [],
-      "follow_up": true
+      "status": "native_actor_archetype",
+      "references": [
+        "data/three-realms-actor-provenance.json"
+      ],
+      "actor_id": "three-realms-archetype-23",
+      "fidelity": "abstract-fictional-general-character-not-verbatim"
     },
     {
       "source_index": 24,
@@ -220,57 +293,78 @@
       "source_index": 25,
       "source_title": "巨乳人妻-女角色",
       "source_sha256": "85999c5630fe5635bfa66985d52c4f6ca997d89cf2598978eff6bfa90c33f8c0",
-      "status": "pending_actor_review",
-      "references": [],
-      "follow_up": true
+      "status": "native_actor_archetype",
+      "references": [
+        "data/three-realms-actor-provenance.json"
+      ],
+      "actor_id": "three-realms-archetype-25",
+      "fidelity": "abstract-fictional-general-character-not-verbatim"
     },
     {
       "source_index": 26,
       "source_title": "性感舞后",
       "source_sha256": "3390b4addcd8eb6a979c7a5a17a567cc1362c575abe9d28d147a99e4e2336be6",
-      "status": "pending_actor_review",
-      "references": [],
-      "follow_up": true
+      "status": "native_actor_archetype",
+      "references": [
+        "data/three-realms-actor-provenance.json"
+      ],
+      "actor_id": "three-realms-archetype-26",
+      "fidelity": "abstract-fictional-general-character-not-verbatim"
     },
     {
       "source_index": 27,
       "source_title": "清冷女神",
       "source_sha256": "1efb35fa701e28b59b37c04b4fdcc4ef0ca2d4aa3e461e4eec51f6d5db86b93b",
-      "status": "pending_actor_review",
-      "references": [],
-      "follow_up": true
+      "status": "native_actor_archetype",
+      "references": [
+        "data/three-realms-actor-provenance.json"
+      ],
+      "actor_id": "three-realms-archetype-27",
+      "fidelity": "abstract-fictional-general-character-not-verbatim"
     },
     {
       "source_index": 28,
       "source_title": "反差女神",
       "source_sha256": "3581fcfe0d73f4d6828d7e17b6cda29589f0a26519db87760ee3049c140fdd8f",
-      "status": "pending_actor_review",
-      "references": [],
-      "follow_up": true
+      "status": "native_actor_archetype",
+      "references": [
+        "data/three-realms-actor-provenance.json"
+      ],
+      "actor_id": "three-realms-archetype-28",
+      "fidelity": "abstract-fictional-general-character-not-verbatim"
     },
     {
       "source_index": 29,
       "source_title": "混血美女",
       "source_sha256": "d4aaa3293232c9e736327b97e30e1e437f2657c33425f6f8d19e495494ddeba5",
-      "status": "pending_actor_review",
-      "references": [],
-      "follow_up": true
+      "status": "native_actor_archetype",
+      "references": [
+        "data/three-realms-actor-provenance.json"
+      ],
+      "actor_id": "three-realms-archetype-29",
+      "fidelity": "abstract-fictional-general-character-not-verbatim"
     },
     {
       "source_index": 30,
       "source_title": "腹黑閨蜜",
       "source_sha256": "07ca841ae52c247fd436464d1e2296f99b7c7aa2a183af66492cf4890b1c077d",
-      "status": "pending_actor_review",
-      "references": [],
-      "follow_up": true
+      "status": "native_actor_archetype",
+      "references": [
+        "data/three-realms-actor-provenance.json"
+      ],
+      "actor_id": "three-realms-archetype-30",
+      "fidelity": "abstract-fictional-general-character-not-verbatim"
     },
     {
       "source_index": 31,
       "source_title": "女性情敵",
       "source_sha256": "eca15078ff5a2ddd5c9428e2176a5116bd60776f65d29bed77cf4412bf50e41b",
-      "status": "pending_actor_review",
-      "references": [],
-      "follow_up": true
+      "status": "native_actor_archetype",
+      "references": [
+        "data/three-realms-actor-provenance.json"
+      ],
+      "actor_id": "three-realms-archetype-31",
+      "fidelity": "abstract-fictional-general-character-not-verbatim"
     },
     {
       "source_index": 32,

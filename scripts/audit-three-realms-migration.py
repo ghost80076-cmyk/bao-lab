@@ -35,6 +35,10 @@ def build(source, root):
     native = {r['source_index']: r for r in json.loads(native_path.read_text())['records']}
     if set(native) & set(facts):
         raise ValueError('Native instructions incorrectly counted as factual sources')
+    actors_path = root / 'data/three-realms-actor-provenance.json'
+    actors = {r['source_index']: r for r in json.loads(actors_path.read_text())['records']} if actors_path.exists() else {}
+    if set(actors) - set(range(32)) or set(actors) & (set(native) | set(facts)):
+        raise ValueError('Actor provenance overlaps another migration category')
     catalog = json.loads((root / 'data/worldbook-library.json').read_text())
     packs = [p for p in catalog['packs'] if p['meta']['id'].startswith('three-realms-') and not p['meta']['id'].endswith('-demo')]
     records = []
@@ -60,6 +64,10 @@ def build(source, root):
                 record.update(status='native_status_template', references=['data/three-realms-status-provenance.json', 'docs/three-realms-status-native-review-2026-10-11.md'], follow_up=True)
             else:
                 record.update(status='native_renderer_review', references=['docs/three-realms-status-native-review-2026-10-11.md'], follow_up=True)
+        elif index in actors:
+            if actors[index]['source_sha256'] != record['source_sha256']:
+                raise ValueError('Actor source fingerprint differs')
+            record.update(status='native_actor_archetype', references=['data/three-realms-actor-provenance.json'], actor_id=actors[index]['actor_id'], fidelity=actors[index]['fidelity'])
         elif index < 32:
             record.update(status='pending_actor_review', references=[], follow_up=True)
         else:

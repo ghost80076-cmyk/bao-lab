@@ -103,3 +103,38 @@ test('official portable actors join any story and adult actors obey the local co
   expect(snapshot.prompt).toContain('玖月');
   await expect(page.locator('#chat-title')).toHaveText('玖月');
 });
+
+test('Three Realms archetypes require explicit apply and persist as independent story actors', async ({page}) => {
+  await page.setViewportSize({width:390,height:844});
+  await page.goto('./');
+  await page.waitForFunction(() => Boolean(window.BAOStoryActors && window.BAOThreeRealmsStoryActorPack && App.characters?.length));
+  const sourceName = await page.evaluate(() => {
+    App.activeCharacter = App.characters[0];
+    App.config = {persona:{name:'旅人'},narrativeMode:'world',displayMode:'text',api:{model:'mock'},memory:{maxRounds:20,maxContext:32000,mode:'rounds'}};
+    GameState.create(App.activeCharacter,App.config);
+    Chat.reset(); App.renderChatShell(true); App.showView('chat');
+    return App.activeCharacter.name;
+  });
+  await page.evaluate(() => BAOStoryActors.open('host'));
+  const before = await page.evaluate(() => JSON.stringify(GameState.current));
+  const picker = page.locator('[data-portable-actor-select]');
+  await expect(picker.locator('option[value^="three-realms-archetype-"]')).toHaveCount(31);
+  await expect(picker.locator('option[value="three-realms-archetype-24"]')).toHaveCount(0);
+  await picker.selectOption('three-realms-archetype-14');
+  await page.locator('[data-portable-actor-apply]').click();
+  expect(await page.evaluate(() => JSON.stringify(GameState.current))).toBe(before);
+  const form = page.locator('#bao-actor-form form');
+  await expect(form.locator('[name="name"]')).toHaveValue('顧行舟');
+  await expect(form.locator('[name="relationship"]')).toHaveValue('');
+  await form.locator('[name="name"]').fill('本場同行');
+  await form.locator('[name="identity"]').fill('商隊護衛');
+  await page.locator('[data-apply]').click();
+  const saved = await page.evaluate(() => {
+    App.saveStory(false);
+    const state = Storage.loadStory().state;
+    GameState.current = JSON.parse(JSON.stringify(state));
+    const actor = GameState.current.storyActors.hostedCharacters[0];
+    return {count:GameState.current.storyActors.hostedCharacters.length,name:actor.name,identity:actor.identity,relationship:actor.relationship,packId:actor.portable.packId,actorMode:actor.portable.actorMode,sourceName:App.activeCharacter.name,templateName:BAOThreeRealmsStoryActorPack.actors.find(a => a.id===actor.portable.packId).name};
+  });
+  expect(saved).toEqual({count:1,name:'本場同行',identity:'商隊護衛',relationship:'',packId:'three-realms-archetype-14',actorMode:false,sourceName,templateName:'顧行舟'});
+});

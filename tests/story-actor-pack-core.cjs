@@ -72,4 +72,29 @@ assert.deepEqual(Array.from(adult.actors, item => item.id), ["jiuyue", "shuanger
   assert.doesNotMatch(shuanger.portable.core, /她知道你在想什麼/);
 }
 
+{
+  const pack = readPack("three-realms-story-actor-pack.js", "BAOThreeRealmsStoryActorPack");
+  const provenance = JSON.parse(fs.readFileSync(path.join(__dirname, "../data/three-realms-actor-provenance.json")));
+  const crypto = require("node:crypto");
+  const canonical = value => Array.isArray(value) ? value.map(canonical) : value && typeof value === "object" ? Object.fromEntries(Object.keys(value).sort().map(key => [key, canonical(value[key])])) : value;
+  assert.equal(pack.actors.length, 31);
+  assert.equal(new Set(pack.actors.map(actor => actor.id)).size, 31);
+  assert.ok(!pack.actors.some(actor => actor.id.endsWith("-24")));
+  for (const actor of pack.actors) {
+    const record = provenance.records.find(record => record.actor_id === actor.id);
+    assert.equal(crypto.createHash("sha256").update(JSON.stringify(canonical(actor))).digest("hex"), record.actor_sha256);
+    assert.equal(actor.rating, "general");
+    assert.equal(actor.actorMode, false);
+    assert.equal(actor.defaults.relationship, "");
+    const instance = core.instantiate(actor, { identity: "本場同行" }, { id: "instance" });
+    instance.name = "玩家改名";
+    assert.notEqual(actor.name, instance.name);
+    assert.match(core.portablePrompt(instance), /不是演員容器/);
+    assert.equal(actor.defaults.identity, "");
+  }
+  const visible = core.availableCatalog([...general.actors, ...pack.actors], adult.actors, {adultEnabled:false});
+  assert.equal(visible.length, 33);
+  assert.ok(visible.every(actor => actor.rating === "general"));
+}
+
 console.log("story actor pack core: portable actors, adult gate and character boundaries passed");
