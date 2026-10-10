@@ -365,3 +365,41 @@ test('logged-in account normalizes saved Worker connections and does not require
  assert.equal(saved.protocol,'openai');
  assert.equal(saved.key,'__YORUBAY_ACCOUNT__');
 });
+
+test('smart Claude handoff compacts over 100 messages even below the byte target',async()=>{
+ const s=build();
+ const claude={...cfg,model:'anthropic/claude-sonnet-4.6'};
+ const original=Array.from({length:102},(_,i)=>({role:i%2?'user':'assistant',content:'history '+i}));
+ const snapshot=JSON.stringify(original);
+ s.app.config={api:claude,memory:{mode:'smart',maxRounds:20}};
+ s.window.Chat={summarizedUntil:0,async maybeSummarize(){this.summarizedUntil=90;}};
+ s.app.buildMessages=async()=>s.window.Chat.summarizedUntil ? msgs : original;
+ await s.api.send(claude,original);
+ assert.equal(s.window.Chat.summarizedUntil,90);
+ assert.equal(s.calls.length,1);
+ assert.deepEqual(JSON.parse(s.calls[0][1].body).messages,msgs);
+ assert.equal(JSON.stringify(original),snapshot);
+});
+
+test('failed summary preserves history and blocks an oversized message count',async()=>{
+ const s=build();
+ const original=Array.from({length:102},()=>({role:'user',content:'history'}));
+ const snapshot=JSON.stringify(original);
+ s.app.config={api:cfg,memory:{mode:'smart',maxRounds:20}};
+ s.window.Chat={summarizedUntil:0,async maybeSummarize(){}};
+ s.app.buildMessages=async()=>original;
+ await assert.rejects(()=>s.api.send(cfg,original),/仍超過 100/);
+ assert.equal(s.calls.length,0);
+ assert.equal(JSON.stringify(original),snapshot);
+});
+
+test('oversized single history message can be summarized before transport validation',async()=>{
+ const s=build();
+ const original=[{role:'assistant',content:'a'.repeat(80001)},...msgs];
+ s.app.config={api:cfg,memory:{mode:'smart',maxRounds:20}};
+ s.window.Chat={summarizedUntil:0,async maybeSummarize(){this.summarizedUntil=1;}};
+ s.app.buildMessages=async()=>s.window.Chat.summarizedUntil ? msgs : original;
+ await s.api.send(cfg,original);
+ assert.equal(s.calls.length,1);
+ assert.equal(original[0].content.length,80001);
+});
