@@ -5,7 +5,7 @@ const core = require("../js/worldbook-library-core.js");
 const catalog = JSON.parse(fs.readFileSync(path.join(__dirname, "../data/worldbook-library.json"), "utf8"));
 assert.equal(catalog.schema, "yorubay-worldbook-library-catalog");
 const packs = catalog.packs.map(core.normalizePack);
-assert.equal(packs.length, 2);
+assert.equal(packs.length, 4);
 assert.ok(packs.every(pack => pack.meta.visibility === "public"));
 assert.ok(packs.every(pack => pack.entries.every(entry => !entry.review_required)));
 
@@ -20,6 +20,11 @@ assert.doesNotMatch(noExtra.text, /港口工業區包含碼頭/);
 const other = core.select(packs, [cultivationId], { latestUser: "我去東方大陸找劍宗" });
 assert.match(other.text, /劍修聞名/);
 assert.doesNotMatch(other.text, /曙光市/);
+const generic = core.select(packs, [packs[2].meta.id], { latestUser: "我去咖啡廳點餐" });
+assert.match(generic.text, /商店與咖啡廳/);
+const scenario = core.select(packs, [packs[3].meta.id], { latestUser: "去警局報案", world: "sunrise-city" });
+assert.match(scenario.text, /公開調查線索/);
+assert.doesNotMatch(scenario.text, /案件公開時間線/);
 const scope = core.select(packs, [cultivationId], { latestUser: "東方大陸", world: "sunrise-city" });
 assert.equal(scope.text, "");
 
