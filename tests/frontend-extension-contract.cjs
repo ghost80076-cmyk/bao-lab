@@ -50,7 +50,7 @@ increasing(siteUI, [
   'loadBAOScript("js/world-state.js")',
   'loadBAOScript("js/character-status.js?v=4")',
   'loadBAOScript("js/three-realms-cultivation-core.js?v=1")',
-  'loadBAOScript("js/three-realms-event-profiles.js?v=5")',
+  'loadBAOScript("js/three-realms-event-profiles.js?v=6")',
   'loadBAOScript("js/three-realms-events-core.js?v=6")',
   'loadBAOScript("js/world-modules.js?v=3")',
   'loadBAOScript("js/world-state-hook.js?v=2")'

@@ -79,10 +79,14 @@ def build(source, root):
     profile = {'id': 'workshop-xuanhuan', 'label': '玄幻世界構思', 'aliases': ['玄幻世界構思'], 'category': 'workshop', 'layout': ['世界背景與基調', '宗門與勢力', '修煉路線與資源', '日常與歷練', '角色身份提案', '待確認事項'], 'guidance': '以靈氣、宗門、功法、丹藥、陣法、妖獸和秘境作為可選元素，兼顧修煉、歷練、同門日常與情義。先確認是否使用三界九域及所在界域；若玩家只指定玄幻類型，提出通用草案而不把三界梯度當既定規則。保持已有境界路線，不將下界鬥氣、中界修仙、上界梯度混為同一套。場景比例只是風格方向，不宣稱百分比排程或可靠亂數。新的宗門、能力、資源、過往與人物關係都只是提案，不能直接授予或寫入存檔。'}
     profiles.append(profile)
     records.append({'source_index': 41, 'source_title': original['title'], 'source_sha256': digest(original['content']), 'profile_id': profile['id'], 'profile_sha256': digest(json.dumps(profile, ensure_ascii=False, sort_keys=True, separators=(',', ':')))})
+    original = source['entries'][54]
+    profile = {'id': 'workshop-character-exit', 'label': '角色退場構思', 'aliases': ['角色退場構思'], 'category': 'workshop', 'layout': ['人物與退場意圖', '已有因果與伏筆', '可選退場方案', '情緒與環境呈現', '其他人物及後續影響', '待確認事項'], 'guidance': '先確認玩家指定的人物、退場意圖與描寫尺度；人物或目的不明先詢問。可討論離開、告別、犧牲或其他符合作品因果的虛構退場，但不能把構思變成已死亡、已離場或已受傷的事實。考慮人物目標、未完成關係與後續影響，留下玩家的介入和調整空間；不只為製造高潮讓人物死亡。情绪、動作、聲音與光影可服務場景，不以無意義的殘忍或血腥作目標。只有目前作品明確是拍攝世界時，才區分戲中退場與演員殺青；普通世界不能用片場解釋否定故事內的真實後果。名冊、人物狀態與時間維持原狀，結果只有在實際故事成立後由既有追蹤處理。'}
+    profiles.append(profile)
+    records.append({'source_index': 54, 'source_title': original['title'], 'source_sha256': digest(original['content']), 'profile_id': profile['id'], 'profile_sha256': digest(json.dumps(profile, ensure_ascii=False, sort_keys=True, separators=(',', ':')))})
     js = '(function(root) {\n  "use strict";\n  const profiles = ' + json.dumps(profiles, ensure_ascii=False, indent=2) + ';\n  if (typeof module === "object" && module.exports) module.exports = profiles;\n  if (root) root.BAOThreeRealmsEventProfiles = profiles;\n})(typeof window === "undefined" ? null : window);\n'
     (root / 'js/three-realms-event-profiles.js').write_text(js)
     path.write_text(json.dumps({'schema': 'yorubay-native-instruction-provenance', 'version': 1, 'source_book_id': BOOK_ID, 'source_visibility': '公開', 'records': records}, ensure_ascii=False, indent=2) + '\n')
-    print('Compiled 11 event, 2 character and 7 query and 4 world-design sources into native profiles.')
+    print('Compiled 11 event, 2 character and 7 query and 5 world/story-design sources into native profiles.')
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)

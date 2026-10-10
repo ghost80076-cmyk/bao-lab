@@ -9,14 +9,14 @@
   "status_counts": {
     "native_actor_archetype": 31,
     "pending_actor_review": 1,
-    "native_prompt": 24,
+    "native_prompt": 25,
     "native_rule_supported": 5,
-    "pending_rule_review": 10,
+    "pending_rule_review": 9,
     "native_cultivation": 4,
     "factual": 115,
     "native_status_template": 1
   },
-  "remaining_review_entries": 14,
+  "remaining_review_entries": 13,
   "records": [
     {
       "source_index": 0,
@@ -620,11 +620,12 @@
       "source_index": 54,
       "source_title": "殺人與死亡場景",
       "source_sha256": "a7073779fe3848fbdaf88d7c120126469265f9ef9d1a02f26810d9f19b5ed25d",
-      "status": "pending_rule_review",
+      "status": "native_prompt",
       "references": [
-        "docs/worldbook-native-gap-audit-2026-10-10.md"
+        "data/three-realms-event-director-provenance.json"
       ],
-      "follow_up": true
+      "profile_id": "workshop-character-exit",
+      "fidelity": "adapted-instruction-profile-not-verbatim"
     },
     {
       "source_index": 55,

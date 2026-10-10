@@ -161,7 +161,7 @@ test('Three Realms events are opt-in, fill without sending, and guide only the r
   await expect(quick.locator('[data-quick-id="three-realms-exploration"]')).toBeVisible();
   await expect(quick.locator('[data-quick-source="generator"]')).toHaveCount(2);
   await expect(quick.locator('[data-quick-source="query"]')).toHaveCount(7);
-  await expect(quick.locator('[data-quick-source="workshop"]')).toHaveCount(4);
+  await expect(quick.locator('[data-quick-source="workshop"]')).toHaveCount(5);
   const before = await page.evaluate(() => Chat.messages.length);
   await quick.locator('[data-quick-id="three-realms-exploration"]').click();
   await expect(page.locator('#user-input')).toHaveValue('我想去坊市\n【探索事件】');

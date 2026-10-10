@@ -171,6 +171,13 @@
       "source_sha256": "6fef46ac9d8f00806048436b0e675bb746e462568c1c995af772488f3b4270d1",
       "profile_id": "workshop-xuanhuan",
       "profile_sha256": "ee1c3288fdeba6beb0918b100bbface71c3479c845ee4e44cfbef3b3015419c7"
+    },
+    {
+      "source_index": 54,
+      "source_title": "殺人與死亡場景",
+      "source_sha256": "a7073779fe3848fbdaf88d7c120126469265f9ef9d1a02f26810d9f19b5ed25d",
+      "profile_id": "workshop-character-exit",
+      "profile_sha256": "78d4c1933fc739227b8b2768da10d70c5fbe3d583f4f4300a710094816ff5533"
     }
   ]
 }

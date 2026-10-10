@@ -38,7 +38,7 @@ assert.equal(ids.size, 1, 'duplicate script installation cannot stack wrappers')
   assert.equal(modules.definitions(context.App.activeCharacter).find(d => d.id === core.id).tracking, 'manual');
   assert.equal(context.BAOThreeRealmsEvents.commands('generator').length, 2);
   assert.equal(context.BAOThreeRealmsEvents.commands('query').length, 7);
-  assert.equal(context.BAOThreeRealmsEvents.commands('workshop').length, 4);
+  assert.equal(context.BAOThreeRealmsEvents.commands('workshop').length, 5);
   const original = JSON.stringify(GameState.current);
   const output = await context.App.buildMessages();
   assert.equal(output.length, 3);
