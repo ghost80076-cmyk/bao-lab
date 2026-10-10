@@ -1,0 +1,139 @@
+{
+  "status": "images-attached-to-draft",
+  "slots": [
+    {
+      "id": "cover",
+      "target": "meta.avatar",
+      "file": "assets/characters/shen-zhiwan/shen-zhiwan-home-black.png",
+      "purpose": "探索頁封面／角色形象"
+    },
+    {
+      "id": "reading",
+      "target": "presentation.reading_background",
+      "file": "assets/characters/shen-zhiwan/shen-zhiwan-home-black.png",
+      "purpose": "故事閱讀背景"
+    },
+    {
+      "id": "opening_a",
+      "file": "assets/characters/shen-zhiwan/shen-zhiwan-cosplay.png",
+      "purpose": "Cos展場開場配圖"
+    },
+    {
+      "id": "opening_b",
+      "file": "assets/characters/shen-zhiwan/shen-zhiwan-date.png",
+      "purpose": "外拍／外出開場配圖"
+    },
+    {
+      "id": "opening_c",
+      "file": "assets/characters/shen-zhiwan/shen-zhiwan-home-full.png",
+      "purpose": "居家意外開場配圖"
+    },
+    {
+      "id": "maid",
+      "file": "assets/characters/shen-zhiwan/shen-zhiwan-maid.png",
+      "purpose": "女僕Cos"
+    },
+    {
+      "id": "uniform",
+      "file": "assets/characters/shen-zhiwan/shen-zhiwan-uniform.png",
+      "purpose": "制服風"
+    },
+    {
+      "id": "pajamas",
+      "file": "assets/characters/shen-zhiwan/shen-zhiwan-pajamas.png",
+      "purpose": "睡衣時光"
+    },
+    {
+      "id": "cafe",
+      "file": "assets/characters/shen-zhiwan/shen-zhiwan-cafe.png",
+      "purpose": "咖啡廳外出"
+    },
+    {
+      "id": "work",
+      "file": "assets/characters/shen-zhiwan/shen-zhiwan-work.png",
+      "purpose": "工作模式"
+    },
+    {
+      "id": "sport",
+      "file": "assets/characters/shen-zhiwan/shen-zhiwan-sport.png",
+      "purpose": "運動休閒"
+    },
+    {
+      "id": "pool",
+      "file": "assets/characters/shen-zhiwan/shen-zhiwan-pool.png",
+      "purpose": "泳池休閒"
+    },
+    {
+      "id": "cat_cos",
+      "file": "assets/characters/shen-zhiwan/shen-zhiwan-cat-cos.png",
+      "purpose": "貓耳Cos／居家角色參考"
+    },
+    {
+      "id": "casual_black",
+      "file": "assets/characters/shen-zhiwan/shen-zhiwan-casual-black.png",
+      "purpose": "黑色居家穿搭"
+    },
+    {
+      "id": "business",
+      "file": "assets/characters/shen-zhiwan/shen-zhiwan-business.png",
+      "purpose": "正式工作穿搭"
+    },
+    {
+      "id": "gothic",
+      "file": "assets/characters/shen-zhiwan/shen-zhiwan-gothic.png",
+      "purpose": "黑色系情趣Cos"
+    },
+    {
+      "id": "cafe_coat",
+      "file": "assets/characters/shen-zhiwan/shen-zhiwan-cafe-coat.png",
+      "purpose": "咖啡廳冬季外出"
+    },
+    {
+      "id": "character_sheet",
+      "file": "assets/characters/shen-zhiwan/shen-zhiwan-character-sheet.png",
+      "purpose": "角色表情／穿搭總覽參考"
+    },
+    {
+      "id": "cafe_casual",
+      "file": "assets/characters/shen-zhiwan/shen-zhiwan-cafe-casual.png",
+      "purpose": "咖啡廳休閒外出"
+    },
+    {
+      "id": "pink_maid",
+      "file": "assets/characters/shen-zhiwan/shen-zhiwan-pink-maid.png",
+      "purpose": "粉色女僕Cos"
+    },
+    {
+      "id": "mirror_selfie",
+      "file": "assets/characters/shen-zhiwan/shen-zhiwan-mirror-selfie.png",
+      "purpose": "鏡前自拍"
+    },
+    {
+      "id": "paris_date",
+      "file": "assets/characters/shen-zhiwan/shen-zhiwan-paris-date.png",
+      "purpose": "巴黎約會"
+    },
+    {
+      "id": "dark_academia",
+      "file": "assets/characters/shen-zhiwan/shen-zhiwan-dark-academia.png",
+      "purpose": "Dark Academia風格"
+    },
+    {
+      "id": "pink_home",
+      "file": "assets/characters/shen-zhiwan/shen-zhiwan-pink-home.png",
+      "purpose": "粉色居家"
+    },
+    {
+      "id": "reference_a",
+      "file": "assets/characters/shen-zhiwan/shen-zhiwan-reference-a.png",
+      "purpose": "新增視覺參考A"
+    },
+    {
+      "id": "reference_b",
+      "file": "assets/characters/shen-zhiwan/shen-zhiwan-reference-b.png",
+      "purpose": "新增視覺參考B"
+    }
+  ],
+  "native_scene_source": "story-gallery",
+  "notes": "正式網站資產。封面與閱讀背景由卡片直接引用；其他素材保留供作者選用，並非自動建立本機故事圖集。"
+}
