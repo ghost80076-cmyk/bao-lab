@@ -95,13 +95,6 @@
     originalOpenBuilder();
     setTimeout(injectBuilderSummary,0);
   };
-  const originalBuild = App.buildSystemPrompt.bind(App);
-  App.buildSystemPrompt = function() {
-    const base = originalBuild();
-    if (this.config?.narrativeMode !== "world" && this.config?.displayMode !== "ui") return base;
-    const core = window.BAOWorldModules.compactForPrompt();
-    return core ? `${base}\n\n【內部世界狀態｜僅供敘事模型參考】\n以下 JSON 是世界引擎已儲存的事實，不是回覆模板，也不是本輪要產生的狀態更新。\n${core}\n【內部狀態輸出禁令】\n請根據上述事實自然延續玩家當前故事；不得在回覆中複製「目前核心狀態」、內部世界狀態標題、JSON 原文、鍵名清單或逐欄數值。原生 Gameplay UI 會獨立顯示狀態，敘事只描述玩家能感知且與本輪情節相關的資訊。不要因為取得狀態而刻意改寫劇情。` : base;
-  };
   // Some models echo the exact internal state block instead of writing prose.
   // Remove only a trailing, clearly marked JSON dump from a MAIN story reply;
   // never parse model text as trusted state or hide arbitrary authored content.
@@ -123,7 +116,7 @@
       const mainStory = !config?.__connectionTest && !config?.__memoryTask
         && !config?.__stateTask && !config?.__storyTool && !config?.__auxiliaryTask
         && Array.isArray(messages) && messages.some(message =>
-          typeof message?.content === "string" && message.content.includes("【內部世界狀態｜僅供敘事模型參考】")
+          typeof message?.content === "string" && message.content.includes("【目前核心狀態】")
         );
       const result = await next(config, messages, ...rest);
       if (!mainStory || typeof result?.text !== "string") return result;
