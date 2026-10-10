@@ -192,7 +192,7 @@
     const stream = document.getElementById('chat-stream');
     const state = GameState?.current;
     if (!stream || !state || !App.activeCharacter) return;
-    let panel = stream.querySelector(':scope > #bao-inline-story-status');
+    let panel = document.getElementById('bao-inline-story-status');
     if (!panel) {
       panel = document.createElement('details');
       panel.id = 'bao-inline-story-status';
@@ -204,7 +204,9 @@
       panel.append(summary, body);
     }
     panel.hidden = prefs.status === 'hidden';
-    if (stream.lastElementChild !== panel) stream.append(panel);
+    // Keep it outside #chat-stream: streaming and story tools expect the last
+    // direct child there to be the most recent message.
+    if (panel.previousElementSibling !== stream) stream.insertAdjacentElement('afterend', panel);
     if (panel.hidden) return;
     const body = panel.querySelector('.bao-inline-story-status-body');
     const fragment = document.createDocumentFragment();
@@ -253,7 +255,7 @@
     body.replaceChildren(fragment);
   };
   const inlineStatusStyle = document.createElement('style');
-  inlineStatusStyle.textContent = '#bao-inline-story-status{margin:14px 0 18px;padding:12px 14px;border:1px solid var(--line,#7775);border-radius:12px;background:rgba(127,127,127,.07);overflow-wrap:anywhere}#bao-inline-story-status[hidden]{display:none!important}#bao-inline-story-status summary{cursor:pointer;font-weight:700}#bao-inline-story-status .bao-inline-story-status-body{display:grid;gap:10px;padding-top:10px}#bao-inline-story-status section{padding:8px 10px;border:1px solid #7773;border-radius:8px}#bao-inline-story-status section strong{display:block;margin-bottom:4px}#bao-inline-story-status .bao-inline-story-status-lines{white-space:pre-wrap;font-size:.9em;line-height:1.65}';
+  inlineStatusStyle.textContent = '#bao-inline-story-status{order:22;max-height:190px;overflow:auto;margin:10px 10px 14px;padding:12px 14px;border:1px solid var(--line,#7775);border-radius:12px;background:rgba(127,127,127,.07);overflow-wrap:anywhere}#bao-inline-story-status[hidden]{display:none!important}#bao-inline-story-status summary{cursor:pointer;font-weight:700}#bao-inline-story-status .bao-inline-story-status-body{display:grid;gap:10px;padding-top:10px}#bao-inline-story-status section{padding:8px 10px;border:1px solid #7773;border-radius:8px}#bao-inline-story-status section strong{display:block;margin-bottom:4px}#bao-inline-story-status .bao-inline-story-status-lines{white-space:pre-wrap;font-size:.9em;line-height:1.65}';
   document.head.append(inlineStatusStyle);
   const refresh = () => {
     const stream = document.getElementById('chat-stream');
