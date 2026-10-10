@@ -1,9 +1,10 @@
 const { test, expect } = require('@playwright/test');
+if (process.env.BAO_LIVE_URL) test.use({ baseURL: process.env.BAO_LIVE_URL });
 
 
 test('core chat shell never exposes authored greeting source even if scene renderer is late', async ({ page }) => {
   await page.route('**/js/scene-html-modes.js*', route => route.abort());
-  await page.goto('/');
+  await page.goto(process.env.BAO_LIVE_URL ? './?verify=' + (process.env.GITHUB_SHA || Date.now()) : '/');
   await page.waitForFunction(() => Boolean(
     App.characters?.length && window.BAOChatMarkup && Storage.status().ready
   ), null, { timeout: 15000 });
@@ -37,7 +38,7 @@ test('core chat shell never exposes authored greeting source even if scene rende
 });
 
 async function prepareYume(page, mode = 'efficient') {
-  await page.goto('/');
+  await page.goto(process.env.BAO_LIVE_URL ? './?verify=' + (process.env.GITHUB_SHA || Date.now()) : '/');
   await page.waitForFunction(() => Boolean(
     App.characters?.length && window.BAOSceneHTML && window.BAOStoryReader &&
     window.BAOWorldModules && Storage.status().ready
