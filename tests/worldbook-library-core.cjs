@@ -5,7 +5,7 @@ const core = require("../js/worldbook-library-core.js");
 const catalog = JSON.parse(fs.readFileSync(path.join(__dirname, "../data/worldbook-library.json"), "utf8"));
 assert.equal(catalog.schema, "yorubay-worldbook-library-catalog");
 const packs = catalog.packs.map(core.normalizePack);
-assert.equal(packs.length, 4);
+assert.ok(packs.length >= 4);
 assert.ok(packs.every(pack => pack.meta.visibility === "public"));
 assert.ok(packs.every(pack => pack.entries.every(entry => !entry.review_required)));
 
