@@ -376,7 +376,7 @@
       const entries = diffs.map(item => `<article class="gameplay-timeline-entry is-diff"><i></i><div><strong>${esc(item.label)}</strong><p><span>${esc(summarizeDiffValue(item.before))}</span><b>→</b><span>${esc(summarizeDiffValue(item.after))}</span></p></div></article>`).join('');
       return `<section class="gameplay-ui-section gameplay-timeline" data-timeline-mode="round_diff">${heading}<div class="gameplay-timeline-list">${entries || `<span class="gameplay-card-empty">${esc(displayValue(section.empty))}</span>`}</div></section>`;
     }
-    if (section.type === 'actions') return `<section class="gameplay-ui-section">${heading}<div class="gameplay-actions">${section.items.map((item, index) => `<button type="button" class="secondary" data-gameplay-draft="${index}" data-gameplay-draft-text="${esc(item.draft)}">${esc(item.label)}</button>${item.hint ? `<small>${esc(item.hint)}</small>` : ''}`).join('')}</div></section>`;
+    if (section.type === 'actions') return `<section class="gameplay-ui-section">${heading}<div class="gameplay-actions">${section.items.map((item, index) => `<button type="button" class="secondary" ${item.effect ? `data-gameplay-effect="${esc(JSON.stringify(item.effect))}"` : `data-gameplay-draft="${index}" data-gameplay-draft-text="${esc(item.draft)}"`}>${esc(item.label)}</button>${item.hint ? `<small>${esc(item.hint)}</small>` : ''}`).join('')}</div></section>`;
     return '';
   };
 
@@ -389,6 +389,42 @@
       input.value = button.dataset.gameplayDraftText || '';
       input.focus();
       input.setSelectionRange?.(input.value.length, input.value.length);
+    }));
+  };
+
+  const bindEffectActions = root => {
+    root?.querySelectorAll?.('[data-gameplay-effect]').forEach(button => button.addEventListener('click', () => {
+      if (button.disabled || button.dataset.gameplayEffectBusy === '1') return;
+      button.dataset.gameplayEffectBusy = '1';
+      const notify = message => {
+        if (window.BAOFeedback?.notify) window.BAOFeedback.notify(message);
+        else window.alert(message);
+      };
+      try {
+        if (App.config?.displayMode !== 'ui' || !GameState.current || !App.activeCharacter) {
+          notify('目前沒有可以操作的遊戲狀態。');
+          return;
+        }
+        window.BAOWorldModules?.ensureState?.(App.activeCharacter);
+        const effect = JSON.parse(button.dataset.gameplayEffect || 'null');
+        const result = Core.executeActionEffect(GameState.current, effect);
+        if (!result.ok) {
+          notify(result.reason);
+          return;
+        }
+        button.disabled = true; // No repeated purchase from the same visible button.
+        if (result.effect.event) GameState.addEvent('【遊戲操作】' + result.effect.event);
+        App.saveStory(false);
+        const activePanel = document.querySelector('#game-ui .ui-tab.active')?.dataset.panel || '';
+        if (activePanel) App.renderUIPanel(activePanel);
+        scheduleDashboardSync();
+        notify(result.effect.event || '遊戲操作已完成。');
+      } catch (error) {
+        console.warn('BAO/LAB gameplay action failed:', error);
+        notify('遊戲操作失敗，請重新整理狀態後再試。');
+      } finally {
+        delete button.dataset.gameplayEffectBusy;
+      }
     }));
   };
 
@@ -416,6 +452,7 @@
 
   const bindGameplayInteractions = root => {
     bindDraftActions(root);
+    bindEffectActions(root);
     bindArchiveTabs(root);
     void hydrateLocationArchives(root);
   };
