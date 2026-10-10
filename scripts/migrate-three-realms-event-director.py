@@ -56,12 +56,29 @@ def build(source, root):
         if not layout:
             raise ValueError('Reviewed query layout changed')
         profile = {'id': 'query-' + kind, 'label': label, 'aliases': [label, '【系統指令】' + label], 'category': 'query', 'command': '【系統指令】' + label, 'layout': layout}
+        if profile['category'] == 'workshop':
+            profile['legacy_pattern'] = {'switch': '^【系統指令】切換到', 'fusion': '^【系統指令】融合', 'custom': '^【系統指令】自訂世界觀(?:[:：]|$)'}[kind]
+        profiles.append(profile)
+        records.append({'source_index': index, 'source_title': original['title'], 'source_sha256': digest(raw), 'profile_id': profile['id'], 'profile_sha256': digest(json.dumps(profile, ensure_ascii=False, sort_keys=True, separators=(',', ':')))})
+    workshops = [(32, 'switch', '世界觀切換'), (49, 'fusion', '世界觀融合'), (50, 'custom', '自訂世界觀')]
+    for index, kind, label in workshops:
+        original = source['entries'][index]
+        raw = original['content']
+        layout = re.findall(r'(?m)^#{2,3} (.+)$', raw) if index != 32 else ['新世界概要', '處理方式：保留／轉換／重置／融合', '角色身份提案', '資料保留範圍', '待確認事項']
+        if not layout:
+            raise ValueError('Reviewed world design layout changed')
+        aliases = [label]
+        if index == 49:
+            aliases.append('融合世界觀')
+        profile = {'id': 'workshop-' + kind, 'label': label, 'aliases': aliases, 'category': 'workshop', 'layout': layout}
+        if profile['category'] == 'workshop':
+            profile['legacy_pattern'] = {'switch': '^【系統指令】切換到', 'fusion': '^【系統指令】融合', 'custom': '^【系統指令】自訂世界觀(?:[:：]|$)'}[kind]
         profiles.append(profile)
         records.append({'source_index': index, 'source_title': original['title'], 'source_sha256': digest(raw), 'profile_id': profile['id'], 'profile_sha256': digest(json.dumps(profile, ensure_ascii=False, sort_keys=True, separators=(',', ':')))})
     js = '(function(root) {\n  "use strict";\n  const profiles = ' + json.dumps(profiles, ensure_ascii=False, indent=2) + ';\n  if (typeof module === "object" && module.exports) module.exports = profiles;\n  if (root) root.BAOThreeRealmsEventProfiles = profiles;\n})(typeof window === "undefined" ? null : window);\n'
     (root / 'js/three-realms-event-profiles.js').write_text(js)
     path.write_text(json.dumps({'schema': 'yorubay-native-instruction-provenance', 'version': 1, 'source_book_id': BOOK_ID, 'source_visibility': '公開', 'records': records}, ensure_ascii=False, indent=2) + '\n')
-    print('Compiled 11 event, 2 character and 7 query sources into native profiles.')
+    print('Compiled 11 event, 2 character and 7 query and 3 world-design sources into native profiles.')
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)

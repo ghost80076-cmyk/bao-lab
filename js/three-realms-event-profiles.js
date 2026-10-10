@@ -559,6 +559,69 @@
       "[角色化名]",
       "你聽說過但未見過的人"
     ]
+  },
+  {
+    "id": "workshop-switch",
+    "label": "世界觀切換",
+    "aliases": [
+      "世界觀切換"
+    ],
+    "category": "workshop",
+    "layout": [
+      "新世界概要",
+      "處理方式：保留／轉換／重置／融合",
+      "角色身份提案",
+      "資料保留範圍",
+      "待確認事項"
+    ],
+    "legacy_pattern": "^【系統指令】切換到"
+  },
+  {
+    "id": "workshop-fusion",
+    "label": "世界觀融合",
+    "aliases": [
+      "世界觀融合",
+      "融合世界觀"
+    ],
+    "category": "workshop",
+    "layout": [
+      "融合對象",
+      "世界觀 A：[作品 A]",
+      "世界觀 B：[作品 B]",
+      "融合方案",
+      "融合方式",
+      "新世界設定",
+      "保留元素",
+      "創新元素",
+      "角色調整",
+      "新世界規則",
+      "基本規則",
+      "特殊規則"
+    ],
+    "legacy_pattern": "^【系統指令】融合"
+  },
+  {
+    "id": "workshop-custom",
+    "label": "自訂世界觀",
+    "aliases": [
+      "自訂世界觀"
+    ],
+    "category": "workshop",
+    "layout": [
+      "玩家描述",
+      "AI 設計方案",
+      "世界類型",
+      "世界背景",
+      "基調與氛圍",
+      "核心元素",
+      "世界規則",
+      "基本規則",
+      "特殊規則",
+      "限制與禁忌",
+      "角色調整建議",
+      "劇情方向建議"
+    ],
+    "legacy_pattern": "^【系統指令】自訂世界觀(?:[:：]|$)"
   }
 ];
   if (typeof module === "object" && module.exports) module.exports = profiles;

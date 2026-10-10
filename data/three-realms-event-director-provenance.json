@@ -143,6 +143,27 @@
       "source_sha256": "6025140ef8a758ed64fdbd2964688e05c436f769d47c447e3016297f0f8e077b",
       "profile_id": "query-npcs",
       "profile_sha256": "4965b48ff22f8f158e2e008ae97f591ab2d859f33e742fcf97cda5190c623ae6"
+    },
+    {
+      "source_index": 32,
+      "source_title": "開發者模式-跳脫扮演",
+      "source_sha256": "6240decc703518c55134220f90635f2d9d22de6c96b6008d4e8523b303090493",
+      "profile_id": "workshop-switch",
+      "profile_sha256": "a1a64b657e3d00d20adae851abc12b5482aa20bb0a25a4f6f046115f94b3eae2"
+    },
+    {
+      "source_index": 49,
+      "source_title": "融合世界觀",
+      "source_sha256": "09edc504dbfe81def66afa5238eab899b6484707ca268cf1a95182636c25f387",
+      "profile_id": "workshop-fusion",
+      "profile_sha256": "0e1e67aa6bf279c6cca23484ea7acb3aee50c2fc71e0477292d36932a398387e"
+    },
+    {
+      "source_index": 50,
+      "source_title": "自訂世界觀",
+      "source_sha256": "80e550945135d0b038f547008447420aad85d5dda59d39aae4ba582c09d6d0a4",
+      "profile_id": "workshop-custom",
+      "profile_sha256": "64ec4fcbbc96181624a7b0fb5186c099625daae18707a4056ddd4439cfe2a195"
     }
   ]
 }

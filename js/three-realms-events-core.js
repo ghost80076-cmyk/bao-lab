@@ -9,7 +9,7 @@
   const MAX_PROMPT = 1800;
   const preset = {
     label: '三界故事引導', icon: '✧', tracking: 'manual', context: 'ui_only', kind: 'object', fields: [],
-    triggers: [], description: '啟用後，在快捷指令選擇機運、危機、探索等事件、角色構思或查詢整理；明確送出要求才引導本輪敘事，沿用主模型。'
+    triggers: [], description: '啟用後，在快捷指令選擇機運、危機、探索等事件、角色構思、查詢整理或世界構思；明確送出要求才引導本輪敘事，沿用主模型。'
   };
   const commands = profiles.map(p => ({ id: 'three-realms-' + p.id, label: p.label, text: p.command || '【' + p.label + '】', source: p.category || 'event' }));
   function requested(text = '') {
@@ -20,6 +20,8 @@
     for (const line of visible.split(/\r?\n/)) {
       const match = profiles.find(p => p.aliases.some(alias => line.trim() === '【' + alias + '】' || (p.category === 'query' && alias.startsWith('【系統指令】') && line.trim() === alias)));
       if (match) return match;
+      const legacy = profiles.find(p => p.category === 'workshop' && p.legacy_pattern && new RegExp(p.legacy_pattern).test(line.trim()));
+      if (legacy) return legacy;
     }
     return null;
   }
@@ -27,6 +29,19 @@
     if (!enabled) return '';
     const profile = requested(latestUser);
     if (!profile) return '';
+    if (profile.category === 'workshop') {
+      const prompt = [
+        '【三界世界構思｜' + profile.label + '】',
+        '本輪玩家明確要求世界設計方案，只構思，不直接修改存檔或宣稱已套用。服從玩家指定的作品、人物核心與現有已確認事實。',
+        '依需求選用來源分類：' + profile.layout.join('、') + '。角色的新身份、背景、力量與規則須標為提案，不寫成既有角色已被更改。',
+        profile.id === 'workshop-fusion' ? '先確認玩家要融合的兩個世界與版本；對象不足先詢問。提出兩邊保留元素、交互方式、規則衝突與處理選項，不自行把互不相容的境界梯度視為同一套。' : '',
+        profile.id === 'workshop-custom' ? '先依玩家提供的描述整理類型、背景、基調、核心元素、規則與劇情方向；描述缺失先詢問。不替玩家指定未要求的身份或關係。' : '',
+        profile.id === 'workshop-switch' ? '先確認目標世界與是否保留角色、劇情及資源，提出保留、轉換、重置或融合的可選方案；未說明的資料保持原狀。' : '',
+        '列出需要玩家選擇或調整的事項，停在方案討論。原文的確認是設計確認，不是可執行的重置授權；這個指令沒有修改故事資料的工具。即使玩家確認，仍不能宣稱存檔、世界模組或角色已自動切換。'
+      ].filter(Boolean).join('\n');
+      if (prompt.length > MAX_PROMPT) throw new Error('三界世界構思提示超過預算。');
+      return prompt;
+    }
     if (profile.category === 'query') {
       const prompt = [
         '【三界查詢整理｜' + profile.label + '】',

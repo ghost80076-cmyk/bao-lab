@@ -145,6 +145,7 @@ test('Three Realms events are opt-in, fill without sending, and guide only the r
   await expect(quick.locator('[data-quick-source="event"]')).toHaveCount(0);
   await expect(quick.locator('[data-quick-source="generator"]')).toHaveCount(0);
   await expect(quick.locator('[data-quick-source="query"]')).toHaveCount(0);
+  await expect(quick.locator('[data-quick-source="workshop"]')).toHaveCount(0);
   await quick.getByRole('button', { name: '關閉快捷指令' }).click();
   await page.evaluate(() => BAOWorldModuleManager.open());
   const manager = page.getByRole('dialog', { name: '世界模組管理' });
@@ -160,6 +161,7 @@ test('Three Realms events are opt-in, fill without sending, and guide only the r
   await expect(quick.locator('[data-quick-id="three-realms-exploration"]')).toBeVisible();
   await expect(quick.locator('[data-quick-source="generator"]')).toHaveCount(2);
   await expect(quick.locator('[data-quick-source="query"]')).toHaveCount(7);
+  await expect(quick.locator('[data-quick-source="workshop"]')).toHaveCount(3);
   const before = await page.evaluate(() => Chat.messages.length);
   await quick.locator('[data-quick-id="three-realms-exploration"]').click();
   await expect(page.locator('#user-input')).toHaveValue('我想去坊市\n【探索事件】');
@@ -202,6 +204,21 @@ test('Three Realms events are opt-in, fill without sending, and guide only the r
     return (await App.buildMessages(App.config)).filter(m => typeof m.content === 'string' && m.content.includes('【三界查詢整理｜整理物品清單】')).length;
   });
   expect(queryPrompt).toBe(1);
+  await page.locator('#user-input').fill('浮空修仙世界');
+  await page.evaluate(() => BAOStoryQuickCommands.open());
+  quick = page.getByRole('dialog', { name: '快捷指令' });
+  const worldBefore = await page.evaluate(() => JSON.stringify(GameState.current));
+  const chatBefore = await page.evaluate(() => Chat.messages.length);
+  await quick.locator('[data-quick-id="three-realms-workshop-custom"]').click();
+  await expect(page.locator('#user-input')).toHaveValue('浮空修仙世界\n【自訂世界觀】');
+  expect(await page.evaluate(() => Chat.messages.length)).toBe(chatBefore);
+  const proposal = await page.evaluate(async () => {
+    Chat.add('user', document.getElementById('user-input').value);
+    return (await App.buildMessages(App.config)).filter(m => typeof m.content === 'string' && m.content.includes('【三界世界構思｜自訂世界觀】')).map(m => m.content);
+  });
+  expect(proposal).toHaveLength(1);
+  expect(proposal[0]).toContain('只構思，不直接修改存檔');
+  expect(await page.evaluate(() => JSON.stringify(GameState.current))).toBe(worldBefore);
   await page.evaluate(() => BAOWorldModuleManager.open());
   await manager.locator('[data-preset-id="three_realms_events"]').uncheck();
   await manager.getByRole('button', { name: '套用到目前故事' }).click();
@@ -210,4 +227,5 @@ test('Three Realms events are opt-in, fill without sending, and guide only the r
   await expect(quick.locator('[data-quick-source="event"]')).toHaveCount(0);
   await expect(quick.locator('[data-quick-source="generator"]')).toHaveCount(0);
   await expect(quick.locator('[data-quick-source="query"]')).toHaveCount(0);
+  await expect(quick.locator('[data-quick-source="workshop"]')).toHaveCount(0);
 });

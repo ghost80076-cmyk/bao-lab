@@ -8,13 +8,13 @@
   "factual_packs": 45,
   "status_counts": {
     "pending_actor_review": 32,
-    "pending_rule_review": 19,
-    "native_prompt": 20,
+    "native_prompt": 23,
+    "pending_rule_review": 16,
     "native_cultivation": 4,
     "factual": 115,
     "native_renderer_review": 1
   },
-  "remaining_review_entries": 52,
+  "remaining_review_entries": 49,
   "records": [
     {
       "source_index": 0,
@@ -276,11 +276,12 @@
       "source_index": 32,
       "source_title": "開發者模式-跳脫扮演",
       "source_sha256": "6240decc703518c55134220f90635f2d9d22de6c96b6008d4e8523b303090493",
-      "status": "pending_rule_review",
+      "status": "native_prompt",
       "references": [
-        "docs/worldbook-native-gap-audit-2026-10-10.md"
+        "data/three-realms-event-director-provenance.json"
       ],
-      "follow_up": true
+      "profile_id": "workshop-switch",
+      "fidelity": "adapted-instruction-profile-not-verbatim"
     },
     {
       "source_index": 33,
@@ -390,7 +391,8 @@
       "references": [
         "data/three-realms-event-director-provenance.json"
       ],
-      "profile_id": "query-relations"
+      "profile_id": "query-relations",
+      "fidelity": "adapted-instruction-profile-not-verbatim"
     },
     {
       "source_index": 44,
@@ -400,7 +402,8 @@
       "references": [
         "data/three-realms-event-director-provenance.json"
       ],
-      "profile_id": "query-recap"
+      "profile_id": "query-recap",
+      "fidelity": "adapted-instruction-profile-not-verbatim"
     },
     {
       "source_index": 45,
@@ -410,7 +413,8 @@
       "references": [
         "data/three-realms-event-director-provenance.json"
       ],
-      "profile_id": "query-timeline"
+      "profile_id": "query-timeline",
+      "fidelity": "adapted-instruction-profile-not-verbatim"
     },
     {
       "source_index": 46,
@@ -420,7 +424,8 @@
       "references": [
         "data/three-realms-event-director-provenance.json"
       ],
-      "profile_id": "query-inventory"
+      "profile_id": "query-inventory",
+      "fidelity": "adapted-instruction-profile-not-verbatim"
     },
     {
       "source_index": 47,
@@ -430,7 +435,8 @@
       "references": [
         "data/three-realms-event-director-provenance.json"
       ],
-      "profile_id": "query-world"
+      "profile_id": "query-world",
+      "fidelity": "adapted-instruction-profile-not-verbatim"
     },
     {
       "source_index": 48,
@@ -440,27 +446,30 @@
       "references": [
         "data/three-realms-event-director-provenance.json"
       ],
-      "profile_id": "query-background"
+      "profile_id": "query-background",
+      "fidelity": "adapted-instruction-profile-not-verbatim"
     },
     {
       "source_index": 49,
       "source_title": "融合世界觀",
       "source_sha256": "09edc504dbfe81def66afa5238eab899b6484707ca268cf1a95182636c25f387",
-      "status": "pending_rule_review",
+      "status": "native_prompt",
       "references": [
-        "docs/worldbook-native-gap-audit-2026-10-10.md"
+        "data/three-realms-event-director-provenance.json"
       ],
-      "follow_up": true
+      "profile_id": "workshop-fusion",
+      "fidelity": "adapted-instruction-profile-not-verbatim"
     },
     {
       "source_index": 50,
       "source_title": "自訂世界觀",
       "source_sha256": "80e550945135d0b038f547008447420aad85d5dda59d39aae4ba582c09d6d0a4",
-      "status": "pending_rule_review",
+      "status": "native_prompt",
       "references": [
-        "docs/worldbook-native-gap-audit-2026-10-10.md"
+        "data/three-realms-event-director-provenance.json"
       ],
-      "follow_up": true
+      "profile_id": "workshop-custom",
+      "fidelity": "adapted-instruction-profile-not-verbatim"
     },
     {
       "source_index": 51,
@@ -470,7 +479,8 @@
       "references": [
         "data/three-realms-event-director-provenance.json"
       ],
-      "profile_id": "query-npcs"
+      "profile_id": "query-npcs",
+      "fidelity": "adapted-instruction-profile-not-verbatim"
     },
     {
       "source_index": 52,
@@ -1825,7 +1835,8 @@
       "references": [
         "data/three-realms-event-director-provenance.json"
       ],
-      "profile_id": "fortune"
+      "profile_id": "fortune",
+      "fidelity": "adapted-instruction-profile-not-verbatim"
     },
     {
       "source_index": 174,
@@ -1835,7 +1846,8 @@
       "references": [
         "data/three-realms-event-director-provenance.json"
       ],
-      "profile_id": "crisis"
+      "profile_id": "crisis",
+      "fidelity": "adapted-instruction-profile-not-verbatim"
     },
     {
       "source_index": 175,
@@ -1845,7 +1857,8 @@
       "references": [
         "data/three-realms-event-director-provenance.json"
       ],
-      "profile_id": "emotion"
+      "profile_id": "emotion",
+      "fidelity": "adapted-instruction-profile-not-verbatim"
     },
     {
       "source_index": 176,
@@ -1855,7 +1868,8 @@
       "references": [
         "data/three-realms-event-director-provenance.json"
       ],
-      "profile_id": "breakthrough"
+      "profile_id": "breakthrough",
+      "fidelity": "adapted-instruction-profile-not-verbatim"
     },
     {
       "source_index": 177,
@@ -1865,7 +1879,8 @@
       "references": [
         "data/three-realms-event-director-provenance.json"
       ],
-      "profile_id": "conspiracy"
+      "profile_id": "conspiracy",
+      "fidelity": "adapted-instruction-profile-not-verbatim"
     },
     {
       "source_index": 178,
@@ -1875,7 +1890,8 @@
       "references": [
         "data/three-realms-event-director-provenance.json"
       ],
-      "profile_id": "exploration"
+      "profile_id": "exploration",
+      "fidelity": "adapted-instruction-profile-not-verbatim"
     },
     {
       "source_index": 179,
@@ -1885,7 +1901,8 @@
       "references": [
         "data/three-realms-event-director-provenance.json"
       ],
-      "profile_id": "social"
+      "profile_id": "social",
+      "fidelity": "adapted-instruction-profile-not-verbatim"
     },
     {
       "source_index": 180,
@@ -1895,7 +1912,8 @@
       "references": [
         "data/three-realms-event-director-provenance.json"
       ],
-      "profile_id": "resources"
+      "profile_id": "resources",
+      "fidelity": "adapted-instruction-profile-not-verbatim"
     },
     {
       "source_index": 181,
@@ -1905,7 +1923,8 @@
       "references": [
         "data/three-realms-event-director-provenance.json"
       ],
-      "profile_id": "time"
+      "profile_id": "time",
+      "fidelity": "adapted-instruction-profile-not-verbatim"
     },
     {
       "source_index": 182,
@@ -1915,7 +1934,8 @@
       "references": [
         "data/three-realms-event-director-provenance.json"
       ],
-      "profile_id": "karma"
+      "profile_id": "karma",
+      "fidelity": "adapted-instruction-profile-not-verbatim"
     },
     {
       "source_index": 183,
@@ -1925,7 +1945,8 @@
       "references": [
         "data/three-realms-event-director-provenance.json"
       ],
-      "profile_id": "mystery"
+      "profile_id": "mystery",
+      "fidelity": "adapted-instruction-profile-not-verbatim"
     },
     {
       "source_index": 184,
@@ -1935,7 +1956,8 @@
       "references": [
         "data/three-realms-event-director-provenance.json"
       ],
-      "profile_id": "fortunate-npc"
+      "profile_id": "fortunate-npc",
+      "fidelity": "adapted-instruction-profile-not-verbatim"
     },
     {
       "source_index": 185,
@@ -1945,7 +1967,8 @@
       "references": [
         "data/three-realms-event-director-provenance.json"
       ],
-      "profile_id": "crossover-npc"
+      "profile_id": "crossover-npc",
+      "fidelity": "adapted-instruction-profile-not-verbatim"
     },
     {
       "source_index": 186,

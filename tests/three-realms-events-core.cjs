@@ -4,11 +4,19 @@ const fs = require('node:fs');
 const crypto = require('node:crypto');
 const core = require('../js/three-realms-events-core.js');
 const portable = require('../js/story-extension-pack-core.js');
-assert.equal(core.profiles.length, 20);
-assert.equal(core.commands.length, 20);
+assert.equal(core.profiles.length, 23);
+assert.equal(core.commands.length, 23);
 assert.equal(core.preset.tracking, 'manual');
 assert.equal(core.preset.context, 'ui_only');
 for (const profile of core.profiles) {
+  if (profile.category === 'workshop') {
+    const prompt = core.buildPrompt({ enabled: true, latestUser: '【' + profile.label + '】' });
+    assert.match(prompt, /沒有修改故事資料的工具/);
+    assert.match(prompt, /只構思，不直接修改存檔/);
+    assert.ok(prompt.length <= core.MAX_PROMPT);
+    assert.equal(core.buildPrompt({ latestUser: profile.label }), '');
+    continue;
+  }
   if (profile.category === 'query') {
     const prompt = core.buildPrompt({ enabled: true, latestUser: profile.command });
     assert.match(prompt, /三界查詢整理/);
@@ -45,6 +53,12 @@ assert.equal(core.requested('【機緣事件】').id, 'fortune');
 assert.equal(core.commands.filter(c => c.source === 'event').length, 11);
 assert.equal(core.commands.filter(c => c.source === 'generator').length, 2);
 assert.equal(core.commands.filter(c => c.source === 'query').length, 7);
+assert.equal(core.commands.filter(c => c.source === 'workshop').length, 3);
+assert.equal(core.requested('【系統指令】融合 世界甲 和 世界乙 世界觀').id, 'workshop-fusion');
+assert.equal(core.requested('【系統指令】自訂世界觀：浮空修仙世界').id, 'workshop-custom');
+assert.equal(core.requested('【系統指令】切換到 世界甲 世界觀').id, 'workshop-switch');
+assert.equal(core.requested('不要【系統指令】切換到 世界甲 世界觀'), null);
+assert.equal(core.requested('```\n【系統指令】自訂世界觀：浮空島\n```'), null);
 assert.equal(core.requested('【原作角色】\n作品：玩家作品，角色：夜舟').id, 'crossover-npc');
 for (const text of ['他是氣運之子', '不要原作角色', '「氣運之子」']) assert.equal(core.requested(text), null);
 assert.match(core.buildPrompt({ enabled: true, latestUser: '原作角色' }), /先詢問，不自行選定角色/);
@@ -65,11 +79,11 @@ const pack = portable.buildPack({ world: { enabledBuiltIns: [core.id] } });
 assert.deepEqual(pack.sections.world.enabledBuiltIns, [core.id], 'portable settings preserve the opted-in feature');
 const provenance = JSON.parse(fs.readFileSync('data/three-realms-event-director-provenance.json'));
 assert.equal(provenance.source_visibility, '公開');
-assert.deepEqual(provenance.records.map(r => r.source_index), [...Array.from({ length: 13 }, (_, i) => i + 173), 43,44,45,46,47,48,51]);
+assert.deepEqual(provenance.records.map(r => r.source_index), [...Array.from({ length: 13 }, (_, i) => i + 173), 43,44,45,46,47,48,51,32,49,50]);
 for (const record of provenance.records) {
   const profile = core.profiles.find(p => p.id === record.profile_id);
   const canonical = JSON.stringify(profile, (_key, value) => value && !Array.isArray(value) && typeof value === 'object' ? Object.fromEntries(Object.keys(value).sort().map(k => [k, value[k]])) : value);
   assert.equal(crypto.createHash('sha256').update(canonical).digest('hex'), record.profile_sha256);
   assert.match(record.source_sha256, /^[a-f0-9]{64}$/);
 }
-console.log('Three Realms events: 11 event, 2 character and 7 query profiles, explicit requests, opt-in, realm selection, bounded tail prompts, persistence and provenance passed.');
+console.log('Three Realms events: 11 event, 2 character and 7 query and 3 world-design profiles, explicit requests, opt-in, realm selection, bounded tail prompts, persistence and provenance passed.');

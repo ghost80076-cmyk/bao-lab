@@ -32,15 +32,16 @@
     return true;
   };
 
-  const groups = () => ({ ...core.grouped(App.activeCharacter || {}, state()), event: window.BAOThreeRealmsEvents?.commands?.() || [], generator: window.BAOThreeRealmsEvents?.commands?.('generator') || [], query: window.BAOThreeRealmsEvents?.commands?.('query') || [] });
+  const groups = () => ({ ...core.grouped(App.activeCharacter || {}, state()), event: window.BAOThreeRealmsEvents?.commands?.() || [], generator: window.BAOThreeRealmsEvents?.commands?.('generator') || [], query: window.BAOThreeRealmsEvents?.commands?.('query') || [], workshop: window.BAOThreeRealmsEvents?.commands?.('workshop') || [] });
   const summary = () => {
     const info = core.summary(App.activeCharacter || {}, state());
     const event = window.BAOThreeRealmsEvents?.commands?.() || [];
     const generator = window.BAOThreeRealmsEvents?.commands?.('generator') || [];
     const query = window.BAOThreeRealmsEvents?.commands?.('query') || [];
-    if (event.length || generator.length || query.length) {
-      info.title = `${info.groups.builtIn.length + info.groups.author.length + info.groups.player.length + event.length + generator.length + query.length} 個快捷指令`;
-      info.detail += ` · ${event.length} 種三界事件 · ${generator.length} 種角色構思 · ${query.length} 種查詢整理`;
+    const workshop = window.BAOThreeRealmsEvents?.commands?.('workshop') || [];
+    if (event.length || generator.length || query.length || workshop.length) {
+      info.title = `${info.groups.builtIn.length + info.groups.author.length + info.groups.player.length + event.length + generator.length + query.length + workshop.length} 個快捷指令`;
+      info.detail += ` · ${event.length} 種三界事件 · ${generator.length} 種角色構思 · ${query.length} 種查詢整理 · ${workshop.length} 種世界構思`;
     }
     return info;
   };
@@ -110,6 +111,7 @@
         ${groupHTML("三界事件", "選擇事件後填入輸入框，送出時才引導本輪故事。", commandGroups.event)}
         ${groupHTML("角色構思", "選擇氣運之子，或填入想融合的原作角色與作品。", commandGroups.generator)}
         ${groupHTML("查詢整理", "只整理故事中已知的關係、事件、物品與世界資訊。", commandGroups.query)}
+        ${groupHTML("世界構思", "提出融合、自訂或切換方案；這些指令不會自動修改故事。", commandGroups.workshop)}
         ${groupHTML("我的快捷指令", "只保存在目前這份故事。", commandGroups.player)}
 
         <details class="story-quick-editor">
@@ -187,13 +189,10 @@
       row.appendChild(button);
     }
     const info = summary();
-    const eventCount = groups().event.length;
+    const nativeGroups = groups();
+    const nativeCount = ['event', 'generator', 'query', 'workshop'].reduce((n, category) => n + nativeGroups[category].length, 0);
     button.textContent = `⌁ 快捷指令 · ${info.groups.author.length + info.groups.player.length ? info.groups.author.length + info.groups.player.length + " 個自訂" : "常用"}`;
-    if (eventCount) button.textContent += ` · ${eventCount} 種三界事件`;
-    const generatorCount = groups().generator.length;
-    if (generatorCount) button.textContent += ` · ${generatorCount} 種角色構思`;
-    const queryCount = groups().query.length;
-    if (queryCount) button.textContent += ` · ${queryCount} 種查詢整理`;
+    if (nativeCount) button.textContent += ' · 三界故事';
     button.title = "把常用故事要求填入輸入框，不會自動送出";
   };
 
