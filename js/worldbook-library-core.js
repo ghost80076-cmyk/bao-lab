@@ -74,7 +74,7 @@
         id: "entry-" + (index+1), title,
         category, mode: recallTerms.length ? "keyword" : "foundation",
         keywords: recallTerms, content: String(entry.content || "").trim(),
-        review_required: !recallTerms.length || ["規則", "自訂"].includes(category)
+        review_required: !keywords.length || ["規則", "自訂"].includes(category)
       };
     });
     return normalizePack({
