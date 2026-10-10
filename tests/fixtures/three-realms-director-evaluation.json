@@ -1,0 +1,85 @@
+{
+  "schema": "yorubay-director-evaluation-fixtures",
+  "version": 1,
+  "status": "evaluation-preparation-only",
+  "case_count": 12,
+  "scale": {
+    "scores": "人工 0–4 分；不使用模型自評作證據",
+    "critical": "違規／錯誤次數，必須為零",
+    "metrics": "記錄實際 API 次數、輸入／輸出 tokens、延遲與穩定前綴行為"
+  },
+  "cases": [
+    {
+      "id": "quiet-workday",
+      "genre": "romance",
+      "setup": "已熟悉的同伴各自整理工作，玩家選擇安靜看書。",
+      "human_review_focus": "允許安靜日常，不強制告白或新事件。"
+    },
+    {
+      "id": "relationship-boundary",
+      "genre": "romance",
+      "setup": "人物拒絕一項邀請，玩家改為詢問公開的工作安排。",
+      "human_review_focus": "尊重拒絕與最新提問，不自行升級關係。"
+    },
+    {
+      "id": "deadline-travel",
+      "genre": "trpg",
+      "setup": "已有兩日後到期的委託，故事明確過了一個下午；玩家仍在旅途中。",
+      "human_review_focus": "按已確認時間處理期限，不跳過剩餘旅程或直接判定失敗。"
+    },
+    {
+      "id": "separate-realm-route",
+      "genre": "trpg",
+      "setup": "人物使用下界鬥氣路線，玩家詢問下一階準備。",
+      "human_review_focus": "保留既定梯度；導演建議不授予突破或改為中界修仙。"
+    },
+    {
+      "id": "hidden-negotiation",
+      "genre": "faction",
+      "setup": "兩名離場人物有已建立的交易目標，玩家尚無情報管道。",
+      "human_review_focus": "可判斷隱藏動機與發展成熟度，不把隱藏情報直接交給玩家。"
+    },
+    {
+      "id": "valid-letter-channel",
+      "genre": "faction",
+      "setup": "一封正文已確認收到的信提及正在進行的談判。",
+      "human_review_focus": "只揭示信件能支持的資訊；不揭示未確認的陰謀結局。"
+    },
+    {
+      "id": "post-battle-recovery",
+      "genre": "survival",
+      "setup": "戰鬥已結束，人物正在休息處恢復，沒有已建立的新威脅。",
+      "human_review_focus": "允許恢復與冷卻，不為維持緊張任意增加襲擊或傷勢。"
+    },
+    {
+      "id": "confirmed-scarcity",
+      "genre": "survival",
+      "setup": "存檔確認糧食有限，正文確認消耗一餐，玩家決定尋找補給。",
+      "human_review_focus": "反映已確認消耗與目標，不憑導演壓力數值新增資源或災難。"
+    },
+    {
+      "id": "unrevealed-clue",
+      "genre": "mystery",
+      "setup": "線索仍藏在上鎖房間；玩家改去拜訪另一位人物。",
+      "human_review_focus": "不因導演知道答案而洩漏線索或強制玩家返回。"
+    },
+    {
+      "id": "quiet-unease",
+      "genre": "mystery",
+      "setup": "一處環境痕跡已確認但原因未知，玩家選擇暫時觀察。",
+      "human_review_focus": "容許未知與停頓，不必每輪驚嚇，不把猜測寫成真相。"
+    },
+    {
+      "id": "newest-action-invalidates-plan",
+      "genre": "general",
+      "setup": "上一輪準備會面，玩家最新決定取消並離開。",
+      "human_review_focus": "舊計畫重新判斷，不替玩家完成會面、台詞或情緒。"
+    },
+    {
+      "id": "proposal-is-not-state",
+      "genre": "general",
+      "setup": "玩家只要求角色退場構思，尚未選擇方案。",
+      "human_review_focus": "保持名冊、在場狀態與生命狀態，不將提案當成已發生事件。"
+    }
+  ]
+}
