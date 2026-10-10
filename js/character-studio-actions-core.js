@@ -130,5 +130,27 @@
     if (!card.gameplay_ui.panels.length) card.gameplay_ui = null;
     return card;
   }
-  return {addInventoryAction, inventoryActionOptions, updateInventoryAction, removeInventoryAction};
+  function createActionPreview(card) {
+    if (!object(card.initial_state?.modules) || !Array.isArray(card.world_modules)) fail('請先設定初始資源與世界模組。');
+    return {
+      modules:clone(card.initial_state.modules),
+      moduleDefinitions:clone(card.world_modules).map(def => ({...def,kind:def.kind || (['inventory','skills','quests','factions','equipment'].includes(def.id) ? 'collection' : 'object')})),
+      gameplayActionVersions:{}
+    };
+  }
+  function previewInventoryAction(card, location, previous) {
+    const {action} = resolveAction(card,location);
+    const state = previous ? clone(previous) : createActionPreview(card);
+    const result = core.executeActionEffect(state,action.effect);
+    const values = [];
+    if (result.ok) {
+      for (const change of result.effect.changes) values.push({label:change.path,value:core.getPath(state,change.path)});
+      for (const item of result.effect.items || []) {
+        const row = core.getPath(state,item.path).find(row=>row.id===item.id);
+        values.push({label:row.name || item.id,value:row.quantity});
+      }
+    }
+    return {state,ok:result.ok,reason:result.reason || '',label:action.label,values};
+  }
+  return {addInventoryAction, inventoryActionOptions, updateInventoryAction, removeInventoryAction, createActionPreview, previewInventoryAction};
 });

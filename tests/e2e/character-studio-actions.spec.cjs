@@ -79,3 +79,27 @@ test('author edits and removes existing actions without resetting resources',asy
  await expect(page.locator('#studio-action-list li')).toHaveCount(0);
  expect(await page.evaluate(()=>BAOCharacterStudio.readCard().initial_state.modules)).toEqual(card.initial_state.modules);
 });
+test('local action trial maintains an isolated sequence and resets',async({page})=>{
+ await page.goto('./character-studio.html');
+ await page.locator('#studio-gameplay-theme > summary').click();
+ await page.locator('#studio-add-inventory-action').click();
+ await page.locator('[name="action_kind"]').selectOption('consume');
+ await page.locator('[name="action_label"]').fill('食用罐頭');
+ await page.locator('[name="action_quantity"]').fill('1');
+ await page.locator('#studio-add-inventory-action').click();
+ const before=await page.evaluate(()=>JSON.stringify(BAOCharacterStudio.readCard()));
+ const output=page.locator('#studio-action-preview-status');
+ await page.getByRole('button',{name:'試算 食用罐頭',exact:true}).click();
+ await expect(output).toContainText('試算未完成');
+ await page.getByRole('button',{name:'試算 購買罐頭',exact:true}).click();
+ await expect(output).toContainText('crystals：5');await expect(output).toContainText('罐頭：2');
+ await page.getByRole('button',{name:'試算 購買罐頭',exact:true}).click();
+ await expect(output).toContainText('試算未完成');
+ await page.getByRole('button',{name:'試算 食用罐頭',exact:true}).click();
+ await expect(output).toContainText('罐頭：1');
+ expect(await page.evaluate(()=>JSON.stringify(BAOCharacterStudio.readCard()))).toBe(before);
+ await page.locator('#studio-reset-action-preview').click();
+ await expect(output).toContainText('試算已重設');
+ await page.getByRole('button',{name:'試算 食用罐頭',exact:true}).click();
+ await expect(output).toContainText('試算未完成');
+});

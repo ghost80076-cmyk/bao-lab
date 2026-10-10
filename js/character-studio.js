@@ -21,6 +21,7 @@
   let builtInIds = null;
   let showArchived = false;
   let editingAction = null;
+  let actionPreview = null;
 
   const id = () => `custom-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
   const safeImage = value => /^(https:\/\/[^\s]+|assets\/[a-zA-Z0-9_./-]+)$/.test(String(value || '')) ? value : DEFAULT_IMAGE;
@@ -56,6 +57,8 @@
     const list = $('studio-action-list');
     if (!list) return;
     list.replaceChildren();
+    actionPreview = null;
+    $('studio-action-preview-status').textContent = '試算會從初始資源開始，可連續測試多個按鈕；不會改動角色卡或故事存檔。';
     const visit = (sections, panel, tabLocation = {}) => (Array.isArray(sections) ? sections : []).forEach((section, index) => {
       if (!section || typeof section !== 'object') return;
       if (section.type === 'tabs' && tabLocation.tab === undefined) (Array.isArray(section.tabs) ? section.tabs : []).forEach((tab, tabIndex) => visit(tab?.sections,panel,{section:index,tab:tabIndex}));
@@ -64,6 +67,17 @@
         if (!item?.effect) return;
         const location = {panel,...tabLocation,...(tabLocation.tab === undefined ? {section:index} : {nestedSection:index}),item:itemIndex};
         const row = document.createElement('li'), label = document.createElement('span'); label.textContent = item.label || '原生操作'; row.append(label);
+        const test = document.createElement('button'); test.type = 'button'; test.className = 'secondary'; test.textContent = '試算'; test.setAttribute('aria-label','試算 '+label.textContent);
+        test.addEventListener('click', () => {
+          const output = $('studio-action-preview-status');
+          try {
+            const result = window.BAOCharacterStudioActionsCore.previewInventoryAction(readCard(),location,actionPreview);
+            actionPreview = result.state;
+            output.textContent = result.ok
+              ? '試算成功：'+result.label+'。'+result.values.map(item=>item.label+'：'+item.value).join('；')
+              : '試算未完成：'+result.reason+' 試算狀態保持不變。';
+          } catch(error) { output.textContent = '無法試算：'+error.message; }
+        }); row.append(test);
         const options = window.BAOCharacterStudioActionsCore.inventoryActionOptions(base,location);
         if (options) {
           const edit = document.createElement('button'); edit.type = 'button'; edit.className = 'secondary'; edit.textContent = '編輯'; edit.setAttribute('aria-label','編輯 '+label.textContent);
@@ -359,6 +373,7 @@
   form.addEventListener('submit', event => event.preventDefault());
   window.addEventListener('beforeunload', event => { if (dirty) { event.preventDefault(); event.returnValue = ''; } });
   run('studio-add-inventory-action', addInventoryAction);
+  $('studio-reset-action-preview').addEventListener('click', () => { actionPreview = null; $('studio-action-preview-status').textContent = '試算已重設，下次按鈕會從角色卡初始資源開始。'; });
   $('studio-cancel-action-edit').addEventListener('click', () => { finishActionEdit(); $('studio-action-status').textContent = '已取消編輯，原按鈕保留。'; });
   field('action_kind').addEventListener('change', syncPurchaseFields);
   syncPurchaseFields();
