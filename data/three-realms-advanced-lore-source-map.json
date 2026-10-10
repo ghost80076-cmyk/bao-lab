@@ -1,0 +1,1170 @@
+{
+  "schema": "yorubay-worldbook-source-map",
+  "version": 1,
+  "source_book_id": "b43bd078-1b19-46e8-bfc8-952660be367d",
+  "source_visibility": "公開",
+  "source_entry_count": 191,
+  "migrated_source_entries": 11,
+  "generated_entries": 153,
+  "records": [
+    {
+      "source_index": 139,
+      "source_title": "血脈系統-基本概念",
+      "source_sha256": "2f5160f6e23c24c95d4d627766d19bd40adc96852de0dde6cdfe287031c607f6",
+      "source_chars": 1662,
+      "destinations": [
+        {
+          "pack_id": "three-realms-advanced-lower-bloodlines",
+          "entry_id": "source-139-0",
+          "start": 0,
+          "end": 65,
+          "content_sha256": "a233a777dd7d7154c1ed0695fde86d3e3398e98705f39995c9371f645e27104e"
+        },
+        {
+          "pack_id": "three-realms-advanced-lower-bloodlines",
+          "entry_id": "source-139-1",
+          "start": 65,
+          "end": 239,
+          "content_sha256": "64ec49e328c3cb312a938c8306e82b3462bf95e28c9ad406013a76bf2a8b1b5c"
+        },
+        {
+          "pack_id": "three-realms-advanced-lower-bloodlines",
+          "entry_id": "source-139-2",
+          "start": 239,
+          "end": 575,
+          "content_sha256": "dad8eea831013fb68c561eac510ed101432011934017c2bafb0aa21a8c6901dd"
+        },
+        {
+          "pack_id": "three-realms-advanced-lower-bloodlines",
+          "entry_id": "source-139-3",
+          "start": 575,
+          "end": 723,
+          "content_sha256": "a37aa6b4e15f8a5ad89f0ccde93b77c4a80c62dc9c3cad836be17aa2e9e7b97a"
+        },
+        {
+          "pack_id": "three-realms-advanced-lower-bloodlines",
+          "entry_id": "source-139-4",
+          "start": 723,
+          "end": 939,
+          "content_sha256": "1b3b4dbc29dff17efcf9244db04e9d551e55b9f70fa9958249a343afc08005e7"
+        },
+        {
+          "pack_id": "three-realms-advanced-lower-bloodlines",
+          "entry_id": "source-139-5",
+          "start": 939,
+          "end": 1087,
+          "content_sha256": "22c63ae64a00206274333b72a744397ca620df685f29e139ede1b49a703a2fae"
+        },
+        {
+          "pack_id": "three-realms-advanced-lower-bloodlines",
+          "entry_id": "source-139-6",
+          "start": 1087,
+          "end": 1225,
+          "content_sha256": "50e04d77392b304211baf48eff6a2eaf2476a915d8d9c23313049245926062d5"
+        },
+        {
+          "pack_id": "three-realms-advanced-lower-bloodlines",
+          "entry_id": "source-139-7",
+          "start": 1225,
+          "end": 1348,
+          "content_sha256": "f430ce5a6b6d1502697bcfa6a9bead1dea03e0e9409cca77ea45aba550ddd586"
+        },
+        {
+          "pack_id": "three-realms-advanced-lower-bloodlines",
+          "entry_id": "source-139-8",
+          "start": 1348,
+          "end": 1487,
+          "content_sha256": "e61d40a611c2c2959ffec740015da8557c4f0ccb8a0bb7c4f45edf443e8c229a"
+        },
+        {
+          "pack_id": "three-realms-advanced-lower-bloodlines",
+          "entry_id": "source-139-9",
+          "start": 1487,
+          "end": 1662,
+          "content_sha256": "9f118f159ef9367e7a4735c92f463e6b58ce6508c55d4c6402527ae6d1a40378"
+        }
+      ]
+    },
+    {
+      "source_index": 140,
+      "source_title": "血脈系統-常見血脈",
+      "source_sha256": "133583e20288eb7a1a79be525a20ce0ea0ba6a7ecf0beee67ca4a556ba21c018",
+      "source_chars": 1990,
+      "destinations": [
+        {
+          "pack_id": "three-realms-advanced-lower-bloodlines",
+          "entry_id": "source-140-0",
+          "start": 0,
+          "end": 176,
+          "content_sha256": "f85fdaa8e9e1d48399ce93c174679b1d8d82112bbdc9022a32d5fce22fe71d9c"
+        },
+        {
+          "pack_id": "three-realms-advanced-lower-bloodlines",
+          "entry_id": "source-140-1",
+          "start": 176,
+          "end": 349,
+          "content_sha256": "dd57567171b3ae98d7cbd1f54aca02fda6821e6cdcb3ffa13312cd949cfbdffc"
+        },
+        {
+          "pack_id": "three-realms-advanced-lower-bloodlines",
+          "entry_id": "source-140-2",
+          "start": 349,
+          "end": 538,
+          "content_sha256": "18540ea368bfbfb3a58df1335126073df750b47a02ed300036ede666d31da08c"
+        },
+        {
+          "pack_id": "three-realms-advanced-lower-bloodlines",
+          "entry_id": "source-140-3",
+          "start": 538,
+          "end": 746,
+          "content_sha256": "f83f50784a9ffdf38712980444541886b1e2f28af46677a703f12401bd0fc2ec"
+        },
+        {
+          "pack_id": "three-realms-advanced-lower-bloodlines",
+          "entry_id": "source-140-4",
+          "start": 746,
+          "end": 929,
+          "content_sha256": "7b4043313872d236a98298110d6d50173a90ba0c47bee7d2678e087456e7e411"
+        },
+        {
+          "pack_id": "three-realms-advanced-lower-bloodlines",
+          "entry_id": "source-140-5",
+          "start": 929,
+          "end": 1114,
+          "content_sha256": "867ba70da0c49c70d425016139f3abca10eb9c587596ba5f664f5f991b675df3"
+        },
+        {
+          "pack_id": "three-realms-advanced-lower-bloodlines",
+          "entry_id": "source-140-6",
+          "start": 1114,
+          "end": 1301,
+          "content_sha256": "87188451d366f36c8888853f727a12fb6f31acadd521de44a94d8daf07e8ed93"
+        },
+        {
+          "pack_id": "three-realms-advanced-lower-bloodlines",
+          "entry_id": "source-140-7",
+          "start": 1301,
+          "end": 1476,
+          "content_sha256": "e9766c32a6d4d60b456720d9e3660ca61b6fc883e8e3ab8124bd4c59e0952e34"
+        },
+        {
+          "pack_id": "three-realms-advanced-lower-bloodlines",
+          "entry_id": "source-140-8",
+          "start": 1476,
+          "end": 1653,
+          "content_sha256": "f2c069b622933593ab4aacca7eaf13d6412784478254902d220deef50733e552"
+        },
+        {
+          "pack_id": "three-realms-advanced-lower-bloodlines",
+          "entry_id": "source-140-9",
+          "start": 1653,
+          "end": 1822,
+          "content_sha256": "85767ac09845c254c5df43bf8a3cab4e4b387435d998da1880dd81cd02d56f9e"
+        },
+        {
+          "pack_id": "three-realms-advanced-lower-bloodlines",
+          "entry_id": "source-140-10",
+          "start": 1822,
+          "end": 1990,
+          "content_sha256": "f41c98caa7c39ecba7dbd55a80a40eb32da8da796a01168e3d6d636adb9a81c9"
+        }
+      ]
+    },
+    {
+      "source_index": 147,
+      "source_title": "法則系統-基本概念",
+      "source_sha256": "c8236536a325f24f72051c66b745d97ee946a66253e16bbf8a09ac53ed683614",
+      "source_chars": 1721,
+      "destinations": [
+        {
+          "pack_id": "three-realms-advanced-laws",
+          "entry_id": "source-147-0",
+          "start": 0,
+          "end": 59,
+          "content_sha256": "3483fa0327447f7476c33082894782176ae0b21bca731be4a69662866fd3f525"
+        },
+        {
+          "pack_id": "three-realms-advanced-laws",
+          "entry_id": "source-147-1",
+          "start": 59,
+          "end": 399,
+          "content_sha256": "a07be588d6580a8e3e44936dcdcb8c36c1bbaed4ae66e81da43beb79adb67959"
+        },
+        {
+          "pack_id": "three-realms-advanced-laws",
+          "entry_id": "source-147-2",
+          "start": 399,
+          "end": 462,
+          "content_sha256": "eed6fb26b6fb6c76eff93bc601acff78a60c3c57317cf6ae580159882f6dd399"
+        },
+        {
+          "pack_id": "three-realms-advanced-laws",
+          "entry_id": "source-147-3",
+          "start": 462,
+          "end": 491,
+          "content_sha256": "c1b695602f6d94f1d840119d460acab63008652f2957836c009a3bf6019cfe87"
+        },
+        {
+          "pack_id": "three-realms-advanced-laws",
+          "entry_id": "source-147-4",
+          "start": 491,
+          "end": 519,
+          "content_sha256": "02576ee5ed44e652ddd378536ac76c6a904f0800c55a25fd481e9ed47dd483e5"
+        },
+        {
+          "pack_id": "three-realms-advanced-laws",
+          "entry_id": "source-147-5",
+          "start": 519,
+          "end": 552,
+          "content_sha256": "4203636695be320186ce27a1d190ccb47e1be7d0be82d1f9051b620c0f6db56f"
+        },
+        {
+          "pack_id": "three-realms-advanced-laws",
+          "entry_id": "source-147-6",
+          "start": 552,
+          "end": 602,
+          "content_sha256": "64bfc50229667d21ca748eeb5647e451e4f919065237c5c9a9553d5b262f4178"
+        },
+        {
+          "pack_id": "three-realms-advanced-laws",
+          "entry_id": "source-147-7",
+          "start": 602,
+          "end": 648,
+          "content_sha256": "ccc13ad9577be32d94999fc800e5aa75c38273b3c7c1d69c95f4e5ac1d0492f5"
+        },
+        {
+          "pack_id": "three-realms-advanced-laws",
+          "entry_id": "source-147-8",
+          "start": 648,
+          "end": 679,
+          "content_sha256": "e686c5d04d311aab51927d41ad98f9c532778076a4a7ac9f0b7ae244494f5022"
+        },
+        {
+          "pack_id": "three-realms-advanced-laws",
+          "entry_id": "source-147-9",
+          "start": 679,
+          "end": 709,
+          "content_sha256": "aa4ee7bc6f5060ab892397be241b3e92a14f86c324d7a7fbc539f21ed2ea6c2c"
+        },
+        {
+          "pack_id": "three-realms-advanced-laws",
+          "entry_id": "source-147-10",
+          "start": 709,
+          "end": 742,
+          "content_sha256": "0eaa466fe231fcbb7529a8ccca94d76a5ae09bbc33016d55cb73946820fe8994"
+        },
+        {
+          "pack_id": "three-realms-advanced-laws",
+          "entry_id": "source-147-11",
+          "start": 742,
+          "end": 775,
+          "content_sha256": "2c3e4367aae9069c27ded4a9512645930ded9185d4a7cf98774303438a4550d5"
+        },
+        {
+          "pack_id": "three-realms-advanced-laws",
+          "entry_id": "source-147-12",
+          "start": 775,
+          "end": 812,
+          "content_sha256": "70aed81fe5b83e5ad523004d4f586158d5f7c517424c239d28c812bbe7f7ac2c"
+        },
+        {
+          "pack_id": "three-realms-advanced-laws",
+          "entry_id": "source-147-13",
+          "start": 812,
+          "end": 851,
+          "content_sha256": "7438307ecf5310757264123c12c6b6c267b11d23ed4bb8594e19dbac8b9ffcab"
+        },
+        {
+          "pack_id": "three-realms-advanced-laws",
+          "entry_id": "source-147-14",
+          "start": 851,
+          "end": 880,
+          "content_sha256": "c02ba7baabdde427ff16a2e6ae555094c1ec8dcd8317d2f02054534375375a97"
+        },
+        {
+          "pack_id": "three-realms-advanced-laws",
+          "entry_id": "source-147-15",
+          "start": 880,
+          "end": 909,
+          "content_sha256": "99e108584b2ef72362bb46d62b6d881cded5cfa5310160abdc91b4d13820c346"
+        },
+        {
+          "pack_id": "three-realms-advanced-laws",
+          "entry_id": "source-147-16",
+          "start": 909,
+          "end": 942,
+          "content_sha256": "252952134a77cd52e6361f598f9ebbcb8102cb058b2ad3136581681965fb8ce2"
+        },
+        {
+          "pack_id": "three-realms-advanced-laws",
+          "entry_id": "source-147-17",
+          "start": 942,
+          "end": 975,
+          "content_sha256": "6c57fa0f597a6e5bbffe2cccfc38e8aefea9d5cc6c9f7a15055f861187388b07"
+        },
+        {
+          "pack_id": "three-realms-advanced-laws",
+          "entry_id": "source-147-18",
+          "start": 975,
+          "end": 1007,
+          "content_sha256": "72370d7063576b92b636f40a061c620024c528ab8827955e824e188ca9a99a40"
+        },
+        {
+          "pack_id": "three-realms-advanced-laws",
+          "entry_id": "source-147-19",
+          "start": 1007,
+          "end": 1044,
+          "content_sha256": "d673b53bce3f81456bc862901941a6cd88014e3f65beb7337c28d6868df77c31"
+        },
+        {
+          "pack_id": "three-realms-advanced-laws",
+          "entry_id": "source-147-20",
+          "start": 1044,
+          "end": 1247,
+          "content_sha256": "6e675da637765329d002e5d7cd0934d3150b4943ed872e9b88679801f7fc2dba"
+        },
+        {
+          "pack_id": "three-realms-advanced-laws",
+          "entry_id": "source-147-21",
+          "start": 1247,
+          "end": 1395,
+          "content_sha256": "5a8e4873d48fb5c2572ff6ecc633a68ddfcc56bf3a774bcda4e2f10f06385a4e"
+        },
+        {
+          "pack_id": "three-realms-advanced-laws",
+          "entry_id": "source-147-22",
+          "start": 1395,
+          "end": 1498,
+          "content_sha256": "7f840b9b36e053d7a45f5eeaa5b6e168dc3683741525aec766e46b8671b9450e"
+        },
+        {
+          "pack_id": "three-realms-advanced-laws",
+          "entry_id": "source-147-23",
+          "start": 1498,
+          "end": 1721,
+          "content_sha256": "0e93748587debbb45edc6751b702f4b5079eefabf1d68160934c79a61ecda578"
+        }
+      ]
+    },
+    {
+      "source_index": 148,
+      "source_title": "法則系統-常見法則詳解",
+      "source_sha256": "27e3382ce43ffbf8e3e35b7d9f35b82489d75e8e263a79e3e9e3226ff8871fa0",
+      "source_chars": 1785,
+      "destinations": [
+        {
+          "pack_id": "three-realms-advanced-laws",
+          "entry_id": "source-148-0",
+          "start": 0,
+          "end": 124,
+          "content_sha256": "0c82c3b6a503d5fb83e27070f69e223c8a220e43ab24f4a8679e196a83776d1f"
+        },
+        {
+          "pack_id": "three-realms-advanced-laws",
+          "entry_id": "source-148-1",
+          "start": 124,
+          "end": 237,
+          "content_sha256": "258d35956530224056cf2188636a72ff2ced10e4be64e3b12f9b7df955a04a09"
+        },
+        {
+          "pack_id": "three-realms-advanced-laws",
+          "entry_id": "source-148-2",
+          "start": 237,
+          "end": 345,
+          "content_sha256": "12aac8ca085bc1b1945d707a76a59c5ef9a147353b8e07f23422e89243a6eb3a"
+        },
+        {
+          "pack_id": "three-realms-advanced-laws",
+          "entry_id": "source-148-3",
+          "start": 345,
+          "end": 453,
+          "content_sha256": "259aa94d0db4486c2292ceb56e7e81a877bdab59a0c7b75007745da27b378864"
+        },
+        {
+          "pack_id": "three-realms-advanced-laws",
+          "entry_id": "source-148-4",
+          "start": 453,
+          "end": 560,
+          "content_sha256": "037961cc2e60c0dc05ee6e85a7eeda352d722e87ad409c42d448f2e12e10f46e"
+        },
+        {
+          "pack_id": "three-realms-advanced-laws",
+          "entry_id": "source-148-5",
+          "start": 560,
+          "end": 812,
+          "content_sha256": "59e7dd0ac8ef9adadccef1a9129791a91670d737ed9ebd3d01ffbbc59cabe5e0"
+        },
+        {
+          "pack_id": "three-realms-advanced-laws",
+          "entry_id": "source-148-6",
+          "start": 812,
+          "end": 1080,
+          "content_sha256": "b3b95c5057dd39d99a956eeef9b0c5b482c69314b6a2e12728a624f197ab7e35"
+        },
+        {
+          "pack_id": "three-realms-advanced-laws",
+          "entry_id": "source-148-7",
+          "start": 1080,
+          "end": 1308,
+          "content_sha256": "d454ede21c1cb4b724fa4dc61af54c353ba281114f36c6e2319c60a7e28f08cc"
+        },
+        {
+          "pack_id": "three-realms-advanced-laws",
+          "entry_id": "source-148-8",
+          "start": 1308,
+          "end": 1547,
+          "content_sha256": "333c7f60cdd9ab5b437ef53faf937fe1d12d901fd7afef03ff062f50acd15cd2"
+        },
+        {
+          "pack_id": "three-realms-advanced-laws",
+          "entry_id": "source-148-9",
+          "start": 1547,
+          "end": 1785,
+          "content_sha256": "83cf857a986055607496a0605087ca4752d58acc87074ea9434b44ed2559be12"
+        }
+      ]
+    },
+    {
+      "source_index": 149,
+      "source_title": "仙器系統-基本概念",
+      "source_sha256": "b9a4afe326bfb19399ef4d84b859ddf2adfa7c6cffbee65a3d6dabeabd45c2cb",
+      "source_chars": 1802,
+      "destinations": [
+        {
+          "pack_id": "three-realms-advanced-artifacts",
+          "entry_id": "source-149-0",
+          "start": 0,
+          "end": 54,
+          "content_sha256": "947dfc3e7013679813b32d81ed7caec63a665f060131ebb190fbbf0ee92b6fa5"
+        },
+        {
+          "pack_id": "three-realms-advanced-artifacts",
+          "entry_id": "source-149-1",
+          "start": 54,
+          "end": 534,
+          "content_sha256": "647f5db766484509a6b54d5cdab29b23a8d5020c80be07f1b0faa2700b5f977e"
+        },
+        {
+          "pack_id": "three-realms-advanced-artifacts",
+          "entry_id": "source-149-2",
+          "start": 534,
+          "end": 732,
+          "content_sha256": "b46fb7827ae611ed4c17bf87260d4d9d0e160ee885584951b51f9445624ca23a"
+        },
+        {
+          "pack_id": "three-realms-advanced-artifacts",
+          "entry_id": "source-149-3",
+          "start": 732,
+          "end": 887,
+          "content_sha256": "5af5fee2789f2f7126110ca397a0ffbc3823fff9517a5222e13e39867808397f"
+        },
+        {
+          "pack_id": "three-realms-advanced-artifacts",
+          "entry_id": "source-149-4",
+          "start": 887,
+          "end": 1127,
+          "content_sha256": "08922d8bae6e346bc5527115ece469a67741fabcfc73e7c51840ed47a3d8c733"
+        },
+        {
+          "pack_id": "three-realms-advanced-artifacts",
+          "entry_id": "source-149-5",
+          "start": 1127,
+          "end": 1298,
+          "content_sha256": "d81a6ef2ad9f3e33020ff1f9975590f0f3f9ef43d3a8fb4b94c9f5ae959bc0ea"
+        },
+        {
+          "pack_id": "three-realms-advanced-artifacts",
+          "entry_id": "source-149-6",
+          "start": 1298,
+          "end": 1487,
+          "content_sha256": "68d3eedf44430f399b4edf1627d68e5c80ead6804ac660cef8cfd10db470c673"
+        },
+        {
+          "pack_id": "three-realms-advanced-artifacts",
+          "entry_id": "source-149-7",
+          "start": 1487,
+          "end": 1606,
+          "content_sha256": "33b0c0a248361a9c9ef466be6a9fa03a9845850c95375a1dbffbeade0f3035d4"
+        },
+        {
+          "pack_id": "three-realms-advanced-artifacts",
+          "entry_id": "source-149-8",
+          "start": 1606,
+          "end": 1802,
+          "content_sha256": "88ef06a861ff175ec080b6bce17e92f4fe82733e4724288d4e2bdca9424958ab"
+        }
+      ]
+    },
+    {
+      "source_index": 150,
+      "source_title": "仙器系統-常見仙器",
+      "source_sha256": "d6177ed97400e1d519e5d96d23f4e1dfd545dae2628790fd58bc77153b4dbfb9",
+      "source_chars": 1678,
+      "destinations": [
+        {
+          "pack_id": "three-realms-advanced-artifacts",
+          "entry_id": "source-150-0",
+          "start": 0,
+          "end": 130,
+          "content_sha256": "60ec45feedb7c2cd300c9e243d09388ef41b530d8c1299837468e047f04ba0db"
+        },
+        {
+          "pack_id": "three-realms-advanced-artifacts",
+          "entry_id": "source-150-1",
+          "start": 130,
+          "end": 253,
+          "content_sha256": "18f513442e76f261efa26af35ffd0bb695693157f966e122043b94d5142e749b"
+        },
+        {
+          "pack_id": "three-realms-advanced-artifacts",
+          "entry_id": "source-150-2",
+          "start": 253,
+          "end": 403,
+          "content_sha256": "828bef5ced6fa3dcdbd5eb2474b66cf7af3db1ba7759c5b9e30f6ea19dd9b2e9"
+        },
+        {
+          "pack_id": "three-realms-advanced-artifacts",
+          "entry_id": "source-150-3",
+          "start": 403,
+          "end": 567,
+          "content_sha256": "ed809c2d0dffed419dbce08bbf535f21fd05df8b8893ef7dd3ff6860f5176c3e"
+        },
+        {
+          "pack_id": "three-realms-advanced-artifacts",
+          "entry_id": "source-150-4",
+          "start": 567,
+          "end": 699,
+          "content_sha256": "545347edc0cbaf12d132da441be3591b6eb884186c4be0557e9ca651e5f26f89"
+        },
+        {
+          "pack_id": "three-realms-advanced-artifacts",
+          "entry_id": "source-150-5",
+          "start": 699,
+          "end": 851,
+          "content_sha256": "7a4b0c54e16d880f9d55b352639b9eb7eb6f55196de77c7f22990cef1a9c3ddc"
+        },
+        {
+          "pack_id": "three-realms-advanced-artifacts",
+          "entry_id": "source-150-6",
+          "start": 851,
+          "end": 974,
+          "content_sha256": "20cf70b7bf47e395ada6765887dcbedd4ef1aa76e213feb0fad34348f466d69e"
+        },
+        {
+          "pack_id": "three-realms-advanced-artifacts",
+          "entry_id": "source-150-7",
+          "start": 974,
+          "end": 1100,
+          "content_sha256": "0bbc1c707a0ca68022a223215510443ab9edf5661b8eec573825775182e1d10e"
+        },
+        {
+          "pack_id": "three-realms-advanced-artifacts",
+          "entry_id": "source-150-8",
+          "start": 1100,
+          "end": 1257,
+          "content_sha256": "772f56f31597de95647ec3900cd8667414def0cc341e8791b19f9246bd1d2068"
+        },
+        {
+          "pack_id": "three-realms-advanced-artifacts",
+          "entry_id": "source-150-9",
+          "start": 1257,
+          "end": 1389,
+          "content_sha256": "acbcb8ad64aded421e5b7ef2cfb96e7c2c757debed8ca3833aa5dbfc4ca077bb"
+        },
+        {
+          "pack_id": "three-realms-advanced-artifacts",
+          "entry_id": "source-150-10",
+          "start": 1389,
+          "end": 1522,
+          "content_sha256": "096991dfda3c36d8e2659737b7603fc4691a536fb163684001669d48708d1fe4"
+        },
+        {
+          "pack_id": "three-realms-advanced-artifacts",
+          "entry_id": "source-150-11",
+          "start": 1522,
+          "end": 1678,
+          "content_sha256": "19084a02d8a1c4bed503997833887744d030fd3d452efd3e13f827a92541a4c6"
+        }
+      ]
+    },
+    {
+      "source_index": 151,
+      "source_title": "仙器系統-常見仙器",
+      "source_sha256": "820c7189d35e88fa77c13eecd10813ac8a0463fa3fb3551775f54f7a2133ae71",
+      "source_chars": 1263,
+      "destinations": [
+        {
+          "pack_id": "three-realms-advanced-artifacts",
+          "entry_id": "source-151-0",
+          "start": 0,
+          "end": 119,
+          "content_sha256": "b4beb2a515ba5318b82127636b43ff4a389c92ac3b4b527d627973a7a3d25403"
+        },
+        {
+          "pack_id": "three-realms-advanced-artifacts",
+          "entry_id": "source-151-1",
+          "start": 119,
+          "end": 249,
+          "content_sha256": "2b725638424d889c5357fe139a00a9a743ddfeb74b99e8c98e6d07c819a65175"
+        },
+        {
+          "pack_id": "three-realms-advanced-artifacts",
+          "entry_id": "source-151-2",
+          "start": 249,
+          "end": 420,
+          "content_sha256": "7028f75fe1764f3a8f69044fc816ada763faf452b365b5e08ab651657d169469"
+        },
+        {
+          "pack_id": "three-realms-advanced-artifacts",
+          "entry_id": "source-151-3",
+          "start": 420,
+          "end": 544,
+          "content_sha256": "0b55776e151ce5a3e8f5366f5e9d4d90245bcf59f55263ac0059d260d8be26a0"
+        },
+        {
+          "pack_id": "three-realms-advanced-artifacts",
+          "entry_id": "source-151-4",
+          "start": 544,
+          "end": 655,
+          "content_sha256": "18273e4abcdd0f678063c9061536f642288d7b23d6c2bbad590fda006389818e"
+        },
+        {
+          "pack_id": "three-realms-advanced-artifacts",
+          "entry_id": "source-151-5",
+          "start": 655,
+          "end": 822,
+          "content_sha256": "883abd000a3f2659f1620ab35d6c27782168600786e443daf877a7f813f06f4d"
+        },
+        {
+          "pack_id": "three-realms-advanced-artifacts",
+          "entry_id": "source-151-6",
+          "start": 822,
+          "end": 948,
+          "content_sha256": "784121d43455ff608cb5dacd6be4fa1620706c3f2878283eb9738a6aee0c478c"
+        },
+        {
+          "pack_id": "three-realms-advanced-artifacts",
+          "entry_id": "source-151-7",
+          "start": 948,
+          "end": 1099,
+          "content_sha256": "3741c182a8c03a0976065bfe4cc9c03a1b2e48813a2c55dbc906124ac75df45e"
+        },
+        {
+          "pack_id": "three-realms-advanced-artifacts",
+          "entry_id": "source-151-8",
+          "start": 1099,
+          "end": 1263,
+          "content_sha256": "2d4d4bfec5e5c050c35402271c8b8b87f1df1dd29e84dbd5873b234beba1df40"
+        }
+      ]
+    },
+    {
+      "source_index": 168,
+      "source_title": "中界血脈系統-基本概念",
+      "source_sha256": "961a05ad936c1b751e69eb5240cd037593f73c63454b2a03d148130c669d7d34",
+      "source_chars": 1796,
+      "destinations": [
+        {
+          "pack_id": "three-realms-advanced-middle-bloodlines",
+          "entry_id": "source-168-0",
+          "start": 0,
+          "end": 66,
+          "content_sha256": "80101560c6753bf82e467db3dd4c675189428f23d229935d136ca1ade7576e20"
+        },
+        {
+          "pack_id": "three-realms-advanced-middle-bloodlines",
+          "entry_id": "source-168-1",
+          "start": 66,
+          "end": 473,
+          "content_sha256": "97baf4b38152911ef10d6b727f77bc79606351e5ba917c1910fb1ad1d10d1745"
+        },
+        {
+          "pack_id": "three-realms-advanced-middle-bloodlines",
+          "entry_id": "source-168-2",
+          "start": 473,
+          "end": 749,
+          "content_sha256": "10c02493ea65f8f1a0e8af49a99d73bece6eb96fb6946b9591fcd52ec8641025"
+        },
+        {
+          "pack_id": "three-realms-advanced-middle-bloodlines",
+          "entry_id": "source-168-3",
+          "start": 749,
+          "end": 823,
+          "content_sha256": "240712e4763b3d5b296ab6728e84300bacf7889604a5bb48b5c00c2ef1f08935"
+        },
+        {
+          "pack_id": "three-realms-advanced-middle-bloodlines",
+          "entry_id": "source-168-4",
+          "start": 823,
+          "end": 879,
+          "content_sha256": "f80e351a10e25648c91f82bdb99408e7e1b098b416f32d73caa6623fd330ce00"
+        },
+        {
+          "pack_id": "three-realms-advanced-middle-bloodlines",
+          "entry_id": "source-168-5",
+          "start": 879,
+          "end": 933,
+          "content_sha256": "4c655df0c412a5158cc437acf26caf72a5f702862256ca0bb12835f7882da0aa"
+        },
+        {
+          "pack_id": "three-realms-advanced-middle-bloodlines",
+          "entry_id": "source-168-6",
+          "start": 933,
+          "end": 987,
+          "content_sha256": "873073a4fcfcd6c324f0b79642efc7ce71e85f8ca14c3ea71be302f24c73ccc4"
+        },
+        {
+          "pack_id": "three-realms-advanced-middle-bloodlines",
+          "entry_id": "source-168-7",
+          "start": 987,
+          "end": 1039,
+          "content_sha256": "9c03dd51d5729f11e0dd32b8ba4d28aa03296ed6c859d484fdd4ebd383d3edc9"
+        },
+        {
+          "pack_id": "three-realms-advanced-middle-bloodlines",
+          "entry_id": "source-168-8",
+          "start": 1039,
+          "end": 1090,
+          "content_sha256": "1f634d4ca4e269916eef63f2732e46c531a597d672bfff2d2bfbed009633a2d6"
+        },
+        {
+          "pack_id": "three-realms-advanced-middle-bloodlines",
+          "entry_id": "source-168-9",
+          "start": 1090,
+          "end": 1147,
+          "content_sha256": "02b5d6f7d4169e857166a014452612adbdfa3efd2017f7f84d6ff8065a53c40c"
+        },
+        {
+          "pack_id": "three-realms-advanced-middle-bloodlines",
+          "entry_id": "source-168-10",
+          "start": 1147,
+          "end": 1202,
+          "content_sha256": "d9d9a63a20537b69b3d07b72a93f29c193f29326313243e3cc98ca49aec2ee19"
+        },
+        {
+          "pack_id": "three-realms-advanced-middle-bloodlines",
+          "entry_id": "source-168-11",
+          "start": 1202,
+          "end": 1248,
+          "content_sha256": "eb3749443d7ee9ef44e614fdf610b4bd78a9e47491c60150aa341ebd468c0043"
+        },
+        {
+          "pack_id": "three-realms-advanced-middle-bloodlines",
+          "entry_id": "source-168-12",
+          "start": 1248,
+          "end": 1293,
+          "content_sha256": "ad9705043fd089bfe37964d026a3bac33316c0c83d52081c676447e243e62719"
+        },
+        {
+          "pack_id": "three-realms-advanced-middle-bloodlines",
+          "entry_id": "source-168-13",
+          "start": 1293,
+          "end": 1338,
+          "content_sha256": "8728c513d306b58e0238b1a582b138f8ceb84adf7d536e18f2781cb0b24e9bc1"
+        },
+        {
+          "pack_id": "three-realms-advanced-middle-bloodlines",
+          "entry_id": "source-168-14",
+          "start": 1338,
+          "end": 1379,
+          "content_sha256": "34acaaebd7eb2843dde153c5e47bec957285d6f8c60efc8b3c5d7a122139eaae"
+        },
+        {
+          "pack_id": "three-realms-advanced-middle-bloodlines",
+          "entry_id": "source-168-15",
+          "start": 1379,
+          "end": 1427,
+          "content_sha256": "98ae785a037e524a1b4b54efcd9bf35e7e650c6b954410e7cab525ff42a15619"
+        },
+        {
+          "pack_id": "three-realms-advanced-middle-bloodlines",
+          "entry_id": "source-168-16",
+          "start": 1427,
+          "end": 1478,
+          "content_sha256": "e5cd6f371add2e734a6e6bba45c63c41bd39171fc787111f1bff8564ff93366a"
+        },
+        {
+          "pack_id": "three-realms-advanced-middle-bloodlines",
+          "entry_id": "source-168-17",
+          "start": 1478,
+          "end": 1524,
+          "content_sha256": "9d6777b61fe6cd0820c6948de768ebc5b2023941f03aed9e8fa98118c0bdcc99"
+        },
+        {
+          "pack_id": "three-realms-advanced-middle-bloodlines",
+          "entry_id": "source-168-18",
+          "start": 1524,
+          "end": 1570,
+          "content_sha256": "2f0c622523ea46d6d7e101f08c0d361ad11fc30d32f8fb20585998ef0c825f61"
+        },
+        {
+          "pack_id": "three-realms-advanced-middle-bloodlines",
+          "entry_id": "source-168-19",
+          "start": 1570,
+          "end": 1614,
+          "content_sha256": "d904443d0b8a76da76a7099860b81600877c53570f087f6128eed078c7513cde"
+        },
+        {
+          "pack_id": "three-realms-advanced-middle-bloodlines",
+          "entry_id": "source-168-20",
+          "start": 1614,
+          "end": 1664,
+          "content_sha256": "a1dd76a19baf17fde1c78d95d4c1e5ee010d851f3a690cade91738bd3f68ff52"
+        },
+        {
+          "pack_id": "three-realms-advanced-middle-bloodlines",
+          "entry_id": "source-168-21",
+          "start": 1664,
+          "end": 1718,
+          "content_sha256": "812cd941adc356585af2bc7b5a85c4cfb4e2789ce740022ff1ef796a982c078f"
+        },
+        {
+          "pack_id": "three-realms-advanced-middle-bloodlines",
+          "entry_id": "source-168-22",
+          "start": 1718,
+          "end": 1757,
+          "content_sha256": "8e1e19cffb2834701227c8fc6bdaf27915cc6bcdd56751c9de143191fcf458e8"
+        },
+        {
+          "pack_id": "three-realms-advanced-middle-bloodlines",
+          "entry_id": "source-168-23",
+          "start": 1757,
+          "end": 1796,
+          "content_sha256": "75d2cc197b0890eab42c7f224f973c0502e91a6acb3a2a4c55907ebaa4677a4a"
+        }
+      ]
+    },
+    {
+      "source_index": 169,
+      "source_title": "中界血脈系統-基本概念",
+      "source_sha256": "a77c6dc96aa3e69beacda5e5d76d3f82dfcb9b3e4375625c2453ae61a66cccdb",
+      "source_chars": 1285,
+      "destinations": [
+        {
+          "pack_id": "three-realms-advanced-middle-bloodlines",
+          "entry_id": "source-169-0",
+          "start": 0,
+          "end": 216,
+          "content_sha256": "a73bc74fa43c102550bd0c1694323e22b8a88a4d7931f410995de9ec5d423096"
+        },
+        {
+          "pack_id": "three-realms-advanced-middle-bloodlines",
+          "entry_id": "source-169-1",
+          "start": 216,
+          "end": 457,
+          "content_sha256": "5f74dd49e9611611022b6aa7108675150ab48d9f8ebd3bbfdbb4a51173143f82"
+        },
+        {
+          "pack_id": "three-realms-advanced-middle-bloodlines",
+          "entry_id": "source-169-2",
+          "start": 457,
+          "end": 670,
+          "content_sha256": "55077c2ef5fe4236058bfb11a239c212bb8978dea3667d0911faf8376c8e2392"
+        },
+        {
+          "pack_id": "three-realms-advanced-middle-bloodlines",
+          "entry_id": "source-169-3",
+          "start": 670,
+          "end": 851,
+          "content_sha256": "37325ad657b5a934a0ad088a0e31d0739daaca891929e64d1c75673c489449d0"
+        },
+        {
+          "pack_id": "three-realms-advanced-middle-bloodlines",
+          "entry_id": "source-169-4",
+          "start": 851,
+          "end": 1027,
+          "content_sha256": "666279c71aa78085688c8f7915ee60087bad7ad8409f4b460ffdabe4920a77bd"
+        },
+        {
+          "pack_id": "three-realms-advanced-middle-bloodlines",
+          "entry_id": "source-169-5",
+          "start": 1027,
+          "end": 1285,
+          "content_sha256": "3a28b50978fdc5889cff45888c8352adcb580a23770ee8a80fac03d06dd271e9"
+        }
+      ]
+    },
+    {
+      "source_index": 170,
+      "source_title": "神通系統-基本概念",
+      "source_sha256": "4e9e6a4fb54dd1051d8e4d780f086966da81e66f32796067884f3f2c92bd263a",
+      "source_chars": 1840,
+      "destinations": [
+        {
+          "pack_id": "three-realms-advanced-abilities",
+          "entry_id": "source-170-0",
+          "start": 0,
+          "end": 56,
+          "content_sha256": "0695b530f53f15e094bdbb64e578f19308968cfdef515af46d310f84013caced"
+        },
+        {
+          "pack_id": "three-realms-advanced-abilities",
+          "entry_id": "source-170-1",
+          "start": 56,
+          "end": 207,
+          "content_sha256": "d5d574c231dc02d05123e19e700ed0e806e02a1a3b773857995cc1dd10f6bc10"
+        },
+        {
+          "pack_id": "three-realms-advanced-abilities",
+          "entry_id": "source-170-2",
+          "start": 207,
+          "end": 484,
+          "content_sha256": "e8849b9f640a27ea24dc2d706e01cd39d9c0784d0d0d04cc2c870c0df386ca40"
+        },
+        {
+          "pack_id": "three-realms-advanced-abilities",
+          "entry_id": "source-170-3",
+          "start": 484,
+          "end": 608,
+          "content_sha256": "b315c9df51210532cb4bc16459b416a155ef6006fe51dbea02c058b1f64a580f"
+        },
+        {
+          "pack_id": "three-realms-advanced-abilities",
+          "entry_id": "source-170-4",
+          "start": 608,
+          "end": 702,
+          "content_sha256": "f88e232ad1b4314ae36d7198c96a98ca888dafa5e136fb7a278be8526417925a"
+        },
+        {
+          "pack_id": "three-realms-advanced-abilities",
+          "entry_id": "source-170-5",
+          "start": 702,
+          "end": 786,
+          "content_sha256": "aef588255f4765f20c5fada60bc95dc6b008487ba2c3cb8082b2cc2d03075f12"
+        },
+        {
+          "pack_id": "three-realms-advanced-abilities",
+          "entry_id": "source-170-6",
+          "start": 786,
+          "end": 870,
+          "content_sha256": "bf8e215a3e4909a86f0823f9b6f689b6baf24b422913494b15b5c0cd782a856d"
+        },
+        {
+          "pack_id": "three-realms-advanced-abilities",
+          "entry_id": "source-170-7",
+          "start": 870,
+          "end": 960,
+          "content_sha256": "21debe8d0a2d4fade673a35b39899a854818b1726a8268a5f04d29308fd6e5d8"
+        },
+        {
+          "pack_id": "three-realms-advanced-abilities",
+          "entry_id": "source-170-8",
+          "start": 960,
+          "end": 1047,
+          "content_sha256": "620bbc6d65abbb31f239c6198b4827e4c4661204c4aadad732c6019717db545c"
+        },
+        {
+          "pack_id": "three-realms-advanced-abilities",
+          "entry_id": "source-170-9",
+          "start": 1047,
+          "end": 1135,
+          "content_sha256": "031405f911b026d652004763ff1603316fe00d5af2c63ecac5aa286e521c15c8"
+        },
+        {
+          "pack_id": "three-realms-advanced-abilities",
+          "entry_id": "source-170-10",
+          "start": 1135,
+          "end": 1210,
+          "content_sha256": "66d06d1d4d2689ae770a25fcee0e9464655cf10ab8808f898e2eb8d8263d4d76"
+        },
+        {
+          "pack_id": "three-realms-advanced-abilities",
+          "entry_id": "source-170-11",
+          "start": 1210,
+          "end": 1287,
+          "content_sha256": "1091b92d4095454e67872e78f2959edd4846dc44d1a2540cf376b8dd5a347cd1"
+        },
+        {
+          "pack_id": "three-realms-advanced-abilities",
+          "entry_id": "source-170-12",
+          "start": 1287,
+          "end": 1377,
+          "content_sha256": "9dec45f52110d7f856c2c269a8d7ea4d78d56d51634e0f0d13ccc94a82c5f4b9"
+        },
+        {
+          "pack_id": "three-realms-advanced-abilities",
+          "entry_id": "source-170-13",
+          "start": 1377,
+          "end": 1461,
+          "content_sha256": "40817f3acfcb333e8d0ff4de06a3ca0710ad36a0a23da2cf500f590fb02dc98c"
+        },
+        {
+          "pack_id": "three-realms-advanced-abilities",
+          "entry_id": "source-170-14",
+          "start": 1461,
+          "end": 1546,
+          "content_sha256": "7565af5fdf5274b6b0d16d27f83844e79e0519684755adba8448942a95b4ca9f"
+        },
+        {
+          "pack_id": "three-realms-advanced-abilities",
+          "entry_id": "source-170-15",
+          "start": 1546,
+          "end": 1631,
+          "content_sha256": "6694c5bf1288b5c955fcd43eb7ab5eae5997e5e15d7b6d9c9ab5245068777379"
+        },
+        {
+          "pack_id": "three-realms-advanced-abilities",
+          "entry_id": "source-170-16",
+          "start": 1631,
+          "end": 1840,
+          "content_sha256": "980cef9d33a54279fa413906fc5d8bc5474b4d96c8047311de92a42fbb50abb9"
+        }
+      ]
+    },
+    {
+      "source_index": 171,
+      "source_title": "靈根系統-基本概念",
+      "source_sha256": "1b305e4724f4d6d9c095d0313fde66a4609a413259b83c5cd4ce5b2806595301",
+      "source_chars": 1706,
+      "destinations": [
+        {
+          "pack_id": "three-realms-advanced-roots",
+          "entry_id": "source-171-0",
+          "start": 0,
+          "end": 61,
+          "content_sha256": "bb02f3dd8bb6f041c21ba90c5addc27932d9ed92b0cf7b7146bcd9d0b5479b49"
+        },
+        {
+          "pack_id": "three-realms-advanced-roots",
+          "entry_id": "source-171-1",
+          "start": 61,
+          "end": 120,
+          "content_sha256": "7235f8c18f468be5903fc176eb93fdebab7c30afbb6b424f510cf5b50fa52a4e"
+        },
+        {
+          "pack_id": "three-realms-advanced-roots",
+          "entry_id": "source-171-2",
+          "start": 120,
+          "end": 160,
+          "content_sha256": "a954ecc81ff40a6b32e90bc3d39ab493bac0b6a843f5e9f8cec33fd11f8fa020"
+        },
+        {
+          "pack_id": "three-realms-advanced-roots",
+          "entry_id": "source-171-3",
+          "start": 160,
+          "end": 200,
+          "content_sha256": "301320ce1cc3b8bceefe1757954539499573026746d6720562c0005b42907091"
+        },
+        {
+          "pack_id": "three-realms-advanced-roots",
+          "entry_id": "source-171-4",
+          "start": 200,
+          "end": 240,
+          "content_sha256": "5d09c3fed282ac69196382a46420588c49bf764a2ee930f6a180b59325e4932a"
+        },
+        {
+          "pack_id": "three-realms-advanced-roots",
+          "entry_id": "source-171-5",
+          "start": 240,
+          "end": 285,
+          "content_sha256": "1a70a73b69d99416b37c21cd19079e9761d432ecfad1cb5b212745dc488e8998"
+        },
+        {
+          "pack_id": "three-realms-advanced-roots",
+          "entry_id": "source-171-6",
+          "start": 285,
+          "end": 333,
+          "content_sha256": "af7077f066765543cd70d588d5006e6faf300668b849b7c9f8fac5f527ab1c6e"
+        },
+        {
+          "pack_id": "three-realms-advanced-roots",
+          "entry_id": "source-171-7",
+          "start": 333,
+          "end": 369,
+          "content_sha256": "e1ba4ffe4803aba10024b86f94f89a2525c9e9a51805056145013ea7a7aa7e77"
+        },
+        {
+          "pack_id": "three-realms-advanced-roots",
+          "entry_id": "source-171-8",
+          "start": 369,
+          "end": 405,
+          "content_sha256": "58393e64895e8fffb290194c4870173ae6d2f4dd24ea7c25b511758a3067b011"
+        },
+        {
+          "pack_id": "three-realms-advanced-roots",
+          "entry_id": "source-171-9",
+          "start": 405,
+          "end": 441,
+          "content_sha256": "48426ba90aa0c7af9226433ab17ae87a2f5fcd52ff5e238c0ccd1fbfb7b532a1"
+        },
+        {
+          "pack_id": "three-realms-advanced-roots",
+          "entry_id": "source-171-10",
+          "start": 441,
+          "end": 482,
+          "content_sha256": "f31c798defa6deeb9c197648a33c52cae44fdbe434a20f3630e63fa96590677a"
+        },
+        {
+          "pack_id": "three-realms-advanced-roots",
+          "entry_id": "source-171-11",
+          "start": 482,
+          "end": 535,
+          "content_sha256": "6deb867ee3663d67f655ecd0239c29d808b15cdd929fa810dfaf20f2a0634607"
+        },
+        {
+          "pack_id": "three-realms-advanced-roots",
+          "entry_id": "source-171-12",
+          "start": 535,
+          "end": 576,
+          "content_sha256": "5bf29a1ba348389f8aaf2562a90d928afdc58c8005bb4bc1fb95d477d3d39685"
+        },
+        {
+          "pack_id": "three-realms-advanced-roots",
+          "entry_id": "source-171-13",
+          "start": 576,
+          "end": 618,
+          "content_sha256": "08cb0f6d9c5e2082dd422ce07d483f97b074286cfbeba567eda80ac48b0830b1"
+        },
+        {
+          "pack_id": "three-realms-advanced-roots",
+          "entry_id": "source-171-14",
+          "start": 618,
+          "end": 665,
+          "content_sha256": "e4e6521aebe297986f316d1b6c4f0af9f354c667fccd5ceb12d91bf5727a5354"
+        },
+        {
+          "pack_id": "three-realms-advanced-roots",
+          "entry_id": "source-171-15",
+          "start": 665,
+          "end": 908,
+          "content_sha256": "bcad6f7d61f8fa31764b12cfe5b79cae32c2b50ba2a2a5c1bb763a1811a11bbc"
+        },
+        {
+          "pack_id": "three-realms-advanced-roots",
+          "entry_id": "source-171-16",
+          "start": 908,
+          "end": 1143,
+          "content_sha256": "994d00cec3b63fa2da0a7cea34ca4fc847f94a8b21e1901fb9652c36637bd07e"
+        },
+        {
+          "pack_id": "three-realms-advanced-roots",
+          "entry_id": "source-171-17",
+          "start": 1143,
+          "end": 1354,
+          "content_sha256": "1fa6b7163474a7cf04b5e8c00e4b5f49bb3972e5846122adf18cbb9726332fb1"
+        },
+        {
+          "pack_id": "three-realms-advanced-roots",
+          "entry_id": "source-171-18",
+          "start": 1354,
+          "end": 1495,
+          "content_sha256": "ef4c3346191688ca45dc701c8ef7764fb0ba047fe11a0908aa03ac0a235d927f"
+        },
+        {
+          "pack_id": "three-realms-advanced-roots",
+          "entry_id": "source-171-19",
+          "start": 1495,
+          "end": 1661,
+          "content_sha256": "d07fa64c3addd2fce6a756b3977918b213d0f7fbf246172e2405a1d52c0792e4"
+        },
+        {
+          "pack_id": "three-realms-advanced-roots",
+          "entry_id": "source-171-20",
+          "start": 1661,
+          "end": 1706,
+          "content_sha256": "c0d20c5220388fe59d2fab5776e65f0e8c208134dff8cd8e6c2f3afabad03ce9"
+        }
+      ]
+    }
+  ]
+}
