@@ -1,0 +1,854 @@
+{
+  "schema": "yorubay-worldbook-source-map",
+  "version": 1,
+  "source_book_id": "b43bd078-1b19-46e8-bfc8-952660be367d",
+  "source_visibility": "公開",
+  "source_entry_count": 191,
+  "migrated_source_entries": 24,
+  "generated_entries": 93,
+  "records": [
+    {
+      "source_index": 101,
+      "source_title": "下界城市-東方大陸主要城市",
+      "source_sha256": "cb5af24d0680cf40a15fb97a790a466b658405c95593cb9aec43ab23e54fcdaa",
+      "source_chars": 911,
+      "destinations": [
+        {
+          "pack_id": "three-realms-atlas-cities",
+          "entry_id": "source-101-0",
+          "start": 0,
+          "end": 277,
+          "content_sha256": "dccb1f3e54479b9574e5bb39b9ecc3add17de2eefbbada149da20cfed5d4f266"
+        },
+        {
+          "pack_id": "three-realms-atlas-cities",
+          "entry_id": "source-101-1",
+          "start": 277,
+          "end": 434,
+          "content_sha256": "df6dd4ead3839987c830b10eb24dae07e434c62953b6584ee77d35bd68f8af41"
+        },
+        {
+          "pack_id": "three-realms-atlas-cities",
+          "entry_id": "source-101-2",
+          "start": 434,
+          "end": 759,
+          "content_sha256": "fe2d74ae074ceb2abc41d4949df1000ce10191e2dec68819bd9c494217f08983"
+        },
+        {
+          "pack_id": "three-realms-atlas-cities",
+          "entry_id": "source-101-3",
+          "start": 759,
+          "end": 911,
+          "content_sha256": "6dc8a5ff324ca85003432a3d25b922f7ff421121d10027b0575f8b3b8782b82a"
+        }
+      ]
+    },
+    {
+      "source_index": 102,
+      "source_title": "下界散修-基本概念",
+      "source_sha256": "6bdfff2ac2cfc4bfe6ef2f41b57354e10dcf613a315ad7083c760cc40a4fcebc",
+      "source_chars": 1134,
+      "destinations": [
+        {
+          "pack_id": "three-realms-atlas-wanderers",
+          "entry_id": "source-102-0",
+          "start": 0,
+          "end": 57,
+          "content_sha256": "400a60432bcd407b3bd526ef174581a716b8e04e5904b673039384e8143e3d02"
+        },
+        {
+          "pack_id": "three-realms-atlas-wanderers",
+          "entry_id": "source-102-1",
+          "start": 57,
+          "end": 276,
+          "content_sha256": "ce992f8a6d651a8a708e5ea13cc65b24d431e09a1e7e30438ab0ab0c7741fe90"
+        },
+        {
+          "pack_id": "three-realms-atlas-wanderers",
+          "entry_id": "source-102-2",
+          "start": 276,
+          "end": 438,
+          "content_sha256": "da224dcd2c0f38577f78cb1361cb88a1fd6cacf879505e29f458c1e7169380b5"
+        },
+        {
+          "pack_id": "three-realms-atlas-wanderers",
+          "entry_id": "source-102-3",
+          "start": 438,
+          "end": 647,
+          "content_sha256": "b3049bd49dc4de95e13950a38b36cb5a72a740b1dea2133abf16a4f662022685"
+        },
+        {
+          "pack_id": "three-realms-atlas-wanderers",
+          "entry_id": "source-102-4",
+          "start": 647,
+          "end": 764,
+          "content_sha256": "266f89e1323099bcfdaf76e41729e7ad38f11c76e8b51a4459c88df3cbf76484"
+        },
+        {
+          "pack_id": "three-realms-atlas-wanderers",
+          "entry_id": "source-102-5",
+          "start": 764,
+          "end": 912,
+          "content_sha256": "a5184e4047b52e22c8775f73be3973457ade40a52e40213ae736c514e5c8f7f2"
+        },
+        {
+          "pack_id": "three-realms-atlas-wanderers",
+          "entry_id": "source-102-6",
+          "start": 912,
+          "end": 1134,
+          "content_sha256": "c57d66e4ca78a632a84f4992692e3f25032f6ec52c39600318628d1e80093eeb"
+        }
+      ]
+    },
+    {
+      "source_index": 103,
+      "source_title": "下界散修-著名散修聯盟",
+      "source_sha256": "597130cde53132aea64af1fc2decb077d7c97f1f3e66809b5d2a6c0ee7a9478f",
+      "source_chars": 1163,
+      "destinations": [
+        {
+          "pack_id": "three-realms-atlas-wanderers",
+          "entry_id": "source-103-0",
+          "start": 0,
+          "end": 494,
+          "content_sha256": "64d4b6f8dac2365f4680167efe2512532763cda9292969425d4d043861203914"
+        },
+        {
+          "pack_id": "three-realms-atlas-wanderers",
+          "entry_id": "source-103-1",
+          "start": 494,
+          "end": 865,
+          "content_sha256": "15f0eb7991b28689ed43d920d9a9af549b143065ce3cac858f6c3e9e015fc91a"
+        },
+        {
+          "pack_id": "three-realms-atlas-wanderers",
+          "entry_id": "source-103-2",
+          "start": 865,
+          "end": 1163,
+          "content_sha256": "6044b9aaf9f33e6ec32d224193112fa635f8d869f44dcf8b77267b9ea45f760a"
+        }
+      ]
+    },
+    {
+      "source_index": 104,
+      "source_title": "下界散修-著名傭兵團",
+      "source_sha256": "cc1046e7ee3defb7cd2704ba6ca49d11a3cdb3c216d73b60c112f0eeffa6f01b",
+      "source_chars": 577,
+      "destinations": [
+        {
+          "pack_id": "three-realms-atlas-wanderers",
+          "entry_id": "source-104-0",
+          "start": 0,
+          "end": 368,
+          "content_sha256": "56fa6a82db7ee4766cc4f7cfb98dea1e6fd445cd7cf1305944e08a305496f96f"
+        },
+        {
+          "pack_id": "three-realms-atlas-wanderers",
+          "entry_id": "source-104-1",
+          "start": 368,
+          "end": 577,
+          "content_sha256": "791eb0dd9d2daeffeaa628ba93b1a6580d269641b7a263237a93368d1171cb9c"
+        }
+      ]
+    },
+    {
+      "source_index": 105,
+      "source_title": "下界散修-著名獨行散修",
+      "source_sha256": "d6feb3b59ecf64e9b252e30e21a6fb52544a7685b9f0c61f8aa2b83b4266cadf",
+      "source_chars": 686,
+      "destinations": [
+        {
+          "pack_id": "three-realms-atlas-wanderers",
+          "entry_id": "source-105-0",
+          "start": 0,
+          "end": 243,
+          "content_sha256": "d9e55948e09338e68e6104302f90b8c97e2b6330603bb69be4aedc610c87ee59"
+        },
+        {
+          "pack_id": "three-realms-atlas-wanderers",
+          "entry_id": "source-105-1",
+          "start": 243,
+          "end": 474,
+          "content_sha256": "e522322d291bd5931d4aa0e36b2e4914579d2229d3b24859dd94ba488ff5c679"
+        },
+        {
+          "pack_id": "three-realms-atlas-wanderers",
+          "entry_id": "source-105-2",
+          "start": 474,
+          "end": 686,
+          "content_sha256": "a2b76ce0388a0ca098d9d1bd37d69d70af1219bec01639b8b5377083af7cdd5a"
+        }
+      ]
+    },
+    {
+      "source_index": 106,
+      "source_title": "下界秘境-基本概念",
+      "source_sha256": "d43e400768c952daee3db06abca02ddabcff7ea8d8c1400f3f7158a45479accc",
+      "source_chars": 1243,
+      "destinations": [
+        {
+          "pack_id": "three-realms-atlas-secret-realms",
+          "entry_id": "source-106-0",
+          "start": 0,
+          "end": 56,
+          "content_sha256": "f3c0c2889a7a4d6822bb40f69c1ca33986e27f46518265aaeab957219302c848"
+        },
+        {
+          "pack_id": "three-realms-atlas-secret-realms",
+          "entry_id": "source-106-1",
+          "start": 56,
+          "end": 307,
+          "content_sha256": "7098dc9d32a1639bc1402ad3cb449230584af315610760c54de04accb786c4a9"
+        },
+        {
+          "pack_id": "three-realms-atlas-secret-realms",
+          "entry_id": "source-106-2",
+          "start": 307,
+          "end": 517,
+          "content_sha256": "484574313e04aec3ea8a1a03ae9b29743c7cff5ca1840bd40095e7b632649581"
+        },
+        {
+          "pack_id": "three-realms-atlas-secret-realms",
+          "entry_id": "source-106-3",
+          "start": 517,
+          "end": 674,
+          "content_sha256": "7d44239816325b239ea9223018c12ae12a735454f004d49bfbb915cba14d75d4"
+        },
+        {
+          "pack_id": "three-realms-atlas-secret-realms",
+          "entry_id": "source-106-4",
+          "start": 674,
+          "end": 833,
+          "content_sha256": "a3ddc32b0ab14c626b183366082ea849bcf435a5f4a501cf85f1d8e083dfc67c"
+        },
+        {
+          "pack_id": "three-realms-atlas-secret-realms",
+          "entry_id": "source-106-5",
+          "start": 833,
+          "end": 1021,
+          "content_sha256": "5f9c25babf1a26298c519df1f2d779ed1eec84d0d55f6908dd181f6c950a03ee"
+        },
+        {
+          "pack_id": "three-realms-atlas-secret-realms",
+          "entry_id": "source-106-6",
+          "start": 1021,
+          "end": 1243,
+          "content_sha256": "34e099042d58b8e5ed3b6a6600120b960ab4f2d446c4704ad2098294c1b26b3f"
+        }
+      ]
+    },
+    {
+      "source_index": 107,
+      "source_title": "下界秘境-中央大陸著名秘境",
+      "source_sha256": "6740351da2e74b872ed0ecc795ce166f454e25391097d29cf4cc51540820ab29",
+      "source_chars": 1357,
+      "destinations": [
+        {
+          "pack_id": "three-realms-atlas-secret-realms",
+          "entry_id": "source-107-0",
+          "start": 0,
+          "end": 309,
+          "content_sha256": "a368c604bdf433dafe6de9a2f3078acb2bc14f4f4a56ad4560e279c3279b9018"
+        },
+        {
+          "pack_id": "three-realms-atlas-secret-realms",
+          "entry_id": "source-107-1",
+          "start": 309,
+          "end": 591,
+          "content_sha256": "cca40986556e0105b3e314d92a0925626db2a111a331674ded088fc878acb6a8"
+        },
+        {
+          "pack_id": "three-realms-atlas-secret-realms",
+          "entry_id": "source-107-2",
+          "start": 591,
+          "end": 847,
+          "content_sha256": "392d2e4e7855165c94991999955c04639a6ccfd9c49730090086619d1c6cec5c"
+        },
+        {
+          "pack_id": "three-realms-atlas-secret-realms",
+          "entry_id": "source-107-3",
+          "start": 847,
+          "end": 1104,
+          "content_sha256": "8b5bd77281e37182a36eef49b072f4d7059e4730469b1a05dfbe1cd4b2cded6c"
+        },
+        {
+          "pack_id": "three-realms-atlas-secret-realms",
+          "entry_id": "source-107-4",
+          "start": 1104,
+          "end": 1357,
+          "content_sha256": "236deb0777b0108fb2386321402924120da3358656d2315e04a5057d63a90d71"
+        }
+      ]
+    },
+    {
+      "source_index": 108,
+      "source_title": "下界秘境-東方大陸著名秘境",
+      "source_sha256": "d7d5cf7f8835eed7bb98de4bf1f2f71bf6aacde7e6ab65ffd51fa3885f8dbf03",
+      "source_chars": 501,
+      "destinations": [
+        {
+          "pack_id": "three-realms-atlas-secret-realms",
+          "entry_id": "source-108-0",
+          "start": 0,
+          "end": 280,
+          "content_sha256": "f40a753803052723f783b892f044bee1f1c1127fa1bc7c087ef5aac1ef0179de"
+        },
+        {
+          "pack_id": "three-realms-atlas-secret-realms",
+          "entry_id": "source-108-1",
+          "start": 280,
+          "end": 501,
+          "content_sha256": "e1e8366a913960d62d43c71b1fcdc1f23377c8abbbbb731d82030db5e83cd76b"
+        }
+      ]
+    },
+    {
+      "source_index": 109,
+      "source_title": "下界秘境-北方大陸著名秘境",
+      "source_sha256": "a8908c9c959a1e22ce59bd7ad862f7e905540269693a3ee997207d23e8c3bb7b",
+      "source_chars": 508,
+      "destinations": [
+        {
+          "pack_id": "three-realms-atlas-secret-realms",
+          "entry_id": "source-109-0",
+          "start": 0,
+          "end": 272,
+          "content_sha256": "a196cda4114ca7f6bbc74ca9eae61ba314bdc0f2e92aed39fba2fc75c927eaf8"
+        },
+        {
+          "pack_id": "three-realms-atlas-secret-realms",
+          "entry_id": "source-109-1",
+          "start": 272,
+          "end": 508,
+          "content_sha256": "2860cffa082f9ec4f3db9a6e8d4eab2b4a737563c657bc41246026a3acf873d0"
+        }
+      ]
+    },
+    {
+      "source_index": 110,
+      "source_title": "下界商會-基本概念",
+      "source_sha256": "1fc53b0de92a8400768b6f75440fc75d4f45395b9b5a3b7e930c3fb06f96a590",
+      "source_chars": 1242,
+      "destinations": [
+        {
+          "pack_id": "three-realms-atlas-commerce",
+          "entry_id": "source-110-0",
+          "start": 0,
+          "end": 52,
+          "content_sha256": "bf4b5b8c47478386ec2f21d65f68522a2d498886dfa0c9727431a3d9338b872e"
+        },
+        {
+          "pack_id": "three-realms-atlas-commerce",
+          "entry_id": "source-110-1",
+          "start": 52,
+          "end": 281,
+          "content_sha256": "4a35bc95ab27f2af4d6ddb4932783922ee1facc33f6111e8dc60680944b8b8ea"
+        },
+        {
+          "pack_id": "three-realms-atlas-commerce",
+          "entry_id": "source-110-2",
+          "start": 281,
+          "end": 466,
+          "content_sha256": "b9020c028bf78d62cc559fde5939f8e4ecdaa708cfb2db8e93d61a4006a22223"
+        },
+        {
+          "pack_id": "three-realms-atlas-commerce",
+          "entry_id": "source-110-3",
+          "start": 466,
+          "end": 637,
+          "content_sha256": "4914b7985745709db21912132b9d99ba2b8dcdb7fc47d55c18d57ee5f31a5d1e"
+        },
+        {
+          "pack_id": "three-realms-atlas-commerce",
+          "entry_id": "source-110-4",
+          "start": 637,
+          "end": 834,
+          "content_sha256": "7bb9a7bde5d876111ce91ce12b1c03ab34697966d14dbd000a3076181706290c"
+        },
+        {
+          "pack_id": "three-realms-atlas-commerce",
+          "entry_id": "source-110-5",
+          "start": 834,
+          "end": 985,
+          "content_sha256": "5fefd28343332156de81ccad82e26fd8953a9acc08ebe9471d50ea2ee960eb8d"
+        },
+        {
+          "pack_id": "three-realms-atlas-commerce",
+          "entry_id": "source-110-6",
+          "start": 985,
+          "end": 1242,
+          "content_sha256": "d99b609b707d36d44ed64429305a919bb70f7375ef610bf23ed2537ad25f3426"
+        }
+      ]
+    },
+    {
+      "source_index": 111,
+      "source_title": "下界商會-頂級商會",
+      "source_sha256": "08656f8df4097146c624a03391d7f366b69a77e76603d673a1f8fe751fa305da",
+      "source_chars": 1623,
+      "destinations": [
+        {
+          "pack_id": "three-realms-atlas-commerce",
+          "entry_id": "source-111-0",
+          "start": 0,
+          "end": 528,
+          "content_sha256": "f8412e6fe4143c080204866d3412f44da093cdc20b582d0c9b4b2a7457d568d8"
+        },
+        {
+          "pack_id": "three-realms-atlas-commerce",
+          "entry_id": "source-111-1",
+          "start": 528,
+          "end": 902,
+          "content_sha256": "e8af669e0cee004a8265a830cd334a93ff2456e85cb01664bf38ae16dd6b2513"
+        },
+        {
+          "pack_id": "three-realms-atlas-commerce",
+          "entry_id": "source-111-2",
+          "start": 902,
+          "end": 1292,
+          "content_sha256": "e7f51322d7660eb590fea012b25ca8b25e3dd3e8ec90ccf09866ab2c9d294bc9"
+        },
+        {
+          "pack_id": "three-realms-atlas-commerce",
+          "entry_id": "source-111-3",
+          "start": 1292,
+          "end": 1623,
+          "content_sha256": "dda91efbf34df109873cae6849084a1d9d6a4e22044e18bfe7717528f5e67066"
+        }
+      ]
+    },
+    {
+      "source_index": 112,
+      "source_title": "下界商會-拍賣行",
+      "source_sha256": "a11cc675bc82c7a1c4b501f48364cf13883a08cbd141f511070dc2758070c967",
+      "source_chars": 567,
+      "destinations": [
+        {
+          "pack_id": "three-realms-atlas-commerce",
+          "entry_id": "source-112-0",
+          "start": 0,
+          "end": 385,
+          "content_sha256": "57dd15c6a97cc7dda36cc179d1a307ca6aa0383cd1e58e6fae692d7c71bd924a"
+        },
+        {
+          "pack_id": "three-realms-atlas-commerce",
+          "entry_id": "source-112-1",
+          "start": 385,
+          "end": 567,
+          "content_sha256": "40c5420c829aeb8352f78ff692eb92b171630108e45c96f744fcee1325163638"
+        }
+      ]
+    },
+    {
+      "source_index": 113,
+      "source_title": "下界商會-情報組織",
+      "source_sha256": "e0f4bb39dba45bd41e0919dcd381b28dee44ee974691b318b6cd4ce6c0d9c4c2",
+      "source_chars": 433,
+      "destinations": [
+        {
+          "pack_id": "three-realms-atlas-commerce",
+          "entry_id": "source-113-0",
+          "start": 0,
+          "end": 433,
+          "content_sha256": "e0f4bb39dba45bd41e0919dcd381b28dee44ee974691b318b6cd4ce6c0d9c4c2"
+        }
+      ]
+    },
+    {
+      "source_index": 114,
+      "source_title": "下界妖獸-基本概念",
+      "source_sha256": "35ca9c82b5e6f5c30b2ff406c770106d4863a4b057c20d13d81ee3991dc6ca94",
+      "source_chars": 1166,
+      "destinations": [
+        {
+          "pack_id": "three-realms-atlas-beasts",
+          "entry_id": "source-114-0",
+          "start": 0,
+          "end": 58,
+          "content_sha256": "b0f93cb24df70cf9dec8805ffa34eb288f1d5bb2aae4f6e94b32c0d5b964af36"
+        },
+        {
+          "pack_id": "three-realms-atlas-beasts",
+          "entry_id": "source-114-1",
+          "start": 58,
+          "end": 337,
+          "content_sha256": "4697286e1bf1c6b458c34dbf1baf799ef8818e0c7aff33f276e0b18b74304d46"
+        },
+        {
+          "pack_id": "three-realms-atlas-beasts",
+          "entry_id": "source-114-2",
+          "start": 337,
+          "end": 582,
+          "content_sha256": "548aa3c1ed6e43ccb29bb06cfad7e2aafa3de54a8336a47f8e6233f7d18efcdb"
+        },
+        {
+          "pack_id": "three-realms-atlas-beasts",
+          "entry_id": "source-114-3",
+          "start": 582,
+          "end": 736,
+          "content_sha256": "863e1007d43879d4308c0f2371edfc1fe29c2d5cce37462f13befbcd63a345a2"
+        },
+        {
+          "pack_id": "three-realms-atlas-beasts",
+          "entry_id": "source-114-4",
+          "start": 736,
+          "end": 844,
+          "content_sha256": "89fe4516ecb5f4242e5e77a48d0c6424b428d8a5ca407e886de32603729f1d63"
+        },
+        {
+          "pack_id": "three-realms-atlas-beasts",
+          "entry_id": "source-114-5",
+          "start": 844,
+          "end": 955,
+          "content_sha256": "2eead78c01fd464f2b2d2f54a49c906e302c16fab3608c8bddd7df9daaf5a4fa"
+        },
+        {
+          "pack_id": "three-realms-atlas-beasts",
+          "entry_id": "source-114-6",
+          "start": 955,
+          "end": 1166,
+          "content_sha256": "591e6694bc5f1df55af9fb4587e8134b4b914b0ef358848c904592ce66bcfe42"
+        }
+      ]
+    },
+    {
+      "source_index": 115,
+      "source_title": "下界妖獸-萬妖森林",
+      "source_sha256": "660847532fbc50f14e8dc7b2825bc295f6c0be383e99e78ae25d24be9d29fa85",
+      "source_chars": 1276,
+      "destinations": [
+        {
+          "pack_id": "three-realms-atlas-beasts",
+          "entry_id": "source-115-0",
+          "start": 0,
+          "end": 206,
+          "content_sha256": "2df9de2fe13f04aa6790a0a638fecc46067c1f5f91363b9db7fb08c0d2d6cbd3"
+        },
+        {
+          "pack_id": "three-realms-atlas-beasts",
+          "entry_id": "source-115-1",
+          "start": 206,
+          "end": 407,
+          "content_sha256": "c9ef9814a704b09aed31d754550d132303820cc640196e4e4ddf9563634aaeb7"
+        },
+        {
+          "pack_id": "three-realms-atlas-beasts",
+          "entry_id": "source-115-2",
+          "start": 407,
+          "end": 603,
+          "content_sha256": "6198dbdd994b17b6e295f6e7b997eb7011868fe42539207379b31faa40c74b65"
+        },
+        {
+          "pack_id": "three-realms-atlas-beasts",
+          "entry_id": "source-115-3",
+          "start": 603,
+          "end": 794,
+          "content_sha256": "9b62f34706f03c4584f75934c39c9b1ff92372b6a208ddf48c6ec29430bb074c"
+        },
+        {
+          "pack_id": "three-realms-atlas-beasts",
+          "entry_id": "source-115-4",
+          "start": 794,
+          "end": 1042,
+          "content_sha256": "19b40592ae74f9c091b615ede0dc9c762c74ffa228c51a1b628c9c19511e46b7"
+        },
+        {
+          "pack_id": "three-realms-atlas-beasts",
+          "entry_id": "source-115-5",
+          "start": 1042,
+          "end": 1276,
+          "content_sha256": "074d34e6f405efb375a7a1a04de54bf035584940f3a5ee2d8000b59713080285"
+        }
+      ]
+    },
+    {
+      "source_index": 116,
+      "source_title": "下界妖獸-無盡之海",
+      "source_sha256": "19e5de7882bdbc01487617bc807129bd6f6aca3f5021602ffe4c55d609ff6be0",
+      "source_chars": 669,
+      "destinations": [
+        {
+          "pack_id": "three-realms-atlas-beasts",
+          "entry_id": "source-116-0",
+          "start": 0,
+          "end": 212,
+          "content_sha256": "9afb295b7d0b162e68ece96c23d1c180be74d720862135eb4392ca1677cc4e67"
+        },
+        {
+          "pack_id": "three-realms-atlas-beasts",
+          "entry_id": "source-116-1",
+          "start": 212,
+          "end": 432,
+          "content_sha256": "16eb29bc8ae29656b89e2287a59c03688631ef7a1fa50411ba6c0a2db66aa48c"
+        },
+        {
+          "pack_id": "three-realms-atlas-beasts",
+          "entry_id": "source-116-2",
+          "start": 432,
+          "end": 555,
+          "content_sha256": "39d1d72eb1b2df68ea8fe80859b435e89c5ac89a9705d64a2ab004ea31f85b36"
+        },
+        {
+          "pack_id": "three-realms-atlas-beasts",
+          "entry_id": "source-116-3",
+          "start": 555,
+          "end": 669,
+          "content_sha256": "749cb2efa98a0b05e762960daf9e98980e084901480391237630421b6c6ac801"
+        }
+      ]
+    },
+    {
+      "source_index": 117,
+      "source_title": "下界妖獸-特殊妖獸",
+      "source_sha256": "cb13b4c925b65f4fd0debe1ae78251e3668eac804b51f0a0af9ab77bab6cdce7",
+      "source_chars": 462,
+      "destinations": [
+        {
+          "pack_id": "three-realms-atlas-beasts",
+          "entry_id": "source-117-0",
+          "start": 0,
+          "end": 178,
+          "content_sha256": "1d632287ba1f888ed300d0408e21ed04fdcc2ec353dcef58dd5e85165ef88014"
+        },
+        {
+          "pack_id": "three-realms-atlas-beasts",
+          "entry_id": "source-117-1",
+          "start": 178,
+          "end": 310,
+          "content_sha256": "4e5fd67b364dcdd72f722b6dcdf57d606269654d918789e4ae94c83255c716dd"
+        },
+        {
+          "pack_id": "three-realms-atlas-beasts",
+          "entry_id": "source-117-2",
+          "start": 310,
+          "end": 462,
+          "content_sha256": "ef985f7d9d63bbf9cdbbd8c202d0e7b8f19ffc282ca7fc0db016efbef9a016ff"
+        }
+      ]
+    },
+    {
+      "source_index": 118,
+      "source_title": "下界特殊勢力-基本概念",
+      "source_sha256": "2e0221c881b3988ff0ab6650dc4685360625c98af203b43e18e3f2da047fe2e9",
+      "source_chars": 674,
+      "destinations": [
+        {
+          "pack_id": "three-realms-atlas-factions",
+          "entry_id": "source-118-0",
+          "start": 0,
+          "end": 59,
+          "content_sha256": "c936017ce262a2d3d096931ca8885c9baa2e05cb0e4cf573bb016c75fe7ee18f"
+        },
+        {
+          "pack_id": "three-realms-atlas-factions",
+          "entry_id": "source-118-1",
+          "start": 59,
+          "end": 310,
+          "content_sha256": "1ca697aebf7d3ff6b741f875090079d9660b69a26eeb7ffdf1c459dbbd11ebc8"
+        },
+        {
+          "pack_id": "three-realms-atlas-factions",
+          "entry_id": "source-118-2",
+          "start": 310,
+          "end": 493,
+          "content_sha256": "a616a97b430b3c20db03757d7719b1c40d5f98a8b913e2eff9f3cc55d0df678a"
+        },
+        {
+          "pack_id": "three-realms-atlas-factions",
+          "entry_id": "source-118-3",
+          "start": 493,
+          "end": 674,
+          "content_sha256": "9b2b94549c45445858ef4f0e7b2d4a62a06f048d1f2189550c442486a25385d9"
+        }
+      ]
+    },
+    {
+      "source_index": 119,
+      "source_title": "下界特殊勢力-魔修勢力",
+      "source_sha256": "bb2dacb405f63b4d8b063875863e76f9d6096e3caf992f9e15dc5a1de972b9ed",
+      "source_chars": 1062,
+      "destinations": [
+        {
+          "pack_id": "three-realms-atlas-factions",
+          "entry_id": "source-119-0",
+          "start": 0,
+          "end": 532,
+          "content_sha256": "eaef34485a475666068b0a4b8333c0568f5c2ad7dacb6196361172ffbfddf5ef"
+        },
+        {
+          "pack_id": "three-realms-atlas-factions",
+          "entry_id": "source-119-1",
+          "start": 532,
+          "end": 790,
+          "content_sha256": "666e367f6f7e1cc7f2c222a62deca81028ff2229e3c4952b48e06580c11b214d"
+        },
+        {
+          "pack_id": "three-realms-atlas-factions",
+          "entry_id": "source-119-2",
+          "start": 790,
+          "end": 1062,
+          "content_sha256": "fab1b1a6bb06e7736f96ff57fac34ece81f0094ae69c1373f966d942840a296b"
+        }
+      ]
+    },
+    {
+      "source_index": 120,
+      "source_title": "下界特殊勢力-鬼修勢力",
+      "source_sha256": "920a0d4f3ad24f287e1bee0a7fe996c04d431b39d11b91a39fbfada848c548b1",
+      "source_chars": 691,
+      "destinations": [
+        {
+          "pack_id": "three-realms-atlas-factions",
+          "entry_id": "source-120-0",
+          "start": 0,
+          "end": 479,
+          "content_sha256": "db18028587f82587663e8587b29db6016e407a07f19e9cf637f8f56811cb7759"
+        },
+        {
+          "pack_id": "three-realms-atlas-factions",
+          "entry_id": "source-120-1",
+          "start": 479,
+          "end": 691,
+          "content_sha256": "61d2bc739a34714b777bfa50912316d3e07462d4a3158c5d38d92918f230bd64"
+        }
+      ]
+    },
+    {
+      "source_index": 121,
+      "source_title": "下界特殊勢力-邪修勢力",
+      "source_sha256": "187d98ddd25060513c03bbd0ba28b5fae95cc25dbfeb3328c4bf62373b73eb3c",
+      "source_chars": 593,
+      "destinations": [
+        {
+          "pack_id": "three-realms-atlas-factions",
+          "entry_id": "source-121-0",
+          "start": 0,
+          "end": 436,
+          "content_sha256": "05b48283d3ab08441277b629457b62cef7d5e63a73fe0a5a6d8aba44d2c4431e"
+        },
+        {
+          "pack_id": "three-realms-atlas-factions",
+          "entry_id": "source-121-1",
+          "start": 436,
+          "end": 593,
+          "content_sha256": "c7a88bc9071c8dc59a79ffcd37a06ea8fb05ea5845212946ba0c70398855c740"
+        }
+      ]
+    },
+    {
+      "source_index": 122,
+      "source_title": "下界特殊勢力-毒修勢力",
+      "source_sha256": "2dde5095f5af4ab8421c874b41fa97df8ddb0e71878f5675c9405b5b0001f1aa",
+      "source_chars": 404,
+      "destinations": [
+        {
+          "pack_id": "three-realms-atlas-factions",
+          "entry_id": "source-122-0",
+          "start": 0,
+          "end": 404,
+          "content_sha256": "2dde5095f5af4ab8421c874b41fa97df8ddb0e71878f5675c9405b5b0001f1aa"
+        }
+      ]
+    },
+    {
+      "source_index": 123,
+      "source_title": "下界特殊勢力-屍修勢力",
+      "source_sha256": "9362cdce8cbbfb98c28f01e813d8e60ca868db1df7dda80b51264614e438ec70",
+      "source_chars": 394,
+      "destinations": [
+        {
+          "pack_id": "three-realms-atlas-factions",
+          "entry_id": "source-123-0",
+          "start": 0,
+          "end": 394,
+          "content_sha256": "9362cdce8cbbfb98c28f01e813d8e60ca868db1df7dda80b51264614e438ec70"
+        }
+      ]
+    },
+    {
+      "source_index": 124,
+      "source_title": "下界特殊勢力-鬼市",
+      "source_sha256": "4139f0af0419d14ae8a8dde63c1499ecafc2dc2d524f2a62740f3df5f29d8dd7",
+      "source_chars": 1988,
+      "destinations": [
+        {
+          "pack_id": "three-realms-atlas-factions",
+          "entry_id": "source-124-0",
+          "start": 0,
+          "end": 57,
+          "content_sha256": "e6631842d246cb82e98fc61784de5f4704ea3da0650cc2e146f873b8cb9accc2"
+        },
+        {
+          "pack_id": "three-realms-atlas-factions",
+          "entry_id": "source-124-1",
+          "start": 57,
+          "end": 236,
+          "content_sha256": "6d8acc7bfd59372754cd0524a046bc34a76e5e258188031e958b641225e25755"
+        },
+        {
+          "pack_id": "three-realms-atlas-factions",
+          "entry_id": "source-124-2",
+          "start": 236,
+          "end": 406,
+          "content_sha256": "91c5d1f3c781dd1fb4166ebbc9f21ca1fbfd2a5b46a6653e047bcb22fa90d8df"
+        },
+        {
+          "pack_id": "three-realms-atlas-factions",
+          "entry_id": "source-124-3",
+          "start": 406,
+          "end": 581,
+          "content_sha256": "ef04f2c3fd374fe1579168f86d8e864e0ef639379845afdcbf8073a61dc4a611"
+        },
+        {
+          "pack_id": "three-realms-atlas-factions",
+          "entry_id": "source-124-4",
+          "start": 581,
+          "end": 761,
+          "content_sha256": "647b2df8a48b8b9f17f8c6b4af9a9c90e19e98ba5a1092fc4d41db1cde3d62cc"
+        },
+        {
+          "pack_id": "three-realms-atlas-factions",
+          "entry_id": "source-124-5",
+          "start": 761,
+          "end": 1058,
+          "content_sha256": "e93bd946163b30f5a3b417fb6bc120483654418d20763f2d3fa052f0fb4b3c6c"
+        },
+        {
+          "pack_id": "three-realms-atlas-factions",
+          "entry_id": "source-124-6",
+          "start": 1058,
+          "end": 1193,
+          "content_sha256": "7ba00513c43c8c2d5e3e827fbb1815136c95b881ad988661b080cb06435fd076"
+        },
+        {
+          "pack_id": "three-realms-atlas-factions",
+          "entry_id": "source-124-7",
+          "start": 1193,
+          "end": 1362,
+          "content_sha256": "fd70a0699aac1971f210152b02277829b5cb63810d9f2d57551fe1231184f87f"
+        },
+        {
+          "pack_id": "three-realms-atlas-factions",
+          "entry_id": "source-124-8",
+          "start": 1362,
+          "end": 1553,
+          "content_sha256": "e9ea8989a6599581dbaef460fe9e08de523f3d9762522ab29e6c50eb1b43e6b7"
+        },
+        {
+          "pack_id": "three-realms-atlas-factions",
+          "entry_id": "source-124-9",
+          "start": 1553,
+          "end": 1722,
+          "content_sha256": "0cbcd9ac9557c83490d960d515006ddaa402b29872dce13ad0093e1c9b098e35"
+        },
+        {
+          "pack_id": "three-realms-atlas-factions",
+          "entry_id": "source-124-10",
+          "start": 1722,
+          "end": 1988,
+          "content_sha256": "d458e10b89fe695882215256e0a313897cb405485877ef0e372eb8f4bdd38d86"
+        }
+      ]
+    }
+  ]
+}

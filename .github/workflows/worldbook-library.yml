@@ -8,6 +8,9 @@ on:
       - 'data/worldbook-library.json'
       - 'data/three-realms-worldbook-source-map.json'
       - 'data/three-realms-encyclopedia-source-map.json'
+      - 'data/three-realms-lower-atlas-source-map.json'
+      - 'scripts/migrate-three-realms-lower-atlas.py'
+      - 'tests/three-realms-lower-atlas-core.cjs'
       - 'scripts/migrate-three-realms-encyclopedia.py'
       - 'tests/three-realms-encyclopedia-core.cjs'
       - 'scripts/migrate-three-realms-worldbook.py'
@@ -23,6 +26,9 @@ on:
       - 'data/worldbook-library.json'
       - 'data/three-realms-worldbook-source-map.json'
       - 'data/three-realms-encyclopedia-source-map.json'
+      - 'data/three-realms-lower-atlas-source-map.json'
+      - 'scripts/migrate-three-realms-lower-atlas.py'
+      - 'tests/three-realms-lower-atlas-core.cjs'
       - 'scripts/migrate-three-realms-encyclopedia.py'
       - 'tests/three-realms-encyclopedia-core.cjs'
       - 'scripts/migrate-three-realms-worldbook.py'
@@ -48,4 +54,5 @@ jobs:
           node tests/worldbook-library-runtime.cjs
           node tests/three-realms-worldbook-core.cjs
           node tests/three-realms-encyclopedia-core.cjs
+          node tests/three-realms-lower-atlas-core.cjs
           node tests/lorebook-core.cjs
