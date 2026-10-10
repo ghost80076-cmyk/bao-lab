@@ -1,9 +1,10 @@
 const { test, expect } = require('@playwright/test');
+if (process.env.BAO_LIVE_URL) test.use({ baseURL: process.env.BAO_LIVE_URL });
 
 
 test('core chat shell never exposes authored greeting source even if scene renderer is late', async ({ page }) => {
   await page.route('**/js/scene-html-modes.js*', route => route.abort());
-  await page.goto('/');
+  await page.goto(process.env.BAO_LIVE_URL ? './?verify=' + (process.env.GITHUB_SHA || Date.now()) : '/');
   await page.waitForFunction(() => Boolean(
     App.characters?.length && window.BAOChatMarkup && Storage.status().ready
   ), null, { timeout: 15000 });
@@ -37,7 +38,7 @@ test('core chat shell never exposes authored greeting source even if scene rende
 });
 
 async function prepareYume(page, mode = 'efficient') {
-  await page.goto('/');
+  await page.goto(process.env.BAO_LIVE_URL ? './?verify=' + (process.env.GITHUB_SHA || Date.now()) : '/');
   await page.waitForFunction(() => Boolean(
     App.characters?.length && window.BAOSceneHTML && window.BAOStoryReader &&
     window.BAOWorldModules && Storage.status().ready
@@ -150,3 +151,67 @@ test('a standalone legacy greeting does not remain HTML-escaped', async ({ page 
   await expect(greeting).toContainText('歌舞伎町');
   expect(await greeting.innerText()).not.toContain('<div class=');
 });
+
+for (const displayMode of ['text', 'ui']) {
+  test(`persisted intimacy theme renders Yume opening and status safely in ${displayMode}`, async ({ page }, testInfo) => {
+    await page.addInitScript(() => localStorage.setItem('bao-lab:scene-view-v1', JSON.stringify({ enabled: true, type: 'intimacy' })));
+    await prepareYume(page);
+    await page.waitForFunction(() => Boolean(window.BAOSceneChat && window.BAOSceneRenderIntegrity));
+    await page.evaluate(mode => {
+      App.config.displayMode = mode;
+      App.renderChatShell(false);
+      BAOSceneRenderIntegrity.reconcile();
+    }, displayMode);
+    const bubble = page.locator('#chat-stream > .message.assistant .bubble').first();
+    await expect(bubble.locator('.bao-scene-heading')).toHaveText('成人親密');
+    await expect(bubble).not.toContainText('<div class=');
+    await expect(bubble.locator('.bao-yume-opening img')).toHaveAttribute('src', 'assets/yume-yume-rain-v4.webp');
+    await page.evaluate(() => {
+      Chat.add('user', '繼續');
+      Chat.add('assistant', '<p>門邊的雨聲。It\'s raining.</p><img src="javascript:alert(1)" onerror="window.__unsafe=true"><script>window.__unsafe=true</script>\n[STATUS]氣運：120[/STATUS]');
+      App.renderChatShell(false);
+      BAOStoryReader.decorateStream();
+      BAOSceneRenderIntegrity.reconcile();
+    });
+    const last = page.locator('#chat-stream > .message.assistant .bubble').last();
+    await expect(last).toContainText('門邊的雨聲。');
+    await expect(last).not.toContainText('<p>');
+    await expect(last).not.toContainText('[STATUS]');
+    await expect(page.locator('#bao-inline-story-status')).toContainText('氣運：120');
+    expect(await last.locator('script,[onerror],[src^="javascript:"]').count()).toBe(0);
+    expect(await page.evaluate(() => window.__unsafe)).toBeUndefined();
+    const restored = await page.evaluate(() => {
+      const original = JSON.stringify(Chat.messages);
+      const save = Storage.buildStoryPayload('theme-compat-roundtrip');
+      Chat.reset();
+      if (!Storage.restoreStory(save)) throw new Error('Story restore failed');
+      App.renderChatShell(false);
+      BAOSceneRenderIntegrity.reconcile();
+      return JSON.stringify(Chat.messages) === original;
+    });
+    expect(restored).toBe(true);
+    await expect(bubble).not.toContainText('<div class=');
+    await expect(page.locator('#bao-inline-story-status')).toContainText('氣運：120');
+
+    await page.evaluate(() => {
+      BAOSceneChat.prefs.enabled = false;
+      BAOSceneChat.paint();
+      BAOSceneHTML.prefs.mode = 'native';
+      BAOSceneHTML.refresh();
+      BAOSceneChat.prefs.enabled = true;
+      BAOSceneChat.prefs.type = 'mystery';
+      BAOSceneChat.paint();
+    });
+    await expect(bubble).not.toContainText('<div class=');
+    await expect(bubble).toContainText('Club Rose');
+    await page.evaluate(() => {
+      BAOSceneHTML.prefs.mode = 'efficient';
+      Chat.reset();
+      App.renderChatShell(true);
+      BAOSceneRenderIntegrity.reconcile();
+    });
+    await expect(bubble).not.toContainText('<div class=');
+    await expect(bubble.locator('.bao-yume-opening img')).toHaveCount(1);
+    await page.screenshot({ path: testInfo.outputPath('yume-themed-opening.png'), fullPage: true });
+  });
+}

@@ -5,6 +5,7 @@
   const KEY = 'bao-lab:scene-view-v1';
   const choices = ['auto', 'general', 'romance', 'intimacy', 'danger', 'mystery'];
   const read = () => { try { return JSON.parse(localStorage.getItem(KEY) || '{}'); } catch { return {}; } };
+  const renderedBodies = new WeakMap();
   const saved = read();
   const prefs = { enabled: saved.enabled === true, type: choices.includes(saved.type) ? saved.type : 'auto' };
   const persist = () => { try { localStorage.setItem(KEY, JSON.stringify(prefs)); } catch (_) {} };
@@ -32,25 +33,35 @@
     const offset = greetingOnly ? 0 : nodes.length === messages.length ? 0 :
       nodes.length === messages.length + 1 && nodes[0]?.classList.contains('assistant') ? 1 : -1;
     if (offset < 0) return;
-    const entries = greetingOnly ? [{ role: 'assistant', content: App.activeCharacter.greeting || '' }] : messages;
+    const entries = greetingOnly || offset === 1
+      ? [{ role: 'assistant', content: App.activeCharacter.greeting || '', greeting: true }, ...messages] : messages;
     for (let i = 0; i < entries.length; i++) {
       const message = entries[i];
-      const node = nodes[i + offset];
+      const node = nodes[i];
       if (!node || message.role !== 'assistant' || !node.classList.contains('assistant')) continue;
-      if (message.greeting && App.activeCharacter?.opening?.posts?.length) continue;
       const bubble = node.querySelector('.bubble');
       if (!bubble || bubble.querySelector('.story-inline-editor') || node.classList.contains('is-streaming')) continue;
       const type = prefs.type === 'auto' ? currentType() : prefs.type;
-      const fingerprint = JSON.stringify([message.id || '', message.content, prefs.enabled, type]);
+      // Themes decorate the same safe reader output as the normal story view.
+      // Sending raw authored HTML to the text-only theme core exposed its source.
+      const source = visibleNarration(message.content);
+      const html = App.renderStoryMessage(source, 'assistant', Boolean(message.greeting));
+      const fingerprint = JSON.stringify([message.id || '', html, prefs.enabled, type]);
       // Another reader may replace the body after we painted it. A matching
       // fingerprint alone is not evidence that our scene is still on screen.
       if (bubble.dataset.sceneFingerprint === fingerprint &&
-          (!prefs.enabled || bubble.querySelector('.bao-scene-body'))) continue;
-      if (prefs.enabled) BAOScenePresentation.render(bubble, visibleNarration(message.content), { type });
+          (!prefs.enabled || bubble.querySelector('.bao-scene-body')?.innerHTML === renderedBodies.get(bubble))) continue;
+      if (prefs.enabled) {
+        BAOScenePresentation.render(bubble, '', { type });
+        // html comes exclusively from the shared renderer/sanitizer; neither
+        // model text nor player text is inserted here as unsanitized HTML.
+        const body = bubble.querySelector('.bao-scene-body');
+        body.innerHTML = html;
+        // Compare DOM serialization, which can normalize quotes/entities.
+        renderedBodies.set(bubble, body.innerHTML);
+      }
       else if (bubble.dataset.sceneFingerprint) {
-        const html = window.BAOSceneHTML?.render?.(message.content);
-        if (typeof html === 'string') bubble.innerHTML = html;
-        else bubble.textContent = visibleNarration(message.content);
+        bubble.innerHTML = html;
         bubble.style.cssText = '';
         delete bubble.dataset.sceneType;
         bubble.classList.remove('bao-scene-plain');

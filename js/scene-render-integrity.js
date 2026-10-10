@@ -61,7 +61,7 @@
   // Also handle mode switches and late history decorations without touching
   // the temporary streaming bubble while the request is active.
   new MutationObserver(schedule).observe(stream, { childList: true, subtree: true });
-  const sceneScript = document.querySelector('script[src="js/scene-html-modes.js"]');
+  const sceneScript = document.querySelector('script[src^="js/scene-html-modes.js"]');
   if (!window.BAOSceneHTML) sceneScript?.addEventListener('load', schedule, { once: true });
   window.BAOSceneRenderIntegrity = { reconcile, schedule };
   schedule();

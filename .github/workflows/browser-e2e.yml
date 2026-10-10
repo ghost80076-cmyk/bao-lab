@@ -196,6 +196,7 @@ jobs:
           npm run test:e2e --
           tests/e2e/mobile-story-entry.spec.cjs
           tests/e2e/story-integrity.spec.cjs
+          tests/e2e/story-status-opening-compat.spec.cjs
           --project=${{ matrix.browser }}
       - name: Upload smoke report
         if: always()
@@ -237,3 +238,8 @@ jobs:
         env:
           BAO_LIVE_URL: https://yorubay.com/
         run: npm run test:e2e -- tests/e2e/kept-in-frame.spec.cjs --project=chromium
+
+      - name: Verify live Yume scene theme and status regression
+        env:
+          BAO_LIVE_URL: https://yorubay.com/
+        run: npm run test:e2e -- tests/e2e/story-status-opening-compat.spec.cjs --project=chromium -g "persisted intimacy"
