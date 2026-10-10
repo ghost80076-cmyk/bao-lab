@@ -3,6 +3,7 @@
   'use strict';
   const SCOPE = 'https://www.googleapis.com/auth/drive.appdata';
   const PREFIX = 'bao-lab-story-v1-';
+  const DELETED_PREFIX = 'bao-lab-deleted-v1-';
   const DRIVE = 'https://www.googleapis.com/drive/v3';
   const UPLOAD = 'https://www.googleapis.com/upload/drive/v3';
   const CLIENT_ID = String(window.BAOGoogleDriveConfig?.clientId || '').trim();
@@ -50,11 +51,11 @@
     const files = [];
     let page = '';
     do {
-      const query = new URLSearchParams({ spaces: 'appDataFolder', q: "name contains 'bao-lab-story-v1-' and trashed = false", pageSize: '1000', fields: 'nextPageToken,incompleteSearch,files(id,name,version,modifiedTime)' });
+      const query = new URLSearchParams({ spaces: 'appDataFolder', q: "(name contains 'bao-lab-story-v1-' or name contains 'bao-lab-deleted-v1-') and trashed = false", pageSize: '1000', fields: 'nextPageToken,incompleteSearch,files(id,name,version,modifiedTime)' });
       if (page) query.set('pageToken', page);
       const data = await json(DRIVE + '/files?' + query);
       if (data.incompleteSearch) throw new Error('Google Drive 檔案清單不完整，本次停止同步。');
-      files.push(...(data.files || []).filter(file => file.name.startsWith(PREFIX) && file.name.endsWith('.json')));
+      files.push(...(data.files || []).filter(file => (file.name.startsWith(PREFIX) || file.name.startsWith(DELETED_PREFIX)) && file.name.endsWith('.json')));
       page = data.nextPageToken || '';
     } while (page);
     return files;
@@ -67,11 +68,11 @@
     if (Number(safe.version || 1) > Backup.version) throw new Error('雲端故事格式較新，請先更新夜灣。');
     return safe;
   };
-  async function makeRemote(id, bundle) {
+  async function makeRemote(id, bundle, deleted = false) {
     const boundary = 'bao_' + crypto.randomUUID().replace(/-/g, '');
     const body = new Blob([
       '--' + boundary + '\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n',
-      JSON.stringify({ name: filename(id), parents: ['appDataFolder'], mimeType: 'application/json' }),
+      JSON.stringify({ name: deleted ? DELETED_PREFIX + id + '.json' : filename(id), parents: ['appDataFolder'], mimeType: 'application/json' }),
       '\r\n--' + boundary + '\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n',
       JSON.stringify(bundle), '\r\n--' + boundary + '--'
     ]);
@@ -93,6 +94,7 @@
     const safe = Backup.sanitizeBundle(bundle);
     const id = String(safe.story?.storyId || '');
     if (!validId(id) || !await Library.open()) throw new Error('無法辨識雲端故事或本機故事庫不可用。');
+    if ((await Library.allRecords()).some(record => record.kind === 'deletion' && record.storyId === id)) throw new Error('這個故事已有本機刪除紀錄，停止下載。');
     if (activeChat(id)) throw new Error('這個故事正在遊玩，請先離開故事並重新整理，再下載雲端進度。');
     const previous = Library.refs();
     const previousRecords = await Library.allRecords();
@@ -201,16 +203,34 @@
       if (!await Library.flush()) throw new Error('本機故事庫無法使用，已停止同步。');
       const local = await Library.listStories();
       const remoteFiles = await listRemote();
+      const deletions = new Map((await Library.allRecords?.() || []).filter(record => record.kind === 'deletion').map(record => [record.storyId, record]));
+      const cloudDeleted = new Set(remoteFiles.filter(file => file.name.startsWith(DELETED_PREFIX)).map(file => file.name.slice(DELETED_PREFIX.length, -5)).filter(validId));
       const groups = new Map();
-      remoteFiles.forEach(file => {
+      remoteFiles.filter(file => file.name.startsWith(PREFIX)).forEach(file => {
         const id = file.name.slice(PREFIX.length, -5);
         if (!groups.has(id)) groups.set(id, []);
         groups.get(id).push(file);
       });
       const localMap = new Map(local.map(story => [story.storyId, story]));
       const syncMap = state();
-      for (const id of new Set([...localMap.keys(), ...groups.keys()])) {
+      for (const id of new Set([...localMap.keys(), ...groups.keys(), ...deletions.keys(), ...cloudDeleted])) {
         if (!validId(id)) continue;
+        if (deletions.has(id) || cloudDeleted.has(id)) {
+          try {
+            if (!cloudDeleted.has(id)) await makeRemote(id, { storyId: id, deletedAt: deletions.get(id).deletedAt }, true);
+            for (const file of groups.get(id) || []) await request(DRIVE + '/files/' + encodeURIComponent(file.id), { method: 'DELETE' });
+            const remaining = localMap.get(id);
+            if (remaining) {
+              const baseline = syncMap[id];
+              if (activeChat(id) || !baseline || baseline.updatedAt !== remaining.updatedAt) {
+                result.conflicts++;
+                result.errors.push('「' + remaining.title + '」已在其他裝置刪除；本機有未確認的進度，已保留本機但不再上傳。請匯出備份後自行決定。');
+              } else await Library.deleteStory(id);
+            }
+            result.skipped++;
+          } catch (error) { result.errors.push(id + '：' + errorText(error)); }
+          continue;
+        }
         const files = groups.get(id) || [];
         if (files.length > 1) {
           result.conflicts++;
@@ -266,9 +286,22 @@
         } else result.skipped++;
       }
       saveState(syncMap);
-      if (result.downloaded) window.BAORefreshSaveUI?.();
+      window.BAORefreshSaveUI?.();
       note(`同步結果：上傳 ${result.uploaded}、下載 ${result.downloaded}、無變動 ${result.skipped}、待確認 ${result.conflicts}。` + (result.errors.length ? '\n' + result.errors.join('\n') : ''));
       return result;
+    } finally { busy = false; refresh(); }
+  }
+
+  async function deleteCloudStory(id) {
+    if (!validId(id) || !connected() || busy) throw new Error('請先連結 Google，並等待同步完成。');
+    busy = true; refresh();
+    try {
+      await makeRemote(id, { storyId: id, deletedAt: new Date().toISOString() }, true);
+      // Delete only story payloads; retain the durable deletion marker for offline devices.
+      for (const file of await listRemote()) {
+        if (file.name === filename(id)) await request(DRIVE + '/files/' + encodeURIComponent(file.id), { method: 'DELETE' });
+      }
+      note('已刪除雲端備份。本機進度保留；其他裝置同步時會辨識刪除紀錄。');
     } finally { busy = false; refresh(); }
   }
 
@@ -308,10 +341,37 @@
     autoLabel.append(auto, document.createTextNode(' 啟用自動同步（儲存後約一分鐘合併上傳；授權到期會暫停）'));
     const actions = document.createElement('div'); actions.style.cssText = 'display:flex;gap:8px;flex-wrap:wrap';
     actions.append(connectButton, syncButton, disconnectButton, closeButton);
-    panel.append(title, description, autoLabel, actions, status);
+    const manageButton = document.createElement('button'); manageButton.type = 'button'; manageButton.className = 'secondary'; manageButton.textContent = '查看雲端存檔';
+    const listing = document.createElement('div');
+    actions.append(manageButton);
+    manageButton.onclick = async () => {
+      if (busy || !connected()) return;
+      busy = true; refresh(); listing.replaceChildren();
+      try {
+        const files = await listRemote();
+        const deleted = new Set(files.filter(file => file.name.startsWith(DELETED_PREFIX)).map(file => file.name.slice(DELETED_PREFIX.length, -5)));
+        for (const file of files.filter(file => file.name.startsWith(PREFIX))) {
+          const id = file.name.slice(PREFIX.length, -5);
+          if (!validId(id) || deleted.has(id)) continue;
+          const bundle = await readRemote(file);
+          const row = document.createElement('div'); row.style.cssText = 'margin:12px 0;overflow-wrap:anywhere';
+          const label = document.createElement('p'); label.textContent = (bundle.story.title || id) + '｜' + (file.modifiedTime || bundle.story.updatedAt || '');
+          const remove = document.createElement('button'); remove.type = 'button'; remove.textContent = '刪除雲端備份';
+          remove.onclick = async () => {
+            if (!window.confirm('刪除「' + (bundle.story.title || id) + '」的雲端備份？其他裝置同步後會套用刪除；本機未同步的進度會保留供確認。')) return;
+            try { await deleteCloudStory(id); row.remove(); } catch (error) { note(errorText(error)); }
+          };
+          row.append(label, remove); listing.append(row);
+        }
+        if (!listing.childNodes.length) listing.textContent = '沒有可用的雲端存檔。';
+      } catch (error) { note(errorText(error)); }
+      finally { busy = false; refresh(); }
+    };
+    panel.append(title, description, autoLabel, actions, status, listing);
     document.body.append(panel);
     note = message => { status.textContent = message; };
     refresh = () => {
+      manageButton.disabled = busy || !connected();
       connectButton.textContent = connected() ? '重新連結' : '連結 Google';
       connectButton.disabled = busy || !CLIENT_ID;
       syncButton.disabled = busy || !connected();
@@ -334,7 +394,7 @@
     note(CLIENT_ID ? '尚未連結 Google。第一次同步前建議先匯出一份故事備份。' : '站長尚未完成 Google OAuth 設定，因此連結與同步按鈕暫時停用。本機故事仍可照常遊玩。');
     refresh();
   }
-  window.BAOGoogleDriveSync = { connect, disconnect, sync, listRemote, restoreStableBundle, connected, filename };
+  window.BAOGoogleDriveSync = { connect, disconnect, sync, listRemote, restoreStableBundle, connected, filename, deleteCloudStory };
   installUI();
   installSaveHook().catch(error => console.warn('BAO/LAB Google Drive save hook unavailable:', error));
 })();
