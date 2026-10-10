@@ -9,6 +9,26 @@
   const lineList = value => String(value || "").split(/\r?\n/).map(x => x.trim()).filter(Boolean);
   const close = () => document.querySelector(".story-tools-backdrop")?.remove();
   const tell = message => alert(message);
+  const openCharacterImport = () => {
+    close();
+    App.showView?.("explore");
+    setTimeout(() => {
+      const tools = document.querySelector("#explore-view .character-tools");
+      const disclosure = tools?.querySelector(":scope > details.bao-gallery-more");
+      if (disclosure) disclosure.open = true;
+      const button = document.getElementById("import-character-button");
+      button?.scrollIntoView?.({ block: "center", behavior: "smooth" });
+      button?.focus?.();
+    }, 0);
+  };
+  const handleStoryImportFailure = error => {
+    if (error?.code === "YORUBAY_CHARACTER_CARD_IN_STORY_IMPORT") {
+      const move = confirm(error.message + "\n\n按「確定」前往正確的角色卡匯入入口。");
+      if (move) openCharacterImport();
+      return;
+    }
+    tell(error?.message || "故事備份匯入失敗。");
+  };
   const importStoryFile = async file => {
     if (!file) throw new Error("請先選擇故事備份 JSON。");
     let parsed;
@@ -1165,7 +1185,7 @@
           }
           await libraryScreen(host);
         } catch (error) {
-          tell(error.message || "故事備份匯入失敗。");
+          handleStoryImportFailure(error);
         } finally {
           libraryImportPicker.value = "";
           if (libraryImportButton?.isConnected) {
@@ -1340,7 +1360,7 @@
         } else {
           tell("舊版單一故事備份已匯入手動存檔；連線金鑰（API Key）已清除。");
         }
-      } catch (error) { tell(error.message || "匯入失敗。"); }
+      } catch (error) { handleStoryImportFailure(error); }
       finally { picker.value = ""; }
     };
     host.querySelector("[data-create]").onclick = () => {
