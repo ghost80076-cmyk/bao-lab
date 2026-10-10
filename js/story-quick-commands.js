@@ -32,8 +32,16 @@
     return true;
   };
 
-  const groups = () => core.grouped(App.activeCharacter || {}, state());
-  const summary = () => core.summary(App.activeCharacter || {}, state());
+  const groups = () => ({ ...core.grouped(App.activeCharacter || {}, state()), event: window.BAOThreeRealmsEvents?.commands?.() || [] });
+  const summary = () => {
+    const info = core.summary(App.activeCharacter || {}, state());
+    const event = window.BAOThreeRealmsEvents?.commands?.() || [];
+    if (event.length) {
+      info.title = `${info.groups.builtIn.length + info.groups.author.length + info.groups.player.length + event.length} 個快捷指令`;
+      info.detail += ` · ${event.length} 種三界事件`;
+    }
+    return info;
+  };
 
   const fillInput = command => {
     const input = document.getElementById("user-input");
@@ -97,6 +105,7 @@
 
         ${groupHTML("常用", "夜灣提供的通用故事操作。", commandGroups.builtIn)}
         ${groupHTML("作品提供", "只有這個作品有提供時才會出現。", commandGroups.author)}
+        ${groupHTML("三界事件", "選擇事件後填入輸入框，送出時才引導本輪故事。", commandGroups.event)}
         ${groupHTML("我的快捷指令", "只保存在目前這份故事。", commandGroups.player)}
 
         <details class="story-quick-editor">
@@ -174,7 +183,9 @@
       row.appendChild(button);
     }
     const info = summary();
+    const eventCount = groups().event.length;
     button.textContent = `⌁ 快捷指令 · ${info.groups.author.length + info.groups.player.length ? info.groups.author.length + info.groups.player.length + " 個自訂" : "常用"}`;
+    if (eventCount) button.textContent += ` · ${eventCount} 種三界事件`;
     button.title = "把常用故事要求填入輸入框，不會自動送出";
   };
 

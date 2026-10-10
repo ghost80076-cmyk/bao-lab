@@ -1,0 +1,85 @@
+{
+  "schema": "yorubay-native-instruction-provenance",
+  "version": 1,
+  "source_book_id": "b43bd078-1b19-46e8-bfc8-952660be367d",
+  "source_visibility": "公開",
+  "records": [
+    {
+      "source_index": 173,
+      "source_title": "機運事件系統",
+      "source_sha256": "19b0b9eda12919b8f63c16c677f8ddce165840e0d378cd4e0741586172f6458c",
+      "profile_id": "fortune",
+      "profile_sha256": "477a3296612023b49ccde0db2db852a2c79a116e297422240ae305b98da6b293"
+    },
+    {
+      "source_index": 174,
+      "source_title": "危機事件系統",
+      "source_sha256": "6aafe247efb2c19325da684d3b29762d09ace1679ed331851b0e6deea6c60fb9",
+      "profile_id": "crisis",
+      "profile_sha256": "0b786b515b33de95ebae05831c656c5534308815ba8ad6555bbbf050be645964"
+    },
+    {
+      "source_index": 175,
+      "source_title": "情感事件系統",
+      "source_sha256": "6a079913eee52bc17fedc5243bc959c1867048be1e6aaeca42014700e434193c",
+      "profile_id": "emotion",
+      "profile_sha256": "ed592e685a4fa4b099a9ee7ee6fbb1864c3e2fdeee2ca622d52738141c7c5351"
+    },
+    {
+      "source_index": 176,
+      "source_title": "突破事件系統",
+      "source_sha256": "05f81fe1c4048239e8fa42aad1f3608cbf09c72bb710e2816fbf7a5f9fe2f819",
+      "profile_id": "breakthrough",
+      "profile_sha256": "d67592ffef72beafe64b1b8f7518047f38afbc68e820d438d4d891322074d408"
+    },
+    {
+      "source_index": 177,
+      "source_title": "陰謀事件系統",
+      "source_sha256": "5f160f83616a48ad7d9d75883f319c527aa4310e186323d54e09eb23d5979532",
+      "profile_id": "conspiracy",
+      "profile_sha256": "099521adf144ac0bc20d67d09b65ab67052cd075934fb8156026195ec8dc0250"
+    },
+    {
+      "source_index": 178,
+      "source_title": "探索事件系統",
+      "source_sha256": "ecb6706d49914401ad8f13aab85e390be378befc91638c974c7999d93a1531ae",
+      "profile_id": "exploration",
+      "profile_sha256": "61bb6457ad8bef1b45e2c9d6842d74389892705a0ade20e21bd635ceeb086dfb"
+    },
+    {
+      "source_index": 179,
+      "source_title": "社交事件系統",
+      "source_sha256": "3f92f9613f9cdf353a29e96349daee3b1a9e3d40648b29add69027d193d44bb3",
+      "profile_id": "social",
+      "profile_sha256": "29eb42930778a551b43583113edea0bffde9540bc6ee38e89250b7ce4657816c"
+    },
+    {
+      "source_index": 180,
+      "source_title": "資源事件系統",
+      "source_sha256": "923af9706519996b462836e215f2b26a7ae0c64fc75abb50d438b6a706cc50af",
+      "profile_id": "resources",
+      "profile_sha256": "0090ec6c8611f465792ebf7a1a353d3a765613a9e85df5f7a1584b4b9be3b464"
+    },
+    {
+      "source_index": 181,
+      "source_title": "時間事件系統",
+      "source_sha256": "831ea72bba3b54329b0a29338a26e9981128d709422b3eea581abff256b3635b",
+      "profile_id": "time",
+      "profile_sha256": "1ffa1581e8b81ae9e34e7ddddf516954705ca6d1183e3356de69a9ada032fb53"
+    },
+    {
+      "source_index": 182,
+      "source_title": "因果事件系統",
+      "source_sha256": "2864c343cdfe5c71a8f03525f460811ecb607d2d3cefa6ae02a32b20033c6baa",
+      "profile_id": "karma",
+      "profile_sha256": "b3ec334cfc446941d71e6989eb718ace63f396db7f54288ad38437537ad09643"
+    },
+    {
+      "source_index": 183,
+      "source_title": "神秘事件系統",
+      "source_sha256": "d473c06087eee8ed1bf3dc1df186c512c6cdfc4745def112f6706eb49575e53e",
+      "profile_id": "mystery",
+      "profile_sha256": "05f529525211d0eaebb0bfcea76509ac024efdfb69ae4d9cfc6341dfee5c14dc"
+    }
+  ]
+}

@@ -11,7 +11,7 @@
   const MAX_REGEX_RULES = 40;
   const MAX_CUSTOM_MODULES = 12;
   const BUILT_INS = new Set([
-    "status", "inventory", "skills", "quests", "factions",
+    "three_realms_events", "status", "inventory", "skills", "quests", "factions",
     "economy", "cultivation", "magic", "equipment", "reputation"
   ]);
   const FORBIDDEN_EXPORT_KEYS = new Set([

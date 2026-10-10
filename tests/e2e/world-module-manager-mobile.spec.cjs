@@ -127,3 +127,58 @@ test('mobile world module manager puts active story modules before presets and g
   await expect(dialog.locator('[data-custom-id]')).toHaveCount(1);
   await expect(dialog.locator('[data-custom-id] [data-custom-prop="label"]')).toBeVisible();
 });
+
+test('Three Realms events are opt-in, fill without sending, and guide only the requested turn', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('./');
+  await page.waitForFunction(() => Boolean(window.BAOWorldModuleManager && window.BAOThreeRealmsEvents && window.BAOStoryQuickCommands && App.characters?.length));
+  await page.evaluate(() => {
+    App.activeCharacter = { ...App.characters[0], id: 'three-realms-events-mobile-test', world_modules: [] };
+    App.config = { narrativeMode: 'world', displayMode: 'ui', api: { model: 'mock' }, persona: { name: '修士' }, memory: { mode: 'smart', maxRounds: 20, maxContext: 32000 } };
+    GameState.create(App.activeCharacter, App.config);
+    Chat.reset();
+    App.renderChatShell(true);
+    App.showView('chat');
+    BAOStoryQuickCommands.open();
+  });
+  let quick = page.getByRole('dialog', { name: '快捷指令' });
+  await expect(quick.locator('[data-quick-source="event"]')).toHaveCount(0);
+  await quick.getByRole('button', { name: '關閉快捷指令' }).click();
+  await page.evaluate(() => BAOWorldModuleManager.open());
+  const manager = page.getByRole('dialog', { name: '世界模組管理' });
+  await manager.locator('[data-preset-id="three_realms_events"]').check();
+  await manager.getByRole('button', { name: '套用到目前故事' }).click();
+  await page.evaluate(() => BAOWorldModuleUI.renderModule('three_realms_events'));
+  await expect(page.locator('#ui-panel')).toContainText('按需引導');
+  await expect(page.locator('#ui-panel')).not.toContainText('目前沒有資料');
+  await page.locator('#user-input').fill('我想去坊市');
+  await page.evaluate(() => BAOStoryQuickCommands.open());
+  quick = page.getByRole('dialog', { name: '快捷指令' });
+  await expect(quick.locator('[data-quick-source="event"]')).toHaveCount(11);
+  await expect(quick.locator('[data-quick-id="three-realms-exploration"]')).toBeVisible();
+  const before = await page.evaluate(() => Chat.messages.length);
+  await quick.locator('[data-quick-id="three-realms-exploration"]').click();
+  await expect(page.locator('#user-input')).toHaveValue('我想去坊市\n【探索事件】');
+  expect(await page.evaluate(() => Chat.messages.length)).toBe(before);
+  const requested = await page.evaluate(async () => {
+    Chat.add('user', document.getElementById('user-input').value);
+    const messages = await App.buildMessages(App.config);
+    App.saveStory(false);
+    return { prompts: messages.filter(m => typeof m.content === 'string' && m.content.includes('【三界事件引導｜')).map(m => m.content), saved: Storage.loadStory()?.state?.worldModuleCustomization?.enabledBuiltIns?.includes('three_realms_events') };
+  });
+  expect(requested.prompts).toHaveLength(1);
+  expect(requested.prompts[0]).toContain('探索事件');
+  expect(requested.saved).toBe(true);
+  const next = await page.evaluate(async () => {
+    Chat.add('assistant', '入口旁仍有線索。');
+    Chat.add('user', '繼續');
+    return (await App.buildMessages(App.config)).filter(m => typeof m.content === 'string' && m.content.includes('【三界事件引導｜')).length;
+  });
+  expect(next).toBe(0);
+  await page.evaluate(() => BAOWorldModuleManager.open());
+  await manager.locator('[data-preset-id="three_realms_events"]').uncheck();
+  await manager.getByRole('button', { name: '套用到目前故事' }).click();
+  await page.evaluate(() => BAOStoryQuickCommands.open());
+  quick = page.getByRole('dialog', { name: '快捷指令' });
+  await expect(quick.locator('[data-quick-source="event"]')).toHaveCount(0);
+});

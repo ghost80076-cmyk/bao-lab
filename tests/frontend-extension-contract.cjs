@@ -50,7 +50,9 @@ increasing(siteUI, [
   'loadBAOScript("js/world-state.js")',
   'loadBAOScript("js/character-status.js?v=4")',
   'loadBAOScript("js/three-realms-cultivation-core.js?v=1")',
-  'loadBAOScript("js/world-modules.js?v=2")',
+  'loadBAOScript("js/three-realms-event-profiles.js?v=1")',
+  'loadBAOScript("js/three-realms-events-core.js?v=1")',
+  'loadBAOScript("js/world-modules.js?v=3")',
   'loadBAOScript("js/world-state-hook.js?v=2")'
 ], "world-state extension");
 
@@ -60,6 +62,8 @@ increasing(siteUI, [
   'loadBAOScript("js/story-tools.js?v=4")',
   'loadBAOScript("js/prompt-cache.js',
   'loadBAOScript("js/prompt-orchestrator.js")',
+  'then(() => worldModulesReady)',
+  'loadBAOScript("js/three-realms-events.js?v=1")',
   'loadBAOScript("js/streaming-ui.js',
   'loadBAOScript("js/request-lifecycle.js")'
 ], "story extension");
@@ -67,7 +71,7 @@ increasing(siteUI, [
 // Modules without their own global idempotency guard currently rely on the loader;
 // protect against accidentally adding a second loader while the wrapper design is unchanged.
 assert.equal(
-  siteUI.split('loadBAOScript("js/world-modules.js?v=2")').length - 1,
+  siteUI.split('loadBAOScript("js/world-modules.js?v=3")').length - 1,
   1,
   "world-modules must be loaded exactly once by site-ui"
 );
