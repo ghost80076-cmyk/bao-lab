@@ -153,10 +153,13 @@
   // Optional, declarative counter transactions. Imported cards never execute JavaScript.
   // Only integer paths beneath defined object-type world modules are eligible.
   function normalizeActionEffect(raw) {
-    if (!isObject(raw) || !Array.isArray(raw.changes) || raw.changes.length < 1 || raw.changes.length > 8) return null;
+    if (!isObject(raw)) return null;
+    const rawChanges = raw.changes === undefined ? [] : raw.changes;
+    const rawItems = raw.items === undefined ? [] : raw.items;
+    if (!Array.isArray(rawChanges) || !Array.isArray(rawItems) || rawChanges.length > 8 || rawItems.length > 8 || !rawChanges.length && !rawItems.length) return null;
     const changes = [];
     const seen = new Set();
-    for (const change of raw.changes) {
+    for (const change of rawChanges) {
       if (!isObject(change)) return null;
       const path = String(change.path || '').trim();
       const parts = splitPath(path);
@@ -167,7 +170,21 @@
       seen.add(path);
       changes.push({ path, delta });
     }
-    return { changes, event: String(raw.event || '').trim().slice(0, 160) };
+    const items = [];
+    const itemKeys = new Set();
+    for (const item of rawItems) {
+      if (!isObject(item)) return null;
+      const path = String(item.path || '').trim();
+      const parts = splitPath(path);
+      const id = String(item.id || '').trim();
+      if (parts.length !== 2 || !isTargetPath(path) || !key(id) ||
+          !Number.isSafeInteger(item.delta) || item.delta === 0 || Math.abs(item.delta) > 1000000 ||
+          itemKeys.has(path + ':' + id) || changes.some(change => change.path.startsWith(path + '.'))) return null;
+      itemKeys.add(path + ':' + id);
+      const name = String(item.name || '').trim().slice(0, 120);
+      items.push({ path, id, delta: item.delta, ...(name ? { name } : {}) });
+    }
+    return { changes, ...(items.length ? { items } : {}), event: String(raw.event || '').trim().slice(0, 160) };
   }
 
   function normalizePanelItem(raw, sectionType, index) {
@@ -445,14 +462,14 @@
       return { ok: false, reason: '世界模組尚未就緒。' };
     }
     const definitions = new Map(state.moduleDefinitions
-      .filter(def => def?.id && def.kind === 'object' && def.enabled !== false)
+      .filter(def => def?.id && def.enabled !== false)
       .map(def => [def.id, def]));
     const pending = [];
     for (const change of effect.changes) {
       const parts = splitPath(change.path);
       const moduleId = parts[1];
       const moduleValue = state.modules[moduleId];
-      if (!definitions.has(moduleId) || !isObject(moduleValue)) {
+      if (definitions.get(moduleId)?.kind !== 'object' || !isObject(moduleValue)) {
         return { ok: false, reason: '動作引用了未啟用或非數值型世界模組。' };
       }
       const previous = getPath(state, change.path);
@@ -474,11 +491,35 @@
         if (modules[moduleId] === state.modules[moduleId]) modules[moduleId] = clone(state.modules[moduleId]);
       }
       const shadow = { modules };
+      const itemPaths = new Set();
+      for (const item of effect.items || []) {
+        const moduleId = splitPath(item.path)[1];
+        if (definitions.get(moduleId)?.kind !== 'collection' || !Array.isArray(modules[moduleId])) {
+          return { ok: false, reason: '物品需要已初始化的集合型世界模組。' };
+        }
+        if (!itemPaths.has(item.path)) modules[moduleId] = clone(modules[moduleId]);
+        itemPaths.add(item.path);
+        const list = modules[moduleId];
+        if (list.length > 100 || list.some(row => !isObject(row) || !key(row.id) ||
+            !Number.isSafeInteger(row.quantity) || row.quantity < 0 || row.quantity > 1000000000) ||
+            new Set(list.map(row => row.id)).size !== list.length) {
+          return { ok: false, reason: '背包需要唯一物品 ID 與有效數量。' };
+        }
+        const index = list.findIndex(row => row.id === item.id);
+        const next = (index < 0 ? 0 : list[index].quantity) + item.delta;
+        if (!Number.isSafeInteger(next) || next < 0 || next > 1000000000 ||
+            index < 0 && (!item.name || list.length >= 100)) {
+          return { ok: false, reason: '物品不足或背包已滿。' };
+        }
+        if (index < 0) list.push({ id: item.id, name: item.name, quantity: next });
+        else list[index].quantity = next;
+      }
       for (const { path, next } of pending) {
         if (!setPath(shadow, path, next)) return { ok: false, reason: '遊戲動作無法寫入狀態。' };
       }
       const versions = { ...(state.gameplayActionVersions || {}) };
       for (const { path } of pending) versions[path] = (Number(versions[path]) || 0) + 1;
+      for (const path of itemPaths) versions[path] = (Number(versions[path]) || 0) + 1;
       state.modules = modules;
       state.gameplayActionVersions = versions;
     } catch (_) {
@@ -498,10 +539,11 @@
     const clean = clone(update);
     for (const [path, version] of Object.entries(state?.gameplayActionVersions || {})) {
       const parts = splitPath(path);
-      if (parts.length < 3 || parts[0] !== 'modules' || !isTargetPath(path)) continue;
-      if (version === baseline[path] || !isObject(clean.modules[parts[1]])) continue;
+      if (parts.length < 2 || parts[0] !== 'modules' || !isTargetPath(path)) continue;
+      if (version === baseline[path] || !Object.prototype.hasOwnProperty.call(clean.modules, parts[1])) continue;
+      if (parts.length > 2 && !isObject(clean.modules[parts[1]])) continue;
       const current = getPath(state, path);
-      if (Number.isSafeInteger(current) && current >= 0) setPath(clean, path, current);
+      if (Array.isArray(current) || Number.isSafeInteger(current) && current >= 0) setPath(clean, path, current);
     }
     return clean;
   }

@@ -253,9 +253,10 @@ test('native effect buttons commit a purchase once per click without sending a c
       greeting: 'welcome',
       world_modules: [
         { id: 'economy', kind: 'object', context: 'core' },
-        { id: 'supplies', kind: 'object', context: 'core' }
+        { id: 'supplies', kind: 'object', context: 'core' },
+        { id: 'inventory', kind: 'collection', context: 'core' }
       ],
-      initial_state: { modules: { economy: { crystals: 20 }, supplies: { cans: 0 } } },
+      initial_state: { modules: { economy: { crystals: 20 }, supplies: { cans: 0 }, inventory: [] } },
       gameplay_ui: {
         version: 1,
         panels: [{ id: 'shop', label: '交易', sections: [{
@@ -266,6 +267,7 @@ test('native effect buttons commit a purchase once per click without sending a c
                 { path: 'modules.economy.crystals', delta: -15 },
                 { path: 'modules.supplies.cans', delta: 1 }
               ],
+              items: [{ path: 'modules.inventory', id: 'cans', name: '罐頭', delta: 1 }],
               event: '購買罐頭'
             } },
             { label: '向店員詢價', draft: '請問這裡的罐頭多少錢？' }
@@ -292,18 +294,20 @@ test('native effect buttons commit a purchase once per click without sending a c
   let result = await page.evaluate(() => ({
     crystals: GameState.current.modules.economy.crystals,
     cans: GameState.current.modules.supplies.cans,
+    backpack: GameState.current.modules.inventory[0]?.quantity,
     log: GameState.current.events.filter(x => JSON.stringify(x).includes('購買罐頭')).length,
     messages: Chat.messages.length
   }));
-  expect(result).toEqual({ crystals: 5, cans: 1, log: 1, messages: 0 });
+  expect(result).toEqual({ crystals: 5, cans: 1, backpack: 1, log: 1, messages: 0 });
   // Insufficient balance must roll back BOTH parts of a second purchase.
   await page.evaluate(() => document.querySelector('#ui-panel [data-gameplay-effect]')?.click());
   result = await page.evaluate(() => ({
     crystals: GameState.current.modules.economy.crystals,
     cans: GameState.current.modules.supplies.cans,
+    backpack: GameState.current.modules.inventory[0]?.quantity,
     log: GameState.current.events.filter(x => JSON.stringify(x).includes('購買罐頭')).length
   }));
-  expect(result).toEqual({ crystals: 5, cans: 1, log: 1 });
+  expect(result).toEqual({ crystals: 5, cans: 1, backpack: 1, log: 1 });
   await page.evaluate(() => document.querySelector('#ui-panel [data-gameplay-draft-text]')?.click());
   await expect(page.locator('#user-input')).toHaveValue('請問這裡的罐頭多少錢？');
 });

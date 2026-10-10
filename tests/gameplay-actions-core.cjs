@@ -116,3 +116,44 @@ const omitted = Core.reconcileActionUpdate(racing, { modules: { economy: { other
 assert.equal(omitted.modules.economy.crystals, 5, 'full module replacement preserves even omitted locally modified fields');
 assert.equal(omitted.modules.supplies, undefined, 'untouched modules are not invented');
 console.log('gameplay action race reconciliation: OK');
+
+const backpackPurchase = {
+  changes: [{ path: 'modules.economy.crystals', delta: -15 }],
+  items: [{ path: 'modules.inventory', id: 'cans', name: '罐頭', delta: 2 }],
+  event: '購買兩份罐頭'
+};
+const backpack = makeState();
+const itemBaseline = Core.captureActionVersions(backpack);
+assert.equal(Core.executeActionEffect(backpack, backpackPurchase).ok, true);
+assert.equal(backpack.modules.economy.crystals, 5);
+assert.deepEqual(backpack.modules.inventory, [{ id: 'cans', name: '罐頭', quantity: 2 }]);
+const consume = { items: [{ path: 'modules.inventory', id: 'cans', delta: -1 }] };
+assert.equal(Core.executeActionEffect(backpack, consume).ok, true);
+assert.equal(backpack.modules.inventory[0].quantity, 1);
+const priorBackpack = structuredClone(backpack);
+assert.equal(Core.executeActionEffect(backpack, backpackPurchase).ok, false);
+assert.deepEqual(backpack, priorBackpack, 'insufficient money cannot grant backpack items');
+assert.equal(Core.executeActionEffect(backpack, { changes: [{ path: 'modules.economy.crystals', delta: 10 }], items: [{ path: 'modules.inventory', id: 'cans', delta: -2 }] }).ok, false);
+assert.deepEqual(backpack, priorBackpack, 'insufficient item cannot grant money');
+const itemReconciled = Core.reconcileActionUpdate(backpack, { modules: { inventory: [] } }, itemBaseline);
+assert.deepEqual(itemReconciled.modules.inventory, backpack.modules.inventory, 'late AI cannot erase a local backpack commit');
+assert.equal(Core.executeActionEffect(backpack, consume).ok, true);
+assert.equal(backpack.modules.inventory[0].quantity, 0, 'zero stock preserves item metadata');
+assert.equal(Core.executeActionEffect(backpack, consume).ok, false);
+for (const rows of [[{ id: 'x', quantity: 1 }, { id: 'x', quantity: 2 }], [{ name: 'no-id', quantity: 1 }], [{ id: 'x', quantity: '2' }]]) {
+  const malformed = makeState(); malformed.modules.inventory = rows;
+  const saved = structuredClone(malformed);
+  assert.equal(Core.executeActionEffect(malformed, backpackPurchase).ok, false);
+  assert.deepEqual(malformed, saved, 'ambiguous or invalid backpack rolls back the entire operation');
+}
+assert.equal(Core.normalizeActionEffect({ items: [{ path: 'modules.inventory', id: '__proto__', delta: 1 }] }), null);
+assert.equal(Core.normalizeActionEffect({ items: [{ path: 'modules.inventory', id: 'cans', delta: 1 }, { path: 'modules.inventory', id: 'cans', delta: 2 }] }), null);
+assert.equal(Core.normalizeActionEffect({ changes: [{ path: 'modules.inventory.count', delta: 1 }], items: [{ path: 'modules.inventory', id: 'cans', delta: 1 }] }), null);
+assert.equal(Core.normalizeActionEffect({ changes: [] }), null);
+assert.equal(Core.normalizeActionEffect({ changes: 'bad', items: [{ path: 'modules.inventory', id: 'cans', delta: 1 }] }), null);
+const noName = makeState();
+assert.equal(Core.executeActionEffect(noName, { items: [{ path: 'modules.inventory', id: 'new', delta: 1 }] }).ok, false);
+const full = makeState(); full.modules.inventory = Array.from({length:100}, (_,i) => ({id:'item'+i,quantity:1}));
+assert.equal(Core.executeActionEffect(full, backpackPurchase).ok, false);
+assert.equal(full.modules.economy.crystals, 20);
+console.log('gameplay backpack transactions: OK');
