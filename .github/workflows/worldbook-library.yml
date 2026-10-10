@@ -12,6 +12,9 @@ on:
       - 'data/three-realms-middle-lore-source-map.json'
       - 'data/three-realms-advanced-lore-source-map.json'
       - 'data/three-realms-cosmic-lore-source-map.json'
+      - 'data/three-realms-secret-lore-source-map.json'
+      - 'scripts/migrate-three-realms-secret-lore.py'
+      - 'tests/three-realms-secret-lore-core.cjs'
       - 'scripts/migrate-three-realms-cosmic-lore.py'
       - 'tests/three-realms-cosmic-lore-core.cjs'
       - 'scripts/migrate-three-realms-advanced-lore.py'
@@ -39,6 +42,9 @@ on:
       - 'data/three-realms-middle-lore-source-map.json'
       - 'data/three-realms-advanced-lore-source-map.json'
       - 'data/three-realms-cosmic-lore-source-map.json'
+      - 'data/three-realms-secret-lore-source-map.json'
+      - 'scripts/migrate-three-realms-secret-lore.py'
+      - 'tests/three-realms-secret-lore-core.cjs'
       - 'scripts/migrate-three-realms-cosmic-lore.py'
       - 'tests/three-realms-cosmic-lore-core.cjs'
       - 'scripts/migrate-three-realms-advanced-lore.py'
@@ -76,4 +82,5 @@ jobs:
           node tests/three-realms-middle-lore-core.cjs
           node tests/three-realms-advanced-lore-core.cjs
           node tests/three-realms-cosmic-lore-core.cjs
+          node tests/three-realms-secret-lore-core.cjs
           node tests/lorebook-core.cjs

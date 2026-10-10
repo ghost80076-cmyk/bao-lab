@@ -53,6 +53,8 @@ def sections(raw, index):
     return [(start, starts[n + 1] if n + 1 < len(starts) else len(raw), labels[n]) for n, start in enumerate(starts)]
 
 def keywords(index, heading, content):
+    if index == 106:
+        return ["下界秘境概念"] if heading == "基本概念" else ["下界" + heading]
     if index in CONCEPTS:
         return [CONCEPTS[index] + "概念"] if heading == "基本概念" else [heading]
     if index == 124:
@@ -82,7 +84,7 @@ def build(source, root):
         pack = {"schema": "yorubay-worldbook-pack", "version": 1, "meta": {
             "id": "three-realms-atlas-" + key, "name": "三界九域｜" + label,
             "world": "three-realms", "classification": "world", "author": "班長／肉包",
-            "release": "1.0.0", "visibility": "public",
+            "release": "1.0.1" if key == "secret-realms" else "1.0.0", "visibility": "public",
             "source": "三界九域仙界-修仙｜公開原文下界補篇（2026-10-10）"
         }, "entries": []}
         for index in indices:
