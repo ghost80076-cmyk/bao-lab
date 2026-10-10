@@ -41,7 +41,7 @@
     const workshop = window.BAOThreeRealmsEvents?.commands?.('workshop') || [];
     if (event.length || generator.length || query.length || workshop.length) {
       info.title = `${info.groups.builtIn.length + info.groups.author.length + info.groups.player.length + event.length + generator.length + query.length + workshop.length} 個快捷指令`;
-      info.detail += ` · ${event.length} 種三界事件 · ${generator.length} 種角色構思 · ${query.length} 種查詢整理 · ${workshop.length} 種世界構思`;
+      info.detail += ` · ${event.length} 種三界事件 · ${generator.length} 種角色構思 · ${query.length} 種查詢整理 · ${workshop.length} 種世界與劇情構思`;
     }
     return info;
   };
@@ -111,7 +111,7 @@
         ${groupHTML("三界事件", "選擇事件後填入輸入框，送出時才引導本輪故事。", commandGroups.event)}
         ${groupHTML("角色構思", "選擇氣運之子，或填入想融合的原作角色與作品。", commandGroups.generator)}
         ${groupHTML("查詢整理", "只整理故事中已知的關係、事件、物品與世界資訊。", commandGroups.query)}
-        ${groupHTML("世界構思", "提出融合、自訂或切換方案；這些指令不會自動修改故事。", commandGroups.workshop)}
+        ${groupHTML("世界與劇情構思", "提出融合、自訂、切換或角色退場方案；由你選擇與調整。", commandGroups.workshop)}
         ${groupHTML("我的快捷指令", "只保存在目前這份故事。", commandGroups.player)}
 
         <details class="story-quick-editor">
