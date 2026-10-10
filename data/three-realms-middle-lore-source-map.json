@@ -1,0 +1,655 @@
+{
+  "schema": "yorubay-worldbook-source-map",
+  "version": 1,
+  "source_book_id": "b43bd078-1b19-46e8-bfc8-952660be367d",
+  "source_visibility": "公開",
+  "source_entry_count": 191,
+  "migrated_source_entries": 14,
+  "generated_entries": 76,
+  "records": [
+    {
+      "source_index": 141,
+      "source_title": "中界-基本概念",
+      "source_sha256": "925202ea97b3d5d7d0c43eb758104713a2c2dbca066decfc32cc3c7d69e138c8",
+      "source_chars": 1450,
+      "destinations": [
+        {
+          "pack_id": "three-realms-midlore-overview",
+          "entry_id": "source-141-0",
+          "start": 0,
+          "end": 63,
+          "content_sha256": "19f2404a945441dbba3b84112336d653207fbc830e4a1cdc4a4fa5dbcc930ec4"
+        },
+        {
+          "pack_id": "three-realms-midlore-overview",
+          "entry_id": "source-141-1",
+          "start": 63,
+          "end": 539,
+          "content_sha256": "fc7ba54993f1a762c31bc06a929e419c27d9d5bf986dad949a5e646c9bfa8825"
+        },
+        {
+          "pack_id": "three-realms-midlore-overview",
+          "entry_id": "source-141-2",
+          "start": 539,
+          "end": 738,
+          "content_sha256": "22a268bc3ad2cef1ee5cb03acbb0b2590af77b584491dd5a1d810575c66d4f8d"
+        },
+        {
+          "pack_id": "three-realms-midlore-overview",
+          "entry_id": "source-141-3",
+          "start": 738,
+          "end": 1110,
+          "content_sha256": "164a57cc659ce763eef81f37000e9e0cc10d92c3b93e4350fd4916bd75d2bd30"
+        },
+        {
+          "pack_id": "three-realms-midlore-overview",
+          "entry_id": "source-141-4",
+          "start": 1110,
+          "end": 1237,
+          "content_sha256": "6524ea5de22dbe8595a2ef60bffba1556a882335f4b0d64bc560cb13466224b7"
+        },
+        {
+          "pack_id": "three-realms-midlore-overview",
+          "entry_id": "source-141-5",
+          "start": 1237,
+          "end": 1450,
+          "content_sha256": "ef7a0476d30cd9475c66b1c47ffa85db9143354fb2f4b913924c38399d81b5f8"
+        }
+      ]
+    },
+    {
+      "source_index": 143,
+      "source_title": "中界修煉資源-仙藥",
+      "source_sha256": "a160c6e60c6d236a98762c3516f0d15c09960df7fc981698463444b1469631fc",
+      "source_chars": 1454,
+      "destinations": [
+        {
+          "pack_id": "three-realms-midlore-herbs",
+          "entry_id": "source-143-0",
+          "start": 0,
+          "end": 51,
+          "content_sha256": "d233021c75d589dc509655ad72c707cc6911a642ebd0196c3b4abcbe3e1aed8e"
+        },
+        {
+          "pack_id": "three-realms-midlore-herbs",
+          "entry_id": "source-143-1",
+          "start": 51,
+          "end": 496,
+          "content_sha256": "7e48ae73f29898e37180cfb93d67d6a662a6693f34d5cfb6c3707790d64c236d"
+        },
+        {
+          "pack_id": "three-realms-midlore-herbs",
+          "entry_id": "source-143-2",
+          "start": 496,
+          "end": 584,
+          "content_sha256": "df8b69a7df76183034a5aaca6c31cf4fed022f341d8349d2d2844b119943c959"
+        },
+        {
+          "pack_id": "three-realms-midlore-herbs",
+          "entry_id": "source-143-3",
+          "start": 584,
+          "end": 666,
+          "content_sha256": "d20461f05eb304bd77d0e24e3340dcd0da45092c0d02b31b06fedd8b502c828a"
+        },
+        {
+          "pack_id": "three-realms-midlore-herbs",
+          "entry_id": "source-143-4",
+          "start": 666,
+          "end": 745,
+          "content_sha256": "da312a0167205e9a58dd0be77409d0cc06b33088fcf7396d7088ac14797194b6"
+        },
+        {
+          "pack_id": "three-realms-midlore-herbs",
+          "entry_id": "source-143-5",
+          "start": 745,
+          "end": 828,
+          "content_sha256": "344748c6a7c0a8046a324ff2d0cecda33de527285371d7a73e6265546769f3c1"
+        },
+        {
+          "pack_id": "three-realms-midlore-herbs",
+          "entry_id": "source-143-6",
+          "start": 828,
+          "end": 914,
+          "content_sha256": "f0f825ea2bede655768a72cb5cca34a0c579d7b87e3f63f33e8b70703fe4de99"
+        },
+        {
+          "pack_id": "three-realms-midlore-herbs",
+          "entry_id": "source-143-7",
+          "start": 914,
+          "end": 988,
+          "content_sha256": "34725ef8dca4190d216d637af2880c251069988158f5306361d9b5807a7de3b8"
+        },
+        {
+          "pack_id": "three-realms-midlore-herbs",
+          "entry_id": "source-143-8",
+          "start": 988,
+          "end": 1064,
+          "content_sha256": "139f8fde0f7564af3f9a610d789357860736a2d18c74ef02c7928178dc8284f0"
+        },
+        {
+          "pack_id": "three-realms-midlore-herbs",
+          "entry_id": "source-143-9",
+          "start": 1064,
+          "end": 1139,
+          "content_sha256": "8f6da4d133e94ebdf9bba4017e254175f449960a1081a212f774125b42e479e4"
+        },
+        {
+          "pack_id": "three-realms-midlore-herbs",
+          "entry_id": "source-143-10",
+          "start": 1139,
+          "end": 1215,
+          "content_sha256": "ecabf5e7c357e24a26f412260edaacc0e6199ae4e4841848dd3acbe28768e728"
+        },
+        {
+          "pack_id": "three-realms-midlore-herbs",
+          "entry_id": "source-143-11",
+          "start": 1215,
+          "end": 1303,
+          "content_sha256": "a2005d996ca0e707dd1a5567de653047728173a121b2b9bce781fef52e10a18c"
+        },
+        {
+          "pack_id": "three-realms-midlore-herbs",
+          "entry_id": "source-143-12",
+          "start": 1303,
+          "end": 1381,
+          "content_sha256": "1f97ed349a27b14c375bd964335535fdfdd81cc50b21af955ddc679f5fd6927e"
+        },
+        {
+          "pack_id": "three-realms-midlore-herbs",
+          "entry_id": "source-143-13",
+          "start": 1381,
+          "end": 1454,
+          "content_sha256": "62407de57d4b077f07fb6c49b1dadeeb9d8658a5f9ce06d530c1813b1e6864bd"
+        }
+      ]
+    },
+    {
+      "source_index": 144,
+      "source_title": "中界修煉資源-仙礦",
+      "source_sha256": "66ca755f78fc9caf8a72e45a6ff5ce6fc000fd6dd718a7f3fad402667a63fedd",
+      "source_chars": 1290,
+      "destinations": [
+        {
+          "pack_id": "three-realms-midlore-ores",
+          "entry_id": "source-144-0",
+          "start": 0,
+          "end": 55,
+          "content_sha256": "a93dc13b709fecb56d250b523777cd921104a5c22219e14ef31dbea9823e0754"
+        },
+        {
+          "pack_id": "three-realms-midlore-ores",
+          "entry_id": "source-144-1",
+          "start": 55,
+          "end": 430,
+          "content_sha256": "bdcbbe19462f1654261c9afa27e8e08e72a8808953bdb15ffbe95f06b8a042bb"
+        },
+        {
+          "pack_id": "three-realms-midlore-ores",
+          "entry_id": "source-144-2",
+          "start": 430,
+          "end": 510,
+          "content_sha256": "16d3da7f16c471731cc236fc5d28a0f887ee090a5535d9fc50516d182ffdb07f"
+        },
+        {
+          "pack_id": "three-realms-midlore-ores",
+          "entry_id": "source-144-3",
+          "start": 510,
+          "end": 584,
+          "content_sha256": "be0bbdf1d47358d10ff41c4c162474fbc4f047a36f1257b3ca7e0015d0b6624d"
+        },
+        {
+          "pack_id": "three-realms-midlore-ores",
+          "entry_id": "source-144-4",
+          "start": 584,
+          "end": 659,
+          "content_sha256": "bfcb30e59e6d10ea757e680ad23cb5dd67557a1f59a1488129e6d408a87a5921"
+        },
+        {
+          "pack_id": "three-realms-midlore-ores",
+          "entry_id": "source-144-5",
+          "start": 659,
+          "end": 733,
+          "content_sha256": "c827ff06d7901ed3e0c2df2343232c70dddc327524b464e9bd995df096c05b55"
+        },
+        {
+          "pack_id": "three-realms-midlore-ores",
+          "entry_id": "source-144-6",
+          "start": 733,
+          "end": 810,
+          "content_sha256": "5c42f6dc82b7f3886cf385690d57880aa40780c13ce441127c76bd805e7813e5"
+        },
+        {
+          "pack_id": "three-realms-midlore-ores",
+          "entry_id": "source-144-7",
+          "start": 810,
+          "end": 880,
+          "content_sha256": "422e3c9a8976e1726f5df9f7b5c683da4b7f3c3ba812312e3d1389cd0d973072"
+        },
+        {
+          "pack_id": "three-realms-midlore-ores",
+          "entry_id": "source-144-8",
+          "start": 880,
+          "end": 949,
+          "content_sha256": "9e55976e564ba134aed9f2999cd519fe0696f02f215f07a5f2943b3ff74f075b"
+        },
+        {
+          "pack_id": "three-realms-midlore-ores",
+          "entry_id": "source-144-9",
+          "start": 949,
+          "end": 1018,
+          "content_sha256": "7f46de8e4be8b77d8877f5205843dc30fe6a843859231bc59759d882351ed1e5"
+        },
+        {
+          "pack_id": "three-realms-midlore-ores",
+          "entry_id": "source-144-10",
+          "start": 1018,
+          "end": 1088,
+          "content_sha256": "23f0bcaa820f2a84c914ffedd3635ade9b0102f698c7800a0d729446f5d37189"
+        },
+        {
+          "pack_id": "three-realms-midlore-ores",
+          "entry_id": "source-144-11",
+          "start": 1088,
+          "end": 1165,
+          "content_sha256": "2d7825309f13ea9f3f4a554eab054be364ad49a3c7c53419b97a4e79c9d15cf2"
+        },
+        {
+          "pack_id": "three-realms-midlore-ores",
+          "entry_id": "source-144-12",
+          "start": 1165,
+          "end": 1229,
+          "content_sha256": "83c4e5e480a855524456a726fedac70a6e86e05a6fcd48b18c4db834187a9fc5"
+        },
+        {
+          "pack_id": "three-realms-midlore-ores",
+          "entry_id": "source-144-13",
+          "start": 1229,
+          "end": 1290,
+          "content_sha256": "d970a2d9e6d33ca8e63fe581c475fbc9f8a288a094b463f8efcc1ebe7d845817"
+        }
+      ]
+    },
+    {
+      "source_index": 145,
+      "source_title": "中界修煉資源-仙獸材料",
+      "source_sha256": "e69b062ede72d5326fe81fa06045f2767aa73933f3df91ceec4ff61cd85ff4d5",
+      "source_chars": 933,
+      "destinations": [
+        {
+          "pack_id": "three-realms-midlore-beast-materials",
+          "entry_id": "source-145-0",
+          "start": 0,
+          "end": 57,
+          "content_sha256": "8f7f41aebe897a31879ad8ce70560f328c4559d3c7324e551000c3e50844a4af"
+        },
+        {
+          "pack_id": "three-realms-midlore-beast-materials",
+          "entry_id": "source-145-1",
+          "start": 57,
+          "end": 377,
+          "content_sha256": "b309096f0f56e466d5b46334e54e16357f161731459d6934686d76d4802fa276"
+        },
+        {
+          "pack_id": "three-realms-midlore-beast-materials",
+          "entry_id": "source-145-2",
+          "start": 377,
+          "end": 445,
+          "content_sha256": "6b26b18afa52c5672dc293892e7e4e09a49b37814d743ffd0316e7d8f225ca57"
+        },
+        {
+          "pack_id": "three-realms-midlore-beast-materials",
+          "entry_id": "source-145-3",
+          "start": 445,
+          "end": 502,
+          "content_sha256": "3142e4cadf169369cd3063d6308fea71266a3b0dbd0620b3f650bd753cfb4f8c"
+        },
+        {
+          "pack_id": "three-realms-midlore-beast-materials",
+          "entry_id": "source-145-4",
+          "start": 502,
+          "end": 562,
+          "content_sha256": "0c99c23ccdcf10a53c1db91b0621c00b70d966f571463e85e5be6d6cf9de860e"
+        },
+        {
+          "pack_id": "three-realms-midlore-beast-materials",
+          "entry_id": "source-145-5",
+          "start": 562,
+          "end": 620,
+          "content_sha256": "4b00d1058cc6782564702c97916f3c357331f6dcbd15ad4640a91be26b2e020d"
+        },
+        {
+          "pack_id": "three-realms-midlore-beast-materials",
+          "entry_id": "source-145-6",
+          "start": 620,
+          "end": 678,
+          "content_sha256": "60be7e809909e0dea97a4f61c360ad24d1e8c894b9c85b708db90dd2d5137917"
+        },
+        {
+          "pack_id": "three-realms-midlore-beast-materials",
+          "entry_id": "source-145-7",
+          "start": 678,
+          "end": 737,
+          "content_sha256": "f9979733623539465f37e1054926b048fd8b9dcd842a5e4216c98999af787b14"
+        },
+        {
+          "pack_id": "three-realms-midlore-beast-materials",
+          "entry_id": "source-145-8",
+          "start": 737,
+          "end": 788,
+          "content_sha256": "68411ad1ce0407b10c6c81c0c20b8b5a196f37c8ee10c436a8794196f1a2e035"
+        },
+        {
+          "pack_id": "three-realms-midlore-beast-materials",
+          "entry_id": "source-145-9",
+          "start": 788,
+          "end": 839,
+          "content_sha256": "6549e21e811552fd8350c50a06580e1e05f2064f1db4c8e6ed682522ab08bf83"
+        },
+        {
+          "pack_id": "three-realms-midlore-beast-materials",
+          "entry_id": "source-145-10",
+          "start": 839,
+          "end": 890,
+          "content_sha256": "f86934a4c99634e5e279b08918ad4fa880cd018d589183e47b1d5e7d8d879338"
+        },
+        {
+          "pack_id": "three-realms-midlore-beast-materials",
+          "entry_id": "source-145-11",
+          "start": 890,
+          "end": 933,
+          "content_sha256": "8f237e59b4f7132671da41a4e46899672c35a08aa21b30c6c5204318264c80f3"
+        }
+      ]
+    },
+    {
+      "source_index": 146,
+      "source_title": "中界修煉資源-仙石",
+      "source_sha256": "5605d96bcb7c792c46e5208bc285e283f4b4338479272569529c5f8d7b099887",
+      "source_chars": 618,
+      "destinations": [
+        {
+          "pack_id": "three-realms-midlore-stones",
+          "entry_id": "source-146-0",
+          "start": 0,
+          "end": 49,
+          "content_sha256": "1fe1bff2f6272f51b67d18556b8a7f86b733b7956d7eca7e103e4d3bf634bfa8"
+        },
+        {
+          "pack_id": "three-realms-midlore-stones",
+          "entry_id": "source-146-1",
+          "start": 49,
+          "end": 342,
+          "content_sha256": "bc47a5c95fc01a9c236fe3c749ff2eedeea37011d8af07b01c72b0f2348c2fbe"
+        },
+        {
+          "pack_id": "three-realms-midlore-stones",
+          "entry_id": "source-146-2",
+          "start": 342,
+          "end": 492,
+          "content_sha256": "4fd4b707312458ec6dc5c58e2f9188140dab56f0cfdfaf564c56e66c501dcd64"
+        },
+        {
+          "pack_id": "three-realms-midlore-stones",
+          "entry_id": "source-146-3",
+          "start": 492,
+          "end": 618,
+          "content_sha256": "c25d222ea0ff708bfd553ba391d3c02231c55329fb5ee8d628469c5aee2469e8"
+        }
+      ]
+    },
+    {
+      "source_index": 152,
+      "source_title": "中界勢力-中央仙域",
+      "source_sha256": "0400511e9b7c248b604e60d3c76a0793ea658f3ec56f32ea428117786c233965",
+      "source_chars": 1473,
+      "destinations": [
+        {
+          "pack_id": "three-realms-midlore-factions",
+          "entry_id": "source-152-0",
+          "start": 0,
+          "end": 254,
+          "content_sha256": "345b0633154a91b137e70394ee125caf40c804c3b6be37c872908ca957958ea4"
+        },
+        {
+          "pack_id": "three-realms-midlore-factions",
+          "entry_id": "source-152-1",
+          "start": 254,
+          "end": 501,
+          "content_sha256": "156c5d0b7825fb1fd73bec45e5d2ab2b96a61824d857f3301bb57a5c7e7ad36a"
+        },
+        {
+          "pack_id": "three-realms-midlore-factions",
+          "entry_id": "source-152-2",
+          "start": 501,
+          "end": 747,
+          "content_sha256": "61a5bdc9f50e555d531d9cc1c695536bbf3f1f2f1f1d79116c7cb705fea404f9"
+        },
+        {
+          "pack_id": "three-realms-midlore-factions",
+          "entry_id": "source-152-3",
+          "start": 747,
+          "end": 1166,
+          "content_sha256": "e148bb4c3a55e1c22e8136d2161ac7d3aaf6f5c8ba610c7255f8d2906eeab349"
+        },
+        {
+          "pack_id": "three-realms-midlore-factions",
+          "entry_id": "source-152-4",
+          "start": 1166,
+          "end": 1473,
+          "content_sha256": "7ae1fb641f077461c871a470b854b33770237c931dfbf1e201a2144969ad6cd1"
+        }
+      ]
+    },
+    {
+      "source_index": 153,
+      "source_title": "中界勢力-西方仙域",
+      "source_sha256": "34e903f16f2579722289f3fbcaa470ce6a9b27d6baaf856d467cf86d7eec907c",
+      "source_chars": 645,
+      "destinations": [
+        {
+          "pack_id": "three-realms-midlore-factions",
+          "entry_id": "source-153-0",
+          "start": 0,
+          "end": 345,
+          "content_sha256": "03ffa5ab515e5bb17c6ec6edcda973ba0c5778d0c9dcc3f2ecb5baf022c2292b"
+        },
+        {
+          "pack_id": "three-realms-midlore-factions",
+          "entry_id": "source-153-1",
+          "start": 345,
+          "end": 645,
+          "content_sha256": "45ddda7d49eb26576acb55a9835ae51e7dccd7d86519c61b2b5ff59d635bed62"
+        }
+      ]
+    },
+    {
+      "source_index": 154,
+      "source_title": "中界勢力-南方仙域",
+      "source_sha256": "b171e1939f3af3b74568d0092584d9314da2fa0c4c02ba25121b117a5c452361",
+      "source_chars": 657,
+      "destinations": [
+        {
+          "pack_id": "three-realms-midlore-factions",
+          "entry_id": "source-154-0",
+          "start": 0,
+          "end": 347,
+          "content_sha256": "0ed1beb2f19177ce4d9d6a52065630fe4a14eb1f111f86dfa8011a03320ce458"
+        },
+        {
+          "pack_id": "three-realms-midlore-factions",
+          "entry_id": "source-154-1",
+          "start": 347,
+          "end": 657,
+          "content_sha256": "c3dba83adb4c8f16c261341cac63789a59bf5803b208197d3a69edb617ba3e10"
+        }
+      ]
+    },
+    {
+      "source_index": 155,
+      "source_title": "中界勢力-北方仙域",
+      "source_sha256": "4feb6c8753b317b987e3a93a33aafbee5a689ba2aa22c8078c08dd5b88505b59",
+      "source_chars": 662,
+      "destinations": [
+        {
+          "pack_id": "three-realms-midlore-factions",
+          "entry_id": "source-155-0",
+          "start": 0,
+          "end": 352,
+          "content_sha256": "3e60e12b4dd60e342c2308c29954135601c403f18cf98963015ad39c55264cae"
+        },
+        {
+          "pack_id": "three-realms-midlore-factions",
+          "entry_id": "source-155-1",
+          "start": 352,
+          "end": 662,
+          "content_sha256": "c4ada8b834833e9cb3e0ef54b5b632d9b06974201aa7069385c15e4e6c545b93"
+        }
+      ]
+    },
+    {
+      "source_index": 156,
+      "source_title": "中界勢力-東南仙域",
+      "source_sha256": "f776c10422be87c6193092c19638bb7e8979a3ef2c9364f75cd698094c36b195",
+      "source_chars": 652,
+      "destinations": [
+        {
+          "pack_id": "three-realms-midlore-factions",
+          "entry_id": "source-156-0",
+          "start": 0,
+          "end": 345,
+          "content_sha256": "944a8e5ef2fb2a10b2b10c82890029c15bb2386cb0f577b89dfdced9436016bb"
+        },
+        {
+          "pack_id": "three-realms-midlore-factions",
+          "entry_id": "source-156-1",
+          "start": 345,
+          "end": 652,
+          "content_sha256": "2011ff576a7e85b253143c652b121800b30d076794b37a5bf8f70c0195eafe24"
+        }
+      ]
+    },
+    {
+      "source_index": 157,
+      "source_title": "中界勢力-西南仙域",
+      "source_sha256": "90b803be3d479a7ca34a8ccf22cbab5ca24034c4a1490964b77bbebc3d235791",
+      "source_chars": 989,
+      "destinations": [
+        {
+          "pack_id": "three-realms-midlore-factions",
+          "entry_id": "source-157-0",
+          "start": 0,
+          "end": 353,
+          "content_sha256": "323569718841d01893ccd636df0fbda700715ff4a81fbf957b2f1687e902a96b"
+        },
+        {
+          "pack_id": "three-realms-midlore-factions",
+          "entry_id": "source-157-1",
+          "start": 353,
+          "end": 667,
+          "content_sha256": "be945f6563bb59ca7f71d602be221af3f4d424d62e165844b9a663ed677d09d6"
+        },
+        {
+          "pack_id": "three-realms-midlore-factions",
+          "entry_id": "source-157-2",
+          "start": 667,
+          "end": 989,
+          "content_sha256": "5a3f155ada2e806d574dc9530fc5a22c6dae325e344838623a3d5ad47542fd5b"
+        }
+      ]
+    },
+    {
+      "source_index": 158,
+      "source_title": "中界勢力-東北仙域",
+      "source_sha256": "68b0e27eb2e59b3465152ff07af3f5c7a183aa058ef948cc749e76e7015d9b5a",
+      "source_chars": 1019,
+      "destinations": [
+        {
+          "pack_id": "three-realms-midlore-factions",
+          "entry_id": "source-158-0",
+          "start": 0,
+          "end": 388,
+          "content_sha256": "99850848b4660935f5bf5e242f73b7d014235c4e94fb0948e761ae57338bbe2d"
+        },
+        {
+          "pack_id": "three-realms-midlore-factions",
+          "entry_id": "source-158-1",
+          "start": 388,
+          "end": 706,
+          "content_sha256": "5a062e6310accf3031ebe07656c3210abe7559a3bc711309ddf33aa6bbd1ef59"
+        },
+        {
+          "pack_id": "three-realms-midlore-factions",
+          "entry_id": "source-158-2",
+          "start": 706,
+          "end": 1019,
+          "content_sha256": "3302539e4dc306eafdb4726373add165a0fe3279964d671eba5f38859966ee2b"
+        }
+      ]
+    },
+    {
+      "source_index": 159,
+      "source_title": "中界勢力-西北仙域",
+      "source_sha256": "c96eb4d0b53299884cc6a7eb6a12fb49c45fc7dbbc589b6f60a37b6a466310a1",
+      "source_chars": 986,
+      "destinations": [
+        {
+          "pack_id": "three-realms-midlore-factions",
+          "entry_id": "source-159-0",
+          "start": 0,
+          "end": 348,
+          "content_sha256": "c32dae3967f7d94e78b8b84e1b1798107d57093c6cea129883a76438d6bd10be"
+        },
+        {
+          "pack_id": "three-realms-midlore-factions",
+          "entry_id": "source-159-1",
+          "start": 348,
+          "end": 666,
+          "content_sha256": "a74432ab94d48c02f95e14eef65fa458de1e4799d0e7bdb182ad772dab33701e"
+        },
+        {
+          "pack_id": "three-realms-midlore-factions",
+          "entry_id": "source-159-2",
+          "start": 666,
+          "end": 986,
+          "content_sha256": "79cad8006261f254d89663432c127ffc90fbb575ec69c385a968058d7db3b375"
+        }
+      ]
+    },
+    {
+      "source_index": 160,
+      "source_title": "中界勢力-特殊勢力",
+      "source_sha256": "dba5d3029e0932acce7bf1eed6491c900709868cdae5af1d831820f1778c317a",
+      "source_chars": 1097,
+      "destinations": [
+        {
+          "pack_id": "three-realms-midlore-alliances",
+          "entry_id": "source-160-0",
+          "start": 0,
+          "end": 235,
+          "content_sha256": "385b895fd17be3de907355f67af485068fe0aa46ec1621812898cfc691a56920"
+        },
+        {
+          "pack_id": "three-realms-midlore-alliances",
+          "entry_id": "source-160-1",
+          "start": 235,
+          "end": 552,
+          "content_sha256": "828cf53bd255e79c9b6338d229550b629fe8d07dbc66276fa4c800aeebadefae"
+        },
+        {
+          "pack_id": "three-realms-midlore-alliances",
+          "entry_id": "source-160-2",
+          "start": 552,
+          "end": 782,
+          "content_sha256": "c23e8302b589446b0a778e7be372d90027dc17881dc5aa0ab2b65ea32cc69f83"
+        },
+        {
+          "pack_id": "three-realms-midlore-alliances",
+          "entry_id": "source-160-3",
+          "start": 782,
+          "end": 1097,
+          "content_sha256": "8d0a0a5659a19953c4d959cd42d4d44ef46011c61f82b655207336693f762dfb"
+        }
+      ]
+    }
+  ]
+}
