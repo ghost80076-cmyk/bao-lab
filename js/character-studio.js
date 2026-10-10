@@ -73,6 +73,7 @@
   const syncPurchaseFields = () => {
     form.querySelectorAll('[data-purchase-field]').forEach(label => {
       label.hidden = text('action_kind') !== 'purchase';
+      label.style.display = label.hidden ? 'none' : '';
       label.querySelector('input').disabled = label.hidden;
     });
   };

@@ -23,6 +23,7 @@
     const card = clone(source);
     if (card.world_modules !== undefined && !Array.isArray(card.world_modules)) fail('原卡世界模組格式無效。');
     const definitions = card.world_modules ||= [];
+    if (definitions.length > 12) fail('原卡世界模組超過12個上限。');
     if (card.initial_state !== undefined && !object(card.initial_state)) fail('原卡初始狀態格式無效。');
     const initial = card.initial_state ||= {};
     if (initial.modules !== undefined && !object(initial.modules)) fail('原卡初始模組格式無效。');
@@ -56,7 +57,7 @@
     if (!core.normalizeActionEffect(effect)) fail('互動操作設定無效。');
     if (card.gameplay_ui !== undefined && card.gameplay_ui !== null && !object(card.gameplay_ui)) fail('既有互動 UI 格式無效。');
     const ui = card.gameplay_ui ||= {version:1,panels:[]};
-    if (!Array.isArray(ui.panels)) fail('既有互動面板格式無效。');
+    if (!Array.isArray(ui.panels) || ui.panels.length > 8) fail('既有互動面板格式無效。');
     const matches = ui.panels.filter(panel => panel?.id === panelId);
     if (matches.length > 1) fail('既有面板 ID 重複，請先修正。');
     let panel = matches[0];
@@ -66,7 +67,7 @@
       if (kind === 'purchase') panel.sections.unshift({type:'stats',title:'資源',items:[{label:'可用資源',path:`modules.${currencyId}.${currencyField}`}]});
       ui.panels.push(panel);
     }
-    if (!Array.isArray(panel.sections)) fail('既有面板內容格式無效。');
+    if (!Array.isArray(panel.sections) || panel.sections.length > 10) fail('既有面板內容格式無效。');
     let section = panel.sections.find(section => section?.type === 'actions' && section.title === '資源操作');
     if (!section) {
       if (panel.sections.length >= 10) fail('此面板已達10區塊上限，請使用其他面板。');
