@@ -2,7 +2,7 @@ const { test, expect } = require('@playwright/test');
 
 
 test('core chat shell never exposes authored greeting source even if scene renderer is late', async ({ page }) => {
-  await page.route('**/js/scene-html-modes.js', route => route.abort());
+  await page.route('**/js/scene-html-modes.js*', route => route.abort());
   await page.goto('/');
   await page.waitForFunction(() => Boolean(
     App.characters?.length && window.BAOChatMarkup && Storage.status().ready
