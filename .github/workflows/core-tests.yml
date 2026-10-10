@@ -38,6 +38,11 @@ jobs:
         run: node tests/story-integrity-core.cjs
       - name: NPC identity and appearance continuity
         run: node tests/npc-continuity-core.cjs
+      - name: Native Gameplay atomic actions
+        run: |
+          node --check js/gameplay-ui-core.js
+          node --check js/gameplay-ui.js
+          node tests/gameplay-actions-core.cjs
       - name: Story scene prompt core
         run: node tests/story-scene-prompt-core.cjs
       - name: Story flow core
