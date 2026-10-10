@@ -7,12 +7,14 @@ const test = require('node:test');
 const vm = require('node:vm');
 
 const code = fs.readFileSync(path.join(__dirname, '../js/world-module-ui.js'), 'utf8');
+const relevanceCode = fs.readFileSync(path.join(__dirname, '../js/world-relevance.js'), 'utf8');
 
 function setup() {
   const window = {BAOWorldModules: {
     compactForPrompt: () => '{"此刻":{"calendar":"靈曆三千年"},"修為":{"realm":"凡俗"}}',
     ensureState() {},
-    definitions: () => []
+    definitions: () => [],
+    compactRelevantForPrompt: () => ({ids:[], text:''})
   }};
   const App = {
     config: {narrativeMode:'world', displayMode:'ui'},
@@ -32,20 +34,24 @@ function setup() {
   };
   const document = {
     querySelector: () => ({}),
-    getElementById: () => null
+    getElementById: () => null,
+    addEventListener() {}
   };
-  vm.runInNewContext(code, {window, App, API, document, GameState:{current:null}, console});
+  const GameState = {current:{}};
+  const Chat = {messages:[]};
+  vm.runInNewContext(code, {window, App, API, document, GameState, console});
+  vm.runInNewContext(relevanceCode, {window, App, Chat, GameState, document, console});
   const messages = () => [{role:'system',content:App.buildSystemPrompt()}];
-  return {App, API, window, messages, reply: value => {nextReply=value;}};
+  return {App, API, window, GameState, messages, reply: value => {nextReply=value;}};
 }
 
 test('internal core state is context, explicitly not a reply template', () => {
   const h = setup();
   const prompt = h.App.buildSystemPrompt();
-  assert.match(prompt, /【內部世界狀態｜僅供敘事模型參考】/);
-  assert.match(prompt, /【內部狀態輸出禁令】/);
+  assert.match(prompt, /【目前核心狀態】/);
+  assert.match(prompt, /【僅供內部參考，不得照抄】/);
   assert.match(prompt, /"calendar":"靈曆三千年"/);
-  assert.doesNotMatch(prompt, /^【目前核心狀態】/m);
+  assert.equal(prompt.split('【目前核心狀態】').length - 1, 1, 'core JSON must enter the system prompt only once');
 });
 
 test('remove a trailing old-style JSON echo without deleting the preceding story', async () => {
@@ -77,9 +83,9 @@ test('do not strip JSON spoken about in prose, arbitrary JSON, or unrelated requ
   assert.equal((await h.API.send({__memoryTask:true},h.messages())).text,echoed);
 });
 
-test('no world module reference is appended to single-character text-only mode', () => {
+test('without an active world state no core reference is appended', () => {
   const h=setup();
-  h.App.config={narrativeMode:'immersive',displayMode:'text'};
+  h.GameState.current=null;
   assert.equal(h.App.buildSystemPrompt(), '請根據玩家回應推進故事。');
 });
 
