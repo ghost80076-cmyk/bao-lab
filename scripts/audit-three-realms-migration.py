@@ -48,7 +48,7 @@ def build(source, root):
         elif index in native:
             if record['source_sha256'] != native[index]['source_sha256']:
                 raise ValueError('Native source fingerprint differs')
-            record.update(status='native_prompt', references=['data/three-realms-event-director-provenance.json'], profile_id=native[index]['profile_id'])
+            record.update(status='native_prompt', references=['data/three-realms-event-director-provenance.json'], profile_id=native[index]['profile_id'], fidelity='adapted-instruction-profile-not-verbatim')
         elif 58 <= index <= 61:
             record.update(status='native_cultivation', references=['docs/three-realms-cultivation-state.md', 'js/three-realms-cultivation-core.js'], fidelity='adapted-state-contract-not-verbatim')
         elif index == 172:
