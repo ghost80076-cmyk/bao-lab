@@ -229,3 +229,45 @@ test('Three Realms events are opt-in, fill without sending, and guide only the r
   await expect(quick.locator('[data-quick-source="query"]')).toHaveCount(0);
   await expect(quick.locator('[data-quick-source="workshop"]')).toHaveCount(0);
 });
+
+test('Three Realms descriptive status template is optional, unknown by default and story-local', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('./');
+  await page.waitForFunction(() => Boolean(window.BAOCharacterStatusUI?.TEMPLATES?.three_realms && App.characters?.length));
+  await page.evaluate(() => {
+    App.activeCharacter = { ...App.characters[0], id: 'three-realms-status-mobile', character_status: { enabled: true, allow_player_customize: true, fields: [] } };
+    App.config = { narrativeMode: 'world', displayMode: 'ui', api: { model: 'mock' }, persona: { name: '修士' }, memory: { mode: 'smart', maxRounds: 20, maxContext: 32000 } };
+    GameState.create(App.activeCharacter, App.config);
+    Chat.reset();
+    App.renderChatShell(true);
+    App.showView('chat');
+    BAOCharacterStatusUI.openSettings();
+  });
+  const manager = page.getByRole('dialog', { name: /狀態欄管理/ });
+  const original = await page.evaluate(() => JSON.stringify(GameState.current));
+  expect(await page.evaluate(() => BAOCharacterStatus.configFor(App.activeCharacter).fields.length)).toBe(0);
+  await manager.locator('[data-status-template="three_realms"]').click();
+  await manager.locator('[data-status-template="three_realms"]').click();
+  expect(await page.evaluate(() => JSON.stringify(GameState.current))).toBe(original);
+  await manager.getByRole('button', { name: '套用到目前故事' }).click();
+  const applied = await page.evaluate(() => {
+    const fields = BAOCharacterStatus.configFor(App.activeCharacter).fields;
+    App.saveStory(false);
+    return { count: fields.length, values: fields.map(f => GameState.current.characterStatuses[App.activeCharacter.name][f.key]), types: fields.map(f => f.type), originalFields: App.activeCharacter.character_status.fields.length, saved: Storage.loadStory()?.state?.characterStatusCustomization?.customFields?.length };
+  });
+  expect(applied.count).toBe(6);
+  expect(applied.values).toEqual(Array(6).fill('未確認'));
+  expect(applied.types).toEqual(Array(6).fill('text'));
+  expect(applied.originalFields).toBe(0);
+  expect(applied.saved).toBe(6);
+  const restored = await page.evaluate(() => {
+    GameState.current = JSON.parse(JSON.stringify(GameState.current));
+    BAOCharacterStatus.ensureState(App.activeCharacter);
+    BAOCharacterStatusUI.renderCharactersPanel();
+    return BAOCharacterStatus.configFor(App.activeCharacter).fields.length;
+  });
+  expect(restored).toBe(6);
+  await expect(page.locator('#ui-panel')).toContainText('好感描述');
+  await expect(page.locator('#ui-panel')).toContainText('未確認');
+  expect(await page.locator('#ui-panel').evaluate(node => node.scrollWidth <= node.clientWidth + 1)).toBe(true);
+});
