@@ -71,9 +71,15 @@ assert.equal(ids.size, 1, 'duplicate script installation cannot stack wrappers')
   let release;
   build = () => new Promise(resolve => { release = resolve; });
   const pending = context.App.buildMessages();
+  const pendingTurn = pending;
+  context.Chat.messages = [{ role: 'user', content: '繼續' }];
+  release([{ role: 'user', content: '繼續' }]);
+  assert.equal((await pendingTurn).length, 1, 'a newer user turn cannot receive guidance from the earlier request');
+  context.Chat.messages = [{ role: 'user', content: '【探索事件】' }];
+  const pendingSwitch = context.App.buildMessages();
   GameState.create({ name: '另一份故事', world_modules: [] }, {});
   release([{ role: 'user', content: '機運事件' }]);
-  assert.equal((await pending).length, 1, 'switching stories during an async prompt build cannot inject old settings');
+  assert.equal((await pendingSwitch).length, 1, 'switching stories during an async prompt build cannot inject old settings');
   assert.equal(context.BAOThreeRealmsEvents.commands().length, 0);
   assert.equal(calls, 0, 'native guidance never creates an additional model request');
   console.log('Three Realms events runtime: native opt-in, snapshot restore, disable, duplicate load, transient turn isolation, story switching and zero extra requests passed.');
