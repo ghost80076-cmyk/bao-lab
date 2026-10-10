@@ -1,5 +1,5 @@
 (() => {
-  if (!window.App || !window.Chat || !window.BAOChatMarkup) return;
+  if (typeof App === 'undefined' || typeof Chat === 'undefined' || !window.BAOChatMarkup) return;
   const KEY = 'bao-lab:scene-html-preferences';
   const modes = new Set(['native', 'efficient', 'free']);
   const statuses = new Set(['native', 'author', 'hidden']);
