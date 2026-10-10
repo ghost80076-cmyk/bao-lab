@@ -40,8 +40,8 @@ vm.runInContext(fs.readFileSync('js/storage.js', 'utf8') + '\nwindow.Storage = S
 vm.runInContext(fs.readFileSync('js/scene-story-preferences.js', 'utf8'), context);
 const storage = context.Storage;
 assert.ok(context.BAOSceneStoryPreferences, 'story preference module must initialize');
-assert.match(fs.readFileSync('js/chat-markup.js', 'utf8'), /script\.src\s*=\s*['"]js\/scene-html-modes\.js['"]/);
-assert.match(fs.readFileSync('js/chat-markup.js', 'utf8'), /settings\.src\s*=\s*['"]js\/scene-story-preferences\.js['"]/);
+assert.match(fs.readFileSync('js/chat-markup.js', 'utf8'), /script\.src\s*=\s*['"]js\/scene-html-modes\.js(?:\?v=\d+)?['"]/);
+assert.match(fs.readFileSync('js/chat-markup.js', 'utf8'), /settings\.src\s*=\s*['"]js\/scene-story-preferences\.js(?:\?v=\d+)?['"]/);
 assert.equal(typeof changeHandler, 'function', 'scene controls need to save changes in the active story');
 
 const updateSelection = (mode, status, index) => {
