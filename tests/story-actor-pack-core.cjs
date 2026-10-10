@@ -89,7 +89,10 @@ assert.deepEqual(Array.from(adult.actors, item => item.id), ["jiuyue", "shuanger
     const instance = core.instantiate(actor, { identity: "本場同行" }, { id: "instance" });
     instance.name = "玩家改名";
     assert.notEqual(actor.name, instance.name);
-    assert.match(core.portablePrompt(instance), /不是演員容器/);
+    const prompt = core.portablePrompt(instance);
+    assert.match(prompt, /不是演員容器/);
+    assert.match(prompt, /本場人物：玩家改名/);
+    assert.ok(!prompt.includes(actor.name), "template name must not compete with the renamed character");
     assert.equal(actor.defaults.identity, "");
   }
   const visible = core.availableCatalog([...general.actors, ...pack.actors], adult.actors, {adultEnabled:false});
