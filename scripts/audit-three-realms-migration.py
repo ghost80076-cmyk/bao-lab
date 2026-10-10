@@ -52,7 +52,14 @@ def build(source, root):
         elif 58 <= index <= 61:
             record.update(status='native_cultivation', references=['docs/three-realms-cultivation-state.md', 'js/three-realms-cultivation-core.js'], fidelity='adapted-state-contract-not-verbatim')
         elif index == 172:
-            record.update(status='native_renderer_review', references=['docs/three-realms-status-native-review-2026-10-11.md'], follow_up=True)
+            status_path = root / 'data/three-realms-status-provenance.json'
+            if status_path.exists():
+                status = json.loads(status_path.read_text())
+                if status['source_sha256'] != record['source_sha256']:
+                    raise ValueError('Status source fingerprint differs')
+                record.update(status='native_status_template', references=['data/three-realms-status-provenance.json', 'docs/three-realms-status-native-review-2026-10-11.md'], follow_up=True)
+            else:
+                record.update(status='native_renderer_review', references=['docs/three-realms-status-native-review-2026-10-11.md'], follow_up=True)
         elif index < 32:
             record.update(status='pending_actor_review', references=[], follow_up=True)
         else:

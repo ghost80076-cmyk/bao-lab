@@ -1,0 +1,20 @@
+{
+  "schema": "yorubay-native-status-provenance",
+  "version": 1,
+  "source_book_id": "b43bd078-1b19-46e8-bfc8-952660be367d",
+  "source_visibility": "公開",
+  "source_index": 172,
+  "source_title": "輸出格式與狀態欄系統",
+  "source_sha256": "647c34410cb8490bf1ce165ac74bd75eb5a2abd2631c25a018c9c7aa46efc94c",
+  "template_id": "three_realms",
+  "implementation": "js/character-status-ui.js",
+  "field_keys": [
+    "body_condition",
+    "mental_condition",
+    "relationship_stage",
+    "affinity_description",
+    "current_activity",
+    "key_turns"
+  ],
+  "fidelity": "optional-descriptive-fields-not-verbatim-renderer"
+}

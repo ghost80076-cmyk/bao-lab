@@ -12,7 +12,7 @@
     "pending_rule_review": 16,
     "native_cultivation": 4,
     "factual": 115,
-    "native_renderer_review": 1
+    "native_status_template": 1
   },
   "remaining_review_entries": 49,
   "records": [
@@ -1821,8 +1821,9 @@
       "source_index": 172,
       "source_title": "輸出格式與狀態欄系統",
       "source_sha256": "647c34410cb8490bf1ce165ac74bd75eb5a2abd2631c25a018c9c7aa46efc94c",
-      "status": "native_renderer_review",
+      "status": "native_status_template",
       "references": [
+        "data/three-realms-status-provenance.json",
         "docs/three-realms-status-native-review-2026-10-11.md"
       ],
       "follow_up": true
