@@ -38,7 +38,7 @@
     const ui = document.getElementById("ui-panel");
     if (!def || !ui) return;
     if (def.id === window.BAOThreeRealmsEventsCore?.id) {
-      ui.innerHTML = `<section class="world-module-panel"><div class="world-module-head"><div><h3>${esc(def.icon)} ${esc(def.label)}</h3><p>選擇事件、角色、查詢或世界構思指令、填入輸入框，再由你送出。只有明確要求的那一輪會使用引導。</p></div><span class="world-module-badge">按需引導</span></div><button type="button" class="secondary" data-open-three-realms-events>開啟故事指令</button></section>`;
+      ui.innerHTML = `<section class="world-module-panel"><div class="world-module-head"><div><h3>${esc(def.icon)} ${esc(def.label)}</h3><p>選擇事件、角色、查詢或世界與劇情構思指令、填入輸入框，再由你送出。只有明確要求的那一輪會使用引導。</p></div><span class="world-module-badge">按需引導</span></div><button type="button" class="secondary" data-open-three-realms-events>開啟故事指令</button></section>`;
       ui.querySelector('[data-open-three-realms-events]')?.addEventListener('click', () => window.BAOStoryQuickCommands?.open?.());
       return;
     }
