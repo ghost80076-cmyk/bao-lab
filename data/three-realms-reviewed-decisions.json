@@ -1,0 +1,79 @@
+{
+  "schema": "yorubay-worldbook-reviewed-decisions",
+  "version": 1,
+  "source_book_id": "b43bd078-1b19-46e8-bfc8-952660be367d",
+  "records": [
+    {
+      "source_index": 24,
+      "source_sha256": "d4754d6860c4438827988f7f072cd7eebfd9e21a8d76a881ca35c7eb86600f0d",
+      "decision_code": "non-general-character-template",
+      "decision": "不加入一般原創人物包；保留來源記錄。",
+      "status": "reviewed_not_adopted",
+      "follow_up": false
+    },
+    {
+      "source_index": 38,
+      "source_sha256": "d21559a6a1b338fa82160c8bbe3615f07e7cf608f7e49b41d46208bf1adb4983",
+      "decision_code": "no-automatic-intimacy-simulation",
+      "decision": "不建立自動親密數值、觸發或開放度轉換系統。",
+      "status": "reviewed_not_adopted",
+      "follow_up": false
+    },
+    {
+      "source_index": 39,
+      "source_sha256": "1e43431f7f6cda3968920f0e09e8a946646b434a65e6b666f35774d3080f0f95",
+      "decision_code": "no-automatic-intimacy-simulation",
+      "decision": "不把時間流逝自動轉成親密數值或未確認的離場事件。",
+      "status": "reviewed_not_adopted",
+      "follow_up": false
+    },
+    {
+      "source_index": 40,
+      "source_sha256": "9c33d8981fe1cf92f993b5b2b1fe07b8184faa9a844207b9d0085931986df6b1",
+      "decision_code": "no-automatic-intimacy-simulation",
+      "decision": "不新增自動安排 NPC 親密行為的引擎。",
+      "status": "reviewed_not_adopted",
+      "follow_up": false
+    },
+    {
+      "source_index": 52,
+      "source_sha256": "8fb4467aa1ecc8142bc0e816970ae616ddf943240250fd627a8ad0d1e8a389a0",
+      "decision_code": "actor-framing-not-global-permission",
+      "decision": "不以演員或片場設定覆蓋年齡、意願與當前作品的事件後果。",
+      "status": "reviewed_not_adopted",
+      "follow_up": false
+    },
+    {
+      "source_index": 53,
+      "source_sha256": "ac2cac131a600427166f55dcc95d8fd636b8c1feefb0b7db40be63a0873acb6b",
+      "decision_code": "age-semantics-not-overridden",
+      "decision": "不採用以戲外成年演員身份覆蓋戲中人物年齡的規則。",
+      "status": "reviewed_not_adopted",
+      "follow_up": false
+    },
+    {
+      "source_index": 55,
+      "source_sha256": "f45e9a67f9d7dca3c167e1110087d9e17d0f8eb8c3cb79bf00f55cdf5b49b056",
+      "decision_code": "explicit-scene-command-not-included",
+      "decision": "此場景指令未納入一般三界快捷指令。",
+      "status": "reviewed_not_adopted",
+      "follow_up": false
+    },
+    {
+      "source_index": 56,
+      "source_sha256": "ff603bc390dbec7b15a5c2d60a5eb96623440286598cd3427b02fc9004a2e2d9",
+      "decision_code": "explicit-prose-pack-not-included",
+      "decision": "此寫作規範未轉成平台全域提示或一般三界文字風格包。",
+      "status": "reviewed_not_adopted",
+      "follow_up": false
+    },
+    {
+      "source_index": 57,
+      "source_sha256": "2c298d1a4384b7cd5fcaa67d43eb940f2dc4bdc31721b24b3da02b20840113eb",
+      "decision_code": "explicit-prose-pack-not-included",
+      "decision": "此寫作規範未轉成平台全域提示或依玩家性別自動切換的風格包。",
+      "status": "reviewed_not_adopted",
+      "follow_up": false
+    }
+  ]
+}

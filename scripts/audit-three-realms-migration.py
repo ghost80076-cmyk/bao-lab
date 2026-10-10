@@ -46,6 +46,12 @@ def build(source, root):
     for rule in rules.values():
         if any(not (root / ref).is_file() for ref in rule['references']):
             raise ValueError('Rule implementation reference missing')
+    decisions_path = root / 'data/three-realms-reviewed-decisions.json'
+    decisions = {r['source_index']: r for r in json.loads(decisions_path.read_text())['records']} if decisions_path.exists() else {}
+    if set(decisions) & (set(native) | set(facts) | set(actors) | set(rules)):
+        raise ValueError('Review decision overlaps an implemented migration')
+    if any(r['status'] != 'reviewed_not_adopted' or r['follow_up'] for r in decisions.values()):
+        raise ValueError('Unexpected review decision classification')
     catalog = json.loads((root / 'data/worldbook-library.json').read_text())
     packs = [p for p in catalog['packs'] if p['meta']['id'].startswith('three-realms-') and not p['meta']['id'].endswith('-demo')]
     records = []
@@ -80,6 +86,11 @@ def build(source, root):
             if rule['source_sha256'] != record['source_sha256']:
                 raise ValueError('Rule source fingerprint differs')
             record.update(status='native_rule_supported', references=['data/three-realms-native-rule-provenance.json', *rule['references']], fidelity=rule['fidelity'], follow_up=rule['follow_up'])
+        elif index in decisions:
+            decision = decisions[index]
+            if decision['source_sha256'] != record['source_sha256']:
+                raise ValueError('Reviewed decision source fingerprint differs')
+            record.update(status='reviewed_not_adopted', references=['data/three-realms-reviewed-decisions.json'], decision_code=decision['decision_code'], follow_up=False)
         elif index < 32:
             record.update(status='pending_actor_review', references=[], follow_up=True)
         else:

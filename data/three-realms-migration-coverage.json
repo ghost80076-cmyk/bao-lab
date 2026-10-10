@@ -8,15 +8,15 @@
   "factual_packs": 45,
   "status_counts": {
     "native_actor_archetype": 31,
-    "pending_actor_review": 1,
+    "reviewed_not_adopted": 9,
     "native_prompt": 25,
     "native_rule_supported": 5,
-    "pending_rule_review": 9,
+    "pending_rule_review": 1,
     "native_cultivation": 4,
     "factual": 115,
     "native_status_template": 1
   },
-  "remaining_review_entries": 13,
+  "remaining_review_entries": 4,
   "records": [
     {
       "source_index": 0,
@@ -286,9 +286,12 @@
       "source_index": 24,
       "source_title": "清純蘿莉-女角色",
       "source_sha256": "d4754d6860c4438827988f7f072cd7eebfd9e21a8d76a881ca35c7eb86600f0d",
-      "status": "pending_actor_review",
-      "references": [],
-      "follow_up": true
+      "status": "reviewed_not_adopted",
+      "references": [
+        "data/three-realms-reviewed-decisions.json"
+      ],
+      "decision_code": "non-general-character-template",
+      "follow_up": false
     },
     {
       "source_index": 25,
@@ -446,31 +449,34 @@
       "source_index": 38,
       "source_title": "性相關規則-性慾（特定條件觸發）",
       "source_sha256": "d21559a6a1b338fa82160c8bbe3615f07e7cf608f7e49b41d46208bf1adb4983",
-      "status": "pending_rule_review",
+      "status": "reviewed_not_adopted",
       "references": [
-        "docs/worldbook-native-gap-audit-2026-10-10.md"
+        "data/three-realms-reviewed-decisions.json"
       ],
-      "follow_up": true
+      "decision_code": "no-automatic-intimacy-simulation",
+      "follow_up": false
     },
     {
       "source_index": 39,
       "source_title": "NPC 性慾累積與離場",
       "source_sha256": "1e43431f7f6cda3968920f0e09e8a946646b434a65e6b666f35774d3080f0f95",
-      "status": "pending_rule_review",
+      "status": "reviewed_not_adopted",
       "references": [
-        "docs/worldbook-native-gap-audit-2026-10-10.md"
+        "data/three-realms-reviewed-decisions.json"
       ],
-      "follow_up": true
+      "decision_code": "no-automatic-intimacy-simulation",
+      "follow_up": false
     },
     {
       "source_index": 40,
       "source_title": "NPC 自主性行為與多 P-性慾",
       "source_sha256": "9c33d8981fe1cf92f993b5b2b1fe07b8184faa9a844207b9d0085931986df6b1",
-      "status": "pending_rule_review",
+      "status": "reviewed_not_adopted",
       "references": [
-        "docs/worldbook-native-gap-audit-2026-10-10.md"
+        "data/three-realms-reviewed-decisions.json"
       ],
-      "follow_up": true
+      "decision_code": "no-automatic-intimacy-simulation",
+      "follow_up": false
     },
     {
       "source_index": 41,
@@ -600,21 +606,23 @@
       "source_index": 52,
       "source_title": "色情與強制情節處理",
       "source_sha256": "8fb4467aa1ecc8142bc0e816970ae616ddf943240250fd627a8ad0d1e8a389a0",
-      "status": "pending_rule_review",
+      "status": "reviewed_not_adopted",
       "references": [
-        "docs/worldbook-native-gap-audit-2026-10-10.md"
+        "data/three-realms-reviewed-decisions.json"
       ],
-      "follow_up": true
+      "decision_code": "actor-framing-not-global-permission",
+      "follow_up": false
     },
     {
       "source_index": 53,
       "source_title": "未成年角色設定",
       "source_sha256": "ac2cac131a600427166f55dcc95d8fd636b8c1feefb0b7db40be63a0873acb6b",
-      "status": "pending_rule_review",
+      "status": "reviewed_not_adopted",
       "references": [
-        "docs/worldbook-native-gap-audit-2026-10-10.md"
+        "data/three-realms-reviewed-decisions.json"
       ],
-      "follow_up": true
+      "decision_code": "age-semantics-not-overridden",
+      "follow_up": false
     },
     {
       "source_index": 54,
@@ -631,31 +639,34 @@
       "source_index": 55,
       "source_title": "色氣事件",
       "source_sha256": "f45e9a67f9d7dca3c167e1110087d9e17d0f8eb8c3cb79bf00f55cdf5b49b056",
-      "status": "pending_rule_review",
+      "status": "reviewed_not_adopted",
       "references": [
-        "docs/worldbook-native-gap-audit-2026-10-10.md"
+        "data/three-realms-reviewed-decisions.json"
       ],
-      "follow_up": true
+      "decision_code": "explicit-scene-command-not-included",
+      "follow_up": false
     },
     {
       "source_index": 56,
       "source_title": "情慾文學（Erotica）寫作規範",
       "source_sha256": "ff603bc390dbec7b15a5c2d60a5eb96623440286598cd3427b02fc9004a2e2d9",
-      "status": "pending_rule_review",
+      "status": "reviewed_not_adopted",
       "references": [
-        "docs/worldbook-native-gap-audit-2026-10-10.md"
+        "data/three-realms-reviewed-decisions.json"
       ],
-      "follow_up": true
+      "decision_code": "explicit-prose-pack-not-included",
+      "follow_up": false
     },
     {
       "source_index": 57,
       "source_title": "男性凝視色情文學（Porn）寫作規範",
       "source_sha256": "2c298d1a4384b7cd5fcaa67d43eb940f2dc4bdc31721b24b3da02b20840113eb",
-      "status": "pending_rule_review",
+      "status": "reviewed_not_adopted",
       "references": [
-        "docs/worldbook-native-gap-audit-2026-10-10.md"
+        "data/three-realms-reviewed-decisions.json"
       ],
-      "follow_up": true
+      "decision_code": "explicit-prose-pack-not-included",
+      "follow_up": false
     },
     {
       "source_index": 58,
