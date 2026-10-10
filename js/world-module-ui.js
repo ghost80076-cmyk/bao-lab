@@ -95,13 +95,35 @@
     originalOpenBuilder();
     setTimeout(injectBuilderSummary,0);
   };
-  const originalBuild = App.buildSystemPrompt.bind(App);
-  App.buildSystemPrompt = function() {
-    const base = originalBuild();
-    if (this.config?.narrativeMode !== "world" && this.config?.displayMode !== "ui") return base;
-    const core = window.BAOWorldModules.compactForPrompt();
-    return core ? `${base}\n\n【目前核心狀態】\n${core}\n以上只視為目前事實，不要為了提到狀態而刻意改寫劇情。` : base;
+  // Some models echo the exact internal state block instead of writing prose.
+  // Remove only a trailing, clearly marked JSON dump from a MAIN story reply;
+  // never parse model text as trusted state or hide arbitrary authored content.
+  const stripInternalStateEcho = (text, {partial = false} = {}) => {
+    const source = String(text ?? "");
+    const pattern = /(^|\r?\n)[ \t]*【(?:目前核心狀態|內部世界狀態｜僅供敘事模型參考)】[ \t]*(?:\r?\n|$)/g;
+    let found;
+    let marker;
+    while ((found = pattern.exec(source))) marker = found;
+    if (!marker) return source;
+    const body = source.slice(marker.index + marker[0].length).trim();
+    if (!body.startsWith("{") && !(partial && !body)) return source;
+    if (!partial && !/\}\s*$/.test(body)) return source;
+    const prose = source.slice(0, marker.index).trimEnd();
+    return prose || (partial ? '正在生成敘事……' : '（模型本輪只回傳內部狀態資料，未生成有效劇情。請重新輸入上一輪指令。）');
   };
+  if (typeof API !== "undefined" && typeof API.wrapSend === "function") {
+    API.wrapSend("world-module-ui:internal-state-echo", async (next, config, messages, ...rest) => {
+      const mainStory = !config?.__connectionTest && !config?.__memoryTask
+        && !config?.__stateTask && !config?.__storyTool && !config?.__auxiliaryTask
+        && Array.isArray(messages) && messages.some(message =>
+          typeof message?.content === "string" && message.content.includes("【目前核心狀態】")
+        );
+      const result = await next(config, messages, ...rest);
+      if (!mainStory || typeof result?.text !== "string") return result;
+      const cleaned = stripInternalStateEcho(result.text);
+      return cleaned === result.text ? result : {...result, text: cleaned};
+    });
+  }
   ensureStyles();
-  window.BAOWorldModuleUI = { injectTabs, renderModule, injectBuilderSummary };
+  window.BAOWorldModuleUI = { injectTabs, renderModule, injectBuilderSummary, stripInternalStateEcho };
 })();

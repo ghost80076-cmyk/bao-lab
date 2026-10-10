@@ -1,0 +1,30 @@
+name: World module state echo
+
+on:
+  pull_request:
+    paths:
+      - 'js/world-module-ui.js'
+      - 'js/world-relevance.js'
+      - 'js/streaming-ui.js'
+      - 'tests/world-module-internal-state-echo.test.cjs'
+      - '.github/workflows/world-module-state-echo.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'js/world-module-ui.js'
+      - 'js/world-relevance.js'
+      - 'js/streaming-ui.js'
+      - 'tests/world-module-internal-state-echo.test.cjs'
+      - '.github/workflows/world-module-state-echo.yml'
+
+jobs:
+  state-echo:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Internal state output guard regression
+        run: node --test tests/world-module-internal-state-echo.test.cjs
