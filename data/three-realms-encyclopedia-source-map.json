@@ -1,0 +1,1040 @@
+{
+  "schema": "yorubay-worldbook-source-map",
+  "version": 1,
+  "source_book_id": "b43bd078-1b19-46e8-bfc8-952660be367d",
+  "source_visibility": "公開",
+  "source_entry_count": 191,
+  "migrated_source_entries": 14,
+  "generated_entries": 131,
+  "records": [
+    {
+      "source_index": 125,
+      "source_title": "丹藥系統-基本概念",
+      "source_sha256": "7540358a2cc976e582a9c8cf650125fbcf0109b8088afb476afd1711f593c1f5",
+      "source_chars": 1791,
+      "destinations": [
+        {
+          "pack_id": "three-realms-encyclopedia-pills",
+          "entry_id": "source-125-0",
+          "start": 0,
+          "end": 62,
+          "content_sha256": "a9da8ffa5fb69ddd5cfd6adbce7c1b36a48bdf97e585a4f39a12f74bd21a16fe"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-pills",
+          "entry_id": "source-125-1",
+          "start": 62,
+          "end": 497,
+          "content_sha256": "ec01cdea2cb79f4ed1035428d072d47f34762c93589cb3e396028c10d0f886f0"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-pills",
+          "entry_id": "source-125-2",
+          "start": 497,
+          "end": 747,
+          "content_sha256": "2971f41ae261f3c1d9da3a74746567fb4998ec925c4ad8a2b51c4741d24684f1"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-pills",
+          "entry_id": "source-125-3",
+          "start": 747,
+          "end": 910,
+          "content_sha256": "4e0d9064d8009381ac8ddba1d1c4edb19b55c3219509629a209863bb26e994ef"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-pills",
+          "entry_id": "source-125-4",
+          "start": 910,
+          "end": 1257,
+          "content_sha256": "5dc56a1ce5c6a5aba47f8fcc60f8be6cbbce2d6cb917df4d7f607712c2db46c2"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-pills",
+          "entry_id": "source-125-5",
+          "start": 1257,
+          "end": 1388,
+          "content_sha256": "e088e075049a0a6371de70a098fac5edaca1073d8ab3f15ebec705ba9d494e7c"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-pills",
+          "entry_id": "source-125-6",
+          "start": 1388,
+          "end": 1565,
+          "content_sha256": "8ac25eb7cdfb85638da24d22e5c29f2ac66c343dab4f3061352833bbd01cb150"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-pills",
+          "entry_id": "source-125-7",
+          "start": 1565,
+          "end": 1791,
+          "content_sha256": "6c35fa84629823e52c6144b2415fc72d3bec5ee557e474222a61804666d1e75f"
+        }
+      ]
+    },
+    {
+      "source_index": 126,
+      "source_title": "丹藥系統-常見丹藥",
+      "source_sha256": "7acf484378b6184a8b1525b71116ee5dc0d1bfe5c90b96df9aaaaa9be491fbd5",
+      "source_chars": 1351,
+      "destinations": [
+        {
+          "pack_id": "three-realms-encyclopedia-pills",
+          "entry_id": "source-126-0",
+          "start": 0,
+          "end": 128,
+          "content_sha256": "5d55f049c46160e7e85851ada0e493a4641199845e492a068e8005c1ca2b18b1"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-pills",
+          "entry_id": "source-126-1",
+          "start": 128,
+          "end": 256,
+          "content_sha256": "9a2904c5e67dc62095fcaf1cee426bf9cb8c733371330659793cd53eedc1f2d4"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-pills",
+          "entry_id": "source-126-2",
+          "start": 256,
+          "end": 388,
+          "content_sha256": "6ec2d965e2fe4a19f472b493ce5ce53b7764b8de7984ff15e9b5552335f6cc30"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-pills",
+          "entry_id": "source-126-3",
+          "start": 388,
+          "end": 531,
+          "content_sha256": "69945088c0bd2a0c7d9208fe0b89458acc4b001ec9be99474f8e152539a29ce3"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-pills",
+          "entry_id": "source-126-4",
+          "start": 531,
+          "end": 647,
+          "content_sha256": "29a0d1e0e2148ef0b182e31ddf825b379cc4cd3dd99433a67d6df59ccf95d439"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-pills",
+          "entry_id": "source-126-5",
+          "start": 647,
+          "end": 769,
+          "content_sha256": "08e50a6185bd287a7dd76895898ba27682a4848a7be6a10a210c1481b60c73d5"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-pills",
+          "entry_id": "source-126-6",
+          "start": 769,
+          "end": 899,
+          "content_sha256": "4e21d8db8ca157dcddeb96a944f07628ae702659efc05e0d2c3e5e5d4d8b442b"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-pills",
+          "entry_id": "source-126-7",
+          "start": 899,
+          "end": 1040,
+          "content_sha256": "d00696d7019f7a9e80159582e5dc7b858b2d36651870a289888eafaef3b0ac25"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-pills",
+          "entry_id": "source-126-8",
+          "start": 1040,
+          "end": 1148,
+          "content_sha256": "2248f910e177fbc415622195ae5731e44626aad99e21aa6d3f678f838d1fd91c"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-pills",
+          "entry_id": "source-126-9",
+          "start": 1148,
+          "end": 1251,
+          "content_sha256": "94ed25af443f2cdc3220984e89f1f47a02b07a494be9d4c84aa38cd8c42382e9"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-pills",
+          "entry_id": "source-126-10",
+          "start": 1251,
+          "end": 1351,
+          "content_sha256": "5a2553b3f853d83806b24758667154c185ff61bb182173b48e6a73ea3cce6161"
+        }
+      ]
+    },
+    {
+      "source_index": 127,
+      "source_title": "丹藥系統-常見丹藥",
+      "source_sha256": "f53f040fa1c0667ccc522d5e68ce58db7af6c68e2fa380f22cd4fd75b7515f1e",
+      "source_chars": 1165,
+      "destinations": [
+        {
+          "pack_id": "three-realms-encyclopedia-pills",
+          "entry_id": "source-127-0",
+          "start": 0,
+          "end": 119,
+          "content_sha256": "a982bcbe3c3a0de0d82c0b2fde5b916030693b30f2e7b304d071a5f3b39ba68e"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-pills",
+          "entry_id": "source-127-1",
+          "start": 119,
+          "end": 230,
+          "content_sha256": "29e8380c2cc231de8dd1d48103cd3456cf354ed1f408effb57e854253808e852"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-pills",
+          "entry_id": "source-127-2",
+          "start": 230,
+          "end": 346,
+          "content_sha256": "ac557748bc02d7a4d09e33c8133af232c5b5957b8b7e6226c9a37c19e0c01cc0"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-pills",
+          "entry_id": "source-127-3",
+          "start": 346,
+          "end": 474,
+          "content_sha256": "f3a6fc6c1b6e36c7e298555a2f14cd217e22cf7fe9e6ff5e73e1bfe87753b799"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-pills",
+          "entry_id": "source-127-4",
+          "start": 474,
+          "end": 592,
+          "content_sha256": "4a7ec99dfa01a382c7c5ff7800e189c0b0f68df186a6c3d2fa56bcf736612320"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-pills",
+          "entry_id": "source-127-5",
+          "start": 592,
+          "end": 724,
+          "content_sha256": "842c78fd86e31cb12d9530df1d70333e2303203319ecd0a9f10c1a5214f2c4da"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-pills",
+          "entry_id": "source-127-6",
+          "start": 724,
+          "end": 848,
+          "content_sha256": "24b691e4296d26938d16cdc02a8ab2a8cc82b3d539ecbfb3d6e1420c8b78251c"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-pills",
+          "entry_id": "source-127-7",
+          "start": 848,
+          "end": 950,
+          "content_sha256": "d9a6043366efa46d86c74ede850f1ac54761399833a892dc0a015c8e92c09c7a"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-pills",
+          "entry_id": "source-127-8",
+          "start": 950,
+          "end": 1055,
+          "content_sha256": "b02a4e65c0bf8230a920eed5a035d63d3d1b1447fb4e88a42f7e884bd943cc0d"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-pills",
+          "entry_id": "source-127-9",
+          "start": 1055,
+          "end": 1165,
+          "content_sha256": "186475a679420244061552ccf2484e647ed42081d84bbcae559986d89be6f227"
+        }
+      ]
+    },
+    {
+      "source_index": 128,
+      "source_title": "陣法系統-基本概念",
+      "source_sha256": "77386b7a44e20382414dd543609a8481d54e795871226f564871c778a8aa6d6d",
+      "source_chars": 1886,
+      "destinations": [
+        {
+          "pack_id": "three-realms-encyclopedia-formations",
+          "entry_id": "source-128-0",
+          "start": 0,
+          "end": 76,
+          "content_sha256": "2d6fe0210f8ade88837dad5eb5cc43bc827728df8313861c514537c0d9315ca3"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-formations",
+          "entry_id": "source-128-1",
+          "start": 76,
+          "end": 457,
+          "content_sha256": "52402c056096d2fe6d6493970d86a84ffb57b1762f32b9580c56a690ee8b4d54"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-formations",
+          "entry_id": "source-128-2",
+          "start": 457,
+          "end": 719,
+          "content_sha256": "d04f207963efc205312f7bdaef43f9c8bf02808e6b63fa9f981fe2b0d100d28a"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-formations",
+          "entry_id": "source-128-3",
+          "start": 719,
+          "end": 1016,
+          "content_sha256": "db2b981b30c9c77a927be5f9349da2f1d31c34ed04973f991f9bc152c8e0b082"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-formations",
+          "entry_id": "source-128-4",
+          "start": 1016,
+          "end": 1171,
+          "content_sha256": "e13955dc4a2f438901b329cf22f618258e14cf8f3ed11ee4c2b12a187a8a250b"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-formations",
+          "entry_id": "source-128-5",
+          "start": 1171,
+          "end": 1389,
+          "content_sha256": "d597b80d299b42aa4dfaa261fb2b1f25a542a8c5030105f44f53f44dda7b6b3d"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-formations",
+          "entry_id": "source-128-6",
+          "start": 1389,
+          "end": 1551,
+          "content_sha256": "a11475b3c466f4094b02a4fa6e7d3b53cd0f712b535cb3e6b038de11b8c752c1"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-formations",
+          "entry_id": "source-128-7",
+          "start": 1551,
+          "end": 1678,
+          "content_sha256": "afb3b54276e34af1b08d39d2a34b28df910bd069cf8590cb7a08bd3856bfbd1f"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-formations",
+          "entry_id": "source-128-8",
+          "start": 1678,
+          "end": 1886,
+          "content_sha256": "3ffd8753cedf1d3aa73d883b835529461a14f776fdcc5df6520069d704dd4568"
+        }
+      ]
+    },
+    {
+      "source_index": 129,
+      "source_title": "陣法系統-常見陣法",
+      "source_sha256": "093e170751717a86beebfbc4a6e502b9795aad7d376ea268659cfecb7c705c67",
+      "source_chars": 1787,
+      "destinations": [
+        {
+          "pack_id": "three-realms-encyclopedia-formations",
+          "entry_id": "source-129-0",
+          "start": 0,
+          "end": 148,
+          "content_sha256": "6e34d610e06570806ce31833da3eda7066327ddac1482d93c611f508d37f161d"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-formations",
+          "entry_id": "source-129-1",
+          "start": 148,
+          "end": 303,
+          "content_sha256": "b19f17f07867deb0b46016b96c87558682ada4855cadd76810fcce46814818c5"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-formations",
+          "entry_id": "source-129-2",
+          "start": 303,
+          "end": 456,
+          "content_sha256": "f90d43b825dc53fd78bb27c6539fd5dfde9db6312c955ff1a6a9ded358989695"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-formations",
+          "entry_id": "source-129-3",
+          "start": 456,
+          "end": 606,
+          "content_sha256": "9f6a94056d53aa2706fdc0d9c3c6b2c55e2c840dc76dae534d158c42b3fe3d4f"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-formations",
+          "entry_id": "source-129-4",
+          "start": 606,
+          "end": 744,
+          "content_sha256": "148c4d48249669348289e1479388233e52c3ec2413c679be57dcdd402b477401"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-formations",
+          "entry_id": "source-129-5",
+          "start": 744,
+          "end": 901,
+          "content_sha256": "b8470a1500a1eff8c6d7af1d7ae1a3054ab3429c99898aaef2a86132960f9e30"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-formations",
+          "entry_id": "source-129-6",
+          "start": 901,
+          "end": 1056,
+          "content_sha256": "b1e95c4a1c0b7a3995745222b8dcaa66af8c27d52403321ace33393818ad7d36"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-formations",
+          "entry_id": "source-129-7",
+          "start": 1056,
+          "end": 1212,
+          "content_sha256": "332da8c6f7469f77517757da70112474c80b85c67945d3b8f890283c989d3839"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-formations",
+          "entry_id": "source-129-8",
+          "start": 1212,
+          "end": 1357,
+          "content_sha256": "c9cb32fcf0e4926df0d0167f04eefd443c30cac9da6d727e11e7f8dffaa7d326"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-formations",
+          "entry_id": "source-129-9",
+          "start": 1357,
+          "end": 1511,
+          "content_sha256": "7b999eeb92b3186f4768636793d5e73cc6b7a2663cd5bf7c4b76f05bf64ba784"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-formations",
+          "entry_id": "source-129-10",
+          "start": 1511,
+          "end": 1650,
+          "content_sha256": "68461c510866d2b74d4c2e11201bbc626d810dc97a74b5c024d8a9f1103851aa"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-formations",
+          "entry_id": "source-129-11",
+          "start": 1650,
+          "end": 1787,
+          "content_sha256": "16a9614852d498a6440cecc41341c8bab159788063618a4dee2ac638b801a196"
+        }
+      ]
+    },
+    {
+      "source_index": 130,
+      "source_title": "陣法系統-常見陣法",
+      "source_sha256": "9a6f24c4df5c057fee3af5f63c3b8818bb884cd539a12d1c50e64e9d042fdaa6",
+      "source_chars": 1047,
+      "destinations": [
+        {
+          "pack_id": "three-realms-encyclopedia-formations",
+          "entry_id": "source-130-0",
+          "start": 0,
+          "end": 129,
+          "content_sha256": "3922ed1767e1a1ac931a0421d687e038313832eba46470126da40b4b47f33e10"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-formations",
+          "entry_id": "source-130-1",
+          "start": 129,
+          "end": 266,
+          "content_sha256": "1c2c82d2779cd4f14fc10a4f2c1b750b216bd60e9763022e4a09b35064bc9dba"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-formations",
+          "entry_id": "source-130-2",
+          "start": 266,
+          "end": 414,
+          "content_sha256": "871904afe7f44a7131f35a467efd46c8fb9581290d9a5a2c3054751335e20846"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-formations",
+          "entry_id": "source-130-3",
+          "start": 414,
+          "end": 543,
+          "content_sha256": "498839bd09ced17b4a3eaf85f4a3ca1baa6d19e1a5443235c5242029f427dd37"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-formations",
+          "entry_id": "source-130-4",
+          "start": 543,
+          "end": 672,
+          "content_sha256": "96dd3d1a93333928cca74d123861407c5a8ea89513dc159641f667332783dc7f"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-formations",
+          "entry_id": "source-130-5",
+          "start": 672,
+          "end": 871,
+          "content_sha256": "1f4f4f39edb37aec466fbc8f6e942ef8538fea836bb9e01604f536805e594fe6"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-formations",
+          "entry_id": "source-130-6",
+          "start": 871,
+          "end": 1047,
+          "content_sha256": "d16fe22e80cc7322a9067d25a2125883eff423bd5508353c2d8eeb03d79e3319"
+        }
+      ]
+    },
+    {
+      "source_index": 131,
+      "source_title": "符籙系統-基本概念",
+      "source_sha256": "34b7f00642333c6738f87b532c7bb98d2c5f33d8fc4e7bb089cb773c51589840",
+      "source_chars": 1783,
+      "destinations": [
+        {
+          "pack_id": "three-realms-encyclopedia-talismans",
+          "entry_id": "source-131-0",
+          "start": 0,
+          "end": 71,
+          "content_sha256": "0d0f2789b67229e8a20fcf102e0e8d2e91debeb4370f48938c90d94d27349042"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-talismans",
+          "entry_id": "source-131-1",
+          "start": 71,
+          "end": 410,
+          "content_sha256": "361eef06aafafe79ab560d9ddf38596282a4e47a16668650fe3d1576474e82f4"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-talismans",
+          "entry_id": "source-131-2",
+          "start": 410,
+          "end": 576,
+          "content_sha256": "d37abfcbcd59afdadafe4833897c7dcb144e7ed059051affbed45f01600d8fcc"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-talismans",
+          "entry_id": "source-131-3",
+          "start": 576,
+          "end": 826,
+          "content_sha256": "7887e7e3c0bcd25b09064b9b4dde165ffbb434df0af2998ef218747424564ad9"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-talismans",
+          "entry_id": "source-131-4",
+          "start": 826,
+          "end": 979,
+          "content_sha256": "85540e954230262d6e6446527a5ecda6144c6c69df8a61599eb5249428bfaae9"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-talismans",
+          "entry_id": "source-131-5",
+          "start": 979,
+          "end": 1132,
+          "content_sha256": "2cb15f4577c8f1378c0a7545f17d45340d1a73edd54c0c66dc8249c3a8b5b65e"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-talismans",
+          "entry_id": "source-131-6",
+          "start": 1132,
+          "end": 1297,
+          "content_sha256": "5c2d6a751a3f069e3cb79679d435906e97082b57084d6b4885b83ff920e6f93b"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-talismans",
+          "entry_id": "source-131-7",
+          "start": 1297,
+          "end": 1430,
+          "content_sha256": "853db362b827e0b988cdbd26eef5e3f51cd880c3d6fda2d30c14832912ad3070"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-talismans",
+          "entry_id": "source-131-8",
+          "start": 1430,
+          "end": 1576,
+          "content_sha256": "da4701762e659c2e971ebdba4f417d71ceea969a3e3cf149e83565fcc5ebd400"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-talismans",
+          "entry_id": "source-131-9",
+          "start": 1576,
+          "end": 1783,
+          "content_sha256": "e6fce75e3f0ec7b13c1b2cd5f3f05884c3ce56595da3b0c2369142adbf5b1f6c"
+        }
+      ]
+    },
+    {
+      "source_index": 132,
+      "source_title": "符籙系統-常見符籙",
+      "source_sha256": "29bf6d49d85b67bbc3c550e8498b504e3d208d9b2e99ee9fce55ca47f2d421be",
+      "source_chars": 1096,
+      "destinations": [
+        {
+          "pack_id": "three-realms-encyclopedia-talismans",
+          "entry_id": "source-132-0",
+          "start": 0,
+          "end": 133,
+          "content_sha256": "6b99a677e8c9ac204787b2cfcc0b4c95afbf05801b6fdb5ce28c926a9a14396d"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-talismans",
+          "entry_id": "source-132-1",
+          "start": 133,
+          "end": 272,
+          "content_sha256": "85a9c1e210567b082dab1466110369e24562f9162a557b6dd6941f422f036e55"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-talismans",
+          "entry_id": "source-132-2",
+          "start": 272,
+          "end": 414,
+          "content_sha256": "84a0181776471a0642b5f2f2ff83a7f94be2b59c19787cd4a86f4ef108eba228"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-talismans",
+          "entry_id": "source-132-3",
+          "start": 414,
+          "end": 553,
+          "content_sha256": "5f2736d36de0ca90346563f328d98c97d30c376ed084e14898ea27ed26d05d64"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-talismans",
+          "entry_id": "source-132-4",
+          "start": 553,
+          "end": 694,
+          "content_sha256": "805ec91296baa85c87f087bd5ea508012fff5592b82881de7ba2b26893ad4240"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-talismans",
+          "entry_id": "source-132-5",
+          "start": 694,
+          "end": 831,
+          "content_sha256": "b5d8e8630170f11445a77168af16837707dcb2178645acfc16c35f01c3bef1d1"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-talismans",
+          "entry_id": "source-132-6",
+          "start": 831,
+          "end": 978,
+          "content_sha256": "a7f9b847dfcf6a1e000c023cdfbea0085abd8a33c9329a25e54d1c2bb544c39e"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-talismans",
+          "entry_id": "source-132-7",
+          "start": 978,
+          "end": 1096,
+          "content_sha256": "b1fac1cc7c0ac0c8bd9710823a3259dbb4a290a196a1275a12d9c9fab2f496b7"
+        }
+      ]
+    },
+    {
+      "source_index": 133,
+      "source_title": "符籙系統-常見符籙",
+      "source_sha256": "b2adc03c1b5385f0cf33000ba4d920c0268a7cf14fdc7b4eece0be1c367e8d2a",
+      "source_chars": 1656,
+      "destinations": [
+        {
+          "pack_id": "three-realms-encyclopedia-talismans",
+          "entry_id": "source-133-0",
+          "start": 0,
+          "end": 113,
+          "content_sha256": "4459f7459a10ce79144a3746702850ec0e608705c6d8518a6ac37d5c8f1d01e1"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-talismans",
+          "entry_id": "source-133-1",
+          "start": 113,
+          "end": 226,
+          "content_sha256": "03edddaa7c5583a7b7776a783a3e7f8a37f1652cee8965cc66cc96025ae8b841"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-talismans",
+          "entry_id": "source-133-2",
+          "start": 226,
+          "end": 349,
+          "content_sha256": "23151d0b2731cc8dfd02c99bbb87d9aee061bdf57a6fc8841afde82bf3ff341d"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-talismans",
+          "entry_id": "source-133-3",
+          "start": 349,
+          "end": 462,
+          "content_sha256": "89addf676e654c8589c85ded27287097148347cc085311a4ea2692a6114fde31"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-talismans",
+          "entry_id": "source-133-4",
+          "start": 462,
+          "end": 586,
+          "content_sha256": "263e87fe19a4daff01205120a46c811e6bebf1921e46f85104e2809a2670bf12"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-talismans",
+          "entry_id": "source-133-5",
+          "start": 586,
+          "end": 713,
+          "content_sha256": "710724ecff339efa42d35d0a7066e8eff10def8dcf16a686d7ca2b1cb9304106"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-talismans",
+          "entry_id": "source-133-6",
+          "start": 713,
+          "end": 830,
+          "content_sha256": "eda9ca35536b2220ad8f854b6b642a790c4cef49e0984a4e8cd4732f9452c300"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-talismans",
+          "entry_id": "source-133-7",
+          "start": 830,
+          "end": 955,
+          "content_sha256": "e8c430c632fa41e1c24668b0666083fa3ccf37d236a01807f85ddbe69925ef59"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-talismans",
+          "entry_id": "source-133-8",
+          "start": 955,
+          "end": 1059,
+          "content_sha256": "c2b5212db195339c586b6f5a3f13cffc32942a1795c675df3d9d6fe08675c00b"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-talismans",
+          "entry_id": "source-133-9",
+          "start": 1059,
+          "end": 1189,
+          "content_sha256": "b1c588348373b5a9a4b1eda1c9cc4de48d6673d86f6a2625504b532b9d7beaac"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-talismans",
+          "entry_id": "source-133-10",
+          "start": 1189,
+          "end": 1298,
+          "content_sha256": "40cdbffba64f0ed4431f8d59dbf902b9ab35f6f0fd70ee7b095afc0f73d97a9b"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-talismans",
+          "entry_id": "source-133-11",
+          "start": 1298,
+          "end": 1427,
+          "content_sha256": "5efb66a05b4c48b575804b20366a3f4f922046614726b2a851438e1f9c77e0fd"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-talismans",
+          "entry_id": "source-133-12",
+          "start": 1427,
+          "end": 1553,
+          "content_sha256": "a70929b941dd78a45e671287193505fd1467dd7eb15e7928606c24b3aba84516"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-talismans",
+          "entry_id": "source-133-13",
+          "start": 1553,
+          "end": 1656,
+          "content_sha256": "2a7dd13a580c27f20f8aa60c8e25472b2f5110b7c01f819efcbd226a3c68595e"
+        }
+      ]
+    },
+    {
+      "source_index": 134,
+      "source_title": "煉器系統-基本概念",
+      "source_sha256": "63954af4ed260c0262c00be43b911dceceb942b94bdd8a0888ae85f6f4975dc3",
+      "source_chars": 1692,
+      "destinations": [
+        {
+          "pack_id": "three-realms-encyclopedia-artifacts",
+          "entry_id": "source-134-0",
+          "start": 0,
+          "end": 72,
+          "content_sha256": "519548c080694e897aa0932c31bbe32ada6990488cfb7f4063093e0d837a290c"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-artifacts",
+          "entry_id": "source-134-1",
+          "start": 72,
+          "end": 484,
+          "content_sha256": "f1f223ed161649452a0cda424f02fce2976fdfd6d659964ac2375fbc825ca975"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-artifacts",
+          "entry_id": "source-134-2",
+          "start": 484,
+          "end": 707,
+          "content_sha256": "dcee7b9e8439f95975430b231915fd018cf005b72effe0014943694b5cd5e9ae"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-artifacts",
+          "entry_id": "source-134-3",
+          "start": 707,
+          "end": 862,
+          "content_sha256": "af810d8aaf83fa7c68092bc596d28b45fe16a5f4b3d70a6d103a200afb59a04c"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-artifacts",
+          "entry_id": "source-134-4",
+          "start": 862,
+          "end": 1159,
+          "content_sha256": "2b46cd78896dd721bf3d20acc1bb8966f5f3291eada5f6782b1b21d9fae84ebc"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-artifacts",
+          "entry_id": "source-134-5",
+          "start": 1159,
+          "end": 1295,
+          "content_sha256": "b48187623df8707938433caae2c605fde103dd771c2cfeb5afa0a034ab42a19c"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-artifacts",
+          "entry_id": "source-134-6",
+          "start": 1295,
+          "end": 1539,
+          "content_sha256": "1f400b94f844cc68078f4e379473c7224f52154ee1a98066f7a646ce365de101"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-artifacts",
+          "entry_id": "source-134-7",
+          "start": 1539,
+          "end": 1692,
+          "content_sha256": "12455805dfa068415b431dfbae86eb5f0ba15c09a36d9612fac720023b53d461"
+        }
+      ]
+    },
+    {
+      "source_index": 135,
+      "source_title": "煉器系統-基本概念",
+      "source_sha256": "674af30ab7631d2fdf581ea079ae6699a0c5ae07e15d3fd7a729db577623435e",
+      "source_chars": 498,
+      "destinations": [
+        {
+          "pack_id": "three-realms-encyclopedia-artifacts",
+          "entry_id": "source-135-0",
+          "start": 0,
+          "end": 136,
+          "content_sha256": "44d84f51fff6aad3977f51b7e69dba6a6a8bde616b5eaa89c583d5e4fabc9111"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-artifacts",
+          "entry_id": "source-135-1",
+          "start": 136,
+          "end": 327,
+          "content_sha256": "c0443a4a4d6320ba4fe0394ea4b35d10d861c961fe18056e26a78d0368fb0cec"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-artifacts",
+          "entry_id": "source-135-2",
+          "start": 327,
+          "end": 498,
+          "content_sha256": "b8d802b0b991c436889a3ec66b8033c50fe83735f59d41dad6240e1483a31922"
+        }
+      ]
+    },
+    {
+      "source_index": 136,
+      "source_title": "煉器系統-常見法寶",
+      "source_sha256": "08972b62d4d07a919a8e76af199dcae3db3ae7e8cde530b08d11ddecb2feaa16",
+      "source_chars": 1429,
+      "destinations": [
+        {
+          "pack_id": "three-realms-encyclopedia-artifacts",
+          "entry_id": "source-136-0",
+          "start": 0,
+          "end": 134,
+          "content_sha256": "0e6fe1dbac99091aa0996ba46868f3253d4d2f06232bb5270b220898e3053124"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-artifacts",
+          "entry_id": "source-136-1",
+          "start": 134,
+          "end": 298,
+          "content_sha256": "e423b1858be9bce4199c5980cb342dfd6020d30d540680a77256b1b43a3bf179"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-artifacts",
+          "entry_id": "source-136-2",
+          "start": 298,
+          "end": 459,
+          "content_sha256": "0beeda9b0e162ee8eeffbf3750ee7273a78e6c4c3e269f231d66fed3bf4494bc"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-artifacts",
+          "entry_id": "source-136-3",
+          "start": 459,
+          "end": 636,
+          "content_sha256": "6b6fe49e3a855b96dafe1ea36057d116e5e9a49e05a54735092fb97f133dd104"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-artifacts",
+          "entry_id": "source-136-4",
+          "start": 636,
+          "end": 786,
+          "content_sha256": "ab112653115b727c48d421d31fc07f103d8434d62e855d223f005c68d041537c"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-artifacts",
+          "entry_id": "source-136-5",
+          "start": 786,
+          "end": 963,
+          "content_sha256": "dde0fb095dc571a9f80292cbfd52c5acee625a573b845349df068ce5a216e6b2"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-artifacts",
+          "entry_id": "source-136-6",
+          "start": 963,
+          "end": 1093,
+          "content_sha256": "b9125a20d9badc626b99d4ab60a85a41df7722495f0eae3ba28c73caed81dedd"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-artifacts",
+          "entry_id": "source-136-7",
+          "start": 1093,
+          "end": 1252,
+          "content_sha256": "c07a94895d18372c46aeee86bb54904dde5065dea44e1aca2aac48180b492416"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-artifacts",
+          "entry_id": "source-136-8",
+          "start": 1252,
+          "end": 1429,
+          "content_sha256": "3ef68dffe9117c9e9a16cf822ef19d64881edc742b1de6a106e3947b7108f817"
+        }
+      ]
+    },
+    {
+      "source_index": 137,
+      "source_title": "煉器系統-常見法寶",
+      "source_sha256": "6d69bb4f4ad29e8eb05b4004682ca848482b7ca4e2fab2a546a1aa10e405b3f5",
+      "source_chars": 1514,
+      "destinations": [
+        {
+          "pack_id": "three-realms-encyclopedia-artifacts",
+          "entry_id": "source-137-0",
+          "start": 0,
+          "end": 114,
+          "content_sha256": "9f1d4701b63bd3ca7ac70cf21708b60d7a187cb0bbf8510a075ee77fb9795b86"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-artifacts",
+          "entry_id": "source-137-1",
+          "start": 114,
+          "end": 254,
+          "content_sha256": "09bb8d6a7871d0fcea78aa6a399488b4f8ea61231229b7d20eed9c82f11d85d8"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-artifacts",
+          "entry_id": "source-137-2",
+          "start": 254,
+          "end": 397,
+          "content_sha256": "cc9e6ce695b9295c6cc769a7c5de350b436ba61c38bc863dfd2196187ce1bb43"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-artifacts",
+          "entry_id": "source-137-3",
+          "start": 397,
+          "end": 549,
+          "content_sha256": "eeb2bba76ab606935198bf5708041e93403fb1f3975682973ac8b974bc18f3c3"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-artifacts",
+          "entry_id": "source-137-4",
+          "start": 549,
+          "end": 676,
+          "content_sha256": "61547a14a2a7b7b923db9ba5a85c53f7c5cb5a9de963bdf9d5b69a7ec842f05a"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-artifacts",
+          "entry_id": "source-137-5",
+          "start": 676,
+          "end": 808,
+          "content_sha256": "849ed11fee9f1bf5d60f24afe566b0788743ca2ad3b43c124031f0dda9d18f00"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-artifacts",
+          "entry_id": "source-137-6",
+          "start": 808,
+          "end": 956,
+          "content_sha256": "43826e470a6095d43f0ebd187f764d6e140ecbfb58dda118878423864e09400f"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-artifacts",
+          "entry_id": "source-137-7",
+          "start": 956,
+          "end": 1094,
+          "content_sha256": "673abb731e38750008fb35904561c015d8db2c5f6334e0bff6d1c000a361ab11"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-artifacts",
+          "entry_id": "source-137-8",
+          "start": 1094,
+          "end": 1238,
+          "content_sha256": "2555ce42328313c59383eb1187f99d500416f127d62c9a6345e67c45e6cf1e52"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-artifacts",
+          "entry_id": "source-137-9",
+          "start": 1238,
+          "end": 1378,
+          "content_sha256": "61e1c8685eb14a30f861d8602947d8405c0202be2dfab0cb81195b48abc4fb92"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-artifacts",
+          "entry_id": "source-137-10",
+          "start": 1378,
+          "end": 1514,
+          "content_sha256": "2bd07ac20ffcd650e9a77b31144c597a1ffd1eff44991d1ea338f62af5faf6b2"
+        }
+      ]
+    },
+    {
+      "source_index": 138,
+      "source_title": "靈獸系統-基本概念",
+      "source_sha256": "fcf9f62be2bf836f7ddba902a5f7f730f48b2f6afd6d71867a6eb91eb257a6fa",
+      "source_chars": 1928,
+      "destinations": [
+        {
+          "pack_id": "three-realms-encyclopedia-spirit-beasts",
+          "entry_id": "source-138-0",
+          "start": 0,
+          "end": 136,
+          "content_sha256": "dfe4ebc5f03db18bbe32730a9d1ef863201a3340d6763f4af66c88e096b8bc05"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-spirit-beasts",
+          "entry_id": "source-138-1",
+          "start": 136,
+          "end": 413,
+          "content_sha256": "e510d784529204fdd0c71a00d8cf61d7b7afbaa13dfbec822eab69b609209195"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-spirit-beasts",
+          "entry_id": "source-138-2",
+          "start": 413,
+          "end": 636,
+          "content_sha256": "a9c9fbc6a1eaf9b921a01d0de3e43672270676fa03759c1580aa6124150ffdd7"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-spirit-beasts",
+          "entry_id": "source-138-3",
+          "start": 636,
+          "end": 835,
+          "content_sha256": "32cd2a9aaa9fa187c15cb86167c7ccc7cbf89d012c3a0c16dcefecc10ca6bf0b"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-spirit-beasts",
+          "entry_id": "source-138-4",
+          "start": 835,
+          "end": 974,
+          "content_sha256": "c15a5b61dfca267403131e310bdef24fb0ad455e05c051ccf59f51254b641447"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-spirit-beasts",
+          "entry_id": "source-138-5",
+          "start": 974,
+          "end": 1116,
+          "content_sha256": "c0e596fbe12eef7a7c0867a3f00915be08ec9ad24065798ea9df69f083cae142"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-spirit-beasts",
+          "entry_id": "source-138-6",
+          "start": 1116,
+          "end": 1371,
+          "content_sha256": "23dc13f73dc1124085cd4f8adbfa3215ad3f95ddeb6d6963e680c66ec55fa7d0"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-spirit-beasts",
+          "entry_id": "source-138-7",
+          "start": 1371,
+          "end": 1513,
+          "content_sha256": "b3a3c5f6e2e5265c652843ea16a59a38cdfadc096f1bfad8a4d05a0c8c7b802e"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-spirit-beasts",
+          "entry_id": "source-138-8",
+          "start": 1513,
+          "end": 1658,
+          "content_sha256": "84303ff3c06490b25dd970c4b72aee67a10284ff436fc8a07d9fc3cb0688794a"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-spirit-beasts",
+          "entry_id": "source-138-9",
+          "start": 1658,
+          "end": 1780,
+          "content_sha256": "d675595a0b3d949eb4a10da678754c7165e478630d9f2c6409b6568e6ab67e29"
+        },
+        {
+          "pack_id": "three-realms-encyclopedia-spirit-beasts",
+          "entry_id": "source-138-10",
+          "start": 1780,
+          "end": 1928,
+          "content_sha256": "e41a5b912157ae14a3492d27e366a1b79bc0dfc1b55b4c405d340f11deb3d940"
+        }
+      ]
+    }
+  ]
+}

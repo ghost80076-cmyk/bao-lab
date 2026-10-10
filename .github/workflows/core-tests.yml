@@ -498,5 +498,6 @@ jobs:
           node tests/worldbook-library-core.cjs
           node tests/worldbook-library-runtime.cjs
           node tests/three-realms-worldbook-core.cjs
+          node tests/three-realms-encyclopedia-core.cjs
       - name: Yume world-card relevant context
         run: node tests/yume-relevant-context.cjs
