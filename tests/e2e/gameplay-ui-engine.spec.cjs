@@ -241,3 +241,69 @@ test('dual host system card maps global Persona display to system identity witho
   await expect(page.locator('#chat-persona')).toHaveText('系統化身');
   expect(await page.evaluate(() => App.config.persona.name)).toBe('未命名玩家');
 });
+
+test('native effect buttons commit a purchase once per click without sending a chat turn', async ({ page }) => {
+  await ready(page);
+  await page.waitForFunction(() => Boolean(window.BAOWorldModules));
+  await page.evaluate(() => {
+    App.activeCharacter = CharacterEngine.normalize({
+      id: 'native-atomic-action-test',
+      name: 'Atomic Action Test',
+      system_prompt: 'test',
+      greeting: 'welcome',
+      world_modules: [
+        { id: 'economy', kind: 'object', context: 'core' },
+        { id: 'supplies', kind: 'object', context: 'core' }
+      ],
+      initial_state: { modules: { economy: { crystals: 20 }, supplies: { cans: 0 } } },
+      gameplay_ui: {
+        version: 1,
+        panels: [{ id: 'shop', label: '交易', sections: [{
+          type: 'actions',
+          items: [
+            { label: '購買罐頭', effect: {
+              changes: [
+                { path: 'modules.economy.crystals', delta: -15 },
+                { path: 'modules.supplies.cans', delta: 1 }
+              ],
+              event: '購買罐頭'
+            } },
+            { label: '向店員詢價', draft: '請問這裡的罐頭多少錢？' }
+          ]
+        }] }]
+      }
+    });
+    App.config = {
+      narrativeMode: 'world',
+      displayMode: 'ui',
+      persona: { name: '測試玩家', gender: '未指定' },
+      api: { type: 'custom', model: 'offline-test', baseUrl: '', key: '' },
+      memory: { mode: 'manual', maxRounds: 20, maxContext: 32000, cache: false }
+    };
+    Chat.reset();
+    GameState.create(App.activeCharacter, App.config);
+    App.renderChatShell(true);
+    App.showView('chat');
+    BAOGameplayUI.renderPanel('shop');
+  });
+  const effect = page.locator('#ui-panel [data-gameplay-effect]');
+  await expect(effect).toHaveCount(1);
+  await effect.click();
+  let result = await page.evaluate(() => ({
+    crystals: GameState.current.modules.economy.crystals,
+    cans: GameState.current.modules.supplies.cans,
+    log: GameState.current.events.filter(x => x.includes('購買罐頭')).length,
+    messages: Chat.messages.length
+  }));
+  expect(result).toEqual({ crystals: 5, cans: 1, log: 1, messages: 0 });
+  // Insufficient balance must roll back BOTH parts of a second purchase.
+  await page.locator('#ui-panel [data-gameplay-effect]').click();
+  result = await page.evaluate(() => ({
+    crystals: GameState.current.modules.economy.crystals,
+    cans: GameState.current.modules.supplies.cans,
+    log: GameState.current.events.filter(x => x.includes('購買罐頭')).length
+  }));
+  expect(result).toEqual({ crystals: 5, cans: 1, log: 1 });
+  await page.locator('#ui-panel [data-gameplay-draft-text]').click();
+  await expect(page.locator('#user-input')).toHaveValue('請問這裡的罐頭多少錢？');
+});
