@@ -1,0 +1,2006 @@
+{
+  "schema": "yorubay-worldbook-migration-coverage",
+  "version": 1,
+  "source_book_id": "b43bd078-1b19-46e8-bfc8-952660be367d",
+  "source_visibility": "公開",
+  "source_entry_count": 191,
+  "factual_chapters": 752,
+  "factual_packs": 45,
+  "status_counts": {
+    "pending_actor_review": 32,
+    "pending_rule_review": 19,
+    "native_prompt": 20,
+    "native_cultivation": 4,
+    "factual": 115,
+    "native_renderer_review": 1
+  },
+  "remaining_review_entries": 52,
+  "records": [
+    {
+      "source_index": 0,
+      "source_title": "成熟魅惑-女角色",
+      "source_sha256": "91507b19fe7b7163e3ea12e0e555517be92ac27726d518a5e69d047b6cf512b1",
+      "status": "pending_actor_review",
+      "references": [],
+      "follow_up": true
+    },
+    {
+      "source_index": 1,
+      "source_title": "成熟姐姐-女角色",
+      "source_sha256": "5440287aee8b4c987074ab02a90c830666dfb00822fb0ab1d1e9e4ce27820d4e",
+      "status": "pending_actor_review",
+      "references": [],
+      "follow_up": true
+    },
+    {
+      "source_index": 2,
+      "source_title": "清純妹妹-女角色",
+      "source_sha256": "daf4dcf842959b77da198cea7e05835a73f6b453d4f6be32ea939a0700c8d170",
+      "status": "pending_actor_review",
+      "references": [],
+      "follow_up": true
+    },
+    {
+      "source_index": 3,
+      "source_title": "清純女神-女角色",
+      "source_sha256": "bb6d4b5bcd98d337d9b148d18773c1fad63db8b2d866195363958f6a473ce411",
+      "status": "pending_actor_review",
+      "references": [],
+      "follow_up": true
+    },
+    {
+      "source_index": 4,
+      "source_title": "性感女王-女角色",
+      "source_sha256": "90f9af26455788d2cc4cd48e462bf71ebbad6d31759491f7a4d6b211044be162",
+      "status": "pending_actor_review",
+      "references": [],
+      "follow_up": true
+    },
+    {
+      "source_index": 5,
+      "source_title": "活力少女-女角色",
+      "source_sha256": "dcba649a8a8a2158f455362cdbcc63d56e6c8da1466651c4cfff32f490b6c5ab",
+      "status": "pending_actor_review",
+      "references": [],
+      "follow_up": true
+    },
+    {
+      "source_index": 6,
+      "source_title": "冷豔美人-女角色",
+      "source_sha256": "cc7f21df7a8b39b65370a5285aeff2dad79d0c558198a617febd06bad9f3742f",
+      "status": "pending_actor_review",
+      "references": [],
+      "follow_up": true
+    },
+    {
+      "source_index": 7,
+      "source_title": "甜美偶像-角色",
+      "source_sha256": "7dbfabee3b4a2ebb2f513c84aa96336e8ab3bd634b9aadaff8f5ec1f2be9a9bd",
+      "status": "pending_actor_review",
+      "references": [],
+      "follow_up": true
+    },
+    {
+      "source_index": 8,
+      "source_title": "性感歌姬-角色",
+      "source_sha256": "e8b0172578c96b9f16d210d4662a3f4f27ad6d558b0181bc45855a45fdaf7ac6",
+      "status": "pending_actor_review",
+      "references": [],
+      "follow_up": true
+    },
+    {
+      "source_index": 9,
+      "source_title": "鄰家甜心-角色",
+      "source_sha256": "7c46f9509db8e9f08f977642312311244f3fc19aa30e04e579df05cbec4e263b",
+      "status": "pending_actor_review",
+      "references": [],
+      "follow_up": true
+    },
+    {
+      "source_index": 10,
+      "source_title": "氣質女神-角色",
+      "source_sha256": "2745361e34c826473c91271b16c34c5fa639fa681c3f84123cae8b924d59a6c9",
+      "status": "pending_actor_review",
+      "references": [],
+      "follow_up": true
+    },
+    {
+      "source_index": 11,
+      "source_title": "古典美人-角色",
+      "source_sha256": "b49a1085a6fc95111b1daf7a10816048133e0c7dda8d4d6cf492530758b675f9",
+      "status": "pending_actor_review",
+      "references": [],
+      "follow_up": true
+    },
+    {
+      "source_index": 12,
+      "source_title": "八卦閨蜜-角色",
+      "source_sha256": "7df19cde042e44920525ac07529edb0e8ed32d6f1c1edb6f2a9e6d8a9f25561f",
+      "status": "pending_actor_review",
+      "references": [],
+      "follow_up": true
+    },
+    {
+      "source_index": 13,
+      "source_title": "溫柔閨蜜",
+      "source_sha256": "32396a569a236011c058b8fc2d7f4ef5d0dc0a7c31919f5338c1c531a547276c",
+      "status": "pending_actor_review",
+      "references": [],
+      "follow_up": true
+    },
+    {
+      "source_index": 14,
+      "source_title": "競爭對手",
+      "source_sha256": "7bdc320f6de4df3e08f1def2d8105fcde421d9d26508e25466f898e6a98cdef4",
+      "status": "pending_actor_review",
+      "references": [],
+      "follow_up": true
+    },
+    {
+      "source_index": 15,
+      "source_title": "成熟前輩",
+      "source_sha256": "121c99b4f50e50ae9820cc8a33a8349aaf581b77a8456f8466d143eafcabfa92",
+      "status": "pending_actor_review",
+      "references": [],
+      "follow_up": true
+    },
+    {
+      "source_index": 16,
+      "source_title": "溫柔長輩",
+      "source_sha256": "90655193101f5bd01e45fb9e2e0c17adbaa286b09cfbdb275ea9272c6fec5747",
+      "status": "pending_actor_review",
+      "references": [],
+      "follow_up": true
+    },
+    {
+      "source_index": 17,
+      "source_title": "陽光大男孩",
+      "source_sha256": "0dbccd8804ec95ee0ca72e147456845f10af585d1b0ba1123ee1a63da8e83a43",
+      "status": "pending_actor_review",
+      "references": [],
+      "follow_up": true
+    },
+    {
+      "source_index": 18,
+      "source_title": "溫柔學長",
+      "source_sha256": "72531b7a0e25c0d07518fbfe4dd0e3ad896e4842ac980732f63a8614c00e1c99",
+      "status": "pending_actor_review",
+      "references": [],
+      "follow_up": true
+    },
+    {
+      "source_index": 19,
+      "source_title": "冷酷學弟",
+      "source_sha256": "f8871dd893fc17d1a4291310a080de566fd808d3a845d76096df39d104199c8e",
+      "status": "pending_actor_review",
+      "references": [],
+      "follow_up": true
+    },
+    {
+      "source_index": 20,
+      "source_title": "斯文敗類",
+      "source_sha256": "df9b16bb715689ec07d1bac722f376d070d4a8e25b8d78477e8aadf68360fb15",
+      "status": "pending_actor_review",
+      "references": [],
+      "follow_up": true
+    },
+    {
+      "source_index": 21,
+      "source_title": "霸道總裁",
+      "source_sha256": "360f2047cf46de1203e29839c97866f2a8ee8e9d58d0c12e36b69437c8d80c87",
+      "status": "pending_actor_review",
+      "references": [],
+      "follow_up": true
+    },
+    {
+      "source_index": 22,
+      "source_title": "溫柔大叔",
+      "source_sha256": "b72472498468871e557180e89aa8b42a4ba53f2cab6f7ff29d0e9119d757b639",
+      "status": "pending_actor_review",
+      "references": [],
+      "follow_up": true
+    },
+    {
+      "source_index": 23,
+      "source_title": "痴女女王-女角色",
+      "source_sha256": "87d9b74450d4c4b6f6c6ff73afe36f200bbf55b69f257eac15a6123b6f75c32d",
+      "status": "pending_actor_review",
+      "references": [],
+      "follow_up": true
+    },
+    {
+      "source_index": 24,
+      "source_title": "清純蘿莉-女角色",
+      "source_sha256": "d4754d6860c4438827988f7f072cd7eebfd9e21a8d76a881ca35c7eb86600f0d",
+      "status": "pending_actor_review",
+      "references": [],
+      "follow_up": true
+    },
+    {
+      "source_index": 25,
+      "source_title": "巨乳人妻-女角色",
+      "source_sha256": "85999c5630fe5635bfa66985d52c4f6ca997d89cf2598978eff6bfa90c33f8c0",
+      "status": "pending_actor_review",
+      "references": [],
+      "follow_up": true
+    },
+    {
+      "source_index": 26,
+      "source_title": "性感舞后",
+      "source_sha256": "3390b4addcd8eb6a979c7a5a17a567cc1362c575abe9d28d147a99e4e2336be6",
+      "status": "pending_actor_review",
+      "references": [],
+      "follow_up": true
+    },
+    {
+      "source_index": 27,
+      "source_title": "清冷女神",
+      "source_sha256": "1efb35fa701e28b59b37c04b4fdcc4ef0ca2d4aa3e461e4eec51f6d5db86b93b",
+      "status": "pending_actor_review",
+      "references": [],
+      "follow_up": true
+    },
+    {
+      "source_index": 28,
+      "source_title": "反差女神",
+      "source_sha256": "3581fcfe0d73f4d6828d7e17b6cda29589f0a26519db87760ee3049c140fdd8f",
+      "status": "pending_actor_review",
+      "references": [],
+      "follow_up": true
+    },
+    {
+      "source_index": 29,
+      "source_title": "混血美女",
+      "source_sha256": "d4aaa3293232c9e736327b97e30e1e437f2657c33425f6f8d19e495494ddeba5",
+      "status": "pending_actor_review",
+      "references": [],
+      "follow_up": true
+    },
+    {
+      "source_index": 30,
+      "source_title": "腹黑閨蜜",
+      "source_sha256": "07ca841ae52c247fd436464d1e2296f99b7c7aa2a183af66492cf4890b1c077d",
+      "status": "pending_actor_review",
+      "references": [],
+      "follow_up": true
+    },
+    {
+      "source_index": 31,
+      "source_title": "女性情敵",
+      "source_sha256": "eca15078ff5a2ddd5c9428e2176a5116bd60776f65d29bed77cf4412bf50e41b",
+      "status": "pending_actor_review",
+      "references": [],
+      "follow_up": true
+    },
+    {
+      "source_index": 32,
+      "source_title": "開發者模式-跳脫扮演",
+      "source_sha256": "6240decc703518c55134220f90635f2d9d22de6c96b6008d4e8523b303090493",
+      "status": "pending_rule_review",
+      "references": [
+        "docs/worldbook-native-gap-audit-2026-10-10.md"
+      ],
+      "follow_up": true
+    },
+    {
+      "source_index": 33,
+      "source_title": "演員與世界觀融合",
+      "source_sha256": "ec5b0ba7e7d03507c13f7226374539770a5fbdaf2f73db0aa5f2958cf0d57f71",
+      "status": "pending_rule_review",
+      "references": [
+        "docs/worldbook-native-gap-audit-2026-10-10.md"
+      ],
+      "follow_up": true
+    },
+    {
+      "source_index": 34,
+      "source_title": "世界基礎規則-世界觀",
+      "source_sha256": "90c34cd54987003193254fad3b479aa3546af078a84b56e083d08d2523c89c94",
+      "status": "pending_rule_review",
+      "references": [
+        "docs/worldbook-native-gap-audit-2026-10-10.md"
+      ],
+      "follow_up": true
+    },
+    {
+      "source_index": 35,
+      "source_title": "NPC 日常行為",
+      "source_sha256": "45fc07139187b182a3826b0a4bc8bc7e8d17d8ebe91b2a46238722237bf421f0",
+      "status": "pending_rule_review",
+      "references": [
+        "docs/worldbook-native-gap-audit-2026-10-10.md"
+      ],
+      "follow_up": true
+    },
+    {
+      "source_index": 36,
+      "source_title": "NPC 離場行為",
+      "source_sha256": "4b487b2272d536b18497891a8945084accf252d27a4cd8eb64e0ec5bc7a5e9d5",
+      "status": "pending_rule_review",
+      "references": [
+        "docs/worldbook-native-gap-audit-2026-10-10.md"
+      ],
+      "follow_up": true
+    },
+    {
+      "source_index": 37,
+      "source_title": "親密關係發展-好感度",
+      "source_sha256": "b301414ca02145bc4cfa579cea5443def226d76d6ae965980162620cd142b1e6",
+      "status": "pending_rule_review",
+      "references": [
+        "docs/worldbook-native-gap-audit-2026-10-10.md"
+      ],
+      "follow_up": true
+    },
+    {
+      "source_index": 38,
+      "source_title": "性相關規則-性慾（特定條件觸發）",
+      "source_sha256": "d21559a6a1b338fa82160c8bbe3615f07e7cf608f7e49b41d46208bf1adb4983",
+      "status": "pending_rule_review",
+      "references": [
+        "docs/worldbook-native-gap-audit-2026-10-10.md"
+      ],
+      "follow_up": true
+    },
+    {
+      "source_index": 39,
+      "source_title": "NPC 性慾累積與離場",
+      "source_sha256": "1e43431f7f6cda3968920f0e09e8a946646b434a65e6b666f35774d3080f0f95",
+      "status": "pending_rule_review",
+      "references": [
+        "docs/worldbook-native-gap-audit-2026-10-10.md"
+      ],
+      "follow_up": true
+    },
+    {
+      "source_index": 40,
+      "source_title": "NPC 自主性行為與多 P-性慾",
+      "source_sha256": "9c33d8981fe1cf92f993b5b2b1fe07b8184faa9a844207b9d0085931986df6b1",
+      "status": "pending_rule_review",
+      "references": [
+        "docs/worldbook-native-gap-audit-2026-10-10.md"
+      ],
+      "follow_up": true
+    },
+    {
+      "source_index": 41,
+      "source_title": "玄幻劇本",
+      "source_sha256": "6fef46ac9d8f00806048436b0e675bb746e462568c1c995af772488f3b4270d1",
+      "status": "pending_rule_review",
+      "references": [
+        "docs/worldbook-native-gap-audit-2026-10-10.md"
+      ],
+      "follow_up": true
+    },
+    {
+      "source_index": 42,
+      "source_title": "角色池系統(演員、歌手、偶像)",
+      "source_sha256": "24c868c31867a4f233851a0be228b441d03e668b6921af61221951f37be4d50b",
+      "status": "pending_rule_review",
+      "references": [
+        "docs/worldbook-native-gap-audit-2026-10-10.md"
+      ],
+      "follow_up": true
+    },
+    {
+      "source_index": 43,
+      "source_title": "整理關係網路",
+      "source_sha256": "b9ab17c478b09e55c8e0bdef21938999d0028407a940b933d9079fd3381916e7",
+      "status": "native_prompt",
+      "references": [
+        "data/three-realms-event-director-provenance.json"
+      ],
+      "profile_id": "query-relations"
+    },
+    {
+      "source_index": 44,
+      "source_title": "總結劇情",
+      "source_sha256": "ed38d2ec50bff55322bac112e5a8b19cc44335c7cb61c9066563269eeadec4a5",
+      "status": "native_prompt",
+      "references": [
+        "data/three-realms-event-director-provenance.json"
+      ],
+      "profile_id": "query-recap"
+    },
+    {
+      "source_index": 45,
+      "source_title": "列出重要事件",
+      "source_sha256": "416618d482b81f54da45facf1d3082dda90c5015eaac6efa75b4ca8943da7f5f",
+      "status": "native_prompt",
+      "references": [
+        "data/three-realms-event-director-provenance.json"
+      ],
+      "profile_id": "query-timeline"
+    },
+    {
+      "source_index": 46,
+      "source_title": "整理物品清單",
+      "source_sha256": "1b1375d455e5fae8cd2f46bfa22c45fd4f181688cb33ab2e4e6d7bc943ae2974",
+      "status": "native_prompt",
+      "references": [
+        "data/three-realms-event-director-provenance.json"
+      ],
+      "profile_id": "query-inventory"
+    },
+    {
+      "source_index": 47,
+      "source_title": "世界觀查詢類指令",
+      "source_sha256": "bc3308373feecf7fac2ee795edbf299b69482f78230ca5d33569d81753f3442b",
+      "status": "native_prompt",
+      "references": [
+        "data/three-realms-event-director-provenance.json"
+      ],
+      "profile_id": "query-world"
+    },
+    {
+      "source_index": 48,
+      "source_title": "介紹世界背景",
+      "source_sha256": "44ad17e982afd07721ae470e0b37d0cad6895073f848371db2a015245724d92d",
+      "status": "native_prompt",
+      "references": [
+        "data/three-realms-event-director-provenance.json"
+      ],
+      "profile_id": "query-background"
+    },
+    {
+      "source_index": 49,
+      "source_title": "融合世界觀",
+      "source_sha256": "09edc504dbfe81def66afa5238eab899b6484707ca268cf1a95182636c25f387",
+      "status": "pending_rule_review",
+      "references": [
+        "docs/worldbook-native-gap-audit-2026-10-10.md"
+      ],
+      "follow_up": true
+    },
+    {
+      "source_index": 50,
+      "source_title": "自訂世界觀",
+      "source_sha256": "80e550945135d0b038f547008447420aad85d5dda59d39aae4ba582c09d6d0a4",
+      "status": "pending_rule_review",
+      "references": [
+        "docs/worldbook-native-gap-audit-2026-10-10.md"
+      ],
+      "follow_up": true
+    },
+    {
+      "source_index": 51,
+      "source_title": "整理人物檔案",
+      "source_sha256": "6025140ef8a758ed64fdbd2964688e05c436f769d47c447e3016297f0f8e077b",
+      "status": "native_prompt",
+      "references": [
+        "data/three-realms-event-director-provenance.json"
+      ],
+      "profile_id": "query-npcs"
+    },
+    {
+      "source_index": 52,
+      "source_title": "色情與強制情節處理",
+      "source_sha256": "8fb4467aa1ecc8142bc0e816970ae616ddf943240250fd627a8ad0d1e8a389a0",
+      "status": "pending_rule_review",
+      "references": [
+        "docs/worldbook-native-gap-audit-2026-10-10.md"
+      ],
+      "follow_up": true
+    },
+    {
+      "source_index": 53,
+      "source_title": "未成年角色設定",
+      "source_sha256": "ac2cac131a600427166f55dcc95d8fd636b8c1feefb0b7db40be63a0873acb6b",
+      "status": "pending_rule_review",
+      "references": [
+        "docs/worldbook-native-gap-audit-2026-10-10.md"
+      ],
+      "follow_up": true
+    },
+    {
+      "source_index": 54,
+      "source_title": "殺人與死亡場景",
+      "source_sha256": "a7073779fe3848fbdaf88d7c120126469265f9ef9d1a02f26810d9f19b5ed25d",
+      "status": "pending_rule_review",
+      "references": [
+        "docs/worldbook-native-gap-audit-2026-10-10.md"
+      ],
+      "follow_up": true
+    },
+    {
+      "source_index": 55,
+      "source_title": "色氣事件",
+      "source_sha256": "f45e9a67f9d7dca3c167e1110087d9e17d0f8eb8c3cb79bf00f55cdf5b49b056",
+      "status": "pending_rule_review",
+      "references": [
+        "docs/worldbook-native-gap-audit-2026-10-10.md"
+      ],
+      "follow_up": true
+    },
+    {
+      "source_index": 56,
+      "source_title": "情慾文學（Erotica）寫作規範",
+      "source_sha256": "ff603bc390dbec7b15a5c2d60a5eb96623440286598cd3427b02fc9004a2e2d9",
+      "status": "pending_rule_review",
+      "references": [
+        "docs/worldbook-native-gap-audit-2026-10-10.md"
+      ],
+      "follow_up": true
+    },
+    {
+      "source_index": 57,
+      "source_title": "男性凝視色情文學（Porn）寫作規範",
+      "source_sha256": "2c298d1a4384b7cd5fcaa67d43eb940f2dc4bdc31721b24b3da02b20840113eb",
+      "status": "pending_rule_review",
+      "references": [
+        "docs/worldbook-native-gap-audit-2026-10-10.md"
+      ],
+      "follow_up": true
+    },
+    {
+      "source_index": 58,
+      "source_title": "下界修煉體系-鬥氣路線",
+      "source_sha256": "8617323f97a661f899e5b9082e78350cd127482db0590815cff93a641a68e282",
+      "status": "native_cultivation",
+      "references": [
+        "docs/three-realms-cultivation-state.md",
+        "js/three-realms-cultivation-core.js"
+      ],
+      "fidelity": "adapted-state-contract-not-verbatim"
+    },
+    {
+      "source_index": 59,
+      "source_title": "中界修煉體系",
+      "source_sha256": "9915e3cfc781d1c69cb6e159298b2cb4e2ee7ba92040fff4b4dc7236b6eb543f",
+      "status": "native_cultivation",
+      "references": [
+        "docs/three-realms-cultivation-state.md",
+        "js/three-realms-cultivation-core.js"
+      ],
+      "fidelity": "adapted-state-contract-not-verbatim"
+    },
+    {
+      "source_index": 60,
+      "source_title": "上界修煉體系",
+      "source_sha256": "e98279d88a39371245dc9562fc18a78bda75bf9f708361cf4d7154040a393713",
+      "status": "native_cultivation",
+      "references": [
+        "docs/three-realms-cultivation-state.md",
+        "js/three-realms-cultivation-core.js"
+      ],
+      "fidelity": "adapted-state-contract-not-verbatim"
+    },
+    {
+      "source_index": 61,
+      "source_title": "鬼界修煉體系",
+      "source_sha256": "52b9f10be8398770724110934ace5e7068d344b85a6c0e959dca1c683e0ecec7",
+      "status": "native_cultivation",
+      "references": [
+        "docs/three-realms-cultivation-state.md",
+        "js/three-realms-cultivation-core.js"
+      ],
+      "fidelity": "adapted-state-contract-not-verbatim"
+    },
+    {
+      "source_index": 62,
+      "source_title": "異火系統-基本概念",
+      "source_sha256": "6e17eb5f03e0b15bedba8f804f9aa473e5b89da2dbfd5afc2dcfc7818215ba78",
+      "status": "factual",
+      "references": [
+        "data/three-realms-fire-artifact-source-map.json"
+      ],
+      "chapters": 6,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 63,
+      "source_title": "異火系統-下界異火榜",
+      "source_sha256": "94632d7cf24aa5ad786bc17848cfbaca0087279d18935073c63972e75607a07e",
+      "status": "factual",
+      "references": [
+        "data/three-realms-fire-artifact-source-map.json"
+      ],
+      "chapters": 13,
+      "omitted_instruction_spans": 1
+    },
+    {
+      "source_index": 64,
+      "source_title": "異火系統-中界天地靈火",
+      "source_sha256": "880469185de2f2832d839266cc392d48261213b01ec5841aec0c75dfe4cc1b3e",
+      "status": "factual",
+      "references": [
+        "data/three-realms-fire-artifact-source-map.json"
+      ],
+      "chapters": 9,
+      "omitted_instruction_spans": 1
+    },
+    {
+      "source_index": 65,
+      "source_title": "異火系統-上界神火",
+      "source_sha256": "658b0398245afb7d0fe58aec3b4f4546f24874cb74043ce08f0e1be6b452a758",
+      "status": "factual",
+      "references": [
+        "data/three-realms-fire-artifact-source-map.json"
+      ],
+      "chapters": 7,
+      "omitted_instruction_spans": 1
+    },
+    {
+      "source_index": 66,
+      "source_title": "法寶系統-基本概念",
+      "source_sha256": "f6f2c34389fa51f84088b6a411911c54fc4a8f26e6ce4c7f44a50502dbae462c",
+      "status": "factual",
+      "references": [
+        "data/three-realms-fire-artifact-source-map.json"
+      ],
+      "chapters": 6,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 67,
+      "source_title": "法寶系統-下界法寶",
+      "source_sha256": "5e34eb939e488da8183d28794ecdb8672477109c696714a29da37014b1059f24",
+      "status": "factual",
+      "references": [
+        "data/three-realms-fire-artifact-source-map.json"
+      ],
+      "chapters": 4,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 68,
+      "source_title": "法寶系統-中界法寶",
+      "source_sha256": "6383c2ad2f978a7ffd5317ac6b1407a284fc60e0f5dc6dcfd356910da5e1fc7d",
+      "status": "factual",
+      "references": [
+        "data/three-realms-fire-artifact-source-map.json"
+      ],
+      "chapters": 3,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 69,
+      "source_title": "法寶系統-上界法寶",
+      "source_sha256": "5d49f3d9b20a6a13fb5bf8ac060a15b09b40ac71a5d3d7723bdb1ee13e0890d9",
+      "status": "factual",
+      "references": [
+        "data/three-realms-fire-artifact-source-map.json"
+      ],
+      "chapters": 3,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 70,
+      "source_title": "法寶系統-煉器",
+      "source_sha256": "43b0496b3a5dba3c8a44c3bfb05a7e5ad5bb7964b2244d3b24eb0006b0a99338",
+      "status": "factual",
+      "references": [
+        "data/three-realms-fire-artifact-source-map.json"
+      ],
+      "chapters": 4,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 71,
+      "source_title": "信仰系統-基本概念",
+      "source_sha256": "e3098f47c5b49ee8b537bab934419a980fb14405b06cd76a30b47cde45042c5a",
+      "status": "factual",
+      "references": [
+        "data/three-realms-systems-source-map.json"
+      ],
+      "chapters": 5,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 72,
+      "source_title": "信仰系統-信徒獲取",
+      "source_sha256": "920b265854096cec056c7548648e9f411789895c12ac1dcbebd15b9be3010732",
+      "status": "factual",
+      "references": [
+        "data/three-realms-systems-source-map.json"
+      ],
+      "chapters": 4,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 73,
+      "source_title": "信仰系統-神職體系",
+      "source_sha256": "e97dd07a32a71dc1a05e5ff6a9745322572dacd4714a36e68e3c911fe54c0dea",
+      "status": "factual",
+      "references": [
+        "data/three-realms-systems-source-map.json"
+      ],
+      "chapters": 4,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 74,
+      "source_title": "信仰系統-神職賜予",
+      "source_sha256": "0bb3e6ea0a76dc8643dc4ea151107194fe6866f7a861c81c43830aabb381491f",
+      "status": "factual",
+      "references": [
+        "data/three-realms-systems-source-map.json"
+      ],
+      "chapters": 5,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 75,
+      "source_title": "信仰系統-信仰戰爭",
+      "source_sha256": "526645610e710fd243ff5fe7e363e20dee2ba01fdebe13ff49dd7658dc014017",
+      "status": "factual",
+      "references": [
+        "data/three-realms-systems-source-map.json"
+      ],
+      "chapters": 5,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 76,
+      "source_title": "業力系統-基本概念",
+      "source_sha256": "9e9cf19e528f0261531cb4a0b5c5e9f14aa430a1363a592110b135d1bd62532f",
+      "status": "factual",
+      "references": [
+        "data/three-realms-systems-source-map.json"
+      ],
+      "chapters": 4,
+      "omitted_instruction_spans": 0,
+      "native_support": [
+        "js/three-realms-cultivation-core.js"
+      ]
+    },
+    {
+      "source_index": 77,
+      "source_title": "業力系統-業力積累",
+      "source_sha256": "de4d94ffff7bb356532446ed3bb3b4dfa400e9c57f839817c20f2695e442aa29",
+      "status": "factual",
+      "references": [
+        "data/three-realms-systems-source-map.json"
+      ],
+      "chapters": 5,
+      "omitted_instruction_spans": 0,
+      "native_support": [
+        "js/three-realms-cultivation-core.js"
+      ]
+    },
+    {
+      "source_index": 78,
+      "source_title": "業力系統-業力消除",
+      "source_sha256": "f64981c12039dcdbf7a8fec1478a0c5b4c9e74b97bfb71d1c0b72725eb1dc742",
+      "status": "factual",
+      "references": [
+        "data/three-realms-systems-source-map.json"
+      ],
+      "chapters": 4,
+      "omitted_instruction_spans": 0,
+      "native_support": [
+        "js/three-realms-cultivation-core.js"
+      ]
+    },
+    {
+      "source_index": 79,
+      "source_title": "業力系統-心魔",
+      "source_sha256": "423f659b75cdefe77ef25ec91b51f705bcd20a1fcf2b54450a20b00fb41314fa",
+      "status": "factual",
+      "references": [
+        "data/three-realms-systems-source-map.json"
+      ],
+      "chapters": 7,
+      "omitted_instruction_spans": 0,
+      "native_support": [
+        "js/three-realms-cultivation-core.js"
+      ]
+    },
+    {
+      "source_index": 80,
+      "source_title": "業力系統-墮落機制",
+      "source_sha256": "af94b7421618cafc90cc728284cbf03b77cf8d1806c0ab4c2ba419b0c2167cec",
+      "status": "factual",
+      "references": [
+        "data/three-realms-systems-source-map.json"
+      ],
+      "chapters": 6,
+      "omitted_instruction_spans": 0,
+      "native_support": [
+        "js/three-realms-cultivation-core.js"
+      ]
+    },
+    {
+      "source_index": 81,
+      "source_title": "飛升機制-下界飛升中界",
+      "source_sha256": "b2b757d049d25b1d6d7961d64445c9350087bcb86053ecca2d24ceb5a929e0f9",
+      "status": "factual",
+      "references": [
+        "data/three-realms-systems-source-map.json"
+      ],
+      "chapters": 6,
+      "omitted_instruction_spans": 0,
+      "native_support": [
+        "js/three-realms-cultivation-core.js"
+      ]
+    },
+    {
+      "source_index": 82,
+      "source_title": "飛升機制-中界飛升上界",
+      "source_sha256": "5234c315aeac2268219cb92b9bd993451078d3f90626e526b2026707664a3966",
+      "status": "factual",
+      "references": [
+        "data/three-realms-systems-source-map.json"
+      ],
+      "chapters": 8,
+      "omitted_instruction_spans": 0,
+      "native_support": [
+        "js/three-realms-cultivation-core.js"
+      ]
+    },
+    {
+      "source_index": 83,
+      "source_title": "飛升機制-飛升後適應",
+      "source_sha256": "df36644e4352881a25287e70bd3a8e3879bd44314c41e95e02d723208d57fd20",
+      "status": "factual",
+      "references": [
+        "data/three-realms-systems-source-map.json"
+      ],
+      "chapters": 4,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 84,
+      "source_title": "飛升機制-降臨機制",
+      "source_sha256": "a645a8264beddcc2a1ac8f5c480d5975615a698a90a70e367db3545a2953daa7",
+      "status": "factual",
+      "references": [
+        "data/three-realms-systems-source-map.json"
+      ],
+      "chapters": 6,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 85,
+      "source_title": "下界地圖-整體概況",
+      "source_sha256": "2c2e14f8bd2fe83085d0578cd5f61362b76b1ce6d05ea71b2490f273024bad6d",
+      "status": "factual",
+      "references": [
+        "data/three-realms-worldbook-source-map.json"
+      ],
+      "chapters": 1,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 86,
+      "source_title": "下界地圖-中央大陸",
+      "source_sha256": "b4006297fc18a6bb41aaeef7eb889efaea3b0c2df2339f1033f12cddb419bd53",
+      "status": "factual",
+      "references": [
+        "data/three-realms-worldbook-source-map.json"
+      ],
+      "chapters": 1,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 87,
+      "source_title": "下界地圖-東方大陸",
+      "source_sha256": "f37cf34d9abd285a82169976b304d110ead0873c019fb688b7a3b4280ff3eedd",
+      "status": "factual",
+      "references": [
+        "data/three-realms-worldbook-source-map.json"
+      ],
+      "chapters": 1,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 88,
+      "source_title": "下界地圖-西方大陸",
+      "source_sha256": "229246485dac1000ca79d6ce970c835af39b74e573aa5e9a388cc130f5fbbebe",
+      "status": "factual",
+      "references": [
+        "data/three-realms-worldbook-source-map.json"
+      ],
+      "chapters": 1,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 89,
+      "source_title": "下界地圖-南方大陸",
+      "source_sha256": "0ff7717de9fb7a207d1dae0e094388d1988368ac3060cc6872f9fea2fdaf2771",
+      "status": "factual",
+      "references": [
+        "data/three-realms-worldbook-source-map.json"
+      ],
+      "chapters": 1,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 90,
+      "source_title": "下界地圖-北方大陸",
+      "source_sha256": "3f4a9d1d6169f13088a5b7bcf6e8c2b1931f5c911289b5e6020ff86fb03e824e",
+      "status": "factual",
+      "references": [
+        "data/three-realms-worldbook-source-map.json"
+      ],
+      "chapters": 1,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 91,
+      "source_title": "下界宗門-中央大陸頂級宗門",
+      "source_sha256": "24f597eba08d1035fc7116fa4bd7181c5d81e1fd49e71d0713f5adb6d0c85430",
+      "status": "factual",
+      "references": [
+        "data/three-realms-worldbook-source-map.json"
+      ],
+      "chapters": 5,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 92,
+      "source_title": "下界宗門-東方大陸劍宗",
+      "source_sha256": "8e11b0d187d5f6869ed25d91a2e0c7087fccfd0b37c95d93c33fd8598be5844b",
+      "status": "factual",
+      "references": [
+        "data/three-realms-worldbook-source-map.json"
+      ],
+      "chapters": 3,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 93,
+      "source_title": "下界宗門-西方大陸丹宗",
+      "source_sha256": "1e540826b6640194f28902d3eabaa464fb4eb18d1aad01410387e40edd6b9999",
+      "status": "factual",
+      "references": [
+        "data/three-realms-worldbook-source-map.json"
+      ],
+      "chapters": 2,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 94,
+      "source_title": "下界宗門-南方大陸器宗",
+      "source_sha256": "fb32452df4fb393f0439ed1ed7d9ae6200c5bb6c40e3f23255ad05799e2d91b6",
+      "status": "factual",
+      "references": [
+        "data/three-realms-worldbook-source-map.json"
+      ],
+      "chapters": 1,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 95,
+      "source_title": "下界宗門-北方大陸鬥氣宗門",
+      "source_sha256": "a8597409d749b1c70166371b73728aa7a56aef2d2f2b12befacbb07269d39da3",
+      "status": "factual",
+      "references": [
+        "data/three-realms-worldbook-source-map.json"
+      ],
+      "chapters": 2,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 96,
+      "source_title": "下界家族-基本概念",
+      "source_sha256": "64109cef1a97a3ef7a5aa9ce055cd2cc41421daabfe51bc8f894a00fd4d7d921",
+      "status": "factual",
+      "references": [
+        "data/three-realms-worldbook-source-map.json"
+      ],
+      "chapters": 1,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 97,
+      "source_title": "下界家族-中央大陸頂級家族",
+      "source_sha256": "70948c55efa74e56ebb1af8ed8f7585127adb57c3229d7d4fe3f5a26b6bb2b5c",
+      "status": "factual",
+      "references": [
+        "data/three-realms-worldbook-source-map.json"
+      ],
+      "chapters": 5,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 98,
+      "source_title": "下界家族-北方大陸鬥氣家族",
+      "source_sha256": "cb560adf57aeaca17b19d6b5a67116883b68b14d56e56a03a70bda37e69b3a4c",
+      "status": "factual",
+      "references": [
+        "data/three-realms-worldbook-source-map.json"
+      ],
+      "chapters": 3,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 99,
+      "source_title": "下界城市-基本概念",
+      "source_sha256": "08d41c150a5575f1f79018988f09516e4244dadb5c0d573927e1e9ded04573a8",
+      "status": "factual",
+      "references": [
+        "data/three-realms-worldbook-source-map.json"
+      ],
+      "chapters": 1,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 100,
+      "source_title": "下界城市-中央大陸主要城市",
+      "source_sha256": "2042300248c5bdb5a5e593eaaee9eac6e6bd8e5bdb48630a00b96dcb274b3c1d",
+      "status": "factual",
+      "references": [
+        "data/three-realms-worldbook-source-map.json"
+      ],
+      "chapters": 5,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 101,
+      "source_title": "下界城市-東方大陸主要城市",
+      "source_sha256": "cb5af24d0680cf40a15fb97a790a466b658405c95593cb9aec43ab23e54fcdaa",
+      "status": "factual",
+      "references": [
+        "data/three-realms-lower-atlas-source-map.json"
+      ],
+      "chapters": 4,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 102,
+      "source_title": "下界散修-基本概念",
+      "source_sha256": "6bdfff2ac2cfc4bfe6ef2f41b57354e10dcf613a315ad7083c760cc40a4fcebc",
+      "status": "factual",
+      "references": [
+        "data/three-realms-lower-atlas-source-map.json"
+      ],
+      "chapters": 7,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 103,
+      "source_title": "下界散修-著名散修聯盟",
+      "source_sha256": "597130cde53132aea64af1fc2decb077d7c97f1f3e66809b5d2a6c0ee7a9478f",
+      "status": "factual",
+      "references": [
+        "data/three-realms-lower-atlas-source-map.json"
+      ],
+      "chapters": 3,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 104,
+      "source_title": "下界散修-著名傭兵團",
+      "source_sha256": "cc1046e7ee3defb7cd2704ba6ca49d11a3cdb3c216d73b60c112f0eeffa6f01b",
+      "status": "factual",
+      "references": [
+        "data/three-realms-lower-atlas-source-map.json"
+      ],
+      "chapters": 2,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 105,
+      "source_title": "下界散修-著名獨行散修",
+      "source_sha256": "d6feb3b59ecf64e9b252e30e21a6fb52544a7685b9f0c61f8aa2b83b4266cadf",
+      "status": "factual",
+      "references": [
+        "data/three-realms-lower-atlas-source-map.json"
+      ],
+      "chapters": 3,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 106,
+      "source_title": "下界秘境-基本概念",
+      "source_sha256": "d43e400768c952daee3db06abca02ddabcff7ea8d8c1400f3f7158a45479accc",
+      "status": "factual",
+      "references": [
+        "data/three-realms-lower-atlas-source-map.json"
+      ],
+      "chapters": 7,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 107,
+      "source_title": "下界秘境-中央大陸著名秘境",
+      "source_sha256": "6740351da2e74b872ed0ecc795ce166f454e25391097d29cf4cc51540820ab29",
+      "status": "factual",
+      "references": [
+        "data/three-realms-lower-atlas-source-map.json"
+      ],
+      "chapters": 5,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 108,
+      "source_title": "下界秘境-東方大陸著名秘境",
+      "source_sha256": "d7d5cf7f8835eed7bb98de4bf1f2f71bf6aacde7e6ab65ffd51fa3885f8dbf03",
+      "status": "factual",
+      "references": [
+        "data/three-realms-lower-atlas-source-map.json"
+      ],
+      "chapters": 2,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 109,
+      "source_title": "下界秘境-北方大陸著名秘境",
+      "source_sha256": "a8908c9c959a1e22ce59bd7ad862f7e905540269693a3ee997207d23e8c3bb7b",
+      "status": "factual",
+      "references": [
+        "data/three-realms-lower-atlas-source-map.json"
+      ],
+      "chapters": 2,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 110,
+      "source_title": "下界商會-基本概念",
+      "source_sha256": "1fc53b0de92a8400768b6f75440fc75d4f45395b9b5a3b7e930c3fb06f96a590",
+      "status": "factual",
+      "references": [
+        "data/three-realms-lower-atlas-source-map.json"
+      ],
+      "chapters": 7,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 111,
+      "source_title": "下界商會-頂級商會",
+      "source_sha256": "08656f8df4097146c624a03391d7f366b69a77e76603d673a1f8fe751fa305da",
+      "status": "factual",
+      "references": [
+        "data/three-realms-lower-atlas-source-map.json"
+      ],
+      "chapters": 4,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 112,
+      "source_title": "下界商會-拍賣行",
+      "source_sha256": "a11cc675bc82c7a1c4b501f48364cf13883a08cbd141f511070dc2758070c967",
+      "status": "factual",
+      "references": [
+        "data/three-realms-lower-atlas-source-map.json"
+      ],
+      "chapters": 2,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 113,
+      "source_title": "下界商會-情報組織",
+      "source_sha256": "e0f4bb39dba45bd41e0919dcd381b28dee44ee974691b318b6cd4ce6c0d9c4c2",
+      "status": "factual",
+      "references": [
+        "data/three-realms-lower-atlas-source-map.json"
+      ],
+      "chapters": 1,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 114,
+      "source_title": "下界妖獸-基本概念",
+      "source_sha256": "35ca9c82b5e6f5c30b2ff406c770106d4863a4b057c20d13d81ee3991dc6ca94",
+      "status": "factual",
+      "references": [
+        "data/three-realms-lower-atlas-source-map.json"
+      ],
+      "chapters": 7,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 115,
+      "source_title": "下界妖獸-萬妖森林",
+      "source_sha256": "660847532fbc50f14e8dc7b2825bc295f6c0be383e99e78ae25d24be9d29fa85",
+      "status": "factual",
+      "references": [
+        "data/three-realms-lower-atlas-source-map.json"
+      ],
+      "chapters": 6,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 116,
+      "source_title": "下界妖獸-無盡之海",
+      "source_sha256": "19e5de7882bdbc01487617bc807129bd6f6aca3f5021602ffe4c55d609ff6be0",
+      "status": "factual",
+      "references": [
+        "data/three-realms-lower-atlas-source-map.json"
+      ],
+      "chapters": 4,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 117,
+      "source_title": "下界妖獸-特殊妖獸",
+      "source_sha256": "cb13b4c925b65f4fd0debe1ae78251e3668eac804b51f0a0af9ab77bab6cdce7",
+      "status": "factual",
+      "references": [
+        "data/three-realms-lower-atlas-source-map.json"
+      ],
+      "chapters": 3,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 118,
+      "source_title": "下界特殊勢力-基本概念",
+      "source_sha256": "2e0221c881b3988ff0ab6650dc4685360625c98af203b43e18e3f2da047fe2e9",
+      "status": "factual",
+      "references": [
+        "data/three-realms-lower-atlas-source-map.json"
+      ],
+      "chapters": 4,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 119,
+      "source_title": "下界特殊勢力-魔修勢力",
+      "source_sha256": "bb2dacb405f63b4d8b063875863e76f9d6096e3caf992f9e15dc5a1de972b9ed",
+      "status": "factual",
+      "references": [
+        "data/three-realms-lower-atlas-source-map.json"
+      ],
+      "chapters": 3,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 120,
+      "source_title": "下界特殊勢力-鬼修勢力",
+      "source_sha256": "920a0d4f3ad24f287e1bee0a7fe996c04d431b39d11b91a39fbfada848c548b1",
+      "status": "factual",
+      "references": [
+        "data/three-realms-lower-atlas-source-map.json"
+      ],
+      "chapters": 2,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 121,
+      "source_title": "下界特殊勢力-邪修勢力",
+      "source_sha256": "187d98ddd25060513c03bbd0ba28b5fae95cc25dbfeb3328c4bf62373b73eb3c",
+      "status": "factual",
+      "references": [
+        "data/three-realms-lower-atlas-source-map.json"
+      ],
+      "chapters": 2,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 122,
+      "source_title": "下界特殊勢力-毒修勢力",
+      "source_sha256": "2dde5095f5af4ab8421c874b41fa97df8ddb0e71878f5675c9405b5b0001f1aa",
+      "status": "factual",
+      "references": [
+        "data/three-realms-lower-atlas-source-map.json"
+      ],
+      "chapters": 1,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 123,
+      "source_title": "下界特殊勢力-屍修勢力",
+      "source_sha256": "9362cdce8cbbfb98c28f01e813d8e60ca868db1df7dda80b51264614e438ec70",
+      "status": "factual",
+      "references": [
+        "data/three-realms-lower-atlas-source-map.json"
+      ],
+      "chapters": 1,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 124,
+      "source_title": "下界特殊勢力-鬼市",
+      "source_sha256": "4139f0af0419d14ae8a8dde63c1499ecafc2dc2d524f2a62740f3df5f29d8dd7",
+      "status": "factual",
+      "references": [
+        "data/three-realms-lower-atlas-source-map.json"
+      ],
+      "chapters": 11,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 125,
+      "source_title": "丹藥系統-基本概念",
+      "source_sha256": "7540358a2cc976e582a9c8cf650125fbcf0109b8088afb476afd1711f593c1f5",
+      "status": "factual",
+      "references": [
+        "data/three-realms-encyclopedia-source-map.json"
+      ],
+      "chapters": 8,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 126,
+      "source_title": "丹藥系統-常見丹藥",
+      "source_sha256": "7acf484378b6184a8b1525b71116ee5dc0d1bfe5c90b96df9aaaaa9be491fbd5",
+      "status": "factual",
+      "references": [
+        "data/three-realms-encyclopedia-source-map.json"
+      ],
+      "chapters": 11,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 127,
+      "source_title": "丹藥系統-常見丹藥",
+      "source_sha256": "f53f040fa1c0667ccc522d5e68ce58db7af6c68e2fa380f22cd4fd75b7515f1e",
+      "status": "factual",
+      "references": [
+        "data/three-realms-encyclopedia-source-map.json"
+      ],
+      "chapters": 10,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 128,
+      "source_title": "陣法系統-基本概念",
+      "source_sha256": "77386b7a44e20382414dd543609a8481d54e795871226f564871c778a8aa6d6d",
+      "status": "factual",
+      "references": [
+        "data/three-realms-encyclopedia-source-map.json"
+      ],
+      "chapters": 9,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 129,
+      "source_title": "陣法系統-常見陣法",
+      "source_sha256": "093e170751717a86beebfbc4a6e502b9795aad7d376ea268659cfecb7c705c67",
+      "status": "factual",
+      "references": [
+        "data/three-realms-encyclopedia-source-map.json"
+      ],
+      "chapters": 12,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 130,
+      "source_title": "陣法系統-常見陣法",
+      "source_sha256": "9a6f24c4df5c057fee3af5f63c3b8818bb884cd539a12d1c50e64e9d042fdaa6",
+      "status": "factual",
+      "references": [
+        "data/three-realms-encyclopedia-source-map.json"
+      ],
+      "chapters": 7,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 131,
+      "source_title": "符籙系統-基本概念",
+      "source_sha256": "34b7f00642333c6738f87b532c7bb98d2c5f33d8fc4e7bb089cb773c51589840",
+      "status": "factual",
+      "references": [
+        "data/three-realms-encyclopedia-source-map.json"
+      ],
+      "chapters": 10,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 132,
+      "source_title": "符籙系統-常見符籙",
+      "source_sha256": "29bf6d49d85b67bbc3c550e8498b504e3d208d9b2e99ee9fce55ca47f2d421be",
+      "status": "factual",
+      "references": [
+        "data/three-realms-encyclopedia-source-map.json"
+      ],
+      "chapters": 8,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 133,
+      "source_title": "符籙系統-常見符籙",
+      "source_sha256": "b2adc03c1b5385f0cf33000ba4d920c0268a7cf14fdc7b4eece0be1c367e8d2a",
+      "status": "factual",
+      "references": [
+        "data/three-realms-encyclopedia-source-map.json"
+      ],
+      "chapters": 14,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 134,
+      "source_title": "煉器系統-基本概念",
+      "source_sha256": "63954af4ed260c0262c00be43b911dceceb942b94bdd8a0888ae85f6f4975dc3",
+      "status": "factual",
+      "references": [
+        "data/three-realms-encyclopedia-source-map.json"
+      ],
+      "chapters": 8,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 135,
+      "source_title": "煉器系統-基本概念",
+      "source_sha256": "674af30ab7631d2fdf581ea079ae6699a0c5ae07e15d3fd7a729db577623435e",
+      "status": "factual",
+      "references": [
+        "data/three-realms-encyclopedia-source-map.json"
+      ],
+      "chapters": 3,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 136,
+      "source_title": "煉器系統-常見法寶",
+      "source_sha256": "08972b62d4d07a919a8e76af199dcae3db3ae7e8cde530b08d11ddecb2feaa16",
+      "status": "factual",
+      "references": [
+        "data/three-realms-encyclopedia-source-map.json"
+      ],
+      "chapters": 9,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 137,
+      "source_title": "煉器系統-常見法寶",
+      "source_sha256": "6d69bb4f4ad29e8eb05b4004682ca848482b7ca4e2fab2a546a1aa10e405b3f5",
+      "status": "factual",
+      "references": [
+        "data/three-realms-encyclopedia-source-map.json"
+      ],
+      "chapters": 11,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 138,
+      "source_title": "靈獸系統-基本概念",
+      "source_sha256": "fcf9f62be2bf836f7ddba902a5f7f730f48b2f6afd6d71867a6eb91eb257a6fa",
+      "status": "factual",
+      "references": [
+        "data/three-realms-encyclopedia-source-map.json"
+      ],
+      "chapters": 11,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 139,
+      "source_title": "血脈系統-基本概念",
+      "source_sha256": "2f5160f6e23c24c95d4d627766d19bd40adc96852de0dde6cdfe287031c607f6",
+      "status": "factual",
+      "references": [
+        "data/three-realms-advanced-lore-source-map.json"
+      ],
+      "chapters": 10,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 140,
+      "source_title": "血脈系統-常見血脈",
+      "source_sha256": "133583e20288eb7a1a79be525a20ce0ea0ba6a7ecf0beee67ca4a556ba21c018",
+      "status": "factual",
+      "references": [
+        "data/three-realms-advanced-lore-source-map.json"
+      ],
+      "chapters": 11,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 141,
+      "source_title": "中界-基本概念",
+      "source_sha256": "925202ea97b3d5d7d0c43eb758104713a2c2dbca066decfc32cc3c7d69e138c8",
+      "status": "factual",
+      "references": [
+        "data/three-realms-middle-lore-source-map.json"
+      ],
+      "chapters": 6,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 142,
+      "source_title": "中界-九大仙域詳細",
+      "source_sha256": "0344ef168f94dff8cb862df7026a024d76089b6e11f699a13bf0dce30ac22b17",
+      "status": "factual",
+      "references": [
+        "data/three-realms-worldbook-source-map.json"
+      ],
+      "chapters": 9,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 143,
+      "source_title": "中界修煉資源-仙藥",
+      "source_sha256": "a160c6e60c6d236a98762c3516f0d15c09960df7fc981698463444b1469631fc",
+      "status": "factual",
+      "references": [
+        "data/three-realms-middle-lore-source-map.json"
+      ],
+      "chapters": 14,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 144,
+      "source_title": "中界修煉資源-仙礦",
+      "source_sha256": "66ca755f78fc9caf8a72e45a6ff5ce6fc000fd6dd718a7f3fad402667a63fedd",
+      "status": "factual",
+      "references": [
+        "data/three-realms-middle-lore-source-map.json"
+      ],
+      "chapters": 14,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 145,
+      "source_title": "中界修煉資源-仙獸材料",
+      "source_sha256": "e69b062ede72d5326fe81fa06045f2767aa73933f3df91ceec4ff61cd85ff4d5",
+      "status": "factual",
+      "references": [
+        "data/three-realms-middle-lore-source-map.json"
+      ],
+      "chapters": 12,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 146,
+      "source_title": "中界修煉資源-仙石",
+      "source_sha256": "5605d96bcb7c792c46e5208bc285e283f4b4338479272569529c5f8d7b099887",
+      "status": "factual",
+      "references": [
+        "data/three-realms-middle-lore-source-map.json"
+      ],
+      "chapters": 4,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 147,
+      "source_title": "法則系統-基本概念",
+      "source_sha256": "c8236536a325f24f72051c66b745d97ee946a66253e16bbf8a09ac53ed683614",
+      "status": "factual",
+      "references": [
+        "data/three-realms-advanced-lore-source-map.json"
+      ],
+      "chapters": 24,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 148,
+      "source_title": "法則系統-常見法則詳解",
+      "source_sha256": "27e3382ce43ffbf8e3e35b7d9f35b82489d75e8e263a79e3e9e3226ff8871fa0",
+      "status": "factual",
+      "references": [
+        "data/three-realms-advanced-lore-source-map.json"
+      ],
+      "chapters": 10,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 149,
+      "source_title": "仙器系統-基本概念",
+      "source_sha256": "b9a4afe326bfb19399ef4d84b859ddf2adfa7c6cffbee65a3d6dabeabd45c2cb",
+      "status": "factual",
+      "references": [
+        "data/three-realms-advanced-lore-source-map.json"
+      ],
+      "chapters": 9,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 150,
+      "source_title": "仙器系統-常見仙器",
+      "source_sha256": "d6177ed97400e1d519e5d96d23f4e1dfd545dae2628790fd58bc77153b4dbfb9",
+      "status": "factual",
+      "references": [
+        "data/three-realms-advanced-lore-source-map.json"
+      ],
+      "chapters": 12,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 151,
+      "source_title": "仙器系統-常見仙器",
+      "source_sha256": "820c7189d35e88fa77c13eecd10813ac8a0463fa3fb3551775f54f7a2133ae71",
+      "status": "factual",
+      "references": [
+        "data/three-realms-advanced-lore-source-map.json"
+      ],
+      "chapters": 9,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 152,
+      "source_title": "中界勢力-中央仙域",
+      "source_sha256": "0400511e9b7c248b604e60d3c76a0793ea658f3ec56f32ea428117786c233965",
+      "status": "factual",
+      "references": [
+        "data/three-realms-middle-lore-source-map.json"
+      ],
+      "chapters": 5,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 153,
+      "source_title": "中界勢力-西方仙域",
+      "source_sha256": "34e903f16f2579722289f3fbcaa470ce6a9b27d6baaf856d467cf86d7eec907c",
+      "status": "factual",
+      "references": [
+        "data/three-realms-middle-lore-source-map.json"
+      ],
+      "chapters": 2,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 154,
+      "source_title": "中界勢力-南方仙域",
+      "source_sha256": "b171e1939f3af3b74568d0092584d9314da2fa0c4c02ba25121b117a5c452361",
+      "status": "factual",
+      "references": [
+        "data/three-realms-middle-lore-source-map.json"
+      ],
+      "chapters": 2,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 155,
+      "source_title": "中界勢力-北方仙域",
+      "source_sha256": "4feb6c8753b317b987e3a93a33aafbee5a689ba2aa22c8078c08dd5b88505b59",
+      "status": "factual",
+      "references": [
+        "data/three-realms-middle-lore-source-map.json"
+      ],
+      "chapters": 2,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 156,
+      "source_title": "中界勢力-東南仙域",
+      "source_sha256": "f776c10422be87c6193092c19638bb7e8979a3ef2c9364f75cd698094c36b195",
+      "status": "factual",
+      "references": [
+        "data/three-realms-middle-lore-source-map.json"
+      ],
+      "chapters": 2,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 157,
+      "source_title": "中界勢力-西南仙域",
+      "source_sha256": "90b803be3d479a7ca34a8ccf22cbab5ca24034c4a1490964b77bbebc3d235791",
+      "status": "factual",
+      "references": [
+        "data/three-realms-middle-lore-source-map.json"
+      ],
+      "chapters": 3,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 158,
+      "source_title": "中界勢力-東北仙域",
+      "source_sha256": "68b0e27eb2e59b3465152ff07af3f5c7a183aa058ef948cc749e76e7015d9b5a",
+      "status": "factual",
+      "references": [
+        "data/three-realms-middle-lore-source-map.json"
+      ],
+      "chapters": 3,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 159,
+      "source_title": "中界勢力-西北仙域",
+      "source_sha256": "c96eb4d0b53299884cc6a7eb6a12fb49c45fc7dbbc589b6f60a37b6a466310a1",
+      "status": "factual",
+      "references": [
+        "data/three-realms-middle-lore-source-map.json"
+      ],
+      "chapters": 3,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 160,
+      "source_title": "中界勢力-特殊勢力",
+      "source_sha256": "dba5d3029e0932acce7bf1eed6491c900709868cdae5af1d831820f1778c317a",
+      "status": "factual",
+      "references": [
+        "data/three-realms-middle-lore-source-map.json"
+      ],
+      "chapters": 4,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 161,
+      "source_title": "秘境系統-基本概念",
+      "source_sha256": "e4ca5e1019d9f004e28d4178c2f91d06e1cbf66f1803702393f49e9f04afc47b",
+      "status": "factual",
+      "references": [
+        "data/three-realms-secret-lore-source-map.json"
+      ],
+      "chapters": 15,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 162,
+      "source_title": "秘境系統-著名秘境",
+      "source_sha256": "7248dffe8d2562d942b2f9a74105aa1a0868a2a3264741221db7683770c11f91",
+      "status": "factual",
+      "references": [
+        "data/three-realms-secret-lore-source-map.json"
+      ],
+      "chapters": 8,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 163,
+      "source_title": "天劫系統-基本概念",
+      "source_sha256": "fd3f16ad986a431ab031a50824394a5a0041116a798361f3dbef65a0ff006d63",
+      "status": "factual",
+      "references": [
+        "data/three-realms-cosmic-lore-source-map.json"
+      ],
+      "chapters": 11,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 164,
+      "source_title": "天劫系統-基本概念",
+      "source_sha256": "f80a3a471825653d5a29893546ea527ae211949942a98e5e0190b4966cbe4418",
+      "status": "factual",
+      "references": [
+        "data/three-realms-cosmic-lore-source-map.json"
+      ],
+      "chapters": 4,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 165,
+      "source_title": "氣運系統-基本概念",
+      "source_sha256": "e4e1446ab3429f8e6b16613ec25968df393f4d78a81f692c618c28ffff072049",
+      "status": "factual",
+      "references": [
+        "data/three-realms-cosmic-lore-source-map.json"
+      ],
+      "chapters": 17,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 166,
+      "source_title": "因果系統-基本概念",
+      "source_sha256": "cfcc437730d88311efb206cea05aec4ae0e29966c65d6ed87ea22d9c247614ba",
+      "status": "factual",
+      "references": [
+        "data/three-realms-cosmic-lore-source-map.json"
+      ],
+      "chapters": 12,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 167,
+      "source_title": "因果系統-基本概念",
+      "source_sha256": "9e01d89f20e39cd02bee9c34259ece504f107e60f365585d0de298ff8931bcda",
+      "status": "factual",
+      "references": [
+        "data/three-realms-cosmic-lore-source-map.json"
+      ],
+      "chapters": 2,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 168,
+      "source_title": "中界血脈系統-基本概念",
+      "source_sha256": "961a05ad936c1b751e69eb5240cd037593f73c63454b2a03d148130c669d7d34",
+      "status": "factual",
+      "references": [
+        "data/three-realms-advanced-lore-source-map.json"
+      ],
+      "chapters": 24,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 169,
+      "source_title": "中界血脈系統-基本概念",
+      "source_sha256": "a77c6dc96aa3e69beacda5e5d76d3f82dfcb9b3e4375625c2453ae61a66cccdb",
+      "status": "factual",
+      "references": [
+        "data/three-realms-advanced-lore-source-map.json"
+      ],
+      "chapters": 6,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 170,
+      "source_title": "神通系統-基本概念",
+      "source_sha256": "4e9e6a4fb54dd1051d8e4d780f086966da81e66f32796067884f3f2c92bd263a",
+      "status": "factual",
+      "references": [
+        "data/three-realms-advanced-lore-source-map.json"
+      ],
+      "chapters": 17,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 171,
+      "source_title": "靈根系統-基本概念",
+      "source_sha256": "1b305e4724f4d6d9c095d0313fde66a4609a413259b83c5cd4ce5b2806595301",
+      "status": "factual",
+      "references": [
+        "data/three-realms-advanced-lore-source-map.json"
+      ],
+      "chapters": 21,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 172,
+      "source_title": "輸出格式與狀態欄系統",
+      "source_sha256": "647c34410cb8490bf1ce165ac74bd75eb5a2abd2631c25a018c9c7aa46efc94c",
+      "status": "native_renderer_review",
+      "references": [
+        "docs/three-realms-status-native-review-2026-10-11.md"
+      ],
+      "follow_up": true
+    },
+    {
+      "source_index": 173,
+      "source_title": "機運事件系統",
+      "source_sha256": "19b0b9eda12919b8f63c16c677f8ddce165840e0d378cd4e0741586172f6458c",
+      "status": "native_prompt",
+      "references": [
+        "data/three-realms-event-director-provenance.json"
+      ],
+      "profile_id": "fortune"
+    },
+    {
+      "source_index": 174,
+      "source_title": "危機事件系統",
+      "source_sha256": "6aafe247efb2c19325da684d3b29762d09ace1679ed331851b0e6deea6c60fb9",
+      "status": "native_prompt",
+      "references": [
+        "data/three-realms-event-director-provenance.json"
+      ],
+      "profile_id": "crisis"
+    },
+    {
+      "source_index": 175,
+      "source_title": "情感事件系統",
+      "source_sha256": "6a079913eee52bc17fedc5243bc959c1867048be1e6aaeca42014700e434193c",
+      "status": "native_prompt",
+      "references": [
+        "data/three-realms-event-director-provenance.json"
+      ],
+      "profile_id": "emotion"
+    },
+    {
+      "source_index": 176,
+      "source_title": "突破事件系統",
+      "source_sha256": "05f81fe1c4048239e8fa42aad1f3608cbf09c72bb710e2816fbf7a5f9fe2f819",
+      "status": "native_prompt",
+      "references": [
+        "data/three-realms-event-director-provenance.json"
+      ],
+      "profile_id": "breakthrough"
+    },
+    {
+      "source_index": 177,
+      "source_title": "陰謀事件系統",
+      "source_sha256": "5f160f83616a48ad7d9d75883f319c527aa4310e186323d54e09eb23d5979532",
+      "status": "native_prompt",
+      "references": [
+        "data/three-realms-event-director-provenance.json"
+      ],
+      "profile_id": "conspiracy"
+    },
+    {
+      "source_index": 178,
+      "source_title": "探索事件系統",
+      "source_sha256": "ecb6706d49914401ad8f13aab85e390be378befc91638c974c7999d93a1531ae",
+      "status": "native_prompt",
+      "references": [
+        "data/three-realms-event-director-provenance.json"
+      ],
+      "profile_id": "exploration"
+    },
+    {
+      "source_index": 179,
+      "source_title": "社交事件系統",
+      "source_sha256": "3f92f9613f9cdf353a29e96349daee3b1a9e3d40648b29add69027d193d44bb3",
+      "status": "native_prompt",
+      "references": [
+        "data/three-realms-event-director-provenance.json"
+      ],
+      "profile_id": "social"
+    },
+    {
+      "source_index": 180,
+      "source_title": "資源事件系統",
+      "source_sha256": "923af9706519996b462836e215f2b26a7ae0c64fc75abb50d438b6a706cc50af",
+      "status": "native_prompt",
+      "references": [
+        "data/three-realms-event-director-provenance.json"
+      ],
+      "profile_id": "resources"
+    },
+    {
+      "source_index": 181,
+      "source_title": "時間事件系統",
+      "source_sha256": "831ea72bba3b54329b0a29338a26e9981128d709422b3eea581abff256b3635b",
+      "status": "native_prompt",
+      "references": [
+        "data/three-realms-event-director-provenance.json"
+      ],
+      "profile_id": "time"
+    },
+    {
+      "source_index": 182,
+      "source_title": "因果事件系統",
+      "source_sha256": "2864c343cdfe5c71a8f03525f460811ecb607d2d3cefa6ae02a32b20033c6baa",
+      "status": "native_prompt",
+      "references": [
+        "data/three-realms-event-director-provenance.json"
+      ],
+      "profile_id": "karma"
+    },
+    {
+      "source_index": 183,
+      "source_title": "神秘事件系統",
+      "source_sha256": "d473c06087eee8ed1bf3dc1df186c512c6cdfc4745def112f6706eb49575e53e",
+      "status": "native_prompt",
+      "references": [
+        "data/three-realms-event-director-provenance.json"
+      ],
+      "profile_id": "mystery"
+    },
+    {
+      "source_index": 184,
+      "source_title": "氣運之子系統",
+      "source_sha256": "eb67e9dd2e6f8b9eccdcc4dbb3430fb55593254837a803500d162577d3dd0a55",
+      "status": "native_prompt",
+      "references": [
+        "data/three-realms-event-director-provenance.json"
+      ],
+      "profile_id": "fortunate-npc"
+    },
+    {
+      "source_index": 185,
+      "source_title": "原作角色條目",
+      "source_sha256": "62b8dd254f97bd5d296d3cd1764dee2ed1889e4fcd74268557cfb3c626b2a155",
+      "status": "native_prompt",
+      "references": [
+        "data/three-realms-event-director-provenance.json"
+      ],
+      "profile_id": "crossover-npc"
+    },
+    {
+      "source_index": 186,
+      "source_title": "上界-基本概念",
+      "source_sha256": "06f36f9bb587977fd9bca1af8191d10be81cbc776a4ae39a68847318b01ad7d0",
+      "status": "factual",
+      "references": [
+        "data/three-realms-cosmic-lore-source-map.json"
+      ],
+      "chapters": 21,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 187,
+      "source_title": "上界勢力-三十三重天詳細",
+      "source_sha256": "34693e3163ddc9e50442e782aaf965be5b21bcda77a3dc67b491344dd5859c3e",
+      "status": "factual",
+      "references": [
+        "data/three-realms-worldbook-source-map.json"
+      ],
+      "chapters": 5,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 188,
+      "source_title": "上界資源系統",
+      "source_sha256": "0948eb130cad33efad26aa40d2b0958f984d8f8460e61c4a15bc930b1e83d0f8",
+      "status": "factual",
+      "references": [
+        "data/three-realms-cosmic-lore-source-map.json"
+      ],
+      "chapters": 4,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 189,
+      "source_title": "上界法則系統-神之法則",
+      "source_sha256": "b5eb8ddc57a974d6398fc267a8513794926d1ca7fd7493671bee63e210480a52",
+      "status": "factual",
+      "references": [
+        "data/three-realms-cosmic-lore-source-map.json"
+      ],
+      "chapters": 8,
+      "omitted_instruction_spans": 0
+    },
+    {
+      "source_index": 190,
+      "source_title": "上界血脈系統",
+      "source_sha256": "34430fe3ba5313d4540b544a3da10c71c5a06c4b43e147a65f2501630e1636a8",
+      "status": "factual",
+      "references": [
+        "data/three-realms-cosmic-lore-source-map.json"
+      ],
+      "chapters": 21,
+      "omitted_instruction_spans": 0
+    }
+  ]
+}
