@@ -150,12 +150,34 @@
     };
   }
 
+  // Optional, declarative counter transactions. Imported cards never execute JavaScript.
+  // Only integer paths beneath defined object-type world modules are eligible.
+  function normalizeActionEffect(raw) {
+    if (!isObject(raw) || !Array.isArray(raw.changes) || raw.changes.length < 1 || raw.changes.length > 8) return null;
+    const changes = [];
+    const seen = new Set();
+    for (const change of raw.changes) {
+      if (!isObject(change)) return null;
+      const path = String(change.path || '').trim();
+      const parts = splitPath(path);
+      const delta = change.delta;
+      if (parts.length < 3 || !isTargetPath(path) || typeof delta !== 'number' ||
+          !Number.isSafeInteger(delta) || delta === 0 || Math.abs(delta) > 1000000 ||
+          seen.has(path)) return null;
+      seen.add(path);
+      changes.push({ path, delta });
+    }
+    return { changes, event: String(raw.event || '').trim().slice(0, 160) };
+  }
+
   function normalizePanelItem(raw, sectionType, index) {
     if (!isObject(raw)) return null;
     if (sectionType === 'actions') {
       const draft = String(raw.draft || '').trim().slice(0, 500);
-      if (!draft) return null;
-      return { label: label(raw.label, `行動 ${index + 1}`), draft, hint: String(raw.hint || '').trim().slice(0, 120) };
+      // Invalid effect definitions fail closed: never silently turn them into a text action.
+      const effect = raw.effect === undefined ? null : normalizeActionEffect(raw.effect);
+      if ((!draft && !effect) || (raw.effect !== undefined && !effect)) return null;
+      return { label: label(raw.label, `行動 ${index + 1}`), draft, hint: String(raw.hint || '').trim().slice(0, 120), ...(effect ? { effect } : {}) };
     }
     if (sectionType === 'meters') {
       const valuePath = String(raw.value_path || raw.path || '').trim();
@@ -416,10 +438,78 @@
     return changed;
   }
 
+  function executeActionEffect(state, rawEffect) {
+    const effect = normalizeActionEffect(rawEffect);
+    if (!effect) return { ok: false, reason: '無效的遊戲動作設定。' };
+    if (!isObject(state) || !isObject(state.modules) || !Array.isArray(state.moduleDefinitions)) {
+      return { ok: false, reason: '世界模組尚未就緒。' };
+    }
+    const definitions = new Map(state.moduleDefinitions
+      .filter(def => def?.id && def.kind === 'object' && def.enabled !== false)
+      .map(def => [def.id, def]));
+    const pending = [];
+    for (const change of effect.changes) {
+      const parts = splitPath(change.path);
+      const moduleId = parts[1];
+      const moduleValue = state.modules[moduleId];
+      if (!definitions.has(moduleId) || !isObject(moduleValue)) {
+        return { ok: false, reason: '動作引用了未啟用或非數值型世界模組。' };
+      }
+      const previous = getPath(state, change.path);
+      if (typeof previous !== 'number' || !Number.isSafeInteger(previous) || previous < 0) {
+        return { ok: false, reason: '操作所需的數值欄位未初始化。' };
+      }
+      const next = previous + change.delta;
+      if (!Number.isSafeInteger(next) || next < 0 || next > 1000000000) {
+        return { ok: false, reason: '資源不足或超出數值範圍。' };
+      }
+      pending.push({ ...change, next, moduleId });
+    }
+
+    // Stage every write before changing the live story, so a failed action cannot
+    // deduct currency without granting the corresponding resource.
+    try {
+      const modules = { ...state.modules };
+      for (const { moduleId } of pending) {
+        if (modules[moduleId] === state.modules[moduleId]) modules[moduleId] = clone(state.modules[moduleId]);
+      }
+      const shadow = { modules };
+      for (const { path, next } of pending) {
+        if (!setPath(shadow, path, next)) return { ok: false, reason: '遊戲動作無法寫入狀態。' };
+      }
+      const versions = { ...(state.gameplayActionVersions || {}) };
+      for (const { path } of pending) versions[path] = (Number(versions[path]) || 0) + 1;
+      state.modules = modules;
+      state.gameplayActionVersions = versions;
+    } catch (_) {
+      return { ok: false, reason: '遊戲動作未完成，狀態保持不變。' };
+    }
+    return { ok: true, effect };
+  }
+
+  function captureActionVersions(state) {
+    return { ...(state?.gameplayActionVersions || {}) };
+  }
+
+  // Preserve local commits made after a model request began. Future requests
+  // still accept narrative changes: this is a race guard, not a permanent lock.
+  function reconcileActionUpdate(state, update, baseline = {}) {
+    if (!isObject(update?.modules)) return update;
+    const clean = clone(update);
+    for (const [path, version] of Object.entries(state?.gameplayActionVersions || {})) {
+      const parts = splitPath(path);
+      if (parts.length < 3 || parts[0] !== 'modules' || !isTargetPath(path)) continue;
+      if (version === baseline[path] || !isObject(clean.modules[parts[1]])) continue;
+      const current = getPath(state, path);
+      if (Number.isSafeInteger(current) && current >= 0) setPath(clean, path, current);
+    }
+    return clean;
+  }
+
   return Object.freeze({
     MAX_PANELS, MAX_SECTIONS, MAX_ITEMS, MAX_ATTRIBUTES, MAX_FIELDS, MAX_TABS,
     THEME_PRESETS, THEME_DENSITIES, THEME_RADII, THEME_METERS, LAYOUT_PRESETS, SCENE_SOURCES, SCENE_FITS, CARD_VARIANTS, TIMELINE_MODES,
     normalize, normalizeTheme, normalizeLayout, builderDefaults, attributeCost, remainingPoints, normalizeBuilderValues,
-    applyBuilderValues, getPath, setPath, isTargetPath, isDisplayPath
+    captureActionVersions, reconcileActionUpdate, applyBuilderValues, normalizeActionEffect, executeActionEffect, getPath, setPath, isTargetPath, isDisplayPath
   });
 });

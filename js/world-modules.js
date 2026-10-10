@@ -226,6 +226,7 @@
   WorldStateEngine.update = async function(config, playerText, assistantText) {
     if (!this.enabled(config) || !config?.api?.key || !GameState.current) return null;
     const owner = GameState.current;
+    const actionBaseline = window.BAOGameplayUICore?.captureActionVersions(owner);
     const defs = dueModules(playerText, assistantText);
     const rules = defs.length ? `\n【本次需要檢查的世界模組】\n${moduleRules(defs)}` : "";
     const turnText = `${playerText}\n${assistantText}`;
@@ -261,7 +262,7 @@
         ...(GameState.current.stateRequestDiagnostics || {}), parsed: Boolean(data), applied: false
       };
       if (!data) return null;
-      GameState.applyUpdate(data);
+      GameState.applyUpdate(window.BAOGameplayUICore?.reconcileActionUpdate(owner, data, actionBaseline) || data);
       if (GameState.current?.stateRequestDiagnostics) GameState.current.stateRequestDiagnostics.applied = true;
       return data;
     } catch (err) {

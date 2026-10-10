@@ -42,3 +42,17 @@ jobs:
       - run: node --check js/character-studio.js
       - name: Browser coverage
         run: echo "Gameplay UI browser regression is covered by Fast Browser E2E."
+
+  browser-gameplay-ui:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install dependencies
+        run: npm ci
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Native Gameplay UI browser regression
+        run: npx playwright test tests/e2e/gameplay-ui-engine.spec.cjs --project=chromium
