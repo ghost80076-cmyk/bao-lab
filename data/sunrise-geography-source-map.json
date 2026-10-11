@@ -1699,6 +1699,225 @@
           "status": "deferred"
         }
       ]
+    },
+    {
+      "source_index": 0,
+      "source_sha256": "4834e239dddf64bc25c350cf6be0f3fbcabdae936fee9804872f788f11916a63",
+      "source_chars": 1159,
+      "chapters": [
+        {
+          "chapter": 0,
+          "title": "城市概況",
+          "start": 0,
+          "end": 159,
+          "sha256": "72ba169e9fbb7a48f6353ebf72410467200eff46fb23019bcd6083d91418e1f6",
+          "status": "published",
+          "entry_id": "sunrise-source-0-0"
+        },
+        {
+          "chapter": 1,
+          "title": "五大區域速覽",
+          "start": 159,
+          "end": 538,
+          "sha256": "4477547387bef81eebc206ffae3cbd736d57b22fefe8329b332d1e6d3fc9f2d4",
+          "status": "published",
+          "entry_id": "sunrise-source-0-1"
+        },
+        {
+          "chapter": 2,
+          "title": "主要勢力",
+          "start": 538,
+          "end": 639,
+          "sha256": "43f10c75bbbe3524052dbb72368a3b5f2517dc015926a55f8334c35d26babf68",
+          "status": "deferred"
+        },
+        {
+          "chapter": 3,
+          "title": "社會問題",
+          "start": 639,
+          "end": 729,
+          "sha256": "cfc9c564f3b28a3600982317fc7b57b8640bef8b2ae68d24f0c86e9a1a389d82",
+          "status": "published",
+          "entry_id": "sunrise-source-0-3"
+        },
+        {
+          "chapter": 4,
+          "title": "重大歷史事件",
+          "start": 729,
+          "end": 840,
+          "sha256": "eae9f1a15881b9644bedba5bdc1694731e2106596ef294f6eb74a35ab8dac667",
+          "status": "deferred"
+        },
+        {
+          "chapter": 5,
+          "title": "當前局勢",
+          "start": 840,
+          "end": 1159,
+          "sha256": "cb4384af1abf8d753ae0f6a25668f9cbfa9ad0fa69691afefc619d77a4552670",
+          "status": "deferred"
+        }
+      ]
+    },
+    {
+      "source_index": 138,
+      "source_sha256": "5dea856117c564988fae4178292d996961fe53699b086e76a5725d8047854947",
+      "source_chars": 1135,
+      "chapters": [
+        {
+          "chapter": 0,
+          "title": "監獄規則與潛規則",
+          "start": 0,
+          "end": 12,
+          "sha256": "b9b6f49488f3dc647415605f46a2c65f8853acffeca2546f1b05165412d8ecee",
+          "status": "deferred"
+        },
+        {
+          "chapter": 1,
+          "title": "官方規則",
+          "start": 12,
+          "end": 21,
+          "sha256": "d3b9e5072f230f4c77e427465fa6fb08ad2801e1f2b7bc4816178e909e9696d0",
+          "status": "deferred"
+        },
+        {
+          "chapter": 2,
+          "title": "作息時間表",
+          "start": 21,
+          "end": 175,
+          "sha256": "304ce98634ecaff7d9e26930d2bd1a2b5ff16d20e64b2ba163afcc6db8c0e0ea",
+          "status": "deferred"
+        },
+        {
+          "chapter": 3,
+          "title": "禁止行為",
+          "start": 175,
+          "end": 306,
+          "sha256": "4c450a23bc87a11737c35aea63fe088a05c3cb9cc19870a393ef0ec96d1ab1b4",
+          "status": "deferred"
+        },
+        {
+          "chapter": 4,
+          "title": "探視規則",
+          "start": 306,
+          "end": 354,
+          "sha256": "490f050fd05b14e90672c3dd9447ce91c94db1d219586685faa90243a48cdb9d",
+          "status": "published",
+          "entry_id": "sunrise-source-138-4"
+        },
+        {
+          "chapter": 5,
+          "title": "減刑機會",
+          "start": 354,
+          "end": 417,
+          "sha256": "615d6e94acba8a55ea2f4b243ed5251cabca5253a7be747e2b8a292a8ea1b88d",
+          "status": "published",
+          "entry_id": "sunrise-source-138-5"
+        },
+        {
+          "chapter": 6,
+          "title": "潛規則",
+          "start": 417,
+          "end": 425,
+          "sha256": "5bb837817779a48e66e0a783024d4989779c3b2b44f5f03b3a2f0ac68a0fe539",
+          "status": "deferred"
+        },
+        {
+          "chapter": 7,
+          "title": "新人規矩",
+          "start": 425,
+          "end": 522,
+          "sha256": "666021d9bf45bce15080e2e34c1991efc5b90360838432c4ada4c3296f3edd58",
+          "status": "deferred"
+        },
+        {
+          "chapter": 8,
+          "title": "地盤劃分",
+          "start": 522,
+          "end": 626,
+          "sha256": "2faeba0be12f3b7c6372a5156bae881045a7ec9ef8b555365759d976cd283f26",
+          "status": "deferred"
+        },
+        {
+          "chapter": 9,
+          "title": "獄霸規矩",
+          "start": 626,
+          "end": 685,
+          "sha256": "ecefc4115cb5ae525bec1a5c23e83d16de36804c461ac72e6f022217a0f90b2c",
+          "status": "deferred"
+        },
+        {
+          "chapter": 10,
+          "title": "禁忌",
+          "start": 685,
+          "end": 743,
+          "sha256": "20d325c8c938abc1aff0c6288b3f5d5b5147d739fb73a0534aa6f05cb91eac98",
+          "status": "deferred"
+        },
+        {
+          "chapter": 11,
+          "title": "懲罰機制",
+          "start": 743,
+          "end": 752,
+          "sha256": "0f210f86de41806a7a43294b2023a0f7e0d6a885299afd86a14ba84c23f718cd",
+          "status": "deferred"
+        },
+        {
+          "chapter": 12,
+          "title": "官方懲罰",
+          "start": 752,
+          "end": 837,
+          "sha256": "87a2c13b2830c6bd2984899c24457da2ba7b4232b20ee4af2d4fe3ee934c04bf",
+          "status": "deferred"
+        },
+        {
+          "chapter": 13,
+          "title": "獄霸私刑",
+          "start": 837,
+          "end": 920,
+          "sha256": "cfe40e0f9667112cb1836fa6e0529c3cb058fccbdf15040b924308fdb5853916",
+          "status": "deferred"
+        },
+        {
+          "chapter": 14,
+          "title": "派系選擇",
+          "start": 920,
+          "end": 929,
+          "sha256": "05fcfc8528b79751bdb6962f8c287fe0614d7ec4699e0e05d088e6e81009531f",
+          "status": "deferred"
+        },
+        {
+          "chapter": 15,
+          "title": "加入獄霸派系",
+          "start": 929,
+          "end": 982,
+          "sha256": "e1b9cdc2d0dd48d3191a04701c1cd79e0b6f6d8a5f7536e2bace505d5ab28f63",
+          "status": "deferred"
+        },
+        {
+          "chapter": 16,
+          "title": "獨行俠",
+          "start": 982,
+          "end": 1028,
+          "sha256": "3cd78032a695f5e9af785b46610f3650f22609180bced04753b0e9db3d635fb2",
+          "status": "deferred"
+        },
+        {
+          "chapter": 17,
+          "title": "保持中立",
+          "start": 1028,
+          "end": 1074,
+          "sha256": "65b88b6ec53ca4428eba334c3f87f7b3c947fef37e0de0c954a1cb4f0006d859",
+          "status": "deferred"
+        },
+        {
+          "chapter": 18,
+          "title": "生存建議",
+          "start": 1074,
+          "end": 1135,
+          "sha256": "ee72971aa86d1207f289ea149da9035bc5af1cfdbd091b3494f4ddfc20eca370",
+          "status": "deferred"
+        }
+      ]
     }
   ]
 }

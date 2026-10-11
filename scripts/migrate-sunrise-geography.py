@@ -27,7 +27,9 @@ SOURCES = {
  12: ('592d1dcabf5bfe12be1eab14c84417bd70182dee9468de6ef695cf649a25cb13', 'sunrise-police-people', '曙光市｜警方與海關背景（不代表在場）', ['李明哲'], {0,1}),
  13: ('681d3cc350dacc8a513f68d8d9cade258bdff8de96e4d964829657c035eead3a', 'sunrise-port-people', '曙光市｜港口人物背景（不代表在場）', ['老張'], {0,1}),
  14: ('8f8a108d0aa0d0c57af2b78b0b30f81df3b22540991e2762033ddec245c92821', 'sunrise-port-people', '曙光市｜港口人物背景（不代表在場）', ['瘦猴'], {0,1}),
- 15: ('30ac5a605b9920c7fffe781b64ec0e8036b0210c4c18a3dcf1480cc17376e626', 'sunrise-port-people', '曙光市｜港口人物背景（不代表在場）', ['啞巴阿文'], {0,1})
+ 15: ('30ac5a605b9920c7fffe781b64ec0e8036b0210c4c18a3dcf1480cc17376e626', 'sunrise-port-people', '曙光市｜港口人物背景（不代表在場）', ['啞巴阿文'], {0,1}),
+ 0: ('4834e239dddf64bc25c350cf6be0f3fbcabdae936fee9804872f788f11916a63', 'sunrise-city-overview', '曙光市｜城市與社會概況', ['曙光市'], {0,1,3}),
+ 138: ('5dea856117c564988fae4178292d996961fe53699b086e76a5725d8047854947', 'sunrise-prison-institution', '曙光市｜監獄探視與減刑（虛構世界制度）', ['曙光市第一監獄探視', '第一監獄探視', '第一監獄減刑'], {4,5})
 }
 sha = lambda content: hashlib.sha256(content.encode()).hexdigest()
 def build(zip_path):
@@ -40,9 +42,9 @@ def build(zip_path):
  packs, mapping = [], []
  for index, (digest, pack_id, name, keywords, allowed) in SOURCES.items():
   entry = original['entries'][index]; content = entry['content']
-  if sha(content) != digest or content != shared['entries'][index]['content'] or entry['category'] != ('角色' if 8 <= index <= 15 else '地點'):
+  if sha(content) != digest or content != shared['entries'][index]['content'] or entry['category'] != ('角色' if 8 <= index <= 15 else '規則' if index in (0, 138) else '地點'):
    raise ValueError('Source changed; review again')
-  starts = [m.start() for m in re.finditer(r'^## ' if index in (1, 2, 5, 6) else r'^### ', content, re.M)]
+  starts = [m.start() for m in re.finditer(r'^#{2,3} ' if index == 138 else r'^## ' if index in (0, 1, 2, 5, 6) else r'^### ', content, re.M)]
   if not starts or starts[0] != 0: starts.insert(0,0)
   spans = list(zip(starts, starts[1:] + [len(content)]))
   entries, review = [], []
