@@ -6,6 +6,10 @@ on:
     paths:
       - 'js/worldbook-library*.js'
       - 'data/worldbook-library.json'
+      - 'data/sunrise-worldbook-library.json'
+      - 'data/sunrise-geography-source-map.json'
+      - 'tests/sunrise-geography-core.cjs'
+      - 'scripts/migrate-sunrise-geography.py'
       - 'data/three-realms-worldbook-source-map.json'
       - 'data/three-realms-encyclopedia-source-map.json'
       - 'data/three-realms-lower-atlas-source-map.json'
@@ -36,6 +40,10 @@ on:
     paths:
       - 'js/worldbook-library*.js'
       - 'data/worldbook-library.json'
+      - 'data/sunrise-worldbook-library.json'
+      - 'data/sunrise-geography-source-map.json'
+      - 'tests/sunrise-geography-core.cjs'
+      - 'scripts/migrate-sunrise-geography.py'
       - 'data/three-realms-worldbook-source-map.json'
       - 'data/three-realms-encyclopedia-source-map.json'
       - 'data/three-realms-lower-atlas-source-map.json'
@@ -75,6 +83,7 @@ jobs:
           node --check js/worldbook-library-core.js
           node --check js/worldbook-library.js
           node tests/worldbook-library-core.cjs
+          node tests/sunrise-geography-core.cjs
           node tests/worldbook-library-runtime.cjs
           node tests/three-realms-worldbook-core.cjs
           node tests/three-realms-encyclopedia-core.cjs

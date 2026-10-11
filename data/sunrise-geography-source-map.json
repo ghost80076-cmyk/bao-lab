@@ -1,0 +1,166 @@
+{
+  "source_worldbook_id": "5808c2c1-a71c-417e-b07c-23d75d36735e",
+  "shared_content_verified": true,
+  "sources": [
+    {
+      "source_index": 1,
+      "source_sha256": "4afe97b2b9e99ad7fdf29129928b34797f9eb2785824951a057f54a90ee3ce2d",
+      "source_chars": 1992,
+      "chapters": [
+        {
+          "chapter": 0,
+          "title": "中央商業區（CBD）",
+          "start": 0,
+          "end": 131,
+          "sha256": "b3d0cebdd649f4ed20a343cd035b2dcf24ae8917a104931d3a7c954e91de51bd",
+          "status": "published",
+          "entry_id": "sunrise-source-1-0"
+        },
+        {
+          "chapter": 1,
+          "title": "地標建築",
+          "start": 131,
+          "end": 545,
+          "sha256": "88038282224de0251ba00c64aee3939d932058b9dc810ac1b8731772dac88fa9",
+          "status": "published",
+          "entry_id": "sunrise-source-1-1"
+        },
+        {
+          "chapter": 2,
+          "title": "重要機構",
+          "start": 545,
+          "end": 816,
+          "sha256": "52feaea63c3c1b332db8b602b1624fd44eea16255b303b4948860fb9135a7fa7",
+          "status": "published",
+          "entry_id": "sunrise-source-1-2"
+        },
+        {
+          "chapter": 3,
+          "title": "居民與人口",
+          "start": 816,
+          "end": 1037,
+          "sha256": "93db9e8d7293a69948e488a91ec0088344dc2b22cade7a15abd74ab6b5a97619",
+          "status": "published",
+          "entry_id": "sunrise-source-1-3"
+        },
+        {
+          "chapter": 4,
+          "title": "治安與安全",
+          "start": 1037,
+          "end": 1271,
+          "sha256": "39953a6ecc27f9f4750195f66f2d42def1f02644b8aa8e498bfb124dbb4bcf5e",
+          "status": "published",
+          "entry_id": "sunrise-source-1-4"
+        },
+        {
+          "chapter": 5,
+          "title": "商業與經濟",
+          "start": 1271,
+          "end": 1477,
+          "sha256": "cdc8a7aa3b95d037d59c19259abd624b356fe5a3ec3411c63f9ba3a7a545a127",
+          "status": "published",
+          "entry_id": "sunrise-source-1-5"
+        },
+        {
+          "chapter": 6,
+          "title": "交通",
+          "start": 1477,
+          "end": 1615,
+          "sha256": "9824fb4f002d7b050cc30cb2eab02f208138b5055031c5873b2c66b52dd70089",
+          "status": "published",
+          "entry_id": "sunrise-source-1-6"
+        },
+        {
+          "chapter": 7,
+          "title": "日常生活",
+          "start": 1615,
+          "end": 1788,
+          "sha256": "cdbd9b3a39a235e0d10082c36e29fef7830a120af30c23c6802e7169e053ebf1",
+          "status": "published",
+          "entry_id": "sunrise-source-1-7"
+        },
+        {
+          "chapter": 8,
+          "title": "潛在危機",
+          "start": 1788,
+          "end": 1992,
+          "sha256": "de41d720d06f47b9c468d36a9aeaa334a65275f88b44baa75ae1987b014c8a0e",
+          "status": "deferred"
+        }
+      ]
+    },
+    {
+      "source_index": 2,
+      "source_sha256": "10747da3b24eaaf9eae18e17053e2a6e6042311248d24c236f441c90bfa1396e",
+      "source_chars": 1670,
+      "chapters": [
+        {
+          "chapter": 0,
+          "title": "地理位置與規模",
+          "start": 0,
+          "end": 135,
+          "sha256": "19a8dfcb793e54ea124e75c0d85e742d9dc98dc2bc5fb89d4ed11eb662c0f454",
+          "status": "published",
+          "entry_id": "sunrise-source-2-0"
+        },
+        {
+          "chapter": 1,
+          "title": "碼頭區域概覽",
+          "start": 135,
+          "end": 435,
+          "sha256": "e80453233348af0e9eab2ddf44b46c631ed91a009a674d75540f1dc1d3bf5634",
+          "status": "deferred"
+        },
+        {
+          "chapter": 2,
+          "title": "工業與倉儲區域",
+          "start": 435,
+          "end": 624,
+          "sha256": "faba41384a0908951ac7aca52d09ac9c7b405803d3ec6e92472a6faf2d9fdd89",
+          "status": "deferred"
+        },
+        {
+          "chapter": 3,
+          "title": "黑幫勢力分布",
+          "start": 624,
+          "end": 845,
+          "sha256": "3e40162d23f33bde78126778699a3446e46303dd1e49ed5eba3f287cfd61577a",
+          "status": "deferred"
+        },
+        {
+          "chapter": 4,
+          "title": "走私與黑市",
+          "start": 845,
+          "end": 1001,
+          "sha256": "7eb5ac855e60b339b3ae23e74eedc52abc99eff4897654e56045e0bd697b7b23",
+          "status": "deferred"
+        },
+        {
+          "chapter": 5,
+          "title": "治安狀況",
+          "start": 1001,
+          "end": 1238,
+          "sha256": "e7dc6d859f5db740ab9d64a3994c0181c6a48b996eaecaefe0863d41a71d3efe",
+          "status": "deferred"
+        },
+        {
+          "chapter": 6,
+          "title": "居民與生活",
+          "start": 1238,
+          "end": 1372,
+          "sha256": "00031ef67e7403c70ea4955da6a8afef3afcec0efbdf99a97f8eff6ac1b70130",
+          "status": "published",
+          "entry_id": "sunrise-source-2-6"
+        },
+        {
+          "chapter": 7,
+          "title": "重大事件",
+          "start": 1372,
+          "end": 1670,
+          "sha256": "632076cc13da5521fff1b8e77148f0a63aeaea3b1c7a7a9617f712c49e6faf4e",
+          "status": "deferred"
+        }
+      ]
+    }
+  ]
+}

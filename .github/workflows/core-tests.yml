@@ -506,6 +506,7 @@ jobs:
           node --check js/worldbook-library-core.js
           node --check js/worldbook-library.js
           node tests/worldbook-library-core.cjs
+          node tests/sunrise-geography-core.cjs
           node tests/worldbook-library-runtime.cjs
           node tests/three-realms-worldbook-core.cjs
           node tests/three-realms-encyclopedia-core.cjs
