@@ -5,8 +5,8 @@ const core = require('../js/worldbook-library-core.js');
 const catalog = JSON.parse(fs.readFileSync('data/sunrise-worldbook-library.json'));
 const map = JSON.parse(fs.readFileSync('data/sunrise-geography-source-map.json'));
 const packs = catalog.packs.map(core.normalizePack);
-assert.equal(packs.length, 16);
-assert.equal(packs.flatMap(p=>p.entries).length, 52);
+assert.equal(packs.length, 18);
+assert.equal(packs.flatMap(p=>p.entries).length, 59);
 for (const source of map.sources) {
   assert.equal(source.chapters[0].start,0);
   assert.equal(source.chapters.at(-1).end,source.source_chars);
@@ -30,7 +30,7 @@ assert.equal(core.select(packs,[],{latestUser:'中央商業區',world:'sunrise-c
 for(const q of ['中央商業區','港口工業區','天際商場','北山住宅區','東區平民區','南區貧民窟'])assert.ok(select(q).text.length<=2200);
 const full=JSON.stringify(catalog);
 for(const secret of ['碼頭大火','縱火滅證','血色七月','走私運作流程','源點計畫','桃華事件','用異能操控股市','張猛','蘇逸辰','走私管道']) assert.ok(!full.includes(secret),secret);
-console.log('Sunrise geography: 16 opt-in packs, 52 original chapters, source coverage, narrow recall, realm isolation and deferred secrets passed.');
+console.log('Sunrise geography: 18 opt-in packs, 59 original chapters, source coverage, narrow recall, realm isolation and deferred secrets passed.');
 
 const scenarioPacks = packs.filter(p=>p.meta.classification==='scenario');
 assert.equal(scenarioPacks.length,2);
@@ -62,3 +62,15 @@ assert.match(institutional.text,/虛構世界制度/);
 assert.match(institutional.text,/每月2次/);
 assert.doesNotMatch(institutional.text,/潛規則|作息時間表|沈妤筠|苏逸辰/);
 assert.equal(core.select(packs,['sunrise-prison-institution'],{latestUser:'你好',world:'sunrise-city'}).text,'');
+
+const abilityIds=['sunrise-ability-background','sunrise-ability-institution'];
+for(const [query,title] of [['異能覺醒','【異能覺醒】'],['異能訓練','【異能訓練】'],['異能限制','【異能限制】'],['異能者登記法','【異能與社會】'],['異能分類','八大主類'],['異能監控等級','監控等級']]) {
+ const result=core.select(packs,abilityIds,{latestUser:query,world:'sunrise-city'});
+ assert.equal(result.entries.length,1);
+ assert.ok(result.text.includes(title));
+ assert.match(result.text,/虛構/);
+ assert.ok(result.text.length<=2200);
+}
+assert.equal(core.select(packs,abilityIds,{latestUser:'異能',world:'sunrise-city'}).text,'');
+const abilityText=JSON.stringify(catalog.packs.filter(p=>abilityIds.includes(p.meta.id)));
+for(const secret of ['阿桃','蕭（','黑市異能應用','強迫異能者交配','血色七月']) assert.ok(!abilityText.includes(secret));

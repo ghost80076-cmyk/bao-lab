@@ -2,11 +2,11 @@
   "source_worldbook_id": "5808c2c1-a71c-417e-b07c-23d75d36735e",
   "summary": {
     "source_entries": 183,
-    "packs": 16,
-    "published_chapters": 52,
+    "packs": 18,
+    "published_chapters": 59,
     "coverage": {
-      "partial": 23,
-      "unreviewed": 160
+      "partial": 25,
+      "unreviewed": 158
     }
   },
   "entries": [
@@ -278,17 +278,17 @@
       "source_index": 33,
       "category": "規則",
       "source_sha256": "0edb3ba2e7baa92c6f33d80737b4dbd9d7cd510d9bad521a04828af4fac10678",
-      "status": "unreviewed",
-      "published_chapters": 0,
-      "deferred_chapters": 0
+      "status": "partial",
+      "published_chapters": 5,
+      "deferred_chapters": 2
     },
     {
       "source_index": 34,
       "category": "規則",
       "source_sha256": "620511dae42fc2d536e0ecf3103e1ec5f9b7ac4106d8694070fbf762af17ac38",
-      "status": "unreviewed",
-      "published_chapters": 0,
-      "deferred_chapters": 0
+      "status": "partial",
+      "published_chapters": 2,
+      "deferred_chapters": 3
     },
     {
       "source_index": 35,
