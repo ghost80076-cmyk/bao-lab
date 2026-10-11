@@ -8,7 +8,11 @@ import zipfile
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 SOURCES = {
  1: ('4afe97b2b9e99ad7fdf29129928b34797f9eb2785824951a057f54a90ee3ce2d', 'sunrise-cbd-geography', '曙光市｜中央商業區', ['中央商業區', 'CBD'], {0,1,2,3,4,5,6,7}),
- 2: ('10747da3b24eaaf9eae18e17053e2a6e6042311248d24c236f441c90bfa1396e', 'sunrise-port-geography', '曙光市｜港口生活地理', ['港口工業區'], {0,6})
+ 2: ('10747da3b24eaaf9eae18e17053e2a6e6042311248d24c236f441c90bfa1396e', 'sunrise-port-geography', '曙光市｜港口生活地理', ['港口工業區'], {0,6}),
+ 98: ('32830cfa8926ca78c672907c94d35eda8fcf8d6dd9bc611c216bc2a851b437a1', 'sunrise-north-geography', '曙光市｜北山生活地理', ['北山住宅區'], {0,1,3}),
+ 99: ('bb5a9058afb79975f44f3a48b271a429ad6cb5d670e18664c2da3c2abda7d112', 'sunrise-north-geography', '曙光市｜北山生活地理', ['北山住宅區'], {1}),
+ 101: ('4f8800d5b5662b9469326ae47d49eb8c5a6aa80360c51542eb1b883fd88e0011', 'sunrise-east-geography', '曙光市｜東區生活地理', ['東區平民區'], {0,1,3,4}),
+ 104: ('8e68738d0be6e1a39ed1cddca66c55eb1b7fe7c0f8e6fb67eb3c48fb3925a933', 'sunrise-south-geography', '曙光市｜南區環境地理', ['曙光市南區', '南區貧民窟'], {0,1})
 }
 sha = lambda content: hashlib.sha256(content.encode()).hexdigest()
 def build(zip_path):
@@ -23,8 +27,8 @@ def build(zip_path):
   entry = original['entries'][index]; content = entry['content']
   if sha(content) != digest or content != shared['entries'][index]['content'] or entry['category'] != '地點':
    raise ValueError('Source changed; review again')
-  starts = [m.start() for m in re.finditer(r'^## ', content, re.M)]
-  if starts[0] != 0: starts.insert(0,0)
+  starts = [m.start() for m in re.finditer(r'^## ' if index < 98 else r'^### ', content, re.M)]
+  if not starts or starts[0] != 0: starts.insert(0,0)
   spans = list(zip(starts, starts[1:] + [len(content)]))
   entries, review = [], []
   for part, (start,end) in enumerate(spans):
@@ -35,7 +39,11 @@ def build(zip_path):
     eid = f'sunrise-source-{index}-{part}'; record['entry_id'] = eid
     entries.append({'id':eid,'title':name+'｜'+title,'category':'世界資料','mode':'keyword','keywords':keywords + ({1:['曙光金融大廈','天際商場','凱旋企業總部','司法大廈','曙光國際會議中心'],2:['曙光證券交易所','泰坦科技','晨曦集團','極光製藥','銀河傳媒']} .get(part, []) if index == 1 else []),'content':value})
    review.append(record)
-  packs.append({'schema':'yorubay-worldbook-pack','version':1,'meta':{'id':pack_id,'name':name,'world':'sunrise-city','classification':'world','author':'班長／肉包','release':'1.0.0','visibility':'public','source':'囚徒的自白／精靈王共用原文｜審閱地理章節（2026-10-11）'},'entries':entries})
+  existing = next((pack for pack in packs if pack['meta']['id'] == pack_id), None)
+  if existing:
+   existing['entries'].extend(entries)
+  else:
+   packs.append({'schema':'yorubay-worldbook-pack','version':1,'meta':{'id':pack_id,'name':name,'world':'sunrise-city','classification':'world','author':'班長／肉包','release':'1.0.0','visibility':'public','source':'囚徒的自白／精靈王共用原文｜審閱地理章節（2026-10-11）'},'entries':entries})
   mapping.append({'source_index':index,'source_sha256':digest,'source_chars':len(content),'chapters':review})
  return {'packs':packs}, {'source_worldbook_id':original['worldbook']['id'],'shared_content_verified':True,'sources':mapping}
 if __name__ == '__main__':

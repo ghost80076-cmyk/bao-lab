@@ -161,6 +161,212 @@
           "status": "deferred"
         }
       ]
+    },
+    {
+      "source_index": 98,
+      "source_sha256": "32830cfa8926ca78c672907c94d35eda8fcf8d6dd9bc611c216bc2a851b437a1",
+      "source_chars": 1547,
+      "chapters": [
+        {
+          "chapter": 0,
+          "title": "**名稱**：北山住宅區 (North Hill Residential District)",
+          "start": 0,
+          "end": 229,
+          "sha256": "04c0fd97b5e689f3afb1bb2c5e0f4fb5e256f1f8234bc574408b38025439b3c1",
+          "status": "published",
+          "entry_id": "sunrise-source-98-0"
+        },
+        {
+          "chapter": 1,
+          "title": "**【地理環境】**",
+          "start": 229,
+          "end": 546,
+          "sha256": "e79f4f4bccf19e845323159183598d7127483b3ba174ee224ab40bd0593e9ea2",
+          "status": "published",
+          "entry_id": "sunrise-source-98-1"
+        },
+        {
+          "chapter": 2,
+          "title": "**【區域劃分 - 三大層級】**",
+          "start": 546,
+          "end": 569,
+          "sha256": "de6ffacb00bbf61cc287f0d77fbadfc03bfe9c754b0303af8fa412d38b192a04",
+          "status": "deferred"
+        },
+        {
+          "chapter": 3,
+          "title": "**第一層：山腳豪宅區（海拔 150-200 公尺）**",
+          "start": 569,
+          "end": 944,
+          "sha256": "0ef4640b4de95d0a9cfea7ad17a45794544b603dd22ba30086f915d17f813dec",
+          "status": "published",
+          "entry_id": "sunrise-source-98-3"
+        },
+        {
+          "chapter": 4,
+          "title": "**第二層：半山豪宅區（海拔 200-250 公尺）**",
+          "start": 944,
+          "end": 1547,
+          "sha256": "2c1ab280e3cb5b61a1f58f13e32c759a75b2a99046492a1fe00526542514f480",
+          "status": "deferred"
+        }
+      ]
+    },
+    {
+      "source_index": 99,
+      "source_sha256": "bb5a9058afb79975f44f3a48b271a429ad6cb5d670e18664c2da3c2abda7d112",
+      "source_chars": 1720,
+      "chapters": [
+        {
+          "chapter": 0,
+          "title": "**第三層：山頂特區（海拔 250-300 公尺）**",
+          "start": 0,
+          "end": 613,
+          "sha256": "947884feca773a52e7c2bdcef3a1b80aa586e7293fc02b790557e62de2dc6234",
+          "status": "deferred"
+        },
+        {
+          "chapter": 1,
+          "title": "**【社會結構與階級】**",
+          "start": 613,
+          "end": 848,
+          "sha256": "2931c06fb304151ad9731f10972f78fd3d0466cf34a6b438db89425e8f489ae5",
+          "status": "published",
+          "entry_id": "sunrise-source-99-1"
+        },
+        {
+          "chapter": 2,
+          "title": "**【黑暗面】**",
+          "start": 848,
+          "end": 1252,
+          "sha256": "b9482e9cfda80818ea5019219ab3b9cb5672979d9a4a7e570927af6b40c7a750",
+          "status": "deferred"
+        },
+        {
+          "chapter": 3,
+          "title": "**【與其他區域的關係】**",
+          "start": 1252,
+          "end": 1720,
+          "sha256": "1a0776eb761dbaac240e207cb475a4590c4759dc6c628abb94bee57e8c9ba59f",
+          "status": "deferred"
+        }
+      ]
+    },
+    {
+      "source_index": 101,
+      "source_sha256": "4f8800d5b5662b9469326ae47d49eb8c5a6aa80360c51542eb1b883fd88e0011",
+      "source_chars": 1664,
+      "chapters": [
+        {
+          "chapter": 0,
+          "title": "**名稱**：東區平民區 (East District)",
+          "start": 0,
+          "end": 190,
+          "sha256": "8698bc651b8068dd2b383d9800216904da62feb5eb52f8f179df1cd1da901d28",
+          "status": "published",
+          "entry_id": "sunrise-source-101-0"
+        },
+        {
+          "chapter": 1,
+          "title": "**【地理環境】**",
+          "start": 190,
+          "end": 478,
+          "sha256": "6f87bcda43e54c3ae9572324ea18185edf16d6217682c2bb5af6ee72e1d0ceb9",
+          "status": "published",
+          "entry_id": "sunrise-source-101-1"
+        },
+        {
+          "chapter": 2,
+          "title": "**【區域劃分 - 五大片區】**",
+          "start": 478,
+          "end": 501,
+          "sha256": "f1ffe1f5e6ba7f118b06df5df8f1f420bcbfcb91039a99323e547ee1e36e5de4",
+          "status": "deferred"
+        },
+        {
+          "chapter": 3,
+          "title": "**片區 A：老城區（最古老的區域）**",
+          "start": 501,
+          "end": 867,
+          "sha256": "2a244bbd2c795c60e5a36a11372e03cdc59bf2b3eb60446074364545f0a37ab7",
+          "status": "published",
+          "entry_id": "sunrise-source-101-3"
+        },
+        {
+          "chapter": 4,
+          "title": "**片區 B：工人社區（工廠工人聚集地）**",
+          "start": 867,
+          "end": 1205,
+          "sha256": "1489f7f8ffb22969cd161969d40b437f95fa096f6f8baa6717bbd63db137cb83",
+          "status": "published",
+          "entry_id": "sunrise-source-101-4"
+        },
+        {
+          "chapter": 5,
+          "title": "**片區 C：學生區（五專與職校周邊）**",
+          "start": 1205,
+          "end": 1664,
+          "sha256": "0d51cfc264c2a0430cd5296d9a518ce2292585f25ae85f0cecb8d01c79be2ecf",
+          "status": "deferred"
+        }
+      ]
+    },
+    {
+      "source_index": 104,
+      "source_sha256": "8e68738d0be6e1a39ed1cddca66c55eb1b7fe7c0f8e6fb67eb3c48fb3925a933",
+      "source_chars": 1875,
+      "chapters": [
+        {
+          "chapter": 0,
+          "title": "**【基礎資訊】**",
+          "start": 0,
+          "end": 229,
+          "sha256": "76240dd121340afbacb116306982b0b791fabcc47c5575fc43f003b242cd03e1",
+          "status": "published",
+          "entry_id": "sunrise-source-104-0"
+        },
+        {
+          "chapter": 1,
+          "title": "**【地理環境】**",
+          "start": 229,
+          "end": 562,
+          "sha256": "15290b7bc0c17aa4fa0f699ad66ab315f31af9e79779980458770bc9e9ac4d1e",
+          "status": "published",
+          "entry_id": "sunrise-source-104-1"
+        },
+        {
+          "chapter": 2,
+          "title": "**【區域劃分 - 五大片區】**",
+          "start": 562,
+          "end": 585,
+          "sha256": "f1ffe1f5e6ba7f118b06df5df8f1f420bcbfcb91039a99323e547ee1e36e5de4",
+          "status": "deferred"
+        },
+        {
+          "chapter": 3,
+          "title": "**片區 A：海岸違建區（最危險的區域）**",
+          "start": 585,
+          "end": 1029,
+          "sha256": "4c754fb1aafb941f0b1c04d122dc11e5e1b03c2fbbd807912cff8f7ea9f02724",
+          "status": "deferred"
+        },
+        {
+          "chapter": 4,
+          "title": "**片區 B：垃圾山社區（建在垃圾掩埋場上）**",
+          "start": 1029,
+          "end": 1437,
+          "sha256": "b8cbe27311c64643eed4ebd52bf2d8fee30ddbedd0c6729676f810b414541353",
+          "status": "deferred"
+        },
+        {
+          "chapter": 5,
+          "title": "**片區 C：廢棄工廠區（黑幫據點）**",
+          "start": 1437,
+          "end": 1875,
+          "sha256": "337a45c614f19a23de7e75e149f10eac14a8a1f53c3c975d10dc62491325cf86",
+          "status": "deferred"
+        }
+      ]
     }
   ]
 }
