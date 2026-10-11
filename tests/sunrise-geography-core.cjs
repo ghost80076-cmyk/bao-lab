@@ -5,8 +5,8 @@ const core = require('../js/worldbook-library-core.js');
 const catalog = JSON.parse(fs.readFileSync('data/sunrise-worldbook-library.json'));
 const map = JSON.parse(fs.readFileSync('data/sunrise-geography-source-map.json'));
 const packs = catalog.packs.map(core.normalizePack);
-assert.equal(packs.length, 18);
-assert.equal(packs.flatMap(p=>p.entries).length, 59);
+assert.equal(packs.length, 19);
+assert.equal(packs.flatMap(p=>p.entries).length, 61);
 for (const source of map.sources) {
   assert.equal(source.chapters[0].start,0);
   assert.equal(source.chapters.at(-1).end,source.source_chars);
@@ -15,7 +15,7 @@ for (const source of map.sources) {
     if(chapter.status==='published') {
       const entry=catalog.packs.flatMap(p=>p.entries).find(e=>e.id===chapter.entry_id);
       assert.ok(entry);
-      assert.equal(crypto.createHash('sha256').update(entry.content).digest('hex'),chapter.sha256);
+      assert.equal(crypto.createHash('sha256').update(entry.content).digest('hex'),chapter.published_sha256 || chapter.sha256);
     } else assert.equal(chapter.entry_id,undefined);
   });
 }
@@ -29,8 +29,8 @@ assert.equal(core.select(packs,ids,{latestUser:'中央商業區',world:'three-re
 assert.equal(core.select(packs,[],{latestUser:'中央商業區',world:'sunrise-city'}).text,'');
 for(const q of ['中央商業區','港口工業區','天際商場','北山住宅區','東區平民區','南區貧民窟'])assert.ok(select(q).text.length<=2200);
 const full=JSON.stringify(catalog);
-for(const secret of ['碼頭大火','縱火滅證','血色七月','走私運作流程','源點計畫','桃華事件','用異能操控股市','張猛','蘇逸辰','走私管道']) assert.ok(!full.includes(secret),secret);
-console.log('Sunrise geography: 18 opt-in packs, 59 original chapters, source coverage, narrow recall, realm isolation and deferred secrets passed.');
+for(const secret of ['碼頭大火','縱火滅證','走私運作流程','源點計畫','桃華事件','用異能操控股市','張猛','蘇逸辰','走私管道']) assert.ok(!full.includes(secret),secret);
+console.log('Sunrise geography: 19 opt-in packs, 61 chapters with explicit editorial provenance, source coverage, narrow recall, realm isolation and deferred secrets passed.');
 
 const scenarioPacks = packs.filter(p=>p.meta.classification==='scenario');
 assert.equal(scenarioPacks.length,2);

@@ -1729,7 +1729,12 @@
           "start": 538,
           "end": 639,
           "sha256": "43f10c75bbbe3524052dbb72368a3b5f2517dc015926a55f8334c35d26babf68",
-          "status": "deferred"
+          "status": "published",
+          "reconciliation": [
+            "police-staff"
+          ],
+          "published_sha256": "36e81d020d2f9ee48b3165959697021b8cac6952bf056fec80fa64893df386fa",
+          "entry_id": "sunrise-source-0-2"
         },
         {
           "chapter": 3,
@@ -1746,7 +1751,13 @@
           "start": 729,
           "end": 840,
           "sha256": "eae9f1a15881b9644bedba5bdc1694731e2106596ef294f6eb74a35ab8dac667",
-          "status": "deferred"
+          "status": "published",
+          "reconciliation": [
+            "bloody-july-date",
+            "bloody-july-cause"
+          ],
+          "published_sha256": "44c89ba12859861e4073699b81a69d242403f264e684d032da5dafe9a8e96965",
+          "entry_id": "sunrise-source-0-4"
         },
         {
           "chapter": 5,
