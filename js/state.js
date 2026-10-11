@@ -69,7 +69,7 @@ const GameState = {
 
   create(character, config) {
     const base = structuredClone(character.initial_state || {});
-    const worldbookLibrary = typeof CharacterEngine !== "undefined" ? CharacterEngine.normalizeWorldbookLibrary?.(base.worldbookLibrary) : null;
+    const worldbookLibrary = typeof CharacterEngine !== "undefined" ? CharacterEngine?.normalizeWorldbookLibrary?.(base.worldbookLibrary) : null;
     this.current = {
       time: base.time || "未設定",
       location: base.location || "未設定",
