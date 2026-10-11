@@ -61,5 +61,34 @@ vm.runInNewContext(source, context, { filename: "worldbook-library.js" });
   const generic = await App.buildMessages();
   assert.match(generic[1].content, /曙光市是東部沿海/);
   assert.doesNotMatch(generic[1].content, /中央商業區位於曙光市中心/);
+  const gated = core.normalizePack({schema:core.SCHEMA,version:1,
+    meta:{id:"private-case",name:"私人案件",world:"general"}, entries:[
+      {id:"evidence",mode:"keyword",keywords:["證據"],requires:["found","verified"],content:"已確認的證據"},
+      {id:"review",mode:"keyword",keywords:["證據"],requires:["unsafe"],review_required:true,content:"待審規則"}
+    ]});
+  GameState.current.worldbookLibrary.installed = [gated];
+  GameState.current.worldbookLibrary.enabled = ["private-case"];
+  Chat.messages = [{role:"user",content:"證據"}];
+  const api = win.YoruWorldbookLibrary;
+  assert.doesNotMatch((await App.buildMessages())[1].content, /已確認的證據/);
+  assert.equal(await api.setCondition("private-case", "found", true), true);
+  assert.doesNotMatch((await App.buildMessages())[1].content, /已確認的證據/);
+  assert.equal(await api.setCondition("private-case", "verified", true), true);
+  assert.match((await App.buildMessages())[1].content, /已確認的證據/);
+  assert.equal(await api.setCondition("private-case", "unsafe", true), false);
+  assert.equal(await api.setCondition("private-case", "invented", true), false);
+  assert.equal(await api.setCondition("private-case", "found", false), true);
+  assert.doesNotMatch((await App.buildMessages())[1].content, /已確認的證據/);
+  const restored = JSON.parse(JSON.stringify(GameState.current));
+  assert.deepEqual(restored.worldbookFlags, ["verified"]);
+  const old = GameState.current;
+  GameState.current = restored;
+  assert.equal(await api.setCondition("private-case", "found", true, old), false);
+  const inFlight = api.setCondition("private-case", "found", true);
+  GameState.current = old;
+  assert.equal(await inFlight, false, "async operation must not write after story changes");
+  old.worldbookLibrary.enabled = [];
+  assert.equal(await api.setCondition("private-case", "found", true), false);
+  assert.equal(saves, 3);
   console.log("Worldbook prompt integration passed: cache-friendly stable prefix, selection, no double append, opt-out, conditional recall.");
 })().catch(err => { console.error(err); process.exitCode = 1; });

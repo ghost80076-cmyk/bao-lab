@@ -66,6 +66,19 @@
       flags: Array.isArray(current.worldbookFlags) ? current.worldbookFlags : []
     };
   }
+  async function setCondition(packId, flag, known, expectedStory = story()) {
+    if (!expectedStory || story() !== expectedStory || typeof known !== "boolean") return false;
+    const packs = await all();
+    if (story() !== expectedStory) return false;
+    const local = cfg();
+    const pack = packs.find(item => item.meta.id === packId && local.enabled?.includes(packId));
+    if (!pack || !pack.entries.some(entry => !entry.review_required && entry.requires.includes(flag))) return false;
+    const flags = new Set(Array.isArray(expectedStory.worldbookFlags) ? expectedStory.worldbookFlags : []);
+    if (known) flags.add(flag); else flags.delete(flag);
+    expectedStory.worldbookFlags = [...flags];
+    save();
+    return true;
+  }
   const wrapper = async (next, config) => {
     const messages = await next(config);
     const local = cfg();
@@ -102,11 +115,12 @@
     backdrop.querySelector("[data-close]").onclick = close;
     backdrop.addEventListener("click", event => { if (event.target === backdrop) close(); });
     backdrop.addEventListener("keydown", event => { if (event.key === "Escape") close(); });
+    const openedStory = story();
     const listing = backdrop.querySelector("[data-ylb-list]");
     const render = async () => {
       if (!backdrop.isConnected) return;
       const config = cfg(), packs = await all();
-      if (!backdrop.isConnected || !config) return;
+      if (!backdrop.isConnected || !config || story() !== openedStory) return;
       listing.replaceChildren();
       const enabled = config.enabled || [];
       for (const pack of packs) {
@@ -115,7 +129,7 @@
         const label = document.createElement("label");
         const check = document.createElement("input");
         check.type = "checkbox"; check.checked = enabled.includes(pack.meta.id);
-        const copy = document.createElement("span");
+        const copy = document.createElement("div");
         const heading = document.createElement("strong");
         heading.textContent = pack.meta.name;
         const note = document.createElement("small");
@@ -123,8 +137,11 @@
         note.textContent = (pack.meta.visibility === "public" ? "公開" : "私有") +
           " · " + pack.entries.length + " 條 · " + pack.meta.world +
           (flagged ? " · " + flagged + " 條規則待審（不自動召回）" : "");
-        copy.append(heading, note);
-        label.append(check, copy); article.append(label); listing.append(article);
+
+        const info = document.createElement("span");
+        info.append(heading, note); label.append(check, info);
+        article.style.flexWrap = "wrap"; copy.style.width = "100%";
+        article.append(label, copy); listing.append(article);
         if (pack.meta.visibility !== "public") {
           const remove = document.createElement("button");
           remove.type = "button"; remove.className = "secondary"; remove.textContent = "移除";
@@ -137,6 +154,35 @@
             save(); void render();
           };
           article.append(remove);
+        }
+        if (check.checked) {
+          const conditions = [...new Set(pack.entries.filter(entry => !entry.review_required)
+            .flatMap(entry => entry.requires))];
+          if (conditions.length) {
+            const details = document.createElement("details");
+            const summary = document.createElement("summary");
+            summary.textContent = "已得知資訊（" + conditions.length + " 項）";
+            const hint = document.createElement("p");
+            hint.textContent = "僅在故事已揭露後勾選。勾選允許相關背景召回，不會建立事件；取消可停止後續召回，已送出的內容不會撤回。相同條件名稱由目前故事的世界書共用。";
+            details.append(summary, hint);
+            for (const flag of conditions) {
+              const row = document.createElement("label");
+              const input = document.createElement("input");
+              input.type = "checkbox";
+              input.checked = (openedStory.worldbookFlags || []).includes(flag);
+              input.dataset.ylbCondition = flag;
+              const caption = document.createElement("span");
+              caption.textContent = flag;
+              row.style.display = "flex"; row.style.gap = "8px";
+              row.append(input, caption); details.append(row);
+              input.onchange = async () => {
+                input.disabled = true;
+                try { await setCondition(pack.meta.id, flag, input.checked, openedStory); }
+                finally { await render(); }
+              };
+            }
+            copy.append(details);
+          }
         }
         check.onchange = () => {
           const current = cfg();
@@ -196,5 +242,5 @@
   };
   new MutationObserver(attach).observe(document.body, { childList: true, subtree: true });
   attach();
-  window.YoruWorldbookLibrary = Object.freeze({ open, select: core.select, loadCatalog, all, signals });
+  window.YoruWorldbookLibrary = Object.freeze({ open, select: core.select, loadCatalog, all, signals, setCondition });
 })();
