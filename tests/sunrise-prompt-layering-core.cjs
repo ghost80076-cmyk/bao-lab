@@ -25,7 +25,7 @@ for(const file of ['lorebook','prompt-cache','prompt-orchestrator','story-timeli
   for(const feature of ['讀心','反噬','逮捕','定罪','【回憶】','【回到現在】','信任','恐懼','天璇','80%','YB:SUNRISE:SCENE']) assert.ok(work.includes(feature),`${feature} stays work-owned`);
   const lore = ctx.BAOLorebook.parse(raw.content.lore);
   assert.equal(lore.entries.length,0);
-  assert.equal(state.worldbookLibrary.enabled.length,36);
+  assert.equal(state.worldbookLibrary.enabled.length,41);
   assert.equal(lore.fixed,'','all companion lore is keyword-triggered, not fixed rules');
   assert.doesNotMatch(raw.content.lore,/【平台硬規則】|【玩家自主權】|【場景參與】/);
   const base = await ctx.App.buildMessages();
@@ -67,5 +67,5 @@ for(const file of ['lorebook','prompt-cache','prompt-orchestrator','story-timeli
   ctx.App.activeCharacter=ctx.Engine.normalize({id:'legacy',name:'舊作品',system_prompt:'舊卡作者的自訂自主規則',lore:'舊卡完整背景'});
   const legacy=await ctx.App.buildMessages();
   assert.match(legacy[0].content,/舊卡作者的自訂自主規則|舊卡完整背景/,'no blanket semantic stripping of other authors\' cards');
-  console.log('PASS Sunrise prompt layering: platform ownership, retained gameplay, 172 story-pinned lore chapters, stable prefix across current/past/return, legacy preservation');
+  console.log('PASS Sunrise prompt layering: platform ownership, retained gameplay, 212 story-pinned lore chapters, stable prefix across current/past/return, legacy preservation');
 })().catch(error=>{console.error(error);process.exitCode=1;});
