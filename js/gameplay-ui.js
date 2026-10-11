@@ -200,13 +200,15 @@
   };
 
   const meterHTML = (item, state) => {
-    const raw = Number(Core.getPath(state, item.value_path));
+    const source = Core.getPath(state, item.value_path);
+    const raw = Number(source);
     const min = Number.isFinite(item.min) ? item.min : 0;
     const maxRaw = item.max_path ? Number(Core.getPath(state, item.max_path)) : Number(item.max);
     const max = Number.isFinite(maxRaw) && maxRaw > min ? maxRaw : Math.max(min + 1, 100);
-    const value = Number.isFinite(raw) ? raw : min;
+    const known = source !== null && source !== undefined && source !== '' && Number.isFinite(raw) && raw >= min;
+    const value = known ? raw : min;
     const ratio = Math.max(0, Math.min(100, ((value - min) / (max - min)) * 100));
-    return `<div class="gameplay-meter"><div><span>${esc(item.label)}</span><b>${esc(displayValue(value))} / ${esc(displayValue(max))}${item.suffix ? ` ${esc(displayValue(item.suffix))}` : ''}</b></div><i><em style="width:${ratio}%"></em></i></div>`;
+    return `<div class="gameplay-meter"><div><span>${esc(item.label)}</span><b>${known ? esc(displayValue(value)) : '未知'} / ${esc(displayValue(max))}${item.suffix ? ` ${esc(displayValue(item.suffix))}` : ''}</b></div><i><em style="width:${ratio}%"></em></i></div>`;
   };
 
   const cardText = value => {
@@ -784,6 +786,12 @@
     if (schema) {
       mergeInitialModules(state, character);
       if (config?.gameplaySetup) Core.applyBuilderValues(schema, config.gameplaySetup, state);
+      const startup = window.BAOStoryStartupCore?.apply(character?.story_startup, state, character?.world_modules || []);
+      if (startup && App.activeCharacter?.id === character.id) {
+        // Keep the loaded catalog card immutable; each story owns its opening snapshot.
+        App.activeCharacter = { ...App.activeCharacter, greeting: startup.greeting,
+          greeting_context: startup.greeting, opening: startup.opening };
+      }
       state.gameplayUIVersion = 1;
     }
     return state;

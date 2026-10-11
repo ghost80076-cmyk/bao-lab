@@ -104,6 +104,7 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/prompt-cache.js?v=3"))
     .then(() => loadBAOScript("js/prompt-orchestrator.js"))
     .then(() => worldModulesReady)
+    .then(() => loadBAOScript("js/story-timeline.js?v=1"))
     .then(() => loadBAOScript("js/three-realms-events.js?v=3"))
     .then(() => loadBAOScript("js/worldbook-library-core.js?v=2"))
     .then(() => loadBAOScript("js/worldbook-library.js?v=3"))
