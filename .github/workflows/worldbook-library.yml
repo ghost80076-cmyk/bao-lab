@@ -12,6 +12,12 @@ on:
       - 'tests/sunrise-migration-coverage.cjs'
       - 'data/sunrise-migration-coverage.json'
       - 'scripts/audit-sunrise-migration.py'
+      - 'scripts/sunrise_reconciliation.py'
+      - 'scripts/plan-sunrise-integration.py'
+      - 'data/sunrise-integration-plan.json'
+      - 'data/sunrise-native-blueprint.json'
+      - 'tests/sunrise-integration-core.cjs'
+      - 'tests/sunrise-reconciliation.py'
       - 'scripts/migrate-sunrise-geography.py'
       - 'data/three-realms-worldbook-source-map.json'
       - 'data/three-realms-encyclopedia-source-map.json'
@@ -49,6 +55,12 @@ on:
       - 'tests/sunrise-migration-coverage.cjs'
       - 'data/sunrise-migration-coverage.json'
       - 'scripts/audit-sunrise-migration.py'
+      - 'scripts/sunrise_reconciliation.py'
+      - 'scripts/plan-sunrise-integration.py'
+      - 'data/sunrise-integration-plan.json'
+      - 'data/sunrise-native-blueprint.json'
+      - 'tests/sunrise-integration-core.cjs'
+      - 'tests/sunrise-reconciliation.py'
       - 'scripts/migrate-sunrise-geography.py'
       - 'data/three-realms-worldbook-source-map.json'
       - 'data/three-realms-encyclopedia-source-map.json'
@@ -91,6 +103,8 @@ jobs:
           node tests/worldbook-library-core.cjs
           node tests/sunrise-geography-core.cjs
           node tests/sunrise-migration-coverage.cjs
+          node tests/sunrise-integration-core.cjs
+          python tests/sunrise-reconciliation.py
           node tests/worldbook-library-runtime.cjs
           node tests/three-realms-worldbook-core.cjs
           node tests/three-realms-encyclopedia-core.cjs

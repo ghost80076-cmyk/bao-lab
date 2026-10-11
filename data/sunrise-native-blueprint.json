@@ -1,0 +1,118 @@
+{
+  "schema": "yorubay-native-authoring-draft",
+  "version": 1,
+  "world": "sunrise-city",
+  "status": "authoring-draft",
+  "source_groups": [
+    "npc-template",
+    "location-template",
+    "status-panel",
+    "quests",
+    "skills",
+    "inventory",
+    "economy",
+    "factions",
+    "reputation",
+    "cases",
+    "encounters",
+    "awakening",
+    "modes",
+    "scene-style"
+  ],
+  "character_fragment": {
+    "world_modules": [
+      {
+        "id": "status",
+        "kind": "object",
+        "tracking": "medium",
+        "context": "core",
+        "fields": [
+          {
+            "key": "energy",
+            "label": "體力",
+            "type": "meter"
+          },
+          {
+            "key": "ability_reserve",
+            "label": "異能餘量",
+            "type": "meter"
+          }
+        ]
+      },
+      {
+        "id": "inventory",
+        "kind": "collection",
+        "tracking": "medium",
+        "context": "relevant"
+      },
+      {
+        "id": "skills",
+        "kind": "collection",
+        "tracking": "medium",
+        "context": "relevant"
+      },
+      {
+        "id": "quests",
+        "kind": "collection",
+        "tracking": "medium",
+        "context": "relevant"
+      },
+      {
+        "id": "factions",
+        "kind": "collection",
+        "tracking": "medium",
+        "context": "relevant"
+      },
+      {
+        "id": "economy",
+        "kind": "object",
+        "tracking": "medium",
+        "context": "core",
+        "fields": [
+          {
+            "key": "balance",
+            "label": "資產",
+            "type": "number"
+          }
+        ]
+      },
+      {
+        "id": "equipment",
+        "kind": "collection",
+        "tracking": "medium",
+        "context": "relevant"
+      },
+      {
+        "id": "reputation",
+        "kind": "object",
+        "tracking": "medium",
+        "context": "relevant",
+        "fields": [
+          {
+            "key": "public",
+            "label": "公開聲望",
+            "type": "number"
+          }
+        ]
+      }
+    ],
+    "initial_state": {
+      "modules": {
+        "status": {},
+        "inventory": [],
+        "skills": [],
+        "quests": [],
+        "factions": [],
+        "economy": {},
+        "equipment": [],
+        "reputation": {}
+      }
+    }
+  },
+  "constraints": [
+    "套用到作者作品後才生效，不自動修改任何故事或全站設定。",
+    "模板不是已登場人物；秘密不可填入公開名冊。",
+    "任務接受、進度、獎勵、失敗依確認事件更新；期限使用世界時鐘。",
+    "百分比不等於程式亂數，數值公式與遊戲模式仍須另外實作及驗證。"
+  ]
+}

@@ -2,8 +2,8 @@
   "source_worldbook_id": "5808c2c1-a71c-417e-b07c-23d75d36735e",
   "summary": {
     "source_entries": 183,
-    "packs": 18,
-    "published_chapters": 59,
+    "packs": 19,
+    "published_chapters": 61,
     "coverage": {
       "partial": 25,
       "unreviewed": 158
@@ -15,8 +15,8 @@
       "category": "規則",
       "source_sha256": "4834e239dddf64bc25c350cf6be0f3fbcabdae936fee9804872f788f11916a63",
       "status": "partial",
-      "published_chapters": 3,
-      "deferred_chapters": 3
+      "published_chapters": 5,
+      "deferred_chapters": 1
     },
     {
       "source_index": 1,

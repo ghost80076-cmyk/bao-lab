@@ -5,6 +5,7 @@ import pathlib
 import re
 import sys
 import zipfile
+from sunrise_reconciliation import reconcile_chapter
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 SOURCES = {
  1: ('4afe97b2b9e99ad7fdf29129928b34797f9eb2785824951a057f54a90ee3ce2d', 'sunrise-cbd-geography', '曙光市｜中央商業區', ['中央商業區', 'CBD'], {0,1,2,3,4,5,6,7}),
@@ -28,7 +29,7 @@ SOURCES = {
  13: ('681d3cc350dacc8a513f68d8d9cade258bdff8de96e4d964829657c035eead3a', 'sunrise-port-people', '曙光市｜港口人物背景（不代表在場）', ['老張'], {0,1}),
  14: ('8f8a108d0aa0d0c57af2b78b0b30f81df3b22540991e2762033ddec245c92821', 'sunrise-port-people', '曙光市｜港口人物背景（不代表在場）', ['瘦猴'], {0,1}),
  15: ('30ac5a605b9920c7fffe781b64ec0e8036b0210c4c18a3dcf1480cc17376e626', 'sunrise-port-people', '曙光市｜港口人物背景（不代表在場）', ['啞巴阿文'], {0,1}),
- 0: ('4834e239dddf64bc25c350cf6be0f3fbcabdae936fee9804872f788f11916a63', 'sunrise-city-overview', '曙光市｜城市與社會概況', ['曙光市'], {0,1,3}),
+ 0: ('4834e239dddf64bc25c350cf6be0f3fbcabdae936fee9804872f788f11916a63', 'sunrise-city-overview', '曙光市｜城市與社會概況', ['曙光市'], {0,1,2,3,4}),
  138: ('5dea856117c564988fae4178292d996961fe53699b086e76a5725d8047854947', 'sunrise-prison-institution', '曙光市｜監獄探視與減刑（虛構世界制度）', ['曙光市第一監獄探視', '第一監獄探視', '第一監獄減刑'], {4,5}),
  33: ('0edb3ba2e7baa92c6f33d80737b4dbd9d7cd510d9bad521a04828af4fac10678', 'sunrise-ability-background', '曙光市｜異能背景（虛構設定）', ['曙光市異能'], {0,2,3,4,6}),
  34: ('620511dae42fc2d536e0ecf3103e1ec5f9b7ac4106d8694070fbf762af17ac38', 'sunrise-ability-institution', '曙光市｜異能分類與監控（虛構制度）', ['異能分類'], {0,4})
@@ -55,8 +56,14 @@ def build(zip_path):
    kept = part in allowed
    record = {'chapter':part,'title':title,'start':start,'end':end,'sha256':sha(value),'status':'published' if kept else 'deferred'}
    if kept:
+    value, decisions = reconcile_chapter(index, part, value)
+    if decisions:
+     record['reconciliation'] = decisions
+     record['published_sha256'] = sha(value)
     eid = f'sunrise-source-{index}-{part}'; record['entry_id'] = eid
     recall_keywords = {
+     (0,2): ['曙光市警力', '曙光市主要勢力'],
+     (0,4): ['血色七月', '覺醒潮', '曙光市歷史'],
      (33,0): ['曙光市異能', '異能來源理論'], (33,2): ['異能覺醒'],
      (33,3): ['異能訓練'], (33,4): ['異能限制'], (33,6): ['異能者登記法', '異能者權益', '異能者歧視'],
      (34,0): ['異能分類', '八大主類'], (34,4): ['異能監控等級', '異能者管理局監控']
@@ -64,6 +71,10 @@ def build(zip_path):
     entries.append({'id':eid,'title':name+'｜'+(keywords[0]+'｜' if 8 <= index <= 15 else '')+title,'category':'人物資料' if 8 <= index <= 15 else '世界資料','mode':'keyword','keywords':recall_keywords + ({1:['曙光金融大廈','天際商場','凱旋企業總部','司法大廈','曙光國際會議中心'],2:['曙光證券交易所','泰坦科技','晨曦集團','極光製藥','銀河傳媒']} .get(part, []) if index == 1 else []),'content':value})
    review.append(record)
   groups = [(pack_id, name, entries)]
+  if index == 0:
+   history = [e for e in entries if e['id'] == 'sunrise-source-0-4']
+   groups = [(pack_id, name, [e for e in entries if e not in history]),
+             ('sunrise-history-summary', '曙光市｜歷史時間線（整合摘要）', history)]
   if index == 49:
    scenario = [e for e in entries if e['id'] == 'sunrise-source-49-3']
    groups = [(pack_id, name, [e for e in entries if e not in scenario]),

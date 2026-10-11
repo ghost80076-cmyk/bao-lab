@@ -8,6 +8,7 @@ import json
 import pathlib
 import sys
 import zipfile
+from sunrise_reconciliation import reconcile_chapter
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 digest = lambda value: hashlib.sha256(value.encode()).hexdigest()
@@ -44,7 +45,10 @@ def audit(export_path):
                     raise ValueError(f'Chapter changed: {index}')
                 if chapter['status'] == 'published':
                     eid = chapter['entry_id']
-                    if eid in visited or published[eid]['content'] != value:
+                    normalized, decisions = reconcile_chapter(index, chapter['chapter'], value)
+                    if chapter.get('reconciliation', []) != decisions or (decisions and chapter.get('published_sha256') != digest(normalized)):
+                        raise ValueError(f'Invalid reconciliation: {eid}')
+                    if eid in visited or published[eid]['content'] != normalized:
                         raise ValueError(f'Published text differs: {eid}')
                     visited.add(eid)
                     kept += 1
