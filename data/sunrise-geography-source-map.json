@@ -1918,6 +1918,123 @@
           "status": "deferred"
         }
       ]
+    },
+    {
+      "source_index": 33,
+      "source_sha256": "0edb3ba2e7baa92c6f33d80737b4dbd9d7cd510d9bad521a04828af4fac10678",
+      "source_chars": 1951,
+      "chapters": [
+        {
+          "chapter": 0,
+          "title": "**【異能基本概念】**",
+          "start": 0,
+          "end": 194,
+          "sha256": "3deb1c680420fad1cc7313f3664a7bed11a19179c6859de9693cb0c722b3b677",
+          "status": "published",
+          "entry_id": "sunrise-source-33-0"
+        },
+        {
+          "chapter": 1,
+          "title": "**【異能等級】**",
+          "start": 194,
+          "end": 775,
+          "sha256": "ae8a094d348df4b024c529d4b2eabbd944a0969a727f1e64f3f16de305267c6a",
+          "status": "deferred"
+        },
+        {
+          "chapter": 2,
+          "title": "**【異能覺醒】**",
+          "start": 775,
+          "end": 1049,
+          "sha256": "1dd51904fb48f5f2f6f0e70dce2802623172f845082c6c133fc7775844e5e460",
+          "status": "published",
+          "entry_id": "sunrise-source-33-2"
+        },
+        {
+          "chapter": 3,
+          "title": "**【異能訓練】**",
+          "start": 1049,
+          "end": 1305,
+          "sha256": "0b2dce86333184d315a05f9bdde286971bdd00115c6fd6c70a44ff66c4befb3d",
+          "status": "published",
+          "entry_id": "sunrise-source-33-3"
+        },
+        {
+          "chapter": 4,
+          "title": "**【異能限制】**",
+          "start": 1305,
+          "end": 1514,
+          "sha256": "92f7d60faab3a05bccaa4db528faa3c68ab83656a11d320b14362390f834d955",
+          "status": "published",
+          "entry_id": "sunrise-source-33-4"
+        },
+        {
+          "chapter": 5,
+          "title": "**【異能抑制】**",
+          "start": 1514,
+          "end": 1737,
+          "sha256": "183bfa990f967bc4d9d63922cad293ad3ad876b6db67a2419c90c172fc703e5a",
+          "status": "deferred"
+        },
+        {
+          "chapter": 6,
+          "title": "**【異能與社會】**",
+          "start": 1737,
+          "end": 1951,
+          "sha256": "59a1230d02f5bd48638cc480e2b33c00bd2013e7d8b4e211f6c35101e7c6fed5",
+          "status": "published",
+          "entry_id": "sunrise-source-33-6"
+        }
+      ]
+    },
+    {
+      "source_index": 34,
+      "source_sha256": "620511dae42fc2d536e0ecf3103e1ec5f9b7ac4106d8694070fbf762af17ac38",
+      "source_chars": 1327,
+      "chapters": [
+        {
+          "chapter": 0,
+          "title": "**【官方分類（八大主類）】**",
+          "start": 0,
+          "end": 180,
+          "sha256": "c80aa202957583de4e8bf7cdb9caada787169d878e2f685c46b94f2203ef0a87",
+          "status": "published",
+          "entry_id": "sunrise-source-34-0"
+        },
+        {
+          "chapter": 1,
+          "title": "**【異能犯罪分類】**",
+          "start": 180,
+          "end": 619,
+          "sha256": "1cbf784620083aa0509e2e568a7cc786905fabdd5807564025e2ec461b888977",
+          "status": "deferred"
+        },
+        {
+          "chapter": 2,
+          "title": "**【黑市異能應用】**",
+          "start": 619,
+          "end": 874,
+          "sha256": "28a002eed8e17a7e7c0c67dba902f3308b8d914bea4ba641eaf9ad4004a4a0f1",
+          "status": "deferred"
+        },
+        {
+          "chapter": 3,
+          "title": "**【曙光市異能犯罪統計】**",
+          "start": 874,
+          "end": 1140,
+          "sha256": "6de4d5c1bc49c1a07dd9bb055b5c525d802dea02f1a9680029a96f1905323cd5",
+          "status": "deferred"
+        },
+        {
+          "chapter": 4,
+          "title": "**【異能者管理局監控等級】**",
+          "start": 1140,
+          "end": 1327,
+          "sha256": "815c68fb15d56e008e2d98f00d0c4e3d8d868277d3e4c2f7a3b5766717a5bde0",
+          "status": "published",
+          "entry_id": "sunrise-source-34-4"
+        }
+      ]
     }
   ]
 }

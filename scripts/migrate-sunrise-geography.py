@@ -29,7 +29,9 @@ SOURCES = {
  14: ('8f8a108d0aa0d0c57af2b78b0b30f81df3b22540991e2762033ddec245c92821', 'sunrise-port-people', '曙光市｜港口人物背景（不代表在場）', ['瘦猴'], {0,1}),
  15: ('30ac5a605b9920c7fffe781b64ec0e8036b0210c4c18a3dcf1480cc17376e626', 'sunrise-port-people', '曙光市｜港口人物背景（不代表在場）', ['啞巴阿文'], {0,1}),
  0: ('4834e239dddf64bc25c350cf6be0f3fbcabdae936fee9804872f788f11916a63', 'sunrise-city-overview', '曙光市｜城市與社會概況', ['曙光市'], {0,1,3}),
- 138: ('5dea856117c564988fae4178292d996961fe53699b086e76a5725d8047854947', 'sunrise-prison-institution', '曙光市｜監獄探視與減刑（虛構世界制度）', ['曙光市第一監獄探視', '第一監獄探視', '第一監獄減刑'], {4,5})
+ 138: ('5dea856117c564988fae4178292d996961fe53699b086e76a5725d8047854947', 'sunrise-prison-institution', '曙光市｜監獄探視與減刑（虛構世界制度）', ['曙光市第一監獄探視', '第一監獄探視', '第一監獄減刑'], {4,5}),
+ 33: ('0edb3ba2e7baa92c6f33d80737b4dbd9d7cd510d9bad521a04828af4fac10678', 'sunrise-ability-background', '曙光市｜異能背景（虛構設定）', ['曙光市異能'], {0,2,3,4,6}),
+ 34: ('620511dae42fc2d536e0ecf3103e1ec5f9b7ac4106d8694070fbf762af17ac38', 'sunrise-ability-institution', '曙光市｜異能分類與監控（虛構制度）', ['異能分類'], {0,4})
 }
 sha = lambda content: hashlib.sha256(content.encode()).hexdigest()
 def build(zip_path):
@@ -42,7 +44,7 @@ def build(zip_path):
  packs, mapping = [], []
  for index, (digest, pack_id, name, keywords, allowed) in SOURCES.items():
   entry = original['entries'][index]; content = entry['content']
-  if sha(content) != digest or content != shared['entries'][index]['content'] or entry['category'] != ('角色' if 8 <= index <= 15 else '規則' if index in (0, 138) else '地點'):
+  if sha(content) != digest or content != shared['entries'][index]['content'] or entry['category'] != ('角色' if 8 <= index <= 15 else '規則' if index in (0, 33, 34, 138) else '地點'):
    raise ValueError('Source changed; review again')
   starts = [m.start() for m in re.finditer(r'^#{2,3} ' if index == 138 else r'^## ' if index in (0, 1, 2, 5, 6) else r'^### ', content, re.M)]
   if not starts or starts[0] != 0: starts.insert(0,0)
@@ -54,7 +56,12 @@ def build(zip_path):
    record = {'chapter':part,'title':title,'start':start,'end':end,'sha256':sha(value),'status':'published' if kept else 'deferred'}
    if kept:
     eid = f'sunrise-source-{index}-{part}'; record['entry_id'] = eid
-    entries.append({'id':eid,'title':name+'｜'+(keywords[0]+'｜' if 8 <= index <= 15 else '')+title,'category':'人物資料' if 8 <= index <= 15 else '世界資料','mode':'keyword','keywords':keywords + ({1:['曙光金融大廈','天際商場','凱旋企業總部','司法大廈','曙光國際會議中心'],2:['曙光證券交易所','泰坦科技','晨曦集團','極光製藥','銀河傳媒']} .get(part, []) if index == 1 else []),'content':value})
+    recall_keywords = {
+     (33,0): ['曙光市異能', '異能來源理論'], (33,2): ['異能覺醒'],
+     (33,3): ['異能訓練'], (33,4): ['異能限制'], (33,6): ['異能者登記法', '異能者權益', '異能者歧視'],
+     (34,0): ['異能分類', '八大主類'], (34,4): ['異能監控等級', '異能者管理局監控']
+    }.get((index, part), keywords)
+    entries.append({'id':eid,'title':name+'｜'+(keywords[0]+'｜' if 8 <= index <= 15 else '')+title,'category':'人物資料' if 8 <= index <= 15 else '世界資料','mode':'keyword','keywords':recall_keywords + ({1:['曙光金融大廈','天際商場','凱旋企業總部','司法大廈','曙光國際會議中心'],2:['曙光證券交易所','泰坦科技','晨曦集團','極光製藥','銀河傳媒']} .get(part, []) if index == 1 else []),'content':value})
    review.append(record)
   groups = [(pack_id, name, entries)]
   if index == 49:
