@@ -672,7 +672,7 @@
               "type": "cards",
               "title": "已知人物",
               "path": "npcs",
-              "variant": "party",
+              "variant": "codex",
               "empty": "尚無已確認人物。",
               "limit": 16
             }

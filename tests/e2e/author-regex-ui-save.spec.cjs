@@ -1,6 +1,19 @@
 const { test, expect } = require('@playwright/test');
 if (process.env.BAO_LIVE_URL) test.use({ baseURL: process.env.BAO_LIVE_URL });
 
+// Configure the existing settings controls just like the other author tests;
+// the shell may move this panel into a closed tool drawer.
+async function setLabeledCheckbox(panel, labelText, checked) {
+  await panel.evaluate((root, args) => {
+    const label = [...root.querySelectorAll('label')].find(node => String(node.textContent || '').includes(args.labelText));
+    const input = label?.querySelector('input[type="checkbox"]');
+    if (!input) throw new Error('checkbox not found: ' + args.labelText);
+    if (input.checked === args.checked) return;
+    input.checked = args.checked;
+    input.dispatchEvent(new Event('change', { bubbles: true }));
+  }, {labelText,checked});
+}
+
 const rules = { regex_scripts: [{
   scriptName: '手機介面存檔', findRegex: '【手機開屏】',
   replaceString: `<section id="phone-ui"><span id="phone-tab">未載入</span><button id="remember" onclick="BAOAuthor.saveUIState({tab:'photos',page:2})">記住相簿</button><button id="secret" onclick="BAOAuthor.saveUIState({apiKey:'never-save'})">錯誤欄位</button><script>window.addEventListener('bao:uistatechange',function(e){document.getElementById('phone-tab').textContent=e.detail.tab||'初始頁';});</script></section>`
@@ -9,8 +22,8 @@ const rules = { regex_scripts: [{
 async function setup(page) {
   await page.goto('./');
   await page.waitForFunction(() => Boolean(window.BAOAuthorDock && window.Storage?._ready && App.characters?.length));
-  await page.evaluate(() => {
-    App.openCharacter(App.characters[0].id);
+  await page.evaluate(async () => {
+    await App.openCharacter(App.characters[0].id);
     App.config = {
       narrativeMode: 'immersive', displayMode: 'text',
       persona: { name: '測試玩家', gender: '未指定', identity: '', personality: '', relationship: '', extra: '' },
@@ -24,13 +37,13 @@ async function setup(page) {
     API.send = () => { window.__authorTestApiCalls++; throw new Error('Author UI cannot call API'); };
   });
   const panel = page.locator('#bao-author-regex-panel');
-  await panel.locator(':scope > summary').click();
+  await panel.evaluate(el => { el.open = true; });
   await panel.locator('input[type=file]').setInputFiles({ name: 'phone-regex.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(rules)) });
   await expect(panel).toContainText('已匯入 1 個自訂介面設定');
-  await panel.getByLabel('啟用自訂介面').check();
+  await setLabeledCheckbox(panel, '啟用自訂介面', true);
   page.once('dialog', dialog => dialog.accept());
-  await panel.getByLabel('允許互動腳本').check();
-  await panel.getByLabel('保留互動介面').check();
+  await setLabeledCheckbox(panel, '允許互動腳本', true);
+  await setLabeledCheckbox(panel, '保留互動介面', true);
   const frame = page.frameLocator('iframe[title="跨回合作者隔離介面"]');
   await expect(frame.locator('#phone-ui')).toBeVisible();
   return { panel, frame };
@@ -41,7 +54,7 @@ test('UI preference is opt-in, saved in story bundle, restored across reload, ne
   await frame.getByRole('button', { name: '記住相簿' }).click();
   expect(await page.evaluate(() => Storage.buildStoryPayload('before').authorUi)).toBeUndefined();
   page.once('dialog', dialog => dialog.accept());
-  await panel.getByLabel('保存介面偏好').check();
+  await setLabeledCheckbox(panel, '保存介面偏好', true);
   await expect(frame.locator('#phone-tab')).toHaveText('初始頁');
   await frame.getByRole('button', { name: '記住相簿' }).click();
   await expect(frame.locator('#phone-tab')).toHaveText('photos');
