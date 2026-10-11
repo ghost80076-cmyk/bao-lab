@@ -34,6 +34,13 @@ for(const [device,viewport] of [['desktop',{width:1280,height:900}],['mobile',{w
       await opening.locator('[data-bao-opening-choice]').first().click();
       await expect(page.locator('#user-input')).toHaveValue('我先觀察現場的人與物。');
       expect(await page.evaluate(()=>sunriseRequests)).toBe(0);
+      await page.evaluate(()=>{
+        GameState.current.npcs.push({name:'調查員',role:'警探',mood:'皺眉',relationship:'初識',location:'警局',presence:'present',notes:'不應公開的幕後動機'});
+        BAOGameplayUI.renderPanel('player');
+      });
+      await expect(page.locator('#ui-panel')).toContainText('調查員');
+      await expect(page.locator('#ui-panel')).toContainText('皺眉');
+      await expect(page.locator('#ui-panel')).not.toContainText('不應公開的幕後動機');
       const restored=await page.evaluate(()=>{
         const payload=Storage.buildStoryPayload();
         const selected=App.activeCharacter.greeting;

@@ -12,6 +12,7 @@ assert.equal(card.timeline_policy.version,1);
 const ui = UI.normalize(card.gameplay_ui);
 assert.equal(ui.builder.fields.length,15);
 assert.equal(ui.panels.length,8);
+assert.equal(ui.panels.find(p=>p.id==='player').sections.find(s=>s.path==='npcs').variant,'codex','NPC cards display public fields and omit private notes');
 assert.equal(Startup.normalize(card.story_startup).cases.length,25,'no route truncated');
 for (const route of card.story_startup.cases.slice(20)) {
   const state=structuredClone(card.initial_state);
