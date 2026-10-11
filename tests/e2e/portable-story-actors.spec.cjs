@@ -30,6 +30,21 @@ test('official portable actors join any story and adult actors obey the local co
   await expect(picker.locator('option[value="jiuyue"]')).toHaveCount(0);
   await expect(picker.locator('option[value="shuanger"]')).toHaveCount(0);
 
+  const formBeforeRecommendation = await page.locator('#bao-actor-form form [name="name"]').inputValue();
+  const stateBeforeRecommendation = await page.evaluate(() => JSON.stringify(GameState.current.storyActors));
+  await page.locator('[data-portable-actor-query]').fill('鏡月');
+  await page.locator('[data-portable-actor-recommend]').click();
+  const suggestion = page.locator('[data-portable-actor-result] button').first();
+  await expect(suggestion).toContainText('鏡月');
+  await suggestion.click();
+  await expect(picker).toHaveValue('jingyue');
+  await expect(page.locator('#bao-actor-form form [name="name"]')).toHaveValue(formBeforeRecommendation);
+  expect(await page.evaluate(() => JSON.stringify(GameState.current.storyActors))).toBe(stateBeforeRecommendation);
+  await page.locator('[data-portable-actor-query]').fill('ZZUNMATCHED9283');
+  await page.locator('[data-portable-actor-recommend]').click();
+  await expect(page.locator('[data-portable-actor-result]')).toContainText('沒有符合');
+  await expect(picker).toHaveValue('jingyue');
+
   await picker.selectOption('jingyue');
   await page.locator('[data-portable-actor-apply]').click();
   const form = page.locator('#bao-actor-form form');

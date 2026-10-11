@@ -325,6 +325,7 @@ jobs:
           node --check js/story-actors-adult-pack.js
           node --check js/story-persona-manager.js
           node tests/story-actor-pack-core.cjs
+          node tests/story-actor-recommend-core.cjs
           node tests/story-persona-core.cjs
       - name: Story extension scopes
         run: |
