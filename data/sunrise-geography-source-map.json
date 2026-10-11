@@ -404,7 +404,8 @@
           "start": 703,
           "end": 781,
           "sha256": "820c2ec51de413c9cf5cea6c4f692d83bb3550d9a90f11fddd7a176c9969e5eb",
-          "status": "deferred"
+          "status": "published",
+          "entry_id": "sunrise-source-49-3"
         }
       ]
     },
@@ -719,6 +720,110 @@
           "start": 627,
           "end": 1006,
           "sha256": "eb77acaaa3b42606a401d7898af4afacf5f7bdccdf7f4377a4d95443a08315b8",
+          "status": "deferred"
+        }
+      ]
+    },
+    {
+      "source_index": 5,
+      "source_sha256": "2c6d6f17185d0b6e682d602ddaa575cb33e76bcb40399b852f9be1be208fe6ba",
+      "source_chars": 1989,
+      "chapters": [
+        {
+          "chapter": 0,
+          "title": "廢棄 9 號碼頭",
+          "start": 0,
+          "end": 12,
+          "sha256": "4c7fc9bbb7e653930639af3c09c4380850b1582fd7fe19cec604c7e4969bc59e",
+          "status": "deferred"
+        },
+        {
+          "chapter": 1,
+          "title": "基本資訊",
+          "start": 12,
+          "end": 142,
+          "sha256": "8baa90a69d40ee8ed1fae489abb56efafd40faf8de74a82cd27c971086723f99",
+          "status": "published",
+          "entry_id": "sunrise-source-5-1"
+        },
+        {
+          "chapter": 2,
+          "title": "環境描述",
+          "start": 142,
+          "end": 695,
+          "sha256": "cfb6df47461ea93de4ca15d7a761c3c98947ab868d41608c1c4c134936ed57c3",
+          "status": "deferred"
+        },
+        {
+          "chapter": 3,
+          "title": "居民與使用者",
+          "start": 695,
+          "end": 1281,
+          "sha256": "61203803960be52b1469e83bf217e1cb2d72f0afb3b37952f6dfb0b32abe39aa",
+          "status": "deferred"
+        },
+        {
+          "chapter": 4,
+          "title": "犯罪活動",
+          "start": 1281,
+          "end": 1635,
+          "sha256": "0dfe4214f385dcee3f35880d2fa861ed6d840d8b35c9aa88f89b8db06f5ce10c",
+          "status": "deferred"
+        },
+        {
+          "chapter": 5,
+          "title": "發現的屍體（近年案例）",
+          "start": 1635,
+          "end": 1989,
+          "sha256": "bd9954886cdbf5bdc3c72221b83131271ab551b0a074f3499a5e59a1fda8c9b7",
+          "status": "deferred"
+        }
+      ]
+    },
+    {
+      "source_index": 6,
+      "source_sha256": "48e9e1a2e2866153b5891928880c317ff90f65ce2fa58e06edf4ed16f1873bc5",
+      "source_chars": 1139,
+      "chapters": [
+        {
+          "chapter": 0,
+          "title": "超自然傳聞（未證實）",
+          "start": 0,
+          "end": 210,
+          "sha256": "bfd9c768536771c0833d447b875b444ad1aeb4c152fef055c9358c514ef3909f",
+          "status": "deferred"
+        },
+        {
+          "chapter": 1,
+          "title": "警方與執法",
+          "start": 210,
+          "end": 407,
+          "sha256": "15819ce13bbf4a5ef11752fa9139761612e50c01071938d99c90e8338c36c3ce",
+          "status": "deferred"
+        },
+        {
+          "chapter": 2,
+          "title": "危險與生存",
+          "start": 407,
+          "end": 622,
+          "sha256": "c4ea586d090d32bc2590e7ff9b013124fc79a10e9d414f9dceb7660ed3578dbb",
+          "status": "deferred"
+        },
+        {
+          "chapter": 3,
+          "title": "劇情用途",
+          "start": 622,
+          "end": 817,
+          "sha256": "07e83adefd3d4d5a67dc33411b2b3d06bfe06ac6d93423df092cc4b91e0d0f2c",
+          "status": "published",
+          "entry_id": "sunrise-source-6-3"
+        },
+        {
+          "chapter": 4,
+          "title": "NPC 範例",
+          "start": 817,
+          "end": 1139,
+          "sha256": "ef0b73d58e09ca6704624f599ae53126bcbcab422c581b99dbb214f26e7c38e9",
           "status": "deferred"
         }
       ]
