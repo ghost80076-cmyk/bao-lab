@@ -40,7 +40,7 @@ test('official portable actors join any story and adult actors obey the local co
   await expect(picker).toHaveValue('jingyue');
   await expect(page.locator('#bao-actor-form form [name="name"]')).toHaveValue(formBeforeRecommendation);
   expect(await page.evaluate(() => JSON.stringify(GameState.current.storyActors))).toBe(stateBeforeRecommendation);
-  await page.locator('[data-portable-actor-query]').fill('不存在的超稀有特質XYZ987');
+  await page.locator('[data-portable-actor-query]').fill('ZZUNMATCHED9283');
   await page.locator('[data-portable-actor-recommend]').click();
   await expect(page.locator('[data-portable-actor-result]')).toContainText('沒有符合');
   await expect(picker).toHaveValue('jingyue');
