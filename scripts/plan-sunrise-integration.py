@@ -50,7 +50,7 @@ def build(export_path):
         group, route, targets = overrides.get(i, default)
         record = {'source_index': i, 'source_sha256': digest(content), 'category': entry['category'],
                   'group': group, 'route': route, 'targets': targets,
-                  'editorial_status': 'needs-content-review',
+                  'editorial_status': {'complete':'reviewed-published', 'partial':'reviewed-published-sections', 'unreviewed':'needs-content-review'}[pins['entries'][i]['status']],
                   'publication_status': pins['entries'][i]['status']}
         normalized = reconciled_source(i, content)
         if normalized != content:

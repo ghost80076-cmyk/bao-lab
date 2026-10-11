@@ -2,11 +2,12 @@
   "source_worldbook_id": "5808c2c1-a71c-417e-b07c-23d75d36735e",
   "summary": {
     "source_entries": 183,
-    "packs": 19,
-    "published_chapters": 61,
+    "packs": 26,
+    "published_chapters": 79,
     "coverage": {
-      "partial": 25,
-      "unreviewed": 158
+      "partial": 32,
+      "unreviewed": 150,
+      "complete": 1
     }
   },
   "entries": [
@@ -38,17 +39,17 @@
       "source_index": 3,
       "category": "地點",
       "source_sha256": "a2d2c9cdf2b336667de052d4d3ecfd827ce1764517e621c2eb3d50f558715b95",
-      "status": "unreviewed",
-      "published_chapters": 0,
-      "deferred_chapters": 0
+      "status": "partial",
+      "published_chapters": 1,
+      "deferred_chapters": 5
     },
     {
       "source_index": 4,
       "category": "地點",
       "source_sha256": "3975be8f58ac20bb707ce5ab0562133ec9c90dea76e4da0cee9c0eb513e5d069",
-      "status": "unreviewed",
-      "published_chapters": 0,
-      "deferred_chapters": 0
+      "status": "partial",
+      "published_chapters": 1,
+      "deferred_chapters": 4
     },
     {
       "source_index": 5,
@@ -302,25 +303,25 @@
       "source_index": 36,
       "category": "規則",
       "source_sha256": "8e7301af3578a01d3209bab38cb8ce3892df0544528d0ad638815ed22f1049d3",
-      "status": "unreviewed",
-      "published_chapters": 0,
+      "status": "complete",
+      "published_chapters": 6,
       "deferred_chapters": 0
     },
     {
       "source_index": 37,
       "category": "規則",
       "source_sha256": "1db2cff707f0ccfaec98a2275fd006ad2a07e695eb19314c079c1d4865e4a343",
-      "status": "unreviewed",
-      "published_chapters": 0,
-      "deferred_chapters": 0
+      "status": "partial",
+      "published_chapters": 4,
+      "deferred_chapters": 1
     },
     {
       "source_index": 38,
       "category": "規則",
       "source_sha256": "4ebe6251aff288281e388d3ed69ac9bae76e3a98ddd93462fa9846c9c2bae5d5",
-      "status": "unreviewed",
-      "published_chapters": 0,
-      "deferred_chapters": 0
+      "status": "partial",
+      "published_chapters": 2,
+      "deferred_chapters": 2
     },
     {
       "source_index": 39,
@@ -782,17 +783,17 @@
       "source_index": 96,
       "category": "事件",
       "source_sha256": "9d40bd423ca93d79e41bfa1f4895b329afc1f104c08aec7cafc0af69a50062ff",
-      "status": "unreviewed",
-      "published_chapters": 0,
-      "deferred_chapters": 0
+      "status": "partial",
+      "published_chapters": 1,
+      "deferred_chapters": 2
     },
     {
       "source_index": 97,
       "category": "事件",
       "source_sha256": "e36be103f2f4ea1d499f8923ede29ebe34baaafb8e57031b25813b704b5e9c75",
-      "status": "unreviewed",
-      "published_chapters": 0,
-      "deferred_chapters": 0
+      "status": "partial",
+      "published_chapters": 1,
+      "deferred_chapters": 3
     },
     {
       "source_index": 98,
@@ -918,9 +919,9 @@
       "source_index": 113,
       "category": "地點",
       "source_sha256": "a5273301706733d42dbe76f3681e6045fbd1529ffe73d28ea94fcfac847c4499",
-      "status": "unreviewed",
-      "published_chapters": 0,
-      "deferred_chapters": 0
+      "status": "partial",
+      "published_chapters": 2,
+      "deferred_chapters": 14
     },
     {
       "source_index": 114,

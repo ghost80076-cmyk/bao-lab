@@ -603,6 +603,15 @@ const Storage = {
     // current catalog must not replace it with the generic preview greeting.
     if (character.story_startup && save.character) {
       const openingSnapshot = CharacterEngine.normalize(save.character);
+      if (openingSnapshot.id === character.id &&
+          (character.initial_state?.worldbookLibrary || openingSnapshot.initial_state?.worldbookLibrary)) {
+        // Companion lore belongs to the saved story, including pre-snapshot cards.
+        // A fully loaded newer catalog must not replace old inline lore with empty lore.
+        const initial = {...character.initial_state};
+        if (openingSnapshot.initial_state?.worldbookLibrary) initial.worldbookLibrary = openingSnapshot.initial_state.worldbookLibrary;
+        else delete initial.worldbookLibrary;
+        character = {...character, lore:openingSnapshot.lore, initial_state:initial};
+      }
       if (openingSnapshot.id === character.id && openingSnapshot.greeting) {
         character = {...character, greeting:openingSnapshot.greeting,
           greeting_context:openingSnapshot.greeting_context, opening:openingSnapshot.opening};

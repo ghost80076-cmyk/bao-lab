@@ -1,6 +1,19 @@
 const CharacterEngine = {
   storageKey: "bao-lab:custom-characters",
 
+  // Companion packs are story-owned snapshots, not prompt text or mutable catalog links.
+  normalizeWorldbookLibrary(value) {
+    if (!value || typeof value !== "object" || Array.isArray(value) || value.version !== 1) return null;
+    try {
+      if (JSON.stringify(value).length > 3500000 || !Array.isArray(value.enabled) || value.enabled.length > 64 ||
+          !Array.isArray(value.installed) || value.installed.length > 6 ||
+          !value.pinned || typeof value.pinned !== "object" || Array.isArray(value.pinned) || Object.keys(value.pinned).length > 64) return null;
+      const validId = id => typeof id === "string" && /^[a-z0-9][a-z0-9_-]{0,79}$/.test(id) && !["constructor", "prototype", "__proto__"].includes(id);
+      if (!value.enabled.every(validId) || !Object.keys(value.pinned).every(id => validId(id) && value.pinned[id]?.meta?.id === id)) return null;
+      return structuredClone({version:1, enabled:[...new Set(value.enabled)], installed:value.installed, pinned:value.pinned});
+    } catch { return null; }
+  },
+
   normalize(raw = {}) {
     const meta = raw.meta || {};
     const content = raw.content || {};
@@ -8,6 +21,7 @@ const CharacterEngine = {
     const presentation = raw.presentation || {};
     const initial = gameplay.initial_state || raw.initial_state || {};
     const prompt = gameplay.prompt || raw.prompt || {};
+    const worldbookLibrary = CharacterEngine.normalizeWorldbookLibrary(initial.worldbookLibrary);
     // Kept only for local provenance/export. Imported metadata never joins a
     // model request, because files from other platforms are untrusted input.
     const importMetadata = raw.import_metadata && typeof raw.import_metadata === "object" && !Array.isArray(raw.import_metadata)
@@ -152,6 +166,7 @@ const CharacterEngine = {
       supported_display: raw.supported_display || presentation.supported_display || { text: true, ui: false },
       ui: raw.ui || presentation.ui || { type: "basic", panels: ["npc", "status", "events", "memory"] },
       initial_state: {
+        ...(worldbookLibrary ? {worldbookLibrary} : {}),
         time: initial.time || "未設定",
         location: initial.location || "未設定",
         events: Array.isArray(initial.events) ? initial.events : [],
@@ -351,7 +366,8 @@ const CharacterEngine = {
       ? "【固定 Schema】\n目前使用互動 UI。不要每輪重新輸出完整 UI HTML，敘事正常輸出即可。"
       : "【固定 Schema】\n目前使用純文本模式。不要輸出 RPG 狀態面板。");
 
-    const dynamic = this.relevantDynamicPrompts(c, context).map(block => `【${block.label}】\n${block.text}`).join("\n\n");
+    // Keep nested rule headings within their parent dynamic block during cache partitioning.
+    const dynamic = this.relevantDynamicPrompts(c, context).map(block => `【${block.label}】\n${block.text}`).join("\n");
     if (dynamic) blocks.push(`【本輪動態角色規則】\n${dynamic}`);
 
     return blocks.filter(Boolean).join("\n\n");
