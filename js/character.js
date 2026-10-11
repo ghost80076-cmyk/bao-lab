@@ -21,7 +21,7 @@ const CharacterEngine = {
     const presentation = raw.presentation || {};
     const initial = gameplay.initial_state || raw.initial_state || {};
     const prompt = gameplay.prompt || raw.prompt || {};
-    const worldbookLibrary = this.normalizeWorldbookLibrary(initial.worldbookLibrary);
+    const worldbookLibrary = CharacterEngine.normalizeWorldbookLibrary(initial.worldbookLibrary);
     // Kept only for local provenance/export. Imported metadata never joins a
     // model request, because files from other platforms are untrusted input.
     const importMetadata = raw.import_metadata && typeof raw.import_metadata === "object" && !Array.isArray(raw.import_metadata)
