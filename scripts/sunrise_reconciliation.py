@@ -1,6 +1,7 @@
 """Explicit editorial decisions; never change the archived author export."""
 import hashlib
 import re
+from sunrise_character_review import DECISIONS as CHARACTER_DECISIONS, project
 
 DECISIONS = {
     'work-population': {
@@ -46,6 +47,8 @@ DECISIONS = {
         'reason': '總覽稱 10 年前推出登記法，事件與幫派專頁稱 15 年前事件後強制實施；是否初版／修法無證據，不自行補設。'}
 }
 
+DECISIONS.update(CHARACTER_DECISIONS)
+
 HISTORY = '''## 重大歷史事件（整合摘要）
 
 以下時間以故事開場的基準時間計算，不隨玩家現實日期變動。
@@ -83,7 +86,8 @@ def reconcile_chapter(index, part, value):
         value = re.sub(r'\*\*人口\*\*：約 [0-9.]+ 萬人[^\n]*', '**人口**：片區統計尚待確認', value)
         value = re.sub(r'異能者比例(?:\*\*)?[:：] ?[0-9]+%[^\n]*', '異能者比例：片區統計尚待確認', value)
         if before != value: ids.append('district-census')
-    return value, ids
+    value, character_ids = project(index, part, value)
+    return value, ids + character_ids
 
 
 def reconciled_source(index, value):

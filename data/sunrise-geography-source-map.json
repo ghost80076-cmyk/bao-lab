@@ -3,6 +3,1578 @@
   "shared_content_verified": true,
   "sources": [
     {
+      "source_index": 16,
+      "source_sha256": "465f4fa232ee13371b220d67bb70477037fa1125c0532d89e2798eaeffc45393",
+      "source_chars": 1788,
+      "chapters": [
+        {
+          "chapter": 0,
+          "title": "**【基礎】**",
+          "start": 0,
+          "end": 55,
+          "sha256": "9071feefd47bf4ec6cfc1335150dba8c5702771134f8a411ccd3fd781be183c6",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "entry_id": "sunrise-source-16-0"
+        },
+        {
+          "chapter": 1,
+          "title": "**【外貌】**",
+          "start": 55,
+          "end": 184,
+          "sha256": "da2b9e4d388a9749f5164e65a51b4e875656d2b164d0d8ff598722c224e1f32e",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "entry_id": "sunrise-source-16-1"
+        },
+        {
+          "chapter": 2,
+          "start": 184,
+          "end": 342,
+          "sha256": "cbf146ecce1c68dbf9112a96310f1794556cbef3ed5bb28381e9a60861d44efa",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 3,
+          "start": 342,
+          "end": 481,
+          "sha256": "ad3c5c57214bb985cd07b4375cc05d2797128eba68fa5e09fecb80927bab0b13",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 4,
+          "start": 481,
+          "end": 682,
+          "sha256": "29eb1f1fb663cfb4b3be2a10b9b7dbc2fed97f267c4fab33e7da44e33afc9027",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 5,
+          "start": 682,
+          "end": 866,
+          "sha256": "25de12adfc3685465e669eaaf9c0eeea67b44481220ef6d4ef534c5cb3c4d499",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 6,
+          "start": 866,
+          "end": 1071,
+          "sha256": "6c09f6435b78a2a41ec4422651e3268d94595e1297d0e26a8d0792d85bda8b6e",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 7,
+          "start": 1071,
+          "end": 1159,
+          "sha256": "7ec1cdeb93d37c5bf7388839d210b60ced74021ffa103ab4f6f52854faab9825",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 8,
+          "start": 1159,
+          "end": 1264,
+          "sha256": "c70f755b36cc43154085dc3d4fad03ffbd448f29e88595f71c33dad984db9fa8",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 9,
+          "start": 1264,
+          "end": 1343,
+          "sha256": "298e72b8bbcb1c3abc4f482cfc348df59326df9475c367d4268d564177024785",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 10,
+          "start": 1343,
+          "end": 1530,
+          "sha256": "ebe0f290bb62faf3148a6e225d87c9c1375b7bba08a5bd747994c26e8084948a",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 11,
+          "start": 1530,
+          "end": 1686,
+          "sha256": "2425dea8c691ac642ebb99387850a127812438e536960fc46e9cb3e7d07a9bf0",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 12,
+          "start": 1686,
+          "end": 1788,
+          "sha256": "92e00ea8642dab817b1e0086b0d050b61e012bf00782bd2368d5b732f0213580",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        }
+      ]
+    },
+    {
+      "source_index": 17,
+      "source_sha256": "06ab5bd2a7ced7527d05df6faa4977a8e92dad4a6e1ba3e7ab6a3af90dc101de",
+      "source_chars": 1423,
+      "chapters": [
+        {
+          "chapter": 0,
+          "title": "**【基礎】**",
+          "start": 0,
+          "end": 56,
+          "sha256": "e6b8b2e261bd62fc3573c0885d4ad2f1c1006dd2e2e4c14ac3523dee400c3ad1",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "reconciliation": [
+            "character-public-projection"
+          ],
+          "published_sha256": "cbe1c197bc1da212f67c3ed7d1ab0f7c4f8130d61f0a8e01011653a22510c028",
+          "entry_id": "sunrise-source-17-0"
+        },
+        {
+          "chapter": 1,
+          "title": "**【外貌】**",
+          "start": 56,
+          "end": 169,
+          "sha256": "fba7559e7892aeb6878a7f475b3a3f1c04da6043b587b8b99000040a8ae0e7c2",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "reconciliation": [
+            "character-public-projection"
+          ],
+          "published_sha256": "8ea03ff5cde0510fd2fa9f54049c5ed1cf8b447d214ef3b729df3ea2393e29d5",
+          "entry_id": "sunrise-source-17-1"
+        },
+        {
+          "chapter": 2,
+          "start": 169,
+          "end": 303,
+          "sha256": "5e4811bf34ffbe27d9da8d45b712f9c917b50deb9a8eb91d0f491d0e818c376b",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 3,
+          "start": 303,
+          "end": 432,
+          "sha256": "a1c35034337e0caeceda884bfbb29d3ac70c694bc7cd5b67ec369a64cba19a1c",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 4,
+          "start": 432,
+          "end": 588,
+          "sha256": "216719a5624319cd5f15a6a220fcc2b0fbab3279ef835db8647275c3684b8aba",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 5,
+          "start": 588,
+          "end": 762,
+          "sha256": "023dc2f72a16ceec08fa0855ae8afefe4202539d5006fc2cfcac1892a9bd06d5",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 6,
+          "title": "**【異能】**",
+          "start": 762,
+          "end": 906,
+          "sha256": "41c241260cc91de8c0d9574e910bbaae20fab9630a16b349d9c4654b78c5d9e4",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "entry_id": "sunrise-source-17-6"
+        },
+        {
+          "chapter": 7,
+          "start": 906,
+          "end": 968,
+          "sha256": "57dd615b73ff87b6004bac72ba739c6958c3997caef4f4204d08e009d8488ed3",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 8,
+          "start": 968,
+          "end": 1033,
+          "sha256": "e9dad90e367b44e06b83ed6a00d1bd85aa626709fb8d6a5ae8ce2d4ecae27421",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 9,
+          "start": 1033,
+          "end": 1097,
+          "sha256": "bb6492a036c4305ebccd5694c228e3e6d0fde2622ca437ffb1f11c6a04eacf66",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 10,
+          "start": 1097,
+          "end": 1237,
+          "sha256": "8acef55b914dfe2ac896f94a24a26fca7e845124d2524786027aec3528018d0e",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 11,
+          "start": 1237,
+          "end": 1344,
+          "sha256": "3123a702c6a1aa035406b88a3920c9916f717f272faefef8ddfbcc2de43b48c1",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 12,
+          "start": 1344,
+          "end": 1423,
+          "sha256": "c23cffeb57e5577f498ac02bd1883cb6ac1f7d040453b72634d07da70f9d6880",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        }
+      ]
+    },
+    {
+      "source_index": 18,
+      "source_sha256": "eb80b7b06cf4b41b9664b89f9b5f7b9c9e2e84f255224d8e4e698adf9774afc6",
+      "source_chars": 1050,
+      "chapters": [
+        {
+          "chapter": 0,
+          "title": "**【基礎】**",
+          "start": 0,
+          "end": 55,
+          "sha256": "b285def138e0fc082a2f0ecd882cca406c6a2b248de671f9524407ba2a682187",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "entry_id": "sunrise-source-18-0"
+        },
+        {
+          "chapter": 1,
+          "title": "**【外貌】**",
+          "start": 55,
+          "end": 189,
+          "sha256": "102a92c441423dd624f2397d652ffb9ba9fe835c75dbe5204f6f0cfb5ad0b40b",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "entry_id": "sunrise-source-18-1"
+        },
+        {
+          "chapter": 2,
+          "start": 189,
+          "end": 324,
+          "sha256": "3e526e67428a7b5b869a0c639c21f75f45eb6c2e4d1a6e49f25b71438fbda2e6",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 3,
+          "start": 324,
+          "end": 406,
+          "sha256": "01510d82c1b9653cf3598a1185fdcc4c55d0d4096055d70f3f5cdc7dda64b52f",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 4,
+          "start": 406,
+          "end": 487,
+          "sha256": "9a8b567e32dc6fefcd83710e86fa691147c0e8a80b9ff557659fe10cdca1cfe8",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 5,
+          "title": "**【異能】**",
+          "start": 487,
+          "end": 610,
+          "sha256": "69bd8bfcfeafc68b9a8e2522ffca9a04d7ca091ac927a89c016d1fc49647ae18",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "entry_id": "sunrise-source-18-5"
+        },
+        {
+          "chapter": 6,
+          "title": "**【戰鬥】**",
+          "start": 610,
+          "end": 688,
+          "sha256": "3e4178e89001307bf4158227d86706b5c857b8c5806916b807ce790c6b938e74",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "entry_id": "sunrise-source-18-6"
+        },
+        {
+          "chapter": 7,
+          "start": 688,
+          "end": 757,
+          "sha256": "b9b3eec07c8840a352cc9b963a63f13dd9d6035d015cacb89552ac217c01973e",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 8,
+          "start": 757,
+          "end": 820,
+          "sha256": "4b9e0b9c64d1e92170f327cb1ab9712916a9624c0eb1040d8442156a73fc65ba",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 9,
+          "start": 820,
+          "end": 967,
+          "sha256": "0e6d7271e66eb86fd88424a4fbb89decf32c04c6b20105a143c408c272ed0102",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 10,
+          "start": 967,
+          "end": 1050,
+          "sha256": "7e2e8365a44663254fa84e8245153b88a133154d1e23559780adc97a5df7a4c7",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        }
+      ]
+    },
+    {
+      "source_index": 19,
+      "source_sha256": "a988b52e6aa452731c275d7165b4d0d5a5840bb07c2c6cb221aa2d43c0253512",
+      "source_chars": 1163,
+      "chapters": [
+        {
+          "chapter": 0,
+          "title": "**【基礎】**",
+          "start": 0,
+          "end": 52,
+          "sha256": "da56f641fb36fe47db28c8d10d4e449a4746c6e60b7ac3f45c06cb8696bd6b10",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "entry_id": "sunrise-source-19-0"
+        },
+        {
+          "chapter": 1,
+          "title": "**【外貌】**",
+          "start": 52,
+          "end": 158,
+          "sha256": "91af9eab1560d4e6b171018da67a15f3b9d1d66aa754ff57ba2faf60581100bf",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "entry_id": "sunrise-source-19-1"
+        },
+        {
+          "chapter": 2,
+          "start": 158,
+          "end": 271,
+          "sha256": "e8721a39ccf7e435c61087d8649894d1cb611637abc27d2e41d503b9094eaabe",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 3,
+          "start": 271,
+          "end": 387,
+          "sha256": "9c0d6dba48fa0495ead5ef20549d085c2214249412f28e9a5918103c45fcd690",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 4,
+          "start": 387,
+          "end": 541,
+          "sha256": "cfcb86474967e672dcdfec2bbfdff27d7bc0d2194a2b4d4e2cda77d46e2716b0",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 5,
+          "start": 541,
+          "end": 684,
+          "sha256": "f426285e1a4a50f09b791696c1428aace34b7093cf43def79e3a2a7b4c372d7f",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 6,
+          "title": "**【異能】**",
+          "start": 684,
+          "end": 776,
+          "sha256": "5ca31b213d1814d7dcb12eab9d26018914dd8f8fd6f84069acd7fa3757ab2f24",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "reconciliation": [
+            "deceased-character-reference"
+          ],
+          "published_sha256": "7a4725c6ea3df6fac8a1923aa511029d4916dc30d667ed4fdd7d32f3771c24d1",
+          "entry_id": "sunrise-source-19-6"
+        },
+        {
+          "chapter": 7,
+          "start": 776,
+          "end": 829,
+          "sha256": "5b3a1cfc0cba96a68fb4ac5a67ee1876c6e38af9457c80a73771f60b86ca46ed",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 8,
+          "start": 829,
+          "end": 887,
+          "sha256": "634eea00a508bc3ad8b5d5035d5ff965af40bd26d2ab8dbdcd35b8a0365aec1d",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 9,
+          "start": 887,
+          "end": 934,
+          "sha256": "b0626d864b049ed859e420e9abcca216edbca2feca90d4b5d0c7230e188d4afb",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 10,
+          "start": 934,
+          "end": 1022,
+          "sha256": "54f6434ffa04ba56e383ce53186b9a97024d6f94b67811c2e2dd883f4c8ecdd0",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 11,
+          "start": 1022,
+          "end": 1109,
+          "sha256": "6e148f46ddc6854c039ff7e2a1ac6849a5de2bb6b86ddd5b697971e538553025",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 12,
+          "start": 1109,
+          "end": 1163,
+          "sha256": "95adcf1e5467696f2594857401a8bae26756af27a447398ee20053c5b635b29e",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        }
+      ]
+    },
+    {
+      "source_index": 20,
+      "source_sha256": "4fd949c942212596b357e067f52fa0696caed5355f8d0e7f399559e02e05d3a7",
+      "source_chars": 1345,
+      "chapters": [
+        {
+          "chapter": 0,
+          "title": "**【基礎】**",
+          "start": 0,
+          "end": 53,
+          "sha256": "6c4de09ac14f1768f239f879afd3bb32a65284929d0b797675291051f5276d68",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "entry_id": "sunrise-source-20-0"
+        },
+        {
+          "chapter": 1,
+          "title": "**【外貌】**",
+          "start": 53,
+          "end": 181,
+          "sha256": "71d313212f3a0f06d69eabd20e78e323a0e9cf70546e7cba99686c2274ddf084",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "entry_id": "sunrise-source-20-1"
+        },
+        {
+          "chapter": 2,
+          "start": 181,
+          "end": 314,
+          "sha256": "2612e311640db8d2e6cd266aaf360624e310f422766a63987ca4ebcb8e803ca9",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 3,
+          "start": 314,
+          "end": 431,
+          "sha256": "af4ec368bfe7d61d946cd0e713ba706e8fa94c1ceecd65b975c28c8e81515e78",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 4,
+          "start": 431,
+          "end": 574,
+          "sha256": "9e2de5bd2c0177d33270289bdec29ffaba527e2dba39c5121ec2b690b94562d0",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 5,
+          "start": 574,
+          "end": 712,
+          "sha256": "db53b03c53dc49695240c0841d090628c962abe593a1624b6845c16f94b0877c",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 6,
+          "title": "**【異能】**",
+          "start": 712,
+          "end": 827,
+          "sha256": "bbc1afe6956cfb2cbeea1af51c379f26b2efc3a061b1448d06984845526c8f4c",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "entry_id": "sunrise-source-20-6"
+        },
+        {
+          "chapter": 7,
+          "start": 827,
+          "end": 889,
+          "sha256": "67fff5bed11a2c1d53b21e60b5b3a80b3cd051da0af7e1b13872cb722da7e98f",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 8,
+          "start": 889,
+          "end": 965,
+          "sha256": "d405d43b99d432397bff9fcf15d7bb379ccc6eb47ea0363971ecc938eb9017cf",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 9,
+          "start": 965,
+          "end": 1039,
+          "sha256": "9593a831b816ee659e45eb7719b1b71fdf99084fbd600ab74c4d17e59e066bb3",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 10,
+          "start": 1039,
+          "end": 1185,
+          "sha256": "6ed4bf789c7f3154267f2f8ea2a9c414b99d68d498b1d83ab742d988870a1920",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 11,
+          "start": 1185,
+          "end": 1286,
+          "sha256": "4b1ee3c55f9235a45254893f6a073eede1eb75ee6511d51ad56d4b9353d72f8e",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 12,
+          "start": 1286,
+          "end": 1345,
+          "sha256": "7a9559672f97483c7c0de35c56b97e541292625ec1d8815ed031d95ccaa232ca",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        }
+      ]
+    },
+    {
+      "source_index": 21,
+      "source_sha256": "5d08c05eb4980bcb7afccf0a6d06457d75346e5d490abea588c9a6ba7976c1a1",
+      "source_chars": 1508,
+      "chapters": [
+        {
+          "chapter": 0,
+          "title": "**【基礎】**",
+          "start": 0,
+          "end": 54,
+          "sha256": "a35cdfbcf5806cf289a18f85415354deb5363d92d4581fd736c38d1c27735da2",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "entry_id": "sunrise-source-21-0"
+        },
+        {
+          "chapter": 1,
+          "title": "**【外貌】**",
+          "start": 54,
+          "end": 188,
+          "sha256": "a022b0b5ce597ad3646f1d234e0deb4e2af1a1b8363cceccc10be99ff3f7db2c",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "entry_id": "sunrise-source-21-1"
+        },
+        {
+          "chapter": 2,
+          "start": 188,
+          "end": 326,
+          "sha256": "37d7d2a2252b33990de60f00725baecaa74de051eabf30f06119a1905a649314",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 3,
+          "start": 326,
+          "end": 458,
+          "sha256": "454b4564b41a020aefdc9cc48fb93dfd122105cac22a9e081a3ba0d94703ee6f",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 4,
+          "start": 458,
+          "end": 634,
+          "sha256": "eca6df6a770bea5eb9ce1a222c994c5bc84d7deff0a1864d5512f16ab44697f4",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 5,
+          "start": 634,
+          "end": 783,
+          "sha256": "78762a87909019992a3c076635f4e2b6a0440f996010ff0e6503bc68f467139b",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 6,
+          "title": "**【異能】**",
+          "start": 783,
+          "end": 926,
+          "sha256": "3d99a3de3424eed4101facabc063221f78466467ec4ed342f92d0da4be998dc5",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "entry_id": "sunrise-source-21-6"
+        },
+        {
+          "chapter": 7,
+          "title": "**【戰鬥】**",
+          "start": 926,
+          "end": 1013,
+          "sha256": "82e99a9193a749b19cf73ca3b134b3f1a8fd4358bea660199f43c1b906654403",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "entry_id": "sunrise-source-21-7"
+        },
+        {
+          "chapter": 8,
+          "start": 1013,
+          "end": 1092,
+          "sha256": "3660d299e8c43dd8ea31d223d1d0b7f5ff77b7c35ed688feebaf553a0959d7ec",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 9,
+          "start": 1092,
+          "end": 1162,
+          "sha256": "590e88836cd047bbca804a99671950ff7897e9d00d8c1b1c198bd9bd3624cfef",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 10,
+          "start": 1162,
+          "end": 1322,
+          "sha256": "d755b37f88d1ab44203b226bb6dd9dfbe6646e31db33501b8243845eb77988b3",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 11,
+          "start": 1322,
+          "end": 1431,
+          "sha256": "702ad4dfcabde9f6b088874ab71ca1f2cb2b02db66bf9b59807fad8cf844c03d",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 12,
+          "start": 1431,
+          "end": 1508,
+          "sha256": "0457121025cc54d137de2b108ea1e25c9cb5fd8f03cf16481089c8506cfdb126",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        }
+      ]
+    },
+    {
+      "source_index": 22,
+      "source_sha256": "1a5ccd5b76161b25e31372429ea8cd9285d20c4df27a78ca3b857d1290fc0b55",
+      "source_chars": 1178,
+      "chapters": [
+        {
+          "chapter": 0,
+          "title": "蕭凜/男/16歲/天璇異能學院高一學生/蕭家",
+          "start": 0,
+          "end": 29,
+          "sha256": "9001ce99ab3e30f5a4682fb521d65d2101f34821edb90c64d0ef0fe07acaa319",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "entry_id": "sunrise-source-22-0"
+        },
+        {
+          "chapter": 1,
+          "start": 29,
+          "end": 144,
+          "sha256": "9b4de7f4878a76e1e21455c68746591d7bb4193c2d446b0564e2d6d4b48cc108",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 2,
+          "start": 144,
+          "end": 271,
+          "sha256": "5cdd8ac807a7bbcd2f907d6f61b92f3d53bcec8ae87ef64b96c79771127e381c",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 3,
+          "start": 271,
+          "end": 337,
+          "sha256": "eb8524a9d1bfd3e76abad9cf58dac911bbf2bbc6b564eec33f407ec3a3bc6e35",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 4,
+          "start": 337,
+          "end": 445,
+          "sha256": "43aa2b583c31f59597c5c2347c3d1bd5526d434b526abf796083feb2ac038acf",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 5,
+          "start": 445,
+          "end": 583,
+          "sha256": "d44f6f52e46666367a8e9b8e95de53133ca23f2cf9fc5d1448dac645c44b94dc",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 6,
+          "title": "**【異能】**",
+          "start": 583,
+          "end": 692,
+          "sha256": "5558bc56c255ea77ebca04dc48b09be25c159f4a14f42c8f2ad2d27bff911dd3",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "entry_id": "sunrise-source-22-6"
+        },
+        {
+          "chapter": 7,
+          "title": "**【戰鬥】**",
+          "start": 692,
+          "end": 765,
+          "sha256": "1da2bd899caeb5b64b025c31646b6bd6c00f042e70d8a63375a3a3863579c8c1",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "entry_id": "sunrise-source-22-7"
+        },
+        {
+          "chapter": 8,
+          "title": "**【經濟資源】**",
+          "start": 765,
+          "end": 836,
+          "sha256": "be6f77262646087ef92d7ddf916cf548c5462d7bd73737cf5cd10b2c5624a4a1",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "entry_id": "sunrise-source-22-8"
+        },
+        {
+          "chapter": 9,
+          "title": "**【社交】**",
+          "start": 836,
+          "end": 890,
+          "sha256": "a3d07efe181a160cd33b893667ddb15e584834298e79a5fadcb8af02981df515",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "entry_id": "sunrise-source-22-9"
+        },
+        {
+          "chapter": 10,
+          "start": 890,
+          "end": 1032,
+          "sha256": "3636a49cf467a37e5814655c737b2275fc211afe84854a78c7579ccf324830da",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 11,
+          "start": 1032,
+          "end": 1122,
+          "sha256": "34945b384a92ef5eab76baa45207fe97e95db90691f618553f39b0844955f4f9",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 12,
+          "start": 1122,
+          "end": 1178,
+          "sha256": "2a4e28124591880975ed4d4738871f3f282a208ec02b80155847212cc661148a",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        }
+      ]
+    },
+    {
+      "source_index": 23,
+      "source_sha256": "cd5a83ffa1af97aedd4bda77b16c58bf7a6ee09842f789422faa3a37dcf6e767",
+      "source_chars": 1196,
+      "chapters": [
+        {
+          "chapter": 0,
+          "title": "蕭夜/女/15歲/天璇異能學院初三學生/蕭家",
+          "start": 0,
+          "end": 29,
+          "sha256": "c249042171beeb892fa15a4dac79494061ed5ba99303f95c6302ef88fc5eee3c",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "entry_id": "sunrise-source-23-0"
+        },
+        {
+          "chapter": 1,
+          "start": 29,
+          "end": 164,
+          "sha256": "4c334bb886345f4d4cf864da383d8359baecdc81824a21b1f454043c580bbe94",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 2,
+          "start": 164,
+          "end": 286,
+          "sha256": "4f68c5c38924866c6a947340406a238e076512f06de525a466f6fe36e4e417f7",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 3,
+          "start": 286,
+          "end": 367,
+          "sha256": "3b020e6bfd3b13b18ddc4ba869b48698bef29c0c131b2d1e38327004c15cf15c",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 4,
+          "start": 367,
+          "end": 482,
+          "sha256": "72ea62847e1a2f120f8b303bbc4bdf65815cea0dc3e289c2e648d20e367f54a9",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 5,
+          "start": 482,
+          "end": 624,
+          "sha256": "13115fdb1c910380d402fdc52c1b8d169c87cb6385209b171121930cce86f678",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 6,
+          "title": "**【異能】**",
+          "start": 624,
+          "end": 726,
+          "sha256": "520b4f55a5cc2fc00170aa2bc9c37d6302100c0461013f5559d751bc521d9d34",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "entry_id": "sunrise-source-23-6"
+        },
+        {
+          "chapter": 7,
+          "title": "**【戰鬥】**",
+          "start": 726,
+          "end": 796,
+          "sha256": "ccb3cef364014ed366b8e19adeee7cbdfe39649dafe84585dcae4e7c058a7e7d",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "entry_id": "sunrise-source-23-7"
+        },
+        {
+          "chapter": 8,
+          "title": "**【經濟資源】**",
+          "start": 796,
+          "end": 873,
+          "sha256": "bd930ec34d7a209d4a3f8f48b61936798d43ec627b6497060b8822129068aa35",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "entry_id": "sunrise-source-23-8"
+        },
+        {
+          "chapter": 9,
+          "title": "**【社交】**",
+          "start": 873,
+          "end": 925,
+          "sha256": "9e8240bb31f2e57c4a70fe6b4887726626179f408d976e87a411ee57ddb9da97",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "entry_id": "sunrise-source-23-9"
+        },
+        {
+          "chapter": 10,
+          "start": 925,
+          "end": 1063,
+          "sha256": "d6e65b1fc05eed7ee30bb07b7ca05673dc92e890cde051e30a08194d82676f66",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 11,
+          "start": 1063,
+          "end": 1146,
+          "sha256": "946dca0c6eb55f23d665773f89154ca3f9cde063d3a2687b70854fd70058f287",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 12,
+          "start": 1146,
+          "end": 1196,
+          "sha256": "d32bf7dfbce165d1f226f25d4cc0085f99f36772217660cb0263d5d23177dc0a",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        }
+      ]
+    },
+    {
+      "source_index": 24,
+      "source_sha256": "fd45e2660c95e1ee2baa7be5a405362203e56120b920d68381ae0028a3265b08",
+      "source_chars": 1412,
+      "chapters": [
+        {
+          "chapter": 0,
+          "title": "蕭辰/男/15歲/天璇異能學院初三學生/蕭家",
+          "start": 0,
+          "end": 29,
+          "sha256": "58746668434db351657fdca3123831874c1eb81403fbd1360b1cd2011c434b82",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "entry_id": "sunrise-source-24-0"
+        },
+        {
+          "chapter": 1,
+          "start": 29,
+          "end": 124,
+          "sha256": "8336d6455fa04da17e92a85eef25a8162536ca521fc4b4f2eb729fcbc22caf6d",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 2,
+          "start": 124,
+          "end": 255,
+          "sha256": "6e3d639e80ce134ccfa545bc0e778f0f375437fd14a27d6dce366c29a59eef2b",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 3,
+          "start": 255,
+          "end": 355,
+          "sha256": "a14cbf3f201af6551bb8d304da15d745698555374e70d0af30f2b78b3103fe37",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 4,
+          "start": 355,
+          "end": 515,
+          "sha256": "1e65d05ddbe3fc49c6bf6f7d6c309a2e19bcbd7972e6a06d1eda33d3b7ab4122",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 5,
+          "start": 515,
+          "end": 681,
+          "sha256": "2522b84d6465d0fdc285e7d2a85126c717c79504c86102f16ea75bf8131c0bcd",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 6,
+          "title": "**【異能】**",
+          "start": 681,
+          "end": 827,
+          "sha256": "980a2e2cfc9f82910e673088d4022dff00a9518a6af55a97da2093f9676ba245",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "reconciliation": [
+            "character-public-projection"
+          ],
+          "published_sha256": "4f1bd773ec3a7c97f02152b28129417332c785d6416fc767d0ec78dc5a889637",
+          "entry_id": "sunrise-source-24-6"
+        },
+        {
+          "chapter": 7,
+          "start": 827,
+          "end": 917,
+          "sha256": "9f13a4688f498ea222d365b0b5b61bde51afd00fdcb70da60f48c346ce4d031f",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 8,
+          "title": "**【經濟資源】**",
+          "start": 917,
+          "end": 988,
+          "sha256": "9ad1af2c719b2b35b0762ba224a8449b9a25465dd68fb9eb9ccd532d5f2ad451",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "entry_id": "sunrise-source-24-8"
+        },
+        {
+          "chapter": 9,
+          "start": 988,
+          "end": 1051,
+          "sha256": "5cd181a39b2d75bb7e2ec98a9bf01d16a752f6181ace691a9893de99cc96b0b0",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 10,
+          "start": 1051,
+          "end": 1228,
+          "sha256": "9f274eec7b25068cf98b5bececb0d2b4f2cebdc3418014b454b2a12f8dd10d2c",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 11,
+          "start": 1228,
+          "end": 1338,
+          "sha256": "f8a060964b7a4c0bd1df17b83ea680d9c81bf08da533626e2cce5fe472265be6",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 12,
+          "start": 1338,
+          "end": 1412,
+          "sha256": "8d2929e4b91666d75766a87c7ec96c7dfbea30538e592f9483c072a745bcb212",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        }
+      ]
+    },
+    {
+      "source_index": 25,
+      "source_sha256": "b04382f8f9e8b000c7d63d458ea61bffa4e777485228ceedecee016b62a7bb23",
+      "source_chars": 1178,
+      "chapters": [
+        {
+          "chapter": 0,
+          "title": "蕭星/女/14歲/天璇異能學院初二學生/蕭家",
+          "start": 0,
+          "end": 29,
+          "sha256": "78ba9507398f5d5068062c6255b24b700eade1d7be0cbb823582b60596031888",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "entry_id": "sunrise-source-25-0"
+        },
+        {
+          "chapter": 1,
+          "start": 29,
+          "end": 156,
+          "sha256": "01109cac31a09f278c7d7d2cb9775137cd0445f34dd6f9f388350d634addf7ec",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 2,
+          "start": 156,
+          "end": 289,
+          "sha256": "91e50b8bc09b2cae6977e49243dc33cc340d169477503989c042907c7c33d479",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 3,
+          "start": 289,
+          "end": 350,
+          "sha256": "a08f691460ae93e6ca2632f781e785c35d2c746ac33f866c451b16699f2a531b",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 4,
+          "start": 350,
+          "end": 464,
+          "sha256": "b8853c3be0d1d79673ea7697e130c61315ac85bf7d44c6db101655ecb8041517",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 5,
+          "start": 464,
+          "end": 590,
+          "sha256": "f1cde30aa4c701327add8650b3017c4b238f45f258dbb99378f7d193f765b429",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 6,
+          "title": "**【異能】**",
+          "start": 590,
+          "end": 692,
+          "sha256": "ee0f761e0076c51337be253d6795e8b762909d70e350d61151d563ce155d68d7",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "entry_id": "sunrise-source-25-6"
+        },
+        {
+          "chapter": 7,
+          "title": "**【戰鬥】**",
+          "start": 692,
+          "end": 754,
+          "sha256": "8b34bd1fae63710f25f8cd0f2a0f7f872916f553f2e22d408a4411904f04ca6d",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "entry_id": "sunrise-source-25-7"
+        },
+        {
+          "chapter": 8,
+          "title": "**【經濟資源】**",
+          "start": 754,
+          "end": 825,
+          "sha256": "27aaa7c61424d0c192e01d3c34954f7e2582f5fb3cccfe73238de16b69128d85",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "entry_id": "sunrise-source-25-8"
+        },
+        {
+          "chapter": 9,
+          "title": "**【社交】**",
+          "start": 825,
+          "end": 883,
+          "sha256": "d223e1b8c8737f7e6571077ec6423fbde243854b1ab2d15b807cd11f8e64cb54",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "entry_id": "sunrise-source-25-9"
+        },
+        {
+          "chapter": 10,
+          "start": 883,
+          "end": 1026,
+          "sha256": "d7c082e908b6fdba96e430fb35534e3848d80322d13b6bc2f34f1638c9c9f979",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 11,
+          "start": 1026,
+          "end": 1125,
+          "sha256": "9174577b46c4230c77bb3fbc6c4d93832a17292b9cf044bbb92e9508e6cb3290",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 12,
+          "start": 1125,
+          "end": 1178,
+          "sha256": "3389d2e9e17d2aac941c83ab0423124a5e49cda555de64ed097f2699b6a70945",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        }
+      ]
+    },
+    {
+      "source_index": 26,
+      "source_sha256": "b4589c57066efd17e40a999753a9a647cb78b4b13f0a83371a2ee3b12463162a",
+      "source_chars": 383,
+      "chapters": [
+        {
+          "chapter": 0,
+          "title": "**校長 - 陳天行**",
+          "start": 0,
+          "end": 56,
+          "sha256": "1e79683c40e70613dd72916cba3067024d47b8a6179fbd0ee383081bf7beba55",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "reconciliation": [
+            "character-public-projection"
+          ],
+          "published_sha256": "55c8b9027605b3f01ddbc5f6f99f48e9bcff0e3a705377be1f8a95f3078e7c33",
+          "entry_id": "sunrise-source-26-0"
+        },
+        {
+          "chapter": 1,
+          "title": "**副校長 - 李雪梅**",
+          "start": 56,
+          "end": 109,
+          "sha256": "35d18f5d6fda4604b07bbe5d09463dbb3189d4dc194e38c6e570d359b9dfc3dc",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "reconciliation": [
+            "character-public-projection"
+          ],
+          "published_sha256": "799d3cb2272e136a4ce6b9d273a907ebbe839de6ae6225312850444c97cb2685",
+          "entry_id": "sunrise-source-26-1"
+        },
+        {
+          "chapter": 2,
+          "title": "**訓練場教官 - 王剛**",
+          "start": 109,
+          "end": 163,
+          "sha256": "95ff91ba5f91971bcd29d925cffae24bd62d65d365c990d6fa547416ec6e2097",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "reconciliation": [
+            "character-public-projection"
+          ],
+          "published_sha256": "a074cb5193ef09b9c26e0df29eef51564a0b82c9ca7ff1ac909478420b840511",
+          "entry_id": "sunrise-source-26-2"
+        },
+        {
+          "chapter": 3,
+          "title": "**局長 - 趙明遠**",
+          "start": 163,
+          "end": 212,
+          "sha256": "c3a520ba5c6b37886e53dc958c49d46d336662cc7e535b6e9c6af32d3056dd03",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "reconciliation": [
+            "character-public-projection"
+          ],
+          "published_sha256": "361f74f86e3662760d9ba838c19a1d27ee7e61192417c34248686a00ad0c5a1d",
+          "entry_id": "sunrise-source-26-3"
+        },
+        {
+          "chapter": 4,
+          "title": "**戰鬥部門副主管 - 張烈**",
+          "start": 212,
+          "end": 261,
+          "sha256": "852359ebe9c5af8300487705fca90a8c2016d0f71acaa68f96d069b8ffd4b8a2",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "reconciliation": [
+            "character-public-projection"
+          ],
+          "published_sha256": "53b554270c20d14d8f81f4b5da21b12ee3a4d3760695841582ae80c7fbeeea10",
+          "entry_id": "sunrise-source-26-4"
+        },
+        {
+          "chapter": 5,
+          "title": "**三合會老大 - 龍哥**",
+          "start": 261,
+          "end": 317,
+          "sha256": "d4d697957bd72e0a6ad20ee4676877b905be523677fcf4a056f5d6c010077500",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "reconciliation": [
+            "character-public-projection"
+          ],
+          "published_sha256": "2342570d37f6d62f8cd64315cdbaedb8cbece0cb6c902eafff53f912994c39e5",
+          "entry_id": "sunrise-source-26-5"
+        },
+        {
+          "chapter": 6,
+          "title": "**狼幫老大 - 狼王**",
+          "start": 317,
+          "end": 364,
+          "sha256": "430cb1a0fda5c984ea385e17e58889d2f8e3d2714ebc6bc84acb9aa79dfe1e0f",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "reconciliation": [
+            "wolf-leader-version"
+          ],
+          "published_sha256": "216a8bc6f02ab4b09ec82d48bb6c38d8b504fa47032ba9a1b201024a969b6137",
+          "entry_id": "sunrise-source-26-6"
+        },
+        {
+          "chapter": 7,
+          "start": 364,
+          "end": 383,
+          "sha256": "cfdd0d6343d8a2c10dab68993c45ede242419040b6420c0493aad88c12ae69ad",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        }
+      ]
+    },
+    {
+      "source_index": 27,
+      "source_sha256": "4e8e4b95adb36ee9aeb7e18edbe3f751077a78dd609b303e9357aec24cb15b5f",
+      "source_chars": 1739,
+      "chapters": [
+        {
+          "chapter": 0,
+          "title": "阿桃/女/14歲/廢棄9號碼頭流浪少女/流浪漢群體",
+          "start": 0,
+          "end": 32,
+          "sha256": "e4430eaa447751bb8bb66d97e06966ddb75a1c31787571059b47d6ae98c69a00",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "entry_id": "sunrise-source-27-0"
+        },
+        {
+          "chapter": 1,
+          "start": 32,
+          "end": 201,
+          "sha256": "d1ca821095c82c30e2f658ea55973b66b089a70c40c01dd84298ba2574b0971f",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 2,
+          "start": 201,
+          "end": 379,
+          "sha256": "385919a18969aa6bacbdb602b09b6a0877203bbb6533120c161fd5c193b6fd39",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 3,
+          "start": 379,
+          "end": 586,
+          "sha256": "dd00da103460886bee3869d50a8e8d019b7771dbcc768bb030db0f2182bdc482",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 4,
+          "start": 586,
+          "end": 937,
+          "sha256": "3424f6515154837f45892c381121da25316858db2ede59cc0cb734a607dc166e",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 5,
+          "start": 937,
+          "end": 1248,
+          "sha256": "484df99c0ca1e75425bd64b9afe0b0323fafd79e7ff920f43fafb1a37536606a",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 6,
+          "start": 1248,
+          "end": 1427,
+          "sha256": "03b82d29392e4a072417cbfec7483ff9a1d17a5f87cde7f2f2eeb3de987e1061",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 7,
+          "start": 1427,
+          "end": 1515,
+          "sha256": "3fe41ad4e737c0713ecbaa928bddfaf80dcacd57f5e00407ed0071fd2f86c072",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 8,
+          "start": 1515,
+          "end": 1642,
+          "sha256": "8bcea5aff211af11dd4fa42e74a76e07f0fdf280901eb07da621b501bbd12b66",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 9,
+          "start": 1642,
+          "end": 1739,
+          "sha256": "287c9e7a8b4d4c6af61e470d23da3546af2e7158cd80ed0f1e255e5a7e825bb0",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        }
+      ]
+    },
+    {
+      "source_index": 28,
+      "source_sha256": "ea5a3ea3e880b994e4351190212824350974b1eac882fe7f9cc3b84b26786e03",
+      "source_chars": 693,
+      "chapters": [
+        {
+          "chapter": 0,
+          "start": 0,
+          "end": 348,
+          "sha256": "545efca1e10a31ce9f664cfac5a76963f9d78f641883df65cf68ad83936703d5",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 1,
+          "start": 348,
+          "end": 581,
+          "sha256": "6b998f69875dfad801fdcc565cb197e47b6625f8d84f09428c190c3c95f878a5",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 2,
+          "title": "**【曙光市整合】**",
+          "start": 581,
+          "end": 693,
+          "sha256": "433a5ae754a89c1e670d0b091e0ff0b6278a6123d6242ee719830814923b92a4",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "reconciliation": [
+            "character-public-projection"
+          ],
+          "published_sha256": "175fdb0e93d57b28cb710e479f7fa370d45b05b55a7c73caba958e29fd7c44e0",
+          "entry_id": "sunrise-source-28-2"
+        }
+      ]
+    },
+    {
       "source_index": 96,
       "source_sha256": "9d40bd423ca93d79e41bfa1f4895b329afc1f104c08aec7cafc0af69a50062ff",
       "source_chars": 1946,
@@ -22,7 +1594,6 @@
         },
         {
           "chapter": 1,
-          "title": "**【事件起因】**",
           "start": 253,
           "end": 858,
           "sha256": "450949e2a6bc4444a3f2e599ccc6c7795a34457901eb3b072c94940e49062170",
@@ -30,7 +1601,6 @@
         },
         {
           "chapter": 2,
-          "title": "**【事件經過 - 七天浩劫】**",
           "start": 858,
           "end": 1946,
           "sha256": "615d5bc5a86f4df576bfed53e9e16fc9b94f8d59b5d439af71b5817e8fb12d02",
@@ -45,7 +1615,6 @@
       "chapters": [
         {
           "chapter": 0,
-          "title": "**第四天：7月4日 - 屠殺**",
           "start": 0,
           "end": 682,
           "sha256": "99461e4614cc6a6b7f0d345ff6c77f72080403a7c343bbe8358cd677721ec3ad",
@@ -62,7 +1631,6 @@
         },
         {
           "chapter": 2,
-          "title": "**【倖存者與相關人物】**",
           "start": 1177,
           "end": 1655,
           "sha256": "8c1555e15e57eaddfec3d83be602594dc3092490773979d8a640e43a726d2a39",
@@ -70,7 +1638,6 @@
         },
         {
           "chapter": 3,
-          "title": "**【未解之謎】**",
           "start": 1655,
           "end": 1987,
           "sha256": "2d3b52dbaaace0455dc0cca41fc1e1bae974b1cc78f17dac9c173f3ac78b794a",
@@ -103,7 +1670,6 @@
         },
         {
           "chapter": 2,
-          "title": "**【組織架構】**",
           "start": 556,
           "end": 572,
           "sha256": "9f3299e82ef216dbc2c6d5955257ef64967a1430c589d70d3851233662cb0cc7",
@@ -111,7 +1677,6 @@
         },
         {
           "chapter": 3,
-          "title": "**一、狼王（老大）**",
           "start": 572,
           "end": 720,
           "sha256": "e682985482fae381b2ae101a8b7344e0dcc87f650f010d126d2b817fe71ed5bb",
@@ -119,7 +1684,6 @@
         },
         {
           "chapter": 4,
-          "title": "**二、三大分隊**",
           "start": 720,
           "end": 736,
           "sha256": "fa5108244ca8ae1d11c99dadacfb85525d153e7cbe50e9d5a27c0e053b023257",
@@ -127,7 +1691,6 @@
         },
         {
           "chapter": 5,
-          "title": "**戰鬥隊（對抗管理局與三合會）**",
           "start": 736,
           "end": 923,
           "sha256": "0bd9e6c1e960f59bc1823cc52e03feae477cf395ecdb63c02d73a4eecd28f776",
@@ -135,7 +1698,6 @@
         },
         {
           "chapter": 6,
-          "title": "**情報隊（收集情報、策反內鬼）**",
           "start": 923,
           "end": 1130,
           "sha256": "af22486c8734b7d7aa392b6625e48aa1ec15ef34df8c1b473593489d1ddcfd1c",
@@ -143,7 +1705,6 @@
         },
         {
           "chapter": 7,
-          "title": "**民生隊（保護異能者、提供資源）**",
           "start": 1130,
           "end": 1312,
           "sha256": "7d36f87f754c81d8e60a92f74c329fb9fff6f2ee277c77ed674014ce59aa4b2a",
@@ -151,7 +1712,6 @@
         },
         {
           "chapter": 8,
-          "title": "**【主要業務與收入】**",
           "start": 1312,
           "end": 1331,
           "sha256": "30c092f547d91ce7209808c67a87fee2a2b4e7110edf35119ca62d5df68e2912",
@@ -159,7 +1719,6 @@
         },
         {
           "chapter": 9,
-          "title": "**毒品販賣（最大收入來源）**",
           "start": 1331,
           "end": 1475,
           "sha256": "6fa8e12edea2802071296adc020d6544b68ab9568426346c0660ef47d7381ab3",
@@ -167,7 +1726,6 @@
         },
         {
           "chapter": 10,
-          "title": "**保護費與黑市交易**",
           "start": 1475,
           "end": 1552,
           "sha256": "7a1eab2002952a15602ae504e0c421567a89663ac9f77ac8fa12f5682b6f53ab",
@@ -175,7 +1733,6 @@
         },
         {
           "chapter": 11,
-          "title": "**劫掠與搶劫**",
           "start": 1552,
           "end": 1642,
           "sha256": "a5e3fa44528eb0faf4a907ac69a92e66e3cf25a387df6146d37c573b247d111a",
@@ -183,7 +1740,6 @@
         },
         {
           "chapter": 12,
-          "title": "**總年收入：約11-17億元（比三合會少，但仍可觀）**",
           "start": 1642,
           "end": 1682,
           "sha256": "c35862a6f4133448f7e691df21f763e4efcc7deedb8ffa0b46006d4beee4bde3",
@@ -191,7 +1747,6 @@
         },
         {
           "chapter": 13,
-          "title": "**【與其他勢力的關係】**",
           "start": 1682,
           "end": 1702,
           "sha256": "97ebbdea8e7d62564be4c5def623006f6be8ff1f8ebe16c64db718712c7225e9",
@@ -199,7 +1754,6 @@
         },
         {
           "chapter": 14,
-          "title": "**與三合會**",
           "start": 1702,
           "end": 1804,
           "sha256": "421a90ecb04851b212624b48f1feaebcb9f578a1726bb611f52ead31b7a22be2",
@@ -207,7 +1761,6 @@
         },
         {
           "chapter": 15,
-          "title": "**與鐵鏈組織**",
           "start": 1804,
           "end": 1907,
           "sha256": "fd21250d9aefea3e7f80a650db1d1f714dca671e28b59d1a5afcfcfbc61decac",
@@ -222,7 +1775,6 @@
       "chapters": [
         {
           "chapter": 0,
-          "title": "1-5 號貨櫃碼頭",
           "start": 0,
           "end": 13,
           "sha256": "e2cb40866650400230a1ac8f63f2c89fe22d369991cf622e7ee45806f9c4ca93",
@@ -239,7 +1791,6 @@
         },
         {
           "chapter": 2,
-          "title": "各碼頭詳細",
           "start": 187,
           "end": 894,
           "sha256": "c14856a491d2000d4e2b2493ecef2b1b392c8913d480bfa71e1367b7b6f8f5bf",
@@ -247,7 +1798,6 @@
         },
         {
           "chapter": 3,
-          "title": "走私運作流程",
           "start": 894,
           "end": 1158,
           "sha256": "84fe05c99fbd7acdf6e0f96c4cc0b8e752fcc47b5af54cc428198068c68ab0cc",
@@ -255,7 +1805,6 @@
         },
         {
           "chapter": 4,
-          "title": "走私物品類型",
           "start": 1158,
           "end": 1455,
           "sha256": "2382cd8ad327748fe906a110de678b300fc592a434d1293f92f0dfdd9791a7ea",
@@ -263,7 +1812,6 @@
         },
         {
           "chapter": 5,
-          "title": "海關與執法",
           "start": 1455,
           "end": 1862,
           "sha256": "3bafa54dd07fb7b9c64ac2a97b94f0f118b2ecf007f8ea09d6c270c0acec9424",
@@ -278,7 +1826,6 @@
       "chapters": [
         {
           "chapter": 0,
-          "title": "碼頭工人",
           "start": 0,
           "end": 348,
           "sha256": "eebfe2cd32a9e0ef48a0158bd2bd6a82769180736baf574c22c44e485f673713",
@@ -286,7 +1833,6 @@
         },
         {
           "chapter": 1,
-          "title": "三合會控制",
           "start": 348,
           "end": 645,
           "sha256": "5500d58893400e7814e7bd29e932f9671d67fb53c4e95cd12a33bf0edb7bfce4",
@@ -303,7 +1849,6 @@
         },
         {
           "chapter": 3,
-          "title": "重大案件",
           "start": 830,
           "end": 1132,
           "sha256": "1b83b8d0b64a46aee148121e1846c43294f7a8f55a457e53bb6f6f224513efca",
@@ -311,7 +1856,6 @@
         },
         {
           "chapter": 4,
-          "title": "NPC 範例",
           "start": 1132,
           "end": 1478,
           "sha256": "7f8e9bf24e46d317cd8ff87a2dc2dc0b3bee1559c8965808240938f49564b6d0",
@@ -387,7 +1931,6 @@
       "chapters": [
         {
           "chapter": 0,
-          "title": "**力量強化型**",
           "start": 0,
           "end": 83,
           "sha256": "a7418502dd564847e08e850b5bc1bbf74c2619122bfb2fbda5127d03ae2cdf8e",
@@ -447,7 +1990,6 @@
         },
         {
           "chapter": 1,
-          "title": "**空間切割型**",
           "start": 73,
           "end": 123,
           "sha256": "094d6848dda6e44375ca153ba8483a4baeafb4914720ca6b1d2e4ad7d1211a1e",
@@ -464,7 +2006,6 @@
         },
         {
           "chapter": 3,
-          "title": "**空間監禁型**",
           "start": 174,
           "end": 224,
           "sha256": "631bfc43f54870b82f06183c8806b06f96b0cc9594297a428e77b0c73bc3fcb9",
@@ -555,7 +2096,6 @@
         },
         {
           "chapter": 8,
-          "title": "潛在危機",
           "start": 1788,
           "end": 1992,
           "sha256": "de41d720d06f47b9c468d36a9aeaa334a65275f88b44baa75ae1987b014c8a0e",
@@ -579,7 +2119,6 @@
         },
         {
           "chapter": 1,
-          "title": "碼頭區域概覽",
           "start": 135,
           "end": 435,
           "sha256": "e80453233348af0e9eab2ddf44b46c631ed91a009a674d75540f1dc1d3bf5634",
@@ -587,7 +2126,6 @@
         },
         {
           "chapter": 2,
-          "title": "工業與倉儲區域",
           "start": 435,
           "end": 624,
           "sha256": "faba41384a0908951ac7aca52d09ac9c7b405803d3ec6e92472a6faf2d9fdd89",
@@ -595,7 +2133,6 @@
         },
         {
           "chapter": 3,
-          "title": "黑幫勢力分布",
           "start": 624,
           "end": 845,
           "sha256": "3e40162d23f33bde78126778699a3446e46303dd1e49ed5eba3f287cfd61577a",
@@ -603,7 +2140,6 @@
         },
         {
           "chapter": 4,
-          "title": "走私與黑市",
           "start": 845,
           "end": 1001,
           "sha256": "7eb5ac855e60b339b3ae23e74eedc52abc99eff4897654e56045e0bd697b7b23",
@@ -611,7 +2147,6 @@
         },
         {
           "chapter": 5,
-          "title": "治安狀況",
           "start": 1001,
           "end": 1238,
           "sha256": "e7dc6d859f5db740ab9d64a3994c0181c6a48b996eaecaefe0863d41a71d3efe",
@@ -632,7 +2167,6 @@
         },
         {
           "chapter": 7,
-          "title": "重大事件",
           "start": 1372,
           "end": 1670,
           "sha256": "632076cc13da5521fff1b8e77148f0a63aeaea3b1c7a7a9617f712c49e6faf4e",
@@ -670,7 +2204,6 @@
         },
         {
           "chapter": 2,
-          "title": "**【區域劃分 - 三大層級】**",
           "start": 546,
           "end": 569,
           "sha256": "de6ffacb00bbf61cc287f0d77fbadfc03bfe9c754b0303af8fa412d38b192a04",
@@ -691,7 +2224,6 @@
         },
         {
           "chapter": 4,
-          "title": "**第二層：半山豪宅區（海拔 200-250 公尺）**",
           "start": 944,
           "end": 1547,
           "sha256": "2c1ab280e3cb5b61a1f58f13e32c759a75b2a99046492a1fe00526542514f480",
@@ -706,7 +2238,6 @@
       "chapters": [
         {
           "chapter": 0,
-          "title": "**第三層：山頂特區（海拔 250-300 公尺）**",
           "start": 0,
           "end": 613,
           "sha256": "947884feca773a52e7c2bdcef3a1b80aa586e7293fc02b790557e62de2dc6234",
@@ -723,7 +2254,6 @@
         },
         {
           "chapter": 2,
-          "title": "**【黑暗面】**",
           "start": 848,
           "end": 1252,
           "sha256": "b9482e9cfda80818ea5019219ab3b9cb5672979d9a4a7e570927af6b40c7a750",
@@ -731,7 +2261,6 @@
         },
         {
           "chapter": 3,
-          "title": "**【與其他區域的關係】**",
           "start": 1252,
           "end": 1720,
           "sha256": "1a0776eb761dbaac240e207cb475a4590c4759dc6c628abb94bee57e8c9ba59f",
@@ -768,7 +2297,6 @@
         },
         {
           "chapter": 2,
-          "title": "**【區域劃分 - 五大片區】**",
           "start": 478,
           "end": 501,
           "sha256": "f1ffe1f5e6ba7f118b06df5df8f1f420bcbfcb91039a99323e547ee1e36e5de4",
@@ -802,7 +2330,6 @@
         },
         {
           "chapter": 5,
-          "title": "**片區 C：學生區（五專與職校周邊）**",
           "start": 1205,
           "end": 1664,
           "sha256": "0d51cfc264c2a0430cd5296d9a518ce2292585f25ae85f0cecb8d01c79be2ecf",
@@ -840,7 +2367,6 @@
         },
         {
           "chapter": 2,
-          "title": "**【區域劃分 - 五大片區】**",
           "start": 562,
           "end": 585,
           "sha256": "f1ffe1f5e6ba7f118b06df5df8f1f420bcbfcb91039a99323e547ee1e36e5de4",
@@ -848,7 +2374,6 @@
         },
         {
           "chapter": 3,
-          "title": "**片區 A：海岸違建區（最危險的區域）**",
           "start": 585,
           "end": 1029,
           "sha256": "4c754fb1aafb941f0b1c04d122dc11e5e1b03c2fbbd807912cff8f7ea9f02724",
@@ -856,7 +2381,6 @@
         },
         {
           "chapter": 4,
-          "title": "**片區 B：垃圾山社區（建在垃圾掩埋場上）**",
           "start": 1029,
           "end": 1437,
           "sha256": "b8cbe27311c64643eed4ebd52bf2d8fee30ddbedd0c6729676f810b414541353",
@@ -864,7 +2388,6 @@
         },
         {
           "chapter": 5,
-          "title": "**片區 C：廢棄工廠區（黑幫據點）**",
           "start": 1437,
           "end": 1875,
           "sha256": "337a45c614f19a23de7e75e149f10eac14a8a1f53c3c975d10dc62491325cf86",
@@ -888,7 +2411,6 @@
         },
         {
           "chapter": 1,
-          "title": "**【學院歷史】**",
           "start": 253,
           "end": 456,
           "sha256": "7b15094a1038b4b966d28012a7879338d8998df0c37b9c6e82670741c511cafa",
@@ -896,7 +2418,6 @@
         },
         {
           "chapter": 2,
-          "title": "**【學院現狀】**",
           "start": 456,
           "end": 703,
           "sha256": "68127207e362da57e42e6bb42c5a777724187e00f1d5db86ab275cb10cf0dd11",
@@ -929,7 +2450,6 @@
         },
         {
           "chapter": 1,
-          "title": "**【組織架構】**",
           "start": 245,
           "end": 261,
           "sha256": "9f3299e82ef216dbc2c6d5955257ef64967a1430c589d70d3851233662cb0cc7",
@@ -937,7 +2457,6 @@
         },
         {
           "chapter": 2,
-          "title": "**一、刑事偵查科（Criminal Investigation Division, CID）**",
           "start": 261,
           "end": 613,
           "sha256": "52b480fcdb691848b809aba853a750e71cf6082a21168ecc08fd15b0b0d225ef",
@@ -945,7 +2464,6 @@
         },
         {
           "chapter": 3,
-          "title": "**二、組織犯罪科（Organized Crime Division, OCD）**",
           "start": 613,
           "end": 1069,
           "sha256": "1c968c41a4905d6fc1c471c3e480c5687d9c5d1c107f1352d997322b922ffd6b",
@@ -953,7 +2471,6 @@
         },
         {
           "chapter": 4,
-          "title": "**三、經濟犯罪科（Economic Crime Division, ECD）**",
           "start": 1069,
           "end": 1469,
           "sha256": "f1be9dea10ae14c815fc63c8f1f5db34f1de1c2f52f2436cd6e6569911a899b5",
@@ -961,7 +2478,6 @@
         },
         {
           "chapter": 5,
-          "title": "**四、交通警察科（Traffic Police Division, TPD）**",
           "start": 1469,
           "end": 1682,
           "sha256": "048863c3d07762f84ea5ed81549a841d3bd8c9541383db2431ac68c0f12fd9bd",
@@ -969,7 +2485,6 @@
         },
         {
           "chapter": 6,
-          "title": "**五、社區警政科（Community Policing Division, CPD）**",
           "start": 1682,
           "end": 1981,
           "sha256": "d685dd68a9f37b88df5829b2794d16009e6aca55d4bec472611e3a37761ec748",
@@ -993,7 +2508,6 @@
         },
         {
           "chapter": 1,
-          "title": "**【企業歷史】**",
           "start": 226,
           "end": 499,
           "sha256": "cd3a0149cdbfb4c8d0ffca0d3142b355f5663cac96d2860c01c917686e5f0c02",
@@ -1001,7 +2515,6 @@
         },
         {
           "chapter": 2,
-          "title": "**【核心業務】**",
           "start": 499,
           "end": 515,
           "sha256": "b1a17fa054d84004e55773249e3fbf2f3d18b0d12fb0a4d4da4e7959cde4b045",
@@ -1009,7 +2522,6 @@
         },
         {
           "chapter": 3,
-          "title": "**房地產部門（最大業務）**",
           "start": 515,
           "end": 662,
           "sha256": "8497c5aa5bfab0b08c73bf34f23612137fe4ce2cd40f66a262a34921be834257",
@@ -1017,7 +2529,6 @@
         },
         {
           "chapter": 4,
-          "title": "**金融投資部門**",
           "start": 662,
           "end": 806,
           "sha256": "52baf2262953ecb8cc4ef3a972f99d54987e704847d889ad2d9e399883107ac6",
@@ -1034,7 +2545,6 @@
         },
         {
           "chapter": 6,
-          "title": "**科技研發部門（秘密）**",
           "start": 896,
           "end": 1023,
           "sha256": "d9740c34b6c0479e55c2a19a8118e107cc1e1d9fd3f81e2c187371d226d53a93",
@@ -1042,7 +2552,6 @@
         },
         {
           "chapter": 7,
-          "title": "**【總裁：凱文·張】**",
           "start": 1023,
           "end": 1294,
           "sha256": "46b0e9a70fef9e64c738c24730f589e080dd6f719f3a9c332702077821c4a82a",
@@ -1050,7 +2559,6 @@
         },
         {
           "chapter": 8,
-          "title": "**【與其他勢力的關係】**",
           "start": 1294,
           "end": 1433,
           "sha256": "dc3c7c66192cf3c3e68d482348249923d7bab75902cd41f1dd523c80e4641795",
@@ -1058,7 +2566,6 @@
         },
         {
           "chapter": 9,
-          "title": "**【可觸發劇情】**",
           "start": 1433,
           "end": 1619,
           "sha256": "aabe4412cff69e64d5120dd380a20992943da6ca7d1b23e2068af99d9ab616fa",
@@ -1082,7 +2589,6 @@
         },
         {
           "chapter": 1,
-          "title": "**【監獄結構】**",
           "start": 245,
           "end": 261,
           "sha256": "2ddf8ada62d02297c95f1ffe4856f51c7cede2ce05957b93ae66836440ec5d5e",
@@ -1090,7 +2596,6 @@
         },
         {
           "chapter": 2,
-          "title": "**囚犯分區**",
           "start": 261,
           "end": 788,
           "sha256": "4da76537fde60fc2c76ac0cf75e447879cc446800dd60295b3f99449f8b801e0",
@@ -1116,7 +2621,6 @@
         },
         {
           "chapter": 5,
-          "title": "**【獄警系統】**",
           "start": 1220,
           "end": 1236,
           "sha256": "07680911550e5c4e3da7c2cf5de35dcbde50ac2c3592f4975c8ed26199db1f3e",
@@ -1124,7 +2628,6 @@
         },
         {
           "chapter": 6,
-          "title": "**階層**",
           "start": 1236,
           "end": 1309,
           "sha256": "90fde9416d3ee738a807094116417833dda5d4a62b3577e2f1686cf990dcc12b",
@@ -1132,7 +2635,6 @@
         },
         {
           "chapter": 7,
-          "title": "**獄警類型**",
           "start": 1309,
           "end": 1454,
           "sha256": "31c533a23a8d9f4f75e21dd569748cdbbe70099d199f9f6fe011f7c2c36eabd6",
@@ -1140,7 +2642,6 @@
         },
         {
           "chapter": 8,
-          "title": "**知名獄警**",
           "start": 1454,
           "end": 1598,
           "sha256": "0b31d6138569981e0892b3a870252f18980456947a9407319f3da1a9df27ac06",
@@ -1148,7 +2649,6 @@
         },
         {
           "chapter": 9,
-          "title": "**【獄霸與派系】**",
           "start": 1598,
           "end": 1615,
           "sha256": "dcd7a2a238e02952f3587c121b029aaf12d5b7ce6a04972b10748f03ac696cf0",
@@ -1156,7 +2656,6 @@
         },
         {
           "chapter": 10,
-          "title": "**C區獄霸：陳俊傑「疤面」**",
           "start": 1615,
           "end": 1831,
           "sha256": "be99538046e1b9d69b8ad4c047002daacb4536a6469612f2562d687005ff048e",
@@ -1164,7 +2663,6 @@
         },
         {
           "chapter": 11,
-          "title": "**E區獄霸：幽靈**",
           "start": 1831,
           "end": 1985,
           "sha256": "6b045a3ce454bcc5324a9fdea928d6b0565be76a65c199fac3ce080883cffa1a",
@@ -1179,7 +2677,6 @@
       "chapters": [
         {
           "chapter": 0,
-          "title": "**【監獄經濟】**",
           "start": 0,
           "end": 16,
           "sha256": "d3d02c663304af8562a3d76f419934aebb65b00f04f5626d79cc54c885ef4ede",
@@ -1196,7 +2693,6 @@
         },
         {
           "chapter": 2,
-          "title": "**非法經濟（黑市）**",
           "start": 115,
           "end": 312,
           "sha256": "e295450b39b2a0cbfc0a7d63d6b0f8b739a366d318fc5e0dfab52cbe3c414af9",
@@ -1204,7 +2700,6 @@
         },
         {
           "chapter": 3,
-          "title": "**【三合會勢力滲透】**",
           "start": 312,
           "end": 489,
           "sha256": "5fe5c1cffa050ac0ecdb8d4548e5a3c1448fc3004d13216fc2e98f306f61af4f",
@@ -1212,7 +2707,6 @@
         },
         {
           "chapter": 4,
-          "title": "**【特異對策課監控】**",
           "start": 489,
           "end": 627,
           "sha256": "7f7063f535e7f8eac4580b8b7d7d9fc92d444295e044a169d1a168aa54049df7",
@@ -1220,7 +2714,6 @@
         },
         {
           "chapter": 5,
-          "title": "**【可觸發劇情】**",
           "start": 627,
           "end": 1006,
           "sha256": "eb77acaaa3b42606a401d7898af4afacf5f7bdccdf7f4377a4d95443a08315b8",
@@ -1235,7 +2728,6 @@
       "chapters": [
         {
           "chapter": 0,
-          "title": "廢棄 9 號碼頭",
           "start": 0,
           "end": 12,
           "sha256": "4c7fc9bbb7e653930639af3c09c4380850b1582fd7fe19cec604c7e4969bc59e",
@@ -1252,7 +2744,6 @@
         },
         {
           "chapter": 2,
-          "title": "環境描述",
           "start": 142,
           "end": 695,
           "sha256": "cfb6df47461ea93de4ca15d7a761c3c98947ab868d41608c1c4c134936ed57c3",
@@ -1260,7 +2751,6 @@
         },
         {
           "chapter": 3,
-          "title": "居民與使用者",
           "start": 695,
           "end": 1281,
           "sha256": "61203803960be52b1469e83bf217e1cb2d72f0afb3b37952f6dfb0b32abe39aa",
@@ -1268,7 +2758,6 @@
         },
         {
           "chapter": 4,
-          "title": "犯罪活動",
           "start": 1281,
           "end": 1635,
           "sha256": "0dfe4214f385dcee3f35880d2fa861ed6d840d8b35c9aa88f89b8db06f5ce10c",
@@ -1276,7 +2765,6 @@
         },
         {
           "chapter": 5,
-          "title": "發現的屍體（近年案例）",
           "start": 1635,
           "end": 1989,
           "sha256": "bd9954886cdbf5bdc3c72221b83131271ab551b0a074f3499a5e59a1fda8c9b7",
@@ -1291,7 +2779,6 @@
       "chapters": [
         {
           "chapter": 0,
-          "title": "超自然傳聞（未證實）",
           "start": 0,
           "end": 210,
           "sha256": "bfd9c768536771c0833d447b875b444ad1aeb4c152fef055c9358c514ef3909f",
@@ -1299,7 +2786,6 @@
         },
         {
           "chapter": 1,
-          "title": "警方與執法",
           "start": 210,
           "end": 407,
           "sha256": "15819ce13bbf4a5ef11752fa9139761612e50c01071938d99c90e8338c36c3ce",
@@ -1307,7 +2793,6 @@
         },
         {
           "chapter": 2,
-          "title": "危險與生存",
           "start": 407,
           "end": 622,
           "sha256": "c4ea586d090d32bc2590e7ff9b013124fc79a10e9d414f9dceb7660ed3578dbb",
@@ -1324,7 +2809,6 @@
         },
         {
           "chapter": 4,
-          "title": "NPC 範例",
           "start": 817,
           "end": 1139,
           "sha256": "ef0b73d58e09ca6704624f599ae53126bcbcab422c581b99dbb214f26e7c38e9",
@@ -1357,7 +2841,6 @@
         },
         {
           "chapter": 2,
-          "title": "**【性格】**",
           "start": 226,
           "end": 391,
           "sha256": "9e7d9bbb5235255d4a44f29e4d0ad129987869f9c3b0c698476b7c1ac9282568",
@@ -1365,7 +2848,6 @@
         },
         {
           "chapter": 3,
-          "title": "**【心理】**",
           "start": 391,
           "end": 560,
           "sha256": "3b8a27fc9a25987356fe6c4d0b1d3cc516ac75b11f80a85a1fe4f1a9b25ac296",
@@ -1373,7 +2855,6 @@
         },
         {
           "chapter": 4,
-          "title": "**【背景】**",
           "start": 560,
           "end": 783,
           "sha256": "072233deb76a103cea68e98d43575516836ba3f474165008f9583bb29d0adca8",
@@ -1381,7 +2862,6 @@
         },
         {
           "chapter": 5,
-          "title": "**【行為】**",
           "start": 783,
           "end": 1039,
           "sha256": "1a26c90ca26f67a39bdbb1866627353756bd3bf491d8763c1cc5b81e62033b25",
@@ -1389,7 +2869,6 @@
         },
         {
           "chapter": 6,
-          "title": "**【異能】**",
           "start": 1039,
           "end": 1168,
           "sha256": "1f6e8a3509d5f67971ea3dc2976d8a4e9edda38a9c53bf00a857e65ecd3c5ad2",
@@ -1397,7 +2876,6 @@
         },
         {
           "chapter": 7,
-          "title": "**【戰鬥】**",
           "start": 1168,
           "end": 1279,
           "sha256": "e39901b48a4750236a0e4f17ee803f2d27fcdd191c35684196b2d983de89b66b",
@@ -1405,7 +2883,6 @@
         },
         {
           "chapter": 8,
-          "title": "**【經濟資源】**",
           "start": 1279,
           "end": 1363,
           "sha256": "d51968ee554ae4cb5d0462d71b90d324a5a2a46146fa4d661b25a6da164d5967",
@@ -1413,7 +2890,6 @@
         },
         {
           "chapter": 9,
-          "title": "**【社交網絡】**",
           "start": 1363,
           "end": 1438,
           "sha256": "fcb16032ca7baa7f2edfd9e79d1994450d8ae8b94b216e24c285fee3863ee9d8",
@@ -1421,7 +2897,6 @@
         },
         {
           "chapter": 10,
-          "title": "**【劇情】**",
           "start": 1438,
           "end": 1556,
           "sha256": "31553c2231cb5d39901cfe898ebd19e744b5f0964be3cbe251ba6766416fffa5",
@@ -1429,7 +2904,6 @@
         },
         {
           "chapter": 11,
-          "title": "**【特殊】**",
           "start": 1556,
           "end": 1651,
           "sha256": "329c5e565d18e683f9d7ebd1b2f30e10e0acf4d103f4bd7241fa7372a0a459e7",
@@ -1437,7 +2911,6 @@
         },
         {
           "chapter": 12,
-          "title": "**【備註】**",
           "start": 1651,
           "end": 1671,
           "sha256": "0e6f91bf3777867a0ae7b4fe58237940293866717f97a89495cdcbeffb2f43b4",
@@ -1470,7 +2943,6 @@
         },
         {
           "chapter": 2,
-          "title": "**【性格】**",
           "start": 254,
           "end": 447,
           "sha256": "00150f79261dced04335b855fa20157de3a7e5e84c22e8f8cf8a3d1b20d3b3e9",
@@ -1478,7 +2950,6 @@
         },
         {
           "chapter": 3,
-          "title": "**【心理】**",
           "start": 447,
           "end": 610,
           "sha256": "7104a59d2cfaecdf289e5ba449996d88adba91b29f9aec222ceac3292569871d",
@@ -1486,7 +2957,6 @@
         },
         {
           "chapter": 4,
-          "title": "**【背景】**",
           "start": 610,
           "end": 899,
           "sha256": "752debb8acecb3b6676e3d4670b9843e614cbf0f384cb47ba627dfa8293f1f54",
@@ -1494,7 +2964,6 @@
         },
         {
           "chapter": 5,
-          "title": "**【行為】**",
           "start": 899,
           "end": 1181,
           "sha256": "aad1e756c7dc3a37055426de159e24329a639b5f78c03c674933aed261418fc6",
@@ -1502,7 +2971,6 @@
         },
         {
           "chapter": 6,
-          "title": "**【異能】**",
           "start": 1181,
           "end": 1202,
           "sha256": "06d467018419c4f9c870cc1c73c11c24217c44419f14c00a6b8b16521c9ca806",
@@ -1510,7 +2978,6 @@
         },
         {
           "chapter": 7,
-          "title": "**【戰鬥】**",
           "start": 1202,
           "end": 1347,
           "sha256": "9956344c5af9b9bd2574a78c975e37ddf4b217d8ec6bd506dba7bf95f963797c",
@@ -1518,7 +2985,6 @@
         },
         {
           "chapter": 8,
-          "title": "**【經濟資源】**",
           "start": 1347,
           "end": 1489,
           "sha256": "77aa61b7fc7468d4513f090eaed0538a17c370966da61cceba17c58d6095093c",
@@ -1526,7 +2992,6 @@
         },
         {
           "chapter": 9,
-          "title": "**【社交網絡】**",
           "start": 1489,
           "end": 1612,
           "sha256": "b10ed263093e65873b465e90a69fcd1b227b130c983e6ec61212f02777e013f9",
@@ -1534,7 +2999,6 @@
         },
         {
           "chapter": 10,
-          "title": "**【劇情】**",
           "start": 1612,
           "end": 1809,
           "sha256": "5d1afb4c131dbde743401ecd77dcd8a63d50a8f1094cb77d466d124d2e4c80fc",
@@ -1542,7 +3006,6 @@
         },
         {
           "chapter": 11,
-          "title": "**【特殊】**",
           "start": 1809,
           "end": 1960,
           "sha256": "11aaf8ca6ea72f55be90c7eb7c36e4e84745269b6c1f3f444eedc409d520c5cb",
@@ -1550,7 +3013,6 @@
         },
         {
           "chapter": 12,
-          "title": "**【備註】**",
           "start": 1960,
           "end": 1988,
           "sha256": "abe709b11ba03edf9eb5c2c69de432653b4db9194edb560121d25299ff6a0224",
@@ -1583,7 +3045,6 @@
         },
         {
           "chapter": 2,
-          "title": "**【性格】**",
           "start": 166,
           "end": 290,
           "sha256": "e61384d8841aee29ea643567b15ffd01db0097073cd6887d9c82bc9d2a628a24",
@@ -1591,7 +3052,6 @@
         },
         {
           "chapter": 3,
-          "title": "**【心理】**",
           "start": 290,
           "end": 372,
           "sha256": "3d7a4552fefa64ff49928780ac3e4a56a53f29c42909ccad64c33b0efe807f09",
@@ -1599,7 +3059,6 @@
         },
         {
           "chapter": 4,
-          "title": "**【背景】**",
           "start": 372,
           "end": 554,
           "sha256": "4cd8ade4faf96705df64e9310487ca118fed3f6c0a1072ea8a22592d9511a8fb",
@@ -1607,7 +3066,6 @@
         },
         {
           "chapter": 5,
-          "title": "**【行為】**",
           "start": 554,
           "end": 710,
           "sha256": "0e6194d4a359e2822c73a2f95d274a146ca610fc93f1ed1d12e12a6b23b34bbc",
@@ -1615,7 +3073,6 @@
         },
         {
           "chapter": 6,
-          "title": "**【異能】**",
           "start": 710,
           "end": 867,
           "sha256": "b2d4f2718c3a28ee7bb3040ce5a3f3acc124f5be543c4d06ac51e49d4f3d0c95",
@@ -1623,7 +3080,6 @@
         },
         {
           "chapter": 7,
-          "title": "**【戰鬥】**",
           "start": 867,
           "end": 985,
           "sha256": "b9c10916d15cbf1bf9b1970f8165b592fa74ed108667c42969d2d931ced5284c",
@@ -1631,7 +3087,6 @@
         },
         {
           "chapter": 8,
-          "title": "**【經濟資源】**",
           "start": 985,
           "end": 1109,
           "sha256": "edb4129c2645c13ca92771fea0af2bdf9760fbcbc15f43e016309a0e92a946b5",
@@ -1639,7 +3094,6 @@
         },
         {
           "chapter": 9,
-          "title": "**【社交】**",
           "start": 1109,
           "end": 1387,
           "sha256": "c233c295e89d65f6f96c088c704679decc9c2db32c198379bcfce7b310d441f7",
@@ -1647,7 +3101,6 @@
         },
         {
           "chapter": 10,
-          "title": "**【特殊】**",
           "start": 1387,
           "end": 1541,
           "sha256": "c4a9b187b78682688e8e76cab1d2f142a1fb8d57d44d8179257a036c2d5a0e74",
@@ -1655,7 +3108,6 @@
         },
         {
           "chapter": 11,
-          "title": "**【備註】**",
           "start": 1541,
           "end": 1602,
           "sha256": "3fa709af6400abb88639e728de754c506b7d982e00f1ada640d60761714f947d",
@@ -1688,7 +3140,6 @@
         },
         {
           "chapter": 2,
-          "title": "**【性格】**",
           "start": 188,
           "end": 349,
           "sha256": "456d34a7021f84e689ee511e634381f9bb7c1e7bfb3b84c01d88ac0a869f6652",
@@ -1696,7 +3147,6 @@
         },
         {
           "chapter": 3,
-          "title": "**【心理】**",
           "start": 349,
           "end": 452,
           "sha256": "7b3d30babe3f57a46d52a3a627c9311f80c687a2e03e4486ea13286810eed186",
@@ -1704,7 +3154,6 @@
         },
         {
           "chapter": 4,
-          "title": "**【背景】**",
           "start": 452,
           "end": 736,
           "sha256": "b359d4bce542c398d10151889afff7fb9b9d256acab73dcbbfa470ff6a2536e7",
@@ -1712,7 +3161,6 @@
         },
         {
           "chapter": 5,
-          "title": "**【行為】**",
           "start": 736,
           "end": 997,
           "sha256": "91db5af03bf813fcec61bd65f3299c90bbfd596eb6a9f1a6bd21a67550745c21",
@@ -1720,7 +3168,6 @@
         },
         {
           "chapter": 6,
-          "title": "**【異能】**",
           "start": 997,
           "end": 1018,
           "sha256": "06d467018419c4f9c870cc1c73c11c24217c44419f14c00a6b8b16521c9ca806",
@@ -1728,7 +3175,6 @@
         },
         {
           "chapter": 7,
-          "title": "**【戰鬥】**",
           "start": 1018,
           "end": 1102,
           "sha256": "2b58c96b4265b664b6f87b6892badd2b9540365e8838c4ae70292aa8fb3def9f",
@@ -1736,7 +3182,6 @@
         },
         {
           "chapter": 8,
-          "title": "**【經濟資源】**",
           "start": 1102,
           "end": 1216,
           "sha256": "42cb6b01c6a34d03e5debecffb30c4e14d314cb7acc87615a4c841a0ff600087",
@@ -1744,7 +3189,6 @@
         },
         {
           "chapter": 9,
-          "title": "**【社交】**",
           "start": 1216,
           "end": 1303,
           "sha256": "cce4b3afab6f2d3109a4a3580e5cad9fb94af35f87e93cc8bc080eb4c36f882a",
@@ -1752,7 +3196,6 @@
         },
         {
           "chapter": 10,
-          "title": "**【劇情】**",
           "start": 1303,
           "end": 1475,
           "sha256": "6e365b1a7a3d78fba886874707f394b8537baac3c7ed136f389e7bf1037544ff",
@@ -1760,7 +3203,6 @@
         },
         {
           "chapter": 11,
-          "title": "**【特殊】**",
           "start": 1475,
           "end": 1600,
           "sha256": "456ad74dc73f851df59fafbb96f8d9e74c8a07c74d361d241f5ee909594dcd79",
@@ -1768,7 +3210,6 @@
         },
         {
           "chapter": 12,
-          "title": "**【備註】**",
           "start": 1600,
           "end": 1671,
           "sha256": "da6cb275ae944bd5648d521a44ab2b13bd5adf4bba1dd104b1e3aa958c4e0911",
@@ -1801,7 +3242,6 @@
         },
         {
           "chapter": 2,
-          "title": "**【性格】**",
           "start": 189,
           "end": 346,
           "sha256": "520faeefa369b107e53174d0056c79d6c14459a9b4b36096edf0ebdfec6b4055",
@@ -1809,7 +3249,6 @@
         },
         {
           "chapter": 3,
-          "title": "**【心理】**",
           "start": 346,
           "end": 488,
           "sha256": "524d32917930429e599b0002dcdf8f02886d7cda0c27c494ad835293460219c9",
@@ -1817,7 +3256,6 @@
         },
         {
           "chapter": 4,
-          "title": "**【背景】**",
           "start": 488,
           "end": 755,
           "sha256": "23e56ecf19e414c09eb0f920fbc7c398cd3abca60b289a3e9b344d84571b1cef",
@@ -1825,7 +3263,6 @@
         },
         {
           "chapter": 5,
-          "title": "**【行為】**",
           "start": 755,
           "end": 988,
           "sha256": "148d4d8ad49fec4690171d4cb6bebe5b05f3cd3c3265e2727aa167ee7eb95c9b",
@@ -1833,7 +3270,6 @@
         },
         {
           "chapter": 6,
-          "title": "**【異能】**",
           "start": 988,
           "end": 1091,
           "sha256": "e8dc13b5dde1722e48c390bac97f8accb0dc3109220389a064a73c57bb49e44a",
@@ -1841,7 +3277,6 @@
         },
         {
           "chapter": 7,
-          "title": "**【戰鬥】**",
           "start": 1091,
           "end": 1217,
           "sha256": "32ba0520feb9c624ac5fb594db7cb3b185d9f8c1467d04989a2a9cccbcf94839",
@@ -1849,7 +3284,6 @@
         },
         {
           "chapter": 8,
-          "title": "**【經濟資源】**",
           "start": 1217,
           "end": 1334,
           "sha256": "439b347909570ddd7deebdf821b5de8ea5dab9ab8c97430cea5c6c08d3ffc318",
@@ -1857,7 +3291,6 @@
         },
         {
           "chapter": 9,
-          "title": "**【社交】**",
           "start": 1334,
           "end": 1422,
           "sha256": "71bf1187d3ee37aa02b61b6182f156e39d3f845c74be0f40de29773b8d3f2bf8",
@@ -1865,7 +3298,6 @@
         },
         {
           "chapter": 10,
-          "title": "**【劇情】**",
           "start": 1422,
           "end": 1588,
           "sha256": "549eda731396791321240efa0aa100505ad75b1fa41dbd38c40af9606de49e0f",
@@ -1873,7 +3305,6 @@
         },
         {
           "chapter": 11,
-          "title": "**【特殊】**",
           "start": 1588,
           "end": 1714,
           "sha256": "a90752d39ea39032193608a3759cce9304da6c6ae84f59afe6c4e2d0b3f8a88d",
@@ -1881,7 +3312,6 @@
         },
         {
           "chapter": 12,
-          "title": "**【備註】**",
           "start": 1714,
           "end": 1779,
           "sha256": "66cd73c5b5e18f6098618df7c028fb933719d9484a593fc7fa56b7f2696655dd",
@@ -1914,7 +3344,6 @@
         },
         {
           "chapter": 2,
-          "title": "**【性格】**",
           "start": 178,
           "end": 343,
           "sha256": "0872fea44789765320e8e2d25da862c9446e83914ddc93db03c43ceeda76784f",
@@ -1922,7 +3351,6 @@
         },
         {
           "chapter": 3,
-          "title": "**【心理】**",
           "start": 343,
           "end": 470,
           "sha256": "d81e8ed73d7ed5bcd5492b1b12907f0ea1d7c69abc3bf911572fa8651c56b632",
@@ -1930,7 +3358,6 @@
         },
         {
           "chapter": 4,
-          "title": "**【背景】**",
           "start": 470,
           "end": 689,
           "sha256": "bbac68c637719317a091ee505709f75fd99443a14ad5446cfebf0fdc9a845d79",
@@ -1938,7 +3365,6 @@
         },
         {
           "chapter": 5,
-          "title": "**【行為】**",
           "start": 689,
           "end": 923,
           "sha256": "37f278273a561a6afbb32165d948ca9ba71cb3ed85177db82d03490e268fd275",
@@ -1946,7 +3372,6 @@
         },
         {
           "chapter": 6,
-          "title": "**【異能】**",
           "start": 923,
           "end": 944,
           "sha256": "06d467018419c4f9c870cc1c73c11c24217c44419f14c00a6b8b16521c9ca806",
@@ -1954,7 +3379,6 @@
         },
         {
           "chapter": 7,
-          "title": "**【戰鬥】**",
           "start": 944,
           "end": 1027,
           "sha256": "ed37f5dcbb71b2463cb1377f0b22f37c37e03a705af35fc4f7cb1c45c238d35c",
@@ -1962,7 +3386,6 @@
         },
         {
           "chapter": 8,
-          "title": "**【經濟資源】**",
           "start": 1027,
           "end": 1150,
           "sha256": "2fd7ed07121e39b2ff1022168f36b38bde1082922a64425c1ca509350fb36fa7",
@@ -1970,7 +3393,6 @@
         },
         {
           "chapter": 9,
-          "title": "**【社交】**",
           "start": 1150,
           "end": 1241,
           "sha256": "f7b2cf628f79aae46dbbe69a3668b5d45980f61493b8e7577d35a72fb2c24d41",
@@ -1978,7 +3400,6 @@
         },
         {
           "chapter": 10,
-          "title": "**【劇情】**",
           "start": 1241,
           "end": 1393,
           "sha256": "87b355257a25e0460aa8ab0c207d5abc3f901d8e00e19b63cda46ca1e5706d32",
@@ -1986,7 +3407,6 @@
         },
         {
           "chapter": 11,
-          "title": "**【特殊】**",
           "start": 1393,
           "end": 1508,
           "sha256": "f1636eceaa1826b9d9f1d74f6dcece5a3b476414da0ceaad0b232c1a4a8c46b5",
@@ -2019,7 +3439,6 @@
         },
         {
           "chapter": 2,
-          "title": "**【性格】**",
           "start": 187,
           "end": 326,
           "sha256": "8cf4c2d021b66ec424b5d19c4f821588543f62e3448381b7997eb83db67ebb8e",
@@ -2027,7 +3446,6 @@
         },
         {
           "chapter": 3,
-          "title": "**【心理】**",
           "start": 326,
           "end": 414,
           "sha256": "1ebd7e8fe4af17accefac70509808b010590cf147228a526fc03be93e78336f4",
@@ -2035,7 +3453,6 @@
         },
         {
           "chapter": 4,
-          "title": "**【背景】**",
           "start": 414,
           "end": 627,
           "sha256": "5073a46dd0de9d3a8cff698ed73db86006d29ffc12a6632bd21cc2387679fca8",
@@ -2043,7 +3460,6 @@
         },
         {
           "chapter": 5,
-          "title": "**【行為】**",
           "start": 627,
           "end": 836,
           "sha256": "96c30ef782d7962e43bae56ad24de274abf7cf65aff29718f1252a2411cd9fd0",
@@ -2051,7 +3467,6 @@
         },
         {
           "chapter": 6,
-          "title": "**【異能】**",
           "start": 836,
           "end": 857,
           "sha256": "06d467018419c4f9c870cc1c73c11c24217c44419f14c00a6b8b16521c9ca806",
@@ -2059,7 +3474,6 @@
         },
         {
           "chapter": 7,
-          "title": "**【戰鬥】**",
           "start": 857,
           "end": 966,
           "sha256": "3ddf9d1029daea246e79f02ec1616fde7755a5c0e76ee9b32d22143f8a1ade8f",
@@ -2067,7 +3481,6 @@
         },
         {
           "chapter": 8,
-          "title": "**【經濟資源】**",
           "start": 966,
           "end": 1089,
           "sha256": "51923b8e5aec52fb2b36b1b07e9016ab30fc81963c08c2e603c43622cc215812",
@@ -2075,7 +3488,6 @@
         },
         {
           "chapter": 9,
-          "title": "**【社交】**",
           "start": 1089,
           "end": 1181,
           "sha256": "ec3b4f31b7c525ccc6d8ba2eecc300255c9be6776b41394ea5ba9f060d5d66bb",
@@ -2083,7 +3495,6 @@
         },
         {
           "chapter": 10,
-          "title": "**【劇情】**",
           "start": 1181,
           "end": 1342,
           "sha256": "9735c9850819b143d5197f0242cf9702a6ad553501b7d01e76a4f23b9c611f64",
@@ -2091,7 +3502,6 @@
         },
         {
           "chapter": 11,
-          "title": "**【特殊】**",
           "start": 1342,
           "end": 1431,
           "sha256": "301456f382a0a35e25871de4e66a07ea54639b9c91d712af1e8f2cf3d0499952",
@@ -2124,7 +3534,6 @@
         },
         {
           "chapter": 2,
-          "title": "**【性格】**",
           "start": 193,
           "end": 350,
           "sha256": "36e6bb9540040ceda28896c9ec0b175a0d5309d3b711e6a00a9e67b208608053",
@@ -2132,7 +3541,6 @@
         },
         {
           "chapter": 3,
-          "title": "**【心理】**",
           "start": 350,
           "end": 460,
           "sha256": "dfacfaac0a1fb76e5a25ad4577bfdfd4f5862f3f341a98a939db5246d21013d0",
@@ -2140,7 +3548,6 @@
         },
         {
           "chapter": 4,
-          "title": "**【背景】**",
           "start": 460,
           "end": 714,
           "sha256": "5a5b0f0df36b7eb52549f62cf1e82b4898f051091c97d679290a87bb6960e804",
@@ -2148,7 +3555,6 @@
         },
         {
           "chapter": 5,
-          "title": "**【行為】**",
           "start": 714,
           "end": 957,
           "sha256": "51136bdbd8776f8431617a6d8a1eeacbbc2aa9ace075b7864b3d8b334dbf5a33",
@@ -2156,7 +3562,6 @@
         },
         {
           "chapter": 6,
-          "title": "**【異能】**",
           "start": 957,
           "end": 1075,
           "sha256": "3e5cdda9bcee7a662bc9ed747db1ab02bc4b616f01185f28c0d1e35c233897ae",
@@ -2164,7 +3569,6 @@
         },
         {
           "chapter": 7,
-          "title": "**【戰鬥】**",
           "start": 1075,
           "end": 1223,
           "sha256": "674e3cb8c286d3e854413c0bf43271fc62817686da56afbf3d4ce8c169ffc51f",
@@ -2172,7 +3576,6 @@
         },
         {
           "chapter": 8,
-          "title": "**【經濟資源】**",
           "start": 1223,
           "end": 1343,
           "sha256": "32e6996ce84359bee3b0169f8e13a1d213b7cac405d511a1d50ae821ff0b358a",
@@ -2180,7 +3583,6 @@
         },
         {
           "chapter": 9,
-          "title": "**【社交】**",
           "start": 1343,
           "end": 1418,
           "sha256": "880d317f764c7123b75411a423b4c50558749077dc0f1a1baf14ed2e3fc1638c",
@@ -2188,7 +3590,6 @@
         },
         {
           "chapter": 10,
-          "title": "**【劇情】**",
           "start": 1418,
           "end": 1573,
           "sha256": "f267176cc1cb5750dee4eda0b0731cfde56aab4e58fdfd4296f83338565be79c",
@@ -2196,7 +3597,6 @@
         },
         {
           "chapter": 11,
-          "title": "**【特殊】**",
           "start": 1573,
           "end": 1674,
           "sha256": "24757dca1b1f7ab4d89a496bcd3a6b8768d0432e1fdb01daddf584e9bd90a6b0",
@@ -2269,7 +3669,6 @@
         },
         {
           "chapter": 5,
-          "title": "當前局勢",
           "start": 840,
           "end": 1159,
           "sha256": "cb4384af1abf8d753ae0f6a25668f9cbfa9ad0fa69691afefc619d77a4552670",
@@ -2284,7 +3683,6 @@
       "chapters": [
         {
           "chapter": 0,
-          "title": "監獄規則與潛規則",
           "start": 0,
           "end": 12,
           "sha256": "b9b6f49488f3dc647415605f46a2c65f8853acffeca2546f1b05165412d8ecee",
@@ -2292,7 +3690,6 @@
         },
         {
           "chapter": 1,
-          "title": "官方規則",
           "start": 12,
           "end": 21,
           "sha256": "d3b9e5072f230f4c77e427465fa6fb08ad2801e1f2b7bc4816178e909e9696d0",
@@ -2300,7 +3697,6 @@
         },
         {
           "chapter": 2,
-          "title": "作息時間表",
           "start": 21,
           "end": 175,
           "sha256": "304ce98634ecaff7d9e26930d2bd1a2b5ff16d20e64b2ba163afcc6db8c0e0ea",
@@ -2308,7 +3704,6 @@
         },
         {
           "chapter": 3,
-          "title": "禁止行為",
           "start": 175,
           "end": 306,
           "sha256": "4c450a23bc87a11737c35aea63fe088a05c3cb9cc19870a393ef0ec96d1ab1b4",
@@ -2334,7 +3729,6 @@
         },
         {
           "chapter": 6,
-          "title": "潛規則",
           "start": 417,
           "end": 425,
           "sha256": "5bb837817779a48e66e0a783024d4989779c3b2b44f5f03b3a2f0ac68a0fe539",
@@ -2342,7 +3736,6 @@
         },
         {
           "chapter": 7,
-          "title": "新人規矩",
           "start": 425,
           "end": 522,
           "sha256": "666021d9bf45bce15080e2e34c1991efc5b90360838432c4ada4c3296f3edd58",
@@ -2350,7 +3743,6 @@
         },
         {
           "chapter": 8,
-          "title": "地盤劃分",
           "start": 522,
           "end": 626,
           "sha256": "2faeba0be12f3b7c6372a5156bae881045a7ec9ef8b555365759d976cd283f26",
@@ -2358,7 +3750,6 @@
         },
         {
           "chapter": 9,
-          "title": "獄霸規矩",
           "start": 626,
           "end": 685,
           "sha256": "ecefc4115cb5ae525bec1a5c23e83d16de36804c461ac72e6f022217a0f90b2c",
@@ -2366,7 +3757,6 @@
         },
         {
           "chapter": 10,
-          "title": "禁忌",
           "start": 685,
           "end": 743,
           "sha256": "20d325c8c938abc1aff0c6288b3f5d5b5147d739fb73a0534aa6f05cb91eac98",
@@ -2374,7 +3764,6 @@
         },
         {
           "chapter": 11,
-          "title": "懲罰機制",
           "start": 743,
           "end": 752,
           "sha256": "0f210f86de41806a7a43294b2023a0f7e0d6a885299afd86a14ba84c23f718cd",
@@ -2382,7 +3771,6 @@
         },
         {
           "chapter": 12,
-          "title": "官方懲罰",
           "start": 752,
           "end": 837,
           "sha256": "87a2c13b2830c6bd2984899c24457da2ba7b4232b20ee4af2d4fe3ee934c04bf",
@@ -2390,7 +3778,6 @@
         },
         {
           "chapter": 13,
-          "title": "獄霸私刑",
           "start": 837,
           "end": 920,
           "sha256": "cfe40e0f9667112cb1836fa6e0529c3cb058fccbdf15040b924308fdb5853916",
@@ -2398,7 +3785,6 @@
         },
         {
           "chapter": 14,
-          "title": "派系選擇",
           "start": 920,
           "end": 929,
           "sha256": "05fcfc8528b79751bdb6962f8c287fe0614d7ec4699e0e05d088e6e81009531f",
@@ -2406,7 +3792,6 @@
         },
         {
           "chapter": 15,
-          "title": "加入獄霸派系",
           "start": 929,
           "end": 982,
           "sha256": "e1b9cdc2d0dd48d3191a04701c1cd79e0b6f6d8a5f7536e2bace505d5ab28f63",
@@ -2414,7 +3799,6 @@
         },
         {
           "chapter": 16,
-          "title": "獨行俠",
           "start": 982,
           "end": 1028,
           "sha256": "3cd78032a695f5e9af785b46610f3650f22609180bced04753b0e9db3d635fb2",
@@ -2422,7 +3806,6 @@
         },
         {
           "chapter": 17,
-          "title": "保持中立",
           "start": 1028,
           "end": 1074,
           "sha256": "65b88b6ec53ca4428eba334c3f87f7b3c947fef37e0de0c954a1cb4f0006d859",
@@ -2430,7 +3813,6 @@
         },
         {
           "chapter": 18,
-          "title": "生存建議",
           "start": 1074,
           "end": 1135,
           "sha256": "ee72971aa86d1207f289ea149da9035bc5af1cfdbd091b3494f4ddfc20eca370",
@@ -2454,7 +3836,6 @@
         },
         {
           "chapter": 1,
-          "title": "**【異能等級】**",
           "start": 194,
           "end": 775,
           "sha256": "ae8a094d348df4b024c529d4b2eabbd944a0969a727f1e64f3f16de305267c6a",
@@ -2489,7 +3870,6 @@
         },
         {
           "chapter": 5,
-          "title": "**【異能抑制】**",
           "start": 1514,
           "end": 1737,
           "sha256": "183bfa990f967bc4d9d63922cad293ad3ad876b6db67a2419c90c172fc703e5a",
@@ -2522,7 +3902,6 @@
         },
         {
           "chapter": 1,
-          "title": "**【異能犯罪分類】**",
           "start": 180,
           "end": 619,
           "sha256": "1cbf784620083aa0509e2e568a7cc786905fabdd5807564025e2ec461b888977",
@@ -2530,7 +3909,6 @@
         },
         {
           "chapter": 2,
-          "title": "**【黑市異能應用】**",
           "start": 619,
           "end": 874,
           "sha256": "28a002eed8e17a7e7c0c67dba902f3308b8d914bea4ba641eaf9ad4004a4a0f1",
@@ -2538,7 +3916,6 @@
         },
         {
           "chapter": 3,
-          "title": "**【曙光市異能犯罪統計】**",
           "start": 874,
           "end": 1140,
           "sha256": "6de4d5c1bc49c1a07dd9bb055b5c525d802dea02f1a9680029a96f1905323cd5",

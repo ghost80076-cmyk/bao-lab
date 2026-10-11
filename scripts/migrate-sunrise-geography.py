@@ -6,8 +6,22 @@ import re
 import sys
 import zipfile
 from sunrise_reconciliation import reconcile_chapter
+from sunrise_character_review import ALLOWED, NAMES, KEYWORDS, INSTITUTION_NAMES
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 SOURCES = {
+ 16: ('465f4fa232ee13371b220d67bb70477037fa1125c0532d89e2798eaeffc45393', 'sunrise-family-people', '曙光市｜人物公開參考（不代表在場）', ['異能者管理局副局長', '天璇異能學院董事'], {0, 1}),
+ 17: ('06ab5bd2a7ced7527d05df6faa4977a8e92dad4a6e1ba3e7ab6a3af90dc101de', 'sunrise-family-people', '曙光市｜人物公開參考（不代表在場）', ['林宇軒'], {0, 1, 6}),
+ 18: ('eb80b7b06cf4b41b9664b89f9b5f7b9c9e2e84f255224d8e4e698adf9774afc6', 'sunrise-family-people', '曙光市｜人物公開參考（不代表在場）', ['雷辰'], {0, 1, 5, 6}),
+ 19: ('a988b52e6aa452731c275d7165b4d0d5a5840bb07c2c6cb221aa2d43c0253512', 'sunrise-family-people', '曙光市｜人物公開參考（不代表在場）', ['桃華'], {0, 1, 6}),
+ 20: ('4fd949c942212596b357e067f52fa0696caed5355f8d0e7f399559e02e05d3a7', 'sunrise-family-people', '曙光市｜人物公開參考（不代表在場）', ['星野美月'], {0, 1, 6}),
+ 21: ('5d08c05eb4980bcb7afccf0a6d06457d75346e5d490abea588c9a6ba7976c1a1', 'sunrise-family-people', '曙光市｜人物公開參考（不代表在場）', ['蘇晴'], {0, 1, 6, 7}),
+ 22: ('1a5ccd5b76161b25e31372429ea8cd9285d20c4df27a78ca3b857d1290fc0b55', 'sunrise-family-people', '曙光市｜人物公開參考（不代表在場）', ['蕭凜'], {0, 6, 7, 8, 9}),
+ 23: ('cd5a83ffa1af97aedd4bda77b16c58bf7a6ee09842f789422faa3a37dcf6e767', 'sunrise-family-people', '曙光市｜人物公開參考（不代表在場）', ['蕭夜'], {0, 6, 7, 8, 9}),
+ 24: ('fd45e2660c95e1ee2baa7be5a405362203e56120b920d68381ae0028a3265b08', 'sunrise-family-people', '曙光市｜人物公開參考（不代表在場）', ['蕭辰'], {0, 8, 6}),
+ 25: ('b04382f8f9e8b000c7d63d458ea61bffa4e777485228ceedecee016b62a7bb23', 'sunrise-family-people', '曙光市｜人物公開參考（不代表在場）', ['蕭星'], {0, 6, 7, 8, 9}),
+ 26: ('b4589c57066efd17e40a999753a9a647cb78b4b13f0a83371a2ee3b12463162a', 'sunrise-institution-people', '曙光市｜人物公開參考（不代表在場）', ['陳天行'], {0, 1, 2, 3, 4, 5, 6}),
+ 27: ('4e8e4b95adb36ee9aeb7e18edbe3f751077a78dd609b303e9357aec24cb15b5f', 'sunrise-dock-youth-people', '曙光市｜人物公開參考（不代表在場）', ['阿桃'], {0}),
+ 28: ('ea5a3ea3e880b994e4351190212824350974b1eac882fe7f9cc3b84b26786e03', 'sunrise-dock-youth-people', '曙光市｜人物公開參考（不代表在場）', ['阿桃居住', '阿桃住處'], {2}),
  96: ('9d40bd423ca93d79e41bfa1f4895b329afc1f104c08aec7cafc0af69a50062ff', 'sunrise-july-record', '曙光市｜血色七月歷史紀錄', ['血色七月'], {0}),
  97: ('e36be103f2f4ea1d499f8923ede29ebe34baaafb8e57031b25813b704b5e9c75', 'sunrise-july-record', '曙光市｜血色七月歷史紀錄', ['血色七月影響', '登記法強制實施'], {1}),
  113: ('a5273301706733d42dbe76f3681e6045fbd1529ffe73d28ea94fcfac847c4499', 'sunrise-wolf-background', '曙光市｜狼幫組織背景', ['狼幫'], {0,1}),
@@ -53,7 +67,7 @@ def build(zip_path):
  packs, mapping = [], []
  for index, (digest, pack_id, name, keywords, allowed) in SOURCES.items():
   entry = original['entries'][index]; content = entry['content']
-  if sha(content) != digest or content != shared['entries'][index]['content'] or entry['category'] != ('角色' if 8 <= index <= 15 else '事件' if index in (96,97) else '規則' if index in (0, 33, 34, 36, 37, 38, 138) else '地點'):
+  if sha(content) != digest or content != shared['entries'][index]['content'] or entry['category'] != ('角色' if 8 <= index <= 28 else '事件' if index in (96,97) else '規則' if index in (0, 33, 34, 36, 37, 38, 138) else '地點'):
    raise ValueError('Source changed; review again')
   starts = [m.start() for m in re.finditer(r'^#### ' if index in (36,37,38) else r'^#{2,3} ' if index == 138 else r'^## ' if index in (0, 1, 2, 3, 4, 5, 6) else r'^### ', content, re.M)]
   if not starts or starts[0] != 0: starts.insert(0,0)
@@ -62,13 +76,18 @@ def build(zip_path):
   for part, (start,end) in enumerate(spans):
    value = content[start:end].strip(); title = value.splitlines()[0].lstrip('# ').strip()
    kept = part in allowed
-   record = {'chapter':part,'title':title,'start':start,'end':end,'sha256':sha(value),'status':'published' if kept else 'deferred'}
+   record = {'chapter':part,**({'title':title} if kept else {}),'start':start,'end':end,'sha256':sha(value),'status':'published' if kept else 'deferred'}
+   if index in ALLOWED:
+    record['review_lane'] = 'public-reference' if kept else 'withheld-author-source'
+    record['requires_further_review'] = not kept
    if kept:
     value, decisions = reconcile_chapter(index, part, value)
     if decisions:
      record['reconciliation'] = decisions
      record['published_sha256'] = sha(value)
     eid = f'sunrise-source-{index}-{part}'; record['entry_id'] = eid
+    if index in ALLOWED:
+     title = (INSTITUTION_NAMES[part]+'｜公開職務') if index==26 else NAMES[index]+'｜'+('居住背景' if index==28 else '基礎身份' if part==0 else title)
     recall_keywords = {
      (0,2): ['曙光市警力', '曙光市主要勢力'],
      (0,4): ['血色七月', '覺醒潮', '曙光市歷史'],
@@ -83,7 +102,8 @@ def build(zip_path):
      (38,0): ['瞬移', '空間系異能'], (38,2): ['次元口袋'],
      (34,0): ['異能分類', '八大主類'], (34,4): ['異能監控等級', '異能者管理局監控']
     }.get((index, part), keywords)
-    entries.append({'id':eid,'title':name+'｜'+(keywords[0]+'｜' if 8 <= index <= 15 else '')+title,'category':'人物資料' if 8 <= index <= 15 else '世界資料','mode':'keyword','keywords':recall_keywords + ({1:['曙光金融大廈','天際商場','凱旋企業總部','司法大廈','曙光國際會議中心'],2:['曙光證券交易所','泰坦科技','晨曦集團','極光製藥','銀河傳媒']} .get(part, []) if index == 1 else []),'content':value})
+    if index==26: recall_keywords=[INSTITUTION_NAMES[part]]
+    entries.append({'id':eid,'title':name+'｜'+(keywords[0]+'｜' if 8 <= index <= 28 else '')+title,'category':'人物資料' if 8 <= index <= 28 else '世界資料','mode':'keyword','keywords':recall_keywords + ({1:['曙光金融大廈','天際商場','凱旋企業總部','司法大廈','曙光國際會議中心'],2:['曙光證券交易所','泰坦科技','晨曦集團','極光製藥','銀河傳媒']} .get(part, []) if index == 1 else []),'content':value})
    review.append(record)
   groups = [(pack_id, name, entries)]
   if index == 0:

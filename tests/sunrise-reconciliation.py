@@ -21,7 +21,7 @@ class Reconciliation(unittest.TestCase):
         entries = {e['id']: e for p in catalog['packs'] for e in p['entries']}
         mapping = json.loads((ROOT / 'data/sunrise-geography-source-map.json').read_text())
         revised = [c for s in mapping['sources'] for c in s['chapters'] if c.get('reconciliation')]
-        self.assertEqual(len(revised), 12)
+        self.assertEqual(len(revised), 24)
         for chapter in revised:
             value = entries[chapter['entry_id']]['content']
             self.assertEqual(digest(value), chapter['published_sha256'])
