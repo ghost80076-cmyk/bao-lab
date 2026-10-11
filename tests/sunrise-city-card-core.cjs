@@ -53,8 +53,8 @@ assert.equal(Startup.normalize({version:1,selector_path:'modules.__proto__.value
 assert.equal(Startup.apply(null,{},[]),null,'legacy cards unchanged');
 assert.equal(card.lore,'','companion data is not injected a second time as inline lore');
 const binding=card.initial_state.worldbookLibrary;
-assert.equal(binding.enabled.length,29);
-assert.equal(Object.values(binding.pinned).flatMap(p=>p.entries).length,125);
+assert.equal(binding.enabled.length,36);
+assert.equal(Object.values(binding.pinned).flatMap(p=>p.entries).length,172);
 assert.match(JSON.stringify(binding),/人口 500 萬/);
 assert.doesNotMatch(JSON.stringify(binding),/人口 800 萬|最富裕的 5% 人口/);
 const catalog=JSON.parse(fs.readFileSync('data/character-catalog/community/page-0001.json'));
@@ -76,14 +76,14 @@ console.log('PASS Sunrise: 25 starts, five routes, custom handoff, adult age, na
 
 vm.runInContext(fs.readFileSync('js/state.js','utf8')+'\nthis.State=GameState;',context);
 const first=context.State.create(card,{});
-assert.equal(first.worldbookLibrary.enabled.length,29);
+assert.equal(first.worldbookLibrary.enabled.length,36);
 assert.notEqual(first.worldbookLibrary,card.initial_state.worldbookLibrary);
 first.worldbookLibrary.enabled=[];
-assert.equal(card.initial_state.worldbookLibrary.enabled.length,29,'story opt-out does not mutate the card');
+assert.equal(card.initial_state.worldbookLibrary.enabled.length,36,'story opt-out does not mutate the card');
 const restored=JSON.parse(JSON.stringify(first));
 assert.equal(restored.worldbookLibrary.enabled.length,0,'save roundtrip preserves disabled state');
 const next=context.State.create(card,{});
-assert.equal(next.worldbookLibrary.enabled.length,29,'new story receives an independent snapshot');
+assert.equal(next.worldbookLibrary.enabled.length,36,'new story receives an independent snapshot');
 assert.equal(context.State.create(context.Engine.normalize({id:'legacy',name:'Old'}),{}).worldbookLibrary,undefined,'no worldbook defaults leak to old cards');
 assert.equal(context.Engine.normalizeWorldbookLibrary({version:1,enabled:[],installed:[],pinned:JSON.parse('{"__proto__":{"meta":{"id":"__proto__"}}}')}),null);
 assert.equal(context.Engine.normalizeWorldbookLibrary({version:1,enabled:['mismatch'],installed:[],pinned:{mismatch:{meta:{id:'different'}}}}),null);
@@ -96,7 +96,7 @@ context.localStorage={getItem(){return null;},setItem(){},removeItem(){}};
 vm.runInContext(fs.readFileSync('js/storage.js','utf8').replace(/Storage\.init\(\);\s*$/,'')+'\nthis.Store=Storage;',context);
 context.State.create(card,context.App.config);
 const payload=context.Store.buildStoryPayload();
-assert.equal(payload.state.worldbookLibrary.enabled.length,29);
+assert.equal(payload.state.worldbookLibrary.enabled.length,36);
 assert.equal(payload.config.api.key,undefined,'backup never includes API credentials');
 const expectedSnapshot=JSON.stringify(payload.state.worldbookLibrary.pinned);
 context.App.characters=[{...card,initial_state:{...card.initial_state,worldbookLibrary:{...card.initial_state.worldbookLibrary,pinned:{}}}}];

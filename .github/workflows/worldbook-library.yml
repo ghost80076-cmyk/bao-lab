@@ -18,6 +18,10 @@ on:
       - 'scripts/audit-sunrise-migration.py'
       - 'scripts/sunrise_reconciliation.py'
       - 'scripts/sunrise_character_review.py'
+      - 'scripts/sunrise_review_29_48.py'
+      - 'scripts/audit-sunrise-review-batch.py'
+      - 'data/sunrise-review-batch-29-48.json'
+      - 'tests/sunrise-review-29-48.cjs'
       - 'tests/sunrise-character-review.cjs'
       - 'scripts/plan-sunrise-integration.py'
       - 'data/sunrise-integration-plan.json'
@@ -67,6 +71,10 @@ on:
       - 'scripts/audit-sunrise-migration.py'
       - 'scripts/sunrise_reconciliation.py'
       - 'scripts/sunrise_character_review.py'
+      - 'scripts/sunrise_review_29_48.py'
+      - 'scripts/audit-sunrise-review-batch.py'
+      - 'data/sunrise-review-batch-29-48.json'
+      - 'tests/sunrise-review-29-48.cjs'
       - 'tests/sunrise-character-review.cjs'
       - 'scripts/plan-sunrise-integration.py'
       - 'data/sunrise-integration-plan.json'
@@ -116,6 +124,7 @@ jobs:
           node tests/sunrise-geography-core.cjs
           node tests/sunrise-migration-coverage.cjs
           node tests/sunrise-character-review.cjs
+          node tests/sunrise-review-29-48.cjs
           node tests/sunrise-integration-core.cjs
           python tests/sunrise-reconciliation.py
           node tests/worldbook-library-runtime.cjs

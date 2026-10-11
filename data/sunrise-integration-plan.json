@@ -408,8 +408,8 @@
       "targets": [
         "lore"
       ],
-      "editorial_status": "needs-content-review",
-      "publication_status": "unreviewed"
+      "editorial_status": "reviewed-published-sections",
+      "publication_status": "partial"
     },
     {
       "source_index": 30,
@@ -485,8 +485,8 @@
         "world_modules",
         "lore"
       ],
-      "editorial_status": "needs-content-review",
-      "publication_status": "unreviewed"
+      "editorial_status": "reviewed-published-sections",
+      "publication_status": "partial"
     },
     {
       "source_index": 36,
@@ -537,8 +537,8 @@
         "world_modules",
         "lore"
       ],
-      "editorial_status": "needs-content-review",
-      "publication_status": "unreviewed"
+      "editorial_status": "reviewed-published-sections",
+      "publication_status": "partial"
     },
     {
       "source_index": 40,
@@ -550,8 +550,8 @@
         "world_modules",
         "lore"
       ],
-      "editorial_status": "needs-content-review",
-      "publication_status": "unreviewed"
+      "editorial_status": "reviewed-published-sections",
+      "publication_status": "partial"
     },
     {
       "source_index": 41,
@@ -563,8 +563,8 @@
         "world_modules",
         "lore"
       ],
-      "editorial_status": "needs-content-review",
-      "publication_status": "unreviewed"
+      "editorial_status": "reviewed-published-sections",
+      "publication_status": "partial"
     },
     {
       "source_index": 42,
@@ -576,8 +576,8 @@
         "world_modules",
         "lore"
       ],
-      "editorial_status": "needs-content-review",
-      "publication_status": "unreviewed"
+      "editorial_status": "reviewed-published-sections",
+      "publication_status": "partial"
     },
     {
       "source_index": 43,
@@ -589,8 +589,8 @@
         "profile",
         "lore"
       ],
-      "editorial_status": "needs-content-review",
-      "publication_status": "unreviewed"
+      "editorial_status": "reviewed-published-sections",
+      "publication_status": "partial"
     },
     {
       "source_index": 44,
@@ -602,8 +602,8 @@
         "profile",
         "lore"
       ],
-      "editorial_status": "needs-content-review",
-      "publication_status": "unreviewed"
+      "editorial_status": "reviewed-published-sections",
+      "publication_status": "partial"
     },
     {
       "source_index": 45,
@@ -615,8 +615,8 @@
         "profile",
         "lore"
       ],
-      "editorial_status": "needs-content-review",
-      "publication_status": "unreviewed"
+      "editorial_status": "reviewed-published-sections",
+      "publication_status": "partial"
     },
     {
       "source_index": 46,
@@ -628,8 +628,8 @@
         "profile",
         "lore"
       ],
-      "editorial_status": "needs-content-review",
-      "publication_status": "unreviewed"
+      "editorial_status": "reviewed-published-sections",
+      "publication_status": "partial"
     },
     {
       "source_index": 47,
@@ -641,8 +641,8 @@
         "profile",
         "lore"
       ],
-      "editorial_status": "needs-content-review",
-      "publication_status": "unreviewed"
+      "editorial_status": "reviewed-published-sections",
+      "publication_status": "partial"
     },
     {
       "source_index": 48,
@@ -654,8 +654,8 @@
         "profile",
         "lore"
       ],
-      "editorial_status": "needs-content-review",
-      "publication_status": "unreviewed"
+      "editorial_status": "reviewed-published-sections",
+      "publication_status": "partial"
     },
     {
       "source_index": 49,
@@ -2703,6 +2703,120 @@
       ],
       "adopted": null,
       "reason": "已故時間與另一人物的既有年齡、記憶覺醒時間未形成一致年表；先保留分開的公開身份，不擅自新增世界規則解釋。"
+    },
+    {
+      "id": "official-case-attribution",
+      "status": "resolved",
+      "authority": [
+        29
+      ],
+      "affected": [
+        29
+      ],
+      "adopted": "官方說法、報案、鑑定及媒體報導保留來源標示；不是死因已獲證實。",
+      "reason": "只發布官方紀錄，移除沒有公開來源的特定人物內心立場；時間相對故事開場。"
+    },
+    {
+      "id": "ability-rank-reference",
+      "status": "resolved",
+      "authority": [
+        33
+      ],
+      "affected": [
+        33
+      ],
+      "adopted": "D至SSS分級定義獨立召回，代表人物另由人物資料提供。",
+      "reason": "能力分類不能藉代表名單直接揭露未登記人物或推斷人物在場。"
+    },
+    {
+      "id": "nightlife-public-persona",
+      "status": "resolved",
+      "authority": [
+        43,
+        44,
+        45,
+        46,
+        47,
+        48
+      ],
+      "affected": [
+        43,
+        44,
+        45,
+        46,
+        47,
+        48
+      ],
+      "adopted": "表面言行與口頭禪獨立提供，真實動機、私有診斷、創傷及劇情另留原始來源。",
+      "reason": "保留人物外在差異，不因名字召回就把角色秘密送入公開資料。"
+    },
+    {
+      "id": "case-exclusive-variants",
+      "status": "unresolved",
+      "authority": [
+        29,
+        30
+      ],
+      "affected": [
+        29,
+        30
+      ],
+      "adopted": null,
+      "reason": "四個真相版本互斥，尚未選定。不能合併為四件已發生事實，也不能從提問自動選定。"
+    },
+    {
+      "id": "rebirth-body-timeline",
+      "status": "unresolved",
+      "authority": [
+        19,
+        27,
+        28,
+        31,
+        32
+      ],
+      "affected": [
+        19,
+        27,
+        28,
+        31,
+        32
+      ],
+      "adopted": null,
+      "reason": "一般規則要求死亡後進入新生兒／嬰兒；既有案例年齡與死亡時間不能吻合。不改原始年齡，也不補造例外機制。"
+    },
+    {
+      "id": "absolute-space-cutting",
+      "status": "unresolved",
+      "authority": [
+        38
+      ],
+      "affected": [
+        38
+      ],
+      "adopted": null,
+      "reason": "原文無法防禦沒有範圍、代價或抗衡條件，不足以作程式必勝判定。該章仍待作品規則整合。"
+    },
+    {
+      "id": "nightlife-geography",
+      "status": "unresolved",
+      "authority": [
+        43,
+        44,
+        45,
+        46,
+        47,
+        48
+      ],
+      "affected": [
+        43,
+        44,
+        45,
+        46,
+        47,
+        48
+      ],
+      "adopted": null,
+      "reason": "原始人物住處使用中野、新宿、六本木，與曙光市五區的關係未定。保留原檔，不擅改地名或編造新行政區。"
     }
   ]
 }

@@ -7,8 +7,24 @@ import sys
 import zipfile
 from sunrise_reconciliation import reconcile_chapter
 from sunrise_character_review import ALLOWED, NAMES, KEYWORDS, INSTITUTION_NAMES
+from sunrise_review_29_48 import ALLOWED as NEXT_ALLOWED, NAMES as NEXT_NAMES, KEYWORDS as NEXT_KEYWORDS, CHAPTER_KEYWORDS
+ALLOWED = {**ALLOWED, **NEXT_ALLOWED}
+NAMES = {**NAMES, **NEXT_NAMES}
+KEYWORDS = {**KEYWORDS, **NEXT_KEYWORDS}
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 SOURCES = {
+ 29: ('8a9a4b46e3d55e2077be844be7eb0c28f02b8fc99a1204c5355264c862e62f52', 'sunrise-official-case-record', '曙光市｜官方案件紀錄（說法與真相分離）', ['異能分類'], {0}),
+ 35: ('f2f20670f786c4dbaae967974279c369a3d7945f02c374ca9447947d74d937ac', 'sunrise-mental-abilities', '曙光市｜心靈系 Mental（虛構分類）', ['異能分類'], {0, 2}),
+ 39: ('644975f4db70fb1a166fca06288148ab9a604ff698f0bc40887721ac41e2543e', 'sunrise-biological-abilities', '曙光市｜生物系 Biological（虛構分類）', ['異能分類'], {1, 2, 3, 4}),
+ 40: ('c18ebc2de2ba26b846727f593bf778dba07f0416757ba68ddfebfb82b5c009bf', 'sunrise-mutation-abilities', '曙光市｜變異系 Mutation（虛構分類）', ['異能分類'], {2, 3, 4}),
+ 41: ('b7fc02081be17ca013f15c8c38e0b5b63ee0554d276e61f3abca2e6c2bfd57bb', 'sunrise-special-abilities', '曙光市｜特殊系 Special（虛構分類）', ['異能分類'], {0, 1, 4, 5}),
+ 42: ('5d4be0d56a63ea8eee7e0b0b40b602a0bfa1f832d6a97efb4f2c2c59e244a44e', 'sunrise-forbidden-abilities', '曙光市｜禁忌系 Forbidden（虛構分類）', ['異能分類'], {0, 2, 3, 4, 6, 7}),
+ 43: ('7014f6b3df0da9390fafa0c681f0c722d54ea87c18a29e37b7f76c3bf91ebe2f', 'sunrise-nightlife-people', '曙光市｜夜職與街區人物公開參考（不代表在場）', ['黑羽 ゆめ', '黑羽ゆめ', 'Kuroha Yume', 'ゆめ'], {0, 1, 2}),
+ 44: ('13d8767086f03611c10c627703ded62a325e37700aa1da71cba08aacda3d95bc', 'sunrise-nightlife-people', '曙光市｜夜職與街區人物公開參考（不代表在場）', ['桜井 りな', '桜井りな', 'Sakurai Rina', 'りな'], {0, 1, 2, 6, 7}),
+ 45: ('819508e0e291d5e262569bec95cc1297cc0c2a4e92a36576790afc6b0c014c62', 'sunrise-nightlife-people', '曙光市｜夜職與街區人物公開參考（不代表在場）', ['あいり'], {0, 1, 2, 6}),
+ 46: ('25d00b82f18846dd69bfc67cb1999a8f6c2df95fad94d8ebdb8d7a4a16027fb2', 'sunrise-nightlife-people', '曙光市｜夜職與街區人物公開參考（不代表在場）', ['高橋 麻美', '高橋麻美', '麻美媽媽'], {0, 1, 2, 6}),
+ 47: ('7eee0fa4fb74a348e356cc9ffb48f1ac301559b55818f547d9be2ea7a65b2b3b', 'sunrise-nightlife-people', '曙光市｜夜職與街區人物公開參考（不代表在場）', ['琉星', 'Ryusei'], {0, 1, 2, 6, 7}),
+ 48: ('063e1507ef3746ee736672cf4a513011583edb5789420e7ff3239a8dd5bbaa7b', 'sunrise-nightlife-people', '曙光市｜夜職與街區人物公開參考（不代表在場）', ['田中 美咲', '田中美咲', '美咲'], {0, 1, 2, 6, 7}),
  16: ('465f4fa232ee13371b220d67bb70477037fa1125c0532d89e2798eaeffc45393', 'sunrise-family-people', '曙光市｜人物公開參考（不代表在場）', ['異能者管理局副局長', '天璇異能學院董事'], {0, 1}),
  17: ('06ab5bd2a7ced7527d05df6faa4977a8e92dad4a6e1ba3e7ab6a3af90dc101de', 'sunrise-family-people', '曙光市｜人物公開參考（不代表在場）', ['林宇軒'], {0, 1, 6}),
  18: ('eb80b7b06cf4b41b9664b89f9b5f7b9c9e2e84f255224d8e4e698adf9774afc6', 'sunrise-family-people', '曙光市｜人物公開參考（不代表在場）', ['雷辰'], {0, 1, 5, 6}),
@@ -53,7 +69,7 @@ SOURCES = {
  15: ('30ac5a605b9920c7fffe781b64ec0e8036b0210c4c18a3dcf1480cc17376e626', 'sunrise-port-people', '曙光市｜港口人物背景（不代表在場）', ['啞巴阿文'], {0,1}),
  0: ('4834e239dddf64bc25c350cf6be0f3fbcabdae936fee9804872f788f11916a63', 'sunrise-city-overview', '曙光市｜城市與社會概況', ['曙光市'], {0,1,2,3,4}),
  138: ('5dea856117c564988fae4178292d996961fe53699b086e76a5725d8047854947', 'sunrise-prison-institution', '曙光市｜監獄探視與減刑（虛構世界制度）', ['曙光市第一監獄探視', '第一監獄探視', '第一監獄減刑'], {4,5}),
- 33: ('0edb3ba2e7baa92c6f33d80737b4dbd9d7cd510d9bad521a04828af4fac10678', 'sunrise-ability-background', '曙光市｜異能背景（虛構設定）', ['曙光市異能'], {0,2,3,4,6}),
+ 33: ('0edb3ba2e7baa92c6f33d80737b4dbd9d7cd510d9bad521a04828af4fac10678', 'sunrise-ability-background', '曙光市｜異能背景（虛構設定）', ['曙光市異能'], {0,1,2,3,4,6}),
  34: ('620511dae42fc2d536e0ecf3103e1ec5f9b7ac4106d8694070fbf762af17ac38', 'sunrise-ability-institution', '曙光市｜異能分類與監控（虛構制度）', ['異能分類'], {0,4})
 }
 sha = lambda content: hashlib.sha256(content.encode()).hexdigest()
@@ -67,9 +83,9 @@ def build(zip_path):
  packs, mapping = [], []
  for index, (digest, pack_id, name, keywords, allowed) in SOURCES.items():
   entry = original['entries'][index]; content = entry['content']
-  if sha(content) != digest or content != shared['entries'][index]['content'] or entry['category'] != ('角色' if 8 <= index <= 28 else '事件' if index in (96,97) else '規則' if index in (0, 33, 34, 36, 37, 38, 138) else '地點'):
+  if sha(content) != digest or content != shared['entries'][index]['content'] or entry['category'] != ('角色' if 8 <= index <= 28 or 43 <= index <= 48 else '事件' if index in (29,96,97) else '規則' if index in (0, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 138) else '地點'):
    raise ValueError('Source changed; review again')
-  starts = [m.start() for m in re.finditer(r'^#### ' if index in (36,37,38) else r'^#{2,3} ' if index == 138 else r'^## ' if index in (0, 1, 2, 3, 4, 5, 6) else r'^### ', content, re.M)]
+  starts = [m.start() for m in re.finditer(r'^#{2,3} ' if 43 <= index <= 48 else r'^#### ' if index in (35,36,37,38,39,40,41,42) else r'^#{2,3} ' if index == 138 else r'^## ' if index in (0, 1, 2, 3, 4, 5, 6) else r'^### ', content, re.M)]
   if not starts or starts[0] != 0: starts.insert(0,0)
   spans = list(zip(starts, starts[1:] + [len(content)]))
   entries, review = [], []
@@ -86,8 +102,8 @@ def build(zip_path):
      record['reconciliation'] = decisions
      record['published_sha256'] = sha(value)
     eid = f'sunrise-source-{index}-{part}'; record['entry_id'] = eid
-    if index in ALLOWED:
-     title = (INSTITUTION_NAMES[part]+'｜公開職務') if index==26 else NAMES[index]+'｜'+('居住背景' if index==28 else '基礎身份' if part==0 else title)
+    if index in NAMES:
+     title = (INSTITUTION_NAMES[part]+'｜公開職務') if index==26 else NAMES[index]+'｜'+('表面言行' if index>=43 and part==2 else '居住背景' if index==28 else '基礎身份' if part==0 else title)
     recall_keywords = {
      (0,2): ['曙光市警力', '曙光市主要勢力'],
      (0,4): ['血色七月', '覺醒潮', '曙光市歷史'],
@@ -103,7 +119,8 @@ def build(zip_path):
      (34,0): ['異能分類', '八大主類'], (34,4): ['異能監控等級', '異能者管理局監控']
     }.get((index, part), keywords)
     if index==26: recall_keywords=[INSTITUTION_NAMES[part]]
-    entries.append({'id':eid,'title':name+'｜'+(keywords[0]+'｜' if 8 <= index <= 28 else '')+title,'category':'人物資料' if 8 <= index <= 28 else '世界資料','mode':'keyword','keywords':recall_keywords + ({1:['曙光金融大廈','天際商場','凱旋企業總部','司法大廈','曙光國際會議中心'],2:['曙光證券交易所','泰坦科技','晨曦集團','極光製藥','銀河傳媒']} .get(part, []) if index == 1 else []),'content':value})
+    recall_keywords=CHAPTER_KEYWORDS.get((index,part),recall_keywords)
+    entries.append({'id':eid,'title':name+'｜'+(keywords[0]+'｜' if 8 <= index <= 28 or 43 <= index <= 48 else '')+title,'category':'人物資料' if 8 <= index <= 28 or 43 <= index <= 48 else '世界資料','mode':'keyword','keywords':recall_keywords + ({1:['曙光金融大廈','天際商場','凱旋企業總部','司法大廈','曙光國際會議中心'],2:['曙光證券交易所','泰坦科技','晨曦集團','極光製藥','銀河傳媒']} .get(part, []) if index == 1 else []),'content':value})
    review.append(record)
   groups = [(pack_id, name, entries)]
   if index == 0:
