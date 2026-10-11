@@ -828,8 +828,8 @@
         "profile",
         "lore"
       ],
-      "editorial_status": "needs-content-review",
-      "publication_status": "unreviewed"
+      "editorial_status": "reviewed-published-sections",
+      "publication_status": "partial"
     },
     {
       "source_index": 62,
@@ -841,8 +841,8 @@
         "profile",
         "lore"
       ],
-      "editorial_status": "needs-content-review",
-      "publication_status": "unreviewed"
+      "editorial_status": "reviewed-published-sections",
+      "publication_status": "partial"
     },
     {
       "source_index": 63,
@@ -854,11 +854,12 @@
         "world_modules",
         "lore"
       ],
-      "editorial_status": "needs-content-review",
-      "publication_status": "unreviewed",
+      "editorial_status": "reviewed-published-sections",
+      "publication_status": "partial",
       "normalized_draft_sha256": "0a80a1229dde965deb197d4f08bf828a5014a5d0ba9e72a5092fe303e9346f5f",
       "decisions": [
-        "bloody-july-date"
+        "bloody-july-date",
+        "veritas-institution-reference"
       ]
     },
     {
@@ -871,8 +872,8 @@
         "world_modules",
         "lore"
       ],
-      "editorial_status": "needs-content-review",
-      "publication_status": "unreviewed"
+      "editorial_status": "reviewed-published-sections",
+      "publication_status": "partial"
     },
     {
       "source_index": 65,
@@ -897,8 +898,8 @@
         "world",
         "lore"
       ],
-      "editorial_status": "needs-content-review",
-      "publication_status": "unreviewed"
+      "editorial_status": "reviewed-published-sections",
+      "publication_status": "partial"
     },
     {
       "source_index": 67,
@@ -910,8 +911,8 @@
         "world",
         "lore"
       ],
-      "editorial_status": "needs-content-review",
-      "publication_status": "unreviewed"
+      "editorial_status": "reviewed-published-sections",
+      "publication_status": "partial"
     },
     {
       "source_index": 68,
@@ -923,8 +924,8 @@
         "profile",
         "lore"
       ],
-      "editorial_status": "needs-content-review",
-      "publication_status": "unreviewed"
+      "editorial_status": "reviewed-published-sections",
+      "publication_status": "partial"
     },
     {
       "source_index": 69,
@@ -949,8 +950,8 @@
         "profile",
         "lore"
       ],
-      "editorial_status": "needs-content-review",
-      "publication_status": "unreviewed"
+      "editorial_status": "reviewed-published-sections",
+      "publication_status": "partial"
     },
     {
       "source_index": 71,
@@ -975,8 +976,8 @@
         "profile",
         "lore"
       ],
-      "editorial_status": "needs-content-review",
-      "publication_status": "unreviewed"
+      "editorial_status": "reviewed-published-sections",
+      "publication_status": "partial"
     },
     {
       "source_index": 73,
@@ -988,8 +989,8 @@
         "profile",
         "lore"
       ],
-      "editorial_status": "needs-content-review",
-      "publication_status": "unreviewed"
+      "editorial_status": "reviewed-published-sections",
+      "publication_status": "partial"
     },
     {
       "source_index": 74,
@@ -1014,8 +1015,8 @@
         "profile",
         "lore"
       ],
-      "editorial_status": "needs-content-review",
-      "publication_status": "unreviewed"
+      "editorial_status": "reviewed-published-sections",
+      "publication_status": "partial"
     },
     {
       "source_index": 76,
@@ -2843,7 +2844,7 @@
         53
       ],
       "adopted": "雷家基本資料暫不發布三代傳承斷言；公開產業、家訓及場所仍可使用。",
-      "reason": "世代敘述與成員、歷史不吻合，不补造缺失世代。"
+      "reason": "世代敘述與成員、歷史不吻合，不補造缺失世代。"
     },
     {
       "id": "venue-public-surface",
@@ -2938,6 +2939,158 @@
       ],
       "adopted": null,
       "reason": "紅燈區位置標東南區，但城市採五個行政區；方位、跨區商圈或新行政區未定。不改名或新增第六區。"
+    },
+    {
+      "id": "veritas-institution-reference",
+      "status": "resolved",
+      "authority": [
+        62,
+        63,
+        64
+      ],
+      "affected": [
+        62,
+        63,
+        64
+      ],
+      "adopted": "煉律流程、標準與案例作为虛構制度參考，案例明示為示例，不代表本輪已申請或裁定。",
+      "reason": "世界內審查制度不同於平台或模型權限；不新增前端審查引擎，也不因召回自動簽發許可。"
+    },
+    {
+      "id": "veritas-public-scope",
+      "status": "resolved",
+      "authority": [
+        64
+      ],
+      "affected": [
+        64
+      ],
+      "adopted": "公開裁定、保密權及不能直接逮捕處決的職權界線；政治私有動機和矛盾的監控段另留來源。",
+      "reason": "權限查詢不直接提供蕭與審查官的私有立場或未定觸發方式。"
+    },
+    {
+      "id": "velvet-public-surface",
+      "status": "resolved",
+      "authority": [
+        66,
+        67
+      ],
+      "affected": [
+        66,
+        67
+      ],
+      "adopted": "場所基本頁與對外規則移除未確定幕後投資者及保護費；公開流傳會員事件保留歷史歸因。",
+      "reason": "預約條件和場所氣氛可用於故事，不能由場所名直接揭露黑幕或強制觸發歷史事件。"
+    },
+    {
+      "id": "professional-public-projections",
+      "status": "resolved",
+      "authority": [
+        61,
+        68,
+        70,
+        72,
+        75
+      ],
+      "affected": [
+        61,
+        68,
+        70,
+        72,
+        75
+      ],
+      "adopted": "保留外在身分與言行，私有動機另留來源；璃夜只發布夜間工作投影，不連接白天身分。",
+      "reason": "角色名稱召回不自動揭露控制關係、雙重身分、親密台詞或人物已在場。"
+    },
+    {
+      "id": "character-current-abilities",
+      "status": "resolved",
+      "authority": [
+        61,
+        72,
+        73
+      ],
+      "affected": [
+        61,
+        72,
+        73
+      ],
+      "adopted": "發布目前已登記能力與限制，清水純維持B級，覺醒經歷與未發現S級潛力不入公開投影。",
+      "reason": "未來可能突破不等於當前技能、實戰結果或已獲得等級；真實之眼仍受直視、疲勞與未知真相限制。"
+    },
+    {
+      "id": "casting-reference-separation",
+      "status": "resolved",
+      "authority": [
+        72,
+        75
+      ],
+      "affected": [
+        72,
+        75
+      ],
+      "adopted": "演員參考保留於作者原檔；公開人物身分與外貌不附真人演員名稱。",
+      "reason": "作者選角提示不是世界內人物身分；保留原本五官、髮型、服裝與人物差異。"
+    },
+    {
+      "id": "veritas-review-invocation",
+      "status": "unresolved",
+      "authority": [
+        63,
+        64,
+        65
+      ],
+      "affected": [
+        63,
+        64,
+        65
+      ],
+      "adopted": null,
+      "reason": "申請流程包括強制審查，限制頁稱只有主動申請，劇情頁又有主動召喚；強制送審、傳喚與主動申請的權限關係未定。"
+    },
+    {
+      "id": "veritas-earliest-case-age",
+      "status": "unresolved",
+      "authority": [
+        61,
+        64
+      ],
+      "affected": [
+        64
+      ],
+      "adopted": null,
+      "reason": "阿蕾西亞現年24歲，背景20歲任職，五年前案例卻已由她裁定。歷史案例不發布，不擅改人物年齡或增設實習裁定例外。"
+    },
+    {
+      "id": "velvet-client-overlap",
+      "status": "unresolved",
+      "authority": [
+        57,
+        59,
+        66
+      ],
+      "affected": [
+        66
+      ],
+      "adopted": null,
+      "reason": "會所稱客群不與Rose Club重疊，但人物記述有同一客人出入兩處；Rose Club消費級距也不同。比較章暫不採用，不補造區隔。"
+    },
+    {
+      "id": "water-ability-uniqueness",
+      "status": "unresolved",
+      "authority": [
+        36,
+        55,
+        72,
+        73,
+        74
+      ],
+      "affected": [
+        73,
+        74
+      ],
+      "adopted": null,
+      "reason": "清水純整合頁稱唯一已登記水系者，已有水系分類及沈家水系人物。保留她目前B級設定，不發布唯一斷言或編造未登記例外。"
     }
   ]
 }

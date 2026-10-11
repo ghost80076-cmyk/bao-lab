@@ -20,6 +20,9 @@ on:
       - 'scripts/sunrise_character_review.py'
       - 'scripts/sunrise_review_29_48.py'
       - 'scripts/sunrise_review_49_60.py'
+      - 'scripts/sunrise_review_61_75.py'
+      - 'data/sunrise-review-batch-61-75.json'
+      - 'tests/sunrise-review-61-75.cjs'
       - 'data/sunrise-review-batch-49-60.json'
       - 'tests/sunrise-review-49-60.cjs'
       - 'scripts/audit-sunrise-review-batch.py'
@@ -76,6 +79,9 @@ on:
       - 'scripts/sunrise_character_review.py'
       - 'scripts/sunrise_review_29_48.py'
       - 'scripts/sunrise_review_49_60.py'
+      - 'scripts/sunrise_review_61_75.py'
+      - 'data/sunrise-review-batch-61-75.json'
+      - 'tests/sunrise-review-61-75.cjs'
       - 'data/sunrise-review-batch-49-60.json'
       - 'tests/sunrise-review-49-60.cjs'
       - 'scripts/audit-sunrise-review-batch.py'
@@ -132,6 +138,7 @@ jobs:
           node tests/sunrise-character-review.cjs
           node tests/sunrise-review-29-48.cjs
           node tests/sunrise-review-49-60.cjs
+          node tests/sunrise-review-61-75.cjs
           node tests/sunrise-integration-core.cjs
           python tests/sunrise-reconciliation.py
           node tests/worldbook-library-runtime.cjs
