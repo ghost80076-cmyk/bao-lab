@@ -215,3 +215,67 @@ for (const displayMode of ['text', 'ui']) {
     await page.screenshot({ path: testInfo.outputPath('yume-themed-opening.png'), fullPage: true });
   });
 }
+
+for (const viewport of [{width:1280,height:900}, {width:390,height:844}]) {
+  test(`Three Realms work restores cultivation and bounded lore in ${viewport.width}px`, async ({page}) => {
+    await page.setViewportSize(viewport);
+    let modelCalls = 0;
+    page.on('request', request => { if (request.method() === 'POST') modelCalls++; });
+    await page.goto('./');
+    await page.waitForFunction(() => Boolean(App.characters?.length && Storage.status().ready &&
+      window.BAOSceneHTML && window.BAOStoryReader && window.BAOWorldModules && window.YoruWorldbookLibrary));
+    const result = await page.evaluate(async () => {
+      App.activeCharacter = await App.loadCharacter('zhutian-cultivation-fortune-strife');
+      if (!App.activeCharacter) throw new Error('Cultivation work missing');
+      App.config = {narrativeMode:'world',displayMode:'text',persona:{name:'旅人'},
+        api:{model:'mock',baseUrl:'https://example.invalid/v1',key:'test-only'},
+        memory:{mode:'rounds',maxRounds:20,maxContext:64000,cache:true},
+        scenePresentation:{mode:'native',status:'native'}};
+      BAOSceneHTML.prefs.mode = 'native';
+      BAOSceneHTML.prefs.status = 'native';
+      Chat.reset(); GameState.create(App.activeCharacter,App.config);
+      BAOWorldModules.applyCustomization({enabledBuiltIns:['three_realms_cultivation']});
+      GameState.current.modules.three_realms_cultivation = {route:'下界鬥氣',realm:'鬥宗',energy:30,energy_max:100};
+      GameState.current.time = '辰時'; GameState.current.location = '天道宗';
+      const catalog = await YoruWorldbookLibrary.loadCatalog();
+      const pack = catalog.find(p => p.meta.id === 'three-realms-lower-sects');
+      if (!pack) throw new Error('Sect worldbook missing');
+      GameState.current.worldbookLibrary = {version:1,enabled:[pack.meta.id],installed:[],pinned:{[pack.meta.id]:pack}};
+      Chat.add('assistant', App.activeCharacter.greeting);
+      Chat.messages[0].greeting = true;
+      Chat.add('user','我想了解天道宗。');
+      Chat.add('assistant','山門前的侍者介紹天道宗。\n[STATUS]氣運：120[/STATUS]');
+      App.renderChatShell(true); App.showView('chat');
+      BAOSceneHTML.refresh(); BAOStoryReader.decorateStream();
+      const selected = YoruWorldbookLibrary.select([pack],[pack.meta.id],{
+        ...YoruWorldbookLibrary.signals(),world:'three-realms'}, {maxEntries:4,maxChars:2200});
+      const messages = await App.buildMessages(App.config);
+      const raw = JSON.stringify(Chat.messages);
+      const save = Storage.buildStoryPayload('three-realms-integration');
+      Chat.reset();
+      if (!Storage.restoreStory(save)) throw new Error('Restore failed');
+      App.renderChatShell(false); BAOSceneHTML.refresh(); BAOStoryReader.decorateStream();
+      return {state:GameState.current.modules.three_realms_cultivation,
+        rawPreserved:raw === JSON.stringify(Chat.messages),
+        pack:GameState.current.worldbookLibrary.enabled,
+        selectedChars:selected.text.length,
+        recalled:messages.some(m => m.content?.includes('世界書按需提供的背景資料')),
+        selected:selected.text.includes('天道宗')};
+    });
+    expect(result.state).toMatchObject({route:'下界鬥氣',realm:'鬥宗',energy:30,energy_max:100});
+    expect(result.rawPreserved).toBe(true);
+    expect(result.pack).toEqual(['three-realms-lower-sects']);
+    expect(result.selectedChars).toBeGreaterThan(0);
+    expect(result.selectedChars).toBeLessThanOrEqual(2200);
+    expect(result.recalled).toBe(true);
+    expect(result.selected).toBe(true);
+    const dock = page.locator('#bao-inline-story-status');
+    await expect(dock).toBeVisible();
+    await expect(dock).toContainText('鬥宗');
+    await expect(dock).toContainText('天道宗');
+    await expect(dock).toContainText('氣運：120');
+    const bubble = page.locator('#chat-stream > .message.assistant .bubble').last();
+    await expect(bubble).not.toContainText('[STATUS]');
+    expect(modelCalls).toBe(0);
+  });
+}
