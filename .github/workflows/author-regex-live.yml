@@ -42,7 +42,15 @@ jobs:
               && cmp -s js/author-regex-core.js /tmp/bao-live-core.js \
               && curl --fail --silent --show-error --location --max-time 15 \
               "${BAO_LIVE_URL}?ci=${GITHUB_SHA}" -o /tmp/bao-live-index.html \
-              && grep -Fq 'js/author-regex-dock.js' /tmp/bao-live-index.html; then
+              && grep -Fq 'js/regex-chat.js' /tmp/bao-live-index.html \
+              && curl --fail --silent --show-error --location --max-time 15 \
+              -H 'Cache-Control: no-cache' \
+              "${BAO_LIVE_URL}js/author-regex-inline.js?ci=${GITHUB_SHA}" -o /tmp/bao-live-inline.js \
+              && cmp -s js/author-regex-inline.js /tmp/bao-live-inline.js \
+              && curl --fail --silent --show-error --location --max-time 15 \
+              -H 'Cache-Control: no-cache' \
+              "${BAO_LIVE_URL}js/regex-chat.js?ci=${GITHUB_SHA}" -o /tmp/bao-live-regex-loader.js \
+              && cmp -s js/regex-chat.js /tmp/bao-live-regex-loader.js; then
               echo "Pages is serving the checked-out author UI and core (attempt ${attempt})."
               exit 0
             fi
