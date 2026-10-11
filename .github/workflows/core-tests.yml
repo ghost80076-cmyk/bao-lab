@@ -468,6 +468,7 @@ jobs:
       - name: Native Sunrise startup and isolated memory frames
         run: |
           node tests/sunrise-city-card-core.cjs
+          node tests/sunrise-prompt-layering-core.cjs
           node tests/story-timeline-core.cjs
       - name: Story world clock and scheduled events
         run: |

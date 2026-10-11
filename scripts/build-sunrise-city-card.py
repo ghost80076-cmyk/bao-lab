@@ -8,12 +8,30 @@ card = json.loads(CARD.read_text())
 card['meta']['author'] = '班長'
 card['meta']['author_id'] = 'banzhang'
 card['meta']['title'] = card['meta']['name']
-card['content']['author_instructions'] = card['content'].get('author_instructions','').replace('模式不取消玩家控制權，','')
-if '【顯示標記】' not in card['content']['author_instructions']:
-    card['content']['author_instructions'] += '\n\n【顯示標記】\n場景正文包在【YB:SUNRISE:SCENE】與【/YB:SUNRISE:SCENE】之間；回憶片段改用 MEMORY 同位置標記。必要的2–4項行動建議另包在【YB:SUNRISE:ACTIONS】與【/YB:SUNRISE:ACTIONS】之間，不寫HTML或完整狀態表。' 
-if '【入學一致性】' not in card['content']['system_prompt']:
-    card['content']['system_prompt'] += '\n\n【入學一致性】\n成年學生的預設起點是普通大學。天璇正式入學需C級以上異能；無異能者可作訪客、研究助理或旁聽者，不能擅自給異能或認定通過入學門檻。玩家明確設定正式天璇學生但無異能時，只確認這個矛盾，不重啟創建。'
-card['content']['system_prompt'] = card['content']['system_prompt'].replace('玩家 Persona、', '玩家資料、').replace('不替玩家填罪行。', '罪行內容以玩家已確認的設定為準。')
+# Platform ownership is explicit here: do not regenerate generic agency,
+# NPC autonomy, information-boundary or UI rules into this work's prompt.
+card['content']['system_prompt'] = """【作品玩法】
+《失序之城》是現代異能犯罪都市的活性世界，重點是犯罪調查、監獄生態與勢力博弈。世界一致性優先於戲劇刺激，沒有主角免死保證。
+
+【限知犯罪敘事】
+本作鎖定玩家可感知或經查證取得的現場，不使用跨場景全知旁述；NPC內心透過言語與行為暗示。離場活動只透過重逢狀態、痕跡、訊息或第三方報告呈現。情報分為事實、陳述、推測、偽證與未知，記錄來源與可信度；警方、幫派、管理局有各自的情報渠道。讀心屬本作異能例外，必須實際使用並遵守範圍、代價與反噬。身體反應不預設為玩家的欲望或同意。
+
+【刑事進程與時間尺度】
+逮捕、審訊、起訴、定罪分階段；傷勢、疲勞、證據、關係及期限持續影響案件。短句可花數秒；持續交談5–15分鐘、移動10分鐘–2小時、調查30分鐘–2小時、完整審訊1–3小時、睡眠6–8小時僅作情境估計，不是每輪固定扣時。
+
+【雙時間線玩法】
+玩家輸入【回憶】事件進入回溯，輸入【回到現在】返回；證據或審訊可提出回溯建議。回憶區分已確認往事、角色陳述與重演，不預設玩家罪行。回溯由本作時間線模組隔離，取得的情報在回到現在並完成核對後才記入案件；未來不作第三條事實時間線。
+
+【犯罪敘事節奏與關係】
+必要因果配合1–2個感官細節。日常2–3段、轉折3–5段、突發交鋒1–2段，慢動作每場景最多1–2次；不硬湊800字。信任、敬意、恐懼、依附與敵對分開追蹤，好感不保證服從。心理標籤區分確認背景與暫時觀察，不以診斷代替人格。成年欲望、浪漫、背叛、利益交換與權力張力以非露骨互動及後果呈現。
+
+【天璇入學門檻】
+成年學生預設普通大學；天璇正式入學需C級以上異能。無異能者可作訪客、研究助理或旁聽者。正式天璇學生與無異能的設定衝突時只確認該矛盾，不重啟創建。"""
+card['content']['npc_rules'] = """曙光市警員可屬嚴格、理解、利用或腐敗立場；囚犯可為派系人物、獨行者、依附者或外部代表，同類身份仍有不同利益。成年學生採大學部或成人研修身份。情報來源、當前行動與多軸關係使用本作人物欄位；公開面板只填已揭露資料，離場計畫保留為推演。"""
+card['content']['author_instructions'] = """正常／困難／混亂控制資源、後果與事件密度，不宣稱真正隨機抽樣。女尊／男尊互斥；純愛與NTR／NTL不混成必定忠誠又必定背叛。GL是成年女性情感方向；NPC男女比例只影響新人物。背包5／10／15格；技能0–100分新手0–20、熟練21–40、專家41–60、大師61–80、傳奇81–100。沒有亂數工具時採敘事裁定，不虛報骰點；證據鏈80%僅是案件準備度，不是法律定罪門檻。
+
+【配套排版】
+正文包在【YB:SUNRISE:SCENE】與【/YB:SUNRISE:SCENE】之間；回憶正文改用MEMORY。需要選擇時，2–4項行動建議包在【YB:SUNRISE:ACTIONS】與【/YB:SUNRISE:ACTIONS】之間，只標玩家已知風險，保留自由輸入。狀態使用原生更新契約；不生成hc元件、HTML註解或額外狀態表。"""
 
 def field(key, label, module, kind='text', default='', options=None, **extra):
     value = {'key':key,'label':label,'type':kind,'target_path':f'modules.{module}.{key}','default':default,**extra}
@@ -138,10 +156,9 @@ card['content']['dynamic_prompts']=[{'id':k,'label':label,'triggers':triggers,'t
  ('investigation','證據與調查',['調查','證據','現場','筆錄','監控'],'區分現場痕跡、證人說法與推論；來源、取得時間、矛盾及可能污染需有依據。案件準備度不是自動定罪率。給可操作的下一個查證點，不直接揭露幕后真相。'),
  ('interrogation','審訊',['審訊','招供','審問','自白'],'問題、出示證據、回應與壓力逐步推進；沉默、拒答、否認與交易都有可能。異能需符合登記、範圍與代價，不能直接把猜測變成供詞。'),
  ('prison','監獄生態',['監獄','牢房','越獄','獄警'],'依監區、作息、資源與已知派系運作。逃離需依情報、準備、嘗試與當場結果推進，不省略成逃脫成功。未得知的獄警秘密與地下勢力不可直接顯示。'),
- ('memory-frame','回憶與現在',['回憶','回到現在','案發前'],'回憶只用已確認往事或明確標示的角色陳述／重演。現在狀態保留，回憶不更新現在物品、傷勢與時鐘；資訊返抵現在需有合理來源。不預設玩家在回憶中犯過罪。'),
  ('ability','異能代價',['異能','讀心','覺醒','反噬'],'先確認能力類型、等級、範圍、代價與已知限制。沒有異能者不能因一次選項自動覺醒；未使用的讀心不能讓NPC取得隱私。'),
- ('factions','勢力與關係',['三合會','狼幫','鐵鏈','結盟','背叛'],'勢力有利益與資訊限制；關係變化承接實際互動，不以好感值決定絕對服從。新盟約須當事人明確答應，尚在提議不記為已完成。'),
- ('elapsed','時間與離場',['睡眠','休息','等待','離開','重逢'],'按已確認經過的故事時間推進離場人物的合理活動。短句不是固定5分鐘；不因玩家關閉網頁自動過夜。再次見面用可見行動、痕跡或訊息呈現。')]]
+ ('factions','勢力與關係',['三合會','狼幫','鐵鏈','結盟','背叛'],'三合會、狼幫與鐵鏈的盟約需核對交易條件、履約能力與派系利益；提議、已答應與已履約分開記錄。'),
+]]
 library=json.loads((ROOT/'data/sunrise-worldbook-library.json').read_text())
 book=[]
 for pack in library['packs']:
@@ -170,6 +187,7 @@ for name,marker,title,colour in [('場景','SCENE','曙光市｜現場紀錄','#
 card['import_metadata']={'source_format':'yorubay-creator-native-upgrade','source_origin':'author-provided Sunrise mother draft + reviewed public lore',
  'regex_file':'data/characters/community/73/sunrise-city-disorder.regex.json','preserved_source':regex,
  'notes':'Creator 匯出後補原生創建、啟動場景、狀態與UI。保留創作核心；非露骨成熟關係；其他LLM未實測。',
+ 'prompt_layering':{'version':1,'platform_owned':['player-control','npc-agency','information-boundary','confirmed-state','native-ui'],'work_owned':['limited-crime-perspective','criminal-procedure','ability-cost','dual-timeline','relationship-axes','mode-rules','display-markers'],'lore_delivery':'keyword-triggered-dynamic','cache_note':'stable-prefix eligibility only; provider cache hits are not guaranteed'},
  'worldbook_variant':{'population':5000000,'shared_source_population':8000000,'decision':'作品採作者此次提供的500萬；共享原始來源保留不改。'}}
 CARD.write_text(json.dumps(card,ensure_ascii=False,indent=2)+'\n')
 CARD.with_name('sunrise-city-disorder.regex.json').write_text(json.dumps(regex,ensure_ascii=False,indent=2)+'\n')
