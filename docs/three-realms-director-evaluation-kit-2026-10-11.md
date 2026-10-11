@@ -9,3 +9,11 @@
 使用：`python3 scripts/evaluate-three-realms-director.py measured-observations.json`。資料 shape 可參考同檔 `synthetic_report`，但必須用真實實測替換；`synthetic: true` 一律不能通過契約 gate。`--self-test` 只驗證資料檢查器，不能宣稱模型品質通過。未知欄位、缺漏或重複案例、NaN、負數、布林假冒數值、額外工具欄位以及重複 JSON key 均拒絕。未通過的評測輸出摘要後回傳非零退出碼。
 
 分數與測量是外部輸入，檢查器不能驗證填報者或自然語言語意。即使契約檢查通過，仍需依實驗文件審閱實際輸出與測量記錄，再決定是否進入 runtime 實作。現階段 33、36、42 的自動功能與 172 的完整呈現 follow-up 保持未完成。
+
+## 實際回覆收集
+
+`scripts/collect-director-evaluation.py` 收集 OpenAI 相容 API 的配對回覆，不接入正式故事流程。輸入 packet 為 `{model, cases}`；每個 case 需提供 `case_id`、實際作品的 `work_path`、`baseline_messages` 與 `combined_messages`。需涵蓋上述 12 案例，兩組非 system 訊息必須完全相同；system 任務指令分別為原狀態整理與 combined 實驗。訊息應擷取自實際狀態整理管線，不能把案例的一句 setup 當成完整作品證據。
+
+先執行 `python3 scripts/collect-director-evaluation.py captured-inputs.json --validate-only`。正式收集以環境變數 `DIRECTOR_EVAL_API_KEY` 提供金鑰，再傳入 `--endpoint https://提供者/v1/chat/completions --output /path/to/new-evidence`。會產生 24 次請求，固定 temperature 0、max_tokens 1600，不自動重試；逐筆保存回覆、原請求、來源作品 hash、實際 usage、延遲與呼叫數，不保存金鑰，不覆寫已有證據目錄。
+
+收集結果不是已通過的評分。人工仍需依原評測器量尺檢閱原文，填入品質分數、違規次數、快取前綴的逐輪實測及成本／延遲審閱。缺少 usage 的提供者回覆會中止，不用估算冒充實測。正式環境、原始存檔及 runtime 開關均不變。
