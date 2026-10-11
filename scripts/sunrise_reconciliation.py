@@ -6,6 +6,8 @@ from sunrise_review_29_48 import DECISIONS as NEXT_DECISIONS, project as next_pr
 
 from sunrise_review_49_60 import DECISIONS as FAMILY_DECISIONS, project as family_project
 
+from sunrise_review_61_75 import DECISIONS as REVIEW_DECISIONS, project as review_project
+
 DECISIONS = {
     'work-population': {
         'status': 'resolved', 'authority': ['author-mother-draft'], 'affected': [0],
@@ -53,6 +55,7 @@ DECISIONS = {
 DECISIONS.update(CHARACTER_DECISIONS)
 DECISIONS.update(NEXT_DECISIONS)
 DECISIONS.update(FAMILY_DECISIONS)
+DECISIONS.update(REVIEW_DECISIONS)
 
 HISTORY = '''## 重大歷史事件（整合摘要）
 
@@ -94,7 +97,8 @@ def reconcile_chapter(index, part, value):
     value, character_ids = project(index, part, value)
     value, next_ids = next_project(index, part, value)
     value, family_ids = family_project(index, part, value)
-    return value, ids + character_ids + next_ids + family_ids
+    value, review_ids = review_project(index, part, value)
+    return value, ids + character_ids + next_ids + family_ids + review_ids
 
 
 def reconciled_source(index, value):

@@ -2,11 +2,11 @@
   "source_worldbook_id": "5808c2c1-a71c-417e-b07c-23d75d36735e",
   "summary": {
     "source_entries": 183,
-    "packs": 41,
-    "published_chapters": 212,
+    "packs": 44,
+    "published_chapters": 249,
     "coverage": {
-      "partial": 66,
-      "unreviewed": 116,
+      "partial": 77,
+      "unreviewed": 105,
       "complete": 1
     }
   },
@@ -503,33 +503,33 @@
       "source_index": 61,
       "category": "角色",
       "source_sha256": "a961ff5f200ee51e12b16ea47dc8228f650110e3ee8c5e5028e71a7e0faf5aac",
-      "status": "unreviewed",
-      "published_chapters": 0,
-      "deferred_chapters": 0
+      "status": "partial",
+      "published_chapters": 5,
+      "deferred_chapters": 7
     },
     {
       "source_index": 62,
       "category": "角色",
       "source_sha256": "f6ee228f0e58b00365dfd4b1af6f651cf7a8bdeea252f0333c792be987aa13a1",
-      "status": "unreviewed",
-      "published_chapters": 0,
-      "deferred_chapters": 0
+      "status": "partial",
+      "published_chapters": 1,
+      "deferred_chapters": 4
     },
     {
       "source_index": 63,
       "category": "規則",
       "source_sha256": "a6bb66c1c48a567838e5d1e39ab527db5ba282efff94568ff4c3cb06ee03f05f",
-      "status": "unreviewed",
-      "published_chapters": 0,
-      "deferred_chapters": 0
+      "status": "partial",
+      "published_chapters": 6,
+      "deferred_chapters": 2
     },
     {
       "source_index": 64,
       "category": "規則",
       "source_sha256": "45c8f54c40cdf826c86e834e4b7e031b44920c0081564d4276cc5198c5b6e2b9",
-      "status": "unreviewed",
-      "published_chapters": 0,
-      "deferred_chapters": 0
+      "status": "partial",
+      "published_chapters": 3,
+      "deferred_chapters": 9
     },
     {
       "source_index": 65,
@@ -543,25 +543,25 @@
       "source_index": 66,
       "category": "地點",
       "source_sha256": "9567e71640fc8516d6efdd34e1cedee8e9648e3f513197df4343b3467170bfc6",
-      "status": "unreviewed",
-      "published_chapters": 0,
-      "deferred_chapters": 0
+      "status": "partial",
+      "published_chapters": 4,
+      "deferred_chapters": 10
     },
     {
       "source_index": 67,
       "category": "地點",
       "source_sha256": "afcd8a36822f1a0bdb93f9ac87cc825dccfd5bb37a8657be41ba7953e9f2afae",
-      "status": "unreviewed",
-      "published_chapters": 0,
-      "deferred_chapters": 0
+      "status": "partial",
+      "published_chapters": 1,
+      "deferred_chapters": 7
     },
     {
       "source_index": 68,
       "category": "角色",
       "source_sha256": "e0e721b1b19938360097560f263944d6fe96fdcee8d298a8a10046b9358a5da2",
-      "status": "unreviewed",
-      "published_chapters": 0,
-      "deferred_chapters": 0
+      "status": "partial",
+      "published_chapters": 5,
+      "deferred_chapters": 7
     },
     {
       "source_index": 69,
@@ -575,9 +575,9 @@
       "source_index": 70,
       "category": "角色",
       "source_sha256": "f7f871db2e4d1c8ebe2a71203387804ae680d94cf22d7ee6ff5d06b3aef7a979",
-      "status": "unreviewed",
-      "published_chapters": 0,
-      "deferred_chapters": 0
+      "status": "partial",
+      "published_chapters": 4,
+      "deferred_chapters": 9
     },
     {
       "source_index": 71,
@@ -591,17 +591,17 @@
       "source_index": 72,
       "category": "角色",
       "source_sha256": "f193c3f01e9083af0279d5dbafed9208e4d752962956fa569edc862f31efb43f",
-      "status": "unreviewed",
-      "published_chapters": 0,
-      "deferred_chapters": 0
+      "status": "partial",
+      "published_chapters": 4,
+      "deferred_chapters": 3
     },
     {
       "source_index": 73,
       "category": "角色",
       "source_sha256": "7913a821b8ce9eda2c3e10fafa00d10519bfe480246139da52fe8b11f4787bc0",
-      "status": "unreviewed",
-      "published_chapters": 0,
-      "deferred_chapters": 0
+      "status": "partial",
+      "published_chapters": 1,
+      "deferred_chapters": 5
     },
     {
       "source_index": 74,
@@ -615,9 +615,9 @@
       "source_index": 75,
       "category": "角色",
       "source_sha256": "319546ad6caf498f0f9cc68b3b94b4114b2dfb61308abd3d0933ac410661bf50",
-      "status": "unreviewed",
-      "published_chapters": 0,
-      "deferred_chapters": 0
+      "status": "partial",
+      "published_chapters": 3,
+      "deferred_chapters": 3
     },
     {
       "source_index": 76,
