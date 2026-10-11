@@ -9,8 +9,8 @@ const rules = { regex_scripts: [{
 async function setup(page) {
   await page.goto('./');
   await page.waitForFunction(() => Boolean(window.BAOAuthorDock && window.Storage?._ready && App.characters?.length));
-  await page.evaluate(() => {
-    App.openCharacter(App.characters[0].id);
+  await page.evaluate(async () => {
+    await App.openCharacter(App.characters[0].id);
     App.config = {
       narrativeMode: 'immersive', displayMode: 'text',
       persona: { name: '測試玩家', gender: '未指定', identity: '', personality: '', relationship: '', extra: '' },
