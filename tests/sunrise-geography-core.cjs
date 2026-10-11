@@ -5,8 +5,8 @@ const core = require('../js/worldbook-library-core.js');
 const catalog = JSON.parse(fs.readFileSync('data/sunrise-worldbook-library.json'));
 const map = JSON.parse(fs.readFileSync('data/sunrise-geography-source-map.json'));
 const packs = catalog.packs.map(core.normalizePack);
-assert.equal(packs.length, 14);
-assert.equal(packs.flatMap(p=>p.entries).length, 47);
+assert.equal(packs.length, 16);
+assert.equal(packs.flatMap(p=>p.entries).length, 52);
 for (const source of map.sources) {
   assert.equal(source.chapters[0].start,0);
   assert.equal(source.chapters.at(-1).end,source.source_chars);
@@ -30,7 +30,7 @@ assert.equal(core.select(packs,[],{latestUser:'中央商業區',world:'sunrise-c
 for(const q of ['中央商業區','港口工業區','天際商場','北山住宅區','東區平民區','南區貧民窟'])assert.ok(select(q).text.length<=2200);
 const full=JSON.stringify(catalog);
 for(const secret of ['碼頭大火','縱火滅證','血色七月','走私運作流程','源點計畫','桃華事件','用異能操控股市','張猛','蘇逸辰','走私管道']) assert.ok(!full.includes(secret),secret);
-console.log('Sunrise geography: 14 opt-in packs, 47 original chapters, source coverage, narrow recall, realm isolation and deferred secrets passed.');
+console.log('Sunrise geography: 16 opt-in packs, 52 original chapters, source coverage, narrow recall, realm isolation and deferred secrets passed.');
 
 const scenarioPacks = packs.filter(p=>p.meta.classification==='scenario');
 assert.equal(scenarioPacks.length,2);
@@ -53,3 +53,12 @@ for (const name of ['林雨萱','陳大海','Victor','林正義','李明哲','�
 }
 assert.equal(core.select(people,people.map(p=>p.meta.id),{latestUser:'港口工業區',world:'sunrise-city'}).text,'');
 for(const p of people) assert.equal(p.meta.classification,'reference');
+
+const overview = core.select(packs,['sunrise-city-overview'],{latestUser:'曙光市',world:'sunrise-city'});
+assert.match(overview.text,/人口 800 萬/);
+assert.doesNotMatch(overview.text,/12,000|血色七月/);
+const institutional = core.select(packs,['sunrise-prison-institution'],{latestUser:'第一監獄探視',world:'sunrise-city'});
+assert.match(institutional.text,/虛構世界制度/);
+assert.match(institutional.text,/每月2次/);
+assert.doesNotMatch(institutional.text,/潛規則|作息時間表|沈妤筠|苏逸辰/);
+assert.equal(core.select(packs,['sunrise-prison-institution'],{latestUser:'你好',world:'sunrise-city'}).text,'');
