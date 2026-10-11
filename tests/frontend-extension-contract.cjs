@@ -33,12 +33,12 @@ const increasing = (source, tokens, label) => {
 
 // Base globals must exist before site-ui starts its asynchronous extension chains.
 increasing(index, [
-  'src="js/storage.js"',
+  'src="js/storage.js?v=1"',
   'src="js/state.js"',
   'src="js/api.js"',
   'src="js/helper-data.js?v=2"',
   'src="js/chat.js',
-  'src="js/character.js"',
+  'src="js/character.js?v=1"',
   'src="js/app.js',
   'src="js/chat-markup.js?v=2"',
   'src="js/site-ui.js'
@@ -53,7 +53,7 @@ increasing(siteUI, [
   'loadBAOScript("js/three-realms-event-profiles.js?v=6")',
   'loadBAOScript("js/three-realms-events-core.js?v=6")',
   'loadBAOScript("js/world-modules.js?v=3")',
-  'loadBAOScript("js/world-state-hook.js?v=2")'
+  'loadBAOScript("js/world-state-hook.js?v=3")'
 ], "world-state extension");
 
 // Story chain: story-tools is installed before prompt/cache orchestration and request lifecycle.

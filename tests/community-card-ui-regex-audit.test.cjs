@@ -112,7 +112,7 @@ for (const file of cards) {
   void rel;
 }
 
-assert.equal(sidecars.length, 16, 'expected 16 official regex sidecars including Kept in Frame');
+assert.equal(sidecars.length, 17, 'expected 17 official regex sidecars including Sunrise City');
 assert.deepEqual(failures, [], 'community UI/Regex audit must stay clean');
 
 console.log(JSON.stringify({

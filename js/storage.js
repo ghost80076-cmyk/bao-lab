@@ -599,6 +599,16 @@ const Storage = {
     }
     if (!character || character.catalog_only) return false;
 
+    // A declarative startup owns its selected opening per story. Loading the
+    // current catalog must not replace it with the generic preview greeting.
+    if (character.story_startup && save.character) {
+      const openingSnapshot = CharacterEngine.normalize(save.character);
+      if (openingSnapshot.id === character.id && openingSnapshot.greeting) {
+        character = {...character, greeting:openingSnapshot.greeting,
+          greeting_context:openingSnapshot.greeting_context, opening:openingSnapshot.opening};
+      }
+    }
+
     App.activeCharacter = character;
     App.config = this.clone(save.config || {});
     App.config.api = Object.assign({}, App.config.api || {}, { key: "" });

@@ -808,5 +808,39 @@
     "updated_at": "2026-10-10T17:43:24.993256Z",
     "version_published_at": "2026-10-10T17:43:24.993256Z",
     "published_version": 1
+  },
+  {
+    "id": "sunrise-city-disorder",
+    "name": "失序之城：曙光市｜活性敘事・NPC 自主・成熟內容",
+    "category": "general",
+    "gender": "all",
+    "tags": [
+      "世界模擬",
+      "犯罪都市",
+      "異能",
+      "NPC自主",
+      "雙時間線",
+      "調查",
+      "成熟關係"
+    ],
+    "description": "現代異能犯罪都市。從罪犯、抓捕者、黑幫／中立、成年學生或自創勢力進入曙光市；資訊隔離、NPC 自主、雙時間線與不可輕易抹去的後果。",
+    "rating": "adult",
+    "author": "班長",
+    "avatar": "https://i.meee.com.tw/o4HElko.jpg",
+    "title": "失序之城：曙光市｜活性敘事・NPC 自主・成熟內容",
+    "author_id": "banzhang",
+    "file": "data/characters/community/73/sunrise-city-disorder.json",
+    "supported_modes": {
+      "immersive": true,
+      "world": true
+    },
+    "supported_display": {
+      "text": true,
+      "ui": true
+    },
+    "published_at": "2026-10-11T12:08:49.785256Z",
+    "updated_at": "2026-10-11T12:08:49.785256Z",
+    "version_published_at": "2026-10-11T12:08:49.785256Z",
+    "published_version": 1
   }
 ]

@@ -127,7 +127,7 @@
       cardBind.src = 'js/author-regex-card-bind.js?v=2';
       cardBind.onload = () => {
         const inline = document.createElement('script');
-        inline.src = 'js/author-regex-inline.js';
+        inline.src = 'js/author-regex-inline.js?v=2';
         inline.onload = () => {
           const dock = document.createElement('script');
           dock.src = 'js/author-regex-dock.js';

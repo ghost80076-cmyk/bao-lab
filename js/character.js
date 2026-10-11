@@ -131,6 +131,8 @@ const CharacterEngine = {
       actor_mode: actorMode,
       character_status: characterStatus,
       gameplay_ui: gameplayUI && typeof gameplayUI === "object" && !Array.isArray(gameplayUI) ? gameplayUI : null,
+      story_startup: raw.story_startup || gameplay.story_startup || null,
+      timeline_policy: raw.timeline_policy || gameplay.timeline_policy || null,
       play_info_surface: playInfoSurface === "game-ui" ? "game-ui" : "reader-context",
       npc_rules: content.npc_rules || raw.npc_rules || "",
       author_instructions: content.author_instructions || raw.author_instructions || "",

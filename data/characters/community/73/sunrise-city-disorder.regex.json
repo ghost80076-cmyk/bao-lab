@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "type": "yorubay-author-regex-mod",
+  "scope": "assistant_display",
+  "characterId": "sunrise-city-disorder",
+  "regex_scripts": [
+    {
+      "scriptName": "曙光市｜場景",
+      "description": "只整理顯示，狀態與記憶沿用原生資料；不自動送出。",
+      "priority": 60,
+      "findRegex": "【YB:SUNRISE:SCENE】\\s*([\\s\\S]*?)\\s*【/YB:SUNRISE:SCENE】",
+      "flags": "g",
+      "replaceString": "<section style=\"white-space:pre-wrap;line-height:1.85;background:#231d1c;color:#e8ded2;border:1px solid #655348;border-left:4px solid #b79061;border-radius:14px;padding:16px;overflow-wrap:anywhere\"><strong style=\"display:block;color:#b79061;margin-bottom:10px\">曙光市｜現場紀錄</strong>$1</section>"
+    },
+    {
+      "scriptName": "曙光市｜回憶",
+      "description": "只整理顯示，狀態與記憶沿用原生資料；不自動送出。",
+      "priority": 60,
+      "findRegex": "【YB:SUNRISE:MEMORY】\\s*([\\s\\S]*?)\\s*【/YB:SUNRISE:MEMORY】",
+      "flags": "g",
+      "replaceString": "<section style=\"white-space:pre-wrap;line-height:1.85;background:#231d1c;color:#e8ded2;border:1px solid #655348;border-left:4px solid #978aa5;border-radius:14px;padding:16px;overflow-wrap:anywhere\"><strong style=\"display:block;color:#978aa5;margin-bottom:10px\">回憶片段｜陳述與已確認往事</strong>$1</section>"
+    },
+    {
+      "scriptName": "曙光市｜行動",
+      "description": "只整理顯示，狀態與記憶沿用原生資料；不自動送出。",
+      "priority": 60,
+      "findRegex": "【YB:SUNRISE:ACTIONS】\\s*([\\s\\S]*?)\\s*【/YB:SUNRISE:ACTIONS】",
+      "flags": "g",
+      "replaceString": "<section style=\"white-space:pre-wrap;line-height:1.85;background:#231d1c;color:#e8ded2;border:1px solid #655348;border-left:4px solid #8f9c8e;border-radius:14px;padding:16px;overflow-wrap:anywhere\"><strong style=\"display:block;color:#8f9c8e;margin-bottom:10px\">可用行動｜自由輸入有效</strong>$1</section>"
+    }
+  ]
+}

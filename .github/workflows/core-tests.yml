@@ -465,6 +465,10 @@ jobs:
         run: node tests/world-state-cost-core.cjs
       - name: Same-model story and state merge
         run: node tests/same-model-state-merge-core.cjs
+      - name: Native Sunrise startup and isolated memory frames
+        run: |
+          node tests/sunrise-city-card-core.cjs
+          node tests/story-timeline-core.cjs
       - name: Story world clock and scheduled events
         run: |
           node --check js/world-clock.js

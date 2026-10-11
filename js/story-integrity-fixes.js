@@ -25,6 +25,7 @@
   const record = (text, source = 'state-model') => {
     const state = GameState.current, value = cleanText(text);
     if (!state || !value || synthetic(value) || value === '故事剛剛開始。') return false;
+    if (window.BAOStoryTimeline?.isPast?.()) return window.BAOStoryTimeline.record(value);
     const existing = normalizeEvents(state);
     if (existing.some(event => event.text === value)) return false;
     const turn = turnNumber();
