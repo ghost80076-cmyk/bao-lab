@@ -279,3 +279,32 @@ for (const viewport of [{width:1280,height:900}, {width:390,height:844}]) {
     expect(modelCalls).toBe(0);
   });
 }
+
+
+test('worldbook condition controls preserve opt-in and never display locked content', async ({ page }) => {
+  await page.goto('/');
+  await page.waitForFunction(() => Boolean(window.YoruWorldbookLibrary && Storage.status().ready));
+  await page.evaluate(() => {
+    GameState.current = { id: 'worldbook-conditions-test', npcs: [], events: [], worldbookLibrary: {
+      version: 1, enabled: ['condition-test'], pinned: {}, installed: [{
+        schema: 'yorubay-worldbook-pack', version: 1,
+        meta: { id: 'condition-test', name: '私人測試包', world: 'general' },
+        entries: [{ id: 'evidence', title: '不應顯示的條目標題', mode: 'keyword', keywords: ['證據'],
+          requires: ['evidence-known'], content: '不應顯示的秘密正文' }]
+      }]
+    }};
+    YoruWorldbookLibrary.open();
+  });
+  const dialog = page.getByRole('dialog', { name: '世界書擴充庫' });
+  await expect(dialog.getByText('已得知資訊（1 項）')).toBeVisible();
+  await dialog.getByText('已得知資訊（1 項）').click();
+  const condition = dialog.locator('[data-ylb-condition="evidence-known"]');
+  await expect(condition).not.toBeChecked();
+  await expect(dialog).not.toContainText('不應顯示的秘密正文');
+  await expect(dialog).not.toContainText('不應顯示的條目標題');
+  await condition.check();
+  await expect.poll(() => page.evaluate(() => GameState.current.worldbookFlags)).toEqual(['evidence-known']);
+  await dialog.getByText('已得知資訊（1 項）').click();
+  await condition.uncheck();
+  await expect.poll(() => page.evaluate(() => GameState.current.worldbookFlags)).toEqual([]);
+});
