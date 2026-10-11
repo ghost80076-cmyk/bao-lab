@@ -9,6 +9,9 @@ on:
       - 'data/sunrise-worldbook-library.json'
       - 'data/sunrise-geography-source-map.json'
       - 'tests/sunrise-geography-core.cjs'
+      - 'tests/sunrise-migration-coverage.cjs'
+      - 'data/sunrise-migration-coverage.json'
+      - 'scripts/audit-sunrise-migration.py'
       - 'scripts/migrate-sunrise-geography.py'
       - 'data/three-realms-worldbook-source-map.json'
       - 'data/three-realms-encyclopedia-source-map.json'
@@ -43,6 +46,9 @@ on:
       - 'data/sunrise-worldbook-library.json'
       - 'data/sunrise-geography-source-map.json'
       - 'tests/sunrise-geography-core.cjs'
+      - 'tests/sunrise-migration-coverage.cjs'
+      - 'data/sunrise-migration-coverage.json'
+      - 'scripts/audit-sunrise-migration.py'
       - 'scripts/migrate-sunrise-geography.py'
       - 'data/three-realms-worldbook-source-map.json'
       - 'data/three-realms-encyclopedia-source-map.json'
@@ -84,6 +90,7 @@ jobs:
           node --check js/worldbook-library.js
           node tests/worldbook-library-core.cjs
           node tests/sunrise-geography-core.cjs
+          node tests/sunrise-migration-coverage.cjs
           node tests/worldbook-library-runtime.cjs
           node tests/three-realms-worldbook-core.cjs
           node tests/three-realms-encyclopedia-core.cjs
