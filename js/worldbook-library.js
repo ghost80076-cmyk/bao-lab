@@ -19,9 +19,18 @@
     return state.worldbookLibrary;
   };
   const loadCatalog = () => {
-    if (!catalogPromise) catalogPromise = fetch("data/worldbook-library.json")
-      .then(response => { if (!response.ok) throw new Error("公開世界包下載失敗"); return response.json(); })
-      .then(json => (Array.isArray(json?.packs) ? json.packs : []).map(core.normalizePack))
+    if (!catalogPromise) catalogPromise = Promise.all([
+      fetch("data/worldbook-library.json")
+        .then(response => { if (!response.ok) throw new Error("公開世界包下載失敗"); return response.json(); }),
+      fetch("data/sunrise-worldbook-library.json")
+        .then(response => { if (!response.ok) throw new Error("曙光市世界包下載失敗"); return response.json(); })
+        .catch(error => { console.warn("Sunrise catalog unavailable", error); return { packs: [] }; })
+    ])
+      .then(catalogs => {
+        const seen = new Set();
+        return catalogs.flatMap(json => Array.isArray(json?.packs) ? json.packs : [])
+          .map(core.normalizePack).filter(pack => !seen.has(pack.meta.id) && seen.add(pack.meta.id));
+      })
       .catch(error => { console.warn("Worldbook catalog unavailable", error); return []; });
     return catalogPromise;
   };

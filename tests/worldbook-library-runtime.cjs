@@ -31,7 +31,8 @@ const context = {
   window: win, document: doc, App, GameState, Chat,
   MutationObserver: class { observe() {} },
   fetch: async url => {
-    assert.equal(url, "data/worldbook-library.json");
+    assert.ok(["data/worldbook-library.json", "data/sunrise-worldbook-library.json"].includes(url));
+    if (url === "data/sunrise-worldbook-library.json") return { ok: true, json: async () => ({ packs: [] }) };
     calls++;
     return { ok: true, json: async () => catalog };
   },
