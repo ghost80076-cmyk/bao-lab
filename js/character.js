@@ -366,7 +366,8 @@ const CharacterEngine = {
       ? "【固定 Schema】\n目前使用互動 UI。不要每輪重新輸出完整 UI HTML，敘事正常輸出即可。"
       : "【固定 Schema】\n目前使用純文本模式。不要輸出 RPG 狀態面板。");
 
-    const dynamic = this.relevantDynamicPrompts(c, context).map(block => `【${block.label}】\n${block.text}`).join("\n\n");
+    // Keep nested rule headings within their parent dynamic block during cache partitioning.
+    const dynamic = this.relevantDynamicPrompts(c, context).map(block => `【${block.label}】\n${block.text}`).join("\n");
     if (dynamic) blocks.push(`【本輪動態角色規則】\n${dynamic}`);
 
     return blocks.filter(Boolean).join("\n\n");

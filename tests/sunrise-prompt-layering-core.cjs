@@ -42,8 +42,12 @@ for(const file of ['lorebook','prompt-cache','prompt-orchestrator','story-timeli
   assert.doesNotMatch(prison[0].content,/07:00-12:00|21:00 就寢/);
   state.location='未設定';
   ctx.Chat.messages=[{role:'user',content:'我研究冰系異能。'}];
+  // Multiple matching rules must remain together in the per-turn block.
+  ctx.App.activeCharacter.dynamic_prompts.push({id:'cache-regression-one',label:'第一條測試規則',text:'僅供本輪使用一',triggers:['冰系'],always:false},{id:'cache-regression-two',label:'第二條測試規則',text:'僅供本輪使用二',triggers:['冰系'],always:false});
   const ice=await ctx.App.buildMessages();
   assert.equal(ice[0].content,base[0].content);
+  assert.match(ice.at(-1).content,/僅供本輪使用一/);
+  assert.match(ice.at(-1).content,/僅供本輪使用二/);
   assert.match(ice.at(-1).content,/冰霜領域/);
   assert.doesNotMatch(ice.at(-1).content,/火焰製造|水流操控|斷肢再生/,'one ability does not recall its whole pack');
   assert.equal((ice.at(-1).content.match(/冰霜領域/g)||[]).length,1,'no inline-library duplication');
