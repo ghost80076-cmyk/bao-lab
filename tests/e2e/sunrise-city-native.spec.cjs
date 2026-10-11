@@ -60,14 +60,18 @@ for(const [device,viewport] of [['desktop',{width:1280,height:900}],['mobile',{w
       await page.locator('[data-gameplay-field="identity"]').selectOption('自訂');
       await page.locator('[data-gameplay-custom="identity"]').fill('海關顧問');
       await start(page);
-      const result=await page.evaluate(()=>{
+      const result=await page.evaluate(async()=>{
         const state=GameState.current;
         state.modules.economy.cash=200;
         const before={time:state.time,location:state.location,clock:state.worldClock.tickMinutes,events:JSON.stringify(state.events)};
+        const stableBefore=(await App.buildMessages())[0].content;
         BAOStoryTimeline.transition('【回憶】昨日的詢問');
         GameState.applyUpdate({time:'第二夜',location:'港口',new_events:['回憶發現車票'],world_clock:{advance_minutes:90},npcs:[{name:'不應加入'}],modules:{economy:{cash:0},case:{progress:100},timeline:{past_time:'昨日 20:00'}}});
-        return {before,after:{time:state.time,location:state.location,clock:state.worldClock.tickMinutes,events:JSON.stringify(state.events)},cash:state.modules.economy.cash,progress:state.modules.case.progress,npcs:state.npcs.length,identity:state.modules.player.identity,past:state.modules.timeline.past_time};
+        const pastMessages=await App.buildMessages();
+        const stableAfter=pastMessages[0].content;
+        return {stableSame:stableBefore===stableAfter,frameDynamic:pastMessages.at(-1).content.includes('【當前回憶框架】'),frameInStable:stableAfter.includes('【當前回憶框架】'),before,after:{time:state.time,location:state.location,clock:state.worldClock.tickMinutes,events:JSON.stringify(state.events)},cash:state.modules.economy.cash,progress:state.modules.case.progress,npcs:state.npcs.length,identity:state.modules.player.identity,past:state.modules.timeline.past_time};
       });
+      expect(result.stableSame).toBe(true);expect(result.frameDynamic).toBe(true);expect(result.frameInStable).toBe(false);
       expect(result.after).toEqual(result.before);
       expect(result.cash).toBe(200);expect(result.progress).toBe(0);expect(result.npcs).toBe(0);
       expect(result.identity).toBe('海關顧問');expect(result.past).toBe('昨日 20:00');
