@@ -5,6 +5,10 @@ on:
     branches: [main]
     paths:
       - 'js/worldbook-library*.js'
+      - 'js/character.js'
+      - 'js/state.js'
+      - 'js/storage.js'
+      - 'tests/sunrise-prompt-layering-core.cjs'
       - 'data/worldbook-library.json'
       - 'data/sunrise-worldbook-library.json'
       - 'data/sunrise-geography-source-map.json'
@@ -48,6 +52,10 @@ on:
     branches: [main]
     paths:
       - 'js/worldbook-library*.js'
+      - 'js/character.js'
+      - 'js/state.js'
+      - 'js/storage.js'
+      - 'tests/sunrise-prompt-layering-core.cjs'
       - 'data/worldbook-library.json'
       - 'data/sunrise-worldbook-library.json'
       - 'data/sunrise-geography-source-map.json'
@@ -106,6 +114,7 @@ jobs:
           node tests/sunrise-integration-core.cjs
           python tests/sunrise-reconciliation.py
           node tests/worldbook-library-runtime.cjs
+          node tests/sunrise-prompt-layering-core.cjs
           node tests/three-realms-worldbook-core.cjs
           node tests/three-realms-encyclopedia-core.cjs
           node tests/three-realms-lower-atlas-core.cjs

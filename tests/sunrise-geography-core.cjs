@@ -5,8 +5,8 @@ const core = require('../js/worldbook-library-core.js');
 const catalog = JSON.parse(fs.readFileSync('data/sunrise-worldbook-library.json'));
 const map = JSON.parse(fs.readFileSync('data/sunrise-geography-source-map.json'));
 const packs = catalog.packs.map(core.normalizePack);
-assert.equal(packs.length, 19);
-assert.equal(packs.flatMap(p=>p.entries).length, 61);
+assert.equal(packs.length, 26);
+assert.equal(packs.flatMap(p=>p.entries).length, 79);
 for (const source of map.sources) {
   assert.equal(source.chapters[0].start,0);
   assert.equal(source.chapters.at(-1).end,source.source_chars);
@@ -30,7 +30,7 @@ assert.equal(core.select(packs,[],{latestUser:'中央商業區',world:'sunrise-c
 for(const q of ['中央商業區','港口工業區','天際商場','北山住宅區','東區平民區','南區貧民窟'])assert.ok(select(q).text.length<=2200);
 const full=JSON.stringify(catalog);
 for(const secret of ['碼頭大火','縱火滅證','走私運作流程','源點計畫','桃華事件','用異能操控股市','張猛','蘇逸辰','走私管道']) assert.ok(!full.includes(secret),secret);
-console.log('Sunrise geography: 19 opt-in packs, 61 chapters with explicit editorial provenance, source coverage, narrow recall, realm isolation and deferred secrets passed.');
+console.log('Sunrise geography: 26 companion packs, 79 chapters with explicit editorial provenance, source coverage, narrow recall, realm isolation and deferred secrets passed.');
 
 const scenarioPacks = packs.filter(p=>p.meta.classification==='scenario');
 assert.equal(scenarioPacks.length,2);
@@ -55,7 +55,7 @@ assert.equal(core.select(people,people.map(p=>p.meta.id),{latestUser:'港口工�
 for(const p of people) assert.equal(p.meta.classification,'reference');
 
 const overview = core.select(packs,['sunrise-city-overview'],{latestUser:'曙光市',world:'sunrise-city'});
-assert.match(overview.text,/人口 800 萬/);
+assert.match(overview.text,/人口 500 萬/);
 assert.doesNotMatch(overview.text,/12,000|血色七月/);
 const institutional = core.select(packs,['sunrise-prison-institution'],{latestUser:'第一監獄探視',world:'sunrise-city'});
 assert.match(institutional.text,/虛構世界制度/);
@@ -74,3 +74,18 @@ for(const [query,title] of [['異能覺醒','【異能覺醒】'],['異能訓練
 assert.equal(core.select(packs,abilityIds,{latestUser:'異能',world:'sunrise-city'}).text,'');
 const abilityText=JSON.stringify(catalog.packs.filter(p=>abilityIds.includes(p.meta.id)));
 for(const secret of ['阿桃','蕭（','黑市異能應用','強迫異能者交配','血色七月']) assert.ok(!abilityText.includes(secret));
+
+for (const [query,needle] of [['冰系異能','冰霜領域'],['火系異能','火焰製造'],['雷系異能','電磁干擾'],['水系異能','水流操控'],['土系異能','土石操控'],['風系異能','風刃切割'],['速度強化','反應速度提升'],['防禦強化','皮膚硬化'],['再生能力','斷肢再生'],['感官強化','追蹤能力'],['瞬移','長距離瞬移'],['次元口袋','儲存物品']]) {
+ const result=select(query);
+ assert.equal(result.entries.length,1,query);
+ assert.ok(result.text.includes(needle),query);
+ assert.ok(result.text.length <= 2200);
+ assert.doesNotMatch(result.text,/桃華|源點計畫|空間切割|力量強化型/);
+}
+assert.match(select('貨櫃碼頭').text,/20 個深水泊位/);
+assert.doesNotMatch(select('貨櫃碼頭').text,/走私運作流程|A-13|阿強/);
+assert.match(select('3號碼頭').text,/危險與風險/);
+assert.doesNotMatch(select('3號碼頭').text,/重大案件|線人滅口案|武器庫/);
+assert.doesNotMatch(full,/人口 800 萬|最富裕的 5% 人口|治安等級\*\*：A 級|治安等級\*\*：D 級/);
+assert.match(select('北山住宅區').text,/治安等級\*\*：S 級/);
+assert.match(select('南區貧民窟').text,/治安等級\*\*：F 級/);

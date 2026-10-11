@@ -25,10 +25,11 @@
         "world_modules",
         "lore"
       ],
-      "editorial_status": "needs-content-review",
+      "editorial_status": "reviewed-published-sections",
       "publication_status": "partial",
       "normalized_draft_sha256": "ab5ff7d0efcad39870c04306323945c0389ab31378aeaad32c02029d727dd074",
       "decisions": [
+        "work-population",
         "police-staff",
         "bloody-july-date"
       ]
@@ -43,7 +44,7 @@
         "world",
         "lore"
       ],
-      "editorial_status": "needs-content-review",
+      "editorial_status": "reviewed-published-sections",
       "publication_status": "partial"
     },
     {
@@ -56,7 +57,7 @@
         "world",
         "lore"
       ],
-      "editorial_status": "needs-content-review",
+      "editorial_status": "reviewed-published-sections",
       "publication_status": "partial"
     },
     {
@@ -69,8 +70,8 @@
         "world",
         "lore"
       ],
-      "editorial_status": "needs-content-review",
-      "publication_status": "unreviewed"
+      "editorial_status": "reviewed-published-sections",
+      "publication_status": "partial"
     },
     {
       "source_index": 4,
@@ -82,8 +83,8 @@
         "world",
         "lore"
       ],
-      "editorial_status": "needs-content-review",
-      "publication_status": "unreviewed"
+      "editorial_status": "reviewed-published-sections",
+      "publication_status": "partial"
     },
     {
       "source_index": 5,
@@ -95,7 +96,7 @@
         "world",
         "lore"
       ],
-      "editorial_status": "needs-content-review",
+      "editorial_status": "reviewed-published-sections",
       "publication_status": "partial"
     },
     {
@@ -108,7 +109,7 @@
         "world",
         "lore"
       ],
-      "editorial_status": "needs-content-review",
+      "editorial_status": "reviewed-published-sections",
       "publication_status": "partial"
     },
     {
@@ -135,7 +136,7 @@
         "profile",
         "lore"
       ],
-      "editorial_status": "needs-content-review",
+      "editorial_status": "reviewed-published-sections",
       "publication_status": "partial"
     },
     {
@@ -148,7 +149,7 @@
         "profile",
         "lore"
       ],
-      "editorial_status": "needs-content-review",
+      "editorial_status": "reviewed-published-sections",
       "publication_status": "partial"
     },
     {
@@ -161,7 +162,7 @@
         "profile",
         "lore"
       ],
-      "editorial_status": "needs-content-review",
+      "editorial_status": "reviewed-published-sections",
       "publication_status": "partial"
     },
     {
@@ -174,7 +175,7 @@
         "profile",
         "lore"
       ],
-      "editorial_status": "needs-content-review",
+      "editorial_status": "reviewed-published-sections",
       "publication_status": "partial"
     },
     {
@@ -187,7 +188,7 @@
         "profile",
         "lore"
       ],
-      "editorial_status": "needs-content-review",
+      "editorial_status": "reviewed-published-sections",
       "publication_status": "partial"
     },
     {
@@ -200,7 +201,7 @@
         "profile",
         "lore"
       ],
-      "editorial_status": "needs-content-review",
+      "editorial_status": "reviewed-published-sections",
       "publication_status": "partial"
     },
     {
@@ -213,7 +214,7 @@
         "profile",
         "lore"
       ],
-      "editorial_status": "needs-content-review",
+      "editorial_status": "reviewed-published-sections",
       "publication_status": "partial"
     },
     {
@@ -226,7 +227,7 @@
         "profile",
         "lore"
       ],
-      "editorial_status": "needs-content-review",
+      "editorial_status": "reviewed-published-sections",
       "publication_status": "partial"
     },
     {
@@ -458,7 +459,7 @@
         "world_modules",
         "lore"
       ],
-      "editorial_status": "needs-content-review",
+      "editorial_status": "reviewed-published-sections",
       "publication_status": "partial"
     },
     {
@@ -471,7 +472,7 @@
         "world_modules",
         "lore"
       ],
-      "editorial_status": "needs-content-review",
+      "editorial_status": "reviewed-published-sections",
       "publication_status": "partial"
     },
     {
@@ -497,8 +498,8 @@
         "world_modules",
         "lore"
       ],
-      "editorial_status": "needs-content-review",
-      "publication_status": "unreviewed"
+      "editorial_status": "reviewed-published",
+      "publication_status": "complete"
     },
     {
       "source_index": 37,
@@ -510,8 +511,8 @@
         "world_modules",
         "lore"
       ],
-      "editorial_status": "needs-content-review",
-      "publication_status": "unreviewed"
+      "editorial_status": "reviewed-published-sections",
+      "publication_status": "partial"
     },
     {
       "source_index": 38,
@@ -523,8 +524,8 @@
         "world_modules",
         "lore"
       ],
-      "editorial_status": "needs-content-review",
-      "publication_status": "unreviewed"
+      "editorial_status": "reviewed-published-sections",
+      "publication_status": "partial"
     },
     {
       "source_index": 39,
@@ -666,7 +667,7 @@
         "world",
         "lore"
       ],
-      "editorial_status": "needs-content-review",
+      "editorial_status": "reviewed-published-sections",
       "publication_status": "partial"
     },
     {
@@ -1283,8 +1284,8 @@
       "targets": [
         "lore"
       ],
-      "editorial_status": "needs-content-review",
-      "publication_status": "unreviewed"
+      "editorial_status": "reviewed-published-sections",
+      "publication_status": "partial"
     },
     {
       "source_index": 97,
@@ -1295,8 +1296,8 @@
       "targets": [
         "lore"
       ],
-      "editorial_status": "needs-content-review",
-      "publication_status": "unreviewed"
+      "editorial_status": "reviewed-published-sections",
+      "publication_status": "partial"
     },
     {
       "source_index": 98,
@@ -1308,7 +1309,7 @@
         "world",
         "lore"
       ],
-      "editorial_status": "needs-content-review",
+      "editorial_status": "reviewed-published-sections",
       "publication_status": "partial"
     },
     {
@@ -1321,7 +1322,7 @@
         "world",
         "lore"
       ],
-      "editorial_status": "needs-content-review",
+      "editorial_status": "reviewed-published-sections",
       "publication_status": "partial"
     },
     {
@@ -1346,7 +1347,7 @@
         "world",
         "lore"
       ],
-      "editorial_status": "needs-content-review",
+      "editorial_status": "reviewed-published-sections",
       "publication_status": "partial"
     },
     {
@@ -1385,7 +1386,7 @@
         "world",
         "lore"
       ],
-      "editorial_status": "needs-content-review",
+      "editorial_status": "reviewed-published-sections",
       "publication_status": "partial"
     },
     {
@@ -1424,7 +1425,7 @@
         "world",
         "lore"
       ],
-      "editorial_status": "needs-content-review",
+      "editorial_status": "reviewed-published-sections",
       "publication_status": "partial"
     },
     {
@@ -1502,8 +1503,8 @@
         "world",
         "lore"
       ],
-      "editorial_status": "needs-content-review",
-      "publication_status": "unreviewed"
+      "editorial_status": "reviewed-published-sections",
+      "publication_status": "partial"
     },
     {
       "source_index": 114,
@@ -1554,7 +1555,7 @@
         "world",
         "lore"
       ],
-      "editorial_status": "needs-content-review",
+      "editorial_status": "reviewed-published-sections",
       "publication_status": "partial"
     },
     {
@@ -1580,7 +1581,7 @@
         "world",
         "lore"
       ],
-      "editorial_status": "needs-content-review",
+      "editorial_status": "reviewed-published-sections",
       "publication_status": "partial"
     },
     {
@@ -1593,7 +1594,7 @@
         "world",
         "lore"
       ],
-      "editorial_status": "needs-content-review",
+      "editorial_status": "reviewed-published-sections",
       "publication_status": "partial"
     },
     {
@@ -1820,7 +1821,7 @@
         "world_modules",
         "lore"
       ],
-      "editorial_status": "needs-content-review",
+      "editorial_status": "reviewed-published-sections",
       "publication_status": "partial",
       "normalized_draft_sha256": "7721a0073d886cfb3b1157237195b202c1d985a5fed96229a6b4ab8a9df09830",
       "decisions": [
@@ -2405,6 +2406,55 @@
   },
   "conflicts": [
     {
+      "id": "work-population",
+      "status": "resolved",
+      "authority": [
+        "author-mother-draft"
+      ],
+      "affected": [
+        0
+      ],
+      "adopted": "《失序之城》配套採人口500萬、全市5%異能者。",
+      "reason": "以本次作者母稿為作品版本；來源800萬版本仍保存在原始匯出。"
+    },
+    {
+      "id": "work-security-grades",
+      "status": "resolved",
+      "authority": [
+        "author-mother-draft"
+      ],
+      "affected": [
+        98,
+        104
+      ],
+      "adopted": "北山S級、南區F級；其他區域沿用母稿。",
+      "reason": "配套可選包與角色卡不能送入不同的治安分級。"
+    },
+    {
+      "id": "district-census",
+      "status": "unresolved",
+      "authority": [
+        0,
+        1,
+        2,
+        98,
+        99,
+        101,
+        104
+      ],
+      "affected": [
+        0,
+        1,
+        2,
+        98,
+        99,
+        101,
+        104
+      ],
+      "adopted": null,
+      "reason": "片區人口及異能者比例不能組成500萬／5%的全市統計；發布資料標待核，不虛構配平。"
+    },
+    {
       "id": "police-staff",
       "status": "resolved",
       "authority": [
@@ -2433,7 +2483,8 @@
       "affected": [
         0,
         53,
-        63
+        63,
+        96
       ],
       "adopted": "血色七月在故事開場基準時間的 15 年前；煉律審查系統在事件後 3 個月成立。",
       "reason": "完整事件專頁、學院、地區與多個組織的相對成立年表相互支持；不用現實年份代替故事年份。"
@@ -2481,8 +2532,14 @@
       "id": "participant-ages",
       "status": "unresolved",
       "authority": [
-        52,
+        8,
+        16,
+        17,
+        19,
+        43,
+        53,
         61,
+        75,
         97
       ],
       "affected": [
@@ -2491,7 +2548,7 @@
         97
       ],
       "adopted": null,
-      "reason": "統一事件年份後仍須交叉檢查角色當時年齡、就學、任職與親屬事件；不能只做數字替換。"
+      "reason": "以角色檔案年齡反推15年前：蕭23歲（事件頁30）、林宇軒23（15）、雷震天43（20）、林雨萱20（10）、炎月夜5（4）、ゆめ5（12）、桃華若仍在世應38／當時23（25）。阿蕾西亞當時9歲，不能把18歲覺醒、20歲任職與血色七月串成同一次執勤經歷；相關事件人物段暫不發布，不擅改角色年齡。"
     },
     {
       "id": "registration-law-date",

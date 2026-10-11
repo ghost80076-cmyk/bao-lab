@@ -69,12 +69,14 @@ const GameState = {
 
   create(character, config) {
     const base = structuredClone(character.initial_state || {});
+    const worldbookLibrary = typeof CharacterEngine !== "undefined" ? CharacterEngine.normalizeWorldbookLibrary?.(base.worldbookLibrary) : null;
     this.current = {
       time: base.time || "未設定",
       location: base.location || "未設定",
       events: Array.isArray(base.events) && base.events.length ? base.events : ["故事剛剛開始。"],
       npcs: Array.isArray(base.npcs) ? base.npcs : [],
       memory: [],
+      ...(worldbookLibrary ? {worldbookLibrary} : {}),
       ...((base.world_clock || base.worldClock) && typeof (base.world_clock || base.worldClock) === "object" && !Array.isArray(base.world_clock || base.worldClock)
         ? { worldClock: structuredClone(base.world_clock || base.worldClock) }
         : {}),

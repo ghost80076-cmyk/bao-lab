@@ -8,6 +8,14 @@ import zipfile
 from sunrise_reconciliation import reconcile_chapter
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 SOURCES = {
+ 96: ('9d40bd423ca93d79e41bfa1f4895b329afc1f104c08aec7cafc0af69a50062ff', 'sunrise-july-record', '曙光市｜血色七月歷史紀錄', ['血色七月'], {0}),
+ 97: ('e36be103f2f4ea1d499f8923ede29ebe34baaafb8e57031b25813b704b5e9c75', 'sunrise-july-record', '曙光市｜血色七月歷史紀錄', ['血色七月影響', '登記法強制實施'], {1}),
+ 113: ('a5273301706733d42dbe76f3681e6045fbd1529ffe73d28ea94fcfac847c4499', 'sunrise-wolf-background', '曙光市｜狼幫組織背景', ['狼幫'], {0,1}),
+ 3: ('a2d2c9cdf2b336667de052d4d3ecfd827ce1764517e621c2eb3d50f558715b95', 'sunrise-container-dock', '曙光市｜貨櫃碼頭基本資料', ['貨櫃碼頭', '1-5 號碼頭', '1–5 號碼頭'], {1}),
+ 4: ('3975be8f58ac20bb707ce5ab0562133ec9c90dea76e4da0cee9c0eb513e5d069', 'sunrise-container-risk', '曙光市｜貨櫃碼頭環境風險', ['貨櫃碼頭風險', '3 號碼頭', '3號碼頭'], {2}),
+ 36: ('8e7301af3578a01d3209bab38cb8ce3892df0544528d0ad638815ed22f1049d3', 'sunrise-elemental-abilities', '曙光市｜元素系異能（虛構設定）', ['元素系'], set(range(6))),
+ 37: ('1db2cff707f0ccfaec98a2275fd006ad2a07e695eb19314c079c1d4865e4a343', 'sunrise-physical-abilities', '曙光市｜身體系異能（虛構設定）', ['身體系'], {1,2,3,4}),
+ 38: ('4ebe6251aff288281e388d3ed69ac9bae76e3a98ddd93462fa9846c9c2bae5d5', 'sunrise-space-abilities', '曙光市｜空間系異能（虛構設定）', ['空間系'], {0,2}),
  1: ('4afe97b2b9e99ad7fdf29129928b34797f9eb2785824951a057f54a90ee3ce2d', 'sunrise-cbd-geography', '曙光市｜中央商業區', ['中央商業區', 'CBD'], {0,1,2,3,4,5,6,7}),
  2: ('10747da3b24eaaf9eae18e17053e2a6e6042311248d24c236f441c90bfa1396e', 'sunrise-port-geography', '曙光市｜港口生活地理', ['港口工業區'], {0,6}),
  98: ('32830cfa8926ca78c672907c94d35eda8fcf8d6dd9bc611c216bc2a851b437a1', 'sunrise-north-geography', '曙光市｜北山生活地理', ['北山住宅區'], {0,1,3}),
@@ -45,9 +53,9 @@ def build(zip_path):
  packs, mapping = [], []
  for index, (digest, pack_id, name, keywords, allowed) in SOURCES.items():
   entry = original['entries'][index]; content = entry['content']
-  if sha(content) != digest or content != shared['entries'][index]['content'] or entry['category'] != ('角色' if 8 <= index <= 15 else '規則' if index in (0, 33, 34, 138) else '地點'):
+  if sha(content) != digest or content != shared['entries'][index]['content'] or entry['category'] != ('角色' if 8 <= index <= 15 else '事件' if index in (96,97) else '規則' if index in (0, 33, 34, 36, 37, 38, 138) else '地點'):
    raise ValueError('Source changed; review again')
-  starts = [m.start() for m in re.finditer(r'^#{2,3} ' if index == 138 else r'^## ' if index in (0, 1, 2, 5, 6) else r'^### ', content, re.M)]
+  starts = [m.start() for m in re.finditer(r'^#### ' if index in (36,37,38) else r'^#{2,3} ' if index == 138 else r'^## ' if index in (0, 1, 2, 3, 4, 5, 6) else r'^### ', content, re.M)]
   if not starts or starts[0] != 0: starts.insert(0,0)
   spans = list(zip(starts, starts[1:] + [len(content)]))
   entries, review = [], []
@@ -66,6 +74,13 @@ def build(zip_path):
      (0,4): ['血色七月', '覺醒潮', '曙光市歷史'],
      (33,0): ['曙光市異能', '異能來源理論'], (33,2): ['異能覺醒'],
      (33,3): ['異能訓練'], (33,4): ['異能限制'], (33,6): ['異能者登記法', '異能者權益', '異能者歧視'],
+     (96,0): ['血色七月統計', '血色七月死傷'], (97,1): ['血色七月影響', '登記法強制實施'],
+     (36,0): ['冰系異能', '冰霜領域'], (36,1): ['火系異能', '火焰操控'],
+     (36,2): ['雷系異能', '雷電操控'], (36,3): ['水系異能', '水流操控'],
+     (36,4): ['土系異能', '土石操控'], (36,5): ['風系異能', '空氣操控'],
+     (37,1): ['速度強化'], (37,2): ['防禦強化', '皮膚硬化'],
+     (37,3): ['再生能力', '斷肢再生'], (37,4): ['感官強化'],
+     (38,0): ['瞬移', '空間系異能'], (38,2): ['次元口袋'],
      (34,0): ['異能分類', '八大主類'], (34,4): ['異能監控等級', '異能者管理局監控']
     }.get((index, part), keywords)
     entries.append({'id':eid,'title':name+'｜'+(keywords[0]+'｜' if 8 <= index <= 15 else '')+title,'category':'人物資料' if 8 <= index <= 15 else '世界資料','mode':'keyword','keywords':recall_keywords + ({1:['曙光金融大廈','天際商場','凱旋企業總部','司法大廈','曙光國際會議中心'],2:['曙光證券交易所','泰坦科技','晨曦集團','極光製藥','銀河傳媒']} .get(part, []) if index == 1 else []),'content':value})
@@ -86,7 +101,7 @@ def build(zip_path):
    if existing:
     existing['entries'].extend(group_entries)
    else:
-    packs.append({'schema':'yorubay-worldbook-pack','version':1,'meta':{'id':group_id,'name':group_name,'world':'sunrise-city','classification':'scenario' if group_id.endswith('-scenario') else 'reference' if group_id.endswith('-people') else 'world','author':'班長／肉包','release':'1.0.0','visibility':'public','source':'囚徒的自白／精靈王共用原文｜審閱地理章節（2026-10-11）'},'entries':group_entries})
+    packs.append({'schema':'yorubay-worldbook-pack','version':1,'meta':{'id':group_id,'name':group_name,'world':'sunrise-city','classification':'scenario' if group_id.endswith('-scenario') else 'reference' if group_id.endswith('-people') else 'world','author':'班長／肉包','release':'1.1.0','visibility':'public','source':'囚徒的自白原始來源｜失序之城配套採用版（2026-10-11）'},'entries':group_entries})
   mapping.append({'source_index':index,'source_sha256':digest,'source_chars':len(content),'chapters':review})
  return {'packs':packs}, {'source_worldbook_id':original['worldbook']['id'],'shared_content_verified':True,'sources':mapping}
 if __name__ == '__main__':

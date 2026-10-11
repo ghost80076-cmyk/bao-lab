@@ -3,6 +3,476 @@
   "shared_content_verified": true,
   "sources": [
     {
+      "source_index": 96,
+      "source_sha256": "9d40bd423ca93d79e41bfa1f4895b329afc1f104c08aec7cafc0af69a50062ff",
+      "source_chars": 1946,
+      "chapters": [
+        {
+          "chapter": 0,
+          "title": "**名稱**：血色七月 (Bloody July)",
+          "start": 0,
+          "end": 253,
+          "sha256": "eb31101bfad92074704551671e7bc29b0be47d2d36d5438c4512cdece7baf468",
+          "status": "published",
+          "reconciliation": [
+            "bloody-july-date"
+          ],
+          "published_sha256": "a532f455069433fc165cde10757840774da2f7765bf038986c242e4b59773203",
+          "entry_id": "sunrise-source-96-0"
+        },
+        {
+          "chapter": 1,
+          "title": "**【事件起因】**",
+          "start": 253,
+          "end": 858,
+          "sha256": "450949e2a6bc4444a3f2e599ccc6c7795a34457901eb3b072c94940e49062170",
+          "status": "deferred"
+        },
+        {
+          "chapter": 2,
+          "title": "**【事件經過 - 七天浩劫】**",
+          "start": 858,
+          "end": 1946,
+          "sha256": "615d5bc5a86f4df576bfed53e9e16fc9b94f8d59b5d439af71b5817e8fb12d02",
+          "status": "deferred"
+        }
+      ]
+    },
+    {
+      "source_index": 97,
+      "source_sha256": "e36be103f2f4ea1d499f8923ede29ebe34baaafb8e57031b25813b704b5e9c75",
+      "source_chars": 1987,
+      "chapters": [
+        {
+          "chapter": 0,
+          "title": "**第四天：7月4日 - 屠殺**",
+          "start": 0,
+          "end": 682,
+          "sha256": "99461e4614cc6a6b7f0d345ff6c77f72080403a7c343bbe8358cd677721ec3ad",
+          "status": "deferred"
+        },
+        {
+          "chapter": 1,
+          "title": "**【事件影響】**",
+          "start": 682,
+          "end": 1177,
+          "sha256": "4bac274d0586988386856514333841d5eecf6ddad405dfb696c96b4cbea21d69",
+          "status": "published",
+          "entry_id": "sunrise-source-97-1"
+        },
+        {
+          "chapter": 2,
+          "title": "**【倖存者與相關人物】**",
+          "start": 1177,
+          "end": 1655,
+          "sha256": "8c1555e15e57eaddfec3d83be602594dc3092490773979d8a640e43a726d2a39",
+          "status": "deferred"
+        },
+        {
+          "chapter": 3,
+          "title": "**【未解之謎】**",
+          "start": 1655,
+          "end": 1987,
+          "sha256": "2d3b52dbaaace0455dc0cca41fc1e1bae974b1cc78f17dac9c173f3ac78b794a",
+          "status": "deferred"
+        }
+      ]
+    },
+    {
+      "source_index": 113,
+      "source_sha256": "a5273301706733d42dbe76f3681e6045fbd1529ffe73d28ea94fcfac847c4499",
+      "source_chars": 1907,
+      "chapters": [
+        {
+          "chapter": 0,
+          "title": "**名稱**：狼幫 (Wolf Gang)",
+          "start": 0,
+          "end": 228,
+          "sha256": "31a1b75a2fd2484f80c6d14ffb70b505a3dded32aab6bcff097d62967ba0bb2a",
+          "status": "published",
+          "entry_id": "sunrise-source-113-0"
+        },
+        {
+          "chapter": 1,
+          "title": "**【組織歷史與理念】**",
+          "start": 228,
+          "end": 556,
+          "sha256": "7427188b7ceda83b4bb0adfc231da3b6360dbad107e63a5c7527f411ee637a29",
+          "status": "published",
+          "entry_id": "sunrise-source-113-1"
+        },
+        {
+          "chapter": 2,
+          "title": "**【組織架構】**",
+          "start": 556,
+          "end": 572,
+          "sha256": "9f3299e82ef216dbc2c6d5955257ef64967a1430c589d70d3851233662cb0cc7",
+          "status": "deferred"
+        },
+        {
+          "chapter": 3,
+          "title": "**一、狼王（老大）**",
+          "start": 572,
+          "end": 720,
+          "sha256": "e682985482fae381b2ae101a8b7344e0dcc87f650f010d126d2b817fe71ed5bb",
+          "status": "deferred"
+        },
+        {
+          "chapter": 4,
+          "title": "**二、三大分隊**",
+          "start": 720,
+          "end": 736,
+          "sha256": "fa5108244ca8ae1d11c99dadacfb85525d153e7cbe50e9d5a27c0e053b023257",
+          "status": "deferred"
+        },
+        {
+          "chapter": 5,
+          "title": "**戰鬥隊（對抗管理局與三合會）**",
+          "start": 736,
+          "end": 923,
+          "sha256": "0bd9e6c1e960f59bc1823cc52e03feae477cf395ecdb63c02d73a4eecd28f776",
+          "status": "deferred"
+        },
+        {
+          "chapter": 6,
+          "title": "**情報隊（收集情報、策反內鬼）**",
+          "start": 923,
+          "end": 1130,
+          "sha256": "af22486c8734b7d7aa392b6625e48aa1ec15ef34df8c1b473593489d1ddcfd1c",
+          "status": "deferred"
+        },
+        {
+          "chapter": 7,
+          "title": "**民生隊（保護異能者、提供資源）**",
+          "start": 1130,
+          "end": 1312,
+          "sha256": "7d36f87f754c81d8e60a92f74c329fb9fff6f2ee277c77ed674014ce59aa4b2a",
+          "status": "deferred"
+        },
+        {
+          "chapter": 8,
+          "title": "**【主要業務與收入】**",
+          "start": 1312,
+          "end": 1331,
+          "sha256": "30c092f547d91ce7209808c67a87fee2a2b4e7110edf35119ca62d5df68e2912",
+          "status": "deferred"
+        },
+        {
+          "chapter": 9,
+          "title": "**毒品販賣（最大收入來源）**",
+          "start": 1331,
+          "end": 1475,
+          "sha256": "6fa8e12edea2802071296adc020d6544b68ab9568426346c0660ef47d7381ab3",
+          "status": "deferred"
+        },
+        {
+          "chapter": 10,
+          "title": "**保護費與黑市交易**",
+          "start": 1475,
+          "end": 1552,
+          "sha256": "7a1eab2002952a15602ae504e0c421567a89663ac9f77ac8fa12f5682b6f53ab",
+          "status": "deferred"
+        },
+        {
+          "chapter": 11,
+          "title": "**劫掠與搶劫**",
+          "start": 1552,
+          "end": 1642,
+          "sha256": "a5e3fa44528eb0faf4a907ac69a92e66e3cf25a387df6146d37c573b247d111a",
+          "status": "deferred"
+        },
+        {
+          "chapter": 12,
+          "title": "**總年收入：約11-17億元（比三合會少，但仍可觀）**",
+          "start": 1642,
+          "end": 1682,
+          "sha256": "c35862a6f4133448f7e691df21f763e4efcc7deedb8ffa0b46006d4beee4bde3",
+          "status": "deferred"
+        },
+        {
+          "chapter": 13,
+          "title": "**【與其他勢力的關係】**",
+          "start": 1682,
+          "end": 1702,
+          "sha256": "97ebbdea8e7d62564be4c5def623006f6be8ff1f8ebe16c64db718712c7225e9",
+          "status": "deferred"
+        },
+        {
+          "chapter": 14,
+          "title": "**與三合會**",
+          "start": 1702,
+          "end": 1804,
+          "sha256": "421a90ecb04851b212624b48f1feaebcb9f578a1726bb611f52ead31b7a22be2",
+          "status": "deferred"
+        },
+        {
+          "chapter": 15,
+          "title": "**與鐵鏈組織**",
+          "start": 1804,
+          "end": 1907,
+          "sha256": "fd21250d9aefea3e7f80a650db1d1f714dca671e28b59d1a5afcfcfbc61decac",
+          "status": "deferred"
+        }
+      ]
+    },
+    {
+      "source_index": 3,
+      "source_sha256": "a2d2c9cdf2b336667de052d4d3ecfd827ce1764517e621c2eb3d50f558715b95",
+      "source_chars": 1862,
+      "chapters": [
+        {
+          "chapter": 0,
+          "title": "1-5 號貨櫃碼頭",
+          "start": 0,
+          "end": 13,
+          "sha256": "e2cb40866650400230a1ac8f63f2c89fe22d369991cf622e7ee45806f9c4ca93",
+          "status": "deferred"
+        },
+        {
+          "chapter": 1,
+          "title": "基本資訊",
+          "start": 13,
+          "end": 187,
+          "sha256": "a195b4782bc95f9a329f67ed3c3d2dfedc6f0bc6b19f04f48c0f355967a76ed0",
+          "status": "published",
+          "entry_id": "sunrise-source-3-1"
+        },
+        {
+          "chapter": 2,
+          "title": "各碼頭詳細",
+          "start": 187,
+          "end": 894,
+          "sha256": "c14856a491d2000d4e2b2493ecef2b1b392c8913d480bfa71e1367b7b6f8f5bf",
+          "status": "deferred"
+        },
+        {
+          "chapter": 3,
+          "title": "走私運作流程",
+          "start": 894,
+          "end": 1158,
+          "sha256": "84fe05c99fbd7acdf6e0f96c4cc0b8e752fcc47b5af54cc428198068c68ab0cc",
+          "status": "deferred"
+        },
+        {
+          "chapter": 4,
+          "title": "走私物品類型",
+          "start": 1158,
+          "end": 1455,
+          "sha256": "2382cd8ad327748fe906a110de678b300fc592a434d1293f92f0dfdd9791a7ea",
+          "status": "deferred"
+        },
+        {
+          "chapter": 5,
+          "title": "海關與執法",
+          "start": 1455,
+          "end": 1862,
+          "sha256": "3bafa54dd07fb7b9c64ac2a97b94f0f118b2ecf007f8ea09d6c270c0acec9424",
+          "status": "deferred"
+        }
+      ]
+    },
+    {
+      "source_index": 4,
+      "source_sha256": "3975be8f58ac20bb707ce5ab0562133ec9c90dea76e4da0cee9c0eb513e5d069",
+      "source_chars": 1478,
+      "chapters": [
+        {
+          "chapter": 0,
+          "title": "碼頭工人",
+          "start": 0,
+          "end": 348,
+          "sha256": "eebfe2cd32a9e0ef48a0158bd2bd6a82769180736baf574c22c44e485f673713",
+          "status": "deferred"
+        },
+        {
+          "chapter": 1,
+          "title": "三合會控制",
+          "start": 348,
+          "end": 645,
+          "sha256": "5500d58893400e7814e7bd29e932f9671d67fb53c4e95cd12a33bf0edb7bfce4",
+          "status": "deferred"
+        },
+        {
+          "chapter": 2,
+          "title": "危險與風險",
+          "start": 645,
+          "end": 830,
+          "sha256": "2eab98fd819e7a3e03b95ed479ae93e8199114a4daf554fd28ea0d7ba954c770",
+          "status": "published",
+          "entry_id": "sunrise-source-4-2"
+        },
+        {
+          "chapter": 3,
+          "title": "重大案件",
+          "start": 830,
+          "end": 1132,
+          "sha256": "1b83b8d0b64a46aee148121e1846c43294f7a8f55a457e53bb6f6f224513efca",
+          "status": "deferred"
+        },
+        {
+          "chapter": 4,
+          "title": "NPC 範例",
+          "start": 1132,
+          "end": 1478,
+          "sha256": "7f8e9bf24e46d317cd8ff87a2dc2dc0b3bee1559c8965808240938f49564b6d0",
+          "status": "deferred"
+        }
+      ]
+    },
+    {
+      "source_index": 36,
+      "source_sha256": "8e7301af3578a01d3209bab38cb8ce3892df0544528d0ad638815ed22f1049d3",
+      "source_chars": 457,
+      "chapters": [
+        {
+          "chapter": 0,
+          "title": "**冰系（Ice）**",
+          "start": 0,
+          "end": 93,
+          "sha256": "7c58df61eb85ec345185f7bc1aafa55bf61bc3a417bc97d09a11c79edfbc7f08",
+          "status": "published",
+          "entry_id": "sunrise-source-36-0"
+        },
+        {
+          "chapter": 1,
+          "title": "**火系（Fire）**",
+          "start": 93,
+          "end": 178,
+          "sha256": "0a17b8038ab3aa3d79d4e3c827cc2a22588d91b42a3602d671e05045f9a5684c",
+          "status": "published",
+          "entry_id": "sunrise-source-36-1"
+        },
+        {
+          "chapter": 2,
+          "title": "**雷系（Thunder）**",
+          "start": 178,
+          "end": 269,
+          "sha256": "2a02d82ab1443e3758cb92e8701d3209403a28e51530a165c7007c9c3744c01b",
+          "status": "published",
+          "entry_id": "sunrise-source-36-2"
+        },
+        {
+          "chapter": 3,
+          "title": "**水系（Water）**",
+          "start": 269,
+          "end": 331,
+          "sha256": "5843953e20c26cc448c68bb7886ae035aaa88d27731f297ecdf338ffb4c0e5f3",
+          "status": "published",
+          "entry_id": "sunrise-source-36-3"
+        },
+        {
+          "chapter": 4,
+          "title": "**土系（Earth）**",
+          "start": 331,
+          "end": 395,
+          "sha256": "80a620bc1c14a1eaa029e9add910e701be32b49a2ab08d87f76ec60a535592af",
+          "status": "published",
+          "entry_id": "sunrise-source-36-4"
+        },
+        {
+          "chapter": 5,
+          "title": "**風系（Wind）**",
+          "start": 395,
+          "end": 457,
+          "sha256": "37d50ea99a870e3065483a423cc829114bcb7468c4c06a4d85072bbb92a17411",
+          "status": "published",
+          "entry_id": "sunrise-source-36-5"
+        }
+      ]
+    },
+    {
+      "source_index": 37,
+      "source_sha256": "1db2cff707f0ccfaec98a2275fd006ad2a07e695eb19314c079c1d4865e4a343",
+      "source_chars": 306,
+      "chapters": [
+        {
+          "chapter": 0,
+          "title": "**力量強化型**",
+          "start": 0,
+          "end": 83,
+          "sha256": "a7418502dd564847e08e850b5bc1bbf74c2619122bfb2fbda5127d03ae2cdf8e",
+          "status": "deferred"
+        },
+        {
+          "chapter": 1,
+          "title": "**速度強化型**",
+          "start": 83,
+          "end": 138,
+          "sha256": "f492d22239ab962686097f3e4e525481731b97ad3622b5cdc7804c66994cadf4",
+          "status": "published",
+          "entry_id": "sunrise-source-37-1"
+        },
+        {
+          "chapter": 2,
+          "title": "**防禦強化型**",
+          "start": 138,
+          "end": 191,
+          "sha256": "67a84b93f076d55580a149b497e45b7d0332d6082731e1ad9d3c17c237daa850",
+          "status": "published",
+          "entry_id": "sunrise-source-37-2"
+        },
+        {
+          "chapter": 3,
+          "title": "**再生能力型**",
+          "start": 191,
+          "end": 249,
+          "sha256": "a3788eaa287ab44b08f60cdedab5ff668e9e4917d77b620acb2b0b4ecc05a455",
+          "status": "published",
+          "entry_id": "sunrise-source-37-3"
+        },
+        {
+          "chapter": 4,
+          "title": "**感官強化型**",
+          "start": 249,
+          "end": 306,
+          "sha256": "18d5ca168cc2317e4c516c97ab86141363dc2e3e17367512a23a6544e06de406",
+          "status": "published",
+          "entry_id": "sunrise-source-37-4"
+        }
+      ]
+    },
+    {
+      "source_index": 38,
+      "source_sha256": "4ebe6251aff288281e388d3ed69ac9bae76e3a98ddd93462fa9846c9c2bae5d5",
+      "source_chars": 224,
+      "chapters": [
+        {
+          "chapter": 0,
+          "title": "**瞬移型**",
+          "start": 0,
+          "end": 73,
+          "sha256": "abc3a2dfa8158ab02dd348cbd320b5cb0be9cf8b2c4548afa0ef281768986478",
+          "status": "published",
+          "entry_id": "sunrise-source-38-0"
+        },
+        {
+          "chapter": 1,
+          "title": "**空間切割型**",
+          "start": 73,
+          "end": 123,
+          "sha256": "094d6848dda6e44375ca153ba8483a4baeafb4914720ca6b1d2e4ad7d1211a1e",
+          "status": "deferred"
+        },
+        {
+          "chapter": 2,
+          "title": "**次元口袋型**",
+          "start": 123,
+          "end": 174,
+          "sha256": "c3e849369f0d4f5be93774990f5898d40c8efffae0d395109e298e2d98b0a612",
+          "status": "published",
+          "entry_id": "sunrise-source-38-2"
+        },
+        {
+          "chapter": 3,
+          "title": "**空間監禁型**",
+          "start": 174,
+          "end": 224,
+          "sha256": "631bfc43f54870b82f06183c8806b06f96b0cc9594297a428e77b0c73bc3fcb9",
+          "status": "deferred"
+        }
+      ]
+    },
+    {
       "source_index": 1,
       "source_sha256": "4afe97b2b9e99ad7fdf29129928b34797f9eb2785824951a057f54a90ee3ce2d",
       "source_chars": 1992,
@@ -41,6 +511,10 @@
           "end": 1037,
           "sha256": "93db9e8d7293a69948e488a91ec0088344dc2b22cade7a15abd74ab6b5a97619",
           "status": "published",
+          "reconciliation": [
+            "district-census"
+          ],
+          "published_sha256": "9bd38755f9b4b2356966180279e6cdf171c36bde8f81dd0f0cdb8321bf06f21d",
           "entry_id": "sunrise-source-1-3"
         },
         {
@@ -150,6 +624,10 @@
           "end": 1372,
           "sha256": "00031ef67e7403c70ea4955da6a8afef3afcec0efbdf99a97f8eff6ac1b70130",
           "status": "published",
+          "reconciliation": [
+            "district-census"
+          ],
+          "published_sha256": "32a2b6119bcfe891c7fec61a82f8121d992e4254bdbf52ec854ad524c41e2e08",
           "entry_id": "sunrise-source-2-6"
         },
         {
@@ -174,6 +652,11 @@
           "end": 229,
           "sha256": "04c0fd97b5e689f3afb1bb2c5e0f4fb5e256f1f8234bc574408b38025439b3c1",
           "status": "published",
+          "reconciliation": [
+            "work-security-grades",
+            "district-census"
+          ],
+          "published_sha256": "8f5c664ec6fed7b9962ad0f7199af3f76c50856a0ee4ec19cba34556c2c43202",
           "entry_id": "sunrise-source-98-0"
         },
         {
@@ -200,6 +683,10 @@
           "end": 944,
           "sha256": "0ef4640b4de95d0a9cfea7ad17a45794544b603dd22ba30086f915d17f813dec",
           "status": "published",
+          "reconciliation": [
+            "district-census"
+          ],
+          "published_sha256": "adf9acfb9cdc2dd02eb8a8eb5eb052344f8b50308ddd7d7fee05351291dc2d06",
           "entry_id": "sunrise-source-98-3"
         },
         {
@@ -264,6 +751,10 @@
           "end": 190,
           "sha256": "8698bc651b8068dd2b383d9800216904da62feb5eb52f8f179df1cd1da901d28",
           "status": "published",
+          "reconciliation": [
+            "district-census"
+          ],
+          "published_sha256": "ab2ca762d8320b8ceffe1a186b3222775834dfca9431db991b2e3043c9ed1aa4",
           "entry_id": "sunrise-source-101-0"
         },
         {
@@ -290,6 +781,10 @@
           "end": 867,
           "sha256": "2a244bbd2c795c60e5a36a11372e03cdc59bf2b3eb60446074364545f0a37ab7",
           "status": "published",
+          "reconciliation": [
+            "district-census"
+          ],
+          "published_sha256": "f61dc26b26e98b88e8bd9ea8fec806b344c06ee4190a22d2c3f0ae974823df23",
           "entry_id": "sunrise-source-101-3"
         },
         {
@@ -299,6 +794,10 @@
           "end": 1205,
           "sha256": "1489f7f8ffb22969cd161969d40b437f95fa096f6f8baa6717bbd63db137cb83",
           "status": "published",
+          "reconciliation": [
+            "district-census"
+          ],
+          "published_sha256": "66b357b9755bf963bd8f1889b7c5e6fa93f5a972d11f301c0e7a2bd571aef734",
           "entry_id": "sunrise-source-101-4"
         },
         {
@@ -323,6 +822,11 @@
           "end": 229,
           "sha256": "76240dd121340afbacb116306982b0b791fabcc47c5575fc43f003b242cd03e1",
           "status": "published",
+          "reconciliation": [
+            "work-security-grades",
+            "district-census"
+          ],
+          "published_sha256": "eabf8c4f7cb4d314c8891ce6f6426f4460c922ada732e0f846b0271a1ae719af",
           "entry_id": "sunrise-source-104-0"
         },
         {
@@ -1712,6 +2216,10 @@
           "end": 159,
           "sha256": "72ba169e9fbb7a48f6353ebf72410467200eff46fb23019bcd6083d91418e1f6",
           "status": "published",
+          "reconciliation": [
+            "work-population"
+          ],
+          "published_sha256": "5d59ef726701ec79f5d58365c04583605d191a8af9b004c1a9a0bebe49704df2",
           "entry_id": "sunrise-source-0-0"
         },
         {

@@ -34,6 +34,16 @@
       .catch(error => { console.warn("Worldbook catalog unavailable", error); return []; });
     return catalogPromise;
   };
+  const snapshots = config => {
+    const result = [], seen = new Set();
+    for (const raw of [...(config?.installed || []), ...Object.values(config?.pinned || {})]) {
+      try {
+        const pack = core.normalizePack(raw);
+        if (!seen.has(pack.meta.id)) { seen.add(pack.meta.id); result.push(pack); }
+      } catch (error) { console.warn("Skipped invalid story worldbook", error); }
+    }
+    return result;
+  };
   const all = async () => {
     const config = cfg();
     if (!config) return [];
@@ -81,9 +91,13 @@
   }
   const wrapper = async (next, config) => {
     const messages = await next(config);
+    const owner = story();
     const local = cfg();
     if (!local?.enabled?.length || !Array.isArray(messages)) return messages;
-    const packs = await all();
+    const owned = snapshots(local);
+    // Embedded companion snapshots work offline and never follow catalog revisions.
+    const packs = local.enabled.every(id => owned.some(pack => pack.meta.id === id)) ? owned : await all();
+    if (story() !== owner || cfg() !== local) return messages;
     const picked = core.select(packs, local.enabled, {
       ...signals(), world: activeWorld(packs, local.enabled)
     }, { maxChars: 2200, maxEntries: 4 });

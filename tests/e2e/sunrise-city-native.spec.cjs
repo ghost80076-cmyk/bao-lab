@@ -1,7 +1,7 @@
 const {test,expect}=require('@playwright/test');
 async function ready(page) {
   await page.goto('/');
-  await page.waitForFunction(()=>window.BAOStoryTimeline && window.BAOGameplayUI && window.BAOChatMarkup && window.BAOSceneHTML && window.BAOStoryIntegrity);
+  await page.waitForFunction(()=>window.BAOStoryTimeline && window.BAOGameplayUI && window.BAOChatMarkup && window.BAOSceneHTML && window.BAOStoryIntegrity && window.YoruWorldbookLibrary);
   await page.evaluate(async()=>{
     const raw=await (await fetch('data/characters/community/73/sunrise-city-disorder.json')).json();
     App.activeCharacter=CharacterEngine.normalize(raw);
@@ -52,6 +52,36 @@ for(const [device,viewport] of [['desktop',{width:1280,height:900}],['mobile',{w
       expect(restored).toEqual({ok:true,same:true,location:'東區平民區｜組織據點'});
       await expect(page.locator('#chat-stream .bao-structured-opening')).toContainText('租約');
       expect(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth+2)).toBe(true);
+    });
+    test('companion chapters recall individually, save pins revisions and opt-out persists',async({page})=>{
+      await ready(page); await start(page);
+      const result=await page.evaluate(async()=>{
+        const binding=GameState.current.worldbookLibrary;
+        const before=(await App.buildMessages())[0].content;
+        GameState.current.location='未設定';
+        Chat.add('user','我研究冰系異能。');
+        const messages=await App.buildMessages();
+        const payload=Storage.buildStoryPayload();
+        const ok=Storage.restoreStory(payload);
+        const savedCount=Object.values(GameState.current.worldbookLibrary.pinned).flatMap(p=>p.entries).length;
+        GameState.current.worldbookLibrary.enabled=[];
+        const offPayload=Storage.buildStoryPayload();
+        Storage.restoreStory(offPayload);
+        const off=await App.buildMessages();
+        return {count:binding.enabled.length,chapters:savedCount,ok,same:messages[0].content===before,
+          ice:messages.at(-1).content.includes('冰霜領域'),fire:messages.at(-1).content.includes('火焰製造'),
+          copies:(messages.at(-1).content.match(/冰霜領域/g)||[]).length,
+          disabled:GameState.current.worldbookLibrary.enabled.length,off:off.at(-1).content.includes('冰霜領域')};
+      });
+      expect(result).toEqual({count:26,chapters:79,ok:true,same:true,ice:true,fire:false,copies:1,disabled:0,off:false});
+      const legacy=await page.evaluate(()=>{
+        const payload=Storage.buildStoryPayload();
+        delete payload.state.worldbookLibrary;delete payload.character.initial_state.worldbookLibrary;
+        payload.character.lore='【世界書：舊版配套｜監獄】舊存檔的資料【/世界書】';
+        const ok=Storage.restoreStory(payload);
+        return {ok,lore:App.activeCharacter.lore,has:!!GameState.current.worldbookLibrary};
+      });
+      expect(legacy).toEqual({ok:true,lore:'【世界書：舊版配套｜監獄】舊存檔的資料【/世界書】',has:false});
     });
     test('custom inputs and flashback updates preserve the present',async({page})=>{
       await ready(page);

@@ -1,6 +1,19 @@
 const CharacterEngine = {
   storageKey: "bao-lab:custom-characters",
 
+  // Companion packs are story-owned snapshots, not prompt text or mutable catalog links.
+  normalizeWorldbookLibrary(value) {
+    if (!value || typeof value !== "object" || Array.isArray(value) || value.version !== 1) return null;
+    try {
+      if (JSON.stringify(value).length > 3500000 || !Array.isArray(value.enabled) || value.enabled.length > 64 ||
+          !Array.isArray(value.installed) || value.installed.length > 6 ||
+          !value.pinned || typeof value.pinned !== "object" || Array.isArray(value.pinned) || Object.keys(value.pinned).length > 64) return null;
+      const validId = id => typeof id === "string" && /^[a-z0-9][a-z0-9_-]{0,79}$/.test(id) && !["constructor", "prototype", "__proto__"].includes(id);
+      if (!value.enabled.every(validId) || !Object.keys(value.pinned).every(id => validId(id) && value.pinned[id]?.meta?.id === id)) return null;
+      return structuredClone({version:1, enabled:[...new Set(value.enabled)], installed:value.installed, pinned:value.pinned});
+    } catch { return null; }
+  },
+
   normalize(raw = {}) {
     const meta = raw.meta || {};
     const content = raw.content || {};
@@ -8,6 +21,7 @@ const CharacterEngine = {
     const presentation = raw.presentation || {};
     const initial = gameplay.initial_state || raw.initial_state || {};
     const prompt = gameplay.prompt || raw.prompt || {};
+    const worldbookLibrary = this.normalizeWorldbookLibrary(initial.worldbookLibrary);
     // Kept only for local provenance/export. Imported metadata never joins a
     // model request, because files from other platforms are untrusted input.
     const importMetadata = raw.import_metadata && typeof raw.import_metadata === "object" && !Array.isArray(raw.import_metadata)
@@ -152,6 +166,7 @@ const CharacterEngine = {
       supported_display: raw.supported_display || presentation.supported_display || { text: true, ui: false },
       ui: raw.ui || presentation.ui || { type: "basic", panels: ["npc", "status", "events", "memory"] },
       initial_state: {
+        ...(worldbookLibrary ? {worldbookLibrary} : {}),
         time: initial.time || "未設定",
         location: initial.location || "未設定",
         events: Array.isArray(initial.events) ? initial.events : [],

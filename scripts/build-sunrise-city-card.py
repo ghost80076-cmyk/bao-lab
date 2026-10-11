@@ -160,22 +160,16 @@ card['content']['dynamic_prompts']=[{'id':k,'label':label,'triggers':triggers,'t
  ('factions','勢力與關係',['三合會','狼幫','鐵鏈','結盟','背叛'],'三合會、狼幫與鐵鏈的盟約需核對交易條件、履約能力與派系利益；提議、已答應與已履約分開記錄。'),
 ]]
 library=json.loads((ROOT/'data/sunrise-worldbook-library.json').read_text())
-book=[]
-for pack in library['packs']:
-    keywords=list(dict.fromkeys(k for e in pack['entries'] for k in e['keywords']))[:16]
-    body='\n\n'.join(e['content'] for e in pack['entries'])
-    if pack['meta']['id']=='sunrise-city-overview': body=body.replace('人口 800 萬','人口 500 萬')
-    # The mother draft defines this card's security grades. District figures in
-    # older snippets do not form a coherent 5-million census; omit these
-    # unsupported totals here while preserving the shared source unchanged.
-    import re
-    body=re.sub(r'\*\*常住人口：[0-9]+ 萬\*\*', '**常住人口：統計尚待確認**', body)
-    body=re.sub(r'\*\*人口\*\*：約 [0-9]+ 萬人[^\n]*', '**人口**：片區統計尚待確認', body)
-    if pack['meta']['id']=='sunrise-north-geography': body=body.replace('治安等級**：A 級','治安等級**：S 級')
-    if pack['meta']['id']=='sunrise-south-geography': body=body.replace('治安等級**：D 級','治安等級**：F 級')
-    if pack['meta']['classification']=='scenario': body='可能劇情方向，尚未發生；僅在當前情境合理且玩家有選擇空間時參考。\n'+body
-    book.append(f"【世界書：{pack['meta']['name'][:60].replace('｜','・').replace('|','・')}｜{'、'.join(keywords)}】\n{body}\n【/世界書】")
-card['content']['lore']='\n\n'.join(book)
+# Store reviewed chapters individually in each new story. No 32-entry inline
+# parser, pack-wide trigger union, live catalog update, or second lore injection.
+card['gameplay']['initial_state']['worldbookLibrary'] = {
+    'version': 1,
+    'enabled': [p['meta']['id'] for p in library['packs']],
+    'installed': [],
+    'pinned': {p['meta']['id']: p for p in library['packs']}
+}
+book = [e for p in library['packs'] for e in p['entries']]
+card['content']['lore'] = ''
 card['presentation']['play_info_surface']='game-ui'
 card['presentation']['reading_background']=card['meta']['avatar']
 card['presentation']['ui']={'type':'basic','panels':['status','npc','events','memory']}
@@ -187,8 +181,8 @@ for name,marker,title,colour in [('場景','SCENE','曙光市｜現場紀錄','#
 card['import_metadata']={'source_format':'yorubay-creator-native-upgrade','source_origin':'author-provided Sunrise mother draft + reviewed public lore',
  'regex_file':'data/characters/community/73/sunrise-city-disorder.regex.json','preserved_source':regex,
  'notes':'Creator 匯出後補原生創建、啟動場景、狀態與UI。保留創作核心；非露骨成熟關係；其他LLM未實測。',
- 'prompt_layering':{'version':1,'platform_owned':['player-control','npc-agency','information-boundary','confirmed-state','native-ui'],'work_owned':['limited-crime-perspective','criminal-procedure','ability-cost','dual-timeline','relationship-axes','mode-rules','display-markers'],'lore_delivery':'keyword-triggered-dynamic','cache_note':'stable-prefix eligibility only; provider cache hits are not guaranteed'},
- 'worldbook_variant':{'population':5000000,'shared_source_population':8000000,'decision':'作品採作者此次提供的500萬；共享原始來源保留不改。'}}
+ 'prompt_layering':{'version':1,'platform_owned':['player-control','npc-agency','information-boundary','confirmed-state','native-ui'],'work_owned':['limited-crime-perspective','criminal-procedure','ability-cost','dual-timeline','relationship-axes','mode-rules','display-markers'],'lore_delivery':'story-pinned-chapter-recall','cache_note':'stable-prefix eligibility only; provider cache hits are not guaranteed'},
+ 'worldbook_variant':{'population':5000000,'shared_source_population':8000000,'decision':'配套發布資料與作品採同一500萬版本；原始匯出800萬來源保留不改。'}}
 CARD.write_text(json.dumps(card,ensure_ascii=False,indent=2)+'\n')
 CARD.with_name('sunrise-city-disorder.regex.json').write_text(json.dumps(regex,ensure_ascii=False,indent=2)+'\n')
-print('Built native Sunrise card:',len(fields),'fields,',len(modules),'modules,',len(cases),'start cases,',len(book),'lore groups')
+print('Built native Sunrise card:',len(fields),'fields,',len(modules),'modules,',len(cases),'start cases,',len(book),'pinned lore chapters')
