@@ -85,7 +85,7 @@
   function target() {
     if (!document.getElementById('chat-view')?.classList.contains('active')) return null;
     const records = Chat.messages;
-    const nativeOpening = !!App.activeCharacter?.opening?.posts?.length;
+    const nativeOpening = !!App.activeCharacter?.story_startup && !!App.activeCharacter?.opening?.posts?.length;
     const nodes = [...stream.children].filter(node => node.classList?.contains('message'));
     if (!Array.isArray(records) || !nodes.length) return null;
     if (!records.length) return !nativeOpening && nodes.length === 1 && nodes[0].classList.contains('assistant')
