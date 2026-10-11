@@ -77,7 +77,7 @@
       return items.length ? `<optgroup label="${esc(label)}">${items.map(item => `<option value="${esc(item.id)}">${esc(item.label)}${item.rating === 'adult' ? ' · 18+' : ''}</option>`).join('')}</optgroup>` : '';
     }).join('');
   };
-  const portablePicker = () => `<section class="bao-portable-actor-picker"><b>官方可攜角色</b><span>把角色帶進目前世界；原作品人物不會被替換。</span><select data-portable-actor-select>${portableOptions()}</select><button type="button" class="secondary" data-portable-actor-apply>帶入這個角色</button></section>`;
+  const portablePicker = () => `<section class="bao-portable-actor-picker"><b>官方可攜角色</b><span>把角色帶進目前世界；原作品人物不會被替換。</span><label>需要什麼人物？<input type="text" data-portable-actor-query maxlength="240" placeholder="例如：冷靜、擅長調查的朋友"></label><button type="button" class="secondary" data-portable-actor-recommend>推薦候選</button><p data-portable-actor-result role="status" aria-live="polite"></p><select data-portable-actor-select>${portableOptions()}</select><button type="button" class="secondary" data-portable-actor-apply>帶入這個角色</button></section>`;
   const refreshPortablePickers = () => document.querySelectorAll('[data-portable-actor-select]').forEach(select => {
     const chosen = select.value;
     select.innerHTML = portableOptions();
@@ -456,6 +456,26 @@
     const select = root.querySelector('[data-portable-actor-select]');
     const button = root.querySelector('[data-portable-actor-apply]');
     if (!select || !button || !form) return;
+    const recommend = root.querySelector('[data-portable-actor-recommend]');
+    const query = root.querySelector('[data-portable-actor-query]');
+    const result = root.querySelector('[data-portable-actor-result]');
+    if (recommend && query && result) recommend.onclick = () => {
+      result.replaceChildren();
+      const candidates = packCore?.recommend?.(portableCatalog(), query.value, {adultEnabled: adultEnabled()}) || [];
+      if (!candidates.length) {
+        result.textContent = query.value.trim() ? '沒有符合的範本，試試其他特質或從清單挑選。' : '先輸入人物特質或身份。';
+        return;
+      }
+      for (const item of candidates) {
+        const choice = document.createElement('button');
+        choice.type = 'button';
+        choice.className = 'secondary';
+        choice.textContent = item.label;
+        choice.title = item.description;
+        choice.onclick = () => { select.value = item.id; };
+        result.appendChild(choice);
+      }
+    };
     button.onclick = async () => {
       if (adultEnabled()) {
         try { await loadAdultPack(); refreshPortablePickers(); }

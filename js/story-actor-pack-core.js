@@ -43,6 +43,36 @@
     return [...safeGeneral, ...safeAdult].filter(item => !seen.has(item.id) && seen.add(item.id));
   }
 
+  // Rank only explicitly available templates; recommendations never instantiate actors.
+  function recommend(list = [], query = '', options = {}) {
+    const normalize = value => text(value, 24000).normalize('NFKC').toLowerCase();
+    const input = normalize(query).slice(0, 240);
+    const terms = new Set();
+    for (const token of input.match(/[a-z0-9]+|[\u3400-\u9fff]+/g) || []) {
+      if (/^[a-z0-9]+$/.test(token)) {
+        if (token.length > 1) terms.add(token);
+      } else {
+        for (let i = 0; i < token.length - 1; i++) terms.add(token.slice(i, i + 2));
+      }
+    }
+    if (!terms.size) return [];
+    const seen = new Set();
+    return sanitizeCatalog(list)
+      .filter(item => (item.rating !== 'adult' || options.adultEnabled === true)
+        && !seen.has(item.id) && seen.add(item.id))
+      .map((item, index) => {
+        const title = normalize(item.name + ' ' + item.label);
+        const body = normalize([item.description, item.defaults.identity,
+          item.defaults.personality, item.defaults.background].join(' '));
+        const score = [...terms].reduce((sum, term) => sum + (title.includes(term) ? 3 : body.includes(term) ? 1 : 0), 0);
+        return { item, score, index };
+      })
+      .filter(row => row.score > 0)
+      .sort((a, b) => b.score - a.score || a.index - b.index)
+      .slice(0, 3)
+      .map(row => row.item);
+  }
+
   function normalizePortableMeta(input = {}) {
     const raw = input && typeof input === "object" ? input : {};
     const packId = text(raw.packId, 100);
@@ -99,6 +129,7 @@
     sanitizeEntry,
     sanitizeCatalog,
     availableCatalog,
+    recommend,
     normalizePortableMeta,
     instantiate,
     portablePrompt

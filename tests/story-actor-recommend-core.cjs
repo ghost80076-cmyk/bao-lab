@@ -1,0 +1,17 @@
+const assert = require('node:assert/strict');
+const core = require('../js/story-actor-pack-core.js');
+const entry = (id, name, description, rating = 'general') => ({id, name, description, rating});
+const catalog = [entry('calm', '謹慎同伴', '冷靜，擅長調查'), entry('loud', '熱情同伴', '熱情，喜歡旅行'), entry('adult', '冷靜調查', '冷靜', 'adult')];
+const before = JSON.stringify(catalog);
+assert.deepEqual(core.recommend(catalog, ''), []);
+assert.deepEqual(core.recommend(catalog, '我'), []);
+assert.deepEqual(core.recommend(catalog, '煉丹'), []);
+assert.deepEqual(core.recommend(catalog, '冷靜調查').map(x => x.id), ['calm']);
+assert.equal(core.recommend(catalog, '冷靜調查', {adultEnabled:true})[0].id, 'adult');
+assert.deepEqual(core.recommend([...catalog, catalog[0]], '冷靜').map(x => x.id), ['calm']);
+assert.equal(JSON.stringify(catalog), before);
+assert.equal(core.recommend([entry('one','Alpha', 'a'),entry('two','Beta','a')], 'ＡＬＰＨＡ')[0].id, 'one');
+assert.deepEqual(core.recommend([entry('one','甲乙',''),entry('two','甲乙','')], '甲乙').map(x => x.id), ['one','two']);
+assert.equal(core.recommend(Array.from({length:10}, (_,i) => entry(String(i), '冷靜', '')), '冷靜').length, 3);
+assert.equal(core.recommend(catalog, '冷靜')[0].portable, undefined, 'ranking must not instantiate actors');
+console.log('Actor recommendations: relevance, opt-in adult visibility, no-match, dedup, bounded results and no mutations passed.');
