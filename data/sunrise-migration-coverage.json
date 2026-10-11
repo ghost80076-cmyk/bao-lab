@@ -2,11 +2,11 @@
   "source_worldbook_id": "5808c2c1-a71c-417e-b07c-23d75d36735e",
   "summary": {
     "source_entries": 183,
-    "packs": 12,
-    "published_chapters": 31,
+    "packs": 14,
+    "published_chapters": 47,
     "coverage": {
-      "unreviewed": 170,
-      "partial": 13
+      "unreviewed": 162,
+      "partial": 21
     }
   },
   "entries": [
@@ -78,65 +78,65 @@
       "source_index": 8,
       "category": "角色",
       "source_sha256": "4fc9905b80b7306b35c7be622cc4dc774b92cc64850811da745b30030dd708cc",
-      "status": "unreviewed",
-      "published_chapters": 0,
-      "deferred_chapters": 0
+      "status": "partial",
+      "published_chapters": 2,
+      "deferred_chapters": 11
     },
     {
       "source_index": 9,
       "category": "角色",
       "source_sha256": "90d341a807e0857947dcb8a2314a86c9d6211aae998b218d4c4a6649038c0e57",
-      "status": "unreviewed",
-      "published_chapters": 0,
-      "deferred_chapters": 0
+      "status": "partial",
+      "published_chapters": 2,
+      "deferred_chapters": 11
     },
     {
       "source_index": 10,
       "category": "角色",
       "source_sha256": "255fb4a5133e9e603af9f2c36ce4f64ba6ab6b7cb26e54f62562f83aa2d44927",
-      "status": "unreviewed",
-      "published_chapters": 0,
-      "deferred_chapters": 0
+      "status": "partial",
+      "published_chapters": 2,
+      "deferred_chapters": 10
     },
     {
       "source_index": 11,
       "category": "角色",
       "source_sha256": "4dcd8676dad671396a512983a46047badebbd8184a5ab986d5b50a41c6b54a4a",
-      "status": "unreviewed",
-      "published_chapters": 0,
-      "deferred_chapters": 0
+      "status": "partial",
+      "published_chapters": 2,
+      "deferred_chapters": 11
     },
     {
       "source_index": 12,
       "category": "角色",
       "source_sha256": "592d1dcabf5bfe12be1eab14c84417bd70182dee9468de6ef695cf649a25cb13",
-      "status": "unreviewed",
-      "published_chapters": 0,
-      "deferred_chapters": 0
+      "status": "partial",
+      "published_chapters": 2,
+      "deferred_chapters": 11
     },
     {
       "source_index": 13,
       "category": "角色",
       "source_sha256": "681d3cc350dacc8a513f68d8d9cade258bdff8de96e4d964829657c035eead3a",
-      "status": "unreviewed",
-      "published_chapters": 0,
-      "deferred_chapters": 0
+      "status": "partial",
+      "published_chapters": 2,
+      "deferred_chapters": 10
     },
     {
       "source_index": 14,
       "category": "角色",
       "source_sha256": "8f8a108d0aa0d0c57af2b78b0b30f81df3b22540991e2762033ddec245c92821",
-      "status": "unreviewed",
-      "published_chapters": 0,
-      "deferred_chapters": 0
+      "status": "partial",
+      "published_chapters": 2,
+      "deferred_chapters": 10
     },
     {
       "source_index": 15,
       "category": "角色",
       "source_sha256": "30ac5a605b9920c7fffe781b64ec0e8036b0210c4c18a3dcf1480cc17376e626",
-      "status": "unreviewed",
-      "published_chapters": 0,
-      "deferred_chapters": 0
+      "status": "partial",
+      "published_chapters": 2,
+      "deferred_chapters": 10
     },
     {
       "source_index": 16,

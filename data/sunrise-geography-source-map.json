@@ -827,6 +827,878 @@
           "status": "deferred"
         }
       ]
+    },
+    {
+      "source_index": 8,
+      "source_sha256": "4fc9905b80b7306b35c7be622cc4dc774b92cc64850811da745b30030dd708cc",
+      "source_chars": 1671,
+      "chapters": [
+        {
+          "chapter": 0,
+          "title": "**【基礎】**",
+          "start": 0,
+          "end": 43,
+          "sha256": "9f0a2dfb9a67fb52cf6bd7e8a9730f048ac4d7144fc69a7604f768e209466472",
+          "status": "published",
+          "entry_id": "sunrise-source-8-0"
+        },
+        {
+          "chapter": 1,
+          "title": "**【外貌】**",
+          "start": 43,
+          "end": 226,
+          "sha256": "29e3e2290a2731118776fefedd6fb14791afbe010a853a4c6301980320c631c4",
+          "status": "published",
+          "entry_id": "sunrise-source-8-1"
+        },
+        {
+          "chapter": 2,
+          "title": "**【性格】**",
+          "start": 226,
+          "end": 391,
+          "sha256": "9e7d9bbb5235255d4a44f29e4d0ad129987869f9c3b0c698476b7c1ac9282568",
+          "status": "deferred"
+        },
+        {
+          "chapter": 3,
+          "title": "**【心理】**",
+          "start": 391,
+          "end": 560,
+          "sha256": "3b8a27fc9a25987356fe6c4d0b1d3cc516ac75b11f80a85a1fe4f1a9b25ac296",
+          "status": "deferred"
+        },
+        {
+          "chapter": 4,
+          "title": "**【背景】**",
+          "start": 560,
+          "end": 783,
+          "sha256": "072233deb76a103cea68e98d43575516836ba3f474165008f9583bb29d0adca8",
+          "status": "deferred"
+        },
+        {
+          "chapter": 5,
+          "title": "**【行為】**",
+          "start": 783,
+          "end": 1039,
+          "sha256": "1a26c90ca26f67a39bdbb1866627353756bd3bf491d8763c1cc5b81e62033b25",
+          "status": "deferred"
+        },
+        {
+          "chapter": 6,
+          "title": "**【異能】**",
+          "start": 1039,
+          "end": 1168,
+          "sha256": "1f6e8a3509d5f67971ea3dc2976d8a4e9edda38a9c53bf00a857e65ecd3c5ad2",
+          "status": "deferred"
+        },
+        {
+          "chapter": 7,
+          "title": "**【戰鬥】**",
+          "start": 1168,
+          "end": 1279,
+          "sha256": "e39901b48a4750236a0e4f17ee803f2d27fcdd191c35684196b2d983de89b66b",
+          "status": "deferred"
+        },
+        {
+          "chapter": 8,
+          "title": "**【經濟資源】**",
+          "start": 1279,
+          "end": 1363,
+          "sha256": "d51968ee554ae4cb5d0462d71b90d324a5a2a46146fa4d661b25a6da164d5967",
+          "status": "deferred"
+        },
+        {
+          "chapter": 9,
+          "title": "**【社交網絡】**",
+          "start": 1363,
+          "end": 1438,
+          "sha256": "fcb16032ca7baa7f2edfd9e79d1994450d8ae8b94b216e24c285fee3863ee9d8",
+          "status": "deferred"
+        },
+        {
+          "chapter": 10,
+          "title": "**【劇情】**",
+          "start": 1438,
+          "end": 1556,
+          "sha256": "31553c2231cb5d39901cfe898ebd19e744b5f0964be3cbe251ba6766416fffa5",
+          "status": "deferred"
+        },
+        {
+          "chapter": 11,
+          "title": "**【特殊】**",
+          "start": 1556,
+          "end": 1651,
+          "sha256": "329c5e565d18e683f9d7ebd1b2f30e10e0acf4d103f4bd7241fa7372a0a459e7",
+          "status": "deferred"
+        },
+        {
+          "chapter": 12,
+          "title": "**【備註】**",
+          "start": 1651,
+          "end": 1671,
+          "sha256": "0e6f91bf3777867a0ae7b4fe58237940293866717f97a89495cdcbeffb2f43b4",
+          "status": "deferred"
+        }
+      ]
+    },
+    {
+      "source_index": 9,
+      "source_sha256": "90d341a807e0857947dcb8a2314a86c9d6211aae998b218d4c4a6649038c0e57",
+      "source_chars": 1988,
+      "chapters": [
+        {
+          "chapter": 0,
+          "title": "**【基礎】**",
+          "start": 0,
+          "end": 44,
+          "sha256": "723cc18c666e0350167658b9a8deb585c52bc7fdc9f7b0742d5c857cb580c268",
+          "status": "published",
+          "entry_id": "sunrise-source-9-0"
+        },
+        {
+          "chapter": 1,
+          "title": "**【外貌】**",
+          "start": 44,
+          "end": 254,
+          "sha256": "b85f2b432082cb51980461543d6d8c128578eb40f850560846ed429274fe9560",
+          "status": "published",
+          "entry_id": "sunrise-source-9-1"
+        },
+        {
+          "chapter": 2,
+          "title": "**【性格】**",
+          "start": 254,
+          "end": 447,
+          "sha256": "00150f79261dced04335b855fa20157de3a7e5e84c22e8f8cf8a3d1b20d3b3e9",
+          "status": "deferred"
+        },
+        {
+          "chapter": 3,
+          "title": "**【心理】**",
+          "start": 447,
+          "end": 610,
+          "sha256": "7104a59d2cfaecdf289e5ba449996d88adba91b29f9aec222ceac3292569871d",
+          "status": "deferred"
+        },
+        {
+          "chapter": 4,
+          "title": "**【背景】**",
+          "start": 610,
+          "end": 899,
+          "sha256": "752debb8acecb3b6676e3d4670b9843e614cbf0f384cb47ba627dfa8293f1f54",
+          "status": "deferred"
+        },
+        {
+          "chapter": 5,
+          "title": "**【行為】**",
+          "start": 899,
+          "end": 1181,
+          "sha256": "aad1e756c7dc3a37055426de159e24329a639b5f78c03c674933aed261418fc6",
+          "status": "deferred"
+        },
+        {
+          "chapter": 6,
+          "title": "**【異能】**",
+          "start": 1181,
+          "end": 1202,
+          "sha256": "06d467018419c4f9c870cc1c73c11c24217c44419f14c00a6b8b16521c9ca806",
+          "status": "deferred"
+        },
+        {
+          "chapter": 7,
+          "title": "**【戰鬥】**",
+          "start": 1202,
+          "end": 1347,
+          "sha256": "9956344c5af9b9bd2574a78c975e37ddf4b217d8ec6bd506dba7bf95f963797c",
+          "status": "deferred"
+        },
+        {
+          "chapter": 8,
+          "title": "**【經濟資源】**",
+          "start": 1347,
+          "end": 1489,
+          "sha256": "77aa61b7fc7468d4513f090eaed0538a17c370966da61cceba17c58d6095093c",
+          "status": "deferred"
+        },
+        {
+          "chapter": 9,
+          "title": "**【社交網絡】**",
+          "start": 1489,
+          "end": 1612,
+          "sha256": "b10ed263093e65873b465e90a69fcd1b227b130c983e6ec61212f02777e013f9",
+          "status": "deferred"
+        },
+        {
+          "chapter": 10,
+          "title": "**【劇情】**",
+          "start": 1612,
+          "end": 1809,
+          "sha256": "5d1afb4c131dbde743401ecd77dcd8a63d50a8f1094cb77d466d124d2e4c80fc",
+          "status": "deferred"
+        },
+        {
+          "chapter": 11,
+          "title": "**【特殊】**",
+          "start": 1809,
+          "end": 1960,
+          "sha256": "11aaf8ca6ea72f55be90c7eb7c36e4e84745269b6c1f3f444eedc409d520c5cb",
+          "status": "deferred"
+        },
+        {
+          "chapter": 12,
+          "title": "**【備註】**",
+          "start": 1960,
+          "end": 1988,
+          "sha256": "abe709b11ba03edf9eb5c2c69de432653b4db9194edb560121d25299ff6a0224",
+          "status": "deferred"
+        }
+      ]
+    },
+    {
+      "source_index": 10,
+      "source_sha256": "255fb4a5133e9e603af9f2c36ce4f64ba6ab6b7cb26e54f62562f83aa2d44927",
+      "source_chars": 1602,
+      "chapters": [
+        {
+          "chapter": 0,
+          "title": "**【基礎】**",
+          "start": 0,
+          "end": 43,
+          "sha256": "942146fbeab2f7b2caf42dc6ad191dae7c46233a773876f12a9af2a3377d89b8",
+          "status": "published",
+          "entry_id": "sunrise-source-10-0"
+        },
+        {
+          "chapter": 1,
+          "title": "**【外貌】**",
+          "start": 43,
+          "end": 166,
+          "sha256": "1c9ba68ee2d11fdaa63db7fc907718665fed659455ba4c2d7e6a2bf809c02e47",
+          "status": "published",
+          "entry_id": "sunrise-source-10-1"
+        },
+        {
+          "chapter": 2,
+          "title": "**【性格】**",
+          "start": 166,
+          "end": 290,
+          "sha256": "e61384d8841aee29ea643567b15ffd01db0097073cd6887d9c82bc9d2a628a24",
+          "status": "deferred"
+        },
+        {
+          "chapter": 3,
+          "title": "**【心理】**",
+          "start": 290,
+          "end": 372,
+          "sha256": "3d7a4552fefa64ff49928780ac3e4a56a53f29c42909ccad64c33b0efe807f09",
+          "status": "deferred"
+        },
+        {
+          "chapter": 4,
+          "title": "**【背景】**",
+          "start": 372,
+          "end": 554,
+          "sha256": "4cd8ade4faf96705df64e9310487ca118fed3f6c0a1072ea8a22592d9511a8fb",
+          "status": "deferred"
+        },
+        {
+          "chapter": 5,
+          "title": "**【行為】**",
+          "start": 554,
+          "end": 710,
+          "sha256": "0e6194d4a359e2822c73a2f95d274a146ca610fc93f1ed1d12e12a6b23b34bbc",
+          "status": "deferred"
+        },
+        {
+          "chapter": 6,
+          "title": "**【異能】**",
+          "start": 710,
+          "end": 867,
+          "sha256": "b2d4f2718c3a28ee7bb3040ce5a3f3acc124f5be543c4d06ac51e49d4f3d0c95",
+          "status": "deferred"
+        },
+        {
+          "chapter": 7,
+          "title": "**【戰鬥】**",
+          "start": 867,
+          "end": 985,
+          "sha256": "b9c10916d15cbf1bf9b1970f8165b592fa74ed108667c42969d2d931ced5284c",
+          "status": "deferred"
+        },
+        {
+          "chapter": 8,
+          "title": "**【經濟資源】**",
+          "start": 985,
+          "end": 1109,
+          "sha256": "edb4129c2645c13ca92771fea0af2bdf9760fbcbc15f43e016309a0e92a946b5",
+          "status": "deferred"
+        },
+        {
+          "chapter": 9,
+          "title": "**【社交】**",
+          "start": 1109,
+          "end": 1387,
+          "sha256": "c233c295e89d65f6f96c088c704679decc9c2db32c198379bcfce7b310d441f7",
+          "status": "deferred"
+        },
+        {
+          "chapter": 10,
+          "title": "**【特殊】**",
+          "start": 1387,
+          "end": 1541,
+          "sha256": "c4a9b187b78682688e8e76cab1d2f142a1fb8d57d44d8179257a036c2d5a0e74",
+          "status": "deferred"
+        },
+        {
+          "chapter": 11,
+          "title": "**【備註】**",
+          "start": 1541,
+          "end": 1602,
+          "sha256": "3fa709af6400abb88639e728de754c506b7d982e00f1ada640d60761714f947d",
+          "status": "deferred"
+        }
+      ]
+    },
+    {
+      "source_index": 11,
+      "source_sha256": "4dcd8676dad671396a512983a46047badebbd8184a5ab986d5b50a41c6b54a4a",
+      "source_chars": 1671,
+      "chapters": [
+        {
+          "chapter": 0,
+          "title": "**【基礎】**",
+          "start": 0,
+          "end": 46,
+          "sha256": "362ecc28ef784676723c47d87bc988d8f9f0ffb71731db4300d6de42d3ee9ab3",
+          "status": "published",
+          "entry_id": "sunrise-source-11-0"
+        },
+        {
+          "chapter": 1,
+          "title": "**【外貌】**",
+          "start": 46,
+          "end": 188,
+          "sha256": "21de7e5a7d5c44312f2b5c11034a50baf8e7e0e4b16f62b9c8bb8a3aa30541c7",
+          "status": "published",
+          "entry_id": "sunrise-source-11-1"
+        },
+        {
+          "chapter": 2,
+          "title": "**【性格】**",
+          "start": 188,
+          "end": 349,
+          "sha256": "456d34a7021f84e689ee511e634381f9bb7c1e7bfb3b84c01d88ac0a869f6652",
+          "status": "deferred"
+        },
+        {
+          "chapter": 3,
+          "title": "**【心理】**",
+          "start": 349,
+          "end": 452,
+          "sha256": "7b3d30babe3f57a46d52a3a627c9311f80c687a2e03e4486ea13286810eed186",
+          "status": "deferred"
+        },
+        {
+          "chapter": 4,
+          "title": "**【背景】**",
+          "start": 452,
+          "end": 736,
+          "sha256": "b359d4bce542c398d10151889afff7fb9b9d256acab73dcbbfa470ff6a2536e7",
+          "status": "deferred"
+        },
+        {
+          "chapter": 5,
+          "title": "**【行為】**",
+          "start": 736,
+          "end": 997,
+          "sha256": "91db5af03bf813fcec61bd65f3299c90bbfd596eb6a9f1a6bd21a67550745c21",
+          "status": "deferred"
+        },
+        {
+          "chapter": 6,
+          "title": "**【異能】**",
+          "start": 997,
+          "end": 1018,
+          "sha256": "06d467018419c4f9c870cc1c73c11c24217c44419f14c00a6b8b16521c9ca806",
+          "status": "deferred"
+        },
+        {
+          "chapter": 7,
+          "title": "**【戰鬥】**",
+          "start": 1018,
+          "end": 1102,
+          "sha256": "2b58c96b4265b664b6f87b6892badd2b9540365e8838c4ae70292aa8fb3def9f",
+          "status": "deferred"
+        },
+        {
+          "chapter": 8,
+          "title": "**【經濟資源】**",
+          "start": 1102,
+          "end": 1216,
+          "sha256": "42cb6b01c6a34d03e5debecffb30c4e14d314cb7acc87615a4c841a0ff600087",
+          "status": "deferred"
+        },
+        {
+          "chapter": 9,
+          "title": "**【社交】**",
+          "start": 1216,
+          "end": 1303,
+          "sha256": "cce4b3afab6f2d3109a4a3580e5cad9fb94af35f87e93cc8bc080eb4c36f882a",
+          "status": "deferred"
+        },
+        {
+          "chapter": 10,
+          "title": "**【劇情】**",
+          "start": 1303,
+          "end": 1475,
+          "sha256": "6e365b1a7a3d78fba886874707f394b8537baac3c7ed136f389e7bf1037544ff",
+          "status": "deferred"
+        },
+        {
+          "chapter": 11,
+          "title": "**【特殊】**",
+          "start": 1475,
+          "end": 1600,
+          "sha256": "456ad74dc73f851df59fafbb96f8d9e74c8a07c74d361d241f5ee909594dcd79",
+          "status": "deferred"
+        },
+        {
+          "chapter": 12,
+          "title": "**【備註】**",
+          "start": 1600,
+          "end": 1671,
+          "sha256": "da6cb275ae944bd5648d521a44ab2b13bd5adf4bba1dd104b1e3aa958c4e0911",
+          "status": "deferred"
+        }
+      ]
+    },
+    {
+      "source_index": 12,
+      "source_sha256": "592d1dcabf5bfe12be1eab14c84417bd70182dee9468de6ef695cf649a25cb13",
+      "source_chars": 1779,
+      "chapters": [
+        {
+          "chapter": 0,
+          "title": "**【基礎】**",
+          "start": 0,
+          "end": 44,
+          "sha256": "528d4092b10e5941bb59fbb99f3aeac9ee7dfc270f8b73328eb6934a5da137e2",
+          "status": "published",
+          "entry_id": "sunrise-source-12-0"
+        },
+        {
+          "chapter": 1,
+          "title": "**【外貌】**",
+          "start": 44,
+          "end": 189,
+          "sha256": "554c5e51ac97bdc1e2b797ea495faa5b83acb0c47a59189dcff6180cb331a298",
+          "status": "published",
+          "entry_id": "sunrise-source-12-1"
+        },
+        {
+          "chapter": 2,
+          "title": "**【性格】**",
+          "start": 189,
+          "end": 346,
+          "sha256": "520faeefa369b107e53174d0056c79d6c14459a9b4b36096edf0ebdfec6b4055",
+          "status": "deferred"
+        },
+        {
+          "chapter": 3,
+          "title": "**【心理】**",
+          "start": 346,
+          "end": 488,
+          "sha256": "524d32917930429e599b0002dcdf8f02886d7cda0c27c494ad835293460219c9",
+          "status": "deferred"
+        },
+        {
+          "chapter": 4,
+          "title": "**【背景】**",
+          "start": 488,
+          "end": 755,
+          "sha256": "23e56ecf19e414c09eb0f920fbc7c398cd3abca60b289a3e9b344d84571b1cef",
+          "status": "deferred"
+        },
+        {
+          "chapter": 5,
+          "title": "**【行為】**",
+          "start": 755,
+          "end": 988,
+          "sha256": "148d4d8ad49fec4690171d4cb6bebe5b05f3cd3c3265e2727aa167ee7eb95c9b",
+          "status": "deferred"
+        },
+        {
+          "chapter": 6,
+          "title": "**【異能】**",
+          "start": 988,
+          "end": 1091,
+          "sha256": "e8dc13b5dde1722e48c390bac97f8accb0dc3109220389a064a73c57bb49e44a",
+          "status": "deferred"
+        },
+        {
+          "chapter": 7,
+          "title": "**【戰鬥】**",
+          "start": 1091,
+          "end": 1217,
+          "sha256": "32ba0520feb9c624ac5fb594db7cb3b185d9f8c1467d04989a2a9cccbcf94839",
+          "status": "deferred"
+        },
+        {
+          "chapter": 8,
+          "title": "**【經濟資源】**",
+          "start": 1217,
+          "end": 1334,
+          "sha256": "439b347909570ddd7deebdf821b5de8ea5dab9ab8c97430cea5c6c08d3ffc318",
+          "status": "deferred"
+        },
+        {
+          "chapter": 9,
+          "title": "**【社交】**",
+          "start": 1334,
+          "end": 1422,
+          "sha256": "71bf1187d3ee37aa02b61b6182f156e39d3f845c74be0f40de29773b8d3f2bf8",
+          "status": "deferred"
+        },
+        {
+          "chapter": 10,
+          "title": "**【劇情】**",
+          "start": 1422,
+          "end": 1588,
+          "sha256": "549eda731396791321240efa0aa100505ad75b1fa41dbd38c40af9606de49e0f",
+          "status": "deferred"
+        },
+        {
+          "chapter": 11,
+          "title": "**【特殊】**",
+          "start": 1588,
+          "end": 1714,
+          "sha256": "a90752d39ea39032193608a3759cce9304da6c6ae84f59afe6c4e2d0b3f8a88d",
+          "status": "deferred"
+        },
+        {
+          "chapter": 12,
+          "title": "**【備註】**",
+          "start": 1714,
+          "end": 1779,
+          "sha256": "66cd73c5b5e18f6098618df7c028fb933719d9484a593fc7fa56b7f2696655dd",
+          "status": "deferred"
+        }
+      ]
+    },
+    {
+      "source_index": 13,
+      "source_sha256": "681d3cc350dacc8a513f68d8d9cade258bdff8de96e4d964829657c035eead3a",
+      "source_chars": 1508,
+      "chapters": [
+        {
+          "chapter": 0,
+          "title": "**【基礎】**",
+          "start": 0,
+          "end": 40,
+          "sha256": "dd0c9d0d8d171e4cb16f9d5790a54d04b37eaed50237880a982918fd4e2a352a",
+          "status": "published",
+          "entry_id": "sunrise-source-13-0"
+        },
+        {
+          "chapter": 1,
+          "title": "**【外貌】**",
+          "start": 40,
+          "end": 178,
+          "sha256": "17feb951a332718cf70fc3a732b3e90ae901ea74dfd88c052e09c06121bb5c95",
+          "status": "published",
+          "entry_id": "sunrise-source-13-1"
+        },
+        {
+          "chapter": 2,
+          "title": "**【性格】**",
+          "start": 178,
+          "end": 343,
+          "sha256": "0872fea44789765320e8e2d25da862c9446e83914ddc93db03c43ceeda76784f",
+          "status": "deferred"
+        },
+        {
+          "chapter": 3,
+          "title": "**【心理】**",
+          "start": 343,
+          "end": 470,
+          "sha256": "d81e8ed73d7ed5bcd5492b1b12907f0ea1d7c69abc3bf911572fa8651c56b632",
+          "status": "deferred"
+        },
+        {
+          "chapter": 4,
+          "title": "**【背景】**",
+          "start": 470,
+          "end": 689,
+          "sha256": "bbac68c637719317a091ee505709f75fd99443a14ad5446cfebf0fdc9a845d79",
+          "status": "deferred"
+        },
+        {
+          "chapter": 5,
+          "title": "**【行為】**",
+          "start": 689,
+          "end": 923,
+          "sha256": "37f278273a561a6afbb32165d948ca9ba71cb3ed85177db82d03490e268fd275",
+          "status": "deferred"
+        },
+        {
+          "chapter": 6,
+          "title": "**【異能】**",
+          "start": 923,
+          "end": 944,
+          "sha256": "06d467018419c4f9c870cc1c73c11c24217c44419f14c00a6b8b16521c9ca806",
+          "status": "deferred"
+        },
+        {
+          "chapter": 7,
+          "title": "**【戰鬥】**",
+          "start": 944,
+          "end": 1027,
+          "sha256": "ed37f5dcbb71b2463cb1377f0b22f37c37e03a705af35fc4f7cb1c45c238d35c",
+          "status": "deferred"
+        },
+        {
+          "chapter": 8,
+          "title": "**【經濟資源】**",
+          "start": 1027,
+          "end": 1150,
+          "sha256": "2fd7ed07121e39b2ff1022168f36b38bde1082922a64425c1ca509350fb36fa7",
+          "status": "deferred"
+        },
+        {
+          "chapter": 9,
+          "title": "**【社交】**",
+          "start": 1150,
+          "end": 1241,
+          "sha256": "f7b2cf628f79aae46dbbe69a3668b5d45980f61493b8e7577d35a72fb2c24d41",
+          "status": "deferred"
+        },
+        {
+          "chapter": 10,
+          "title": "**【劇情】**",
+          "start": 1241,
+          "end": 1393,
+          "sha256": "87b355257a25e0460aa8ab0c207d5abc3f901d8e00e19b63cda46ca1e5706d32",
+          "status": "deferred"
+        },
+        {
+          "chapter": 11,
+          "title": "**【特殊】**",
+          "start": 1393,
+          "end": 1508,
+          "sha256": "f1636eceaa1826b9d9f1d74f6dcece5a3b476414da0ceaad0b232c1a4a8c46b5",
+          "status": "deferred"
+        }
+      ]
+    },
+    {
+      "source_index": 14,
+      "source_sha256": "8f8a108d0aa0d0c57af2b78b0b30f81df3b22540991e2762033ddec245c92821",
+      "source_chars": 1431,
+      "chapters": [
+        {
+          "chapter": 0,
+          "title": "**【基礎】**",
+          "start": 0,
+          "end": 46,
+          "sha256": "c72aaa6ffc13f5d11569ecf18c3a84d0fce803a9eeb4b0094493071f9f6880c3",
+          "status": "published",
+          "entry_id": "sunrise-source-14-0"
+        },
+        {
+          "chapter": 1,
+          "title": "**【外貌】**",
+          "start": 46,
+          "end": 187,
+          "sha256": "3ea6a0d05888b34cffab630023ed334ef4760d43d8ff51537291060dbd84c08b",
+          "status": "published",
+          "entry_id": "sunrise-source-14-1"
+        },
+        {
+          "chapter": 2,
+          "title": "**【性格】**",
+          "start": 187,
+          "end": 326,
+          "sha256": "8cf4c2d021b66ec424b5d19c4f821588543f62e3448381b7997eb83db67ebb8e",
+          "status": "deferred"
+        },
+        {
+          "chapter": 3,
+          "title": "**【心理】**",
+          "start": 326,
+          "end": 414,
+          "sha256": "1ebd7e8fe4af17accefac70509808b010590cf147228a526fc03be93e78336f4",
+          "status": "deferred"
+        },
+        {
+          "chapter": 4,
+          "title": "**【背景】**",
+          "start": 414,
+          "end": 627,
+          "sha256": "5073a46dd0de9d3a8cff698ed73db86006d29ffc12a6632bd21cc2387679fca8",
+          "status": "deferred"
+        },
+        {
+          "chapter": 5,
+          "title": "**【行為】**",
+          "start": 627,
+          "end": 836,
+          "sha256": "96c30ef782d7962e43bae56ad24de274abf7cf65aff29718f1252a2411cd9fd0",
+          "status": "deferred"
+        },
+        {
+          "chapter": 6,
+          "title": "**【異能】**",
+          "start": 836,
+          "end": 857,
+          "sha256": "06d467018419c4f9c870cc1c73c11c24217c44419f14c00a6b8b16521c9ca806",
+          "status": "deferred"
+        },
+        {
+          "chapter": 7,
+          "title": "**【戰鬥】**",
+          "start": 857,
+          "end": 966,
+          "sha256": "3ddf9d1029daea246e79f02ec1616fde7755a5c0e76ee9b32d22143f8a1ade8f",
+          "status": "deferred"
+        },
+        {
+          "chapter": 8,
+          "title": "**【經濟資源】**",
+          "start": 966,
+          "end": 1089,
+          "sha256": "51923b8e5aec52fb2b36b1b07e9016ab30fc81963c08c2e603c43622cc215812",
+          "status": "deferred"
+        },
+        {
+          "chapter": 9,
+          "title": "**【社交】**",
+          "start": 1089,
+          "end": 1181,
+          "sha256": "ec3b4f31b7c525ccc6d8ba2eecc300255c9be6776b41394ea5ba9f060d5d66bb",
+          "status": "deferred"
+        },
+        {
+          "chapter": 10,
+          "title": "**【劇情】**",
+          "start": 1181,
+          "end": 1342,
+          "sha256": "9735c9850819b143d5197f0242cf9702a6ad553501b7d01e76a4f23b9c611f64",
+          "status": "deferred"
+        },
+        {
+          "chapter": 11,
+          "title": "**【特殊】**",
+          "start": 1342,
+          "end": 1431,
+          "sha256": "301456f382a0a35e25871de4e66a07ea54639b9c91d712af1e8f2cf3d0499952",
+          "status": "deferred"
+        }
+      ]
+    },
+    {
+      "source_index": 15,
+      "source_sha256": "30ac5a605b9920c7fffe781b64ec0e8036b0210c4c18a3dcf1480cc17376e626",
+      "source_chars": 1674,
+      "chapters": [
+        {
+          "chapter": 0,
+          "title": "**【基礎】**",
+          "start": 0,
+          "end": 50,
+          "sha256": "488e41fca127e65fc0f2f9ba790f7b1ce41a33d077452724a104272ddb540a55",
+          "status": "published",
+          "entry_id": "sunrise-source-15-0"
+        },
+        {
+          "chapter": 1,
+          "title": "**【外貌】**",
+          "start": 50,
+          "end": 193,
+          "sha256": "67c0e846acf8a66dd5428b5c367737f58e97ea96125599bf700d4e6607880661",
+          "status": "published",
+          "entry_id": "sunrise-source-15-1"
+        },
+        {
+          "chapter": 2,
+          "title": "**【性格】**",
+          "start": 193,
+          "end": 350,
+          "sha256": "36e6bb9540040ceda28896c9ec0b175a0d5309d3b711e6a00a9e67b208608053",
+          "status": "deferred"
+        },
+        {
+          "chapter": 3,
+          "title": "**【心理】**",
+          "start": 350,
+          "end": 460,
+          "sha256": "dfacfaac0a1fb76e5a25ad4577bfdfd4f5862f3f341a98a939db5246d21013d0",
+          "status": "deferred"
+        },
+        {
+          "chapter": 4,
+          "title": "**【背景】**",
+          "start": 460,
+          "end": 714,
+          "sha256": "5a5b0f0df36b7eb52549f62cf1e82b4898f051091c97d679290a87bb6960e804",
+          "status": "deferred"
+        },
+        {
+          "chapter": 5,
+          "title": "**【行為】**",
+          "start": 714,
+          "end": 957,
+          "sha256": "51136bdbd8776f8431617a6d8a1eeacbbc2aa9ace075b7864b3d8b334dbf5a33",
+          "status": "deferred"
+        },
+        {
+          "chapter": 6,
+          "title": "**【異能】**",
+          "start": 957,
+          "end": 1075,
+          "sha256": "3e5cdda9bcee7a662bc9ed747db1ab02bc4b616f01185f28c0d1e35c233897ae",
+          "status": "deferred"
+        },
+        {
+          "chapter": 7,
+          "title": "**【戰鬥】**",
+          "start": 1075,
+          "end": 1223,
+          "sha256": "674e3cb8c286d3e854413c0bf43271fc62817686da56afbf3d4ce8c169ffc51f",
+          "status": "deferred"
+        },
+        {
+          "chapter": 8,
+          "title": "**【經濟資源】**",
+          "start": 1223,
+          "end": 1343,
+          "sha256": "32e6996ce84359bee3b0169f8e13a1d213b7cac405d511a1d50ae821ff0b358a",
+          "status": "deferred"
+        },
+        {
+          "chapter": 9,
+          "title": "**【社交】**",
+          "start": 1343,
+          "end": 1418,
+          "sha256": "880d317f764c7123b75411a423b4c50558749077dc0f1a1baf14ed2e3fc1638c",
+          "status": "deferred"
+        },
+        {
+          "chapter": 10,
+          "title": "**【劇情】**",
+          "start": 1418,
+          "end": 1573,
+          "sha256": "f267176cc1cb5750dee4eda0b0731cfde56aab4e58fdfd4296f83338565be79c",
+          "status": "deferred"
+        },
+        {
+          "chapter": 11,
+          "title": "**【特殊】**",
+          "start": 1573,
+          "end": 1674,
+          "sha256": "24757dca1b1f7ab4d89a496bcd3a6b8768d0432e1fdb01daddf584e9bd90a6b0",
+          "status": "deferred"
+        }
+      ]
     }
   ]
 }
