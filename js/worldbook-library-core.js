@@ -111,7 +111,7 @@
           }
         }
         if (score) chosen.push({ pack: pack.meta.id, title: entry.title, content: entry.content,
-          score: score + entry.priority, identity: pack.meta.id + ":" + entry.id });
+          scenario: pack.meta.classification === "scenario", score: score + entry.priority, identity: pack.meta.id + ":" + entry.id });
       }
     }
     chosen.sort((a,b) => b.score - a.score || a.identity.localeCompare(b.identity));
@@ -120,14 +120,14 @@
     for (const entry of chosen) {
       const key = lower(entry.content).replace(/\s+/g, " ");
       if (dedupe.has(key)) continue;
-      const formatted = "〔" + entry.title + "〕\n" + entry.content;
+      const formatted = "〔" + (entry.scenario ? "劇情方向參考｜可能方向，尚未發生｜" : "") + entry.title + "〕\n" + entry.content;
       if (formatted.length > maxChars - used) continue;
       dedupe.add(key); found.push(entry); used += formatted.length + 2;
       if (found.length >= maxEntries) break;
     }
     return {
       entries: found.map(({pack,title,identity}) => ({pack,title,identity})),
-      text: found.map(e => "〔" + e.title + "〕\n" + e.content).join("\n\n")
+      text: found.map(e => "〔" + (e.scenario ? "劇情方向參考｜可能方向，尚未發生｜" : "") + e.title + "〕\n" + e.content).join("\n\n")
     };
   }
   return { SCHEMA, VERSION, normalizePack, migrateLegacy, select };

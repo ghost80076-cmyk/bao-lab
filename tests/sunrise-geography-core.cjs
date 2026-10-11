@@ -5,8 +5,8 @@ const core = require('../js/worldbook-library-core.js');
 const catalog = JSON.parse(fs.readFileSync('data/sunrise-worldbook-library.json'));
 const map = JSON.parse(fs.readFileSync('data/sunrise-geography-source-map.json'));
 const packs = catalog.packs.map(core.normalizePack);
-assert.equal(packs.length, 9);
-assert.equal(packs.flatMap(p=>p.entries).length, 28);
+assert.equal(packs.length, 12);
+assert.equal(packs.flatMap(p=>p.entries).length, 31);
 for (const source of map.sources) {
   assert.equal(source.chapters[0].start,0);
   assert.equal(source.chapters.at(-1).end,source.source_chars);
@@ -30,4 +30,14 @@ assert.equal(core.select(packs,[],{latestUser:'中央商業區',world:'sunrise-c
 for(const q of ['中央商業區','港口工業區','天際商場','北山住宅區','東區平民區','南區貧民窟'])assert.ok(select(q).text.length<=2200);
 const full=JSON.stringify(catalog);
 for(const secret of ['碼頭大火','縱火滅證','血色七月','走私運作流程','源點計畫','桃華事件','用異能操控股市','張猛','蘇逸辰','走私管道']) assert.ok(!full.includes(secret),secret);
-console.log('Sunrise geography: 9 opt-in packs, 28 original chapters, source coverage, narrow recall, realm isolation and deferred secrets passed.');
+console.log('Sunrise geography: 12 opt-in packs, 31 original chapters, source coverage, narrow recall, realm isolation and deferred secrets passed.');
+
+const scenarioPacks = packs.filter(p=>p.meta.classification==='scenario');
+assert.equal(scenarioPacks.length,2);
+for (const [id,query] of [['sunrise-dock-scenario','9號碼頭'],['sunrise-academy-scenario','天璇異能學院']]) {
+ const result=core.select(packs,[id],{latestUser:query,world:'sunrise-city'});
+ assert.match(result.text,/劇情方向參考｜可能方向，尚未發生/);
+ assert.ok(result.text.length<=2200);
+ assert.equal(core.select(packs,[],{latestUser:query,world:'sunrise-city'}).text,'');
+ assert.equal(core.select(packs,[id],{latestUser:query,world:'three-realms'}).text,'');
+}

@@ -330,6 +330,32 @@
       "schema": "yorubay-worldbook-pack",
       "version": 1,
       "meta": {
+        "id": "sunrise-academy-scenario",
+        "name": "曙光市｜學院劇情方向",
+        "world": "sunrise-city",
+        "classification": "scenario",
+        "author": "班長／肉包",
+        "release": "1.0.0",
+        "visibility": "public",
+        "source": "囚徒的自白／精靈王共用原文｜審閱地理章節（2026-10-11）"
+      },
+      "entries": [
+        {
+          "id": "sunrise-source-49-3",
+          "title": "曙光市｜學院劇情方向｜**【劇情應用】**",
+          "category": "世界資料",
+          "mode": "keyword",
+          "keywords": [
+            "天璇異能學院"
+          ],
+          "content": "### **【劇情應用】**\n\n玩家可能：\n- 作為學生就讀\n- 參與學生會選舉\n- 加入社團活動\n- 在競技場比賽\n- 發現學院黑暗面\n- 被捲入異能實驗"
+        }
+      ]
+    },
+    {
+      "schema": "yorubay-worldbook-pack",
+      "version": 1,
+      "meta": {
         "id": "sunrise-police-background",
         "name": "曙光市｜警局基本資料",
         "world": "sunrise-city",
@@ -441,6 +467,64 @@
             "曙光市第一監獄"
           ],
           "content": "### **合法收入**\n\n**囚犯勞動**\n- 工廠工作（製作家具、縫製衣物）\n- 清潔工作\n- 農場工作（監獄自營農場）\n\n**每月工資**：約500-1000元（可購買獄中商品）\n\n---"
+        }
+      ]
+    },
+    {
+      "schema": "yorubay-worldbook-pack",
+      "version": 1,
+      "meta": {
+        "id": "sunrise-abandoned-dock",
+        "name": "曙光市｜廢棄碼頭基本地理",
+        "world": "sunrise-city",
+        "classification": "world",
+        "author": "班長／肉包",
+        "release": "1.0.0",
+        "visibility": "public",
+        "source": "囚徒的自白／精靈王共用原文｜審閱地理章節（2026-10-11）"
+      },
+      "entries": [
+        {
+          "id": "sunrise-source-5-1",
+          "title": "曙光市｜廢棄碼頭基本地理｜基本資訊",
+          "category": "世界資料",
+          "mode": "keyword",
+          "keywords": [
+            "廢棄9號碼頭",
+            "廢棄 9 號碼頭",
+            "9 號碼頭",
+            "9號碼頭"
+          ],
+          "content": "## 基本資訊\n\n**位置：**港口工業區最南端，與 8 號漁港相鄰\n\n**廢棄時間：**10 年前（政府財政緊縮，停止營運）\n\n**現況：**完全廢棄，成為三不管地帶\n\n**危險等級：**★★★★★（極度危險）\n\n**警方態度：**不願進入，除非重大案件"
+        }
+      ]
+    },
+    {
+      "schema": "yorubay-worldbook-pack",
+      "version": 1,
+      "meta": {
+        "id": "sunrise-dock-scenario",
+        "name": "曙光市｜廢棄碼頭劇情方向",
+        "world": "sunrise-city",
+        "classification": "scenario",
+        "author": "班長／肉包",
+        "release": "1.0.0",
+        "visibility": "public",
+        "source": "囚徒的自白／精靈王共用原文｜審閱地理章節（2026-10-11）"
+      },
+      "entries": [
+        {
+          "id": "sunrise-source-6-3",
+          "title": "曙光市｜廢棄碼頭劇情方向｜劇情用途",
+          "category": "世界資料",
+          "mode": "keyword",
+          "keywords": [
+            "廢棄9號碼頭",
+            "廢棄 9 號碼頭",
+            "9 號碼頭",
+            "9號碼頭"
+          ],
+          "content": "## 劇情用途\n\n**調查案件**\n- 尋找失蹤人口\n- 調查謀殺案\n- 追蹤毒品來源\n- 挖掘三合會罪證\n\n**遭遇戰**\n- 與黑幫成員衝突\n- 與流浪漢、毒癮者交涉\n- 與異能者對決\n\n**恐怖氛圍**\n- 夜晚探索廢棄建築\n- 發現屍體或證據\n- 被追殺或圍困\n\n**道德選擇**\n- 是否幫助流浪漢\n- 是否揭發三合會罪行（可能害死線人）\n- 是否報警（可能無用反而打草驚蛇）"
         }
       ]
     }

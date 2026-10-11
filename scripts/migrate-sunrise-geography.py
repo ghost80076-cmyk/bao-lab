@@ -13,11 +13,13 @@ SOURCES = {
  99: ('bb5a9058afb79975f44f3a48b271a429ad6cb5d670e18664c2da3c2abda7d112', 'sunrise-north-geography', '曙光市｜北山生活地理', ['北山住宅區'], {1}),
  101: ('4f8800d5b5662b9469326ae47d49eb8c5a6aa80360c51542eb1b883fd88e0011', 'sunrise-east-geography', '曙光市｜東區生活地理', ['東區平民區'], {0,1,3,4}),
  104: ('8e68738d0be6e1a39ed1cddca66c55eb1b7fe7c0f8e6fb67eb3c48fb3925a933', 'sunrise-south-geography', '曙光市｜南區環境地理', ['曙光市南區', '南區貧民窟'], {0,1}),
- 49: ('b0095ba3033e5691bf22a91d0bc8e0e75df959cba6a3cec98ef7f2a5c412d478', 'sunrise-academy-background', '曙光市｜天璇學院基本資料', ['天璇異能學院'], {0}),
+ 49: ('b0095ba3033e5691bf22a91d0bc8e0e75df959cba6a3cec98ef7f2a5c412d478', 'sunrise-academy-background', '曙光市｜天璇學院基本資料', ['天璇異能學院'], {0,3}),
  107: ('ae9a5ecf3cc6cd2347e81e38f05d00159180e2f2a46c0fe1013bd8379678577b', 'sunrise-police-background', '曙光市｜警局基本資料', ['曙光市警局'], {0}),
  117: ('c00a586d409b6aafe79ee808a51c6c8da3aa68a94685ac46af01ca410c2ad946', 'sunrise-triumph-background', '曙光市｜凱旋企業公開背景', ['凱旋企業集團'], {0,5}),
  119: ('008d68578c55d678edf854d2414dbd52233b7631048e07dae1c80febe09222c6', 'sunrise-prison-background', '曙光市｜第一監獄設施與生活', ['曙光市第一監獄'], {0,3,4}),
- 120: ('3bf1f5a14ff484b98b3858b4b09300059ffcab21e059cb28f6a49dfc5fca0226', 'sunrise-prison-background', '曙光市｜第一監獄設施與生活', ['曙光市第一監獄'], {1})
+ 120: ('3bf1f5a14ff484b98b3858b4b09300059ffcab21e059cb28f6a49dfc5fca0226', 'sunrise-prison-background', '曙光市｜第一監獄設施與生活', ['曙光市第一監獄'], {1}),
+ 5: ('2c6d6f17185d0b6e682d602ddaa575cb33e76bcb40399b852f9be1be208fe6ba', 'sunrise-abandoned-dock', '曙光市｜廢棄碼頭基本地理', ['廢棄9號碼頭', '廢棄 9 號碼頭', '9 號碼頭', '9號碼頭'], {1}),
+ 6: ('48e9e1a2e2866153b5891928880c317ff90f65ce2fa58e06edf4ed16f1873bc5', 'sunrise-dock-scenario', '曙光市｜廢棄碼頭劇情方向', ['廢棄9號碼頭', '廢棄 9 號碼頭', '9 號碼頭', '9號碼頭'], {3})
 }
 sha = lambda content: hashlib.sha256(content.encode()).hexdigest()
 def build(zip_path):
@@ -32,7 +34,7 @@ def build(zip_path):
   entry = original['entries'][index]; content = entry['content']
   if sha(content) != digest or content != shared['entries'][index]['content'] or entry['category'] != '地點':
    raise ValueError('Source changed; review again')
-  starts = [m.start() for m in re.finditer(r'^## ' if index in (1, 2) else r'^### ', content, re.M)]
+  starts = [m.start() for m in re.finditer(r'^## ' if index in (1, 2, 5, 6) else r'^### ', content, re.M)]
   if not starts or starts[0] != 0: starts.insert(0,0)
   spans = list(zip(starts, starts[1:] + [len(content)]))
   entries, review = [], []
@@ -44,11 +46,19 @@ def build(zip_path):
     eid = f'sunrise-source-{index}-{part}'; record['entry_id'] = eid
     entries.append({'id':eid,'title':name+'｜'+title,'category':'世界資料','mode':'keyword','keywords':keywords + ({1:['曙光金融大廈','天際商場','凱旋企業總部','司法大廈','曙光國際會議中心'],2:['曙光證券交易所','泰坦科技','晨曦集團','極光製藥','銀河傳媒']} .get(part, []) if index == 1 else []),'content':value})
    review.append(record)
-  existing = next((pack for pack in packs if pack['meta']['id'] == pack_id), None)
-  if existing:
-   existing['entries'].extend(entries)
-  else:
-   packs.append({'schema':'yorubay-worldbook-pack','version':1,'meta':{'id':pack_id,'name':name,'world':'sunrise-city','classification':'world','author':'班長／肉包','release':'1.0.0','visibility':'public','source':'囚徒的自白／精靈王共用原文｜審閱地理章節（2026-10-11）'},'entries':entries})
+  groups = [(pack_id, name, entries)]
+  if index == 49:
+   scenario = [e for e in entries if e['id'] == 'sunrise-source-49-3']
+   groups = [(pack_id, name, [e for e in entries if e not in scenario]),
+             ('sunrise-academy-scenario', '曙光市｜學院劇情方向', scenario)]
+  for group_id, group_name, group_entries in groups:
+   if group_id != pack_id:
+    for item in group_entries: item["title"] = group_name + "｜" + item["title"].split("｜", 2)[-1]
+   existing = next((pack for pack in packs if pack['meta']['id'] == group_id), None)
+   if existing:
+    existing['entries'].extend(group_entries)
+   else:
+    packs.append({'schema':'yorubay-worldbook-pack','version':1,'meta':{'id':group_id,'name':group_name,'world':'sunrise-city','classification':'scenario' if group_id.endswith('-scenario') else 'world','author':'班長／肉包','release':'1.0.0','visibility':'public','source':'囚徒的自白／精靈王共用原文｜審閱地理章節（2026-10-11）'},'entries':group_entries})
   mapping.append({'source_index':index,'source_sha256':digest,'source_chars':len(content),'chapters':review})
  return {'packs':packs}, {'source_worldbook_id':original['worldbook']['id'],'shared_content_verified':True,'sources':mapping}
 if __name__ == '__main__':
