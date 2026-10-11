@@ -25,12 +25,22 @@
     } else frame.current = p.present_value;
     return true;
   }
+  function isPast() {
+    const p = policy();
+    return !!p && GameState.current?.modules?.[p.module]?.current === p.past_value;
+  }
+  function record(text) {
+    if (!isPast() || typeof text !== 'string' || !text.trim()) return false;
+    const frame = GameState.current.modules[policy().module];
+    frame.past_events = [text.slice(0,500), ...(frame.past_events || [])].slice(0,24);
+    return true;
+  }
   const original = GameState.applyUpdate.bind(GameState);
   const addEvent = GameState.addEvent?.bind(GameState);
   if (addEvent) GameState.addEvent = function(text) {
     const p = policy(), frame = p && this.current?.modules?.[p.module];
     if (frame?.current === p?.past_value && p) {
-      frame.past_events = [String(text).slice(0,500), ...(frame.past_events || [])].slice(0,24);
+      record(text);
       return;
     }
     return addEvent(text);
@@ -66,5 +76,5 @@
     if (frame?.current !== p?.past_value || !p) return base;
     return `${base}\n\n【當前回憶框架】\n回溯：${frame.past_time || '未確認時間'}。回憶位置：${frame.past_location || '依已確認往事建立'}。這是往事／角色陳述／重演，未定內容保持未定。現在的時間、資產、傷勢、名冊與任務保持不動。只提交 modules.${p.module} 的 past_time、past_location、past_events；不得把回憶結果直接變成現在已完成的事。玩家明確輸入【回到現在】才退出此框架。`;
   });
-  window.BAOStoryTimeline = {transition};
+  window.BAOStoryTimeline = {transition,isPast,record};
 })();

@@ -1,7 +1,7 @@
 const {test,expect}=require('@playwright/test');
 async function ready(page) {
   await page.goto('/');
-  await page.waitForFunction(()=>window.BAOStoryTimeline && window.BAOGameplayUI && window.BAOChatMarkup && window.BAOSceneHTML);
+  await page.waitForFunction(()=>window.BAOStoryTimeline && window.BAOGameplayUI && window.BAOChatMarkup && window.BAOSceneHTML && window.BAOStoryIntegrity);
   await page.evaluate(async()=>{
     const raw=await (await fetch('data/characters/community/73/sunrise-city-disorder.json')).json();
     App.activeCharacter=CharacterEngine.normalize(raw);
@@ -56,10 +56,10 @@ for(const [device,viewport] of [['desktop',{width:1280,height:900}],['mobile',{w
       const result=await page.evaluate(()=>{
         const state=GameState.current;
         state.modules.economy.cash=200;
-        const before={time:state.time,location:state.location,clock:state.worldClock.tickMinutes};
+        const before={time:state.time,location:state.location,clock:state.worldClock.tickMinutes,events:JSON.stringify(state.events)};
         BAOStoryTimeline.transition('【回憶】昨日的詢問');
-        GameState.applyUpdate({time:'第二夜',location:'港口',world_clock:{advance_minutes:90},npcs:[{name:'不應加入'}],modules:{economy:{cash:0},case:{progress:100},timeline:{past_time:'昨日 20:00'}}});
-        return {before,after:{time:state.time,location:state.location,clock:state.worldClock.tickMinutes},cash:state.modules.economy.cash,progress:state.modules.case.progress,npcs:state.npcs.length,identity:state.modules.player.identity,past:state.modules.timeline.past_time};
+        GameState.applyUpdate({time:'第二夜',location:'港口',new_events:['回憶發現車票'],world_clock:{advance_minutes:90},npcs:[{name:'不應加入'}],modules:{economy:{cash:0},case:{progress:100},timeline:{past_time:'昨日 20:00'}}});
+        return {before,after:{time:state.time,location:state.location,clock:state.worldClock.tickMinutes,events:JSON.stringify(state.events)},cash:state.modules.economy.cash,progress:state.modules.case.progress,npcs:state.npcs.length,identity:state.modules.player.identity,past:state.modules.timeline.past_time};
       });
       expect(result.after).toEqual(result.before);
       expect(result.cash).toBe(200);expect(result.progress).toBe(0);expect(result.npcs).toBe(0);

@@ -32,3 +32,18 @@ assert.equal(GameState.current.modules.timeline.current,'現在','model cannot s
 assert.equal(GameState.current.modules.timeline.present_time,'21:00');assert.equal(updates,1);
 App.activeCharacter={};GameState.applyUpdate({time:'22:00'});assert.equal(GameState.current.time,'22:00','legacy unaffected');
 console.log('PASS timeline: explicit commands, frozen present, bounded memory records, persistence and legacy passthrough');
+
+// Load the real late event wrapper after the guard; it must not bypass it.
+App.activeCharacter={timeline_policy:{version:1,module:'timeline',past_value:'回憶',present_value:'現在'},world_modules:[{id:'timeline',kind:'object'}]};
+GameState.current=structuredClone(original);
+GameState.create=function(){return this.current;};
+global.Storage={};
+const integrity=fs.readFileSync('js/story-integrity-fixes.js','utf8');
+vm.runInThisContext(integrity.slice(0,integrity.indexOf('  const previousRestore'))+'\n})();');
+BAOStoryTimeline.transition('【回憶】車票來源');
+GameState.applyUpdate({new_events:['昨日查到車票'],modules:{timeline:{past_time:'昨日'}}});
+GameState.addEvent('昨日詢問目擊者');
+assert.deepEqual(GameState.current.events,original.events);
+assert.ok(GameState.current.modules.timeline.past_events.includes('昨日查到車票'));
+assert.ok(GameState.current.modules.timeline.past_events.includes('昨日詢問目擊者'));
+console.log('PASS timeline integration: late story-integrity wrapper cannot write flashback events into present log');
