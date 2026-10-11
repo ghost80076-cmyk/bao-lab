@@ -33,12 +33,12 @@ const increasing = (source, tokens, label) => {
 
 // Base globals must exist before site-ui starts its asynchronous extension chains.
 increasing(index, [
-  'src="js/storage.js?v=1"',
-  'src="js/state.js"',
+  'src="js/storage.js?v=2"',
+  'src="js/state.js?v=2"',
   'src="js/api.js"',
   'src="js/helper-data.js?v=2"',
   'src="js/chat.js',
-  'src="js/character.js?v=1"',
+  'src="js/character.js?v=2"',
   'src="js/app.js',
   'src="js/chat-markup.js?v=2"',
   'src="js/site-ui.js'

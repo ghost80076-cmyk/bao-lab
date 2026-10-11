@@ -57,8 +57,8 @@ for(const [device,viewport] of [['desktop',{width:1280,height:900}],['mobile',{w
       await ready(page); await start(page);
       const result=await page.evaluate(async()=>{
         const binding=GameState.current.worldbookLibrary;
-        const before=(await App.buildMessages())[0].content;
         GameState.current.location='未設定';
+        const before=(await App.buildMessages())[0].content;
         Chat.add('user','我研究冰系異能。');
         const messages=await App.buildMessages();
         const payload=Storage.buildStoryPayload();
@@ -68,11 +68,13 @@ for(const [device,viewport] of [['desktop',{width:1280,height:900}],['mobile',{w
         const offPayload=Storage.buildStoryPayload();
         Storage.restoreStory(offPayload);
         const off=await App.buildMessages();
-        return {count:binding.enabled.length,chapters:savedCount,ok,same:messages[0].content===before,
+        return {before,after:messages[0].content,count:binding.enabled.length,chapters:savedCount,ok,same:messages[0].content===before,
           ice:messages.at(-1).content.includes('冰霜領域'),fire:messages.at(-1).content.includes('火焰製造'),
           copies:(messages.at(-1).content.match(/冰霜領域/g)||[]).length,
           disabled:GameState.current.worldbookLibrary.enabled.length,off:off.at(-1).content.includes('冰霜領域')};
       });
+      expect(result.after).toBe(result.before);
+      delete result.before;delete result.after;
       expect(result).toEqual({count:26,chapters:79,ok:true,same:true,ice:true,fire:false,copies:1,disabled:0,off:false});
       const legacy=await page.evaluate(()=>{
         const payload=Storage.buildStoryPayload();
