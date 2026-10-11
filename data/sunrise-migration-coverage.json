@@ -2,11 +2,11 @@
   "source_worldbook_id": "5808c2c1-a71c-417e-b07c-23d75d36735e",
   "summary": {
     "source_entries": 183,
-    "packs": 36,
-    "published_chapters": 172,
+    "packs": 41,
+    "published_chapters": 212,
     "coverage": {
-      "partial": 57,
-      "unreviewed": 125,
+      "partial": 66,
+      "unreviewed": 116,
       "complete": 1
     }
   },
@@ -408,24 +408,24 @@
       "category": "地點",
       "source_sha256": "b0095ba3033e5691bf22a91d0bc8e0e75df959cba6a3cec98ef7f2a5c412d478",
       "status": "partial",
-      "published_chapters": 2,
-      "deferred_chapters": 2
+      "published_chapters": 3,
+      "deferred_chapters": 1
     },
     {
       "source_index": 50,
       "category": "地點",
       "source_sha256": "18efec6495f1276dc4f93017ff5504dad73578c589ccad9c08b34f3e93f05bfa",
-      "status": "unreviewed",
-      "published_chapters": 0,
-      "deferred_chapters": 0
+      "status": "partial",
+      "published_chapters": 1,
+      "deferred_chapters": 10
     },
     {
       "source_index": 51,
       "category": "地點",
       "source_sha256": "e547b9b282b02029f46eef7017b07bc081e3ef2dd9d5f2d654e8a1044c302f03",
-      "status": "unreviewed",
-      "published_chapters": 0,
-      "deferred_chapters": 0
+      "status": "partial",
+      "published_chapters": 4,
+      "deferred_chapters": 15
     },
     {
       "source_index": 52,
@@ -439,41 +439,41 @@
       "source_index": 53,
       "category": "地點",
       "source_sha256": "1e856b81037b3775dc7cfdd182279e727094b2538b7b36a390f9731013815787",
-      "status": "unreviewed",
-      "published_chapters": 0,
-      "deferred_chapters": 0
+      "status": "partial",
+      "published_chapters": 6,
+      "deferred_chapters": 14
     },
     {
       "source_index": 54,
       "category": "地點",
       "source_sha256": "564c5924f3e0776b2469ede90ce611ab584fcab44de15642fa31b1eb1f7064cf",
-      "status": "unreviewed",
-      "published_chapters": 0,
-      "deferred_chapters": 0
+      "status": "partial",
+      "published_chapters": 3,
+      "deferred_chapters": 10
     },
     {
       "source_index": 55,
       "category": "地點",
       "source_sha256": "69343a7c458ea0ea37a3b36e2bcfb6632b4cd68924fdcb9eda78347bd172b18f",
-      "status": "unreviewed",
-      "published_chapters": 0,
-      "deferred_chapters": 0
+      "status": "partial",
+      "published_chapters": 8,
+      "deferred_chapters": 16
     },
     {
       "source_index": 56,
       "category": "地點",
       "source_sha256": "601cf482f649b8f586b3e68f608816640c6315b7bebf4b56ff165b33e5888ac9",
-      "status": "unreviewed",
-      "published_chapters": 0,
-      "deferred_chapters": 0
+      "status": "partial",
+      "published_chapters": 6,
+      "deferred_chapters": 13
     },
     {
       "source_index": 57,
       "category": "地點",
       "source_sha256": "436412e73d572b4d4c948ec8cd78b6553223daaa9ff60b96c38aeecbafc46b5e",
-      "status": "unreviewed",
-      "published_chapters": 0,
-      "deferred_chapters": 0
+      "status": "partial",
+      "published_chapters": 3,
+      "deferred_chapters": 13
     },
     {
       "source_index": 58,
@@ -487,17 +487,17 @@
       "source_index": 59,
       "category": "地點",
       "source_sha256": "6ce615798a99662ab3ad7949053ce31e28069d921e903474377c4aacf99cb010",
-      "status": "unreviewed",
-      "published_chapters": 0,
-      "deferred_chapters": 0
+      "status": "partial",
+      "published_chapters": 3,
+      "deferred_chapters": 13
     },
     {
       "source_index": 60,
       "category": "地點",
       "source_sha256": "1ff947428ce81941bc8db8eb01964b90a1fc896d4d0be82ef51ae8c498ba5b3a",
-      "status": "unreviewed",
-      "published_chapters": 0,
-      "deferred_chapters": 0
+      "status": "partial",
+      "published_chapters": 5,
+      "deferred_chapters": 12
     },
     {
       "source_index": 61,

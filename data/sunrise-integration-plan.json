@@ -680,8 +680,8 @@
         "world",
         "lore"
       ],
-      "editorial_status": "needs-content-review",
-      "publication_status": "unreviewed"
+      "editorial_status": "reviewed-published-sections",
+      "publication_status": "partial"
     },
     {
       "source_index": 51,
@@ -693,8 +693,8 @@
         "world",
         "lore"
       ],
-      "editorial_status": "needs-content-review",
-      "publication_status": "unreviewed"
+      "editorial_status": "reviewed-published-sections",
+      "publication_status": "partial"
     },
     {
       "source_index": 52,
@@ -719,11 +719,12 @@
         "world",
         "lore"
       ],
-      "editorial_status": "needs-content-review",
-      "publication_status": "unreviewed",
+      "editorial_status": "reviewed-published-sections",
+      "publication_status": "partial",
       "normalized_draft_sha256": "f034840cd90207d82c49ed5ccd48f333afedeeb9c42c146c837c231c9e9830a1",
       "decisions": [
-        "bloody-july-date"
+        "bloody-july-date",
+        "family-lineage-projection"
       ]
     },
     {
@@ -736,8 +737,8 @@
         "world",
         "lore"
       ],
-      "editorial_status": "needs-content-review",
-      "publication_status": "unreviewed"
+      "editorial_status": "reviewed-published-sections",
+      "publication_status": "partial"
     },
     {
       "source_index": 55,
@@ -749,8 +750,8 @@
         "world",
         "lore"
       ],
-      "editorial_status": "needs-content-review",
-      "publication_status": "unreviewed"
+      "editorial_status": "reviewed-published-sections",
+      "publication_status": "partial"
     },
     {
       "source_index": 56,
@@ -762,8 +763,8 @@
         "world",
         "lore"
       ],
-      "editorial_status": "needs-content-review",
-      "publication_status": "unreviewed"
+      "editorial_status": "reviewed-published-sections",
+      "publication_status": "partial"
     },
     {
       "source_index": 57,
@@ -775,8 +776,8 @@
         "world",
         "lore"
       ],
-      "editorial_status": "needs-content-review",
-      "publication_status": "unreviewed"
+      "editorial_status": "reviewed-published-sections",
+      "publication_status": "partial"
     },
     {
       "source_index": 58,
@@ -801,8 +802,8 @@
         "world",
         "lore"
       ],
-      "editorial_status": "needs-content-review",
-      "publication_status": "unreviewed"
+      "editorial_status": "reviewed-published-sections",
+      "publication_status": "partial"
     },
     {
       "source_index": 60,
@@ -814,8 +815,8 @@
         "world",
         "lore"
       ],
-      "editorial_status": "needs-content-review",
-      "publication_status": "unreviewed"
+      "editorial_status": "reviewed-published-sections",
+      "publication_status": "partial"
     },
     {
       "source_index": 61,
@@ -2817,6 +2818,126 @@
       ],
       "adopted": null,
       "reason": "原始人物住處使用中野、新宿、六本木，與曙光市五區的關係未定。保留原檔，不擅改地名或編造新行政區。"
+    },
+    {
+      "id": "public-place-boundary",
+      "status": "resolved",
+      "authority": [
+        49,
+        51
+      ],
+      "affected": [
+        49,
+        51
+      ],
+      "adopted": "校況與豪宅公開投影不含非法實驗、秘密地下室；家族形象明示為對外展示。",
+      "reason": "地點名稱召回不等於玩家已進入、掌握機密或認定宣傳為真。"
+    },
+    {
+      "id": "family-lineage-projection",
+      "status": "resolved",
+      "authority": [
+        53
+      ],
+      "affected": [
+        53
+      ],
+      "adopted": "雷家基本資料暫不發布三代傳承斷言；公開產業、家訓及場所仍可使用。",
+      "reason": "世代敘述與成員、歷史不吻合，不补造缺失世代。"
+    },
+    {
+      "id": "venue-public-surface",
+      "status": "resolved",
+      "authority": [
+        57
+      ],
+      "affected": [
+        57
+      ],
+      "adopted": "Rose Club公開基本資料只含表面業務及場所資訊，未採店長矛盾年齡與幕後控制者。",
+      "reason": "場所召回不能直接揭露控制者、私有業務及人物秘密。"
+    },
+    {
+      "id": "case-public-report",
+      "status": "resolved",
+      "authority": [
+        60
+      ],
+      "affected": [
+        60
+      ],
+      "adopted": "失蹤案只發布已標官方說法；人口販賣案只發布警方破獲與逮捕結果。",
+      "reason": "保留黑暗犯罪世界背景，分離官方版本、幕後真相與人物私有知識。"
+    },
+    {
+      "id": "rose-club-personnel-ages",
+      "status": "unresolved",
+      "authority": [
+        44,
+        46,
+        57,
+        58
+      ],
+      "affected": [
+        44,
+        46,
+        57,
+        58
+      ],
+      "adopted": null,
+      "reason": "人物檔案的りな25歲、麻美38歲與場所頁23歲、45歲不一致；場所投影不採矛盾年齡，不建立第二個同名人物。"
+    },
+    {
+      "id": "lei-family-generations",
+      "status": "unresolved",
+      "authority": [
+        53
+      ],
+      "affected": [
+        53
+      ],
+      "adopted": null,
+      "reason": "雷驚雲被列第一代又稱雷震天祖父，歷史還有未列名父親；三代傳承、創立80年前及享年85歲不能直接對齊。"
+    },
+    {
+      "id": "family-player-template",
+      "status": "unresolved",
+      "authority": [
+        50,
+        "author-mother-draft"
+      ],
+      "affected": [
+        50
+      ],
+      "adopted": null,
+      "reason": "家族名冊指定玩家16歲且是蕭家子女，與作品目前可自訂成年身分的開場不通用。不能由背景召回覆寫玩家設定。"
+    },
+    {
+      "id": "bai-family-classification",
+      "status": "unresolved",
+      "authority": [
+        55,
+        56
+      ],
+      "affected": [
+        55,
+        56
+      ],
+      "adopted": null,
+      "reason": "家族階層頁稱白家光系，家族專頁以治癒系為主。專頁公開資料保持原文，概覽分類章暫不發布，不擅自把光系等同治癒系。"
+    },
+    {
+      "id": "redlight-district-location",
+      "status": "unresolved",
+      "authority": [
+        0,
+        59
+      ],
+      "affected": [
+        59
+      ],
+      "adopted": null,
+      "reason": "紅燈區位置標東南區，但城市採五個行政區；方位、跨區商圈或新行政區未定。不改名或新增第六區。"
     }
   ]
 }

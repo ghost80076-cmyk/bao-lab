@@ -75,7 +75,7 @@ for(const [device,viewport] of [['desktop',{width:1280,height:900}],['mobile',{w
       });
       expect(result.after).toBe(result.before);
       delete result.before;delete result.after;
-      expect(result).toEqual({count:36,chapters:172,ok:true,same:true,ice:true,fire:false,copies:1,disabled:0,off:false});
+      expect(result).toEqual({count:41,chapters:212,ok:true,same:true,ice:true,fire:false,copies:1,disabled:0,off:false});
       const legacy=await page.evaluate(()=>{
         const payload=Storage.buildStoryPayload();
         delete payload.state.worldbookLibrary;delete payload.character.initial_state.worldbookLibrary;

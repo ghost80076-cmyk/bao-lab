@@ -11,8 +11,19 @@ from sunrise_review_29_48 import ALLOWED as NEXT_ALLOWED, NAMES as NEXT_NAMES, K
 ALLOWED = {**ALLOWED, **NEXT_ALLOWED}
 NAMES = {**NAMES, **NEXT_NAMES}
 KEYWORDS = {**KEYWORDS, **NEXT_KEYWORDS}
+from sunrise_review_49_60 import ALLOWED as FAMILY_ALLOWED, LABELS as FAMILY_LABELS, KEYWORDS as FAMILY_KEYWORDS, chapter_spans as family_spans
+ALLOWED = {**ALLOWED, **FAMILY_ALLOWED}
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 SOURCES = {
+ 50: ('18efec6495f1276dc4f93017ff5504dad73578c589ccad9c08b34f3e93f05bfa', 'sunrise-xiao-family-background', '曙光市｜蕭家公開背景', ['曙光市｜蕭家公開背景'], {0}),
+ 51: ('e547b9b282b02029f46eef7017b07bc081e3ef2dd9d5f2d654e8a1044c302f03', 'sunrise-xiao-family-background', '曙光市｜蕭家公開背景', ['曙光市｜蕭家公開背景'], {0, 3, 2, 11}),
+ 53: ('1e856b81037b3775dc7cfdd182279e727094b2538b7b36a390f9731013815787', 'sunrise-lei-family-background', '曙光市｜雷家公開背景', ['曙光市｜雷家公開背景'], {0, 16, 17, 19, 13, 15}),
+ 54: ('564c5924f3e0776b2469ede90ce611ab584fcab44de15642fa31b1eb1f7064cf', 'sunrise-lei-family-background', '曙光市｜雷家公開背景', ['曙光市｜雷家公開背景'], {1, 2, 4}),
+ 55: ('69343a7c458ea0ea37a3b36e2bcfb6632b4cd68924fdcb9eda78347bd172b18f', 'sunrise-family-industries', '曙光市｜異能者家族與產業', ['曙光市｜異能者家族與產業'], {1, 3, 4, 6, 9, 12, 16, 21}),
+ 56: ('601cf482f649b8f586b3e68f608816640c6315b7bebf4b56ff165b33e5888ac9', 'sunrise-family-industries', '曙光市｜異能者家族與產業', ['曙光市｜異能者家族與產業'], {1, 2, 5, 6, 10, 11}),
+ 57: ('436412e73d572b4d4c948ec8cd78b6553223daaa9ff60b96c38aeecbafc46b5e', 'sunrise-rose-club-background', '曙光市｜Rose Club公開場所資料', ['曙光市｜Rose Club公開場所資料'], {0, 2, 7}),
+ 59: ('6ce615798a99662ab3ad7949053ce31e28069d921e903474377c4aacf99cb010', 'sunrise-redlight-background', '曙光市｜紅燈區場所與公開案件', ['曙光市｜紅燈區場所與公開案件'], {2, 4, 5}),
+ 60: ('1ff947428ce81941bc8db8eb01964b90a1fc896d4d0be82ef51ae8c498ba5b3a', 'sunrise-redlight-background', '曙光市｜紅燈區場所與公開案件', ['曙光市｜紅燈區場所與公開案件'], {10, 11, 13, 14, 15}),
  29: ('8a9a4b46e3d55e2077be844be7eb0c28f02b8fc99a1204c5355264c862e62f52', 'sunrise-official-case-record', '曙光市｜官方案件紀錄（說法與真相分離）', ['異能分類'], {0}),
  35: ('f2f20670f786c4dbaae967974279c369a3d7945f02c374ca9447947d74d937ac', 'sunrise-mental-abilities', '曙光市｜心靈系 Mental（虛構分類）', ['異能分類'], {0, 2}),
  39: ('644975f4db70fb1a166fca06288148ab9a604ff698f0bc40887721ac41e2543e', 'sunrise-biological-abilities', '曙光市｜生物系 Biological（虛構分類）', ['異能分類'], {1, 2, 3, 4}),
@@ -52,7 +63,7 @@ SOURCES = {
  99: ('bb5a9058afb79975f44f3a48b271a429ad6cb5d670e18664c2da3c2abda7d112', 'sunrise-north-geography', '曙光市｜北山生活地理', ['北山住宅區'], {1}),
  101: ('4f8800d5b5662b9469326ae47d49eb8c5a6aa80360c51542eb1b883fd88e0011', 'sunrise-east-geography', '曙光市｜東區生活地理', ['東區平民區'], {0,1,3,4}),
  104: ('8e68738d0be6e1a39ed1cddca66c55eb1b7fe7c0f8e6fb67eb3c48fb3925a933', 'sunrise-south-geography', '曙光市｜南區環境地理', ['曙光市南區', '南區貧民窟'], {0,1}),
- 49: ('b0095ba3033e5691bf22a91d0bc8e0e75df959cba6a3cec98ef7f2a5c412d478', 'sunrise-academy-background', '曙光市｜天璇學院基本資料', ['天璇異能學院'], {0,3}),
+ 49: ('b0095ba3033e5691bf22a91d0bc8e0e75df959cba6a3cec98ef7f2a5c412d478', 'sunrise-academy-background', '曙光市｜天璇學院基本資料', ['天璇異能學院'], {0,2,3}),
  107: ('ae9a5ecf3cc6cd2347e81e38f05d00159180e2f2a46c0fe1013bd8379678577b', 'sunrise-police-background', '曙光市｜警局基本資料', ['曙光市警局'], {0}),
  117: ('c00a586d409b6aafe79ee808a51c6c8da3aa68a94685ac46af01ca410c2ad946', 'sunrise-triumph-background', '曙光市｜凱旋企業公開背景', ['凱旋企業集團'], {0,5}),
  119: ('008d68578c55d678edf854d2414dbd52233b7631048e07dae1c80febe09222c6', 'sunrise-prison-background', '曙光市｜第一監獄設施與生活', ['曙光市第一監獄'], {0,3,4}),
@@ -83,11 +94,11 @@ def build(zip_path):
  packs, mapping = [], []
  for index, (digest, pack_id, name, keywords, allowed) in SOURCES.items():
   entry = original['entries'][index]; content = entry['content']
-  if sha(content) != digest or content != shared['entries'][index]['content'] or entry['category'] != ('角色' if 8 <= index <= 28 or 43 <= index <= 48 else '事件' if index in (29,96,97) else '規則' if index in (0, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 138) else '地點'):
+  if sha(content) != digest or content != shared['entries'][index]['content'] or entry['category'] != ('角色' if 8 <= index <= 28 or 43 <= index <= 48 else '事件' if index in (29,96,97) else '地點' if 49 <= index <= 60 else '規則' if index in (0, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 138) else '地點'):
    raise ValueError('Source changed; review again')
   starts = [m.start() for m in re.finditer(r'^#{2,3} ' if 43 <= index <= 48 else r'^#### ' if index in (35,36,37,38,39,40,41,42) else r'^#{2,3} ' if index == 138 else r'^## ' if index in (0, 1, 2, 3, 4, 5, 6) else r'^### ', content, re.M)]
   if not starts or starts[0] != 0: starts.insert(0,0)
-  spans = list(zip(starts, starts[1:] + [len(content)]))
+  spans = family_spans(index,content) if 49 <= index <= 60 else list(zip(starts, starts[1:] + [len(content)]))
   entries, review = [], []
   for part, (start,end) in enumerate(spans):
    value = content[start:end].strip(); title = value.splitlines()[0].lstrip('# ').strip()
@@ -119,7 +130,8 @@ def build(zip_path):
      (34,0): ['異能分類', '八大主類'], (34,4): ['異能監控等級', '異能者管理局監控']
     }.get((index, part), keywords)
     if index==26: recall_keywords=[INSTITUTION_NAMES[part]]
-    recall_keywords=CHAPTER_KEYWORDS.get((index,part),recall_keywords)
+    recall_keywords=FAMILY_KEYWORDS.get((index,part),CHAPTER_KEYWORDS.get((index,part),recall_keywords))
+    title=FAMILY_LABELS.get((index,part),title)
     entries.append({'id':eid,'title':name+'｜'+(keywords[0]+'｜' if 8 <= index <= 28 or 43 <= index <= 48 else '')+title,'category':'人物資料' if 8 <= index <= 28 or 43 <= index <= 48 else '世界資料','mode':'keyword','keywords':recall_keywords + ({1:['曙光金融大廈','天際商場','凱旋企業總部','司法大廈','曙光國際會議中心'],2:['曙光證券交易所','泰坦科技','晨曦集團','極光製藥','銀河傳媒']} .get(part, []) if index == 1 else []),'content':value})
    review.append(record)
   groups = [(pack_id, name, entries)]
