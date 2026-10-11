@@ -85,20 +85,24 @@
   function target() {
     if (!document.getElementById('chat-view')?.classList.contains('active')) return null;
     const records = Chat.messages;
+    const nativeOpening = !!App.activeCharacter?.opening?.posts?.length;
     const nodes = [...stream.children].filter(node => node.classList?.contains('message'));
     if (!Array.isArray(records) || !nodes.length) return null;
-    if (!records.length) return nodes.length === 1 && nodes[0].classList.contains('assistant')
+    if (!records.length) return !nativeOpening && nodes.length === 1 && nodes[0].classList.contains('assistant')
       ? { node: nodes[0], source: String(App.activeCharacter?.greeting || ''), id: 'greeting' } : null;
     const shift = nodes.length === records.length + 1 && nodes[0].classList.contains('assistant') ? 1 : 0;
     if (nodes.length !== records.length + shift || !records.every((m, i) =>
       nodes[i + shift].classList.contains(m.role === 'user' ? 'user' : 'assistant'))) return null;
     for (let index = records.length - 1; index >= 0; index--) {
       if (records[index].role !== 'assistant') continue;
+      // Native opening buttons live in the host page. An iframe replacement
+      // would hide them and cannot reproduce their delegated draft handlers.
+      if (nativeOpening && records[index].greeting) return null;
       const node = nodes[index + shift];
       if (node.classList.contains('is-streaming')) return null;
       return { node, source: String(records[index].content || ''), id: String(records[index].id || index) };
     }
-    return shift ? { node: nodes[0], source: String(App.activeCharacter?.greeting || ''), id: 'greeting' } : null;
+    return shift && !nativeOpening ? { node: nodes[0], source: String(App.activeCharacter?.greeting || ''), id: 'greeting' } : null;
   }
   function mount(candidate, result, owner, fingerprint, allowExternalAssets, allowStateSharing) {
     clear();
