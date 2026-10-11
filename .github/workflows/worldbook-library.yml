@@ -123,3 +123,38 @@ jobs:
           node tests/three-realms-cosmic-lore-core.cjs
           node tests/three-realms-secret-lore-core.cjs
           node tests/lorebook-core.cjs
+
+  sunrise-live-assets:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify deployed Sunrise files match this commit
+        run: |
+          python - <<'PY'
+          import hashlib, pathlib, time, urllib.request
+          paths = [
+              "index.html", "js/character.js", "js/state.js", "js/storage.js",
+              "js/site-ui.js", "js/worldbook-library.js",
+              "data/sunrise-worldbook-library.json",
+              "data/characters/community/73/sunrise-city-disorder.json",
+          ]
+          pending = set(paths)
+          for attempt in range(36):
+              for path in list(pending):
+                  try:
+                      request = urllib.request.Request("https://yorubay.com/" + path + "?verify=" + str(time.time_ns()), headers={"Cache-Control": "no-cache"})
+                      with urllib.request.urlopen(request, timeout=10) as response:
+                          live = response.read()
+                      if hashlib.sha256(live).digest() == hashlib.sha256(pathlib.Path(path).read_bytes()).digest():
+                          pending.remove(path)
+                          print("Verified deployed asset:", path, flush=True)
+                  except Exception as error:
+                      print("Waiting:", path, type(error).__name__, flush=True)
+              if not pending:
+                  break
+              time.sleep(5)
+          if pending:
+              raise SystemExit("Deployed assets differ from this commit: " + ", ".join(sorted(pending)))
+          PY
