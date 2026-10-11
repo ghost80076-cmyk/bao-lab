@@ -2,6 +2,7 @@
 import hashlib
 import re
 from sunrise_character_review import DECISIONS as CHARACTER_DECISIONS, project
+from sunrise_review_29_48 import DECISIONS as NEXT_DECISIONS, project as next_project
 
 DECISIONS = {
     'work-population': {
@@ -48,6 +49,7 @@ DECISIONS = {
 }
 
 DECISIONS.update(CHARACTER_DECISIONS)
+DECISIONS.update(NEXT_DECISIONS)
 
 HISTORY = '''## 重大歷史事件（整合摘要）
 
@@ -87,7 +89,8 @@ def reconcile_chapter(index, part, value):
         value = re.sub(r'異能者比例(?:\*\*)?[:：] ?[0-9]+%[^\n]*', '異能者比例：片區統計尚待確認', value)
         if before != value: ids.append('district-census')
     value, character_ids = project(index, part, value)
-    return value, ids + character_ids
+    value, next_ids = next_project(index, part, value)
+    return value, ids + character_ids + next_ids
 
 
 def reconciled_source(index, value):

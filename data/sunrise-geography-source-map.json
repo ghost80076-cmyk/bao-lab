@@ -3,6 +3,1092 @@
   "shared_content_verified": true,
   "sources": [
     {
+      "source_index": 29,
+      "source_sha256": "8a9a4b46e3d55e2077be844be7eb0c28f02b8fc99a1204c5355264c862e62f52",
+      "source_chars": 1854,
+      "chapters": [
+        {
+          "chapter": 0,
+          "title": "**【官方說法】**",
+          "start": 0,
+          "end": 333,
+          "sha256": "0b3ed7151730b4cbd61248af9298561b55d49b03777ce44cd8b04b1459a74acd",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "reconciliation": [
+            "official-case-attribution"
+          ],
+          "published_sha256": "703bf6c1b187dfb55e5bfe9ed2df3e8b66f8ea82d3cfb38d39589491c703a48c",
+          "entry_id": "sunrise-source-29-0"
+        },
+        {
+          "chapter": 1,
+          "start": 333,
+          "end": 712,
+          "sha256": "2ee265b6ec448099ac259d5f40442f58f54bb9c12a8ddc4ba3b14b1a0a786a41",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 2,
+          "start": 712,
+          "end": 1118,
+          "sha256": "29f9d9a8e496808951a36cbfc55e2a0d62f8b6bcfbb6c1018ad11ffa4d2d54df",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 3,
+          "start": 1118,
+          "end": 1499,
+          "sha256": "232f131f6054398eee795b6116172351f573d91e9735bd643f78c7223400719e",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 4,
+          "start": 1499,
+          "end": 1854,
+          "sha256": "785ac3a329b7748caf5c73ee309291629e3f83acec023883098a4076dee0bee5",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        }
+      ]
+    },
+    {
+      "source_index": 35,
+      "source_sha256": "f2f20670f786c4dbaae967974279c369a3d7945f02c374ca9447947d74d937ac",
+      "source_chars": 303,
+      "chapters": [
+        {
+          "chapter": 0,
+          "title": "**心靈感應型**",
+          "start": 0,
+          "end": 58,
+          "sha256": "9e92761d35ff9ef9af75227c62adaed0ab0fa50a050cc44717ab81c546b3c6e0",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "entry_id": "sunrise-source-35-0"
+        },
+        {
+          "chapter": 1,
+          "start": 58,
+          "end": 157,
+          "sha256": "ca6fb7a762444bc88732e058f7835a6d0c55db0ad41d647378a4582bcf7651ad",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 2,
+          "title": "**精神攻擊型**",
+          "start": 157,
+          "end": 237,
+          "sha256": "e1c9c1842bdcb7e648fa3c0f49ee9885aabf04615c9773471af3c1e85d98cc95",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "entry_id": "sunrise-source-35-2"
+        },
+        {
+          "chapter": 3,
+          "start": 237,
+          "end": 303,
+          "sha256": "c4587efc513fdad9663b76afc0e857044af069358f1565c92cefebbd4af0e89a",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        }
+      ]
+    },
+    {
+      "source_index": 39,
+      "source_sha256": "644975f4db70fb1a166fca06288148ab9a604ff698f0bc40887721ac41e2543e",
+      "source_chars": 459,
+      "chapters": [
+        {
+          "chapter": 0,
+          "start": 0,
+          "end": 112,
+          "sha256": "c9c47cbb12390b947ed6f88b4b056ec5db1bc51d98a723d38d6b5205b794cf37",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 1,
+          "title": "**毒系（Poison）**",
+          "start": 112,
+          "end": 264,
+          "sha256": "e05cbab93a5b66c43d5007c9d7a1f9411acbcd1320a547e482f6d902b26cce1a",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "entry_id": "sunrise-source-39-1"
+        },
+        {
+          "chapter": 2,
+          "title": "**疾病操控型**",
+          "start": 264,
+          "end": 326,
+          "sha256": "3c898a70617a497f665a548ba3b76087a4d34b6d386a9bc4d36162105e805eb4",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "entry_id": "sunrise-source-39-2"
+        },
+        {
+          "chapter": 3,
+          "title": "**寄生型**",
+          "start": 326,
+          "end": 388,
+          "sha256": "2863d99ad1896b46dff8c32b64819cec0c5178ccde17709b616f7336a769623a",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "entry_id": "sunrise-source-39-3"
+        },
+        {
+          "chapter": 4,
+          "title": "**血液操控型**",
+          "start": 388,
+          "end": 459,
+          "sha256": "5447c21204df82374f30d6630e8d0aa8c4372c1225701bb2ea9afcbaee86d531",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "entry_id": "sunrise-source-39-4"
+        }
+      ]
+    },
+    {
+      "source_index": 40,
+      "source_sha256": "c18ebc2de2ba26b846727f593bf778dba07f0416757ba68ddfebfb82b5c009bf",
+      "source_chars": 424,
+      "chapters": [
+        {
+          "chapter": 0,
+          "start": 0,
+          "end": 76,
+          "sha256": "95580751c955d50aadfe8e369ae53bba850132d557240093cd37eca40026a6bd",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 1,
+          "start": 76,
+          "end": 242,
+          "sha256": "2470476312a20baac89997a20a0ba902c8141bcd0263ff23a76f2376ff6512c1",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 2,
+          "title": "**形態變化型**",
+          "start": 242,
+          "end": 304,
+          "sha256": "dd634fe125258adf883aff42113602a1573865956f4acb37b6319f0d145bc3a4",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "entry_id": "sunrise-source-40-2"
+        },
+        {
+          "chapter": 3,
+          "title": "**巨大化型**",
+          "start": 304,
+          "end": 361,
+          "sha256": "7bb98a023f1a0076599ee51424df1d48f5683de63b00cddfcd1c85ef3e61ea7e",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "entry_id": "sunrise-source-40-3"
+        },
+        {
+          "chapter": 4,
+          "title": "**液化型**",
+          "start": 361,
+          "end": 424,
+          "sha256": "e323c10004b8c69c387b76deede34f96ad59a1c92747db702773e012e570428f",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "entry_id": "sunrise-source-40-4"
+        }
+      ]
+    },
+    {
+      "source_index": 41,
+      "source_sha256": "b7fc02081be17ca013f15c8c38e0b5b63ee0554d276e61f3abca2e6c2bfd57bb",
+      "source_chars": 431,
+      "chapters": [
+        {
+          "chapter": 0,
+          "title": "**金屬操控型**",
+          "start": 0,
+          "end": 77,
+          "sha256": "136f81fa6628c642666a8091df4d250ac54d9541355bdc13225fd3318ab53790",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "entry_id": "sunrise-source-41-0"
+        },
+        {
+          "chapter": 1,
+          "title": "**重力操控型**",
+          "start": 77,
+          "end": 137,
+          "sha256": "6886c8225453d44b128a306619c6922abf3645a0a7940dd6b214f26af3f6da92",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "entry_id": "sunrise-source-41-1"
+        },
+        {
+          "chapter": 2,
+          "start": 137,
+          "end": 211,
+          "sha256": "7a39e675a0fc8d9b781141ed2896c107870b2759ed714aa05a3f7cdb4d296c72",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 3,
+          "start": 211,
+          "end": 281,
+          "sha256": "a599936a16ea619b1a122b91c84b82dbb1cea6474c74e96602d4dbfb585e561b",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 4,
+          "title": "**反異能型**",
+          "start": 281,
+          "end": 369,
+          "sha256": "ec938e9369766bc33be61a332cf6749ee55d9baeff3f3509372a86f63aa93285",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "entry_id": "sunrise-source-41-4"
+        },
+        {
+          "chapter": 5,
+          "title": "**吸收型**",
+          "start": 369,
+          "end": 431,
+          "sha256": "dcc776456d43bade3ee9cc5aac4a5af9c484481d819d2a7c06294b866d68779a",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "entry_id": "sunrise-source-41-5"
+        }
+      ]
+    },
+    {
+      "source_index": 42,
+      "source_sha256": "5d4be0d56a63ea8eee7e0b0b40b602a0bfa1f832d6a97efb4f2c2c59e244a44e",
+      "source_chars": 874,
+      "chapters": [
+        {
+          "chapter": 0,
+          "title": "**官方定義：** 被異能者管理局列為禁止使用、必須上報、嚴密監控的危險異能。擁有者若被發現會被強制收容或處決。",
+          "start": 0,
+          "end": 58,
+          "sha256": "1eebf183174348badd5c53cfd27278df86b4397e9af0411614cf3712ea681e7b",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "entry_id": "sunrise-source-42-0"
+        },
+        {
+          "chapter": 1,
+          "start": 58,
+          "end": 184,
+          "sha256": "fd4907573ff2df4bf8d81140706387e3da800aba77aafd49b4d37f730e4895e9",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 2,
+          "title": "**靈魂操控型**",
+          "start": 184,
+          "end": 280,
+          "sha256": "4a739a19d6c402206617638a59f5affd6e3b1a7ef3f6431aa9cd91d56e00608c",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "entry_id": "sunrise-source-42-2"
+        },
+        {
+          "chapter": 3,
+          "title": "**生命汲取型**",
+          "start": 280,
+          "end": 399,
+          "sha256": "9ff8c18c288735131983dfd603971a397d9727e1d862c271a1925fd509cd1dca",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "entry_id": "sunrise-source-42-3"
+        },
+        {
+          "chapter": 4,
+          "title": "**屍體操控型**",
+          "start": 399,
+          "end": 485,
+          "sha256": "94763256ec8849dcbba5e528843f1384d5050400f4926bc0c4bb30778e9e950f",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "entry_id": "sunrise-source-42-4"
+        },
+        {
+          "chapter": 5,
+          "start": 485,
+          "end": 581,
+          "sha256": "a955695eb12ef30309b3092253c982cd5300fa7d83791fb04937eea83b33f1ce",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 6,
+          "title": "**痛苦放大型**",
+          "start": 581,
+          "end": 661,
+          "sha256": "6726cf27d67b6963f0aceedd7da54841836d55aeac3e19836eb029cbb40692f2",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "entry_id": "sunrise-source-42-6"
+        },
+        {
+          "chapter": 7,
+          "title": "**精神污染型**",
+          "start": 661,
+          "end": 750,
+          "sha256": "fb906afd2d1f39e6bf59b635add42f045da9c5382b7160ef2571ac9089b51d7c",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "entry_id": "sunrise-source-42-7"
+        },
+        {
+          "chapter": 8,
+          "start": 750,
+          "end": 874,
+          "sha256": "840a60d5936e33c33ad7dac36c6d6e65843e3e4a9681072d46cb59f3196632a5",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        }
+      ]
+    },
+    {
+      "source_index": 43,
+      "source_sha256": "7014f6b3df0da9390fafa0c681f0c722d54ea87c18a29e37b7f76c3bf91ebe2f",
+      "source_chars": 1774,
+      "chapters": [
+        {
+          "chapter": 0,
+          "title": "- **姓名**：黑羽 ゆめ（Kuroha Yume）",
+          "start": 0,
+          "end": 101,
+          "sha256": "0eae6ec17e55220b555e65061e575796ffc9a93490abae08298f07fcd4c324ee",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "entry_id": "sunrise-source-43-0"
+        },
+        {
+          "chapter": 1,
+          "title": "**【外貌】**",
+          "start": 101,
+          "end": 274,
+          "sha256": "f6025bb62fe2b36645f95a83b6159834eff5940585f11f86efca6e0213f2fbf7",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "entry_id": "sunrise-source-43-1"
+        },
+        {
+          "chapter": 2,
+          "title": "**【性格】**",
+          "start": 274,
+          "end": 538,
+          "sha256": "32e638a512f0c4bad0b8b0b68c4d65fbee92ac984bb5de2eb45e7295164532c8",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "reconciliation": [
+            "nightlife-public-persona"
+          ],
+          "published_sha256": "b80ba9274a8ce631269f2a9db8ddc20a09784603b264e050d13f06e0c6ab7d2e",
+          "entry_id": "sunrise-source-43-2"
+        },
+        {
+          "chapter": 3,
+          "start": 538,
+          "end": 742,
+          "sha256": "da56e84b18b36cbafb94af3c414b27ccb8607f4dd7b4ab367f382dc1243741e3",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 4,
+          "start": 742,
+          "end": 1012,
+          "sha256": "751eeff74530853f58fe8ee692e80dda59cdd960653d9a04c9e32605b17a07a3",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 5,
+          "start": 1012,
+          "end": 1224,
+          "sha256": "808e2ae29f8feac4670bc680ae483f702da5784a042b4feb58f6ab61f17ba34b",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 6,
+          "start": 1224,
+          "end": 1436,
+          "sha256": "e9a1f29262f772e1b1873c3d5265ae81bd7c3ae8b84eb44666d150abe3aeccb6",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 7,
+          "start": 1436,
+          "end": 1547,
+          "sha256": "4b62049870d57bc8fa48fc2af20a02bcbc8328e01f334946c9ce866b8128ab98",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 8,
+          "start": 1547,
+          "end": 1664,
+          "sha256": "e56aa1c188a40df1de253e2fd17d1c25c8fc714a8ca98804eb522d7d62151525",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 9,
+          "start": 1664,
+          "end": 1774,
+          "sha256": "5968d97ae59930d173881b4f9324ecb16fa1c81de05770aa0f968aba77f6d24f",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        }
+      ]
+    },
+    {
+      "source_index": 44,
+      "source_sha256": "13d8767086f03611c10c627703ded62a325e37700aa1da71cba08aacda3d95bc",
+      "source_chars": 1713,
+      "chapters": [
+        {
+          "chapter": 0,
+          "title": "- **姓名**：桜井 りな（Sakurai Rina）",
+          "start": 0,
+          "end": 114,
+          "sha256": "44c2065aaf73cfd8dea9fddb367e507e350ae1befb18817e5e3fd610da9db217",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "entry_id": "sunrise-source-44-0"
+        },
+        {
+          "chapter": 1,
+          "title": "**【外貌】**",
+          "start": 114,
+          "end": 295,
+          "sha256": "c8a86c9260fe949b245fb33031a6be125d13478fb30d6788cac4e4183904087a",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "entry_id": "sunrise-source-44-1"
+        },
+        {
+          "chapter": 2,
+          "title": "**【性格】**",
+          "start": 295,
+          "end": 571,
+          "sha256": "fcc8aeb8d6cd9056f73144b044613a498cf3f0b5edc8b111b37d0c4c034a590c",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "reconciliation": [
+            "nightlife-public-persona"
+          ],
+          "published_sha256": "2969aef1df6ed91fd8177d9cbe6a005311f385ab6905e54f87a85bd09eaaa2ba",
+          "entry_id": "sunrise-source-44-2"
+        },
+        {
+          "chapter": 3,
+          "start": 571,
+          "end": 775,
+          "sha256": "90193decdbfcfb8009717903ae9489b3a0c4ba80e404add2f440de81860d9719",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 4,
+          "start": 775,
+          "end": 990,
+          "sha256": "5e10431664c7c0e6a10863cee403f1276245a4b1c214479299e90035d51afa04",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 5,
+          "start": 990,
+          "end": 1223,
+          "sha256": "4a256678594594c18e31875803ba1d7d37975348f6136c44b50679fedef72b13",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 6,
+          "title": "**【異能】**",
+          "start": 1223,
+          "end": 1251,
+          "sha256": "06524e41d12be2febe848d192f6c05a772d43a98be14f6d069878bc26c2f397a",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "entry_id": "sunrise-source-44-6"
+        },
+        {
+          "chapter": 7,
+          "title": "**【戰鬥】**",
+          "start": 1251,
+          "end": 1334,
+          "sha256": "0b8da3e9a44611180e05e7269eb7c5fb7043583d00a746d7fd067ee8466af6be",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "entry_id": "sunrise-source-44-7"
+        },
+        {
+          "chapter": 8,
+          "start": 1334,
+          "end": 1444,
+          "sha256": "6fc24515915019c2acfa1d3e092f3c9cd49b3ce13636caa942b5c3d15c41d35c",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 9,
+          "start": 1444,
+          "end": 1607,
+          "sha256": "a5a78d9f0f9ddb54498b58dcb35c0fd69edea134dca1dda7301997a1bdf4a2ef",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 10,
+          "start": 1607,
+          "end": 1713,
+          "sha256": "6c83d36e87b9e866cfb75c75a3272a3a5c57a62a4a8aa10a559117bf9bfec1d7",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        }
+      ]
+    },
+    {
+      "source_index": 45,
+      "source_sha256": "819508e0e291d5e262569bec95cc1297cc0c2a4e92a36576790afc6b0c014c62",
+      "source_chars": 1559,
+      "chapters": [
+        {
+          "chapter": 0,
+          "title": "**【基礎】**",
+          "start": 0,
+          "end": 94,
+          "sha256": "eb9809a01b45b2ba571ba93af0bdba0b0b2e6bb1936d34e67bec499d68f16d5c",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "entry_id": "sunrise-source-45-0"
+        },
+        {
+          "chapter": 1,
+          "title": "**【外貌】**",
+          "start": 94,
+          "end": 262,
+          "sha256": "c5c0033149122423d02d8e546a0f7eef3a9bcdf46afebc40e4934cc3998353dc",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "entry_id": "sunrise-source-45-1"
+        },
+        {
+          "chapter": 2,
+          "title": "**【性格】**",
+          "start": 262,
+          "end": 520,
+          "sha256": "c156c2df6fcc078cd057fcfdb7583b5a1c31fdfb98d58aea59b9c537ff06f8dc",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "reconciliation": [
+            "nightlife-public-persona"
+          ],
+          "published_sha256": "90498f939aa95a42cb5e9a6129e5ce3096354f8330d16df5c4bed3b98180b152",
+          "entry_id": "sunrise-source-45-2"
+        },
+        {
+          "chapter": 3,
+          "start": 520,
+          "end": 720,
+          "sha256": "9a301d207cefb575d362159480ab8c8909105f222b5184de1d54d9f8c06b959b",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 4,
+          "start": 720,
+          "end": 884,
+          "sha256": "8a0b3f3094251a6bf6018a8e994738de2e9689c8a5e20635f7223c62b848a9c1",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 5,
+          "start": 884,
+          "end": 1068,
+          "sha256": "3d3dcee20613c7234c77d9b240f08bc58f3fba46f5c3c59158747fda2e77f4f8",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 6,
+          "title": "**【異能】**",
+          "start": 1068,
+          "end": 1096,
+          "sha256": "06524e41d12be2febe848d192f6c05a772d43a98be14f6d069878bc26c2f397a",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "entry_id": "sunrise-source-45-6"
+        },
+        {
+          "chapter": 7,
+          "start": 1096,
+          "end": 1205,
+          "sha256": "6b55a260badffd564d87392bd3afc5a5fadf6bc2a9116eac9c3e56ce736debe1",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 8,
+          "start": 1205,
+          "end": 1282,
+          "sha256": "a4f8d25f74bee74b82d2374af643e55d0c4a1abb91190c2640defd40b769af92",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 9,
+          "start": 1282,
+          "end": 1457,
+          "sha256": "6d834781da411e153ae734a0977d1e6813628a282faa0af78f680efaa163b1a3",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 10,
+          "start": 1457,
+          "end": 1559,
+          "sha256": "8116832783c7c9cc966de4cfcf23aaac02fa79c7359326d59ae7ec146cb630d6",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        }
+      ]
+    },
+    {
+      "source_index": 46,
+      "source_sha256": "25d00b82f18846dd69bfc67cb1999a8f6c2df95fad94d8ebdb8d7a4a16027fb2",
+      "source_chars": 1886,
+      "chapters": [
+        {
+          "chapter": 0,
+          "title": "**【基礎】**",
+          "start": 0,
+          "end": 125,
+          "sha256": "fc853f593bb7929ae459043fca3a9158896242f018bfc4db9cf2cac1e1fe254b",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "entry_id": "sunrise-source-46-0"
+        },
+        {
+          "chapter": 1,
+          "title": "**【外貌】**",
+          "start": 125,
+          "end": 282,
+          "sha256": "60ff9797bf86352fd71a8842a4ac076a1764d7f365b16c597a8ca4e3ad26423f",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "entry_id": "sunrise-source-46-1"
+        },
+        {
+          "chapter": 2,
+          "title": "**【性格】**",
+          "start": 282,
+          "end": 563,
+          "sha256": "2341d478ff4d7e172f8f7370b0bd9cdfc8da66269e95969cb9e19cc8ebc7ebca",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "reconciliation": [
+            "nightlife-public-persona"
+          ],
+          "published_sha256": "051f017740c8caede38f3a1aa2599fb247689ba19cf1698609e6f4f57217768f",
+          "entry_id": "sunrise-source-46-2"
+        },
+        {
+          "chapter": 3,
+          "start": 563,
+          "end": 779,
+          "sha256": "8305e9fb23efe8b4769aa44f5196e5b2eac87018a2eb6be56fead38957b54d12",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 4,
+          "start": 779,
+          "end": 1028,
+          "sha256": "9f8f6298ba8930732671233e355cff0e605d647055757d7b74456bc447b77685",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 5,
+          "start": 1028,
+          "end": 1280,
+          "sha256": "8e447bd0bd3a2e42924c1f1646b814cff7d48951732e1e7099b5f8974140f318",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 6,
+          "title": "**【異能】**",
+          "start": 1280,
+          "end": 1308,
+          "sha256": "06524e41d12be2febe848d192f6c05a772d43a98be14f6d069878bc26c2f397a",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "entry_id": "sunrise-source-46-6"
+        },
+        {
+          "chapter": 7,
+          "start": 1308,
+          "end": 1426,
+          "sha256": "2f463ba1b089a599c40efb3075c1b4c848555f314061ef3aabeeafd895724210",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 8,
+          "start": 1426,
+          "end": 1518,
+          "sha256": "1f5a6878271dca77316bb6c159f904e94e07d54af810e70de8e720af94901f20",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 9,
+          "start": 1518,
+          "end": 1764,
+          "sha256": "893fab5fd02b58b7ae755f6aa5fa881e1433ad9eb4f852852e83ad0768a6652c",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 10,
+          "start": 1764,
+          "end": 1886,
+          "sha256": "a00ea97035c8231e385c0f8b2facf7f479d689cae2c245096901e5baf4e03874",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        }
+      ]
+    },
+    {
+      "source_index": 47,
+      "source_sha256": "7eee0fa4fb74a348e356cc9ffb48f1ac301559b55818f547d9be2ea7a65b2b3b",
+      "source_chars": 1909,
+      "chapters": [
+        {
+          "chapter": 0,
+          "title": "**【基礎】**",
+          "start": 0,
+          "end": 129,
+          "sha256": "ea83ba1b9bcdecf780625ab09b07c00a383adfa3fcb1eb40cf1ec9999eb82502",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "entry_id": "sunrise-source-47-0"
+        },
+        {
+          "chapter": 1,
+          "title": "**【外貌】**",
+          "start": 129,
+          "end": 302,
+          "sha256": "d633314cba379f4e19b0b81667e2ffb99c24585790ed13e1ec2232184834e4d0",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "entry_id": "sunrise-source-47-1"
+        },
+        {
+          "chapter": 2,
+          "title": "**【性格】**",
+          "start": 302,
+          "end": 604,
+          "sha256": "de4309b426ff60d3656aa37c0d4ef10ea6050881a55e0c8df3f677ff012e11aa",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "reconciliation": [
+            "nightlife-public-persona"
+          ],
+          "published_sha256": "f5c291ff33b5e5f4dcf388abdb187d969fff8f07265cf6ad56286ec6bcae6955",
+          "entry_id": "sunrise-source-47-2"
+        },
+        {
+          "chapter": 3,
+          "start": 604,
+          "end": 825,
+          "sha256": "4125aa88496f5a8086878523790c9b432461c3983a6cb3cad93b51e513aba8ba",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 4,
+          "start": 825,
+          "end": 1064,
+          "sha256": "b58d8cd51ca9a1716d8b3b8a63241b702526000949f3b5614b898a5f1e0bca4f",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 5,
+          "start": 1064,
+          "end": 1313,
+          "sha256": "148e77f5a7290b3ea0197022f6be62f149d2caccc26fb7fcededa6660e289ad9",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 6,
+          "title": "**【異能】**",
+          "start": 1313,
+          "end": 1466,
+          "sha256": "4fff2191d86c7a5a6c3a75fb5d1f2dd9923cd1ff80a031d9874eb5f688c006f1",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "entry_id": "sunrise-source-47-6"
+        },
+        {
+          "chapter": 7,
+          "title": "**【戰鬥】**",
+          "start": 1466,
+          "end": 1581,
+          "sha256": "d68ebeb41b2d4933b6be84ece60dea767c1da325cd33b7a3229a0924ec0222b3",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "entry_id": "sunrise-source-47-7"
+        },
+        {
+          "chapter": 8,
+          "start": 1581,
+          "end": 1677,
+          "sha256": "7756d11e1ccdb6a11fc70aa3c6100ae486ea8275d665997f744732ad6d5976ac",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 9,
+          "start": 1677,
+          "end": 1909,
+          "sha256": "bf5ae3c84cdb046cf36442deb36f41fe6253b54d8235253bc885fa77828b6cc0",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        }
+      ]
+    },
+    {
+      "source_index": 48,
+      "source_sha256": "063e1507ef3746ee736672cf4a513011583edb5789420e7ff3239a8dd5bbaa7b",
+      "source_chars": 1684,
+      "chapters": [
+        {
+          "chapter": 0,
+          "title": "**【基礎】**",
+          "start": 0,
+          "end": 98,
+          "sha256": "d8e8f54ab7529bf65c301389817bdd5a2cd1de1cbb4ffdb7aa9c427da29009fc",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "entry_id": "sunrise-source-48-0"
+        },
+        {
+          "chapter": 1,
+          "title": "**【外貌】**",
+          "start": 98,
+          "end": 258,
+          "sha256": "9abe2b4ac57ae5992dd7c7102a6cd0e375ef399f53efdf0964ff6f94a417b381",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "entry_id": "sunrise-source-48-1"
+        },
+        {
+          "chapter": 2,
+          "title": "**【性格】**",
+          "start": 258,
+          "end": 510,
+          "sha256": "073fde390cd1108ca52d3a75b74ba86bd801ca7af7e1e0c5ffe01239042a9055",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "reconciliation": [
+            "nightlife-public-persona"
+          ],
+          "published_sha256": "dc1487e764317fd22268f668d1fc74be16d4c79fc8c576e8337461aa59eadbc7",
+          "entry_id": "sunrise-source-48-2"
+        },
+        {
+          "chapter": 3,
+          "start": 510,
+          "end": 697,
+          "sha256": "7bf0ac4e80b314e6870a684a4c935b94c6bcbb5263d2b6ccc9db360231efe411",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 4,
+          "start": 697,
+          "end": 901,
+          "sha256": "685d0cedb5ca21df2df9ae91cb7718c1ae4739ef477019544a241902d69d5493",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 5,
+          "start": 901,
+          "end": 1167,
+          "sha256": "9c6f77702e5de166e0b4d7a09cd608ee556ca71dc76ef1a98bcf1b47a33648ca",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 6,
+          "title": "**【異能】**",
+          "start": 1167,
+          "end": 1195,
+          "sha256": "06524e41d12be2febe848d192f6c05a772d43a98be14f6d069878bc26c2f397a",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "entry_id": "sunrise-source-48-6"
+        },
+        {
+          "chapter": 7,
+          "title": "**【戰鬥】**",
+          "start": 1195,
+          "end": 1280,
+          "sha256": "996785cf4f5da3cd3778392622779f18c0c3907b2a1fea5f195253d388b4bd09",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "entry_id": "sunrise-source-48-7"
+        },
+        {
+          "chapter": 8,
+          "start": 1280,
+          "end": 1363,
+          "sha256": "7079f4225853b5871a981c3ec316520a773bd263ed5d7854f754235b5e8d883a",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 9,
+          "start": 1363,
+          "end": 1574,
+          "sha256": "c675f70e864ab2d327406ab6456a1cc62bd6e859a71924e33f216f81dce89ef9",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 10,
+          "start": 1574,
+          "end": 1684,
+          "sha256": "0e80ca2f663351fb9b5a06a69bca41dc35878b36382386a8e471b468751ae575",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        }
+      ]
+    },
+    {
       "source_index": 16,
       "source_sha256": "465f4fa232ee13371b220d67bb70477037fa1125c0532d89e2798eaeffc45393",
       "source_chars": 1788,
@@ -3836,10 +4922,16 @@
         },
         {
           "chapter": 1,
+          "title": "**【異能等級】**",
           "start": 194,
           "end": 775,
           "sha256": "ae8a094d348df4b024c529d4b2eabbd944a0969a727f1e64f3f16de305267c6a",
-          "status": "deferred"
+          "status": "published",
+          "reconciliation": [
+            "ability-rank-reference"
+          ],
+          "published_sha256": "0ec16b8e07eef5786b103d7730a73182c954abfeccdbc6b6d43025dff924d8ac",
+          "entry_id": "sunrise-source-33-1"
         },
         {
           "chapter": 2,
