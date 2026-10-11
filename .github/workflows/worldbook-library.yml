@@ -17,6 +17,8 @@ on:
       - 'data/sunrise-migration-coverage.json'
       - 'scripts/audit-sunrise-migration.py'
       - 'scripts/sunrise_reconciliation.py'
+      - 'scripts/sunrise_character_review.py'
+      - 'tests/sunrise-character-review.cjs'
       - 'scripts/plan-sunrise-integration.py'
       - 'data/sunrise-integration-plan.json'
       - 'data/sunrise-native-blueprint.json'
@@ -64,6 +66,8 @@ on:
       - 'data/sunrise-migration-coverage.json'
       - 'scripts/audit-sunrise-migration.py'
       - 'scripts/sunrise_reconciliation.py'
+      - 'scripts/sunrise_character_review.py'
+      - 'tests/sunrise-character-review.cjs'
       - 'scripts/plan-sunrise-integration.py'
       - 'data/sunrise-integration-plan.json'
       - 'data/sunrise-native-blueprint.json'
@@ -111,6 +115,7 @@ jobs:
           node tests/worldbook-library-core.cjs
           node tests/sunrise-geography-core.cjs
           node tests/sunrise-migration-coverage.cjs
+          node tests/sunrise-character-review.cjs
           node tests/sunrise-integration-core.cjs
           python tests/sunrise-reconciliation.py
           node tests/worldbook-library-runtime.cjs
