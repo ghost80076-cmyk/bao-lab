@@ -100,6 +100,10 @@ for (const helper of [
   );
 
   assert.equal(
+    HOSTED_ROUTE_CONTROL["gemini-3.7-flash"].default_route,
+    "google-official"
+  );
+  assert.equal(
     HOSTED_ROUTE_CONTROL["gemini-3.8-flash"].default_route,
     "google-official"
   );
@@ -123,6 +127,22 @@ for (const helper of [
   assert.equal(
     PROVIDER_CONTROL.openrouter.balance_mode,
     "usd_estimate"
+  );
+
+  assert.deepEqual(
+    hostedLogicalModel(
+      "gemini",
+      "gemini-3.7-flash"
+    ).modelId,
+    "gemini-3.7-flash"
+  );
+
+  assert.deepEqual(
+    hostedLogicalModel(
+      "openrouter",
+      "google/gemini-3.7-flash"
+    ).modelId,
+    "gemini-3.7-flash"
   );
 
   assert.deepEqual(
