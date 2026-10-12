@@ -8610,6 +8610,1416 @@
       ]
     },
     {
+      "source_index": 121,
+      "source_sha256": "d201b9a8ae3b9ae3f135c269bb645f2df9e3a0606cd84d0b19319e3e38e8a099",
+      "source_chars": 1919,
+      "chapters": [
+        {
+          "chapter": 0,
+          "start": 0,
+          "end": 238,
+          "sha256": "0c59a4267a655840c9c9d5e46ac2c5ff148981cb74f2bdebbd0b8c3d7ae0d40b",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 1,
+          "start": 238,
+          "end": 688,
+          "sha256": "2aa34e3636c2d47654765b579fcf33e17e40c8ac9b6c4dbde1f23f242d15bf83",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 2,
+          "start": 688,
+          "end": 1191,
+          "sha256": "10526566118b460b2d2439e310af9c9c8e52c0a17eeaf6f434f027f34d4f10df",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 3,
+          "start": 1191,
+          "end": 1427,
+          "sha256": "1569d395288b67f52e65bc217f892013271fc7c3a61d874fc5e8e66e0e1ffa81",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 4,
+          "start": 1427,
+          "end": 1445,
+          "sha256": "f3e28d6e1c11dd5dca17274ea1b6b181852f25cb7c5e93bb9a4d24b04e248ae7",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 5,
+          "start": 1445,
+          "end": 1681,
+          "sha256": "7b5045777f2fc27fcb358f4b8bcf1ed6c454a07b83aa5f0cffb78f1e24679643",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 6,
+          "start": 1681,
+          "end": 1919,
+          "sha256": "870595fc182746195f7bd5b8ab7171d7665584b5478201293487a4d83529eb68",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        }
+      ]
+    },
+    {
+      "source_index": 122,
+      "source_sha256": "609bfa350609eda0b16f250fa35641488ad73294c29bc270fe2185f20cec422d",
+      "source_chars": 1152,
+      "chapters": [
+        {
+          "chapter": 0,
+          "start": 0,
+          "end": 214,
+          "sha256": "5a6ac5df3542a498b6327de4133c9812e90f34a27123d0685a0530971fcc8eba",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 1,
+          "start": 214,
+          "end": 407,
+          "sha256": "85da9583ef5f4dc01496ce80133f391ada2fe44aaf12099c0d647e8461da4b9f",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 2,
+          "start": 407,
+          "end": 616,
+          "sha256": "8446fa6218998e4d2a3feadf71875f59ba881f7a0a7c19a97cc60434e019f2c5",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 3,
+          "start": 616,
+          "end": 860,
+          "sha256": "355862881ec95d8d09652ec7780b8d30b474cc0e2a73c7ce00d9965f01494af6",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 4,
+          "start": 860,
+          "end": 1152,
+          "sha256": "0f71edc3ca01eef5ef0b0041296fc1dab70cea87c8c0c9cbd57cabbde3bc4a86",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        }
+      ]
+    },
+    {
+      "source_index": 123,
+      "source_sha256": "05c9e994faab1d931d056b8284b5828061b32cb6dd23bf55723014f230bd9055",
+      "source_chars": 1975,
+      "chapters": [
+        {
+          "chapter": 0,
+          "start": 0,
+          "end": 152,
+          "sha256": "a7031168225c69557e9fe95ea980df58393c75db2db7638ba18bdf623bdd927d",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 1,
+          "start": 152,
+          "end": 421,
+          "sha256": "ec25c2c142e09db5862591c57ba2077b98d1aab46b9d51707646c93425563ab3",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 2,
+          "start": 421,
+          "end": 441,
+          "sha256": "d0c0509b68d1f03cd37a4a83177723b1a7b788551ef7662f146891d61aa3fe3f",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 3,
+          "start": 441,
+          "end": 677,
+          "sha256": "64c6c352e82d062da38612127202db789b115021927681af86fd232e244b82fb",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 4,
+          "start": 677,
+          "end": 938,
+          "sha256": "72fa79e044bd807f7452062e33047b0db29cbe550184b95b0d04df8bdfbd072a",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 5,
+          "start": 938,
+          "end": 1188,
+          "sha256": "39d026ae72bf14712712241b01afba14c9fa32d519dadf5cfafea196076da57d",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 6,
+          "start": 1188,
+          "end": 1395,
+          "sha256": "caa794dfea428b3fe4066895dbddbb7ddf54cfa33b4ad388ea8407ba6135c663",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 7,
+          "start": 1395,
+          "end": 1581,
+          "sha256": "92af7532bf5b27539cc119a6e44d7f48c5e9429aa2ed32ffad541b94bd94fb94",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 8,
+          "start": 1581,
+          "end": 1787,
+          "sha256": "7f8f4d7ec59d8771e8bf7461aaef5f4a1ecd27b1021f5760f800de4c654855f1",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 9,
+          "start": 1787,
+          "end": 1975,
+          "sha256": "c05404d6feafd1b3e7be80c91e786e2eb250e967608eaaa5a26f38bacaaa2c98",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        }
+      ]
+    },
+    {
+      "source_index": 124,
+      "source_sha256": "801a4b1539715ac7285a57e95d1e6145d94453b973058c7966d93e6571caaf43",
+      "source_chars": 1832,
+      "chapters": [
+        {
+          "chapter": 0,
+          "start": 0,
+          "end": 121,
+          "sha256": "4ac5aaa0fe830c4c7d3da5a1a7b855eb408fb2ba42a085579051aff3d7456953",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 1,
+          "start": 121,
+          "end": 138,
+          "sha256": "39e9f0df7bac58f1f34aea7b0bae10c80c494f542324d46aa13579f0e436acfc",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 2,
+          "start": 138,
+          "end": 220,
+          "sha256": "d987d4ce8f83a076d61effc968339a04a1881c51006ad5d4a54ed05e36264f55",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 3,
+          "start": 220,
+          "end": 580,
+          "sha256": "fa0860b7620b5ea57d0c2b98f7a0b166e78ed9276e3dc505c69e5760d56a5e65",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 4,
+          "start": 580,
+          "end": 598,
+          "sha256": "76531a2d50ca8e11563792d3db5c27d5e5a71b2ea067595609af6466e66ba55f",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 5,
+          "start": 598,
+          "end": 1036,
+          "sha256": "ff02ffa14e8a491425537ff37a6369cb9efb565536f4f174e2a0b1674c4c71f1",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 6,
+          "start": 1036,
+          "end": 1117,
+          "sha256": "395a9992f0f1b0ac0278ab58ed4461262eaa011e735315e07582068375f10306",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 7,
+          "start": 1117,
+          "end": 1189,
+          "sha256": "487a07dc48139b73c18e392b232a56d427dae6227adba4d42c8e79119c0fd14b",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 8,
+          "start": 1189,
+          "end": 1259,
+          "sha256": "22b54e3b56e546f65e89bbce64b79e8d810e7963994e4fab22eff20e82a19a5c",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 9,
+          "start": 1259,
+          "end": 1333,
+          "sha256": "21ae7b6d86a8f1147b5bee2df8dbd4001b12023bc799ffda454ad40a0e600bf1",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 10,
+          "start": 1333,
+          "end": 1350,
+          "sha256": "c224be292ae0e5e46c5cdf0063b997b16de6be21b3fc230a7d8803603d349d2e",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 11,
+          "start": 1350,
+          "end": 1433,
+          "sha256": "25f2876a8011b7fe25becf582cbf8516dbad5d7ea24a132b7df333e46ee34f3d",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 12,
+          "start": 1433,
+          "end": 1832,
+          "sha256": "40f93f15a01090247cf92a78804465eaa2a295216201d91e571fac5b5d4dfbb8",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        }
+      ]
+    },
+    {
+      "source_index": 125,
+      "source_sha256": "f39969316795d9b2c62471685eb304e756eb0d4fdb8b84d81166ea8262159bd1",
+      "source_chars": 1841,
+      "chapters": [
+        {
+          "chapter": 0,
+          "start": 0,
+          "end": 375,
+          "sha256": "f0bba09c5c0505064111536872cbad8de98dbbc49d82fba9a3b548046d2bada0",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 1,
+          "start": 375,
+          "end": 664,
+          "sha256": "fa48b750e0fed2d9762868043fb522d2f9fe088056e82aa8906b4e0fba74b997",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 2,
+          "start": 664,
+          "end": 693,
+          "sha256": "dd3e529ada2c60d26c8073d5f04b7aa68a84d86f37a0a450b2d9ec4db55c2d32",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 3,
+          "start": 693,
+          "end": 812,
+          "sha256": "878e151781377d9f32dde476af54c6b6ce3c28faec49a6df74e21bac1621f98e",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 4,
+          "start": 812,
+          "end": 1009,
+          "sha256": "5e6cc2e1ca46ebdb7d14095d6d632a800aa4ac6ad728c62593121776c459a566",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 5,
+          "start": 1009,
+          "end": 1503,
+          "sha256": "f15180e9ea616c7268d6acac0aedada833d10ea25b7830ca9b677ba5d1d5bca6",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 6,
+          "start": 1503,
+          "end": 1841,
+          "sha256": "5ecd5aff1f44296612928dffb54510df2edb936016d94d96444fa3b385973f31",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        }
+      ]
+    },
+    {
+      "source_index": 126,
+      "source_sha256": "87ba64694ed0adaea854cb4d70496e70200e4d4dd212aa0d8db913a2f3c90834",
+      "source_chars": 1821,
+      "chapters": [
+        {
+          "chapter": 0,
+          "start": 0,
+          "end": 219,
+          "sha256": "fd76d37bbf369a7f9610a47e8b6cb483845f70c2c9e722185b33a19347650222",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 1,
+          "start": 219,
+          "end": 313,
+          "sha256": "b2ca7cdcc467b9e33d3e379c230012fb92a2d1c2fa64388e9bf8cbbb1f118462",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 2,
+          "start": 313,
+          "end": 548,
+          "sha256": "5e8b17ef588ff85d933e789a8749888f35535a523fdf052e775041bde96eb70a",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 3,
+          "start": 548,
+          "end": 827,
+          "sha256": "23da21413431206a9bd9ffe6471f9f0742e6713c992df4a1ba8a8021d78adcbd",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 4,
+          "start": 827,
+          "end": 1053,
+          "sha256": "030624f419f430117f802a049ca67be148aba1155144b4069fb2d53b8cf3ffea",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 5,
+          "start": 1053,
+          "end": 1292,
+          "sha256": "9e413d03a0c3de2a98f65832f8bb3b80adb86334e653c97bc580873dbc7be6a4",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 6,
+          "start": 1292,
+          "end": 1320,
+          "sha256": "84955b8d80f4a3b1e9b53d50e433dfd4d5ac1a9325f10ff640bc1d093b227b2a",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 7,
+          "start": 1320,
+          "end": 1422,
+          "sha256": "9873267c0b978c734bf2142f24c15d6ae66437c1dd002250bdba39852393f9a0",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 8,
+          "start": 1422,
+          "end": 1540,
+          "sha256": "7a910ca8bbd90d98391f118e1f52eb97061e0ef0586d3a66e697fe00b13d319e",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 9,
+          "start": 1540,
+          "end": 1640,
+          "sha256": "b5303087e1491a8b1b005c61374c3f42c832ec33949837364317e9feca920743",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 10,
+          "start": 1640,
+          "end": 1736,
+          "sha256": "6d4a564c4ca304934f5e0dba7ed029a727a71848317e2bd7ce7c6c57171283c5",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 11,
+          "start": 1736,
+          "end": 1821,
+          "sha256": "d63d49ca327a8dfa033b4367fbccf1ff74e52e92e8eff8ecc215e040332dd415",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        }
+      ]
+    },
+    {
+      "source_index": 127,
+      "source_sha256": "fa13b33677f37dfe2f19805c6fc106ffc172037bf4641b5b524476c789bdc450",
+      "source_chars": 1713,
+      "chapters": [
+        {
+          "chapter": 0,
+          "start": 0,
+          "end": 24,
+          "sha256": "59d5b54333a3bd76ce42505f5d387d83f156b6fba9f28070d5305fa9407e46ef",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 1,
+          "start": 24,
+          "end": 56,
+          "sha256": "90830313c5c3316a4d3b59c3c2747154f5bf25f2c78fd34f561591750b4ac712",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 2,
+          "start": 56,
+          "end": 526,
+          "sha256": "2e4cbceb93a65d00b8d83e6e18f1402a0eca69200880e9556971143be4641742",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 3,
+          "start": 526,
+          "end": 639,
+          "sha256": "572aeaf1445f09399b015974f67d355c95c8f0946aec56a7c61514fdc66f6f7d",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 4,
+          "start": 639,
+          "end": 812,
+          "sha256": "155b2a52e5b2c7b3f92c0966a7300eb357297d97bcd41e990e194f647e7a1e22",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 5,
+          "start": 812,
+          "end": 830,
+          "sha256": "0a5202f8bb22457cbfa62faa1f1c7b50cdbb7b12094582d70e4fad5125434783",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 6,
+          "start": 830,
+          "end": 914,
+          "sha256": "9f61035b8e2c2761afd37d06e0b506df1e4b90fb1eb7b5a8ab332e4ddd0ed9a2",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 7,
+          "start": 914,
+          "end": 1010,
+          "sha256": "5d51fc2c80f648ae03aaec07337848f9bc7c98b9b183ed21d121a695b80de79c",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 8,
+          "start": 1010,
+          "end": 1085,
+          "sha256": "cf760c936d9f27b4a2dbfdc774a36b80827309b0f9c63fd4ea61e1067b96a328",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 9,
+          "start": 1085,
+          "end": 1370,
+          "sha256": "90ac8928962a15272513acc0b673311321d9f6bbce0bc31501e4b602d2c2f9c0",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 10,
+          "start": 1370,
+          "end": 1713,
+          "sha256": "1be3510ef1b811230eeebd0b68be8ba91dc45dce8b0cb3faaccc74835d7c3695",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        }
+      ]
+    },
+    {
+      "source_index": 128,
+      "source_sha256": "e56b3692b544f2c6589801a578f500921e3805a8fed9388b1ac747e0250dc7f3",
+      "source_chars": 1734,
+      "chapters": [
+        {
+          "chapter": 0,
+          "start": 0,
+          "end": 114,
+          "sha256": "15f790ce96083559f7cbe6ef20e155c0598aceef942e1658083d32e3c8e7a903",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 1,
+          "start": 114,
+          "end": 308,
+          "sha256": "acfdce5266e395c21e46aaa0e579f4301bc85a6167587c937c6bfa4da53cb93f",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 2,
+          "start": 308,
+          "end": 327,
+          "sha256": "c2dc9cc36c97c42fc004de51d5f10b1f10551a1c9b6487394d21cf1c34d69f2a",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 3,
+          "start": 327,
+          "end": 410,
+          "sha256": "c6414e8c352c38c6b2646e65197a8b2e20c594ba11c4973c7a0d9bffcc74a90e",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 4,
+          "start": 410,
+          "end": 817,
+          "sha256": "b8a4644b39ccc9411339aab2a6bbe832a2628929ff3a7889d4937b6189f271a3",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 5,
+          "start": 817,
+          "end": 1096,
+          "sha256": "55def5a43cff0faaf9d25a0955329b5f085059bffd4f1567e96c67c9e2483f21",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 6,
+          "start": 1096,
+          "end": 1116,
+          "sha256": "33bd5651c2f8f8d8c61959aad50c841d29f9767374c44e87a77c6f8ebd690d2a",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 7,
+          "start": 1116,
+          "end": 1491,
+          "sha256": "cdae4744de2f2a140981e36e9cb6f3fdeee33afb6a3b2be85b72a79f3bfe4be2",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 8,
+          "start": 1491,
+          "end": 1734,
+          "sha256": "a42df523dde9f632d3dbd1456f85f1a043fe91ae82bd891a9e348444f52eb298",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        }
+      ]
+    },
+    {
+      "source_index": 129,
+      "source_sha256": "7760f98bc7582a5d89a4a0afedfd0d662b4bd2a3e29f910ea3524b211aedf8fa",
+      "source_chars": 1837,
+      "chapters": [
+        {
+          "chapter": 0,
+          "start": 0,
+          "end": 19,
+          "sha256": "8b7465ad76e6c45ebda59cb1d0705981f5dbc9e16c3a7def047cac933b6172d5",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 1,
+          "start": 19,
+          "end": 108,
+          "sha256": "059ca6b4d6836ea4416b78cca129a17e818c31a373b7c5c366c043ad80132e4b",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 2,
+          "start": 108,
+          "end": 319,
+          "sha256": "c783e6911b5ab703caace09175466317aa2fceaf75c1df5aaecfe82f5dd7c1fd",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 3,
+          "start": 319,
+          "end": 339,
+          "sha256": "fd9bf8c3fd12d79a1258f0b80c5330330742ac1abbe961c2bc67a6786b7b8aaa",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 4,
+          "start": 339,
+          "end": 492,
+          "sha256": "6fb7e0b4c455ed611b27c2dbf0fd4e94ef23402c3a3614e38722fea35630a373",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 5,
+          "start": 492,
+          "end": 604,
+          "sha256": "22ba77f8f6d127c4211c90e3b5ed7c5b8a607a515bfd68d14f8ebca55989ec1c",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 6,
+          "start": 604,
+          "end": 632,
+          "sha256": "9ddce4de3c73218493e2c23259891899e3c40067844f32880eb4596d023f36a0",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 7,
+          "start": 632,
+          "end": 760,
+          "sha256": "8652a3ad62106d3e6c13ea20c3946d21f62daca69bc7deb940d2a32c8a387e5e",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 8,
+          "start": 760,
+          "end": 1010,
+          "sha256": "b2a5c5e0c7afa4625c416bc0175ca769f64f5907ab6efbfb13df27fce1c30f89",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 9,
+          "start": 1010,
+          "end": 1187,
+          "sha256": "9075413e9429397732dc1875d9ad14e8bdfdc3121ed1fe7a487b690006477aea",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 10,
+          "start": 1187,
+          "end": 1355,
+          "sha256": "d9efddbf7cb775b885e6af99f9d950fc755508b6ff5f404e10118aea14f8704d",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 11,
+          "start": 1355,
+          "end": 1550,
+          "sha256": "505147ecb9f1b2bef2a8ead889829fc0d0789abb94ae4d8bced8cdc7a2b46dd6",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 12,
+          "start": 1550,
+          "end": 1634,
+          "sha256": "cba0ebb3036fa1912e86d16b3008945a7bad9a8056f0d911d6c3696fbfd540c7",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 13,
+          "start": 1634,
+          "end": 1837,
+          "sha256": "c59115815b9dd343f5658bd83b57761746c8b74b12c9da2e00f91808785b3b79",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        }
+      ]
+    },
+    {
+      "source_index": 130,
+      "source_sha256": "b1778409c56af0d24c1f9a73f6df9a0c896d9059e9c4cd4ab1e084b3b15b1d9b",
+      "source_chars": 964,
+      "chapters": [
+        {
+          "chapter": 0,
+          "start": 0,
+          "end": 165,
+          "sha256": "42f1e781c496737508d64e6c72611b6b17ca516590b1b83c737b67d6f72feb96",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 1,
+          "start": 165,
+          "end": 372,
+          "sha256": "65ab0d3d9b7e24e8a58a7421a16dd6ca0916f1d6ce903e2c3cdea0f2afd82ce2",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 2,
+          "start": 372,
+          "end": 518,
+          "sha256": "c77bba02372bf306227d324f916894e24e385019458165ad8d887ecff2b53e0f",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 3,
+          "start": 518,
+          "end": 718,
+          "sha256": "414c5634b704b1d7d155e334e683a479ca7762fd1be51df593f3b8ef012ec2f1",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 4,
+          "start": 718,
+          "end": 964,
+          "sha256": "c9f8e7a0e6d19b7ecae07d81fbb69ab13214a220ce776c8b1299da5a064ee22a",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        }
+      ]
+    },
+    {
+      "source_index": 131,
+      "source_sha256": "f45d9d11c13c06b33a186e3a2857d31795d93434cfa82bc3a1c3a17504c6a8f9",
+      "source_chars": 1915,
+      "chapters": [
+        {
+          "chapter": 0,
+          "start": 0,
+          "end": 1564,
+          "sha256": "c513347892f5b5ff66538817d502c7c54ec629445bd07318196bfdb41b43c266",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 1,
+          "start": 1564,
+          "end": 1632,
+          "sha256": "69adbce619d64c3e6840f06f2bf4344e82b92a4abb4f25d3ac4b29ed6aa630a5",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 2,
+          "start": 1632,
+          "end": 1888,
+          "sha256": "67c8449045a750934c8843775f253e8bae0d04d1a7f58340d0f911cb71b1a687",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 3,
+          "start": 1888,
+          "end": 1915,
+          "sha256": "6f0fb94cb6b46cee280829c0f16a64a2045be200b091e20740580bab970de03a",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        }
+      ]
+    },
+    {
+      "source_index": 132,
+      "source_sha256": "319f7e3ce592f132484a0a259b45491ed9bb76f42d566a36fa610fe06d4a9024",
+      "source_chars": 1824,
+      "chapters": [
+        {
+          "chapter": 0,
+          "start": 0,
+          "end": 11,
+          "sha256": "88d0e4ab85a172af1916ba0edf02a183c3a1bbbe8aaba0633a7d1942ab5f8cb4",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 1,
+          "start": 11,
+          "end": 20,
+          "sha256": "03ee57f962c20bfb7d680354aa129297131126f35c50b9216d1ffbb3613a9052",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 2,
+          "start": 20,
+          "end": 348,
+          "sha256": "5bb51225c18c92e8c21f18ec747129d89ede501637a74d4187d6be39d0689a1f",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 3,
+          "start": 348,
+          "end": 357,
+          "sha256": "c4dc1f5dcbad546d99d197388e4441a316471f92c942fefb56acb5f827b7f9e8",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 4,
+          "start": 357,
+          "end": 742,
+          "sha256": "b3237711fac83a346d3dcf6da2a159901260eb58a2cb73c0c17d355d1b2d534e",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 5,
+          "start": 742,
+          "end": 1103,
+          "sha256": "0e93addee7a855e640d22b4af6e011e5b6f6f7aab69d0f6db9a1caf272481ae0",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 6,
+          "start": 1103,
+          "end": 1436,
+          "sha256": "2c2af9daf0e3805e99731d5e0370f3d98fcd4aeba6c394de0e471b5c05a30eee",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 7,
+          "start": 1436,
+          "end": 1445,
+          "sha256": "9c1de7cb682f6503259de26f047bf19a7d100353d0eb377af2e9dab0c678815d",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 8,
+          "start": 1445,
+          "end": 1625,
+          "sha256": "76a66c2d4c901eb3ee30c0efd12554d9844da7de8d50f59a55da2ff90fe205dc",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 9,
+          "start": 1625,
+          "end": 1824,
+          "sha256": "1bb8855c0b9661f48b62954683acd92e18f9f18e1c5526b5a47b944c9aeb66ab",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        }
+      ]
+    },
+    {
+      "source_index": 133,
+      "source_sha256": "47e3f53281c44d90911384d600e67e12da8dbd8222b75e77f9a1ca3cafb185c3",
+      "source_chars": 1547,
+      "chapters": [
+        {
+          "chapter": 0,
+          "start": 0,
+          "end": 9,
+          "sha256": "c0f4eed20b454520ffde48f9722d04f3d388b0c01dbfdf8ad55f9f4b922de617",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 1,
+          "start": 9,
+          "end": 69,
+          "sha256": "1430a6550c2ddc559395f288284fcd90b6f82daed385f51a7e4b9fac9d5a8236",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 2,
+          "start": 69,
+          "end": 448,
+          "sha256": "c684e4f3691f56c024be281c384bfd9a5591bd0f0537956759d6dff146a1824f",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 3,
+          "start": 448,
+          "end": 457,
+          "sha256": "46cb3411debe5c1509700614a23d717b729cfa9bc3c8ea5636c00650640b8e2e",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 4,
+          "start": 457,
+          "end": 638,
+          "sha256": "b4457931cfc6c0c8ebf5d446824109dd8b841122b493e06f6054a2f62c02a219",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 5,
+          "start": 638,
+          "end": 649,
+          "sha256": "9fc076e7b41ac27dc9be589aac45aa68bb44665801a8d1fce124b9835b3cb108",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 6,
+          "start": 649,
+          "end": 803,
+          "sha256": "16a46d414ca8f204bd610722eb08adc807ddc308ebfe4df4847114b8682314ed",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 7,
+          "start": 803,
+          "end": 951,
+          "sha256": "e807a807e195cdaf3eafa3d47d1937ec7c68c78f3245d29819426574b20a783f",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 8,
+          "start": 951,
+          "end": 1143,
+          "sha256": "4aea818b3e029b36ef07a23c1d8fac50f05ee87560ec4fd5da203a702ef41a8c",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 9,
+          "start": 1143,
+          "end": 1357,
+          "sha256": "ae3c26e546907a7f04ba9a3d56c882f1984d36cc7547b8bc7eed540fb4baf8a4",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 10,
+          "start": 1357,
+          "end": 1368,
+          "sha256": "f688f6b9ccaa14c6cab0f38cb896f9b63f9d8d35e2f8c93e73fe60913f0286a6",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 11,
+          "start": 1368,
+          "end": 1425,
+          "sha256": "15babf80f0f8adee605893e09920748a4cf76cfac2f64f7046664e65134cd56b",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 12,
+          "start": 1425,
+          "end": 1481,
+          "sha256": "d5af526e6082d1afdac673f02527fcae9eed5cb19f9da13e846a4719ef0a919c",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 13,
+          "start": 1481,
+          "end": 1547,
+          "sha256": "399b4d7a3d8ed8e69a732fcc6bf6697c4b4bfbdd22bc44a4cd28fad127249f74",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        }
+      ]
+    },
+    {
+      "source_index": 134,
+      "source_sha256": "9e92af75ee048eaa7ed544990ddd2e4ca7530b64b8783624f4c102ef49b9116a",
+      "source_chars": 1873,
+      "chapters": [
+        {
+          "chapter": 0,
+          "start": 0,
+          "end": 15,
+          "sha256": "fc8eeeb6092d737f68457cbff33714d1f3e7b95ce5dcb4d862e4269016fb9d1f",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 1,
+          "start": 15,
+          "end": 29,
+          "sha256": "e4da7db2daf0318191ac7c1afa31a9453e1f75e88088b7677416c4023ae51d6f",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 2,
+          "start": 29,
+          "end": 218,
+          "sha256": "77fdc47ca948e2a81b2f436e54e3e680d8c69947726258c30637e4c2841ddf36",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 3,
+          "start": 218,
+          "end": 231,
+          "sha256": "39f0a80ddaef7903b2ba96e701cc4e86e8a1f30b6796cac0bb55c12c93264e31",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 4,
+          "start": 231,
+          "end": 425,
+          "sha256": "3f4c34c94d8a0e6993714214e9a9a56dbc5131786f19e8546e38fa8af40ad08e",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 5,
+          "start": 425,
+          "end": 755,
+          "sha256": "9ac4103930ffaaa3548cfccdae947a04bd2ceff58cfd4b97600e0f4dad1ad56f",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 6,
+          "start": 755,
+          "end": 767,
+          "sha256": "5e012f9107d06bb56d6bc14ae0de06b8c5d20aacb30a30f233ef204272bf31f4",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 7,
+          "start": 767,
+          "end": 888,
+          "sha256": "b14c8716a61133988ffe829ac3608fdd287b72d896f00b95b22c8a121caf484d",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 8,
+          "start": 888,
+          "end": 1064,
+          "sha256": "6bec81754f48a2bad243fe6c9389f626fb66353908d5b541cdf43c8a975ac931",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 9,
+          "start": 1064,
+          "end": 1303,
+          "sha256": "184afd756de03ff2c6a051243a04992ff45c79c256112009d1b4090aefbfd245",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 10,
+          "start": 1303,
+          "end": 1656,
+          "sha256": "9bb8151af7c46bcfaec5d93213b3513542155b39d4c28575190a594145c3b5e3",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 11,
+          "start": 1656,
+          "end": 1873,
+          "sha256": "bd62063c20750824137dcac104249bc58fc02980ca50abb342c70df4a22e2293",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        }
+      ]
+    },
+    {
+      "source_index": 135,
+      "source_sha256": "86dabfe57ef77fbcffafb102da60db85b27ed3a66492d23f6d420a5e52a7004c",
+      "source_chars": 1847,
+      "chapters": [
+        {
+          "chapter": 0,
+          "start": 0,
+          "end": 5,
+          "sha256": "cb3f91d54eee30e53e35b2b99905f70f169ed549fd78909d3dac2defc9ed8d3b",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 1,
+          "start": 5,
+          "end": 146,
+          "sha256": "dece5c781b76ce0d9899261889d26e676b8cc6b42bd2751ca0745dad63bdc06b",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 2,
+          "start": 146,
+          "end": 295,
+          "sha256": "d6123dc08d666eb1fa5042ca36ffc77922bf9d69942252ad8e227b190f6610e8",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 3,
+          "start": 295,
+          "end": 429,
+          "sha256": "67c0b2dc4c7e1b847fead38a0e4f7c598d9459880126bf16cfee76680fd493c0",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 4,
+          "start": 429,
+          "end": 439,
+          "sha256": "15cc4d9c37e040b1b6511956d19df372d005edd651dfc7d6b969969551a408fa",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 5,
+          "start": 439,
+          "end": 729,
+          "sha256": "6138b41429437b7dbb1da8f8fad72ea56b80a9297973c0adc4365c89efbc03de",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 6,
+          "start": 729,
+          "end": 925,
+          "sha256": "caf018efc1f87d82e3fbbc3addf7d232114b337687427e375dc9c436cad288bb",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 7,
+          "start": 925,
+          "end": 936,
+          "sha256": "ca270ddd03f44cefd8a9d44fb70bcd5044cff6819c848ebca843a7e70fe9b728",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 8,
+          "start": 936,
+          "end": 1280,
+          "sha256": "0cd2201b629c3113912b403b5fefe80e488369d2a03d77ab482f445deb573f9a",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 9,
+          "start": 1280,
+          "end": 1566,
+          "sha256": "4b97297d1d32f766f40b7b31b245e80f100667816f56fb9efb41adbc0d4ed91f",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 10,
+          "start": 1566,
+          "end": 1577,
+          "sha256": "eac117cab1d594422a6ea07ec354fd8b2985b4c80534354557c37d05a949ab82",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 11,
+          "start": 1577,
+          "end": 1847,
+          "sha256": "4ad35aedca0007b19f679c8a2983e9c173f9f345b179f814788e2d5fdf935b11",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        }
+      ]
+    },
+    {
       "source_index": 106,
       "source_sha256": "0b2c3b648ddf5b1ee6cb0c172ad5c9ab15df7d8608219a5d3b13f7fd8b0193a3",
       "source_chars": 802,

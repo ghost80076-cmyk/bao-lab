@@ -5,8 +5,8 @@
     "packs": 48,
     "published_chapters": 329,
     "coverage": {
-      "partial": 111,
-      "unreviewed": 71,
+      "partial": 126,
+      "unreviewed": 56,
       "complete": 1
     }
   },
@@ -983,121 +983,121 @@
       "source_index": 121,
       "category": "事件",
       "source_sha256": "d201b9a8ae3b9ae3f135c269bb645f2df9e3a0606cd84d0b19319e3e38e8a099",
-      "status": "unreviewed",
+      "status": "partial",
       "published_chapters": 0,
-      "deferred_chapters": 0
+      "deferred_chapters": 7
     },
     {
       "source_index": 122,
       "category": "事件",
       "source_sha256": "609bfa350609eda0b16f250fa35641488ad73294c29bc270fe2185f20cec422d",
-      "status": "unreviewed",
+      "status": "partial",
       "published_chapters": 0,
-      "deferred_chapters": 0
+      "deferred_chapters": 5
     },
     {
       "source_index": 123,
       "category": "規則",
       "source_sha256": "05c9e994faab1d931d056b8284b5828061b32cb6dd23bf55723014f230bd9055",
-      "status": "unreviewed",
+      "status": "partial",
       "published_chapters": 0,
-      "deferred_chapters": 0
+      "deferred_chapters": 10
     },
     {
       "source_index": 124,
       "category": "規則",
       "source_sha256": "801a4b1539715ac7285a57e95d1e6145d94453b973058c7966d93e6571caaf43",
-      "status": "unreviewed",
+      "status": "partial",
       "published_chapters": 0,
-      "deferred_chapters": 0
+      "deferred_chapters": 13
     },
     {
       "source_index": 125,
       "category": "規則",
       "source_sha256": "f39969316795d9b2c62471685eb304e756eb0d4fdb8b84d81166ea8262159bd1",
-      "status": "unreviewed",
+      "status": "partial",
       "published_chapters": 0,
-      "deferred_chapters": 0
+      "deferred_chapters": 7
     },
     {
       "source_index": 126,
       "category": "規則",
       "source_sha256": "87ba64694ed0adaea854cb4d70496e70200e4d4dd212aa0d8db913a2f3c90834",
-      "status": "unreviewed",
+      "status": "partial",
       "published_chapters": 0,
-      "deferred_chapters": 0
+      "deferred_chapters": 12
     },
     {
       "source_index": 127,
       "category": "規則",
       "source_sha256": "fa13b33677f37dfe2f19805c6fc106ffc172037bf4641b5b524476c789bdc450",
-      "status": "unreviewed",
+      "status": "partial",
       "published_chapters": 0,
-      "deferred_chapters": 0
+      "deferred_chapters": 11
     },
     {
       "source_index": 128,
       "category": "規則",
       "source_sha256": "e56b3692b544f2c6589801a578f500921e3805a8fed9388b1ac747e0250dc7f3",
-      "status": "unreviewed",
+      "status": "partial",
       "published_chapters": 0,
-      "deferred_chapters": 0
+      "deferred_chapters": 9
     },
     {
       "source_index": 129,
       "category": "規則",
       "source_sha256": "7760f98bc7582a5d89a4a0afedfd0d662b4bd2a3e29f910ea3524b211aedf8fa",
-      "status": "unreviewed",
+      "status": "partial",
       "published_chapters": 0,
-      "deferred_chapters": 0
+      "deferred_chapters": 14
     },
     {
       "source_index": 130,
       "category": "規則",
       "source_sha256": "b1778409c56af0d24c1f9a73f6df9a0c896d9059e9c4cd4ab1e084b3b15b1d9b",
-      "status": "unreviewed",
+      "status": "partial",
       "published_chapters": 0,
-      "deferred_chapters": 0
+      "deferred_chapters": 5
     },
     {
       "source_index": 131,
       "category": "規則",
       "source_sha256": "f45d9d11c13c06b33a186e3a2857d31795d93434cfa82bc3a1c3a17504c6a8f9",
-      "status": "unreviewed",
+      "status": "partial",
       "published_chapters": 0,
-      "deferred_chapters": 0
+      "deferred_chapters": 4
     },
     {
       "source_index": 132,
       "category": "規則",
       "source_sha256": "319f7e3ce592f132484a0a259b45491ed9bb76f42d566a36fa610fe06d4a9024",
-      "status": "unreviewed",
+      "status": "partial",
       "published_chapters": 0,
-      "deferred_chapters": 0
+      "deferred_chapters": 10
     },
     {
       "source_index": 133,
       "category": "規則",
       "source_sha256": "47e3f53281c44d90911384d600e67e12da8dbd8222b75e77f9a1ca3cafb185c3",
-      "status": "unreviewed",
+      "status": "partial",
       "published_chapters": 0,
-      "deferred_chapters": 0
+      "deferred_chapters": 14
     },
     {
       "source_index": 134,
       "category": "規則",
       "source_sha256": "9e92af75ee048eaa7ed544990ddd2e4ca7530b64b8783624f4c102ef49b9116a",
-      "status": "unreviewed",
+      "status": "partial",
       "published_chapters": 0,
-      "deferred_chapters": 0
+      "deferred_chapters": 12
     },
     {
       "source_index": 135,
       "category": "規則",
       "source_sha256": "86dabfe57ef77fbcffafb102da60db85b27ed3a66492d23f6d420a5e52a7004c",
-      "status": "unreviewed",
+      "status": "partial",
       "published_chapters": 0,
-      "deferred_chapters": 0
+      "deferred_chapters": 12
     },
     {
       "source_index": 136,

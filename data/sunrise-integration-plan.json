@@ -1608,8 +1608,8 @@
       "targets": [
         "lore"
       ],
-      "editorial_status": "needs-content-review",
-      "publication_status": "unreviewed"
+      "editorial_status": "reviewed-published-sections",
+      "publication_status": "partial"
     },
     {
       "source_index": 122,
@@ -1620,8 +1620,8 @@
       "targets": [
         "lore"
       ],
-      "editorial_status": "needs-content-review",
-      "publication_status": "unreviewed"
+      "editorial_status": "reviewed-published-sections",
+      "publication_status": "partial"
     },
     {
       "source_index": 123,
@@ -1633,8 +1633,8 @@
         "world_modules",
         "lore"
       ],
-      "editorial_status": "needs-content-review",
-      "publication_status": "unreviewed"
+      "editorial_status": "reviewed-published-sections",
+      "publication_status": "partial"
     },
     {
       "source_index": 124,
@@ -1646,8 +1646,8 @@
         "world_modules",
         "lore"
       ],
-      "editorial_status": "needs-content-review",
-      "publication_status": "unreviewed"
+      "editorial_status": "reviewed-published-sections",
+      "publication_status": "partial"
     },
     {
       "source_index": 125,
@@ -1659,8 +1659,8 @@
         "world_modules",
         "lore"
       ],
-      "editorial_status": "needs-content-review",
-      "publication_status": "unreviewed"
+      "editorial_status": "reviewed-published-sections",
+      "publication_status": "partial"
     },
     {
       "source_index": 126,
@@ -1672,8 +1672,8 @@
         "world_modules",
         "lore"
       ],
-      "editorial_status": "needs-content-review",
-      "publication_status": "unreviewed"
+      "editorial_status": "reviewed-published-sections",
+      "publication_status": "partial"
     },
     {
       "source_index": 127,
@@ -1685,8 +1685,8 @@
         "world_modules",
         "lore"
       ],
-      "editorial_status": "needs-content-review",
-      "publication_status": "unreviewed"
+      "editorial_status": "reviewed-published-sections",
+      "publication_status": "partial"
     },
     {
       "source_index": 128,
@@ -1698,8 +1698,8 @@
         "world_modules",
         "lore"
       ],
-      "editorial_status": "needs-content-review",
-      "publication_status": "unreviewed"
+      "editorial_status": "reviewed-published-sections",
+      "publication_status": "partial"
     },
     {
       "source_index": 129,
@@ -1711,8 +1711,8 @@
         "world_modules",
         "lore"
       ],
-      "editorial_status": "needs-content-review",
-      "publication_status": "unreviewed"
+      "editorial_status": "reviewed-published-sections",
+      "publication_status": "partial"
     },
     {
       "source_index": 130,
@@ -1724,8 +1724,8 @@
         "world_modules",
         "lore"
       ],
-      "editorial_status": "needs-content-review",
-      "publication_status": "unreviewed"
+      "editorial_status": "reviewed-published-sections",
+      "publication_status": "partial"
     },
     {
       "source_index": 131,
@@ -1738,8 +1738,8 @@
         "world_modules",
         "ui"
       ],
-      "editorial_status": "needs-content-review",
-      "publication_status": "unreviewed"
+      "editorial_status": "reviewed-published-sections",
+      "publication_status": "partial"
     },
     {
       "source_index": 132,
@@ -1750,8 +1750,8 @@
       "targets": [
         "world_modules.economy"
       ],
-      "editorial_status": "needs-content-review",
-      "publication_status": "unreviewed"
+      "editorial_status": "reviewed-published-sections",
+      "publication_status": "partial"
     },
     {
       "source_index": 133,
@@ -1762,8 +1762,8 @@
       "targets": [
         "world_modules.economy"
       ],
-      "editorial_status": "needs-content-review",
-      "publication_status": "unreviewed"
+      "editorial_status": "reviewed-published-sections",
+      "publication_status": "partial"
     },
     {
       "source_index": 134,
@@ -1774,8 +1774,8 @@
       "targets": [
         "world_modules.economy"
       ],
-      "editorial_status": "needs-content-review",
-      "publication_status": "unreviewed"
+      "editorial_status": "reviewed-published-sections",
+      "publication_status": "partial"
     },
     {
       "source_index": 135,
@@ -1786,8 +1786,8 @@
       "targets": [
         "world_modules.economy"
       ],
-      "editorial_status": "needs-content-review",
-      "publication_status": "unreviewed"
+      "editorial_status": "reviewed-published-sections",
+      "publication_status": "partial"
     },
     {
       "source_index": 136,
