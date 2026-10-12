@@ -66,24 +66,24 @@ assert.equal(gemini38Router.worker.binding, 'MODELS_JSON_EXTRA');
 assert.equal(gemini38Router.worker.aws_openrouter_relay, true);
 
 const sonnet = requireRoute('claude-sonnet-4.6', 'anthropic-official');
-assert.deepEqual([sonnet.pricing.input, sonnet.pricing.output, sonnet.pricing.cache], [3, 15, 0.3]);
+assert.deepEqual([sonnet.pricing.input, sonnet.pricing.output, sonnet.pricing.cache, sonnet.pricing.cache_write], [3, 15, 0.3, 6]);
 
 const haiku45 = requireRoute('claude-haiku-4.5', 'anthropic-official');
-assert.deepEqual([haiku45.pricing.input, haiku45.pricing.output, haiku45.pricing.cache], [1, 5, 0.1]);
+assert.deepEqual([haiku45.pricing.input, haiku45.pricing.output, haiku45.pricing.cache, haiku45.pricing.cache_write], [1, 5, 0.1, 2]);
 assert.equal(requireRoute('claude-haiku-4.5', 'openrouter').model, 'anthropic/claude-haiku-4.5');
 
 const sonnet5 = requireRoute('claude-sonnet-5', 'anthropic-official');
-assert.deepEqual([sonnet5.pricing.input, sonnet5.pricing.output, sonnet5.pricing.cache], [2, 10, 0.2]);
+assert.deepEqual([sonnet5.pricing.input, sonnet5.pricing.output, sonnet5.pricing.cache, sonnet5.pricing.cache_write], [2, 10, 0.2, 4]);
 assert.equal(requireRoute('claude-sonnet-5', 'openrouter').model, 'anthropic/claude-sonnet-5');
 
 const sonnet55 = requireRoute('claude-sonnet-5.5', 'anthropic-official');
-assert.deepEqual([sonnet55.pricing.input, sonnet55.pricing.output, sonnet55.pricing.cache], [2, 10, 0.1]);
+assert.deepEqual([sonnet55.pricing.input, sonnet55.pricing.output, sonnet55.pricing.cache, sonnet55.pricing.cache_write], [2, 10, 0.1, 4]);
 assert.equal(requireRoute('claude-sonnet-5.5', 'openrouter').model, 'anthropic/claude-sonnet-5.5');
 assert.equal(requireModel('claude-sonnet-4.5').hosted.route_id, 'openrouter-hosted', 'legacy Sonnet 4.5 stays available for existing players');
 assert.equal(requireModel('claude-sonnet-4.5').deprecated.replacement, 'claude-sonnet-5.5');
 
 const opus55 = requireRoute('claude-opus-5.5', 'anthropic-official');
-assert.deepEqual([opus55.pricing.input, opus55.pricing.output, opus55.pricing.cache], [4, 20, 0.2]);
+assert.deepEqual([opus55.pricing.input, opus55.pricing.output, opus55.pricing.cache, opus55.pricing.cache_write], [4, 20, 0.2, 8]);
 assert.equal(requireRoute('claude-opus-5.5', 'openrouter').model, 'anthropic/claude-opus-5.5');
 
 const gptLuna = requireRoute('gpt-5.6-luna', 'openai-official');
