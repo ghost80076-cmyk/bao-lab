@@ -78,7 +78,7 @@
   const authorHref = item => {
     const id = String(item?.author_id || "").trim().toLowerCase();
     return /^[a-z0-9][a-z0-9_-]{1,63}$/.test(id)
-      ? "author.html?id=" + encodeURIComponent(id)
+      ? "author?id=" + encodeURIComponent(id)
       : "";
   };
 
