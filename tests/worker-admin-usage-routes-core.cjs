@@ -44,7 +44,8 @@ const boundary = moduleSource.slice(
 );
 
 assert.match(boundary, /"\/admin\/usage"/);
-assert.match(boundary, /FROM api_usage/);
+assert.match(boundary, /FROM api_usage AS u/);
+assert.match(boundary, /LEFT JOIN api_usage_diagnostics AS d/);
 assert.match(boundary, /LIMIT 101 OFFSET \?/);
 assert.doesNotMatch(
   boundary,
@@ -100,7 +101,7 @@ assert.doesNotMatch(
   assert.equal((await invalidPage.json()).error, "invalid_usage_page");
   assert.equal(touchedDatabase, false);
 
-  let sql = "";
+  const sql = [];
   let bindings = [];
   const usageRows = Array.from({length: 101}, (_, index) => ({
     request_id: String(index),
@@ -115,7 +116,10 @@ assert.doesNotMatch(
   }));
   const usageDb = {
     prepare(query) {
-      sql = query;
+      sql.push(query);
+      if (/CREATE TABLE IF NOT EXISTS api_usage_diagnostics/.test(query)) {
+        return {run: async () => ({meta: {changes: 0}})};
+      }
       return {
         bind(...values) {
           bindings = values;
@@ -129,12 +133,15 @@ assert.doesNotMatch(
   assert.equal(response.status, 200);
   const body = await response.json();
   assert.deepEqual(bindings, ["503f62e8-3777-43c9-b7ef-a7934aa45ed4", 200]);
-  assert.match(sql, /ORDER BY\s+created_at DESC,\s+request_id DESC/);
+  assert.match(sql[0], /CREATE TABLE IF NOT EXISTS api_usage_diagnostics/);
+  assert.match(sql[1], /LEFT JOIN api_usage_diagnostics AS d/);
+  assert.match(sql[1], /ORDER BY\s+u\.created_at DESC,\s+u\.request_id DESC/);
   assert.equal(body.usage.length, 100);
   assert.equal(body.has_more, true);
   assert.equal(body.next_page, 3);
   assert.equal(body.usage[0].provider_cost_usd, 0.01);
   assert.equal(body.usage[0].settled_cost_usd, 0.011);
+  assert.equal(body.usage[0].failure_code, undefined);
 
   console.log("worker admin usage routes core test passed");
 })().catch(error => {
