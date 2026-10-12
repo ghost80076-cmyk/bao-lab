@@ -302,7 +302,7 @@
       "source_sha256": "6d347f0023b39b874af418d56cba538482158cc713822ceac5b3a93b6b709af5",
       "source_chars": 272,
       "review_status": "examined",
-      "publication_status": "unreviewed",
+      "publication_status": "partial",
       "chapters": [
         {
           "chapter": 0,
@@ -583,7 +583,7 @@
       "source_sha256": "2c6b65a03311f6828d9c6681300a8da14d133f60b047b7785182e07fd4506180",
       "source_chars": 451,
       "review_status": "examined",
-      "publication_status": "unreviewed",
+      "publication_status": "partial",
       "chapters": [
         {
           "chapter": 0,
@@ -699,7 +699,7 @@
       "source_sha256": "cbd9d2357c0cc5f0d9aa04f4a3b97ee669d6c60ca5c85ad934317dc544f365c7",
       "source_chars": 763,
       "review_status": "examined",
-      "publication_status": "unreviewed",
+      "publication_status": "partial",
       "chapters": [
         {
           "chapter": 0,
@@ -838,7 +838,7 @@
       "source_sha256": "5d764e4ced1bba821d076f02736c77e64d433208cfcd930c0dd94a3232fcde65",
       "source_chars": 768,
       "review_status": "examined",
-      "publication_status": "unreviewed",
+      "publication_status": "partial",
       "chapters": [
         {
           "chapter": 0,

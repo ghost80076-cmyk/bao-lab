@@ -272,7 +272,7 @@
       "source_sha256": "e39fb32f33688bcccbb2fe13ab54f7556b8cb2ee87c82ac272fe2596136631d6",
       "source_chars": 1250,
       "review_status": "examined",
-      "publication_status": "unreviewed",
+      "publication_status": "partial",
       "chapters": [
         {
           "chapter": 0,
@@ -1005,7 +1005,7 @@
       "source_sha256": "320436f5c04c493de1818cf3bce805db50077b424c9eca216ba5cb097a9a45cb",
       "source_chars": 1144,
       "review_status": "examined",
-      "publication_status": "unreviewed",
+      "publication_status": "partial",
       "chapters": [
         {
           "chapter": 0,
