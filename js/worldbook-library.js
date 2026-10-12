@@ -402,7 +402,7 @@
     const worldManager = aside.querySelector("[data-open-world-manager]");
     const exit = aside.querySelector(".text-button");
     if (worldManager?.parentElement === aside) worldManager.insertAdjacentElement("afterend", button);
-    else if (exit?.parentElement === aside) aside.insertBefore(button, exit);
+    else if (exit?.parentElement === aside) exit.before(button);
     else aside.appendChild(button);
   };
 
