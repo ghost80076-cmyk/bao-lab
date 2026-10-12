@@ -24,8 +24,8 @@ assert.deepEqual(plan.template_merge.sources, [7,178]);
 assert.equal(plan.template_merge.shared_sections, 13);
 assert.equal(plan.entries[175].route, 'authoring-template');
 assert.equal(plan.entries[176].group, plan.entries[177].group);
-assert.equal(plan.conflicts.filter(c => c.status === 'resolved').length, 25);
-assert.equal(plan.conflicts.filter(c => c.status === 'unresolved').length, 24);
+assert.equal(plan.conflicts.filter(c => c.status === 'resolved').length, 30);
+assert.equal(plan.conflicts.filter(c => c.status === 'unresolved').length, 25);
 const decisions = new Map(plan.conflicts.map(c => [c.id,c]));
 for (const source of map.sources) for (const chapter of source.chapters) {
   for (const id of chapter.reconciliation || []) assert.ok(decisions.has(id));

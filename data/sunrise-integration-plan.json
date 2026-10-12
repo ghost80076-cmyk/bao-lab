@@ -1222,8 +1222,8 @@
         "profile",
         "lore"
       ],
-      "editorial_status": "needs-content-review",
-      "publication_status": "unreviewed"
+      "editorial_status": "reviewed-published-sections",
+      "publication_status": "partial"
     },
     {
       "source_index": 92,
@@ -1235,8 +1235,8 @@
         "profile",
         "lore"
       ],
-      "editorial_status": "needs-content-review",
-      "publication_status": "unreviewed"
+      "editorial_status": "reviewed-published-sections",
+      "publication_status": "partial"
     },
     {
       "source_index": 93,
@@ -1248,8 +1248,8 @@
         "profile",
         "lore"
       ],
-      "editorial_status": "needs-content-review",
-      "publication_status": "unreviewed"
+      "editorial_status": "reviewed-published-sections",
+      "publication_status": "partial"
     },
     {
       "source_index": 94,
@@ -1261,8 +1261,8 @@
         "profile",
         "lore"
       ],
-      "editorial_status": "needs-content-review",
-      "publication_status": "unreviewed"
+      "editorial_status": "reviewed-published-sections",
+      "publication_status": "partial"
     },
     {
       "source_index": 95,
@@ -1274,8 +1274,8 @@
         "profile",
         "lore"
       ],
-      "editorial_status": "needs-content-review",
-      "publication_status": "unreviewed"
+      "editorial_status": "reviewed-published-sections",
+      "publication_status": "partial"
     },
     {
       "source_index": 96,
@@ -1336,8 +1336,8 @@
       "targets": [
         "lore"
       ],
-      "editorial_status": "needs-content-review",
-      "publication_status": "unreviewed"
+      "editorial_status": "reviewed-published-sections",
+      "publication_status": "partial"
     },
     {
       "source_index": 101,
@@ -1362,8 +1362,8 @@
         "world",
         "lore"
       ],
-      "editorial_status": "needs-content-review",
-      "publication_status": "unreviewed"
+      "editorial_status": "reviewed-published-sections",
+      "publication_status": "partial"
     },
     {
       "source_index": 103,
@@ -1375,8 +1375,8 @@
         "world",
         "lore"
       ],
-      "editorial_status": "needs-content-review",
-      "publication_status": "unreviewed"
+      "editorial_status": "reviewed-published-sections",
+      "publication_status": "partial"
     },
     {
       "source_index": 104,
@@ -1401,8 +1401,8 @@
         "world",
         "lore"
       ],
-      "editorial_status": "needs-content-review",
-      "publication_status": "unreviewed"
+      "editorial_status": "reviewed-published-sections",
+      "publication_status": "partial"
     },
     {
       "source_index": 106,
@@ -2953,7 +2953,7 @@
         63,
         64
       ],
-      "adopted": "煉律流程、標準與案例作为虛構制度參考，案例明示為示例，不代表本輪已申請或裁定。",
+      "adopted": "煉律流程、標準與案例作為虛構制度參考，案例明示為示例，不代表本輪已申請或裁定。",
       "reason": "世界內審查制度不同於平台或模型權限；不新增前端審查引擎，也不因召回自動簽發許可。"
     },
     {
@@ -3205,6 +3205,95 @@
       ],
       "adopted": null,
       "reason": "NS3來源可能是管理局流出或地下研發；不把可能來源、警方腐敗或特異對策課調查寫成已證實事件。"
+    },
+    {
+      "id": "medical-public-boundary",
+      "status": "resolved",
+      "authority": [
+        91
+      ],
+      "affected": [
+        91
+      ],
+      "adopted": "公開林月影的獨立診療身分與已登記醫療能力；未公開攻擊能力、創傷與黑幫私下關係。",
+      "reason": "醫療支援可作世界背景，但角色秘密不能由診所名稱直接揭露。"
+    },
+    {
+      "id": "touch-ability-safety-scope",
+      "status": "resolved",
+      "authority": [
+        91,
+        92,
+        94,
+        95
+      ],
+      "affected": [
+        91,
+        92,
+        94,
+        95
+      ],
+      "adopted": "能力只發布目前登記、非操作性摘要；刑訊、侵入神經、人體實驗與控制方法不公開。",
+      "reason": "保留觸手系異能的世界觀辨識度，移除可直接模仿的傷害流程與強制控制細節。"
+    },
+    {
+      "id": "source93-withheld",
+      "status": "resolved",
+      "authority": [
+        93
+      ],
+      "affected": [
+        93
+      ],
+      "adopted": "蘇夢來源整筆保留作者原檔，不公開性化、非法實驗、綁架與融合情節。",
+      "reason": "單一來源同時含性化、未成年時期暴力與人體實驗內容，無法在本批安全拆成公開投影。"
+    },
+    {
+      "id": "district-public-structure",
+      "status": "resolved",
+      "authority": [
+        102,
+        105
+      ],
+      "affected": [
+        102,
+        105
+      ],
+      "adopted": "發布過渡區、社會結構與區域關係；犯罪劇情、人口販運、毒品製造、器官買賣與兒童剝削段落留待審核。",
+      "reason": "地理資料可支援模擬世界，但黑暗劇情不能由普通地名召回。"
+    },
+    {
+      "id": "source100-103-scenarios-withheld",
+      "status": "resolved",
+      "authority": [
+        100,
+        103
+      ],
+      "affected": [
+        100,
+        103
+      ],
+      "adopted": "北山與東區劇情線、關鍵NPC及犯罪調查先不發布。",
+      "reason": "劇情線含未定幕後真相、人口販運與非法實驗；保留來源跨度與 hash。"
+    },
+    {
+      "id": "touch-research-authority",
+      "status": "unresolved",
+      "authority": [
+        91,
+        92,
+        93,
+        95,
+        96,
+        100,
+        103
+      ],
+      "affected": [
+        91,
+        95
+      ],
+      "adopted": null,
+      "reason": "觸手系角色、源點計畫、管理局研究與北山／東區劇情線的控制關係尚未有一致公開版本。"
     }
   ]
 }

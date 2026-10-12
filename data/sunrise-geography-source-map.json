@@ -1123,6 +1123,818 @@
       ]
     },
     {
+      "source_index": 91,
+      "source_sha256": "62a13e08a9bd30fa40790d6a781a7af0121d9792a21e8a94f04ae8ec7ec357b9",
+      "source_chars": 1388,
+      "chapters": [
+        {
+          "chapter": 0,
+          "title": "**【基礎】**",
+          "start": 0,
+          "end": 65,
+          "sha256": "601ceb298f6fc669ef7094c9ce06ff65d1b3f7985d4f3b744e9ef77c716f5c66",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "reconciliation": [
+            "casting-reference-separation",
+            "medical-public-boundary"
+          ],
+          "published_sha256": "64cba4cc12f821254b9c704fb8038ee752edc7993188164ab8727fd6e7e6b901",
+          "entry_id": "sunrise-source-91-0"
+        },
+        {
+          "chapter": 1,
+          "title": "**【外貌】**",
+          "start": 65,
+          "end": 189,
+          "sha256": "8c9af07cf493d4f9c15c2f554272e28b42232fafac14a4a021c9ecc703051672",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "reconciliation": [
+            "casting-reference-separation",
+            "medical-public-boundary"
+          ],
+          "published_sha256": "b3ac71a7d2186df523f0e8963e9f4c36750c0fdeecf47bbb1c0a5af6161ade7e",
+          "entry_id": "sunrise-source-91-1"
+        },
+        {
+          "chapter": 2,
+          "title": "**【性格】**",
+          "start": 189,
+          "end": 316,
+          "sha256": "abf631c14a609fc87e1178ffb849ec8fbe893b2e2f50e2eb8fed913430c5dd05",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "reconciliation": [
+            "medical-public-boundary"
+          ],
+          "published_sha256": "39598164480e556e7553e6ba04622a62f6bb8c4ba7d28095f11934ac6a2c1eb1",
+          "entry_id": "sunrise-source-91-2"
+        },
+        {
+          "chapter": 3,
+          "start": 316,
+          "end": 580,
+          "sha256": "ba1befbb309f752c54380af06325a401f2fd9b5ae2d15d47146a6f7de2209446",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 4,
+          "title": "**【異能】**",
+          "start": 580,
+          "end": 824,
+          "sha256": "03c7c7306c6ef5c7e6fb527cae1717af90fbcc471a32b5c865f913567e3fadd6",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "reconciliation": [
+            "touch-ability-safety-scope"
+          ],
+          "published_sha256": "75015382156cb0506415577014888fbb4104ba2938a0e987d2d0729cb837c2e5",
+          "entry_id": "sunrise-source-91-4"
+        },
+        {
+          "chapter": 5,
+          "title": "**【戰鬥】**",
+          "start": 824,
+          "end": 885,
+          "sha256": "e202f97aec3a5d8b364ce8c6c61d816cbdbfce2b2bc700c6e95005ece74f5abe",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "reconciliation": [
+            "touch-ability-safety-scope"
+          ],
+          "published_sha256": "358b1e6589f264ad7f5b4b803790f999e75bce6d3e49ccc91e58e911f971aa92",
+          "entry_id": "sunrise-source-91-5"
+        },
+        {
+          "chapter": 6,
+          "title": "**【經濟資源】**",
+          "start": 885,
+          "end": 999,
+          "sha256": "c7e0939744503acb099b89b180e392da6eda28d96b39485bd968efba600578d2",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "entry_id": "sunrise-source-91-6"
+        },
+        {
+          "chapter": 7,
+          "title": "**【社交網絡】**",
+          "start": 999,
+          "end": 1112,
+          "sha256": "3361193ae86890f63045038b17674483ff1e7418a96f3417ea41190a79505bfd",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "reconciliation": [
+            "medical-public-boundary"
+          ],
+          "published_sha256": "65e1d23a6dc4f62fb70a8c343edcff40e8dfdf135b636f73744b0be6519c4912",
+          "entry_id": "sunrise-source-91-7"
+        },
+        {
+          "chapter": 8,
+          "start": 1112,
+          "end": 1251,
+          "sha256": "c09ac36d677c349f7613d53da7ceee27bad92500b57a92e1ade34fe113cbbe46",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 9,
+          "title": "**【特殊】**",
+          "start": 1251,
+          "end": 1388,
+          "sha256": "8683fce4447ef3a585af084a156c843333b02ea373a13e9556fc4db4cc05763c",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "reconciliation": [
+            "medical-public-boundary"
+          ],
+          "published_sha256": "fec930c027d128ff912dd4cbb147656fba1a3017c4d19db62188bd75bde33a49",
+          "entry_id": "sunrise-source-91-9"
+        }
+      ]
+    },
+    {
+      "source_index": 92,
+      "source_sha256": "f9396f14061bab4ca07a7e0f41e58454e487352b34eec635d90bc77e47c19f03",
+      "source_chars": 1351,
+      "chapters": [
+        {
+          "chapter": 0,
+          "title": "**【基礎】**",
+          "start": 0,
+          "end": 69,
+          "sha256": "a5663f65061a2fff7e3592c16e81015b4caa178fe941a058464414a4f9b6b1fb",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "reconciliation": [
+            "casting-reference-separation",
+            "touch-ability-safety-scope"
+          ],
+          "published_sha256": "f4e8d6b6b4684e63bfbb04b26d8b418f7a48f0b33a30f019224127a1ff280ad1",
+          "entry_id": "sunrise-source-92-0"
+        },
+        {
+          "chapter": 1,
+          "title": "**【外貌】**",
+          "start": 69,
+          "end": 173,
+          "sha256": "b577cc6a450ecb4a983add00fbc55ab6e23b5420b9bdd19d3fd2e90c08e65a6e",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "reconciliation": [
+            "casting-reference-separation",
+            "touch-ability-safety-scope"
+          ],
+          "published_sha256": "5c1bcf3fe25aaee07d1c6902e9828bfdfbcc927b849f5bd30a2746843cac77b8",
+          "entry_id": "sunrise-source-92-1"
+        },
+        {
+          "chapter": 2,
+          "title": "**【性格】**",
+          "start": 173,
+          "end": 310,
+          "sha256": "f08139f2cf5c6370993d3ec6baf212b630a8d330c6e2327c3fd403c3cb390a89",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "reconciliation": [
+            "touch-ability-safety-scope"
+          ],
+          "published_sha256": "d2930e1a3e94c62cda74a37d40f8359cb4e6ae6975d617d4b62f6a024eb96d1a",
+          "entry_id": "sunrise-source-92-2"
+        },
+        {
+          "chapter": 3,
+          "start": 310,
+          "end": 566,
+          "sha256": "61ab50ef9e822758962e943b6bf78cb823219909877bf2bb8bcdcc2b26f575f7",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 4,
+          "start": 566,
+          "end": 781,
+          "sha256": "baa0e4b13b4a1fa2959699b82a0403d62d7b360b6c7ccaa25f330955a0ef5860",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 5,
+          "start": 781,
+          "end": 839,
+          "sha256": "e90b6fa5625c80a4f3743c2a4ed78f1cf422c2020044a3c70a553e8b52dfaeb9",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 6,
+          "start": 839,
+          "end": 947,
+          "sha256": "30c639f90db4547f175f51700c8ba6ca1f26b2223740caa9f275cfb1404f49f1",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 7,
+          "start": 947,
+          "end": 1049,
+          "sha256": "231e60e2697e5859c007758a703be3c453bfb961d988ae6a7b8e5ab624c7a916",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 8,
+          "start": 1049,
+          "end": 1213,
+          "sha256": "715e1290d6de425b66c0775821f9e435beaf7f36cd087b38c82309eec4321668",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 9,
+          "start": 1213,
+          "end": 1351,
+          "sha256": "5cbc2c57849d1f2eee9927514848c2416fb454293b72be73918c326748d6f178",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        }
+      ]
+    },
+    {
+      "source_index": 93,
+      "source_sha256": "d98feba90de7093a181bde3a23a5e61f970df8c148f633cf5a02e5a12141f652",
+      "source_chars": 1389,
+      "chapters": [
+        {
+          "chapter": 0,
+          "start": 0,
+          "end": 81,
+          "sha256": "054f9dea01bb9c0b1e5071af8914c534695ff6082b4ffb9712a93d9a9c836d7d",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 1,
+          "start": 81,
+          "end": 185,
+          "sha256": "2f8e2454d2230db06205384de5349625bb61cc2257061f8c16d8c0d0f892de2a",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 2,
+          "start": 185,
+          "end": 318,
+          "sha256": "6f9b2858e5ea2c486cea95625b804c0d4d58f6825f1d4559096497a1fff0a7ca",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 3,
+          "start": 318,
+          "end": 614,
+          "sha256": "b740a466749424abf023116d36b4e8a2ede4c1192c6b89eb1e3e2583fcaa731b",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 4,
+          "start": 614,
+          "end": 814,
+          "sha256": "b532d359ce7898cd3525f1918d9f43949f58345f48ffe9072c5af5abcc17323e",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 5,
+          "start": 814,
+          "end": 876,
+          "sha256": "5f8b82a1296eb7119dbc4e894457c829ad171c08b92ab0499ce48edbc5ca7903",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 6,
+          "start": 876,
+          "end": 982,
+          "sha256": "4c396fcd4f173dc8fd591fd1f6f9e7e7bc3ce60165e2c9cd7f8bc7687b6f38b0",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 7,
+          "start": 982,
+          "end": 1084,
+          "sha256": "bf836035d80d039df012cb3ec6dedf1180b4ecc68659abb25558c50d716e52fd",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 8,
+          "start": 1084,
+          "end": 1235,
+          "sha256": "aeac699e6f5e9353e1fb466dd14c56c0a5517c8fcb9e76b94a3032115c643d90",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 9,
+          "start": 1235,
+          "end": 1389,
+          "sha256": "96d0ef1efd0fcbb7cebcd4fd034d200c8eb42268d6f91c9ec4f1ae3f98a657e0",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        }
+      ]
+    },
+    {
+      "source_index": 94,
+      "source_sha256": "3fbf54d80575bd42208cc74514a657d2fd8fe1eb5634abfb11eb2b00e0256a6e",
+      "source_chars": 1160,
+      "chapters": [
+        {
+          "chapter": 0,
+          "title": "陳國輝綽號「章魚」/男/52歲/港口碼頭工人表面走私頭目實際/三合會外圍成員/港口工業區1-5號貨櫃碼頭",
+          "start": 0,
+          "end": 68,
+          "sha256": "9f25f2de20d232cc2835b5b0e9f2f655e85ca9ea12dac5158230f6f321866349",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "reconciliation": [
+            "casting-reference-separation",
+            "medical-public-boundary"
+          ],
+          "published_sha256": "b4ef7f678687c6108c7656a4b19f970db104755fab2a631ff6bff82338ec0a72",
+          "entry_id": "sunrise-source-94-0"
+        },
+        {
+          "chapter": 1,
+          "title": "**【外貌】**",
+          "start": 68,
+          "end": 151,
+          "sha256": "f621acd561fadfd5f40629879b68f97561ce64827e6512da6b953f8795a82143",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "reconciliation": [
+            "casting-reference-separation"
+          ],
+          "published_sha256": "f621acd561fadfd5f40629879b68f97561ce64827e6512da6b953f8795a82143",
+          "entry_id": "sunrise-source-94-1"
+        },
+        {
+          "chapter": 2,
+          "title": "**【性格】**",
+          "start": 151,
+          "end": 274,
+          "sha256": "4a3a034a442dd2e0c7e6fb94593c8aeba269b1893ad8713118bdb979135a650d",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "reconciliation": [
+            "medical-public-boundary"
+          ],
+          "published_sha256": "39598164480e556e7553e6ba04622a62f6bb8c4ba7d28095f11934ac6a2c1eb1",
+          "entry_id": "sunrise-source-94-2"
+        },
+        {
+          "chapter": 3,
+          "start": 274,
+          "end": 472,
+          "sha256": "02f92fef2aa1a8b8ef7d55853da9575c7de4d59e28b255d34cf5abc028b7ec3f",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 4,
+          "title": "**【異能】**",
+          "start": 472,
+          "end": 630,
+          "sha256": "95eba99d798362349c1e570646a8f40a23000ff67c58506ddbe05f39f8e119fc",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "reconciliation": [
+            "touch-ability-safety-scope"
+          ],
+          "published_sha256": "95eba99d798362349c1e570646a8f40a23000ff67c58506ddbe05f39f8e119fc",
+          "entry_id": "sunrise-source-94-4"
+        },
+        {
+          "chapter": 5,
+          "title": "**【戰鬥】**",
+          "start": 630,
+          "end": 678,
+          "sha256": "f268954ff2d5d140e7a00fca09c9774bc6e030bec3546a2120cb174a6ab268dc",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "reconciliation": [
+            "touch-ability-safety-scope"
+          ],
+          "published_sha256": "e634af9b00a818b70c628ddfaef679559b41f4aca39368bbc8053045e7fbb327",
+          "entry_id": "sunrise-source-94-5"
+        },
+        {
+          "chapter": 6,
+          "title": "**【經濟資源】**",
+          "start": 678,
+          "end": 793,
+          "sha256": "a30094d1386e258da34b6e8a14c8411a59c5cb1f1c4406cd29f2c04e4d1c423a",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "reconciliation": [
+            "medical-public-boundary"
+          ],
+          "published_sha256": "07b9cf7a0bf7b28af4a910f4b475d13e58c3677bacf10ad560a8afa39e09d851",
+          "entry_id": "sunrise-source-94-6"
+        },
+        {
+          "chapter": 7,
+          "title": "**【社交網絡】**",
+          "start": 793,
+          "end": 895,
+          "sha256": "ae5eda95065b9a70f020f76118719caff16dd2e32b08b549b9117ff312ccf915",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "reconciliation": [
+            "medical-public-boundary"
+          ],
+          "published_sha256": "3e6bd5a676fe16073fc5b9d3f5da6058b01f8e6716f03966c4f3d1b07488e483",
+          "entry_id": "sunrise-source-94-7"
+        },
+        {
+          "chapter": 8,
+          "start": 895,
+          "end": 1030,
+          "sha256": "33860d42afcff119289e4f2914e5f8a11540e6063ab8ddc5a153e3dfb30f6569",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 9,
+          "title": "**【特殊】**",
+          "start": 1030,
+          "end": 1160,
+          "sha256": "d5deed77789f7c0425b7630a449cc594b524421450e87ad439d58a3575fe866a",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "reconciliation": [
+            "medical-public-boundary"
+          ],
+          "published_sha256": "acf368e3092528e64cfffa01359989a35c0f55d9a68977b1de2ef5ec765a6364",
+          "entry_id": "sunrise-source-94-9"
+        }
+      ]
+    },
+    {
+      "source_index": 95,
+      "source_sha256": "bff0f52fe811980a7195534d7eff2e79a1a6d2d6793225941c6e80cb63f881c9",
+      "source_chars": 1569,
+      "chapters": [
+        {
+          "chapter": 0,
+          "title": "艾莉絲·溫特Alice Winter/女/38歲/異能者管理局首席研究員+秘密組織「源點計畫」領導者/政府表面源點計畫實際/中央商業區管理局大樓",
+          "start": 0,
+          "end": 90,
+          "sha256": "7198b702fa0970f57796ff5899139bc22cbd2cff59288320c894eee437ba2c3a",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "reconciliation": [
+            "casting-reference-separation",
+            "touch-ability-safety-scope"
+          ],
+          "published_sha256": "019410aec502fd0a7adae1abbcb8a65156a860d87159fc0c413740190e30074c",
+          "entry_id": "sunrise-source-95-0"
+        },
+        {
+          "chapter": 1,
+          "title": "**【外貌】**",
+          "start": 90,
+          "end": 193,
+          "sha256": "860110ae6464511da6ae654dc56ddb49bd373c17e33d06b88de7954dc3523b78",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "reconciliation": [
+            "casting-reference-separation"
+          ],
+          "published_sha256": "860110ae6464511da6ae654dc56ddb49bd373c17e33d06b88de7954dc3523b78",
+          "entry_id": "sunrise-source-95-1"
+        },
+        {
+          "chapter": 2,
+          "start": 193,
+          "end": 324,
+          "sha256": "535a283c25ae2921fe2bf0f9496a39d44516b2e11071d4bc9e4086c76b1d640d",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 3,
+          "start": 324,
+          "end": 633,
+          "sha256": "608da38694ed271295ad2e3935f14fadfef482a388ab5d18b8cd31135db491bf",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 4,
+          "title": "**【異能】**",
+          "start": 633,
+          "end": 910,
+          "sha256": "c103a3bae1f04f3a55bea6160e20fb04f1662711f40294afbd5d4ee7cd171423",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "reconciliation": [
+            "touch-ability-safety-scope"
+          ],
+          "published_sha256": "c68c34be0e298b24e03729282f0a0460ecb9a04ec7f6713de9d17f56d43cd507",
+          "entry_id": "sunrise-source-95-4"
+        },
+        {
+          "chapter": 5,
+          "title": "**【經濟資源】**",
+          "start": 910,
+          "end": 1058,
+          "sha256": "5a1bfb49ca4878009dd0e2305f56cdb3a5cdb44f4aa389c998379b5edf62310b",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "reconciliation": [
+            "touch-ability-safety-scope"
+          ],
+          "published_sha256": "92601901b967b1f2966834b3f0d31612dac9261f55a39991505874ff1d747a15",
+          "entry_id": "sunrise-source-95-5"
+        },
+        {
+          "chapter": 6,
+          "title": "**【社交網絡】**",
+          "start": 1058,
+          "end": 1180,
+          "sha256": "f23afb016a50378f92167105a57be39422f544de64ff3cc43f0659a6a95ae9ab",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "reconciliation": [
+            "touch-ability-safety-scope"
+          ],
+          "published_sha256": "706211998a289aa596f9ebfa7de2413624dfc3de11ca2fa2554e2e10518baffd",
+          "entry_id": "sunrise-source-95-6"
+        },
+        {
+          "chapter": 7,
+          "start": 1180,
+          "end": 1354,
+          "sha256": "7bbfdc3651573fcb929dfa1c22afd4db74539ae2c30d5cff637afb3839627413",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 8,
+          "start": 1354,
+          "end": 1569,
+          "sha256": "73e46de482afb79913f3aca82c497aa8218fb29f40f252e9118ed8b0f4f1402b",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        }
+      ]
+    },
+    {
+      "source_index": 100,
+      "source_sha256": "d17c2bd9fd5de10d36b7a50397019ca9819be4ff555e29ce54ed0d50381919f0",
+      "source_chars": 921,
+      "chapters": [
+        {
+          "chapter": 0,
+          "start": 0,
+          "end": 595,
+          "sha256": "9267db27353e5565c17b423d33595400e3a527e3d38280061cb39970bd5e007a",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 1,
+          "start": 595,
+          "end": 921,
+          "sha256": "cd220c836808c20060c828c2a3e532aa77a6bcd9a1cc72a58748d3276be8e7e0",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        }
+      ]
+    },
+    {
+      "source_index": 102,
+      "source_sha256": "c3b3e3b0711555f629c7dee75400af4317b49fae61d9498824464d359f8b7797",
+      "source_chars": 1986,
+      "chapters": [
+        {
+          "chapter": 0,
+          "start": 0,
+          "end": 481,
+          "sha256": "162cf2af291ebeb24d3f3344825eb61f779e34b36a26730077afbc910345e694",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 1,
+          "title": "**片區 E：過渡區（東區與 CBD 交界）**",
+          "start": 481,
+          "end": 766,
+          "sha256": "ff7037a6cc4ec41809f8bc2ce4f94fb0b351e96573b94c6f4deccd52013d4217",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "reconciliation": [
+            "district-public-structure"
+          ],
+          "published_sha256": "6ff6cd661638be9100946bdfaf2a7f9c8c05b4da2764319e59f6ed1ca69941f1",
+          "entry_id": "sunrise-source-102-1"
+        },
+        {
+          "chapter": 2,
+          "title": "**【社會結構與階級】**",
+          "start": 766,
+          "end": 1182,
+          "sha256": "5cea234cbd6d627617c84eff1f9f82f8d48db23bb944a3425fb1e589a8d55aa7",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "reconciliation": [
+            "district-public-structure"
+          ],
+          "published_sha256": "191f30fd51309d47fad615aa9e4912782c0e1c1253e5d898dcf963685dd4bd28",
+          "entry_id": "sunrise-source-102-2"
+        },
+        {
+          "chapter": 3,
+          "start": 1182,
+          "end": 1575,
+          "sha256": "d2bc0b1e977fffef933aa897246dd37662457996e4768fdd71e2510fe3d192d9",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 4,
+          "title": "**【與其他區域的關係】**",
+          "start": 1575,
+          "end": 1986,
+          "sha256": "d6ce57587860e05361fa902800a7ae0b1334459ed9bc32e6925afb9547008598",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "reconciliation": [
+            "district-public-structure"
+          ],
+          "published_sha256": "ae277f6d635e6a20d3792b48d48fd0d384240a2292f9fff69d34304375c1187d",
+          "entry_id": "sunrise-source-102-4"
+        }
+      ]
+    },
+    {
+      "source_index": 103,
+      "source_sha256": "a285137b1f05eddfd125ca66ba2896c5fb169809915ed9923a0820c42704fbb4",
+      "source_chars": 930,
+      "chapters": [
+        {
+          "chapter": 0,
+          "start": 0,
+          "end": 529,
+          "sha256": "803e682f5e987cf1a16ebd3e80bd59612663a2c991bb0c8014b5f4a2f600bde6",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 1,
+          "start": 529,
+          "end": 930,
+          "sha256": "1bf0d8fb5f0adb999509767b7b08b6ff1bd1d0d157a8d1d7713516c6972f0bf3",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        }
+      ]
+    },
+    {
+      "source_index": 105,
+      "source_sha256": "6d1129ecc76a8a3ff1a20f8846d4409243e03cb6921d54822debdbf3b8964c24",
+      "source_chars": 1991,
+      "chapters": [
+        {
+          "chapter": 0,
+          "start": 0,
+          "end": 429,
+          "sha256": "33096ee82a89cff308ef388e027739b3cf83321dd4fb5ace0853ff9d69aca80a",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 1,
+          "title": "**片區 E：過渡區（南區與東區交界）**",
+          "start": 429,
+          "end": 742,
+          "sha256": "886142c6dcc661194b9ad0dddcfe0b926bbb291bb01dc15d45fdb6654a21033b",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "reconciliation": [
+            "district-public-structure"
+          ],
+          "published_sha256": "e242d763402cb0ca4804aaa0605af2d8e09898a4d0faab3c41b08f3a53175810",
+          "entry_id": "sunrise-source-105-1"
+        },
+        {
+          "chapter": 2,
+          "title": "**【社會結構與階級】**",
+          "start": 742,
+          "end": 1143,
+          "sha256": "23bcd2eb121d299c1f5b0fd5de4d2c94064f340ea95d76b3904206a5eb0980f4",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "reconciliation": [
+            "district-public-structure"
+          ],
+          "published_sha256": "31e7009a57ae89926a43e30e0c337f06ea8632d9460f48fba4cdf311d4b8553a",
+          "entry_id": "sunrise-source-105-2"
+        },
+        {
+          "chapter": 3,
+          "start": 1143,
+          "end": 1659,
+          "sha256": "ee852880cb9097103e4346fb98767c05737889366a5445e842337fcfda95d554",
+          "status": "deferred",
+          "review_lane": "withheld-author-source",
+          "requires_further_review": true
+        },
+        {
+          "chapter": 4,
+          "title": "**【與其他區域的關係】**",
+          "start": 1659,
+          "end": 1991,
+          "sha256": "ea0c66d6b09ec1e58d69a108049cac852dacc5601c11401187383929ab89d817",
+          "status": "published",
+          "review_lane": "public-reference",
+          "requires_further_review": false,
+          "reconciliation": [
+            "district-public-structure"
+          ],
+          "published_sha256": "bb14e416d18cb6dad13bc2cd34213669807836dbbef204856f371ab54bce3152",
+          "entry_id": "sunrise-source-105-4"
+        }
+      ]
+    },
+    {
       "source_index": 61,
       "source_sha256": "a961ff5f200ee51e12b16ea47dc8228f650110e3ee8c5e5028e71a7e0faf5aac",
       "source_chars": 1973,
@@ -1772,7 +2584,7 @@
           "reconciliation": [
             "velvet-public-surface"
           ],
-          "published_sha256": "7a1c55d35f26bab24b30238d946418bf0dae3ba3998d759f81342958063345f6",
+          "published_sha256": "73e53f8f39884a0bc58135ba0af8faefefc866eb8828d6ff9fa5bdf589d242ce",
           "entry_id": "sunrise-source-67-5"
         },
         {

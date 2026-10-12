@@ -21,12 +21,12 @@ class Reconciliation(unittest.TestCase):
         entries = {e['id']: e for p in catalog['packs'] for e in p['entries']}
         mapping = json.loads((ROOT / 'data/sunrise-geography-source-map.json').read_text())
         revised = [c for s in mapping['sources'] for c in s['chapters'] if c.get('reconciliation')]
-        self.assertEqual(len(revised), 112)
+        self.assertEqual(len(revised), 141)
         for chapter in revised:
             value = entries[chapter['entry_id']]['content']
             self.assertEqual(digest(value), chapter['published_sha256'])
             if chapter['sha256'] == chapter['published_sha256']:
-                self.assertIn(chapter['entry_id'].split('-')[2], {'76','77','84','85','86','87','88','89'})
+                self.assertIn(chapter['entry_id'].split('-')[2], {'76','77','84','85','86','87','88','89','91','92','94','95','102','105'})
         self.assertIn('十五年前', entries['sunrise-source-0-4']['content'])
 
     def test_normalization_targets_only_the_conflicting_fact(self):
