@@ -14,12 +14,15 @@ for (const width of [1280, 390]) {
     });
     const mode = page.getByRole('combobox', { name: '世界書召回模式' });
     await expect(mode).toHaveValue('auto');
-    await expect(page.getByText('通用世界模擬器｜冒險題材參考', { exact: true })).toBeVisible();
-    await expect(page.getByText('通用世界模擬器｜都市與競技參考', { exact: true })).toBeVisible();
-    await expect(page.getByText('通用世界模擬器｜人物與關係參考', { exact: true })).toBeVisible();
-    await expect(page.getByText('通用世界模擬器｜戀愛與情感題材', { exact: true })).toBeVisible();
-    await expect(page.getByText('通用世界模擬器｜身分與權謀題材', { exact: true })).toBeVisible();
-    await expect(page.getByText('通用世界模擬器｜校園與成長題材', { exact: true })).toBeVisible();
+    await expect(page.getByText('曙光市', { exact: true })).toBeVisible();
+    await expect(page.getByText('三界九域', { exact: true })).toBeVisible();
+    const simulator = page.locator('.ylb-collection').filter({ hasText: '通用世界模擬器' }).first();
+    await expect(simulator.getByText('通用世界模擬器', { exact: true })).toBeVisible();
+    await expect(simulator.getByText(/0 \/ 6 章已啟用/)).toBeVisible();
+    await simulator.getByText('自選章節（6）', { exact: true }).click();
+    for (const chapter of ['冒險題材參考','都市與競技參考','人物與關係參考','戀愛與情感題材','身分與權謀題材','校園與成長題材']) {
+      await expect(simulator.getByText(chapter, { exact: true })).toBeVisible();
+    }
     for (const name of ['通用世界模擬器｜戀愛與情感題材','通用世界模擬器｜身分與權謀題材','通用世界模擬器｜校園與成長題材']) {
       await expect(page.getByRole('checkbox', {name:new RegExp(name)})).not.toBeChecked();
     }
