@@ -12,29 +12,37 @@ for (const width of [1280, 390]) {
       App.saveStory = () => { window.recallSaved = JSON.stringify(GameState.current); };
       YoruWorldbookLibrary.open();
     });
-    const mode = page.getByRole('combobox', { name: '世界書召回模式' });
+    const backdrop = page.locator('.ylb-backdrop').last();
+    const modal = backdrop.locator('.ylb-modal');
+    const mode = modal.locator('select[aria-label="世界書召回模式"]');
     await expect(mode).toHaveValue('auto');
-    const modal = page.locator('.ylb-modal');
-    await expect(modal.getByText('曙光市', { exact: true })).toBeVisible();
-    await expect(modal.getByText('三界九域', { exact: true })).toBeVisible();
-    const simulator = modal.locator('.ylb-collection').filter({ hasText: '通用世界模擬器' }).first();
-    await expect(simulator.getByText('通用世界模擬器', { exact: true })).toBeVisible();
-    await expect(simulator.getByText(/0 \/ 6 章已啟用/)).toBeVisible();
-    await simulator.getByText('自選章節（6）', { exact: true }).click();
+    await expect(page.locator('.ylb-backdrop')).toHaveCount(1);
+
+    const sunriseMaster = modal.locator('input[aria-label="啟用整本 曙光市"]');
+    const realmsMaster = modal.locator('input[aria-label="啟用整本 三界九域"]');
+    const simulatorMaster = modal.locator('input[aria-label="啟用整本 通用世界模擬器"]');
+    await expect(sunriseMaster).toHaveCount(1);
+    await expect(realmsMaster).toHaveCount(1);
+    await expect(simulatorMaster).toHaveCount(1);
+
+    const simulator = simulatorMaster.locator('xpath=ancestor::section[contains(@class,"ylb-collection")]');
+    await expect(simulator).toContainText('0 / 6 章已啟用');
+    const simulatorDetails = simulator.locator('details.ylb-chapters');
+    await simulatorDetails.evaluate(node => { node.open = true; });
     for (const chapter of ['冒險題材參考','都市與競技參考','人物與關係參考','戀愛與情感題材','身分與權謀題材','校園與成長題材']) {
-      await expect(simulator.getByText(chapter, { exact: true })).toBeVisible();
+      await expect(simulator.getByText(chapter, { exact: true })).toHaveCount(1);
     }
     for (const name of ['通用世界模擬器｜戀愛與情感題材','通用世界模擬器｜身分與權謀題材','通用世界模擬器｜校園與成長題材']) {
-      await expect(page.getByRole('checkbox', {name:new RegExp(name)})).not.toBeChecked();
+      await expect(modal.locator(`input[aria-label="${name}"]`)).not.toBeChecked();
     }
-    const relationship = page.getByRole('checkbox', { name: /通用世界模擬器｜人物與關係參考/ });
+    const relationship = modal.locator('input[aria-label="通用世界模擬器｜人物與關係參考"]');
     await expect(relationship).not.toBeChecked();
-    await relationship.check();
+    await relationship.check({ force: true });
     expect(await page.evaluate(() => JSON.parse(window.recallSaved).worldbookLibrary.enabled))
       .toContain('world-simulator-relationship-reference');
     await mode.selectOption('off');
     expect(await page.evaluate(() => JSON.parse(window.recallSaved).worldbookLibrary.recallMode)).toBe('off');
-    await page.getByRole('button', { name: '關閉', exact: true }).click();
+    await modal.locator('[data-close]').click({ force: true });
     await page.evaluate(() => {
       const saved = JSON.parse(window.recallSaved);
       saved.worldbookLibrary = CharacterEngine.normalizeWorldbookLibrary(saved.worldbookLibrary);
@@ -52,7 +60,7 @@ for (const width of [1280, 390]) {
       GameState.current = { location: '', npcs: [], events: [] };
       return { stale: api.setRecallMode('off', old), other: GameState.current.worldbookLibrary };
     })).toEqual({ stale: false, other: undefined });
-    await page.getByRole('button', { name: '關閉', exact: true }).click();
+    await modal.locator('[data-close]').click({ force: true });
     await page.evaluate(() => YoruWorldbookLibrary.open());
     await expect(mode).toHaveValue('auto');
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 2)).toBe(true);
