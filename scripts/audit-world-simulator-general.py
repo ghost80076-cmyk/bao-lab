@@ -11,6 +11,9 @@ BOOKS = {
     "59d9fbcd-d5f8-47aa-99fb-a101675230e4": 202,
 }
 SELECTED = {41: "fantasy", 42: "cultivation", 44: "urban", 46: "competition", 47: "apocalypse", 48: "scifi"}
+SELECTED.update({12: "lively-friend", 13: "listening-friend", 14: "principled-rival",
+                 15: "experienced-mentor", 16: "gentle-mentor", 17: "sunny-companion",
+                 18: "gentle-companion", 19: "reserved-companion"})
 
 def sha(text):
     return hashlib.sha256(text.encode("utf-8")).hexdigest()
@@ -42,7 +45,7 @@ def audit(archive, root):
                             "pack_id": pack_id, "entry_id": entry_id,
                             "published_sha256": sha(entry["content"]),
                             "status": "partial-adaptation", "not_verbatim": True})
-        if len(adopted) != 6:
+        if len(adopted) != len(SELECTED):
             raise ValueError("Reviewed common source no longer matches")
         inventory.append({"book_id": bid, "source_count": len(book["entries"]),
                           "adapted_indices": adopted,
@@ -50,13 +53,15 @@ def audit(archive, root):
     approved = root / "data/world-simulator-general-source-map.json"
     if approved.exists():
         old = json.loads(approved.read_text())
-        if [(r["book_id"], r["source_index"], r["source_sha256"]) for r in records] != [
-                (r["book_id"], r["source_index"], r["source_sha256"]) for r in old["records"]]:
+        current = {(r["book_id"], r["source_index"]): r["source_sha256"] for r in records}
+        if any(current.get((r["book_id"], r["source_index"])) != r["source_sha256"]
+               for r in old["records"]):
             raise ValueError("Reviewed source changed; review before updating")
-    return {"schema": "yorubay-world-simulator-general-review", "version": 1,
-            "source_count": 662, "adopted_occurrences": 18, "unique_adapted_sources": 6,
-            "pack_count": 2, "chapter_count": 6,
-            "scope": "First batch only. No full-book migration or model-dialogue evaluation claimed.",
+    return {"schema": "yorubay-world-simulator-general-review", "version": 2,
+            "source_count": sum(BOOKS.values()), "adopted_occurrences": len(records),
+            "unique_adapted_sources": len({r["source_sha256"] for r in records}),
+            "pack_count": len(published["packs"]), "chapter_count": len(entries),
+            "scope": "Genre and relationship batches only. No full-book migration or model-dialogue evaluation claimed.",
             "books": inventory, "records": records}
 
 if __name__ == "__main__":

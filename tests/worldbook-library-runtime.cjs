@@ -103,5 +103,22 @@ vm.runInNewContext(source, context, { filename: "worldbook-library.js" });
   old.worldbookLibrary.enabled = [];
   assert.equal(await api.setCondition("private-case", "found", true), false);
   assert.equal(saves, 6);
+  const relationshipId = 'world-simulator-relationship-reference';
+  assert.ok(listed.some(p => p.meta.id === relationshipId));
+  GameState.current = {location:'', npcs:[], events:[], worldbookLibrary:{version:1,
+    enabled:[relationshipId], installed:[], pinned:{}, recallMode:'auto'}};
+  Chat.messages = [{role:'user', content:'我想找競爭對手談談'}];
+  const withRelationship = await App.buildMessages();
+  assert.match(withRelationship.at(-1).content, /有底線的競爭對手參考/);
+  assert.equal(withRelationship[0].content, 'PLATFORM STABLE PREFIX');
+  for (const mode of ['scene', 'off']) {
+    GameState.current.worldbookLibrary.recallMode = mode;
+    const result = await App.buildMessages();
+    assert.equal(result[0].content, withRelationship[0].content);
+    assert.doesNotMatch(result.at(-1).content, /有底線的競爭對手參考/);
+  }
+  GameState.current.worldbookLibrary.recallMode = 'auto';
+  GameState.current.worldbookLibrary.enabled = [];
+  assert.doesNotMatch((await App.buildMessages()).at(-1).content, /有底線的競爭對手參考/);
   console.log("Worldbook prompt integration passed: cache-friendly stable prefix, selection, no double append, opt-out, conditional recall.");
 })().catch(err => { console.error(err); process.exitCode = 1; });
