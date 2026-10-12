@@ -25,6 +25,9 @@ NAMES = {**NAMES, **NEW_NAMES}
 from sunrise_review_106_120 import ALLOWED as FINAL_ALLOWED, NAMES as FINAL_NAMES, LABELS as FINAL_LABELS, KEYWORDS as FINAL_KEYWORDS, chapter_spans as final_spans, project as final_project
 ALLOWED = {**ALLOWED, **FINAL_ALLOWED}
 NAMES = {**NAMES, **FINAL_NAMES}
+from sunrise_review_121_135 import ALLOWED as ADULT_ALLOWED, NAMES as ADULT_NAMES, LABELS as ADULT_LABELS, KEYWORDS as ADULT_KEYWORDS, chapter_spans as adult_spans
+ALLOWED = {**ALLOWED, **ADULT_ALLOWED}
+NAMES = {**NAMES, **ADULT_NAMES}
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 SOURCES = {
  76: ('76bbdae9f9249bde6eedf4616b8bde2d3e537a2357745760489215f8937fab8e', 'sunrise-professional-people', '曙光市｜人物公開參考（不代表在場）', ['炎月夜'], {0,1,2,5}),
@@ -115,6 +118,21 @@ SOURCES = {
  117: ('c00a586d409b6aafe79ee808a51c6c8da3aa68a94685ac46af01ca410c2ad946', 'sunrise-triumph-background', '曙光市｜凱旋企業公開背景', ['凱旋企業集團'], {0,5}),
  119: ('008d68578c55d678edf854d2414dbd52233b7631048e07dae1c80febe09222c6', 'sunrise-prison-background', '曙光市｜第一監獄設施與生活', ['曙光市第一監獄'], {0,3,4}),
  120: ('3bf1f5a14ff484b98b3858b4b09300059ffcab21e059cb28f6a49dfc5fca0226', 'sunrise-prison-background', '曙光市｜第一監獄設施與生活', ['曙光市第一監獄'], {1}),
+ 121: ('d201b9a8ae3b9ae3f135c269bb645f2df9e3a0606cd84d0b19319e3e38e8a099', 'sunrise-prison-economy-hold', '曙光市｜第一監獄經濟來源（不公開）', ['曙光市第一監獄'], set()),
+ 122: ('609bfa350609eda0b16f250fa35641488ad73294c29bc270fe2185f20cec422d', 'sunrise-rose-club-scenario-hold', '曙光市｜Rose Club 成人場景來源（不公開）', ['Rose Club'], set()),
+ 123: ('05c9e994faab1d931d056b8284b5828061b32cb6dd23bf55723014f230bd9055', 'sunrise-rose-club-rules-hold', '曙光市｜Rose Club 遊戲規則來源（不公開）', ['Rose Club'], set()),
+ 124: ('801a4b1539715ac7285a57e95d1e6145d94453b973058c7966d93e6571caaf43', 'sunrise-adult-state-hold', '曙光市｜成人狀態來源（不公開）', ['成人狀態'], set()),
+ 125: ('f39969316795d9b2c62471685eb304e756eb0d4fdb8b84d81166ea8262159bd1', 'sunrise-adult-state-hold', '曙光市｜成人狀態來源（不公開）', ['性慾值'], set()),
+ 126: ('87ba64694ed0adaea854cb4d70496e70200e4d4dd212aa0d8db913a2f3c90834', 'sunrise-adult-state-hold', '曙光市｜成人狀態來源（不公開）', ['開放度'], set()),
+ 127: ('fa13b33677f37dfe2f19805c6fc106ffc172037bf4641b5b524476c789bdc450', 'sunrise-adult-state-hold', '曙光市｜成人狀態來源（不公開）', ['成人狀態'], set()),
+ 128: ('e56b3692b544f2c6589801a578f500921e3805a8fed9388b1ac747e0250dc7f3', 'sunrise-crime-state-hold', '曙光市｜犯罪衝動來源（不公開）', ['犯罪欲望'], set()),
+ 129: ('7760f98bc7582a5d89a4a0afedfd0d662b4bd2a3e29f910ea3524b211aedf8fa', 'sunrise-crime-state-hold', '曙光市｜犯罪衝動來源（不公開）', ['暴力衝動'], set()),
+ 130: ('b1778409c56af0d24c1f9a73f6df9a0c896d9059e9c4cd4ab1e084b3b15b1d9b', 'sunrise-crime-state-hold', '曙光市｜犯罪衝動來源（不公開）', ['犯罪欲望'], set()),
+ 131: ('f45d9d11c13c06b33a186e3a2857d31795d93434cfa82bc3a1c3a17504c6a8f9', 'sunrise-state-schema-hold', '曙光市｜狀態欄來源（不公開）', ['狀態欄'], set()),
+ 132: ('319f7e3ce592f132484a0a259b45491ed9bb76f42d566a36fa610fe06d4a9024', 'sunrise-economy-hold', '曙光市｜貨幣交易來源（不公開）', ['貨幣交易'], set()),
+ 133: ('47e3f53281c44d90911384d600e67e12da8dbd8222b75e77f9a1ca3cafb185c3', 'sunrise-economy-hold', '曙光市｜貨幣交易來源（不公開）', ['貨幣交易'], set()),
+ 134: ('9e92af75ee048eaa7ed544990ddd2e4ca7530b64b8783624f4c102ef49b9116a', 'sunrise-prison-economy-hold', '曙光市｜監獄灰色產業來源（不公開）', ['監獄經濟'], set()),
+ 135: ('86dabfe57ef77fbcffafb102da60db85b27ed3a66492d23f6d420a5e52a7004c', 'sunrise-prison-economy-hold', '曙光市｜監獄灰色產業來源（不公開）', ['監獄經濟'], set()),
  106: ('0b2c3b648ddf5b1ee6cb0c172ad5c9ab15df7d8608219a5d3b13f7fd8b0193a3', 'sunrise-south-geography', '曙光市｜南區案件來源（不公開）', ['南區'], set()),
  108: ('8eec45ac64500fa26c50bf7ba0a5089617343f8c91fc60dfbf68b567f7449b78', 'sunrise-police-background', '曙光市｜警局公開職能（不公開）', ['曙光市警局'], set()),
  109: ('b38a60daed83af16c91b64f9b59de14d426e9b5b6cfb2ef5718e363bb8706dcc', 'sunrise-police-background', '曙光市｜警局腐敗來源（不公開）', ['曙光市警局'], set()),
@@ -151,12 +169,14 @@ def build(zip_path):
  packs, mapping = [], []
  for index, (digest, pack_id, name, keywords, allowed) in SOURCES.items():
   entry = original['entries'][index]; content = entry['content']
-  expected_category = '角色' if 8 <= index <= 28 or 43 <= index <= 48 or index in REVIEW_NAMES or 76 <= index <= 87 or 91 <= index <= 95 or index == 90 or index in (62,73) else '事件' if index in (29,89,96,97,100) else '地點' if 49 <= index <= 60 or index in (66,67,88,102,103,105) else '規則' if index in (0, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 63, 64, 138) else '地點'
+  expected_category = '角色' if 8 <= index <= 28 or 43 <= index <= 48 or index in REVIEW_NAMES or 76 <= index <= 87 or 91 <= index <= 95 or index == 90 or index in (62,73) else '事件' if index in (29,89,96,97,100,121,122) else '地點' if 49 <= index <= 60 or index in (66,67,88,102,103,105) else '規則' if index in (0, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 63, 64, 138) or 123 <= index <= 135 else '地點'
+  if 'PLACEHOLDER' in digest:
+   raise ValueError('Review digest placeholder remains')
   if sha(content) != digest or content != shared['entries'][index]['content'] or entry['category'] != expected_category:
    raise ValueError('Source changed; review again')
   starts = [m.start() for m in re.finditer(r'^#{2,3} ' if 43 <= index <= 48 else r'^#### ' if index in (35,36,37,38,39,40,41,42) else r'^#{2,3} ' if index == 138 else r'^## ' if index in (0, 1, 2, 3, 4, 5, 6) else r'^### ', content, re.M)]
   if not starts or starts[0] != 0: starts.insert(0,0)
-  spans = final_spans(index,content) if index in FINAL_ALLOWED else new_spans(index,content) if index in NEW_ALLOWED else late_spans(index,content) if 76 <= index <= 90 else review_spans(index,content) if 61 <= index <= 75 else family_spans(index,content) if 49 <= index <= 60 else list(zip(starts, starts[1:] + [len(content)]))
+  spans = adult_spans(index,content) if index in ADULT_ALLOWED else final_spans(index,content) if index in FINAL_ALLOWED else new_spans(index,content) if index in NEW_ALLOWED else late_spans(index,content) if 76 <= index <= 90 else review_spans(index,content) if 61 <= index <= 75 else family_spans(index,content) if 49 <= index <= 60 else list(zip(starts, starts[1:] + [len(content)]))
   entries, review = [], []
   for part, (start,end) in enumerate(spans):
    value = content[start:end].strip(); title = value.splitlines()[0].lstrip('# ').strip()
