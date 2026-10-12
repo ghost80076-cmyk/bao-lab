@@ -7,7 +7,7 @@ const crypto = require('node:crypto');
 const packs = catalog.packs.map(core.normalizePack);
 const ids = packs.map(p => p.meta.id);
 assert.equal(packs.length, 6);
-assert.equal(packs.flatMap(p => p.entries).length, 43);
+assert.equal(packs.flatMap(p => p.entries).length, 48);
 assert.ok(packs.every(p => p.meta.world === 'general' && p.meta.classification === 'scenario'));
 assert.ok(packs.every(p => p.entries.every(e => e.mode === 'keyword' && !e.review_required)));
 for (const [query, title] of [['奇幻劇本', '奇幻冒險'], ['玄幻劇本', '玄幻歷練'], ['末日生存', '末世生存'], ['科幻世界', '科幻探索'], ['職場劇本', '現代都市'], ['錦標賽', '熱血競技']]) {
@@ -26,16 +26,16 @@ assert.equal(core.select(packs, ids, {latestUser: '奇幻劇本'}, {recallMode:'
 assert.match(core.select(packs, ids, {location:'賽博都市'}, {recallMode:'scene'}).text, /科幻探索/);
 const hash = text => crypto.createHash('sha256').update(text).digest('hex');
 assert.equal(coverage.source_count, 662);
-assert.equal(coverage.records.length, 138);
-assert.equal(new Set(coverage.records.map(r => r.source_sha256)).size, 46);
+assert.equal(coverage.records.length, 165);
+assert.equal(new Set(coverage.records.map(r => r.source_sha256)).size, 55);
 for (const record of coverage.records) {
   const e = packs.find(p => p.meta.id === record.pack_id).entries.find(e => e.id === record.entry_id);
   assert.equal(hash(e.content), record.published_sha256);
   assert.equal(record.status, 'partial-adaptation');
 }
-assert.equal(coverage.books.reduce((n,b)=>n+b.pending_indices.length,0), 467);
+assert.equal(coverage.books.reduce((n,b)=>n+b.pending_indices.length,0), 440);
 const relationship = packs.find(p => p.meta.id === 'world-simulator-relationship-reference');
-assert.equal(relationship.entries.length,21);
+assert.equal(relationship.entries.length,26);
 for (const entry of relationship.entries) {
   for (const query of entry.keywords) {
     const result = core.select(packs, ids, {latestUser: query});
@@ -58,7 +58,7 @@ assert.equal(sameSource.entries.length, 1, 'multiple signals do not duplicate a 
 for (const book of coverage.books) {
   assert.equal(new Set([...book.adapted_indices, ...book.reviewed_unpublished_indices, ...book.pending_indices]).size, book.source_count);
   assert.equal(book.adapted_indices.length + book.reviewed_unpublished_indices.length + book.pending_indices.length, book.source_count);
-  assert.equal(book.adapted_indices.length, 46);
+  assert.equal(book.adapted_indices.length, 55);
   assert.equal(book.reviewed_unpublished_indices.length, 19);
 }
 const plotPacks = packs.filter(p=>['world-simulator-romance-reference','world-simulator-intrigue-reference'].includes(p.meta.id));
@@ -128,12 +128,16 @@ assert.doesNotMatch(JSON.stringify(relationship), /范冰冰|Angelababy|不允�
 const rivals=coverage.records.filter(r=>r.entry_id==='principled-rival');
 assert.equal(rivals.length,6,'two three-book sources share one reusable rival chapter');
 assert.equal(new Set(rivals.map(r=>r.source_sha256)).size,2);
-for(const id of ['gentle-optimist','executive-romance']) {
+for(const id of ['gentle-optimist','executive-romance','confident-performer','sunny-companion','reserved-professional','character-contrast']) {
   const shared=coverage.records.filter(r=>r.entry_id===id);
   assert.equal(shared.length,6,'two three-book sources share this chapter');
   assert.equal(new Set(shared.map(r=>r.source_sha256)).size,2);
 }
 assert.doesNotMatch(JSON.stringify(relationship), /波多野結衣|橋本有菜|新垣結衣|石原聰美|北川景子|林依晨|林志玲|劉亦菲|孔劉/);
+assert.doesNotMatch(JSON.stringify(relationship), /IU|李知恩|宣美|泫雅|Jennie|周子瑜|昆凌|蘇志燮|Julia/);
+for(const query of ['偶像','舞者','眼鏡男','人妻','混血','秘書','學生','少女']) {
+  assert.equal(core.select([relationship],[relationship.meta.id],{latestUser:query}).text,'');
+}
 for(const query of ['成熟','姐姐','父親','女王','溫柔','知性','氣質','古典','女性角色']) {
   assert.equal(core.select([relationship],[relationship.meta.id],{latestUser:query}).text,'');
 }
@@ -141,4 +145,4 @@ for(const query of ['控制','佔有','征服','依賴','迴避','人格']) {
   assert.equal(core.select([relationship],[relationship.meta.id],{latestUser:query}).text,'');
 }
 assert.doesNotMatch(fs.readFileSync(require.resolve('../data/world-simulator-general-library.json'),'utf8'), /忽略.*規則|開發者模式|性慾|體位|世界真相/);
-console.log('PASS general simulator: 6 categories, 43 entries, 138 adapted + 57 reviewed-unpublished + 467 pending references; merged sources, layer evidence, recall isolation, modes and budget');
+console.log('PASS general simulator: 6 categories, 48 entries, 165 adapted + 57 reviewed-unpublished + 440 pending references; merged sources, layer evidence, recall isolation, modes and budget');

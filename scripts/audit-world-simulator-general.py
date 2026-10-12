@@ -26,6 +26,9 @@ SELECTED.update({0: "caring-leader", 1: "off-duty-professional", 3: "gentle-opti
                  4: "assertive-perfectionist", 6: "reserved-professional", 9: "gentle-optimist",
                  10: "poised-informal", 11: "cultured-person", 21: "executive-romance",
                  22: "mature-companion"})
+SELECTED.update({5: "sunny-companion", 7: "dedicated-performer", 8: "confident-performer",
+                 20: "courteous-controller", 25: "lonely-committed", 26: "confident-performer",
+                 27: "reserved-professional", 28: "character-contrast", 29: "independent-enthusiast"})
 
 def sha(text):
     return hashlib.sha256(text.encode("utf-8")).hexdigest()
@@ -85,7 +88,7 @@ def audit(archive, root):
         if any(current.get((r["book_id"], r["source_index"])) != r["source_sha256"]
                for r in old["records"] + old.get("review_records", [])):
             raise ValueError("Reviewed source changed; review before updating")
-    return {"schema": "yorubay-world-simulator-general-review", "version": 6,
+    return {"schema": "yorubay-world-simulator-general-review", "version": 7,
             "source_count": sum(BOOKS.values()), "adopted_occurrences": len(records),
             "unique_adapted_sources": len({r["source_sha256"] for r in records}),
             "reviewed_unpublished_occurrences": len(review_records),

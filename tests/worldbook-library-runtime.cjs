@@ -55,7 +55,7 @@ vm.runInNewContext(source, context, { filename: "worldbook-library.js" });
   const simulatorGroup = modes.groupPacks(listed).filter(g=>g.name==='通用世界模擬器');
   assert.equal(simulatorGroup.length,1,'new entries stay inside one player-facing book');
   assert.equal(simulatorGroup[0].packs.length,6,'this batch adds no category');
-  assert.equal(simulatorGroup[0].packs.reduce((sum,p)=>sum+p.entries.length,0),43);
+  assert.equal(simulatorGroup[0].packs.reduce((sum,p)=>sum+p.entries.length,0),48);
   assert.ok(listed.some(p => p.meta.id === "world-simulator-adventure-reference"), "public shared catalog is discoverable");
   assert.equal(modes.setRecallMode("off"), true);
   const off = await App.buildMessages();
@@ -151,15 +151,15 @@ vm.runInNewContext(source, context, { filename: "worldbook-library.js" });
   const historicalPrompt = await App.buildMessages();
   assert.doesNotMatch(historicalPrompt.at(-1).content,/腹黑好友互動參考/);
   assert.equal(historicalPrompt[0].content,'PLATFORM STABLE PREFIX');
-  for(const size of [8,13]) {
+  for(const size of [8,13,21]) {
     const oldPack=JSON.parse(JSON.stringify(listed.find(p=>p.meta.id===relationshipId)));
     oldPack.entries=oldPack.entries.slice(0,size);
-    oldPack.meta.release=size===8?'0.1.0':'0.2.0';
+    oldPack.meta.release=({8:'0.1.0',13:'0.2.0',21:'0.3.0'})[size];
     GameState.current.worldbookLibrary.pinned[relationshipId]=oldPack;
     assert.equal((await modes.all()).find(p=>p.meta.id===relationshipId).entries.length,size);
-    Chat.messages=[{role:'user',content:'成熟照顧者'}];
+    Chat.messages=[{role:'user',content:'甜美偶像'}];
     const older=await App.buildMessages();
-    assert.doesNotMatch(older.at(-1).content,/體貼照顧者互動參考/);
+    assert.doesNotMatch(older.at(-1).content,/認真表演者互動參考/);
     assert.equal(older[0].content,'PLATFORM STABLE PREFIX');
   }
   console.log("Worldbook prompt integration passed: cache-friendly stable prefix, selection, no double append, opt-out, conditional recall.");
