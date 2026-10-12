@@ -286,7 +286,7 @@ const jsonResponse = (body, status = 200) =>
       [{
         type: "text",
         text: "system",
-        cache_control: { type: "ephemeral" },
+        cache_control: { type: "ephemeral", ttl: "1h" },
       }]
     );
     assert.equal(claudeRequest.body.messages[1].content, "hello");
@@ -321,7 +321,7 @@ const jsonResponse = (body, status = 200) =>
       [{
         type: "text",
         text: "system",
-        cache_control: { type: "ephemeral" },
+        cache_control: { type: "ephemeral", ttl: "1h" },
       }]
     );
     assert.equal(
@@ -426,7 +426,7 @@ const jsonResponse = (body, status = 200) =>
       [{
         type: "text",
         text: "system",
-        cache_control: { type: "ephemeral" },
+        cache_control: { type: "ephemeral", ttl: "1h" },
       }]
     );
     assert.equal(relayClaudeRequest.body.messages[1].content, "hello");
