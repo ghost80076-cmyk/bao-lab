@@ -112,6 +112,81 @@ jobs:
             exit 1
           fi
 
+      - name: Verify public author discovery
+        shell: bash
+        run: |
+          set -euo pipefail
+          ok=0
+          for attempt in $(seq 1 24); do
+            if python3 - <<'PY'
+          import json
+          import os
+          import urllib.request
+
+          base = os.environ["SITE_URL"]
+
+          def get_text(path):
+              request = urllib.request.Request(base + path, headers={"User-Agent": "YoruBay-Live-Smoke/1.0"})
+              with urllib.request.urlopen(request, timeout=15) as response:
+                  return response.read().decode("utf-8")
+
+          home = get_text("")
+          author_page = get_text("author")
+          author_script = get_text("js/author-profile.js")
+          author_core = get_text("js/author-profile-core.js")
+          registry = json.loads(get_text("data/authors.json"))
+          official = json.loads(get_text("data/characters.json"))
+          manifest = json.loads(get_text("data/character-catalog/community/manifest.json"))
+
+          community = []
+          for page in manifest.get("pages", []):
+              file = str(page.get("file") or "").strip()
+              if file:
+                  payload = json.loads(get_text(file))
+                  if isinstance(payload, list):
+                      community.extend(payload)
+
+          assert '<a href="author">作者</a>' in home, "main navigation is missing the author directory"
+          assert 'id="author-profile-root"' in author_page, "public author page shell is missing"
+          assert 'js/author-profile-core.js' in author_page and 'js/author-profile.js' in author_page, "author page scripts are missing"
+          assert 'function renderDirectory(' in author_script, "public author directory renderer is missing"
+          assert 'author?id=' in author_script, "author cards no longer link to public profiles"
+          assert 'function directoryEntries(' in author_core, "author directory core is missing"
+
+          authors = registry.get("authors", []) if isinstance(registry, dict) else []
+          author_ids = {str(author.get("id") or "").strip().lower() for author in authors if isinstance(author, dict)}
+          required = {"banzhang", "chicofy", "ashboneai"}
+          missing = sorted(required - author_ids)
+          assert not missing, "registered public authors missing: " + ", ".join(missing)
+
+          entries = [item for item in [*official, *community] if isinstance(item, dict)]
+          assert entries, "public work catalog is empty"
+          assert any(str(item.get("author_id") or "").strip().lower() == "banzhang" for item in entries), "no public works are linked to banzhang"
+
+          for item in entries:
+              work_id = str(item.get("id") or "").strip() or "<unknown>"
+              author_id = str(item.get("author_id") or "").strip().lower()
+              author_name = str(item.get("author") or "").strip()
+              assert author_id, work_id + " is missing author_id"
+              assert author_id in author_ids, work_id + " references unknown author_id " + author_id
+              assert author_name, work_id + " is missing public author name"
+
+          unique_works = {str(item.get("id") or "").strip() for item in entries if str(item.get("id") or "").strip()}
+          print(f"Public author discovery verified: {len(author_ids)} authors, {len(unique_works)} unique works.")
+          PY
+            then
+              ok=1
+              printf 'Public author discovery verified on attempt %s.\n' "$attempt"
+              break
+            fi
+            printf 'Waiting for public author discovery deployment (attempt %s/24)...\n' "$attempt"
+            sleep 5
+          done
+          if [ "$ok" -ne 1 ]; then
+            printf 'Public author discovery could not be verified.\n' >&2
+            exit 1
+          fi
+
       - name: Verify robots and sitemap
         shell: bash
         run: |
