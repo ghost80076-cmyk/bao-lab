@@ -1,0 +1,18 @@
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const core = require('../js/worldbook-library-core.js');
+const pack = core.normalizePack(JSON.parse(fs.readFileSync('data/sunrise-mature-scenario-library.json', 'utf8')));
+assert.equal(pack.meta.id, 'sunrise-mature-scenarios');
+assert.equal(pack.meta.visibility, 'private');
+assert.equal(pack.meta.classification, 'scenario');
+assert.equal(pack.entries.length, 8);
+assert(pack.entries.every(e => e.requires.includes('mature-content') && e.requires.includes('sunrise-private-scenarios')));
+const locked = core.select([pack], [pack.meta.id], { latestUser: '蘇夢 地下實驗室', world: 'sunrise-city' });
+assert.equal(locked.text, '');
+const enabled = core.select([pack], [pack.meta.id], { latestUser: '蘇夢 地下實驗室', world: 'sunrise-city', flags: ['mature-content', 'sunrise-private-scenarios'] });
+assert.match(enabled.text, /蘇夢/);
+assert.match(enabled.text, /非露骨|不描寫性化內容|不提供犯罪操作/);
+const all = pack.entries.map(e => e.content).join('\n');
+assert.doesNotMatch(all, /性虐待|性交易|未成年性交易|自慰|窒息遊戲|人體實驗流程|毒品製造方法/);
+assert.match(all, /林月影|張皓|蘇夢|陳國輝|艾莉絲·溫特|北山住宅區|東區平民區|南區/);
+console.log('Sunrise mature scenario pack: private opt-in flags, keyword recall, non-global activation and non-procedural safety boundary passed.');

@@ -1,0 +1,101 @@
+{
+  "schema": "yorubay-worldbook-pack",
+  "version": 1,
+  "meta": {
+    "id": "sunrise-mature-scenarios",
+    "name": "曙光市｜成熟劇情與秘密線（主動啟用）",
+    "world": "sunrise-city",
+    "classification": "scenario",
+    "author": "班長／肉包",
+    "release": "1.1.0",
+    "visibility": "private",
+    "source": "囚徒的自白原始來源｜來源91–105成熟劇情整理（非全域召回）",
+    "activation": {
+      "requires_flags": ["mature-content", "sunrise-private-scenarios"],
+      "default_enabled": false,
+      "note": "只有作者或玩家明確啟用時才加入故事上下文；每筆仍依關鍵詞召回。"
+    }
+  },
+  "entries": [
+    {
+      "id": "sunrise-mature-91-trauma",
+      "title": "林月影｜創傷與失控秘密線",
+      "category": "成熟劇情",
+      "mode": "keyword",
+      "keywords": ["林月影", "診所秘密", "弟弟死亡", "異能失控"],
+      "requires": ["mature-content", "sunrise-private-scenarios"],
+      "source_index": 91,
+      "content": "林月影是成年醫生，曾在異能失控事件中失去家人，之後以救治傷患維持生活並壓抑自己的危險能力。她的失眠、愧疚與黑市人脈可成為信任、調查或救贖線；不要預設她一定失控、死亡或接受玩家支配，事件必須由現場選擇與模型演繹推進。"
+    },
+    {
+      "id": "sunrise-mature-92-enforcer",
+      "title": "張皓｜暴力組織內的矛盾人物",
+      "category": "成熟劇情",
+      "mode": "keyword",
+      "keywords": ["張皓", "觸鬚", "三合會", "審問線"],
+      "requires": ["mature-content", "sunrise-private-scenarios"],
+      "source_index": 92,
+      "content": "張皓是成年幫派核心成員與高危異能者，長期替組織處理暴力事件，卻對自身造成的傷害與共感逐漸疲憊。可作為敵對者、被捕者、情報來源或黑暗路線盟友；只描寫威脅、審問壓力與道德選擇，不提供刑訊、控制或傷害的可操作方法。"
+    },
+    {
+      "id": "sunrise-mature-93-evolution-lab",
+      "title": "蘇夢｜非法研究與異化危機",
+      "category": "成熟劇情",
+      "mode": "keyword",
+      "keywords": ["蘇夢", "進化論者", "地下實驗室", "異化危機"],
+      "requires": ["mature-content", "sunrise-private-scenarios"],
+      "source_index": 93,
+      "content": "蘇夢是成年研究助手，捲入地下組織的非法生物研究，身體與認知逐漸受到異能改造影響。她可以是危險敵人、失控前的求助者或研究線索；涉及過去霸凌、暴力、強迫研究與身體異化時，以非露骨的心理與劇情後果呈現，不描寫性化內容或具體實驗流程。"
+    },
+    {
+      "id": "sunrise-mature-94-dock-witness",
+      "title": "陳國輝｜碼頭證人與金盆洗手線",
+      "category": "成熟劇情",
+      "mode": "keyword",
+      "keywords": ["陳國輝", "章魚", "碼頭證人", "走私調查"],
+      "requires": ["mature-content", "sunrise-private-scenarios"],
+      "source_index": 94,
+      "content": "陳國輝是成年碼頭工人，曾被灰色勢力利用，意外掌握港口犯罪網絡的證據。他想保護家人並離開組織，玩家可協助他作證、藏匿或在壓力下妥協；犯罪內容只作調查與道德抉擇背景，不提供走私、販運或滅口方法。"
+    },
+    {
+      "id": "sunrise-mature-95-source-point",
+      "title": "艾莉絲·溫特｜研究權力與源點陰影",
+      "category": "成熟劇情",
+      "mode": "keyword",
+      "keywords": ["艾莉絲·溫特", "Alice Winter", "源點計畫", "失蹤案"],
+      "requires": ["mature-content", "sunrise-private-scenarios"],
+      "source_index": 95,
+      "content": "艾莉絲·溫特是成年研究主管，表面隸屬官方體系，暗中牽涉一項未公開的異能研究網絡。她可作幕後對手、調查目標或權力博弈對象；人體實驗、控制異能與受害者後果只以調查證據和倫理衝突呈現，不公開控制技術或實驗步驟。"
+    },
+    {
+      "id": "sunrise-mature-100-north-cases",
+      "title": "北山住宅區｜權貴案件與莊園秘密",
+      "category": "成熟劇情",
+      "mode": "keyword",
+      "keywords": ["北山住宅區", "富豪謀殺案", "蕭家莊園", "源點計畫"],
+      "requires": ["mature-content", "sunrise-private-scenarios"],
+      "source_index": 100,
+      "content": "北山線可從富豪命案、階級衝突、蕭家莊園秘密、黑幫滲透、源點計畫調查與血色七月倖存者展開。這些是尚未發生的劇情方向，不是既定事實；模型應讓玩家選擇調查、談判、離開或介入，不預設幕後真相已被揭露。"
+    },
+    {
+      "id": "sunrise-mature-103-east-cases",
+      "title": "東區平民區｜黑暗案件與社區抉擇",
+      "category": "成熟劇情",
+      "mode": "keyword",
+      "keywords": ["東區平民區", "黑幫火拼", "毒品調查", "地下實驗室"],
+      "requires": ["mature-content", "sunrise-private-scenarios"],
+      "source_index": 103,
+      "content": "東區線可處理黑幫衝突、毒品來源、人口販運調查、地下研究設施、高利貸悲劇與階級抗爭。劇情只提供調查目標、受害者保護與陣營抉擇，不提供犯罪操作細節；任何事件都必須由玩家觸發，不因地點關鍵詞自動發生。"
+    },
+    {
+      "id": "sunrise-mature-105-south-ecology",
+      "title": "南區｜黑市生態與救援線",
+      "category": "成熟劇情",
+      "mode": "keyword",
+      "keywords": ["南區", "人口販運調查", "黑市生態", "救援線"],
+      "requires": ["mature-content", "sunrise-private-scenarios"],
+      "source_index": 105,
+      "content": "南區成熟線呈現黑幫統治、人口販運、毒品與器官交易的社會後果，並提供救援、取證、保護證人與撤離等劇情方向。兒童剝削只可作案件背景標籤，不描寫或性化未成年人；不提供交易、製造、傷害或規避追查的方法。"
+    }
+  ]
+}
