@@ -1,13 +1,13 @@
 {
   "schema": "yorubay-world-simulator-general-review",
-  "version": 4,
+  "version": 5,
   "source_count": 662,
-  "adopted_occurrences": 90,
-  "unique_adapted_sources": 30,
-  "reviewed_unpublished_occurrences": 54,
-  "unique_reviewed_unpublished_sources": 18,
+  "adopted_occurrences": 108,
+  "unique_adapted_sources": 36,
+  "reviewed_unpublished_occurrences": 57,
+  "unique_reviewed_unpublished_sources": 19,
   "pack_count": 6,
-  "chapter_count": 30,
+  "chapter_count": 35,
   "scope": "Public adapted chapters and metadata-only layer routing. Reviewed-not-published does not mean integrated. No full-book migration or model-dialogue evaluation claimed.",
   "books": [
     {
@@ -22,6 +22,8 @@
         17,
         18,
         19,
+        30,
+        31,
         41,
         42,
         43,
@@ -43,7 +45,11 @@
         84,
         85,
         86,
-        91
+        91,
+        185,
+        186,
+        187,
+        188
       ],
       "reviewed_unpublished_indices": [
         32,
@@ -63,7 +69,8 @@
         60,
         61,
         62,
-        63
+        63,
+        92
       ],
       "pending_indices": [
         0,
@@ -88,8 +95,6 @@
         27,
         28,
         29,
-        30,
-        31,
         38,
         39,
         40,
@@ -110,7 +115,6 @@
         88,
         89,
         90,
-        92,
         93,
         94,
         95,
@@ -203,10 +207,6 @@
         182,
         183,
         184,
-        185,
-        186,
-        187,
-        188,
         189,
         190,
         191,
@@ -241,6 +241,8 @@
         17,
         18,
         19,
+        30,
+        31,
         41,
         42,
         43,
@@ -262,7 +264,11 @@
         84,
         85,
         86,
-        91
+        91,
+        185,
+        186,
+        187,
+        188
       ],
       "reviewed_unpublished_indices": [
         32,
@@ -282,7 +288,8 @@
         60,
         61,
         62,
-        63
+        63,
+        92
       ],
       "pending_indices": [
         0,
@@ -307,8 +314,6 @@
         27,
         28,
         29,
-        30,
-        31,
         38,
         39,
         40,
@@ -329,7 +334,6 @@
         88,
         89,
         90,
-        92,
         93,
         94,
         95,
@@ -422,10 +426,6 @@
         182,
         183,
         184,
-        185,
-        186,
-        187,
-        188,
         189,
         190,
         191,
@@ -502,6 +502,8 @@
         17,
         18,
         19,
+        30,
+        31,
         41,
         42,
         43,
@@ -523,7 +525,11 @@
         85,
         86,
         87,
-        92
+        92,
+        186,
+        187,
+        188,
+        189
       ],
       "reviewed_unpublished_indices": [
         32,
@@ -543,7 +549,8 @@
         60,
         61,
         62,
-        63
+        63,
+        93
       ],
       "pending_indices": [
         0,
@@ -568,8 +575,6 @@
         27,
         28,
         29,
-        30,
-        31,
         38,
         39,
         40,
@@ -591,7 +596,6 @@
         89,
         90,
         91,
-        93,
         94,
         95,
         96,
@@ -684,10 +688,6 @@
         183,
         184,
         185,
-        186,
-        187,
-        188,
-        189,
         190,
         191,
         192,
@@ -786,6 +786,26 @@
     },
     {
       "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 30,
+      "source_sha256": "07ca841ae52c247fd436464d1e2296f99b7c7aa2a183af66492cf4890b1c077d",
+      "pack_id": "world-simulator-relationship-reference",
+      "entry_id": "strategic-friend",
+      "published_sha256": "c15c1609a4a71c41ad4964483dadb8feb5a4eebdd8e3462a0ce3fab25fb534ec",
+      "status": "partial-adaptation",
+      "not_verbatim": true
+    },
+    {
+      "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 31,
+      "source_sha256": "eca15078ff5a2ddd5c9428e2176a5116bd60776f65d29bed77cf4412bf50e41b",
+      "pack_id": "world-simulator-relationship-reference",
+      "entry_id": "principled-rival",
+      "published_sha256": "6d06f9763aa24cb3b802f3961701eb04343714389fcbb53e069d8703644a5b3d",
+      "status": "partial-adaptation",
+      "not_verbatim": true
+    },
+    {
+      "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
       "source_index": 41,
       "source_sha256": "d3338a295c7fb406215da70dae6db60ec5126eec27fa7dc46dc81251ce5e2442",
       "pack_id": "world-simulator-adventure-reference",
@@ -1005,6 +1025,46 @@
       "not_verbatim": true
     },
     {
+      "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 185,
+      "source_sha256": "d2933e10eae19ab286b75bba4c376e861a47e135471e86beabc9b0163b07e671",
+      "pack_id": "world-simulator-relationship-reference",
+      "entry_id": "closeness-distance",
+      "published_sha256": "300d218054c00a09215aa9e02fddea9a3c6c74a8322c9fb9949aa36ede552c85",
+      "status": "partial-adaptation",
+      "not_verbatim": true
+    },
+    {
+      "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 186,
+      "source_sha256": "b0f3dc700b13266d2237eef4b3c1ae757b83edb79611f95570487c4529d6d481",
+      "pack_id": "world-simulator-relationship-reference",
+      "entry_id": "control-tension",
+      "published_sha256": "d9954528918bb4ddc572116ac45bae5a4675af8dea2d3b0f2a57264fe724b951",
+      "status": "partial-adaptation",
+      "not_verbatim": true
+    },
+    {
+      "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 187,
+      "source_sha256": "c1f0ef995cf7e6df075618a5619ffdb9805daed082079c4b3b912f969e48573f",
+      "pack_id": "world-simulator-relationship-reference",
+      "entry_id": "possessive-tension",
+      "published_sha256": "926630e5b0eae2172d048c30b0c014913e05ef9ab4dfac0d59d5e910992b31c8",
+      "status": "partial-adaptation",
+      "not_verbatim": true
+    },
+    {
+      "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 188,
+      "source_sha256": "51e178e2b98a61e416fd0f86b85d4ca32752f305418e869ddd610d97070d2eaf",
+      "pack_id": "world-simulator-relationship-reference",
+      "entry_id": "challenge-drive",
+      "published_sha256": "b677dc3048aa11e133dd677c9dae8742e154f0d3a91c274f8b940320d30a8dfd",
+      "status": "partial-adaptation",
+      "not_verbatim": true
+    },
+    {
       "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
       "source_index": 12,
       "source_sha256": "7df19cde042e44920525ac07529edb0e8ed32d6f1c1edb6f2a9e6d8a9f25561f",
@@ -1081,6 +1141,26 @@
       "pack_id": "world-simulator-relationship-reference",
       "entry_id": "reserved-companion",
       "published_sha256": "3a2de1da9160b20986dc06d5aa3616d89c930aaaf519cce7b0635c27fc5d36dc",
+      "status": "partial-adaptation",
+      "not_verbatim": true
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 30,
+      "source_sha256": "07ca841ae52c247fd436464d1e2296f99b7c7aa2a183af66492cf4890b1c077d",
+      "pack_id": "world-simulator-relationship-reference",
+      "entry_id": "strategic-friend",
+      "published_sha256": "c15c1609a4a71c41ad4964483dadb8feb5a4eebdd8e3462a0ce3fab25fb534ec",
+      "status": "partial-adaptation",
+      "not_verbatim": true
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 31,
+      "source_sha256": "eca15078ff5a2ddd5c9428e2176a5116bd60776f65d29bed77cf4412bf50e41b",
+      "pack_id": "world-simulator-relationship-reference",
+      "entry_id": "principled-rival",
+      "published_sha256": "6d06f9763aa24cb3b802f3961701eb04343714389fcbb53e069d8703644a5b3d",
       "status": "partial-adaptation",
       "not_verbatim": true
     },
@@ -1305,6 +1385,46 @@
       "not_verbatim": true
     },
     {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 185,
+      "source_sha256": "d2933e10eae19ab286b75bba4c376e861a47e135471e86beabc9b0163b07e671",
+      "pack_id": "world-simulator-relationship-reference",
+      "entry_id": "closeness-distance",
+      "published_sha256": "300d218054c00a09215aa9e02fddea9a3c6c74a8322c9fb9949aa36ede552c85",
+      "status": "partial-adaptation",
+      "not_verbatim": true
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 186,
+      "source_sha256": "b0f3dc700b13266d2237eef4b3c1ae757b83edb79611f95570487c4529d6d481",
+      "pack_id": "world-simulator-relationship-reference",
+      "entry_id": "control-tension",
+      "published_sha256": "d9954528918bb4ddc572116ac45bae5a4675af8dea2d3b0f2a57264fe724b951",
+      "status": "partial-adaptation",
+      "not_verbatim": true
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 187,
+      "source_sha256": "c1f0ef995cf7e6df075618a5619ffdb9805daed082079c4b3b912f969e48573f",
+      "pack_id": "world-simulator-relationship-reference",
+      "entry_id": "possessive-tension",
+      "published_sha256": "926630e5b0eae2172d048c30b0c014913e05ef9ab4dfac0d59d5e910992b31c8",
+      "status": "partial-adaptation",
+      "not_verbatim": true
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 188,
+      "source_sha256": "51e178e2b98a61e416fd0f86b85d4ca32752f305418e869ddd610d97070d2eaf",
+      "pack_id": "world-simulator-relationship-reference",
+      "entry_id": "challenge-drive",
+      "published_sha256": "b677dc3048aa11e133dd677c9dae8742e154f0d3a91c274f8b940320d30a8dfd",
+      "status": "partial-adaptation",
+      "not_verbatim": true
+    },
+    {
       "book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
       "source_index": 12,
       "source_sha256": "7df19cde042e44920525ac07529edb0e8ed32d6f1c1edb6f2a9e6d8a9f25561f",
@@ -1381,6 +1501,26 @@
       "pack_id": "world-simulator-relationship-reference",
       "entry_id": "reserved-companion",
       "published_sha256": "3a2de1da9160b20986dc06d5aa3616d89c930aaaf519cce7b0635c27fc5d36dc",
+      "status": "partial-adaptation",
+      "not_verbatim": true
+    },
+    {
+      "book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 30,
+      "source_sha256": "07ca841ae52c247fd436464d1e2296f99b7c7aa2a183af66492cf4890b1c077d",
+      "pack_id": "world-simulator-relationship-reference",
+      "entry_id": "strategic-friend",
+      "published_sha256": "c15c1609a4a71c41ad4964483dadb8feb5a4eebdd8e3462a0ce3fab25fb534ec",
+      "status": "partial-adaptation",
+      "not_verbatim": true
+    },
+    {
+      "book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 31,
+      "source_sha256": "eca15078ff5a2ddd5c9428e2176a5116bd60776f65d29bed77cf4412bf50e41b",
+      "pack_id": "world-simulator-relationship-reference",
+      "entry_id": "principled-rival",
+      "published_sha256": "6d06f9763aa24cb3b802f3961701eb04343714389fcbb53e069d8703644a5b3d",
       "status": "partial-adaptation",
       "not_verbatim": true
     },
@@ -1603,6 +1743,46 @@
       "published_sha256": "1e622d9f3f02f1199c9bf5a751df8743072361a7be541e80a89f3b21b867f4d7",
       "status": "partial-adaptation",
       "not_verbatim": true
+    },
+    {
+      "book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 186,
+      "source_sha256": "d2933e10eae19ab286b75bba4c376e861a47e135471e86beabc9b0163b07e671",
+      "pack_id": "world-simulator-relationship-reference",
+      "entry_id": "closeness-distance",
+      "published_sha256": "300d218054c00a09215aa9e02fddea9a3c6c74a8322c9fb9949aa36ede552c85",
+      "status": "partial-adaptation",
+      "not_verbatim": true
+    },
+    {
+      "book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 187,
+      "source_sha256": "b0f3dc700b13266d2237eef4b3c1ae757b83edb79611f95570487c4529d6d481",
+      "pack_id": "world-simulator-relationship-reference",
+      "entry_id": "control-tension",
+      "published_sha256": "d9954528918bb4ddc572116ac45bae5a4675af8dea2d3b0f2a57264fe724b951",
+      "status": "partial-adaptation",
+      "not_verbatim": true
+    },
+    {
+      "book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 188,
+      "source_sha256": "c1f0ef995cf7e6df075618a5619ffdb9805daed082079c4b3b912f969e48573f",
+      "pack_id": "world-simulator-relationship-reference",
+      "entry_id": "possessive-tension",
+      "published_sha256": "926630e5b0eae2172d048c30b0c014913e05ef9ab4dfac0d59d5e910992b31c8",
+      "status": "partial-adaptation",
+      "not_verbatim": true
+    },
+    {
+      "book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 189,
+      "source_sha256": "51e178e2b98a61e416fd0f86b85d4ca32752f305418e869ddd610d97070d2eaf",
+      "pack_id": "world-simulator-relationship-reference",
+      "entry_id": "challenge-drive",
+      "published_sha256": "b677dc3048aa11e133dd677c9dae8742e154f0d3a91c274f8b940320d30a8dfd",
+      "status": "partial-adaptation",
+      "not_verbatim": true
     }
   ],
   "review_records": [
@@ -1769,6 +1949,15 @@
       "automatic_recall": false
     },
     {
+      "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 92,
+      "source_sha256": "43f8da494c0eb59e311c08c798a0b185616c4aa6ab069fa6b425938a88b0d35d",
+      "canonical_source_index": 92,
+      "status": "reviewed-not-published",
+      "route": "author-writing-preference",
+      "automatic_recall": false
+    },
+    {
       "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
       "source_index": 32,
       "source_sha256": "6240decc703518c55134220f90635f2d9d22de6c96b6008d4e8523b303090493",
@@ -1931,6 +2120,15 @@
       "automatic_recall": false
     },
     {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 92,
+      "source_sha256": "43f8da494c0eb59e311c08c798a0b185616c4aa6ab069fa6b425938a88b0d35d",
+      "canonical_source_index": 92,
+      "status": "reviewed-not-published",
+      "route": "author-writing-preference",
+      "automatic_recall": false
+    },
+    {
       "book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
       "source_index": 32,
       "source_sha256": "6240decc703518c55134220f90635f2d9d22de6c96b6008d4e8523b303090493",
@@ -2090,6 +2288,15 @@
       "canonical_source_index": 63,
       "status": "reviewed-not-published",
       "route": "existing-tool",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 93,
+      "source_sha256": "43f8da494c0eb59e311c08c798a0b185616c4aa6ab069fa6b425938a88b0d35d",
+      "canonical_source_index": 92,
+      "status": "reviewed-not-published",
+      "route": "author-writing-preference",
       "automatic_recall": false
     }
   ]

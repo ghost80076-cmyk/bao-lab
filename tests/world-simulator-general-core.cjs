@@ -7,7 +7,7 @@ const crypto = require('node:crypto');
 const packs = catalog.packs.map(core.normalizePack);
 const ids = packs.map(p => p.meta.id);
 assert.equal(packs.length, 6);
-assert.equal(packs.flatMap(p => p.entries).length, 30);
+assert.equal(packs.flatMap(p => p.entries).length, 35);
 assert.ok(packs.every(p => p.meta.world === 'general' && p.meta.classification === 'scenario'));
 assert.ok(packs.every(p => p.entries.every(e => e.mode === 'keyword' && !e.review_required)));
 for (const [query, title] of [['奇幻劇本', '奇幻冒險'], ['玄幻劇本', '玄幻歷練'], ['末日生存', '末世生存'], ['科幻世界', '科幻探索'], ['職場劇本', '現代都市'], ['錦標賽', '熱血競技']]) {
@@ -26,15 +26,16 @@ assert.equal(core.select(packs, ids, {latestUser: '奇幻劇本'}, {recallMode:'
 assert.match(core.select(packs, ids, {location:'賽博都市'}, {recallMode:'scene'}).text, /科幻探索/);
 const hash = text => crypto.createHash('sha256').update(text).digest('hex');
 assert.equal(coverage.source_count, 662);
-assert.equal(coverage.records.length, 90);
-assert.equal(new Set(coverage.records.map(r => r.source_sha256)).size, 30);
+assert.equal(coverage.records.length, 108);
+assert.equal(new Set(coverage.records.map(r => r.source_sha256)).size, 36);
 for (const record of coverage.records) {
   const e = packs.find(p => p.meta.id === record.pack_id).entries.find(e => e.id === record.entry_id);
   assert.equal(hash(e.content), record.published_sha256);
   assert.equal(record.status, 'partial-adaptation');
 }
-assert.equal(coverage.books.reduce((n,b)=>n+b.pending_indices.length,0), 518);
+assert.equal(coverage.books.reduce((n,b)=>n+b.pending_indices.length,0), 497);
 const relationship = packs.find(p => p.meta.id === 'world-simulator-relationship-reference');
+assert.equal(relationship.entries.length,13);
 for (const entry of relationship.entries) {
   for (const query of entry.keywords) {
     const result = core.select(packs, ids, {latestUser: query});
@@ -57,8 +58,8 @@ assert.equal(sameSource.entries.length, 1, 'multiple signals do not duplicate a 
 for (const book of coverage.books) {
   assert.equal(new Set([...book.adapted_indices, ...book.reviewed_unpublished_indices, ...book.pending_indices]).size, book.source_count);
   assert.equal(book.adapted_indices.length + book.reviewed_unpublished_indices.length + book.pending_indices.length, book.source_count);
-  assert.equal(book.adapted_indices.length, 30);
-  assert.equal(book.reviewed_unpublished_indices.length, 18);
+  assert.equal(book.adapted_indices.length, 36);
+  assert.equal(book.reviewed_unpublished_indices.length, 19);
 }
 const plotPacks = packs.filter(p=>['world-simulator-romance-reference','world-simulator-intrigue-reference'].includes(p.meta.id));
 assert.equal(plotPacks.length, 2);
@@ -99,11 +100,11 @@ for(const query of ['YA','NA','學校','成長','成年','banana','day']) {
 }
 const routing = require('../data/world-simulator-layer-review.json');
 const routeMap = new Map(routing.decisions.map(d=>[d.canonical_source_index,d]));
-assert.equal(routeMap.size,18);
-assert.equal(coverage.review_records.length,54);
-assert.equal(coverage.reviewed_unpublished_occurrences,54);
-assert.equal(new Set(coverage.review_records.map(r=>r.source_sha256)).size,18);
-assert.equal(coverage.unique_reviewed_unpublished_sources,18);
+assert.equal(routeMap.size,19);
+assert.equal(coverage.review_records.length,57);
+assert.equal(coverage.reviewed_unpublished_occurrences,57);
+assert.equal(new Set(coverage.review_records.map(r=>r.source_sha256)).size,19);
+assert.equal(coverage.unique_reviewed_unpublished_sources,19);
 for(const record of coverage.review_records) {
   const d=routeMap.get(record.canonical_source_index);
   assert.ok(d);
@@ -123,5 +124,12 @@ for(const query of ['【系統指令】整理人物檔案','【系統指令】�
   assert.equal(core.select(packs,ids,{latestUser:query}).text,'','review sidecar is not a recall catalog');
 }
 assert.doesNotMatch(JSON.stringify(relationship), /楊丞琳|陳妍希|彭于晏|金城武|賈靜雯|劉昊然|李鍾碩|車銀優|演員：|陰莖|做愛|罩杯/);
+assert.doesNotMatch(JSON.stringify(relationship), /范冰冰|Angelababy|不允許反抗|幼年缺乏安全依附/);
+const rivals=coverage.records.filter(r=>r.entry_id==='principled-rival');
+assert.equal(rivals.length,6,'two three-book sources share one reusable rival chapter');
+assert.equal(new Set(rivals.map(r=>r.source_sha256)).size,2);
+for(const query of ['控制','佔有','征服','依賴','迴避','人格']) {
+  assert.equal(core.select([relationship],[relationship.meta.id],{latestUser:query}).text,'');
+}
 assert.doesNotMatch(fs.readFileSync(require.resolve('../data/world-simulator-general-library.json'),'utf8'), /忽略.*規則|開發者模式|性慾|體位|世界真相/);
-console.log('PASS general simulator: 6 opt-in packs, 30 chapters, 90 adapted + 54 reviewed-unpublished + 518 pending references; layer evidence, recall isolation, modes and budget');
+console.log('PASS general simulator: 6 categories, 35 entries, 108 adapted + 57 reviewed-unpublished + 497 pending references; merged sources, layer evidence, recall isolation, modes and budget');
