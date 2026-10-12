@@ -31,7 +31,8 @@ const context = {
   window: win, document: doc, App, GameState, Chat,
   MutationObserver: class { observe() {} },
   fetch: async url => {
-    assert.ok(["data/worldbook-library.json", "data/sunrise-worldbook-library.json"].includes(url));
+    assert.ok(["data/worldbook-library.json", "data/sunrise-worldbook-library.json", "data/world-simulator-general-library.json"].includes(url));
+    if (url === "data/world-simulator-general-library.json") return { ok: true, json: async () => JSON.parse(fs.readFileSync(path.join(__dirname, "../data/world-simulator-general-library.json"), "utf8")) };
     if (url === "data/sunrise-worldbook-library.json") return { ok: true, json: async () => ({ packs: [] }) };
     calls++;
     return { ok: true, json: async () => catalog };
@@ -50,6 +51,8 @@ vm.runInNewContext(source, context, { filename: "worldbook-library.js" });
   assert.equal(saves, 0);
   const second = await App.buildMessages();
   const modes = win.YoruWorldbookLibrary;
+  const listed = await modes.all();
+  assert.ok(listed.some(p => p.meta.id === "world-simulator-adventure-reference"), "public shared catalog is discoverable");
   assert.equal(modes.setRecallMode("off"), true);
   const off = await App.buildMessages();
   assert.equal(off[0].content, "PLATFORM STABLE PREFIX");

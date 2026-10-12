@@ -24,7 +24,10 @@
         .then(response => { if (!response.ok) throw new Error("公開世界包下載失敗"); return response.json(); }),
       fetch("data/sunrise-worldbook-library.json")
         .then(response => { if (!response.ok) throw new Error("曙光市世界包下載失敗"); return response.json(); })
-        .catch(error => { console.warn("Sunrise catalog unavailable", error); return { packs: [] }; })
+        .catch(error => { console.warn("Sunrise catalog unavailable", error); return { packs: [] }; }),
+      fetch("data/world-simulator-general-library.json")
+        .then(response => { if (!response.ok) throw new Error("通用世界模擬器資料下載失敗"); return response.json(); })
+        .catch(error => { console.warn("General simulator catalog unavailable", error); return { packs: [] }; })
     ])
       .then(catalogs => {
         const seen = new Set();
