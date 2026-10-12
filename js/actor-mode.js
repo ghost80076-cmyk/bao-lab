@@ -53,12 +53,12 @@
     wrap.className = "bao-actor-mode-backdrop";
     wrap.innerHTML = [
       '<section class="bao-actor-mode-panel" role="dialog" aria-modal="true" aria-labelledby="bao-actor-mode-title">',
-      '<header><div><span class="bao-actor-mode-eyebrow">ROLE LAYER MOD</span><h2 id="bao-actor-mode-title">演員模式</h2>',
-      '<p>把「角色本體」與「這一場正在演的人」分開。只增加主提示詞，不會多送一次模型請求。</p></div>',
+      '<header><div><span class="bao-actor-mode-eyebrow">角色身份</span><h2 id="bao-actor-mode-title">角色身份</h2>',
+      '<p>保留目前角色本體，再設定這個故事裡正在扮演的身份。只增加主提示詞，不會多送一次模型請求。</p></div>',
       '<button type="button" class="bao-actor-mode-close" data-actor-close aria-label="關閉">×</button></header>',
-      '<div class="bao-actor-mode-note"><b>它不做什麼</b><span>不取代世界引擎、不讓 NPC 讀心、不把鏡月或其他演員變成整個世界。</span></div>',
-      '<label class="bao-actor-toggle"><input type="checkbox" data-actor-enabled ' + (state.enabled ? "checked" : "") + '><span><b>啟用演員模式</b><small>角色本體保留；戲中身份另外成立。</small></span></label>',
-      '<label class="bao-actor-toggle"><input type="checkbox" data-actor-active ' + (state.roleActive ? "checked" : "") + '><span><b>目前正在扮演</b><small>關閉時回到角色本體；不會刪掉下面的角色草稿。</small></span></label>',
+      '<div class="bao-actor-mode-note"><b>簡單說</b><span>例如同一個角色在這個故事裡是「新鄰居」或「老師」。角色本體不會被覆蓋，戲中身份也不會自動知道場外資訊。</span></div>',
+      '<label class="bao-actor-toggle"><input type="checkbox" data-actor-enabled ' + (state.enabled ? "checked" : "") + '><span><b>啟用角色身份</b><small>角色本體保留；這個故事的身份另外成立。</small></span></label>',
+      '<label class="bao-actor-toggle"><input type="checkbox" data-actor-active ' + (state.roleActive ? "checked" : "") + '><span><b>目前使用這個身份</b><small>關閉時回到角色本體；不會刪掉下面的身份草稿。</small></span></label>',
       '<div class="bao-actor-mode-grid">',
       '<label>本場角色／身份<input data-actor-field="label" value="' + esc(role.label || "") + '" placeholder="例如：對玩家有戒心的新鄰居"></label>',
       '<label>身份設定<textarea data-actor-field="identity" placeholder="職業、經歷、處境…">' + esc(role.identity || "") + '</textarea></label>',
@@ -86,7 +86,7 @@
         roleActive: wrap.querySelector("[data-actor-active]")?.checked === true,
         role: readRole()
       });
-      notify("演員模式已儲存。");
+      notify("角色身份已儲存。");
       close();
     });
 
@@ -106,7 +106,7 @@
     if (!action) return false;
     const next = saveState(core.applyCommand(ensureState(), action, defaults()));
     const label = next.roleActive ? (next.role?.label || "目前角色") : App.activeCharacter?.name || "角色本體";
-    if (action.type === "enabled") notify(next.enabled ? "演員模式已啟用。" : "演員模式已停用。");
+    if (action.type === "enabled") notify(next.enabled ? "角色身份已啟用。" : "角色身份已停用。");
     else if (action.type === "clearRole") notify("已清除戲中角色。");
     else notify(next.roleActive ? "已進入：" + label + "。" : "已停止扮演，回到角色本體。");
     return true;
@@ -156,6 +156,28 @@
       active: state.enabled === true
     };
   };
+
+  const injectChatEntry = () => {
+    const aside = document.querySelector("#chat-view aside");
+    if (!aside || aside.querySelector("[data-open-actor-role]")) return;
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "secondary actor-role-launch";
+    button.dataset.openActorRole = "true";
+    button.textContent = "🎭 角色身份";
+    button.title = "保留角色本體，設定這個故事裡的身份";
+    button.addEventListener("click", open);
+    const worldbook = aside.querySelector("[data-open-worldbook-library]");
+    const worldManager = aside.querySelector("[data-open-world-manager]");
+    const exit = aside.querySelector(".text-button");
+    if (worldbook?.parentElement === aside) worldbook.insertAdjacentElement("afterend", button);
+    else if (worldManager?.parentElement === aside) worldManager.insertAdjacentElement("afterend", button);
+    else if (exit?.parentElement === aside) aside.insertBefore(button, exit);
+    else aside.appendChild(button);
+  };
+
+  new MutationObserver(injectChatEntry).observe(document.body, { childList: true, subtree: true });
+  injectChatEntry();
 
   window.BAOActorMode = Object.freeze({
     open,
