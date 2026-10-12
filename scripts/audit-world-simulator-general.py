@@ -14,6 +14,11 @@ SELECTED = {41: "fantasy", 42: "cultivation", 44: "urban", 46: "competition", 47
 SELECTED.update({12: "lively-friend", 13: "listening-friend", 14: "principled-rival",
                  15: "experienced-mentor", 16: "gentle-mentor", 17: "sunny-companion",
                  18: "gentle-companion", 19: "reserved-companion"})
+SELECTED.update({68: "bl-romance", 69: "gl-romance", 70: "nl-romance",
+                 71: "character-contrast", 73: "hidden-identity", 74: "love-triangle",
+                 76: "executive-romance", 77: "age-gap-romance", 78: "comeback",
+                 80: "pure-romance", 81: "relationship-repair", 86: "romantasy",
+                 91: "court-intrigue"})
 
 def sha(text):
     return hashlib.sha256(text.encode("utf-8")).hexdigest()
@@ -57,11 +62,11 @@ def audit(archive, root):
         if any(current.get((r["book_id"], r["source_index"])) != r["source_sha256"]
                for r in old["records"]):
             raise ValueError("Reviewed source changed; review before updating")
-    return {"schema": "yorubay-world-simulator-general-review", "version": 2,
+    return {"schema": "yorubay-world-simulator-general-review", "version": 3,
             "source_count": sum(BOOKS.values()), "adopted_occurrences": len(records),
             "unique_adapted_sources": len({r["source_sha256"] for r in records}),
             "pack_count": len(published["packs"]), "chapter_count": len(entries),
-            "scope": "Genre and relationship batches only. No full-book migration or model-dialogue evaluation claimed.",
+            "scope": "Genre, relationship, romance and intrigue batches only. No full-book migration or model-dialogue evaluation claimed.",
             "books": inventory, "records": records}
 
 if __name__ == "__main__":

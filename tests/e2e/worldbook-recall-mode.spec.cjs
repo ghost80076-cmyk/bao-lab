@@ -17,6 +17,11 @@ for (const width of [1280, 390]) {
     await expect(page.getByText('通用世界模擬器｜冒險題材參考', { exact: true })).toBeVisible();
     await expect(page.getByText('通用世界模擬器｜都市與競技參考', { exact: true })).toBeVisible();
     await expect(page.getByText('通用世界模擬器｜人物與關係參考', { exact: true })).toBeVisible();
+    await expect(page.getByText('通用世界模擬器｜戀愛與情感題材', { exact: true })).toBeVisible();
+    await expect(page.getByText('通用世界模擬器｜身分與權謀題材', { exact: true })).toBeVisible();
+    for (const name of ['通用世界模擬器｜戀愛與情感題材','通用世界模擬器｜身分與權謀題材']) {
+      await expect(page.getByRole('checkbox', {name:new RegExp(name)})).not.toBeChecked();
+    }
     const relationship = page.getByRole('checkbox', { name: /通用世界模擬器｜人物與關係參考/ });
     await expect(relationship).not.toBeChecked();
     await relationship.check();
