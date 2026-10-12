@@ -303,10 +303,10 @@ const core = require("../js/story-extensions-core.js");
     roleLabel: "有戒心的新鄰居",
     actorName: "鏡月"
   });
-  assert.equal(actor.title, "演員模式 · 有戒心的新鄰居");
-  assert.deepEqual(actor.scopes, ["主提示詞", "不增加模型請求", "故事內"]);
+  assert.equal(actor.title, "角色身份 · 有戒心的新鄰居");
+  assert.deepEqual(actor.scopes, ["角色身份", "不增加模型請求", "目前故事"]);
   assert.match(actor.detail, /鏡月/);
-  assert.match(actor.ownership.permissions.join(" · "), /演員知道 ≠ 戲中角色知道/);
+  assert.match(actor.ownership.permissions.join(" · "), /角色本體知道 ≠ 故事身份知道/);
   assert.equal(actor.inventory[0].items[0].status, "啟用");
   assert.equal(actor.active, true);
 }
@@ -322,7 +322,7 @@ const core = require("../js/story-extensions-core.js");
   });
   assert.equal(overview.cards.length, 5);
   assert.equal(overview.activeCount, 1);
-  assert.match(overview.detail, /角色層 MOD/);
+  assert.match(overview.detail, /角色身份/);
 }
 
 console.log("story extensions core test passed");
