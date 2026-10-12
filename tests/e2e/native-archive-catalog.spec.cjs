@@ -57,7 +57,7 @@ for (const viewport of [{ width: 1440, height: 1000 }, { width: 390, height: 844
       const diff = archive.locator('[data-timeline-mode="round_diff"]');
       await expect(diff).toContainText(result.before);
       await expect(diff).toContainText(result.after);
-      await expect(page.locator('#builder-author-link')).toHaveAttribute('href', /author\.html\?id=banzhang/);
+      await expect(page.locator('#builder-author-link')).toHaveAttribute('href', /author\?id=banzhang/);
       const overflow = await archive.evaluate(el => el.scrollWidth > el.clientWidth + 2);
       expect(overflow, work.id + ': no narrow archive overflow').toBe(false);
       // The new renderer remains independent from author Regex and text mode.
