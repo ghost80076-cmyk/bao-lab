@@ -6,6 +6,7 @@
   <meta name="theme-color" content="#100e14">
   <meta name="description" content="夜灣 AI 連線完整說明：帳號 API 額度、自己的 API Key、OpenRouter、Gemini 與 LM Studio 本地 AI。">
   <title>AI 連線完整說明｜帳號額度、API Key 與 LM Studio｜夜灣 YoruBay</title>
+  <link rel="canonical" href="https://yorubay.com/api-guide">
   <link rel="icon" href="assets/bao-mark.svg" type="image/svg+xml">
   <style>
     :root{color-scheme:dark;font-family:system-ui,-apple-system,'Noto Sans TC',sans-serif;background:#101118;color:#f4f1eb}*{box-sizing:border-box}body{margin:0;line-height:1.8}a{color:#f6ca87}header,main,footer{max-width:880px;margin:auto;padding:22px}header{display:flex;justify-content:space-between;align-items:center;gap:16px}header a{text-decoration:none}h1{font-size:clamp(1.8rem,5vw,3rem);line-height:1.25}h2{margin-top:0}.lead{color:#c9c7c2}.panel{background:#1c1e27;border:1px solid #373943;border-radius:18px;padding:24px;margin:22px 0}.steps{padding-left:1.4rem}.steps li{padding:6px 0}.button{display:inline-block;padding:10px 17px;border-radius:10px;background:#f6ca87;color:#171717;text-decoration:none;font-weight:700;margin:8px 8px 8px 0}.secondary{background:#30333f;color:#fff}.notice{border-left:4px solid #f6ca87;padding:12px 18px;background:#29261f}.terms{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:18px 0}.term{padding:12px;border-radius:12px;background:#151720;border:1px solid #3b3e4a}.term b{display:block;color:#fff}small,footer{color:#bdbdc4}code{overflow-wrap:anywhere}details{margin-top:16px}summary{cursor:pointer;font-weight:700}a:focus-visible{outline:3px solid #f6ca87;outline-offset:3px}@media(max-width:600px){header,main,footer{padding:16px}.panel{padding:18px}.terms{grid-template-columns:1fr}}
@@ -13,7 +14,7 @@
   <link rel="stylesheet" href="css/bao-brand-v2.css">
 </head>
 <body class="bao-brand-document">
-  <header><a href="./">← 夜灣 YoruBay 首頁</a><a href="quick-start.html">第一次玩？三步開始 →</a></header>
+  <header><a href="./">← 夜灣 YoruBay 首頁</a><a href="quick-start">第一次玩？三步開始 →</a></header>
   <main>
     <p class="lead">這頁是完整連線參考。如果只是第一次想開始玩，先看「三步開始」會比較快。</p>
     <h1>選擇故事要怎麼連線。</h1>
@@ -53,7 +54,7 @@
       <h2>路線 D：LM Studio 本地 AI</h2>
       <p>適合想讓模型在自己的電腦上運行、不走雲端 API 的玩家。預設不需要雲端 API Key。</p>
       <ol class="steps"><li>在 LM Studio 下載並載入模型。</li><li>如果畫面中央開著 Settings 設定視窗，先按右上角 × 關閉；<strong>不要在 Settings → Developer 裡找 API Server</strong>。</li><li>回到 LM Studio 主畫面，點左側主導覽的 <strong>Developer</strong> 頁面，切換 <strong>Start Server</strong>。</li><li>到 Server Settings 開啟 <strong>Enable CORS</strong>。</li><li>回 夜灣 YoruBay 選擇「LM Studio（本地 AI）」，確認卡片上的本機 API 網址（預設 <code>http://127.0.0.1:1234/v1</code>），再按「讀取本機模型」。</li></ol>
-      <a class="button" href="lm-studio-guide.html">查看 LM Studio 完整教學 →</a>
+      <a class="button" href="lm-studio-guide">查看 LM Studio 完整教學 →</a>
       <a class="button secondary" href="https://lmstudio.ai/docs/developer/core/server" target="_blank" rel="noopener noreferrer">LM Studio 官方 Server 文件 ↗</a>
     </section>
 
