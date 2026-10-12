@@ -281,7 +281,7 @@ test('propagates quota and provider-specific upstream errors without exposing pl
 });
 test('registers only the prioritized YoruBay hosted catalog without free or duplicate routes',()=>{
  const s=build();s.app.populateAPIControls();s.app.populateAPIControls();
- assert.equal(s.app.modelPresets.length,18);
+ assert.equal(s.app.modelPresets.length,17);
  assert.equal(s.app.modelPresets[0].provider,'gemini');
  const added=s.app.modelPresets.slice(1);
  assert.deepEqual(Array.from(added.map(p=>p.model)),[
