@@ -11,6 +11,7 @@ on:
       - 'data/world-simulator-layer-review.json'
       - 'scripts/audit-world-simulator-general.py'
       - 'tests/world-simulator-general-core.cjs'
+      - 'tests/world-simulator-source-audit.py'
       - 'tests/*worldbook*.cjs'
       - 'tests/lorebook-core.cjs'
       - 'tests/e2e/worldbook-recall-mode.spec.cjs'
@@ -26,6 +27,7 @@ on:
       - 'data/world-simulator-layer-review.json'
       - 'scripts/audit-world-simulator-general.py'
       - 'tests/world-simulator-general-core.cjs'
+      - 'tests/world-simulator-source-audit.py'
 permissions:
   contents: read
 jobs:
@@ -44,6 +46,7 @@ jobs:
         run: |
           node tests/worldbook-library-core.cjs
           node tests/world-simulator-general-core.cjs
+          python3 tests/world-simulator-source-audit.py
           node tests/worldbook-library-runtime.cjs
           node tests/lorebook-core.cjs
           node tests/character-import-core.cjs
@@ -57,11 +60,11 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
-      - name: Verify public catalog and loader bytes
+      - name: Verify public catalog, review metadata and loader bytes
         run: |
           python - <<'PY'
           import hashlib, pathlib, time, urllib.request
-          pending = {"data/world-simulator-general-library.json", "js/worldbook-library.js", "js/site-ui.js"}
+          pending = {"data/world-simulator-general-library.json", "data/world-simulator-general-source-map.json", "data/world-simulator-layer-review.json", "js/worldbook-library.js", "js/site-ui.js"}
           for attempt in range(30):
               for path in list(pending):
                   try:
@@ -73,7 +76,7 @@ jobs:
                   except Exception:
                       pass
               if not pending:
-                  print("PASS deployed general worldbook catalog and loader match commit")
+                  print("PASS deployed general worldbook catalog, review metadata and loader match commit")
                   break
               time.sleep(5)
           if pending:
