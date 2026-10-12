@@ -39,8 +39,13 @@ import {
 
 import {
   providerCall,
+  providerFailureCode,
   providerFailureResponse,
 } from "./provider-transport.js";
+
+import {
+  recordUsageFailure,
+} from "./usage-diagnostics.js";
 
 // USD wallet reservation and settlement are kept separate from legacy credits,
 // provider transport and the outer chat dispatcher so money state has one owner.
@@ -295,6 +300,15 @@ async function costUsdChatRoute(
     ) {
       await refundReservation("unverified_refunded");
 
+      await recordUsageFailure(
+        db,
+        requestId,
+        providerFailureCode(
+          result
+        ),
+        result
+      );
+
       return fail(
         "provider_usage_unverified",
         502,
@@ -359,6 +373,15 @@ async function costUsdChatRoute(
 
     await refundReservation("failed");
 
+    await recordUsageFailure(
+      db,
+      requestId,
+      providerFailureCode(
+        result
+      ),
+      result
+    );
+
     return providerFailureResponse(
       result,
       requestId
@@ -384,6 +407,13 @@ async function costUsdChatRoute(
 
   if (!verified) {
     const refunded = await refundReservation("unverified_refunded", stored);
+
+    await recordUsageFailure(
+      db,
+      requestId,
+      "usage_metadata_unverified",
+      result
+    );
 
     return json({
       request_id:
@@ -495,6 +525,13 @@ async function costUsdChatRoute(
     )
   ) {
     await refundReservation("pricing_error", stored);
+
+    await recordUsageFailure(
+      db,
+      requestId,
+      "pricing_calculation_failed",
+      result
+    );
 
     return fail(
       "pricing_calculation_failed",
