@@ -54,7 +54,7 @@
           <div class="brand-actions">
             <button class="primary" data-view="explore">開始探索</button>
             <button id="home-continue" class="secondary hidden">繼續閱讀</button>
-            <a class="brand-first-run" href="quick-start.html">第一次來？三步開始 ↗</a>
+            <a class="brand-first-run" href="quick-start">第一次來？三步開始 ↗</a>
           </div>
           <a id="bao-home-portrait" class="brand-bao-companion" href="bao-mascot.html" aria-label="認識夜灣官方吉祥物包包">
             <img src="assets/bao-human-v2.webp" alt="包包：夜灣官方吉祥物" width="58" height="76" loading="eager"><span>認識包包</span>
