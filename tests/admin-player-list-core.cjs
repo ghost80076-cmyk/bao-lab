@@ -22,6 +22,9 @@ assert.match(html, /selected=players\.find\(function\(p\)\{return p\.id===select
 assert.match(html, /id="view-player-usage"/);
 assert.match(html, /id="player-usage-card"/);
 assert.match(html, /id="usage-rows"/);
+assert.match(html, /快取讀取/);
+assert.match(html, /快取寫入/);
+assert.match(html, /row\.cache_write_tokens/);
 assert.match(html, /data-usage-player/);
 assert.match(html, /"\/admin\/usage\?player_id="/);
 assert.match(html, /"Bearer "\+adminToken/);
