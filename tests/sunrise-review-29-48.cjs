@@ -18,7 +18,7 @@ for(const s of ledger){
   }
   assert.equal(end,s.source_chars);
 }
-for(const i of [30,31,32]) assert.equal(ledger.find(s=>s.source_index===i).publication_status,'unreviewed');
+for(const i of [30,31,32]) assert.equal(ledger.find(s=>s.source_index===i).publication_status,'partial');
 for(const i of [43,44,45,46,47,48]){
   const voice=entries.get(`sunrise-source-${i}-2`).content;
   assert.match(voice,/表面.*口頭禪/s);assert.doesNotMatch(voice,/\*\*真實\*\*|\*\*動機\*\*/);

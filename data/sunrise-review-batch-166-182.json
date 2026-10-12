@@ -1,0 +1,1251 @@
+{
+  "schema": "sunrise-source-review-batch",
+  "version": 1,
+  "sources": [
+    {
+      "source_index": 166,
+      "source_sha256": "dc4cfc12fc2008c3010b10c2e722d036b0480fe30f1681f094508d0ad7f2b732",
+      "source_chars": 834,
+      "review_status": "examined",
+      "publication_status": "partial",
+      "chapters": [
+        {
+          "chapter": 0,
+          "start": 0,
+          "end": 58,
+          "sha256": "dc25d68edef2a1340b1e6dd91d31796c1a643433e21ebce26c683492bbcee6aa",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 1,
+          "start": 58,
+          "end": 317,
+          "sha256": "748a59ec0605c7d65236102144a69e7a57120c1e413bbfe337773664ec8551ce",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 2,
+          "start": 317,
+          "end": 326,
+          "sha256": "aade3a47d27ec7b95ec916f158623df8c8c05737b9690704f10cf9b6a837e92b",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 3,
+          "start": 326,
+          "end": 417,
+          "sha256": "24ee5312a6b7aee664527d9ff8a402ac4a85173e3d840a59efb569b2c97ca1a7",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 4,
+          "start": 417,
+          "end": 508,
+          "sha256": "7f1c459a3c563f45eb3cc8cae5935a2869297822f13aea4bfa304e6439581dc4",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 5,
+          "start": 508,
+          "end": 639,
+          "sha256": "2d32453162d3cdaaee5c24e6c1b1120ecfda3a046346d5ffee83be8e500e1fe6",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 6,
+          "start": 639,
+          "end": 834,
+          "sha256": "5968c1f6e6483bbca1faba428550a2b745a469a9bce8576b2dac28f0f56fabda",
+          "disposition": "withheld-author-source"
+        }
+      ]
+    },
+    {
+      "source_index": 167,
+      "source_sha256": "db1d5948a3bd943c5b30bfa7aade63ec6af3cc2a7a795cbf1db285898cfc246e",
+      "source_chars": 1632,
+      "review_status": "examined",
+      "publication_status": "partial",
+      "chapters": [
+        {
+          "chapter": 0,
+          "start": 0,
+          "end": 250,
+          "sha256": "03f6c1558bbfcc0586656a55cfcca3e497ede33d5b4d77c01b69e472c0b29e98",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 1,
+          "start": 250,
+          "end": 610,
+          "sha256": "14fdede04e33e3c3ff554727f8577a813c84664d3f324975fe6f8a8c7c3dff50",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 2,
+          "start": 610,
+          "end": 1262,
+          "sha256": "f98130e686f9bd1b2c50041b5c0dcf52c7f75948c3a976b81746ae76f4e129fe",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 3,
+          "start": 1262,
+          "end": 1632,
+          "sha256": "021bdbd1eee6e7eb854dc7ad4836cfd57814bb8875c674f5ea74a7ce6773056d",
+          "disposition": "withheld-author-source"
+        }
+      ]
+    },
+    {
+      "source_index": 168,
+      "source_sha256": "28b2c52249844ecafa14e197c183b817a49c2047dfb0a75b99c4b573abfbb2e1",
+      "source_chars": 1999,
+      "review_status": "examined",
+      "publication_status": "partial",
+      "chapters": [
+        {
+          "chapter": 0,
+          "start": 0,
+          "end": 5,
+          "sha256": "cb3f91d54eee30e53e35b2b99905f70f169ed549fd78909d3dac2defc9ed8d3b",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 1,
+          "start": 5,
+          "end": 544,
+          "sha256": "1eb8a986ff332950579db143037ced45f834f4cc1575cfc93719976c89a81efb",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 2,
+          "start": 544,
+          "end": 936,
+          "sha256": "a335741ea52280cc6542ba7d0f86c4e91a0ccd274343ed8df4c47798e8bb0b75",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 3,
+          "start": 936,
+          "end": 1363,
+          "sha256": "888943270facef8852578d4335cc36e6b064771e97bd56be29a34adee70d904b",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 4,
+          "start": 1363,
+          "end": 1692,
+          "sha256": "a0be60391719b5bcc8a2a885e3790b75a6b35263451ca315f6c1fc6c66c5b925",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 5,
+          "start": 1692,
+          "end": 1999,
+          "sha256": "74f5531ea79c5501f8234e5aec8ddb6900d9151a951887483b77fa104d70d833",
+          "disposition": "withheld-author-source"
+        }
+      ]
+    },
+    {
+      "source_index": 169,
+      "source_sha256": "7814023d98d048b414a7c749a096b48e24caae07ae2f34b1f03f0cfd7af766f7",
+      "source_chars": 1883,
+      "review_status": "examined",
+      "publication_status": "partial",
+      "chapters": [
+        {
+          "chapter": 0,
+          "start": 0,
+          "end": 12,
+          "sha256": "1263ee172a8fef665112b77be546c5c6c6fe0a1673405c32debd6b38a41f37c5",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 1,
+          "start": 12,
+          "end": 166,
+          "sha256": "acb30f1bac43d43155f4d1a9872e49bc126c9fd5f28facb1d58eaac66188d1d1",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 2,
+          "start": 166,
+          "end": 179,
+          "sha256": "690f3251faf5cd52eb91a01734212f7a794a6a3e1fb3dae0702e1d4dbef81800",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 3,
+          "start": 179,
+          "end": 669,
+          "sha256": "e5285534cb453818e80a84761148e16569c1f682024cfe6507a8962495db5af5",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 4,
+          "start": 669,
+          "end": 1030,
+          "sha256": "970858cabb27a174481ec69dfbbae7c1a8ca8fd8e0d8c817edfa6b141a083158",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 5,
+          "start": 1030,
+          "end": 1461,
+          "sha256": "02563b19eb6ea66f45b955a0a9091ee1607508970af6f0f35597ee46783d3f31",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 6,
+          "start": 1461,
+          "end": 1745,
+          "sha256": "7888cd8f5dce0396ddf4e433021e8d2c570c985b49d7a541519143bb0e0456a0",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 7,
+          "start": 1745,
+          "end": 1883,
+          "sha256": "cb445e6c6c7c24d5c56e551aec6541da90b4b54efc81fcf7af5c986fda3c0413",
+          "disposition": "withheld-author-source"
+        }
+      ]
+    },
+    {
+      "source_index": 170,
+      "source_sha256": "e03cdbd69f26f2f9f4e95544336731cc9b7bf97cc440b0f8e885cb375ba3c368",
+      "source_chars": 972,
+      "review_status": "examined",
+      "publication_status": "partial",
+      "chapters": [
+        {
+          "chapter": 0,
+          "start": 0,
+          "end": 5,
+          "sha256": "cb3f91d54eee30e53e35b2b99905f70f169ed549fd78909d3dac2defc9ed8d3b",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 1,
+          "start": 5,
+          "end": 337,
+          "sha256": "4dcae2f9ed358184af2d0d8e7afd22afd6b7b6eec203ba1050e6f684c16b8f4c",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 2,
+          "start": 337,
+          "end": 453,
+          "sha256": "d62565cf8580cda82ef50ee519cb3439ec7ca30ea5e257cd990d064e595963b3",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 3,
+          "start": 453,
+          "end": 972,
+          "sha256": "cbf04e04b12ab385e4f2b467c13ab41440f54551cb417ca1bb2d2473de0347a9",
+          "disposition": "withheld-author-source"
+        }
+      ]
+    },
+    {
+      "source_index": 171,
+      "source_sha256": "b1c4118136adcd0423fc2e461e6f133b360dc5412898dfd778a76bd20fabca31",
+      "source_chars": 1962,
+      "review_status": "examined",
+      "publication_status": "partial",
+      "chapters": [
+        {
+          "chapter": 0,
+          "start": 0,
+          "end": 14,
+          "sha256": "af0ac814386be5e27b13d8082118d0357035fd63d6c4bee01390d212b2f11094",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 1,
+          "start": 14,
+          "end": 23,
+          "sha256": "79a1e958289d18c46ed4557723b6dc58d7744fbfef3c73b9ee92ba00b2563e25",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 2,
+          "start": 23,
+          "end": 89,
+          "sha256": "faba791cbc69320995a5eaf5579479623ea51ea7496d84ddc1239b6c114686ee",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 3,
+          "start": 89,
+          "end": 223,
+          "sha256": "d4c5c6b415f363edd34473394041724293eadf4867aaf34fcba0bbb06bbddb86",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 4,
+          "start": 223,
+          "end": 306,
+          "sha256": "5ae84b20c5c6cf0787e2c9186fc0f49ac9282936456eaefaa1ea04ccf887b982",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 5,
+          "start": 306,
+          "end": 320,
+          "sha256": "55de0d77de0c0dd67d81812f9775266410c1657b368153929bc5c34e61b7fc3e",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 6,
+          "start": 320,
+          "end": 525,
+          "sha256": "b03bfab6e45812c4295e72131d200435e274cd101f969b893420143bfe13c7ed",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 7,
+          "start": 525,
+          "end": 602,
+          "sha256": "631c239fd96d164e97597c3db7518c154eed0c73e1b3d07279a467fbe3d21dec",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 8,
+          "start": 602,
+          "end": 661,
+          "sha256": "c89e25e86ff898691278df70fbdc2c732368897811e2d016af7c1c965394272c",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 9,
+          "start": 661,
+          "end": 716,
+          "sha256": "5e6f984161fdf13f611450df5146c0f46a26becfd430bc3b92dbe80735a257bc",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 10,
+          "start": 716,
+          "end": 727,
+          "sha256": "29adfc6ce9c2ea55fec435a5eaf3ef593cfc4fde9058446528a413038be8d407",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 11,
+          "start": 727,
+          "end": 781,
+          "sha256": "ede4a1786ba046802755070b40845bf812ed6f47ac5e6a6f98df76b9603f350d",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 12,
+          "start": 781,
+          "end": 927,
+          "sha256": "ef9bde9c2859cc412751154bc576da072b79fb4a514b22c02819a4f82ee5c1f3",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 13,
+          "start": 927,
+          "end": 995,
+          "sha256": "af7b1ffe7b864b0046b7366c0c2b347e22cb9c684106d31014e455bcc7bb3538",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 14,
+          "start": 995,
+          "end": 1008,
+          "sha256": "fb07bf8d6d138b81cf46d8c97bf0ed2af0696b66d6c825f722cbb8d3c1c255ad",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 15,
+          "start": 1008,
+          "end": 1230,
+          "sha256": "aaadf8247d376e60194c8d85231a2540dd8b8fec5412951c16c84c5726f27db6",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 16,
+          "start": 1230,
+          "end": 1244,
+          "sha256": "6a310ad044ab0f00b3d91974b295309ba5b2b62a073fed0354d3a2cc4a586d30",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 17,
+          "start": 1244,
+          "end": 1299,
+          "sha256": "68e7c1b552d9e6a33df38577030c87105ccd5b2a234b4803cd640bc59a5a1ccc",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 18,
+          "start": 1299,
+          "end": 1329,
+          "sha256": "6a8bba6428b8e481b14617b25ec115b9cc416d23fa605a699114a41e34d64bdf",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 19,
+          "start": 1329,
+          "end": 1383,
+          "sha256": "675bed84fd1da238fc7694c6deb7dc9d8ba65c0f3ab8c7a5c4b15ed0671cfec5",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 20,
+          "start": 1383,
+          "end": 1429,
+          "sha256": "c5d6d49e8a891357f3f394600161dced81b07375093fc3c2af9902db6ec3b470",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 21,
+          "start": 1429,
+          "end": 1449,
+          "sha256": "7f610651a549b9a9855002fe7da8667de4e7d3ca1417026ccd80598fbe4524b4",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 22,
+          "start": 1449,
+          "end": 1526,
+          "sha256": "41a79f6d14b659796f41595772ac563feb3b242feac6431e225af95792e4ef7b",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 23,
+          "start": 1526,
+          "end": 1603,
+          "sha256": "f7b217e90e4fe400dffe22854d0ae303039c6782f8b5bc3a76c05d721ff9c465",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 24,
+          "start": 1603,
+          "end": 1612,
+          "sha256": "2355684da7a6cc38c9900afab9d51bfe8cee9e342eb65653d967c30853cd2bd4",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 25,
+          "start": 1612,
+          "end": 1664,
+          "sha256": "31ca9e39d8f250e25f86698bc36f21081f39cab59cbf9463c4bc222f76feb8cc",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 26,
+          "start": 1664,
+          "end": 1739,
+          "sha256": "f54b87d0c4d3fab1274791083a134b7acdc5fc91e6af55e080d134fc0e44917c",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 27,
+          "start": 1739,
+          "end": 1783,
+          "sha256": "a50c84c93361b24f932fcbaff984fa88f06f7131c03747c53ee05b7e7a15a7be",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 28,
+          "start": 1783,
+          "end": 1848,
+          "sha256": "13babd9ac44844d3087545ca89f3dd24735812cf03bb244492b74f4863895ba8",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 29,
+          "start": 1848,
+          "end": 1857,
+          "sha256": "339bbe52a4157998d71ee078eca605f468654191da9a3fcc0986f0b2014abe3d",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 30,
+          "start": 1857,
+          "end": 1916,
+          "sha256": "284a416541923e185d419daa6b0361357e04f6cb39d4e1e27da54df2df840217",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 31,
+          "start": 1916,
+          "end": 1962,
+          "sha256": "4d01ef9ddf1be3b3a810d04c0be112ec08f43ea7f5662a7a6120585358d45e04",
+          "disposition": "withheld-author-source"
+        }
+      ]
+    },
+    {
+      "source_index": 172,
+      "source_sha256": "1eb38d450c859cd0a14552b017f8bb365570e3af2bd996253ad9c2af504b6640",
+      "source_chars": 845,
+      "review_status": "examined",
+      "publication_status": "partial",
+      "chapters": [
+        {
+          "chapter": 0,
+          "start": 0,
+          "end": 12,
+          "sha256": "6ed9a427d8940538b89f10f5531a3333aa27af2a468a021ecc4a8b93b141722a",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 1,
+          "start": 12,
+          "end": 158,
+          "sha256": "150cc7706d4691c1577a79e648d0cc6e64a6007e2d0da11263f2b0d7acd2af33",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 2,
+          "start": 158,
+          "end": 289,
+          "sha256": "03bb5de1cde5e95ea1a0a5232893bde2ebfdebdc2c12369e84ccfaad1194de77",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 3,
+          "start": 289,
+          "end": 428,
+          "sha256": "d511ca9c7e5d2e83c3719d6e6e9da75eac64b7a44492e51cd81446e068ab2d0d",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 4,
+          "start": 428,
+          "end": 563,
+          "sha256": "8d33dabe2d3e5fc0242321b05bc145b3ff714da5d0fb3092f7b690ffab3edda8",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 5,
+          "start": 563,
+          "end": 574,
+          "sha256": "687a11e9a89eff840379124862eec3d712d072440477f306ce079bbeaacc1bb0",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 6,
+          "start": 574,
+          "end": 845,
+          "sha256": "f5c45f00fa00a39c2e3776cce2acb070ec8a80b6f304a71ef5c2860d04639ac8",
+          "disposition": "withheld-author-source"
+        }
+      ]
+    },
+    {
+      "source_index": 173,
+      "source_sha256": "4184b30083c96d1365aa69911ec10326ddbfb0ccaabd0c486245a7baa3f4d1e6",
+      "source_chars": 1367,
+      "review_status": "examined",
+      "publication_status": "partial",
+      "chapters": [
+        {
+          "chapter": 0,
+          "start": 0,
+          "end": 49,
+          "sha256": "1b5d242ecd9a456c8792577ff1775e35b1f404383560dc4dfab2081deddd25cd",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 1,
+          "start": 49,
+          "end": 169,
+          "sha256": "7c17cea93294d7bfecd281f83c7a7f6ec34bae82795e5b43c642af992104da02",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 2,
+          "start": 169,
+          "end": 314,
+          "sha256": "ab37dd9dbcd48651e8bf65088275c34e636f4773db014f098a5d855fddac9b92",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 3,
+          "start": 314,
+          "end": 404,
+          "sha256": "897167fa52ef1ff4ecfe546d193ec78cfe6a030e439eae8323044b7b69c60f04",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 4,
+          "start": 404,
+          "end": 578,
+          "sha256": "8a0031fdd9de5f1c08af478d3bc37d0c684e5f0977134fc907689d4d4c53d9d3",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 5,
+          "start": 578,
+          "end": 717,
+          "sha256": "919af05f2b1f4eb171043f64e89514a7e2baf98b98d3caf38114c5baaf1c3e1f",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 6,
+          "start": 717,
+          "end": 841,
+          "sha256": "78a9d3a455e5718ea40ee88c7e810cc3fc5b49627c4379923df1c6ccceba5c4b",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 7,
+          "start": 841,
+          "end": 896,
+          "sha256": "125bc3485225376e8d0271af66911abdc70822d67084dbfbb5090a25709011d7",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 8,
+          "start": 896,
+          "end": 966,
+          "sha256": "ff25ebf84026c558b92167ed8e4c46bb60c45089f6f4476163e1cc45e3a7efe9",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 9,
+          "start": 966,
+          "end": 1032,
+          "sha256": "2305b8dcab546aea25e98347c3ebae6a5b9075be6ad96e88fde0fc1c8764fda4",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 10,
+          "start": 1032,
+          "end": 1199,
+          "sha256": "5af64cc67a2d6e90501e709b1043e32ac55cb4fdb5d1bed2164c60ec4e64d396",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 11,
+          "start": 1199,
+          "end": 1315,
+          "sha256": "b3337b30d0a682fad47920121ec6e3ce2644ea2fabd7d013c0c4852ecae694a6",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 12,
+          "start": 1315,
+          "end": 1367,
+          "sha256": "5b3f8c0c4ca216eacb2bdb072ba74eb9b9182ce985e1fcf15b5efc862c8dd167",
+          "disposition": "withheld-author-source"
+        }
+      ]
+    },
+    {
+      "source_index": 174,
+      "source_sha256": "96c3e8ab106ffe3f4fb5a799695c7321af9c55eae1e946455e6a6723f2978523",
+      "source_chars": 1424,
+      "review_status": "examined",
+      "publication_status": "partial",
+      "chapters": [
+        {
+          "chapter": 0,
+          "start": 0,
+          "end": 50,
+          "sha256": "24ff979318e1416634ed96150dd8cc793a54f6b25194ed7f98100ef4543f720e",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 1,
+          "start": 50,
+          "end": 188,
+          "sha256": "0806313bf42c66015ae1879e7db67f3b1d1d8402c27b7207211fe9586e05c0a7",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 2,
+          "start": 188,
+          "end": 322,
+          "sha256": "576d91ff99b7cf40a8b22397120a2c30cc04664451d679caa463749e2ebbd8cd",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 3,
+          "start": 322,
+          "end": 413,
+          "sha256": "55f7786289e22bc360e04db76b63d7845fdbe5ce2866a33f0d6c955601698a4b",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 4,
+          "start": 413,
+          "end": 583,
+          "sha256": "9d1378cf03a11eb28ffec98e78123fa59670e202013380ee874d5c26d7b08155",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 5,
+          "start": 583,
+          "end": 717,
+          "sha256": "65aa0e185b2b94eb137189e1fd76844cc549792ec2c9ae170eebc9727bef6261",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 6,
+          "start": 717,
+          "end": 853,
+          "sha256": "8768f9a0dff4e449751cccd76f672a91499d95b626aa9c28eb6e82bde7694438",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 7,
+          "start": 853,
+          "end": 932,
+          "sha256": "8f8ea40e229646955bfc857621ee70f7fbf1c9165f76280d70be0ad3f1fd161d",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 8,
+          "start": 932,
+          "end": 1013,
+          "sha256": "36cece41f26a2c1de4910f03fb9e060c005a581fdf0995f8f20d74d2b36ee8ab",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 9,
+          "start": 1013,
+          "end": 1077,
+          "sha256": "b41f57d2f030e9261e7159a49aae354d8222d8d4f61fc06834dc84d7f3531e78",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 10,
+          "start": 1077,
+          "end": 1241,
+          "sha256": "239eb436e7b21d09427ce5c16ed796424f6d73c4116f17e890fa2a73aecb1726",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 11,
+          "start": 1241,
+          "end": 1355,
+          "sha256": "884746397540a0df77e3a4eea2910d8ebf3b3a9a5fc74415e428e325a5eb65d4",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 12,
+          "start": 1355,
+          "end": 1424,
+          "sha256": "f174343f5726ac402a0e484dc4a568e1e221345c19176439f0c8c9b48c58dea2",
+          "disposition": "withheld-author-source"
+        }
+      ]
+    },
+    {
+      "source_index": 175,
+      "source_sha256": "eca0402839db0c3c8f6a0697d9ed5b00807d79f9bc600aca42d6956cce4a66c3",
+      "source_chars": 165,
+      "review_status": "examined",
+      "publication_status": "partial",
+      "chapters": [
+        {
+          "chapter": 0,
+          "start": 0,
+          "end": 165,
+          "sha256": "eca0402839db0c3c8f6a0697d9ed5b00807d79f9bc600aca42d6956cce4a66c3",
+          "disposition": "withheld-author-source"
+        }
+      ]
+    },
+    {
+      "source_index": 176,
+      "source_sha256": "5b728bf76b2c2b9efab81125e1de79799399751feaae59285a28700290629d14",
+      "source_chars": 569,
+      "review_status": "examined",
+      "publication_status": "partial",
+      "chapters": [
+        {
+          "chapter": 0,
+          "start": 0,
+          "end": 13,
+          "sha256": "3b7eb98123d6ee3eb3bb8c6123392bccf13d12d7b6332f543800b34884e5843c",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 1,
+          "start": 13,
+          "end": 233,
+          "sha256": "cf71ac02e43f123b30e9de7c67bc2e018efe055c9fcf1e579b1ad8c2966e619c",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 2,
+          "start": 233,
+          "end": 414,
+          "sha256": "a5491ff47290f17d76267cce7a066cacb74ae08431e47e6f22815c7a8b1ba868",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 3,
+          "start": 414,
+          "end": 569,
+          "sha256": "549361c6e3831bfdead0dbcdc0240c3a1ae467bcb51a0ca95b22084465c5f24b",
+          "disposition": "withheld-author-source"
+        }
+      ]
+    },
+    {
+      "source_index": 177,
+      "source_sha256": "8a38b9816ebc551e76de5a76e61e17d2010d0925cb2383f2f2fc6589867f2e3e",
+      "source_chars": 936,
+      "review_status": "examined",
+      "publication_status": "partial",
+      "chapters": [
+        {
+          "chapter": 0,
+          "start": 0,
+          "end": 13,
+          "sha256": "238258dcc192beccb05d27ac98508667f98e4d1df0308cf8f31f920303739f94",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 1,
+          "start": 13,
+          "end": 138,
+          "sha256": "a74e07ca8cb71e9a73a2602bf36f1cc10b0bfafc7c1168ba6481c302cea8ed6a",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 2,
+          "start": 138,
+          "end": 413,
+          "sha256": "b3645967560b74c53a7754979fc6ab1b34d49a2a164a292c2186957454850299",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 3,
+          "start": 413,
+          "end": 698,
+          "sha256": "5b65c88592aca233e97418eff190dfc1f6ff00070b18126abc251a044d85ce27",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 4,
+          "start": 698,
+          "end": 936,
+          "sha256": "765cb4594b72080aff2908cceb0a08d467737a6d6ebdbce3430cea29a1b44d32",
+          "disposition": "withheld-author-source"
+        }
+      ]
+    },
+    {
+      "source_index": 178,
+      "source_sha256": "461c9582817d64c7305fc20634b1d16da9f0a923e4f38a41f0db364670430a0e",
+      "source_chars": 1234,
+      "review_status": "examined",
+      "publication_status": "partial",
+      "chapters": [
+        {
+          "chapter": 0,
+          "start": 0,
+          "end": 5,
+          "sha256": "cb3f91d54eee30e53e35b2b99905f70f169ed549fd78909d3dac2defc9ed8d3b",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 1,
+          "start": 5,
+          "end": 41,
+          "sha256": "4a438bddca60ddf362faa6c57aecb8449a75c7424cd696cad228f8627e81ef92",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 2,
+          "start": 41,
+          "end": 150,
+          "sha256": "bbfe7d2f7bc622e44820d1b4a4ca5196346a3ba76a734dcde0920c123341c1e5",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 3,
+          "start": 150,
+          "end": 250,
+          "sha256": "322734978239a5e18be8f7a7a6cd82864bde326c09884e1a0b1321220e462734",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 4,
+          "start": 250,
+          "end": 343,
+          "sha256": "d708310ea7b6621ccb909328c69d92a7338e987cb7e9ee05ff8a82696ef42090",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 5,
+          "start": 343,
+          "end": 435,
+          "sha256": "103a8b8f092854a13a63e91ed70a8156bbe928e6fdbe90f1c56deaa10e69a7e0",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 6,
+          "start": 435,
+          "end": 554,
+          "sha256": "7012c9632ca2b3f0efb505ee3702b7aef470058aa14b362449109e3fa2ca0899",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 7,
+          "start": 554,
+          "end": 676,
+          "sha256": "829080c14cb6482f64be87fb518655a43291a76de2859235eefc4419779e8529",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 8,
+          "start": 676,
+          "end": 775,
+          "sha256": "c1c3a1f03c29f4ef7d218eb932d7b66eda2063c5771ebe73813fb4fda2698381",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 9,
+          "start": 775,
+          "end": 860,
+          "sha256": "dcbc1f3ee81e1d9d9a987b313e3a63906bfe14746bb9ed050a42d3288bc58bdc",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 10,
+          "start": 860,
+          "end": 962,
+          "sha256": "bdbe32b15a20e4b7c12b317284426a7c5caa051550acc3382a193b926814d011",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 11,
+          "start": 962,
+          "end": 1093,
+          "sha256": "b1d6e390a5be7fd385309a7c945540438c7a764015c20db1c4a2d0d8ab4771b2",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 12,
+          "start": 1093,
+          "end": 1194,
+          "sha256": "6740ea768c637df78f1b67a8e01f063daf6d1e3723ccb45b40f9d1118af69923",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 13,
+          "start": 1194,
+          "end": 1234,
+          "sha256": "a8f9952acca334f94b80965a570199fc2b97f665910c5ab54eb325f013abc69e",
+          "disposition": "withheld-author-source"
+        }
+      ]
+    },
+    {
+      "source_index": 179,
+      "source_sha256": "8259c4c023994183844a71cd540c8326c2c9f931105a1b854d3b2dca6b0fcf05",
+      "source_chars": 1584,
+      "review_status": "examined",
+      "publication_status": "partial",
+      "chapters": [
+        {
+          "chapter": 0,
+          "start": 0,
+          "end": 51,
+          "sha256": "b6d8a496311cfde4a715e0c6bc86417adf149b2519a95bf8d903ec8ad8c04118",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 1,
+          "start": 51,
+          "end": 70,
+          "sha256": "6b3c32451de570be19d7ec931df252340a85006085766ac29b5308423a7a9b2f",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 2,
+          "start": 70,
+          "end": 504,
+          "sha256": "262162b90f5e07c76bf3a84021afec0e142da1ff06aeeac65ae9f0aa1b048cb4",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 3,
+          "start": 504,
+          "end": 844,
+          "sha256": "da842101b3ac6d0945d462a3009b8eb0293b320c0bb09cc977fafedcb082cc27",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 4,
+          "start": 844,
+          "end": 862,
+          "sha256": "9100489adaa89fcc20b715ce307454b261badac6d91dacf794b81c3053d9e7c8",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 5,
+          "start": 862,
+          "end": 1110,
+          "sha256": "44fd728f1a96e689748526b438841e443ef3f40578ed693ff9cb37c1e9055d6b",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 6,
+          "start": 1110,
+          "end": 1358,
+          "sha256": "584e30ab44845a1267ff36791a513d9b1c54d5ec0960bf2cac01465528a7bd18",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 7,
+          "start": 1358,
+          "end": 1584,
+          "sha256": "4d8487423a1c2173c28c97467ab6fb154e849f3541a6873d62020b9df419b83c",
+          "disposition": "withheld-author-source"
+        }
+      ]
+    },
+    {
+      "source_index": 180,
+      "source_sha256": "1d4895da9af4ae4beea2206df8bc57563f3226ca8b5997a525747ec51dfccad6",
+      "source_chars": 1659,
+      "review_status": "examined",
+      "publication_status": "partial",
+      "chapters": [
+        {
+          "chapter": 0,
+          "start": 0,
+          "end": 276,
+          "sha256": "2d64482fe4713c876ea0ed83ca5f3f36582f85b011804e65f0812b2445901817",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 1,
+          "start": 276,
+          "end": 507,
+          "sha256": "949a648fe884ff2c2de9e9dda76cf99d1fad72e1a61b0fb1b3c1ecd974c211dc",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 2,
+          "start": 507,
+          "end": 719,
+          "sha256": "602cbe0b81a606ce773fdc212ebc0e71411685e905bcb2c7e1ec6987cf737f8b",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 3,
+          "start": 719,
+          "end": 926,
+          "sha256": "f88b3878bd8b4951db9b751842780322ced1da72154d466daf32d006c620f0d0",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 4,
+          "start": 926,
+          "end": 1131,
+          "sha256": "350d4a87ff9058f9cac2c25ab8e5220cc7ed0225910c1f4957ae947d738b2e86",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 5,
+          "start": 1131,
+          "end": 1340,
+          "sha256": "8c5e1eb4acf598f071e6e6856f6c3b63763f6ed3b7517d5db7126eac4ce84700",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 6,
+          "start": 1340,
+          "end": 1551,
+          "sha256": "fd498e1ef5ae8a00b9861841599a92800dcd1d9f16b83be10439ae61ba074f22",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 7,
+          "start": 1551,
+          "end": 1659,
+          "sha256": "bdc645226c2e9ce3c1a441cb934245fc72d52b344f67bfa110b51990f5d3aca5",
+          "disposition": "withheld-author-source"
+        }
+      ]
+    },
+    {
+      "source_index": 181,
+      "source_sha256": "7c27668484bd069c9c30af513d422773147ecbbeec048eec31754d02acad7283",
+      "source_chars": 1998,
+      "review_status": "examined",
+      "publication_status": "partial",
+      "chapters": [
+        {
+          "chapter": 0,
+          "start": 0,
+          "end": 17,
+          "sha256": "39e9f0df7bac58f1f34aea7b0bae10c80c494f542324d46aa13579f0e436acfc",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 1,
+          "start": 17,
+          "end": 105,
+          "sha256": "c7ce1725f4377fda769720d6d0a4a07bfec91d5ec46f48fc007bf4316cb95244",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 2,
+          "start": 105,
+          "end": 396,
+          "sha256": "169a3dc891236f24d2e2584045a9d663f11b6651af9b745f2dc0b539937d589a",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 3,
+          "start": 396,
+          "end": 416,
+          "sha256": "6d775bf27a26038d877ef4bbf892f628e9a44d40762da109df3f03302c0c3efa",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 4,
+          "start": 416,
+          "end": 554,
+          "sha256": "aa147a0b0ab0147f4d7e03f782b25601f83219763db52cf932d8f21b8ba37ada",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 5,
+          "start": 554,
+          "end": 741,
+          "sha256": "009d6cedeef06edb896fd390ee6a164974b14626ab4fd0ef8c4212fcdcf5e531",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 6,
+          "start": 741,
+          "end": 976,
+          "sha256": "fdff3444a26f31f34e983ea643ba26eb53fb112f10daacb665b89c484bf27d75",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 7,
+          "start": 976,
+          "end": 996,
+          "sha256": "a98d420f9692233db9b26bc46171643b23c7bd6e47d2d6936bdd1cf7d0f2485b",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 8,
+          "start": 996,
+          "end": 1079,
+          "sha256": "4e602e21889201edd900bef376b5853401411cc2465270446b205233b2f0b48b",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 9,
+          "start": 1079,
+          "end": 1228,
+          "sha256": "e61a6c875bd50654b72ae6372b23a3a4eefc66785d4ea41462c79cbe40bebdce",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 10,
+          "start": 1228,
+          "end": 1401,
+          "sha256": "26dd5c39f6714e767df11ef645a1cd0ce612729da814cefc0240728e842407f5",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 11,
+          "start": 1401,
+          "end": 1420,
+          "sha256": "12f41745617427b5986a374804e68e3dc193dcd9230aa63deb6317be2f90fd4b",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 12,
+          "start": 1420,
+          "end": 1638,
+          "sha256": "a380e099d44175d52dcb4711bb5ec1e581b2fabbc48b664a30a905f731e4edce",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 13,
+          "start": 1638,
+          "end": 1754,
+          "sha256": "88dd55d2b31d09322fac5161c4d2385115a7d5c2f8355b3d3db8a4b254eff3c8",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 14,
+          "start": 1754,
+          "end": 1792,
+          "sha256": "457a4f80b6df6b90c83cc7475d3b49eafb9b48bbaacd03453b9836866b7ba72b",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 15,
+          "start": 1792,
+          "end": 1998,
+          "sha256": "4541dea36d78d9c58f504936b3bbd0a35db3503a626e15fff7cc8dcfbb2a08ab",
+          "disposition": "withheld-author-source"
+        }
+      ]
+    },
+    {
+      "source_index": 182,
+      "source_sha256": "baf6c8fc9c4f8a957614e8ca055eb4c13a3e0a2b160b79450fdf301be015d9a6",
+      "source_chars": 498,
+      "review_status": "examined",
+      "publication_status": "partial",
+      "chapters": [
+        {
+          "chapter": 0,
+          "start": 0,
+          "end": 153,
+          "sha256": "1c4f1568d4f67ec01bd15001fc3bc3741fced3105ffc5f3d4387ae6e97e437ec",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 1,
+          "start": 153,
+          "end": 169,
+          "sha256": "9104df3abf783b76dd5a356097c7fe040e7275c54a555fa4e83868d2024c20a0",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 2,
+          "start": 169,
+          "end": 190,
+          "sha256": "6ff2c7c857bc90b7f5d39abb53f22fb7fe5b64d4eedefaaa8ce8e94742323ce0",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 3,
+          "start": 190,
+          "end": 212,
+          "sha256": "ea25124b30313ea2ffb9d6deb6f359d0523148cf131337b80c58db6eefb21036",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 4,
+          "start": 212,
+          "end": 380,
+          "sha256": "f2ba883c6c23d175ac1b2b68c034fb499569c0667f6b1132b5dffd1f460d71a8",
+          "disposition": "withheld-author-source"
+        },
+        {
+          "chapter": 5,
+          "start": 380,
+          "end": 498,
+          "sha256": "65e2816f537c407fb8cf5e3aba75dab9f69d7d3476417dfada579365728927fc",
+          "disposition": "withheld-author-source"
+        }
+      ]
+    }
+  ]
+}

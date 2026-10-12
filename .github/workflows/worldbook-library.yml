@@ -36,6 +36,13 @@ on:
       - 'scripts/audit-sunrise-review-batch.py'
       - 'data/sunrise-review-batch-29-48.json'
       - 'tests/sunrise-review-29-48.cjs'
+      - 'data/sunrise-review-batch-121-135.json'
+      - 'tests/sunrise-review-121-135.cjs'
+      - 'data/sunrise-review-batch-136-150.json'
+      - 'tests/sunrise-review-136-150.cjs'
+      - 'data/sunrise-review-batch-151-165.json'
+      - 'tests/sunrise-review-151-165.cjs'
+      - 'tests/sunrise-review-residual.cjs'
       - 'tests/sunrise-character-review.cjs'
       - 'scripts/plan-sunrise-integration.py'
       - 'data/sunrise-integration-plan.json'
@@ -103,6 +110,13 @@ on:
       - 'scripts/audit-sunrise-review-batch.py'
       - 'data/sunrise-review-batch-29-48.json'
       - 'tests/sunrise-review-29-48.cjs'
+      - 'data/sunrise-review-batch-121-135.json'
+      - 'tests/sunrise-review-121-135.cjs'
+      - 'data/sunrise-review-batch-136-150.json'
+      - 'tests/sunrise-review-136-150.cjs'
+      - 'data/sunrise-review-batch-151-165.json'
+      - 'tests/sunrise-review-151-165.cjs'
+      - 'tests/sunrise-review-residual.cjs'
       - 'tests/sunrise-character-review.cjs'
       - 'scripts/plan-sunrise-integration.py'
       - 'data/sunrise-integration-plan.json'
@@ -158,6 +172,10 @@ jobs:
           node tests/sunrise-review-76-90.cjs
           node tests/sunrise-review-91-105.cjs
           node tests/sunrise-review-106-120.cjs
+          node tests/sunrise-review-121-135.cjs
+          node tests/sunrise-review-136-150.cjs
+          node tests/sunrise-review-151-165.cjs
+          node tests/sunrise-review-residual.cjs
           node tests/sunrise-mature-scenario-core.cjs
           node tests/sunrise-integration-core.cjs
           python tests/sunrise-reconciliation.py

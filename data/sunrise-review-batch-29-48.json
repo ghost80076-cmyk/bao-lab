@@ -51,7 +51,7 @@
       "source_sha256": "68ee5b8bac88a6445fd803428013c1e102b05149f727d764bae0a003e3f8b31d",
       "source_chars": 671,
       "review_status": "examined",
-      "publication_status": "unreviewed",
+      "publication_status": "partial",
       "chapters": [
         {
           "chapter": 0,
@@ -81,7 +81,7 @@
       "source_sha256": "63651c9c2f9cfd935994d803c5a805d826212e1afd59bc0d6ea3fafa803d5c5c",
       "source_chars": 1816,
       "review_status": "examined",
-      "publication_status": "unreviewed",
+      "publication_status": "partial",
       "chapters": [
         {
           "chapter": 0,
@@ -132,7 +132,7 @@
       "source_sha256": "c5d16907460e4106f01503bc15a991449fe128a05801e59c87744a4a7889af5d",
       "source_chars": 1253,
       "review_status": "examined",
-      "publication_status": "unreviewed",
+      "publication_status": "partial",
       "chapters": [
         {
           "chapter": 0,
