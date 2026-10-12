@@ -22,6 +22,9 @@ NAMES = {**NAMES, **LATE_NAMES}
 from sunrise_review_91_105 import ALLOWED as NEW_ALLOWED, NAMES as NEW_NAMES, ALIASES as NEW_ALIASES, LABELS as NEW_LABELS, KEYWORDS as NEW_KEYWORDS, chapter_spans as new_spans
 ALLOWED = {**ALLOWED, **NEW_ALLOWED}
 NAMES = {**NAMES, **NEW_NAMES}
+from sunrise_review_106_120 import ALLOWED as FINAL_ALLOWED, NAMES as FINAL_NAMES, LABELS as FINAL_LABELS, KEYWORDS as FINAL_KEYWORDS, chapter_spans as final_spans, project as final_project
+ALLOWED = {**ALLOWED, **FINAL_ALLOWED}
+NAMES = {**NAMES, **FINAL_NAMES}
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 SOURCES = {
  76: ('76bbdae9f9249bde6eedf4616b8bde2d3e537a2357745760489215f8937fab8e', 'sunrise-professional-people', '曙光市｜人物公開參考（不代表在場）', ['炎月夜'], {0,1,2,5}),
@@ -112,6 +115,16 @@ SOURCES = {
  117: ('c00a586d409b6aafe79ee808a51c6c8da3aa68a94685ac46af01ca410c2ad946', 'sunrise-triumph-background', '曙光市｜凱旋企業公開背景', ['凱旋企業集團'], {0,5}),
  119: ('008d68578c55d678edf854d2414dbd52233b7631048e07dae1c80febe09222c6', 'sunrise-prison-background', '曙光市｜第一監獄設施與生活', ['曙光市第一監獄'], {0,3,4}),
  120: ('3bf1f5a14ff484b98b3858b4b09300059ffcab21e059cb28f6a49dfc5fca0226', 'sunrise-prison-background', '曙光市｜第一監獄設施與生活', ['曙光市第一監獄'], {1}),
+ 106: ('0b2c3b648ddf5b1ee6cb0c172ad5c9ab15df7d8608219a5d3b13f7fd8b0193a3', 'sunrise-south-geography', '曙光市｜南區案件來源（不公開）', ['南區'], set()),
+ 108: ('8eec45ac64500fa26c50bf7ba0a5089617343f8c91fc60dfbf68b567f7449b78', 'sunrise-police-background', '曙光市｜警局公開職能（不公開）', ['曙光市警局'], set()),
+ 109: ('b38a60daed83af16c91b64f9b59de14d426e9b5b6cfb2ef5718e363bb8706dcc', 'sunrise-police-background', '曙光市｜警局腐敗來源（不公開）', ['曙光市警局'], set()),
+ 110: ('b2f234d4688c068b509ca37375872ee726ac9e84ede3fe18463d2aa09117f412', 'sunrise-triad-background', '曙光市｜三合會公開背景', ['三合會'], {0}),
+ 111: ('2e0f964a6612e22b960adc157667824c916868f62b4571d40eca0bfc8d457616', 'sunrise-triad-background', '曙光市｜三合會分支來源（不公開）', ['三合會'], set()),
+ 112: ('df794bc7841f0219c1de1ae6010aa1897674488f4bdaec29e8eedbd62f9142ac', 'sunrise-triad-background', '曙光市｜三合會業務來源（不公開）', ['三合會'], set()),
+ 114: ('614c9cbba149bb2194f2c6122d56bfa8135a5801ebedbd1fdc9001b810a8dc3e', 'sunrise-wolf-background', '曙光市｜狼幫關係背景（不公開）', ['狼幫'], set()),
+ 115: ('5b072a7b0ad3ef2bf96ccd1bd1e5ddbc61148c3bbd0938fd331451d9c614ddcd', 'sunrise-iron-chain-background', '曙光市｜鐵鏈組織公開背景', ['鐵鏈組織'], {0}),
+ 116: ('8c065f89af69fafb18446cf3d5f4b1447808dc0b05acc55680aa083978a9b3ec', 'sunrise-iron-chain-background', '曙光市｜鐵鏈組織關係來源（不公開）', ['鐵鏈組織'], set()),
+ 118: ('a388a8884f7dd0f96c862b2fd563dc471c61eeca2314fd0dd9c01ec6b11b6eb7', 'sunrise-origin-project-hold', '曙光市｜源點計畫來源（不公開）', ['源點計畫'], set()),
  5: ('2c6d6f17185d0b6e682d602ddaa575cb33e76bcb40399b852f9be1be208fe6ba', 'sunrise-abandoned-dock', '曙光市｜廢棄碼頭基本地理', ['廢棄9號碼頭', '廢棄 9 號碼頭', '9 號碼頭', '9號碼頭'], {1}),
  6: ('48e9e1a2e2866153b5891928880c317ff90f65ce2fa58e06edf4ed16f1873bc5', 'sunrise-dock-scenario', '曙光市｜廢棄碼頭劇情方向', ['廢棄9號碼頭', '廢棄 9 號碼頭', '9 號碼頭', '9號碼頭'], {3}),
  8: ('4fc9905b80b7306b35c7be622cc4dc774b92cc64850811da745b30030dd708cc', 'sunrise-police-people', '曙光市｜警方與海關背景（不代表在場）', ['林雨萱'], {0,1}),
@@ -143,7 +156,7 @@ def build(zip_path):
    raise ValueError('Source changed; review again')
   starts = [m.start() for m in re.finditer(r'^#{2,3} ' if 43 <= index <= 48 else r'^#### ' if index in (35,36,37,38,39,40,41,42) else r'^#{2,3} ' if index == 138 else r'^## ' if index in (0, 1, 2, 3, 4, 5, 6) else r'^### ', content, re.M)]
   if not starts or starts[0] != 0: starts.insert(0,0)
-  spans = new_spans(index,content) if index in NEW_ALLOWED else late_spans(index,content) if 76 <= index <= 90 else review_spans(index,content) if 61 <= index <= 75 else family_spans(index,content) if 49 <= index <= 60 else list(zip(starts, starts[1:] + [len(content)]))
+  spans = final_spans(index,content) if index in FINAL_ALLOWED else new_spans(index,content) if index in NEW_ALLOWED else late_spans(index,content) if 76 <= index <= 90 else review_spans(index,content) if 61 <= index <= 75 else family_spans(index,content) if 49 <= index <= 60 else list(zip(starts, starts[1:] + [len(content)]))
   entries, review = [], []
   for part, (start,end) in enumerate(spans):
    value = content[start:end].strip(); title = value.splitlines()[0].lstrip('# ').strip()
@@ -153,7 +166,9 @@ def build(zip_path):
     record['review_lane'] = 'public-reference' if kept else 'withheld-author-source'
     record['requires_further_review'] = not kept
    if kept:
-    value, decisions = reconcile_chapter(index, part, value)
+    decisions, value = [], value
+    value, reconciliation = reconcile_chapter(index, part, value)
+    decisions = decisions + reconciliation
     if decisions:
      record['reconciliation'] = decisions
      record['published_sha256'] = sha(value)
@@ -175,8 +190,8 @@ def build(zip_path):
      (34,0): ['異能分類', '八大主類'], (34,4): ['異能監控等級', '異能者管理局監控']
     }.get((index, part), keywords)
     if index==26: recall_keywords=[INSTITUTION_NAMES[part]]
-    recall_keywords=NEW_KEYWORDS.get((index,part),NEW_ALIASES.get(index)) or LATE_KEYWORDS.get((index,part),LATE_ALIASES.get(index)) or REVIEW_KEYWORDS.get((index,part),ALIASES.get(index)) or FAMILY_KEYWORDS.get((index,part),CHAPTER_KEYWORDS.get((index,part),recall_keywords))
-    title=NEW_LABELS.get((index,part),LATE_LABELS.get((index,part),REVIEW_LABELS.get((index,part),FAMILY_LABELS.get((index,part),title))))
+    recall_keywords=FINAL_KEYWORDS.get((index,part)) or NEW_KEYWORDS.get((index,part),NEW_ALIASES.get(index)) or LATE_KEYWORDS.get((index,part),LATE_ALIASES.get(index)) or REVIEW_KEYWORDS.get((index,part),ALIASES.get(index)) or FAMILY_KEYWORDS.get((index,part),CHAPTER_KEYWORDS.get((index,part),recall_keywords))
+    title = FINAL_LABELS.get((index,part)) or NEW_LABELS.get((index,part)) or LATE_LABELS.get((index,part)) or REVIEW_LABELS.get((index,part)) or FAMILY_LABELS.get((index,part), title)
     entries.append({'id':eid,'title':name+'｜'+(keywords[0]+'｜' if 8 <= index <= 28 or 43 <= index <= 48 or index in REVIEW_NAMES else '')+title,'category':'人物資料' if 8 <= index <= 28 or 43 <= index <= 48 or index in REVIEW_NAMES or index==73 else '世界資料','mode':'keyword','keywords':recall_keywords + ({1:['曙光金融大廈','天際商場','凱旋企業總部','司法大廈','曙光國際會議中心'],2:['曙光證券交易所','泰坦科技','晨曦集團','極光製藥','銀河傳媒']} .get(part, []) if index == 1 else []),'content':value})
    review.append(record)
   groups = [(pack_id, name, entries)]

@@ -3175,7 +3175,7 @@
       "entries": [
         {
           "id": "sunrise-source-113-0",
-          "title": "曙光市｜狼幫組織背景｜**名稱**：狼幫 (Wolf Gang)",
+          "title": "曙光市｜狼幫組織背景｜狼幫｜公開組織輪廓",
           "category": "世界資料",
           "mode": "keyword",
           "keywords": [
@@ -3185,7 +3185,7 @@
         },
         {
           "id": "sunrise-source-113-1",
-          "title": "曙光市｜狼幫組織背景｜**【組織歷史與理念】**",
+          "title": "曙光市｜狼幫組織背景｜狼幫｜公開歷史背景",
           "category": "世界資料",
           "mode": "keyword",
           "keywords": [
@@ -3813,6 +3813,58 @@
             "曙光市第一監獄"
           ],
           "content": "### **合法收入**\n\n**囚犯勞動**\n- 工廠工作（製作家具、縫製衣物）\n- 清潔工作\n- 農場工作（監獄自營農場）\n\n**每月工資**：約500-1000元（可購買獄中商品）\n\n---"
+        }
+      ]
+    },
+    {
+      "schema": "yorubay-worldbook-pack",
+      "version": 1,
+      "meta": {
+        "id": "sunrise-triad-background",
+        "name": "曙光市｜三合會公開背景",
+        "world": "sunrise-city",
+        "classification": "world",
+        "author": "班長／肉包",
+        "release": "1.1.0",
+        "visibility": "public",
+        "source": "囚徒的自白原始來源｜失序之城配套採用版（2026-10-11）"
+      },
+      "entries": [
+        {
+          "id": "sunrise-source-110-0",
+          "title": "曙光市｜三合會公開背景｜三合會｜公開組織輪廓",
+          "category": "世界資料",
+          "mode": "keyword",
+          "keywords": [
+            "三合會"
+          ],
+          "content": "**名稱**：三合會 (Triad)\n**性質**：黑幫組織、有組織犯罪集團\n**成立時間**：15 年前（血色七月期間崛起）\n**總部**：港口工業區廢棄造船廠 + 中央商業區秘密據點\n**勢力範圍**：港口工業區（核心）、紅燈區（70% 控制）、東區平民區部分、中央商業區灰色產業\n**成員數量**：核心成員約 500 人，外圍成員約 2000 人，合作對象數千人\n**現任老大**：陳大海（48 歲，10 年前繼任）\n**組織顏色**：黑色與紅色\n**組織標誌**：三個交疊的圓圈（象徵天地人三才）\n\n---"
+        }
+      ]
+    },
+    {
+      "schema": "yorubay-worldbook-pack",
+      "version": 1,
+      "meta": {
+        "id": "sunrise-iron-chain-background",
+        "name": "曙光市｜鐵鏈組織公開背景",
+        "world": "sunrise-city",
+        "classification": "world",
+        "author": "班長／肉包",
+        "release": "1.1.0",
+        "visibility": "public",
+        "source": "囚徒的自白原始來源｜失序之城配套採用版（2026-10-11）"
+      },
+      "entries": [
+        {
+          "id": "sunrise-source-115-0",
+          "title": "曙光市｜鐵鏈組織公開背景｜鐵鏈組織｜公開組織輪廓",
+          "category": "世界資料",
+          "mode": "keyword",
+          "keywords": [
+            "鐵鏈組織"
+          ],
+          "content": "**名稱**：鐵鏈組織 (Iron Chain Organization)\n**性質**：僱傭兵組織、軍火商、雙面黑幫\n**成立時間**：10年前（血色七月後5年成立）\n**總部**：南區片區C廢棄化工廠\n**勢力範圍**：南區片區C、A（核心）、部分港口工業區、國際網絡\n**成員數量**：核心成員約150人，外圍成員約300人，國際合作者數百人\n**現任領導者**：Victor（42歲，東歐裔）\n**組織顏色**：黑色與銀色\n**組織標誌**：斷裂的鐵鏈\n\n---"
         }
       ]
     },
