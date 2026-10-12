@@ -141,7 +141,7 @@ assert.deepEqual(hostedResolved, [
   { id: 'claude-sonnet-4.6', provider: 'openrouter', model: 'anthropic/claude-sonnet-4.6' },
   { id: 'claude-opus-4.6', provider: 'openrouter', model: 'anthropic/claude-opus-4.6' },
   { id: 'claude-opus-5.5', provider: 'openrouter', model: 'anthropic/claude-opus-5.5' }
-], 'hosted list should preserve legacy choices while adding Gemini 3.7/3.8 and Claude 5.5'
+], 'hosted list should preserve legacy choices while adding Gemini 3.7/3.8 and Claude 5.5');
 
 const appSource = fs.readFileSync(path.join(root, 'js/app.js'), 'utf8');
 assert.match(appSource, /modelRegistry:\s*null/);
