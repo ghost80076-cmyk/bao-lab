@@ -1,7 +1,7 @@
 {
   "schema": "yorubay-world-simulator-layer-review",
   "version": 1,
-  "scope": "Metadata-only routing of 18 common author sources; no raw bodies, no new command handlers, no full integration claim.",
+  "scope": "Metadata-only routing of 19 common author sources; no raw bodies, no new command handlers, no full integration claim.",
   "decisions": [
     {
       "canonical_source_index": 32,
@@ -284,6 +284,20 @@
         {
           "path": "js/character-status-ui.js",
           "needle": "不會讀取作者隱藏設定"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 92,
+      "route": "author-writing-preference",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "reason": "章回標題、詩詞及說書人語氣屬作者寫作偏好；不由背景召回強制改變全局視角、輸出格式或每輪章節結構。",
+      "evidence": [
+        {
+          "path": "js/narrative-settings.js",
+          "needle": "AI 應該怎麼寫"
         }
       ]
     }

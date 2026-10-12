@@ -52,6 +52,10 @@ vm.runInNewContext(source, context, { filename: "worldbook-library.js" });
   const second = await App.buildMessages();
   const modes = win.YoruWorldbookLibrary;
   const listed = await modes.all();
+  const simulatorGroup = modes.groupPacks(listed).filter(g=>g.name==='通用世界模擬器');
+  assert.equal(simulatorGroup.length,1,'new entries stay inside one player-facing book');
+  assert.equal(simulatorGroup[0].packs.length,6,'this batch adds no category');
+  assert.equal(simulatorGroup[0].packs.reduce((sum,p)=>sum+p.entries.length,0),35);
   assert.ok(listed.some(p => p.meta.id === "world-simulator-adventure-reference"), "public shared catalog is discoverable");
   assert.equal(modes.setRecallMode("off"), true);
   const off = await App.buildMessages();
@@ -136,5 +140,16 @@ vm.runInNewContext(source, context, { filename: "worldbook-library.js" });
       else assert.doesNotMatch(result.at(-1).content,new RegExp(title));
     }
   }
+  const historical = JSON.parse(JSON.stringify(listed.find(p=>p.meta.id===relationshipId)));
+  historical.entries = historical.entries.slice(0,8);
+  historical.meta.release = '0.1.0';
+  GameState.current.worldbookLibrary = {version:1, enabled:[relationshipId], installed:[],
+    pinned:{[relationshipId]:historical}, recallMode:'auto'};
+  const pinned = (await modes.all()).find(p=>p.meta.id===relationshipId);
+  assert.equal(pinned.entries.length,8,'existing story snapshot does not silently acquire new traits');
+  Chat.messages = [{role:'user',content:'腹黑好友'}];
+  const historicalPrompt = await App.buildMessages();
+  assert.doesNotMatch(historicalPrompt.at(-1).content,/腹黑好友互動參考/);
+  assert.equal(historicalPrompt[0].content,'PLATFORM STABLE PREFIX');
   console.log("Worldbook prompt integration passed: cache-friendly stable prefix, selection, no double append, opt-out, conditional recall.");
 })().catch(err => { console.error(err); process.exitCode = 1; });
