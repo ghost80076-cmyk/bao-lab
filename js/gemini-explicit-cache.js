@@ -5,7 +5,7 @@
   const records = new WeakMap();
   const BASE = 'https://generativelanguage.googleapis.com/v1beta';
   const PRICING = 'https://ai.google.dev/gemini-api/docs/pricing';
-  const storageRates = { 'gemini-3.7-flash': 0.5, 'gemini-3.8-flash': 0.5, 'gemini-3.1-pro-preview': 4.5, 'gemini-3.1-pro-preview-customtools': 4.5 };
+  const storageRates = { 'gemini-3.8-flash': 0.5, 'gemini-3.1-pro-preview': 4.5, 'gemini-3.1-pro-preview-customtools': 4.5 };
   let preview = null, busy = false;
   const $ = id => document.getElementById(id);
   const story = () => window.GameState?.current;
