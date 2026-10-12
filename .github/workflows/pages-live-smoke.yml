@@ -122,9 +122,9 @@ jobs:
           grep -Fq 'Allow: /' <<<"${robots}"
           grep -Fq 'Sitemap: https://yorubay.com/sitemap.xml' <<<"${robots}"
           grep -Fq '<loc>https://yorubay.com/</loc>' <<<"${sitemap}"
-          grep -Fq '<loc>https://yorubay.com/quick-start.html</loc>' <<<"${sitemap}"
-          grep -Fq '<loc>https://yorubay.com/api-guide.html</loc>' <<<"${sitemap}"
-          grep -Fq '<loc>https://yorubay.com/author.html</loc>' <<<"${sitemap}"
+          grep -Fq '<loc>https://yorubay.com/quick-start</loc>' <<<"${sitemap}"
+          grep -Fq '<loc>https://yorubay.com/api-guide</loc>' <<<"${sitemap}"
+          grep -Fq '<loc>https://yorubay.com/author</loc>' <<<"${sitemap}"
           printf 'robots.txt and sitemap.xml verified.\n'
 
       - name: Verify social preview image
