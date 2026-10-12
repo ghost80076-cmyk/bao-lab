@@ -15,7 +15,7 @@ for (const file of required) {
 }
 
 const index = fs.readFileSync('index.html', 'utf8');
-for (const href of ['terms.html','privacy.html','age-content-policy.html','lights-refund-policy.html','creator-policy.html']) {
+for (const href of ['terms','privacy','age-content-policy','lights-refund-policy','creator-policy']) {
   if (!index.includes(`href="${href}"`)) throw new Error(`Homepage footer is missing ${href}`);
 }
 
