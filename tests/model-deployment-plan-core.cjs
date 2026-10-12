@@ -51,7 +51,7 @@ assert.deepEqual(
     input_microusd_per_million: 3000000,
     output_microusd_per_million: 15000000,
     cache_read_microusd_per_million: 300000,
-    cache_write_microusd_per_million: 3750000,
+    cache_write_microusd_per_million: 6000000,
     openrouter_max_prompt_microusd_per_million: 4000000,
     openrouter_max_completion_microusd_per_million: 18000000,
   }
@@ -108,7 +108,7 @@ assert.deepEqual(
     input_microusd_per_million: 2000000,
     output_microusd_per_million: 10000000,
     cache_read_microusd_per_million: 100000,
-    cache_write_microusd_per_million: 2500000,
+    cache_write_microusd_per_million: 4000000,
     openrouter_max_prompt_microusd_per_million: 2000000,
     openrouter_max_completion_microusd_per_million: 10000000,
   }
@@ -122,7 +122,7 @@ assert.deepEqual(
     input_microusd_per_million: 4000000,
     output_microusd_per_million: 20000000,
     cache_read_microusd_per_million: 200000,
-    cache_write_microusd_per_million: 5000000,
+    cache_write_microusd_per_million: 8000000,
     openrouter_max_prompt_microusd_per_million: 4000000,
     openrouter_max_completion_microusd_per_million: 20000000,
   }
