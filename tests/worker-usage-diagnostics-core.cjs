@@ -39,6 +39,7 @@ assert.match(adminSource, /LEFT JOIN api_usage_diagnostics AS d/);
 assert.match(adminHtml, /失敗診斷/);
 assert.match(adminHtml, /failure_code/);
 assert.match(adminHtml, /transport_failure/);
+assert.match(adminHtml, /rate_limit_scope/);
 
 (async () => {
   const {
@@ -54,6 +55,7 @@ assert.match(adminHtml, /transport_failure/);
         providerStatus: "RESOURCE_EXHAUSTED",
         route: "aws_relay",
         transportFailure: "timeout",
+        rateLimitScope: "quota",
         retryAfterSeconds: 30,
         requestBytes: 12345,
         elapsedMs: 170000,
@@ -67,6 +69,7 @@ assert.match(adminHtml, /transport_failure/);
       provider_status: "RESOURCE_EXHAUSTED",
       route: "aws_relay",
       transport_failure: "timeout",
+      rate_limit_scope: "quota",
       retry_after_seconds: 30,
       request_bytes: 12345,
       elapsed_ms: 170000,
@@ -81,6 +84,7 @@ assert.match(adminHtml, /transport_failure/);
       providerStatus: "bad status",
       route: "https://secret.example",
       transportFailure: "stacktrace",
+      rateLimitScope: "everything",
       retryAfterSeconds: 99999,
       requestBytes: -1,
       elapsedMs: -1,
@@ -92,6 +96,7 @@ assert.match(adminHtml, /transport_failure/);
   assert.equal(sanitized.provider_status, null);
   assert.equal(sanitized.route, null);
   assert.equal(sanitized.transport_failure, null);
+  assert.equal(sanitized.rate_limit_scope, null);
   assert.equal(sanitized.retry_after_seconds, null);
   assert.equal(sanitized.request_bytes, null);
   assert.equal(sanitized.elapsed_ms, null);
@@ -127,6 +132,7 @@ assert.match(adminHtml, /transport_failure/);
         upstreamStatus: 400,
         providerStatus: "INVALID_ARGUMENT",
         route: "aws_relay",
+        rateLimitScope: "unknown",
         requestBytes: 4567,
       }
     ),
@@ -144,6 +150,7 @@ assert.match(adminHtml, /transport_failure/);
       "INVALID_ARGUMENT",
       "aws_relay",
       null,
+      "unknown",
       null,
       4567,
       null,
