@@ -51,7 +51,7 @@ for (const width of [1280, 390]) {
     });
     await expect(mode).toHaveValue('off');
     await expect(relationship).toBeChecked();
-    expect(await page.evaluate(() => GameState.current.worldbookLibrary.pinned['world-simulator-relationship-reference'].entries.length)).toBe(13);
+    expect(await page.evaluate(() => GameState.current.worldbookLibrary.pinned['world-simulator-relationship-reference'].entries.length)).toBe(21);
     await mode.selectOption('scene');
     expect(await page.evaluate(() => GameState.current.worldbookLibrary.recallMode)).toBe('scene');
     expect(await page.evaluate(() => {
