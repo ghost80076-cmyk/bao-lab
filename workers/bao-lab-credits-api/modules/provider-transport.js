@@ -1951,6 +1951,7 @@ const {
   anthropicPayload,
   recoverOpenRouterUsage,
   providerCall,
+  providerFailureCode,
   providerFailureResponse,
 } = WorkerProviderTransport;
 
