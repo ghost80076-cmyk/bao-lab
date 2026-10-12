@@ -14,6 +14,8 @@ for (const width of [1280, 390]) {
     });
     const mode = page.getByRole('combobox', { name: '世界書召回模式' });
     await expect(mode).toHaveValue('auto');
+    await expect(page.getByText('通用世界模擬器｜冒險題材參考', { exact: true })).toBeVisible();
+    await expect(page.getByText('通用世界模擬器｜都市與競技參考', { exact: true })).toBeVisible();
     await mode.selectOption('off');
     expect(await page.evaluate(() => JSON.parse(window.recallSaved).worldbookLibrary.recallMode)).toBe('off');
     await page.getByRole('button', { name: '關閉', exact: true }).click();
