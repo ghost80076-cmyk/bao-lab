@@ -29,8 +29,13 @@ import {
 
 import {
   providerCall,
+  providerFailureCode,
   providerFailureResponse,
 } from "./provider-transport.js";
+
+import {
+  recordUsageFailure,
+} from "./usage-diagnostics.js";
 
 const LEGACY_CREDIT_TOKEN_UNIT = 100;
 
@@ -339,6 +344,15 @@ async function legacyChatRoute(
             requestId
           ),
       ]
+    );
+
+    await recordUsageFailure(
+      db,
+      requestId,
+      providerFailureCode(
+        result
+      ),
+      result
     );
 
     return providerFailureResponse(
@@ -666,6 +680,13 @@ async function legacyChatRoute(
         requestId
       )
       .run();
+
+    await recordUsageFailure(
+      db,
+      requestId,
+      "usage_metadata_unverified",
+      result
+    );
   }
 
   return json({
