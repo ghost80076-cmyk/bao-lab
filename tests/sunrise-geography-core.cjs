@@ -6,7 +6,7 @@ const catalog = JSON.parse(fs.readFileSync('data/sunrise-worldbook-library.json'
 const map = JSON.parse(fs.readFileSync('data/sunrise-geography-source-map.json'));
 const packs = catalog.packs.map(core.normalizePack);
 assert.equal(packs.length, 46);
-assert.equal(packs.flatMap(p=>p.entries).length, 297);
+assert.equal(packs.flatMap(p=>p.entries).length, 327);
 for (const source of map.sources) {
   assert.equal(source.chapters[0].start,0);
   assert.equal(source.chapters.at(-1).end,source.source_chars);
@@ -30,7 +30,7 @@ assert.equal(core.select(packs,[],{latestUser:'中央商業區',world:'sunrise-c
 for(const q of ['中央商業區','港口工業區','天際商場','北山住宅區','東區平民區','南區貧民窟'])assert.ok(select(q).text.length<=2200);
 const full=JSON.stringify(catalog);
 for(const secret of ['碼頭大火','縱火滅證','走私運作流程','源點計畫','桃華事件','用異能操控股市','張猛','霸凌局幕後黑手','NS3灰色業務流程','走私管道']) assert.ok(!full.includes(secret),secret);
-console.log('Sunrise geography: 46 companion packs, 297 chapters with explicit editorial provenance, source coverage, narrow recall, realm isolation and deferred secrets passed.');
+console.log('Sunrise geography: 46 companion packs, 327 chapters with explicit editorial provenance, source coverage, narrow recall, realm isolation and deferred secrets passed.');
 
 const scenarioPacks = packs.filter(p=>p.meta.classification==='scenario');
 assert.equal(scenarioPacks.length,2);
@@ -44,7 +44,7 @@ for (const [id,query] of [['sunrise-dock-scenario','9號碼頭'],['sunrise-acade
 
 const people=packs.filter(p=>['sunrise-police-people','sunrise-port-people'].includes(p.meta.id));
 assert.equal(people.length,2);
-assert.equal(people.flatMap(p=>p.entries).length,16);
+assert.equal(people.flatMap(p=>p.entries).length,24);
 for (const name of ['林雨萱','陳大海','Victor','林正義','李明哲','老張','瘦猴','啞巴阿文']) {
  const result=core.select(people,people.map(p=>p.meta.id),{latestUser:name,world:'sunrise-city'});
  assert.match(result.text,/不代表在場/);

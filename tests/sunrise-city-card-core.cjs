@@ -54,7 +54,7 @@ assert.equal(Startup.apply(null,{},[]),null,'legacy cards unchanged');
 assert.equal(card.lore,'','companion data is not injected a second time as inline lore');
 const binding=card.initial_state.worldbookLibrary;
 assert.equal(binding.enabled.length,46);
-assert.equal(Object.values(binding.pinned).flatMap(p=>p.entries).length,297);
+assert.equal(Object.values(binding.pinned).flatMap(p=>p.entries).length,327);
 assert.match(JSON.stringify(binding),/人口 500 萬/);
 assert.doesNotMatch(JSON.stringify(binding),/人口 800 萬|最富裕的 5% 人口/);
 const catalog=JSON.parse(fs.readFileSync('data/character-catalog/community/page-0001.json'));
