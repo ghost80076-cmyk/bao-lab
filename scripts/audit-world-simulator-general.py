@@ -41,11 +41,23 @@ def audit(archive, root):
     books = [b for b in books if b["worldbook"]["id"] in BOOKS]
     if len(books) != 3:
         raise ValueError("Expected exactly three author-selected sources")
-    canonical = next(b for b in books if len(b["entries"]) == 209)
+    by_id = {b["worldbook"]["id"]: b for b in books}
+    if set(by_id) != set(BOOKS) or any(len(by_id[bid]["entries"]) != count for bid, count in BOOKS.items()):
+        raise ValueError("Source revision changed")
+    canonical = by_id[next(iter(BOOKS))]
     decisions = json.loads((root / "data/world-simulator-layer-review.json").read_text())["decisions"]
-    routes = {d["canonical_source_index"]: d for d in decisions}
-    if len(routes) != len(decisions) or set(routes) & set(SELECTED):
-        raise ValueError("Duplicate or overlapping source routing")
+    routes = {}
+    for decision in decisions:
+        bid = decision.get("source_book_id", canonical["worldbook"]["id"])
+        index = decision.get("canonical_source_index", decision.get("source_index"))
+        if bid not in by_id or not isinstance(index, int) or not 0 <= index < BOOKS[bid]:
+            raise ValueError("Invalid layer source reference")
+        digest = sha(by_id[bid]["entries"][index]["content"].strip())
+        if decision["decision_id"] != f"{bid}:{index}" or digest != decision["source_sha256"]:
+            raise ValueError("Reviewed layer source changed")
+        if digest in routes or digest in {sha(canonical["entries"][i]["content"].strip()) for i in SELECTED}:
+            raise ValueError("Duplicate or overlapping source routing")
+        routes[digest] = decision
     records, review_records, inventory = [], [], []
     for book in books:
         bid = book["worldbook"]["id"]
@@ -55,13 +67,12 @@ def audit(archive, root):
         for index, source in enumerate(book["entries"]):
             matches = [i for i in SELECTED if source["content"].strip() == canonical["entries"][i]["content"].strip()]
             if not matches:
-                routed = [i for i in routes if source["content"].strip() == canonical["entries"][i]["content"].strip()]
-                if routed:
-                    route = routes[routed[0]]
+                route = routes.get(sha(source["content"].strip()))
+                if route:
                     reviewed.append(index)
                     review_records.append({"book_id": bid, "source_index": index,
                                            "source_sha256": sha(source["content"].strip()),
-                                           "canonical_source_index": routed[0],
+                                           "decision_id": route["decision_id"],
                                            "status": "reviewed-not-published", "route": route["route"],
                                            "automatic_recall": False})
                 continue
@@ -75,12 +86,13 @@ def audit(archive, root):
                             "status": "partial-adaptation", "not_verbatim": True})
         if len(adopted) != len(SELECTED):
             raise ValueError("Reviewed common source no longer matches")
-        if len(reviewed) != len(routes):
-            raise ValueError("Reviewed layer source no longer matches")
         inventory.append({"book_id": bid, "source_count": len(book["entries"]),
                           "adapted_indices": adopted,
                           "reviewed_unpublished_indices": reviewed,
                           "pending_indices": [i for i in range(len(book["entries"])) if i not in adopted and i not in reviewed]})
+    for decision in decisions:
+        if sum(r["decision_id"] == decision["decision_id"] for r in review_records) != decision["expected_occurrences"]:
+            raise ValueError("Reviewed layer occurrence count changed")
     approved = root / "data/world-simulator-general-source-map.json"
     if approved.exists():
         old = json.loads(approved.read_text())
@@ -88,7 +100,7 @@ def audit(archive, root):
         if any(current.get((r["book_id"], r["source_index"])) != r["source_sha256"]
                for r in old["records"] + old.get("review_records", [])):
             raise ValueError("Reviewed source changed; review before updating")
-    return {"schema": "yorubay-world-simulator-general-review", "version": 7,
+    return {"schema": "yorubay-world-simulator-general-review", "version": 8,
             "source_count": sum(BOOKS.values()), "adopted_occurrences": len(records),
             "unique_adapted_sources": len({r["source_sha256"] for r in records}),
             "reviewed_unpublished_occurrences": len(review_records),
