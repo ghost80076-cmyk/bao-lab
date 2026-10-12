@@ -61,6 +61,18 @@ function normalizeUsageDiagnostic(
       ? result.transportFailure
       : null;
 
+  const rateLimitScope =
+    [
+      "rate",
+      "quota",
+      "provider",
+      "unknown",
+    ].includes(
+      result.rateLimitScope
+    )
+      ? result.rateLimitScope
+      : null;
+
   return {
     failure_code:
       normalizedFailureCode,
@@ -79,6 +91,9 @@ function normalizeUsageDiagnostic(
 
     transport_failure:
       transportFailure,
+
+    rate_limit_scope:
+      rateLimitScope,
 
     retry_after_seconds:
       boundedInteger(
@@ -123,6 +138,7 @@ async function ensureUsageDiagnostics(
         provider_status TEXT,
         route TEXT,
         transport_failure TEXT,
+        rate_limit_scope TEXT,
         retry_after_seconds INTEGER,
         request_bytes INTEGER,
         elapsed_ms INTEGER,
@@ -162,6 +178,7 @@ async function recordUsageFailure(
           provider_status,
           route,
           transport_failure,
+          rate_limit_scope,
           retry_after_seconds,
           request_bytes,
           elapsed_ms,
@@ -169,7 +186,7 @@ async function recordUsageFailure(
         )
 
         VALUES (
-          ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+          ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
         )
 
         ON CONFLICT(request_id) DO UPDATE SET
@@ -178,6 +195,7 @@ async function recordUsageFailure(
           provider_status = excluded.provider_status,
           route = excluded.route,
           transport_failure = excluded.transport_failure,
+          rate_limit_scope = excluded.rate_limit_scope,
           retry_after_seconds = excluded.retry_after_seconds,
           request_bytes = excluded.request_bytes,
           elapsed_ms = excluded.elapsed_ms,
@@ -192,6 +210,7 @@ async function recordUsageFailure(
         diagnostic.provider_status,
         diagnostic.route,
         diagnostic.transport_failure,
+        diagnostic.rate_limit_scope,
         diagnostic.retry_after_seconds,
         diagnostic.request_bytes,
         diagnostic.elapsed_ms,
