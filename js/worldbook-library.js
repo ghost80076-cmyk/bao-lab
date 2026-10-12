@@ -64,6 +64,85 @@
   function activeWorld(packs, enabled) {
     return packs.find(pack => enabled.includes(pack.meta.id) && pack.meta.world !== "general")?.meta.world || "";
   }
+
+  const collectionMeta = pack => {
+    const rawName = String(pack?.meta?.name || "未命名世界書").trim() || "未命名世界書";
+    if (pack?.meta?.visibility !== "public") {
+      return {
+        key: "private:" + String(pack?.meta?.world || "general"),
+        name: "我的世界書",
+        chapter: rawName
+      };
+    }
+    const parts = rawName.split("｜").map(part => part.trim()).filter(Boolean);
+    if (parts.length > 1) {
+      return {
+        key: ["public", pack.meta.world || "general", parts[0]].join(":"),
+        name: parts[0],
+        chapter: parts.slice(1).join("｜")
+      };
+    }
+    return {
+      key: ["public", pack?.meta?.world || "general", pack?.meta?.id || rawName].join(":"),
+      name: rawName,
+      chapter: rawName
+    };
+  };
+
+  const groupPacks = packs => {
+    const groups = new Map();
+    for (const pack of Array.isArray(packs) ? packs : []) {
+      const meta = collectionMeta(pack);
+      if (!groups.has(meta.key)) groups.set(meta.key, { ...meta, packs: [] });
+      groups.get(meta.key).packs.push(pack);
+    }
+    return [...groups.values()];
+  };
+
+  function setPackEnabled(pack, checked, packs, expectedStory = story()) {
+    if (!expectedStory || story() !== expectedStory || !pack) return false;
+    const current = cfg();
+    if (!current) return false;
+    const ids = new Set(current.enabled || []);
+    if (checked) {
+      if (pack.meta.world !== "general") {
+        for (const other of packs) {
+          if (other.meta.world !== "general" && other.meta.world !== pack.meta.world) ids.delete(other.meta.id);
+        }
+      }
+      ids.add(pack.meta.id);
+      if (pack.meta.visibility === "public") current.pinned = { ...(current.pinned || {}), [pack.meta.id]: pack };
+    } else {
+      ids.delete(pack.meta.id);
+    }
+    current.enabled = [...ids];
+    save();
+    return true;
+  }
+
+  function setCollectionEnabled(group, checked, packs, expectedStory = story()) {
+    if (!expectedStory || story() !== expectedStory || !group?.packs?.length) return false;
+    const current = cfg();
+    if (!current) return false;
+    const ids = new Set(current.enabled || []);
+    const worlds = new Set(group.packs.map(pack => pack.meta.world).filter(world => world !== "general"));
+    if (checked && worlds.size) {
+      for (const other of packs) {
+        if (other.meta.world !== "general" && !worlds.has(other.meta.world)) ids.delete(other.meta.id);
+      }
+    }
+    for (const pack of group.packs) {
+      if (checked) {
+        ids.add(pack.meta.id);
+        if (pack.meta.visibility === "public") current.pinned = { ...(current.pinned || {}), [pack.meta.id]: pack };
+      } else {
+        ids.delete(pack.meta.id);
+      }
+    }
+    current.enabled = [...ids];
+    save();
+    return true;
+  }
   function save() { App.saveStory?.(false); }
   function setRecallMode(mode, expectedStory = story()) {
     if (!expectedStory || story() !== expectedStory || !["auto", "scene", "off"].includes(mode)) return false;
@@ -125,7 +204,7 @@
   App.wrapBuildMessages("worldbook-library:recall", wrapper);
 
   const style = document.createElement("style");
-  style.textContent = '.ylb-backdrop{position:fixed;inset:0;background:#000b;z-index:15000;display:grid;place-items:center;padding:12px}.ylb-modal{width:min(780px,100%);max-height:90vh;overflow:auto;background:#1c1919;color:#e7dfd7;border:1px solid #675a4a;border-radius:16px;padding:18px;box-shadow:0 20px 45px #0008}.ylb-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}.ylb-modal h2{margin:0 0 8px;font-size:1.25rem}.ylb-modal h3{font-size:1rem;margin:16px 0 8px}.ylb-modal p,.ylb-modal small{color:#b9aea5}.ylb-row{display:flex;gap:12px;align-items:flex-start;padding:12px;border:1px solid #574a4066;border-radius:10px;margin-bottom:8px}.ylb-row label{display:flex;align-items:flex-start;gap:10px;cursor:pointer;flex:1}.ylb-row input{margin-top:4px;flex:none}.ylb-row strong{display:block}.ylb-row small{display:block;margin-top:3px}.ylb-warning{border-left:3px solid #b2946d;padding:8px 12px;background:#b2946d18}.ylb-footer{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.ylb-modal button{cursor:pointer}.ylb-modal button:focus-visible{outline:2px solid #d5b27d}@media(max-width:600px){.ylb-modal{max-height:94vh;padding:12px}.ylb-row{padding:9px}}';
+  style.textContent = '.ylb-backdrop{position:fixed;inset:0;background:#000b;z-index:15000;display:grid;place-items:center;padding:12px;overflow:hidden}.ylb-modal{width:min(780px,100%);max-width:100%;max-height:90vh;overflow-y:auto;overflow-x:hidden;background:#1c1919;color:#e7dfd7;border:1px solid #675a4a;border-radius:16px;padding:18px;box-shadow:0 20px 45px #0008}.ylb-modal,.ylb-modal *{box-sizing:border-box}.ylb-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;min-width:0}.ylb-modal h2{margin:0 0 8px;font-size:1.25rem}.ylb-modal h3{font-size:1rem;margin:16px 0 8px}.ylb-modal p,.ylb-modal small{color:#b9aea5}.ylb-modal p,.ylb-modal small,.ylb-modal strong,.ylb-modal summary{overflow-wrap:anywhere}.ylb-warning{border-left:3px solid #b2946d;padding:8px 12px;background:#b2946d18}.ylb-collection{border:1px solid #574a4066;border-radius:12px;margin:10px 0;padding:12px;min-width:0}.ylb-collection-head{display:flex;gap:10px;align-items:flex-start;justify-content:space-between;min-width:0}.ylb-collection-head label{display:flex;align-items:flex-start;gap:10px;cursor:pointer;flex:1;min-width:0}.ylb-collection-head input,.ylb-row input{margin-top:4px;flex:none}.ylb-collection-copy{min-width:0}.ylb-collection-copy strong{display:block}.ylb-collection-copy small{display:block;margin-top:3px}.ylb-chapters{width:100%;max-width:100%;margin-top:8px;border-top:1px solid #574a4044;padding-top:8px}.ylb-chapters>summary{cursor:pointer;color:#d7c7b9}.ylb-chapter-list{display:grid;gap:8px;margin-top:8px;min-width:0}.ylb-row{display:flex;gap:10px;align-items:flex-start;padding:10px;border:1px solid #574a4055;border-radius:10px;min-width:0;max-width:100%;overflow:hidden;flex-wrap:wrap}.ylb-row label{display:flex;align-items:flex-start;gap:10px;cursor:pointer;flex:1;min-width:0}.ylb-row strong{display:block}.ylb-row small{display:block;margin-top:3px}.ylb-row>div,.ylb-row>label>span{min-width:0}.ylb-condition-list{width:100%;padding-left:28px}.ylb-footer{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.ylb-modal button{cursor:pointer;max-width:100%}.ylb-modal button:focus-visible{outline:2px solid #d5b27d}.worldbook-library-launch{white-space:normal}@media(max-width:600px){.ylb-backdrop{padding:6px}.ylb-modal{width:100%;max-height:94vh;padding:12px}.ylb-collection{padding:10px}.ylb-row{padding:9px}.ylb-condition-list{padding-left:8px}}';
   document.head.appendChild(style);
   function open() {
     if (!story()) { alert("請先開始或讀取一個故事。"); return; }
@@ -160,25 +239,55 @@
       if (!backdrop.isConnected || !config || story() !== openedStory) return;
       listing.replaceChildren();
       const enabled = config.enabled || [];
-      for (const pack of packs) {
+      const renderConditions = (pack, target) => {
+        const conditions = [...new Set(pack.entries.filter(entry => !entry.review_required)
+          .flatMap(entry => entry.requires))];
+        if (!conditions.length) return;
+        const details = document.createElement("details");
+        details.className = "ylb-condition-list";
+        const summary = document.createElement("summary");
+        summary.textContent = "已得知資訊（" + conditions.length + " 項）";
+        const hint = document.createElement("p");
+        hint.textContent = "僅在故事已揭露後勾選。勾選允許相關背景召回，不會建立事件；取消可停止後續召回，已送出的內容不會撤回。";
+        details.append(summary, hint);
+        for (const flag of conditions) {
+          const row = document.createElement("label");
+          const input = document.createElement("input");
+          input.type = "checkbox";
+          input.checked = (openedStory.worldbookFlags || []).includes(flag);
+          input.dataset.ylbCondition = flag;
+          const caption = document.createElement("span");
+          caption.textContent = flag;
+          row.style.display = "flex"; row.style.gap = "8px";
+          row.append(input, caption); details.append(row);
+          input.onchange = async () => {
+            input.disabled = true;
+            try { await setCondition(pack.meta.id, flag, input.checked, openedStory); }
+            finally { await render(); }
+          };
+        }
+        target.append(details);
+      };
+
+      const renderPack = (pack, group) => {
         const article = document.createElement("article");
         article.className = "ylb-row";
         const label = document.createElement("label");
         const check = document.createElement("input");
-        check.type = "checkbox"; check.checked = enabled.includes(pack.meta.id);
-        const copy = document.createElement("div");
-        const heading = document.createElement("strong");
-        heading.textContent = pack.meta.name;
-        const note = document.createElement("small");
-        const flagged = pack.entries.filter(e => e.review_required).length;
-        note.textContent = (pack.meta.visibility === "public" ? "公開" : "私有") +
-          " · " + pack.entries.length + " 條 · " + pack.meta.world +
-          (flagged ? " · " + flagged + " 條規則待審（不自動召回）" : "");
-
+        check.type = "checkbox";
+        check.checked = enabled.includes(pack.meta.id);
+        check.setAttribute("aria-label", pack.meta.name);
         const info = document.createElement("span");
+        const heading = document.createElement("strong");
+        heading.textContent = group.packs.length > 1 ? collectionMeta(pack).chapter : pack.meta.name;
+        const note = document.createElement("small");
+        const flagged = pack.entries.filter(entry => entry.review_required).length;
+        note.textContent = (pack.meta.visibility === "public" ? "公開" : "只存目前故事") +
+          " · " + pack.entries.length + " 條" +
+          (flagged ? " · " + flagged + " 條待審，不自動召回" : "");
         info.append(heading, note); label.append(check, info);
-        article.style.flexWrap = "wrap"; copy.style.width = "100%";
-        article.append(label, copy); listing.append(article);
+        article.append(label);
+
         if (pack.meta.visibility !== "public") {
           const remove = document.createElement("button");
           remove.type = "button"; remove.className = "secondary"; remove.textContent = "移除";
@@ -192,50 +301,52 @@
           };
           article.append(remove);
         }
-        if (check.checked) {
-          const conditions = [...new Set(pack.entries.filter(entry => !entry.review_required)
-            .flatMap(entry => entry.requires))];
-          if (conditions.length) {
-            const details = document.createElement("details");
-            const summary = document.createElement("summary");
-            summary.textContent = "已得知資訊（" + conditions.length + " 項）";
-            const hint = document.createElement("p");
-            hint.textContent = "僅在故事已揭露後勾選。勾選允許相關背景召回，不會建立事件；取消可停止後續召回，已送出的內容不會撤回。相同條件名稱由目前故事的世界書共用。";
-            details.append(summary, hint);
-            for (const flag of conditions) {
-              const row = document.createElement("label");
-              const input = document.createElement("input");
-              input.type = "checkbox";
-              input.checked = (openedStory.worldbookFlags || []).includes(flag);
-              input.dataset.ylbCondition = flag;
-              const caption = document.createElement("span");
-              caption.textContent = flag;
-              row.style.display = "flex"; row.style.gap = "8px";
-              row.append(input, caption); details.append(row);
-              input.onchange = async () => {
-                input.disabled = true;
-                try { await setCondition(pack.meta.id, flag, input.checked, openedStory); }
-                finally { await render(); }
-              };
-            }
-            copy.append(details);
-          }
-        }
+        if (check.checked) renderConditions(pack, article);
         check.onchange = () => {
-          const current = cfg();
-          if (!current) return;
-          const ids = new Set(current.enabled || []);
-          if (check.checked) {
-            // Only one non-general world can be the primary setting in a story.
-            if (pack.meta.world !== "general") {
-              for (const other of packs) if (other.meta.world !== "general" && other.meta.world !== pack.meta.world)
-                ids.delete(other.meta.id);
-            }
-            ids.add(pack.meta.id);
-            if (pack.meta.visibility === "public") current.pinned = { ...(current.pinned || {}), [pack.meta.id]: pack };
-          } else ids.delete(pack.meta.id);
-          current.enabled = [...ids]; save(); void render();
+          setPackEnabled(pack, check.checked, packs, openedStory);
+          void render();
         };
+        return article;
+      };
+
+      for (const group of groupPacks(packs)) {
+        const section = document.createElement("section");
+        section.className = "ylb-collection";
+        const head = document.createElement("div");
+        head.className = "ylb-collection-head";
+        const label = document.createElement("label");
+        const master = document.createElement("input");
+        master.type = "checkbox";
+        const activeCount = group.packs.filter(pack => enabled.includes(pack.meta.id)).length;
+        master.checked = activeCount === group.packs.length && group.packs.length > 0;
+        master.indeterminate = activeCount > 0 && activeCount < group.packs.length;
+        master.setAttribute("aria-label", (group.packs.length > 1 ? "啟用整本 " : "啟用 ") + group.name);
+        const copy = document.createElement("span");
+        copy.className = "ylb-collection-copy";
+        const title = document.createElement("strong");
+        title.textContent = group.name;
+        const totalEntries = group.packs.reduce((sum, pack) => sum + pack.entries.length, 0);
+        const note = document.createElement("small");
+        note.textContent = group.packs.length > 1
+          ? activeCount + " / " + group.packs.length + " 章已啟用 · 共 " + totalEntries + " 條資料"
+          : (activeCount ? "已啟用" : "未啟用") + " · " + totalEntries + " 條資料";
+        copy.append(title, note); label.append(master, copy); head.append(label); section.append(head);
+
+        const details = document.createElement("details");
+        details.className = "ylb-chapters";
+        const summary = document.createElement("summary");
+        summary.textContent = group.packs.length > 1 ? "自選章節（" + group.packs.length + "）" : "查看內容";
+        details.append(summary);
+        const list = document.createElement("div");
+        list.className = "ylb-chapter-list";
+        for (const pack of group.packs) list.append(renderPack(pack, group));
+        details.append(list); section.append(details);
+
+        master.onchange = () => {
+          setCollectionEnabled(group, master.checked, packs, openedStory);
+          void render();
+        };
+        listing.append(section);
       }
       if (!packs.length) listing.textContent = "還沒有世界書。可先匯入你自己的世界書 JSON。";
     };
@@ -266,18 +377,40 @@
     backdrop.querySelector("[data-close]").focus();
   }
 
-  // Extend existing manager UI; do not replace World Modules or patch its state handlers.
+  // Keep the old manager entry for compatibility, but expose Worldbooks directly in the story UI too.
   const attach = () => {
     const modal = document.querySelector(".world-manager-backdrop");
     const footer = modal?.querySelector(".world-manager-foot");
     if (!footer || modal.querySelector("[data-ylb-launch]")) return;
     const button = document.createElement("button");
     button.type = "button"; button.className = "secondary";
-    button.dataset.ylbLaunch = "true"; button.textContent = "📚 世界書擴充庫";
+    button.dataset.ylbLaunch = "true"; button.textContent = "📚 世界書";
     button.onclick = open;
     footer.prepend(button);
   };
-  new MutationObserver(attach).observe(document.body, { childList: true, subtree: true });
+
+  const injectChatEntry = () => {
+    const aside = document.querySelector("#chat-view aside");
+    if (!aside || aside.querySelector("[data-open-worldbook-library]")) return;
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "secondary worldbook-library-launch";
+    button.dataset.openWorldbookLibrary = "true";
+    button.textContent = "📚 世界書";
+    button.title = "選擇世界書、章節或匯入自己的世界書";
+    button.addEventListener("click", open);
+    const worldManager = aside.querySelector("[data-open-world-manager]");
+    const exit = aside.querySelector(".text-button");
+    if (worldManager?.parentElement === aside) worldManager.insertAdjacentElement("afterend", button);
+    else if (exit?.parentElement === aside) aside.insertBefore(button, exit);
+    else aside.appendChild(button);
+  };
+
+  new MutationObserver(() => {
+    attach();
+    injectChatEntry();
+  }).observe(document.body, { childList: true, subtree: true });
   attach();
-  window.YoruWorldbookLibrary = Object.freeze({ open, select: core.select, loadCatalog, all, signals, setCondition, setRecallMode });
+  injectChatEntry();
+  window.YoruWorldbookLibrary = Object.freeze({ open, select: core.select, loadCatalog, all, signals, setCondition, setRecallMode, groupPacks });
 })();
