@@ -45,7 +45,7 @@ button{border-radius:12px;padding:10px 14px;font:inherit;font-weight:700;cursor:
 .provider-form .actions{grid-column:1/-1;margin-top:0}
 .control-heading{display:flex;justify-content:space-between;align-items:center;gap:12px}
 .player-list-area{margin-top:18px}
-.player-list-scroll{overflow:auto;border:1px solid rgba(255,255,255,.1);border-radius:14px;background:#10121a}
+.player-list-scroll{max-width:100%;overflow:auto;border:1px solid rgba(255,255,255,.1);border-radius:14px;background:#10121a;-webkit-overflow-scrolling:touch;scrollbar-gutter:stable}
 .player-table{width:100%;border-collapse:collapse;min-width:760px}
 .player-table th,.player-table td{padding:11px 12px;border-bottom:1px solid rgba(255,255,255,.08);text-align:left;font-size:13px;vertical-align:middle}
 .player-table th{position:sticky;top:0;background:#151722;color:#aaa6b8;font-weight:700;z-index:1}
@@ -58,7 +58,12 @@ button{border-radius:12px;padding:10px 14px;font:inherit;font-weight:700;cursor:
 .player-table button{padding:7px 10px;font-size:12px}
 .player-table .status-note{display:block;margin-top:4px;color:#aaa6b8;font-size:11px;max-width:220px}
 .player-actions{display:flex;justify-content:flex-end;gap:6px;flex-wrap:wrap}
-.usage-table{min-width:1000px}
+.usage-scroll{max-height:60vh;overflow:auto;overscroll-behavior:contain;scrollbar-gutter:stable both-edges}
+.usage-scroll::-webkit-scrollbar{width:12px;height:12px}
+.usage-scroll::-webkit-scrollbar-track{background:#0c0e14}
+.usage-scroll::-webkit-scrollbar-thumb{background:rgba(229,221,255,.35);border:3px solid #10121a;border-radius:999px}
+.usage-scroll::-webkit-scrollbar-thumb:hover{background:rgba(229,221,255,.55)}
+.usage-table{min-width:1180px}
 .usage-table .money{white-space:nowrap;font-variant-numeric:tabular-nums}
 .usage-table .usage-detail{display:block;color:#aaa6b8;font-size:11px;margin-top:4px}
 .usage-table code{font-size:11px}
@@ -157,10 +162,10 @@ code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
       <h2>玩家 API 消耗明細</h2>
       <span id="usage-player-name" class="status-pill"></span>
     </div>
-    <p class="note">僅顯示夜灣 Hosted API 帳本，不含玩家自備 API（BYOK）。玩家實扣與上游成本分開列示；舊制消耗不當成美元。失敗診斷只保存結構化代碼與狀態，不保存上游 raw error body。</p>
+    <p class="note">僅顯示夜灣 Hosted API 帳本，不含玩家自備 API（BYOK）。玩家實扣與上游成本分開列示；舊制消耗不當成美元。失敗診斷只保存結構化代碼與狀態，不保存上游 raw error body。明細框底部可直接左右拖曳查看後方欄位。</p>
     <div id="usage-summary" class="summary note">尚未載入紀錄。</div>
     <div id="usage-message" class="error" role="status" aria-live="polite"></div>
-    <div class="player-list-scroll" style="margin-top:12px">
+    <div class="player-list-scroll usage-scroll" style="margin-top:12px" tabindex="0" aria-label="API 消耗明細，可上下及左右捲動">
       <table class="player-table usage-table">
         <thead><tr>
           <th>時間</th><th>用途／模型</th><th>輸入 Token</th><th>快取 Token</th>
