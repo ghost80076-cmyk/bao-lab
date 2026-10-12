@@ -5,8 +5,8 @@ const core = require('../js/worldbook-library-core.js');
 const catalog = JSON.parse(fs.readFileSync('data/sunrise-worldbook-library.json'));
 const map = JSON.parse(fs.readFileSync('data/sunrise-geography-source-map.json'));
 const packs = catalog.packs.map(core.normalizePack);
-assert.equal(packs.length, 44);
-assert.equal(packs.flatMap(p=>p.entries).length, 249);
+assert.equal(packs.length, 46);
+assert.equal(packs.flatMap(p=>p.entries).length, 297);
 for (const source of map.sources) {
   assert.equal(source.chapters[0].start,0);
   assert.equal(source.chapters.at(-1).end,source.source_chars);
@@ -29,8 +29,8 @@ assert.equal(core.select(packs,ids,{latestUser:'中央商業區',world:'three-re
 assert.equal(core.select(packs,[],{latestUser:'中央商業區',world:'sunrise-city'}).text,'');
 for(const q of ['中央商業區','港口工業區','天際商場','北山住宅區','東區平民區','南區貧民窟'])assert.ok(select(q).text.length<=2200);
 const full=JSON.stringify(catalog);
-for(const secret of ['碼頭大火','縱火滅證','走私運作流程','源點計畫','桃華事件','用異能操控股市','張猛','蘇逸辰','走私管道']) assert.ok(!full.includes(secret),secret);
-console.log('Sunrise geography: 44 companion packs, 249 chapters with explicit editorial provenance, source coverage, narrow recall, realm isolation and deferred secrets passed.');
+for(const secret of ['碼頭大火','縱火滅證','走私運作流程','源點計畫','桃華事件','用異能操控股市','張猛','霸凌局幕後黑手','NS3灰色業務流程','走私管道']) assert.ok(!full.includes(secret),secret);
+console.log('Sunrise geography: 46 companion packs, 297 chapters with explicit editorial provenance, source coverage, narrow recall, realm isolation and deferred secrets passed.');
 
 const scenarioPacks = packs.filter(p=>p.meta.classification==='scenario');
 assert.equal(scenarioPacks.length,2);

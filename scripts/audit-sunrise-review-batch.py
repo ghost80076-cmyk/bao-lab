@@ -8,6 +8,7 @@ from sunrise_review_29_48 import chapter_spans
 from sunrise_review_49_60 import chapter_spans as family_spans
 
 from sunrise_review_61_75 import chapter_spans as review_spans
+from sunrise_review_76_90 import chapter_spans as late_spans
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 with zipfile.ZipFile(sys.argv[1]) as archive:
@@ -19,12 +20,12 @@ sources = {s['source_index']: s for s in mapping['sources']}
 digest = lambda text: hashlib.sha256(text.encode()).hexdigest()
 records = []
 first, last = map(int,sys.argv[2:4]) if len(sys.argv)>2 else (29,48)
-if (first,last) not in [(29,48),(49,60),(61,75)]: raise ValueError('Unknown reviewed batch')
+if (first,last) not in [(29,48),(49,60),(61,75),(76,90)]: raise ValueError('Unknown reviewed batch')
 for index in range(first,last+1):
     content = original['entries'][index]['content']
     if digest(content) != coverage['entries'][index]['source_sha256']:
         raise ValueError('Source changed')
-    spans = review_spans(index,content) if first==61 else family_spans(index,content) if first==49 else chapter_spans(index,content)
+    spans = late_spans(index,content) if first==76 else review_spans(index,content) if first==61 else family_spans(index,content) if first==49 else chapter_spans(index,content)
     published = {c['chapter'] for c in sources.get(index,{}).get('chapters',[]) if c['status']=='published'}
     chapters = [{'chapter':part,'start':start,'end':end,'sha256':digest(content[start:end].strip()),
                  'disposition':'published-reference' if part in published else 'withheld-author-source'}

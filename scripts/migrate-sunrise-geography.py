@@ -16,8 +16,26 @@ ALLOWED = {**ALLOWED, **FAMILY_ALLOWED}
 from sunrise_review_61_75 import ALLOWED as REVIEW_ALLOWED, NAMES as REVIEW_NAMES, ALIASES, LABELS as REVIEW_LABELS, KEYWORDS as REVIEW_KEYWORDS, chapter_spans as review_spans
 ALLOWED = {**ALLOWED, **REVIEW_ALLOWED}
 NAMES = {**NAMES, **REVIEW_NAMES}
+from sunrise_review_76_90 import ALLOWED as LATE_ALLOWED, NAMES as LATE_NAMES, ALIASES as LATE_ALIASES, LABELS as LATE_LABELS, KEYWORDS as LATE_KEYWORDS, chapter_spans as late_spans
+ALLOWED = {**ALLOWED, **LATE_ALLOWED}
+NAMES = {**NAMES, **LATE_NAMES}
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 SOURCES = {
+ 76: ('76bbdae9f9249bde6eedf4616b8bde2d3e537a2357745760489215f8937fab8e', 'sunrise-professional-people', '曙光市｜人物公開參考（不代表在場）', ['炎月夜'], {0,1,2,5}),
+ 77: ('3a4f028c6534ff43737b11de65e377ab43ef8c2a337e60d18421858c0f0255a1', 'sunrise-professional-people', '曙光市｜人物公開參考（不代表在場）', ['影月璃', '璃夜'], {0,1,2,4,7,10}),
+ 78: ('ffde3be44b55b8ba6384248cc4133f8f09a6c3981d61113c49f813e3d7477cdd', 'sunrise-minor-source-hold', '曙光市｜未成年來源待審（不公開）', ['林瑀萱'], set()),
+ 79: ('35394a5c1397b83af414659957c707f091f4722fba05cf27c681dc9d0ce2786b', 'sunrise-minor-source-hold', '曙光市｜未成年來源待審（不公開）', ['林慧芳'], set()),
+ 80: ('89062fa2b03450c891d30b04297105201218540ca45861cf91ee077a486571f1', 'sunrise-minor-source-hold', '曙光市｜未成年來源待審（不公開）', ['李小雅'], set()),
+ 81: ('ab950b18de5ec4a07c8612231fc9809a25e8ba9740a709d0cff9a1800d766927', 'sunrise-minor-source-hold', '曙光市｜未成年來源待審（不公開）', ['王靜怡'], set()),
+ 82: ('3bb93d8784fe2bd557b849431dcbc38cae0bb334697903f529d822e5292de7eb', 'sunrise-minor-source-hold', '曙光市｜未成年來源待審（不公開）', ['陳俊豪'], set()),
+ 83: ('19e374adaddadc4c6f18c22013f8ef9cb75540cc368417ebc27fd026b86361ec', 'sunrise-minor-source-hold', '曙光市｜未成年來源待審（不公開）', ['林可欣'], set()),
+ 84: ('8270d72a25b27b35e36e39f6336f9ca71132d20be1252e24079728e34850ac1e', 'sunrise-prison-people', '曙光市｜第一監獄人物公開參考（不代表在場）', ['沈妤筠'], {0,1,2,4,5,6,7,9}),
+ 85: ('35f77ba9d6cb42df5160d68317d24f4f3c8995d7689f4b0ccf7c7967df077af2', 'sunrise-prison-people', '曙光市｜第一監獄人物公開參考（不代表在場）', ['蘇逸辰'], {0,1,2,4,5,6,7,9}),
+ 86: ('89182689d02a4f6904dc61adefd046bac08aced0389b7ef712b8cfb2445fda51', 'sunrise-prison-people', '曙光市｜第一監獄人物公開參考（不代表在場）', ['監獄相關人物'], {0,1,2,3,7,8,9,10,12,14}),
+ 87: ('6f9f1b5753a58df223ace842551962d2abc65efa373f2027c5f55508e5065768', 'sunrise-prison-people', '曙光市｜第一監獄人物公開參考（不代表在場）', ['林婉如'], {0,1,2,4,5,6}),
+ 88: ('c2e9b63e3d1fa160b1f9c602fb9321ae807ec23ebf182a95daff24e1354b5525', 'sunrise-eden-background', '曙光市｜伊甸園科技體驗館公開資料', ['伊甸園科技體驗館', 'Eden'], {0,1,2}),
+ 89: ('0c9d85c2e24cd3c40f71e9144f0bdd7fb336d321bceb608e3d288c756163e15a', 'sunrise-eden-background', '曙光市｜伊甸園科技體驗館公開資料', ['NS3', '神經連接技術'], {0,3,4}),
+ 90: ('6dadeeccdd1c4478290f5d9b0b6536b32d4dfcb002ae967c868f53bb29cf92c5', 'sunrise-eden-background', '曙光市｜伊甸園科技體驗館公開資料', ['伊甸園關鍵 NPC'], set()),
  61: ('a961ff5f200ee51e12b16ea47dc8228f650110e3ee8c5e5028e71a7e0faf5aac', 'sunrise-professional-people', '曙光市｜人物公開參考（不代表在場）', ['Aletheia', '阿蕾西亞'], {0, 1, 2, 6, 7}),
  62: ('f6ee228f0e58b00365dfd4b1af6f651cf7a8bdeea252f0333c792be987aa13a1', 'sunrise-veritas-institution', '曙光市｜煉律制度公開參考（虛構制度）', ['煉律審查'], {1}),
  63: ('a6bb66c1c48a567838e5d1e39ab527db5ba282efff94568ff4c3cb06ee03f05f', 'sunrise-veritas-institution', '曙光市｜煉律制度公開參考（虛構制度）', ['煉律審查'], {0, 2, 3, 4, 6, 7}),
@@ -108,11 +126,12 @@ def build(zip_path):
  packs, mapping = [], []
  for index, (digest, pack_id, name, keywords, allowed) in SOURCES.items():
   entry = original['entries'][index]; content = entry['content']
-  if sha(content) != digest or content != shared['entries'][index]['content'] or entry['category'] != ('角色' if 8 <= index <= 28 or 43 <= index <= 48 or index in REVIEW_NAMES or index in (62,73) else '事件' if index in (29,96,97) else '地點' if 49 <= index <= 60 or index in (66,67) else '規則' if index in (0, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 63, 64, 138) else '地點'):
+  expected_category = '角色' if 8 <= index <= 28 or 43 <= index <= 48 or index in REVIEW_NAMES or 76 <= index <= 87 or index == 90 or index in (62,73) else '事件' if index in (29,89,96,97) else '地點' if 49 <= index <= 60 or index in (66,67,88) else '規則' if index in (0, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 63, 64, 138) else '地點'
+  if sha(content) != digest or content != shared['entries'][index]['content'] or entry['category'] != expected_category:
    raise ValueError('Source changed; review again')
   starts = [m.start() for m in re.finditer(r'^#{2,3} ' if 43 <= index <= 48 else r'^#### ' if index in (35,36,37,38,39,40,41,42) else r'^#{2,3} ' if index == 138 else r'^## ' if index in (0, 1, 2, 3, 4, 5, 6) else r'^### ', content, re.M)]
   if not starts or starts[0] != 0: starts.insert(0,0)
-  spans = review_spans(index,content) if 61 <= index <= 75 else family_spans(index,content) if 49 <= index <= 60 else list(zip(starts, starts[1:] + [len(content)]))
+  spans = late_spans(index,content) if 76 <= index <= 90 else review_spans(index,content) if 61 <= index <= 75 else family_spans(index,content) if 49 <= index <= 60 else list(zip(starts, starts[1:] + [len(content)]))
   entries, review = [], []
   for part, (start,end) in enumerate(spans):
    value = content[start:end].strip(); title = value.splitlines()[0].lstrip('# ').strip()
@@ -144,8 +163,8 @@ def build(zip_path):
      (34,0): ['異能分類', '八大主類'], (34,4): ['異能監控等級', '異能者管理局監控']
     }.get((index, part), keywords)
     if index==26: recall_keywords=[INSTITUTION_NAMES[part]]
-    recall_keywords=REVIEW_KEYWORDS.get((index,part),ALIASES.get(index)) or FAMILY_KEYWORDS.get((index,part),CHAPTER_KEYWORDS.get((index,part),recall_keywords))
-    title=REVIEW_LABELS.get((index,part),FAMILY_LABELS.get((index,part),title))
+    recall_keywords=LATE_KEYWORDS.get((index,part),LATE_ALIASES.get(index)) or REVIEW_KEYWORDS.get((index,part),ALIASES.get(index)) or FAMILY_KEYWORDS.get((index,part),CHAPTER_KEYWORDS.get((index,part),recall_keywords))
+    title=LATE_LABELS.get((index,part),REVIEW_LABELS.get((index,part),FAMILY_LABELS.get((index,part),title)))
     entries.append({'id':eid,'title':name+'｜'+(keywords[0]+'｜' if 8 <= index <= 28 or 43 <= index <= 48 or index in REVIEW_NAMES else '')+title,'category':'人物資料' if 8 <= index <= 28 or 43 <= index <= 48 or index in REVIEW_NAMES or index==73 else '世界資料','mode':'keyword','keywords':recall_keywords + ({1:['曙光金融大廈','天際商場','凱旋企業總部','司法大廈','曙光國際會議中心'],2:['曙光證券交易所','泰坦科技','晨曦集團','極光製藥','銀河傳媒']} .get(part, []) if index == 1 else []),'content':value})
    review.append(record)
   groups = [(pack_id, name, entries)]
@@ -158,6 +177,8 @@ def build(zip_path):
    groups = [(pack_id, name, [e for e in entries if e not in scenario]),
              ('sunrise-academy-scenario', '曙光市｜學院劇情方向', scenario)]
   for group_id, group_name, group_entries in groups:
+   if not group_entries:
+    continue
    if group_id != pack_id:
     for item in group_entries: item["title"] = group_name + "｜" + item["title"].split("｜", 2)[-1]
    existing = next((pack for pack in packs if pack['meta']['id'] == group_id), None)

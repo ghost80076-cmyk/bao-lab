@@ -1028,8 +1028,8 @@
         "profile",
         "lore"
       ],
-      "editorial_status": "needs-content-review",
-      "publication_status": "unreviewed"
+      "editorial_status": "reviewed-published-sections",
+      "publication_status": "partial"
     },
     {
       "source_index": 77,
@@ -1041,8 +1041,8 @@
         "profile",
         "lore"
       ],
-      "editorial_status": "needs-content-review",
-      "publication_status": "unreviewed"
+      "editorial_status": "reviewed-published-sections",
+      "publication_status": "partial"
     },
     {
       "source_index": 78,
@@ -1054,8 +1054,8 @@
         "profile",
         "lore"
       ],
-      "editorial_status": "needs-content-review",
-      "publication_status": "unreviewed"
+      "editorial_status": "reviewed-published-sections",
+      "publication_status": "partial"
     },
     {
       "source_index": 79,
@@ -1067,8 +1067,8 @@
         "profile",
         "lore"
       ],
-      "editorial_status": "needs-content-review",
-      "publication_status": "unreviewed"
+      "editorial_status": "reviewed-published-sections",
+      "publication_status": "partial"
     },
     {
       "source_index": 80,
@@ -1080,8 +1080,8 @@
         "profile",
         "lore"
       ],
-      "editorial_status": "needs-content-review",
-      "publication_status": "unreviewed"
+      "editorial_status": "reviewed-published-sections",
+      "publication_status": "partial"
     },
     {
       "source_index": 81,
@@ -1093,8 +1093,8 @@
         "profile",
         "lore"
       ],
-      "editorial_status": "needs-content-review",
-      "publication_status": "unreviewed"
+      "editorial_status": "reviewed-published-sections",
+      "publication_status": "partial"
     },
     {
       "source_index": 82,
@@ -1106,8 +1106,8 @@
         "profile",
         "lore"
       ],
-      "editorial_status": "needs-content-review",
-      "publication_status": "unreviewed"
+      "editorial_status": "reviewed-published-sections",
+      "publication_status": "partial"
     },
     {
       "source_index": 83,
@@ -1119,8 +1119,8 @@
         "profile",
         "lore"
       ],
-      "editorial_status": "needs-content-review",
-      "publication_status": "unreviewed"
+      "editorial_status": "reviewed-published-sections",
+      "publication_status": "partial"
     },
     {
       "source_index": 84,
@@ -1132,8 +1132,8 @@
         "profile",
         "lore"
       ],
-      "editorial_status": "needs-content-review",
-      "publication_status": "unreviewed"
+      "editorial_status": "reviewed-published-sections",
+      "publication_status": "partial"
     },
     {
       "source_index": 85,
@@ -1145,8 +1145,8 @@
         "profile",
         "lore"
       ],
-      "editorial_status": "needs-content-review",
-      "publication_status": "unreviewed"
+      "editorial_status": "reviewed-published-sections",
+      "publication_status": "partial"
     },
     {
       "source_index": 86,
@@ -1158,8 +1158,8 @@
         "profile",
         "lore"
       ],
-      "editorial_status": "needs-content-review",
-      "publication_status": "unreviewed"
+      "editorial_status": "reviewed-published-sections",
+      "publication_status": "partial"
     },
     {
       "source_index": 87,
@@ -1171,8 +1171,8 @@
         "profile",
         "lore"
       ],
-      "editorial_status": "needs-content-review",
-      "publication_status": "unreviewed"
+      "editorial_status": "reviewed-published-sections",
+      "publication_status": "partial"
     },
     {
       "source_index": 88,
@@ -1184,8 +1184,8 @@
         "world",
         "lore"
       ],
-      "editorial_status": "needs-content-review",
-      "publication_status": "unreviewed"
+      "editorial_status": "reviewed-published-sections",
+      "publication_status": "partial"
     },
     {
       "source_index": 89,
@@ -1196,8 +1196,8 @@
       "targets": [
         "lore"
       ],
-      "editorial_status": "needs-content-review",
-      "publication_status": "unreviewed"
+      "editorial_status": "reviewed-published-sections",
+      "publication_status": "partial"
     },
     {
       "source_index": 90,
@@ -1209,8 +1209,8 @@
         "profile",
         "lore"
       ],
-      "editorial_status": "needs-content-review",
-      "publication_status": "unreviewed"
+      "editorial_status": "reviewed-published-sections",
+      "publication_status": "partial"
     },
     {
       "source_index": 91,
@@ -3091,6 +3091,120 @@
       ],
       "adopted": null,
       "reason": "清水純整合頁稱唯一已登記水系者，已有水系分類及沈家水系人物。保留她目前B級設定，不發布唯一斷言或編造未登記例外。"
+    },
+    {
+      "id": "professional-ability-scope",
+      "status": "resolved",
+      "authority": [
+        75,
+        76,
+        77,
+        84,
+        85
+      ],
+      "affected": [
+        75,
+        76,
+        77,
+        84,
+        85
+      ],
+      "adopted": "公開目前登記能力與限制；未公開隱藏等級、未來突破、私有創傷及親密操控。",
+      "reason": "能力投影服務於當前世界互動，不把秘密潛力或劇情結果當成已知事實。"
+    },
+    {
+      "id": "minor-source-withheld",
+      "status": "resolved",
+      "authority": [
+        78,
+        79,
+        80,
+        81,
+        82,
+        83
+      ],
+      "affected": [
+        78,
+        79,
+        80,
+        81,
+        82,
+        83
+      ],
+      "adopted": "含未成年角色的性化、剝削與犯罪劇情來源整批保留作者原檔，不進公開世界書。",
+      "reason": "避免公開召回未成年私密與性化內容；後續若需整理，只能另行做非性化、公共背景摘要。"
+    },
+    {
+      "id": "prison-public-boundary",
+      "status": "resolved",
+      "authority": [
+        84,
+        85,
+        86,
+        87
+      ],
+      "affected": [
+        84,
+        85,
+        86,
+        87
+      ],
+      "adopted": "公開職務、登記能力與場所中的表面關係；霸凌設局、私密互動、操控與證據留待審核。",
+      "reason": "監獄角色名稱不能自動揭露未證實的犯罪內幕或私密關係。"
+    },
+    {
+      "id": "eden-public-surface",
+      "status": "resolved",
+      "authority": [
+        88,
+        89,
+        90
+      ],
+      "affected": [
+        88,
+        89,
+        90
+      ],
+      "adopted": "公開伊甸園建築與合法服務，NS3只呈現高層技術與安全風險；灰色流程、收費與控制性細節不發布。",
+      "reason": "場所可作情境背景，但操作性或強制性技術細節不應由普通召回直接提供。"
+    },
+    {
+      "id": "prison-relationship-consistency",
+      "status": "unresolved",
+      "authority": [
+        84,
+        85,
+        86,
+        87,
+        119,
+        120
+      ],
+      "affected": [
+        84,
+        85,
+        86,
+        87
+      ],
+      "adopted": null,
+      "reason": "沈妤筠、蘇逸辰、霸凌群體與陳若琳的公開職務、私下關係及監獄制度仍有交疊，未確定哪一層是玩家可知事實。"
+    },
+    {
+      "id": "ns3-origin-and-authority",
+      "status": "unresolved",
+      "authority": [
+        88,
+        89,
+        90,
+        96,
+        107
+      ],
+      "affected": [
+        88,
+        89,
+        90
+      ],
+      "adopted": null,
+      "reason": "NS3來源可能是管理局流出或地下研發；不把可能來源、警方腐敗或特異對策課調查寫成已證實事件。"
     }
   ]
 }
