@@ -181,5 +181,5 @@ test('account loads an existing author identity without exposing login username 
   await expect(page.locator('#account-body')).toContainText('private-login-name');
   await expect(form.locator('[name="author_id"]')).not.toHaveValue('private-login-name');
   await expect(page.getByRole('link', { name: '查看公開作者頁' }))
-    .toHaveAttribute('href', 'author.html?id=public-writer');
+    .toHaveAttribute('href', 'author?id=public-writer');
 });
