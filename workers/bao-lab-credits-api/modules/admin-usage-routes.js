@@ -87,6 +87,7 @@ async function adminUsageRoute(
             d.provider_status,
             d.route,
             d.transport_failure,
+            d.rate_limit_scope,
             d.retry_after_seconds,
             d.request_bytes,
             d.elapsed_ms,
