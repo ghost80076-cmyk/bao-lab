@@ -37,11 +37,11 @@ const uniqueWorks = new Set(catalogEntries.map(entry => String(entry.id || "").t
 assert.ok(uniqueWorks.size > 0, "public works must have stable ids");
 
 const index = read("index.html");
-assert.match(index, /href="author\.html">作者<\/a>/, "main navigation must expose the public author directory");
+assert.match(index, /href="author">作者<\/a>/, "main navigation must expose the public author directory");
 assert.match(index, /id="builder-author-link"/, "story setup must expose a public author link");
 
 const authorPage = read("author.html");
-assert.match(authorPage, /href="author\.html">所有作者<\/a>/, "author page must link back to the public directory");
+assert.match(authorPage, /href="author">所有作者<\/a>/, "author page must link back to the public directory");
 
 const authorProfile = read("js/author-profile.js");
 assert.match(authorProfile, /function renderDirectory\(/, "author profile route must render the directory without an id");
@@ -49,7 +49,7 @@ assert.match(authorProfile, /查看作者與作品/, "directory cards must link 
 
 const characterUi = read("js/character-ui.js");
 assert.match(characterUi, /builder-author-link/, "story setup must populate the author link");
-assert.match(characterUi, /author\.html\?id=/, "story setup author link must target the public profile");
+assert.match(characterUi, /author\?id=/, "story setup author link must target the public profile");
 
 const exploreDiscovery = read("js/explore-discovery.js");
 assert.match(exploreDiscovery, /link\.className = "explore-author-link"/, "work preview must keep the author link visible");
