@@ -50,7 +50,7 @@ const lastRequest = () => requests.at(-1);
   assert.equal(openRouter.usage.cached_tokens, 60);
   assert.equal(openRouter.usage.new_input_tokens, 40);
   assert.equal(lastRequest().body.session_id, "bao-lab:test:stable-session");
-  assert.deepEqual(lastRequest().body.messages[0].content[0].cache_control, { type: "ephemeral" });
+  assert.deepEqual(lastRequest().body.messages[0].content[0].cache_control, { type: "ephemeral", ttl: "1h" });
   assert.equal(JSON.stringify(lastRequest().body).includes("OR-SECRET"), false);
   assert.equal(lastRequest().options.signal, controller.signal, "OpenAI-compatible requests must accept the active generation signal");
 
@@ -113,7 +113,7 @@ const lastRequest = () => requests.at(-1);
   assert.equal(anthropic.usage.cached_tokens, 100);
   assert.equal(anthropic.usage.cache_write_tokens, 20);
   assert.equal(anthropic.usage.new_input_tokens, 60);
-  assert.deepEqual(lastRequest().body.system[0].cache_control, { type: "ephemeral" });
+  assert.deepEqual(lastRequest().body.system[0].cache_control, { type: "ephemeral", ttl: "1h" });
   assert.equal(JSON.stringify(lastRequest().body).includes("CLAUDE-SECRET"), false);
   assert.equal(lastRequest().options.signal, controller.signal, "Anthropic requests must accept the active generation signal");
 
