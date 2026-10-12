@@ -22,13 +22,13 @@ const expected = {
     input: 1_000_000,
     output: 5_000_000,
     cacheRead: 100_000,
-    cacheWrite: 1_250_000,
+    cacheWrite: 2_000_000,
   },
   "anthropic/claude-sonnet-5": {
     input: 2_000_000,
     output: 10_000_000,
     cacheRead: 200_000,
-    cacheWrite: 2_500_000,
+    cacheWrite: 4_000_000,
   },
   "openai/gpt-5.6-luna": {
     input: 200_000,
