@@ -34,6 +34,12 @@ NAMES = {**NAMES, **SYSTEM_NAMES}
 from sunrise_review_151_165 import ALLOWED as PROC_ALLOWED, NAMES as PROC_NAMES, LABELS as PROC_LABELS, KEYWORDS as PROC_KEYWORDS, chapter_spans as proc_spans
 ALLOWED = {**ALLOWED, **PROC_ALLOWED}
 NAMES = {**NAMES, **PROC_NAMES}
+from sunrise_review_166_182 import ALLOWED as FINAL_BATCH_ALLOWED, NAMES as FINAL_BATCH_NAMES, LABELS as FINAL_BATCH_LABELS, KEYWORDS as FINAL_BATCH_KEYWORDS, chapter_spans as final_batch_spans
+ALLOWED = {**ALLOWED, **FINAL_BATCH_ALLOWED}
+NAMES = {**NAMES, **FINAL_BATCH_NAMES}
+from sunrise_review_residual import ALLOWED as RESIDUAL_ALLOWED, NAMES as RESIDUAL_NAMES, LABELS as RESIDUAL_LABELS, KEYWORDS as RESIDUAL_KEYWORDS, chapter_spans as residual_spans
+ALLOWED = {**ALLOWED, **RESIDUAL_ALLOWED}
+NAMES = {**NAMES, **RESIDUAL_NAMES}
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 SOURCES = {
  76: ('76bbdae9f9249bde6eedf4616b8bde2d3e537a2357745760489215f8937fab8e', 'sunrise-professional-people', '曙光市｜人物公開參考（不代表在場）', ['炎月夜'], {0,1,2,5}),
@@ -169,6 +175,33 @@ SOURCES = {
  163: ('98905d60b5938ba14d09c116593406dee1dd73c3d7a02c6f8dd773274c979f37', 'sunrise-artifact-system-hold', '曙光市｜異寶系統（不公開）', ['異寶系統'], set()),
  164: ('91b63b12813bf15d2325ea87df9311ce92519e20c6e213ceac70f7912544f243', 'sunrise-artifact-system-hold', '曙光市｜異寶系統（不公開）', ['異寶系統'], set()),
  165: ('88f62184007303c1a4a0bd037a545332076bd69a8e4a42dc0b4655d8a3780640', 'sunrise-realm-system-hold', '曙光市｜秘境系統（不公開）', ['秘境系統'], set()),
+ 166: ('dc4cfc12fc2008c3010b10c2e722d036b0480fe30f1681f094508d0ad7f2b732', 'sunrise-realm-system-hold', '曙光市｜秘境系統（不公開）', ['秘境系統'], set()),
+ 167: ('db1d5948a3bd943c5b30bfa7aade63ec6af3cc2a7a795cbf1db285898cfc246e', 'sunrise-black-panther-hold', '曙光市｜黑豹使角色來源（不公開）', ['黑豹使'], set()),
+ 168: ('28b2c52249844ecafa14e197c183b817a49c2047dfb0a75b99c4b573abfbb2e1', 'sunrise-black-panther-hold', '曙光市｜黑豹使角色來源（不公開）', ['黑豹使'], set()),
+ 169: ('7814023d98d048b414a7c749a096b48e24caae07ae2f34b1f03f0cfd7af766f7', 'sunrise-ability-test-hold', '曙光市｜異能覺醒測試系統（不公開）', ['異能覺醒測試'], set()),
+ 170: ('e03cdbd69f26f2f9f4e95544336731cc9b7bf97cc440b0f8e885cb375ba3c368', 'sunrise-ability-test-hold', '曙光市｜異能覺醒測試系統（不公開）', ['異能覺醒測試'], set()),
+ 171: ('b1c4118136adcd0423fc2e461e6f133b360dc5412898dfd778a76bd20fabca31', 'sunrise-nsfw-hold', '曙光市｜成熟場景規範（不公開）', ['成熟場景'], set()),
+ 172: ('1eb38d450c859cd0a14552b017f8bb365570e3af2bd996253ad9c2af504b6640', 'sunrise-nsfw-hold', '曙光市｜成熟場景規範（不公開）', ['成熟場景'], set()),
+ 173: ('4184b30083c96d1365aa69911ec10326ddbfb0ccaabd0c486245a7baa3f4d1e6', 'sunrise-minor-template-hold', '曙光市｜未成年 NPC 模板（不公開）', ['白桃'], set()),
+ 174: ('96c3e8ab106ffe3f4fb5a799695c7321af9c55eae1e946455e6a6723f2978523', 'sunrise-minor-template-hold', '曙光市｜未成年 NPC 模板（不公開）', ['雪'], set()),
+ 175: ('eca0402839db0c3c8f6a0697d9ed5b00807d79f9bc600aca42d6956cce4a66c3', 'sunrise-author-template-hold', '曙光市｜地點設定模板（不公開）', ['地點設定模板'], set()),
+ 176: ('5b728bf76b2c2b9efab81125e1de79799399751feaae59285a28700290629d14', 'sunrise-task-system-hold', '曙光市｜任務系統（不公開）', ['任務系統'], set()),
+ 177: ('8a38b9816ebc551e76de5a76e61e17d2010d0925cb2383f2f2fc6589867f2e3e', 'sunrise-task-system-hold', '曙光市｜起始任務模板（不公開）', ['起始任務'], set()),
+ 178: ('461c9582817d64c7305fc20634b1d16da9f0a923e4f38a41f0db364670430a0e', 'sunrise-author-template-hold', '曙光市｜NPC 生成模板（不公開）', ['NPC 模板'], set()),
+ 179: ('8259c4c023994183844a71cd540c8326c2c9f931105a1b854d3b2dca6b0fcf05', 'sunrise-mode-system-hold', '曙光市｜遊戲模式規則（不公開）', ['遊戲模式'], set()),
+ 180: ('1d4895da9af4ae4beea2206df8bc57563f3226ca8b5997a525747ec51dfccad6', 'sunrise-mode-system-hold', '曙光市｜禁忌模式規則（不公開）', ['禁忌模式'], set()),
+ 181: ('7c27668484bd069c9c30af513d422773147ecbbeec048eec31754d02acad7283', 'sunrise-libido-system-hold', '曙光市｜性慾與生理反應系統（不公開）', ['性慾值'], set()),
+ 182: ('baf6c8fc9c4f8a957614e8ca055eb4c13a3e0a2b160b79450fdf301be015d9a6', 'sunrise-libido-system-hold', '曙光市｜性慾與生理反應系統（不公開）', ['性慾值'], set()),
+ 7: ('f538f6d9751cf955175eff8bb0d7711fa5e45449ab7e0fe7d8ccae899dd468a4', 'sunrise-author-template-hold', '曙光市｜NPC 生成模板（不公開）', ['NPC 模板'], set()),
+ 30: ('68ee5b8bac88a6445fd803428013c1e102b05149f727d764bae0a003e3f8b31d', 'sunrise-withheld-author-source', '曙光市｜桃華事件真相（不公開）', ['桃華事件'], set()),
+ 31: ('63651c9c2f9cfd935994d803c5a805d826212e1afd59bc0d6ea3fafa803d5c5c', 'sunrise-reincarnation-hold', '曙光市｜轉世設定來源（不公開）', ['轉世之謎'], set()),
+ 32: ('c5d16907460e4106f01503bc15a991449fe128a05801e59c87744a4a7889af5d', 'sunrise-reincarnation-hold', '曙光市｜轉世研究來源（不公開）', ['轉世之謎'], set()),
+ 52: ('e39fb32f33688bcccbb2fe13ab54f7556b8cb2ee87c82ac272fe2596136631d6', 'sunrise-nightlife-character-hold', '曙光市｜黑羽ゆめ來源（不公開）', ['黑羽ゆめ'], set()),
+ 58: ('320436f5c04c493de1818cf3bce805db50077b424c9eca216ba5cb097a9a45cb', 'sunrise-rose-club-hold', '曙光市｜Rose Club人物來源（不公開）', ['Rose Club'], set()),
+ 65: ('6d347f0023b39b874af418d56cba538482158cc713822ceac5b3a93b6b709af5', 'sunrise-veritas-system-hold', '曙光市｜煉律審查系統（不公開）', ['煉律審查'], set()),
+ 69: ('2c6b65a03311f6828d9c6681300a8da14d133f60b047b7785182e07fd4506180', 'sunrise-nightlife-character-hold', '曙光市｜黑羽璃夜來源（不公開）', ['黑羽璃夜'], set()),
+ 71: ('cbd9d2357c0cc5f0d9aa04f4a3b97ee669d6c60ca5c85ad934317dc544f365c7', 'sunrise-nightlife-character-hold', '曙光市｜神代隼人來源（不公開）', ['神代隼人'], set()),
+ 74: ('5d764e4ced1bba821d076f02736c77e64d433208cfcd930c0dd94a3232fcde65', 'sunrise-professional-people', '曙光市｜清水純來源（不公開）', ['清水純'], set()),
  106: ('0b2c3b648ddf5b1ee6cb0c172ad5c9ab15df7d8608219a5d3b13f7fd8b0193a3', 'sunrise-south-geography', '曙光市｜南區案件來源（不公開）', ['南區'], set()),
  108: ('8eec45ac64500fa26c50bf7ba0a5089617343f8c91fc60dfbf68b567f7449b78', 'sunrise-police-background', '曙光市｜警局公開職能（不公開）', ['曙光市警局'], set()),
  109: ('b38a60daed83af16c91b64f9b59de14d426e9b5b6cfb2ef5718e363bb8706dcc', 'sunrise-police-background', '曙光市｜警局腐敗來源（不公開）', ['曙光市警局'], set()),
@@ -205,14 +238,14 @@ def build(zip_path):
  packs, mapping = [], []
  for index, (digest, pack_id, name, keywords, allowed) in SOURCES.items():
   entry = original['entries'][index]; content = entry['content']
-  expected_category = '角色' if 8 <= index <= 28 or 43 <= index <= 48 or index in REVIEW_NAMES or 76 <= index <= 87 or 91 <= index <= 95 or index == 90 or index in (62,73) or 143 <= index <= 146 or index == 149 else '事件' if index in (29,89,96,97,100,121,122) else '地點' if 49 <= index <= 60 or index in (66,67,88,102,103,105) else '規則' if index in (0, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 63, 64, 138) or 123 <= index <= 165 or index == 150 else '地點'
+  expected_category = '自訂' if index == 7 else '角色' if 8 <= index <= 28 or 43 <= index <= 48 or index in REVIEW_NAMES or 76 <= index <= 87 or 91 <= index <= 95 or index == 90 or index in (52,62,69,71,73,74) or 143 <= index <= 146 or index == 149 or index in (167,168,173,174) else '事件' if index in (29,30,89,96,97,100,121,122) else '地點' if 49 <= index <= 60 or index in (58,66,67,88,102,103,105,175) else '規則' if index in (0,31,32,33,34,35,36,37,38,39,40,41,42,63,64,65,138) or 123 <= index <= 172 or 176 <= index <= 182 else '地點'
   if 'PLACEHOLDER' in digest:
    raise ValueError('Review digest placeholder remains')
   if sha(content) != digest or content != shared['entries'][index]['content'] or entry['category'] != expected_category:
    raise ValueError('Source changed; review again')
   starts = [m.start() for m in re.finditer(r'^#{2,3} ' if 43 <= index <= 48 else r'^#### ' if index in (35,36,37,38,39,40,41,42) else r'^#{2,3} ' if index == 138 else r'^## ' if index in (0, 1, 2, 3, 4, 5, 6) else r'^### ', content, re.M)]
   if not starts or starts[0] != 0: starts.insert(0,0)
-  spans = proc_spans(index,content) if index in PROC_ALLOWED else system_spans(index,content) if index in SYSTEM_ALLOWED else adult_spans(index,content) if index in ADULT_ALLOWED else final_spans(index,content) if index in FINAL_ALLOWED else new_spans(index,content) if index in NEW_ALLOWED else late_spans(index,content) if 76 <= index <= 90 else review_spans(index,content) if 61 <= index <= 75 else family_spans(index,content) if 49 <= index <= 60 else list(zip(starts, starts[1:] + [len(content)]))
+  spans = residual_spans(index,content) if index in RESIDUAL_ALLOWED else final_batch_spans(index,content) if index in FINAL_BATCH_ALLOWED else proc_spans(index,content) if index in PROC_ALLOWED else system_spans(index,content) if index in SYSTEM_ALLOWED else adult_spans(index,content) if index in ADULT_ALLOWED else final_spans(index,content) if index in FINAL_ALLOWED else new_spans(index,content) if index in NEW_ALLOWED else late_spans(index,content) if 76 <= index <= 90 else review_spans(index,content) if 61 <= index <= 75 else family_spans(index,content) if 49 <= index <= 60 else list(zip(starts, starts[1:] + [len(content)]))
   entries, review = [], []
   for part, (start,end) in enumerate(spans):
    value = content[start:end].strip(); title = value.splitlines()[0].lstrip('# ').strip()

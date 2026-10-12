@@ -14,6 +14,7 @@ from sunrise_review_106_120 import chapter_spans as final_spans, ALLOWED as fina
 from sunrise_review_121_135 import chapter_spans as adult_spans, ALLOWED as adult_allowed
 from sunrise_review_136_150 import chapter_spans as system_spans, ALLOWED as system_allowed
 from sunrise_review_151_165 import chapter_spans as proc_spans, ALLOWED as proc_allowed
+from sunrise_review_166_182 import chapter_spans as final_batch_spans, ALLOWED as final_batch_allowed
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 with zipfile.ZipFile(sys.argv[1]) as archive:
@@ -25,12 +26,12 @@ sources = {s['source_index']: s for s in mapping['sources']}
 digest = lambda text: hashlib.sha256(text.encode()).hexdigest()
 records = []
 first, last = map(int,sys.argv[2:4]) if len(sys.argv)>2 else (29,48)
-if (first,last) not in [(29,48),(49,60),(61,75),(76,90),(91,105),(106,120),(121,135),(136,150),(151,165)]: raise ValueError('Unknown reviewed batch')
+if (first,last) not in [(29,48),(49,60),(61,75),(76,90),(91,105),(106,120),(121,135),(136,150),(151,165),(166,182)]: raise ValueError('Unknown reviewed batch')
 for index in range(first,last+1):
     content = original['entries'][index]['content']
     if digest(content) != coverage['entries'][index]['source_sha256']:
         raise ValueError('Source changed')
-    spans = proc_spans(index,content) if first==151 and index in proc_allowed else system_spans(index,content) if first==136 and index in system_allowed else adult_spans(index,content) if first==121 and index in adult_allowed else final_spans(index,content) if first==106 and index in final_allowed else new_spans(index,content) if first==91 and index in new_allowed else late_spans(index,content) if first==76 else review_spans(index,content) if first==61 else family_spans(index,content) if first==49 else chapter_spans(index,content)
+    spans = final_batch_spans(index,content) if first==166 and index in final_batch_allowed else proc_spans(index,content) if first==151 and index in proc_allowed else system_spans(index,content) if first==136 and index in system_allowed else adult_spans(index,content) if first==121 and index in adult_allowed else final_spans(index,content) if first==106 and index in final_allowed else new_spans(index,content) if first==91 and index in new_allowed else late_spans(index,content) if first==76 else review_spans(index,content) if first==61 else family_spans(index,content) if first==49 else chapter_spans(index,content)
     published = {c['chapter'] for c in sources.get(index,{}).get('chapters',[]) if c['status']=='published'}
     chapters = [{'chapter':part,'start':start,'end':end,'sha256':digest(content[start:end].strip()),
                  'disposition':'published-reference' if part in published else 'withheld-author-source'}
