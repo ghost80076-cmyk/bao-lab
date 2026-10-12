@@ -57,11 +57,6 @@ const geminiProRouter = requireRoute('gemini-3.1-pro', 'openrouter');
 assert.equal(geminiProRouter.provider, 'openrouter');
 assert.equal(geminiProRouter.model, 'google/gemini-3.1-pro-preview');
 
-const gemini37Official = requireRoute('gemini-3.7-flash', 'google-official');
-assert.equal(gemini37Official.model, 'gemini-3.7-flash');
-assert.deepEqual([gemini37Official.pricing.input, gemini37Official.pricing.output, gemini37Official.pricing.cache], [0.75, 3.75, 0.075]);
-assert.equal(requireRoute('gemini-3.7-flash', 'openrouter').model, 'google/gemini-3.7-flash');
-
 const gemini38Official = requireRoute('gemini-3.8-flash', 'google-official');
 assert.equal(gemini38Official.model, 'gemini-3.8-flash');
 assert.deepEqual([gemini38Official.pricing.input, gemini38Official.pricing.output, gemini38Official.pricing.cache], [0.75, 3.75, 0.075]);
@@ -116,7 +111,7 @@ assert.equal(zai.cache, 'automatic');
 assert.equal(zai.pricing, null, 'Z.AI volatile pricing must not be hardcoded');
 
 const hosted = registry.models.filter(model => model.hosted).sort((a, b) => a.hosted.order - b.hosted.order);
-assert.equal(hosted.length, 17, 'expected seventeen curated YoruBay hosted models');
+assert.equal(hosted.length, 16, 'expected sixteen curated YoruBay hosted models');
 const hostedResolved = hosted.map(model => {
   const route = model.routes.find(item => item.id === model.hosted.route_id);
   assert.ok(route, `${model.id} hosted route must resolve inside the same logical model`);
@@ -128,7 +123,6 @@ assert.deepEqual(hostedResolved, [
   { id: 'qwen-3.7-flash', provider: 'openrouter', model: 'qwen/qwen3.7-flash' },
   { id: 'mimo-v2.5', provider: 'openrouter', model: 'xiaomi/mimo-v2.5' },
   { id: 'gemini-3-flash', provider: 'gemini', model: 'gemini-3-flash-preview' },
-  { id: 'gemini-3.7-flash', provider: 'gemini', model: 'gemini-3.7-flash' },
   { id: 'gemini-3.8-flash', provider: 'gemini', model: 'gemini-3.8-flash' },
   { id: 'minimax-m3', provider: 'openrouter', model: 'minimax/minimax-m3' },
   { id: 'gpt-5.6-luna', provider: 'openrouter', model: 'openai/gpt-5.6-luna' },
@@ -141,7 +135,7 @@ assert.deepEqual(hostedResolved, [
   { id: 'claude-sonnet-4.6', provider: 'openrouter', model: 'anthropic/claude-sonnet-4.6' },
   { id: 'claude-opus-4.6', provider: 'openrouter', model: 'anthropic/claude-opus-4.6' },
   { id: 'claude-opus-5.5', provider: 'openrouter', model: 'anthropic/claude-opus-5.5' }
-], 'hosted list should preserve legacy choices while adding Gemini 3.7/3.8 and Claude 5.5');
+], 'hosted list should preserve legacy choices while adding Gemini 3.8 and Claude 5.5');
 
 const appSource = fs.readFileSync(path.join(root, 'js/app.js'), 'utf8');
 assert.match(appSource, /modelRegistry:\s*null/);
