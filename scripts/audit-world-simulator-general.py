@@ -19,6 +19,7 @@ SELECTED.update({68: "bl-romance", 69: "gl-romance", 70: "nl-romance",
                  76: "executive-romance", 77: "age-gap-romance", 78: "comeback",
                  80: "pure-romance", 81: "relationship-repair", 86: "romantasy",
                  91: "court-intrigue"})
+SELECTED.update({43: "campus", 84: "ya-growth", 85: "na-independence"})
 
 def sha(text):
     return hashlib.sha256(text.encode("utf-8")).hexdigest()
@@ -32,15 +33,28 @@ def audit(archive, root):
     if len(books) != 3:
         raise ValueError("Expected exactly three author-selected sources")
     canonical = next(b for b in books if len(b["entries"]) == 209)
-    records, inventory = [], []
+    decisions = json.loads((root / "data/world-simulator-layer-review.json").read_text())["decisions"]
+    routes = {d["canonical_source_index"]: d for d in decisions}
+    if len(routes) != len(decisions) or set(routes) & set(SELECTED):
+        raise ValueError("Duplicate or overlapping source routing")
+    records, review_records, inventory = [], [], []
     for book in books:
         bid = book["worldbook"]["id"]
         if len(book["entries"]) != BOOKS[bid]:
             raise ValueError("Source revision changed")
-        adopted = []
+        adopted, reviewed = [], []
         for index, source in enumerate(book["entries"]):
             matches = [i for i in SELECTED if source["content"].strip() == canonical["entries"][i]["content"].strip()]
             if not matches:
+                routed = [i for i in routes if source["content"].strip() == canonical["entries"][i]["content"].strip()]
+                if routed:
+                    route = routes[routed[0]]
+                    reviewed.append(index)
+                    review_records.append({"book_id": bid, "source_index": index,
+                                           "source_sha256": sha(source["content"].strip()),
+                                           "canonical_source_index": routed[0],
+                                           "status": "reviewed-not-published", "route": route["route"],
+                                           "automatic_recall": False})
                 continue
             entry_id = SELECTED[matches[0]]
             pack_id, entry = entries[entry_id]
@@ -52,22 +66,27 @@ def audit(archive, root):
                             "status": "partial-adaptation", "not_verbatim": True})
         if len(adopted) != len(SELECTED):
             raise ValueError("Reviewed common source no longer matches")
+        if len(reviewed) != len(routes):
+            raise ValueError("Reviewed layer source no longer matches")
         inventory.append({"book_id": bid, "source_count": len(book["entries"]),
                           "adapted_indices": adopted,
-                          "pending_indices": [i for i in range(len(book["entries"])) if i not in adopted]})
+                          "reviewed_unpublished_indices": reviewed,
+                          "pending_indices": [i for i in range(len(book["entries"])) if i not in adopted and i not in reviewed]})
     approved = root / "data/world-simulator-general-source-map.json"
     if approved.exists():
         old = json.loads(approved.read_text())
-        current = {(r["book_id"], r["source_index"]): r["source_sha256"] for r in records}
+        current = {(r["book_id"], r["source_index"]): r["source_sha256"] for r in records + review_records}
         if any(current.get((r["book_id"], r["source_index"])) != r["source_sha256"]
-               for r in old["records"]):
+               for r in old["records"] + old.get("review_records", [])):
             raise ValueError("Reviewed source changed; review before updating")
-    return {"schema": "yorubay-world-simulator-general-review", "version": 3,
+    return {"schema": "yorubay-world-simulator-general-review", "version": 4,
             "source_count": sum(BOOKS.values()), "adopted_occurrences": len(records),
             "unique_adapted_sources": len({r["source_sha256"] for r in records}),
+            "reviewed_unpublished_occurrences": len(review_records),
+            "unique_reviewed_unpublished_sources": len({r["source_sha256"] for r in review_records}),
             "pack_count": len(published["packs"]), "chapter_count": len(entries),
-            "scope": "Genre, relationship, romance and intrigue batches only. No full-book migration or model-dialogue evaluation claimed.",
-            "books": inventory, "records": records}
+            "scope": "Public adapted chapters and metadata-only layer routing. Reviewed-not-published does not mean integrated. No full-book migration or model-dialogue evaluation claimed.",
+            "books": inventory, "records": records, "review_records": review_records}
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

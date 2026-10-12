@@ -122,7 +122,8 @@ vm.runInNewContext(source, context, { filename: "worldbook-library.js" });
   assert.doesNotMatch((await App.buildMessages()).at(-1).content, /有底線的競爭對手參考/);
   for (const [packId, query, title] of [
     ['world-simulator-romance-reference', '純愛劇本', '純愛與初戀題材參考'],
-    ['world-simulator-intrigue-reference', '真假千金', '真假身分與雙重生活題材參考']
+    ['world-simulator-intrigue-reference', '真假千金', '真假身分與雙重生活題材參考'],
+    ['world-simulator-growth-reference', '校園祭', '校園日常題材參考']
   ]) {
     assert.ok(listed.some(p=>p.meta.id===packId));
     GameState.current.worldbookLibrary.enabled = [packId];
