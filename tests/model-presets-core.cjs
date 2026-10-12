@@ -57,6 +57,14 @@ const geminiProRouter = requireRoute('gemini-3.1-pro', 'openrouter');
 assert.equal(geminiProRouter.provider, 'openrouter');
 assert.equal(geminiProRouter.model, 'google/gemini-3.1-pro-preview');
 
+const gemini38Official = requireRoute('gemini-3.8-flash', 'google-official');
+assert.equal(gemini38Official.model, 'gemini-3.8-flash');
+assert.deepEqual([gemini38Official.pricing.input, gemini38Official.pricing.output, gemini38Official.pricing.cache], [0.75, 3.75, 0.075]);
+const gemini38Router = requireRoute('gemini-3.8-flash', 'openrouter');
+assert.equal(gemini38Router.model, 'google/gemini-3.8-flash');
+assert.equal(gemini38Router.worker.binding, 'MODELS_JSON_EXTRA');
+assert.equal(gemini38Router.worker.aws_openrouter_relay, true);
+
 const sonnet = requireRoute('claude-sonnet-4.6', 'anthropic-official');
 assert.deepEqual([sonnet.pricing.input, sonnet.pricing.output, sonnet.pricing.cache], [3, 15, 0.3]);
 
@@ -67,6 +75,16 @@ assert.equal(requireRoute('claude-haiku-4.5', 'openrouter').model, 'anthropic/cl
 const sonnet5 = requireRoute('claude-sonnet-5', 'anthropic-official');
 assert.deepEqual([sonnet5.pricing.input, sonnet5.pricing.output, sonnet5.pricing.cache], [2, 10, 0.2]);
 assert.equal(requireRoute('claude-sonnet-5', 'openrouter').model, 'anthropic/claude-sonnet-5');
+
+const sonnet55 = requireRoute('claude-sonnet-5.5', 'anthropic-official');
+assert.deepEqual([sonnet55.pricing.input, sonnet55.pricing.output, sonnet55.pricing.cache], [2, 10, 0.1]);
+assert.equal(requireRoute('claude-sonnet-5.5', 'openrouter').model, 'anthropic/claude-sonnet-5.5');
+assert.equal(requireModel('claude-sonnet-4.5').hosted, undefined, 'deprecated Sonnet 4.5 must leave the Hosted menu');
+assert.equal(requireModel('claude-sonnet-4.5').deprecated.replacement, 'claude-sonnet-5.5');
+
+const opus55 = requireRoute('claude-opus-5.5', 'anthropic-official');
+assert.deepEqual([opus55.pricing.input, opus55.pricing.output, opus55.pricing.cache], [4, 20, 0.2]);
+assert.equal(requireRoute('claude-opus-5.5', 'openrouter').model, 'anthropic/claude-opus-5.5');
 
 const gptLuna = requireRoute('gpt-5.6-luna', 'openai-official');
 assert.equal(gptLuna.model, 'gpt-5.6-luna');
@@ -93,7 +111,7 @@ assert.equal(zai.cache, 'automatic');
 assert.equal(zai.pricing, null, 'Z.AI volatile pricing must not be hardcoded');
 
 const hosted = registry.models.filter(model => model.hosted).sort((a, b) => a.hosted.order - b.hosted.order);
-assert.equal(hosted.length, 13, 'expected thirteen curated YoruBay hosted models');
+assert.equal(hosted.length, 15, 'expected fifteen curated YoruBay hosted models');
 const hostedResolved = hosted.map(model => {
   const route = model.routes.find(item => item.id === model.hosted.route_id);
   assert.ok(route, `${model.id} hosted route must resolve inside the same logical model`);
@@ -105,16 +123,18 @@ assert.deepEqual(hostedResolved, [
   { id: 'qwen-3.7-flash', provider: 'openrouter', model: 'qwen/qwen3.7-flash' },
   { id: 'mimo-v2.5', provider: 'openrouter', model: 'xiaomi/mimo-v2.5' },
   { id: 'gemini-3-flash', provider: 'gemini', model: 'gemini-3-flash-preview' },
+  { id: 'gemini-3.8-flash', provider: 'gemini', model: 'gemini-3.8-flash' },
   { id: 'minimax-m3', provider: 'openrouter', model: 'minimax/minimax-m3' },
   { id: 'gpt-5.6-luna', provider: 'openrouter', model: 'openai/gpt-5.6-luna' },
   { id: 'grok-4.5', provider: 'openrouter', model: 'x-ai/grok-4.5' },
   { id: 'gemini-3.1-pro', provider: 'gemini', model: 'gemini-3.1-pro-preview' },
   { id: 'claude-haiku-4.5', provider: 'openrouter', model: 'anthropic/claude-haiku-4.5' },
-  { id: 'claude-sonnet-4.5', provider: 'openrouter', model: 'anthropic/claude-sonnet-4.5' },
   { id: 'claude-sonnet-5', provider: 'openrouter', model: 'anthropic/claude-sonnet-5' },
+  { id: 'claude-sonnet-5.5', provider: 'openrouter', model: 'anthropic/claude-sonnet-5.5' },
   { id: 'claude-sonnet-4.6', provider: 'openrouter', model: 'anthropic/claude-sonnet-4.6' },
-  { id: 'claude-opus-4.6', provider: 'openrouter', model: 'anthropic/claude-opus-4.6' }
-], 'hosted list should preserve existing choices and add mainstream provider options');
+  { id: 'claude-opus-4.6', provider: 'openrouter', model: 'anthropic/claude-opus-4.6' },
+  { id: 'claude-opus-5.5', provider: 'openrouter', model: 'anthropic/claude-opus-5.5' }
+], 'hosted list should include the new Gemini/Claude generation and exclude deprecated Sonnet 4.5');
 
 const appSource = fs.readFileSync(path.join(root, 'js/app.js'), 'utf8');
 assert.match(appSource, /modelRegistry:\s*null/);
