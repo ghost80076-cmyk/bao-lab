@@ -6,6 +6,7 @@
 <meta name="theme-color" content="#100e14">
 <meta name="description" content="第一次玩夜灣？選作品、選一種模型連線方式，再開始故事。可使用夜灣燈火、自己的模型連線或 LM Studio 本地模型。">
 <title>第一次玩？三步驟開始故事｜夜灣 YoruBay</title>
+  <link rel="canonical" href="https://yorubay.com/quick-start">
 <link rel="icon" href="assets/bao-mark.svg" type="image/svg+xml">
 <style>
 :root{color-scheme:dark;font-family:system-ui,-apple-system,"Noto Sans TC",sans-serif;background:#0c0f16;color:#f3f1eb}*{box-sizing:border-box}body{margin:0;line-height:1.7}a{color:#e8ccff}a:focus-visible,summary:focus-visible{outline:3px solid #5dd6c0;outline-offset:4px}header,main,footer{width:min(860px,calc(100% - 32px));margin:auto}header{padding:24px 0;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}header a{color:inherit;text-decoration:none}header img{vertical-align:middle;margin-right:7px}main{padding:10px 0 56px}.eyebrow{font-size:12px;color:#74e4d4;letter-spacing:.13em;font-weight:800}h1{font-size:clamp(30px,5.5vw,52px);line-height:1.2;margin:12px 0}h2{font-size:clamp(21px,3vw,27px);margin:0 0 8px}.lead{font-size:18px;color:#c5cad5;max-width:690px}.steps{display:grid;gap:15px;margin-top:30px}.step{background:#171c27;border:1px solid #3e4354;border-radius:18px;padding:23px}.step-number{display:inline-grid;place-items:center;background:#2d2b45;color:#e6d5ff;border-radius:50%;width:34px;height:34px;font-weight:800;margin-bottom:12px}.step p{margin:5px 0 14px;color:#c5cad5}.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:15px}.btn{display:inline-block;background:#aa97ff;color:#101118!important;text-decoration:none;border-radius:10px;font-weight:800;padding:10px 15px}.btn.secondary{background:#292e3d;color:#f1eee8!important;border:1px solid #484c59}details{background:#111620;border:1px solid #363c4d;border-radius:12px;margin:12px 0;padding:13px 16px}summary{cursor:pointer;font-weight:700}details p,details li{color:#c4c9d4}.tip{margin:25px 0;padding:16px 18px;border-left:4px solid #5dd6c0;background:#142621;border-radius:0 10px 10px 0}.tip p{margin:6px 0}.help{margin-top:28px;padding:22px;border:1px solid #3e4354;border-radius:16px}.help p{color:#c4c9d4}footer{padding:20px 0 45px;border-top:1px solid #343947;color:#a8afbe;font-size:13px}@media(max-width:560px){.step{padding:19px}.lead{font-size:16px}.actions .btn{width:100%;text-align:center}}
@@ -13,7 +14,7 @@
 <link rel="stylesheet" href="css/bao-brand-v2.css">
 </head>
 <body class="bao-brand-document">
-<header><a href="./" aria-label="返回夜灣首頁"><img src="assets/bao-mark.svg" width="27" height="27" alt="">夜灣 YoruBay</a><a href="api-guide.html">完整連線說明 ↗</a></header>
+<header><a href="./" aria-label="返回夜灣首頁"><img src="assets/bao-mark.svg" width="27" height="27" alt="">夜灣 YoruBay</a><a href="api-guide">完整連線說明 ↗</a></header>
 <main>
 <div class="eyebrow">NEW PLAYER · 三步驟</div>
 <h1>不用懂程式，也能開始玩。</h1>
@@ -23,13 +24,13 @@
 <section class="step" aria-labelledby="step-two"><span class="step-number">2</span><h2 id="step-two">選一種模型連線方式</h2><p>進入快速開始後，先選「使用夜灣燈火」或「使用自己的模型連線」。這是第一次玩真正需要做的主要設定；敘事、玩家身份（Persona）與記憶可以先沿用預設值。</p>
 <details><summary>使用夜灣燈火</summary><p>如果這個選項目前有開放，登入夜灣帳號後直接選模型即可，不需要貼自己的連線金鑰。實際可用模型與燈火以帳號頁顯示為準。</p><p><a href="account.html">登入／查看我的燈火 →</a></p></details>
 <details><summary>使用自己的模型連線</summary><p>選擇模型服務（Provider）和模型（Model），再貼上同一家服務商的連線金鑰（API Key）。不同服務商的金鑰不能混用。</p><p>還沒有 Key，可以到服務商官方頁面建立：</p><p><a href="https://openrouter.ai/keys" target="_blank" rel="noopener noreferrer">OpenRouter｜建立 API Key ↗</a><br><a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer">Google AI Studio｜建立 Gemini API Key ↗</a></p></details>
-<details><summary>我想用 LM Studio 本機模型</summary><p>在「使用自己的模型連線」裡選「LM Studio（本機模型）」。先在 LM Studio 載入模型並啟動 Local Server，再到 Server Settings 開啟 <strong>Enable CORS</strong>。回到夜灣後確認本機 API 網址（預設 <code>http://127.0.0.1:1234/v1</code>），再按「讀取本機模型」。本地模式預設不需要雲端 API Key。</p><p><a href="lm-studio-guide.html">查看 LM Studio 完整連線教學 →</a></p></details>
+<details><summary>我想用 LM Studio 本機模型</summary><p>在「使用自己的模型連線」裡選「LM Studio（本機模型）」。先在 LM Studio 載入模型並啟動 Local Server，再到 Server Settings 開啟 <strong>Enable CORS</strong>。回到夜灣後確認本機 API 網址（預設 <code>http://127.0.0.1:1234/v1</code>），再按「讀取本機模型」。本地模式預設不需要雲端 API Key。</p><p><a href="lm-studio-guide">查看 LM Studio 完整連線教學 →</a></p></details>
 <details><summary>「模型」是什麼？</summary><p>模型（Model）就是實際接續故事內容的服務核心。先選你目前帳號或服務商可使用的模型。免費模型也可能有次數、地區或速率限制；付費模型可能產生費用。</p></details>
 </section>
 <section class="step" aria-labelledby="step-three"><span class="step-number">3</span><h2 id="step-three">按「開始故事」</h2><p>夜灣燈火選好模型、自己的模型連線完成設定，或 LM Studio 成功讀到本機模型後，直接按「開始故事」。快速開始不需要先走完五個進階步驟；想調整敘事、Persona 或記憶時，再切到「完整設定」。</p><a class="btn" href="./">回夜灣開始玩 →</a></section>
 </div>
 <div class="tip"><strong>開始前記得兩件事</strong><p>連線金鑰（API Key）不要放進角色卡、公開訊息或截圖。模型使用量可能由服務商收費，免費不代表無限使用。</p><p>故事主要保存在這台裝置；聊天內容仍會送到你選擇的 AI 服務商。清除瀏覽器資料或換裝置前，請先備份故事。</p></div>
-<section class="help"><h2>卡住了怎麼辦？</h2><p><strong>金鑰無效：</strong>確認服務商選對、金鑰貼完整。<br><strong>模型不能用：</strong>檢查模型名稱、服務商的地區限制與帳戶額度。<br><strong>要自己設定連線網址：</strong>使用「展開進階連線欄位」或切到完整設定。</p><div class="actions"><a class="btn secondary" href="api-guide.html">看完整連線說明（API）↗</a><a class="btn secondary" href="./">回首頁</a></div></section>
+<section class="help"><h2>卡住了怎麼辦？</h2><p><strong>金鑰無效：</strong>確認服務商選對、金鑰貼完整。<br><strong>模型不能用：</strong>檢查模型名稱、服務商的地區限制與帳戶額度。<br><strong>要自己設定連線網址：</strong>使用「展開進階連線欄位」或切到完整設定。</p><div class="actions"><a class="btn secondary" href="api-guide">看完整連線說明（API）↗</a><a class="btn secondary" href="./">回首頁</a></div></section>
 </main>
 <footer>夜灣 YoruBay · 故事在夜裡靠岸。模型與連線方式由你選擇。</footer>
 </body>
