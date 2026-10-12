@@ -95,7 +95,7 @@ test('explore preview links stable author IDs to author pages', async ({ page })
   const preview = page.locator('#explore-work-preview');
   await expect(preview).toBeVisible();
   const author = preview.getByRole('link', { name: '作者 · 白桃', exact: true });
-  await expect(author).toHaveAttribute('href', 'author.html?id=baitao');
+  await expect(author).toHaveAttribute('href', 'author?id=baitao');
 
   await preview.locator('[data-explore-preview-close]').first().click();
   const card = page.locator('#character-list [data-character-id="night-sky-magic-academy"]');
