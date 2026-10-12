@@ -5,22 +5,6 @@ import {
 // Hosted provider route resolution and read-only override lookup.
 const WorkerProviderRouting = (() => {
   const HOSTED_ROUTE_CONTROL = Object.freeze({
-    "gemini-3.7-flash": {
-      label: "Gemini 3.7 Flash",
-      default_route: "google-official",
-      routes: {
-        "google-official": {
-          label: "Google Gemini 官方",
-          provider: "gemini",
-          model: "gemini-3.7-flash",
-        },
-        openrouter: {
-          label: "OpenRouter",
-          provider: "openrouter",
-          model: "google/gemini-3.7-flash",
-        },
-      },
-    },
     "gemini-3.8-flash": {
       label: "Gemini 3.8 Flash",
       default_route: "google-official",
