@@ -370,35 +370,35 @@
     const actorName = text(input.actorName);
     const item = inventoryItem({
       id: "actor-mode",
-      label: "🎭 演員模式",
+      label: "🎭 角色身份",
       detail: roleActive
-        ? (roleLabel ? "目前戲中身份：" + roleLabel : "目前正在扮演；角色由故事內自然成立")
-        : "角色本體與戲中身份分離；目前停留在角色本體",
+        ? (roleLabel ? "目前身份：" + roleLabel : "目前套用故事身份")
+        : "保留角色本體；尚未套用故事身份",
       status: enabled ? "啟用" : "未啟用",
       state: enabled ? "active" : "paused"
     });
     return {
       id: "actor",
-      eyebrow: "角色層 MOD",
+      eyebrow: "角色身份",
       title: enabled
-        ? (roleActive && roleLabel ? "演員模式 · " + roleLabel : "演員模式已啟用")
-        : "演員模式未啟用",
+        ? (roleActive && roleLabel ? "角色身份 · " + roleLabel : "角色身份已啟用")
+        : "角色身份未啟用",
       detail: enabled
-        ? (actorName ? actorName + " 保留本體，同時維持獨立的戲中角色層" : "角色本體與戲中身份分離")
-        : "讓同一個角色以演員身分進入另一個長期身份，而不是把原角色覆蓋掉",
-      scopes: ["主提示詞", "不增加模型請求", "故事內"],
+        ? (actorName ? actorName + " 保留原本設定，另有目前故事專用身份" : "角色本體與目前故事身份分開保存")
+        : "保留角色原本設定，再給他一個只屬於目前故事的身份，例如鄰居、老師或對手",
+      scopes: ["角色身份", "不增加模型請求", "目前故事"],
       ownership: ownership({
         sources: [source("platform", "夜灣內建", 1)],
         storage: "故事存檔",
         appliesTo: "目前故事",
-        control: "玩家明確啟用；停止扮演只退出戲中身份，不刪除角色本體",
+        control: "玩家明確啟用；停止使用只退出目前身份，不刪除角色本體",
         permissions: [
-          "演員知道 ≠ 戲中角色知道",
-          "已成立角色具有慣性",
+          "角色本體知道 ≠ 故事身份知道",
+          "已成立身份具有慣性",
           "不取代世界引擎與 NPC 自主性"
         ]
       }),
-      inventory: [inventoryGroup("platform", "夜灣官方示範", [item])],
+      inventory: [inventoryGroup("platform", "角色工具", [item])],
       active: enabled
     };
   }
