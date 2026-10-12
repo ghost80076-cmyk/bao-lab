@@ -30,6 +30,27 @@ assert.match(html, /usageHasMore=Boolean\(data\.has_more\)/);
 assert.match(html, /escapeHTML\(row\.model\|\|"—"\)/);
 assert.match(html, /row\.billing_mode==="raw_tokens_v1"/);
 
+assert.match(
+  html,
+  /class="player-list-scroll usage-scroll"[^>]*tabindex="0"[^>]*aria-label="API 消耗明細，可上下及左右捲動"/,
+  "usage history must expose an explicitly scrollable keyboard-accessible viewport"
+);
+assert.match(
+  html,
+  /\.usage-scroll\{[^}]*max-height:60vh;[^}]*overflow:auto;[^}]*scrollbar-gutter:stable both-edges/,
+  "long usage history must keep its native horizontal scrollbar reachable inside a bounded viewport"
+);
+assert.match(
+  html,
+  /\.usage-scroll::\-webkit-scrollbar\{width:12px;height:12px\}/,
+  "Chromium/WebKit should render a usable horizontal scrollbar"
+);
+assert.match(
+  html,
+  /\.usage-table\{min-width:1180px\}/,
+  "diagnostic columns must overflow horizontally instead of being squeezed or clipped"
+);
+
 const script = html.match(/<script>([\s\S]*?)<\/script>/)?.[1] || "";
 new Function(script);
 
