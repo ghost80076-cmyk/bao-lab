@@ -43,7 +43,7 @@
         <h1>找不到這位作者</h1>
         <p>${esc(message || "這個作者頁目前不存在，可能尚未公開或連結已失效。")}</p>
         <div class="author-state-actions">
-          <a class="primary" href="author.html">查看所有作者</a>
+          <a class="primary" href="author">查看所有作者</a>
           <a class="secondary" href="./">返回夜灣</a>
         </div>
       </section>`;
@@ -76,14 +76,14 @@
         <div class="author-directory-card-head">
           <div>
             <div class="eyebrow">AUTHOR</div>
-            <h2><a href="author.html?id=${encodeURIComponent(author.id)}">${esc(author.name)}</a></h2>
+            <h2><a href="author?id=${encodeURIComponent(author.id)}">${esc(author.name)}</a></h2>
             <p class="author-profile-id">@${esc(author.id)}</p>
           </div>
           <span class="author-directory-count">${author.work_count} 部作品</span>
         </div>
         <p class="author-directory-bio">${esc(bio)}</p>
         <div class="author-directory-actions">
-          <a class="primary" href="author.html?id=${encodeURIComponent(author.id)}">查看作者與作品 →</a>
+          <a class="primary" href="author?id=${encodeURIComponent(author.id)}">查看作者與作品 →</a>
           ${author.support_links.length ? '<span class="author-directory-support">有作者支持連結</span>' : ""}
         </div>
       </article>`;
@@ -172,7 +172,7 @@
             <div class="eyebrow">STORIES</div>
             <h2>${esc(author.name)} 的故事</h2>
           </div>
-          <a class="text-button" href="author.html">所有作者</a>
+          <a class="text-button" href="author">所有作者</a>
         </div>
         <div class="author-work-grid">
           ${authoredWorks.length ? authoredWorks.map(workCard).join("") : '<p class="note">目前還沒有公開作品。</p>'}
