@@ -1,22 +1,6 @@
 [
   {
     "provider": "gemini",
-    "model": "gemini-3.7-flash",
-    "input_microusd_per_million": 750000,
-    "output_microusd_per_million": 3750000,
-    "cache_read_microusd_per_million": 75000
-  },
-  {
-    "provider": "openrouter",
-    "model": "google/gemini-3.7-flash",
-    "input_microusd_per_million": 750000,
-    "output_microusd_per_million": 3750000,
-    "cache_read_microusd_per_million": 75000,
-    "openrouter_max_prompt_microusd_per_million": 750000,
-    "openrouter_max_completion_microusd_per_million": 3750000
-  },
-  {
-    "provider": "gemini",
     "model": "gemini-3.8-flash",
     "input_microusd_per_million": 750000,
     "output_microusd_per_million": 3750000,
