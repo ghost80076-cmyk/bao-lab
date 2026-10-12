@@ -16,11 +16,11 @@ const plan = buildModelDeploymentPlan(registry);
 assert.equal(plan.schema, "yorubay-worker-model-deployment-plan/v1");
 assert.equal(plan.source_registry, "data/presets/models.json");
 assert.equal(plan.cloudflare.MODELS_JSON.entries.length, 11);
-assert.equal(plan.cloudflare.MODELS_JSON_EXTRA.entries.length, 10);
-assert.equal(plan.resolved_routes.length, 21);
+assert.equal(plan.cloudflare.MODELS_JSON_EXTRA.entries.length, 8);
+assert.equal(plan.resolved_routes.length, 19);
 assert.equal(plan.aws.variable, "OPENROUTER_MODELS");
-assert.equal(plan.aws.entries.length, 15);
-assert.equal(new Set(plan.aws.entries).size, 15);
+assert.equal(plan.aws.entries.length, 14);
+assert.equal(new Set(plan.aws.entries).size, 14);
 assert.equal(plan.aws.value_csv, plan.aws.entries.join(","));
 
 const keyOf = entry => `${entry.provider}:${entry.model}`;
@@ -28,7 +28,7 @@ const allEntries = [
   ...plan.cloudflare.MODELS_JSON.entries,
   ...plan.cloudflare.MODELS_JSON_EXTRA.entries,
 ];
-assert.equal(new Set(allEntries.map(keyOf)).size, 21);
+assert.equal(new Set(allEntries.map(keyOf)).size, 19);
 
 const byKey = new Map(allEntries.map(entry => [keyOf(entry), entry]));
 
@@ -73,30 +73,6 @@ assert.deepEqual(
     long_context_cache_read_microusd_per_million: 600000,
     long_context_openrouter_max_prompt_microusd_per_million: 4000000,
     long_context_openrouter_max_completion_microusd_per_million: 12000000,
-  }
-);
-
-assert.deepEqual(
-  byKey.get("gemini:gemini-3.7-flash"),
-  {
-    provider: "gemini",
-    model: "gemini-3.7-flash",
-    input_microusd_per_million: 750000,
-    output_microusd_per_million: 3750000,
-    cache_read_microusd_per_million: 75000,
-  }
-);
-
-assert.deepEqual(
-  byKey.get("openrouter:google/gemini-3.7-flash"),
-  {
-    provider: "openrouter",
-    model: "google/gemini-3.7-flash",
-    input_microusd_per_million: 750000,
-    output_microusd_per_million: 3750000,
-    cache_read_microusd_per_million: 75000,
-    openrouter_max_prompt_microusd_per_million: 750000,
-    openrouter_max_completion_microusd_per_million: 3750000,
   }
 );
 
@@ -184,7 +160,6 @@ const relayKeys = new Set(
 );
 assert.equal(relayKeys.has("openrouter:google/gemini-3-flash-preview"), false);
 assert.equal(relayKeys.has("openrouter:google/gemini-3.1-pro-preview"), false);
-assert.equal(relayKeys.has("openrouter:google/gemini-3.7-flash"), true);
 assert.equal(relayKeys.has("openrouter:google/gemini-3.8-flash"), true);
 assert.equal(relayKeys.has("openrouter:anthropic/claude-sonnet-5.5"), true);
 assert.equal(relayKeys.has("openrouter:anthropic/claude-opus-5.5"), true);
