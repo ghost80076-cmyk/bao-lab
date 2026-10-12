@@ -34,7 +34,7 @@ test.describe('YoruBay official identity and concise community entry', () => {
     }), homeWorkIds);
     expect(adultLeaks).toEqual([]);
     await expect(page.locator('#home-view .brand-intro')).toHaveText('替你留了一盞燈。');
-    await expect(page.locator('#home-view a[href="quick-start.html"]')).toHaveCount(1);
+    await expect(page.locator('#home-view a[href="quick-start"]')).toHaveCount(1);
     await expect(page.locator('#home-view .brand-first-run')).toContainText('第一次來？三步開始');
     await expect(page.locator('#bao-contact-footer a')).toHaveAttribute('href', INVITE);
     await page.getByRole('button', { name: '關於夜灣' }).click();
