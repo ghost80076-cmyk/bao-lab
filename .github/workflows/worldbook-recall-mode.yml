@@ -8,6 +8,8 @@ on:
       - 'js/character.js'
       - 'js/prompt-cache.js'
       - 'data/world-simulator-general*.json'
+      - 'data/world-simulator-layer-review.json'
+      - 'scripts/audit-world-simulator-general.py'
       - 'tests/world-simulator-general-core.cjs'
       - 'tests/*worldbook*.cjs'
       - 'tests/lorebook-core.cjs'
@@ -21,6 +23,8 @@ on:
       - 'js/character.js'
       - '.github/workflows/worldbook-recall-mode.yml'
       - 'data/world-simulator-general*.json'
+      - 'data/world-simulator-layer-review.json'
+      - 'scripts/audit-world-simulator-general.py'
       - 'tests/world-simulator-general-core.cjs'
 permissions:
   contents: read

@@ -1,0 +1,291 @@
+{
+  "schema": "yorubay-world-simulator-layer-review",
+  "version": 1,
+  "scope": "Metadata-only routing of 18 common author sources; no raw bodies, no new command handlers, no full integration claim.",
+  "decisions": [
+    {
+      "canonical_source_index": 32,
+      "route": "author-workflow",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "reason": "沉浸式元指令與不公開數值是作者玩法；現有工具不等於舊語法命令，原文亦與允許數值狀態欄的設計不同。",
+      "evidence": [
+        {
+          "path": "js/character-status-ui.js",
+          "needle": "NPC 名冊／場景參與者"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 33,
+      "route": "author-premise",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "reason": "楚門式演員身份及固定題材比例屬作品前提；不成為一般世界的真相。",
+      "evidence": [
+        {
+          "path": "js/actor-mode-core.js",
+          "needle": "角色具有慣性"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 34,
+      "route": "existing-layer",
+      "status": "reviewed-not-published",
+      "implementation": "partial-overlap",
+      "automatic_recall": false,
+      "reason": "NPC 自主、因果、時間與後果有既有層可承載；原文固定日常比例及全部規則尚未逐項實作。",
+      "evidence": [
+        {
+          "path": "js/prompt-orchestrator.js",
+          "needle": "NPC 與世界仍依因果自主反應"
+        },
+        {
+          "path": "js/world-state.js",
+          "needle": "world_clock 是可選 PATCH"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 35,
+      "route": "existing-layer",
+      "status": "reviewed-not-published",
+      "implementation": "partial-overlap",
+      "automatic_recall": false,
+      "reason": "NPC 個性、利益、拒絕與主動介入由既有敘事偏好與場景參與管理；日程及需求不是本批新增模擬。",
+      "evidence": [
+        {
+          "path": "js/narrative-settings.js",
+          "needle": "不要只為迎合玩家就自動改變立場"
+        },
+        {
+          "path": "js/prompt-orchestrator.js",
+          "needle": "在場≠必須發言"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 36,
+      "route": "existing-layer",
+      "status": "reviewed-not-published",
+      "implementation": "partial-overlap",
+      "automatic_recall": false,
+      "reason": "離場存在、場景 presence 及狀態連續性已受管理；完整離場活動與事件引擎不能由此對照視為已實作。",
+      "evidence": [
+        {
+          "path": "js/world-state.js",
+          "needle": "away（離場）"
+        },
+        {
+          "path": "js/native-status-packs.js",
+          "needle": "離場時不得把預計行為當成已發生"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 37,
+      "route": "author-card-rules",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "reason": "固定關係階段、發展節奏及互動契機交給作者角色規則；現有記憶保持關係一致不等於強制原文階段。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【NPC 運作規則】"
+        },
+        {
+          "path": "js/chat.js",
+          "needle": "明確關係"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 52,
+      "route": "author-premise",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "reason": "原文角色池以真人演員和特定選角方式構成；人物原型參考不等於此角色池已搬入或啟用。",
+      "evidence": [
+        {
+          "path": "js/actor-mode-core.js",
+          "needle": "角色具有慣性"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 53,
+      "route": "existing-tool",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "reason": "Canon 已可整理人物與關係；原文全知式潛在衝突及命令語法未直接實作。",
+      "evidence": [
+        {
+          "path": "js/canon-workbench.js",
+          "needle": "relationships:\"人物與關係\""
+        },
+        {
+          "path": "js/canon-workbench.js",
+          "needle": "無法確認的內容標示存疑或推論"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 54,
+      "route": "existing-tool",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "reason": "記憶工作台與摘要支援劇情連續性；未直接套用原文報表和未來劇情推測。",
+      "evidence": [
+        {
+          "path": "js/memory-workbench-ai.js",
+          "needle": "時間順序、因果、承諾"
+        },
+        {
+          "path": "js/chat.js",
+          "needle": "不得把 AI 推測的心理當作事實"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 55,
+      "route": "existing-tool",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "reason": "Canon 時間線保留事件證據；不承諾完整歷史和原文分類統計已自動存在。",
+      "evidence": [
+        {
+          "path": "js/canon-workbench.js",
+          "needle": "timeline:\"事件時間線\""
+        },
+        {
+          "path": "js/canon-workbench.js",
+          "needle": "只能聲稱整理本段"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 56,
+      "route": "existing-tool",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "reason": "背包模組可追蹤物品；原文命令輸出與自動整理全類物品不等於已新增。",
+      "evidence": [
+        {
+          "path": "js/world-modules.js",
+          "needle": "inventory: { label: \"背包\""
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 57,
+      "route": "author-workflow",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "reason": "世界觀說明是查詢工作流程，不能把格式模板當世界事實；依已確認記事本回答。",
+      "evidence": [
+        {
+          "path": "js/canon-workbench.js",
+          "needle": "world:\"世界觀與勢力\""
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 58,
+      "route": "author-workflow",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "reason": "公開世界規則與隱藏規則須分開；原文要求列出隱藏規則不能進通用自動召回。",
+      "evidence": [
+        {
+          "path": "js/canon-workbench.js",
+          "needle": "knowledge:\"角色知情矩陣\""
+        },
+        {
+          "path": "js/worldbook-library-core.js",
+          "needle": "entry.requires"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 59,
+      "route": "author-workflow",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "reason": "歷史、地理與勢力介紹需有來源和知情邊界；模板不會自動補成未建立事實。",
+      "evidence": [
+        {
+          "path": "js/canon-workbench.js",
+          "needle": "只根據下方原始對話提取事實"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 60,
+      "route": "author-workflow",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "reason": "切換世界涉及存檔與角色重置；純文字命令不能聲稱完成前端保存或切換，保留為作者流程設計。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【NPC 運作規則】"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 61,
+      "route": "author-workflow",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "reason": "世界融合需要衝突方案與實際確認；目前不新增自動融合或開啟新故事的命令。",
+      "evidence": [
+        {
+          "path": "js/canon-workbench.js",
+          "needle": "不得續寫或補全"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 62,
+      "route": "author-workflow",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "reason": "自訂世界是作者創建流程；原文設計模板不能在背景召回時改寫現有世界。",
+      "evidence": [
+        {
+          "path": "js/worldbook-library-core.js",
+          "needle": "scenario: pack.meta.classification"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 63,
+      "route": "existing-tool",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "reason": "NPC 名冊與狀態欄提供已顯示資料；隱藏背景與未見人物不因命令自行揭露。",
+      "evidence": [
+        {
+          "path": "js/character-status-ui.js",
+          "needle": "不會讀取作者隱藏設定"
+        }
+      ]
+    }
+  ]
+}
