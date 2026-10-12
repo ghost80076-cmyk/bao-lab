@@ -478,6 +478,7 @@ code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
     if(row.provider_status) parts.push(String(row.provider_status));
     if(row.route) parts.push(String(row.route));
     if(row.transport_failure) parts.push(String(row.transport_failure));
+    if(row.rate_limit_scope) parts.push("scope "+String(row.rate_limit_scope));
     if(row.retry_after_seconds!=null) parts.push("retry "+String(row.retry_after_seconds)+"s");
     if(row.elapsed_ms!=null) parts.push("elapsed "+String(row.elapsed_ms)+"ms");
     if(row.timeout_ms!=null) parts.push("timeout "+String(row.timeout_ms)+"ms");
