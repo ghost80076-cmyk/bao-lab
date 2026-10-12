@@ -20,6 +20,8 @@
     const latestUser = [...recent].reverse().find(m => m?.role === 'user')?.content || context.latestUserText || '';
     const lastReply = [...recent].reverse().find(m => m?.role === 'assistant')?.content || '';
     const state = window.GameState?.current || {};
+    const recallMode = state.worldbookLibrary?.recallMode || 'auto';
+    if (recallMode === 'off') return [];
     const location = String(state.location || '');
     const presentNPCs = (Array.isArray(state.npcs) ? state.npcs : [])
       .filter(npc => npc?.presence === 'present')
@@ -31,11 +33,11 @@
       .filter(Boolean)
       .join('\n');
     const signals = [
-      { text: latestUser, weight: 180 },
+      { text: recallMode === 'scene' ? '' : latestUser, weight: 180 },
       { text: presentNPCs, weight: 140 },
       { text: location, weight: 120 },
-      { text: recentEvents, weight: 70 },
-      { text: lastReply, weight: 30 }
+      { text: recallMode === 'scene' ? '' : recentEvents, weight: 70 },
+      { text: recallMode === 'scene' ? '' : lastReply, weight: 30 }
     ].map(signal => ({ ...signal, text: String(signal.text || '').toLocaleLowerCase() }));
     let budget = 0;
     return entries.map((entry, index) => {
