@@ -444,7 +444,9 @@ jobs:
       - name: Worker legacy chat settlement contracts
         run: node tests/worker-legacy-chat-settlement-core.cjs
       - name: Worker USD chat settlement contracts
-        run: node tests/worker-cost-chat-settlement-core.cjs
+        run: |
+          node tests/worker-usage-diagnostics-core.cjs
+          node tests/worker-cost-chat-settlement-core.cjs
       - name: Wallet reservation transaction recovery
         run: node tests/worker-wallet-reservations-core.cjs
       - name: Worker chat dispatch contracts
