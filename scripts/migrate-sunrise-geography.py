@@ -28,6 +28,9 @@ NAMES = {**NAMES, **FINAL_NAMES}
 from sunrise_review_121_135 import ALLOWED as ADULT_ALLOWED, NAMES as ADULT_NAMES, LABELS as ADULT_LABELS, KEYWORDS as ADULT_KEYWORDS, chapter_spans as adult_spans
 ALLOWED = {**ALLOWED, **ADULT_ALLOWED}
 NAMES = {**NAMES, **ADULT_NAMES}
+from sunrise_review_136_150 import ALLOWED as SYSTEM_ALLOWED, NAMES as SYSTEM_NAMES, LABELS as SYSTEM_LABELS, KEYWORDS as SYSTEM_KEYWORDS, chapter_spans as system_spans
+ALLOWED = {**ALLOWED, **SYSTEM_ALLOWED}
+NAMES = {**NAMES, **SYSTEM_NAMES}
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 SOURCES = {
  76: ('76bbdae9f9249bde6eedf4616b8bde2d3e537a2357745760489215f8937fab8e', 'sunrise-professional-people', '曙光市｜人物公開參考（不代表在場）', ['炎月夜'], {0,1,2,5}),
@@ -133,6 +136,21 @@ SOURCES = {
  133: ('47e3f53281c44d90911384d600e67e12da8dbd8222b75e77f9a1ca3cafb185c3', 'sunrise-economy-hold', '曙光市｜貨幣交易來源（不公開）', ['貨幣交易'], set()),
  134: ('9e92af75ee048eaa7ed544990ddd2e4ca7530b64b8783624f4c102ef49b9116a', 'sunrise-prison-economy-hold', '曙光市｜監獄灰色產業來源（不公開）', ['監獄經濟'], set()),
  135: ('86dabfe57ef77fbcffafb102da60db85b27ed3a66492d23f6d420a5e52a7004c', 'sunrise-prison-economy-hold', '曙光市｜監獄灰色產業來源（不公開）', ['監獄經濟'], set()),
+ 136: ('ccb4da788f399cda986152719b3827485947e1ce7d1ad145c1663a15fd423718', 'sunrise-prison-economy-hold', '曙光市｜監獄灰色產業來源（不公開）', ['監獄經濟'], set()),
+ 137: ('ceaf74e1c451d9c5f19a29740572cfdc79f8c2c773aabcdd1521b78fe28698e1', 'sunrise-prison-economy-hold', '曙光市｜監獄灰色產業來源（不公開）', ['監獄經濟'], set()),
+ 138: ('5dea856117c564988fae4178292d996961fe53699b086e76a5725d8047854947', 'sunrise-prison-institution', '曙光市｜監獄規則來源（不公開）', ['曙光市第一監獄'], set()),
+ 139: ('1cc56b6408af8e9fc09f94ad8d49c59a5c27292ae7c5745babf71716bb406e83', 'sunrise-faction-system-hold', '曙光市｜勢力關係系統（不公開）', ['勢力關係'], set()),
+ 140: ('dc75c939ae328246ad6688e73657bb0eb1bc4178a541ae3de3984c0c7a003b45', 'sunrise-faction-system-hold', '曙光市｜勢力關係系統（不公開）', ['勢力關係'], set()),
+ 141: ('c586e35641cd8a818db5a667d27bd6f0b0169b086d5d991deb0d95671914881a', 'sunrise-wanted-system-hold', '曙光市｜通緝追殺系統（不公開）', ['通緝追殺'], set()),
+ 142: ('d9f39012f3cfeec5051f18f60258da58753ad7f24452b55d49dc9417eafe5806', 'sunrise-wanted-system-hold', '曙光市｜通緝追殺系統（不公開）', ['通緝追殺'], set()),
+ 143: ('0445a2163558a1e75e346333feafe9b80e25d509e4328dc3e21ad8d7d89a8ee1', 'sunrise-wanted-character-hold', '曙光市｜班長角色來源（不公開）', ['班長'], set()),
+ 144: ('302853285e6c6ce67a2e7b62fee6dad6a42a985ac27d98c2082c1e5d2ebfce1f', 'sunrise-wanted-character-hold', '曙光市｜班長角色來源（不公開）', ['班長'], set()),
+ 145: ('761c1940c350c0b396ba5eb8de481f5fc7fddd92a9fd53efa46062396115e278', 'sunrise-wanted-character-hold', '曙光市｜班長角色來源（不公開）', ['班長'], set()),
+ 146: ('ce1da18a889ed4de9856e6ea4e2f6a5aa9c03710759ed7fcceeae7c9d0404d4c', 'sunrise-wanted-character-hold', '曙光市｜班長角色來源（不公開）', ['班長'], set()),
+ 147: ('d6575a1c9488e585f5730b6754e0261baf17d453aaaddc3ed9f34fb66c6fdade', 'sunrise-skill-system-hold', '曙光市｜技能系統來源（不公開）', ['技能系統'], set()),
+ 148: ('953721a5eeba769fba5618b84e306b7ebbcc18592565fce7be2ce71c0046dae1', 'sunrise-addiction-system-hold', '曙光市｜成癮戒斷系統（不公開）', ['成癮戒斷'], set()),
+ 149: ('7e01b3300fb9a42261d9e01a5ad3fdb35522a2cb12924db40f3e8b8f48bb22ec', 'sunrise-addiction-system-hold', '曙光市｜成癮戒斷系統（不公開）', ['成癮戒斷'], set()),
+ 150: ('54587b0e3a84d8a594895f89fa32b34205134429bf9f92a1f844b25f0fa83bad', 'sunrise-identity-system-hold', '曙光市｜名譽身份系統（不公開）', ['名譽身份'], set()),
  106: ('0b2c3b648ddf5b1ee6cb0c172ad5c9ab15df7d8608219a5d3b13f7fd8b0193a3', 'sunrise-south-geography', '曙光市｜南區案件來源（不公開）', ['南區'], set()),
  108: ('8eec45ac64500fa26c50bf7ba0a5089617343f8c91fc60dfbf68b567f7449b78', 'sunrise-police-background', '曙光市｜警局公開職能（不公開）', ['曙光市警局'], set()),
  109: ('b38a60daed83af16c91b64f9b59de14d426e9b5b6cfb2ef5718e363bb8706dcc', 'sunrise-police-background', '曙光市｜警局腐敗來源（不公開）', ['曙光市警局'], set()),
@@ -169,14 +187,14 @@ def build(zip_path):
  packs, mapping = [], []
  for index, (digest, pack_id, name, keywords, allowed) in SOURCES.items():
   entry = original['entries'][index]; content = entry['content']
-  expected_category = '角色' if 8 <= index <= 28 or 43 <= index <= 48 or index in REVIEW_NAMES or 76 <= index <= 87 or 91 <= index <= 95 or index == 90 or index in (62,73) else '事件' if index in (29,89,96,97,100,121,122) else '地點' if 49 <= index <= 60 or index in (66,67,88,102,103,105) else '規則' if index in (0, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 63, 64, 138) or 123 <= index <= 135 else '地點'
+  expected_category = '角色' if 8 <= index <= 28 or 43 <= index <= 48 or index in REVIEW_NAMES or 76 <= index <= 87 or 91 <= index <= 95 or index == 90 or index in (62,73) or 143 <= index <= 146 or index == 149 else '事件' if index in (29,89,96,97,100,121,122) else '地點' if 49 <= index <= 60 or index in (66,67,88,102,103,105) else '規則' if index in (0, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 63, 64, 138) or 123 <= index <= 142 or 147 <= index <= 148 or index == 150 else '地點'
   if 'PLACEHOLDER' in digest:
    raise ValueError('Review digest placeholder remains')
   if sha(content) != digest or content != shared['entries'][index]['content'] or entry['category'] != expected_category:
    raise ValueError('Source changed; review again')
   starts = [m.start() for m in re.finditer(r'^#{2,3} ' if 43 <= index <= 48 else r'^#### ' if index in (35,36,37,38,39,40,41,42) else r'^#{2,3} ' if index == 138 else r'^## ' if index in (0, 1, 2, 3, 4, 5, 6) else r'^### ', content, re.M)]
   if not starts or starts[0] != 0: starts.insert(0,0)
-  spans = adult_spans(index,content) if index in ADULT_ALLOWED else final_spans(index,content) if index in FINAL_ALLOWED else new_spans(index,content) if index in NEW_ALLOWED else late_spans(index,content) if 76 <= index <= 90 else review_spans(index,content) if 61 <= index <= 75 else family_spans(index,content) if 49 <= index <= 60 else list(zip(starts, starts[1:] + [len(content)]))
+  spans = system_spans(index,content) if index in SYSTEM_ALLOWED else adult_spans(index,content) if index in ADULT_ALLOWED else final_spans(index,content) if index in FINAL_ALLOWED else new_spans(index,content) if index in NEW_ALLOWED else late_spans(index,content) if 76 <= index <= 90 else review_spans(index,content) if 61 <= index <= 75 else family_spans(index,content) if 49 <= index <= 60 else list(zip(starts, starts[1:] + [len(content)]))
   entries, review = [], []
   for part, (start,end) in enumerate(spans):
    value = content[start:end].strip(); title = value.splitlines()[0].lstrip('# ').strip()
