@@ -53,7 +53,7 @@ jobs:
           const readinessCss = fs.readFileSync('css/story-start-readiness.css', 'utf8');
           const css = fs.readFileSync('css/first-run-desktop.css', 'utf8');
           for (const phrase of ['href="quick-start.html"', 'id="home-continue"', 'id="home-character-count"']) assert.ok(home.includes(phrase), `Missing homepage element: ${phrase}`);
-          assert.equal((home.match(/href="quick-start\.html"/g) || []).length, 1, 'Homepage should expose one canonical first-run link');
+          assert.equal((home.match(/href="quick-start"/g) || []).length, 1, 'Homepage should expose one canonical first-run link');
           assert.ok(!home.includes('builder-api-guide'), 'Duplicate inline builder guide should be removed');
           for (const phrase of ['id="step-one"', 'id="step-two"', 'id="step-three"', '開始探索', '使用夜灣燈火', '使用自己的模型連線', 'https://openrouter.ai/keys', 'https://aistudio.google.com/apikey']) assert.ok(guide.includes(phrase), `Missing guide element: ${phrase}`);
           for (const phrase of ['路線 A：夜灣燈火', 'href="quick-start.html"', '路線 B：OpenRouter', '路線 C：Google Gemini', '路線 D：LM Studio 本地 AI']) assert.ok(api.includes(phrase), `Missing API reference route: ${phrase}`);
