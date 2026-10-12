@@ -281,7 +281,7 @@ test('propagates quota and provider-specific upstream errors without exposing pl
 });
 test('registers only the prioritized YoruBay hosted catalog without free or duplicate routes',()=>{
  const s=build();s.app.populateAPIControls();s.app.populateAPIControls();
- assert.equal(s.app.modelPresets.length,14);
+ assert.equal(s.app.modelPresets.length,18);
  assert.equal(s.app.modelPresets[0].provider,'gemini');
  const added=s.app.modelPresets.slice(1);
  assert.deepEqual(Array.from(added.map(p=>p.model)),[
@@ -308,14 +308,19 @@ test('registers only the prioritized YoruBay hosted catalog without free or dupl
  assert.equal(added.some(p=>p.model==='anthropic/claude-opus-4.5'),false);
  assert.match(added[0].label,/超省長聊.*DeepSeek/);
  assert.match(added[3].label,/日常主力.*Gemini 3 Flash/);
- assert.match(added[4].label,/長篇世界.*MiniMax M3/);
- assert.match(added[5].label,/OpenAI 選擇.*GPT-5\.6 Luna/);
- assert.match(added[6].label,/xAI 選擇.*Grok 4\.5/);
- assert.match(added[8].label,/低成本 Claude.*Haiku 4\.5/);
- assert.match(added[10].label,/新版備選.*Sonnet 5/);
- assert.match(added[11].label,/RP 高品質.*Sonnet 4\.6/);
- assert.match(added[12].label,/豪華.*Opus 4\.6/);
- assert.equal(s.window.BAOCreditsPilot.models.length,13);
+ assert.match(added[4].label,/舊版相容.*Gemini 3\.7 Flash/);
+  assert.match(added[5].label,/新主力.*Gemini 3\.8 Flash/);
+  assert.match(added[6].label,/長篇世界.*MiniMax M3/);
+ assert.match(added[7].label,/OpenAI 選擇.*GPT-5\.6 Luna/);
+ assert.match(added[8].label,/xAI 選擇.*Grok 4\.5/);
+ assert.match(added[10].label,/低成本 Claude.*Haiku 4\.5/);
+ assert.match(added[11].label,/舊版相容.*Sonnet 4\.5/);
+  assert.match(added[12].label,/新版備選.*Sonnet 5/);
+  assert.match(added[13].label,/Claude 主力.*Sonnet 5\.5/);
+ assert.match(added[14].label,/RP 高品質.*Sonnet 4\.6/);
+ assert.match(added[15].label,/豪華.*Opus 4\.6/);
+  assert.match(added[16].label,/旗艦.*Opus 5\.5/);
+ assert.equal(s.window.BAOCreditsPilot.models.length,17);
 });
 
 test('cookie-backed YoruBay session sends credentials without exposing a bearer token',async()=>{
