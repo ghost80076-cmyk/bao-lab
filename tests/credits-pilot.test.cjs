@@ -280,42 +280,49 @@ test('propagates quota and provider-specific upstream errors without exposing pl
  });
 });
 test('registers only the prioritized YoruBay hosted catalog without free or duplicate routes',()=>{
- const s=build();s.app.populateAPIControls();s.app.populateAPIControls();
- assert.equal(s.app.modelPresets.length,14);
- assert.equal(s.app.modelPresets[0].provider,'gemini');
- const added=s.app.modelPresets.slice(1);
- assert.deepEqual(Array.from(added.map(p=>p.model)),[
-   'deepseek/deepseek-v4-flash-0731',
-   'qwen/qwen3.7-flash',
-   'xiaomi/mimo-v2.5',
-   'gemini-3-flash-preview',
-   'minimax/minimax-m3',
-   'openai/gpt-5.6-luna',
-   'x-ai/grok-4.5',
-   'gemini-3.1-pro-preview',
-   'anthropic/claude-haiku-4.5',
-   'anthropic/claude-sonnet-4.5',
-   'anthropic/claude-sonnet-5',
-   'anthropic/claude-sonnet-4.6',
-   'anthropic/claude-opus-4.6'
- ]);
- assert.equal(added.every(p=>p.provider==='bao-credits'),true);
- assert.equal(added.every(p=>p.provider_label==='夜灣燈火'),true);
- assert.equal(added.every(p=>p.base_url===cfg.baseUrl),true);
- assert.equal(added.some(p=>p.model==='openrouter/free'),false);
- assert.equal(added.some(p=>p.model==='gemini-3.1-flash-lite'),false);
- assert.equal(added.some(p=>p.model==='google/gemini-3.1-pro-preview'),false);
- assert.equal(added.some(p=>p.model==='anthropic/claude-opus-4.5'),false);
- assert.match(added[0].label,/超省長聊.*DeepSeek/);
- assert.match(added[3].label,/日常主力.*Gemini 3 Flash/);
- assert.match(added[4].label,/長篇世界.*MiniMax M3/);
- assert.match(added[5].label,/OpenAI 選擇.*GPT-5\.6 Luna/);
- assert.match(added[6].label,/xAI 選擇.*Grok 4\.5/);
- assert.match(added[8].label,/低成本 Claude.*Haiku 4\.5/);
- assert.match(added[10].label,/新版備選.*Sonnet 5/);
- assert.match(added[11].label,/RP 高品質.*Sonnet 4\.6/);
- assert.match(added[12].label,/豪華.*Opus 4\.6/);
- assert.equal(s.window.BAOCreditsPilot.models.length,13);
+  const s=build();s.app.populateAPIControls();s.app.populateAPIControls();
+  assert.equal(s.app.modelPresets.length,17);
+  assert.equal(s.app.modelPresets[0].provider,'gemini');
+  const added=s.app.modelPresets.slice(1);
+  assert.deepEqual(Array.from(added.map(p=>p.model)),[
+    'deepseek/deepseek-v4-flash-0731',
+    'qwen/qwen3.7-flash',
+    'xiaomi/mimo-v2.5',
+    'gemini-3-flash-preview',
+    'gemini-3.8-flash',
+    'minimax/minimax-m3',
+    'openai/gpt-5.6-luna',
+    'x-ai/grok-4.5',
+    'gemini-3.1-pro-preview',
+    'anthropic/claude-haiku-4.5',
+    'anthropic/claude-sonnet-4.5',
+    'anthropic/claude-sonnet-5',
+    'anthropic/claude-sonnet-5.5',
+    'anthropic/claude-sonnet-4.6',
+    'anthropic/claude-opus-4.6',
+    'anthropic/claude-opus-5.5'
+  ]);
+  assert.equal(added.every(p=>p.provider==='bao-credits'),true);
+  assert.equal(added.every(p=>p.provider_label==='夜灣燈火'),true);
+  assert.equal(added.every(p=>p.base_url===cfg.baseUrl),true);
+  assert.equal(added.some(p=>p.model==='openrouter/free'),false);
+  assert.equal(added.some(p=>p.model==='gemini-3.1-flash-lite'),false);
+  assert.equal(added.some(p=>p.model==='google/gemini-3.1-pro-preview'),false);
+  assert.equal(added.some(p=>p.model==='anthropic/claude-opus-4.5'),false);
+  assert.match(added[0].label,/超省長聊.*DeepSeek/);
+  assert.match(added[3].label,/日常主力.*Gemini 3 Flash/);
+  assert.match(added[4].label,/新主力.*Gemini 3\.8 Flash/);
+  assert.match(added[5].label,/長篇世界.*MiniMax M3/);
+  assert.match(added[6].label,/OpenAI 選擇.*GPT-5\.6 Luna/);
+  assert.match(added[7].label,/xAI 選擇.*Grok 4\.5/);
+  assert.match(added[9].label,/低成本 Claude.*Haiku 4\.5/);
+  assert.match(added[10].label,/舊版相容.*Sonnet 4\.5/);
+  assert.match(added[11].label,/新版備選.*Sonnet 5/);
+  assert.match(added[12].label,/Claude 主力.*Sonnet 5\.5/);
+  assert.match(added[13].label,/RP 高品質.*Sonnet 4\.6/);
+  assert.match(added[14].label,/豪華.*Opus 4\.6/);
+  assert.match(added[15].label,/旗艦.*Opus 5\.5/);
+  assert.equal(s.window.BAOCreditsPilot.models.length,16);
 });
 
 test('cookie-backed YoruBay session sends credentials without exposing a bearer token',async()=>{

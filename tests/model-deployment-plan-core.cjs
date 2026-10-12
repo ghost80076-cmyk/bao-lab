@@ -16,11 +16,11 @@ const plan = buildModelDeploymentPlan(registry);
 assert.equal(plan.schema, "yorubay-worker-model-deployment-plan/v1");
 assert.equal(plan.source_registry, "data/presets/models.json");
 assert.equal(plan.cloudflare.MODELS_JSON.entries.length, 11);
-assert.equal(plan.cloudflare.MODELS_JSON_EXTRA.entries.length, 4);
-assert.equal(plan.resolved_routes.length, 15);
+assert.equal(plan.cloudflare.MODELS_JSON_EXTRA.entries.length, 8);
+assert.equal(plan.resolved_routes.length, 19);
 assert.equal(plan.aws.variable, "OPENROUTER_MODELS");
-assert.equal(plan.aws.entries.length, 11);
-assert.equal(new Set(plan.aws.entries).size, 11);
+assert.equal(plan.aws.entries.length, 14);
+assert.equal(new Set(plan.aws.entries).size, 14);
 assert.equal(plan.aws.value_csv, plan.aws.entries.join(","));
 
 const keyOf = entry => `${entry.provider}:${entry.model}`;
@@ -28,7 +28,7 @@ const allEntries = [
   ...plan.cloudflare.MODELS_JSON.entries,
   ...plan.cloudflare.MODELS_JSON_EXTRA.entries,
 ];
-assert.equal(new Set(allEntries.map(keyOf)).size, 15);
+assert.equal(new Set(allEntries.map(keyOf)).size, 19);
 
 const byKey = new Map(allEntries.map(entry => [keyOf(entry), entry]));
 
@@ -77,6 +77,58 @@ assert.deepEqual(
 );
 
 assert.deepEqual(
+  byKey.get("gemini:gemini-3.8-flash"),
+  {
+    provider: "gemini",
+    model: "gemini-3.8-flash",
+    input_microusd_per_million: 750000,
+    output_microusd_per_million: 3750000,
+    cache_read_microusd_per_million: 75000,
+  }
+);
+
+assert.deepEqual(
+  byKey.get("openrouter:google/gemini-3.8-flash"),
+  {
+    provider: "openrouter",
+    model: "google/gemini-3.8-flash",
+    input_microusd_per_million: 750000,
+    output_microusd_per_million: 3750000,
+    cache_read_microusd_per_million: 75000,
+    openrouter_max_prompt_microusd_per_million: 750000,
+    openrouter_max_completion_microusd_per_million: 3750000,
+  }
+);
+
+assert.deepEqual(
+  byKey.get("openrouter:anthropic/claude-sonnet-5.5"),
+  {
+    provider: "openrouter",
+    model: "anthropic/claude-sonnet-5.5",
+    input_microusd_per_million: 2000000,
+    output_microusd_per_million: 10000000,
+    cache_read_microusd_per_million: 100000,
+    cache_write_microusd_per_million: 2500000,
+    openrouter_max_prompt_microusd_per_million: 2000000,
+    openrouter_max_completion_microusd_per_million: 10000000,
+  }
+);
+
+assert.deepEqual(
+  byKey.get("openrouter:anthropic/claude-opus-5.5"),
+  {
+    provider: "openrouter",
+    model: "anthropic/claude-opus-5.5",
+    input_microusd_per_million: 4000000,
+    output_microusd_per_million: 20000000,
+    cache_read_microusd_per_million: 200000,
+    cache_write_microusd_per_million: 5000000,
+    openrouter_max_prompt_microusd_per_million: 4000000,
+    openrouter_max_completion_microusd_per_million: 20000000,
+  }
+);
+
+assert.deepEqual(
   byKey.get("gemini:gemini-3.1-pro-preview"),
   {
     provider: "gemini",
@@ -108,14 +160,20 @@ const relayKeys = new Set(
 );
 assert.equal(relayKeys.has("openrouter:google/gemini-3-flash-preview"), false);
 assert.equal(relayKeys.has("openrouter:google/gemini-3.1-pro-preview"), false);
+assert.equal(relayKeys.has("openrouter:google/gemini-3.8-flash"), true);
+assert.equal(relayKeys.has("openrouter:anthropic/claude-sonnet-5.5"), true);
+assert.equal(relayKeys.has("openrouter:anthropic/claude-opus-5.5"), true);
 assert.equal(relayKeys.has("openrouter:deepseek/deepseek-v4-flash-0731"), true);
 assert.equal(relayKeys.has("openrouter:x-ai/grok-4.5"), true);
 
-const rolloutPath = path.join(
+const rolloutDir = path.join(
   root,
-  "workers/bao-lab-credits-api/model-rollouts/2026-10-02-mainstream-openrouter.json"
+  "workers/bao-lab-credits-api/model-rollouts"
 );
-const rollout = JSON.parse(fs.readFileSync(rolloutPath, "utf8"));
+const rollout = fs.readdirSync(rolloutDir)
+  .filter(name => name.endsWith(".json"))
+  .sort()
+  .flatMap(name => JSON.parse(fs.readFileSync(path.join(rolloutDir, name), "utf8")));
 const extraByKey = new Map(
   plan.cloudflare.MODELS_JSON_EXTRA.entries.map(entry => [keyOf(entry), entry])
 );
