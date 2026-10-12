@@ -62,6 +62,12 @@
     return packs.find(pack => enabled.includes(pack.meta.id) && pack.meta.world !== "general")?.meta.world || "";
   }
   function save() { App.saveStory?.(false); }
+  function setRecallMode(mode, expectedStory = story()) {
+    if (!expectedStory || story() !== expectedStory || !["auto", "scene", "off"].includes(mode)) return false;
+    cfg().recallMode = mode;
+    save();
+    return true;
+  }
   function signals() {
     const current = story() || {};
     const messages = typeof Chat !== "undefined" && Array.isArray(Chat.messages) ? Chat.messages : [];
@@ -100,7 +106,7 @@
     if (story() !== owner || cfg() !== local) return messages;
     const picked = core.select(packs, local.enabled, {
       ...signals(), world: activeWorld(packs, local.enabled)
-    }, { maxChars: 2200, maxEntries: 4 });
+    }, { maxChars: 2200, maxEntries: 4, recallMode: local.recallMode });
     if (!picked.text) return messages;
     const result = messages.map(m => ({ ...m }));
     let lastUser = -1;
@@ -130,6 +136,20 @@
     backdrop.addEventListener("click", event => { if (event.target === backdrop) close(); });
     backdrop.addEventListener("keydown", event => { if (event.key === "Escape") close(); });
     const openedStory = story();
+    const controls = document.createElement("label");
+    controls.textContent = "世界書召回：";
+    const modeSelect = document.createElement("select");
+    modeSelect.setAttribute("aria-label", "世界書召回模式");
+    for (const [value, label] of [["auto", "自動召回"], ["scene", "僅當前場景"], ["off", "關閉可選召回"]]) {
+      const option = document.createElement("option");
+      option.value = value; option.textContent = label; modeSelect.append(option);
+    }
+    modeSelect.value = ["auto", "scene", "off"].includes(cfg().recallMode) ? cfg().recallMode : "auto";
+    modeSelect.onchange = () => { setRecallMode(modeSelect.value, openedStory); };
+    controls.append(modeSelect);
+    const modeHint = document.createElement("p");
+    modeHint.textContent = "只影響目前故事的後續請求。自動：玩家輸入與故事訊號；場景：目前地點與在場人物。關閉不移除核心設定、固定背景或已知記憶，也不撤回已送出的資料。檢索在本機執行；召回內容可能增加模型輸入 token。";
+    backdrop.querySelector("[data-ylb-list]").before(controls, modeHint);
     const listing = backdrop.querySelector("[data-ylb-list]");
     const render = async () => {
       if (!backdrop.isConnected) return;
@@ -256,5 +276,5 @@
   };
   new MutationObserver(attach).observe(document.body, { childList: true, subtree: true });
   attach();
-  window.YoruWorldbookLibrary = Object.freeze({ open, select: core.select, loadCatalog, all, signals, setCondition });
+  window.YoruWorldbookLibrary = Object.freeze({ open, select: core.select, loadCatalog, all, signals, setCondition, setRecallMode });
 })();

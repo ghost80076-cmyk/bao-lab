@@ -15,6 +15,10 @@ global.App = { characters: [{ id: 'linchenfeng', source: 'built-in' }] };
 global.confirm = () => true;
 vm.runInThisContext(fs.readFileSync(path.join(__dirname, '..', 'js', 'character.js'), 'utf8'));
 CharacterEngine.audit = raw => raw.badStructure ? { ok: false, errors: ['重複欄位'] } : { ok: true, errors: [] };
+for (const recallMode of ['auto', 'scene', 'off']) {
+  assert.equal(CharacterEngine.normalizeWorldbookLibrary({version:1,enabled:[],installed:[],pinned:{},recallMode}).recallMode, recallMode);
+}
+assert.equal(CharacterEngine.normalizeWorldbookLibrary({version:1,enabled:[],installed:[],pinned:{},recallMode:'invalid'}).recallMode, 'auto');
 vm.runInThisContext(fs.readFileSync(path.join(__dirname, '..', 'js', 'character-import-upgrade.js'), 'utf8'));
 
 const file = raw => ({ size: Buffer.byteLength(JSON.stringify(raw)), text: async () => JSON.stringify(raw) });

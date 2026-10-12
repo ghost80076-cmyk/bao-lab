@@ -86,14 +86,15 @@
   }
   const lower = value => String(value || "").toLocaleLowerCase();
   function select(packs, enabledIds, context = {}, options = {}) {
+    const recallMode = ["auto", "scene", "off"].includes(options.recallMode) ? options.recallMode : "auto";
     const ids = new Set(Array.isArray(enabledIds) ? enabledIds : []);
     const maxChars = Math.max(100, Math.min(10000, Number(options.maxChars) || 2200));
     const maxEntries = Math.max(1, Math.min(12, Number(options.maxEntries) || 4));
     const signals = [
-      { text: lower(context.latestUser), score: 200 },
+      { text: recallMode === "auto" ? lower(context.latestUser) : "", score: 200 },
       { text: lower(context.location), score: 130 },
       { text: lower(context.presentNPCs), score: 100 },
-      { text: lower(context.recentEvents), score: 45 }
+      { text: recallMode === "auto" ? lower(context.recentEvents) : "", score: 45 }
     ];
     const flags = new Set(Array.isArray(context.flags) ? context.flags : []);
     const chosen = [];
@@ -102,6 +103,7 @@
       if (!ids.has(pack?.meta?.id)) continue;
       if (pack.meta.world !== "general" && compatibleWorld && compatibleWorld !== pack.meta.world) continue;
       for (const entry of pack.entries || []) {
+        if (recallMode === "off" && entry.mode !== "foundation") continue;
         if (entry.review_required || (entry.requires || []).some(flag => !flags.has(flag))) continue;
         let score = entry.mode === "foundation" ? 120 : 0;
         if (entry.mode !== "foundation") {

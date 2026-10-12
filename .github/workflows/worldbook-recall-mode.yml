@@ -1,0 +1,44 @@
+name: Worldbook recall modes
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'js/worldbook-library*.js'
+      - 'js/lorebook.js'
+      - 'js/character.js'
+      - 'js/prompt-cache.js'
+      - 'tests/*worldbook*.cjs'
+      - 'tests/lorebook-core.cjs'
+      - 'tests/e2e/worldbook-recall-mode.spec.cjs'
+      - '.github/workflows/worldbook-recall-mode.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'js/worldbook-library*.js'
+      - 'js/lorebook.js'
+      - 'js/character.js'
+      - '.github/workflows/worldbook-recall-mode.yml'
+permissions:
+  contents: read
+jobs:
+  recall-and-cache:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Recall and stable-prefix regression
+        run: |
+          node tests/worldbook-library-core.cjs
+          node tests/worldbook-library-runtime.cjs
+          node tests/lorebook-core.cjs
+          node tests/character-import-core.cjs
+          node tests/prompt-cache-core.cjs
+          node tests/prompt-orchestrator-core.cjs
+          node tests/sunrise-prompt-layering-core.cjs
+      - run: npx playwright test tests/e2e/worldbook-recall-mode.spec.cjs --project=chromium
