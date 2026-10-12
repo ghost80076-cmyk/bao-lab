@@ -173,7 +173,7 @@ const API = {
     const openRouter = this.isOpenRouter(config);
     const explicitCache = openRouter && config.cacheEnabled !== false && config.cacheMode === "explicit" && config.explicitCacheModel === config.model;
     const requestMessages = explicitCache ? messages.map((message, index) => index === 0 && message.role === "system"
-      ? { ...message, content: [{ type: "text", text: this.contentToText(message.content), cache_control: { type: "ephemeral" } }] }
+      ? { ...message, content: [{ type: "text", text: this.contentToText(message.content), cache_control: { type: "ephemeral", ttl: "1h" } }] }
       : message) : messages;
     const streaming = this.shouldStream(config);
     const body = { model: config.model, messages: requestMessages };
@@ -207,7 +207,7 @@ const API = {
     const systemMessages = messages.filter(m => m.role === "system").map(m => this.contentToText(m.content)).filter(Boolean);
     const systemText = systemMessages.join("\n\n");
     const allowExplicitCache = config.cacheEnabled !== false && config.route === "official" && config.cacheMode === "explicit" && config.explicitCacheModel === config.model;
-    const system = allowExplicitCache && systemMessages.length ? systemMessages.map((text, index) => ({ type: "text", text, ...(index === 0 ? { cache_control: { type: "ephemeral" } } : {}) })) : systemText;
+    const system = allowExplicitCache && systemMessages.length ? systemMessages.map((text, index) => ({ type: "text", text, ...(index === 0 ? { cache_control: { type: "ephemeral", ttl: "1h" } } : {}) })) : systemText;
     const chat = messages.filter(m => m.role !== "system").map(m => ({ role: m.role === "assistant" ? "assistant" : "user", content: this.contentToText(m.content) }));
     const limit = Math.max(1, Math.floor(Number(config.maxOutputTokens || 4096)));
     let response;

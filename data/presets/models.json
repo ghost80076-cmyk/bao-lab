@@ -300,8 +300,8 @@
             "input": 1,
             "output": 5,
             "cache": 0.1,
-            "cache_write": 1.25,
-            "note": "Cache Read 為 $0.10/M；5 分鐘 Cache Write 為 $1.25/M。"
+            "cache_write": 2,
+            "note": "Cache Read $0.10/M；1 小時 Cache Write $2/M。"
           },
           "docs_url": "https://platform.claude.com/docs/en/models/haiku-4-5/overview"
         },
@@ -321,7 +321,9 @@
           "pricing": {
             "input": 1,
             "output": 5,
-            "cache": 0.1
+            "cache": 0.1,
+            "cache_write": 2,
+            "note": "Claude Stable Prefix 使用 1 小時 explicit cache；Cache Write $2/M。"
           },
           "docs_url": "https://openrouter.ai/anthropic/claude-haiku-4.5",
           "worker": {
@@ -335,7 +337,7 @@
               "input": 1,
               "output": 5,
               "cache": 0.1,
-              "cache_write": 1.25
+              "cache_write": 2
             }
           }
         }
@@ -368,8 +370,8 @@
             "input": 2,
             "output": 10,
             "cache": 0.2,
-            "cache_write": 2.5,
-            "note": "Cache Read 為 $0.20/M；5 分鐘 Cache Write 為 $2.50/M。"
+            "cache_write": 4,
+            "note": "Cache Read $0.20/M；1 小時 Cache Write $4/M。"
           },
           "docs_url": "https://platform.claude.com/docs/en/models/sonnet-5/overview"
         },
@@ -389,7 +391,9 @@
           "pricing": {
             "input": 2,
             "output": 10,
-            "cache": 0.2
+            "cache": 0.2,
+            "cache_write": 4,
+            "note": "Claude Stable Prefix 使用 1 小時 explicit cache；Cache Write $4/M。"
           },
           "docs_url": "https://openrouter.ai/anthropic/claude-sonnet-5",
           "worker": {
@@ -403,7 +407,7 @@
               "input": 2,
               "output": 10,
               "cache": 0.2,
-              "cache_write": 2.5
+              "cache_write": 4
             }
           }
         }
@@ -436,8 +440,8 @@
             "input": 2,
             "output": 10,
             "cache": 0.1,
-            "cache_write": 2.5,
-            "note": "Cache Read $0.10/M；5 分鐘 Cache Write $2.50/M。"
+            "cache_write": 4,
+            "note": "Cache Read $0.10/M；1 小時 Cache Write $4/M。"
           },
           "docs_url": "https://platform.claude.com/docs/en/models/sonnet-5-5/overview"
         },
@@ -457,7 +461,9 @@
           "pricing": {
             "input": 2,
             "output": 10,
-            "cache": 0.1
+            "cache": 0.1,
+            "cache_write": 4,
+            "note": "Claude Stable Prefix 使用 1 小時 explicit cache；Cache Write $4/M。"
           },
           "docs_url": "https://openrouter.ai/anthropic/claude-sonnet-5.5",
           "worker": {
@@ -471,7 +477,7 @@
               "input": 2,
               "output": 10,
               "cache": 0.1,
-              "cache_write": 2.5
+              "cache_write": 4
             }
           }
         }
@@ -504,8 +510,8 @@
             "input": 3,
             "output": 15,
             "cache": 0.3,
-            "cache_write": 3.75,
-            "note": "Cache Read 為 $0.30/M；5 分鐘 Cache Write 為 $3.75/M。"
+            "cache_write": 6,
+            "note": "Cache Read $0.30/M；1 小時 Cache Write $6/M。"
           },
           "docs_url": "https://platform.claude.com/docs/en/about-claude/pricing"
         },
@@ -525,7 +531,9 @@
           "pricing": {
             "input": 3,
             "output": 15,
-            "cache": 0.3
+            "cache": 0.3,
+            "cache_write": 6,
+            "note": "Claude Stable Prefix 使用 1 小時 explicit cache；Cache Write $6/M。"
           },
           "docs_url": "https://openrouter.ai/anthropic/claude-sonnet-4.6",
           "worker": {
@@ -539,7 +547,7 @@
               "input": 3,
               "output": 15,
               "cache": 0.3,
-              "cache_write": 3.75
+              "cache_write": 6
             }
           }
         }
@@ -572,7 +580,8 @@
             "input": 3,
             "output": 15,
             "cache": 0.3,
-            "cache_write": 3.75
+            "cache_write": 6,
+            "note": "Cache Read $0.30/M；1 小時 Cache Write $6/M。"
           },
           "docs_url": "https://platform.claude.com/docs/en/about-claude/model-deprecations"
         },
@@ -592,7 +601,7 @@
               "input": 3,
               "output": 15,
               "cache": 0.3,
-              "cache_write": 3.75
+              "cache_write": 6
             }
           }
         }
@@ -630,8 +639,8 @@
             "input": 4,
             "output": 20,
             "cache": 0.2,
-            "cache_write": 5,
-            "note": "Cache Read $0.20/M；5 分鐘 Cache Write $5/M。Adaptive thinking 始終開啟。"
+            "cache_write": 8,
+            "note": "Cache Read $0.20/M；1 小時 Cache Write $8/M。 Adaptive thinking 始終開啟。"
           },
           "docs_url": "https://platform.claude.com/docs/en/models/opus-5-5/overview"
         },
@@ -651,7 +660,9 @@
           "pricing": {
             "input": 4,
             "output": 20,
-            "cache": 0.2
+            "cache": 0.2,
+            "cache_write": 8,
+            "note": "Claude Stable Prefix 使用 1 小時 explicit cache；Cache Write $8/M。"
           },
           "docs_url": "https://openrouter.ai/anthropic/claude-opus-5.5",
           "worker": {
@@ -665,7 +676,7 @@
               "input": 4,
               "output": 20,
               "cache": 0.2,
-              "cache_write": 5
+              "cache_write": 8
             }
           }
         }
@@ -698,7 +709,8 @@
             "input": 5,
             "output": 25,
             "cache": 0.5,
-            "cache_write": 6.25
+            "cache_write": 10,
+            "note": "Cache Read $0.50/M；1 小時 Cache Write $10/M。"
           },
           "docs_url": "https://platform.claude.com/docs/en/about-claude/pricing"
         },
@@ -718,7 +730,9 @@
           "pricing": {
             "input": 5,
             "output": 25,
-            "cache": 0.5
+            "cache": 0.5,
+            "cache_write": 10,
+            "note": "Claude Stable Prefix 使用 1 小時 explicit cache；Cache Write $10/M。"
           },
           "docs_url": "https://openrouter.ai/anthropic/claude-opus-4.6",
           "worker": {
@@ -732,7 +746,7 @@
               "input": 5,
               "output": 25,
               "cache": 0.5,
-              "cache_write": 6.25
+              "cache_write": 10
             }
           }
         }
@@ -765,7 +779,8 @@
             "input": 5,
             "output": 25,
             "cache": 0.5,
-            "cache_write": 6.25
+            "cache_write": 10,
+            "note": "Cache Read $0.50/M；1 小時 Cache Write $10/M。"
           },
           "docs_url": "https://platform.claude.com/docs/en/about-claude/pricing"
         }

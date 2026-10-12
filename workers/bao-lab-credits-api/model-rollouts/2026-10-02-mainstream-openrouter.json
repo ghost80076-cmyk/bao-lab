@@ -5,7 +5,7 @@
     "input_microusd_per_million": 1000000,
     "output_microusd_per_million": 5000000,
     "cache_read_microusd_per_million": 100000,
-    "cache_write_microusd_per_million": 1250000,
+    "cache_write_microusd_per_million": 2000000,
     "openrouter_max_prompt_microusd_per_million": 1000000,
     "openrouter_max_completion_microusd_per_million": 5000000
   },
@@ -15,7 +15,7 @@
     "input_microusd_per_million": 2000000,
     "output_microusd_per_million": 10000000,
     "cache_read_microusd_per_million": 200000,
-    "cache_write_microusd_per_million": 2500000,
+    "cache_write_microusd_per_million": 4000000,
     "openrouter_max_prompt_microusd_per_million": 2000000,
     "openrouter_max_completion_microusd_per_million": 10000000
   },

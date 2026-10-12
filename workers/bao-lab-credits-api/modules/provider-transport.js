@@ -79,6 +79,9 @@ const WorkerProviderTransport = (() => {
                   cache_control: {
                     type:
                       "ephemeral",
+
+                    ttl:
+                      "1h",
                   },
                 },
               ],
