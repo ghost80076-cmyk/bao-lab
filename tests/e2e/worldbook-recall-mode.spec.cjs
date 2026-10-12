@@ -14,9 +14,10 @@ for (const width of [1280, 390]) {
     });
     const mode = page.getByRole('combobox', { name: '世界書召回模式' });
     await expect(mode).toHaveValue('auto');
-    await expect(page.getByText('曙光市', { exact: true })).toBeVisible();
-    await expect(page.getByText('三界九域', { exact: true })).toBeVisible();
-    const simulator = page.locator('.ylb-collection').filter({ hasText: '通用世界模擬器' }).first();
+    const modal = page.locator('.ylb-modal');
+    await expect(modal.getByText('曙光市', { exact: true })).toBeVisible();
+    await expect(modal.getByText('三界九域', { exact: true })).toBeVisible();
+    const simulator = modal.locator('.ylb-collection').filter({ hasText: '通用世界模擬器' }).first();
     await expect(simulator.getByText('通用世界模擬器', { exact: true })).toBeVisible();
     await expect(simulator.getByText(/0 \/ 6 章已啟用/)).toBeVisible();
     await simulator.getByText('自選章節（6）', { exact: true }).click();
