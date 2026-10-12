@@ -168,7 +168,7 @@ code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
     <div class="player-list-scroll usage-scroll" style="margin-top:12px" tabindex="0" aria-label="API 消耗明細，可上下及左右捲動">
       <table class="player-table usage-table">
         <thead><tr>
-          <th>時間</th><th>用途／模型</th><th>輸入 Token</th><th>快取 Token</th>
+          <th>時間</th><th>用途／模型</th><th>輸入 Token</th><th>快取讀取</th><th>快取寫入</th>
           <th>輸出／思考 Token</th><th>玩家實扣 (USD)</th><th>上游成本 (USD)</th><th>狀態</th><th>失敗診斷</th>
         </tr></thead>
         <tbody id="usage-rows"><tr><td colspan="9" class="player-empty">尚未載入。</td></tr></tbody>
@@ -538,6 +538,7 @@ code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
           '<span class="usage-detail">'+escapeHTML(row.provider||"—")+' / '+escapeHTML(row.model||"—")+'</span></td>'+
         '<td>'+escapeHTML(usageToken(row.input_tokens))+'</td>'+
         '<td>'+escapeHTML(usageToken(row.cached_tokens))+'</td>'+
+        '<td>'+escapeHTML(usageToken(row.cache_write_tokens))+'</td>'+
         '<td>'+escapeHTML(usageToken(row.output_tokens))+' / '+escapeHTML(usageToken(row.reasoning_tokens))+'</td>'+
         '<td class="money"><b>'+escapeHTML(charge)+'</b></td>'+
         '<td class="money">'+escapeHTML(usageUsd(row.provider_cost_usd))+'</td>'+
