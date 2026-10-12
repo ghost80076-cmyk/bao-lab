@@ -23,7 +23,7 @@ for(const s of ledger){
   }
   assert.equal(end,s.source_chars);
 }
-for(const i of [65,69,71,74])assert.equal(ledger.find(s=>s.source_index===i).publication_status,'unreviewed');
+for(const i of [65,69,71,74])assert.equal(ledger.find(s=>s.source_index===i).publication_status,'partial');
 const text=id=>entries.get(id).content;
 const body68=[...entries].filter(([id])=>id.startsWith('sunrise-source-68-')).map(([,e])=>e.content).join('\n');
 assert.doesNotMatch(body68,/攝影師|白天|丈夫|親密時|喘息|孤獨|真實:|動機:/);

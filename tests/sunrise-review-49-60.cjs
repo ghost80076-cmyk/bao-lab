@@ -23,7 +23,7 @@ for(const s of ledger){
   }
   assert.equal(end,s.source_chars);
 }
-for(const i of [52,58])assert.equal(ledger.find(s=>s.source_index===i).publication_status,'unreviewed');
+for(const i of [52,58])assert.equal(ledger.find(s=>s.source_index===i).publication_status,'partial');
 const body=id=>entries.get(id).content;
 assert.doesNotMatch(body('sunrise-source-49-2'),/非法異能實驗|反登記法組織|秘密組織/);
 assert.doesNotMatch(body('sunrise-source-50-0'),/玩家|16歲/);
