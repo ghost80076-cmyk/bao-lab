@@ -218,6 +218,8 @@
     backdrop.addEventListener("click", event => { if (event.target === backdrop) close(); });
     backdrop.addEventListener("keydown", event => { if (event.key === "Escape") close(); });
     const openedStory = story();
+    const openCollections = new Set();
+    const openConditions = new Set();
     const controls = document.createElement("label");
     controls.textContent = "世界書召回：";
     const modeSelect = document.createElement("select");
@@ -245,6 +247,12 @@
         if (!conditions.length) return;
         const details = document.createElement("details");
         details.className = "ylb-condition-list";
+        const conditionKey = pack.meta.id;
+        details.open = openConditions.has(conditionKey);
+        details.addEventListener("toggle", () => {
+          if (details.open) openConditions.add(conditionKey);
+          else openConditions.delete(conditionKey);
+        });
         const summary = document.createElement("summary");
         summary.textContent = "已得知資訊（" + conditions.length + " 項）";
         const hint = document.createElement("p");
@@ -334,6 +342,11 @@
 
         const details = document.createElement("details");
         details.className = "ylb-chapters";
+        details.open = openCollections.has(group.key);
+        details.addEventListener("toggle", () => {
+          if (details.open) openCollections.add(group.key);
+          else openCollections.delete(group.key);
+        });
         const summary = document.createElement("summary");
         summary.textContent = group.packs.length > 1 ? "自選章節（" + group.packs.length + "）" : "查看內容";
         details.append(summary);
