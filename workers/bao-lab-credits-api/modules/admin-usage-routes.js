@@ -3,6 +3,10 @@ import {
   json,
 } from "./http.js";
 
+import {
+  ensureUsageDiagnostics,
+} from "./usage-diagnostics.js";
+
 // Read-only admin usage history.
 const ADMIN_USAGE_LEGACY_BILLING_MODE = "raw_tokens_v1";
 const ADMIN_USAGE_COST_BILLING_MODE = "cost_usd_v2";
@@ -43,44 +47,63 @@ async function adminUsageRoute(
     }
     const page = Number(rawPage);
     const pageSize = 100;
+
+    await ensureUsageDiagnostics(
+      db
+    );
+
     const rows =
       await db
         .prepare(
           `
           SELECT
-            request_id,
-            provider,
-            model,
-            request_kind,
+            u.request_id,
+            u.provider,
+            u.model,
+            u.request_kind,
 
-            input_tokens,
-            fresh_input_tokens,
-            cached_tokens,
-            cache_write_tokens,
+            u.input_tokens,
+            u.fresh_input_tokens,
+            u.cached_tokens,
+            u.cache_write_tokens,
 
-            output_tokens,
-            reasoning_tokens,
+            u.output_tokens,
+            u.reasoning_tokens,
 
-            provider_cost_microusd,
-            cost_microusd,
-            settled_cost_microusd,
+            u.provider_cost_microusd,
+            u.cost_microusd,
+            u.settled_cost_microusd,
 
-            balance_before_microusd,
-            balance_after_microusd,
+            u.balance_before_microusd,
+            u.balance_after_microusd,
 
-            billing_mode,
-            pricing_version,
-            status,
-            created_at
+            u.billing_mode,
+            u.pricing_version,
+            u.status,
+            u.created_at,
 
-          FROM api_usage
+            d.failure_code,
+            d.upstream_http_status,
+            d.provider_status,
+            d.route,
+            d.transport_failure,
+            d.rate_limit_scope,
+            d.retry_after_seconds,
+            d.request_bytes,
+            d.elapsed_ms,
+            d.timeout_ms
+
+          FROM api_usage AS u
+
+          LEFT JOIN api_usage_diagnostics AS d
+            ON d.request_id = u.request_id
 
           WHERE
-            player_id = ?
+            u.player_id = ?
 
           ORDER BY
-            created_at DESC,
-            request_id DESC
+            u.created_at DESC,
+            u.request_id DESC
 
           LIMIT 101 OFFSET ?
           `

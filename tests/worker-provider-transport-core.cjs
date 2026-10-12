@@ -24,6 +24,7 @@ for (const helper of [
   "anthropicPayload",
   "recoverOpenRouterUsage",
   "providerCall",
+  "providerFailureCode",
   "providerFailureResponse",
 ]) {
   assert.match(source, new RegExp("\\b" + helper + "\\b"), "WorkerProviderTransport is missing " + helper);
@@ -61,11 +62,13 @@ const jsonResponse = (body, status = 200) =>
   const {
     WorkerProviderTransport,
     providerCall,
+    providerFailureCode,
     providerFailureResponse,
     anthropicPayload,
   } = await import(pathToFileURL(modulePath).href);
 
   assert.equal(WorkerProviderTransport.providerCall, providerCall);
+  assert.equal(WorkerProviderTransport.providerFailureCode, providerFailureCode);
   assert.equal(WorkerProviderTransport.providerFailureResponse, providerFailureResponse);
   assert.equal(WorkerProviderTransport.anthropicPayload, anthropicPayload);
 
@@ -369,6 +372,15 @@ const jsonResponse = (body, status = 200) =>
     assert.equal(directRateLimited.upstreamStatus, 429);
     assert.equal(directRateLimited.rateLimitScope, "rate");
     assert.equal(directRateLimited.retryAfterSeconds, 7);
+
+    assert.equal(
+      providerFailureCode(directRateLimited),
+      "provider_rate_limited"
+    );
+    assert.equal(
+      providerFailureCode({ category: "google_bad_request_quota", upstreamStatus: 400 }),
+      "google_bad_request_quota"
+    );
 
     const directRateFailure = providerFailureResponse(
       directRateLimited,

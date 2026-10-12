@@ -14,8 +14,8 @@
     "modules/admin-publication-routes.js",
     "modules/admin-routes.js",
     "modules/admin-usage-routes.js",
-    "modules/author-profile-publication.js",
     "modules/author-ownership.js",
+    "modules/author-profile-publication.js",
     "modules/billing-constants.js",
     "modules/chat-dispatch.js",
     "modules/chat-input.js",
@@ -26,14 +26,15 @@
     "modules/http.js",
     "modules/legacy-chat-settlement.js",
     "modules/model-pricing.js",
-    "modules/publication-format.js",
     "modules/number-utils.js",
     "modules/provider-control.js",
-    "modules/provider-transport.js",
     "modules/provider-routing.js",
+    "modules/provider-transport.js",
+    "modules/publication-format.js",
     "modules/runtime-config.js",
     "modules/session-auth.js",
-    "worker.js",
-    "modules/wallet-reservations.js"
+    "modules/usage-diagnostics.js",
+    "modules/wallet-reservations.js",
+    "worker.js"
   ]
 }

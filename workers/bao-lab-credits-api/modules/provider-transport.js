@@ -1816,6 +1816,22 @@ const WorkerProviderTransport = (() => {
     };
   }
   
+  function providerFailureCode(
+    result
+  ) {
+    return (
+      result?.category ===
+        "provider_http_error" &&
+      result?.upstreamStatus ===
+        429
+    )
+      ? "provider_rate_limited"
+      : (
+          result?.category ||
+          "provider_request_failed"
+        );
+  }
+
   function providerFailureResponse(
     result,
     requestId
@@ -1911,23 +1927,10 @@ const WorkerProviderTransport = (() => {
           .finishReason;
     }
   
-    if (
-      result.category ===
-        "provider_http_error" &&
-      result
-        .upstreamStatus ===
-        429
-    ) {
-      return fail(
-        "provider_rate_limited",
-        502,
-        extra
-      );
-    }
-  
     return fail(
-      result.category ||
-        "provider_request_failed",
+      providerFailureCode(
+        result
+      ),
       502,
       extra
     );
@@ -1938,6 +1941,7 @@ const WorkerProviderTransport = (() => {
     anthropicPayload,
     recoverOpenRouterUsage,
     providerCall,
+    providerFailureCode,
     providerFailureResponse,
   });
 })();
@@ -1947,6 +1951,7 @@ const {
   anthropicPayload,
   recoverOpenRouterUsage,
   providerCall,
+  providerFailureCode,
   providerFailureResponse,
 } = WorkerProviderTransport;
 
@@ -1955,6 +1960,7 @@ export {
   anthropicPayload,
   geminiErrorHint,
   providerCall,
+  providerFailureCode,
   providerFailureResponse,
   recoverOpenRouterUsage,
 };
