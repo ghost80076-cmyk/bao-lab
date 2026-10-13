@@ -842,5 +842,42 @@
     "updated_at": "2026-10-11T12:08:49.785256Z",
     "version_published_at": "2026-10-11T12:08:49.785256Z",
     "published_version": 1
+  },
+  {
+    "id": "time-reversal-domination",
+    "file": "data/characters/community/3d/time-reversal-domination.json",
+    "name": "妳媽是我的性奴隸",
+    "title": "妳媽是我的性奴隸｜時光逆轉支配系統",
+    "avatar": "assets/community/3d/time-reversal-domination.webp",
+    "category": "male",
+    "rating": "adult",
+    "gender": "female",
+    "tags": [
+      "男性向",
+      "成年向",
+      "時光逆轉",
+      "年上",
+      "NTR",
+      "都市異能",
+      "黑暗心理",
+      "多NPC",
+      "家庭衝突",
+      "原生狀態UI"
+    ],
+    "description": "時光逆轉能讓成年女性重獲青春，卻無法讓已經發生的秘密和家庭裂痕消失。從朋友母親山田由美子的午後開始，探索 NTR、渴望、依賴、支配與代價。",
+    "supported_modes": {
+      "immersive": true,
+      "world": true
+    },
+    "supported_display": {
+      "text": true,
+      "ui": true
+    },
+    "published_at": "2026-10-13T10:43:00Z",
+    "updated_at": "2026-10-13T10:43:00Z",
+    "published_version": 1,
+    "version_published_at": "2026-10-13T10:43:00Z",
+    "author": "班長",
+    "author_id": "banzhang"
   }
 ]
