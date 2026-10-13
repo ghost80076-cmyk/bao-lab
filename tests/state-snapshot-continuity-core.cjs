@@ -46,7 +46,7 @@ run(ctx,'js/prompt-orchestrator.js');
   assert.match(messages[0].content,/場景旁白、人物動作及環境描述使用自然繁體中文/);
   assert.match(messages[0].content,/玩家已進便利店且未離開時/);
   assert.doesNotMatch(messages[0].content,/\[CHAR:yume\]/);
-  assert.match(card.content.author_instructions,/不要把日文台詞延伸成整段日文旁白/);
+  assert.match(card.content.author_instructions,/全程繁體中文敘事/);
   assert.match(messages[0].content,/【狀態時序】/);
   assert.match(messages[0].content,/較新的已確認事件優先/);
   assert.match(messages[0].content,/尚待判定的嘗試不算完成/);
