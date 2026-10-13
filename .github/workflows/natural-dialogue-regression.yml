@@ -1,0 +1,32 @@
+name: Natural dialogue regression
+
+on:
+  pull_request:
+    paths:
+      - 'js/prompt-orchestrator.js'
+      - 'data/prompts/*.json'
+      - 'data/characters/community/c4/kept-in-frame-lin-youzhen.json'
+      - 'tests/natural-dialogue-voice-regression.test.cjs'
+      - '.github/workflows/natural-dialogue-regression.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  dialogue-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Syntax and targeted regressions
+        run: |
+          node --check js/prompt-orchestrator.js
+          node --check tests/natural-dialogue-voice-regression.test.cjs
+          node tests/natural-dialogue-voice-regression.test.cjs
+          node tests/prompt-orchestrator-core.cjs
+          node tests/narrative-prompt-pipeline-core.cjs
+          node tests/prompt-cache-core.cjs
+          node tests/platform-character-prompt-dedup.test.cjs
+          node tests/all-community-card-prompt-boundaries.test.cjs
+          node tests/opening-context-regression.test.cjs

@@ -41,6 +41,8 @@
       tracking,
       context,
       kind,
+      // Hide internal tracking modules from player-facing state UI, not local storage.
+      visibility: source.visibility === 'internal' ? 'internal' : 'public',
       enabled: source.enabled !== false,
       triggers,
       fields: Array.isArray(source.fields || preset.fields) ? (source.fields || preset.fields).slice(0, 24).map(f => ({

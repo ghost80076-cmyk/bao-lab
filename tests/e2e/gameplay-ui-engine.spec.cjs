@@ -372,6 +372,55 @@ test('atomic one-time gift claim drafts the selected route only after success', 
   expect(second).toEqual(first);
 });
 
+test('internal NPC world module remains tracked but hidden from player UI', async ({ page }) => {
+  await ready(page);
+  await page.waitForFunction(() => Boolean(window.BAOWorldModules && window.BAOWorldModuleUI && window.BAOWorldModuleManager));
+  const result = await page.evaluate(() => {
+    App.activeCharacter = CharacterEngine.normalize({
+      id: 'hidden-npc-state-check', name: 'Hidden state', system_prompt: 'test', greeting: 'hello',
+      world_modules: [
+        { id: 'player', label: '玩家狀態', kind: 'object', context: 'core',
+          fields: [{ key: 'hp', label: '氣血', type: 'number' }] },
+        { id: 'npc_private', label: 'NPC內幕數值', visibility: 'internal', kind: 'object',
+          context: 'relevant', fields: [{ key: 'records', label: '私密紀錄', type: 'text' }] }
+      ],
+      initial_state: { modules: { player: { hp: 100 },
+        npc_private: { records: [{ id: 'npc-1', harvest_impulse: 87, secret: 'HIDDEN_SENTINEL' }] } } },
+      gameplay_ui: { version: 1, panels: [{ id: 'status', label: '狀態',
+        sections: [{ type: 'stats', items: [{ label: '氣血', path: 'modules.player.hp' }] }] }] }
+    });
+    App.config = {
+      narrativeMode: 'world', displayMode: 'ui',
+      persona: { name: '測試玩家', gender: '' },
+      api: { type: 'custom', model: 'offline-test', baseUrl: '', key: '' },
+      memory: { mode: 'manual', maxRounds: 20, maxContext: 32000, cache: false }
+    };
+    Chat.reset();
+    GameState.create(App.activeCharacter, App.config);
+    App.renderChatShell(true);
+    App.showView('chat');
+    BAOWorldModuleUI.injectTabs();
+    BAOGameplayUI.renderPanel('status');
+    const before = document.querySelector('#ui-panel')?.textContent || '';
+    App.renderUIPanel('module:npc_private');
+    const after = document.querySelector('#ui-panel')?.textContent || '';
+    return {
+      visibility: GameState.current.moduleDefinitions.find(x => x.id === 'npc_private')?.visibility,
+      impulse: GameState.current.modules.npc_private.records[0].harvest_impulse,
+      tabCount: document.querySelectorAll('[data-panel="module:npc_private"]').length,
+      before, after
+    };
+  });
+  expect(result.visibility).toBe('internal');
+  expect(result.impulse).toBe(87);
+  expect(result.tabCount).toBe(0);
+  expect(result.before).toBe(result.after);
+  expect(result.after).not.toContain('HIDDEN_SENTINEL');
+  await page.evaluate(() => BAOWorldModuleManager.open());
+  await expect(page.locator('.world-manager-modal')).not.toContainText('NPC內幕數值');
+  await expect(page.locator('.world-manager-modal')).not.toContainText('HIDDEN_SENTINEL');
+});
+
 test('custom builder choices keep drafts and bind actual text to initial state', async ({ page }) => {
   await ready(page);
   await page.evaluate(async () => {

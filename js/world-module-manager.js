@@ -20,7 +20,7 @@
 
   const open = () => {
     if (!GameState.current) { alert("請先開始或讀取一個故事。"); return; }
-    const base = window.BAOWorldModules.baseDefinitions(App.activeCharacter);
+    const base = window.BAOWorldModules.baseDefinitions(App.activeCharacter).filter(def => def.visibility !== 'internal');
     const draft = clone(window.BAOWorldModules.getCustomization(App.activeCharacter));
     const baseIds = new Set(base.map(def => def.id));
 
@@ -45,7 +45,7 @@
       const ids = [
         ...base.map(def => def.id),
         ...draft.enabledBuiltIns.filter(id => !baseIds.has(id)),
-        ...draft.customModules.map(def => def.id)
+        ...draft.customModules.filter(def => def.visibility !== 'internal').map(def => def.id)
       ].filter(id => !draft.disabled.includes(id));
       return [...new Set(ids)];
     };
@@ -113,7 +113,8 @@
 
     const renderCustom = () => {
       const box = wrap.querySelector("[data-world-custom]");
-      box.innerHTML = draft.customModules.length ? draft.customModules.map(def => {
+      const visibleCustom = draft.customModules.filter(def => def.visibility !== 'internal');
+      box.innerHTML = visibleCustom.length ? visibleCustom.map(def => {
         const enabled = !draft.disabled.includes(def.id);
         return `<article class="world-custom-card" data-custom-id="${esc(def.id)}"><div class="world-custom-head"><span><b>${esc(def.label)}</b><small>${esc(def.id)}</small></span><button type="button" data-custom-delete>刪除</button></div><div class="world-custom-grid">
           <label>名稱<input data-custom-prop="label" maxlength="40" value="${esc(def.label)}"></label>
