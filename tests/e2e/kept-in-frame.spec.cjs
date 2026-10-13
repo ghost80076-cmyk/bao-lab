@@ -39,7 +39,7 @@ for(const viewport of [{width:1280,height:900},{width:390,height:844}]){
   await expect(frame.locator('body')).not.toContainText('【YB:');
   expect(await frame.locator('body').evaluate(n=>n.scrollWidth<=n.clientWidth+2)).toBe(true);
   await page.evaluate(()=>{App.config.displayMode='text';App.renderChatShell(true);});
-  await expect(page.locator('#chat-stream')).toContainText('林祐真');
+  await expect(page.locator('#chat-stream')).toContainText('攝影筆記｜21:00');
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+2)).toBe(true);
   // Mature catalog entries are deliberately hidden until the reader opts in.
   await page.evaluate(()=>BAOContentPreferences.setAdultContentEnabled(true,{confirmAge:false}));
