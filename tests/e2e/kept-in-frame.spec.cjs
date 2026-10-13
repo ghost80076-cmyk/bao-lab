@@ -23,7 +23,7 @@ for(const viewport of [{width:1280,height:900},{width:390,height:844}]){
   expect(stored.source).toBe('official-sidecar');
   // A real later photography note must still use the isolated author renderer.
   await page.evaluate(()=>{
-   Chat.add('assistant','攝影筆記｜21:00\\n照片背面寫著：週六。\\n\\n正文，不能吃掉。');
+   Chat.add('assistant','攝影筆記｜21:00\n照片背面寫著：週六。\n\n正文，不能吃掉。');
    App.renderChatShell(false);
   });
   await expect(page.locator('#chat-stream .bao-author-inline')).toHaveCount(1);
