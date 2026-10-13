@@ -8,7 +8,7 @@ test('LM Studio model discovery, no-key story request and resume', async ({ page
     window.__lmStudioCalls = [];
     window.fetch = (input, init = {}) => {
       const url = String(input?.url || input);
-      if (!url.startsWith('http://localhost:1234/v1/')) return original(input, init);
+      if (!/^http:\/\/(?:localhost|127\.0\.0\.1):1234\/v1\//.test(url)) return original(input, init);
       window.__lmStudioCalls.push({ url, headers: init.headers || {}, body: init.body || '' });
       const result = url.endsWith('/models')
         ? { data: [{ id: 'gemma4-26b-a4b' }] }
@@ -22,7 +22,8 @@ test('LM Studio model discovery, no-key story request and resume', async ({ page
   });
   await page.locator('#api-type').selectOption('lmstudio');
   await expect(page.locator('#bao-lm-builder')).toBeVisible();
-  await expect(page.locator('#base-url')).toHaveValue('http://localhost:1234/v1/chat/completions');
+  await expect(page.locator('#bao-lm-endpoint')).toHaveValue('http://127.0.0.1:1234/v1');
+  await expect(page.locator('#base-url')).toHaveValue('http://127.0.0.1:1234/v1');
   await page.getByRole('button', { name: '讀取本機模型' }).click();
   await expect(page.locator('#bao-lm-models option[value="gemma4-26b-a4b"]')).toHaveCount(1);
   await expect(page.locator('#model-id')).toHaveValue('gemma4-26b-a4b');
@@ -30,7 +31,7 @@ test('LM Studio model discovery, no-key story request and resume', async ({ page
   await page.evaluate(() => App.setStep(5));
   await page.locator('#start-story').click();
   await expect(page.locator('#user-input')).toBeVisible();
-  await expect(page.locator('#bao-lm-chat-button')).toBeVisible();
+  expect(await page.evaluate(() => typeof window.BAOLMStudio?.open)).toBe('function');
   await page.locator('#user-input').fill('你好，本地 AI');
   await page.locator('#chat-view .composer button.primary').click();
   await expect(page.locator('#chat-stream')).toContainText('本地模型回覆成功');
@@ -55,8 +56,47 @@ test('LM Studio model discovery, no-key story request and resume', async ({ page
   const restored = await page.evaluate(() => ({ key: App.config.api.key, route: App.config.api.route }));
   expect(restored).toEqual({ key: 'BAO_LOCAL_NO_AUTH', route: 'local' });
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.locator('#bao-lm-chat-button').click();
+  await page.evaluate(() => window.BAOLMStudio.open());
   await expect(page.getByRole('dialog', { name: '連接 LM Studio 本地 AI' })).toBeVisible();
+
+  // Saved connections may store the fully-qualified chat route internally.
+  // The editable field should show the base URL, including a non-default port.
+  await expect(page.locator('#bao-lm-form [name="endpoint"]')).toHaveValue('http://127.0.0.1:1234/v1');
+  await page.evaluate(() => {
+    const previousFetch = window.fetch.bind(window);
+    window.__lm1235Calls = [];
+    window.fetch = (input, init = {}) => {
+      const url = String(input?.url || input);
+      if (!url.startsWith('http://127.0.0.1:1235/v1/')) return previousFetch(input, init);
+      window.__lm1235Calls.push(url);
+      const data = url.endsWith('/models')
+        ? { data: [{ id: 'gemma4-26b-a4b' }] }
+        : { choices: [{ message: { content: 'OK' } }], usage: { prompt_tokens: 2, completion_tokens: 1, total_tokens: 3 } };
+      return Promise.resolve(new Response(JSON.stringify(data), { status: 200, headers: { 'Content-Type': 'application/json' } }));
+    };
+  });
+  const endpointField = page.locator('#bao-lm-form [name="endpoint"]');
+  await endpointField.fill('http://127.0.0.1:1235/v1');
+  await page.locator('#bao-lm-form [data-test]').click();
+  await expect(page.locator('#bao-lm-form [data-message]')).toContainText('本地模型回覆成功');
+  await page.locator('#bao-lm-form button[type="submit"]').click();
+  await expect(page.locator('#bao-lm-dialog')).toHaveCount(0);
+  const applied = await page.evaluate(() => ({
+    savedEndpoint: App.config.api.baseUrl,
+    requests: window.__lm1235Calls.slice()
+  }));
+  expect(applied.savedEndpoint).toBe('http://127.0.0.1:1235/v1/chat/completions');
+  expect(applied.requests).toContain('http://127.0.0.1:1235/v1/chat/completions');
+  await page.evaluate(() => window.BAOLMStudio.open());
+  await expect(page.locator('#bao-lm-form [name="endpoint"]')).toHaveValue('http://127.0.0.1:1235/v1');
+  await page.locator('#bao-lm-dialog [data-close]').click();
+  // A full browser reload must retain the display normalization too.
+  await page.evaluate(() => Storage.flush());
+  await page.reload();
+  await page.locator('#home-continue').click();
+  await page.evaluate(() => window.BAOLMStudio.open());
+  await expect(page.locator('#bao-lm-form [name="endpoint"]')).toHaveValue('http://127.0.0.1:1235/v1');
+
   const widths = await page.evaluate(() => ({ content: document.documentElement.scrollWidth, viewport: innerWidth }));
   expect(widths.content).toBeLessThanOrEqual(widths.viewport);
 });

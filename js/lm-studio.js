@@ -203,7 +203,7 @@
     document.body.append(root);
     const form = root.querySelector('form');
     const field = name => form.elements.namedItem(name);
-    field('endpoint').value = isLocal(prior) ? prior.baseUrl : DEFAULT_URL;
+    field('endpoint').value = isLocal(prior) ? local.endpoint(prior.baseUrl || DEFAULT_URL).baseUrl : DEFAULT_URL;
     field('model').value = isLocal(prior) ? prior.model || '' : '';
     const message = root.querySelector('[data-message]');
     const candidate = () => {
