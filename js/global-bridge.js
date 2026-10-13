@@ -7,7 +7,8 @@
 
   // Preserve original messages for display, edits, and backups. Clean only copies sent to models.
   const narrativeText = value => {
-    const source = String(value ?? "");
+    const raw = String(value ?? "");
+    const source = window.BAOYumeArchiveCore?.stripCharacterMarkers?.(raw, window.App?.activeCharacter) ?? raw;
     if (!/<\/?[a-z][\w:-]*(?:\s[^<>]*?)?\s*\/?>/i.test(source)) return source;
     const safe = source.replace(/<(script|style|iframe|object|svg|template)\b[^>]*>[\s\S]*?<\/\1\s*>/gi, "");
     const spaced = safe.replace(/<\s*br\s*\/?>/gi, "\n")

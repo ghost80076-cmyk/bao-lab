@@ -82,7 +82,8 @@
   };
   const render = (raw, greeting = false) => {
     if (greeting && App.activeCharacter?.opening?.posts?.length) return renderStructuredOpening(App.activeCharacter.opening);
-    const text = String(raw || '');
+    const source = String(raw || '');
+    const text = window.BAOYumeArchiveCore?.stripCharacterMarkers?.(source, App.activeCharacter) ?? source;
     const body = withoutMetadata(text);
     if (prefs.mode === 'native') return App.formatMessage(plain(body));
     if (prefs.mode === 'free') return window.BAOChatMarkup.sanitize(body);

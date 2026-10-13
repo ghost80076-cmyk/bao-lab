@@ -53,7 +53,97 @@
         "gameplay_rules": "12b3d6f9b8a6dde3c0b11be3aa3289c27527e8aa1d77dfc2bf422dd688ad196b",
         "builder": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b"
       },
-      "original_panel_ids": []
+      "original_panel_ids": [],
+      "reviewed_maintenance": {
+        "date": "2026-10-13",
+        "reason": "修復黑羽開場位置錨定與舊 CHAR 輸出要求；保留原始創作雜湊，逐項還原此批修正後再核對保存基準。",
+        "content_replacements": [
+          {
+            "field": "author_instructions",
+            "index": 491,
+            "before": "【檔案標記】",
+            "after": "【檔案標記】人物可觀察動態直接寫成正常正文，不使用 CHAR 標記。"
+          },
+          {
+            "field": "author_instructions",
+            "index": 542,
+            "before": "才附加 [CHAR:yume]可觀察動態[/CHAR]、",
+            "after": "才附加 "
+          }
+        ],
+        "gameplay_changes": [
+          {
+            "path": [
+              "character_status",
+              "fields",
+              2,
+              "context"
+            ],
+            "before": "core",
+            "after": "relevant"
+          },
+          {
+            "path": [
+              "character_status",
+              "fields",
+              2,
+              "description"
+            ],
+            "before_present": false,
+            "after": "開場值只用於初始化；依較新的已確認事件更新，不將玩家或人物拉回起點。"
+          },
+          {
+            "path": [
+              "character_status",
+              "fields",
+              5,
+              "description"
+            ],
+            "before_present": false,
+            "after": "只記錄已確認取得的資訊；玩家當前位置與人物行動由場景和最新對話決定，不作永久知識錨點。"
+          },
+          {
+            "path": [
+              "character_status",
+              "fields",
+              6,
+              "context"
+            ],
+            "before": "core",
+            "after": "relevant"
+          },
+          {
+            "path": [
+              "character_status",
+              "fields",
+              6,
+              "description"
+            ],
+            "before_present": false,
+            "after": "開場值只用於初始化；依較新的已確認事件更新，不將玩家或人物拉回起點。"
+          },
+          {
+            "path": [
+              "initial_state",
+              "character_statuses",
+              "黑羽ゆめ",
+              "known_information"
+            ],
+            "before": "玩家在店門外；未確認彼此關係",
+            "after": "未確認彼此關係"
+          },
+          {
+            "path": [
+              "initial_state",
+              "npcs",
+              0,
+              "known_information"
+            ],
+            "before": "玩家在店門外；未確認彼此關係",
+            "after": "未確認彼此關係"
+          }
+        ]
+      }
     },
     {
       "id": "unhealed-bonds",

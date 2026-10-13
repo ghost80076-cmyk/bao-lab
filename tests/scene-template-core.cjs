@@ -68,3 +68,15 @@ for (const passage of ['第一幕：燈光。', '第二幕：雨聲。', '第三
   assert.ok(scene.render(fullReply).includes(passage), `Native view must retain ${passage}`);
 }
 console.log(`PASS: ${keys.length} scene templates, escaping, fallback, status isolation, full multi-block story and native mode`);
+
+window.BAOYumeArchiveCore=require('../js/yume-relationship-archive.js');
+app.activeCharacter={name:'黑羽ゆめ'};
+const legacy='[NARRATION]雨聲。\n[CHAR:yume]\n「便利店有熱飲。」\n[SCENE:communication]\n[NARRATION]門已關上。';
+for(const mode of ['native','efficient','free']) {
+  scene.prefs.mode=mode;
+  const result=scene.render(legacy);
+  for(const passage of ['雨聲。','便利店有熱飲。','門已關上。']) assert.ok(result.includes(passage));
+  assert.ok(!result.includes('[CHAR:yume]'),mode+' must hide known legacy protocol');
+}
+app.activeCharacter={name:'其他角色'};
+assert.ok(scene.render('[CHAR:yume]\n普通作品的字面內容').includes('[CHAR:yume]'));

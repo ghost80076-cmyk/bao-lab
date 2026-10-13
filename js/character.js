@@ -317,7 +317,12 @@ const CharacterEngine = {
       const profileText = this.profilePrompt(c.profile);
       if (profileText) blocks.push(`【主要 AI 角色／作品主體設定】\n${profileText}`);
     }
-    if (options.include_author_instructions && c.author_instructions) blocks.push(`【作者敘事指示】\n${c.author_instructions}`);
+    // Old official Yume story snapshots may retain the retired CHAR directive.
+    // Repair only the request copy; do not replace the saved card or its prose.
+    const authorInstructions = c.id === "kurobane-yume-kabukicho"
+      ? String(c.author_instructions || "").replace("[CHAR:yume]可觀察動態[/CHAR]、", "")
+      : c.author_instructions;
+    if (options.include_author_instructions && authorInstructions) blocks.push(`【作者敘事指示】\n${authorInstructions}`);
     if (options.include_creator_notes && c.creator_notes) blocks.push(`【作者備註】\n${c.creator_notes}`);
     blocks.push([
       "【玩家 Persona｜controlled_by=user】",

@@ -116,6 +116,7 @@
       '只有在故事正文全部完成之後，才追加一個狀態 PATCH。狀態 PATCH 是為了避免再發第二次 API 請求。',
       `固定格式：\n${OPEN}\n{\"time\":\"\",\"location\":\"\",\"events\":[\"\"],\"npcs\":[{\"npc_id\":\"npc-1\",\"name\":\"\",\"aliases\":[\"\"],\"role\":\"\",\"appearance\":\"\",\"appearance_change\":false,\"outfit\":\"\",\"mood\":\"\",\"location\":\"\",\"relationship\":\"\",\"presence\":\"present\"}],\"modules\":{\"module_id\":{}},\"character_statuses\":{\"角色名\":{\"field_key\":\"value\"}},\"world_clock\":{\"advance_minutes\":0,\"schedule\":[{\"label\":\"\",\"in_minutes\":0}],\"resolve\":[\"wc-1\"],\"cancel\":[\"wc-2\"]}}\n${CLOSE}`,
       '這是 PATCH，不是完整資料庫。只寫本輪或下列待補輪次中有明確依據的變化；沒有變化輸出 {}。未知、推測、玩家心理、未發生的下一幕都不要寫。',
+      WorldStateEngine.continuityRule || '',
       'npcs 只更新有明確變化的人物；presence 只能是 present、away、unknown。不要因轉場自動認定人物仍在場。',
       '更新既有 NPC 時沿用目前狀態的 npc_id；新 NPC 不填 npc_id，由系統建立。新 NPC 可填 aliases、固定 appearance 與當前 outfit。既有 appearance 必須沿用；只有故事明確造成長期外貌變化時才同時回傳 appearance_change:true。只有明確換裝才更新 outfit。first_seen 由系統建立，不得輸出。別名對應到既有人物時使用正式姓名，不能重複建檔。',
       'modules 只使用允許的 module_id 與欄位；character_statuses 只使用允許的 field_key。無法確定的欄位直接省略。',

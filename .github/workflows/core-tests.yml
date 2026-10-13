@@ -496,6 +496,8 @@ jobs:
           node tests/gemini-explicit-cache-core.cjs
       - name: Prompt orchestration adapters
         run: node tests/prompt-orchestrator-core.cjs
+      - name: Delayed snapshot and LM scene continuity
+        run: node tests/state-snapshot-continuity-core.cjs
       - name: Cache cost panel
         run: node tests/cache-cost-panel-core.cjs
       - name: Per-request multi-model cost accounting

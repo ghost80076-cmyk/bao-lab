@@ -17,6 +17,22 @@ for (const work of changed) {
   const ui = Core.normalize(raw);
   assert.ok(ui, work.id);
   const originalContent = structuredClone(card.content);
+  const originalGameplay = structuredClone(g);
+  // Approved maintenance is verified field by field before restoring the
+  // archived input for its original hashes. Never rebaseline the whole card.
+  const maintenance = work.reviewed_maintenance || {};
+  for (const edit of [...(maintenance.content_replacements || [])].reverse()) {
+    const text = originalContent[edit.field];
+    assert.equal(text.slice(edit.index, edit.index + edit.after.length), edit.after);
+    originalContent[edit.field] = text.slice(0, edit.index) + edit.before + text.slice(edit.index + edit.after.length);
+  }
+  for (const edit of [...(maintenance.gameplay_changes || [])].reverse()) {
+    const parent = edit.path.slice(0, -1).reduce((value, key) => value[key], originalGameplay);
+    const key = edit.path.at(-1);
+    assert.deepEqual(parent[key], edit.after, `${work.id}: reviewed maintenance ${edit.path.join('.')}`);
+    if (edit.before_present === false) delete parent[key];
+    else parent[key] = structuredClone(edit.before);
+  }
   for (const edit of [...(work.rule_deduplication || [])].reverse()) {
     const text = originalContent[edit.field];
     assert.equal(text.slice(edit.index, edit.index + edit.after.length), edit.after);
@@ -31,8 +47,8 @@ for (const work of changed) {
     if (!relocation.original_world_present) delete originalContent.world;
   }
   assert.equal(hash(originalContent), work.preserved.content, `${work.id}: only reviewed global-rule removals/world relocation; preserve creative content, greeting and Dynamic Prompts`);
-  assert.equal(hash(g.initial_state || {}), work.preserved.initial_state, `${work.id}: preserve initial state`);
-  assert.equal(hash(Object.fromEntries(Object.entries(g).filter(([k]) => !['ui_schema','gameplay_ui'].includes(k)))), work.preserved.gameplay_rules, `${work.id}: preserve rules and world_modules`);
+  assert.equal(hash(originalGameplay.initial_state || {}), work.preserved.initial_state, `${work.id}: preserve initial state outside reviewed maintenance`);
+  assert.equal(hash(Object.fromEntries(Object.entries(originalGameplay).filter(([k]) => !['ui_schema','gameplay_ui'].includes(k)))), work.preserved.gameplay_rules, `${work.id}: preserve rules and world_modules outside reviewed maintenance`);
   assert.equal(hash(raw.builder || null), work.preserved.builder, `${work.id}: preserve Builder`);
   if (work.original_panel_ids.length) assert.deepEqual(ui.panels.map(p => p.id), work.original_panel_ids);
   assert.equal(ui.panels[0].sections[0].type, 'tabs');

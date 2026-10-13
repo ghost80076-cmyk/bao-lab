@@ -31,6 +31,14 @@
     "NPC 有自己的當下目的與生活安排，可以主動提議、邀約、追問、拒絕、犯錯或處理自己的事；保留玩家的回應與選擇空間，但不將尊重玩家自主權誤解為 NPC 必須等指令才行動。"
   ].join("\n");
 
+  // Tracker data is a delayed snapshot, not a command to replay the opening.
+  // Keep this rule stable so changing scenes does not invalidate the cached prefix.
+  const STATE_CONTINUITY_RULE = [
+    "【狀態時序】",
+    "人物／世界狀態是上次整理的快照，可能落後於對話。較新的已確認事件優先於舊位置、行動與開場；延續玩家本輪明示的合理行動，勿用舊快照將場景倒退或重問已完成的選擇。",
+    "願望、假設、否定、引述及尚待判定的嘗試不算完成；仍依世界規則與因果判定結果，不自動移動 NPC，不改寫固定人設或資訊邊界。"
+  ].join("\n");
+
   // Only add a model patch where BAO/LAB has an observed failure mode.
   // Modern models that do not need a patch should receive no extra prose coaching.
   const MODEL_GUIDANCE = {
@@ -72,7 +80,7 @@
     const messages = await next(config);
     const result = Array.isArray(messages) ? messages.map(message => ({ ...message })) : [];
     const api = config?.api || config || {};
-    const stableAdapter = [PRIORITY_PROMPT, PLAYER_AGENCY_RULE, SCENE_PARTICIPATION_RULE, DIALOGUE_REALISM_RULE, guidanceFor(api)].filter(Boolean).join("\n\n");
+    const stableAdapter = [PRIORITY_PROMPT, PLAYER_AGENCY_RULE, SCENE_PARTICIPATION_RULE, DIALOGUE_REALISM_RULE, STATE_CONTINUITY_RULE, guidanceFor(api)].filter(Boolean).join("\n\n");
 
     if (result[0]?.role === "system") {
       result[0].content = appendBlock(result[0].content, stableAdapter);
@@ -107,6 +115,7 @@
     playerAgencyRule: PLAYER_AGENCY_RULE,
     sceneParticipationRule: SCENE_PARTICIPATION_RULE,
     dialogueRealismRule: DIALOGUE_REALISM_RULE,
+    stateContinuityRule: STATE_CONTINUITY_RULE,
     turnAnchor: TURN_ANCHOR
   };
 })();

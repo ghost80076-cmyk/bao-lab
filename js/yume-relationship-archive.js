@@ -238,6 +238,15 @@
     if(!Object.hasOwn(aliases,id))return null;
     return (Array.isArray(state?.npcs)?state.npcs:[]).find(npc=>aliases[id].some(name=>normalized(name)===normalized(npc?.name)))||null;
   }
+  function stripCharacterMarkers(text, card) {
+    const source=String(text||'');
+    if(!isYume(card))return source;
+    const ids='(?:yume|rina|ryusei|airi|asami|misaki)';
+    // Balanced blocks and standalone legacy markers only. Keep quoted examples,
+    // unknown IDs and all narrative text; raw saved messages remain untouched.
+    return source.replace(new RegExp('(^|\\r?\\n)[ \t]*\\[CHAR:'+ids+'\\]([\\s\\S]*?)\\[/CHAR\\]','gi'),'$1$2')
+      .replace(new RegExp('^[ \t]*\\[CHAR(?::|[ \t]+)'+ids+'\\][ \t]*(?:\\r?\\n|$)','gim'),'');
+  }
   function collect(messages) {
     const result={relations:[],intimacy:[],offscreen:[],scenes:[],characters:[],phones:[],sns:[]};
     const pair=/\[(REL|INTIMACY):([a-z][a-z0-9_-]{0,39})\|([a-z][a-z0-9_-]{0,39})\]([\s\S]{1,2000}?)\[\/\1\]/gi;
@@ -276,5 +285,5 @@
     }
     return result;
   }
-  return Object.freeze({roster,isYume,collect,knownNPC,known,presenceLabel});
+  return Object.freeze({roster,isYume,collect,knownNPC,known,presenceLabel,stripCharacterMarkers});
 });

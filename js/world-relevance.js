@@ -17,7 +17,7 @@
 
     const core = window.BAOWorldModules.compactForPrompt();
     let prompt = core
-      ? base + "\n\n【目前核心狀態】\n" + core + "\n【僅供內部參考，不得照抄】\n以上是已建立的世界事實，不是要呈現給玩家的表格或輸出格式。只需正常續寫可感知的故事、人物對話與行動，不得重印此標題、JSON、鍵名或整份數值清單；原生狀態 UI 會自行顯示。不要重新詢問或重設既定內容。"
+      ? base + "\n\n【目前核心狀態】\n" + core + "\n【僅供內部參考，不得照抄】\n以上是上次整理的世界快照，可能落後於最近對話；位置、行動等變動資料若與較新的已確認事件衝突，以較新事件為準。這不是要呈現給玩家的表格或輸出格式。只需正常續寫可感知的故事、人物對話與行動，不得重印此標題、JSON、鍵名或整份數值清單；原生狀態 UI 會自行顯示。不要重新詢問或重設既定內容。"
       : base;
     if (this.config?.narrativeMode !== "world" && this.config?.displayMode !== "ui") return prompt;
 
@@ -30,7 +30,7 @@
     GameState.current.lastRelevantModules = picked.ids || [];
     if (!picked.text) return prompt;
 
-    return prompt + "\n\n【本輪相關世界資料】\n" + picked.text + "\n只把這些資料視為目前事實；不要為了提到資料而刻意改變劇情。";
+    return prompt + "\n\n【本輪相關世界資料】\n" + picked.text + "\n這些資料是上次整理的快照，較新的已確認事件優先；不要為了提到資料而刻意改變劇情。";
   };
 
   document.addEventListener("click", event => {

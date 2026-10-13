@@ -38,21 +38,21 @@ increasing(index, [
   'src="js/api.js"',
   'src="js/helper-data.js?v=2"',
   'src="js/chat.js',
-  'src="js/character.js?v=3"',
+  'src="js/character.js?v=4"',
   'src="js/app.js',
-  'src="js/chat-markup.js?v=2"',
+  'src="js/chat-markup.js?v=3"',
   'src="js/site-ui.js'
 ], "core script");
 
 // World-state chain: the bridge must install its guards before world modules.
 increasing(siteUI, [
-  'loadBAOScript("js/global-bridge.js")',
-  'loadBAOScript("js/world-state.js")',
+  'loadBAOScript("js/global-bridge.js?v=2")',
+  'loadBAOScript("js/world-state.js?v=2")',
   'loadBAOScript("js/character-status.js?v=4")',
   'loadBAOScript("js/three-realms-cultivation-core.js?v=1")',
   'loadBAOScript("js/three-realms-event-profiles.js?v=6")',
   'loadBAOScript("js/three-realms-events-core.js?v=6")',
-  'loadBAOScript("js/world-modules.js?v=3")',
+  'loadBAOScript("js/world-modules.js?v=4")',
   'loadBAOScript("js/world-state-hook.js?v=3")'
 ], "world-state extension");
 
@@ -61,7 +61,7 @@ increasing(siteUI, [
   'loadBAOScript("js/storage-write-guard.js?v=2")',
   'loadBAOScript("js/story-tools.js?v=4")',
   'loadBAOScript("js/prompt-cache.js',
-  'loadBAOScript("js/prompt-orchestrator.js")',
+  'loadBAOScript("js/prompt-orchestrator.js?v=2")',
   'then(() => worldModulesReady)',
   'loadBAOScript("js/three-realms-events.js?v=3")',
   'loadBAOScript("js/streaming-ui.js',
@@ -71,7 +71,7 @@ increasing(siteUI, [
 // Modules without their own global idempotency guard currently rely on the loader;
 // protect against accidentally adding a second loader while the wrapper design is unchanged.
 assert.equal(
-  siteUI.split('loadBAOScript("js/world-modules.js?v=3")').length - 1,
+  siteUI.split('loadBAOScript("js/world-modules.js?v=4")').length - 1,
   1,
   "world-modules must be loaded exactly once by site-ui"
 );
