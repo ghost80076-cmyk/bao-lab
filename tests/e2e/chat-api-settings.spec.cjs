@@ -112,3 +112,66 @@ test("desktop chat can reopen API settings and switch models without restarting"
   expect(result.messages).toContain("這是一段測試劇情，不應因為補上 API Key 而消失。");
   expect(result.savedKey).toBe("");
 });
+
+
+test("custom OpenAI loopback connection reuses LM Studio local transport without an API key", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await saveStoryWithoutPersistingKey(page);
+  await page.locator("#home-continue").click();
+  const dialog = page.getByRole("dialog", { name: "目前故事的模型連線" });
+  await expect(dialog).toBeVisible();
+  await page.waitForFunction(() =>
+    typeof window.BAOLMStudioCore?.endpoint === "function" &&
+    typeof window.BAOLMStudio?.open === "function"
+  );
+
+  await page.evaluate(() => {
+    const original = window.fetch.bind(window);
+    window.__loopbackCalls = [];
+    window.fetch = (input, init = {}) => {
+      const url = String(input?.url || input);
+      if (!url.startsWith("http://127.0.0.1:1235/v1/")) return original(input, init);
+      window.__loopbackCalls.push({ url, headers: { ...(init.headers || {}) } });
+      return Promise.resolve(new Response(JSON.stringify({
+        choices: [{ message: { content: "loopback ok" } }],
+        usage: { prompt_tokens: 2, completion_tokens: 1, total_tokens: 3 }
+      }), { status: 200, headers: { "Content-Type": "application/json" } }));
+    };
+  });
+
+  await dialog.locator('[name="protocol"]').selectOption("openai");
+  await dialog.locator('[name="model"]').fill("qwen3-8b");
+  await dialog.locator('[name="key"]').fill("");
+
+  await dialog.locator('[name="baseUrl"]').fill("http://192.168.1.50:1235/v1");
+  await dialog.getByRole("button", { name: "測試連線（可能計費）" }).click();
+  await expect(dialog.locator(".bao-chat-api-error")).toContainText("HTTPS");
+
+  await dialog.locator('[name="baseUrl"]').fill("http://127.0.0.1:1235/v1");
+  await expect(dialog.locator('[name="key"]')).toHaveAttribute("placeholder", /免填/);
+  await dialog.getByRole("button", { name: "測試連線（可能計費）" }).click();
+  await expect(dialog.locator(".bao-chat-api-error")).toContainText("連線測試成功");
+
+  await dialog.getByRole("button", { name: "套用到目前故事" }).click();
+  await expect(dialog).toHaveCount(0);
+  const applied = await page.evaluate(() => ({
+    type: App.config.api.type,
+    route: App.config.api.route,
+    local: App.config.api.local,
+    key: App.config.api.key,
+    baseUrl: App.config.api.baseUrl,
+    calls: window.__loopbackCalls
+  }));
+  expect(applied.type).toBe("lmstudio");
+  expect(applied.route).toBe("local");
+  expect(applied.local).toBe(true);
+  expect(applied.key).toBe("BAO_LOCAL_NO_AUTH");
+  expect(applied.baseUrl).toBe("http://127.0.0.1:1235/v1/chat/completions");
+  expect(applied.calls.some(call => call.url === "http://127.0.0.1:1235/v1/chat/completions")).toBe(true);
+  expect(applied.calls.every(call => !call.headers.Authorization)).toBe(true);
+
+  expect(await page.evaluate(() => window.BAOChatAPISettings?.open?.())).toBe(true);
+  await expect(dialog).toBeVisible();
+  await expect(dialog.locator('[name="baseUrl"]')).toHaveValue("http://127.0.0.1:1235/v1");
+  await expect(dialog.locator('[name="key"]')).toHaveAttribute("placeholder", /免填/);
+});
