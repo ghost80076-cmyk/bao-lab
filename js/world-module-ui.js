@@ -36,7 +36,7 @@
     window.BAOWorldModules.ensureState(App.activeCharacter);
     const def = (GameState.current?.moduleDefinitions || []).find(x => x.id === id);
     const ui = document.getElementById("ui-panel");
-    if (!def || !ui) return;
+    if (!def || !ui || def.visibility === 'internal') return;
     if (def.id === window.BAOThreeRealmsEventsCore?.id) {
       ui.innerHTML = `<section class="world-module-panel"><div class="world-module-head"><div><h3>${esc(def.icon)} ${esc(def.label)}</h3><p>選擇事件、角色、查詢或世界與劇情構思指令、填入輸入框，再由你送出。只有明確要求的那一輪會使用引導。</p></div><span class="world-module-badge">按需引導</span></div><button type="button" class="secondary" data-open-three-realms-events>開啟故事指令</button></section>`;
       ui.querySelector('[data-open-three-realms-events]')?.addEventListener('click', () => window.BAOStoryQuickCommands?.open?.());
@@ -58,7 +58,7 @@
     const tabs = document.querySelector("#game-ui .ui-tabs");
     if (!tabs) return;
     tabs.querySelectorAll(".module-tab").forEach(x => x.remove());
-    (GameState.current?.moduleDefinitions || []).forEach(def => {
+    (GameState.current?.moduleDefinitions || []).filter(def => def.visibility !== 'internal').forEach(def => {
       const btn = document.createElement("button");
       btn.type = "button";
       btn.className = "ui-tab module-tab";
@@ -76,7 +76,7 @@
     const step = document.querySelector('[data-step-panel="2"]');
     if (!step) return;
     step.querySelector("#world-module-builder-card")?.remove();
-    const defs = window.BAOWorldModules.definitions(App.activeCharacter);
+    const defs = window.BAOWorldModules.definitions(App.activeCharacter).filter(def => def.visibility !== 'internal');
     if (!defs.length) return;
     const card = document.createElement("div");
     card.id = "world-module-builder-card";

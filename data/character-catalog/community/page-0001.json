@@ -1621,5 +1621,42 @@
     "version_published_at": "2026-10-13T10:43:00Z",
     "author": "班長",
     "author_id": "banzhang"
+  },
+  {
+    "id": "shixu-yuanyangjie",
+    "file": "data/characters/community/b0/shixu-yuanyangjie.json",
+    "name": "失序元陽界 ꪊꪻ⊂)",
+    "title": "失序元陽界｜女尊元陽劫",
+    "avatar": "assets/community/b0/shixu-yuanyangjie.webp",
+    "category": "male",
+    "rating": "adult",
+    "gender": "多 NPC／世界模擬",
+    "tags": [
+      "女尊修仙",
+      "成人向",
+      "元陽劫",
+      "世界模擬",
+      "宗門爭奪",
+      "限制成長",
+      "高壓博弈",
+      "養成",
+      "NTR／NTL可選",
+      "多路線"
+    ],
+    "description": "女尊元陽修仙世界模擬。唯一開局禮包、雙衝動 NPC 暗線、三方名譽與班長歸途約定，沿著宗門爭奪、危險結盟和受限成長闖出自己的路。",
+    "supported_modes": {
+      "immersive": true,
+      "world": true
+    },
+    "supported_display": {
+      "text": true,
+      "ui": true
+    },
+    "published_at": "2026-10-13T11:11:00Z",
+    "updated_at": "2026-10-13T11:11:00Z",
+    "published_version": 1,
+    "version_published_at": "2026-10-13T11:11:00Z",
+    "author": "班長",
+    "author_id": "banzhang"
   }
 ]

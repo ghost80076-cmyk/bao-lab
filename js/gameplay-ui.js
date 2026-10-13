@@ -391,7 +391,7 @@
       const entries = diffs.map(item => `<article class="gameplay-timeline-entry is-diff"><i></i><div><strong>${esc(item.label)}</strong><p><span>${esc(summarizeDiffValue(item.before))}</span><b>→</b><span>${esc(summarizeDiffValue(item.after))}</span></p></div></article>`).join('');
       return `<section class="gameplay-ui-section gameplay-timeline" data-timeline-mode="round_diff">${heading}<div class="gameplay-timeline-list">${entries || `<span class="gameplay-card-empty">${esc(displayValue(section.empty))}</span>`}</div></section>`;
     }
-    if (section.type === 'actions') return `<section class="gameplay-ui-section">${heading}<div class="gameplay-actions">${section.items.map((item, index) => `<button type="button" class="secondary" ${item.effect ? `data-gameplay-effect="${esc(JSON.stringify(item.effect))}"` : `data-gameplay-draft="${index}" data-gameplay-draft-text="${esc(item.draft)}"`}>${esc(item.label)}</button>${item.hint ? `<small>${esc(item.hint)}</small>` : ''}`).join('')}</div></section>`;
+    if (section.type === 'actions') return `<section class="gameplay-ui-section">${heading}<div class="gameplay-actions">${section.items.map((item, index) => `<button type="button" class="secondary" ${item.effect ? `data-gameplay-effect="${esc(JSON.stringify(item.effect))}"${item.draft ? ` data-gameplay-effect-draft="${esc(item.draft)}"` : ''} ` : `data-gameplay-draft="${index}" data-gameplay-draft-text="${esc(item.draft)}"`}>${esc(item.label)}</button>${item.hint ? `<small>${esc(item.hint)}</small>` : ''}`).join('')}</div></section>`;
     return '';
   };
 
@@ -433,6 +433,15 @@
         const activePanel = document.querySelector('#game-ui .ui-tab.active')?.dataset.panel || '';
         if (activePanel) App.renderUIPanel(activePanel);
         scheduleDashboardSync();
+        // A successful atomic effect may also prepare the player's next message.
+        // Never auto-send it, and never draft on a failed transaction.
+        const followupDraft = button.dataset.gameplayEffectDraft || '';
+        const input = document.getElementById('user-input');
+        if (followupDraft && input) {
+          input.value = followupDraft;
+          input.focus();
+          input.setSelectionRange?.(input.value.length, input.value.length);
+        }
         notify(result.effect.event || '遊戲操作已完成。');
       } catch (error) {
         console.warn('BAO/LAB gameplay action failed:', error);
