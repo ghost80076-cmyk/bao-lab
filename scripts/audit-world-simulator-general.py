@@ -126,7 +126,7 @@ def audit(archive, root):
         if any(current.get((r["book_id"], r["source_index"])) != r["source_sha256"]
                for r in old["records"] + old.get("review_records", [])):
             raise ValueError("Reviewed source changed; review before updating")
-    return {"schema": "yorubay-world-simulator-general-review", "version": 12,
+    return {"schema": "yorubay-world-simulator-general-review", "version": 13,
             "source_count": sum(BOOKS.values()), "adopted_occurrences": len(records),
             "unique_adapted_sources": len({r["source_sha256"] for r in records}),
             "reviewed_unpublished_occurrences": len(review_records),

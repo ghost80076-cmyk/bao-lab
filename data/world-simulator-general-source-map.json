@@ -1,11 +1,11 @@
 {
   "schema": "yorubay-world-simulator-general-review",
-  "version": 12,
+  "version": 13,
   "source_count": 662,
   "adopted_occurrences": 176,
   "unique_adapted_sources": 63,
-  "reviewed_unpublished_occurrences": 112,
-  "unique_reviewed_unpublished_sources": 51,
+  "reviewed_unpublished_occurrences": 122,
+  "unique_reviewed_unpublished_sources": 61,
   "pack_count": 6,
   "chapter_count": 56,
   "scope": "Public adapted chapters and metadata-only layer routing. Reviewed-not-published does not mean integrated. No full-book migration or model-dialogue evaluation claimed.",
@@ -330,14 +330,24 @@
         197,
         198,
         199,
+        209,
+        210,
+        211,
+        212,
+        213,
         227,
         228,
         229,
+        230,
+        231,
         233,
         234,
         235,
         236,
         240,
+        241,
+        244,
+        246,
         248,
         249,
         250
@@ -462,11 +472,6 @@
         206,
         207,
         208,
-        209,
-        210,
-        211,
-        212,
-        213,
         214,
         215,
         216,
@@ -480,14 +485,9 @@
         224,
         225,
         226,
-        230,
-        231,
         237,
         238,
-        239,
-        241,
-        244,
-        246
+        239
       ]
     },
     {
@@ -3044,6 +3044,51 @@
     },
     {
       "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 209,
+      "source_sha256": "87a1ae7d63458651ae0909e996837c1a064898adfbac63f5e6f9953660102e57",
+      "decision_id": "572f3222-5746-43cc-ae16-60239eac041c:209",
+      "status": "reviewed-not-published",
+      "route": "author-world-premise",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 210,
+      "source_sha256": "9b99a4d072d2a34fff487819fcc11299ac79c901af431b04c0003070bdb3bcec",
+      "decision_id": "572f3222-5746-43cc-ae16-60239eac041c:210",
+      "status": "reviewed-not-published",
+      "route": "author-magic-lore",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 211,
+      "source_sha256": "1d094679a76231176a987127e91257c49e67055416d0d70d93dad3a939227231",
+      "decision_id": "572f3222-5746-43cc-ae16-60239eac041c:211",
+      "status": "reviewed-not-published",
+      "route": "author-species-lore",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 212,
+      "source_sha256": "6450701ea10f22c410a20116842f1df64748a1ec595d691ee0723edfeee8c863",
+      "decision_id": "572f3222-5746-43cc-ae16-60239eac041c:212",
+      "status": "reviewed-not-published",
+      "route": "author-faction-lore",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 213,
+      "source_sha256": "fb45257138a4e21586022943f1d3607c4f1fff293e3fbd357414772cba4658cf",
+      "decision_id": "572f3222-5746-43cc-ae16-60239eac041c:213",
+      "status": "reviewed-not-published",
+      "route": "author-artifact-lore",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
       "source_index": 227,
       "source_sha256": "3c44a5c0878edc0da6702912abdbc08f70f3d39562af48ba1552c244127fdf81",
       "decision_id": "572f3222-5746-43cc-ae16-60239eac041c:227",
@@ -3067,6 +3112,24 @@
       "decision_id": "572f3222-5746-43cc-ae16-60239eac041c:229",
       "status": "reviewed-not-published",
       "route": "author-achievement-rules",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 230,
+      "source_sha256": "1b4a4d60f5244b32b47bd533bbf71588ff467d972e001af69f0443900d0ad41d",
+      "decision_id": "572f3222-5746-43cc-ae16-60239eac041c:230",
+      "status": "reviewed-not-published",
+      "route": "author-location-lore",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 231,
+      "source_sha256": "2819c05a209978ef7eb49a335b1d547ddb70d85d85a2857e97b91b6506651895",
+      "decision_id": "572f3222-5746-43cc-ae16-60239eac041c:231",
+      "status": "reviewed-not-published",
+      "route": "author-faction-lore",
       "automatic_recall": false
     },
     {
@@ -3112,6 +3175,33 @@
       "decision_id": "572f3222-5746-43cc-ae16-60239eac041c:240",
       "status": "reviewed-not-published",
       "route": "author-progression-rules",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 241,
+      "source_sha256": "76aab662ed09dd0303eb267aeb893afcc266f2647d7c029f571c90efe1bfb4eb",
+      "decision_id": "572f3222-5746-43cc-ae16-60239eac041c:241",
+      "status": "reviewed-not-published",
+      "route": "author-secret-lore",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 244,
+      "source_sha256": "7d31ee06e8aa493fb7014a8f1a08710281aac3190e5f2e5feb31d9545d5b0410",
+      "decision_id": "572f3222-5746-43cc-ae16-60239eac041c:244",
+      "status": "reviewed-not-published",
+      "route": "author-secret-lore",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 246,
+      "source_sha256": "7ee206e3c96b39796395055fa0f38a024e182c36ff73186c889e894a0a902063",
+      "decision_id": "572f3222-5746-43cc-ae16-60239eac041c:246",
+      "status": "reviewed-not-published",
+      "route": "author-secret-faction",
       "automatic_recall": false
     },
     {

@@ -1,6 +1,6 @@
 {
   "schema": "yorubay-world-simulator-layer-review",
-  "version": 4,
+  "version": 5,
   "scope": "Metadata-only routing of common and book-specific author sources; no raw bodies, no new command handlers, no full integration claim.",
   "decisions": [
     {
@@ -920,6 +920,206 @@
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:89",
       "source_sha256": "2c298d1a4384b7cd5fcaa67d43eb940f2dc4bdc31721b24b3da02b20840113eb",
       "expected_occurrences": 3
+    },
+    {
+      "source_book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 209,
+      "route": "author-world-premise",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "intended_scope": "work-specific",
+      "knowledge_boundary": "work-public",
+      "reason": "世界名稱、文化、文明與種族年齡慣例屬作品前提；未建成專屬世界包，不把這些規格或年齡假設設為夜灣通用預設。",
+      "evidence": [
+        {
+          "path": "js/worldbook-library-core.js",
+          "needle": "pack.meta.world !== \"general\""
+        }
+      ],
+      "decision_id": "572f3222-5746-43cc-ae16-60239eac041c:209",
+      "source_sha256": "87a1ae7d63458651ae0909e996837c1a064898adfbac63f5e6f9953660102e57",
+      "expected_occurrences": 1
+    },
+    {
+      "source_book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 210,
+      "route": "author-magic-lore",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "intended_scope": "work-specific",
+      "knowledge_boundary": "work-public",
+      "reason": "早期六系分類與後續技能擴充的分類不同；隨作品搬運時須確認最終體系，未新增魔法規格、等級能力或計算引擎。",
+      "evidence": [
+        {
+          "path": "js/canon-workbench.js",
+          "needle": "conflicts:\"存疑與衝突\""
+        }
+      ],
+      "decision_id": "572f3222-5746-43cc-ae16-60239eac041c:210",
+      "source_sha256": "9b99a4d072d2a34fff487819fcc11299ac79c901af431b04c0003070bdb3bcec",
+      "expected_occurrences": 1
+    },
+    {
+      "source_book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 211,
+      "route": "author-species-lore",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "intended_scope": "work-specific",
+      "knowledge_boundary": "work-public",
+      "reason": "具名種族、壽命、分布及固定特徵是專屬世界資料；未建立此種族表，也不將種族概括直接當成每名人物的個性或反應。",
+      "evidence": [
+        {
+          "path": "js/worldbook-library-core.js",
+          "needle": "pack.meta.world !== \"general\""
+        }
+      ],
+      "decision_id": "572f3222-5746-43cc-ae16-60239eac041c:211",
+      "source_sha256": "1d094679a76231176a987127e91257c49e67055416d0d70d93dad3a939227231",
+      "expected_occurrences": 1
+    },
+    {
+      "source_book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 212,
+      "route": "author-faction-lore",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "intended_scope": "work-specific",
+      "knowledge_boundary": "mixed-public-hidden",
+      "reason": "家族歷史、繼承結構與秘密混在同一條目；搬運時需拆分公開背景和知情條件，未把家族或秘密加入通用召回。",
+      "evidence": [
+        {
+          "path": "js/canon-workbench.js",
+          "needle": "knowledge:\"角色知情矩陣\""
+        }
+      ],
+      "decision_id": "572f3222-5746-43cc-ae16-60239eac041c:212",
+      "source_sha256": "6450701ea10f22c410a20116842f1df64748a1ec595d691ee0723edfeee8c863",
+      "expected_occurrences": 1
+    },
+    {
+      "source_book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 213,
+      "route": "author-artifact-lore",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "intended_scope": "work-specific",
+      "knowledge_boundary": "mixed-public-hidden",
+      "reason": "專屬神器包含收集階段、能力代價與附著意識；需分開公開物品資訊、解鎖規則及未揭露設定，本批未新增神器或自動解鎖機制。",
+      "evidence": [
+        {
+          "path": "js/worldbook-library-core.js",
+          "needle": "entry.requires"
+        }
+      ],
+      "decision_id": "572f3222-5746-43cc-ae16-60239eac041c:213",
+      "source_sha256": "fb45257138a4e21586022943f1d3607c4f1fff293e3fbd357414772cba4658cf",
+      "expected_occurrences": 1
+    },
+    {
+      "source_book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 230,
+      "route": "author-location-lore",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "intended_scope": "work-specific",
+      "knowledge_boundary": "work-public",
+      "reason": "具名領地、地點、居民與環境是專屬地理；未建立可被其他世界直接召回的地點，也未自動新增城堡、學院、泉水或遺跡。",
+      "evidence": [
+        {
+          "path": "js/worldbook-library-core.js",
+          "needle": "pack.meta.world !== \"general\""
+        }
+      ],
+      "decision_id": "572f3222-5746-43cc-ae16-60239eac041c:230",
+      "source_sha256": "1b4a4d60f5244b32b47bd533bbf71588ff467d972e001af69f0443900d0ad41d",
+      "expected_occurrences": 1
+    },
+    {
+      "source_book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 231,
+      "route": "author-faction-lore",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "intended_scope": "work-specific",
+      "knowledge_boundary": "work-public",
+      "reason": "七方勢力及固定敵友關係屬作品地緣設定；公會委託的通用節選不等於這些勢力已搬入，尚未建立此陣營表或固定外交關係。",
+      "evidence": [
+        {
+          "path": "js/canon-workbench.js",
+          "needle": "world:\"世界觀與勢力\""
+        }
+      ],
+      "decision_id": "572f3222-5746-43cc-ae16-60239eac041c:231",
+      "source_sha256": "2819c05a209978ef7eb49a335b1d547ddb70d85d85a2857e97b91b6506651895",
+      "expected_occurrences": 1
+    },
+    {
+      "source_book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 241,
+      "route": "author-secret-lore",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "intended_scope": "work-specific",
+      "knowledge_boundary": "author-hidden",
+      "reason": "三條野心線、代理人與交會真相需要線索和解鎖條件；未建立隱藏世界書，不以普通勢力關鍵詞向玩家或所有 NPC 揭露。",
+      "evidence": [
+        {
+          "path": "js/worldbook-library-core.js",
+          "needle": "entry.requires"
+        }
+      ],
+      "decision_id": "572f3222-5746-43cc-ae16-60239eac041c:241",
+      "source_sha256": "76aab662ed09dd0303eb267aeb893afcc266f2647d7c029f571c90efe1bfb4eb",
+      "expected_occurrences": 1
+    },
+    {
+      "source_book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 244,
+      "route": "author-secret-lore",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "intended_scope": "work-specific",
+      "knowledge_boundary": "author-hidden",
+      "reason": "深層世界真相、揭露節奏和終局分支需作者知情規則；未新增真相條目、揭密角色或固定結局，不能當作玩家已知資料。",
+      "evidence": [
+        {
+          "path": "js/canon-workbench.js",
+          "needle": "knowledge:\"角色知情矩陣\""
+        }
+      ],
+      "decision_id": "572f3222-5746-43cc-ae16-60239eac041c:244",
+      "source_sha256": "7d31ee06e8aa493fb7014a8f1a08710281aac3190e5f2e5feb31d9545d5b0410",
+      "expected_occurrences": 1
+    },
+    {
+      "source_book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 246,
+      "route": "author-secret-faction",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "intended_scope": "work-specific",
+      "knowledge_boundary": "author-hidden",
+      "reason": "秘密組織的成員、據點、代理人與長期計畫屬作者隱藏資料；隨作品搬運仍需分角色知情及調查條件，未新增組織或其自動行動引擎。",
+      "evidence": [
+        {
+          "path": "js/worldbook-library-core.js",
+          "needle": "entry.requires"
+        }
+      ],
+      "decision_id": "572f3222-5746-43cc-ae16-60239eac041c:246",
+      "source_sha256": "7ee206e3c96b39796395055fa0f38a024e182c36ff73186c889e894a0a902063",
+      "expected_occurrences": 1
     }
   ]
 }
