@@ -57,7 +57,7 @@ const read = file => fs.readFileSync(path.join(root, file), 'utf8');
   assert.equal(card.presentation.opening.choices.length, 4);
   assert.equal(card.presentation.opening.posts[0].kind, 'character');
   assert.match(card.presentation.opening.posts[0].transition + '\\n' + card.presentation.opening.posts[0].content, /雨聲|雨下得很大|雨/);
-  assert.equal(content.greeting, card.presentation.opening.posts[0].transition + '\\n\\n' + card.presentation.opening.posts[0].content);
+  assert.equal(content.greeting, card.presentation.opening.posts[0].transition + '\n\n' + card.presentation.opening.posts[0].content);
   assert.match(card.presentation.opening.choices[3], /離開/);
   for(const choice of card.presentation.opening.choices) assert.doesNotMatch(choice, /你感覺|你心裡|你不由自主/);
   const scene = card.gameplay.initial_state.modules;
