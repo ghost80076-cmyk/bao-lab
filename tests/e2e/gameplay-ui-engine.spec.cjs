@@ -312,6 +312,66 @@ test('native effect buttons commit a purchase once per click without sending a c
   await expect(page.locator('#user-input')).toHaveValue('請問這裡的罐頭多少錢？');
 });
 
+test('atomic one-time gift claim drafts the selected route only after success', async ({ page }) => {
+  await ready(page);
+  await page.waitForFunction(() => Boolean(window.BAOWorldModules));
+  await page.evaluate(() => {
+    const voucher = { path: 'modules.gift_registry', id: 'starter_token', delta: -1 };
+    const gift = (id, name) => ({
+      label: '領取｜' + name,
+      effect: {
+        items: [voucher, { path: 'modules.gift_registry', id, name, delta: 1 }],
+        event: '領取了' + name
+      },
+      draft: '我已領取「' + name + '」，請核對紀錄並帶我入界。'
+    });
+    App.activeCharacter = CharacterEngine.normalize({
+      id: 'once-gift-claim-test', name: '禮包唯一領取測試',
+      system_prompt: 'test', greeting: 'welcome',
+      world_modules: [{ id: 'gift_registry', kind: 'collection', context: 'core' }],
+      initial_state: { modules: { gift_registry: [
+        { id: 'starter_token', name: '開局憑證', quantity: 1 }
+      ] } },
+      gameplay_ui: { version: 1, theme: { density: 'compact' },
+        panels: [{ id: 'gift', label: '命書', sections: [{
+          type: 'actions', title: '唯一禮包',
+          items: [gift('pure_yang', '純陽聖體'), gift('ability_seed', '異能種子')]
+        }] }]
+      }
+    });
+    App.config = {
+      narrativeMode: 'world', displayMode: 'ui',
+      persona: { name: '測試玩家', gender: '未指定' },
+      api: { type: 'custom', model: 'offline-test', baseUrl: '', key: '' },
+      memory: { mode: 'manual', maxRounds: 20, maxContext: 32000, cache: false }
+    };
+    Chat.reset();
+    GameState.create(App.activeCharacter, App.config);
+    App.renderChatShell(true);
+    App.showView('chat');
+    BAOGameplayUI.renderPanel('gift');
+  });
+  const button = page.locator('#ui-panel [data-gameplay-effect]');
+  await expect(button).toHaveCount(2);
+  await expect(page.locator('#game-ui')).toHaveAttribute('data-gameplay-density', 'compact');
+  await page.evaluate(() => document.querySelectorAll('#ui-panel [data-gameplay-effect]')[0]?.click());
+  const first = await page.evaluate(() => ({
+    inventory: GameState.current.modules.gift_registry.map(x => [x.id, x.quantity]),
+    draft: document.getElementById('user-input')?.value || '',
+    sent: Chat.messages.length
+  }));
+  expect(first.inventory).toEqual([['starter_token', 0], ['pure_yang', 1]]);
+  expect(first.draft).toContain('純陽聖體');
+  expect(first.sent).toBe(0);
+  await page.evaluate(() => document.querySelectorAll('#ui-panel [data-gameplay-effect]')[1]?.click());
+  const second = await page.evaluate(() => ({
+    inventory: GameState.current.modules.gift_registry.map(x => [x.id, x.quantity]),
+    draft: document.getElementById('user-input')?.value || '',
+    sent: Chat.messages.length
+  }));
+  expect(second).toEqual(first);
+});
+
 test('custom builder choices keep drafts and bind actual text to initial state', async ({ page }) => {
   await ready(page);
   await page.evaluate(async () => {
