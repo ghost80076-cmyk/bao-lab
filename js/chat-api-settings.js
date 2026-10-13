@@ -43,6 +43,10 @@
     close();
     const api = App.config?.api || {};
     const presets = App.modelPresets || [];
+    const localExisting = Boolean(localEndpoint(api.baseUrl, api.protocol || "openai"));
+    const keyPlaceholder = localExisting
+      ? "本機服務預設免填；有啟用 Token 再填"
+      : (hasKey() ? "留空會維持目前金鑰（相同連線）" : "貼上自己的連線金鑰");
     let exactIndex = presets.findIndex(p => p.protocol === api.protocol && p.model === api.model &&
       String(p.base_url || "").replace(/\/+$/, "") === String(api.baseUrl || "").replace(/\/+$/, ""));
     if (exactIndex < 0 && window.BAOCreditsPilot?.isAccountConnection?.(api)) {
@@ -56,7 +60,7 @@
       <form id="bao-chat-api-form" autocomplete="off">
         <label>模型<select name="preset"><option value="custom">自訂／保留現有連線</option>${presets.map((p, i) =>
           `<option value="${i}">${escape(p.provider_label || p.provider || "API")} · ${escape(p.label || p.model || "自訂模型")}</option>`).join("")}</select></label>
-        <label>連線金鑰（API Key）<input name="key" type="password" autocomplete="off" spellcheck="false" placeholder="${hasKey() ? "留空會維持目前金鑰（相同連線）" : "貼上自己的連線金鑰"}"></label>
+        <label>連線金鑰（API Key）<input name="key" type="password" autocomplete="off" spellcheck="false" placeholder="${keyPlaceholder}"></label>
         <details class="bao-chat-api-advanced">
           <summary>進階連線設定</summary>
           <div class="bao-chat-api-advanced-body">
