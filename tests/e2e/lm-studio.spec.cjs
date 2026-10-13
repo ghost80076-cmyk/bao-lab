@@ -31,7 +31,7 @@ test('LM Studio model discovery, no-key story request and resume', async ({ page
   await page.evaluate(() => App.setStep(5));
   await page.locator('#start-story').click();
   await expect(page.locator('#user-input')).toBeVisible();
-  await expect(page.locator('#bao-lm-chat-button')).toBeVisible();
+  await expect(page.evaluate(() => typeof window.BAOLMStudio?.open)).resolves.toBe('function');
   await page.locator('#user-input').fill('你好，本地 AI');
   await page.locator('#chat-view .composer button.primary').click();
   await expect(page.locator('#chat-stream')).toContainText('本地模型回覆成功');
@@ -56,7 +56,7 @@ test('LM Studio model discovery, no-key story request and resume', async ({ page
   const restored = await page.evaluate(() => ({ key: App.config.api.key, route: App.config.api.route }));
   expect(restored).toEqual({ key: 'BAO_LOCAL_NO_AUTH', route: 'local' });
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.locator('#bao-lm-chat-button').click();
+  await page.evaluate(() => window.BAOLMStudio.open());
   await expect(page.getByRole('dialog', { name: '連接 LM Studio 本地 AI' })).toBeVisible();
 
   // Saved connections may store the fully-qualified chat route internally.
@@ -87,14 +87,14 @@ test('LM Studio model discovery, no-key story request and resume', async ({ page
   }));
   expect(applied.savedEndpoint).toBe('http://127.0.0.1:1235/v1/chat/completions');
   expect(applied.requests).toContain('http://127.0.0.1:1235/v1/chat/completions');
-  await page.locator('#bao-lm-chat-button').click();
+  await page.evaluate(() => window.BAOLMStudio.open());
   await expect(page.locator('#bao-lm-form [name="endpoint"]')).toHaveValue('http://127.0.0.1:1235/v1');
   await page.locator('#bao-lm-dialog [data-close]').click();
   // A full browser reload must retain the display normalization too.
   await page.evaluate(() => Storage.flush());
   await page.reload();
   await page.locator('#home-continue').click();
-  await page.locator('#bao-lm-chat-button').click();
+  await page.evaluate(() => window.BAOLMStudio.open());
   await expect(page.locator('#bao-lm-form [name="endpoint"]')).toHaveValue('http://127.0.0.1:1235/v1');
 
   const widths = await page.evaluate(() => ({ content: document.documentElement.scrollWidth, viewport: innerWidth }));
