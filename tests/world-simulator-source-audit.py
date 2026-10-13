@@ -50,6 +50,36 @@ class SourceAuditTests(unittest.TestCase):
                 z.writestr(bid + '.json', json.dumps(book))
         return audit.audit(archive, self.root)
 
+    def test_structural_routing_keeps_review_limit_and_counts(self):
+        content = '## shared instruction'
+        for bid in self.ids:
+            self.books[bid]['entries'][32 if bid != self.ids[2] else 33]['content'] = content
+        d = self.decisions[0]
+        d.update(source_sha256=audit.sha(content), review_method='structure-and-routing',
+                 structure={'source_chars': len(content), 'section_marker_count': 1},
+                 review_scope='Source structure only; not full prose review')
+        result = self.run_audit()
+        self.assertEqual(result['review_methods'], {'manual-layer-review': 3, 'structure-and-routing': 3})
+        self.assertFalse(result['source_routing_complete'])
+        self.assertEqual(result['pending_occurrences'], 653)
+        d['structure']['section_marker_count'] = 2
+        with self.assertRaisesRegex(ValueError, 'structure signature changed'):
+            self.run_audit()
+
+    def test_unknown_review_method_rejected(self):
+        self.decisions[0]['review_method'] = 'fully-integrated'
+        with self.assertRaisesRegex(ValueError, 'Unknown source review method'):
+            self.run_audit()
+
+    def test_structural_method_requires_disclosure(self):
+        content = '## shared instruction'
+        for bid in self.ids:
+            self.books[bid]['entries'][32 if bid != self.ids[2] else 33]['content'] = content
+        self.decisions[0].update(source_sha256=audit.sha(content), review_method='structure-and-routing',
+                                 structure={'source_chars':len(content),'section_marker_count':1})
+        with self.assertRaisesRegex(ValueError, 'disclose its review limit'):
+            self.run_audit()
+
     def test_common_shifted_and_unique_sources(self):
         result = self.run_audit()
         self.assertEqual(result['adopted_occurrences'], 3)

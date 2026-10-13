@@ -1,14 +1,20 @@
 {
   "schema": "yorubay-world-simulator-general-review",
-  "version": 16,
+  "version": 17,
   "source_count": 662,
   "adopted_occurrences": 197,
   "unique_adapted_sources": 70,
-  "reviewed_unpublished_occurrences": 191,
-  "unique_reviewed_unpublished_sources": 87,
+  "reviewed_unpublished_occurrences": 465,
+  "unique_reviewed_unpublished_sources": 189,
+  "review_methods": {
+    "manual-layer-review": 207,
+    "structure-and-routing": 258
+  },
+  "pending_occurrences": 0,
+  "source_routing_complete": true,
   "pack_count": 6,
   "chapter_count": 62,
-  "scope": "Public adapted chapters and metadata-only layer routing. Reviewed-not-published does not mean integrated. No full-book migration or model-dialogue evaluation claimed.",
+  "scope": "Public partial adaptations and metadata-only source routing. Structural routing is not full prose review; reviewed-not-published does not mean integrated. No full-book migration or model-dialogue evaluation claimed.",
   "books": [
     {
       "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
@@ -122,25 +128,6 @@
         92,
         95,
         96,
-        189,
-        190,
-        191,
-        192,
-        193,
-        194,
-        195,
-        196,
-        197,
-        198,
-        199,
-        203,
-        204,
-        205,
-        206,
-        207,
-        208
-      ],
-      "pending_indices": [
         99,
         100,
         101,
@@ -226,8 +213,26 @@
         181,
         182,
         183,
-        184
-      ]
+        184,
+        189,
+        190,
+        191,
+        192,
+        193,
+        194,
+        195,
+        196,
+        197,
+        198,
+        199,
+        203,
+        204,
+        205,
+        206,
+        207,
+        208
+      ],
+      "pending_indices": []
     },
     {
       "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
@@ -346,46 +351,6 @@
         92,
         95,
         96,
-        189,
-        190,
-        191,
-        192,
-        193,
-        194,
-        195,
-        196,
-        197,
-        198,
-        199,
-        203,
-        204,
-        205,
-        206,
-        207,
-        208,
-        209,
-        210,
-        211,
-        212,
-        213,
-        227,
-        228,
-        229,
-        230,
-        231,
-        233,
-        234,
-        235,
-        236,
-        240,
-        241,
-        244,
-        246,
-        248,
-        249,
-        250
-      ],
-      "pending_indices": [
         99,
         100,
         101,
@@ -472,6 +437,28 @@
         182,
         183,
         184,
+        189,
+        190,
+        191,
+        192,
+        193,
+        194,
+        195,
+        196,
+        197,
+        198,
+        199,
+        203,
+        204,
+        205,
+        206,
+        207,
+        208,
+        209,
+        210,
+        211,
+        212,
+        213,
         214,
         215,
         216,
@@ -485,10 +472,27 @@
         224,
         225,
         226,
+        227,
+        228,
+        229,
+        230,
+        231,
+        233,
+        234,
+        235,
+        236,
         237,
         238,
-        239
-      ]
+        239,
+        240,
+        241,
+        244,
+        246,
+        248,
+        249,
+        250
+      ],
+      "pending_indices": []
     },
     {
       "book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
@@ -600,20 +604,6 @@
         93,
         96,
         97,
-        190,
-        191,
-        192,
-        193,
-        194,
-        195,
-        196,
-        197,
-        198,
-        199,
-        200,
-        201
-      ],
-      "pending_indices": [
         100,
         101,
         102,
@@ -699,8 +689,21 @@
         182,
         183,
         184,
-        185
-      ]
+        185,
+        190,
+        191,
+        192,
+        193,
+        194,
+        195,
+        196,
+        197,
+        198,
+        199,
+        200,
+        201
+      ],
+      "pending_indices": []
     }
   ],
   "records": [
@@ -2681,6 +2684,7 @@
       "source_index": 2,
       "source_sha256": "daf4dcf842959b77da198cea7e05835a73f6b453d4f6be32ea939a0700c8d170",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:2",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-character-premise",
       "automatic_recall": false
@@ -2690,6 +2694,7 @@
       "source_index": 23,
       "source_sha256": "87d9b74450d4c4b6f6c6ff73afe36f200bbf55b69f257eac15a6123b6f75c32d",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:23",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-character-premise",
       "automatic_recall": false
@@ -2699,6 +2704,7 @@
       "source_index": 24,
       "source_sha256": "d4754d6860c4438827988f7f072cd7eebfd9e21a8d76a881ca35c7eb86600f0d",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:24",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-character-premise",
       "automatic_recall": false
@@ -2708,6 +2714,7 @@
       "source_index": 32,
       "source_sha256": "6240decc703518c55134220f90635f2d9d22de6c96b6008d4e8523b303090493",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:32",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-workflow",
       "automatic_recall": false
@@ -2717,6 +2724,7 @@
       "source_index": 33,
       "source_sha256": "ec5b0ba7e7d03507c13f7226374539770a5fbdaf2f73db0aa5f2958cf0d57f71",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:33",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-premise",
       "automatic_recall": false
@@ -2726,6 +2734,7 @@
       "source_index": 34,
       "source_sha256": "90c34cd54987003193254fad3b479aa3546af078a84b56e083d08d2523c89c94",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:34",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "existing-layer",
       "automatic_recall": false
@@ -2735,6 +2744,7 @@
       "source_index": 35,
       "source_sha256": "45fc07139187b182a3826b0a4bc8bc7e8d17d8ebe91b2a46238722237bf421f0",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:35",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "existing-layer",
       "automatic_recall": false
@@ -2744,6 +2754,7 @@
       "source_index": 36,
       "source_sha256": "4b487b2272d536b18497891a8945084accf252d27a4cd8eb64e0ec5bc7a5e9d5",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:36",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "existing-layer",
       "automatic_recall": false
@@ -2753,6 +2764,7 @@
       "source_index": 37,
       "source_sha256": "b301414ca02145bc4cfa579cea5443def226d76d6ae965980162620cd142b1e6",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:37",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-card-rules",
       "automatic_recall": false
@@ -2762,6 +2774,7 @@
       "source_index": 38,
       "source_sha256": "d21559a6a1b338fa82160c8bbe3615f07e7cf608f7e49b41d46208bf1adb4983",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:38",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-state-rules",
       "automatic_recall": false
@@ -2771,6 +2784,7 @@
       "source_index": 39,
       "source_sha256": "1e43431f7f6cda3968920f0e09e8a946646b434a65e6b666f35774d3080f0f95",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:39",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-offscreen-rules",
       "automatic_recall": false
@@ -2780,6 +2794,7 @@
       "source_index": 40,
       "source_sha256": "9c33d8981fe1cf92f993b5b2b1fe07b8184faa9a844207b9d0085931986df6b1",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:40",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-relationship-rules",
       "automatic_recall": false
@@ -2789,6 +2804,7 @@
       "source_index": 45,
       "source_sha256": "57eec842adba32edfda575830e025fed78cf23b48d8cc9167e2e030aabec40cf",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:45",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-writing-preference",
       "automatic_recall": false
@@ -2798,6 +2814,7 @@
       "source_index": 51,
       "source_sha256": "f97267261edb9104da7e3ab8f86553ad5756a8af5a2380b8d7bda1ee5169477d",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:51",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-scenario-rules",
       "automatic_recall": false
@@ -2807,6 +2824,7 @@
       "source_index": 52,
       "source_sha256": "24c868c31867a4f233851a0be228b441d03e668b6921af61221951f37be4d50b",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:52",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-premise",
       "automatic_recall": false
@@ -2816,6 +2834,7 @@
       "source_index": 53,
       "source_sha256": "b9ab17c478b09e55c8e0bdef21938999d0028407a940b933d9079fd3381916e7",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:53",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "existing-tool",
       "automatic_recall": false
@@ -2825,6 +2844,7 @@
       "source_index": 54,
       "source_sha256": "ed38d2ec50bff55322bac112e5a8b19cc44335c7cb61c9066563269eeadec4a5",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:54",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "existing-tool",
       "automatic_recall": false
@@ -2834,6 +2854,7 @@
       "source_index": 55,
       "source_sha256": "416618d482b81f54da45facf1d3082dda90c5015eaac6efa75b4ca8943da7f5f",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:55",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "existing-tool",
       "automatic_recall": false
@@ -2843,6 +2864,7 @@
       "source_index": 56,
       "source_sha256": "1b1375d455e5fae8cd2f46bfa22c45fd4f181688cb33ab2e4e6d7bc943ae2974",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:56",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "existing-tool",
       "automatic_recall": false
@@ -2852,6 +2874,7 @@
       "source_index": 57,
       "source_sha256": "bc3308373feecf7fac2ee795edbf299b69482f78230ca5d33569d81753f3442b",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:57",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-workflow",
       "automatic_recall": false
@@ -2861,6 +2884,7 @@
       "source_index": 58,
       "source_sha256": "2c8cf0d6b961a36c5ab6eb2b9ab753a74539b6c7ba14ffa4a0cc998c5e44ad3d",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:58",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-workflow",
       "automatic_recall": false
@@ -2870,6 +2894,7 @@
       "source_index": 59,
       "source_sha256": "44ad17e982afd07721ae470e0b37d0cad6895073f848371db2a015245724d92d",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:59",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-workflow",
       "automatic_recall": false
@@ -2879,6 +2904,7 @@
       "source_index": 60,
       "source_sha256": "e70228b9489a100310b542642a6b74f102d0d14d4ccf680d3681eafd9cf3dbc2",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:60",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-workflow",
       "automatic_recall": false
@@ -2888,6 +2914,7 @@
       "source_index": 61,
       "source_sha256": "09edc504dbfe81def66afa5238eab899b6484707ca268cf1a95182636c25f387",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:61",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-workflow",
       "automatic_recall": false
@@ -2897,6 +2924,7 @@
       "source_index": 62,
       "source_sha256": "80e550945135d0b038f547008447420aad85d5dda59d39aae4ba582c09d6d0a4",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:62",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-workflow",
       "automatic_recall": false
@@ -2906,6 +2934,7 @@
       "source_index": 63,
       "source_sha256": "6025140ef8a758ed64fdbd2964688e05c436f769d47c447e3016297f0f8e077b",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:63",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "existing-tool",
       "automatic_recall": false
@@ -2915,6 +2944,7 @@
       "source_index": 64,
       "source_sha256": "8fb4467aa1ecc8142bc0e816970ae616ddf943240250fd627a8ad0d1e8a389a0",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:64",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-director-workflow",
       "automatic_recall": false
@@ -2924,6 +2954,7 @@
       "source_index": 65,
       "source_sha256": "ac2cac131a600427166f55dcc95d8fd636b8c1feefb0b7db40be63a0873acb6b",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:65",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-actor-premise",
       "automatic_recall": false
@@ -2933,6 +2964,7 @@
       "source_index": 66,
       "source_sha256": "a7073779fe3848fbdaf88d7c120126469265f9ef9d1a02f26810d9f19b5ed25d",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:66",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-actor-premise",
       "automatic_recall": false
@@ -2942,6 +2974,7 @@
       "source_index": 67,
       "source_sha256": "f45e9a67f9d7dca3c167e1110087d9e17d0f8eb8c3cb79bf00f55cdf5b49b056",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:67",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-event-command",
       "automatic_recall": false
@@ -2951,6 +2984,7 @@
       "source_index": 72,
       "source_sha256": "f33e976314da9a844aae65bcaa047f8f2c898b52fdc91c24921f08b207800028",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:72",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-scenario-rules",
       "automatic_recall": false
@@ -2960,6 +2994,7 @@
       "source_index": 75,
       "source_sha256": "97c3b82fdba64d87ea38044ab659c95b9d9d70b108cdd5e0c58d4af92c5a3d76",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:75",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-character-premise",
       "automatic_recall": false
@@ -2969,6 +3004,7 @@
       "source_index": 79,
       "source_sha256": "dbcb02929c9dd6ee258e5dd4d99c8ce4b7bc91938279b5a1c6e423270f44bf66",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:79",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-ensemble-premise",
       "automatic_recall": false
@@ -2978,6 +3014,7 @@
       "source_index": 82,
       "source_sha256": "a6ebc253610cb47cd4a9c1417247c74c7c366ec51bf31857e2bca9716238c2e5",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:82",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-scenario-premise",
       "automatic_recall": false
@@ -2987,6 +3024,7 @@
       "source_index": 87,
       "source_sha256": "306e891e013417955ddd32ad9a908b947f77e23f7c60f424d38fd726e381fd7d",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:87",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-writing-preference",
       "automatic_recall": false
@@ -2996,6 +3034,7 @@
       "source_index": 88,
       "source_sha256": "ff603bc390dbec7b15a5c2d60a5eb96623440286598cd3427b02fc9004a2e2d9",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:88",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-writing-preference",
       "automatic_recall": false
@@ -3005,6 +3044,7 @@
       "source_index": 89,
       "source_sha256": "2c298d1a4384b7cd5fcaa67d43eb940f2dc4bdc31721b24b3da02b20840113eb",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:89",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-writing-preference",
       "automatic_recall": false
@@ -3014,6 +3054,7 @@
       "source_index": 90,
       "source_sha256": "41a96a1200f30254c908aaec098c93320f2cc047c5a2ee9ac121d0a106bf0822",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:90",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-creature-scenario",
       "automatic_recall": false
@@ -3023,6 +3064,7 @@
       "source_index": 92,
       "source_sha256": "43f8da494c0eb59e311c08c798a0b185616c4aa6ab069fa6b425938a88b0d35d",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:92",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-writing-preference",
       "automatic_recall": false
@@ -3032,6 +3074,7 @@
       "source_index": 95,
       "source_sha256": "ba61d4420b28623f00135906e7295092701cc24a642934fa9bd9567646b27de8",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:95",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-profession-scenario",
       "automatic_recall": false
@@ -3041,8 +3084,869 @@
       "source_index": 96,
       "source_sha256": "24b94a7689d74d4031685b35ef0acc18a2d2fff11d80eeaf7f02df0fb3c306f6",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:96",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-ability-scenario",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 99,
+      "source_sha256": "b1d73722fd6b3465beaeb626d34c799b9f5770021b893c28a07413c4cfbf7ff6",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:99",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-position-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 100,
+      "source_sha256": "e4c98620a073a7fe695024e1e35a3a0632116eb249566d7c5752940cc4794c97",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:100",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-position-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 101,
+      "source_sha256": "fff7102f05761f85dcb4c207f935b4e48862a245d7ceb2425385a819725c3fe5",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:101",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-position-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 102,
+      "source_sha256": "e9a6b4b4f0bea29cb8a8783a4e78dc93e2822668d289c781dade6ff4b27057aa",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:102",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-position-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 103,
+      "source_sha256": "0eb09b0d56b260ad3faa917106b365487529e4a26d8095b3eb3b0ac1b21c17d2",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:103",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-position-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 104,
+      "source_sha256": "1908642bcfd6042e88931955194bf4fdebe8a95ad5191bd95a926f1941b07852",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:104",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-position-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 105,
+      "source_sha256": "626a58f95d1da5c6f160d8999167e4447609a05b4066a3c653bea1bec29d7c2c",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:105",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-position-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 106,
+      "source_sha256": "b89cd8d288671e8d7f90cabfbafe6c1ae6f2cfd006f38e374542c74bb3115a1e",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:106",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-position-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 107,
+      "source_sha256": "70bd09305db924b0d3f3d0f46a3c59133e43b516374dff0aae8ee9c80693c4f9",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:107",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-position-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 108,
+      "source_sha256": "04a3a9189313646a19dea4cf1049ebe9d95a2daffd1741539b5e61ac2cc74a4f",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:108",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-position-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 109,
+      "source_sha256": "8733eece22d474b2e62ffcd0b615771c790b58b447748112f6c6891d6e01a69c",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:109",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-position-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 110,
+      "source_sha256": "b9f0e5595445ce717f4427aed89058fcc9587ec829232e4bc59b252964b77ec4",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:110",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-position-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 111,
+      "source_sha256": "1423616eb923b7269c0745938b96ceaf9c88f8606fe396189da88f8a407adaec",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:111",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-position-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 112,
+      "source_sha256": "b4034841712f6a43bf223daf43a2bc097d51ca37f7d4ea76dfaef7cc77aa9339",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:112",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-position-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 113,
+      "source_sha256": "1fff9fe757d8a1038a8d790f424347efed62ea06f3dbfd8e55eea765419c63ca",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:113",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-position-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 114,
+      "source_sha256": "e33e978ef01e5d06a375d14a75503dc90dd99ea343bdd4399ee08bf4813db96e",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:114",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-position-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 115,
+      "source_sha256": "1c3956dd19777a8c870d7271cfc154ca0f6ff00bb8aee06fc5840e9c2e4e59c4",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:115",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-position-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 116,
+      "source_sha256": "949f41ce5fea1f18dde5695e9bd0e18c6c6b02d05e768aadecbcdea25a62a2d5",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:116",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-location-scene",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 117,
+      "source_sha256": "fb0c1f164f9c89f249b33919d7b9c184070ef2e49fec7abc2a59d1af4d8e245f",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:117",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-location-scene",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 118,
+      "source_sha256": "7b9c1133b7ab09f13e711318bd025a8ef1a2bc795ee67bdd9f648e5313f74088",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:118",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-location-scene",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 119,
+      "source_sha256": "e770e80f668379be897a7845a1625f4c9f98f6d0379cb6c9b588afaf928e0d7f",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:119",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-location-scene",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 120,
+      "source_sha256": "756a6d420a0db80c8ea887c91325e3457454e15fb18bec76af42cfd23a180d5d",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:120",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-location-scene",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 121,
+      "source_sha256": "6e95b62ec6514bfe5895b9fd6a6da86e6e20ad351d7d3c4ae230bf1139eb6f19",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:121",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-location-scene",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 122,
+      "source_sha256": "96644904bfe1a395bea3d1189c01e05888f28ecc7e66a6f239045447930598a2",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:122",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-location-scene",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 123,
+      "source_sha256": "d0579c88c148bcf9869b2ae8841ba1289efb7a982a1c6a791647ccc77016d091",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:123",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-location-scene",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 124,
+      "source_sha256": "bd020a3031bab4e8b03fed78b147ccf21526f501169f793375b9e9cb4fee496a",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:124",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-location-scene",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 125,
+      "source_sha256": "f738eff202112fea8e89a5be1b31ed0af429f42bc600f5e6da758c5981e5c651",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:125",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-condition-scene",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 126,
+      "source_sha256": "56f4feb834976ab5b0ed4f4e12f683b8296cc2183cee26a0f05098b4a237111b",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:126",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-condition-scene",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 127,
+      "source_sha256": "637c7b52474522869983d484398adfe787ab7492fc70b1f37b792a714164a9c9",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:127",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-condition-scene",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 128,
+      "source_sha256": "82ac5b78df4a8424bb5dcd077410b0d868a8f3d8a159b31f6c843e7bb7d60851",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:128",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-condition-scene",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 129,
+      "source_sha256": "f11f156cd0e5312a455d0bbaa994b579b1a3f46391a9d057c286dcf255615d64",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:129",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-condition-scene",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 130,
+      "source_sha256": "e6ea685f49a4cba8428c0d6adf7e877e0c7c415c9cdb06d833702f558ccc8817",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:130",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-condition-scene",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 131,
+      "source_sha256": "c6f9e20f92262dd881e69d5fd1d729a3ae992774b94044e57f57aae1d4273754",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:131",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-prop-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 132,
+      "source_sha256": "bbfa3c7afa6f287e583510cbd681531b5a70eacc4373f87b919da66f6c8e9cb1",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:132",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-prop-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 133,
+      "source_sha256": "1d4bb22cf11a2ca7a0d85446f2785efd1cfea991b1324ca3c79f664f896e7151",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:133",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-prop-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 134,
+      "source_sha256": "a5f85468c36e463622ffc7606c9c20fe79e9b9af94ec6b2dd47afb34483b8ff9",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:134",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-prop-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 135,
+      "source_sha256": "6a86d2bb84af1fbe752ce435b57454337dc5622648cc39c68243b866ebc8328e",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:135",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-prop-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 136,
+      "source_sha256": "9292450c39b3aaf39ce002e53cb34b338ee76b6fbb31157d6404227e4e4b3615",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:136",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-prop-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 137,
+      "source_sha256": "c820d8e7d582e42a376084e7182ee4bff679816360e51e65ee16c801af78d902",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:137",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-prop-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 138,
+      "source_sha256": "3ffa3e92550db132219b43f2fda314d70c7278bd3d2045da3e74f32901afa122",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:138",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-prop-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 139,
+      "source_sha256": "f9451db91c7db14b5a6a6b5e794ea3a541ee0c93a8f3532bee551c0f0727b11a",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:139",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-prop-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 140,
+      "source_sha256": "36bd08f4df679e20ab89684227687b924923f23144603391f2a6739163a8346a",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:140",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-prop-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 141,
+      "source_sha256": "c5a2ac69e8a0169a6857817ffae1e925fb2eb472e957f63ce37ebca09e744da0",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:141",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-prop-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 142,
+      "source_sha256": "1a37339b29a40b0a34e1a70feb71b192fe8ee635f66c30c55af6bc4e03b5f4db",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:142",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-prop-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 143,
+      "source_sha256": "d815033acac0f1fdae426b33dafa46ec5d05d1446b3409ebfcd6263cd5f7358d",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:143",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-prop-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 144,
+      "source_sha256": "5e3af4ca3640dd2c54eecc075497fda931c1e584b5865e608d2f21f5f20fd477",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:144",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-prop-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 145,
+      "source_sha256": "589fc9d37e3f3b64edd3ba564142111f98748889b3d7fab943c7ea8d55fc9869",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:145",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-action-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 146,
+      "source_sha256": "54553e6814e5033245f152e49a24a08b291c3dba1876dfc080ec4f9a53e32145",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:146",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-action-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 147,
+      "source_sha256": "65fe94414c9a36968b580f7bc5435799a6e047a5bb5e33fc617f2451106fef3f",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:147",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-action-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 148,
+      "source_sha256": "276b9688b0fe461d2bca74d3ea5ad3e81adc1d8e9b6b959c178f4fd29c9ec423",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:148",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-action-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 149,
+      "source_sha256": "95cacd9c08b6dffd88004f5b98cd015e0d91be6dd4e99e2eeafff8d7a006d0a0",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:149",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-action-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 150,
+      "source_sha256": "b443a90caa819639dfa6cf4029d07ea2ac29e701fceb692e8d9aab9d63eec374",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:150",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-wardrobe-prop",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 151,
+      "source_sha256": "ac41e1375ac5f598a0c5679771e61e7e0c306f62d33f6f8c43b7930747fea1cc",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:151",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-wardrobe-prop",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 152,
+      "source_sha256": "77df1b8869e419dd7583c63e1fd62da8345cecade3bff3112669380ef4491b17",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:152",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-wardrobe-prop",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 153,
+      "source_sha256": "dbd714e5bad2afad948ce77095fd855134cfc51e1b9a411f18557602de5e1057",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:153",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-wardrobe-prop",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 154,
+      "source_sha256": "4bec2ebd60e9a5a45c60b7ebf5f8dbe02df03433cd64ea994596fb1777c0b383",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:154",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-wardrobe-prop",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 155,
+      "source_sha256": "2b5f77428ae17cd306f81d70e351d3395ac8a51c9ab1c6355574fd2474fffb2d",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:155",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-wardrobe-prop",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 156,
+      "source_sha256": "4544e27cfc014743c5bf864b6ebfc1360d5c94caed0841393772762e7a6662c7",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:156",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-wardrobe-prop",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 157,
+      "source_sha256": "c41b005a1293dd641e2199b28980de1f5caac45308178bbc88965a7e77eb9a9f",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:157",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-wardrobe-prop",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 158,
+      "source_sha256": "fa341c86cda170a59f2615ba8e71628dd165edde43d1a09b4d4640ac42a5168f",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:158",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-wardrobe-prop",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 159,
+      "source_sha256": "3ec48c2754a74f8e1a4bb0d368356a875ffa085442752c8ef37652fdab79c0d8",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:159",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-wardrobe-prop",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 160,
+      "source_sha256": "bf16b16519a7d312e3cf2231838a2cc9a697b81281dc33f4fc7e9a99624bc236",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:160",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-wardrobe-prop",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 161,
+      "source_sha256": "4aea00f37b65fc67287555546614b33d78d3b2bfe8ec6ad235508a794b82dcf4",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:161",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-wardrobe-prop",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 162,
+      "source_sha256": "ea4da940a9b8bc0e665acbc7839ac5242ac4e9b6c94a74dbf130e34bc6005e29",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:162",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-wardrobe-prop",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 163,
+      "source_sha256": "b7c3567e29caafa23b4ffb18d185679a25feffdea6a2691852d458bd2c598237",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:163",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-wardrobe-prop",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 164,
+      "source_sha256": "6835ee7dd4b4cfa8148f1c0e8c26f35df771ff94e42eed4c330e227334021e05",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:164",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-wardrobe-prop",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 165,
+      "source_sha256": "955c07395468ec67bcf1917720b7f7d84f852d1d8998fefabe57beda455b28b7",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:165",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-wardrobe-prop",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 166,
+      "source_sha256": "3019ff9be4b4cdfdf482eed175f5f654c3d459e9fa13956a5032b36dbfc00145",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:166",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-wardrobe-prop",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 167,
+      "source_sha256": "acbfecafc60b22d9fafe34c3efe7137841597c92c1760e1487f2493f51f671ee",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:167",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-wardrobe-prop",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 168,
+      "source_sha256": "d11be57a0eeb27bfefc6bedb134729dddf283cb06b287d91f93d19d94939ed51",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:168",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-wardrobe-prop",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 169,
+      "source_sha256": "fcc4f4023f99528c4f345e1995891e97497aac46437205871ef7aab5e364be11",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:169",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-wardrobe-prop",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 170,
+      "source_sha256": "e1be9099ed266368a92f2ce38f17f8dd30cddd68ae384b984ca067706175d6e0",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:170",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-wardrobe-prop",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 171,
+      "source_sha256": "43fdaeca0507b9b0e6eb59e69f1a65a0f10c6b7f81b2d5e8948d742b52620f82",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:171",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-anatomy-reference",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 172,
+      "source_sha256": "2acd8e49aa2b2e3aa3ac5f1d955817b84062b98d2dc5f78bacb1fe2a7d2579c1",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:172",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-anatomy-reference",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 173,
+      "source_sha256": "e7fe617aca7e93168fed6134c41b05594a67bb0c9d9dc0e437b508ae4068792d",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:173",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-anatomy-reference",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 174,
+      "source_sha256": "22d75b4808a0c769a7edc2e508301194a8dc491db7a08ec256510092512df99b",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:174",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-anatomy-reference",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 175,
+      "source_sha256": "05c46ad4f37cdefb4e2e542c9356a5dd23de06af974c12dd4c6981d90aa3b494",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:175",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-character-preference",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 176,
+      "source_sha256": "1cf248f75a6de48c5d32cb9fcb86dd8e3c6dadb88439c9fbe4361a03dbfbb98c",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:176",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-character-preference",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 177,
+      "source_sha256": "8f4c52cebfb4fd2f98f671f8e8438a236f1f0b8433fe50e28d35d34de2684e27",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:177",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-character-preference",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 178,
+      "source_sha256": "b65e4bbe6195a514e91d0883d525e5bd6914ba3ff62e6cb386991d02f6324e34",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:178",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-character-preference",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 179,
+      "source_sha256": "ef646c58774a6283e0a5bd3eca5aaa598a2ae35ca4bd0860093217782c61e4d8",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:179",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-character-preference",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 180,
+      "source_sha256": "ee4469dd84e1ac78f59cb30143742d6c91cbfbf92fdf2bc8d2ab7d2e0e60a425",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:180",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-character-preference",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 181,
+      "source_sha256": "2f077145303546656f21e6659845c3b580a231e7e8a7a9dcb55c2f031ce17ffb",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:181",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-character-preference",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 182,
+      "source_sha256": "148f14506d93cbb5e0d14f9dfc3d9a30a713b43fbdbf58a340d25316ed1265c5",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:182",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-character-preference",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 183,
+      "source_sha256": "ca0b7ccc7aa43774e5076e00ae2d3b1686d93f9485556998ebdf7d144ad8ef77",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:183",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-character-preference",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 184,
+      "source_sha256": "0260f767c36ad045caa65a3b96cbd9f8ad8711b885aa90ad7b9790b53fee0e84",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:184",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-character-preference",
       "automatic_recall": false
     },
     {
@@ -3050,6 +3954,7 @@
       "source_index": 189,
       "source_sha256": "206596d165c9f8b28638c817b0755bf917dbff4dd3b9c3cfbbddfd23c871777f",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:189",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-character-preference",
       "automatic_recall": false
@@ -3059,6 +3964,7 @@
       "source_index": 190,
       "source_sha256": "2ddd1781bdf4634ac2a36c9f04d29685426e34bcd65aab78517bcd15f2b0ccb2",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:190",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-sensory-scenario",
       "automatic_recall": false
@@ -3068,6 +3974,7 @@
       "source_index": 191,
       "source_sha256": "534b6da06a0e4292f2553a6759f2b876d20e30e77bfd58364f02afce714ea39b",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:191",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-extreme-scenario",
       "automatic_recall": false
@@ -3077,6 +3984,7 @@
       "source_index": 192,
       "source_sha256": "24a28c903b5bf337a1841ecd397c239e0987aa8914ce3e56e52ac6e9386402d4",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:192",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-sensory-scenario",
       "automatic_recall": false
@@ -3086,6 +3994,7 @@
       "source_index": 193,
       "source_sha256": "780e0d287d353dbebd45071fe709961eff54c1bf855720b6c237181e3946b433",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:193",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-dialogue-style",
       "automatic_recall": false
@@ -3095,6 +4004,7 @@
       "source_index": 194,
       "source_sha256": "93b268ef1e4ad131f00c7b07658a9daf7c67408188359407d4a34461c19598b8",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:194",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-character-premise",
       "automatic_recall": false
@@ -3104,6 +4014,7 @@
       "source_index": 195,
       "source_sha256": "c91bc31985061cdde8da8ea845e3509a8ff70744edc8e3b919b43c8ed25af24b",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:195",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-dialogue-style",
       "automatic_recall": false
@@ -3113,6 +4024,7 @@
       "source_index": 196,
       "source_sha256": "1880982374267505bd7b1b46c8a8aa7176c04684277c470889400ceda81beadc",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:196",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-dialogue-style",
       "automatic_recall": false
@@ -3122,6 +4034,7 @@
       "source_index": 197,
       "source_sha256": "2ebf7cab57f3b1e1cc9693c16c831a4d3e47ea2b21085369360747c6f96c7da2",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:197",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "existing-layer",
       "automatic_recall": false
@@ -3131,6 +4044,7 @@
       "source_index": 198,
       "source_sha256": "993ad175d842eb97003ffa4af35d20d1cc34acc7731f5bf2fa7b4abed9b59c79",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:198",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-card-template",
       "automatic_recall": false
@@ -3140,6 +4054,7 @@
       "source_index": 199,
       "source_sha256": "5a6b9ea65657a007215dcc0f90b0b8059022f597863b8dfdc5577c446fe66383",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:199",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-card-template",
       "automatic_recall": false
@@ -3149,6 +4064,7 @@
       "source_index": 203,
       "source_sha256": "f7af90b3d1f33b2cd14bfdf45e79db1f21ff0dc4fc1d56b81eb14418310d9950",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:203",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-scene-template",
       "automatic_recall": false
@@ -3158,6 +4074,7 @@
       "source_index": 204,
       "source_sha256": "62c164a868aab0c2a3a4e009190eb67e84ad58dbe9aaf7a586d959b55ca881f3",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:204",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-scene-template",
       "automatic_recall": false
@@ -3167,6 +4084,7 @@
       "source_index": 205,
       "source_sha256": "17ecd9570e7e21ef60ec70e0ca7660da488fefae1d36aff20434b5e4a4ab2d20",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:205",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-scene-template",
       "automatic_recall": false
@@ -3176,6 +4094,7 @@
       "source_index": 206,
       "source_sha256": "7bc14699d62f91bf54950a91596849729a0ecc7cc357801861fa6845a34e2577",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:206",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-scene-template",
       "automatic_recall": false
@@ -3185,6 +4104,7 @@
       "source_index": 207,
       "source_sha256": "85bc148e436ec17263a9f7166d146dd52da1f764b40288e8258613df75d94deb",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:207",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-scene-template",
       "automatic_recall": false
@@ -3194,6 +4114,7 @@
       "source_index": 208,
       "source_sha256": "0ba046c05c599439e35902dd7a793eb1c4b83fc9b9b031d9ff1424de58e675f5",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:208",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-scene-template",
       "automatic_recall": false
@@ -3203,6 +4124,7 @@
       "source_index": 2,
       "source_sha256": "daf4dcf842959b77da198cea7e05835a73f6b453d4f6be32ea939a0700c8d170",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:2",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-character-premise",
       "automatic_recall": false
@@ -3212,6 +4134,7 @@
       "source_index": 23,
       "source_sha256": "87d9b74450d4c4b6f6c6ff73afe36f200bbf55b69f257eac15a6123b6f75c32d",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:23",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-character-premise",
       "automatic_recall": false
@@ -3221,6 +4144,7 @@
       "source_index": 24,
       "source_sha256": "d4754d6860c4438827988f7f072cd7eebfd9e21a8d76a881ca35c7eb86600f0d",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:24",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-character-premise",
       "automatic_recall": false
@@ -3230,6 +4154,7 @@
       "source_index": 32,
       "source_sha256": "6240decc703518c55134220f90635f2d9d22de6c96b6008d4e8523b303090493",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:32",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-workflow",
       "automatic_recall": false
@@ -3239,6 +4164,7 @@
       "source_index": 33,
       "source_sha256": "ec5b0ba7e7d03507c13f7226374539770a5fbdaf2f73db0aa5f2958cf0d57f71",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:33",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-premise",
       "automatic_recall": false
@@ -3248,6 +4174,7 @@
       "source_index": 34,
       "source_sha256": "90c34cd54987003193254fad3b479aa3546af078a84b56e083d08d2523c89c94",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:34",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "existing-layer",
       "automatic_recall": false
@@ -3257,6 +4184,7 @@
       "source_index": 35,
       "source_sha256": "45fc07139187b182a3826b0a4bc8bc7e8d17d8ebe91b2a46238722237bf421f0",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:35",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "existing-layer",
       "automatic_recall": false
@@ -3266,6 +4194,7 @@
       "source_index": 36,
       "source_sha256": "4b487b2272d536b18497891a8945084accf252d27a4cd8eb64e0ec5bc7a5e9d5",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:36",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "existing-layer",
       "automatic_recall": false
@@ -3275,6 +4204,7 @@
       "source_index": 37,
       "source_sha256": "b301414ca02145bc4cfa579cea5443def226d76d6ae965980162620cd142b1e6",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:37",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-card-rules",
       "automatic_recall": false
@@ -3284,6 +4214,7 @@
       "source_index": 38,
       "source_sha256": "d21559a6a1b338fa82160c8bbe3615f07e7cf608f7e49b41d46208bf1adb4983",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:38",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-state-rules",
       "automatic_recall": false
@@ -3293,6 +4224,7 @@
       "source_index": 39,
       "source_sha256": "1e43431f7f6cda3968920f0e09e8a946646b434a65e6b666f35774d3080f0f95",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:39",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-offscreen-rules",
       "automatic_recall": false
@@ -3302,6 +4234,7 @@
       "source_index": 40,
       "source_sha256": "9c33d8981fe1cf92f993b5b2b1fe07b8184faa9a844207b9d0085931986df6b1",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:40",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-relationship-rules",
       "automatic_recall": false
@@ -3311,6 +4244,7 @@
       "source_index": 45,
       "source_sha256": "57eec842adba32edfda575830e025fed78cf23b48d8cc9167e2e030aabec40cf",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:45",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-writing-preference",
       "automatic_recall": false
@@ -3320,6 +4254,7 @@
       "source_index": 51,
       "source_sha256": "f97267261edb9104da7e3ab8f86553ad5756a8af5a2380b8d7bda1ee5169477d",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:51",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-scenario-rules",
       "automatic_recall": false
@@ -3329,6 +4264,7 @@
       "source_index": 52,
       "source_sha256": "24c868c31867a4f233851a0be228b441d03e668b6921af61221951f37be4d50b",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:52",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-premise",
       "automatic_recall": false
@@ -3338,6 +4274,7 @@
       "source_index": 53,
       "source_sha256": "b9ab17c478b09e55c8e0bdef21938999d0028407a940b933d9079fd3381916e7",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:53",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "existing-tool",
       "automatic_recall": false
@@ -3347,6 +4284,7 @@
       "source_index": 54,
       "source_sha256": "ed38d2ec50bff55322bac112e5a8b19cc44335c7cb61c9066563269eeadec4a5",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:54",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "existing-tool",
       "automatic_recall": false
@@ -3356,6 +4294,7 @@
       "source_index": 55,
       "source_sha256": "416618d482b81f54da45facf1d3082dda90c5015eaac6efa75b4ca8943da7f5f",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:55",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "existing-tool",
       "automatic_recall": false
@@ -3365,6 +4304,7 @@
       "source_index": 56,
       "source_sha256": "1b1375d455e5fae8cd2f46bfa22c45fd4f181688cb33ab2e4e6d7bc943ae2974",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:56",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "existing-tool",
       "automatic_recall": false
@@ -3374,6 +4314,7 @@
       "source_index": 57,
       "source_sha256": "bc3308373feecf7fac2ee795edbf299b69482f78230ca5d33569d81753f3442b",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:57",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-workflow",
       "automatic_recall": false
@@ -3383,6 +4324,7 @@
       "source_index": 58,
       "source_sha256": "2c8cf0d6b961a36c5ab6eb2b9ab753a74539b6c7ba14ffa4a0cc998c5e44ad3d",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:58",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-workflow",
       "automatic_recall": false
@@ -3392,6 +4334,7 @@
       "source_index": 59,
       "source_sha256": "44ad17e982afd07721ae470e0b37d0cad6895073f848371db2a015245724d92d",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:59",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-workflow",
       "automatic_recall": false
@@ -3401,6 +4344,7 @@
       "source_index": 60,
       "source_sha256": "e70228b9489a100310b542642a6b74f102d0d14d4ccf680d3681eafd9cf3dbc2",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:60",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-workflow",
       "automatic_recall": false
@@ -3410,6 +4354,7 @@
       "source_index": 61,
       "source_sha256": "09edc504dbfe81def66afa5238eab899b6484707ca268cf1a95182636c25f387",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:61",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-workflow",
       "automatic_recall": false
@@ -3419,6 +4364,7 @@
       "source_index": 62,
       "source_sha256": "80e550945135d0b038f547008447420aad85d5dda59d39aae4ba582c09d6d0a4",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:62",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-workflow",
       "automatic_recall": false
@@ -3428,6 +4374,7 @@
       "source_index": 63,
       "source_sha256": "6025140ef8a758ed64fdbd2964688e05c436f769d47c447e3016297f0f8e077b",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:63",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "existing-tool",
       "automatic_recall": false
@@ -3437,6 +4384,7 @@
       "source_index": 64,
       "source_sha256": "8fb4467aa1ecc8142bc0e816970ae616ddf943240250fd627a8ad0d1e8a389a0",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:64",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-director-workflow",
       "automatic_recall": false
@@ -3446,6 +4394,7 @@
       "source_index": 65,
       "source_sha256": "ac2cac131a600427166f55dcc95d8fd636b8c1feefb0b7db40be63a0873acb6b",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:65",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-actor-premise",
       "automatic_recall": false
@@ -3455,6 +4404,7 @@
       "source_index": 66,
       "source_sha256": "a7073779fe3848fbdaf88d7c120126469265f9ef9d1a02f26810d9f19b5ed25d",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:66",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-actor-premise",
       "automatic_recall": false
@@ -3464,6 +4414,7 @@
       "source_index": 67,
       "source_sha256": "f45e9a67f9d7dca3c167e1110087d9e17d0f8eb8c3cb79bf00f55cdf5b49b056",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:67",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-event-command",
       "automatic_recall": false
@@ -3473,6 +4424,7 @@
       "source_index": 72,
       "source_sha256": "f33e976314da9a844aae65bcaa047f8f2c898b52fdc91c24921f08b207800028",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:72",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-scenario-rules",
       "automatic_recall": false
@@ -3482,6 +4434,7 @@
       "source_index": 75,
       "source_sha256": "97c3b82fdba64d87ea38044ab659c95b9d9d70b108cdd5e0c58d4af92c5a3d76",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:75",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-character-premise",
       "automatic_recall": false
@@ -3491,6 +4444,7 @@
       "source_index": 79,
       "source_sha256": "dbcb02929c9dd6ee258e5dd4d99c8ce4b7bc91938279b5a1c6e423270f44bf66",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:79",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-ensemble-premise",
       "automatic_recall": false
@@ -3500,6 +4454,7 @@
       "source_index": 82,
       "source_sha256": "a6ebc253610cb47cd4a9c1417247c74c7c366ec51bf31857e2bca9716238c2e5",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:82",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-scenario-premise",
       "automatic_recall": false
@@ -3509,6 +4464,7 @@
       "source_index": 87,
       "source_sha256": "306e891e013417955ddd32ad9a908b947f77e23f7c60f424d38fd726e381fd7d",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:87",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-writing-preference",
       "automatic_recall": false
@@ -3518,6 +4474,7 @@
       "source_index": 88,
       "source_sha256": "ff603bc390dbec7b15a5c2d60a5eb96623440286598cd3427b02fc9004a2e2d9",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:88",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-writing-preference",
       "automatic_recall": false
@@ -3527,6 +4484,7 @@
       "source_index": 89,
       "source_sha256": "2c298d1a4384b7cd5fcaa67d43eb940f2dc4bdc31721b24b3da02b20840113eb",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:89",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-writing-preference",
       "automatic_recall": false
@@ -3536,6 +4494,7 @@
       "source_index": 90,
       "source_sha256": "41a96a1200f30254c908aaec098c93320f2cc047c5a2ee9ac121d0a106bf0822",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:90",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-creature-scenario",
       "automatic_recall": false
@@ -3545,6 +4504,7 @@
       "source_index": 92,
       "source_sha256": "43f8da494c0eb59e311c08c798a0b185616c4aa6ab069fa6b425938a88b0d35d",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:92",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-writing-preference",
       "automatic_recall": false
@@ -3554,6 +4514,7 @@
       "source_index": 95,
       "source_sha256": "ba61d4420b28623f00135906e7295092701cc24a642934fa9bd9567646b27de8",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:95",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-profession-scenario",
       "automatic_recall": false
@@ -3563,8 +4524,869 @@
       "source_index": 96,
       "source_sha256": "24b94a7689d74d4031685b35ef0acc18a2d2fff11d80eeaf7f02df0fb3c306f6",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:96",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-ability-scenario",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 99,
+      "source_sha256": "b1d73722fd6b3465beaeb626d34c799b9f5770021b893c28a07413c4cfbf7ff6",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:99",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-position-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 100,
+      "source_sha256": "e4c98620a073a7fe695024e1e35a3a0632116eb249566d7c5752940cc4794c97",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:100",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-position-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 101,
+      "source_sha256": "fff7102f05761f85dcb4c207f935b4e48862a245d7ceb2425385a819725c3fe5",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:101",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-position-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 102,
+      "source_sha256": "e9a6b4b4f0bea29cb8a8783a4e78dc93e2822668d289c781dade6ff4b27057aa",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:102",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-position-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 103,
+      "source_sha256": "0eb09b0d56b260ad3faa917106b365487529e4a26d8095b3eb3b0ac1b21c17d2",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:103",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-position-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 104,
+      "source_sha256": "1908642bcfd6042e88931955194bf4fdebe8a95ad5191bd95a926f1941b07852",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:104",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-position-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 105,
+      "source_sha256": "626a58f95d1da5c6f160d8999167e4447609a05b4066a3c653bea1bec29d7c2c",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:105",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-position-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 106,
+      "source_sha256": "b89cd8d288671e8d7f90cabfbafe6c1ae6f2cfd006f38e374542c74bb3115a1e",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:106",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-position-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 107,
+      "source_sha256": "70bd09305db924b0d3f3d0f46a3c59133e43b516374dff0aae8ee9c80693c4f9",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:107",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-position-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 108,
+      "source_sha256": "04a3a9189313646a19dea4cf1049ebe9d95a2daffd1741539b5e61ac2cc74a4f",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:108",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-position-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 109,
+      "source_sha256": "8733eece22d474b2e62ffcd0b615771c790b58b447748112f6c6891d6e01a69c",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:109",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-position-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 110,
+      "source_sha256": "b9f0e5595445ce717f4427aed89058fcc9587ec829232e4bc59b252964b77ec4",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:110",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-position-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 111,
+      "source_sha256": "1423616eb923b7269c0745938b96ceaf9c88f8606fe396189da88f8a407adaec",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:111",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-position-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 112,
+      "source_sha256": "b4034841712f6a43bf223daf43a2bc097d51ca37f7d4ea76dfaef7cc77aa9339",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:112",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-position-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 113,
+      "source_sha256": "1fff9fe757d8a1038a8d790f424347efed62ea06f3dbfd8e55eea765419c63ca",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:113",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-position-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 114,
+      "source_sha256": "e33e978ef01e5d06a375d14a75503dc90dd99ea343bdd4399ee08bf4813db96e",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:114",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-position-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 115,
+      "source_sha256": "1c3956dd19777a8c870d7271cfc154ca0f6ff00bb8aee06fc5840e9c2e4e59c4",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:115",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-position-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 116,
+      "source_sha256": "949f41ce5fea1f18dde5695e9bd0e18c6c6b02d05e768aadecbcdea25a62a2d5",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:116",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-location-scene",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 117,
+      "source_sha256": "fb0c1f164f9c89f249b33919d7b9c184070ef2e49fec7abc2a59d1af4d8e245f",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:117",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-location-scene",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 118,
+      "source_sha256": "7b9c1133b7ab09f13e711318bd025a8ef1a2bc795ee67bdd9f648e5313f74088",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:118",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-location-scene",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 119,
+      "source_sha256": "e770e80f668379be897a7845a1625f4c9f98f6d0379cb6c9b588afaf928e0d7f",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:119",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-location-scene",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 120,
+      "source_sha256": "756a6d420a0db80c8ea887c91325e3457454e15fb18bec76af42cfd23a180d5d",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:120",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-location-scene",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 121,
+      "source_sha256": "6e95b62ec6514bfe5895b9fd6a6da86e6e20ad351d7d3c4ae230bf1139eb6f19",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:121",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-location-scene",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 122,
+      "source_sha256": "96644904bfe1a395bea3d1189c01e05888f28ecc7e66a6f239045447930598a2",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:122",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-location-scene",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 123,
+      "source_sha256": "d0579c88c148bcf9869b2ae8841ba1289efb7a982a1c6a791647ccc77016d091",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:123",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-location-scene",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 124,
+      "source_sha256": "bd020a3031bab4e8b03fed78b147ccf21526f501169f793375b9e9cb4fee496a",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:124",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-location-scene",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 125,
+      "source_sha256": "f738eff202112fea8e89a5be1b31ed0af429f42bc600f5e6da758c5981e5c651",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:125",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-condition-scene",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 126,
+      "source_sha256": "56f4feb834976ab5b0ed4f4e12f683b8296cc2183cee26a0f05098b4a237111b",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:126",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-condition-scene",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 127,
+      "source_sha256": "637c7b52474522869983d484398adfe787ab7492fc70b1f37b792a714164a9c9",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:127",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-condition-scene",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 128,
+      "source_sha256": "82ac5b78df4a8424bb5dcd077410b0d868a8f3d8a159b31f6c843e7bb7d60851",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:128",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-condition-scene",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 129,
+      "source_sha256": "f11f156cd0e5312a455d0bbaa994b579b1a3f46391a9d057c286dcf255615d64",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:129",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-condition-scene",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 130,
+      "source_sha256": "e6ea685f49a4cba8428c0d6adf7e877e0c7c415c9cdb06d833702f558ccc8817",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:130",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-condition-scene",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 131,
+      "source_sha256": "c6f9e20f92262dd881e69d5fd1d729a3ae992774b94044e57f57aae1d4273754",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:131",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-prop-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 132,
+      "source_sha256": "bbfa3c7afa6f287e583510cbd681531b5a70eacc4373f87b919da66f6c8e9cb1",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:132",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-prop-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 133,
+      "source_sha256": "1d4bb22cf11a2ca7a0d85446f2785efd1cfea991b1324ca3c79f664f896e7151",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:133",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-prop-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 134,
+      "source_sha256": "a5f85468c36e463622ffc7606c9c20fe79e9b9af94ec6b2dd47afb34483b8ff9",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:134",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-prop-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 135,
+      "source_sha256": "6a86d2bb84af1fbe752ce435b57454337dc5622648cc39c68243b866ebc8328e",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:135",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-prop-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 136,
+      "source_sha256": "9292450c39b3aaf39ce002e53cb34b338ee76b6fbb31157d6404227e4e4b3615",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:136",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-prop-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 137,
+      "source_sha256": "c820d8e7d582e42a376084e7182ee4bff679816360e51e65ee16c801af78d902",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:137",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-prop-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 138,
+      "source_sha256": "3ffa3e92550db132219b43f2fda314d70c7278bd3d2045da3e74f32901afa122",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:138",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-prop-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 139,
+      "source_sha256": "f9451db91c7db14b5a6a6b5e794ea3a541ee0c93a8f3532bee551c0f0727b11a",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:139",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-prop-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 140,
+      "source_sha256": "36bd08f4df679e20ab89684227687b924923f23144603391f2a6739163a8346a",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:140",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-prop-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 141,
+      "source_sha256": "c5a2ac69e8a0169a6857817ffae1e925fb2eb472e957f63ce37ebca09e744da0",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:141",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-prop-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 142,
+      "source_sha256": "1a37339b29a40b0a34e1a70feb71b192fe8ee635f66c30c55af6bc4e03b5f4db",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:142",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-prop-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 143,
+      "source_sha256": "d815033acac0f1fdae426b33dafa46ec5d05d1446b3409ebfcd6263cd5f7358d",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:143",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-prop-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 144,
+      "source_sha256": "5e3af4ca3640dd2c54eecc075497fda931c1e584b5865e608d2f21f5f20fd477",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:144",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-prop-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 145,
+      "source_sha256": "589fc9d37e3f3b64edd3ba564142111f98748889b3d7fab943c7ea8d55fc9869",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:145",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-action-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 146,
+      "source_sha256": "54553e6814e5033245f152e49a24a08b291c3dba1876dfc080ec4f9a53e32145",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:146",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-action-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 147,
+      "source_sha256": "65fe94414c9a36968b580f7bc5435799a6e047a5bb5e33fc617f2451106fef3f",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:147",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-action-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 148,
+      "source_sha256": "276b9688b0fe461d2bca74d3ea5ad3e81adc1d8e9b6b959c178f4fd29c9ec423",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:148",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-action-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 149,
+      "source_sha256": "95cacd9c08b6dffd88004f5b98cd015e0d91be6dd4e99e2eeafff8d7a006d0a0",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:149",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-action-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 150,
+      "source_sha256": "b443a90caa819639dfa6cf4029d07ea2ac29e701fceb692e8d9aab9d63eec374",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:150",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-wardrobe-prop",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 151,
+      "source_sha256": "ac41e1375ac5f598a0c5679771e61e7e0c306f62d33f6f8c43b7930747fea1cc",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:151",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-wardrobe-prop",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 152,
+      "source_sha256": "77df1b8869e419dd7583c63e1fd62da8345cecade3bff3112669380ef4491b17",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:152",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-wardrobe-prop",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 153,
+      "source_sha256": "dbd714e5bad2afad948ce77095fd855134cfc51e1b9a411f18557602de5e1057",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:153",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-wardrobe-prop",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 154,
+      "source_sha256": "4bec2ebd60e9a5a45c60b7ebf5f8dbe02df03433cd64ea994596fb1777c0b383",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:154",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-wardrobe-prop",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 155,
+      "source_sha256": "2b5f77428ae17cd306f81d70e351d3395ac8a51c9ab1c6355574fd2474fffb2d",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:155",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-wardrobe-prop",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 156,
+      "source_sha256": "4544e27cfc014743c5bf864b6ebfc1360d5c94caed0841393772762e7a6662c7",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:156",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-wardrobe-prop",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 157,
+      "source_sha256": "c41b005a1293dd641e2199b28980de1f5caac45308178bbc88965a7e77eb9a9f",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:157",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-wardrobe-prop",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 158,
+      "source_sha256": "fa341c86cda170a59f2615ba8e71628dd165edde43d1a09b4d4640ac42a5168f",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:158",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-wardrobe-prop",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 159,
+      "source_sha256": "3ec48c2754a74f8e1a4bb0d368356a875ffa085442752c8ef37652fdab79c0d8",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:159",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-wardrobe-prop",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 160,
+      "source_sha256": "bf16b16519a7d312e3cf2231838a2cc9a697b81281dc33f4fc7e9a99624bc236",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:160",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-wardrobe-prop",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 161,
+      "source_sha256": "4aea00f37b65fc67287555546614b33d78d3b2bfe8ec6ad235508a794b82dcf4",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:161",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-wardrobe-prop",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 162,
+      "source_sha256": "ea4da940a9b8bc0e665acbc7839ac5242ac4e9b6c94a74dbf130e34bc6005e29",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:162",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-wardrobe-prop",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 163,
+      "source_sha256": "b7c3567e29caafa23b4ffb18d185679a25feffdea6a2691852d458bd2c598237",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:163",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-wardrobe-prop",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 164,
+      "source_sha256": "6835ee7dd4b4cfa8148f1c0e8c26f35df771ff94e42eed4c330e227334021e05",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:164",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-wardrobe-prop",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 165,
+      "source_sha256": "955c07395468ec67bcf1917720b7f7d84f852d1d8998fefabe57beda455b28b7",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:165",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-wardrobe-prop",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 166,
+      "source_sha256": "3019ff9be4b4cdfdf482eed175f5f654c3d459e9fa13956a5032b36dbfc00145",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:166",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-wardrobe-prop",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 167,
+      "source_sha256": "acbfecafc60b22d9fafe34c3efe7137841597c92c1760e1487f2493f51f671ee",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:167",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-wardrobe-prop",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 168,
+      "source_sha256": "d11be57a0eeb27bfefc6bedb134729dddf283cb06b287d91f93d19d94939ed51",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:168",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-wardrobe-prop",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 169,
+      "source_sha256": "fcc4f4023f99528c4f345e1995891e97497aac46437205871ef7aab5e364be11",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:169",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-wardrobe-prop",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 170,
+      "source_sha256": "e1be9099ed266368a92f2ce38f17f8dd30cddd68ae384b984ca067706175d6e0",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:170",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-wardrobe-prop",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 171,
+      "source_sha256": "43fdaeca0507b9b0e6eb59e69f1a65a0f10c6b7f81b2d5e8948d742b52620f82",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:171",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-anatomy-reference",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 172,
+      "source_sha256": "2acd8e49aa2b2e3aa3ac5f1d955817b84062b98d2dc5f78bacb1fe2a7d2579c1",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:172",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-anatomy-reference",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 173,
+      "source_sha256": "e7fe617aca7e93168fed6134c41b05594a67bb0c9d9dc0e437b508ae4068792d",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:173",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-anatomy-reference",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 174,
+      "source_sha256": "22d75b4808a0c769a7edc2e508301194a8dc491db7a08ec256510092512df99b",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:174",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-anatomy-reference",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 175,
+      "source_sha256": "05c46ad4f37cdefb4e2e542c9356a5dd23de06af974c12dd4c6981d90aa3b494",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:175",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-character-preference",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 176,
+      "source_sha256": "1cf248f75a6de48c5d32cb9fcb86dd8e3c6dadb88439c9fbe4361a03dbfbb98c",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:176",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-character-preference",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 177,
+      "source_sha256": "8f4c52cebfb4fd2f98f671f8e8438a236f1f0b8433fe50e28d35d34de2684e27",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:177",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-character-preference",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 178,
+      "source_sha256": "b65e4bbe6195a514e91d0883d525e5bd6914ba3ff62e6cb386991d02f6324e34",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:178",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-character-preference",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 179,
+      "source_sha256": "ef646c58774a6283e0a5bd3eca5aaa598a2ae35ca4bd0860093217782c61e4d8",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:179",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-character-preference",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 180,
+      "source_sha256": "ee4469dd84e1ac78f59cb30143742d6c91cbfbf92fdf2bc8d2ab7d2e0e60a425",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:180",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-character-preference",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 181,
+      "source_sha256": "2f077145303546656f21e6659845c3b580a231e7e8a7a9dcb55c2f031ce17ffb",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:181",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-character-preference",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 182,
+      "source_sha256": "148f14506d93cbb5e0d14f9dfc3d9a30a713b43fbdbf58a340d25316ed1265c5",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:182",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-character-preference",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 183,
+      "source_sha256": "ca0b7ccc7aa43774e5076e00ae2d3b1686d93f9485556998ebdf7d144ad8ef77",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:183",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-character-preference",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 184,
+      "source_sha256": "0260f767c36ad045caa65a3b96cbd9f8ad8711b885aa90ad7b9790b53fee0e84",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:184",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-character-preference",
       "automatic_recall": false
     },
     {
@@ -3572,6 +5394,7 @@
       "source_index": 189,
       "source_sha256": "206596d165c9f8b28638c817b0755bf917dbff4dd3b9c3cfbbddfd23c871777f",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:189",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-character-preference",
       "automatic_recall": false
@@ -3581,6 +5404,7 @@
       "source_index": 190,
       "source_sha256": "2ddd1781bdf4634ac2a36c9f04d29685426e34bcd65aab78517bcd15f2b0ccb2",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:190",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-sensory-scenario",
       "automatic_recall": false
@@ -3590,6 +5414,7 @@
       "source_index": 191,
       "source_sha256": "534b6da06a0e4292f2553a6759f2b876d20e30e77bfd58364f02afce714ea39b",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:191",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-extreme-scenario",
       "automatic_recall": false
@@ -3599,6 +5424,7 @@
       "source_index": 192,
       "source_sha256": "24a28c903b5bf337a1841ecd397c239e0987aa8914ce3e56e52ac6e9386402d4",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:192",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-sensory-scenario",
       "automatic_recall": false
@@ -3608,6 +5434,7 @@
       "source_index": 193,
       "source_sha256": "780e0d287d353dbebd45071fe709961eff54c1bf855720b6c237181e3946b433",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:193",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-dialogue-style",
       "automatic_recall": false
@@ -3617,6 +5444,7 @@
       "source_index": 194,
       "source_sha256": "93b268ef1e4ad131f00c7b07658a9daf7c67408188359407d4a34461c19598b8",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:194",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-character-premise",
       "automatic_recall": false
@@ -3626,6 +5454,7 @@
       "source_index": 195,
       "source_sha256": "c91bc31985061cdde8da8ea845e3509a8ff70744edc8e3b919b43c8ed25af24b",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:195",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-dialogue-style",
       "automatic_recall": false
@@ -3635,6 +5464,7 @@
       "source_index": 196,
       "source_sha256": "1880982374267505bd7b1b46c8a8aa7176c04684277c470889400ceda81beadc",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:196",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-dialogue-style",
       "automatic_recall": false
@@ -3644,6 +5474,7 @@
       "source_index": 197,
       "source_sha256": "2ebf7cab57f3b1e1cc9693c16c831a4d3e47ea2b21085369360747c6f96c7da2",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:197",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "existing-layer",
       "automatic_recall": false
@@ -3653,6 +5484,7 @@
       "source_index": 198,
       "source_sha256": "993ad175d842eb97003ffa4af35d20d1cc34acc7731f5bf2fa7b4abed9b59c79",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:198",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-card-template",
       "automatic_recall": false
@@ -3662,6 +5494,7 @@
       "source_index": 199,
       "source_sha256": "5a6b9ea65657a007215dcc0f90b0b8059022f597863b8dfdc5577c446fe66383",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:199",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-card-template",
       "automatic_recall": false
@@ -3671,6 +5504,7 @@
       "source_index": 203,
       "source_sha256": "f7af90b3d1f33b2cd14bfdf45e79db1f21ff0dc4fc1d56b81eb14418310d9950",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:203",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-scene-template",
       "automatic_recall": false
@@ -3680,6 +5514,7 @@
       "source_index": 204,
       "source_sha256": "62c164a868aab0c2a3a4e009190eb67e84ad58dbe9aaf7a586d959b55ca881f3",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:204",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-scene-template",
       "automatic_recall": false
@@ -3689,6 +5524,7 @@
       "source_index": 205,
       "source_sha256": "17ecd9570e7e21ef60ec70e0ca7660da488fefae1d36aff20434b5e4a4ab2d20",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:205",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-scene-template",
       "automatic_recall": false
@@ -3698,6 +5534,7 @@
       "source_index": 206,
       "source_sha256": "7bc14699d62f91bf54950a91596849729a0ecc7cc357801861fa6845a34e2577",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:206",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-scene-template",
       "automatic_recall": false
@@ -3707,6 +5544,7 @@
       "source_index": 207,
       "source_sha256": "85bc148e436ec17263a9f7166d146dd52da1f764b40288e8258613df75d94deb",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:207",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-scene-template",
       "automatic_recall": false
@@ -3716,6 +5554,7 @@
       "source_index": 208,
       "source_sha256": "0ba046c05c599439e35902dd7a793eb1c4b83fc9b9b031d9ff1424de58e675f5",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:208",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-scene-template",
       "automatic_recall": false
@@ -3725,6 +5564,7 @@
       "source_index": 209,
       "source_sha256": "87a1ae7d63458651ae0909e996837c1a064898adfbac63f5e6f9953660102e57",
       "decision_id": "572f3222-5746-43cc-ae16-60239eac041c:209",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-world-premise",
       "automatic_recall": false
@@ -3734,6 +5574,7 @@
       "source_index": 210,
       "source_sha256": "9b99a4d072d2a34fff487819fcc11299ac79c901af431b04c0003070bdb3bcec",
       "decision_id": "572f3222-5746-43cc-ae16-60239eac041c:210",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-magic-lore",
       "automatic_recall": false
@@ -3743,6 +5584,7 @@
       "source_index": 211,
       "source_sha256": "1d094679a76231176a987127e91257c49e67055416d0d70d93dad3a939227231",
       "decision_id": "572f3222-5746-43cc-ae16-60239eac041c:211",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-species-lore",
       "automatic_recall": false
@@ -3752,6 +5594,7 @@
       "source_index": 212,
       "source_sha256": "6450701ea10f22c410a20116842f1df64748a1ec595d691ee0723edfeee8c863",
       "decision_id": "572f3222-5746-43cc-ae16-60239eac041c:212",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-faction-lore",
       "automatic_recall": false
@@ -3761,8 +5604,139 @@
       "source_index": 213,
       "source_sha256": "fb45257138a4e21586022943f1d3607c4f1fff293e3fbd357414772cba4658cf",
       "decision_id": "572f3222-5746-43cc-ae16-60239eac041c:213",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-artifact-lore",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 214,
+      "source_sha256": "ec3b60f4060312775c90a720a71514f7ee3478e4ae92208110da120171508d5c",
+      "decision_id": "572f3222-5746-43cc-ae16-60239eac041c:214",
+      "review_method": "manual-layer-review",
+      "status": "reviewed-not-published",
+      "route": "author-specific-character",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 215,
+      "source_sha256": "f224fe71590a7ec35e9b25e6a1c9629da58396b69ec469bd67bd7a40c5e1f882",
+      "decision_id": "572f3222-5746-43cc-ae16-60239eac041c:215",
+      "review_method": "manual-layer-review",
+      "status": "reviewed-not-published",
+      "route": "author-specific-character",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 216,
+      "source_sha256": "ba77535a3f115d45f5761219bc8241ef1a2be4c3730cc499c1d108f07858d120",
+      "decision_id": "572f3222-5746-43cc-ae16-60239eac041c:216",
+      "review_method": "manual-layer-review",
+      "status": "reviewed-not-published",
+      "route": "author-specific-character",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 217,
+      "source_sha256": "5635c30eff63a4ce3819bafa4ffaa14b0aaa4355b5e498b3b531cb10e7eb72a5",
+      "decision_id": "572f3222-5746-43cc-ae16-60239eac041c:217",
+      "review_method": "manual-layer-review",
+      "status": "reviewed-not-published",
+      "route": "author-specific-character",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 218,
+      "source_sha256": "74bc3962d89ce52b13e9dea3530be60f2fdcfea7352bce01c7a4e7c3cf74700f",
+      "decision_id": "572f3222-5746-43cc-ae16-60239eac041c:218",
+      "review_method": "manual-layer-review",
+      "status": "reviewed-not-published",
+      "route": "author-specific-character",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 219,
+      "source_sha256": "1fcabefb734859bd82033ac5a981cb916f907d672bc70037407a7472ee8d5b06",
+      "decision_id": "572f3222-5746-43cc-ae16-60239eac041c:219",
+      "review_method": "manual-layer-review",
+      "status": "reviewed-not-published",
+      "route": "author-specific-character",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 220,
+      "source_sha256": "694f1eae2198a6930f3c971e739766ed932a16c71518a3a03e1b86df50fd889c",
+      "decision_id": "572f3222-5746-43cc-ae16-60239eac041c:220",
+      "review_method": "manual-layer-review",
+      "status": "reviewed-not-published",
+      "route": "author-specific-character",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 221,
+      "source_sha256": "6d4f137c218139a5f37458eb5b68377512fb2b454d5a9d37ab6d721dc90157b0",
+      "decision_id": "572f3222-5746-43cc-ae16-60239eac041c:221",
+      "review_method": "manual-layer-review",
+      "status": "reviewed-not-published",
+      "route": "author-specific-character",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 222,
+      "source_sha256": "b30d11be1a4d79d6e6b0ec5be24660d4c65f86cbb51841337d70d193fa43a088",
+      "decision_id": "572f3222-5746-43cc-ae16-60239eac041c:222",
+      "review_method": "manual-layer-review",
+      "status": "reviewed-not-published",
+      "route": "author-specific-character",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 223,
+      "source_sha256": "c2ff0b9fc5b4dba6f55b76d78bcedaf3f2aed45d2b678409c733fa5d81cea97a",
+      "decision_id": "572f3222-5746-43cc-ae16-60239eac041c:223",
+      "review_method": "manual-layer-review",
+      "status": "reviewed-not-published",
+      "route": "author-specific-character",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 224,
+      "source_sha256": "dab4aebcf6c27a9520dc44436588e79040f2ca533bf9523e3ab368bd133175e6",
+      "decision_id": "572f3222-5746-43cc-ae16-60239eac041c:224",
+      "review_method": "manual-layer-review",
+      "status": "reviewed-not-published",
+      "route": "author-specific-character",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 225,
+      "source_sha256": "a8c85616542038897abbd72ece5112e5ac12608b69681f6a6b748d31ce8668e9",
+      "decision_id": "572f3222-5746-43cc-ae16-60239eac041c:225",
+      "review_method": "manual-layer-review",
+      "status": "reviewed-not-published",
+      "route": "author-specific-character",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 226,
+      "source_sha256": "0ab21cb45932d621983951df3cbd8f15afcb07bf880138250170abbedf73a935",
+      "decision_id": "572f3222-5746-43cc-ae16-60239eac041c:226",
+      "review_method": "manual-layer-review",
+      "status": "reviewed-not-published",
+      "route": "author-specific-character",
       "automatic_recall": false
     },
     {
@@ -3770,6 +5744,7 @@
       "source_index": 227,
       "source_sha256": "3c44a5c0878edc0da6702912abdbc08f70f3d39562af48ba1552c244127fdf81",
       "decision_id": "572f3222-5746-43cc-ae16-60239eac041c:227",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-quest-rules",
       "automatic_recall": false
@@ -3779,6 +5754,7 @@
       "source_index": 228,
       "source_sha256": "b0adeb3339026df7e6553ead290ca077339adf733f6275184231f1e454fc501b",
       "decision_id": "572f3222-5746-43cc-ae16-60239eac041c:228",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-skill-rules",
       "automatic_recall": false
@@ -3788,6 +5764,7 @@
       "source_index": 229,
       "source_sha256": "90cee2bb5e3c44ccaa038031c40b82a5d3a0fbc36f0de110e6cab4a44728ffe0",
       "decision_id": "572f3222-5746-43cc-ae16-60239eac041c:229",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-achievement-rules",
       "automatic_recall": false
@@ -3797,6 +5774,7 @@
       "source_index": 230,
       "source_sha256": "1b4a4d60f5244b32b47bd533bbf71588ff467d972e001af69f0443900d0ad41d",
       "decision_id": "572f3222-5746-43cc-ae16-60239eac041c:230",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-location-lore",
       "automatic_recall": false
@@ -3806,6 +5784,7 @@
       "source_index": 231,
       "source_sha256": "2819c05a209978ef7eb49a335b1d547ddb70d85d85a2857e97b91b6506651895",
       "decision_id": "572f3222-5746-43cc-ae16-60239eac041c:231",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-faction-lore",
       "automatic_recall": false
@@ -3815,6 +5794,7 @@
       "source_index": 233,
       "source_sha256": "0970196fb9c1443cc5a546375f2f58d42afcb8aacb40c882920b7dea353b383b",
       "decision_id": "572f3222-5746-43cc-ae16-60239eac041c:233",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-opening-config",
       "automatic_recall": false
@@ -3824,6 +5804,7 @@
       "source_index": 234,
       "source_sha256": "c3120c28e04bc5cc0b47f4a45ddf501835928c3f0d8405b81ef2a939464e074a",
       "decision_id": "572f3222-5746-43cc-ae16-60239eac041c:234",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-relationship-rules",
       "automatic_recall": false
@@ -3833,6 +5814,7 @@
       "source_index": 235,
       "source_sha256": "981bff45aa50b408deec0dc358b6859753f94744906bbebcbbd69ef2cd223928",
       "decision_id": "572f3222-5746-43cc-ae16-60239eac041c:235",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-item-rules",
       "automatic_recall": false
@@ -3842,8 +5824,39 @@
       "source_index": 236,
       "source_sha256": "2790bc3f0f1c51fb6f42a9f8e8bb3fc7b8b91d7680189d3bcc40e2975cafdbb5",
       "decision_id": "572f3222-5746-43cc-ae16-60239eac041c:236",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-rival-rules",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 237,
+      "source_sha256": "986d6439c609a864f4da5aea6954c6073ea280b446a23da6a94dcf7afa186b50",
+      "decision_id": "572f3222-5746-43cc-ae16-60239eac041c:237",
+      "review_method": "manual-layer-review",
+      "status": "reviewed-not-published",
+      "route": "author-specific-rival",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 238,
+      "source_sha256": "542492a996e8288375015ce05e67af3dd9da1552cb92be34f0979e9ce1d27385",
+      "decision_id": "572f3222-5746-43cc-ae16-60239eac041c:238",
+      "review_method": "manual-layer-review",
+      "status": "reviewed-not-published",
+      "route": "author-specific-rival",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 239,
+      "source_sha256": "25196819ef1f0bee4b361e162a72c4bee9b9ff76273274ce35b807474b8f3514",
+      "decision_id": "572f3222-5746-43cc-ae16-60239eac041c:239",
+      "review_method": "manual-layer-review",
+      "status": "reviewed-not-published",
+      "route": "author-specific-rival",
       "automatic_recall": false
     },
     {
@@ -3851,6 +5864,7 @@
       "source_index": 240,
       "source_sha256": "e70d34affc0faf9eba889684b4b0b982b88f6f99abb42ea8f8d35484172d2b61",
       "decision_id": "572f3222-5746-43cc-ae16-60239eac041c:240",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-progression-rules",
       "automatic_recall": false
@@ -3860,6 +5874,7 @@
       "source_index": 241,
       "source_sha256": "76aab662ed09dd0303eb267aeb893afcc266f2647d7c029f571c90efe1bfb4eb",
       "decision_id": "572f3222-5746-43cc-ae16-60239eac041c:241",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-secret-lore",
       "automatic_recall": false
@@ -3869,6 +5884,7 @@
       "source_index": 244,
       "source_sha256": "7d31ee06e8aa493fb7014a8f1a08710281aac3190e5f2e5feb31d9545d5b0410",
       "decision_id": "572f3222-5746-43cc-ae16-60239eac041c:244",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-secret-lore",
       "automatic_recall": false
@@ -3878,6 +5894,7 @@
       "source_index": 246,
       "source_sha256": "7ee206e3c96b39796395055fa0f38a024e182c36ff73186c889e894a0a902063",
       "decision_id": "572f3222-5746-43cc-ae16-60239eac041c:246",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-secret-faction",
       "automatic_recall": false
@@ -3887,6 +5904,7 @@
       "source_index": 248,
       "source_sha256": "e9bd3af918090b18eefa4fce1a55ac49f735a08e0b69555d990c29f5144780cd",
       "decision_id": "572f3222-5746-43cc-ae16-60239eac041c:248",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-status-schema",
       "automatic_recall": false
@@ -3896,6 +5914,7 @@
       "source_index": 249,
       "source_sha256": "811c8972be4190390db8c70658035f8b875042e468f6b8df23f3edfcb0fa8510",
       "decision_id": "572f3222-5746-43cc-ae16-60239eac041c:249",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-status-schema",
       "automatic_recall": false
@@ -3905,6 +5924,7 @@
       "source_index": 250,
       "source_sha256": "4dc76ce4ecaebc3986326ae7eb83a707bee5510a225c710646ee9a7e3d340780",
       "decision_id": "572f3222-5746-43cc-ae16-60239eac041c:250",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-status-schema",
       "automatic_recall": false
@@ -3914,6 +5934,7 @@
       "source_index": 2,
       "source_sha256": "daf4dcf842959b77da198cea7e05835a73f6b453d4f6be32ea939a0700c8d170",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:2",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-character-premise",
       "automatic_recall": false
@@ -3923,6 +5944,7 @@
       "source_index": 23,
       "source_sha256": "87d9b74450d4c4b6f6c6ff73afe36f200bbf55b69f257eac15a6123b6f75c32d",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:23",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-character-premise",
       "automatic_recall": false
@@ -3932,6 +5954,7 @@
       "source_index": 24,
       "source_sha256": "d4754d6860c4438827988f7f072cd7eebfd9e21a8d76a881ca35c7eb86600f0d",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:24",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-character-premise",
       "automatic_recall": false
@@ -3941,6 +5964,7 @@
       "source_index": 32,
       "source_sha256": "6240decc703518c55134220f90635f2d9d22de6c96b6008d4e8523b303090493",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:32",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-workflow",
       "automatic_recall": false
@@ -3950,6 +5974,7 @@
       "source_index": 33,
       "source_sha256": "ec5b0ba7e7d03507c13f7226374539770a5fbdaf2f73db0aa5f2958cf0d57f71",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:33",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-premise",
       "automatic_recall": false
@@ -3959,6 +5984,7 @@
       "source_index": 34,
       "source_sha256": "90c34cd54987003193254fad3b479aa3546af078a84b56e083d08d2523c89c94",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:34",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "existing-layer",
       "automatic_recall": false
@@ -3968,6 +5994,7 @@
       "source_index": 35,
       "source_sha256": "45fc07139187b182a3826b0a4bc8bc7e8d17d8ebe91b2a46238722237bf421f0",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:35",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "existing-layer",
       "automatic_recall": false
@@ -3977,6 +6004,7 @@
       "source_index": 36,
       "source_sha256": "4b487b2272d536b18497891a8945084accf252d27a4cd8eb64e0ec5bc7a5e9d5",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:36",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "existing-layer",
       "automatic_recall": false
@@ -3986,6 +6014,7 @@
       "source_index": 37,
       "source_sha256": "b301414ca02145bc4cfa579cea5443def226d76d6ae965980162620cd142b1e6",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:37",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-card-rules",
       "automatic_recall": false
@@ -3995,6 +6024,7 @@
       "source_index": 38,
       "source_sha256": "d21559a6a1b338fa82160c8bbe3615f07e7cf608f7e49b41d46208bf1adb4983",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:38",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-state-rules",
       "automatic_recall": false
@@ -4004,6 +6034,7 @@
       "source_index": 39,
       "source_sha256": "1e43431f7f6cda3968920f0e09e8a946646b434a65e6b666f35774d3080f0f95",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:39",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-offscreen-rules",
       "automatic_recall": false
@@ -4013,6 +6044,7 @@
       "source_index": 40,
       "source_sha256": "9c33d8981fe1cf92f993b5b2b1fe07b8184faa9a844207b9d0085931986df6b1",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:40",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-relationship-rules",
       "automatic_recall": false
@@ -4022,6 +6054,7 @@
       "source_index": 45,
       "source_sha256": "57eec842adba32edfda575830e025fed78cf23b48d8cc9167e2e030aabec40cf",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:45",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-writing-preference",
       "automatic_recall": false
@@ -4031,6 +6064,7 @@
       "source_index": 51,
       "source_sha256": "f97267261edb9104da7e3ab8f86553ad5756a8af5a2380b8d7bda1ee5169477d",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:51",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-scenario-rules",
       "automatic_recall": false
@@ -4040,6 +6074,7 @@
       "source_index": 52,
       "source_sha256": "24c868c31867a4f233851a0be228b441d03e668b6921af61221951f37be4d50b",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:52",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-premise",
       "automatic_recall": false
@@ -4049,6 +6084,7 @@
       "source_index": 53,
       "source_sha256": "b9ab17c478b09e55c8e0bdef21938999d0028407a940b933d9079fd3381916e7",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:53",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "existing-tool",
       "automatic_recall": false
@@ -4058,6 +6094,7 @@
       "source_index": 54,
       "source_sha256": "ed38d2ec50bff55322bac112e5a8b19cc44335c7cb61c9066563269eeadec4a5",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:54",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "existing-tool",
       "automatic_recall": false
@@ -4067,6 +6104,7 @@
       "source_index": 55,
       "source_sha256": "416618d482b81f54da45facf1d3082dda90c5015eaac6efa75b4ca8943da7f5f",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:55",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "existing-tool",
       "automatic_recall": false
@@ -4076,6 +6114,7 @@
       "source_index": 56,
       "source_sha256": "1b1375d455e5fae8cd2f46bfa22c45fd4f181688cb33ab2e4e6d7bc943ae2974",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:56",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "existing-tool",
       "automatic_recall": false
@@ -4085,6 +6124,7 @@
       "source_index": 57,
       "source_sha256": "bc3308373feecf7fac2ee795edbf299b69482f78230ca5d33569d81753f3442b",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:57",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-workflow",
       "automatic_recall": false
@@ -4094,6 +6134,7 @@
       "source_index": 58,
       "source_sha256": "2c8cf0d6b961a36c5ab6eb2b9ab753a74539b6c7ba14ffa4a0cc998c5e44ad3d",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:58",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-workflow",
       "automatic_recall": false
@@ -4103,6 +6144,7 @@
       "source_index": 59,
       "source_sha256": "44ad17e982afd07721ae470e0b37d0cad6895073f848371db2a015245724d92d",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:59",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-workflow",
       "automatic_recall": false
@@ -4112,6 +6154,7 @@
       "source_index": 60,
       "source_sha256": "e70228b9489a100310b542642a6b74f102d0d14d4ccf680d3681eafd9cf3dbc2",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:60",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-workflow",
       "automatic_recall": false
@@ -4121,6 +6164,7 @@
       "source_index": 61,
       "source_sha256": "09edc504dbfe81def66afa5238eab899b6484707ca268cf1a95182636c25f387",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:61",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-workflow",
       "automatic_recall": false
@@ -4130,6 +6174,7 @@
       "source_index": 62,
       "source_sha256": "80e550945135d0b038f547008447420aad85d5dda59d39aae4ba582c09d6d0a4",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:62",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-workflow",
       "automatic_recall": false
@@ -4139,6 +6184,7 @@
       "source_index": 63,
       "source_sha256": "6025140ef8a758ed64fdbd2964688e05c436f769d47c447e3016297f0f8e077b",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:63",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "existing-tool",
       "automatic_recall": false
@@ -4148,6 +6194,7 @@
       "source_index": 64,
       "source_sha256": "c5c37b7bb00b5bab1362d6505bdbfaaaa36cdc8e307233dbaa7a0fb2af6f1f94",
       "decision_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4:64",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-output-format",
       "automatic_recall": false
@@ -4157,6 +6204,7 @@
       "source_index": 65,
       "source_sha256": "8fb4467aa1ecc8142bc0e816970ae616ddf943240250fd627a8ad0d1e8a389a0",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:64",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-director-workflow",
       "automatic_recall": false
@@ -4166,6 +6214,7 @@
       "source_index": 66,
       "source_sha256": "ac2cac131a600427166f55dcc95d8fd636b8c1feefb0b7db40be63a0873acb6b",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:65",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-actor-premise",
       "automatic_recall": false
@@ -4175,6 +6224,7 @@
       "source_index": 67,
       "source_sha256": "a7073779fe3848fbdaf88d7c120126469265f9ef9d1a02f26810d9f19b5ed25d",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:66",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-actor-premise",
       "automatic_recall": false
@@ -4184,6 +6234,7 @@
       "source_index": 68,
       "source_sha256": "f45e9a67f9d7dca3c167e1110087d9e17d0f8eb8c3cb79bf00f55cdf5b49b056",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:67",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-event-command",
       "automatic_recall": false
@@ -4193,6 +6244,7 @@
       "source_index": 73,
       "source_sha256": "f33e976314da9a844aae65bcaa047f8f2c898b52fdc91c24921f08b207800028",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:72",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-scenario-rules",
       "automatic_recall": false
@@ -4202,6 +6254,7 @@
       "source_index": 76,
       "source_sha256": "97c3b82fdba64d87ea38044ab659c95b9d9d70b108cdd5e0c58d4af92c5a3d76",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:75",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-character-premise",
       "automatic_recall": false
@@ -4211,6 +6264,7 @@
       "source_index": 80,
       "source_sha256": "dbcb02929c9dd6ee258e5dd4d99c8ce4b7bc91938279b5a1c6e423270f44bf66",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:79",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-ensemble-premise",
       "automatic_recall": false
@@ -4220,6 +6274,7 @@
       "source_index": 83,
       "source_sha256": "a6ebc253610cb47cd4a9c1417247c74c7c366ec51bf31857e2bca9716238c2e5",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:82",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-scenario-premise",
       "automatic_recall": false
@@ -4229,6 +6284,7 @@
       "source_index": 88,
       "source_sha256": "306e891e013417955ddd32ad9a908b947f77e23f7c60f424d38fd726e381fd7d",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:87",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-writing-preference",
       "automatic_recall": false
@@ -4238,6 +6294,7 @@
       "source_index": 89,
       "source_sha256": "ff603bc390dbec7b15a5c2d60a5eb96623440286598cd3427b02fc9004a2e2d9",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:88",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-writing-preference",
       "automatic_recall": false
@@ -4247,6 +6304,7 @@
       "source_index": 90,
       "source_sha256": "2c298d1a4384b7cd5fcaa67d43eb940f2dc4bdc31721b24b3da02b20840113eb",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:89",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-writing-preference",
       "automatic_recall": false
@@ -4256,6 +6314,7 @@
       "source_index": 91,
       "source_sha256": "41a96a1200f30254c908aaec098c93320f2cc047c5a2ee9ac121d0a106bf0822",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:90",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-creature-scenario",
       "automatic_recall": false
@@ -4265,6 +6324,7 @@
       "source_index": 93,
       "source_sha256": "43f8da494c0eb59e311c08c798a0b185616c4aa6ab069fa6b425938a88b0d35d",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:92",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-writing-preference",
       "automatic_recall": false
@@ -4274,6 +6334,7 @@
       "source_index": 96,
       "source_sha256": "ba61d4420b28623f00135906e7295092701cc24a642934fa9bd9567646b27de8",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:95",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-profession-scenario",
       "automatic_recall": false
@@ -4283,8 +6344,869 @@
       "source_index": 97,
       "source_sha256": "24b94a7689d74d4031685b35ef0acc18a2d2fff11d80eeaf7f02df0fb3c306f6",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:96",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-ability-scenario",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 100,
+      "source_sha256": "b1d73722fd6b3465beaeb626d34c799b9f5770021b893c28a07413c4cfbf7ff6",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:99",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-position-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 101,
+      "source_sha256": "e4c98620a073a7fe695024e1e35a3a0632116eb249566d7c5752940cc4794c97",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:100",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-position-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 102,
+      "source_sha256": "fff7102f05761f85dcb4c207f935b4e48862a245d7ceb2425385a819725c3fe5",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:101",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-position-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 103,
+      "source_sha256": "e9a6b4b4f0bea29cb8a8783a4e78dc93e2822668d289c781dade6ff4b27057aa",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:102",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-position-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 104,
+      "source_sha256": "0eb09b0d56b260ad3faa917106b365487529e4a26d8095b3eb3b0ac1b21c17d2",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:103",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-position-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 105,
+      "source_sha256": "1908642bcfd6042e88931955194bf4fdebe8a95ad5191bd95a926f1941b07852",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:104",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-position-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 106,
+      "source_sha256": "626a58f95d1da5c6f160d8999167e4447609a05b4066a3c653bea1bec29d7c2c",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:105",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-position-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 107,
+      "source_sha256": "b89cd8d288671e8d7f90cabfbafe6c1ae6f2cfd006f38e374542c74bb3115a1e",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:106",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-position-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 108,
+      "source_sha256": "70bd09305db924b0d3f3d0f46a3c59133e43b516374dff0aae8ee9c80693c4f9",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:107",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-position-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 109,
+      "source_sha256": "04a3a9189313646a19dea4cf1049ebe9d95a2daffd1741539b5e61ac2cc74a4f",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:108",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-position-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 110,
+      "source_sha256": "8733eece22d474b2e62ffcd0b615771c790b58b447748112f6c6891d6e01a69c",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:109",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-position-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 111,
+      "source_sha256": "b9f0e5595445ce717f4427aed89058fcc9587ec829232e4bc59b252964b77ec4",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:110",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-position-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 112,
+      "source_sha256": "1423616eb923b7269c0745938b96ceaf9c88f8606fe396189da88f8a407adaec",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:111",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-position-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 113,
+      "source_sha256": "b4034841712f6a43bf223daf43a2bc097d51ca37f7d4ea76dfaef7cc77aa9339",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:112",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-position-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 114,
+      "source_sha256": "1fff9fe757d8a1038a8d790f424347efed62ea06f3dbfd8e55eea765419c63ca",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:113",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-position-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 115,
+      "source_sha256": "e33e978ef01e5d06a375d14a75503dc90dd99ea343bdd4399ee08bf4813db96e",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:114",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-position-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 116,
+      "source_sha256": "1c3956dd19777a8c870d7271cfc154ca0f6ff00bb8aee06fc5840e9c2e4e59c4",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:115",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-position-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 117,
+      "source_sha256": "949f41ce5fea1f18dde5695e9bd0e18c6c6b02d05e768aadecbcdea25a62a2d5",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:116",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-location-scene",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 118,
+      "source_sha256": "fb0c1f164f9c89f249b33919d7b9c184070ef2e49fec7abc2a59d1af4d8e245f",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:117",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-location-scene",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 119,
+      "source_sha256": "7b9c1133b7ab09f13e711318bd025a8ef1a2bc795ee67bdd9f648e5313f74088",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:118",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-location-scene",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 120,
+      "source_sha256": "e770e80f668379be897a7845a1625f4c9f98f6d0379cb6c9b588afaf928e0d7f",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:119",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-location-scene",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 121,
+      "source_sha256": "756a6d420a0db80c8ea887c91325e3457454e15fb18bec76af42cfd23a180d5d",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:120",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-location-scene",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 122,
+      "source_sha256": "6e95b62ec6514bfe5895b9fd6a6da86e6e20ad351d7d3c4ae230bf1139eb6f19",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:121",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-location-scene",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 123,
+      "source_sha256": "96644904bfe1a395bea3d1189c01e05888f28ecc7e66a6f239045447930598a2",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:122",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-location-scene",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 124,
+      "source_sha256": "d0579c88c148bcf9869b2ae8841ba1289efb7a982a1c6a791647ccc77016d091",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:123",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-location-scene",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 125,
+      "source_sha256": "bd020a3031bab4e8b03fed78b147ccf21526f501169f793375b9e9cb4fee496a",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:124",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-location-scene",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 126,
+      "source_sha256": "f738eff202112fea8e89a5be1b31ed0af429f42bc600f5e6da758c5981e5c651",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:125",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-condition-scene",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 127,
+      "source_sha256": "56f4feb834976ab5b0ed4f4e12f683b8296cc2183cee26a0f05098b4a237111b",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:126",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-condition-scene",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 128,
+      "source_sha256": "637c7b52474522869983d484398adfe787ab7492fc70b1f37b792a714164a9c9",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:127",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-condition-scene",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 129,
+      "source_sha256": "82ac5b78df4a8424bb5dcd077410b0d868a8f3d8a159b31f6c843e7bb7d60851",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:128",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-condition-scene",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 130,
+      "source_sha256": "f11f156cd0e5312a455d0bbaa994b579b1a3f46391a9d057c286dcf255615d64",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:129",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-condition-scene",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 131,
+      "source_sha256": "e6ea685f49a4cba8428c0d6adf7e877e0c7c415c9cdb06d833702f558ccc8817",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:130",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-condition-scene",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 132,
+      "source_sha256": "c6f9e20f92262dd881e69d5fd1d729a3ae992774b94044e57f57aae1d4273754",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:131",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-prop-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 133,
+      "source_sha256": "bbfa3c7afa6f287e583510cbd681531b5a70eacc4373f87b919da66f6c8e9cb1",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:132",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-prop-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 134,
+      "source_sha256": "1d4bb22cf11a2ca7a0d85446f2785efd1cfea991b1324ca3c79f664f896e7151",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:133",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-prop-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 135,
+      "source_sha256": "a5f85468c36e463622ffc7606c9c20fe79e9b9af94ec6b2dd47afb34483b8ff9",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:134",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-prop-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 136,
+      "source_sha256": "6a86d2bb84af1fbe752ce435b57454337dc5622648cc39c68243b866ebc8328e",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:135",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-prop-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 137,
+      "source_sha256": "9292450c39b3aaf39ce002e53cb34b338ee76b6fbb31157d6404227e4e4b3615",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:136",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-prop-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 138,
+      "source_sha256": "c820d8e7d582e42a376084e7182ee4bff679816360e51e65ee16c801af78d902",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:137",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-prop-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 139,
+      "source_sha256": "3ffa3e92550db132219b43f2fda314d70c7278bd3d2045da3e74f32901afa122",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:138",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-prop-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 140,
+      "source_sha256": "f9451db91c7db14b5a6a6b5e794ea3a541ee0c93a8f3532bee551c0f0727b11a",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:139",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-prop-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 141,
+      "source_sha256": "36bd08f4df679e20ab89684227687b924923f23144603391f2a6739163a8346a",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:140",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-prop-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 142,
+      "source_sha256": "c5a2ac69e8a0169a6857817ffae1e925fb2eb472e957f63ce37ebca09e744da0",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:141",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-prop-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 143,
+      "source_sha256": "1a37339b29a40b0a34e1a70feb71b192fe8ee635f66c30c55af6bc4e03b5f4db",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:142",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-prop-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 144,
+      "source_sha256": "d815033acac0f1fdae426b33dafa46ec5d05d1446b3409ebfcd6263cd5f7358d",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:143",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-prop-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 145,
+      "source_sha256": "5e3af4ca3640dd2c54eecc075497fda931c1e584b5865e608d2f21f5f20fd477",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:144",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-prop-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 146,
+      "source_sha256": "589fc9d37e3f3b64edd3ba564142111f98748889b3d7fab943c7ea8d55fc9869",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:145",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-action-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 147,
+      "source_sha256": "54553e6814e5033245f152e49a24a08b291c3dba1876dfc080ec4f9a53e32145",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:146",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-action-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 148,
+      "source_sha256": "65fe94414c9a36968b580f7bc5435799a6e047a5bb5e33fc617f2451106fef3f",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:147",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-action-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 149,
+      "source_sha256": "276b9688b0fe461d2bca74d3ea5ad3e81adc1d8e9b6b959c178f4fd29c9ec423",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:148",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-action-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 150,
+      "source_sha256": "95cacd9c08b6dffd88004f5b98cd015e0d91be6dd4e99e2eeafff8d7a006d0a0",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:149",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-action-template",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 151,
+      "source_sha256": "b443a90caa819639dfa6cf4029d07ea2ac29e701fceb692e8d9aab9d63eec374",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:150",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-wardrobe-prop",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 152,
+      "source_sha256": "ac41e1375ac5f598a0c5679771e61e7e0c306f62d33f6f8c43b7930747fea1cc",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:151",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-wardrobe-prop",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 153,
+      "source_sha256": "77df1b8869e419dd7583c63e1fd62da8345cecade3bff3112669380ef4491b17",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:152",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-wardrobe-prop",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 154,
+      "source_sha256": "dbd714e5bad2afad948ce77095fd855134cfc51e1b9a411f18557602de5e1057",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:153",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-wardrobe-prop",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 155,
+      "source_sha256": "4bec2ebd60e9a5a45c60b7ebf5f8dbe02df03433cd64ea994596fb1777c0b383",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:154",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-wardrobe-prop",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 156,
+      "source_sha256": "2b5f77428ae17cd306f81d70e351d3395ac8a51c9ab1c6355574fd2474fffb2d",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:155",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-wardrobe-prop",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 157,
+      "source_sha256": "4544e27cfc014743c5bf864b6ebfc1360d5c94caed0841393772762e7a6662c7",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:156",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-wardrobe-prop",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 158,
+      "source_sha256": "c41b005a1293dd641e2199b28980de1f5caac45308178bbc88965a7e77eb9a9f",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:157",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-wardrobe-prop",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 159,
+      "source_sha256": "fa341c86cda170a59f2615ba8e71628dd165edde43d1a09b4d4640ac42a5168f",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:158",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-wardrobe-prop",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 160,
+      "source_sha256": "3ec48c2754a74f8e1a4bb0d368356a875ffa085442752c8ef37652fdab79c0d8",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:159",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-wardrobe-prop",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 161,
+      "source_sha256": "bf16b16519a7d312e3cf2231838a2cc9a697b81281dc33f4fc7e9a99624bc236",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:160",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-wardrobe-prop",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 162,
+      "source_sha256": "4aea00f37b65fc67287555546614b33d78d3b2bfe8ec6ad235508a794b82dcf4",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:161",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-wardrobe-prop",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 163,
+      "source_sha256": "ea4da940a9b8bc0e665acbc7839ac5242ac4e9b6c94a74dbf130e34bc6005e29",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:162",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-wardrobe-prop",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 164,
+      "source_sha256": "b7c3567e29caafa23b4ffb18d185679a25feffdea6a2691852d458bd2c598237",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:163",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-wardrobe-prop",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 165,
+      "source_sha256": "6835ee7dd4b4cfa8148f1c0e8c26f35df771ff94e42eed4c330e227334021e05",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:164",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-wardrobe-prop",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 166,
+      "source_sha256": "955c07395468ec67bcf1917720b7f7d84f852d1d8998fefabe57beda455b28b7",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:165",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-wardrobe-prop",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 167,
+      "source_sha256": "3019ff9be4b4cdfdf482eed175f5f654c3d459e9fa13956a5032b36dbfc00145",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:166",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-wardrobe-prop",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 168,
+      "source_sha256": "acbfecafc60b22d9fafe34c3efe7137841597c92c1760e1487f2493f51f671ee",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:167",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-wardrobe-prop",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 169,
+      "source_sha256": "d11be57a0eeb27bfefc6bedb134729dddf283cb06b287d91f93d19d94939ed51",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:168",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-wardrobe-prop",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 170,
+      "source_sha256": "fcc4f4023f99528c4f345e1995891e97497aac46437205871ef7aab5e364be11",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:169",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-wardrobe-prop",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 171,
+      "source_sha256": "e1be9099ed266368a92f2ce38f17f8dd30cddd68ae384b984ca067706175d6e0",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:170",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-wardrobe-prop",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 172,
+      "source_sha256": "43fdaeca0507b9b0e6eb59e69f1a65a0f10c6b7f81b2d5e8948d742b52620f82",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:171",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-anatomy-reference",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 173,
+      "source_sha256": "2acd8e49aa2b2e3aa3ac5f1d955817b84062b98d2dc5f78bacb1fe2a7d2579c1",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:172",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-anatomy-reference",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 174,
+      "source_sha256": "e7fe617aca7e93168fed6134c41b05594a67bb0c9d9dc0e437b508ae4068792d",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:173",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-anatomy-reference",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 175,
+      "source_sha256": "22d75b4808a0c769a7edc2e508301194a8dc491db7a08ec256510092512df99b",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:174",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-anatomy-reference",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 176,
+      "source_sha256": "05c46ad4f37cdefb4e2e542c9356a5dd23de06af974c12dd4c6981d90aa3b494",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:175",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-character-preference",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 177,
+      "source_sha256": "1cf248f75a6de48c5d32cb9fcb86dd8e3c6dadb88439c9fbe4361a03dbfbb98c",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:176",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-character-preference",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 178,
+      "source_sha256": "8f4c52cebfb4fd2f98f671f8e8438a236f1f0b8433fe50e28d35d34de2684e27",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:177",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-character-preference",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 179,
+      "source_sha256": "b65e4bbe6195a514e91d0883d525e5bd6914ba3ff62e6cb386991d02f6324e34",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:178",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-character-preference",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 180,
+      "source_sha256": "ef646c58774a6283e0a5bd3eca5aaa598a2ae35ca4bd0860093217782c61e4d8",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:179",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-character-preference",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 181,
+      "source_sha256": "ee4469dd84e1ac78f59cb30143742d6c91cbfbf92fdf2bc8d2ab7d2e0e60a425",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:180",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-character-preference",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 182,
+      "source_sha256": "2f077145303546656f21e6659845c3b580a231e7e8a7a9dcb55c2f031ce17ffb",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:181",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-character-preference",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 183,
+      "source_sha256": "148f14506d93cbb5e0d14f9dfc3d9a30a713b43fbdbf58a340d25316ed1265c5",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:182",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-character-preference",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 184,
+      "source_sha256": "ca0b7ccc7aa43774e5076e00ae2d3b1686d93f9485556998ebdf7d144ad8ef77",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:183",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-character-preference",
+      "automatic_recall": false
+    },
+    {
+      "book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 185,
+      "source_sha256": "0260f767c36ad045caa65a3b96cbd9f8ad8711b885aa90ad7b9790b53fee0e84",
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:184",
+      "review_method": "structure-and-routing",
+      "status": "reviewed-not-published",
+      "route": "author-character-preference",
       "automatic_recall": false
     },
     {
@@ -4292,6 +7214,7 @@
       "source_index": 190,
       "source_sha256": "206596d165c9f8b28638c817b0755bf917dbff4dd3b9c3cfbbddfd23c871777f",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:189",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-character-preference",
       "automatic_recall": false
@@ -4301,6 +7224,7 @@
       "source_index": 191,
       "source_sha256": "2ddd1781bdf4634ac2a36c9f04d29685426e34bcd65aab78517bcd15f2b0ccb2",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:190",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-sensory-scenario",
       "automatic_recall": false
@@ -4310,6 +7234,7 @@
       "source_index": 192,
       "source_sha256": "534b6da06a0e4292f2553a6759f2b876d20e30e77bfd58364f02afce714ea39b",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:191",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-extreme-scenario",
       "automatic_recall": false
@@ -4319,6 +7244,7 @@
       "source_index": 193,
       "source_sha256": "24a28c903b5bf337a1841ecd397c239e0987aa8914ce3e56e52ac6e9386402d4",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:192",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-sensory-scenario",
       "automatic_recall": false
@@ -4328,6 +7254,7 @@
       "source_index": 194,
       "source_sha256": "780e0d287d353dbebd45071fe709961eff54c1bf855720b6c237181e3946b433",
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:193",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-dialogue-style",
       "automatic_recall": false
@@ -4337,6 +7264,7 @@
       "source_index": 195,
       "source_sha256": "36b91b37c0f0037c85e0650a84249ec4c0f9392f7cf7427b3c8338230a3dd68e",
       "decision_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4:195",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-output-format",
       "automatic_recall": false
@@ -4346,6 +7274,7 @@
       "source_index": 196,
       "source_sha256": "08ac6b8afbdbc656fd3536952c5da190b07e008a155e8c57b908a8773c239cf0",
       "decision_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4:196",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-output-format",
       "automatic_recall": false
@@ -4355,6 +7284,7 @@
       "source_index": 197,
       "source_sha256": "cf7c583bd698b31920f72810aa61de1ec5312a780e32f26280dd47fba52a488a",
       "decision_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4:197",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-choice-rules",
       "automatic_recall": false
@@ -4364,6 +7294,7 @@
       "source_index": 198,
       "source_sha256": "75086a136b57bb5ee89bd5bc8160c62ee6323ed8364f8c6bae9798630ef1a7b8",
       "decision_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4:198",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-output-format",
       "automatic_recall": false
@@ -4373,6 +7304,7 @@
       "source_index": 199,
       "source_sha256": "8d550e6fd2a5afd6250624a77832d5906af657d9ba092ccb61d8d12ead1a3659",
       "decision_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4:199",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-output-format",
       "automatic_recall": false
@@ -4382,6 +7314,7 @@
       "source_index": 200,
       "source_sha256": "86a78778632d2631b50971b3cbb368080a36707540f949c979ef290964ce0bf7",
       "decision_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4:200",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-visual-style",
       "automatic_recall": false
@@ -4391,6 +7324,7 @@
       "source_index": 201,
       "source_sha256": "ab6f1b1aae99b2719ea66e8a65ebdbd8db2fa2d9ff5ac6f63bdee05dd9d6e4f4",
       "decision_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4:201",
+      "review_method": "manual-layer-review",
       "status": "reviewed-not-published",
       "route": "author-output-format",
       "automatic_recall": false
