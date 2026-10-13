@@ -173,5 +173,6 @@ test("custom OpenAI loopback connection reuses LM Studio local transport without
   expect(await page.evaluate(() => window.BAOChatAPISettings?.open?.())).toBe(true);
   await expect(dialog).toBeVisible();
   await expect(dialog.locator('[name="baseUrl"]')).toHaveValue("http://127.0.0.1:1235/v1");
-  await expect(dialog.locator('[name="key"]')).toHaveAttribute("placeholder", /免填/);
+  await dialog.getByRole("button", { name: "測試連線（可能計費）" }).click();
+  await expect(dialog.locator(".bao-chat-api-error")).toContainText("連線測試成功");
 });
