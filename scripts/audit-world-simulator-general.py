@@ -37,6 +37,13 @@ SOURCE_SPECIFIC = {"572f3222-5746-43cc-ae16-60239eac041c": {
     247: ("magic-specialization", "41afe03b037cb97a4fd0322dc66708a6756077db75ba360ed3147dcafd29ff3c"),
 }}
 
+# These sources occur in two selected books, not all three.
+CAREER_SOURCES = {200: ('career-commissions', '0503328b8961831d039592c25ec04e476480f3d6d44ced6386158e94c8393465'),
+ 201: ('work-deadlines', '95743125e36511a59e3945eec5df8db4ed036ff86bb2d4dde83ce3bf48695df7'),
+ 202: ('reward-recovery', 'acbdc603b8d871c7fc3b822dd5a16c8e44f04be6cb2891b7b7779d295a5e085f')}
+for _bid in ['f604df12-4eb7-48c0-b2f0-6c942d6204fa', '572f3222-5746-43cc-ae16-60239eac041c']:
+    SOURCE_SPECIFIC.setdefault(_bid, {}).update(CAREER_SOURCES)
+
 def sha(text):
     return hashlib.sha256(text.encode("utf-8")).hexdigest()
 
@@ -53,12 +60,15 @@ def audit(archive, root):
         raise ValueError("Source revision changed")
     canonical = by_id[next(iter(BOOKS))]
     adapted_hashes = {sha(canonical["entries"][i]["content"].strip()) for i in SELECTED}
+    specific_hashes = {}
+    common_hashes = set(adapted_hashes)
     for bid, sources in SOURCE_SPECIFIC.items():
         for index, (entry_id, digest) in sources.items():
             if entry_id not in entries or sha(by_id[bid]["entries"][index]["content"].strip()) != digest:
                 raise ValueError("Reviewed book-specific adaptation changed")
-            if digest in adapted_hashes:
+            if digest in common_hashes or (digest in specific_hashes and specific_hashes[digest] != entry_id):
                 raise ValueError("Duplicate book-specific adaptation")
+            specific_hashes[digest] = entry_id
             adapted_hashes.add(digest)
     decisions = json.loads((root / "data/world-simulator-layer-review.json").read_text())["decisions"]
     routes = {}
@@ -116,7 +126,7 @@ def audit(archive, root):
         if any(current.get((r["book_id"], r["source_index"])) != r["source_sha256"]
                for r in old["records"] + old.get("review_records", [])):
             raise ValueError("Reviewed source changed; review before updating")
-    return {"schema": "yorubay-world-simulator-general-review", "version": 10,
+    return {"schema": "yorubay-world-simulator-general-review", "version": 11,
             "source_count": sum(BOOKS.values()), "adopted_occurrences": len(records),
             "unique_adapted_sources": len({r["source_sha256"] for r in records}),
             "reviewed_unpublished_occurrences": len(review_records),

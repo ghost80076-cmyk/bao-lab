@@ -7,7 +7,7 @@ const crypto = require('node:crypto');
 const packs = catalog.packs.map(core.normalizePack);
 const ids = packs.map(p => p.meta.id);
 assert.equal(packs.length, 6);
-assert.equal(packs.flatMap(p => p.entries).length, 53);
+assert.equal(packs.flatMap(p => p.entries).length, 56);
 assert.ok(packs.every(p => p.meta.world === 'general' && p.meta.classification === 'scenario'));
 assert.ok(packs.every(p => p.entries.every(e => e.mode === 'keyword' && !e.review_required)));
 for (const [query, title] of [['奇幻劇本', '奇幻冒險'], ['玄幻劇本', '玄幻歷練'], ['末日生存', '末世生存'], ['科幻世界', '科幻探索'], ['職場劇本', '現代都市'], ['錦標賽', '熱血競技']]) {
@@ -26,14 +26,31 @@ assert.equal(core.select(packs, ids, {latestUser: '奇幻劇本'}, {recallMode:'
 assert.match(core.select(packs, ids, {location:'賽博都市'}, {recallMode:'scene'}).text, /科幻探索/);
 const hash = text => crypto.createHash('sha256').update(text).digest('hex');
 assert.equal(coverage.source_count, 662);
-assert.equal(coverage.records.length, 170);
-assert.equal(new Set(coverage.records.map(r => r.source_sha256 )).size, 60);
+assert.equal(coverage.records.length, 176);
+assert.equal(new Set(coverage.records.map(r => r.source_sha256) ).size, 63);
 for (const record of coverage.records) {
   const e = packs.find(p => p.meta.id === record.pack_id).entries.find(e => e.id === record.entry_id);
   assert.equal(hash(e.content), record.published_sha256);
   assert.equal(record.status, 'partial-adaptation');
 }
-assert.equal(coverage.books.reduce((n,b)=>n+b.pending_indices.length,0), 410);
+assert.equal(coverage.books.reduce((n,b)=>n+b.pending_indices.length,0), 404);
+const life = packs.find(p=>p.meta.id==='world-simulator-life-reference');
+assert.equal(life.entries.length,5);
+for(const entry of life.entries.slice(2)) {
+  for(const query of entry.keywords) {
+    assert.deepEqual(core.select(packs,ids,{latestUser:query}).entries.map(e=>e.identity),[life.meta.id+':'+entry.id]);
+    assert.equal(core.select(packs,ids,{latestUser:query},{recallMode:'off'}).text,'');
+    assert.equal(core.select(packs,ids,{latestUser:query},{recallMode:'scene'}).text,'');
+    assert.match(core.select(packs,ids,{location:query},{recallMode:'scene'}).text,new RegExp(entry.title));
+    assert.equal(core.select(packs,ids.filter(id=>id!==life.meta.id),{latestUser:query}).text,'');
+  }
+  const records=coverage.records.filter(r=>r.entry_id===entry.id);
+  assert.equal(records.length,2);
+  assert.equal(new Set(records.map(r=>r.source_sha256)).size,1);
+  assert.ok(records.every(r=>r.book_id!=='59d9fbcd-d5f8-47aa-99fb-a101675230e4'));
+}
+for(const query of ['工作','公司','報酬','合約','期限','職業','升級'])
+  assert.equal(core.select([life],[life.meta.id],{latestUser:query}).text,'');
 const adventure = packs.find(p=>p.meta.id==='world-simulator-adventure-reference');
 assert.equal(adventure.entries.length,9);
 for(const entry of adventure.entries.slice(4)) {
@@ -76,7 +93,7 @@ assert.equal(sameSource.entries.length, 1, 'multiple signals do not duplicate a 
 for (const book of coverage.books) {
   assert.equal(new Set([...book.adapted_indices, ...book.reviewed_unpublished_indices, ...book.pending_indices]).size, book.source_count);
   assert.equal(book.adapted_indices.length + book.reviewed_unpublished_indices.length + book.pending_indices.length, book.source_count);
-  assert.equal(book.adapted_indices.length, book.book_id === '572f3222-5746-43cc-ae16-60239eac041c' ? 60 : 55);
+  assert.equal(book.adapted_indices.length, book.book_id === '572f3222-5746-43cc-ae16-60239eac041c' ? 63 : book.book_id === 'f604df12-4eb7-48c0-b2f0-6c942d6204fa' ? 58 : 55);
   assert.equal(book.reviewed_unpublished_indices.length, book.book_id === '59d9fbcd-d5f8-47aa-99fb-a101675230e4' ? 27 : book.book_id === '572f3222-5746-43cc-ae16-60239eac041c' ? 33 : 22);
 }
 const plotPacks = packs.filter(p=>['world-simulator-romance-reference','world-simulator-intrigue-reference'].includes(p.meta.id));
@@ -165,4 +182,4 @@ for(const query of ['控制','佔有','征服','依賴','迴避','人格']) {
   assert.equal(core.select([relationship],[relationship.meta.id],{latestUser:query}).text,'');
 }
 assert.doesNotMatch(fs.readFileSync(require.resolve('../data/world-simulator-general-library.json'),'utf8'), /忽略.*規則|開發者模式|性慾|體位|世界真相/);
-console.log('PASS general simulator: 6 categories, 53 entries, 170 adapted + 82 reviewed-unpublished + 410 pending references; merged sources, layer evidence, recall isolation, modes and budget');
+console.log('PASS general simulator: 6 categories, 56 entries, 176 adapted + 82 reviewed-unpublished + 404 pending references; merged sources, layer evidence, recall isolation, modes and budget');

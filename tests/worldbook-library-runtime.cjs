@@ -55,7 +55,7 @@ vm.runInNewContext(source, context, { filename: "worldbook-library.js" });
   const simulatorGroup = modes.groupPacks(listed).filter(g=>g.name==='通用世界模擬器');
   assert.equal(simulatorGroup.length,1,'new entries stay inside one player-facing book');
   assert.equal(simulatorGroup[0].packs.length,6,'this batch adds no category');
-  assert.equal(simulatorGroup[0].packs.reduce((sum,p)=>sum+p.entries.length,0),53);
+  assert.equal(simulatorGroup[0].packs.reduce((sum,p)=>sum+p.entries.length,0),56);
   assert.ok(listed.some(p => p.meta.id === "world-simulator-adventure-reference"), "public shared catalog is discoverable");
   assert.equal(modes.setRecallMode("off"), true);
   const off = await App.buildMessages();
@@ -140,6 +140,16 @@ vm.runInNewContext(source, context, { filename: "worldbook-library.js" });
       else assert.doesNotMatch(result.at(-1).content,new RegExp(title));
     }
   }
+  const lifeId='world-simulator-life-reference';
+  const historicalLife=JSON.parse(JSON.stringify(listed.find(p=>p.meta.id===lifeId)));
+  historicalLife.entries=historicalLife.entries.slice(0,2);
+  historicalLife.meta.release='0.1.0';
+  GameState.current.worldbookLibrary={version:1,enabled:[lifeId],installed:[],pinned:{[lifeId]:historicalLife},recallMode:'auto'};
+  assert.equal((await modes.all()).find(p=>p.meta.id===lifeId).entries.length,2);
+  Chat.messages=[{role:'user',content:'職涯委託'}];
+  const oldLifePrompt=await App.buildMessages();
+  assert.doesNotMatch(oldLifePrompt.at(-1).content,/職涯委託參考/);
+  assert.equal(oldLifePrompt[0].content,'PLATFORM STABLE PREFIX');
   const adventureId='world-simulator-adventure-reference';
   const historicalAdventure=JSON.parse(JSON.stringify(listed.find(p=>p.meta.id===adventureId)));
   historicalAdventure.entries=historicalAdventure.entries.slice(0,4);
