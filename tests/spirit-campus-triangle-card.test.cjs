@@ -7,7 +7,7 @@ const sidecar=require('../data/characters/community/98/spirit-campus-triangle.re
 const UI=require('../js/gameplay-ui-core.js');
 const Regex=require('../js/author-regex-core.js');
 const sandbox={console};vm.createContext(sandbox);
-vm.runInContext(fs.readFileSync(require.resolve('../js/character.js'),'utf8')+'\\nthis.engine=CharacterEngine;',sandbox);
+vm.runInContext(fs.readFileSync(require.resolve('../js/character.js'),'utf8')+'\nthis.engine=CharacterEngine;',sandbox);
 const engine=sandbox.engine;
 assert.equal(card.schema_version,'1.5');
 assert.equal(card.meta.author_id,'banzhang');
@@ -32,7 +32,7 @@ assert.equal(sidecar.characterId,card.meta.id);
 const rules=Regex.normalize(sidecar);
 const opening=Regex.render(card.content.greeting,rules,false);
 assert.equal(opening.matched,false);
-const rendered=Regex.render('【YB:SPIRIT:NOTICE】\\n實習表已公告。\\n【/YB:SPIRIT:NOTICE】',rules,false);
+const rendered=Regex.render('【YB:SPIRIT:NOTICE】\n實習表已公告。\n【/YB:SPIRIT:NOTICE】',rules,false);
 assert.equal(rendered.matched,true);
 assert.match(rendered.text||rendered.html||JSON.stringify(rendered),/實習表已公告/);
 const noMatch=Regex.render('小雪看了看你，沒有說話。',rules,false);
