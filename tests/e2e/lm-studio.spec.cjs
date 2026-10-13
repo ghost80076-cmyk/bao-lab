@@ -31,7 +31,7 @@ test('LM Studio model discovery, no-key story request and resume', async ({ page
   await page.evaluate(() => App.setStep(5));
   await page.locator('#start-story').click();
   await expect(page.locator('#user-input')).toBeVisible();
-  await expect(page.evaluate(() => typeof window.BAOLMStudio?.open)).resolves.toBe('function');
+  expect(await page.evaluate(() => typeof window.BAOLMStudio?.open)).toBe('function');
   await page.locator('#user-input').fill('你好，本地 AI');
   await page.locator('#chat-view .composer button.primary').click();
   await expect(page.locator('#chat-stream')).toContainText('本地模型回覆成功');
