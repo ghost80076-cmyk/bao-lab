@@ -142,6 +142,8 @@ jobs:
         run: node tests/pheromone-bond-abo-simulator-card.test.cjs
       - name: Han Seoyeon Seven-Day Contract Lover card
         run: node tests/han-seoyeon-seven-day-contract-lover-card.test.cjs
+      - name: Spirit academy triangle world card
+        run: node tests/spirit-campus-triangle-card.test.cjs
       - name: Lin Qiaorou slow-burn yandere card
         run: node tests/lin-qiaorou-always-nearby-card.test.cjs
       - name: Collar Class F-to-S world card

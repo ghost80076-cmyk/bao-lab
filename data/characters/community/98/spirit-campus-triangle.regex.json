@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "type": "yorubay-author-regex-mod",
+  "scope": "assistant_display",
+  "characterId": "spirit-campus-triangle",
+  "regex_scripts": [
+    {
+      "scriptName": "靈力世界｜課務公告",
+      "description": "重大選修、協會通告與公開課務事件的顯示卡，不更新遊戲狀態。",
+      "priority": 65,
+      "findRegex": "【YB:SPIRIT:NOTICE】\\s*([\\s\\S]*?)\\s*【/YB:SPIRIT:NOTICE】",
+      "flags": "g",
+      "replaceString": "<section style=\"white-space:pre-wrap;line-height:1.75;background:#1f2420;color:#ebe9e1;border:1px solid #53644d;border-left:4px solid #a4b49a;border-radius:14px;padding:14px 16px;overflow-wrap:anywhere\"><strong style=\"display:block;color:#c8d7bd;margin-bottom:8px\">南雲學院｜課務與協會公告</strong>$1</section>"
+    },
+    {
+      "scriptName": "靈力世界｜共鳴異常通報",
+      "description": "真正重大共鳴事故才輸出卡片；普通劇情不加標記。",
+      "priority": 55,
+      "findRegex": "【YB:SPIRIT:ALERT】\\s*([\\s\\S]*?)\\s*【/YB:SPIRIT:ALERT】",
+      "flags": "g",
+      "replaceString": "<section style=\"white-space:pre-wrap;line-height:1.75;background:#261e23;color:#f0e8e8;border:1px solid #704653;border-left:4px solid #ce8f9b;border-radius:14px;padding:14px 16px;overflow-wrap:anywhere\"><strong style=\"display:block;color:#eeb5c0;margin-bottom:8px\">共鳴異常｜事件紀錄</strong>$1</section>"
+    }
+  ]
+}
