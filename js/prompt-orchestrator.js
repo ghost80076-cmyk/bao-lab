@@ -39,6 +39,15 @@
     "願望、假設、否定、引述及尚待判定的嘗試不算完成；仍依世界規則與因果判定結果，不自動移動 NPC，不改寫固定人設或資訊邊界。"
   ].join("\n");
 
+  // Yume-only compatibility rule: also applies to old saved character snapshots.
+  // Keep it in the stable system prefix, not the per-turn anchor or UI cleanup.
+  const YUME_OUTPUT_RULE = [
+    "【黑羽ゆめ｜語言與場景】",
+    "場景旁白、人物動作及環境描述使用自然繁體中文；保留日文人名及日本專有詞。日語角色可說日文，但應緊接繁中譯文，不能將整段旁白改成日文。",
+    "只輸出可閱讀的敘事與台詞；不要模仿舊回覆中的 CHAR 角色標籤、NARRATION 段落標籤或其結尾標籤。",
+    "玩家已進便利店且未離開時，場景就在店內；不得因舊開場再次邀請進店或重問帶傘。依最新行動與已確認事件續寫，不擅自讓其他 NPC 跟著進店。"
+  ].join("\\n");
+
   // Only add a model patch where BAO/LAB has an observed failure mode.
   // Modern models that do not need a patch should receive no extra prose coaching.
   const MODEL_GUIDANCE = {
@@ -80,7 +89,7 @@
     const messages = await next(config);
     const result = Array.isArray(messages) ? messages.map(message => ({ ...message })) : [];
     const api = config?.api || config || {};
-    const stableAdapter = [PRIORITY_PROMPT, PLAYER_AGENCY_RULE, SCENE_PARTICIPATION_RULE, DIALOGUE_REALISM_RULE, STATE_CONTINUITY_RULE, guidanceFor(api)].filter(Boolean).join("\n\n");
+    const yumeRule = this.activeCharacter?.id === "kurobane-yume-kabukicho" ? YUME_OUTPUT_RULE : "";\n    const stableAdapter = [PRIORITY_PROMPT, PLAYER_AGENCY_RULE, SCENE_PARTICIPATION_RULE, DIALOGUE_REALISM_RULE, STATE_CONTINUITY_RULE, guidanceFor(api), yumeRule].filter(Boolean).join("\n\n");
 
     if (result[0]?.role === "system") {
       result[0].content = appendBlock(result[0].content, stableAdapter);
