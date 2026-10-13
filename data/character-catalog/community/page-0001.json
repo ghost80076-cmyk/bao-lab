@@ -1658,5 +1658,45 @@
     "version_published_at": "2026-10-13T11:11:00Z",
     "author": "班長",
     "author_id": "banzhang"
+  },
+  {
+    "id": "spirit-campus-triangle",
+    "file": "data/characters/community/98/spirit-campus-triangle.json",
+    "name": "靈力世界｜青梅、校花與共鳴學園",
+    "title": "靈力世界｜青梅、校花與共鳴學園",
+    "avatar": "assets/bao-world-core.webp",
+    "category": "male",
+    "rating": "adult",
+    "gender": "all",
+    "tags": [
+      "男性向",
+      "都市異能",
+      "成人學園",
+      "靈力共鳴",
+      "青梅竹馬",
+      "校花女友",
+      "三角戀",
+      "親密教育",
+      "自主NPC",
+      "外部壓力",
+      "資訊隔離",
+      "世界模擬",
+      "原生狀態UI"
+    ],
+    "description": "都市靈力 × 成人高等學院 × 被遺忘的親密知識 × 青梅與校花三角戀。從學生會、共鳴實習和異能事件開始；外部 NPC 有自己的課表、感情與壓力，世界不等你選才前進。",
+    "supported_modes": {
+      "immersive": true,
+      "world": true
+    },
+    "supported_display": {
+      "text": true,
+      "ui": true
+    },
+    "published_at": "2026-10-13T16:45:00Z",
+    "updated_at": "2026-10-13T16:45:00Z",
+    "published_version": 1,
+    "version_published_at": "2026-10-13T16:45:00Z",
+    "author": "班長",
+    "author_id": "banzhang"
   }
 ]
