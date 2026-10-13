@@ -1,13 +1,13 @@
 {
   "schema": "yorubay-world-simulator-general-review",
-  "version": 8,
+  "version": 9,
   "source_count": 662,
-  "adopted_occurrences": 165,
-  "unique_adapted_sources": 55,
+  "adopted_occurrences": 170,
+  "unique_adapted_sources": 60,
   "reviewed_unpublished_occurrences": 71,
   "unique_reviewed_unpublished_sources": 30,
   "pack_count": 6,
-  "chapter_count": 48,
+  "chapter_count": 53,
   "scope": "Public adapted chapters and metadata-only layer routing. Reviewed-not-published does not mean integrated. No full-book migration or model-dialogue evaluation claimed.",
   "books": [
     {
@@ -287,7 +287,12 @@
         185,
         186,
         187,
-        188
+        188,
+        232,
+        242,
+        243,
+        245,
+        247
       ],
       "reviewed_unpublished_indices": [
         32,
@@ -469,7 +474,6 @@
         229,
         230,
         231,
-        232,
         233,
         234,
         235,
@@ -479,12 +483,8 @@
         239,
         240,
         241,
-        242,
-        243,
         244,
-        245,
         246,
-        247,
         248,
         249,
         250
@@ -1801,6 +1801,56 @@
       "pack_id": "world-simulator-relationship-reference",
       "entry_id": "challenge-drive",
       "published_sha256": "b677dc3048aa11e133dd677c9dae8742e154f0d3a91c274f8b940320d30a8dfd",
+      "status": "partial-adaptation",
+      "not_verbatim": true
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 232,
+      "source_sha256": "d10d669b781d759c831366eda9919e7df07f0734678b4efe1002fa2266e2cde5",
+      "pack_id": "world-simulator-adventure-reference",
+      "entry_id": "fragile-peace",
+      "published_sha256": "6f05331110263988414eaf0c4f146650411e366dd93ad3ef50cdc7b5642dc6d2",
+      "status": "partial-adaptation",
+      "not_verbatim": true
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 242,
+      "source_sha256": "d31e47b40dfad99fdc0cf91aaea4bc9105b5d7e9e8ee41d310dcfbd203de9871",
+      "pack_id": "world-simulator-adventure-reference",
+      "entry_id": "guild-commissions",
+      "published_sha256": "5c7550c5bcf8fb3f0a8d390924bd68c1dea352070c551872a99f4764fbd0260e",
+      "status": "partial-adaptation",
+      "not_verbatim": true
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 243,
+      "source_sha256": "901b407cb9503ddd691945d6cc8eb58416d5b7cf7c4d75251b57f9833eac6730",
+      "pack_id": "world-simulator-adventure-reference",
+      "entry_id": "everyday-quests",
+      "published_sha256": "67e14b268a5c6ac48a3a57ad9203955d068ad6bff9c07e9e6fe544a1038a0324",
+      "status": "partial-adaptation",
+      "not_verbatim": true
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 245,
+      "source_sha256": "b9991a3e6fc456dee7263bf2a31c87304825b326f5bd3cbdb160be6413f5c394",
+      "pack_id": "world-simulator-adventure-reference",
+      "entry_id": "recurring-npc",
+      "published_sha256": "997b26f159d774d690c25e5a4327187e76436501e05de904866718a6217f3f5b",
+      "status": "partial-adaptation",
+      "not_verbatim": true
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 247,
+      "source_sha256": "41afe03b037cb97a4fd0322dc66708a6756077db75ba360ed3147dcafd29ff3c",
+      "pack_id": "world-simulator-adventure-reference",
+      "entry_id": "magic-specialization",
+      "published_sha256": "15cb74bc763964c7b5d1642f0134ff85c5d1e60800622cfec633ada876fec118",
       "status": "partial-adaptation",
       "not_verbatim": true
     },

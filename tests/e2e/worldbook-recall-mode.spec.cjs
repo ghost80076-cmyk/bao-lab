@@ -40,6 +40,10 @@ for (const width of [1280, 390]) {
     await relationship.check({ force: true });
     expect(await page.evaluate(() => JSON.parse(window.recallSaved).worldbookLibrary.enabled))
       .toContain('world-simulator-relationship-reference');
+    const adventure = modal.locator('input[aria-label="通用世界模擬器｜冒險題材參考"]');
+    await expect(adventure).not.toBeChecked();
+    await adventure.check({ force: true });
+    expect(await page.evaluate(() => JSON.parse(window.recallSaved).worldbookLibrary.pinned['world-simulator-adventure-reference'].entries.length)).toBe(9);
     await mode.selectOption('off');
     expect(await page.evaluate(() => JSON.parse(window.recallSaved).worldbookLibrary.recallMode)).toBe('off');
     await modal.locator('[data-close]').click({ force: true });
