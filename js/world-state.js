@@ -1,4 +1,6 @@
 const WorldStateEngine = {
+  continuityRule: "目前狀態是上次整理的快照，可能過期。依輪次先後核對：較新的已確認事件優先；玩家明示的合理行動若已完成，不得因故事仍重問舊邀請就退回開場。願望、假設、否定、引述、受阻或尚待判定的嘗試不算完成；不自動移動其他 NPC，不補造結果。",
+
   // Record the original UI-based default only once for old stories. After that,
   // rendering preferences cannot silently enable or disable an auxiliary API.
   ensureTrackingPreference(config) {
@@ -43,6 +45,7 @@ const WorldStateEngine = {
       "你是角色扮演遊戲的狀態整理器，不是故事作者。",
       "根據本輪玩家輸入與故事回覆，只更新有明確依據的世界狀態。",
       "不得自行新增未發生的劇情。沒有變化的欄位請保留原值。",
+      this.continuityRule,
       "npcs 是人物狀態的 PATCH，不是全島完整名單；只依場景可證實的人物進出更新 presence：present（在場）、away（離場）、unknown（不確定）。轉場後不能把原登記員自動視為在場，既有人物資料仍要保留。",
       "NPC 連續性：更新既有人物時沿用目前狀態的 npc_id；新人物不填 npc_id，由系統建立。新人物可填 aliases、appearance（固定外貌）與 outfit（當前穿著）。既有人物的固定 appearance 必須沿用；只有故事明確造成長期外貌變化時，才同時回傳 appearance 與 appearance_change:true。只有文本明確換裝時才更新 outfit。first_seen 由系統建立，不得輸出或捏造。別名對應到既有人物時沿用其正式姓名，不重複建檔。",
       "world_clock 是可選 PATCH。只有故事明確經過一段時間時才寫 advance_minutes；只有文本明確建立日期、期限、約定、旅程耗時或倒數時才 schedule。不得自行創造伏筆或未發生事件。resolve/cancel 只能引用目前狀態中已存在的 wc-* ID。",

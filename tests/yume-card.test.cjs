@@ -68,3 +68,16 @@ assert.deepEqual(visible.phones.map(item=>item.body),['我晚點回覆']);
 assert.equal(visible.sns[0].actor,'misaki');
 assert.doesNotMatch(card.content.author_instructions,/每回合.*必須.*\[REL/);
 console.log('PASS Yume card manifest, cover, adult cast, general rating and shared NPC lookups');
+
+assert.doesNotMatch(card.content.author_instructions,/\[CHAR[: ]/);
+const legacyCard=structuredClone(card);
+legacyCard.content.author_instructions+='才附加 [CHAR:yume]可觀察動態[/CHAR]、[PHONE:yume]訊息[/PHONE]';
+assert.doesNotMatch(engine.composeSystemPrompt(legacyCard),/\[CHAR:yume\]/);
+assert.match(legacyCard.content.author_instructions,/\[CHAR:yume\]/,'request repair must preserve the saved source');
+assert.match(engine.composeSystemPrompt(legacyCard),/\[PHONE:yume\]/,'archive contracts must remain available');
+assert.doesNotMatch(JSON.stringify(card.gameplay.initial_state),/玩家在店門外/);
+for(const key of ['action','location']) {
+  const field=card.gameplay.character_status.fields.find(field=>field.key===key);
+  assert.equal(field.context,'relevant');
+  assert.equal(field.track,true);
+}

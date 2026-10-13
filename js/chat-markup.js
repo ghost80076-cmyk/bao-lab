@@ -129,7 +129,7 @@
   let sceneScript = document.querySelector('script[src^="js/scene-html-modes.js"]');
   if (!sceneScript) {
     const script = document.createElement('script');
-    script.src = 'js/scene-html-modes.js?v=2';
+    script.src = 'js/scene-html-modes.js?v=3';
     script.onerror = () => console.warn('BAO/LAB scene HTML controls failed to load');
     script.addEventListener('load', loadSceneStoryPreferences, { once: true });
     document.head.appendChild(script);

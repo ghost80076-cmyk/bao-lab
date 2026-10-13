@@ -15,3 +15,16 @@ assert.equal(collect([a,{...b,id:'a',content:'[REL:yume|ryusei]已確認[/REL]'}
 assert.equal(isYume({name:'黑羽 ゆめ【病嬌】'}),true);
 assert.equal(isYume({name:'其他角色'}),false);
 console.log('PASS Yume relationship archive: tags, branch projection, ID collisions, spoofing and card isolation');
+
+const {stripCharacterMarkers}=require('../js/yume-relationship-archive.js');
+const card={name:'黑羽 ゆめ｜歌舞伎町・午前零時'};
+const raw='[NARRATION]雨聲。[/NARRATION]\n[CHAR:yume]\n「便利店有熱飲。」\n[SCENE:communication]\n[NARRATION]門已關上。';
+const cleaned=stripCharacterMarkers(raw,card);
+assert.equal(cleaned,raw.replace('[CHAR:yume]\n',''));
+assert.equal(stripCharacterMarkers('[CHAR:yume]她放下雨傘。[/CHAR]',card),'她放下雨傘。');
+assert.equal(stripCharacterMarkers('[CHAR yume]\n她放下雨傘。',card),'她放下雨傘。');
+assert.equal(stripCharacterMarkers(raw,{name:'其他角色'}),raw);
+for(const literal of ['標記是 [CHAR:yume]。','範例：[CHAR:yume]內容[/CHAR]','[CHAR:hacker]\n保留內容','[PHONE:yume]收到訊息[/PHONE]']) {
+  assert.equal(stripCharacterMarkers(literal,card),literal);
+}
+console.log('PASS Yume legacy CHAR normalization: narrow scope, full prose, quoted text and archive tags');

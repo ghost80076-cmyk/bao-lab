@@ -432,7 +432,7 @@
     if (!GameState.current) return base;
     const compact = window.BAOCharacterStatus.compactForPrompt(latestUserText(), { maxCharacters: 4, maxChars: 1400, consumeViewed: false });
     if (!compact.text) return base;
-    return `${base}\n\n【本輪人物狀態】\n${compact.text}\n只把這些狀態視為目前事實；不要替玩家補心理、台詞或未發生的行動。`;
+    return `${base}\n\n【本輪人物狀態】\n${compact.text}\n以上是上次整理的人物快照，可能尚未反映最近對話。若位置或行動與較新的已確認事件衝突，以較新事件為準；不要替玩家補心理、台詞或未發生的行動。`;
   };
 
   const originalRender = App.renderChatShell.bind(App);
