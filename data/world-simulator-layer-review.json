@@ -1,6 +1,6 @@
 {
   "schema": "yorubay-world-simulator-layer-review",
-  "version": 2,
+  "version": 3,
   "scope": "Metadata-only routing of common and book-specific author sources; no raw bodies, no new command handlers, no full integration claim.",
   "decisions": [
     {
@@ -551,6 +551,204 @@
       ],
       "decision_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4:201",
       "source_sha256": "ab6f1b1aae99b2719ea66e8a65ebdbd8db2fa2d9ff5ac6f63bdee05dd9d6e4f4",
+      "expected_occurrences": 1
+    },
+    {
+      "source_book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 227,
+      "route": "author-quest-rules",
+      "status": "reviewed-not-published",
+      "implementation": "partial-overlap",
+      "automatic_recall": false,
+      "reason": "原文七階段主線、固定解鎖及隱藏任務是作品專屬流程；任務模組可存已確認任務，但未加入原文自動推進、獎勵判定或結局條件。",
+      "evidence": [
+        {
+          "path": "js/world-modules.js",
+          "needle": "quests: { label: \"任務\""
+        }
+      ],
+      "decision_id": "572f3222-5746-43cc-ae16-60239eac041c:227",
+      "source_sha256": "3c44a5c0878edc0da6702912abdbc08f70f3d39562af48ba1552c244127fdf81",
+      "expected_occurrences": 1
+    },
+    {
+      "source_book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 228,
+      "route": "author-skill-rules",
+      "status": "reviewed-not-published",
+      "implementation": "partial-overlap",
+      "automatic_recall": false,
+      "reason": "技能表、等級效果及角色專屬解鎖需要作品配置；既有技能模組不等於原文技能樹、數值計算或解鎖器已完成。",
+      "evidence": [
+        {
+          "path": "js/world-modules.js",
+          "needle": "skills: { label: \"技能\""
+        }
+      ],
+      "decision_id": "572f3222-5746-43cc-ae16-60239eac041c:228",
+      "source_sha256": "b0adeb3339026df7e6553ead290ca077339adf733f6275184231f1e454fc501b",
+      "expected_occurrences": 1
+    },
+    {
+      "source_book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 229,
+      "route": "author-achievement-rules",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "reason": "成就分類、門檻及獎勵需作品逐項配置；本批沒有新增成就判定器、全收集驗證或自動授予獎勵。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        }
+      ],
+      "decision_id": "572f3222-5746-43cc-ae16-60239eac041c:229",
+      "source_sha256": "90cee2bb5e3c44ccaa038031c40b82a5d3a0fbc36f0de110e6cab4a44728ffe0",
+      "expected_occurrences": 1
+    },
+    {
+      "source_book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 233,
+      "route": "author-opening-config",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "reason": "早段多身份選項與後段固定外來者設定存在版本覆蓋；搬運作品時須採用作者確認的最終開局，不能讓背景召回重設玩家或把舊選項再次開放。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "不得要求玩家重新填寫、重新選擇或重演建立流程"
+        }
+      ],
+      "decision_id": "572f3222-5746-43cc-ae16-60239eac041c:233",
+      "source_sha256": "0970196fb9c1443cc5a546375f2f58d42afcb8aacb40c882920b7dea353b383b",
+      "expected_occurrences": 1
+    },
+    {
+      "source_book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 234,
+      "route": "author-relationship-rules",
+      "status": "reviewed-not-published",
+      "implementation": "partial-overlap",
+      "automatic_recall": false,
+      "reason": "原文有正值階段與後續負值擴充；原生關係欄位僅有部分資料承載能力，不能套用其未知值語義作負好感，也未新增階段、反水及修復判定。",
+      "evidence": [
+        {
+          "path": "js/native-status-packs.js",
+          "needle": "-1 表示未知"
+        }
+      ],
+      "decision_id": "572f3222-5746-43cc-ae16-60239eac041c:234",
+      "source_sha256": "c3120c28e04bc5cc0b47f4a45ddf501835928c3f0d8405b81ef2a939464e074a",
+      "expected_occurrences": 1
+    },
+    {
+      "source_book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 235,
+      "route": "author-item-rules",
+      "status": "reviewed-not-published",
+      "implementation": "partial-overlap",
+      "automatic_recall": false,
+      "reason": "專屬道具、不可遺失條件、裝備效果及收集解鎖屬作品機制；背包模組可記錄物品，但未加入這些道具、效果計算或保護規則。",
+      "evidence": [
+        {
+          "path": "js/world-modules.js",
+          "needle": "inventory: { label: \"背包\""
+        }
+      ],
+      "decision_id": "572f3222-5746-43cc-ae16-60239eac041c:235",
+      "source_sha256": "981bff45aa50b408deec0dc358b6859753f94744906bbebcbbd69ef2cd223928",
+      "expected_occurrences": 1
+    },
+    {
+      "source_book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 236,
+      "route": "author-rival-rules",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "reason": "固定三位宿命對手、同步增強、命運回聲與陣營結局是作品專屬設定；不在通用召回新增敵人或跨角色私語共享，也未新增競速機制。",
+      "evidence": [
+        {
+          "path": "js/native-status-packs.js",
+          "needle": "其他 NPC 的秘密不得共享"
+        }
+      ],
+      "decision_id": "572f3222-5746-43cc-ae16-60239eac041c:236",
+      "source_sha256": "2790bc3f0f1c51fb6f42a9f8e8bb3fc7b8b91d7680189d3bcc40e2975cafdbb5",
+      "expected_occurrences": 1
+    },
+    {
+      "source_book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 240,
+      "route": "author-progression-rules",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "reason": "神化五階段、信仰供養與既有人物路線屬專屬成長機制；本批未實作信仰收支、階段突破、神域能力或神格結局。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        }
+      ],
+      "decision_id": "572f3222-5746-43cc-ae16-60239eac041c:240",
+      "source_sha256": "e70d34affc0faf9eba889684b4b0b982b88f6f99abb42ea8f8d35484172d2b61",
+      "expected_occurrences": 1
+    },
+    {
+      "source_book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 248,
+      "route": "author-status-schema",
+      "status": "reviewed-not-published",
+      "implementation": "partial-overlap",
+      "automatic_recall": false,
+      "reason": "玩家、魔法等級、戰鬥及親密區塊需轉換成作品欄位；原生狀態欄已有玩家及場景人物展示，但未移植原文永遠顯示清單或戰鬥計算。",
+      "evidence": [
+        {
+          "path": "js/native-status-packs.js",
+          "needle": "👤 玩家資料"
+        }
+      ],
+      "decision_id": "572f3222-5746-43cc-ae16-60239eac041c:248",
+      "source_sha256": "e9bd3af918090b18eefa4fce1a55ac49f735a08e0b69555d990c29f5144780cd",
+      "expected_occurrences": 1
+    },
+    {
+      "source_book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 249,
+      "route": "author-status-schema",
+      "status": "reviewed-not-published",
+      "implementation": "partial-overlap",
+      "automatic_recall": false,
+      "reason": "任務、資產、探索、關係危機及收集欄位需要作品專屬 schema；原生模組可提供部分資料，但未實作原文觸發與秘密顯示規則。",
+      "evidence": [
+        {
+          "path": "js/world-modules.js",
+          "needle": "economy: { label: \"資產\""
+        }
+      ],
+      "decision_id": "572f3222-5746-43cc-ae16-60239eac041c:249",
+      "source_sha256": "811c8972be4190390db8c70658035f8b875042e468f6b8df23f3edfcb0fa8510",
+      "expected_occurrences": 1
+    },
+    {
+      "source_book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 250,
+      "route": "author-status-schema",
+      "status": "reviewed-not-published",
+      "implementation": "partial-overlap",
+      "automatic_recall": false,
+      "reason": "社交、陣營、神化與按需區塊是作者展示設計；現有欄位綁定可配置展示，但不等於已移植其模組優先級、合併及觸發系統。",
+      "evidence": [
+        {
+          "path": "js/author-status-binding.js",
+          "needle": "作者狀態欄 · 欄位綁定"
+        }
+      ],
+      "decision_id": "572f3222-5746-43cc-ae16-60239eac041c:250",
+      "source_sha256": "4dc76ce4ecaebc3986326ae7eb83a707bee5510a225c710646ee9a7e3d340780",
       "expected_occurrences": 1
     }
   ]
