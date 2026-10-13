@@ -1,6 +1,6 @@
 {
   "schema": "yorubay-world-simulator-layer-review",
-  "version": 6,
+  "version": 7,
   "scope": "Metadata-only routing of common and book-specific author sources; no raw bodies, no new command handlers, no full integration claim.",
   "decisions": [
     {
@@ -1288,6 +1288,384 @@
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:96",
       "source_sha256": "24b94a7689d74d4031685b35ef0acc18a2d2fff11d80eeaf7f02df0fb3c306f6",
       "expected_occurrences": 3
+    },
+    {
+      "canonical_source_index": 2,
+      "route": "author-character-premise",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "reason": "人物綁定演員參考、親屬／前輩身份及固定關係轉變；本批未新增人物，也不把外貌參考、依賴或身份設定自動套給一般 NPC。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        },
+        {
+          "path": "js/actor-mode-core.js",
+          "needle": "角色具有慣性"
+        }
+      ],
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:2",
+      "source_sha256": "daf4dcf842959b77da198cea7e05835a73f6b453d4f6be32ea939a0700c8d170",
+      "expected_occurrences": 3
+    },
+    {
+      "canonical_source_index": 23,
+      "route": "author-character-premise",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "reason": "演員外貌、直接主動的角色定位及固定關係路線是一組專屬人設；未建立演員綁定、人物卡或預設反應，不能因角色性格就保證對玩家愛慕。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        },
+        {
+          "path": "js/actor-mode-core.js",
+          "needle": "角色具有慣性"
+        }
+      ],
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:23",
+      "source_sha256": "87d9b74450d4c4b6f6c6ff73afe36f200bbf55b69f257eac15a6123b6f75c32d",
+      "expected_occurrences": 3
+    },
+    {
+      "canonical_source_index": 24,
+      "route": "author-character-premise",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "reason": "原文外貌年齡表現、演員參考、依賴設定與關係終點彼此綁定；未建立角色、年齡改寫或自動攻略路線，不將這些綁定作通用人物模板。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        },
+        {
+          "path": "js/actor-mode-core.js",
+          "needle": "角色具有慣性"
+        }
+      ],
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:24",
+      "source_sha256": "d4754d6860c4438827988f7f072cd7eebfd9e21a8d76a881ca35c7eb86600f0d",
+      "expected_occurrences": 3
+    },
+    {
+      "canonical_source_index": 64,
+      "route": "author-director-workflow",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "reason": "演員世界前提與依玩家性別切換風格是作者導演協定；未新增此切換器或固定轉折流程，也不由背景召回改寫角色意願與反應。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        },
+        {
+          "path": "js/actor-mode-core.js",
+          "needle": "角色具有慣性"
+        }
+      ],
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:64",
+      "source_sha256": "8fb4467aa1ecc8142bc0e816970ae616ddf943240250fd627a8ad0d1e8a389a0",
+      "expected_occurrences": 3
+    },
+    {
+      "canonical_source_index": 189,
+      "route": "author-character-preference",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "reason": "特定偏好、泛化成因與角色反應屬作者人物設定；未新增診斷、成因映射或自動行為，不把某一偏好當所有人物的固定心理需求。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        },
+        {
+          "path": "js/actor-mode-core.js",
+          "needle": "角色具有慣性"
+        }
+      ],
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:189",
+      "source_sha256": "206596d165c9f8b28638c817b0755bf917dbff4dd3b9c3cfbbddfd23c871777f",
+      "expected_occurrences": 3
+    },
+    {
+      "canonical_source_index": 190,
+      "route": "author-sensory-scenario",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "reason": "感官偏好、施受角色及反應流程屬專屬場景設定；未新增刺激、程度或反應引擎，不將原文泛化的感受和成因寫成必然事實。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        },
+        {
+          "path": "js/actor-mode-core.js",
+          "needle": "角色具有慣性"
+        }
+      ],
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:190",
+      "source_sha256": "2ddd1781bdf4634ac2a36c9f04d29685426e34bcd65aab78517bcd15f2b0ccb2",
+      "expected_occurrences": 3
+    },
+    {
+      "canonical_source_index": 191,
+      "route": "author-extreme-scenario",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "reason": "極限感官題材與危險場景描寫需作品另行處理；本批未搬入原文操作段落、工具設定、身體反應或自動事件，不將場景描述當通用能力。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        },
+        {
+          "path": "js/actor-mode-core.js",
+          "needle": "角色具有慣性"
+        }
+      ],
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:191",
+      "source_sha256": "534b6da06a0e4292f2553a6759f2b876d20e30e77bfd58364f02afce714ea39b",
+      "expected_occurrences": 3
+    },
+    {
+      "canonical_source_index": 192,
+      "route": "author-sensory-scenario",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "reason": "特定感官偏好、象徵意義與固定反應是作者題材資料；未新增效果判定，也不以單一偏好推定人物人格、情緒或意願。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        },
+        {
+          "path": "js/actor-mode-core.js",
+          "needle": "角色具有慣性"
+        }
+      ],
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:192",
+      "source_sha256": "24a28c903b5bf337a1841ecd397c239e0987aa8914ce3e56e52ac6e9386402d4",
+      "expected_occurrences": 3
+    },
+    {
+      "canonical_source_index": 193,
+      "route": "author-dialogue-style",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "reason": "即時對話、用詞、語氣與節奏分型屬作者口吻設計；未把原文台詞寫入通用對話範例或強制所有人物使用同一語彙。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        },
+        {
+          "path": "js/actor-mode-core.js",
+          "needle": "角色具有慣性"
+        }
+      ],
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:193",
+      "source_sha256": "780e0d287d353dbebd45071fe709961eff54c1bf855720b6c237181e3946b433",
+      "expected_occurrences": 3
+    },
+    {
+      "canonical_source_index": 194,
+      "route": "author-character-premise",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "reason": "具名角色、演員參考、外貌與台詞庫需作完整人物配置；未新增該人物或演員身份，也不將其固定表達與反應推給其他 NPC。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        },
+        {
+          "path": "js/actor-mode-core.js",
+          "needle": "角色具有慣性"
+        }
+      ],
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:194",
+      "source_sha256": "93b268ef1e4ad131f00c7b07658a9daf7c67408188359407d4a34461c19598b8",
+      "expected_occurrences": 2
+    },
+    {
+      "canonical_source_index": 195,
+      "route": "author-dialogue-style",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "reason": "具名角色的語言系統與分階段口吻需依該角色配置；未新增諧音詞庫或階段切換，不能以語言風格自動推定關係進度。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        },
+        {
+          "path": "js/actor-mode-core.js",
+          "needle": "角色具有慣性"
+        }
+      ],
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:195",
+      "source_sha256": "c91bc31985061cdde8da8ea845e3509a8ff70744edc8e3b919b43c8ed25af24b",
+      "expected_occurrences": 2
+    },
+    {
+      "canonical_source_index": 196,
+      "route": "author-dialogue-style",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "reason": "承接同一人物的動作、聲音與台詞是角色演繹資料；未新增動作模板或台詞庫，不由背景召回直接覆寫人物行為。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        },
+        {
+          "path": "js/actor-mode-core.js",
+          "needle": "角色具有慣性"
+        }
+      ],
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:196",
+      "source_sha256": "1880982374267505bd7b1b46c8a8aa7176c04684277c470889400ceda81beadc",
+      "expected_occurrences": 2
+    },
+    {
+      "canonical_source_index": 203,
+      "route": "author-scene-template",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "reason": "此條目將佈景、活動、能力與參與者流程放在一起；隨作品搬運需分拆場景資料和事件規則，未新增場所、道具、控制能力或固定參與者。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        },
+        {
+          "path": "js/actor-mode-core.js",
+          "needle": "角色具有慣性"
+        }
+      ],
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:203",
+      "source_sha256": "f7af90b3d1f33b2cd14bfdf45e79db1f21ff0dc4fc1d56b81eb14418310d9950",
+      "expected_occurrences": 2
+    },
+    {
+      "canonical_source_index": 204,
+      "route": "author-scene-template",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "reason": "移動交通與休閒場所包含特定鏡頭和事件安排；未建立場所模板或觸發器，不將到達某場所直接當成原文事件成立。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        },
+        {
+          "path": "js/actor-mode-core.js",
+          "needle": "角色具有慣性"
+        }
+      ],
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:204",
+      "source_sha256": "62c164a868aab0c2a3a4e009190eb67e84ad58dbe9aaf7a586d959b55ca881f3",
+      "expected_occurrences": 2
+    },
+    {
+      "canonical_source_index": 205,
+      "route": "author-scene-template",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "reason": "場所、拍攝時間、評分加分及選擇排序是作品流程；未建立時間預算、場景評分或固定事故，不自動改寫任務和狀態。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        },
+        {
+          "path": "js/actor-mode-core.js",
+          "needle": "角色具有慣性"
+        }
+      ],
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:205",
+      "source_sha256": "17ecd9570e7e21ef60ec70e0ca7660da488fefae1d36aff20434b5e4a4ab2d20",
+      "expected_occurrences": 2
+    },
+    {
+      "canonical_source_index": 206,
+      "route": "author-scene-template",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "reason": "多種職業與公共場所混有參與者及事件流程；未新增職業人物、場所或事件，不把一般工作、休閒或接觸當成關係改變。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        },
+        {
+          "path": "js/actor-mode-core.js",
+          "needle": "角色具有慣性"
+        }
+      ],
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:206",
+      "source_sha256": "7bc14699d62f91bf54950a91596849729a0ecc7cc357801861fa6845a34e2577",
+      "expected_occurrences": 2
+    },
+    {
+      "canonical_source_index": 207,
+      "route": "author-scene-template",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "reason": "多個場所及特殊狀態包含能力與行為假設；未新增狀態效果或能力規則，不能由場所與狀態描述推定人物意願或已發生互動。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        },
+        {
+          "path": "js/actor-mode-core.js",
+          "needle": "角色具有慣性"
+        }
+      ],
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:207",
+      "source_sha256": "85bc148e436ec17263a9f7166d146dd52da1f764b40288e8258613df75d94deb",
+      "expected_occurrences": 2
+    },
+    {
+      "canonical_source_index": 208,
+      "route": "author-scene-template",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "reason": "場景細節與多種企劃、人物配置混在同條來源；未建立企劃生成器、職業人物或固定參與流程，不用通用召回自動補成事件。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        },
+        {
+          "path": "js/actor-mode-core.js",
+          "needle": "角色具有慣性"
+        }
+      ],
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:208",
+      "source_sha256": "0ba046c05c599439e35902dd7a793eb1c4b83fc9b9b031d9ff1424de58e675f5",
+      "expected_occurrences": 2
     }
   ]
 }
