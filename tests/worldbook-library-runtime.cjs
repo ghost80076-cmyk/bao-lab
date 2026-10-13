@@ -55,7 +55,7 @@ vm.runInNewContext(source, context, { filename: "worldbook-library.js" });
   const simulatorGroup = modes.groupPacks(listed).filter(g=>g.name==='通用世界模擬器');
   assert.equal(simulatorGroup.length,1,'new entries stay inside one player-facing book');
   assert.equal(simulatorGroup[0].packs.length,6,'this batch adds no category');
-  assert.equal(simulatorGroup[0].packs.reduce((sum,p)=>sum+p.entries.length,0),56);
+  assert.equal(simulatorGroup[0].packs.reduce((sum,p)=>sum+p.entries.length,0),59);
   assert.ok(listed.some(p => p.meta.id === "world-simulator-adventure-reference"), "public shared catalog is discoverable");
   assert.equal(modes.setRecallMode("off"), true);
   const off = await App.buildMessages();
@@ -127,7 +127,9 @@ vm.runInNewContext(source, context, { filename: "worldbook-library.js" });
   for (const [packId, query, title] of [
     ['world-simulator-romance-reference', '純愛劇本', '純愛與初戀題材參考'],
     ['world-simulator-intrigue-reference', '真假千金', '真假身分與雙重生活題材參考'],
-    ['world-simulator-growth-reference', '校園祭', '校園日常題材參考']
+    ['world-simulator-growth-reference', '校園祭', '校園日常題材參考'],
+    ['world-simulator-relationship-reference','女裝角色','性別表達與認同參考'],
+    ['world-simulator-romance-reference','ABO劇本','ABO 關係與社會張力參考']
   ]) {
     assert.ok(listed.some(p=>p.meta.id===packId));
     GameState.current.worldbookLibrary.enabled = [packId];
@@ -140,6 +142,16 @@ vm.runInNewContext(source, context, { filename: "worldbook-library.js" });
       else assert.doesNotMatch(result.at(-1).content,new RegExp(title));
     }
   }
+  const romanceId='world-simulator-romance-reference';
+  const historicalRomance=JSON.parse(JSON.stringify(listed.find(p=>p.meta.id===romanceId)));
+  historicalRomance.entries=historicalRomance.entries.slice(0,9);
+  historicalRomance.meta.release='0.1.0';
+  GameState.current.worldbookLibrary={version:1,enabled:[romanceId],installed:[],pinned:{[romanceId]:historicalRomance},recallMode:'auto'};
+  assert.equal((await modes.all()).find(p=>p.meta.id===romanceId).entries.length,9);
+  Chat.messages=[{role:'user',content:'ABO劇本'}];
+  const oldRomancePrompt=await App.buildMessages();
+  assert.doesNotMatch(oldRomancePrompt.at(-1).content,/ABO 關係與社會張力參考/);
+  assert.equal(oldRomancePrompt[0].content,'PLATFORM STABLE PREFIX');
   const lifeId='world-simulator-life-reference';
   const historicalLife=JSON.parse(JSON.stringify(listed.find(p=>p.meta.id===lifeId)));
   historicalLife.entries=historicalLife.entries.slice(0,2);
@@ -170,15 +182,17 @@ vm.runInNewContext(source, context, { filename: "worldbook-library.js" });
   const historicalPrompt = await App.buildMessages();
   assert.doesNotMatch(historicalPrompt.at(-1).content,/腹黑好友互動參考/);
   assert.equal(historicalPrompt[0].content,'PLATFORM STABLE PREFIX');
-  for(const size of [8,13,21]) {
+  for(const size of [8,13,21,26]) {
     const oldPack=JSON.parse(JSON.stringify(listed.find(p=>p.meta.id===relationshipId)));
     oldPack.entries=oldPack.entries.slice(0,size);
-    oldPack.meta.release=({8:'0.1.0',13:'0.2.0',21:'0.3.0'})[size];
+    oldPack.meta.release=({8:'0.1.0',13:'0.2.0',21:'0.3.0',26:'0.4.0'})[size];
     GameState.current.worldbookLibrary.pinned[relationshipId]=oldPack;
     assert.equal((await modes.all()).find(p=>p.meta.id===relationshipId).entries.length,size);
     Chat.messages=[{role:'user',content:'甜美偶像'}];
     const older=await App.buildMessages();
-    assert.doesNotMatch(older.at(-1).content,/認真表演者互動參考/);
+    if(size<26) assert.doesNotMatch(older.at(-1).content,/認真表演者互動參考/);
+    Chat.messages=[{role:'user',content:'女裝角色'}];
+    assert.doesNotMatch((await App.buildMessages()).at(-1).content,/性別表達與認同參考/);
     assert.equal(older[0].content,'PLATFORM STABLE PREFIX');
   }
   console.log("Worldbook prompt integration passed: cache-friendly stable prefix, selection, no double append, opt-out, conditional recall.");

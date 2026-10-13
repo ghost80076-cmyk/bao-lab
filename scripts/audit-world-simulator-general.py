@@ -29,6 +29,7 @@ SELECTED.update({0: "caring-leader", 1: "off-duty-professional", 3: "gentle-opti
 SELECTED.update({5: "sunny-companion", 7: "dedicated-performer", 8: "confident-performer",
                  20: "courteous-controller", 25: "lonely-committed", 26: "confident-performer",
                  27: "reserved-professional", 28: "character-contrast", 29: "independent-enthusiast"})
+SELECTED.update({93: "gender-expression", 97: "negotiated-power", 98: "abo-social-romance"})
 SOURCE_SPECIFIC = {"572f3222-5746-43cc-ae16-60239eac041c": {
     232: ("fragile-peace", "d10d669b781d759c831366eda9919e7df07f0734678b4efe1002fa2266e2cde5"),
     242: ("guild-commissions", "d31e47b40dfad99fdc0cf91aaea4bc9105b5d7e9e8ee41d310dcfbd203de9871"),
@@ -126,7 +127,7 @@ def audit(archive, root):
         if any(current.get((r["book_id"], r["source_index"])) != r["source_sha256"]
                for r in old["records"] + old.get("review_records", [])):
             raise ValueError("Reviewed source changed; review before updating")
-    return {"schema": "yorubay-world-simulator-general-review", "version": 13,
+    return {"schema": "yorubay-world-simulator-general-review", "version": 14,
             "source_count": sum(BOOKS.values()), "adopted_occurrences": len(records),
             "unique_adapted_sources": len({r["source_sha256"] for r in records}),
             "reviewed_unpublished_occurrences": len(review_records),
