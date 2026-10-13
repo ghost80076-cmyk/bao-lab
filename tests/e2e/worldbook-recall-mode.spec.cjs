@@ -50,7 +50,7 @@ for (const width of [1280, 390]) {
     expect(await page.evaluate(() => JSON.parse(window.recallSaved).worldbookLibrary.pinned['world-simulator-life-reference'].entries.length)).toBe(5);
     const romance = modal.locator('input[aria-label="通用世界模擬器｜戀愛與情感題材"]');
     await romance.check({ force: true });
-    expect(await page.evaluate(() => JSON.parse(window.recallSaved).worldbookLibrary.pinned['world-simulator-romance-reference'].entries.length)).toBe(11);
+    expect(await page.evaluate(() => JSON.parse(window.recallSaved).worldbookLibrary.pinned['world-simulator-romance-reference'].entries.length)).toBe(13);
     await mode.selectOption('off');
     expect(await page.evaluate(() => JSON.parse(window.recallSaved).worldbookLibrary.recallMode)).toBe('off');
     await modal.locator('[data-close]').click({ force: true });
@@ -62,7 +62,7 @@ for (const width of [1280, 390]) {
     });
     await expect(mode).toHaveValue('off');
     await expect(relationship).toBeChecked();
-    expect(await page.evaluate(() => GameState.current.worldbookLibrary.pinned['world-simulator-relationship-reference'].entries.length)).toBe(27);
+    expect(await page.evaluate(() => GameState.current.worldbookLibrary.pinned['world-simulator-relationship-reference'].entries.length)).toBe(28);
     await mode.selectOption('scene');
     expect(await page.evaluate(() => GameState.current.worldbookLibrary.recallMode)).toBe('scene');
     expect(await page.evaluate(() => {
