@@ -916,5 +916,43 @@
     "version_published_at": "2026-10-13T11:11:00Z",
     "author": "班長",
     "author_id": "banzhang"
+  },
+  {
+    "id": "sakura-house-simulator",
+    "file": "data/characters/community/e6/sakura-house-simulator.json",
+    "name": "櫻花院 - 妓院經營養成卡",
+    "title": "櫻花院｜成人特殊房・經營養成",
+    "avatar": "assets/bao-social-card.png",
+    "category": "male",
+    "rating": "adult",
+    "gender": "多 NPC／世界模擬",
+    "tags": [
+      "男性向",
+      "成年向",
+      "經營養成",
+      "特殊房",
+      "服務員養成",
+      "經濟循環",
+      "多NPC",
+      "都市夜生活",
+      "勢力事件",
+      "多結局",
+      "原生狀態UI"
+    ],
+    "description": "先花錢體驗櫻花院的特殊房與服務員，再被現金流推去賺錢、升 VIP、成為股東，最後把曾經花錢的娛樂變成自己的生意。",
+    "supported_modes": {
+      "immersive": true,
+      "world": true
+    },
+    "supported_display": {
+      "text": true,
+      "ui": true
+    },
+    "published_at": "2026-10-13T12:45:00Z",
+    "updated_at": "2026-10-13T12:45:00Z",
+    "published_version": 1,
+    "version_published_at": "2026-10-13T12:45:00Z",
+    "author": "班長",
+    "author_id": "banzhang"
   }
 ]
