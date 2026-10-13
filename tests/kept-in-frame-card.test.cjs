@@ -43,7 +43,9 @@ const rules=Regex.normalize(sidecar);
 // The opening starts directly with narrative. Photography-note rendering remains available later when the character emits a real note.
 const greetingRender=Regex.render(card.content.greeting,rules,false);
 assert.equal(greetingRender.matched,false);
-assert.match(card.content.greeting,/工作室的門鈴響起時/);
+assert.match(card.content.greeting,/你推開攝影工作室的門/);
+assert.equal(card.presentation.opening.choices.length,4);
+assert.match(card.presentation.opening.posts[0].content,/不接/);
 for(const input of ['攝影筆記｜21:00\n照片背面寫著：週六。\n\n正文，不能吃掉。','攝影筆記|21:00\r\n第二行。\r\n\r\n正文，不能吃掉。']){
  const r=Regex.render(input,rules,false); assert.ok(r.matched); assert.ok(r.rich); assert.match(r.html,/yb-kept-note/);assert.doesNotMatch(r.html,/【YB:/);
  if(input.includes('不能吃掉'))assert.match(r.html,/正文，不能吃掉/);
