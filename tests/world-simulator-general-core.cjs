@@ -7,7 +7,7 @@ const crypto = require('node:crypto');
 const packs = catalog.packs.map(core.normalizePack);
 const ids = packs.map(p => p.meta.id);
 assert.equal(packs.length, 6);
-assert.equal(packs.flatMap(p => p.entries).length, 59);
+assert.equal(packs.flatMap(p => p.entries).length, 62);
 assert.ok(packs.every(p => p.meta.world === 'general' && p.meta.classification === 'scenario'));
 assert.ok(packs.every(p => p.entries.every(e => e.mode === 'keyword' && !e.review_required)));
 for (const [query, title] of [['奇幻劇本', '奇幻冒險'], ['玄幻劇本', '玄幻歷練'], ['末日生存', '末世生存'], ['科幻世界', '科幻探索'], ['職場劇本', '現代都市'], ['錦標賽', '熱血競技']]) {
@@ -26,14 +26,14 @@ assert.equal(core.select(packs, ids, {latestUser: '奇幻劇本'}, {recallMode:'
 assert.match(core.select(packs, ids, {location:'賽博都市'}, {recallMode:'scene'}).text, /科幻探索/);
 const hash = text => crypto.createHash('sha256').update(text).digest('hex');
 assert.equal(coverage.source_count, 662);
-assert.equal(coverage.records.length, 185);
-assert.equal(new Set(coverage.records.map(r => r.source_sha256)  ).size, 66);
+assert.equal(coverage.records.length, 197);
+assert.equal(new Set(coverage.records.map(r => r.source_sha256)   ).size, 70);
 for (const record of coverage.records) {
   const e = packs.find(p => p.meta.id === record.pack_id).entries.find(e => e.id === record.entry_id);
   assert.equal(hash(e.content), record.published_sha256);
   assert.equal(record.status, 'partial-adaptation');
 }
-assert.equal(coverage.books.reduce((n,b)=>n+b.pending_indices.length,0), 355);
+assert.equal(coverage.books.reduce((n,b)=>n+b.pending_indices.length,0), 319);
 const life = packs.find(p=>p.meta.id==='world-simulator-life-reference');
 assert.equal(life.entries.length,5);
 for(const entry of life.entries.slice(2)) {
@@ -70,7 +70,7 @@ for(const entry of adventure.entries.slice(4)) {
 for(const query of ['公會','委託','和平','魔法','人物','技能','採集','主線'])
   assert.equal(core.select([adventure],[adventure.meta.id],{latestUser:query}).text,'');
 const relationship = packs.find(p => p.meta.id === 'world-simulator-relationship-reference');
-assert.equal(relationship.entries.length,27);
+assert.equal(relationship.entries.length,28);
 for (const entry of relationship.entries) {
   for (const query of entry.keywords) {
     const result = core.select(packs, ids, {latestUser: query});
@@ -93,17 +93,23 @@ assert.equal(sameSource.entries.length, 1, 'multiple signals do not duplicate a 
 for (const book of coverage.books) {
   assert.equal(new Set([...book.adapted_indices, ...book.reviewed_unpublished_indices, ...book.pending_indices]).size, book.source_count);
   assert.equal(book.adapted_indices.length + book.reviewed_unpublished_indices.length + book.pending_indices.length, book.source_count);
-  assert.equal(book.adapted_indices.length, book.book_id === '572f3222-5746-43cc-ae16-60239eac041c' ? 66 : book.book_id === 'f604df12-4eb7-48c0-b2f0-6c942d6204fa' ? 61 : 58);
-  assert.equal(book.reviewed_unpublished_indices.length, book.book_id === '59d9fbcd-d5f8-47aa-99fb-a101675230e4' ? 37 : book.book_id === '572f3222-5746-43cc-ae16-60239eac041c' ? 53 : 32);
+  assert.equal(book.adapted_indices.length, book.book_id === '572f3222-5746-43cc-ae16-60239eac041c' ? 70 : book.book_id === 'f604df12-4eb7-48c0-b2f0-6c942d6204fa' ? 65 : 62);
+  assert.equal(book.reviewed_unpublished_indices.length, book.book_id === '59d9fbcd-d5f8-47aa-99fb-a101675230e4' ? 45 : book.book_id === '572f3222-5746-43cc-ae16-60239eac041c' ? 61 : 40);
 }
 for(const id of ['gender-expression','negotiated-power','abo-social-romance']) {
   const records=coverage.records.filter(r=>r.entry_id===id);
   assert.equal(records.length,3);
   assert.equal(new Set(records.map(r=>r.source_sha256)).size,1);
 }
+const betrayalSources=coverage.records.filter(r=>r.entry_id==='commitment-betrayal');
+assert.equal(betrayalSources.length,6);
+assert.equal(new Set(betrayalSources.map(r=>r.source_sha256)).size,2);
+for(const id of ['socially-constrained-romance','insecure-attachment']) {
+  assert.equal(coverage.records.filter(r=>r.entry_id===id).length,3);
+}
 const plotPacks = packs.filter(p=>['world-simulator-romance-reference','world-simulator-intrigue-reference'].includes(p.meta.id));
 assert.equal(plotPacks.length, 2);
-assert.equal(plotPacks.flatMap(p=>p.entries).length, 15);
+assert.equal(plotPacks.flatMap(p=>p.entries).length, 17);
 for (const pack of plotPacks) {
   for (const entry of pack.entries) {
     for (const query of entry.keywords) {
@@ -140,11 +146,11 @@ for(const query of ['YA','NA','學校','成長','成年','banana','day']) {
 }
 const routing = require('../data/world-simulator-layer-review.json');
 const routeMap = new Map(routing.decisions.map(d=>[d.decision_id,d]));
-assert.equal(routeMap.size,61);
-assert.equal(coverage.review_records.length,122);
-assert.equal(coverage.reviewed_unpublished_occurrences,122);
-assert.equal(new Set(coverage.review_records.map(r=>r.source_sha256)).size,61);
-assert.equal(coverage.unique_reviewed_unpublished_sources,61);
+assert.equal(routeMap.size,69);
+assert.equal(coverage.review_records.length,146);
+assert.equal(coverage.reviewed_unpublished_occurrences,146);
+assert.equal(new Set(coverage.review_records.map(r=>r.source_sha256)).size,69);
+assert.equal(coverage.unique_reviewed_unpublished_sources,69);
 for(const record of coverage.review_records) {
   const d=routeMap.get(record.decision_id);
   assert.ok(d);
@@ -172,7 +178,7 @@ for(const d of routing.decisions) {
   assert.ok(d.evidence.length>0);
   for(const e of d.evidence) assert.ok(fs.readFileSync(require.resolve('../'+e.path),'utf8').includes(e.needle));
 }
-for(const query of ['【系統指令】整理人物檔案','【系統指令】解釋世界規則','【系統指令】切換到另一個世界','NPC 離場行為','HTML','XMLv3','純文字輸出','視覺符號庫','NPC生成模板','宿命敵人系統','神化系統','玩家起始設定','狀態欄核心結構','成就系統','演員殺青','色氣事件','熱度分級','Erotica','Porn','NPC 性慾累積','阿斯特拉大陸','永夜領','暗夜聖殿','暗夜元老會','造園者','神之後花園']) {
+for(const query of ['【系統指令】整理人物檔案','【系統指令】解釋世界規則','【系統指令】切換到另一個世界','NPC 離場行為','HTML','XMLv3','純文字輸出','視覺符號庫','NPC生成模板','宿命敵人系統','神化系統','玩家起始設定','狀態欄核心結構','成就系統','演員殺青','色氣事件','熱度分級','Erotica','Porn','NPC 性慾累積','阿斯特拉大陸','永夜領','暗夜聖殿','暗夜元老會','造園者','神之後花園','服務業系列劇本','特殊情境系列劇本','調教階段','種馬劇本','觸手劇本']) {
   assert.equal(core.select(packs,ids,{latestUser:query}).text,'','review sidecar is not a recall catalog');
 }
 assert.doesNotMatch(JSON.stringify(relationship), /楊丞琳|陳妍希|彭于晏|金城武|賈靜雯|劉昊然|李鍾碩|車銀優|演員：|陰莖|做愛|罩杯/);
@@ -197,4 +203,4 @@ for(const query of ['控制','佔有','征服','依賴','迴避','人格']) {
   assert.equal(core.select([relationship],[relationship.meta.id],{latestUser:query}).text,'');
 }
 assert.doesNotMatch(fs.readFileSync(require.resolve('../data/world-simulator-general-library.json'),'utf8'), /忽略.*規則|開發者模式|性慾|體位|世界真相/);
-console.log('PASS general simulator: 6 categories, 59 entries, 185 adapted + 122 reviewed-unpublished + 355 pending references; merged sources, layer evidence, recall isolation, modes and budget');
+console.log('PASS general simulator: 6 categories, 62 entries, 197 adapted + 146 reviewed-unpublished + 319 pending references; merged sources, layer evidence, recall isolation, modes and budget');

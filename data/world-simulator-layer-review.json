@@ -1,6 +1,6 @@
 {
   "schema": "yorubay-world-simulator-layer-review",
-  "version": 5,
+  "version": 6,
   "scope": "Metadata-only routing of common and book-specific author sources; no raw bodies, no new command handlers, no full integration claim.",
   "decisions": [
     {
@@ -1120,6 +1120,174 @@
       "decision_id": "572f3222-5746-43cc-ae16-60239eac041c:246",
       "source_sha256": "7ee206e3c96b39796395055fa0f38a024e182c36ff73186c889e894a0a902063",
       "expected_occurrences": 1
+    },
+    {
+      "canonical_source_index": 51,
+      "route": "author-scenario-rules",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "reason": "原文角色制度、訓練、展示及固定終點是作品專屬流程；未新增這些場景或階段引擎，既有信任協商參考不等於此原文已搬入。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        },
+        {
+          "path": "js/actor-mode-core.js",
+          "needle": "角色具有慣性"
+        }
+      ],
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:51",
+      "source_sha256": "f97267261edb9104da7e3ab8f86553ad5756a8af5a2380b8d7bda1ee5169477d",
+      "expected_occurrences": 3
+    },
+    {
+      "canonical_source_index": 72,
+      "route": "author-scenario-rules",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "reason": "原文固定轉變階段、身體與心理機制屬作者玩法；未新增數值或人格轉換，不能以題材命中自動覆寫已成立的角色立場。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        },
+        {
+          "path": "js/actor-mode-core.js",
+          "needle": "角色具有慣性"
+        }
+      ],
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:72",
+      "source_sha256": "f33e976314da9a844aae65bcaa047f8f2c898b52fdc91c24921f08b207800028",
+      "expected_occurrences": 3
+    },
+    {
+      "canonical_source_index": 75,
+      "route": "author-character-premise",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "reason": "年齡範圍、角色關係、挑釁節奏與固定轉變是特定人物前提；未新增角色池、年齡改寫或固定攻略流程，亦不由召回代替玩家反應。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        },
+        {
+          "path": "js/actor-mode-core.js",
+          "needle": "角色具有慣性"
+        }
+      ],
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:75",
+      "source_sha256": "97c3b82fdba64d87ea38044ab659c95b9d9d70b108cdd5e0c58d4af92c5a3d76",
+      "expected_occurrences": 3
+    },
+    {
+      "canonical_source_index": 79,
+      "route": "author-ensemble-premise",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "reason": "固定玩家魅力、多人物愛慕、加入流程與戲份比例屬作品契約；未自動建立人物、關係或和諧結局，也不保證幫助後必然愛慕玩家。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        },
+        {
+          "path": "js/actor-mode-core.js",
+          "needle": "角色具有慣性"
+        }
+      ],
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:79",
+      "source_sha256": "dbcb02929c9dd6ee258e5dd4d99c8ce4b7bc91938279b5a1c6e423270f44bf66",
+      "expected_occurrences": 3
+    },
+    {
+      "canonical_source_index": 82,
+      "route": "author-scenario-premise",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "reason": "交易關係、人物背景、年齡與救贖路線屬專屬設定；未新增此角色池或交易玩法，也不將困境自動判為可攻略或必然獲救。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        },
+        {
+          "path": "js/actor-mode-core.js",
+          "needle": "角色具有慣性"
+        }
+      ],
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:82",
+      "source_sha256": "a6ebc253610cb47cd4a9c1417247c74c7c366ec51bf31857e2bca9716238c2e5",
+      "expected_occurrences": 3
+    },
+    {
+      "canonical_source_index": 90,
+      "route": "author-creature-scenario",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "reason": "原文異種遭遇、固定反應與變化路線屬特定世界和場景；未新增生物、能力或身體變化引擎，不能在其他世界命中後直接建立這些事實。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        },
+        {
+          "path": "js/actor-mode-core.js",
+          "needle": "角色具有慣性"
+        }
+      ],
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:90",
+      "source_sha256": "41a96a1200f30254c908aaec098c93320f2cc047c5a2ee9ac121d0a106bf0822",
+      "expected_occurrences": 3
+    },
+    {
+      "canonical_source_index": 95,
+      "route": "author-profession-scenario",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "reason": "職業場所、特定服務與越界流程屬作品場景規劃；未建立職業模板或固定事件，不將正常工作接觸自動推成關係變化。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        },
+        {
+          "path": "js/actor-mode-core.js",
+          "needle": "角色具有慣性"
+        }
+      ],
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:95",
+      "source_sha256": "ba61d4420b28623f00135906e7295092701cc24a642934fa9bd9567646b27de8",
+      "expected_occurrences": 3
+    },
+    {
+      "canonical_source_index": 96,
+      "route": "author-ability-scenario",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "reason": "時間、記憶、感官與其他控制效果須有作品能力規格；未新增能力、道具或命令處理器，也不把題材描述當成已發生的狀態或知情變更。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        },
+        {
+          "path": "js/actor-mode-core.js",
+          "needle": "角色具有慣性"
+        }
+      ],
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:96",
+      "source_sha256": "24b94a7689d74d4031685b35ef0acc18a2d2fff11d80eeaf7f02df0fb3c306f6",
+      "expected_occurrences": 3
     }
   ]
 }
