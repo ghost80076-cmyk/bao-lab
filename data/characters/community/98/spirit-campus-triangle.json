@@ -24,7 +24,8 @@
     "rating": "adult",
     "title": "靈力世界｜青梅、校花與共鳴學園",
     "author": "班長",
-    "author_id": "banzhang"
+    "author_id": "banzhang",
+    "avatar": "assets/bao-world-core.webp"
   },
   "content": {
     "quote": "「共鳴適性不會替你回答：你到底在意誰？」",
@@ -917,7 +918,8 @@
       ],
       "allow_player_preferences": true,
       "note": "不要把關係改成陌生開局，不將三角糾葛縮成數值解鎖。"
-    }
+    },
+    "reading_background": "assets/bao-world-core.webp"
   },
   "import_metadata": {
     "source_format": "yorubay-native-rebuild",
