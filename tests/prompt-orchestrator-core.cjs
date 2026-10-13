@@ -88,6 +88,23 @@ for (const model of ["gpt-5.6", "google/gemini-3.1-pro-preview", "anthropic/clau
   assert.match(deepseek[0].content, /模型補丁 · DeepSeek/);
   assert.match(deepseek[0].content, /玩家最新輸入/);
 
+  // Yume-only repair is stable, includes older saved cards, and never affects other works.
+  App.activeCharacter = { id: "kurobane-yume-kabukicho" };
+  const localConfig = { api: { type: "lmstudio", model: "local-model" } };
+  const yume = await App.buildMessages(localConfig);
+  assert.match(yume[0].content, /【黑羽ゆめ｜語言與場景】/);
+  assert.match(yume[0].content, /自然繁體中文/);
+  assert.match(yume[0].content, /緊接繁中譯文/);
+  assert.match(yume[0].content, /已進便利店且未離開/);
+  assert.match(yume[0].content, /CHAR 角色標籤/);
+  assert.doesNotMatch(yume[0].content, /\\[CHAR:yume\\]/);
+  assert.doesNotMatch(yume.at(-1).content, /黑羽ゆめ｜語言與場景/, "no per-turn token tax");
+  const yumeAgain = await App.buildMessages(localConfig);
+  assert.equal(yume[0].content, yumeAgain[0].content, "Yume stable prefix can be cached");
+  App.activeCharacter = { id: "some-other-card" };
+  const other = await App.buildMessages(localConfig);
+  assert.doesNotMatch(other[0].content, /黑羽ゆめ｜語言與場景/, "other cards retain their language");
+
   console.log("prompt orchestrator core test passed");
 })().catch(error => {
   console.error(error);
