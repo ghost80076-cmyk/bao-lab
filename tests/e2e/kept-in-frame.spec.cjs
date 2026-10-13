@@ -15,16 +15,31 @@ for(const viewport of [{width:1280,height:900},{width:390,height:844}]){
    return {modules:Object.keys(GameState.current.modules),relationship:GameState.current.modules.session_setup.relationship,builder:schema.builder.fields.length,npcs:GameState.current.npcs.map(n=>n.name)};
   });
   expect(result.relationship).toBe('戀人');expect(result.builder).toBe(6);expect(result.modules).toContain('private_facts');expect(result.npcs).not.toContain('留影｜林祐真');
+  // Enzo-style structured opening: scene, a direct hook and clickable draft-only choices.
+  await expect(page.locator('#chat-stream .bao-author-inline')).toHaveCount(0);
+  await expect(page.locator('#chat-stream .bao-structured-opening')).toHaveCount(1);
+  await expect(page.locator('#chat-stream')).toContainText('有人替你約了今晚的拍攝');
+  await expect(page.locator('#chat-stream')).toContainText('我把錢退了');
+  await expect(page.locator('#chat-stream .bao-opening-choice')).toHaveCount(4);
+  await page.locator('#chat-stream .bao-opening-choice').first().click();
+  await expect(page.locator('#user-input')).toHaveValue('我拿起委託單：「誰幫我付的錢？」');
+  await page.locator('#user-input').fill('');
+  const stored=await page.evaluate(()=>JSON.parse(localStorage.getItem('bao-lab:author-regex:v1:kept-in-frame-lin-youzhen')));
+  expect(stored.source).toBe('official-sidecar');
+  // A real later photography note must still use the isolated author renderer.
+  await page.evaluate(()=>{
+   Chat.add('assistant','攝影筆記｜21:00\n照片背面寫著：週六。\n\n正文，不能吃掉。');
+   App.renderChatShell(false);
+  });
   await expect(page.locator('#chat-stream .bao-author-inline')).toHaveCount(1);
   const frame=page.frameLocator('iframe[title="聊天內作者隔離介面"]');
   await expect(frame.locator('.yb-kept-note')).toBeVisible();
-  await expect(frame.locator('body')).toContainText('「先坐。想喝什麼？」');
+  await expect(frame.locator('body')).toContainText('照片背面寫著：週六。');
+  await expect(frame.locator('body')).toContainText('正文，不能吃掉。');
   await expect(frame.locator('body')).not.toContainText('【YB:');
-  const stored=await page.evaluate(()=>JSON.parse(localStorage.getItem('bao-lab:author-regex:v1:kept-in-frame-lin-youzhen')));
-  expect(stored.source).toBe('official-sidecar');
   expect(await frame.locator('body').evaluate(n=>n.scrollWidth<=n.clientWidth+2)).toBe(true);
   await page.evaluate(()=>{App.config.displayMode='text';App.renderChatShell(true);});
-  await expect(page.locator('#chat-stream')).toContainText('林祐真');
+  await expect(page.locator('#chat-stream')).toContainText('攝影筆記｜21:00');
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+2)).toBe(true);
   // Mature catalog entries are deliberately hidden until the reader opts in.
   await page.evaluate(()=>BAOContentPreferences.setAdultContentEnabled(true,{confirmAge:false}));

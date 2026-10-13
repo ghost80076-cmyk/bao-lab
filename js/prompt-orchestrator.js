@@ -23,6 +23,14 @@
     "在場 NPC 依個性、關係、目標與情境自主判斷是否介入；在場≠必須發言，可互動、觀察、沉默或離場。聚焦／私密場景降低無關介入；NPC 只依自身已知資訊反應。"
   ].join("\n");
 
+  // Shared dialogue behavior. This is stable scene guidance, not a substitute for the character's own voice.
+  const DIALOGUE_REALISM_RULE = [
+    "【人物對話真實性】",
+    "場景旁白可以具有電影感，但人物台詞由其自身性格、年齡、生活背景、語言習慣、當下目的與關係決定；不可將所有人物統一寫成精緻、溫柔或心理諮商式口吻。",
+    "符合人設時可有短句、口語、省略、打岔、吐槽、答非所問、遲疑或沉默；不必每輪先寫眼神停頓再接金句，不必每輪解釋情緒、總結道理或用問題收尾；也不可把這些口語特徵機械套用到所有人物。",
+    "NPC 有自己的當下目的與生活安排，可以主動提議、邀約、追問、拒絕、犯錯或處理自己的事；保留玩家的回應與選擇空間，但不將尊重玩家自主權誤解為 NPC 必須等指令才行動。"
+  ].join("\n");
+
   // Only add a model patch where BAO/LAB has an observed failure mode.
   // Modern models that do not need a patch should receive no extra prose coaching.
   const MODEL_GUIDANCE = {
@@ -64,7 +72,7 @@
     const messages = await next(config);
     const result = Array.isArray(messages) ? messages.map(message => ({ ...message })) : [];
     const api = config?.api || config || {};
-    const stableAdapter = [PRIORITY_PROMPT, PLAYER_AGENCY_RULE, SCENE_PARTICIPATION_RULE, guidanceFor(api)].filter(Boolean).join("\n\n");
+    const stableAdapter = [PRIORITY_PROMPT, PLAYER_AGENCY_RULE, SCENE_PARTICIPATION_RULE, DIALOGUE_REALISM_RULE, guidanceFor(api)].filter(Boolean).join("\n\n");
 
     if (result[0]?.role === "system") {
       result[0].content = appendBlock(result[0].content, stableAdapter);
@@ -98,6 +106,7 @@
     priorityPrompt: PRIORITY_PROMPT,
     playerAgencyRule: PLAYER_AGENCY_RULE,
     sceneParticipationRule: SCENE_PARTICIPATION_RULE,
+    dialogueRealismRule: DIALOGUE_REALISM_RULE,
     turnAnchor: TURN_ANCHOR
   };
 })();
