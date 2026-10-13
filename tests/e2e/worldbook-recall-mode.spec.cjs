@@ -44,6 +44,10 @@ for (const width of [1280, 390]) {
     await expect(adventure).not.toBeChecked();
     await adventure.check({ force: true });
     expect(await page.evaluate(() => JSON.parse(window.recallSaved).worldbookLibrary.pinned['world-simulator-adventure-reference'].entries.length)).toBe(9);
+    const life = modal.locator('input[aria-label="通用世界模擬器｜都市與競技參考"]');
+    await expect(life).not.toBeChecked();
+    await life.check({ force: true });
+    expect(await page.evaluate(() => JSON.parse(window.recallSaved).worldbookLibrary.pinned['world-simulator-life-reference'].entries.length)).toBe(5);
     await mode.selectOption('off');
     expect(await page.evaluate(() => JSON.parse(window.recallSaved).worldbookLibrary.recallMode)).toBe('off');
     await modal.locator('[data-close]').click({ force: true });

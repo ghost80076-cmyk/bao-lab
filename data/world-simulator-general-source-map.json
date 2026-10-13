@@ -1,13 +1,13 @@
 {
   "schema": "yorubay-world-simulator-general-review",
-  "version": 10,
+  "version": 11,
   "source_count": 662,
-  "adopted_occurrences": 170,
-  "unique_adapted_sources": 60,
+  "adopted_occurrences": 176,
+  "unique_adapted_sources": 63,
   "reviewed_unpublished_occurrences": 82,
   "unique_reviewed_unpublished_sources": 41,
   "pack_count": 6,
-  "chapter_count": 53,
+  "chapter_count": 56,
   "scope": "Public adapted chapters and metadata-only layer routing. Reviewed-not-published does not mean integrated. No full-book migration or model-dialogue evaluation claimed.",
   "books": [
     {
@@ -68,7 +68,10 @@
         185,
         186,
         187,
-        188
+        188,
+        200,
+        201,
+        202
       ],
       "reviewed_unpublished_indices": [
         32,
@@ -218,9 +221,6 @@
         194,
         195,
         196,
-        200,
-        201,
-        202,
         203,
         204,
         205,
@@ -288,6 +288,9 @@
         186,
         187,
         188,
+        200,
+        201,
+        202,
         232,
         242,
         243,
@@ -453,9 +456,6 @@
         194,
         195,
         196,
-        200,
-        201,
-        202,
         203,
         204,
         205,
@@ -1255,6 +1255,36 @@
       "not_verbatim": true
     },
     {
+      "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 200,
+      "source_sha256": "0503328b8961831d039592c25ec04e476480f3d6d44ced6386158e94c8393465",
+      "pack_id": "world-simulator-life-reference",
+      "entry_id": "career-commissions",
+      "published_sha256": "3f6ae66876669541775387289b9b98b1fc8ae29ef2eaeee09af9e5cd01a51843",
+      "status": "partial-adaptation",
+      "not_verbatim": true
+    },
+    {
+      "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 201,
+      "source_sha256": "95743125e36511a59e3945eec5df8db4ed036ff86bb2d4dde83ce3bf48695df7",
+      "pack_id": "world-simulator-life-reference",
+      "entry_id": "work-deadlines",
+      "published_sha256": "b8226b22764582445a6ffc2df31e6ec87b5bd6968f662ab5ffe58b02a7c47c3f",
+      "status": "partial-adaptation",
+      "not_verbatim": true
+    },
+    {
+      "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 202,
+      "source_sha256": "acbdc603b8d871c7fc3b822dd5a16c8e44f04be6cb2891b7b7779d295a5e085f",
+      "pack_id": "world-simulator-life-reference",
+      "entry_id": "reward-recovery",
+      "published_sha256": "ded14017df3eb280394f4512757be4761c976ba2a3c9f1eaea1c305e4d6a1943",
+      "status": "partial-adaptation",
+      "not_verbatim": true
+    },
+    {
       "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
       "source_index": 0,
       "source_sha256": "91507b19fe7b7163e3ea12e0e555517be92ac27726d518a5e69d047b6cf512b1",
@@ -1801,6 +1831,36 @@
       "pack_id": "world-simulator-relationship-reference",
       "entry_id": "challenge-drive",
       "published_sha256": "b677dc3048aa11e133dd677c9dae8742e154f0d3a91c274f8b940320d30a8dfd",
+      "status": "partial-adaptation",
+      "not_verbatim": true
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 200,
+      "source_sha256": "0503328b8961831d039592c25ec04e476480f3d6d44ced6386158e94c8393465",
+      "pack_id": "world-simulator-life-reference",
+      "entry_id": "career-commissions",
+      "published_sha256": "3f6ae66876669541775387289b9b98b1fc8ae29ef2eaeee09af9e5cd01a51843",
+      "status": "partial-adaptation",
+      "not_verbatim": true
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 201,
+      "source_sha256": "95743125e36511a59e3945eec5df8db4ed036ff86bb2d4dde83ce3bf48695df7",
+      "pack_id": "world-simulator-life-reference",
+      "entry_id": "work-deadlines",
+      "published_sha256": "b8226b22764582445a6ffc2df31e6ec87b5bd6968f662ab5ffe58b02a7c47c3f",
+      "status": "partial-adaptation",
+      "not_verbatim": true
+    },
+    {
+      "book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 202,
+      "source_sha256": "acbdc603b8d871c7fc3b822dd5a16c8e44f04be6cb2891b7b7779d295a5e085f",
+      "pack_id": "world-simulator-life-reference",
+      "entry_id": "reward-recovery",
+      "published_sha256": "ded14017df3eb280394f4512757be4761c976ba2a3c9f1eaea1c305e4d6a1943",
       "status": "partial-adaptation",
       "not_verbatim": true
     },

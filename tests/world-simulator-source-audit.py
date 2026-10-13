@@ -61,6 +61,30 @@ class SourceAuditTests(unittest.TestCase):
             indices = b['adapted_indices'] + b['reviewed_unpublished_indices'] + b['pending_indices']
             self.assertEqual(sorted(indices), list(range(b['source_count'])))
 
+    def test_two_book_adaptation_deduplicates_source_only(self):
+        digest = audit.sha('shared career source')
+        audit.SOURCE_SPECIFIC = {}
+        for bid in self.ids[:2]:
+            self.books[bid]['entries'][200]['content'] = 'shared career source'
+            audit.SOURCE_SPECIFIC[bid] = {200: ('fixture', digest)}
+        result = self.run_audit()
+        self.assertEqual(result['adopted_occurrences'], 5)
+        self.assertEqual(result['unique_adapted_sources'], 2)
+        self.assertEqual([len(b['adapted_indices']) for b in result['books']], [2, 2, 1])
+        self.books[self.ids[1]]['entries'][200]['content'] += ' changed'
+        with self.assertRaisesRegex(ValueError, 'book-specific adaptation changed'):
+            self.run_audit()
+
+    def test_shared_source_cannot_target_different_entries(self):
+        self.write('world-simulator-general-library.json', {'packs': [{'meta': {'id': 'fixture'}, 'entries': [{'id': 'fixture', 'content': 'adapted'}, {'id': 'other', 'content': 'different'}]}]})
+        digest = audit.sha('shared career source')
+        audit.SOURCE_SPECIFIC = {}
+        for bid, entry in zip(self.ids[:2], ['fixture', 'other']):
+            self.books[bid]['entries'][200]['content'] = 'shared career source'
+            audit.SOURCE_SPECIFIC[bid] = {200: (entry, digest)}
+        with self.assertRaisesRegex(ValueError, 'Duplicate book-specific adaptation'):
+            self.run_audit()
+
     def test_book_specific_adaptation_and_mutation(self):
         bid = self.ids[1]
         audit.SOURCE_SPECIFIC = {bid: {242: ('fixture', audit.sha(self.books[bid]['entries'][242]['content']))}}
