@@ -8,7 +8,7 @@ test('LM Studio model discovery, no-key story request and resume', async ({ page
     window.__lmStudioCalls = [];
     window.fetch = (input, init = {}) => {
       const url = String(input?.url || input);
-      if (!url.startsWith('http://localhost:1234/v1/')) return original(input, init);
+      if (!/^http:\/\/(?:localhost|127\.0\.0\.1):1234\/v1\//.test(url)) return original(input, init);
       window.__lmStudioCalls.push({ url, headers: init.headers || {}, body: init.body || '' });
       const result = url.endsWith('/models')
         ? { data: [{ id: 'gemma4-26b-a4b' }] }
@@ -22,7 +22,8 @@ test('LM Studio model discovery, no-key story request and resume', async ({ page
   });
   await page.locator('#api-type').selectOption('lmstudio');
   await expect(page.locator('#bao-lm-builder')).toBeVisible();
-  await expect(page.locator('#base-url')).toHaveValue('http://localhost:1234/v1/chat/completions');
+  await expect(page.locator('#bao-lm-endpoint')).toHaveValue('http://127.0.0.1:1234/v1');
+  await expect(page.locator('#base-url')).toHaveValue('http://127.0.0.1:1234/v1');
   await page.getByRole('button', { name: '讀取本機模型' }).click();
   await expect(page.locator('#bao-lm-models option[value="gemma4-26b-a4b"]')).toHaveCount(1);
   await expect(page.locator('#model-id')).toHaveValue('gemma4-26b-a4b');
@@ -60,7 +61,7 @@ test('LM Studio model discovery, no-key story request and resume', async ({ page
 
   // Saved connections may store the fully-qualified chat route internally.
   // The editable field should show the base URL, including a non-default port.
-  await expect(page.locator('#bao-lm-form [name="endpoint"]')).toHaveValue('http://localhost:1234/v1');
+  await expect(page.locator('#bao-lm-form [name="endpoint"]')).toHaveValue('http://127.0.0.1:1234/v1');
   await page.evaluate(() => {
     const previousFetch = window.fetch.bind(window);
     window.__lm1235Calls = [];
