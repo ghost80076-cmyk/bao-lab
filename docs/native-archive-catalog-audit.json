@@ -930,9 +930,9 @@
         "tabs"
       ],
       "preserved": {
-        "content": "69d372adc339e28283b4564839af7420cee4d742bf2725d9aeeaad97d1a671f8",
-        "initial_state": "1be7a0e80554c44f487b76e3d597ca1e8d38be7f5e2c14e0a63e5e02ee1858ac",
-        "gameplay_rules": "4127cb5b4c97690ca1e24932dcc475fadd740ef77ec29515e230652f80ea9ff8",
+        "content": "e6657213af24ee9206f55c4689189bc1ee467405a9c415e74e52eae43b07da0f",
+        "initial_state": "a8ff08debef98a68169bdd58011d4f64a1a220d6d7fc166a65d5e103f2b6c561",
+        "gameplay_rules": "6dfd1e590abd794da7d150fca98e319704ac3f952de04e179e04ec378d8a81eb",
         "builder": "a2ad6f4002b1b70d6e79915ddb07b66ed3e3f26f3c8c4e8e287fa19500afa5a4"
       },
       "original_panel_ids": [
@@ -944,7 +944,8 @@
         "empire",
         "threads",
         "actions"
-      ]
+      ],
+      "review_note": "2026-10-13 intentional Sakura House v5 restoration: six special rooms, earn-money loop, atomic gameplay actions; existing Builder preserved."
     },
     {
       "id": "medieval-guild-dynasty-simulator",
