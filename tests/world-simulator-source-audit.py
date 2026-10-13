@@ -33,6 +33,9 @@ class SourceAuditTests(unittest.TestCase):
             self.decisions.append(d)
         self.write('world-simulator-general-library.json', {'packs': [{'meta': {'id': 'fixture'}, 'entries': [{'id': 'fixture', 'content': 'adapted'}]}]})
         self.original_selected = audit.SELECTED
+        self.original_specific = audit.SOURCE_SPECIFIC
+        audit.SOURCE_SPECIFIC = {}
+        self.addCleanup(setattr, audit, 'SOURCE_SPECIFIC', self.original_specific)
         audit.SELECTED = {0: 'fixture'}
         self.addCleanup(setattr, audit, 'SELECTED', self.original_selected)
 
@@ -57,6 +60,23 @@ class SourceAuditTests(unittest.TestCase):
         for b in result['books']:
             indices = b['adapted_indices'] + b['reviewed_unpublished_indices'] + b['pending_indices']
             self.assertEqual(sorted(indices), list(range(b['source_count'])))
+
+    def test_book_specific_adaptation_and_mutation(self):
+        bid = self.ids[1]
+        audit.SOURCE_SPECIFIC = {bid: {242: ('fixture', audit.sha(self.books[bid]['entries'][242]['content']))}}
+        result = self.run_audit()
+        self.assertEqual(result['adopted_occurrences'], 4)
+        self.assertEqual([len(b['adapted_indices']) for b in result['books']], [1, 2, 1])
+        self.assertIn(242, result['books'][1]['adapted_indices'])
+        self.books[bid]['entries'][242]['content'] += ' changed'
+        with self.assertRaisesRegex(ValueError, 'book-specific adaptation changed'):
+            self.run_audit()
+
+    def test_book_specific_adaptation_cannot_overlap_review(self):
+        bid = self.ids[1]
+        audit.SOURCE_SPECIFIC = {bid: {197: ('fixture', audit.sha('two-book status template'))}}
+        with self.assertRaisesRegex(ValueError, 'Duplicate or overlapping'):
+            self.run_audit()
 
     def test_unique_source_mutation_rejected_without_old_map(self):
         self.books[self.ids[2]]['entries'][64]['content'] += ' changed'

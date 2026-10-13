@@ -29,6 +29,13 @@ SELECTED.update({0: "caring-leader", 1: "off-duty-professional", 3: "gentle-opti
 SELECTED.update({5: "sunny-companion", 7: "dedicated-performer", 8: "confident-performer",
                  20: "courteous-controller", 25: "lonely-committed", 26: "confident-performer",
                  27: "reserved-professional", 28: "character-contrast", 29: "independent-enthusiast"})
+SOURCE_SPECIFIC = {"572f3222-5746-43cc-ae16-60239eac041c": {
+    232: ("fragile-peace", "d10d669b781d759c831366eda9919e7df07f0734678b4efe1002fa2266e2cde5"),
+    242: ("guild-commissions", "d31e47b40dfad99fdc0cf91aaea4bc9105b5d7e9e8ee41d310dcfbd203de9871"),
+    243: ("everyday-quests", "901b407cb9503ddd691945d6cc8eb58416d5b7cf7c4d75251b57f9833eac6730"),
+    245: ("recurring-npc", "b9991a3e6fc456dee7263bf2a31c87304825b326f5bd3cbdb160be6413f5c394"),
+    247: ("magic-specialization", "41afe03b037cb97a4fd0322dc66708a6756077db75ba360ed3147dcafd29ff3c"),
+}}
 
 def sha(text):
     return hashlib.sha256(text.encode("utf-8")).hexdigest()
@@ -45,6 +52,14 @@ def audit(archive, root):
     if set(by_id) != set(BOOKS) or any(len(by_id[bid]["entries"]) != count for bid, count in BOOKS.items()):
         raise ValueError("Source revision changed")
     canonical = by_id[next(iter(BOOKS))]
+    adapted_hashes = {sha(canonical["entries"][i]["content"].strip()) for i in SELECTED}
+    for bid, sources in SOURCE_SPECIFIC.items():
+        for index, (entry_id, digest) in sources.items():
+            if entry_id not in entries or sha(by_id[bid]["entries"][index]["content"].strip()) != digest:
+                raise ValueError("Reviewed book-specific adaptation changed")
+            if digest in adapted_hashes:
+                raise ValueError("Duplicate book-specific adaptation")
+            adapted_hashes.add(digest)
     decisions = json.loads((root / "data/world-simulator-layer-review.json").read_text())["decisions"]
     routes = {}
     for decision in decisions:
@@ -55,7 +70,7 @@ def audit(archive, root):
         digest = sha(by_id[bid]["entries"][index]["content"].strip())
         if decision["decision_id"] != f"{bid}:{index}" or digest != decision["source_sha256"]:
             raise ValueError("Reviewed layer source changed")
-        if digest in routes or digest in {sha(canonical["entries"][i]["content"].strip()) for i in SELECTED}:
+        if digest in routes or digest in adapted_hashes:
             raise ValueError("Duplicate or overlapping source routing")
         routes[digest] = decision
     records, review_records, inventory = [], [], []
@@ -66,7 +81,8 @@ def audit(archive, root):
         adopted, reviewed = [], []
         for index, source in enumerate(book["entries"]):
             matches = [i for i in SELECTED if source["content"].strip() == canonical["entries"][i]["content"].strip()]
-            if not matches:
+            specific = SOURCE_SPECIFIC.get(bid, {}).get(index)
+            if not matches and not specific:
                 route = routes.get(sha(source["content"].strip()))
                 if route:
                     reviewed.append(index)
@@ -76,7 +92,7 @@ def audit(archive, root):
                                            "status": "reviewed-not-published", "route": route["route"],
                                            "automatic_recall": False})
                 continue
-            entry_id = SELECTED[matches[0]]
+            entry_id = SELECTED[matches[0]] if matches else specific[0]
             pack_id, entry = entries[entry_id]
             adopted.append(index)
             records.append({"book_id": bid, "source_index": index,
@@ -84,7 +100,7 @@ def audit(archive, root):
                             "pack_id": pack_id, "entry_id": entry_id,
                             "published_sha256": sha(entry["content"]),
                             "status": "partial-adaptation", "not_verbatim": True})
-        if len(adopted) != len(SELECTED):
+        if len(adopted) != len(SELECTED) + len(SOURCE_SPECIFIC.get(bid, {})):
             raise ValueError("Reviewed common source no longer matches")
         inventory.append({"book_id": bid, "source_count": len(book["entries"]),
                           "adapted_indices": adopted,
@@ -100,7 +116,7 @@ def audit(archive, root):
         if any(current.get((r["book_id"], r["source_index"])) != r["source_sha256"]
                for r in old["records"] + old.get("review_records", [])):
             raise ValueError("Reviewed source changed; review before updating")
-    return {"schema": "yorubay-world-simulator-general-review", "version": 8,
+    return {"schema": "yorubay-world-simulator-general-review", "version": 9,
             "source_count": sum(BOOKS.values()), "adopted_occurrences": len(records),
             "unique_adapted_sources": len({r["source_sha256"] for r in records}),
             "reviewed_unpublished_occurrences": len(review_records),
