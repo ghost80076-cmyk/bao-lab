@@ -54,7 +54,7 @@ test.describe('YoruBay official identity and concise community entry', () => {
     await expect(page.locator('#detail-view')).toHaveClass(/active/);
     const guide = page.locator('#character-detail .detail-first-run');
     await expect(guide).toHaveCount(1);
-    await expect(guide).toHaveAttribute('href', 'quick-start.html');
+    await expect(guide).toHaveAttribute('href', 'quick-start');
     await expect(guide).toContainText('第一次來？三步開始');
   });
 
