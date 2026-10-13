@@ -40,7 +40,11 @@ assert.equal(engine.relevantDynamicPrompts(card,{latestUserText:'我想拍照'})
 assert.equal(engine.relevantDynamicPrompts(card,{latestUserText:'我想拍照'})[0].id,'photography');
 assert.equal(engine.relevantDynamicPrompts(card,{recentMessages:[{content:'今天天氣如何'}]}).length,0);
 const rules=Regex.normalize(sidecar);
-for(const input of [card.content.greeting,'攝影筆記｜21:00\n照片背面寫著：週六。\n\n正文，不能吃掉。','攝影筆記|21:00\r\n第二行。\r\n\r\n正文，不能吃掉。']){
+// The opening starts directly with narrative. Photography-note rendering remains available later when the character emits a real note.
+const greetingRender=Regex.render(card.content.greeting,rules,false);
+assert.equal(greetingRender.matched,false);
+assert.match(card.content.greeting,/工作室的門鈴響起時/);
+for(const input of ['攝影筆記｜21:00\n照片背面寫著：週六。\n\n正文，不能吃掉。','攝影筆記|21:00\r\n第二行。\r\n\r\n正文，不能吃掉。']){
  const r=Regex.render(input,rules,false); assert.ok(r.matched); assert.ok(r.rich); assert.match(r.html,/yb-kept-note/);assert.doesNotMatch(r.html,/【YB:/);
  if(input.includes('不能吃掉'))assert.match(r.html,/正文，不能吃掉/);
 }
