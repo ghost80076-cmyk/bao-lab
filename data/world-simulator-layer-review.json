@@ -1,6 +1,6 @@
 {
   "schema": "yorubay-world-simulator-layer-review",
-  "version": 3,
+  "version": 4,
   "scope": "Metadata-only routing of common and book-specific author sources; no raw bodies, no new command handlers, no full integration claim.",
   "decisions": [
     {
@@ -750,6 +750,176 @@
       "decision_id": "572f3222-5746-43cc-ae16-60239eac041c:250",
       "source_sha256": "4dc76ce4ecaebc3986326ae7eb83a707bee5510a225c710646ee9a7e3d340780",
       "expected_occurrences": 1
+    },
+    {
+      "canonical_source_index": 38,
+      "route": "author-state-rules",
+      "status": "reviewed-not-published",
+      "implementation": "partial-overlap",
+      "automatic_recall": false,
+      "reason": "狀態欄可記錄已確認的關係態度；原文固定累積、永久變化、行為門檻及每場字數未實作，不能由數值自動判定角色意願。",
+      "evidence": [
+        {
+          "path": "js/native-status-packs.js",
+          "needle": "不代表同意，也不因任何情緒或壓力推定"
+        }
+      ],
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:38",
+      "source_sha256": "d21559a6a1b338fa82160c8bbe3615f07e7cf608f7e49b41d46208bf1adb4983",
+      "expected_occurrences": 3
+    },
+    {
+      "canonical_source_index": 39,
+      "route": "author-offscreen-rules",
+      "status": "reviewed-not-published",
+      "implementation": "partial-overlap",
+      "automatic_recall": false,
+      "reason": "已有離場位置與活動記錄；原文按離場時間累積狀態、產生事件及強制留下可發現痕跡的引擎未實作，推算不能直接變為已發生事實。",
+      "evidence": [
+        {
+          "path": "js/native-status-packs.js",
+          "needle": "離場時不得把預計行為當成已發生"
+        }
+      ],
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:39",
+      "source_sha256": "1e43431f7f6cda3968920f0e09e8a946646b434a65e6b666f35774d3080f0f95",
+      "expected_occurrences": 3
+    },
+    {
+      "canonical_source_index": 40,
+      "route": "author-relationship-rules",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "reason": "特定多人互動、場景觸發與分角色反應屬作者規則；本批未新增關係事件引擎、參與者安排或自動發生的離場互動。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【NPC 運作規則】"
+        }
+      ],
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:40",
+      "source_sha256": "9c33d8981fe1cf92f993b5b2b1fe07b8184faa9a844207b9d0085931986df6b1",
+      "expected_occurrences": 3
+    },
+    {
+      "canonical_source_index": 45,
+      "route": "author-writing-preference",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "reason": "固定內容比例、節奏、開放度及快速情境是作品寫作取向；不由通用背景召回改寫故事分級、角色人格或所有場景。",
+      "evidence": [
+        {
+          "path": "js/narrative-settings.js",
+          "needle": "AI 應該怎麼寫"
+        }
+      ],
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:45",
+      "source_sha256": "57eec842adba32edfda575830e025fed78cf23b48d8cc9167e2e030aabec40cf",
+      "expected_occurrences": 3
+    },
+    {
+      "canonical_source_index": 65,
+      "route": "author-actor-premise",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "reason": "演員本人身份與劇中角色年齡是不同資料；原文把兩者等同的假設不移入通用規則，也未新增年齡重寫或自動套用的演員框架。",
+      "evidence": [
+        {
+          "path": "js/actor-mode-core.js",
+          "needle": "不得因演員本人的偏好或玩家臨時期待直接覆寫"
+        }
+      ],
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:65",
+      "source_sha256": "ac2cac131a600427166f55dcc95d8fd636b8c1feefb0b7db40be63a0873acb6b",
+      "expected_occurrences": 3
+    },
+    {
+      "canonical_source_index": 66,
+      "route": "author-actor-premise",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "reason": "角色死亡與演員殺青的雙層世界屬作品前提；未在通用規則把死亡改成退場，也未加入原文鏡頭流程或謝幕判定。",
+      "evidence": [
+        {
+          "path": "js/actor-mode-core.js",
+          "needle": "角色具有慣性"
+        }
+      ],
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:66",
+      "source_sha256": "a7073779fe3848fbdaf88d7c120126469265f9ef9d1a02f26810d9f19b5ed25d",
+      "expected_occurrences": 3
+    },
+    {
+      "canonical_source_index": 67,
+      "route": "author-event-command",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "reason": "指定短語觸發的事件設計、鏡頭步驟與停頓屬作者工作流程；未新增該命令處理器，不以背景召回強制事故、曝光或玩家反應。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        }
+      ],
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:67",
+      "source_sha256": "f45e9a67f9d7dca3c167e1110087d9e17d0f8eb8c3cb79bf00f55cdf5b49b056",
+      "expected_occurrences": 3
+    },
+    {
+      "canonical_source_index": 87,
+      "route": "author-writing-preference",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "reason": "熱度分級、場景數量、奇幻加成與指定圓滿結局屬作品契約；本批未新增尺度切換、固定結局或場景配額。",
+      "evidence": [
+        {
+          "path": "js/narrative-settings.js",
+          "needle": "AI 應該怎麼寫"
+        }
+      ],
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:87",
+      "source_sha256": "306e891e013417955ddd32ad9a908b947f77e23f7c60f424d38fd726e381fd7d",
+      "expected_occurrences": 3
+    },
+    {
+      "canonical_source_index": 88,
+      "route": "author-writing-preference",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "reason": "題材比例、情節密度、用詞與結局要求屬作者寫作偏好；沒有把原文比例或表現規格設為通用故事預設。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        }
+      ],
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:88",
+      "source_sha256": "ff603bc390dbec7b15a5c2d60a5eb96623440286598cd3427b02fc9004a2e2d9",
+      "expected_occurrences": 3
+    },
+    {
+      "canonical_source_index": 89,
+      "route": "author-writing-preference",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "reason": "固定性別視角、畫面取向與篇幅比例屬特定作品風格；未覆寫玩家角色視角、角色人格或全局敘事設定。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "controlled_by=user"
+        }
+      ],
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:89",
+      "source_sha256": "2c298d1a4384b7cd5fcaa67d43eb940f2dc4bdc31721b24b3da02b20840113eb",
+      "expected_occurrences": 3
     }
   ]
 }
