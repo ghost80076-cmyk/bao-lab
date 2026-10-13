@@ -3,6 +3,7 @@ import argparse
 import hashlib
 import json
 import pathlib
+import re
 import zipfile
 
 BOOKS = {
@@ -82,6 +83,16 @@ def audit(archive, root):
         digest = sha(by_id[bid]["entries"][index]["content"].strip())
         if decision["decision_id"] != f"{bid}:{index}" or digest != decision["source_sha256"]:
             raise ValueError("Reviewed layer source changed")
+        method = decision.get("review_method", "manual-layer-review")
+        if method not in {"manual-layer-review", "structure-and-routing"}:
+            raise ValueError("Unknown source review method")
+        if method == "structure-and-routing":
+            body = by_id[bid]["entries"][index]["content"].strip()
+            signature = {"source_chars": len(body), "section_marker_count": len(re.findall(r'^\s*(?:#{1,6}\s|【)', body, re.M))}
+            if decision.get("structure") != signature or not signature["section_marker_count"]:
+                raise ValueError("Source structure signature changed")
+            if "not full prose review" not in decision.get("review_scope", ""):
+                raise ValueError("Structural routing must disclose its review limit")
         if digest in routes or digest in adapted_hashes:
             raise ValueError("Duplicate or overlapping source routing")
         routes[digest] = decision
@@ -101,6 +112,7 @@ def audit(archive, root):
                     review_records.append({"book_id": bid, "source_index": index,
                                            "source_sha256": sha(source["content"].strip()),
                                            "decision_id": route["decision_id"],
+                                           "review_method": route.get("review_method", "manual-layer-review"),
                                            "status": "reviewed-not-published", "route": route["route"],
                                            "automatic_recall": False})
                 continue
@@ -128,13 +140,17 @@ def audit(archive, root):
         if any(current.get((r["book_id"], r["source_index"])) != r["source_sha256"]
                for r in old["records"] + old.get("review_records", [])):
             raise ValueError("Reviewed source changed; review before updating")
-    return {"schema": "yorubay-world-simulator-general-review", "version": 16,
+    pending_count = sum(len(book["pending_indices"]) for book in inventory)
+    return {"schema": "yorubay-world-simulator-general-review", "version": 17,
             "source_count": sum(BOOKS.values()), "adopted_occurrences": len(records),
             "unique_adapted_sources": len({r["source_sha256"] for r in records}),
             "reviewed_unpublished_occurrences": len(review_records),
             "unique_reviewed_unpublished_sources": len({r["source_sha256"] for r in review_records}),
+            "review_methods": {method: sum(r["review_method"] == method for r in review_records)
+                               for method in sorted({r["review_method"] for r in review_records})},
+            "pending_occurrences": pending_count, "source_routing_complete": pending_count == 0,
             "pack_count": len(published["packs"]), "chapter_count": len(entries),
-            "scope": "Public adapted chapters and metadata-only layer routing. Reviewed-not-published does not mean integrated. No full-book migration or model-dialogue evaluation claimed.",
+            "scope": "Public partial adaptations and metadata-only source routing. Structural routing is not full prose review; reviewed-not-published does not mean integrated. No full-book migration or model-dialogue evaluation claimed.",
             "books": inventory, "records": records, "review_records": review_records}
 
 if __name__ == "__main__":

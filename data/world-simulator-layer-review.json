@@ -1,7 +1,7 @@
 {
   "schema": "yorubay-world-simulator-layer-review",
-  "version": 7,
-  "scope": "Metadata-only routing of common and book-specific author sources; no raw bodies, no new command handlers, no full integration claim.",
+  "version": 8,
+  "scope": "Metadata-only source identity, structural routing and manual layer reviews. All original occurrences are accounted for; structural routing is not full prose review. No raw bodies, new command handlers or full migration claim.",
   "decisions": [
     {
       "canonical_source_index": 32,
@@ -1666,6 +1666,2384 @@
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:208",
       "source_sha256": "0ba046c05c599439e35902dd7a793eb1c4b83fc9b9b031d9ff1424de58e675f5",
       "expected_occurrences": 2
+    },
+    {
+      "canonical_source_index": 99,
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:99",
+      "source_sha256": "b1d73722fd6b3465beaeb626d34c799b9f5770021b893c28a07413c4cfbf7ff6",
+      "expected_occurrences": 3,
+      "route": "author-position-template",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "structure-and-routing",
+      "review_scope": "Source identity, structural category and layer ownership only; not full prose review, migration or implementation.",
+      "structure": {
+        "source_chars": 1407,
+        "section_marker_count": 25
+      },
+      "reason": "依標題、區塊結構與來源一致性完成作者模板歸屬分類；尚未逐段審讀正文，也未新增場景、道具、能力、固定反應或人物設定。原文未進入公開召回包。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 100,
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:100",
+      "source_sha256": "e4c98620a073a7fe695024e1e35a3a0632116eb249566d7c5752940cc4794c97",
+      "expected_occurrences": 3,
+      "route": "author-position-template",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "structure-and-routing",
+      "review_scope": "Source identity, structural category and layer ownership only; not full prose review, migration or implementation.",
+      "structure": {
+        "source_chars": 1746,
+        "section_marker_count": 28
+      },
+      "reason": "依標題、區塊結構與來源一致性完成作者模板歸屬分類；尚未逐段審讀正文，也未新增場景、道具、能力、固定反應或人物設定。原文未進入公開召回包。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 101,
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:101",
+      "source_sha256": "fff7102f05761f85dcb4c207f935b4e48862a245d7ceb2425385a819725c3fe5",
+      "expected_occurrences": 3,
+      "route": "author-position-template",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "structure-and-routing",
+      "review_scope": "Source identity, structural category and layer ownership only; not full prose review, migration or implementation.",
+      "structure": {
+        "source_chars": 1573,
+        "section_marker_count": 27
+      },
+      "reason": "依標題、區塊結構與來源一致性完成作者模板歸屬分類；尚未逐段審讀正文，也未新增場景、道具、能力、固定反應或人物設定。原文未進入公開召回包。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 102,
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:102",
+      "source_sha256": "e9a6b4b4f0bea29cb8a8783a4e78dc93e2822668d289c781dade6ff4b27057aa",
+      "expected_occurrences": 3,
+      "route": "author-position-template",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "structure-and-routing",
+      "review_scope": "Source identity, structural category and layer ownership only; not full prose review, migration or implementation.",
+      "structure": {
+        "source_chars": 1482,
+        "section_marker_count": 26
+      },
+      "reason": "依標題、區塊結構與來源一致性完成作者模板歸屬分類；尚未逐段審讀正文，也未新增場景、道具、能力、固定反應或人物設定。原文未進入公開召回包。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 103,
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:103",
+      "source_sha256": "0eb09b0d56b260ad3faa917106b365487529e4a26d8095b3eb3b0ac1b21c17d2",
+      "expected_occurrences": 3,
+      "route": "author-position-template",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "structure-and-routing",
+      "review_scope": "Source identity, structural category and layer ownership only; not full prose review, migration or implementation.",
+      "structure": {
+        "source_chars": 1496,
+        "section_marker_count": 27
+      },
+      "reason": "依標題、區塊結構與來源一致性完成作者模板歸屬分類；尚未逐段審讀正文，也未新增場景、道具、能力、固定反應或人物設定。原文未進入公開召回包。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 104,
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:104",
+      "source_sha256": "1908642bcfd6042e88931955194bf4fdebe8a95ad5191bd95a926f1941b07852",
+      "expected_occurrences": 3,
+      "route": "author-position-template",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "structure-and-routing",
+      "review_scope": "Source identity, structural category and layer ownership only; not full prose review, migration or implementation.",
+      "structure": {
+        "source_chars": 1250,
+        "section_marker_count": 25
+      },
+      "reason": "依標題、區塊結構與來源一致性完成作者模板歸屬分類；尚未逐段審讀正文，也未新增場景、道具、能力、固定反應或人物設定。原文未進入公開召回包。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 105,
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:105",
+      "source_sha256": "626a58f95d1da5c6f160d8999167e4447609a05b4066a3c653bea1bec29d7c2c",
+      "expected_occurrences": 3,
+      "route": "author-position-template",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "structure-and-routing",
+      "review_scope": "Source identity, structural category and layer ownership only; not full prose review, migration or implementation.",
+      "structure": {
+        "source_chars": 1353,
+        "section_marker_count": 25
+      },
+      "reason": "依標題、區塊結構與來源一致性完成作者模板歸屬分類；尚未逐段審讀正文，也未新增場景、道具、能力、固定反應或人物設定。原文未進入公開召回包。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 106,
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:106",
+      "source_sha256": "b89cd8d288671e8d7f90cabfbafe6c1ae6f2cfd006f38e374542c74bb3115a1e",
+      "expected_occurrences": 3,
+      "route": "author-position-template",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "structure-and-routing",
+      "review_scope": "Source identity, structural category and layer ownership only; not full prose review, migration or implementation.",
+      "structure": {
+        "source_chars": 1307,
+        "section_marker_count": 26
+      },
+      "reason": "依標題、區塊結構與來源一致性完成作者模板歸屬分類；尚未逐段審讀正文，也未新增場景、道具、能力、固定反應或人物設定。原文未進入公開召回包。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 107,
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:107",
+      "source_sha256": "70bd09305db924b0d3f3d0f46a3c59133e43b516374dff0aae8ee9c80693c4f9",
+      "expected_occurrences": 3,
+      "route": "author-position-template",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "structure-and-routing",
+      "review_scope": "Source identity, structural category and layer ownership only; not full prose review, migration or implementation.",
+      "structure": {
+        "source_chars": 1296,
+        "section_marker_count": 26
+      },
+      "reason": "依標題、區塊結構與來源一致性完成作者模板歸屬分類；尚未逐段審讀正文，也未新增場景、道具、能力、固定反應或人物設定。原文未進入公開召回包。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 108,
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:108",
+      "source_sha256": "04a3a9189313646a19dea4cf1049ebe9d95a2daffd1741539b5e61ac2cc74a4f",
+      "expected_occurrences": 3,
+      "route": "author-position-template",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "structure-and-routing",
+      "review_scope": "Source identity, structural category and layer ownership only; not full prose review, migration or implementation.",
+      "structure": {
+        "source_chars": 1221,
+        "section_marker_count": 26
+      },
+      "reason": "依標題、區塊結構與來源一致性完成作者模板歸屬分類；尚未逐段審讀正文，也未新增場景、道具、能力、固定反應或人物設定。原文未進入公開召回包。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 109,
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:109",
+      "source_sha256": "8733eece22d474b2e62ffcd0b615771c790b58b447748112f6c6891d6e01a69c",
+      "expected_occurrences": 3,
+      "route": "author-position-template",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "structure-and-routing",
+      "review_scope": "Source identity, structural category and layer ownership only; not full prose review, migration or implementation.",
+      "structure": {
+        "source_chars": 1275,
+        "section_marker_count": 26
+      },
+      "reason": "依標題、區塊結構與來源一致性完成作者模板歸屬分類；尚未逐段審讀正文，也未新增場景、道具、能力、固定反應或人物設定。原文未進入公開召回包。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 110,
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:110",
+      "source_sha256": "b9f0e5595445ce717f4427aed89058fcc9587ec829232e4bc59b252964b77ec4",
+      "expected_occurrences": 3,
+      "route": "author-position-template",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "structure-and-routing",
+      "review_scope": "Source identity, structural category and layer ownership only; not full prose review, migration or implementation.",
+      "structure": {
+        "source_chars": 1384,
+        "section_marker_count": 27
+      },
+      "reason": "依標題、區塊結構與來源一致性完成作者模板歸屬分類；尚未逐段審讀正文，也未新增場景、道具、能力、固定反應或人物設定。原文未進入公開召回包。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 111,
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:111",
+      "source_sha256": "1423616eb923b7269c0745938b96ceaf9c88f8606fe396189da88f8a407adaec",
+      "expected_occurrences": 3,
+      "route": "author-position-template",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "structure-and-routing",
+      "review_scope": "Source identity, structural category and layer ownership only; not full prose review, migration or implementation.",
+      "structure": {
+        "source_chars": 1214,
+        "section_marker_count": 26
+      },
+      "reason": "依標題、區塊結構與來源一致性完成作者模板歸屬分類；尚未逐段審讀正文，也未新增場景、道具、能力、固定反應或人物設定。原文未進入公開召回包。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 112,
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:112",
+      "source_sha256": "b4034841712f6a43bf223daf43a2bc097d51ca37f7d4ea76dfaef7cc77aa9339",
+      "expected_occurrences": 3,
+      "route": "author-position-template",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "structure-and-routing",
+      "review_scope": "Source identity, structural category and layer ownership only; not full prose review, migration or implementation.",
+      "structure": {
+        "source_chars": 1316,
+        "section_marker_count": 27
+      },
+      "reason": "依標題、區塊結構與來源一致性完成作者模板歸屬分類；尚未逐段審讀正文，也未新增場景、道具、能力、固定反應或人物設定。原文未進入公開召回包。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 113,
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:113",
+      "source_sha256": "1fff9fe757d8a1038a8d790f424347efed62ea06f3dbfd8e55eea765419c63ca",
+      "expected_occurrences": 3,
+      "route": "author-position-template",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "structure-and-routing",
+      "review_scope": "Source identity, structural category and layer ownership only; not full prose review, migration or implementation.",
+      "structure": {
+        "source_chars": 1265,
+        "section_marker_count": 26
+      },
+      "reason": "依標題、區塊結構與來源一致性完成作者模板歸屬分類；尚未逐段審讀正文，也未新增場景、道具、能力、固定反應或人物設定。原文未進入公開召回包。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 114,
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:114",
+      "source_sha256": "e33e978ef01e5d06a375d14a75503dc90dd99ea343bdd4399ee08bf4813db96e",
+      "expected_occurrences": 3,
+      "route": "author-position-template",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "structure-and-routing",
+      "review_scope": "Source identity, structural category and layer ownership only; not full prose review, migration or implementation.",
+      "structure": {
+        "source_chars": 1269,
+        "section_marker_count": 26
+      },
+      "reason": "依標題、區塊結構與來源一致性完成作者模板歸屬分類；尚未逐段審讀正文，也未新增場景、道具、能力、固定反應或人物設定。原文未進入公開召回包。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 115,
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:115",
+      "source_sha256": "1c3956dd19777a8c870d7271cfc154ca0f6ff00bb8aee06fc5840e9c2e4e59c4",
+      "expected_occurrences": 3,
+      "route": "author-position-template",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "structure-and-routing",
+      "review_scope": "Source identity, structural category and layer ownership only; not full prose review, migration or implementation.",
+      "structure": {
+        "source_chars": 1300,
+        "section_marker_count": 26
+      },
+      "reason": "依標題、區塊結構與來源一致性完成作者模板歸屬分類；尚未逐段審讀正文，也未新增場景、道具、能力、固定反應或人物設定。原文未進入公開召回包。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 116,
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:116",
+      "source_sha256": "949f41ce5fea1f18dde5695e9bd0e18c6c6b02d05e768aadecbcdea25a62a2d5",
+      "expected_occurrences": 3,
+      "route": "author-location-scene",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "structure-and-routing",
+      "review_scope": "Source identity, structural category and layer ownership only; not full prose review, migration or implementation.",
+      "structure": {
+        "source_chars": 1625,
+        "section_marker_count": 27
+      },
+      "reason": "依標題、區塊結構與來源一致性完成作者模板歸屬分類；尚未逐段審讀正文，也未新增場景、道具、能力、固定反應或人物設定。原文未進入公開召回包。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 117,
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:117",
+      "source_sha256": "fb0c1f164f9c89f249b33919d7b9c184070ef2e49fec7abc2a59d1af4d8e245f",
+      "expected_occurrences": 3,
+      "route": "author-location-scene",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "structure-and-routing",
+      "review_scope": "Source identity, structural category and layer ownership only; not full prose review, migration or implementation.",
+      "structure": {
+        "source_chars": 1633,
+        "section_marker_count": 29
+      },
+      "reason": "依標題、區塊結構與來源一致性完成作者模板歸屬分類；尚未逐段審讀正文，也未新增場景、道具、能力、固定反應或人物設定。原文未進入公開召回包。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 118,
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:118",
+      "source_sha256": "7b9c1133b7ab09f13e711318bd025a8ef1a2bc795ee67bdd9f648e5313f74088",
+      "expected_occurrences": 3,
+      "route": "author-location-scene",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "structure-and-routing",
+      "review_scope": "Source identity, structural category and layer ownership only; not full prose review, migration or implementation.",
+      "structure": {
+        "source_chars": 1469,
+        "section_marker_count": 28
+      },
+      "reason": "依標題、區塊結構與來源一致性完成作者模板歸屬分類；尚未逐段審讀正文，也未新增場景、道具、能力、固定反應或人物設定。原文未進入公開召回包。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 119,
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:119",
+      "source_sha256": "e770e80f668379be897a7845a1625f4c9f98f6d0379cb6c9b588afaf928e0d7f",
+      "expected_occurrences": 3,
+      "route": "author-location-scene",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "structure-and-routing",
+      "review_scope": "Source identity, structural category and layer ownership only; not full prose review, migration or implementation.",
+      "structure": {
+        "source_chars": 1438,
+        "section_marker_count": 28
+      },
+      "reason": "依標題、區塊結構與來源一致性完成作者模板歸屬分類；尚未逐段審讀正文，也未新增場景、道具、能力、固定反應或人物設定。原文未進入公開召回包。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 120,
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:120",
+      "source_sha256": "756a6d420a0db80c8ea887c91325e3457454e15fb18bec76af42cfd23a180d5d",
+      "expected_occurrences": 3,
+      "route": "author-location-scene",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "structure-and-routing",
+      "review_scope": "Source identity, structural category and layer ownership only; not full prose review, migration or implementation.",
+      "structure": {
+        "source_chars": 1622,
+        "section_marker_count": 30
+      },
+      "reason": "依標題、區塊結構與來源一致性完成作者模板歸屬分類；尚未逐段審讀正文，也未新增場景、道具、能力、固定反應或人物設定。原文未進入公開召回包。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 121,
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:121",
+      "source_sha256": "6e95b62ec6514bfe5895b9fd6a6da86e6e20ad351d7d3c4ae230bf1139eb6f19",
+      "expected_occurrences": 3,
+      "route": "author-location-scene",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "structure-and-routing",
+      "review_scope": "Source identity, structural category and layer ownership only; not full prose review, migration or implementation.",
+      "structure": {
+        "source_chars": 1489,
+        "section_marker_count": 29
+      },
+      "reason": "依標題、區塊結構與來源一致性完成作者模板歸屬分類；尚未逐段審讀正文，也未新增場景、道具、能力、固定反應或人物設定。原文未進入公開召回包。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 122,
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:122",
+      "source_sha256": "96644904bfe1a395bea3d1189c01e05888f28ecc7e66a6f239045447930598a2",
+      "expected_occurrences": 3,
+      "route": "author-location-scene",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "structure-and-routing",
+      "review_scope": "Source identity, structural category and layer ownership only; not full prose review, migration or implementation.",
+      "structure": {
+        "source_chars": 1454,
+        "section_marker_count": 29
+      },
+      "reason": "依標題、區塊結構與來源一致性完成作者模板歸屬分類；尚未逐段審讀正文，也未新增場景、道具、能力、固定反應或人物設定。原文未進入公開召回包。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 123,
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:123",
+      "source_sha256": "d0579c88c148bcf9869b2ae8841ba1289efb7a982a1c6a791647ccc77016d091",
+      "expected_occurrences": 3,
+      "route": "author-location-scene",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "structure-and-routing",
+      "review_scope": "Source identity, structural category and layer ownership only; not full prose review, migration or implementation.",
+      "structure": {
+        "source_chars": 1459,
+        "section_marker_count": 29
+      },
+      "reason": "依標題、區塊結構與來源一致性完成作者模板歸屬分類；尚未逐段審讀正文，也未新增場景、道具、能力、固定反應或人物設定。原文未進入公開召回包。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 124,
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:124",
+      "source_sha256": "bd020a3031bab4e8b03fed78b147ccf21526f501169f793375b9e9cb4fee496a",
+      "expected_occurrences": 3,
+      "route": "author-location-scene",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "structure-and-routing",
+      "review_scope": "Source identity, structural category and layer ownership only; not full prose review, migration or implementation.",
+      "structure": {
+        "source_chars": 1210,
+        "section_marker_count": 27
+      },
+      "reason": "依標題、區塊結構與來源一致性完成作者模板歸屬分類；尚未逐段審讀正文，也未新增場景、道具、能力、固定反應或人物設定。原文未進入公開召回包。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 125,
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:125",
+      "source_sha256": "f738eff202112fea8e89a5be1b31ed0af429f42bc600f5e6da758c5981e5c651",
+      "expected_occurrences": 3,
+      "route": "author-condition-scene",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "structure-and-routing",
+      "review_scope": "Source identity, structural category and layer ownership only; not full prose review, migration or implementation.",
+      "structure": {
+        "source_chars": 1367,
+        "section_marker_count": 28
+      },
+      "reason": "依標題、區塊結構與來源一致性完成作者模板歸屬分類；尚未逐段審讀正文，也未新增場景、道具、能力、固定反應或人物設定。原文未進入公開召回包。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 126,
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:126",
+      "source_sha256": "56f4feb834976ab5b0ed4f4e12f683b8296cc2183cee26a0f05098b4a237111b",
+      "expected_occurrences": 3,
+      "route": "author-condition-scene",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "structure-and-routing",
+      "review_scope": "Source identity, structural category and layer ownership only; not full prose review, migration or implementation.",
+      "structure": {
+        "source_chars": 1327,
+        "section_marker_count": 28
+      },
+      "reason": "依標題、區塊結構與來源一致性完成作者模板歸屬分類；尚未逐段審讀正文，也未新增場景、道具、能力、固定反應或人物設定。原文未進入公開召回包。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 127,
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:127",
+      "source_sha256": "637c7b52474522869983d484398adfe787ab7492fc70b1f37b792a714164a9c9",
+      "expected_occurrences": 3,
+      "route": "author-condition-scene",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "structure-and-routing",
+      "review_scope": "Source identity, structural category and layer ownership only; not full prose review, migration or implementation.",
+      "structure": {
+        "source_chars": 1306,
+        "section_marker_count": 28
+      },
+      "reason": "依標題、區塊結構與來源一致性完成作者模板歸屬分類；尚未逐段審讀正文，也未新增場景、道具、能力、固定反應或人物設定。原文未進入公開召回包。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 128,
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:128",
+      "source_sha256": "82ac5b78df4a8424bb5dcd077410b0d868a8f3d8a159b31f6c843e7bb7d60851",
+      "expected_occurrences": 3,
+      "route": "author-condition-scene",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "structure-and-routing",
+      "review_scope": "Source identity, structural category and layer ownership only; not full prose review, migration or implementation.",
+      "structure": {
+        "source_chars": 1416,
+        "section_marker_count": 29
+      },
+      "reason": "依標題、區塊結構與來源一致性完成作者模板歸屬分類；尚未逐段審讀正文，也未新增場景、道具、能力、固定反應或人物設定。原文未進入公開召回包。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 129,
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:129",
+      "source_sha256": "f11f156cd0e5312a455d0bbaa994b579b1a3f46391a9d057c286dcf255615d64",
+      "expected_occurrences": 3,
+      "route": "author-condition-scene",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "structure-and-routing",
+      "review_scope": "Source identity, structural category and layer ownership only; not full prose review, migration or implementation.",
+      "structure": {
+        "source_chars": 1373,
+        "section_marker_count": 28
+      },
+      "reason": "依標題、區塊結構與來源一致性完成作者模板歸屬分類；尚未逐段審讀正文，也未新增場景、道具、能力、固定反應或人物設定。原文未進入公開召回包。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 130,
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:130",
+      "source_sha256": "e6ea685f49a4cba8428c0d6adf7e877e0c7c415c9cdb06d833702f558ccc8817",
+      "expected_occurrences": 3,
+      "route": "author-condition-scene",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "structure-and-routing",
+      "review_scope": "Source identity, structural category and layer ownership only; not full prose review, migration or implementation.",
+      "structure": {
+        "source_chars": 1351,
+        "section_marker_count": 29
+      },
+      "reason": "依標題、區塊結構與來源一致性完成作者模板歸屬分類；尚未逐段審讀正文，也未新增場景、道具、能力、固定反應或人物設定。原文未進入公開召回包。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 131,
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:131",
+      "source_sha256": "c6f9e20f92262dd881e69d5fd1d729a3ae992774b94044e57f57aae1d4273754",
+      "expected_occurrences": 3,
+      "route": "author-prop-template",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "structure-and-routing",
+      "review_scope": "Source identity, structural category and layer ownership only; not full prose review, migration or implementation.",
+      "structure": {
+        "source_chars": 1461,
+        "section_marker_count": 30
+      },
+      "reason": "依標題、區塊結構與來源一致性完成作者模板歸屬分類；尚未逐段審讀正文，也未新增場景、道具、能力、固定反應或人物設定。原文未進入公開召回包。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 132,
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:132",
+      "source_sha256": "bbfa3c7afa6f287e583510cbd681531b5a70eacc4373f87b919da66f6c8e9cb1",
+      "expected_occurrences": 3,
+      "route": "author-prop-template",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "structure-and-routing",
+      "review_scope": "Source identity, structural category and layer ownership only; not full prose review, migration or implementation.",
+      "structure": {
+        "source_chars": 1388,
+        "section_marker_count": 30
+      },
+      "reason": "依標題、區塊結構與來源一致性完成作者模板歸屬分類；尚未逐段審讀正文，也未新增場景、道具、能力、固定反應或人物設定。原文未進入公開召回包。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 133,
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:133",
+      "source_sha256": "1d4bb22cf11a2ca7a0d85446f2785efd1cfea991b1324ca3c79f664f896e7151",
+      "expected_occurrences": 3,
+      "route": "author-prop-template",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "structure-and-routing",
+      "review_scope": "Source identity, structural category and layer ownership only; not full prose review, migration or implementation.",
+      "structure": {
+        "source_chars": 1433,
+        "section_marker_count": 30
+      },
+      "reason": "依標題、區塊結構與來源一致性完成作者模板歸屬分類；尚未逐段審讀正文，也未新增場景、道具、能力、固定反應或人物設定。原文未進入公開召回包。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 134,
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:134",
+      "source_sha256": "a5f85468c36e463622ffc7606c9c20fe79e9b9af94ec6b2dd47afb34483b8ff9",
+      "expected_occurrences": 3,
+      "route": "author-prop-template",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "structure-and-routing",
+      "review_scope": "Source identity, structural category and layer ownership only; not full prose review, migration or implementation.",
+      "structure": {
+        "source_chars": 1346,
+        "section_marker_count": 29
+      },
+      "reason": "依標題、區塊結構與來源一致性完成作者模板歸屬分類；尚未逐段審讀正文，也未新增場景、道具、能力、固定反應或人物設定。原文未進入公開召回包。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 135,
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:135",
+      "source_sha256": "6a86d2bb84af1fbe752ce435b57454337dc5622648cc39c68243b866ebc8328e",
+      "expected_occurrences": 3,
+      "route": "author-prop-template",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "structure-and-routing",
+      "review_scope": "Source identity, structural category and layer ownership only; not full prose review, migration or implementation.",
+      "structure": {
+        "source_chars": 1283,
+        "section_marker_count": 29
+      },
+      "reason": "依標題、區塊結構與來源一致性完成作者模板歸屬分類；尚未逐段審讀正文，也未新增場景、道具、能力、固定反應或人物設定。原文未進入公開召回包。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 136,
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:136",
+      "source_sha256": "9292450c39b3aaf39ce002e53cb34b338ee76b6fbb31157d6404227e4e4b3615",
+      "expected_occurrences": 3,
+      "route": "author-prop-template",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "structure-and-routing",
+      "review_scope": "Source identity, structural category and layer ownership only; not full prose review, migration or implementation.",
+      "structure": {
+        "source_chars": 1407,
+        "section_marker_count": 30
+      },
+      "reason": "依標題、區塊結構與來源一致性完成作者模板歸屬分類；尚未逐段審讀正文，也未新增場景、道具、能力、固定反應或人物設定。原文未進入公開召回包。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 137,
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:137",
+      "source_sha256": "c820d8e7d582e42a376084e7182ee4bff679816360e51e65ee16c801af78d902",
+      "expected_occurrences": 3,
+      "route": "author-prop-template",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "structure-and-routing",
+      "review_scope": "Source identity, structural category and layer ownership only; not full prose review, migration or implementation.",
+      "structure": {
+        "source_chars": 1349,
+        "section_marker_count": 30
+      },
+      "reason": "依標題、區塊結構與來源一致性完成作者模板歸屬分類；尚未逐段審讀正文，也未新增場景、道具、能力、固定反應或人物設定。原文未進入公開召回包。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 138,
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:138",
+      "source_sha256": "3ffa3e92550db132219b43f2fda314d70c7278bd3d2045da3e74f32901afa122",
+      "expected_occurrences": 3,
+      "route": "author-prop-template",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "structure-and-routing",
+      "review_scope": "Source identity, structural category and layer ownership only; not full prose review, migration or implementation.",
+      "structure": {
+        "source_chars": 1485,
+        "section_marker_count": 33
+      },
+      "reason": "依標題、區塊結構與來源一致性完成作者模板歸屬分類；尚未逐段審讀正文，也未新增場景、道具、能力、固定反應或人物設定。原文未進入公開召回包。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 139,
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:139",
+      "source_sha256": "f9451db91c7db14b5a6a6b5e794ea3a541ee0c93a8f3532bee551c0f0727b11a",
+      "expected_occurrences": 3,
+      "route": "author-prop-template",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "structure-and-routing",
+      "review_scope": "Source identity, structural category and layer ownership only; not full prose review, migration or implementation.",
+      "structure": {
+        "source_chars": 1486,
+        "section_marker_count": 33
+      },
+      "reason": "依標題、區塊結構與來源一致性完成作者模板歸屬分類；尚未逐段審讀正文，也未新增場景、道具、能力、固定反應或人物設定。原文未進入公開召回包。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 140,
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:140",
+      "source_sha256": "36bd08f4df679e20ab89684227687b924923f23144603391f2a6739163a8346a",
+      "expected_occurrences": 3,
+      "route": "author-prop-template",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "structure-and-routing",
+      "review_scope": "Source identity, structural category and layer ownership only; not full prose review, migration or implementation.",
+      "structure": {
+        "source_chars": 1491,
+        "section_marker_count": 33
+      },
+      "reason": "依標題、區塊結構與來源一致性完成作者模板歸屬分類；尚未逐段審讀正文，也未新增場景、道具、能力、固定反應或人物設定。原文未進入公開召回包。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 141,
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:141",
+      "source_sha256": "c5a2ac69e8a0169a6857817ffae1e925fb2eb472e957f63ce37ebca09e744da0",
+      "expected_occurrences": 3,
+      "route": "author-prop-template",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "structure-and-routing",
+      "review_scope": "Source identity, structural category and layer ownership only; not full prose review, migration or implementation.",
+      "structure": {
+        "source_chars": 1337,
+        "section_marker_count": 30
+      },
+      "reason": "依標題、區塊結構與來源一致性完成作者模板歸屬分類；尚未逐段審讀正文，也未新增場景、道具、能力、固定反應或人物設定。原文未進入公開召回包。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 142,
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:142",
+      "source_sha256": "1a37339b29a40b0a34e1a70feb71b192fe8ee635f66c30c55af6bc4e03b5f4db",
+      "expected_occurrences": 3,
+      "route": "author-prop-template",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "structure-and-routing",
+      "review_scope": "Source identity, structural category and layer ownership only; not full prose review, migration or implementation.",
+      "structure": {
+        "source_chars": 1370,
+        "section_marker_count": 30
+      },
+      "reason": "依標題、區塊結構與來源一致性完成作者模板歸屬分類；尚未逐段審讀正文，也未新增場景、道具、能力、固定反應或人物設定。原文未進入公開召回包。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 143,
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:143",
+      "source_sha256": "d815033acac0f1fdae426b33dafa46ec5d05d1446b3409ebfcd6263cd5f7358d",
+      "expected_occurrences": 3,
+      "route": "author-prop-template",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "structure-and-routing",
+      "review_scope": "Source identity, structural category and layer ownership only; not full prose review, migration or implementation.",
+      "structure": {
+        "source_chars": 1242,
+        "section_marker_count": 29
+      },
+      "reason": "依標題、區塊結構與來源一致性完成作者模板歸屬分類；尚未逐段審讀正文，也未新增場景、道具、能力、固定反應或人物設定。原文未進入公開召回包。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 144,
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:144",
+      "source_sha256": "5e3af4ca3640dd2c54eecc075497fda931c1e584b5865e608d2f21f5f20fd477",
+      "expected_occurrences": 3,
+      "route": "author-prop-template",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "structure-and-routing",
+      "review_scope": "Source identity, structural category and layer ownership only; not full prose review, migration or implementation.",
+      "structure": {
+        "source_chars": 886,
+        "section_marker_count": 21
+      },
+      "reason": "依標題、區塊結構與來源一致性完成作者模板歸屬分類；尚未逐段審讀正文，也未新增場景、道具、能力、固定反應或人物設定。原文未進入公開召回包。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 145,
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:145",
+      "source_sha256": "589fc9d37e3f3b64edd3ba564142111f98748889b3d7fab943c7ea8d55fc9869",
+      "expected_occurrences": 3,
+      "route": "author-action-template",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "structure-and-routing",
+      "review_scope": "Source identity, structural category and layer ownership only; not full prose review, migration or implementation.",
+      "structure": {
+        "source_chars": 1190,
+        "section_marker_count": 26
+      },
+      "reason": "依標題、區塊結構與來源一致性完成作者模板歸屬分類；尚未逐段審讀正文，也未新增場景、道具、能力、固定反應或人物設定。原文未進入公開召回包。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 146,
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:146",
+      "source_sha256": "54553e6814e5033245f152e49a24a08b291c3dba1876dfc080ec4f9a53e32145",
+      "expected_occurrences": 3,
+      "route": "author-action-template",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "structure-and-routing",
+      "review_scope": "Source identity, structural category and layer ownership only; not full prose review, migration or implementation.",
+      "structure": {
+        "source_chars": 1206,
+        "section_marker_count": 26
+      },
+      "reason": "依標題、區塊結構與來源一致性完成作者模板歸屬分類；尚未逐段審讀正文，也未新增場景、道具、能力、固定反應或人物設定。原文未進入公開召回包。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 147,
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:147",
+      "source_sha256": "65fe94414c9a36968b580f7bc5435799a6e047a5bb5e33fc617f2451106fef3f",
+      "expected_occurrences": 3,
+      "route": "author-action-template",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "structure-and-routing",
+      "review_scope": "Source identity, structural category and layer ownership only; not full prose review, migration or implementation.",
+      "structure": {
+        "source_chars": 1158,
+        "section_marker_count": 26
+      },
+      "reason": "依標題、區塊結構與來源一致性完成作者模板歸屬分類；尚未逐段審讀正文，也未新增場景、道具、能力、固定反應或人物設定。原文未進入公開召回包。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 148,
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:148",
+      "source_sha256": "276b9688b0fe461d2bca74d3ea5ad3e81adc1d8e9b6b959c178f4fd29c9ec423",
+      "expected_occurrences": 3,
+      "route": "author-action-template",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "structure-and-routing",
+      "review_scope": "Source identity, structural category and layer ownership only; not full prose review, migration or implementation.",
+      "structure": {
+        "source_chars": 853,
+        "section_marker_count": 17
+      },
+      "reason": "依標題、區塊結構與來源一致性完成作者模板歸屬分類；尚未逐段審讀正文，也未新增場景、道具、能力、固定反應或人物設定。原文未進入公開召回包。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 149,
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:149",
+      "source_sha256": "95cacd9c08b6dffd88004f5b98cd015e0d91be6dd4e99e2eeafff8d7a006d0a0",
+      "expected_occurrences": 3,
+      "route": "author-action-template",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "structure-and-routing",
+      "review_scope": "Source identity, structural category and layer ownership only; not full prose review, migration or implementation.",
+      "structure": {
+        "source_chars": 862,
+        "section_marker_count": 18
+      },
+      "reason": "依標題、區塊結構與來源一致性完成作者模板歸屬分類；尚未逐段審讀正文，也未新增場景、道具、能力、固定反應或人物設定。原文未進入公開召回包。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 150,
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:150",
+      "source_sha256": "b443a90caa819639dfa6cf4029d07ea2ac29e701fceb692e8d9aab9d63eec374",
+      "expected_occurrences": 3,
+      "route": "author-wardrobe-prop",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "structure-and-routing",
+      "review_scope": "Source identity, structural category and layer ownership only; not full prose review, migration or implementation.",
+      "structure": {
+        "source_chars": 934,
+        "section_marker_count": 21
+      },
+      "reason": "依標題、區塊結構與來源一致性完成作者模板歸屬分類；尚未逐段審讀正文，也未新增場景、道具、能力、固定反應或人物設定。原文未進入公開召回包。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 151,
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:151",
+      "source_sha256": "ac41e1375ac5f598a0c5679771e61e7e0c306f62d33f6f8c43b7930747fea1cc",
+      "expected_occurrences": 3,
+      "route": "author-wardrobe-prop",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "structure-and-routing",
+      "review_scope": "Source identity, structural category and layer ownership only; not full prose review, migration or implementation.",
+      "structure": {
+        "source_chars": 951,
+        "section_marker_count": 22
+      },
+      "reason": "依標題、區塊結構與來源一致性完成作者模板歸屬分類；尚未逐段審讀正文，也未新增場景、道具、能力、固定反應或人物設定。原文未進入公開召回包。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 152,
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:152",
+      "source_sha256": "77df1b8869e419dd7583c63e1fd62da8345cecade3bff3112669380ef4491b17",
+      "expected_occurrences": 3,
+      "route": "author-wardrobe-prop",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "structure-and-routing",
+      "review_scope": "Source identity, structural category and layer ownership only; not full prose review, migration or implementation.",
+      "structure": {
+        "source_chars": 1211,
+        "section_marker_count": 29
+      },
+      "reason": "依標題、區塊結構與來源一致性完成作者模板歸屬分類；尚未逐段審讀正文，也未新增場景、道具、能力、固定反應或人物設定。原文未進入公開召回包。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 153,
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:153",
+      "source_sha256": "dbd714e5bad2afad948ce77095fd855134cfc51e1b9a411f18557602de5e1057",
+      "expected_occurrences": 3,
+      "route": "author-wardrobe-prop",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "structure-and-routing",
+      "review_scope": "Source identity, structural category and layer ownership only; not full prose review, migration or implementation.",
+      "structure": {
+        "source_chars": 1067,
+        "section_marker_count": 25
+      },
+      "reason": "依標題、區塊結構與來源一致性完成作者模板歸屬分類；尚未逐段審讀正文，也未新增場景、道具、能力、固定反應或人物設定。原文未進入公開召回包。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 154,
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:154",
+      "source_sha256": "4bec2ebd60e9a5a45c60b7ebf5f8dbe02df03433cd64ea994596fb1777c0b383",
+      "expected_occurrences": 3,
+      "route": "author-wardrobe-prop",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "structure-and-routing",
+      "review_scope": "Source identity, structural category and layer ownership only; not full prose review, migration or implementation.",
+      "structure": {
+        "source_chars": 965,
+        "section_marker_count": 22
+      },
+      "reason": "依標題、區塊結構與來源一致性完成作者模板歸屬分類；尚未逐段審讀正文，也未新增場景、道具、能力、固定反應或人物設定。原文未進入公開召回包。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 155,
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:155",
+      "source_sha256": "2b5f77428ae17cd306f81d70e351d3395ac8a51c9ab1c6355574fd2474fffb2d",
+      "expected_occurrences": 3,
+      "route": "author-wardrobe-prop",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "structure-and-routing",
+      "review_scope": "Source identity, structural category and layer ownership only; not full prose review, migration or implementation.",
+      "structure": {
+        "source_chars": 1202,
+        "section_marker_count": 29
+      },
+      "reason": "依標題、區塊結構與來源一致性完成作者模板歸屬分類；尚未逐段審讀正文，也未新增場景、道具、能力、固定反應或人物設定。原文未進入公開召回包。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 156,
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:156",
+      "source_sha256": "4544e27cfc014743c5bf864b6ebfc1360d5c94caed0841393772762e7a6662c7",
+      "expected_occurrences": 3,
+      "route": "author-wardrobe-prop",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "structure-and-routing",
+      "review_scope": "Source identity, structural category and layer ownership only; not full prose review, migration or implementation.",
+      "structure": {
+        "source_chars": 1202,
+        "section_marker_count": 28
+      },
+      "reason": "依標題、區塊結構與來源一致性完成作者模板歸屬分類；尚未逐段審讀正文，也未新增場景、道具、能力、固定反應或人物設定。原文未進入公開召回包。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 157,
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:157",
+      "source_sha256": "c41b005a1293dd641e2199b28980de1f5caac45308178bbc88965a7e77eb9a9f",
+      "expected_occurrences": 3,
+      "route": "author-wardrobe-prop",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "structure-and-routing",
+      "review_scope": "Source identity, structural category and layer ownership only; not full prose review, migration or implementation.",
+      "structure": {
+        "source_chars": 1227,
+        "section_marker_count": 30
+      },
+      "reason": "依標題、區塊結構與來源一致性完成作者模板歸屬分類；尚未逐段審讀正文，也未新增場景、道具、能力、固定反應或人物設定。原文未進入公開召回包。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 158,
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:158",
+      "source_sha256": "fa341c86cda170a59f2615ba8e71628dd165edde43d1a09b4d4640ac42a5168f",
+      "expected_occurrences": 3,
+      "route": "author-wardrobe-prop",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "structure-and-routing",
+      "review_scope": "Source identity, structural category and layer ownership only; not full prose review, migration or implementation.",
+      "structure": {
+        "source_chars": 1243,
+        "section_marker_count": 29
+      },
+      "reason": "依標題、區塊結構與來源一致性完成作者模板歸屬分類；尚未逐段審讀正文，也未新增場景、道具、能力、固定反應或人物設定。原文未進入公開召回包。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 159,
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:159",
+      "source_sha256": "3ec48c2754a74f8e1a4bb0d368356a875ffa085442752c8ef37652fdab79c0d8",
+      "expected_occurrences": 3,
+      "route": "author-wardrobe-prop",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "structure-and-routing",
+      "review_scope": "Source identity, structural category and layer ownership only; not full prose review, migration or implementation.",
+      "structure": {
+        "source_chars": 1236,
+        "section_marker_count": 28
+      },
+      "reason": "依標題、區塊結構與來源一致性完成作者模板歸屬分類；尚未逐段審讀正文，也未新增場景、道具、能力、固定反應或人物設定。原文未進入公開召回包。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 160,
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:160",
+      "source_sha256": "bf16b16519a7d312e3cf2231838a2cc9a697b81281dc33f4fc7e9a99624bc236",
+      "expected_occurrences": 3,
+      "route": "author-wardrobe-prop",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "structure-and-routing",
+      "review_scope": "Source identity, structural category and layer ownership only; not full prose review, migration or implementation.",
+      "structure": {
+        "source_chars": 903,
+        "section_marker_count": 21
+      },
+      "reason": "依標題、區塊結構與來源一致性完成作者模板歸屬分類；尚未逐段審讀正文，也未新增場景、道具、能力、固定反應或人物設定。原文未進入公開召回包。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 161,
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:161",
+      "source_sha256": "4aea00f37b65fc67287555546614b33d78d3b2bfe8ec6ad235508a794b82dcf4",
+      "expected_occurrences": 3,
+      "route": "author-wardrobe-prop",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "structure-and-routing",
+      "review_scope": "Source identity, structural category and layer ownership only; not full prose review, migration or implementation.",
+      "structure": {
+        "source_chars": 902,
+        "section_marker_count": 21
+      },
+      "reason": "依標題、區塊結構與來源一致性完成作者模板歸屬分類；尚未逐段審讀正文，也未新增場景、道具、能力、固定反應或人物設定。原文未進入公開召回包。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 162,
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:162",
+      "source_sha256": "ea4da940a9b8bc0e665acbc7839ac5242ac4e9b6c94a74dbf130e34bc6005e29",
+      "expected_occurrences": 3,
+      "route": "author-wardrobe-prop",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "structure-and-routing",
+      "review_scope": "Source identity, structural category and layer ownership only; not full prose review, migration or implementation.",
+      "structure": {
+        "source_chars": 945,
+        "section_marker_count": 22
+      },
+      "reason": "依標題、區塊結構與來源一致性完成作者模板歸屬分類；尚未逐段審讀正文，也未新增場景、道具、能力、固定反應或人物設定。原文未進入公開召回包。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 163,
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:163",
+      "source_sha256": "b7c3567e29caafa23b4ffb18d185679a25feffdea6a2691852d458bd2c598237",
+      "expected_occurrences": 3,
+      "route": "author-wardrobe-prop",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "structure-and-routing",
+      "review_scope": "Source identity, structural category and layer ownership only; not full prose review, migration or implementation.",
+      "structure": {
+        "source_chars": 950,
+        "section_marker_count": 22
+      },
+      "reason": "依標題、區塊結構與來源一致性完成作者模板歸屬分類；尚未逐段審讀正文，也未新增場景、道具、能力、固定反應或人物設定。原文未進入公開召回包。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 164,
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:164",
+      "source_sha256": "6835ee7dd4b4cfa8148f1c0e8c26f35df771ff94e42eed4c330e227334021e05",
+      "expected_occurrences": 3,
+      "route": "author-wardrobe-prop",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "structure-and-routing",
+      "review_scope": "Source identity, structural category and layer ownership only; not full prose review, migration or implementation.",
+      "structure": {
+        "source_chars": 891,
+        "section_marker_count": 21
+      },
+      "reason": "依標題、區塊結構與來源一致性完成作者模板歸屬分類；尚未逐段審讀正文，也未新增場景、道具、能力、固定反應或人物設定。原文未進入公開召回包。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 165,
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:165",
+      "source_sha256": "955c07395468ec67bcf1917720b7f7d84f852d1d8998fefabe57beda455b28b7",
+      "expected_occurrences": 3,
+      "route": "author-wardrobe-prop",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "structure-and-routing",
+      "review_scope": "Source identity, structural category and layer ownership only; not full prose review, migration or implementation.",
+      "structure": {
+        "source_chars": 1230,
+        "section_marker_count": 28
+      },
+      "reason": "依標題、區塊結構與來源一致性完成作者模板歸屬分類；尚未逐段審讀正文，也未新增場景、道具、能力、固定反應或人物設定。原文未進入公開召回包。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 166,
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:166",
+      "source_sha256": "3019ff9be4b4cdfdf482eed175f5f654c3d459e9fa13956a5032b36dbfc00145",
+      "expected_occurrences": 3,
+      "route": "author-wardrobe-prop",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "structure-and-routing",
+      "review_scope": "Source identity, structural category and layer ownership only; not full prose review, migration or implementation.",
+      "structure": {
+        "source_chars": 1340,
+        "section_marker_count": 30
+      },
+      "reason": "依標題、區塊結構與來源一致性完成作者模板歸屬分類；尚未逐段審讀正文，也未新增場景、道具、能力、固定反應或人物設定。原文未進入公開召回包。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 167,
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:167",
+      "source_sha256": "acbfecafc60b22d9fafe34c3efe7137841597c92c1760e1487f2493f51f671ee",
+      "expected_occurrences": 3,
+      "route": "author-wardrobe-prop",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "structure-and-routing",
+      "review_scope": "Source identity, structural category and layer ownership only; not full prose review, migration or implementation.",
+      "structure": {
+        "source_chars": 1669,
+        "section_marker_count": 36
+      },
+      "reason": "依標題、區塊結構與來源一致性完成作者模板歸屬分類；尚未逐段審讀正文，也未新增場景、道具、能力、固定反應或人物設定。原文未進入公開召回包。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 168,
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:168",
+      "source_sha256": "d11be57a0eeb27bfefc6bedb134729dddf283cb06b287d91f93d19d94939ed51",
+      "expected_occurrences": 3,
+      "route": "author-wardrobe-prop",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "structure-and-routing",
+      "review_scope": "Source identity, structural category and layer ownership only; not full prose review, migration or implementation.",
+      "structure": {
+        "source_chars": 1315,
+        "section_marker_count": 31
+      },
+      "reason": "依標題、區塊結構與來源一致性完成作者模板歸屬分類；尚未逐段審讀正文，也未新增場景、道具、能力、固定反應或人物設定。原文未進入公開召回包。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 169,
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:169",
+      "source_sha256": "fcc4f4023f99528c4f345e1995891e97497aac46437205871ef7aab5e364be11",
+      "expected_occurrences": 3,
+      "route": "author-wardrobe-prop",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "structure-and-routing",
+      "review_scope": "Source identity, structural category and layer ownership only; not full prose review, migration or implementation.",
+      "structure": {
+        "source_chars": 1615,
+        "section_marker_count": 38
+      },
+      "reason": "依標題、區塊結構與來源一致性完成作者模板歸屬分類；尚未逐段審讀正文，也未新增場景、道具、能力、固定反應或人物設定。原文未進入公開召回包。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 170,
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:170",
+      "source_sha256": "e1be9099ed266368a92f2ce38f17f8dd30cddd68ae384b984ca067706175d6e0",
+      "expected_occurrences": 3,
+      "route": "author-wardrobe-prop",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "structure-and-routing",
+      "review_scope": "Source identity, structural category and layer ownership only; not full prose review, migration or implementation.",
+      "structure": {
+        "source_chars": 1323,
+        "section_marker_count": 32
+      },
+      "reason": "依標題、區塊結構與來源一致性完成作者模板歸屬分類；尚未逐段審讀正文，也未新增場景、道具、能力、固定反應或人物設定。原文未進入公開召回包。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 171,
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:171",
+      "source_sha256": "43fdaeca0507b9b0e6eb59e69f1a65a0f10c6b7f81b2d5e8948d742b52620f82",
+      "expected_occurrences": 3,
+      "route": "author-anatomy-reference",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "structure-and-routing",
+      "review_scope": "Source identity, structural category and layer ownership only; not full prose review, migration or implementation.",
+      "structure": {
+        "source_chars": 1991,
+        "section_marker_count": 53
+      },
+      "reason": "依標題、區塊結構與來源一致性完成作者模板歸屬分類；尚未逐段審讀正文，也未新增場景、道具、能力、固定反應或人物設定。原文未進入公開召回包。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 172,
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:172",
+      "source_sha256": "2acd8e49aa2b2e3aa3ac5f1d955817b84062b98d2dc5f78bacb1fe2a7d2579c1",
+      "expected_occurrences": 3,
+      "route": "author-anatomy-reference",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "structure-and-routing",
+      "review_scope": "Source identity, structural category and layer ownership only; not full prose review, migration or implementation.",
+      "structure": {
+        "source_chars": 1737,
+        "section_marker_count": 50
+      },
+      "reason": "依標題、區塊結構與來源一致性完成作者模板歸屬分類；尚未逐段審讀正文，也未新增場景、道具、能力、固定反應或人物設定。原文未進入公開召回包。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 173,
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:173",
+      "source_sha256": "e7fe617aca7e93168fed6134c41b05594a67bb0c9d9dc0e437b508ae4068792d",
+      "expected_occurrences": 3,
+      "route": "author-anatomy-reference",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "structure-and-routing",
+      "review_scope": "Source identity, structural category and layer ownership only; not full prose review, migration or implementation.",
+      "structure": {
+        "source_chars": 894,
+        "section_marker_count": 31
+      },
+      "reason": "依標題、區塊結構與來源一致性完成作者模板歸屬分類；尚未逐段審讀正文，也未新增場景、道具、能力、固定反應或人物設定。原文未進入公開召回包。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 174,
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:174",
+      "source_sha256": "22d75b4808a0c769a7edc2e508301194a8dc491db7a08ec256510092512df99b",
+      "expected_occurrences": 3,
+      "route": "author-anatomy-reference",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "structure-and-routing",
+      "review_scope": "Source identity, structural category and layer ownership only; not full prose review, migration or implementation.",
+      "structure": {
+        "source_chars": 1755,
+        "section_marker_count": 74
+      },
+      "reason": "依標題、區塊結構與來源一致性完成作者模板歸屬分類；尚未逐段審讀正文，也未新增場景、道具、能力、固定反應或人物設定。原文未進入公開召回包。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 175,
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:175",
+      "source_sha256": "05c46ad4f37cdefb4e2e542c9356a5dd23de06af974c12dd4c6981d90aa3b494",
+      "expected_occurrences": 3,
+      "route": "author-character-preference",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "structure-and-routing",
+      "review_scope": "Source identity, structural category and layer ownership only; not full prose review, migration or implementation.",
+      "structure": {
+        "source_chars": 1904,
+        "section_marker_count": 48
+      },
+      "reason": "依標題、區塊結構與來源一致性完成作者模板歸屬分類；尚未逐段審讀正文，也未新增場景、道具、能力、固定反應或人物設定。原文未進入公開召回包。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 176,
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:176",
+      "source_sha256": "1cf248f75a6de48c5d32cb9fcb86dd8e3c6dadb88439c9fbe4361a03dbfbb98c",
+      "expected_occurrences": 3,
+      "route": "author-character-preference",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "structure-and-routing",
+      "review_scope": "Source identity, structural category and layer ownership only; not full prose review, migration or implementation.",
+      "structure": {
+        "source_chars": 807,
+        "section_marker_count": 19
+      },
+      "reason": "依標題、區塊結構與來源一致性完成作者模板歸屬分類；尚未逐段審讀正文，也未新增場景、道具、能力、固定反應或人物設定。原文未進入公開召回包。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 177,
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:177",
+      "source_sha256": "8f4c52cebfb4fd2f98f671f8e8438a236f1f0b8433fe50e28d35d34de2684e27",
+      "expected_occurrences": 3,
+      "route": "author-character-preference",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "structure-and-routing",
+      "review_scope": "Source identity, structural category and layer ownership only; not full prose review, migration or implementation.",
+      "structure": {
+        "source_chars": 226,
+        "section_marker_count": 6
+      },
+      "reason": "依標題、區塊結構與來源一致性完成作者模板歸屬分類；尚未逐段審讀正文，也未新增場景、道具、能力、固定反應或人物設定。原文未進入公開召回包。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 178,
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:178",
+      "source_sha256": "b65e4bbe6195a514e91d0883d525e5bd6914ba3ff62e6cb386991d02f6324e34",
+      "expected_occurrences": 3,
+      "route": "author-character-preference",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "structure-and-routing",
+      "review_scope": "Source identity, structural category and layer ownership only; not full prose review, migration or implementation.",
+      "structure": {
+        "source_chars": 219,
+        "section_marker_count": 6
+      },
+      "reason": "依標題、區塊結構與來源一致性完成作者模板歸屬分類；尚未逐段審讀正文，也未新增場景、道具、能力、固定反應或人物設定。原文未進入公開召回包。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 179,
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:179",
+      "source_sha256": "ef646c58774a6283e0a5bd3eca5aaa598a2ae35ca4bd0860093217782c61e4d8",
+      "expected_occurrences": 3,
+      "route": "author-character-preference",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "structure-and-routing",
+      "review_scope": "Source identity, structural category and layer ownership only; not full prose review, migration or implementation.",
+      "structure": {
+        "source_chars": 211,
+        "section_marker_count": 6
+      },
+      "reason": "依標題、區塊結構與來源一致性完成作者模板歸屬分類；尚未逐段審讀正文，也未新增場景、道具、能力、固定反應或人物設定。原文未進入公開召回包。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 180,
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:180",
+      "source_sha256": "ee4469dd84e1ac78f59cb30143742d6c91cbfbf92fdf2bc8d2ab7d2e0e60a425",
+      "expected_occurrences": 3,
+      "route": "author-character-preference",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "structure-and-routing",
+      "review_scope": "Source identity, structural category and layer ownership only; not full prose review, migration or implementation.",
+      "structure": {
+        "source_chars": 210,
+        "section_marker_count": 6
+      },
+      "reason": "依標題、區塊結構與來源一致性完成作者模板歸屬分類；尚未逐段審讀正文，也未新增場景、道具、能力、固定反應或人物設定。原文未進入公開召回包。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 181,
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:181",
+      "source_sha256": "2f077145303546656f21e6659845c3b580a231e7e8a7a9dcb55c2f031ce17ffb",
+      "expected_occurrences": 3,
+      "route": "author-character-preference",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "structure-and-routing",
+      "review_scope": "Source identity, structural category and layer ownership only; not full prose review, migration or implementation.",
+      "structure": {
+        "source_chars": 220,
+        "section_marker_count": 6
+      },
+      "reason": "依標題、區塊結構與來源一致性完成作者模板歸屬分類；尚未逐段審讀正文，也未新增場景、道具、能力、固定反應或人物設定。原文未進入公開召回包。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 182,
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:182",
+      "source_sha256": "148f14506d93cbb5e0d14f9dfc3d9a30a713b43fbdbf58a340d25316ed1265c5",
+      "expected_occurrences": 3,
+      "route": "author-character-preference",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "structure-and-routing",
+      "review_scope": "Source identity, structural category and layer ownership only; not full prose review, migration or implementation.",
+      "structure": {
+        "source_chars": 216,
+        "section_marker_count": 6
+      },
+      "reason": "依標題、區塊結構與來源一致性完成作者模板歸屬分類；尚未逐段審讀正文，也未新增場景、道具、能力、固定反應或人物設定。原文未進入公開召回包。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 183,
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:183",
+      "source_sha256": "ca0b7ccc7aa43774e5076e00ae2d3b1686d93f9485556998ebdf7d144ad8ef77",
+      "expected_occurrences": 3,
+      "route": "author-character-preference",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "structure-and-routing",
+      "review_scope": "Source identity, structural category and layer ownership only; not full prose review, migration or implementation.",
+      "structure": {
+        "source_chars": 1811,
+        "section_marker_count": 48
+      },
+      "reason": "依標題、區塊結構與來源一致性完成作者模板歸屬分類；尚未逐段審讀正文，也未新增場景、道具、能力、固定反應或人物設定。原文未進入公開召回包。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        }
+      ]
+    },
+    {
+      "canonical_source_index": 184,
+      "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:184",
+      "source_sha256": "0260f767c36ad045caa65a3b96cbd9f8ad8711b885aa90ad7b9790b53fee0e84",
+      "expected_occurrences": 3,
+      "route": "author-character-preference",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "structure-and-routing",
+      "review_scope": "Source identity, structural category and layer ownership only; not full prose review, migration or implementation.",
+      "structure": {
+        "source_chars": 1912,
+        "section_marker_count": 51
+      },
+      "reason": "依標題、區塊結構與來源一致性完成作者模板歸屬分類；尚未逐段審讀正文，也未新增場景、道具、能力、固定反應或人物設定。原文未進入公開召回包。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【作者敘事指示】"
+        }
+      ]
+    },
+    {
+      "source_book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 214,
+      "decision_id": "572f3222-5746-43cc-ae16-60239eac041c:214",
+      "source_sha256": "ec3b60f4060312775c90a720a71514f7ee3478e4ae92208110da120171508d5c",
+      "expected_occurrences": 1,
+      "route": "author-specific-character",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "manual-layer-review",
+      "intended_scope": "work-specific",
+      "knowledge_boundary": "mixed-public-hidden",
+      "reason": "具名人物含家族位置、種族能力、性格、關係起點及固定路線；需隨作品分開背景、知情與玩法配置，未新增人物或自動攻略機制。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【NPC 運作規則】"
+        },
+        {
+          "path": "js/canon-workbench.js",
+          "needle": "knowledge:\"角色知情矩陣\""
+        }
+      ]
+    },
+    {
+      "source_book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 215,
+      "decision_id": "572f3222-5746-43cc-ae16-60239eac041c:215",
+      "source_sha256": "f224fe71590a7ec35e9b25e6a1c9629da58396b69ec469bd67bd7a40c5e1f882",
+      "expected_occurrences": 1,
+      "route": "author-specific-character",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "manual-layer-review",
+      "intended_scope": "work-specific",
+      "knowledge_boundary": "mixed-public-hidden",
+      "reason": "具名人物含家族位置、種族能力、性格、關係起點及固定路線；需隨作品分開背景、知情與玩法配置，未新增人物或自動攻略機制。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【NPC 運作規則】"
+        },
+        {
+          "path": "js/canon-workbench.js",
+          "needle": "knowledge:\"角色知情矩陣\""
+        }
+      ]
+    },
+    {
+      "source_book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 216,
+      "decision_id": "572f3222-5746-43cc-ae16-60239eac041c:216",
+      "source_sha256": "ba77535a3f115d45f5761219bc8241ef1a2be4c3730cc499c1d108f07858d120",
+      "expected_occurrences": 1,
+      "route": "author-specific-character",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "manual-layer-review",
+      "intended_scope": "work-specific",
+      "knowledge_boundary": "mixed-public-hidden",
+      "reason": "具名人物含家族位置、種族能力、性格、關係起點及固定路線；需隨作品分開背景、知情與玩法配置，未新增人物或自動攻略機制。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【NPC 運作規則】"
+        },
+        {
+          "path": "js/canon-workbench.js",
+          "needle": "knowledge:\"角色知情矩陣\""
+        }
+      ]
+    },
+    {
+      "source_book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 217,
+      "decision_id": "572f3222-5746-43cc-ae16-60239eac041c:217",
+      "source_sha256": "5635c30eff63a4ce3819bafa4ffaa14b0aaa4355b5e498b3b531cb10e7eb72a5",
+      "expected_occurrences": 1,
+      "route": "author-specific-character",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "manual-layer-review",
+      "intended_scope": "work-specific",
+      "knowledge_boundary": "mixed-public-hidden",
+      "reason": "具名人物含家族位置、種族能力、性格、關係起點及固定路線；需隨作品分開背景、知情與玩法配置，未新增人物或自動攻略機制。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【NPC 運作規則】"
+        },
+        {
+          "path": "js/canon-workbench.js",
+          "needle": "knowledge:\"角色知情矩陣\""
+        }
+      ]
+    },
+    {
+      "source_book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 218,
+      "decision_id": "572f3222-5746-43cc-ae16-60239eac041c:218",
+      "source_sha256": "74bc3962d89ce52b13e9dea3530be60f2fdcfea7352bce01c7a4e7c3cf74700f",
+      "expected_occurrences": 1,
+      "route": "author-specific-character",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "manual-layer-review",
+      "intended_scope": "work-specific",
+      "knowledge_boundary": "mixed-public-hidden",
+      "reason": "具名人物含家族位置、種族能力、性格、關係起點及固定路線；需隨作品分開背景、知情與玩法配置，未新增人物或自動攻略機制。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【NPC 運作規則】"
+        },
+        {
+          "path": "js/canon-workbench.js",
+          "needle": "knowledge:\"角色知情矩陣\""
+        }
+      ]
+    },
+    {
+      "source_book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 219,
+      "decision_id": "572f3222-5746-43cc-ae16-60239eac041c:219",
+      "source_sha256": "1fcabefb734859bd82033ac5a981cb916f907d672bc70037407a7472ee8d5b06",
+      "expected_occurrences": 1,
+      "route": "author-specific-character",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "manual-layer-review",
+      "intended_scope": "work-specific",
+      "knowledge_boundary": "mixed-public-hidden",
+      "reason": "具名人物含家族位置、種族能力、性格、關係起點及固定路線；需隨作品分開背景、知情與玩法配置，未新增人物或自動攻略機制。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【NPC 運作規則】"
+        },
+        {
+          "path": "js/canon-workbench.js",
+          "needle": "knowledge:\"角色知情矩陣\""
+        }
+      ]
+    },
+    {
+      "source_book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 220,
+      "decision_id": "572f3222-5746-43cc-ae16-60239eac041c:220",
+      "source_sha256": "694f1eae2198a6930f3c971e739766ed932a16c71518a3a03e1b86df50fd889c",
+      "expected_occurrences": 1,
+      "route": "author-specific-character",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "manual-layer-review",
+      "intended_scope": "work-specific",
+      "knowledge_boundary": "mixed-public-hidden",
+      "reason": "具名人物含家族位置、種族能力、性格、關係起點及固定路線；需隨作品分開背景、知情與玩法配置，未新增人物或自動攻略機制。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【NPC 運作規則】"
+        },
+        {
+          "path": "js/canon-workbench.js",
+          "needle": "knowledge:\"角色知情矩陣\""
+        }
+      ]
+    },
+    {
+      "source_book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 221,
+      "decision_id": "572f3222-5746-43cc-ae16-60239eac041c:221",
+      "source_sha256": "6d4f137c218139a5f37458eb5b68377512fb2b454d5a9d37ab6d721dc90157b0",
+      "expected_occurrences": 1,
+      "route": "author-specific-character",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "manual-layer-review",
+      "intended_scope": "work-specific",
+      "knowledge_boundary": "mixed-public-hidden",
+      "reason": "具名人物含家族位置、種族能力、性格、關係起點及固定路線；需隨作品分開背景、知情與玩法配置，未新增人物或自動攻略機制。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【NPC 運作規則】"
+        },
+        {
+          "path": "js/canon-workbench.js",
+          "needle": "knowledge:\"角色知情矩陣\""
+        }
+      ]
+    },
+    {
+      "source_book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 222,
+      "decision_id": "572f3222-5746-43cc-ae16-60239eac041c:222",
+      "source_sha256": "b30d11be1a4d79d6e6b0ec5be24660d4c65f86cbb51841337d70d193fa43a088",
+      "expected_occurrences": 1,
+      "route": "author-specific-character",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "manual-layer-review",
+      "intended_scope": "work-specific",
+      "knowledge_boundary": "mixed-public-hidden",
+      "reason": "人物年齡、家庭身份、能力與關係路線互相綁定；原文尚未搬入公開人物或世界書包，也未以覆寫年齡、固定反應或關係終點的方式自動適配。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【NPC 運作規則】"
+        },
+        {
+          "path": "js/canon-workbench.js",
+          "needle": "knowledge:\"角色知情矩陣\""
+        }
+      ]
+    },
+    {
+      "source_book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 223,
+      "decision_id": "572f3222-5746-43cc-ae16-60239eac041c:223",
+      "source_sha256": "c2ff0b9fc5b4dba6f55b76d78bcedaf3f2aed45d2b678409c733fa5d81cea97a",
+      "expected_occurrences": 1,
+      "route": "author-specific-character",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "manual-layer-review",
+      "intended_scope": "work-specific",
+      "knowledge_boundary": "mixed-public-hidden",
+      "reason": "人物年齡、家庭身份、能力與關係路線互相綁定；原文尚未搬入公開人物或世界書包，也未以覆寫年齡、固定反應或關係終點的方式自動適配。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【NPC 運作規則】"
+        },
+        {
+          "path": "js/canon-workbench.js",
+          "needle": "knowledge:\"角色知情矩陣\""
+        }
+      ]
+    },
+    {
+      "source_book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 224,
+      "decision_id": "572f3222-5746-43cc-ae16-60239eac041c:224",
+      "source_sha256": "dab4aebcf6c27a9520dc44436588e79040f2ca533bf9523e3ab368bd133175e6",
+      "expected_occurrences": 1,
+      "route": "author-specific-character",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "manual-layer-review",
+      "intended_scope": "work-specific",
+      "knowledge_boundary": "mixed-public-hidden",
+      "reason": "人物年齡、家庭身份、能力與關係路線互相綁定；原文尚未搬入公開人物或世界書包，也未以覆寫年齡、固定反應或關係終點的方式自動適配。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【NPC 運作規則】"
+        },
+        {
+          "path": "js/canon-workbench.js",
+          "needle": "knowledge:\"角色知情矩陣\""
+        }
+      ]
+    },
+    {
+      "source_book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 225,
+      "decision_id": "572f3222-5746-43cc-ae16-60239eac041c:225",
+      "source_sha256": "a8c85616542038897abbd72ece5112e5ac12608b69681f6a6b748d31ce8668e9",
+      "expected_occurrences": 1,
+      "route": "author-specific-character",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "manual-layer-review",
+      "intended_scope": "work-specific",
+      "knowledge_boundary": "mixed-public-hidden",
+      "reason": "人物年齡、家庭身份、能力與關係路線互相綁定；原文尚未搬入公開人物或世界書包，也未以覆寫年齡、固定反應或關係終點的方式自動適配。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【NPC 運作規則】"
+        },
+        {
+          "path": "js/canon-workbench.js",
+          "needle": "knowledge:\"角色知情矩陣\""
+        }
+      ]
+    },
+    {
+      "source_book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 226,
+      "decision_id": "572f3222-5746-43cc-ae16-60239eac041c:226",
+      "source_sha256": "0ab21cb45932d621983951df3cbd8f15afcb07bf880138250170abbedf73a935",
+      "expected_occurrences": 1,
+      "route": "author-specific-character",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "manual-layer-review",
+      "intended_scope": "work-specific",
+      "knowledge_boundary": "mixed-public-hidden",
+      "reason": "人物年齡、家庭身份、能力與關係路線互相綁定；原文尚未搬入公開人物或世界書包，也未以覆寫年齡、固定反應或關係終點的方式自動適配。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【NPC 運作規則】"
+        },
+        {
+          "path": "js/canon-workbench.js",
+          "needle": "knowledge:\"角色知情矩陣\""
+        }
+      ]
+    },
+    {
+      "source_book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 237,
+      "decision_id": "572f3222-5746-43cc-ae16-60239eac041c:237",
+      "source_sha256": "986d6439c609a864f4da5aea6954c6073ea280b446a23da6a94dcf7afa186b50",
+      "expected_occurrences": 1,
+      "route": "author-specific-rival",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "manual-layer-review",
+      "intended_scope": "work-specific",
+      "knowledge_boundary": "mixed-public-hidden",
+      "reason": "具名對手含公開身份、隱藏動機、代理陣營與分支結局；須隨專屬作品配置知情條件，未新增對手、能力或固定結局。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【NPC 運作規則】"
+        },
+        {
+          "path": "js/canon-workbench.js",
+          "needle": "knowledge:\"角色知情矩陣\""
+        }
+      ]
+    },
+    {
+      "source_book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 238,
+      "decision_id": "572f3222-5746-43cc-ae16-60239eac041c:238",
+      "source_sha256": "542492a996e8288375015ce05e67af3dd9da1552cb92be34f0979e9ce1d27385",
+      "expected_occurrences": 1,
+      "route": "author-specific-rival",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "manual-layer-review",
+      "intended_scope": "work-specific",
+      "knowledge_boundary": "mixed-public-hidden",
+      "reason": "具名對手含公開身份、隱藏動機、代理陣營與分支結局；須隨專屬作品配置知情條件，未新增對手、能力或固定結局。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【NPC 運作規則】"
+        },
+        {
+          "path": "js/canon-workbench.js",
+          "needle": "knowledge:\"角色知情矩陣\""
+        }
+      ]
+    },
+    {
+      "source_book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+      "source_index": 239,
+      "decision_id": "572f3222-5746-43cc-ae16-60239eac041c:239",
+      "source_sha256": "25196819ef1f0bee4b361e162a72c4bee9b9ff76273274ce35b807474b8f3514",
+      "expected_occurrences": 1,
+      "route": "author-specific-rival",
+      "status": "reviewed-not-published",
+      "implementation": "not-added",
+      "automatic_recall": false,
+      "review_method": "manual-layer-review",
+      "intended_scope": "work-specific",
+      "knowledge_boundary": "mixed-public-hidden",
+      "reason": "具名對手含公開身份、隱藏動機、代理陣營與分支結局；須隨專屬作品配置知情條件，未新增對手、能力或固定結局。",
+      "evidence": [
+        {
+          "path": "js/character.js",
+          "needle": "【NPC 運作規則】"
+        },
+        {
+          "path": "js/canon-workbench.js",
+          "needle": "knowledge:\"角色知情矩陣\""
+        }
+      ]
     }
   ]
 }
