@@ -1,9 +1,31 @@
 (() => {
   if (typeof App === "undefined" || typeof Storage === "undefined" || window.BAOChatAPISettings) return;
 
+  const normalizeUrl = value => String(value || "").trim().replace(/\/+$/, "");
+  const localEndpoint = (value, protocol = "openai") => {
+    if (String(protocol || "openai") !== "openai") return null;
+    const raw = String(value || "").trim();
+    if (!raw) return null;
+    if (window.BAOLMStudioCore?.endpoint) {
+      try { return window.BAOLMStudioCore.endpoint(raw); }
+      catch {}
+    }
+    let url;
+    try { url = new URL(raw); }
+    catch { return null; }
+    const pathname = url.pathname.replace(/\/+$/, "");
+    if (url.protocol !== "http:" ||
+        !["localhost", "127.0.0.1", "[::1]"].includes(url.hostname) ||
+        url.username || url.password || url.search || url.hash ||
+        !["/v1", "/v1/chat/completions"].includes(pathname)) return null;
+    const baseUrl = `${url.origin}/v1`;
+    return { baseUrl, chatUrl: `${baseUrl}/chat/completions`, modelsUrl: `${baseUrl}/models` };
+  };
+  const connectionUrl = (value, protocol) => localEndpoint(value, protocol)?.chatUrl || normalizeUrl(value);
   const sameConnection = (left = {}, right = {}) =>
-    String(left.baseUrl || "").trim().replace(/\/+$/, "") === String(right.baseUrl || "").trim().replace(/\/+$/, "") &&
+    connectionUrl(left.baseUrl, left.protocol || "openai") === connectionUrl(right.baseUrl, right.protocol || "openai") &&
     String(left.protocol || "openai") === String(right.protocol || "openai");
+  const displayBaseUrl = (value, protocol = "openai") => localEndpoint(value, protocol)?.baseUrl || String(value || "");
   const escape = value => App.escapeHTML(String(value ?? ""));
   const hasKey = () => Boolean(String(App.config?.api?.key || "").trim()) || Boolean(window.BAOCreditsPilot?.isAccountReady?.(App.config?.api));
   const status = () => {
@@ -55,7 +77,7 @@
     field("preset").value = exactIndex < 0 ? "custom" : String(exactIndex);
     field("protocol").value = api.protocol || "openai";
     field("model").value = api.model || "";
-    field("baseUrl").value = api.baseUrl || "";
+    field("baseUrl").value = displayBaseUrl(api.baseUrl, api.protocol || "openai");
     const advanced = backdrop.querySelector(".bao-chat-api-advanced");
     const syncAdvanced = () => {
       const selected = presets[Number(field("preset").value)];
@@ -64,34 +86,59 @@
     };
     if (exactIndex < 0 && advanced) advanced.open = true;
     const setError = message => { error.textContent = message || ""; };
+    const hint = backdrop.querySelector(".bao-chat-api-hint");
+    const noAuthMarker = () => window.BAOLMStudioCore?.NO_AUTH || "BAO_LOCAL_NO_AUTH";
+    const syncConnectionHint = () => {
+      const protocol = field("protocol").value;
+      const rawBaseUrl = field("baseUrl").value.trim();
+      const target = localEndpoint(rawBaseUrl, protocol);
+      if (target) {
+        field("key").placeholder = "本機服務預設免填；有啟用 Token 再填";
+        if (hint) hint.textContent = "本機 OpenAI-compatible 連線可免 API Key；僅允許 localhost、127.0.0.1 或 ::1 的 HTTP /v1。";
+        return;
+      }
+      const canReuse = sameConnection(api, { baseUrl: rawBaseUrl, protocol }) &&
+        String(api.key || "").trim() && String(api.key || "").trim() !== noAuthMarker();
+      field("key").placeholder = canReuse ? "留空會維持目前金鑰（相同連線）" : "貼上自己的連線金鑰";
+      if (hint) hint.textContent = "API Key 只保留在目前開啟的頁面記憶體，不寫入故事存檔或備份。";
+    };
     const currentInput = () => {
       const model = field("model").value.trim();
-      const baseUrl = field("baseUrl").value.trim();
+      const rawBaseUrl = field("baseUrl").value.trim();
       const protocol = field("protocol").value;
       const enteredKey = field("key").value.trim();
-      if (!model || !baseUrl) throw new Error("請填寫模型代號（Model ID）與連線網址（Base URL）。");
-      if (!/^https:\/\/[^\s]+$/i.test(baseUrl)) throw new Error("請使用有效的 HTTPS 連線網址（Base URL）。");
+      if (!model || !rawBaseUrl) throw new Error("請填寫模型代號（Model ID）與連線網址（Base URL）。");
+      const localTarget = localEndpoint(rawBaseUrl, protocol);
+      if (!localTarget && !/^https:\/\/[^\s]+$/i.test(rawBaseUrl)) {
+        throw new Error("請使用有效的 HTTPS 連線網址；本機 OpenAI-compatible 服務可使用 http://127.0.0.1 或 http://localhost 的 /v1。");
+      }
+      const baseUrl = localTarget?.chatUrl || rawBaseUrl;
       const connection = { baseUrl, protocol };
-      const key = enteredKey || (sameConnection(api, connection) ? String(api.key || "").trim() : "");
+      const previousKey = sameConnection(api, connection) ? String(api.key || "").trim() : "";
+      const key = enteredKey || previousKey || (localTarget ? noAuthMarker() : "");
       const selected = presets[Number(field("preset").value)];
       const matchingPreset = selected && selected.protocol === protocol &&
-        String(selected.base_url || "").replace(/\/+$/, "") === baseUrl.replace(/\/+$/, "") &&
+        String(selected.base_url || "").replace(/\/+$/, "") === rawBaseUrl.replace(/\/+$/, "") &&
         selected.model === model ? selected : null;
-      const explicitCache = matchingPreset &&
+      const explicitCache = !localTarget && matchingPreset &&
         (matchingPreset.explicit_cache === true || (matchingPreset.route === "official" && protocol === "anthropic" && matchingPreset.cache === "explicit"));
       const candidate = {
         ...api,
-        type: matchingPreset?.provider || "custom",
+        type: localTarget ? "lmstudio" : (matchingPreset?.provider || "custom"),
         protocol, model, baseUrl, key,
-        route: matchingPreset?.route || "custom",
-        cacheMode: explicitCache ? "explicit" : (matchingPreset?.cache || "unknown"),
+        route: localTarget ? "local" : (matchingPreset?.route || "custom"),
+        local: Boolean(localTarget),
+        cacheMode: localTarget ? "unknown" : (explicitCache ? "explicit" : (matchingPreset?.cache || "unknown")),
         explicitCacheModel: explicitCache ? model : "",
         cacheEnabled: App.config?.memory?.cache !== false
       };
-      if (window.BAOCreditsPilot?.prepareAccountConfig?.(candidate)) return candidate;
+      if (!localTarget && window.BAOCreditsPilot?.prepareAccountConfig?.(candidate)) return candidate;
       if (!candidate.key) throw new Error("請輸入這個模型服務的連線金鑰（API Key）。");
       return candidate;
     };
+    syncConnectionHint();
+    field("baseUrl").addEventListener("input", syncConnectionHint);
+    field("protocol").addEventListener("change", syncConnectionHint);
     field("preset").addEventListener("change", () => {
       const selected = presets[Number(field("preset").value)];
       if (field("preset").value !== "custom" && selected) {
@@ -101,6 +148,7 @@
         setError("");
       }
       syncAdvanced();
+      syncConnectionHint();
     });
     backdrop.querySelector("[data-api-close]").onclick = close;
     backdrop.querySelector("[data-api-help]")?.addEventListener("click", event => {
