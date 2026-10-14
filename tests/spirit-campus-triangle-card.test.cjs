@@ -30,6 +30,28 @@ assert.ok(UI.applyBuilderValues(card.gameplay.ui_schema,{focus:'青梅／女友�
 assert.equal(state.modules.setup.focus,'青梅／女友三角戀');
 assert.equal(state.modules.setup.pressure,'較少干擾');
 assert.equal(state.modules.setup.pace,'中等推進');
+const loreItems=(card.content.lore.match(/【世界書：/g)||[]).length;
+assert.equal(loreItems,12,'relationship-first edition has twelve integrated lore entries');
+assert.equal(card.content.dynamic_prompts.length,7,'three extra relationship-oriented dynamic prompts');
+for(const phrase of ['成人關係體驗優先','玩家進入後可以立即','約會','主動']){
+ assert.ok(card.content.system_prompt.includes(phrase),'romance direction missing '+phrase);
+}
+for(const key of ['private-invitation','romantic-tension','relationship-continuity']) assert.ok(card.content.dynamic_prompts.some(x=>x.id===key),key);
+assert.match(card.content.greeting,/週五，18:40/);
+assert.match(card.content.greeting,/想約你去吃飯/);
+assert.match(card.content.greeting,/今晚還算我們約好的時間嗎/);
+assert.equal(state.modules.scene.time,'週五 18:40');
+assert.equal(state.modules.setup.focus,'青梅／女友三角戀');
+assert.equal(state.modules.setup.curriculum,'保持背景、只在需要時出現');
+assert.equal(state.modules.setup.romance_tone,'成熟曖昧與主動升溫');
+assert.ok(state.modules.xiaorou.visible_signal.includes('晚餐'));
+assert.ok(state.modules.xiaoxue.visible_signal.includes('約會'));
+assert.ok(card.presentation.opening.choices.some(x=>x.includes('小柔')));
+assert.ok(card.presentation.opening.choices.some(x=>x.includes('小雪')));
+assert.ok(card.gameplay.ui_schema.panels.find(x=>x.id==='relations').sections.every(x=>x.items.some(y=>y.label==='主動訊號')),'both heroines show visible initiative');
+assert.ok(card.gameplay.ui_schema.builder.fields.some(x=>x.key==='romance_tone'));
+assert.match(card.content.world,/非親屬|沒有收養/);
+assert.doesNotMatch(card.content.greeting,/午前決定學生會是否派代表/);
 const paths=[];const walk=v=>{if(!v||typeof v!=='object')return;for(const[k,x]of Object.entries(v)){if(k==='path'||k==='target_path')paths.push(x);else walk(x)}};
 walk(card.gameplay.ui_schema);
 for(const p of paths)if(typeof p==='string'&&p.startsWith('modules.'))assert.notEqual(UI.getPath(state,p),undefined,p);
