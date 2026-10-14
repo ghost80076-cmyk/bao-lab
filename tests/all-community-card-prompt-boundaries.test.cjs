@@ -41,10 +41,34 @@ for (const file of files) {
   }
 }
 
+
+const extraRoots = [
+  path.join(root, 'data', 'characters', 'general'),
+  path.join(root, 'data', 'characters', 'male')
+];
+const extraFiles = [];
+for (const dir of extraRoots) {
+  if (!fs.existsSync(dir)) continue;
+  for (const name of fs.readdirSync(dir)) {
+    if (!name.endsWith('.json') || name.endsWith('.regex.json')) continue;
+    extraFiles.push(path.join(dir, name));
+  }
+}
+for (const file of extraFiles) {
+  const card = JSON.parse(fs.readFileSync(file, 'utf8'));
+  const modelText = [
+    card.content?.system_prompt || '',
+    card.content?.author_instructions || '',
+    card.content?.npc_rules || '',
+    ...(card.content?.dynamic_prompts || []).map(item => item.text || '')
+  ].join('\n');
+  assert.doesNotMatch(modelText, runtimePlatformGate, `${card.meta?.id || file} leaks platform adult-mode gating into Runtime Prompt`);
+}
+
 const engine = fs.readFileSync(path.join(root, 'js', 'character.js'), 'utf8');
 assert.match(engine, /controlled_by=user/);
 assert.match(engine, /不得生成玩家的新台詞/);
 assert.match(engine, /結構化初始狀態若已提供/);
 assert.match(engine, /狀態模組與介面標籤不是 NPC/);
 
-console.log('PASS all catalog community cards keep platform-global rules out of model-bound card prompts');
+console.log('PASS formal cards keep platform-global rules and adult-mode gating out of model-bound prompts');
