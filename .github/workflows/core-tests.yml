@@ -146,6 +146,8 @@ jobs:
         run: |
           node --check js/world-module-ui.js
           node tests/world-module-collection-display.test.cjs
+      - name: Fusion world entertainment empire adult relationship card
+        run: node tests/fusion-world-entertainment-empire-card.test.cjs
       - name: Chenxi entertainment light-energy card
         run: node tests/light-energy-celebrity-agency-card.test.cjs
       - name: Spirit academy triangle world card
