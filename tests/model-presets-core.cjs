@@ -65,6 +65,11 @@ assert.equal(gemini38Router.model, 'google/gemini-3.8-flash');
 assert.equal(gemini38Router.worker.binding, 'MODELS_JSON_EXTRA');
 assert.equal(gemini38Router.worker.aws_openrouter_relay, true);
 
+const gemma4 = requireRoute('gemma-4-31b-it', 'openrouter');
+assert.equal(gemma4.model, 'google/gemma-4-31b-it');
+assert.deepEqual([gemma4.pricing.input, gemma4.pricing.output, gemma4.pricing.cache], [0.09, 0.34, 0.05]);
+assert.equal(gemma4.worker.aws_openrouter_relay, true);
+
 const sonnet = requireRoute('claude-sonnet-4.6', 'anthropic-official');
 assert.deepEqual([sonnet.pricing.input, sonnet.pricing.output, sonnet.pricing.cache, sonnet.pricing.cache_write], [3, 15, 0.3, 6]);
 
@@ -111,7 +116,7 @@ assert.equal(zai.cache, 'automatic');
 assert.equal(zai.pricing, null, 'Z.AI volatile pricing must not be hardcoded');
 
 const hosted = registry.models.filter(model => model.hosted).sort((a, b) => a.hosted.order - b.hosted.order);
-assert.equal(hosted.length, 16, 'expected sixteen curated YoruBay hosted models');
+assert.equal(hosted.length, 17, 'expected seventeen curated YoruBay hosted models');
 const hostedResolved = hosted.map(model => {
   const route = model.routes.find(item => item.id === model.hosted.route_id);
   assert.ok(route, `${model.id} hosted route must resolve inside the same logical model`);
@@ -122,6 +127,7 @@ assert.deepEqual(hostedResolved, [
   { id: 'deepseek-v4-flash-0731', provider: 'openrouter', model: 'deepseek/deepseek-v4-flash-0731' },
   { id: 'qwen-3.7-flash', provider: 'openrouter', model: 'qwen/qwen3.7-flash' },
   { id: 'mimo-v2.5', provider: 'openrouter', model: 'xiaomi/mimo-v2.5' },
+  { id: 'gemma-4-31b-it', provider: 'openrouter', model: 'google/gemma-4-31b-it' },
   { id: 'gemini-3-flash', provider: 'gemini', model: 'gemini-3-flash-preview' },
   { id: 'gemini-3.8-flash', provider: 'gemini', model: 'gemini-3.8-flash' },
   { id: 'minimax-m3', provider: 'openrouter', model: 'minimax/minimax-m3' },

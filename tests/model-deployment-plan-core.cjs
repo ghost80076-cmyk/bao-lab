@@ -16,11 +16,11 @@ const plan = buildModelDeploymentPlan(registry);
 assert.equal(plan.schema, "yorubay-worker-model-deployment-plan/v1");
 assert.equal(plan.source_registry, "data/presets/models.json");
 assert.equal(plan.cloudflare.MODELS_JSON.entries.length, 11);
-assert.equal(plan.cloudflare.MODELS_JSON_EXTRA.entries.length, 8);
-assert.equal(plan.resolved_routes.length, 19);
+assert.equal(plan.cloudflare.MODELS_JSON_EXTRA.entries.length, 9);
+assert.equal(plan.resolved_routes.length, 20);
 assert.equal(plan.aws.variable, "OPENROUTER_MODELS");
-assert.equal(plan.aws.entries.length, 14);
-assert.equal(new Set(plan.aws.entries).size, 14);
+assert.equal(plan.aws.entries.length, 15);
+assert.equal(new Set(plan.aws.entries).size, 15);
 assert.equal(plan.aws.value_csv, plan.aws.entries.join(","));
 
 const keyOf = entry => `${entry.provider}:${entry.model}`;
@@ -28,7 +28,7 @@ const allEntries = [
   ...plan.cloudflare.MODELS_JSON.entries,
   ...plan.cloudflare.MODELS_JSON_EXTRA.entries,
 ];
-assert.equal(new Set(allEntries.map(keyOf)).size, 19);
+assert.equal(new Set(allEntries.map(keyOf)).size, 20);
 
 const byKey = new Map(allEntries.map(entry => [keyOf(entry), entry]));
 
@@ -101,6 +101,19 @@ assert.deepEqual(
 );
 
 assert.deepEqual(
+  byKey.get("openrouter:google/gemma-4-31b-it"),
+  {
+    provider: "openrouter",
+    model: "google/gemma-4-31b-it",
+    input_microusd_per_million: 90000,
+    output_microusd_per_million: 340000,
+    cache_read_microusd_per_million: 50000,
+    openrouter_max_prompt_microusd_per_million: 90000,
+    openrouter_max_completion_microusd_per_million: 340000,
+  }
+);
+
+assert.deepEqual(
   byKey.get("openrouter:anthropic/claude-sonnet-5.5"),
   {
     provider: "openrouter",
@@ -161,6 +174,7 @@ const relayKeys = new Set(
 assert.equal(relayKeys.has("openrouter:google/gemini-3-flash-preview"), false);
 assert.equal(relayKeys.has("openrouter:google/gemini-3.1-pro-preview"), false);
 assert.equal(relayKeys.has("openrouter:google/gemini-3.8-flash"), true);
+assert.equal(relayKeys.has("openrouter:google/gemma-4-31b-it"), true);
 assert.equal(relayKeys.has("openrouter:anthropic/claude-sonnet-5.5"), true);
 assert.equal(relayKeys.has("openrouter:anthropic/claude-opus-5.5"), true);
 assert.equal(relayKeys.has("openrouter:deepseek/deepseek-v4-flash-0731"), true);

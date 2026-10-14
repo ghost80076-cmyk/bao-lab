@@ -1008,6 +1008,52 @@
       }
     },
     {
+      "id": "gemma-4-31b-it",
+      "name": "Gemma 4 31B",
+      "routes": [
+        {
+          "id": "openrouter",
+          "provider": "openrouter",
+          "provider_label": "OpenRouter",
+          "route": "router",
+          "protocol": "openai",
+          "label": "OR · Gemma 4 31B",
+          "model": "google/gemma-4-31b-it",
+          "base_url": "https://openrouter.ai/api/v1/chat/completions",
+          "badge": "高 CP RP",
+          "use_case": "玩家回報 RP 表現佳；適合低成本長聊、角色互動與世界模擬。262K context，實際文風與限制由玩家自行比較。",
+          "cache": "provider-dependent",
+          "pricing": {
+            "input": 0.09,
+            "output": 0.34,
+            "cache": 0.05,
+            "note": "OpenRouter 2026-10-15 公開價；上游價格變動時夜灣 hard ceiling 會 fail-closed。"
+          },
+          "docs_url": "https://openrouter.ai/google/gemma-4-31b-it",
+          "worker": {
+            "binding": "MODELS_JSON_EXTRA",
+            "aws_openrouter_relay": true,
+            "openrouter_max_price": {
+              "prompt": 0.09,
+              "completion": 0.34
+            },
+            "pricing": {
+              "input": 0.09,
+              "output": 0.34,
+              "cache": 0.05
+            }
+          }
+        }
+      ],
+      "hosted": {
+        "route_id": "openrouter",
+        "tier": "高 CP RP",
+        "label": "【高 CP RP】Gemma 4 31B",
+        "use_case": "玩家指定；低成本 RP、長篇聊天與角色互動，使用夜灣 OpenRouter 燈火路徑",
+        "order": 35
+      }
+    },
+    {
       "id": "minimax-m3",
       "name": "MiniMax M3",
       "routes": [
