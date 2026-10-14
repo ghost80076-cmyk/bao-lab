@@ -21,6 +21,7 @@ assert.equal(files.length, JSON.parse(fs.readFileSync(path.join(root, 'data/char
 
 const implementationJargon = /Builder|Gameplay UI|Dynamic Prompts|Author Regex|作者 Regex|\bRegex\b|Persona|原生 Gameplay UI|原生狀態 UI|夜灣原生 UI/;
 const duplicatePlatformRules = /不得替玩家|不能替玩家|不替玩家|玩家控制權是硬規則|作品名稱[^\n]*(?:不是|不得)[^\n]*(?:NPC|人物)/;
+const agePolicyBoilerplate = /(?:所有|全部|全體)[^\n]{0,50}(?:18\s*\+|18\s*歲|成年人?|成年)|(?:成人內容|成人親密)[^\n]{0,60}(?:啟用成人模式|只在玩家已啟用)|原稿\s*17\s*歲[^\n]*改為\s*20\s*歲/;
 
 for (const file of files) {
   const card = JSON.parse(fs.readFileSync(file, 'utf8'));
@@ -33,6 +34,9 @@ for (const file of files) {
 
   assert.doesNotMatch(modelText, implementationJargon, `${card.meta?.id || file} leaks platform implementation jargon to the model`);
   assert.doesNotMatch(modelText, duplicatePlatformRules, `${card.meta?.id || file} repeats platform-global control/entity rules`);
+  if (['spirit-campus-triangle','light-energy-celebrity-agency','fusion-world-entertainment-empire'].includes(card.meta?.id)) {
+    assert.doesNotMatch(modelText, agePolicyBoilerplate, `${card.meta?.id || file} leaks age/rating policy boilerplate into Runtime Prompt`);
+  }
 }
 
 const engine = fs.readFileSync(path.join(root, 'js', 'character.js'), 'utf8');
