@@ -8,3 +8,10 @@
 }
 .world-module-badge{border-color:var(--yoru-control-border,rgba(241,232,218,.11));color:#b8b2ba}
 .world-module-empty{border-color:rgba(241,232,218,.10)}
+
+/* Readable field/value cards for string and object collections, especially narrow screens. */
+.world-module-card{min-width:0;overflow-wrap:anywhere}
+.world-module-card>strong{font-size:15px;color:var(--text,#f1e8da);overflow-wrap:anywhere}
+.world-module-kv{grid-template-columns:minmax(68px,34%) minmax(0,1fr);align-items:start;gap:7px 10px;line-height:1.5}
+.world-module-kv span{min-width:0;overflow-wrap:anywhere;white-space:pre-wrap}
+@media(max-width:420px){.world-module-kv{grid-template-columns:minmax(62px,34%) minmax(0,1fr);gap:6px 8px}}

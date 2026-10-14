@@ -43,6 +43,15 @@
 
 .gameplay-stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px}.gameplay-stat-grid>div{padding:10px;border-radius:var(--gameplay-small-radius);background:var(--gameplay-surface-alt);border:1px solid color-mix(in srgb,var(--gameplay-border) 72%,transparent)}.gameplay-stat-grid small{display:block;color:var(--gameplay-muted);margin-bottom:4px}.gameplay-stat-grid b{overflow-wrap:anywhere;color:var(--gameplay-text)}
 .gameplay-list{display:grid;gap:6px}.gameplay-list>div{padding:7px 9px;border-radius:var(--gameplay-small-radius);background:var(--gameplay-surface-alt)}.gameplay-list>span{color:var(--gameplay-muted)}
+
+.gameplay-list-record{display:grid;gap:7px;min-width:0;padding:11px 12px;border:1px solid var(--gameplay-border);border-radius:var(--gameplay-small-radius);background:var(--gameplay-surface-alt)}
+.gameplay-list-record>strong{font-size:.96rem;line-height:1.4;color:var(--gameplay-text);overflow-wrap:anywhere}
+.gameplay-list-record dl{display:grid;gap:5px;margin:0}
+.gameplay-list-detail{display:grid;grid-template-columns:minmax(65px,30%) minmax(0,1fr);gap:8px;align-items:start;font-size:.84rem;line-height:1.5}
+.gameplay-list-detail dt{color:var(--gameplay-muted);overflow-wrap:anywhere}
+.gameplay-list-detail dd{min-width:0;margin:0;color:var(--gameplay-text);overflow-wrap:anywhere;white-space:pre-wrap}
+@media(max-width:420px){.gameplay-list-detail{grid-template-columns:minmax(60px,32%) minmax(0,1fr);gap:7px}}
+
 .gameplay-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.gameplay-actions small{color:var(--gameplay-muted)}.gameplay-actions button{border-color:var(--gameplay-border)}.gameplay-actions button:hover{border-color:var(--gameplay-accent)}
 
 .gameplay-card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:9px}

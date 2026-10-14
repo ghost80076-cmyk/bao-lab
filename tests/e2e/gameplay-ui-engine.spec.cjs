@@ -21,6 +21,59 @@ test('legacy cards without gameplay_ui do not get the new builder', async ({ pag
   await expect(page.locator('#bao-gameplay-builder')).toHaveCount(0);
 });
 
+test('mixed native list objects render labeled cards on mobile without leaking raw JSON', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await ready(page);
+  await page.evaluate(() => {
+    App.activeCharacter = CharacterEngine.normalize({
+      id: 'generic-collection-display-test',
+      name: 'Collection Test',
+      system_prompt: 'test',
+      greeting: 'hello',
+      world_modules: [
+        { id: 'people', kind: 'collection', label: '已知人物', context: 'recent' }
+      ],
+      initial_state: {
+        modules: {
+          people: [JSON.stringify([{ name: '歐陽雪', identity: '月影學院成年藝人', known: '有男友張昊然', relationship: '未認識玩家' }])]
+        }
+      },
+      gameplay_ui: {
+        version: 1,
+        panels: [{ id: 'archive', label: '資料', sections: [{
+          type: 'list',
+          title: '相關人物',
+          path: 'modules.people',
+          limit: 10
+        }] }]
+      }
+    });
+    App.config = {
+      narrativeMode: 'world', displayMode: 'ui',
+      persona: { name: '測試玩家', gender: '未指定' },
+      api: { type: 'custom', model: 'offline-test', baseUrl: '', key: '' },
+      memory: { mode: 'manual', maxRounds: 20, maxContext: 32000, cache: false }
+    };
+    GameState.create(App.activeCharacter, App.config);
+    App.showView('chat');
+    BAOGameplayUI.renderPanel('archive');
+  });
+  const section = page.locator('#ui-panel .gameplay-list-record');
+  await expect(section).toHaveCount(1);
+  await expect(section).toContainText('歐陽雪');
+  await expect(section).toContainText('身分');
+  await expect(section).toContainText('有男友張昊然');
+  await expect(section).not.toContainText('{"name"');
+
+  await page.evaluate(() => App.renderUIPanel('module:people'));
+  const moduleCard = page.locator('#ui-panel .world-module-card');
+  await expect(moduleCard).toHaveCount(1);
+  await expect(moduleCard).toContainText('歐陽雪');
+  await expect(moduleCard).toContainText('身分');
+  await expect(moduleCard).toContainText('有男友張昊然');
+  await expect(moduleCard).not.toContainText('{"name"');
+});
+
 test('gameplay schema renders builder, applies state, and drafts actions without auto-send', async ({ page }) => {
   await ready(page);
   const card = await page.evaluate(async () => (await fetch('tests/fixtures/gameplay-ui-demo-character.json')).json());
