@@ -28,13 +28,13 @@ const cover = fs.readFileSync(coverPath);
 assert.equal(cover.subarray(0, 4).toString('ascii'), 'RIFF');
 assert.equal(cover.subarray(8, 12).toString('ascii'), 'WEBP');
 
-assert.match(card.content.system_prompt, /21 歲以上成年人/);
+assert.match(card.content.system_prompt, /八名參與者皆設定為 21 歲以上/);
 assert.match(card.content.system_prompt, /黑手黨×2/);
 assert.match(card.content.system_prompt, /偵探×1/);
 assert.match(card.content.system_prompt, /女巫×1/);
 assert.match(card.content.system_prompt, /玩家固定為 8 號/);
 assert.match(card.content.system_prompt, /【身份秘密】/);
-assert.match(card.content.system_prompt, /成人內容屬可選演出層/);
+assert.match(card.content.system_prompt, /親密演出屬可選層/);
 
 const promptIds = new Set(card.content.dynamic_prompts.map(item => item.id));
 for (const id of ['role-assignment', 'night-actions', 'day-discussion', 'voting', 'adult-layer', 'victory']) {
@@ -55,4 +55,4 @@ const opening = JSON.stringify(card.presentation.opening);
 assert.doesNotMatch(opening, /<script\b/i);
 assert.ok(card.presentation.opening.choices.includes('我準備好了，讓遊戲開始吧。'));
 
-console.log('PASS desire-werewolf adult gate, deduction rules, catalog, cover and Gameplay UI');
+console.log('PASS desire-werewolf age facts, optional intimacy layer, deduction rules, catalog, cover and Gameplay UI');
