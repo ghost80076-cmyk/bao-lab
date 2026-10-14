@@ -1,0 +1,68 @@
+'use strict';
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const vm=require('node:vm');
+const card=require('../data/characters/community/4b/light-energy-celebrity-agency.json');
+const sidecar=require('../data/characters/community/4b/light-energy-celebrity-agency.regex.json');
+const UI=require('../js/gameplay-ui-core.js');
+const Regex=require('../js/author-regex-core.js');
+
+assert.equal(card.schema_version,'1.5');
+assert.equal(card.meta.id,'light-energy-celebrity-agency');
+assert.equal(card.meta.rating,'adult');
+assert.equal(card.meta.category,'male');
+assert.equal(card.meta.author_id,'banzhang');
+assert.equal(card.presentation.reading_background,card.meta.avatar);
+assert.equal(card.presentation.play_info_surface,'game-ui');
+
+for(const s of ['晨曦娛樂','光明能','黑暗能','黑耀會','系統植入','幻夢傳媒','歐陽雪','張昊然','子系統','明星養成','第三方壓力','快速模式']){
+ const text=card.content.system_prompt+'\n'+card.content.world+'\n'+card.content.lore+'\n'+card.content.author_instructions;
+ assert.ok(text.includes(s),'Missing core setting: '+s);
+}
+assert.ok(card.content.system_prompt.includes('伊芯：20 歲'));
+assert.match(card.content.system_prompt,/成人產業|成人娛樂/);
+assert.ok(card.gameplay.initial_state.npcs.every(x=>Number(x.age)>=18));
+assert.ok(card.gameplay.initial_state.npcs.some(x=>x.name==='伊芯'));
+assert.ok(card.gameplay.initial_state.npcs.some(x=>x.name==='依潔'));
+assert.ok(!card.gameplay.initial_state.npcs.some(x=>x.name===card.meta.name));
+const m=card.gameplay.initial_state.modules;
+assert.equal(m.finance.cash,50000);
+assert.equal(m.finance.light_energy,1000);
+assert.equal(m.finance.dark_energy,0);
+assert.equal(m.finance.action_points,3);
+assert.equal(m.business.floors,10);
+assert.equal(m.business.signed_artists,2);
+assert.equal(card.content.dynamic_prompts.length,10);
+assert.equal((card.content.lore.match(/【世界書：/g)||[]).length,12);
+
+const sandbox={console};vm.createContext(sandbox);
+vm.runInContext(fs.readFileSync(require.resolve('../js/character.js'),'utf8')+'\nthis.engine=CharacterEngine;',sandbox);
+assert.equal(sandbox.engine.validate(card).ok,true);
+const normalized=sandbox.engine.normalize(card);
+assert.equal(normalized.world_modules.length,14);
+const ui=UI.normalize(card.gameplay.ui_schema);
+assert.ok(ui);
+assert.deepEqual(ui.panels.map(x=>x.id),['now','ledger','artists','schedule','market','system']);
+const state=structuredClone(card.gameplay.initial_state);
+assert.ok(UI.applyBuilderValues(card.gameplay.ui_schema,{focus:'成人娛樂產業',route:'偏灰色商業',pace:'適合七日批次養成'},state));
+assert.equal(state.modules.setup.focus,'成人娛樂產業');
+assert.equal(state.modules.setup.route,'偏灰色商業');
+assert.equal(state.modules.setup.pace,'適合七日批次養成');
+const allpaths=[];const visit=x=>{if(!x||typeof x!=='object')return;for(const[k,v]of Object.entries(x)){if(k==='path'||k==='target_path')allpaths.push(v);else visit(v);}};
+visit(card.gameplay.ui_schema);
+for(const p of allpaths){if(typeof p==='string'&&p.startsWith('modules.'))assert.notEqual(UI.getPath(state,p),undefined,'Invalid UI path '+p);}
+const normalizedSidecar=Regex.normalize(sidecar);
+assert.equal(normalizedSidecar.length,3);
+assert.ok(normalizedSidecar.every(x=>!x.reason));
+assert.equal(sidecar.characterId,card.meta.id);
+const plain=Regex.render(card.content.greeting,normalizedSidecar,false);
+assert.equal(plain.matched,false);
+for(const name of ['LEDGER','NOTICE','UNDERWORLD']){
+ const s='【YB:LIGHT:'+name+'】\n測試'+name+'\n【/YB:LIGHT:'+name+'】';
+ const match=Regex.render(s,normalizedSidecar,false);
+ assert.equal(match.matched,true,'Missing '+name);
+ assert.match(match.text||match.html||JSON.stringify(match),new RegExp('測試'+name));
+}
+assert.equal(Regex.render('依潔正在核對合約。',normalizedSidecar,false).matched,false);
+assert.ok(card.presentation.opening.choices.length>=4);
+console.log('PASS light energy celebrity agency adult entertainment management card');
