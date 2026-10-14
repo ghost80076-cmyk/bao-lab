@@ -24,7 +24,7 @@
     "title": "融合世界的娛樂帝國｜雙界共鳴",
     "author": "班長",
     "author_id": "banzhang",
-    "avatar": "assets/bao-world-core.webp"
+    "avatar": "assets/community/8f/fusion-world-entertainment-empire.avif"
   },
   "content": {
     "quote": "「兩個世界撞在一起，誰還會照著原來的關係活下去？」",
@@ -1122,7 +1122,7 @@
       "text": true,
       "ui": true
     },
-    "reading_background": "assets/bao-world-core.webp",
+    "reading_background": "assets/community/8f/fusion-world-entertainment-empire.avif",
     "opening": {
       "type": "world-fusion",
       "label": "FUSION NIGHT | 00:07",
