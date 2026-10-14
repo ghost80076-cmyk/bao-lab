@@ -400,6 +400,9 @@
           "pending": [
             "兩位藝人的本週工作排程",
             "幻夢傳媒合作邀約回覆"
+          ],
+          "messages": [
+            "今日 17:00 前：幻夢傳媒合作詢問"
           ]
         },
         "system": {
@@ -407,7 +410,8 @@
           "implantation": "子系統權限未使用",
           "public_incidents": "無已確認異常",
           "trace_risk": "未顯示可辨識痕跡",
-          "dark_contact": "尚未與黑耀會正式接觸"
+          "dark_contact": "尚未與黑耀會正式接觸",
+          "achievements": []
         },
         "people": [
           {
@@ -417,13 +421,9 @@
             "relationship": "尚未認識玩家"
           }
         ],
-        "messages": [
-          "今日 17:00 前：幻夢傳媒合作詢問"
-        ],
         "daily_log": [
           "Day 1 09:00｜繼承十層晨曦娛樂，接手伊芯與依潔兩份既有合約。"
-        ],
-        "achievements": []
+        ]
       }
     },
     "prompt": {
@@ -941,6 +941,11 @@
             "key": "pending",
             "label": "待處理",
             "type": "collection"
+          },
+          {
+            "key": "messages",
+            "label": "往來訊息",
+            "type": "collection"
           }
         ]
       },
@@ -976,6 +981,11 @@
             "key": "dark_contact",
             "label": "地下接觸",
             "type": "text"
+          },
+          {
+            "key": "achievements",
+            "label": "已解鎖成就",
+            "type": "collection"
           }
         ]
       },
@@ -990,29 +1000,9 @@
         "description": "只存已由玩家獲知或可公開核對的資訊，隱私與對手內部計畫不直接顯示。"
       },
       {
-        "id": "messages",
-        "label": "公開訊息",
-        "icon": "✉",
-        "kind": "collection",
-        "tracking": "medium",
-        "context": "recent",
-        "max_items": 24,
-        "description": "只存已由玩家獲知或可公開核對的資訊，隱私與對手內部計畫不直接顯示。"
-      },
-      {
         "id": "daily_log",
         "label": "事件日誌",
         "icon": "≡",
-        "kind": "collection",
-        "tracking": "medium",
-        "context": "recent",
-        "max_items": 24,
-        "description": "只存已由玩家獲知或可公開核對的資訊，隱私與對手內部計畫不直接顯示。"
-      },
-      {
-        "id": "achievements",
-        "label": "已解鎖成就",
-        "icon": "☆",
         "kind": "collection",
         "tracking": "medium",
         "context": "recent",
@@ -1405,14 +1395,14 @@
             {
               "type": "list",
               "title": "相關公開訊息",
-              "path": "modules.messages",
+              "path": "modules.relationship.messages",
               "limit": 10,
               "empty": "目前沒有相關紀錄。"
             },
             {
               "type": "list",
               "title": "成就",
-              "path": "modules.achievements",
+              "path": "modules.system.achievements",
               "limit": 10,
               "empty": "目前沒有相關紀錄。"
             }
