@@ -1698,5 +1698,46 @@
     "version_published_at": "2026-10-13T23:56:17Z",
     "author": "班長",
     "author_id": "banzhang"
+  },
+  {
+    "id": "light-energy-celebrity-agency",
+    "file": "data/characters/community/4b/light-energy-celebrity-agency.json",
+    "name": "光能世界｜晨曦娛樂養成計畫",
+    "title": "光能世界｜晨曦娛樂養成計畫",
+    "avatar": "assets/bao-world-core.webp",
+    "category": "male",
+    "rating": "adult",
+    "gender": "all",
+    "tags": [
+      "男性向",
+      "娛樂經營",
+      "明星養成",
+      "養成模擬",
+      "光明能",
+      "黑暗能",
+      "系統植入",
+      "成人娛樂",
+      "NTR關係張力",
+      "公司競爭",
+      "狗仔公關",
+      "自主NPC",
+      "多結局",
+      "原生狀態UI"
+    ],
+    "description": "繼承十層晨曦娛樂，培養成年藝人、發行歌曲與影視作品，在光明／黑暗能、競爭公司、狗仔和地下勢力之間決定娛樂帝國的走向。養成經營 × 成人娛樂 × 自主NPC × 既存關係角力。",
+    "supported_modes": {
+      "immersive": true,
+      "world": true
+    },
+    "supported_display": {
+      "text": true,
+      "ui": true
+    },
+    "published_at": "2026-10-13T23:50:00Z",
+    "updated_at": "2026-10-13T23:50:00Z",
+    "published_version": 1,
+    "version_published_at": "2026-10-13T23:50:00Z",
+    "author": "班長",
+    "author_id": "banzhang"
   }
 ]
