@@ -13,7 +13,7 @@ assert.equal(card.presentation.reading_background,'https://i.meee.com.tw/O1NWbgz
 assert.equal(card.presentation.play_info_surface,'game-ui');
 assert.equal(card.gameplay.character_status.primary_character_name,'林語嫣');
 assert.match(card.content.system_prompt,/只有玩家確定自己不是原本的陳俊傑/);
-assert.match(card.content.system_prompt,/過去被迫配合.*不能被解讀成同意/);
+assert.match(card.content.system_prompt,/過去被迫配合.*屬創傷背景與關係後果.*不代表角色現在的意願/);
 assert.match(card.content.system_prompt,/故事開場時，小米 7 歲/);
 assert.match(card.content.system_prompt,/快進 13 年.*約 20 歲/);
 assert.match(card.content.system_prompt,/未滿 18 歲.*不得進入成人／性化內容/);
