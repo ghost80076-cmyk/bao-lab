@@ -1704,7 +1704,7 @@
     "file": "data/characters/community/4b/light-energy-celebrity-agency.json",
     "name": "光能世界｜晨曦娛樂養成計畫",
     "title": "光能世界｜晨曦娛樂養成計畫",
-    "avatar": "assets/community/4b/light-energy-celebrity-agency.avif",
+    "avatar": "assets/community/4b/light-energy-celebrity-agency-v2.avif",
     "category": "male",
     "rating": "adult",
     "gender": "all",
@@ -1722,9 +1722,14 @@
       "狗仔公關",
       "自主NPC",
       "多結局",
-      "原生狀態UI"
+      "原生狀態UI",
+      "成人關係",
+      "成熟魅力",
+      "私下邀約",
+      "造型轉型",
+      "自由劇情"
     ],
-    "description": "繼承十層晨曦娛樂，培養成年藝人、發行歌曲與影視作品，在光明／黑暗能、競爭公司、狗仔和地下勢力之間決定娛樂帝國的走向。養成經營 × 成人娛樂 × 自主NPC × 既存關係角力。",
+    "description": "繼承十層晨曦娛樂與兩名成年藝人。從成熟魅力、成人演藝轉型、曖昧與既存戀人競逐出發，探索明星養成、光明／黑暗能、隱藏子系統與娛樂權力。經營可玩，但不必每日打卡。",
     "supported_modes": {
       "immersive": true,
       "world": true
@@ -1734,9 +1739,9 @@
       "ui": true
     },
     "published_at": "2026-10-13T23:50:00Z",
-    "updated_at": "2026-10-13T23:50:00Z",
-    "published_version": 1,
-    "version_published_at": "2026-10-13T23:50:00Z",
+    "updated_at": "2026-10-14T20:30:00+08:00",
+    "published_version": 2,
+    "version_published_at": "2026-10-14T20:30:00+08:00",
     "author": "班長",
     "author_id": "banzhang"
   },
