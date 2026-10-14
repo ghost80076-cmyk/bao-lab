@@ -1605,6 +1605,18 @@
             "before": " 18+ 成年",
             "after": ""
           }
+        ],
+        "content_path_replacements": [
+          {
+            "path": [
+              "dynamic_prompts",
+              15,
+              "text"
+            ],
+            "index": 0,
+            "before": "只處理18+虛構成年人。",
+            "after": ""
+          }
         ]
       }
     },
@@ -1757,6 +1769,28 @@
             "field": "npc_rules",
             "index": 183,
             "before": "\n新 NPC 的任何成人支線都只涉及 21+ 成年角色。",
+            "after": ""
+          }
+        ],
+        "content_path_replacements": [
+          {
+            "path": [
+              "dynamic_prompts",
+              0,
+              "text"
+            ],
+            "index": 17,
+            "before": " 21+ 成年",
+            "after": ""
+          },
+          {
+            "path": [
+              "dynamic_prompts",
+              5,
+              "text"
+            ],
+            "index": 0,
+            "before": "只處理 21+ NPC 與成年玩家。",
             "after": ""
           }
         ]
