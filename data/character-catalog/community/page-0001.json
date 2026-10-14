@@ -1664,7 +1664,7 @@
     "file": "data/characters/community/98/spirit-campus-triangle.json",
     "name": "靈力世界｜青梅、校花與共鳴學園",
     "title": "靈力世界｜青梅、校花與共鳴學園",
-    "avatar": "assets/bao-world-core.webp",
+    "avatar": "assets/community/98/spirit-campus-triangle.webp",
     "category": "male",
     "rating": "adult",
     "gender": "all",
@@ -1693,9 +1693,9 @@
       "ui": true
     },
     "published_at": "2026-10-13T16:45:00Z",
-    "updated_at": "2026-10-13T16:45:00Z",
-    "published_version": 1,
-    "version_published_at": "2026-10-13T16:45:00Z",
+    "updated_at": "2026-10-13T23:56:17Z",
+    "published_version": 2,
+    "version_published_at": "2026-10-13T23:56:17Z",
     "author": "班長",
     "author_id": "banzhang"
   }
