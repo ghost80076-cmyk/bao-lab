@@ -219,6 +219,8 @@ jobs:
         run: node tests/yorubay-package-pricing-core.cjs
       - name: YoruBay policy center
         run: node tests/policy-center-core.cjs
+      - name: YoruBay visible HTML escape audit
+        run: node tests/html-visible-escape-audit.cjs
       - name: YoruBay SEO URL contract
         run: node tests/seo-url-contract.cjs
       - name: YoruBay zero-cost model billing
