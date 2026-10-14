@@ -8,8 +8,8 @@ const path = require('node:path');
 const root = path.resolve(__dirname, '..');
 const pages = fs.readdirSync(root).filter((name) => name.endsWith('.html')).sort();
 const leaked = [];
-const htmlTokens = /<!--[\s\\S]*?-->|<script\b[^>]*>[\s\\S]*?<\/script\s*>|<style\b[^>]*>[\s\\S]*?<\/style\s*>|<[^>]+>|([^<]+)/gi;
-const escapes = /\\\\[nrt]/g;
+const htmlTokens = /<!--[\s\S]*?-->|<script\b[^>]*>[\s\S]*?<\/script\s*>|<style\b[^>]*>[\s\S]*?<\/style\s*>|<[^>]+>|([^<]+)/gi;
+const escapes = /\\[nrt]/g;
 
 for (const page of pages) {
   const html = fs.readFileSync(path.join(root, page), 'utf8');
