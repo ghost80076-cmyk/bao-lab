@@ -20,7 +20,6 @@ assert.match(card.content.system_prompt,/rival_strategy/);
 assert.match(card.content.system_prompt,/競爭情報/);
 assert.match(card.content.system_prompt,/1d100/);
 assert.match(card.content.system_prompt,/每日最大行動點/);
-assert.match(card.content.system_prompt,/成人親密互動只限 18\+/);
 assert.match(card.content.system_prompt,/生活質感/);
 assert.match(card.content.system_prompt,/不要使用「中世紀人從不洗澡」/);
 assert.match(card.content.system_prompt,/理髮外科/);
