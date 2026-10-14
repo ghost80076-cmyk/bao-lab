@@ -1487,19 +1487,7 @@
         "people",
         "threads",
         "actions"
-      ],
-      "reviewed_maintenance": {
-        "date": "2026-10-15",
-        "reason": "移除 Runtime Prompt 中重複的年齡／成人分級政策式聲明；保留具體人物年齡、世界觀與角色自主規則，逐項還原後仍核對既有封存雜湊。",
-        "content_replacements": [
-          {
-            "field": "system_prompt",
-            "index": 3207,
-            "before": "\n",
-            "after": ""
-          }
-        ]
-      }
+      ]
     },
     {
       "id": "weird-task-system",
