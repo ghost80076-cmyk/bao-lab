@@ -13,7 +13,7 @@ assert.equal(card.meta.rating,'adult');
 assert.equal(card.meta.category,'male');
 assert.equal(card.meta.author_id,'banzhang');
 assert.equal(card.presentation.reading_background,card.meta.avatar);
-assert.equal(card.meta.avatar,'assets/community/4b/light-energy-celebrity-agency.avif');
+assert.equal(card.meta.avatar,'assets/community/4b/light-energy-celebrity-agency-v2.avif');
 const cover=fs.readFileSync(require('node:path').join(__dirname,'../',card.meta.avatar));
 assert.ok(cover.length>12000,'Official cover asset should exist');
 assert.equal(cover.subarray(4,12).toString('ascii'),'ftypavif','Expected an AVIF binary, not text');
