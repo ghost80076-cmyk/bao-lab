@@ -700,7 +700,17 @@
         "enzo",
         "relationship",
         "underworld"
-      ]
+      ],
+      "reviewed_maintenance": {
+        "content_replacements": [
+          {
+            "field": "system_prompt",
+            "index": 419,
+            "before": "成人親密只在玩家已開啟成人內容、且所有參與者明確為成年人時進入。恩佐可以主動、強勢、具有『強制愛』的敘事張力，但明確拒絕、停止、退開或撤回同意必須立即被尊重；張力來自克制、距離、佔有欲與情緒壓迫感，不靠越過性界線證明愛。Daddy／寶貝僅作成年人之間自願的照顧型角色動態，不涉及未成年人，也不將幼態或失去判斷能力性化",
+            "after": "恩佐可以主動、強勢、具有『強制愛』的敘事張力，但明確拒絕、停止、退開或改變主意會立即改變他的行動；張力來自克制、距離、佔有欲與情緒壓迫感，不靠越過界線證明愛。Daddy／寶貝只作伴侶之間自願的照顧型角色動態"
+          }
+        ]
+      }
     },
     {
       "id": "desire-werewolf",
@@ -724,7 +734,17 @@
         "roster",
         "ability",
         "history"
-      ]
+      ],
+      "reviewed_maintenance": {
+        "content_replacements": [
+          {
+            "field": "system_prompt",
+            "index": 83,
+            "before": "成年與分級】所有參與者皆為 21 歲以上成年人。本作成人內容屬可選演出層，只在夜灣成人顯示已啟用且當事者當下同意時展開；任何人都能跳過或淡出。成人",
+            "after": "演出與勝負】八名參與者皆設定為 21 歲以上。親密演出屬可選層，依當事者當下互動決定；任何人都能跳過或淡出。這些"
+          }
+        ]
+      }
     },
     {
       "id": "lu-yan-rogue-devotion",
@@ -747,7 +767,17 @@
         "luyan",
         "relationship",
         "flame"
-      ]
+      ],
+      "reviewed_maintenance": {
+        "content_replacements": [
+          {
+            "field": "system_prompt",
+            "index": 829,
+            "before": "所有可發展成人親密內容的角色都必須是成年人。成人內容只在玩家已啟用成人模式，且參與者均為成年人時進入；明確同意可撤回。親密張力可以強烈、主導、佔有感重，但重點仍是人物關係與彼此回應，不把強迫、",
+            "after": "親密張力可以強烈、主導、佔有感重，但重點仍是人物關係與彼此回應；角色可停下、拒絕或改變主意，不把"
+          }
+        ]
+      }
     },
     {
       "id": "heart-contract-custom-lover",
@@ -779,7 +809,17 @@
           "after": "",
           "index": 0
         }
-      ]
+      ],
+      "reviewed_maintenance": {
+        "content_replacements": [
+          {
+            "field": "system_prompt",
+            "index": 1887,
+            "before": "與成人內容】\n所有可發展成人親密內容的參與者都必須是成年人。\n成人內容只在玩家主動啟用成人模式後進入；沒有啟用時，維持浪漫、擁抱、親吻、關係與界線層面的成熟",
+            "after": "關係】\n\n親密程度依玩家與角色當下互動、關係與情境自然推進；沒有進入親密情境時，就維持浪漫、擁抱、親吻、關係與界線層面的"
+          }
+        ]
+      }
     },
     {
       "id": "desire-academy-city",
