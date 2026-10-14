@@ -92,14 +92,7 @@ jobs:
         run: |
           set -euo pipefail
           EXPECTED="$(
-            node - <<'NODE'
-            const {
-              buildModelDeploymentPlan,
-              loadRegistry,
-            } = require('./workers/bao-lab-credits-api/build-model-deployment-plan.cjs');
-            const plan = buildModelDeploymentPlan(loadRegistry());
-            process.stdout.write(plan.aws.value_csv);
-            NODE
+            node -e "const {buildModelDeploymentPlan,loadRegistry}=require('./workers/bao-lab-credits-api/build-model-deployment-plan.cjs');process.stdout.write(buildModelDeploymentPlan(loadRegistry()).aws.value_csv)"
           )"
           test -n "$EXPECTED"
           case ",$EXPECTED," in
