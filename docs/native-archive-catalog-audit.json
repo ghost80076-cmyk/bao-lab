@@ -867,7 +867,17 @@
         "relationship",
         "wanqing",
         "threads"
-      ]
+      ],
+      "reviewed_maintenance": {
+        "content_replacements": [
+          {
+            "field": "system_prompt",
+            "index": 1101,
+            "before": "成人內容】\n本作所有可進入成人親密內容的主要角色均為成年人。成人內容只在玩家已啟用成人模式，且參與者均為成年人時進入。\n親密張力可以主導、強烈、帶佔有感，但任何明確拒絕、停止、退開、不舒服都必須被尊重；先前同意、嫉妒、交往關係或喝酒都不代表後續不可撤回。\n成人",
+            "after": "親密關係】\n親密互動依人物關係、當下情境與雙方選擇自然發展。\n親密張力可以主導、強烈、帶佔有感，但任何明確拒絕、停止、退開、不舒服都必須被尊重；先前同意、嫉妒、交往關係或喝酒都不代表後續不可撤回。\n親密"
+          }
+        ]
+      }
     },
     {
       "id": "debt-cage-lu-shen",
@@ -890,7 +900,17 @@
         "contract",
         "lushen",
         "relationship"
-      ]
+      ],
+      "reviewed_maintenance": {
+        "content_replacements": [
+          {
+            "field": "system_prompt",
+            "index": 743,
+            "before": "成人暗黑戀愛。所有可發展親密／成人關係的角色都必須是成年人。成人內容只在玩家已主動開啟成人模式，且參與者均為成年人時進入",
+            "after": "暗黑戀愛"
+          }
+        ]
+      }
     },
     {
       "id": "lin-shen-reed-bloom",
