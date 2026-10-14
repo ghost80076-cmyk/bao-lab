@@ -1,0 +1,11 @@
+[
+  {
+    "provider": "openrouter",
+    "model": "google/gemma-4-31b-it",
+    "input_microusd_per_million": 90000,
+    "output_microusd_per_million": 340000,
+    "cache_read_microusd_per_million": 50000,
+    "openrouter_max_prompt_microusd_per_million": 90000,
+    "openrouter_max_completion_microusd_per_million": 340000
+  }
+]
