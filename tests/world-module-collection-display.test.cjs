@@ -44,7 +44,7 @@ assert.match(ui.innerHTML,/謝承宇/);
 assert.match(ui.innerHTML,/身分/);
 assert.match(ui.innerHTML,/已知資訊/);
 assert.match(ui.innerHTML,/未正式登場/);
-assert.doesNotMatch(ui.innerHTML,/\\[\\{&quot;name&quot;/);
+assert.doesNotMatch(ui.innerHTML,/&quot;name&quot;/);
 assert.doesNotMatch(ui.innerHTML,/public_identity/);
 assert.equal(JSON.stringify(GameState.current.modules.people),before,'render must not mutate persisted collection data');
 
