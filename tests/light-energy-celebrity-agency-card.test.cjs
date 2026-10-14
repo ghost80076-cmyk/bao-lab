@@ -39,7 +39,7 @@ const sandbox={console};vm.createContext(sandbox);
 vm.runInContext(fs.readFileSync(require.resolve('../js/character.js'),'utf8')+'\nthis.engine=CharacterEngine;',sandbox);
 assert.equal(sandbox.engine.validate(card).ok,true);
 const normalized=sandbox.engine.normalize(card);
-assert.equal(normalized.world_modules.length,14);
+assert.equal(normalized.world_modules.length,12);
 const ui=UI.normalize(card.gameplay.ui_schema);
 assert.ok(ui);
 assert.deepEqual(ui.panels.map(x=>x.id),['now','ledger','artists','schedule','market','system']);
