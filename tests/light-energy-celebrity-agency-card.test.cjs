@@ -44,7 +44,7 @@ assert.doesNotMatch(card.content.system_prompt,/每日三行動點|每日最多 
 assert.equal(m.business.floors,10);
 assert.equal(m.business.signed_artists,2);
 assert.equal(card.content.dynamic_prompts.length,12);
-assert.match(card.content.system_prompt,/成人魅力、親密關係與藝人養成是主戲/);
+assert.match(card.content.system_prompt,/人物魅力、親密關係與藝人養成是主戲/);
 assert.match(card.content.system_prompt,/不消耗經營 AP/);
 assert.match(card.content.system_prompt,/私下晚餐|化妝間/);
 assert.ok(card.content.dynamic_prompts.some(x=>x.id==='private-chemistry'));
@@ -87,4 +87,4 @@ assert.ok(card.presentation.opening.choices.length>=6);
 assert.match(card.content.greeting,/依潔/);
 assert.match(card.content.greeting,/伊芯/);
 assert.match(card.presentation.opening.posts[0].content,/私人互動不用消耗經營點數/);
-console.log('PASS light energy celebrity agency adult entertainment management card');
+console.log('PASS light energy celebrity agency relationship-first entertainment management card');

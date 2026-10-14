@@ -33,7 +33,7 @@ assert.equal(state.modules.setup.pace,'中等推進');
 const loreItems=(card.content.lore.match(/【世界書：/g)||[]).length;
 assert.equal(loreItems,12,'relationship-first edition has twelve integrated lore entries');
 assert.equal(card.content.dynamic_prompts.length,7,'three extra relationship-oriented dynamic prompts');
-for(const phrase of ['成人關係體驗優先','玩家進入後可以立即','約會','主動']){
+for(const phrase of ['人物關係體驗優先','玩家進入後可以立即','約會','主動']){
  assert.ok(card.content.system_prompt.includes(phrase),'romance direction missing '+phrase);
 }
 for(const key of ['private-invitation','romantic-tension','relationship-continuity']) assert.ok(card.content.dynamic_prompts.some(x=>x.id===key),key);

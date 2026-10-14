@@ -11,7 +11,7 @@ assert.equal(card.meta.rating, 'adult');
 assert.equal(card.meta.gender, 'all');
 assert.ok(card.meta.tags.includes('金錢系統'));
 assert.ok(card.meta.tags.includes('國籍文化'));
-assert.match(card.content.system_prompt, /成人內容只在玩家主動啟用成人模式後進入/);
+assert.match(card.content.system_prompt, /親密程度依玩家與角色當下互動、關係與情境自然推進/);
 assert.match(card.content.system_prompt, /真心可以發生，也可以沒有發生/);
 assert.ok(Array.isArray(card.content.dynamic_prompts));
 assert.ok(card.content.dynamic_prompts.some(item => item.id === 'money-contract'));

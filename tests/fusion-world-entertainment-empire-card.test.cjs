@@ -21,9 +21,10 @@ assert.equal(cover.subarray(4,12).toString('ascii'),'ftypavif','Cover should be 
 assert.equal(catalog.find(x => x.id === card.meta.id)?.avatar,card.meta.avatar);
 
 const text = [card.content.greeting,card.content.world,card.content.system_prompt,card.content.lore].join('\n');
-for (const token of ['2024','2080','七層','B1','C級後期','Lv.4','Lv.5','純光','1000000','零','歐陽雪','張昊然','小柔','小雪','成人','共鳴']) {
+for (const token of ['2024','2080','七層','B1','C級後期','Lv.4','Lv.5','純光','1000000','零','歐陽雪','張昊然','小柔','小雪','共鳴']) {
   assert.ok(text.includes(token),'Missing original setting: '+token);
 }
+for (const age of ['20歲','21歲','22歲','24歲']) assert.ok(text.includes(age),'Missing direct age fact: '+age);
 assert.equal(card.gameplay.initial_state.modules.energy.light,1000000);
 assert.equal(card.gameplay.initial_state.modules.player.control,'Lv.4');
 assert.equal(card.gameplay.initial_state.modules.business.artists,0);
@@ -74,4 +75,4 @@ for(const name of ['NOTICE','RESONANCE','DEAL']){
 }
 assert.equal(Regex.render('小柔把電話掛了。',rules,false).matched,false);
 assert.ok(card.presentation.opening.choices.length>=4);
-console.log('PASS fusion world adult relationships first, optional business and original mechanics');
+console.log('PASS fusion world relationship-first flow, direct ages, optional business and original mechanics');
