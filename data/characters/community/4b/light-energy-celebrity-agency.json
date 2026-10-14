@@ -26,7 +26,7 @@
     "title": "光能世界｜晨曦娛樂養成計畫",
     "author": "班長",
     "author_id": "banzhang",
-    "avatar": "assets/bao-world-core.webp"
+    "avatar": "assets/community/4b/light-energy-celebrity-agency.avif"
   },
   "content": {
     "quote": "「把她培養成明星是一回事；她願不願意留下，是另一回事。」",
@@ -1417,7 +1417,7 @@
       "text": true,
       "ui": true
     },
-    "reading_background": "assets/bao-world-core.webp",
+    "reading_background": "assets/community/4b/light-energy-celebrity-agency.avif",
     "opening": {
       "type": "management-simulator",
       "label": "LIGHT CURTAIN CITY · DAY 01",
