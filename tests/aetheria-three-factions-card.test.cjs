@@ -15,7 +15,6 @@ assert.equal(card.presentation.reading_background,card.meta.avatar);
 assert.equal(card.presentation.play_info_surface,'game-ui');
 
 assert.match(card.content.system_prompt,/【精華與勢力情報】/);
-assert.match(card.content.system_prompt,/21 歲以上/);
 assert.match(card.content.system_prompt,/生命精華/);
 assert.match(card.content.system_prompt,/性相關體液/);
 assert.match(card.content.system_prompt,/三大勢力/);

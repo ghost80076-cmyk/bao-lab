@@ -16,7 +16,6 @@ assert.equal(card.presentation.play_info_surface,'game-ui');
 
 assert.match(card.content.system_prompt,/生存沙盒/);
 assert.match(card.content.system_prompt,/預設不擲骰/);
-assert.match(card.content.system_prompt,/21\+ 虛構成年人/);
 assert.doesNotMatch(card.content.greeting,/hc-collapse|hc-h1|hc-n/);
 
 for(const marker of ['YB:ELZE:OPENING','YB:ELZE:NOTICE']) {

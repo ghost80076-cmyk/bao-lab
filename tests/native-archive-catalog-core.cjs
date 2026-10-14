@@ -26,6 +26,13 @@ for (const work of changed) {
     assert.equal(text.slice(edit.index, edit.index + edit.after.length), edit.after);
     originalContent[edit.field] = text.slice(0, edit.index) + edit.before + text.slice(edit.index + edit.after.length);
   }
+  for (const edit of [...(maintenance.content_path_replacements || [])].reverse()) {
+    const parent = edit.path.slice(0, -1).reduce((value, key) => value[key], originalContent);
+    const key = edit.path.at(-1);
+    const text = parent[key];
+    assert.equal(text.slice(edit.index, edit.index + edit.after.length), edit.after, `${work.id}: reviewed content path ${edit.path.join('.')}`);
+    parent[key] = text.slice(0, edit.index) + edit.before + text.slice(edit.index + edit.after.length);
+  }
   for (const edit of [...(maintenance.gameplay_changes || [])].reverse()) {
     const parent = edit.path.slice(0, -1).reduce((value, key) => value[key], originalGameplay);
     const key = edit.path.at(-1);
@@ -40,10 +47,11 @@ for (const work of changed) {
   }
   if (work.world_relocation) {
     const relocation = work.world_relocation;
+    const restoredBlock = originalContent.world;
     assert.equal(card.content.world, relocation.block);
     assert.ok(!card.content[relocation.field].includes(relocation.block), 'world rules moved, not duplicated');
     const text = originalContent[relocation.field];
-    originalContent[relocation.field] = text.slice(0, relocation.index) + relocation.block + relocation.trailing + text.slice(relocation.index);
+    originalContent[relocation.field] = text.slice(0, relocation.index) + restoredBlock + relocation.trailing + text.slice(relocation.index);
     if (!relocation.original_world_present) delete originalContent.world;
   }
   assert.equal(hash(originalContent), work.preserved.content, `${work.id}: only reviewed global-rule removals/world relocation; preserve creative content, greeting and Dynamic Prompts`);
