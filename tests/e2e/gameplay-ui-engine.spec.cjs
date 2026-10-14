@@ -72,7 +72,6 @@ test('mixed native list objects render labeled cards on mobile without leaking r
   await expect(moduleCard).toContainText('身分');
   await expect(moduleCard).toContainText('有男友張昊然');
   await expect(moduleCard).not.toContainText('{"name"');
-  await expect(page.locator('#ui-panel')).not.toHaveJSProperty('scrollWidth', 9999);
 });
 
 test('gameplay schema renders builder, applies state, and drafts actions without auto-send', async ({ page }) => {
