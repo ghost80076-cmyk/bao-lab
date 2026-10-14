@@ -1739,5 +1739,44 @@
     "version_published_at": "2026-10-13T23:50:00Z",
     "author": "班長",
     "author_id": "banzhang"
+  },
+  {
+    "id": "fusion-world-entertainment-empire",
+    "file": "data/characters/community/8f/fusion-world-entertainment-empire.json",
+    "name": "融合世界的娛樂帝國｜雙界共鳴",
+    "title": "融合世界的娛樂帝國｜雙界共鳴",
+    "avatar": "assets/bao-world-core.webp",
+    "category": "general",
+    "rating": "adult",
+    "gender": "all",
+    "tags": [
+      "全性向",
+      "雙界融合",
+      "成人關係",
+      "NTR關係壓力",
+      "青梅",
+      "校花",
+      "異能",
+      "成人藝人",
+      "權力幻想",
+      "NPC自主",
+      "自由探索",
+      "低作業感"
+    ],
+    "description": "兩個世界午夜融合，成人靈力學園與光能娛樂都市碰撞。青梅、校花、既存伴侶、成人藝人與情緒控制構成高自由度關係博弈；先玩想玩的故事，不必每天打卡經營。",
+    "supported_modes": {
+      "immersive": true,
+      "world": true
+    },
+    "supported_display": {
+      "text": true,
+      "ui": true
+    },
+    "published_at": "2026-10-14T07:30:00Z",
+    "updated_at": "2026-10-14T07:30:00Z",
+    "published_version": 1,
+    "version_published_at": "2026-10-14T07:30:00Z",
+    "author": "班長",
+    "author_id": "banzhang"
   }
 ]
