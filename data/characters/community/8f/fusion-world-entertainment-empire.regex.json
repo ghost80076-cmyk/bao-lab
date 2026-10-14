@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "type": "yorubay-author-regex-mod",
+  "scope": "assistant_display",
+  "characterId": "fusion-world-entertainment-empire",
+  "regex_scripts": [
+    {
+      "scriptName": "融合之夜｜公共訊息",
+      "description": "雙界公告或政府協會正式通知才使用",
+      "priority": 65,
+      "findRegex": "【YB:FUSION:NOTICE】\\s*([\\s\\S]*?)\\s*【/YB:FUSION:NOTICE】",
+      "flags": "g",
+      "replaceString": "<section style=\"white-space:pre-wrap;line-height:1.75;background:#202330;color:#f3ebf9;border:1px solid #657099;border-left:4px solid #b7a5ee;border-radius:14px;padding:14px 16px;overflow-wrap:anywhere\"><strong style=\"display:block;color:#e8cbea;margin-bottom:8px\">融合之夜｜公共訊息</strong>$1</section>"
+    },
+    {
+      "scriptName": "雙界共鳴｜異常記錄",
+      "description": "能力失控、場地與公共安全事件才使用",
+      "priority": 60,
+      "findRegex": "【YB:FUSION:RESONANCE】\\s*([\\s\\S]*?)\\s*【/YB:FUSION:RESONANCE】",
+      "flags": "g",
+      "replaceString": "<section style=\"white-space:pre-wrap;line-height:1.75;background:#1f252c;color:#f6eee6;border:1px solid #537e80;border-left:4px solid #74d1c8;border-radius:14px;padding:14px 16px;overflow-wrap:anywhere\"><strong style=\"display:block;color:#e8cbea;margin-bottom:8px\">雙界共鳴｜異常記錄</strong>$1</section>"
+    },
+    {
+      "scriptName": "娛樂帝國｜契約與交易",
+      "description": "重要事業合約或資本交易才使用",
+      "priority": 55,
+      "findRegex": "【YB:FUSION:DEAL】\\s*([\\s\\S]*?)\\s*【/YB:FUSION:DEAL】",
+      "flags": "g",
+      "replaceString": "<section style=\"white-space:pre-wrap;line-height:1.75;background:#2b222a;color:#f7e9dc;border:1px solid #81625d;border-left:4px solid #e6ba79;border-radius:14px;padding:14px 16px;overflow-wrap:anywhere\"><strong style=\"display:block;color:#e8cbea;margin-bottom:8px\">娛樂帝國｜契約與交易</strong>$1</section>"
+    }
+  ]
+}
