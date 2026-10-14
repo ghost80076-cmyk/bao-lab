@@ -12,8 +12,43 @@
     link.href = "css/world-modules.css";
     document.head.appendChild(link);
   };
-  const pretty = v => v === null || v === undefined || v === "" ? "—" : typeof v === "boolean" ? (v ? "是" : "否") : typeof v === "object" ? JSON.stringify(v) : String(v);
-  const labelFor = (def,key) => def.fields?.find(f => f.key === key)?.label || key;
+  const FIELD_LABELS = Object.freeze({
+    public_identity: "身分", identity: "身分", role: "身分",
+    known_connection: "已知資訊", known: "已知資訊",
+    relationship: "關係", relation: "關係", status: "狀態", state: "狀態",
+    location: "位置", mood: "情緒", time: "時間", date: "日期",
+    message: "訊息", event: "事件", notes: "備註", summary: "摘要",
+    description: "說明", progress: "進度", condition: "狀況"
+  });
+  const privateKey = key => /^(_|private|secret|internal|hidden)/i.test(key);
+  const pretty = (v, depth = 0) => {
+    if (v === null || v === undefined || v === "") return "—";
+    if (typeof v === "boolean") return v ? "是" : "否";
+    if (typeof v !== "object") return String(v);
+    if (depth >= 2) return "資料項目";
+    if (Array.isArray(v)) return v.length ? v.slice(0, 8).map(item => pretty(item, depth + 1)).join("、") : "—";
+    const preferred = ["name", "title", "label", "text", "summary", "description"];
+    const first = preferred.find(k => !privateKey(k) && typeof v[k] !== "object" && v[k] !== undefined && v[k] !== "");
+    if (first) return pretty(v[first], depth + 1);
+    const entries = Object.entries(v).filter(([k]) => !privateKey(k)).slice(0, 5);
+    return entries.length ? entries.map(([k,value]) => `${FIELD_LABELS[k] || k.replace(/_/g, " ")}：${pretty(value, depth + 1)}`).join("；") : "—";
+  };
+  const labelFor = (def,key) => def.fields?.find(f => f.key === key)?.label || FIELD_LABELS[key] || key.replace(/_/g, " ");
+  // Older state writes may wrap a whole collection as a single JSON string.
+  // Decode ONLY for display; keep saved state untouched and bound the work per render.
+  const decodeCollectionText = value => {
+    if (typeof value !== "string" || value.length > 12000) return value;
+    let candidate = value.trim();
+    for (let i = 0; i < 2 && /^[\\[{]/.test(candidate); i += 1) {
+      try {
+        const parsed = JSON.parse(candidate);
+        if (parsed && typeof parsed === "object") return parsed;
+        if (typeof parsed !== "string" || parsed === candidate) break;
+        candidate = parsed.trim();
+      } catch (_) { break; }
+    }
+    return value;
+  };
   const trackLabel = value => value === "high" ? "高頻" : value === "medium" ? "一般" : value === "low" ? "低頻" : "手動";
   const objectHTML = (def,value) => {
     const obj = value && typeof value === "object" && !Array.isArray(value) ? value : {};
@@ -21,15 +56,19 @@
     if (!keys.length) return `<div class="world-module-empty">${def.id === window.BAOThreeRealmsCultivation?.id ? '尚未確認修煉狀態。請在故事中說明你的修煉路線與境界；修煉、突破或渡劫明確發生後，狀態會隨故事整理更新。' : '目前沒有資料。'}</div>`;
     return `<div class="world-module-object">${keys.map(key => `<div class="world-module-field"><small>${esc(labelFor(def,key))}</small><b>${esc(displayValue(pretty(obj[key])))}</b></div>`).join("")}</div>`;
   };
-  const collectionHTML = value => {
-    const list = Array.isArray(value) ? value : [];
+  const collectionHTML = (def, value) => {
+    const source = Array.isArray(value) ? value : (typeof value === "string" ? [value] : []);
+    const list = source.slice(0, 80).flatMap(entry => {
+      const decoded = decodeCollectionText(entry);
+      return Array.isArray(decoded) ? decoded : [decoded];
+    }).slice(0, 80);
     if (!list.length) return '<div class="world-module-empty">目前沒有資料。</div>';
-    return `<div class="world-module-collection">${list.slice(0,80).map((item,index) => {
+    return `<div class="world-module-collection">${list.map((item,index) => {
       if (!item || typeof item !== "object" || Array.isArray(item)) return `<article class="world-module-card"><strong>${esc(displayValue(pretty(item)))}</strong></article>`;
-      const titleKey = ["name","title","label","item","id"].find(k => item[k] !== undefined);
-      const title = titleKey ? item[titleKey] : `項目 ${index + 1}`;
-      const rows = Object.entries(item).filter(([k]) => k !== titleKey).slice(0,12);
-      return `<article class="world-module-card"><strong>${esc(displayValue(title))}</strong>${rows.length ? `<div class="world-module-kv">${rows.map(([k,v]) => `<span>${esc(k)}</span><span>${esc(displayValue(pretty(v)))}</span>`).join("")}</div>` : ""}</article>`;
+      const titleKey = ["name","title","label","item","id"].find(k => item[k] !== undefined && item[k] !== "");
+      const title = titleKey ? pretty(item[titleKey]) : `項目 ${index + 1}`;
+      const rows = Object.entries(item).filter(([k]) => k !== titleKey && !privateKey(k)).slice(0,12);
+      return `<article class="world-module-card"><strong>${esc(displayValue(title))}</strong>${rows.length ? `<div class="world-module-kv">${rows.map(([k,v]) => `<span>${esc(labelFor(def,k))}</span><span>${esc(displayValue(pretty(v)))}</span>`).join("")}</div>` : ""}</article>`;
     }).join("")}</div>`;
   };
   const renderModule = id => {
@@ -44,7 +83,7 @@
     }
     const value = GameState.current?.modules?.[id];
     const context = def.context === "core" ? "核心狀態會精簡提供給敘事模型" : def.context === "ui_only" ? "只顯示於介面" : "需要時才使用，避免每輪增加 Context";
-    ui.innerHTML = `<section class="world-module-panel"><div class="world-module-head"><div><h3>${esc(def.icon)} ${esc(def.label)}</h3>${def.description ? `<p>${esc(def.description)}</p>` : ""}<div class="world-module-context-note">${esc(context)}</div></div><span class="world-module-badge">${esc(trackLabel(def.tracking))}追蹤</span></div>${def.kind === "collection" ? collectionHTML(value) : objectHTML(def,value)}</section>`;
+    ui.innerHTML = `<section class="world-module-panel"><div class="world-module-head"><div><h3>${esc(def.icon)} ${esc(def.label)}</h3>${def.description ? `<p>${esc(def.description)}</p>` : ""}<div class="world-module-context-note">${esc(context)}</div></div><span class="world-module-badge">${esc(trackLabel(def.tracking))}追蹤</span></div>${def.kind === "collection" ? collectionHTML(def,value) : objectHTML(def,value)}</section>`;
     if (def.id === window.BAOThreeRealmsCultivation?.id && GameState.current?.cultivationUpdateWarning) {
       const note = document.createElement('p');
       note.className = 'world-module-context-note';
