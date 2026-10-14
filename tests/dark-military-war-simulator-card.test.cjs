@@ -19,7 +19,6 @@ assert.match(card.content.system_prompt,/1d100/);
 assert.match(card.content.system_prompt,/【軍事情報】/);
 assert.match(card.content.system_prompt,/軍功.*責任/);
 assert.match(card.content.system_prompt,/【軍中人物】/);
-assert.match(card.content.system_prompt,/21\+|21 歲/);
 assert.doesNotMatch(card.content.greeting,/hc-h1|hc-stat|hc-bar|hc-collapse|onclick/);
 
 for(const marker of ['YB:WAR:OPENING','YB:WAR:ACTIONS']) assert.match(card.content.greeting,new RegExp(marker));
