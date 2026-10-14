@@ -13,6 +13,10 @@ assert.equal(card.meta.rating,'adult');
 assert.equal(card.meta.category,'male');
 assert.equal(card.meta.author_id,'banzhang');
 assert.equal(card.presentation.reading_background,card.meta.avatar);
+assert.equal(card.meta.avatar,'assets/community/4b/light-energy-celebrity-agency.avif');
+const cover=fs.readFileSync(require('node:path').join(__dirname,'../',card.meta.avatar));
+assert.ok(cover.length>12000,'Official cover asset should exist');
+assert.equal(cover.subarray(4,12).toString('ascii'),'ftypavif','Expected an AVIF binary, not text');
 assert.equal(card.presentation.play_info_surface,'game-ui');
 
 for(const s of ['晨曦娛樂','光明能','黑暗能','黑耀會','系統植入','幻夢傳媒','歐陽雪','張昊然','子系統','明星養成','第三方壓力','快速模式']){
