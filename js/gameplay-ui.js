@@ -384,6 +384,19 @@
     }
     return '';
   };
+  const decodeListText = value => {
+    if (typeof value !== 'string' || value.length > 12000) return value;
+    let source = value.trim();
+    for (let i = 0; i < 2 && /^[\\[{]/.test(source); i += 1) {
+      try {
+        const decoded = JSON.parse(source);
+        if (decoded && typeof decoded === 'object') return decoded;
+        if (typeof decoded !== 'string' || decoded === source) break;
+        source = decoded.trim();
+      } catch (_) { break; }
+    }
+    return value;
+  };
   const listEntryHTML = (item, index) => {
     if (!item || typeof item !== 'object' || Array.isArray(item)) {
       const content = listFieldText(item) || '—';
@@ -408,7 +421,11 @@
     if (section.type === 'stats') return `<section class="gameplay-ui-section">${heading}<div class="gameplay-stat-grid">${section.items.map(item => `<div><small>${esc(item.label)}</small><b>${esc(displayValue(formatValue(Core.getPath(state, item.path))))}${item.suffix ? ` ${esc(displayValue(item.suffix))}` : ''}</b></div>`).join('')}</div></section>`;
     if (section.type === 'list') {
       const value = Core.getPath(state, section.path);
-      const list = Array.isArray(value) ? value.slice(0, section.limit) : [];
+      const source = Array.isArray(value) ? value : (typeof value === 'string' ? [value] : []);
+      const list = source.slice(0, section.limit).flatMap(item => {
+        const decoded = decodeListText(item);
+        return Array.isArray(decoded) ? decoded : [decoded];
+      }).slice(0, section.limit);
       return `<section class="gameplay-ui-section">${heading}<div class="gameplay-list">${list.length ? list.map((item, index) => listEntryHTML(item, index)).join('') : `<span>${esc(displayValue(section.empty))}</span>`}</div></section>`;
     }
     if (section.type === 'cards') {
