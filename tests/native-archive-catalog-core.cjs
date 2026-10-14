@@ -26,6 +26,13 @@ for (const work of changed) {
     assert.equal(text.slice(edit.index, edit.index + edit.after.length), edit.after);
     originalContent[edit.field] = text.slice(0, edit.index) + edit.before + text.slice(edit.index + edit.after.length);
   }
+  for (const edit of [...(maintenance.content_path_replacements || [])].reverse()) {
+    const parent = edit.path.slice(0, -1).reduce((value, key) => value[key], originalContent);
+    const key = edit.path.at(-1);
+    const text = parent[key];
+    assert.equal(text.slice(edit.index, edit.index + edit.after.length), edit.after, `${work.id}: reviewed content path ${edit.path.join('.')}`);
+    parent[key] = text.slice(0, edit.index) + edit.before + text.slice(edit.index + edit.after.length);
+  }
   for (const edit of [...(maintenance.gameplay_changes || [])].reverse()) {
     const parent = edit.path.slice(0, -1).reduce((value, key) => value[key], originalGameplay);
     const key = edit.path.at(-1);
