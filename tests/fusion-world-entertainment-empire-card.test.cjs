@@ -14,6 +14,10 @@ assert.equal(card.meta.rating,'adult');
 assert.equal(card.meta.id,'fusion-world-entertainment-empire');
 assert.equal(card.meta.category,'general');
 assert.equal(card.presentation.reading_background,card.meta.avatar);
+assert.equal(card.meta.avatar,'assets/community/8f/fusion-world-entertainment-empire.avif');
+const cover=fs.readFileSync(require('node:path').join(__dirname,'../',card.meta.avatar));
+assert.ok(cover.length>12000,'Official fusion cover should exist');
+assert.equal(cover.subarray(4,12).toString('ascii'),'ftypavif','Cover should be valid AVIF media');
 assert.equal(catalog.find(x => x.id === card.meta.id)?.avatar,card.meta.avatar);
 
 const text = [card.content.greeting,card.content.world,card.content.system_prompt,card.content.lore].join('\n');
