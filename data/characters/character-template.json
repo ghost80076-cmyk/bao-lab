@@ -16,7 +16,7 @@
   "content": {
     "quote": "角色代表性台詞。",
     "greeting": "故事開場白。",
-    "system_prompt": "角色核心人格、行為邏輯、語氣與不可破壞的設定。",
+    "system_prompt": "角色核心人格、行為邏輯、語氣與不可破壞的設定。角色年齡以具體人物事實直接寫入，不重複「全部成年／18+／成人模式」等分級保證句；分級與平台風險註記放 creator_notes。",
     "world": "世界背景、時代、社會規則、場所與世界運作方式。",
     "world_focus": [
       "這個世界特別重要的元素",
@@ -25,7 +25,7 @@
     "lore": "角色過往、已知事件、重要人物關係、秘密與背景知識。",
     "npc_rules": "只寫本作品特有的 NPC 運作邏輯，例如特殊身份、資訊來源、離場事件或勢力行為；通用玩家控制權與基本資訊隔離由夜灣全局處理。",
     "author_instructions": "只寫本作品特有的敘事鏡頭、對話格式、節奏與文風，不重複平台全局規則。",
-    "creator_notes": "只給作者看的備註。可記錄 Builder、Gameplay UI、Dynamic Prompts、Regex 等實作分工；預設不會送給模型。"
+    "creator_notes": "只給作者看的備註。可記錄 Builder、Gameplay UI、Dynamic Prompts、Regex、作品分級、年齡改編與平台風險註記；預設不會送給模型。"
   },
   "gameplay": {
     "supported_modes": {
