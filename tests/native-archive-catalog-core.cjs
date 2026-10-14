@@ -47,10 +47,11 @@ for (const work of changed) {
   }
   if (work.world_relocation) {
     const relocation = work.world_relocation;
+    const restoredBlock = originalContent.world;
     assert.equal(card.content.world, relocation.block);
     assert.ok(!card.content[relocation.field].includes(relocation.block), 'world rules moved, not duplicated');
     const text = originalContent[relocation.field];
-    originalContent[relocation.field] = text.slice(0, relocation.index) + relocation.block + relocation.trailing + text.slice(relocation.index);
+    originalContent[relocation.field] = text.slice(0, relocation.index) + restoredBlock + relocation.trailing + text.slice(relocation.index);
     if (!relocation.original_world_present) delete originalContent.world;
   }
   assert.equal(hash(originalContent), work.preserved.content, `${work.id}: only reviewed global-rule removals/world relocation; preserve creative content, greeting and Dynamic Prompts`);
