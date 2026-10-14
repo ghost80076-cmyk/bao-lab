@@ -43,7 +43,13 @@ assert.match(card.presentation.opening.posts[0].content,/四個每日行動點/)
 assert.doesNotMatch(card.content.system_prompt,/每日三行動點|每日最多 3 個基礎行動點/);
 assert.equal(m.business.floors,10);
 assert.equal(m.business.signed_artists,2);
-assert.equal(card.content.dynamic_prompts.length,10);
+assert.equal(card.content.dynamic_prompts.length,12);
+assert.match(card.content.system_prompt,/成人魅力、親密關係與藝人養成是主戲/);
+assert.match(card.content.system_prompt,/不消耗經營 AP/);
+assert.match(card.content.system_prompt,/私下晚餐|化妝間/);
+assert.ok(card.content.dynamic_prompts.some(x=>x.id==='private-chemistry'));
+assert.ok(card.content.dynamic_prompts.some(x=>x.id==='adult-stage-persona'));
+assert.equal(card.gameplay.initial_state.modules.setup.management,'玩家想經營時才啟動');
 assert.equal((card.content.lore.match(/【世界書：/g)||[]).length,12);
 
 const sandbox={console};vm.createContext(sandbox);
@@ -53,12 +59,14 @@ const normalized=sandbox.engine.normalize(card);
 assert.equal(normalized.world_modules.length,12);
 const ui=UI.normalize(card.gameplay.ui_schema);
 assert.ok(ui);
-assert.deepEqual(ui.panels.map(x=>x.id),['now','ledger','artists','schedule','market','system']);
+assert.deepEqual(ui.panels.map(x=>x.id),['now','relationships','ledger','artists','schedule','market','system']);
 const state=structuredClone(card.gameplay.initial_state);
-assert.ok(UI.applyBuilderValues(card.gameplay.ui_schema,{focus:'成人娛樂產業',route:'偏灰色商業',pace:'適合七日批次養成'},state));
+assert.ok(UI.applyBuilderValues(card.gameplay.ui_schema,{focus:'成人娛樂產業',route:'偏灰色商業',pace:'適合七日批次養成',management:'輕量穿插經營事件',romance:'明顯競爭與成人三角'},state));
 assert.equal(state.modules.setup.focus,'成人娛樂產業');
 assert.equal(state.modules.setup.route,'偏灰色商業');
 assert.equal(state.modules.setup.pace,'適合七日批次養成');
+assert.equal(state.modules.setup.management,'輕量穿插經營事件');
+assert.equal(state.modules.setup.romance,'明顯競爭與成人三角');
 const allpaths=[];const visit=x=>{if(!x||typeof x!=='object')return;for(const[k,v]of Object.entries(x)){if(k==='path'||k==='target_path')allpaths.push(v);else visit(v);}};
 visit(card.gameplay.ui_schema);
 for(const p of allpaths){if(typeof p==='string'&&p.startsWith('modules.'))assert.notEqual(UI.getPath(state,p),undefined,'Invalid UI path '+p);}
@@ -75,5 +83,8 @@ for(const name of ['LEDGER','NOTICE','UNDERWORLD']){
  assert.match(match.text||match.html||JSON.stringify(match),new RegExp('測試'+name));
 }
 assert.equal(Regex.render('依潔正在核對合約。',normalizedSidecar,false).matched,false);
-assert.ok(card.presentation.opening.choices.length>=4);
+assert.ok(card.presentation.opening.choices.length>=6);
+assert.match(card.content.greeting,/依潔/);
+assert.match(card.content.greeting,/伊芯/);
+assert.match(card.presentation.opening.posts[0].content,/私人互動不用消耗經營點數/);
 console.log('PASS light energy celebrity agency adult entertainment management card');
