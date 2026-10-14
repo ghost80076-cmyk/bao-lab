@@ -28,20 +28,40 @@ jobs:
         with:
           node-version: 22
 
-      - name: Verify guarded model deployment contracts
+      - name: Verify guarded model binding apply contracts
         run: |
-          node --check scripts/apply-production-model-registry.cjs
-          node tests/production-model-binding-deploy-core.cjs
+          node --check scripts/apply-worker-model-bindings.cjs
+          node tests/worker-model-binding-apply-core.cjs
           node tests/model-deployment-plan-core.cjs
           node tests/production-model-registry-audit-core.cjs
 
-      - name: Apply registry-generated Cloudflare model bindings
+      - name: Read current production binding fingerprint
+        id: binding-dry-run
         env:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_WORKER_NAME: ${{ secrets.CLOUDFLARE_WORKER_NAME }}
-          YORUBAY_MODEL_BINDINGS_APPLY: APPLY_REGISTRY_MODEL_BINDINGS
-        run: node scripts/apply-production-model-registry.cjs
+        shell: bash
+        run: |
+          set -euo pipefail
+          node scripts/apply-worker-model-bindings.cjs > /tmp/model-binding-dry-run.json
+          cat /tmp/model-binding-dry-run.json
+          FINGERPRINT="$(
+            node -e "const r=require('/tmp/model-binding-dry-run.json'); process.stdout.write(r.current_fingerprint)"
+          )"
+          test "${#FINGERPRINT}" -eq 64
+          echo "fingerprint=$FINGERPRINT" >> "$GITHUB_OUTPUT"
+
+      - name: Apply only registry-generated model bindings
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_WORKER_NAME: ${{ secrets.CLOUDFLARE_WORKER_NAME }}
+          CURRENT_FINGERPRINT: ${{ steps.binding-dry-run.outputs.fingerprint }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          node scripts/apply-worker-model-bindings.cjs             --apply             "--expect-current=$CURRENT_FINGERPRINT"
 
       - name: Verify Cloudflare production registry
         env:
