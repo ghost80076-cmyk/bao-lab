@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "type": "yorubay-author-regex-mod",
+  "scope": "assistant_display",
+  "characterId": "light-energy-celebrity-agency",
+  "regex_scripts": [
+    {
+      "scriptName": "光能世界｜營運結算",
+      "description": "重大營運日結才出現，不每輪輸出巨大狀態欄；只影響顯示，不寫入世界狀態。",
+      "priority": 75,
+      "findRegex": "【YB:LIGHT:LEDGER】\\s*([\\s\\S]*?)\\s*【/YB:LIGHT:LEDGER】",
+      "flags": "g",
+      "replaceString": "<section style=\"white-space:pre-wrap;line-height:1.8;background:#241c2a;color:#f3e8ef;border:1px solid #795568;border-left:4px solid #e0b16b;border-radius:16px;padding:14px 17px;overflow-wrap:anywhere\"><strong style=\"display:block;color:#f0c6d8;margin-bottom:8px;letter-spacing:.07em\">晨曦娛樂｜營運結算</strong>$1</section>"
+    },
+    {
+      "scriptName": "光能世界｜公司公告",
+      "description": "官方公告、重要合約與檔期通報，僅裝飾通知。",
+      "priority": 65,
+      "findRegex": "【YB:LIGHT:NOTICE】\\s*([\\s\\S]*?)\\s*【/YB:LIGHT:NOTICE】",
+      "flags": "g",
+      "replaceString": "<section style=\"white-space:pre-wrap;line-height:1.8;background:#24232f;color:#f1ebf7;border:1px solid #5e6088;border-left:4px solid #aaa5dc;border-radius:16px;padding:14px 17px;overflow-wrap:anywhere\"><strong style=\"display:block;color:#f0c6d8;margin-bottom:8px;letter-spacing:.07em\">光幕都市｜產業公告</strong>$1</section>"
+    },
+    {
+      "scriptName": "光能世界｜地下勢力",
+      "description": "黑耀會、暗夜娛樂與高風險交易真正發生時才出現，不必固定觸發。",
+      "priority": 55,
+      "findRegex": "【YB:LIGHT:UNDERWORLD】\\s*([\\s\\S]*?)\\s*【/YB:LIGHT:UNDERWORLD】",
+      "flags": "g",
+      "replaceString": "<section style=\"white-space:pre-wrap;line-height:1.8;background:#291b24;color:#f6e6ee;border:1px solid #734255;border-left:4px solid #ce738e;border-radius:16px;padding:14px 17px;overflow-wrap:anywhere\"><strong style=\"display:block;color:#f0c6d8;margin-bottom:8px;letter-spacing:.07em\">地下市場｜未公開接觸</strong>$1</section>"
+    }
+  ]
+}

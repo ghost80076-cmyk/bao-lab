@@ -112,7 +112,8 @@ for (const file of cards) {
   void rel;
 }
 
-assert.equal(sidecars.length, 18, 'expected 18 official regex sidecars including Spirit Campus');
+assert.equal(sidecars.length, 19, 'expected 19 official regex sidecars including Chenxi Entertainment');
+assert.ok(regexCards.includes('light-energy-celebrity-agency'), 'Chenxi Entertainment official regex sidecar must be audited');
 assert.ok(regexCards.includes('spirit-campus-triangle'), 'Spirit Campus sidecar must be audited');
 assert.deepEqual(failures, [], 'community UI/Regex audit must stay clean');
 
