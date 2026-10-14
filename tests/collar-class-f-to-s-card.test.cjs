@@ -14,7 +14,7 @@ assert.equal(card.presentation.play_info_surface,'game-ui');
 assert.match(card.content.system_prompt,/階級不是人格/);
 assert.match(card.content.system_prompt,/六軸養成/);
 assert.match(card.content.system_prompt,/升階不是經驗值滿自動升級/);
-assert.match(card.content.system_prompt,/所有可進入成人市場.*21 歲以上/);
+assert.match(card.content.system_prompt,/階級 × 金錢 × 成人市場/);
 assert.match(card.content.system_prompt,/男性向鏡頭/);
 assert.match(card.content.system_prompt,/付款.*不等於.*同意|階級.*不等於.*同意/);
 assert.match(card.content.npc_rules,/離場後繼續生活/);
