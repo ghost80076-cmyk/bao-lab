@@ -28,7 +28,7 @@ const cover = fs.readFileSync(coverPath);
 assert.equal(cover.subarray(0, 4).toString('ascii'), 'RIFF');
 assert.equal(cover.subarray(8, 12).toString('ascii'), 'WEBP');
 
-assert.match(card.content.system_prompt, /所有固定角色都是 21 歲以上專業演員/);
+assert.match(card.content.system_prompt, /學生、老師、人妻、女僕、精靈、理事長、兄妹、師生、婚姻與其他禁忌關係都是虛構角色／劇本關係/);
 assert.match(card.content.system_prompt, /鏡頭內／幕後/);
 assert.match(card.content.system_prompt, /數值色情遊戲/);
 assert.match(card.content.system_prompt, /不得聲稱角色就是現實存在的 AV 女優/);
