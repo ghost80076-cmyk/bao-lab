@@ -168,3 +168,12 @@ html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) #chat-view #bao-chat-
 html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) #chat-view #bao-chat-tool-groups > details > summary::after{
   color:var(--yoru-muted)
 }
+
+
+/* The mobile reading shell uses a !important tool background in its own
+   stylesheet. Non-night themes need an equally intentional surface override. */
+@media(max-width:820px){
+  html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) #bao-chat-tool-drawer .bao-chat-tool-dialog{
+    background:var(--yoru-surface)!important
+  }
+}
