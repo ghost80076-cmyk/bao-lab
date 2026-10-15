@@ -61,7 +61,7 @@ window.addEventListener("DOMContentLoaded", () => {
   // Experience 3.0 is a presentation layer; load early for the landing page
   // without coupling it to the story/Provider initialization chain.
   loadBAOScript("js/experience-preferences-core.js?v=1")
-    .then(() => loadBAOScript("js/experience-preferences.js?v=1"))
+    .then(() => loadBAOScript("js/experience-preferences.js?v=2"))
     .catch(err => console.warn("YoruBay experience preferences unavailable:", err));
   loadBAOScript("js/chat-api-settings.js?v=3")
     .then(() => loadBAOScript("js/model-discovery.js"))
@@ -158,7 +158,7 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/bao-mascot.js?v=4"))
     .then(() => loadBAOScript("js/reader-context.js?v=2"))
     .then(() => loadBAOScript("js/bao-visual-ui.js?v=10"))
-    .then(() => loadBAOScript("js/player-shell-v2.js?v=5"))
+    .then(() => loadBAOScript("js/player-shell-v2.js?v=6"))
     .then(() => loadBAOScript("js/player-builder-v2.js?v=4"))
     .then(() => loadBAOScript("js/story-start-readiness-core.js"))
     .then(() => loadBAOScript("js/story-start-readiness.js"))
