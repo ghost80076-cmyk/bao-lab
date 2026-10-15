@@ -93,3 +93,111 @@
   .memory-simple.memory-editing .memory-desk-content{padding-top:8px}
   .memory-simple.memory-editing .memory-pane-title{display:none}
 }
+
+
+/* Experience 3.0 · Round 17 — memory is part of the chosen site theme.
+   Keep night mode and story/AI state logic unchanged. */
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .memory-desk{
+  background:var(--yoru-surface);
+  color:var(--yoru-text);
+  border-color:var(--yoru-card-border);
+}
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .memory-desk :is(
+  .memory-desk-head,.memory-desk-nav,.memory-desk-stats
+){
+  background:var(--yoru-tool);
+  border-color:var(--yoru-card-border);
+}
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .memory-desk :is(
+  .memory-desk-stat,.memory-health-card,.memory-summary-preview,
+  .memory-context-item,.memory-note-card,.memory-refine-card,
+  .memory-auto-row,.memory-player-facts span,.memory-player-details,
+  .canon-summary>div,.canon-book,.canon-advanced-tools
+){
+  background:var(--yoru-card);
+  color:var(--yoru-text);
+  border-color:var(--yoru-card-border);
+}
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .memory-desk :is(
+  .memory-desk-head h2,.memory-pane-title h3,.memory-health-card>b,
+  .memory-desk-stat b,.canon-summary b
+){color:var(--yoru-text)}
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .memory-desk :is(
+  .memory-desk-head p,.memory-desk-stat span,.memory-pane-title p,
+  .memory-health-card>p,.memory-health-meta,.memory-context-item p,
+  .memory-summary-preview pre,.memory-note-meta,.memory-player-facts,
+  .memory-player-details>.note,.memory-draft,.memory-refine-card p,
+  .canon-summary span,.canon-summary small,.canon-notice,.canon-book details
+){color:var(--yoru-muted)}
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .memory-desk :is(
+  .memory-summary-preview summary,.memory-player-details>summary,
+  .canon-advanced-tools>summary,.canon-book-advanced>summary
+){color:var(--yoru-text)}
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .memory-desk :is(
+  .memory-desk-close,.memory-help-toggle,.memory-editing-done,
+  .memory-ai-helper
+){
+  background:var(--yoru-control);color:var(--yoru-text);
+  border:1px solid var(--yoru-control-border);
+}
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .memory-desk :is(
+  .memory-desk-tab,.memory-back-link
+){color:var(--yoru-muted)}
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .memory-desk .memory-desk-tab.active{
+  background:var(--yoru-control);color:var(--yoru-lantern);
+  box-shadow:inset 2px 0 0 var(--yoru-lantern);
+}
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .memory-desk .memory-back-link{
+  color:var(--yoru-lantern);
+}
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .memory-desk :is(
+  .memory-note-card textarea,.memory-refine-card textarea,
+  .memory-refine-card select,.memory-refine-card input,
+  .memory-auto-row select,.canon-book textarea,.canon-book select,
+  .canon-book input[type="text"]
+){
+  background:var(--yoru-input);color:var(--yoru-text);
+  border-color:var(--yoru-input-border);
+}
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .memory-desk .memory-note-top input[type="text"]{
+  background:transparent;color:var(--yoru-text);
+}
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .memory-desk :is(
+  .memory-add-note,.memory-refine-run
+){
+  background:var(--yoru-lantern);color:var(--yoru-night);
+  border-color:var(--yoru-control-border-hover);
+}
+html[data-yoru-theme="mist"] .memory-desk :is(.memory-add-note,.memory-refine-run){
+  color:#fff;
+}
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .memory-desk :is(
+  .memory-health-card,.canon-notice
+){
+  background:color-mix(in srgb,var(--yoru-lantern) 7%,var(--yoru-card));
+  border-color:var(--yoru-card-border);
+}
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .memory-desk .memory-health-card[data-memory-health="failed"]{
+  background:color-mix(in srgb,#c65c65 8%,var(--yoru-card));
+  border-color:#c65c65;
+}
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .memory-desk :is(
+  button,input,select,textarea,summary
+):focus-visible{
+  outline:2px solid var(--yoru-lantern);outline-offset:2px;
+}
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .memory-quick-status{
+  color:var(--yoru-text);
+  background:var(--yoru-card);border-color:var(--yoru-card-border);
+}
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .memory-quick-status>p{
+  color:var(--yoru-muted);
+}
+@media(max-width:760px){
+  html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .memory-simple .memory-desk-stats{
+    background:var(--yoru-tool);
+  }
+  html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .memory-desk .memory-desk-tab.active{
+    box-shadow:inset 0 -2px 0 var(--yoru-lantern);
+  }
+}
