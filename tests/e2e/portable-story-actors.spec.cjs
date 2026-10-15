@@ -243,3 +243,90 @@ test('story actor editor respects theme while preserving player and author bound
   await modal.getByRole('button', {name:'取消'}).click();
   expect(await page.evaluate(() => JSON.stringify(GameState.current))).toBe(stateBefore);
 });
+
+
+for (const width of [390, 1280]) {
+  test(`NPC roster separates scene presence and only exposes visible relationship fields at ${width}px`, async ({page}) => {
+    await page.setViewportSize({width, height:900});
+    await page.goto('/');
+    await page.waitForFunction(() => Boolean(window.BAOCharacterStatusUI && window.BAOCharacterStatus && window.YoruExperience && App.characters?.length));
+    await page.evaluate(() => {
+      const character = structuredClone(App.characters[0]);
+      character.id = 'round21-roster-fixture';
+      character.character_status = {
+        enabled:true,
+        allow_player_customize:true,
+        fields:[
+          {key:'relationship_state',label:'關係狀態',type:'tags',context:'core',default:[],player_toggle:true},
+          {key:'secret_relation',label:'隱藏關係',type:'text',context:'relevant',default:'',player_toggle:true}
+        ]
+      };
+      App.activeCharacter = character;
+      App.config = {
+        persona:{name:'旅人'},narrativeMode:'world',displayMode:'text',
+        api:{model:'mock'},memory:{maxRounds:20,maxContext:32000,mode:'rounds'}
+      };
+      GameState.create(character, App.config);
+      GameState.current.location = '港口';
+      GameState.upsertNPC({name:'鏡月',role:'調查員',presence:'present',location:'港口'});
+      GameState.upsertNPC({name:'時羽',role:'音樂家',presence:'away',location:'劇場'});
+      BAOCharacterStatus.ensureState(character);
+      GameState.current.characterStatuses = {
+        ...(GameState.current.characterStatuses || {}),
+        '鏡月':{relationship_state:['盟友'],secret_relation:'不可見'},
+        '時羽':{relationship_state:['舊識'],secret_relation:'也不可見'}
+      };
+      GameState.current.characterStatusCustomization = {
+        version:1,customFields:[],hidden:['secret_relation'],labels:{},
+        order:['relationship_state','secret_relation']
+      };
+      YoruExperience.choose({theme:'mist'});
+      BAOCharacterStatusUI.openNpcRoster();
+    });
+
+    const modal = page.getByRole('dialog', {name:'NPC 名冊／場景參與者'});
+    await expect(modal).toBeVisible();
+    await expect(modal).toHaveCSS('background-color','rgb(255, 250, 243)');
+    await expect(modal.locator('[data-roster-item]')).toHaveCount(2);
+    await expect(modal.locator('.npc-roster-relations')).toContainText('盟友');
+    await expect(modal).not.toContainText('不可見');
+
+    const quickAdd = modal.locator('.npc-roster-add-details');
+    await expect(quickAdd).not.toHaveAttribute('open','');
+    await expect(quickAdd.locator('[data-roster-bulk]')).toBeHidden();
+
+    const search = modal.getByRole('searchbox', {name:'搜尋 NPC 名冊'});
+    await search.fill('盟友');
+    await expect(modal.locator('[data-roster-item]:visible')).toHaveCount(1);
+    await expect(modal.locator('[data-roster-item]:visible')).toContainText('鏡月');
+    await search.fill('不可見');
+    await expect(modal.locator('[data-roster-item]:visible')).toHaveCount(0);
+    await expect(modal.locator('[data-roster-no-match]')).toBeVisible();
+
+    await search.fill('');
+    await modal.locator('[data-roster-filter="scene"]').click();
+    await expect(modal.locator('[data-roster-filter="scene"]')).toHaveAttribute('aria-pressed','true');
+    await expect(modal.locator('[data-roster-item]:visible')).toHaveCount(1);
+    await expect(modal.locator('[data-roster-item]:visible')).toContainText('鏡月');
+
+    await modal.locator('[data-roster-filter="other"]').click();
+    await expect(modal.locator('[data-roster-item]:visible')).toHaveCount(1);
+    await expect(modal.locator('[data-roster-item]:visible')).toContainText('時羽');
+
+    await modal.locator('[data-roster-filter="all"]').click();
+    await search.fill('鏡月');
+    const before = await page.evaluate(() => JSON.stringify(GameState.current.npcs));
+    await modal.locator('[data-roster-item]:visible [data-roster-scene]').uncheck();
+    await expect(search).toHaveValue('鏡月');
+    expect(await page.evaluate(() => JSON.stringify(GameState.current.npcs))).toBe(before);
+
+    await page.evaluate(() => YoruExperience.choose({theme:'rose'}));
+    await expect(modal).toHaveCSS('background-color','rgb(59, 48, 54)');
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width + 1);
+
+    await modal.getByRole('button', {name:'儲存本場人物'}).click();
+    await expect(page.locator('.npc-roster-backdrop')).toHaveCount(0);
+    const mirror = await page.evaluate(() => GameState.current.npcs.find(npc => npc.name === '鏡月'));
+    expect(mirror.presence).toBe('away');
+  });
+}
