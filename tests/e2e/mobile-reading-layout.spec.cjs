@@ -182,6 +182,7 @@ for (const theme of ['mist','rose']) {
         textarea:bg('#user-input'),
         tools:bg('#bao-mobile-composer-tools'),
         inspiration:bg('#bao-mobile-composer-inspire'),
+        send:bg('#chat-view .composer .primary'),
         text:fg('#user-input'),
         // Some works render an authored rich HTML message, not a plain bubble.
         // Do not force platform theme colors onto author-controlled markup.
@@ -193,13 +194,14 @@ for (const theme of ['mist','rose']) {
       };
     });
     const expected = theme === 'mist'
-      ? {tool:'rgb(243, 236, 227)',input:'rgb(255, 253, 248)',control:'rgb(240, 232, 223)',text:'rgb(69, 59, 52)'}
-      : {tool:'rgb(59, 48, 54)',input:'rgb(52, 43, 48)',control:'rgb(75, 59, 67)',text:'rgb(243, 232, 230)'};
+      ? {tool:'rgb(243, 236, 227)',input:'rgb(255, 253, 248)',control:'rgb(240, 232, 223)',text:'rgb(69, 59, 52)',send:'rgb(157, 115, 88)'}
+      : {tool:'rgb(59, 48, 54)',input:'rgb(52, 43, 48)',control:'rgb(75, 59, 67)',text:'rgb(243, 232, 230)',send:'rgb(214, 167, 159)'};
     expect(current.header).toBe(expected.tool);
     expect(current.composer).toBe(expected.tool);
     expect(current.textarea).toBe(expected.input);
     expect(current.tools).toBe(expected.control);
     expect(current.inspiration).toBe(expected.control);
+    expect(current.send).toBe(expected.send);
     expect(current.text).toBe(expected.text);
     if (current.assistant !== null) expect(current.assistant).toBe(expected.text);
     expect(current.horizontalOverflow).toBeLessThanOrEqual(1);
