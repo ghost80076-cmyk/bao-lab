@@ -123,7 +123,7 @@ for (const width of [390,1280]) {
     await expect(modal.locator('.ylb-collection:visible')).not.toHaveCount(0);
     await expect(modal.getByRole('button',{name:'已啟用'})).toHaveAttribute('aria-pressed','true');
 
-    await modal.getByRole('button',{name:'我的世界書'}).click();
+    await modal.locator('button[data-ylb-filter="mine"]').click();
     await expect(modal.locator('.ylb-collection:visible')).toHaveCount(0);
     await expect(modal.locator('.ylb-empty-results')).toContainText('還沒有私人世界書');
     await modal.getByRole('button',{name:'全部',exact:true}).click();
