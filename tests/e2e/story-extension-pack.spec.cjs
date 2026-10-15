@@ -89,6 +89,8 @@ test('exports only portable player settings and imports selected categories afte
   await open.click();
 
   const control = page.getByRole('dialog', { name: '故事總覽' });
+  await control.locator('.story-control-more summary').click();
+  await expect(control.getByRole('button', { name: /故事擴充/ })).toBeVisible();
   await control.getByRole('button', { name: /故事擴充/ }).click();
 
   let extensions = page.getByRole('dialog', { name: '故事擴充' });
