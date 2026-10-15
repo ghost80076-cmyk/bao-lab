@@ -99,13 +99,9 @@
     const scene = groups.querySelector('[data-chat-tool-group="scene"]');
     const world = groups.querySelector('[data-chat-tool-group="world"]');
     const settings = groups.querySelector('[data-chat-tool-group="settings"]');
-    if (scene) {
-      const label = scene.querySelector(':scope > summary');
-      if (label) label.textContent = '◈ 顯示方式';
-      scene.open = false;
-    }
-    if (world) world.querySelector(':scope > summary').textContent = '◇ 世界設定';
-    if (settings) settings.querySelector(':scope > summary').textContent = '⚙ 模型與敘事';
+    // Group titles belong to chat-tool-navigation. Preserve the category
+    // labels on both devices; this module only controls initial scene display.
+    if (scene) scene.open = false;
     initializedGroups = true;
   }
   function paintCommittedMessages() {

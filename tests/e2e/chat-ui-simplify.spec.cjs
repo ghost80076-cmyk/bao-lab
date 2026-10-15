@@ -11,7 +11,7 @@ test('phone chat keeps advanced author settings out of the reading pane but reac
   await page.locator('#bao-mobile-composer-tools').click();
   const drawer = page.locator('#bao-chat-tool-drawer');
   await expect(drawer).toBeVisible();
-  await drawer.locator('details').filter({ hasText: '敘事、模型與外觀' }).locator('summary').click();
+  await drawer.locator('details[data-chat-tool-group="scene"] > summary').click();
   await drawer.getByRole('button', { name: '自訂介面' }).click();
   const dialog = page.getByRole('dialog', { name: '角色卡自訂介面設定' });
   await expect(dialog).toBeVisible();

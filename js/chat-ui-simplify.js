@@ -82,7 +82,7 @@
       editor.open = false;
       storage().append(editor);
     }
-    const host = settings() || aside();
+    const host = aside()?.querySelector('[data-chat-tool-body="scene"]') || aside();
     let trigger = aside()?.querySelector('#bao-author-settings-open');
     if (!trigger && host) {
       trigger = document.createElement('button');

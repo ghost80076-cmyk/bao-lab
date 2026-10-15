@@ -4,11 +4,11 @@
   if (window.BAOChatControlsClarity) return;
   const aside = () => document.querySelector('#chat-view .chat-layout > aside');
   const names = {
-    scene: '◈ 當前場景',
-    world: '◇ 世界設定與狀態',
-    story: '▤ 故事庫與存檔',
-    settings: '⚙ 敘事、模型與外觀（進階設定）',
-    other: '其他操作'
+    world: '◇ 人物與世界',
+    story: '▤ 故事與記憶',
+    settings: '⚙ AI 與指令',
+    scene: '◈ 畫面與操作',
+    other: '其他與支援'
   };
   const rename = (node, label, help) => {
     if (!node) return;
@@ -32,9 +32,7 @@
         const selector = `[data-bao-clarity-group="${name}"]`;
         const existing = drawer.querySelector(selector);
         if (existing) { rename(existing, label); continue; }
-        const summary = [...drawer.querySelectorAll('.bao-chat-tool-dialog-body > details > summary')]
-          .find(node => node.textContent.trim().replace(/^[◈◇▤⚙]\s*/, '') ===
-            ({ scene: '場景顯示與狀態', world: '世界與狀態工具', story: '故事與存檔', settings: '敘事、模型與外觀', other: '其他操作' })[name]);
+        const summary = drawer.querySelector(`.bao-chat-tool-dialog-body > details[data-chat-tool-group="${name}"] > summary`);
         if (summary) { summary.dataset.baoClarityGroup = name; rename(summary, label); }
       }
       const labels = {

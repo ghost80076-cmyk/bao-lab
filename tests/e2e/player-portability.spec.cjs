@@ -1,5 +1,5 @@
 const {test,expect}=require('@playwright/test');
-const openStoryTools=async page=>{await page.evaluate(()=>BAOChatToolNavigation.openDrawer());const summary=page.getByRole('dialog',{name:'故事功能選單'}).locator('summary').filter({hasText:/故事.*存檔/});if(!await summary.evaluate(x=>x.parentElement.open))await summary.click();};
+const openStoryTools=async page=>{await page.evaluate(()=>BAOChatToolNavigation.openDrawer());const summary=page.locator('#bao-chat-tool-drawer details[data-chat-tool-group="story"] > summary');if(!await summary.evaluate(x=>x.parentElement.open))await summary.click();};
 const fs=require('node:fs');
 for(const width of [390,1280])test(`People JSON/TXT, backup and transcript at ${width}`,async({page})=>{
  await page.setViewportSize({width,height:900});

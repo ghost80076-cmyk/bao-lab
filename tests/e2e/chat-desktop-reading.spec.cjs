@@ -1,6 +1,6 @@
 const { test, expect } = require('@playwright/test');
 
-test('desktop story uses a readable viewport and larger assistant text', async ({ page }) => {
+test('desktop story uses a readable viewport and honors the default text size', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('./');
   await page.waitForFunction(() => Boolean(document.querySelector('link[href="css/chat-desktop-reading.css"]')?.sheet));
@@ -20,7 +20,7 @@ test('desktop story uses a readable viewport and larger assistant text', async (
       bubbleWidth: bubble.getBoundingClientRect().width
     };
   });
-  expect(measure.fontSize).toBe(17);
+  expect(measure.fontSize).toBe(16);
   expect(measure.lineHeight).toBeGreaterThanOrEqual(30);
   expect(measure.streamHeight).toBeGreaterThan(500);
   expect(measure.streamHeight).toBeLessThanOrEqual(900);

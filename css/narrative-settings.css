@@ -55,3 +55,14 @@
 @media(max-width:360px){
   .narrative-settings-modal .narrative-select-grid{grid-template-columns:1fr}
 }
+
+/* Experience 3 · deep-linked long-term instructions keep the existing editor. */
+.narrative-instructions-focused #bao-narrative-instructions {
+  scroll-margin-top: 14px;
+  border-color: var(--yoru-accent, #ad9ac9);
+}
+.narrative-instructions-focused #bao-narrative-instructions [data-instruction-text]:focus-visible,
+.narrative-instructions-focused #bao-narrative-instructions [data-add-instruction]:focus-visible {
+  outline: 2px solid var(--yoru-accent, #ad9ac9);
+  outline-offset: 2px;
+}

@@ -116,7 +116,7 @@
     if (!document.querySelector('link[href^="css/narrative-settings.css"]')) {
       const link = document.createElement("link");
       link.rel = "stylesheet";
-      link.href = "css/narrative-settings.css?v=3";
+      link.href = "css/narrative-settings.css?v=4";
       document.head.appendChild(link);
     }
   };
@@ -246,7 +246,7 @@
     });
   };
 
-  const openModal = () => {
+  const openModal = ({ focusInstructions = false } = {}) => {
     close();
     const prefs = activePrefs();
     const storyLocal = isStoryLocal();
@@ -319,7 +319,7 @@
           </div>
         </div>
 
-        <div class="bao-setting-section">
+        <div class="bao-setting-section" id="bao-narrative-instructions">
           <div class="narrative-instruction-heading"><div><h3>自訂長期指令</h3><p>只放「AI 應該怎麼寫」；劇情事實、NPC 資料與關係請放記憶／Canon。每條最多 ${CUSTOM_INSTRUCTION_CHARS} 字，${storyLocal ? "只修改目前故事" : "會成為新故事的起始偏好"}。</p></div><span class="chip" data-instruction-total>0 / ${CUSTOM_INSTRUCTION_LIMIT}</span></div>
           <div class="narrative-instruction-list" data-instruction-list>${prefs.customInstructions.map(instructionCardHTML).join("")}</div>
           <button type="button" class="secondary narrative-instruction-add" data-add-instruction>＋ 新增長期指令</button>
@@ -401,6 +401,16 @@
       refreshInstructionCards(wrap);
     };
     refreshInstructionCards(wrap);
+    if (focusInstructions) {
+      wrap.classList.add('narrative-instructions-focused');
+      const section = wrap.querySelector('#bao-narrative-instructions');
+      requestAnimationFrame(() => {
+        if (!section?.isConnected) return;
+        section.scrollIntoView({ block: 'start', behavior: 'instant' });
+        const editor = section.querySelector('[data-instruction-text]') || section.querySelector('[data-add-instruction]');
+        editor?.focus({ preventScroll: true });
+      });
+    }
 
     wrap.querySelector("[data-narrative-reset]").onclick = () => {
       const next = normalizePrefs(defaults);
@@ -580,6 +590,7 @@
     get: () => clonePrefs(settings),
     set: value => { settings = normalizePrefs(value); save(); updateBuilderSummary(); updateChatButtonState(); },
     open: openModal,
+    openInstructions: () => openModal({ focusInstructions: true }),
     buildPrompt: buildPreferencePrompt,
     classifyInstruction,
     effectiveCustomInstructions: prefs => [...effectiveCustomInstructions(normalizePrefs(prefs).customInstructions)],

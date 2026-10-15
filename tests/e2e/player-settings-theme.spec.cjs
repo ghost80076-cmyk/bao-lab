@@ -36,7 +36,7 @@ for (const width of [390, 1280]) {
       await expect(modal.locator('.bao-choice').first()).toHaveCSS('color', text);
       await modal.getByRole('button', {name:'關閉'}).click();
 
-      await page.locator('#bao-player-settings [data-bao-open="appearance"]').evaluate(button => button.click());
+      await page.locator('#bao-chat-tool-groups [data-chat-tool-body="scene"] [data-bao-open="appearance"]').evaluate(button => button.click());
       await expect(modal).toBeVisible();
       await expect(modal).toHaveCSS('background-color', surface);
       await expect(modal.locator('.bao-bubble-preview')).toBeVisible();
