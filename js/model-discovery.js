@@ -77,7 +77,7 @@
     return models;
   }
 
-  function attachPicker({ anchor, getConfig, setModel, controls = [] }) {
+  function attachPicker({ anchor, getConfig, setModel, controls = [], errorMessage = '' }) {
     if (!anchor || anchor.dataset.baoModelDiscovery === 'yes') return;
     anchor.dataset.baoModelDiscovery = 'yes';
     const block = document.createElement('div');
@@ -121,7 +121,7 @@
         models.forEach(model => select.add(new Option(model.label, model.id)));
         select.hidden = false;
         status.textContent = `已取得 ${models.length} 個模型。清單不代表帳號可用或聊天一定相容。`;
-      } catch (error) { status.textContent = error.message || '拉取失敗，請手動填寫模型代號（Model ID）。'; }
+      } catch (error) { status.textContent = typeof errorMessage === 'function' ? errorMessage(error) : (errorMessage || error.message || '拉取失敗，請手動填寫模型代號（Model ID）。'); }
       finally { button.disabled = false; }
     });
     return { block, button, select, status, reset };
@@ -139,18 +139,29 @@
     protocol.innerHTML = '<option value="openai">Chat / OpenAI-compatible</option><option value="anthropic">Anthropic</option><option value="gemini">Gemini</option>';
     const protocolLabel = document.createElement('label');
     protocolLabel.id = 'bao-builder-discovery-protocol-label';
-    protocolLabel.textContent = '連線格式（API Protocol；自訂連線可切換）';
+    protocolLabel.textContent = '連線格式（進階）';
     protocolLabel.append(protocol);
-    baseUrl.closest('label')?.insertAdjacentElement('afterend', protocolLabel);
+    const advancedGrid = modelInput.closest('[data-api-advanced-grid]') || baseUrl.closest('[data-api-advanced-grid]');
+    const baseLabel = baseUrl.closest('label');
+    const modelLabel = modelInput.closest('label');
+    if (advancedGrid) {
+      advancedGrid.insertBefore(protocolLabel, advancedGrid.firstElementChild);
+      if (baseLabel && modelLabel) advancedGrid.insertBefore(baseLabel, modelLabel);
+    } else {
+      baseLabel?.insertAdjacentElement('afterend', protocolLabel);
+    }
     let picker;
     const sync = () => {
       const preset = App.getSelectedPreset?.();
       const custom = preset?.route === 'custom';
+      const selectedProvider = document.getElementById('api-type')?.value || '';
       const localSelected = document.getElementById('api-type')?.value === 'lmstudio';
+      const discoveryHidden = localSelected || selectedProvider === 'bao-credits';
       protocol.value = protocolName(preset?.protocol);
       protocol.disabled = !custom;
       protocolLabel.hidden = !custom;
-      if (picker?.block) picker.block.hidden = localSelected;
+      const discoverySurface = picker?.disclosure || picker?.block;
+      if (discoverySurface) discoverySurface.hidden = discoveryHidden;
     };
     provider.addEventListener('change', sync);
     document.getElementById('api-type')?.addEventListener('change', sync);
@@ -162,15 +173,24 @@
       return config;
     };
     picker = attachPicker({
-      anchor: modelInput.closest('label'),
+      anchor: provider.closest('label'),
       getConfig: () => ({ baseUrl: baseUrl.value, key: key.value, protocol: protocol.value }),
       setModel: id => { modelInput.value = id; modelInput.dispatchEvent(new Event('input', { bubbles: true })); },
-      controls: [baseUrl, provider, protocol, key]
+      controls: [baseUrl, provider, protocol, key],
+      errorMessage: () => '無法取得模型清單。可先使用上方模型；自訂服務請展開「進階連線設定」檢查連線資訊。'
     });
     if (picker) {
       picker.block.id = 'bao-builder-model-discovery';
-      picker.button.textContent = '更多模型／從帳號取得';
-      picker.status.textContent = '需要預設清單以外的模型時再使用；一般玩家可直接保持上方選擇。';
+      picker.button.textContent = '從帳號取得模型';
+      picker.status.textContent = '只有找不到想用的模型時才需要。';
+      const disclosure = document.createElement('details');
+      disclosure.id = 'bao-builder-model-discovery-more';
+      disclosure.className = 'bao-model-discovery-disclosure';
+      const summary = document.createElement('summary');
+      summary.textContent = '找不到模型？';
+      picker.block.before(disclosure);
+      disclosure.append(summary, picker.block);
+      picker.disclosure = disclosure;
     }
     sync();
     window.BAOModelDiscoverySyncBuilder = sync;
