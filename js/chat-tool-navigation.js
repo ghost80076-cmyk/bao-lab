@@ -6,13 +6,17 @@
   const aside = () => document.querySelector('#chat-view .chat-layout > aside');
   const expanded = new Map();
   const nativeExpanded = new Map();
+  // Group tools by what the player wants to do, not by underlying modules.
   const groupDefinitions = [
-    ['scene', '◈ 場景與狀態'],
-    ['world', '◇ 世界與狀態工具'],
+    ['scene', '◈ 此刻與顯示'],
     ['story', '▤ 故事與存檔'],
-    ['settings', '⚙ 敘事、模型與外觀'],
-    ['other', '其他操作']
+    ['world', '◇ 人物與世界'],
+    ['settings', '⚙ 故事體驗與 AI'],
+    ['other', '其他與支援']
   ];
+  const defaultExpanded = () => window.YoruExperienceCore?.expandedGroups(
+    window.YoruExperience?.get?.().level || 'easy'
+  ) || ['story'];
   let scheduled = false;
   let watcher = null;
   let watchedAside = null;
@@ -30,7 +34,7 @@
     if (detail) return detail;
     detail = document.createElement('details');
     detail.dataset.chatToolGroup = id;
-    detail.open = expanded.has(id) ? expanded.get(id) : id === 'scene';
+    detail.open = expanded.has(id) ? expanded.get(id) : defaultExpanded().includes(id);
     const summary = document.createElement('summary');
     summary.textContent = title;
     const body = document.createElement('div');
@@ -212,12 +216,43 @@
     const close = document.createElement('button');
     close.type = 'button'; close.textContent = '關閉 ×';
     close.addEventListener('click', closeDrawer);
+    const appearance = document.createElement('button');
+    appearance.type = 'button';
+    appearance.className = 'yoru-tool-appearance';
+    appearance.textContent = '◐ 外觀與操作';
+    appearance.addEventListener('click', () => {
+      closeDrawer();
+      window.YoruExperience?.open?.();
+    });
     head.append(title);
     if (help) head.append(help);
-    head.append(close);
+    head.append(appearance, close);
     dialog.append(head);
     const body = document.createElement('div');
     body.className = 'bao-chat-tool-dialog-body';
+    const introduction = document.createElement('p');
+    introduction.className = 'yoru-tool-intro';
+    const level = window.YoruExperience?.get?.().level || 'easy';
+    introduction.textContent = level === 'pro'
+      ? '完整工具都在這裡；想減少選項，可在「外觀與操作」切回輕鬆模式。'
+      : level === 'standard'
+        ? '故事與人物工具已展開。更多設定可視需要開啟。'
+        : '先玩故事就好。常用工具放在前面，其餘功能需要時再展開。';
+    body.append(introduction);
+    const quick = document.createElement('div');
+    quick.className = 'yoru-tool-actions';
+    const quickAction = (label, handler) => {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.textContent = label;
+      button.addEventListener('click', () => { closeDrawer(); handler(); });
+      quick.append(button);
+    };
+    quickAction('人物與故事資訊', () => window.BAOStorySurface?.openStatus?.());
+    if (window.BAOConversationSearch?.open) {
+      quickAction('搜尋對話', () => window.BAOConversationSearch.open());
+    }
+    body.append(quick);
     dialog.append(body);
     backdrop.append(dialog);
     backdrop.addEventListener('click', event => { if (event.target === backdrop) closeDrawer(); });
@@ -259,7 +294,7 @@
       const buttons = [...source.querySelectorAll('button')].filter(button => !button.closest('#slot-list') && !button.closest('#bao-scene-controls'));
       if (!buttons.length) continue;
       const detail = document.createElement('details');
-      detail.open = id === 'world';
+      detail.open = defaultExpanded().includes(id);
       const summary = document.createElement('summary'); summary.textContent = label;
       detail.append(summary);
       const items = document.createElement('div'); items.className = 'bao-chat-tool-dialog-actions';
@@ -271,6 +306,19 @@
     document.addEventListener('keydown', drawerKeys);
     close.focus();
   };
+
+  window.addEventListener('yoru:experience-change', () => {
+    expanded.clear();
+    const defaults = defaultExpanded();
+    document.querySelectorAll('#bao-chat-tool-groups > details[data-chat-tool-group]').forEach(group => {
+      group.open = defaults.includes(group.dataset.chatToolGroup);
+    });
+    // Reopen on demand instead of leaving a drawer in a stale layout.
+    if (document.getElementById('bao-chat-tool-drawer')) {
+      closeDrawer();
+      openDrawer();
+    }
+  });
 
   const toolNavigationShellWrapper = function(next, ...args) {
     const result = next(...args);

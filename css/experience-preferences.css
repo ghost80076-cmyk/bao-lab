@@ -1,0 +1,94 @@
+/* Experience UI 3.0: semantic themes, accessible controls and calm tool disclosure.
+   Never style authored HTML inside rich-story content. Night retains existing defaults. */
+html[data-yoru-theme="mist"]{
+  color-scheme:light;
+  --yoru-night:#f5f0e9;--yoru-surface:#fffaf3;--yoru-surface-raised:#f0e8de;--yoru-surface-strong:#e9dfd2;
+  --yoru-reading:#fffcf7;--yoru-tool:#f3ece3;--yoru-tool-raised:#e9e0d6;
+  --yoru-player-bubble:#ece2d7;--yoru-card:#fffaf4;--yoru-card-raised:#f0e8de;
+  --yoru-card-border:#d9cbbc;--yoru-control:#f0e8df;--yoru-control-hover:#e7d9ca;
+  --yoru-control-border:#d7c7b5;--yoru-control-border-hover:#ac8668;
+  --yoru-input:#fffdf8;--yoru-input-border:#bfae9d;--yoru-explore-surface:#fffaf4;
+  --yoru-explore-surface-raised:#f1e8dc;--yoru-explore-border:#dfd3c6;
+  --yoru-text:#453b34;--yoru-story-text:#453b34;--yoru-muted:#73675b;--yoru-story-muted:#796d62;
+  --yoru-purple:#98705a;--yoru-purple-soft:#a87e5b;--yoru-lantern:#9d7358;--yoru-lantern-bright:#a77b5c;
+  --yoru-border:#d8cbbf;--yoru-story-border:#ddd0c2;
+  --yoru-story-surface:#fffaf4;--yoru-story-surface-strong:#fffdf8;
+}
+html[data-yoru-theme="rose"]{
+  color-scheme:dark;
+  --yoru-night:#30282c;--yoru-surface:#3b3036;--yoru-surface-raised:#493b42;--yoru-surface-strong:#514149;
+  --yoru-reading:#342b30;--yoru-tool:#3b3036;--yoru-tool-raised:#493a42;
+  --yoru-player-bubble:#59444d;--yoru-card:#403239;--yoru-card-raised:#4e3d44;
+  --yoru-card-border:#69555d;--yoru-control:#4b3b43;--yoru-control-hover:#5b4750;
+  --yoru-control-border:#755e67;--yoru-control-border-hover:#b68b89;
+  --yoru-input:#342b30;--yoru-input-border:#786069;--yoru-explore-surface:#403238;
+  --yoru-explore-surface-raised:#4c3b43;--yoru-explore-border:#66515b;
+  --yoru-text:#f3e8e6;--yoru-story-text:#f3e8e6;--yoru-muted:#ccb9bd;--yoru-story-muted:#d2bec2;
+  --yoru-purple:#d6a79f;--yoru-purple-soft:#ecc0b7;--yoru-lantern:#d6a79f;--yoru-lantern-bright:#e3b9ad;
+  --yoru-border:#69555d;--yoru-story-border:#755f67;
+  --yoru-story-surface:#403138;--yoru-story-surface-strong:#362a30;
+}
+html[data-yoru-theme="mist"] body:has(.app-shell){background:var(--yoru-night)}
+html[data-yoru-theme="rose"] body:has(.app-shell){background:var(--yoru-night)}
+html[data-yoru-theme="mist"] .topbar,html[data-yoru-theme="rose"] .topbar{background:var(--yoru-tool);border-bottom-color:var(--yoru-border)}
+html[data-yoru-theme="mist"] .topbar>.brand :is(span,strong,small),html[data-yoru-theme="mist"] .topbar nav :is(button,a){color:var(--yoru-text)}
+html[data-yoru-theme="rose"] .topbar>.brand :is(span,strong,small),html[data-yoru-theme="rose"] .topbar nav :is(button,a){color:var(--yoru-text)}
+html[data-yoru-theme="mist"] .primary,html[data-yoru-theme="rose"] .primary{background:var(--yoru-lantern);border:1px solid var(--yoru-control-border-hover);color:var(--yoru-night);box-shadow:none}
+html[data-yoru-theme="mist"] .primary{color:#fff}
+html[data-yoru-theme="mist"] .primary:hover:not(:disabled),html[data-yoru-theme="rose"] .primary:hover:not(:disabled){background:var(--yoru-lantern-bright);color:#fff}
+html[data-yoru-theme="mist"] .secondary,html[data-yoru-theme="rose"] .secondary{color:var(--yoru-text);background:var(--yoru-control);border-color:var(--yoru-control-border)}
+html[data-yoru-theme="mist"] .secondary:hover:not(:disabled),html[data-yoru-theme="rose"] .secondary:hover:not(:disabled){background:var(--yoru-control-hover);color:var(--yoru-text)}
+html[data-yoru-theme="mist"] #chat-view .message.user .bubble,html[data-yoru-theme="rose"] #chat-view .message.user .bubble{background:var(--yoru-player-bubble);color:var(--yoru-story-text)}
+html[data-yoru-theme="mist"] #chat-view .chat-main,html[data-yoru-theme="rose"] #chat-view .chat-main{background:var(--yoru-reading)}
+html[data-yoru-theme="mist"] #chat-view .chat-stream,html[data-yoru-theme="rose"] #chat-view .chat-stream{background:var(--yoru-reading)}
+html[data-yoru-theme="mist"] #chat-view .composer textarea,html[data-yoru-theme="rose"] #chat-view .composer textarea{background:var(--yoru-input);color:var(--yoru-story-text)}
+html[data-yoru-theme="mist"] #home-view :is(.brand-hero h1,.brand-reading-copy h2),html[data-yoru-theme="rose"] #home-view :is(.brand-hero h1,.brand-reading-copy h2){color:var(--yoru-text)}
+html[data-yoru-theme="mist"] #home-view :is(.brand-lead,.brand-principles),html[data-yoru-theme="rose"] #home-view :is(.brand-lead,.brand-principles){color:var(--yoru-muted)}
+html[data-yoru-theme="mist"] #home-view :is(.brand-status-card,.brand-feature-grid article,.brand-onboarding),html[data-yoru-theme="rose"] #home-view :is(.brand-status-card,.brand-feature-grid article,.brand-onboarding){background:var(--yoru-card);border-color:var(--yoru-card-border);color:var(--yoru-text)}
+html[data-yoru-theme="mist"] #home-view .brand-paper-page,html[data-yoru-theme="rose"] #home-view .brand-paper-page{color:var(--yoru-story-text)}
+/* Global access remains visible on phones without adding another long navbar label. */
+.topbar .yoru-exp-entry{flex:0 0 auto;width:42px;height:42px;padding:0;border:1px solid var(--yoru-control-border);border-radius:13px;background:var(--yoru-control);color:var(--yoru-text);font-size:22px;cursor:pointer}
+.topbar .yoru-exp-entry:hover{background:var(--yoru-control-hover);border-color:var(--yoru-control-border-hover)}
+#yoru-experience-dialog{width:min(640px,calc(100% - 24px));max-height:min(90dvh,850px);padding:0;border:1px solid var(--yoru-control-border);border-radius:22px;background:var(--yoru-surface);color:var(--yoru-text);box-shadow:0 28px 90px #0007;overflow:auto}
+#yoru-experience-dialog::backdrop{background:rgba(8,8,12,.72);backdrop-filter:blur(7px)}
+#yoru-experience-dialog .yoru-exp-content{padding:clamp(16px,3vw,26px)}
+#yoru-experience-dialog header{display:flex;justify-content:space-between;align-items:start;gap:12px}
+#yoru-experience-dialog header small{font-size:11px;letter-spacing:.14em;color:var(--yoru-lantern)}
+#yoru-experience-dialog header h2{margin:4px 0 6px;font-size:clamp(23px,4vw,30px);color:var(--yoru-text)}
+#yoru-experience-dialog header p{font-size:13px;line-height:1.7;color:var(--yoru-muted);margin:0}
+#yoru-experience-dialog .yoru-exp-close{min-width:42px;min-height:42px;border-radius:12px;border:1px solid var(--yoru-control-border);background:var(--yoru-control);color:var(--yoru-text);cursor:pointer;font-size:21px}
+#yoru-experience-dialog fieldset{margin:22px 0 0;padding:0;border:0;min-width:0}
+#yoru-experience-dialog legend{font-weight:800;font-size:16px}
+#yoru-experience-dialog .yoru-exp-hint{color:var(--yoru-muted);font-size:12px;line-height:1.6;margin:4px 0 11px}
+#yoru-experience-dialog .yoru-exp-options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+#yoru-experience-dialog label{display:flex;flex-direction:column;align-items:stretch;gap:5px;position:relative;padding:10px;border:1px solid var(--yoru-control-border);border-radius:13px;background:var(--yoru-control);cursor:pointer;min-width:0}
+#yoru-experience-dialog label:has(input:checked){border-color:var(--yoru-lantern);box-shadow:0 0 0 1px var(--yoru-lantern)}
+#yoru-experience-dialog label:has(input:focus-visible){outline:2px solid var(--yoru-lantern);outline-offset:2px}
+#yoru-experience-dialog label input{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+#yoru-experience-dialog label strong{color:var(--yoru-text);font-size:13px}
+#yoru-experience-dialog label small{color:var(--yoru-muted);font-size:11px;line-height:1.45}
+#yoru-experience-dialog .yoru-exp-swatch{display:block;height:32px;border-radius:8px;border:1px solid #ffffff2a}
+#yoru-experience-dialog .yoru-exp-swatch.night{background:linear-gradient(135deg,#15191d 55%,#c5a078)}
+#yoru-experience-dialog .yoru-exp-swatch.mist{background:linear-gradient(135deg,#f5f0e9 55%,#9d7358)}
+#yoru-experience-dialog .yoru-exp-swatch.rose{background:linear-gradient(135deg,#30282c 55%,#ac7b7c)}
+#yoru-experience-dialog .yoru-exp-levels label{min-height:73px;justify-content:center}
+#yoru-experience-dialog .yoru-exp-levels label span{display:grid;gap:4px}
+#yoru-experience-dialog footer{margin-top:22px;display:flex;justify-content:space-between;align-items:center;gap:12px;border-top:1px solid var(--yoru-border);padding-top:16px}
+#yoru-experience-dialog footer span{color:var(--yoru-muted);font-size:12px}
+#yoru-experience-dialog footer button{min-height:42px;border-radius:11px;padding:9px 22px}
+html[data-yoru-theme="mist"] #bao-chat-tool-drawer .bao-chat-tool-dialog,html[data-yoru-theme="rose"] #bao-chat-tool-drawer .bao-chat-tool-dialog{background:var(--yoru-surface);color:var(--yoru-text);border-color:var(--yoru-border)}
+html[data-yoru-theme="mist"] #bao-chat-tool-drawer details,html[data-yoru-theme="rose"] #bao-chat-tool-drawer details{background:var(--yoru-card);color:var(--yoru-text);border-color:var(--yoru-border)}
+html[data-yoru-theme="mist"] #bao-chat-tool-drawer .bao-chat-tool-proxy,html[data-yoru-theme="rose"] #bao-chat-tool-drawer .bao-chat-tool-proxy{background:var(--yoru-control);color:var(--yoru-text);border-color:var(--yoru-control-border)}
+#bao-chat-tool-drawer .yoru-tool-intro{font-size:13px;line-height:1.6;color:var(--yoru-muted,#aaa);margin:2px 3px 6px}
+#bao-chat-tool-drawer .yoru-tool-actions{display:flex;gap:8px;flex-wrap:wrap}
+#bao-chat-tool-drawer .yoru-tool-actions button{padding:9px 12px;border-radius:10px;border:1px solid var(--yoru-control-border,#555);background:var(--yoru-control,#242b39);color:var(--yoru-text,#fff);cursor:pointer;min-height:42px}
+#bao-chat-tool-drawer header .yoru-tool-appearance{font-size:12px;min-height:40px;padding:8px 10px}
+@media(max-width:440px){
+  #yoru-experience-dialog .yoru-exp-options{gap:6px}
+  #yoru-experience-dialog label{padding:8px}
+  #yoru-experience-dialog .yoru-exp-levels{grid-template-columns:1fr}
+  #yoru-experience-dialog .yoru-exp-levels label{min-height:52px}
+  #yoru-experience-dialog footer{flex-wrap:wrap}
+  #bao-chat-tool-drawer header{flex-wrap:wrap}
+}
+@media(prefers-reduced-motion:reduce){#yoru-experience-dialog *,#yoru-experience-dialog *::before,#yoru-experience-dialog *::after{transition:none!important}}

@@ -50,6 +50,13 @@ jobs:
         run: node tests/story-flow-core.cjs
       - name: Context Pack resumable organization
         run: node tests/context-pack-resume-core.cjs
+      - name: Experience 3.0 preference and tool presentation
+        run: |
+          node --check js/experience-preferences-core.js
+          node --check js/experience-preferences.js
+          node --check js/chat-tool-navigation.js
+          node --check js/site-ui.js
+          node tests/experience-preferences-core.cjs
       - name: Story Reader core
         run: node tests/story-reader-core.cjs
       - name: Story revision state consistency

@@ -58,6 +58,11 @@ const requestPlayerText = ({ title = "輸入名稱", label = "名稱", value = "
 window.BAOFeedback = Object.freeze({ notify: notifyPlayer, requestText: requestPlayerText });
 
 window.addEventListener("DOMContentLoaded", () => {
+  // Experience 3.0 is a presentation layer; load early for the landing page
+  // without coupling it to the story/Provider initialization chain.
+  loadBAOScript("js/experience-preferences-core.js?v=1")
+    .then(() => loadBAOScript("js/experience-preferences.js?v=1"))
+    .catch(err => console.warn("YoruBay experience preferences unavailable:", err));
   loadBAOScript("js/chat-api-settings.js?v=3")
     .then(() => loadBAOScript("js/model-discovery.js"))
     .catch(err => console.warn("BAO/LAB chat API settings or model discovery failed to load:", err));

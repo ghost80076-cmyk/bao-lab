@@ -1,0 +1,31 @@
+'use strict';
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
+const core = require('../js/experience-preferences-core.js');
+
+assert.deepEqual(core.normalize(null), { theme:'night', level:'easy' }, 'new players get calm defaults');
+assert.deepEqual(core.normalize({theme:'mist',level:'standard'}), {theme:'mist',level:'standard'});
+assert.deepEqual(core.normalize({theme:'rose',level:'pro'}), {theme:'rose',level:'pro'});
+assert.deepEqual(core.normalize({theme:'unsafe',level:'admin'}), {theme:'night',level:'easy'});
+assert.deepEqual(core.normalize([]), core.DEFAULT);
+assert.deepEqual(core.expandedGroups('easy'), [], 'easy mode starts collapsed but never removes functions');
+assert.deepEqual(core.expandedGroups('standard'), ['story','world']);
+assert.deepEqual(core.expandedGroups('pro'), ['scene','story','world','settings']);
+assert.equal(core.label('pro'), '專業');
+assert.equal(core.label('unknown'), '輕鬆');
+
+const read = file => fs.readFileSync(path.join(__dirname,'..',file),'utf8');
+const prefs = read('js/experience-preferences.js');
+const nav = read('js/chat-tool-navigation.js');
+const loader = read('js/site-ui.js');
+assert.match(loader, /loadBAOScript\("js\/experience-preferences-core\.js\?v=1"\)/);
+assert.match(loader, /loadBAOScript\("js\/experience-preferences\.js\?v=1"\)/);
+assert.match(prefs, /'yorubay:experience:v1'/);
+assert.match(prefs, /localStorage\.setItem\(KEY, JSON\.stringify\(current\)\)/);
+assert.match(prefs, /'yoru:experience-change'/);
+assert.match(nav, /defaultExpanded\(\)\.includes\(id\)/);
+assert.match(nav, /source\.click\(\)/, 'original tool actions remain forwarded');
+assert.match(nav, /人物與世界/);
+assert.doesNotMatch(prefs, /(?:App\.config\s*=|GameState\.current\s*=|Chat\.messages\s*=)/, 'presentation-only settings');
+console.log('YoruBay experience core and navigation contract: pass');
