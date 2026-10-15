@@ -306,9 +306,10 @@
     goTop.classList.add('bao-mobile-go-top');
     // Mobile shortcuts and grouped proxy actions share original handlers, but
     // should only appear once in the same tool drawer.
-    const quickNames = new Set([...quick.querySelectorAll('button')].map(button => button.textContent.trim()));
+    const canonicalToolLabel = text => String(text || '').trim().replace(/\s*·\s*常用$/u, '').trim();
+    const quickNames = new Set([...quick.querySelectorAll('button')].map(button => canonicalToolLabel(button.textContent)));
     body.querySelectorAll('.bao-chat-tool-proxy').forEach(button => {
-      if (quickNames.has(button.textContent.trim())) button.remove();
+      if (quickNames.has(canonicalToolLabel(button.textContent))) button.remove();
     });
     const connection = document.createElement('small');
     connection.setAttribute('aria-live', 'polite');
