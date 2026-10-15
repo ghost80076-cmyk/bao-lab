@@ -57,7 +57,6 @@ for (const width of [390, 1280]) {
     expect(drawerNames).toEqual(groupNames);
     const search = drawer.locator('#bao-tool-search');
     await search.fill('prompt');
-    const instructions = drawer.locator('[data-chat-tool-group="settings"] #bao-long-instructions-entry');
     // The drawer uses a live proxy, never a copied instruction store.
     const direct = drawer.locator('[data-chat-tool-group="settings"] .bao-chat-tool-proxy').filter({ hasText: '長期指令' });
     await expect(direct).toBeVisible();
