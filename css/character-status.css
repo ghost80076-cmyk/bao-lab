@@ -544,7 +544,9 @@ html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .character-status-emp
 
 /* Reader panels use transparent cards on mobile; give the platform-owned
    character status cards an opaque semantic surface in light/rose themes. */
-html[data-yoru-theme="mist"] #ui-panel .character-status-card,
+html[data-yoru-theme="mist"] #ui-panel .character-status-card{
+  background-color:#fffaf4!important;
+}
 html[data-yoru-theme="rose"] #ui-panel .character-status-card{
-  background-color:var(--yoru-card)!important;
+  background-color:#403239!important;
 }
