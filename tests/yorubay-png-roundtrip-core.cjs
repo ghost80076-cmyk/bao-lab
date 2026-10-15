@@ -135,6 +135,19 @@ const pngFile = raw => {
     false
   );
 
+  const largeEnvelope = structuredClone(envelope);
+  largeEnvelope.data.extensions.yorubay.character.import_metadata = { preserved_source: { text: 'x'.repeat(800000) } };
+  const largeJson = JSON.stringify(largeEnvelope);
+  assert.ok(Buffer.byteLength(largeJson) < 1024 * 1024);
+  assert.ok(Buffer.byteLength(Buffer.from(largeJson).toString('base64')) > 1024 * 1024);
+  const large = await BAOCharacterImport.prepareFile(pngFile(largeEnvelope));
+  assert.equal(large.character.id, 'png-test-character', 'the 1MB limit applies to decoded UTF-8 JSON, not its larger base64 transport');
+  assert.equal(large.character.import_metadata.preserved_source.text.length, 800000);
+  const oversized = structuredClone(envelope);
+  oversized.data.extensions.yorubay.character.content.creator_notes = '字'.repeat(360000);
+  await assert.rejects(BAOCharacterImport.prepareFile(pngFile(oversized)), /1 MB/);
+  assert.throws(() => BAOCharacterImport.decodePayload(JSON.stringify(oversized)), /1 MB/, 'unencoded payloads obey the same byte limit');
+
   const invalidEnvelope = structuredClone(envelope);
   delete invalidEnvelope.data.extensions.yorubay.character.content.greeting;
 

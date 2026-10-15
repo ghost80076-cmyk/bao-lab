@@ -5,6 +5,7 @@
     MAX_JSON_BYTES = 1024 * 1024,
     MAX_PNG_BYTES = 10 * 1024 * 1024,
     MAX_METADATA_BYTES = 1024 * 1024,
+    MAX_ENCODED_METADATA_BYTES = 4 * Math.ceil(MAX_METADATA_BYTES / 3),
     validId = /^[a-zA-Z0-9][a-zA-Z0-9_-]{0,63}$/;
   const text = v => typeof v === "string" ? v.trim() : "";
   const object = v => v && typeof v === "object" && !Array.isArray(v);
@@ -87,7 +88,7 @@
         const key = split < 0 ? "" : decoder.decode(keywordBytes.slice(0, split)).toLowerCase();
         if (key === "chara") {
           const payloadLength = length - split - 1;
-          if (payloadLength > MAX_METADATA_BYTES) throw new Error("PNG 內嵌角色資料超出 1 MB 安全上限；圖片本身仍可大於 1 MB。");
+          if (payloadLength > MAX_ENCODED_METADATA_BYTES) throw new Error("PNG 內嵌角色資料超出 1 MB 安全上限；圖片本身仍可大於 1 MB。");
           return decoder.decode(bytes.slice(bodyStart + split + 1, bodyEnd));
         }
       }
@@ -112,8 +113,16 @@
     return cover;
   }
   function decodePayload(payload) {
-    const value = text(payload); if (value.startsWith("{")) return JSON.parse(value);
-    try { const binary = atob(value.replace(/\s/g,"")); return JSON.parse(new TextDecoder("utf-8").decode(Uint8Array.from(binary, c => c.charCodeAt(0)))); }
+    const value = text(payload);
+    if (value.startsWith("{")) {
+      if (new TextEncoder().encode(value).length > MAX_METADATA_BYTES) throw new Error("PNG 內嵌角色資料超出 1 MB 安全上限。");
+      return JSON.parse(value);
+    }
+    let binary;
+    try { binary = atob(value.replace(/\s/g,"")); }
+    catch { throw new Error("PNG 的 chara metadata 不是可讀取的 V2 JSON。"); }
+    if (binary.length > MAX_METADATA_BYTES) throw new Error("PNG 內嵌角色資料超出 1 MB 安全上限。");
+    try { return JSON.parse(new TextDecoder("utf-8", { fatal: true }).decode(Uint8Array.from(binary, c => c.charCodeAt(0)))); }
     catch { throw new Error("PNG 的 chara metadata 不是可讀取的 V2 JSON。"); }
   }
   async function parseFile(file) {
@@ -126,11 +135,14 @@
     if (isPng) {
       if (typeof file.arrayBuffer !== "function") throw new Error("這個瀏覽器無法讀取 PNG 角色卡。");
       const bytes = new Uint8Array(await file.arrayBuffer());
+      if (bytes.length > MAX_PNG_BYTES) throw new Error("PNG 角色卡超過 10 MB。");
       const cover = typeof Blob === "function" ? new Blob([pngCover(bytes)], { type: "image/png" }) : null;
       return {raw:decodePayload(pngPayload(bytes)), origin:"PNG metadata", cover};
     }
     if (typeof file.text !== "function") throw new Error("請選擇 JSON 角色檔案。");
-    try { return {raw:JSON.parse(await file.text()), origin:"JSON"}; } catch { throw new Error("JSON 語法錯誤，請確認括號、引號與逗號格式。"); }
+    const json = await file.text();
+    if (new TextEncoder().encode(json).length > MAX_JSON_BYTES) throw new Error("角色 JSON 超過 1 MB，請分開提供大型世界書；不要截斷原文。");
+    try { return {raw:JSON.parse(json), origin:"JSON"}; } catch { throw new Error("JSON 語法錯誤，請確認括號、引號與逗號格式。"); }
   }
   function inspect(raw) {
     if (!object(raw)) throw new Error("角色檔案必須是單一 JSON 物件，不是陣列或故事備份。");
