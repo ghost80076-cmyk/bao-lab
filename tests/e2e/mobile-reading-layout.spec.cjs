@@ -173,6 +173,11 @@ for (const theme of ['mist','rose']) {
     await draft.fill('這段尚未送出的故事草稿，切換主題後必須保留。');
     const storyBefore = await page.locator('#chat-stream .message.assistant').first().textContent();
     await page.evaluate(selected => window.YoruExperience.choose({theme:selected}),theme);
+    // Buttons animate background-color for 160ms. Assert the settled palette
+    // rather than sampling the transition's old night-color first frame.
+    await expect.poll(() => page.locator('#bao-mobile-composer-tools').evaluate(
+      element => getComputedStyle(element).backgroundColor
+    ), {timeout:3500}).toBe(theme === 'mist' ? 'rgb(240, 232, 223)' : 'rgb(75, 59, 67)');
     const current = await page.evaluate(() => {
       const bg = selector => getComputedStyle(document.querySelector(selector)).backgroundColor;
       const fg = selector => getComputedStyle(document.querySelector(selector)).color;
