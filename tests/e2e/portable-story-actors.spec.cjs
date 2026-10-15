@@ -394,7 +394,9 @@ for (const width of [390, 1280]) {
     const management = panel.locator('.character-status-manage');
     await expect(management).not.toHaveAttribute('open','');
     await expect(panel.locator('[data-character-status-settings]')).toBeHidden();
-    await expect(panel.getByRole('button', {name:'人物名冊／本場'})).toBeVisible();
+    const rosterEntry = panel.locator('[data-npc-roster-open]');
+    await expect(rosterEntry).toBeVisible();
+    await expect(rosterEntry).toHaveText('人物名冊／本場');
 
     const npcsBefore = await page.evaluate(() => JSON.stringify(GameState.current.npcs));
     await mirror.locator('[data-character-focus]').click();
@@ -416,7 +418,7 @@ for (const width of [390, 1280]) {
 
     await management.locator('summary').click();
     await expect(panel.locator('[data-character-status-settings]')).toBeVisible();
-    await panel.getByRole('button', {name:'人物名冊／本場'}).click();
+    await panel.locator('[data-npc-roster-open]').click();
     await expect(page.getByRole('dialog', {name:'NPC 名冊／場景參與者'})).toBeVisible();
     await page.getByRole('dialog', {name:'NPC 名冊／場景參與者'}).getByRole('button', {name:'關閉'}).click();
 
