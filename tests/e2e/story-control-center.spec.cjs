@@ -231,3 +231,53 @@ for (const width of [390, 1280]) {
     expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+2)).toBe(true);
   });
 }
+
+
+for (const width of [390,1280]) {
+  test('story desk keeps shelf and backup visible while retaining advanced tools ('+width+'px)',async ({page})=>{
+    await page.setViewportSize({width,height:844});
+    await page.goto('./');
+    await page.waitForFunction(()=>Boolean(window.YoruExperience && window.BAOStoryTools && App.characters?.length && Storage.status().ready));
+    await page.evaluate(()=>{
+      App.activeCharacter={...App.characters[0],greeting:'夜灣歸航'};
+      App.config={
+        persona:{name:'玩家'},narrativeMode:'immersive',displayMode:'ui',
+        api:{model:'mock',key:'DONT_EXPORT_THIS'},memory:{mode:'smart',maxRounds:20,maxContext:32000}
+      };
+      GameState.create(App.activeCharacter,App.config);
+      Chat.reset();Chat.add('assistant','夜灣歸航');
+      App.renderChatShell(false);
+      App.showView('chat');
+      YoruExperience.choose({level:'easy',theme:'mist'});
+      BAOStoryTools.open();
+    });
+    const dialog=page.getByRole('dialog',{name:'故事管理'});
+    const advanced=dialog.locator('[data-story-desk-more]');
+    await expect(dialog).toBeVisible();
+    await expect(dialog.locator('.story-tools-home:not(.story-tools-home-advanced) > .story-tools-card')).toHaveCount(2);
+    await expect(dialog.locator('.story-tools-home-advanced > .story-tools-card')).toHaveCount(3);
+    await expect(advanced).not.toHaveAttribute('open','');
+    await expect(dialog.locator('[data-library]')).toBeVisible();
+    await expect(dialog.locator('[data-export]')).toBeVisible();
+    await expect(dialog.locator('[data-import]')).toBeVisible();
+    await expect(dialog.locator('[data-create]')).toBeHidden();
+    await expect(dialog.locator('.story-tools-modal')).toHaveCSS('background-color','rgb(255, 250, 243)');
+    await advanced.locator('summary').click();
+    await expect(dialog.locator('[data-create]')).toBeVisible();
+    await expect(dialog.locator('[data-external]')).toBeVisible();
+    await expect(dialog.locator('[data-preview]')).toBeVisible();
+    await expect(dialog.locator('.story-tools-home .story-tools-card')).toHaveCount(5);
+    const before=await page.evaluate(()=>JSON.stringify(GameState.current));
+    await dialog.getByRole('button',{name:'關閉'}).click();
+    await page.evaluate(()=>{
+      YoruExperience.choose({level:'pro',theme:'rose'});
+      BAOStoryTools.open();
+    });
+    await expect(advanced).toHaveAttribute('open','');
+    await expect(dialog.locator('[data-create]')).toBeVisible();
+    await expect(dialog.locator('.story-tools-modal')).toHaveCSS('background-color','rgb(59, 48, 54)');
+    expect(await page.evaluate(()=>JSON.stringify(GameState.current))).toBe(before);
+    expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+2)).toBe(true);
+    await dialog.getByRole('button',{name:'關閉'}).click();
+  });
+}
