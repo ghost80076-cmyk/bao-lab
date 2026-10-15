@@ -491,14 +491,33 @@
     border-top:1px solid var(--yoru-story-border)!important;
     box-shadow:0 -9px 28px rgba(0,0,0,.09)!important;
   }
-  html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) #chat-view .composer textarea {
+  /* The cinematic play-mode stylesheet uses two IDs with !important;
+     match that scope so mist/rose are not defeated by the older night palette. */
+  html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) #chat-view[data-bao-surface="play"] #user-input {
     background:var(--yoru-input)!important;
     color:var(--yoru-story-text)!important;
     border-color:var(--yoru-input-border)!important;
     box-shadow:none!important;
     caret-color:var(--yoru-story-text);
   }
-  html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) #chat-view .composer textarea::placeholder {
+
+  /* Cinematic play-mode also hard-codes the user's bubble and primary send
+     control. Reclaim only these platform-owned surfaces in non-night themes. */
+  html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) #chat-view[data-bao-surface="play"] .message.user .bubble {
+    background:var(--yoru-player-bubble)!important;
+    color:var(--yoru-story-text)!important;
+    border-color:var(--yoru-story-border)!important;
+  }
+  html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) #chat-view[data-bao-surface="play"] .composer .primary {
+    background:var(--yoru-lantern)!important;
+    border-color:var(--yoru-control-border-hover)!important;
+  }
+  html[data-yoru-theme="mist"] #chat-view[data-bao-surface="play"] .composer .primary{color:#fff!important}
+  html[data-yoru-theme="rose"] #chat-view[data-bao-surface="play"] .composer .primary{color:#30282c!important}
+  html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) #chat-view[data-bao-surface="play"] #bao-scene-meta {
+    color:var(--yoru-muted)!important;
+  }
+  html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) #chat-view[data-bao-surface="play"] #user-input::placeholder {
     color:var(--yoru-story-muted)!important;
   }
   html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) #chat-view #bao-mobile-composer-tools,
