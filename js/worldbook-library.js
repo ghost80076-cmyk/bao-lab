@@ -205,6 +205,56 @@
 
   const style = document.createElement("style");
   style.textContent = '.ylb-backdrop{position:fixed;inset:0;background:#000b;z-index:15000;display:grid;place-items:center;padding:12px;overflow:hidden}.ylb-modal{width:min(780px,100%);max-width:100%;max-height:90vh;overflow-y:auto;overflow-x:hidden;background:#1c1919;color:#e7dfd7;border:1px solid #675a4a;border-radius:16px;padding:18px;box-shadow:0 20px 45px #0008}.ylb-modal,.ylb-modal *{box-sizing:border-box}.ylb-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;min-width:0}.ylb-modal h2{margin:0 0 8px;font-size:1.25rem}.ylb-modal h3{font-size:1rem;margin:16px 0 8px}.ylb-modal p,.ylb-modal small{color:#b9aea5}.ylb-modal p,.ylb-modal small,.ylb-modal strong,.ylb-modal summary{overflow-wrap:anywhere}.ylb-warning{border-left:3px solid #b2946d;padding:8px 12px;background:#b2946d18}.ylb-collection{border:1px solid #574a4066;border-radius:12px;margin:10px 0;padding:12px;min-width:0}.ylb-collection-head{display:flex;gap:10px;align-items:flex-start;justify-content:space-between;min-width:0}.ylb-collection-head label{display:flex;align-items:flex-start;gap:10px;cursor:pointer;flex:1;min-width:0}.ylb-collection-head input,.ylb-row input{margin-top:4px;flex:none}.ylb-collection-copy{min-width:0}.ylb-collection-copy strong{display:block}.ylb-collection-copy small{display:block;margin-top:3px}.ylb-chapters{width:100%;max-width:100%;margin-top:8px;border-top:1px solid #574a4044;padding-top:8px}.ylb-chapters>summary{cursor:pointer;color:#d7c7b9}.ylb-chapter-list{display:grid;gap:8px;margin-top:8px;min-width:0}.ylb-row{display:flex;gap:10px;align-items:flex-start;padding:10px;border:1px solid #574a4055;border-radius:10px;min-width:0;max-width:100%;overflow:hidden;flex-wrap:wrap}.ylb-row label{display:flex;align-items:flex-start;gap:10px;cursor:pointer;flex:1;min-width:0}.ylb-row strong{display:block}.ylb-row small{display:block;margin-top:3px}.ylb-row>div,.ylb-row>label>span{min-width:0}.ylb-condition-list{width:100%;padding-left:28px}.ylb-footer{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.ylb-modal button{cursor:pointer;max-width:100%}.ylb-modal button:focus-visible{outline:2px solid #d5b27d}.worldbook-library-launch{white-space:normal}@media(max-width:600px){.ylb-backdrop{padding:6px}.ylb-modal{width:100%;max-height:94vh;padding:12px}.ylb-collection{padding:10px}.ylb-row{padding:9px}.ylb-condition-list{padding-left:8px}}';
+  style.textContent += \`
+    .ylb-modal{background:var(--yoru-surface,#1c1919);color:var(--yoru-text,#e7dfd7);border-color:var(--yoru-border,#675a4a)}
+    .ylb-modal p,.ylb-modal small{color:var(--yoru-muted,#b9aea5)}
+    .ylb-modal .ylb-collection,.ylb-modal .ylb-row{
+      background:var(--yoru-card,#242020);color:var(--yoru-text,#e7dfd7);
+      border-color:var(--yoru-card-border,#574a4055)
+    }
+    .ylb-collection[hidden],.ylb-empty-results[hidden]{display:none!important}
+    .ylb-discovery{display:grid;gap:10px;margin:16px 0 10px;min-width:0}
+    .ylb-discovery .ylb-search{
+      display:block;box-sizing:border-box;width:100%;max-width:100%;min-height:44px;
+      background:var(--yoru-input,#18161a);color:var(--yoru-text,#e7dfd7);
+      border:1px solid var(--yoru-input-border,#675a4a);border-radius:12px;
+      padding:10px 13px;font:inherit;font-size:14px
+    }
+    .ylb-discovery .ylb-search::placeholder{color:var(--yoru-muted,#b9aea5)}
+    .ylb-filter-buttons{display:flex;flex-wrap:wrap;gap:7px;min-width:0}
+    .ylb-modal .ylb-filter-button{
+      min-height:38px;padding:8px 13px;max-width:100%;
+      border:1px solid var(--yoru-control-border,#675a4a);border-radius:999px;
+      background:var(--yoru-control,#29232a);color:var(--yoru-text,#e7dfd7);
+      font:inherit;font-size:12px;cursor:pointer
+    }
+    .ylb-modal .ylb-filter-button[aria-pressed="true"]{
+      background:var(--yoru-control-hover,#43333b);
+      border-color:var(--yoru-lantern,#d6aa73);
+      box-shadow:inset 0 0 0 1px var(--yoru-lantern,#d6aa73);
+      font-weight:700
+    }
+    .ylb-modal .ylb-result-count{margin:0;font-size:12px;line-height:1.5}
+    .ylb-modal .ylb-empty-results{
+      margin:12px 0;padding:18px 12px;border:1px dashed var(--yoru-card-border,#675a4a);
+      border-radius:12px;text-align:center;font-size:13px
+    }
+    .ylb-recall-explain{
+      margin:10px 0 0;padding:8px 10px;max-width:100%;min-width:0;
+      border:1px solid var(--yoru-control-border,#675a4a);border-radius:11px;
+      background:var(--yoru-control,#242026)
+    }
+    .ylb-recall-explain summary{cursor:pointer;font-size:12px;color:var(--yoru-muted,#b9aea5)}
+    .ylb-recall-explain p{font-size:12px;line-height:1.6;margin:10px 0 0}
+    .ylb-modal :is(.ylb-search,.ylb-filter-button,.ylb-recall-explain summary):focus-visible{
+      outline:2px solid var(--yoru-lantern,#d6aa73);outline-offset:2px
+    }
+    @media(max-width:600px){
+      .ylb-discovery{gap:8px;margin:12px 0 8px}
+      .ylb-filter-buttons{gap:6px}
+      .ylb-modal .ylb-filter-button{padding:8px 11px}
+    }
+  \`;
   document.head.appendChild(style);
   function open() {
     if (!story()) { alert("請先開始或讀取一個故事。"); return; }
