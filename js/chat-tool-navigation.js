@@ -22,10 +22,10 @@
   let watchedAside = null;
 
   const addStyle = () => {
-    if (document.querySelector('link[href="css/chat-tool-navigation.css"]')) return;
+    if (document.querySelector('link[href^="css/chat-tool-navigation.css"]')) return;
     const link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = 'css/chat-tool-navigation.css';
+    link.href = 'css/chat-tool-navigation.css?v=2';
     document.head.append(link);
   };
   const groupBody = (root, id) => root.querySelector(`[data-chat-tool-body="${id}"]`);
@@ -353,7 +353,7 @@
         if (!q && groupOpenBefore.has(group)) group.open = groupOpenBefore.get(group);
         if (q && showGroup) found++;
       }
-      groupOpenBefore.clear();
+      if (!q) groupOpenBefore.clear();
       const standalone = [...body.querySelectorAll('.yoru-tool-actions > button')];
       standalone.forEach(button => {
         const show = !q || matches(button.textContent);
