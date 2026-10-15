@@ -22,7 +22,7 @@
   function expandedGroups(level) {
     const normalized = normalize({level}).level;
     return normalized === 'pro' ? ['scene', 'story', 'world', 'settings'] :
-      normalized === 'standard' ? ['story', 'world'] : ['story'];
+      normalized === 'standard' ? ['story', 'world'] : [];
   }
   return Object.freeze({ THEMES, LEVELS, DEFAULT, normalize, label, expandedGroups });
 });
