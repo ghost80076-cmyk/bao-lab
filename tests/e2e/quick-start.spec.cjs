@@ -163,3 +163,59 @@ test('explicit step navigation keeps older builder workflows usable', async ({ p
   await expect(page.locator('#builder-view')).toHaveAttribute('data-bao-setup', 'advanced');
   await expect(page.locator('[data-step-panel="5"]')).toBeVisible();
 });
+
+
+test('mobile quick setup is one horizontal three-step strip and keeps connections reachable', async ({page}) => {
+  await page.setViewportSize({width:375,height:812});
+  await openBuilder(page);
+  await page.waitForFunction(() => !!window.YoruExperience);
+  const progress = page.locator('#bao-setup-choice .bao-first-run-progress');
+  await expect(progress).toBeVisible();
+  const metrics = await page.evaluate(() => {
+    const progress = document.querySelector('#bao-setup-choice .bao-first-run-progress');
+    const cards = [...progress.querySelectorAll('li')].map(node => node.getBoundingClientRect());
+    const buttons = [...document.querySelectorAll('#bao-setup-choice [data-bao-setup]')].map(node=>node.getBoundingClientRect());
+    return {
+      columns: getComputedStyle(progress).gridTemplateColumns.trim().split(/\s+/).length,
+      first: cards[0].top,
+      last: cards[2].top,
+      buttonsSameRow: Math.abs(buttons[0].top-buttons[1].top)<2,
+      viewport:innerWidth,content:document.documentElement.scrollWidth
+    };
+  });
+  expect(metrics.columns).toBe(3);
+  expect(metrics.last).toBeCloseTo(metrics.first,0);
+  expect(metrics.buttonsSameRow).toBe(true);
+  expect(metrics.content).toBeLessThanOrEqual(metrics.viewport+1);
+  await expect(page.locator('#bao-start-readiness')).toBeVisible();
+  await expect(page.locator('#bao-connection-mode')).toBeVisible();
+  await expect(page.locator('#api-type')).toBeVisible();
+  await page.locator('#bao-setup-choice [data-bao-setup="advanced"]').click();
+  await expect(page.locator('#builder-view')).toHaveAttribute('data-bao-setup','advanced');
+  await expect(page.locator('.builder-step[data-step-panel="1"]')).toBeVisible();
+});
+
+for (const theme of ['mist','rose']) {
+  test('quick setup colors follow selected ' + theme + ' theme', async ({page}) => {
+    await page.setViewportSize({width:390,height:844});
+    await openBuilder(page);
+    await page.waitForFunction(() => !!window.YoruExperience);
+    await page.evaluate(theme => window.YoruExperience.choose({theme}),theme);
+    const state = await page.evaluate(() => {
+      const section=document.getElementById('bao-setup-choice');
+      const connection=document.getElementById('bao-connection-mode');
+      const card=document.querySelector('#bao-connection-mode .bao-connection-mode-grid button');
+      return {
+        section:getComputedStyle(section).backgroundColor,
+        connection:getComputedStyle(connection).backgroundColor,
+        card:getComputedStyle(card).backgroundColor,
+        text:getComputedStyle(card).color,
+        overflow:document.documentElement.scrollWidth-innerWidth
+      };
+    });
+    expect(state.section).toBe(theme==='mist'?'rgb(255, 250, 244)':'rgb(64, 50, 57)');
+    expect(state.connection).toBe(state.section);
+    expect(state.text).toBe(theme==='mist'?'rgb(69, 59, 52)':'rgb(243, 232, 230)');
+    expect(state.overflow).toBeLessThanOrEqual(1);
+  });
+}
