@@ -490,6 +490,7 @@
 
   const sync = () => {
     if (!isMobile() || !root.classList.contains('active')) {
+      syncMessageActions();
       clearMobileChrome();
       return;
     }
