@@ -64,3 +64,72 @@
 }
 
 @media(max-width:360px){.story-control-grid{grid-template-columns:1fr}.story-control-card{min-height:72px}}
+
+
+/* Experience 3.0 / Phase 11 — a quiet story dashboard, not a second toolbox.
+   Every tool remains the same actionable button in the secondary disclosure. */
+.story-control-panel{
+  background:var(--yoru-surface,#111219);
+  color:var(--yoru-text,#f2eee7);
+  border-color:var(--yoru-card-border,var(--yoru-border,#444));
+}
+.story-control-head p{color:var(--yoru-muted,#ada9b4)}
+.story-control-close,.story-control-help{
+  background:var(--yoru-control,#191a22);
+  color:var(--yoru-text,#f2eee7);
+  border-color:var(--yoru-control-border,var(--yoru-border,#444))
+}
+.story-control-section{margin-top:17px}
+.story-control-section-heading{
+  display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;
+  gap:8px;margin-bottom:10px
+}
+.story-control-section-heading h3{font-size:15px;font-weight:750;margin:0}
+.story-control-section-heading span{color:var(--yoru-muted,#aaa);font-size:12px}
+.story-control-card{
+  background:var(--yoru-card,#171820);
+  color:var(--yoru-text,#f2eee7);
+  border-color:var(--yoru-card-border,var(--yoru-border,#444));
+}
+.story-control-card:hover,.story-control-card:focus-visible{
+  background:var(--yoru-card-raised,var(--yoru-control-hover,#1b1c26));
+  border-color:var(--yoru-lantern,#d6aa73);
+}
+.story-control-card-label,.story-control-card-link{color:var(--yoru-lantern,#d6aa73)}
+.story-control-card small{color:var(--yoru-muted,#aaa)}
+.story-control-more{
+  min-width:0;margin-top:13px;border:1px solid var(--yoru-card-border,var(--yoru-border,#444));
+  border-radius:15px;background:var(--yoru-card,#171820);
+  overflow:hidden;
+}
+.story-control-more>summary{
+  list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:8px;padding:13px 15px;min-height:44px;box-sizing:border-box;
+  font-size:14px;font-weight:750;color:var(--yoru-text,#f2eee7)
+}
+.story-control-more>summary::-webkit-details-marker{display:none}
+.story-control-more>summary span{
+  font-size:11px;font-weight:450;color:var(--yoru-muted,#aaa);margin-left:auto
+}
+.story-control-more>summary::after{
+  content:'⌄';font-size:18px;color:var(--yoru-muted,#aaa)
+}
+.story-control-more[open]>summary::after{content:'⌃'}
+.story-control-more>summary:focus-visible{
+  outline:2px solid var(--yoru-lantern,#d6aa73);outline-offset:-3px
+}
+.story-control-more .story-control-secondary{
+  padding:0 12px 12px;border-top:1px solid var(--yoru-card-border,var(--yoru-border,#444));
+  padding-top:12px;
+}
+.story-control-footer{border-top-color:var(--yoru-card-border,var(--yoru-border,#444))}
+@media(max-width:720px){
+  .story-control-section{margin-top:10px}
+  .story-control-section-heading{margin-bottom:8px}
+  .story-control-section-heading h3{font-size:13px}
+  .story-control-section-heading span{font-size:10px}
+  .story-control-more{margin-top:10px;border-radius:13px}
+  .story-control-more>summary{padding:10px;font-size:12px;gap:5px}
+  .story-control-more>summary span{font-size:10px}
+  .story-control-more .story-control-secondary{padding:9px;gap:7px}
+}
