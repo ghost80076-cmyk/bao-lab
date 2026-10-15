@@ -74,6 +74,7 @@
       status: core.statusSummary(statusConfig, window.BAOSceneHTML?.prefs?.status || "native"),
       extensions,
       narrative: core.narrativeSummary(narrativeStatus),
+      instructions: { title: '自訂長期指令', detail: '設定 AI 應持續遵守的偏好' },
       quick
     };
   };
@@ -86,6 +87,7 @@
     status() { window.BAOCharacterStatusUI?.openSettings?.(); },
     extensions() { window.BAOStoryExtensionsCenter?.open?.(); },
     narrative() { window.BAONarrativeSettings?.open?.(); },
+    instructions() { window.BAONarrativeSettings?.openInstructions?.(); },
     quick() { window.BAOStoryQuickCommands?.open?.(); },
     search() { window.BAOConversationSearch?.open?.(); },
     all() { window.BAOChatToolNavigation?.openDrawer?.(); }
@@ -136,6 +138,7 @@
         <details class="story-control-more">
           <summary>更多故事設定 <span>敘事、快捷指令與進階管理</span></summary>
           <div class="story-control-grid story-control-secondary">
+            ${card("instructions", "AI 與指令", data.instructions, "編輯長期指令")}
             ${card("narrative", "敘事與描寫", data.narrative, "調整敘事")}
             ${card("quick", "快捷指令", data.quick, "打開指令")}
             ${card("context", "上下文狀態", data.context, "查看前情")}
