@@ -16,6 +16,18 @@ async function prepareStory(page, viewport = { width: 1440, height: 900 }) {
       ...App.characters[0],
       id: 'reader-context-desktop-test',
       name: '沈燈',
+      character_status: {
+        enabled:true,
+        allow_player_customize:true,
+        fields:[
+          {key:'relationship_state',label:'關係狀態',type:'tags',context:'core',default:[],player_toggle:true},
+          {key:'condition',label:'身體狀態',type:'text',context:'core',default:'正常',player_toggle:true},
+          {key:'mood_state',label:'情緒狀態',type:'text',context:'relevant',default:'平穩',player_toggle:true},
+          {key:'trust',label:'信任',type:'meter',context:'relevant',default:0,min:-100,max:100,player_toggle:true},
+          {key:'activity',label:'目前行動',type:'text',context:'relevant',default:'未確認',player_toggle:true},
+          {key:'note',label:'備註',type:'text',context:'ui_only',default:'',player_toggle:true}
+        ]
+      },
       world_modules: [
         {
           id: 'harbor_weather',
@@ -57,6 +69,12 @@ async function prepareStory(page, viewport = { width: 1440, height: 900 }) {
       { name:'岑雨', role:'記者', mood:'疲倦', location:'報社', relationship:'合作', presence:'away' }
     ];
     GameState.current.modules = { harbor_weather: { sky:'薄雲', wind:'東北風', tide:'漲潮' } };
+    BAOCharacterStatus.ensureState(App.activeCharacter);
+    GameState.current.characterStatuses = {
+      '沈燈':{relationship_state:['同行者'],condition:'正常',mood_state:'平靜',trust:50,activity:'守著燈塔',note:'熟悉舊港'},
+      '白禾':{relationship_state:['舊識'],condition:'正常',mood_state:'警戒',trust:35,activity:'查看東側棧橋',note:'帶著鑰匙'},
+      '岑雨':{relationship_state:['合作'],condition:'疲憊',mood_state:'專注',trust:20,activity:'整理採訪資料',note:'明早回港'}
+    };
     Chat.reset();
     Chat.add('assistant', '燈火落在濕冷的石階上。');
     Chat.add('user', '我抬頭看向燈塔。');
@@ -94,10 +112,21 @@ test('desktop Play opens a read-only Reader Context without reusing the Studio g
   await expect(dialog).toContainText('燈塔重新亮起。');
 
   await dialog.getByRole('tab', { name:'人物' }).click();
-  await expect(dialog).toContainText('守塔人');
-  await expect(dialog).toContainText('警戒');
-  await expect(dialog).toContainText('岑雨');
-  await expect(dialog).toContainText('離場');
+  await expect(dialog.locator('.reader-context-people-summary')).toContainText('3人物');
+  await expect(dialog.locator('.reader-context-people-summary')).toContainText('2本場');
+  await expect(dialog.locator('.reader-context-people-summary')).toContainText('1離場');
+  const baihe = dialog.locator('[data-reader-person-name="白禾"]');
+  await expect(baihe).toContainText('守塔人');
+  await expect(baihe.locator('.reader-context-presence')).toHaveText('本場');
+  await expect(baihe.locator('.reader-context-statuses').first().locator('.reader-context-status-row')).toHaveCount(4);
+  await expect(baihe.locator('.reader-context-status-row.is-relationship')).toHaveCount(2);
+  const moreStatus = baihe.locator('.reader-context-more-status');
+  await expect(moreStatus).toContainText('查看另外 2 項狀態');
+  await expect(moreStatus.locator('.reader-context-statuses-more')).toBeHidden();
+  await moreStatus.locator('summary').click();
+  await expect(moreStatus.locator('.reader-context-statuses-more')).toBeVisible();
+  await expect(baihe).toContainText('查看東側棧橋');
+  await expect(dialog.locator('[data-reader-person-name="岑雨"] .reader-context-presence')).toHaveText('離場');
 
   await dialog.getByRole('tab', { name:'世界' }).click();
   await expect(dialog).toContainText('港灣天候');
