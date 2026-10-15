@@ -177,3 +177,13 @@ html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) #chat-view #bao-chat-
     background:var(--yoru-surface)!important
   }
 }
+
+
+/* Feature-help's legacy purple fill has higher priority than the drawer's
+   semantic header button rule. Unify just this platform-help control. */
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"])
+  #bao-chat-tool-drawer header .bao-help-button{
+  background:var(--yoru-control)!important;
+  color:var(--yoru-text)!important;
+  border-color:var(--yoru-control-border)!important
+}
