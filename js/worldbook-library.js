@@ -231,10 +231,85 @@
     modeSelect.value = ["auto", "scene", "off"].includes(cfg().recallMode) ? cfg().recallMode : "auto";
     modeSelect.onchange = () => { setRecallMode(modeSelect.value, openedStory); };
     controls.append(modeSelect);
-    const modeHint = document.createElement("p");
-    modeHint.textContent = "只影響目前故事的後續請求。自動：玩家輸入與故事訊號；場景：目前地點與在場人物。關閉不移除核心設定、固定背景或已知記憶，也不撤回已送出的資料。檢索在本機執行；召回內容可能增加模型輸入 token。";
+    const modeHint = document.createElement("details");
+    modeHint.className = "ylb-recall-explain";
+    const modeSummary = document.createElement("summary");
+    modeSummary.textContent = "召回方式與 Token 說明";
+    const modeDescription = document.createElement("p");
+    modeDescription.textContent = "只影響目前故事的後續請求。自動：玩家輸入與故事訊號；場景：目前地點與在場人物。關閉不移除核心設定、固定背景或已知記憶，也不撤回已送出的資料。檢索在本機執行；召回內容可能增加模型輸入 Token。";
+    modeHint.append(modeSummary, modeDescription);
     backdrop.querySelector("[data-ylb-list]").before(controls, modeHint);
     const listing = backdrop.querySelector("[data-ylb-list]");
+
+    // Discovery is presentation-only: the existing collection master checkbox
+    // always applies to the full original collection, never search-filtered data.
+    let collectionFilter = "all";
+    const discovery = document.createElement("section");
+    discovery.className = "ylb-discovery";
+    discovery.setAttribute("aria-label", "尋找世界書");
+    const search = document.createElement("input");
+    search.type = "search";
+    search.className = "ylb-search";
+    search.setAttribute("aria-label", "搜尋世界書主題或章節");
+    search.placeholder = "搜尋世界書主題或章節";
+    const filters = document.createElement("div");
+    filters.className = "ylb-filter-buttons";
+    filters.setAttribute("aria-label", "篩選世界書");
+    const filterButtons = new Map();
+    for (const [value, label] of [["all", "全部"], ["enabled", "已啟用"], ["mine", "我的世界書"]]) {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "ylb-filter-button";
+      button.textContent = label;
+      button.dataset.ylbFilter = value;
+      button.setAttribute("aria-pressed", String(value === "all"));
+      filters.append(button);
+      filterButtons.set(value, button);
+    }
+    const count = document.createElement("p");
+    count.className = "ylb-result-count";
+    count.setAttribute("role", "status");
+    count.setAttribute("aria-live", "polite");
+    const empty = document.createElement("p");
+    empty.className = "ylb-empty-results";
+    empty.hidden = true;
+    listing.before(discovery);
+    discovery.append(search, filters, count);
+    listing.after(empty);
+    const updateDiscovery = () => {
+      const query = search.value.trim().toLowerCase();
+      const sections = [...listing.querySelectorAll(".ylb-collection")];
+      let matched = 0;
+      const enabledCount = sections.filter(section => section.dataset.ylbEnabled === "true").length;
+      for (const section of sections) {
+        const byText = !query || (section.dataset.ylbSearch || "").includes(query);
+        const byStatus = collectionFilter === "all" ||
+          (collectionFilter === "enabled" && section.dataset.ylbEnabled === "true") ||
+          (collectionFilter === "mine" && section.dataset.ylbPrivate === "true");
+        const visible = byText && byStatus;
+        section.hidden = !visible;
+        if (visible) {
+          matched++;
+          if (query && !(section.dataset.ylbTitle || "").includes(query)) {
+            const chapters = section.querySelector("details.ylb-chapters");
+            if (chapters) chapters.open = true;
+          }
+        }
+      }
+      count.textContent = "顯示 " + matched + " / " + sections.length + " 個主題 · " +
+        enabledCount + " 個主題已有啟用章節";
+      empty.hidden = matched > 0 || sections.length === 0;
+      empty.textContent = collectionFilter === "mine" && !query
+        ? "這個故事還沒有私人世界書，可使用下方的 JSON 匯入。"
+        : "沒有符合條件的主題。試試其他名稱或切回「全部」。";
+      for (const [value, button] of filterButtons) button.setAttribute("aria-pressed", String(value === collectionFilter));
+    };
+    search.addEventListener("input", updateDiscovery);
+    for (const [value, button] of filterButtons) button.addEventListener("click", () => {
+      collectionFilter = value;
+      updateDiscovery();
+    });
+
     const render = async () => {
       if (!backdrop.isConnected) return;
       const config = cfg(), packs = await all();
@@ -320,6 +395,10 @@
       for (const group of groupPacks(packs)) {
         const section = document.createElement("section");
         section.className = "ylb-collection";
+        section.dataset.ylbTitle = group.name.toLowerCase();
+        section.dataset.ylbSearch = (group.name + " " + group.packs.map(pack => pack.meta.name).join(" ")).toLowerCase();
+        section.dataset.ylbEnabled = group.packs.some(pack => enabled.includes(pack.meta.id)) ? "true" : "false";
+        section.dataset.ylbPrivate = group.packs.some(pack => pack.meta.visibility !== "public") ? "true" : "false";
         const head = document.createElement("div");
         head.className = "ylb-collection-head";
         const label = document.createElement("label");
@@ -362,6 +441,7 @@
         listing.append(section);
       }
       if (!packs.length) listing.textContent = "還沒有世界書。可先匯入你自己的世界書 JSON。";
+      updateDiscovery();
     };
     const picker = backdrop.querySelector("[data-ylb-file]");
     backdrop.querySelector("[data-ylb-import]").onclick = () => { picker.value = ""; picker.click(); };
