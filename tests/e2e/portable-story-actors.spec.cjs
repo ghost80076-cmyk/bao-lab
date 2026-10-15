@@ -417,10 +417,11 @@ for (const width of [390]) {
     await expect(currentMirror).toContainText('觀察碼頭');
     expect(await page.evaluate(() => JSON.stringify(GameState.current.npcs))).toBe(npcsBefore);
 
-    const mistBackground = await currentMirror.evaluate(node => getComputedStyle(node).backgroundColor);
+    await expect(currentMirror).toHaveCSS('background-color', 'rgb(255, 250, 244)');
     await page.evaluate(() => YoruExperience.choose({theme:'rose'}));
-    const roseBackground = await currentMirror.evaluate(node => getComputedStyle(node).backgroundColor);
-    expect(roseBackground).not.toBe(mistBackground);
+    await expect(page.locator('html')).toHaveAttribute('data-yoru-theme', 'rose');
+    // Background is animated for 180ms, so verify the settled theme, not its first frame.
+    await expect(currentMirror).toHaveCSS('background-color', 'rgb(64, 50, 57)');
 
     await management.locator('summary').click();
     await expect(panel.locator('[data-character-status-settings]')).toBeVisible();
