@@ -162,3 +162,82 @@ test('mobile exit asks first, then leaves through the existing auto-save flow', 
   })).toEqual({ inactive: true, viewportCleared: true, detailVisible: true, bodyUnlocked: true });
   await expect.poll(() => page.evaluate(() => Boolean(Storage.loadStory()))).toBe(true);
 });
+
+
+for (const theme of ['mist','rose']) {
+  test('mobile reading chrome keeps ' + theme + ' palette across composer and tools', async ({page}) => {
+    await page.setViewportSize({width:390,height:844});
+    await openDemoStory(page);
+    await page.waitForFunction(() => !!window.YoruExperience);
+    const draft = page.locator('#user-input');
+    await draft.fill('這段尚未送出的故事草稿，切換主題後必須保留。');
+    const storyBefore = await page.locator('#chat-stream .message.assistant').first().textContent();
+    await page.evaluate(selected => window.YoruExperience.choose({theme:selected}),theme);
+    // Buttons animate background-color for 160ms. Assert the settled palette
+    // rather than sampling the transition's old night-color first frame.
+    await expect.poll(() => page.locator('#bao-mobile-composer-tools').evaluate(
+      element => getComputedStyle(element).backgroundColor
+    ), {timeout:3500}).toBe(theme === 'mist' ? 'rgb(240, 232, 223)' : 'rgb(75, 59, 67)');
+    const current = await page.evaluate(() => {
+      const bg = selector => getComputedStyle(document.querySelector(selector)).backgroundColor;
+      const fg = selector => getComputedStyle(document.querySelector(selector)).color;
+      return {
+        header:bg('#chat-view .chat-topline'),
+        composer:bg('#chat-view .composer'),
+        textarea:bg('#user-input'),
+        tools:bg('#bao-mobile-composer-tools'),
+        inspiration:bg('#bao-mobile-composer-inspire'),
+        send:bg('#chat-view .composer .primary'),
+        text:fg('#user-input'),
+        // Some works render an authored rich HTML message, not a plain bubble.
+        // Do not force platform theme colors onto author-controlled markup.
+        assistant:(() => {
+          const plain = document.querySelector('#chat-view .message.assistant .bubble:not(.authored-rich-message)');
+          return plain ? getComputedStyle(plain).color : null;
+        })(),
+        horizontalOverflow:document.documentElement.scrollWidth-innerWidth
+      };
+    });
+    const expected = theme === 'mist'
+      ? {tool:'rgb(243, 236, 227)',input:'rgb(255, 253, 248)',control:'rgb(240, 232, 223)',text:'rgb(69, 59, 52)',send:'rgb(157, 115, 88)'}
+      : {tool:'rgb(59, 48, 54)',input:'rgb(52, 43, 48)',control:'rgb(75, 59, 67)',text:'rgb(243, 232, 230)',send:'rgb(214, 167, 159)'};
+    if (current.tools !== expected.control) {
+      const diagnosis = await page.evaluate(() => {
+        const el=document.querySelector('#bao-mobile-composer-tools');
+        const root=document.documentElement;
+        const style=getComputedStyle(el);
+        const selectors=[];
+        const visit=(rule,href) => {
+          if(rule.cssRules){try{[...rule.cssRules].forEach(r=>visit(r,href));}catch(_){};return;}
+          if(!rule.selectorText?.includes('bao-mobile-composer-tools'))return;
+          let matched=false;try{matched=el.matches(rule.selectorText);}catch(_){}
+          selectors.push({href,selector:rule.selectorText.slice(0,300),matched,
+            background:rule.style?.getPropertyValue('background'),
+            priority:rule.style?.getPropertyPriority('background')});
+        };
+        for(const sheet of document.styleSheets){
+          try{[...sheet.cssRules].forEach(rule=>visit(rule,sheet.href));}catch(_){}
+        }
+        return {theme:root.dataset.yoruTheme,surface:document.getElementById('chat-view')?.dataset.baoSurface,
+          customValue:style.getPropertyValue('--yoru-control').trim(),
+          rootValue:getComputedStyle(root).getPropertyValue('--yoru-control').trim(),
+          computed:style.backgroundColor,selectors:selectors.slice(-20)};
+      });
+      console.log('MOBILE_THEME_ACTION_DIAGNOSTIC',JSON.stringify(diagnosis));
+    }
+    expect(current.header).toBe(expected.tool);
+    expect(current.composer).toBe(expected.tool);
+    expect(current.textarea).toBe(expected.input);
+    expect(current.tools).toBe(expected.control);
+    expect(current.inspiration).toBe(expected.control);
+    expect(current.send).toBe(expected.send);
+    expect(current.text).toBe(expected.text);
+    if (current.assistant !== null) expect(current.assistant).toBe(expected.text);
+    expect(current.horizontalOverflow).toBeLessThanOrEqual(1);
+    await expect(draft).toHaveValue('這段尚未送出的故事草稿，切換主題後必須保留。');
+    expect(await page.locator('#chat-stream .message.assistant').first().textContent()).toBe(storyBefore);
+    await page.locator('#bao-mobile-composer-tools').click();
+    await expect(page.getByRole('dialog',{name:'故事功能選單'})).toBeVisible();
+    await expect(page.getByRole('searchbox',{name:'搜尋故事工具'})).toBeVisible();
+  });
+}
