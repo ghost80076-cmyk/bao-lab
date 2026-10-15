@@ -156,6 +156,7 @@ jobs:
         run: >-
           npm run test:e2e --
           tests/e2e/story-control-center.spec.cjs
+          tests/e2e/memory-workbench-theme.spec.cjs
           tests/e2e/story-tools-mobile-density.spec.cjs
           tests/e2e/context-pack-resume.spec.cjs
           tests/e2e/story-import-routing.spec.cjs
