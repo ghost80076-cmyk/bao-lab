@@ -60,7 +60,7 @@
 <div class="builder-step" data-step-panel="2"><h3>顯示模式</h3><label class="choice-card selected"><input type="radio" name="display-mode" value="text" checked><b>純文本</b><span>乾淨的小說式聊天。</span></label><label class="choice-card"><input type="radio" name="display-mode" value="ui"><b>互動 UI</b><span>顯示 NPC、狀態、事件與記憶。</span></label></div>
 <div class="builder-step" data-step-panel="3"><h3>玩家資料（Persona）</h3><div class="form-grid"><label>名稱<input id="persona-name" placeholder="玩家名稱"></label><label>性別<select id="persona-gender"><option>未指定</option><option>男性</option><option>女性</option><option>其他</option></select></label><label>身分<input id="persona-identity" placeholder="職業 / 身分"></label><label>初始關係<input id="persona-relationship" placeholder="陌生人 / 戀人 / 同事…"></label></div><label>個性<textarea id="persona-personality"></textarea></label><label>其他設定<textarea id="persona-extra"></textarea></label></div>
 <div class="builder-step" data-step-panel="4"><h3>模型連線</h3>
-<p class="note api-onboarding-intro">先選故事要使用哪種模型連線，再挑模型；只有使用自己的雲端服務時才需要連線金鑰（API Key）。</p>
+<p class="note api-onboarding-intro">選模型服務、模型與連線金鑰即可；自訂服務才需要進階設定。</p>
 <div class="form-grid api-primary-grid">
   <label class="wide">模型服務（Provider）<select id="api-type"></select></label>
   <label class="wide api-key-primary">連線金鑰（API Key）<input id="api-key" type="password" autocomplete="off" spellcheck="false" placeholder="貼上自己的連線金鑰"><small>只留在目前頁面記憶體，不會寫入故事存檔或備份。</small></label>
@@ -69,7 +69,7 @@
 <div class="api-connection-summary"><span id="api-protocol-badge" class="chip">API</span> <span id="api-hint" class="note"></span></div>
 <details id="api-advanced-settings" class="api-advanced-settings">
   <summary>進階連線設定</summary>
-  <p class="note">只有自訂 API、中轉站或特殊服務需要調整。一般玩家可以保持預設。</p>
+  <p class="note">自訂 API、中轉或特殊服務才需要。</p>
   <div class="form-grid" data-api-advanced-grid>
     <label>模型代號（Model ID）<input id="model-id" placeholder="例如：gemini-2.5-flash"></label>
     <label>連線網址（Base URL）<input id="base-url" placeholder="https://..."></label>
