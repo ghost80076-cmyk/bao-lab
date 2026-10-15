@@ -155,7 +155,7 @@
       const preset = App.getSelectedPreset?.();
       const custom = preset?.route === 'custom';
       const selectedProvider = document.getElementById('api-type')?.value || '';
-      const localSelected = selectedProvider === 'lmstudio';
+      const localSelected = document.getElementById('api-type')?.value === 'lmstudio';
       const discoveryHidden = localSelected || selectedProvider === 'bao-credits';
       protocol.value = protocolName(preset?.protocol);
       protocol.disabled = !custom;
