@@ -93,7 +93,7 @@ test('mobile story desk and library keep actions ahead of long explanations', as
   await expect(dialog.locator('.story-library-help-copy')).toBeHidden();
 
   await expect(dialog.locator('[data-story-library-card]')).toHaveCount(1);
-  await expect(dialog.getByRole('button', { name: '繼續' })).toBeVisible();
+  await expect(dialog.getByRole('button', { name: '繼續', exact: true })).toBeVisible();
 
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
