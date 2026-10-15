@@ -66,9 +66,10 @@ for (const width of [390, 1280]) {
     const modal = page.getByRole('dialog', { name: '敘事與描寫設定' });
     await expect(modal).toBeVisible();
     await expect(page.locator('.narrative-instructions-focused #bao-narrative-instructions')).toBeVisible();
-    const focusedId = await page.evaluate(() => document.activeElement?.getAttribute('data-add-instruction') !== null ||
-      document.activeElement?.hasAttribute('data-instruction-text'));
-    expect(focusedId).toBe(true);
+    await expect.poll(() => page.evaluate(() =>
+      document.activeElement?.hasAttribute('data-add-instruction') ||
+      document.activeElement?.hasAttribute('data-instruction-text')
+    )).toBe(true);
     await modal.locator('[data-add-instruction]').click();
     await modal.locator('[data-instruction-text]').last().fill('保持角色之間的資訊邊界。');
     await modal.locator('[data-narrative-save]').click();
