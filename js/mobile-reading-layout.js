@@ -292,7 +292,7 @@
     makeAction(advanced, '◈ 世界狀態', openStatus);
     makeAction(advanced, '快速儲存', () => App.saveStory?.(true));
     makeAction(advanced, '✦ 聊天外觀', () => clickOriginal('[data-bao-open="appearance"]'), { 'data-bao-open': 'appearance' });
-    makeAction(advanced, '↑ 置頂', toTop);
+
     const support = document.createElement('a');
     support.className = 'bao-mobile-support-link';
     support.href = supportUrl();
@@ -302,6 +302,14 @@
     support.addEventListener('click', () => nav.closeDrawer());
     advanced.append(support);
     quick.append(more);
+    const goTop = makeAction(quick, '↑ 置頂', toTop);
+    goTop.classList.add('bao-mobile-go-top');
+    // Mobile shortcuts and grouped proxy actions share original handlers, but
+    // should only appear once in the same tool drawer.
+    const quickNames = new Set([...quick.querySelectorAll('button')].map(button => button.textContent.trim()));
+    body.querySelectorAll('.bao-chat-tool-proxy').forEach(button => {
+      if (quickNames.has(button.textContent.trim())) button.remove();
+    });
     const connection = document.createElement('small');
     connection.setAttribute('aria-live', 'polite');
     const apiStatus = document.querySelector('#bao-chat-api-toolbar [data-bao-api-status]');
