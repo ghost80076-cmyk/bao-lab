@@ -9,7 +9,7 @@ assert.deepEqual(core.normalize({theme:'mist',level:'standard'}), {theme:'mist',
 assert.deepEqual(core.normalize({theme:'rose',level:'pro'}), {theme:'rose',level:'pro'});
 assert.deepEqual(core.normalize({theme:'unsafe',level:'admin'}), {theme:'night',level:'easy'});
 assert.deepEqual(core.normalize([]), core.DEFAULT);
-assert.deepEqual(core.expandedGroups('easy'), ['story'], 'easy mode never removes functions');
+assert.deepEqual(core.expandedGroups('easy'), [], 'easy mode starts collapsed but never removes functions');
 assert.deepEqual(core.expandedGroups('standard'), ['story','world']);
 assert.deepEqual(core.expandedGroups('pro'), ['scene','story','world','settings']);
 assert.equal(core.label('pro'), '專業');
