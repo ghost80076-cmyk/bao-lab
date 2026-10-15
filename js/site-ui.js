@@ -158,7 +158,7 @@ window.addEventListener("DOMContentLoaded", () => {
   loadBAOScript("js/brand-ui.js?v=9")
     .then(() => new Promise(resolve => setTimeout(resolve, 100)))
     .then(() => loadBAOScript("js/bao-mascot.js?v=4"))
-    .then(() => loadBAOScript("js/reader-context.js?v=2"))
+    .then(() => loadBAOScript("js/reader-context.js?v=3"))
     .then(() => loadBAOScript("js/bao-visual-ui.js?v=10"))
     .then(() => loadBAOScript("js/player-shell-v2.js?v=7"))
     .then(() => loadBAOScript("js/player-builder-v2.js?v=6"))
