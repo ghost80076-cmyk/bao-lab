@@ -520,8 +520,8 @@
   html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) #chat-view[data-bao-surface="play"] #user-input::placeholder {
     color:var(--yoru-story-muted)!important;
   }
-  html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) #chat-view #bao-mobile-composer-tools,
-  html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) #chat-view #bao-mobile-composer-inspire,
+  html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) #chat-view[data-bao-surface="play"] .composer #bao-mobile-composer-tools,
+  html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) #chat-view[data-bao-surface="play"] .composer #bao-mobile-composer-inspire,
   html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) #bao-mobile-exit,
   html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) #bao-mobile-status,
   html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) #bao-mobile-memory,
