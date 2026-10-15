@@ -142,3 +142,61 @@
   font-size:var(--chat-font-size)!important;
   font-family:var(--chat-font-family)!important;
 }
+
+
+/* Experience 3.0 · Round 19: theme the platform player-setting modal, not story HTML. */
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .bao-modal-backdrop .bao-player-modal {
+  background:var(--yoru-surface);
+  border-color:var(--yoru-border);
+  color:var(--yoru-text);
+  box-shadow:var(--yoru-shadow-soft,0 26px 68px rgba(0,0,0,.3));
+}
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .bao-player-modal :is(.bao-modal-head,.bao-modal-footer) {
+  background:var(--yoru-surface);
+  border-color:var(--yoru-border);
+  color:var(--yoru-text);
+}
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .bao-player-modal :is(.bao-modal-head h2,.bao-setting-section h3,.bao-bubble-preview-head b,.bao-setting-subhead,.bao-bubble-preset b,.bao-range-row label,.bao-color-row label,.bao-select-row span) {
+  color:var(--yoru-text);
+}
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .bao-player-modal :is(.bao-setting-section p,.bao-choice span,.bao-bubble-preview-head span,.bao-bubble-reading-note,.bao-modal-close,.bao-bubble-role-panel small,.bao-memory-slot small) {
+  color:var(--yoru-muted);
+}
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .bao-player-modal :is(.bao-setting-section,.bao-modal-body,.bao-setting-subhead) {
+  border-color:var(--yoru-border);
+}
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .bao-player-modal :is(.bao-choice,.bao-toggle,.bao-memory-slot,.bao-modal-help,.bao-appearance-tabs button,.bao-bubble-role-tabs button,.bao-bubble-preset) {
+  background:var(--yoru-control);
+  border-color:var(--yoru-control-border);
+  color:var(--yoru-text);
+}
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .bao-player-modal :is(.bao-choice,.bao-appearance-tabs button,.bao-bubble-role-tabs button,.bao-bubble-preset):is(:hover,:focus-visible) {
+  border-color:var(--yoru-control-border-hover);
+  background:var(--yoru-control-hover);
+}
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .bao-player-modal :is(.bao-choice.active,.bao-appearance-tabs button.active,.bao-bubble-role-tabs button.active,.bao-bubble-preset.active) {
+  background:var(--yoru-control-hover);
+  border-color:var(--yoru-lantern);
+  color:var(--yoru-text);
+  box-shadow:inset 0 0 0 1px var(--yoru-lantern);
+}
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .bao-player-modal .bao-appearance-tabs {
+  background:linear-gradient(180deg,var(--yoru-surface) 80%,transparent);
+}
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .bao-player-modal .bao-bubble-preview {
+  background:var(--yoru-card);
+  border-color:var(--yoru-card-border);
+}
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .bao-player-modal :is(input:not([type="color"]):not([type="checkbox"]):not([type="range"]),textarea,select) {
+  background:var(--yoru-input);
+  border-color:var(--yoru-input-border);
+  color:var(--yoru-text);
+}
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .bao-player-modal :is(.bao-memory-meter,.bao-memory-meter i) {
+  border-color:var(--yoru-control-border);
+}
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .bao-player-modal :is(button,input,textarea,select):focus-visible {
+  outline:2px solid var(--yoru-lantern);
+  outline-offset:2px;
+}
+/* Preview bubbles deliberately keep their user-defined colors. */
