@@ -380,3 +380,15 @@ html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extensions-pan
   outline:2px solid var(--yoru-lantern);
   outline-offset:2px
 }
+
+
+/* Base button skin is !important in some legacy views: keep theme parity
+   localized to the extensions heading instead of changing global buttons. */
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"])
+  .story-extensions-panel .story-extensions-close,
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"])
+  .story-extensions-panel .story-extensions-help{
+  background:var(--yoru-control)!important;
+  color:var(--yoru-text)!important;
+  border-color:var(--yoru-control-border)!important
+}
