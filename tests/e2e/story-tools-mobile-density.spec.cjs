@@ -46,7 +46,22 @@ test('mobile story desk and library keep actions ahead of long explanations', as
     backdropAlign: getComputedStyle(node.parentElement).alignItems,
     bottomRadius: getComputedStyle(node).borderBottomLeftRadius
   }));
-  expect(deskLayout).toEqual({ columns: 2, backdropAlign: 'flex-end', bottomRadius: '0px' });
+  expect(deskLayout).toEqual({ columns: 1, backdropAlign: 'flex-end', bottomRadius: '0px' });
+  const storyEssentials = dialog.locator('.story-tools-home:not(.story-tools-home-advanced) > .story-tools-card');
+  const more = dialog.locator('[data-story-desk-more]');
+  await expect(storyEssentials).toHaveCount(2);
+  await expect(more).not.toHaveAttribute('open', '');
+  await expect(more.locator('.story-tools-home-advanced > .story-tools-card')).toHaveCount(3);
+  await expect(dialog.locator('[data-library]')).toBeVisible();
+  await expect(dialog.locator('[data-export]')).toBeVisible();
+  await expect(dialog.locator('[data-create]')).toBeHidden();
+  const buttons = await dialog.locator('[data-export], [data-backup], [data-import]').evaluateAll(nodes => nodes.map(node => Math.round(node.getBoundingClientRect().height)));
+  expect(buttons.every(height => height >= 42)).toBe(true);
+  await more.locator('summary').click();
+  await expect(dialog.locator('[data-create]')).toBeVisible();
+  await expect(dialog.locator('[data-external]')).toBeVisible();
+  await expect(dialog.locator('[data-preview]')).toBeVisible();
+  await more.locator('summary').click();
 
   await help.click();
   await expect(dialog.locator('.story-tools-home-head .story-tools-help-copy')).toBeVisible();
