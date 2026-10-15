@@ -300,7 +300,7 @@ for (const width of [390, 1280]) {
     const initial = await presets.count();
     expect(initial).toBeGreaterThan(4);
     await expect(dialog.locator('.world-manager-guide-details')).not.toHaveAttribute('open','');
-    await expect(dialog.locator('.world-manager-modal')).toHaveCSS('background-color','rgb(255, 250, 243)');
+    await expect(dialog).toHaveCSS('background-color','rgb(255, 250, 243)');
 
     const before = await page.evaluate(() => JSON.stringify(GameState.current.worldModuleCustomization));
     await search.fill('三界修煉');
@@ -331,7 +331,7 @@ for (const width of [390, 1280]) {
       BAOWorldModuleManager.open();
     });
     await expect(dialog.locator('.world-manager-guide-details')).toHaveAttribute('open','');
-    await expect(dialog.locator('.world-manager-modal')).toHaveCSS('background-color','rgb(59, 48, 54)');
+    await expect(dialog).toHaveCSS('background-color','rgb(59, 48, 54)');
     await dialog.locator('[data-world-preset-filter="enabled"]').click();
     await expect(dialog.locator('[data-preset-id="three_realms_cultivation"]')).toBeVisible();
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 2)).toBe(true);
