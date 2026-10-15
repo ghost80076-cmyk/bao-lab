@@ -89,6 +89,9 @@ test('mobile composer keeps tools, input, AI assist and send in one row', async 
   const drawer = page.getByRole('dialog', { name: '故事功能選單' });
   await expect(drawer).toBeVisible();
   await expect(drawer.getByRole('button', { name: '☷ 故事總覽' })).toBeVisible();
+  await expect(drawer.locator('.bao-mobile-more > summary')).toBeVisible();
+  await expect(drawer.getByRole('button', { name: '◔ 上下文狀態' })).toBeHidden();
+  await drawer.locator('.bao-mobile-more > summary').click();
   await expect(drawer.getByRole('button', { name: '◔ 上下文狀態' })).toBeVisible();
   await drawer.getByRole('button', { name: '關閉 ×', exact: true }).click();
 
