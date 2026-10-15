@@ -95,6 +95,11 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 320, height: 568 }
     await expect(page.locator('#chat-stream .message.assistant[data-message-index]').last()).toBeVisible();
     const actions = page.locator('#chat-stream .message.assistant[data-message-index]').last().locator('.story-message-tools');
     await expect(actions.locator('[data-edit]')).toBeVisible();
+    await expect(actions.locator('[data-rewrite]')).toBeHidden();
+    await expect(actions.locator('[data-copy]')).toBeVisible();
+    const moreReply = actions.locator('details.bao-message-more');
+    await expect(moreReply).toBeVisible();
+    await moreReply.locator('summary').click();
     await expect(actions.locator('[data-rewrite]')).toBeVisible();
     await expect(actions.locator('[data-regenerate]')).toBeVisible();
     await expect(actions.locator('[data-create-branch]')).toHaveCount(1);
