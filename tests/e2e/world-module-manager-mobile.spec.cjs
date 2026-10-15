@@ -379,7 +379,7 @@ for (const width of [390, 1280]) {
     await expect(drawer.locator('.bao-chat-tool-dialog-body > details').filter({hasText:'其他與支援'}).getByRole('button',{name:/世界書/})).toHaveCount(0);
     await worldbook.click();
     await expect(drawer).toHaveCount(0);
-    const library = page.getByRole('dialog',{name:'世界書擴充庫'});
+    const library = page.getByRole('dialog',{name:'世界書',exact:true});
     await expect(library).toBeVisible();
     await expect(library.getByRole('searchbox',{name:'搜尋世界書主題或章節'})).toBeVisible();
     expect(await page.evaluate(() => JSON.stringify(GameState.current))).toBe(before);

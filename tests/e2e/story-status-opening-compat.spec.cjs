@@ -295,9 +295,9 @@ test('worldbook condition controls preserve opt-in and never display locked cont
     }};
     YoruWorldbookLibrary.open();
   });
-  const dialog = page.getByRole('dialog', { name: '世界書擴充庫' });
-  const privateBook = dialog.locator('.ylb-collection').filter({ hasText: '我的世界書' }).first();
-  await privateBook.getByText('查看內容', { exact: true }).click();
+  const dialog = page.getByRole('dialog', { name: '世界書', exact: true });
+  const privateBook = dialog.locator('.ylb-collection').filter({ hasText: '私人測試包' }).first();
+  await privateBook.getByText('查看章節', { exact: true }).click();
   await expect(privateBook.getByText('已得知資訊（1 項）')).toBeVisible();
   await privateBook.getByText('已得知資訊（1 項）').click();
   const condition = privateBook.locator('[data-ylb-condition="evidence-known"]');

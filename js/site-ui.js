@@ -112,7 +112,7 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/story-timeline.js?v=2"))
     .then(() => loadBAOScript("js/three-realms-events.js?v=3"))
     .then(() => loadBAOScript("js/worldbook-library-core.js?v=4"))
-    .then(() => loadBAOScript("js/worldbook-library.js?v=7"))
+    .then(() => loadBAOScript("js/worldbook-library.js?v=8"))
     .then(() => loadBAOScript("js/story-reader.js?v=5"))
     .then(() => loadBAOScript("js/conversation-search-core.js?v=4"))
     .then(() => loadBAOScript("js/conversation-search.js?v=4"))

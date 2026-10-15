@@ -69,8 +69,8 @@
     const rawName = String(pack?.meta?.name || "未命名世界書").trim() || "未命名世界書";
     if (pack?.meta?.visibility !== "public") {
       return {
-        key: "private:" + String(pack?.meta?.world || "general"),
-        name: "我的世界書",
+        key: "private:" + String(pack.meta.id),
+        name: rawName,
         chapter: rawName
       };
     }
@@ -204,55 +204,165 @@
   App.wrapBuildMessages("worldbook-library:recall", wrapper);
 
   const style = document.createElement("style");
-  style.textContent = '.ylb-backdrop{position:fixed;inset:0;background:#000b;z-index:15000;display:grid;place-items:center;padding:12px;overflow:hidden}.ylb-modal{width:min(780px,100%);max-width:100%;max-height:90vh;overflow-y:auto;overflow-x:hidden;background:#1c1919;color:#e7dfd7;border:1px solid #675a4a;border-radius:16px;padding:18px;box-shadow:0 20px 45px #0008}.ylb-modal,.ylb-modal *{box-sizing:border-box}.ylb-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;min-width:0}.ylb-modal h2{margin:0 0 8px;font-size:1.25rem}.ylb-modal h3{font-size:1rem;margin:16px 0 8px}.ylb-modal p,.ylb-modal small{color:#b9aea5}.ylb-modal p,.ylb-modal small,.ylb-modal strong,.ylb-modal summary{overflow-wrap:anywhere}.ylb-warning{border-left:3px solid #b2946d;padding:8px 12px;background:#b2946d18}.ylb-collection{border:1px solid #574a4066;border-radius:12px;margin:10px 0;padding:12px;min-width:0}.ylb-collection-head{display:flex;gap:10px;align-items:flex-start;justify-content:space-between;min-width:0}.ylb-collection-head label{display:flex;align-items:flex-start;gap:10px;cursor:pointer;flex:1;min-width:0}.ylb-collection-head input,.ylb-row input{margin-top:4px;flex:none}.ylb-collection-copy{min-width:0}.ylb-collection-copy strong{display:block}.ylb-collection-copy small{display:block;margin-top:3px}.ylb-chapters{width:100%;max-width:100%;margin-top:8px;border-top:1px solid #574a4044;padding-top:8px}.ylb-chapters>summary{cursor:pointer;color:#d7c7b9}.ylb-chapter-list{display:grid;gap:8px;margin-top:8px;min-width:0}.ylb-row{display:flex;gap:10px;align-items:flex-start;padding:10px;border:1px solid #574a4055;border-radius:10px;min-width:0;max-width:100%;overflow:hidden;flex-wrap:wrap}.ylb-row label{display:flex;align-items:flex-start;gap:10px;cursor:pointer;flex:1;min-width:0}.ylb-row strong{display:block}.ylb-row small{display:block;margin-top:3px}.ylb-row>div,.ylb-row>label>span{min-width:0}.ylb-condition-list{width:100%;padding-left:28px}.ylb-footer{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.ylb-modal button{cursor:pointer;max-width:100%}.ylb-modal button:focus-visible{outline:2px solid #d5b27d}.worldbook-library-launch{white-space:normal}@media(max-width:600px){.ylb-backdrop{padding:6px}.ylb-modal{width:100%;max-height:94vh;padding:12px}.ylb-collection{padding:10px}.ylb-row{padding:9px}.ylb-condition-list{padding-left:8px}}';
-  style.textContent += `
-    .ylb-modal{background:var(--yoru-surface,#1c1919);color:var(--yoru-text,#e7dfd7);border-color:var(--yoru-border,#675a4a)}
-    .ylb-modal p,.ylb-modal small{color:var(--yoru-muted,#b9aea5)}
-    .ylb-modal .ylb-collection,.ylb-modal .ylb-row{
-      background:var(--yoru-card,#242020);color:var(--yoru-text,#e7dfd7);
-      border-color:var(--yoru-card-border,#574a4055)
+  style.textContent = `
+    .ylb-backdrop{
+      position:fixed;inset:0;z-index:15000;display:grid;place-items:center;
+      padding:16px;background:#000b;overflow:hidden
     }
-    .ylb-collection[hidden],.ylb-empty-results[hidden]{display:none!important}
-    .ylb-discovery{display:grid;gap:10px;margin:16px 0 10px;min-width:0}
+    .ylb-modal{
+      box-sizing:border-box;width:min(680px,100%);max-width:100%;
+      max-height:min(840px,92vh);max-height:min(840px,92dvh);overflow:auto;
+      overscroll-behavior:contain;scrollbar-gutter:stable;
+      scroll-padding-block:84px 20px;
+      background:var(--yoru-surface,#1c1919);color:var(--yoru-text,#e7dfd7);
+      border:1px solid var(--yoru-border,#675a4a);border-radius:18px;
+      box-shadow:0 20px 60px #0006;font-size:14px;line-height:1.5
+    }
+    .ylb-modal *{box-sizing:border-box}
+    .ylb-modal :is(p,small,strong,summary){overflow-wrap:anywhere}
+    .ylb-modal :is(p,small){color:var(--yoru-muted,#b9aea5)}
+    .ylb-modal p{margin:0}
+    .ylb-head{
+      position:sticky;top:0;z-index:2;display:flex;align-items:center;
+      justify-content:space-between;gap:12px;padding:17px 20px;
+      background:var(--yoru-surface,#1c1919);
+      border-bottom:1px solid var(--yoru-card-border,#574a4055)
+    }
+    .ylb-modal h2{margin:0;font-size:20px;line-height:1.3}
+    .ylb-body{padding:16px 20px 20px;min-width:0}
+    .ylb-intro{font-size:13px}
+    .ylb-modal button{
+      cursor:pointer;max-width:100%;min-height:40px;font:inherit;
+      color:var(--yoru-text,#e7dfd7)
+    }
+    .ylb-head button{
+      flex:none;padding:7px 11px;border-radius:9px;
+      border:1px solid var(--yoru-control-border,#675a4a);
+      background:var(--yoru-control,#29232a);font-size:13px
+    }
+    .ylb-modal label{margin:0;min-width:0}
+    /* The global form input width must never size worldbook checkboxes. */
+    .ylb-modal input[type="checkbox"]{
+      appearance:auto;position:static;width:18px;min-width:18px;max-width:18px;
+      height:18px;min-height:18px;max-height:18px;flex:0 0 18px;
+      padding:0;margin:0;align-self:center;justify-self:center;
+      accent-color:var(--yoru-lantern,#d6aa73)
+    }
+    .ylb-modal input.ylb-switch[type="checkbox"]{
+      appearance:none;position:relative;width:36px;min-width:36px;max-width:36px;
+      height:22px;min-height:22px;max-height:22px;
+      border:1px solid var(--yoru-control-border,#675a4a);border-radius:999px;
+      background:var(--yoru-control,#29232a);cursor:pointer
+    }
+    .ylb-switch::before{
+      content:"";display:block;position:absolute;top:3px;left:3px;
+      width:14px;height:14px;border-radius:50%;
+      background:var(--yoru-muted,#b9aea5)
+    }
+    .ylb-modal input.ylb-switch:checked{
+      background:var(--yoru-lantern,#d6aa73);border-color:var(--yoru-lantern,#d6aa73)
+    }
+    .ylb-switch:checked::before{left:17px;background:var(--yoru-surface,#1c1919)}
+    .ylb-switch:indeterminate::before{left:10px;background:var(--yoru-lantern,#d6aa73)}
+    .ylb-discovery{display:grid;gap:12px;margin:14px 0 4px;min-width:0}
     .ylb-discovery .ylb-search{
-      display:block;box-sizing:border-box;width:100%;max-width:100%;min-height:44px;
-      background:var(--yoru-input,#18161a);color:var(--yoru-text,#e7dfd7);
-      border:1px solid var(--yoru-input-border,#675a4a);border-radius:12px;
-      padding:10px 13px;font:inherit;font-size:14px
+      display:block;width:100%;min-width:0;min-height:44px;margin:0;
+      border:1px solid var(--yoru-input-border,#675a4a);border-radius:10px;
+      padding:10px 12px;font:inherit;font-size:16px;
+      background:var(--yoru-input,#18161a);color:var(--yoru-text,#e7dfd7)
     }
     .ylb-discovery .ylb-search::placeholder{color:var(--yoru-muted,#b9aea5)}
-    .ylb-filter-buttons{display:flex;flex-wrap:wrap;gap:7px;min-width:0}
+    .ylb-filter-buttons{
+      display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;
+      padding:3px;border-radius:10px;background:var(--yoru-control,#29232a)
+    }
     .ylb-modal .ylb-filter-button{
-      min-height:38px;padding:8px 13px;max-width:100%;
-      border:1px solid var(--yoru-control-border,#675a4a);border-radius:999px;
-      background:var(--yoru-control,#29232a);color:var(--yoru-text,#e7dfd7);
-      font:inherit;font-size:12px;cursor:pointer
+      min-width:0;min-height:38px;padding:7px 6px;border:0;border-radius:7px;
+      background:transparent;color:var(--yoru-muted,#b9aea5);font-size:13px
     }
     .ylb-modal .ylb-filter-button[aria-pressed="true"]{
-      background:var(--yoru-control-hover,#43333b);
-      border-color:var(--yoru-lantern,#d6aa73);
-      box-shadow:inset 0 0 0 1px var(--yoru-lantern,#d6aa73);
-      font-weight:700
+      background:var(--yoru-surface,#1c1919);color:var(--yoru-text,#e7dfd7);
+      box-shadow:0 1px 4px #0002;font-weight:700
     }
-    .ylb-modal .ylb-result-count{margin:0;font-size:12px;line-height:1.5}
-    .ylb-modal .ylb-empty-results{
-      margin:12px 0;padding:18px 12px;border:1px dashed var(--yoru-card-border,#675a4a);
-      border-radius:12px;text-align:center;font-size:13px
+    .ylb-modal .ylb-result-count{font-size:12px;line-height:1.5;margin:0 0 2px}
+    .ylb-collection{
+      display:block;min-width:0;max-width:100%;margin:0;padding:14px 0;
+      border:0;border-bottom:1px solid var(--yoru-card-border,#574a4055);
+      background:transparent
     }
+    .ylb-collection-head{display:block;min-width:0}
+    .ylb-collection-head>label{
+      display:grid;grid-template-columns:minmax(0,1fr) 44px;align-items:center;
+      gap:12px;width:100%;min-height:44px;cursor:pointer
+    }
+    .ylb-collection-copy{display:block;min-width:0;grid-column:1;grid-row:1}
+    .ylb-collection-head .ylb-switch{grid-column:2;grid-row:1}
+    .ylb-collection-copy strong{display:block;font-size:16px;font-weight:650;line-height:1.5}
+    .ylb-collection-copy small{display:block;margin-top:3px;font-size:12px}
+    .ylb-chapters{display:block;width:100%;max-width:100%;margin:3px 0 0}
+    .ylb-chapters>summary{
+      width:fit-content;max-width:100%;min-height:36px;padding:8px 0;
+      color:var(--yoru-muted,#b9aea5);font-size:12px;cursor:pointer
+    }
+    .ylb-chapter-list{
+      display:grid;gap:0;min-width:0;margin:3px 0 0;padding:0 10px;
+      border-left:2px solid var(--yoru-card-border,#574a4055)
+    }
+    .ylb-row{
+      display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;
+      min-width:0;max-width:100%;padding:8px 0;
+      border-bottom:1px solid var(--yoru-card-border,#574a4033)
+    }
+    .ylb-row:last-child{border-bottom:0}
+    .ylb-row>label{
+      display:grid;grid-template-columns:18px minmax(0,1fr);align-items:center;
+      gap:10px;min-width:0;min-height:44px;cursor:pointer
+    }
+    .ylb-row>label>span{min-width:0}
+    .ylb-row strong{display:block;font-size:14px;line-height:1.5;font-weight:550}
+    .ylb-row small{display:block;font-size:12px;margin-top:2px}
+    .ylb-row button{
+      padding:7px 9px;border:0;border-radius:8px;background:var(--yoru-control,#29232a);
+      color:var(--yoru-muted,#b9aea5);font-size:12px
+    }
+    .ylb-condition-list{grid-column:1/-1;min-width:0;font-size:12px}
+    .ylb-condition-list summary{cursor:pointer;padding:8px 0}
+    .ylb-condition-list p{margin-bottom:8px}
+    .ylb-condition-list label{min-height:36px;align-items:center}
     .ylb-recall-explain{
-      margin:10px 0 0;padding:8px 10px;max-width:100%;min-width:0;
-      border:1px solid var(--yoru-control-border,#675a4a);border-radius:11px;
-      background:var(--yoru-control,#242026)
+      margin:14px 0 0;border:1px solid var(--yoru-card-border,#574a4055);
+      border-radius:10px;padding:0 12px;font-size:12px
     }
-    .ylb-recall-explain summary{cursor:pointer;font-size:12px;color:var(--yoru-muted,#b9aea5)}
-    .ylb-recall-explain p{font-size:12px;line-height:1.6;margin:10px 0 0}
-    .ylb-modal :is(.ylb-search,.ylb-filter-button,.ylb-recall-explain summary):focus-visible{
-      outline:2px solid var(--yoru-lantern,#d6aa73);outline-offset:2px
+    .ylb-recall-explain>summary{
+      min-height:42px;padding:11px 0;color:var(--yoru-muted,#b9aea5);cursor:pointer
     }
+    .ylb-recall-explain p{margin:0 0 12px;font-size:12px;line-height:1.65}
+    .ylb-recall-controls{
+      display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.4fr);
+      align-items:center;gap:10px;margin:4px 0 12px!important;font-size:13px
+    }
+    .ylb-recall-controls select{min-width:0;width:100%;font-size:13px}
+    .ylb-footer{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+    .ylb-footer button{
+      padding:9px 12px;border:1px solid var(--yoru-control-border,#675a4a);
+      border-radius:10px;background:var(--yoru-control,#29232a);font-size:13px
+    }
+    .ylb-modal .ylb-empty-results{
+      margin:12px 0;padding:20px 8px;text-align:center;font-size:13px
+    }
+    .ylb-collection[hidden],.ylb-empty-results[hidden]{display:none!important}
+    .ylb-modal :is(button,input,select,summary):focus-visible{
+      outline:2px solid var(--yoru-lantern,#d6aa73);outline-offset:3px
+    }
+    .worldbook-library-launch{white-space:normal}
     @media(max-width:600px){
-      .ylb-discovery{gap:8px;margin:12px 0 8px}
-      .ylb-filter-buttons{gap:6px}
-      .ylb-modal .ylb-filter-button{padding:8px 11px}
+      .ylb-backdrop{padding:8px}
+      .ylb-modal{max-height:94vh;max-height:94dvh;border-radius:14px}
+      .ylb-head{padding:13px 14px}
+      .ylb-body{padding:12px 14px 16px}
+      .ylb-collection{padding:12px 0}
+      .ylb-collection-head>label{gap:8px}
+      .ylb-chapter-list{padding-right:0}
     }
   `;
   document.head.appendChild(style);
@@ -261,7 +371,7 @@
     document.querySelector(".ylb-backdrop")?.remove();
     const backdrop = document.createElement("div");
     backdrop.className = "ylb-backdrop";
-    backdrop.innerHTML = '<section class="ylb-modal" role="dialog" aria-modal="true" aria-labelledby="ylb-title"><header class="ylb-head"><div><h2 id="ylb-title">世界書擴充庫</h2><p>公開包由夜灣提供，匯入包只存目前故事。資料相關時才送給你使用的故事模型。</p></div><button type="button" class="secondary" data-close>關閉</button></header><p class="ylb-warning">世界書 ≠ 世界模組狀態欄。公開世界書也不是全站強制規則；任何隱藏劇情真相都不應放進公開前端檔案。</p><div data-ylb-list>讀取資料中…</div><div class="ylb-footer"><button type="button" class="secondary" data-ylb-import>＋ 匯入我的世界書 JSON</button><input type="file" accept=".json,application/json" data-ylb-file hidden></div><p>支援夜灣世界資料包與 LunaTalk entries JSON。舊作的「規則／自訂」條目標記待審，保留原文但不會自動召回；匯入不等於公開發布。</p></section>';
+    backdrop.innerHTML = '<section class="ylb-modal" role="dialog" aria-modal="true" aria-labelledby="ylb-title"><header class="ylb-head"><h2 id="ylb-title">世界書</h2><button type="button" class="secondary" data-close>關閉</button></header><div class="ylb-body"><p class="ylb-intro">選擇要加入目前故事的世界書。</p><div data-ylb-list>讀取資料中…</div><div class="ylb-footer"><button type="button" class="secondary" data-ylb-import>匯入世界書</button><input type="file" accept=".json,application/json" data-ylb-file hidden></div></div></section>';
     document.body.appendChild(backdrop);
     const close = () => backdrop.remove();
     backdrop.querySelector("[data-close]").onclick = close;
@@ -271,7 +381,8 @@
     const openCollections = new Set();
     const openConditions = new Set();
     const controls = document.createElement("label");
-    controls.textContent = "世界書召回：";
+    controls.className = "ylb-recall-controls";
+    controls.textContent = "讀取方式";
     const modeSelect = document.createElement("select");
     modeSelect.setAttribute("aria-label", "世界書召回模式");
     for (const [value, label] of [["auto", "自動召回"], ["scene", "僅當前場景"], ["off", "關閉可選召回"]]) {
@@ -284,11 +395,13 @@
     const modeHint = document.createElement("details");
     modeHint.className = "ylb-recall-explain";
     const modeSummary = document.createElement("summary");
-    modeSummary.textContent = "召回方式與 Token 說明";
+    modeSummary.textContent = "使用方式與進階設定";
     const modeDescription = document.createElement("p");
     modeDescription.textContent = "只影響目前故事的後續請求。自動：玩家輸入與故事訊號；場景：目前地點與在場人物。關閉不移除核心設定、固定背景或已知記憶，也不撤回已送出的資料。檢索在本機執行；召回內容可能增加模型輸入 Token。";
-    modeHint.append(modeSummary, modeDescription);
-    backdrop.querySelector("[data-ylb-list]").before(controls, modeHint);
+    const importDescription = document.createElement("p");
+    importDescription.textContent = "匯入支援夜灣與 LunaTalk 世界書 JSON，只存目前故事，不會公開。舊作的規則／自訂條目保留原文，待完成設定後才會召回。世界書提供背景資料，狀態欄由故事設定管理。";
+    modeHint.append(modeSummary, controls, modeDescription, importDescription);
+    backdrop.querySelector(".ylb-footer").before(modeHint);
     const listing = backdrop.querySelector("[data-ylb-list]");
 
     // Discovery is presentation-only: the existing collection master checkbox
@@ -301,7 +414,7 @@
     search.type = "search";
     search.className = "ylb-search";
     search.setAttribute("aria-label", "搜尋世界書主題或章節");
-    search.placeholder = "搜尋世界書主題或章節";
+    search.placeholder = "搜尋書名或章節";
     const filters = document.createElement("div");
     filters.className = "ylb-filter-buttons";
     filters.setAttribute("aria-label", "篩選世界書");
@@ -346,8 +459,7 @@
           }
         }
       }
-      count.textContent = "顯示 " + matched + " / " + sections.length + " 個主題 · " +
-        enabledCount + " 個主題已有啟用章節";
+      count.textContent = "顯示 " + matched + " / " + sections.length + " 本 · 已啟用 " + enabledCount + " 本";
       empty.hidden = matched > 0 || sections.length === 0;
       empty.textContent = collectionFilter === "mine" && !query
         ? "這個故事還沒有私人世界書，可使用下方的 JSON 匯入。"
@@ -454,6 +566,7 @@
         const label = document.createElement("label");
         const master = document.createElement("input");
         master.type = "checkbox";
+        master.className = "ylb-switch";
         const activeCount = group.packs.filter(pack => enabled.includes(pack.meta.id)).length;
         master.checked = activeCount === group.packs.length && group.packs.length > 0;
         master.indeterminate = activeCount > 0 && activeCount < group.packs.length;
@@ -464,9 +577,9 @@
         title.textContent = group.name;
         const totalEntries = group.packs.reduce((sum, pack) => sum + pack.entries.length, 0);
         const note = document.createElement("small");
-        note.textContent = group.packs.length > 1
-          ? activeCount + " / " + group.packs.length + " 章已啟用 · 共 " + totalEntries + " 條資料"
-          : (activeCount ? "已啟用" : "未啟用") + " · " + totalEntries + " 條資料";
+        const status = !activeCount ? "未啟用" : activeCount === group.packs.length
+          ? "已啟用" : "已啟用 " + activeCount + " / " + group.packs.length + " 章";
+        note.textContent = status + " · " + totalEntries + " 條資料";
         copy.append(title, note); label.append(master, copy); head.append(label); section.append(head);
 
         const details = document.createElement("details");
@@ -477,7 +590,7 @@
           else openCollections.delete(group.key);
         });
         const summary = document.createElement("summary");
-        summary.textContent = group.packs.length > 1 ? "自選章節（" + group.packs.length + "）" : "查看內容";
+        summary.textContent = group.packs.length > 1 ? "選擇章節（" + group.packs.length + "）" : "查看章節";
         details.append(summary);
         const list = document.createElement("div");
         list.className = "ylb-chapter-list";
