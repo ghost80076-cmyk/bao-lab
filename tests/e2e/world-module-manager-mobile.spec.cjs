@@ -352,6 +352,7 @@ for (const width of [390, 1280]) {
         api:{model:'mock'},memory:{mode:'smart',maxRounds:20,maxContext:32000}
       };
       GameState.create(App.activeCharacter,App.config);
+      GameState.current.worldbookLibrary = {version:1,enabled:[],installed:[],pinned:{}};
       Chat.reset();
       App.renderChatShell(false);
       App.showView('chat');
@@ -369,13 +370,13 @@ for (const width of [390, 1280]) {
     await page.evaluate(() => BAOChatToolNavigation.openDrawer());
     const drawer = page.getByRole('dialog',{name:'故事功能選單'});
     await expect(drawer).toBeVisible();
-    const group = drawer.locator('details').filter({has:drawer.locator('summary').getByText('◇ 人物與世界')});
+    const group = drawer.locator('.bao-chat-tool-dialog-body > details').filter({hasText:'◇ 人物與世界'});
     await expect(group).toHaveCount(1);
     await group.locator('summary').click();
     const worldbook = group.getByRole('button',{name:/世界書/});
     await expect(worldbook).toHaveCount(1);
     await expect(worldbook).toBeVisible();
-    await expect(drawer.locator('details[data-chat-tool-group="other"]').getByRole('button',{name:/世界書/})).toHaveCount(0);
+    await expect(drawer.locator('.bao-chat-tool-dialog-body > details').filter({hasText:'其他與支援'}).getByRole('button',{name:/世界書/})).toHaveCount(0);
     await worldbook.click();
     await expect(drawer).toHaveCount(0);
     const library = page.getByRole('dialog',{name:'世界書擴充庫'});
