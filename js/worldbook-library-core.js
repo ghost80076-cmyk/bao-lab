@@ -41,6 +41,7 @@
         category: text(raw.category, 32), mode, keywords,
         content, requires: unique(raw.requires, 10),
         review_required: raw.review_required === true,
+        enabled: raw.enabled !== false,
         priority: Number.isFinite(raw.priority) ? Math.max(-10, Math.min(10, raw.priority)) : 0
       };
     });
@@ -104,7 +105,7 @@
       if (pack.meta.world !== "general" && compatibleWorld && compatibleWorld !== pack.meta.world) continue;
       for (const entry of pack.entries || []) {
         if (recallMode === "off" && entry.mode !== "foundation") continue;
-        if (entry.review_required || (entry.requires || []).some(flag => !flags.has(flag))) continue;
+        if (entry.enabled === false || entry.review_required || (entry.requires || []).some(flag => !flags.has(flag))) continue;
         let score = entry.mode === "foundation" ? 120 : 0;
         if (entry.mode !== "foundation") {
           for (const kw of entry.keywords || []) {
@@ -112,24 +113,38 @@
             for (const signal of signals) if (signal.text.includes(lower(kw))) score = Math.max(score, signal.score + Math.min(kw.length,20));
           }
         }
-        if (score) chosen.push({ pack: pack.meta.id, title: entry.title, content: entry.content,
+        if (score) chosen.push({ pack: pack.meta.id, title: entry.title, content: entry.content, keywords: entry.keywords || [],
           scenario: pack.meta.classification === "scenario", score: score + entry.priority, identity: pack.meta.id + ":" + entry.id });
       }
     }
     chosen.sort((a,b) => b.score - a.score || a.identity.localeCompare(b.identity));
     const found = [], dedupe = new Set();
+    const format = entry => "〔" + (entry.scenario ? "劇情方向參考｜可能方向，尚未發生｜" : "") + entry.title + (entry.excerpted ? "｜節錄，原文完整保留" : "") + "〕\n" + entry.content;
     let used = 0;
     for (const entry of chosen) {
       const key = lower(entry.content).replace(/\s+/g, " ");
       if (dedupe.has(key)) continue;
-      const formatted = "〔" + (entry.scenario ? "劇情方向參考｜可能方向，尚未發生｜" : "") + entry.title + "〕\n" + entry.content;
-      if (formatted.length > maxChars - used) continue;
-      dedupe.add(key); found.push(entry); used += formatted.length + 2;
+      let selected = entry, formatted = format(entry);
+      if (formatted.length > maxChars - used) {
+        // Retrieve a bounded passage without rewriting or truncating stored lore.
+        const room = maxChars - used - format({ ...entry, content: "", excerpted: true }).length - 4;
+        if (room < 80) continue;
+        const body = lower(entry.content);
+        const matched = entry.keywords.filter(kw => signals.some(signal => signal.text.includes(lower(kw))))
+          .map(kw => body.indexOf(lower(kw))).filter(index => index >= 0);
+        const focus = matched.length ? Math.min(...matched) : 0;
+        const start = Math.max(0, focus - Math.floor(room / 4));
+        const excerpt = (start ? "…" : "") + entry.content.slice(start, start + room) + (start + room < entry.content.length ? "…" : "");
+        selected = { ...entry, content: excerpt, excerpted: true };
+        formatted = format(selected);
+      }
+      if (formatted.length + (found.length ? 2 : 0) > maxChars - used) continue;
+      dedupe.add(key); found.push(selected); used += formatted.length + (found.length > 1 ? 2 : 0);
       if (found.length >= maxEntries) break;
     }
     return {
-      entries: found.map(({pack,title,identity}) => ({pack,title,identity})),
-      text: found.map(e => "〔" + (e.scenario ? "劇情方向參考｜可能方向，尚未發生｜" : "") + e.title + "〕\n" + e.content).join("\n\n")
+      entries: found.map(({pack,title,identity,excerpted}) => ({pack,title,identity,...(excerpted ? {excerpted:true} : {})})),
+      text: found.map(format).join("\n\n")
     };
   }
   return { SCHEMA, VERSION, normalizePack, migrateLegacy, select };

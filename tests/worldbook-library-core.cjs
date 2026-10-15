@@ -65,6 +65,17 @@ const budget = core.select([locked], ["locked-test"], { latestUser: "調查", fl
 assert.equal(budget.entries.length, 1);
 const unselected = core.select([locked], [], { latestUser: "調查" });
 assert.equal(unselected.text, "");
+const disabledEntry = core.normalizePack({ ...locked, entries: [{...locked.entries[0],enabled:false}] });
+assert.equal(disabledEntry.entries[0].enabled, false);
+assert.equal(core.select([disabledEntry], ["locked-test"], {latestUser:"調查"}).text, "", 'disabled source entries remain stored without entering prompts');
+const longEntry = core.normalizePack({...locked,entries:[{...locked.entries[0],content:'原文開頭。'+'資料'.repeat(1500)+'調查重點在此。'+'結尾'.repeat(1000)}]});
+const originalLongContent = longEntry.entries[0].content;
+const passage = core.select([longEntry], ["locked-test"], {latestUser:"調查"}, {maxChars:2200,maxEntries:4});
+assert.equal(passage.entries.length, 1, 'a long valid entry should retrieve a passage instead of disappearing');
+assert.equal(passage.entries[0].excerpted, true);
+assert.match(passage.text, /調查重點在此/);
+assert.ok(passage.text.length <= 2200, 'retrieval keeps the existing per-turn budget');
+assert.equal(longEntry.entries[0].content, originalLongContent, 'passage retrieval must not mutate the stored source');
 assert.throws(() => core.normalizePack({ ...locked, entries: [{ ...locked.entries[0], content: "" }] }), /空白/);
 
 const loader = fs.readFileSync(path.join(__dirname, "../js/site-ui.js"), "utf8");

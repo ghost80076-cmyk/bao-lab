@@ -16,10 +16,60 @@ const upload = (page, body) => page.locator('#import-character-file').setInputFi
   name: 'rainport.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(body))
 });
 
+for (const width of [390,1280]) {
+test('Creator PNG retains 100 companion entries, disabled state and source Regex after reload ('+width+'px)', async ({page}) => {
+  await page.setViewportSize({width,height:900});
+  await page.goto('./');
+  await page.waitForFunction(() => Boolean(window.BAOCharacterImport && window.YoruWorldbookLibraryCore));
+  await page.locator('#home-view [data-view="explore"]').click();
+  const portable = structuredClone(card);
+  portable.meta.id = 'creator-portable-worldbook';
+  portable.meta.name = '配套世界書測試';
+  portable.gameplay.initial_state.worldbookLibrary = {version:1,enabled:['port-world'],installed:[{
+    schema:'yorubay-worldbook-pack',version:1,meta:{id:'port-world',name:'雨港全書',world:'general'},
+    entries:Array.from({length:100},(_,i)=>({id:'entry-'+i,title:'碼頭'+i,mode:'keyword',keywords:['碼頭'+i],content:'設定'+i,enabled:i!==99}))
+  }],pinned:{}};
+  portable.import_metadata = {preserved_source:{spec:'chara_card_v3',data:{
+    extensions:{regex_scripts:[{findRegex:'潮汐：(.*)',replaceString:'<b>$1</b>'}]},
+    assets:[{uri:'embeded://assets/port.png'}], padding:'x'.repeat(790000)
+  }}};
+  const envelope={spec:'chara_card_v2',data:{name:portable.meta.name,first_mes:'fallback',description:'fallback',extensions:{yorubay:{schema:'yorubay-character-1.5',character:portable}}}};
+  const json=JSON.stringify(envelope);
+  expect(Buffer.byteLength(json)).toBeLessThan(1024*1024);
+  const encoded=Buffer.from(json).toString('base64');
+  expect(encoded.length).toBeGreaterThan(1024*1024);
+  const body=Buffer.from('chara\0'+encoded),length=Buffer.alloc(4);length.writeUInt32BE(body.length);
+  const cover=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAusB9Wl6e7sAAAAASUVORK5CYII=','base64');
+  const png=Buffer.concat([cover.subarray(0,-12),length,Buffer.from('tEXt'),body,Buffer.alloc(4),cover.subarray(-12)]);
+  await page.locator('#import-character-file').setInputFiles({name:'creator-portable.png',mimeType:'image/png',buffer:png});
+  await expect(page.locator('#character-import-status')).toContainText('已匯入：配套世界書測試');
+  await page.reload();
+  await page.waitForFunction(() => Boolean(window.YoruWorldbookLibraryCore && CharacterEngine.loadCustom().some(item=>item.id==='creator-portable-worldbook')));
+  const result=await page.evaluate(()=>{
+    const imported=CharacterEngine.loadCustom().find(item=>item.id==='creator-portable-worldbook');
+    GameState.create(imported,{});
+    const library=GameState.current.worldbookLibrary;
+    const picked=YoruWorldbookLibraryCore.select(library.installed,library.enabled,{latestUser:'碼頭98'});
+    const disabled=YoruWorldbookLibraryCore.select(library.installed,library.enabled,{latestUser:'碼頭99'});
+    const prompt=CharacterEngine.composeSystemPrompt(imported,{});
+    return {count:library.installed[0].entries.length,enabled:library.installed[0].entries[99].enabled,picked:picked.text,
+      disabled:disabled.entries.map(entry=>entry.identity),regex:imported.import_metadata.preserved_source.data.extensions.regex_scripts[0].replaceString,
+      archiveInPrompt:prompt.includes('embeded://')||prompt.includes('<b>$1</b>')};
+  });
+  expect(result.count).toBe(100);
+  expect(result.enabled).toBe(false);
+  expect(result.picked).toContain('設定98');
+  expect(result.disabled).not.toContain('port-world:entry-99');
+  expect(result.regex).toBe('<b>$1</b>');
+  expect(result.archiveInPrompt).toBe(false);
+});
+}
+
 test('BAO character import persists through reload and opens a playable demo story', async ({ page }) => {
   await page.goto('./');
   await page.locator('#home-view [data-view="explore"]').click();
   await page.waitForFunction(() => Boolean(window.BAOCharacterImport && App.characters?.length));
+  await page.locator('summary').filter({hasText:'本機角色與匯入'}).click();
   await expect(page.getByRole('link', { name: '下載基礎角色模板' })).toBeVisible();
   await expect(page.getByRole('link', { name: '下載進階世界模板' })).toBeVisible();
   await upload(page, card);
@@ -34,6 +84,7 @@ test('BAO character import persists through reload and opens a playable demo sto
   await page.waitForFunction(() => Boolean(window.BAOCharacterImport && App.characters?.some(item => item.id === 'e2e-rainport')));
   await page.locator('#home-view [data-view="explore"]').click();
   await page.locator('article').filter({ hasText: '雨港觀測員' }).click();
+  await page.getByRole('button', {name:'查看作品',exact:true}).click();
   await page.getByRole('button', { name: '開始故事' }).click();
   await page.locator('#bao-setup-choice [data-bao-setup="advanced"]').click();
   for (let i = 0; i < 3; i++) await page.getByRole('button', { name: '下一步' }).click();

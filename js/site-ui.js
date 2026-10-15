@@ -111,7 +111,7 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => worldModulesReady)
     .then(() => loadBAOScript("js/story-timeline.js?v=2"))
     .then(() => loadBAOScript("js/three-realms-events.js?v=3"))
-    .then(() => loadBAOScript("js/worldbook-library-core.js?v=3"))
+    .then(() => loadBAOScript("js/worldbook-library-core.js?v=4"))
     .then(() => loadBAOScript("js/worldbook-library.js?v=7"))
     .then(() => loadBAOScript("js/story-reader.js?v=5"))
     .then(() => loadBAOScript("js/conversation-search-core.js?v=4"))
@@ -149,7 +149,7 @@ window.addEventListener("DOMContentLoaded", () => {
     .catch(err => console.warn("BAO/LAB local preview, narrative settings, memory workbench, story tools, story library, story reader or chat markup failed to load:", err));
   loadBAOScript("js/character-library.js")
     .then(() => loadBAOScript("js/character-readiness.js"))
-    .then(() => loadBAOScript("js/character-import-upgrade.js"))
+    .then(() => loadBAOScript("js/character-import-upgrade.js?v=2"))
     .then(() => loadBAOScript("js/device-transfer.js"))
     .then(() => loadBAOScript("js/author-diagnostics.js"))
     .catch(err => console.warn("BAO/LAB character library, import, device transfer or author diagnostics failed to load:", err));
