@@ -261,7 +261,7 @@ for (const width of [390,1280]) {
     await expect(dialog.locator('[data-export]')).toBeVisible();
     await expect(dialog.locator('[data-import]')).toBeVisible();
     await expect(dialog.locator('[data-create]')).toBeHidden();
-    await expect(dialog.locator('.story-tools-modal')).toHaveCSS('background-color','rgb(255, 250, 243)');
+    await expect(dialog).toHaveCSS('background-color','rgb(255, 250, 243)');
     await advanced.locator('summary').click();
     await expect(dialog.locator('[data-create]')).toBeVisible();
     await expect(dialog.locator('[data-external]')).toBeVisible();
@@ -275,7 +275,7 @@ for (const width of [390,1280]) {
     });
     await expect(advanced).toHaveAttribute('open','');
     await expect(dialog.locator('[data-create]')).toBeVisible();
-    await expect(dialog.locator('.story-tools-modal')).toHaveCSS('background-color','rgb(59, 48, 54)');
+    await expect(dialog).toHaveCSS('background-color','rgb(59, 48, 54)');
     expect(await page.evaluate(()=>JSON.stringify(GameState.current))).toBe(before);
     expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+2)).toBe(true);
     await dialog.getByRole('button',{name:'關閉'}).click();
