@@ -226,3 +226,64 @@ test('exports only portable player settings and imports selected categories afte
   expect(result.apiKey).toBe('SUPER_SECRET_API_KEY');
   expect(result.messages).toContain('PRIVATE_STORY_LINE');
 });
+
+
+for (const width of [390,1280]) {
+  test('story extensions keep cards, inventory and buttons themed without modifying state ('+width+'px)', async ({page}) => {
+    await page.setViewportSize({width,height:844});
+    await page.goto('./');
+    await page.waitForFunction(() => Boolean(window.YoruExperience && window.BAOStoryExtensionsCenter &&
+      window.BAOWorldModules && App.characters?.length));
+    await page.evaluate(() => {
+      App.activeCharacter = {
+        ...App.characters[0],
+        id:'extensions-theme-parity-test',
+        world_modules:[{
+          id:'work_inventory',label:'作品背包',description:'目前故事物品',
+          context:'core',tracking:'high',kind:'collection',fields:[]
+        }]
+      };
+      App.config = {
+        persona:{name:'旅人'},narrativeMode:'immersive',displayMode:'ui',
+        api:{model:'mock'},memory:{mode:'smart',maxRounds:20,maxContext:32000}
+      };
+      GameState.create(App.activeCharacter,App.config);
+      BAOStoryExtensionsCenter.open();
+    });
+    const dialog=page.getByRole('dialog',{name:'故事擴充'});
+    const card=dialog.locator('.story-extension-card').first();
+    const inventory=dialog.locator('.story-extension-inventory').first();
+    await expect(dialog).toBeVisible();
+    await expect(card).toBeVisible();
+    await expect(inventory).toHaveCount(1);
+    const storyBefore=await page.evaluate(() => JSON.stringify(GameState.current));
+
+    for(const theme of ['mist','rose']){
+      await page.evaluate(value => YoruExperience.choose({theme:value}),theme);
+      const colors=await dialog.evaluate(node => {
+        const panel=node;
+        const get=(el,prop='backgroundColor')=>getComputedStyle(el)[prop];
+        const token=name => {
+          const sample=document.createElement('span');
+          sample.style.backgroundColor='var('+name+')';document.body.append(sample);
+          const value=getComputedStyle(sample).backgroundColor;sample.remove();return value;
+        };
+        return {
+          panel:get(panel),panelToken:token('--yoru-surface'),
+          card:get(node.querySelector('.story-extension-card')),cardToken:token('--yoru-card'),
+          inventory:get(node.querySelector('.story-extension-inventory')),inventoryToken:token('--yoru-surface-raised'),
+          close:get(node.querySelector('.story-extensions-close')),closeToken:token('--yoru-control')
+        };
+      });
+      expect(colors.panel).toBe(colors.panelToken);
+      expect(colors.card).toBe(colors.cardToken);
+      expect(colors.inventory).toBe(colors.inventoryToken);
+      expect(colors.close).toBe(colors.closeToken);
+      await expect(dialog.locator('[data-extension-action="world"]')).toBeVisible();
+      expect(await page.evaluate(() => document.documentElement.scrollWidth<=innerWidth+2)).toBe(true);
+    }
+    expect(await page.evaluate(() => JSON.stringify(GameState.current))).toBe(storyBefore);
+    await dialog.getByRole('button',{name:'關閉故事擴充'}).click();
+    await expect(dialog).toHaveCount(0);
+  });
+}
