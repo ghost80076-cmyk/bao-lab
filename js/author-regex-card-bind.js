@@ -35,7 +35,7 @@
 
   function bindImported(character) {
     const id = String(character?.id || '').slice(0, 80);
-    const raw = character?.import_metadata?.preserved_source;
+    const raw = character?.import_metadata?.work_package_regex || character?.import_metadata?.preserved_source;
     if (!id || !raw) return false;
     try {
       const rules = Core.normalize(raw);

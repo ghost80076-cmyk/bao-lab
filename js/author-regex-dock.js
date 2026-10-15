@@ -174,9 +174,9 @@
     frame.setAttribute('sandbox', allowScripts ? 'allow-scripts' : ''); // No allow-same-origin.
     frame.style.cssText = 'display:block;width:100%;height:clamp(240px,42vh,520px);border:0;background:#fff';
     const assets = allowExternalAssets ? 'https: data:' : 'data:';
-    const csp = `default-src 'none'; script-src ${allowScripts ? "'unsafe-inline'" : "'none'"}; style-src 'unsafe-inline'; img-src ${assets}; font-src ${assets}; media-src ${assets}; connect-src 'none'; frame-src 'none'; form-action 'none'; base-uri 'none'; object-src 'none'`;
+    const csp = `default-src 'none'; script-src ${allowScripts ? "'unsafe-inline'" : "'none'"}; style-src 'unsafe-inline'; img-src blob: ${assets}; font-src ${assets}; media-src ${assets}; connect-src 'none'; frame-src 'none'; form-action 'none'; base-uri 'none'; object-src 'none'`;
     const token = crypto.randomUUID?.() || `${Math.random()}-${Date.now()}`;
-    frame.srcdoc = '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="' + csp + '"><style>html,body{margin:0;min-height:100%;overflow-wrap:anywhere}*,*:before,*:after{box-sizing:border-box}</style>' + (allowScripts ? bootstrap(token) : '') + '</head><body>' + result.html + '</body></html>';
+    frame.srcdoc = '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="' + csp + '"><style>html,body{margin:0;min-height:100%;overflow-wrap:anywhere}*,*:before,*:after{box-sizing:border-box}</style>' + (allowScripts ? bootstrap(token) : '') + '</head><body>' + (window.BAOWorkPackage?.rewriteHTML(result.html,App.activeCharacter)||result.html) + '</body></html>';
     root.append(summary, bar, frame);
     main.insertBefore(root, stream);
     active = { owner, story, signature, root, frame, token, ready: false, allowScripts, allowStateSharing, allowUiPersistence, stateLabel };

@@ -39,6 +39,7 @@ jobs:
           - group: product-explore
             specs: |
               tests/e2e/character-import.spec.cjs
+              tests/e2e/work-package.spec.cjs
               tests/e2e/builder-connection-ux.spec.cjs
               tests/e2e/lm-studio.spec.cjs
               tests/e2e/character-studio-actions.spec.cjs

@@ -1,0 +1,13 @@
+.work-package-overlay{position:fixed;inset:0;z-index:10065;display:grid;place-items:center;padding:16px;background:#000b}
+.work-package-dialog{box-sizing:border-box;width:min(800px,100%);max-height:88dvh;overflow:auto;padding:24px;border:1px solid var(--yoru-card-border,var(--border,#62677a));border-radius:18px;background:var(--yoru-surface,var(--panel,#20232d));color:var(--yoru-text,var(--text,#f4f4fa));overscroll-behavior:contain}
+.work-package-dialog header,.work-package-dialog footer{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.work-package-dialog h2{font-size:20px;margin:0}.work-package-dialog footer{justify-content:flex-end;margin-top:20px}
+.work-package-dialog input{width:100%;box-sizing:border-box;margin:8px 0 16px}
+.work-package-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px}
+.work-package-grid figure{min-width:0;margin:0}.work-package-grid img{display:block;width:100%;height:160px;object-fit:contain;background:var(--yoru-control,#0003);border-radius:10px}
+.work-package-grid figcaption{padding:6px 2px;font-size:12px;overflow-wrap:anywhere;color:var(--yoru-muted,var(--muted))}
+.gameplay-scene-visual .work-package-portrait{position:absolute;inset:auto 0 0 auto;max-width:46%;height:76%;width:auto;object-fit:contain;z-index:1;pointer-events:none}
+.gameplay-scene-visual .work-package-portrait[hidden]{display:none}
+.work-package-current-scene{display:none}
+@media(max-width:1279px){.work-package-current-scene{display:block;flex:none;order:0;padding:8px 12px;border:1px solid var(--yoru-card-border,var(--border));border-radius:12px;background:var(--yoru-surface,var(--panel))}.work-package-current-scene summary{cursor:pointer;min-height:28px;font-size:12px;color:var(--yoru-muted,var(--muted))}.work-package-current-scene .gameplay-scene-visual{height:180px;margin-top:8px}.work-package-current-scene .gameplay-scene-visual>img{object-fit:contain}}
+@media(max-width:480px){.work-package-dialog{padding:18px}.work-package-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
