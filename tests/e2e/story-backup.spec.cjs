@@ -85,6 +85,10 @@ test("full story bundle survives a device-style export and import with branches 
   expect(JSON.stringify(seeded.bundle)).not.toContain("E2E-SECRET-MUST-NOT-LEAK");
 
   await page.evaluate(async storyId => {
+    // Simulate leaving the source device before importing: stop live-state autosaves.
+    await BAOStoryLibrary.flush();
+    GameState.current = null;Storage.clearStory();
+    await Storage.flush?.();
     await BAOStoryLibrary.deleteStory(storyId);
   }, seeded.oldStoryId);
   await expect.poll(() => page.evaluate(async () => (await BAOStoryLibrary.listStories()).length)).toBe(0);
