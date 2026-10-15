@@ -99,12 +99,14 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 320, height: 568 }
     await expect(actions.locator('[data-copy]')).toBeVisible();
     const moreReply = actions.locator('details.bao-message-more');
     await expect(moreReply).toBeVisible();
-    await moreReply.locator('summary').click();
-    await expect(actions.locator('[data-rewrite]')).toBeVisible();
-    // Demo mode cannot regenerate with AI. The original disabled command
-    // remains in More instead of occupying the first row.
+    // Demo mode cannot regenerate with AI. Keep the disabled command in More,
+    // hidden when closed but reachable once expanded.
     await expect(actions.locator('[data-regenerate]')).toBeDisabled();
     await expect(actions.locator('[data-regenerate]')).toBeHidden();
+    await moreReply.locator('summary').click();
+    await expect(actions.locator('[data-rewrite]')).toBeVisible();
+    await expect(actions.locator('[data-regenerate]')).toBeVisible();
+    await expect(actions.locator('[data-regenerate]')).toBeDisabled();
     await expect(actions.locator('[data-create-branch]')).toHaveCount(1);
     await expect(actions.locator('[data-story-rollback]')).toHaveCount(1);
     const beforeEditScroll = await page.locator('#chat-stream').evaluate(node => node.scrollTop);
