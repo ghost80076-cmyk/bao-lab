@@ -10,7 +10,7 @@
     if (document.querySelector('link[href^="css/story-control-center.css"]')) return;
     const link = document.createElement("link");
     link.rel = "stylesheet";
-    link.href = "css/story-control-center.css?v=2";
+    link.href = "css/story-control-center.css?v=3";
     document.head.appendChild(link);
   };
 
@@ -124,22 +124,33 @@
           </div>
         </header>
         <p class="story-control-intro" id="story-control-intro">這裡整理目前這一份故事正在使用的設定。連線金鑰、全站語言與其他帳號設定仍留在原本的入口。</p>
-        <div class="story-control-grid">
-          ${card("model", "故事模型", data.model, "切換模型")}
-          ${card("persona", "玩家身份", data.persona, "調整人物")}
-          ${card("memory", "故事記憶", data.memory, "查看記憶")}
-          ${card("context", "上下文狀態", data.context, "查看前情")}
-          ${card("status", "人物／世界狀態", data.status, "管理狀態")}
-          ${card("extensions", "故事擴充", data.extensions, "查看作用範圍")}
-          ${card("narrative", "敘事與描寫", data.narrative, "調整敘事")}
-          ${card("quick", "快捷指令", data.quick, "打開指令")}
-        </div>
+        <section class="story-control-section" aria-labelledby="story-control-primary-title">
+          <div class="story-control-section-heading"><h3 id="story-control-primary-title">目前故事</h3><span>常用的四項設定</span></div>
+          <div class="story-control-grid story-control-primary">
+            ${card("model", "故事模型", data.model, "切換模型")}
+            ${card("persona", "玩家身份", data.persona, "調整人物")}
+            ${card("memory", "故事記憶", data.memory, "查看記憶")}
+            ${card("status", "人物／世界狀態", data.status, "管理狀態")}
+          </div>
+        </section>
+        <details class="story-control-more">
+          <summary>更多故事設定 <span>敘事、快捷指令與進階管理</span></summary>
+          <div class="story-control-grid story-control-secondary">
+            ${card("narrative", "敘事與描寫", data.narrative, "調整敘事")}
+            ${card("quick", "快捷指令", data.quick, "打開指令")}
+            ${card("context", "上下文狀態", data.context, "查看前情")}
+            ${card("extensions", "故事擴充", data.extensions, "查看作用範圍")}
+          </div>
+        </details>
         <footer class="story-control-footer">
           <button type="button" class="secondary" data-story-control-action="search">⌕ 搜尋這個故事</button>
           <button type="button" class="secondary" data-story-control-action="all">☰ 全部故事工具</button>
         </footer>
       </section>`;
     document.body.appendChild(wrap);
+    // Disclosure is only visual; tool handlers and story settings stay unchanged.
+    const level = window.YoruExperience?.get?.().level || "easy";
+    wrap.querySelector(".story-control-more").open = level === "standard" || level === "pro";
 
     wrap.querySelector("[data-story-control-close]")?.addEventListener("click", close);
     wrap.querySelector("[data-story-control-help]")?.addEventListener("click", event => {
