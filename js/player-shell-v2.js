@@ -27,7 +27,7 @@
     if (document.querySelector('link[href^="css/player-shell-v2.css"]')) return;
     const link = document.createElement("link");
     link.rel = "stylesheet";
-    link.href = "css/player-shell-v2.css?v=2";
+    link.href = "css/player-shell-v2.css?v=3";
     document.head.appendChild(link);
   };
 
@@ -58,6 +58,15 @@
       return;
     }
     if (typeof App.resumeSavedStory === "function") App.resumeSavedStory();
+  };
+
+  const syncAppearanceSummary = () => {
+    const target = document.querySelector('[data-bao-experience-state]');
+    if (!target) return;
+    const prefs = window.YoruExperience?.get?.() || {};
+    const theme = ({night:'夜港',mist:'晨霧',rose:'暮玫'})[prefs.theme] || '夜港';
+    const level = ({easy:'輕鬆',standard:'標準',pro:'專業'})[prefs.level] || '輕鬆';
+    target.textContent = theme + ' · ' + level;
   };
 
   const renderMeView = () => {
@@ -105,6 +114,10 @@
 
           <section class="bao-player-panel" data-bao-content-visibility>
             <h2>內容顯示</h2>
+            <div class="bao-player-experience-setting">
+              <div><strong>外觀與操作</strong><small data-bao-experience-state>夜港 · 輕鬆</small></div>
+              <button type="button" class="secondary" data-bao-player-action="experience">調整外觀</button>
+            </div>
             <p>成人作品與成人 MOD 預設不會出現在夜灣介面；需要時由你在這台裝置主動開啟。</p>
             <label class="bao-content-visibility-toggle">
               <input type="checkbox" data-bao-adult-content-toggle>
@@ -151,6 +164,12 @@
       if (people?.openLibrary) people.openLibrary("player");
       else window.alert("人物庫仍在載入，請稍後再試。");
     });
+    section.querySelector('[data-bao-player-action="experience"]')?.addEventListener("click", () => {
+      if (typeof window.YoruExperience?.open === 'function') window.YoruExperience.open();
+      else document.getElementById("yoru-experience-open")?.click();
+    });
+    window.addEventListener('yoru:experience-change', syncAppearanceSummary);
+    syncAppearanceSummary();
     section.querySelector('[data-bao-player-action="explore"]')?.addEventListener("click", () => App.showView("explore"));
     section.querySelector('[data-bao-player-action="about"]')?.addEventListener("click", () => App.showView("about"));
 
@@ -185,6 +204,7 @@
 
   const refreshMeView = () => {
     renderMeView();
+    syncAppearanceSummary();
     const adultToggle = document.querySelector("[data-bao-adult-content-toggle]");
     const adultState = document.querySelector("[data-bao-adult-content-state]");
     const adultEnabled = Boolean(window.BAOContentPreferences?.isAdultContentEnabled?.());

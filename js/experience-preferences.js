@@ -32,7 +32,7 @@
     if (document.querySelector('link[href^="css/experience-preferences.css"]')) return;
     const link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = 'css/experience-preferences.css?v=2';
+    link.href = 'css/experience-preferences.css?v=3';
     document.head.append(link);
   };
   const close = () => {
@@ -92,7 +92,7 @@
     button.type = 'button';
     button.id = 'yoru-experience-open';
     button.className = 'yoru-exp-entry';
-    button.textContent = '◐';
+    button.innerHTML = '<span class="yoru-exp-symbol" aria-hidden="true">◐</span><span class="yoru-exp-label">外觀</span>';
     button.title = '外觀與操作';
     button.setAttribute('aria-label', '外觀與操作設定');
     button.addEventListener('click', open);

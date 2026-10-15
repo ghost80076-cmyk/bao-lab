@@ -88,3 +88,39 @@ for (const {theme,color,heroStop,cardSurface} of [
     expect(paperInk).toBe('rgb(53, 44, 56)');
   });
 }
+
+
+test('My settings uses one shared appearance dialog and updates the selected theme and level', async ({page}) => {
+  await page.setViewportSize({width:390,height:844});
+  await page.goto('/');
+  await page.waitForFunction(() => !!window.YoruExperience && !!window.BAOPlayerShellV2);
+  await page.locator('#bao-mobile-nav [data-player-nav="me"]').click();
+  const settings = page.locator('#me-view .bao-player-experience-setting');
+  await expect(settings).toBeVisible();
+  await expect(settings.locator('[data-bao-experience-state]')).toHaveText('夜港 · 輕鬆');
+  await settings.getByRole('button', {name:'調整外觀'}).click();
+  const dialog = page.locator('#yoru-experience-dialog');
+  await expect(dialog).toBeVisible();
+  await dialog.locator('label[data-exp-theme="mist"]').click();
+  await dialog.locator('.yoru-exp-levels label').nth(1).click();
+  await dialog.getByRole('button', {name:'完成'}).click();
+  await expect(settings.locator('[data-bao-experience-state]')).toHaveText('晨霧 · 標準');
+  await expect(page.locator('#yoru-experience-open')).toHaveAttribute('aria-label','外觀與操作設定');
+  await page.reload();
+  await page.waitForFunction(() => !!window.YoruExperience && !!window.BAOPlayerShellV2);
+  await page.locator('#bao-mobile-nav [data-player-nav="me"]').click();
+  await expect(page.locator('#me-view [data-bao-experience-state]')).toHaveText('晨霧 · 標準');
+  await expect(page.locator('html')).toHaveAttribute('data-yoru-theme','mist');
+});
+
+test('desktop appearance control has a visible label instead of a mystery icon', async ({page}) => {
+  await page.setViewportSize({width:1280,height:900});
+  await page.goto('/');
+  await page.waitForFunction(() => !!window.YoruExperience);
+  const entry = page.locator('#yoru-experience-open');
+  await expect(entry).toBeVisible();
+  await expect(entry.locator('.yoru-exp-label')).toHaveText('外觀');
+  await expect(entry.locator('.yoru-exp-label')).toBeVisible();
+  await entry.click();
+  await expect(page.locator('#yoru-experience-dialog')).toBeVisible();
+});

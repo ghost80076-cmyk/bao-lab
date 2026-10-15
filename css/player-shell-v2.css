@@ -372,3 +372,17 @@
 #explore-view #bao-work-search-clear:focus-visible{
   color:var(--yoru-text,#f1eee8)!important;background:rgba(214,170,115,.065)!important;
 }
+
+/* Preferences share the existing My card instead of adding another dashboard tile. */
+#me-view .bao-player-experience-setting{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  margin:16px 0 18px;padding:13px 14px;border:1px solid var(--yoru-control-border,var(--yoru-border));
+  background:var(--yoru-control,var(--yoru-card));border-radius:14px;min-width:0;
+}
+#me-view .bao-player-experience-setting > div{display:grid;gap:4px;min-width:0}
+#me-view .bao-player-experience-setting strong{font-size:14px;color:var(--yoru-text,#f1eee8)}
+#me-view .bao-player-experience-setting small{font-size:12px;color:var(--yoru-muted,#aab);line-height:1.5}
+#me-view .bao-player-experience-setting button{
+  flex:0 0 auto;min-height:42px;border-radius:11px;font-size:13px;
+}
+@media(max-width:360px){#me-view .bao-player-experience-setting{padding:10px;gap:8px}}
