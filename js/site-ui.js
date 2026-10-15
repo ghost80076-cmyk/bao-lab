@@ -95,7 +95,7 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/player-settings.js?v=6"))
     .then(() => loadBAOScript("js/player-text-replace-mod.js?v=2"))
     .then(() => loadBAOScript("js/narrative-settings.js?v=3"))
-    .then(() => loadBAOScript("js/memory-workbench-core.js?v=2"))
+    .then(() => loadBAOScript("js/memory-workbench-core.js?v=3"))
     .then(() => loadBAOScript("js/memory-workbench-ai.js"))
     .then(() => loadBAOScript("js/canon-workbench.js"))
     .then(() => loadBAOScript("js/memory-workbench-simplify.js?v=2"))
