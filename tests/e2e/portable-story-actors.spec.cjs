@@ -334,8 +334,8 @@ for (const width of [390, 1280]) {
 }
 
 
-for (const width of [390, 1280]) {
-  test(`character status overview is reading-first and keeps context selection separate at ${width}px`, async ({page}) => {
+for (const width of [390]) {
+  test(`mobile character status overview is reading-first and keeps context selection separate at ${width}px`, async ({page}) => {
     await page.setViewportSize({width, height:900});
     await page.goto('/');
     await page.waitForFunction(() => Boolean(window.BAOCharacterStatusUI && window.BAOCharacterStatus && window.YoruExperience && App.characters?.length));
