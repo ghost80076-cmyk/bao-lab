@@ -164,8 +164,10 @@
       if (people?.openLibrary) people.openLibrary("player");
       else window.alert("人物庫仍在載入，請稍後再試。");
     });
-    section.querySelector('[data-bao-player-action="experience"]')?.addEventListener("click", () =>
-      window.YoruExperience?.open?.() || document.getElementById("yoru-experience-open")?.click());
+    section.querySelector('[data-bao-player-action="experience"]')?.addEventListener("click", () => {
+      if (typeof window.YoruExperience?.open === 'function') window.YoruExperience.open();
+      else document.getElementById("yoru-experience-open")?.click();
+    });
     window.addEventListener('yoru:experience-change', syncAppearanceSummary);
     syncAppearanceSummary();
     section.querySelector('[data-bao-player-action="explore"]')?.addEventListener("click", () => App.showView("explore"));
