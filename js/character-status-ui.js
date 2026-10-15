@@ -146,6 +146,14 @@
     });
     ui.querySelector("[data-character-status-settings]")?.addEventListener("click", openSettings);
     ui.querySelector("[data-npc-roster-open]")?.addEventListener("click", openNpcRoster);
+    // Several legacy status modules wrap renderUIPanel after this module loads.
+    // Re-assert the common roster entry after their synchronous render pass so
+    // the reading-first toolbar remains stable without coupling to wrapper order.
+    queueMicrotask(() => {
+      if (document.getElementById("ui-panel") === ui && ui.querySelector(".character-status-overview")) {
+        injectNpcRosterButton();
+      }
+    });
     return true;
   };
 
@@ -297,15 +305,24 @@
 
   const injectNpcRosterButton = () => {
     const ui = document.getElementById("ui-panel");
-    if (!ui || ui.querySelector("[data-npc-roster-open]")) return;
-    const host = ui.querySelector(".character-status-toolbar") || ui;
+    if (!ui) return null;
+    const existing = ui.querySelector("[data-npc-roster-open]");
+    if (existing) {
+      existing.textContent = "人物名冊／本場";
+      existing.classList.add("npc-roster-open");
+      return existing;
+    }
+    const host = ui.querySelector(".character-status-toolbar-actions")
+      || ui.querySelector(".character-status-toolbar")
+      || ui;
     const button = document.createElement("button");
     button.type = "button";
     button.className = "secondary npc-roster-open";
     button.dataset.npcRosterOpen = "1";
-    button.textContent = "NPC 名冊／場景";
+    button.textContent = "人物名冊／本場";
     button.addEventListener("click", openNpcRoster);
-    host.appendChild(button);
+    host.prepend(button);
+    return button;
   };
 
   const cleanDefaultFromInput = (field, raw) => {
