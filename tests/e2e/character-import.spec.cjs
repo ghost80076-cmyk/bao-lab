@@ -69,6 +69,7 @@ test('BAO character import persists through reload and opens a playable demo sto
   await page.goto('./');
   await page.locator('#home-view [data-view="explore"]').click();
   await page.waitForFunction(() => Boolean(window.BAOCharacterImport && App.characters?.length));
+  await page.locator('summary').filter({hasText:'本機角色與匯入'}).click();
   await expect(page.getByRole('link', { name: '下載基礎角色模板' })).toBeVisible();
   await expect(page.getByRole('link', { name: '下載進階世界模板' })).toBeVisible();
   await upload(page, card);
