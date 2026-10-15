@@ -27,7 +27,10 @@
         .catch(error => { console.warn("Sunrise catalog unavailable", error); return { packs: [] }; }),
       fetch("data/world-simulator-general-library.json")
         .then(response => { if (!response.ok) throw new Error("通用世界模擬器資料下載失敗"); return response.json(); })
-        .catch(error => { console.warn("General simulator catalog unavailable", error); return { packs: [] }; })
+        .catch(error => { console.warn("General simulator catalog unavailable", error); return { packs: [] }; }),
+      fetch("data/astral-worldbook-library.json")
+        .then(response => { if (!response.ok) throw new Error("AV 異世界專用世界書下載失敗"); return response.json(); })
+        .catch(error => { console.warn("Astral catalog unavailable", error); return { packs: [] }; })
     ])
       .then(catalogs => {
         const seen = new Set();
@@ -579,7 +582,9 @@
         const note = document.createElement("small");
         const status = !activeCount ? "未啟用" : activeCount === group.packs.length
           ? "已啟用" : "已啟用 " + activeCount + " / " + group.packs.length + " 章";
-        note.textContent = status + " · " + totalEntries + " 條資料";
+        const usage = group.packs.some(pack => pack.meta.visibility !== "public") ? "私人"
+          : group.packs.every(pack => pack.meta.world === "general") ? "通用" : "作品專用";
+        note.textContent = usage + " · " + status + " · " + totalEntries + " 條資料";
         copy.append(title, note); label.append(master, copy); head.append(label); section.append(head);
 
         const details = document.createElement("details");

@@ -1,5 +1,62 @@
 const { test, expect } = require('@playwright/test');
 
+for (const width of [390, 1280]) {
+  test(`dedicated Astral book preserves scope, snapshots and secret conditions (${width}px)`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 844 });
+    await page.goto('/');
+    await page.waitForFunction(() => window.YoruWorldbookLibrary);
+    await page.evaluate(() => {
+      GameState.current = { location: '永夜領', npcs: [], events: [], worldbookLibrary: {
+        version: 1, enabled: ['sunrise-geography-demo', 'world-simulator-life-reference'], installed: [], pinned: {}
+      } };
+      App.saveStory = () => { window.astralSaved = JSON.stringify(GameState.current); };
+      YoruWorldbookLibrary.open();
+    });
+    const modal = page.locator('.ylb-modal');
+    const master = modal.getByRole('checkbox', { name: '啟用整本 世界模擬器－AV異世界（部分搬入）', exact: true });
+    await expect(master).not.toBeChecked();
+    const book = master.locator('xpath=ancestor::section[contains(@class,"ylb-collection")]');
+    await expect(book).toContainText('作品專用');
+    await expect(book).toContainText('33 條資料');
+    await master.check();
+    await expect(master).toBeChecked();
+    const saved = await page.evaluate(() => JSON.parse(window.astralSaved));
+    expect(saved.worldbookLibrary.enabled).not.toContain('sunrise-geography-demo');
+    expect(saved.worldbookLibrary.enabled).toContain('world-simulator-life-reference');
+    const owned = Object.values(saved.worldbookLibrary.pinned).filter(p => p.meta.world === 'astral-continent');
+    expect(owned).toHaveLength(4);
+    expect(owned.flatMap(p => p.entries)).toHaveLength(33);
+    await book.locator('.ylb-chapters > summary').click();
+    for (const title of ['世界與地理', '人物檔案', '魔法與道具', '勢力與暗線']) {
+      await expect(book.getByText(title, { exact: true })).toBeVisible();
+    }
+    const recalled = await page.evaluate(() => {
+      const config = GameState.current.worldbookLibrary;
+      const packs = Object.values(config.pinned);
+      const pick = flags => YoruWorldbookLibrary.select(packs, config.enabled,
+        { world: 'astral-continent', latestUser: '造園者', flags }, { maxChars: 10000, maxEntries: 12 }).text;
+      return { locked: pick([]), unlocked: pick(['已得知世界真相']) };
+    });
+    expect(recalled.locked).not.toContain('更高維度');
+    expect(recalled.unlocked).toContain('更高維度');
+    await modal.getByRole('button', { name: '關閉', exact: true }).click();
+    await page.evaluate(() => {
+      const saved = JSON.parse(window.astralSaved);
+      saved.worldbookLibrary = CharacterEngine.normalizeWorldbookLibrary(saved.worldbookLibrary);
+      GameState.current = saved;
+      YoruWorldbookLibrary.open();
+    });
+    await expect(master).toBeChecked();
+    expect(await page.evaluate(() => GameState.current.worldbookLibrary.pinned['astral-world-geography'].entries.length)).toBe(8);
+    await modal.getByRole('button', { name: '關閉', exact: true }).click();
+    await page.evaluate(() => {
+      GameState.current = { location: '', npcs: [], events: [] };
+      YoruWorldbookLibrary.open();
+    });
+    await expect(master).not.toBeChecked();
+  });
+}
+
 for (const width of [320, 390, 1280]) {
   test(`worldbook text list keeps titles and controls within each row (${width}px)`, async ({ page }) => {
     await page.setViewportSize({ width, height: 844 });

@@ -150,8 +150,9 @@ def audit(archive, root):
                                for method in sorted({r["review_method"] for r in review_records})},
             "pending_occurrences": pending_count, "source_routing_complete": pending_count == 0,
             "pack_count": len(published["packs"]), "chapter_count": len(entries),
-            "scope": "Public partial adaptations and metadata-only source routing. Structural routing is not full prose review; reviewed-not-published does not mean integrated. No full-book migration or model-dialogue evaluation claimed.",
-            "books": inventory, "records": records, "review_records": review_records}
+            "scope": "Historical source-routing snapshot for the general-reference catalog only, not current overall migration status. Structural routing is not full prose review. Work-specific original-text publication is tracked separately in data/astral-worldbook-source-map.json.",
+            "books": inventory, "records": records, "review_records": review_records,
+            "work_specific_publication_map": "data/astral-worldbook-source-map.json"}
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

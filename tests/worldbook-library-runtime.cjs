@@ -31,7 +31,8 @@ const context = {
   window: win, document: doc, App, GameState, Chat,
   MutationObserver: class { observe() {} },
   fetch: async url => {
-    assert.ok(["data/worldbook-library.json", "data/sunrise-worldbook-library.json", "data/world-simulator-general-library.json"].includes(url));
+    assert.ok(["data/worldbook-library.json", "data/sunrise-worldbook-library.json", "data/world-simulator-general-library.json", "data/astral-worldbook-library.json"].includes(url));
+    if (url === "data/astral-worldbook-library.json") return { ok: true, json: async () => JSON.parse(fs.readFileSync(path.join(__dirname, "../data/astral-worldbook-library.json"), "utf8")) };
     if (url === "data/world-simulator-general-library.json") return { ok: true, json: async () => JSON.parse(fs.readFileSync(path.join(__dirname, "../data/world-simulator-general-library.json"), "utf8")) };
     if (url === "data/sunrise-worldbook-library.json") return { ok: true, json: async () => ({ packs: [] }) };
     calls++;
@@ -206,5 +207,20 @@ vm.runInNewContext(source, context, { filename: "worldbook-library.js" });
     assert.doesNotMatch((await App.buildMessages()).at(-1).content,/不安依附與關係衝突參考/);
     assert.equal(older[0].content,'PLATFORM STABLE PREFIX');
   }
-  console.log("Worldbook prompt integration passed: cache-friendly stable prefix, selection, no double append, opt-out, conditional recall.");
+  const astral = listed.filter(p=>p.meta.world==='astral-continent');
+  assert.equal(astral.length,4);
+  assert.equal(modes.groupPacks(astral).length,1,'dedicated chapters appear as one selectable book');
+  GameState.current = {location:'永夜領',npcs:[],events:[],worldbookLibrary:{version:1,
+    enabled:astral.map(p=>p.meta.id),installed:[],pinned:{},recallMode:'auto'}};
+  Chat.messages=[{role:'user',content:'我想了解加雷斯·聖裁。'}];
+  const introduction=await App.buildMessages();
+  assert.equal(introduction[0].content,'PLATFORM STABLE PREFIX');
+  assert.match(introduction.at(-1).content,/聖裁勇者/);
+  assert.doesNotMatch(introduction.at(-1).content,/神化容器/);
+  assert.equal(await modes.setCondition('astral-world-characters','已確認加雷斯的內情',true),true);
+  const revealed=await App.buildMessages();
+  assert.equal(revealed[0].content,introduction[0].content);
+  assert.match(revealed.at(-1).content,/神化容器/);
+  assert.doesNotMatch(revealed.at(-1).content,/曙光市中心/);
+  console.log("Worldbook prompt integration passed: cache-friendly stable prefix, selection, no double append, opt-out, conditional recall and dedicated original-text lore.");
 })().catch(err => { console.error(err); process.exitCode = 1; });

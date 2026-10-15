@@ -14,7 +14,7 @@
   "source_routing_complete": true,
   "pack_count": 6,
   "chapter_count": 62,
-  "scope": "Public partial adaptations and metadata-only source routing. Structural routing is not full prose review; reviewed-not-published does not mean integrated. No full-book migration or model-dialogue evaluation claimed.",
+  "scope": "Historical source-routing snapshot for the general-reference catalog only, not current overall migration status. Structural routing is not full prose review. Work-specific original-text publication is tracked separately in data/astral-worldbook-source-map.json.",
   "books": [
     {
       "book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
@@ -7329,5 +7329,6 @@
       "route": "author-output-format",
       "automatic_recall": false
     }
-  ]
+  ],
+  "work_specific_publication_map": "data/astral-worldbook-source-map.json"
 }
