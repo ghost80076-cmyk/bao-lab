@@ -8,10 +8,10 @@
   const nativeExpanded = new Map();
   // Group tools by what the player wants to do, not by underlying modules.
   const groupDefinitions = [
-    ['scene', '◈ 此刻與顯示'],
-    ['story', '▤ 故事與存檔'],
     ['world', '◇ 人物與世界'],
-    ['settings', '⚙ 故事體驗與 AI'],
+    ['story', '▤ 故事與記憶'],
+    ['settings', '⚙ AI 與指令'],
+    ['scene', '◈ 畫面與操作'],
     ['other', '其他與支援']
   ];
   const defaultExpanded = () => window.YoruExperienceCore?.expandedGroups(
@@ -25,7 +25,7 @@
     if (document.querySelector('link[href^="css/chat-tool-navigation.css"]')) return;
     const link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = 'css/chat-tool-navigation.css?v=3';
+    link.href = 'css/chat-tool-navigation.css?v=4';
     document.head.append(link);
   };
   const groupBody = (root, id) => root.querySelector(`[data-chat-tool-body="${id}"]`);
@@ -145,11 +145,32 @@
     // Worldbooks contain story lore, not support links: keep their existing
     // button and click handler together with the other world tools.
     move(sidebar.querySelector('[data-open-worldbook-library]'), targets.world);
+    // Persona manager injects its entry next to save slots; classify the same
+    // live button as a people tool without replacing its click handler.
+    move(sidebar.querySelector('#bao-actor-entry'), targets.world);
     for (const selector of ['#save-slot-button', '#story-branch-button', '#list-slots-button', '#import-save-button', '#slot-list', '#export-story-button', '#export-transcript-button', '[data-bao-open="story-tools"]', '[data-open-story-backup]']) {
       move(sidebar.querySelector(selector), targets.story);
     }
     move(sidebar.querySelector('#bao-chat-api-aside'), targets.settings);
     move(sidebar.querySelector('#bao-player-settings'), targets.settings);
+    // Break the mixed settings row into task-based navigation. Reparenting
+    // retains original buttons, preferences and save handlers.
+    move(sidebar.querySelector('[data-bao-open="memory"]'), targets.story);
+    move(sidebar.querySelector('[data-bao-open="appearance"]'), targets.scene);
+    // An explicit entry opens the existing narrative editor at instructions.
+    // No second instruction store or competing Prompt pipeline is created.
+    if (!sidebar.querySelector('#bao-long-instructions-entry')) {
+      const button = document.createElement('button');
+      button.id = 'bao-long-instructions-entry';
+      button.type = 'button';
+      button.className = 'secondary';
+      button.textContent = '長期指令';
+      button.addEventListener('click', () => {
+        if (window.BAONarrativeSettings?.openInstructions) window.BAONarrativeSettings.openInstructions();
+        else window.alert('長期指令仍在載入，請稍後再試。');
+      });
+      targets.settings.append(button);
+    }
     move(sidebar.querySelector('.text-button[onclick*="exitChat"]'), targets.other);
     move(sidebar.querySelector('a[href*="ko-fi.com"]'), targets.other);
     [...sidebar.children].filter(node => node.matches('button, a')).forEach(node => move(node, targets.other));
@@ -185,8 +206,22 @@
     const button = document.createElement('button');
     button.type = 'button';
     button.className = 'bao-chat-tool-proxy';
-    button.textContent = source.textContent.trim();
+    button.textContent = source.id === 'bao-actor-entry' ? '我的人物／加入 NPC' : source.textContent.trim();
     button.disabled = source.disabled;
+    const keywords = {
+      'bao-actor-entry': '我的人物 人物庫 玩家身份 玩家角色 NPC AI人物 角色',
+      'bao-long-instructions-entry': '長期指令 自訂指令 提示詞 prompt 系統提示詞 AI規則',
+      'save-slot-button': '故事 存檔 儲存',
+      'story-branch-button': '章節 分支 劇情',
+      'bao-chat-api-aside': '模型 切換 API 連線'
+    };
+    button.dataset.searchKeywords = [
+      source.dataset.searchKeywords || '',
+      keywords[source.id] || '',
+      source.dataset.baoOpen === 'narrative' ? '敘事 風格 描寫 文風 長期指令' : '',
+      source.dataset.baoOpen === 'memory' ? '故事記憶 記憶管理 前情' : '',
+      source.dataset.baoOpen === 'appearance' ? '畫面 外觀 字體 顏色 聊天背景' : ''
+    ].filter(Boolean).join(' ').toLocaleLowerCase();
     button.addEventListener('click', () => {
       if (source.id === 'list-slots-button') {
         source.click();
@@ -260,49 +295,53 @@
     backdrop.append(dialog);
     backdrop.addEventListener('click', event => { if (event.target === backdrop) closeDrawer(); });
 
-    const scene = sidebar.querySelector('#bao-scene-controls');
-    if (scene) {
-      const detail = document.createElement('details');
-      detail.open = false;
-      const summary = document.createElement('summary'); summary.textContent = '◈ 場景顯示與狀態';
-      detail.append(summary);
-      scene.querySelectorAll('label').forEach(label => {
-        const original = label.querySelector('select');
-        if (!original) return;
-        const mirrorLabel = document.createElement('label');
-        mirrorLabel.className = 'bao-chat-tool-select';
-        mirrorLabel.append(document.createTextNode(label.firstChild?.textContent?.trim() || '顯示設定'));
-        const mirror = original.cloneNode(true);
-        mirror.removeAttribute('id');
-        mirror.value = original.value;
-        mirror.addEventListener('change', () => {
-          original.value = mirror.value;
-          original.dispatchEvent(new Event('change', { bubbles: true }));
-        });
-        mirrorLabel.append(mirror);
-        detail.append(mirrorLabel);
-      });
-      const board = window.BAONativeStatusPacks?.board?.();
-      if (board) { compactBoard(board); detail.append(board); }
-      else if (window.GameState?.current) {
-        const status = document.createElement('p');
-        status.textContent = `時間：${GameState.current.time || '未設定'}　地點：${GameState.current.location || '未設定'}`;
-        detail.append(status);
-      }
-      body.append(detail);
-    }
-    for (const [id, label] of groupDefinitions.filter(([name]) => name !== 'scene')) {
+    // Single category order shared with the desktop sidebar. Scene controls
+    // remain real controls mirrored onto the same category (not a top-level
+    // special section ahead of every other category).
+    for (const [id, label] of groupDefinitions) {
       const source = groupBody(sidebar, id);
       if (!source) continue;
-      const buttons = [...source.querySelectorAll('button')].filter(button => !button.closest('#slot-list') && !button.closest('#bao-scene-controls'));
-      if (!buttons.length) continue;
+      const buttons = [...source.querySelectorAll('button')].filter(button =>
+        !button.closest('#slot-list') && !button.closest('#bao-scene-controls'));
+      const scene = id === 'scene' ? sidebar.querySelector('#bao-scene-controls') : null;
+      if (!buttons.length && !scene) continue;
       const detail = document.createElement('details');
+      detail.dataset.chatToolGroup = id;
       detail.open = defaultExpanded().includes(id);
-      const summary = document.createElement('summary'); summary.textContent = label;
+      const summary = document.createElement('summary');
+      summary.textContent = label;
       detail.append(summary);
-      const items = document.createElement('div'); items.className = 'bao-chat-tool-dialog-actions';
-      buttons.forEach(button => proxy(button, items));
-      detail.append(items);
+      if (buttons.length) {
+        const items = document.createElement('div');
+        items.className = 'bao-chat-tool-dialog-actions';
+        buttons.forEach(button => proxy(button, items));
+        detail.append(items);
+      }
+      if (scene) {
+        scene.querySelectorAll('label').forEach(label => {
+          const original = label.querySelector('select');
+          if (!original) return;
+          const mirrorLabel = document.createElement('label');
+          mirrorLabel.className = 'bao-chat-tool-select';
+          mirrorLabel.append(document.createTextNode(label.firstChild?.textContent?.trim() || '顯示設定'));
+          const mirror = original.cloneNode(true);
+          mirror.removeAttribute('id');
+          mirror.value = original.value;
+          mirror.addEventListener('change', () => {
+            original.value = mirror.value;
+            original.dispatchEvent(new Event('change', { bubbles: true }));
+          });
+          mirrorLabel.append(mirror);
+          detail.append(mirrorLabel);
+        });
+        const board = window.BAONativeStatusPacks?.board?.();
+        if (board) { compactBoard(board); detail.append(board); }
+        else if (window.GameState?.current) {
+          const status = document.createElement('p');
+          status.textContent = `時間：${GameState.current.time || '未設定'}　地點：${GameState.current.location || '未設定'}`;
+          detail.append(status);
+        }
+      }
       body.append(detail);
     }
     // Filter the existing actions in place. Never clone tool state, APIs or
@@ -315,7 +354,7 @@
     searchInput.type = 'search';
     searchInput.id = 'bao-tool-search';
     searchInput.autocomplete = 'off';
-    searchInput.placeholder = '搜尋存檔、記憶、模型、世界書…';
+    searchInput.placeholder = '搜尋人物、長期指令、記憶、模型、世界書…';
     searchInput.setAttribute('aria-label', '搜尋故事工具');
     searchWrap.append(searchCaption, searchInput);
     body.prepend(searchWrap);
@@ -345,7 +384,7 @@
         const actions = [...group.querySelectorAll('.bao-chat-tool-proxy')];
         let visible = 0;
         actions.forEach(action => {
-          const show = !q || titleMatch || matches(action.textContent);
+          const show = !q || titleMatch || matches(action.textContent) || matches(action.dataset.searchKeywords);
           action.hidden = !show;
           if (show) visible++;
         });
