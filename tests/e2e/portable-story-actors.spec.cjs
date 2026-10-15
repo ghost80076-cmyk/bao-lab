@@ -372,7 +372,7 @@ for (const width of [390, 1280]) {
       App.renderChatShell(true);
       App.showView('chat');
       YoruExperience.choose({theme:'mist'});
-      BAOCharacterStatusUI.renderCharactersPanel();
+      App.renderUIPanel('npc');
     });
 
     const panel = page.locator('#ui-panel');
