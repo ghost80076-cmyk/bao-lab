@@ -662,9 +662,12 @@
     applyTheme(stage, schema);
     stage.dataset.sceneFit = schema?.layout?.scene_fit || 'cover';
     let portrait=stage.querySelector('.work-package-portrait');
-    if(!portrait){portrait=document.createElement('img');portrait.className='work-package-portrait';portrait.alt='目前人物';stage.querySelector('.gameplay-scene-visual').append(portrait);}
     const portraitURL=window.BAOWorkPackage?.sceneURL(App.activeCharacter,GameState.current,'portrait')||'';
-    portrait.hidden=!portraitURL;if(portraitURL)portrait.src=portraitURL;else portrait.removeAttribute('src');
+    if(!portraitURL)portrait?.remove();
+    else {
+      if(!portrait){portrait=document.createElement('img');portrait.className='work-package-portrait';portrait.alt='目前人物';stage.querySelector('.gameplay-scene-visual').append(portrait);}
+      if(portrait.getAttribute('src')!==portraitURL)portrait.src=portraitURL;
+    }
     const time = stage.querySelector('[data-scene-time]');
     const location = stage.querySelector('[data-scene-location]');
     if (time) time.textContent = displayValue(formatValue(GameState.current?.time));
