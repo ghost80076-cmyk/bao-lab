@@ -337,3 +337,53 @@ for (const width of [390, 1280]) {
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 2)).toBe(true);
   });
 }
+
+
+for (const width of [390, 1280]) {
+  test('worldbook belongs to character and world tools, not support ('+width+'px)', async ({page}) => {
+    await page.setViewportSize({width,height:844});
+    await page.goto('./');
+    await page.waitForFunction(() => Boolean(window.YoruWorldbookLibrary &&
+      window.BAOChatToolNavigation && App.characters?.length && window.BAOMobileReadingLayout));
+    await page.evaluate(() => {
+      App.activeCharacter = {...App.characters[0],id:'worldbook-navigation-test'};
+      App.config = {
+        persona:{name:'旅人'},narrativeMode:'immersive',displayMode:'ui',
+        api:{model:'mock'},memory:{mode:'smart',maxRounds:20,maxContext:32000}
+      };
+      GameState.create(App.activeCharacter,App.config);
+      Chat.reset();
+      App.renderChatShell(false);
+      App.showView('chat');
+      BAOChatToolNavigation.sync();
+    });
+
+    const world = page.locator('#bao-chat-tool-groups [data-chat-tool-body="world"]');
+    const other = page.locator('#bao-chat-tool-groups [data-chat-tool-body="other"]');
+    const original = world.locator('button[data-open-worldbook-library]');
+    await expect(original).toHaveCount(1);
+    await expect(other.locator('[data-open-worldbook-library]')).toHaveCount(0);
+    await expect(world.locator('[data-open-world-manager]')).toHaveCount(1);
+    const before = await page.evaluate(() => JSON.stringify(GameState.current));
+
+    await page.evaluate(() => BAOChatToolNavigation.openDrawer());
+    const drawer = page.getByRole('dialog',{name:'故事功能選單'});
+    await expect(drawer).toBeVisible();
+    const group = drawer.locator('details').filter({has:drawer.locator('summary').getByText('◇ 人物與世界')});
+    await expect(group).toHaveCount(1);
+    await group.locator('summary').click();
+    const worldbook = group.getByRole('button',{name:/世界書/});
+    await expect(worldbook).toHaveCount(1);
+    await expect(worldbook).toBeVisible();
+    await expect(drawer.locator('details[data-chat-tool-group="other"]').getByRole('button',{name:/世界書/})).toHaveCount(0);
+    await worldbook.click();
+    await expect(drawer).toHaveCount(0);
+    const library = page.getByRole('dialog',{name:'世界書擴充庫'});
+    await expect(library).toBeVisible();
+    await expect(library.getByRole('searchbox',{name:'搜尋世界書主題或章節'})).toBeVisible();
+    expect(await page.evaluate(() => JSON.stringify(GameState.current))).toBe(before);
+    await library.getByRole('button',{name:'關閉'}).click();
+    await expect(library).toHaveCount(0);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth+2)).toBe(true);
+  });
+}
