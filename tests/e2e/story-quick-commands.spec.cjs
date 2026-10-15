@@ -40,6 +40,7 @@ test('story quick commands fill the composer without sending and persist custom 
 
   const drawer = page.getByRole('dialog', { name: '故事功能選單' });
   await expect(drawer).toBeVisible();
+  await drawer.locator('.bao-mobile-more > summary').click();
   await expect(drawer.getByRole('button', { name: '⌁ 快捷指令' })).toBeVisible();
   await drawer.getByRole('button', { name: '⌁ 快捷指令' }).click();
 
