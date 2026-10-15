@@ -11,7 +11,7 @@
     if (document.querySelector('link[href^="css/reader-context.css"]')) return;
     const link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = 'css/reader-context.css?v=2';
+    link.href = 'css/reader-context.css?v=3';
     document.head.appendChild(link);
   };
 
@@ -100,13 +100,14 @@
     const labels = cfg?.customization?.labels || {};
     const ordered = fields
       .filter(field => field?.key && !hidden.has(field.key) && raw[field.key] !== undefined)
-      .slice(0, 4)
+      .slice(0, 8)
       .map(field => ({
+        key: field.key,
         label: labels[field.key] || field.label || field.key,
         value: compactValue(raw[field.key])
       }));
     if (ordered.length) return ordered;
-    return Object.entries(raw).slice(0, 4).map(([key, value]) => ({ label:key, value:compactValue(value) }));
+    return Object.entries(raw).slice(0, 8).map(([key, value]) => ({ key, label:key, value:compactValue(value) }));
   };
 
   const snapshot = () => {
@@ -232,42 +233,87 @@
   };
 
   const renderPeople = (host, data) => {
-    host.append(sectionTitle('人物', '這裡是閱讀用人物快照；編輯狀態仍留在故事工具。'));
+    const presentCount = data.people.filter(person => person.presence === 'present').length;
+    const awayCount = data.people.filter(person => person.presence === 'away').length;
+    host.append(sectionTitle('人物', '先看誰在本場與關係／狀態；外貌、別名等人物資料需要時再展開。'));
+
+    const summary = el('div', 'reader-context-people-summary');
+    [
+      ['人物', data.people.length],
+      ['本場', presentCount],
+      ['離場', awayCount]
+    ].forEach(([label, value]) => {
+      const item = el('span', 'reader-context-people-stat');
+      item.append(el('b', '', value), document.createTextNode(label));
+      summary.append(item);
+    });
+    host.append(summary);
+
     if (!data.people.length) {
       host.append(empty('目前沒有可顯示的人物。'));
       return;
     }
+
+    const relationshipStatus = item => /(relationship|affinity|trust|bond|intimacy|關係|好感|信任|羈絆|親密)/i
+      .test(`${item?.key || ''} ${item?.label || ''}`);
+
+    const appendStatuses = (target, items, className = '') => {
+      if (!items.length) return;
+      const statuses = el('div', `reader-context-statuses ${className}`.trim());
+      items.forEach(item => {
+        const row = el('div', `reader-context-status-row${relationshipStatus(item) ? ' is-relationship' : ''}`);
+        row.append(el('small', '', item.label), el('span', '', item.value));
+        statuses.append(row);
+      });
+      target.append(statuses);
+    };
+
     const grid = el('div', 'reader-context-people');
     data.people.forEach(person => {
       const card = el('article', 'reader-context-person');
+      card.dataset.readerPersonName = person.name;
+
       const top = el('div', 'reader-context-person-head');
       const identity = el('div');
       identity.append(el('strong', '', person.name), el('small', '', person.role));
-      const presence = person.presence === 'away' ? '離場' : (person.presence === 'present' ? '在場' : '');
       top.append(identity);
+      const presence = person.presence === 'away' ? '離場' : (person.presence === 'present' ? '本場' : '');
       if (presence) top.append(el('span', 'reader-context-presence', presence));
       card.append(top);
 
-      const meta = [
-        person.aliases?.length && { label:'別名', value:person.aliases.join('、') },
-        person.appearance && { label:'固定外貌', value:person.appearance },
-        person.outfit && { label:'當前穿著', value:person.outfit },
-        person.firstSeen && { label:'首次登場', value:[person.firstSeen.time, person.firstSeen.location, Number.isFinite(Number(person.firstSeen.turn)) ? `第 ${Number(person.firstSeen.turn)} 輪` : ''].filter(Boolean).join(' · ') },
+      const quickFacts = [
         person.mood && { label:'情緒', value:person.mood },
         person.location && { label:'位置', value:person.location },
         person.relationship && { label:'關係', value:person.relationship }
       ].filter(Boolean);
-      if (meta.length) card.append(factGrid(meta));
+      if (quickFacts.length) card.append(factGrid(quickFacts));
 
-      if (person.status.length) {
-        const statuses = el('div', 'reader-context-statuses');
-        person.status.forEach(item => {
-          const row = el('div', 'reader-context-status-row');
-          row.append(el('small', '', item.label), el('span', '', item.value));
-          statuses.append(row);
-        });
-        card.append(statuses);
+      const primaryStatus = person.status.slice(0, 4);
+      const extraStatus = person.status.slice(4);
+      appendStatuses(card, primaryStatus);
+
+      if (extraStatus.length) {
+        const more = el('details', 'reader-context-more reader-context-more-status');
+        more.append(el('summary', '', `查看另外 ${extraStatus.length} 項狀態`));
+        appendStatuses(more, extraStatus, 'reader-context-statuses-more');
+        card.append(more);
       }
+
+      const detailFacts = [
+        person.aliases?.length && { label:'別名', value:person.aliases.join('、') },
+        person.appearance && { label:'固定外貌', value:person.appearance },
+        person.outfit && { label:'當前穿著', value:person.outfit },
+        person.firstSeen && {
+          label:'首次登場',
+          value:[person.firstSeen.time, person.firstSeen.location, Number.isFinite(Number(person.firstSeen.turn)) ? `第 ${Number(person.firstSeen.turn)} 輪` : ''].filter(Boolean).join(' · ')
+        }
+      ].filter(Boolean);
+      if (detailFacts.length) {
+        const details = el('details', 'reader-context-more reader-context-more-profile');
+        details.append(el('summary', '', '更多人物資料'), factGrid(detailFacts));
+        card.append(details);
+      }
+
       grid.append(card);
     });
     host.append(grid);

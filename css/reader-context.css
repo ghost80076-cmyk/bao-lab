@@ -223,3 +223,97 @@
     width:calc(100% - 500px);
   }
 }
+
+
+/* Experience 3.0 · Round 22: desktop Play mirrors the same reading hierarchy. */
+.reader-context-people-summary{
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap;
+  margin-top:11px
+}
+.reader-context-people-stat{
+  display:grid;
+  min-width:62px;
+  gap:1px;
+  padding:7px 9px;
+  border:1px solid rgba(241,232,218,.08);
+  border-radius:10px;
+  background:rgba(255,255,255,.025);
+  color:var(--muted);
+  font-size:9px;
+  text-align:center
+}
+.reader-context-people-stat b{
+  color:var(--text);
+  font-size:15px;
+  line-height:1.1
+}
+.reader-context-person .reader-context-facts{
+  grid-template-columns:repeat(auto-fit,minmax(96px,1fr));
+  margin-top:9px
+}
+.reader-context-status-row.is-relationship{
+  padding:6px 7px;
+  border:1px solid rgba(184,169,255,.12);
+  border-radius:9px;
+  background:rgba(156,140,255,.045)
+}
+.reader-context-more{
+  margin-top:9px;
+  padding-top:8px;
+  border-top:1px solid rgba(241,232,218,.06)
+}
+.reader-context-more>summary{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  min-height:34px;
+  color:#aaa4b2;
+  font-size:10px;
+  font-weight:700;
+  cursor:pointer;
+  list-style:none
+}
+.reader-context-more>summary::-webkit-details-marker{display:none}
+.reader-context-more>summary::after{content:'⌄';font-size:13px}
+.reader-context-more[open]>summary::after{content:'⌃'}
+.reader-context-statuses-more{margin-top:4px}
+.reader-context-more-profile>.reader-context-facts{margin-top:5px}
+.reader-context-more:focus-within>summary{
+  color:var(--text)
+}
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .reader-context-panel{
+  border-color:var(--yoru-card-border);
+  background:var(--yoru-surface);
+  color:var(--yoru-text)
+}
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .reader-context-head,
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .reader-context-tabs,
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .reader-context-foot{
+  border-color:var(--yoru-card-border)
+}
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .reader-context-person,
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .reader-context-world-card,
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .reader-context-fact,
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .reader-context-people-stat{
+  border-color:var(--yoru-card-border);
+  background:var(--yoru-card);
+  color:var(--yoru-text)
+}
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .reader-context-tabs button{
+  color:var(--yoru-muted)
+}
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .reader-context-tabs button.active{
+  border-color:var(--yoru-control-border);
+  background:var(--yoru-control);
+  color:var(--yoru-text)
+}
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .reader-context-presence{
+  background:var(--yoru-control);
+  color:var(--yoru-text)
+}
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .reader-context-more{
+  border-color:var(--yoru-card-border)
+}

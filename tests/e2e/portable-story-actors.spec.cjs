@@ -332,3 +332,103 @@ for (const width of [390, 1280]) {
     expect(mirror.presence).toBe('away');
   });
 }
+
+
+for (const width of [390]) {
+  test(`mobile character status overview is reading-first and keeps context selection separate at ${width}px`, async ({page}) => {
+    await page.setViewportSize({width, height:900});
+    await page.goto('/');
+    await page.waitForFunction(() => Boolean(window.BAOCharacterStatusUI && window.BAOCharacterStatus && window.YoruExperience && App.characters?.length));
+    await page.evaluate(() => {
+      const character = structuredClone(App.characters[0]);
+      character.id = 'round22-character-overview';
+      character.character_status = {
+        enabled:true,
+        allow_player_customize:true,
+        fields:[
+          {key:'relationship_state',label:'關係狀態',type:'tags',context:'core',default:[],player_toggle:true},
+          {key:'condition',label:'身體狀態',type:'text',context:'core',default:'正常',player_toggle:true},
+          {key:'mood',label:'情緒',type:'text',context:'relevant',default:'平穩',player_toggle:true},
+          {key:'trust',label:'信任',type:'meter',context:'relevant',default:0,min:-100,max:100,player_toggle:true},
+          {key:'activity',label:'目前行動',type:'text',context:'relevant',default:'未確認',player_toggle:true},
+          {key:'note',label:'備註',type:'text',context:'ui_only',default:'',player_toggle:true}
+        ]
+      };
+      App.activeCharacter = character;
+      App.config = {
+        persona:{name:'旅人'},narrativeMode:'world',displayMode:'ui',
+        api:{model:'mock'},memory:{maxRounds:20,maxContext:32000,mode:'rounds'}
+      };
+      GameState.create(character, App.config);
+      GameState.current.location = '港口';
+      GameState.upsertNPC({name:'鏡月',role:'調查員',presence:'present',location:'港口'});
+      GameState.upsertNPC({name:'時羽',role:'音樂家',presence:'away',location:'劇場'});
+      BAOCharacterStatus.ensureState(character);
+      GameState.current.characterStatuses = {
+        '鏡月':{relationship_state:['盟友'],condition:'正常',mood:'警覺',trust:35,activity:'觀察碼頭',note:'帶著舊照片'},
+        '時羽':{relationship_state:['舊識'],condition:'疲憊',mood:'平穩',trust:10,activity:'排練',note:'明晚演出'}
+      };
+      Chat.reset();
+      App.renderChatShell(true);
+      App.showView('chat');
+      YoruExperience.choose({theme:'mist'});
+      App.renderUIPanel('npc');
+    });
+
+    const info = page.locator('#bao-play-status-toggle');
+    await expect(info).toBeVisible();
+    await info.click();
+    await expect(page.locator('#game-ui')).toBeVisible();
+
+    const panel = page.locator('#ui-panel');
+    await expect(panel.locator('.character-status-overview')).toBeVisible();
+    await expect(panel.locator('.character-status-overview')).toContainText('人物與狀態');
+    await expect(panel.locator('.character-overview-stats')).toContainText('2人物');
+    await expect(panel.locator('.character-overview-stats')).toContainText('1本場');
+    await expect(panel.locator('.character-overview-stats')).toContainText('0下輪參考');
+    await expect(panel.locator('.character-status-card')).toHaveCount(2);
+
+    const mirror = panel.locator('[data-character-context="鏡月"]');
+    await expect(mirror.locator('.character-scene-badge')).toHaveText('本場');
+    await expect(mirror.locator(':scope > .character-status-fields > .character-status-field')).toHaveCount(4);
+    await expect(mirror.locator('.character-status-field.is-relationship')).toHaveCount(2);
+    const more = mirror.locator('.character-status-more');
+    await expect(more).toContainText('查看另外 2 項狀態');
+    await expect(more.locator('.character-status-fields-more > .character-status-field')).toHaveCount(2);
+    await expect(more.locator('.character-status-fields-more')).toBeHidden();
+
+    const management = panel.locator('.character-status-manage');
+    await expect(management).not.toHaveAttribute('open','');
+    await expect(panel.locator('[data-character-status-settings]')).toBeHidden();
+    const rosterEntry = panel.locator('[data-npc-roster-open]');
+    await expect(rosterEntry).toBeVisible();
+    await expect(rosterEntry).toHaveText('人物名冊／本場');
+
+    const npcsBefore = await page.evaluate(() => JSON.stringify(GameState.current.npcs));
+    await mirror.locator('[data-character-focus]').click();
+    await expect(panel.locator('.character-overview-stats')).toContainText('1下輪參考');
+    await expect(panel.locator('[data-character-context="鏡月"] [data-character-focus]')).toHaveAttribute('aria-pressed','true');
+    expect(await page.evaluate(() => BAOCharacterStatus.selectedContextCharacters())).toEqual(['鏡月']);
+    expect(await page.evaluate(() => JSON.stringify(GameState.current.npcs))).toBe(npcsBefore);
+
+    const currentMirror = panel.locator('[data-character-context="鏡月"]');
+    await currentMirror.locator('.character-status-more > summary').click();
+    await expect(currentMirror.locator('.character-status-fields-more')).toBeVisible();
+    await expect(currentMirror).toContainText('觀察碼頭');
+    expect(await page.evaluate(() => JSON.stringify(GameState.current.npcs))).toBe(npcsBefore);
+
+    await expect(currentMirror).toHaveCSS('background-color', 'rgb(255, 250, 244)');
+    await page.evaluate(() => YoruExperience.choose({theme:'rose'}));
+    await expect(page.locator('html')).toHaveAttribute('data-yoru-theme', 'rose');
+    // Background is animated for 180ms, so verify the settled theme, not its first frame.
+    await expect(currentMirror).toHaveCSS('background-color', 'rgb(64, 50, 57)');
+
+    await management.locator('summary').click();
+    await expect(panel.locator('[data-character-status-settings]')).toBeVisible();
+    await panel.locator('[data-npc-roster-open]').click();
+    await expect(page.getByRole('dialog', {name:'NPC 名冊／場景參與者'})).toBeVisible();
+    await page.getByRole('dialog', {name:'NPC 名冊／場景參與者'}).getByRole('button', {name:'關閉'}).click();
+
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width + 1);
+  });
+}
