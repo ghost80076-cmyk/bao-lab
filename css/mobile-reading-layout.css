@@ -423,3 +423,34 @@
     padding-inline:16px;
   }
 }
+
+
+/* UX 3.0 Phase 3: only four high-frequency actions visible by default. */
+@media(max-width:820px) {
+  #bao-chat-tool-drawer .bao-mobile-quick > .bao-mobile-more {
+    grid-column:1/-1;min-width:0;margin:0;border:1px solid var(--yoru-control-border,var(--story-border));
+    border-radius:14px;background:var(--yoru-control,var(--yoru-tool-raised,#1b191e));overflow:hidden;
+  }
+  #bao-chat-tool-drawer .bao-mobile-more > summary {
+    display:flex;align-items:center;justify-content:space-between;gap:8px;
+    min-height:44px;padding:10px 13px;list-style:none;cursor:pointer;
+    color:var(--yoru-text,var(--story-text,#eeeae4));font-size:13px;font-weight:700;
+  }
+  #bao-chat-tool-drawer .bao-mobile-more > summary::-webkit-details-marker{display:none}
+  #bao-chat-tool-drawer .bao-mobile-more > summary::after {content:'⌄';color:var(--yoru-muted,#aba);font-size:17px}
+  #bao-chat-tool-drawer .bao-mobile-more[open] > summary::after {content:'⌃'}
+  #bao-chat-tool-drawer .bao-mobile-more > summary:focus-visible {
+    outline:2px solid var(--yoru-lantern,#d6aa73);outline-offset:-3px;
+  }
+  #bao-chat-tool-drawer .bao-mobile-extra-actions {
+    display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;
+    padding:10px;border-top:1px solid var(--yoru-control-border,var(--story-border));
+  }
+  #bao-chat-tool-drawer .bao-mobile-extra-actions button {
+    background:var(--yoru-tool-raised,#1b191e);color:var(--yoru-story-text,var(--story-text,#eeeae4));
+  }
+  #bao-chat-tool-drawer .bao-mobile-extra-actions .bao-mobile-support-link {
+    grid-column:1/-1;
+  }
+  #bao-chat-tool-drawer [hidden] {display:none!important}
+}
