@@ -121,7 +121,7 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/story-branches.js?v=2"))
     .then(() => loadBAOScript("js/streaming-ui.js?v=3"))
     .then(() => loadBAOScript("js/request-lifecycle.js"))
-    .then(() => loadBAOScript("js/chat-tool-navigation.js"))
+    .then(() => loadBAOScript("js/chat-tool-navigation.js?v=2"))
     .then(() => loadBAOScript("js/chat-experience-repairs.js?v=2"))
     .then(() => loadBAOScript("js/story-quick-commands-core.js"))
     .then(() => loadBAOScript("js/story-quick-commands.js?v=7"))
