@@ -354,7 +354,7 @@ for (const width of [390, 1280]) {
         const headButton=dialog.querySelector('header button');
         const group=dialog.querySelector('.bao-chat-tool-dialog-body > details');
         const proxy=dialog.querySelector('.bao-chat-tool-proxy');
-        if(!group || !proxy || !headButton) return false;
+        if(!group || !proxy || !headButton) return {missing:{group:!group,proxy:!proxy,headButton:!headButton}};
         const token = name => {
           const test=document.createElement('span');
           test.style.backgroundColor='var('+name+')';
@@ -364,12 +364,20 @@ for (const width of [390, 1280]) {
           return result;
         };
         const bg = element => getComputedStyle(element).backgroundColor;
-        return bg(dialog)===token('--yoru-surface') &&
-          bg(headButton)===token('--yoru-control') &&
-          bg(group)===token('--yoru-card') &&
-          bg(proxy)===token('--yoru-control') &&
-          getComputedStyle(root).getPropertyValue('--yoru-text').trim().length>0;
-      }),{timeout:3500}).toBe(true);
+        return {
+          dialog:{actual:bg(dialog),expected:token('--yoru-surface')},
+          headButton:{actual:bg(headButton),expected:token('--yoru-control')},
+          group:{actual:bg(group),expected:token('--yoru-card')},
+          proxy:{actual:bg(proxy),expected:token('--yoru-control')},
+          theme:getComputedStyle(root).getPropertyValue('--yoru-text').trim()
+        };
+      }),{timeout:3500}).toEqual({
+        dialog:{actual:theme==='mist'?'rgb(255, 250, 243)':'rgb(59, 48, 54)',expected:theme==='mist'?'rgb(255, 250, 243)':'rgb(59, 48, 54)'},
+        headButton:{actual:theme==='mist'?'rgb(240, 232, 223)':'rgb(75, 59, 67)',expected:theme==='mist'?'rgb(240, 232, 223)':'rgb(75, 59, 67)'},
+        group:{actual:theme==='mist'?'rgb(255, 250, 244)':'rgb(64, 50, 57)',expected:theme==='mist'?'rgb(255, 250, 244)':'rgb(64, 50, 57)'},
+        proxy:{actual:theme==='mist'?'rgb(240, 232, 223)':'rgb(75, 59, 67)',expected:theme==='mist'?'rgb(240, 232, 223)':'rgb(75, 59, 67)'},
+        theme:theme==='mist'?'#453b34':'#f3e8e6'
+      });
       await expect(drawer.getByRole('button',{name:'關閉 ×'})).toBeVisible();
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth+2)).toBe(true);
     }
