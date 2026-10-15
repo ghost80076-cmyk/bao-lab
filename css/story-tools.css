@@ -113,3 +113,85 @@
   .story-tools-modal[data-story-tools-mode="home"] .story-tools-card:nth-child(2){grid-column:auto}
   .story-tools-modal[data-story-tools-mode="home"] .story-tools-actions{grid-template-columns:1fr}
 }
+
+
+/* Experience 3.0 · Round 15 — shelf and backup first, other tools on demand.
+   Scope to the story-desk home; the story library and import flows keep
+   their existing controls and data behavior. */
+.story-tools-modal[data-story-tools-mode="home"] .story-tools-advanced{
+  min-width:0;margin-top:13px;border:1px solid var(--yoru-card-border,var(--border));
+  border-radius:16px;overflow:hidden;background:var(--yoru-card,#171820);
+}
+.story-tools-modal[data-story-tools-mode="home"] .story-tools-advanced>summary{
+  min-height:47px;padding:12px 15px;display:flex;align-items:center;
+  justify-content:space-between;gap:8px;flex-wrap:wrap;
+  cursor:pointer;list-style:none;color:var(--yoru-text,var(--text));
+  font-size:14px;font-weight:750;line-height:1.5;
+}
+.story-tools-modal[data-story-tools-mode="home"] .story-tools-advanced>summary::-webkit-details-marker{display:none}
+.story-tools-modal[data-story-tools-mode="home"] .story-tools-advanced>summary span{
+  font-size:11px;font-weight:450;color:var(--yoru-muted,var(--muted));margin-left:auto;
+}
+.story-tools-modal[data-story-tools-mode="home"] .story-tools-advanced>summary::after{
+  content:'⌄';font-size:18px;color:var(--yoru-muted,var(--muted));
+}
+.story-tools-modal[data-story-tools-mode="home"] .story-tools-advanced[open]>summary::after{content:'⌃'}
+.story-tools-modal[data-story-tools-mode="home"] .story-tools-advanced>summary:focus-visible{
+  outline:2px solid var(--yoru-lantern,#d6aa73);outline-offset:-3px
+}
+.story-tools-modal[data-story-tools-mode="home"] .story-tools-home-advanced{
+  border-top:1px solid var(--yoru-card-border,var(--border));
+  padding:13px;gap:12px;
+}
+.story-tools-modal[data-story-tools-mode="home"] .story-tools-home-advanced>.story-tools-card:last-child{
+  grid-column:auto
+}
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-tools-modal[data-story-tools-mode="home"]{
+  background:var(--yoru-surface);color:var(--yoru-text);
+  border-color:var(--yoru-card-border)
+}
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-tools-modal[data-story-tools-mode="home"] .story-tools-card{
+  background:var(--yoru-card);color:var(--yoru-text);
+  border-color:var(--yoru-card-border)
+}
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-tools-modal[data-story-tools-mode="home"] :is(.story-tools-card p,.story-tools-help-copy){
+  color:var(--yoru-muted)
+}
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-tools-modal[data-story-tools-mode="home"] .story-preview-meta{
+  color:var(--yoru-text);background:var(--yoru-control);
+  border-color:var(--yoru-control-border)
+}
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-tools-modal[data-story-tools-mode="home"] :is(.story-tools-close,.story-tools-help){
+  background:var(--yoru-control)!important;
+  color:var(--yoru-text)!important;
+  border-color:var(--yoru-control-border)!important
+}
+@media(max-width:760px){
+  .story-tools-modal[data-story-tools-mode="home"] .story-tools-home:not(.story-tools-home-advanced){
+    grid-template-columns:1fr;gap:8px
+  }
+  .story-tools-modal[data-story-tools-mode="home"] .story-tools-card:nth-child(2){
+    grid-column:auto
+  }
+  .story-tools-modal[data-story-tools-mode="home"] .story-tools-card button{
+    min-height:44px;font-size:11px
+  }
+  .story-tools-modal[data-story-tools-mode="home"] .story-tools-actions{
+    grid-template-columns:repeat(2,minmax(0,1fr));gap:7px
+  }
+  .story-tools-modal[data-story-tools-mode="home"] .story-tools-card [data-import]{
+    grid-column:1/-1
+  }
+  .story-tools-modal[data-story-tools-mode="home"] .story-tools-advanced{
+    margin-top:9px;border-radius:13px
+  }
+  .story-tools-modal[data-story-tools-mode="home"] .story-tools-advanced>summary{
+    min-height:44px;padding:10px 12px;font-size:12px
+  }
+  .story-tools-modal[data-story-tools-mode="home"] .story-tools-advanced>summary span{
+    font-size:10px
+  }
+  .story-tools-modal[data-story-tools-mode="home"] .story-tools-home-advanced{
+    grid-template-columns:1fr;padding:8px;gap:8px
+  }
+}
