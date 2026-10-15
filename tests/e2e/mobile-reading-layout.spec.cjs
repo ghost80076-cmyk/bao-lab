@@ -162,3 +162,46 @@ test('mobile exit asks first, then leaves through the existing auto-save flow', 
   })).toEqual({ inactive: true, viewportCleared: true, detailVisible: true, bodyUnlocked: true });
   await expect.poll(() => page.evaluate(() => Boolean(Storage.loadStory()))).toBe(true);
 });
+
+
+for (const theme of ['mist','rose']) {
+  test('mobile reading chrome keeps ' + theme + ' palette across composer and tools', async ({page}) => {
+    await page.setViewportSize({width:390,height:844});
+    await openDemoStory(page);
+    await page.waitForFunction(() => !!window.YoruExperience);
+    const draft = page.locator('#user-input');
+    await draft.fill('這段尚未送出的故事草稿，切換主題後必須保留。');
+    const storyBefore = await page.locator('#chat-stream .message.assistant').first().textContent();
+    await page.evaluate(selected => window.YoruExperience.choose({theme:selected}),theme);
+    const current = await page.evaluate(() => {
+      const bg = selector => getComputedStyle(document.querySelector(selector)).backgroundColor;
+      const fg = selector => getComputedStyle(document.querySelector(selector)).color;
+      return {
+        header:bg('#chat-view .chat-topline'),
+        composer:bg('#chat-view .composer'),
+        textarea:bg('#user-input'),
+        tools:bg('#bao-mobile-composer-tools'),
+        inspiration:bg('#bao-mobile-composer-inspire'),
+        text:fg('#user-input'),
+        assistant:fg('#chat-view .message.assistant .bubble:not(.authored-rich-message)'),
+        horizontalOverflow:document.documentElement.scrollWidth-innerWidth
+      };
+    });
+    const expected = theme === 'mist'
+      ? {tool:'rgb(243, 236, 227)',input:'rgb(255, 253, 248)',control:'rgb(240, 232, 223)',text:'rgb(69, 59, 52)'}
+      : {tool:'rgb(59, 48, 54)',input:'rgb(52, 43, 48)',control:'rgb(75, 59, 67)',text:'rgb(243, 232, 230)'};
+    expect(current.header).toBe(expected.tool);
+    expect(current.composer).toBe(expected.tool);
+    expect(current.textarea).toBe(expected.input);
+    expect(current.tools).toBe(expected.control);
+    expect(current.inspiration).toBe(expected.control);
+    expect(current.text).toBe(expected.text);
+    expect(current.assistant).toBe(expected.text);
+    expect(current.horizontalOverflow).toBeLessThanOrEqual(1);
+    await expect(draft).toHaveValue('這段尚未送出的故事草稿，切換主題後必須保留。');
+    expect(await page.locator('#chat-stream .message.assistant').first().textContent()).toBe(storyBefore);
+    await page.locator('#bao-mobile-composer-tools').click();
+    await expect(page.getByRole('dialog',{name:'故事功能選單'})).toBeVisible();
+    await expect(page.getByRole('searchbox',{name:'搜尋故事工具'})).toBeVisible();
+  });
+}
