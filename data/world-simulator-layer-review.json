@@ -1,7 +1,7 @@
 {
   "schema": "yorubay-world-simulator-layer-review",
   "version": 8,
-  "scope": "Metadata-only source identity, structural routing and manual layer reviews. All original occurrences are accounted for; structural routing is not full prose review. No raw bodies, new command handlers or full migration claim.",
+  "scope": "Historical source-routing snapshot for the general-reference catalog only, not current overall migration status. Structural routing is not full prose review. Work-specific original-text publication is tracked separately in data/astral-worldbook-source-map.json.",
   "decisions": [
     {
       "canonical_source_index": 32,
@@ -4045,5 +4045,6 @@
         }
       ]
     }
-  ]
+  ],
+  "work_specific_publication_map": "data/astral-worldbook-source-map.json"
 }

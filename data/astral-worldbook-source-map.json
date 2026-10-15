@@ -1,0 +1,700 @@
+{
+  "schema": "yorubay-work-worldbook-publication",
+  "version": 1,
+  "source_book_id": "572f3222-5746-43cc-ae16-60239eac041c",
+  "source_book_name": "世界模擬器-成人版 AV異世界",
+  "source_book_entries": 251,
+  "scoped_source_entries": 42,
+  "scope": "Only the 42 work-specific additions are in scope; the 209 inherited templates and other books are not migrated by this publication. Original-text lore is not a complete game implementation.",
+  "world": "astral-continent",
+  "public_entries": 33,
+  "complete_sources": 26,
+  "partial_sources": 1,
+  "records": [
+    {
+      "source_index": 209,
+      "source_position": 210,
+      "source_title": "世界核心設定",
+      "source_sha256": "87a1ae7d63458651ae0909e996837c1a064898adfbac63f5e6f9953660102e57",
+      "source_chars": 287,
+      "segments": [
+        {
+          "pack_id": "astral-world-geography",
+          "entry_id": "source-209",
+          "start": 0,
+          "end": 217,
+          "content_sha256": "bfec49c56c37e4cb424a47b1b1e8b6754b4f62c29b60b494347246ce20428a29",
+          "requires": []
+        }
+      ],
+      "coverage": "partial-original-text",
+      "omitted_scope": "Original sexual-age thresholds; not re-aged, rewritten or published"
+    },
+    {
+      "source_index": 210,
+      "source_position": 211,
+      "source_title": "魔法體系",
+      "source_sha256": "9b99a4d072d2a34fff487819fcc11299ac79c901af431b04c0003070bdb3bcec",
+      "source_chars": 465,
+      "segments": [
+        {
+          "pack_id": "astral-world-magic",
+          "entry_id": "source-210",
+          "start": 0,
+          "end": 465,
+          "content_sha256": "9b99a4d072d2a34fff487819fcc11299ac79c901af431b04c0003070bdb3bcec",
+          "requires": []
+        }
+      ],
+      "coverage": "complete-original-text",
+      "joins": []
+    },
+    {
+      "source_index": 211,
+      "source_position": 212,
+      "source_title": "種族設定",
+      "source_sha256": "1d094679a76231176a987127e91257c49e67055416d0d70d93dad3a939227231",
+      "source_chars": 625,
+      "segments": [
+        {
+          "pack_id": "astral-world-geography",
+          "entry_id": "source-211",
+          "start": 0,
+          "end": 625,
+          "content_sha256": "1d094679a76231176a987127e91257c49e67055416d0d70d93dad3a939227231",
+          "requires": []
+        }
+      ],
+      "coverage": "complete-original-text",
+      "joins": []
+    },
+    {
+      "source_index": 212,
+      "source_position": 213,
+      "source_title": "暗夜聖殿家族",
+      "source_sha256": "6450701ea10f22c410a20116842f1df64748a1ec595d691ee0723edfeee8c863",
+      "source_chars": 341,
+      "segments": [
+        {
+          "pack_id": "astral-world-geography",
+          "entry_id": "source-212-public",
+          "start": 0,
+          "end": 279,
+          "content_sha256": "ed03d36950e8504bf0aa8af3bb69f0cdd54d40a355c6f7d7ce00a67a716accd7",
+          "requires": []
+        },
+        {
+          "pack_id": "astral-world-geography",
+          "entry_id": "source-212-private",
+          "start": 281,
+          "end": 341,
+          "content_sha256": "dc1437b509139fba9dd02efbfeaf9042d0d30b5e988979628285f62748434635",
+          "requires": [
+            "已確認家族秘寶"
+          ]
+        }
+      ],
+      "coverage": "complete-original-text",
+      "joins": [
+        "\n\n"
+      ]
+    },
+    {
+      "source_index": 213,
+      "source_position": 214,
+      "source_title": "家族秘寶 — 慾望聖典",
+      "source_sha256": "fb45257138a4e21586022943f1d3607c4f1fff293e3fbd357414772cba4658cf",
+      "source_chars": 586,
+      "segments": [
+        {
+          "pack_id": "astral-world-magic",
+          "entry_id": "source-213",
+          "start": 0,
+          "end": 586,
+          "content_sha256": "fb45257138a4e21586022943f1d3607c4f1fff293e3fbd357414772cba4658cf",
+          "requires": [
+            "已確認家族秘寶"
+          ]
+        }
+      ],
+      "coverage": "complete-original-text",
+      "joins": []
+    },
+    {
+      "source_index": 214,
+      "source_position": 215,
+      "source_title": "NPC檔案 — 夏洛特·涅槃",
+      "source_sha256": "ec3b60f4060312775c90a720a71514f7ee3478e4ae92208110da120171508d5c",
+      "source_chars": 561,
+      "segments": [
+        {
+          "pack_id": "astral-world-characters",
+          "entry_id": "source-214",
+          "start": 0,
+          "end": 561,
+          "content_sha256": "ec3b60f4060312775c90a720a71514f7ee3478e4ae92208110da120171508d5c",
+          "requires": []
+        }
+      ],
+      "coverage": "complete-original-text",
+      "joins": []
+    },
+    {
+      "source_index": 215,
+      "source_position": 216,
+      "source_title": "NPC檔案 — 艾絲特·凜冬",
+      "source_sha256": "f224fe71590a7ec35e9b25e6a1c9629da58396b69ec469bd67bd7a40c5e1f882",
+      "source_chars": 496,
+      "segments": [
+        {
+          "pack_id": "astral-world-characters",
+          "entry_id": "source-215",
+          "start": 0,
+          "end": 496,
+          "content_sha256": "f224fe71590a7ec35e9b25e6a1c9629da58396b69ec469bd67bd7a40c5e1f882",
+          "requires": []
+        }
+      ],
+      "coverage": "complete-original-text",
+      "joins": []
+    },
+    {
+      "source_index": 216,
+      "source_position": 217,
+      "source_title": "NPC檔案 — 索拉娜·曦光",
+      "source_sha256": "ba77535a3f115d45f5761219bc8241ef1a2be4c3730cc499c1d108f07858d120",
+      "source_chars": 439,
+      "segments": [
+        {
+          "pack_id": "astral-world-characters",
+          "entry_id": "source-216",
+          "start": 0,
+          "end": 439,
+          "content_sha256": "ba77535a3f115d45f5761219bc8241ef1a2be4c3730cc499c1d108f07858d120",
+          "requires": []
+        }
+      ],
+      "coverage": "complete-original-text",
+      "joins": []
+    },
+    {
+      "source_index": 217,
+      "source_position": 218,
+      "source_title": "NPC檔案 — 芙蕾雅·雷鳴",
+      "source_sha256": "5635c30eff63a4ce3819bafa4ffaa14b0aaa4355b5e498b3b531cb10e7eb72a5",
+      "source_chars": 441,
+      "segments": [
+        {
+          "pack_id": "astral-world-characters",
+          "entry_id": "source-217",
+          "start": 0,
+          "end": 441,
+          "content_sha256": "5635c30eff63a4ce3819bafa4ffaa14b0aaa4355b5e498b3b531cb10e7eb72a5",
+          "requires": []
+        }
+      ],
+      "coverage": "complete-original-text",
+      "joins": []
+    },
+    {
+      "source_index": 218,
+      "source_position": 219,
+      "source_title": "NPC檔案 — 希爾薇·風語",
+      "source_sha256": "74bc3962d89ce52b13e9dea3530be60f2fdcfea7352bce01c7a4e7c3cf74700f",
+      "source_chars": 463,
+      "segments": [
+        {
+          "pack_id": "astral-world-characters",
+          "entry_id": "source-218",
+          "start": 0,
+          "end": 463,
+          "content_sha256": "74bc3962d89ce52b13e9dea3530be60f2fdcfea7352bce01c7a4e7c3cf74700f",
+          "requires": []
+        }
+      ],
+      "coverage": "complete-original-text",
+      "joins": []
+    },
+    {
+      "source_index": 219,
+      "source_position": 220,
+      "source_title": "NPC檔案 — 米蕾雅·海潮",
+      "source_sha256": "1fcabefb734859bd82033ac5a981cb916f907d672bc70037407a7472ee8d5b06",
+      "source_chars": 434,
+      "segments": [
+        {
+          "pack_id": "astral-world-characters",
+          "entry_id": "source-219",
+          "start": 0,
+          "end": 434,
+          "content_sha256": "1fcabefb734859bd82033ac5a981cb916f907d672bc70037407a7472ee8d5b06",
+          "requires": []
+        }
+      ],
+      "coverage": "complete-original-text",
+      "joins": []
+    },
+    {
+      "source_index": 220,
+      "source_position": 221,
+      "source_title": "NPC檔案 — 伊格妮絲·炎華",
+      "source_sha256": "694f1eae2198a6930f3c971e739766ed932a16c71518a3a03e1b86df50fd889c",
+      "source_chars": 451,
+      "segments": [
+        {
+          "pack_id": "astral-world-characters",
+          "entry_id": "source-220",
+          "start": 0,
+          "end": 451,
+          "content_sha256": "694f1eae2198a6930f3c971e739766ed932a16c71518a3a03e1b86df50fd889c",
+          "requires": []
+        }
+      ],
+      "coverage": "complete-original-text",
+      "joins": []
+    },
+    {
+      "source_index": 221,
+      "source_position": 222,
+      "source_title": "NPC檔案 — 櫻花·涅槃",
+      "source_sha256": "6d4f137c218139a5f37458eb5b68377512fb2b454d5a9d37ab6d721dc90157b0",
+      "source_chars": 398,
+      "segments": [
+        {
+          "pack_id": "astral-world-characters",
+          "entry_id": "source-221",
+          "start": 0,
+          "end": 398,
+          "content_sha256": "6d4f137c218139a5f37458eb5b68377512fb2b454d5a9d37ab6d721dc90157b0",
+          "requires": []
+        }
+      ],
+      "coverage": "complete-original-text",
+      "joins": []
+    },
+    {
+      "source_index": 230,
+      "source_position": 231,
+      "source_title": "世界地理 — 永夜領",
+      "source_sha256": "1b4a4d60f5244b32b47bd533bbf71588ff467d972e001af69f0443900d0ad41d",
+      "source_chars": 351,
+      "segments": [
+        {
+          "pack_id": "astral-world-geography",
+          "entry_id": "source-230",
+          "start": 0,
+          "end": 351,
+          "content_sha256": "1b4a4d60f5244b32b47bd533bbf71588ff467d972e001af69f0443900d0ad41d",
+          "requires": []
+        }
+      ],
+      "coverage": "complete-original-text",
+      "joins": []
+    },
+    {
+      "source_index": 231,
+      "source_position": 232,
+      "source_title": "世界勢力",
+      "source_sha256": "2819c05a209978ef7eb49a335b1d547ddb70d85d85a2857e97b91b6506651895",
+      "source_chars": 320,
+      "segments": [
+        {
+          "pack_id": "astral-world-geography",
+          "entry_id": "source-231",
+          "start": 0,
+          "end": 320,
+          "content_sha256": "2819c05a209978ef7eb49a335b1d547ddb70d85d85a2857e97b91b6506651895",
+          "requires": []
+        }
+      ],
+      "coverage": "complete-original-text",
+      "joins": []
+    },
+    {
+      "source_index": 235,
+      "source_position": 236,
+      "source_title": "道具系統",
+      "source_sha256": "981bff45aa50b408deec0dc358b6859753f94744906bbebcbbd69ef2cd223928",
+      "source_chars": 437,
+      "segments": [
+        {
+          "pack_id": "astral-world-magic",
+          "entry_id": "source-235",
+          "start": 0,
+          "end": 437,
+          "content_sha256": "981bff45aa50b408deec0dc358b6859753f94744906bbebcbbd69ef2cd223928",
+          "requires": []
+        }
+      ],
+      "coverage": "complete-original-text",
+      "joins": []
+    },
+    {
+      "source_index": 236,
+      "source_position": 237,
+      "source_title": "宿命敵人系統",
+      "source_sha256": "2790bc3f0f1c51fb6f42a9f8e8bb3fc7b8b91d7680189d3bcc40e2975cafdbb5",
+      "source_chars": 439,
+      "segments": [
+        {
+          "pack_id": "astral-world-magic",
+          "entry_id": "source-236",
+          "start": 0,
+          "end": 439,
+          "content_sha256": "2790bc3f0f1c51fb6f42a9f8e8bb3fc7b8b91d7680189d3bcc40e2975cafdbb5",
+          "requires": []
+        }
+      ],
+      "coverage": "complete-original-text",
+      "joins": []
+    },
+    {
+      "source_index": 237,
+      "source_position": 238,
+      "source_title": "敵對玩家A — 加雷斯·聖裁",
+      "source_sha256": "986d6439c609a864f4da5aea6954c6073ea280b446a23da6a94dcf7afa186b50",
+      "source_chars": 579,
+      "segments": [
+        {
+          "pack_id": "astral-world-characters",
+          "entry_id": "source-237-public",
+          "start": 0,
+          "end": 82,
+          "content_sha256": "8e5910b9820940360d05296d9b6e04b2db810febb709b09e30d29b43467e9afb",
+          "requires": []
+        },
+        {
+          "pack_id": "astral-world-characters",
+          "entry_id": "source-237-private",
+          "start": 84,
+          "end": 579,
+          "content_sha256": "2d3f031e5b3cb0153e9ac34e7482f5c3717d7fd25d029eafda2200e3bf14f063",
+          "requires": [
+            "已確認加雷斯的內情"
+          ]
+        }
+      ],
+      "coverage": "complete-original-text",
+      "joins": [
+        "\n\n"
+      ]
+    },
+    {
+      "source_index": 238,
+      "source_position": 239,
+      "source_title": "敵對玩家B — 維克多·夜炎",
+      "source_sha256": "542492a996e8288375015ce05e67af3dd9da1552cb92be34f0979e9ce1d27385",
+      "source_chars": 685,
+      "segments": [
+        {
+          "pack_id": "astral-world-characters",
+          "entry_id": "source-238-public",
+          "start": 0,
+          "end": 91,
+          "content_sha256": "bc3adddaf8c8d4c080ac7bce5f08b668627d72bde0514ae8eb844e840a0257d0",
+          "requires": []
+        },
+        {
+          "pack_id": "astral-world-characters",
+          "entry_id": "source-238-private",
+          "start": 93,
+          "end": 685,
+          "content_sha256": "c9d4cd2553c84ec90c25a85f1c07a2ef8301b8e444cc977cbea14e079486aee0",
+          "requires": [
+            "已確認維克多的內情"
+          ]
+        }
+      ],
+      "coverage": "complete-original-text",
+      "joins": [
+        "\n\n"
+      ]
+    },
+    {
+      "source_index": 239,
+      "source_position": 240,
+      "source_title": "敵對玩家C — 莉莉絲·殘月",
+      "source_sha256": "25196819ef1f0bee4b361e162a72c4bee9b9ff76273274ce35b807474b8f3514",
+      "source_chars": 647,
+      "segments": [
+        {
+          "pack_id": "astral-world-characters",
+          "entry_id": "source-239-public",
+          "start": 0,
+          "end": 84,
+          "content_sha256": "96b7c614c94c529e0bb14d4d836986f203079b05f34619bdea60eba47a5f0dcd",
+          "requires": []
+        },
+        {
+          "pack_id": "astral-world-characters",
+          "entry_id": "source-239-private",
+          "start": 86,
+          "end": 647,
+          "content_sha256": "73cd8b300f154c5a809a553bcdc7153d2906a0f2aeb9b0bb2596a48632e549cb",
+          "requires": [
+            "已確認莉莉絲的內情"
+          ]
+        }
+      ],
+      "coverage": "complete-original-text",
+      "joins": [
+        "\n\n"
+      ]
+    },
+    {
+      "source_index": 240,
+      "source_position": 241,
+      "source_title": "神化系統",
+      "source_sha256": "e70d34affc0faf9eba889684b4b0b982b88f6f99abb42ea8f8d35484172d2b61",
+      "source_chars": 835,
+      "segments": [
+        {
+          "pack_id": "astral-world-magic",
+          "entry_id": "source-240-public",
+          "start": 0,
+          "end": 411,
+          "content_sha256": "331a9665853571ec39ed1259855af7798bf17addeba5a9f07b70abe5f96c20e8",
+          "requires": []
+        },
+        {
+          "pack_id": "astral-world-magic",
+          "entry_id": "source-240-private",
+          "start": 413,
+          "end": 835,
+          "content_sha256": "f0a3b312f9127a642ec1fd8580d25be229a7ede59cd4df1fbee33a784ef75d4d",
+          "requires": [
+            "已確認神化內情"
+          ]
+        }
+      ],
+      "coverage": "complete-original-text",
+      "joins": [
+        "\n\n"
+      ]
+    },
+    {
+      "source_index": 241,
+      "source_position": 242,
+      "source_title": "世界暗潮 — 三大野心陣營",
+      "source_sha256": "76aab662ed09dd0303eb267aeb893afcc266f2647d7c029f571c90efe1bfb4eb",
+      "source_chars": 714,
+      "segments": [
+        {
+          "pack_id": "astral-world-mysteries",
+          "entry_id": "source-241-factions",
+          "start": 0,
+          "end": 510,
+          "content_sha256": "2fc3636f040d2b1962bc0a9290dead683ccd2a0e19ecf9df78abe4c42651db07",
+          "requires": [
+            "已察覺三大暗潮"
+          ]
+        },
+        {
+          "pack_id": "astral-world-mysteries",
+          "entry_id": "source-241-truth",
+          "start": 512,
+          "end": 714,
+          "content_sha256": "ad92615828700e2fb2d2589ea078010239e791bd030207b76da12e0a79fc1af6",
+          "requires": [
+            "已得知世界真相"
+          ]
+        }
+      ],
+      "coverage": "complete-original-text",
+      "joins": [
+        "\n\n"
+      ]
+    },
+    {
+      "source_index": 242,
+      "source_position": 243,
+      "source_title": "公會系統擴充",
+      "source_sha256": "d31e47b40dfad99fdc0cf91aaea4bc9105b5d7e9e8ee41d310dcfbd203de9871",
+      "source_chars": 601,
+      "segments": [
+        {
+          "pack_id": "astral-world-geography",
+          "entry_id": "source-242",
+          "start": 0,
+          "end": 601,
+          "content_sha256": "d31e47b40dfad99fdc0cf91aaea4bc9105b5d7e9e8ee41d310dcfbd203de9871",
+          "requires": []
+        }
+      ],
+      "coverage": "complete-original-text",
+      "joins": []
+    },
+    {
+      "source_index": 243,
+      "source_position": 244,
+      "source_title": "日常任務系統",
+      "source_sha256": "901b407cb9503ddd691945d6cc8eb58416d5b7cf7c4d75251b57f9833eac6730",
+      "source_chars": 707,
+      "segments": [
+        {
+          "pack_id": "astral-world-geography",
+          "entry_id": "source-243",
+          "start": 0,
+          "end": 707,
+          "content_sha256": "901b407cb9503ddd691945d6cc8eb58416d5b7cf7c4d75251b57f9833eac6730",
+          "requires": []
+        }
+      ],
+      "coverage": "complete-original-text",
+      "joins": []
+    },
+    {
+      "source_index": 244,
+      "source_position": 245,
+      "source_title": "世界真相 — 神之後花園",
+      "source_sha256": "7d31ee06e8aa493fb7014a8f1a08710281aac3190e5f2e5feb31d9545d5b0410",
+      "source_chars": 899,
+      "segments": [
+        {
+          "pack_id": "astral-world-mysteries",
+          "entry_id": "source-244",
+          "start": 0,
+          "end": 899,
+          "content_sha256": "7d31ee06e8aa493fb7014a8f1a08710281aac3190e5f2e5feb31d9545d5b0410",
+          "requires": [
+            "已得知世界真相"
+          ]
+        }
+      ],
+      "coverage": "complete-original-text",
+      "joins": []
+    },
+    {
+      "source_index": 246,
+      "source_position": 247,
+      "source_title": "暗夜元老會（前家族勢力）",
+      "source_sha256": "7ee206e3c96b39796395055fa0f38a024e182c36ff73186c889e894a0a902063",
+      "source_chars": 1130,
+      "segments": [
+        {
+          "pack_id": "astral-world-mysteries",
+          "entry_id": "source-246",
+          "start": 0,
+          "end": 1130,
+          "content_sha256": "7ee206e3c96b39796395055fa0f38a024e182c36ff73186c889e894a0a902063",
+          "requires": [
+            "已確認元老會內情"
+          ]
+        }
+      ],
+      "coverage": "complete-original-text",
+      "joins": []
+    },
+    {
+      "source_index": 247,
+      "source_position": 248,
+      "source_title": "技能系統擴充（六大魔法完整化）",
+      "source_sha256": "41afe03b037cb97a4fd0322dc66708a6756077db75ba360ed3147dcafd29ff3c",
+      "source_chars": 1039,
+      "segments": [
+        {
+          "pack_id": "astral-world-magic",
+          "entry_id": "source-247",
+          "start": 0,
+          "end": 1039,
+          "content_sha256": "41afe03b037cb97a4fd0322dc66708a6756077db75ba360ed3147dcafd29ff3c",
+          "requires": []
+        }
+      ],
+      "coverage": "complete-original-text",
+      "joins": []
+    }
+  ],
+  "not_published": [
+    {
+      "source_index": 222,
+      "source_title": "NPC檔案 — 尤娜·凜冬",
+      "source_sha256": "b30d11be1a4d79d6e6b0ec5be24660d4c65f86cbb51841337d70d193fa43a088",
+      "reason": "underage-sexual-material-not-published"
+    },
+    {
+      "source_index": 223,
+      "source_title": "NPC檔案 — 露娜·曦光",
+      "source_sha256": "c2ff0b9fc5b4dba6f55b76d78bcedaf3f2aed45d2b678409c733fa5d81cea97a",
+      "reason": "underage-sexual-material-not-published"
+    },
+    {
+      "source_index": 224,
+      "source_title": "NPC檔案 — 莉亞·雷鳴",
+      "source_sha256": "dab4aebcf6c27a9520dc44436588e79040f2ca533bf9523e3ab368bd133175e6",
+      "reason": "underage-sexual-material-not-published"
+    },
+    {
+      "source_index": 225,
+      "source_title": "NPC檔案 — 艾莉雅·風語",
+      "source_sha256": "a8c85616542038897abbd72ece5112e5ac12608b69681f6a6b748d31ce8668e9",
+      "reason": "underage-sexual-material-not-published"
+    },
+    {
+      "source_index": 226,
+      "source_title": "NPC檔案 — 塞西莉亞·海潮",
+      "source_sha256": "0ab21cb45932d621983951df3cbd8f15afcb07bf880138250170abbedf73a935",
+      "reason": "underage-sexual-material-not-published"
+    },
+    {
+      "source_index": 227,
+      "source_title": "任務系統",
+      "source_sha256": "3c44a5c0878edc0da6702912abdbc08f70f3d39562af48ba1552c244127fdf81",
+      "reason": "mixed-underage-sexual-objectives-not-published"
+    },
+    {
+      "source_index": 228,
+      "source_title": "技能系統",
+      "source_sha256": "b0adeb3339026df7e6553ead290ca077339adf733f6275184231f1e454fc501b",
+      "reason": "mixed-underage-sexual-objectives-not-published"
+    },
+    {
+      "source_index": 229,
+      "source_title": "成就系統",
+      "source_sha256": "90cee2bb5e3c44ccaa038031c40b82a5d3a0fbc36f0de110e6cab4a44728ffe0",
+      "reason": "mixed-underage-sexual-objectives-not-published"
+    },
+    {
+      "source_index": 232,
+      "source_title": "世界危機",
+      "source_sha256": "d10d669b781d759c831366eda9919e7df07f0734678b4efe1002fa2266e2cde5",
+      "reason": "mixed-underage-sexual-objectives-not-published"
+    },
+    {
+      "source_index": 233,
+      "source_title": "玩家起始設定",
+      "source_sha256": "0970196fb9c1443cc5a546375f2f58d42afcb8aacb40c882920b7dea353b383b",
+      "reason": "work-configuration-and-state-protocol-not-implemented"
+    },
+    {
+      "source_index": 234,
+      "source_title": "關係系統",
+      "source_sha256": "c3120c28e04bc5cc0b47f4a45ddf501835928c3f0d8405b81ef2a939464e074a",
+      "reason": "mixed-underage-sexual-objectives-not-published"
+    },
+    {
+      "source_index": 245,
+      "source_title": "通用NPC生成模組",
+      "source_sha256": "b9991a3e6fc456dee7263bf2a31c87304825b326f5bd3cbdb160be6413f5c394",
+      "reason": "work-configuration-and-state-protocol-not-implemented"
+    },
+    {
+      "source_index": 248,
+      "source_title": "狀態欄核心結構",
+      "source_sha256": "e9bd3af918090b18eefa4fce1a55ac49f735a08e0b69555d990c29f5144780cd",
+      "reason": "work-configuration-and-state-protocol-not-implemented"
+    },
+    {
+      "source_index": 249,
+      "source_title": "狀態欄核心結構",
+      "source_sha256": "811c8972be4190390db8c70658035f8b875042e468f6b8df23f3edfcb0fa8510",
+      "reason": "work-configuration-and-state-protocol-not-implemented"
+    },
+    {
+      "source_index": 250,
+      "source_title": "狀態欄核心結構",
+      "source_sha256": "4dc76ce4ecaebc3986326ae7eb83a707bee5510a225c710646ee9a7e3d340780",
+      "reason": "work-configuration-and-state-protocol-not-implemented"
+    }
+  ]
+}

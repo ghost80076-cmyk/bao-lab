@@ -9,6 +9,9 @@ on:
       - 'js/prompt-cache.js'
       - 'data/world-simulator-general*.json'
       - 'data/world-simulator-layer-review.json'
+      - 'data/astral-worldbook-*.json'
+      - 'scripts/migrate-astral-worldbook.py'
+      - 'tests/astral-worldbook-core.cjs'
       - 'scripts/audit-world-simulator-general.py'
       - 'tests/world-simulator-general-core.cjs'
       - 'tests/world-simulator-source-audit.py'
@@ -25,6 +28,9 @@ on:
       - '.github/workflows/worldbook-recall-mode.yml'
       - 'data/world-simulator-general*.json'
       - 'data/world-simulator-layer-review.json'
+      - 'data/astral-worldbook-*.json'
+      - 'scripts/migrate-astral-worldbook.py'
+      - 'tests/astral-worldbook-core.cjs'
       - 'scripts/audit-world-simulator-general.py'
       - 'tests/world-simulator-general-core.cjs'
       - 'tests/world-simulator-source-audit.py'
@@ -45,6 +51,7 @@ jobs:
       - name: Recall and stable-prefix regression
         run: |
           node tests/worldbook-library-core.cjs
+          node tests/astral-worldbook-core.cjs
           node tests/world-simulator-general-core.cjs
           python3 tests/world-simulator-source-audit.py
           node tests/worldbook-library-runtime.cjs
@@ -64,7 +71,7 @@ jobs:
         run: |
           python - <<'PY'
           import hashlib, pathlib, time, urllib.request
-          pending = {"data/world-simulator-general-library.json", "data/world-simulator-general-source-map.json", "data/world-simulator-layer-review.json", "js/worldbook-library.js", "js/site-ui.js"}
+          pending = {"data/world-simulator-general-library.json", "data/world-simulator-general-source-map.json", "data/world-simulator-layer-review.json", "data/astral-worldbook-library.json", "data/astral-worldbook-source-map.json", "js/worldbook-library.js", "js/site-ui.js"}
           for attempt in range(30):
               for path in list(pending):
                   try:
