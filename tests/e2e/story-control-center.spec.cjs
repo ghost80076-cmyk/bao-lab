@@ -85,6 +85,11 @@ test('opens the current story control center and routes to existing story tools'
   await expect(dialog).toContainText('故事擴充');
   await expect(dialog).toContainText('敘事與描寫');
 
+  const extra = dialog.locator('details.story-control-more');
+  await expect(extra).not.toHaveAttribute('open','');
+  await expect(dialog.getByRole('button', { name: /故事擴充/ })).toBeHidden();
+  await extra.locator('summary').click();
+  await expect(dialog.getByRole('button', { name: /故事擴充/ })).toBeVisible();
   await dialog.getByRole('button', { name: /故事擴充/ }).click();
   await expect(dialog).not.toBeVisible();
 
@@ -170,3 +175,59 @@ test('opens the current story control center and routes to existing story tools'
   await expect(reopened).not.toBeVisible();
   await expect(page.getByRole('dialog', { name: '搜尋這個對話' })).toBeVisible();
 });
+
+
+for (const width of [390, 1280]) {
+  test('story overview retains all eight original tools with progressive disclosure (' + width + 'px)', async ({ page }) => {
+    await page.setViewportSize({ width, height: 844 });
+    await page.goto('./');
+    await page.waitForFunction(() => Boolean(window.BAOStoryControlCenter && window.YoruExperience && App.characters?.length));
+    await page.evaluate(() => {
+      App.activeCharacter = App.characters[0];
+      App.config = {
+        persona:{name:'旅人'},narrativeMode:'immersive',displayMode:'ui',
+        api:{model:'mock'},memory:{mode:'smart',maxRounds:20,maxContext:32000}
+      };
+      GameState.create(App.activeCharacter, App.config);
+      Chat.reset(); Chat.add('assistant','夜灣故事測試。');
+      App.renderChatShell(false);
+      App.showView('chat');
+      YoruExperience.choose({ level:'easy', theme:'mist' });
+      BAOStoryControlCenter.open();
+    });
+    const dialog = page.getByRole('dialog', { name:'故事總覽' });
+    const more = dialog.locator('.story-control-more');
+    const card = dialog.locator('.story-control-card');
+    await expect(card).toHaveCount(8);
+    await expect(dialog.locator('.story-control-primary .story-control-card')).toHaveCount(4);
+    await expect(dialog.locator('.story-control-secondary .story-control-card')).toHaveCount(4);
+    await expect(more).not.toHaveAttribute('open','');
+    await expect(dialog.locator('[data-story-control-action="model"]')).toBeVisible();
+    await expect(dialog.locator('[data-story-control-action="context"]')).toBeHidden();
+    await more.locator('summary').click();
+    await expect(dialog.locator('[data-story-control-action="context"]')).toBeVisible();
+    await expect(dialog.locator('[data-story-control-action="extensions"]')).toBeVisible();
+    const palette = await dialog.evaluate(element => ({
+      panel:getComputedStyle(element.querySelector('.story-control-panel')).backgroundColor,
+      expected:getComputedStyle(document.documentElement).getPropertyValue('--yoru-surface').trim()
+    }));
+    const expectedColor = await page.evaluate(value => {
+      const temp=document.createElement('div');temp.style.background=value;
+      document.body.append(temp);const color=getComputedStyle(temp).backgroundColor;temp.remove();return color;
+    },palette.expected);
+    expect(palette.panel).toBe(expectedColor);
+    await dialog.getByRole('button',{name:'關閉故事總覽'}).click();
+
+    for(const level of ['standard','pro']){
+      await page.evaluate(selected => {
+        YoruExperience.choose({level:selected,theme:'rose'});
+        BAOStoryControlCenter.open();
+      },level);
+      await expect(more).toHaveAttribute('open','');
+      await expect(dialog.locator('[data-story-control-action="extensions"]')).toBeVisible();
+      await expect(card).toHaveCount(8);
+      await dialog.getByRole('button',{name:'關閉故事總覽'}).click();
+    }
+    expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+2)).toBe(true);
+  });
+}
