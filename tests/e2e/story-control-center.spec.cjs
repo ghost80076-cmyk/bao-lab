@@ -116,26 +116,26 @@ test('opens the current story control center and routes to existing story tools'
   await expect(extensions).toContainText('不自動送 API');
 
   const worldCard = extensions.locator('[data-extension-card="world"]');
-  await worldCard.locator('summary').click();
+  await worldCard.locator('.story-extension-inventory > summary').click();
   await expect(worldCard.locator('[data-extension-source-group="work"]')).toContainText('作品背包');
   await expect(worldCard.locator('[data-extension-source-group="platform"]')).toContainText('任務');
   await expect(worldCard.locator('[data-extension-source-group="platform"]')).toContainText('已停用');
   await expect(worldCard.locator('[data-extension-source-group="player"]')).toContainText('玩家地圖');
 
   const replaceCard = extensions.locator('[data-extension-card="replace"]');
-  await replaceCard.locator('summary').click();
+  await replaceCard.locator('.story-extension-inventory > summary').click();
   await expect(replaceCard).toContainText('20歲');
   await expect(replaceCard).toContainText('→ XX歲');
   await expect(replaceCard).toContainText('啟用');
 
   const regexCard = extensions.locator('[data-extension-card="regex"]');
-  await regexCard.locator('summary').click();
+  await regexCard.locator('.story-extension-inventory > summary').click();
   await expect(regexCard.locator('[data-extension-source-group="player"]')).toContainText('稱呼修正');
   await expect(regexCard.locator('[data-extension-source-group="work"]')).toContainText('hello');
   await expect(regexCard.locator('[data-extension-source-group="work"]')).toContainText('等待玩家啟用');
 
   const sceneCard = extensions.locator('[data-extension-card="scene"]');
-  await sceneCard.locator('summary').click();
+  await sceneCard.locator('.story-extension-inventory > summary').click();
   await expect(sceneCard).toContainText('閱讀模式');
   await expect(sceneCard).toContainText('狀態顯示');
   await expect(sceneCard.locator('[data-extension-quick]')).toHaveCount(0);
@@ -147,7 +147,7 @@ test('opens the current story control center and routes to existing story tools'
   expect(await page.evaluate(() => GameState.current.worldModuleCustomization.disabled.includes('quests'))).toBe(false);
 
   // Player text MOD master switch can be changed without opening the full editor.
-  await replaceCard.locator('summary').click();
+  await replaceCard.locator('.story-extension-inventory > summary').click();
   let replaceGroup = replaceCard.locator('[data-extension-source-group="player"]');
   await replaceGroup.locator('header > .story-extension-quick').click();
   expect(await page.evaluate(() => BAOPlayerTextReplace.get().active)).toBe(false);
@@ -157,7 +157,7 @@ test('opens the current story control center and routes to existing story tools'
   expect(await page.evaluate(() => BAOPlayerTextReplace.get().active)).toBe(true);
 
   // Global player Regex can be switched quickly; authored work rules never get a quick permission button.
-  await regexCard.locator('summary').click();
+  await regexCard.locator('.story-extension-inventory > summary').click();
   let regexPlayer = regexCard.locator('[data-extension-source-group="player"]');
   await regexPlayer.locator('header > .story-extension-quick').click();
   expect(await page.evaluate(() => BAORegex.load().active)).toBe(false);
