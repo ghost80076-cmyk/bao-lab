@@ -375,7 +375,13 @@ for (const width of [390]) {
       App.renderUIPanel('npc');
     });
 
+    const info = page.locator('#bao-play-status-toggle');
+    await expect(info).toBeVisible();
+    await info.click();
+    await expect(page.locator('#game-ui')).toBeVisible();
+
     const panel = page.locator('#ui-panel');
+    await expect(panel.locator('.character-status-overview')).toBeVisible();
     await expect(panel.locator('.character-status-overview')).toContainText('人物與狀態');
     await expect(panel.locator('.character-overview-stats')).toContainText('2人物');
     await expect(panel.locator('.character-overview-stats')).toContainText('1本場');
