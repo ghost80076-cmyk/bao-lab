@@ -178,7 +178,7 @@ test('opens the current story control center and routes to existing story tools'
 
 
 for (const width of [390, 1280]) {
-  test('story overview retains all eight original tools with progressive disclosure (' + width + 'px)', async ({ page }) => {
+  test('story overview retains the eight existing tools plus long-term instructions with progressive disclosure (' + width + 'px)', async ({ page }) => {
     await page.setViewportSize({ width, height: 844 });
     await page.goto('./');
     await page.waitForFunction(() => Boolean(window.BAOStoryControlCenter && window.YoruExperience && App.characters?.length));
@@ -198,9 +198,9 @@ for (const width of [390, 1280]) {
     const dialog = page.getByRole('dialog', { name:'故事總覽' });
     const more = dialog.locator('.story-control-more');
     const card = dialog.locator('.story-control-card');
-    await expect(card).toHaveCount(8);
+    await expect(card).toHaveCount(9);
     await expect(dialog.locator('.story-control-primary .story-control-card')).toHaveCount(4);
-    await expect(dialog.locator('.story-control-secondary .story-control-card')).toHaveCount(4);
+    await expect(dialog.locator('.story-control-secondary .story-control-card')).toHaveCount(5);
     await expect(more).not.toHaveAttribute('open','');
     await expect(dialog.locator('[data-story-control-action="model"]')).toBeVisible();
     await expect(dialog.locator('[data-story-control-action="context"]')).toBeHidden();
@@ -225,7 +225,7 @@ for (const width of [390, 1280]) {
       },level);
       await expect(more).toHaveAttribute('open','');
       await expect(dialog.locator('[data-story-control-action="extensions"]')).toBeVisible();
-      await expect(card).toHaveCount(8);
+      await expect(card).toHaveCount(9);
       await dialog.getByRole('button',{name:'關閉故事總覽'}).click();
     }
     expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+2)).toBe(true);
