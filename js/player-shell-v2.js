@@ -94,7 +94,7 @@
           <a class="primary" href="account.html">帳號與額度</a>
         </section>
 
-        <div class="bao-player-grid">
+        <div class="bao-player-grid bao-player-primary-grid">
           <section class="bao-player-panel">
             <h2>我的故事</h2>
             <p id="bao-player-story-state">故事優先保存在目前裝置。</p>
@@ -126,6 +126,11 @@
             <small class="bao-content-visibility-state" data-bao-adult-content-state></small>
           </section>
 
+        </div>
+
+        <details class="bao-player-more" data-bao-player-more>
+          <summary><span>更多設定與工具</span><small>跨裝置、角色實驗室、探索與支援</small></summary>
+          <div class="bao-player-grid bao-player-secondary-grid">
           <section class="bao-player-panel">
             <h2>跨裝置</h2>
             <p>需要時再連結自己的 Google 雲端硬碟。API Key 不會跟著故事同步。</p>
@@ -147,7 +152,8 @@
               <a class="secondary" href="https://ko-fi.com/roger2486" target="_blank" rel="noopener">投餵肉包</a>
             </div>
           </section>
-        </div>
+          </div>
+        </details>
 
         <aside class="bao-player-privacy-note">
           <b>故事預設留在這台裝置。</b>
@@ -168,8 +174,22 @@
       if (typeof window.YoruExperience?.open === 'function') window.YoruExperience.open();
       else document.getElementById("yoru-experience-open")?.click();
     });
-    window.addEventListener('yoru:experience-change', syncAppearanceSummary);
+    // Disclosure is presentation-only. Respect a player's manual choice until the page is rebuilt.
+    const more = section.querySelector('[data-bao-player-more]');
+    const syncMore = () => {
+      if (more && more.dataset.userToggled !== 'true') {
+        more.open = window.YoruExperience?.get?.().level === 'pro';
+      }
+    };
+    more?.querySelector('summary')?.addEventListener('click', () => {
+      more.dataset.userToggled = 'true';
+    });
+    window.addEventListener('yoru:experience-change', () => {
+      syncAppearanceSummary();
+      syncMore();
+    });
     syncAppearanceSummary();
+    syncMore();
     section.querySelector('[data-bao-player-action="explore"]')?.addEventListener("click", () => App.showView("explore"));
     section.querySelector('[data-bao-player-action="about"]')?.addEventListener("click", () => App.showView("about"));
 
