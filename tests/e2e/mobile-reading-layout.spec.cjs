@@ -196,6 +196,30 @@ for (const theme of ['mist','rose']) {
     const expected = theme === 'mist'
       ? {tool:'rgb(243, 236, 227)',input:'rgb(255, 253, 248)',control:'rgb(240, 232, 223)',text:'rgb(69, 59, 52)',send:'rgb(157, 115, 88)'}
       : {tool:'rgb(59, 48, 54)',input:'rgb(52, 43, 48)',control:'rgb(75, 59, 67)',text:'rgb(243, 232, 230)',send:'rgb(214, 167, 159)'};
+    if (current.tools !== expected.control) {
+      const diagnosis = await page.evaluate(() => {
+        const el=document.querySelector('#bao-mobile-composer-tools');
+        const root=document.documentElement;
+        const style=getComputedStyle(el);
+        const selectors=[];
+        const visit=(rule,href) => {
+          if(rule.cssRules){try{[...rule.cssRules].forEach(r=>visit(r,href));}catch(_){};return;}
+          if(!rule.selectorText?.includes('bao-mobile-composer-tools'))return;
+          let matched=false;try{matched=el.matches(rule.selectorText);}catch(_){}
+          selectors.push({href,selector:rule.selectorText.slice(0,300),matched,
+            background:rule.style?.getPropertyValue('background'),
+            priority:rule.style?.getPropertyPriority('background')});
+        };
+        for(const sheet of document.styleSheets){
+          try{[...sheet.cssRules].forEach(rule=>visit(rule,sheet.href));}catch(_){}
+        }
+        return {theme:root.dataset.yoruTheme,surface:document.getElementById('chat-view')?.dataset.baoSurface,
+          customValue:style.getPropertyValue('--yoru-control').trim(),
+          rootValue:getComputedStyle(root).getPropertyValue('--yoru-control').trim(),
+          computed:style.backgroundColor,selectors:selectors.slice(-20)};
+      });
+      console.log('MOBILE_THEME_ACTION_DIAGNOSTIC',JSON.stringify(diagnosis));
+    }
     expect(current.header).toBe(expected.tool);
     expect(current.composer).toBe(expected.tool);
     expect(current.textarea).toBe(expected.input);
