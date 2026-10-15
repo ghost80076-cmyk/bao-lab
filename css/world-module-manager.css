@@ -79,3 +79,98 @@
   .world-custom-card{padding:12px}
   .world-manager-foot{padding:14px 20px}
 }
+
+
+/* Experience 3.0 · Phase 10: calmer, searchable world-module workbench.
+   Preset filters are display only and never alter saved module configuration. */
+.world-manager-modal{
+  background:var(--yoru-surface,#131216);
+  border-color:var(--yoru-card-border,rgba(241,232,218,.12));
+  color:var(--yoru-text,#f2eee7)
+}
+.world-manager-head,.world-manager-foot{
+  background:var(--yoru-tool,#17161a);
+  color:var(--yoru-text,#f2eee7);
+  border-color:var(--yoru-card-border,rgba(241,232,218,.12))
+}
+.world-manager-head p,.world-manager-card p,
+.world-manager-order-row small,.world-custom-head small{
+  color:var(--yoru-muted,#aaa6ad)
+}
+.world-manager-card,.world-preset,.world-order-row,.world-custom-card{
+  background:var(--yoru-card,#17161a);
+  border-color:var(--yoru-card-border,rgba(241,232,218,.12));
+  color:var(--yoru-text,#f2eee7)
+}
+.world-preset.active{
+  background:var(--yoru-control,#22212a);
+  border-color:var(--yoru-lantern,#d6aa73)
+}
+.world-manager-modal .world-manager-preset-discovery{
+  display:grid;gap:8px;margin:13px 0 0;min-width:0
+}
+.world-manager-modal [data-world-preset-search]{
+  width:100%;min-width:0;box-sizing:border-box;min-height:42px;
+  border-radius:10px;border:1px solid var(--yoru-input-border,var(--yoru-card-border));
+  background:var(--yoru-input,#1b1b20);color:var(--yoru-text,#f2eee7);
+  font:inherit;font-size:13px;padding:9px 11px
+}
+.world-manager-modal [data-world-preset-search]::placeholder{
+  color:var(--yoru-muted,#aaa6ad)
+}
+.world-manager-modal .world-manager-preset-filters{
+  display:flex;flex-wrap:wrap;gap:6px
+}
+.world-manager-modal .world-manager-preset-filters button{
+  border:1px solid var(--yoru-control-border,var(--yoru-card-border));
+  border-radius:999px;padding:7px 11px;min-height:36px;
+  background:var(--yoru-control,#1b1a1e);color:var(--yoru-text,#f2eee7);
+  font:inherit;font-size:12px;cursor:pointer;white-space:nowrap
+}
+.world-manager-modal .world-manager-preset-filters button[aria-pressed="true"]{
+  border-color:var(--yoru-lantern,#d6aa73);
+  background:var(--yoru-control-hover,#27232a);
+  box-shadow:inset 0 0 0 1px var(--yoru-lantern,#d6aa73);
+  font-weight:700
+}
+.world-manager-preset-discovery [data-world-preset-count]{
+  margin:0;color:var(--yoru-muted,#aaa6ad);font-size:11px
+}
+.world-manager-modal .world-preset[hidden],
+.world-manager-modal .world-manager-preset-empty[hidden]{display:none!important}
+.world-manager-preset-empty{
+  padding:14px 10px;margin-top:10px!important;
+  border:1px dashed var(--yoru-card-border,rgba(241,232,218,.12));
+  border-radius:11px;text-align:center;font-size:12px
+}
+.world-manager-guide-details{
+  border:1px solid var(--yoru-card-border,rgba(241,232,218,.12));
+  border-radius:14px;background:var(--yoru-card,#17161a);
+  color:var(--yoru-text,#f2eee7);overflow:hidden
+}
+.world-manager-guide-details>summary{
+  cursor:pointer;list-style:none;min-height:42px;box-sizing:border-box;
+  padding:11px 13px;font-size:12px;font-weight:700;
+  display:flex;align-items:center;justify-content:space-between;gap:8px
+}
+.world-manager-guide-details>summary::after{
+  content:'⌄';color:var(--yoru-muted,#aaa6ad);font-size:15px
+}
+.world-manager-guide-details[open]>summary::after{content:'⌃'}
+.world-manager-guide-details>summary::-webkit-details-marker{display:none}
+.world-manager-guide-content{
+  display:flex;flex-direction:column;gap:8px;padding:0 9px 9px
+}
+.world-manager-guide-content .world-manager-card{
+  background:var(--yoru-control,#1b1a1e)
+}
+.world-manager-modal :is([data-world-preset-search],
+ .world-manager-preset-filters button,.world-manager-guide-details>summary):focus-visible{
+  outline:2px solid var(--yoru-lantern,#d6aa73);outline-offset:2px
+}
+@media(max-width:560px){
+  .world-manager-modal .world-manager-preset-discovery{gap:7px;margin-top:10px}
+  .world-manager-modal .world-manager-preset-filters button{
+    padding:7px 9px;min-height:38px
+  }
+}
