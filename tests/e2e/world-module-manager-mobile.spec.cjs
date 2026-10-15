@@ -278,3 +278,62 @@ test('Three Realms descriptive status template is optional, unknown by default a
   await expect(page.locator('#ui-panel')).toContainText('未確認');
   expect(await page.locator('#ui-panel').evaluate(node => node.scrollWidth <= node.clientWidth + 1)).toBe(true);
 });
+
+
+for (const width of [390, 1280]) {
+  test('world module preset search is display-only and saved only on apply (' + width + 'px)', async ({ page }) => {
+    await page.setViewportSize({ width, height: 844 });
+    await page.goto('./');
+    await page.waitForFunction(() => Boolean(window.BAOWorldModuleManager && window.YoruExperience && App.characters?.length));
+    await page.evaluate(() => {
+      App.activeCharacter = { ...App.characters[0], id: 'world-preset-discovery-test', world_modules: [] };
+      App.config = { narrativeMode:'immersive', displayMode:'ui', api:{ model:'mock' },
+        persona:{name:'旅人'}, memory:{mode:'smart',maxRounds:20,maxContext:32000} };
+      GameState.create(App.activeCharacter, App.config);
+      YoruExperience.choose({level:'easy',theme:'mist'});
+      BAOWorldModuleManager.open();
+    });
+    const dialog = page.getByRole('dialog', { name:'世界模組管理' });
+    const search = dialog.getByRole('searchbox', { name:'搜尋官方模組' });
+    await expect(search).toBeVisible();
+    const presets = dialog.locator('.world-preset');
+    const initial = await presets.count();
+    expect(initial).toBeGreaterThan(4);
+    await expect(dialog.locator('.world-manager-guide-details')).not.toHaveAttribute('open','');
+    await expect(dialog).toHaveCSS('background-color','rgb(255, 250, 243)');
+
+    const before = await page.evaluate(() => JSON.stringify(GameState.current.worldModuleCustomization));
+    await search.fill('三界修煉');
+    await expect(dialog.locator('.world-preset:visible')).toHaveCount(1);
+    const cultivation = dialog.locator('[data-preset-id="three_realms_cultivation"]');
+    await expect(cultivation).not.toBeChecked();
+    await dialog.locator('[data-world-preset-filter="enabled"]').click();
+    await expect(dialog.locator('.world-preset:visible')).toHaveCount(0);
+    await expect(dialog.locator('[data-world-preset-empty]')).toBeVisible();
+    await dialog.locator('[data-world-preset-filter="available"]').click();
+    await expect(cultivation).toBeVisible();
+    await cultivation.check();
+    await expect(dialog.locator('.world-preset:visible')).toHaveCount(0);
+    await dialog.locator('[data-world-preset-filter="enabled"]').click();
+    await expect(cultivation).toBeVisible();
+    await expect(dialog.locator('[data-world-preset-count]')).toContainText('顯示 1 /');
+    expect(await page.evaluate(() => JSON.stringify(GameState.current.worldModuleCustomization))).toBe(before);
+
+    await dialog.getByRole('button',{name:'關閉',exact:true}).click();
+    await page.evaluate(() => BAOWorldModuleManager.open());
+    await expect(dialog.locator('[data-preset-id="three_realms_cultivation"]')).not.toBeChecked();
+    await dialog.locator('[data-preset-id="three_realms_cultivation"]').check();
+    await dialog.getByRole('button',{name:'套用到目前故事'}).click();
+    expect(await page.evaluate(() => BAOWorldModules.getCustomization(App.activeCharacter).enabledBuiltIns.includes('three_realms_cultivation'))).toBe(true);
+
+    await page.evaluate(() => {
+      YoruExperience.choose({level:'pro',theme:'rose'});
+      BAOWorldModuleManager.open();
+    });
+    await expect(dialog.locator('.world-manager-guide-details')).toHaveAttribute('open','');
+    await expect(dialog).toHaveCSS('background-color','rgb(59, 48, 54)');
+    await dialog.locator('[data-world-preset-filter="enabled"]').click();
+    await expect(dialog.locator('[data-preset-id="three_realms_cultivation"]')).toBeVisible();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 2)).toBe(true);
+  });
+}

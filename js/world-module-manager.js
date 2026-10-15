@@ -14,7 +14,7 @@
     if (document.querySelector('link[href^="css/world-module-manager.css"]')) return;
     const link = document.createElement("link");
     link.rel = "stylesheet";
-    link.href = "css/world-module-manager.css?v=4";
+    link.href = "css/world-module-manager.css?v=5";
     document.head.appendChild(link);
   };
 
@@ -31,7 +31,7 @@
       <header class="world-manager-head"><div><div class="eyebrow">WORLD MODULES</div><h2 id="world-manager-title">世界模組管理</h2><p id="world-manager-intro">角色卡提供預設，玩家只在目前故事中啟用或擴充。</p></div><div class="world-manager-head-actions"><button type="button" class="world-manager-help" data-world-help aria-label="世界模組管理說明" aria-expanded="false" aria-controls="world-manager-intro">?</button><button type="button" class="text-button" data-world-close>關閉</button></div></header>
       <div class="world-manager-body"><main>
         <section class="world-manager-card world-manager-order-card"><div class="world-manager-title"><div><h3>目前模組順序</h3><p>順序同時影響頁籤與 Context 顯示。</p></div><button type="button" class="secondary" data-world-add>＋ 自訂模組</button></div><div class="world-manager-order" data-world-order></div></section>
-        <section class="world-manager-card world-manager-presets-card" data-world-section="official"><h3>官方模組 <button type="button" class="bao-help-button" data-bao-help="three_realms" aria-label="了解三界功能怎麼選">?</button></h3><p>從夜灣內建的背包、技能、任務、裝備、勢力、聲望、經濟、境界、魔法與三界故事引導範本快速啟用；作品已選用的範本會標示為作品預設。</p><div class="world-manager-presets" data-world-presets></div></section>
+        <section class="world-manager-card world-manager-presets-card" data-world-section="official"><h3>官方模組 <button type="button" class="bao-help-button" data-bao-help="three_realms" aria-label="了解三界功能怎麼選">?</button></h3><p>選擇這個故事需要的功能，作品預設的模組會標示來源。篩選僅改變列表顯示。</p><div class="world-manager-preset-discovery" aria-label="尋找官方模組"><input type="search" data-world-preset-search aria-label="搜尋官方模組" placeholder="搜尋官方模組，例如背包、任務、修煉"><div class="world-manager-preset-filters" aria-label="官方模組篩選"><button type="button" data-world-preset-filter="all" aria-pressed="true">全部</button><button type="button" data-world-preset-filter="enabled" aria-pressed="false">已啟用</button><button type="button" data-world-preset-filter="available" aria-pressed="false">可新增</button></div><p data-world-preset-count role="status" aria-live="polite"></p></div><div class="world-manager-presets" data-world-presets></div><p class="world-manager-preset-empty" data-world-preset-empty hidden>沒有符合條件的模組，請清除搜尋或切回「全部」。</p></section>
         <section class="world-manager-card world-manager-custom-card-list" data-world-section="mine"><h3>我的模組</h3><p>你為目前故事建立或匯入的模組；可以是欄位物件或項目清單，並直接接入既有 World Modules tracker。</p><div class="world-manager-custom" data-world-custom></div></section>
       </main><aside class="world-manager-guide">
         <section class="world-manager-card"><h3>Context 原則</h3><p><b>核心</b>：每輪精簡提供。</p><p><b>相關時</b>：文字命中或手動查看時提供。</p><p><b>只顯示</b>：保留在介面，不送主模型。</p></section>
@@ -40,6 +40,48 @@
       <footer class="world-manager-foot"><button type="button" class="secondary" data-world-reset>恢復角色卡預設</button><span data-world-message></span><button type="button" class="primary" data-world-save>套用到目前故事</button></footer>
     </section>`;
     document.body.appendChild(wrap);
+    const guide = wrap.querySelector(".world-manager-guide");
+    const guideDetails = document.createElement("details");
+    guideDetails.className = "world-manager-guide-details";
+    guideDetails.open = window.YoruExperience?.get?.().level === "pro";
+    const guideSummary = document.createElement("summary");
+    guideSummary.textContent = "進階說明：AI 資料使用與追蹤頻率";
+    const guideContent = document.createElement("div");
+    guideContent.className = "world-manager-guide-content";
+    while (guide.firstChild) guideContent.appendChild(guide.firstChild);
+    guideDetails.append(guideSummary, guideContent);
+    guide.appendChild(guideDetails);
+
+    let presetQuery = "";
+    let presetFilter = "all";
+    const presetSearch = wrap.querySelector("[data-world-preset-search]");
+    const presetCounter = wrap.querySelector("[data-world-preset-count]");
+    const presetEmpty = wrap.querySelector("[data-world-preset-empty]");
+    const applyPresetDiscovery = () => {
+      let shown = 0;
+      const all = [...wrap.querySelectorAll(".world-preset")];
+      for (const label of all) {
+        const input = label.querySelector("[data-preset-id]");
+        const enabled = Boolean(input?.checked);
+        const text = (label.textContent || "").toLowerCase();
+        const matches = (!presetQuery || text.includes(presetQuery)) &&
+          (presetFilter === "all" || (presetFilter === "enabled" ? enabled : !enabled));
+        label.hidden = !matches;
+        if (matches) shown++;
+      }
+      presetCounter.textContent = "顯示 " + shown + " / " + all.length + " 個模組";
+      presetEmpty.hidden = shown !== 0;
+      wrap.querySelectorAll("[data-world-preset-filter]").forEach(button =>
+        button.setAttribute("aria-pressed", String(button.dataset.worldPresetFilter === presetFilter)));
+    };
+    presetSearch.addEventListener("input", () => {
+      presetQuery = presetSearch.value.trim().toLowerCase();
+      applyPresetDiscovery();
+    });
+    wrap.querySelectorAll("[data-world-preset-filter]").forEach(button => button.addEventListener("click", () => {
+      presetFilter = button.dataset.worldPresetFilter;
+      applyPresetDiscovery();
+    }));
 
     const activeIds = () => {
       const ids = [
@@ -93,6 +135,7 @@
         setEnabled(input.dataset.presetId, input.checked);
         render();
       }));
+      applyPresetDiscovery();
     };
 
     const renderOrder = () => {
