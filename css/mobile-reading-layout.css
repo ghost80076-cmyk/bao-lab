@@ -559,3 +559,41 @@
     color:var(--yoru-muted);
   }
 }
+
+
+/* Experience 3.0 / Phase 7 — mobile reply actions: reading comes first.
+   "More" reuses the original buttons, not duplicate click handlers. */
+@media(max-width:820px){
+  #chat-view .story-message-tools > details.bao-message-more{
+    order:90;flex:0 0 auto;align-self:flex-start;min-width:70px;max-width:100%;
+    margin:0;border:1px solid var(--yoru-control-border,var(--story-border));
+    border-radius:11px;background:var(--yoru-control,var(--yoru-tool-raised));
+    color:var(--yoru-story-text,var(--story-text));overflow:hidden;
+  }
+  #chat-view .story-message-tools > details.bao-message-more[hidden]{display:none!important}
+  #chat-view .story-message-tools .bao-message-more > summary{
+    display:flex;align-items:center;justify-content:center;gap:7px;
+    min-height:39px;padding:6px 11px;cursor:pointer;list-style:none;
+    font-size:12px;font-weight:700;white-space:nowrap;
+  }
+  #chat-view .story-message-tools .bao-message-more > summary::-webkit-details-marker{display:none}
+  #chat-view .story-message-tools .bao-message-more > summary::after{
+    content:'⌄';color:var(--yoru-story-muted,var(--story-muted));font-size:15px;
+  }
+  #chat-view .story-message-tools .bao-message-more[open] > summary::after{content:'⌃'}
+  #chat-view .story-message-tools .bao-message-more > summary:focus-visible{
+    outline:2px solid var(--yoru-lantern,#d6aa73);outline-offset:-3px;
+  }
+  #chat-view .story-message-tools .bao-message-more-actions{
+    display:flex;flex-wrap:wrap;align-items:center;gap:7px;padding:9px;
+    border-top:1px solid var(--yoru-control-border,var(--story-border));
+    max-width:min(285px,calc(100vw - 40px));
+  }
+  #chat-view .story-message-tools .bao-message-more-actions button{
+    width:auto;max-width:100%;white-space:normal;
+    text-align:left;overflow-wrap:anywhere;min-height:39px;
+  }
+  #chat-view .story-message-tools > button{
+    border-color:var(--yoru-control-border,var(--story-border));
+  }
+}
