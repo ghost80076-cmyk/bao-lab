@@ -780,7 +780,7 @@
     document.head.appendChild(style);
   }
   // Theme only platform-owned actor chrome, not authored HTML or generated prose.
-  if (!document.querySelector('link[href^="css/actor-library-experience.css"]')) {
+  if (typeof document.createElement === 'function' && !document.querySelector('link[href^="css/actor-library-experience.css"]')) {
     const themeStyles = document.createElement('link');
     themeStyles.rel = 'stylesheet';
     themeStyles.href = 'css/actor-library-experience.css?v=1';
