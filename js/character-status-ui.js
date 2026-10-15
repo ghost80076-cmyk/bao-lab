@@ -143,9 +143,7 @@
     let rosterFilter = "all";
     let quickAddOpen = false;
 
-    const relationshipBitsFor = name => {
-      const cfg = window.BAOCharacterStatus.ensureState(App.activeCharacter)
-        || window.BAOCharacterStatus.configFor(App.activeCharacter);
+    const relationshipBitsFor = (name, cfg) => {
       const status = GameState.current?.characterStatuses?.[name] || {};
       const relationshipFields = visibleFields(cfg).filter(field => {
         const label = displayLabel(field, cfg.customization);
@@ -186,13 +184,14 @@
 
     const render = () => {
       const latest = window.BAOCharacterStatus.npcRoster?.() || [];
+      const relationshipCfg = window.BAOCharacterStatus.configFor(App.activeCharacter);
       const inSceneCount = latest.filter(npc => selected.has(String(npc.name || ""))).length;
       wrap.innerHTML = `<section class="npc-roster-modal" role="dialog" aria-modal="true" aria-labelledby="npc-roster-title"><header><div><div class="eyebrow">STORY CAST</div><h2 id="npc-roster-title">NPC 名冊／場景參與者</h2><p id="npc-roster-intro">名冊保留整份故事的人物；勾選只代表目前場景在場。關係摘要只顯示你原本就看得到、且沒有隱藏的狀態欄欄位。收藏到我的人物庫時仍只帶走姓名與身分。</p></div><div class="npc-roster-head-actions"><button type="button" class="npc-roster-help-toggle" data-roster-help aria-label="NPC 名冊說明" aria-expanded="false" aria-controls="npc-roster-intro">?</button><button type="button" class="text-button" data-roster-close>關閉</button></div></header><div class="npc-roster-body"><section class="npc-roster-current"><div class="npc-roster-section-head"><div><h3>故事人物</h3><p>目前地點：${esc(GameState.current?.location || "未設定")} · 本場 ${inSceneCount} 位</p></div><div class="npc-roster-batch"><button type="button" class="secondary" data-roster-all>全部加入本場</button><button type="button" class="secondary" data-roster-none>清空本場</button></div></div><div class="npc-roster-discovery"><label class="npc-roster-search">搜尋名冊<input type="search" data-roster-search aria-label="搜尋 NPC 名冊" placeholder="搜尋姓名、身分、地點或可見關係" autocomplete="off"></label><div class="npc-roster-filters" aria-label="名冊篩選"><button type="button" data-roster-filter="all" aria-pressed="true">全部</button><button type="button" data-roster-filter="scene" aria-pressed="false">本場 · ${inSceneCount}</button><button type="button" data-roster-filter="other" aria-pressed="false">其他 · ${Math.max(0, latest.length - inSceneCount)}</button></div><small data-roster-visible-count aria-live="polite">${latest.length} 位人物</small></div><div class="npc-roster-list">${latest.length ? latest.map(npc => {
         const name = String(npc.name || "");
         const checked = selected.has(name);
         const presence = checked ? "本場在場" : npc.presence === "away" ? "已離場" : npc.presence === "present" ? "其他地點／待確認" : "行蹤未知";
         const group = checked ? "scene" : "other";
-        const relations = relationshipBitsFor(name);
+        const relations = relationshipBitsFor(name, relationshipCfg);
         const relationText = relations.map(item => `${item.label} ${item.value}`).join(" ");
         const searchText = [name, npc.role || "NPC", presence, npc.location || "", relationText].join(" ");
         const relationHtml = relations.length
