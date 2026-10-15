@@ -856,5 +856,19 @@
   if (adultEnabled()) loadAdultPack().then(refreshPortablePickers).catch(error => console.warn('YoruBay adult story actor pack preload failed:', error));
 
   installChatEntry();
+  // The chat shell is rebuilt when entering/restoring a story. Restore the
+  // original people button after each render before navigation sorts it.
+  const restorePeopleEntry = function(next, ...args) {
+    const result = next(...args);
+    installChatEntry();
+    window.BAOChatToolNavigation?.sync?.();
+    return result;
+  };
+  if (typeof App.wrapRenderChatShell === 'function') {
+    App.wrapRenderChatShell('story-people:restore-menu-entry', restorePeopleEntry);
+  } else {
+    const previousRender = App.renderChatShell.bind(App);
+    App.renderChatShell = (...args) => restorePeopleEntry.call(App, previousRender, ...args);
+  }
   window.BAOStoryActors = {exportPeople, validatePeople, importPeople, downloadPeople, open, openLibrary, close, actors, readPresets:presets, savePreset, readActorPresets:actorPresets, saveActorPreset, saveVisibleNpcPreset, readBuilderDraft, clearBuilderDraft, installBuilder, updateLabels, portableCatalog, loadAdultPack};
 })();
