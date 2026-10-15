@@ -9,7 +9,7 @@
     if (document.querySelector('link[href^="css/memory-workbench.css"]')) return;
     const link = document.createElement("link");
     link.rel = "stylesheet";
-    link.href = "css/memory-workbench.css?v=2";
+    link.href = "css/memory-workbench.css?v=3";
     document.head.appendChild(link);
   };
   const read = () => {
