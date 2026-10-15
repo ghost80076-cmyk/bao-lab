@@ -76,7 +76,7 @@ assert.equal(
   "world-modules must be loaded exactly once by site-ui"
 );
 assert.equal(
-  siteUI.split('loadBAOScript("js/story-tools.js?v=4")').length - 1,
+  siteUI.split('loadBAOScript("js/story-tools.js?v=5")').length - 1,
   1,
   "story-tools must be loaded exactly once by site-ui"
 );
