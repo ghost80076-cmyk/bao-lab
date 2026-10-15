@@ -183,7 +183,12 @@ for (const theme of ['mist','rose']) {
         tools:bg('#bao-mobile-composer-tools'),
         inspiration:bg('#bao-mobile-composer-inspire'),
         text:fg('#user-input'),
-        assistant:fg('#chat-view .message.assistant .bubble:not(.authored-rich-message)'),
+        // Some works render an authored rich HTML message, not a plain bubble.
+        // Do not force platform theme colors onto author-controlled markup.
+        assistant:(() => {
+          const plain = document.querySelector('#chat-view .message.assistant .bubble:not(.authored-rich-message)');
+          return plain ? getComputedStyle(plain).color : null;
+        })(),
         horizontalOverflow:document.documentElement.scrollWidth-innerWidth
       };
     });
@@ -196,7 +201,7 @@ for (const theme of ['mist','rose']) {
     expect(current.tools).toBe(expected.control);
     expect(current.inspiration).toBe(expected.control);
     expect(current.text).toBe(expected.text);
-    expect(current.assistant).toBe(expected.text);
+    if (current.assistant !== null) expect(current.assistant).toBe(expected.text);
     expect(current.horizontalOverflow).toBeLessThanOrEqual(1);
     await expect(draft).toHaveValue('這段尚未送出的故事草稿，切換主題後必須保留。');
     expect(await page.locator('#chat-stream .message.assistant').first().textContent()).toBe(storyBefore);
