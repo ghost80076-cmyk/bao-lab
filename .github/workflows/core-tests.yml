@@ -209,6 +209,7 @@ jobs:
         run: |
           node tests/character-import-core.cjs
           node tests/yorubay-png-roundtrip-core.cjs
+          node tests/work-package-core.cjs
       - name: Admin character publication
         run: |
           node tests/admin-character-publish-core.cjs

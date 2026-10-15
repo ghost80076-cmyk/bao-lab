@@ -38,7 +38,7 @@ increasing(index, [
   'src="js/api.js"',
   'src="js/helper-data.js?v=2"',
   'src="js/chat.js',
-  'src="js/character.js?v=4"',
+  'src="js/character.js?v=5"',
   'src="js/app.js',
   'src="js/chat-markup.js?v=3"',
   'src="js/site-ui.js'

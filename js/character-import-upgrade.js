@@ -160,7 +160,7 @@
     if (!["general","male","female"].includes(category)) throw new Error("category 只能使用 general、female 或 male。");
     if (!["general","adult"].includes(rating)) throw new Error("rating 只能使用 general 或 adult。");
     if (meta && typeof meta==="object") { meta.category=category; meta.rating=rating; }
-    const avatar=text(meta.avatar||raw.avatar); if (avatar && !/^(https:\/\/|assets\/)/i.test(avatar)) throw new Error("角色圖片請使用 HTTPS 網址或 assets/ 本站路徑。");
+    const avatar=text(meta.avatar||raw.avatar); if (avatar && !/^(https:\/\/|assets\/|yorubay-asset:\/\/)/i.test(avatar)) throw new Error("角色圖片請使用 HTTPS 網址、assets/ 路徑或作品包圖片。");
     if (raw.gameplay !== undefined && !object(raw.gameplay)) throw new Error("gameplay 必須是 JSON 物件。");
     if (raw.presentation !== undefined && !object(raw.presentation)) throw new Error("presentation 必須是 JSON 物件。");
     if (typeof engine.audit === "function") { const report=engine.audit(raw); if (!report.ok) throw new Error("角色卡結構錯誤："+report.errors.join("；")); }
@@ -203,7 +203,10 @@
   }
 
   async function prepareFile(file) {
+    if (/\.zip$/i.test(file?.name || "")) return window.BAOWorkPackage.prepareFile(file);
     const {raw,origin,cover}=await parseFile(file);
+    const mediaCard=raw?.data?.extensions?.yorubay?.character||raw;
+    if(mediaCard?.asset_manifest?.assets?.length)throw new Error("這份角色引用作品包內的圖片，請匯入完整 .yorubay.zip，以免遺失原圖。");
     if (raw?.spec === "chara_card_v2" || raw?.spec === "chara_card_v3") {
       const roundtrip = restoreYoruBayRoundtrip(raw, origin, cover);
       if (roundtrip) return roundtrip;
@@ -214,7 +217,7 @@
     }
     return {converted:false,format:"BAO/LAB JSON",origin,character:inspect(raw),report:null,cover:null};
   }
-  async function saveCharacter(raw, cover = null) {
+  async function saveCharacter(raw, cover = null, packageOptions = {}) {
     const character=inspect(raw), builtin=(typeof App !== "undefined" && Array.isArray(App.characters)?App.characters:[]).some(x=>x.id===character.id&&x.source==="built-in");
     if (builtin) throw new Error("這個角色 ID 與內建作品重複；請修改 JSON 中的 meta.id，避免遮蔽原作品。");
     let existing;
@@ -224,14 +227,14 @@
     if (duplicate && !window.confirm(`本機已有 ID「${character.id}」的角色。確定要以新檔覆蓋角色設定嗎？現有故事存檔不會被修改。`)) throw new Error("已取消同 ID 角色覆蓋，原有資料沒有變更。");
     if (!duplicate && existing.length>=100) throw new Error("本機角色庫已達 100 張上限；請先備份並移除不需要的角色。");
     character.source="local-import";
-    if (typeof engine.saveCustomAsync === "function") await engine.saveCustomAsync(character, { cover });
+    if (typeof engine.saveCustomAsync === "function") await engine.saveCustomAsync(character, { cover, ...packageOptions });
     else engine.saveCustom(character);
     const persisted=engine.loadCustom().find(x=>x.id===character.id);
     if (!persisted || persisted.name!==character.name || persisted.system_prompt!==character.system_prompt || persisted.greeting!==character.greeting) throw new Error("本機儲存驗證未通過；請檢查瀏覽器儲存空間與隱私模式。");
     return character;
   }
   function preview(draft) {
-    if (typeof document === "undefined") return Promise.resolve(saveCharacter(draft.character));
+    if (typeof document === "undefined") return Promise.resolve(saveCharacter(draft.character,draft.cover,draft.packageOptions));
     return new Promise((resolve,reject) => {
       document.getElementById("bao-character-import-preview")?.remove();
       const c=draft.character, r=draft.report, list=values=>values?.length?`<ul>${values.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:"<p>無</p>";
@@ -243,8 +246,8 @@
       document.body.append(wrap); wrap.querySelector("[data-name]").focus();
     });
   }
-  async function importFile(file) { const draft=await prepareFile(file); return saveCharacter(draft.character,draft.cover); }
-  async function requestImport(file) { const draft=await prepareFile(file); return draft.converted?preview(draft):saveCharacter(draft.character,draft.cover); }
+  async function importFile(file) { const draft=await prepareFile(file); return saveCharacter(draft.character,draft.cover,draft.packageOptions); }
+  async function requestImport(file) { const draft=await prepareFile(file); return draft.packageOptions?window.BAOWorkPackage.preview(draft,saveCharacter):draft.converted?preview(draft):saveCharacter(draft.character,draft.cover); }
   engine.importFile=importFile; engine.requestImport=requestImport;
   function enhanceTools() {
     const tools=document.querySelector(".character-tools"); if(!tools||tools.dataset.importUpgrade==="1")return false;

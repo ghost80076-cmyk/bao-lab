@@ -147,9 +147,11 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/story-control-center-core.js"))
     .then(() => loadBAOScript("js/story-control-center.js?v=3"))
     .catch(err => console.warn("BAO/LAB local preview, narrative settings, memory workbench, story tools, story library, story reader or chat markup failed to load:", err));
-  loadBAOScript("js/character-library.js")
+  loadBAOScript("js/work-package-core.js?v=1")
+    .then(() => loadBAOScript("js/character-library.js?v=2"))
     .then(() => loadBAOScript("js/character-readiness.js"))
-    .then(() => loadBAOScript("js/character-import-upgrade.js?v=2"))
+    .then(() => loadBAOScript("js/character-import-upgrade.js?v=3"))
+    .then(() => loadBAOScript("js/work-package.js?v=1"))
     .then(() => loadBAOScript("js/device-transfer.js"))
     .then(() => loadBAOScript("js/author-diagnostics.js"))
     .catch(err => console.warn("BAO/LAB character library, import, device transfer or author diagnostics failed to load:", err));

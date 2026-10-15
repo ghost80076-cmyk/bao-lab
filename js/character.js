@@ -179,6 +179,7 @@ const CharacterEngine = {
           : (initial.worldClock && typeof initial.worldClock === "object" && !Array.isArray(initial.worldClock) ? initial.worldClock : null)
       },
       import_metadata: importMetadata,
+      asset_manifest: raw.asset_manifest && typeof raw.asset_manifest === "object" ? raw.asset_manifest : null,
       schema_version: raw.schema_version || "1.5",
       source: raw.source || "custom"
     };

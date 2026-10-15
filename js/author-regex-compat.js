@@ -115,8 +115,9 @@
     currentFrame.style.cssText = 'display:block;flex:1;min-height:0;width:100%;border:0;background:white';
     const assets = allowExternalAssets ? 'https: data:' : 'data:';
     const csp = `default-src 'none'; script-src ${currentScripts ? "'unsafe-inline'" : "'none'"}; style-src 'unsafe-inline'; img-src ${assets}; font-src ${assets}; media-src ${assets}; connect-src 'none'; frame-src 'none'; form-action 'none'; base-uri 'none'; object-src 'none'`;
-    currentFrame.srcdoc = '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="' + csp + '"><style>html,body{margin:0;min-height:100%;overflow-wrap:anywhere}*,*:before,*:after{box-sizing:border-box}</style>'
+    const htmlDocument = '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="' + csp + '"><style>html,body{margin:0;min-height:100%;overflow-wrap:anywhere}*,*:before,*:after{box-sizing:border-box}</style>'
       + (currentScripts ? bootstrap(currentToken) : '') + '</head><body>' + htmlResult.html + '</body></html>';
+    if(window.BAOWorkPackage)window.BAOWorkPackage.setFrameHTML(currentFrame,htmlDocument,App.activeCharacter);else currentFrame.srcdoc=htmlDocument;
     box.append(bar, note, currentFrame); overlay.append(box); document.body.append(overlay);
     overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
     currentFrame.addEventListener('load', sendState);

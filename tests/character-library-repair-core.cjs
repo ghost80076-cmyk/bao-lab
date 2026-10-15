@@ -90,7 +90,7 @@ test('a failed IndexedDB write leaves the recovery journal intact', async () => 
 test('editor and homepage load the repair module in their actual script paths', () => {
   const studio = fs.readFileSync(path.join(__dirname, '../character-studio.html'), 'utf8');
   const bridge = fs.readFileSync(path.join(__dirname, '../js/global-bridge.js'), 'utf8');
-  assert.ok(studio.indexOf('src="js/character-library.js"') < studio.indexOf('src="js/character-library-repair.js"'));
+  assert.ok(studio.indexOf('src="js/character-library.js?v=2"') < studio.indexOf('src="js/character-library-repair.js"'));
   assert.ok(studio.indexOf('src="js/character-library-repair.js"') < studio.indexOf('src="js/character-studio.js"'));
   assert.ok(bridge.includes("repairScript.src = 'js/character-library-repair.js'"));
 });

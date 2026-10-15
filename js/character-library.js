@@ -14,6 +14,24 @@
   let fallback = typeof indexedDB === "undefined";
   const covers = new Map();
   const objectUrls = new Map();
+  const assetCollections = new Map(), assetUrls = new Map(), attachments = new Map();
+  const assetKey = (owner,id) => owner+"::"+id;
+  const clearAssets = owner => { for(const [key,url] of assetUrls) if(key.startsWith(owner+"::")){URL.revokeObjectURL(url);assetUrls.delete(key);} };
+  const assetURL = (owner,id) => {
+    const asset=assetCollections.get(owner)?.find(x=>x.id===id), key=assetKey(owner,id);
+    if(!asset?.blob) return "";
+    if(!assetUrls.has(key))assetUrls.set(key,URL.createObjectURL(asset.blob));
+    return assetUrls.get(key);
+  };
+  const resolveAssets = character => {
+    for(const key of ["avatar","reading_background"]){
+      const ref=String(character[key]||"");
+      const asset=character.asset_manifest?.assets?.find(x=>x.role===(key==='avatar'?'cover':'background'));
+      const id=ref.startsWith('yorubay-asset://')?ref.slice(16):ref.startsWith('blob:')?asset?.id:null;
+      const url=id?assetURL(character.id,id):'';if(url)character[key]=url;
+    }
+    return character;
+  };
 
   const clone = value => {
     try { return structuredClone(value); }
@@ -28,6 +46,9 @@
 
   const materialize = record => {
     const character = engine.normalize(clone(record.character || record));
+    assetCollections.set(character.id, record.assets || []);
+    attachments.set(character.id,record.packageFiles || {});
+    resolveAssets(character);
     const cover = record.cover instanceof Blob ? record.cover : null;
     if (cover && typeof URL?.createObjectURL === "function") {
       revoke(character.id);
@@ -39,6 +60,9 @@
     character.source = "local-import";
     return character;
   };
+
+  const normalizeWithoutAssets=engine.normalize.bind(engine);
+  engine.normalize=raw=>resolveAssets(normalizeWithoutAssets(raw));
 
   const open = () => new Promise((resolve, reject) => {
     const request = indexedDB.open(DB_NAME, DB_VERSION);
@@ -129,15 +153,25 @@
 
   const saveAsync = async (character, options = {}) => {
     await ready();
+    const normalized=engine.normalize(character);
     const cover = options.cover instanceof Blob ? options.cover : covers.get(character.id) || null;
-    const saved = upsertCache(character, cover || undefined);
-    if (!db || fallback) {
-      persistLegacyFallback();
-      return saved;
+    const assets=options.assets || assetCollections.get(character.id) || [];
+    const packageFiles=options.packageFiles || attachments.get(character.id) || {};
+    if(assets.length && (!db || fallback)) throw new Error("瀏覽器圖片儲存不可用，請保留作品 ZIP 並改用允許本機儲存的瀏覽器。");
+    if(!normalized.asset_manifest && assets.length)normalized.asset_manifest={version:1,assets:assets.map(({blob,...meta})=>meta)};
+    const storedCharacter=clone(normalized);
+    for(const field of ["avatar","reading_background"]){
+      const role=field==='avatar'?'cover':'background';
+      const asset=normalized.asset_manifest?.assets?.find(x=>x.role===role);
+      if(asset && String(storedCharacter[field]||'').startsWith('blob:'))storedCharacter[field]='yorubay-asset://'+asset.id;
     }
-    const storedCharacter = clone(saved);
-    if (String(storedCharacter.avatar || "").startsWith("blob:")) delete storedCharacter.avatar;
-    await request("readwrite", store => store.put({ id: saved.id, character: storedCharacter, cover, updatedAt: new Date().toISOString() }));
+    if(String(storedCharacter.avatar||'').startsWith('blob:'))delete storedCharacter.avatar;
+    // Commit character, media and attachments together; a quota failure leaves the previous card intact.
+    if(db && !fallback)await request("readwrite",store=>store.put({id:normalized.id,character:storedCharacter,cover,assets,packageFiles,updatedAt:new Date().toISOString()}));
+    clearAssets(normalized.id);
+    assetCollections.set(normalized.id,assets);attachments.set(normalized.id,packageFiles);
+    const saved=upsertCache(resolveAssets(engine.normalize(storedCharacter)),cover || undefined);
+    if(!db || fallback)persistLegacyFallback();
     return saved;
   };
 
@@ -152,7 +186,7 @@
   };
   engine.removeCustom = id => {
     cache = cache.filter(character => character.id !== id);
-    covers.delete(id); revoke(id);
+    covers.delete(id); revoke(id); clearAssets(id);assetCollections.delete(id);attachments.delete(id);
     if (!db || fallback) persistLegacyFallback();
     else writeQueue = writeQueue.then(() => request("readwrite", store => store.delete(id))).catch(error => console.warn("BAO/LAB imported-character delete failed:", error));
   };
@@ -163,6 +197,8 @@
     return Promise.all(records.map(async record => ({
       id: record.id,
       character: clone(record.character || record),
+      packageFiles: Object.fromEntries(Object.entries(record.packageFiles || {}).map(([name,data])=>[name,Array.from(data)])),
+      assets: await Promise.all((record.assets||[]).map(async asset=>({...asset,blob:undefined,base64:await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=()=>reject(reader.error);reader.readAsDataURL(asset.blob);})}))),
       cover: record.cover instanceof Blob ? await new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.onload = () => resolve(reader.result);
@@ -182,10 +218,28 @@
         if (binary.length > 10 * 1024 * 1024) throw new Error(`角色「${character.name}」的封面超過 10 MB。`);
         cover = new Blob([Uint8Array.from(binary, value => value.charCodeAt(0))], { type: "image/png" });
       }
-      await saveAsync(character, { cover });
+      const assets=(record.assets||[]).map(asset=>{
+        if(typeof asset.base64!=='string'||!/^data:image\/(png|jpeg|webp|gif);base64,/.test(asset.base64))throw new Error('搬家包圖片格式無效。');
+        const data=Uint8Array.from(atob(asset.base64.split(',')[1]),c=>c.charCodeAt(0));
+        if(data.length>10*1024*1024)throw new Error('搬家包單張圖片超過 10 MB。');
+        return {...asset,base64:undefined,blob:new Blob([data],{type:asset.mime})};
+      });
+      const packageFiles=Object.fromEntries(Object.entries(record.packageFiles||{}).map(([name,data])=>[name,new Uint8Array(data)]));
+      await saveAsync(character, { cover,assets,packageFiles });
     }
     refreshApp();
     return engine.loadCustom();
+  };
+  engine.getWorkAssetURL=assetURL;
+  engine.getWorkAssets=id => (assetCollections.get(id)||[]).map(x=>({...x}));
+  engine.getWorkPackageFiles=id => clone(attachments.get(id)||{});
+  engine.exportWorkPackage=async id => {
+    await ready();await writeQueue;
+    const record=db&&!fallback?await request('readonly',store=>store.get(id)):null;
+    if(!record)throw new Error('找不到可匯出的本機作品。');
+    const files=Object.assign(Object.create(null),record.packageFiles||{}),assets=record.character.asset_manifest?.assets||[];
+    for(const asset of record.assets||[])files[asset.path]=new Uint8Array(await asset.blob.arrayBuffer());
+    return window.BAOWorkPackageCore.build({character:record.character,assets,files,adaptation:record.character.import_metadata?.package_adaptation});
   };
   engine.characterLibraryStatus = () => ({ mode: db && !fallback ? "indexedDB" : "localStorage", count: cache.length });
   engine.flushCustomLibrary = () => writeQueue;

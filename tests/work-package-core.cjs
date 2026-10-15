@@ -1,0 +1,35 @@
+const assert=require('node:assert/strict');
+const {deflateRawSync}=require('node:zlib');
+const Core=require('../js/work-package-core.js');
+const png=new Uint8Array(Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAusB9Wl6e7sAAAAASUVORK5CYII=','base64'));
+const card={schema_version:'1.5',meta:{id:'package-test',name:'作品包測試'},content:{greeting:'原始開場',system_prompt:'原始設定'},gameplay:{initial_state:{worldbookLibrary:{version:1,enabled:['port'],installed:[{schema:'yorubay-worldbook-pack',version:1,meta:{id:'port',name:'原作世界'},entries:Array.from({length:100},(_,i)=>({id:'entry-'+i,mode:'keyword',keywords:['港'+i],content:'完整設定'+i,enabled:i!==99}))}],pinned:{}}}}};
+async function main(){
+  card.gameplay.initial_state.worldbookLibrary.pinned.port=structuredClone(card.gameplay.initial_state.worldbookLibrary.installed[0]);
+  card.gameplay.initial_state.worldbookLibrary.pinned.port.entries[0].content='固定版本完整原文';
+  const original=JSON.stringify(card),regex={regex_scripts:[{findRegex:'(.*)',replaceString:'<img src="embeded://assets/port.png">$1'}]};
+  const packed=Core.build({character:card,regex,assets:[{id:'port',path:'assets/port.png',role:'scene',when:[{path:'location',equals:'碼頭'}]}],files:{'assets/port.png':png,'source/original.json':Core.jsonBytes({secret_plot:'原作秘密'})}});
+  assert.equal(JSON.stringify(card),original);
+  const files=await Core.unzip(packed.bytes),restored=Core.assemble(Core.jsonFile(files,'manifest.json'),files);
+  assert.equal(restored.character.gameplay.initial_state.worldbookLibrary.installed[0].entries.length,100);
+  assert.equal(restored.character.gameplay.initial_state.worldbookLibrary.pinned.port.entries[0].content,'固定版本完整原文');
+  assert.equal(restored.character.gameplay.initial_state.worldbookLibrary.installed[0].entries[99].enabled,false);
+  assert.equal(Core.jsonFile(files,'character.json').gameplay.initial_state.worldbookLibrary.installed.length,0);
+  assert.deepEqual(restored.regex,regex);assert.deepEqual(files['assets/port.png'],png);
+  assert.equal(Core.matchAsset(restored.assets,{location:'碼頭'}).id,'port');assert.equal(Core.matchAsset(restored.assets,{location:'書庫'}),null);
+  assert.equal(Core.jsonFile(files,'source/original.json').secret_plot,'原作秘密');
+  const corrupted=packed.bytes.slice();corrupted[30+new TextEncoder().encode(Object.keys(packed.files)[0]).length]^=1;
+  await assert.rejects(Core.unzip(corrupted),/校驗/);
+  for(const name of ['../bad','/bad','a/../bad','a\\bad','C:bad','a//bad'])assert.throws(()=>Core.zip({[name]:png}),/路徑/);
+  assert.throws(()=>Core.build({character:card,assets:[{id:'missing',path:'assets/missing.png'}]}),/圖片缺少/);
+  assert.throws(()=>Core.build({character:card,assets:[{id:'x',path:'assets/port.png',when:[{path:'modules.__proto__.x',equals:1}]}],files:{'assets/port.png':png}}),/圖片條件/);
+  // Independent zlib deflate fixture exercises ordinary compressed CHARX entries.
+  const raw=Core.jsonBytes({name:'CHARX'}), compressed=deflateRawSync(raw),name=Buffer.from('card.json');
+  const header=Buffer.alloc(30+name.length),directory=Buffer.alloc(46+name.length),end=Buffer.alloc(22);
+  header.writeUInt32LE(0x04034b50);header.writeUInt16LE(8,8);header.writeUInt32LE(Core.crc32(raw),14);header.writeUInt32LE(compressed.length,18);header.writeUInt32LE(raw.length,22);header.writeUInt16LE(name.length,26);name.copy(header,30);
+  directory.writeUInt32LE(0x02014b50);directory.writeUInt16LE(8,10);directory.writeUInt32LE(Core.crc32(raw),16);directory.writeUInt32LE(compressed.length,20);directory.writeUInt32LE(raw.length,24);directory.writeUInt16LE(name.length,28);name.copy(directory,46);
+  end.writeUInt32LE(0x06054b50);end.writeUInt16LE(1,8);end.writeUInt16LE(1,10);end.writeUInt32LE(directory.length,12);end.writeUInt32LE(header.length+compressed.length,16);
+  const charx=new Uint8Array(Buffer.concat([header,compressed,directory,end]));assert.equal(Core.jsonFile(await Core.unzip(charx),'card.json').name,'CHARX');
+  const bomb=charx.slice(),view=new DataView(bomb.buffer);view.setUint32(header.length+compressed.length+24,Core.LIMITS.file+1,true);await assert.rejects(Core.unzip(bomb),/容量/);
+  console.log('Work package: ZIP/deflate, integrity, lossless worldbooks/Regex/images, conditions and invalid input checks passed.');
+}
+main().catch(error=>{console.error(error);process.exitCode=1;});

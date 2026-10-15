@@ -106,9 +106,9 @@
   core.src = 'js/author-regex-core.js';
   core.onload = () => {
     window.BAORegexChat?.schedule?.();
-    if (document.querySelector('script[src="js/author-regex-compat.js"]')) return;
+    if (document.querySelector('script[src="js/author-regex-compat.js?v=2"]')) return;
     const compat = document.createElement('script');
-    compat.src = 'js/author-regex-compat.js';
+    compat.src = 'js/author-regex-compat.js?v=2';
     compat.onload = () => {
       if (!document.querySelector('script[src="js/author-regex-text-mod.js"]')) {
         const textMod = document.createElement('script');
@@ -124,13 +124,13 @@
       style.textContent = '.bao-author-inline iframe[hidden]{display:none!important}';
       document.head.appendChild(style);
       const cardBind = document.createElement('script');
-      cardBind.src = 'js/author-regex-card-bind.js?v=3';
+      cardBind.src = 'js/author-regex-card-bind.js?v=4';
       cardBind.onload = () => {
         const inline = document.createElement('script');
-        inline.src = 'js/author-regex-inline.js?v=2';
+        inline.src = 'js/author-regex-inline.js?v=3';
         inline.onload = () => {
           const dock = document.createElement('script');
-          dock.src = 'js/author-regex-dock.js';
+          dock.src = 'js/author-regex-dock.js?v=2';
           dock.onerror = () => console.warn('BAO/LAB persistent author interface failed to load');
           document.head.appendChild(dock);
         };

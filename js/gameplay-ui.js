@@ -583,7 +583,7 @@
   const fallbackSceneURL = source => {
     const character = App.activeCharacter || {};
     if (source === 'avatar') return String(character.avatar || '');
-    return String(character.reading_background || character.avatar || '');
+    return window.BAOWorkPackage?.sceneURL(character,GameState.current) || String(character.reading_background || character.avatar || '');
   };
 
   const cleanupLocationObjectURLs = () => {
@@ -648,6 +648,7 @@
   };
 
   const ensureSceneStage = (layout, schema) => {
+    window.BAOWorkPackage?.syncSceneCard(App.activeCharacter,GameState.current);
     const main = layout.querySelector(':scope > .chat-main');
     if (!main) return null;
     let stage = document.getElementById('bao-gameplay-scene-stage');
@@ -660,6 +661,13 @@
     }
     applyTheme(stage, schema);
     stage.dataset.sceneFit = schema?.layout?.scene_fit || 'cover';
+    let portrait=stage.querySelector('.work-package-portrait');
+    const portraitURL=window.BAOWorkPackage?.sceneURL(App.activeCharacter,GameState.current,'portrait')||'';
+    if(!portraitURL)portrait?.remove();
+    else {
+      if(!portrait){portrait=document.createElement('img');portrait.className='work-package-portrait';portrait.alt='目前人物';stage.querySelector('.gameplay-scene-visual').append(portrait);}
+      if(portrait.getAttribute('src')!==portraitURL)portrait.src=portraitURL;
+    }
     const time = stage.querySelector('[data-scene-time]');
     const location = stage.querySelector('[data-scene-location]');
     if (time) time.textContent = displayValue(formatValue(GameState.current?.time));
