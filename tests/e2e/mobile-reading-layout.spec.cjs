@@ -278,7 +278,58 @@ test('mobile reply tools preserve original buttons across easy, pro and desktop 
   await expect(tools.locator('[data-rewrite]')).toBeHidden();
 
   await page.setViewportSize({width:1280,height:900});
+  await expect(more).toBeVisible();
+  await expect(tools.locator('[data-rewrite]')).toBeHidden();
+  await page.evaluate(() => YoruExperience.choose({level:'pro'}));
   await expect(tools.locator('details.bao-message-more')).toHaveCount(0);
   await expect(tools.locator('[data-rewrite]')).toBeVisible();
   expect(await message.locator('.bubble').textContent()).toBe(prior);
+});
+
+
+test('desktop Play reply tools follow easy, standard and pro without changing message', async ({page}) => {
+  await page.setViewportSize({width:1280,height:900});
+  await openDemoStory(page);
+  await page.waitForFunction(() => !!window.YoruExperience && !!window.BAOMobileReadingLayout);
+  await page.evaluate(() => {
+    Chat.add('assistant','桌機模式回覆按鈕保持原有行為與內容。');
+    App.renderChatShell(false);
+  });
+  const msg = page.locator('#chat-stream .message.assistant[data-message-index]').last();
+  const toolbar = msg.locator('.story-message-tools');
+  const more = toolbar.locator(':scope > details.bao-message-more');
+  const textBefore = await msg.locator('.bubble').textContent();
+
+  await expect(page.locator('#chat-view')).toHaveAttribute('data-bao-surface','play');
+  await expect(more).toBeVisible();
+  await expect(toolbar.locator(':scope > [data-copy]')).toBeVisible();
+  await expect(toolbar.locator('[data-edit]')).toBeHidden();
+  await expect(toolbar.locator('[data-regenerate]')).toBeDisabled();
+  await expect(toolbar.locator('[data-rewrite]')).toBeHidden();
+
+  await page.evaluate(() => YoruExperience.choose({level:'standard'}));
+  await expect(more).toBeVisible();
+  await expect(toolbar.locator(':scope > [data-edit]')).toBeVisible();
+  await expect(toolbar.locator('[data-rewrite]')).toBeHidden();
+  await more.locator('summary').click();
+  await expect(toolbar.locator('[data-rewrite]')).toBeVisible();
+
+  await page.evaluate(() => YoruExperience.choose({level:'pro'}));
+  await expect(more).toHaveCount(0);
+  await expect(toolbar.locator('[data-rewrite]')).toBeVisible();
+  await expect(toolbar.locator('[data-create-branch]')).toHaveCount(1);
+
+  await page.evaluate(() => YoruExperience.choose({level:'easy'}));
+  await expect(more).toBeVisible();
+  await expect(toolbar.locator('[data-edit]')).toBeHidden();
+  await page.evaluate(() => {
+    document.getElementById('chat-view').dataset.baoSurface='studio';
+  });
+  await expect(more).toHaveCount(0);
+  await expect(toolbar.locator('[data-edit]')).toBeVisible();
+  await page.evaluate(() => {
+    document.getElementById('chat-view').dataset.baoSurface='play';
+  });
+  await expect(more).toBeVisible();
+  expect(await msg.locator('.bubble').textContent()).toBe(textBefore);
 });

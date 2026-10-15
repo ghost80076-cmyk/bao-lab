@@ -597,3 +597,46 @@
     border-color:var(--yoru-control-border,var(--story-border));
   }
 }
+
+
+/* Experience 3.0 · Phase 8: desktop Play reveals specialist reply tools
+   only on demand. Studio and professional stay fully exposed. */
+@media(min-width:821px){
+  #chat-view[data-bao-surface="play"] .story-message-tools > details.bao-message-more {
+    order:90;flex:0 0 auto;min-width:84px;max-width:100%;
+    border:1px solid var(--yoru-control-border,var(--story-border));
+    border-radius:10px;
+    background:var(--yoru-control,var(--yoru-tool-raised));
+    color:var(--yoru-story-text,var(--story-text));
+    overflow:hidden;
+  }
+  #chat-view .story-message-tools > details.bao-message-more[hidden]{display:none!important}
+  #chat-view .story-message-tools > details.bao-message-more > summary{
+    display:flex;align-items:center;justify-content:center;gap:8px;
+    min-height:36px;padding:7px 12px;cursor:pointer;list-style:none;
+    font-size:12px;font-weight:700;white-space:nowrap;
+  }
+  #chat-view .story-message-tools > details.bao-message-more > summary::-webkit-details-marker{display:none}
+  #chat-view .story-message-tools > details.bao-message-more > summary::after{
+    content:'⌄';font-size:15px;color:var(--yoru-story-muted,var(--story-muted));
+  }
+  #chat-view .story-message-tools > details.bao-message-more[open] > summary::after{content:'⌃'}
+  #chat-view .story-message-tools > details.bao-message-more > summary:focus-visible{
+    outline:2px solid var(--yoru-lantern,#d6aa73);outline-offset:-3px;
+  }
+  #chat-view[data-bao-surface="play"] .story-message-tools > details.bao-message-more[open]{
+    flex-basis:min(100%,610px);
+  }
+  #chat-view .story-message-tools .bao-message-more-actions{
+    display:flex;gap:8px;flex-wrap:wrap;align-items:center;
+    padding:11px;border-top:1px solid var(--yoru-control-border,var(--story-border));
+  }
+  #chat-view .story-message-tools .bao-message-more-actions button{
+    min-height:36px;white-space:normal;text-align:left;
+    max-width:100%;overflow-wrap:anywhere;
+  }
+  #chat-view .story-message-tools > button{
+    min-height:36px;
+    border-color:var(--yoru-control-border,var(--story-border));
+  }
+}

@@ -439,13 +439,15 @@
     const host = main.querySelector('.chat-topline');
     if (host && button.parentElement !== host) host.append(button);
   };
-  // Keep the original action buttons and their listeners; only change where
-  // they are presented on phone screens. Desktop can restore the flat toolbar.
+  // Keep original action buttons and handlers. In reading mode, lighter
+  // experience levels disclose specialist reply tools; Studio/pro stay flat.
   const syncMessageActions = () => {
     const stream = main.querySelector('.chat-stream');
     if (!stream) return;
-    const compact = isMobile() && root.classList.contains('active');
-    const professional = window.YoruExperience?.get?.().level === 'pro';
+    const level = window.YoruExperience?.get?.().level || 'easy';
+    const professional = level === 'pro';
+    const compact = root.classList.contains('active') &&
+      (isMobile() || (!professional && root.dataset.baoSurface === 'play'));
     stream.querySelectorAll('.story-message-tools').forEach(toolbar => {
       let more = toolbar.querySelector(':scope > details.bao-message-more');
       if (!compact) {
@@ -477,10 +479,13 @@
       const items = more.querySelector('.bao-message-more-actions');
       if (!items) return;
       buttons.forEach(button => {
-        // Reading-first: active edit, regenerate and copy are the three
-        // one-tap actions. Disabled revisions and specialist tools go to More.
+        // Reading-first: only usable tools receive one-tap placement.
+        // Easy desktop keeps copy/regenerate; standard adds edit. Mobile
+        // retains its familiar three actions. Studio/pro restores all.
+        const editAllowed = isMobile() || level === 'standard';
         const primary = button.matches('[data-copy]') ||
-          (button.matches('[data-edit],[data-regenerate]') && !button.disabled);
+          (!button.disabled && (button.matches('[data-regenerate]') ||
+            (editAllowed && button.matches('[data-edit]'))));
         if (primary && button.parentElement !== toolbar) toolbar.insertBefore(button, more);
         if (!primary && button.parentElement !== items) items.append(button);
       });
@@ -529,7 +534,7 @@
       )))) schedule();
   });
   observer.observe(document.body, { childList: true, subtree: true });
-  new MutationObserver(schedule).observe(root, { attributes: true, attributeFilter: ['class'] });
+  new MutationObserver(schedule).observe(root, { attributes: true, attributeFilter: ['class', 'data-bao-surface'] });
   window.addEventListener('yoru:experience-change', () => {
     const pro = window.YoruExperience?.get?.().level === 'pro';
     main.querySelectorAll('.story-message-tools > details.bao-message-more').forEach(detail => { detail.open = pro; });
@@ -548,10 +553,10 @@
     focusScrollTop = null;
     schedule();
   });
-  window.BAOMobileReadingLayout = { version: 20, sync, syncMessageActions, openTools, enhanceDrawer, togglePanels, openMemory, closePanels, ensureComposerTools, fitComposerInput };
+  window.BAOMobileReadingLayout = { version: 21, sync, syncMessageActions, openTools, enhanceDrawer, togglePanels, openMemory, closePanels, ensureComposerTools, fitComposerInput };
   const style = document.createElement('link');
   style.rel = 'stylesheet';
-  style.href = 'css/mobile-reading-layout.css?v=19';
+  style.href = 'css/mobile-reading-layout.css?v=20';
   document.head.append(style);
   sync();
 })();
