@@ -28,6 +28,14 @@ for(const width of [390,1280])test('work package survives cancel, import, reload
     App.config={displayMode:'ui',narrativeMode:'world',persona:{name:'旅人'},api:{model:'mock'},memory:{mode:'manual',maxRounds:20,maxContext:32000}};GameState.create(c,App.config);App.showView('chat');App.renderChatShell();BAOGameplayUI.syncGameplayLayout();
     return {count:restored.character.initial_state?.worldbookLibrary?.installed[0].entries.length||restored.character.gameplay?.initial_state?.worldbookLibrary?.installed[0].entries.length,assets:CharacterEngine.getWorkAssets(c.id).length,port,library,backedUp:raw[0].assets.length,avatar:c.avatar,prompt:CharacterEngine.composeSystemPrompt(c,{}),rewritten:BAOWorkPackage.rewriteHTML('<img src="embeded://assets/port.png">',c)};
   });
+  await page.evaluate(()=>{
+    const frame=document.createElement('iframe');frame.id='work-asset-probe';frame.setAttribute('sandbox','');frame.style.cssText='position:fixed;left:0;top:0;width:1px;height:1px;opacity:0;pointer-events:none';
+    const html='<meta http-equiv="Content-Security-Policy" content="default-src &#39;none&#39;; img-src data:"><img src="embeded://assets/port.png">';
+    BAOWorkPackage.setFrameHTML(frame,html,App.activeCharacter);document.body.append(frame);
+  });
+  await expect.poll(()=>page.frameLocator('#work-asset-probe').locator('img').evaluate(x=>x.naturalWidth)).toBeGreaterThan(0);
+  expect(await page.locator('#work-asset-probe').getAttribute('sandbox')).toBe('');
+  await page.locator('#work-asset-probe').evaluate(x=>x.remove());
   expect(info.count).toBe(100);expect(info.assets).toBe(4);expect(info.backedUp).toBe(4);expect(info.port).toMatch(/^blob:/);expect(info.library).not.toBe(info.port);expect(info.avatar).toMatch(/^blob:/);expect(info.rewritten).toContain(info.port);expect(info.prompt).not.toContain('embeded://');
   await expect(page.locator('#bao-gameplay-scene-stage img').first()).toHaveAttribute('src',info.port);
   await page.evaluate(()=>{GameState.current.location='書庫';BAOGameplayUI.syncGameplayLayout();});

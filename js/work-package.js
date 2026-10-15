@@ -66,6 +66,27 @@
       for(const ref of new Set(['yorubay-asset://'+asset.id,'embeded://'+asset.path,asset.source_uri].filter(Boolean)))value=value.split(ref).join(url);
     }return value;
   }
+  // Opaque sandbox frames cannot dereference the parent page's Blob URLs.
+  // Convert only images used by this display copy; never persist rewritten rules.
+  const encodedImages=new WeakMap(),frameJobs=new WeakMap();
+  function setFrameHTML(frame,html,character){
+    const owner=character?.id,job={},references=[];frameJobs.set(frame,job);
+    for(const asset of engine.getWorkAssets?.(owner)||[]){
+      const refs=[...new Set(['yorubay-asset://'+asset.id,'embeded://'+asset.path,asset.source_uri].filter(Boolean))].filter(ref=>html.includes(ref));
+      if(refs.length)references.push({asset,refs});
+    }
+    if(!references.length){frame.srcdoc=html;return;}
+    frame.dataset.workAssetsPending='1';
+    void (async()=>{
+      let result=html;
+      for(const {asset,refs} of references){
+        if(!encodedImages.has(asset.blob))encodedImages.set(asset.blob,new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=()=>reject(reader.error);reader.readAsDataURL(asset.blob);}));
+        const url=await encodedImages.get(asset.blob);for(const ref of refs)result=result.split(ref).join(url);
+      }
+      if(frameJobs.get(frame)!==job||!frame.isConnected||App.activeCharacter?.id!==owner)return;
+      delete frame.dataset.workAssetsPending;frame.srcdoc=result;
+    })().catch(error=>{console.warn('作品圖片顯示副本準備失敗：',error);if(frame.isConnected&&frameJobs.get(frame)===job){delete frame.dataset.workAssetsPending;frame.srcdoc=html;}});
+  }
   function syncSceneCard(character,state){
     const host=document.querySelector('#chat-view .chat-main');if(!host)return;
     let card=host.querySelector('[data-work-current-scene]');
@@ -97,5 +118,5 @@
   document.addEventListener('click',event=>{const b=event.target.closest?.('[data-work-export]');if(b)download(b.dataset.workExport).catch(error=>window.alert(error.message));});
   const observer=new MutationObserver(()=>{if(!pending){pending=true;requestAnimationFrame(()=>{pending=false;enhance();});}});let pending=false;
   observer.observe(document.body,{childList:true,subtree:true});enhance();
-  window.BAOWorkPackage={prepareFile,preview,sceneURL,rewriteHTML,syncSceneCard,gallery,download};
+  window.BAOWorkPackage={prepareFile,preview,sceneURL,rewriteHTML,setFrameHTML,syncSceneCard,gallery,download};
 })();
