@@ -1079,6 +1079,11 @@ async function createCharacterPublicationPr(
       }
     );
 
+    // Unique media paths preserve older published versions and avoid overwrites.
+    for(const asset of publication.packageAssets||[]){
+      await githubApi(env,'/contents/'+asset.path,{method:'PUT',body:{message:'Add work image for '+publication.id,content:asset.base64,branch}});
+    }
+
     if (
       publication.cover
     ) {

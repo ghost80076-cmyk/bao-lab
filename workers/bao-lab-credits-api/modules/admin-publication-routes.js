@@ -18,7 +18,7 @@ import {
   createAuthorProfilePr,
 } from "./author-profile-publication.js";
 
-const ADMIN_PUBLICATION_MAX_BODY_BYTES = 2_500_000;
+const ADMIN_PUBLICATION_MAX_BODY_BYTES = 26_000_000;
 
 // Admin publication HTTP subroutes.
 const WorkerAdminPublicationRoutes = (() => {

@@ -17,9 +17,13 @@
   const assetCollections = new Map(), assetUrls = new Map(), attachments = new Map();
   const assetKey = (owner,id) => owner+"::"+id;
   const clearAssets = owner => { for(const [key,url] of assetUrls) if(key.startsWith(owner+"::")){URL.revokeObjectURL(url);assetUrls.delete(key);} };
+  const publicAssets = owner => {
+    const character=(window.App?.activeCharacter?.id===owner?window.App.activeCharacter:null)||window.App?.characters?.find(x=>x.id===owner);
+    return (character?.asset_manifest?.assets||[]).filter(x=>/^assets\/community\/[a-zA-Z0-9_-]+\/media\/[a-zA-Z0-9_.-]+$/.test(x.public_url||''));
+  };
   const assetURL = (owner,id) => {
     const asset=assetCollections.get(owner)?.find(x=>x.id===id), key=assetKey(owner,id);
-    if(!asset?.blob) return "";
+    if(!asset?.blob) return publicAssets(owner).find(x=>x.id===id)?.public_url||"";
     if(!assetUrls.has(key))assetUrls.set(key,URL.createObjectURL(asset.blob));
     return assetUrls.get(key);
   };
@@ -231,7 +235,7 @@
     return engine.loadCustom();
   };
   engine.getWorkAssetURL=assetURL;
-  engine.getWorkAssets=id => (assetCollections.get(id)||[]).map(x=>({...x}));
+  engine.getWorkAssets=id => (assetCollections.get(id)||publicAssets(id)).map(x=>({...x}));
   engine.getWorkPackageFiles=id => clone(attachments.get(id)||{});
   engine.exportWorkPackage=async id => {
     await ready();await writeQueue;

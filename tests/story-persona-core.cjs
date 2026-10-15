@@ -126,3 +126,20 @@ assert.equal(originalCard.system_prompt, '原角色設定');
   assert.equal(state.current.storyActors.hostedCharacters[2].name, '成人官方角色');
   console.log('story persona core: author-editor safety, multiple AI actors and save/restore passed');
 })().catch(error => { console.error(error); process.exitCode = 1; });
+// Portable people survive JSON round trips; importing copies never overwrites originals.
+const people=sandbox.BAOStoryActors.exportPeople();
+const countBefore=sandbox.BAOStoryActors.readPresets().length;
+sandbox.BAOStoryActors.importPeople(JSON.parse(JSON.stringify(people)));
+assert.equal(sandbox.BAOStoryActors.readPresets().length,countBefore+people.players.length);
+assert.throws(()=>sandbox.BAOStoryActors.importPeople({...people,version:2}),/支援/);
+const invalid={schema:'yorubay-person-library',version:1,players:[{id:'bad',label:'bad',persona:{name:'bad',background:'a'.repeat(12001)}}],actors:[]};
+const beforeInvalid=JSON.stringify(sandbox.BAOStoryActors.exportPeople());
+assert.throws(()=>sandbox.BAOStoryActors.importPeople(invalid),/過長/);
+assert.equal(JSON.stringify(sandbox.BAOStoryActors.exportPeople()),beforeInvalid);
+
+const beforeQuota=JSON.stringify(sandbox.BAOStoryActors.exportPeople());
+const originalSet=sandbox.localStorage.setItem;let quotaOnce=true;
+sandbox.localStorage.setItem=(key,value)=>{if(key==='bao-lab:actor-presets-v1'&&quotaOnce){quotaOnce=false;throw new Error('quota');}return originalSet(key,value);};
+assert.throws(()=>sandbox.BAOStoryActors.importPeople(people),/quota/);
+sandbox.localStorage.setItem=originalSet;
+assert.equal(JSON.stringify(sandbox.BAOStoryActors.exportPeople()),beforeQuota,'partial people writes roll back');

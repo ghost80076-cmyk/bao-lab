@@ -250,8 +250,8 @@ code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
     <p class="note">只建立 GitHub Pull Request，不會直接修改 main 或立即部署。PNG 會先在本機解析角色資料，封面重新編碼並移除內嵌 metadata；原始 SillyTavern 卡不會公開到 repo。</p>
 
     <div class="grid">
-      <label>作者角色卡（PNG／JSON）
-        <input id="publish-character-file" type="file" accept=".png,.json,image/png,application/json">
+      <label>作者作品（ZIP／PNG／JSON）
+        <input id="publish-character-file" type="file" accept=".zip,.png,.json,application/zip,image/png,application/json">
       </label>
       <label>另選發布封面（選填）
         <input id="publish-cover-file" type="file" accept="image/png,image/jpeg,image/webp">
@@ -1028,7 +1028,8 @@ code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
 <script src="js/character.js?v=5"></script>
 <script>window.CharacterEngine=CharacterEngine;</script>
 <script src="js/character-readiness.js"></script>
-<script src="js/character-import-upgrade.js?v=2"></script>
-<script src="js/admin-character-publish.js"></script>
+<script src="js/character-import-upgrade.js?v=3"></script>
+<script src="js/work-package-core.js?v=1"></script>
+<script src="js/admin-character-publish.js?v=2"></script>
 </body>
 </html>

@@ -72,7 +72,7 @@
   function setFrameHTML(frame,html,character){
     const owner=character?.id,job={},references=[];frameJobs.set(frame,job);
     for(const asset of engine.getWorkAssets?.(owner)||[]){
-      const refs=[...new Set(['yorubay-asset://'+asset.id,'embeded://'+asset.path,asset.source_uri].filter(Boolean))].filter(ref=>html.includes(ref));
+      const refs=[...new Set(['yorubay-asset://'+asset.id,'embeded://'+asset.path,asset.source_uri,asset.public_url?'https://yorubay.com/'+asset.public_url:null].filter(Boolean))].filter(ref=>html.includes(ref));
       if(refs.length)references.push({asset,refs});
     }
     if(!references.length){frame.srcdoc=html;return;}
@@ -80,6 +80,10 @@
     void (async()=>{
       let result=html;
       for(const {asset,refs} of references){
+        if(!asset.blob&&/^assets\/community\/[a-zA-Z0-9_-]+\/media\/[a-zA-Z0-9_.-]+$/.test(asset.public_url||'')){
+          const response=await fetch('/'+asset.public_url,{credentials:'omit'});if(!response.ok)throw new Error('作品圖片讀取失敗。');asset.blob=await response.blob();
+        }
+        if(!asset.blob)continue;
         if(!encodedImages.has(asset.blob))encodedImages.set(asset.blob,new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=()=>reject(reader.error);reader.readAsDataURL(asset.blob);}));
         const url=await encodedImages.get(asset.blob);for(const ref of refs)result=result.split(ref).join(url);
       }

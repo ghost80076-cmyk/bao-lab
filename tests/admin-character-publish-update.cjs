@@ -96,6 +96,7 @@ async function runUpdate() {
       writes.push({ method, apiPath, body });
       return response({ content: { sha: "new-character-sha" } });
     }
+    if(method === "PUT" && apiPath === "/contents/assets/community/published-test/media/probe.png"){writes.push({method,apiPath,body});return response({content:{sha:"media-sha"}});}
     if (method === "PUT" && apiPath === "/contents/data/characters.json") {
       writes.push({ method, apiPath, body });
       return response({ content: { sha: "new-catalog-sha" } });
@@ -137,7 +138,9 @@ async function runUpdate() {
       },
     });
 
+    publication.packageAssets=[{path:"assets/community/published-test/media/probe.png",base64:"iVBORw0KGgo="}];
     const result = await createCharacterPublicationPr(env, publication);
+    assert.equal(writes.find(x=>x.apiPath.includes("/media/probe.png")).body.content,"iVBORw0KGgo=");
     assert.equal(result.publication_mode, "update");
     assert.equal(result.published_version, 2);
     assert.equal(result.character_path, "data/characters/general/published-test.json");

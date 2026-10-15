@@ -1,0 +1,16 @@
+const assert=require('node:assert/strict');
+const {loadWorkerTestSource}=require('./helpers/worker-test-source.cjs');
+const {prepareCharacterPublication}=new Function(loadWorkerTestSource().replace(/export\s+default\s+\{/,'const __workerDefault = {')+'\nreturn {prepareCharacterPublication};')();
+const png='iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAusB9Wl6e7sAAAAASUVORK5CYII=';
+const body={rights_confirmed:true,card:{schema_version:'1.5',meta:{id:'package-publish',name:'完整作品',category:'general',avatar:'yorubay-asset://cover'},content:{greeting:'開場',system_prompt:'完整原文'},asset_manifest:{version:1,assets:[{id:'cover',path:'assets/cover.png',role:'cover'},{id:'scene',path:'assets/scene.png',role:'scene',when:[{path:'location',equals:'碼頭'}]}]},gameplay:{initial_state:{location:'碼頭'}},presentation:{reading_background:'yorubay-asset://scene'},import_metadata:{work_package_regex:{rules:[{replacement:'<img src="embeded://assets/scene.png">'}]},preserved_source:{private:'source'}}},package_assets:[{id:'cover',mime:'image/png',base64:png},{id:'scene',mime:'image/png',base64:png}]};
+const result=prepareCharacterPublication(body);
+assert.equal(result.packageAssets.length,2);
+assert.equal(result.packageAssets[0].base64,png);
+assert.match(result.card.presentation.reading_background,/^https:\/\/yorubay.com\/assets\/community\/package-publish\/media\//);
+assert.match(result.card.import_metadata.work_package_regex.rules[0].replacement,/https:\/\/yorubay.com/);
+assert.equal(result.card.asset_manifest.assets[1].when[0].equals,'碼頭');
+assert.ok(!JSON.stringify(result.card).includes('preserved_source'));
+assert.throws(()=>prepareCharacterPublication({...body,package_assets:body.package_assets.slice(0,1)}),/missing_package_images/);
+assert.throws(()=>prepareCharacterPublication({...body,package_assets:[body.package_assets[0],body.package_assets[0]]}),/invalid_package_assets/);
+assert.throws(()=>prepareCharacterPublication({...body,package_assets:[{...body.package_assets[0],base64:btoa('not an image')},body.package_assets[1]]}),/invalid_package_image/);
+console.log('Admin work package media, references, Regex and missing image checks passed');

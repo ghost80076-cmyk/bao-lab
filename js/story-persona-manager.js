@@ -96,6 +96,43 @@
     try { localStorage.setItem(KEY, JSON.stringify(list.slice(0, 100))); refreshPresetPickers(); return true; }
     catch { alert('人物預設未能寫入這台裝置，請檢查儲存空間。'); return false; }
   }
+  const LIBRARY_SCHEMA = 'yorubay-person-library';
+  function exportPeople() {
+    return {schema:LIBRARY_SCHEMA,version:1,players:clone(presets()),actors:clone(actorPresets())};
+  }
+  function validatePeople(input) {
+    if (!input || input.schema !== LIBRARY_SCHEMA || input.version !== 1 || !Array.isArray(input.players) || !Array.isArray(input.actors)) throw new Error('這不是支援的夜灣人物庫 JSON。');
+    const result={schema:LIBRARY_SCHEMA,version:1,players:[],actors:[]};
+    for (const [key,field,fields,normalize] of [['players','persona',PLAYER_FIELDS,persona],['actors','actor',ACTOR_FIELDS,actorTemplate]]) {
+      if(input[key].length>100) throw new Error('每類人物庫最多 100 位，請分批整理。');
+      const seen=new Set();
+      result[key]=input[key].map(record=>{
+        if(!record || typeof record.id!=='string' || !record.id || record.id.length>100 || seen.has(record.id) || !record[field] || typeof record[field]!=='object') throw new Error('人物資料或 ID 無效／重複。');
+        seen.add(record.id);
+        if(typeof record.label!=='string' || record.label.length>80) throw new Error('人物名稱過長或無效。');
+        for(const name of fields) if(record[field][name]!=null && (typeof record[field][name]!=='string' || record[field][name].length>12000)) throw new Error('人物欄位過長或無效：'+name);
+        if(!String(record[field].name||'').trim()) throw new Error('人物缺少名稱。');
+        const portable=record[field].portable;if(portable&&(typeof portable.core!=='string'||portable.core.length>16000||typeof portable.packId!=='string'||portable.packId.length>100))throw new Error('可攜人物設定過長或無效。');
+        return {id:record.id,label:record.label,[field]:normalize(record[field]),savedAt:typeof record.savedAt==='string'?record.savedAt:new Date().toISOString()};
+      });
+    }
+    return result;
+  }
+  function importPeople(input,{copy=true,dryRun=false}={}) {
+    const pack=validatePeople(input), before=[localStorage.getItem(KEY),localStorage.getItem(ACTOR_KEY)];
+    const merge=(incoming,current)=>{const added=incoming.map(x=>({...x,id:copy?id():x.id}));const next=[...added,...current.filter(x=>!added.some(y=>y.id===x.id))];if(next.length>100)throw new Error('合併後超過 100 位，沒有匯入；請先整理人物庫。');return next;};
+    const players=merge(pack.players,presets()), ai=merge(pack.actors,actorPresets());
+    if(dryRun)return {players:pack.players.length,actors:pack.actors.length};
+    try { localStorage.setItem(KEY,JSON.stringify(players));localStorage.setItem(ACTOR_KEY,JSON.stringify(ai)); }
+    catch(error){for(const [i,key] of [KEY,ACTOR_KEY].entries()){if(before[i]===null)localStorage.removeItem(key);else localStorage.setItem(key,before[i]);}throw error;}
+    refreshPresetPickers();refreshActorPresetPickers();return {players:pack.players.length,actors:pack.actors.length};
+  }
+  function downloadPeople(pack,format='json') {
+    const lines=['夜灣人物設定'];
+    for(const [key,field] of [['players','persona'],['actors','actor']])for(const record of pack[key]){lines.push('','【'+(key==='players'?'玩家人物':'AI 人物／NPC')+'】'+record.label);for(const [name,value] of Object.entries(record[field]))if(typeof value==='string'&&value)lines.push((ACTOR_LABELS[name]||name)+'：'+value);}
+    const url=URL.createObjectURL(new Blob([format==='txt'?'\uFEFF'+lines.join('\n'):JSON.stringify(pack,null,2)],{type:format==='txt'?'text/plain;charset=utf-8':'application/json'}));
+    const a=document.createElement('a');a.href=url;const records=[...pack.players,...pack.actors];a.download='夜灣-'+(records.length===1?String(records[0].label).replace(/[\\/:*?"<>|]/g,'-'):'人物庫')+'.'+format;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+  }
   function savePreset(p, proposedName) {
     const chosen = window.prompt('替這份玩家人物預設取名：', trim(proposedName || p.name, 80) || '我的人物');
     if (chosen === null) return null;
@@ -496,12 +533,12 @@
       const actor = record.actor || {};
       const meta = [actor.gender, actor.identity, actor.role === 'primary' ? 'AI 主角' : 'NPC'].filter(Boolean).join(' · ');
       const detail = actor.personality || actor.background || actor.relationship || '尚未填寫更多設定';
-      return `<article class="bao-library-card"><div><b>${esc(record.label || actor.name || '未命名 AI 人物')}</b><span>${esc(actor.name || '未命名')} ${meta ? '· ' + esc(meta) : ''}</span><small>${librarySnippet(detail)}</small></div><div class="bao-library-card-actions"><button type="button" class="secondary" data-library-edit="${esc(record.id)}">編輯</button><details class="bao-library-more"><summary aria-label="更多人物操作">更多</summary><div class="bao-library-more-actions"><button type="button" class="secondary" data-library-copy="${esc(record.id)}">複製</button><button type="button" class="secondary" data-library-delete="${esc(record.id)}">刪除</button></div></details></div></article>`;
+      return `<article class="bao-library-card"><div><b>${esc(record.label || actor.name || '未命名 AI 人物')}</b><span>${esc(actor.name || '未命名')} ${meta ? '· ' + esc(meta) : ''}</span><small>${librarySnippet(detail)}</small></div><div class="bao-library-card-actions"><button type="button" class="secondary" data-library-edit="${esc(record.id)}">編輯</button><details class="bao-library-more"><summary aria-label="更多人物操作">更多</summary><div class="bao-library-more-actions"><button type="button" class="secondary" data-person-json="${esc(record.id)}">下載 JSON</button><button type="button" class="secondary" data-person-txt="${esc(record.id)}">下載 TXT</button><button type="button" class="secondary" data-library-copy="${esc(record.id)}">複製</button><button type="button" class="secondary" data-library-delete="${esc(record.id)}">刪除</button></div></details></div></article>`;
     }
     const p = record.persona || {};
     const meta = [p.gender, p.identity].filter(Boolean).join(' · ');
     const detail = p.personality || p.background || p.relationship || '尚未填寫更多設定';
-    return `<article class="bao-library-card"><div><b>${esc(record.label || p.name || '未命名玩家角色')}</b><span>${esc(p.name || '未命名')} ${meta ? '· ' + esc(meta) : ''}</span><small>${librarySnippet(detail)}</small></div><div class="bao-library-card-actions"><button type="button" class="secondary" data-library-edit="${esc(record.id)}">編輯</button><details class="bao-library-more"><summary aria-label="更多人物操作">更多</summary><div class="bao-library-more-actions"><button type="button" class="secondary" data-library-copy="${esc(record.id)}">複製</button><button type="button" class="secondary" data-library-delete="${esc(record.id)}">刪除</button></div></details></div></article>`;
+    return `<article class="bao-library-card"><div><b>${esc(record.label || p.name || '未命名玩家角色')}</b><span>${esc(p.name || '未命名')} ${meta ? '· ' + esc(meta) : ''}</span><small>${librarySnippet(detail)}</small></div><div class="bao-library-card-actions"><button type="button" class="secondary" data-library-edit="${esc(record.id)}">編輯</button><details class="bao-library-more"><summary aria-label="更多人物操作">更多</summary><div class="bao-library-more-actions"><button type="button" class="secondary" data-person-json="${esc(record.id)}">下載 JSON</button><button type="button" class="secondary" data-person-txt="${esc(record.id)}">下載 TXT</button><button type="button" class="secondary" data-library-copy="${esc(record.id)}">複製</button><button type="button" class="secondary" data-library-delete="${esc(record.id)}">刪除</button></div></details></div></article>`;
   }
   function openLibrary(mode = 'player') {
     close();
@@ -528,6 +565,14 @@
     const items = mode === 'actor' ? actorPresets() : presets();
     const empty = mode === 'actor' ? '還沒有保存 AI 人物。你可以先在這裡捏好 NPC，再帶進任何故事。' : '還沒有保存玩家角色。你可以先建立常用 Persona，之後直接套用。';
     body.innerHTML = `<div class="bao-library-toolbar"><button type="button" class="primary" data-library-new>＋ ${mode === 'actor' ? '新增 AI 人物 / NPC' : '新增玩家角色'}</button><span data-library-result-count aria-live="polite">${items.length} 個本機人物</span></div><label class="bao-library-search">搜尋我的人物<input type="search" data-library-search aria-label="搜尋我的人物" placeholder="搜尋名稱、身分或人物設定" autocomplete="off"></label><div class="bao-library-list">${items.length ? items.map(item => libraryCard(mode, item)).join('') : `<p class="note">${empty}</p>`}</div><p class="bao-library-no-match" data-library-no-match hidden>找不到符合的人物，可試試其他名稱或關鍵字。</p>`;
+    const transfer=document.createElement('details');
+    transfer.innerHTML='<summary>匯入／匯出人物</summary><div class="bao-library-more-actions"><button type="button" class="secondary" data-export-json>備份整個人物庫</button><button type="button" class="secondary" data-export-txt>下載人物設定 TXT</button><button type="button" class="secondary" data-import-people>匯入人物 JSON</button></div><input type="file" accept=".json,application/json" hidden><p role="status"></p>';
+    body.prepend(transfer);
+    transfer.querySelector('[data-export-json]').onclick=()=>downloadPeople(exportPeople());
+    transfer.querySelector('[data-export-txt]').onclick=()=>downloadPeople(exportPeople(),'txt');
+    const picker=transfer.querySelector('input');transfer.querySelector('[data-import-people]').onclick=()=>picker.click();
+    picker.onchange=async()=>{try{const file=picker.files?.[0];if(!file)return;if(file.size>10*1024*1024)throw new Error('人物檔案超過 10 MB。');const pack=validatePeople(JSON.parse(await file.text()));if(!confirm(`匯入 ${pack.players.length} 位玩家人物、${pack.actors.length} 位 AI 人物？將新增副本，保留現有人物。`))return;importPeople(pack);renderLibrary(mode);}catch(error){transfer.querySelector('p').textContent=error.message;}finally{picker.value='';}};
+    for(const format of ['json','txt'])body.querySelectorAll('[data-person-'+format+']').forEach(button=>button.onclick=()=>{const pack={schema:LIBRARY_SCHEMA,version:1,players:[],actors:[]};pack[mode==='actor'?'actors':'players']=[items.find(x=>x.id===button.dataset[format==='json'?'personJson':'personTxt'])];downloadPeople(pack,format);});
     const search = body.querySelector('[data-library-search]');
     const applyLibrarySearch = () => {
       const query = String(search?.value || '').trim().toLocaleLowerCase();
@@ -811,5 +856,5 @@
   if (adultEnabled()) loadAdultPack().then(refreshPortablePickers).catch(error => console.warn('YoruBay adult story actor pack preload failed:', error));
 
   installChatEntry();
-  window.BAOStoryActors = {open, openLibrary, close, actors, readPresets:presets, savePreset, readActorPresets:actorPresets, saveActorPreset, saveVisibleNpcPreset, readBuilderDraft, clearBuilderDraft, installBuilder, updateLabels, portableCatalog, loadAdultPack};
+  window.BAOStoryActors = {exportPeople, validatePeople, importPeople, downloadPeople, open, openLibrary, close, actors, readPresets:presets, savePreset, readActorPresets:actorPresets, saveActorPreset, saveVisibleNpcPreset, readBuilderDraft, clearBuilderDraft, installBuilder, updateLabels, portableCatalog, loadAdultPack};
 })();

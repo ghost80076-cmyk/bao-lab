@@ -1,6 +1,6 @@
 // Publication validation and public-card shaping.
 // Keep this module independent of D1, player sessions, billing and providers.
-const MAX_PUBLISH_CARD_BYTES = 500_000;
+const MAX_PUBLISH_CARD_BYTES = 8_000_000;
 const MAX_PUBLISH_COVER_BYTES = 1_200_000;
 const publicationEncoder = new TextEncoder();
 
@@ -959,6 +959,34 @@ const WorkerPublicationFormat = (() => {
         safeImportMetadata,
     };
   
+    const packageAssets=[];
+    const inputAssets=body.package_assets||[];
+    const declared=sanitized.asset_manifest?.assets||[];
+    if(!Array.isArray(inputAssets)||inputAssets.length>32||!Array.isArray(declared)||declared.length>32)throw publishError('invalid_package_assets');
+    const seen=new Set();let total=0;
+    for(const image of inputAssets){
+      if(!image||!/^[a-zA-Z0-9][a-zA-Z0-9_-]{0,63}$/.test(image.id)||seen.has(image.id)||typeof image.base64!=='string'||image.base64.length%4!==0||!/^[A-Za-z0-9+/]*={0,2}$/.test(image.base64))throw publishError('invalid_package_assets');
+      seen.add(image.id);let bytes;try{bytes=atob(image.base64);}catch{throw publishError('invalid_package_assets');}
+      total+=bytes.length;if(!bytes.length||bytes.length>10*1024*1024||total>12*1024*1024)throw publishError('package_images_too_large',413);
+      const signatures={ 'image/png':bytes.startsWith('\x89PNG\r\n\x1a\n')?'png':null,'image/jpeg':bytes.charCodeAt(0)===255&&bytes.charCodeAt(1)===216&&bytes.charCodeAt(2)===255?'jpg':null,'image/webp':bytes.startsWith('RIFF')&&bytes.slice(8,12)==='WEBP'?'webp':null,'image/gif':/^GIF8[79]a/.test(bytes)?'gif':null };
+      const ext=signatures[image.mime];if(!ext)throw publishError('invalid_package_image');
+      const asset=declared.find(x=>x.id===image.id);if(!asset)throw publishError('undeclared_package_image');
+      const path='assets/community/'+id+'/media/'+publicationTimestamp.replace(/[^0-9]/g,'')+'-'+image.id+'.'+ext;
+      packageAssets.push({path,base64:image.base64});asset.public_url=path;
+    }
+    if(declared.length!==inputAssets.length)throw publishError('missing_package_images');
+    if(sanitized.import_metadata?.work_package_regex) safeImportMetadata.work_package_regex=sanitized.import_metadata.work_package_regex;
+    if(declared.length){
+      publishedCard.asset_manifest={version:1,assets:declared};
+      const replacements=[];
+      for(const asset of declared)for(const ref of ['yorubay-asset://'+asset.id,'embeded://'+asset.path,asset.source_uri].filter(Boolean))replacements.push([ref,'https://yorubay.com/'+asset.public_url]);
+      const replace=value=>{if(typeof value==='string'){for(const [from,to] of replacements)value=value.split(from).join(to);return value;}if(Array.isArray(value))return value.map(replace);if(value&&typeof value==='object')return Object.fromEntries(Object.entries(value).map(([k,v])=>[k,replace(v)]));return value;};
+      // Rewrite display references only; retain original manifest paths for provenance.
+      for(const key of ['meta','content','presentation','gameplay'])publishedCard[key]=replace(publishedCard[key]);
+      if(safeImportMetadata.work_package_regex)safeImportMetadata.work_package_regex=replace(safeImportMetadata.work_package_regex);
+      const coverAsset=declared.find(x=>x.role==='cover');if(!cover&&coverAsset){avatar=coverAsset.public_url;publishedCard.meta.avatar=avatar;}
+      if(sanitized.author_regex)publishedCard.author_regex=replace(sanitized.author_regex);
+    }
     const catalogEntry = {
       id,
   
@@ -1068,6 +1096,7 @@ const WorkerPublicationFormat = (() => {
       card:
         publishedCard,
       catalogEntry,
+      packageAssets,
       cover,
     };
   }
