@@ -116,7 +116,7 @@
     if (!document.querySelector('link[href^="css/narrative-settings.css"]')) {
       const link = document.createElement("link");
       link.rel = "stylesheet";
-      link.href = "css/narrative-settings.css?v=3";
+      link.href = "css/narrative-settings.css?v=4";
       document.head.appendChild(link);
     }
   };
