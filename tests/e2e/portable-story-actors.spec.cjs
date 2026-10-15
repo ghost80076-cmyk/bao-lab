@@ -288,7 +288,7 @@ for (const width of [390, 1280]) {
     await expect(modal).toBeVisible();
     await expect(modal).toHaveCSS('background-color','rgb(255, 250, 243)');
     await expect(modal.locator('[data-roster-item]')).toHaveCount(2);
-    await expect(modal.locator('.npc-roster-relations')).toContainText('盟友');
+    await expect(modal.locator('[data-roster-item]').filter({hasText:'鏡月'}).locator('.npc-roster-relations')).toContainText('盟友');
     await expect(modal).not.toContainText('不可見');
 
     const quickAdd = modal.locator('.npc-roster-add-details');
