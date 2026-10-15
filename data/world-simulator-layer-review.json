@@ -334,7 +334,7 @@
       "evidence": [
         {
           "path": "js/character-status-ui.js",
-          "needle": "不會讀取作者隱藏設定"
+          "needle": "關係摘要只顯示你原本就看得到、且沒有隱藏的狀態欄欄位"
         }
       ],
       "decision_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa:63",
