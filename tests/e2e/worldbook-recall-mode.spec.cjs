@@ -77,3 +77,60 @@ for (const width of [1280, 390]) {
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 2)).toBe(true);
   });
 }
+
+
+for (const width of [390,1280]) {
+  test('worldbook discovery finds topics without changing collection apply scope ('+width+'px)', async ({page}) => {
+    await page.setViewportSize({width,height:844});
+    await page.goto('/');
+    await page.waitForFunction(() => window.YoruWorldbookLibrary && window.BAOLorebook);
+    await page.evaluate(() => {
+      GameState.current = {
+        location:'中央商業區',npcs:[],events:[],
+        worldbookLibrary:{version:1,enabled:['sunrise-geography-demo'],installed:[],pinned:{}}
+      };
+      App.saveStory=()=>{};
+      YoruWorldbookLibrary.open();
+    });
+    const modal=page.locator('.ylb-modal');
+    const search=modal.getByRole('searchbox',{name:'搜尋世界書主題或章節'});
+    await expect(search).toBeVisible();
+    const collection=modal.locator('.ylb-collection');
+    await expect(collection.first()).toBeVisible();
+    const initial=await collection.count();
+    expect(initial).toBeGreaterThan(2);
+
+    await search.fill('人物與關係參考');
+    await expect(modal.locator('.ylb-collection:visible')).toHaveCount(1);
+    const visible=modal.locator('.ylb-collection:visible');
+    await expect(visible).toContainText('通用世界模擬器');
+    await expect(visible.locator('details.ylb-chapters')).toHaveAttribute('open','');
+    await expect(modal.locator('.ylb-result-count')).toContainText('顯示 1 /');
+
+    const master=visible.getByRole('checkbox',{name:'啟用整本 通用世界模擬器'});
+    await master.check();
+    await expect(modal.locator('.ylb-collection:visible')).toHaveCount(1);
+    const enabled=await page.evaluate(()=>GameState.current.worldbookLibrary.enabled);
+    expect(enabled).toContain('world-simulator-relationship-reference');
+    expect(enabled).toContain('world-simulator-adventure-reference');
+
+    await search.fill('沒有這個世界書');
+    await expect(modal.locator('.ylb-collection:visible')).toHaveCount(0);
+    await expect(modal.locator('.ylb-empty-results')).toBeVisible();
+    await search.fill('');
+
+    await modal.getByRole('button',{name:'已啟用',exact:true}).click();
+    await expect(modal.locator('.ylb-collection:visible')).not.toHaveCount(0);
+    await expect(modal.getByRole('button',{name:'已啟用'})).toHaveAttribute('aria-pressed','true');
+
+    await modal.locator('button[data-ylb-filter="mine"]').click();
+    await expect(modal.locator('.ylb-collection:visible')).toHaveCount(0);
+    await expect(modal.locator('.ylb-empty-results')).toContainText('還沒有私人世界書');
+    await modal.getByRole('button',{name:'全部',exact:true}).click();
+    await expect(modal.locator('.ylb-collection:visible')).toHaveCount(initial);
+    await expect(modal.locator('.ylb-recall-explain')).not.toHaveAttribute('open','');
+    await modal.locator('.ylb-recall-explain summary').click();
+    await expect(modal.locator('.ylb-recall-explain')).toHaveAttribute('open','');
+    expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+2)).toBe(true);
+  });
+}
