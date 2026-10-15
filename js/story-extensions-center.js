@@ -11,7 +11,7 @@
     if (document.querySelector('link[href^="css/story-extensions-center.css"]')) return;
     const link = document.createElement("link");
     link.rel = "stylesheet";
-    link.href = "css/story-extensions-center.css?v=3";
+    link.href = "css/story-extensions-center.css?v=4";
     document.head.appendChild(link);
   };
 
@@ -292,7 +292,10 @@
         <h3>${esc(data.title)}</h3>
         <p>${esc(data.detail)}</p>
         <div class="story-extension-scopes" aria-label="作用範圍">${scopeChips(data.scopes)}</div>
-        ${ownershipMeta(data)}
+        <details class="story-extension-meta-disclosure" data-extension-meta>
+          <summary>來源、保存與授權 <span>詳細資訊</span></summary>
+          ${ownershipMeta(data)}
+        </details>
         ${inventoryHTML(data)}
       </div>
       <button type="button" class="secondary" data-extension-action="${esc(data.id)}">${data.id === "regex" ? "開啟工具" : "管理"} →</button>
@@ -339,6 +342,13 @@
         </footer>
       </section>`;
     document.body.appendChild(wrap);
+
+    // Presentation only: keep sources, storage, scope and permissions
+    // accessible, but out of the initial card density for casual readers.
+    const professional = window.YoruExperience?.get?.().level === "pro";
+    wrap.querySelectorAll(".story-extension-meta-disclosure").forEach(detail => {
+      detail.open = professional;
+    });
 
     wrap.querySelector("[data-extension-close]")?.addEventListener("click", close);
     wrap.querySelector("[data-extension-help]")?.addEventListener("click", event => {

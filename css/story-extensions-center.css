@@ -392,3 +392,37 @@ html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"])
   color:var(--yoru-text)!important;
   border-color:var(--yoru-control-border)!important
 }
+
+
+/* Experience 3.0 / Phase 14 — reveal technical ownership only on demand.
+   The content and controls are unchanged; this is native keyboard-friendly UI. */
+.story-extension-meta-disclosure{
+  min-width:0;margin-top:10px;border:1px solid var(--yoru-card-border,var(--border));
+  border-radius:11px;background:var(--yoru-control,rgba(255,255,255,.025));
+  overflow:hidden;color:var(--yoru-text,var(--text))
+}
+.story-extension-meta-disclosure > summary{
+  min-height:38px;box-sizing:border-box;cursor:pointer;list-style:none;
+  padding:9px 11px;display:flex;align-items:center;flex-wrap:wrap;
+  justify-content:space-between;gap:5px 9px;font-size:11px;
+  font-weight:750;line-height:1.5
+}
+.story-extension-meta-disclosure > summary::-webkit-details-marker{display:none}
+.story-extension-meta-disclosure > summary span{
+  font-weight:450;color:var(--yoru-muted,var(--muted));font-size:10px
+}
+.story-extension-meta-disclosure > summary::after{
+  content:'⌄';font-size:14px;color:var(--yoru-muted,var(--muted))
+}
+.story-extension-meta-disclosure[open] > summary::after{content:'⌃'}
+.story-extension-meta-disclosure .story-extension-meta{
+  margin:0;padding:10px;border-top:1px solid var(--yoru-card-border,var(--border))
+}
+.story-extension-meta-disclosure > summary:focus-visible{
+  outline:2px solid var(--yoru-lantern,#d6aa73);outline-offset:-2px
+}
+@media(max-width:720px){
+  .story-extension-meta-disclosure{margin-top:7px}
+  .story-extension-meta-disclosure > summary{min-height:36px;padding:8px 9px;font-size:10px}
+  .story-extension-meta-disclosure .story-extension-meta{padding:8px}
+}

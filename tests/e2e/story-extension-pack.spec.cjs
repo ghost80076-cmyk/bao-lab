@@ -290,3 +290,52 @@ for (const width of [390,1280]) {
     await expect(dialog).toHaveCount(0);
   });
 }
+
+
+for (const width of [390,1280]) {
+  test('extension source and permission details stay accessible in easy and pro ('+width+'px)',async ({page})=>{
+    await page.setViewportSize({width,height:844});
+    await page.goto('./');
+    await page.waitForFunction(()=> Boolean(window.YoruExperience && window.BAOStoryExtensionsCenter &&
+      window.BAOWorldModules && App.characters?.length));
+    await page.evaluate(()=>{
+      App.activeCharacter={...App.characters[0],id:'extension-density-test',
+        world_modules:[{id:'work_inventory',label:'作品背包',kind:'collection',
+          context:'core',tracking:'high',fields:[]}]};
+      App.config={persona:{name:'旅人'},narrativeMode:'immersive',displayMode:'ui',
+        api:{model:'mock'},memory:{mode:'smart',maxRounds:20,maxContext:32000}};
+      GameState.create(App.activeCharacter,App.config);
+      YoruExperience.choose({level:'easy'});
+      BAOStoryExtensionsCenter.open();
+    });
+    const dialog=page.getByRole('dialog',{name:'故事擴充'});
+    const cards=dialog.locator('.story-extension-card');
+    const details=dialog.locator('.story-extension-meta-disclosure');
+    await expect(dialog).toBeVisible();
+    expect(await cards.count()).toBeGreaterThan(4);
+    await expect(details).toHaveCount(await cards.count());
+    const meta=details.first();
+    await expect(meta).not.toHaveAttribute('open','');
+    await expect(meta.locator('.story-extension-meta')).toBeHidden();
+    await expect(dialog.locator('[data-extension-action="world"]')).toBeVisible();
+    const before=await page.evaluate(()=>JSON.stringify(GameState.current));
+    await meta.locator('summary').click();
+    await expect(meta).toHaveAttribute('open','');
+    await expect(meta.locator('.story-extension-meta')).toBeVisible();
+    await expect(meta).toContainText('來源');
+    await expect(meta).toContainText('保存');
+    await expect(meta).toContainText('適用');
+    await expect(meta).toContainText('啟用');
+    await dialog.getByRole('button',{name:'關閉故事擴充'}).click();
+    await page.evaluate(()=>{
+      YoruExperience.choose({level:'pro'});
+      BAOStoryExtensionsCenter.open();
+    });
+    await expect(details.first()).toHaveAttribute('open','');
+    await expect(details.first().locator('.story-extension-meta')).toBeVisible();
+    await expect(dialog.locator('[data-extension-pack-export]')).toBeVisible();
+    expect(await page.evaluate(()=>JSON.stringify(GameState.current))).toBe(before);
+    expect(await page.evaluate(()=>document.documentElement.scrollWidth <= innerWidth+2)).toBe(true);
+    await dialog.getByRole('button',{name:'關閉故事擴充'}).click();
+  });
+}
