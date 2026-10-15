@@ -439,8 +439,58 @@
     const host = main.querySelector('.chat-topline');
     if (host && button.parentElement !== host) host.append(button);
   };
+  // Keep the original action buttons and their listeners; only change where
+  // they are presented on phone screens. Desktop can restore the flat toolbar.
+  const syncMessageActions = () => {
+    const stream = main.querySelector('.chat-stream');
+    if (!stream) return;
+    const compact = isMobile() && root.classList.contains('active');
+    const professional = window.YoruExperience?.get?.().level === 'pro';
+    stream.querySelectorAll('.story-message-tools').forEach(toolbar => {
+      let more = toolbar.querySelector(':scope > details.bao-message-more');
+      if (!compact) {
+        if (!more) return;
+        const buttons = [...toolbar.querySelectorAll('button')];
+        buttons.sort((a, b) => Number(a.dataset.baoMessageActionOrder || 999) -
+                               Number(b.dataset.baoMessageActionOrder || 999));
+        buttons.forEach(button => toolbar.append(button));
+        more.remove();
+        return;
+      }
+      const buttons = [...toolbar.querySelectorAll('button')];
+      if (!more && buttons.length < 3) return;
+      if (!more) {
+        buttons.forEach((button, i) => {
+          button.dataset.baoMessageActionOrder = String(i + 1);
+        });
+        more = document.createElement('details');
+        more.className = 'bao-message-more';
+        const summary = document.createElement('summary');
+        summary.textContent = '更多';
+        summary.setAttribute('aria-label', '更多回覆操作');
+        const items = document.createElement('div');
+        items.className = 'bao-message-more-actions';
+        more.append(summary, items);
+        more.open = professional;
+        toolbar.append(more);
+      }
+      const items = more.querySelector('.bao-message-more-actions');
+      if (!items) return;
+      buttons.forEach(button => {
+        // Reading-first: active edit, regenerate and copy are the three
+        // one-tap actions. Disabled revisions and specialist tools go to More.
+        const primary = button.matches('[data-copy]') ||
+          (button.matches('[data-edit],[data-regenerate]') && !button.disabled);
+        if (primary && button.parentElement !== toolbar) toolbar.insertBefore(button, more);
+        if (!primary && button.parentElement !== items) items.append(button);
+      });
+      more.hidden = items.children.length === 0;
+    });
+  };
+
   const sync = () => {
     if (!isMobile() || !root.classList.contains('active')) {
+      syncMessageActions();
       clearMobileChrome();
       return;
     }
@@ -448,6 +498,7 @@
     ensureExit();
     ensurePanelClose();
     ensureComposerTools();
+    syncMessageActions();
     measure();
     enhanceDrawer();
     const tab = document.getElementById('bao-mobile-tools-tab');
@@ -471,10 +522,19 @@
   };
   const observer = new MutationObserver(mutations => {
     if (mutations.some(m => [...m.addedNodes, ...m.removedNodes].some(node =>
-      node.nodeType === 1 && (node.id === 'bao-chat-tool-drawer' || node.id === 'bao-mobile-tools-tab')))) schedule();
+      node.nodeType === 1 && (
+        node.id === 'bao-chat-tool-drawer' || node.id === 'bao-mobile-tools-tab' ||
+        node.matches?.('.story-message-tools,.story-message-tools button') ||
+        node.querySelector?.('.story-message-tools')
+      )))) schedule();
   });
   observer.observe(document.body, { childList: true, subtree: true });
   new MutationObserver(schedule).observe(root, { attributes: true, attributeFilter: ['class'] });
+  window.addEventListener('yoru:experience-change', () => {
+    const pro = window.YoruExperience?.get?.().level === 'pro';
+    main.querySelectorAll('.story-message-tools > details.bao-message-more').forEach(detail => { detail.open = pro; });
+    schedule();
+  });
   window.addEventListener('resize', () => { fitComposerInput(); schedule(); }, { passive: true });
   window.visualViewport?.addEventListener('resize', () => { fitComposerInput(); schedule(); }, { passive: true });
   window.visualViewport?.addEventListener('scroll', schedule, { passive: true });
@@ -488,10 +548,10 @@
     focusScrollTop = null;
     schedule();
   });
-  window.BAOMobileReadingLayout = { version: 19, sync, openTools, enhanceDrawer, togglePanels, openMemory, closePanels, ensureComposerTools, fitComposerInput };
+  window.BAOMobileReadingLayout = { version: 20, sync, syncMessageActions, openTools, enhanceDrawer, togglePanels, openMemory, closePanels, ensureComposerTools, fitComposerInput };
   const style = document.createElement('link');
   style.rel = 'stylesheet';
-  style.href = 'css/mobile-reading-layout.css?v=18';
+  style.href = 'css/mobile-reading-layout.css?v=19';
   document.head.append(style);
   sync();
 })();
