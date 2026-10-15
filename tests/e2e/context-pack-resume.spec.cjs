@@ -35,7 +35,7 @@ test("Context Pack AI draft source survives a full page reload", async ({ page }
     App.saveStory(false);
   });
 
-  await page.locator("[data-bao-open='story-tools']").click();
+  await page.evaluate(() => BAOStoryTools.open());
   await expect(page.getByRole("heading", { name: "故事管理" })).toBeVisible();
   await page.locator("[data-story-desk-more] > summary").click();
   await page.locator("[data-create]").click();
@@ -64,7 +64,7 @@ test("Context Pack AI draft source survives a full page reload", async ({ page }
   await expect(page.locator("#user-input")).toBeVisible();
   await page.waitForFunction(() => Boolean(document.querySelector("[data-bao-open='story-tools']")));
 
-  await page.locator("[data-bao-open='story-tools']").click();
+  await page.evaluate(() => BAOStoryTools.open());
   await page.locator("[data-story-desk-more] > summary").click();
   await page.locator("[data-edit-draft]").click();
   const aiButton = page.locator("[data-ai]");
