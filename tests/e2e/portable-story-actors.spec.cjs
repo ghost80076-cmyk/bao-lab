@@ -384,10 +384,11 @@ for (const width of [390, 1280]) {
 
     const mirror = panel.locator('[data-character-context="鏡月"]');
     await expect(mirror.locator('.character-scene-badge')).toHaveText('本場');
-    await expect(mirror.locator('.character-status-field')).toHaveCount(4);
+    await expect(mirror.locator(':scope > .character-status-fields > .character-status-field')).toHaveCount(4);
     await expect(mirror.locator('.character-status-field.is-relationship')).toHaveCount(2);
     const more = mirror.locator('.character-status-more');
     await expect(more).toContainText('查看另外 2 項狀態');
+    await expect(more.locator('.character-status-fields-more > .character-status-field')).toHaveCount(2);
     await expect(more.locator('.character-status-fields-more')).toBeHidden();
 
     const management = panel.locator('.character-status-manage');
