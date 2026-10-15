@@ -260,25 +260,28 @@ for (const width of [390,1280]) {
 
     for(const theme of ['mist','rose']){
       await page.evaluate(value => YoruExperience.choose({theme:value}),theme);
-      const colors=await dialog.evaluate(node => {
-        const panel=node;
-        const get=(el,prop='backgroundColor')=>getComputedStyle(el)[prop];
+      const tokens=await dialog.evaluate(() => {
         const token=name => {
           const sample=document.createElement('span');
-          sample.style.backgroundColor='var('+name+')';document.body.append(sample);
-          const value=getComputedStyle(sample).backgroundColor;sample.remove();return value;
+          sample.style.backgroundColor='var('+name+')';
+          document.body.append(sample);
+          const value=getComputedStyle(sample).backgroundColor;
+          sample.remove();
+          return value;
         };
         return {
-          panel:get(panel),panelToken:token('--yoru-surface'),
-          card:get(node.querySelector('.story-extension-card')),cardToken:token('--yoru-card'),
-          inventory:get(node.querySelector('.story-extension-inventory')),inventoryToken:token('--yoru-surface-raised'),
-          close:get(node.querySelector('.story-extensions-close')),closeToken:token('--yoru-control')
+          panel:token('--yoru-surface'),
+          card:token('--yoru-card'),
+          inventory:token('--yoru-surface-raised'),
+          close:token('--yoru-control')
         };
       });
-      expect(colors.panel).toBe(colors.panelToken);
-      expect(colors.card).toBe(colors.cardToken);
-      expect(colors.inventory).toBe(colors.inventoryToken);
-      expect(colors.close).toBe(colors.closeToken);
+      // Theme controls can animate from the previous color. Wait for their
+      // computed color to settle instead of sampling during a CSS transition.
+      await expect(dialog).toHaveCSS('background-color',tokens.panel);
+      await expect(card).toHaveCSS('background-color',tokens.card);
+      await expect(inventory).toHaveCSS('background-color',tokens.inventory);
+      await expect(dialog.locator('.story-extensions-close')).toHaveCSS('background-color',tokens.close);
       await expect(dialog.locator('[data-extension-action="world"]')).toBeVisible();
       expect(await page.evaluate(() => document.documentElement.scrollWidth<=innerWidth+2)).toBe(true);
     }
