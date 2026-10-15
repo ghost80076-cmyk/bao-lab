@@ -55,6 +55,7 @@ test.describe('Player 2.0 shell', () => {
     await expect(page.locator('#me-view')).toHaveClass(/active/);
     await expect(page.locator('#me-view')).toContainText('故事預設留在這台裝置');
     await expect(page.locator('#me-view a[href="account.html"]')).toBeVisible();
+    await page.locator('#me-view [data-bao-player-more] > summary').click();
     await expect(page.locator('#me-view a[href*="ko-fi.com"]')).toBeVisible();
   });
   test('work discovery searches current cards and keeps local author tools collapsed', async ({ page }) => {
