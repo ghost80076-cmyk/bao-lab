@@ -333,3 +333,49 @@ test('desktop Play reply tools follow easy, standard and pro without changing me
   await expect(more).toBeVisible();
   expect(await msg.locator('.bubble').textContent()).toBe(textBefore);
 });
+
+
+for (const width of [390, 1280]) {
+  test('story tools keep their header and controls readable in mist and rose ('+width+'px)', async ({page}) => {
+    await page.setViewportSize({width,height:844});
+    await openDemoStory(page);
+    await page.waitForFunction(() => !!window.YoruExperience && !!window.BAOChatToolNavigation);
+    const originalTheme = await page.evaluate(() => YoruExperience.get().theme);
+    await page.evaluate(() => BAOChatToolNavigation.openDrawer());
+    const drawer = page.getByRole('dialog',{name:'故事功能選單'});
+    await expect(drawer).toBeVisible();
+    await expect(drawer.getByRole('searchbox',{name:'搜尋故事工具'})).toBeVisible();
+
+    for(const theme of ['mist','rose']) {
+      await page.evaluate(selected => YoruExperience.choose({theme:selected}),theme);
+      await expect.poll(async () => page.evaluate(() => {
+        const root=document.documentElement;
+        const dialog=document.querySelector('#bao-chat-tool-drawer .bao-chat-tool-dialog');
+        const headButton=dialog.querySelector('header button');
+        const group=dialog.querySelector('.bao-chat-tool-dialog-body > details');
+        const proxy=dialog.querySelector('.bao-chat-tool-proxy');
+        if(!group || !proxy || !headButton) return false;
+        const token = name => {
+          const test=document.createElement('span');
+          test.style.backgroundColor='var('+name+')';
+          document.body.appendChild(test);
+          const result=getComputedStyle(test).backgroundColor;
+          test.remove();
+          return result;
+        };
+        const bg = element => getComputedStyle(element).backgroundColor;
+        return bg(dialog)===token('--yoru-surface') &&
+          bg(headButton)===token('--yoru-control') &&
+          bg(group)===token('--yoru-card') &&
+          bg(proxy)===token('--yoru-control') &&
+          getComputedStyle(root).getPropertyValue('--yoru-text').trim().length>0;
+      }),{timeout:3500}).toBe(true);
+      await expect(drawer.getByRole('button',{name:'關閉 ×'})).toBeVisible();
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth+2)).toBe(true);
+    }
+    await page.evaluate(theme => YoruExperience.choose({theme}),originalTheme);
+    await drawer.getByRole('button',{name:'關閉 ×'}).click();
+    await expect(drawer).toHaveCount(0);
+    await expect(page.locator('#user-input')).toBeVisible();
+  });
+}
