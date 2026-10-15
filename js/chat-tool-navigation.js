@@ -22,10 +22,10 @@
   let watchedAside = null;
 
   const addStyle = () => {
-    if (document.querySelector('link[href="css/chat-tool-navigation.css"]')) return;
+    if (document.querySelector('link[href^="css/chat-tool-navigation.css"]')) return;
     const link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = 'css/chat-tool-navigation.css';
+    link.href = 'css/chat-tool-navigation.css?v=2';
     document.head.append(link);
   };
   const groupBody = (root, id) => root.querySelector(`[data-chat-tool-body="${id}"]`);
@@ -302,6 +302,89 @@
       detail.append(items);
       body.append(detail);
     }
+    // Filter the existing actions in place. Never clone tool state, APIs or
+    // handlers; the mobile module may inject its own quick actions afterward.
+    const searchWrap = document.createElement('label');
+    searchWrap.className = 'bao-tool-search';
+    const searchCaption = document.createElement('span');
+    searchCaption.textContent = '找工具';
+    const searchInput = document.createElement('input');
+    searchInput.type = 'search';
+    searchInput.id = 'bao-tool-search';
+    searchInput.autocomplete = 'off';
+    searchInput.placeholder = '搜尋存檔、記憶、模型、世界書…';
+    searchInput.setAttribute('aria-label', '搜尋故事工具');
+    searchWrap.append(searchCaption, searchInput);
+    body.prepend(searchWrap);
+    const searchEmpty = document.createElement('p');
+    searchEmpty.className = 'bao-tool-search-empty';
+    searchEmpty.textContent = '找不到相符工具。可以換個關鍵字，或清除搜尋查看全部。';
+    searchEmpty.setAttribute('role', 'status');
+    searchEmpty.hidden = true;
+    body.append(searchEmpty);
+    const groupOpenBefore = new Map();
+    let mobileMoreOpenBefore = null;
+    const filterTools = () => {
+      const q = searchInput.value.trim().toLocaleLowerCase();
+      const groups = [...body.children].filter(node => node.tagName === 'DETAILS');
+      const mobile = body.querySelector('.bao-mobile-quick');
+      const extra = mobile?.querySelector('.bao-mobile-more');
+      if (q) {
+        groups.forEach(group => {
+          if (!groupOpenBefore.has(group)) groupOpenBefore.set(group, group.open);
+        });
+        if (extra && mobileMoreOpenBefore === null) mobileMoreOpenBefore = extra.open;
+      }
+      let found = 0;
+      const matches = value => String(value || '').toLocaleLowerCase().includes(q);
+      for (const group of groups) {
+        const titleMatch = matches(group.querySelector(':scope > summary')?.textContent);
+        const actions = [...group.querySelectorAll('.bao-chat-tool-proxy')];
+        let visible = 0;
+        actions.forEach(action => {
+          const show = !q || titleMatch || matches(action.textContent);
+          action.hidden = !show;
+          if (show) visible++;
+        });
+        const contentMatch = actions.length === 0 && matches(group.textContent);
+        const showGroup = !q || titleMatch || contentMatch || visible > 0;
+        group.hidden = !showGroup;
+        if (q && showGroup) group.open = true;
+        if (!q && groupOpenBefore.has(group)) group.open = groupOpenBefore.get(group);
+        if (q && showGroup) found++;
+      }
+      if (!q) groupOpenBefore.clear();
+      const standalone = [...body.querySelectorAll('.yoru-tool-actions > button')];
+      standalone.forEach(button => {
+        const show = !q || matches(button.textContent);
+        button.hidden = !show;
+        if (q && show) found++;
+      });
+      const standaloneHost = body.querySelector('.yoru-tool-actions');
+      if (standaloneHost) standaloneHost.hidden = !!q && !standalone.some(button => !button.hidden);
+      if (mobile) {
+        const buttons = [...mobile.querySelectorAll('button, a.bao-mobile-support-link')];
+        buttons.forEach(button => {
+          const show = !q || matches(button.textContent);
+          button.hidden = !show;
+          if (q && show) found++;
+        });
+        const extraActions = [...(extra?.querySelectorAll('button, a.bao-mobile-support-link') || [])];
+        if (extra) {
+          const extraMatches = extraActions.some(button => !button.hidden);
+          extra.hidden = !!q && !extraMatches;
+          if (q && extraMatches) extra.open = true;
+          if (!q && mobileMoreOpenBefore !== null) extra.open = mobileMoreOpenBefore;
+        }
+        const mobileShown = buttons.some(button => !button.hidden);
+        mobile.hidden = !!q && !mobileShown;
+        const connection = mobile.querySelector(':scope > small');
+        if (connection) connection.hidden = !!q;
+      }
+      if (!q) mobileMoreOpenBefore = null;
+      searchEmpty.hidden = !q || found > 0;
+    };
+    searchInput.addEventListener('input', filterTools);
     document.body.append(backdrop);
     document.addEventListener('keydown', drawerKeys);
     close.focus();

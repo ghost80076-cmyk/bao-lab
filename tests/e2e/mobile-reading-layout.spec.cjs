@@ -64,6 +64,7 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 320, height: 568 }
     await composerTools.click();
     const toolDialog = page.getByRole('dialog', { name: '故事功能選單' });
     await expect(toolDialog).toBeVisible();
+    await toolDialog.locator('.bao-mobile-more > summary').click();
     const drawerSupport = toolDialog.getByRole('link', { name: /投餵肉包/ });
     await expect(drawerSupport).toBeVisible();
     await expect(drawerSupport.locator('img[src$="assets/bao-bun.svg"]')).toHaveCount(1);
@@ -73,6 +74,7 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 320, height: 568 }
     await page.locator('[data-api-close]').click();
 
     await composerTools.click();
+    await page.locator('#bao-chat-tool-drawer .bao-mobile-more > summary').click();
     await page.getByRole('button', { name: '◈ 世界狀態' }).click();
     await expect(page.locator('#bao-reading-status')).toHaveClass(/is-open/);
     await page.locator('.bao-status-close').click();

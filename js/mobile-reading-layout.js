@@ -255,6 +255,9 @@
     panel.dataset.baoMobileEnhanced = 'true';
     const body = panel.querySelector('.bao-chat-tool-dialog-body');
     if (!body) return;
+    // The generic drawer duplicates story/info shortcuts on mobile. The mobile
+    // quick hub owns those routes here; the full categorized tool groups remain.
+    body.querySelector('.yoru-tool-actions')?.remove();
     const quick = document.createElement('nav');
     quick.className = 'bao-mobile-quick';
     quick.setAttribute('aria-label', '手機常用功能');
@@ -262,24 +265,34 @@
       if (window.BAOStoryControlCenter?.open) BAOStoryControlCenter.open();
       else window.alert('故事總覽仍在載入，請稍後再試。');
     });
-    makeAction(quick, '◔ 上下文狀態', () => {
-      if (window.BAOContextHealth?.open) BAOContextHealth.open();
-      else window.alert('上下文狀態仍在載入，請稍後再試。');
-    });
-    makeAction(quick, '⌁ 快捷指令', () => {
-      if (window.BAOStoryQuickCommands?.open) BAOStoryQuickCommands.open();
-      else window.alert('快捷指令仍在載入，請稍後再試。');
-    });
-    makeAction(quick, '◈ 世界狀態', openStatus);
     makeAction(quick, '人物／事件', togglePanels, { 'data-bao-mobile-panel-toggle': '', 'aria-expanded': String(main.classList.contains('bao-mobile-panel-open')) });
     makeAction(quick, '🧠 記憶', openMemory);
     makeAction(quick, '模型連線／切換', () => {
       if (window.BAOChatAPISettings?.open) BAOChatAPISettings.open();
       else clickOriginal('#bao-chat-api-aside');
     });
-    makeAction(quick, '快速儲存', () => App.saveStory?.(true));
-    makeAction(quick, '✦ 聊天外觀', () => clickOriginal('[data-bao-open="appearance"]'), { 'data-bao-open': 'appearance' });
-    makeAction(quick, '↑ 置頂', toTop);
+    const more = document.createElement('details');
+    more.className = 'bao-mobile-more';
+    more.open = window.YoruExperience?.get?.().level === 'pro';
+    const summary = document.createElement('summary');
+    summary.textContent = '更多快捷操作';
+    summary.setAttribute('aria-label', '展開更多快捷操作');
+    more.append(summary);
+    const advanced = document.createElement('div');
+    advanced.className = 'bao-mobile-extra-actions';
+    more.append(advanced);
+    makeAction(advanced, '◔ 上下文狀態', () => {
+      if (window.BAOContextHealth?.open) BAOContextHealth.open();
+      else window.alert('上下文狀態仍在載入，請稍後再試。');
+    });
+    makeAction(advanced, '⌁ 快捷指令', () => {
+      if (window.BAOStoryQuickCommands?.open) BAOStoryQuickCommands.open();
+      else window.alert('快捷指令仍在載入，請稍後再試。');
+    });
+    makeAction(advanced, '◈ 世界狀態', openStatus);
+    makeAction(advanced, '快速儲存', () => App.saveStory?.(true));
+    makeAction(advanced, '✦ 聊天外觀', () => clickOriginal('[data-bao-open="appearance"]'), { 'data-bao-open': 'appearance' });
+
     const support = document.createElement('a');
     support.className = 'bao-mobile-support-link';
     support.href = supportUrl();
@@ -287,7 +300,17 @@
     support.rel = 'noopener noreferrer';
     support.innerHTML = '<img class="bao-mobile-bun-icon" src="assets/bao-bun.svg" width="26" height="26" alt=""><span>投餵肉包</span>';
     support.addEventListener('click', () => nav.closeDrawer());
-    quick.append(support);
+    advanced.append(support);
+    quick.append(more);
+    const goTop = makeAction(quick, '↑ 置頂', toTop);
+    goTop.classList.add('bao-mobile-go-top');
+    // Mobile shortcuts and grouped proxy actions share original handlers, but
+    // should only appear once in the same tool drawer.
+    const canonicalToolLabel = text => String(text || '').trim().replace(/\s*·\s*常用$/u, '').trim();
+    const quickNames = new Set([...quick.querySelectorAll('button')].map(button => canonicalToolLabel(button.textContent)));
+    body.querySelectorAll('.bao-chat-tool-proxy').forEach(button => {
+      if (quickNames.has(canonicalToolLabel(button.textContent))) button.remove();
+    });
     const connection = document.createElement('small');
     connection.setAttribute('aria-live', 'polite');
     const apiStatus = document.querySelector('#bao-chat-api-toolbar [data-bao-api-status]');
@@ -465,10 +488,10 @@
     focusScrollTop = null;
     schedule();
   });
-  window.BAOMobileReadingLayout = { version: 17, sync, openTools, enhanceDrawer, togglePanels, openMemory, closePanels, ensureComposerTools, fitComposerInput };
+  window.BAOMobileReadingLayout = { version: 18, sync, openTools, enhanceDrawer, togglePanels, openMemory, closePanels, ensureComposerTools, fitComposerInput };
   const style = document.createElement('link');
   style.rel = 'stylesheet';
-  style.href = 'css/mobile-reading-layout.css?v=16';
+  style.href = 'css/mobile-reading-layout.css?v=17';
   document.head.append(style);
   sync();
 })();
