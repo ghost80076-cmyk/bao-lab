@@ -237,3 +237,192 @@
   .story-extension-pack-preview{padding:12px}
   .story-extension-pack-preview>header{gap:8px}
 }
+
+
+/* Experience 3.0 / Phase 13 — consistent platform-owned extensions window.
+   Only mist/rose: the original night layout and authors' HTML remain untouched. */
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extensions-panel{
+  background:var(--yoru-surface);
+  color:var(--yoru-text);
+  border-color:var(--yoru-card-border)
+}
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extensions-head p,
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extension-card p,
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extensions-note,
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extensions-note>small{
+  color:var(--yoru-muted)
+}
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extensions-help,
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extensions-close{
+  background:var(--yoru-control);
+  color:var(--yoru-text);
+  border-color:var(--yoru-control-border)
+}
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extension-guide{
+  background:var(--yoru-control);
+  border-color:var(--yoru-control-border)
+}
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extension-guide b{
+  color:var(--yoru-text)
+}
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extension-guide span{
+  color:var(--yoru-muted)
+}
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extension-card{
+  background:var(--yoru-card);
+  border-color:var(--yoru-card-border);
+  color:var(--yoru-text)
+}
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extension-eyebrow,
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extension-meta b{
+  color:var(--yoru-lantern)
+}
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extension-meta{
+  border-top-color:var(--yoru-card-border)
+}
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extension-meta>div,
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extension-scope,
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extension-source,
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extension-permissions em{
+  color:var(--yoru-muted)
+}
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extension-scope,
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extension-source,
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extension-permissions em{
+  background:var(--yoru-control);
+  border-color:var(--yoru-control-border)
+}
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extension-source[data-source="work"],
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extension-source[data-source="platform"],
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extension-source[data-source="player"]{
+  background:var(--yoru-control);
+  border-color:var(--yoru-control-border);
+  color:var(--yoru-text)
+}
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extension-inventory{
+  background:var(--yoru-surface-raised);
+  border-color:var(--yoru-card-border)
+}
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extension-inventory>summary,
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extension-inventory-group>header b,
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extension-item>div>b{
+  color:var(--yoru-text)
+}
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extension-inventory>summary small,
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extension-inventory-group>header,
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extension-inventory-group>header span,
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extension-item>div>small,
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extension-quick-note{
+  color:var(--yoru-muted)
+}
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extension-inventory-body{
+  border-top-color:var(--yoru-card-border)
+}
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extension-item{
+  background:var(--yoru-card);
+  border-color:var(--yoru-card-border);
+  color:var(--yoru-text)
+}
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extension-item>span{
+  background:var(--yoru-control);
+  border-color:var(--yoru-control-border);
+  color:var(--yoru-muted)
+}
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extension-item[data-state="active"]>span,
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extension-quick[aria-pressed="true"]{
+  background:var(--yoru-control-hover);
+  border-color:var(--yoru-lantern);
+  color:var(--yoru-text)
+}
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extension-quick,
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extension-pack-cancel{
+  background:var(--yoru-control);
+  border-color:var(--yoru-control-border);
+  color:var(--yoru-text)
+}
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extension-quick:hover,
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extension-quick:focus-visible{
+  background:var(--yoru-control-hover);
+  border-color:var(--yoru-control-border-hover);
+  color:var(--yoru-text)
+}
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extension-pack-preview{
+  background:var(--yoru-surface-raised);
+  border-color:var(--yoru-card-border);
+  color:var(--yoru-text)
+}
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extension-pack-preview header p,
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extension-pack-section small,
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extension-pack-section em{
+  color:var(--yoru-muted)
+}
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extension-pack-section{
+  background:var(--yoru-card);
+  border-color:var(--yoru-card-border);
+  color:var(--yoru-text)
+}
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extension-pack-section b{
+  color:var(--yoru-text)
+}
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extension-pack-excluded{
+  background:var(--yoru-control);
+  color:var(--yoru-muted)
+}
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extension-pack-excluded b{
+  color:var(--yoru-text)
+}
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extensions-note{
+  border-top-color:var(--yoru-card-border)
+}
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extensions-panel :is(
+  button,input,select,summary
+):focus-visible{
+  outline:2px solid var(--yoru-lantern);
+  outline-offset:2px
+}
+
+
+/* Base button skin is !important in some legacy views: keep theme parity
+   localized to the extensions heading instead of changing global buttons. */
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"])
+  .story-extensions-panel .story-extensions-close,
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"])
+  .story-extensions-panel .story-extensions-help{
+  background:var(--yoru-control)!important;
+  color:var(--yoru-text)!important;
+  border-color:var(--yoru-control-border)!important
+}
+
+
+/* Experience 3.0 / Phase 14 — reveal technical ownership only on demand.
+   The content and controls are unchanged; this is native keyboard-friendly UI. */
+.story-extension-meta-disclosure{
+  min-width:0;margin-top:10px;border:1px solid var(--yoru-card-border,var(--border));
+  border-radius:11px;background:var(--yoru-control,rgba(255,255,255,.025));
+  overflow:hidden;color:var(--yoru-text,var(--text))
+}
+.story-extension-meta-disclosure > summary{
+  min-height:38px;box-sizing:border-box;cursor:pointer;list-style:none;
+  padding:9px 11px;display:flex;align-items:center;flex-wrap:wrap;
+  justify-content:space-between;gap:5px 9px;font-size:11px;
+  font-weight:750;line-height:1.5
+}
+.story-extension-meta-disclosure > summary::-webkit-details-marker{display:none}
+.story-extension-meta-disclosure > summary span{
+  font-weight:450;color:var(--yoru-muted,var(--muted));font-size:10px
+}
+.story-extension-meta-disclosure > summary::after{
+  content:'⌄';font-size:14px;color:var(--yoru-muted,var(--muted))
+}
+.story-extension-meta-disclosure[open] > summary::after{content:'⌃'}
+.story-extension-meta-disclosure .story-extension-meta{
+  margin:0;padding:10px;border-top:1px solid var(--yoru-card-border,var(--border))
+}
+.story-extension-meta-disclosure > summary:focus-visible{
+  outline:2px solid var(--yoru-lantern,#d6aa73);outline-offset:-2px
+}
+@media(max-width:720px){
+  .story-extension-meta-disclosure{margin-top:7px}
+  .story-extension-meta-disclosure > summary{min-height:36px;padding:8px 9px;font-size:10px}
+  .story-extension-meta-disclosure .story-extension-meta{padding:8px}
+}
