@@ -84,6 +84,7 @@ test('BAO character import persists through reload and opens a playable demo sto
   await page.waitForFunction(() => Boolean(window.BAOCharacterImport && App.characters?.some(item => item.id === 'e2e-rainport')));
   await page.locator('#home-view [data-view="explore"]').click();
   await page.locator('article').filter({ hasText: '雨港觀測員' }).click();
+  await page.getByRole('button', {name:'查看作品',exact:true}).click();
   await page.getByRole('button', { name: '開始故事' }).click();
   await page.locator('#bao-setup-choice [data-bao-setup="advanced"]').click();
   for (let i = 0; i < 3; i++) await page.getByRole('button', { name: '下一步' }).click();
