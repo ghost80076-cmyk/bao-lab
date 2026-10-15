@@ -454,3 +454,16 @@
   }
   #bao-chat-tool-drawer [hidden] {display:none!important}
 }
+
+/* Long-story return-to-top remains a quiet one-tap action outside More. */
+@media(max-width:820px) {
+  #bao-chat-tool-drawer .bao-mobile-quick > .bao-mobile-go-top {
+    grid-column:1/-1;width:100%;min-height:34px!important;
+    padding:4px 8px!important;margin:0;border:0!important;border-radius:8px!important;
+    background:transparent!important;color:var(--yoru-muted,#a7a5af)!important;
+    font-size:12px!important;text-align:right!important;font-weight:600!important;
+  }
+  #bao-chat-tool-drawer .bao-mobile-quick > .bao-mobile-go-top:hover {
+    color:var(--yoru-text,#eeeae4)!important;background:var(--yoru-control,#28252b)!important;
+  }
+}
