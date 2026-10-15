@@ -286,6 +286,8 @@ for (const width of [390, 1280]) {
 
     const modal = page.getByRole('dialog', {name:'NPC 名冊／場景參與者'});
     await expect(modal).toBeVisible();
+    const rosterLayer = await page.locator('.npc-roster-backdrop').evaluate(node => Number.parseInt(getComputedStyle(node).zIndex, 10));
+    expect(rosterLayer).toBeGreaterThan(10000);
     await expect(modal).toHaveCSS('background-color','rgb(255, 250, 243)');
     await expect(modal.locator('[data-roster-item]')).toHaveCount(2);
     await expect(modal.locator('[data-roster-item]').filter({hasText:'鏡月'}).locator('.npc-roster-relations')).toContainText('盟友');
