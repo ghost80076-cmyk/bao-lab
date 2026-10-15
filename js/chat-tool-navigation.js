@@ -145,7 +145,7 @@
     // Worldbooks contain story lore, not support links: keep their existing
     // button and click handler together with the other world tools.
     move(sidebar.querySelector('[data-open-worldbook-library]'), targets.world);
-    for (const selector of ['#save-slot-button', '#story-branch-button', '#list-slots-button', '#import-save-button', '#slot-list', '#export-story-button', '[data-bao-open="story-tools"]', '[data-open-story-backup]']) {
+    for (const selector of ['#save-slot-button', '#story-branch-button', '#list-slots-button', '#import-save-button', '#slot-list', '#export-story-button', '#export-transcript-button', '[data-bao-open="story-tools"]', '[data-open-story-backup]']) {
       move(sidebar.querySelector(selector), targets.story);
     }
     move(sidebar.querySelector('#bao-chat-api-aside'), targets.settings);

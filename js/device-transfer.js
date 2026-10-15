@@ -22,6 +22,7 @@
   });
 
   const build = async () => {
+    if(!window.BAOStoryActors?.exportPeople)throw new Error('人物庫工具尚未載入，請稍後重試。');
     await CharacterEngine.readyCustomLibrary?.();
     await CharacterEngine.flushCustomLibrary?.();
     await window.BAOStoryLibrary?.flush?.();
@@ -35,6 +36,7 @@
       exportedAt: new Date().toISOString(),
       app: "BAO/LAB",
       characters,
+      people: window.BAOStoryActors?.exportPeople?.(),
       stories,
       settings: settings()
     });
@@ -57,6 +59,7 @@
       throw new Error("這不是有效的夜灣裝置搬家包。");
     }
     if (Number(input.version || 0) > VERSION) throw new Error("這份裝置搬家包來自較新的版本，請先更新夜灣。");
+    if(input.people){if(!window.BAOStoryActors?.validatePeople)throw new Error('人物庫工具尚未載入。');window.BAOStoryActors.validatePeople(input.people);}
     return sanitize(input);
   };
 
@@ -66,11 +69,16 @@
     try { parsed = JSON.parse(await file.text()); }
     catch { throw new Error("裝置搬家包不是有效的 JSON 檔案。"); }
     const pack = validate(parsed);
-    await CharacterEngine.importCustomLibrary?.(pack.characters);
-    let storyCount = 0;
-    for (const bundle of pack.stories) {
-      await BAOStoryBackup.importBundle(bundle);
-      storyCount += 1;
+    // Validate every story before any writes; old packages without people remain supported.
+    for(const bundle of pack.stories) BAOStoryBackup.sanitizeBundle(bundle);
+    if(pack.people)window.BAOStoryActors.importPeople(pack.people,{copy:false,dryRun:true});
+    let characterCount=0,storyCount=0;
+    try {
+      for(const record of pack.characters){await CharacterEngine.importCustomLibrary?.([record]);characterCount++;}
+      for(const bundle of pack.stories){await BAOStoryBackup.importBundle(bundle);storyCount++;}
+      if(pack.people)window.BAOStoryActors.importPeople(pack.people,{copy:false});
+    } catch(error) {
+      throw new Error(`搬家尚未完成：已匯入 ${characterCount} 張角色、${storyCount} 個故事；人物庫尚未完成。請保留原備份檔。原因：${error.message}`);
     }
     Storage.applyPreferences?.(pack.settings || {});
     window.BAORefreshSaveUI?.();
@@ -89,7 +97,7 @@
     const picker = document.createElement("input");
     picker.type = "file"; picker.hidden = true; picker.accept = ".json,.bao.json,application/json";
     const status = document.createElement("span"); status.className = "note"; status.style.width = "100%";
-    status.textContent = "搬家包包含本機角色、角色封面、故事與偏好設定；不包含連線金鑰（API Key）。";
+    status.textContent = "搬家包包含本機角色、圖片、人物庫、故事與偏好設定；不包含連線金鑰（API Key）。";
     exportButton.addEventListener("click", async () => {
       exportButton.disabled = true;
       try {
@@ -101,7 +109,7 @@
     importButton.addEventListener("click", () => picker.click());
     picker.addEventListener("change", async () => {
       const file = picker.files?.[0]; if (!file) return;
-      if (!confirm("匯入後，同 ID 的本機角色會更新；故事會以新的本機故事加入。要繼續嗎？")) { picker.value = ""; return; }
+      if (!confirm("匯入後，同 ID 的本機角色與人物會更新；故事會以新的本機故事加入。要繼續嗎？")) { picker.value = ""; return; }
       importButton.disabled = true;
       try {
         const result = await importPack(file);

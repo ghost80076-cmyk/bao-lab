@@ -212,6 +212,8 @@ jobs:
           node tests/work-package-core.cjs
       - name: Admin character publication
         run: |
+          node tests/admin-work-package-core.cjs
+          node tests/device-transfer-core.cjs
           node tests/admin-character-publish-core.cjs
           node tests/admin-character-publish-update.cjs
           node tests/admin-author-profile-publish.cjs

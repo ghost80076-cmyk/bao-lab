@@ -206,6 +206,19 @@
       return imported.payload;
     };
   }
+  const transcriptText = payload => {
+    const messages=payload?.chat?.messages||[];
+    const title=String(payload?.label||payload?.characterName||'夜灣對話紀錄');
+    return title+'\n\n'+messages.filter(m=>m.role==='user'||m.role==='assistant').map(m=>{
+      const speaker=m.role==='user'?String(payload.config?.persona?.name||'玩家'):'故事';
+      return '【'+speaker+'】\n'+String(m.content||'');
+    }).join('\n\n');
+  };
+  const downloadTranscript = () => {
+    const payload=Storage.buildStoryPayload('');if(!payload)throw new Error('目前沒有可下載的對話。');
+    const url=URL.createObjectURL(new Blob(['\uFEFF'+transcriptText(payload)],{type:'text/plain;charset=utf-8'}));
+    const a=document.createElement('a');a.href=url;a.download='夜灣對話-'+String(payload.characterName||'story').replace(/[\\/:*?"<>|]/g,'-')+'.txt';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+  };
   const installExportButton = () => {
     if (typeof document === 'undefined' || document.getElementById('export-story-button')) return;
     const importButton = document.getElementById('import-save-button');
@@ -222,8 +235,9 @@
       } catch (error) { alert(error?.message || '完整故事備份失敗。'); }
       finally { button.disabled = false; button.textContent = original; }
     });
-    importButton.before(button);
+    const txt=document.createElement('button');txt.id='export-transcript-button';txt.type='button';txt.className='secondary';txt.textContent='下載本章對話 TXT';txt.onclick=()=>{try{downloadTranscript();}catch(error){alert(error.message);}};
+    importButton.before(txt,button);
   };
-  window.BAOStoryBackup = { schema: SCHEMA, version: VERSION, isBundle, sanitizeBundle, buildBundle, importBundle, downloadBundle, exportCurrentStory };
+  window.BAOStoryBackup = { transcriptText, downloadTranscript, schema: SCHEMA, version: VERSION, isBundle, sanitizeBundle, buildBundle, importBundle, downloadBundle, exportCurrentStory };
   installExportButton();
 })();

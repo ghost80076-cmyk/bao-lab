@@ -10,6 +10,7 @@
   const state = {
     character: null,
     sourceCard: null,
+    packageAssets: [],
     coverDataUrl: "",
     sourceFormat: "",
     audit: null
@@ -90,7 +91,7 @@
   function safeImportMetadata(value) {
     if (!value || typeof value !== "object" || Array.isArray(value)) return undefined;
     const out = {};
-    for (const key of ["source_format", "source_origin", "redacted_fields", "unmapped_fields", "unavailable_features"]) {
+    for (const key of ["work_package_regex", "source_format", "source_origin", "redacted_fields", "unmapped_fields", "unavailable_features"]) {
       if (value[key] !== undefined) out[key] = value[key];
     }
     return Object.keys(out).length ? out : undefined;
@@ -187,6 +188,7 @@
       }
     };
 
+    if (c.asset_manifest) card.asset_manifest = c.asset_manifest;
     if (c.opening) card.presentation.opening = c.opening;
     const importMetadata = safeImportMetadata(c.import_metadata);
     if (importMetadata) card.import_metadata = importMetadata;
@@ -326,15 +328,35 @@
 
   async function parseSelectedFile() {
     const file = $("publish-character-file").files?.[0];
-    if (!file) throw new Error("請先選擇 PNG 或 JSON 角色卡。");
+    if (!file) throw new Error("請先選擇 ZIP、PNG 或 JSON 作品。");
     setMessage("解析中…");
     state.audit = null;
+    state.character = null;state.sourceCard = null;updateButton();
     state.coverDataUrl = "";
     $("publish-cover-preview").hidden = true;
-    const prepared = await importer.prepareFile(file);
+    state.packageAssets=[];
+    let prepared;
+    if(/\.zip$/i.test(file.name)){
+      const core=window.BAOWorkPackageCore;if(file.size>core.LIMITS.archive)throw new Error('作品包超過 32 MB。');
+      const files=await core.unzip(new Uint8Array(await file.arrayBuffer()));
+      const result=core.assemble(core.jsonFile(files,'manifest.json'),files);
+      const library=result.character.gameplay?.initial_state?.worldbookLibrary||result.character.initial_state?.worldbookLibrary;
+      if(library&&!engine.normalizeWorldbookLibrary(library))throw new Error('作品世界書超過目前容量或格式不正確；沒有省略任何條目。');
+      if(result.assets.length>32)throw new Error('公開上架目前最多 32 張圖片，請分批整理；沒有移除任何圖片。');
+      let total=0;
+      state.packageAssets=result.assets.map(asset=>{total+=asset.bytes.length;let binary='';for(const byte of asset.bytes)binary+=String.fromCharCode(byte);return {id:asset.id,mime:asset.mime,base64:btoa(binary)};});
+      if(total>12*1024*1024) {state.packageAssets=[];throw new Error('公開上架圖片合計超過 12 MB，請先整理圖片。');}
+      const used=new Set(['manifest.json',result.manifest.character,result.manifest.regex,...result.manifest.worldbooks.map(x=>typeof x==='string'?x:x.path),...result.assets.map(x=>x.path)]);
+      prepared={character:result.character,format:'夜灣作品包 ZIP',manual:result.manifest.adaptation?.manual||[],extraFiles:Object.keys(files).filter(x=>!used.has(x)).length};
+      const cover=state.packageAssets.find(image=>result.assets.find(x=>x.id===image.id)?.role==='cover');
+      if(cover){$('publish-cover-preview').src='data:'+cover.mime+';base64,'+cover.base64;$('publish-cover-preview').hidden=false;$('publish-cover-note').textContent='作品包封面與其他圖片會保留原始檔案，隨 PR 發布。';}
+    }else prepared = await importer.prepareFile(file);
     fillForm(prepared.character, prepared.format || prepared.origin);
     if (prepared.cover instanceof Blob) await encodeCover(prepared.cover);
     validateCard();
+    if(prepared.extraFiles)$('publish-source-summary').textContent+='｜'+prepared.extraFiles+' 個來源／其他附件保留在原 ZIP，不會隨 PR 公開';
+    if(prepared.manual?.length)$('publish-source-summary').textContent+='｜待適配：'+prepared.manual.join('；');
+    if(state.packageAssets.length) $("publish-source-summary").textContent += "｜隨包圖片 "+state.packageAssets.length+" 張；世界書與正則隨角色發布";
     setMessage(prepared.converted ? "✓ 酒館 V2 已轉成夜灣格式，請確認欄位後建立 PR。" : "✓ 夜灣角色卡已載入，請確認欄位後建立 PR。", true);
   }
 
@@ -412,6 +434,7 @@
           author_support_url: String($("publish-author-support-url")?.value || "").trim(),
           source_format: state.sourceFormat,
           card,
+          package_assets: state.packageAssets,
           cover_data_url: state.coverDataUrl || null
         })
       });

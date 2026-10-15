@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const openStoryTools=async page=>{await page.evaluate(()=>BAOChatToolNavigation.openDrawer());const summary=page.getByRole('dialog',{name:'故事功能選單'}).locator('summary').filter({hasText:/故事.*存檔/});if(!await summary.evaluate(x=>x.parentElement.open))await summary.click();};
 
 const openModelStep = async page => {
   await page.goto("/");
@@ -6,7 +7,9 @@ const openModelStep = async page => {
   await page.locator('#home-view [data-view="explore"]').click();
   const card = page.locator("article").filter({ hasText: "林沉風 - 見過黑暗的人" });
   await expect(card).toBeVisible();
-  await card.click();
+  await page.waitForFunction(() => !!window.BAOStoryActors && !!window.BAOWorkPackage);
+  await page.getByRole("button", {name:"預覽 林沉風 - 見過黑暗的人",exact:true}).click();
+  await page.getByRole("button", { name: "查看作品",exact:true }).click();
   await page.getByRole("button", { name: "開始故事" }).click();
   await page.locator('#bao-setup-choice [data-bao-setup="advanced"]').click();
   for (let step = 0; step < 3; step += 1) await page.getByRole("button", { name: "下一步" }).click();
@@ -19,7 +22,9 @@ const openDemoStory = async page => {
   await page.getByRole("button", { name: "下一步" }).click();
   await page.getByRole("button", { name: "開始故事" }).click();
   await expect(page.locator("#user-input")).toBeVisible();
-  await expect(page.locator("#export-story-button")).toBeVisible();
+  await openStoryTools(page);
+  await expect(page.getByRole("dialog",{name:"故事功能選單"}).getByRole("button",{name:"完整故事備份",exact:true})).toBeVisible();
+  await page.evaluate(() => BAOChatToolNavigation.closeDrawer());
 };
 
 test("full story bundle survives a device-style export and import with branches intact", async ({ page }) => {
@@ -80,15 +85,14 @@ test("full story bundle survives a device-style export and import with branches 
   expect(JSON.stringify(seeded.bundle)).not.toContain("E2E-SECRET-MUST-NOT-LEAK");
 
   await page.evaluate(async storyId => {
+    // Simulate leaving the source device before importing: stop live-state autosaves.
+    await BAOStoryLibrary.flush();
+    GameState.current = null;Storage.clearStory();
+    await Storage.flush?.();
     await BAOStoryLibrary.deleteStory(storyId);
   }, seeded.oldStoryId);
   await expect.poll(() => page.evaluate(async () => (await BAOStoryLibrary.listStories()).length)).toBe(0);
 
-  let importMessage = "";
-  page.once("dialog", async dialog => {
-    importMessage = dialog.message();
-    await dialog.accept();
-  });
   await page.locator("#import-save-file").setInputFiles({
     name: "BAO-LAB-device-migration.json",
     mimeType: "application/json",
@@ -96,7 +100,7 @@ test("full story bundle survives a device-style export and import with branches 
   });
 
   await expect.poll(() => page.evaluate(async () => (await BAOStoryLibrary.listStories()).length)).toBe(1);
-  await expect.poll(() => importMessage).toContain("匯入完成");
+  await expect(page.getByText("存檔匯入並確認寫入完成。",{exact:true})).toBeVisible();
   await expect(page.locator("[data-load-slot]")).toHaveCount(1);
 
   const restored = await page.evaluate(async () => {
@@ -135,12 +139,15 @@ test("full story bundle survives a device-style export and import with branches 
   expect(restored.checkpointCount).toBeGreaterThanOrEqual(2);
   expect(restored.slotKey).toBe("");
 
+  await openStoryTools(page);
+  await page.getByRole("dialog",{name:"故事功能選單"}).getByRole("button",{name:"手動備份清單",exact:true}).click();
   await page.locator("[data-load-slot]").click();
   await expect.poll(() => page.evaluate(() => GameState.current.location)).toBe("碼頭");
   await expect.poll(() => page.evaluate(() => Chat.summary)).toBe("碼頭線摘要");
   await expect.poll(() => page.evaluate(() => BAOStoryLibrary.refs().chapterId)).toBe(restored.branch.id);
 
-  await page.locator("#story-branch-button").click();
+  await openStoryTools(page);
+  await page.getByRole("dialog",{name:"故事功能選單"}).getByRole("button",{name:/故事分支/}).click();
   await expect(page.getByRole("heading", { name: "故事分支" })).toBeVisible();
   await expect(page.locator(".story-branch-row")).toHaveCount(2);
 });

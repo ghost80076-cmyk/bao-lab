@@ -143,3 +143,7 @@ assert.match(storyToolsSource, /details\.bao-gallery-more/);
 
   console.log('story backup core test passed');
 })().catch(error => { console.error(error); process.exitCode = 1; });
+
+const transcript=BAOStoryBackup.transcriptText({characterName:'故事',config:{api:{key:'secret'},persona:{name:'旅人'}},chat:{messages:[{role:'system',content:'private'},{role:'user',content:'你好'},{role:'assistant',content:'歡迎',context_content:'hidden'}]}});
+assert.ok(transcript.includes('旅人')&&transcript.includes('你好')&&transcript.includes('歡迎'));
+assert.ok(!transcript.includes('secret')&&!transcript.includes('private')&&!transcript.includes('hidden'));
