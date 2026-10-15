@@ -32,7 +32,7 @@
     if (document.querySelector('link[href^="css/experience-preferences.css"]')) return;
     const link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = 'css/experience-preferences.css?v=1';
+    link.href = 'css/experience-preferences.css?v=2';
     document.head.append(link);
   };
   const close = () => {
