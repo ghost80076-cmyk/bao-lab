@@ -64,7 +64,7 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/experience-preferences.js?v=2"))
     .catch(err => console.warn("YoruBay experience preferences unavailable:", err));
   loadBAOScript("js/chat-api-settings.js?v=3")
-    .then(() => loadBAOScript("js/model-discovery.js"))
+    .then(() => loadBAOScript("js/model-discovery.js?v=2"))
     .catch(err => console.warn("BAO/LAB chat API settings or model discovery failed to load:", err));
   loadBAOScript("js/autonomous-world-workbench.js")
     .then(() => loadBAOScript("js/autonomous-world-display.js"))
@@ -161,7 +161,7 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/reader-context.js?v=2"))
     .then(() => loadBAOScript("js/bao-visual-ui.js?v=10"))
     .then(() => loadBAOScript("js/player-shell-v2.js?v=7"))
-    .then(() => loadBAOScript("js/player-builder-v2.js?v=5"))
+    .then(() => loadBAOScript("js/player-builder-v2.js?v=6"))
     .then(() => loadBAOScript("js/story-start-readiness-core.js"))
     .then(() => loadBAOScript("js/story-start-readiness.js"))
     .catch(err => console.warn("BAO/LAB brand, mascot, Player 2.0 UI or story-start readiness failed to load:", err));

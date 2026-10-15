@@ -219,3 +219,34 @@ for (const theme of ['mist','rose']) {
     expect(state.overflow).toBeLessThanOrEqual(1);
   });
 }
+
+
+test('model connection keeps optional discovery secondary and support clear of primary actions', async ({page}) => {
+  await page.setViewportSize({width:390,height:844});
+  await openBuilder(page);
+  await page.waitForFunction(() => !!window.BAOModelDiscovery && !!document.getElementById('bao-support-float'));
+
+  await page.evaluate(() => {
+    const provider = document.getElementById('api-type');
+    const byok = [...provider.options].find(option => !['bao-credits','lmstudio'].includes(option.value));
+    if (!byok) throw new Error('Missing BYOK provider');
+    provider.value = byok.value;
+    provider.dispatchEvent(new Event('change', {bubbles:true}));
+    window.BAOModelDiscovery?.syncBuilderControls?.();
+  });
+
+  await expect(page.locator('#bao-support-float')).toBeHidden();
+  const more = page.locator('#bao-builder-model-discovery-more');
+  await expect(more).toBeVisible();
+  await expect(more.locator('summary')).toHaveText('找不到模型？');
+  await expect(more).not.toHaveAttribute('open', '');
+  await more.locator('summary').click();
+  await expect(more.locator('button')).toHaveText('從帳號取得模型');
+  await expect(more.locator('.note')).toContainText('只有找不到想用的模型時才需要');
+
+  const order = await page.evaluate(() => [...document.querySelectorAll('#api-advanced-settings [data-api-advanced-grid] label')].map(label =>
+    label.querySelector('select,input')?.id || ''
+  ));
+  expect(order.slice(0,3)).toEqual(['bao-builder-discovery-protocol','base-url','model-id']);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(391);
+});

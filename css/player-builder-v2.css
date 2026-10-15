@@ -221,3 +221,37 @@
   }
   #builder-view[data-bao-setup="quick"] .bao-connection-mode-grid button span{line-height:1.5}
 }
+
+
+/* Experience 3.0 · Round 21: calm connection setup and keep support UI out of primary actions. */
+body:has(#builder-view.active) .bao-support-float,
+body:has(dialog[open]) .bao-support-float,
+body:has(.bao-modal-backdrop) .bao-support-float,
+body:has(#bao-chat-api-backdrop) .bao-support-float{display:none!important}
+#builder-view[data-bao-connection="byok"]:not([data-bao-provider="custom"]) .api-connection-summary{display:none}
+#builder-view .bao-model-discovery-disclosure{
+  grid-column:1/-1;margin:-2px 0 2px;border:0;background:transparent;color:var(--yoru-muted,#a9a5b1)
+}
+#builder-view .bao-model-discovery-disclosure>summary{
+  width:max-content;max-width:100%;cursor:pointer;list-style:none;padding:4px 0;
+  color:var(--yoru-muted,#a9a5b1);font-size:12px;font-weight:650;text-decoration:underline;
+  text-decoration-color:color-mix(in srgb,var(--yoru-muted,#a9a5b1) 35%,transparent);text-underline-offset:4px
+}
+#builder-view .bao-model-discovery-disclosure>summary::-webkit-details-marker{display:none}
+#builder-view .bao-model-discovery-disclosure>summary::after{content:" ＋";text-decoration:none}
+#builder-view .bao-model-discovery-disclosure[open]>summary::after{content:" −"}
+#builder-view .bao-model-discovery-disclosure .bao-model-discovery{
+  margin:8px 0 4px;padding:10px 12px;border:1px solid var(--yoru-card-border,rgba(241,232,218,.13));
+  border-radius:12px;background:var(--yoru-surface,#15191d)
+}
+#builder-view .bao-model-discovery-disclosure .bao-model-discovery button{
+  min-height:38px;padding:8px 11px;font-size:12px
+}
+#builder-view .bao-model-discovery-disclosure .bao-model-discovery small{font-size:11px;color:var(--yoru-muted,#a9a5b1)}
+#builder-view #api-advanced-settings>summary{color:var(--yoru-muted,#a9a5b1);font-size:12px}
+#builder-view #api-advanced-settings>p{margin-top:0;font-size:11px;line-height:1.5;color:var(--yoru-muted,#a9a5b1)}
+#builder-view #api-advanced-settings [data-api-advanced-grid]{grid-template-columns:1fr;gap:11px}
+@media(max-width:620px){
+  #builder-view .bao-model-discovery-disclosure>summary{min-height:32px;display:inline-flex;align-items:center}
+  #builder-view .bao-model-discovery-disclosure .bao-model-discovery{padding:9px 10px}
+}
