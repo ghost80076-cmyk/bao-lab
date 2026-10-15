@@ -246,3 +246,34 @@ for (const theme of ['mist','rose']) {
     await expect(page.getByRole('searchbox',{name:'搜尋故事工具'})).toBeVisible();
   });
 }
+
+
+test('mobile reply tools preserve original buttons across easy, pro and desktop views', async ({page}) => {
+  await page.setViewportSize({width:390,height:844});
+  await openDemoStory(page);
+  await page.waitForFunction(() => !!window.YoruExperience && !!window.BAOMobileReadingLayout);
+  await page.evaluate(() => {
+    Chat.add('assistant','這段回覆用來檢查手機工具列分組與原始操作。');
+    App.renderChatShell(false);
+  });
+  const message = page.locator('#chat-stream .message.assistant[data-message-index]').last();
+  const tools = message.locator('.story-message-tools');
+  const more = tools.locator('details.bao-message-more');
+  await expect(more).toBeVisible();
+  await expect(tools.locator('[data-copy]')).toBeVisible();
+  await expect(tools.locator('[data-rewrite]')).toBeHidden();
+  expect(await tools.locator('button').count()).toBeGreaterThanOrEqual(5);
+  const prior = await message.locator('.bubble').textContent();
+
+  await page.evaluate(() => YoruExperience.choose({level:'pro'}));
+  await expect(more).toHaveAttribute('open','');
+  await expect(tools.locator('[data-rewrite]')).toBeVisible();
+  await page.evaluate(() => YoruExperience.choose({level:'easy'}));
+  await expect(more).not.toHaveAttribute('open','');
+  await expect(tools.locator('[data-rewrite]')).toBeHidden();
+
+  await page.setViewportSize({width:1280,height:900});
+  await expect(tools.locator('details.bao-message-more')).toHaveCount(0);
+  await expect(tools.locator('[data-rewrite]')).toBeVisible();
+  expect(await message.locator('.bubble').textContent()).toBe(prior);
+});
