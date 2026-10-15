@@ -207,3 +207,15 @@ html[data-yoru-theme="rose"] #me-view .bao-content-visibility-toggle {
    background:var(--yoru-tool);border-color:var(--yoru-border);box-shadow:var(--yoru-shadow-soft);
  }
 }
+
+/* Discoverable appearance control: a word on desktop, one familiar glyph on phones. */
+.topbar .yoru-exp-entry{
+  display:inline-flex;align-items:center;justify-content:center;gap:7px;
+  width:auto;min-width:66px;padding:0 12px;font-size:13px;font-weight:700;
+}
+.topbar .yoru-exp-symbol{font-size:20px;line-height:1}
+.topbar .yoru-exp-label{white-space:nowrap;line-height:1.2}
+@media(max-width:820px){
+  .topbar .yoru-exp-entry{width:42px;min-width:42px;height:42px;padding:0}
+  .topbar .yoru-exp-label{display:none}
+}
