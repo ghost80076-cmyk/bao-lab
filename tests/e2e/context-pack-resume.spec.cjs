@@ -9,6 +9,7 @@ const openDemoStory = async page => {
   const card = page.locator("article").filter({ hasText: "林沉風 - 見過黑暗的人" });
   await expect(card).toBeVisible();
   await card.click();
+  await page.getByRole("button", { name: "查看作品", exact: true }).click();
   await page.getByRole("button", { name: "開始故事" }).click();
   await page.locator('#bao-setup-choice [data-bao-setup="advanced"]').click();
   for (let step = 0; step < 3; step += 1) await page.getByRole("button", { name: "下一步" }).click();
@@ -34,8 +35,9 @@ test("Context Pack AI draft source survives a full page reload", async ({ page }
     App.saveStory(false);
   });
 
-  await page.locator("[data-bao-open='story-tools']").click();
+  await page.evaluate(() => BAOStoryTools.open());
   await expect(page.getByRole("heading", { name: "故事管理" })).toBeVisible();
+  await page.locator("[data-story-desk-more] > summary").click();
   await page.locator("[data-create]").click();
   await expect(page.getByRole("heading", { name: "劇情摘要包（Context Pack）編輯與確認" })).toBeVisible();
 
@@ -62,7 +64,8 @@ test("Context Pack AI draft source survives a full page reload", async ({ page }
   await expect(page.locator("#user-input")).toBeVisible();
   await page.waitForFunction(() => Boolean(document.querySelector("[data-bao-open='story-tools']")));
 
-  await page.locator("[data-bao-open='story-tools']").click();
+  await page.evaluate(() => BAOStoryTools.open());
+  await page.locator("[data-story-desk-more] > summary").click();
   await page.locator("[data-edit-draft]").click();
   const aiButton = page.locator("[data-ai]");
   await expect(aiButton).toBeVisible();

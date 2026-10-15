@@ -57,7 +57,7 @@
     if (document.querySelector('link[href^="css/story-tools.css"]')) return;
     const link = document.createElement("link");
     link.rel = "stylesheet";
-    link.href = "css/story-tools.css?v=2";
+    link.href = "css/story-tools.css?v=3";
     document.head.appendChild(link);
   };
 
@@ -1320,9 +1320,14 @@
       '<div class="story-tools-home">' +
       '<section class="story-tools-card"><h3>我的故事</h3><p>像一座只屬於你的書架：同一個角色可以展開不同故事，每一本都有自己的記憶、Persona、世界狀態與章節／分支。</p><button class="primary" type="button" data-library>回到我的故事</button></section>' +
       '<section class="story-tools-card"><h3>完整故事備份</h3><p>包含主線與全部分支，以及對話、玩家資料（Persona）、記憶、角色狀態（Character Status）、世界狀態（World State）、世界模組、敘事偏好與劇情摘要包（Context Pack）。</p><div class="story-tools-actions"><button class="primary" type="button" data-export>匯出完整故事</button><button class="secondary" type="button" data-backup>建立本機備份</button><button class="secondary" type="button" data-import>匯入完整故事</button><input hidden type="file" data-story-file accept=".json,application/json"></div></section>' +
+      '</div><details class="story-tools-advanced" data-story-desk-more><summary>更多故事工具 <span>整理前情 · 搬入外部紀錄 · Context 預覽</span></summary><div class="story-tools-home story-tools-home-advanced">' +
       '<section class="story-tools-card"><h3>劇情摘要包（Context Pack）／建立續篇</h3><p>超長故事會依完整對話輪次分段整理，再分層合併成可由玩家確認的前情。</p><div class="story-tools-actions"><button class="primary" type="button" data-create>整理目前故事</button>' + (hasDraft ? '<button class="secondary" type="button" data-edit-draft>繼續未確認草稿</button>' : '') + (hasPack ? '<button class="secondary" type="button" data-edit>編輯既有摘要包</button>' : '') + '</div></section>' +
       '<section class="story-tools-card"><h3>外部聊天歷史</h3><p>先轉成可檢查的劇情摘要包（Context Pack），再由玩家確認。</p><button class="secondary" type="button" data-external>匯入外部紀錄</button></section>' +
-      '<section class="story-tools-card"><h3>Context 預覽器</h3><p>查看下一輪實際使用的角色卡、記憶、狀態、模組、Persona 與敘事偏好。</p><button class="secondary" type="button" data-preview>預覽送出內容</button></section></div>';
+      '<section class="story-tools-card"><h3>Context 預覽器</h3><p>查看下一輪實際使用的角色卡、記憶、狀態、模組、Persona 與敘事偏好。</p><button class="secondary" type="button" data-preview>預覽送出內容</button></section></div></details>';
+    // Optional tools are still in the DOM, with their original event listeners.
+    // Only the initial display changes by experience level; users can expand.
+    const more = host.querySelector("[data-story-desk-more]");
+    if (more) more.open = window.YoruExperience?.get?.().level === "pro";
     host.querySelector(".story-tools-close").onclick = close;
     bindMobileHelp(host, "[data-story-tools-help]", "story-tools-help-open");
     host.querySelector("[data-library]").onclick = () => libraryScreen(host);
