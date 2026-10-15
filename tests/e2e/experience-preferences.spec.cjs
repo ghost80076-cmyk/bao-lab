@@ -55,8 +55,8 @@ test('mobile: new preference dialog is reachable, scrollable and does not overfl
 
 
 for (const {theme,color,heroStop,cardSurface} of [
-  {theme:'mist',color:'rgb(69, 59, 52)',heroStop:'rgb(251, 247, 241)',cardSurface:'rgb(255, 250, 244)'},
-  {theme:'rose',color:'rgb(243, 232, 230)',heroStop:'rgb(56, 44, 51)',cardSurface:'rgb(64, 50, 57)'}
+  {theme:'mist',color:'rgb(69, 59, 52)',heroStop:'rgb(251, 247, 241)'},
+  {theme:'rose',color:'rgb(243, 232, 230)',heroStop:'rgb(56, 44, 51)'}
 ]) {
   test('theme ' + theme + ' harmonizes the home, discovery and controls', async ({page}) => {
     await page.setViewportSize({width:390,height:844});
@@ -84,6 +84,7 @@ for (const {theme,color,heroStop,cardSurface} of [
     const card = await page.evaluate(() =>
       getComputedStyle(document.documentElement).getPropertyValue('--yoru-card').trim());
     expect(card).toBe(theme === 'mist' ? '#fffaf4' : '#403239');
-    expect(cardSurface).toBeTruthy();
+    const paperInk = await page.locator('#home-view .brand-paper-page').evaluate(node => getComputedStyle(node).color);
+    expect(paperInk).toBe('rgb(53, 44, 56)');
   });
 }
