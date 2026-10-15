@@ -40,6 +40,8 @@
   let builderActors = [];
   let dialog = null;
   let draftTimer = null;
+  // Filter the visible local library; query state never enters prompts or saved stories.
+  const libraryQueries = {player:'',actor:''};
 
   const generalPortableCatalog = () => packCore?.sanitizeCatalog?.([...(window.BAOGeneralStoryActorPack?.actors || []), ...(window.BAOThreeRealmsStoryActorPack?.actors || [])]) || [];
   const adultPortableCatalog = () => packCore?.sanitizeCatalog?.(window.BAOAdultStoryActorPack?.actors || []) || [];
@@ -494,15 +496,17 @@
       const actor = record.actor || {};
       const meta = [actor.gender, actor.identity, actor.role === 'primary' ? 'AI 主角' : 'NPC'].filter(Boolean).join(' · ');
       const detail = actor.personality || actor.background || actor.relationship || '尚未填寫更多設定';
-      return `<article class="bao-library-card"><div><b>${esc(record.label || actor.name || '未命名 AI 人物')}</b><span>${esc(actor.name || '未命名')} ${meta ? '· ' + esc(meta) : ''}</span><small>${librarySnippet(detail)}</small></div><div class="bao-library-card-actions"><button type="button" class="secondary" data-library-edit="${esc(record.id)}">編輯</button><button type="button" class="secondary" data-library-copy="${esc(record.id)}">複製</button><button type="button" class="secondary" data-library-delete="${esc(record.id)}">刪除</button></div></article>`;
+      return `<article class="bao-library-card"><div><b>${esc(record.label || actor.name || '未命名 AI 人物')}</b><span>${esc(actor.name || '未命名')} ${meta ? '· ' + esc(meta) : ''}</span><small>${librarySnippet(detail)}</small></div><div class="bao-library-card-actions"><button type="button" class="secondary" data-library-edit="${esc(record.id)}">編輯</button><details class="bao-library-more"><summary aria-label="更多人物操作">更多</summary><div class="bao-library-more-actions"><button type="button" class="secondary" data-library-copy="${esc(record.id)}">複製</button><button type="button" class="secondary" data-library-delete="${esc(record.id)}">刪除</button></div></details></div></article>`;
     }
     const p = record.persona || {};
     const meta = [p.gender, p.identity].filter(Boolean).join(' · ');
     const detail = p.personality || p.background || p.relationship || '尚未填寫更多設定';
-    return `<article class="bao-library-card"><div><b>${esc(record.label || p.name || '未命名玩家角色')}</b><span>${esc(p.name || '未命名')} ${meta ? '· ' + esc(meta) : ''}</span><small>${librarySnippet(detail)}</small></div><div class="bao-library-card-actions"><button type="button" class="secondary" data-library-edit="${esc(record.id)}">編輯</button><button type="button" class="secondary" data-library-copy="${esc(record.id)}">複製</button><button type="button" class="secondary" data-library-delete="${esc(record.id)}">刪除</button></div></article>`;
+    return `<article class="bao-library-card"><div><b>${esc(record.label || p.name || '未命名玩家角色')}</b><span>${esc(p.name || '未命名')} ${meta ? '· ' + esc(meta) : ''}</span><small>${librarySnippet(detail)}</small></div><div class="bao-library-card-actions"><button type="button" class="secondary" data-library-edit="${esc(record.id)}">編輯</button><details class="bao-library-more"><summary aria-label="更多人物操作">更多</summary><div class="bao-library-more-actions"><button type="button" class="secondary" data-library-copy="${esc(record.id)}">複製</button><button type="button" class="secondary" data-library-delete="${esc(record.id)}">刪除</button></div></details></div></article>`;
   }
   function openLibrary(mode = 'player') {
     close();
+    libraryQueries.player = '';
+    libraryQueries.actor = '';
     dialog = document.createElement('div');
     dialog.id = 'bao-actor-backdrop';
     dialog.innerHTML = `<section class="bao-actor-dialog bao-library-dialog" role="dialog" aria-modal="true" aria-labelledby="bao-library-title"><header><div><h2 id="bao-library-title">我的人物庫</h2><p class="note">人物保存在這台裝置。先在這裡捏好，開始故事前或故事進行中都能帶入。</p></div><button type="button" data-close aria-label="關閉">×</button></header><nav class="bao-library-tabs" aria-label="人物庫分類"><button type="button" data-library-mode="player">我的玩家角色</button><button type="button" data-library-mode="actor">我的 AI 人物 / NPC</button></nav><div id="bao-persona-library-body"></div></section>`;
@@ -516,10 +520,37 @@
     if (!dialog) return;
     const body = dialog.querySelector('#bao-persona-library-body');
     if (!body) return;
-    dialog.querySelectorAll('[data-library-mode]').forEach(button => button.classList.toggle('active', button.dataset.libraryMode === mode));
+    dialog.querySelectorAll('[data-library-mode]').forEach(button => {
+      const selected = button.dataset.libraryMode === mode;
+      button.classList.toggle('active', selected);
+      button.setAttribute('aria-pressed', selected ? 'true' : 'false');
+    });
     const items = mode === 'actor' ? actorPresets() : presets();
     const empty = mode === 'actor' ? '還沒有保存 AI 人物。你可以先在這裡捏好 NPC，再帶進任何故事。' : '還沒有保存玩家角色。你可以先建立常用 Persona，之後直接套用。';
-    body.innerHTML = `<div class="bao-library-toolbar"><button type="button" class="primary" data-library-new>＋ ${mode === 'actor' ? '新增 AI 人物 / NPC' : '新增玩家角色'}</button><span>${items.length} 個本機人物</span></div><div class="bao-library-list">${items.length ? items.map(item => libraryCard(mode, item)).join('') : `<p class="note">${empty}</p>`}</div>`;
+    body.innerHTML = `<div class="bao-library-toolbar"><button type="button" class="primary" data-library-new>＋ ${mode === 'actor' ? '新增 AI 人物 / NPC' : '新增玩家角色'}</button><span data-library-result-count aria-live="polite">${items.length} 個本機人物</span></div><label class="bao-library-search">搜尋我的人物<input type="search" data-library-search aria-label="搜尋我的人物" placeholder="搜尋名稱、身分或人物設定" autocomplete="off"></label><div class="bao-library-list">${items.length ? items.map(item => libraryCard(mode, item)).join('') : `<p class="note">${empty}</p>`}</div><p class="bao-library-no-match" data-library-no-match hidden>找不到符合的人物，可試試其他名稱或關鍵字。</p>`;
+    const search = body.querySelector('[data-library-search]');
+    const applyLibrarySearch = () => {
+      const query = String(search?.value || '').trim().toLocaleLowerCase();
+      libraryQueries[mode] = search?.value || '';
+      let matches = 0;
+      body.querySelectorAll('.bao-library-card').forEach((card, index) => {
+        const entry = items[index];
+        const person = mode === 'actor' ? entry?.actor : entry?.persona;
+        const keywords = [entry?.label, ...Object.values(person || {}).filter(value => typeof value === 'string')].join(' ').toLocaleLowerCase();
+        const visible = !query || keywords.includes(query);
+        card.hidden = !visible;
+        if (visible) matches++;
+      });
+      const count = body.querySelector('[data-library-result-count]');
+      if (count) count.textContent = query ? `${matches} / ${items.length} 個人物` : `${items.length} 個本機人物`;
+      const emptyState = body.querySelector('[data-library-no-match]');
+      if (emptyState) emptyState.hidden = !query || matches > 0;
+    };
+    if (search) {
+      search.value = libraryQueries[mode];
+      search.addEventListener('input', applyLibrarySearch);
+      applyLibrarySearch();
+    }
     body.querySelector('[data-library-new]')?.addEventListener('click', () => renderLibraryEditor(mode));
     body.querySelectorAll('[data-library-edit]').forEach(button => button.onclick = () => renderLibraryEditor(mode, button.dataset.libraryEdit));
     body.querySelectorAll('[data-library-copy]').forEach(button => button.onclick = () => {
@@ -747,6 +778,13 @@
     style.id = 'bao-actor-styles';
     style.textContent = `.bao-portable-actor-picker,.bao-local-actor-picker{display:grid;gap:7px;margin:10px 0 14px;padding:12px;border:1px solid #6a6074;border-radius:11px;background:#282432}.bao-portable-actor-picker b,.bao-local-actor-picker b{color:#eee6f1}.bao-portable-actor-picker span,.bao-local-actor-picker span{color:#aaa3b0;font-size:12px;line-height:1.5}.bao-portable-actor-picker select,.bao-local-actor-picker select{width:100%;padding:9px}.bao-portable-actor-picker button,.bao-local-actor-picker button{min-height:38px}.bao-actor-builder{margin:16px 0;padding:14px;border:1px solid #5d6279;border-radius:12px;background:#232634}.bao-actor-builder h4{margin:0 0 6px}.bao-actor-builder select{width:100%;max-width:100%;margin:8px 0;padding:10px}.bao-actor-actions{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}.bao-actor-actions button{min-height:38px;flex:1 1 145px}.bao-persona-more{display:grid;gap:10px;margin-top:10px}.bao-actor-item{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:8px;border-bottom:1px solid #555}.bao-actor-item span{flex:1 1 160px}.bao-actor-item button{width:auto}#bao-actor-backdrop{position:fixed;inset:0;z-index:10030;display:flex;align-items:center;justify-content:center;overflow:auto;padding:14px;background:rgba(0,0,0,.78)}.bao-actor-dialog{box-sizing:border-box;width:min(100%,700px);max-height:calc(100dvh - 28px);overflow:auto;padding:clamp(16px,3vw,26px);border:1px solid #686d81;border-radius:16px;background:#222632;color:#f4f4f8;box-shadow:0 18px 60px #0009}.bao-actor-dialog header{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}.bao-actor-dialog footer{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;align-items:stretch}.bao-actor-dialog header h2{margin:0;font-size:21px}.bao-actor-head-actions{display:flex;align-items:center;gap:8px}.bao-actor-help{display:none}.bao-actor-dialog header button{font-size:26px;border:0;background:none;color:inherit;cursor:pointer}.bao-actor-dialog label{display:grid;gap:5px;margin:8px 0;font-size:14px}.bao-actor-dialog input,.bao-actor-dialog textarea,.bao-actor-dialog select{box-sizing:border-box;width:100%;min-width:0;padding:10px;border:1px solid #6a7184;border-radius:8px;background:#141821;color:#fff;font:inherit}.bao-actor-dialog textarea{resize:vertical}.bao-actor-fields{display:grid;gap:6px}.bao-actor-dialog footer button{width:100%;min-width:0;min-height:44px;margin:0}#bao-actor-feedback{min-height:1.4em;color:#ffcc93}.bao-library-dialog{width:min(100%,820px)}.bao-library-dialog header>div{min-width:0}.bao-library-dialog header .note{margin:5px 0 0;max-width:620px}.bao-library-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}.bao-library-tabs button{min-height:40px;padding:8px 12px;border:1px solid #62697c;border-radius:10px;background:#191d27;color:#d9dce6;cursor:pointer}.bao-library-tabs button.active{background:#353a4c;color:#fff;border-color:#8e94aa}.bao-library-toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:8px 0 12px}.bao-library-toolbar span{color:#aaa3b0;font-size:12px}.bao-library-list{display:grid;gap:9px}.bao-library-card{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;padding:12px;border:1px solid #555d70;border-radius:12px;background:#191d27}.bao-library-card>div:first-child{display:grid;gap:4px;min-width:0}.bao-library-card b{font-size:15px}.bao-library-card span,.bao-library-card small{color:#b2b6c3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.bao-library-card small{font-size:12px}.bao-library-card-actions{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}.bao-library-card-actions button{min-height:36px;width:auto}.bao-library-editor{padding-top:4px}@media(max-width:700px){#bao-actor-backdrop{align-items:flex-end;padding:0}.bao-actor-dialog{width:100%;max-height:96dvh;border-radius:18px 18px 0 0;padding:10px 12px max(12px,env(safe-area-inset-bottom))}.bao-actor-dialog header{position:sticky;top:-10px;z-index:2;margin:-10px -12px 8px;padding:10px 12px;background:#222632f2;backdrop-filter:blur(10px)}.bao-actor-dialog header h2{font-size:20px}.bao-actor-head-actions{display:flex;align-items:center;gap:6px}.bao-actor-help{display:inline-grid!important;place-items:center;width:34px;height:34px!important;border:1px solid #686d81!important;border-radius:10px!important;background:#191d27!important;color:#d8dbe5!important;font-size:15px!important;font-weight:800}.bao-actor-dialog header [data-close]{width:34px;height:34px;font-size:22px}.bao-actor-intro{display:none;margin:6px 0 8px;font-size:11px;line-height:1.5}.bao-actor-dialog.bao-actor-help-open>.bao-actor-intro{display:block}.bao-actor-target-label{margin:4px 0 8px!important;font-size:12px!important}.bao-actor-target-label select{padding:8px!important}.bao-actor-dialog #bao-actor-form>.note{display:none}.bao-actor-dialog label{margin:6px 0;font-size:13px}.bao-actor-dialog input,.bao-actor-dialog textarea,.bao-actor-dialog select{padding:9px}.bao-actor-fields{gap:4px}.bao-actor-actions{gap:6px;margin:6px 0}.bao-actor-actions button{flex:1 1 calc(50% - 6px);min-height:38px}.bao-library-card{grid-template-columns:1fr}.bao-library-card-actions{justify-content:flex-start}.bao-library-card-actions button{flex:1 1 88px}.bao-actor-dialog footer{position:sticky;bottom:0;z-index:2;margin:8px -12px -12px;padding:8px 12px max(12px,env(safe-area-inset-bottom));background:#222632f2;backdrop-filter:blur(10px);gap:7px}.bao-actor-dialog footer button{min-height:40px}}`;
     document.head.appendChild(style);
+  }
+  // Theme only platform-owned actor chrome, not authored HTML or generated prose.
+  if (typeof document.createElement === 'function' && !document.querySelector('link[href^="css/actor-library-experience.css"]')) {
+    const themeStyles = document.createElement('link');
+    themeStyles.rel = 'stylesheet';
+    themeStyles.href = 'css/actor-library-experience.css?v=1';
+    document.head.appendChild(themeStyles);
   }
   // Changes made in another tab do not trigger storage events in the source tab.
   // Local writes refresh via storePresets(); external writes use this event.

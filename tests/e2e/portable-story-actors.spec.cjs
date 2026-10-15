@@ -157,3 +157,89 @@ test('Three Realms archetypes require explicit apply and persist as independent 
   delete saved.prompt;
   expect(saved).toEqual({count:1,name:'本場同行',identity:'商隊護衛',relationship:'',packId:'three-realms-archetype-14',actorMode:false,sourceName,templateName:'顧行舟'});
 });
+
+
+for (const width of [390, 1280]) {
+  test(`Experience 3.0 character library search and disclosure at ${width}px`, async ({page}) => {
+    await page.setViewportSize({width, height:900});
+    await page.addInitScript(() => {
+      localStorage.setItem('bao-lab:persona-presets-v1', JSON.stringify([
+        {id:'photo-person',label:'林雨',persona:{name:'林雨',identity:'攝影師',personality:'喜歡夜景'}},
+        {id:'chef-person',label:'山海',persona:{name:'山海',identity:'廚師',personality:'沉穩'}}
+      ]));
+      localStorage.setItem('bao-lab:actor-presets-v1', JSON.stringify([
+        {id:'detective-npc',label:'青柚',actor:{name:'青柚',identity:'調查員',role:'additional',personality:'冷靜'}},
+        {id:'musician-npc',label:'時羽',actor:{name:'時羽',identity:'音樂家',role:'additional',personality:'熱情'}}
+      ]));
+    });
+    await page.goto('/');
+    await page.waitForFunction(() => !!window.BAOStoryActors && !!window.YoruExperience);
+    await page.evaluate(() => YoruExperience.choose({theme:'mist'}));
+    await page.evaluate(() => BAOStoryActors.openLibrary('player'));
+    const modal = page.getByRole('dialog', {name:'我的人物庫'});
+    await expect(modal).toBeVisible();
+    await expect(modal).toHaveCSS('background-color','rgb(255, 250, 243)');
+    const query = modal.getByRole('searchbox', {name:'搜尋我的人物'});
+    await expect(modal.locator('.bao-library-card:visible')).toHaveCount(2);
+    await expect(modal.locator('[data-library-result-count]')).toHaveText('2 個本機人物');
+    await query.fill('攝影');
+    await expect(modal.locator('.bao-library-card:visible')).toHaveCount(1);
+    await expect(modal.locator('.bao-library-card:visible')).toContainText('林雨');
+    await expect(modal.locator('[data-library-result-count]')).toHaveText('1 / 2 個人物');
+    await query.fill('unfindable-no-match');
+    await expect(modal.locator('.bao-library-card:visible')).toHaveCount(0);
+    await expect(modal.locator('[data-library-no-match]')).toBeVisible();
+
+    await modal.locator('[data-library-mode="actor"]').click();
+    await expect(modal.locator('[data-library-mode="actor"]')).toHaveAttribute('aria-pressed','true');
+    await expect(query).toHaveValue('');
+    await expect(modal.locator('.bao-library-card:visible')).toHaveCount(2);
+    await query.fill('調查員');
+    const match = modal.locator('.bao-library-card:visible');
+    await expect(match).toHaveCount(1);
+    await expect(match).toContainText('青柚');
+    await expect(match.locator('[data-library-edit]')).toBeVisible();
+    await expect(match.locator('[data-library-copy]')).toBeHidden();
+    await match.locator('.bao-library-more > summary').click();
+    await expect(match.locator('[data-library-copy]')).toBeVisible();
+    await match.locator('[data-library-copy]').click();
+    await expect(modal.locator('.bao-library-card:visible')).toHaveCount(2);
+    const count = await page.evaluate(() => JSON.parse(localStorage.getItem('bao-lab:actor-presets-v1')).length);
+    expect(count).toBe(3);
+
+    await page.evaluate(() => YoruExperience.choose({theme:'rose'}));
+    await expect(modal).toHaveCSS('background-color','rgb(59, 48, 54)');
+    await modal.locator('[data-library-mode="player"]').click();
+    await expect(query).toHaveValue('unfindable-no-match');
+    await query.fill('');
+    await expect(modal.locator('.bao-library-card:visible')).toHaveCount(2);
+    await expect(modal.locator('.bao-library-card [data-library-copy]:visible')).toHaveCount(0);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width + 1);
+    await modal.getByRole('button', {name:'關閉'}).click();
+    await expect(page.locator('#bao-actor-backdrop')).toHaveCount(0);
+  });
+}
+
+test('story actor editor respects theme while preserving player and author boundaries', async ({page}) => {
+  await page.setViewportSize({width:390,height:844});
+  await page.goto('/');
+  await page.waitForFunction(() => !!window.BAOStoryActors && !!window.YoruExperience && App.characters?.length);
+  await page.evaluate(() => {
+    App.activeCharacter = App.characters[0];
+    App.config = {persona:{name:'本場旅人'},narrativeMode:'immersive',displayMode:'text',api:{model:'mock'},memory:{maxRounds:20,maxContext:32000,mode:'rounds'}};
+    GameState.create(App.activeCharacter,App.config);
+    Chat.reset(); App.renderChatShell(true); App.showView('chat');
+    YoruExperience.choose({theme:'mist'});
+    BAOStoryActors.open('host');
+  });
+  const modal = page.getByRole('dialog', {name:'本故事的人物設定'});
+  await expect(modal).toBeVisible();
+  await expect(modal).toHaveCSS('background-color','rgb(255, 250, 243)');
+  await expect(modal.locator('[data-actor-preset-select]')).toHaveCount(1);
+  await expect(modal.locator('[data-portable-actor-select]')).toHaveCount(1);
+  const stateBefore = await page.evaluate(() => JSON.stringify(GameState.current));
+  await page.evaluate(() => YoruExperience.choose({theme:'rose'}));
+  await expect(modal).toHaveCSS('background-color','rgb(59, 48, 54)');
+  await modal.getByRole('button', {name:'取消'}).click();
+  expect(await page.evaluate(() => JSON.stringify(GameState.current))).toBe(stateBefore);
+});

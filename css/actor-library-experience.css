@@ -1,0 +1,133 @@
+/* Experience 3.0 · Round 20 · Character library discovery.
+   UI-only: local library templates, story actors, authored rich content and
+   persona data remain untouched. Night inherits original actor styling. */
+#bao-actor-backdrop .bao-library-search{
+  display:grid;
+  gap:6px;
+  margin:10px 0 14px;
+  font-size:12px;
+  font-weight:700;
+  color:var(--yoru-muted,#b2b6c3);
+}
+#bao-actor-backdrop .bao-library-search input{
+  min-height:44px;
+  width:100%;
+  padding:10px 12px;
+  border-radius:12px;
+  font-size:14px;
+}
+#bao-actor-backdrop .bao-library-card[hidden],
+#bao-actor-backdrop .bao-library-no-match[hidden]{
+  display:none!important;
+}
+#bao-actor-backdrop .bao-library-no-match{
+  margin:12px 0 0;
+  padding:18px;
+  border:1px dashed var(--yoru-card-border,#555d70);
+  border-radius:12px;
+  color:var(--yoru-muted,#b2b6c3);
+  font-size:13px;
+  text-align:center;
+}
+#bao-actor-backdrop .bao-library-card-actions{
+  display:flex;
+  gap:7px;
+  flex-wrap:wrap;
+  align-items:flex-start;
+}
+#bao-actor-backdrop .bao-library-card-actions > [data-library-edit]{
+  min-height:44px;
+}
+#bao-actor-backdrop .bao-library-more{
+  min-width:76px;
+  max-width:100%;
+}
+#bao-actor-backdrop .bao-library-more>summary{
+  box-sizing:border-box;
+  display:flex;
+  min-height:44px;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  padding:9px 12px;
+  border:1px solid var(--yoru-control-border,#62697c);
+  border-radius:10px;
+  background:var(--yoru-control,#191d27);
+  color:var(--yoru-text,#d9dce6);
+  font-size:13px;
+  font-weight:650;
+  cursor:pointer;
+  list-style:none;
+}
+#bao-actor-backdrop .bao-library-more>summary::-webkit-details-marker{display:none}
+#bao-actor-backdrop .bao-library-more>summary::after{content:'⌄';font-size:14px}
+#bao-actor-backdrop .bao-library-more[open]>summary::after{content:'⌃'}
+#bao-actor-backdrop .bao-library-more-actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  padding-top:7px;
+}
+#bao-actor-backdrop .bao-library-more-actions button{min-height:40px}
+#bao-actor-backdrop :is(.bao-library-search input,.bao-library-more>summary,.bao-library-tabs button):focus-visible{
+  outline:2px solid var(--yoru-lantern,#dfb46e);
+  outline-offset:2px;
+}
+@media(max-width:700px){
+  #bao-actor-backdrop .bao-library-search{margin:8px 0 11px}
+  #bao-actor-backdrop .bao-library-card-actions{justify-content:flex-start}
+  #bao-actor-backdrop .bao-library-more-actions{justify-content:flex-start}
+}
+
+/* Explicitly override the old hard-coded dark character dialogs in non-night themes.
+   Form and preview contents remain native controls and never change story state. */
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) #bao-actor-backdrop .bao-actor-dialog{
+  background:var(--yoru-surface);
+  border-color:var(--yoru-card-border);
+  color:var(--yoru-text);
+  box-shadow:var(--yoru-shadow-soft,0 24px 58px #0004);
+}
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) #bao-actor-backdrop .bao-actor-dialog header,
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) #bao-actor-backdrop .bao-actor-dialog footer{
+  background:var(--yoru-surface);
+  border-color:var(--yoru-card-border);
+  color:var(--yoru-text);
+}
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) #bao-actor-backdrop .bao-actor-dialog :is(h2,label,.bao-actor-fields,.bao-library-card b,.bao-actor-dialog header button){
+  color:var(--yoru-text);
+}
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) #bao-actor-backdrop .bao-actor-dialog :is(.note,.bao-library-toolbar span,.bao-library-card span,.bao-library-card small,.bao-library-search,.bao-portable-actor-picker span,.bao-local-actor-picker span){
+  color:var(--yoru-muted);
+}
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) #bao-actor-backdrop .bao-actor-dialog :is(input,textarea,select){
+  background:var(--yoru-input);
+  border-color:var(--yoru-input-border);
+  color:var(--yoru-text);
+}
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) #bao-actor-backdrop .bao-actor-dialog :is(.bao-library-tabs button,.bao-library-more>summary,.bao-actor-help,.bao-actor-actions button:not(.primary)){
+  background:var(--yoru-control)!important;
+  border-color:var(--yoru-control-border)!important;
+  color:var(--yoru-text)!important;
+}
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) #bao-actor-backdrop .bao-actor-dialog .bao-library-tabs button.active{
+  background:var(--yoru-control-hover)!important;
+  border-color:var(--yoru-lantern)!important;
+  box-shadow:inset 0 0 0 1px var(--yoru-lantern);
+}
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) #bao-actor-backdrop .bao-actor-dialog :is(.bao-library-card,.bao-portable-actor-picker,.bao-local-actor-picker){
+  background:var(--yoru-card);
+  border-color:var(--yoru-card-border);
+  color:var(--yoru-text);
+}
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) :is(.bao-actor-builder,.bao-portable-actor-picker,.bao-local-actor-picker){
+  background:var(--yoru-card);
+  border-color:var(--yoru-card-border);
+  color:var(--yoru-text);
+}
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) :is(.bao-portable-actor-picker,.bao-local-actor-picker)>b{
+  color:var(--yoru-text);
+}
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) #bao-actor-backdrop .bao-library-card-actions :is(button,.bao-library-more>summary):focus-visible{
+  outline:2px solid var(--yoru-lantern);
+  outline-offset:2px;
+}
