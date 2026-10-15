@@ -208,7 +208,7 @@ for (const width of [390, 1280]) {
     await expect(dialog.locator('[data-story-control-action="context"]')).toBeVisible();
     await expect(dialog.locator('[data-story-control-action="extensions"]')).toBeVisible();
     const palette = await dialog.evaluate(element => ({
-      panel:getComputedStyle(element.querySelector('.story-control-panel')).backgroundColor,
+      panel:getComputedStyle(element).backgroundColor,
       expected:getComputedStyle(document.documentElement).getPropertyValue('--yoru-surface').trim()
     }));
     const expectedColor = await page.evaluate(value => {
