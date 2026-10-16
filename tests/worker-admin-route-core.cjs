@@ -36,7 +36,7 @@ const boundary = source.slice(boundaryStart, boundaryEnd);
 assert.match(boundary, /adminAuthorized\(\s*request,\s*env\s*\)/);
 assert.match(
   boundary,
-  /await adminPublicationRoute\(\s*request,\s*path,\s*env\s*\)/,
+  /await adminPublicationRoute\(\s*request,\s*path,\s*env,\s*db\s*\)/,
   "the admin dispatcher must delegate publication endpoints to their subroute boundary"
 );
 assert.match(
