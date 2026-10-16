@@ -31,7 +31,8 @@ const context = {
   window: win, document: doc, App, GameState, Chat,
   MutationObserver: class { observe() {} },
   fetch: async url => {
-    assert.ok(["data/worldbook-library.json", "data/sunrise-worldbook-library.json", "data/world-simulator-general-library.json", "data/astral-worldbook-library.json"].includes(url));
+    assert.ok(["data/worldbook-library.json", "data/sunrise-worldbook-library.json", "data/world-simulator-general-library.json", "data/astral-worldbook-library.json", "data/simulator-original-worldbook-library.json"].includes(url));
+    if (url === "data/simulator-original-worldbook-library.json") return { ok: true, json: async () => JSON.parse(fs.readFileSync(path.join(__dirname, "../data/simulator-original-worldbook-library.json"), "utf8")) };
     if (url === "data/astral-worldbook-library.json") return { ok: true, json: async () => JSON.parse(fs.readFileSync(path.join(__dirname, "../data/astral-worldbook-library.json"), "utf8")) };
     if (url === "data/world-simulator-general-library.json") return { ok: true, json: async () => JSON.parse(fs.readFileSync(path.join(__dirname, "../data/world-simulator-general-library.json"), "utf8")) };
     if (url === "data/sunrise-worldbook-library.json") return { ok: true, json: async () => ({ packs: [] }) };
@@ -55,8 +56,9 @@ vm.runInNewContext(source, context, { filename: "worldbook-library.js" });
   const listed = await modes.all();
   const simulatorGroup = modes.groupPacks(listed).filter(g=>g.name==='通用世界模擬器');
   assert.equal(simulatorGroup.length,1,'new entries stay inside one player-facing book');
-  assert.equal(simulatorGroup[0].packs.length,6,'this batch adds no category');
-  assert.equal(simulatorGroup[0].packs.reduce((sum,p)=>sum+p.entries.length,0),62);
+  assert.equal(simulatorGroup[0].packs.filter(p=>!p.meta.legacy).length,13,'original rules, templates and eight selectable styles');
+  assert.equal(simulatorGroup[0].packs.filter(p=>!p.meta.legacy).reduce((sum,p)=>sum+p.entries.length,0),189);
+  assert.equal(simulatorGroup[0].packs.filter(p=>p.meta.legacy).reduce((sum,p)=>sum+p.entries.length,0),62,'old pinned adaptations remain readable');
   assert.ok(listed.some(p => p.meta.id === "world-simulator-adventure-reference"), "public shared catalog is discoverable");
   assert.equal(modes.setRecallMode("off"), true);
   const off = await App.buildMessages();
@@ -222,5 +224,28 @@ vm.runInNewContext(source, context, { filename: "worldbook-library.js" });
   assert.equal(revealed[0].content,introduction[0].content);
   assert.match(revealed.at(-1).content,/神化容器/);
   assert.doesNotMatch(revealed.at(-1).content,/曙光市中心/);
-  console.log("Worldbook prompt integration passed: cache-friendly stable prefix, selection, no double append, opt-out, conditional recall and dedicated original-text lore.");
+  const common = listed.find(p=>p.meta.id==='simulator-original-core');
+  const style = listed.find(p=>p.meta.id==='simulator-style-86');
+  GameState.current = {location:'',npcs:[],events:[],worldbookLibrary:{version:1,
+    enabled:[common.meta.id,style.meta.id],installed:[],pinned:{[common.meta.id]:common,[style.meta.id]:style},recallMode:'auto'}};
+  Chat.messages=[{role:'user',content:'你好'}];
+  const fixedPrompt=await App.buildMessages();
+  assert.ok(fixedPrompt[0].content.startsWith('PLATFORM STABLE PREFIX\n\n'));
+  for(const entry of [...common.entries,...style.entries]) assert.ok(fixedPrompt[0].content.includes(entry.content),'fixed rules and selected style remain complete, including their endings');
+  assert.doesNotMatch(fixedPrompt.at(-1).content,/世界書按需提供/,'constant entries do not consume dynamic recall budget');
+  GameState.current.location='另一個場景';
+  Chat.messages=[{role:'assistant',content:'NPC 離場去工作了'},{role:'user',content:'繼續'}];
+  assert.equal((await App.buildMessages())[0].content,fixedPrompt[0].content,'ordinary scene and dialogue changes preserve the exact fixed prefix');
+  modes.setRecallMode('off');
+  assert.equal((await App.buildMessages())[0].content,fixedPrompt[0].content,'turning off keyword recall keeps explicitly selected rules and style');
+  GameState.current.worldbookLibrary.enabled=[];
+  assert.equal((await App.buildMessages())[0].content,'PLATFORM STABLE PREFIX','opting out removes all additional fixed rules');
+  const xia=require('../data/characters/community/7c/xia-yuhan-av-industry.json');
+  GameState.current=JSON.parse(JSON.stringify(xia.gameplay.initial_state));
+  Chat.messages=[{role:'assistant',content:'接下來是電梯場景。'},{role:'user',content:'繼續'}];
+  const scenePrompt=await App.buildMessages();
+  assert.match(scenePrompt.at(-1).content,/場景 008：電梯系列/,'latest visible assistant output can carry the scene into the next turn');
+  assert.equal(scenePrompt[0].content,'PLATFORM STABLE PREFIX','Xia companion does not silently enable common rules');
+  assert.doesNotMatch(scenePrompt.at(-1).content,/通用世界模擬器/);
+  console.log("Worldbook prompt integration passed: complete fixed rules, selected prose style, stable prefix, assistant recall, snapshots, opt-out and dedicated lore.");
 })().catch(err => { console.error(err); process.exitCode = 1; });

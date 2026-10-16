@@ -30,7 +30,10 @@
         .catch(error => { console.warn("General simulator catalog unavailable", error); return { packs: [] }; }),
       fetch("data/astral-worldbook-library.json")
         .then(response => { if (!response.ok) throw new Error("AV 異世界專用世界書下載失敗"); return response.json(); })
-        .catch(error => { console.warn("Astral catalog unavailable", error); return { packs: [] }; })
+        .catch(error => { console.warn("Astral catalog unavailable", error); return { packs: [] }; }),
+      fetch("data/simulator-original-worldbook-library.json")
+        .then(response => { if (!response.ok) throw new Error("世界模擬器原文資料下載失敗"); return response.json(); })
+        .catch(error => { console.warn("Original simulator catalog unavailable", error); return { packs: [] }; })
     ])
       .then(catalogs => {
         const seen = new Set();
@@ -108,6 +111,11 @@
     if (!current) return false;
     const ids = new Set(current.enabled || []);
     if (checked) {
+      if (pack.meta.selection_group) {
+        for (const other of packs) {
+          if (other.meta.selection_group === pack.meta.selection_group) ids.delete(other.meta.id);
+        }
+      }
       if (pack.meta.world !== "general") {
         for (const other of packs) {
           if (other.meta.world !== "general" && other.meta.world !== pack.meta.world) ids.delete(other.meta.id);
@@ -136,6 +144,8 @@
     }
     for (const pack of group.packs) {
       if (checked) {
+        // Whole-book activation leaves prose styles to the player's choice.
+        if (pack.meta.selection_group || pack.meta.legacy) continue;
         ids.add(pack.meta.id);
         if (pack.meta.visibility === "public") current.pinned = { ...(current.pinned || {}), [pack.meta.id]: pack };
       } else {
@@ -157,8 +167,10 @@
     const current = story() || {};
     const messages = typeof Chat !== "undefined" && Array.isArray(Chat.messages) ? Chat.messages : [];
     const recentUser = [...messages].reverse().find(m => m.role === "user");
+    const recentAssistant = [...messages].reverse().find(m => m.role === "assistant");
     return {
       latestUser: String(recentUser?.content || ""),
+      recentAssistant: String(recentAssistant?.content || ""),
       location: current.location || "",
       presentNPCs: (current.npcs || []).filter(n => n.presence === "present")
         .map(n => [n.name, n.role, n.location].filter(Boolean).join(" ")).join("\n"),
@@ -181,19 +193,30 @@
     return true;
   }
   const wrapper = async (next, config) => {
-    const messages = await next(config);
     const owner = story();
+    const messages = await next(config);
+    if (story() !== owner) return messages;
     const local = cfg();
     if (!local?.enabled?.length || !Array.isArray(messages)) return messages;
     const owned = snapshots(local);
     // Embedded companion snapshots work offline and never follow catalog revisions.
     const packs = local.enabled.every(id => owned.some(pack => pack.meta.id === id)) ? owned : await all();
     if (story() !== owner || cfg() !== local) return messages;
-    const picked = core.select(packs, local.enabled, {
+    const context = {
       ...signals(), world: activeWorld(packs, local.enabled)
-    }, { maxChars: 2200, maxEntries: 4, recallMode: local.recallMode });
-    if (!picked.text) return messages;
+    };
+    const fixed = core.constants(packs, local.enabled, context);
+    const picked = core.select(packs, local.enabled, context,
+      { maxChars: 2200, maxEntries: 4, recallMode: local.recallMode });
+    if (!fixed.text && !picked.text) return messages;
     const result = messages.map(m => ({ ...m }));
+    if (fixed.text) {
+      const block = "【已啟用的世界書固定規則與文風】\n" + fixed.text + "\n【固定世界書規則結束】";
+      const firstSystem = result.findIndex(m => m?.role === "system" && typeof m.content === "string");
+      if (firstSystem >= 0) result[firstSystem].content += "\n\n" + block;
+      else result.unshift({ role: "system", content: block });
+    }
+    if (!picked.text) return result;
     let lastUser = -1;
     for (let i = result.length - 1; i >= 0; i--) {
       if (result[i]?.role === "user" && typeof result[i].content === "string") { lastUser = i; break; }
@@ -400,7 +423,7 @@
     const modeSummary = document.createElement("summary");
     modeSummary.textContent = "使用方式與進階設定";
     const modeDescription = document.createElement("p");
-    modeDescription.textContent = "只影響目前故事的後續請求。自動：玩家輸入與故事訊號；場景：目前地點與在場人物。關閉不移除核心設定、固定背景或已知記憶，也不撤回已送出的資料。檢索在本機執行；召回內容可能增加模型輸入 Token。";
+    modeDescription.textContent = "只影響目前故事的後續請求。固定規則與選定文風每輪完整生效；文風擇一，不隨關鍵字切換。自動召回依玩家輸入與故事訊號；場景召回依地點與在場人物。關閉可選召回仍保留固定規則。固定規則與召回資料都會計入模型輸入 Token。";
     const importDescription = document.createElement("p");
     importDescription.textContent = "匯入支援夜灣與 LunaTalk 世界書 JSON，只存目前故事，不會公開。舊作的規則／自訂條目保留原文，待完成設定後才會召回。世界書提供背景資料，狀態欄由故事設定管理。";
     modeHint.append(modeSummary, controls, modeDescription, importDescription);
@@ -477,8 +500,9 @@
 
     const render = async () => {
       if (!backdrop.isConnected) return;
-      const config = cfg(), packs = await all();
+      const config = cfg(), available = await all();
       if (!backdrop.isConnected || !config || story() !== openedStory) return;
+      const packs = available.filter(pack => !pack.meta.legacy || config.enabled?.includes(pack.meta.id));
       listing.replaceChildren();
       const enabled = config.enabled || [];
       const renderConditions = (pack, target) => {
@@ -532,6 +556,9 @@
         const flagged = pack.entries.filter(entry => entry.review_required).length;
         note.textContent = (pack.meta.visibility === "public" ? "公開" : "只存目前故事") +
           " · " + pack.entries.length + " 條" +
+          (pack.entries.some(entry => entry.mode === "constant") ? " · 每輪 " + pack.entries.filter(entry => entry.mode === "constant").reduce((sum, entry) => sum + entry.content.length, 0) + " 字" : " · 按需召回") +
+          (pack.meta.selection_group ? " · 文風擇一" : "") +
+          (pack.meta.legacy ? " · 舊版節選" : "") +
           (flagged ? " · " + flagged + " 條待審，不自動召回" : "");
         info.append(heading, note); label.append(check, info);
         article.append(label);
@@ -571,8 +598,10 @@
         master.type = "checkbox";
         master.className = "ylb-switch";
         const activeCount = group.packs.filter(pack => enabled.includes(pack.meta.id)).length;
-        master.checked = activeCount === group.packs.length && group.packs.length > 0;
-        master.indeterminate = activeCount > 0 && activeCount < group.packs.length;
+        const mainPacks = group.packs.filter(pack => !pack.meta.selection_group && !pack.meta.legacy);
+        const activeMain = mainPacks.filter(pack => enabled.includes(pack.meta.id)).length;
+        master.checked = activeMain === mainPacks.length && mainPacks.length > 0;
+        master.indeterminate = activeCount > 0 && !master.checked;
         master.setAttribute("aria-label", (group.packs.length > 1 ? "啟用整本 " : "啟用 ") + group.name);
         const copy = document.createElement("span");
         copy.className = "ylb-collection-copy";
@@ -580,11 +609,13 @@
         title.textContent = group.name;
         const totalEntries = group.packs.reduce((sum, pack) => sum + pack.entries.length, 0);
         const note = document.createElement("small");
-        const status = !activeCount ? "未啟用" : activeCount === group.packs.length
+        const status = !activeCount ? "未啟用" : master.checked
           ? "已啟用" : "已啟用 " + activeCount + " / " + group.packs.length + " 章";
         const usage = group.packs.some(pack => pack.meta.visibility !== "public") ? "私人"
           : group.packs.every(pack => pack.meta.world === "general") ? "通用" : "作品專用";
-        note.textContent = usage + " · " + status + " · " + totalEntries + " 條資料";
+        const selectedStyle = group.packs.find(pack => pack.meta.selection_group && enabled.includes(pack.meta.id));
+        note.textContent = usage + " · " + status + " · " + totalEntries + " 條資料" +
+          (selectedStyle ? " · " + collectionMeta(selectedStyle).chapter : "");
         copy.append(title, note); label.append(master, copy); head.append(label); section.append(head);
 
         const details = document.createElement("details");

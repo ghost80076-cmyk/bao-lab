@@ -10,6 +10,10 @@ on:
       - 'data/world-simulator-general*.json'
       - 'data/world-simulator-layer-review.json'
       - 'data/astral-worldbook-*.json'
+      - 'data/simulator-original-worldbook-*.json'
+      - 'scripts/migrate-simulator-worldbooks.py'
+      - 'tests/simulator-original-worldbook-*.cjs'
+      - 'tests/simulator-original-worldbook-audit.py'
       - 'scripts/migrate-astral-worldbook.py'
       - 'tests/astral-worldbook-core.cjs'
       - 'scripts/audit-world-simulator-general.py'
@@ -29,6 +33,10 @@ on:
       - 'data/world-simulator-general*.json'
       - 'data/world-simulator-layer-review.json'
       - 'data/astral-worldbook-*.json'
+      - 'data/simulator-original-worldbook-*.json'
+      - 'scripts/migrate-simulator-worldbooks.py'
+      - 'tests/simulator-original-worldbook-*.cjs'
+      - 'tests/simulator-original-worldbook-audit.py'
       - 'scripts/migrate-astral-worldbook.py'
       - 'tests/astral-worldbook-core.cjs'
       - 'scripts/audit-world-simulator-general.py'
@@ -52,6 +60,8 @@ jobs:
         run: |
           node tests/worldbook-library-core.cjs
           node tests/astral-worldbook-core.cjs
+          node tests/simulator-original-worldbook-core.cjs
+          python3 tests/simulator-original-worldbook-audit.py
           node tests/world-simulator-general-core.cjs
           python3 tests/world-simulator-source-audit.py
           node tests/worldbook-library-runtime.cjs
@@ -71,7 +81,7 @@ jobs:
         run: |
           python - <<'PY'
           import hashlib, pathlib, time, urllib.request
-          pending = {"data/world-simulator-general-library.json", "data/world-simulator-general-source-map.json", "data/world-simulator-layer-review.json", "data/astral-worldbook-library.json", "data/astral-worldbook-source-map.json", "js/worldbook-library.js", "js/site-ui.js"}
+          pending = {"data/world-simulator-general-library.json", "data/world-simulator-general-source-map.json", "data/world-simulator-layer-review.json", "data/astral-worldbook-library.json", "data/astral-worldbook-source-map.json", "data/simulator-original-worldbook-library.json", "data/simulator-original-worldbook-source-map.json", "js/worldbook-library-core.js", "js/worldbook-library.js", "js/site-ui.js", "data/characters/community/7c/xia-yuhan-av-industry.json"}
           for attempt in range(30):
               for path in list(pending):
                   try:

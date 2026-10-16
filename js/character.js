@@ -5,9 +5,9 @@ const CharacterEngine = {
   normalizeWorldbookLibrary(value) {
     if (!value || typeof value !== "object" || Array.isArray(value) || value.version !== 1) return null;
     try {
-      if (JSON.stringify(value).length > 3500000 || !Array.isArray(value.enabled) || value.enabled.length > 64 ||
+      if (JSON.stringify(value).length > 3500000 || !Array.isArray(value.enabled) || value.enabled.length > 128 ||
           !Array.isArray(value.installed) || value.installed.length > 6 ||
-          !value.pinned || typeof value.pinned !== "object" || Array.isArray(value.pinned) || Object.keys(value.pinned).length > 64) return null;
+          !value.pinned || typeof value.pinned !== "object" || Array.isArray(value.pinned) || Object.keys(value.pinned).length > 128) return null;
       const validId = id => typeof id === "string" && /^[a-z0-9][a-z0-9_-]{0,79}$/.test(id) && !["constructor", "prototype", "__proto__"].includes(id);
       if (!value.enabled.every(validId) || !Object.keys(value.pinned).every(id => validId(id) && value.pinned[id]?.meta?.id === id)) return null;
       return structuredClone({version:1, enabled:[...new Set(value.enabled)], installed:value.installed, pinned:value.pinned,
