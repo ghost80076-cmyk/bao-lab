@@ -13,7 +13,8 @@
         "author": "班長／肉包",
         "release": "0.2.0",
         "visibility": "public",
-        "source": "作者世界模擬器共用來源與 AV 異世界獨有來源：非露骨冒險節選，非完整原文"
+        "source": "作者世界模擬器共用來源與 AV 異世界獨有來源：非露骨冒險節選，非完整原文",
+        "legacy": true
       },
       "entries": [
         {
@@ -133,7 +134,8 @@
         "author": "班長／肉包",
         "release": "0.2.0",
         "visibility": "public",
-        "source": "作者世界模擬器三本共用及兩本職業任務來源：非露骨節選，非完整原文"
+        "source": "作者世界模擬器三本共用及兩本職業任務來源：非露骨節選，非完整原文",
+        "legacy": true
       },
       "entries": [
         {
@@ -208,7 +210,8 @@
         "author": "班長／肉包",
         "release": "0.6.0",
         "visibility": "public",
-        "source": "作者世界模擬器三本共用來源：人物互動節選，非完整原文"
+        "source": "作者世界模擬器三本共用來源：人物互動節選，非完整原文",
+        "legacy": true
       },
       "entries": [
         {
@@ -534,7 +537,8 @@
         "author": "班長／肉包",
         "release": "0.3.0",
         "visibility": "public",
-        "source": "作者世界模擬器三本共用來源：題材互動節選，非完整原文"
+        "source": "作者世界模擬器三本共用來源：題材互動節選，非完整原文",
+        "legacy": true
       },
       "entries": [
         {
@@ -703,7 +707,8 @@
         "author": "班長／肉包",
         "release": "0.1.0",
         "visibility": "public",
-        "source": "作者世界模擬器三本共用來源：題材互動節選，非完整原文"
+        "source": "作者世界模擬器三本共用來源：題材互動節選，非完整原文",
+        "legacy": true
       },
       "entries": [
         {
@@ -766,7 +771,8 @@
         "author": "班長／肉包",
         "release": "0.1.0",
         "visibility": "public",
-        "source": "作者世界模擬器三本共用來源：成長題材節選，非完整原文"
+        "source": "作者世界模擬器三本共用來源：成長題材節選，非完整原文",
+        "legacy": true
       },
       "entries": [
         {

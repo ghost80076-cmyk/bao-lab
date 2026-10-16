@@ -19,6 +19,9 @@ for (const recallMode of ['auto', 'scene', 'off']) {
   assert.equal(CharacterEngine.normalizeWorldbookLibrary({version:1,enabled:[],installed:[],pinned:{},recallMode}).recallMode, recallMode);
 }
 assert.equal(CharacterEngine.normalizeWorldbookLibrary({version:1,enabled:[],installed:[],pinned:{},recallMode:'invalid'}).recallMode, 'auto');
+const manyIds=Array.from({length:80},(_,i)=>'chapter-'+i);
+assert.equal(CharacterEngine.normalizeWorldbookLibrary({version:1,enabled:manyIds,installed:[],pinned:{}}).enabled.length,80,'larger public collections survive story restore');
+assert.equal(CharacterEngine.normalizeWorldbookLibrary({version:1,enabled:Array.from({length:129},(_,i)=>'chapter-'+i),installed:[],pinned:{}}),null);
 vm.runInThisContext(fs.readFileSync(path.join(__dirname, '..', 'js', 'character-import-upgrade.js'), 'utf8'));
 
 const file = raw => ({ size: Buffer.byteLength(JSON.stringify(raw)), text: async () => JSON.stringify(raw) });

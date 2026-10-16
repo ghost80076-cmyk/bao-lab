@@ -33,7 +33,7 @@
       seen.add(entryId);
       const content = text(raw.content, MAX_CONTENT + 1);
       if (!content || content.length > MAX_CONTENT) fail("條目 " + entryId + " 空白或超過 12000 字");
-      const mode = raw.mode === "foundation" ? "foundation" : "keyword";
+      const mode = ["foundation", "constant"].includes(raw.mode) ? raw.mode : "keyword";
       const keywords = unique(raw.keywords || raw.triggers);
       if (mode === "keyword" && !keywords.length) fail("條目 " + entryId + " 缺少關鍵字");
       return {
@@ -51,6 +51,8 @@
         id, name, world, classification, author: text(meta.author, 80),
         release: text(meta.release, 40) || "1.0.0",
         visibility: meta.visibility === "public" ? "public" : "private",
+        selection_group: text(meta.selection_group, 60),
+        legacy: meta.legacy === true,
         source: text(meta.source, 120)
       }, entries
     };
@@ -86,6 +88,28 @@
     });
   }
   const lower = value => String(value || "").toLocaleLowerCase();
+  // Opted-in rules stay complete and never compete with bounded lore retrieval.
+  function constants(packs, enabledIds, context = {}) {
+    const ids = new Set(Array.isArray(enabledIds) ? enabledIds : []);
+    const flags = new Set(Array.isArray(context.flags) ? context.flags : []);
+    const world = text(context.world, 60), found = [], seen = new Set();
+    for (const pack of Array.isArray(packs) ? packs : []) {
+      if (!ids.has(pack?.meta?.id) || (pack.meta.world !== "general" && world && world !== pack.meta.world)) continue;
+      for (const entry of pack.entries || []) {
+        if (entry.mode !== "constant" || entry.enabled === false || entry.review_required ||
+            (entry.requires || []).some(flag => !flags.has(flag))) continue;
+        const key = lower(entry.content).replace(/\s+/g, " ");
+        if (seen.has(key)) continue;
+        seen.add(key);
+        found.push({ identity: pack.meta.id + ":" + entry.id, title: entry.title, content: entry.content });
+      }
+    }
+    found.sort((a, b) => a.identity.localeCompare(b.identity));
+    const result = { entries: found.map(({ identity, title }) => ({ identity, title })),
+      text: found.map(entry => "〔" + entry.title + "〕\n" + entry.content).join("\n\n") };
+    if (result.text.length > 24000) fail("已啟用的固定世界書規則超過 24000 字，請先關閉部分章節或文風。");
+    return result;
+  }
   function select(packs, enabledIds, context = {}, options = {}) {
     const recallMode = ["auto", "scene", "off"].includes(options.recallMode) ? options.recallMode : "auto";
     const ids = new Set(Array.isArray(enabledIds) ? enabledIds : []);
@@ -95,6 +119,7 @@
       { text: recallMode === "auto" ? lower(context.latestUser) : "", score: 200 },
       { text: lower(context.location), score: 130 },
       { text: lower(context.presentNPCs), score: 100 },
+      { text: recallMode === "auto" ? lower(context.recentAssistant) : "", score: 110 },
       { text: recallMode === "auto" ? lower(context.recentEvents) : "", score: 45 }
     ];
     const flags = new Set(Array.isArray(context.flags) ? context.flags : []);
@@ -104,6 +129,7 @@
       if (!ids.has(pack?.meta?.id)) continue;
       if (pack.meta.world !== "general" && compatibleWorld && compatibleWorld !== pack.meta.world) continue;
       for (const entry of pack.entries || []) {
+        if (entry.mode === "constant") continue;
         if (recallMode === "off" && entry.mode !== "foundation") continue;
         if (entry.enabled === false || entry.review_required || (entry.requires || []).some(flag => !flags.has(flag))) continue;
         let score = entry.mode === "foundation" ? 120 : 0;
@@ -147,5 +173,5 @@
       text: found.map(format).join("\n\n")
     };
   }
-  return { SCHEMA, VERSION, normalizePack, migrateLegacy, select };
+  return { SCHEMA, VERSION, normalizePack, migrateLegacy, select, constants };
 });

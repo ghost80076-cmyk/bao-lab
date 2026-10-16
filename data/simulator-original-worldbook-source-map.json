@@ -1,0 +1,5065 @@
+{
+  "schema": "yorubay-simulator-original-publication",
+  "version": 1,
+  "common_source_book": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+  "xia_source_book": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+  "scope": "Common source 202 entries; Xia-specific additions 194–208 (zero-based). Shared AV entries deduplicated against the common source by text hash. AV fantasy is separate and its matching work has not been imported.",
+  "constant_core_chars": 5181,
+  "public_entries": 219,
+  "records": [
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 0,
+      "source_title": "成熟魅惑-女角色",
+      "source_sha256": "91507b19fe7b7163e3ea12e0e555517be92ac27726d518a5e69d047b6cf512b1",
+      "source_chars": 1796,
+      "pack_id": "simulator-original-characters",
+      "entry_id": "source-0",
+      "spans": [
+        {
+          "start": 10,
+          "end": 1733
+        },
+        {
+          "start": 1753,
+          "end": 1796
+        }
+      ],
+      "content_sha256": "0bd42bc779779f5181c6c0c540ffd36f9d89c5f3b977ffc93c5d75bef79920b3",
+      "coverage": "original-text-segments",
+      "omission_reason": "real-person-casting-links-excluded; fictional-template-prose-retained"
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 1,
+      "source_title": "成熟姐姐-女角色",
+      "source_sha256": "5440287aee8b4c987074ab02a90c830666dfb00822fb0ab1d1e9e4ce27820d4e",
+      "source_chars": 1591,
+      "pack_id": "simulator-original-characters",
+      "entry_id": "source-1",
+      "spans": [
+        {
+          "start": 9,
+          "end": 1529
+        },
+        {
+          "start": 1548,
+          "end": 1591
+        }
+      ],
+      "content_sha256": "5b062cbd6282d08a7c507867a0ef66f59c8e8d193004aa0e3589a52f632a9a24",
+      "coverage": "original-text-segments",
+      "omission_reason": "real-person-casting-links-excluded; fictional-template-prose-retained"
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 3,
+      "source_title": "清純女神-女角色",
+      "source_sha256": "bb6d4b5bcd98d337d9b148d18773c1fad63db8b2d866195363958f6a473ce411",
+      "source_chars": 1225,
+      "pack_id": "simulator-original-characters",
+      "entry_id": "source-3",
+      "spans": [
+        {
+          "start": 9,
+          "end": 1225
+        }
+      ],
+      "content_sha256": "9fefb208f5cfb6f55c45e5d2c617aa1d2dc23f452ec84104c56ef48dd3ceb139",
+      "coverage": "original-text-segments",
+      "omission_reason": "real-person-casting-links-excluded; fictional-template-prose-retained"
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 4,
+      "source_title": "性感女王-女角色",
+      "source_sha256": "90f9af26455788d2cc4cd48e462bf71ebbad6d31759491f7a4d6b211044be162",
+      "source_chars": 1177,
+      "pack_id": "simulator-original-characters",
+      "entry_id": "source-4",
+      "spans": [
+        {
+          "start": 9,
+          "end": 1177
+        }
+      ],
+      "content_sha256": "9023be4945c1c92cceab6c4955c9e4916cc5a8e8ec9471ded10fc77bed9d58d6",
+      "coverage": "original-text-segments",
+      "omission_reason": "real-person-casting-links-excluded; fictional-template-prose-retained"
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 5,
+      "source_title": "活力少女-女角色",
+      "source_sha256": "dcba649a8a8a2158f455362cdbcc63d56e6c8da1466651c4cfff32f490b6c5ab",
+      "source_chars": 1155,
+      "pack_id": "simulator-original-characters",
+      "entry_id": "source-5",
+      "spans": [
+        {
+          "start": 8,
+          "end": 1155
+        }
+      ],
+      "content_sha256": "c55e3e68aae02221d8e98f9bd28d14d0e3866b3a27a9cbbcc6a3f3fc9aa27107",
+      "coverage": "original-text-segments",
+      "omission_reason": "real-person-casting-links-excluded; fictional-template-prose-retained"
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 6,
+      "source_title": "冷豔美人-女角色",
+      "source_sha256": "cc7f21df7a8b39b65370a5285aeff2dad79d0c558198a617febd06bad9f3742f",
+      "source_chars": 1208,
+      "pack_id": "simulator-original-characters",
+      "entry_id": "source-6",
+      "spans": [
+        {
+          "start": 9,
+          "end": 1208
+        }
+      ],
+      "content_sha256": "abc45946d394fe27643fbccb755bc7dc35af91e05c9fc14d04eb2c0fe5eee5f7",
+      "coverage": "original-text-segments",
+      "omission_reason": "real-person-casting-links-excluded; fictional-template-prose-retained"
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 7,
+      "source_title": "甜美偶像-角色",
+      "source_sha256": "7dbfabee3b4a2ebb2f513c84aa96336e8ab3bd634b9aadaff8f5ec1f2be9a9bd",
+      "source_chars": 1188,
+      "pack_id": "simulator-original-characters",
+      "entry_id": "source-7",
+      "spans": [
+        {
+          "start": 12,
+          "end": 1188
+        }
+      ],
+      "content_sha256": "b6e1fb11a5e83afa7cd2e2ee81d71819de9783b4ae2a9781991fa7d8f17a5131",
+      "coverage": "original-text-segments",
+      "omission_reason": "real-person-casting-links-excluded; fictional-template-prose-retained"
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 8,
+      "source_title": "性感歌姬-角色",
+      "source_sha256": "e8b0172578c96b9f16d210d4662a3f4f27ad6d558b0181bc45855a45fdaf7ac6",
+      "source_chars": 1164,
+      "pack_id": "simulator-original-characters",
+      "entry_id": "source-8",
+      "spans": [
+        {
+          "start": 7,
+          "end": 1164
+        }
+      ],
+      "content_sha256": "9485d40186c63d33e19ef6304ec51fb8fb0bb019b020c6120928c37805c38a4f",
+      "coverage": "original-text-segments",
+      "omission_reason": "real-person-casting-links-excluded; fictional-template-prose-retained"
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 9,
+      "source_title": "鄰家甜心-角色",
+      "source_sha256": "7c46f9509db8e9f08f977642312311244f3fc19aa30e04e579df05cbec4e263b",
+      "source_chars": 1200,
+      "pack_id": "simulator-original-characters",
+      "entry_id": "source-9",
+      "spans": [
+        {
+          "start": 8,
+          "end": 1200
+        }
+      ],
+      "content_sha256": "c69dcbabdfca93ff365fd9d5b33c9706f1c783aa3164b63df31ca2e28232408d",
+      "coverage": "original-text-segments",
+      "omission_reason": "real-person-casting-links-excluded; fictional-template-prose-retained"
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 10,
+      "source_title": "氣質女神-角色",
+      "source_sha256": "2745361e34c826473c91271b16c34c5fa639fa681c3f84123cae8b924d59a6c9",
+      "source_chars": 1200,
+      "pack_id": "simulator-original-characters",
+      "entry_id": "source-10",
+      "spans": [
+        {
+          "start": 8,
+          "end": 1200
+        }
+      ],
+      "content_sha256": "633d14cc451c6b950f12b7d6a3f58f051ea39c92dccecb03bf52f350fdbbd770",
+      "coverage": "original-text-segments",
+      "omission_reason": "real-person-casting-links-excluded; fictional-template-prose-retained"
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 11,
+      "source_title": "古典美人-角色",
+      "source_sha256": "b49a1085a6fc95111b1daf7a10816048133e0c7dda8d4d6cf492530758b675f9",
+      "source_chars": 1183,
+      "pack_id": "simulator-original-characters",
+      "entry_id": "source-11",
+      "spans": [
+        {
+          "start": 8,
+          "end": 1183
+        }
+      ],
+      "content_sha256": "0daf3de0e1d59415d1b1e879be21c8a46fd11e27ce88ad59aa1ac0368d3185f7",
+      "coverage": "original-text-segments",
+      "omission_reason": "real-person-casting-links-excluded; fictional-template-prose-retained"
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 12,
+      "source_title": "八卦閨蜜-角色",
+      "source_sha256": "7df19cde042e44920525ac07529edb0e8ed32d6f1c1edb6f2a9e6d8a9f25561f",
+      "source_chars": 686,
+      "pack_id": "simulator-original-characters",
+      "entry_id": "source-12",
+      "spans": [
+        {
+          "start": 8,
+          "end": 686
+        }
+      ],
+      "content_sha256": "751fd1af93e5a8d4ef67f8581cad5bbe10574fa97f53e1805b4d51a980408993",
+      "coverage": "original-text-segments",
+      "omission_reason": "real-person-casting-links-excluded; fictional-template-prose-retained"
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 13,
+      "source_title": "溫柔閨蜜",
+      "source_sha256": "32396a569a236011c058b8fc2d7f4ef5d0dc0a7c31919f5338c1c531a547276c",
+      "source_chars": 655,
+      "pack_id": "simulator-original-characters",
+      "entry_id": "source-13",
+      "spans": [
+        {
+          "start": 8,
+          "end": 655
+        }
+      ],
+      "content_sha256": "d2da52945c18511048c6ca2b83b81af4c2c4ccb7eab4d800f2decea40db17eb4",
+      "coverage": "original-text-segments",
+      "omission_reason": "real-person-casting-links-excluded; fictional-template-prose-retained"
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 14,
+      "source_title": "競爭對手",
+      "source_sha256": "7bdc320f6de4df3e08f1def2d8105fcde421d9d26508e25466f898e6a98cdef4",
+      "source_chars": 644,
+      "pack_id": "simulator-original-characters",
+      "entry_id": "source-14",
+      "spans": [
+        {
+          "start": 8,
+          "end": 644
+        }
+      ],
+      "content_sha256": "2982c5c84fca119e273963c8a6268873e42d1a653ee8326a97e0e11aa2989074",
+      "coverage": "original-text-segments",
+      "omission_reason": "real-person-casting-links-excluded; fictional-template-prose-retained"
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 15,
+      "source_title": "成熟前輩",
+      "source_sha256": "121c99b4f50e50ae9820cc8a33a8349aaf581b77a8456f8466d143eafcabfa92",
+      "source_chars": 645,
+      "pack_id": "simulator-original-characters",
+      "entry_id": "source-15",
+      "spans": [
+        {
+          "start": 8,
+          "end": 645
+        }
+      ],
+      "content_sha256": "da0f45e0e6f87df19c8cb658456a65bc8bc7f893efa635e3cf2c4fcc5c9135a6",
+      "coverage": "original-text-segments",
+      "omission_reason": "real-person-casting-links-excluded; fictional-template-prose-retained"
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 16,
+      "source_title": "溫柔長輩",
+      "source_sha256": "90655193101f5bd01e45fb9e2e0c17adbaa286b09cfbdb275ea9272c6fec5747",
+      "source_chars": 647,
+      "pack_id": "simulator-original-characters",
+      "entry_id": "source-16",
+      "spans": [
+        {
+          "start": 8,
+          "end": 647
+        }
+      ],
+      "content_sha256": "5035cc8085b112c53045c2a82caade40f7cb728ac7a8a9047ff38a4433ca40fb",
+      "coverage": "original-text-segments",
+      "omission_reason": "real-person-casting-links-excluded; fictional-template-prose-retained"
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 17,
+      "source_title": "陽光大男孩",
+      "source_sha256": "0dbccd8804ec95ee0ca72e147456845f10af585d1b0ba1123ee1a63da8e83a43",
+      "source_chars": 983,
+      "pack_id": "simulator-original-characters",
+      "entry_id": "source-17",
+      "spans": [
+        {
+          "start": 8,
+          "end": 983
+        }
+      ],
+      "content_sha256": "1af1e050d9d06e5d5bc45947d0fd1c3d16b8d219d99d84cfcefcea60cbe87575",
+      "coverage": "original-text-segments",
+      "omission_reason": "real-person-casting-links-excluded; fictional-template-prose-retained"
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 18,
+      "source_title": "溫柔學長",
+      "source_sha256": "72531b7a0e25c0d07518fbfe4dd0e3ad896e4842ac980732f63a8614c00e1c99",
+      "source_chars": 1005,
+      "pack_id": "simulator-original-characters",
+      "entry_id": "source-18",
+      "spans": [
+        {
+          "start": 8,
+          "end": 1005
+        }
+      ],
+      "content_sha256": "996420db0591444b47fef9e642cbc7324cab6a3e3b6345bb2c25ef08bf685805",
+      "coverage": "original-text-segments",
+      "omission_reason": "real-person-casting-links-excluded; fictional-template-prose-retained"
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 19,
+      "source_title": "冷酷學弟",
+      "source_sha256": "f8871dd893fc17d1a4291310a080de566fd808d3a845d76096df39d104199c8e",
+      "source_chars": 1086,
+      "pack_id": "simulator-original-characters",
+      "entry_id": "source-19",
+      "spans": [
+        {
+          "start": 8,
+          "end": 1086
+        }
+      ],
+      "content_sha256": "a399ce55c2c0a764f3fc0218bb5cf960ad85f8a2d91b9adccc80a3456f7fa6c5",
+      "coverage": "original-text-segments",
+      "omission_reason": "real-person-casting-links-excluded; fictional-template-prose-retained"
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 20,
+      "source_title": "斯文敗類",
+      "source_sha256": "df9b16bb715689ec07d1bac722f376d070d4a8e25b8d78477e8aadf68360fb15",
+      "source_chars": 1030,
+      "pack_id": "simulator-original-characters",
+      "entry_id": "source-20",
+      "spans": [
+        {
+          "start": 8,
+          "end": 1030
+        }
+      ],
+      "content_sha256": "90cad990af21eaf373882c504a7762fb7c96de093f4fc26e71df82539784222d",
+      "coverage": "original-text-segments",
+      "omission_reason": "real-person-casting-links-excluded; fictional-template-prose-retained"
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 21,
+      "source_title": "霸道總裁",
+      "source_sha256": "360f2047cf46de1203e29839c97866f2a8ee8e9d58d0c12e36b69437c8d80c87",
+      "source_chars": 987,
+      "pack_id": "simulator-original-characters",
+      "entry_id": "source-21",
+      "spans": [
+        {
+          "start": 8,
+          "end": 987
+        }
+      ],
+      "content_sha256": "43471cb2b63586ef80c0cdfe5172e383a4d277e8b3da04b9a6bc42909bf5f5c5",
+      "coverage": "original-text-segments",
+      "omission_reason": "real-person-casting-links-excluded; fictional-template-prose-retained"
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 22,
+      "source_title": "溫柔大叔",
+      "source_sha256": "b72472498468871e557180e89aa8b42a4ba53f2cab6f7ff29d0e9119d757b639",
+      "source_chars": 997,
+      "pack_id": "simulator-original-characters",
+      "entry_id": "source-22",
+      "spans": [
+        {
+          "start": 7,
+          "end": 997
+        }
+      ],
+      "content_sha256": "7fc8befebbdc15160668d9430c76760c85e757e5c4bbf1562bca5ee09ceb4af9",
+      "coverage": "original-text-segments",
+      "omission_reason": "real-person-casting-links-excluded; fictional-template-prose-retained"
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 23,
+      "source_title": "痴女女王-女角色",
+      "source_sha256": "87d9b74450d4c4b6f6c6ff73afe36f200bbf55b69f257eac15a6123b6f75c32d",
+      "source_chars": 1064,
+      "pack_id": "simulator-original-characters",
+      "entry_id": "source-23",
+      "spans": [
+        {
+          "start": 9,
+          "end": 1064
+        }
+      ],
+      "content_sha256": "19d4230896f687a8a74abe105c5608cf47897735ac3f3eff4f0b1ebcddc833fe",
+      "coverage": "original-text-segments",
+      "omission_reason": "real-person-casting-links-excluded; fictional-template-prose-retained"
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 25,
+      "source_title": "巨乳人妻-女角色",
+      "source_sha256": "85999c5630fe5635bfa66985d52c4f6ca997d89cf2598978eff6bfa90c33f8c0",
+      "source_chars": 1105,
+      "pack_id": "simulator-original-characters",
+      "entry_id": "source-25",
+      "spans": [
+        {
+          "start": 10,
+          "end": 1105
+        }
+      ],
+      "content_sha256": "61b8b8a3c2375f96ba992b31263d974fc9cf21a9dd155051bcc8081ed9158735",
+      "coverage": "original-text-segments",
+      "omission_reason": "real-person-casting-links-excluded; fictional-template-prose-retained"
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 26,
+      "source_title": "性感舞后",
+      "source_sha256": "3390b4addcd8eb6a979c7a5a17a567cc1362c575abe9d28d147a99e4e2336be6",
+      "source_chars": 1077,
+      "pack_id": "simulator-original-characters",
+      "entry_id": "source-26",
+      "spans": [
+        {
+          "start": 7,
+          "end": 1077
+        }
+      ],
+      "content_sha256": "83feace6d502fbd37161c52be063aaa9f014d7eb58580813938c92d124cc193a",
+      "coverage": "original-text-segments",
+      "omission_reason": "real-person-casting-links-excluded; fictional-template-prose-retained"
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 27,
+      "source_title": "清冷女神",
+      "source_sha256": "1efb35fa701e28b59b37c04b4fdcc4ef0ca2d4aa3e461e4eec51f6d5db86b93b",
+      "source_chars": 1146,
+      "pack_id": "simulator-original-characters",
+      "entry_id": "source-27",
+      "spans": [
+        {
+          "start": 22,
+          "end": 1146
+        }
+      ],
+      "content_sha256": "c024d2eface7deae1110147c8f31215b09ac5c72518d5c67e8820e1f2e34a69a",
+      "coverage": "original-text-segments",
+      "omission_reason": "real-person-casting-links-excluded; fictional-template-prose-retained"
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 28,
+      "source_title": "反差女神",
+      "source_sha256": "3581fcfe0d73f4d6828d7e17b6cda29589f0a26519db87760ee3049c140fdd8f",
+      "source_chars": 1141,
+      "pack_id": "simulator-original-characters",
+      "entry_id": "source-28",
+      "spans": [
+        {
+          "start": 15,
+          "end": 1141
+        }
+      ],
+      "content_sha256": "44eb5682ee9d2280cc72d512f6eab6fa3e064506ae893e4144c09c81493a5b8c",
+      "coverage": "original-text-segments",
+      "omission_reason": "real-person-casting-links-excluded; fictional-template-prose-retained"
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 29,
+      "source_title": "混血美女",
+      "source_sha256": "d4aaa3293232c9e736327b97e30e1e437f2657c33425f6f8d19e495494ddeba5",
+      "source_chars": 1057,
+      "pack_id": "simulator-original-characters",
+      "entry_id": "source-29",
+      "spans": [
+        {
+          "start": 7,
+          "end": 1057
+        }
+      ],
+      "content_sha256": "58e253f2e0a439bff76581d5a1e145c0034662a055a3ecad604ca40b53d65fdb",
+      "coverage": "original-text-segments",
+      "omission_reason": "real-person-casting-links-excluded; fictional-template-prose-retained"
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 30,
+      "source_title": "腹黑閨蜜",
+      "source_sha256": "07ca841ae52c247fd436464d1e2296f99b7c7aa2a183af66492cf4890b1c077d",
+      "source_chars": 672,
+      "pack_id": "simulator-original-characters",
+      "entry_id": "source-30",
+      "spans": [
+        {
+          "start": 8,
+          "end": 672
+        }
+      ],
+      "content_sha256": "2f03fc5d1e9aed97be7da717740600de371475eaada76281e9eccb37a576a15f",
+      "coverage": "original-text-segments",
+      "omission_reason": "real-person-casting-links-excluded; fictional-template-prose-retained"
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 31,
+      "source_title": "女性情敵",
+      "source_sha256": "eca15078ff5a2ddd5c9428e2176a5116bd60776f65d29bed77cf4412bf50e41b",
+      "source_chars": 649,
+      "pack_id": "simulator-original-characters",
+      "entry_id": "source-31",
+      "spans": [
+        {
+          "start": 15,
+          "end": 649
+        }
+      ],
+      "content_sha256": "347a7f4dad1b836e787263cfea696f6dd96eb1748b57b55292cb58c6107c7532",
+      "coverage": "original-text-segments",
+      "omission_reason": "real-person-casting-links-excluded; fictional-template-prose-retained"
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 32,
+      "source_title": "開發者模式-跳脫扮演",
+      "source_sha256": "6240decc703518c55134220f90635f2d9d22de6c96b6008d4e8523b303090493",
+      "source_chars": 1756,
+      "pack_id": "simulator-original-commands",
+      "entry_id": "source-32",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1756
+        }
+      ],
+      "content_sha256": "6240decc703518c55134220f90635f2d9d22de6c96b6008d4e8523b303090493",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 33,
+      "source_title": "演員與世界觀融合",
+      "source_sha256": "ec5b0ba7e7d03507c13f7226374539770a5fbdaf2f73db0aa5f2958cf0d57f71",
+      "source_chars": 1734,
+      "pack_id": "simulator-original-core",
+      "entry_id": "source-33",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1734
+        }
+      ],
+      "content_sha256": "ec5b0ba7e7d03507c13f7226374539770a5fbdaf2f73db0aa5f2958cf0d57f71",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 34,
+      "source_title": "世界基礎規則-世界觀",
+      "source_sha256": "90c34cd54987003193254fad3b479aa3546af078a84b56e083d08d2523c89c94",
+      "source_chars": 664,
+      "pack_id": "simulator-original-core",
+      "entry_id": "source-34",
+      "spans": [
+        {
+          "start": 0,
+          "end": 664
+        }
+      ],
+      "content_sha256": "90c34cd54987003193254fad3b479aa3546af078a84b56e083d08d2523c89c94",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 35,
+      "source_title": "NPC 日常行為",
+      "source_sha256": "45fc07139187b182a3826b0a4bc8bc7e8d17d8ebe91b2a46238722237bf421f0",
+      "source_chars": 811,
+      "pack_id": "simulator-original-core",
+      "entry_id": "source-35",
+      "spans": [
+        {
+          "start": 0,
+          "end": 811
+        }
+      ],
+      "content_sha256": "45fc07139187b182a3826b0a4bc8bc7e8d17d8ebe91b2a46238722237bf421f0",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 36,
+      "source_title": "NPC 離場行為",
+      "source_sha256": "4b487b2272d536b18497891a8945084accf252d27a4cd8eb64e0ec5bc7a5e9d5",
+      "source_chars": 1125,
+      "pack_id": "simulator-original-core",
+      "entry_id": "source-36",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1125
+        }
+      ],
+      "content_sha256": "4b487b2272d536b18497891a8945084accf252d27a4cd8eb64e0ec5bc7a5e9d5",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 37,
+      "source_title": "親密關係發展-好感度",
+      "source_sha256": "b301414ca02145bc4cfa579cea5443def226d76d6ae965980162620cd142b1e6",
+      "source_chars": 847,
+      "pack_id": "simulator-original-core",
+      "entry_id": "source-37",
+      "spans": [
+        {
+          "start": 0,
+          "end": 847
+        }
+      ],
+      "content_sha256": "b301414ca02145bc4cfa579cea5443def226d76d6ae965980162620cd142b1e6",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 38,
+      "source_title": "性相關規則-性慾（特定條件觸發）",
+      "source_sha256": "d21559a6a1b338fa82160c8bbe3615f07e7cf608f7e49b41d46208bf1adb4983",
+      "source_chars": 1146,
+      "pack_id": "simulator-original-intimacy",
+      "entry_id": "source-38",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1146
+        }
+      ],
+      "content_sha256": "d21559a6a1b338fa82160c8bbe3615f07e7cf608f7e49b41d46208bf1adb4983",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 39,
+      "source_title": "NPC 性慾累積與離場",
+      "source_sha256": "1e43431f7f6cda3968920f0e09e8a946646b434a65e6b666f35774d3080f0f95",
+      "source_chars": 762,
+      "pack_id": "simulator-original-intimacy",
+      "entry_id": "source-39",
+      "spans": [
+        {
+          "start": 0,
+          "end": 762
+        }
+      ],
+      "content_sha256": "1e43431f7f6cda3968920f0e09e8a946646b434a65e6b666f35774d3080f0f95",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 40,
+      "source_title": "NPC 自主性行為與多 P-性慾",
+      "source_sha256": "9c33d8981fe1cf92f993b5b2b1fe07b8184faa9a844207b9d0085931986df6b1",
+      "source_chars": 1049,
+      "pack_id": "simulator-original-intimacy",
+      "entry_id": "source-40",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1049
+        }
+      ],
+      "content_sha256": "9c33d8981fe1cf92f993b5b2b1fe07b8184faa9a844207b9d0085931986df6b1",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 41,
+      "source_title": "奇幻劇本",
+      "source_sha256": "d3338a295c7fb406215da70dae6db60ec5126eec27fa7dc46dc81251ce5e2442",
+      "source_chars": 1193,
+      "pack_id": "simulator-original-genres",
+      "entry_id": "source-41",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1193
+        }
+      ],
+      "content_sha256": "d3338a295c7fb406215da70dae6db60ec5126eec27fa7dc46dc81251ce5e2442",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 42,
+      "source_title": "玄幻劇本",
+      "source_sha256": "6fef46ac9d8f00806048436b0e675bb746e462568c1c995af772488f3b4270d1",
+      "source_chars": 997,
+      "pack_id": "simulator-original-genres",
+      "entry_id": "source-42",
+      "spans": [
+        {
+          "start": 0,
+          "end": 997
+        }
+      ],
+      "content_sha256": "6fef46ac9d8f00806048436b0e675bb746e462568c1c995af772488f3b4270d1",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 43,
+      "source_title": "校園劇本",
+      "source_sha256": "af95ec8bd5fb115ef5544e13c3283c931652a49dece4334108dabf8683d8eaa8",
+      "source_chars": 990,
+      "pack_id": "simulator-original-genres",
+      "entry_id": "source-43",
+      "spans": [
+        {
+          "start": 0,
+          "end": 990
+        }
+      ],
+      "content_sha256": "af95ec8bd5fb115ef5544e13c3283c931652a49dece4334108dabf8683d8eaa8",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 44,
+      "source_title": "現代都市劇本",
+      "source_sha256": "4f895858f22b0a361ecddd32e408a156335706e439a0e6e560fa873000ecb979",
+      "source_chars": 1021,
+      "pack_id": "simulator-original-genres",
+      "entry_id": "source-44",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1021
+        }
+      ],
+      "content_sha256": "4f895858f22b0a361ecddd32e408a156335706e439a0e6e560fa873000ecb979",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 45,
+      "source_title": "R18劇本",
+      "source_sha256": "57eec842adba32edfda575830e025fed78cf23b48d8cc9167e2e030aabec40cf",
+      "source_chars": 1281,
+      "pack_id": "simulator-original-genres",
+      "entry_id": "source-45",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1281
+        }
+      ],
+      "content_sha256": "57eec842adba32edfda575830e025fed78cf23b48d8cc9167e2e030aabec40cf",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 46,
+      "source_title": "熱血劇本",
+      "source_sha256": "b23f0072e07e922e278fd657ea1909511dd81931ee08aeaa9d2b606995162f00",
+      "source_chars": 820,
+      "pack_id": "simulator-original-genres",
+      "entry_id": "source-46",
+      "spans": [
+        {
+          "start": 0,
+          "end": 820
+        }
+      ],
+      "content_sha256": "b23f0072e07e922e278fd657ea1909511dd81931ee08aeaa9d2b606995162f00",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 47,
+      "source_title": "末世劇本",
+      "source_sha256": "9027d7d36e3da8a4b14e2f5e740531a0f3003d61475482016e0a630450b57c0f",
+      "source_chars": 938,
+      "pack_id": "simulator-original-genres",
+      "entry_id": "source-47",
+      "spans": [
+        {
+          "start": 0,
+          "end": 938
+        }
+      ],
+      "content_sha256": "9027d7d36e3da8a4b14e2f5e740531a0f3003d61475482016e0a630450b57c0f",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 48,
+      "source_title": "科幻劇本",
+      "source_sha256": "ba635dec57cb6251beb74d26a24ab1fa6f5836203540ba51ae6edaa499198899",
+      "source_chars": 967,
+      "pack_id": "simulator-original-genres",
+      "entry_id": "source-48",
+      "spans": [
+        {
+          "start": 0,
+          "end": 967
+        }
+      ],
+      "content_sha256": "ba635dec57cb6251beb74d26a24ab1fa6f5836203540ba51ae6edaa499198899",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 49,
+      "source_title": "NTR",
+      "source_sha256": "ac812ae7f1aae92a192c9cb9df5ec37c5efb489e237235f3cc7f3ec421f02250",
+      "source_chars": 429,
+      "pack_id": "simulator-original-genres",
+      "entry_id": "source-49",
+      "spans": [
+        {
+          "start": 0,
+          "end": 429
+        }
+      ],
+      "content_sha256": "ac812ae7f1aae92a192c9cb9df5ec37c5efb489e237235f3cc7f3ec421f02250",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 50,
+      "source_title": "背德劇本",
+      "source_sha256": "98e1d5160053cf297264bd31e22b978870537b173e5fc2f514f44ee7373b3bb6",
+      "source_chars": 428,
+      "pack_id": "simulator-original-genres",
+      "entry_id": "source-50",
+      "spans": [
+        {
+          "start": 0,
+          "end": 428
+        }
+      ],
+      "content_sha256": "98e1d5160053cf297264bd31e22b978870537b173e5fc2f514f44ee7373b3bb6",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 51,
+      "source_title": "SM 調教劇本（一般向/身體向）",
+      "source_sha256": "f97267261edb9104da7e3ab8f86553ad5756a8af5a2380b8d7bda1ee5169477d",
+      "source_chars": 1905,
+      "pack_id": "simulator-original-genres",
+      "entry_id": "source-51",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1905
+        }
+      ],
+      "content_sha256": "f97267261edb9104da7e3ab8f86553ad5756a8af5a2380b8d7bda1ee5169477d",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 52,
+      "source_title": "角色池系統(演員、歌手、偶像)",
+      "source_sha256": "24c868c31867a4f233851a0be228b441d03e668b6921af61221951f37be4d50b",
+      "source_chars": 993,
+      "pack_id": "simulator-original-characters",
+      "entry_id": "source-52",
+      "spans": [
+        {
+          "start": 0,
+          "end": 192
+        },
+        {
+          "start": 212,
+          "end": 251
+        },
+        {
+          "start": 269,
+          "end": 306
+        },
+        {
+          "start": 330,
+          "end": 370
+        },
+        {
+          "start": 385,
+          "end": 424
+        },
+        {
+          "start": 443,
+          "end": 483
+        },
+        {
+          "start": 513,
+          "end": 993
+        }
+      ],
+      "content_sha256": "6a9540683d1ede1395056311a69befe05bbd4e321bc43c0e45293c246c08892a",
+      "coverage": "original-text-segments",
+      "omission_reason": "real-person-casting-links-excluded; fictional-template-prose-retained"
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 53,
+      "source_title": "整理關係網路",
+      "source_sha256": "b9ab17c478b09e55c8e0bdef21938999d0028407a940b933d9079fd3381916e7",
+      "source_chars": 443,
+      "pack_id": "simulator-original-commands",
+      "entry_id": "source-53",
+      "spans": [
+        {
+          "start": 0,
+          "end": 443
+        }
+      ],
+      "content_sha256": "b9ab17c478b09e55c8e0bdef21938999d0028407a940b933d9079fd3381916e7",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 54,
+      "source_title": "總結劇情",
+      "source_sha256": "ed38d2ec50bff55322bac112e5a8b19cc44335c7cb61c9066563269eeadec4a5",
+      "source_chars": 365,
+      "pack_id": "simulator-original-commands",
+      "entry_id": "source-54",
+      "spans": [
+        {
+          "start": 0,
+          "end": 365
+        }
+      ],
+      "content_sha256": "ed38d2ec50bff55322bac112e5a8b19cc44335c7cb61c9066563269eeadec4a5",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 55,
+      "source_title": "列出重要事件",
+      "source_sha256": "416618d482b81f54da45facf1d3082dda90c5015eaac6efa75b4ca8943da7f5f",
+      "source_chars": 293,
+      "pack_id": "simulator-original-commands",
+      "entry_id": "source-55",
+      "spans": [
+        {
+          "start": 0,
+          "end": 293
+        }
+      ],
+      "content_sha256": "416618d482b81f54da45facf1d3082dda90c5015eaac6efa75b4ca8943da7f5f",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 56,
+      "source_title": "整理物品清單",
+      "source_sha256": "1b1375d455e5fae8cd2f46bfa22c45fd4f181688cb33ab2e4e6d7bc943ae2974",
+      "source_chars": 391,
+      "pack_id": "simulator-original-commands",
+      "entry_id": "source-56",
+      "spans": [
+        {
+          "start": 0,
+          "end": 391
+        }
+      ],
+      "content_sha256": "1b1375d455e5fae8cd2f46bfa22c45fd4f181688cb33ab2e4e6d7bc943ae2974",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 57,
+      "source_title": "世界觀查詢類指令",
+      "source_sha256": "bc3308373feecf7fac2ee795edbf299b69482f78230ca5d33569d81753f3442b",
+      "source_chars": 497,
+      "pack_id": "simulator-original-commands",
+      "entry_id": "source-57",
+      "spans": [
+        {
+          "start": 0,
+          "end": 497
+        }
+      ],
+      "content_sha256": "bc3308373feecf7fac2ee795edbf299b69482f78230ca5d33569d81753f3442b",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 58,
+      "source_title": "解釋世界規則",
+      "source_sha256": "2c8cf0d6b961a36c5ab6eb2b9ab753a74539b6c7ba14ffa4a0cc998c5e44ad3d",
+      "source_chars": 570,
+      "pack_id": "simulator-original-commands",
+      "entry_id": "source-58",
+      "spans": [
+        {
+          "start": 0,
+          "end": 570
+        }
+      ],
+      "content_sha256": "2c8cf0d6b961a36c5ab6eb2b9ab753a74539b6c7ba14ffa4a0cc998c5e44ad3d",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 59,
+      "source_title": "介紹世界背景",
+      "source_sha256": "44ad17e982afd07721ae470e0b37d0cad6895073f848371db2a015245724d92d",
+      "source_chars": 501,
+      "pack_id": "simulator-original-commands",
+      "entry_id": "source-59",
+      "spans": [
+        {
+          "start": 0,
+          "end": 501
+        }
+      ],
+      "content_sha256": "44ad17e982afd07721ae470e0b37d0cad6895073f848371db2a015245724d92d",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 60,
+      "source_title": "世界觀修改類指令",
+      "source_sha256": "e70228b9489a100310b542642a6b74f102d0d14d4ccf680d3681eafd9cf3dbc2",
+      "source_chars": 586,
+      "pack_id": "simulator-original-commands",
+      "entry_id": "source-60",
+      "spans": [
+        {
+          "start": 0,
+          "end": 586
+        }
+      ],
+      "content_sha256": "e70228b9489a100310b542642a6b74f102d0d14d4ccf680d3681eafd9cf3dbc2",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 61,
+      "source_title": "融合世界觀",
+      "source_sha256": "09edc504dbfe81def66afa5238eab899b6484707ca268cf1a95182636c25f387",
+      "source_chars": 631,
+      "pack_id": "simulator-original-commands",
+      "entry_id": "source-61",
+      "spans": [
+        {
+          "start": 0,
+          "end": 631
+        }
+      ],
+      "content_sha256": "09edc504dbfe81def66afa5238eab899b6484707ca268cf1a95182636c25f387",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 62,
+      "source_title": "自訂世界觀",
+      "source_sha256": "80e550945135d0b038f547008447420aad85d5dda59d39aae4ba582c09d6d0a4",
+      "source_chars": 609,
+      "pack_id": "simulator-original-commands",
+      "entry_id": "source-62",
+      "spans": [
+        {
+          "start": 0,
+          "end": 609
+        }
+      ],
+      "content_sha256": "80e550945135d0b038f547008447420aad85d5dda59d39aae4ba582c09d6d0a4",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 63,
+      "source_title": "整理人物檔案",
+      "source_sha256": "6025140ef8a758ed64fdbd2964688e05c436f769d47c447e3016297f0f8e077b",
+      "source_chars": 421,
+      "pack_id": "simulator-original-commands",
+      "entry_id": "source-63",
+      "spans": [
+        {
+          "start": 0,
+          "end": 421
+        }
+      ],
+      "content_sha256": "6025140ef8a758ed64fdbd2964688e05c436f769d47c447e3016297f0f8e077b",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 64,
+      "source_title": "純文字輸出",
+      "source_sha256": "c5c37b7bb00b5bab1362d6505bdbfaaaa36cdc8e307233dbaa7a0fb2af6f1f94",
+      "source_chars": 1522,
+      "pack_id": "simulator-style-64",
+      "entry_id": "source-64",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1522
+        }
+      ],
+      "content_sha256": "c5c37b7bb00b5bab1362d6505bdbfaaaa36cdc8e307233dbaa7a0fb2af6f1f94",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 65,
+      "source_title": "色情與強制情節處理",
+      "source_sha256": "8fb4467aa1ecc8142bc0e816970ae616ddf943240250fd627a8ad0d1e8a389a0",
+      "source_chars": 1921,
+      "pack_id": "simulator-original-genres",
+      "entry_id": "source-65",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1921
+        }
+      ],
+      "content_sha256": "8fb4467aa1ecc8142bc0e816970ae616ddf943240250fd627a8ad0d1e8a389a0",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 67,
+      "source_title": "殺人與死亡場景",
+      "source_sha256": "a7073779fe3848fbdaf88d7c120126469265f9ef9d1a02f26810d9f19b5ed25d",
+      "source_chars": 732,
+      "pack_id": "simulator-original-genres",
+      "entry_id": "source-67",
+      "spans": [
+        {
+          "start": 0,
+          "end": 732
+        }
+      ],
+      "content_sha256": "a7073779fe3848fbdaf88d7c120126469265f9ef9d1a02f26810d9f19b5ed25d",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 68,
+      "source_title": "色氣事件",
+      "source_sha256": "f45e9a67f9d7dca3c167e1110087d9e17d0f8eb8c3cb79bf00f55cdf5b49b056",
+      "source_chars": 1486,
+      "pack_id": "simulator-original-genres",
+      "entry_id": "source-68",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1486
+        }
+      ],
+      "content_sha256": "f45e9a67f9d7dca3c167e1110087d9e17d0f8eb8c3cb79bf00f55cdf5b49b056",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 69,
+      "source_title": "BL 劇本",
+      "source_sha256": "f5cc8f3bc730f7f8c9a161716fa79828665d3793176356cf14a54225a2a5d8f6",
+      "source_chars": 1168,
+      "pack_id": "simulator-original-genres",
+      "entry_id": "source-69",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1168
+        }
+      ],
+      "content_sha256": "f5cc8f3bc730f7f8c9a161716fa79828665d3793176356cf14a54225a2a5d8f6",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 70,
+      "source_title": "GL 劇本",
+      "source_sha256": "a21606c25d42cf0e6d2896bdf5ffb72c81d83cdc9d823615e386363c5020fb65",
+      "source_chars": 1140,
+      "pack_id": "simulator-original-genres",
+      "entry_id": "source-70",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1140
+        }
+      ],
+      "content_sha256": "a21606c25d42cf0e6d2896bdf5ffb72c81d83cdc9d823615e386363c5020fb65",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 71,
+      "source_title": "NL 劇本",
+      "source_sha256": "09e3a48d019811690219f5cf9f39280c386486dcfcbbac2ce8334b4ed018036a",
+      "source_chars": 1025,
+      "pack_id": "simulator-original-genres",
+      "entry_id": "source-71",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1025
+        }
+      ],
+      "content_sha256": "09e3a48d019811690219f5cf9f39280c386486dcfcbbac2ce8334b4ed018036a",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 72,
+      "source_title": "反差萌劇本",
+      "source_sha256": "4ab3642f0065c120f56a7fc161befbab2f1371772d3e0da0127d275acbdc982a",
+      "source_chars": 1960,
+      "pack_id": "simulator-original-genres",
+      "entry_id": "source-72",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1960
+        }
+      ],
+      "content_sha256": "4ab3642f0065c120f56a7fc161befbab2f1371772d3e0da0127d275acbdc982a",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 73,
+      "source_title": "墮落調教劇本",
+      "source_sha256": "f33e976314da9a844aae65bcaa047f8f2c898b52fdc91c24921f08b207800028",
+      "source_chars": 1493,
+      "pack_id": "simulator-original-genres",
+      "entry_id": "source-73",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1493
+        }
+      ],
+      "content_sha256": "f33e976314da9a844aae65bcaa047f8f2c898b52fdc91c24921f08b207800028",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 74,
+      "source_title": "真假千金劇本（雙重身分）",
+      "source_sha256": "a9c6f5d33a626b07b753bad270e89ebfb23f772e7f9eb100d6f7fc8929c8322f",
+      "source_chars": 1897,
+      "pack_id": "simulator-original-genres",
+      "entry_id": "source-74",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1897
+        }
+      ],
+      "content_sha256": "a9c6f5d33a626b07b753bad270e89ebfb23f772e7f9eb100d6f7fc8929c8322f",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 75,
+      "source_title": "三角關係劇本",
+      "source_sha256": "26b41f89efeb9ed3a7d46e49a06278b182ce336da2107900a81cc971cdb14bed",
+      "source_chars": 1792,
+      "pack_id": "simulator-original-genres",
+      "entry_id": "source-75",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1792
+        }
+      ],
+      "content_sha256": "26b41f89efeb9ed3a7d46e49a06278b182ce336da2107900a81cc971cdb14bed",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 77,
+      "source_title": "霸道總裁劇本",
+      "source_sha256": "ed7ed562939252b4bc22f8ae011c87948c2c57c6e67b1b618f7cd9a38ba5cfb4",
+      "source_chars": 1635,
+      "pack_id": "simulator-original-genres",
+      "entry_id": "source-77",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1635
+        }
+      ],
+      "content_sha256": "ed7ed562939252b4bc22f8ae011c87948c2c57c6e67b1b618f7cd9a38ba5cfb4",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 78,
+      "source_title": "年上劇本（姐弟戀/熟女）",
+      "source_sha256": "bd7d058439370e2e6e98264319e294de1c33b2933e36dca7abd033a9ddc646fc",
+      "source_chars": 1698,
+      "pack_id": "simulator-original-genres",
+      "entry_id": "source-78",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1698
+        }
+      ],
+      "content_sha256": "bd7d058439370e2e6e98264319e294de1c33b2933e36dca7abd033a9ddc646fc",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 79,
+      "source_title": "女頻爽文劇本（重生復仇/逆襲）",
+      "source_sha256": "fca04a358aa65631d9f584de7ffd2234eaa83f7bf311f5a93d0a0c1f532d63d2",
+      "source_chars": 1984,
+      "pack_id": "simulator-original-genres",
+      "entry_id": "source-79",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1984
+        }
+      ],
+      "content_sha256": "fca04a358aa65631d9f584de7ffd2234eaa83f7bf311f5a93d0a0c1f532d63d2",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 80,
+      "source_title": "種馬劇本",
+      "source_sha256": "dbcb02929c9dd6ee258e5dd4d99c8ce4b7bc91938279b5a1c6e423270f44bf66",
+      "source_chars": 1091,
+      "pack_id": "simulator-original-genres",
+      "entry_id": "source-80",
+      "spans": [
+        {
+          "start": 0,
+          "end": 408
+        },
+        {
+          "start": 435,
+          "end": 1091
+        }
+      ],
+      "content_sha256": "c70e3455a74df28e34374074ba41ae32de919b2619ff12aad67f155e2a47794d",
+      "coverage": "original-text-segments",
+      "omission_reason": "child-coded-harem-template-line-excluded"
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 81,
+      "source_title": "純愛劇本",
+      "source_sha256": "625b1971e677a9cd5249ececcfff56f0a12e21ea1cf54090e47a6044c203c3e9",
+      "source_chars": 1233,
+      "pack_id": "simulator-original-genres",
+      "entry_id": "source-81",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1233
+        }
+      ],
+      "content_sha256": "625b1971e677a9cd5249ececcfff56f0a12e21ea1cf54090e47a6044c203c3e9",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 82,
+      "source_title": "情感拉扯劇本",
+      "source_sha256": "48beb03f8ea3f437c770736b582c9b866c7ddb050f5576385001da918cdaacc6",
+      "source_chars": 1647,
+      "pack_id": "simulator-original-genres",
+      "entry_id": "source-82",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1647
+        }
+      ],
+      "content_sha256": "48beb03f8ea3f437c770736b582c9b866c7ddb050f5576385001da918cdaacc6",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 84,
+      "source_title": "地雷女劇本",
+      "source_sha256": "4adba7ee4bf3fe593618f0e210931f58f7b7c674627ca67993be279b684501a2",
+      "source_chars": 1936,
+      "pack_id": "simulator-original-genres",
+      "entry_id": "source-84",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1936
+        }
+      ],
+      "content_sha256": "4adba7ee4bf3fe593618f0e210931f58f7b7c674627ca67993be279b684501a2",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 85,
+      "source_title": "Young Adult（YA）寫作規範",
+      "source_sha256": "aabfada95021461607a3f94976dc0c7e4153efdc670296e191ad00526410f245",
+      "source_chars": 1938,
+      "pack_id": "simulator-style-85",
+      "entry_id": "source-85",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1938
+        }
+      ],
+      "content_sha256": "aabfada95021461607a3f94976dc0c7e4153efdc670296e191ad00526410f245",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 86,
+      "source_title": "New Adult（NA）寫作規範",
+      "source_sha256": "eed87eff5153dc7b69dfdfa48c022428182b7b5d25f40988b5dcdb7e84b27828",
+      "source_chars": 1943,
+      "pack_id": "simulator-style-86",
+      "entry_id": "source-86",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1943
+        }
+      ],
+      "content_sha256": "eed87eff5153dc7b69dfdfa48c022428182b7b5d25f40988b5dcdb7e84b27828",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 87,
+      "source_title": "Romantasy 寫作規範",
+      "source_sha256": "a93ead51c8330de91dba659be17ea4cea066d59d8ed8e146091e7094eaa2b4f1",
+      "source_chars": 1983,
+      "pack_id": "simulator-style-87",
+      "entry_id": "source-87",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1983
+        }
+      ],
+      "content_sha256": "a93ead51c8330de91dba659be17ea4cea066d59d8ed8e146091e7094eaa2b4f1",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 88,
+      "source_title": "成人向浪漫奇幻（18+ Romantasy）寫作規範",
+      "source_sha256": "306e891e013417955ddd32ad9a908b947f77e23f7c60f424d38fd726e381fd7d",
+      "source_chars": 737,
+      "pack_id": "simulator-style-88",
+      "entry_id": "source-88",
+      "spans": [
+        {
+          "start": 0,
+          "end": 737
+        }
+      ],
+      "content_sha256": "306e891e013417955ddd32ad9a908b947f77e23f7c60f424d38fd726e381fd7d",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 89,
+      "source_title": "情慾文學（Erotica）寫作規範",
+      "source_sha256": "ff603bc390dbec7b15a5c2d60a5eb96623440286598cd3427b02fc9004a2e2d9",
+      "source_chars": 1013,
+      "pack_id": "simulator-style-89",
+      "entry_id": "source-89",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1013
+        }
+      ],
+      "content_sha256": "ff603bc390dbec7b15a5c2d60a5eb96623440286598cd3427b02fc9004a2e2d9",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 90,
+      "source_title": "男性凝視色情文學（Porn）寫作規範",
+      "source_sha256": "2c298d1a4384b7cd5fcaa67d43eb940f2dc4bdc31721b24b3da02b20840113eb",
+      "source_chars": 1892,
+      "pack_id": "simulator-style-90",
+      "entry_id": "source-90",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1892
+        }
+      ],
+      "content_sha256": "2c298d1a4384b7cd5fcaa67d43eb940f2dc4bdc31721b24b3da02b20840113eb",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 91,
+      "source_title": "觸手劇本",
+      "source_sha256": "41a96a1200f30254c908aaec098c93320f2cc047c5a2ee9ac121d0a106bf0822",
+      "source_chars": 1887,
+      "pack_id": "simulator-original-genres",
+      "entry_id": "source-91",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1887
+        }
+      ],
+      "content_sha256": "41a96a1200f30254c908aaec098c93320f2cc047c5a2ee9ac121d0a106bf0822",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 92,
+      "source_title": "宮鬥劇本",
+      "source_sha256": "b337f84e3eb39ed0319b1e210c68ccf94e42d9981b34ec8a57a851da7e16ce2e",
+      "source_chars": 1910,
+      "pack_id": "simulator-original-genres",
+      "entry_id": "source-92",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1910
+        }
+      ],
+      "content_sha256": "b337f84e3eb39ed0319b1e210c68ccf94e42d9981b34ec8a57a851da7e16ce2e",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 93,
+      "source_title": "章回體敘事",
+      "source_sha256": "43f8da494c0eb59e311c08c798a0b185616c4aa6ab069fa6b425938a88b0d35d",
+      "source_chars": 1787,
+      "pack_id": "simulator-style-93",
+      "entry_id": "source-93",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1787
+        }
+      ],
+      "content_sha256": "43f8da494c0eb59e311c08c798a0b185616c4aa6ab069fa6b425938a88b0d35d",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 94,
+      "source_title": "男娘劇本（Femboy / 偽娘）",
+      "source_sha256": "b566f0729f9045292d45694f5008fc6d1ce59039a5d42daeae638a123f2849f9",
+      "source_chars": 1955,
+      "pack_id": "simulator-original-genres",
+      "entry_id": "source-94",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1955
+        }
+      ],
+      "content_sha256": "b566f0729f9045292d45694f5008fc6d1ce59039a5d42daeae638a123f2849f9",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 95,
+      "source_title": "逆NTR劇本（逆寢取られ）",
+      "source_sha256": "545289ab3de1bfe7416a9062941292924039ad31dae1d9ff2a53a7caf87dc0ae",
+      "source_chars": 1978,
+      "pack_id": "simulator-original-genres",
+      "entry_id": "source-95",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1978
+        }
+      ],
+      "content_sha256": "545289ab3de1bfe7416a9062941292924039ad31dae1d9ff2a53a7caf87dc0ae",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 96,
+      "source_title": "服務業系列劇本",
+      "source_sha256": "ba61d4420b28623f00135906e7295092701cc24a642934fa9bd9567646b27de8",
+      "source_chars": 1827,
+      "pack_id": "simulator-original-genres",
+      "entry_id": "source-96",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1827
+        }
+      ],
+      "content_sha256": "ba61d4420b28623f00135906e7295092701cc24a642934fa9bd9567646b27de8",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 97,
+      "source_title": "特殊情境系列劇本",
+      "source_sha256": "24b94a7689d74d4031685b35ef0acc18a2d2fff11d80eeaf7f02df0fb3c306f6",
+      "source_chars": 1942,
+      "pack_id": "simulator-original-genres",
+      "entry_id": "source-97",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1942
+        }
+      ],
+      "content_sha256": "24b94a7689d74d4031685b35ef0acc18a2d2fff11d80eeaf7f02df0fb3c306f6",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 98,
+      "source_title": "BDSM 劇本（女性向/情感向）",
+      "source_sha256": "56bd7d499c2c11730761cbfa2a0decb0ce237f74600caae8b816a65c10ddb3cf",
+      "source_chars": 1995,
+      "pack_id": "simulator-original-genres",
+      "entry_id": "source-98",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1995
+        }
+      ],
+      "content_sha256": "56bd7d499c2c11730761cbfa2a0decb0ce237f74600caae8b816a65c10ddb3cf",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 99,
+      "source_title": "ABO 劇本（Omegaverse）",
+      "source_sha256": "02e6be662569b50ccc04ed2e2562d10d17a8d78daa3cc5e8192debf5528dcb92",
+      "source_chars": 1930,
+      "pack_id": "simulator-original-genres",
+      "entry_id": "source-99",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1930
+        }
+      ],
+      "content_sha256": "02e6be662569b50ccc04ed2e2562d10d17a8d78daa3cc5e8192debf5528dcb92",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 100,
+      "source_title": "傳教士體位（標準）",
+      "source_sha256": "b1d73722fd6b3465beaeb626d34c799b9f5770021b893c28a07413c4cfbf7ff6",
+      "source_chars": 1407,
+      "pack_id": "simulator-original-intimacy",
+      "entry_id": "source-100",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1407
+        }
+      ],
+      "content_sha256": "b1d73722fd6b3465beaeb626d34c799b9f5770021b893c28a07413c4cfbf7ff6",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 101,
+      "source_title": "後入體位（標準)",
+      "source_sha256": "e4c98620a073a7fe695024e1e35a3a0632116eb249566d7c5752940cc4794c97",
+      "source_chars": 1746,
+      "pack_id": "simulator-original-intimacy",
+      "entry_id": "source-101",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1746
+        }
+      ],
+      "content_sha256": "e4c98620a073a7fe695024e1e35a3a0632116eb249566d7c5752940cc4794c97",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 102,
+      "source_title": "騎乘體位（標準）",
+      "source_sha256": "fff7102f05761f85dcb4c207f935b4e48862a245d7ceb2425385a819725c3fe5",
+      "source_chars": 1573,
+      "pack_id": "simulator-original-intimacy",
+      "entry_id": "source-102",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1573
+        }
+      ],
+      "content_sha256": "fff7102f05761f85dcb4c207f935b4e48862a245d7ceb2425385a819725c3fe5",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 103,
+      "source_title": "側位體位（湯匙式）",
+      "source_sha256": "e9a6b4b4f0bea29cb8a8783a4e78dc93e2822668d289c781dade6ff4b27057aa",
+      "source_chars": 1482,
+      "pack_id": "simulator-original-intimacy",
+      "entry_id": "source-103",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1482
+        }
+      ],
+      "content_sha256": "e9a6b4b4f0bea29cb8a8783a4e78dc93e2822668d289c781dade6ff4b27057aa",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 104,
+      "source_title": "站立抱起式",
+      "source_sha256": "0eb09b0d56b260ad3faa917106b365487529e4a26d8095b3eb3b0ac1b21c17d2",
+      "source_chars": 1496,
+      "pack_id": "simulator-original-intimacy",
+      "entry_id": "source-104",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1496
+        }
+      ],
+      "content_sha256": "0eb09b0d56b260ad3faa917106b365487529e4a26d8095b3eb3b0ac1b21c17d2",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 105,
+      "source_title": "69 式",
+      "source_sha256": "1908642bcfd6042e88931955194bf4fdebe8a95ad5191bd95a926f1941b07852",
+      "source_chars": 1250,
+      "pack_id": "simulator-original-intimacy",
+      "entry_id": "source-105",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1250
+        }
+      ],
+      "content_sha256": "1908642bcfd6042e88931955194bf4fdebe8a95ad5191bd95a926f1941b07852",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 106,
+      "source_title": "蓮花式",
+      "source_sha256": "626a58f95d1da5c6f160d8999167e4447609a05b4066a3c653bea1bec29d7c2c",
+      "source_chars": 1353,
+      "pack_id": "simulator-original-intimacy",
+      "entry_id": "source-106",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1353
+        }
+      ],
+      "content_sha256": "626a58f95d1da5c6f160d8999167e4447609a05b4066a3c653bea1bec29d7c2c",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 107,
+      "source_title": "壓腿式（犁式）",
+      "source_sha256": "b89cd8d288671e8d7f90cabfbafe6c1ae6f2cfd006f38e374542c74bb3115a1e",
+      "source_chars": 1307,
+      "pack_id": "simulator-original-intimacy",
+      "entry_id": "source-107",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1307
+        }
+      ],
+      "content_sha256": "b89cd8d288671e8d7f90cabfbafe6c1ae6f2cfd006f38e374542c74bb3115a1e",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 108,
+      "source_title": "背德椅（坐臉）",
+      "source_sha256": "70bd09305db924b0d3f3d0f46a3c59133e43b516374dff0aae8ee9c80693c4f9",
+      "source_chars": 1296,
+      "pack_id": "simulator-original-intimacy",
+      "entry_id": "source-108",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1296
+        }
+      ],
+      "content_sha256": "70bd09305db924b0d3f3d0f46a3c59133e43b516374dff0aae8ee9c80693c4f9",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 109,
+      "source_title": "老漢推車",
+      "source_sha256": "04a3a9189313646a19dea4cf1049ebe9d95a2daffd1741539b5e61ac2cc74a4f",
+      "source_chars": 1221,
+      "pack_id": "simulator-original-intimacy",
+      "entry_id": "source-109",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1221
+        }
+      ],
+      "content_sha256": "04a3a9189313646a19dea4cf1049ebe9d95a2daffd1741539b5e61ac2cc74a4f",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 110,
+      "source_title": "背面騎乘（反向騎乘）",
+      "source_sha256": "8733eece22d474b2e62ffcd0b615771c790b58b447748112f6c6891d6e01a69c",
+      "source_chars": 1275,
+      "pack_id": "simulator-original-intimacy",
+      "entry_id": "source-110",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1275
+        }
+      ],
+      "content_sha256": "8733eece22d474b2e62ffcd0b615771c790b58b447748112f6c6891d6e01a69c",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 111,
+      "source_title": "剪刀式",
+      "source_sha256": "b9f0e5595445ce717f4427aed89058fcc9587ec829232e4bc59b252964b77ec4",
+      "source_chars": 1384,
+      "pack_id": "simulator-original-intimacy",
+      "entry_id": "source-111",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1384
+        }
+      ],
+      "content_sha256": "b9f0e5595445ce717f4427aed89058fcc9587ec829232e4bc59b252964b77ec4",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 112,
+      "source_title": "抱膝式",
+      "source_sha256": "1423616eb923b7269c0745938b96ceaf9c88f8606fe396189da88f8a407adaec",
+      "source_chars": 1214,
+      "pack_id": "simulator-original-intimacy",
+      "entry_id": "source-112",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1214
+        }
+      ],
+      "content_sha256": "1423616eb923b7269c0745938b96ceaf9c88f8606fe396189da88f8a407adaec",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 113,
+      "source_title": "蝴蝶式",
+      "source_sha256": "b4034841712f6a43bf223daf43a2bc097d51ca37f7d4ea76dfaef7cc77aa9339",
+      "source_chars": 1316,
+      "pack_id": "simulator-original-intimacy",
+      "entry_id": "source-113",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1316
+        }
+      ],
+      "content_sha256": "b4034841712f6a43bf223daf43a2bc097d51ca37f7d4ea76dfaef7cc77aa9339",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 114,
+      "source_title": "架腿式",
+      "source_sha256": "1fff9fe757d8a1038a8d790f424347efed62ea06f3dbfd8e55eea765419c63ca",
+      "source_chars": 1265,
+      "pack_id": "simulator-original-intimacy",
+      "entry_id": "source-114",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1265
+        }
+      ],
+      "content_sha256": "1fff9fe757d8a1038a8d790f424347efed62ea06f3dbfd8e55eea765419c63ca",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 115,
+      "source_title": "趴桌式",
+      "source_sha256": "e33e978ef01e5d06a375d14a75503dc90dd99ea343bdd4399ee08bf4813db96e",
+      "source_chars": 1269,
+      "pack_id": "simulator-original-intimacy",
+      "entry_id": "source-115",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1269
+        }
+      ],
+      "content_sha256": "e33e978ef01e5d06a375d14a75503dc90dd99ea343bdd4399ee08bf4813db96e",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 116,
+      "source_title": "浴室站立式",
+      "source_sha256": "1c3956dd19777a8c870d7271cfc154ca0f6ff00bb8aee06fc5840e9c2e4e59c4",
+      "source_chars": 1300,
+      "pack_id": "simulator-original-intimacy",
+      "entry_id": "source-116",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1300
+        }
+      ],
+      "content_sha256": "1c3956dd19777a8c870d7271cfc154ca0f6ff00bb8aee06fc5840e9c2e4e59c4",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 117,
+      "source_title": "鏡前性愛",
+      "source_sha256": "949f41ce5fea1f18dde5695e9bd0e18c6c6b02d05e768aadecbcdea25a62a2d5",
+      "source_chars": 1625,
+      "pack_id": "simulator-original-intimacy",
+      "entry_id": "source-117",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1625
+        }
+      ],
+      "content_sha256": "949f41ce5fea1f18dde5695e9bd0e18c6c6b02d05e768aadecbcdea25a62a2d5",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 118,
+      "source_title": "窗邊/窗前性愛",
+      "source_sha256": "fb0c1f164f9c89f249b33919d7b9c184070ef2e49fec7abc2a59d1af4d8e245f",
+      "source_chars": 1633,
+      "pack_id": "simulator-original-intimacy",
+      "entry_id": "source-118",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1633
+        }
+      ],
+      "content_sha256": "fb0c1f164f9c89f249b33919d7b9c184070ef2e49fec7abc2a59d1af4d8e245f",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 119,
+      "source_title": "電梯性愛",
+      "source_sha256": "7b9c1133b7ab09f13e711318bd025a8ef1a2bc795ee67bdd9f648e5313f74088",
+      "source_chars": 1469,
+      "pack_id": "simulator-original-intimacy",
+      "entry_id": "source-119",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1469
+        }
+      ],
+      "content_sha256": "7b9c1133b7ab09f13e711318bd025a8ef1a2bc795ee67bdd9f648e5313f74088",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 120,
+      "source_title": "樓梯間性愛",
+      "source_sha256": "e770e80f668379be897a7845a1625f4c9f98f6d0379cb6c9b588afaf928e0d7f",
+      "source_chars": 1438,
+      "pack_id": "simulator-original-intimacy",
+      "entry_id": "source-120",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1438
+        }
+      ],
+      "content_sha256": "e770e80f668379be897a7845a1625f4c9f98f6d0379cb6c9b588afaf928e0d7f",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 121,
+      "source_title": "停車場性愛",
+      "source_sha256": "756a6d420a0db80c8ea887c91325e3457454e15fb18bec76af42cfd23a180d5d",
+      "source_chars": 1622,
+      "pack_id": "simulator-original-intimacy",
+      "entry_id": "source-121",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1622
+        }
+      ],
+      "content_sha256": "756a6d420a0db80c8ea887c91325e3457454e15fb18bec76af42cfd23a180d5d",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 122,
+      "source_title": "更衣室性愛",
+      "source_sha256": "6e95b62ec6514bfe5895b9fd6a6da86e6e20ad351d7d3c4ae230bf1139eb6f19",
+      "source_chars": 1489,
+      "pack_id": "simulator-original-intimacy",
+      "entry_id": "source-122",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1489
+        }
+      ],
+      "content_sha256": "6e95b62ec6514bfe5895b9fd6a6da86e6e20ad351d7d3c4ae230bf1139eb6f19",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 123,
+      "source_title": "圖書館性愛",
+      "source_sha256": "96644904bfe1a395bea3d1189c01e05888f28ecc7e66a6f239045447930598a2",
+      "source_chars": 1454,
+      "pack_id": "simulator-original-intimacy",
+      "entry_id": "source-123",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1454
+        }
+      ],
+      "content_sha256": "96644904bfe1a395bea3d1189c01e05888f28ecc7e66a6f239045447930598a2",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 124,
+      "source_title": "電影院性愛",
+      "source_sha256": "d0579c88c148bcf9869b2ae8841ba1289efb7a982a1c6a791647ccc77016d091",
+      "source_chars": 1459,
+      "pack_id": "simulator-original-intimacy",
+      "entry_id": "source-124",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1459
+        }
+      ],
+      "content_sha256": "d0579c88c148bcf9869b2ae8841ba1289efb7a982a1c6a791647ccc77016d091",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 125,
+      "source_title": "泳池/海邊性愛",
+      "source_sha256": "bd020a3031bab4e8b03fed78b147ccf21526f501169f793375b9e9cb4fee496a",
+      "source_chars": 1210,
+      "pack_id": "simulator-original-intimacy",
+      "entry_id": "source-125",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1210
+        }
+      ],
+      "content_sha256": "bd020a3031bab4e8b03fed78b147ccf21526f501169f793375b9e9cb4fee496a",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 126,
+      "source_title": "蒙眼性愛",
+      "source_sha256": "f738eff202112fea8e89a5be1b31ed0af429f42bc600f5e6da758c5981e5c651",
+      "source_chars": 1367,
+      "pack_id": "simulator-original-intimacy",
+      "entry_id": "source-126",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1367
+        }
+      ],
+      "content_sha256": "f738eff202112fea8e89a5be1b31ed0af429f42bc600f5e6da758c5981e5c651",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 127,
+      "source_title": "錄影性愛",
+      "source_sha256": "56f4feb834976ab5b0ed4f4e12f683b8296cc2183cee26a0f05098b4a237111b",
+      "source_chars": 1327,
+      "pack_id": "simulator-original-intimacy",
+      "entry_id": "source-127",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1327
+        }
+      ],
+      "content_sha256": "56f4feb834976ab5b0ed4f4e12f683b8296cc2183cee26a0f05098b4a237111b",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 128,
+      "source_title": "視訊性愛",
+      "source_sha256": "637c7b52474522869983d484398adfe787ab7492fc70b1f37b792a714164a9c9",
+      "source_chars": 1306,
+      "pack_id": "simulator-original-intimacy",
+      "entry_id": "source-128",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1306
+        }
+      ],
+      "content_sha256": "637c7b52474522869983d484398adfe787ab7492fc70b1f37b792a714164a9c9",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 129,
+      "source_title": "黑暗中性愛",
+      "source_sha256": "82ac5b78df4a8424bb5dcd077410b0d868a8f3d8a159b31f6c843e7bb7d60851",
+      "source_chars": 1416,
+      "pack_id": "simulator-original-intimacy",
+      "entry_id": "source-129",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1416
+        }
+      ],
+      "content_sha256": "82ac5b78df4a8424bb5dcd077410b0d868a8f3d8a159b31f6c843e7bb7d60851",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 130,
+      "source_title": "睡眠性愛",
+      "source_sha256": "f11f156cd0e5312a455d0bbaa994b579b1a3f46391a9d057c286dcf255615d64",
+      "source_chars": 1373,
+      "pack_id": "simulator-original-intimacy",
+      "entry_id": "source-130",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1373
+        }
+      ],
+      "content_sha256": "f11f156cd0e5312a455d0bbaa994b579b1a3f46391a9d057c286dcf255615d64",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 131,
+      "source_title": "酒醉性愛",
+      "source_sha256": "e6ea685f49a4cba8428c0d6adf7e877e0c7c415c9cdb06d833702f558ccc8817",
+      "source_chars": 1351,
+      "pack_id": "simulator-original-intimacy",
+      "entry_id": "source-131",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1351
+        }
+      ],
+      "content_sha256": "e6ea685f49a4cba8428c0d6adf7e877e0c7c415c9cdb06d833702f558ccc8817",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 132,
+      "source_title": "八爪椅",
+      "source_sha256": "c6f9e20f92262dd881e69d5fd1d729a3ae992774b94044e57f57aae1d4273754",
+      "source_chars": 1461,
+      "pack_id": "simulator-original-intimacy",
+      "entry_id": "source-132",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1461
+        }
+      ],
+      "content_sha256": "c6f9e20f92262dd881e69d5fd1d729a3ae992774b94044e57f57aae1d4273754",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 133,
+      "source_title": "性愛鞦韆",
+      "source_sha256": "bbfa3c7afa6f287e583510cbd681531b5a70eacc4373f87b919da66f6c8e9cb1",
+      "source_chars": 1388,
+      "pack_id": "simulator-original-intimacy",
+      "entry_id": "source-133",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1388
+        }
+      ],
+      "content_sha256": "bbfa3c7afa6f287e583510cbd681531b5a70eacc4373f87b919da66f6c8e9cb1",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 134,
+      "source_title": "束縛架",
+      "source_sha256": "1d4bb22cf11a2ca7a0d85446f2785efd1cfea991b1324ca3c79f664f896e7151",
+      "source_chars": 1433,
+      "pack_id": "simulator-original-intimacy",
+      "entry_id": "source-134",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1433
+        }
+      ],
+      "content_sha256": "1d4bb22cf11a2ca7a0d85446f2785efd1cfea991b1324ca3c79f664f896e7151",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 135,
+      "source_title": "SM 十字架",
+      "source_sha256": "a5f85468c36e463622ffc7606c9c20fe79e9b9af94ec6b2dd47afb34483b8ff9",
+      "source_chars": 1346,
+      "pack_id": "simulator-original-intimacy",
+      "entry_id": "source-135",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1346
+        }
+      ],
+      "content_sha256": "a5f85468c36e463622ffc7606c9c20fe79e9b9af94ec6b2dd47afb34483b8ff9",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 136,
+      "source_title": "擴張器",
+      "source_sha256": "6a86d2bb84af1fbe752ce435b57454337dc5622648cc39c68243b866ebc8328e",
+      "source_chars": 1283,
+      "pack_id": "simulator-original-intimacy",
+      "entry_id": "source-136",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1283
+        }
+      ],
+      "content_sha256": "6a86d2bb84af1fbe752ce435b57454337dc5622648cc39c68243b866ebc8328e",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 137,
+      "source_title": "跳蛋",
+      "source_sha256": "9292450c39b3aaf39ce002e53cb34b338ee76b6fbb31157d6404227e4e4b3615",
+      "source_chars": 1407,
+      "pack_id": "simulator-original-intimacy",
+      "entry_id": "source-137",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1407
+        }
+      ],
+      "content_sha256": "9292450c39b3aaf39ce002e53cb34b338ee76b6fbb31157d6404227e4e4b3615",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 138,
+      "source_title": "震動棒",
+      "source_sha256": "c820d8e7d582e42a376084e7182ee4bff679816360e51e65ee16c801af78d902",
+      "source_chars": 1349,
+      "pack_id": "simulator-original-intimacy",
+      "entry_id": "source-138",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1349
+        }
+      ],
+      "content_sha256": "c820d8e7d582e42a376084e7182ee4bff679816360e51e65ee16c801af78d902",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 139,
+      "source_title": "假陽具",
+      "source_sha256": "3ffa3e92550db132219b43f2fda314d70c7278bd3d2045da3e74f32901afa122",
+      "source_chars": 1485,
+      "pack_id": "simulator-original-intimacy",
+      "entry_id": "source-139",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1485
+        }
+      ],
+      "content_sha256": "3ffa3e92550db132219b43f2fda314d70c7278bd3d2045da3e74f32901afa122",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 140,
+      "source_title": "肛塞",
+      "source_sha256": "f9451db91c7db14b5a6a6b5e794ea3a541ee0c93a8f3532bee551c0f0727b11a",
+      "source_chars": 1486,
+      "pack_id": "simulator-original-intimacy",
+      "entry_id": "source-140",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1486
+        }
+      ],
+      "content_sha256": "f9451db91c7db14b5a6a6b5e794ea3a541ee0c93a8f3532bee551c0f0727b11a",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 141,
+      "source_title": "口塞/口球",
+      "source_sha256": "36bd08f4df679e20ab89684227687b924923f23144603391f2a6739163a8346a",
+      "source_chars": 1491,
+      "pack_id": "simulator-original-intimacy",
+      "entry_id": "source-141",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1491
+        }
+      ],
+      "content_sha256": "36bd08f4df679e20ab89684227687b924923f23144603391f2a6739163a8346a",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 142,
+      "source_title": "乳夾",
+      "source_sha256": "c5a2ac69e8a0169a6857817ffae1e925fb2eb472e957f63ce37ebca09e744da0",
+      "source_chars": 1337,
+      "pack_id": "simulator-original-intimacy",
+      "entry_id": "source-142",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1337
+        }
+      ],
+      "content_sha256": "c5a2ac69e8a0169a6857817ffae1e925fb2eb472e957f63ce37ebca09e744da0",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 143,
+      "source_title": "繩子/手銬",
+      "source_sha256": "1a37339b29a40b0a34e1a70feb71b192fe8ee635f66c30c55af6bc4e03b5f4db",
+      "source_chars": 1370,
+      "pack_id": "simulator-original-intimacy",
+      "entry_id": "source-143",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1370
+        }
+      ],
+      "content_sha256": "1a37339b29a40b0a34e1a70feb71b192fe8ee635f66c30c55af6bc4e03b5f4db",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 144,
+      "source_title": "項圈/牽繩",
+      "source_sha256": "d815033acac0f1fdae426b33dafa46ec5d05d1446b3409ebfcd6263cd5f7358d",
+      "source_chars": 1242,
+      "pack_id": "simulator-original-intimacy",
+      "entry_id": "source-144",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1242
+        }
+      ],
+      "content_sha256": "d815033acac0f1fdae426b33dafa46ec5d05d1446b3409ebfcd6263cd5f7358d",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 145,
+      "source_title": "電擊棒",
+      "source_sha256": "5e3af4ca3640dd2c54eecc075497fda931c1e584b5865e608d2f21f5f20fd477",
+      "source_chars": 886,
+      "pack_id": "simulator-original-intimacy",
+      "entry_id": "source-145",
+      "spans": [
+        {
+          "start": 0,
+          "end": 886
+        }
+      ],
+      "content_sha256": "5e3af4ca3640dd2c54eecc075497fda931c1e584b5865e608d2f21f5f20fd477",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 146,
+      "source_title": "口交",
+      "source_sha256": "589fc9d37e3f3b64edd3ba564142111f98748889b3d7fab943c7ea8d55fc9869",
+      "source_chars": 1190,
+      "pack_id": "simulator-original-intimacy",
+      "entry_id": "source-146",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1190
+        }
+      ],
+      "content_sha256": "589fc9d37e3f3b64edd3ba564142111f98748889b3d7fab943c7ea8d55fc9869",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 147,
+      "source_title": "乳交",
+      "source_sha256": "54553e6814e5033245f152e49a24a08b291c3dba1876dfc080ec4f9a53e32145",
+      "source_chars": 1206,
+      "pack_id": "simulator-original-intimacy",
+      "entry_id": "source-147",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1206
+        }
+      ],
+      "content_sha256": "54553e6814e5033245f152e49a24a08b291c3dba1876dfc080ec4f9a53e32145",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 148,
+      "source_title": "足交",
+      "source_sha256": "65fe94414c9a36968b580f7bc5435799a6e047a5bb5e33fc617f2451106fef3f",
+      "source_chars": 1158,
+      "pack_id": "simulator-original-intimacy",
+      "entry_id": "source-148",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1158
+        }
+      ],
+      "content_sha256": "65fe94414c9a36968b580f7bc5435799a6e047a5bb5e33fc617f2451106fef3f",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 149,
+      "source_title": "寸止",
+      "source_sha256": "276b9688b0fe461d2bca74d3ea5ad3e81adc1d8e9b6b959c178f4fd29c9ec423",
+      "source_chars": 853,
+      "pack_id": "simulator-original-intimacy",
+      "entry_id": "source-149",
+      "spans": [
+        {
+          "start": 0,
+          "end": 853
+        }
+      ],
+      "content_sha256": "276b9688b0fe461d2bca74d3ea5ad3e81adc1d8e9b6b959c178f4fd29c9ec423",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 150,
+      "source_title": "素股",
+      "source_sha256": "95cacd9c08b6dffd88004f5b98cd015e0d91be6dd4e99e2eeafff8d7a006d0a0",
+      "source_chars": 862,
+      "pack_id": "simulator-original-intimacy",
+      "entry_id": "source-150",
+      "spans": [
+        {
+          "start": 0,
+          "end": 862
+        }
+      ],
+      "content_sha256": "95cacd9c08b6dffd88004f5b98cd015e0d91be6dd4e99e2eeafff8d7a006d0a0",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 151,
+      "source_title": "貞操鎖",
+      "source_sha256": "b443a90caa819639dfa6cf4029d07ea2ac29e701fceb692e8d9aab9d63eec374",
+      "source_chars": 934,
+      "pack_id": "simulator-original-intimacy",
+      "entry_id": "source-151",
+      "spans": [
+        {
+          "start": 0,
+          "end": 934
+        }
+      ],
+      "content_sha256": "b443a90caa819639dfa6cf4029d07ea2ac29e701fceb692e8d9aab9d63eec374",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 152,
+      "source_title": "情趣內衣",
+      "source_sha256": "ac41e1375ac5f598a0c5679771e61e7e0c306f62d33f6f8c43b7930747fea1cc",
+      "source_chars": 951,
+      "pack_id": "simulator-original-intimacy",
+      "entry_id": "source-152",
+      "spans": [
+        {
+          "start": 0,
+          "end": 951
+        }
+      ],
+      "content_sha256": "ac41e1375ac5f598a0c5679771e61e7e0c306f62d33f6f8c43b7930747fea1cc",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 153,
+      "source_title": "絲襪/吊帶襪",
+      "source_sha256": "77df1b8869e419dd7583c63e1fd62da8345cecade3bff3112669380ef4491b17",
+      "source_chars": 1211,
+      "pack_id": "simulator-original-intimacy",
+      "entry_id": "source-153",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1211
+        }
+      ],
+      "content_sha256": "77df1b8869e419dd7583c63e1fd62da8345cecade3bff3112669380ef4491b17",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 154,
+      "source_title": "角色扮演服裝",
+      "source_sha256": "dbd714e5bad2afad948ce77095fd855134cfc51e1b9a411f18557602de5e1057",
+      "source_chars": 1067,
+      "pack_id": "simulator-original-intimacy",
+      "entry_id": "source-154",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1067
+        }
+      ],
+      "content_sha256": "dbd714e5bad2afad948ce77095fd855134cfc51e1b9a411f18557602de5e1057",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 155,
+      "source_title": "開襠褲/開襠連身衣",
+      "source_sha256": "4bec2ebd60e9a5a45c60b7ebf5f8dbe02df03433cd64ea994596fb1777c0b383",
+      "source_chars": 965,
+      "pack_id": "simulator-original-intimacy",
+      "entry_id": "source-155",
+      "spans": [
+        {
+          "start": 0,
+          "end": 965
+        }
+      ],
+      "content_sha256": "4bec2ebd60e9a5a45c60b7ebf5f8dbe02df03433cd64ea994596fb1777c0b383",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 156,
+      "source_title": "乳貼/乳頭貼",
+      "source_sha256": "2b5f77428ae17cd306f81d70e351d3395ac8a51c9ab1c6355574fd2474fffb2d",
+      "source_chars": 1202,
+      "pack_id": "simulator-original-intimacy",
+      "entry_id": "source-156",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1202
+        }
+      ],
+      "content_sha256": "2b5f77428ae17cd306f81d70e351d3395ac8a51c9ab1c6355574fd2474fffb2d",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 157,
+      "source_title": "束縛衣",
+      "source_sha256": "4544e27cfc014743c5bf864b6ebfc1360d5c94caed0841393772762e7a6662c7",
+      "source_chars": 1202,
+      "pack_id": "simulator-original-intimacy",
+      "entry_id": "source-157",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1202
+        }
+      ],
+      "content_sha256": "4544e27cfc014743c5bf864b6ebfc1360d5c94caed0841393772762e7a6662c7",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 158,
+      "source_title": "皮鞭",
+      "source_sha256": "c41b005a1293dd641e2199b28980de1f5caac45308178bbc88965a7e77eb9a9f",
+      "source_chars": 1227,
+      "pack_id": "simulator-original-intimacy",
+      "entry_id": "source-158",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1227
+        }
+      ],
+      "content_sha256": "c41b005a1293dd641e2199b28980de1f5caac45308178bbc88965a7e77eb9a9f",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 159,
+      "source_title": "蠟燭",
+      "source_sha256": "fa341c86cda170a59f2615ba8e71628dd165edde43d1a09b4d4640ac42a5168f",
+      "source_chars": 1243,
+      "pack_id": "simulator-original-intimacy",
+      "entry_id": "source-159",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1243
+        }
+      ],
+      "content_sha256": "fa341c86cda170a59f2615ba8e71628dd165edde43d1a09b4d4640ac42a5168f",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 160,
+      "source_title": "半框眼鏡",
+      "source_sha256": "3ec48c2754a74f8e1a4bb0d368356a875ffa085442752c8ef37652fdab79c0d8",
+      "source_chars": 1236,
+      "pack_id": "simulator-original-intimacy",
+      "entry_id": "source-160",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1236
+        }
+      ],
+      "content_sha256": "3ec48c2754a74f8e1a4bb0d368356a875ffa085442752c8ef37652fdab79c0d8",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 161,
+      "source_title": "死庫水",
+      "source_sha256": "bf16b16519a7d312e3cf2231838a2cc9a697b81281dc33f4fc7e9a99624bc236",
+      "source_chars": 903,
+      "pack_id": "simulator-original-intimacy",
+      "entry_id": "source-161",
+      "spans": [
+        {
+          "start": 0,
+          "end": 903
+        }
+      ],
+      "content_sha256": "bf16b16519a7d312e3cf2231838a2cc9a697b81281dc33f4fc7e9a99624bc236",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 162,
+      "source_title": "露背毛衣",
+      "source_sha256": "4aea00f37b65fc67287555546614b33d78d3b2bfe8ec6ad235508a794b82dcf4",
+      "source_chars": 902,
+      "pack_id": "simulator-original-intimacy",
+      "entry_id": "source-162",
+      "spans": [
+        {
+          "start": 0,
+          "end": 902
+        }
+      ],
+      "content_sha256": "4aea00f37b65fc67287555546614b33d78d3b2bfe8ec6ad235508a794b82dcf4",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 163,
+      "source_title": "包臀裙",
+      "source_sha256": "ea4da940a9b8bc0e665acbc7839ac5242ac4e9b6c94a74dbf130e34bc6005e29",
+      "source_chars": 945,
+      "pack_id": "simulator-original-intimacy",
+      "entry_id": "source-163",
+      "spans": [
+        {
+          "start": 0,
+          "end": 945
+        }
+      ],
+      "content_sha256": "ea4da940a9b8bc0e665acbc7839ac5242ac4e9b6c94a74dbf130e34bc6005e29",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 164,
+      "source_title": "丁字褲",
+      "source_sha256": "b7c3567e29caafa23b4ffb18d185679a25feffdea6a2691852d458bd2c598237",
+      "source_chars": 950,
+      "pack_id": "simulator-original-intimacy",
+      "entry_id": "source-164",
+      "spans": [
+        {
+          "start": 0,
+          "end": 950
+        }
+      ],
+      "content_sha256": "b7c3567e29caafa23b4ffb18d185679a25feffdea6a2691852d458bd2c598237",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 165,
+      "source_title": "C 字褲",
+      "source_sha256": "6835ee7dd4b4cfa8148f1c0e8c26f35df771ff94e42eed4c330e227334021e05",
+      "source_chars": 891,
+      "pack_id": "simulator-original-intimacy",
+      "entry_id": "source-165",
+      "spans": [
+        {
+          "start": 0,
+          "end": 891
+        }
+      ],
+      "content_sha256": "6835ee7dd4b4cfa8148f1c0e8c26f35df771ff94e42eed4c330e227334021e05",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 166,
+      "source_title": "遙控內褲",
+      "source_sha256": "955c07395468ec67bcf1917720b7f7d84f852d1d8998fefabe57beda455b28b7",
+      "source_chars": 1230,
+      "pack_id": "simulator-original-intimacy",
+      "entry_id": "source-166",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1230
+        }
+      ],
+      "content_sha256": "955c07395468ec67bcf1917720b7f7d84f852d1d8998fefabe57beda455b28b7",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 167,
+      "source_title": "遙控跳蛋/震動棒",
+      "source_sha256": "3019ff9be4b4cdfdf482eed175f5f654c3d459e9fa13956a5032b36dbfc00145",
+      "source_chars": 1340,
+      "pack_id": "simulator-original-intimacy",
+      "entry_id": "source-167",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1340
+        }
+      ],
+      "content_sha256": "3019ff9be4b4cdfdf482eed175f5f654c3d459e9fa13956a5032b36dbfc00145",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 168,
+      "source_title": "前列腺按摩/刺激",
+      "source_sha256": "acbfecafc60b22d9fafe34c3efe7137841597c92c1760e1487f2493f51f671ee",
+      "source_chars": 1669,
+      "pack_id": "simulator-original-intimacy",
+      "entry_id": "source-168",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1669
+        }
+      ],
+      "content_sha256": "acbfecafc60b22d9fafe34c3efe7137841597c92c1760e1487f2493f51f671ee",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 169,
+      "source_title": "綁帶式內衣",
+      "source_sha256": "d11be57a0eeb27bfefc6bedb134729dddf283cb06b287d91f93d19d94939ed51",
+      "source_chars": 1315,
+      "pack_id": "simulator-original-intimacy",
+      "entry_id": "source-169",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1315
+        }
+      ],
+      "content_sha256": "d11be57a0eeb27bfefc6bedb134729dddf283cb06b287d91f93d19d94939ed51",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 170,
+      "source_title": "繩縛",
+      "source_sha256": "fcc4f4023f99528c4f345e1995891e97497aac46437205871ef7aab5e364be11",
+      "source_chars": 1615,
+      "pack_id": "simulator-original-intimacy",
+      "entry_id": "source-170",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1615
+        }
+      ],
+      "content_sha256": "fcc4f4023f99528c4f345e1995891e97497aac46437205871ef7aab5e364be11",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 171,
+      "source_title": "凱格爾聰明球",
+      "source_sha256": "e1be9099ed266368a92f2ce38f17f8dd30cddd68ae384b984ca067706175d6e0",
+      "source_chars": 1323,
+      "pack_id": "simulator-original-intimacy",
+      "entry_id": "source-171",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1323
+        }
+      ],
+      "content_sha256": "e1be9099ed266368a92f2ce38f17f8dd30cddd68ae384b984ca067706175d6e0",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 172,
+      "source_title": "胸型分類",
+      "source_sha256": "43fdaeca0507b9b0e6eb59e69f1a65a0f10c6b7f81b2d5e8948d742b52620f82",
+      "source_chars": 1991,
+      "pack_id": "simulator-original-intimacy",
+      "entry_id": "source-172",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1991
+        }
+      ],
+      "content_sha256": "43fdaeca0507b9b0e6eb59e69f1a65a0f10c6b7f81b2d5e8948d742b52620f82",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 173,
+      "source_title": "陰莖形狀分類",
+      "source_sha256": "2acd8e49aa2b2e3aa3ac5f1d955817b84062b98d2dc5f78bacb1fe2a7d2579c1",
+      "source_chars": 1737,
+      "pack_id": "simulator-original-intimacy",
+      "entry_id": "source-173",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1737
+        }
+      ],
+      "content_sha256": "2acd8e49aa2b2e3aa3ac5f1d955817b84062b98d2dc5f78bacb1fe2a7d2579c1",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 174,
+      "source_title": "陰道類型",
+      "source_sha256": "e7fe617aca7e93168fed6134c41b05594a67bb0c9d9dc0e437b508ae4068792d",
+      "source_chars": 894,
+      "pack_id": "simulator-original-intimacy",
+      "entry_id": "source-174",
+      "spans": [
+        {
+          "start": 0,
+          "end": 894
+        }
+      ],
+      "content_sha256": "e7fe617aca7e93168fed6134c41b05594a67bb0c9d9dc0e437b508ae4068792d",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 175,
+      "source_title": "外陰類型",
+      "source_sha256": "22d75b4808a0c769a7edc2e508301194a8dc491db7a08ec256510092512df99b",
+      "source_chars": 1755,
+      "pack_id": "simulator-original-intimacy",
+      "entry_id": "source-175",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1755
+        }
+      ],
+      "content_sha256": "22d75b4808a0c769a7edc2e508301194a8dc491db7a08ec256510092512df99b",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 176,
+      "source_title": "口腔期不滿足",
+      "source_sha256": "05c46ad4f37cdefb4e2e542c9356a5dd23de06af974c12dd4c6981d90aa3b494",
+      "source_chars": 1904,
+      "pack_id": "simulator-original-intimacy",
+      "entry_id": "source-176",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1904
+        }
+      ],
+      "content_sha256": "05c46ad4f37cdefb4e2e542c9356a5dd23de06af974c12dd4c6981d90aa3b494",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 177,
+      "source_title": "肛門期固著",
+      "source_sha256": "1cf248f75a6de48c5d32cb9fcb86dd8e3c6dadb88439c9fbe4361a03dbfbb98c",
+      "source_chars": 807,
+      "pack_id": "simulator-original-intimacy",
+      "entry_id": "source-177",
+      "spans": [
+        {
+          "start": 0,
+          "end": 807
+        }
+      ],
+      "content_sha256": "1cf248f75a6de48c5d32cb9fcb86dd8e3c6dadb88439c9fbe4361a03dbfbb98c",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 178,
+      "source_title": "窺視癖",
+      "source_sha256": "8f4c52cebfb4fd2f98f671f8e8438a236f1f0b8433fe50e28d35d34de2684e27",
+      "source_chars": 226,
+      "pack_id": "simulator-original-intimacy",
+      "entry_id": "source-178",
+      "spans": [
+        {
+          "start": 0,
+          "end": 226
+        }
+      ],
+      "content_sha256": "8f4c52cebfb4fd2f98f671f8e8438a236f1f0b8433fe50e28d35d34de2684e27",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 179,
+      "source_title": "暴露癖",
+      "source_sha256": "b65e4bbe6195a514e91d0883d525e5bd6914ba3ff62e6cb386991d02f6324e34",
+      "source_chars": 219,
+      "pack_id": "simulator-original-intimacy",
+      "entry_id": "source-179",
+      "spans": [
+        {
+          "start": 0,
+          "end": 219
+        }
+      ],
+      "content_sha256": "b65e4bbe6195a514e91d0883d525e5bd6914ba3ff62e6cb386991d02f6324e34",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 180,
+      "source_title": "受虐癖",
+      "source_sha256": "ef646c58774a6283e0a5bd3eca5aaa598a2ae35ca4bd0860093217782c61e4d8",
+      "source_chars": 211,
+      "pack_id": "simulator-original-intimacy",
+      "entry_id": "source-180",
+      "spans": [
+        {
+          "start": 0,
+          "end": 211
+        }
+      ],
+      "content_sha256": "ef646c58774a6283e0a5bd3eca5aaa598a2ae35ca4bd0860093217782c61e4d8",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 181,
+      "source_title": "施虐癖",
+      "source_sha256": "ee4469dd84e1ac78f59cb30143742d6c91cbfbf92fdf2bc8d2ab7d2e0e60a425",
+      "source_chars": 210,
+      "pack_id": "simulator-original-intimacy",
+      "entry_id": "source-181",
+      "spans": [
+        {
+          "start": 0,
+          "end": 210
+        }
+      ],
+      "content_sha256": "ee4469dd84e1ac78f59cb30143742d6c91cbfbf92fdf2bc8d2ab7d2e0e60a425",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 182,
+      "source_title": "戀足癖",
+      "source_sha256": "2f077145303546656f21e6659845c3b580a231e7e8a7a9dcb55c2f031ce17ffb",
+      "source_chars": 220,
+      "pack_id": "simulator-original-intimacy",
+      "entry_id": "source-182",
+      "spans": [
+        {
+          "start": 0,
+          "end": 220
+        }
+      ],
+      "content_sha256": "2f077145303546656f21e6659845c3b580a231e7e8a7a9dcb55c2f031ce17ffb",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 184,
+      "source_title": "戀父情結",
+      "source_sha256": "ca0b7ccc7aa43774e5076e00ae2d3b1686d93f9485556998ebdf7d144ad8ef77",
+      "source_chars": 1811,
+      "pack_id": "simulator-original-intimacy",
+      "entry_id": "source-184",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1811
+        }
+      ],
+      "content_sha256": "ca0b7ccc7aa43774e5076e00ae2d3b1686d93f9485556998ebdf7d144ad8ef77",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 185,
+      "source_title": "戀母情結",
+      "source_sha256": "0260f767c36ad045caa65a3b96cbd9f8ad8711b885aa90ad7b9790b53fee0e84",
+      "source_chars": 1912,
+      "pack_id": "simulator-original-intimacy",
+      "entry_id": "source-185",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1912
+        }
+      ],
+      "content_sha256": "0260f767c36ad045caa65a3b96cbd9f8ad8711b885aa90ad7b9790b53fee0e84",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 186,
+      "source_title": "依賴型人格",
+      "source_sha256": "d2933e10eae19ab286b75bba4c376e861a47e135471e86beabc9b0163b07e671",
+      "source_chars": 1505,
+      "pack_id": "simulator-original-intimacy",
+      "entry_id": "source-186",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1505
+        }
+      ],
+      "content_sha256": "d2933e10eae19ab286b75bba4c376e861a47e135471e86beabc9b0163b07e671",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 187,
+      "source_title": "控制慾",
+      "source_sha256": "b0f3dc700b13266d2237eef4b3c1ae757b83edb79611f95570487c4529d6d481",
+      "source_chars": 1029,
+      "pack_id": "simulator-original-intimacy",
+      "entry_id": "source-187",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1029
+        }
+      ],
+      "content_sha256": "b0f3dc700b13266d2237eef4b3c1ae757b83edb79611f95570487c4529d6d481",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 188,
+      "source_title": "佔有慾",
+      "source_sha256": "c1f0ef995cf7e6df075618a5619ffdb9805daed082079c4b3b912f969e48573f",
+      "source_chars": 1072,
+      "pack_id": "simulator-original-intimacy",
+      "entry_id": "source-188",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1072
+        }
+      ],
+      "content_sha256": "c1f0ef995cf7e6df075618a5619ffdb9805daed082079c4b3b912f969e48573f",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 189,
+      "source_title": "征服慾",
+      "source_sha256": "51e178e2b98a61e416fd0f86b85d4ca32752f305418e869ddd610d97070d2eaf",
+      "source_chars": 982,
+      "pack_id": "simulator-original-intimacy",
+      "entry_id": "source-189",
+      "spans": [
+        {
+          "start": 0,
+          "end": 982
+        }
+      ],
+      "content_sha256": "51e178e2b98a61e416fd0f86b85d4ca32752f305418e869ddd610d97070d2eaf",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 190,
+      "source_title": "羞恥癖",
+      "source_sha256": "206596d165c9f8b28638c817b0755bf917dbff4dd3b9c3cfbbddfd23c871777f",
+      "source_chars": 1977,
+      "pack_id": "simulator-original-intimacy",
+      "entry_id": "source-190",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1977
+        }
+      ],
+      "content_sha256": "206596d165c9f8b28638c817b0755bf917dbff4dd3b9c3cfbbddfd23c871777f",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 191,
+      "source_title": "疼痛癖",
+      "source_sha256": "2ddd1781bdf4634ac2a36c9f04d29685426e34bcd65aab78517bcd15f2b0ccb2",
+      "source_chars": 1164,
+      "pack_id": "simulator-original-intimacy",
+      "entry_id": "source-191",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1164
+        }
+      ],
+      "content_sha256": "2ddd1781bdf4634ac2a36c9f04d29685426e34bcd65aab78517bcd15f2b0ccb2",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 192,
+      "source_title": "窒息癖",
+      "source_sha256": "534b6da06a0e4292f2553a6759f2b876d20e30e77bfd58364f02afce714ea39b",
+      "source_chars": 1896,
+      "pack_id": "simulator-original-intimacy",
+      "entry_id": "source-192",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1896
+        }
+      ],
+      "content_sha256": "534b6da06a0e4292f2553a6759f2b876d20e30e77bfd58364f02afce714ea39b",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 193,
+      "source_title": "體液癖",
+      "source_sha256": "24a28c903b5bf337a1841ecd397c239e0987aa8914ce3e56e52ac6e9386402d4",
+      "source_chars": 400,
+      "pack_id": "simulator-original-intimacy",
+      "entry_id": "source-193",
+      "spans": [
+        {
+          "start": 0,
+          "end": 400
+        }
+      ],
+      "content_sha256": "24a28c903b5bf337a1841ecd397c239e0987aa8914ce3e56e52ac6e9386402d4",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 194,
+      "source_title": "Dirty Talk",
+      "source_sha256": "780e0d287d353dbebd45071fe709961eff54c1bf855720b6c237181e3946b433",
+      "source_chars": 902,
+      "pack_id": "simulator-original-intimacy",
+      "entry_id": "source-194",
+      "spans": [
+        {
+          "start": 0,
+          "end": 902
+        }
+      ],
+      "content_sha256": "780e0d287d353dbebd45071fe709961eff54c1bf855720b6c237181e3946b433",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 194,
+      "source_title": "夏語涵",
+      "source_sha256": "93b268ef1e4ad131f00c7b07658a9daf7c67408188359407d4a34461c19598b8",
+      "source_chars": 1666,
+      "pack_id": "xia-yuhan-worldbook-character",
+      "entry_id": "source-194",
+      "spans": [
+        {
+          "start": 30,
+          "end": 1666
+        }
+      ],
+      "content_sha256": "6c6ff490d22b06a738453171814fd46f693fe6ca3f9e984c7b058e6824ef7a51",
+      "coverage": "original-text-segments",
+      "omission_reason": "real-person-casting-link-excluded"
+    },
+    {
+      "source_book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 195,
+      "source_title": "夏語涵",
+      "source_sha256": "c91bc31985061cdde8da8ea845e3509a8ff70744edc8e3b919b43c8ed25af24b",
+      "source_chars": 1822,
+      "pack_id": "xia-yuhan-worldbook-character",
+      "entry_id": "source-195",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1822
+        }
+      ],
+      "content_sha256": "c91bc31985061cdde8da8ea845e3509a8ff70744edc8e3b919b43c8ed25af24b",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 196,
+      "source_title": "夏語涵",
+      "source_sha256": "1880982374267505bd7b1b46c8a8aa7176c04684277c470889400ceda81beadc",
+      "source_chars": 704,
+      "pack_id": "xia-yuhan-worldbook-character",
+      "entry_id": "source-196",
+      "spans": [
+        {
+          "start": 0,
+          "end": 704
+        }
+      ],
+      "content_sha256": "1880982374267505bd7b1b46c8a8aa7176c04684277c470889400ceda81beadc",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 198,
+      "source_title": "NPC生成模板",
+      "source_sha256": "993ad175d842eb97003ffa4af35d20d1cc34acc7731f5bf2fa7b4abed9b59c79",
+      "source_chars": 1936,
+      "pack_id": "xia-yuhan-worldbook-npcs",
+      "entry_id": "source-198",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1936
+        }
+      ],
+      "content_sha256": "993ad175d842eb97003ffa4af35d20d1cc34acc7731f5bf2fa7b4abed9b59c79",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 199,
+      "source_title": "NPC生成模板",
+      "source_sha256": "5a6b9ea65657a007215dcc0f90b0b8059022f597863b8dfdc5577c446fe66383",
+      "source_chars": 1135,
+      "pack_id": "xia-yuhan-worldbook-npcs",
+      "entry_id": "source-199",
+      "spans": [
+        {
+          "start": 0,
+          "end": 669
+        },
+        {
+          "start": 692,
+          "end": 1135
+        }
+      ],
+      "content_sha256": "b9abd5ef9526b6aa66d03ff38da52a2ca9c98db8eb631c784342d22f31a33e97",
+      "coverage": "original-text-segments",
+      "omission_reason": "real-person-casting-link-excluded"
+    },
+    {
+      "source_book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 200,
+      "source_title": "任務系統運作",
+      "source_sha256": "0503328b8961831d039592c25ec04e476480f3d6d44ced6386158e94c8393465",
+      "source_chars": 1749,
+      "pack_id": "xia-yuhan-worldbook-career",
+      "entry_id": "source-200",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1749
+        }
+      ],
+      "content_sha256": "0503328b8961831d039592c25ec04e476480f3d6d44ced6386158e94c8393465",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 201,
+      "source_title": "任務系統運作",
+      "source_sha256": "95743125e36511a59e3945eec5df8db4ed036ff86bb2d4dde83ce3bf48695df7",
+      "source_chars": 1642,
+      "pack_id": "xia-yuhan-worldbook-career",
+      "entry_id": "source-201",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1642
+        }
+      ],
+      "content_sha256": "95743125e36511a59e3945eec5df8db4ed036ff86bb2d4dde83ce3bf48695df7",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 202,
+      "source_title": "任務系統運作",
+      "source_sha256": "acbdc603b8d871c7fc3b822dd5a16c8e44f04be6cb2891b7b7779d295a5e085f",
+      "source_chars": 914,
+      "pack_id": "xia-yuhan-worldbook-career",
+      "entry_id": "source-202",
+      "spans": [
+        {
+          "start": 0,
+          "end": 914
+        }
+      ],
+      "content_sha256": "acbdc603b8d871c7fc3b822dd5a16c8e44f04be6cb2891b7b7779d295a5e085f",
+      "coverage": "complete-original-text",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 203,
+      "source_title": "經典 AV 拍攝場景設定",
+      "source_sha256": "f7af90b3d1f33b2cd14bfdf45e79db1f21ff0dc4fc1d56b81eb14418310d9950",
+      "source_chars": 1313,
+      "pack_id": "xia-yuhan-worldbook-scenes",
+      "entry_id": "source-203-0",
+      "spans": [
+        {
+          "start": 0,
+          "end": 454
+        }
+      ],
+      "content_sha256": "14695f4ec51840eb04da9c327404f00e7e65daa6b1a982b941aefdf5010b773b",
+      "coverage": "original-text-segments",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 203,
+      "source_title": "經典 AV 拍攝場景設定",
+      "source_sha256": "f7af90b3d1f33b2cd14bfdf45e79db1f21ff0dc4fc1d56b81eb14418310d9950",
+      "source_chars": 1313,
+      "pack_id": "xia-yuhan-worldbook-scenes",
+      "entry_id": "source-203-458",
+      "spans": [
+        {
+          "start": 458,
+          "end": 880
+        }
+      ],
+      "content_sha256": "f1a1ed2c1b989a1f881c12f61914a24e02b47e40606b1c1625f6376cccd1307d",
+      "coverage": "original-text-segments",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 203,
+      "source_title": "經典 AV 拍攝場景設定",
+      "source_sha256": "f7af90b3d1f33b2cd14bfdf45e79db1f21ff0dc4fc1d56b81eb14418310d9950",
+      "source_chars": 1313,
+      "pack_id": "xia-yuhan-worldbook-scenes",
+      "entry_id": "source-203-882",
+      "spans": [
+        {
+          "start": 882,
+          "end": 1313
+        }
+      ],
+      "content_sha256": "a28cb8ac83289f0f171894fd970c4c40633395dcdd7039478cd65811854089bb",
+      "coverage": "original-text-segments",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 204,
+      "source_title": "經典 AV 拍攝場景設定",
+      "source_sha256": "62c164a868aab0c2a3a4e009190eb67e84ad58dbe9aaf7a586d959b55ca881f3",
+      "source_chars": 1146,
+      "pack_id": "xia-yuhan-worldbook-scenes",
+      "entry_id": "source-204-0",
+      "spans": [
+        {
+          "start": 0,
+          "end": 362
+        }
+      ],
+      "content_sha256": "2fa178c7cc5630a4d6ad885da85c4c4f0496432e61303652b1f4ccaa2c198f0a",
+      "coverage": "original-text-segments",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 204,
+      "source_title": "經典 AV 拍攝場景設定",
+      "source_sha256": "62c164a868aab0c2a3a4e009190eb67e84ad58dbe9aaf7a586d959b55ca881f3",
+      "source_chars": 1146,
+      "pack_id": "xia-yuhan-worldbook-scenes",
+      "entry_id": "source-204-364",
+      "spans": [
+        {
+          "start": 364,
+          "end": 738
+        }
+      ],
+      "content_sha256": "aeaef89b5721a42f9f58a3d057550dafb305cf7aa63215cb312d909b4c174c14",
+      "coverage": "original-text-segments",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 204,
+      "source_title": "經典 AV 拍攝場景設定",
+      "source_sha256": "62c164a868aab0c2a3a4e009190eb67e84ad58dbe9aaf7a586d959b55ca881f3",
+      "source_chars": 1146,
+      "pack_id": "xia-yuhan-worldbook-scenes",
+      "entry_id": "source-204-742",
+      "spans": [
+        {
+          "start": 742,
+          "end": 1146
+        }
+      ],
+      "content_sha256": "fd62021e7fcfc1ee2a92fb7c246093a33028bf4b50f8bce34f79ab55c0daf725",
+      "coverage": "original-text-segments",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 205,
+      "source_title": "經典 AV 拍攝場景設定",
+      "source_sha256": "17ecd9570e7e21ef60ec70e0ca7660da488fefae1d36aff20434b5e4a4ab2d20",
+      "source_chars": 1391,
+      "pack_id": "xia-yuhan-worldbook-scenes",
+      "entry_id": "source-205-0",
+      "spans": [
+        {
+          "start": 0,
+          "end": 523
+        }
+      ],
+      "content_sha256": "28089c261778d65a907202f24bd4466172328bfffd538661862ca6633916af7c",
+      "coverage": "original-text-segments",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 205,
+      "source_title": "經典 AV 拍攝場景設定",
+      "source_sha256": "17ecd9570e7e21ef60ec70e0ca7660da488fefae1d36aff20434b5e4a4ab2d20",
+      "source_chars": 1391,
+      "pack_id": "xia-yuhan-worldbook-scenes",
+      "entry_id": "source-205-525",
+      "spans": [
+        {
+          "start": 525,
+          "end": 1391
+        }
+      ],
+      "content_sha256": "2e661d573f0014edf333a233ec7a289783add97b266962fc5996ece65ad5291d",
+      "coverage": "original-text-segments",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 206,
+      "source_title": "拍攝場景條目庫",
+      "source_sha256": "7bc14699d62f91bf54950a91596849729a0ecc7cc357801861fa6845a34e2577",
+      "source_chars": 1900,
+      "pack_id": "xia-yuhan-worldbook-scenes",
+      "entry_id": "source-206-0",
+      "spans": [
+        {
+          "start": 0,
+          "end": 403
+        }
+      ],
+      "content_sha256": "f0236a79a40c6f3ec7c1e7ad287f143067b83738083f57091f38ae79919778a2",
+      "coverage": "original-text-segments",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 206,
+      "source_title": "拍攝場景條目庫",
+      "source_sha256": "7bc14699d62f91bf54950a91596849729a0ecc7cc357801861fa6845a34e2577",
+      "source_chars": 1900,
+      "pack_id": "xia-yuhan-worldbook-scenes",
+      "entry_id": "source-206-405",
+      "spans": [
+        {
+          "start": 405,
+          "end": 782
+        }
+      ],
+      "content_sha256": "efaf6057d9a47ddaea592a8e1c4f3d333ae8c34403e05dccad77b0e21808d721",
+      "coverage": "original-text-segments",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 206,
+      "source_title": "拍攝場景條目庫",
+      "source_sha256": "7bc14699d62f91bf54950a91596849729a0ecc7cc357801861fa6845a34e2577",
+      "source_chars": 1900,
+      "pack_id": "xia-yuhan-worldbook-scenes",
+      "entry_id": "source-206-784",
+      "spans": [
+        {
+          "start": 784,
+          "end": 1154
+        }
+      ],
+      "content_sha256": "e0ca6720ab776ba0314cd2b68ce50dfd8ea3c1e6bf3601ffc2fbbe0dbb74cf21",
+      "coverage": "original-text-segments",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 206,
+      "source_title": "拍攝場景條目庫",
+      "source_sha256": "7bc14699d62f91bf54950a91596849729a0ecc7cc357801861fa6845a34e2577",
+      "source_chars": 1900,
+      "pack_id": "xia-yuhan-worldbook-scenes",
+      "entry_id": "source-206-1156",
+      "spans": [
+        {
+          "start": 1156,
+          "end": 1533
+        }
+      ],
+      "content_sha256": "e7221cea3b387843f9d922b0a04dc8b0504c565db85c2c2e44e0cc41bb43d94c",
+      "coverage": "original-text-segments",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 206,
+      "source_title": "拍攝場景條目庫",
+      "source_sha256": "7bc14699d62f91bf54950a91596849729a0ecc7cc357801861fa6845a34e2577",
+      "source_chars": 1900,
+      "pack_id": "xia-yuhan-worldbook-scenes",
+      "entry_id": "source-206-1535",
+      "spans": [
+        {
+          "start": 1535,
+          "end": 1900
+        }
+      ],
+      "content_sha256": "0c808670517d16ecc470ff63c3737b4b4022695b42b7adb3fc0e90cb62ec2d44",
+      "coverage": "original-text-segments",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 207,
+      "source_title": "拍攝場景條目庫",
+      "source_sha256": "85bc148e436ec17263a9f7166d146dd52da1f764b40288e8258613df75d94deb",
+      "source_chars": 1872,
+      "pack_id": "xia-yuhan-worldbook-scenes",
+      "entry_id": "source-207-0",
+      "spans": [
+        {
+          "start": 0,
+          "end": 375
+        }
+      ],
+      "content_sha256": "412a10200971273664b62e43861b83b25f43fa00f4d373eac2527f7300216b52",
+      "coverage": "original-text-segments",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 207,
+      "source_title": "拍攝場景條目庫",
+      "source_sha256": "85bc148e436ec17263a9f7166d146dd52da1f764b40288e8258613df75d94deb",
+      "source_chars": 1872,
+      "pack_id": "xia-yuhan-worldbook-scenes",
+      "entry_id": "source-207-377",
+      "spans": [
+        {
+          "start": 377,
+          "end": 754
+        }
+      ],
+      "content_sha256": "072602cd216b3396ee06abc0085e8475f31f31fbb0dcff1891ddd69495f02a74",
+      "coverage": "original-text-segments",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 207,
+      "source_title": "拍攝場景條目庫",
+      "source_sha256": "85bc148e436ec17263a9f7166d146dd52da1f764b40288e8258613df75d94deb",
+      "source_chars": 1872,
+      "pack_id": "xia-yuhan-worldbook-scenes",
+      "entry_id": "source-207-757",
+      "spans": [
+        {
+          "start": 757,
+          "end": 1119
+        }
+      ],
+      "content_sha256": "2a4bae6b0fff4d25cb19a6427fd3e0fe4311246e024c3a4f38a65c41bbe1dc56",
+      "coverage": "original-text-segments",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 207,
+      "source_title": "拍攝場景條目庫",
+      "source_sha256": "85bc148e436ec17263a9f7166d146dd52da1f764b40288e8258613df75d94deb",
+      "source_chars": 1872,
+      "pack_id": "xia-yuhan-worldbook-scenes",
+      "entry_id": "source-207-1120",
+      "spans": [
+        {
+          "start": 1120,
+          "end": 1489
+        }
+      ],
+      "content_sha256": "e4d321bdd0351dfdd2e620db9351f42dfe7decd7b2b9ea52a141b14df9659d3e",
+      "coverage": "original-text-segments",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 207,
+      "source_title": "拍攝場景條目庫",
+      "source_sha256": "85bc148e436ec17263a9f7166d146dd52da1f764b40288e8258613df75d94deb",
+      "source_chars": 1872,
+      "pack_id": "xia-yuhan-worldbook-scenes",
+      "entry_id": "source-207-1491",
+      "spans": [
+        {
+          "start": 1491,
+          "end": 1872
+        }
+      ],
+      "content_sha256": "5af5871876f6f2779e10ad15790310a5e8ca4312df0d937d5896fe9e45b6dd57",
+      "coverage": "original-text-segments",
+      "omission_reason": ""
+    },
+    {
+      "source_book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 208,
+      "source_title": "經典 AV 拍攝場景設定",
+      "source_sha256": "0ba046c05c599439e35902dd7a793eb1c4b83fc9b9b031d9ff1424de58e675f5",
+      "source_chars": 1697,
+      "pack_id": "xia-yuhan-worldbook-scenes",
+      "entry_id": "source-208-0",
+      "spans": [
+        {
+          "start": 0,
+          "end": 406
+        }
+      ],
+      "content_sha256": "552805c3856fa5e9f3710ae4c2d3c805288c7bb62da5572db7a4a6a8c0d79709",
+      "coverage": "original-text-segments",
+      "omission_reason": "mixed-underage-sexual-assault-plan-excluded"
+    },
+    {
+      "source_book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 208,
+      "source_title": "經典 AV 拍攝場景設定",
+      "source_sha256": "0ba046c05c599439e35902dd7a793eb1c4b83fc9b9b031d9ff1424de58e675f5",
+      "source_chars": 1697,
+      "pack_id": "xia-yuhan-worldbook-scenes",
+      "entry_id": "source-208-408",
+      "spans": [
+        {
+          "start": 408,
+          "end": 814
+        }
+      ],
+      "content_sha256": "3d3795ba43600121fe629f1215cbc467f96d408b3f6fbb7269ba848875fae16e",
+      "coverage": "original-text-segments",
+      "omission_reason": "mixed-underage-sexual-assault-plan-excluded"
+    },
+    {
+      "source_book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 208,
+      "source_title": "經典 AV 拍攝場景設定",
+      "source_sha256": "0ba046c05c599439e35902dd7a793eb1c4b83fc9b9b031d9ff1424de58e675f5",
+      "source_chars": 1697,
+      "pack_id": "xia-yuhan-worldbook-scenes",
+      "entry_id": "source-208-1161",
+      "spans": [
+        {
+          "start": 1161,
+          "end": 1439
+        }
+      ],
+      "content_sha256": "55c2d1761902f2e43add177165868f7db16eec6b6b22ecd57b216e6ba1fbf908",
+      "coverage": "original-text-segments",
+      "omission_reason": "mixed-underage-sexual-assault-plan-excluded"
+    },
+    {
+      "source_book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 208,
+      "source_title": "經典 AV 拍攝場景設定",
+      "source_sha256": "0ba046c05c599439e35902dd7a793eb1c4b83fc9b9b031d9ff1424de58e675f5",
+      "source_chars": 1697,
+      "pack_id": "xia-yuhan-worldbook-scenes",
+      "entry_id": "source-208-1441",
+      "spans": [
+        {
+          "start": 1441,
+          "end": 1697
+        }
+      ],
+      "content_sha256": "5a9985000e705943fdbc4987ac1ce9c98f3c43dc69ada725cee6faf19e299250",
+      "coverage": "original-text-segments",
+      "omission_reason": "mixed-underage-sexual-assault-plan-excluded"
+    }
+  ],
+  "not_published": [
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 2,
+      "source_title": "清純妹妹-女角色",
+      "source_sha256": "daf4dcf842959b77da198cea7e05835a73f6b453d4f6be32ea939a0700c8d170",
+      "reason": "underage-sexual-framing-not-published"
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 24,
+      "source_title": "清純蘿莉-女角色",
+      "source_sha256": "d4754d6860c4438827988f7f072cd7eebfd9e21a8d76a881ca35c7eb86600f0d",
+      "reason": "underage-sexual-framing-not-published"
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 66,
+      "source_title": "未成年角色設定",
+      "source_sha256": "ac2cac131a600427166f55dcc95d8fd636b8c1feefb0b7db40be63a0873acb6b",
+      "reason": "underage-sexual-framing-not-published"
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 76,
+      "source_title": "雌小鬼劇本",
+      "source_sha256": "97c3b82fdba64d87ea38044ab659c95b9d9d70b108cdd5e0c58d4af92c5a3d76",
+      "reason": "underage-sexual-framing-not-published"
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 83,
+      "source_title": "援交妹劇本",
+      "source_sha256": "a6ebc253610cb47cd4a9c1417247c74c7c366ec51bf31857e2bca9716238c2e5",
+      "reason": "underage-sexual-framing-not-published"
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 183,
+      "source_title": "年齡扮演",
+      "source_sha256": "148f14506d93cbb5e0d14f9dfc3d9a30a713b43fbdbf58a340d25316ed1265c5",
+      "reason": "underage-sexual-framing-not-published"
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 195,
+      "source_title": "HTML",
+      "source_sha256": "36b91b37c0f0037c85e0650a84249ec4c0f9392f7cf7427b3c8338230a3dd68e",
+      "reason": "LunaTalk-renderer-protocol-not-portable-to-native-YoruBay-UI"
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 196,
+      "source_title": "HTML",
+      "source_sha256": "08ac6b8afbdbc656fd3536952c5da190b07e008a155e8c57b908a8773c239cf0",
+      "reason": "LunaTalk-renderer-protocol-not-portable-to-native-YoruBay-UI"
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 197,
+      "source_title": "HTML",
+      "source_sha256": "cf7c583bd698b31920f72810aa61de1ec5312a780e32f26280dd47fba52a488a",
+      "reason": "LunaTalk-renderer-protocol-not-portable-to-native-YoruBay-UI"
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 198,
+      "source_title": "XMLv3",
+      "source_sha256": "75086a136b57bb5ee89bd5bc8160c62ee6323ed8364f8c6bae9798630ef1a7b8",
+      "reason": "LunaTalk-renderer-protocol-not-portable-to-native-YoruBay-UI"
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 199,
+      "source_title": "XMLv3",
+      "source_sha256": "8d550e6fd2a5afd6250624a77832d5906af657d9ba092ccb61d8d12ead1a3659",
+      "reason": "LunaTalk-renderer-protocol-not-portable-to-native-YoruBay-UI"
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 200,
+      "source_title": "視覺符號庫",
+      "source_sha256": "86a78778632d2631b50971b3cbb368080a36707540f949c979ef290964ce0bf7",
+      "reason": "LunaTalk-renderer-protocol-not-portable-to-native-YoruBay-UI"
+    },
+    {
+      "source_book_id": "59d9fbcd-d5f8-47aa-99fb-a101675230e4",
+      "source_index": 201,
+      "source_title": "xmlv3",
+      "source_sha256": "ab6f1b1aae99b2719ea66e8a65ebdbd8db2fa2d9ff5ac6f63bdee05dd9d6e4f4",
+      "reason": "LunaTalk-renderer-protocol-not-portable-to-native-YoruBay-UI"
+    },
+    {
+      "source_book_id": "f604df12-4eb7-48c0-b2f0-6c942d6204fa",
+      "source_index": 197,
+      "source_title": "狀態欄規範",
+      "source_sha256": "2ebf7cab57f3b1e1cc9693c16c831a4d3e47ea2b21085369360747c6f96c7da2",
+      "reason": "mapped-to-existing-native-gameplay-panels-and-world-modules"
+    }
+  ],
+  "xia_inherited_common_sources": [
+    {
+      "source_index": 0,
+      "common_source_index": 0,
+      "source_sha256": "91507b19fe7b7163e3ea12e0e555517be92ac27726d518a5e69d047b6cf512b1"
+    },
+    {
+      "source_index": 1,
+      "common_source_index": 1,
+      "source_sha256": "5440287aee8b4c987074ab02a90c830666dfb00822fb0ab1d1e9e4ce27820d4e"
+    },
+    {
+      "source_index": 2,
+      "common_source_index": 2,
+      "source_sha256": "daf4dcf842959b77da198cea7e05835a73f6b453d4f6be32ea939a0700c8d170"
+    },
+    {
+      "source_index": 3,
+      "common_source_index": 3,
+      "source_sha256": "bb6d4b5bcd98d337d9b148d18773c1fad63db8b2d866195363958f6a473ce411"
+    },
+    {
+      "source_index": 4,
+      "common_source_index": 4,
+      "source_sha256": "90f9af26455788d2cc4cd48e462bf71ebbad6d31759491f7a4d6b211044be162"
+    },
+    {
+      "source_index": 5,
+      "common_source_index": 5,
+      "source_sha256": "dcba649a8a8a2158f455362cdbcc63d56e6c8da1466651c4cfff32f490b6c5ab"
+    },
+    {
+      "source_index": 6,
+      "common_source_index": 6,
+      "source_sha256": "cc7f21df7a8b39b65370a5285aeff2dad79d0c558198a617febd06bad9f3742f"
+    },
+    {
+      "source_index": 7,
+      "common_source_index": 7,
+      "source_sha256": "7dbfabee3b4a2ebb2f513c84aa96336e8ab3bd634b9aadaff8f5ec1f2be9a9bd"
+    },
+    {
+      "source_index": 8,
+      "common_source_index": 8,
+      "source_sha256": "e8b0172578c96b9f16d210d4662a3f4f27ad6d558b0181bc45855a45fdaf7ac6"
+    },
+    {
+      "source_index": 9,
+      "common_source_index": 9,
+      "source_sha256": "7c46f9509db8e9f08f977642312311244f3fc19aa30e04e579df05cbec4e263b"
+    },
+    {
+      "source_index": 10,
+      "common_source_index": 10,
+      "source_sha256": "2745361e34c826473c91271b16c34c5fa639fa681c3f84123cae8b924d59a6c9"
+    },
+    {
+      "source_index": 11,
+      "common_source_index": 11,
+      "source_sha256": "b49a1085a6fc95111b1daf7a10816048133e0c7dda8d4d6cf492530758b675f9"
+    },
+    {
+      "source_index": 12,
+      "common_source_index": 12,
+      "source_sha256": "7df19cde042e44920525ac07529edb0e8ed32d6f1c1edb6f2a9e6d8a9f25561f"
+    },
+    {
+      "source_index": 13,
+      "common_source_index": 13,
+      "source_sha256": "32396a569a236011c058b8fc2d7f4ef5d0dc0a7c31919f5338c1c531a547276c"
+    },
+    {
+      "source_index": 14,
+      "common_source_index": 14,
+      "source_sha256": "7bdc320f6de4df3e08f1def2d8105fcde421d9d26508e25466f898e6a98cdef4"
+    },
+    {
+      "source_index": 15,
+      "common_source_index": 15,
+      "source_sha256": "121c99b4f50e50ae9820cc8a33a8349aaf581b77a8456f8466d143eafcabfa92"
+    },
+    {
+      "source_index": 16,
+      "common_source_index": 16,
+      "source_sha256": "90655193101f5bd01e45fb9e2e0c17adbaa286b09cfbdb275ea9272c6fec5747"
+    },
+    {
+      "source_index": 17,
+      "common_source_index": 17,
+      "source_sha256": "0dbccd8804ec95ee0ca72e147456845f10af585d1b0ba1123ee1a63da8e83a43"
+    },
+    {
+      "source_index": 18,
+      "common_source_index": 18,
+      "source_sha256": "72531b7a0e25c0d07518fbfe4dd0e3ad896e4842ac980732f63a8614c00e1c99"
+    },
+    {
+      "source_index": 19,
+      "common_source_index": 19,
+      "source_sha256": "f8871dd893fc17d1a4291310a080de566fd808d3a845d76096df39d104199c8e"
+    },
+    {
+      "source_index": 20,
+      "common_source_index": 20,
+      "source_sha256": "df9b16bb715689ec07d1bac722f376d070d4a8e25b8d78477e8aadf68360fb15"
+    },
+    {
+      "source_index": 21,
+      "common_source_index": 21,
+      "source_sha256": "360f2047cf46de1203e29839c97866f2a8ee8e9d58d0c12e36b69437c8d80c87"
+    },
+    {
+      "source_index": 22,
+      "common_source_index": 22,
+      "source_sha256": "b72472498468871e557180e89aa8b42a4ba53f2cab6f7ff29d0e9119d757b639"
+    },
+    {
+      "source_index": 23,
+      "common_source_index": 23,
+      "source_sha256": "87d9b74450d4c4b6f6c6ff73afe36f200bbf55b69f257eac15a6123b6f75c32d"
+    },
+    {
+      "source_index": 24,
+      "common_source_index": 24,
+      "source_sha256": "d4754d6860c4438827988f7f072cd7eebfd9e21a8d76a881ca35c7eb86600f0d"
+    },
+    {
+      "source_index": 25,
+      "common_source_index": 25,
+      "source_sha256": "85999c5630fe5635bfa66985d52c4f6ca997d89cf2598978eff6bfa90c33f8c0"
+    },
+    {
+      "source_index": 26,
+      "common_source_index": 26,
+      "source_sha256": "3390b4addcd8eb6a979c7a5a17a567cc1362c575abe9d28d147a99e4e2336be6"
+    },
+    {
+      "source_index": 27,
+      "common_source_index": 27,
+      "source_sha256": "1efb35fa701e28b59b37c04b4fdcc4ef0ca2d4aa3e461e4eec51f6d5db86b93b"
+    },
+    {
+      "source_index": 28,
+      "common_source_index": 28,
+      "source_sha256": "3581fcfe0d73f4d6828d7e17b6cda29589f0a26519db87760ee3049c140fdd8f"
+    },
+    {
+      "source_index": 29,
+      "common_source_index": 29,
+      "source_sha256": "d4aaa3293232c9e736327b97e30e1e437f2657c33425f6f8d19e495494ddeba5"
+    },
+    {
+      "source_index": 30,
+      "common_source_index": 30,
+      "source_sha256": "07ca841ae52c247fd436464d1e2296f99b7c7aa2a183af66492cf4890b1c077d"
+    },
+    {
+      "source_index": 31,
+      "common_source_index": 31,
+      "source_sha256": "eca15078ff5a2ddd5c9428e2176a5116bd60776f65d29bed77cf4412bf50e41b"
+    },
+    {
+      "source_index": 32,
+      "common_source_index": 32,
+      "source_sha256": "6240decc703518c55134220f90635f2d9d22de6c96b6008d4e8523b303090493"
+    },
+    {
+      "source_index": 33,
+      "common_source_index": 33,
+      "source_sha256": "ec5b0ba7e7d03507c13f7226374539770a5fbdaf2f73db0aa5f2958cf0d57f71"
+    },
+    {
+      "source_index": 34,
+      "common_source_index": 34,
+      "source_sha256": "90c34cd54987003193254fad3b479aa3546af078a84b56e083d08d2523c89c94"
+    },
+    {
+      "source_index": 35,
+      "common_source_index": 35,
+      "source_sha256": "45fc07139187b182a3826b0a4bc8bc7e8d17d8ebe91b2a46238722237bf421f0"
+    },
+    {
+      "source_index": 36,
+      "common_source_index": 36,
+      "source_sha256": "4b487b2272d536b18497891a8945084accf252d27a4cd8eb64e0ec5bc7a5e9d5"
+    },
+    {
+      "source_index": 37,
+      "common_source_index": 37,
+      "source_sha256": "b301414ca02145bc4cfa579cea5443def226d76d6ae965980162620cd142b1e6"
+    },
+    {
+      "source_index": 38,
+      "common_source_index": 38,
+      "source_sha256": "d21559a6a1b338fa82160c8bbe3615f07e7cf608f7e49b41d46208bf1adb4983"
+    },
+    {
+      "source_index": 39,
+      "common_source_index": 39,
+      "source_sha256": "1e43431f7f6cda3968920f0e09e8a946646b434a65e6b666f35774d3080f0f95"
+    },
+    {
+      "source_index": 40,
+      "common_source_index": 40,
+      "source_sha256": "9c33d8981fe1cf92f993b5b2b1fe07b8184faa9a844207b9d0085931986df6b1"
+    },
+    {
+      "source_index": 41,
+      "common_source_index": 41,
+      "source_sha256": "d3338a295c7fb406215da70dae6db60ec5126eec27fa7dc46dc81251ce5e2442"
+    },
+    {
+      "source_index": 42,
+      "common_source_index": 42,
+      "source_sha256": "6fef46ac9d8f00806048436b0e675bb746e462568c1c995af772488f3b4270d1"
+    },
+    {
+      "source_index": 43,
+      "common_source_index": 43,
+      "source_sha256": "af95ec8bd5fb115ef5544e13c3283c931652a49dece4334108dabf8683d8eaa8"
+    },
+    {
+      "source_index": 44,
+      "common_source_index": 44,
+      "source_sha256": "4f895858f22b0a361ecddd32e408a156335706e439a0e6e560fa873000ecb979"
+    },
+    {
+      "source_index": 45,
+      "common_source_index": 45,
+      "source_sha256": "57eec842adba32edfda575830e025fed78cf23b48d8cc9167e2e030aabec40cf"
+    },
+    {
+      "source_index": 46,
+      "common_source_index": 46,
+      "source_sha256": "b23f0072e07e922e278fd657ea1909511dd81931ee08aeaa9d2b606995162f00"
+    },
+    {
+      "source_index": 47,
+      "common_source_index": 47,
+      "source_sha256": "9027d7d36e3da8a4b14e2f5e740531a0f3003d61475482016e0a630450b57c0f"
+    },
+    {
+      "source_index": 48,
+      "common_source_index": 48,
+      "source_sha256": "ba635dec57cb6251beb74d26a24ab1fa6f5836203540ba51ae6edaa499198899"
+    },
+    {
+      "source_index": 49,
+      "common_source_index": 49,
+      "source_sha256": "ac812ae7f1aae92a192c9cb9df5ec37c5efb489e237235f3cc7f3ec421f02250"
+    },
+    {
+      "source_index": 50,
+      "common_source_index": 50,
+      "source_sha256": "98e1d5160053cf297264bd31e22b978870537b173e5fc2f514f44ee7373b3bb6"
+    },
+    {
+      "source_index": 51,
+      "common_source_index": 51,
+      "source_sha256": "f97267261edb9104da7e3ab8f86553ad5756a8af5a2380b8d7bda1ee5169477d"
+    },
+    {
+      "source_index": 52,
+      "common_source_index": 52,
+      "source_sha256": "24c868c31867a4f233851a0be228b441d03e668b6921af61221951f37be4d50b"
+    },
+    {
+      "source_index": 53,
+      "common_source_index": 53,
+      "source_sha256": "b9ab17c478b09e55c8e0bdef21938999d0028407a940b933d9079fd3381916e7"
+    },
+    {
+      "source_index": 54,
+      "common_source_index": 54,
+      "source_sha256": "ed38d2ec50bff55322bac112e5a8b19cc44335c7cb61c9066563269eeadec4a5"
+    },
+    {
+      "source_index": 55,
+      "common_source_index": 55,
+      "source_sha256": "416618d482b81f54da45facf1d3082dda90c5015eaac6efa75b4ca8943da7f5f"
+    },
+    {
+      "source_index": 56,
+      "common_source_index": 56,
+      "source_sha256": "1b1375d455e5fae8cd2f46bfa22c45fd4f181688cb33ab2e4e6d7bc943ae2974"
+    },
+    {
+      "source_index": 57,
+      "common_source_index": 57,
+      "source_sha256": "bc3308373feecf7fac2ee795edbf299b69482f78230ca5d33569d81753f3442b"
+    },
+    {
+      "source_index": 58,
+      "common_source_index": 58,
+      "source_sha256": "2c8cf0d6b961a36c5ab6eb2b9ab753a74539b6c7ba14ffa4a0cc998c5e44ad3d"
+    },
+    {
+      "source_index": 59,
+      "common_source_index": 59,
+      "source_sha256": "44ad17e982afd07721ae470e0b37d0cad6895073f848371db2a015245724d92d"
+    },
+    {
+      "source_index": 60,
+      "common_source_index": 60,
+      "source_sha256": "e70228b9489a100310b542642a6b74f102d0d14d4ccf680d3681eafd9cf3dbc2"
+    },
+    {
+      "source_index": 61,
+      "common_source_index": 61,
+      "source_sha256": "09edc504dbfe81def66afa5238eab899b6484707ca268cf1a95182636c25f387"
+    },
+    {
+      "source_index": 62,
+      "common_source_index": 62,
+      "source_sha256": "80e550945135d0b038f547008447420aad85d5dda59d39aae4ba582c09d6d0a4"
+    },
+    {
+      "source_index": 63,
+      "common_source_index": 63,
+      "source_sha256": "6025140ef8a758ed64fdbd2964688e05c436f769d47c447e3016297f0f8e077b"
+    },
+    {
+      "source_index": 64,
+      "common_source_index": 65,
+      "source_sha256": "8fb4467aa1ecc8142bc0e816970ae616ddf943240250fd627a8ad0d1e8a389a0"
+    },
+    {
+      "source_index": 65,
+      "common_source_index": 66,
+      "source_sha256": "ac2cac131a600427166f55dcc95d8fd636b8c1feefb0b7db40be63a0873acb6b"
+    },
+    {
+      "source_index": 66,
+      "common_source_index": 67,
+      "source_sha256": "a7073779fe3848fbdaf88d7c120126469265f9ef9d1a02f26810d9f19b5ed25d"
+    },
+    {
+      "source_index": 67,
+      "common_source_index": 68,
+      "source_sha256": "f45e9a67f9d7dca3c167e1110087d9e17d0f8eb8c3cb79bf00f55cdf5b49b056"
+    },
+    {
+      "source_index": 68,
+      "common_source_index": 69,
+      "source_sha256": "f5cc8f3bc730f7f8c9a161716fa79828665d3793176356cf14a54225a2a5d8f6"
+    },
+    {
+      "source_index": 69,
+      "common_source_index": 70,
+      "source_sha256": "a21606c25d42cf0e6d2896bdf5ffb72c81d83cdc9d823615e386363c5020fb65"
+    },
+    {
+      "source_index": 70,
+      "common_source_index": 71,
+      "source_sha256": "09e3a48d019811690219f5cf9f39280c386486dcfcbbac2ce8334b4ed018036a"
+    },
+    {
+      "source_index": 71,
+      "common_source_index": 72,
+      "source_sha256": "4ab3642f0065c120f56a7fc161befbab2f1371772d3e0da0127d275acbdc982a"
+    },
+    {
+      "source_index": 72,
+      "common_source_index": 73,
+      "source_sha256": "f33e976314da9a844aae65bcaa047f8f2c898b52fdc91c24921f08b207800028"
+    },
+    {
+      "source_index": 73,
+      "common_source_index": 74,
+      "source_sha256": "a9c6f5d33a626b07b753bad270e89ebfb23f772e7f9eb100d6f7fc8929c8322f"
+    },
+    {
+      "source_index": 74,
+      "common_source_index": 75,
+      "source_sha256": "26b41f89efeb9ed3a7d46e49a06278b182ce336da2107900a81cc971cdb14bed"
+    },
+    {
+      "source_index": 75,
+      "common_source_index": 76,
+      "source_sha256": "97c3b82fdba64d87ea38044ab659c95b9d9d70b108cdd5e0c58d4af92c5a3d76"
+    },
+    {
+      "source_index": 76,
+      "common_source_index": 77,
+      "source_sha256": "ed7ed562939252b4bc22f8ae011c87948c2c57c6e67b1b618f7cd9a38ba5cfb4"
+    },
+    {
+      "source_index": 77,
+      "common_source_index": 78,
+      "source_sha256": "bd7d058439370e2e6e98264319e294de1c33b2933e36dca7abd033a9ddc646fc"
+    },
+    {
+      "source_index": 78,
+      "common_source_index": 79,
+      "source_sha256": "fca04a358aa65631d9f584de7ffd2234eaa83f7bf311f5a93d0a0c1f532d63d2"
+    },
+    {
+      "source_index": 79,
+      "common_source_index": 80,
+      "source_sha256": "dbcb02929c9dd6ee258e5dd4d99c8ce4b7bc91938279b5a1c6e423270f44bf66"
+    },
+    {
+      "source_index": 80,
+      "common_source_index": 81,
+      "source_sha256": "625b1971e677a9cd5249ececcfff56f0a12e21ea1cf54090e47a6044c203c3e9"
+    },
+    {
+      "source_index": 81,
+      "common_source_index": 82,
+      "source_sha256": "48beb03f8ea3f437c770736b582c9b866c7ddb050f5576385001da918cdaacc6"
+    },
+    {
+      "source_index": 82,
+      "common_source_index": 83,
+      "source_sha256": "a6ebc253610cb47cd4a9c1417247c74c7c366ec51bf31857e2bca9716238c2e5"
+    },
+    {
+      "source_index": 83,
+      "common_source_index": 84,
+      "source_sha256": "4adba7ee4bf3fe593618f0e210931f58f7b7c674627ca67993be279b684501a2"
+    },
+    {
+      "source_index": 84,
+      "common_source_index": 85,
+      "source_sha256": "aabfada95021461607a3f94976dc0c7e4153efdc670296e191ad00526410f245"
+    },
+    {
+      "source_index": 85,
+      "common_source_index": 86,
+      "source_sha256": "eed87eff5153dc7b69dfdfa48c022428182b7b5d25f40988b5dcdb7e84b27828"
+    },
+    {
+      "source_index": 86,
+      "common_source_index": 87,
+      "source_sha256": "a93ead51c8330de91dba659be17ea4cea066d59d8ed8e146091e7094eaa2b4f1"
+    },
+    {
+      "source_index": 87,
+      "common_source_index": 88,
+      "source_sha256": "306e891e013417955ddd32ad9a908b947f77e23f7c60f424d38fd726e381fd7d"
+    },
+    {
+      "source_index": 88,
+      "common_source_index": 89,
+      "source_sha256": "ff603bc390dbec7b15a5c2d60a5eb96623440286598cd3427b02fc9004a2e2d9"
+    },
+    {
+      "source_index": 89,
+      "common_source_index": 90,
+      "source_sha256": "2c298d1a4384b7cd5fcaa67d43eb940f2dc4bdc31721b24b3da02b20840113eb"
+    },
+    {
+      "source_index": 90,
+      "common_source_index": 91,
+      "source_sha256": "41a96a1200f30254c908aaec098c93320f2cc047c5a2ee9ac121d0a106bf0822"
+    },
+    {
+      "source_index": 91,
+      "common_source_index": 92,
+      "source_sha256": "b337f84e3eb39ed0319b1e210c68ccf94e42d9981b34ec8a57a851da7e16ce2e"
+    },
+    {
+      "source_index": 92,
+      "common_source_index": 93,
+      "source_sha256": "43f8da494c0eb59e311c08c798a0b185616c4aa6ab069fa6b425938a88b0d35d"
+    },
+    {
+      "source_index": 93,
+      "common_source_index": 94,
+      "source_sha256": "b566f0729f9045292d45694f5008fc6d1ce59039a5d42daeae638a123f2849f9"
+    },
+    {
+      "source_index": 94,
+      "common_source_index": 95,
+      "source_sha256": "545289ab3de1bfe7416a9062941292924039ad31dae1d9ff2a53a7caf87dc0ae"
+    },
+    {
+      "source_index": 95,
+      "common_source_index": 96,
+      "source_sha256": "ba61d4420b28623f00135906e7295092701cc24a642934fa9bd9567646b27de8"
+    },
+    {
+      "source_index": 96,
+      "common_source_index": 97,
+      "source_sha256": "24b94a7689d74d4031685b35ef0acc18a2d2fff11d80eeaf7f02df0fb3c306f6"
+    },
+    {
+      "source_index": 97,
+      "common_source_index": 98,
+      "source_sha256": "56bd7d499c2c11730761cbfa2a0decb0ce237f74600caae8b816a65c10ddb3cf"
+    },
+    {
+      "source_index": 98,
+      "common_source_index": 99,
+      "source_sha256": "02e6be662569b50ccc04ed2e2562d10d17a8d78daa3cc5e8192debf5528dcb92"
+    },
+    {
+      "source_index": 99,
+      "common_source_index": 100,
+      "source_sha256": "b1d73722fd6b3465beaeb626d34c799b9f5770021b893c28a07413c4cfbf7ff6"
+    },
+    {
+      "source_index": 100,
+      "common_source_index": 101,
+      "source_sha256": "e4c98620a073a7fe695024e1e35a3a0632116eb249566d7c5752940cc4794c97"
+    },
+    {
+      "source_index": 101,
+      "common_source_index": 102,
+      "source_sha256": "fff7102f05761f85dcb4c207f935b4e48862a245d7ceb2425385a819725c3fe5"
+    },
+    {
+      "source_index": 102,
+      "common_source_index": 103,
+      "source_sha256": "e9a6b4b4f0bea29cb8a8783a4e78dc93e2822668d289c781dade6ff4b27057aa"
+    },
+    {
+      "source_index": 103,
+      "common_source_index": 104,
+      "source_sha256": "0eb09b0d56b260ad3faa917106b365487529e4a26d8095b3eb3b0ac1b21c17d2"
+    },
+    {
+      "source_index": 104,
+      "common_source_index": 105,
+      "source_sha256": "1908642bcfd6042e88931955194bf4fdebe8a95ad5191bd95a926f1941b07852"
+    },
+    {
+      "source_index": 105,
+      "common_source_index": 106,
+      "source_sha256": "626a58f95d1da5c6f160d8999167e4447609a05b4066a3c653bea1bec29d7c2c"
+    },
+    {
+      "source_index": 106,
+      "common_source_index": 107,
+      "source_sha256": "b89cd8d288671e8d7f90cabfbafe6c1ae6f2cfd006f38e374542c74bb3115a1e"
+    },
+    {
+      "source_index": 107,
+      "common_source_index": 108,
+      "source_sha256": "70bd09305db924b0d3f3d0f46a3c59133e43b516374dff0aae8ee9c80693c4f9"
+    },
+    {
+      "source_index": 108,
+      "common_source_index": 109,
+      "source_sha256": "04a3a9189313646a19dea4cf1049ebe9d95a2daffd1741539b5e61ac2cc74a4f"
+    },
+    {
+      "source_index": 109,
+      "common_source_index": 110,
+      "source_sha256": "8733eece22d474b2e62ffcd0b615771c790b58b447748112f6c6891d6e01a69c"
+    },
+    {
+      "source_index": 110,
+      "common_source_index": 111,
+      "source_sha256": "b9f0e5595445ce717f4427aed89058fcc9587ec829232e4bc59b252964b77ec4"
+    },
+    {
+      "source_index": 111,
+      "common_source_index": 112,
+      "source_sha256": "1423616eb923b7269c0745938b96ceaf9c88f8606fe396189da88f8a407adaec"
+    },
+    {
+      "source_index": 112,
+      "common_source_index": 113,
+      "source_sha256": "b4034841712f6a43bf223daf43a2bc097d51ca37f7d4ea76dfaef7cc77aa9339"
+    },
+    {
+      "source_index": 113,
+      "common_source_index": 114,
+      "source_sha256": "1fff9fe757d8a1038a8d790f424347efed62ea06f3dbfd8e55eea765419c63ca"
+    },
+    {
+      "source_index": 114,
+      "common_source_index": 115,
+      "source_sha256": "e33e978ef01e5d06a375d14a75503dc90dd99ea343bdd4399ee08bf4813db96e"
+    },
+    {
+      "source_index": 115,
+      "common_source_index": 116,
+      "source_sha256": "1c3956dd19777a8c870d7271cfc154ca0f6ff00bb8aee06fc5840e9c2e4e59c4"
+    },
+    {
+      "source_index": 116,
+      "common_source_index": 117,
+      "source_sha256": "949f41ce5fea1f18dde5695e9bd0e18c6c6b02d05e768aadecbcdea25a62a2d5"
+    },
+    {
+      "source_index": 117,
+      "common_source_index": 118,
+      "source_sha256": "fb0c1f164f9c89f249b33919d7b9c184070ef2e49fec7abc2a59d1af4d8e245f"
+    },
+    {
+      "source_index": 118,
+      "common_source_index": 119,
+      "source_sha256": "7b9c1133b7ab09f13e711318bd025a8ef1a2bc795ee67bdd9f648e5313f74088"
+    },
+    {
+      "source_index": 119,
+      "common_source_index": 120,
+      "source_sha256": "e770e80f668379be897a7845a1625f4c9f98f6d0379cb6c9b588afaf928e0d7f"
+    },
+    {
+      "source_index": 120,
+      "common_source_index": 121,
+      "source_sha256": "756a6d420a0db80c8ea887c91325e3457454e15fb18bec76af42cfd23a180d5d"
+    },
+    {
+      "source_index": 121,
+      "common_source_index": 122,
+      "source_sha256": "6e95b62ec6514bfe5895b9fd6a6da86e6e20ad351d7d3c4ae230bf1139eb6f19"
+    },
+    {
+      "source_index": 122,
+      "common_source_index": 123,
+      "source_sha256": "96644904bfe1a395bea3d1189c01e05888f28ecc7e66a6f239045447930598a2"
+    },
+    {
+      "source_index": 123,
+      "common_source_index": 124,
+      "source_sha256": "d0579c88c148bcf9869b2ae8841ba1289efb7a982a1c6a791647ccc77016d091"
+    },
+    {
+      "source_index": 124,
+      "common_source_index": 125,
+      "source_sha256": "bd020a3031bab4e8b03fed78b147ccf21526f501169f793375b9e9cb4fee496a"
+    },
+    {
+      "source_index": 125,
+      "common_source_index": 126,
+      "source_sha256": "f738eff202112fea8e89a5be1b31ed0af429f42bc600f5e6da758c5981e5c651"
+    },
+    {
+      "source_index": 126,
+      "common_source_index": 127,
+      "source_sha256": "56f4feb834976ab5b0ed4f4e12f683b8296cc2183cee26a0f05098b4a237111b"
+    },
+    {
+      "source_index": 127,
+      "common_source_index": 128,
+      "source_sha256": "637c7b52474522869983d484398adfe787ab7492fc70b1f37b792a714164a9c9"
+    },
+    {
+      "source_index": 128,
+      "common_source_index": 129,
+      "source_sha256": "82ac5b78df4a8424bb5dcd077410b0d868a8f3d8a159b31f6c843e7bb7d60851"
+    },
+    {
+      "source_index": 129,
+      "common_source_index": 130,
+      "source_sha256": "f11f156cd0e5312a455d0bbaa994b579b1a3f46391a9d057c286dcf255615d64"
+    },
+    {
+      "source_index": 130,
+      "common_source_index": 131,
+      "source_sha256": "e6ea685f49a4cba8428c0d6adf7e877e0c7c415c9cdb06d833702f558ccc8817"
+    },
+    {
+      "source_index": 131,
+      "common_source_index": 132,
+      "source_sha256": "c6f9e20f92262dd881e69d5fd1d729a3ae992774b94044e57f57aae1d4273754"
+    },
+    {
+      "source_index": 132,
+      "common_source_index": 133,
+      "source_sha256": "bbfa3c7afa6f287e583510cbd681531b5a70eacc4373f87b919da66f6c8e9cb1"
+    },
+    {
+      "source_index": 133,
+      "common_source_index": 134,
+      "source_sha256": "1d4bb22cf11a2ca7a0d85446f2785efd1cfea991b1324ca3c79f664f896e7151"
+    },
+    {
+      "source_index": 134,
+      "common_source_index": 135,
+      "source_sha256": "a5f85468c36e463622ffc7606c9c20fe79e9b9af94ec6b2dd47afb34483b8ff9"
+    },
+    {
+      "source_index": 135,
+      "common_source_index": 136,
+      "source_sha256": "6a86d2bb84af1fbe752ce435b57454337dc5622648cc39c68243b866ebc8328e"
+    },
+    {
+      "source_index": 136,
+      "common_source_index": 137,
+      "source_sha256": "9292450c39b3aaf39ce002e53cb34b338ee76b6fbb31157d6404227e4e4b3615"
+    },
+    {
+      "source_index": 137,
+      "common_source_index": 138,
+      "source_sha256": "c820d8e7d582e42a376084e7182ee4bff679816360e51e65ee16c801af78d902"
+    },
+    {
+      "source_index": 138,
+      "common_source_index": 139,
+      "source_sha256": "3ffa3e92550db132219b43f2fda314d70c7278bd3d2045da3e74f32901afa122"
+    },
+    {
+      "source_index": 139,
+      "common_source_index": 140,
+      "source_sha256": "f9451db91c7db14b5a6a6b5e794ea3a541ee0c93a8f3532bee551c0f0727b11a"
+    },
+    {
+      "source_index": 140,
+      "common_source_index": 141,
+      "source_sha256": "36bd08f4df679e20ab89684227687b924923f23144603391f2a6739163a8346a"
+    },
+    {
+      "source_index": 141,
+      "common_source_index": 142,
+      "source_sha256": "c5a2ac69e8a0169a6857817ffae1e925fb2eb472e957f63ce37ebca09e744da0"
+    },
+    {
+      "source_index": 142,
+      "common_source_index": 143,
+      "source_sha256": "1a37339b29a40b0a34e1a70feb71b192fe8ee635f66c30c55af6bc4e03b5f4db"
+    },
+    {
+      "source_index": 143,
+      "common_source_index": 144,
+      "source_sha256": "d815033acac0f1fdae426b33dafa46ec5d05d1446b3409ebfcd6263cd5f7358d"
+    },
+    {
+      "source_index": 144,
+      "common_source_index": 145,
+      "source_sha256": "5e3af4ca3640dd2c54eecc075497fda931c1e584b5865e608d2f21f5f20fd477"
+    },
+    {
+      "source_index": 145,
+      "common_source_index": 146,
+      "source_sha256": "589fc9d37e3f3b64edd3ba564142111f98748889b3d7fab943c7ea8d55fc9869"
+    },
+    {
+      "source_index": 146,
+      "common_source_index": 147,
+      "source_sha256": "54553e6814e5033245f152e49a24a08b291c3dba1876dfc080ec4f9a53e32145"
+    },
+    {
+      "source_index": 147,
+      "common_source_index": 148,
+      "source_sha256": "65fe94414c9a36968b580f7bc5435799a6e047a5bb5e33fc617f2451106fef3f"
+    },
+    {
+      "source_index": 148,
+      "common_source_index": 149,
+      "source_sha256": "276b9688b0fe461d2bca74d3ea5ad3e81adc1d8e9b6b959c178f4fd29c9ec423"
+    },
+    {
+      "source_index": 149,
+      "common_source_index": 150,
+      "source_sha256": "95cacd9c08b6dffd88004f5b98cd015e0d91be6dd4e99e2eeafff8d7a006d0a0"
+    },
+    {
+      "source_index": 150,
+      "common_source_index": 151,
+      "source_sha256": "b443a90caa819639dfa6cf4029d07ea2ac29e701fceb692e8d9aab9d63eec374"
+    },
+    {
+      "source_index": 151,
+      "common_source_index": 152,
+      "source_sha256": "ac41e1375ac5f598a0c5679771e61e7e0c306f62d33f6f8c43b7930747fea1cc"
+    },
+    {
+      "source_index": 152,
+      "common_source_index": 153,
+      "source_sha256": "77df1b8869e419dd7583c63e1fd62da8345cecade3bff3112669380ef4491b17"
+    },
+    {
+      "source_index": 153,
+      "common_source_index": 154,
+      "source_sha256": "dbd714e5bad2afad948ce77095fd855134cfc51e1b9a411f18557602de5e1057"
+    },
+    {
+      "source_index": 154,
+      "common_source_index": 155,
+      "source_sha256": "4bec2ebd60e9a5a45c60b7ebf5f8dbe02df03433cd64ea994596fb1777c0b383"
+    },
+    {
+      "source_index": 155,
+      "common_source_index": 156,
+      "source_sha256": "2b5f77428ae17cd306f81d70e351d3395ac8a51c9ab1c6355574fd2474fffb2d"
+    },
+    {
+      "source_index": 156,
+      "common_source_index": 157,
+      "source_sha256": "4544e27cfc014743c5bf864b6ebfc1360d5c94caed0841393772762e7a6662c7"
+    },
+    {
+      "source_index": 157,
+      "common_source_index": 158,
+      "source_sha256": "c41b005a1293dd641e2199b28980de1f5caac45308178bbc88965a7e77eb9a9f"
+    },
+    {
+      "source_index": 158,
+      "common_source_index": 159,
+      "source_sha256": "fa341c86cda170a59f2615ba8e71628dd165edde43d1a09b4d4640ac42a5168f"
+    },
+    {
+      "source_index": 159,
+      "common_source_index": 160,
+      "source_sha256": "3ec48c2754a74f8e1a4bb0d368356a875ffa085442752c8ef37652fdab79c0d8"
+    },
+    {
+      "source_index": 160,
+      "common_source_index": 161,
+      "source_sha256": "bf16b16519a7d312e3cf2231838a2cc9a697b81281dc33f4fc7e9a99624bc236"
+    },
+    {
+      "source_index": 161,
+      "common_source_index": 162,
+      "source_sha256": "4aea00f37b65fc67287555546614b33d78d3b2bfe8ec6ad235508a794b82dcf4"
+    },
+    {
+      "source_index": 162,
+      "common_source_index": 163,
+      "source_sha256": "ea4da940a9b8bc0e665acbc7839ac5242ac4e9b6c94a74dbf130e34bc6005e29"
+    },
+    {
+      "source_index": 163,
+      "common_source_index": 164,
+      "source_sha256": "b7c3567e29caafa23b4ffb18d185679a25feffdea6a2691852d458bd2c598237"
+    },
+    {
+      "source_index": 164,
+      "common_source_index": 165,
+      "source_sha256": "6835ee7dd4b4cfa8148f1c0e8c26f35df771ff94e42eed4c330e227334021e05"
+    },
+    {
+      "source_index": 165,
+      "common_source_index": 166,
+      "source_sha256": "955c07395468ec67bcf1917720b7f7d84f852d1d8998fefabe57beda455b28b7"
+    },
+    {
+      "source_index": 166,
+      "common_source_index": 167,
+      "source_sha256": "3019ff9be4b4cdfdf482eed175f5f654c3d459e9fa13956a5032b36dbfc00145"
+    },
+    {
+      "source_index": 167,
+      "common_source_index": 168,
+      "source_sha256": "acbfecafc60b22d9fafe34c3efe7137841597c92c1760e1487f2493f51f671ee"
+    },
+    {
+      "source_index": 168,
+      "common_source_index": 169,
+      "source_sha256": "d11be57a0eeb27bfefc6bedb134729dddf283cb06b287d91f93d19d94939ed51"
+    },
+    {
+      "source_index": 169,
+      "common_source_index": 170,
+      "source_sha256": "fcc4f4023f99528c4f345e1995891e97497aac46437205871ef7aab5e364be11"
+    },
+    {
+      "source_index": 170,
+      "common_source_index": 171,
+      "source_sha256": "e1be9099ed266368a92f2ce38f17f8dd30cddd68ae384b984ca067706175d6e0"
+    },
+    {
+      "source_index": 171,
+      "common_source_index": 172,
+      "source_sha256": "43fdaeca0507b9b0e6eb59e69f1a65a0f10c6b7f81b2d5e8948d742b52620f82"
+    },
+    {
+      "source_index": 172,
+      "common_source_index": 173,
+      "source_sha256": "2acd8e49aa2b2e3aa3ac5f1d955817b84062b98d2dc5f78bacb1fe2a7d2579c1"
+    },
+    {
+      "source_index": 173,
+      "common_source_index": 174,
+      "source_sha256": "e7fe617aca7e93168fed6134c41b05594a67bb0c9d9dc0e437b508ae4068792d"
+    },
+    {
+      "source_index": 174,
+      "common_source_index": 175,
+      "source_sha256": "22d75b4808a0c769a7edc2e508301194a8dc491db7a08ec256510092512df99b"
+    },
+    {
+      "source_index": 175,
+      "common_source_index": 176,
+      "source_sha256": "05c46ad4f37cdefb4e2e542c9356a5dd23de06af974c12dd4c6981d90aa3b494"
+    },
+    {
+      "source_index": 176,
+      "common_source_index": 177,
+      "source_sha256": "1cf248f75a6de48c5d32cb9fcb86dd8e3c6dadb88439c9fbe4361a03dbfbb98c"
+    },
+    {
+      "source_index": 177,
+      "common_source_index": 178,
+      "source_sha256": "8f4c52cebfb4fd2f98f671f8e8438a236f1f0b8433fe50e28d35d34de2684e27"
+    },
+    {
+      "source_index": 178,
+      "common_source_index": 179,
+      "source_sha256": "b65e4bbe6195a514e91d0883d525e5bd6914ba3ff62e6cb386991d02f6324e34"
+    },
+    {
+      "source_index": 179,
+      "common_source_index": 180,
+      "source_sha256": "ef646c58774a6283e0a5bd3eca5aaa598a2ae35ca4bd0860093217782c61e4d8"
+    },
+    {
+      "source_index": 180,
+      "common_source_index": 181,
+      "source_sha256": "ee4469dd84e1ac78f59cb30143742d6c91cbfbf92fdf2bc8d2ab7d2e0e60a425"
+    },
+    {
+      "source_index": 181,
+      "common_source_index": 182,
+      "source_sha256": "2f077145303546656f21e6659845c3b580a231e7e8a7a9dcb55c2f031ce17ffb"
+    },
+    {
+      "source_index": 182,
+      "common_source_index": 183,
+      "source_sha256": "148f14506d93cbb5e0d14f9dfc3d9a30a713b43fbdbf58a340d25316ed1265c5"
+    },
+    {
+      "source_index": 183,
+      "common_source_index": 184,
+      "source_sha256": "ca0b7ccc7aa43774e5076e00ae2d3b1686d93f9485556998ebdf7d144ad8ef77"
+    },
+    {
+      "source_index": 184,
+      "common_source_index": 185,
+      "source_sha256": "0260f767c36ad045caa65a3b96cbd9f8ad8711b885aa90ad7b9790b53fee0e84"
+    },
+    {
+      "source_index": 185,
+      "common_source_index": 186,
+      "source_sha256": "d2933e10eae19ab286b75bba4c376e861a47e135471e86beabc9b0163b07e671"
+    },
+    {
+      "source_index": 186,
+      "common_source_index": 187,
+      "source_sha256": "b0f3dc700b13266d2237eef4b3c1ae757b83edb79611f95570487c4529d6d481"
+    },
+    {
+      "source_index": 187,
+      "common_source_index": 188,
+      "source_sha256": "c1f0ef995cf7e6df075618a5619ffdb9805daed082079c4b3b912f969e48573f"
+    },
+    {
+      "source_index": 188,
+      "common_source_index": 189,
+      "source_sha256": "51e178e2b98a61e416fd0f86b85d4ca32752f305418e869ddd610d97070d2eaf"
+    },
+    {
+      "source_index": 189,
+      "common_source_index": 190,
+      "source_sha256": "206596d165c9f8b28638c817b0755bf917dbff4dd3b9c3cfbbddfd23c871777f"
+    },
+    {
+      "source_index": 190,
+      "common_source_index": 191,
+      "source_sha256": "2ddd1781bdf4634ac2a36c9f04d29685426e34bcd65aab78517bcd15f2b0ccb2"
+    },
+    {
+      "source_index": 191,
+      "common_source_index": 192,
+      "source_sha256": "534b6da06a0e4292f2553a6759f2b876d20e30e77bfd58364f02afce714ea39b"
+    },
+    {
+      "source_index": 192,
+      "common_source_index": 193,
+      "source_sha256": "24a28c903b5bf337a1841ecd397c239e0987aa8914ce3e56e52ac6e9386402d4"
+    },
+    {
+      "source_index": 193,
+      "common_source_index": 194,
+      "source_sha256": "780e0d287d353dbebd45071fe709961eff54c1bf855720b6c237181e3946b433"
+    }
+  ]
+}

@@ -1,13 +1,58 @@
 const { test, expect } = require('@playwright/test');
 
 for (const width of [390, 1280]) {
+  test(`original simulator book keeps a single saved prose style (${width}px)`, async ({ page }) => {
+    await page.setViewportSize({width,height:844});
+    await page.goto('/');
+    await page.waitForFunction(()=>window.YoruWorldbookLibrary);
+    await page.evaluate(()=>{
+      GameState.current={location:'',npcs:[],events:[],worldbookLibrary:{version:1,enabled:[],installed:[],pinned:{}}};
+      App.saveStory=()=>{window.styleSaved=JSON.stringify(GameState.current);};
+      YoruWorldbookLibrary.open();
+    });
+    const modal=page.locator('.ylb-modal');
+    const master=modal.getByRole('checkbox',{name:'啟用整本 通用世界模擬器',exact:true});
+    const book=master.locator('xpath=ancestor::section[contains(@class,"ylb-collection")]');
+    await expect(book).toContainText('通用');
+    await expect(book).toContainText('189 條資料');
+    await master.check();
+    await expect(master).toBeChecked();
+    expect(await page.evaluate(()=>GameState.current.worldbookLibrary.enabled.filter(id=>id.startsWith('simulator-original-')).length)).toBe(5);
+    expect(await page.evaluate(()=>GameState.current.worldbookLibrary.enabled.some(id=>id.startsWith('simulator-style-')))).toBe(false);
+    await book.locator('.ylb-chapters > summary').click();
+    await expect(book).toContainText('每輪 5181 字');
+    const na=book.getByRole('checkbox',{name:'通用世界模擬器｜文風：NA',exact:true});
+    const romance=book.getByRole('checkbox',{name:'通用世界模擬器｜文風：Romantasy',exact:true});
+    await na.check();
+    await romance.check();
+    await expect(na).not.toBeChecked();
+    await expect(romance).toBeChecked();
+    await expect(master).toBeChecked();
+    const saved=await page.evaluate(()=>JSON.parse(window.styleSaved));
+    expect(saved.worldbookLibrary.enabled.filter(id=>id.startsWith('simulator-style-'))).toEqual(['simulator-style-87']);
+    await modal.getByRole('button',{name:'關閉',exact:true}).click();
+    await page.evaluate(()=>{
+      const saved=JSON.parse(window.styleSaved);
+      saved.worldbookLibrary=CharacterEngine.normalizeWorldbookLibrary(saved.worldbookLibrary);
+      GameState.current=saved;
+      YoruWorldbookLibrary.open();
+    });
+    await book.locator('.ylb-chapters > summary').click();
+    await expect(na).not.toBeChecked();
+    await expect(romance).toBeChecked();
+    await master.uncheck();
+    expect(await page.evaluate(()=>GameState.current.worldbookLibrary.enabled.length)).toBe(0);
+  });
+}
+
+for (const width of [390, 1280]) {
   test(`dedicated Astral book preserves scope, snapshots and secret conditions (${width}px)`, async ({ page }) => {
     await page.setViewportSize({ width, height: 844 });
     await page.goto('/');
     await page.waitForFunction(() => window.YoruWorldbookLibrary);
     await page.evaluate(() => {
       GameState.current = { location: '永夜領', npcs: [], events: [], worldbookLibrary: {
-        version: 1, enabled: ['sunrise-geography-demo', 'world-simulator-life-reference'], installed: [], pinned: {}
+        version: 1, enabled: ['sunrise-geography-demo', 'simulator-original-commands'], installed: [], pinned: {}
       } };
       App.saveStory = () => { window.astralSaved = JSON.stringify(GameState.current); };
       YoruWorldbookLibrary.open();
@@ -22,7 +67,7 @@ for (const width of [390, 1280]) {
     await expect(master).toBeChecked();
     const saved = await page.evaluate(() => JSON.parse(window.astralSaved));
     expect(saved.worldbookLibrary.enabled).not.toContain('sunrise-geography-demo');
-    expect(saved.worldbookLibrary.enabled).toContain('world-simulator-life-reference');
+    expect(saved.worldbookLibrary.enabled).toContain('simulator-original-commands');
     const owned = Object.values(saved.worldbookLibrary.pinned).filter(p => p.meta.world === 'astral-continent');
     expect(owned).toHaveLength(4);
     expect(owned.flatMap(p => p.entries)).toHaveLength(33);
@@ -151,28 +196,28 @@ for (const width of [1280, 390]) {
     await expect(simulator).toContainText('未啟用');
     const simulatorDetails = simulator.locator('details.ylb-chapters');
     await simulatorDetails.evaluate(node => { node.open = true; });
-    for (const chapter of ['冒險題材參考','都市與競技參考','人物與關係參考','戀愛與情感題材','身分與權謀題材','校園與成長題材']) {
+    for (const chapter of ['楚門世界與 NPC 運作','人物模板','題材與劇本','世界查詢與整理','親密描寫與細節']) {
       await expect(simulator.getByText(chapter, { exact: true })).toHaveCount(1);
     }
-    for (const name of ['通用世界模擬器｜戀愛與情感題材','通用世界模擬器｜身分與權謀題材','通用世界模擬器｜校園與成長題材']) {
+    for (const name of ['通用世界模擬器｜文風：NA','通用世界模擬器｜文風：Romantasy','通用世界模擬器｜文風：Erotica']) {
       await expect(modal.locator(`input[aria-label="${name}"]`)).not.toBeChecked();
     }
-    const relationship = modal.locator('input[aria-label="通用世界模擬器｜人物與關係參考"]');
+    const relationship = modal.locator('input[aria-label="通用世界模擬器｜人物模板"]');
     await expect(relationship).not.toBeChecked();
     await relationship.check();
     expect(await page.evaluate(() => JSON.parse(window.recallSaved).worldbookLibrary.enabled))
-      .toContain('world-simulator-relationship-reference');
-    const adventure = modal.locator('input[aria-label="通用世界模擬器｜冒險題材參考"]');
+      .toContain('simulator-original-characters');
+    const adventure = modal.locator('input[aria-label="通用世界模擬器｜題材與劇本"]');
     await expect(adventure).not.toBeChecked();
     await adventure.check();
-    expect(await page.evaluate(() => JSON.parse(window.recallSaved).worldbookLibrary.pinned['world-simulator-adventure-reference'].entries.length)).toBe(9);
-    const life = modal.locator('input[aria-label="通用世界模擬器｜都市與競技參考"]');
+    expect(await page.evaluate(() => JSON.parse(window.recallSaved).worldbookLibrary.pinned['simulator-original-genres'].entries.length)).toBe(36);
+    const life = modal.locator('input[aria-label="通用世界模擬器｜世界查詢與整理"]');
     await expect(life).not.toBeChecked();
     await life.check();
-    expect(await page.evaluate(() => JSON.parse(window.recallSaved).worldbookLibrary.pinned['world-simulator-life-reference'].entries.length)).toBe(5);
-    const romance = modal.locator('input[aria-label="通用世界模擬器｜戀愛與情感題材"]');
+    expect(await page.evaluate(() => JSON.parse(window.recallSaved).worldbookLibrary.pinned['simulator-original-commands'].entries.length)).toBe(12);
+    const romance = modal.locator('input[aria-label="通用世界模擬器｜親密描寫與細節"]');
     await romance.check();
-    expect(await page.evaluate(() => JSON.parse(window.recallSaved).worldbookLibrary.pinned['world-simulator-romance-reference'].entries.length)).toBe(13);
+    expect(await page.evaluate(() => JSON.parse(window.recallSaved).worldbookLibrary.pinned['simulator-original-intimacy'].entries.length)).toBe(97);
     await modal.locator('.ylb-recall-explain summary').click();
     await mode.selectOption('off');
     expect(await page.evaluate(() => JSON.parse(window.recallSaved).worldbookLibrary.recallMode)).toBe('off');
@@ -185,7 +230,7 @@ for (const width of [1280, 390]) {
     });
     await expect(mode).toHaveValue('off');
     await expect(relationship).toBeChecked();
-    expect(await page.evaluate(() => GameState.current.worldbookLibrary.pinned['world-simulator-relationship-reference'].entries.length)).toBe(28);
+    expect(await page.evaluate(() => GameState.current.worldbookLibrary.pinned['simulator-original-characters'].entries.length)).toBe(31);
     await modal.locator('.ylb-recall-explain summary').click();
     await mode.selectOption('scene');
     expect(await page.evaluate(() => GameState.current.worldbookLibrary.recallMode)).toBe('scene');
@@ -224,7 +269,7 @@ for (const width of [390,1280]) {
     const initial=await collection.count();
     expect(initial).toBeGreaterThan(2);
 
-    await search.fill('人物與關係參考');
+    await search.fill('楚門世界與 NPC 運作');
     await expect(modal.locator('.ylb-collection:visible')).toHaveCount(1);
     const visible=modal.locator('.ylb-collection:visible');
     await expect(visible).toContainText('通用世界模擬器');
@@ -235,8 +280,8 @@ for (const width of [390,1280]) {
     await master.check();
     await expect(modal.locator('.ylb-collection:visible')).toHaveCount(1);
     const enabled=await page.evaluate(()=>GameState.current.worldbookLibrary.enabled);
-    expect(enabled).toContain('world-simulator-relationship-reference');
-    expect(enabled).toContain('world-simulator-adventure-reference');
+    expect(enabled).toContain('simulator-original-characters');
+    expect(enabled).toContain('simulator-original-genres');
 
     await search.fill('沒有這個世界書');
     await expect(modal.locator('.ylb-collection:visible')).toHaveCount(0);
