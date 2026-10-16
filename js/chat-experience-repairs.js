@@ -144,7 +144,7 @@
         </fieldset>
         <fieldset><legend>Token 與費用估算</legend>
           ${field('maxOutputTokens','單次最大輸出 Token',visibleOutput,{min:64,max:outputLimit,step:64,hint:outputHint})}
-          ${field('stateInterval','世界狀態整理間隔（輪）',cost.stateInterval ?? 2,{min:1,max:20})}
+          ${field('stateInterval','獨立狀態模型整理間隔（輪）',cost.stateInterval ?? 2,{min:1,max:20,hint:'僅適用獨立狀態模型；共用主模型時每輪隨故事更新，不另發狀態請求。'})}
           ${field('inputPerMillion','輸入單價（USD / 1M tokens）',cost.inputPerMillion ?? 0,{min:0,step:0.01})}
           ${field('outputPerMillion','輸出單價（USD / 1M tokens）',cost.outputPerMillion ?? 0,{min:0,step:0.01})}
           ${field('cachePerMillion','Cache 單價（USD / 1M tokens）',cost.cachePerMillion ?? 0,{min:0,step:0.01})}

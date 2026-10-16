@@ -1,6 +1,6 @@
 (() => {
   'use strict';
-  if (window.BAOSameModelStateMerge || !window.App || !window.Chat || !window.API ||
+  if (window.BAOSameModelStateMerge || !window.App || !window.Chat || typeof API === 'undefined' ||
       !window.WorldStateEngine || !window.GameState || !window.BAOHelperData) return;
 
   const OPEN = '<BAO_STATE>';
@@ -17,12 +17,10 @@
     if (!Array.isArray(owner.pendingStateTurns)) owner.pendingStateTurns = [];
     return owner.pendingStateTurns;
   };
-  const intervalFor = config => {
-    if (typeof WorldStateEngine.interval === 'function') return Math.max(1, Number(WorldStateEngine.interval(config) || 1));
-    const configured = Number(config?.cost?.stateInterval || 0);
-    if (configured > 0) return Math.max(1, configured);
-    return config?.narrativeMode === 'world' ? 2 : 3;
-  };
+  // The interval belongs to the explicitly separate helper route. In merged
+  // mode every story response carries a delta (or {}), including old saves
+  // whose separate-helper interval is still two or three turns.
+  const intervalFor = () => 1;
   const explicitSeparateStateRoute = config => {
     if (String(config?.cost?.stateApiMode || '').trim() === 'same') return false;
     const route = config?.cost?.stateApi;
@@ -120,6 +118,7 @@
       'npcs 只更新有明確變化的人物；presence 只能是 present、away、unknown。不要因轉場自動認定人物仍在場。',
       '更新既有 NPC 時沿用目前狀態的 npc_id；新 NPC 不填 npc_id，由系統建立。新 NPC 可填 aliases、固定 appearance 與當前 outfit。既有 appearance 必須沿用；只有故事明確造成長期外貌變化時才同時回傳 appearance_change:true。只有明確換裝才更新 outfit。first_seen 由系統建立，不得輸出。別名對應到既有人物時使用正式姓名，不能重複建檔。',
       'modules 只使用允許的 module_id 與欄位；character_statuses 只使用允許的 field_key。無法確定的欄位直接省略。',
+      '物件模組只輸出變動欄位；集合模組的陣列會取代該集合，若需更新必須保留既有項目，不能只回傳新增項目。沒有完整依據就省略該集合。',
       defs.some(def => def.id === window.BAOThreeRealmsCultivation?.id) ? window.BAOThreeRealmsCultivation.rules : '',
       'world_clock 是可選 PATCH：只有明確經過時間才寫 advance_minutes；只有明確日期、期限、約定、旅程耗時或倒數才 schedule。不得自行創造劇情。resolve/cancel 只能使用目前狀態已有的 wc-* ID。',
       '即使狀態附錄無法完成，也優先保留完整故事正文；不要因狀態附錄而拒絕或省略正文。',
@@ -156,7 +155,7 @@
     const text = String(raw || '');
     const upper = text.toUpperCase();
     const open = upper.lastIndexOf(OPEN);
-    if (open < 0) return { narration: text.trim(), stateText: '', hasState: false };
+    if (open < 0) return { narration: visibleText(text).trim(), stateText: '', hasState: false };
     const start = open + OPEN.length;
     const close = upper.indexOf(CLOSE, start);
     return {
@@ -185,8 +184,8 @@
       };
     }
     const result = await next(effective, prepared, ...rest);
-    if (GameState.current !== owner) return result;
     const split = splitFinal(result?.text || '');
+    if (GameState.current !== owner) return { ...result, text: split.narration };
     if (split.hasState && !split.narration) throw new Error('模型只回傳狀態資料，沒有故事正文。');
     // An opening marker without its closing marker is a truncated appendix.
     // Never apply a partial PATCH or charge for a silent second request.
@@ -194,13 +193,18 @@
     const stateComplete = split.hasState && upper.lastIndexOf(CLOSE) > upper.lastIndexOf(OPEN);
     let parsed = null;
     if (stateComplete) {
-      try { parsed = WorldStateEngine.parse?.(split.stateText) || null; } catch {}
+      // Unlike legacy free-form helpers, the appendix must be one complete
+      // object. Do not salvage an object from an array or trailing garbage.
+      try {
+        const candidate = JSON.parse(split.stateText.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, ''));
+        if (candidate && typeof candidate === 'object' && !Array.isArray(candidate)) parsed = candidate;
+      } catch {}
     }
     const stateIssue = !split.hasState ? 'missing_appendix'
       : !stateComplete ? 'incomplete_appendix'
         : !parsed ? 'invalid_json' : '';
     mergedByStory.set(owner, { userText, narration: split.narration, hasState: split.hasState, parsed, defs, priorCount, stateIssue, actionBaseline });
-    return { ...result, text: split.narration || String(result?.text || '') };
+    return { ...result, text: split.narration };
   };
   if (typeof API.wrapSend === 'function') {
     API.wrapSend('same-model-state-merge:main-story', sameModelStateWrapper);
