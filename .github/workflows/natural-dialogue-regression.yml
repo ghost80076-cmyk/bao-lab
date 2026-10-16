@@ -7,6 +7,7 @@ on:
       - 'data/prompts/*.json'
       - 'data/characters/community/c4/kept-in-frame-lin-youzhen.json'
       - 'tests/natural-dialogue-voice-regression.test.cjs'
+      - 'tests/kept-in-frame-relationship-startup.test.cjs'
       - '.github/workflows/natural-dialogue-regression.yml'
   workflow_dispatch:
 
@@ -24,6 +25,7 @@ jobs:
           node --check js/prompt-orchestrator.js
           node --check tests/natural-dialogue-voice-regression.test.cjs
           node tests/natural-dialogue-voice-regression.test.cjs
+          node tests/kept-in-frame-relationship-startup.test.cjs
           node tests/prompt-orchestrator-core.cjs
           node tests/narrative-prompt-pipeline-core.cjs
           node tests/prompt-cache-core.cjs
