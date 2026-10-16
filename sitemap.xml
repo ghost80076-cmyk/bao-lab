@@ -52,4 +52,11 @@
     <loc>https://yorubay.com/lights-refund-policy</loc>
     <lastmod>2026-10-12</lastmod>
   </url>
+  <!-- public-works:start -->
+  <url><loc>https://yorubay.com/works/</loc></url>
+  <url><loc>https://yorubay.com/works/linchenfeng</loc></url>
+  <url><loc>https://yorubay.com/works/open-world-real-persona</loc></url>
+  <url><loc>https://yorubay.com/works/night-sky-magic-academy</loc></url>
+  <url><loc>https://yorubay.com/works/k-idol-survival-simulator</loc></url>
+  <!-- public-works:end -->
 </urlset>

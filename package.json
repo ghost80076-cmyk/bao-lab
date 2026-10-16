@@ -4,7 +4,9 @@
   "scripts": {
     "audit:production-security": "node tests/production-security-smoke.cjs",
     "test:e2e": "playwright test",
-    "audit:aws-models": "node scripts/audit-aws-openrouter-models.cjs"
+    "audit:aws-models": "node scripts/audit-aws-openrouter-models.cjs",
+    "build:public-works": "node scripts/build-public-works.cjs",
+    "check:public-works": "node scripts/build-public-works.cjs --check"
   },
   "devDependencies": {
     "@playwright/test": "1.63.0"

@@ -237,7 +237,10 @@ jobs:
       - name: YoruBay visible HTML escape audit
         run: node tests/html-visible-escape-audit.cjs
       - name: YoruBay SEO URL contract
-        run: node tests/seo-url-contract.cjs
+        run: |
+          node tests/seo-url-contract.cjs
+          node scripts/build-public-works.cjs --check
+          node tests/public-works-seo.cjs
       - name: YoruBay zero-cost model billing
         run: node tests/worker-free-model-billing-core.cjs
       - name: YoruBay OpenRouter price guard
