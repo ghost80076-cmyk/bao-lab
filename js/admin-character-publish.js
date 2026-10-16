@@ -37,6 +37,9 @@
     author_id_required_for_support: "要提供「支持作者」連結，請先填寫穩定的作者 ID。",
     invalid_author_support_url: "支持作者連結必須是有效的 HTTPS 網址，且不能包含帳號密碼。",
     invalid_author_profile: "作者公開資料無效。",
+    invalid_license_policy: "授權條件無效，請確認各欄位。",
+    invalid_license_mode: "作品授權模式無效。",
+    author_id_required_for_license: "使用單張獨立授權，必須先填寫作者 ID。",
     author_identity_mismatch: "這個已發布作品已綁定其他作者 ID，不能在一般更新流程直接改綁。",
     github_publish_not_configured: "Worker 尚未設定 GitHub 發布金鑰。",
     github_publish_failed: "GitHub 建立 PR 失敗，請檢查 Worker 的 GitHub 權限與設定。",
@@ -64,6 +67,99 @@
       author_support_label: String($("publish-author-support-label")?.value || "支持作者").trim(),
       author_support_url: String($("publish-author-support-url")?.value || "").trim()
     };
+  }
+
+
+  const BASE_LICENSE = {
+    redistribution: "permission_required",
+    adaptations: "permission_required",
+    commercial_use: "prohibited",
+    attribution_required: true
+  };
+
+  function licensePolicy(prefix) {
+    return {
+      redistribution: $(prefix + "-redistribution").value,
+      adaptations: $(prefix + "-adaptations").value,
+      commercial_use: $(prefix + "-commercial").value,
+      attribution_required: $(prefix + "-attribution").value === "true"
+    };
+  }
+
+  function setLicensePolicy(prefix, policy) {
+    const p = { ...BASE_LICENSE, ...(policy || {}) };
+    $(prefix + "-redistribution").value = p.redistribution;
+    $(prefix + "-adaptations").value = p.adaptations;
+    $(prefix + "-commercial").value = p.commercial_use;
+    $(prefix + "-attribution").value = String(p.attribution_required);
+  }
+
+  function setLicenseMessage(message, success = false) {
+    const el = $("publish-license-message");
+    if (!el) return;
+    el.textContent = message;
+    el.className = success ? "success" : "note";
+  }
+
+  function toggleLicenseOverride() {
+    const custom = $("publish-license-mode")?.value === "custom";
+    const panel = $("publish-license-custom-fields");
+    if (panel) panel.hidden = !custom;
+  }
+
+  async function loadLicenseDefault() {
+    if (!window.YoruBayAdmin?.isAuthenticated?.()) throw new Error("請先登入管理員。");
+    const authorId = authorPayload().author_id;
+    if (!authorId) throw new Error("請先填寫作者 ID。");
+    const button = $("publish-license-load");
+    button.disabled = true;
+    setLicenseMessage("正在讀取作者預設授權…");
+    try {
+      const result = await window.YoruBayAdmin.api(
+        "/admin/authors/license-default?author_id=" + encodeURIComponent(authorId)
+      );
+      if (authorPayload().author_id !== authorId) {
+        setLicenseMessage("作者 ID 已變更，請重新讀取新作者的預設。");
+        return;
+      }
+      setLicensePolicy("publish-license-default", result.policy);
+      setLicensePolicy("publish-license-custom", result.policy);
+      $("publish-license-default-note").textContent = result.saved
+        ? "已儲存至 D1｜版本 " + result.revision
+        : "此作者尚無 D1 預設紀錄，畫面使用保守預設；可在下方儲存。";
+      setLicenseMessage("✓ 作者授權條件已載入。", true);
+    } catch (error) {
+      setLicenseMessage("讀取作者預設失敗：" + friendly(error));
+      throw error;
+    } finally {
+      button.disabled = false;
+    }
+  }
+
+  async function saveLicenseDefault() {
+    if (!window.YoruBayAdmin?.isAuthenticated?.()) throw new Error("請先登入管理員。");
+    const authorId = authorPayload().author_id;
+    if (!authorId) throw new Error("請先填寫作者 ID。");
+    const button = $("publish-license-save-default");
+    button.disabled = true;
+    setLicenseMessage("正在儲存作者預設至 D1…");
+    try {
+      const data = await window.YoruBayAdmin.api("/admin/authors/license-default", {
+        method: "POST",
+        body: JSON.stringify({
+          author_id: authorId,
+          policy: licensePolicy("publish-license-default")
+        })
+      });
+      $("publish-license-default-note").textContent =
+        "✓ D1 已儲存作者 " + authorId + " 的預設授權｜版本 " + data.revision;
+      setLicenseMessage("✓ 作者預設已儲存；選擇「套用作者預設」的作品將在提交 PR 時取用最新版本。", true);
+    } catch (error) {
+      setLicenseMessage("儲存作者預設失敗：" + friendly(error));
+      throw error;
+    } finally {
+      button.disabled = false;
+    }
   }
 
   function setAuthorMessage(text, ok = false) {
@@ -426,6 +522,10 @@
         method: "POST",
         body: JSON.stringify({
           rights_confirmed: true,
+          license_mode: $("publish-license-mode").value,
+          ...($("publish-license-mode").value === "custom"
+            ? { license_policy: licensePolicy("publish-license-custom") }
+            : {}),
           publication_mode: $("publish-mode")?.value === "update" ? "update" : "create",
           author_id: String($("publish-author-id")?.value || "").trim().toLowerCase(),
           author_name: String($("publish-author").value || "").trim(),
@@ -463,6 +563,9 @@
         (data.author_directory_path ? "｜作者資料：" + data.author_directory_path : "") +
         (data.asset_path ? "｜封面：" + data.asset_path : "");
       result.append(detail);
+      if (data.warning === "license_audit_write_failed") {
+        setLicenseMessage("注意：PR 已建立，但 D1 授權提交紀錄未寫入成功；請先修復，再合併。");
+      }
       setMessage(
         data.publication_mode === "update"
           ? "✓ 已建立作品更新 PR；尚未直接部署正式站。合併後玩家才會看到新版與 UPDATED。"
@@ -525,6 +628,21 @@
       updateAuthorProfileButton();
     });
   });
+
+
+  $("publish-license-load")?.addEventListener("click", async () => {
+    try { await loadLicenseDefault(); } catch {}
+  });
+  $("publish-license-save-default")?.addEventListener("click", async () => {
+    try { await saveLicenseDefault(); } catch {}
+  });
+  $("publish-license-mode")?.addEventListener("change", toggleLicenseOverride);
+  $("publish-author-id")?.addEventListener("input", () => {
+    $("publish-license-default-note").textContent = "作者 ID 已編輯，請重新讀取授權預設。";
+  });
+  setLicensePolicy("publish-license-default", BASE_LICENSE);
+  setLicensePolicy("publish-license-custom", BASE_LICENSE);
+  toggleLicenseOverride();
 
   $("publish-rights")?.addEventListener("change", updateButton);
   $("publish-mode")?.addEventListener("change", updateButton);
