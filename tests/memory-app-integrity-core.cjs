@@ -84,6 +84,13 @@ input.value = "繼續。";
   assert.deepEqual(Chat.messages.slice(-2).map(message => message.role), ["user", "assistant"]);
   assert.equal(Chat.messages.at(-1).content, "主要故事回覆");
 
+  let saves = 0;
+  App.saveStory = () => { saves++; return true; };
+  Chat.afterTurn = async () => { GameState.current.episodicMemory = { version: 1, events: [] }; };
+  input.value = "摘要相同但索引更新。";
+  await App.sendMessage();
+  assert.equal(saves, 2, "event-index updates must be saved even if summary text stays unchanged");
+
   Chat.afterTurn = async () => {
     Chat.afterTurnCalls += 1;
     throw new Error("memory helper failed");

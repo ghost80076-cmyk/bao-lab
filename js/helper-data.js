@@ -142,5 +142,5 @@
     }
     return out;
   };
-  window.BAOHelperData = { memoryRules, memoryText, stateUpdate, moduleSchemas, worldClockPatch };
+  window.BAOHelperData = { parse, memoryRules, memoryText, stateUpdate, moduleSchemas, worldClockPatch };
 })();
