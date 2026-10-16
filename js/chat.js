@@ -200,6 +200,7 @@ const Chat = {
       boundedEnd = i + 1;
     }
     end = boundedEnd;
+    this.ensureMessageIds();
     const chunk = this.messages.slice(start, end);
     const sourceSignature = JSON.stringify(chunk.map(m => [m.id, m.content, m.context_content || ""]));
     if (!chunk.length) return;
@@ -212,18 +213,21 @@ const Chat = {
       repaired: false
     };
     try {
-      const transcript = chunk.map(m => `${m.role === "user" ? "玩家" : "角色/系統"}：${m.role === "assistant" ? this.modelContent(m) : m.content}`).join("\n\n");
+      const transcript = chunk.map(m => `[${m.id}] ${m.role === "user" ? "玩家" : "角色/系統"}：${m.role === "assistant" ? this.modelContent(m) : m.content}`).join("\n\n");
       const prompt = [
         "你是角色扮演長期記憶整理器。",
         "請把舊對話壓縮成精簡但可延續劇情的記憶。",
         "保留已發生事件、已知資訊、明確關係、承諾、物品與目標。玩家偏好只能記錄玩家明說的內容；不得把 AI 推測的心理當作事實。",
         window.BAOHelperData.memoryRules,
+        config?.memory?.episodicRecall === false ? "" : window.BAOEpisodicMemory?.rules,
+        config?.memory?.episodicRecall === false || !window.BAOEpisodicMemory ? "" : `【近期事件索引（僅供明確更正時引用 ID，不可當作本次新證據）】\n${JSON.stringify(window.BAOEpisodicMemory.updateContext(owner))}`,
         "刪除重複修辭、寒暄與不影響後續的細節。不要加入原文沒有的資訊，不要寫分析過程。",
         this.summary ? `【既有摘要】\n${this.summary}` : "",
         `【待整理舊對話】\n${transcript}`,
         force ? "目前 Context 使用率偏高，請進一步壓縮，輸出新的完整摘要，盡量控制在 600～1200 字。" : "請輸出新的完整長期記憶摘要，建議 800～1600 字以內。"
       ].filter(Boolean).join("\n\n");
-      const summaryConfig = { ...memoryApi, __memoryTask: true, cacheEnabled: false };
+      const summaryConfig = { ...memoryApi, __memoryTask: true, cacheEnabled: false,
+        ...(config?.memory?.episodicRecall !== false && window.BAOEpisodicMemory ? { __responseSchema: window.BAOEpisodicMemory.schema } : {}) };
       const result = await API.send(summaryConfig, [{ role: "system", content: "你是 Observer，不是作者。只輸出記憶規格 JSON，不要續寫故事或模仿正文文風。" }, { role: "user", content: prompt }]);
       const normalized = await this.normalizeMemoryResult(summaryConfig, result?.text || "");
       const summary = normalized.summary;
@@ -240,6 +244,9 @@ const Chat = {
       }
       if (window.GameState?.current !== owner || this.summary !== previousSummary || this.summarizedUntil !== start
         || JSON.stringify(this.messages.slice(start, end).map(m => [m.id, m.content, m.context_content || ""])) !== sourceSignature) return;
+      if (owner && !normalized.repaired && config?.memory?.episodicRecall !== false) {
+        window.BAOEpisodicMemory?.ingest(owner, window.BAOHelperData.parse(result?.text || ""), chunk);
+      }
       this.summary = summary;
       this.summarizedUntil = end;
       this.memoryHealth = {
