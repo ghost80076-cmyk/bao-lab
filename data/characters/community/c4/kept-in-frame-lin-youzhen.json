@@ -455,6 +455,8 @@
       },
       {
         "id": "recent_events",
+        "visibility": "public",
+        "story_history": true,
         "label": "相處歷程",
         "icon": "◇",
         "kind": "collection",

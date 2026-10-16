@@ -59,3 +59,28 @@ for (const width of [390, 1280]) test(`story history collects public events and 
   expect(result.branch.entries.some(item => item.text === '支線獨有事件')).toBe(true);
   expect(result.branch.entries.some(item => item.starred)).toBe(true);
 });
+
+for (const [file, expected, moduleId] of [
+  ['c4/kept-in-frame-lin-youzhen.json', '雨夜的匿名委託', 'recent_events'],
+  ['c4/lin-qiaorou-always-nearby.json', '林巧柔帶早餐', 'event_log']
+]) test(`native public event collection appears in story history: ${moduleId} ${file}`, async ({ page }) => {
+  await page.goto('./');
+  await page.waitForFunction(() => window.BAOStoryHistory && window.BAOWorldModules && window.BAOStoryIntegrity && window.BAOStoryRevisionState && App.characters?.length);
+  await page.evaluate(async ({file, moduleId}) => {
+    const response = await fetch('data/characters/community/' + file);
+    App.activeCharacter = CharacterEngine.normalize(await response.json());
+    App.config = {narrativeMode:'world', displayMode:'ui', persona:{name:'旅人'}, api:{}, memory:{mode:'smart',maxRounds:20}};
+    Chat.reset();
+    GameState.create(App.activeCharacter, App.config);
+    GameState.applyUpdate({modules:{[moduleId]:['本輪公開新事件']}});
+    App.renderChatShell(false); App.showView('chat');
+    BAOStoryHistory.open();
+  }, {file, moduleId});
+  const dialog = page.getByRole('dialog', {name:'故事歷程',exact:true});
+  await expect(dialog).toContainText(expected);
+  await expect(dialog).toContainText('本輪公開新事件');
+  await dialog.getByRole('searchbox').fill(expected);
+  await expect(dialog.locator('article')).toHaveCount(1);
+  await dialog.getByRole('button', {name:'☆ 收藏',exact:true}).click();
+  await expect(dialog.getByRole('button', {name:'★ 已收藏',exact:true})).toHaveAttribute('aria-pressed','true');
+});
