@@ -68,6 +68,9 @@ for (const width of [390, 1440]) {
       const saved = Storage.loadStory();
       const ok = Storage.restoreStory(saved);
       return { ok, location: GameState.current.location, events: GameState.current.events, pending: GameState.current.pendingStateTurns.length };
-    })).toMatchObject({ ok: true, location: '車站', pending: 0, events: expect.arrayContaining(['第一次見面', '一起離開咖啡館']) });
+    })).toMatchObject({ ok: true, location: '車站', pending: 0, events: expect.arrayContaining([
+      expect.objectContaining({ id: expect.any(String), text: '第一次見面', source: 'state-model', turn: 1 }),
+      expect.objectContaining({ id: expect.any(String), text: '一起離開咖啡館', source: 'state-model', turn: 2 })
+    ]) });
   });
 }
