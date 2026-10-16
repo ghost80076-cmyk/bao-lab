@@ -506,6 +506,8 @@
       },
       {
         "id": "event_log",
+        "visibility": "public",
+        "story_history": true,
         "label": "最近紀錄",
         "icon": "·",
         "kind": "collection",

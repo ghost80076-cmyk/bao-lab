@@ -43,6 +43,7 @@
       kind,
       // Hide internal tracking modules from player-facing state UI, not local storage.
       visibility: source.visibility === 'internal' ? 'internal' : 'public',
+      ...(source.story_history === true && source.visibility === 'public' && kind === 'collection' ? { story_history: true } : {}),
       enabled: source.enabled !== false,
       triggers,
       fields: Array.isArray(source.fields || preset.fields) ? (source.fields || preset.fields).slice(0, 24).map(f => ({
@@ -137,6 +138,7 @@
   GameState.create = function(character, config) {
     const state = originalCreate(character, config);
     ensureState(character);
+    window.BAOStoryHistoryCore?.captureModules?.(state);
     return state;
   };
 
@@ -145,6 +147,7 @@
     originalApply(update);
     if (!this.current || !update?.modules || typeof update.modules !== "object" || Array.isArray(update.modules)) return;
     ensureState(window.App?.activeCharacter);
+    const previous = { ...this.current.modules };
     const allowed = new Map((this.current.moduleDefinitions || []).map(d => [d.id, d]));
     Object.entries(update.modules).forEach(([id, value]) => {
       if (!allowed.has(id) || value === undefined) return;
@@ -153,6 +156,7 @@
       if (def.kind === "object" && (!value || typeof value !== "object" || Array.isArray(value))) return;
       this.current.modules[id] = clone(value);
     });
+    window.BAOStoryHistoryCore?.captureModules?.(this.current, { previous });
   };
 
   const relevanceScore = (def, text = "") => {
