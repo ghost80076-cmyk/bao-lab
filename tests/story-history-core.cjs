@@ -1,0 +1,46 @@
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const vm = require('node:vm');
+const context = vm.createContext({ window: {}, structuredClone });
+for (const file of ['js/story-history-core.js', 'js/state.js', 'js/world-state.js']) vm.runInContext(fs.readFileSync(file, 'utf8'), context);
+const run = code => vm.runInContext(code, context);
+const core = context.window.BAOStoryHistoryCore;
+const state = { events: ['舊事件'], time: '深夜', location: '碼頭', private_facts: 'SECRET', worldModules: { secret: 'SECRET' } };
+assert.equal(JSON.stringify(state).includes('storyHistory'), false);
+assert.equal(core.read(state).entries[0].time, '');
+assert.equal(state.storyHistory, undefined, 'reading old saves must not migrate or write');
+core.record(state, '赴約');
+assert.equal(core.read(state).entries[0].location, '碼頭');
+assert.equal(JSON.stringify(state.storyHistory).includes('SECRET'), false);
+core.record(state, '赴約');
+assert.equal(core.read(state).entries.length, 2, 'adjacent duplicates coalesce');
+const saved = JSON.parse(JSON.stringify(state));
+core.toggle(saved, saved.storyHistory.entries[0].id);
+assert.equal(core.read(state).entries[0].starred, false, 'branch copies must remain independent');
+assert.equal(core.read(saved).entries[0].starred, true);
+core.record(saved, '支線事件');
+assert.equal(core.read(state).entries.some(item => item.text === '支線事件'), false);
+const snapshot = structuredClone(saved);
+core.record(saved, '被撤回的事件');
+assert.equal(core.read(snapshot).entries.some(item => item.text === '被撤回的事件'), false);
+const dirty = core.read({ storyHistory: { version: 1, entries: [
+  { id: 1, text: '公開', private: 'SECRET', starred: true },
+  { id: 1, text: '重複ID' }, { id: -1, text: '無效' }, { id: 2, text: { secret: 'SECRET' } }
+] } });
+assert.equal(dirty.entries.length, 1);
+assert.equal(JSON.stringify(dirty).includes('SECRET'), false);
+const full = { events: [] };
+for (let i = 0; i < core.LIMIT; i++) core.record(full, '事件' + i);
+core.toggle(full, full.storyHistory.entries.at(-1).id);
+core.record(full, '最新');
+assert.equal(full.storyHistory.entries.length, core.LIMIT);
+assert.ok(full.storyHistory.entries.some(item => item.text === '事件0'), 'collected oldest entry survives pruning');
+full.storyHistory.entries.forEach(item => { item.starred = true; });
+core.record(full, '滿額不覆蓋收藏');
+assert.equal(full.storyHistory.entries.some(item => item.text === '滿額不覆蓋收藏'), false);
+run(`GameState.current = {events:[],time:'清晨',location:'港口'}; GameState.applyUpdate({events:['抵達港口']});`);
+assert.equal(run('GameState.current.storyHistory.entries[0].text'), '抵達港口');
+const prompt = run('JSON.stringify(WorldStateEngine.stateSnapshot())');
+assert.equal(prompt.includes('storyHistory'), false, 'collection must not enter state prompt');
+assert.equal(prompt.includes('starred'), false);
+console.log('Story history: migration, public field allowlist, branch snapshots, bounds, state integration and prompt isolation passed');

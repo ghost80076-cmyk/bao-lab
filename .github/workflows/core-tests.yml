@@ -57,6 +57,8 @@ jobs:
           node --check js/chat-tool-navigation.js
           node --check js/site-ui.js
           node tests/experience-preferences-core.cjs
+      - name: Public story history and collection
+        run: node tests/story-history-core.cjs
       - name: Story Reader core
         run: node tests/story-reader-core.cjs
       - name: Story revision state consistency

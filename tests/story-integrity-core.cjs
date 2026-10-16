@@ -25,6 +25,7 @@ global.App = {
 global.Chat = { messages: [] };
 global.Storage = { restoreStory: () => false };
 global.API = { send: async () => ({ text: '{}' }) };
+run('js/story-history-core.js');
 run('js/state.js');
 run('js/world-state.js');
 run('js/character-status.js');
@@ -50,6 +51,9 @@ assert.equal(GameState.current.events.length, 0, 'synthetic turn counter is igno
 GameState.upsertNPC({ name: '林慕晴', role: '主要NPC' });
 assert.equal(GameState.current.characterStatuses['林慕晴'].trust, '未確認');
 
+assert.equal(BAOStoryHistoryCore.read({events:[{text:'舊的公開事件',secret:'DO-NOT-SHOW'}]}).entries[0].text, '舊的公開事件');
+assert.equal(GameState.current.storyHistory, undefined, 'synthetic events do not create history');
+
 const valid = BAOHelperData.stateUpdate({
   new_events: ['林慕晴抵達辦公室。', '林慕晴離開辦公室。'],
   npcs: [{ name: '林慕晴', mood: '警惕', location: '走廊' }],
@@ -63,6 +67,8 @@ assert.equal(valid.character_statuses['不存在的人'], undefined, 'unknown NP
 GameState.applyUpdate(valid);
 assert.deepEqual(GameState.current.events.map(event => event.text),
   ['林慕晴離開辦公室。', '林慕晴抵達辦公室。'], 'newest confirmed event is first');
+assert.deepEqual(BAOStoryHistoryCore.read(GameState.current).entries.map(event => event.text),
+  ['林慕晴離開辦公室。', '林慕晴抵達辦公室。'], 'production event override also records history');
 assert.equal(GameState.current.characterStatuses['林慕晴'].current_activity, '走出辦公室');
 assert.equal(GameState.current.characterStatuses['林慕晴'].unknown, undefined);
 assert.equal(GameState.current.npcs[0].location, '走廊');

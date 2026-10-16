@@ -118,6 +118,7 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/conversation-search.js?v=4"))
     .then(() => loadBAOScript("js/inspiration-copy.js"))
     .then(() => loadBAOScript("js/story-revision-state.js"))
+    .then(() => loadBAOScript("js/story-history.js?v=1"))
     .then(() => loadBAOScript("js/story-branches.js?v=2"))
     .then(() => loadBAOScript("js/streaming-ui.js?v=3"))
     .then(() => loadBAOScript("js/request-lifecycle.js"))
@@ -145,7 +146,7 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/story-extension-pack.js"))
     .then(() => loadBAOScript("js/story-extensions-center.js?v=6"))
     .then(() => loadBAOScript("js/story-control-center-core.js"))
-    .then(() => loadBAOScript("js/story-control-center.js?v=4"))
+    .then(() => loadBAOScript("js/story-control-center.js?v=5"))
     .catch(err => console.warn("BAO/LAB local preview, narrative settings, memory workbench, story tools, story library, story reader or chat markup failed to load:", err));
   loadBAOScript("js/work-package-core.js?v=1")
     .then(() => loadBAOScript("js/character-library.js?v=3"))
