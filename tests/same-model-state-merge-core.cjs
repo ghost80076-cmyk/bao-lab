@@ -3,6 +3,20 @@ const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
 
+// Classic scripts expose top-level const API lexically before the later
+// world-state hook publishes window.API. Match that real browser load order.
+const boot = vm.createContext({});
+vm.runInContext(`
+  const API = { send() {}, wrapSend(id) { this.installed = id; } };
+  const App = {}, Chat = {}, GameState = {};
+  const WorldStateEngine = { update() {} };
+  const window = { App, Chat, GameState, WorldStateEngine, BAOHelperData: {} };
+`, boot);
+vm.runInContext(fs.readFileSync(path.join(__dirname, '..', 'js', 'same-model-state-merge.js'), 'utf8'), boot);
+assert.equal(vm.runInContext('typeof window.API', boot), 'undefined');
+assert.equal(vm.runInContext('API.installed', boot), 'same-model-state-merge:main-story',
+  'merge must initialize before the later hook publishes window.API');
+
 const sent = [];
 let separateUpdates = 0;
 let providerMode = 'normal';

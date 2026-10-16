@@ -1,6 +1,6 @@
 (() => {
   'use strict';
-  if (window.BAOSameModelStateMerge || !window.App || !window.Chat || !window.API ||
+  if (window.BAOSameModelStateMerge || !window.App || !window.Chat || typeof API === 'undefined' ||
       !window.WorldStateEngine || !window.GameState || !window.BAOHelperData) return;
 
   const OPEN = '<BAO_STATE>';
