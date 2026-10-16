@@ -216,6 +216,7 @@ jobs:
           node tests/device-transfer-core.cjs
           node tests/admin-character-publish-core.cjs
           node tests/admin-character-publish-update.cjs
+          node tests/admin-license-publication.cjs
           node tests/admin-author-profile-publish.cjs
           node tests/admin-author-profile-update.cjs
       - name: Author structure guidance and relay probe

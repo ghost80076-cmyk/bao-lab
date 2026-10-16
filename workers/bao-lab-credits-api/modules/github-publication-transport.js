@@ -1351,6 +1351,10 @@ async function createCharacterPublicationPr(
                       : "not provided"
                   ),
                 "- Rights confirmation: confirmed by operator",
+                "- Third-party reuse terms: " +
+                  (publication.card?.meta?.license
+                    ? JSON.stringify(publication.card.meta.license)
+                    : "not specified"),
                 "- Original embedded card payload: not published",
                 "- Cover metadata: stripped/re-encoded before submission",
                 "",

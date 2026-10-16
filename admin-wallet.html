@@ -345,6 +345,41 @@ code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
 
     <div id="publish-mode-note" class="summary note">發布新作品會建立 v1；若角色 ID 已存在，請切換成「更新既有作品」。更新會保留最初發布時間，並在 PR 中遞增公開版本。</div>
 
+
+    <details class="summary" style="margin-top:14px" id="publish-license-panel">
+      <summary><strong>作者授權與單張作品權限</strong></summary>
+      <p class="note">授權是作者對第三方的再利用條件，不影響夜灣提供作品所需的服務授權。D1 保留作者預設與提交紀錄；合併 PR 後公開作品才會採用該版本的授權快照。</p>
+      <div class="actions">
+        <button id="publish-license-load" type="button" class="secondary">讀取作者預設</button>
+      </div>
+      <p id="publish-license-default-note" class="note">請先填入作者 ID，再讀取預設授權。</p>
+      <details>
+        <summary>編輯作者預設授權</summary>
+        <div class="grid">
+<label>轉載／搬運至其他平台<select id="publish-license-default-redistribution"><option value="prohibited">禁止</option><option value="permission_required">需取得作者同意</option><option value="allowed">允許</option></select></label>
+<label>修改／二次創作<select id="publish-license-default-adaptations"><option value="prohibited">禁止</option><option value="permission_required">需取得作者同意</option><option value="allowed">允許</option></select></label>
+<label>商業使用<select id="publish-license-default-commercial"><option value="prohibited">禁止</option><option value="permission_required">需取得作者同意</option><option value="allowed">允許</option></select></label>
+<label>是否要求標註作者<select id="publish-license-default-attribution"><option value="true">需要標註</option><option value="false">不強制標註</option></select></label>
+</div>
+        <div class="actions"><button id="publish-license-save-default" type="button" class="secondary">儲存作者預設至 D1</button></div>
+      </details>
+      <label style="margin-top:12px">本次作品授權
+        <select id="publish-license-mode">
+          <option value="inherit">套用作者預設</option>
+          <option value="custom">單張作品獨立覆寫</option>
+        </select>
+      </label>
+      <div id="publish-license-custom-fields" hidden>
+        <div class="grid">
+<label>轉載／搬運至其他平台<select id="publish-license-custom-redistribution"><option value="prohibited">禁止</option><option value="permission_required">需取得作者同意</option><option value="allowed">允許</option></select></label>
+<label>修改／二次創作<select id="publish-license-custom-adaptations"><option value="prohibited">禁止</option><option value="permission_required">需取得作者同意</option><option value="allowed">允許</option></select></label>
+<label>商業使用<select id="publish-license-custom-commercial"><option value="prohibited">禁止</option><option value="permission_required">需取得作者同意</option><option value="allowed">允許</option></select></label>
+<label>是否要求標註作者<select id="publish-license-custom-attribution"><option value="true">需要標註</option><option value="false">不強制標註</option></select></label>
+</div>
+      </div>
+      <p id="publish-license-message" class="note">預設條件：搬運與修改需取得作者同意，禁止商業使用，須標註作者。</p>
+    </details>
+
     <label class="publish-rights">
       <input id="publish-rights" type="checkbox">
       <span>我已確認提交者本人擁有這份角色設定與圖片的公開／授權權利，允許 YoruBay 將轉換後作品公開發布或更新。</span>

@@ -174,6 +174,7 @@
     meta.push(rating);
     if (publication.publishedVersion) meta.push("公開版本 v" + publication.publishedVersion);
     if (publication.activityAt) meta.push("更新於 " + formatActivityDate(publication.activityAt));
+    if (licenseSummary(item.license)) meta.push("有作者授權條件");
 
     const image = dialog.querySelector("[data-explore-preview-image]");
     if (image) {
@@ -579,6 +580,21 @@
     });
   };
 
+  const licenseSummary = license => {
+    const policy = license?.policy;
+    if (!policy || typeof policy !== "object") return "";
+    const labels = { allowed: "允許", permission_required: "須經同意", prohibited: "禁止" };
+    if (!labels[policy.redistribution] ||
+        !labels[policy.adaptations] ||
+        !labels[policy.commercial_use]) return "";
+    return [
+      "轉載 " + labels[policy.redistribution],
+      "改作 " + labels[policy.adaptations],
+      "商用 " + labels[policy.commercial_use],
+      policy.attribution_required ? "須標註作者" : "不強制標註"
+    ].join(" · ");
+  };
+
   const decorateDetailVersion = item => {
     const detail = document.getElementById("character-detail");
     if (!detail) return;
@@ -601,6 +617,16 @@
       }
       if (title) title.insertAdjacentElement("afterend", authorLine);
       else detail.prepend(authorLine);
+    }
+
+    const terms = licenseSummary(item?.license);
+    if (terms) {
+      const note = document.createElement("p");
+      note.className = "explore-detail-version explore-detail-license";
+      note.textContent = "作者授權｜" + terms;
+      const anchor = detail.querySelector(".explore-detail-author") || title;
+      if (anchor) anchor.insertAdjacentElement("afterend", note);
+      else detail.prepend(note);
     }
 
     const publication = core.publicationMeta(item || {});

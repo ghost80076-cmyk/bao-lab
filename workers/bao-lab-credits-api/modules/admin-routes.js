@@ -72,7 +72,8 @@ async function adminRoute(
     await adminPublicationRoute(
       request,
       path,
-      env
+      env,
+      db
     );
 
   if (publicationResponse) {
