@@ -6,7 +6,7 @@ for (const width of [390, 1280]) test(`story history collects public events and 
   await page.waitForFunction(() => window.BAOStoryHistory && window.BAOStoryControlCenter && window.BAOStoryBackup && window.BAOStoryRevisionState && App.characters?.length);
   await page.evaluate(async () => {
     App.activeCharacter = { ...App.characters[0], initial_state: { events: ['雨夜來客'] }, world_modules: [] };
-    App.config = { narrativeMode: 'world', displayMode: 'ui', api: {}, memory: {} };
+    App.config = { narrativeMode: 'world', displayMode: 'ui', persona: { name: '旅人', gender: '未指定', identity: '', relationship: '', personality: '', extra: '' }, api: {}, memory: { mode: 'smart', maxRounds: 20 } };
     GameState.create(App.activeCharacter, App.config);
     GameState.current.private_facts = 'DO-NOT-SHOW-SECRET';
     Chat.reset();
