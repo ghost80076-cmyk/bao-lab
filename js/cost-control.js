@@ -160,7 +160,7 @@
         <label>USD → TWD 換算<input id="cost-fx" type="number" min="1" step="0.1" value="32"></label>
         <label>本次故事預算上限（NT$）<input id="cost-budget" type="number" min="0" step="1" value="0"><small>0 = 不限制</small></label>
         <label>單次最大輸出 Token<input id="max-output-tokens" type="number" min="64" max="32768" step="64" value="4096"><small>降低可直接限制每次回覆的最大成本。</small></label>
-        <label>世界狀態整理間隔（輪）<input id="state-interval" type="number" min="1" max="20" step="1" value="2"><small>數字越大，額外 API 呼叫越少。</small></label>
+        <label>獨立狀態模型整理間隔（輪）<input id="state-interval" type="number" min="1" max="20" step="1" value="2"><small>僅適用獨立狀態模型。共用主模型時，每輪隨故事一起更新，不另發狀態請求。</small></label>
       </div>`;
     step.appendChild(box);
   };
