@@ -16,7 +16,7 @@
   const read = state => {
     if (state?.storyHistory?.version === 1) return normalize(state.storyHistory);
     // Old snapshots have no historical time/location; do not invent either.
-    const events = (Array.isArray(state?.events) ? state.events : []).slice(0, 20).filter(item => text(item));
+    const events = (Array.isArray(state?.events) ? state.events : []).slice(0, 20).map(item => text(typeof item === 'string' ? item : item?.text)).filter(Boolean);
     return normalize({ entries: events.map((item, index) => ({ id: events.length - index, text: item, source: 'legacy' })) });
   };
   const record = (state, value) => {
