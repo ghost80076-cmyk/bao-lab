@@ -389,7 +389,14 @@
     const lead = explore.querySelector(".explore-lead");
     if (lead) lead.textContent = "先看故事，再決定今晚要怎麼繼續。可以搜尋角色、作品名稱或標籤。";
 
-    if (!$("bao-explore-discovery")) {
+    // The full discovery toolbar already owns search, filters and result counts.
+    // Keep the older search only as a fallback, rather than showing both toolbars.
+    const discoveryTools = $("explore-discovery-tools");
+    if (discoveryTools) {
+      $("bao-explore-discovery")?.remove();
+      $("bao-work-search-empty")?.remove();
+    }
+    if (!discoveryTools && !$("bao-explore-discovery")) {
       const bar = document.createElement("section");
       bar.id = "bao-explore-discovery";
       bar.className = "bao-explore-discovery";
@@ -412,7 +419,7 @@
       });
     }
 
-    if (!$("bao-work-search-empty")) {
+    if (!discoveryTools && !$("bao-work-search-empty")) {
       const empty = document.createElement("div");
       empty.id = "bao-work-search-empty";
       empty.className = "bao-work-search-empty";

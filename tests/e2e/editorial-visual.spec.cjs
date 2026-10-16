@@ -21,9 +21,16 @@ for (const width of [390, 1280]) {
     await expect(page.locator('#bao-mascot-launch')).toBeVisible();
     await expect(page.locator('#bao-mascot-launch .bao-mascot-launch-label')).toBeHidden();
     await expect(page.locator('link[href="css/bao-editorial-polish.css?v=3"]')).toHaveCount(1);
-    await expect(page.locator('link[href="css/bao-editorial-cinema.css?v=13"]')).toHaveCount(1);
+    await expect(page.locator('link[href="css/bao-editorial-cinema.css?v=14"]')).toHaveCount(1);
     await expect.poll(() => page.locator('#home-view .brand-hero h1').evaluate(node => getComputedStyle(node).whiteSpace)).toBe('normal');
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width + 1);
+    const featureImage = await page.locator('#home-feature-stage > img').boundingBox();
+    const featureCaption = await page.locator('#home-feature-stage .brand-feature-copy').boundingBox();
+    expect(featureCaption.y).toBeGreaterThanOrEqual(featureImage.y + featureImage.height - 1);
+    const homeCard = page.locator('.home-character-card').first();
+    const homeImage = await homeCard.locator('img').boundingBox();
+    const homeCaption = await homeCard.locator('span').boundingBox();
+    expect(homeCaption.y).toBeGreaterThanOrEqual(homeImage.y + homeImage.height - 1);
     await capture(page, `home-${width}`);
     await page.locator('#home-view button[data-view="explore"]').click();
     const card = page.locator('#character-list .character-card').first();
@@ -40,6 +47,10 @@ for (const width of [390, 1280]) {
     await expect.poll(() => image.evaluate(node => getComputedStyle(node).aspectRatio)).toBe(width <= 820 ? '3 / 4' : '4 / 5');
     await expect(card.locator('.character-content > .tags')).toBeHidden();
     const imageBox = await image.boundingBox();
+    const coverBox = await card.locator('.character-image-wrap').boundingBox();
+    const captionBox = await card.locator('.character-content').boundingBox();
+    expect(captionBox.y).toBeGreaterThanOrEqual(coverBox.y + coverBox.height - 1);
+
     expect(imageBox.height / imageBox.width).toBeGreaterThan(width <= 820 ? 1.3 : 1.2);
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width + 1);
     await capture(page, `characters-${width}`);
@@ -58,6 +69,11 @@ for (const width of [390, 1280]) {
     await expect(page.locator('#detail-view .detail-theme-shell')).toBeVisible();
     await expect(page.locator('#detail-start')).toBeVisible();
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width + 1);
+    if (width <= 700) {
+      const visual = await page.locator('#detail-view .detail-visual').boundingBox();
+      const copy = await page.locator('#detail-view .detail-copy').boundingBox();
+      expect(copy.y).toBeGreaterThanOrEqual(visual.y + visual.height - 1);
+    }
     await capture(page, `character-detail-${width}`);
   });
 

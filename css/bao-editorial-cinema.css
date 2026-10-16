@@ -71,9 +71,9 @@ body:has(#explore-view.active) .bao-mascot-avatar,body:has(#detail-view.active) 
   #detail-view .detail-theme-layout{gap:0}
   #detail-view .detail-visual{height:clamp(235px,42svh,350px);width:100%;max-width:100%;overflow:hidden}
   #detail-view .detail-image-frame{height:100%;border-radius:13px 13px 0 0}
-  #detail-view .detail-image{height:100%;width:100%;aspect-ratio:auto;object-fit:cover;object-position:center 19%}
+  #detail-view .detail-image{height:100%;width:100%;aspect-ratio:auto;object-fit:contain;object-position:center}
   #detail-view .detail-side-code{display:none}
-  #detail-view .detail-copy{position:relative;z-index:1;margin:-25px 10px 0;padding:20px 13px 0;background:linear-gradient(180deg,#151923 0%,#090b10 92%);border-radius:15px 15px 0 0}
+  #detail-view .detail-copy{position:relative;z-index:1;margin:0;padding:22px 0 0;background:transparent;border-radius:0}
   #detail-view .detail-copy h1{font-size:clamp(31px,8vw,43px);line-height:1.3;margin:9px 0 14px}
   #detail-view .detail-description{font-size:14px;line-height:1.85}
   #detail-view .detail-actions{margin-top:20px}
@@ -901,37 +901,31 @@ body:has(#home-view.active) .bao-mascot-launch,body:has(#explore-view.active) .b
 }
 
 
-/* Poster metadata lock: keep the artwork dominant and anchor the live title low. */
+/* Artwork and captions occupy separate rows, including history/favorite contexts.
+   Scope to the catalog so authored story HTML keeps its own presentation. */
+#explore-view #character-list .character-card{
+  display:flex;flex-direction:column;min-width:0;
+  background:var(--yoru-explore-surface,#17151a);
+  border:1px solid var(--yoru-explore-border,rgba(241,232,218,.09));
+  box-shadow:0 12px 30px rgba(0,0,0,.16);
+}
+#explore-view #character-list .character-image-wrap{flex:none;overflow:hidden}
 #explore-view #character-list .character-content{
-  height:34%;
-  min-height:0;
-  padding:0!important;
-  background:linear-gradient(180deg,transparent 0%,rgba(6,7,13,.22) 28%,rgba(6,7,13,.88) 74%,#070810 100%)!important;
+  position:static;inset:auto;flex:1;height:auto;min-height:0;
+  padding:17px 18px 19px;gap:7px;
+  background:none;color:var(--yoru-text,#f1eee8);pointer-events:auto;
 }
 #explore-view #character-list .character-content h3{
-  position:absolute;
-  left:18px;
-  right:18px;
-  bottom:14px;
-  margin:0!important;
+  position:static;margin:0;min-height:2.8em;
+  font-size:19px;line-height:1.4;overflow-wrap:anywhere;
+  color:var(--yoru-text,#f1eee8);text-shadow:none;
 }
 #explore-view #character-list .character-content .explore-card-context{
-  position:absolute;
-  left:18px;
-  right:18px;
-  bottom:calc(14px + 3.2em);
-  margin:0;
+  position:static;inset:auto;order:1;margin:0;
+  color:var(--yoru-muted,#b3a9b7);font-size:11px;line-height:1.6;
 }
 @media(max-width:700px){
-  #explore-view #character-list .character-content{height:32%}
-  #explore-view #character-list .character-content h3{
-    left:10px;
-    right:10px;
-    bottom:10px;
-  }
-  #explore-view #character-list .character-content .explore-card-context{
-    left:10px;
-    right:10px;
-    bottom:calc(10px + 3em);
-  }
+  #explore-view #character-list .character-content{padding:12px 11px 14px;gap:5px}
+  #explore-view #character-list .character-content h3{font-size:15px;line-height:1.45;min-height:2.9em}
+  #explore-view #character-list .character-content .explore-card-context{font-size:10px}
 }
