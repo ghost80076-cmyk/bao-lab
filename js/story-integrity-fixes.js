@@ -32,6 +32,7 @@
     existing.unshift({ id: `event-${turn}-${hash(value)}-${Date.now().toString(36)}`, text: value,
       turn, createdAt: new Date().toISOString(), source });
     state.events = existing.slice(0, 100);
+    window.BAOStoryHistoryCore?.record(state, value);
     return true;
   };
   const previousCreate = GameState.create.bind(GameState);

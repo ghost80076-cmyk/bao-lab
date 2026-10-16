@@ -101,6 +101,7 @@ const GameState = {
 
   addEvent(text) {
     if (!this.current || !text) return;
+    if (typeof window !== "undefined") window.BAOStoryHistoryCore?.record(this.current, text);
     this.current.events.unshift(String(text));
     this.current.events = this.current.events.slice(0, 20);
   },

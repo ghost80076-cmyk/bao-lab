@@ -34,7 +34,8 @@ const increasing = (source, tokens, label) => {
 // Base globals must exist before site-ui starts its asynchronous extension chains.
 increasing(index, [
   'src="js/storage.js?v=2"',
-  'src="js/state.js?v=2"',
+  'src="js/story-history-core.js?v=2"',
+  'src="js/state.js?v=3"',
   'src="js/api.js"',
   'src="js/helper-data.js?v=3"',
   'src="js/episodic-memory-core.js?v=1"',
@@ -53,7 +54,7 @@ increasing(siteUI, [
   'loadBAOScript("js/three-realms-cultivation-core.js?v=1")',
   'loadBAOScript("js/three-realms-event-profiles.js?v=6")',
   'loadBAOScript("js/three-realms-events-core.js?v=6")',
-  'loadBAOScript("js/world-modules.js?v=4")',
+  'loadBAOScript("js/world-modules.js?v=5")',
   'loadBAOScript("js/world-state-hook.js?v=3")'
 ], "world-state extension");
 
@@ -73,7 +74,7 @@ increasing(siteUI, [
 // Modules without their own global idempotency guard currently rely on the loader;
 // protect against accidentally adding a second loader while the wrapper design is unchanged.
 assert.equal(
-  siteUI.split('loadBAOScript("js/world-modules.js?v=4")').length - 1,
+  siteUI.split('loadBAOScript("js/world-modules.js?v=5")').length - 1,
   1,
   "world-modules must be loaded exactly once by site-ui"
 );
