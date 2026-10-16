@@ -57,6 +57,8 @@ jobs:
           node --check js/chat-tool-navigation.js
           node --check js/site-ui.js
           node tests/experience-preferences-core.cjs
+      - name: Public story history and collection
+        run: node tests/story-history-core.cjs
       - name: Story Reader core
         run: node tests/story-reader-core.cjs
       - name: Story revision state consistency
@@ -527,6 +529,8 @@ jobs:
         run: node tests/cache-cost-panel-core.cjs
       - name: Per-request multi-model cost accounting
         run: node tests/per-request-cost-core.cjs
+      - name: Episodic memory evidence and knowledge recall
+        run: node tests/episodic-memory-core.cjs
       - name: Memory request isolation and cooldown
         run: node tests/memory-request-guard-core.cjs
       - name: Helper context isolation and memory lifecycle

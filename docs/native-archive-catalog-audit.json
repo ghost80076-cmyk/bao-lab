@@ -2120,7 +2120,29 @@
         "people",
         "threads",
         "actions"
-      ]
+      ],
+      "reviewed_maintenance": {
+        "gameplay_changes": [
+          {
+            "path": [
+              "world_modules",
+              7,
+              "visibility"
+            ],
+            "before_present": false,
+            "after": "public"
+          },
+          {
+            "path": [
+              "world_modules",
+              7,
+              "story_history"
+            ],
+            "before_present": false,
+            "after": true
+          }
+        ]
+      }
     },
     {
       "id": "pheromone-bond-abo-simulator",

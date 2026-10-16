@@ -89,6 +89,7 @@
     narrative() { window.BAONarrativeSettings?.open?.(); },
     instructions() { window.BAONarrativeSettings?.openInstructions?.(); },
     quick() { window.BAOStoryQuickCommands?.open?.(); },
+    history() { window.BAOStoryHistory?.open?.(); },
     search() { window.BAOConversationSearch?.open?.(); },
     all() { window.BAOChatToolNavigation?.openDrawer?.(); }
   };
@@ -146,6 +147,7 @@
           </div>
         </details>
         <footer class="story-control-footer">
+          <button type="button" class="secondary" data-story-control-action="history">◇ 故事歷程與收藏</button>
           <button type="button" class="secondary" data-story-control-action="search">⌕ 搜尋這個故事</button>
           <button type="button" class="secondary" data-story-control-action="all">☰ 全部故事工具</button>
         </footer>
