@@ -18,11 +18,12 @@ for(const viewport of [{width:1280,height:900},{width:390,height:844}]){
   // Enzo-style structured opening: scene, a direct hook and clickable draft-only choices.
   await expect(page.locator('#chat-stream .bao-author-inline')).toHaveCount(0);
   await expect(page.locator('#chat-stream .bao-structured-opening')).toHaveCount(1);
-  await expect(page.locator('#chat-stream')).toContainText('有人替你約了今晚的拍攝');
-  await expect(page.locator('#chat-stream')).toContainText('我把錢退了');
+  await expect(page.locator('#chat-stream')).toContainText('以你的名字預約的拍攝委託');
+  await expect(page.locator('#chat-stream')).toContainText('我拒絕了，錢也退了');
+  await expect(page.locator('#chat-stream')).toContainText('但你是我的戀人');
   await expect(page.locator('#chat-stream .bao-opening-choice')).toHaveCount(4);
   await page.locator('#chat-stream .bao-opening-choice').first().click();
-  await expect(page.locator('#user-input')).toHaveValue('我拿起委託單：「誰幫我付的錢？」');
+  await expect(page.locator('#user-input')).toHaveValue('我靠近他：「先告訴我，你是不是也嚇了一跳？」');
   await page.locator('#user-input').fill('');
   const stored=await page.evaluate(()=>JSON.parse(localStorage.getItem('bao-lab:author-regex:v1:kept-in-frame-lin-youzhen')));
   expect(stored.source).toBe('official-sidecar');
