@@ -993,17 +993,13 @@ html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) #chat-view .chat-layo
 }
 
 
-/* Reader regression: native status already has a dedicated 資訊 entry in Play.
-   Keep the extra details available in Studio; author status stays reachable
-   as a collapsed, user-openable disclosure in both surfaces. */
-#chat-view.active[data-bao-surface="play"] #bao-inline-story-status[data-status-mode="native"]{
-  display:none!important;
-}
-#chat-view.active[data-bao-surface="play"] #bao-inline-story-status[data-status-mode="author"]{
+/* Keep the lightweight inline status entry discoverable in Play and Studio.
+   Full world-state detail is behind disclosure instead of an always-open second scroller. */
+#chat-view.active[data-bao-surface="play"] #bao-inline-story-status{
   flex:0 0 auto;
   margin:4px clamp(12px,2vw,24px) 8px;
 }
-#chat-view.active[data-bao-surface="play"] #bao-inline-story-status[data-status-mode="author"]:not([open]){
+#chat-view.active[data-bao-surface="play"] #bao-inline-story-status:not([open]){
   max-height:none;overflow:visible;
 }
 
