@@ -6,13 +6,13 @@
   if (root) root.YoruExperienceCore = api;
 })(typeof globalThis !== 'undefined' ? globalThis : this, function () {
   'use strict';
-  const THEMES = Object.freeze(['night', 'mist', 'rose']);
+  const THEMES = Object.freeze(['night', 'mist', 'dawn', 'dusk', 'sunset']);
   const LEVELS = Object.freeze(['easy', 'standard', 'pro']);
   const DEFAULT = Object.freeze({ theme: 'night', level: 'easy' });
   function normalize(value) {
     const obj = value && typeof value === 'object' && !Array.isArray(value) ? value : {};
     return {
-      theme: THEMES.includes(obj.theme) ? obj.theme : DEFAULT.theme,
+      theme: THEMES.includes(obj.theme) ? obj.theme : obj.theme === 'rose' ? 'dusk' : DEFAULT.theme,
       level: LEVELS.includes(obj.level) ? obj.level : DEFAULT.level
     };
   }
