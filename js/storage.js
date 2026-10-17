@@ -11,6 +11,7 @@ const Storage = {
   autosaveRecordId: "__autosave__",
   migrationKey: "bao-lab:story-idb-migrated-v1",
   fallbackKey: "bao-lab:story-idb-fallback-v1",
+  fallbackCompleteMarker: "complete-v2",
 
   _db: null,
   _mode: "booting",
@@ -20,6 +21,7 @@ const Storage = {
   _pendingOperations: [],
   _cache: { autosave: null, slots: [] },
   _lastError: null,
+  _fallbackSnapshotComplete: false,
 
   set(key, value) {
     try {
@@ -185,6 +187,8 @@ const Storage = {
   _hydrateLegacyCache() {
     this._cache.autosave = this._legacyAutosave();
     this._cache.slots = this._legacySlots();
+    try { this._fallbackSnapshotComplete = localStorage.getItem(this.fallbackKey) === this.fallbackCompleteMarker; }
+    catch { this._fallbackSnapshotComplete = false; }
   },
 
   _legacyStoryKeysExist() {
@@ -194,13 +198,33 @@ const Storage = {
   },
 
   _persistLegacySnapshot(markFallback = false) {
-    if (this._cache.autosave) this.set(this.storyKey, this._cache.autosave);
-    else this.remove(this.storyKey);
-    this.set(this.slotsKey, this._cache.slots);
-    if (markFallback) {
-      try { localStorage.setItem(this.fallbackKey, "yes"); }
-      catch {}
+    // Only a complete fallback may replace IndexedDB on the next boot. Invalidate
+    // an older marker before changing either key, including initialization writes.
+    let authoritative;
+    try {
+      const marker = localStorage.getItem(this.fallbackKey);
+      authoritative = markFallback || marker === this.fallbackCompleteMarker;
+      if (marker !== null || authoritative) {
+        localStorage.removeItem(this.fallbackKey);
+        if (localStorage.getItem(this.fallbackKey) !== null) return false;
+      }
+    } catch { return false; }
+
+    let autosaveWritten;
+    if (this._cache.autosave) autosaveWritten = this.set(this.storyKey, this._cache.autosave);
+    else {
+      try {
+        localStorage.removeItem(this.prefix + this.storyKey);
+        autosaveWritten = localStorage.getItem(this.prefix + this.storyKey) === null;
+      } catch { autosaveWritten = false; }
     }
+    const slotsWritten = this.set(this.slotsKey, this._cache.slots);
+    if (!autosaveWritten || !slotsWritten) return false;
+    if (!authoritative) return true;
+    try {
+      localStorage.setItem(this.fallbackKey, this.fallbackCompleteMarker);
+      return localStorage.getItem(this.fallbackKey) === this.fallbackCompleteMarker;
+    } catch { return false; }
   },
 
   _cleanupLegacyStoryStorage() {
@@ -328,7 +352,7 @@ const Storage = {
     const legacyAutosave = this._legacyAutosave();
     const legacySlots = this._legacySlots();
     let fallbackActive = false;
-    try { fallbackActive = localStorage.getItem(this.fallbackKey) === "yes"; }
+    try { fallbackActive = localStorage.getItem(this.fallbackKey) === this.fallbackCompleteMarker; }
     catch {}
 
     const targetAutosave = fallbackActive
@@ -394,9 +418,10 @@ const Storage = {
   },
 
   _degradeToLocalStorage(error) {
+    this._fallbackSnapshotComplete = this._mode === "indexedDB" || this._fallbackSnapshotComplete;
     this._lastError = error || new Error("IndexedDB write failed.");
     this._mode = "localStorage";
-    this._persistLegacySnapshot(true);
+    this._persistLegacySnapshot(this._fallbackSnapshotComplete);
     try { this._db?.close?.(); }
     catch {}
     this._db = null;
@@ -427,7 +452,7 @@ const Storage = {
       this._persistLegacySnapshot(false);
       return;
     }
-    this._persistLegacySnapshot(this._mode === "localStorage" && Boolean(this._lastError));
+    this._persistLegacySnapshot(this._fallbackSnapshotComplete);
   },
 
   init() {

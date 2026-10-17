@@ -68,7 +68,9 @@ jobs:
           node tests/story-revision-state-core.cjs
           node tests/story-revision-pipeline-core.cjs
       - name: IndexedDB storage migration
-        run: node tests/storage-indexeddb-core.cjs
+        run: |
+          node tests/storage-indexeddb-core.cjs
+          node tests/storage-fallback-integrity-core.cjs
       - name: Storage write guard load order
         run: |
           node --check js/storage-write-guard.js
