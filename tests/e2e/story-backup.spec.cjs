@@ -346,3 +346,63 @@ test('deleted library identities reject queued writes and stale saves across pag
     expect(stale.deleted).toBeNull();
   } finally { await other.close(); }
 });
+
+test('live pages keep their own story and branch destinations after another page switches or clears refs', async ({ page, context }) => {
+  await openDemoStory(page);
+  const first = await page.evaluate(async () => {
+    Chat.messages = Chat.ensureMessageIds([{ id: 'isolation-a', role: 'assistant', content: 'Only story A' }]);
+    App.saveStory(false); await BAOStoryLibrary.flush();
+    return BAOStoryLibrary.refs();
+  });
+  const other = await context.newPage();
+  try {
+    await openDemoStory(other);
+    const second = await other.evaluate(async () => {
+      Chat.messages = Chat.ensureMessageIds([{ id: 'isolation-b', role: 'assistant', content: 'Only story B' }]);
+      App.saveStory(false); await BAOStoryLibrary.flush();
+      return BAOStoryLibrary.refs();
+    });
+    expect(second.storyId).not.toBe(first.storyId);
+    const firstAfterSwitch = await page.evaluate(async () => {
+      const built = Storage.buildStoryPayload();
+      App.saveStory(false); await BAOStoryLibrary.flush();
+      return built._library;
+    });
+    expect(firstAfterSwitch.storyId).toBe(first.storyId);
+    expect(firstAfterSwitch.chapterId).toBe(first.chapterId);
+    const next = await other.evaluate(async () => {
+      BAOStoryLibrary.beginChapter('B sequel');
+      App.saveStory(false); await BAOStoryLibrary.flush();
+      return BAOStoryLibrary.refs();
+    });
+    const fork = await page.evaluate(async () => {
+      const payload = await BAOStoryLibrary.createBranch('isolation-a', 'A branch');
+      if (!Storage.restoreStory(payload)) throw Error('branch restore failed');
+      App.saveStory(false); await BAOStoryLibrary.flush();
+      return BAOStoryLibrary.refs();
+    });
+    expect(fork.storyId).toBe(first.storyId);
+    expect(fork.parentChapterId).toBe(first.chapterId);
+    expect(fork.branchPointSeq).toBe(0);
+    const saved = await other.evaluate(async ({ first, second, next }) => {
+      App.saveStory(false); await BAOStoryLibrary.flush();
+      return { refs: BAOStoryLibrary.refs(),
+        a: (await BAOStoryLibrary.reconstruct(first.storyId, first.chapterId)).chat.messages.map(value => value.content),
+        b: (await BAOStoryLibrary.reconstruct(second.storyId, next.chapterId)).chat.messages.map(value => value.content) };
+    }, { first, second, next });
+    expect(saved.refs.chapterId).toBe(next.chapterId);
+    expect(saved.a).toEqual(['Only story A']);
+    expect(saved.b).toEqual(['Only story B']);
+    await other.evaluate(async storyId => { await BAOStoryLibrary.deleteStory(storyId); GameState.current = null; BAOStoryLibrary.clearRefs(); }, first.storyId);
+    const afterDeletion = await page.evaluate(async () => {
+      const built = Storage.buildStoryPayload();
+      App.saveStory(false);
+      return { refs: built._library, saved: await BAOStoryLibrary.flush(built._library.storyId),
+        stories: (await BAOStoryLibrary.listStories()).map(value => value.storyId) };
+    });
+    expect(afterDeletion.refs.storyId).toBe(first.storyId);
+    expect(afterDeletion.refs.chapterId).toBe(fork.chapterId);
+    expect(afterDeletion.saved).toBe(false);
+    expect(afterDeletion.stories).toEqual([second.storyId]);
+  } finally { await other.close(); }
+});
