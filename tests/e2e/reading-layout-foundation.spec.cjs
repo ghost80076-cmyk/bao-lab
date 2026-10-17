@@ -101,8 +101,9 @@ test('Play does not create a second expanded status scroller; author status rema
   const details = page.locator('#bao-inline-story-status');
   await expect(details).toHaveCount(1);
   await expect(details).toHaveAttribute('data-status-mode', 'native');
-  // Native story info is already available through the 資訊 control.
-  await expect(details).toBeHidden();
+  // Native and author state both retain a visible, compact disclosure.
+  await expect(details).toBeVisible();
+  await expect(details).not.toHaveAttribute('open', '');
   await expect(page.locator('#bao-play-status-toggle')).toBeVisible();
 
   await page.evaluate(() => {
@@ -153,6 +154,6 @@ test('Play respects mist/rose composer surfaces instead of forcing night colors'
     expect(measurements.input).toBe(measurements.expectedInput);
     expect(measurements.composer).toBe(measurements.expectedComposer);
     expect(measurements.inputText).toBe(measurements.expectedText);
-    expect(measurements.statusVisible).toBe(false);
+    expect(measurements.statusVisible).toBe(true);
   }
 });
