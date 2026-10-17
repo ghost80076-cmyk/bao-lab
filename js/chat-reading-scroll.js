@@ -15,14 +15,22 @@
   // Capture the player's *current* reading position just before App commits
   // the completed response. App's legacy sendMessage scrolls to the bottom at
   // completion; restoring here prevents that jump without changing its data flow.
-  const previousAPISend = API.send;
-  API.send = async function(config, ...args) {
+  const readingPositionWrapper = async (next, config, ...args) => {
     const turn = isStoryRequest(config) ? activeTurn : null;
-    try { return await previousAPISend.call(this, config, ...args); }
+    try { return await next(config, ...args); }
     finally {
       if (turn && activeTurn === turn) turn.beforeCommitTop = stream.scrollTop;
     }
   };
+  if (typeof API.wrapSend === 'function') {
+    API.wrapSend('chat-reading-scroll:before-commit', readingPositionWrapper);
+  } else {
+    // Compatibility for an older cached API without named registration.
+    const previousAPISend = API.send;
+    API.send = function(config, ...args) {
+      return readingPositionWrapper(previousAPISend.bind(this), config, ...args);
+    };
+  }
 
   const previousSendMessage = App.sendMessage;
   App.sendMessage = async function(...args) {

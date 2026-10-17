@@ -242,7 +242,7 @@ provider, retry, streaming and wrapper contracts.
 | P2 | UI/CSS and CI duplication | Separate from request transport changes |
 
 Additional direct-send owners to inventory before changing global order include
-`chat-reading-scroll.js`, `status-usage-integrity.js`,
+`status-usage-integrity.js`,
 `story-revision-state.js`, and `lm-studio.js`. The earlier table is a conceptual
 map, not an exhaustive ordering specification. `world-module-ui.js` also registers
 a named internal-state echo stage. Do not infer global phase order from these
@@ -269,3 +269,22 @@ categories, hosted actual charges without double counting, missing usage,
 transport failures, cancellation, overlapping requests and the legacy fallback.
 It runs in Core tests. Remaining direct-send owners above are still separate
 migration work; this change does not impose global stage ordering.
+
+
+### Reading position observer migration (2026-10-17)
+
+`chat-reading-scroll.js` now registers its API observer as
+`chat-reading-scroll:before-commit`. Its existing `finally` still captures the
+active main turn's reading position immediately before App commits a response,
+including failed or cancelled requests. Memory, state, story tools, auxiliary
+requests and connection diagnostics cannot replace that snapshot. The
+`App.sendMessage` adapter remains unchanged and is outside this API migration.
+An older cached API still uses the legacy fallback with its original receiver.
+
+`tests/chat-reading-pipeline-core.cjs` established the old behavior before the
+migration. It covers main/helper completion interleaving, errors and cancellation,
+placeholder cleanup, extra arguments and duplicate installation through both the
+named pipeline and fallback. The existing reading test continues to cover the
+player anchor, manually changed scroll position and empty input. Both tests run
+in the reading workflow, whose production check requires the named observer and
+versioned controller loader.
