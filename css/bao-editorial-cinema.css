@@ -991,3 +991,48 @@ html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) #chat-view #bao-surfa
 html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) #chat-view .chat-layout>aside:not(.bao-status-rail){
   background:var(--yoru-tool)!important;border-color:var(--yoru-story-border)!important;
 }
+
+
+/* Keep the lightweight inline status entry discoverable in Play and Studio.
+   Full world-state detail is behind disclosure instead of an always-open second scroller. */
+#chat-view.active[data-bao-surface="play"] #bao-inline-story-status{
+  flex:0 0 auto;
+  margin:4px clamp(12px,2vw,24px) 8px;
+}
+#chat-view.active[data-bao-surface="play"] #bao-inline-story-status:not([open]){
+  max-height:none;overflow:visible;
+}
+
+/* Play's night-only composer/heading declarations used !important values.
+   Bridge them to the semantic appearance tokens while preserving authored
+   scene HTML, custom backgrounds and the first-party gold Send button. */
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) #chat-view[data-bao-surface="play"] .chat-topline{
+  background:var(--yoru-tool)!important;
+  border-color:var(--yoru-story-border)!important;
+}
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) #chat-view[data-bao-surface="play"] .composer{
+  background:var(--yoru-tool)!important;
+  border-color:var(--yoru-story-border)!important;
+}
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) #chat-view[data-bao-surface="play"] #user-input{
+  background:var(--yoru-input)!important;
+  color:var(--yoru-story-text)!important;
+  border-color:var(--yoru-input-border)!important;
+}
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) #chat-view[data-bao-surface="play"] #user-input::placeholder{
+  color:var(--yoru-muted)!important;
+}
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) #chat-view[data-bao-surface="play"] .message.user .bubble{
+  color:var(--yoru-story-text)!important;
+  background:var(--yoru-player-bubble)!important;
+  border-color:var(--yoru-story-border)!important;
+  text-shadow:none!important;
+}
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) #chat-view[data-bao-surface="play"] .message.assistant .bubble:not(.authored-rich-message){
+  text-shadow:none!important;
+}
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) #chat-view #bao-inline-story-status{
+  color:var(--yoru-text);
+  background:var(--yoru-tool);
+  border-color:var(--yoru-story-border);
+}

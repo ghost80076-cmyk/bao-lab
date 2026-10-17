@@ -196,20 +196,22 @@
     if (!document.getElementById('bao-inline-story-status-style')) {
       const inlineStatusStyle = document.createElement('style');
       inlineStatusStyle.id = 'bao-inline-story-status-style';
-      inlineStatusStyle.textContent = "#bao-inline-story-status{order:22;max-height:190px;overflow:auto;margin:10px 10px 14px;padding:12px 14px;border:1px solid var(--line,#7775);border-radius:12px;background:rgba(127,127,127,.07);overflow-wrap:anywhere}#bao-inline-story-status[hidden]{display:none!important}#bao-inline-story-status summary{cursor:pointer;font-weight:700}#bao-inline-story-status .bao-inline-story-status-body{display:grid;gap:10px;padding-top:10px}#bao-inline-story-status section{padding:8px 10px;border:1px solid #7773;border-radius:8px}#bao-inline-story-status section strong{display:block;margin-bottom:4px}#bao-inline-story-status .bao-inline-story-status-lines{white-space:pre-wrap;font-size:.9em;line-height:1.65}";
+      inlineStatusStyle.textContent = "#bao-inline-story-status{order:0;flex:0 0 auto;min-width:0;max-height:min(42dvh,340px);overflow:auto;margin:4px 12px 8px;padding:0 12px;border:1px solid var(--yoru-story-border,#7775);border-radius:12px;background:var(--yoru-tool,rgba(127,127,127,.07));color:var(--yoru-text,#eee);overflow-wrap:anywhere}#bao-inline-story-status[hidden]{display:none!important}#bao-inline-story-status summary{cursor:pointer;padding:9px 2px;font-weight:700;line-height:1.45}#bao-inline-story-status summary:focus-visible{outline:2px solid var(--yoru-lantern,#d6aa73);outline-offset:2px}#bao-inline-story-status .bao-inline-story-status-body{display:grid;gap:10px;padding:0 0 10px}#bao-inline-story-status section{padding:8px 10px;border:1px solid var(--yoru-story-border,#7773);border-radius:8px}#bao-inline-story-status section strong{display:block;margin-bottom:4px}#bao-inline-story-status .bao-inline-story-status-lines{white-space:pre-wrap;font-size:.9em;line-height:1.65}";
       document.head.appendChild(inlineStatusStyle);
     }
     let panel = document.getElementById('bao-inline-story-status');
     if (!panel) {
       panel = document.createElement('details');
       panel.id = 'bao-inline-story-status';
-      panel.open = true;
+      // The story-first reader opens state on demand; never expand a second scroll area by default.
+      panel.open = false;
       const summary = document.createElement('summary');
       summary.textContent = '📋 目前故事狀態';
       const body = document.createElement('div');
       body.className = 'bao-inline-story-status-body';
       panel.append(summary, body);
     }
+    panel.dataset.statusMode = prefs.status;
     panel.hidden = prefs.status === 'hidden';
     // Keep it outside #chat-stream: streaming and story tools expect the last
     // direct child there to be the most recent message.
