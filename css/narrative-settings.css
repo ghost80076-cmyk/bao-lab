@@ -86,3 +86,5 @@
 
 /* A modal must cover fixed navigation and the install suggestion (z-index:10000). */
 .bao-modal-backdrop.tonight-backdrop{z-index:10010}
+
+.tonight-intro .tonight-invitation{font-size:13px;color:var(--muted);line-height:1.8;margin-bottom:10px}
