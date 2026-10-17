@@ -8,6 +8,20 @@ const load = file => vm.runInContext(fs.readFileSync(`js/${file}.js`, 'utf8'), c
 load('helper-data'); load('episodic-memory-core'); load('chat');
 vm.runInContext('window.Chat = Chat;', ctx);
 const core = ctx.BAOEpisodicMemory;
+assert.deepEqual(Array.from(core.audience({
+  state: { npcs: [{ name: '守衛', presence: 'present' }, { name: '旁觀者', presence: 'away' }] },
+  config: { narrativeMode: 'immersive' }, primary: '艾琳'
+})), ['艾琳', '守衛'], 'single-role plus present NPCs must share one cast resolver');
+assert.deepEqual(Array.from(core.audience({
+  state: { npcs: [{ name: '守衛', presence: 'present' }] },
+  config: { narrativeMode: 'world' }, primary: '作品名稱'
+})), ['守衛'], 'world title cannot become a speaker');
+assert.equal(core.canRead({ knowledge_scope: 'actors', known_by: ['艾琳'] }, ['艾琳']), true);
+assert.equal(core.canRead({ knowledge_scope: 'actors', known_by: ['艾琳'] }, ['艾琳', '守衛']), false);
+assert.equal(core.canRead({ knowledge_scope: 'actors', known_by: ['艾琳'] }, []), false);
+assert.equal(core.canRead({ knowledge_scope: 'actors' }, ['艾琳']), false, 'unlisted cast denies private data');
+assert.equal(core.canRead({ knowledge_scope: 'shared' }, []), true, 'legacy shared records remain readable');
+
 const source = [
   { id: 'm1', role: 'user', content: '雨夜我對艾琳隱瞞身分。' },
   { id: 'm2', role: 'assistant', content: '艾琳與你爭吵，守衛只聽說你偷走戒指。' },
