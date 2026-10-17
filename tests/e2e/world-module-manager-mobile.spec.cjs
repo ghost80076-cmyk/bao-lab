@@ -327,11 +327,11 @@ for (const width of [390, 1280]) {
     expect(await page.evaluate(() => BAOWorldModules.getCustomization(App.activeCharacter).enabledBuiltIns.includes('three_realms_cultivation'))).toBe(true);
 
     await page.evaluate(() => {
-      YoruExperience.choose({level:'pro',theme:'rose'});
+      YoruExperience.choose({level:'pro',theme:'dusk'});
       BAOWorldModuleManager.open();
     });
     await expect(dialog.locator('.world-manager-guide-details')).toHaveAttribute('open','');
-    await expect(dialog).toHaveCSS('background-color','rgb(59, 48, 54)');
+    await expect(dialog).toHaveCSS('background-color','rgb(64, 56, 73)');
     await dialog.locator('[data-world-preset-filter="enabled"]').click();
     await expect(dialog.locator('[data-preset-id="three_realms_cultivation"]')).toBeVisible();
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 2)).toBe(true);
