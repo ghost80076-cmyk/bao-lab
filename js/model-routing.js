@@ -240,7 +240,7 @@
     window.BAOMemoryPreferences?.mount?.();
     restoreHelper("memory", App.config?.memory?.summaryApi || null);
     restoreHelper("state", App.config?.cost?.stateApi || null);
-    loadExtra("js/helper-api-routing.js?v=5");
+    loadExtra("js/helper-api-routing.js?v=6");
     loadExtra("js/model-guide.js");
   };
 
