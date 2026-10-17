@@ -83,6 +83,7 @@ jobs:
         run: |
           node tests/story-library-core.cjs
           node tests/story-library-durability-core.cjs
+          node tests/story-library-multitab-core.cjs
       - name: Long story 3000-round stress
         run: node tests/long-story-stress-core.cjs
       - name: Story bundle backup

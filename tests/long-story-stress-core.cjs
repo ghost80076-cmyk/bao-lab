@@ -2,6 +2,7 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
 const vm = require("node:vm");
+const { Database } = require("./storage-multitab-core.cjs");
 
 class MemoryLocalStorage {
   constructor() { this.data = new Map(); }
@@ -56,20 +57,9 @@ class FakeStore {
   }
 }
 
-class FakeTransaction {
-  constructor(db) {
-    this.db = db;
-    this.oncomplete = null;
-    this.onerror = null;
-    this.onabort = null;
-    this.error = null;
-    setTimeout(() => this.oncomplete?.(), 2);
-  }
-  objectStore() { return new FakeStore(this.db); }
-}
-
-class FakeDB {
+class FakeDB extends Database {
   constructor() {
+    super();
     this.records = new Map();
     this.indexes = new Set();
     this.created = false;
@@ -77,7 +67,6 @@ class FakeDB {
     this.objectStoreNames = { contains: () => this.created };
   }
   createObjectStore() { this.created = true; return new FakeStore(this); }
-  transaction() { return new FakeTransaction(this); }
   close() {}
 }
 
@@ -91,7 +80,7 @@ class FakeIndexedDB {
       db = new FakeDB();
       this.databases.set(name, db);
     }
-    request.transaction = new FakeTransaction(db);
+    request.transaction = db.transaction();
     setTimeout(() => {
       request.result = db;
       if (isNew) request.onupgradeneeded?.();

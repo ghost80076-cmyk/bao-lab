@@ -238,6 +238,25 @@
       });
     },
 
+    async mutateRecords(action) {
+      let result, actionError;
+      try {
+        await this.transaction("readwrite", (store, tx) => {
+          // Read and write under the same IndexedDB lock across connections.
+          // Queue writes synchronously in this success callback to keep it live.
+          const request = store.getAll();
+          request.onsuccess = () => {
+            try { result = action(request.result || [], store); }
+            catch (error) {
+              actionError = error;
+              tx.abort();
+            }
+          };
+        });
+      } catch (error) { throw actionError || error; }
+      return result;
+    },
+
     async allRecords() {
       if (!await this.open()) return [];
       const tx = this._db.transaction(this.storeName, "readonly");
@@ -256,7 +275,7 @@
         title: previous?.title || payload.characterName || "未命名故事",
         pinned: Boolean(previous?.pinned),
         createdAt: refs.storyCreatedAt,
-        lastOpenedAt: this._openedAtByStory.get(refs.storyId) || previous?.lastOpenedAt || previous?.updatedAt || refs.storyCreatedAt || payload.savedAt,
+        lastOpenedAt: previous?.lastOpenedAt || this._openedAtByStory.get(refs.storyId) || previous?.updatedAt || refs.storyCreatedAt || payload.savedAt,
         updatedAt: payload.savedAt,
         activeChapterId: refs.chapterId,
         lastMessagePreview: String(last).slice(0, 160)
@@ -269,16 +288,16 @@
         kind: "chapter",
         storyId: refs.storyId,
         chapterId: refs.chapterId,
-        label: refs.chapterLabel || "章節",
+        label: previous?.label || refs.chapterLabel || "章節",
         createdAt: refs.chapterCreatedAt,
         updatedAt: payload.savedAt,
         messageCount: Array.isArray(payload.chat?.messages) ? payload.chat.messages.length : 0,
         summary: String(payload.chat?.summary || ""),
         contextPack: Storage.scrubSecrets(this.clone(payload.contextPack || null)),
-        parentChapterId: refs.parentChapterId || previous?.parentChapterId || "",
-        branchPointMessageId: refs.branchPointMessageId || previous?.branchPointMessageId || "",
-        branchPointSeq: Number.isFinite(Number(refs.branchPointSeq)) && Number(refs.branchPointSeq) >= 0 ? Number(refs.branchPointSeq) : Number(previous?.branchPointSeq ?? -1),
-        branchPointPreview: refs.branchPointPreview || previous?.branchPointPreview || ""
+        parentChapterId: (previous ? previous.parentChapterId : refs.parentChapterId) || "",
+        branchPointMessageId: (previous ? previous.branchPointMessageId : refs.branchPointMessageId) || "",
+        branchPointSeq: previous ? Number(previous.branchPointSeq ?? -1) : (Number.isFinite(Number(refs.branchPointSeq)) && Number(refs.branchPointSeq) >= 0 ? Number(refs.branchPointSeq) : -1),
+        branchPointPreview: (previous ? previous.branchPointPreview : refs.branchPointPreview) || ""
       };
     },
 
@@ -341,18 +360,17 @@
       if (!payload || !Storage.validateStory(payload) || !await this.open()) return false;
       const refs = payload._library?.storyId && payload._library?.chapterId
         ? this.clone(payload._library) : this.ensureRefs(payload);
-      const records = await this.allRecords();
-      const staleMessages = records.filter(record => record.kind === "message" && record.storyId === refs.storyId && record.chapterId === refs.chapterId);
-      const messageIds = new Set((payload.chat?.messages || []).map(message => String(message?.id || "")).filter(Boolean));
-      const staleCheckpoints = records.filter(record => record.kind === "checkpoint" && record.storyId === refs.storyId && record.chapterId === refs.chapterId && !messageIds.has(String(record.messageId || "")));
-      const previousStory = records.find(record => record.kind === "story" && record.storyId === refs.storyId);
-      const previousChapter = records.find(record => record.kind === "chapter" && record.storyId === refs.storyId && record.chapterId === refs.chapterId);
-      const story = this.storyRecord(payload, refs, previousStory);
-      const chapter = this.chapterRecord(payload, refs, previousChapter);
-      const snapshot = this.snapshotRecord(payload, refs);
-      const messages = this.messageRecords(payload, refs, staleMessages);
-      const checkpoint = this.checkpointRecord(payload, refs);
-      await this.transaction("readwrite", store => {
+      return this.mutateRecords((records, store) => {
+        const staleMessages = records.filter(record => record.kind === "message" && record.storyId === refs.storyId && record.chapterId === refs.chapterId);
+        const messageIds = new Set((payload.chat?.messages || []).map(message => String(message?.id || "")).filter(Boolean));
+        const staleCheckpoints = records.filter(record => record.kind === "checkpoint" && record.storyId === refs.storyId && record.chapterId === refs.chapterId && !messageIds.has(String(record.messageId || "")));
+        const previousStory = records.find(record => record.kind === "story" && record.storyId === refs.storyId);
+        const previousChapter = records.find(record => record.kind === "chapter" && record.storyId === refs.storyId && record.chapterId === refs.chapterId);
+        const story = this.storyRecord(payload, refs, previousStory);
+        const chapter = this.chapterRecord(payload, refs, previousChapter);
+        const snapshot = this.snapshotRecord(payload, refs);
+        const messages = this.messageRecords(payload, refs, staleMessages);
+        const checkpoint = this.checkpointRecord(payload, refs);
         staleMessages.forEach(record => store.delete(record.id));
         staleCheckpoints.forEach(record => store.delete(record.id));
         store.put(story);
@@ -360,8 +378,8 @@
         store.put(snapshot);
         messages.forEach(record => store.put(record));
         if (checkpoint) store.put(checkpoint);
+        return true;
       });
-      return true;
     },
 
     queuePersist(payload) {
@@ -468,21 +486,25 @@
     async renameStory(storyId, title) {
       const nextTitle = String(title || "").trim().slice(0, 100);
       if (!nextTitle || !await this.open()) return false;
-      const record = (await this.allRecords()).find(item => item.kind === "story" && item.storyId === storyId);
-      if (!record) return false;
-      record.title = nextTitle;
-      record.updatedAt = new Date().toISOString();
-      await this.transaction("readwrite", store => store.put(record));
-      return this.clone(record);
+      return this.mutateRecords((records, store) => {
+        const record = records.find(item => item.kind === "story" && item.storyId === storyId);
+        if (!record) return false;
+        record.title = nextTitle;
+        record.updatedAt = new Date().toISOString();
+        store.put(record);
+        return this.clone(record);
+      });
     },
 
     async setStoryPinned(storyId, pinned = true) {
       if (!storyId || !await this.open()) return false;
-      const record = (await this.allRecords()).find(item => item.kind === "story" && item.storyId === storyId);
-      if (!record) return false;
-      record.pinned = Boolean(pinned);
-      await this.transaction("readwrite", store => store.put(record));
-      return this.clone(record);
+      return this.mutateRecords((records, store) => {
+        const record = records.find(item => item.kind === "story" && item.storyId === storyId);
+        if (!record) return false;
+        record.pinned = Boolean(pinned);
+        store.put(record);
+        return this.clone(record);
+      });
     },
 
     async markStoryOpened(storyId, openedAt = new Date().toISOString()) {
@@ -491,24 +513,30 @@
       const normalized = Number.isNaN(Date.parse(value)) ? new Date().toISOString() : value;
       this._openedAtByStory.set(storyId, normalized);
       if (!await this.open()) return false;
-      const record = (await this.allRecords()).find(item => item.kind === "story" && item.storyId === storyId);
-      if (!record) return false;
-      record.lastOpenedAt = normalized;
-      await this.transaction("readwrite", store => store.put(record));
-      return this.clone(record);
+      return this.mutateRecords((records, store) => {
+        const record = records.find(item => item.kind === "story" && item.storyId === storyId);
+        if (!record) return false;
+        record.lastOpenedAt = normalized;
+        store.put(record);
+        return this.clone(record);
+      });
     },
 
     async renameChapter(storyId, chapterId, label) {
       const nextLabel = String(label || "").trim().slice(0, 100);
       if (!nextLabel || !await this.open()) return false;
-      const record = (await this.allRecords()).find(item => item.kind === "chapter" && item.storyId === storyId && item.chapterId === chapterId);
+      const record = await this.mutateRecords((records, store) => {
+        const record = records.find(item => item.kind === "chapter" && item.storyId === storyId && item.chapterId === chapterId);
+        if (!record) return false;
+        record.label = nextLabel;
+        record.updatedAt = new Date().toISOString();
+        store.put(record);
+        return this.clone(record);
+      });
       if (!record) return false;
-      record.label = nextLabel;
-      record.updatedAt = new Date().toISOString();
-      await this.transaction("readwrite", store => store.put(record));
       const refs = this.refs();
       if (refs.storyId === storyId && refs.chapterId === chapterId) this.localSet(this.chapterLabelKey, nextLabel);
-      return this.clone(record);
+      return record;
     },
 
     async createBranch(messageId, label = "") {
