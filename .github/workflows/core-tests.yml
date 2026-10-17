@@ -398,6 +398,7 @@ jobs:
           node --check js/cost-control.js
           node tests/api-send-wrapper-core.cjs
           node tests/api-send-pipeline-core.cjs
+          node tests/api-ordered-pipeline-integration.cjs
           node tests/chat-usage-pipeline-core.cjs
       - name: App sendMessage wrapper foundation
         run: |

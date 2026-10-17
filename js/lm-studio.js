@@ -16,7 +16,9 @@
 
   // Keep cloud providers unchanged; local requests never use a cloud relay.
   const localTransportWrapper = (next, config, messages) => {
-    const helper = config?.__memoryTask ? App.config?.memory?.summaryApi : config?.__stateTask ? App.config?.cost?.stateApi : null;
+    // The ordered pipeline has already selected the effective helper route.
+    // Retain legacy selection only when that stage is unavailable/older.
+    const helper = config?.__helperRouteResolved ? null : config?.__memoryTask ? App.config?.memory?.summaryApi : config?.__stateTask ? App.config?.cost?.stateApi : null;
     if (isLocal(helper)) {
       return local.send({ ...config, ...helper, maxOutputTokens: config.maxOutputTokens, signal: config.signal || API.activeSignal }, messages, API);
     }

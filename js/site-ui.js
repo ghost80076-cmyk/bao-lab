@@ -87,7 +87,7 @@ window.addEventListener("DOMContentLoaded", () => {
     .catch(err => console.warn("BAO/LAB world state or character status modules failed to load:", err));
   loadBAOScript("js/cost-control.js?v=2")
     .then(() => loadBAOScript("js/provider-browser-compat.js"))
-    .then(() => loadBAOScript("js/model-routing.js?v=6"))
+    .then(() => loadBAOScript("js/model-routing.js?v=7"))
     .then(() => loadBAOScript("js/provider-diagnostics.js"))
     .catch(err => console.warn("BAO/LAB cost, provider compatibility, model routing or provider diagnostics controls failed to load:", err));
   loadBAOScript("js/storage-write-guard.js?v=2")

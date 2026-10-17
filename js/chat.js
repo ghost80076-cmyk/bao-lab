@@ -391,7 +391,7 @@ window.addEventListener("DOMContentLoaded", () => {
   setTimeout(() => {
     const bar = document.querySelector(".usage-bar");
     if (bar && !document.getElementById("usage-total")) bar.insertAdjacentHTML("beforeend", '<span>累積 <b id="usage-total">0 tok</b></span><span>輸入累積 <b id="usage-input-total">0 tok</b></span><span>輸出累積 <b id="usage-output-total">0 tok</b></span><span>Cache 累積 <b id="usage-cache-total">0 tok</b></span><span>Context Guard <b id="usage-guard">正常</b></span>');
-    if (window.API && !API.__baoUsageWrapped) {
+    if (typeof API !== "undefined" && !API.__baoUsageWrapped) {
       const requestUsageWrapper = async (next, config, messages) => {
         const result = await next(config, messages);
         if (config?.__connectionTest) return result;

@@ -113,6 +113,16 @@ async function overlapping() {
   assert.equal(c.Chat.usageLedger[1].kind, 'chat');
   assert.equal(c.Chat.lastStoryPromptTokens, 20);
 }
-contracts(false).then(() => contracts(true)).then(overlapping).then(() => {
+async function lexicalBoot() {
+  const { context: c, install } = runtime();
+  const api = c.API;
+  api.send = async () => response();
+  delete c.API; // Classic-script const API exists before any window.API bridge.
+  install();
+  assert.equal(api.__baoUsageWrapped, true, 'usage must install before asynchronous world-state scripts publish window.API');
+  await api.send({ model: 'main' }, []);
+  assert.equal(c.Chat.usageLedger.length, 1);
+}
+contracts(false).then(() => contracts(true)).then(overlapping).then(lexicalBoot).then(() => {
   console.log('Chat usage: task isolation, once-only accounting, hosted charges, diagnostics, errors, concurrency and legacy fallback passed');
 }).catch(error => { console.error(error); process.exitCode = 1; });
