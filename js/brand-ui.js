@@ -28,7 +28,7 @@
   };
 
   const ensureStyles = () => {
-    ["css/brand-home.css", "css/brand-community.css", "css/first-run-desktop.css", "css/bao-cinematic-home.css?v=4"].forEach(href => {
+    ["css/brand-home.css", "css/brand-community.css", "css/first-run-desktop.css", "css/bao-cinematic-home.css?v=5"].forEach(href => {
       if (document.querySelector(`link[href="${href}"]`)) return;
       const link = document.createElement("link");
       link.rel = "stylesheet";
@@ -87,6 +87,17 @@
           <button class="text-button" id="home-all-works" type="button">查看全部作品 →</button>
         </div>
         <div id="home-character-preview" class="home-character-preview" aria-live="polite"></div>
+      </section>
+      <section id="home-night" class="brand-night-intro" aria-labelledby="home-night-title">
+        <p class="brand-section-mark">今晚的故事</p>
+        <h2 id="home-night-title">每個世界，都有自己的夜色。</h2>
+        <p class="brand-night-lead">有人喜歡平靜，有人期待相遇，也有人追逐風暴。<br>選擇故事的氛圍、節奏與互動，走進屬於你的夜晚。</p>
+        <dl class="brand-night-choices">
+          <div><dt>夜色<span>故事氛圍</span></dt><dd>電影光影、日常暖意，或細膩心事。</dd></div>
+          <div><dt>潮汐<span>故事節奏</span></dt><dd>慢慢醞釀、自然流動，或波瀾不斷。</dd></div>
+          <div><dt>同行者<span>角色互動</span></dt><dd>慢熱回應，或更常主動開啟話題。</dd></div>
+        </dl>
+        <p class="brand-night-note">開始故事前或閱讀時，都能在「今晚的故事」調整。預設保留作品原貌。</p>
       </section>
       <section id="home-reading" class="brand-reading-intro" aria-labelledby="home-reading-title">
         <div class="brand-reading-copy">
