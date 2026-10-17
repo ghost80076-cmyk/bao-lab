@@ -83,7 +83,7 @@ test('opens the current story control center and routes to existing story tools'
   await expect(dialog).toContainText('故事記憶');
   await expect(dialog).toContainText('人物／世界狀態');
   await expect(dialog).toContainText('故事擴充');
-  await expect(dialog).toContainText('敘事與描寫');
+  await expect(dialog).toContainText('今晚的故事');
 
   const extra = dialog.locator('details.story-control-more');
   await expect(extra).not.toHaveAttribute('open','');

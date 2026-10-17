@@ -218,7 +218,7 @@
     button.dataset.searchKeywords = [
       source.dataset.searchKeywords || '',
       keywords[source.id] || '',
-      source.dataset.baoOpen === 'narrative' ? '敘事 風格 描寫 文風 長期指令' : '',
+      source.dataset.baoOpen === 'narrative' ? '今晚的故事 夜色 潮汐 同行者 沿途風景 敘事 風格 描寫 文風 長期指令' : '',
       source.dataset.baoOpen === 'memory' ? '故事記憶 記憶管理 前情' : '',
       source.dataset.baoOpen === 'appearance' ? '畫面 外觀 字體 顏色 聊天背景' : ''
     ].filter(Boolean).join(' ').toLocaleLowerCase();

@@ -105,3 +105,27 @@ assert.equal(repaired.pacing, "card");
 assert.equal(repaired.dialogueBalance, "card");
 
 console.log("narrative settings core test passed");
+
+// New experience choices retain bounded input, no-op defaults and legacy settings.
+assert.deepEqual(BAONarrativeSettings.get().storyExtras, []);
+BAONarrativeSettings.set({ stylePacks: ['tender'], storyExtras: ['daily','threads','daily','unknown'], characterAgency:'active' });
+const tonight = BAONarrativeSettings.get();
+assert.deepEqual(tonight.storyExtras, ['daily','threads']);
+assert.match(BAONarrativeSettings.buildPrompt(tonight), /不預設角色愛上玩家/);
+assert.match(BAONarrativeSettings.buildPrompt(tonight), /缺少依據時不憑空捏造過往/);
+assert.match(BAONarrativeSettings.buildPrompt(tonight), /角色更常主動/);
+tonight.storyExtras.push('tension');
+assert.deepEqual(BAONarrativeSettings.get().storyExtras, ['daily','threads'], 'returned arrays must be isolated');
+for (const agency of ['reserved','natural','active','autonomous']) {
+  assert.match(BAONarrativeSettings.buildPrompt({characterAgency:agency}), /角色/);
+}
+for (const pack of ['tender','suspense','literary']) {
+  assert.match(BAONarrativeSettings.buildPrompt({stylePacks:[pack]}), /不得破壞角色卡人格/);
+}
+BAONarrativeSettings.set({});
+assert.equal(BAONarrativeSettings.buildPrompt(BAONarrativeSettings.get()), '');
+
+BAONarrativeSettings.set({stylePack:'cinematic'});
+assert.deepEqual(BAONarrativeSettings.get().stylePacks, ['cinematic']);
+BAONarrativeSettings.set({...BAONarrativeSettings.get(), stylePacks:[]});
+assert.equal(BAONarrativeSettings.buildPrompt(BAONarrativeSettings.get()), '');

@@ -63,7 +63,7 @@ for (const width of [390, 1280]) {
     await expect(drawer.locator('[data-chat-tool-group="world"]')).toBeHidden();
     await direct.click();
     await expect(drawer).toHaveCount(0);
-    const modal = page.getByRole('dialog', { name: '敘事與描寫設定' });
+    const modal = page.getByRole('dialog', { name: '今晚的故事' });
     await expect(modal).toBeVisible();
     await expect(page.locator('.narrative-instructions-focused #bao-narrative-instructions')).toBeVisible();
     await expect.poll(() => page.evaluate(() =>
