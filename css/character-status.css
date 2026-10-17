@@ -228,32 +228,32 @@
 }
 
 /* Theme parity applies only to the platform roster chrome. */
-html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .npc-roster-modal{
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) .npc-roster-modal{
   background:var(--yoru-surface);
   border-color:var(--yoru-card-border);
   color:var(--yoru-text);
   box-shadow:var(--yoru-shadow-soft,0 28px 76px #0004);
 }
-html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .npc-roster-modal>header,
-html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .npc-roster-modal>footer{
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) .npc-roster-modal>header,
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) .npc-roster-modal>footer{
   background:var(--yoru-tool);
   border-color:var(--yoru-card-border);
   color:var(--yoru-text);
 }
-html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .npc-roster-modal :is(.npc-roster-row,.npc-roster-add-details){
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) .npc-roster-modal :is(.npc-roster-row,.npc-roster-add-details){
   background:var(--yoru-card);
   border-color:var(--yoru-card-border);
   color:var(--yoru-text);
 }
-html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .npc-roster-modal :is(.npc-roster-help-toggle,.npc-roster-batch button,.npc-roster-collect){
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) .npc-roster-modal :is(.npc-roster-help-toggle,.npc-roster-batch button,.npc-roster-collect){
   background:var(--yoru-control);
   border-color:var(--yoru-control-border);
   color:var(--yoru-text);
 }
-html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .npc-roster-modal :is(h2,h3,.npc-roster-row b){
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) .npc-roster-modal :is(h2,h3,.npc-roster-row b){
   color:var(--yoru-text);
 }
-html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .npc-roster-modal :is(header p,.npc-roster-body p,.npc-roster-row small){
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) .npc-roster-modal :is(header p,.npc-roster-body p,.npc-roster-row small){
   color:var(--yoru-muted);
 }
 @media(max-width:600px){
@@ -483,7 +483,7 @@ html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .npc-roster-modal :is
   outline:2px solid var(--yoru-lantern,#d6aa73);
   outline-offset:2px;
 }
-html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .character-status-empty{
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) .character-status-empty{
   border-color:var(--yoru-card-border);
   color:var(--yoru-muted);
 }
@@ -544,6 +544,6 @@ html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .character-status-emp
 
 /* Reader panels use transparent cards on mobile; give the platform-owned
    character status cards an opaque semantic surface in light/rose themes. */
-html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) #ui-panel .character-status-card{
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) #ui-panel .character-status-card{
   background-color:var(--yoru-card)!important;
 }
