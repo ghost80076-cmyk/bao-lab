@@ -1,7 +1,7 @@
 const { test, expect } = require('@playwright/test');
 
 const THEMES = [
-  { id:'night', name:'夜港', dark:true, surface:'#15191d' },
+  { id:'night', name:'夜港', dark:true, surface:'#080d14' },
   { id:'mist', name:'月白', dark:false, surface:'#f5f0e9' },
   { id:'dawn', name:'晨霧', dark:false, surface:'#edf3f5' },
   { id:'dusk', name:'暮霞', dark:true, surface:'#302c3c' },
