@@ -1,5 +1,6 @@
 /* Reading-first layout. The status rail owns the existing status nodes, not another copy. */
-body:has(#chat-view.active) .app-shell{width:min(1710px,calc(100% - 32px));max-width:none}
+/* The outer reading/workspace frame is shared with bao-editorial-cinema.css. */
+body:has(#chat-view.active) .app-shell{width:min(1660px,calc(100% - 30px));max-width:none}
 #chat-view{padding:22px 0 34px}
 #chat-view .chat-layout{grid-template-columns:210px minmax(0,1fr);gap:14px;min-width:0;align-items:start}
 #chat-view .chat-layout > aside{min-width:0;max-width:100%;padding:12px;gap:8px}

@@ -693,7 +693,8 @@ body:has(#chat-view.active) .app-shell{width:min(1660px,calc(100% - 30px))}
     display:none!important;
   }
   #chat-view[data-bao-surface="play"] .chat-main{
-    width:min(100%,1080px);margin-inline:auto;
+    /* The reading panel follows the navigation frame; prose stays at 760–820px. */
+    width:min(100%,1280px);margin-inline:auto;
   }
 }
 
@@ -928,4 +929,65 @@ body:has(#home-view.active) .bao-mascot-launch,body:has(#explore-view.active) .b
   #explore-view #character-list .character-content{padding:12px 11px 14px;gap:5px}
   #explore-view #character-list .character-content h3{font-size:15px;line-height:1.45;min-height:2.9em}
   #explore-view #character-list .character-content .explore-card-context{font-size:10px}
+}
+
+/* Shared layout contract · desktop Play occupies one viewport; only the story stream scrolls.
+   Deliberately leave mobile (<=820px) and Studio tool scrolling unchanged. */
+@media (min-width:821px){
+  body:has(#chat-view.active[data-bao-surface="play"]){overflow-y:hidden}
+  body:has(#chat-view.active[data-bao-surface="play"]) .app-shell{
+    height:100dvh;display:flex;flex-direction:column;
+  }
+  body:has(#chat-view.active[data-bao-surface="play"]) .app-shell>.topbar{
+    flex:0 0 auto;width:min(100%,1280px);margin-inline:auto;
+  }
+  body:has(#chat-view.active[data-bao-surface="play"]) .app-shell>main{
+    flex:1 1 auto;min-height:0;
+  }
+  body:has(#chat-view.active[data-bao-surface="play"]) .app-shell>footer{display:none}
+  #chat-view.active[data-bao-surface="play"]{
+    height:100%;min-height:0;padding-top:12px;padding-bottom:12px;
+  }
+  #chat-view.active[data-bao-surface="play"] .chat-layout{
+    height:100%;min-height:0;
+  }
+  #chat-view.active[data-bao-surface="play"] .chat-main{
+    height:100%;min-height:0;display:flex;flex-direction:column;
+  }
+  #chat-view.active[data-bao-surface="play"] .chat-stream{
+    flex:1 1 auto;min-height:0!important;max-height:none!important;
+    overflow-y:auto;overscroll-behavior:contain;
+  }
+}
+
+/* The light/rose appearance choice must also reach the reading room.
+   Only first-party chrome and plain-text bubbles are themed; authored rich HTML is intact. */
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) body:has(#chat-view.active){
+  background:var(--yoru-night)!important;
+}
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) #chat-view .chat-main,
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) #chat-view .chat-stream{
+  background:var(--yoru-reading)!important;border-color:var(--yoru-story-border);
+}
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) #chat-view .chat-topline,
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) #chat-view .composer,
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) #chat-view .usage-bar{
+  background:var(--yoru-tool)!important;border-color:var(--yoru-story-border)!important;
+}
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) #chat-view .chat-title-copy h2,
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) #chat-view .chat-title-copy p,
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) #chat-view #bao-scene-meta{
+  color:var(--yoru-story-text)!important;
+}
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) #chat-view .message.assistant .bubble:not(.authored-rich-message){
+  color:var(--yoru-story-text)!important;
+}
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) #chat-view #bao-surface-controls{
+  background:var(--yoru-control)!important;border-color:var(--yoru-control-border)!important;
+}
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) #chat-view #bao-surface-controls button{
+  color:var(--yoru-text)!important;
+}
+html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) #chat-view .chat-layout>aside:not(.bao-status-rail){
+  background:var(--yoru-tool)!important;border-color:var(--yoru-story-border)!important;
 }
