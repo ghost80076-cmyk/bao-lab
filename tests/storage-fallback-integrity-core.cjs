@@ -125,6 +125,20 @@ async function main() {
     assert.ok(records.some(record => record.id === 'keep'));
     assert.ok(records.some(record => record.payload.label === 'new-after-failure'));
   }
+  {
+    const browser = new BrowserStorage(), store = boot(browser);
+    browser.setItem(AUTO, JSON.stringify(save('complete')));
+    browser.setItem(SLOTS, '[]'); browser.setItem(MARKER, store.fallbackCompleteMarker);
+    browser.failures.add('remove:' + MARKER);
+    assert.equal(store._cleanupLegacyStoryStorage(), false);
+    assert.equal(JSON.parse(browser.getItem(AUTO)).label, 'complete');
+    assert.equal(browser.getItem(SLOTS), '[]', 'cleanup must keep snapshot keys if the authoritative marker cannot be removed');
+    browser.failures.clear();
+    assert.equal(store._cleanupLegacyStoryStorage(), true);
+    assert.equal(browser.getItem(MARKER), null);
+    assert.equal(browser.getItem(AUTO), null);
+    assert.equal(browser.getItem(SLOTS), null);
+  }
   console.log('Storage fallback integrity: partial writes/reload, stale marker, intentional deletion and blocked invalidation passed');
 }
 main().catch(error => { console.error(error); process.exitCode = 1; });

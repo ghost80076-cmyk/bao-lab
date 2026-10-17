@@ -228,12 +228,18 @@ const Storage = {
   },
 
   _cleanupLegacyStoryStorage() {
+    // Never leave an authoritative marker pointing at keys we just removed.
+    // If invalidation is blocked, retain the complete backup alongside IDB.
+    try {
+      localStorage.removeItem(this.fallbackKey);
+      if (localStorage.getItem(this.fallbackKey) !== null) return false;
+    } catch { return false; }
     this.remove(this.storyKey);
     this.remove(this.slotsKey);
     try {
-      localStorage.removeItem(this.fallbackKey);
       localStorage.setItem(this.migrationKey, new Date().toISOString());
     } catch {}
+    return true;
   },
 
   _openDatabase() {
