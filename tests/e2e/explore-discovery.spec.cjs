@@ -339,3 +339,56 @@ test('explore preview stays catalog-only and repeated apply does not reinsert st
   await expect(page.locator('#detail-view')).toHaveClass(/active/);
   await expect.poll(() => page.evaluate(() => window.__exploreFullLoads)).toBe(1);
 });
+
+
+for (const width of [390, 1280]) {
+  test(`catalog preview follows the selected YoruBay appearance while preserving art (${width}px)`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 844 });
+    await page.goto('./');
+    await page.waitForFunction(() => Boolean(window.YoruExperience?.choose && window.BAOExploreDiscovery && App.characters?.length));
+    await page.evaluate(() => App.showView('explore'));
+    const card = page.locator('#character-list [data-character-id="night-sky-magic-academy"]');
+    await expect(card).toBeVisible();
+    await card.locator('.character-image-wrap').click();
+    const preview = page.locator('#explore-work-preview');
+    await expect(preview).toBeVisible();
+    await expect(preview.locator('.explore-work-preview-head h3')).not.toBeEmpty();
+    const imageBefore = await preview.locator('[data-explore-preview-image]').getAttribute('src');
+
+    for (const theme of ['mist', 'dawn', 'dusk', 'sunset']) {
+      await page.evaluate(value => YoruExperience.choose({ theme:value }), theme);
+      const state = await preview.evaluate(dialog => {
+        const probe = document.createElement('span');
+        document.body.appendChild(probe);
+        const themeColor = (variable, property) => {
+          probe.style[property] = `var(${variable})`;
+          return getComputedStyle(probe)[property];
+        };
+        const result = {
+          panel:getComputedStyle(dialog).backgroundColor,
+          title:getComputedStyle(dialog.querySelector('.explore-work-preview-head h3')).color,
+          description:getComputedStyle(dialog.querySelector('.explore-work-preview-description')).color,
+          meta:getComputedStyle(dialog.querySelector('.explore-work-preview-meta')).color,
+          action:getComputedStyle(dialog.querySelector('.explore-work-preview-actions')).backgroundImage,
+          expectedSurface:themeColor('--yoru-surface','backgroundColor'),
+          expectedText:themeColor('--yoru-text','color'),
+          expectedMuted:themeColor('--yoru-muted','color'),
+          image:dialog.querySelector('[data-explore-preview-image]').getAttribute('src'),
+          overflow:document.documentElement.scrollWidth-innerWidth,
+        };
+        probe.remove();
+        return result;
+      });
+      expect(state.panel, theme+' panel').toBe(state.expectedSurface);
+      expect(state.title, theme+' title').toBe(state.expectedText);
+      expect(state.description, theme+' description').toBe(state.expectedText);
+      expect(state.meta, theme+' metadata').toBe(state.expectedMuted);
+      expect(state.action).toContain('linear-gradient');
+      expect(state.image).toBe(imageBefore);
+      expect(state.overflow).toBeLessThanOrEqual(2);
+    }
+    await preview.getByRole('button', { name:'繼續瀏覽' }).click();
+    await expect(preview).toBeHidden();
+    await expect(card).toBeVisible();
+  });
+}
