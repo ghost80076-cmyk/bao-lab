@@ -25,9 +25,9 @@ for (const width of [390, 1280]) {
     await expect(view.getByRole('button', { name: '探索作品' })).toBeVisible();
 
     // Manual disclosure choices survive preference changes; no duplicate settings or lost handlers.
-    await page.evaluate(() => window.YoruExperience.choose({theme:'rose',level:'pro'}));
+    await page.evaluate(() => window.YoruExperience.choose({theme:'dusk',level:'pro'}));
     await expect(more).toHaveAttribute('open', '');
-    await expect(view.locator('[data-bao-experience-state]')).toHaveText('暮玫 · 專業');
+    await expect(view.locator('[data-bao-experience-state]')).toHaveText('暮霞 · 專業');
     const bg = await more.evaluate(el => getComputedStyle(el).backgroundColor);
     expect(bg).not.toBe('rgba(0, 0, 0, 0)');
     await more.locator('summary').click();
