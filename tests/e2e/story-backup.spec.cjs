@@ -252,3 +252,51 @@ test('restore failures preserve the active story and undo preference side effect
   expect(result.text).toBe('candidate story');
   expect(result.error).toBe('');
 });
+
+test('two library connections preserve concurrent metadata and replace a whole chapter', async ({ page, context }) => {
+  await page.goto('/');
+  await page.waitForFunction(() => !!window.BAOStoryLibrary);
+  const other = await context.newPage();
+  try {
+    await other.goto('/');
+    await other.waitForFunction(() => !!window.BAOStoryLibrary);
+    const refs = { storyId: 'concurrent-story', chapterId: 'root', chapterLabel: 'Original chapter', storyCreatedAt: '2026-01-01', chapterCreatedAt: '2026-01-01' };
+    const payload = { characterId: 'concurrent-hero', characterName: 'Concurrent hero', savedAt: '2026-10-18T01:00:00Z', config: {}, state: {},
+      chat: { messages: [{ id: 'original', role: 'assistant', content: 'Original message' }] }, _library: refs };
+    expect(await page.evaluate(value => BAOStoryLibrary.persist(value), payload)).toBe(true);
+    await Promise.all([
+      page.evaluate(() => BAOStoryLibrary.renameStory('concurrent-story', 'Shared title')),
+      other.evaluate(() => BAOStoryLibrary.setStoryPinned('concurrent-story', true))
+    ]);
+    await Promise.all([
+      page.evaluate(() => BAOStoryLibrary.markStoryOpened('concurrent-story', '2028-01-01T00:00:00Z')),
+      other.evaluate(value => BAOStoryLibrary.persist(value), payload)
+    ]);
+    await Promise.all([
+      page.evaluate(() => BAOStoryLibrary.renameChapter('concurrent-story', 'root', 'Shared chapter')),
+      other.evaluate(value => BAOStoryLibrary.persist(value), payload)
+    ]);
+    const long = structuredClone(payload);
+    long.chat.messages.push({ id: 'tail', role: 'assistant', content: 'Must disappear after replacement' });
+    await page.evaluate(value => BAOStoryLibrary.persist(value), long);
+    const replacement = structuredClone(payload);
+    replacement.chat.messages = [{ id: 'replacement', role: 'assistant', content: 'Replacement message' }];
+    await other.evaluate(value => BAOStoryLibrary.persist(value), replacement);
+    // Closing/reopening verifies durable state through another real IDB connection.
+    await page.reload();
+    await page.waitForFunction(() => !!window.BAOStoryLibrary);
+    const result = await page.evaluate(async () => {
+      const lib = BAOStoryLibrary;
+      return { story: (await lib.listStories()).find(value => value.storyId === 'concurrent-story'),
+        chapter: (await lib.listChapters('concurrent-story'))[0],
+        restored: await lib.reconstruct('concurrent-story', 'root') };
+    });
+    expect(result.story.title).toBe('Shared title');
+    expect(result.story.pinned).toBe(true);
+    expect(result.story.lastOpenedAt).toBe('2028-01-01T00:00:00Z');
+    expect(result.chapter.label).toBe('Shared chapter');
+    expect(result.chapter.messageCount).toBe(1);
+    expect(result.restored.chat.messages.map(value => value.id)).toEqual(['replacement']);
+    expect(result.restored._library.chapterLabel).toBe('Shared chapter');
+  } finally { await other.close(); }
+});
