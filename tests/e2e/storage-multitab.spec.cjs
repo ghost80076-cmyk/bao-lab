@@ -96,19 +96,75 @@ test('migration and stale fallback preserve another tab\'s committed stories', a
     Storage._commitOperation({ type: 'saveSlot', payload: { id: 'remote-slot', label: 'remote-slot', characterId: 'hero', savedAt: new Date(20000).toISOString(), config: {}, chat: { messages: [] } } });
     await Storage.flush();
   });
-  await page.evaluate(() => {
+  await page.evaluate(async () => {
     Storage._cache = { autosave: null, slots: [] };
     Storage._degradeToLocalStorage(Error('injected storage failure'));
+    await Storage.flush();
   });
-  await fresh.evaluate(() => Storage._migrateLegacyToIndexedDB());
+  await fresh.evaluate(() => Storage._withStoryLock(async () => {
+    await Storage._migrateLegacyToIndexedDB();
+    Storage._cleanupLegacyStoryStorage();
+  }));
   expect(await result()).toEqual({ auto: 'remote-new', slots: ['legacy', 'remote-slot'] });
   // Without a foreign write, a new complete fallback still applies deletions.
   await fresh.evaluate(async () => {
     await Storage._loadIndexedDBCache();
     Storage._cache = { autosave: null, slots: [] };
     Storage._degradeToLocalStorage(Error('injected storage failure'));
+    await Storage.flush();
     Storage._db = await Storage._openDatabase();
     await Storage._migrateLegacyToIndexedDB();
   });
   expect(await result()).toEqual({ auto: undefined, slots: [] });
+});
+
+test('fallback tabs rebase under Web Locks and commit a whole snapshot atomically', async ({ context, page }) => {
+  await context.route('**/storage-fallback-harness', route => route.fulfill({
+    contentType: 'text/html', body: '<!doctype html><meta charset="utf-8"><script>Object.defineProperty(window,"indexedDB",{value:undefined});</script><script src="/js/storage.js"></script>'
+  }));
+  const other = await context.newPage();
+  for (const tab of [page, other]) {
+    await tab.goto('/storage-fallback-harness');
+    await tab.evaluate(() => Storage.ready());
+  }
+  expect(await page.evaluate(() => Boolean(navigator.locks?.request))).toBe(true);
+  const add = (tab, id) => tab.evaluate(async id => {
+    Storage._commitOperation({ type: 'saveSlot', payload: {
+      id, label: id, characterId: 'hero', savedAt: new Date().toISOString(), config: {}, chat: { messages: [] }
+    } });
+    await Storage.flush();
+  }, id);
+  const ids = () => page.evaluate(() => Storage._readFallbackSnapshot().slots.map(slot => slot.id).sort());
+  await Promise.all([add(page, 'left'), add(other, 'right')]);
+  expect(await ids()).toEqual(['left', 'right']);
+  await other.reload(); await other.evaluate(() => Storage.ready());
+  await page.evaluate(async () => { Storage.deleteSlot('left'); await Storage.flush(); });
+  await add(other, 'third');
+  expect(await ids()).toEqual(['right', 'third']);
+  const prior = await page.evaluate(() => localStorage.getItem(Storage.fallbackSnapshotKey));
+  await page.evaluate(() => {
+    const prototype = Object.getPrototypeOf(localStorage);
+    window.restoreStorageWrite = prototype.setItem;
+    prototype.setItem = function(key, value) {
+      if (key === Storage.fallbackSnapshotKey) throw new DOMException('injected quota failure', 'QuotaExceededError');
+      return window.restoreStorageWrite.call(this, key, value);
+    };
+  });
+  await add(page, 'quota-failed');
+  expect(await page.evaluate(() => localStorage.getItem(Storage.fallbackSnapshotKey))).toBe(prior);
+  await add(other, 'after-quota');
+  expect(await ids()).toEqual(['after-quota', 'right', 'third']);
+  await page.evaluate(() => { Object.getPrototypeOf(localStorage).setItem = window.restoreStorageWrite; });
+  await other.evaluate(async () => {
+    Storage._commitOperation({ type: 'saveStory', payload: {
+      characterId: 'hero', savedAt: new Date().toISOString(), config: {}, chat: { messages: [{ role: 'user', content: 'saved' }] }
+    } });
+    await Storage.flush();
+    window.App = { saveStory() { return false; } };
+  });
+  await other.addScriptTag({ url: '/js/storage-write-guard.js' });
+  expect(await other.evaluate(() => BAOStorageWriteGuard.verify(Storage.loadStory()).ok)).toBe(true);
+  await page.reload(); await page.evaluate(() => Storage.ready());
+  expect(await page.evaluate(() => Storage.listSlots().map(slot => slot.id).sort())).toEqual(['after-quota', 'right', 'third']);
+  expect(await page.evaluate(() => Storage.loadStory().chat.messages[0].content)).toBe('saved');
 });

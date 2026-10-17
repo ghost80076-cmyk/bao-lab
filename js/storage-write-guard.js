@@ -31,8 +31,9 @@
     if (mode === 'indexedDB') return { ok: true, mode };
     if (mode !== 'localStorage') return { ok: false, mode };
     try {
-      const raw = localStorage.getItem(Storage.prefix + Storage.storyKey);
-      const stored = raw ? JSON.parse(raw) : null;
+      const snapshot = Storage._readFallbackSnapshot?.();
+      const raw = snapshot ? null : localStorage.getItem(Storage.prefix + Storage.storyKey);
+      const stored = snapshot ? snapshot.autosave : raw ? JSON.parse(raw) : null;
       return { ok: Boolean(stored && stored.savedAt === save.savedAt &&
         stored.chat?.messages?.length === save.chat?.messages?.length), mode };
     } catch { return { ok: false, mode }; }

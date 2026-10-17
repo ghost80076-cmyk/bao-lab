@@ -39,6 +39,7 @@ async function fallbackConflict(conflict) {
   }
   owner._cache = empty(); // intentional local deletion after the database fails
   owner._degradeToLocalStorage(Error('injected failure'));
+  await owner.flush();
   const next = tab(db, empty(), browser);
   await next._migrateLegacyToIndexedDB();
   if (conflict) {

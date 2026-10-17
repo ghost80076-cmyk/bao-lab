@@ -14,6 +14,8 @@ const Storage = {
   fallbackCompleteMarker: "complete-v3",
   fallbackRevisionKey: "bao-lab:story-idb-fallback-revision-v1",
   revisionRecordId: "__story_revision__",
+  fallbackSnapshotKey: "bao-lab:story-fallback-snapshot-v1",
+  storyLockName: "bao-lab:story-storage-v1",
 
   _db: null,
   _mode: "booting",
@@ -26,6 +28,8 @@ const Storage = {
   _fallbackSnapshotComplete: false,
   _expectedRevision: null,
   _legacyMigrationSnapshot: null,
+  _startupOperations: [],
+  _fallbackWriterId: "tab-" + Date.now() + "-" + Math.random().toString(36).slice(2),
 
   set(key, value) {
     try {
@@ -188,59 +192,89 @@ const Storage = {
     }).filter(Boolean).sort((a, b) => String(b.savedAt).localeCompare(String(a.savedAt))).slice(0, 20);
   },
 
+  _readFallbackSnapshot() {
+    const raw = localStorage.getItem(this.fallbackSnapshotKey);
+    if (raw === null) return null;
+    const value = JSON.parse(raw);
+    if (value?.schema !== "bao-lab-fallback" || value.version !== 1 ||
+        !Array.isArray(value.slots) || value.slots.length > 20 ||
+        (value.revision !== null && (!Number.isSafeInteger(value.revision) || value.revision < 0)) ||
+        (value.autosave !== null && !this.validateStory(value.autosave)) ||
+        value.slots.some(slot => !slot?.id || !this.validateStory(slot))) {
+      throw new Error("本地備援快照無效，已保留原資料，請匯出故事備份。");
+    }
+    return { ...value, autosave: value.autosave ? this.sanitizeImportedStory(value.autosave) : null,
+      slots: value.slots.map(slot => this.sanitizeImportedStory(slot)) };
+  },
+
+  _withStoryLock(action) {
+    if (typeof navigator !== "undefined" && navigator.locks?.request) {
+      return navigator.locks.request(this.storyLockName, { mode: "exclusive" }, action);
+    }
+    // Single-key commits still prevent torn snapshots without Web Locks.
+    return Promise.resolve().then(action);
+  },
+
   _hydrateLegacyCache() {
     this._cache.autosave = this._legacyAutosave();
     this._cache.slots = this._legacySlots();
     try {
+      const snapshot = this._readFallbackSnapshot();
+      if (snapshot) {
+        this._cache = this.clone({ autosave: snapshot.autosave, slots: snapshot.slots });
+        this._expectedRevision = snapshot.revision;
+        this._fallbackSnapshotComplete = snapshot.revision !== null;
+        return;
+      }
       const revision = this.localJSON(this.fallbackRevisionKey, null);
       this._fallbackSnapshotComplete = localStorage.getItem(this.fallbackKey) === this.fallbackCompleteMarker && Number.isSafeInteger(revision) && revision >= 0;
       this._expectedRevision = this._fallbackSnapshotComplete ? revision : null;
     }
-    catch { this._fallbackSnapshotComplete = false; }
+    catch (error) { this._fallbackSnapshotComplete = false; this._lastError = error; }
   },
 
   _legacySnapshotSignature() {
-    return JSON.stringify([this.prefix + this.storyKey, this.prefix + this.slotsKey, this.fallbackKey, this.fallbackRevisionKey]
+    return JSON.stringify([this.prefix + this.storyKey, this.prefix + this.slotsKey, this.fallbackKey, this.fallbackRevisionKey, this.fallbackSnapshotKey]
       .map(key => localStorage.getItem(key)));
   },
 
   _legacyStoryKeysExist() {
     try {
-      return localStorage.getItem(this.prefix + this.storyKey) !== null || localStorage.getItem(this.prefix + this.slotsKey) !== null;
+      return localStorage.getItem(this.fallbackSnapshotKey) !== null || localStorage.getItem(this.prefix + this.storyKey) !== null || localStorage.getItem(this.prefix + this.slotsKey) !== null;
     } catch { return false; }
   },
 
-  _persistLegacySnapshot(markFallback = false) {
-    // Only a complete fallback may replace IndexedDB on the next boot. Invalidate
-    // an older marker before changing either key, including initialization writes.
-    let authoritative;
-    try {
-      const marker = localStorage.getItem(this.fallbackKey);
-      authoritative = (markFallback || marker === this.fallbackCompleteMarker) && Number.isSafeInteger(this._expectedRevision) && this._expectedRevision >= 0;
-      if (marker !== null || authoritative) {
-        localStorage.removeItem(this.fallbackKey);
-        if (localStorage.getItem(this.fallbackKey) !== null) return false;
-      }
-    } catch { return false; }
-
-    let autosaveWritten;
-    if (this._cache.autosave) autosaveWritten = this.set(this.storyKey, this._cache.autosave);
-    else {
-      try {
-        localStorage.removeItem(this.prefix + this.storyKey);
-        autosaveWritten = localStorage.getItem(this.prefix + this.storyKey) === null;
-      } catch { autosaveWritten = false; }
+  _persistFallbackSnapshot(operations = [], baseCache = this._cache) {
+    // Caller holds the cross-tab lock. Rebase only the requested operations on
+    // the latest shared snapshot, then atomically replace this one key.
+    const previous = this._readFallbackSnapshot();
+    const sourceRevision = this._fallbackSnapshotComplete && Number.isSafeInteger(this._expectedRevision) && this._expectedRevision >= 0 ? this._expectedRevision : null;
+    // A startup snapshot from this writer can be completed once IDB is loaded.
+    // A snapshot touched by another writer must stay conservative.
+    const promoteOwnStartup = previous?.owner === this._fallbackWriterId && previous.revision === null && sourceRevision !== null;
+    let cache = this.clone(previous && !promoteOwnStartup ? { autosave: previous.autosave, slots: previous.slots } : baseCache);
+    if (previous && !promoteOwnStartup && !operations.length) {
+      // Snapshot-only recovery cannot prove deletions against another writer.
+      cache = { autosave: this._newerSave(cache.autosave, baseCache.autosave),
+        slots: this._mergeSlots(cache.slots, baseCache.slots) };
     }
-    const slotsWritten = this.set(this.slotsKey, this._cache.slots);
-    if (!autosaveWritten || !slotsWritten) return false;
-    if (!authoritative) return true;
-    try {
-      const revision = JSON.stringify(this._expectedRevision);
-      localStorage.setItem(this.fallbackRevisionKey, revision);
-      if (localStorage.getItem(this.fallbackRevisionKey) !== revision) return false;
-      localStorage.setItem(this.fallbackKey, this.fallbackCompleteMarker);
-      return localStorage.getItem(this.fallbackKey) === this.fallbackCompleteMarker;
-    } catch { return false; }
+    operations.forEach(operation => this._applyOperation(operation, cache));
+    const revision = previous && !promoteOwnStartup && previous.revision !== sourceRevision ? null : sourceRevision;
+    const snapshot = { schema: "bao-lab-fallback", version: 1, revision,
+      owner: !previous || previous.owner === this._fallbackWriterId ? this._fallbackWriterId : null,
+      autosave: cache.autosave, slots: cache.slots };
+    localStorage.setItem(this.fallbackSnapshotKey, JSON.stringify(snapshot));
+    return true;
+  },
+
+  _queueFallbackOperation(operation, baseCache) {
+    const run = () => this._withStoryLock(() => {
+      if (this._mode === "indexedDB" && this._ready) return;
+      try { this._persistFallbackSnapshot(operation ? [operation] : [], baseCache); }
+      catch (error) { this._lastError = error; console.warn("BAO/LAB fallback write failed:", error); }
+    });
+    this._writeQueue = this._writeQueue.then(run, run);
+    return this._writeQueue;
   },
 
   _cleanupLegacyStoryStorage() {
@@ -253,7 +287,7 @@ const Storage = {
     } catch { return false; }
     this.remove(this.storyKey);
     this.remove(this.slotsKey);
-    try { localStorage.removeItem(this.fallbackRevisionKey); }
+    try { localStorage.removeItem(this.fallbackRevisionKey); localStorage.removeItem(this.fallbackSnapshotKey); }
     catch {}
     try {
       localStorage.setItem(this.migrationKey, new Date().toISOString());
@@ -403,16 +437,17 @@ const Storage = {
   },
 
   async _migrateLegacyToIndexedDB() {
-    const legacyAutosave = this._legacyAutosave();
-    const legacySlots = this._legacySlots();
+    const snapshot = this._readFallbackSnapshot();
+    const legacyAutosave = snapshot ? snapshot.autosave : this._legacyAutosave();
+    const legacySlots = snapshot ? snapshot.slots : this._legacySlots();
     let fallbackMarker = null;
     let fallbackActive = false;
     try {
       fallbackMarker = localStorage.getItem(this.fallbackKey);
-      fallbackActive = fallbackMarker === this.fallbackCompleteMarker;
+      fallbackActive = snapshot ? snapshot.revision !== null : fallbackMarker === this.fallbackCompleteMarker;
     }
     catch {}
-    const fallbackRevision = this.localJSON(this.fallbackRevisionKey, null);
+    const fallbackRevision = snapshot ? snapshot.revision : this.localJSON(this.fallbackRevisionKey, null);
 
     // Retire the marker before IDB can advance past the fallback snapshot. If
     // it cannot be retired, do not allow a stale marker to undo later IDB saves.
@@ -421,7 +456,7 @@ const Storage = {
       if (localStorage.getItem(this.fallbackKey) !== null) throw new Error("無法撤銷本地備援標記，已保留原存檔。");
     }
     this._legacyMigrationSnapshot = this._legacySnapshotSignature();
-    if (!legacyAutosave && !legacySlots.length && fallbackMarker === null) return;
+    if (!snapshot && !legacyAutosave && !legacySlots.length && fallbackMarker === null) return;
     await this._replaceDatabaseStories(null, null, existingRecords => {
       const existingAutosave = this._payloadFromRecord(existingRecords.find(record => record?.kind === "autosave" || record?.id === this.autosaveRecordId));
       const existingSlots = existingRecords.filter(record => record?.kind === "slot")
@@ -447,25 +482,25 @@ const Storage = {
       .slice(0, 20);
   },
 
-  _applyOperation(operation) {
+  _applyOperation(operation, cache = this._cache) {
     if (!operation || !operation.type) return;
     if (operation.type === "saveStory") {
-      this._cache.autosave = this.clone(operation.payload);
+      cache.autosave = this.clone(operation.payload);
       return;
     }
     if (operation.type === "clearStory") {
-      this._cache.autosave = null;
+      cache.autosave = null;
       return;
     }
     if (operation.type === "saveSlot") {
       const payload = this.clone(operation.payload);
-      this._cache.slots = [payload, ...this._cache.slots.filter(item => item.id !== payload.id)]
+      cache.slots = [payload, ...cache.slots.filter(item => item.id !== payload.id)]
         .sort((a, b) => String(b.savedAt || "").localeCompare(String(a.savedAt || "")))
         .slice(0, 20);
       return;
     }
     if (operation.type === "deleteSlot") {
-      this._cache.slots = this._cache.slots.filter(item => item.id !== operation.id);
+      cache.slots = cache.slots.filter(item => item.id !== operation.id);
     }
   },
 
@@ -503,42 +538,43 @@ const Storage = {
     }
   },
 
-  _degradeToLocalStorage(error) {
+  _degradeToLocalStorage(error, persist = true) {
     this._fallbackSnapshotComplete = this._mode === "indexedDB" || this._fallbackSnapshotComplete;
     this._lastError = error || new Error("IndexedDB write failed.");
     this._mode = "localStorage";
-    this._persistLegacySnapshot(this._fallbackSnapshotComplete);
+    if (persist) this._queueFallbackOperation(null, { autosave: this._cache.autosave, slots: this._cache.slots });
     try { this._db?.close?.(); }
     catch {}
     this._db = null;
     console.warn("BAO/LAB IndexedDB unavailable; using localStorage fallback:", this._lastError);
   },
 
-  _queueIndexedDBOperation(operation) {
-    const run = async () => {
-      if (this._mode !== "indexedDB") return;
+  _queueIndexedDBOperation(operation, baseCache) {
+    const run = () => this._withStoryLock(async () => {
       try {
-        await this._persistOperationIndexedDB(operation);
-      } catch (error) {
-        this._degradeToLocalStorage(error);
-      }
-    };
+        if (this._mode === "indexedDB") {
+          try { await this._persistOperationIndexedDB(operation); return; }
+          catch (error) { this._degradeToLocalStorage(error, false); }
+        }
+        this._persistFallbackSnapshot([operation], baseCache);
+      } catch (error) { this._lastError = error; console.warn("BAO/LAB fallback write failed:", error); }
+    });
     this._writeQueue = this._writeQueue.then(run, run);
     return this._writeQueue;
   },
 
   _commitOperation(operation) {
+    const baseCache = { autosave: this._cache.autosave, slots: this._cache.slots };
     this._applyOperation(operation);
     if (this._mode === "indexedDB") {
-      this._queueIndexedDBOperation(operation);
+      this._queueIndexedDBOperation(operation, baseCache);
       return;
     }
     if (this._mode === "initializing" || this._mode === "booting") {
       this._pendingOperations.push(this.clone(operation));
-      this._persistLegacySnapshot(false);
-      return;
+      this._startupOperations.push(this.clone(operation));
     }
-    this._persistLegacySnapshot(this._fallbackSnapshotComplete);
+    this._queueFallbackOperation(this.clone(operation), baseCache);
   },
 
   init() {
@@ -556,30 +592,44 @@ const Storage = {
     this._initPromise = (async () => {
       try {
         this._db = await this._openDatabase();
-        await this._migrateLegacyToIndexedDB();
-        await this._loadIndexedDBCache();
-        this._fallbackSnapshotComplete = true;
+        return await this._withStoryLock(async () => {
+          try {
+            await this._migrateLegacyToIndexedDB();
+            await this._loadIndexedDBCache();
+            this._fallbackSnapshotComplete = true;
 
-        // Loading IDB replaced the startup cache. Restore every queued change
-        // before the first awaited write, so a failure retains the latest state.
-        // Keep new writes in this queue until replay finishes; they already
-        // update the cache synchronously and must never be applied twice.
-        let pending = this._pendingOperations.splice(0);
-        pending.forEach(operation => this._applyOperation(operation));
-        while (pending.length) {
-          for (const operation of pending) await this._persistOperationIndexedDB(operation);
-          pending = this._pendingOperations.splice(0);
-        }
-        this._mode = "indexedDB";
+            // Loading IDB replaced the startup cache. Restore every queued change
+            // before the first awaited write, so a failure retains the latest state.
+            // Keep new writes in this queue until replay finishes; they already
+            // update the cache synchronously and must never be applied twice.
+            let pending = this._pendingOperations.splice(0);
+            pending.forEach(operation => this._applyOperation(operation));
+            while (pending.length) {
+              for (const operation of pending) await this._persistOperationIndexedDB(operation);
+              pending = this._pendingOperations.splice(0);
+            }
+            this._mode = "indexedDB";
 
-        this._cleanupLegacyStoryStorage();
-        this._ready = true;
-        setTimeout(() => window.BAORefreshSaveUI?.(), 0);
-        return this._mode;
+            this._cleanupLegacyStoryStorage();
+            this._ready = true;
+            setTimeout(() => window.BAORefreshSaveUI?.(), 0);
+            this._startupOperations.length = 0;
+            return this._mode;
+          } catch (error) {
+            this._pendingOperations.length = 0;
+            this._ready = true;
+            this._degradeToLocalStorage(error, false);
+            try { this._persistFallbackSnapshot(this._startupOperations, this._cache); }
+            catch (backupError) { this._lastError = backupError; }
+            this._startupOperations.length = 0;
+            return this._mode;
+          }
+        });
       } catch (error) {
         this._pendingOperations.length = 0;
         this._ready = true;
         this._degradeToLocalStorage(error);
+        this._startupOperations.length = 0;
         return this._mode;
       }
     })();
