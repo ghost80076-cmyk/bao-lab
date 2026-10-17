@@ -51,7 +51,9 @@ assert.ok(BAOCanonWorkbench.searchTerms("我去找艾琳").includes("艾琳"));
 GameState.current.canon = BAOCanonWorkbench.normalizeCanon({ notebooks: [
   { title: "月蝕規則", category: "world", tier: "core", certainty: "confirmed", content: "月蝕會關閉城門。" },
   { title: "艾琳動向", category: "current", tier: "relevant", certainty: "confirmed", content: "她正在值夜。", characters: ["艾琳"], locations: ["北塔"] },
-  { title: "內部證據", category: "conflicts", tier: "ui", certainty: "uncertain", content: "日期有衝突。" }
+  { title: "內部證據", category: "conflicts", tier: "ui", certainty: "uncertain", content: "日期有衝突。" },
+  { title: "角色秘密", category: "knowledge", tier: "relevant", certainty: "confirmed", content: "秘密口令是星河。" },
+  { title: "全域知情檔", category: "knowledge", tier: "core", certainty: "confirmed", content: "秘密寶物埋在枯井。" }
 ] });
 const prompt = App.buildSystemPrompt();
 assert.match(prompt, /Canon Core · 玩家已確認/);
@@ -59,6 +61,7 @@ assert.match(prompt, /月蝕會關閉城門/);
 assert.match(prompt, /本輪相關 Canon/);
 assert.match(prompt, /她正在值夜/);
 assert.doesNotMatch(prompt, /日期有衝突/);
+assert.doesNotMatch(prompt, /秘密口令是星河|秘密寶物埋在枯井/, "unscoped actor secrets must never be added globally");
 const referencedMessages = Chat.ensureMessageIds();
 assert.equal(BAOCanonWorkbench.processedStart({ lastProcessedMessageId: referencedMessages[0].id, lastProcessedMessageCount: 0 }, referencedMessages), 1);
 assert.equal(BAOCanonWorkbench.processedStart({ lastProcessedMessageId: "missing", lastProcessedMessageCount: 1 }, referencedMessages), 1);
