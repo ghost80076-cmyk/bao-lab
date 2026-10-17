@@ -59,7 +59,7 @@
     if (document.querySelector('link[href^="css/character-status.css"]')) return;
     const link = document.createElement("link");
     link.rel = "stylesheet";
-    link.href = "css/character-status.css?v=11";
+    link.href = "css/character-status.css?v=12";
     document.head.appendChild(link);
   };
 
