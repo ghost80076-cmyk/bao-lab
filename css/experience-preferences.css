@@ -219,3 +219,49 @@ html[data-yoru-theme="rose"] #me-view .bao-content-visibility-toggle {
   .topbar .yoru-exp-entry{width:42px;min-width:42px;height:42px;padding:0}
   .topbar .yoru-exp-label{display:none}
 }
+
+
+/* The homepage mixes light editorial paper with intentionally dark book covers.
+   Light theme tokens must not leak dark ink into these dark-owned surfaces. */
+html[data-yoru-theme="mist"] #home-view .brand-local-story{
+  color:#f2ece5;
+  background:radial-gradient(circle at 12% 18%,rgba(223,180,110,.10),transparent 30%),
+             linear-gradient(135deg,#302d31,#222329 58%,#30282e);
+  border-color:rgba(235,219,191,.18);
+}
+html[data-yoru-theme="mist"] #home-view .brand-library-sample{
+  color:#f2ece5;
+  background:linear-gradient(140deg,#323a43,#1b2027);
+  border-color:rgba(236,216,182,.20);
+}
+html[data-yoru-theme="mist"] #home-view .brand-local-story :is(.brand-local-story-copy>h2,.brand-local-story-copy>h3),
+html[data-yoru-theme="mist"] #home-view .brand-library-sample :is(.brand-library-sample-head,.brand-library-book h3){
+  color:#f4ede4!important;
+}
+html[data-yoru-theme="mist"] #home-view .brand-local-story .brand-section-mark,
+html[data-yoru-theme="mist"] #home-view .brand-library-sample .brand-library-book-copy>span,
+html[data-yoru-theme="mist"] #home-view .brand-library-sample .brand-library-chapters small{
+  color:#e6bd87!important;
+}
+html[data-yoru-theme="mist"] #home-view .brand-local-story :is(.brand-local-story-time,.brand-local-story-copy>p:not(.brand-section-mark)),
+html[data-yoru-theme="mist"] #home-view .brand-library-sample :is(.brand-library-sample-head small,.brand-library-book p,.brand-library-chapters li,.brand-library-chapters li>span:first-child){
+  color:#d8cfd4!important;
+}
+html[data-yoru-theme="mist"] #home-view .brand-library-sample .brand-library-chapters .brand-chapter-current{
+  color:#f3dfc3!important;
+}
+html[data-yoru-theme="mist"] #home-view .brand-local-story .brand-home-link,
+html[data-yoru-theme="mist"] #home-view .brand-library-sample .brand-home-link{
+  color:#f1cf9e!important;
+}
+html[data-yoru-theme="mist"] #home-view .brand-home-explore-head .text-button,
+html[data-yoru-theme="mist"] #home-view :is(.brand-reading-copy,.brand-library-copy) .brand-home-link{
+  color:#725036!important;
+  text-decoration-color:rgba(114,80,54,.45);
+}
+html[data-yoru-theme="mist"] #home-view .brand-section-mark{
+  color:#8b603e;
+}
+html[data-yoru-theme="mist"] #home-view .brand-reading-copy .brand-reading-footnote{
+  color:var(--yoru-muted)!important;
+}
