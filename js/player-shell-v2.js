@@ -149,6 +149,7 @@
             <div class="bao-player-actions">
               <button class="secondary" type="button" data-bao-player-action="explore">探索作品</button>
               <button class="secondary" type="button" data-bao-player-action="about">關於夜灣</button>
+              <button class="secondary" type="button" data-bao-player-action="install">安裝／加入主畫面</button>
               <a class="secondary" href="https://ko-fi.com/roger2486" target="_blank" rel="noopener">投餵肉包</a>
             </div>
           </section>
@@ -192,6 +193,7 @@
     syncMore();
     section.querySelector('[data-bao-player-action="explore"]')?.addEventListener("click", () => App.showView("explore"));
     section.querySelector('[data-bao-player-action="about"]')?.addEventListener("click", () => App.showView("about"));
+    section.querySelector('[data-bao-player-action="install"]')?.addEventListener("click", () => window.YoruBayInstall?.open?.());
 
     const adultToggle = section.querySelector("[data-bao-adult-content-toggle]");
     const syncAdultContent = () => {

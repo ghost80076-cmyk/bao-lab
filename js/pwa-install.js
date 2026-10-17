@@ -1,7 +1,6 @@
 (() => {
   const DISMISS_KEY = 'yorubay:pwa-install-dismissed-at';
   const DISMISS_DAYS = 7;
-  const PROMPT_DELAY = 1800;
   let deferredPrompt = null;
 
   const isStandalone = () =>
@@ -15,7 +14,6 @@
 
   const isIOS = () => /iphone|ipad|ipod/i.test(navigator.userAgent);
   const isSafari = () => /safari/i.test(navigator.userAgent) && !/crios|fxios|edgios|chrome|android/i.test(navigator.userAgent);
-  const isHomeVisible = () => document.querySelector('#home-view.view.active, #home-view.active') !== null;
 
   const removePrompt = () => document.getElementById('yorubay-install-prompt')?.remove();
 
@@ -28,13 +26,10 @@
     return '瀏覽器若沒有跳出安裝視窗，可從瀏覽器選單選「安裝應用程式」或「加到主畫面」。';
   };
 
-  const renderPrompt = ({ fallback = false } = {}) => {
-    if (isStandalone() || recentlyDismissed() || document.getElementById('yorubay-install-prompt')) return;
-    if (!deferredPrompt && !fallback) return;
-    // The fallback is an onboarding hint, not a modal that should interrupt someone
-    // who has already opened Explore, setup, or a story.
-    if (fallback && !isHomeVisible()) return;
-
+  // Installation is opt-in. Never place a blocking help popup over the landing page.
+  // A browser-supplied beforeinstallprompt can still be used from the My menu.
+  const renderPrompt = () => {
+    if (isStandalone() || document.getElementById('yorubay-install-prompt')) return;
     const nativeInstall = Boolean(deferredPrompt);
     const el = document.createElement('aside');
     el.id = 'yorubay-install-prompt';
@@ -65,15 +60,20 @@
       removePrompt();
     });
 
-    el.querySelector('.yorubay-install-ok')?.addEventListener('click', removePrompt);
+    el.querySelector('.yorubay-install-ok')?.addEventListener('click', () => {
+      localStorage.setItem(DISMISS_KEY, String(Date.now()));
+      removePrompt();
+    });
     document.body.appendChild(el);
   };
 
   window.addEventListener('beforeinstallprompt', event => {
     event.preventDefault();
     deferredPrompt = event;
-    window.setTimeout(() => renderPrompt(), PROMPT_DELAY);
   });
+
+  // On-demand entry is wired into My → More tools.
+  window.YoruBayInstall = Object.freeze({ open: renderPrompt, isStandalone });
 
   window.addEventListener('appinstalled', () => {
     deferredPrompt = null;
@@ -83,8 +83,5 @@
 
   window.addEventListener('load', () => {
     if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => {});
-    window.setTimeout(() => {
-      if (!deferredPrompt) renderPrompt({ fallback: true });
-    }, PROMPT_DELAY + 700);
   });
 })();
