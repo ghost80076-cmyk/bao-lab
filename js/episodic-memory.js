@@ -5,12 +5,9 @@
     const messages = await next(config);
     if (config?.memory?.episodicRecall === false || config?.memory?.mode === 'full') return messages;
     const state = window.GameState?.current;
-    const npcs = Array.isArray(state?.npcs) ? state.npcs : [];
-    const present = npcs.filter(n => n?.presence === 'present').map(n => n.name);
-    // Never interpret the world-card title as a speaker or infer presence from
-    // text mentions. In single-role mode the active role is the speaker.
-    const actors = config?.narrativeMode === 'immersive'
-      ? [this.activeCharacter?.name, ...present].filter(Boolean) : present;
+    const actors = BAOEpisodicMemory.audience({
+      state, config, primary: this.activeCharacter?.name || ''
+    });
     const input = [...Chat.messages].reverse().find(m => m.role === 'user')?.content || '';
     const selected = BAOEpisodicMemory.recall({ state, messages: Chat.messages, input, actors, exclude: messages.map(m => m.content).join('\n') });
     if (!selected.length) return messages;
