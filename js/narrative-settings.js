@@ -138,7 +138,7 @@
     if (!document.querySelector('link[href^="css/narrative-settings.css"]')) {
       const link = document.createElement("link");
       link.rel = "stylesheet";
-      link.href = "css/narrative-settings.css?v=5";
+      link.href = "css/narrative-settings.css?v=6";
       document.head.appendChild(link);
     }
   };
@@ -276,7 +276,7 @@
     const selected = new Set(prefs.stylePacks);
     const focus = worldFocus();
     const wrap = document.createElement("div");
-    wrap.className = "bao-modal-backdrop";
+    wrap.className = "bao-modal-backdrop tonight-backdrop";
     wrap.innerHTML = `<section class="bao-modal narrative-settings-modal" role="dialog" aria-modal="true" aria-labelledby="narrative-settings-title">
       <div class="bao-modal-head"><div><div class="eyebrow">YORUBAY · TONIGHT</div><h2 id="narrative-settings-title">今晚的故事</h2></div><div class="narrative-head-actions"><button class="narrative-help" type="button" data-narrative-help aria-label="敘事設定說明" aria-expanded="false">?</button><button class="bao-modal-close" type="button">關閉</button></div></div>
       <div class="bao-modal-body">
