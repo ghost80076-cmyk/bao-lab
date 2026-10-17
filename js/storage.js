@@ -275,11 +275,16 @@ const Storage = {
     return new Promise((resolve, reject) => {
       const tx = this._db.transaction(this.dbStore, mode);
       const store = tx.objectStore(this.dbStore);
-      try { action(store, tx); }
-      catch (error) { reject(error); return; }
       tx.oncomplete = () => resolve(true);
       tx.onerror = () => reject(tx.error || new Error("IndexedDB transaction failed."));
       tx.onabort = () => reject(tx.error || new Error("IndexedDB transaction aborted."));
+      try { action(store, tx); }
+      catch (error) {
+        // Reject with the action error and roll back any requests already queued.
+        reject(error);
+        try { tx.abort(); }
+        catch {}
+      }
     });
   },
 
@@ -488,19 +493,26 @@ const Storage = {
         this._db = await this._openDatabase();
         await this._migrateLegacyToIndexedDB();
         await this._loadIndexedDBCache();
-        this._mode = "indexedDB";
+        this._fallbackSnapshotComplete = true;
 
-        const pending = this._pendingOperations.splice(0);
-        for (const operation of pending) {
-          this._applyOperation(operation);
-          await this._persistOperationIndexedDB(operation);
+        // Loading IDB replaced the startup cache. Restore every queued change
+        // before the first awaited write, so a failure retains the latest state.
+        // Keep new writes in this queue until replay finishes; they already
+        // update the cache synchronously and must never be applied twice.
+        let pending = this._pendingOperations.splice(0);
+        pending.forEach(operation => this._applyOperation(operation));
+        while (pending.length) {
+          for (const operation of pending) await this._persistOperationIndexedDB(operation);
+          pending = this._pendingOperations.splice(0);
         }
+        this._mode = "indexedDB";
 
         this._cleanupLegacyStoryStorage();
         this._ready = true;
         setTimeout(() => window.BAORefreshSaveUI?.(), 0);
         return this._mode;
       } catch (error) {
+        this._pendingOperations.length = 0;
         this._ready = true;
         this._degradeToLocalStorage(error);
         return this._mode;
