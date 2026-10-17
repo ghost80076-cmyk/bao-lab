@@ -317,3 +317,18 @@ html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .reader-context-prese
 html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .reader-context-more{
   border-color:var(--yoru-card-border)
 }
+
+/* A reading companion: names and relationships lead; reference data stays quiet. */
+.reader-context-content{padding:20px;scrollbar-width:thin;scrollbar-color:var(--yoru-card-border,#49414a) transparent}
+.reader-context-people,.reader-context-world-list{gap:14px;margin-top:16px}
+.reader-context-person,.reader-context-world-card{padding:17px;border-radius:16px;background:var(--yoru-card,#1b181d);border-color:var(--yoru-card-border,rgba(241,232,218,.10))}
+.reader-context-person-head strong{font-size:17px;line-height:1.5;color:var(--yoru-text,var(--text))}
+.reader-context-person-head small,.reader-context-fact small,.reader-context-status-row small{font-size:12px;line-height:1.6;color:var(--yoru-muted,#b5abb8)}
+.reader-context-fact strong{font-size:13px;line-height:1.65}
+.reader-context-status-row{font-size:13px;line-height:1.65;padding-block:3px}
+.reader-context-status-row.is-relationship{padding:10px;border-color:var(--yoru-control-border,rgba(214,170,115,.24));background:var(--yoru-control,rgba(214,170,115,.07))}
+.reader-context-presence,.reader-context-context{font-size:11px;line-height:1.5;background:var(--yoru-control,rgba(214,170,115,.08));color:var(--yoru-text,#e6cfab)}
+.reader-context-more>summary{font-size:12px;min-height:44px;color:var(--yoru-muted,#b5abb8)}
+.reader-context-section-head p,.reader-context-head p,.reader-context-foot{font-size:12px;line-height:1.7;color:var(--yoru-muted,#b5abb8)}
+.reader-context-tabs button{font-size:13px;min-height:44px}
+.reader-context-tabs button.active{border-color:var(--yoru-control-border,rgba(214,170,115,.24));background:var(--yoru-control,rgba(214,170,115,.08));color:var(--yoru-text,#ead5b6)}
