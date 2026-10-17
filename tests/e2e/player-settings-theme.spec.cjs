@@ -24,7 +24,7 @@ for (const width of [390, 1280]) {
     }));
     for (const [theme,surface,text] of [
       ['mist','rgb(255, 250, 243)','rgb(69, 59, 52)'],
-      ['rose','rgb(59, 48, 54)','rgb(243, 232, 230)']
+      ['dusk','rgb(64, 56, 73)','rgb(246, 237, 244)']
     ]) {
       await page.evaluate(theme => YoruExperience.choose({theme}), theme);
       // The original story-sidebar buttons still own the click handlers.
