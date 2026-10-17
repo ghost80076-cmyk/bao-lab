@@ -61,7 +61,7 @@ increasing(siteUI, [
 // Story chain: story-tools is installed before prompt/cache orchestration and request lifecycle.
 increasing(siteUI, [
   'loadBAOScript("js/storage-write-guard.js?v=2")',
-  'loadBAOScript("js/story-tools.js?v=5")',
+  'loadBAOScript("js/story-tools.js?v=6")',
   'loadBAOScript("js/prompt-cache.js',
   'loadBAOScript("js/prompt-orchestrator.js?v=2")',
   'loadBAOScript("js/episodic-memory.js?v=1")',
@@ -79,7 +79,7 @@ assert.equal(
   "world-modules must be loaded exactly once by site-ui"
 );
 assert.equal(
-  siteUI.split('loadBAOScript("js/story-tools.js?v=5")').length - 1,
+  siteUI.split('loadBAOScript("js/story-tools.js?v=6")').length - 1,
   1,
   "story-tools must be loaded exactly once by site-ui"
 );
