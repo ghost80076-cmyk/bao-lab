@@ -139,6 +139,16 @@ async function main() {
     assert.equal(browser.getItem(AUTO), null);
     assert.equal(browser.getItem(SLOTS), null);
   }
+  {
+    const browser = new BrowserStorage(), store = boot(browser);
+    const records = [store._record('autosave', save('durable-original'))];
+    browser.setItem(AUTO, JSON.stringify(save('fallback')));
+    browser.setItem(SLOTS, '[]'); browser.setItem(MARKER, store.fallbackCompleteMarker);
+    browser.failures.add('remove:' + MARKER);
+    await assert.rejects(reloadAndMigrate(browser, records), /blocked delete/);
+    assert.equal(records[0].payload.label, 'durable-original', 'blocked marker retirement must prevent IDB migration from starting');
+    assert.equal(JSON.parse(browser.getItem(AUTO)).label, 'fallback');
+  }
   console.log('Storage fallback integrity: partial writes/reload, stale marker, intentional deletion and blocked invalidation passed');
 }
 main().catch(error => { console.error(error); process.exitCode = 1; });

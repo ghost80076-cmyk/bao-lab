@@ -357,8 +357,12 @@ const Storage = {
 
     const legacyAutosave = this._legacyAutosave();
     const legacySlots = this._legacySlots();
+    let fallbackMarker = null;
     let fallbackActive = false;
-    try { fallbackActive = localStorage.getItem(this.fallbackKey) === this.fallbackCompleteMarker; }
+    try {
+      fallbackMarker = localStorage.getItem(this.fallbackKey);
+      fallbackActive = fallbackMarker === this.fallbackCompleteMarker;
+    }
     catch {}
 
     const targetAutosave = fallbackActive
@@ -368,6 +372,12 @@ const Storage = {
       ? legacySlots
       : this._mergeSlots(existingSlots, legacySlots);
 
+    // Retire the marker before IDB can advance past the fallback snapshot. If
+    // it cannot be retired, do not allow a stale marker to undo later IDB saves.
+    if (fallbackMarker !== null) {
+      localStorage.removeItem(this.fallbackKey);
+      if (localStorage.getItem(this.fallbackKey) !== null) throw new Error("無法撤銷本地備援標記，已保留原存檔。");
+    }
     await this._replaceDatabaseStories(targetAutosave, targetSlots);
   },
 
