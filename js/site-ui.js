@@ -100,7 +100,7 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/canon-workbench.js"))
     .then(() => loadBAOScript("js/memory-workbench-simplify.js?v=2"))
     .then(() => loadBAOScript("js/chat-markup.js?v=2"))
-    .then(() => loadBAOScript("js/story-tools.js?v=5"))
+    .then(() => loadBAOScript("js/story-tools.js?v=6"))
     .then(() => loadBAOScript("js/context-pack-resume.js"))
     .then(() => loadBAOScript("js/story-library.js"))
     .then(() => loadBAOScript("js/story-backup.js?v=2"))
@@ -145,7 +145,7 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/story-extensions-core.js?v=5"))
     .then(() => loadBAOScript("js/story-extension-pack-core.js?v=2"))
     .then(() => loadBAOScript("js/story-extension-pack.js"))
-    .then(() => loadBAOScript("js/story-extensions-center.js?v=6"))
+    .then(() => loadBAOScript("js/story-extensions-center.js?v=7"))
     .then(() => loadBAOScript("js/story-control-center-core.js"))
     .then(() => loadBAOScript("js/story-control-center.js?v=6"))
     .catch(err => console.warn("BAO/LAB local preview, narrative settings, memory workbench, story tools, story library, story reader or chat markup failed to load:", err));
