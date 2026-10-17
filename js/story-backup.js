@@ -75,8 +75,8 @@
   const buildBundle = async (storyId = Library.refs().storyId) => {
     const targetStoryId = String(storyId || '');
     if (!targetStoryId) throw new Error('目前沒有可匯出的故事。');
-    if (Library.refs().storyId === targetStoryId) Storage.saveStory();
-    await Library.flush();
+    if (Library.refs().storyId === targetStoryId && !Storage.saveStory() && window.GameState?.current) throw new Error('目前故事無法儲存，完整故事備份未建立。');
+    if (!await Library.flush(targetStoryId)) throw new Error('最新章節尚未成功寫入故事庫，完整故事備份未建立。請保留目前故事並重試。');
     const records = await Library.allRecords();
     const storyRecord = records.find(record => record.kind === 'story' && record.storyId === targetStoryId);
     const chapterRecords = records.filter(record => record.kind === 'chapter' && record.storyId === targetStoryId)

@@ -33,6 +33,11 @@ class FakeStore {
     this.indexNames = new FakeNames(db.indexes);
   }
   createIndex(name) { this.db.indexes.add(name); return {}; }
+  get(id) {
+    const request = new FakeRequest();
+    setTimeout(() => { request.result = this.db.records.has(id) ? structuredClone(this.db.records.get(id)) : undefined; request.onsuccess?.(); }, 0);
+    return request;
+  }
   getAll() {
     const request = new FakeRequest();
     setTimeout(() => {
@@ -193,6 +198,7 @@ const checkpoint = async round => {
   Chat.summarizedUntil = Math.max(0, Chat.messages.length - 40);
   assert.equal(Storage.saveStory(), true);
   await Storage.flush();
+  assert.equal(Storage.status().mode, "indexedDB", "stress run must exercise durable IndexedDB instead of silently falling back");
   await BAOStoryLibrary.flush();
 };
 

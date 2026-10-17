@@ -293,7 +293,6 @@ vm.runInThisContext(code, { filename: "js/story-library.js" });
   assert.equal(await BAOStoryLibrary.deleteChapter(parentToDelete.storyId, promotedBranch.chapterId), false);
 
   assert.equal(code.includes("if (!restored) return false"), true);
-  assert.equal(code.includes("return Boolean(database)"), true);
   assert.equal(code.includes("async setStoryPinned(storyId, pinned = true)"), true);
   assert.equal(code.includes("async markStoryOpened(storyId, openedAt = new Date().toISOString())"), true);
   assert.equal(code.includes("if (Boolean(a.pinned) !== Boolean(b.pinned))"), true);

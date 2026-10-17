@@ -15,6 +15,7 @@
     _db: null,
     _ready: null,
     _writeQueue: Promise.resolve(),
+    _writeFailures: new Map(),
     _pendingNextChapter: false,
     _installed: false,
     _openedAtByStory: new Map(),
@@ -225,11 +226,15 @@
       return new Promise((resolve, reject) => {
         const tx = this._db.transaction(this.storeName, mode);
         const store = tx.objectStore(this.storeName);
-        try { action(store, tx); }
-        catch (error) { reject(error); return; }
         tx.oncomplete = () => resolve(true);
         tx.onerror = () => reject(tx.error || new Error("Story Library transaction failed."));
         tx.onabort = () => reject(tx.error || new Error("Story Library transaction aborted."));
+        try { action(store, tx); }
+        catch (error) {
+          reject(error);
+          try { tx.abort(); }
+          catch {}
+        }
       });
     },
 
@@ -334,7 +339,8 @@
 
     async persist(payload) {
       if (!payload || !Storage.validateStory(payload) || !await this.open()) return false;
-      const refs = this.ensureRefs(payload);
+      const refs = payload._library?.storyId && payload._library?.chapterId
+        ? this.clone(payload._library) : this.ensureRefs(payload);
       const records = await this.allRecords();
       const staleMessages = records.filter(record => record.kind === "message" && record.storyId === refs.storyId && record.chapterId === refs.chapterId);
       const messageIds = new Set((payload.chat?.messages || []).map(message => String(message?.id || "")).filter(Boolean));
@@ -360,18 +366,40 @@
 
     queuePersist(payload) {
       const safe = Storage.scrubSecrets(this.clone(payload));
-      const run = () => this.persist(safe).catch(error => {
-        console.warn("BAO/LAB Story Library write failed:", error);
-        return false;
-      });
+      // Capture the destination now; a restore/import may change active refs
+      // while this payload waits behind another write.
+      safe._library = safe._library?.storyId && safe._library?.chapterId
+        ? this.clone(safe._library) : this.clone(this.ensureRefs(safe));
+      const { storyId, chapterId } = safe._library;
+      const key = JSON.stringify([storyId, chapterId]);
+      const run = async () => {
+        try {
+          if (!await this.persist(safe)) throw new Error("章節尚未成功寫入 Story Library。");
+          this._writeFailures.delete(key);
+          return true;
+        } catch (error) {
+          this._writeFailures.set(key, { storyId, chapterId, error });
+          console.warn("BAO/LAB Story Library write failed:", error);
+          return false;
+        }
+      };
       this._writeQueue = this._writeQueue.then(run, run);
       return this._writeQueue;
     },
 
-    async flush() {
+    async flush(storyId = null) {
       const database = await this.open();
       await this._writeQueue;
-      return Boolean(database);
+      if (!database) return false;
+      // No argument retains the existing availability check used by the library
+      // browser. A story ID additionally requires every pending chapter to save.
+      return storyId === null || ![...this._writeFailures.values()].some(failure => failure.storyId === storyId);
+    },
+
+    clearWriteFailures(storyId, chapterIds = null) {
+      for (const [key, failure] of this._writeFailures) {
+        if (failure.storyId === storyId && (!chapterIds || chapterIds.has(failure.chapterId))) this._writeFailures.delete(key);
+      }
     },
 
     async listStories() {
@@ -486,8 +514,8 @@
     async createBranch(messageId, label = "") {
       if (!messageId || !await this.open()) throw new Error("找不到分支起點。");
       Storage.saveStory();
-      await this.flush();
       const sourceRefs = this.refs();
+      if (!await this.flush(sourceRefs.storyId)) throw new Error("目前章節尚未成功儲存，無法建立分支。");
       const records = await this.allRecords();
       const sourceMessages = records
         .filter(record => record.kind === "message" && record.storyId === sourceRefs.storyId && record.chapterId === sourceRefs.chapterId)
@@ -504,11 +532,19 @@
         .filter(record => Number(record.seq) <= Number(point.seq))
         .map(record => ({ ...(record.messageId ? { id: record.messageId } : {}), role: record.role, content: record.content, createdAt: record.createdAt }));
       payload.chat.summarizedUntil = Math.min(Number(payload.chat.summarizedUntil || 0), payload.chat.messages.length);
+      const currentRefs = this.refs();
+      if (currentRefs.storyId !== sourceRefs.storyId || currentRefs.chapterId !== sourceRefs.chapterId) throw new Error("故事已切換，請重新選擇分支起點。");
       const refs = this.beginBranch({ label, messageId, seq: point.seq, preview: point.content });
       payload.label = refs.chapterLabel;
       payload._library = { ...refs };
-      await this.persist(payload);
-      return Storage.sanitizeImportedStory(payload);
+      try {
+        if (!await this.persist(payload)) throw new Error("新分支尚未成功寫入故事庫。");
+        return Storage.sanitizeImportedStory(payload);
+      } catch (error) {
+        const active = this.refs();
+        if (active.storyId === refs.storyId && active.chapterId === refs.chapterId) this.adoptRefs({ _library: sourceRefs });
+        throw error;
+      }
     },
 
     async branchDescendants(storyId, chapterId) {
@@ -539,6 +575,7 @@
       const ids = new Set([chapterId, ...descendants.map(item => item.chapterId)]);
       const doomed = records.filter(record => record.storyId === storyId && ids.has(record.chapterId));
       await this.transaction("readwrite", store => doomed.forEach(record => store.delete(record.id)));
+      this.clearWriteFailures(storyId, ids);
       return { deleted: ids.size };
     },
 
@@ -570,6 +607,7 @@
         chapterRecords.forEach(item => store.delete(item.id));
         directChildren.forEach(item => store.put(item));
       });
+      this.clearWriteFailures(storyId, new Set([chapterId]));
 
       const remaining = records
         .filter(item => item.kind === "chapter" && item.storyId === storyId && item.chapterId !== chapterId)
@@ -621,6 +659,7 @@
         records.forEach(record => store.delete(record.id));
         store.put({ id: "deletion:" + storyId, kind: "deletion", storyId, deletedAt: new Date().toISOString() });
       });
+      this.clearWriteFailures(storyId);
       if (this.refs().storyId === storyId) this.clearRefs();
       return true;
     },
