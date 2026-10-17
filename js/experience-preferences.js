@@ -17,7 +17,7 @@
     document.documentElement.dataset.yoruExperience = current.level;
     const themeMeta = document.querySelector('meta[name="theme-color"]');
     if (themeMeta) themeMeta.content =
-      ({ night: '#15191d', mist: '#f5f0e9', rose: '#30282c' })[current.theme];
+      ({ night: '#15191d', mist: '#f5f0e9', dawn: '#edf3f5', dusk: '#302c3c', sunset: '#fff0df' })[current.theme];
   };
   const choose = changes => {
     const next = core.normalize({ ...current, ...(changes || {}) });
@@ -32,7 +32,7 @@
     if (document.querySelector('link[href^="css/experience-preferences.css"]')) return;
     const link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = 'css/experience-preferences.css?v=4';
+    link.href = 'css/experience-preferences.css?v=5';
     document.head.append(link);
   };
   const close = () => {
@@ -52,8 +52,10 @@
       '<fieldset><legend>畫面主題</legend><p class="yoru-exp-hint">整個網站一起切換；不是只改聊天背景。</p>',
       '<div class="yoru-exp-options yoru-exp-themes">',
       '<label data-exp-theme="night"><input type="radio" name="yoru-theme" value="night"><span class="yoru-exp-swatch night"></span><strong>夜港</strong><small>沉靜夜讀</small></label>',
-      '<label data-exp-theme="mist"><input type="radio" name="yoru-theme" value="mist"><span class="yoru-exp-swatch mist"></span><strong>晨霧</strong><small>奶油暖光</small></label>',
-      '<label data-exp-theme="rose"><input type="radio" name="yoru-theme" value="rose"><span class="yoru-exp-swatch rose"></span><strong>暮玫</strong><small>柔和玫瑰</small></label>',
+      '<label data-exp-theme="mist"><input type="radio" name="yoru-theme" value="mist"><span class="yoru-exp-swatch mist"></span><strong>月白</strong><small>柔暖紙頁</small></label>',
+      '<label data-exp-theme="dawn"><input type="radio" name="yoru-theme" value="dawn"><span class="yoru-exp-swatch dawn"></span><strong>晨霧</strong><small>微藍曦光</small></label>',
+      '<label data-exp-theme="dusk"><input type="radio" name="yoru-theme" value="dusk"><span class="yoru-exp-swatch dusk"></span><strong>暮霞</strong><small>灰紫暮色</small></label>',
+      '<label data-exp-theme="sunset"><input type="radio" name="yoru-theme" value="sunset"><span class="yoru-exp-swatch sunset"></span><strong>夕燈</strong><small>杏橘餘暉</small></label>',
       '</div></fieldset>',
       '<fieldset><legend>工具呈現</legend><p class="yoru-exp-hint">所有功能都會保留；差別只是初次展開多少工具。</p>',
       '<div class="yoru-exp-options yoru-exp-levels">',
