@@ -242,7 +242,7 @@ provider, retry, streaming and wrapper contracts.
 | P2 | UI/CSS and CI duplication | Separate from request transport changes |
 
 Additional direct-send owners to inventory before changing global order include
-`story-revision-state.js` and `lm-studio.js`. The earlier table is a conceptual
+`lm-studio.js`. The earlier table is a conceptual
 map, not an exhaustive ordering specification. `world-module-ui.js` also registers
 a named internal-state echo stage. Do not infer global phase order from these
 lists.
@@ -305,3 +305,22 @@ request immutability, task isolation, truncation, cancellation, provider errors,
 repeated loading, and switching/leaving a story during the request. It runs in
 Core tests beside the existing NPC/status integrity regression. Loader versions
 are advanced through world-state-hook, site-ui and the page entry point.
+
+
+### Story revision snapshot migration (2026-10-17)
+
+`story-revision-state.js` now registers `story-revision-state:snapshot` through
+`API.wrapSend`, preserving the installation timing and an older-API fallback.
+For story-tool requests with a revision base, it temporarily applies that base,
+rebuilds the system prompt while retaining the task section, and restores the
+captured current state and memory in `finally`. Missing bases and other request
+kinds pass through. Library adapters, variant reconciliation, save behavior and
+the App send adapter remain unchanged.
+
+`tests/story-revision-pipeline-core.cjs` established the old behavior before the
+migration and checks both named registration and fallback: snapshot/prompt
+selection, unchanged input messages, response and error identity, restoration on
+provider failure, cancellation and prompt assembly failure, task isolation,
+missing bases, library lookup/cache, and repeated initialization. It runs beside
+the existing revision/variant persistence regression in Core tests. Loader
+versions advance through site-ui and the page entry point.
