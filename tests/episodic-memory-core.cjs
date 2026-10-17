@@ -38,6 +38,33 @@ assert.equal(query(['艾琳'], '雨夜', source.slice(0, 1)).length, 0, 'branch 
 assert.equal(query(['艾琳'], '雨夜', source.map(m => m.id === 'm2' ? { ...m, content: '改寫後沒有爭吵。' } : m)).length, 0);
 assert.equal(query(['艾琳'], '雨夜', source, { maxChars: 5 }).length, 0);
 assert.equal(query(['艾琳'], '雨夜', source, { exclude: event.knowledge[0].claim }).length, 0, 'avoid duplicating summary or Canon');
+
+const knowledgeUpdateMessage = { id: 'm4-knowledge', role: 'assistant', content: '艾琳親口告訴守衛：玩家沒有偷走戒指。' };
+const changedBelief = {
+  eventId: state.episodicMemory.events[0].id, actor: '守衛',
+  mode: 'told', claim: '艾琳告訴我，玩家沒有偷戒指。', evidenceIds: ['m4-knowledge']
+};
+core.ingest(state, { knowledgeUpdates: [
+  changedBelief,
+  { ...changedBelief, actor: '陌生人', evidenceIds: ['fake-id'] },
+  { ...changedBelief, eventId: 'not-an-event' }
+] }, [knowledgeUpdateMessage]);
+const withUpdate = [...source, knowledgeUpdateMessage];
+assert.match(query(['守衛'], '戒指', withUpdate)[0].block, /told.*艾琳告訴我，玩家沒有偷戒指/);
+assert.doesNotMatch(query(['守衛'], '戒指', withUpdate)[0].block, /聽說玩家偷走戒指/);
+assert.match(query(['守衛'], '戒指', source)[0].block, /rumor/, 'rewound branch uses old belief');
+assert.match(query(['守衛'], '戒指', withUpdate.map(m => m.id === 'm4-knowledge'
+  ? { ...m, content: '已改寫得知來源' } : m))[0].block, /rumor/, 'rewritten knowledge source invalidates update');
+assert.equal(query(['陌生人'], '戒指', withUpdate).length, 0);
+assert.equal(core.knowledgeMatrix({ state, messages: withUpdate })[0].knowledge.find(k => k.actor === '守衛').mode, 'told');
+assert.equal(core.knowledgeMatrix({ state, messages: source })[0].knowledge.find(k => k.actor === '守衛').mode, 'rumor');
+const before = state.episodicMemory.events[0].knowledge.length;
+core.ingest(state, { knowledgeUpdates: [changedBelief] }, [knowledgeUpdateMessage]);
+assert.equal(state.episodicMemory.events[0].knowledge.length, before, 'replay must not duplicate knowledge records');
+core.ingest(state, { knowledgeUpdates: [{ ...changedBelief, actor: '艾琳', evidenceIds: ['m2'] }] }, source);
+assert.equal(state.episodicMemory.events[0].knowledge.some(k => k.actor === '艾琳' && k.claim === changedBelief.claim), false,
+  'same or older event evidence must not be mistaken for a later update');
+
 core.ingest(state, { episodes: [{ text: '城門將關閉。', evidenceIds: ['m3'], visibility: 'public', certainty: 'confirmed' }] }, source);
 assert.match(query([], '城門')[0].block, /公開事實/);
 assert.deepEqual(JSON.parse(JSON.stringify(structuredClone(state))), JSON.parse(JSON.stringify(state)), 'index is portable state');
@@ -60,6 +87,7 @@ let calls = 0;
 ctx.API = { async send(api, messages) {
   calls++;
   assert.ok(api.__responseSchema.properties.episodes, "Gemini schema must permit event extraction");
+  assert.ok(api.__responseSchema.properties.knowledgeUpdates, "reuse memory call for later knowledge changes");
   assert.match(JSON.stringify(messages), /\[s0\]/);
   return { text: JSON.stringify({ events: ['雨夜爭吵'], episodes: [{ ...event, evidenceIds: ['s0'], knowledge: [{ ...event.knowledge[0], evidenceIds: ['s1'] }] }] }) };
 } };
