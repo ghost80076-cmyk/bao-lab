@@ -1,5 +1,9 @@
 # Frontend extension chain
 
+Current runtime: `API` pipeline v2 uses the explicit stage order documented in
+[Ordered pipeline v2](#ordered-pipeline-v2-2026-10-17). The inventory and migration
+notes below also describe the earlier loader-order implementation.
+
 This document maps the current behavior-extension chain around the core `App`, `Chat`, `API` and `GameState` objects.
 
 The purpose is to make future refactors behavior-preserving. It does **not** change runtime code.
@@ -343,6 +347,69 @@ in Maintenance core beside the local-core test. Versions advance through helper
 routing, model routing, site-ui and the page entry point.
 
 All originally inventoried direct API wrappers now use named registration on a
-current page. Registration order is still loader order. Explicit phase ordering,
-including how transport short circuits interact with inner helper/budget/usage
-stages, needs combined behavior tests before changing that order.
+current page. That migration preserved loader order; the next section documents
+the tested transition to explicit phase ordering.
+
+
+## Ordered pipeline v2 (2026-10-17)
+
+`API.sendStageOrder` defines ascending request order. Responses unwind in reverse.
+Known stages now compose in this order regardless of registration order:
+
+| Order | Stage | Dependency |
+| --- | --- | --- |
+| 10 | chat-reading-scroll:before-commit | Capture reading position after response processing |
+| 20 | story-revision-state:snapshot | Apply revision base around prompt/request work |
+| 30 | prompt-cache:memory-request-guard | Bound the entire memory request with cancellation/timeout |
+| 40 | helper-api-routing:route | Select the effective helper before any transport |
+| 50 | state-tracker-repairs:presence-guard | Prepare state prompt and observe diagnostic failures |
+| 60 | status-usage-integrity:state-diagnostics | Set state limit and reject truncated state output |
+| 70 | world-module-ui:internal-state-echo | Clean final story text outside transport/usage |
+| 80 | streaming-ui:main-story | Install UI delta callback before merge filtering |
+| 90 | same-model-state-merge:main-story | Filter state appendix from deltas and final text |
+| 100 | global-bridge:memory-presentation | Clean memory request copies for every transport |
+| 110 | cost-control:budget | Enforce budget/output caps before every transport |
+| 120 | chat:request-usage | Record effective route before response-copying transforms |
+| 130 | lm-studio:local-transport | Short-circuit only after route, caps and usage observer |
+| 140 | credits-pilot:hosted-transport | Same prerequisite stages before hosted short circuit |
+
+This fixes reproduced loader-order failures: local requests bypassing the ledger,
+budget cap or memory sanitation; a local main connection retaining its local flag
+when a cloud helper is selected; and a stale local helper overriding explicit
+same-model mode or connection diagnostics. Helper selection now owns type,
+protocol, route and local markers. Sparse legacy helper settings on the same
+endpoint retain the main transport; a different endpoint cannot inherit it.
+
+A request-local `__helperRouteResolved` marker tells LM Studio that route selection
+already ran. The marker survives temporary config copies and is not put in
+provider request bodies or saved settings. Older/captured send snapshots without
+that stage retain the prior local-helper fallback. Stored App config is not
+mutated.
+
+Usage is inside response transforms because spreading a result to replace its
+text drops the non-enumerable ledger marker. Hosted transports can still record
+actual charges themselves; the inner usage observer sees that same result and
+uses the existing idempotent marker before any outer text transform copies it.
+Streaming is outside same-model merge so the merge stage can filter its callback;
+the UI never receives the machine-state appendix, including partial markers.
+
+`tests/api-ordered-pipeline-integration.cjs` composes the real API, Chat, helper,
+budget, sanitation, local and hosted modules in four adversarial installation
+orders with mocked network responses. It covers cross-provider helper routing,
+same-mode/diagnostics, effective model attribution, caps, budget and once-only
+accounting. It also composes actual streaming and same-model modules in both
+orders over BYOK, local and hosted transports, verifying one provider request,
+hidden state deltas and no duplicated usage. Existing snapshot/legacy-boundary
+contracts remain in force.
+
+Compatibility: immutable snapshots stay immutable. Sorting applies within a named
+segment, never through an opaque legacy direct-assignment boundary. Unknown
+extension IDs keep order 0 (outside platform stages), with newest-first order
+among themselves. A new platform stage must be added deliberately to the order
+map and tested with the stages it surrounds. UI/App wrappers, storage formats,
+Worker settlement and backend retry rules are outside this change.
+
+The Chat usage observer also checks the classic-script lexical `API` directly.
+It no longer waits for the asynchronous world-state chain to publish `window.API`.
+The boot-order regression in `tests/chat-usage-pipeline-core.cjs` verifies usage
+installation while that window alias is still absent.

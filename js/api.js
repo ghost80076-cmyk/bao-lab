@@ -123,6 +123,26 @@ const API = {
     }
   },
 
+  sendPipelineVersion: 2,
+  // Ascending request order; response processing unwinds in reverse. Keep usage
+  // inside text transforms and outside transports which may return without next.
+  sendStageOrder: Object.freeze({
+    "chat-reading-scroll:before-commit": 10,
+    "story-revision-state:snapshot": 20,
+    "prompt-cache:memory-request-guard": 30,
+    "helper-api-routing:route": 40,
+    "state-tracker-repairs:presence-guard": 50,
+    "status-usage-integrity:state-diagnostics": 60,
+    "world-module-ui:internal-state-echo": 70,
+    "streaming-ui:main-story": 80,
+    "same-model-state-merge:main-story": 90,
+    "global-bridge:memory-presentation": 100,
+    "cost-control:budget": 110,
+    "chat:request-usage": 120,
+    "lm-studio:local-transport": 130,
+    "credits-pilot:hosted-transport": 140
+  }),
+
   wrapSend(id, wrapper) {
     const key = String(id || "").trim();
     if (!key) throw new Error("API send wrapper 需要唯一識別碼。");
@@ -136,10 +156,11 @@ const API = {
     const previous = this.__sendPipeline;
     const extendsSegment = previous && this.send === previous.dispatch;
     const terminal = extendsSegment ? previous.terminal : this.send.bind(this);
+    const rank = id => Object.hasOwn(this.sendStageOrder, id) ? this.sendStageOrder[id] : 0;
     const stages = Object.freeze([
       Object.freeze({ id: key, wrapper }),
       ...(extendsSegment ? previous.stages : [])
-    ]);
+    ].sort((a, b) => rank(a.id) - rank(b.id)));
     const dispatch = stages.reduceRight((next, stage) => {
       const run = stage.wrapper;
       return async (config, messages, ...rest) => run(next, config, messages, ...rest);
