@@ -23,7 +23,7 @@ const read = file => fs.readFileSync(path.join(__dirname,'..',file),'utf8');
 const prefs = read('js/experience-preferences.js');
 const nav = read('js/chat-tool-navigation.js');
 const loader = read('js/site-ui.js');
-assert.match(loader, /loadBAOScript\("js\/experience-preferences-core\.js\?v=1"\)/);
+assert.match(loader, /loadBAOScript\("js\/experience-preferences-core\.js\?v=\d+"\)/);
 assert.match(loader, /loadBAOScript\("js\/experience-preferences\.js\?v=\d+"\)/);
 assert.match(prefs, /'yorubay:experience:v1'/);
 assert.match(prefs, /localStorage\.setItem\(KEY, JSON\.stringify\(current\)\)/);
