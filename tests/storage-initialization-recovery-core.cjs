@@ -55,9 +55,10 @@ async function initialization(failAt, clearAutosave = false) {
   assert.equal(store._pendingOperations.length, 0, 'initialization drains or releases the queue');
   if (failAt) {
     assert.equal(store._mode, 'localStorage');
-    assert.equal(JSON.parse(data.get(AUTO) || 'null')?.label, expectedLabel);
-    assert.deepEqual(JSON.parse(data.get(SLOTS)).map(item => item.id), ['during']);
-    assert.equal(data.get(store.fallbackKey), store.fallbackCompleteMarker, 'a fully loaded baseline supports authoritative recovery');
+    const backup = JSON.parse(data.get(store.fallbackSnapshotKey));
+    assert.equal(backup.autosave?.label, expectedLabel);
+    assert.deepEqual(backup.slots.map(item => item.id), ['during']);
+    assert.equal(backup.revision, 0, 'a fully loaded baseline supports authoritative recovery');
     // Reload through the real migration policy, including intentional deletions.
     const browser = boot();
     for (const [key, value] of data) browser.data.set(key, value);
