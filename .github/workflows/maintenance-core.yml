@@ -47,6 +47,7 @@ jobs:
           node --check js/lm-studio.js
           node --check js/helper-api-routing.js
           node tests/lm-studio-core.cjs
+          node tests/lm-studio-pipeline-core.cjs
 
       - name: LM Studio guide and loader contract
         run: |

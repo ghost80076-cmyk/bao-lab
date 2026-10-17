@@ -15,15 +15,21 @@
   });
 
   // Keep cloud providers unchanged; local requests never use a cloud relay.
-  const upstream = API.send.bind(API);
-  API.send = function(config, messages) {
+  const localTransportWrapper = (next, config, messages) => {
     const helper = config?.__memoryTask ? App.config?.memory?.summaryApi : config?.__stateTask ? App.config?.cost?.stateApi : null;
     if (isLocal(helper)) {
       return local.send({ ...config, ...helper, maxOutputTokens: config.maxOutputTokens, signal: config.signal || API.activeSignal }, messages, API);
     }
     if (isLocal(config)) return local.send(config, messages, API);
-    return upstream(config, messages);
+    return next(config, messages);
   };
+  if (typeof API.wrapSend === 'function') {
+    API.wrapSend('lm-studio:local-transport', localTransportWrapper);
+  } else {
+    // Compatibility for an older cached API without named registration.
+    const upstream = API.send.bind(API);
+    API.send = (config, messages) => localTransportWrapper(upstream, config, messages);
+  }
 
   // Existing BYOK UI and request lifecycle expect a truthy key. This in-memory marker
   // is NOT a credential; the local transport never sends it in an Authorization header.

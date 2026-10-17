@@ -241,8 +241,8 @@ provider, retry, streaming and wrapper contracts.
 | P1 | Memory/world/state after-turn ownership | Same-model state merge and separate helper concurrency contracts |
 | P2 | UI/CSS and CI duplication | Separate from request transport changes |
 
-Additional direct-send owners to inventory before changing global order include
-`lm-studio.js`. The earlier table is a conceptual
+The original direct-send owners listed during inventory have now migrated their
+normal API path to named registration; older-API fallbacks remain intentionally. The earlier table is a conceptual
 map, not an exhaustive ordering specification. `world-module-ui.js` also registers
 a named internal-state echo stage. Do not infer global phase order from these
 lists.
@@ -324,3 +324,25 @@ provider failure, cancellation and prompt assembly failure, task isolation,
 missing bases, library lookup/cache, and repeated initialization. It runs beside
 the existing revision/variant persistence regression in Core tests. Loader
 versions advance through site-ui and the page entry point.
+
+
+### LM Studio local transport migration (2026-10-17)
+
+`lm-studio.js` now registers `lm-studio:local-transport`, retaining its local
+transport short circuit, configured local helper handling and older-API fallback.
+Cloud requests pass through to the captured next stage. The local core, builder,
+connection UI, restoration and model discovery behaviors are unchanged.
+
+`tests/lm-studio-pipeline-core.cjs` established the old routing behavior before
+migration and checks named installation and fallback using the actual local core
+and API SSE parser with mocked network responses. It covers cloud passthrough,
+local main/helper requests, optional authorization, output limits, abort signals,
+stream deltas, local HTTP/network/abort failures without cloud fallback or retries,
+invalid local endpoints, unchanged inputs and duplicate initialization. It runs
+in Maintenance core beside the local-core test. Versions advance through helper
+routing, model routing, site-ui and the page entry point.
+
+All originally inventoried direct API wrappers now use named registration on a
+current page. Registration order is still loader order. Explicit phase ordering,
+including how transport short circuits interact with inner helper/budget/usage
+stages, needs combined behavior tests before changing that order.
