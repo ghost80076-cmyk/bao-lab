@@ -242,7 +242,7 @@ provider, retry, streaming and wrapper contracts.
 | P2 | UI/CSS and CI duplication | Separate from request transport changes |
 
 Additional direct-send owners to inventory before changing global order include
-`chat.js`, `chat-reading-scroll.js`, `status-usage-integrity.js`,
+`chat-reading-scroll.js`, `status-usage-integrity.js`,
 `story-revision-state.js`, and `lm-studio.js`. The earlier table is a conceptual
 map, not an exhaustive ordering specification. `world-module-ui.js` also registers
 a named internal-state echo stage. Do not infer global phase order from these
@@ -252,3 +252,20 @@ Next PRs should migrate one direct owner at a time, then introduce explicit phas
 ordering only after combined hosted/helper/cost and streaming tests establish the
 required dependencies. Keep `GameState`, backup formats and player-facing UX out
 of those structural PRs.
+
+
+### Chat usage observer migration (2026-10-17)
+
+`chat.js` now registers `chat:request-usage` through `API.wrapSend`, with a
+fallback for older cached API code. Installation timing and the existing
+`__baoUsageWrapped` guard remain unchanged. This observer still records only
+successful, non-diagnostic requests; helper categories do not replace the main
+story's context-budget usage. Hosted results already recorded by the transport
+continue to use the existing idempotent ledger marker.
+
+`tests/chat-usage-pipeline-core.cjs` first established the behavior on the old
+wrapper, then verifies named installation, repeated initialization, all helper
+categories, hosted actual charges without double counting, missing usage,
+transport failures, cancellation, overlapping requests and the legacy fallback.
+It runs in Core tests. Remaining direct-send owners above are still separate
+migration work; this change does not impose global stage ordering.
