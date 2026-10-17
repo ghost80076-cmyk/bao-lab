@@ -152,21 +152,27 @@
     return list;
   };
 
-  const originalApiSend = API.send.bind(API);
-  API.send = async function(config, messages) {
-    if (!config?.__storyTool) return originalApiSend(config, messages);
+  const revisionSnapshotWrapper = async (next, config, messages) => {
+    if (!config?.__storyTool) return next(config, messages);
     const { message } = latestAssistant();
-    if (!message) return originalApiSend(config, messages);
+    if (!message) return next(config, messages);
     const base = await resolveBase(message);
-    if (!base) return originalApiSend(config, messages);
+    if (!base) return next(config, messages);
     const current = captureSnapshot();
     applySnapshot(base);
     try {
-      return await originalApiSend(config, rebuildStoryToolMessages(messages));
+      return await next(config, rebuildStoryToolMessages(messages));
     } finally {
       applySnapshot(current);
     }
   };
+  if (typeof API.wrapSend === "function") {
+    API.wrapSend("story-revision-state:snapshot", revisionSnapshotWrapper);
+  } else {
+    // Compatibility for an older cached API without named registration.
+    const originalApiSend = API.send.bind(API);
+    API.send = (config, messages) => revisionSnapshotWrapper(originalApiSend, config, messages);
+  }
 
   let revisionQueue = Promise.resolve();
   let lastSavedSignature = signatureOf(latestAssistant().message);
