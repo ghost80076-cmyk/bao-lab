@@ -203,7 +203,10 @@
     const packs = local.enabled.every(id => owned.some(pack => pack.meta.id === id)) ? owned : await all();
     if (story() !== owner || cfg() !== local) return messages;
     const context = {
-      ...signals(), world: activeWorld(packs, local.enabled)
+      ...signals(), world: activeWorld(packs, local.enabled),
+      actors: window.BAOEpisodicMemory?.audience?.({
+        state: owner, config, primary: App.activeCharacter?.name || ""
+      }) || []
     };
     const fixed = core.constants(packs, local.enabled, context);
     const picked = core.select(packs, local.enabled, context,
