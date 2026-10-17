@@ -109,7 +109,7 @@ test('My settings uses one shared appearance dialog and updates the selected the
   await page.reload();
   await page.waitForFunction(() => !!window.YoruExperience && !!window.BAOPlayerShellV2);
   await page.locator('#bao-mobile-nav [data-player-nav="me"]').click();
-  await expect(page.locator('#me-view [data-bao-experience-state]')).toHaveText('晨霧 · 標準');
+  await expect(page.locator('#me-view [data-bao-experience-state]')).toHaveText('月白 · 標準');
   await expect(page.locator('html')).toHaveAttribute('data-yoru-theme','mist');
 });
 
