@@ -40,6 +40,9 @@
         id: entryId, title: text(raw.title, 100) || "條目 " + (index+1),
         category: text(raw.category, 32), mode, keywords,
         content, requires: unique(raw.requires, 10),
+        // "private" on pack.meta is publication privacy, NOT character knowledge.
+        knowledge_scope: raw.knowledge_scope === "actors" ? "actors" : "shared",
+        known_by: unique(raw.known_by, 30),
         review_required: raw.review_required === true,
         enabled: raw.enabled !== false,
         priority: Number.isFinite(raw.priority) ? Math.max(-10, Math.min(10, raw.priority)) : 0
@@ -88,6 +91,9 @@
     });
   }
   const lower = value => String(value || "").toLocaleLowerCase();
+  const canRead = (entry, actors) => entry.knowledge_scope !== "actors" ||
+    (Array.isArray(actors) && actors.length > 0 &&
+      actors.every(actor => (entry.known_by || []).includes(actor)));
   // Opted-in rules stay complete and never compete with bounded lore retrieval.
   function constants(packs, enabledIds, context = {}) {
     const ids = new Set(Array.isArray(enabledIds) ? enabledIds : []);
@@ -97,7 +103,8 @@
       if (!ids.has(pack?.meta?.id) || (pack.meta.world !== "general" && world && world !== pack.meta.world)) continue;
       for (const entry of pack.entries || []) {
         if (entry.mode !== "constant" || entry.enabled === false || entry.review_required ||
-            (entry.requires || []).some(flag => !flags.has(flag))) continue;
+            (entry.requires || []).some(flag => !flags.has(flag)) ||
+            !canRead(entry, context.actors)) continue;
         const key = lower(entry.content).replace(/\s+/g, " ");
         if (seen.has(key)) continue;
         seen.add(key);
@@ -131,7 +138,8 @@
       for (const entry of pack.entries || []) {
         if (entry.mode === "constant") continue;
         if (recallMode === "off" && entry.mode !== "foundation") continue;
-        if (entry.enabled === false || entry.review_required || (entry.requires || []).some(flag => !flags.has(flag))) continue;
+        if (entry.enabled === false || entry.review_required || (entry.requires || []).some(flag => !flags.has(flag)) ||
+            !canRead(entry, context.actors)) continue;
         let score = entry.mode === "foundation" ? 120 : 0;
         if (entry.mode !== "foundation") {
           for (const kw of entry.keywords || []) {
