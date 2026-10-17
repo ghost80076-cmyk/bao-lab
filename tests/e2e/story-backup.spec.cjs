@@ -200,3 +200,53 @@ test('backup waits for the correct chapter and refuses stale data after a librar
   expect(result.branchError).toContain('新分支尚未成功寫入');
   expect(result.originalChapter).toBe(true);
 });
+
+test('restore failures preserve the active story and undo preference side effects', async ({ page }) => {
+  await openDemoStory(page);
+  await page.waitForFunction(() => !!window.BAOPlayerSettings && !!window.BAONarrativeSettings && !!window.BAOMemoryWorkbench && !!window.BAOWorldModules);
+  await page.waitForTimeout(450);
+  const result = await page.evaluate(async () => {
+    const keys = ['bao-lab:player-settings', 'bao-lab:narrative-settings-v1', 'bao-lab:player-memory-slots'];
+    const original = { characters: App.characters, character: App.activeCharacter, config: App.config,
+      messages: Chat.messages, state: GameState.current, raw: keys.map(key => localStorage.getItem(key)),
+      player: BAOPlayerSettings.get(), narrative: BAONarrativeSettings.get() };
+    const save = Storage.buildStoryPayload('restore probe');
+    save.chat.messages = [{ id: 'new-message', role: 'user', content: 'candidate story' }];
+    save.preferences.player.appearance.fontSize = 23;
+    save.preferences.memorySlots = [{ id: 'probe-note', title: 'probe', text: 'new note', enabled: true }];
+    const intact = () => App.characters === original.characters && App.activeCharacter === original.character &&
+      App.config === original.config && Chat.messages === original.messages && GameState.current === original.state;
+    const prototype = Object.getPrototypeOf(localStorage), setItem = prototype.setItem;
+    let failed = false;
+    prototype.setItem = function(key, value) {
+      if (!failed && key === keys[1]) { failed = true; throw new DOMException('injected quota failure', 'QuotaExceededError'); }
+      return setItem.call(this, key, value);
+    };
+    let quotaResult;
+    try { quotaResult = Storage.restoreStory(save); } finally { prototype.setItem = setItem; }
+    const quotaPreserved = intact() && JSON.stringify(keys.map(key => localStorage.getItem(key))) === JSON.stringify(original.raw);
+    const ensure = BAOWorldModules.ensureState;
+    const saveStory = App.saveStory;
+    let saves = 0;
+    App.saveStory = function(...args) { saves++; return saveStory.apply(this, args); };
+    BAOWorldModules.ensureState = () => { GameState.current.injectedFailure = true; throw Error('world module probe'); };
+    let moduleResult;
+    try { moduleResult = Storage.restoreStory(save); } finally { BAOWorldModules.ensureState = ensure; }
+    const runtimePreserved = intact() && JSON.stringify(BAOPlayerSettings.get()) === JSON.stringify(original.player) &&
+      JSON.stringify(BAONarrativeSettings.get()) === JSON.stringify(original.narrative) &&
+      JSON.stringify(keys.map(key => localStorage.getItem(key))) === JSON.stringify(original.raw);
+    await new Promise(resolve => setTimeout(resolve, 500));
+    App.saveStory = saveStory;
+    const retried = Storage.restoreStory(save);
+    return { quotaResult, quotaPreserved, moduleResult, runtimePreserved, saves, retried,
+      text: Chat.messages[0].content, error: Storage.status().lastRestoreError };
+  });
+  expect(result.quotaResult).toBe(false);
+  expect(result.quotaPreserved).toBe(true);
+  expect(result.moduleResult).toBe(false);
+  expect(result.runtimePreserved).toBe(true);
+  expect(result.saves).toBe(0);
+  expect(result.retried).toBe(true);
+  expect(result.text).toBe('candidate story');
+  expect(result.error).toBe('');
+});
