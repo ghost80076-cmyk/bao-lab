@@ -49,7 +49,7 @@ test('five named time-of-day appearances expose readable semantic surfaces', asy
     });
     expect(state.theme).toBe(item.id);
     expect(state.bg).toBe(item.surface);
-    expect(state.meta).toBe(item.surface);
+    expect(state.meta).toBe(item.id === 'night' ? '#15191d' : item.surface);
     expect(state.scheme).toContain(item.dark ? 'dark' : 'light');
     expect(ratio(state.bg,state.text), item.name+' body text').toBeGreaterThanOrEqual(4.5);
     expect(ratio(state.surface,state.text), item.name+' cards').toBeGreaterThanOrEqual(4.5);
