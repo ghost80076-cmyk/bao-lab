@@ -207,8 +207,8 @@ for (const width of [390, 1280]) {
     const count = await page.evaluate(() => JSON.parse(localStorage.getItem('bao-lab:actor-presets-v1')).length);
     expect(count).toBe(3);
 
-    await page.evaluate(() => YoruExperience.choose({theme:'rose'}));
-    await expect(modal).toHaveCSS('background-color','rgb(59, 48, 54)');
+    await page.evaluate(() => YoruExperience.choose({theme:'dusk'}));
+    await expect(modal).toHaveCSS('background-color','rgb(64, 56, 73)');
     await modal.locator('[data-library-mode="player"]').click();
     await expect(query).toHaveValue('unfindable-no-match');
     await query.fill('');
@@ -238,8 +238,8 @@ test('story actor editor respects theme while preserving player and author bound
   await expect(modal.locator('[data-actor-preset-select]')).toHaveCount(1);
   await expect(modal.locator('[data-portable-actor-select]')).toHaveCount(1);
   const stateBefore = await page.evaluate(() => JSON.stringify(GameState.current));
-  await page.evaluate(() => YoruExperience.choose({theme:'rose'}));
-  await expect(modal).toHaveCSS('background-color','rgb(59, 48, 54)');
+  await page.evaluate(() => YoruExperience.choose({theme:'dusk'}));
+  await expect(modal).toHaveCSS('background-color','rgb(64, 56, 73)');
   await modal.getByRole('button', {name:'取消'}).click();
   expect(await page.evaluate(() => JSON.stringify(GameState.current))).toBe(stateBefore);
 });
@@ -322,8 +322,8 @@ for (const width of [390, 1280]) {
     await expect(search).toHaveValue('鏡月');
     expect(await page.evaluate(() => JSON.stringify(GameState.current.npcs))).toBe(before);
 
-    await page.evaluate(() => YoruExperience.choose({theme:'rose'}));
-    await expect(modal).toHaveCSS('background-color','rgb(59, 48, 54)');
+    await page.evaluate(() => YoruExperience.choose({theme:'dusk'}));
+    await expect(modal).toHaveCSS('background-color','rgb(64, 56, 73)');
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width + 1);
 
     await modal.getByRole('button', {name:'儲存本場人物'}).click();
@@ -418,10 +418,10 @@ for (const width of [390]) {
     expect(await page.evaluate(() => JSON.stringify(GameState.current.npcs))).toBe(npcsBefore);
 
     await expect(currentMirror).toHaveCSS('background-color', 'rgb(255, 250, 244)');
-    await page.evaluate(() => YoruExperience.choose({theme:'rose'}));
-    await expect(page.locator('html')).toHaveAttribute('data-yoru-theme', 'rose');
+    await page.evaluate(() => YoruExperience.choose({theme:'dusk'}));
+    await expect(page.locator('html')).toHaveAttribute('data-yoru-theme', 'dusk');
     // Background is animated for 180ms, so verify the settled theme, not its first frame.
-    await expect(currentMirror).toHaveCSS('background-color', 'rgb(64, 50, 57)');
+    await expect(currentMirror).toHaveCSS('background-color', 'rgb(66, 57, 77)');
 
     await management.locator('summary').click();
     await expect(panel.locator('[data-character-status-settings]')).toBeVisible();
