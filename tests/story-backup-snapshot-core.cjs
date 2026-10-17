@@ -7,6 +7,7 @@ const root = path.join(__dirname, '..');
 const librarySource = fs.readFileSync(path.join(root, 'js/story-library.js'), 'utf8');
 const backupSource = fs.readFileSync(process.env.STORY_BACKUP_SOURCE || path.join(root, 'js/story-backup.js'), 'utf8');
 const storageSource = fs.readFileSync(path.join(root, 'js/storage.js'), 'utf8');
+const revisionSource = fs.readFileSync(path.join(root, 'js/story-revision-state.js'), 'utf8');
 function tab(db) {
   const raw = new Map();
   const c = { structuredClone, console: { warn() {} }, localStorage: {
@@ -17,6 +18,10 @@ function tab(db) {
   vm.runInContext(librarySource, c);
   const lib = c.BAOStoryLibrary; lib._db = db; lib.open = async () => db;
   c.Storage.saveStory = () => true;
+  c.App = { config: {}, saveStory: () => true };
+  c.Chat = { messages: [], summary: '', add() {} };
+  c.API = { send: async () => ({}) };
+  vm.runInContext(revisionSource, c);
   vm.runInContext(backupSource, c);
   return { c, lib, backup: c.BAOStoryBackup };
 }
@@ -24,7 +29,8 @@ const refs = (chapterId, parentChapterId = '') => ({ storyId: 'story', chapterId
   storyCreatedAt: '2026-01-01', chapterCreatedAt: chapterId === 'root' ? '2026-01-01' : '2026-01-02', chapterLabel: chapterId });
 const payload = (chapter, revision) => ({ characterId: 'hero', characterName: 'Hero', savedAt: '2026-10-18T01:00:00Z',
   character: { id: 'hero', system_prompt: 'AUTHOR-SECRET' }, config: { api: { key: 'API-SECRET' } },
-  chat: { messages: [{ id: chapter + '-' + revision, role: 'assistant', content: revision }], summary: revision },
+  chat: { messages: [{ id: chapter + '-' + revision, role: 'assistant', content: revision,
+    revisionBase: { state: { location: revision + '-base' } }, variants: [{ content: revision }], activeVariant: 0 }], summary: revision },
   state: { location: revision }, _library: refs(chapter, chapter === 'root' ? '' : 'root') });
 async function run(change) {
   const db = new Database(), a = tab(db), b = tab(db);
@@ -49,6 +55,8 @@ async function run(change) {
   assert.deepEqual(Array.from(bundle.chapters, item => item.payload.chat.messages[0].content), ['old', 'old']);
   for (const chapter of bundle.chapters) {
     assert.equal(chapter.payload.state.location, 'old');
+    assert.equal(chapter.payload.chat.messages[0].revisionBase.state.location, 'old-base');
+    assert.equal(chapter.payload.chat.messages[0].variants[0].content, 'old');
     assert.equal(chapter.checkpoints[0].messageId, chapter.payload.chat.messages[0].id);
     assert.equal(chapter.checkpoints[0].payload.state.location, 'old');
   }
@@ -63,6 +71,12 @@ async function main() {
   for (const change of ['save', 'delete', 'switch', 'stale-active']) await run(change);
   const db = new Database(), a = tab(db);
   await a.lib.persist(payload('root', 'old'));
+  const originalRead = a.lib.allRecords.bind(a.lib);
+  let reconstructReads = 0;
+  a.lib.allRecords = async () => { reconstructReads++; return originalRead(); };
+  assert.equal((await a.lib.reconstruct('story', 'root')).chat.messages[0].revisionBase.state.location, 'old-base');
+  assert.equal(reconstructReads, 1, 'ordinary rich-message reconstruction also uses one read');
+  a.lib.allRecords = originalRead;
   a.lib.adoptRefs({ _library: refs('missing') });
   assert.equal((await a.backup.buildBundle('story')).activeChapterId, 'root', 'stale current chapter falls back to a chapter present in the snapshot');
   const broken = await a.lib.allRecords();

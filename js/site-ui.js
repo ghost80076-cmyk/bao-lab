@@ -118,7 +118,7 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/conversation-search-core.js?v=4"))
     .then(() => loadBAOScript("js/conversation-search.js?v=4"))
     .then(() => loadBAOScript("js/inspiration-copy.js"))
-    .then(() => loadBAOScript("js/story-revision-state.js?v=2"))
+    .then(() => loadBAOScript("js/story-revision-state.js?v=3"))
     .then(() => loadBAOScript("js/story-history.js?v=2"))
     .then(() => loadBAOScript("js/story-branches.js?v=2"))
     .then(() => loadBAOScript("js/streaming-ui.js?v=4"))
