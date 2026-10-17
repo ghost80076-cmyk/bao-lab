@@ -165,9 +165,9 @@
   API.__streamingUIPatched = true;
 
   // Keep the scroll-only adapter separate from the HTML and story renderers.
-  if (document.head?.append && !document.querySelector('script[src="js/chat-reading-scroll.js"]')) {
+  if (document.head?.append && !document.querySelector('script[src="js/chat-reading-scroll.js?v=2"]')) {
     const script = document.createElement('script');
-    script.src = 'js/chat-reading-scroll.js';
+    script.src = 'js/chat-reading-scroll.js?v=2';
     script.onerror = () => console.warn('BAO/LAB reading position controller failed to load');
     document.head.append(script);
   }

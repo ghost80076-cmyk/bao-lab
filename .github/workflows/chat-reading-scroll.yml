@@ -29,6 +29,7 @@ jobs:
       - name: Reading-specific regressions
         run: |
           node tests/chat-reading-scroll-core.cjs
+          node tests/chat-reading-pipeline-core.cjs
           node tests/chat-presentation-core.cjs
 
   pages-live:
@@ -46,9 +47,9 @@ jobs:
           for attempt in $(seq 1 50); do
             reader="$(curl --fail --silent --location --max-time 12 -H 'Cache-Control: no-cache' "${SITE_URL}js/chat-reading-scroll.js?sha=${GITHUB_SHA}" || true)"
             stream="$(curl --fail --silent --location --max-time 12 -H 'Cache-Control: no-cache' "${SITE_URL}js/streaming-ui.js?sha=${GITHUB_SHA}" || true)"
-            if grep -Fq 'BAOChatReadingScroll' <<<"${reader}" \
+            if grep -Fq 'chat-reading-scroll:before-commit' <<<"${reader}" \
               && grep -Fq 'const readingTop = stream?.scrollTop' <<<"${stream}" \
-              && grep -Fq "js/chat-reading-scroll.js" <<<"${stream}"; then
+              && grep -Fq "js/chat-reading-scroll.js?v=2" <<<"${stream}"; then
               echo 'Reading-first chat scripts verified on public GitHub Pages.'
               exit 0
             fi
