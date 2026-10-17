@@ -146,22 +146,22 @@
 .story-tools-modal[data-story-tools-mode="home"] .story-tools-home-advanced>.story-tools-card:last-child{
   grid-column:auto
 }
-html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-tools-modal[data-story-tools-mode="home"]{
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) .story-tools-modal[data-story-tools-mode="home"]{
   background:var(--yoru-surface);color:var(--yoru-text);
   border-color:var(--yoru-card-border)
 }
-html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-tools-modal[data-story-tools-mode="home"] .story-tools-card{
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) .story-tools-modal[data-story-tools-mode="home"] .story-tools-card{
   background:var(--yoru-card);color:var(--yoru-text);
   border-color:var(--yoru-card-border)
 }
-html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-tools-modal[data-story-tools-mode="home"] :is(.story-tools-card p,.story-tools-help-copy){
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) .story-tools-modal[data-story-tools-mode="home"] :is(.story-tools-card p,.story-tools-help-copy){
   color:var(--yoru-muted)
 }
-html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-tools-modal[data-story-tools-mode="home"] .story-preview-meta{
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) .story-tools-modal[data-story-tools-mode="home"] .story-preview-meta{
   color:var(--yoru-text);background:var(--yoru-control);
   border-color:var(--yoru-control-border)
 }
-html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-tools-modal[data-story-tools-mode="home"] :is(.story-tools-close,.story-tools-help){
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) .story-tools-modal[data-story-tools-mode="home"] :is(.story-tools-close,.story-tools-help){
   background:var(--yoru-control)!important;
   color:var(--yoru-text)!important;
   border-color:var(--yoru-control-border)!important
