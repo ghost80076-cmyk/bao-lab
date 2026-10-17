@@ -187,3 +187,19 @@ html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"])
   color:var(--yoru-text)!important;
   border-color:var(--yoru-control-border)!important
 }
+
+/* Keep the tool desk in the same warm palette as the reading companion. */
+#bao-chat-tool-drawer .bao-chat-tool-dialog{background:var(--yoru-surface,#171519);color:var(--yoru-text,#eee8e0);border-color:var(--yoru-card-border,rgba(241,232,218,.16));border-radius:22px}
+#bao-chat-tool-drawer header{padding:20px 22px;border-color:var(--yoru-card-border,rgba(241,232,218,.10))}
+#bao-chat-tool-drawer header h2{font-family:'Noto Serif TC','Songti TC',serif;font-size:22px;letter-spacing:.03em}
+#bao-chat-tool-drawer .bao-chat-tool-dialog-body{padding:18px;gap:12px;scrollbar-width:thin}
+#bao-chat-tool-drawer details{background:var(--yoru-card,#211d23);border-color:var(--yoru-card-border,rgba(241,232,218,.12));border-radius:14px}
+#bao-chat-tool-drawer summary{padding:16px;font-size:14px;line-height:1.6}
+#bao-chat-tool-drawer .bao-chat-tool-proxy{min-height:46px;background:var(--yoru-control,#2c252e);border-color:var(--yoru-control-border,rgba(241,232,218,.14));line-height:1.6}
+#bao-chat-tool-drawer .bao-chat-tool-proxy:hover:not(:disabled){background:var(--yoru-control-hover,#38303a)}
+#bao-chat-tool-drawer :is(button,input,select,summary):focus-visible{outline:2px solid var(--yoru-lantern,#d6aa73);outline-offset:2px}
+#chat-view #bao-chat-tool-groups>details{background:var(--yoru-card,#211d23);border-color:var(--yoru-card-border,rgba(241,232,218,.10))}
+@media(max-width:820px){
+  #bao-chat-tool-drawer .bao-chat-tool-dialog{border-radius:22px 22px 0 0}
+  #bao-chat-tool-drawer .bao-chat-tool-dialog-body{padding:14px 14px calc(18px + env(safe-area-inset-bottom,0px))}
+}

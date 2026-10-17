@@ -11,7 +11,7 @@
     if (document.querySelector('link[href^="css/reader-context.css"]')) return;
     const link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = 'css/reader-context.css?v=3';
+    link.href = 'css/reader-context.css?v=4';
     document.head.appendChild(link);
   };
 
