@@ -330,3 +330,45 @@
   margin-top:5px;color:var(--muted);font-size:11px;line-height:1.5
 }
 .explore-detail-author+.explore-detail-version{margin-top:2px}
+
+
+/* Five-sky visual contract: the catalog preview belongs to YoruBay chrome, not
+   the authored cover image. Leave the original night composition intact. */
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) .explore-work-preview{
+  background:var(--yoru-surface);
+  color:var(--yoru-text);
+  border-color:var(--yoru-card-border);
+}
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) .explore-work-preview :is(
+  .explore-work-preview-head h3,
+  .explore-work-preview-description
+){
+  color:var(--yoru-text);
+}
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) .explore-work-preview .explore-work-preview-meta{
+  color:var(--yoru-muted);
+}
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) .explore-work-preview .explore-work-preview-capabilities span,
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) .explore-work-preview .explore-work-preview-tags .tag{
+  color:var(--yoru-text);
+  background:var(--yoru-control);
+  border-color:var(--yoru-control-border);
+}
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) .explore-work-preview .explore-work-preview-actions{
+  background:linear-gradient(
+    180deg,
+    color-mix(in srgb,var(--yoru-surface) 82%,transparent),
+    var(--yoru-surface) 35%
+  );
+  border-top-color:var(--yoru-card-border);
+}
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) .explore-work-preview [data-explore-preview-close]{
+  color:var(--yoru-text);
+  background:var(--yoru-control);
+  border-color:var(--yoru-control-border);
+}
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) .explore-work-preview [data-explore-preview-close]:hover{
+  background:var(--yoru-control-hover);
+}
+/* The maturity badge sits over the unmodified image and needs independent ink. */
+.explore-work-preview-media>[data-explore-preview-rating]{color:#f5f2fa}
