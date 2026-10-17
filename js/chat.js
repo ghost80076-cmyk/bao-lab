@@ -392,8 +392,23 @@ window.addEventListener("DOMContentLoaded", () => {
     const bar = document.querySelector(".usage-bar");
     if (bar && !document.getElementById("usage-total")) bar.insertAdjacentHTML("beforeend", '<span>累積 <b id="usage-total">0 tok</b></span><span>輸入累積 <b id="usage-input-total">0 tok</b></span><span>輸出累積 <b id="usage-output-total">0 tok</b></span><span>Cache 累積 <b id="usage-cache-total">0 tok</b></span><span>Context Guard <b id="usage-guard">正常</b></span>');
     if (window.API && !API.__baoUsageWrapped) {
-      const originalSend = API.send.bind(API);
-      API.send = async function(config, messages) { const result = await originalSend(config, messages); if (config?.__connectionTest) return result; Chat.recordRequestUsage(config || {}, result || {}); Chat.renderUsage(result?.usage || {}); if (!config?.__memoryTask && !config?.__stateTask && !config?.__auxiliaryTask && !config?.__storyTool) Chat.recordStoryUsage(result?.usage || {}, App?.config); return result; };
+      const requestUsageWrapper = async (next, config, messages) => {
+        const result = await next(config, messages);
+        if (config?.__connectionTest) return result;
+        Chat.recordRequestUsage(config || {}, result || {});
+        Chat.renderUsage(result?.usage || {});
+        if (!config?.__memoryTask && !config?.__stateTask && !config?.__auxiliaryTask && !config?.__storyTool) {
+          Chat.recordStoryUsage(result?.usage || {}, App?.config);
+        }
+        return result;
+      };
+      if (typeof API.wrapSend === "function") {
+        API.wrapSend("chat:request-usage", requestUsageWrapper);
+      } else {
+        // Compatibility for an older cached api.js without named registration.
+        const originalSend = API.send.bind(API);
+        API.send = (config, messages) => requestUsageWrapper(originalSend, config, messages);
+      }
       API.__baoUsageWrapped = true;
     }
     const apiStep = document.querySelector('[data-step-panel="4"]');
