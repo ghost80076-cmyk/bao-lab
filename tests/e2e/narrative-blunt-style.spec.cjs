@@ -10,8 +10,9 @@ for (const width of [390, 1440]) {
     expect(await page.evaluate(() => BAONarrativeSettings.buildPrompt(BAONarrativeSettings.get()))).toBe('');
 
     await page.evaluate(() => BAONarrativeSettings.open());
-    const modal = page.getByRole('dialog', { name: '敘事與描寫設定' });
+    const modal = page.getByRole('dialog', { name: '今晚的故事' });
     await expect(modal).toBeVisible();
+    await modal.locator('.tonight-advanced summary').click();
     if (width === 390) {
       await expect(modal.locator('.bao-modal-head .eyebrow')).toBeHidden();
       const help = modal.getByRole('button', { name: '敘事設定說明' });

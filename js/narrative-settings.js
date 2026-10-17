@@ -4,6 +4,7 @@
   const KEY = "bao-lab:narrative-settings-v1";
   const defaults = {
     stylePacks: [],
+    storyExtras: [],
     density: "card",
     paragraphs: "auto",
     innerThoughts: "card",
@@ -24,8 +25,28 @@
     male_blunt: ["男性向 · 直白粗獷", "口語、直接、可依角色使用粗口；減少委婉隱喻，重視感官、動作與段落節奏。"],
     cinematic: ["電影鏡頭", "用可觀察的動作、空間、聲音與光線組織畫面。"],
     action_realism: ["動作寫實", "重視發力、接觸、受力、平衡與環境反應。"],
-    natural: ["自然口語", "降低模板感，讓對白有停頓、打岔與生活感。"]
+    natural: ["自然口語", "降低模板感，讓對白有停頓、打岔與生活感。"],
+    tender: ["細膩情感", "從對話、距離與小動作呈現關係變化，不預設戀愛結果。"],
+    suspense: ["懸疑氛圍", "留意異常、線索與未知，讓揭露循序發生。"],
+    literary: ["文學留白", "以具體意象與含蓄語句呈現餘韻，避免堆砌修辭。"]
   };
+
+  // The simple surface selects one style; advanced combinations remain supported.
+  const nights = {
+    original: ["世界原色", "依作品原本的風格", []],
+    film: ["銀幕夜色", "像電影一樣，看見動作與光影", ["cinematic"]],
+    daily: ["街角暖光", "自然對話，帶點生活氣息", ["natural"]],
+    tender: ["微光心事", "細膩情感，慢慢靠近彼此", ["tender"]],
+    mystery: ["霧港懸疑", "循著線索，感受未知", ["suspense"]],
+    literary: ["深夜書頁", "含蓄文字，留一點餘韻", ["literary"]]
+  };
+  const extras = {
+    daily: ["配角日常", "適時呈現配角自己的生活", "相關時讓配角的日常、責任與人際往來自然進入場景，不搶走玩家回應機會。"],
+    surroundings: ["環境插曲", "讓天氣、街景與小事參與故事", "適時以天氣、場所或小事件帶來可回應的變化；不強迫每輪觸發事件。"],
+    tension: ["關係暗流", "留意人物之間的距離與拉扯", "依既有人格與關係呈現立場差異、情感張力與修復機會，不強行製造戀愛或改變角色態度。"],
+    threads: ["伏筆回聲", "讓未完的事情有機會再出現", "相關時回應目前上下文中尚未解決的伏筆；缺少依據時不憑空捏造過往或提前洩露秘密。"]
+  };
+  const validExtras = value => [...new Set((Array.isArray(value) ? value : []).filter(key => Object.hasOwn(extras, key)))];
 
   const validStylePacks = value => {
     const list = Array.isArray(value) ? value : [];
@@ -94,9 +115,10 @@
     if (!stylePacks.length && raw.stylePack && raw.stylePack !== "off" && packs[raw.stylePack]) {
       stylePacks = [raw.stylePack];
     }
-    const normalized = { ...defaults, ...raw, stylePacks };
+    const normalized = { ...defaults, ...raw, stylePacks, storyExtras: validExtras(raw.storyExtras) };
+    delete normalized.stylePack; // Legacy single-style input is migrated once.
     normalized.matureDrama = ["card", "mature"].includes(normalized.matureDrama) ? normalized.matureDrama : "card";
-    normalized.characterAgency = ["card", "autonomous"].includes(normalized.characterAgency) ? normalized.characterAgency : "card";
+    normalized.characterAgency = ["card", "reserved", "natural", "active", "autonomous"].includes(normalized.characterAgency) ? normalized.characterAgency : "card";
     normalized.responseLength = ["card", "short", "medium", "long"].includes(normalized.responseLength) ? normalized.responseLength : "card";
     normalized.pacing = ["card", "slow", "balanced", "brisk"].includes(normalized.pacing) ? normalized.pacing : "card";
     normalized.dialogueBalance = ["card", "dialogue", "balanced", "description"].includes(normalized.dialogueBalance) ? normalized.dialogueBalance : "card";
@@ -116,14 +138,14 @@
     if (!document.querySelector('link[href^="css/narrative-settings.css"]')) {
       const link = document.createElement("link");
       link.rel = "stylesheet";
-      link.href = "css/narrative-settings.css?v=4";
+      link.href = "css/narrative-settings.css?v=5";
       document.head.appendChild(link);
     }
   };
 
   const close = () => document.querySelector(".bao-modal-backdrop")?.remove();
   const isStoryLocal = () => Boolean(document.getElementById("chat-view")?.classList.contains("active") && App.config);
-  const clonePrefs = prefs => ({ ...prefs, stylePacks: [...prefs.stylePacks], customInstructions: prefs.customInstructions.map(item => ({ ...item })) });
+  const clonePrefs = prefs => ({ ...prefs, stylePacks: [...prefs.stylePacks], storyExtras: [...prefs.storyExtras], customInstructions: prefs.customInstructions.map(item => ({ ...item })) });
   const activePrefs = () => {
     if (isStoryLocal() && App.config?.narrative) return normalizePrefs(App.config.narrative);
     return normalizePrefs(settings);
@@ -144,7 +166,8 @@
     if (normalized.intimacyDetailMod) items.push("親密場景 MOD");
     else if (normalized.intimacy !== "card") items.push(normalized.intimacy === "fade" ? "親密淡化" : normalized.intimacy === "emotion" ? "親密重情感" : "親密連續描寫");
     if (normalized.matureDrama === "mature") items.push("成熟文學題材");
-    if (normalized.characterAgency === "autonomous") items.push("高角色自主");
+    if (normalized.characterAgency !== "card") items.push(({reserved: "慢熱回應", natural: "自然主動", active: "積極互動", autonomous: "高角色自主"})[normalized.characterAgency]);
+    items.push(...normalized.storyExtras.map(key => extras[key][0]));
     if (normalized.responseLength !== "card") items.push(normalized.responseLength === "short" ? "短篇幅" : normalized.responseLength === "medium" ? "中篇幅" : "長篇幅");
     if (normalized.pacing !== "card") items.push(normalized.pacing === "slow" ? "慢節奏" : normalized.pacing === "balanced" ? "平衡節奏" : "較快推進");
     if (normalized.dialogueBalance !== "card") items.push(normalized.dialogueBalance === "dialogue" ? "對話較多" : normalized.dialogueBalance === "balanced" ? "對話描寫平衡" : "描寫較多");
@@ -157,7 +180,7 @@
     const items = summaryItems(prefs);
     return {
       items,
-      text: items.length ? `✦ 敘事與描寫 · ${items.length} 項啟用` : "✦ 敘事與描寫",
+      text: items.length ? `✦ 今晚的故事 · ${items.length} 項啟用` : "✦ 今晚的故事",
       title: items.length ? `目前啟用：${items.join("、")}` : "目前完全依角色卡，未額外套用敘事偏好。"
     };
   };
@@ -255,8 +278,26 @@
     const wrap = document.createElement("div");
     wrap.className = "bao-modal-backdrop";
     wrap.innerHTML = `<section class="bao-modal narrative-settings-modal" role="dialog" aria-modal="true" aria-labelledby="narrative-settings-title">
-      <div class="bao-modal-head"><div><div class="eyebrow">OPTIONAL NARRATIVE LAYER</div><h2 id="narrative-settings-title">敘事與描寫設定</h2></div><div class="narrative-head-actions"><button class="narrative-help" type="button" data-narrative-help aria-label="敘事設定說明" aria-expanded="false">?</button><button class="bao-modal-close" type="button">關閉</button></div></div>
+      <div class="bao-modal-head"><div><div class="eyebrow">YORUBAY · TONIGHT</div><h2 id="narrative-settings-title">今晚的故事</h2></div><div class="narrative-head-actions"><button class="narrative-help" type="button" data-narrative-help aria-label="敘事設定說明" aria-expanded="false">?</button><button class="bao-modal-close" type="button">關閉</button></div></div>
       <div class="bao-modal-body">
+        <div class="tonight-intro"><p>選一種夜色，讓故事順著你的步調發生。</p><small>${storyLocal ? "只套用於目前故事，從下一次回覆生效。" : "作為新故事的起始偏好，不更動既有故事。"}</small></div>
+        <section class="tonight-section" aria-labelledby="tonight-night"><h3 id="tonight-night">夜色 <span>故事要有什麼氛圍？</span></h3>
+          <div class="tonight-nights">${Object.entries(nights).map(([key, meta]) => `<button type="button" class="tonight-night" data-night="${key}" aria-pressed="false"><b>${meta[0]}</b><span>${meta[1]}</span></button>`).join("")}</div>
+          <div class="tonight-current" data-tonight-current aria-live="polite"></div>
+        </section>
+        <section class="tonight-section" aria-label="故事步調"><div class="narrative-select-grid">
+          <label>潮汐 · 故事節奏<select data-pref="pacing">
+            ${[["card", "依作品安排"], ["slow", "慢慢醞釀"], ["balanced", "自然流動"], ["brisk", "波瀾不斷"]].map(([value, label]) => `<option value="${value}" ${prefs.pacing === value ? "selected" : ""}>${label}</option>`).join("")}
+          </select></label>
+          <label>同行者 · 角色多主動？<select data-pref="characterAgency">
+            ${[["card", "依角色原貌"], ["reserved", "慢熱回應"], ["natural", "自然主動"], ["active", "積極互動"], ["autonomous", "高自主性 · 原有設定"]].map(([value, label]) => `<option value="${value}" ${prefs.characterAgency === value ? "selected" : ""}>${label}</option>`).join("")}
+          </select></label>
+        </div></section>
+        <section class="tonight-section" aria-labelledby="tonight-extras"><h3 id="tonight-extras">沿途風景 <span>故事加點什麼？可複選</span></h3><div class="tonight-extras">
+          ${Object.entries(extras).map(([key, meta]) => `<label><input type="checkbox" data-story-extra="${key}" ${prefs.storyExtras.includes(key) ? "checked" : ""}><span><b>${meta[0]}</b><small>${meta[1]}</small></span></label>`).join("")}
+        </div></section>
+        <p class="tonight-principle">夜色可以改變，角色與世界仍保有自己的原貌。</p>
+        <details class="tonight-advanced" ${focusInstructions ? "open" : ""}><summary>進階設定 · 文風混搭、篇幅與長期指令</summary>
         <div class="bao-setting-section">
           <h3>文風包 · 可複選</h3>
           <p>可同時疊加多種效果。未選擇任何項目時完全依角色卡；開啟後系統會合併重複要求，再壓縮成短指令送給模型。</p>
@@ -339,6 +380,9 @@
             <label>角色自主程度
               <select data-pref="characterAgency">
                 <option value="card" ${prefs.characterAgency === "card" ? "selected" : ""}>依角色卡</option>
+                <option value="reserved" ${prefs.characterAgency === "reserved" ? "selected" : ""}>慢熱回應</option>
+                <option value="natural" ${prefs.characterAgency === "natural" ? "selected" : ""}>自然主動</option>
+                <option value="active" ${prefs.characterAgency === "active" ? "selected" : ""}>積極互動</option>
                 <option value="autonomous" ${prefs.characterAgency === "autonomous" ? "selected" : ""}>高自主性</option>
               </select><small>NPC 可依人格與利益拒絕、誤解、爭執、欺瞞、主動行動或犯錯，不以討好玩家為最高原則。</small>
             </label>
@@ -371,6 +415,7 @@
           <label class="narrative-switch" style="margin-top:12px"><span><b>身體與空間連續性</b><br><small class="note">追蹤位置、姿態、接觸、施力／受力、衣物與環境的前後變化。打鬥與親密互動都適用。</small></span><input type="checkbox" data-pref-check="physicalContinuity" ${prefs.physicalContinuity ? "checked" : ""}></label>
           <div class="narrative-token-note"><strong>玩家控制：</strong>親密場景 MOD 預設關閉，只在玩家主動開啟後加入敘事偏好；不會自行偵測場景或嘗試繞過上游模型規則。<br><strong>Token 原則：</strong>全部維持預設時，不會新增文風 Prompt。即使複選多個文風包，也會先合併與去重，不會直接把多套完整 Prompt 疊上去。</div>
         </div>
+        </details>
       </div>
       <div class="bao-modal-footer"><button class="secondary" type="button" data-narrative-reset>全部恢復預設</button><button class="primary" type="button" data-narrative-save>套用設定</button></div>
     </section>`;
@@ -384,10 +429,31 @@
       event.currentTarget.setAttribute("aria-expanded", open ? "true" : "false");
     });
     wrap.addEventListener("click", e => { if (e.target === wrap) close(); });
+    const refreshNight = () => {
+      const chosen = [...wrap.querySelectorAll("[data-style-pack].active")].map(btn => btn.dataset.stylePack);
+      const match = Object.entries(nights).find(([, meta]) => meta[2].length === chosen.length && meta[2].every(key => chosen.includes(key)));
+      wrap.querySelectorAll("[data-night]").forEach(btn => btn.setAttribute("aria-pressed", String(btn.dataset.night === match?.[0])));
+      wrap.querySelector("[data-tonight-current]").textContent = match ? `目前夜色：${match[1][0]}` : "目前夜色：自訂混搭（已保留，可在進階設定調整）";
+    };
+    wrap.querySelectorAll("[data-night]").forEach(btn => btn.addEventListener("click", () => {
+      const chosen = nights[btn.dataset.night][2];
+      wrap.querySelectorAll("[data-style-pack]").forEach(pack => {
+        const on = chosen.includes(pack.dataset.stylePack);
+        pack.classList.toggle("active", on);
+        pack.setAttribute("aria-pressed", String(on));
+      });
+      updatePackStatus(wrap);
+      refreshNight();
+    }));
+    wrap.querySelectorAll("[data-pref]").forEach(select => select.addEventListener("change", () => {
+      wrap.querySelectorAll(`[data-pref="${select.dataset.pref}"]`).forEach(other => { other.value = select.value; });
+    }));
+    refreshNight();
     wrap.querySelectorAll("[data-style-pack]").forEach(btn => btn.addEventListener("click", () => {
       btn.classList.toggle("active");
       btn.setAttribute("aria-pressed", btn.classList.contains("active") ? "true" : "false");
       updatePackStatus(wrap);
+      refreshNight();
     }));
     updatePackStatus(wrap);
     wrap.querySelectorAll("[data-instruction-item]").forEach(card => bindInstructionCard(wrap, card));
@@ -431,7 +497,8 @@
         text: card.querySelector("[data-instruction-text]")?.value || "",
         enabled: Boolean(card.querySelector("[data-instruction-enabled]")?.checked)
       }));
-      const next = normalizePrefs({ ...defaults, stylePacks, customInstructions });
+      const storyExtras = [...wrap.querySelectorAll("[data-story-extra]:checked")].map(input => input.dataset.storyExtra);
+      const next = normalizePrefs({ ...prefs, stylePacks, storyExtras, customInstructions });
       wrap.querySelectorAll("[data-pref]").forEach(el => { next[el.dataset.pref] = el.value; });
       wrap.querySelectorAll("[data-pref-check]").forEach(el => { next[el.dataset.prefCheck] = Boolean(el.checked); });
       const normalized = normalizePrefs(next);
@@ -481,6 +548,14 @@
       lines.push("採用直白粗獷、貼近日常說話的語感；視角色性格可用粗口與短句，避免花俏隱喻和刻意文雅。需要描寫時重視當下可觀察的聲音、神情、距離、動作與段落節奏；不強加於無關場景。親密互動尊重角色的同意與界線，不把拒絕或猶豫擅自改寫成同意。");
     }
 
+    if (selected.has("tender")) lines.push("從對話、微小動作與距離變化細膩呈現情感，保留關係發展空間，不預設角色愛上玩家。");
+    if (selected.has("suspense")) lines.push("用可觀察的異常與線索營造懸疑，循序揭露已有依據的資訊，不擅自改寫世界或強塞反轉。");
+    if (selected.has("literary")) lines.push("以具體意象、含蓄語句與適度留白留下餘韻，避免浮誇修辭與重複抒情。");
+    prefs.storyExtras.forEach(key => lines.push(extras[key][2]));
+    if (prefs.characterAgency === "reserved") lines.push("角色較少主動開啟新話題或事件，先對當下互動作出合乎人格的回應；仍保有自己的立場與生活。");
+    if (prefs.characterAgency === "natural") lines.push("角色依人格、目標與情境自然提出想法或採取行動，不每輪都等待玩家指示，也不搶走玩家選擇。");
+    if (prefs.characterAgency === "active") lines.push("角色更常主動提出話題、邀約或可回應的行動；依既有人格與關係推進，不突然改變感情或替玩家答應。");
+
     if (prefs.matureDrama === "mature") {
       lines.push("以面向成年讀者的成熟文學取向處理複雜情感、慾望、道德困境、浪漫與親密關係。角色可以有矛盾、衝動與錯誤判斷，並承擔其後果；避免自動說教，也不要為了快速恢復和諧而把有價值的衝突過早化解。");
     }
@@ -498,7 +573,7 @@
 
     if (prefs.pacing === "slow") lines.push("敘事慢慢展開：重要互動拆成可回應的小步驟，多保留停頓、觀察與未說完的空間，不主動跳過關鍵過程。");
     if (prefs.pacing === "balanced") lines.push("敘事節奏保持平衡：完整處理本輪行動，再自然推進一個有因果的新節點；重要轉折仍等待玩家回應。");
-    if (prefs.pacing === "brisk") lines.push("敘事可較快推進明確且低風險的過程，但遇到重要選擇、關係轉折或不可逆行動時停下，保留玩家決定空間。");
+    if (prefs.pacing === "brisk") lines.push("適時增加有因果的事件與轉折，敘事可較快推進明確且低風險的過程，但遇到重要選擇、關係轉折或不可逆行動時停下，保留玩家決定空間。");
 
     if (prefs.dialogueBalance === "dialogue") lines.push("提高對話比例，以角色說話、停頓與可觀察反應承載資訊；旁白聚焦必要的動作、環境和節奏，不用長段總結取代對話。");
     if (prefs.dialogueBalance === "balanced") lines.push("對話與描寫保持平衡：讓角色語言、動作、表情與場景資訊互相支撐，不讓任何一邊長時間壓過另一邊。");
@@ -536,7 +611,7 @@
     const box = document.createElement("div");
     box.id = "narrative-builder-card";
     box.className = "narrative-builder-card";
-    box.innerHTML = `<h4>敘事與描寫偏好 <span class="chip">可選</span></h4><p>預設完全依角色卡。文風包可複選，例如韓式電影感＋電影鏡頭＋自然口語；系統會合併重複要求後再送給模型。</p><div id="narrative-builder-focus" class="narrative-world-focus hidden"></div><div class="narrative-builder-row"><div id="narrative-builder-summary" class="narrative-summary"></div><button type="button" class="secondary" data-open-narrative>設定敘事偏好</button></div>`;
+    box.innerHTML = `<h4>今晚的故事 <span class="chip">可選</span></h4><p>選擇夜色、故事節奏與角色互動；預設保留作品原貌。</p><div id="narrative-builder-focus" class="narrative-world-focus hidden"></div><div class="narrative-builder-row"><div id="narrative-builder-summary" class="narrative-summary"></div><button type="button" class="secondary" data-open-narrative>選擇今晚的故事</button></div>`;
     step.appendChild(box);
     box.querySelector("[data-open-narrative]").onclick = openModal;
     updateBuilderSummary();

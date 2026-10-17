@@ -148,7 +148,7 @@
     const bar = document.createElement("nav");
     bar.className = "story-mobile-tools";
     bar.setAttribute("aria-label", "故事工具");
-    bar.innerHTML = '<button type="button" data-story-mobile-action="save">快速儲存</button><button type="button" data-story-mobile-action="save-as">另存新檔</button><button type="button" data-story-mobile-action="narrative">敘事與描寫</button><button type="button" data-story-mobile-action="reply">回覆設定</button><button type="button" data-story-mobile-action="memory">記憶工作台</button>';
+    bar.innerHTML = '<button type="button" data-story-mobile-action="save">快速儲存</button><button type="button" data-story-mobile-action="save-as">另存新檔</button><button type="button" data-story-mobile-action="narrative">今晚的故事</button><button type="button" data-story-mobile-action="reply">回覆設定</button><button type="button" data-story-mobile-action="memory">記憶工作台</button>';
 
     const clickExisting = selector => {
       const target = document.querySelector(selector);

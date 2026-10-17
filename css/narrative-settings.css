@@ -66,3 +66,20 @@
   outline: 2px solid var(--yoru-accent, #ad9ac9);
   outline-offset: 2px;
 }
+
+/* Tonight: familiar choices first, detailed controls on demand. */
+.tonight-intro{padding:18px 20px;border:1px solid rgba(209,176,124,.24);border-radius:16px;background:radial-gradient(ellipse at top right,rgba(209,176,124,.13),transparent 75%)}
+.tonight-intro p{margin:0 0 6px;font-size:17px;line-height:1.65;color:var(--text)}
+.tonight-intro small,.tonight-current,.tonight-principle{color:var(--muted);font-size:12px;line-height:1.6}
+.tonight-section{padding:20px 0;border-bottom:1px solid var(--border)}
+.tonight-section h3{margin:0 0 12px;font-size:17px}.tonight-section h3 span{margin-left:8px;color:var(--muted);font-size:12px;font-weight:400}
+.tonight-nights{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+.tonight-night{min-height:88px;padding:14px;text-align:left;border:1px solid var(--border);border-radius:13px;background:rgba(128,128,128,.04);color:var(--text);cursor:pointer;font:inherit}
+.tonight-night b,.tonight-night span{display:block}.tonight-night b{margin-bottom:6px;font-size:14px}.tonight-night span{font-size:12px;line-height:1.6;color:var(--muted)}
+.tonight-night[aria-pressed="true"]{border-color:#d1b07c;background:rgba(209,176,124,.12);box-shadow:inset 0 0 0 1px rgba(209,176,124,.15)}
+.tonight-night:focus-visible,.tonight-advanced summary:focus-visible{outline:2px solid #d1b07c;outline-offset:3px}
+.tonight-current{margin-top:9px}.tonight-extras{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.tonight-extras label{display:flex;align-items:center;gap:10px;padding:12px;border:1px solid var(--border);border-radius:12px;cursor:pointer}
+.tonight-extras input{width:18px;height:18px;flex:0 0 auto;accent-color:#d1b07c}.tonight-extras b,.tonight-extras small{display:block}.tonight-extras b{font-size:13px}.tonight-extras small{margin-top:4px;color:var(--muted);font-size:11px;line-height:1.5}
+.tonight-principle{margin:14px 0}.tonight-advanced{border:1px solid var(--border);border-radius:14px;padding:0 14px}.tonight-advanced summary{padding:15px 0;cursor:pointer;font-size:13px;color:var(--text)}
+@media(max-width:650px){.tonight-intro{padding:14px}.tonight-intro p{font-size:15px}.tonight-section{padding:16px 0}.tonight-nights{grid-template-columns:repeat(2,minmax(0,1fr))}.tonight-night{min-height:90px;padding:12px}.tonight-section h3 span{display:block;margin:5px 0 0}.tonight-extras{grid-template-columns:1fr}.tonight-advanced{padding:0 10px}}

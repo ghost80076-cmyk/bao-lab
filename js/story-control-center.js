@@ -140,7 +140,7 @@
           <summary>更多故事設定 <span>敘事、快捷指令與進階管理</span></summary>
           <div class="story-control-grid story-control-secondary">
             ${card("instructions", "AI 與指令", data.instructions, "編輯長期指令")}
-            ${card("narrative", "敘事與描寫", data.narrative, "調整敘事")}
+            ${card("narrative", "今晚的故事", data.narrative, "調整敘事")}
             ${card("quick", "快捷指令", data.quick, "打開指令")}
             ${card("context", "上下文狀態", data.context, "查看前情")}
             ${card("extensions", "故事擴充", data.extensions, "查看作用範圍")}
