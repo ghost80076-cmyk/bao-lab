@@ -556,7 +556,7 @@
   window.BAOMobileReadingLayout = { version: 21, sync, syncMessageActions, openTools, enhanceDrawer, togglePanels, openMemory, closePanels, ensureComposerTools, fitComposerInput };
   const style = document.createElement('link');
   style.rel = 'stylesheet';
-  style.href = 'css/mobile-reading-layout.css?v=20';
+  style.href = 'css/mobile-reading-layout.css?v=21';
   document.head.append(style);
   sync();
 })();
