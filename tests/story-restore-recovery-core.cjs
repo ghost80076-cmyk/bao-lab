@@ -92,3 +92,24 @@ assert.equal(good.c.GameState.current.modulesInjected, true);
 assert.equal(good.c.App.characters.length, 2);
 assert.equal(good.oldCharacters.length, 1, 'successful restore stages a new catalog without mutating old holders');
 console.log('Story restore recovery: staging, quota, runtime hooks, modules, rollback errors and success passed');
+
+// Exercise the actual player API: imports clear demo mode; recovery preserves it.
+const playerSource = fs.readFileSync(path.join(__dirname, '..', 'js', 'player-settings.js'), 'utf8');
+const playerApi = playerSource.slice(playerSource.indexOf('  window.BAOPlayerSettings = {'), playerSource.indexOf('  const init = () =>'));
+const runtimeFixture = fixture('world');
+const playerContext = { window: runtimeFixture.c, settings: { demoMode: true, appearance: { fontSize: 17 }, replyLength: 'auto', dialogueFormat: 'card' },
+  defaults: { demoMode: false, appearance: { fontSize: 16 } }, writes: 0, paints: 0 };
+playerContext.saveSettings = () => { playerContext.writes++; };
+playerContext.applyAppearance = () => { playerContext.paints++; };
+vm.runInNewContext(playerApi, playerContext);
+const playerApiInstance = runtimeFixture.c.BAOPlayerSettings;
+const before = playerApiInstance.get();
+assert.equal(runtimeFixture.c.store.restoreStory(save()), false);
+assert.deepEqual(playerApiInstance.get(), before, 'rollback retains transient demo mode and exact runtime preferences');
+assert.equal(playerContext.writes, 1, 'runtime recovery must not rewrite durable preferences');
+assert.equal(playerContext.paints, 2, 'both import and recovery update appearance');
+playerApiInstance.set({ demoMode: true, replyLength: 'free', dialogueFormat: 'unknown' });
+assert.equal(playerApiInstance.get().demoMode, false, 'normal imports still disable demo mode');
+assert.equal(playerApiInstance.get().replyLength, 'auto');
+assert.equal(playerApiInstance.get().dialogueFormat, 'card');
+console.log('Player runtime recovery preserves transient settings without relaxing import normalization');

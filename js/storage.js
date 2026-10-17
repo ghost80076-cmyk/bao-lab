@@ -746,7 +746,8 @@ const Storage = {
       catch { previous = item.fallback; }
       const apply = typeof item.api?.[item.set] === "function" ? value => item.api[item.set](value) : null;
       if (apply && typeof item.api?.[item.get] === "function") previous = item.api[item.get]();
-      return { ...item, raw, previous: this.clone(previous), next: this.clone(preferences[item.name]), apply, written: false, called: false };
+      const undo = typeof item.api?.restoreRuntime === "function" ? value => item.api.restoreRuntime(value) : apply;
+      return { ...item, undo, raw, previous: this.clone(previous), next: this.clone(preferences[item.name]), apply, written: false, called: false };
     });
   },
 
@@ -854,11 +855,11 @@ const Storage = {
       // Memory setters can schedule a save for the current story. Undo them
       // against the discarded candidate before restoring the original state.
       for (const entry of [...plan].reverse()) {
-        if (entry.called && entry.name === "memorySlots") attempt(() => entry.apply(this.clone(entry.previous)));
+        if (entry.called && entry.name === "memorySlots") attempt(() => entry.undo(this.clone(entry.previous)));
       }
       if (previous) restoreProperties(previous, attempt);
       for (const entry of [...plan].reverse()) {
-        if (entry.called && entry.name !== "memorySlots") attempt(() => entry.apply(this.clone(entry.previous)));
+        if (entry.called && entry.name !== "memorySlots") attempt(() => entry.undo(this.clone(entry.previous)));
       }
       // Runtime setters may normalize or write preferences too. Restore exact
       // prior raw values last, including keys that did not previously exist.
