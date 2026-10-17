@@ -695,8 +695,9 @@
       return removed;
     },
 
-    async reconstruct(storyId, chapterId = "") {
-      const records = await this.allRecords();
+    async reconstruct(storyId, chapterId = "", records = null) {
+      // Callers such as full export can reuse one detached database snapshot.
+      records = records ?? await this.allRecords();
       const chapters = records.filter(record => record.kind === "chapter" && record.storyId === storyId)
         .sort((a, b) => String(a.createdAt || "").localeCompare(String(b.createdAt || "")));
       const target = chapterId ? chapters.find(item => item.chapterId === chapterId) : chapters[chapters.length - 1];

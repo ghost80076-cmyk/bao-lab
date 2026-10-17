@@ -84,10 +84,11 @@
     };
 
     const originalReconstruct = Library.reconstruct.bind(Library);
-    Library.reconstruct = async function(storyId, chapterId = "") {
-      const payload = await originalReconstruct(storyId, chapterId);
+    Library.reconstruct = async function(storyId, chapterId = "", records = null) {
+      // Base payload and rich message/variant data must share one read.
+      records = records ?? await this.allRecords();
+      const payload = await originalReconstruct(storyId, chapterId, records);
       if (!payload?._library?.chapterId) return payload;
-      const records = await this.allRecords();
       const messages = records
         .filter(record => record.kind === "message" && record.storyId === storyId && record.chapterId === payload._library.chapterId)
         .sort((a, b) => Number(a.seq || 0) - Number(b.seq || 0))
