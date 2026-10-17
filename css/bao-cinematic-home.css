@@ -167,3 +167,15 @@
   #home-view .brand-local-story-copy>h3{font-size:16px;margin-bottom:8px}
   #home-view .brand-local-story-meta{margin-top:10px}
 }
+
+/* Story preferences: a quiet introduction between discovery and reading. */
+#home-view .brand-night-intro{padding:clamp(36px,5vw,64px) 0;border-top:1px solid var(--yoru-border,var(--border));color:var(--yoru-text,var(--text))}
+#home-view .brand-night-intro h2{margin:0 0 16px;font-family:'Noto Serif TC','Songti TC','PMingLiU',Georgia,serif;font-size:clamp(26px,3vw,38px);font-weight:500;line-height:1.5;text-wrap:balance}
+#home-view .brand-night-lead{margin:0;max-width:42em;color:var(--yoru-muted,var(--muted));font-size:15px;line-height:1.9}
+#home-view .brand-night-choices{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;margin:28px 0 20px}
+#home-view .brand-night-choices>div{min-width:0;padding-left:16px;border-left:2px solid var(--yoru-lantern,var(--primary))}
+#home-view .brand-night-choices dt{font-size:18px;line-height:1.8}
+#home-view .brand-night-choices dt span{margin-left:12px;color:var(--yoru-muted,var(--muted));font-size:12px}
+#home-view .brand-night-choices dd{margin:6px 0 0;color:var(--yoru-muted,var(--muted));font-size:13px;line-height:1.8}
+#home-view .brand-night-note{margin:0;color:var(--yoru-muted,var(--muted));font-size:12px;line-height:1.8}
+@media(max-width:650px){#home-view .brand-night-choices{grid-template-columns:1fr;gap:18px}}
