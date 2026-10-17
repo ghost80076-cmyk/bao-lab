@@ -207,15 +207,17 @@ test('restore failures preserve the active story and undo preference side effect
   await page.waitForTimeout(450);
   const result = await page.evaluate(async () => {
     const keys = ['bao-lab:player-settings', 'bao-lab:narrative-settings-v1', 'bao-lab:player-memory-slots'];
+    // Building a payload normalizes message IDs and replaces Chat.messages.
+    // Capture the baseline after that preparation, immediately before restore.
+    const save = Storage.buildStoryPayload('restore probe');
     const original = { characters: App.characters, character: App.activeCharacter, config: App.config,
       messages: Chat.messages, state: GameState.current, raw: keys.map(key => localStorage.getItem(key)),
       player: BAOPlayerSettings.get(), narrative: BAONarrativeSettings.get() };
-    const save = Storage.buildStoryPayload('restore probe');
     save.chat.messages = [{ id: 'new-message', role: 'user', content: 'candidate story' }];
     save.preferences.player.appearance.fontSize = 23;
     save.preferences.memorySlots = [{ id: 'probe-note', title: 'probe', text: 'new note', enabled: true }];
-    const intact = () => App.characters === original.characters && App.activeCharacter === original.character &&
-      App.config === original.config && Chat.messages === original.messages && GameState.current === original.state;
+    const intact = () => ({ characters: App.characters === original.characters, character: App.activeCharacter === original.character,
+      config: App.config === original.config, messages: Chat.messages === original.messages, state: GameState.current === original.state });
     const prototype = Object.getPrototypeOf(localStorage), setItem = prototype.setItem;
     let failed = false;
     prototype.setItem = function(key, value) {
@@ -224,7 +226,7 @@ test('restore failures preserve the active story and undo preference side effect
     };
     let quotaResult;
     try { quotaResult = Storage.restoreStory(save); } finally { prototype.setItem = setItem; }
-    const quotaPreserved = intact() && JSON.stringify(keys.map(key => localStorage.getItem(key))) === JSON.stringify(original.raw);
+    const quotaPreserved = { ...intact(), raw: JSON.stringify(keys.map(key => localStorage.getItem(key))) === JSON.stringify(original.raw) };
     const ensure = BAOWorldModules.ensureState;
     const saveStory = App.saveStory;
     let saves = 0;
@@ -232,9 +234,9 @@ test('restore failures preserve the active story and undo preference side effect
     BAOWorldModules.ensureState = () => { GameState.current.injectedFailure = true; throw Error('world module probe'); };
     let moduleResult;
     try { moduleResult = Storage.restoreStory(save); } finally { BAOWorldModules.ensureState = ensure; }
-    const runtimePreserved = intact() && JSON.stringify(BAOPlayerSettings.get()) === JSON.stringify(original.player) &&
-      JSON.stringify(BAONarrativeSettings.get()) === JSON.stringify(original.narrative) &&
-      JSON.stringify(keys.map(key => localStorage.getItem(key))) === JSON.stringify(original.raw);
+    const runtimePreserved = { ...intact(), player: JSON.stringify(BAOPlayerSettings.get()) === JSON.stringify(original.player),
+      narrative: JSON.stringify(BAONarrativeSettings.get()) === JSON.stringify(original.narrative),
+      raw: JSON.stringify(keys.map(key => localStorage.getItem(key))) === JSON.stringify(original.raw) };
     await new Promise(resolve => setTimeout(resolve, 500));
     App.saveStory = saveStory;
     const retried = Storage.restoreStory(save);
@@ -242,9 +244,9 @@ test('restore failures preserve the active story and undo preference side effect
       text: Chat.messages[0].content, error: Storage.status().lastRestoreError };
   });
   expect(result.quotaResult).toBe(false);
-  expect(result.quotaPreserved).toBe(true);
+  expect(result.quotaPreserved).toEqual({ characters: true, character: true, config: true, messages: true, state: true, raw: true });
   expect(result.moduleResult).toBe(false);
-  expect(result.runtimePreserved).toBe(true);
+  expect(result.runtimePreserved).toEqual({ characters: true, character: true, config: true, messages: true, state: true, raw: true, player: true, narrative: true });
   expect(result.saves).toBe(0);
   expect(result.retried).toBe(true);
   expect(result.text).toBe('candidate story');
