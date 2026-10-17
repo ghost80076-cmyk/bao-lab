@@ -472,28 +472,28 @@
 /* Experience 3.0 / Phase 6 — mobile reader color continuity.
    Scope only platform chrome; never recolor authored story HTML or card UI. */
 @media(max-width:820px) {
-  html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) #chat-view.active,
-  html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) #chat-view .chat-layout>.chat-main,
-  html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) #chat-view .chat-stream {
+  html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) #chat-view.active,
+  html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) #chat-view .chat-layout>.chat-main,
+  html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) #chat-view .chat-stream {
     background:var(--yoru-reading)!important;
     color:var(--yoru-story-text);
   }
-  html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) #chat-view .chat-topline {
+  html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) #chat-view .chat-topline {
     background:var(--yoru-tool)!important;
     border-bottom-color:var(--yoru-story-border)!important;
     box-shadow:0 4px 22px rgba(0,0,0,.08);
   }
-  html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) #chat-view .chat-title-copy h2 {
+  html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) #chat-view .chat-title-copy h2 {
     color:var(--yoru-text)!important;
   }
-  html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) #chat-view .composer {
+  html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) #chat-view .composer {
     background:var(--yoru-tool)!important;
     border-top:1px solid var(--yoru-story-border)!important;
     box-shadow:0 -9px 28px rgba(0,0,0,.09)!important;
   }
   /* The cinematic play-mode stylesheet uses two IDs with !important;
      match that scope so mist/rose are not defeated by the older night palette. */
-  html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) #chat-view[data-bao-surface="play"] #user-input {
+  html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) #chat-view[data-bao-surface="play"] #user-input {
     background:var(--yoru-input)!important;
     color:var(--yoru-story-text)!important;
     border-color:var(--yoru-input-border)!important;
@@ -503,59 +503,59 @@
 
   /* Cinematic play-mode also hard-codes the user's bubble and primary send
      control. Reclaim only these platform-owned surfaces in non-night themes. */
-  html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) #chat-view[data-bao-surface="play"] .message.user .bubble {
+  html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) #chat-view[data-bao-surface="play"] .message.user .bubble {
     background:var(--yoru-player-bubble)!important;
     color:var(--yoru-story-text)!important;
     border-color:var(--yoru-story-border)!important;
   }
-  html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) #chat-view[data-bao-surface="play"] .composer .primary {
+  html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) #chat-view[data-bao-surface="play"] .composer .primary {
     background:var(--yoru-lantern)!important;
     border-color:var(--yoru-control-border-hover)!important;
   }
-  html[data-yoru-theme="mist"] #chat-view[data-bao-surface="play"] .composer .primary{color:#fff!important}
-  html[data-yoru-theme="rose"] #chat-view[data-bao-surface="play"] .composer .primary{color:#30282c!important}
-  html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) #chat-view[data-bao-surface="play"] #bao-scene-meta {
+  html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="sunset"]) #chat-view[data-bao-surface="play"] .composer .primary{color:#fff!important}
+  html[data-yoru-theme="dusk"] #chat-view[data-bao-surface="play"] .composer .primary{color:var(--yoru-night)!important}
+  html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) #chat-view[data-bao-surface="play"] #bao-scene-meta {
     color:var(--yoru-muted)!important;
   }
-  html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) #chat-view[data-bao-surface="play"] #user-input::placeholder {
+  html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) #chat-view[data-bao-surface="play"] #user-input::placeholder {
     color:var(--yoru-story-muted)!important;
   }
-  html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) #chat-view[data-bao-surface="play"] .composer #bao-mobile-composer-tools,
-  html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) #chat-view[data-bao-surface="play"] .composer #bao-mobile-composer-inspire,
-  html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) #bao-mobile-exit,
-  html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) #bao-mobile-status,
-  html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) #bao-mobile-memory,
-  html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) #bao-mobile-tools-tab {
+  html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) #chat-view[data-bao-surface="play"] .composer #bao-mobile-composer-tools,
+  html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) #chat-view[data-bao-surface="play"] .composer #bao-mobile-composer-inspire,
+  html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) #bao-mobile-exit,
+  html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) #bao-mobile-status,
+  html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) #bao-mobile-memory,
+  html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) #bao-mobile-tools-tab {
     background:var(--yoru-control)!important;
     color:var(--yoru-text)!important;
     border-color:var(--yoru-control-border)!important;
     box-shadow:none!important;
   }
-  html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) #chat-view #bao-mobile-composer-inspire:disabled {
+  html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) #chat-view #bao-mobile-composer-inspire:disabled {
     opacity:.52;
   }
-  html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) #chat-view #bao-mobile-panel-close {
+  html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) #chat-view #bao-mobile-panel-close {
     background:var(--yoru-control)!important;
     color:var(--yoru-text)!important;
     border-color:var(--yoru-control-border)!important;
     box-shadow:none!important;
   }
-  html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) #bao-chat-tool-drawer .bao-chat-tool-dialog {
+  html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) #bao-chat-tool-drawer .bao-chat-tool-dialog {
     border-color:var(--yoru-border)!important;
     color:var(--yoru-text)!important;
   }
-  html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) #bao-chat-tool-drawer .bao-chat-tool-dialog:before {
+  html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) #bao-chat-tool-drawer .bao-chat-tool-dialog:before {
     background:var(--yoru-control-border);
   }
-  html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) #bao-chat-tool-drawer .bao-mobile-quick {
+  html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) #bao-chat-tool-drawer .bao-mobile-quick {
     border-bottom-color:var(--yoru-border);
   }
-  html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) #bao-chat-tool-drawer .bao-mobile-quick button {
+  html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) #bao-chat-tool-drawer .bao-mobile-quick button {
     background:var(--yoru-control);
     color:var(--yoru-text);
     border-color:var(--yoru-control-border);
   }
-  html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) #bao-chat-tool-drawer .bao-mobile-quick small {
+  html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) #bao-chat-tool-drawer .bao-mobile-quick small {
     color:var(--yoru-muted);
   }
 }
