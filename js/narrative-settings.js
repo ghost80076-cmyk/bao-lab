@@ -138,7 +138,7 @@
     if (!document.querySelector('link[href^="css/narrative-settings.css"]')) {
       const link = document.createElement("link");
       link.rel = "stylesheet";
-      link.href = "css/narrative-settings.css?v=7";
+      link.href = "css/narrative-settings.css?v=8";
       document.head.appendChild(link);
     }
   };
@@ -280,7 +280,7 @@
     wrap.innerHTML = `<section class="bao-modal narrative-settings-modal" role="dialog" aria-modal="true" aria-labelledby="narrative-settings-title">
       <div class="bao-modal-head"><div><div class="eyebrow">YORUBAY · TONIGHT</div><h2 id="narrative-settings-title">今晚的故事</h2></div><div class="narrative-head-actions"><button class="narrative-help" type="button" data-narrative-help aria-label="敘事設定說明" aria-expanded="false">?</button><button class="bao-modal-close" type="button">關閉</button></div></div>
       <div class="bao-modal-body">
-        <div class="tonight-intro"><p>選一種夜色，讓故事順著你的步調發生。</p><small>${storyLocal ? "只套用於目前故事，從下一次回覆生效。" : "作為新故事的起始偏好，不更動既有故事。"}</small></div>
+        <div class="tonight-intro"><p>今晚，想讓故事駛向哪裡？</p><p class="tonight-invitation">世界已經準備好了。選一種夜色，順著潮汐，讓故事慢慢發生。</p><small>${storyLocal ? "只套用於目前故事，從下一次回覆生效。" : "作為新故事的起始偏好，不更動既有故事。"}</small></div>
         <section class="tonight-section" aria-labelledby="tonight-night"><h3 id="tonight-night">夜色 <span>故事要有什麼氛圍？</span></h3>
           <div class="tonight-nights">${Object.entries(nights).map(([key, meta]) => `<button type="button" class="tonight-night" data-night="${key}" aria-pressed="false"><b>${meta[0]}</b><span>${meta[1]}</span></button>`).join("")}</div>
           <div class="tonight-current" data-tonight-current aria-live="polite"></div>

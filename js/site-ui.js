@@ -94,7 +94,7 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/chat-shell-fix.js?v=2"))
     .then(() => loadBAOScript("js/player-settings.js?v=8"))
     .then(() => loadBAOScript("js/player-text-replace-mod.js?v=2"))
-    .then(() => loadBAOScript("js/narrative-settings.js?v=7"))
+    .then(() => loadBAOScript("js/narrative-settings.js?v=8"))
     .then(() => loadBAOScript("js/memory-workbench-core.js?v=3"))
     .then(() => loadBAOScript("js/memory-workbench-ai.js"))
     .then(() => loadBAOScript("js/canon-workbench.js"))
@@ -157,7 +157,7 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/device-transfer.js?v=2"))
     .then(() => loadBAOScript("js/author-diagnostics.js"))
     .catch(err => console.warn("BAO/LAB character library, import, device transfer or author diagnostics failed to load:", err));
-  loadBAOScript("js/brand-ui.js?v=9")
+  loadBAOScript("js/brand-ui.js?v=10")
     .then(() => new Promise(resolve => setTimeout(resolve, 100)))
     .then(() => loadBAOScript("js/bao-mascot.js?v=4"))
     .then(() => loadBAOScript("js/reader-context.js?v=5"))
