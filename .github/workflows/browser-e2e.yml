@@ -43,6 +43,7 @@ jobs:
               tests/e2e/tonight-story.spec.cjs
               tests/e2e/narrative-blunt-style.spec.cjs
               tests/e2e/reading-layout-foundation.spec.cjs
+              tests/e2e/five-harbor-themes.spec.cjs
           - group: product-explore
             specs: |
               tests/e2e/character-import.spec.cjs
