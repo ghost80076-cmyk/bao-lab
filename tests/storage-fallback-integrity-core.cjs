@@ -23,7 +23,8 @@ function boot(localStorage) {
 async function reloadAndMigrate(browser, records) {
   const next = boot(browser);
   next._getAllRecords = async () => structuredClone(records);
-  next._replaceDatabaseStories = async (autosave, slots) => {
+  next._replaceDatabaseStories = async (autosave, slots, resolveStories) => {
+    if (resolveStories) ({ autosave, slots } = resolveStories(records));
     records.splice(0, records.length,
       ...(autosave ? [next._record('autosave', autosave)] : []),
       ...slots.map(slot => next._record('slot', slot)));
@@ -37,10 +38,12 @@ async function testFailure(failedKey, priorMarker = false, initializing = false)
   const oldAuto = save('durable-auto');
   const keptSlot = { ...save('durable-slot'), id: 'keep' };
   const records = [store._record('autosave', oldAuto), store._record('slot', keptSlot)];
+  store._expectedRevision = 0;
   if (priorMarker) {
     browser.setItem(AUTO, JSON.stringify(oldAuto));
     browser.setItem(SLOTS, JSON.stringify([keptSlot]));
     browser.setItem(MARKER, priorMarker === true ? 'yes' : priorMarker);
+    if (priorMarker === store.fallbackCompleteMarker) browser.setItem(store.fallbackRevisionKey, '0');
   }
   store._cache = { autosave: save('new-auto', '2026-10-17T01:00:00Z'), slots: [] };
   browser.failures.add('set:' + failedKey);
@@ -54,12 +57,13 @@ async function testFailure(failedKey, priorMarker = false, initializing = false)
   if (failedKey === SLOTS) assert.equal(records.find(record => record.kind === 'autosave').payload.label, 'new-auto');
 }
 async function main() {
-  for (const key of [AUTO, SLOTS]) for (const marker of [false, 'yes', 'complete-v2']) await testFailure(key, marker);
+  for (const key of [AUTO, SLOTS]) for (const marker of [false, 'yes', 'complete-v2', 'complete-v3']) await testFailure(key, marker);
   await testFailure(SLOTS, true, true);
   {
     const browser = new BrowserStorage(), store = boot(browser);
     const records = [store._record('autosave', save('old')), store._record('slot', { ...save('old-slot'), id: 'old-slot' })];
     store._cache = { autosave: null, slots: [] };
+    store._expectedRevision = 0;
     store._mode = 'indexedDB';
     store._degradeToLocalStorage(Error('offline'));
     assert.equal(browser.getItem(MARKER), store.fallbackCompleteMarker, 'complete fallback can commit intentional deletions');
@@ -84,6 +88,7 @@ async function main() {
     browser.setItem(MARKER, 'yes');
     browser.failures.add('remove:' + AUTO);
     store._cache = { autosave: null, slots: [] };
+    store._expectedRevision = 0;
     store._mode = 'indexedDB';
     store._degradeToLocalStorage(Error('offline'));
     assert.equal(browser.getItem(MARKER), null, 'failed autosave deletion must not commit a complete fallback marker');
@@ -91,6 +96,7 @@ async function main() {
   {
     const browser = new BrowserStorage(), store = boot(browser);
     const records = [store._record('slot', { ...save('durable-slot'), id: 'keep' })];
+    store._expectedRevision = 0;
     browser.failures.add('set:' + MARKER);
     store._cache = { autosave: save('new'), slots: [] };
     assert.equal(store._persistLegacySnapshot(true), false);
@@ -148,6 +154,20 @@ async function main() {
     await assert.rejects(reloadAndMigrate(browser, records), /blocked delete/);
     assert.equal(records[0].payload.label, 'durable-original', 'blocked marker retirement must prevent IDB migration from starting');
     assert.equal(JSON.parse(browser.getItem(AUTO)).label, 'fallback');
+  }
+  {
+    const browser = new BrowserStorage(), store = boot(browser);
+    store._expectedRevision = 0;
+    browser.failures.add('set:' + store.fallbackRevisionKey);
+    assert.equal(store._persistLegacySnapshot(true), false);
+    assert.equal(browser.getItem(MARKER), null, 'revision quota failure cannot authorize a partial fallback');
+  }
+  {
+    const browser = new BrowserStorage(), store = boot(browser);
+    const records = [store._record('slot', { ...save('keep'), id: 'keep' })];
+    browser.setItem(SLOTS, '[]'); browser.setItem(MARKER, 'complete-v2');
+    await reloadAndMigrate(browser, records);
+    assert.ok(records.some(record => record.id === 'keep'), 'unversioned old complete markers must merge conservatively');
   }
   console.log('Storage fallback integrity: partial writes/reload, stale marker, intentional deletion and blocked invalidation passed');
 }

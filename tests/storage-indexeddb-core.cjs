@@ -33,6 +33,14 @@ class FakeStore {
     this.indexNames = new FakeIndexNames(indexSet);
   }
   createIndex(name) { this.indexNames.set.add(name); return {}; }
+  get(id) {
+    const request = new FakeRequest();
+    setTimeout(() => {
+      request.result = this.map.has(id) ? structuredClone(this.map.get(id)) : undefined;
+      request.onsuccess?.();
+    }, 0);
+    return request;
+  }
   getAll() {
     const request = new FakeRequest();
     setTimeout(() => {

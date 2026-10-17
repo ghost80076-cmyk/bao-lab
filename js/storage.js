@@ -11,7 +11,9 @@ const Storage = {
   autosaveRecordId: "__autosave__",
   migrationKey: "bao-lab:story-idb-migrated-v1",
   fallbackKey: "bao-lab:story-idb-fallback-v1",
-  fallbackCompleteMarker: "complete-v2",
+  fallbackCompleteMarker: "complete-v3",
+  fallbackRevisionKey: "bao-lab:story-idb-fallback-revision-v1",
+  revisionRecordId: "__story_revision__",
 
   _db: null,
   _mode: "booting",
@@ -22,6 +24,8 @@ const Storage = {
   _cache: { autosave: null, slots: [] },
   _lastError: null,
   _fallbackSnapshotComplete: false,
+  _expectedRevision: null,
+  _legacyMigrationSnapshot: null,
 
   set(key, value) {
     try {
@@ -187,8 +191,17 @@ const Storage = {
   _hydrateLegacyCache() {
     this._cache.autosave = this._legacyAutosave();
     this._cache.slots = this._legacySlots();
-    try { this._fallbackSnapshotComplete = localStorage.getItem(this.fallbackKey) === this.fallbackCompleteMarker; }
+    try {
+      const revision = this.localJSON(this.fallbackRevisionKey, null);
+      this._fallbackSnapshotComplete = localStorage.getItem(this.fallbackKey) === this.fallbackCompleteMarker && Number.isSafeInteger(revision) && revision >= 0;
+      this._expectedRevision = this._fallbackSnapshotComplete ? revision : null;
+    }
     catch { this._fallbackSnapshotComplete = false; }
+  },
+
+  _legacySnapshotSignature() {
+    return JSON.stringify([this.prefix + this.storyKey, this.prefix + this.slotsKey, this.fallbackKey, this.fallbackRevisionKey]
+      .map(key => localStorage.getItem(key)));
   },
 
   _legacyStoryKeysExist() {
@@ -203,7 +216,7 @@ const Storage = {
     let authoritative;
     try {
       const marker = localStorage.getItem(this.fallbackKey);
-      authoritative = markFallback || marker === this.fallbackCompleteMarker;
+      authoritative = (markFallback || marker === this.fallbackCompleteMarker) && Number.isSafeInteger(this._expectedRevision) && this._expectedRevision >= 0;
       if (marker !== null || authoritative) {
         localStorage.removeItem(this.fallbackKey);
         if (localStorage.getItem(this.fallbackKey) !== null) return false;
@@ -222,6 +235,9 @@ const Storage = {
     if (!autosaveWritten || !slotsWritten) return false;
     if (!authoritative) return true;
     try {
+      const revision = JSON.stringify(this._expectedRevision);
+      localStorage.setItem(this.fallbackRevisionKey, revision);
+      if (localStorage.getItem(this.fallbackRevisionKey) !== revision) return false;
       localStorage.setItem(this.fallbackKey, this.fallbackCompleteMarker);
       return localStorage.getItem(this.fallbackKey) === this.fallbackCompleteMarker;
     } catch { return false; }
@@ -231,11 +247,14 @@ const Storage = {
     // Never leave an authoritative marker pointing at keys we just removed.
     // If invalidation is blocked, retain the complete backup alongside IDB.
     try {
+      if (this._legacyMigrationSnapshot !== null && this._legacySnapshotSignature() !== this._legacyMigrationSnapshot) return false;
       localStorage.removeItem(this.fallbackKey);
       if (localStorage.getItem(this.fallbackKey) !== null) return false;
     } catch { return false; }
     this.remove(this.storyKey);
     this.remove(this.slotsKey);
+    try { localStorage.removeItem(this.fallbackRevisionKey); }
+    catch {}
     try {
       localStorage.setItem(this.migrationKey, new Date().toISOString());
     } catch {}
@@ -284,9 +303,34 @@ const Storage = {
         try { tx.abort(); }
         catch {}
       };
-      try { action(store, tx, abort); }
+      try {
+        if (mode === "readwrite") {
+          const request = store.get(this.revisionRecordId);
+          request.onsuccess = () => {
+            try {
+              const revision = this._databaseRevision(request.result ? [request.result] : []);
+              if (revision >= Number.MAX_SAFE_INTEGER) throw new Error("存檔版本已超出安全範圍。");
+              store.put({ id: this.revisionRecordId, kind: "storage-meta", revision: revision + 1 });
+            } catch (error) { abort(error); }
+          };
+        }
+        action(store, tx, abort);
+      }
       catch (error) { abort(error); }
     });
+  },
+
+  _databaseRevision(records) {
+    const record = records.find(item => item?.id === this.revisionRecordId);
+    if (!record) return 0;
+    if (!Number.isSafeInteger(record.revision) || record.revision < 0) throw new Error("存檔版本資料無效。");
+    return record.revision;
+  },
+
+  _advanceExpectedRevision() {
+    // Count only this tab's commits. Reading the latest shared revision after
+    // each write would hide intervening commits from another tab.
+    if (Number.isSafeInteger(this._expectedRevision)) this._expectedRevision++;
   },
 
   async _getAllRecords() {
@@ -341,26 +385,24 @@ const Storage = {
     return [...byId.values()].sort((a, b) => String(b.savedAt || "").localeCompare(String(a.savedAt || ""))).slice(0, 20);
   },
 
-  async _replaceDatabaseStories(autosave, slots) {
-    const existing = await this._getAllRecords();
-    await this._transaction("readwrite", store => {
-      existing.forEach(record => {
-        if (record?.kind === "autosave" || record?.kind === "slot") store.delete(record.id);
-      });
-      if (autosave) store.put(this._record("autosave", autosave));
-      (slots || []).forEach(slot => store.put(this._record("slot", slot)));
+  async _replaceDatabaseStories(autosave, slots, resolveStories = null) {
+    await this._transaction("readwrite", (store, tx, abort) => {
+      const request = store.getAll();
+      request.onsuccess = () => {
+        try {
+          const existing = request.result;
+          const target = resolveStories ? resolveStories(existing) : { autosave, slots };
+          existing.forEach(record => {
+            if (record?.kind === "autosave" || record?.kind === "slot") store.delete(record.id);
+          });
+          if (target.autosave) store.put(this._record("autosave", target.autosave));
+          (target.slots || []).forEach(slot => store.put(this._record("slot", slot)));
+        } catch (error) { abort(error); }
+      };
     });
   },
 
   async _migrateLegacyToIndexedDB() {
-    const existingRecords = await this._getAllRecords();
-    const existingAutosaveRecord = existingRecords.find(record => record?.kind === "autosave" || record?.id === this.autosaveRecordId);
-    const existingAutosave = this._payloadFromRecord(existingAutosaveRecord);
-    const existingSlots = existingRecords
-      .filter(record => record?.kind === "slot")
-      .map(record => this._payloadFromRecord(record))
-      .filter(Boolean);
-
     const legacyAutosave = this._legacyAutosave();
     const legacySlots = this._legacySlots();
     let fallbackMarker = null;
@@ -370,13 +412,7 @@ const Storage = {
       fallbackActive = fallbackMarker === this.fallbackCompleteMarker;
     }
     catch {}
-
-    const targetAutosave = fallbackActive
-      ? legacyAutosave
-      : this._newerSave(existingAutosave, legacyAutosave);
-    const targetSlots = fallbackActive
-      ? legacySlots
-      : this._mergeSlots(existingSlots, legacySlots);
+    const fallbackRevision = this.localJSON(this.fallbackRevisionKey, null);
 
     // Retire the marker before IDB can advance past the fallback snapshot. If
     // it cannot be retired, do not allow a stale marker to undo later IDB saves.
@@ -384,11 +420,23 @@ const Storage = {
       localStorage.removeItem(this.fallbackKey);
       if (localStorage.getItem(this.fallbackKey) !== null) throw new Error("無法撤銷本地備援標記，已保留原存檔。");
     }
-    await this._replaceDatabaseStories(targetAutosave, targetSlots);
+    this._legacyMigrationSnapshot = this._legacySnapshotSignature();
+    if (!legacyAutosave && !legacySlots.length && fallbackMarker === null) return;
+    await this._replaceDatabaseStories(null, null, existingRecords => {
+      const existingAutosave = this._payloadFromRecord(existingRecords.find(record => record?.kind === "autosave" || record?.id === this.autosaveRecordId));
+      const existingSlots = existingRecords.filter(record => record?.kind === "slot")
+        .map(record => this._payloadFromRecord(record)).filter(Boolean);
+      const authoritative = fallbackActive && Number.isSafeInteger(fallbackRevision) && fallbackRevision >= 0 && fallbackRevision === this._databaseRevision(existingRecords);
+      return {
+        autosave: authoritative ? legacyAutosave : this._newerSave(existingAutosave, legacyAutosave),
+        slots: authoritative ? legacySlots : this._mergeSlots(existingSlots, legacySlots)
+      };
+    });
   },
 
   async _loadIndexedDBCache() {
     const records = await this._getAllRecords();
+    this._expectedRevision = this._databaseRevision(records);
     const autosaveRecord = records.find(record => record?.kind === "autosave" || record?.id === this.autosaveRecordId);
     this._cache.autosave = this._payloadFromRecord(autosaveRecord);
     this._cache.slots = records
@@ -424,15 +472,17 @@ const Storage = {
   async _persistOperationIndexedDB(operation) {
     if (operation.type === "saveStory") {
       await this._transaction("readwrite", store => store.put(this._record("autosave", operation.payload)));
+      this._advanceExpectedRevision();
       return;
     }
     if (operation.type === "clearStory") {
       await this._transaction("readwrite", store => store.delete(this.autosaveRecordId));
+      this._advanceExpectedRevision();
       return;
     }
     if (operation.type === "saveSlot" || operation.type === "deleteSlot") {
       const id = operation.type === "saveSlot" ? String(operation.payload.id) : operation.id;
-      if (id === this.autosaveRecordId) return;
+      if (id === this.autosaveRecordId || id === this.revisionRecordId) return;
       await this._transaction("readwrite", (store, tx, abort) => {
         // A tab's cache may omit remote additions or still contain remote
         // deletions. Persist only this operation, never the whole cached list.
@@ -449,6 +499,7 @@ const Storage = {
           } catch (error) { abort(error); }
         };
       });
+      this._advanceExpectedRevision();
     }
   },
 
