@@ -468,6 +468,14 @@
 
   window.BAOPlayerSettings = {
     get: () => JSON.parse(JSON.stringify(settings)),
+    // Rollback uses a trusted get() snapshot, including transient preview state.
+    // Raw persisted preferences are restored separately by Storage.
+    restoreRuntime: value => {
+      const previous = JSON.parse(JSON.stringify(value));
+      Object.keys(settings).forEach(key => delete settings[key]);
+      Object.assign(settings, previous);
+      applyAppearance();
+    },
     set: value => {
       const next = Object.assign({}, defaults, value && typeof value === "object" ? value : {});
       next.demoMode = false;

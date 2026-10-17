@@ -25,6 +25,7 @@ const Storage = {
   _pendingOperations: [],
   _cache: { autosave: null, slots: [] },
   _lastError: null,
+  _lastRestoreError: null,
   _fallbackSnapshotComplete: false,
   _expectedRevision: null,
   _legacyMigrationSnapshot: null,
@@ -649,7 +650,8 @@ const Storage = {
       database: this._mode === "indexedDB" ? this.dbName : null,
       store: this._mode === "indexedDB" ? this.dbStore : null,
       legacyStoryDataPresent: this._legacyStoryKeysExist(),
-      lastError: this._lastError ? String(this._lastError.message || this._lastError) : ""
+      lastError: this._lastError ? String(this._lastError.message || this._lastError) : "",
+      lastRestoreError: this._lastRestoreError ? String(this._lastRestoreError.message || this._lastRestoreError) : ""
     };
   },
 
@@ -730,88 +732,147 @@ const Storage = {
     return this.sanitizeImportedStory(JSON.parse(text));
   },
 
-  applyPreferences(preferences = {}) {
-    if (!preferences || typeof preferences !== "object") return;
-    if (preferences.player) {
-      localStorage.setItem("bao-lab:player-settings", JSON.stringify(preferences.player));
-      window.BAOPlayerSettings?.set?.(preferences.player);
+  _preparePreferenceRestore(preferences = {}) {
+    if (!preferences || typeof preferences !== "object") return [];
+    const definitions = [
+      { name: "player", key: "bao-lab:player-settings", api: window.BAOPlayerSettings, get: "get", set: "set", fallback: {} },
+      { name: "narrative", key: "bao-lab:narrative-settings-v1", api: window.BAONarrativeSettings, get: "get", set: "set", fallback: {} },
+      { name: "memorySlots", key: "bao-lab:player-memory-slots", api: window.BAOMemoryWorkbench, get: "readSlots", set: "writeSlots", fallback: [] }
+    ];
+    return definitions.filter(item => item.name === "memorySlots" ? Array.isArray(preferences[item.name]) : Boolean(preferences[item.name])).map(item => {
+      const raw = localStorage.getItem(item.key);
+      let previous;
+      try { previous = raw === null ? item.fallback : JSON.parse(raw); }
+      catch { previous = item.fallback; }
+      const apply = typeof item.api?.[item.set] === "function" ? value => item.api[item.set](value) : null;
+      if (apply && typeof item.api?.[item.get] === "function") previous = item.api[item.get]();
+      const undo = typeof item.api?.restoreRuntime === "function" ? value => item.api.restoreRuntime(value) : apply;
+      return { ...item, undo, raw, previous: this.clone(previous), next: this.clone(preferences[item.name]), apply, written: false, called: false };
+    });
+  },
+
+  applyPreferences(preferences = {}, plan = this._preparePreferenceRestore(preferences)) {
+    // Finish all raw writes before invoking setters with UI/runtime side effects.
+    for (const entry of plan) {
+      localStorage.setItem(entry.key, JSON.stringify(entry.next));
+      entry.written = true;
     }
-    if (preferences.narrative) {
-      localStorage.setItem("bao-lab:narrative-settings-v1", JSON.stringify(preferences.narrative));
-      window.BAONarrativeSettings?.set?.(preferences.narrative);
+    for (const entry of plan) {
+      if (!entry.apply) continue;
+      entry.called = true;
+      entry.apply(this.clone(entry.next));
     }
-    if (Array.isArray(preferences.memorySlots)) {
-      localStorage.setItem("bao-lab:player-memory-slots", JSON.stringify(preferences.memorySlots));
-      window.BAOMemoryWorkbench?.writeSlots?.(preferences.memorySlots);
-    }
+    return plan;
   },
 
   restoreStory(input) {
-    if (!input || !window.App || !window.Chat || !window.GameState) return false;
-    let save;
-    try { save = this.sanitizeImportedStory(input); }
-    catch { return false; }
-
-    let character = App.characters.find(item => item.id === save.characterId);
-    if (save.character && (!character || character.catalog_only)) {
-      const snapshot = window.CharacterEngine?.normalize ? CharacterEngine.normalize(save.character) : this.clone(save.character);
-      if (snapshot?.id) {
-        snapshot.source = character?.source || snapshot.source || "story-snapshot";
-        snapshot.catalog_only = false;
-        if (character?.catalog_file) snapshot.catalog_file = character.catalog_file;
-        const index = App.characters.findIndex(item => item.id === snapshot.id);
-        if (index >= 0) App.characters[index] = snapshot;
-        else App.characters.push(snapshot);
-        character = snapshot;
-      }
+    this._lastRestoreError = null;
+    if (!input || !window.App || !window.Chat || !window.GameState) {
+      this._lastRestoreError = new Error("故事還原資料或執行環境不完整。");
+      return false;
     }
-    if (!character || character.catalog_only) return false;
+    let previous = null;
+    let plan = [];
+    const restoreProperties = (snapshots, attempt) => snapshots.forEach(({ target, fields }) => {
+      for (const [key, descriptor] of fields) {
+        attempt(() => {
+          if (descriptor) Object.defineProperty(target, key, descriptor);
+          else delete target[key];
+        });
+      }
+    });
+    try {
+      const save = this.sanitizeImportedStory(input);
+      const characters = Array.isArray(App.characters) ? App.characters.slice() : [];
+      let character = characters.find(item => item.id === save.characterId);
+      if (save.character && (!character || character.catalog_only)) {
+        const snapshot = window.CharacterEngine?.normalize ? CharacterEngine.normalize(this.clone(save.character)) : this.clone(save.character);
+        if (snapshot?.id) {
+          snapshot.source = character?.source || snapshot.source || "story-snapshot";
+          snapshot.catalog_only = false;
+          if (character?.catalog_file) snapshot.catalog_file = character.catalog_file;
+          character = snapshot;
+        }
+      }
+      if (!character || character.catalog_only) throw new Error("找不到完整角色設定，故事尚未還原。");
+      character = this.clone(character);
 
-    // A declarative startup owns its selected opening per story. Loading the
-    // current catalog must not replace it with the generic preview greeting.
-    if (character.story_startup && save.character) {
-      const openingSnapshot = CharacterEngine.normalize(save.character);
-      if (openingSnapshot.id === character.id &&
-          (character.initial_state?.worldbookLibrary || openingSnapshot.initial_state?.worldbookLibrary)) {
-        // Companion lore belongs to the saved story, including pre-snapshot cards.
-        // A fully loaded newer catalog must not replace old inline lore with empty lore.
-        const initial = {...character.initial_state};
-        if (openingSnapshot.initial_state?.worldbookLibrary) initial.worldbookLibrary = openingSnapshot.initial_state.worldbookLibrary;
-        else delete initial.worldbookLibrary;
-        character = {...character, lore:openingSnapshot.lore, initial_state:initial};
+      // Preserve this saved story's opening and companion lore while preparing
+      // a detached candidate. No catalog entry is changed until commit.
+      if (character.story_startup && save.character) {
+        const openingSnapshot = window.CharacterEngine?.normalize ? CharacterEngine.normalize(this.clone(save.character)) : this.clone(save.character);
+        if (openingSnapshot.id === character.id &&
+            (character.initial_state?.worldbookLibrary || openingSnapshot.initial_state?.worldbookLibrary)) {
+          const initial = { ...character.initial_state };
+          if (openingSnapshot.initial_state?.worldbookLibrary) initial.worldbookLibrary = openingSnapshot.initial_state.worldbookLibrary;
+          else delete initial.worldbookLibrary;
+          character = { ...character, lore: openingSnapshot.lore, initial_state: initial };
+        }
+        if (openingSnapshot.id === character.id && openingSnapshot.greeting) {
+          character = { ...character, greeting: openingSnapshot.greeting,
+            greeting_context: openingSnapshot.greeting_context, opening: openingSnapshot.opening };
+        }
       }
-      if (openingSnapshot.id === character.id && openingSnapshot.greeting) {
-        character = {...character, greeting:openingSnapshot.greeting,
-          greeting_context:openingSnapshot.greeting_context, opening:openingSnapshot.opening};
+      const index = characters.findIndex(item => item.id === character.id);
+      if (index >= 0) characters[index] = character;
+      else characters.push(character);
+      const config = this.clone(save.config || {});
+      config.api = Object.assign({}, config.api || {}, { key: "" });
+      const restoredMessages = this.clone(save.chat?.messages || []);
+      const messages = Chat.ensureMessageIds ? Chat.ensureMessageIds(restoredMessages) : restoredMessages;
+      const summary = String(save.chat?.summary || "");
+      const chat = {
+        messages, summary,
+        summarizedUntil: Number(save.chat?.summarizedUntil || 0),
+        usage: Object.assign({ prompt: 0, completion: 0, cached: 0, cacheWrite: 0, total: 0 }, this.clone(save.chat?.usage || {})),
+        usageByKind: this.clone(save.chat?.usageByKind || {}),
+        usageLedger: Array.isArray(save.chat?.usageLedger) ? this.clone(save.chat.usageLedger).slice(-10000) : [],
+        memoryHealth: Object.assign({
+          phase: summary ? "success" : "idle", message: summary ? "已從存檔還原長期摘要。" : "尚未需要摘要",
+          lastSuccessAt: "", lastFailureAt: "",
+          lastModel: config.memory?.summaryApi?.model || config.memory?.summaryModel || config.api?.model || "", repaired: false
+        }, this.clone(save.chat?.memoryHealth || {})),
+        lastStoryPromptTokens: Number(save.chat?.lastStoryPromptTokens || 0)
+      };
+      const state = this.clone(save.state || {});
+      state.config = config;
+      if (save.contextPack && !state.contextPack) state.contextPack = this.clone(save.contextPack);
+      plan = this._preparePreferenceRestore(save.preferences || {});
+      previous = [[App, ["characters", "activeCharacter", "config"]], [Chat, Object.keys(chat)], [GameState, ["current"]]]
+        .map(([target, keys]) => ({ target, fields: keys.map(key => [key, Object.getOwnPropertyDescriptor(target, key)]) }));
+      App.characters = characters;
+      App.activeCharacter = character;
+      App.config = config;
+      Object.assign(Chat, chat);
+      GameState.current = state;
+      this.applyPreferences(save.preferences || {}, plan);
+      window.BAOCharacterStatus?.ensureState?.(character);
+      window.BAOWorldModules?.ensureState?.(character);
+      return true;
+    } catch (error) {
+      const recoveryErrors = [];
+      const attempt = action => { try { action(); } catch (failure) { recoveryErrors.push(failure); } };
+      // Memory setters can schedule a save for the current story. Undo them
+      // against the discarded candidate before restoring the original state.
+      for (const entry of [...plan].reverse()) {
+        if (entry.called && entry.name === "memorySlots") attempt(() => entry.undo(this.clone(entry.previous)));
       }
+      if (previous) restoreProperties(previous, attempt);
+      for (const entry of [...plan].reverse()) {
+        if (entry.called && entry.name !== "memorySlots") attempt(() => entry.undo(this.clone(entry.previous)));
+      }
+      // Runtime setters may normalize or write preferences too. Restore exact
+      // prior raw values last, including keys that did not previously exist.
+      for (const entry of [...plan].reverse()) {
+        if (entry.written) attempt(() => entry.raw === null ? localStorage.removeItem(entry.key) : localStorage.setItem(entry.key, entry.raw));
+      }
+      this._lastRestoreError = recoveryErrors.length
+        ? new AggregateError([error, ...recoveryErrors], "故事還原失敗，部分狀態或偏好無法完整復原。請保留分頁並匯出故事備份。")
+        : error;
+      console.warn("BAO/LAB story restore failed; keeping original story:", this._lastRestoreError);
+      if (recoveryErrors.length) attempt(() => window.BAOFeedback?.notify?.(this._lastRestoreError.message, "error"));
+      return false;
     }
-
-    App.activeCharacter = character;
-    App.config = this.clone(save.config || {});
-    App.config.api = Object.assign({}, App.config.api || {}, { key: "" });
-    const restoredMessages = this.clone(save.chat?.messages || []);
-    Chat.messages = Chat.ensureMessageIds ? Chat.ensureMessageIds(restoredMessages) : restoredMessages;
-    Chat.summary = String(save.chat?.summary || "");
-    Chat.summarizedUntil = Number(save.chat?.summarizedUntil || 0);
-    Chat.usage = Object.assign({ prompt: 0, completion: 0, cached: 0, cacheWrite: 0, total: 0 }, this.clone(save.chat?.usage || {}));
-    Chat.usageByKind = this.clone(save.chat?.usageByKind || {});
-    Chat.usageLedger = Array.isArray(save.chat?.usageLedger) ? this.clone(save.chat.usageLedger).slice(-10000) : [];
-    Chat.memoryHealth = Object.assign({
-      phase: Chat.summary ? "success" : "idle",
-      message: Chat.summary ? "已從存檔還原長期摘要。" : "尚未需要摘要",
-      lastSuccessAt: "",
-      lastFailureAt: "",
-      lastModel: App.config?.memory?.summaryApi?.model || App.config?.memory?.summaryModel || App.config?.api?.model || "",
-      repaired: false
-    }, this.clone(save.chat?.memoryHealth || {}));
-    Chat.lastStoryPromptTokens = Number(save.chat?.lastStoryPromptTokens || 0);
-    GameState.current = this.clone(save.state || {});
-    GameState.current.config = App.config;
-    if (save.contextPack && !GameState.current.contextPack) GameState.current.contextPack = this.clone(save.contextPack);
-    this.applyPreferences(save.preferences || {});
-    window.BAOCharacterStatus?.ensureState?.(character);
-    window.BAOWorldModules?.ensureState?.(character);
-    return true;
   }
 };
 
