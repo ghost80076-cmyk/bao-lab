@@ -94,3 +94,65 @@ test('mobile keeps its full-screen reader and visible composer', async ({ page }
   expect(state.client).toBeGreaterThan(120);
   expect(state.pageWidth).toBeLessThanOrEqual(391);
 });
+
+
+test('Play does not create a second expanded status scroller; author status remains accessible', async ({ page }) => {
+  await openDemoStory(page, 1440);
+  const details = page.locator('#bao-inline-story-status');
+  await expect(details).toHaveCount(1);
+  await expect(details).toHaveAttribute('data-status-mode', 'native');
+  // Native story info is already available through the 資訊 control.
+  await expect(details).toBeHidden();
+  await expect(page.locator('#bao-play-status-toggle')).toBeVisible();
+
+  await page.evaluate(() => {
+    BAOSceneHTML.prefs.status = 'author';
+    BAOSceneHTML.refresh();
+  });
+  await expect(details).toHaveAttribute('data-status-mode', 'author');
+  await expect(details).toBeVisible();
+  await expect(details).not.toHaveAttribute('open', '');
+  const collapsed = await details.evaluate(node => ({
+    panelHeight: node.getBoundingClientRect().height,
+    panelScroll: node.scrollHeight,
+  }));
+  expect(collapsed.panelHeight).toBeLessThan(65);
+  expect(collapsed.panelScroll).toBeLessThan(70);
+  await details.locator('summary').click();
+  await expect(details).toHaveAttribute('open', '');
+  await expect(details.locator('.bao-inline-story-status-body')).toBeVisible();
+  // Closing author state returns all room to the story without losing the content.
+  await details.locator('summary').click();
+  await expect(details).not.toHaveAttribute('open', '');
+  expect(await page.evaluate(() => document.scrollingElement.scrollHeight)).toBeLessThanOrEqual(902);
+});
+
+test('Play respects mist/rose composer surfaces instead of forcing night colors', async ({ page }) => {
+  await openDemoStory(page, 1440);
+  for (const theme of ['mist', 'rose']) {
+    await page.evaluate(value => { document.documentElement.dataset.yoruTheme = value; }, theme);
+    const measurements = await page.evaluate(() => {
+      const value = key => getComputedStyle(document.documentElement).getPropertyValue(key).trim();
+      const probe = document.createElement('div');
+      probe.style.background = value('--yoru-input');
+      document.body.appendChild(probe);
+      const expectedInput = getComputedStyle(probe).backgroundColor;
+      probe.style.background = value('--yoru-tool');
+      const expectedComposer = getComputedStyle(probe).backgroundColor;
+      probe.style.color = value('--yoru-story-text');
+      const expectedText = getComputedStyle(probe).color;
+      probe.remove();
+      return {
+        expectedInput, expectedComposer, expectedText,
+        input: getComputedStyle(document.getElementById('user-input')).backgroundColor,
+        inputText: getComputedStyle(document.getElementById('user-input')).color,
+        composer: getComputedStyle(document.querySelector('#chat-view .composer')).backgroundColor,
+        statusVisible: getComputedStyle(document.querySelector('#bao-inline-story-status')).display !== 'none',
+      };
+    });
+    expect(measurements.input).toBe(measurements.expectedInput);
+    expect(measurements.composer).toBe(measurements.expectedComposer);
+    expect(measurements.inputText).toBe(measurements.expectedText);
+    expect(measurements.statusVisible).toBe(false);
+  }
+});
