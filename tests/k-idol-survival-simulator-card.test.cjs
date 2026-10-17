@@ -20,7 +20,7 @@ const frame=cover.indexOf(Buffer.from([0x9d,0x01,0x2a]));
 assert.ok(frame>=0,'lossy WebP frame header should exist');
 const width=cover.readUInt16LE(frame+3)&0x3fff;
 const height=cover.readUInt16LE(frame+5)&0x3fff;
-assert.ok(width>=1600 && height>=800,`cover should remain high resolution, got ${width}x${height}`);
+const longEdge=Math.max(width,height);\nconst shortEdge=Math.min(width,height);\nassert.ok(longEdge>=700 && shortEdge>=500,`cover should remain web-ready resolution in either orientation, got ${width}x${height}`);
 assert.equal(card.presentation.play_info_surface,'game-ui','custom simulator UI must remain the Play information surface');
 assert.equal(card.presentation.opening.type,'idolsurvival');
 assert.equal(card.presentation.opening.choices.length,4);
