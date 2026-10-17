@@ -63,11 +63,11 @@ for (const width of [1440, 1920]) {
   });
 }
 
-test('the light and rose themes carry through the first-party reading chrome', async ({ page }) => {
+test('the light and dusk themes carry through the first-party reading chrome', async ({ page }) => {
   await openDemoStory(page, 1440);
   for (const [theme, expected] of [
     ['mist', { page: 'rgb(245, 240, 233)', reader: 'rgb(255, 252, 247)' }],
-    ['rose', { page: 'rgb(48, 40, 44)', reader: 'rgb(52, 43, 48)' }],
+    ['dusk', { page: 'rgb(48, 44, 60)', reader: 'rgb(52, 47, 66)' }],
   ]) {
     await page.evaluate(value => { document.documentElement.dataset.yoruTheme = value; }, theme);
     const colors = await page.evaluate(() => ({
@@ -128,9 +128,9 @@ test('Play does not create a second expanded status scroller; author status rema
   expect(await page.evaluate(() => document.scrollingElement.scrollHeight)).toBeLessThanOrEqual(902);
 });
 
-test('Play respects mist/rose composer surfaces instead of forcing night colors', async ({ page }) => {
+test('Play respects light/dusk composer surfaces instead of forcing night colors', async ({ page }) => {
   await openDemoStory(page, 1440);
-  for (const theme of ['mist', 'rose']) {
+  for (const theme of ['mist', 'dawn', 'dusk', 'sunset']) {
     await page.evaluate(value => { document.documentElement.dataset.yoruTheme = value; }, theme);
     const measurements = await page.evaluate(() => {
       const value = key => getComputedStyle(document.documentElement).getPropertyValue(key).trim();

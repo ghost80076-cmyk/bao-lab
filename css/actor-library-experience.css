@@ -81,53 +81,53 @@
 
 /* Explicitly override the old hard-coded dark character dialogs in non-night themes.
    Form and preview contents remain native controls and never change story state. */
-html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) #bao-actor-backdrop .bao-actor-dialog{
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) #bao-actor-backdrop .bao-actor-dialog{
   background:var(--yoru-surface);
   border-color:var(--yoru-card-border);
   color:var(--yoru-text);
   box-shadow:var(--yoru-shadow-soft,0 24px 58px #0004);
 }
-html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) #bao-actor-backdrop .bao-actor-dialog header,
-html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) #bao-actor-backdrop .bao-actor-dialog footer{
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) #bao-actor-backdrop .bao-actor-dialog header,
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) #bao-actor-backdrop .bao-actor-dialog footer{
   background:var(--yoru-surface);
   border-color:var(--yoru-card-border);
   color:var(--yoru-text);
 }
-html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) #bao-actor-backdrop .bao-actor-dialog :is(h2,label,.bao-actor-fields,.bao-library-card b,.bao-actor-dialog header button){
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) #bao-actor-backdrop .bao-actor-dialog :is(h2,label,.bao-actor-fields,.bao-library-card b,.bao-actor-dialog header button){
   color:var(--yoru-text);
 }
-html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) #bao-actor-backdrop .bao-actor-dialog :is(.note,.bao-library-toolbar span,.bao-library-card span,.bao-library-card small,.bao-library-search,.bao-portable-actor-picker span,.bao-local-actor-picker span){
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) #bao-actor-backdrop .bao-actor-dialog :is(.note,.bao-library-toolbar span,.bao-library-card span,.bao-library-card small,.bao-library-search,.bao-portable-actor-picker span,.bao-local-actor-picker span){
   color:var(--yoru-muted);
 }
-html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) #bao-actor-backdrop .bao-actor-dialog :is(input,textarea,select){
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) #bao-actor-backdrop .bao-actor-dialog :is(input,textarea,select){
   background:var(--yoru-input);
   border-color:var(--yoru-input-border);
   color:var(--yoru-text);
 }
-html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) #bao-actor-backdrop .bao-actor-dialog :is(.bao-library-tabs button,.bao-library-more>summary,.bao-actor-help,.bao-actor-actions button:not(.primary)){
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) #bao-actor-backdrop .bao-actor-dialog :is(.bao-library-tabs button,.bao-library-more>summary,.bao-actor-help,.bao-actor-actions button:not(.primary)){
   background:var(--yoru-control)!important;
   border-color:var(--yoru-control-border)!important;
   color:var(--yoru-text)!important;
 }
-html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) #bao-actor-backdrop .bao-actor-dialog .bao-library-tabs button.active{
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) #bao-actor-backdrop .bao-actor-dialog .bao-library-tabs button.active{
   background:var(--yoru-control-hover)!important;
   border-color:var(--yoru-lantern)!important;
   box-shadow:inset 0 0 0 1px var(--yoru-lantern);
 }
-html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) #bao-actor-backdrop .bao-actor-dialog :is(.bao-library-card,.bao-portable-actor-picker,.bao-local-actor-picker){
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) #bao-actor-backdrop .bao-actor-dialog :is(.bao-library-card,.bao-portable-actor-picker,.bao-local-actor-picker){
   background:var(--yoru-card);
   border-color:var(--yoru-card-border);
   color:var(--yoru-text);
 }
-html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) :is(.bao-actor-builder,.bao-portable-actor-picker,.bao-local-actor-picker){
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) :is(.bao-actor-builder,.bao-portable-actor-picker,.bao-local-actor-picker){
   background:var(--yoru-card);
   border-color:var(--yoru-card-border);
   color:var(--yoru-text);
 }
-html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) :is(.bao-portable-actor-picker,.bao-local-actor-picker)>b{
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) :is(.bao-portable-actor-picker,.bao-local-actor-picker)>b{
   color:var(--yoru-text);
 }
-html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) #bao-actor-backdrop .bao-library-card-actions :is(button,.bao-library-more>summary):focus-visible{
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) #bao-actor-backdrop .bao-library-card-actions :is(button,.bao-library-more>summary):focus-visible{
   outline:2px solid var(--yoru-lantern);
   outline-offset:2px;
 }

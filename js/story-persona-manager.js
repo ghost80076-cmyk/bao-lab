@@ -828,7 +828,7 @@
   if (typeof document.createElement === 'function' && !document.querySelector('link[href^="css/actor-library-experience.css"]')) {
     const themeStyles = document.createElement('link');
     themeStyles.rel = 'stylesheet';
-    themeStyles.href = 'css/actor-library-experience.css?v=1';
+    themeStyles.href = 'css/actor-library-experience.css?v=2';
     document.head.appendChild(themeStyles);
   }
   // Changes made in another tab do not trigger storage events in the source tab.

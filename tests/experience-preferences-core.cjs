@@ -6,7 +6,11 @@ const core = require('../js/experience-preferences-core.js');
 
 assert.deepEqual(core.normalize(null), { theme:'night', level:'easy' }, 'new players get calm defaults');
 assert.deepEqual(core.normalize({theme:'mist',level:'standard'}), {theme:'mist',level:'standard'});
-assert.deepEqual(core.normalize({theme:'rose',level:'pro'}), {theme:'rose',level:'pro'});
+assert.deepEqual(core.normalize({theme:'rose',level:'pro'}), {theme:'dusk',level:'pro'}, 'legacy rose migrates to twilight');
+for (const theme of ['night','mist','dawn','dusk','sunset']) {
+  assert.deepEqual(core.normalize({ theme, level:'standard' }), { theme, level:'standard' });
+}
+assert.deepEqual(core.THEMES, ['night','mist','dawn','dusk','sunset']);
 assert.deepEqual(core.normalize({theme:'unsafe',level:'admin'}), {theme:'night',level:'easy'});
 assert.deepEqual(core.normalize([]), core.DEFAULT);
 assert.deepEqual(core.expandedGroups('easy'), [], 'easy mode starts collapsed but never removes functions');
@@ -19,7 +23,7 @@ const read = file => fs.readFileSync(path.join(__dirname,'..',file),'utf8');
 const prefs = read('js/experience-preferences.js');
 const nav = read('js/chat-tool-navigation.js');
 const loader = read('js/site-ui.js');
-assert.match(loader, /loadBAOScript\("js\/experience-preferences-core\.js\?v=1"\)/);
+assert.match(loader, /loadBAOScript\("js\/experience-preferences-core\.js\?v=\d+"\)/);
 assert.match(loader, /loadBAOScript\("js\/experience-preferences\.js\?v=\d+"\)/);
 assert.match(prefs, /'yorubay:experience:v1'/);
 assert.match(prefs, /localStorage\.setItem\(KEY, JSON\.stringify\(current\)\)/);

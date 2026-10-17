@@ -174,7 +174,7 @@ test('mobile exit asks first, then leaves through the existing auto-save flow', 
 });
 
 
-for (const theme of ['mist','rose']) {
+for (const theme of ['mist','dusk']) {
   test('mobile reading chrome keeps ' + theme + ' palette across composer and tools', async ({page}) => {
     await page.setViewportSize({width:390,height:844});
     await openDemoStory(page);
@@ -187,7 +187,7 @@ for (const theme of ['mist','rose']) {
     // rather than sampling the transition's old night-color first frame.
     await expect.poll(() => page.locator('#bao-mobile-composer-tools').evaluate(
       element => getComputedStyle(element).backgroundColor
-    ), {timeout:3500}).toBe(theme === 'mist' ? 'rgb(240, 232, 223)' : 'rgb(75, 59, 67)');
+    ), {timeout:3500}).toBe(theme === 'mist' ? 'rgb(240, 232, 223)' : 'rgb(81, 67, 90)');
     const current = await page.evaluate(() => {
       const bg = selector => getComputedStyle(document.querySelector(selector)).backgroundColor;
       const fg = selector => getComputedStyle(document.querySelector(selector)).color;
@@ -210,7 +210,7 @@ for (const theme of ['mist','rose']) {
     });
     const expected = theme === 'mist'
       ? {tool:'rgb(243, 236, 227)',input:'rgb(255, 253, 248)',control:'rgb(240, 232, 223)',text:'rgb(69, 59, 52)',send:'rgb(157, 115, 88)'}
-      : {tool:'rgb(59, 48, 54)',input:'rgb(52, 43, 48)',control:'rgb(75, 59, 67)',text:'rgb(243, 232, 230)',send:'rgb(214, 167, 159)'};
+      : {tool:'rgb(64, 56, 73)',input:'rgb(52, 47, 66)',control:'rgb(81, 67, 90)',text:'rgb(246, 237, 244)',send:'rgb(210, 176, 219)'};
     if (current.tools !== expected.control) {
       const diagnosis = await page.evaluate(() => {
         const el=document.querySelector('#bao-mobile-composer-tools');
@@ -336,7 +336,7 @@ test('desktop Play reply tools follow easy, standard and pro without changing me
 
 
 for (const width of [390, 1280]) {
-  test('story tools keep their header and controls readable in mist and rose ('+width+'px)', async ({page}) => {
+  test('story tools keep their header and controls readable in mist and dusk ('+width+'px)', async ({page}) => {
     await page.setViewportSize({width,height:844});
     await openDemoStory(page);
     await page.waitForFunction(() => !!window.YoruExperience && !!window.BAOChatToolNavigation);
@@ -346,7 +346,7 @@ for (const width of [390, 1280]) {
     await expect(drawer).toBeVisible();
     await expect(drawer.getByRole('searchbox',{name:'搜尋故事工具'})).toBeVisible();
 
-    for(const theme of ['mist','rose']) {
+    for(const theme of ['mist','dusk']) {
       await page.evaluate(selected => YoruExperience.choose({theme:selected}),theme);
       await expect.poll(async () => page.evaluate(() => {
         const root=document.documentElement;
@@ -372,11 +372,11 @@ for (const width of [390, 1280]) {
           theme:getComputedStyle(root).getPropertyValue('--yoru-text').trim()
         };
       }),{timeout:3500}).toEqual({
-        dialog:{actual:theme==='mist'?'rgb(255, 250, 243)':'rgb(59, 48, 54)',expected:theme==='mist'?'rgb(255, 250, 243)':'rgb(59, 48, 54)'},
-        headButton:{actual:theme==='mist'?'rgb(240, 232, 223)':'rgb(75, 59, 67)',expected:theme==='mist'?'rgb(240, 232, 223)':'rgb(75, 59, 67)'},
-        group:{actual:theme==='mist'?'rgb(255, 250, 244)':'rgb(64, 50, 57)',expected:theme==='mist'?'rgb(255, 250, 244)':'rgb(64, 50, 57)'},
-        proxy:{actual:theme==='mist'?'rgb(240, 232, 223)':'rgb(75, 59, 67)',expected:theme==='mist'?'rgb(240, 232, 223)':'rgb(75, 59, 67)'},
-        theme:theme==='mist'?'#453b34':'#f3e8e6'
+        dialog:{actual:theme==='mist'?'rgb(255, 250, 243)':'rgb(64, 56, 73)',expected:theme==='mist'?'rgb(255, 250, 243)':'rgb(64, 56, 73)'},
+        headButton:{actual:theme==='mist'?'rgb(240, 232, 223)':'rgb(81, 67, 90)',expected:theme==='mist'?'rgb(240, 232, 223)':'rgb(81, 67, 90)'},
+        group:{actual:theme==='mist'?'rgb(255, 250, 244)':'rgb(66, 57, 77)',expected:theme==='mist'?'rgb(255, 250, 244)':'rgb(66, 57, 77)'},
+        proxy:{actual:theme==='mist'?'rgb(240, 232, 223)':'rgb(81, 67, 90)',expected:theme==='mist'?'rgb(240, 232, 223)':'rgb(81, 67, 90)'},
+        theme:theme==='mist'?'#453b34':'#f6edf4'
       });
       await expect(drawer.getByRole('button',{name:'關閉 ×'})).toBeVisible();
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth+2)).toBe(true);

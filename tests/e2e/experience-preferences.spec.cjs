@@ -39,9 +39,9 @@ test('mobile: new preference dialog is reachable, scrollable and does not overfl
   await entry.click();
   const dialog = page.locator('#yoru-experience-dialog');
   await expect(dialog).toBeVisible();
-  await dialog.locator('label[data-exp-theme="rose"]').click();
+  await dialog.locator('label[data-exp-theme="dusk"]').click();
   await dialog.locator('.yoru-exp-levels label').first().click();
-  await expect(page.locator('html')).toHaveAttribute('data-yoru-theme','rose');
+  await expect(page.locator('html')).toHaveAttribute('data-yoru-theme','dusk');
   await expect(page.locator('html')).toHaveAttribute('data-yoru-experience','easy');
   const sizes = await page.evaluate(() => {
     const rect = document.querySelector('#yoru-experience-dialog').getBoundingClientRect();
@@ -56,7 +56,7 @@ test('mobile: new preference dialog is reachable, scrollable and does not overfl
 
 for (const {theme,color,heroStop,cardSurface} of [
   {theme:'mist',color:'rgb(69, 59, 52)',heroStop:'rgb(251, 247, 241)'},
-  {theme:'rose',color:'rgb(243, 232, 230)',heroStop:'rgb(56, 44, 51)'}
+  {theme:'dusk',color:'rgb(246, 237, 244)',heroStop:'rgb(67, 56, 77)'}
 ]) {
   test('theme ' + theme + ' harmonizes the home, discovery and controls', async ({page}) => {
     await page.setViewportSize({width:390,height:844});
@@ -83,7 +83,7 @@ for (const {theme,color,heroStop,cardSurface} of [
     await expect(page.locator('#home-view .brand-paper-prose')).toHaveText(prose.trim());
     const card = await page.evaluate(() =>
       getComputedStyle(document.documentElement).getPropertyValue('--yoru-card').trim());
-    expect(card).toBe(theme === 'mist' ? '#fffaf4' : '#403239');
+    expect(card).toBe(theme === 'mist' ? '#fffaf4' : '#42394d');
     const paperInk = await page.locator('#home-view .brand-paper-page').evaluate(node => getComputedStyle(node).color);
     expect(paperInk).toBe('rgb(53, 44, 56)');
   });
@@ -104,12 +104,12 @@ test('My settings uses one shared appearance dialog and updates the selected the
   await dialog.locator('label[data-exp-theme="mist"]').click();
   await dialog.locator('.yoru-exp-levels label').nth(1).click();
   await dialog.getByRole('button', {name:'完成'}).click();
-  await expect(settings.locator('[data-bao-experience-state]')).toHaveText('晨霧 · 標準');
+  await expect(settings.locator('[data-bao-experience-state]')).toHaveText('月白 · 標準');
   await expect(page.locator('#yoru-experience-open')).toHaveAttribute('aria-label','外觀與操作設定');
   await page.reload();
   await page.waitForFunction(() => !!window.YoruExperience && !!window.BAOPlayerShellV2);
   await page.locator('#bao-mobile-nav [data-player-nav="me"]').click();
-  await expect(page.locator('#me-view [data-bao-experience-state]')).toHaveText('晨霧 · 標準');
+  await expect(page.locator('#me-view [data-bao-experience-state]')).toHaveText('月白 · 標準');
   await expect(page.locator('html')).toHaveAttribute('data-yoru-theme','mist');
 });
 

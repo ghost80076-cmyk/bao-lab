@@ -284,37 +284,37 @@
 .reader-context-more:focus-within>summary{
   color:var(--text)
 }
-html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .reader-context-panel{
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) .reader-context-panel{
   border-color:var(--yoru-card-border);
   background:var(--yoru-surface);
   color:var(--yoru-text)
 }
-html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .reader-context-head,
-html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .reader-context-tabs,
-html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .reader-context-foot{
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) .reader-context-head,
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) .reader-context-tabs,
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) .reader-context-foot{
   border-color:var(--yoru-card-border)
 }
-html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .reader-context-person,
-html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .reader-context-world-card,
-html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .reader-context-fact,
-html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .reader-context-people-stat{
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) .reader-context-person,
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) .reader-context-world-card,
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) .reader-context-fact,
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) .reader-context-people-stat{
   border-color:var(--yoru-card-border);
   background:var(--yoru-card);
   color:var(--yoru-text)
 }
-html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .reader-context-tabs button{
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) .reader-context-tabs button{
   color:var(--yoru-muted)
 }
-html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .reader-context-tabs button.active{
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) .reader-context-tabs button.active{
   border-color:var(--yoru-control-border);
   background:var(--yoru-control);
   color:var(--yoru-text)
 }
-html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .reader-context-presence{
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) .reader-context-presence{
   background:var(--yoru-control);
   color:var(--yoru-text)
 }
-html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .reader-context-more{
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) .reader-context-more{
   border-color:var(--yoru-card-border)
 }
 

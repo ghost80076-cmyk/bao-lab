@@ -11,7 +11,7 @@
     if (document.querySelector('link[href^="css/story-extensions-center.css"]')) return;
     const link = document.createElement("link");
     link.rel = "stylesheet";
-    link.href = "css/story-extensions-center.css?v=4";
+    link.href = "css/story-extensions-center.css?v=5";
     document.head.appendChild(link);
   };
 

@@ -64,7 +64,7 @@
     const target = document.querySelector('[data-bao-experience-state]');
     if (!target) return;
     const prefs = window.YoruExperience?.get?.() || {};
-    const theme = ({night:'夜港',mist:'晨霧',rose:'暮玫'})[prefs.theme] || '夜港';
+    const theme = ({night:'夜港',mist:'月白',dawn:'晨霧',dusk:'暮霞',sunset:'夕燈'})[prefs.theme] || '夜港';
     const level = ({easy:'輕鬆',standard:'標準',pro:'專業'})[prefs.level] || '輕鬆';
     target.textContent = theme + ' · ' + level;
   };

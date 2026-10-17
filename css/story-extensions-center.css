@@ -241,140 +241,140 @@
 
 /* Experience 3.0 / Phase 13 — consistent platform-owned extensions window.
    Only mist/rose: the original night layout and authors' HTML remain untouched. */
-html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extensions-panel{
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) .story-extensions-panel{
   background:var(--yoru-surface);
   color:var(--yoru-text);
   border-color:var(--yoru-card-border)
 }
-html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extensions-head p,
-html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extension-card p,
-html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extensions-note,
-html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extensions-note>small{
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) .story-extensions-head p,
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) .story-extension-card p,
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) .story-extensions-note,
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) .story-extensions-note>small{
   color:var(--yoru-muted)
 }
-html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extensions-help,
-html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extensions-close{
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) .story-extensions-help,
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) .story-extensions-close{
   background:var(--yoru-control);
   color:var(--yoru-text);
   border-color:var(--yoru-control-border)
 }
-html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extension-guide{
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) .story-extension-guide{
   background:var(--yoru-control);
   border-color:var(--yoru-control-border)
 }
-html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extension-guide b{
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) .story-extension-guide b{
   color:var(--yoru-text)
 }
-html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extension-guide span{
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) .story-extension-guide span{
   color:var(--yoru-muted)
 }
-html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extension-card{
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) .story-extension-card{
   background:var(--yoru-card);
   border-color:var(--yoru-card-border);
   color:var(--yoru-text)
 }
-html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extension-eyebrow,
-html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extension-meta b{
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) .story-extension-eyebrow,
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) .story-extension-meta b{
   color:var(--yoru-lantern)
 }
-html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extension-meta{
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) .story-extension-meta{
   border-top-color:var(--yoru-card-border)
 }
-html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extension-meta>div,
-html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extension-scope,
-html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extension-source,
-html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extension-permissions em{
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) .story-extension-meta>div,
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) .story-extension-scope,
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) .story-extension-source,
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) .story-extension-permissions em{
   color:var(--yoru-muted)
 }
-html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extension-scope,
-html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extension-source,
-html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extension-permissions em{
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) .story-extension-scope,
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) .story-extension-source,
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) .story-extension-permissions em{
   background:var(--yoru-control);
   border-color:var(--yoru-control-border)
 }
-html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extension-source[data-source="work"],
-html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extension-source[data-source="platform"],
-html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extension-source[data-source="player"]{
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) .story-extension-source[data-source="work"],
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) .story-extension-source[data-source="platform"],
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) .story-extension-source[data-source="player"]{
   background:var(--yoru-control);
   border-color:var(--yoru-control-border);
   color:var(--yoru-text)
 }
-html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extension-inventory{
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) .story-extension-inventory{
   background:var(--yoru-surface-raised);
   border-color:var(--yoru-card-border)
 }
-html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extension-inventory>summary,
-html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extension-inventory-group>header b,
-html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extension-item>div>b{
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) .story-extension-inventory>summary,
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) .story-extension-inventory-group>header b,
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) .story-extension-item>div>b{
   color:var(--yoru-text)
 }
-html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extension-inventory>summary small,
-html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extension-inventory-group>header,
-html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extension-inventory-group>header span,
-html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extension-item>div>small,
-html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extension-quick-note{
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) .story-extension-inventory>summary small,
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) .story-extension-inventory-group>header,
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) .story-extension-inventory-group>header span,
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) .story-extension-item>div>small,
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) .story-extension-quick-note{
   color:var(--yoru-muted)
 }
-html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extension-inventory-body{
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) .story-extension-inventory-body{
   border-top-color:var(--yoru-card-border)
 }
-html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extension-item{
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) .story-extension-item{
   background:var(--yoru-card);
   border-color:var(--yoru-card-border);
   color:var(--yoru-text)
 }
-html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extension-item>span{
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) .story-extension-item>span{
   background:var(--yoru-control);
   border-color:var(--yoru-control-border);
   color:var(--yoru-muted)
 }
-html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extension-item[data-state="active"]>span,
-html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extension-quick[aria-pressed="true"]{
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) .story-extension-item[data-state="active"]>span,
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) .story-extension-quick[aria-pressed="true"]{
   background:var(--yoru-control-hover);
   border-color:var(--yoru-lantern);
   color:var(--yoru-text)
 }
-html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extension-quick,
-html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extension-pack-cancel{
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) .story-extension-quick,
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) .story-extension-pack-cancel{
   background:var(--yoru-control);
   border-color:var(--yoru-control-border);
   color:var(--yoru-text)
 }
-html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extension-quick:hover,
-html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extension-quick:focus-visible{
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) .story-extension-quick:hover,
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) .story-extension-quick:focus-visible{
   background:var(--yoru-control-hover);
   border-color:var(--yoru-control-border-hover);
   color:var(--yoru-text)
 }
-html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extension-pack-preview{
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) .story-extension-pack-preview{
   background:var(--yoru-surface-raised);
   border-color:var(--yoru-card-border);
   color:var(--yoru-text)
 }
-html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extension-pack-preview header p,
-html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extension-pack-section small,
-html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extension-pack-section em{
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) .story-extension-pack-preview header p,
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) .story-extension-pack-section small,
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) .story-extension-pack-section em{
   color:var(--yoru-muted)
 }
-html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extension-pack-section{
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) .story-extension-pack-section{
   background:var(--yoru-card);
   border-color:var(--yoru-card-border);
   color:var(--yoru-text)
 }
-html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extension-pack-section b{
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) .story-extension-pack-section b{
   color:var(--yoru-text)
 }
-html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extension-pack-excluded{
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) .story-extension-pack-excluded{
   background:var(--yoru-control);
   color:var(--yoru-muted)
 }
-html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extension-pack-excluded b{
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) .story-extension-pack-excluded b{
   color:var(--yoru-text)
 }
-html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extensions-note{
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) .story-extensions-note{
   border-top-color:var(--yoru-card-border)
 }
-html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extensions-panel :is(
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"]) .story-extensions-panel :is(
   button,input,select,summary
 ):focus-visible{
   outline:2px solid var(--yoru-lantern);
@@ -384,9 +384,9 @@ html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"]) .story-extensions-pan
 
 /* Base button skin is !important in some legacy views: keep theme parity
    localized to the extensions heading instead of changing global buttons. */
-html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"])
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"])
   .story-extensions-panel .story-extensions-close,
-html:is([data-yoru-theme="mist"],[data-yoru-theme="rose"])
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk"],[data-yoru-theme="sunset"])
   .story-extensions-panel .story-extensions-help{
   background:var(--yoru-control)!important;
   color:var(--yoru-text)!important;

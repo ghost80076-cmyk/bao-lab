@@ -220,7 +220,7 @@ for (const width of [390, 1280]) {
 
     for(const level of ['standard','pro']){
       await page.evaluate(selected => {
-        YoruExperience.choose({level:selected,theme:'rose'});
+        YoruExperience.choose({level:selected,theme:'dusk'});
         BAOStoryControlCenter.open();
       },level);
       await expect(more).toHaveAttribute('open','');
@@ -270,12 +270,12 @@ for (const width of [390,1280]) {
     const before=await page.evaluate(()=>JSON.stringify(GameState.current));
     await dialog.getByRole('button',{name:'關閉'}).click();
     await page.evaluate(()=>{
-      YoruExperience.choose({level:'pro',theme:'rose'});
+      YoruExperience.choose({level:'pro',theme:'dusk'});
       BAOStoryTools.open();
     });
     await expect(advanced).toHaveAttribute('open','');
     await expect(dialog.locator('[data-create]')).toBeVisible();
-    await expect(dialog).toHaveCSS('background-color','rgb(59, 48, 54)');
+    await expect(dialog).toHaveCSS('background-color','rgb(64, 56, 73)');
     expect(await page.evaluate(()=>JSON.stringify(GameState.current))).toBe(before);
     expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+2)).toBe(true);
     await dialog.getByRole('button',{name:'關閉'}).click();
