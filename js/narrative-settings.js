@@ -138,7 +138,7 @@
     if (!document.querySelector('link[href^="css/narrative-settings.css"]')) {
       const link = document.createElement("link");
       link.rel = "stylesheet";
-      link.href = "css/narrative-settings.css?v=6";
+      link.href = "css/narrative-settings.css?v=7";
       document.head.appendChild(link);
     }
   };
