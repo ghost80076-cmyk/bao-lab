@@ -129,10 +129,36 @@ const API = {
     if (typeof wrapper !== "function") throw new Error(`API send wrapper ${key} 必須是函式。`);
     if (!this.__sendWrapperIds) this.__sendWrapperIds = new Set();
     if (this.__sendWrapperIds.has(key)) return false;
-    const next = this.send.bind(this);
-    this.send = async (config, messages, ...rest) => wrapper(next, config, messages, ...rest);
+
+    // Keep immutable snapshots: existing callers may retain an earlier send function.
+    // A direct legacy assignment starts a new segment instead of composing through
+    // a mutable dispatcher which that legacy wrapper may already have captured.
+    const previous = this.__sendPipeline;
+    const extendsSegment = previous && this.send === previous.dispatch;
+    const terminal = extendsSegment ? previous.terminal : this.send.bind(this);
+    const stages = Object.freeze([
+      Object.freeze({ id: key, wrapper }),
+      ...(extendsSegment ? previous.stages : [])
+    ]);
+    const dispatch = stages.reduceRight((next, stage) => {
+      const run = stage.wrapper;
+      return async (config, messages, ...rest) => run(next, config, messages, ...rest);
+    }, terminal);
+    this.__sendPipeline = Object.freeze({ terminal, stages, dispatch });
+    this.send = dispatch;
     this.__sendWrapperIds.add(key);
     return true;
+  },
+
+  inspectSendPipeline() {
+    const pipeline = this.__sendPipeline;
+    // Report names only; never expose configs, messages, credentials or closures.
+    return {
+      activeSegment: pipeline && this.send === pipeline.dispatch
+        ? pipeline.stages.map(stage => stage.id) : [],
+      registered: Array.from(this.__sendWrapperIds || []),
+      legacyWrapperOnTop: !!pipeline && this.send !== pipeline.dispatch
+    };
   },
 
   async send(config, messages) {
