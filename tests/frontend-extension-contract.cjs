@@ -55,7 +55,7 @@ increasing(siteUI, [
   'loadBAOScript("js/three-realms-event-profiles.js?v=6")',
   'loadBAOScript("js/three-realms-events-core.js?v=6")',
   'loadBAOScript("js/world-modules.js?v=5")',
-  'loadBAOScript("js/world-state-hook.js?v=3")'
+  'loadBAOScript("js/world-state-hook.js?v=4")'
 ], "world-state extension");
 
 // Story chain: story-tools is installed before prompt/cache orchestration and request lifecycle.

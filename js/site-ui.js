@@ -83,7 +83,7 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/world-module-manager.js?v=10"))
     .then(() => loadBAOScript("js/world-relevance.js?v=4"))
     .then(() => loadBAOScript("js/character-status-ui.js?v=11"))
-    .then(() => loadBAOScript("js/world-state-hook.js?v=3"))
+    .then(() => loadBAOScript("js/world-state-hook.js?v=4"))
     .catch(err => console.warn("BAO/LAB world state or character status modules failed to load:", err));
   loadBAOScript("js/cost-control.js?v=2")
     .then(() => loadBAOScript("js/provider-browser-compat.js"))
