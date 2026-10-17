@@ -86,10 +86,10 @@
       };
       if (window.BAOStatusUsageIntegrity) loadNativePack();
       else {
-        let script = document.querySelector('script[src="js/status-usage-integrity.js"]');
+        let script = document.querySelector('script[src="js/status-usage-integrity.js?v=2"]');
         if (!script) {
           script = document.createElement('script');
-          script.src = 'js/status-usage-integrity.js';
+          script.src = 'js/status-usage-integrity.js?v=2';
           script.onerror = () => console.warn('BAO/LAB status and usage diagnostics did not load');
           document.head.appendChild(script);
         }

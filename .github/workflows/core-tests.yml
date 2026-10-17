@@ -33,7 +33,9 @@ jobs:
       - name: State helper concurrency guard
         run: node tests/world-state-concurrency-core.cjs
       - name: World template and usage integrity
-        run: node tests/status-usage-integrity-core.cjs
+        run: |
+          node tests/status-usage-integrity-core.cjs
+          node tests/status-diagnostics-pipeline-core.cjs
       - name: Story integrity and NPC state regression
         run: node tests/story-integrity-core.cjs
       - name: NPC identity and appearance continuity

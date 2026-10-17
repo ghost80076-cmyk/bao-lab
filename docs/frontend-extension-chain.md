@@ -242,8 +242,7 @@ provider, retry, streaming and wrapper contracts.
 | P2 | UI/CSS and CI duplication | Separate from request transport changes |
 
 Additional direct-send owners to inventory before changing global order include
-`status-usage-integrity.js`,
-`story-revision-state.js`, and `lm-studio.js`. The earlier table is a conceptual
+`story-revision-state.js` and `lm-studio.js`. The earlier table is a conceptual
 map, not an exhaustive ordering specification. `world-module-ui.js` also registers
 a named internal-state echo stage. Do not infer global phase order from these
 lists.
@@ -288,3 +287,21 @@ named pipeline and fallback. The existing reading test continues to cover the
 player anchor, manually changed scroll position and empty input. Both tests run
 in the reading workflow, whose production check requires the named observer and
 versioned controller loader.
+
+
+### State diagnostics observer migration (2026-10-17)
+
+`status-usage-integrity.js` now registers
+`status-usage-integrity:state-diagnostics` with the same installation timing and
+an older-API fallback. Its existing request behavior is unchanged: state tasks
+receive the NPC tracking supplement on a request copy, respect the configured
+smaller output budget up to 2400 tokens, record diagnostics only if the original
+story still owns the request, and reject truncated output. Other task kinds pass
+through untouched. UI and usage-display adapters remain outside this migration.
+
+`tests/status-diagnostics-pipeline-core.cjs` established the old behavior before
+migration and now checks named installation and fallback, configured limits,
+request immutability, task isolation, truncation, cancellation, provider errors,
+repeated loading, and switching/leaving a story during the request. It runs in
+Core tests beside the existing NPC/status integrity regression. Loader versions
+are advanced through world-state-hook, site-ui and the page entry point.
