@@ -29,24 +29,36 @@ for (const width of [390, 1280]) {
       App.showView('chat');
     });
     const before = await page.evaluate(() => JSON.stringify(GameState.current));
-    for (const [theme, surface, card] of [
-      ['mist', 'rgb(255, 250, 243)', 'rgb(255, 250, 244)'],
-      ['rose', 'rgb(59, 48, 54)', 'rgb(64, 50, 57)']
-    ]) {
+    for (const theme of ['mist','dawn','dusk','sunset']) {
       await page.evaluate(value => {
         YoruExperience.choose({ theme:value });
         BAOMemoryWorkbench.open();
       }, theme);
+      const palette = await page.evaluate(() => {
+        const root = getComputedStyle(document.documentElement);
+        const probe = document.createElement('span');
+        document.body.append(probe);
+        const pick = (property, cssName = 'backgroundColor') => {
+          probe.style[cssName] = root.getPropertyValue(property).trim();
+          return getComputedStyle(probe)[cssName];
+        };
+        const colors = {
+          surface:pick('--yoru-surface'),
+          card:pick('--yoru-card'),
+          tool:pick('--yoru-tool'),
+          text:pick('--yoru-text','color')
+        };
+        probe.remove();
+        return colors;
+      });
       const desk = page.locator('.memory-desk');
       await expect(desk).toBeVisible();
-      await expect(desk).toHaveCSS('background-color', surface);
-      await expect(desk).toHaveCSS('color', theme === 'mist' ? 'rgb(69, 59, 52)' : 'rgb(243, 232, 230)');
-      await expect(desk.locator('.memory-desk-nav')).toHaveCSS(
-        'background-color', theme === 'mist' ? 'rgb(243, 236, 227)' : 'rgb(59, 48, 54)'
-      );
-      await expect(desk.locator('.memory-health-card')).toHaveCSS('color', theme === 'mist' ? 'rgb(69, 59, 52)' : 'rgb(243, 232, 230)');
-      await expect(desk.locator('.memory-note-card').first()).toHaveCSS('background-color', card);
-      await expect(desk.locator('.memory-summary-preview')).toHaveCSS('background-color', card);
+      await expect(desk).toHaveCSS('background-color', palette.surface);
+      await expect(desk).toHaveCSS('color', palette.text);
+      await expect(desk.locator('.memory-desk-nav')).toHaveCSS('background-color', palette.tool);
+      await expect(desk.locator('.memory-health-card')).toHaveCSS('color', palette.text);
+      await expect(desk.locator('.memory-note-card').first()).toHaveCSS('background-color', palette.card);
+      await expect(desk.locator('.memory-summary-preview')).toHaveCSS('background-color', palette.card);
       await desk.locator('.memory-desk-tab[data-tab="notes"]').click();
       await expect(desk.locator('[data-slot-title]')).toHaveValue('碼頭的約定');
       await expect(desk.locator('[data-slot-text]')).toHaveValue('明天一定要回到港口。');
