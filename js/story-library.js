@@ -12,6 +12,7 @@
     branchPointMessageKey: "bao-lab:library:active-branch-point-message",
     branchPointSeqKey: "bao-lab:library:active-branch-point-seq",
     branchPointPreviewKey: "bao-lab:library:active-branch-point-preview",
+    _refValues: null,
     _db: null,
     _ready: null,
     _writeQueue: Promise.resolve(),
@@ -59,25 +60,45 @@
       return prefix + "-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 10);
     },
 
+    referenceKeys() {
+      return [this.activeStoryKey, this.activeChapterKey, this.storyCreatedKey, this.chapterCreatedKey, this.chapterLabelKey,
+        this.branchParentKey, this.branchPointMessageKey, this.branchPointSeqKey, this.branchPointPreviewKey];
+    },
+
+    referenceValues() {
+      if (!this._refValues) {
+        this._refValues = new Map();
+        // Legacy keys are a one-time bootstrap hint. Live refs belong to this
+        // page, even when another tab changes or removes the shared keys.
+        for (const key of this.referenceKeys()) {
+          try { this._refValues.set(key, localStorage.getItem(key) || ""); }
+          catch { this._refValues.set(key, ""); }
+        }
+      }
+      return this._refValues;
+    },
+
     localGet(key) {
-      try { return localStorage.getItem(key) || ""; }
-      catch { return ""; }
+      return this.referenceValues().get(key) || "";
     },
 
     localSet(key, value) {
-      try { localStorage.setItem(key, String(value || "")); }
+      const next = value == null ? "" : String(value);
+      this.referenceValues().set(key, next);
+      // Keep the old keys for legacy startup compatibility; they are no longer
+      // the authority for an already-open page's destination.
+      try { localStorage.setItem(key, next); }
       catch {}
     },
 
     localRemove(key) {
+      this.referenceValues().delete(key);
       try { localStorage.removeItem(key); }
       catch {}
     },
 
     clearRefs() {
-      [this.activeStoryKey, this.activeChapterKey, this.storyCreatedKey, this.chapterCreatedKey, this.chapterLabelKey,
-        this.branchParentKey, this.branchPointMessageKey, this.branchPointSeqKey, this.branchPointPreviewKey]
-        .forEach(key => this.localRemove(key));
+      this.referenceKeys().forEach(key => this.localRemove(key));
     },
 
     clearBranchRefs() {
@@ -794,6 +815,7 @@
     }
   };
 
+  StoryLibrary.referenceValues();
   window.BAOStoryLibrary = StoryLibrary;
   StoryLibrary.open().finally(() => StoryLibrary.install());
 })();
