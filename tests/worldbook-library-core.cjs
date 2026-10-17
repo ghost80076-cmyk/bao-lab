@@ -78,6 +78,29 @@ assert.ok(passage.text.length <= 2200, 'retrieval keeps the existing per-turn bu
 assert.equal(longEntry.entries[0].content, originalLongContent, 'passage retrieval must not mutate the stored source');
 assert.throws(() => core.normalizePack({ ...locked, entries: [{ ...locked.entries[0], content: "" }] }), /空白/);
 
+const actorScoped = core.normalizePack({
+  schema: core.SCHEMA, version: 1, meta: { id: "actor-scope-test", name: "角色知情回歸", world: "general" },
+  entries: [
+    { id: "shared-constant", title: "共用規則", mode: "constant", content: "全城每週休息一天。" },
+    { id: "erin-constant", title: "私密規則", mode: "constant", content: "艾琳獨自知道銀鑰匙的位置。", knowledge_scope: "actors", known_by: ["艾琳"] },
+    { id: "erin-keyword", title: "私密事件", mode: "keyword", keywords: ["密令"], content: "艾琳掌握私下密令。", knowledge_scope: "actors", known_by: ["艾琳"] },
+    { id: "unknown-keyword", title: "無知情證據", mode: "keyword", keywords: ["密令"], content: "無人得知的密令。", knowledge_scope: "actors", known_by: [] }
+  ]
+});
+assert.equal(actorScoped.entries[1].knowledge_scope, "actors");
+assert.deepEqual(actorScoped.entries[1].known_by, ["艾琳"]);
+const cast = actors => ({ actors, latestUser: "密令" });
+assert.match(core.constants([actorScoped], ["actor-scope-test"], cast([])).text, /全城每週休息一天/);
+assert.doesNotMatch(core.constants([actorScoped], ["actor-scope-test"], cast([])).text, /銀鑰匙/);
+assert.match(core.constants([actorScoped], ["actor-scope-test"], cast(["艾琳"])).text, /銀鑰匙/);
+assert.doesNotMatch(core.constants([actorScoped], ["actor-scope-test"], cast(["艾琳","守衛"])).text, /銀鑰匙/);
+assert.match(core.select([actorScoped], ["actor-scope-test"], cast(["艾琳"])).text, /艾琳掌握私下密令/);
+assert.doesNotMatch(core.select([actorScoped], ["actor-scope-test"], cast(["守衛"])).text, /艾琳掌握私下密令/);
+assert.doesNotMatch(core.select([actorScoped], ["actor-scope-test"], cast(["艾琳","守衛"])).text, /艾琳掌握私下密令/);
+assert.doesNotMatch(core.select([actorScoped], ["actor-scope-test"], cast(["艾琳"])).text, /無人得知的密令/);
+assert.equal(core.select([actorScoped], ["actor-scope-test"], cast([])).text, "");
+assert.equal(core.normalizePack(actorScoped).entries[1].known_by[0], "艾琳", "reload preserves actor scope");
+
 const loader = fs.readFileSync(path.join(__dirname, "../js/site-ui.js"), "utf8");
 const runtime = fs.readFileSync(path.join(__dirname, "../js/worldbook-library.js"), "utf8");
 assert.ok(loader.indexOf('js/prompt-orchestrator.js') < loader.indexOf('js/worldbook-library.js'));

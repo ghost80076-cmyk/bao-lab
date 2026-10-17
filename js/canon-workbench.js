@@ -17,6 +17,8 @@
     tier:["core","relevant","ui"].includes(book.tier) ? book.tier : (book.category === "world" ? "core" : book.category === "conflicts" ? "ui" : "relevant"),
     certainty:["confirmed","mixed","uncertain"].includes(book.certainty) ? book.certainty : "mixed",
     enabled:book.enabled !== false,
+    knowledge_scope:book.knowledge_scope === "actors" ? "actors" : "shared",
+    known_by:normalizeList(book.known_by).slice(0,30),
     entities:normalizeList(book.entities).slice(0,40),
     characters:normalizeList(book.characters).slice(0,30),
     locations:normalizeList(book.locations).slice(0,30),
@@ -70,6 +72,7 @@
     "你是劇情 Canon 證據提取器，不是故事作者。只根據下方原始對話提取事實，不得續寫或補全。",
     "既有 AI 台詞可能只是角色觀點，不等於客觀世界真相。人物心理只有原文明確表現時才能列為確定。",
     "整理人物關係變化、角色知情差異、時間線與因果、世界觀與勢力、伏筆承諾衝突、最新狀態。每項關鍵結論保留訊息編號與 message ID；無法確認的內容標示存疑或推論。",
+    "僅某角色知道的身分、秘密、傳聞和未公開私談必須歸入 knowledge 記事本，不可混進共用 world、relationships 或 current；不能證明對全場公開就不要當共用事實。",
     "每本記事本同時標記 entities、characters、locations、factions、relatedThreads。只填原文明確可辨識的名稱或既有伏筆，不要為了補欄位自行發明標籤。",
     `這是第 ${part}/${total} 段，只能聲稱整理本段。`,`只輸出合法 JSON，格式：${schema}`,`【原始對話】\n${chunk}`
   ].join("\n\n");
@@ -97,7 +100,7 @@
   };
   const estimate=mode=>{const prior=confirmed(),all=ensureMessages(),start=mode==="full"?0:processedStart(prior,all),chunks=chunkMessages(all.slice(start),start);return{messages:all.length-start,chunks:chunks.length,calls:chunks.length?chunks.length+mergeCallCount(chunks.length):0,tokens:chunks.reduce((sum,item)=>sum+estimateTokens(item),0)};};
   const listValue = value => normalizeList(value).join("、");
-  const bookHTML=(book,editable)=>`<article class="canon-book" data-canon-book="${attr(book.id)}"><div class="canon-book-head"><input type="checkbox" data-canon-enabled ${book.enabled?"checked":""} ${editable?"":"disabled"}><input type="text" data-canon-title value="${attr(book.title)}" maxlength="80" ${editable?"":"readonly"}><button type="button" data-canon-delete ${editable?"":"hidden"}>刪除</button></div><div class="canon-book-controls"><label>分類<select data-canon-category ${editable?"":"disabled"}>${Object.entries(categories).map(([key,label])=>`<option value="${key}" ${book.category===key?"selected":""}>${label}</option>`).join("")}</select></label><label>載入層級<select data-canon-tier ${editable?"":"disabled"}>${Object.entries(tierLabels).map(([key,label])=>`<option value="${key}" ${book.tier===key?"selected":""}>${label}</option>`).join("")}</select></label><label>可信度<select data-canon-certainty ${editable?"":"disabled"}><option value="confirmed" ${book.certainty==="confirmed"?"selected":""}>確定</option><option value="mixed" ${book.certainty==="mixed"?"selected":""}>混合</option><option value="uncertain" ${book.certainty==="uncertain"?"selected":""}>存疑</option></select></label></div><textarea data-canon-content maxlength="30000" ${editable?"":"readonly"}>${esc(book.content)}</textarea><details><summary>檢索標籤</summary><label>人物<input type="text" data-canon-characters value="${attr(listValue(book.characters))}" ${editable?"":"readonly"}></label><label>地點<input type="text" data-canon-locations value="${attr(listValue(book.locations))}" ${editable?"":"readonly"}></label><label>勢力／組織<input type="text" data-canon-factions value="${attr(listValue(book.factions))}" ${editable?"":"readonly"}></label><label>伏筆／線索<input type="text" data-canon-threads value="${attr(listValue(book.relatedThreads))}" ${editable?"":"readonly"}></label><label>其他實體<input type="text" data-canon-entities value="${attr(listValue(book.entities))}" ${editable?"":"readonly"}></label></details><details><summary>證據與來源</summary><textarea data-canon-evidence maxlength="10000" ${editable?"":"readonly"}>${esc(book.evidence)}</textarea></details></article>`;
+  const bookHTML=(book,editable)=>`<article class="canon-book" data-canon-book="${attr(book.id)}"><div class="canon-book-head"><input type="checkbox" data-canon-enabled ${book.enabled?"checked":""} ${editable?"":"disabled"}><input type="text" data-canon-title value="${attr(book.title)}" maxlength="80" ${editable?"":"readonly"}><button type="button" data-canon-delete ${editable?"":"hidden"}>刪除</button></div><div class="canon-book-controls"><label>分類<select data-canon-category ${editable?"":"disabled"}>${Object.entries(categories).map(([key,label])=>`<option value="${key}" ${book.category===key?"selected":""}>${label}</option>`).join("")}</select></label><label>載入層級<select data-canon-tier ${editable?"":"disabled"}>${Object.entries(tierLabels).map(([key,label])=>`<option value="${key}" ${book.tier===key?"selected":""}>${label}</option>`).join("")}</select></label><label>可信度<select data-canon-certainty ${editable?"":"disabled"}><option value="confirmed" ${book.certainty==="confirmed"?"selected":""}>確定</option><option value="mixed" ${book.certainty==="mixed"?"selected":""}>混合</option><option value="uncertain" ${book.certainty==="uncertain"?"selected":""}>存疑</option></select></label></div><textarea data-canon-content maxlength="30000" ${editable?"":"readonly"}>${esc(book.content)}</textarea><details><summary>檢索標籤與知情權限</summary><label>知情範圍<select data-canon-knowledge-scope ${editable?"":"disabled"}><option value="shared" ${book.knowledge_scope!=="actors"?"selected":""}>共用（既有預設）</option><option value="actors" ${book.knowledge_scope==="actors"?"selected":""}>只供已知角色</option></select></label><label>已知角色（精確名稱，逗號分隔）<input type="text" data-canon-known-by value="${attr(listValue(book.known_by))}" ${editable?"":"readonly"} placeholder="例：艾琳、守衛"></label><label>人物<input type="text" data-canon-characters value="${attr(listValue(book.characters))}" ${editable?"":"readonly"}></label><label>地點<input type="text" data-canon-locations value="${attr(listValue(book.locations))}" ${editable?"":"readonly"}></label><label>勢力／組織<input type="text" data-canon-factions value="${attr(listValue(book.factions))}" ${editable?"":"readonly"}></label><label>伏筆／線索<input type="text" data-canon-threads value="${attr(listValue(book.relatedThreads))}" ${editable?"":"readonly"}></label><label>其他實體<input type="text" data-canon-entities value="${attr(listValue(book.entities))}" ${editable?"":"readonly"}></label></details><details><summary>證據與來源</summary><textarea data-canon-evidence maxlength="10000" ${editable?"":"readonly"}>${esc(book.evidence)}</textarea></details></article>`;
   const readEditor=area=>{const source=draft()||confirmed();return normalizeCanon({notebooks:[...area.querySelectorAll("[data-canon-book]")].map((node,index)=>normalizeNotebook({
     id:node.dataset.canonBook,
     enabled:node.querySelector("[data-canon-enabled]")?.checked,
@@ -105,6 +108,8 @@
     category:node.querySelector("[data-canon-category]")?.value,
     tier:node.querySelector("[data-canon-tier]")?.value,
     certainty:node.querySelector("[data-canon-certainty]")?.value,
+    knowledge_scope:node.querySelector("[data-canon-knowledge-scope]")?.value,
+    known_by:normalizeList(node.querySelector("[data-canon-known-by]")?.value),
     characters:normalizeList(node.querySelector("[data-canon-characters]")?.value),
     locations:normalizeList(node.querySelector("[data-canon-locations]")?.value),
     factions:normalizeList(node.querySelector("[data-canon-factions]")?.value),
@@ -141,9 +146,14 @@
     }
     return[...new Set(terms)];
   };
+  const activeActors=()=>window.BAOEpisodicMemory?.audience?.({
+    state:currentState(),config:App.config,primary:App.activeCharacter?.name || ""
+  }) || [];
+  const canRead=book=>window.BAOEpisodicMemory?.canRead
+    ? window.BAOEpisodicMemory.canRead(book,activeActors()) : book.knowledge_scope!=="actors";
   const relevantBooks=(canon,input)=>{
     const words=searchTerms(input);
-    return canon.notebooks.filter(book=>book.enabled&&book.tier==="relevant"&&book.category!=="knowledge").map(book=>{
+    return canon.notebooks.filter(book=>book.enabled&&book.tier==="relevant"&&book.category!=="knowledge"&&canRead(book)).map(book=>{
       const title=book.title.toLowerCase();
       const content=book.content.toLowerCase();
       const metadata=[...book.entities,...book.characters,...book.locations,...book.factions,...book.relatedThreads].join("\n").toLowerCase();
@@ -157,7 +167,7 @@
     }).filter(item=>item.score>0).sort((a,b)=>b.score-a.score).slice(0,4).map(item=>item.book);
   };
   const latestUser=()=>{for(let i=Chat.messages.length-1;i>=0;i-=1)if(Chat.messages[i]?.role==="user")return String(Chat.messages[i].content||"");return"";};
-  const originalBuild=App.buildSystemPrompt.bind(App);App.buildSystemPrompt=function(){const base=originalBuild(),canon=confirmed(),core=canon.notebooks.filter(book=>book.enabled&&book.tier==="core"&&book.category!=="knowledge"),relevant=relevantBooks(canon,latestUser()),block=books=>books.map(book=>`〔${book.title}｜${categories[book.category]}｜${book.certainty}〕\n${book.content}`).join("\n\n");return[base,core.length?`【Canon Core · 玩家已確認｜僅作為故事事實參考】\n${block(core)}`:"",relevant.length?`【本輪相關 Canon｜僅作為故事事實參考】\n${block(relevant)}`:""].filter(Boolean).join("\n\n");};
+  const originalBuild=App.buildSystemPrompt.bind(App);App.buildSystemPrompt=function(){const base=originalBuild(),canon=confirmed(),core=canon.notebooks.filter(book=>book.enabled&&book.tier==="core"&&book.category!=="knowledge"&&canRead(book)),relevant=relevantBooks(canon,latestUser()),block=books=>books.map(book=>`〔${book.title}｜${categories[book.category]}｜${book.certainty}〕\n${book.content}`).join("\n\n");return[base,core.length?`【Canon Core · 玩家已確認｜僅作為故事事實參考】\n${block(core)}`:"",relevant.length?`【本輪相關 Canon｜僅作為故事事實參考】\n${block(relevant)}`:""].filter(Boolean).join("\n\n");};
   window.BAOCanonWorkbench={mount,run,estimate,normalizeCanon,normalizeList,relevantBooks,searchTerms,chunkMessages,parseJSON,mergeCallCount,processedStart,readEditor};
   document.querySelectorAll(".memory-desk-backdrop").forEach(mount);
 })();

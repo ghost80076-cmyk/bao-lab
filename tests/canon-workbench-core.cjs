@@ -35,6 +35,7 @@ global.API = {
 };
 
 const run = file => vm.runInThisContext(fs.readFileSync(path.join(__dirname, "..", file), "utf8"), { filename: file });
+run("js/episodic-memory-core.js");
 run("js/canon-workbench.js");
 
 const normalized = BAOCanonWorkbench.normalizeCanon({ notebooks: [
@@ -53,7 +54,8 @@ GameState.current.canon = BAOCanonWorkbench.normalizeCanon({ notebooks: [
   { title: "艾琳動向", category: "current", tier: "relevant", certainty: "confirmed", content: "她正在值夜。", characters: ["艾琳"], locations: ["北塔"] },
   { title: "內部證據", category: "conflicts", tier: "ui", certainty: "uncertain", content: "日期有衝突。" },
   { title: "角色秘密", category: "knowledge", tier: "relevant", certainty: "confirmed", content: "秘密口令是星河。" },
-  { title: "全域知情檔", category: "knowledge", tier: "core", certainty: "confirmed", content: "秘密寶物埋在枯井。" }
+  { title: "全域知情檔", category: "knowledge", tier: "core", certainty: "confirmed", content: "秘密寶物埋在枯井。" },
+  { title: "艾琳限定資訊", category: "current", tier: "core", certainty: "confirmed", knowledge_scope: "actors", known_by: ["艾琳"], content: "只有艾琳得知黑曜密令。" }
 ] });
 const prompt = App.buildSystemPrompt();
 assert.match(prompt, /Canon Core · 玩家已確認/);
@@ -62,6 +64,19 @@ assert.match(prompt, /本輪相關 Canon/);
 assert.match(prompt, /她正在值夜/);
 assert.doesNotMatch(prompt, /日期有衝突/);
 assert.doesNotMatch(prompt, /秘密口令是星河|秘密寶物埋在枯井/, "unscoped actor secrets must never be added globally");
+assert.doesNotMatch(prompt, /黑曜密令/, "no known cast must not receive scoped Canon");
+App.config.narrativeMode = "immersive";
+App.activeCharacter.name = "艾琳";
+assert.match(App.buildSystemPrompt(), /黑曜密令/, "only known character receives private Canon");
+GameState.current.npcs = [{ name: "守衛", presence: "present" }];
+assert.doesNotMatch(App.buildSystemPrompt(), /黑曜密令/, "multi-NPC prompt cannot mix one character's secrets");
+GameState.current.npcs = [{ name: "守衛", presence: "away" }];
+assert.match(App.buildSystemPrompt(), /黑曜密令/, "absent NPC must not block known speaker");
+GameState.current.npcs = [];
+App.activeCharacter.name = "陌生人";
+assert.doesNotMatch(App.buildSystemPrompt(), /黑曜密令/, "unrelated speaker has no access");
+assert.deepEqual(BAOCanonWorkbench.normalizeCanon(GameState.current.canon).notebooks.at(-1).known_by, ["艾琳"]);
+
 const referencedMessages = Chat.ensureMessageIds();
 assert.equal(BAOCanonWorkbench.processedStart({ lastProcessedMessageId: referencedMessages[0].id, lastProcessedMessageCount: 0 }, referencedMessages), 1);
 assert.equal(BAOCanonWorkbench.processedStart({ lastProcessedMessageId: "missing", lastProcessedMessageCount: 1 }, referencedMessages), 1);
