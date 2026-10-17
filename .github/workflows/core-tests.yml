@@ -393,6 +393,7 @@ jobs:
           node --check js/api.js
           node --check js/cost-control.js
           node tests/api-send-wrapper-core.cjs
+          node tests/api-send-pipeline-core.cjs
       - name: App sendMessage wrapper foundation
         run: |
           node --check js/app.js

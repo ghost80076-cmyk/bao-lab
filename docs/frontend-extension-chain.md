@@ -198,3 +198,57 @@ A structural refactor must not change:
 - mobile/desktop story entry behavior.
 
 Structural cleanup and player-facing UX changes should stay in separate PRs.
+
+## AI request pipeline foundation (2026-10-17)
+
+`API.wrapSend` now composes named stage snapshots rather than an opaque chain of
+captured wrappers. The interface and execution order remain compatible: the most
+recently registered stage enters first and exits last. Each snapshot closes over
+its terminal and stage list, so retained send functions and in-flight requests do
+not pick up later registrations.
+
+This is the first migration step, **not** a fixed global phase order. Existing
+modules still register in loader order. Direct `API.send` assignments start a new
+segment on the next registration. Its terminal captures the legacy function once;
+reusing a mutable global dispatcher there would recurse through the function the
+legacy module captured earlier.
+
+`API.inspectSendPipeline()` returns only stage IDs:
+
+- `activeSegment`: execution order in the most recent segment, if it is still the
+  public send function;
+- `registered`: all IDs accepted through `wrapSend`, in registration order;
+- `legacyWrapperOnTop`: whether a direct assignment replaced that segment.
+
+The terminal may contain earlier segments and legacy behavior. This inspection is
+not a complete trace of the request, and intentionally contains no messages,
+connection settings, keys, or executable functions.
+
+Regression coverage: `tests/api-send-pipeline-core.cjs` exercises retained
+snapshots, concurrent registration, legacy interleaving, duplicate IDs, error and
+response identity, short circuits, and the real memory sanitation/helper routing
+modules in both installation orders. It runs in Core tests alongside existing
+provider, retry, streaming and wrapper contracts.
+
+### Remaining migration queue
+
+| Priority | Work | Acceptance gate |
+| --- | --- | --- |
+| P0 | Provider/hosted routing and cost accounting | Provider contracts, no additional hosted retry or usage settlement, task isolation |
+| P0 | Local storage and backup baseline | Existing migration, backup recovery and credential sanitation tests |
+| P1 | Move remaining direct send assignments into named registrations | Preserve captured-send behavior; test each wrapper before migration |
+| P1 | Define explicit phase dependencies across loader chains | Test routing before the affected transport/budget stages under alternate load orders |
+| P1 | Memory/world/state after-turn ownership | Same-model state merge and separate helper concurrency contracts |
+| P2 | UI/CSS and CI duplication | Separate from request transport changes |
+
+Additional direct-send owners to inventory before changing global order include
+`chat.js`, `chat-reading-scroll.js`, `status-usage-integrity.js`,
+`story-revision-state.js`, and `lm-studio.js`. The earlier table is a conceptual
+map, not an exhaustive ordering specification. `world-module-ui.js` also registers
+a named internal-state echo stage. Do not infer global phase order from these
+lists.
+
+Next PRs should migrate one direct owner at a time, then introduce explicit phase
+ordering only after combined hosted/helper/cost and streaming tests establish the
+required dependencies. Keep `GameState`, backup formats and player-facing UX out
+of those structural PRs.
