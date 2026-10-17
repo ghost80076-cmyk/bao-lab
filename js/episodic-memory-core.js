@@ -4,6 +4,18 @@
   const object = v => v && typeof v === 'object' && !Array.isArray(v);
   const text = (v, max = 240) => typeof v === 'string' ? v.trim().slice(0, max) : '';
   const list = (v, max = 24) => Array.isArray(v) ? [...new Set(v.map(x => text(x, 100)).filter(Boolean))].slice(0, max) : [];
+  // One shared cast calculation for event recall, Canon and story-local lore.
+  // A mention in dialogue or the work title does not make somebody a speaker.
+  const audience = ({ state, config, primary = '' } = {}) => {
+    const present = (Array.isArray(state?.npcs) ? state.npcs : [])
+      .filter(n => n?.presence === 'present').map(n => n.name);
+    return list(config?.narrativeMode === 'immersive' ? [primary, ...present] : present, 30);
+  };
+  const canRead = (entry, actors = []) => {
+    if (entry?.knowledge_scope !== 'actors') return true; // Legacy shared data.
+    const cast = list(actors, 30), known = list(entry.known_by, 30);
+    return cast.length > 0 && cast.every(actor => known.includes(actor));
+  };
   const hash = value => { let n = 2166136261; for (const c of String(value)) n = Math.imul(n ^ c.codePointAt(0), 16777619); return (n >>> 0).toString(36); };
   const signature = m => hash(JSON.stringify([m.role, m.content, m.context_content || '']));
   const terms = value => {
@@ -155,5 +167,5 @@
     }).reverse();
   }
   const updateContext = state => (Array.isArray(state?.episodicMemory?.events) ? state.episodicMemory.events : []).filter(object).slice(-8).map(e => ({ id: e.id, text: text(e.text, 120) }));
-  window.BAOEpisodicMemory = { rules, schema, updateContext, ingest, recall, knowledgeMatrix, terms, signature };
+  window.BAOEpisodicMemory = { rules, schema, updateContext, ingest, recall, knowledgeMatrix, audience, canRead, terms, signature };
 })();
