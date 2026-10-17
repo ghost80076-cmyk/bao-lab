@@ -27,7 +27,7 @@ async function initialization(failAt, clearAutosave = false) {
   let durable = baseline(), calls = 0;
   store._openDatabase = () => opening.promise;
   store._migrateLegacyToIndexedDB = async () => {};
-  store._loadIndexedDBCache = async () => { store._cache = structuredClone(durable); };
+  store._loadIndexedDBCache = async () => { store._cache = structuredClone(durable); store._expectedRevision = 0; };
   store._persistOperationIndexedDB = async operation => {
     calls++;
     if (calls === 1) { entered.resolve(); await release.promise; }
@@ -65,7 +65,10 @@ async function initialization(failAt, clearAutosave = false) {
       ...(durable.autosave ? [store._record('autosave', durable.autosave)] : []),
       ...durable.slots.map(item => store._record('slot', item))
     ];
-    browser.store._replaceDatabaseStories = async (autosave, slots) => { durable = structuredClone({ autosave, slots }); };
+    browser.store._replaceDatabaseStories = async (autosave, slots, resolveStories) => {
+      if (resolveStories) ({ autosave, slots } = resolveStories(await browser.store._getAllRecords()));
+      durable = structuredClone({ autosave, slots });
+    };
     await browser.store._migrateLegacyToIndexedDB();
   } else {
     assert.equal(store._mode, 'indexedDB');
@@ -83,7 +86,11 @@ async function transactions() {
     const staged = new Map(durable);
     let aborted = false;
     const tx = {
-      objectStore: () => ({ delete: key => staged.delete(key), put: record => staged.set(record.id, record.value) }),
+      objectStore: () => ({
+        get() { const request = {}; queueMicrotask(() => { request.result = undefined; request.onsuccess?.(); }); return request; },
+        delete: key => staged.delete(key),
+        put: record => { if (record.kind !== 'storage-meta') staged.set(record.id, record.value); }
+      }),
       abort() { aborted = true; queueMicrotask(() => tx.onabort?.()); }
     };
     setImmediate(() => {

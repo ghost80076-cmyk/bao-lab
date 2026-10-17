@@ -11,6 +11,7 @@ class Database {
     const requests = [];
     let staged, aborted = false;
     const tx = { error: null, objectStore: () => ({
+      get: id => request(() => staged.has(id) ? structuredClone(staged.get(id)) : undefined),
       getAll: () => request(() => [...staged.values()].map(value => structuredClone(value))),
       put: value => request(() => staged.set(value.id, structuredClone(value))),
       delete: id => { if (id === this.failDelete) throw Error('injected prune failure'); return request(() => staged.delete(id)); }
@@ -33,8 +34,9 @@ class Database {
   }
   drain() { if (!this.active && this.queue.length) { this.active = true; this.queue.shift()(); } }
 }
-function tab(db, cache) {
+function tab(db, cache, localStorage = null) {
   const c = { structuredClone, setTimeout, console: { warn() {} }, localStorage: { getItem: () => null, setItem() {}, removeItem() {} } };
+  if (localStorage) c.localStorage = localStorage;
   c.window = c; vm.createContext(c);
   vm.runInContext(source.replace(/Storage\.init\(\);\s*$/, '') + '\nwindow.store = Storage;', c);
   Object.assign(c.store, { _db: db, _mode: 'indexedDB', _ready: true, _initPromise: Promise.resolve('indexedDB'), _cache: structuredClone(cache) });
@@ -79,8 +81,11 @@ async function main() {
   await left._getAllRecords(); // wait until the aborted transaction has settled
   assert.equal(cappedDB.records.has('rollback-slot'), false, 'prune errors roll back the newly queued slot');
   assert.ok(cappedDB.records.has('old-1'), 'failed pruning must retain the previous durable slot');
-  assert.equal(cappedDB.records.size, 20);
+  assert.equal([...cappedDB.records.values()].filter(record => record.kind === 'slot').length, 20);
   console.log('Storage multitab: concurrent adds, stale deletes, no resurrection, atomic capacity and reload passed');
 }
-const watchdog = setTimeout(() => { console.error('Storage multitab test stalled'); process.exitCode = 1; }, 5000);
-main().catch(error => { console.error(error); process.exitCode = 1; }).finally(() => clearTimeout(watchdog));
+module.exports = { Database, tab, save, add };
+if (require.main === module) {
+  const watchdog = setTimeout(() => { console.error('Storage multitab test stalled'); process.exitCode = 1; }, 5000);
+  main().catch(error => { console.error(error); process.exitCode = 1; }).finally(() => clearTimeout(watchdog));
+}
