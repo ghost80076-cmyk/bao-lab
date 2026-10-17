@@ -82,7 +82,7 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/world-module-ui.js?v=8"))
     .then(() => loadBAOScript("js/world-module-manager.js?v=10"))
     .then(() => loadBAOScript("js/world-relevance.js?v=4"))
-    .then(() => loadBAOScript("js/character-status-ui.js?v=10"))
+    .then(() => loadBAOScript("js/character-status-ui.js?v=11"))
     .then(() => loadBAOScript("js/world-state-hook.js?v=3"))
     .catch(err => console.warn("BAO/LAB world state or character status modules failed to load:", err));
   loadBAOScript("js/cost-control.js?v=2")
@@ -92,7 +92,7 @@ window.addEventListener("DOMContentLoaded", () => {
     .catch(err => console.warn("BAO/LAB cost, provider compatibility, model routing or provider diagnostics controls failed to load:", err));
   loadBAOScript("js/storage-write-guard.js?v=2")
     .then(() => loadBAOScript("js/chat-shell-fix.js?v=2"))
-    .then(() => loadBAOScript("js/player-settings.js?v=7"))
+    .then(() => loadBAOScript("js/player-settings.js?v=8"))
     .then(() => loadBAOScript("js/player-text-replace-mod.js?v=2"))
     .then(() => loadBAOScript("js/narrative-settings.js?v=7"))
     .then(() => loadBAOScript("js/memory-workbench-core.js?v=3"))
@@ -127,7 +127,7 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/chat-experience-repairs.js?v=3"))
     .then(() => loadBAOScript("js/story-quick-commands-core.js"))
     .then(() => loadBAOScript("js/story-quick-commands.js?v=7"))
-    .then(() => loadBAOScript("js/mobile-reading-layout.js?v=21"))
+    .then(() => loadBAOScript("js/mobile-reading-layout.js?v=22"))
     .then(() => loadBAOScript("js/story-actor-pack-core.js?v=3"))
     .then(() => loadBAOScript("js/story-actors-general-pack.js?v=1"))
     .then(() => loadBAOScript("js/three-realms-story-actor-pack.js?v=1"))
