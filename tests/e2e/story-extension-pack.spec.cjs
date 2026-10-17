@@ -258,7 +258,7 @@ for (const width of [390,1280]) {
     await expect(inventory).toHaveCount(1);
     const storyBefore=await page.evaluate(() => JSON.stringify(GameState.current));
 
-    for(const theme of ['mist','rose']){
+    for(const theme of ['mist','dawn','dusk','sunset']){
       await page.evaluate(value => YoruExperience.choose({theme:value}),theme);
       const tokens=await dialog.evaluate(() => {
         const token=name => {
