@@ -366,6 +366,16 @@
         const staleCheckpoints = records.filter(record => record.kind === "checkpoint" && record.storyId === refs.storyId && record.chapterId === refs.chapterId && !messageIds.has(String(record.messageId || "")));
         const previousStory = records.find(record => record.kind === "story" && record.storyId === refs.storyId);
         const previousChapter = records.find(record => record.kind === "chapter" && record.storyId === refs.storyId && record.chapterId === refs.chapterId);
+        // Tombstones and contents share this write transaction, so either the
+        // save commits before deletion or the later save is refused.
+        const parentId = previousChapter ? previousChapter.parentChapterId : refs.parentChapterId;
+        if (records.some(record => record.storyId === refs.storyId &&
+            (record.kind === "deletion" || (record.kind === "chapter-deletion" &&
+              (record.chapterId === refs.chapterId || (parentId && record.chapterId === parentId)))))) {
+          const error = new Error("此故事或章節已被刪除，故事庫未寫入這次存檔。請保留目前分頁，先備份對話再重新建立故事。");
+          error.code = "YORUBAY_LIBRARY_DELETED";
+          throw error;
+        }
         const story = this.storyRecord(payload, refs, previousStory);
         const chapter = this.chapterRecord(payload, refs, previousChapter);
         const snapshot = this.snapshotRecord(payload, refs);
@@ -396,7 +406,11 @@
           this._writeFailures.delete(key);
           return true;
         } catch (error) {
+          const prior = this._writeFailures.get(key);
           this._writeFailures.set(key, { storyId, chapterId, error });
+          if (error.code === "YORUBAY_LIBRARY_DELETED" && prior?.error?.code !== error.code) {
+            try { window.BAOFeedback?.notify?.(error.message, "error"); } catch {}
+          }
           console.warn("BAO/LAB Story Library write failed:", error);
           return false;
         }
@@ -592,63 +606,72 @@
       return chapters.filter(chapter => found.has(chapter.chapterId));
     },
 
+    writeStoryDeletion(records, store, storyId) {
+      records.filter(record => record.storyId === storyId).forEach(record => store.delete(record.id));
+      store.put({ id: "deletion:" + storyId, kind: "deletion", storyId, deletedAt: new Date().toISOString() });
+    },
+
+    writeChapterDeletion(records, store, storyId, ids, promoteChildren = false) {
+      const chapters = records.filter(record => record.kind === "chapter" && record.storyId === storyId);
+      const remaining = chapters.filter(record => !ids.has(record.chapterId))
+        .sort((a, b) => String(a.createdAt || "").localeCompare(String(b.createdAt || "")));
+      if (!remaining.length) {
+        this.writeStoryDeletion(records, store, storyId);
+        return;
+      }
+      const deletedAt = new Date().toISOString();
+      records.filter(record => record.storyId === storyId && ids.has(record.chapterId)).forEach(record => store.delete(record.id));
+      for (const chapterId of ids) store.put({
+        id: "chapter-deletion:" + JSON.stringify([storyId, chapterId]),
+        kind: "chapter-deletion", storyId, chapterId, deletedAt
+      });
+      // Deleting one chapter promotes its direct children; a subtree deletion
+      // removes its descendants instead. Both operate on this transaction's view.
+      if (promoteChildren) remaining.filter(record => ids.has(record.parentChapterId)).forEach(record => store.put({
+        ...record, parentChapterId: "", branchPointMessageId: "", branchPointSeq: -1,
+        branchPointPreview: "", updatedAt: deletedAt
+      }));
+      const story = records.find(record => record.kind === "story" && record.storyId === storyId);
+      if (story && ids.has(story.activeChapterId)) store.put({
+        ...story, activeChapterId: remaining[remaining.length - 1].chapterId, updatedAt: deletedAt
+      });
+    },
+
     async deleteBranch(storyId, chapterId) {
       if (!await this.open()) return false;
-      const refs = this.refs();
-      if (refs.storyId === storyId && refs.chapterId === chapterId) return false;
-      const records = await this.allRecords();
-      const target = records.find(record => record.kind === "chapter" && record.storyId === storyId && record.chapterId === chapterId);
-      if (!target?.parentChapterId) return false;
-      const descendants = await this.branchDescendants(storyId, chapterId);
-      const ids = new Set([chapterId, ...descendants.map(item => item.chapterId)]);
-      const doomed = records.filter(record => record.storyId === storyId && ids.has(record.chapterId));
-      await this.transaction("readwrite", store => doomed.forEach(record => store.delete(record.id)));
+      const ids = await this.mutateRecords((records, store) => {
+        const chapters = records.filter(record => record.kind === "chapter" && record.storyId === storyId);
+        const target = chapters.find(record => record.chapterId === chapterId);
+        if (!target?.parentChapterId) return false;
+        const ids = new Set([chapterId]);
+        let changed = true;
+        while (changed) {
+          changed = false;
+          for (const chapter of chapters) if (ids.has(chapter.parentChapterId) && !ids.has(chapter.chapterId)) {
+            ids.add(chapter.chapterId); changed = true;
+          }
+        }
+        const refs = this.refs();
+        if (refs.storyId === storyId && ids.has(refs.chapterId)) return false;
+        this.writeChapterDeletion(records, store, storyId, ids);
+        return ids;
+      });
+      if (!ids) return false;
       this.clearWriteFailures(storyId, ids);
       return { deleted: ids.size };
     },
 
     async deleteChapter(storyId, chapterId) {
       if (!await this.open()) return false;
-      const refs = this.refs();
-      if (refs.storyId === storyId && refs.chapterId === chapterId) return false;
-      const records = await this.allRecords();
-      const target = records.find(item => item.kind === "chapter" && item.storyId === storyId && item.chapterId === chapterId);
-      if (!target) return false;
-
-      // Deleting one library chapter must never silently delete its branch tree.
-      // Direct children are promoted to independent top-level story lines; their
-      // own descendants stay attached to them, so every surviving snapshot and
-      // message remains reachable.
-      const promotedAt = new Date().toISOString();
-      const directChildren = records
-        .filter(item => item.kind === "chapter" && item.storyId === storyId && item.parentChapterId === chapterId)
-        .map(item => ({
-          ...item,
-          parentChapterId: "",
-          branchPointMessageId: "",
-          branchPointSeq: -1,
-          branchPointPreview: "",
-          updatedAt: promotedAt
-        }));
-      const chapterRecords = records.filter(item => item.storyId === storyId && item.chapterId === chapterId);
-      await this.transaction("readwrite", store => {
-        chapterRecords.forEach(item => store.delete(item.id));
-        directChildren.forEach(item => store.put(item));
+      const removed = await this.mutateRecords((records, store) => {
+        const refs = this.refs();
+        if (refs.storyId === storyId && refs.chapterId === chapterId) return false;
+        if (!records.some(record => record.kind === "chapter" && record.storyId === storyId && record.chapterId === chapterId)) return false;
+        this.writeChapterDeletion(records, store, storyId, new Set([chapterId]), true);
+        return true;
       });
-      this.clearWriteFailures(storyId, new Set([chapterId]));
-
-      const remaining = records
-        .filter(item => item.kind === "chapter" && item.storyId === storyId && item.chapterId !== chapterId)
-        .map(item => directChildren.find(child => child.chapterId === item.chapterId) || item)
-        .sort((a, b) => String(a.createdAt || "").localeCompare(String(b.createdAt || "")));
-      if (!remaining.length) return this.deleteStory(storyId);
-      const story = records.find(item => item.kind === "story" && item.storyId === storyId);
-      if (story && story.activeChapterId === chapterId) {
-        story.activeChapterId = remaining[remaining.length - 1].chapterId;
-        story.updatedAt = promotedAt;
-        await this.transaction("readwrite", store => store.put(story));
-      }
-      return true;
+      if (removed) this.clearWriteFailures(storyId, new Set([chapterId]));
+      return removed;
     },
 
     async reconstruct(storyId, chapterId = "") {
@@ -681,13 +704,14 @@
 
     async deleteStory(storyId) {
       if (!await this.open()) return false;
-      const records = (await this.allRecords()).filter(record => record.storyId === storyId);
-      if (!records.length) return false;
-      await this.transaction("readwrite", store => {
-        records.forEach(record => store.delete(record.id));
-        store.put({ id: "deletion:" + storyId, kind: "deletion", storyId, deletedAt: new Date().toISOString() });
+      const removed = await this.mutateRecords((records, store) => {
+        if (!records.some(record => record.storyId === storyId)) return false;
+        this.writeStoryDeletion(records, store, storyId);
+        return true;
       });
+      if (!removed) return false;
       this.clearWriteFailures(storyId);
+      this._openedAtByStory.delete(storyId);
       if (this.refs().storyId === storyId) this.clearRefs();
       return true;
     },

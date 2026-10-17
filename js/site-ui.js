@@ -102,7 +102,7 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/chat-markup.js?v=2"))
     .then(() => loadBAOScript("js/story-tools.js?v=6"))
     .then(() => loadBAOScript("js/context-pack-resume.js"))
-    .then(() => loadBAOScript("js/story-library.js?v=3"))
+    .then(() => loadBAOScript("js/story-library.js?v=4"))
     .then(() => loadBAOScript("js/story-backup.js?v=3"))
     .then(() => loadBAOScript("js/google-drive-config.js"))
     .then(() => loadBAOScript("js/google-drive-sync.js"))

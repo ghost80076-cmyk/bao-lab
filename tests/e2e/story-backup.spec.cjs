@@ -300,3 +300,49 @@ test('two library connections preserve concurrent metadata and replace a whole c
     expect(result.restored._library.chapterLabel).toBe('Shared chapter');
   } finally { await other.close(); }
 });
+
+test('deleted library identities reject queued writes and stale saves across pages', async ({ page, context }) => {
+  await page.goto('/');
+  await page.waitForFunction(() => !!window.BAOStoryLibrary);
+  const other = await context.newPage();
+  try {
+    await other.goto('/');
+    await other.waitForFunction(() => !!window.BAOStoryLibrary);
+    const payload = { characterId: 'deleted-hero', characterName: 'Deleted hero', savedAt: '2026-10-18T01:00:00Z', config: {}, state: {},
+      chat: { messages: [{ id: 'point', role: 'assistant', content: 'Keep only until deletion' }] },
+      _library: { storyId: 'deleted-story', chapterId: 'root', chapterLabel: 'Root', storyCreatedAt: '2026-01-01', chapterCreatedAt: '2026-01-01' } };
+    expect(await page.evaluate(value => BAOStoryLibrary.persist(value), payload)).toBe(true);
+    await page.evaluate(value => {
+      const lib = BAOStoryLibrary;
+      lib._writeQueue = new Promise(resolve => { window.releaseDeletedWrite = resolve; });
+      window.deletedWrite = lib.queuePersist(value);
+    }, payload);
+    expect(await other.evaluate(() => BAOStoryLibrary.deleteStory('deleted-story'))).toBe(true);
+    const blocked = await page.evaluate(async () => {
+      window.releaseDeletedWrite();
+      return { result: await window.deletedWrite, durable: await BAOStoryLibrary.flush('deleted-story'),
+        restored: await BAOStoryLibrary.reconstruct('deleted-story', 'root') };
+    });
+    expect(blocked).toEqual({ result: false, durable: false, restored: null });
+    const fresh = structuredClone(payload); fresh._library.storyId = 'fresh-story';
+    expect(await other.evaluate(value => BAOStoryLibrary.persist(value), fresh)).toBe(true);
+    const branch = structuredClone(fresh);
+    branch._library = { ...fresh._library, chapterId: 'branch', parentChapterId: 'root' };
+    expect(await page.evaluate(value => BAOStoryLibrary.persist(value), branch)).toBe(true);
+    expect(await other.evaluate(() => BAOStoryLibrary.deleteBranch('fresh-story', 'branch'))).toEqual({ deleted: 1 });
+    await page.reload();
+    await page.waitForFunction(() => !!window.BAOStoryLibrary);
+    const stale = await page.evaluate(async ({ payload, branch }) => {
+      const failures = [];
+      for (const value of [payload, branch]) {
+        try { await BAOStoryLibrary.persist(value); failures.push('unexpected success'); }
+        catch (error) { failures.push(error.code); }
+      }
+      return { failures, chapters: (await BAOStoryLibrary.listChapters('fresh-story')).map(value => value.chapterId),
+        deleted: await BAOStoryLibrary.reconstruct('deleted-story', 'root') };
+    }, { payload, branch });
+    expect(stale.failures).toEqual(['YORUBAY_LIBRARY_DELETED', 'YORUBAY_LIBRARY_DELETED']);
+    expect(stale.chapters).toEqual(['root']);
+    expect(stale.deleted).toBeNull();
+  } finally { await other.close(); }
+});
