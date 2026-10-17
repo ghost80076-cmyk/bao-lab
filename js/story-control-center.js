@@ -36,7 +36,7 @@
     try { notes = window.BAOMemoryWorkbench?.readSlots?.() || []; } catch (_) {}
     let statusConfig = {};
     try { statusConfig = window.BAOCharacterStatus?.configFor?.(App.activeCharacter) || {}; } catch (_) {}
-    const narrativeState = window.BAONarrativeSettings?.get?.() || {};
+    const narrativeState = config.narrative || window.BAONarrativeSettings?.get?.() || {};
     const narrativeStatus = window.BAONarrativeSettings?.statusLabel?.(narrativeState) || {};
     let extensions = { title: "故事擴充使用原始設定", detail: "世界、閱讀與顯示規則" };
     try {

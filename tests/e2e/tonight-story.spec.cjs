@@ -51,4 +51,6 @@ test('story-local choices do not change defaults or another story', async ({page
   await page.locator('[data-narrative-save]').click();
   expect(await page.evaluate(() => App.config.narrative)).toMatchObject({stylePacks:['suspense'],storyExtras:['surroundings']});
   expect(await page.evaluate(() => BAONarrativeSettings.get().stylePacks)).toEqual(['natural']);
+  await page.waitForFunction(() => !!window.BAOStoryControlCenter);
+  expect(await page.evaluate(() => BAOStoryControlCenter.snapshot().narrative.detail)).toContain('懸疑氛圍');
 });

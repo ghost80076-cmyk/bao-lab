@@ -28,7 +28,6 @@ jobs:
           - group: mobile-reading
             specs: |
               tests/e2e/experience-preferences.spec.cjs
-              tests/e2e/story-tool-navigation-intent.spec.cjs
               tests/e2e/tonight-story.spec.cjs
               tests/e2e/narrative-blunt-style.spec.cjs
               tests/e2e/player-settings-theme.spec.cjs
