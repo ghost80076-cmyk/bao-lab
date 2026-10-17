@@ -80,7 +80,9 @@ jobs:
           node --check js/storage-write-guard.js
           node tests/storage-write-guard-load-order.cjs
       - name: Story library core
-        run: node tests/story-library-core.cjs
+        run: |
+          node tests/story-library-core.cjs
+          node tests/story-library-durability-core.cjs
       - name: Long story 3000-round stress
         run: node tests/long-story-stress-core.cjs
       - name: Story bundle backup

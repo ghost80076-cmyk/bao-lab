@@ -151,3 +151,52 @@ test("full story bundle survives a device-style export and import with branches 
   await expect(page.getByRole("heading", { name: "故事分支" })).toBeVisible();
   await expect(page.locator(".story-branch-row")).toHaveCount(2);
 });
+
+test('backup waits for the correct chapter and refuses stale data after a library failure', async ({ page, context }) => {
+  await context.route('**/story-library-test-harness', route => route.fulfill({
+    contentType: 'text/html', body: '<!doctype html><meta charset="utf-8"><script src="/js/storage.js"></script><script>window.Storage=Storage;</script><script src="/js/story-library.js"></script><script src="/js/story-backup.js"></script>'
+  }));
+  await page.goto('/story-library-test-harness');
+  const result = await page.evaluate(async () => {
+    const library = BAOStoryLibrary;
+    await library.open();
+    const payload = label => ({ characterId: 'hero', characterName: 'Hero', savedAt: new Date().toISOString(), config: {},
+      chat: { messages: [{ id: 'u', role: 'user', content: label }, { id: 'a', role: 'assistant', content: label }], summary: '' }, state: {} });
+    const a = library.beginStory('A');
+    let release;
+    library._writeQueue = new Promise(resolve => { release = resolve; });
+    const queued = library.queuePersist(payload('A-progress'));
+    const b = library.beginStory('B');
+    release(); await queued;
+    const aSaved = await library.reconstruct(a.storyId, a.chapterId);
+    const bSaved = await library.reconstruct(b.storyId, b.chapterId);
+    const stillB = library.refs().storyId === b.storyId;
+    const snapshotId = 'snapshot:' + a.storyId + ':' + a.chapterId;
+    try { await library.transaction('readwrite', store => { store.delete(snapshotId); throw Error('abort probe'); }); } catch {}
+    const rolledBack = Boolean(await library.reconstruct(a.storyId, a.chapterId));
+    library.adoptRefs({ _library: a });
+    const persist = library.persist.bind(library);
+    library.persist = async () => { throw Error('injected disk failure'); };
+    Storage.saveStory = () => { library.queuePersist({ ...payload('latest'), _library: a }); return true; };
+    let error = '';
+    try { await BAOStoryBackup.buildBundle(); } catch (failure) { error = failure.message; }
+    const prior = await library.reconstruct(a.storyId, a.chapterId);
+    library.persist = persist;
+    const bundle = await BAOStoryBackup.buildBundle();
+    library.persist = async value => value._library.parentChapterId ? false : persist(value);
+    let branchError = '';
+    try { await library.createBranch('a', 'failed branch'); } catch (failure) { branchError = failure.message; }
+    return { aText: aSaved?.chat.messages[0].content, bSaved, stillB, rolledBack, error,
+      priorText: prior?.chat.messages[0].content, latestText: bundle.chapters[0].payload.chat.messages[0].content,
+      branchError, originalChapter: library.refs().chapterId === a.chapterId };
+  });
+  expect(result.aText).toBe('A-progress');
+  expect(result.bSaved).toBeNull();
+  expect(result.stillB).toBe(true);
+  expect(result.rolledBack).toBe(true);
+  expect(result.error).toContain('最新章節尚未成功寫入');
+  expect(result.priorText).toBe('A-progress');
+  expect(result.latestText).toBe('latest');
+  expect(result.branchError).toContain('新分支尚未成功寫入');
+  expect(result.originalChapter).toBe(true);
+});
