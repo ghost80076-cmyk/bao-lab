@@ -278,13 +278,14 @@ const Storage = {
       tx.oncomplete = () => resolve(true);
       tx.onerror = () => reject(tx.error || new Error("IndexedDB transaction failed."));
       tx.onabort = () => reject(tx.error || new Error("IndexedDB transaction aborted."));
-      try { action(store, tx); }
-      catch (error) {
+      const abort = error => {
         // Reject with the action error and roll back any requests already queued.
         reject(error);
         try { tx.abort(); }
         catch {}
-      }
+      };
+      try { action(store, tx, abort); }
+      catch (error) { abort(error); }
     });
   },
 
@@ -430,10 +431,23 @@ const Storage = {
       return;
     }
     if (operation.type === "saveSlot" || operation.type === "deleteSlot") {
-      const existing = await this._getAllRecords();
-      await this._transaction("readwrite", store => {
-        existing.filter(record => record?.kind === "slot").forEach(record => store.delete(record.id));
-        this._cache.slots.forEach(slot => store.put(this._record("slot", slot)));
+      const id = operation.type === "saveSlot" ? String(operation.payload.id) : operation.id;
+      if (id === this.autosaveRecordId) return;
+      await this._transaction("readwrite", (store, tx, abort) => {
+        // A tab's cache may omit remote additions or still contain remote
+        // deletions. Persist only this operation, never the whole cached list.
+        if (operation.type === "saveSlot") store.put(this._record("slot", operation.payload));
+        else store.delete(id);
+        // Read after the mutation in this same transaction so concurrent tabs
+        // share one capacity decision and cannot overwrite each other's slots.
+        const request = store.getAll();
+        request.onsuccess = () => {
+          try {
+            request.result.filter(record => record?.kind === "slot")
+              .sort((a, b) => String(b.savedAt || "").localeCompare(String(a.savedAt || "")))
+              .slice(20).forEach(record => store.delete(record.id));
+          } catch (error) { abort(error); }
+        };
       });
     }
   },
