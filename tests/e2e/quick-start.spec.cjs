@@ -195,7 +195,7 @@ test('mobile quick setup is one horizontal three-step strip and keeps connection
   await expect(page.locator('.builder-step[data-step-panel="1"]')).toBeVisible();
 });
 
-for (const theme of ['mist','rose']) {
+for (const theme of ['mist','dawn','dusk','sunset']) {
   test('quick setup colors follow selected ' + theme + ' theme', async ({page}) => {
     await page.setViewportSize({width:390,height:844});
     await openBuilder(page);
@@ -210,12 +210,26 @@ for (const theme of ['mist','rose']) {
         connection:getComputedStyle(connection).backgroundColor,
         card:getComputedStyle(card).backgroundColor,
         text:getComputedStyle(card).color,
+        expectedSurface:(() => {
+          const probe=document.createElement('span');
+          probe.style.backgroundColor=getComputedStyle(document.documentElement).getPropertyValue('--yoru-card');
+          document.body.append(probe);
+          const value=getComputedStyle(probe).backgroundColor;
+          probe.remove();return value;
+        })(),
+        expectedText:(() => {
+          const probe=document.createElement('span');
+          probe.style.color=getComputedStyle(document.documentElement).getPropertyValue('--yoru-text');
+          document.body.append(probe);
+          const value=getComputedStyle(probe).color;
+          probe.remove();return value;
+        })(),
         overflow:document.documentElement.scrollWidth-innerWidth
       };
     });
-    expect(state.section).toBe(theme==='mist'?'rgb(255, 250, 244)':'rgb(64, 50, 57)');
+    expect(state.section).toBe(state.expectedSurface);
     expect(state.connection).toBe(state.section);
-    expect(state.text).toBe(theme==='mist'?'rgb(69, 59, 52)':'rgb(243, 232, 230)');
+    expect(state.text).toBe(state.expectedText);
     expect(state.overflow).toBeLessThanOrEqual(1);
   });
 }
