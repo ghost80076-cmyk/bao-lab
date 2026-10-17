@@ -406,3 +406,48 @@ test('live pages keep their own story and branch destinations after another page
     expect(afterDeletion.stories).toEqual([second.storyId]);
   } finally { await other.close(); }
 });
+
+test('full export uses one snapshot when another page saves and deletes during export', async ({ page, context }) => {
+  await page.goto('/');
+  await page.waitForFunction(() => !!window.BAOStoryBackup);
+  const other = await context.newPage();
+  try {
+    await other.goto('/');
+    await other.waitForFunction(() => !!window.BAOStoryBackup);
+    const make = (chapterId, revision) => ({ characterId: 'snapshot-hero', characterName: 'Snapshot hero', savedAt: '2026-10-18T01:00:00Z',
+      config: {}, state: { location: revision }, chat: { summary: revision, messages: [{ id: chapterId + '-' + revision, role: 'assistant', content: revision }] },
+      _library: { storyId: 'snapshot-story', chapterId, parentChapterId: chapterId === 'branch' ? 'root' : '', chapterLabel: chapterId,
+        storyCreatedAt: '2026-01-01', chapterCreatedAt: chapterId === 'root' ? '2026-01-01' : '2026-01-02' } });
+    const initial = [make('root', 'old'), make('branch', 'old')];
+    await page.evaluate(async values => {
+      for (const value of values) await BAOStoryLibrary.persist(value);
+      BAOStoryLibrary.adoptRefs(values[1]);
+      const lib = BAOStoryLibrary, originalRead = lib.allRecords.bind(lib);
+      let captured = false;
+      window.exportSnapshotGate = new Promise(resolve => { window.releaseExportSnapshot = resolve; });
+      lib.allRecords = async () => {
+        const records = await originalRead();
+        if (!captured) { captured = true; window.exportSnapshotReady = true; await window.exportSnapshotGate; }
+        return records;
+      };
+      window.snapshotBundle = BAOStoryBackup.buildBundle('snapshot-story').finally(() => { lib.allRecords = originalRead; });
+    }, initial);
+    await page.waitForFunction(() => window.exportSnapshotReady);
+    const current = await other.evaluate(async values => {
+      for (const value of values) await BAOStoryLibrary.persist(value);
+      await BAOStoryLibrary.deleteBranch('snapshot-story', 'branch');
+      return { root: await BAOStoryLibrary.reconstruct('snapshot-story', 'root'), branch: await BAOStoryLibrary.reconstruct('snapshot-story', 'branch') };
+    }, [make('root', 'new'), make('branch', 'new')]);
+    expect(current.root.chat.messages[0].content).toBe('new');
+    expect(current.branch).toBeNull();
+    const bundle = await page.evaluate(async () => { window.releaseExportSnapshot(); return window.snapshotBundle; });
+    expect(bundle.chapters.map(value => value.payload.chat.messages[0].content)).toEqual(['old', 'old']);
+    expect(bundle.chapters.map(value => value.payload.state.location)).toEqual(['old', 'old']);
+    expect(bundle.activeChapterId).toBe('branch');
+    for (const chapter of bundle.chapters) {
+      expect(chapter.checkpoints[0].messageId).toBe(chapter.payload.chat.messages[0].id);
+      expect(chapter.checkpoints[0].payload.state.location).toBe('old');
+    }
+    expect(await page.evaluate(value => BAOStoryBackup.sanitizeBundle(value).chapters.length, bundle)).toBe(2);
+  } finally { await other.close(); }
+});

@@ -74,9 +74,12 @@
 
   const buildBundle = async (storyId = Library.refs().storyId) => {
     const targetStoryId = String(storyId || '');
+    const exportRefs = Library.refs();
     if (!targetStoryId) throw new Error('目前沒有可匯出的故事。');
-    if (Library.refs().storyId === targetStoryId && !Storage.saveStory() && window.GameState?.current) throw new Error('目前故事無法儲存，完整故事備份未建立。');
+    if (exportRefs.storyId === targetStoryId && !Storage.saveStory() && window.GameState?.current) throw new Error('目前故事無法儲存，完整故事備份未建立。');
     if (!await Library.flush(targetStoryId)) throw new Error('最新章節尚未成功寫入故事庫，完整故事備份未建立。請保留目前故事並重試。');
+    // One IndexedDB read supplies metadata, messages, state and checkpoints.
+    // Later cross-page commits cannot mix versions within this bundle.
     const records = await Library.allRecords();
     const storyRecord = records.find(record => record.kind === 'story' && record.storyId === targetStoryId);
     const chapterRecords = records.filter(record => record.kind === 'chapter' && record.storyId === targetStoryId)
@@ -84,7 +87,7 @@
     if (!storyRecord || !chapterRecords.length) throw new Error('Story Library 找不到這個故事的完整資料。');
     const chapters = [];
     for (const chapter of chapterRecords) {
-      const payload = await Library.reconstruct(targetStoryId, chapter.chapterId);
+      const payload = await Library.reconstruct(targetStoryId, chapter.chapterId, records);
       if (!payload) throw new Error(`無法重建章節「${chapter.label || chapter.chapterId}」。`);
       const checkpoints = records.filter(record => record.kind === 'checkpoint' && record.storyId === targetStoryId && record.chapterId === chapter.chapterId && record.payload)
         .sort((a, b) => Number(a.seq || 0) - Number(b.seq || 0)).map(sanitizeCheckpoint).filter(Boolean);
@@ -97,8 +100,10 @@
         branchPointPreview: chapter.branchPointPreview || '', payload: sanitizePortablePayload(payload), checkpoints
       });
     }
-    const refs = Library.refs();
-    const activeChapterId = refs.storyId === targetStoryId && refs.chapterId ? refs.chapterId : (storyRecord.activeChapterId || chapters[0].chapterId);
+    const preferredChapterId = exportRefs.storyId === targetStoryId ? exportRefs.chapterId : storyRecord.activeChapterId;
+    const available = id => chapters.some(chapter => chapter.chapterId === id);
+    const activeChapterId = available(preferredChapterId) ? preferredChapterId
+      : available(storyRecord.activeChapterId) ? storyRecord.activeChapterId : chapters[0].chapterId;
     return scrub({
       schema: SCHEMA, version: VERSION, exportedAt: new Date().toISOString(),
       story: {
