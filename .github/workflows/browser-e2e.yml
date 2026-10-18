@@ -89,21 +89,7 @@ jobs:
         shell: bash
         env:
           SPEC_LIST: ${{ matrix.specs }}
-        run: |
-          specs=()
-          while IFS= read -r spec; do
-            [ -z "$spec" ] && continue
-            if [ -f "$spec" ]; then
-              specs+=("$spec")
-            fi
-          done <<< "$SPEC_LIST"
-
-          if [ "${#specs[@]}" -eq 0 ]; then
-            echo "No matching specs in group ${{ matrix.group }}; skipping."
-            exit 0
-          fi
-
-          npm run test:e2e -- "${specs[@]}" --project=chromium
+        run: node scripts/run-e2e-group.cjs
       - name: Upload Chromium report
         if: always()
         uses: actions/upload-artifact@v4
