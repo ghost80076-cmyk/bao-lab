@@ -42,7 +42,7 @@ increasing(index, [
   'src="js/chat.js',
   'src="js/character.js?v=6"',
   'src="js/app.js',
-  'src="js/chat-markup.js?v=3"',
+  'src="js/chat-markup.js?v=4"',
   'src="js/site-ui.js'
 ], "core script");
 
@@ -54,7 +54,7 @@ increasing(siteUI, [
   'loadBAOScript("js/three-realms-cultivation-core.js?v=1")',
   'loadBAOScript("js/three-realms-event-profiles.js?v=6")',
   'loadBAOScript("js/three-realms-events-core.js?v=6")',
-  'loadBAOScript("js/world-modules.js?v=5")',
+  'loadBAOScript("js/world-modules.js?v=6")',
   'loadBAOScript("js/world-state-hook.js?v=5")'
 ], "world-state extension");
 
@@ -74,7 +74,7 @@ increasing(siteUI, [
 // Modules without their own global idempotency guard currently rely on the loader;
 // protect against accidentally adding a second loader while the wrapper design is unchanged.
 assert.equal(
-  siteUI.split('loadBAOScript("js/world-modules.js?v=5")').length - 1,
+  siteUI.split('loadBAOScript("js/world-modules.js?v=6")').length - 1,
   1,
   "world-modules must be loaded exactly once by site-ui"
 );
