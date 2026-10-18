@@ -1763,8 +1763,16 @@
                   "path": "modules.hazards.type"
                 },
                 {
-                  "label": "累積",
+                  "label": "危險累積",
                   "path": "modules.hazards.value"
+                },
+                {
+                  "label": "可用氧氣",
+                  "path": "modules.hazards.oxygen"
+                },
+                {
+                  "label": "輻射劑量",
+                  "path": "modules.hazards.radiation"
                 },
                 {
                   "label": "期限",
