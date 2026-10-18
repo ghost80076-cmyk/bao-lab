@@ -2,16 +2,39 @@
   const init = () => {
     setTimeout(() => {
       if (!window.App || !window.WorldStateEngine || App.__worldStateHooked) return;
-      const worldStateWrapper = async function(next) {
+      const dispatched = new WeakMap();
+      const signature = messages => JSON.stringify(messages.map(m => [m.id, m.role, m.content, m.context_content || ""]));
+      const worldStateWrapper = async function(next, ...args) {
         const owner = GameState.current;
+        const config = this.config;
         const beforeCount = Chat.messages.length;
-        await next();
-        if (GameState.current !== owner || Chat.messages.length < beforeCount + 2) return;
-        const player = Chat.messages[Chat.messages.length - 2];
-        const assistant = Chat.messages[Chat.messages.length - 1];
-        if (player?.role !== "user" || assistant?.role !== "assistant") return;
-        const changed = await WorldStateEngine.update(this.config, player.content, assistant.content);
-        if (GameState.current !== owner) return;
+        const before = signature(Chat.messages);
+        const receipt = await next(...args);
+        if (!owner || GameState.current !== owner || this.config !== config) return receipt;
+        let player, assistant;
+        if (receipt?.kind === "bao:story-turn") {
+          if (receipt.owner !== owner || receipt.config !== config || !receipt.isCurrent()) return receipt;
+          const index = Chat.messages.findIndex(m => m.id === receipt.playerId);
+          player = Chat.messages[index];
+          assistant = Chat.messages[index + 1];
+          if (index < 0 || assistant?.id !== receipt.assistantId || player.content !== receipt.playerText || assistant.content !== receipt.assistantText) return receipt;
+        } else {
+          // Mixed-cache legacy cores have no receipt. Only an unambiguous pair
+          // after an unchanged prefix is eligible; never guess from the tail.
+          if (this.storyTurnReceipts || Chat.messages.length !== beforeCount + 2
+            || signature(Chat.messages.slice(0, beforeCount)) !== before) return receipt;
+          [player, assistant] = Chat.messages.slice(beforeCount);
+        }
+        if (player?.role !== "user" || assistant?.role !== "assistant") return receipt;
+        const seen = dispatched.get(owner) || new Set();
+        dispatched.set(owner, seen);
+        const key = assistant.id || assistant;
+        if (seen.has(key)) return receipt;
+        // Reserve before awaiting: a second continuation may see this same pair
+        // while the first state request is still in flight.
+        seen.add(key);
+        const changed = await WorldStateEngine.update(config, player.content, assistant.content);
+        if (GameState.current !== owner || this.config !== config) return receipt;
         // The helper can fail or be waiting for its interval; show that rather
         // than silently leaving old status values looking authoritative.
         if (document.querySelector('.ui-tab[data-panel="npc"]')?.classList.contains('active')) {
@@ -20,20 +43,21 @@
         const pendingChanged = WorldStateEngine.takePersistenceHint?.();
         if (!changed) {
           if (pendingChanged) this.saveStory(false);
-          return;
+          return receipt;
         }
         if (this.config.displayMode === "ui") {
           const panel = document.querySelector(".ui-tab.active")?.dataset.panel || "npc";
           this.renderUIPanel(panel);
         }
         this.saveStory(false);
+        return receipt;
       };
       if (typeof App.wrapSendMessage === "function") {
         App.wrapSendMessage("world-state-hook:after-turn", worldStateWrapper);
       } else {
         // Compatibility fallback for a mixed-cache page where world-state-hook is newer than app.js.
         const originalSend = App.sendMessage.bind(App);
-        App.sendMessage = () => worldStateWrapper.call(App, originalSend);
+        App.sendMessage = (...args) => worldStateWrapper.call(App, originalSend, ...args);
       }
       App.__worldStateHooked = true;
       // Modules are global lexical consts in the original classic scripts.

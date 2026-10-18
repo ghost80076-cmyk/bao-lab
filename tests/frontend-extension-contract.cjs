@@ -55,7 +55,7 @@ increasing(siteUI, [
   'loadBAOScript("js/three-realms-event-profiles.js?v=6")',
   'loadBAOScript("js/three-realms-events-core.js?v=6")',
   'loadBAOScript("js/world-modules.js?v=5")',
-  'loadBAOScript("js/world-state-hook.js?v=4")'
+  'loadBAOScript("js/world-state-hook.js?v=5")'
 ], "world-state extension");
 
 // Story chain: story-tools is installed before prompt/cache orchestration and request lifecycle.
@@ -189,7 +189,7 @@ assert.match(requestLifecycle, /return await next\(\.\.\.args\)/);
 assert.match(worldStateHook, /App\.__worldStateHooked/);
 assert.match(worldStateHook, /App\.__worldStateHooked\s*=\s*true/);
 assert.match(worldStateHook, /App\.wrapSendMessage\("world-state-hook:after-turn", worldStateWrapper\)/);
-assert.match(worldStateHook, /await next\(\)/);
+assert.match(worldStateHook, /await next\(\.\.\.args\)/);
 
 assert.match(chatAPISettings, /window\.BAOChatAPISettings/);
 assert.match(chatAPISettings, /App\.wrapSendMessage\("chat-api-settings:connection-gate", sendGateWrapper\)/);
