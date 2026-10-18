@@ -47,29 +47,39 @@
   };
   const clearFailure = () => { feedback.textContent = ''; feedback.hidden = true; };
   const failureMessage = text => /^(?:連線失敗[：:]|已取消本次生成。)/.test(text);
-  const originalSend = App.sendMessage;
-  App.sendMessage = async function(...args) {
+  const failureFeedbackWrapper = async function(next, ...args) {
+    const owner = window.GameState?.current, config = this.config, character = this.activeCharacter;
+    const isCurrent = () => window.GameState?.current === owner && this.config === config && this.activeCharacter === character;
     const priorNodes = new Set(stream.querySelectorAll(':scope > .message'));
     const priorCount = Chat.messages.length;
     const attempted = Boolean($('user-input')?.value.trim());
     if (attempted && !this.__requestPending) clearFailure();
-    try { return await originalSend.apply(this, args); }
+    try { return await next(...args); }
     finally {
-      const last = stream.querySelector(':scope > .message:last-of-type');
-      const message = last?.querySelector('.bubble')?.textContent?.trim() || '';
-      // App's catch restores the draft but historically leaves a *non-stored*
-      // error as an assistant message; that breaks every aligned renderer.
-      if (last?.classList.contains('assistant') && !priorNodes.has(last) && failureMessage(message)
-          && !Chat.messages.some(item => item.role === 'assistant' && String(item.content || '').trim() === message)) {
-        last.remove();
-        showFailure(message);
-        window.BAOSceneHTML?.refresh?.();
-        window.BAOSceneChat?.paint?.();
-      } else if (Chat.messages.length > priorCount && Chat.messages.at(-1)?.role === 'assistant') {
-        clearFailure();
+      // An old completion must not remove or clear the new story's feedback.
+      if (isCurrent()) {
+        const last = stream.querySelector(':scope > .message:last-of-type');
+        const message = last?.querySelector('.bubble')?.textContent?.trim() || '';
+        // App's catch restores the draft but historically leaves a *non-stored*
+        // error as an assistant message; that breaks every aligned renderer.
+        if (last?.classList.contains('assistant') && !priorNodes.has(last) && failureMessage(message)
+            && !Chat.messages.some(item => item.role === 'assistant' && String(item.content || '').trim() === message)) {
+          last.remove();
+          showFailure(message);
+          window.BAOSceneHTML?.refresh?.();
+          window.BAOSceneChat?.paint?.();
+        } else if (Chat.messages.length > priorCount && Chat.messages.at(-1)?.role === 'assistant') {
+          clearFailure();
+        }
       }
     }
   };
+  if (typeof App.wrapSendMessage === 'function') {
+    App.wrapSendMessage('chat-experience-repairs:feedback', failureFeedbackWrapper);
+  } else {
+    const originalSend = App.sendMessage;
+    App.sendMessage = function(...args) { return failureFeedbackWrapper.call(this, originalSend.bind(this), ...args); };
+  }
 
   const floating = document.createElement('nav');
   floating.id = 'bao-chat-floating-actions';

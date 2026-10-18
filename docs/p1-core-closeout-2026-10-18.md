@@ -67,3 +67,5 @@ P1 原本還包含「核心呼叫鏈剩餘耦合」。這六輪改善了重要�
 ### 後續進度
 
 第一列的 character-status-ui.js 與 story-revision-state.js 已新增具名 send hook、過期呼叫／快照保護與回歸，詳見 [責任表的後續批次](post-turn-ownership.md)。這是原 12 個一般直接入口中的 2 個；餘下 10 個仍待判定，六輪基準證據維持原版本記錄。
+
+第二批完成五個閱讀／畫面入口判定：chat-experience-repairs、chat-reading-scroll 增加歸屬保護與具名 hook；story-reader 補齊參數轉交；scene-chat-integration、scene-render-integrity 經當前狀態／DOM 對齊邏輯檢視保留。累計 7／12 已判定，剩餘三個作品介面與兩個離線／本機預覽入口（5 個），詳見責任表。這不是全畫面競態的完整證明。

@@ -554,8 +554,8 @@
   };
 
   const originalSendMessage = App.sendMessage.bind(App);
-  App.sendMessage = async function() {
-    const result = await originalSendMessage();
+  App.sendMessage = async function(...args) {
+    const result = await originalSendMessage(...args);
     setTimeout(decorateStream, 0);
     return result;
   };

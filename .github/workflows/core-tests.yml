@@ -62,7 +62,11 @@ jobs:
       - name: Public story history and collection
         run: node tests/story-history-core.cjs
       - name: Story Reader core
-        run: node tests/story-reader-core.cjs
+        run: |
+          node tests/story-reader-core.cjs
+          node tests/chat-reading-scroll-core.cjs
+          node tests/chat-reading-pipeline-core.cjs
+          node tests/reading-hook-ownership-core.cjs
       - name: Story revision state consistency
         run: |
           node tests/story-revision-state-core.cjs

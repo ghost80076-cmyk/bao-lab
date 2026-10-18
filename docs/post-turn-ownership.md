@@ -110,3 +110,17 @@ Chat.captureUsageContext 捕捉入口當時的故事與 usage、usageByKind、us
 `status-revision-entry-ownership-core.cjs` 載入實際兩個 runtime，驗證跨故事選取、同故事新選取、正常清理、正常／過期完成憑證、修訂等待時換故事／改草稿、正常 snapshot 物件替換後仍可送出、參數／結果傳遞，以及舊 snapshot finally 不還原到新故事。既有 revision state／pipeline 與狀態提示測試繼續通過。所有 API 為 mock。
 
 此保護不回滾底層狀態引擎已完成的更新，也不宣告所有同故事並行修訂／直接 hook 已驗證。結案盤點原先的 12 個一般直接入口中，本批處理 2 個；其他 10 個仍依原清單逐項判定。
+
+## 剩餘 hook 第二批：閱讀位置、錯誤提示與畫面更新
+
+基準：`4a79866baec674d11f016ae931c9b16acdd32b3d`。本批判定原清單的五個閱讀／畫面入口。
+
+已重現：舊 sendMessage 結束時，錯誤提示 wrapper 會把新故事尾端未存入 Chat 的錯誤泡泡移除；閱讀位置 wrapper 則會恢復舊位置到目前 stream。即使切換後 DOM 節點仍連接，舊 continuation 也不得修改新故事畫面。
+
+chat-experience-repairs 改用具名 `chat-experience-repairs:feedback`，等待後核對 owner/config/角色才清理錯誤泡泡或更新提示。chat-reading-scroll 改用具名 `chat-reading-scroll:anchor`，API 位置快照、完成捲動與 placeholder 清理均核對同一歸屬；新故事可釋放舊 activeTurn 並取得自己的閱讀 anchor，舊 finally 只釋放自己的任務。兩者保留舊 App fallback。
+
+story-reader 的送出 wrapper 原先遺漏 args，現完整轉交並保留結果；其延遲 decorateStream 仍重新讀取目前 Chat、角色與 stream。scene-chat-integration 的 paint 與 scene-render-integrity 的 reconcile 也重新讀取目前故事，核對 DOM／訊息對齊、避開串流及編輯中的泡泡，不套用舊回覆快照；這兩個入口經程式碼檢視保留。本批不以具名化全部畫面刷新為必要工作，也不宣稱完整視覺排列或所有 renderer 競態已驗證。
+
+reading-hook-ownership-core.cjs 載入實際三個 runtime，驗證 owner/config/角色切換、正常完成、具名／fallback、舊 API／finally 晚於新 anchor、以及 story-reader 參數／結果傳遞。既有 reading scroll／pipeline、reader、streaming、request lifecycle、App wrapper、story turn 與 frontend extension 測試亦通過。API 全部 mock。
+
+原 12 個一般入口累計已判定 7 個：前批 2 個，本批 3 個修正、2 個程式碼檢視保留。其餘 5 個是三個作品介面與兩個離線／本機預覽入口，尚待判定。六輪核心基準不重新擴張，真實帳務對帳仍未完成。
