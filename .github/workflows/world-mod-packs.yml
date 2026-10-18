@@ -10,6 +10,8 @@ on:
       - 'tests/e2e/world-mod-packs.spec.cjs'
       - 'tests/e2e/world-mod-packs-mobile.spec.cjs'
       - '.github/workflows/world-mod-packs.yml'
+      - 'scripts/verify-live-assets.sh'
+      - 'tests/live-assets-verifier.test.cjs'
   pull_request:
     branches: [main]
     paths:
@@ -19,6 +21,8 @@ on:
       - 'tests/e2e/world-mod-packs.spec.cjs'
       - 'tests/e2e/world-mod-packs-mobile.spec.cjs'
       - '.github/workflows/world-mod-packs.yml'
+      - 'scripts/verify-live-assets.sh'
+      - 'tests/live-assets-verifier.test.cjs'
 
 permissions:
   contents: read
@@ -42,18 +46,6 @@ jobs:
       - name: Verify the published MOD script matches this commit
         if: github.event_name == 'push'
         shell: bash
-        run: |
-          set -euo pipefail
-          url="https://ghost80076-cmyk.github.io/bao-lab/js/world-mod-packs.js"
-          for attempt in $(seq 1 36); do
-            if curl --fail --silent --show-error --location --max-time 15 \
-              "${url}?commit=${GITHUB_SHA}" -o /tmp/bao-world-mod-packs-live.js \
-              && cmp -s js/world-mod-packs.js /tmp/bao-world-mod-packs-live.js; then
-              printf 'Published MOD script matches the checked-out source on attempt %s.\n' "${attempt}"
-              exit 0
-            fi
-            printf 'Waiting for matching MOD script on Pages (attempt %s/36)...\n' "${attempt}"
-            sleep 5
-          done
-          printf 'Published MOD script did not match the checked-out source.\n' >&2
-          exit 1
+        env:
+          SITE_URL: https://ghost80076-cmyk.github.io/bao-lab/
+        run: bash scripts/verify-live-assets.sh js/world-mod-packs.js

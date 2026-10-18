@@ -9,6 +9,8 @@ on:
       - tests/credits-pilot.test.cjs
       - tests/credits-pilot-413-core.cjs
       - .github/workflows/credits-pilot-integration.yml
+      - scripts/verify-live-assets.sh
+      - tests/live-assets-verifier.test.cjs
   pull_request:
     branches: [main]
     paths:
@@ -17,6 +19,8 @@ on:
       - tests/credits-pilot.test.cjs
       - tests/credits-pilot-413-core.cjs
       - .github/workflows/credits-pilot-integration.yml
+      - scripts/verify-live-assets.sh
+      - tests/live-assets-verifier.test.cjs
   workflow_dispatch:
 
 permissions:
@@ -40,23 +44,7 @@ jobs:
       - name: Verify deployed Pages adapter and loader
         if: github.event_name != 'pull_request'
         shell: bash
-        run: |
-          set -euo pipefail
-          base='https://ghost80076-cmyk.github.io/bao-lab/js'
-          adapter_file="$(mktemp)"
-          loader_file="$(mktemp)"
-          trap 'rm -f "$adapter_file" "$loader_file"' EXIT
-          for attempt in $(seq 1 36); do
-            if curl --fail --silent --show-error --location --max-time 15 \
-                "${base}/credits-pilot.js?ci=${GITHUB_SHA}" -o "$adapter_file" \
-              && curl --fail --silent --show-error --location --max-time 15 \
-                "${base}/global-bridge.js?ci=${GITHUB_SHA}" -o "$loader_file" \
-              && cmp -s js/credits-pilot.js "$adapter_file" \
-              && cmp -s js/global-bridge.js "$loader_file"; then
-              printf 'Credits pilot and loader are live on Pages (attempt %s).\n' "$attempt"
-              exit 0
-            fi
-            sleep 5
-          done
-          printf 'New credits pilot assets were not observed on live Pages.\n' >&2
-          exit 1
+        env:
+          SITE_URL: https://ghost80076-cmyk.github.io/bao-lab/
+          LIVE_VERIFY_QUERY: ci
+        run: bash scripts/verify-live-assets.sh js/credits-pilot.js js/global-bridge.js
