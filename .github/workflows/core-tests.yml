@@ -562,6 +562,10 @@ jobs:
         run: node tests/memory-request-guard-core.cjs
       - name: Memory summary ownership across story switches
         run: node tests/memory-summary-ownership-core.cjs
+      - name: Story turn and streaming ownership
+        run: |
+          node tests/story-turn-ownership-core.cjs
+          node tests/streaming-turn-ownership-core.cjs
       - name: Helper context isolation and memory lifecycle
         run: node tests/helper-context-core.cjs
       - name: Memory app greeting and post-turn integrity

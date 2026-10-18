@@ -139,6 +139,9 @@ async function streamingContracts() {
     c.WorldStateEngine = { enabled: () => true, stateSnapshot: () => ({}), async update() {} };
     c.BAOHelperData = { moduleSchemas: () => ({}) };
     c.document.getElementById = id => id === 'chat-view' ? { classList: { contains: () => true } } : null;
+    // A real main-story stream owns a stable pending bubble.
+    const bubble = { innerHTML: '', closest: () => ({ classList: { add() {} } }) };
+    c.document.querySelector = selector => selector === '#chat-stream > .message.assistant:last-child .bubble' ? bubble : null;
     c.queueMicrotask = queueMicrotask;
     c.CustomEvent = class { constructor(type, init) { this.type = type; this.detail = init.detail; } };
     const deltas = [];
