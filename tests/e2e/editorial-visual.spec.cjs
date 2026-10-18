@@ -12,6 +12,15 @@ for (const width of [390, 1280]) {
     await page.goto('/');
     await page.waitForFunction(() => Boolean(window.App?.characters?.length &&
       document.querySelector('#home-view .brand-hero') && window.BAOGalleryFocus));
+    const stylesheetOrder = await page.locator('link[rel="stylesheet"]').evaluateAll(links =>
+      links.map(link => new URL(link.href).pathname));
+    for (const path of ['bao-brand-v2.css', 'bao-editorial.css', 'bao-image-quality.css']) {
+      expect(stylesheetOrder.filter(href => href.endsWith('/' + path))).toHaveLength(1);
+    }
+    expect(stylesheetOrder.findIndex(href => href.endsWith('/bao-brand-v2.css')))
+      .toBeLessThan(stylesheetOrder.findIndex(href => href.endsWith('/bao-editorial.css')));
+    expect(stylesheetOrder.findIndex(href => href.endsWith('/bao-editorial.css')))
+      .toBeLessThan(stylesheetOrder.findIndex(href => href.endsWith('/gameplay-ui.css')));
     await expect(page.locator('#home-view .brand-hero h1')).toBeVisible();
     await expect(page.locator('#home-feature-stage .brand-feature-copy small')).toHaveText('今晚推薦');
     await expect(page.locator('#home-explore-title')).toContainText('更多作品');

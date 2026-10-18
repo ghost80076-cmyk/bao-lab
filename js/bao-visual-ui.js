@@ -41,7 +41,11 @@
     }
   };
   const addStylesheet = href => {
-    if (document.querySelector(`link[rel="stylesheet"][href="${href}"]`)) return;
+    // The page owns the version and cascade position of preloaded styles.
+    // Cache-busting queries/fragments do not identify a different stylesheet.
+    const path = href.split(/[?#]/)[0];
+    if ([...document.querySelectorAll('link[rel="stylesheet"]')]
+      .some(link => link.getAttribute('href')?.split(/[?#]/)[0] === path)) return;
     const link = document.createElement('link');
     link.rel = 'stylesheet';
     link.href = href;
