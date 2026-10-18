@@ -6,7 +6,7 @@ const source = name => fs.readFileSync(path.join(__dirname, '..', 'js', name), '
 function runtime(legacy = false) {
   const ready = [];
   const context = {
-    console, URL, TextDecoder,
+    console, URL, TextDecoder, AbortController, clearTimeout() {},
     setTimeout(fn) { fn(); },
     document: { querySelector() { return null; }, getElementById() { return null; } },
     App: { config: { memory: { maxContext: 64000 } } },
@@ -123,6 +123,35 @@ async function lexicalBoot() {
   await api.send({ model: 'main' }, []);
   assert.equal(c.Chat.usageLedger.length, 1);
 }
-contracts(false).then(() => contracts(true)).then(overlapping).then(lexicalBoot).then(() => {
+async function switchedStoryUsage() {
+  for (const legacy of [false, true]) for (const cache of [false, true]) {
+    for (const flags of [{}, { __memoryTask: true }, { __stateTask: true }, { __auxiliaryTask: true }]) {
+      const { context: c, install } = runtime(legacy);
+      c.GameState = { current: {} };
+      let release;
+      c.API.send = () => new Promise(resolve => { release = resolve; });
+      install();
+      if (cache) vm.runInContext(source('prompt-cache.js'), c);
+      const oldUsage = c.Chat.usage, oldLedger = c.Chat.usageLedger;
+      const pending = c.API.send({ model: 'original', ...flags }, []);
+      c.GameState.current = {};
+      c.Chat.reset();
+      let renders = 0;
+      c.Chat.renderUsage = () => { renders++; };
+      const result = response(40);
+      result.credits = { charged_microusd: 2500 };
+      release(result);
+      assert.equal(await pending, result);
+      assert.equal(c.Chat.usage.total, 0, 'late usage cannot charge current story counters');
+      assert.equal(c.Chat.usageLedger.length, 0, 'late entry cannot enter current story ledger');
+      assert.equal(c.Chat.lastStoryPromptTokens, 0, 'late main reply cannot replace current context pressure');
+      assert.equal(renders, 0, 'late usage cannot repaint current story');
+      assert.equal(oldUsage.total, 42, 'original usage collection retains the reported tokens');
+      assert.equal(oldLedger.length, 1);
+      assert.equal(oldLedger[0].actualUsd, 0.0025);
+    }
+  }
+}
+contracts(false).then(() => contracts(true)).then(overlapping).then(lexicalBoot).then(switchedStoryUsage).then(() => {
   console.log('Chat usage: task isolation, once-only accounting, hosted charges, diagnostics, errors, concurrency and legacy fallback passed');
 }).catch(error => { console.error(error); process.exitCode = 1; });

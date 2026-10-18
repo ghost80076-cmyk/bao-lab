@@ -166,6 +166,35 @@ async function streamingContracts() {
   }
   console.log('Ordered stream/state integration: cloud, local and hosted use one request, hide state deltas and account usage once');
 }
+async function lateHostedUsage() {
+  for (const order of orders) {
+    const { c } = harness(order);
+    c.App.config.api = hosted();
+    vm.runInContext(read('prompt-cache.js'), c);
+    const oldUsage = c.Chat.usage, oldLedger = c.Chat.usageLedger;
+    const record = c.Chat.recordRequestUsage.bind(c.Chat);
+    c.Chat.recordRequestUsage = (config, result, context) => { assert.equal(context?.usage, oldUsage, 'accounting must target original refs'); return record(config, result, context); };
+    let release;
+    c.fetch = () => new Promise(resolve => { release = resolve; });
+    const pending = c.API.send(hosted(), [{ role: 'user', content: 'go' }]);
+    for (let i = 0; i < 30 && !release; i++) await Promise.resolve();
+    assert.equal(typeof release, 'function');
+    c.GameState.current = { npcs: [] };
+    c.Chat.reset();
+    let renders = 0;
+    c.Chat.renderUsage = () => { renders++; };
+    release(new Response(JSON.stringify({ content: 'late hosted result', request_id: 'late-1',
+      usage: { input_tokens: 40, output_tokens: 2, charged_microusd: 2500 } })));
+    await pending;
+    assert.equal(c.Chat.usage.total, 0, 'late hosted tokens must not enter the new story');
+    assert.equal(c.Chat.usageLedger.length, 0);
+    assert.equal(c.Chat.lastStoryPromptTokens, 0);
+    assert.equal(renders, 0, 'neither hosted nor outer accounting may repaint the new story');
+    assert.equal(oldUsage.total, 42);
+    assert.equal(oldLedger.length, 1, 'hosted plus outer wrapper record the original charge once');
+    assert.equal(oldLedger[0].actualUsd, 0.0025);
+  }
+}
 async function capturedSnapshotContract() {
   const { c, requests, localSnapshot } = harness(orders[1]);
   c.App.config.memory.summaryApi = local('legacy-helper');
@@ -188,4 +217,4 @@ async function abortContracts() {
     assert.equal(c.Chat.usageLedger.length, 0);
   }
 }
-run().then(streamingContracts).then(abortContracts).then(capturedSnapshotContract).catch(error => { console.error(error); process.exitCode = 1; });
+run().then(streamingContracts).then(abortContracts).then(capturedSnapshotContract).then(lateHostedUsage).catch(error => { console.error(error); process.exitCode = 1; });

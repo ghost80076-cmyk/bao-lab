@@ -84,3 +84,15 @@ world-state hook 使用憑證定位相鄰的原始訊息並核對文字，依故
 pendingAdvisor 現在持有自己的 owner/config 與任務物件；提示 wrapper 捕捉這個物件並於 await 後核對。舊 finally 只清理自己的顧問任務，不能清掉另一個任務。手動評論按鈕也會在等待後檢查歸屬才顯示完成通知。
 
 `post-turn-mod-ownership-core.cjs` 載入實際評論／解讀 runtime、core 與官方 pack，驗證評論 API、正文等待、顧問及觀察者等待期間的故事切換、config 替換、來源編輯與成功／失敗結果，共 24 個過期案例；另確認正常評論與解讀仍可保存。測試使用完成憑證路徑及 mock API。這不是所有同故事並行顧問任務、重複計費或所有其他 after-turn 擴充的完整證明。用量歸屬仍待下一項獨立驗證。
+
+## 第六輪：晚到用量的計數器與畫面歸屬
+
+基準：`06d7185d3027a12e840352593821ad6512efbf24`（第五輪 #727 合併後）。
+
+已重現：A 請求等待期間切換至 B 並重設 Chat，晚到回應的 42 個 Token 會加入 B 的累積與 ledger，並以舊正文用量更新 B 的 Context 壓力。一般 request-usage wrapper 與燈火 Hosted transport 均有記錄入口；只修其中一個仍會污染。
+
+Chat.captureUsageContext 捕捉入口當時的故事與 usage、usageByKind、usageLedger 物件參考。recordRequestUsage／addUsage 接受這個暫態 context；prompt-cache 與 cost-control 的包裝器轉交 context，快取未知標記也只更新原集合。兩個記錄入口在 await 前捕捉集合，回應後只在集合與故事仍為當前時更新用量 UI、費用 UI 與正文 Context 壓力。既有 result marker 仍負責 Hosted 與外層 observer 的單次記錄。
+
+驗收：chat-usage-pipeline-core 的新增 16 個案例覆蓋 named／legacy sender、實際 prompt-cache wrapper 有／無，以及正文、記憶、狀態、auxiliary；舊集合保留 Token 與回報費用，新集合、畫面與壓力不變。api-ordered-pipeline-integration 另以實際 Hosted transport、prompt-cache、cost-control 及四種安裝順序，驗證晚到費用僅記一次。測試皆 mock，不呼叫付費模型或修改後端帳本。
+
+界線：原集合以請求期間的記憶體參考保留，並不自動回寫已離開／重新載入故事的非作用中存檔；關閉頁面後無持久化回收保證。這是記錄入口的非同步歸屬，不是完整交易對帳，也不宣稱所有在進入這些入口前的非同步擴充都已隔離。後端扣款仍由 Worker／provider 帳本決定。

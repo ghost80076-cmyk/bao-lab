@@ -69,7 +69,7 @@ window.addEventListener("DOMContentLoaded", () => {
   loadBAOScript("js/autonomous-world-workbench.js")
     .then(() => loadBAOScript("js/autonomous-world-display.js"))
     .catch(err => console.warn("BAO/LAB autonomous world workbench or display failed to load:", err));
-  const worldModulesReady = loadBAOScript("js/global-bridge.js?v=2")
+  const worldModulesReady = loadBAOScript("js/global-bridge.js?v=3")
     .then(() => loadBAOScript("js/world-state.js?v=2"))
     .then(() => loadBAOScript("js/character-status.js?v=4"))
     .then(() => loadBAOScript("js/three-realms-cultivation-core.js?v=1"))
@@ -85,7 +85,7 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/character-status-ui.js?v=11"))
     .then(() => loadBAOScript("js/world-state-hook.js?v=5"))
     .catch(err => console.warn("BAO/LAB world state or character status modules failed to load:", err));
-  loadBAOScript("js/cost-control.js?v=2")
+  loadBAOScript("js/cost-control.js?v=3")
     .then(() => loadBAOScript("js/provider-browser-compat.js"))
     .then(() => loadBAOScript("js/model-routing.js?v=7"))
     .then(() => loadBAOScript("js/provider-diagnostics.js"))
@@ -106,7 +106,7 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/story-backup.js?v=4"))
     .then(() => loadBAOScript("js/google-drive-config.js"))
     .then(() => loadBAOScript("js/google-drive-sync.js"))
-    .then(() => loadBAOScript("js/prompt-cache.js?v=5"))
+    .then(() => loadBAOScript("js/prompt-cache.js?v=6"))
     .then(() => loadBAOScript("js/prompt-orchestrator.js?v=2"))
     .then(() => loadBAOScript("js/episodic-memory.js?v=2"))
     .then(() => worldModulesReady)

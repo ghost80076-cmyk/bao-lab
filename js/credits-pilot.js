@@ -267,6 +267,9 @@
   };
 
   const hostedCreditsWrapper = async (next, config, messages, ...rest) => {
+    const chatUsage = window.Chat;
+    const usageContext = chatUsage?.captureUsageContext?.();
+    const storyConfig = App?.config;
     if (!isPilot(config)) {
       const main = App.config?.api;
       if (isPilot(main) && main.key && config?.key === main.key && !isEndpoint(config?.baseUrl)) {
@@ -460,12 +463,13 @@
     };
     // This route bypasses the base API transport, so account usage here as well.
     // recordRequestUsage is idempotent: an outer wrapper may safely see the same result.
-    const chatUsage = window.Chat;
     if (!config.__connectionTest && chatUsage) {
-      chatUsage.recordRequestUsage?.(config, result);
-      chatUsage.renderUsage?.(result.usage || {});
-      if (!config.__memoryTask && !config.__stateTask && !config.__auxiliaryTask && !config.__storyTool) {
-        chatUsage.recordStoryUsage?.(result.usage || {}, App?.config);
+      chatUsage.recordRequestUsage?.(config, result, usageContext);
+      if (!chatUsage.isUsageContextCurrent || chatUsage.isUsageContextCurrent(usageContext)) {
+        chatUsage.renderUsage?.(result.usage || {});
+        if (!config.__memoryTask && !config.__stateTask && !config.__auxiliaryTask && !config.__storyTool) {
+          chatUsage.recordStoryUsage?.(result.usage || {}, storyConfig);
+        }
       }
     }
     return result;
