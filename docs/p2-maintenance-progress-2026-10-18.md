@@ -48,3 +48,5 @@ P0 與 P1 的原定工程範圍已結案，依據見 [P1 結案紀錄](p1-core-c
 ## Workflow 第二類整理：部署資產驗證
 
 閱讀、燈火與世界 MOD 的重複下載／重試／cmp 邏輯已移入 [共用部署驗證腳本](live-asset-verification.md)。保留三流程的檔案清單、job 設定與線上執行條件，統一 no-cache header、暫存清理及逐檔失敗訊息；所有檔案須同輪一致。13 項 mock 回歸通過並接入 Maintenance core；這不代表真實部署已驗證，也不宣稱其他 marker 型 workflow 已全數收斂。
+
+本批首次 CI 的世界 MOD 手機案例在三瀏覽器均卡於舊分類名稱「世界設定與狀態」，尚未執行部署步驟。修正為既有 `data-chat-tool-group="world"` 定位，保留開啟、編輯、匯入匯出可見及儲存回歸；不是略過測試或修改產品分類。
