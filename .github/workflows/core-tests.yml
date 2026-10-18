@@ -24,6 +24,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
+      - name: Visual stylesheet identity and cascade order
+        run: node --test tests/visual-stylesheet-loading-core.cjs
       - name: Author status binding and persistence
         run: node tests/author-status-binding-core.cjs
       - name: Character status core
