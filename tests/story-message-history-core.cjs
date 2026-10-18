@@ -50,6 +50,17 @@ async function main() {
   assert.equal(branch.chat.messages[0].variants[0].content, 'second-variant');
   const reopened = await lib.reconstruct(refs.storyId, branch._library.chapterId);
   assert.deepEqual(Array.from(reopened.chat.messages, message => message.createdAt), [firstTime, firstTime, secondTime]);
+  // A different ID at a reused sequence position is a new message, not old history.
+  const replaced = make(firstTime, ['old-id']); replaced._library = { ...refs, chapterId: 'replacement' };
+  await lib.persist(replaced);
+  const replacement = make(secondTime, ['new-id']); replacement._library = replaced._library;
+  await lib.persist(replacement);
+  assert.equal((await lib.reconstruct('history', 'replacement')).chat.messages[0].createdAt, secondTime);
+  // Legacy messages without IDs still match their prior sequence position.
+  const noId = make(firstTime, ['legacy']); noId._library = { ...refs, chapterId: 'legacy' };
+  delete noId.chat.messages[0].id;
+  await lib.persist(noId); noId.savedAt = secondTime; await lib.persist(noId);
+  assert.equal((await lib.reconstruct('history', 'legacy')).chat.messages[0].createdAt, firstTime);
   // An explicit timestamp on a newly supplied message is still respected.
   const explicit = make(secondTime, ['new-explicit']); explicit._library = { ...refs, chapterId: 'explicit' };
   explicit.chat.messages[0].createdAt = '2025-12-01T00:00:00Z';

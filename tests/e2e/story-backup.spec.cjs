@@ -470,13 +470,18 @@ test('rich message history retains creation times through resaves, legacy restor
     lib.adoptRefs({ _library: refs });
     const branch = await lib.createBranch('third', 'History branch');
     const bundle = await BAOStoryBackup.buildBundle(refs.storyId);
-    return { savedTimes, restoredTimes: restored.chat.messages.map(message => message.createdAt),
+    const oldMessage = make('2026-01-01T01:00:00Z', ['old-id']); oldMessage._library = { ...refs, chapterId: 'replacement' };
+    const newMessage = make('2026-01-02T02:00:00Z', ['new-id']); newMessage._library = oldMessage._library;
+    await lib.persist(oldMessage); await lib.persist(newMessage);
+    const replacementTime = (await lib.reconstruct(refs.storyId, 'replacement')).chat.messages[0].createdAt;
+    return { savedTimes, replacementTime, restoredTimes: restored.chat.messages.map(message => message.createdAt),
       branchTimes: branch.chat.messages.map(message => message.createdAt),
       exportedTimes: bundle.chapters.find(chapter => chapter.chapterId === branch._library.chapterId).payload.chat.messages.map(message => message.createdAt),
       branchId: branch._library.chapterId, variant: branch.chat.messages[0].variants[0].content,
       base: branch.chat.messages[0].revisionBase.state.location };
   });
   const expected = ['2026-01-01T01:00:00Z', '2026-01-01T01:00:00Z', '2026-01-02T02:00:00Z'];
+  expect(result.replacementTime).toBe('2026-01-02T02:00:00Z');
   expect(result.savedTimes).toEqual(expected);
   expect(result.restoredTimes).toEqual(expected);
   expect(result.branchTimes).toEqual(expected);
