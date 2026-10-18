@@ -1817,5 +1817,39 @@
     "updated_at": "2026-10-18T15:49:39Z",
     "published_version": 1,
     "version_published_at": "2026-10-18T15:49:39Z"
+  },
+  {
+    "id": "eternal-night-codex",
+    "name": "永夜聖典｜異界諸願",
+    "title": "永夜聖典｜異界諸願",
+    "avatar": "https://i.meee.com.tw/1i1yUVg.gif",
+    "category": "general",
+    "rating": "adult",
+    "gender": "all",
+    "tags": [
+      "奇幻異世界",
+      "世界模擬",
+      "聖典權能",
+      "戰鬥成長",
+      "家族權謀",
+      "自由探索",
+      "慢熱關係"
+    ],
+    "description": "醒來時，你一無所有，卻能看見魔法最脆弱的那根線。奪取十二枚印記、拆解敵人的術式，與永夜領的掌權者談條件，或建立自己的勢力。聖典選中了你；這份力量要替誰實現願望，由你決定。",
+    "author": "班長",
+    "author_id": "banzhang",
+    "file": "data/characters/community/c7/eternal-night-codex.json",
+    "supported_modes": {
+      "immersive": true,
+      "world": true
+    },
+    "supported_display": {
+      "text": true,
+      "ui": true
+    },
+    "published_at": "2026-10-18T16:24:14Z",
+    "updated_at": "2026-10-18T16:24:14Z",
+    "version_published_at": "2026-10-18T16:24:14Z",
+    "published_version": 1
   }
 ]
