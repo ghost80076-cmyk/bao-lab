@@ -236,6 +236,8 @@ provider, retry, streaming and wrapper contracts.
 
 ### Remaining migration queue
 
+> Historical inventory, not the current open-work list. The P0 engineering baseline and completed API migration were reconciled in [P0 closeout, 2026-10-18](p0-closeout-2026-10-18.md). Use that report for current status, limits and P1 handoff; later sections below record incremental implementation.
+
 | Priority | Work | Acceptance gate |
 | --- | --- | --- |
 | P0 | Provider/hosted routing and cost accounting | Provider contracts, no additional hosted retry or usage settlement, task isolation |
