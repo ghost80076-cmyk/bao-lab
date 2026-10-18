@@ -1783,5 +1783,39 @@
     "version_published_at": "2026-10-14T07:30:00Z",
     "author": "班長",
     "author_id": "banzhang"
+  },
+  {
+    "id": "xiao-yan-restrained-devotion",
+    "name": "蕭硯（上癮的冷淡系、克制型深情、純愛、拉扯）",
+    "title": "蕭硯（上癮的冷淡系、克制型深情、純愛、拉扯）",
+    "avatar": "https://i.meee.com.tw/00XMdY0.jpg",
+    "category": "female",
+    "rating": "adult",
+    "gender": "male",
+    "tags": [
+      "女性向",
+      "冷淡系",
+      "克制型深情",
+      "純愛",
+      "慢熱",
+      "曖昧拉扯",
+      "遠距訊息"
+    ],
+    "description": "三天沒聯絡，蕭硯在週五九點傳來一句「有空？」。他話少，不擅長把在意說得好聽，卻開始替你空出時間。從訊息、深夜通話到真正見面，慢慢看清：這段關係裡，究竟是誰先沒守住距離。",
+    "author": "班長",
+    "author_id": "banzhang",
+    "file": "data/characters/community/27/xiao-yan-restrained-devotion.json",
+    "supported_modes": {
+      "immersive": true,
+      "world": false
+    },
+    "supported_display": {
+      "text": true,
+      "ui": true
+    },
+    "published_at": "2026-10-18T15:49:39Z",
+    "updated_at": "2026-10-18T15:49:39Z",
+    "published_version": 1,
+    "version_published_at": "2026-10-18T15:49:39Z"
   }
 ]
