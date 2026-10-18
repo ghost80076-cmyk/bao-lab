@@ -35,6 +35,15 @@ bash scripts/verify-live-assets.sh js/chat-reading-scroll.js js/streaming-ui.js
 
 這三條流程保留 push／手動的線上執行時機；共用腳本與其回歸測試納入 push 的 path filter。作者正則另補 index.html 與 regex-chat.js 的觸發路徑，避免它實際驗證的依賴變更時沒執行。PR 由既有 Maintenance core 驗證共用腳本，不要求尚未合併的內容先上線。
 
-保留各 workflow 的 job timeout、權限、前置測試及部署時機。測試 `tests/live-assets-verifier.test.cjs` 使用本機 mock curl／sleep，涵蓋匹配、任一檔過期、HTTP 失敗、重試恢復、跨輪不一致、單檔及輸入錯誤，並驗證暫存清理；由 Maintenance core 在 PR 執行。
+聊天與包包流程也採用同一內容驗證器：
+
+| 使用流程 | 資產 | 重試設定 | 語意檢查 |
+| --- | --- | --- | --- |
+| chat-experience-live | 原有七檔：chat-shell-fix、chat-presentation-core、chat-experience、對應 CSS、world-module-manager、character-status-ui、player-settings | 48／12 秒／5 秒、sha query | 原 JavaScript 語法與狀態解析回歸保留；部署不再只比舊 marker。 |
+| bao-mascot-live | bao-mascot.html、bao-human-v2.webp、mascot JS／CSS、image-quality JS／CSS、bao-visual-ui.js | 60／15 秒／5 秒、commit query | checkout 後檢查功能入口、動畫／reduced-motion、解析度 guard、JS 語法及 WebP 格式；線上七檔須完整一致。頁面連結不再綁死 v=3／v=1。 |
+
+目前共有八個指定部署流程共用內容驗證。這不是所有線上檢查都必須改成 cmp：pages-live-smoke 的 SEO metadata、作者登錄／作品引用、robots／sitemap 與社群圖尺寸驗收仍有獨立語意，保留原責任。其他 Python／Node 下載器與功能互動流程尚未全部收斂。
+
+保留各 workflow 的 job timeout、權限、前置測試及部署時機。測試 `tests/live-assets-verifier.test.cjs` 使用本機 mock curl／sleep，15 項涵蓋匹配、任一檔過期、HTTP 失敗、重試恢復、跨輪不一致、單檔、輸入錯誤及二進位圖片的匹配／單位元組差異，並驗證暫存清理；由 Maintenance core 在 PR 執行。
 
 此 mock 證明的是驗證器行為，不能代替真實部署成功。PR 也不要求未合併內容已上線。其他 marker 型線上檢查仍未在本批全部遷移。

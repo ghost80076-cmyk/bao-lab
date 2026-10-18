@@ -1,6 +1,6 @@
 # 技術債整理狀態
 
-本頁追蹤原定 P0／P1／P2 工程整理，更新至 #739 合併後，並記錄本批部署驗證呼叫端整理。只把有實際證據的範圍列為完成。
+本頁追蹤原定 P0／P1／P2 工程整理，更新至 #740 合併後，並記錄本批聊天／包包驗證整理。只把有實際證據的範圍列為完成。
 
 | 階段 | 目前狀態 | 依據與界線 |
 | --- | --- | --- |
@@ -18,10 +18,11 @@
 | [#737](https://github.com/ghost80076-cmyk/bao-lab/pull/737) | 八組工具選單後置基礎覆蓋併回原規則 | 11 條 PR workflow 成功，含六寬度 × 五主題、Core tests 與 Fast Browser E2E；截圖已檢視。 |
 | [#738](https://github.com/ghost80076-cmyk/bao-lab/pull/738) | 目前維護狀態與歷史驗證版本分開，README 提供入口 | 本地 Markdown 連結可解析、evidence JSON 未改；PR CI 成功。 |
 | [#739](https://github.com/ghost80076-cmyk/bao-lab/pull/739) | 閱讀、燈火、世界 MOD 共用部署資產內容驗證；修正 MOD 測試舊分類定位 | 13 項 mock 回歸、最終 PR CI 與 MOD 三瀏覽器通過；正式站直接下載逾時，未算部署成功。 |
+| [#740](https://github.com/ghost80076-cmyk/bao-lab/pull/740) | 新手教學、工作室、作者正則接入共用驗證；工作室與正則 index 改完整內容比對 | first-run 契約與 verifier 13 項本地回歸、最終 PR CI 通過；push-only 線上驗證仍分列。 |
 
 ## 本批部署驗證整理
 
-本批將新手教學、角色工作室與作者正則也接入 [共用資產驗證腳本](live-asset-verification.md)。工作室 marker 與正則 index 檢查升級為完整內容比對；原 first-run 契約及共用腳本回歸本地通過。最終 PR CI／合併以此批紀錄為準；mock 與 PR 成功都不代替正式部署證據。
+本批將聊天版面與包包介紹頁接入 [共用資產驗證腳本](live-asset-verification.md)，指定共用流程累計八個。保留語法、狀態解析、動畫／WebP 檢查，新增二進位內容回歸，本地 15 項通過；最終 PR CI／合併以此批紀錄為準。SEO／作者資料等獨立語意驗收保留，不能以 mock 或 PR 綠燈替代正式站證據。
 
 ## 尚未結案
 
