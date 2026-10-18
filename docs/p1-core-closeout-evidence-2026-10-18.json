@@ -1,0 +1,1235 @@
+{
+  "schemaVersion": 1,
+  "auditedCommit": "ba4874e9712a36a84cc4c95db80bccfe60a4a226",
+  "scopeDecision": "six-round core-flow baseline accepted subject to repaired live asset check; overall P1 remains open for hook inventory",
+  "sourceVerification": {
+    "checked": 219,
+    "bad": []
+  },
+  "verifiedFiles": [
+    {
+      "path": ".github/workflows/core-tests.yml",
+      "sha": "6616c0f60ed84c06bf02b22d0764daf780635914"
+    },
+    {
+      "path": "data/characters/general/kurobane-yume-kabukicho.json",
+      "sha": "3f11dbf6906baf17c76a941efb3c3bc2db60fe11"
+    },
+    {
+      "path": "data/presets/models.json",
+      "sha": "f13869ddb8c69e5565bd3ead39204c01bc91ebfc"
+    },
+    {
+      "path": "index.html",
+      "sha": "1a2ac8675111d48f216fa98deb12ceac71814cb4"
+    },
+    {
+      "path": "js/action-choice-dock.js",
+      "sha": "720ffeb8167f359a22775748a738c58e98955225"
+    },
+    {
+      "path": "js/actor-mode-core.js",
+      "sha": "e0150b0b73203de71792dd1efed2d3a8692d9cdd"
+    },
+    {
+      "path": "js/actor-mode.js",
+      "sha": "8682b7f469057da6d45a729dcee103255f163fd6"
+    },
+    {
+      "path": "js/admin-character-publish.js",
+      "sha": "69f9616558d8002c151920f0680bf8f13d4c7b6c"
+    },
+    {
+      "path": "js/api.js",
+      "sha": "a3925136259e66248a3d118795c3b001f64c4720"
+    },
+    {
+      "path": "js/app.js",
+      "sha": "24af4803948c12390b7828223f0d96dc2901d480"
+    },
+    {
+      "path": "js/author-diagnostics.js",
+      "sha": "c4336116e3e2c34a62b67bbac544fee08d436c44"
+    },
+    {
+      "path": "js/author-profile-core.js",
+      "sha": "53a0302aa9e20baae3d6f519e465f4c1ccac8d9b"
+    },
+    {
+      "path": "js/author-profile.js",
+      "sha": "5b85fe746e2a24579df17c351d746f76553cba89"
+    },
+    {
+      "path": "js/author-regex-card-bind.js",
+      "sha": "fe2029aea3acc997e610210acaa10a83d361c77c"
+    },
+    {
+      "path": "js/author-regex-compat.js",
+      "sha": "01e10a9abd984d4b00b58aa630fb65d543f4f3a9"
+    },
+    {
+      "path": "js/author-regex-core.js",
+      "sha": "3a1edfaa2b40b23d1b6df5753a4c704bbf889529"
+    },
+    {
+      "path": "js/author-regex-dock.js",
+      "sha": "34c468e6d2b2f48a8bc3aeb26228a524c1a0cda2"
+    },
+    {
+      "path": "js/author-regex-inline.js",
+      "sha": "d2759853fd2267b1c88f646c26598b2c6053f87a"
+    },
+    {
+      "path": "js/author-regex-mobile.js",
+      "sha": "2162f56aa9ccd06e99cc2b3f334e55118f736dc8"
+    },
+    {
+      "path": "js/author-regex-text-mod.js",
+      "sha": "3de420bef2ad72a2c84b8163ca15d3974a572c9d"
+    },
+    {
+      "path": "js/author-status-binding.js",
+      "sha": "00fc64fcef848b94e3a7d9900203dea1d1a2a296"
+    },
+    {
+      "path": "js/autonomous-world-display.js",
+      "sha": "c7029ac75a995951950b0a9bdb8fe4dfb0c276d5"
+    },
+    {
+      "path": "js/autonomous-world-workbench.js",
+      "sha": "c257a195e1ea22fdce1e70d217eb2c4ff2c2e691"
+    },
+    {
+      "path": "js/bao-doctor.js",
+      "sha": "d2b4e5d9772f3605c893864d7509d00388d0b1ef"
+    },
+    {
+      "path": "js/bao-gallery-focus.js",
+      "sha": "13c867e83f2155bbe24dd069c7454e3e9505e6d4"
+    },
+    {
+      "path": "js/bao-image-quality.js",
+      "sha": "8428c2623dd8c4848ad5cb4e61595e678f68e07d"
+    },
+    {
+      "path": "js/bao-mascot.js",
+      "sha": "e0848a1f03b5642d4cc3ac38771d207ad08a65dd"
+    },
+    {
+      "path": "js/bao-visual-ui.js",
+      "sha": "418113aadf7199d1e1c02c618f083fa1cd469ddf"
+    },
+    {
+      "path": "js/bookshelf-enhance.js",
+      "sha": "7cb8462c00dd17dfbd3b7ec6dda9ac0cfb109d50"
+    },
+    {
+      "path": "js/brand-ui.js",
+      "sha": "ccec8587b34a96fe142f78615f7af35870bf4f02"
+    },
+    {
+      "path": "js/cache-cost-panel.js",
+      "sha": "ac0e176471dd27f5322174250d103e22243d058b"
+    },
+    {
+      "path": "js/canon-workbench.js",
+      "sha": "5e91f23fffbc47b6adfc22321e6fdadd63371f64"
+    },
+    {
+      "path": "js/character-card-png-export.js",
+      "sha": "974f1aa1ca502692401b91220da5d62093e65409"
+    },
+    {
+      "path": "js/character-card-yorubay-roundtrip.js",
+      "sha": "d7a7ef600dae31a1bbe0fe2f53b5f39318bb2217"
+    },
+    {
+      "path": "js/character-import-upgrade.js",
+      "sha": "2a91898073f077601c7535177554366c2abfda49"
+    },
+    {
+      "path": "js/character-library-repair.js",
+      "sha": "90dc9a29d1f4d147ef16d664b30b99b2c8134e44"
+    },
+    {
+      "path": "js/character-library.js",
+      "sha": "6122dd0ad470d7b5da88d47793d610036cab32d5"
+    },
+    {
+      "path": "js/character-readiness.js",
+      "sha": "43c22ccb15ac35e3bf3e2b7697d7af1c93d3741c"
+    },
+    {
+      "path": "js/character-status-ui.js",
+      "sha": "598674247a002aeebee3809e7c0279c9a740bbdf"
+    },
+    {
+      "path": "js/character-status.js",
+      "sha": "674e4083c15cd2ace47bf6718e068178ed6f37be"
+    },
+    {
+      "path": "js/character-studio-actions-core.js",
+      "sha": "dbfbeb2808a3923fbe33fad40d8d5150a7d59ad9"
+    },
+    {
+      "path": "js/character-studio-flow-core.js",
+      "sha": "7c5b0c68cc0907b2f5c0c5f94e5e8f460855bf73"
+    },
+    {
+      "path": "js/character-studio-flow.js",
+      "sha": "0ca044e8955a88687cdaa90fcabea365b8b843c1"
+    },
+    {
+      "path": "js/character-studio-lifecycle-core.js",
+      "sha": "e92bd3254239a16a6a2a46ad630b37a2d9f1db0b"
+    },
+    {
+      "path": "js/character-studio-lifecycle.js",
+      "sha": "0375d667217d789645ec02f8604a22454afcf646"
+    },
+    {
+      "path": "js/character-studio.js",
+      "sha": "6e7704fe70befff7544bc9d69b7c4e51bf59dcc6"
+    },
+    {
+      "path": "js/character-ui.js",
+      "sha": "bce14f9e9ee88518b44174870d673b6b3cfe28b3"
+    },
+    {
+      "path": "js/character.js",
+      "sha": "97ec00889bd6f1a18130c763d4627e2a4c87775e"
+    },
+    {
+      "path": "js/chat-api-settings.js",
+      "sha": "66f5ec5d6d70f9785c76c0e8b0f3c116585395cf"
+    },
+    {
+      "path": "js/chat-controls-clarity.js",
+      "sha": "fcbffb30f46f0facc86b0d23f1963e1f7be5568c"
+    },
+    {
+      "path": "js/chat-experience-repairs.js",
+      "sha": "806c9c58f88ab13f8f3cacb4e8105eb498a8bed4"
+    },
+    {
+      "path": "js/chat-experience.js",
+      "sha": "f2ba5c9c169a244351afadd6ac56f3f69a40817f"
+    },
+    {
+      "path": "js/chat-markup.js",
+      "sha": "15b2976ef05fc946bb73e1b4baa6fdeaa2061ae4"
+    },
+    {
+      "path": "js/chat-presentation-core.js",
+      "sha": "608b007b30e1137e62340522f4154528ce5b382e"
+    },
+    {
+      "path": "js/chat-reading-scroll.js",
+      "sha": "4d1a5dda2f638c95711e548518df359d81380190"
+    },
+    {
+      "path": "js/chat-shell-fix.js",
+      "sha": "fddcae23b84ce26485dca6ccaf20bf6569312714"
+    },
+    {
+      "path": "js/chat-system-notices.js",
+      "sha": "33cbe6d2414a5b6a9ba7b169020099fd32f00525"
+    },
+    {
+      "path": "js/chat-tool-navigation.js",
+      "sha": "62e761a5cb7ffd9f15a6d22a925bda058f47f794"
+    },
+    {
+      "path": "js/chat-ui-simplify.js",
+      "sha": "1492a10e5d900594813e8656d559cee8551b9159"
+    },
+    {
+      "path": "js/chat.js",
+      "sha": "3b6376bbac6daabe0f233661045d963a26ec37fc"
+    },
+    {
+      "path": "js/commentary-mods-adult-pack.js",
+      "sha": "4f81b4002cb54141296e7bef7b94799a2c18ca2d"
+    },
+    {
+      "path": "js/commentary-mods-core.js",
+      "sha": "dc4310e42efa0ed05bca63771d4c42de4d5c8d49"
+    },
+    {
+      "path": "js/commentary-mods-general-pack.js",
+      "sha": "b5be7c68b8226bf11909fbbb16f911982766fa76"
+    },
+    {
+      "path": "js/commentary-mods.js",
+      "sha": "68592419f97eec715ca56d631c8ca669aec3a370"
+    },
+    {
+      "path": "js/content-preferences-core.js",
+      "sha": "cbb7731ed1c1452cc24e195431a0e22b0d8fdd08"
+    },
+    {
+      "path": "js/content-preferences.js",
+      "sha": "cd9254a8cf4521f9b3586964e25eb758eba8c958"
+    },
+    {
+      "path": "js/context-health-core.js",
+      "sha": "f79182c583aabf7aa78398c8bb7a37cd85f5db51"
+    },
+    {
+      "path": "js/context-health.js",
+      "sha": "1521f7f6711fa2a2c918a4f4036da53253fba2fc"
+    },
+    {
+      "path": "js/context-pack-resume.js",
+      "sha": "853cfb420a4c74cf25ee8bb3ed7f38c43eb5a27f"
+    },
+    {
+      "path": "js/conversation-search-core.js",
+      "sha": "af08f77088a733c5f4ae85bee4ffdf8f7e4728a3"
+    },
+    {
+      "path": "js/conversation-search.js",
+      "sha": "f3f8fa598e6d6ac0d81ebee062f1b67da29cae62"
+    },
+    {
+      "path": "js/cost-control.js",
+      "sha": "27a1dc4c9105a6b5981dbeafe103f2b7eae12ad8"
+    },
+    {
+      "path": "js/credits-pilot.js",
+      "sha": "21705ee031e9b97cded2675bcc3a97a92a0fa17f"
+    },
+    {
+      "path": "js/device-transfer.js",
+      "sha": "e8b870ced679d376982dee4ba7f001e00e9d7271"
+    },
+    {
+      "path": "js/episodic-memory-core.js",
+      "sha": "dee05c8cc18bd60bb1dca61ab742a81e55125bdb"
+    },
+    {
+      "path": "js/episodic-memory.js",
+      "sha": "9b0fdf1821cc8287042607a435a4b972080941c5"
+    },
+    {
+      "path": "js/experience-preferences-core.js",
+      "sha": "133508f76fb5bb1bf5dcb6c94563082f6f5abbf2"
+    },
+    {
+      "path": "js/experience-preferences.js",
+      "sha": "cdc027a997f3f66e93eb663a3843a7a4dd3dd8a7"
+    },
+    {
+      "path": "js/explore-discovery-core.js",
+      "sha": "1e1a944f380ed240715f0425a5ac35b210569f4b"
+    },
+    {
+      "path": "js/explore-discovery.js",
+      "sha": "9de518caa55aa782d3fb7ccee9a54270c2a2be3b"
+    },
+    {
+      "path": "js/feature-help.js",
+      "sha": "434731183c6aaeb7b30b2e6862958cf7682d7bdf"
+    },
+    {
+      "path": "js/gameplay-ui-core.js",
+      "sha": "c3b419e8373a93178f3e09f5be569b5cb26cbfd9"
+    },
+    {
+      "path": "js/gameplay-ui.js",
+      "sha": "66587b00f636afcdfcea1b10172d9dacfbd5b75a"
+    },
+    {
+      "path": "js/gemini-explicit-cache.js",
+      "sha": "b703a9ddebcab9662cf146239f3d68a4918619a3"
+    },
+    {
+      "path": "js/global-bridge.js",
+      "sha": "71e146af03fb5a50380ace0c769a7996e5ec2208"
+    },
+    {
+      "path": "js/google-drive-config.js",
+      "sha": "90f0fbaeb7b02575b14dd67883dcf22840533cb9"
+    },
+    {
+      "path": "js/google-drive-sync.js",
+      "sha": "17da5fa3b66ca58bafa995c546dd04f907bb60e7"
+    },
+    {
+      "path": "js/helper-api-routing.js",
+      "sha": "3bb8182f503b99fc2e366b53c5e6d2ee57fe23ce"
+    },
+    {
+      "path": "js/helper-data.js",
+      "sha": "274c5a5f087497c45419ee3ddc5a10933bdb92f4"
+    },
+    {
+      "path": "js/host-club-simulator-ui.js",
+      "sha": "51196d75ee1fba34f876cd3be4d6b6585db8bd4f"
+    },
+    {
+      "path": "js/immersive-reader.js",
+      "sha": "11f753a818e1b1a86661099e3c981eae59ada9db"
+    },
+    {
+      "path": "js/inspiration-copy.js",
+      "sha": "fe19ff6d77c33dd8fa8fdaa849ee279ca1eee2f5"
+    },
+    {
+      "path": "js/interpretation-mods-core.js",
+      "sha": "d88f99e451756d6e9f8e352debc9aecff2b01250"
+    },
+    {
+      "path": "js/interpretation-mods-official-pack.js",
+      "sha": "528f74a05fb7587ebd84551c98f565b8cb092729"
+    },
+    {
+      "path": "js/interpretation-mods.js",
+      "sha": "3937547c0fc58bf9204038596cda3cf6aaf1a0ec"
+    },
+    {
+      "path": "js/k-idol-survival-simulator-ui.js",
+      "sha": "db74b98dca034e6dd1ed05497b729d2549677695"
+    },
+    {
+      "path": "js/lm-studio-core.js",
+      "sha": "bf9621bcfffdd15f1063d400c832f23e67368632"
+    },
+    {
+      "path": "js/lm-studio.js",
+      "sha": "89f06cfa7171eec056be5372231cab55a3787fb9"
+    },
+    {
+      "path": "js/lorebook.js",
+      "sha": "b7ad9fc6074bd61dd145a862663d2fcc49103be7"
+    },
+    {
+      "path": "js/memory-preferences.js",
+      "sha": "0fc8a8f880cb9717174cefc7333a1752f2ecfaa5"
+    },
+    {
+      "path": "js/memory-workbench-ai.js",
+      "sha": "73e406bbe64368587f9a5d0d07421d7944490003"
+    },
+    {
+      "path": "js/memory-workbench-core.js",
+      "sha": "0bffed2675a65fc2f41e89c29f197cdeccdaeae8"
+    },
+    {
+      "path": "js/memory-workbench-simplify.js",
+      "sha": "8ad698d4a7dbc2a0073614582343bc148dd5bddc"
+    },
+    {
+      "path": "js/mobile-reading-layout.js",
+      "sha": "8e5b8634025835dd7484a72868fe5d5fcca4c498"
+    },
+    {
+      "path": "js/model-discovery.js",
+      "sha": "f457f9cf74a424ad751acab7e20df8adcf851a3c"
+    },
+    {
+      "path": "js/model-guide.js",
+      "sha": "19b11b2b0db2f2135f63b8d54796f8ae31796a86"
+    },
+    {
+      "path": "js/model-routing.js",
+      "sha": "5b5dbf7709c0c177ea2457539f82ed1ce1e9e6a7"
+    },
+    {
+      "path": "js/narrative-settings.js",
+      "sha": "46055d42019e0cae729f6e8e8f3ef8bd74c696ba"
+    },
+    {
+      "path": "js/native-status-packs.js",
+      "sha": "f74558c096cd3316f1662e13917af69d0617aed7"
+    },
+    {
+      "path": "js/night-sky-magic-academy-ui.js",
+      "sha": "0409b4955ffdad0d6143e76937cdd55b07164fe1"
+    },
+    {
+      "path": "js/no-api-world-preview.js",
+      "sha": "a6c4d235a613777d24d53bd176f57f916583ba4c"
+    },
+    {
+      "path": "js/player-builder-v2.js",
+      "sha": "af7050574e2498c82bdf4661a3cbbb0d514f40ae"
+    },
+    {
+      "path": "js/player-settings.js",
+      "sha": "c108c983feeaf911075d6c2a84fbc932a244a19a"
+    },
+    {
+      "path": "js/player-shell-v2.js",
+      "sha": "e967239c7aa62839a8ad93812ff6d3d30d795f28"
+    },
+    {
+      "path": "js/player-text-replace-mod.js",
+      "sha": "c29207ff466d2808c6b813ce428a24be319e94e1"
+    },
+    {
+      "path": "js/prompt-cache.js",
+      "sha": "05103a4554dd976d45972f3434cd56c0f6d994cb"
+    },
+    {
+      "path": "js/prompt-orchestrator.js",
+      "sha": "de33ca55464247ea26943ab394d2a8c2ac7e623d"
+    },
+    {
+      "path": "js/provider-browser-compat.js",
+      "sha": "58b510ad04d932d770b3586186b30641f6af5e5d"
+    },
+    {
+      "path": "js/provider-diagnostics.js",
+      "sha": "df320210bf22fa419344a2043b0be59199d58930"
+    },
+    {
+      "path": "js/pwa-install.js",
+      "sha": "27640bfc5639a2e672a3d77d00a90009ccd55b02"
+    },
+    {
+      "path": "js/quick-start-mode.js",
+      "sha": "69e822721c9d6c21b410a8e5f7aab2acc10ed483"
+    },
+    {
+      "path": "js/reader-context.js",
+      "sha": "06c0003eaee45f2840e62861201eb647485db972"
+    },
+    {
+      "path": "js/regex-chat.js",
+      "sha": "b94a25957c2c453447b66879503388b931d25e64"
+    },
+    {
+      "path": "js/regex-library.js",
+      "sha": "c016258235c91f035f9392cf195091ee0c25b11f"
+    },
+    {
+      "path": "js/request-lifecycle.js",
+      "sha": "8ef37c20204360494b7eabeeb2c21cf7368869f0"
+    },
+    {
+      "path": "js/same-model-state-merge.js",
+      "sha": "4d99618df902854f09c7f2e340cfc7bff06e7208"
+    },
+    {
+      "path": "js/scene-chat-integration.js",
+      "sha": "ed199f3562279637b6164c77f3f9334b65382ee2"
+    },
+    {
+      "path": "js/scene-html-modes.js",
+      "sha": "a00f1f6f9f28a2c74aff3842071ffef631c239fa"
+    },
+    {
+      "path": "js/scene-presentation-core.js",
+      "sha": "3568a63ab1927385ac5da5750d748081b25eee0a"
+    },
+    {
+      "path": "js/scene-render-integrity.js",
+      "sha": "bf4a7d2a48ee7b0e23d8e15fb0825bb7bcf29ca2"
+    },
+    {
+      "path": "js/scene-story-preferences.js",
+      "sha": "5d6375e6e23b9fe12ad07c021dab35fd66c0bd9a"
+    },
+    {
+      "path": "js/site-ui.js",
+      "sha": "8a49b70a840c1d2f7a4c784ed9991af57f2ce170"
+    },
+    {
+      "path": "js/state-tracker-repairs.js",
+      "sha": "c43d7e6409beae9b507ef9264ee74901aa83ba55"
+    },
+    {
+      "path": "js/state.js",
+      "sha": "205a803e50b56f70fc06a10b1386a7f2dca7d1f3"
+    },
+    {
+      "path": "js/status-usage-integrity.js",
+      "sha": "decb72290fb16020335df3f6b929eb9f7d8b7050"
+    },
+    {
+      "path": "js/storage-write-guard.js",
+      "sha": "53f44b4b3515766ca2fcadd86f39da5b7a121975"
+    },
+    {
+      "path": "js/storage.js",
+      "sha": "e5d345155536e7e6802d94538ee26a2b37ec7c00"
+    },
+    {
+      "path": "js/story-actor-pack-core.js",
+      "sha": "1f3b5eb403f108464b7190b5ae4f596b662ba9f2"
+    },
+    {
+      "path": "js/story-actors-adult-pack.js",
+      "sha": "8ce540dbb68f397317ffb22fe4e141e1db761968"
+    },
+    {
+      "path": "js/story-actors-general-pack.js",
+      "sha": "fbf083e500a7abd7b98191194fd17f46082a3f21"
+    },
+    {
+      "path": "js/story-backup.js",
+      "sha": "31af983607ed35a1bb8fb229bdea115f9852185b"
+    },
+    {
+      "path": "js/story-branches.js",
+      "sha": "3c2c663d1159313a506ad0f2fd271b27df22fa3d"
+    },
+    {
+      "path": "js/story-control-center-core.js",
+      "sha": "40d373e55205a3c3159b95d46b804430a9880d8d"
+    },
+    {
+      "path": "js/story-control-center.js",
+      "sha": "24f6937b503f33bd05938c04ff58eb3f046a3848"
+    },
+    {
+      "path": "js/story-entry-visibility.js",
+      "sha": "bfce573a708ddd561fe601d9ae4495cf930cddb6"
+    },
+    {
+      "path": "js/story-extension-pack-core.js",
+      "sha": "f01a4ebfe7652a7ca3bce1845998820bc170fe8b"
+    },
+    {
+      "path": "js/story-extension-pack.js",
+      "sha": "43f611fd8c5b68e055f05968f55f4b9899282cad"
+    },
+    {
+      "path": "js/story-extensions-center.js",
+      "sha": "2aa7d74a203cfc52754a6f2b9db9e1f05a9f85f8"
+    },
+    {
+      "path": "js/story-extensions-core.js",
+      "sha": "3c4893e7049b7adea80886e5b7271966e153050e"
+    },
+    {
+      "path": "js/story-helper-reconnect.js",
+      "sha": "5a6c6e56a6ff7eb0d9ce2f63aabd313e0e91cb99"
+    },
+    {
+      "path": "js/story-history-core.js",
+      "sha": "27e957f5357819fb74d9e1e5a4251cc8b4805232"
+    },
+    {
+      "path": "js/story-history.js",
+      "sha": "68a31abc89850224b4004b46bf0a315efd889712"
+    },
+    {
+      "path": "js/story-image-prompts.js",
+      "sha": "f169a746cd2718e7c64d124f1aba9fe66dbe629c"
+    },
+    {
+      "path": "js/story-integrity-fixes.js",
+      "sha": "f7b21a2bad730fa99309fc28683320ddcbd7591f"
+    },
+    {
+      "path": "js/story-library.js",
+      "sha": "36fb780a871243be8038a43627302581d99260ce"
+    },
+    {
+      "path": "js/story-persona-manager.js",
+      "sha": "295737dfc9cefaab2476f1e289fdf170c56c7c7b"
+    },
+    {
+      "path": "js/story-quick-commands-core.js",
+      "sha": "89b576adca3d1bc1183326eeccd20571071f94fe"
+    },
+    {
+      "path": "js/story-quick-commands.js",
+      "sha": "8f36521a5513beeb5fa3e1ad36cbf67ede1a7bba"
+    },
+    {
+      "path": "js/story-reader.js",
+      "sha": "da72980a663e1a52c1d9549dad8a14191279c361"
+    },
+    {
+      "path": "js/story-revision-state.js",
+      "sha": "95fd5d74dea16cc4e8e1f371b44b7804aba118a1"
+    },
+    {
+      "path": "js/story-rollback.js",
+      "sha": "8a6cc6d12334868a407f6aacc02f3274693b807b"
+    },
+    {
+      "path": "js/story-start-readiness-core.js",
+      "sha": "693ba46d608e85b77bfcddd97fe329043c096197"
+    },
+    {
+      "path": "js/story-start-readiness.js",
+      "sha": "aaef7231c29f4306599e621f0ea5751defcf59b4"
+    },
+    {
+      "path": "js/story-startup-core.js",
+      "sha": "dda9615d925f4b279bc760722b93293302ccf06b"
+    },
+    {
+      "path": "js/story-timeline.js",
+      "sha": "58c942fa9d81671c13b440bc315f6ac60f3cb04b"
+    },
+    {
+      "path": "js/story-tools.js",
+      "sha": "4c208abef8ea606c7929692c64bc8667a0d17a21"
+    },
+    {
+      "path": "js/streaming-ui.js",
+      "sha": "254192079d7b3980d5ef07431b2bebb220b0ea32"
+    },
+    {
+      "path": "js/three-realms-cultivation-core.js",
+      "sha": "2ca95269c4b55bbf2777d8b838be323abab84e9e"
+    },
+    {
+      "path": "js/three-realms-event-profiles.js",
+      "sha": "c227bbfdbb2e74632e3adf53358ad36e1747e219"
+    },
+    {
+      "path": "js/three-realms-events-core.js",
+      "sha": "2a757e84b202369343a0feec65880bf2edbaf09b"
+    },
+    {
+      "path": "js/three-realms-events.js",
+      "sha": "a297027dce3444beea789a0d7cf77531a74b3e0f"
+    },
+    {
+      "path": "js/three-realms-story-actor-pack.js",
+      "sha": "422009eea29c85beaf138cee9d131eba4f851108"
+    },
+    {
+      "path": "js/work-package-core.js",
+      "sha": "8a9b7e5e67e8a96502f3fde7fc6b67722afb2ee7"
+    },
+    {
+      "path": "js/work-package.js",
+      "sha": "0be5af1e21c5d2e1a576e296bf75fcd8bc601633"
+    },
+    {
+      "path": "js/world-clock.js",
+      "sha": "70244b16c1aba126ab9156dd0bcd8e9b5c46a75e"
+    },
+    {
+      "path": "js/world-mod-packs.js",
+      "sha": "f098f6141b38fdd76a8a1f2dbe2bfb3e061f27fb"
+    },
+    {
+      "path": "js/world-module-manager.js",
+      "sha": "c678cd9bdc912023d530bee523e5ddfd2523029d"
+    },
+    {
+      "path": "js/world-module-ui.js",
+      "sha": "cabf7421e1411d96d8840226168990b0abbe96ee"
+    },
+    {
+      "path": "js/world-modules.js",
+      "sha": "bd86c296d7839e02083d86c14b853d92f77afb4a"
+    },
+    {
+      "path": "js/world-relevance.js",
+      "sha": "e44b7100c12968ea64b849bf21a08177890e5f66"
+    },
+    {
+      "path": "js/world-state-cost.js",
+      "sha": "94b552eff48b13162f28e3f1e005c33a689cbde4"
+    },
+    {
+      "path": "js/world-state-hook.js",
+      "sha": "e2499703648ea4f469810429b974f20400acf622"
+    },
+    {
+      "path": "js/world-state.js",
+      "sha": "0e5c4f0fcb38521e4ef2e9595d738b4b673e3618"
+    },
+    {
+      "path": "js/worldbook-library-core.js",
+      "sha": "7861f7403742092827f3ff8e08e343f8d3538f9a"
+    },
+    {
+      "path": "js/worldbook-library.js",
+      "sha": "419f515c566f5240897e94e46a9b126401d8304e"
+    },
+    {
+      "path": "js/yume-relationship-archive.js",
+      "sha": "3cf945de1619b7d8bc59bbe825d43f60243ef2ef"
+    },
+    {
+      "path": "tests/api-ordered-pipeline-integration.cjs",
+      "sha": "84c159ae156128693e69dcaf847dbd313b67c597"
+    },
+    {
+      "path": "tests/api-send-pipeline-core.cjs",
+      "sha": "08fd5ba884346b01d344ce15399813279e3dce4b"
+    },
+    {
+      "path": "tests/api-send-wrapper-core.cjs",
+      "sha": "6ade4f61f9e0ce14d8c0392a0fd40a7766b05b3f"
+    },
+    {
+      "path": "tests/api-streaming-contracts.cjs",
+      "sha": "b3c57a579b15f825f922cdab64dd477e9d78477c"
+    },
+    {
+      "path": "tests/app-send-message-wrapper-core.cjs",
+      "sha": "bcf27e614e7f4ddb948673ef0ad53384cdef20f3"
+    },
+    {
+      "path": "tests/chat-reading-pipeline-core.cjs",
+      "sha": "bc32832fbb7bcfd9703f69c8953ab3833bd06479"
+    },
+    {
+      "path": "tests/chat-reading-scroll-core.cjs",
+      "sha": "b9db8a5a68a3f45a1f586038cb7cc965a5398c80"
+    },
+    {
+      "path": "tests/chat-usage-pipeline-core.cjs",
+      "sha": "9c2e8509daf55447ef5c943f4993016ba2c1d985"
+    },
+    {
+      "path": "tests/commentary-mods-core.cjs",
+      "sha": "a1381d9fe91901db54a02a985ec293c8fe55b2b3"
+    },
+    {
+      "path": "tests/credits-pilot.test.cjs",
+      "sha": "0aa5bf057cad9ee44e14eaaf877e4255337eea11"
+    },
+    {
+      "path": "tests/episodic-memory-core.cjs",
+      "sha": "452657b6a69b8a2829341a976c2c51628afc7030"
+    },
+    {
+      "path": "tests/episodic-recall-ownership-core.cjs",
+      "sha": "10cda419f0988e709939fbce3f2b3e9c65535f9d"
+    },
+    {
+      "path": "tests/frontend-extension-contract.cjs",
+      "sha": "3ced3eb33a8dc6667eaf4558f1a2b87163d03b84"
+    },
+    {
+      "path": "tests/helper-context-core.cjs",
+      "sha": "f0403a08b41261c8638f29adf993b27e5a2f9f5c"
+    },
+    {
+      "path": "tests/interpretation-mods-core.cjs",
+      "sha": "aaf511606124e7649198e53a02c197c110d19b9c"
+    },
+    {
+      "path": "tests/memory-app-integrity-core.cjs",
+      "sha": "ade10981fb09cc590ad551cc3ba62c78b008f8f5"
+    },
+    {
+      "path": "tests/memory-model-selection-core.cjs",
+      "sha": "29a3d0fc9c386a7b2550a7e8d02d9a0a6eddbe07"
+    },
+    {
+      "path": "tests/memory-request-guard-core.cjs",
+      "sha": "775e0a69edbe104c7d845766668cfb2254dbd967"
+    },
+    {
+      "path": "tests/memory-summary-ownership-core.cjs",
+      "sha": "610661e84c9ea7a9538f97ea0d526450bd40adae"
+    },
+    {
+      "path": "tests/per-request-cost-core.cjs",
+      "sha": "0ee064d65a8dcb01b9c4c610b942905f63d0ec2f"
+    },
+    {
+      "path": "tests/post-turn-mod-ownership-core.cjs",
+      "sha": "e2f6f7b2031f2a30010a48af9684c60251789b13"
+    },
+    {
+      "path": "tests/prompt-cache-core.cjs",
+      "sha": "95bef3ce9ada167204fc637bfbedbd6c7a37a4a5"
+    },
+    {
+      "path": "tests/request-lifecycle-core.cjs",
+      "sha": "95375d8b1a9d1d70417dfbf454d7f2b2d8827166"
+    },
+    {
+      "path": "tests/same-model-state-merge-core.cjs",
+      "sha": "069db35035edfd19237839acd0d0c05d9a159f79"
+    },
+    {
+      "path": "tests/state-snapshot-continuity-core.cjs",
+      "sha": "175ffafb06e1a5144ef97f42cbb9b13f22a4e571"
+    },
+    {
+      "path": "tests/story-revision-pipeline-core.cjs",
+      "sha": "9ed1c2da7a33fed8c01ccdc0e2f2fb45bd27afeb"
+    },
+    {
+      "path": "tests/story-turn-ownership-core.cjs",
+      "sha": "ca9e3b49746cc6899c8c393dbf98671fcc358608"
+    },
+    {
+      "path": "tests/streaming-turn-ownership-core.cjs",
+      "sha": "1b16c2f26b9dd151cf1b0b16477dfb46a02be075"
+    },
+    {
+      "path": "tests/streaming-ui-wrapper-core.cjs",
+      "sha": "4acaac2d3487ed7c52b500475a10b31156f63d7a"
+    },
+    {
+      "path": "tests/world-state-after-turn-hook-core.cjs",
+      "sha": "54df67a830924e5fdcc8af20e24154c4159d5026"
+    },
+    {
+      "path": "tests/world-state-concurrency-core.cjs",
+      "sha": "a88c04d2b9c49f7dd05c404bff32e7b978287f2e"
+    },
+    {
+      "path": "tests/world-state-cost-core.cjs",
+      "sha": "3d655a6a7e03d734ef471c9137ad8bf93e96a3c6"
+    },
+    {
+      "path": "tests/worldbook-recall-ownership-core.cjs",
+      "sha": "8d66430046e7b5f26bc6ee6a94f468affa9cc2da"
+    }
+  ],
+  "local": {
+    "node": "v24.19.0",
+    "network": "global fetch disabled; per-test mocks supplied",
+    "tests": [
+      {
+        "path": "tests/api-send-wrapper-core.cjs",
+        "exitCode": 0
+      },
+      {
+        "path": "tests/api-send-pipeline-core.cjs",
+        "exitCode": 0
+      },
+      {
+        "path": "tests/api-ordered-pipeline-integration.cjs",
+        "exitCode": 0
+      },
+      {
+        "path": "tests/chat-usage-pipeline-core.cjs",
+        "exitCode": 0
+      },
+      {
+        "path": "tests/app-send-message-wrapper-core.cjs",
+        "exitCode": 0
+      },
+      {
+        "path": "tests/world-state-after-turn-hook-core.cjs",
+        "exitCode": 0
+      },
+      {
+        "path": "tests/world-state-cost-core.cjs",
+        "exitCode": 0
+      },
+      {
+        "path": "tests/world-state-concurrency-core.cjs",
+        "exitCode": 0
+      },
+      {
+        "path": "tests/same-model-state-merge-core.cjs",
+        "exitCode": 0
+      },
+      {
+        "path": "tests/memory-summary-ownership-core.cjs",
+        "exitCode": 0
+      },
+      {
+        "path": "tests/memory-request-guard-core.cjs",
+        "exitCode": 0
+      },
+      {
+        "path": "tests/memory-model-selection-core.cjs",
+        "exitCode": 0
+      },
+      {
+        "path": "tests/memory-app-integrity-core.cjs",
+        "exitCode": 0
+      },
+      {
+        "path": "tests/helper-context-core.cjs",
+        "exitCode": 0
+      },
+      {
+        "path": "tests/episodic-memory-core.cjs",
+        "exitCode": 0
+      },
+      {
+        "path": "tests/episodic-recall-ownership-core.cjs",
+        "exitCode": 0
+      },
+      {
+        "path": "tests/worldbook-recall-ownership-core.cjs",
+        "exitCode": 0
+      },
+      {
+        "path": "tests/story-turn-ownership-core.cjs",
+        "exitCode": 0
+      },
+      {
+        "path": "tests/streaming-turn-ownership-core.cjs",
+        "exitCode": 0
+      },
+      {
+        "path": "tests/streaming-ui-wrapper-core.cjs",
+        "exitCode": 0
+      },
+      {
+        "path": "tests/request-lifecycle-core.cjs",
+        "exitCode": 0
+      },
+      {
+        "path": "tests/post-turn-mod-ownership-core.cjs",
+        "exitCode": 0
+      },
+      {
+        "path": "tests/commentary-mods-core.cjs",
+        "exitCode": 0
+      },
+      {
+        "path": "tests/interpretation-mods-core.cjs",
+        "exitCode": 0
+      },
+      {
+        "path": "tests/per-request-cost-core.cjs",
+        "exitCode": 0
+      },
+      {
+        "path": "tests/prompt-cache-core.cjs",
+        "exitCode": 0
+      },
+      {
+        "path": "tests/frontend-extension-contract.cjs",
+        "exitCode": 0
+      },
+      {
+        "path": "tests/story-revision-pipeline-core.cjs",
+        "exitCode": 0
+      },
+      {
+        "path": "tests/state-snapshot-continuity-core.cjs",
+        "exitCode": 0
+      },
+      {
+        "path": "tests/chat-reading-pipeline-core.cjs",
+        "exitCode": 0
+      },
+      {
+        "path": "tests/chat-reading-scroll-core.cjs",
+        "exitCode": 0
+      },
+      {
+        "path": "tests/credits-pilot.test.cjs",
+        "exitCode": 0
+      },
+      {
+        "path": "tests/api-streaming-contracts.cjs",
+        "exitCode": 0
+      }
+    ],
+    "passed": 33,
+    "failed": 0
+  },
+  "prs": [
+    {
+      "number": 723,
+      "url": "https://github.com/ghost80076-cmyk/bao-lab/pull/723",
+      "merged": true,
+      "head": "a61964ec0f0ffd603f6d9a2ff0bda6ddb1ac3bf6",
+      "merge": "398980e52fa07322f7aa33c7fbe799eb44718f34"
+    },
+    {
+      "number": 724,
+      "url": "https://github.com/ghost80076-cmyk/bao-lab/pull/724",
+      "merged": true,
+      "head": "59fe1220401a4136b3c23b1ddc0337e8ecb19337",
+      "merge": "0789a312b2dd6b6f274b31f91b7199ccfc383017"
+    },
+    {
+      "number": 725,
+      "url": "https://github.com/ghost80076-cmyk/bao-lab/pull/725",
+      "merged": true,
+      "head": "a74c2a64424374a707a6253107ef166c8d834dfe",
+      "merge": "5ee33dd4497ffa87f768681dffd6b48095909ac1"
+    },
+    {
+      "number": 726,
+      "url": "https://github.com/ghost80076-cmyk/bao-lab/pull/726",
+      "merged": true,
+      "head": "d0d3547d9ba047aacca277e6bb6e00a44ef340bc",
+      "merge": "3e3580957b8d5547f67062fa83dcbc7a13e2d5f7"
+    },
+    {
+      "number": 727,
+      "url": "https://github.com/ghost80076-cmyk/bao-lab/pull/727",
+      "merged": true,
+      "head": "96fed5876de9ea50d196526a163e675e6e3b5835",
+      "merge": "06d7185d3027a12e840352593821ad6512efbf24"
+    },
+    {
+      "number": 728,
+      "url": "https://github.com/ghost80076-cmyk/bao-lab/pull/728",
+      "merged": true,
+      "head": "b6750acd4b473da269b207083a8256de0681d7f0",
+      "merge": "ba4874e9712a36a84cc4c95db80bccfe60a4a226"
+    }
+  ],
+  "mainChecksBeforeWorkflowRepair": [
+    {
+      "name": "Live Pages smoke",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/ghost80076-cmyk/bao-lab/actions/runs/39112848519/job/117633081407"
+    },
+    {
+      "name": "deploy",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/ghost80076-cmyk/bao-lab/actions/runs/39112848140/job/117632476680"
+    },
+    {
+      "name": "report-build-status",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/ghost80076-cmyk/bao-lab/actions/runs/39112848140/job/117632476619"
+    },
+    {
+      "name": "pages-live",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/ghost80076-cmyk/bao-lab/actions/runs/39112848521/job/117632466239"
+    },
+    {
+      "name": "build",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/ghost80076-cmyk/bao-lab/actions/runs/39112848140/job/117632441736"
+    },
+    {
+      "name": "Fast E2E · Chromium core · story-experience",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/ghost80076-cmyk/bao-lab/actions/runs/39112848519/job/117632441264"
+    },
+    {
+      "name": "Fast E2E · Chromium core · mobile-reading",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/ghost80076-cmyk/bao-lab/actions/runs/39112848519/job/117632441237"
+    },
+    {
+      "name": "Story controls · Chromium",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/ghost80076-cmyk/bao-lab/actions/runs/39112848519/job/117632441162"
+    },
+    {
+      "name": "Onboarding · Chromium",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/ghost80076-cmyk/bao-lab/actions/runs/39112848519/job/117632441160"
+    },
+    {
+      "name": "Fast E2E · Chromium core · cards-simulators",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/ghost80076-cmyk/bao-lab/actions/runs/39112848519/job/117632441159"
+    },
+    {
+      "name": "Fast E2E · Chromium core · product-explore",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/ghost80076-cmyk/bao-lab/actions/runs/39112848519/job/117632441154"
+    },
+    {
+      "name": "Smoke · webkit",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/ghost80076-cmyk/bao-lab/actions/runs/39112848519/job/117632441126"
+    },
+    {
+      "name": "browser-gameplay-ui",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/ghost80076-cmyk/bao-lab/actions/runs/39112848527/job/117632441110"
+    },
+    {
+      "name": "node-core",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/ghost80076-cmyk/bao-lab/actions/runs/39112848540/job/117632441090"
+    },
+    {
+      "name": "story-entry",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/ghost80076-cmyk/bao-lab/actions/runs/39112848525/job/117632440998"
+    },
+    {
+      "name": "gameplay-ui-core",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/ghost80076-cmyk/bao-lab/actions/runs/39112848527/job/117632440982"
+    },
+    {
+      "name": "Smoke · firefox",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/ghost80076-cmyk/bao-lab/actions/runs/39112848519/job/117632440968"
+    },
+    {
+      "name": "reading-scroll",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/ghost80076-cmyk/bao-lab/actions/runs/39112848521/job/117632440950"
+    },
+    {
+      "name": "verify-live-pages",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/ghost80076-cmyk/bao-lab/actions/runs/39112848548/job/117632440903"
+    },
+    {
+      "name": "title-regression",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/ghost80076-cmyk/bao-lab/actions/runs/39112848520/job/117632440890"
+    },
+    {
+      "name": "policies",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/ghost80076-cmyk/bao-lab/actions/runs/39112848507/job/117632440868"
+    },
+    {
+      "name": "verify-live-recovery",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/ghost80076-cmyk/bao-lab/actions/runs/39112848491/job/117632440821"
+    },
+    {
+      "name": "tests-and-live-assets",
+      "status": "completed",
+      "conclusion": "failure",
+      "url": "https://github.com/ghost80076-cmyk/bao-lab/actions/runs/39112848474/job/117632440753"
+    },
+    {
+      "name": "maintenance-core",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/ghost80076-cmyk/bao-lab/actions/runs/39112848432/job/117632440710"
+    }
+  ],
+  "liveAssetRepair": {
+    "failedRun": "https://github.com/ghost80076-cmyk/bao-lab/actions/runs/39112848474",
+    "reason": "outdated exact loader string after adding credits-pilot.js?v=2",
+    "workflow": ".github/workflows/credits-pilot-integration.yml",
+    "localCases": [
+      "bash syntax passed",
+      "matching adapter and loader accepted",
+      "stale adapter rejected",
+      "stale loader rejected"
+    ],
+    "postMergeGate": "Credits pilot frontend verification must succeed on merged repair commit"
+  },
+  "limitations": [
+    "No paid calls or production D1/account reconciliation",
+    "No durable inactive-story late-result or late-usage recovery",
+    "No cross-reload state exactly-once guarantee",
+    "No claim that every direct App hook has been migrated or owner-tested"
+  ]
+}
