@@ -492,3 +492,53 @@ test('rich message history retains creation times through resaves, legacy restor
   await page.waitForFunction(() => !!window.BAOStoryRevisionState);
   expect(await page.evaluate(async chapterId => (await BAOStoryLibrary.reconstruct('message-history', chapterId)).chat.messages.map(message => message.createdAt), result.branchId)).toEqual(expected);
 });
+
+test('branch commits full history once even when the source changes after commit', async ({ page, context }) => {
+  await page.goto('/');
+  await page.waitForFunction(() => !!window.BAOStoryRevisionState && !!window.BAOStoryBackup);
+  const other = await context.newPage();
+  try {
+    await other.goto('/');
+    await other.waitForFunction(() => !!window.BAOStoryRevisionState);
+    const make = revision => ({ characterId: 'branch-hero', characterName: 'Branch hero', savedAt: '2026-01-01T01:00:00Z', config: {},
+      state: { location: revision }, chat: { summary: revision, messages: [{ id: 'reply', role: 'assistant', content: revision,
+        createdAt: '2026-01-01T00:00:00Z', variants: [{ content: revision + '-variant' }], revisionBase: { state: { location: revision + '-base' } } }] },
+      _library: { storyId: 'single-branch-story', chapterId: 'root', chapterLabel: 'Root', storyCreatedAt: '2026-01-01', chapterCreatedAt: '2026-01-01' } });
+    await page.evaluate(async value => {
+      const lib = BAOStoryLibrary;
+      await lib.persist(value); lib.adoptRefs(value);
+      const originalPersist = lib.persist.bind(lib);
+      window.branchCommitWrites = 0;
+      window.branchCommitGate = new Promise(resolve => { window.releaseBranchCommit = resolve; });
+      lib.persist = async payload => {
+        if (!payload._library?.parentChapterId) return originalPersist(payload);
+        window.branchCommitWrites++;
+        if (window.branchCommitWrites > 1) throw Error('unexpected second branch write');
+        window.firstBranchHasHistory = !!payload.chat.messages[0].variants?.length;
+        const ok = await originalPersist(payload);
+        window.branchCommitted = true;
+        await window.branchCommitGate;
+        return ok;
+      };
+      window.singleBranch = lib.createBranch('reply', 'Snapshot branch').finally(() => { lib.persist = originalPersist; });
+    }, make('old'));
+    await page.waitForFunction(() => window.branchCommitted);
+    expect(await other.evaluate(value => BAOStoryLibrary.persist(value), make('new'))).toBe(true);
+    const result = await page.evaluate(async () => {
+      window.releaseBranchCommit();
+      const branch = await window.singleBranch;
+      return { writes: window.branchCommitWrites, completeAtCommit: window.firstBranchHasHistory, branch,
+        stored: await BAOStoryLibrary.reconstruct(branch._library.storyId, branch._library.chapterId) };
+    });
+    expect(result.writes).toBe(1);
+    expect(result.completeAtCommit).toBe(true);
+    for (const value of [result.branch, result.stored]) {
+      expect(value.state.location).toBe('old');
+      expect(value.chat.messages[0].content).toBe('old');
+      expect(value.chat.messages[0].variants[0].content).toBe('old-variant');
+      expect(value.chat.messages[0].revisionBase.state.location).toBe('old-base');
+      expect(value.chat.messages[0].createdAt).toBe('2026-01-01T00:00:00Z');
+    }
+    expect(await other.evaluate(async () => (await BAOStoryLibrary.reconstruct('single-branch-story', 'root')).state.location)).toBe('new');
+  } finally { await other.close(); }
+});

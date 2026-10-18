@@ -85,47 +85,6 @@
       return checkpoint?.payload ? baseFromPayload(checkpoint.payload) : null;
     };
 
-    const restoreMessageRecord = record => {
-      const message = record.messagePayload ? clone(record.messagePayload)
-        : ({ ...(record.messageId ? { id: record.messageId } : {}), role: record.role, content: record.content });
-      // Older rich payloads omitted the timestamp kept on the durable record.
-      if (!message.createdAt && record.createdAt) message.createdAt = record.createdAt;
-      return message;
-    };
-
-    const originalReconstruct = Library.reconstruct.bind(Library);
-    Library.reconstruct = async function(storyId, chapterId = "", records = null) {
-      // Base payload and rich message/variant data must share one read.
-      records = records ?? await this.allRecords();
-      const payload = await originalReconstruct(storyId, chapterId, records);
-      if (!payload?._library?.chapterId) return payload;
-      const messages = records
-        .filter(record => record.kind === "message" && record.storyId === storyId && record.chapterId === payload._library.chapterId)
-        .sort((a, b) => Number(a.seq || 0) - Number(b.seq || 0))
-        .map(restoreMessageRecord);
-      payload.chat = payload.chat || {};
-      payload.chat.messages = messages;
-      return Storage.sanitizeImportedStory(payload);
-    };
-
-    const originalCreateBranch = Library.createBranch.bind(Library);
-    Library.createBranch = async function(messageId, label = "") {
-      const payload = await originalCreateBranch(messageId, label);
-      const lib = payload?._library || {};
-      if (!lib.storyId || !lib.chapterId || !lib.parentChapterId) return payload;
-      const records = await this.allRecords();
-      const sourceMessages = records
-        .filter(record => record.kind === "message" && record.storyId === lib.storyId && record.chapterId === lib.parentChapterId && Number(record.seq) <= Number(lib.branchPointSeq))
-        .sort((a, b) => Number(a.seq || 0) - Number(b.seq || 0))
-        .map(restoreMessageRecord);
-      if (!sourceMessages.length) return payload;
-      payload.chat = payload.chat || {};
-      payload.chat.messages = sourceMessages;
-      payload.savedAt = new Date().toISOString();
-      await this.persist(payload);
-      return Storage.sanitizeImportedStory(payload);
-    };
-
     Library.__revisionStatePatched = true;
   };
 

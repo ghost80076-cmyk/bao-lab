@@ -335,6 +335,14 @@
       };
     },
 
+    messageFromRecord(record) {
+      const message = record.messagePayload && typeof record.messagePayload === "object"
+        ? this.clone(record.messagePayload)
+        : { ...(record.messageId ? { id: record.messageId } : {}), role: record.role, content: record.content };
+      if (!message.createdAt && record.createdAt) message.createdAt = record.createdAt;
+      return message;
+    },
+
     messageRecords(payload, refs, previous = []) {
       const messages = Array.isArray(payload.chat?.messages) ? payload.chat.messages : [];
       const byMessageId = new Map(previous.filter(record => record.messageId).map(record => [String(record.messageId), record]));
@@ -593,7 +601,7 @@
       payload.chat = payload.chat || {};
       payload.chat.messages = sourceMessages
         .filter(record => Number(record.seq) <= Number(point.seq))
-        .map(record => ({ ...(record.messageId ? { id: record.messageId } : {}), role: record.role, content: record.content, createdAt: record.createdAt }));
+        .map(record => this.messageFromRecord(record));
       payload.chat.summarizedUntil = Math.min(Number(payload.chat.summarizedUntil || 0), payload.chat.messages.length);
       const currentRefs = this.refs();
       if (currentRefs.storyId !== sourceRefs.storyId || currentRefs.chapterId !== sourceRefs.chapterId) throw new Error("故事已切換，請重新選擇分支起點。");
@@ -706,7 +714,7 @@
       if (!snapshot?.payload) return null;
       const messages = records.filter(record => record.kind === "message" && record.storyId === storyId && record.chapterId === target.chapterId)
         .sort((a, b) => Number(a.seq || 0) - Number(b.seq || 0))
-        .map(record => ({ ...(record.messageId ? { id: record.messageId } : {}), role: record.role, content: record.content, createdAt: record.createdAt }));
+        .map(record => this.messageFromRecord(record));
       const payload = this.clone(snapshot.payload);
       payload.chat = payload.chat || {};
       payload.chat.messages = messages;
