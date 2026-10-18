@@ -101,13 +101,17 @@
 
   const streamingWrapper = async (next, config, messages, ...rest) => {
     if (!isMainStoryRequest(config)) return next(config, messages, ...rest);
+    const owner = window.GameState?.current;
+    const target = document.querySelector("#chat-stream > .message.assistant:last-child .bubble");
     let scheduled = false;
     let pendingText = "";
     let settled = false;
+    const isCurrent = () => !settled && window.GameState?.current === owner && target
+      && document.querySelector("#chat-stream > .message.assistant:last-child .bubble") === target;
     const render = () => {
       scheduled = false;
-      if (settled) return; // A delayed animation frame must not overwrite the final message.
-      const bubble = document.querySelector("#chat-stream > .message.assistant:last-child .bubble");
+      if (!isCurrent()) return;
+      const bubble = target;
       if (!bubble || !pendingText) return;
       const stream = document.getElementById("chat-stream");
       const readingTop = stream?.scrollTop;
@@ -118,6 +122,7 @@
       if (stream && readingTop != null) stream.scrollTop = readingTop;
     };
     const onDelta = (delta, fullText) => {
+      if (!isCurrent()) return;
       pendingText = fullText;
       window.dispatchEvent(new CustomEvent("bao:stream-delta", { detail: { delta, text: fullText } }));
       if (scheduled) return;
