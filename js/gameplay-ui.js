@@ -146,7 +146,13 @@
       </div>`;
     }).join('');
     const fields = builder.fields.map(field => `<label class="gameplay-builder-field"><span>${esc(field.label)}</span>${fieldControl(field, values[field.key])}</label>`).join('');
-    box.innerHTML = `<div class="gameplay-builder-head"><div><span>GAMEPLAY SETUP</span><h4>${esc(builder.title || '角色設定')}</h4>${builder.description ? `<p>${esc(builder.description)}</p>` : ''}</div>${builder.attributes.length ? `<b class="gameplay-points">剩餘 ${remaining} / ${builder.point_pool}</b>` : ''}</div>${attributes ? `<div class="gameplay-builder-attributes">${attributes}</div>` : ''}${fields ? `<div class="gameplay-builder-fields">${fields}</div>` : ''}`;
+    const check = Core.validateBuilderValues(schema, values);
+    const groups = builder.choice_groups.map(group => `<details class="gameplay-choice-group" open><summary>${esc(group.label)} · ${(values[group.key] || []).length} 項</summary><div class="gameplay-choice-grid">${group.options.map(option => {
+      const selected = (values[group.key] || []).includes(option.id);
+      const unavailable = group.availability_field && option.allowed_values.length && !option.allowed_values.includes(String(values[group.availability_field]));
+      return `<label class="gameplay-choice ${selected ? 'is-selected' : ''}"><input type="checkbox" data-gameplay-choice="${esc(group.key)}" value="${esc(option.id)}" ${selected ? 'checked' : ''} ${unavailable && !selected ? 'disabled' : ''}><span><b>${esc(option.label)}</b><small>${esc(option.description)}${unavailable ? '（此背景不適用）' : ''}</small></span><strong>${option.cost > 0 ? '−' + option.cost : option.cost < 0 ? '＋' + (-option.cost) : '0'}</strong></label>`;
+    }).join('')}</div></details>`).join('');
+    box.innerHTML = `<div class="gameplay-builder-head"><div><span>GAMEPLAY SETUP</span><h4>${esc(builder.title || '角色設定')}</h4>${builder.description ? `<p>${esc(builder.description)}</p>` : ''}</div>${builder.attributes.length || builder.choice_groups.length ? `<b class="gameplay-points">剩餘 ${remaining} / ${builder.point_pool}</b>` : ''}</div>${attributes ? `<div class="gameplay-builder-attributes">${attributes}</div>` : ''}${fields ? `<div class="gameplay-builder-fields">${fields}</div>` : ''}${builder.randomize_choices ? '<button type="button" data-gameplay-randomize>🎲 隨機合法構築</button>' : ''}${groups}<div class="gameplay-builder-validation" role="status" aria-live="polite">${check.errors.map(esc).join('<br>')}</div>`;
   };
 
   const mountBuilder = (reset = false) => {
@@ -154,7 +160,7 @@
     if (!step) return;
     let box = document.getElementById('bao-gameplay-builder');
     const schema = schemaFor(App.activeCharacter);
-    if (!schema || (!schema.builder.attributes.length && !schema.builder.fields.length)) {
+    if (!schema || (!schema.builder.attributes.length && !schema.builder.fields.length && !schema.builder.choice_groups.length)) {
       box?.remove();
       return;
     }
@@ -164,6 +170,14 @@
       box.className = 'gameplay-builder';
       step.appendChild(box);
       box.addEventListener('click', event => {
+        if (event.target.closest?.('[data-gameplay-randomize]')) {
+          const activeSchema = schemaFor(App.activeCharacter);
+          if (!activeSchema) return;
+          const values = builderValue(activeSchema);
+          Object.assign(values, Core.randomizeBuilderValues(activeSchema, values));
+          renderBuilder(box, activeSchema, values);
+          return;
+        }
         const button = event.target.closest?.('[data-gameplay-step]');
         if (!button) return;
         const activeSchema = schemaFor(App.activeCharacter);
@@ -198,6 +212,23 @@
           values[field.key] = draft;
         } else values[field.key] = field.type === 'boolean' ? input.checked : input.value;
       };
+      box.addEventListener('change', event => {
+        const input = event.target.closest?.('[data-gameplay-choice]');
+        const activeSchema = schemaFor(App.activeCharacter);
+        if (!activeSchema) return;
+        const values = builderValue(activeSchema);
+        if (input) {
+          const group = activeSchema.builder.choice_groups.find(g => g.key === input.dataset.gameplayChoice);
+          if (!group) return;
+          const selected = new Set(values[group.key] || []);
+          if (input.checked) { if (group.max === 1) selected.clear(); selected.add(input.value); }
+          else selected.delete(input.value);
+          values[group.key] = [...selected];
+        }
+        if (event.target.matches?.('select[data-gameplay-field]')) updateField(event);
+        // Keep costs and availability current when the background changes.
+        if (input || event.target.matches?.('select[data-gameplay-field]')) renderBuilder(box, activeSchema, values);
+      });
       box.addEventListener('input', updateField);
       box.addEventListener('change', updateField);
     }
@@ -854,19 +885,39 @@
   App.collectConfig = function(...args) {
     const config = originalCollectConfig(...args);
     const schema = schemaFor(this.activeCharacter);
-    if (schema && (schema.builder.attributes.length || schema.builder.fields.length)) {
+    if (schema && (schema.builder.attributes.length || schema.builder.fields.length || schema.builder.choice_groups.length)) {
       config.gameplaySetup = Core.normalizeBuilderValues(schema, builderValue(schema));
     }
     return config;
   };
 
+  const originalStartStory = App.startStory.bind(App);
+  App.startStory = function(...args) {
+    const schema = schemaFor(this.activeCharacter);
+    if (schema?.builder.choice_groups.length) {
+      const check = Core.validateBuilderValues(schema, builderValue(schema));
+      if (!check.ok) {
+        this.setStep(3);
+        mountBuilder();
+        document.querySelector('#bao-gameplay-builder .gameplay-builder-validation')?.scrollIntoView({block:'center'});
+        return;
+      }
+    }
+    return originalStartStory(...args);
+  };
+
   const originalCreate = GameState.create.bind(GameState);
   GameState.create = function(character, config) {
-    const state = originalCreate(character, config);
     const schema = schemaFor(character);
+    if (schema?.builder.choice_groups.length) {
+      const values = config?.gameplaySetup || Core.builderDefaults(schema);
+      if (!Core.validateBuilderValues(schema, values).ok) throw new Error('角色配點無效，請返回角色設定檢查。');
+      config = {...config, gameplaySetup:values};
+    }
+    const state = originalCreate(character, config);
     if (schema) {
       mergeInitialModules(state, character);
-      if (config?.gameplaySetup) Core.applyBuilderValues(schema, config.gameplaySetup, state);
+      if (config?.gameplaySetup && !Core.applyBuilderValues(schema, config.gameplaySetup, state) && schema.builder.choice_groups.length) throw new Error('角色配點無效，請返回角色設定檢查。');
       const startup = window.BAOStoryStartupCore?.apply(character?.story_startup, state, character?.world_modules || []);
       if (startup && App.activeCharacter?.id === character.id) {
         // Keep the loaded catalog card immutable; each story owns its opening snapshot.

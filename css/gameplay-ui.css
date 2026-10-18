@@ -190,3 +190,16 @@
 @media(max-width:1279px){
   #chat-view[data-gameplay-layout="scene-rpg"] .gameplay-scene-stage{display:none!important}
 }
+
+/* Opt-in occupation/perk selection; inherit the active site palette. */
+.gameplay-choice-group { margin-top: 1rem; border: 1px solid var(--gameplay-border); border-radius: 10px; padding: .75rem; }
+.gameplay-choice-group summary { cursor: pointer; font-weight: 600; }
+.gameplay-choice-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(min(100%,230px),1fr)); gap: .5rem; margin-top: .75rem; }
+.gameplay-choice { display: flex; gap: .6rem; align-items: start; border: 1px solid var(--gameplay-border); border-radius: 8px; padding: .7rem; min-width: 0; cursor: pointer; }
+.gameplay-choice.is-selected { border-color: var(--gameplay-accent); }
+.gameplay-choice span { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.gameplay-choice input { margin-top: .2rem; flex-shrink: 0; }
+.gameplay-choice small { display: block; margin-top: .3rem; opacity: .75; line-height: 1.5; }
+.gameplay-choice strong { flex-shrink: 0; color: var(--gameplay-accent); }
+.gameplay-choice:has(input:disabled) { opacity: .5; }
+.gameplay-builder-validation { color: var(--gameplay-accent); margin-top: .75rem; line-height: 1.6; }

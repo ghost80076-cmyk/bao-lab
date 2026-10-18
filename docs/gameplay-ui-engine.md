@@ -233,3 +233,34 @@ Scene RPG 範例：
 Builder 的 `select` 欄位可宣告 `custom_option`，值必須是 `options` 中的一個選項，例如 `"custom_option": "其他／自訂"`。選取它會展開最多 240 字的文字欄，沿用 `placeholder`。切換預設選項或重新開啟同一作品的設定會保留本次草稿。
 
 UI 草稿使用 `{ option, custom }`；`gameplaySetup` 與世界狀態只儲存修剪後的實際文字，未填則為空字串，交由開場承接未指定值。沒有 `custom_option` 的選單仍只接受列出的選項。自訂內容作為資料保存，不執行 HTML 或 JavaScript。
+
+### 共用配點：職業與正負面特性
+
+`builder.choice_groups` 是可選的宣告式選項組，舊卡未宣告時維持原有行為。最多6組，每組最多64項；與原本屬性共用 `point_pool`。
+
+```json
+{
+  "builder": {
+    "point_pool": 8,
+    "points_path": "modules.player.points",
+    "randomize_choices": true,
+    "fields": [{"key":"world","label":"背景","type":"select","options":["荒野","太空"],"default":"荒野","randomize":true,"target_path":"modules.run.world"}],
+    "choice_groups": [{
+      "key":"perks", "label":"特性", "target_path":"modules.player.perks",
+      "min":0, "max":2, "default":[],
+      "availability_field":"world",
+      "options":[
+        {"id":"strong","label":"強壯","cost":3,"description":"健康+20","excludes":["weak"],"effects":[{"path":"modules.player.health","delta":20}]},
+        {"id":"weak","label":"虛弱","cost":-3,"description":"健康-20","excludes":["strong"],"effects":[{"path":"modules.player.health","delta":-20}]},
+        {"id":"pilot","label":"飛行員","cost":2,"allowed_values":["太空"]}
+      ]
+    }]
+  }
+}
+```
+
+正 `cost` 扣點，負 `cost` 返點；餘額保留負值以顯示超支。職業可設 `min:1,max:1`；介面切換單選職業時替換原選項。選項 ID 必須跨組唯一，互斥由 `excludes` 指定；`availability_field` 引用同份設定的欄位 key。背景切換不默默刪除玩家選擇，而是顯示不相容原因。
+
+`validateBuilderValues` 檢查額度、數量、互斥和背景。開始故事前攔下無效構築，`applyBuilderValues` 也再次驗證，非法配置不會部分寫入。有效選項以 `{id,name,cost,description}` 陣列寫入指定的 `modules.*`。`effects` 只接受既有數值的有界整數加減，不執行作者程式碼；所有加成在副本完成後提交，並防止同一構築重複加值。這是初始化能力，不是持續戰鬥或求生計算器。
+
+只有 `randomize_choices:true` 才出現隨機按鈕。隨機會保留姓名、文字與未標記欄位，只抽選項組和明確 `randomize:true` 的 select；最多嘗試128次，只接受合法結果，無法產生合法構築時保留原草稿。對話模型不參與此操作。

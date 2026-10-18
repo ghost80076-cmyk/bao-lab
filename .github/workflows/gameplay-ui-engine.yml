@@ -8,6 +8,8 @@ on:
       - 'js/gameplay-ui.js'
       - 'css/gameplay-ui.css'
       - 'tests/gameplay-ui-engine-core.cjs'
+      - 'tests/lastlight-survivors-card.test.cjs'
+      - 'data/characters/community/ca/lastlight-survivors*'
       - 'tests/e2e/gameplay-ui-engine.spec.cjs'
       - 'tests/fixtures/gameplay-ui-demo-character.json'
       - 'docs/gameplay-ui-engine.md'
@@ -41,6 +43,7 @@ jobs:
       - run: node --check js/gameplay-ui-core.js
       - run: node --check js/gameplay-ui.js
       - run: node tests/gameplay-ui-engine-core.cjs
+      - run: node tests/lastlight-survivors-card.test.cjs
       - run: node tests/character-studio-gameplay-ui-core.cjs
       - run: node --check js/character-studio.js
       - name: Browser coverage

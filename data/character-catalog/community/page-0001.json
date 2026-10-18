@@ -1851,5 +1851,40 @@
     "updated_at": "2026-10-18T16:24:14Z",
     "version_published_at": "2026-10-18T16:24:14Z",
     "published_version": 1
+  },
+  {
+    "id": "lastlight-survivors",
+    "name": "末日餘生｜特性求生錄",
+    "title": "末日餘生｜特性求生錄",
+    "avatar": "https://i.meee.com.tw/7Kjzj3o.jpg",
+    "category": "general",
+    "rating": "adult",
+    "gender": "all",
+    "tags": [
+      "末日求生",
+      "肉鴿",
+      "正負特性",
+      "五種世界",
+      "基地建設",
+      "同伴自主",
+      "永久死亡",
+      "世界延續"
+    ],
+    "description": "拿缺陷換優勢，讓每一局都活得不同。五種末日、8點構築：搜集、設伏、修好第一個水源，把臨時躲藏處變成真正的家。這一位倖存者可能死去；留下的基地、遺物與人情，會被下一個人遇見。",
+    "author": "班長",
+    "author_id": "banzhang",
+    "file": "data/characters/community/ca/lastlight-survivors.json",
+    "supported_modes": {
+      "immersive": true,
+      "world": true
+    },
+    "supported_display": {
+      "text": true,
+      "ui": true
+    },
+    "published_at": "2026-10-18T16:52:17Z",
+    "updated_at": "2026-10-18T16:52:17Z",
+    "version_published_at": "2026-10-18T16:52:17Z",
+    "published_version": 1
   }
 ]
