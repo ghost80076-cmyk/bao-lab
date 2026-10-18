@@ -7,6 +7,9 @@ on:
       - 'js/story-entry-visibility.js'
       - 'js/author-regex-mobile.js'
       - 'css/chat-desktop-reading.css'
+      - 'css/chat-tool-navigation.css'
+      - 'js/chat-tool-navigation.js'
+      - 'tests/e2e/tool-drawer-boundaries.spec.cjs'
       - 'tests/e2e/chat-ui-simplify.spec.cjs'
       - 'tests/e2e/chat-controls-clarity.spec.cjs'
       - 'tests/e2e/chat-tablet-access.spec.cjs'
@@ -26,4 +29,11 @@ jobs:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup-chromium
       - name: Check compact UI, story entries and existing author behavior on Chromium
-        run: npx playwright test --project=chromium tests/e2e/chat-ui-simplify.spec.cjs tests/e2e/chat-controls-clarity.spec.cjs tests/e2e/chat-tablet-access.spec.cjs tests/e2e/story-entry-visibility.spec.cjs tests/e2e/chat-desktop-reading.spec.cjs tests/e2e/author-regex-dock.spec.cjs tests/e2e/author-regex-compat.spec.cjs
+        run: npx playwright test --project=chromium tests/e2e/tool-drawer-boundaries.spec.cjs tests/e2e/chat-ui-simplify.spec.cjs tests/e2e/chat-controls-clarity.spec.cjs tests/e2e/chat-tablet-access.spec.cjs tests/e2e/story-entry-visibility.spec.cjs tests/e2e/chat-desktop-reading.spec.cjs tests/e2e/author-regex-dock.spec.cjs tests/e2e/author-regex-compat.spec.cjs
+      - name: Upload drawer boundary screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tool-drawer-boundaries
+          path: test-results/tool-drawer/*.png
+          if-no-files-found: ignore

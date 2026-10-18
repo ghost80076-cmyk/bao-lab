@@ -26,3 +26,9 @@
 本盤點追蹤主頁與聊天的主要載入路徑，不是全站 selector 清單或所有頁面完整 cascade 證明。沒有把所有 `!important`、inline style 或多份品牌檔都視為可刪除技術債。
 
 下一批先挑一個有限表面，列出 selector 的來源、媒體條件與實際勝出規則，再用桌面、手機、平板及配色回歸判定可移除的重複規則。避免僅憑靜態文字相同刪 CSS，也不重新設計使用者已確認的配色。
+
+## 故事功能選單的基礎規則收斂
+
+`chat-tool-navigation.css` 尾端的八組 unthemed 基礎覆蓋已併回檔案前段相同 selector，讓尺寸與 palette 各有一個維護位置。不同 theme、hover／focus、phone override 仍獨立保留；不抽掉跨檔相容路徑。
+
+1080px 媒體條件仍負責全寬／靠底。原先該處的 18px 上圓角會被同檔後段的 22px 全圓角蓋掉；併回基礎後一併移除舊值，維持平板最終 22px，而不是誤改回 18px。820px 以下實際還由 mobile-reading-layout 的 important 規則提供 24px 上圓角、0 下圓角及 18px 標題；邊界回歸以真實載入的全頁 CSS 為準，不只測單檔文字。
