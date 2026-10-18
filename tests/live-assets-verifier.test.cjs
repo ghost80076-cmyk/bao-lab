@@ -11,6 +11,7 @@ function run(plan, overrides = {}, assets = ['a.js', 'b.js']) {
   try {
     fs.mkdirSync(path.join(root, 'bin')); fs.mkdirSync(path.join(root, 'tmp'));
     for (const file of ['a.js', 'b.js']) fs.writeFileSync(path.join(root, file), `${file}\ncurrent bytes\n`);
+    fs.writeFileSync(path.join(root, 'portrait.webp'), Buffer.concat([Buffer.from('RIFF....WEBPVP8X'), Buffer.from([0, 255, 13, 10]), Buffer.alloc(1024, 0x81)]));
     fs.writeFileSync(path.join(root, 'bin/curl'), `#!${process.execPath}
 const fs = require('node:fs');
 const args = process.argv.slice(2);
@@ -23,7 +24,9 @@ fs.writeFileSync('calls.json', JSON.stringify(state));
 fs.appendFileSync(process.env.TRACE_FILE, JSON.stringify(args) + '\\n');
 const choices = JSON.parse(process.env.MOCK_PLAN)[key] || ['match'];
 const mode = choices[Math.min(i, choices.length - 1)];
-fs.writeFileSync(output, mode === 'stale' ? 'old bytes' : fs.readFileSync(key));
+const bytes = mode === 'stale' ? Buffer.from('old bytes') : fs.readFileSync(key);
+if (mode === 'corrupt') bytes[bytes.length - 1] ^= 1;
+fs.writeFileSync(output, bytes);
 process.exit(mode === 'http-error' ? 22 : 0);
 `, { mode: 0o755 });
     fs.writeFileSync(path.join(root, 'bin/sleep'), '#!/bin/sh\nprintf "sleep\\n" >> "$TRACE_FILE"\n', { mode: 0o755 });
@@ -83,4 +86,12 @@ for (const [label, env, assets] of [
   ['bad query key', { LIVE_VERIFY_QUERY: 'a&b' }, ['a.js']],
 ]) test(`invalid input fails before any request: ${label}`, () => {
   const r = run({}, env, assets); assert.equal(r.status, 2); assert.deepEqual(r.trace, []);
+});
+
+test('binary portrait bytes including NUL, high bytes and newlines match exactly', () => {
+  const r = run({}, {}, ['portrait.webp']); assert.equal(r.status, 0, r.stderr);
+});
+test('portrait with intact WebP marker and size but different trailing byte fails', () => {
+  const r = run({ 'portrait.webp': ['corrupt'] }, {}, ['portrait.webp']);
+  assert.equal(r.status, 1); assert.match(r.stderr, /Content differs: portrait.webp/);
 });

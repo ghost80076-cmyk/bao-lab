@@ -59,3 +59,10 @@ P0 與 P1 的原定工程範圍已結案，依據見 [P1 結案紀錄](p1-core-c
 本批將 first-run-live 原有 12 檔的部署迴圈、character-studio-live 三檔 marker 檢查，以及 author-regex-live 五檔混合檢查改用同一腳本。工作室新增 checkout；工作室全檔與作者正則 index 改為內容一致性，不只接受舊 marker。其餘線上互動、first-run 本地契約、觸發事件類型、timeout 與重試設定保留；補齊共用腳本及已驗證依賴的 path filter。
 
 本地執行原 first-run 語法／導覽連結契約通過，共用腳本 13 項回歸通過；逐工作流程比較 job 設定、資產清單與未修改步驟。這些 push／手動驗證本身仍須看合併後證據，不能以 PR 綠燈替代。
+
+
+## 部署驗證呼叫端第三批：聊天與包包
+
+[#740](https://github.com/ghost80076-cmyk/bao-lab/pull/740) 已通過最終 PR CI 並合併。本批將 chat-experience-live 七個檔案從舊 marker 改為完整內容比對，保留語法／狀態解析回歸；bao-mascot-live 新增 checkout，把既有動畫、入口、reduced-motion 與 WebP 格式檢查放在原檔，再要求七個線上檔案與 checkout 一致，不再綁死舊 query 版本。
+
+本地兩流程的語法／功能契約已執行通過，共用 verifier 增加二進位圖片一致與單位元組差異案例，15 項回歸通過。觸發事件、權限、job timeout 與各自主體重試設定保留。八個指定部署流程現在共用比對；SEO metadata、公開作者資料關聯、robots／sitemap 等語意 smoke 保留，不用刪驗收項目換取去重。PR 與正式部署仍是分開的證據。

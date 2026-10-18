@@ -13,6 +13,8 @@ on:
       - 'css/chat-experience.css'
       - 'tests/chat-presentation-core.cjs'
       - '.github/workflows/chat-experience-live.yml'
+      - 'scripts/verify-live-assets.sh'
+      - 'tests/live-assets-verifier.test.cjs'
   workflow_dispatch:
 
 permissions:
@@ -38,28 +40,10 @@ jobs:
         shell: bash
         env:
           SITE_URL: https://ghost80076-cmyk.github.io/bao-lab/
-        run: |
-          set -euo pipefail
-          for attempt in $(seq 1 48); do
-            shell="$(curl --fail --silent --location --max-time 12 -H 'Cache-Control: no-cache' "${SITE_URL}js/chat-shell-fix.js?sha=${GITHUB_SHA}" || true)"
-            core="$(curl --fail --silent --location --max-time 12 -H 'Cache-Control: no-cache' "${SITE_URL}js/chat-presentation-core.js?sha=${GITHUB_SHA}" || true)"
-            script="$(curl --fail --silent --location --max-time 12 -H 'Cache-Control: no-cache' "${SITE_URL}js/chat-experience.js?sha=${GITHUB_SHA}" || true)"
-            styles="$(curl --fail --silent --location --max-time 12 -H 'Cache-Control: no-cache' "${SITE_URL}css/chat-experience.css?sha=${GITHUB_SHA}" || true)"
-            world="$(curl --fail --silent --location --max-time 12 -H 'Cache-Control: no-cache' "${SITE_URL}js/world-module-manager.js?sha=${GITHUB_SHA}" || true)"
-            status="$(curl --fail --silent --location --max-time 12 -H 'Cache-Control: no-cache' "${SITE_URL}js/character-status-ui.js?sha=${GITHUB_SHA}" || true)"
-            player="$(curl --fail --silent --location --max-time 12 -H 'Cache-Control: no-cache' "${SITE_URL}js/player-settings.js?sha=${GITHUB_SHA}" || true)"
-            if grep -Fq "load('js/chat-experience.js')" <<<"${shell}" \
-              && grep -Fq 'BAOChatPresentationCore' <<<"${core}" \
-              && grep -Fq 'BAOChatExperience' <<<"${script}" \
-              && grep -Fq '.bao-status-rail' <<<"${styles}" \
-              && grep -Fq 'exit.parentElement.insertBefore(button, exit)' <<<"${world}" \
-              && grep -Fq 'exit.parentElement.insertBefore(button, exit)' <<<"${status}" \
-              && grep -Fq 'exit.parentElement.insertBefore(box, exit)' <<<"${player}"; then
-              printf 'Verified story-entry fix and reading assets on public Pages (attempt %s).\n' "${attempt}"
-              exit 0
-            fi
-            printf 'Waiting for the deployed story entry assets (%s/48)...\n' "${attempt}"
-            sleep 5
-          done
-          echo 'Live Pages did not expose all repaired story-entry assets.' >&2
-          exit 1
+          LIVE_VERIFY_ATTEMPTS: '48'
+          LIVE_VERIFY_TIMEOUT: '12'
+          LIVE_VERIFY_QUERY: sha
+        run: >-
+          bash scripts/verify-live-assets.sh
+          js/chat-shell-fix.js js/chat-presentation-core.js js/chat-experience.js
+          css/chat-experience.css js/world-module-manager.js js/character-status-ui.js js/player-settings.js
