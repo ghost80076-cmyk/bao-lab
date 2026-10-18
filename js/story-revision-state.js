@@ -52,18 +52,6 @@
     const Library = window.BAOStoryLibrary;
     if (!Library || Library.__revisionStatePatched) return;
 
-    const originalMessageRecords = Library.messageRecords.bind(Library);
-    Library.messageRecords = function(payload, refs, previous = []) {
-      const records = originalMessageRecords(payload, refs, previous);
-      const messages = Array.isArray(payload?.chat?.messages) ? payload.chat.messages : [];
-      records.forEach((record, index) => {
-        const message = this.clone(messages[index] || {});
-        if (!message.createdAt && record.createdAt) message.createdAt = record.createdAt;
-        record.messagePayload = Storage.scrubSecrets(message);
-      });
-      return records;
-    };
-
     Library.revisionBaseFor = async function(messageId, source = {}) {
       if (!messageId || !await this.open()) return null;
       await this.flush();
