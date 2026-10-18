@@ -4,6 +4,7 @@ const Chat = {
   summary: "",
   summarizedUntil: 0,
   summarizing: false,
+  summaryTask: null,
   lastStoryPromptTokens: 0,
   contextGuard: { level: "normal", ratio: 0, recentRounds: 0 },
   memoryHealth: { phase: "idle", message: "尚未需要摘要", lastSuccessAt: "", lastFailureAt: "", lastModel: "", repaired: false },
@@ -16,6 +17,7 @@ const Chat = {
     this.summary = "";
     this.summarizedUntil = 0;
     this.summarizing = false;
+    this.summaryTask = null;
     this.lastStoryPromptTokens = 0;
     this.contextGuard = { level: "normal", ratio: 0, recentRounds: 0 };
     this.memoryHealth = { phase: "idle", message: "尚未需要摘要", lastSuccessAt: "", lastFailureAt: "", lastModel: "", repaired: false };
@@ -204,6 +206,13 @@ const Chat = {
     const chunk = this.messages.slice(start, end);
     const sourceSignature = JSON.stringify(chunk.map(m => [m.id, m.content, m.context_content || ""]));
     if (!chunk.length) return;
+    // Both story ownership and the active task matter: reset may start another
+    // summary before an old provider request (or its repair) settles.
+    const task = {};
+    this.summaryTask = task;
+    const isCurrent = () => this.summaryTask === task && window.GameState?.current === owner
+      && this.summary === previousSummary && this.summarizedUntil === start
+      && JSON.stringify(this.messages.slice(start, end).map(m => [m.id, m.content, m.context_content || ""])) === sourceSignature;
     this.summarizing = true;
     this.memoryHealth = {
       ...(this.memoryHealth || {}),
@@ -229,7 +238,9 @@ const Chat = {
       const summaryConfig = { ...memoryApi, __memoryTask: true, cacheEnabled: false,
         ...(config?.memory?.episodicRecall !== false && window.BAOEpisodicMemory ? { __responseSchema: window.BAOEpisodicMemory.schema } : {}) };
       const result = await API.send(summaryConfig, [{ role: "system", content: "你是 Observer，不是作者。只輸出記憶規格 JSON，不要續寫故事或模仿正文文風。" }, { role: "user", content: prompt }]);
+      if (!isCurrent()) return;
       const normalized = await this.normalizeMemoryResult(summaryConfig, result?.text || "");
+      if (!isCurrent()) return;
       const summary = normalized.summary;
       if (!summary) {
         this.memoryHealth = {
@@ -242,8 +253,6 @@ const Chat = {
         };
         return;
       }
-      if (window.GameState?.current !== owner || this.summary !== previousSummary || this.summarizedUntil !== start
-        || JSON.stringify(this.messages.slice(start, end).map(m => [m.id, m.content, m.context_content || ""])) !== sourceSignature) return;
       if (owner && !normalized.repaired && config?.memory?.episodicRecall !== false) {
         window.BAOEpisodicMemory?.ingest(owner, window.BAOHelperData.parse(result?.text || ""), chunk);
       }
@@ -259,6 +268,7 @@ const Chat = {
       };
       if (owner) owner.memory = [summary];
     } catch (err) {
+      if (!isCurrent()) return;
       this.memoryHealth = {
         ...(this.memoryHealth || {}),
         phase: "failed",
@@ -268,7 +278,12 @@ const Chat = {
       };
       console.warn("BAO/LAB memory summary failed:", err);
     }
-    finally { this.summarizing = false; }
+    finally {
+      if (this.summaryTask === task) {
+        this.summaryTask = null;
+        this.summarizing = false;
+      }
+    }
   },
 
   async afterTurn(config) {

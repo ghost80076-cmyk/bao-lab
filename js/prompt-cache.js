@@ -156,22 +156,23 @@
       const priorHealth = this.memoryHealth;
       try {
         await originalSummarize.call(this, config, force, recentRounds);
+        const currentStory = window.GameState?.current === story;
         const requestFailure = failures.get(story);
         // Format/empty-output failures return normally from Chat.maybeSummarize.
         // They need cooldown too, or every subsequent turn can pay for another
         // summary + repair request without advancing the summary cursor.
-        const healthFailure = this.memoryHealth !== priorHealth && this.memoryHealth?.phase === 'failed';
+        const healthFailure = currentStory && this.memoryHealth !== priorHealth && this.memoryHealth?.phase === 'failed';
         if (requestFailure || healthFailure) {
           const authFailure = requestFailure?.authFailure ||
-            /(?:API Key|連線金鑰|權限|驗證|配額|餘額|rate limit|quota|401|403)/i.test(String(this.memoryHealth?.message || ''));
+            (healthFailure && /(?:API Key|連線金鑰|權限|驗證|配額|餘額|rate limit|quota|401|403)/i.test(String(this.memoryHealth?.message || '')));
           const delay = authFailure ? AUTH_COOLDOWN_MS : COOLDOWN_MS;
           const retryAt = Date.now() + delay;
           cooldowns.set(story, retryAt);
-          if (this.memoryHealth?.phase === 'failed') this.memoryHealth = {
+          if (currentStory && this.memoryHealth?.phase === 'failed') this.memoryHealth = {
             ...this.memoryHealth, cooldownUntil: new Date(retryAt).toISOString()
           };
-          notice(`記憶整理失敗，已暫停 ${Math.ceil(delay / 60000)} 分鐘；原始對話仍保留。`);
-        } else if (this.summary !== priorSummary || this.summarizedUntil !== priorCursor) {
+          if (currentStory) notice(`記憶整理失敗，已暫停 ${Math.ceil(delay / 60000)} 分鐘；原始對話仍保留。`);
+        } else if (currentStory && (this.summary !== priorSummary || this.summarizedUntil !== priorCursor)) {
           cooldowns.delete(story);
           if (this.memoryHealth) this.memoryHealth = { ...this.memoryHealth, cooldownUntil: '' };
           notice('');
