@@ -11,6 +11,9 @@ on:
       - 'tests/e2e/reading-bookshelf.spec.cjs'
       - 'tests/e2e/editorial-visual.spec.cjs'
       - '.github/workflows/editorial-visual.yml'
+      - '.github/actions/setup-chromium/**'
+      - 'package.json'
+      - 'package-lock.json'
   pull_request:
     paths:
       - 'css/bao-cinematic-home.css'
@@ -27,6 +30,9 @@ on:
       - 'tests/e2e/reading-bookshelf.spec.cjs'
       - 'tests/e2e/editorial-visual.spec.cjs'
       - '.github/workflows/editorial-visual.yml'
+      - '.github/actions/setup-chromium/**'
+      - 'package.json'
+      - 'package-lock.json'
   workflow_dispatch:
 jobs:
   visual-and-functional-smoke:
@@ -35,12 +41,7 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-          cache: npm
-      - run: npm ci
-      - run: npx playwright install --with-deps chromium
+      - uses: ./.github/actions/setup-chromium
       - name: Capture responsive pages and check original reading actions
         run: npx playwright test --project=chromium tests/e2e/editorial-visual.spec.cjs tests/e2e/reading-bookshelf.spec.cjs tests/e2e/community-brand.spec.cjs
       - name: Upload screenshots for visual approval
