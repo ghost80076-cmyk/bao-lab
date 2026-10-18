@@ -53,11 +53,13 @@
     if (!Library || Library.__revisionStatePatched) return;
 
     const originalMessageRecords = Library.messageRecords.bind(Library);
-    Library.messageRecords = function(payload, refs) {
-      const records = originalMessageRecords(payload, refs);
+    Library.messageRecords = function(payload, refs, previous = []) {
+      const records = originalMessageRecords(payload, refs, previous);
       const messages = Array.isArray(payload?.chat?.messages) ? payload.chat.messages : [];
       records.forEach((record, index) => {
-        record.messagePayload = Storage.scrubSecrets(this.clone(messages[index] || {}));
+        const message = this.clone(messages[index] || {});
+        if (!message.createdAt && record.createdAt) message.createdAt = record.createdAt;
+        record.messagePayload = Storage.scrubSecrets(message);
       });
       return records;
     };
@@ -83,6 +85,14 @@
       return checkpoint?.payload ? baseFromPayload(checkpoint.payload) : null;
     };
 
+    const restoreMessageRecord = record => {
+      const message = record.messagePayload ? clone(record.messagePayload)
+        : ({ ...(record.messageId ? { id: record.messageId } : {}), role: record.role, content: record.content });
+      // Older rich payloads omitted the timestamp kept on the durable record.
+      if (!message.createdAt && record.createdAt) message.createdAt = record.createdAt;
+      return message;
+    };
+
     const originalReconstruct = Library.reconstruct.bind(Library);
     Library.reconstruct = async function(storyId, chapterId = "", records = null) {
       // Base payload and rich message/variant data must share one read.
@@ -92,7 +102,7 @@
       const messages = records
         .filter(record => record.kind === "message" && record.storyId === storyId && record.chapterId === payload._library.chapterId)
         .sort((a, b) => Number(a.seq || 0) - Number(b.seq || 0))
-        .map(record => record.messagePayload ? this.clone(record.messagePayload) : ({ ...(record.messageId ? { id: record.messageId } : {}), role: record.role, content: record.content }));
+        .map(restoreMessageRecord);
       payload.chat = payload.chat || {};
       payload.chat.messages = messages;
       return Storage.sanitizeImportedStory(payload);
@@ -107,7 +117,7 @@
       const sourceMessages = records
         .filter(record => record.kind === "message" && record.storyId === lib.storyId && record.chapterId === lib.parentChapterId && Number(record.seq) <= Number(lib.branchPointSeq))
         .sort((a, b) => Number(a.seq || 0) - Number(b.seq || 0))
-        .map(record => record.messagePayload ? this.clone(record.messagePayload) : ({ ...(record.messageId ? { id: record.messageId } : {}), role: record.role, content: record.content }));
+        .map(restoreMessageRecord);
       if (!sourceMessages.length) return payload;
       payload.chat = payload.chat || {};
       payload.chat.messages = sourceMessages;

@@ -451,3 +451,39 @@ test('full export uses one snapshot when another page saves and deletes during e
     expect(await page.evaluate(value => BAOStoryBackup.sanitizeBundle(value).chapters.length, bundle)).toBe(2);
   } finally { await other.close(); }
 });
+
+test('rich message history retains creation times through resaves, legacy restore and branching', async ({ page }) => {
+  await page.goto('/');
+  await page.waitForFunction(() => !!window.BAOStoryRevisionState && !!window.BAOStoryBackup);
+  const result = await page.evaluate(async () => {
+    const lib = BAOStoryLibrary;
+    const refs = { storyId: 'message-history', chapterId: 'root', chapterLabel: 'Root', storyCreatedAt: '2026-01-01', chapterCreatedAt: '2026-01-01' };
+    const make = (savedAt, ids) => ({ characterId: 'history-hero', characterName: 'History hero', savedAt, config: {}, state: {}, _library: refs,
+      chat: { messages: ids.map(id => ({ id, role: 'assistant', content: id, revisionBase: { state: { location: 'before-' + id } }, variants: [{ content: id + '-variant' }] })) } });
+    await lib.persist(make('2026-01-01T01:00:00Z', ['first', 'second']));
+    await lib.persist(make('2026-01-02T02:00:00Z', ['second', 'first', 'third']));
+    const records = (await lib.allRecords()).filter(record => record.kind === 'message' && record.storyId === refs.storyId);
+    const savedTimes = records.sort((a, b) => a.seq - b.seq).map(record => record.createdAt);
+    // Emulate an older persisted rich payload that omitted the canonical time.
+    await lib.transaction('readwrite', store => records.forEach(record => { delete record.messagePayload.createdAt; store.put(record); }));
+    const restored = await lib.reconstruct(refs.storyId, refs.chapterId);
+    lib.adoptRefs({ _library: refs });
+    const branch = await lib.createBranch('third', 'History branch');
+    const bundle = await BAOStoryBackup.buildBundle(refs.storyId);
+    return { savedTimes, restoredTimes: restored.chat.messages.map(message => message.createdAt),
+      branchTimes: branch.chat.messages.map(message => message.createdAt),
+      exportedTimes: bundle.chapters.find(chapter => chapter.chapterId === branch._library.chapterId).payload.chat.messages.map(message => message.createdAt),
+      branchId: branch._library.chapterId, variant: branch.chat.messages[0].variants[0].content,
+      base: branch.chat.messages[0].revisionBase.state.location };
+  });
+  const expected = ['2026-01-01T01:00:00Z', '2026-01-01T01:00:00Z', '2026-01-02T02:00:00Z'];
+  expect(result.savedTimes).toEqual(expected);
+  expect(result.restoredTimes).toEqual(expected);
+  expect(result.branchTimes).toEqual(expected);
+  expect(result.exportedTimes).toEqual(expected);
+  expect(result.variant).toBe('second-variant');
+  expect(result.base).toBe('before-second');
+  await page.reload();
+  await page.waitForFunction(() => !!window.BAOStoryRevisionState);
+  expect(await page.evaluate(async chapterId => (await BAOStoryLibrary.reconstruct('message-history', chapterId)).chat.messages.map(message => message.createdAt), result.branchId)).toEqual(expected);
+});
