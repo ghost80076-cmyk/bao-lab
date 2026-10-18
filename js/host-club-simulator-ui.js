@@ -317,13 +317,23 @@
     return originalRenderUIPanel(panel);
   };
 
-  const originalSendMessage = App.sendMessage.bind(App);
-  App.sendMessage = async function(...args) {
+  const choicesAfterSend = async function(next, ...args) {
+    const owner = GameState.current, config = this.config, character = this.activeCharacter;
+    const isCurrent = () => GameState.current === owner && this.config === config && this.activeCharacter === character;
     if (isHostSim()) window.BAOActionChoiceDock?.clear('host-club-simulator');
-    const result = await originalSendMessage(...args);
-    if (isHostSim()) setTimeout(mountTurnChoices,0);
+    const result = await next(...args);
+    // Both the await and timer can outlive this story or the next generation.
+    if (isCurrent() && isHostSim()) {
+      setTimeout(() => { if (isCurrent() && !this.__requestPending) mountTurnChoices(); }, 0);
+    }
     return result;
   };
+  if (typeof App.wrapSendMessage === 'function') {
+    App.wrapSendMessage('host-club-simulator:choices', choicesAfterSend);
+  } else {
+    const originalSendMessage = App.sendMessage.bind(App);
+    App.sendMessage = function(...args) { return choicesAfterSend.call(this, originalSendMessage, ...args); };
+  }
 
   const originalRenderChatShell = App.renderChatShell.bind(App);
   App.renderChatShell = function(fresh=false) {
