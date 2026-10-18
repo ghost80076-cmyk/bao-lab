@@ -25,6 +25,16 @@ bash scripts/verify-live-assets.sh js/chat-reading-scroll.js js/streaming-ui.js
 | chat-reading-scroll 的 pages-live | chat-reading-scroll.js、streaming-ui.js | 50／12 秒／5 秒、sha query | push，且依賴 reading-scroll job |
 | world-mod-packs | world-mod-packs.js | 36／15 秒／5 秒、commit query | push |
 
+新增三個使用者：
+
+| 使用流程 | 資產 | 重試設定 | 執行與保留檢查 |
+| --- | --- | --- | --- |
+| character-studio-live | character-studio.html、character-library-repair.js、global-bridge.js | 40／12 秒／5 秒、commit query | push／手動；新增 checkout，使線上檔案與指定版本比對，而非只找 recovery marker。 |
+| first-run-live | 原有 12 個教學、連結、Builder 與樣式檔 | 50／15 秒／5 秒、verify query | push／手動；語法與教學連結檢查原樣保留，只共用部署下載／比對迴圈。 |
+| author-regex-live | author-regex-dock.js、author-regex-core.js、index.html、author-regex-inline.js、regex-chat.js | 60／15 秒／5 秒、ci query | push／手動；index 由 marker 升級為完整 bytes，其餘四檔清單不變，之後仍跑真實線上互動。 |
+
+這三條流程保留 push／手動的線上執行時機；共用腳本與其回歸測試納入 push 的 path filter。作者正則另補 index.html 與 regex-chat.js 的觸發路徑，避免它實際驗證的依賴變更時沒執行。PR 由既有 Maintenance core 驗證共用腳本，不要求尚未合併的內容先上線。
+
 保留各 workflow 的 job timeout、權限、前置測試及部署時機。測試 `tests/live-assets-verifier.test.cjs` 使用本機 mock curl／sleep，涵蓋匹配、任一檔過期、HTTP 失敗、重試恢復、跨輪不一致、單檔及輸入錯誤，並驗證暫存清理；由 Maintenance core 在 PR 執行。
 
 此 mock 證明的是驗證器行為，不能代替真實部署成功。PR 也不要求未合併內容已上線。其他 marker 型線上檢查仍未在本批全部遷移。

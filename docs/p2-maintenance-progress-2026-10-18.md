@@ -50,3 +50,12 @@ P0 與 P1 的原定工程範圍已結案，依據見 [P1 結案紀錄](p1-core-c
 閱讀、燈火與世界 MOD 的重複下載／重試／cmp 邏輯已移入 [共用部署驗證腳本](live-asset-verification.md)。保留三流程的檔案清單、job 設定與線上執行條件，統一 no-cache header、暫存清理及逐檔失敗訊息；所有檔案須同輪一致。13 項 mock 回歸通過並接入 Maintenance core；這不代表真實部署已驗證，也不宣稱其他 marker 型 workflow 已全數收斂。
 
 本批首次 CI 的世界 MOD 手機案例在三瀏覽器均卡於舊分類名稱「世界設定與狀態」，尚未執行部署步驟。修正為既有 `data-chat-tool-group="world"` 定位，保留開啟、編輯、匯入匯出可見及儲存回歸；不是略過測試或修改產品分類。
+
+
+## 部署驗證呼叫端第二批
+
+[#739](https://github.com/ghost80076-cmyk/bao-lab/pull/739) 已合併，修正舊分類定位後的最終 PR CI 全部通過，包含世界 MOD 三瀏覽器；正式站的直接下載曾逾時，未列為部署成功。
+
+本批將 first-run-live 原有 12 檔的部署迴圈、character-studio-live 三檔 marker 檢查，以及 author-regex-live 五檔混合檢查改用同一腳本。工作室新增 checkout；工作室全檔與作者正則 index 改為內容一致性，不只接受舊 marker。其餘線上互動、first-run 本地契約、觸發事件類型、timeout 與重試設定保留；補齊共用腳本及已驗證依賴的 path filter。
+
+本地執行原 first-run 語法／導覽連結契約通過，共用腳本 13 項回歸通過；逐工作流程比較 job 設定、資產清單與未修改步驟。這些 push／手動驗證本身仍須看合併後證據，不能以 PR 綠燈替代。

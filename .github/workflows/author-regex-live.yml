@@ -3,6 +3,8 @@ on:
   push:
     branches: [main]
     paths:
+      - 'index.html'
+      - 'js/regex-chat.js'
       - 'js/author-regex-core.js'
       - 'js/author-regex-card-bind.js'
       - 'js/author-regex-compat.js'
@@ -10,6 +12,8 @@ on:
       - 'js/author-regex-dock.js'
       - 'tests/e2e/author-regex-*.spec.cjs'
       - '.github/workflows/author-regex-live.yml'
+      - 'scripts/verify-live-assets.sh'
+      - 'tests/live-assets-verifier.test.cjs'
       - '.github/actions/setup-chromium/**'
       - 'package.json'
       - 'package-lock.json'
@@ -27,36 +31,14 @@ jobs:
       - uses: ./.github/actions/setup-chromium
       - name: Wait until the public site serves this revision
         shell: bash
-        run: |
-          set -euo pipefail
-          for attempt in $(seq 1 60); do
-            if curl --fail --silent --show-error --location --max-time 15 \
-              -H 'Cache-Control: no-cache' \
-              "${BAO_LIVE_URL}js/author-regex-dock.js?ci=${GITHUB_SHA}" -o /tmp/bao-live-dock.js \
-              && cmp -s js/author-regex-dock.js /tmp/bao-live-dock.js \
-              && curl --fail --silent --show-error --location --max-time 15 \
-              -H 'Cache-Control: no-cache' \
-              "${BAO_LIVE_URL}js/author-regex-core.js?ci=${GITHUB_SHA}" -o /tmp/bao-live-core.js \
-              && cmp -s js/author-regex-core.js /tmp/bao-live-core.js \
-              && curl --fail --silent --show-error --location --max-time 15 \
-              "${BAO_LIVE_URL}?ci=${GITHUB_SHA}" -o /tmp/bao-live-index.html \
-              && grep -Fq 'js/regex-chat.js' /tmp/bao-live-index.html \
-              && curl --fail --silent --show-error --location --max-time 15 \
-              -H 'Cache-Control: no-cache' \
-              "${BAO_LIVE_URL}js/author-regex-inline.js?ci=${GITHUB_SHA}" -o /tmp/bao-live-inline.js \
-              && cmp -s js/author-regex-inline.js /tmp/bao-live-inline.js \
-              && curl --fail --silent --show-error --location --max-time 15 \
-              -H 'Cache-Control: no-cache' \
-              "${BAO_LIVE_URL}js/regex-chat.js?ci=${GITHUB_SHA}" -o /tmp/bao-live-regex-loader.js \
-              && cmp -s js/regex-chat.js /tmp/bao-live-regex-loader.js; then
-              echo "Pages is serving the checked-out author UI and core (attempt ${attempt})."
-              exit 0
-            fi
-            echo "Waiting for current author UI on Pages (${attempt}/60)..."
-            sleep 5
-          done
-          echo 'Pages did not serve this commit within the wait window.' >&2
-          exit 1
+        env:
+          SITE_URL: ${{ env.BAO_LIVE_URL }}
+          LIVE_VERIFY_ATTEMPTS: '60'
+          LIVE_VERIFY_QUERY: ci
+        run: >-
+          bash scripts/verify-live-assets.sh
+          js/author-regex-dock.js js/author-regex-core.js index.html
+          js/author-regex-inline.js js/regex-chat.js
       - name: Exercise real Pages in Chromium without an API key
         run: npx playwright test tests/e2e/author-regex-inline.spec.cjs tests/e2e/author-regex-dock.spec.cjs tests/e2e/author-regex-legacy-input.spec.cjs tests/e2e/author-regex-ui-save.spec.cjs --project=chromium
       - name: Upload browser failures
