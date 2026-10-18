@@ -118,10 +118,14 @@ async function lexicalBoot() {
   const api = c.API;
   api.send = async () => response();
   delete c.API; // Classic-script const API exists before any window.API bridge.
+  vm.runInContext('const GameState = { current: {} };', c);
   install();
   assert.equal(api.__baoUsageWrapped, true, 'usage must install before asynchronous world-state scripts publish window.API');
-  await api.send({ model: 'main' }, []);
+  const pending = api.send({ model: 'main' }, []);
+  c.GameState = vm.runInContext('GameState', c); // Publishing the same lexical state is not a story switch.
+  await pending;
   assert.equal(c.Chat.usageLedger.length, 1);
+  assert.equal(c.Chat.lastStoryPromptTokens, 10);
 }
 async function switchedStoryUsage() {
   for (const legacy of [false, true]) for (const cache of [false, true]) {

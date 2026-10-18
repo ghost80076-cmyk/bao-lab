@@ -300,11 +300,12 @@ const Chat = {
     return "chat";
   },
   captureUsageContext() {
-    return { owner: window.GameState?.current, usage: this.usage,
+    return { owner: typeof GameState !== "undefined" ? GameState.current : window.GameState?.current, usage: this.usage,
       usageByKind: this.usageByKind, usageLedger: this.usageLedger };
   },
   isUsageContextCurrent(context) {
-    return !context || (window.GameState?.current === context.owner
+    const owner = typeof GameState !== "undefined" ? GameState.current : window.GameState?.current;
+    return !context || (owner === context.owner
       && this.usage === context.usage && this.usageByKind === context.usageByKind && this.usageLedger === context.usageLedger);
   },
   addUsage(usage = {}, kind = "all", context = this) {
