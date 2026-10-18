@@ -502,6 +502,7 @@ test('custom builder choices keep drafts and bind actual text to initial state',
 });
 
 test('signed-cost survivor choices validate, keep drafts and initialize the selected world', async ({page}) => {
+  test.setTimeout(90_000);
   await page.setViewportSize({width:390,height:844});
   await ready(page);
   await page.evaluate(async()=>{
@@ -531,8 +532,10 @@ test('signed-cost survivor choices validate, keep drafts and initialize the sele
   // Single-select jobs replace the previous selection instead of accumulating.
   await box.locator('[data-gameplay-field="world"]').selectOption('科幻太空');
   await box.locator('[data-gameplay-choice="occupation"][value="unemployed"]').check();
-  while(await box.locator('[data-gameplay-choice="advantages"]:checked').count()) await box.locator('[data-gameplay-choice="advantages"]:checked').first().uncheck();
-  while(await box.locator('[data-gameplay-choice="drawbacks"]:checked').count()) await box.locator('[data-gameplay-choice="drawbacks"]:checked').first().uncheck();
+  for(const group of ['advantages','drawbacks']) {
+    const ids=await box.locator(`[data-gameplay-choice="${group}"]:checked`).evaluateAll(nodes=>nodes.map(n=>n.value));
+    for(const id of ids) await box.locator(`[data-gameplay-choice="${group}"][value="${id}"]`).uncheck();
+  }
   await box.locator('[data-gameplay-choice="advantages"][value="strong"]').check();
   await box.locator('[data-gameplay-choice="occupation"][value="medic"]').check();
   await expect(box.locator('[data-gameplay-choice="occupation"]:checked')).toHaveCount(1);

@@ -44,6 +44,18 @@ for (const id of cases) {
       App.showView('chat');
     }, id);
 
+    if (id === 'lastlight-survivors') {
+      // Native multi-world openings keep their host-owned action buttons.
+      await expect(page.locator('[data-bao-opening-choice]')).toHaveCount(4);
+      await expect(page.locator('#chat-stream')).not.toContainText('【YB:');
+      await expect(page.locator('#chat-stream .bao-author-inline')).toHaveCount(0);
+      // The optional display Regex still works for a later marked message.
+      await page.evaluate(()=>{
+        Chat.add('user','查看求生紀錄');
+        Chat.add('assistant','【YB:SURVIVAL:OPENING】\n求生紀錄：飲水尚未使用。\n【/YB:SURVIVAL:OPENING】');
+        App.renderChatShell(false);
+      });
+    }
     const host = page.locator('#chat-stream .bao-author-inline');
     await expect(host).toHaveCount(1);
 
