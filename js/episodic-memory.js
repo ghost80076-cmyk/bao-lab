@@ -2,11 +2,20 @@
   'use strict';
   if (!window.BAOEpisodicMemory || typeof App === 'undefined' || typeof App.wrapBuildMessages !== 'function') return;
   App.wrapBuildMessages('episodic-memory:recall', async function(next, config = this.config) {
-    const messages = await next(config);
-    if (config?.memory?.episodicRecall === false || config?.memory?.mode === 'full') return messages;
     const state = window.GameState?.current;
+    const activeConfig = this.config, character = this.activeCharacter;
+    const primary = character?.name || '';
+    const signature = () => JSON.stringify(Chat.messages.map(m => [m.id, m.role, m.content, m.context_content || '']));
+    const source = signature();
+    const messages = await next(config);
+    // The inner prompt builder may await a provider-independent data load.
+    // Never combine its old prompt with the newly selected story's memories.
+    if (window.GameState?.current !== state || this.config !== activeConfig
+      || this.activeCharacter !== character || (character?.name || '') !== primary
+      || signature() !== source || !Array.isArray(messages)) return messages;
+    if (config?.memory?.episodicRecall === false || config?.memory?.mode === 'full') return messages;
     const actors = BAOEpisodicMemory.audience({
-      state, config, primary: this.activeCharacter?.name || ''
+      state, config, primary
     });
     const input = [...Chat.messages].reverse().find(m => m.role === 'user')?.content || '';
     const selected = BAOEpisodicMemory.recall({ state, messages: Chat.messages, input, actors, exclude: messages.map(m => m.content).join('\n') });
