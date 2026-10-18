@@ -114,6 +114,7 @@ global.BAOStoryLibrary = {
   async persist() { return true; }
 };
 
+const originalMessageRecords = BAOStoryLibrary.messageRecords;
 const source = fs.readFileSync(path.join(__dirname, '..', 'js', 'story-revision-state.js'), 'utf8');
 vm.runInThisContext(source, { filename: 'js/story-revision-state.js' });
 
@@ -165,11 +166,9 @@ vm.runInThisContext(source, { filename: 'js/story-revision-state.js' });
   assert.equal(next.revisionBase.state.config, undefined);
   assert.equal(JSON.stringify(next.revisionBase).includes('TOP-SECRET'), false);
 
-  const payload = { chat: { messages: [next] } };
-  const enriched = BAOStoryLibrary.messageRecords(payload, { storyId: 'story-1', chapterId: 'chapter-1' });
-  assert.equal(enriched[0].messagePayload.id, next.id);
-  assert.ok(enriched[0].messagePayload.revisionBase?.state);
-  libraryRecords.splice(0, libraryRecords.length, ...enriched);
+  assert.equal(BAOStoryLibrary.messageRecords, originalMessageRecords, 'revision UI must not replace the storage writer');
+  libraryRecords.splice(0, libraryRecords.length, { kind: 'message', storyId: 'story-1', chapterId: 'chapter-1',
+    seq: 0, messageId: next.id, role: 'assistant', messagePayload: clone(next) });
   const revisionBase = await BAOStoryLibrary.revisionBaseFor(next.id);
   assert.equal(revisionBase.state.location, 'PRE-NEXT');
 

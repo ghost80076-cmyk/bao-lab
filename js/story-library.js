@@ -349,6 +349,9 @@
       const bySequence = new Map(previous.map(record => [Number(record.seq), record]));
       return messages.map((message, index) => {
         const existing = message.id ? byMessageId.get(String(message.id)) : bySequence.get(index);
+        const createdAt = message.createdAt || existing?.createdAt || payload.savedAt;
+        const messagePayload = this.clone(message);
+        if (!messagePayload.createdAt && createdAt) messagePayload.createdAt = createdAt;
         return {
           id: "message:" + refs.storyId + ":" + refs.chapterId + ":" + String(index).padStart(8, "0"),
           kind: "message",
@@ -358,8 +361,9 @@
           messageId: String(message.id || ""),
           role: message.role,
           content: String(message.content || ""),
-          createdAt: message.createdAt || existing?.createdAt || payload.savedAt,
-          updatedAt: payload.savedAt
+          createdAt,
+          updatedAt: payload.savedAt,
+          messagePayload: Storage.scrubSecrets(messagePayload)
         };
       });
     },

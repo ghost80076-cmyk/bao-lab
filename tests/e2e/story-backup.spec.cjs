@@ -542,3 +542,52 @@ test('branch commits full history once even when the source changes after commit
     expect(await other.evaluate(async () => (await BAOStoryLibrary.reconstruct('single-branch-story', 'root')).state.location)).toBe('new');
   } finally { await other.close(); }
 });
+
+test('native message storage keeps rich history when revision UI is absent or loads later', async ({ page }) => {
+  // Exercise the storage path with the optional UI module unavailable.
+  await page.route('**/js/story-revision-state.js*', route => route.fulfill({ status: 200, contentType: 'application/javascript', body: '' }));
+  await page.goto('/');
+  await page.waitForFunction(() => !!window.BAOStoryBackup);
+  const input = { characterId: 'native-hero', characterName: 'Native hero', savedAt: '2026-01-01T01:00:00Z', config: {}, state: { location: 'first' },
+    chat: { messages: [{ id: 'reply', role: 'assistant', content: 'first', context_content: 'model-facing-first',
+      variants: [{ content: 'first-variant', metadata: { apiKey: 'NATIVE-SECRET' } }], revisionBase: { state: { location: 'before-first' } }, apiKey: 'NATIVE-SECRET' }] },
+    _library: { storyId: 'native-message-story', chapterId: 'root', chapterLabel: 'Root', storyCreatedAt: '2026-01-01', chapterCreatedAt: '2026-01-01' } };
+  const initial = await page.evaluate(async value => {
+    const lib = BAOStoryLibrary;
+    await lib.persist(value); lib.adoptRefs(value);
+    const root = await lib.reconstruct('native-message-story', 'root');
+    const branch = await lib.createBranch('reply', 'Native branch');
+    return { absent: !window.BAOStoryRevisionState, root, branch, inputTime: value.chat.messages[0].createdAt,
+      inputKey: value.chat.messages[0].apiKey, leaked: JSON.stringify(await lib.allRecords()).includes('NATIVE-SECRET') };
+  }, input);
+  expect(initial.absent).toBe(true);
+  expect(initial.inputTime).toBeUndefined();
+  expect(initial.inputKey).toBe('NATIVE-SECRET');
+  expect(initial.leaked).toBe(false);
+  for (const value of [initial.root, initial.branch]) {
+    expect(value.chat.messages[0].variants[0].content).toBe('first-variant');
+    expect(value.chat.messages[0].revisionBase.state.location).toBe('before-first');
+    expect(value.chat.messages[0].context_content).toBe('model-facing-first');
+    expect(value.chat.messages[0].createdAt).toBe(input.savedAt);
+  }
+  await page.reload();
+  await page.waitForFunction(() => !!window.BAOStoryBackup);
+  const reopened = await page.evaluate(async chapterId => {
+    window.nativeMessageWriter = BAOStoryLibrary.messageRecords;
+    return BAOStoryLibrary.reconstruct('native-message-story', chapterId);
+  }, initial.branch._library.chapterId);
+  expect(reopened.chat.messages[0].variants[0].content).toBe('first-variant');
+  await page.unroute('**/js/story-revision-state.js*');
+  await page.addScriptTag({ url: '/js/story-revision-state.js?v=6' });
+  const late = await page.evaluate(async value => {
+    value.savedAt = '2026-01-02T02:00:00Z';
+    value.chat.messages[0].content = 'second'; value.chat.messages[0].variants[0].content = 'second-variant';
+    await BAOStoryLibrary.persist(value);
+    return { loaded: !!window.BAOStoryRevisionState, sameWriter: BAOStoryLibrary.messageRecords === window.nativeMessageWriter,
+      saved: await BAOStoryLibrary.reconstruct('native-message-story', 'root') };
+  }, input);
+  expect(late.loaded).toBe(true);
+  expect(late.sameWriter).toBe(true);
+  expect(late.saved.chat.messages[0].variants[0].content).toBe('second-variant');
+  expect(late.saved.chat.messages[0].createdAt).toBe(input.savedAt);
+});
