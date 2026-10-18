@@ -19,7 +19,7 @@
     const turn = isStoryRequest(config) ? activeTurn : null;
     try { return await next(config, ...args); }
     finally {
-      if (turn && activeTurn === turn) turn.beforeCommitTop = stream.scrollTop;
+      if (turn && activeTurn === turn && turn.isCurrent()) turn.beforeCommitTop = stream.scrollTop;
     }
   };
   if (typeof API.wrapSend === 'function') {
@@ -32,19 +32,22 @@
     };
   }
 
-  const previousSendMessage = App.sendMessage;
-  App.sendMessage = async function(...args) {
+  const readingTurnWrapper = async function(next, ...args) {
+    // A previous story may still be waiting; it must not reserve this story's anchor.
+    if (activeTurn && !activeTurn.isCurrent()) activeTurn = null;
+    const owner = window.GameState?.current, config = this.config, character = this.activeCharacter;
+    const isCurrent = () => window.GameState?.current === owner && this.config === config && this.activeCharacter === character;
     const input = document.getElementById('user-input');
     // Non-send operations, offline preview, and nested requests retain their
     // existing behavior. No change to prompts, storage, aborts, or provider calls.
     if (!chat.classList.contains('active') || !input?.value.trim() || activeTurn) {
-      return previousSendMessage.apply(this, args);
+      return next(...args);
     }
     const before = new Set(userMessages());
-    const turn = { beforeCommitTop: null, player: null, pending: null };
+    const turn = { beforeCommitTop: null, player: null, pending: null, isCurrent };
     activeTurn = turn;
     let operation;
-    try { operation = previousSendMessage.apply(this, args); }
+    try { operation = next(...args); }
     catch (error) { activeTurn = null; throw error; }
     const player = userMessages().find(node => !before.has(node));
     if (player) {
@@ -66,13 +69,20 @@
     }
     try { return await operation; }
     finally {
-      if (player?.isConnected && turn.beforeCommitTop !== null) {
+      if (isCurrent() && player?.isConnected && turn.beforeCommitTop !== null) {
         stream.scrollTop = turn.beforeCommitTop;
       }
-      if (turn.pending?.isConnected) turn.pending.style.minHeight = '';
+      if (isCurrent() && turn.pending?.isConnected) turn.pending.style.minHeight = '';
       if (activeTurn === turn) activeTurn = null;
     }
   };
+
+  if (typeof App.wrapSendMessage === 'function') {
+    App.wrapSendMessage('chat-reading-scroll:anchor', readingTurnWrapper);
+  } else {
+    const previousSendMessage = App.sendMessage;
+    App.sendMessage = function(...args) { return readingTurnWrapper.call(this, previousSendMessage.bind(this), ...args); };
+  }
 
   window.BAOChatReadingScroll = Object.freeze({ version: 1 });
 })();
