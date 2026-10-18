@@ -500,3 +500,53 @@ test('custom builder choices keep drafts and bind actual text to initial state',
   });
   expect(result).toEqual({ saved: '星海旅人', state: '星海旅人' });
 });
+
+test('signed-cost survivor choices validate, keep drafts and initialize the selected world', async ({page}) => {
+  await page.setViewportSize({width:390,height:844});
+  await ready(page);
+  await page.evaluate(async()=>{
+    App.activeCharacter=CharacterEngine.normalize(await (await fetch('/data/characters/community/ca/lastlight-survivors.json')).json());
+    App.openBuilder();App.setStep(3);
+  });
+  const box=page.locator('#bao-gameplay-builder');
+  await expect(box.locator('[data-gameplay-choice]')).toHaveCount(62);
+  await expect(box.locator('.gameplay-points')).toHaveText('剩餘 8 / 8');
+  await box.locator('[data-gameplay-field="name"]').fill('測試倖存者');
+  await box.locator('[data-gameplay-choice="advantages"][value="strong"]').check();
+  await expect(box.locator('.gameplay-points')).toHaveText('剩餘 5 / 8');
+  await box.locator('[data-gameplay-choice="drawbacks"][value="weak"]').check();
+  await expect(box.locator('[role="status"]')).toContainText('互斥');
+  await page.evaluate(()=>App.startStory());
+  await expect(box).toBeVisible();
+  expect(await page.evaluate(()=>GameState.current?.characterId||'')).not.toBe('lastlight-survivors');
+  await box.locator('[data-gameplay-choice="drawbacks"][value="weak"]').uncheck();
+  await box.locator('[data-gameplay-choice="advantages"][value="lucky"]').check();
+  await box.locator('[data-gameplay-choice="occupation"][value="soldier"]').check();
+  await expect(box.locator('[role="status"]')).toContainText('超支 6');
+  await box.locator('[data-gameplay-field="world"]').selectOption('荒野求生');
+  await expect(box.locator('[role="status"]')).toContainText('不適用目前背景');
+  await box.locator('[data-gameplay-randomize]').click();
+  await expect(box.locator('[data-gameplay-field="name"]')).toHaveValue('測試倖存者');
+  await expect(box.locator('[role="status"]')).toHaveText('');
+  // Single-select jobs replace the previous selection instead of accumulating.
+  await box.locator('[data-gameplay-field="world"]').selectOption('科幻太空');
+  await box.locator('[data-gameplay-choice="occupation"][value="unemployed"]').check();
+  while(await box.locator('[data-gameplay-choice="advantages"]:checked').count()) await box.locator('[data-gameplay-choice="advantages"]:checked').first().uncheck();
+  while(await box.locator('[data-gameplay-choice="drawbacks"]:checked').count()) await box.locator('[data-gameplay-choice="drawbacks"]:checked').first().uncheck();
+  await box.locator('[data-gameplay-choice="advantages"][value="strong"]').check();
+  await box.locator('[data-gameplay-choice="occupation"][value="medic"]').check();
+  await expect(box.locator('[data-gameplay-choice="occupation"]:checked')).toHaveCount(1);
+  const result=await page.evaluate(()=>{
+    const config=App.collectConfig();config.displayMode='ui';App.config=config;
+    const state=GameState.create(App.activeCharacter,config);
+    App.renderChatShell(true);App.showView('chat');BAOGameplayUI.renderPanel('survival');
+    return {state, greeting:App.activeCharacter.greeting};
+  });
+  expect(result.state.location).toBe('殖民站C-7維修艙');
+  expect(result.state.modules.vitals.health).toBe(120);
+  expect(result.state.modules.player.name).toBe('測試倖存者');
+  expect(result.state.modules.player.points).toBe(2);
+  expect(result.greeting).toContain('備用供電還能維持六小時');
+  await expect(page.locator('#ui-panel')).toContainText('健康');
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth)).toBe(true);
+});

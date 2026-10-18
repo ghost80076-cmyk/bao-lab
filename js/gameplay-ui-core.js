@@ -147,8 +147,27 @@
       default: defaultValue,
       min: type === 'number' && Number.isFinite(Number(raw.min)) ? Number(raw.min) : undefined,
       max: type === 'number' && Number.isFinite(Number(raw.max)) ? Number(raw.max) : undefined,
-      placeholder: String(raw.placeholder || '').slice(0, 120)
+      placeholder: String(raw.placeholder || '').slice(0, 120),
+      randomize: type === 'select' && raw.randomize === true
     };
+  }
+
+  // Opt-in signed-cost choices: occupations, perks and drawbacks share a pool.
+  function normalizeChoiceGroup(raw) {
+    if (!isObject(raw) || !key(raw.key) || !isTargetPath(raw.target_path)) return null;
+    const options = (Array.isArray(raw.options) ? raw.options : []).slice(0, 64)
+      .filter(o => isObject(o) && key(o.id) && Number.isSafeInteger(o.cost) && Math.abs(o.cost) <= 999)
+      .map(o => ({ id: o.id, label: label(o.label, o.id), cost: o.cost,
+        description: String(o.description || '').slice(0, 400),
+        excludes: (Array.isArray(o.excludes) ? o.excludes : []).filter(x => key(x)).slice(0, 64),
+        allowed_values: (Array.isArray(o.allowed_values) ? o.allowed_values : []).map(String).slice(0, 40),
+        effects: (Array.isArray(o.effects) ? o.effects : []).filter(e => isObject(e) && isTargetPath(e.path) && Number.isSafeInteger(e.delta) && Math.abs(e.delta) <= 1000).slice(0, 12).map(e => ({path:e.path, delta:e.delta})) }));
+    if (new Set(options.map(o => o.id)).size !== options.length) return null;
+    const max = Math.max(1, Math.min(64, finite(raw.max, options.length)));
+    return { key:raw.key, label:label(raw.label, raw.key), target_path:raw.target_path,
+      min:Math.max(0, Math.min(max, finite(raw.min, 0))), max, options,
+      availability_field:key(raw.availability_field),
+      default:(Array.isArray(raw.default) ? raw.default : []).filter(id => options.some(o => o.id === id)).slice(0,max) };
   }
 
   // Optional, declarative counter transactions. Imported cards never execute JavaScript.
@@ -370,6 +389,8 @@
       .map((item, index) => normalizeAttribute(item, index)).filter(Boolean).slice(0, MAX_ATTRIBUTES);
     const fields = (Array.isArray(builderRaw.fields) ? builderRaw.fields : [])
       .map((item, index) => normalizeField(item, index)).filter(Boolean).slice(0, MAX_FIELDS);
+    const choiceGroups = (Array.isArray(builderRaw.choice_groups) ? builderRaw.choice_groups : [])
+      .slice(0, 6).map(normalizeChoiceGroup).filter(Boolean);
     const panels = (Array.isArray(raw.panels) ? raw.panels : [])
       .map((item, index) => normalizePanel(item, index)).filter(Boolean).slice(0, MAX_PANELS);
     const seenPanel = new Set();
@@ -377,7 +398,8 @@
     const seenBuilder = new Set();
     const uniqueAttributes = attributes.filter(item => !seenBuilder.has(item.key) && seenBuilder.add(item.key));
     const uniqueFields = fields.filter(item => !seenBuilder.has(item.key) && seenBuilder.add(item.key));
-    if (!uniqueAttributes.length && !uniqueFields.length && !uniquePanels.length) return null;
+    const uniqueGroups = choiceGroups.filter(item => !seenBuilder.has(item.key) && seenBuilder.add(item.key));
+    if (!uniqueAttributes.length && !uniqueFields.length && !uniqueGroups.length && !uniquePanels.length) return null;
     const layout = normalizeLayout(raw.layout, uniquePanels);
     return {
       version: 1,
@@ -389,7 +411,10 @@
         description: String(builderRaw.description || '').trim().slice(0, 300),
         point_pool: Math.max(0, Math.min(999, finite(builderRaw.point_pool, 0))),
         attributes: uniqueAttributes,
-        fields: uniqueFields
+        fields: uniqueFields,
+        choice_groups: uniqueGroups,
+        randomize_choices: builderRaw.randomize_choices === true && uniqueGroups.length > 0,
+        points_path: isTargetPath(builderRaw.points_path) ? builderRaw.points_path : ''
       },
       panels: uniquePanels
     };
@@ -401,6 +426,7 @@
     const values = {};
     s.builder.attributes.forEach(attr => { values[attr.key] = attr.base; });
     s.builder.fields.forEach(field => { values[field.key] = clone(field.default); });
+    s.builder.choice_groups.forEach(group => { values[group.key] = clone(group.default); });
     return values;
   }
 
@@ -416,7 +442,10 @@
   function remainingPoints(schema, values) {
     const s = normalize(schema);
     if (!s) return 0;
-    return Math.max(0, s.builder.point_pool - attributeCost(s, values));
+    const cost = s.builder.choice_groups.reduce((sum, group) => sum + group.options
+      .filter(o => Array.isArray(values?.[group.key]) && values[group.key].includes(o.id)).reduce((n,o) => n + o.cost, 0), 0);
+    const remaining = s.builder.point_pool - attributeCost(s, values) - cost;
+    return s.builder.choice_groups.length ? remaining : Math.max(0, remaining);
   }
 
   function normalizeBuilderValues(schema, rawValues) {
@@ -449,16 +478,76 @@
       } else if (field.type === 'boolean') values[field.key] = Boolean(value);
       else values[field.key] = String(value ?? field.default).slice(0, 240);
     });
+    s.builder.choice_groups.forEach(group => {
+      const requested = Array.isArray(input[group.key]) ? input[group.key] : group.default;
+      values[group.key] = group.options.filter(o => requested.includes(o.id)).map(o => o.id);
+    });
     return values;
+  }
+
+  function validateBuilderValues(schema, rawValues) {
+    const s = normalize(schema);
+    if (!s) return {ok:true, errors:[], remaining:0};
+    const values = normalizeBuilderValues(s, rawValues);
+    const errors = [];
+    const selected = new Set(s.builder.choice_groups.flatMap(g => values[g.key]));
+    const allIds = s.builder.choice_groups.flatMap(g => g.options.map(o => o.id));
+    if (new Set(allIds).size !== allIds.length) errors.push('選項 ID 重複，請作者修正設定。');
+    const remaining = remainingPoints(s, values);
+    if (remaining < 0) errors.push(`配點超支 ${-remaining} 點；請減少優勢或選擇負面特性。`);
+    for (const g of s.builder.choice_groups) {
+      if (values[g.key].length < g.min || values[g.key].length > g.max) errors.push(`${g.label}請選 ${g.min}～${g.max} 項。`);
+      for (const o of g.options.filter(o => selected.has(o.id))) {
+        if (o.excludes.some(id => selected.has(id))) errors.push(`${o.label}與已選特性互斥。`);
+        if (g.availability_field && o.allowed_values.length && !o.allowed_values.includes(String(values[g.availability_field]))) errors.push(`${o.label}不適用目前背景。`);
+      }
+    }
+    return {ok:!errors.length, errors:[...new Set(errors)], remaining};
+  }
+
+  function randomizeBuilderValues(schema, rawValues, random = Math.random) {
+    const s = normalize(schema);
+    if (!s?.builder.randomize_choices) return normalizeBuilderValues(s, rawValues);
+    const base = normalizeBuilderValues(s, rawValues);
+    const pick = list => list[Math.min(list.length - 1, Math.max(0, Math.floor(random() * list.length)))];
+    for (let attempt = 0; attempt < 128; attempt++) {
+      const values = clone(base);
+      for (const f of s.builder.fields.filter(f => f.randomize && f.options.length)) values[f.key] = pick(f.options);
+      for (const g of s.builder.choice_groups) {
+        const options = g.options.filter(o => !g.availability_field || !o.allowed_values.length || o.allowed_values.includes(String(values[g.availability_field])));
+        values[g.key] = g.max === 1 ? (options.length ? [pick(options).id] : []) : options.filter(() => random() < .09).slice(0,g.max).map(o => o.id);
+      }
+      if (validateBuilderValues(s, values).ok) return values;
+    }
+    // No silent invalid setup if an imported schema has no legal random build.
+    return base;
   }
 
   function applyBuilderValues(schema, rawValues, state) {
     const s = normalize(schema);
     if (!s || !isObject(state)) return false;
     const values = normalizeBuilderValues(s, rawValues);
+    if (!validateBuilderValues(s, values).ok) return false;
+    const setupKey = JSON.stringify({groups:s.builder.choice_groups, values});
+    if (s.builder.choice_groups.length && state.gameplayChoiceSetup) return state.gameplayChoiceSetup === setupKey;
+    // Stage the entire setup, including numeric bonuses, before publishing it.
+    const shadow = clone(state);
     let changed = false;
-    s.builder.attributes.forEach(attr => { changed = setPath(state, attr.target_path, values[attr.key]) || changed; });
-    s.builder.fields.forEach(field => { changed = setPath(state, field.target_path, values[field.key]) || changed; });
+    s.builder.attributes.forEach(attr => { changed = setPath(shadow, attr.target_path, values[attr.key]) || changed; });
+    s.builder.fields.forEach(field => { changed = setPath(shadow, field.target_path, values[field.key]) || changed; });
+    for (const group of s.builder.choice_groups) {
+      const options = group.options.filter(o => values[group.key].includes(o.id));
+      setPath(shadow, group.target_path, options.map(o => ({id:o.id, name:o.label, cost:o.cost, description:o.description})));
+      for (const effect of options.flatMap(o => o.effects)) {
+        const previous = getPath(shadow, effect.path);
+        if (typeof previous !== 'number' || !Number.isFinite(previous) || !Number.isFinite(previous + effect.delta)) return false;
+        setPath(shadow, effect.path, previous + effect.delta);
+      }
+      changed = true;
+    }
+    if (s.builder.points_path) { setPath(shadow, s.builder.points_path, remainingPoints(s, values)); changed = true; }
+    if (changed) state.modules = shadow.modules;
+    if (changed && s.builder.choice_groups.length) state.gameplayChoiceSetup = setupKey;
     return changed;
   }
 
@@ -558,7 +647,7 @@
   return Object.freeze({
     MAX_PANELS, MAX_SECTIONS, MAX_ITEMS, MAX_ATTRIBUTES, MAX_FIELDS, MAX_TABS,
     THEME_PRESETS, THEME_DENSITIES, THEME_RADII, THEME_METERS, LAYOUT_PRESETS, SCENE_SOURCES, SCENE_FITS, CARD_VARIANTS, TIMELINE_MODES,
-    normalize, normalizeTheme, normalizeLayout, builderDefaults, attributeCost, remainingPoints, normalizeBuilderValues,
+    normalize, normalizeTheme, normalizeLayout, builderDefaults, attributeCost, remainingPoints, normalizeBuilderValues, validateBuilderValues, randomizeBuilderValues,
     captureActionVersions, reconcileActionUpdate, applyBuilderValues, normalizeActionEffect, executeActionEffect, getPath, setPath, isTargetPath, isDisplayPath
   });
 });

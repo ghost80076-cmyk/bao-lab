@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "yorubay-author-regex-mod",
+  "scope": "assistant_display",
+  "characterId": "lastlight-survivors",
+  "regex_scripts": [
+    {
+      "scriptName": "末日餘生｜首幕紀錄",
+      "description": "只排版作者自有的開場標記；不改正文、記憶、擲骰或資源。",
+      "priority": 50,
+      "findRegex": "【YB:SURVIVAL:OPENING】\\s*([\\s\\S]*?)\\s*【/YB:SURVIVAL:OPENING】",
+      "flags": "g",
+      "replaceString": "<style>.yb-survival-opening{border:1px solid #6d7352;border-left:3px solid #b9bc78;border-radius:12px;padding:18px;line-height:1.9;white-space:pre-wrap;overflow-wrap:anywhere;background:linear-gradient(145deg,#1c211b,#24251f);color:#edece0}.yb-survival-opening:before{content:\"SURVIVAL LOG · 001\";display:block;color:#c5ca91;font-size:12px;letter-spacing:.12em;margin-bottom:12px}</style><section class=\"yb-survival-opening\">$1</section>"
+    }
+  ]
+}
