@@ -371,6 +371,8 @@ test('compact status and world context hide backstage data in current and legacy
       App.showView('chat');
       BAOSceneHTML.refresh();
       const status=document.getElementById('bao-inline-story-status').textContent;
+      // Even before the next status refresh, old persisted definitions may say public.
+      internal.forEach(def=>{GameState.current.moduleDefinitions.find(d=>d.id===def.id).visibility='public';});
       const world=BAOReaderContext.snapshot().world;
       return {status,world,internal:internal.map(d=>d.id),unchanged:before===JSON.stringify(GameState.current.modules)};
     },id);
