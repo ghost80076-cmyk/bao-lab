@@ -170,9 +170,8 @@ vm.runInThisContext(source, { filename: 'js/story-revision-state.js' });
   assert.equal(enriched[0].messagePayload.id, next.id);
   assert.ok(enriched[0].messagePayload.revisionBase?.state);
   libraryRecords.splice(0, libraryRecords.length, ...enriched);
-  const reconstructed = await BAOStoryLibrary.reconstruct('story-1', 'chapter-1');
-  assert.equal(reconstructed.chat.messages[0].id, next.id);
-  assert.equal(reconstructed.chat.messages[0].revisionBase.state.location, 'PRE-NEXT');
+  const revisionBase = await BAOStoryLibrary.revisionBaseFor(next.id);
+  assert.equal(revisionBase.state.location, 'PRE-NEXT');
 
   console.log('story revision state core test passed');
 })().catch(error => {

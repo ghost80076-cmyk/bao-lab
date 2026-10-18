@@ -67,6 +67,7 @@ jobs:
         run: |
           node tests/story-revision-state-core.cjs
           node tests/story-message-history-core.cjs
+          node tests/story-branch-commit-core.cjs
           node tests/story-revision-pipeline-core.cjs
       - name: IndexedDB storage migration
         run: |
