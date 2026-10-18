@@ -29,7 +29,7 @@
 ## 尚待後續 P1 驗證
 
 - 正文入口的核心 await 已由第二輪保護；其餘 after-turn wrappers、用量記錄、同模型狀態附錄與取消控制仍須依各自責任驗證，不能將核心測試當成整條管線的安全證明。
-- 事件記憶召回 wrapper 在等待下一層組裝器後，是否需要額外的 owner 檢查。
+- 事件記憶召回的 owner／來源／角色／設定檢查已由第四輪補上；世界書既有的跨故事與設定替換保護已有延遲回歸。
 - 狀態觸發已由第三輪改成完成回合憑證與頁面內去重；儲存重載後的持久化 exactly-once 語意及直接呼叫 update 的其他入口仍不在此保證內。
 - 舊版基礎 `world-state.js` 與正式載入的模組／成本／同模型路徑須區分；不能用模組路徑測試推論所有相容載入順序都已安全。
 
@@ -60,3 +60,15 @@ world-state hook 使用憑證定位相鄰的原始訊息並核對文字，依故
 驗收：`world-state-after-turn-hook-core.cjs` 驗證重疊 continuation 去重、舊來源編輯、缺失／失效／重播憑證，以及尾端已有後續訊息時仍選對原回合；`story-turn-ownership-core.cjs` 同時載入實際 App 與 hook，確認正常回合只觸發一次，18 種過期成功／失敗案例都不觸發。既有 world-state-cost、world-state-concurrency、same-model-state-merge 測試分別驗證佇列／在途隔離與同模型附錄路徑。API 全部 mock。
 
 保證範圍是頁面生命週期中此 hook 的回合派送，並非所有狀態更新入口或跨重載 exactly-once。狀態 API 失敗時的批次保留與下一輪重試仍由 WorldStateEngine 管理；不以重播相同憑證再次入列。其他 after-turn 擴充與用量歸屬仍是後續 P1 邊界。
+
+## 第四輪：事件記憶召回的非同步歸屬
+
+基準：`5ee33dd4497ffa87f768681dffd6b48095909ac1`（第三輪 #725 合併後）。
+
+已重現：episodic-memory wrapper 等待 next(config) 時切換故事，組裝器仍傳回舊提示，但 wrapper 讀取新的 GameState.current，將新故事記憶插入舊提示。正常 sendMessage 已由第二輪阻止過期提示送出；第四輪補上召回層自身的完整性，避免其他組裝呼叫者拿到混合內容。
+
+修正只在 episodic-memory.js：等待前捕捉原故事、App config、角色及其名稱、訊息 ID／角色／content／context_content 簽章；等待後若任一不符，保留 next 傳回的訊息而不做召回。正常訊息物件重建仍可召回，穩定前綴及既有提示不變。關閉召回與 full 模式維持不召回，不新增 API。
+
+驗收：`episodic-recall-ownership-core.cjs` 使用實際 wrapper，驗證故事切換、正文編輯、語意來源編輯、角色替換、角色改名、config 替換、停用／full 模式及正常物件重建。舊實作會把測試中的 OTHER STORY SECRET 插入舊提示，修正後不會呼叫 recall。
+
+世界書原有 owner／設定物件檢查本輪不改寫。`worldbook-recall-ownership-core.cjs` 載入實際世界書 runtime 與 core，延遲 inner 組裝器／catalog fetch，確認切換故事或 catalog 等待期間替換設定後保留原提示；正常內嵌世界書仍會注入。這不代表已驗證所有原地修改設定、所有擴充組裝器或跨重載時序。
