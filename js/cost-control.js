@@ -186,9 +186,9 @@
   const patchUsage = () => {
     if (typeof Chat === "undefined" || Chat.__costUsagePatched) return;
     const original = Chat.addUsage.bind(Chat);
-    Chat.addUsage = function(usage = {}, kind = "all") {
-      const result = original(usage, kind);
-      render();
+    Chat.addUsage = function(usage = {}, kind = "all", context = this) {
+      const result = original(usage, kind, context);
+      if (context === this || !Chat.isUsageContextCurrent || Chat.isUsageContextCurrent(context)) render();
       return result;
     };
     const originalRender = Chat.renderUsage.bind(Chat);

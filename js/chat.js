@@ -299,26 +299,35 @@ const Chat = {
     if (config?.__auxiliaryTask) return "auxiliary";
     return "chat";
   },
-  addUsage(usage = {}, kind = "all") {
+  captureUsageContext() {
+    return { owner: typeof GameState !== "undefined" ? GameState.current : window.GameState?.current, usage: this.usage,
+      usageByKind: this.usageByKind, usageLedger: this.usageLedger };
+  },
+  isUsageContextCurrent(context) {
+    const owner = typeof GameState !== "undefined" ? GameState.current : window.GameState?.current;
+    return !context || (owner === context.owner
+      && this.usage === context.usage && this.usageByKind === context.usageByKind && this.usageLedger === context.usageLedger);
+  },
+  addUsage(usage = {}, kind = "all", context = this) {
     const known = value => value !== null && value !== undefined && Number.isFinite(Number(value));
     const prompt = known(usage.input_tokens ?? usage.prompt_tokens) ? Number(usage.input_tokens ?? usage.prompt_tokens) : 0;
     const completion = known(usage.output_tokens ?? usage.completion_tokens) ? Number(usage.output_tokens ?? usage.completion_tokens) : 0;
     const cached = known(usage.cached_tokens) ? Number(usage.cached_tokens) : 0;
     const cacheWrite = known(usage.cache_write_tokens) ? Number(usage.cache_write_tokens) : 0;
     const total = known(usage.total_tokens) ? Number(usage.total_tokens) : (prompt + completion);
-    this.usage.prompt += prompt; this.usage.completion += completion; this.usage.cached += cached; this.usage.cacheWrite = Number(this.usage.cacheWrite || 0) + cacheWrite; this.usage.total += total;
+    context.usage.prompt += prompt; context.usage.completion += completion; context.usage.cached += cached; context.usage.cacheWrite = Number(context.usage.cacheWrite || 0) + cacheWrite; context.usage.total += total;
     if (kind && kind !== "all") {
-      const bucket = this.usageByKind[kind] || { prompt: 0, completion: 0, cached: 0, cacheWrite: 0, total: 0, calls: 0 };
+      const bucket = context.usageByKind[kind] || { prompt: 0, completion: 0, cached: 0, cacheWrite: 0, total: 0, calls: 0 };
       bucket.prompt += prompt; bucket.completion += completion; bucket.cached += cached; bucket.cacheWrite += cacheWrite; bucket.total += total; bucket.calls += 1;
-      this.usageByKind[kind] = bucket;
+      context.usageByKind[kind] = bucket;
     }
-    return { ...this.usage };
+    return { ...context.usage };
   },
-  recordRequestUsage(config = {}, result = {}) {
+  recordRequestUsage(config = {}, result = {}, context = this) {
     if (result && result.__baoUsageRecorded) return result.__baoUsageEntry || null;
     const kind = this.usageKind(config);
     const usage = result?.usage || {};
-    this.addUsage(usage, kind);
+    this.addUsage(usage, kind, context);
     const number = value => value === null || value === undefined || value === "" || !Number.isFinite(Number(value)) ? null : Number(value);
     const input = number(usage.input_tokens ?? usage.prompt_tokens);
     const output = number(usage.output_tokens ?? usage.completion_tokens);
@@ -345,8 +354,8 @@ const Chat = {
       pricing: config?.pricing && typeof config.pricing === "object" ? { ...config.pricing } : null,
       at: new Date().toISOString()
     };
-    this.usageLedger.push(entry);
-    if (this.usageLedger.length > 10000) this.usageLedger.splice(0, this.usageLedger.length - 10000);
+    context.usageLedger.push(entry);
+    if (context.usageLedger.length > 10000) context.usageLedger.splice(0, context.usageLedger.length - 10000);
     if (result && typeof result === "object") {
       try {
         Object.defineProperty(result, "__baoUsageRecorded", { value: true, configurable: true });
@@ -408,12 +417,15 @@ window.addEventListener("DOMContentLoaded", () => {
     if (bar && !document.getElementById("usage-total")) bar.insertAdjacentHTML("beforeend", '<span>累積 <b id="usage-total">0 tok</b></span><span>輸入累積 <b id="usage-input-total">0 tok</b></span><span>輸出累積 <b id="usage-output-total">0 tok</b></span><span>Cache 累積 <b id="usage-cache-total">0 tok</b></span><span>Context Guard <b id="usage-guard">正常</b></span>');
     if (typeof API !== "undefined" && !API.__baoUsageWrapped) {
       const requestUsageWrapper = async (next, config, messages) => {
+        const context = Chat.captureUsageContext();
+        const storyConfig = App?.config;
         const result = await next(config, messages);
         if (config?.__connectionTest) return result;
-        Chat.recordRequestUsage(config || {}, result || {});
+        Chat.recordRequestUsage(config || {}, result || {}, context);
+        if (!Chat.isUsageContextCurrent(context)) return result;
         Chat.renderUsage(result?.usage || {});
         if (!config?.__memoryTask && !config?.__stateTask && !config?.__auxiliaryTask && !config?.__storyTool) {
-          Chat.recordStoryUsage(result?.usage || {}, App?.config);
+          Chat.recordStoryUsage(result?.usage || {}, storyConfig);
         }
         return result;
       };
