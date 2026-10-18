@@ -17,6 +17,8 @@ on:
       - 'css/story-start-readiness.css'
       - 'css/first-run-desktop.css'
       - '.github/workflows/first-run-live.yml'
+      - 'scripts/verify-live-assets.sh'
+      - 'tests/live-assets-verifier.test.cjs'
   workflow_dispatch:
 
 permissions:
@@ -73,25 +75,11 @@ jobs:
         shell: bash
         env:
           SITE_URL: https://yorubay.com/
-        run: |
-          set -euo pipefail
-          verify_dir="$(mktemp -d)"
-          trap 'rm -rf "$verify_dir"' EXIT
-          for attempt in $(seq 1 50); do
-            matched=true
-            for file in quick-start.html api-guide.html account.html js/brand-ui.js js/character-ui.js js/quick-start-mode.js js/player-builder-v2.js js/story-start-readiness-core.js js/story-start-readiness.js css/player-builder-v2.css css/story-start-readiness.css css/first-run-desktop.css; do
-              if ! curl -fsSL --max-time 15 "${SITE_URL}${file}?verify=${GITHUB_SHA}" -o "$verify_dir/content" \
-                || ! cmp -s "$file" "$verify_dir/content"; then
-                matched=false
-                echo "Waiting for deployed file: ${file}"
-              fi
-            done
-            if [[ "$matched" == true ]]; then
-              echo "First-run files match ${GITHUB_SHA} on live Pages (attempt ${attempt})."
-              exit 0
-            fi
-            echo "Waiting for current Pages version (${attempt}/50)..."
-            sleep 5
-          done
-          echo 'Latest first-run guide and desktop styles not observed on live Pages.' >&2
-          exit 1
+          LIVE_VERIFY_ATTEMPTS: '50'
+          LIVE_VERIFY_QUERY: verify
+        run: >-
+          bash scripts/verify-live-assets.sh
+          quick-start.html api-guide.html account.html
+          js/brand-ui.js js/character-ui.js js/quick-start-mode.js js/player-builder-v2.js
+          js/story-start-readiness-core.js js/story-start-readiness.js
+          css/player-builder-v2.css css/story-start-readiness.css css/first-run-desktop.css
