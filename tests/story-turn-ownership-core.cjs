@@ -30,6 +30,14 @@ function setup(stage) {
   ctx.App.buildMessages = () => stage === 'build' ? gate.promise : Promise.resolve([]);
   ctx.App.saveStory = () => { saves++; };
   ctx.App.renderStoryMessage = text => text;
+  ctx.stateTurns = [];
+  ctx.WorldStateEngine = { async update(config, player, assistant) { ctx.stateTurns.push({ player, assistant }); return null; } };
+  ctx.setTimeout = callback => callback();
+  ctx.document.readyState = 'complete';
+  ctx.document.querySelector = selector => selector.startsWith('script[') ? { addEventListener() {} } : null;
+  ctx.BAOStatusUsageIntegrity = {};
+  ctx.BAONativeStatusPacks = {};
+  vm.runInContext(fs.readFileSync(path.join(__dirname, '..', 'js/world-state-hook.js'), 'utf8'), ctx);
   return { ctx, gate, input, stream, label, stats: () => ({ calls, saves, events, memoryCalls }) };
 }
 (async () => {
@@ -56,6 +64,7 @@ function setup(stage) {
         assert.equal(JSON.stringify(ctx.Chat.messages), history, `${stage}/${failure}/${change}: history belongs to current turn`);
         assert.equal(ctx.Chat.memoryHealth, health, 'stale memory failure cannot overwrite health');
         assert.deepEqual(stats(), before, 'stale continuation cannot send, save, add events or summarize');
+        assert.equal(ctx.stateTurns.length, 0, 'stale core result cannot trigger state tracking');
         assert.equal(input.value, 'current draft');
         assert.equal(label.textContent, 'current label');
         assert.deepEqual(stream.children.map(n => n.innerHTML), dom, 'stale continuation cannot paint errors or reply');
@@ -68,8 +77,18 @@ function setup(stage) {
     ctx.Chat.messages = ctx.Chat.messages.map(message => ({ ...message }));
     return [];
   };
-  await ctx.App.sendMessage();
+  const receipt = await ctx.App.sendMessage();
   assert.equal(ctx.Chat.messages.at(-1).content, 'reply');
   assert.deepEqual(stats(), { calls: 1, saves: 1, events: 1, memoryCalls: 1 });
+  assert.equal(ctx.stateTurns.length, 1, 'real core receipt triggers state tracking exactly once');
+  assert.equal(ctx.stateTurns[0].assistant, 'reply');
+  assert.equal(receipt.kind, 'bao:story-turn');
+  assert.equal(receipt.playerId, ctx.Chat.messages[0].id);
+  assert.equal(receipt.assistantId, ctx.Chat.messages[1].id);
+  assert.equal(receipt.isCurrent(), true);
+  ctx.Chat.messages.push({ id: 'later', role: 'user', content: 'later input' });
+  assert.equal(receipt.isCurrent(), true, 'later turns do not invalidate the completed prefix');
+  ctx.Chat.messages[0].content = 'edited';
+  assert.equal(receipt.isCurrent(), false, 'edited source invalidates its receipt');
   console.log('story turn ownership core test passed');
 })().catch(error => { console.error(error); process.exitCode = 1; });

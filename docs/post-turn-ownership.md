@@ -14,7 +14,7 @@
 | 長期摘要 | `Chat.afterTurn → maybeSummarize` | 更新 `Chat.summary`、`summarizedUntil`、`memoryHealth`；同步 owner.memory | smart 模式才啟動；成功結果須對應原故事、原摘要游標和原始片段 |
 | 事件記憶建立 | `Chat.maybeSummarize → BAOEpisodicMemory.ingest` | 將未經格式修復的摘要輸出轉成原故事事件索引 | 與摘要共用提交條件；不是另一個逐輪 API |
 | 摘要流量保護 | `prompt-cache.js` | 依故事去重、失敗冷卻；API wrapper 提供逾時與取消 | 不負責提交摘要；舊故事冷卻可保留，但不得修改新故事健康狀態或提示 |
-| 狀態更新觸發 | `world-state-hook.js` 的 after-turn wrapper | 等待正文及摘要後，擷取末尾 user/assistant，呼叫 WorldStateEngine | 前後檢查故事歸屬；依變更／持久化提示再存檔 |
+| 狀態更新觸發 | `world-state-hook.js` 的 after-turn wrapper | 等待正文及摘要後，依正文完成憑證識別 user/assistant，呼叫 WorldStateEngine | 前後檢查故事歸屬；依變更／持久化提示再存檔 |
 | 狀態擷取與套用 | `world-modules.js`、`world-state-cost.js`、`same-model-state-merge.js` | 獨立模型按批次排隊；同模型讀同次正文附錄；經清理後交給 GameState.applyUpdate | 模組路徑回應後檢查 owner；同模型缺附錄不補發第二次 API；兩條路徑需分別驗證 |
 | 實際持久化 | `App.saveStory` 與 story-library/storage | 將目前故事快照交給 P0 已整理的儲存流程 | 摘要與狀態模組不直接重寫底層儲存協議 |
 
@@ -30,7 +30,7 @@
 
 - 正文入口的核心 await 已由第二輪保護；其餘 after-turn wrappers、用量記錄、同模型狀態附錄與取消控制仍須依各自責任驗證，不能將核心測試當成整條管線的安全證明。
 - 事件記憶召回 wrapper 在等待下一層組裝器後，是否需要額外的 owner 檢查。
-- 狀態觸發目前以訊息數及末尾角色識別一輪，後續以回合識別驗證重複與漏更新；不在本輪重寫整條管線。
+- 狀態觸發已由第三輪改成完成回合憑證與頁面內去重；儲存重載後的持久化 exactly-once 語意及直接呼叫 update 的其他入口仍不在此保證內。
 - 舊版基礎 `world-state.js` 與正式載入的模組／成本／同模型路徑須區分；不能用模組路徑測試推論所有相容載入順序都已安全。
 
 P0 已依 `p0-closeout-2026-10-18.md` 結案；上述是 P1 待辦，不擴張為新的 P0 輪次。
@@ -46,3 +46,17 @@ P0 已依 `p0-closeout-2026-10-18.md` 結案；上述是 P1 待辦，不擴張�
 串流捕捉原故事與原泡泡，在接收 delta、派送 UI 事件及繪製排程 frame 前檢查兩者；請求完成後的晚到 delta 也忽略。核心提交與串流預覽仍是不同責任。
 
 驗收：`story-turn-ownership-core.cjs` 覆蓋提示組裝、provider、post-turn memory 三個等待點，各自切換故事、編輯來源或更換 config 的成功／失敗結果，以及正常提交。`streaming-turn-ownership-core.cjs` 覆蓋切換故事、替換泡泡與已完成請求的延遲 frame／delta。兩者加入 core CI，均使用 mock API。
+
+## 第三輪：狀態觸發的回合識別與去重
+
+基準：`0789a312b2dd6b6f274b31f91b7199ccfc383017`（第二輪 #724 合併後）。
+
+已重現：兩次 sendMessage continuation 都等待同一組新增 user/assistant，舊 hook 會把同一回合送入 WorldStateEngine 兩次。舊判定還會擷取最後兩則訊息，無法分辨它們是否屬於本次正文。
+
+核心 App.sendMessage 現在僅於正文及 post-turn memory 完成、且來源仍有效時，傳回暫態的 `bao:story-turn` 憑證。內容包含 owner/config、玩家與 assistant ID／文字，以及來源前綴有效性檢查。前綴之後追加新訊息不會使已完成回合失效；編輯來源、切換故事或 config 會使其失效。憑證不進入存檔，不新增模型請求。
+
+world-state hook 使用憑證定位相鄰的原始訊息並核對文字，依故事與 assistant ID 去重；在 await update 前先登記，避免在途重複。支援憑證的核心若未回傳完成回合，就不從 Chat 尾端猜測；混合快取的舊核心只接受原始前綴未變且恰好多出一組 user/assistant 的情況。hook 保留傳入參數與回傳憑證。
+
+驗收：`world-state-after-turn-hook-core.cjs` 驗證重疊 continuation 去重、舊來源編輯、缺失／失效／重播憑證，以及尾端已有後續訊息時仍選對原回合；`story-turn-ownership-core.cjs` 同時載入實際 App 與 hook，確認正常回合只觸發一次，18 種過期成功／失敗案例都不觸發。既有 world-state-cost、world-state-concurrency、same-model-state-merge 測試分別驗證佇列／在途隔離與同模型附錄路徑。API 全部 mock。
+
+保證範圍是頁面生命週期中此 hook 的回合派送，並非所有狀態更新入口或跨重載 exactly-once。狀態 API 失敗時的批次保留與下一輪重試仍由 WorldStateEngine 管理；不以重播相同憑證再次入列。其他 after-turn 擴充與用量歸屬仍是後續 P1 邊界。

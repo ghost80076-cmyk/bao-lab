@@ -89,6 +89,7 @@ const reset = () => {
   npcActive = false;
   activePanel = "status";
   context.App.config = { displayMode: "text", marker: "config" };
+  delete context.App.storyTurnReceipts;
 };
 
 (async () => {
@@ -152,6 +153,66 @@ const reset = () => {
   };
   await context.App.sendMessage();
   assert.equal(updateCalls.length, 0, "only a user+assistant completed turn may update world state");
+
+  reset();
+  let release;
+  const barrier = new Promise(resolve => { release = resolve; });
+  let started = 0;
+  baseBehavior = async () => {
+    if (++started === 1) await barrier;
+    else {
+      context.Chat.messages.push(
+        { id: 'u-shared', role: 'user', content: 'one turn' },
+        { id: 'a-shared', role: 'assistant', content: 'one reply' }
+      );
+      release();
+    }
+  };
+  await Promise.all([context.App.sendMessage(), context.App.sendMessage()]);
+  assert.equal(updateCalls.length, 1, "overlapping continuations cannot dispatch the same completed pair twice");
+
+  reset();
+  context.Chat.messages.push({ id: 'old', role: 'assistant', content: 'original source' });
+  baseBehavior = async () => {
+    context.Chat.messages[0].content = 'edited source';
+    context.Chat.messages.push({ role: 'user', content: 'unrelated player' }, { role: 'assistant', content: 'unrelated reply' });
+  };
+  await context.App.sendMessage();
+  assert.equal(updateCalls.length, 0, "legacy fallback cannot dispatch against edited prior history");
+
+  reset();
+  context.App.storyTurnReceipts = true;
+  baseBehavior = async () => {
+    context.Chat.messages.push({ role: 'user', content: 'not committed' }, { role: 'assistant', content: 'unrelated reply' });
+  };
+  await context.App.sendMessage();
+  assert.equal(updateCalls.length, 0, "receipt-capable core must explicitly confirm a completed turn");
+
+  reset();
+  context.App.storyTurnReceipts = true;
+  const config = context.App.config;
+  const receipt = Object.freeze({ kind: 'bao:story-turn', owner, config,
+    playerId: 'receipt-u', assistantId: 'receipt-a', playerText: 'actual player', assistantText: 'actual reply',
+    isCurrent: () => true });
+  baseBehavior = async () => {
+    if (!context.Chat.messages.length) context.Chat.messages.push(
+      { id: receipt.playerId, role: 'user', content: receipt.playerText },
+      { id: receipt.assistantId, role: 'assistant', content: receipt.assistantText },
+      { id: 'later-u', role: 'user', content: 'later player' },
+      { id: 'later-a', role: 'assistant', content: 'later reply' }
+    );
+    return receipt;
+  };
+  const result = await context.App.sendMessage('forwarded');
+  assert.equal(result, receipt, "hook must preserve the core completion result");
+  assert.equal(updateCalls[0].player, 'actual player');
+  assert.equal(updateCalls[0].assistant, 'actual reply', "receipt identifies its pair even after later messages append");
+  await context.App.sendMessage();
+  assert.equal(updateCalls.length, 1, "replaying the same receipt cannot dispatch again");
+  context.Chat.messages[1].content = 'edited reply';
+  baseBehavior = async () => ({ ...receipt, assistantId: 'later-a', isCurrent: () => false });
+  await context.App.sendMessage();
+  assert.equal(updateCalls.length, 1, "invalidated receipt cannot dispatch another tail pair");
 
   console.log("world-state-after-turn-hook: completed-turn isolation and persistence behavior preserved");
 })().catch(error => {

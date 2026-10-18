@@ -1,4 +1,5 @@
 const App = {
+  storyTurnReceipts: true,
   characters: [], characterManifest: [], characterCache: new Map(), communityCatalogManifest: null, communityCatalogCursor: -1, communityCatalogLoaded: new Set(), activeCharacter: null, prompts: {}, modelRegistry: null, modelPresets: [], currentStep: 1, config: {},
   wrapSendMessage(id, wrapper){
     const key=String(id||"").trim();
@@ -153,7 +154,7 @@ const App = {
       const apiConfig = this.applyProviderContext ? this.applyProviderContext(config.api) : config.api;
       const result = await API.send(apiConfig, messages);
       if (!isCurrent()) return;
-      Chat.add("assistant", result.text);
+      const assistant = Chat.add("assistant", result.text);
       expected = signature();
       loading.innerHTML = `<div class="bubble">${this.renderStoryMessage(result.text, "assistant", false)}</div>`;
       GameState.addEvent(`玩家與 ${this.activeCharacter.name} 完成一輪互動。`);
@@ -179,6 +180,14 @@ const App = {
       if (previousSummary !== Chat.summary || previousEpisodes !== owner?.episodicMemory || Chat.memoryHealth?.phase === "failed") this.saveStory(false);
       const memoryLabel = document.getElementById("usage-memory");
       if (memoryLabel) memoryLabel.textContent = Chat.memoryStatus(config.memory.maxRounds);
+      const completedLength = Chat.messages.length, completedSignature = expected;
+      return Object.freeze({
+        kind: "bao:story-turn", owner, config,
+        playerId: pendingUser.id, assistantId: assistant.id,
+        playerText: pendingUser.content, assistantText: assistant.content,
+        isCurrent: () => GameState.current === owner && this.config === config
+          && JSON.stringify(Chat.messages.slice(0, completedLength).map(m => [m.id, m.role, m.content, m.context_content || ""])) === completedSignature
+      });
     } catch (err) {
       if (!isCurrent()) return;
       if (Chat.messages.at(-1)?.id === pendingUser?.id) Chat.messages.pop();
