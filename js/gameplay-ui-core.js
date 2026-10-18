@@ -509,6 +509,10 @@
     const s = normalize(schema);
     if (!s?.builder.randomize_choices) return normalizeBuilderValues(s, rawValues);
     const base = normalizeBuilderValues(s, rawValues);
+    // Custom selects keep their visible option/custom draft during randomization.
+    for (const f of s.builder.fields.filter(f => f.custom_option && !f.randomize)) {
+      if (isObject(rawValues?.[f.key])) base[f.key] = clone(rawValues[f.key]);
+    }
     const pick = list => list[Math.min(list.length - 1, Math.max(0, Math.floor(random() * list.length)))];
     for (let attempt = 0; attempt < 128; attempt++) {
       const values = clone(base);

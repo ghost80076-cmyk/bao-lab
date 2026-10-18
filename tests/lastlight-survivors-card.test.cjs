@@ -65,6 +65,8 @@ for(const world of schema.builder.fields.find(f=>f.key==='world').options){
  assert.ok(opening && opening.selected===world);
  assert.equal(opening.opening.choices.length,4);
  assert.equal(s.modules.run.world,world);
+ assert.ok(s.modules.run.special_rules.length>40);
+ assert.notEqual(s.modules.run.special_rules,world==='喪屍末日'?'':card.gameplay.initial_state.modules.run.special_rules);
  assert.equal(s.modules.hazards.oxygen,world==='科幻太空'?100:null);
  assert.equal(s.modules.hazards.radiation,world==='核戰廢土'?0:null);
  assert.equal(s.modules.inventory.length,1,'starter package must not be duplicated');

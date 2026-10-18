@@ -2,6 +2,7 @@ const { test, expect } = require('@playwright/test');
 if (process.env.BAO_LIVE_URL) test.use({ baseURL: process.env.BAO_LIVE_URL });
 
 const cases = [
+  'lastlight-survivors',
   'zhutian-cultivation-fortune-strife',
   'dark-military-war-simulator',
   'lin-shen-reed-bloom',
