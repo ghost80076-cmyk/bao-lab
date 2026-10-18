@@ -2,6 +2,15 @@
   if (!window.App || !window.Chat || !window.Storage || !window.API || window.BAOStoryRevisionState) return;
 
   const clone = value => Storage.clone(value);
+  // Applying a revision snapshot replaces the state object within the same
+  // story. Track that lineage without treating external story restores as it.
+  const lineages = new WeakMap();
+  const storyToken = () => {
+    const state = GameState.current;
+    if (!state || typeof state !== 'object') return state;
+    if (!lineages.has(state)) lineages.set(state, {});
+    return lineages.get(state);
+  };
   const cleanState = value => {
     const state = Storage.scrubSecrets(clone(value || {}));
     if (state && typeof state === "object") delete state.config;
@@ -15,7 +24,9 @@
   });
   const applySnapshot = snapshot => {
     if (!snapshot?.state || !window.GameState) return false;
+    const token = storyToken();
     GameState.current = clone(snapshot.state);
+    lineages.set(GameState.current, token);
     GameState.current.config = App.config;
     Chat.summary = String(snapshot.summary || "");
     Chat.summarizedUntil = Math.max(0, Math.min(Number(snapshot.summarizedUntil || 0), Chat.messages.length));
@@ -112,16 +123,21 @@
 
   const revisionSnapshotWrapper = async (next, config, messages) => {
     if (!config?.__storyTool) return next(config, messages);
+    const token = storyToken(), appConfig = App.config, character = App.activeCharacter;
     const { message } = latestAssistant();
     if (!message) return next(config, messages);
+    const signature = signatureOf(message);
+    const current = () => storyToken() === token && App.config === appConfig && App.activeCharacter === character
+      && signatureOf(latestAssistant().message) === signature;
     const base = await resolveBase(message);
+    if (!current()) throw Object.assign(new Error('故事已切換或修訂來源已變更。'), { code: 'BAO_ABORTED' });
     if (!base) return next(config, messages);
-    const current = captureSnapshot();
+    const snapshot = captureSnapshot();
     applySnapshot(base);
     try {
       return await next(config, rebuildStoryToolMessages(messages));
     } finally {
-      applySnapshot(current);
+      if (current()) applySnapshot(snapshot);
     }
   };
   if (typeof API.wrapSend === "function") {
@@ -149,7 +165,11 @@
     }
   };
 
-  const reconcile = async (messageId, expectedContent) => {
+  const reconcile = async (messageId, expectedContent, token = storyToken()) => {
+    const config = App.config, character = App.activeCharacter;
+    const current = () => storyToken() === token && App.config === config && App.activeCharacter === character
+      && Chat.messages.some(item => item.id === messageId && String(item.content || '') === expectedContent);
+    if (!current()) return false;
     const index = Chat.messages.findIndex(item => item?.id === messageId);
     const message = index >= 0 ? Chat.messages[index] : null;
     if (!message || message.role !== "assistant" || String(message.content || "") !== expectedContent) return false;
@@ -160,6 +180,7 @@
       return true;
     }
     const base = await resolveBase(message);
+    if (!current()) return false;
     const player = playerBefore(index);
     if (!base || !player) {
       console.warn("BAO/LAB could not find a safe revision base for", messageId);
@@ -167,9 +188,10 @@
     }
     applySnapshot(base);
     if (window.WorldStateEngine?.update) await WorldStateEngine.update(App.config, player.content, expectedContent);
-    if (String(message.content || "") !== expectedContent) return false;
+    if (!current()) return false;
     await Chat.afterTurn?.(App.config);
-    const selected = activeVariant(message);
+    if (!current()) return false;
+    const selected = activeVariant(Chat.messages.find(item => item.id === messageId));
     if (selected && String(selected.content || "") === expectedContent) selected.derivedSnapshot = captureSnapshot();
     originalAppSave(false);
     refreshDerivedUI();
@@ -192,17 +214,26 @@
     if (revised) {
       const messageId = message.id;
       const expectedContent = String(message.content || "");
-      enqueue(() => reconcile(messageId, expectedContent));
+      const token = storyToken();
+      enqueue(() => reconcile(messageId, expectedContent, token));
     }
     return result;
   };
 
   const originalSendMessage = App.sendMessage?.bind(App);
   if (originalSendMessage) {
-    App.sendMessage = async function(...args) {
+    const revisionWaitWrapper = async function(next, ...args) {
+      const token = storyToken(), config = this.config, character = this.activeCharacter;
+      const input = document.getElementById('user-input'), text = input?.value;
+      const signature = () => JSON.stringify(Chat.messages.map(m => [m.id, m.role, m.content, m.context_content || '']));
+      const source = signature();
       await revisionQueue;
-      return originalSendMessage(...args);
+      if (storyToken() !== token || this.config !== config || this.activeCharacter !== character
+        || signature() !== source || input?.value !== text) return;
+      return next(...args);
     };
+    if (typeof App.wrapSendMessage === 'function') App.wrapSendMessage('story-revision-state:wait', revisionWaitWrapper);
+    else App.sendMessage = (...args) => revisionWaitWrapper.call(App, originalSendMessage, ...args);
   }
 
   window.BAOStoryRevisionState = {
