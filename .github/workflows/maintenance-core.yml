@@ -26,6 +26,9 @@ jobs:
         with:
           node-version: 22
 
+      - name: E2E group manifest integrity
+        run: node --test tests/e2e-group-runner.test.cjs
+
       - name: Shared live-asset verifier regression
         run: |
           bash -n scripts/verify-live-assets.sh

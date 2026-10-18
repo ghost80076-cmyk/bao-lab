@@ -66,3 +66,9 @@ P0 與 P1 的原定工程範圍已結案，依據見 [P1 結案紀錄](p1-core-c
 [#740](https://github.com/ghost80076-cmyk/bao-lab/pull/740) 已通過最終 PR CI 並合併。本批將 chat-experience-live 七個檔案從舊 marker 改為完整內容比對，保留語法／狀態解析回歸；bao-mascot-live 新增 checkout，把既有動畫、入口、reduced-motion 與 WebP 格式檢查放在原檔，再要求七個線上檔案與 checkout 一致，不再綁死舊 query 版本。
 
 本地兩流程的語法／功能契約已執行通過，共用 verifier 增加二進位圖片一致與單位元組差異案例，15 項回歸通過。觸發事件、權限、job timeout 與各自主體重試設定保留。八個指定部署流程現在共用比對；SEO metadata、公開作者資料關聯、robots／sitemap 等語意 smoke 保留，不用刪驗收項目換取去重。PR 與正式部署仍是分開的證據。
+
+## E2E 清單完整性
+
+[#741](https://github.com/ghost80076-cmyk/bao-lab/pull/741) 已通過最終 PR CI 並合併。接著盤點前端樣式時，所見多處重複實際分屬不同媒體條件，未直接刪除；本批改處理已重現的 CI 假綠燈：Fast Browser E2E 的 inline runner 對缺少的 spec 默默略過，全組缺檔仍 exit 0。
+
+改用 [嚴格分組 runner](e2e-group-integrity.md)，缺任一檔或空清單先拒絕，再呼叫原 npm Playwright 命令。當前四組原 42 檔均存在，分組與其他步驟不變。以刻意缺檔重現原 exit 0／新 exit 1；10 項本地回歸通過並加入 Maintenance core，真實四組 E2E 仍須通過 CI。
