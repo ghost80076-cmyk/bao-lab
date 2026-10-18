@@ -340,7 +340,7 @@
       const byMessageId = new Map(previous.filter(record => record.messageId).map(record => [String(record.messageId), record]));
       const bySequence = new Map(previous.map(record => [Number(record.seq), record]));
       return messages.map((message, index) => {
-        const existing = byMessageId.get(String(message.id || "")) || bySequence.get(index);
+        const existing = message.id ? byMessageId.get(String(message.id)) : bySequence.get(index);
         return {
           id: "message:" + refs.storyId + ":" + refs.chapterId + ":" + String(index).padStart(8, "0"),
           kind: "message",
