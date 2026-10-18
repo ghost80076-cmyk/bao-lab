@@ -75,3 +75,10 @@ P1 原本還包含「核心呼叫鏈剩餘耦合」。這六輪改善了重要�
 第三批補齊三個作品選項 hook 的故事／設定／角色歸屬與 timer 檢查，並修正兩個離線／本機預覽入口的參數轉交。remaining-send-hooks-core.cjs 覆蓋 60 個延遲選項案例、實際 request-lifecycle、provider 錯誤、正常傳遞及兩種預覽載入順序的零底層送出行為。
 
 原 12 個入口現為 **12／12 已判定（10 修正、2 程式碼檢視保留）**；逐檔判定及驗證界線見 [責任表](post-turn-ownership.md)。六輪核心加原清單的 P1 工程範圍到此結案，不因後續看到其他 wrapper 就自動擴大。P2 視覺／CSS、一般 workflow 去重、舊文件另列；真實 provider／wallet 對帳仍待驗證。本文件前段與 JSON 證據仍保留六輪基準時點，不冒充最新全站驗證。
+
+
+### 部署驗證補正
+
+閱讀 workflow 原本只檢查內容 marker 與寫死的 `chat-reading-scroll.js?v=2`；#731 更新到 v3 時未同步此條件。它可能先因舊 CDN 資產命中而通過，隨新資產到達後反而失敗，因此先前的 marker 成功不視為 commit 內容一致的證據。#732 部署追蹤時已確認此缺口。
+
+閱讀 pages-live 現 checkout 該次 commit，下載 reader／streaming 兩檔，以 cmp 逐位元組核對；不再依版本字串猜測。本機驗證正常匹配會成功，reader 過期、streaming 過期與下載失敗皆拒絕。這是補齊本輪部署驗收，不新增 P1 功能範圍；最終線上結果以修正後 main 的 pages-live job 為準。

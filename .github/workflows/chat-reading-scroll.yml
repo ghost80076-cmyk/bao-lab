@@ -38,6 +38,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 6
     steps:
+      - uses: actions/checkout@v4
       - name: Confirm reading controller and streaming fix reached Pages
         shell: bash
         env:
@@ -45,12 +46,13 @@ jobs:
         run: |
           set -euo pipefail
           for attempt in $(seq 1 50); do
-            reader="$(curl --fail --silent --location --max-time 12 -H 'Cache-Control: no-cache' "${SITE_URL}js/chat-reading-scroll.js?sha=${GITHUB_SHA}" || true)"
-            stream="$(curl --fail --silent --location --max-time 12 -H 'Cache-Control: no-cache' "${SITE_URL}js/streaming-ui.js?sha=${GITHUB_SHA}" || true)"
-            if grep -Fq 'chat-reading-scroll:before-commit' <<<"${reader}" \
-              && grep -Fq 'const readingTop = stream?.scrollTop' <<<"${stream}" \
-              && grep -Fq "js/chat-reading-scroll.js?v=2" <<<"${stream}"; then
-              echo 'Reading-first chat scripts verified on public GitHub Pages.'
+            reader="${RUNNER_TEMP}/bao-reading-live.js"
+            stream="${RUNNER_TEMP}/bao-streaming-live.js"
+            if curl --fail --silent --location --max-time 12 -H 'Cache-Control: no-cache' "${SITE_URL}js/chat-reading-scroll.js?sha=${GITHUB_SHA}" --output "${reader}" \
+              && curl --fail --silent --location --max-time 12 -H 'Cache-Control: no-cache' "${SITE_URL}js/streaming-ui.js?sha=${GITHUB_SHA}" --output "${stream}" \
+              && cmp -s js/chat-reading-scroll.js "${reader}" \
+              && cmp -s js/streaming-ui.js "${stream}"; then
+              echo 'Reading-first chat scripts match this commit on public GitHub Pages.'
               exit 0
             fi
             sleep 5
