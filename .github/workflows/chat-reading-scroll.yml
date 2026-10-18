@@ -43,19 +43,7 @@ jobs:
         shell: bash
         env:
           SITE_URL: https://ghost80076-cmyk.github.io/bao-lab/
-        run: |
-          set -euo pipefail
-          for attempt in $(seq 1 50); do
-            reader="${RUNNER_TEMP}/bao-reading-live.js"
-            stream="${RUNNER_TEMP}/bao-streaming-live.js"
-            if curl --fail --silent --location --max-time 12 -H 'Cache-Control: no-cache' "${SITE_URL}js/chat-reading-scroll.js?sha=${GITHUB_SHA}" --output "${reader}" \
-              && curl --fail --silent --location --max-time 12 -H 'Cache-Control: no-cache' "${SITE_URL}js/streaming-ui.js?sha=${GITHUB_SHA}" --output "${stream}" \
-              && cmp -s js/chat-reading-scroll.js "${reader}" \
-              && cmp -s js/streaming-ui.js "${stream}"; then
-              echo 'Reading-first chat scripts match this commit on public GitHub Pages.'
-              exit 0
-            fi
-            sleep 5
-          done
-          echo 'The updated chat scripts have not appeared on GitHub Pages.' >&2
-          exit 1
+          LIVE_VERIFY_ATTEMPTS: '50'
+          LIVE_VERIFY_TIMEOUT: '12'
+          LIVE_VERIFY_QUERY: sha
+        run: bash scripts/verify-live-assets.sh js/chat-reading-scroll.js js/streaming-ui.js

@@ -26,6 +26,11 @@ jobs:
         with:
           node-version: 22
 
+      - name: Shared live-asset verifier regression
+        run: |
+          bash -n scripts/verify-live-assets.sh
+          node --test tests/live-assets-verifier.test.cjs
+
       - name: Character library recovery
         run: node --test tests/character-library-repair-core.cjs
 

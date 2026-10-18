@@ -44,3 +44,7 @@ P0 與 P1 的原定工程範圍已結案，依據見 [P1 結案紀錄](p1-core-c
 ## 文件整理第一批
 
 新增 [維護狀態入口](maintenance-status.md)，並修正 P1 結案紀錄與責任表開頭的過期進度。歷史測試版本、限制與機器可讀 evidence JSON 原樣保留，沒有把歷史 PR CI 寫成目前部署證明。
+
+## Workflow 第二類整理：部署資產驗證
+
+閱讀、燈火與世界 MOD 的重複下載／重試／cmp 邏輯已移入 [共用部署驗證腳本](live-asset-verification.md)。保留三流程的檔案清單、job 設定與線上執行條件，統一 no-cache header、暫存清理及逐檔失敗訊息；所有檔案須同輪一致。13 項 mock 回歸通過並接入 Maintenance core；這不代表真實部署已驗證，也不宣稱其他 marker 型 workflow 已全數收斂。
