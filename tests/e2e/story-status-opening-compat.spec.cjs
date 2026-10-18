@@ -326,19 +326,24 @@ test('plain story ink follows all themes in every reading mode without inheritin
         const first=Chat.add('assistant',App.activeCharacter.greeting);first.greeting=true;
         Chat.add('user','我翻開菜單。');
         Chat.add('assistant','他指向菜單上的一行。\n「這個不錯。」');
-        App.renderChatShell(true);
+        App.renderChatShell(false);
         App.showView('chat');
         BAOSceneHTML.refresh();
         const stream=document.getElementById('chat-stream');
         const rgb=value=>value.match(/[\d.]+/g).slice(0,3).map(Number).map(n=>{const v=n/255;return v<=.04045?v/12.92:((v+.055)/1.055)**2.4;});
         const lum=value=>rgb(value).reduce((sum,v,i)=>sum+v*[.2126,.7152,.0722][i],0);
         const bg=lum(getComputedStyle(stream).backgroundColor);
-        return [...stream.querySelectorAll('.message.assistant > .bubble')].map(node=>{
+        const measure = () => [...stream.querySelectorAll('.message.assistant > .bubble')].map(node=>{
           const style=getComputedStyle(node),fg=lum(style.color);
           return {rich:node.classList.contains('authored-rich-message'),ratio:(Math.max(bg,fg)+.05)/(Math.min(bg,fg)+.05),shadow:style.textShadow};
         });
+        const committed = measure();
+        Chat.reset();
+        App.renderChatShell(true);
+        BAOSceneHTML.refresh();
+        return [...committed, ...measure()];
       },{mode,theme});
-      expect(result.length).toBe(2);
+      expect(result.length).toBe(3);
       for(const bubble of result) {
         expect(bubble.rich,mode+'/'+theme).toBe(false);
         expect(bubble.ratio,mode+'/'+theme).toBeGreaterThanOrEqual(4.5);
