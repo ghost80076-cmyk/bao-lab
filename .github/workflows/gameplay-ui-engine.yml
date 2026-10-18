@@ -12,6 +12,9 @@ on:
       - 'tests/fixtures/gameplay-ui-demo-character.json'
       - 'docs/gameplay-ui-engine.md'
       - '.github/workflows/gameplay-ui-engine.yml'
+      - '.github/actions/setup-chromium/**'
+      - 'package.json'
+      - 'package-lock.json'
       - 'js/character.js'
       - 'js/character-studio.js'
       - 'character-studio.html'
@@ -47,12 +50,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-      - name: Install dependencies
-        run: npm ci
-      - name: Install Chromium
-        run: npx playwright install --with-deps chromium
+      - uses: ./.github/actions/setup-chromium
       - name: Native Gameplay UI browser regression
         run: npx playwright test tests/e2e/gameplay-ui-engine.spec.cjs --project=chromium

@@ -10,6 +10,9 @@ on:
       - 'js/author-regex-dock.js'
       - 'tests/e2e/author-regex-*.spec.cjs'
       - '.github/workflows/author-regex-live.yml'
+      - '.github/actions/setup-chromium/**'
+      - 'package.json'
+      - 'package-lock.json'
   workflow_dispatch:
 permissions:
   contents: read
@@ -21,12 +24,7 @@ jobs:
       BAO_LIVE_URL: https://ghost80076-cmyk.github.io/bao-lab/
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-          cache: npm
-      - run: npm ci
-      - run: npx playwright install --with-deps chromium
+      - uses: ./.github/actions/setup-chromium
       - name: Wait until the public site serves this revision
         shell: bash
         run: |
