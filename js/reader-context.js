@@ -151,7 +151,7 @@
         ? state.moduleDefinitions
         : (window.BAOWorldModules?.definitions?.(App.activeCharacter) || []);
     } catch {}
-    const world = worldDefs.map(def => ({
+    const world = worldDefs.filter(def => def.visibility !== 'internal' && def.enabled !== false).map(def => ({
       id: def.id,
       label: def.label || def.id,
       icon: def.icon || '◇',

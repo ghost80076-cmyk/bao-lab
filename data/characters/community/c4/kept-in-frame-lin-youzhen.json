@@ -473,7 +473,8 @@
         "tracking": "medium",
         "context": "relevant",
         "max_items": 30,
-        "description": "性吸引、愛情、信任、好奇、佔有、控制分開追蹤，有事件依據才更動，不在公開UI顯示。"
+        "description": "性吸引、愛情、信任、好奇、佔有、控制分開追蹤，有事件依據才更動，不在公開UI顯示。",
+        "visibility": "internal"
       },
       {
         "id": "private_facts",
@@ -483,7 +484,8 @@
         "tracking": "medium",
         "context": "relevant",
         "max_items": 30,
-        "description": "私下發生的既定事實，開局為空；只保留已發生內容，幻想不自動升級為犯罪。未查證不放入公開線索簿。"
+        "description": "私下發生的既定事實，開局為空；只保留已發生內容，幻想不自動升級為犯罪。未查證不放入公開線索簿。",
+        "visibility": "internal"
       },
       {
         "id": "character_core",

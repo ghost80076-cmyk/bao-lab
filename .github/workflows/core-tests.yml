@@ -184,6 +184,7 @@ jobs:
         run: |
           node --check js/world-module-ui.js
           node tests/world-module-collection-display.test.cjs
+          node tests/reading-display-privacy-core.cjs
       - name: Fusion world entertainment empire adult relationship card
         run: node tests/fusion-world-entertainment-empire-card.test.cjs
       - name: Chenxi entertainment light-energy card
