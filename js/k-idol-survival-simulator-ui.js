@@ -249,13 +249,23 @@
     return originalRenderUIPanel(panel);
   };
 
-  const originalSendMessage=App.sendMessage.bind(App);
-  App.sendMessage=async function(...args){
-    if(isIdol()) window.BAOActionChoiceDock?.clear('k-idol-survival-simulator');
-    const result=await originalSendMessage(...args);
-    if(isIdol()) setTimeout(mountChoices,0);
+  const choicesAfterSend = async function(next, ...args) {
+    const owner = GameState.current, config = this.config, character = this.activeCharacter;
+    const isCurrent = () => GameState.current === owner && this.config === config && this.activeCharacter === character;
+    if (isIdol()) window.BAOActionChoiceDock?.clear('k-idol-survival-simulator');
+    const result = await next(...args);
+    // Both the await and timer can outlive this story or the next generation.
+    if (isCurrent() && isIdol()) {
+      setTimeout(() => { if (isCurrent() && !this.__requestPending) mountChoices(); }, 0);
+    }
     return result;
   };
+  if (typeof App.wrapSendMessage === 'function') {
+    App.wrapSendMessage('k-idol-survival-simulator:choices', choicesAfterSend);
+  } else {
+    const originalSendMessage = App.sendMessage.bind(App);
+    App.sendMessage = function(...args) { return choicesAfterSend.call(this, originalSendMessage, ...args); };
+  }
 
   const originalRenderChatShell=App.renderChatShell.bind(App);
   App.renderChatShell=function(fresh=false){

@@ -124,3 +124,32 @@ story-reader 的送出 wrapper 原先遺漏 args，現完整轉交並保留結�
 reading-hook-ownership-core.cjs 載入實際三個 runtime，驗證 owner/config/角色切換、正常完成、具名／fallback、舊 API／finally 晚於新 anchor、以及 story-reader 參數／結果傳遞。既有 reading scroll／pipeline、reader、streaming、request lifecycle、App wrapper、story turn 與 frontend extension 測試亦通過。API 全部 mock。
 
 原 12 個一般入口累計已判定 7 個：前批 2 個，本批 3 個修正、2 個程式碼檢視保留。其餘 5 個是三個作品介面與兩個離線／本機預覽入口，尚待判定。六輪核心基準不重新擴張，真實帳務對帳仍未完成。
+
+## 剩餘 hook 第三批：作品選項與離線／本機預覽（清單結案）
+
+基準：`5918613ff8faeace2738c7ce4ce4ef70c3943ebb`。本批完成最後五個原清單入口。
+
+已重現：三個作品 send wrapper 的舊 completion 都能在切換到同作品的新故事後重新掛上行動選項；新故事正在生成時，這會讓先前回覆的選項再次出現。三者改用具名 choices hook，固定 owner/config/角色，await 後與 setTimeout 回呼內各核對一次。計時器另避開正在生成的請求。外層 request-lifecycle 在內層 wrapper 回傳後才解除 pending，因此不能在排程前以 pending 擋掉正常 completion；測試載入實際 lifecycle 驗證這個順序。舊 App 維持 fallback。
+
+no-api-world-preview 與 player-settings 的 send wrapper 均漏傳 args，已完整轉交並保留正常結果；離線世界仍提示連線且保留草稿，本機 demo 仍同步產生本機回覆、保存與顯示零 Token，不委派底層 sender。這兩個同步 gate 保留原相容形式。
+
+remaining-send-hooks-core.cjs 載入實際五個 runtime，以具名／fallback、await／timer、story／config／角色／pending／正常情況組合覆蓋 60 個選項案例；另驗證 provider 錯誤不重試且保留錯誤物件、實際 lifecycle 的正常選項更新、參數與結果，以及兩個預覽模組的兩種載入順序。測試全為 mock，不呼叫付費模型。
+
+### 原 12 個入口的最終判定
+
+| 入口 | 判定 |
+| --- | --- |
+| character-status-ui | 修正選取歸屬，具名 hook（#730） |
+| story-revision-state | 修正等待與快照歸屬，具名 hook（#730） |
+| chat-experience-repairs | 修正錯誤 DOM／提示歸屬，具名 hook（#731） |
+| chat-reading-scroll | 修正閱讀 anchor／API 快照歸屬，具名 hook（#731） |
+| story-reader | 修正參數傳遞，保留當前狀態刷新（#731） |
+| scene-chat-integration | 程式碼檢視保留，使用當前資料及 DOM 對齊（#731） |
+| scene-render-integrity | 程式碼檢視保留，使用當前資料及 DOM 對齊（#731） |
+| host-club-simulator-ui | 修正等待／延遲選項更新歸屬，具名 hook（本批） |
+| night-sky-magic-academy-ui | 同上（本批） |
+| k-idol-survival-simulator-ui | 同上（本批） |
+| no-api-world-preview | 修正參數傳遞，保留同步離線 gate（本批） |
+| player-settings | 修正參數傳遞，保留同步本機預覽 gate（本批） |
+
+累計 **12／12 已判定**：10 個修正、2 個程式碼檢視保留。這份有限的 send hook 清單不再有待判定列；六輪核心與本清單的 P1 工程範圍結案。仍不宣稱任意直接呼叫、所有同故事並行任務、renderChatShell／初始狀態重試計時器、全部視覺排列或完整 wrapper 安裝矩陣都已證明。P0 所列真實 provider／wallet 對帳與持久化界線不因此變更；UI/CSS、一般 workflow 去重與舊文件屬 P2。

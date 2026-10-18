@@ -80,12 +80,12 @@
     }
     return result;
   };
-  App.sendMessage = function () {
+  App.sendMessage = function (...args) {
     if (isWorld() && this.config?.offlineWorldPreview) {
       alert('目前是離線世界設定預覽，尚未連接 AI。請先設定連線金鑰（API Key），才能開始生成劇情。');
       return;
     }
-    return originalSend();
+    return originalSend(...args);
   };
   App.resumeSavedStory = function () {
     const save = Storage.loadStory();

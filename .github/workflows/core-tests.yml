@@ -67,6 +67,7 @@ jobs:
           node tests/chat-reading-scroll-core.cjs
           node tests/chat-reading-pipeline-core.cjs
           node tests/reading-hook-ownership-core.cjs
+          node tests/remaining-send-hooks-core.cjs
       - name: Story revision state consistency
         run: |
           node tests/story-revision-state-core.cjs

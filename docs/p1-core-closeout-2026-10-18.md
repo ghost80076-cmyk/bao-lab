@@ -69,3 +69,9 @@ P1 原本還包含「核心呼叫鏈剩餘耦合」。這六輪改善了重要�
 第一列的 character-status-ui.js 與 story-revision-state.js 已新增具名 send hook、過期呼叫／快照保護與回歸，詳見 [責任表的後續批次](post-turn-ownership.md)。這是原 12 個一般直接入口中的 2 個；餘下 10 個仍待判定，六輪基準證據維持原版本記錄。
 
 第二批完成五個閱讀／畫面入口判定：chat-experience-repairs、chat-reading-scroll 增加歸屬保護與具名 hook；story-reader 補齊參數轉交；scene-chat-integration、scene-render-integrity 經當前狀態／DOM 對齊邏輯檢視保留。累計 7／12 已判定，剩餘三個作品介面與兩個離線／本機預覽入口（5 個），詳見責任表。這不是全畫面競態的完整證明。
+
+### 最終清單結案
+
+第三批補齊三個作品選項 hook 的故事／設定／角色歸屬與 timer 檢查，並修正兩個離線／本機預覽入口的參數轉交。remaining-send-hooks-core.cjs 覆蓋 60 個延遲選項案例、實際 request-lifecycle、provider 錯誤、正常傳遞及兩種預覽載入順序的零底層送出行為。
+
+原 12 個入口現為 **12／12 已判定（10 修正、2 程式碼檢視保留）**；逐檔判定及驗證界線見 [責任表](post-turn-ownership.md)。六輪核心加原清單的 P1 工程範圍到此結案，不因後續看到其他 wrapper 就自動擴大。P2 視覺／CSS、一般 workflow 去重、舊文件另列；真實 provider／wallet 對帳仍待驗證。本文件前段與 JSON 證據仍保留六輪基準時點，不冒充最新全站驗證。

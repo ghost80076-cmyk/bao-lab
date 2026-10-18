@@ -451,8 +451,8 @@
   };
 
   const originalSendMessage = App.sendMessage.bind(App);
-  App.sendMessage = async function() {
-    if (!this.config?.demoMode) return originalSendMessage();
+  App.sendMessage = async function(...args) {
+    if (!this.config?.demoMode) return originalSendMessage(...args);
     const input = document.getElementById("user-input"), text = input?.value.trim(); if (!text) return;
     const stream = document.getElementById("chat-stream");
     stream.insertAdjacentHTML("beforeend", `<div class="message user"><div class="bubble">${this.formatMessage(text)}</div></div>`); input.value = ""; Chat.add("user", text);

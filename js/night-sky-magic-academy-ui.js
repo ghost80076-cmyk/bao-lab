@@ -178,13 +178,23 @@
 
   // 狀態／魔法／主線面板已遷移到角色卡 gameplay.ui_schema，由通用 Gameplay UI Engine 渲染。
 
-  const originalSendMessage=App.sendMessage.bind(App);
-  App.sendMessage=async function(...args){
-    if(isMagic()) window.BAOActionChoiceDock?.clear('night-sky-magic-academy');
-    const result=await originalSendMessage(...args);
-    if(isMagic()) setTimeout(mountChoices,0);
+  const choicesAfterSend = async function(next, ...args) {
+    const owner = GameState.current, config = this.config, character = this.activeCharacter;
+    const isCurrent = () => GameState.current === owner && this.config === config && this.activeCharacter === character;
+    if (isMagic()) window.BAOActionChoiceDock?.clear('night-sky-magic-academy');
+    const result = await next(...args);
+    // Both the await and timer can outlive this story or the next generation.
+    if (isCurrent() && isMagic()) {
+      setTimeout(() => { if (isCurrent() && !this.__requestPending) mountChoices(); }, 0);
+    }
     return result;
   };
+  if (typeof App.wrapSendMessage === 'function') {
+    App.wrapSendMessage('night-sky-magic-academy:choices', choicesAfterSend);
+  } else {
+    const originalSendMessage = App.sendMessage.bind(App);
+    App.sendMessage = function(...args) { return choicesAfterSend.call(this, originalSendMessage, ...args); };
+  }
 
   const originalRenderChatShell=App.renderChatShell.bind(App);
   App.renderChatShell=function(fresh=false){
