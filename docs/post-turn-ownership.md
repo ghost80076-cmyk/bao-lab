@@ -96,3 +96,17 @@ Chat.captureUsageContext 捕捉入口當時的故事與 usage、usageByKind、us
 驗收：chat-usage-pipeline-core 的新增 16 個案例覆蓋 named／legacy sender、實際 prompt-cache wrapper 有／無，以及正文、記憶、狀態、auxiliary；舊集合保留 Token 與回報費用，新集合、畫面與壓力不變。api-ordered-pipeline-integration 另以實際 Hosted transport、prompt-cache、cost-control 及四種安裝順序，驗證晚到費用僅記一次。測試皆 mock，不呼叫付費模型或修改後端帳本。
 
 界線：原集合以請求期間的記憶體參考保留，並不自動回寫已離開／重新載入故事的非作用中存檔；關閉頁面後無持久化回收保證。這是記錄入口的非同步歸屬，不是完整交易對帳，也不宣稱所有在進入這些入口前的非同步擴充都已隔離。後端扣款仍由 Worker／provider 帳本決定。
+
+## 剩餘 hook 第一批：人物選取與修訂等待入口
+
+基準：`f5ae7d71f1316b9e8234cb51a840e9ff5f210f09`。對應結案清單第一列，不重做六輪核心流程。
+
+已重現：舊 sendMessage 等待結束後只比對 assistant 數量，會清掉新故事的人物選取；修訂入口等待 revisionQueue 後會重新讀取目前草稿並送出。修訂中的 snapshot finally／reconcile 也可能在切換故事後寫入當前狀態。
+
+人物選取改用具名 `character-status-ui:consume-selection`：固定 owner/config/角色與原選取名單；當前核心須有有效完成憑證；等待後只清理未變的原選取，保留等待期間的新選取。修訂入口改用 `story-revision-state:wait`：固定故事 lineage、config/角色、訊息簽章與草稿，等待完成後才決定是否委派。兩者保留舊 App 的 fallback。
+
+修訂 snapshot 自己替換 GameState 物件是正常行為，不能一律當作換故事。因此 WeakMap 只把本模組 applySnapshot 產生的物件連到同一 lineage；外部還原／新建物件不繼承。queued reconcile 帶原 lineage，並於 base 查找、狀態更新、記憶更新後核對目標；API snapshot 也只在原故事與修訂來源仍有效時還原。
+
+`status-revision-entry-ownership-core.cjs` 載入實際兩個 runtime，驗證跨故事選取、同故事新選取、正常清理、正常／過期完成憑證、修訂等待時換故事／改草稿、正常 snapshot 物件替換後仍可送出、參數／結果傳遞，以及舊 snapshot finally 不還原到新故事。既有 revision state／pipeline 與狀態提示測試繼續通過。所有 API 為 mock。
+
+此保護不回滾底層狀態引擎已完成的更新，也不宣告所有同故事並行修訂／直接 hook 已驗證。結案盤點原先的 12 個一般直接入口中，本批處理 2 個；其他 10 個仍依原清單逐項判定。

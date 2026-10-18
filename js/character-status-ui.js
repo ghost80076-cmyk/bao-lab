@@ -549,18 +549,27 @@
   };
 
   ensureStyles();
-  const originalSendMessage = App.sendMessage.bind(App);
-  App.sendMessage = async function(...args) {
+  const contextSelectionWrapper = async function(next, ...args) {
+    const owner = GameState.current, config = this.config, character = this.activeCharacter;
+    const selected = window.BAOCharacterStatus.selectedContextCharacters?.() || [];
+    const selection = JSON.stringify(selected);
     const before = Array.isArray(window.Chat?.messages) ? Chat.messages.filter(item => item?.role === "assistant").length : 0;
-    const result = await originalSendMessage(...args);
+    const result = await next(...args);
+    if (GameState.current !== owner || this.config !== config || this.activeCharacter !== character) return result;
+    if (this.storyTurnReceipts && (result?.kind !== 'bao:story-turn' || !result.isCurrent())) return result;
     const after = Array.isArray(window.Chat?.messages) ? Chat.messages.filter(item => item?.role === "assistant").length : 0;
-    if (after > before && window.BAOCharacterStatus.selectedContextCharacters?.().length) {
+    if (after > before && selected.length && JSON.stringify(window.BAOCharacterStatus.selectedContextCharacters?.() || []) === selection) {
       window.BAOCharacterStatus.clearContextCharacters?.();
       if (document.querySelector('.ui-tab[data-panel="npc"]')?.classList.contains("active")) renderCharactersPanel();
       App.saveStory?.(false);
     }
     return result;
   };
+  if (typeof App.wrapSendMessage === 'function') App.wrapSendMessage('character-status-ui:consume-selection', contextSelectionWrapper);
+  else {
+    const originalSendMessage = App.sendMessage.bind(App);
+    App.sendMessage = (...args) => contextSelectionWrapper.call(App, originalSendMessage, ...args);
+  }
 
   window.BAOCharacterStatusUI = { renderCharactersPanel, openSettings, openNpcRoster, injectBuilderSummary, TEMPLATES };
 })();
