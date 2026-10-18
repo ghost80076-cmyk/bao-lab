@@ -72,3 +72,15 @@ world-state hook 使用憑證定位相鄰的原始訊息並核對文字，依故
 驗收：`episodic-recall-ownership-core.cjs` 使用實際 wrapper，驗證故事切換、正文編輯、語意來源編輯、角色替換、角色改名、config 替換、停用／full 模式及正常物件重建。舊實作會把測試中的 OTHER STORY SECRET 插入舊提示，修正後不會呼叫 recall。
 
 世界書原有 owner／設定物件檢查本輪不改寫。`worldbook-recall-ownership-core.cjs` 載入實際世界書 runtime 與 core，延遲 inner 組裝器／catalog fetch，確認切換故事或 catalog 等待期間替換設定後保留原提示；正常內嵌世界書仍會注入。這不代表已驗證所有原地修改設定、所有擴充組裝器或跨重載時序。
+
+## 第五輪：評論與雙向解讀擴充的故事歸屬
+
+基準：`3e3580957b8d5547f67062fa83dcbc7a13e2d5f7`（第四輪 #726 合併後）。
+
+已重現：場外評論 API 等待期間切換故事，舊結果會透過 saveState 寫進新故事；等待正文結束的擴充也可能找到新故事的 assistant 再啟動輔助呼叫。生成前顧問等待期間切換故事後，舊 continuation 還可能啟動 next，將顧問內容留在共用 pendingAdvisor。
+
+評論與解讀 lifecycle 現在先捕捉 owner/config；顧問另核對原歷史、角色與輸入，再允許進入正文。正文完成後，新核心路徑使用第三輪的完成憑證定位 assistant，不從新故事尾端猜測。輔助輸出在寫入前核對原故事、設定、目標回覆與對應玩家文字；過期錯誤不在新故事顯示提示。評論保存時以當前同故事的模組 state 合併，避免舊快照覆蓋同時更新的偏好。
+
+pendingAdvisor 現在持有自己的 owner/config 與任務物件；提示 wrapper 捕捉這個物件並於 await 後核對。舊 finally 只清理自己的顧問任務，不能清掉另一個任務。手動評論按鈕也會在等待後檢查歸屬才顯示完成通知。
+
+`post-turn-mod-ownership-core.cjs` 載入實際評論／解讀 runtime、core 與官方 pack，驗證評論 API、正文等待、顧問及觀察者等待期間的故事切換、config 替換、來源編輯與成功／失敗結果，共 24 個過期案例；另確認正常評論與解讀仍可保存。測試使用完成憑證路徑及 mock API。這不是所有同故事並行顧問任務、重複計費或所有其他 after-turn 擴充的完整證明。用量歸屬仍待下一項獨立驗證。

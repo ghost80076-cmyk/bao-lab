@@ -366,6 +366,7 @@ jobs:
           node --check js/interpretation-mods-official-pack.js
           node --check js/interpretation-mods.js
           node tests/interpretation-mods-core.cjs
+          node tests/post-turn-mod-ownership-core.cjs
       - name: Actor mode role layer
         run: |
           node --check js/actor-mode-core.js
