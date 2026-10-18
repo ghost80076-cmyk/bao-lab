@@ -128,6 +128,12 @@
     if (App.config?.demoMode) return false;
     const target = message || lastAssistant();
     if (!target?.id || !String(target.content || "").trim()) return false;
+    const owner = window.GameState?.current, config = App.config;
+    const targetId = target.id, sceneText = String(target.content), playerText = previousUserText(target);
+    const isCurrent = () => window.GameState?.current === owner && App.config === config
+      && Chat.messages.some(item => item.id === targetId && String(item.content) === sceneText)
+      && previousUserText(target) === playerText;
+    if (!isCurrent()) return false;
     let state = ensureState();
     if (!options.force && core.outputFor(state, target.id)) return false;
 
@@ -135,13 +141,14 @@
       try { await loadAdultPack(); }
       catch (error) { console.warn("YoruBay adult commentary pack load failed:", error); }
     }
+    if (!isCurrent()) return false;
     const mods = activeMods();
     if (!mods.length) return false;
 
     const messages = core.buildMessages({
       mods,
-      sceneText: String(target.content || ""),
-      playerText: previousUserText(target)
+      sceneText,
+      playerText
     });
     if (!messages.length) return false;
 
@@ -154,9 +161,10 @@
 
     try {
       const result = await API.send(api, messages);
+      if (!isCurrent()) return false;
       const content = String(result?.text || "").trim();
       if (!content || /^NO_COMMENTARY\.?$/i.test(content)) return false;
-      state = core.addOutput(state, {
+      state = core.addOutput(ensureState(), {
         messageId: target.id,
         content,
         modIds: mods.map(item => item.id),
@@ -167,6 +175,7 @@
       renderAll();
       return true;
     } catch (error) {
+      if (!isCurrent()) return false;
       console.warn("YoruBay commentary MOD generation failed:", error);
       if (options.notify !== false) notify("正文已保留；場外人格這一輪沒有成功回應。", "error");
       return false;
@@ -269,9 +278,11 @@
     }));
     wrap.querySelector("[data-commentary-latest]")?.addEventListener("click", async event => {
       const button = event.currentTarget;
+      const owner = window.GameState?.current, config = App.config;
       button.disabled = true;
       const ok = await generateFor(lastAssistant(), { force: true, notify: true });
       button.disabled = false;
+      if (window.GameState?.current !== owner || App.config !== config) return;
       notify(ok ? "場外人格已評論目前最後一輪。" : "目前沒有可產生的場外評論。", ok ? "success" : "info");
     });
     wrap.querySelector("[data-commentary-done]")?.addEventListener("click", close);
@@ -330,9 +341,13 @@
         }
       }
 
+      const owner = window.GameState?.current, config = this.config;
       const before = new Set((Chat.messages || []).filter(item => item?.role === "assistant").map(item => String(item.id || "")));
       const result = await next(...args);
-      const target = [...(Chat.messages || [])].reverse().find(item => item?.role === "assistant" && !before.has(String(item.id || "")));
+      if (window.GameState?.current !== owner || this.config !== config) return result;
+      if (this.storyTurnReceipts && (result?.kind !== 'bao:story-turn' || !result.isCurrent())) return result;
+      const target = this.storyTurnReceipts ? Chat.messages.find(item => item.id === result.assistantId)
+        : [...(Chat.messages || [])].reverse().find(item => item?.role === "assistant" && !before.has(String(item.id || "")));
       if (target) await generateFor(target, { notify: false });
       return result;
     });

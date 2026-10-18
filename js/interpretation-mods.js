@@ -308,8 +308,10 @@
 
   if (typeof App.wrapBuildMessages === "function") {
     App.wrapBuildMessages("interpretation-mods:advisor-context", async function(next, ...args) {
+      const advisor = pendingAdvisor;
       const messages = await next(...args);
-      if (!pendingAdvisor?.content || pendingAdvisor.consumed) return messages;
+      if (!advisor?.content || advisor.consumed || pendingAdvisor !== advisor
+        || advisor.owner !== window.GameState?.current || advisor.config !== this.config) return messages;
       const result = Array.isArray(messages) ? messages.map(message => ({ ...message })) : [];
       let index = -1;
       for (let i = result.length - 1; i >= 0; i -= 1) {
@@ -317,11 +319,11 @@
       }
       if (index < 0) return result;
       const visible = String(result[index].content || "");
-      if (pendingAdvisor.playerText && !visible.includes(pendingAdvisor.playerText)) return result;
-      const block = core.advisorContext(pendingAdvisor.content);
+      if (advisor.playerText && !visible.includes(advisor.playerText)) return result;
+      const block = core.advisorContext(advisor.content);
       if (!block) return result;
       result[index].content = [visible.trim(), block].filter(Boolean).join("\n\n");
-      pendingAdvisor.consumed = true;
+      advisor.consumed = true;
       return result;
     });
   }
@@ -335,18 +337,29 @@
         return true;
       }
 
+      const owner = window.GameState?.current, config = this.config, character = this.activeCharacter;
+      const owned = () => window.GameState?.current === owner && this.config === config && this.activeCharacter === character;
+      const signature = () => JSON.stringify(Chat.messages.map(m => [m.id, m.role, m.content, m.context_content || '']));
+      const source = signature();
       const before = new Set((Chat.messages || []).filter(item => item?.role === "assistant").map(item => String(item.id || "")));
       const advisor = raw ? await generateAdvisor(raw) : "";
-      pendingAdvisor = advisor ? { playerText: raw, content: advisor, consumed: false } : null;
+      if (!owned() || signature() !== source || String(input?.value || '').trim() !== raw) return;
+      const advisorTask = advisor ? { owner, config, playerText: raw, content: advisor, consumed: false } : null;
+      pendingAdvisor = advisorTask;
 
       try {
         const result = await next(...args);
-        const target = [...(Chat.messages || [])].reverse().find(item => item?.role === "assistant" && !before.has(String(item.id || "")));
+        if (!owned()) return result;
+        if (this.storyTurnReceipts && (result?.kind !== 'bao:story-turn' || !result.isCurrent())) return result;
+        const target = this.storyTurnReceipts ? Chat.messages.find(item => item.id === result.assistantId)
+          : [...(Chat.messages || [])].reverse().find(item => item?.role === "assistant" && !before.has(String(item.id || "")));
         if (!target) return result;
-
+        const targetId = target.id, targetText = target.content;
+        const playerMessage = previousUser(target), playerText = playerMessage?.content;
         const observer = await generateObserver(target, raw);
+        if (!owned() || !Chat.messages.some(item => item.id === targetId && item.content === targetText)
+          || previousUser(target)?.content !== playerText) return result;
         if (advisor || observer) {
-          const playerMessage = previousUser(target);
           const state = core.addOutput(ensureState(), {
             messageId: target.id,
             playerMessageId: playerMessage?.id || "",
@@ -359,7 +372,7 @@
         }
         return result;
       } finally {
-        pendingAdvisor = null;
+        if (pendingAdvisor === advisorTask) pendingAdvisor = null;
       }
     });
   }
