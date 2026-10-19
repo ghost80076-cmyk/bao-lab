@@ -18,7 +18,9 @@
       state, config, primary
     });
     const input = [...Chat.messages].reverse().find(m => m.role === 'user')?.content || '';
-    const selected = BAOEpisodicMemory.recall({ state, messages: Chat.messages, input, actors, exclude: messages.map(m => m.content).join('\n') });
+    const decisions = [];
+    const selected = BAOEpisodicMemory.recall({ state, messages: Chat.messages, input, actors, exclude: messages.map(m => m.content).join('\n'), onDecision: item => decisions.push(item) });
+    window.BAOContextInspector?.record?.('事件記憶', decisions);
     if (!selected.length) return messages;
     const latest = messages.length - 1;
     if (latest < 0 || messages[latest].role !== 'user') return messages;

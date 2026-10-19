@@ -1,0 +1,34 @@
+'use strict';
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const vm=require('node:vm');
+const ctx={console,structuredClone,Date,App:{config:{},wrapBuildMessages(id,fn){const next=this.buildMessages.bind(this);this.buildMessages=(...args)=>fn.call(this,next,...args);},async buildMessages(){return [{role:'system',content:'system'},{role:'user',content:'payload'}];}},
+  GameState:{current:{}},Chat:{messages:[{id:'u1',role:'user',content:'hello'}],reset(){this.messages=[];}}};
+ctx.window=ctx;vm.createContext(ctx);
+vm.runInContext(fs.readFileSync('js/api.js','utf8')+';window.API=API;',ctx);
+const calls=[];
+ctx.API.send=async (config,messages)=>{calls.push(structuredClone(messages));return {text:'reply',usage:{input_tokens:100,cached_tokens:0,output_tokens:12}};};
+vm.runInContext(fs.readFileSync('js/context-inspector.js','utf8'),ctx);
+(async()=>{
+  const config={model:'mock',key:'PRIVATE_KEY'};
+  const messages=await ctx.App.buildMessages();
+  ctx.BAOContextInspector.record('世界書',[{id:'secret',reason:'knowledge'}]);
+  ctx.API.wrapSend('same-model-state-merge:main-story',async(next,c,ms)=>next(c,[...ms,{role:'system',content:'STATE_CONTRACT'}]));
+  await ctx.API.send(config,messages);
+  let snap=ctx.BAOContextInspector.snapshot();
+  assert.equal(snap.messages.length,3);assert.equal(snap.messages[2].content,'STATE_CONTRACT');
+  assert.equal(snap.layers['世界書'][0].reason,'knowledge');
+  assert.equal(snap.usage.cached_tokens,0);
+  assert.doesNotMatch(JSON.stringify(snap),/PRIVATE_KEY|reply/);
+  snap.messages[0].content='tamper';assert.equal(ctx.BAOContextInspector.snapshot().messages[0].content,'system');
+  await ctx.API.send({...config,__stateTask:true},[{role:'user',content:'helper'}]);
+  assert.equal(ctx.BAOContextInspector.snapshot().messages.length,3,'helper must not replace story snapshot');
+  ctx.Chat.messages.push({id:'a1',role:'assistant',content:'reply'});
+  assert.ok(ctx.BAOContextInspector.snapshot(),'committed reply keeps captured request inspectable');
+  ctx.Chat.messages[0].content='edited';assert.equal(ctx.BAOContextInspector.snapshot(),null,'changed source invalidates snapshot');
+  ctx.Chat.messages[0].content='hello';const owner=ctx.GameState.current;ctx.GameState.current={};
+  assert.equal(ctx.BAOContextInspector.snapshot(),null);ctx.GameState.current=owner;
+  ctx.Chat.reset();assert.equal(ctx.BAOContextInspector.snapshot(),null);
+  assert.equal(calls.length,2,'inspection adds no model calls');
+  console.log('PASS final prompt capture, numeric usage, helper exclusion, branch/source isolation, reset and no extra calls');
+})().catch(e=>{console.error(e);process.exitCode=1;});

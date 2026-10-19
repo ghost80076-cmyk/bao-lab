@@ -1,3 +1,5 @@
+import { ensureRequestTraces, reconciliation } from "./request-trace.js";
+
 import {
   fail,
   json,
@@ -52,6 +54,8 @@ async function adminUsageRoute(
       db
     );
 
+    await ensureRequestTraces(db);
+
     const rows =
       await db
         .prepare(
@@ -82,6 +86,14 @@ async function adminUsageRoute(
             u.status,
             u.created_at,
 
+            t.generation_id,
+            t.attempt_count,
+            t.elapsed_ms AS transport_elapsed_ms,
+            t.route AS transport_route,
+            (SELECT COUNT(*) FROM wallet_ledger l WHERE l.request_id = u.request_id
+              AND l.player_id = u.player_id AND l.entry_type = 'usage') AS ledger_entries,
+            (SELECT SUM(l.amount_microusd) FROM wallet_ledger l WHERE l.request_id = u.request_id
+              AND l.player_id = u.player_id AND l.entry_type = 'usage') AS ledger_amount_microusd,
             d.failure_code,
             d.upstream_http_status,
             d.provider_status,
@@ -97,6 +109,8 @@ async function adminUsageRoute(
 
           LEFT JOIN api_usage_diagnostics AS d
             ON d.request_id = u.request_id
+
+          LEFT JOIN api_request_traces AS t ON t.request_id = u.request_id
 
           WHERE
             u.player_id = ?
@@ -124,6 +138,7 @@ async function adminUsageRoute(
         pageRows.map(
           (row) => ({
             ...row,
+            ...reconciliation(row),
 
             provider_cost_usd:
               row

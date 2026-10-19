@@ -95,18 +95,21 @@
     (Array.isArray(actors) && actors.length > 0 &&
       actors.every(actor => (entry.known_by || []).includes(actor)));
   // Opted-in rules stay complete and never compete with bounded lore retrieval.
-  function constants(packs, enabledIds, context = {}) {
+  function constants(packs, enabledIds, context = {}, options = {}) {
+    const report = options.onDecision || (() => {});
     const ids = new Set(Array.isArray(enabledIds) ? enabledIds : []);
     const flags = new Set(Array.isArray(context.flags) ? context.flags : []);
     const world = text(context.world, 60), found = [], seen = new Set();
     for (const pack of Array.isArray(packs) ? packs : []) {
       if (!ids.has(pack?.meta?.id) || (pack.meta.world !== "general" && world && world !== pack.meta.world)) continue;
       for (const entry of pack.entries || []) {
-        if (entry.mode !== "constant" || entry.enabled === false || entry.review_required ||
-            (entry.requires || []).some(flag => !flags.has(flag)) ||
-            !canRead(entry, context.actors)) continue;
+        if (entry.mode !== "constant") continue;
+        const reason = entry.enabled === false ? 'disabled' : entry.review_required ? 'review' :
+          (entry.requires || []).some(flag => !flags.has(flag)) ? 'condition' : !canRead(entry, context.actors) ? 'knowledge' : null;
+        if (reason) { report({id:pack.meta.id+':'+entry.id,title:entry.title,reason}); continue; }
         const key = lower(entry.content).replace(/\s+/g, " ");
-        if (seen.has(key)) continue;
+        if (seen.has(key)) { report({id:pack.meta.id+':'+entry.id,title:entry.title,reason:'duplicate'}); continue; }
+        report({id:pack.meta.id+':'+entry.id,title:entry.title,reason:'included'});
         seen.add(key);
         found.push({ identity: pack.meta.id + ":" + entry.id, title: entry.title, content: entry.content });
       }
@@ -119,6 +122,7 @@
   }
   function select(packs, enabledIds, context = {}, options = {}) {
     const recallMode = ["auto", "scene", "off"].includes(options.recallMode) ? options.recallMode : "auto";
+    const report = options.onDecision || (() => {});
     const ids = new Set(Array.isArray(enabledIds) ? enabledIds : []);
     const maxChars = Math.max(100, Math.min(10000, Number(options.maxChars) || 2200));
     const maxEntries = Math.max(1, Math.min(12, Number(options.maxEntries) || 4));
@@ -137,9 +141,10 @@
       if (pack.meta.world !== "general" && compatibleWorld && compatibleWorld !== pack.meta.world) continue;
       for (const entry of pack.entries || []) {
         if (entry.mode === "constant") continue;
-        if (recallMode === "off" && entry.mode !== "foundation") continue;
-        if (entry.enabled === false || entry.review_required || (entry.requires || []).some(flag => !flags.has(flag)) ||
-            !canRead(entry, context.actors)) continue;
+        const reason = recallMode === 'off' && entry.mode !== 'foundation' ? 'disabled' :
+          entry.enabled === false ? 'disabled' : entry.review_required ? 'review' :
+          (entry.requires || []).some(flag => !flags.has(flag)) ? 'condition' : !canRead(entry, context.actors) ? 'knowledge' : null;
+        if (reason) { report({id:pack.meta.id+':'+entry.id,title:entry.title,reason}); continue; }
         let score = entry.mode === "foundation" ? 120 : 0;
         if (entry.mode !== "foundation") {
           for (const kw of entry.keywords || []) {
@@ -147,6 +152,7 @@
             for (const signal of signals) if (signal.text.includes(lower(kw))) score = Math.max(score, signal.score + Math.min(kw.length,20));
           }
         }
+        if (!score) report({id:pack.meta.id+':'+entry.id,title:entry.title,reason:'irrelevant'});
         if (score) chosen.push({ pack: pack.meta.id, title: entry.title, content: entry.content, keywords: entry.keywords || [],
           scenario: pack.meta.classification === "scenario", score: score + entry.priority, identity: pack.meta.id + ":" + entry.id });
       }
@@ -157,12 +163,14 @@
     let used = 0;
     for (const entry of chosen) {
       const key = lower(entry.content).replace(/\s+/g, " ");
-      if (dedupe.has(key)) continue;
+      const decide = reason => report({id:entry.identity,title:entry.title,score:entry.score,reason});
+      if (dedupe.has(key)) { decide('duplicate'); continue; }
+      if (found.length >= maxEntries) { decide('budget'); continue; }
       let selected = entry, formatted = format(entry);
       if (formatted.length > maxChars - used) {
         // Retrieve a bounded passage without rewriting or truncating stored lore.
         const room = maxChars - used - format({ ...entry, content: "", excerpted: true }).length - 4;
-        if (room < 80) continue;
+        if (room < 80) { decide('budget'); continue; }
         const body = lower(entry.content);
         const matched = entry.keywords.filter(kw => signals.some(signal => signal.text.includes(lower(kw))))
           .map(kw => body.indexOf(lower(kw))).filter(index => index >= 0);
@@ -172,9 +180,9 @@
         selected = { ...entry, content: excerpt, excerpted: true };
         formatted = format(selected);
       }
-      if (formatted.length + (found.length ? 2 : 0) > maxChars - used) continue;
+      if (formatted.length + (found.length ? 2 : 0) > maxChars - used) { decide('budget'); continue; }
       dedupe.add(key); found.push(selected); used += formatted.length + (found.length > 1 ? 2 : 0);
-      if (found.length >= maxEntries) break;
+      decide('included');
     }
     return {
       entries: found.map(({pack,title,identity,excerpted}) => ({pack,title,identity,...(excerpted ? {excerpted:true} : {})})),

@@ -1,0 +1,40 @@
+name: Request observability and NPC timelines
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+permissions:
+  contents: read
+concurrency:
+  group: observability-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-chromium
+      - name: Accounting, request capture and NPC source isolation
+        run: |
+          node tests/request-observability-core.cjs
+          node tests/context-inspector-core.cjs
+          node tests/npc-timeline-core.cjs
+          node tests/worker-wallet-reservations-core.cjs
+          node tests/worker-admin-usage-routes-core.cjs
+          node tests/worker-provider-transport-core.cjs
+          node tests/episodic-memory-core.cjs
+          node tests/worldbook-library-core.cjs
+          node tests/frontend-extension-contract.cjs
+      - name: Mobile and desktop interaction
+        run: npm run test:e2e -- tests/e2e/request-inspector-timeline.spec.cjs tests/e2e/context-health.spec.cjs --project=chromium
+      - name: Screenshots and browser reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: request-observability-browser
+          path: |
+            test-results/
+            playwright-report/
+          retention-days: 7

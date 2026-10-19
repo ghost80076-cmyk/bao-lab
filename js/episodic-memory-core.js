@@ -94,7 +94,7 @@
     }
     state.episodicMemory = { version: 1, events: events.slice(-1000) };
   }
-  function recall({ state, messages = [], input = '', actors = [], exclude = '', maxChars = 2400 }) {
+  function recall({ state, messages = [], input = '', actors = [], exclude = '', maxChars = 2400, onDecision = () => {} }) {
     const sources = new Map(messages.map((m, i) => [m.id, { message: m, index: i }]));
     const valid = evidence => Array.isArray(evidence) && evidence.length && evidence.every(e => object(e) && sources.has(e.id) && signature(sources.get(e.id).message) === e.signature);
     const words = terms(input), audience = list(actors, 30);
@@ -109,7 +109,10 @@
       }
     }
     for (const event of events) {
-      if (!object(event) || !valid(event.evidence) || event.certainty === 'retracted' || superseded.has(event.id)) continue;
+      if (!object(event)) continue;
+      const decision = reason => onDecision({id: event.id, reason});
+      if (!valid(event.evidence)) { decision('evidence'); continue; }
+      if (event.certainty === 'retracted' || superseded.has(event.id)) { decision('retracted'); continue; }
       // A single shared request must not receive secrets inaccessible to any
       // current speaker. Unknown cast => only explicitly public facts.
       const knowledge = audience.map(actor => {
@@ -121,15 +124,15 @@
       });
       const shared = event.visibility === 'public' && event.certainty === 'confirmed';
       const known = audience.length && knowledge.every(items => items.length);
-      if (!shared && !known) continue;
+      if (!shared && !known) { decision('knowledge'); continue; }
       const claims = shared ? [{ text: event.text, label: '公開事實' }] : knowledge.flatMap((items, i) => items.filter(k => knowledge.every(group => group.some(other => other.claim === k.claim))).map(k => ({ text: k.claim, label: `${audience[i]}｜${k.mode}` })));
       const lines = claims.filter(c => c.text && !excluded.includes(c.text)).map(c => `${c.label}：${text(c.text)}`);
-      if (!lines.length) continue;
+      if (!lines.length) { decision('duplicate'); continue; }
       const haystack = [event.text, ...list(event.entities), ...list(event.keywords), ...claims.map(c => c.text)].join('\n').toLowerCase();
       let score = words.reduce((n, word) => n + (haystack.includes(word) ? 1 : 0), 0);
       // Relational cues may omit the event's original words entirely.
       if (/還記得|上次|以前|當時|承諾|怪我|生.*氣|remember|last time/i.test(input) && audience.some(actor => list(event.entities).includes(actor))) score += 2;
-      if (!score) continue;
+      if (!score) { decision('irrelevant'); continue; }
       const index = Math.max(...event.evidence.map(e => sources.get(e.id).index));
       candidates.push({ event, score, index, lines, shared });
     }
@@ -137,11 +140,11 @@
     const selected = []; let used = 0;
     for (const candidate of candidates) {
       const lines = candidate.lines.filter(line => !seen.has(line));
-      if (!lines.length) continue;
+      if (!lines.length) { onDecision({id:candidate.event.id, reason:'duplicate'}); continue; }
       const block = `〔${text(candidate.event.id, 180)}${candidate.shared && candidate.event.time ? `｜${text(candidate.event.time, 100)}` : ''}｜${candidate.shared ? 'confirmed' : '角色認知'}〕\n${lines.join('\n')}\n來源：${candidate.event.evidence.map(e => e.id).join('、')}`;
-      if (used + block.length > Math.min(2400, Math.max(0, maxChars))) continue;
+      if (used + block.length > Math.min(2400, Math.max(0, maxChars)) || selected.length >= 4) { onDecision({id:candidate.event.id, reason:'budget',score:candidate.score}); continue; }
       selected.push({ id: candidate.event.id, block }); used += block.length; lines.forEach(line => seen.add(line));
-      if (selected.length === 4) break;
+      onDecision({id:candidate.event.id, reason:'included',score:candidate.score});
     }
     return selected;
   }

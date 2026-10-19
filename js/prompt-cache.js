@@ -2,7 +2,7 @@
   if (window.BAOPromptCache || typeof App === "undefined" || typeof Chat === "undefined") return;
 
   const MEMORY_HEADERS = new Set(["玩家手動記憶", "Context Pack · 玩家已確認的前情", "Canon Core · 玩家已確認"]);
-  const DYNAMIC_HEADERS = new Set(["本輪動態角色規則", "目前核心狀態", "本輪相關世界資料", "本輪人物狀態", "本輪相關 NPC", "本輪相關 Canon", "世界時鐘", "本輪人物覆寫", "本輪相關世界書", "當前回憶框架"]);
+  const DYNAMIC_HEADERS = new Set(["本輪動態角色規則", "目前核心狀態", "本輪相關世界資料", "本輪人物狀態", "本輪相關 NPC", "本輪相關 NPC 個別經歷", "本輪相關 Canon", "世界時鐘", "本輪人物覆寫", "本輪相關世界書", "當前回憶框架"]);
   const headerOf = block => String(block.match(/^【([^】]+)】/)?.[1] || "").split("｜")[0].trim();
   const cacheMetricKnown = usage => usage?.cached_tokens !== null && usage?.cached_tokens !== undefined && Number.isFinite(Number(usage.cached_tokens));
 

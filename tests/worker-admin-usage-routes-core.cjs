@@ -117,7 +117,7 @@ assert.doesNotMatch(
   const usageDb = {
     prepare(query) {
       sql.push(query);
-      if (/CREATE TABLE IF NOT EXISTS api_usage_diagnostics/.test(query)) {
+      if (/CREATE TABLE IF NOT EXISTS (api_usage_diagnostics|api_request_traces)/.test(query)) {
         return {run: async () => ({meta: {changes: 0}})};
       }
       return {
@@ -134,8 +134,8 @@ assert.doesNotMatch(
   const body = await response.json();
   assert.deepEqual(bindings, ["503f62e8-3777-43c9-b7ef-a7934aa45ed4", 200]);
   assert.match(sql[0], /CREATE TABLE IF NOT EXISTS api_usage_diagnostics/);
-  assert.match(sql[1], /LEFT JOIN api_usage_diagnostics AS d/);
-  assert.match(sql[1], /ORDER BY\s+u\.created_at DESC,\s+u\.request_id DESC/);
+  assert.match(sql[2], /LEFT JOIN api_usage_diagnostics AS d/);
+  assert.match(sql[2], /ORDER BY\s+u\.created_at DESC,\s+u\.request_id DESC/);
   assert.equal(body.usage.length, 100);
   assert.equal(body.has_more, true);
   assert.equal(body.next_page, 3);

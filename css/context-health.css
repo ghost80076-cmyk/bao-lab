@@ -155,3 +155,12 @@
     margin-left:18px
   }
 }
+
+/* Request inspection and NPC schedules share the existing themed context surface. */
+[data-context-inspector] pre {font: .82rem/1.7 ui-monospace,monospace;tab-size:2}
+[data-npc-timeline] label {display:grid;gap:6px;margin:12px 0;color:var(--muted)}
+[data-npc-timeline] input,[data-npc-timeline] select {box-sizing:border-box;max-width:100%;width:100%;font:inherit;padding:10px;border:1px solid var(--border);border-radius:10px;background:var(--bg);color:var(--text)}
+[data-npc-timeline] [data-history] p {padding:10px 0;border-bottom:1px solid var(--border);line-height:1.7;overflow-wrap:anywhere}
+[data-npc-timeline] [data-history] button {margin:6px 0}
+[data-context-inspector] .context-health-panel,[data-npc-timeline] .context-health-panel {display:block}
+[data-context-inspector] .context-health-head p,[data-npc-timeline] .context-health-head p {display:block;font-size:13px}
