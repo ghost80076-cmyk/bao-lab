@@ -255,6 +255,7 @@
       "只根據本輪玩家輸入與故事回覆更新有明確依據的狀態，不得自行補劇情。",
       "time、location、events、npcs 只在確實變動時更新。",
       this.continuityRule,
+      window.BAONPCTimeline?.resolutionContract?.() || "",
       "modules 只輸出本次確實有改變的模組；若某模組改變，請回傳該模組更新後的完整資料，不要只回傳差異。",
       "character_statuses 只輸出本輪確實改變的人物與欄位。",
       "NPC 連續性：更新既有人物時沿用目前狀態的 npc_id；新人物不填 npc_id，由系統建立。新人物可填 aliases、appearance（固定外貌）與 outfit（當前穿著）。既有人物的固定 appearance 必須沿用；只有故事明確造成長期外貌變化時，才同時回傳 appearance 與 appearance_change:true。只有文本明確換裝時才更新 outfit。first_seen 由系統建立，不得輸出或捏造。別名對應到既有人物時沿用其正式姓名，不重複建檔。",

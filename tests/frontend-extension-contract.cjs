@@ -49,12 +49,12 @@ increasing(index, [
 // World-state chain: the bridge must install its guards before world modules.
 increasing(siteUI, [
   'loadBAOScript("js/global-bridge.js?v=3")',
-  'loadBAOScript("js/world-state.js?v=2")',
+  'loadBAOScript("js/world-state.js?v=3")',
   'loadBAOScript("js/character-status.js?v=4")',
   'loadBAOScript("js/three-realms-cultivation-core.js?v=1")',
   'loadBAOScript("js/three-realms-event-profiles.js?v=6")',
   'loadBAOScript("js/three-realms-events-core.js?v=6")',
-  'loadBAOScript("js/world-modules.js?v=6")',
+  'loadBAOScript("js/world-modules.js?v=7")',
   'loadBAOScript("js/world-state-hook.js?v=5")'
 ], "world-state extension");
 
@@ -74,7 +74,7 @@ increasing(siteUI, [
 // Modules without their own global idempotency guard currently rely on the loader;
 // protect against accidentally adding a second loader while the wrapper design is unchanged.
 assert.equal(
-  siteUI.split('loadBAOScript("js/world-modules.js?v=6")').length - 1,
+  siteUI.split('loadBAOScript("js/world-modules.js?v=7")').length - 1,
   1,
   "world-modules must be loaded exactly once by site-ui"
 );

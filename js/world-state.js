@@ -46,6 +46,7 @@ const WorldStateEngine = {
       "根據本輪玩家輸入與故事回覆，只更新有明確依據的世界狀態。",
       "不得自行新增未發生的劇情。沒有變化的欄位請保留原值。",
       this.continuityRule,
+      window.BAONPCTimeline?.resolutionContract?.() || "",
       "npcs 是人物狀態的 PATCH，不是全島完整名單；只依場景可證實的人物進出更新 presence：present（在場）、away（離場）、unknown（不確定）。轉場後不能把原登記員自動視為在場，既有人物資料仍要保留。",
       "NPC 連續性：更新既有人物時沿用目前狀態的 npc_id；新人物不填 npc_id，由系統建立。新人物可填 aliases、appearance（固定外貌）與 outfit（當前穿著）。既有人物的固定 appearance 必須沿用；只有故事明確造成長期外貌變化時，才同時回傳 appearance 與 appearance_change:true。只有文本明確換裝時才更新 outfit。first_seen 由系統建立，不得輸出或捏造。別名對應到既有人物時沿用其正式姓名，不重複建檔。",
       "world_clock 是可選 PATCH。只有故事明確經過一段時間時才寫 advance_minutes；只有文本明確建立日期、期限、約定、旅程耗時或倒數時才 schedule。不得自行創造伏筆或未發生事件。resolve/cancel 只能引用目前狀態中已存在的 wc-* ID。",
@@ -61,7 +62,7 @@ const WorldStateEngine = {
         { role: "system", content: "只輸出合法 JSON 世界狀態。" },
         { role: "user", content: prompt }
       ]);
-      const data = window.BAOHelperData.stateUpdate(this.parse(result?.text || ""), []);
+      const data = window.BAOHelperData.stateUpdate(this.parse(result?.text || ""), [], `${playerText}\n${assistantText}`);
       if (GameState.current) GameState.current.stateRequestDiagnostics = {
         ...(GameState.current.stateRequestDiagnostics || {}), parsed: Boolean(data), applied: false
       };

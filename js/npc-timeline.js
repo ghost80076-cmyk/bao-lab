@@ -10,6 +10,63 @@
     id: Chat.messages.at(-1).id, signature: BAOEpisodicMemory.signature(Chat.messages.at(-1))
   } : null;
   const valid = item => !item.anchor || Chat.messages.some(m => m.id === item.anchor.id && BAOEpisodicMemory.signature(m) === item.anchor.signature);
+  const resolutionValid = item => {
+    const proof = item.resolution;
+    return Boolean(proof?.evidence?.id && typeof proof.quote === 'string' && Chat.messages.some(m =>
+      m.id === proof.evidence.id && m.role === 'assistant' && !m.greeting &&
+      BAOEpisodicMemory.signature(m) === proof.evidence.signature && typeof m.content === 'string' && m.content.includes(proof.quote)));
+  };
+  const localSchedules = () => {
+    const actors = BAOEpisodicMemory.audience({state:GameState.current,config:App.config,primary:App.activeCharacter?.name || ''});
+    if (!actors.length) return [];
+    return (GameState.current?.npcTimeline?.schedules || []).filter(s => valid(s) &&
+      valid({anchor:s.completedAnchor}) && actors.every(a => a === s.actor) &&
+      (s.status !== 'resolved' || resolutionValid(s)));
+  };
+  const pendingContext = () => localSchedules().filter(s => s.status === 'ready').slice(-6).map(s => ({
+    id:s.id,npc_id:s.npcId,actor:s.actor,task:s.text,due_minutes:s.due
+  }));
+  const resolutionContract = () => pendingContext().length ?
+    '【NPC 日程結案 PATCH】\n只有 npc_timeline_ready 內的日程，在本次故事正文確實出現角色的決定或結果後，才可附加 npc_timeline:{"resolve":[{"id":"nt-1","quote":"包含該人物姓名與明確結果的故事原文，8 至 300 字元"}]}。quote 必須逐字引用故事正文，不可引用玩家願望、假設、選項或狀態附錄；不要為了結案補造劇情。拒絕或失敗也可作為結果，尚未決定則保持待判定。無更新時省略此欄。' : '';
+  const checkedResolutions = (raw, sourceText = '') => {
+    if (!Array.isArray(raw?.resolve) || typeof sourceText !== 'string' || !sourceText) return [];
+    const offered = new Set(pendingContext().map(s => s.id));
+    const ready = new Map(localSchedules().filter(s => s.status === 'ready' && s.due <= clock() && offered.has(s.id)).map(s => [s.id,s]));
+    const checked = [], seen = new Set();
+    for (const item of raw.resolve.slice(0,6)) {
+      const task = ready.get(item?.id), quote = typeof item?.quote === 'string' ? item.quote.trim() : '';
+      if (!task || seen.has(task.id) || quote.length < 8 || quote.length > 300) continue;
+      const npc = GameState.current.npcs?.find(n => n.npc_id === task.npcId && n.name === task.actor);
+      if (!npc || ![npc.name,...(npc.aliases || [])].some(name => typeof name === 'string' && name.trim() && quote.includes(name))) continue;
+      const origin = task.anchor ? Chat.messages.findIndex(m => m.id === task.anchor.id) : -1;
+      const readyAt = task.completedAnchor ? Chat.messages.findIndex(m => m.id === task.completedAnchor.id) : origin;
+      const source = [...Chat.messages.entries()].reverse().find(([i,m]) => i > origin && i >= readyAt &&
+        m.role === 'assistant' && !m.greeting && m.id && typeof m.content === 'string' &&
+        sourceText.includes(m.content) && m.content.includes(quote));
+      if (!source) continue;
+      checked.push({id:task.id,quote,evidence:{id:source[1].id,signature:BAOEpisodicMemory.signature(source[1])}});
+      seen.add(task.id);
+    }
+    return checked;
+  };
+  const applyResolutions = patch => {
+    if (!Array.isArray(patch?.resolve)) return;
+    for (const item of patch.resolve.slice(0,6)) {
+      const task = localSchedules().find(s => s.id === item?.id && s.status === 'ready');
+      if (!task || !item.evidence?.id) continue;
+      const message = Chat.messages.find(m => m.id === item.evidence.id);
+      if (!message || BAOEpisodicMemory.signature(message) !== item.evidence.signature) continue;
+      const checked = checkedResolutions({resolve:[item]}, message.content)[0];
+      if (!checked || checked.evidence.id !== item.evidence.id) continue;
+      task.status = 'resolved'; task.resolution = checked; task.resolvedAt = clock();
+    }
+  };
+  const reopen = id => {
+    const task = GameState.current?.npcTimeline?.schedules?.find(s => s.id === id && s.status === 'resolved' && valid(s));
+    if (!task) return false;
+    task.status = 'ready'; task.completedAnchor = anchor(); delete task.resolution; delete task.resolvedAt;
+    return true;
+  };
   const ensure = () => {
     const state = GameState.current;
     if (!state) return null;
@@ -55,20 +112,30 @@
         id:event.id,time:event.time,text:k.claim,mode:k.mode,certainty:event.certainty,source:'message'
       })));
     const schedules = (GameState.current.npcTimeline?.schedules || []).filter(s => s.npcId === npcId && valid(s))
-      .map(s => ({...clone(s),status:s.status === 'completed' && !valid({anchor:s.completedAnchor}) ? 'invalidated' : s.status}));
+      .map(s => ({...clone(s),status:s.status === 'resolved' && (!resolutionValid(s) || !valid({anchor:s.completedAnchor})) || s.status === 'completed' && !valid({anchor:s.completedAnchor}) ? 'invalidated' : s.status}));
     return {npcId,name:npc.name,events,schedules};
   };
   const promptBlock = () => {
-    const actors = BAOEpisodicMemory.audience({state:GameState.current,config:App.config,primary:App.activeCharacter?.name || ''});
-    if (!actors.length) return '';
-    const available = (GameState.current?.npcTimeline?.schedules || []).filter(s =>
-      valid(s) && valid({anchor:s.completedAnchor}) && ['completed','ready'].includes(s.status) && actors.every(a => a === s.actor));
+    const available = localSchedules().filter(s => ['completed','ready','resolved'].includes(s.status));
     if (!available.length) return '';
     return '【本輪相關 NPC 個別經歷】\n只給角色自己的日程資料；玩家或其他人物不因此知情。待判定事件只表示時間窗口已到，結果尚未發生。\n' + available.slice(-6).map(s =>
-      `${s.actor}｜相對 ${s.due} 分鐘｜${s.status === 'completed' ? '玩家明確排定的離場日程已完成' : '待場景判定，未完成'}：${s.text}`).join('\n');
+      `${s.id}｜${s.actor}｜相對 ${s.due} 分鐘｜${s.status === 'resolved' ? '有來源的故事結果' : s.status === 'completed' ? '玩家明確排定的離場日程已完成' : '待場景判定，未完成'}：${s.status === 'resolved' ? s.resolution.quote : s.text}`).join('\n');
   };
   const apply = GameState.applyUpdate.bind(GameState);
-  GameState.applyUpdate = function(...args) { const result = apply(...args); advance(); return result; };
+  GameState.applyUpdate = function(update = {}, ...args) { const result = apply(update,...args); advance(); applyResolutions(update.npc_timeline); return result; };
+  const normalize = window.BAOHelperData?.stateUpdate;
+  if (normalize) window.BAOHelperData.stateUpdate = function(data, defs = [], sourceText = '') {
+    const result = normalize.call(this,data,defs,sourceText);
+    const resolve = checkedResolutions(data?.npc_timeline,sourceText);
+    if (result && resolve.length) result.npc_timeline = {resolve};
+    return result;
+  };
+  const stateSnapshot = window.WorldStateEngine?.stateSnapshot?.bind(WorldStateEngine);
+  if (stateSnapshot) WorldStateEngine.stateSnapshot = function(...args) {
+    const result = stateSnapshot(...args) || {}, ready = pendingContext();
+    if (ready.length) result.npc_timeline_ready = ready;
+    return result;
+  };
   App.wrapBuildSystemPrompt('npc-timeline:local-context', function(next, ...args) {
     const base = next(...args), block = promptBlock(); return block ? `${base}\n\n${block}` : base;
   });
@@ -91,8 +158,8 @@
       if (GameState.current !== owner) { close(); return; }
       const data = snapshot(root.querySelector('[data-npc]')?.value);
       if (!data) return;
-      const labels = {scheduled:'已排定',ready:'到期，待判定',completed:'固定日程完成',cancelled:'已取消',invalidated:'來源已變更'};
-      root.querySelector('[data-history]').innerHTML = `<h3>有來源的個人經歷</h3>${data.events.map(e => `<p>${esc(e.time || e.id)} · ${esc(e.mode)} · ${esc(e.certainty)}<br>${esc(e.text)}</p>`).join('') || '<p>尚無可驗證的個人經歷。</p>'}<h3>離場日程</h3>${data.schedules.map(s => `<p>相對 ${esc(s.due)} 分鐘 · ${esc(labels[s.status] || s.status)}<br>${esc(s.text)}${['scheduled','ready'].includes(s.status) ? ` <button class="secondary" type="button" data-cancel="${esc(s.id)}">取消</button>` : ''}</p>`).join('') || '<p>尚未安排日程。</p>'}`;
+      const labels = {scheduled:'已排定',ready:'到期，待判定',completed:'固定日程完成',resolved:'故事已結案',cancelled:'已取消',invalidated:'來源已變更'};
+      root.querySelector('[data-history]').innerHTML = `<h3>有來源的個人經歷</h3>${data.events.map(e => `<p>${esc(e.time || e.id)} · ${esc(e.mode)} · ${esc(e.certainty)}<br>${esc(e.text)}</p>`).join('') || '<p>尚無可驗證的個人經歷。</p>'}<h3>離場日程</h3>${data.schedules.map(s => `<p>相對 ${esc(s.due)} 分鐘 · ${esc(labels[s.status] || s.status)}<br>${esc(s.text)}${s.resolution ? `<br>結案原文：${esc(s.resolution.quote)}<br><small>來源訊息：${esc(s.resolution.evidence?.id)}</small>` : ''}${['scheduled','ready'].includes(s.status) ? ` <button class="secondary" type="button" data-cancel="${esc(s.id)}">取消</button>` : ''}${s.resolution ? ` <button class="secondary" type="button" data-reopen="${esc(s.id)}">重新待判定</button>` : ''}</p>`).join('') || '<p>尚未安排日程。</p>'}`;
     };
     const close = () => { root.remove(); document.removeEventListener('keydown', onKey); };
     const onKey = e => { if (e.key === 'Escape') close(); };
@@ -103,6 +170,7 @@
         const item = owner.npcTimeline?.schedules?.find(s => s.id === e.target.dataset.cancel);
         if (item && ['scheduled','ready'].includes(item.status)) { item.status = 'cancelled'; App.saveStory(false); render(); }
       }
+      if (e.target.dataset.reopen && GameState.current === owner && reopen(e.target.dataset.reopen)) { App.saveStory(false); render(); }
     });
     root.querySelector('[data-npc]')?.addEventListener('change', render);
     root.querySelector('form')?.addEventListener('submit', e => {
@@ -115,5 +183,5 @@
     });
     document.body.appendChild(root); document.addEventListener('keydown', onKey); render(); root.querySelector('button').focus();
   };
-  window.BAONPCTimeline = Object.freeze({schedule,advance,snapshot,promptBlock,open});
+  window.BAONPCTimeline = Object.freeze({schedule,advance,snapshot,promptBlock,open,pendingContext,resolutionContract,checkedResolutions,reopen});
 })();

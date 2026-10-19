@@ -121,6 +121,7 @@
       '物件模組只輸出變動欄位；集合模組的陣列會取代該集合，若需更新必須保留既有項目，不能只回傳新增項目。沒有完整依據就省略該集合。',
       defs.some(def => def.id === window.BAOThreeRealmsCultivation?.id) ? window.BAOThreeRealmsCultivation.rules : '',
       'world_clock 是可選 PATCH：只有明確經過時間才寫 advance_minutes；只有明確日期、期限、約定、旅程耗時或倒數才 schedule。不得自行創造劇情。resolve/cancel 只能使用目前狀態已有的 wc-* ID。',
+      window.BAONPCTimeline?.resolutionContract?.() || '',
       '即使狀態附錄無法完成，也優先保留完整故事正文；不要因狀態附錄而拒絕或省略正文。',
       `【目前狀態】\n${clip(JSON.stringify(snapshot), 12000)}`,
       `【可更新世界模組】\n${clip(JSON.stringify(moduleSchema), 5000)}`,

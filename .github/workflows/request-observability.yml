@@ -21,6 +21,9 @@ jobs:
           node tests/request-observability-core.cjs
           node tests/context-inspector-core.cjs
           node tests/npc-timeline-core.cjs
+          node tests/npc-timeline-resolution-core.cjs
+          node tests/same-model-state-merge-core.cjs
+          node tests/world-state-cost-core.cjs
           node tests/worker-wallet-reservations-core.cjs
           node tests/worker-admin-usage-routes-core.cjs
           node tests/worker-provider-transport-core.cjs
