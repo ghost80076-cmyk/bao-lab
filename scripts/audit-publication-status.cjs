@@ -13,7 +13,7 @@ function audit({submissions,pulls,catalog}){
  const rows=submissions.map(row=>{
   const out={pr_number:positive(row?.pr_number)?row.pr_number:null,work_id:id(row?.work_id),author_id:id(row?.author_id),published_version:positive(row?.published_version)?row.published_version:null};
   const result=(status,attention=true)=>({...out,status,attention});
-  if(!out.pr_number||!out.work_id||!out.author_id||!out.published_version)return result('invalid_submission');
+  if(!out.pr_number||!out.work_id||!out.author_id||!out.published_version||!clean(row.status))return result('invalid_submission');
   if(counts.get(out.pr_number)!==1)return result('duplicate_submission');
   if(row.status!=='pending_review')return result('not_pending',false);
   const candidates=prs.get(out.pr_number)||[];
@@ -22,7 +22,7 @@ function audit({submissions,pulls,catalog}){
   const pr=candidates[0];
   if(pr.base?.repo?.full_name!=='ghost80076-cmyk/bao-lab')return result('pr_repository_mismatch');
   if(pr.base?.ref!=='main')return result('pr_base_mismatch');
-  if(pr.state==='open'&&!pr.merged_at)return result('pr_open',false);
+  if(pr.state==='open'&&!pr.merged_at&&pr.merged!==true)return result('pr_open',false);
   if(pr.state==='closed'&&!pr.merged_at&&pr.merged!==true)return result('pr_closed_unmerged',false);
   if(pr.state!=='closed'||!clean(pr.merged_at)||!Number.isFinite(Date.parse(pr.merged_at))||pr.merged===false||!/^[a-f0-9]{40}$/i.test(clean(pr.merge_commit_sha)))return result('pr_merge_evidence_incomplete');
   const entries=works.get(out.work_id)||[];
