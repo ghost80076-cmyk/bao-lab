@@ -28,6 +28,7 @@
     const delay = Number(inMinutes), data = ensure();
     if (!data || !npc || !body || body.length > 300 || !Number.isSafeInteger(delay) || delay < 1 || delay > 52560000 || !['routine','decision'].includes(kind)) return false;
     if (data.schedules.filter(s => ['scheduled','ready'].includes(s.status)).length >= 50) return false;
+    window.BAOWorldClock?.ensureState?.(true);
     data.schedules.push({id:`nt-${data.next++}`,npcId,actor:npc.name,text:body,kind,
       due:clock()+delay,status:'scheduled',anchor:anchor()});
     return true;
