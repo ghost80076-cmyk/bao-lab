@@ -32,6 +32,8 @@ try{
  assert.equal(run().status,0);assert.equal(JSON.parse(fs.readFileSync(args.at(-1),'utf8')).rows[0].status,'merged_catalog_match');
  assert.equal(run().status,2,'existing reports must not be overwritten');
  fs.unlinkSync(args.at(-1));fs.writeFileSync(path.join(dir,'catalog.json'),'[]');assert.equal(run().status,1,'missing catalog must fail the audit');
+ fs.unlinkSync(args.at(-1));fs.writeFileSync(path.join(dir,'pulls.json'),'PRIVATE_MALFORMED_INPUT');
+ const malformed=run();assert.equal(malformed.status,2);assert.doesNotMatch(malformed.stderr,/PRIVATE_MALFORMED_INPUT/);assert.match(malformed.stderr,/Invalid JSON input/);
  args[args.length-1]=args[1];const input=fs.readFileSync(args[1],'utf8');assert.equal(run().status,2);assert.equal(fs.readFileSync(args[1],'utf8'),input);
 }finally{fs.rmSync(dir,{recursive:true,force:true});}
 console.log('PASS offline publication audit: PR state, repository/author/versions, ambiguous snapshots, no input mutation/content copying, CLI exit codes and overwrite guards');

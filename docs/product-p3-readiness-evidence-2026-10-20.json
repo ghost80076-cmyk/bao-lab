@@ -30,8 +30,8 @@
     "tests/worker-wallet-topup-integrity-core.cjs": "934e8de2897d5ab668f20f9585cda7fff4480c6932f3f57a013b217f17ca7312",
     "tests/worker-admin-usage-routes-core.cjs": "94e2dcb14d54f9f7e48ec101b3b2426122c691e3b66ecb60fe1d170437cb64a4",
     "tests/worker-provider-transport-core.cjs": "0899df785bfe0efbebd34bd6ce020108bfbd2f5268ab241662a2b9d8fede27a0",
-    "scripts/audit-publication-status.cjs": "39070b973d0c054c261838d31b48d8c92bd4eeff5eefce6b7f0de1036082c767",
-    "tests/publication-status-audit-core.cjs": "cd589b442fafb8ddb1288f06a5bbbd949cb968b15326315b6e614c4742401821"
+    "scripts/audit-publication-status.cjs": "9b1a36a43b69e79d82ca3cd9af10d53c40a445ed7ea189cd2305aa9f718e268c",
+    "tests/publication-status-audit-core.cjs": "a63b4f33d36b9ed4c2a6cfc99fa6660112d9aaf1c82f2393be704bad474347bc"
   },
   "checks": [
     {

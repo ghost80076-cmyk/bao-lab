@@ -52,4 +52,4 @@ node scripts/audit-publication-status.cjs --submissions /private/submissions.jso
 
 輸出只含必要識別、狀態與計數，不複製提示詞、角色全文或 `snapshot_json`。命令不發網路請求、不寫 D1、不修改輸入，報告須寫到不存在的新檔案；0 表示無需額外處理的格式／metadata 差異，1 表示有差異，2 表示參數／輸入／輸出錯誤。退出 0 也不構成正式發布驗收完成。
 
-[回歸](../tests/publication-status-audit-core.cjs) 涵蓋錯 repo、開啟／拒絕 PR、缺少合併證據、錯作者／版本、重複快照、正常重複目錄、內容不外洩、輸入未變與檔案防覆寫；Maintenance CI 執行。尚未提供正式匯出，因此本輪沒有真實投稿差異清單。
+[回歸](../tests/publication-status-audit-core.cjs) 涵蓋錯 repo、開啟／拒絕 PR、缺少合併證據、錯作者／版本、重複快照、正常重複目錄、內容及格式錯誤的原文不外洩、輸入未變與檔案防覆寫；Maintenance CI 執行。尚未提供正式匯出，因此本輪沒有真實投稿差異清單。

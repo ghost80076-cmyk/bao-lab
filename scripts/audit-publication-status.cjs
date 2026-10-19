@@ -50,6 +50,6 @@ if(require.main===module){
   fs.writeFileSync(target,JSON.stringify(report,null,2)+'\n',{flag:'wx'});
   console.log(JSON.stringify({counts:report.counts,attention_rows:report.attention_rows}));
   if(report.attention_rows)process.exitCode=1;
- }catch(error){console.error(error.message);process.exitCode=2;}
+ }catch(error){console.error(error instanceof SyntaxError?'Invalid JSON input':error.message);process.exitCode=2;}
 }
 module.exports={audit};
