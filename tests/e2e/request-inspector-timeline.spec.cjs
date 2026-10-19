@@ -14,6 +14,9 @@ test('mobile request inspector and NPC timeline use existing story controls',asy
       {id:'canon-core',title:'城門規則',category:'world',tier:'core',content:'離城需登記。'},
       {id:'canon-ui',title:'待核對筆記',category:'conflicts',tier:'ui',content:'不可送出的存疑細節。'}
     ]};
+    Chat.add('assistant','艾琳聽說港口今天封閉，但還沒有確認。');
+    const source=Chat.messages.at(-1);
+    BAOEpisodicMemory.ingest(GameState.current,{episodes:[{text:'港口封閉傳聞',certainty:'rumor',visibility:'restricted',evidenceIds:[source.id],knowledge:[{actor:'艾琳',mode:'rumor',claim:'聽說港口封閉，尚未確認。',evidenceIds:[source.id]}]}]},[source]);
     Chat.add('user','我先離開城市。');
     App.renderChatShell(false);App.showView('chat');
   });
@@ -58,6 +61,13 @@ test('mobile request inspector and NPC timeline use existing story controls',asy
   const timeline=page.getByRole('dialog',{name:'NPC 個別時間線'});
   await expect(timeline).toBeVisible();
   await timeline.locator('[data-npc]').selectOption({label:'艾琳'});
+  const knowledgeSource=timeline.locator('[data-source-event]').first();
+  await knowledgeSource.locator('summary').click();
+  await expect(knowledgeSource).toContainText('取得這項認知的原文');
+  await expect(knowledgeSource.locator('pre')).toHaveText('艾琳聽說港口今天封閉，但還沒有確認。');
+  await noOverflow(timeline);
+  await page.screenshot({path:test.info().outputPath('npc-knowledge-source-mobile.png')});
+  await knowledgeSource.locator('summary').click();
   await timeline.getByText('安排離場日程',{exact:true}).click();
   await timeline.locator('[name="text"]').fill('在市場上班');
   await timeline.locator('[name="minutes"]').fill('60');
@@ -88,12 +98,35 @@ test('mobile request inspector and NPC timeline use existing story controls',asy
   await timeline.locator('[data-npc]').selectOption({label:'艾琳'});
   await expect(timeline.locator('[data-history]')).toContainText('故事已結案');
   await expect(timeline.locator('[data-history]')).toContainText(quote);
+  const resolvedSource=timeline.locator('[data-source-schedule]').last();
+  await resolvedSource.locator('summary').click();
+  await expect(resolvedSource).toContainText('結案故事原文');
+  await expect(resolvedSource).toContainText('故事回覆');
+  await expect(resolvedSource.locator('pre').last()).toHaveText(quote);
+  await noOverflow(timeline);
+  await page.screenshot({path:test.info().outputPath('npc-resolution-source-mobile.png')});
+  await resolvedSource.locator('summary').click();
+  await page.evaluate(id=>{const s=GameState.current.npcTimeline.schedules.find(s=>s.id===id);Chat.messages.find(m=>m.id===s.resolution.evidence.id).content='艾琳仍未做出決定。';},taskId);
+  await resolvedSource.locator('summary').click();
+  await expect(resolvedSource).toContainText('來源已變更或已移除');
+  await expect(resolvedSource).not.toContainText(quote);
+  await expect(resolvedSource).not.toContainText('艾琳仍未做出決定。');
+  await page.screenshot({path:test.info().outputPath('npc-invalidated-source-mobile.png')});
+  await page.evaluate(({id,quote})=>{const s=GameState.current.npcTimeline.schedules.find(s=>s.id===id);Chat.messages.find(m=>m.id===s.resolution.evidence.id).content=quote;},{id:taskId,quote});
   await timeline.getByRole('button',{name:'重新待判定'}).click();
   await expect(timeline.locator('[data-history]')).toContainText('到期，待判定');
   await page.screenshot({path:test.info().outputPath('npc-decision-reopened-mobile.png')});
   await page.keyboard.press('Escape');
   // Desktop uses a vertical document, not context-health's two-column grid areas.
+  expect(requestCount).toBe(2,'source review must not send API requests');
   await page.setViewportSize({width:1440,height:1000});
+  await page.evaluate(()=>BAONPCTimeline.open());
+  await timeline.locator('[data-npc]').selectOption({label:'艾琳'});
+  await timeline.locator('[data-source-event]').first().locator('summary').click();
+  await expect(timeline.locator('[data-source-body]').first()).toContainText('艾琳聽說港口今天封閉，但還沒有確認。');
+  await noOverflow(timeline);
+  await page.screenshot({path:test.info().outputPath('npc-knowledge-source-desktop.png')});
+  await page.keyboard.press('Escape');
   await page.evaluate(()=>BAOContextInspector.open());
   await expect(page.getByRole('dialog',{name:'本輪上下文檢視器'})).toHaveCSS('display','block');
   await page.screenshot({path:test.info().outputPath('context-inspector-desktop.png')});

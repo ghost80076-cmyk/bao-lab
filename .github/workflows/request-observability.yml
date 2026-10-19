@@ -24,6 +24,7 @@ jobs:
           node tests/canon-workbench-core.cjs
           node tests/lorebook-core.cjs
           node tests/npc-timeline-core.cjs
+          node tests/npc-timeline-sources-core.cjs
           node tests/npc-timeline-resolution-core.cjs
           node tests/same-model-state-merge-core.cjs
           node tests/world-state-cost-core.cjs
