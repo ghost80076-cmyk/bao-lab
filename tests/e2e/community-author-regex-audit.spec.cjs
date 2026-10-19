@@ -22,9 +22,9 @@ const cases = [
 for (const id of cases) {
   test(`official sidecar renders real greeting without raw markers: ${id}`, async ({ page }) => {
     await page.goto('./');
-    await page.waitForFunction(cardId => Boolean(
-      window.BAOAuthorInline && App.characters?.some(card => card.id === cardId)
-    ), id);
+    await page.waitForFunction(() => Boolean(
+      window.BAOAuthorInline && typeof App?.loadCharacter === 'function'
+    ));
 
     await page.evaluate(async cardId => {
       localStorage.removeItem('bao-lab:author-regex:v1:' + encodeURIComponent(cardId));
