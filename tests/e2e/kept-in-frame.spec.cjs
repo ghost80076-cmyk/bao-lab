@@ -4,7 +4,7 @@ for(const viewport of [{width:1280,height:900},{width:390,height:844}]){
  test('留影 native setup, Regex and reading at '+viewport.width,async({page})=>{
   await page.setViewportSize(viewport);
   await page.goto('./');
-  await page.waitForFunction(()=>window.BAOAuthorInline&&window.BAOGameplayUICore&&App.characters?.some(c=>c.id==='kept-in-frame-lin-youzhen'));
+  await page.waitForFunction(()=>window.BAOAuthorInline&&window.BAOGameplayUICore&&typeof App?.loadCharacter==='function');
   const result=await page.evaluate(async()=>{
    const c=await App.loadCharacter('kept-in-frame-lin-youzhen');
    App.activeCharacter=c;
