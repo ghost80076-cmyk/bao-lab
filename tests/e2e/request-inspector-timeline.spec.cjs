@@ -12,7 +12,11 @@ test('mobile request inspector and NPC timeline use existing story controls',asy
     Chat.add('user','我先離開城市。');
     App.renderChatShell(false);App.showView('chat');
   });
-  await page.route('https://example.invalid/**',route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({choices:[{message:{content:'故事回覆'}}],usage:{prompt_tokens:300,completion_tokens:20,prompt_tokens_details:{cached_tokens:0}}})}));
+  let requestCount=0, nextReply='故事回覆';
+  await page.route('https://example.invalid/**',route=>{
+    requestCount++;
+    return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({choices:[{message:{content:nextReply}}],usage:{prompt_tokens:300,completion_tokens:20,prompt_tokens_details:{cached_tokens:0}}})});
+  });
   await page.evaluate(async()=>{
     const messages=await App.buildMessages(App.config);
     await API.send({...App.config.api,stream:false},messages);
@@ -51,6 +55,28 @@ test('mobile request inspector and NPC timeline use existing story controls',asy
   await noOverflow(timeline);
   await page.screenshot({path:test.info().outputPath('npc-timeline-mobile.png')});
   await page.keyboard.press('Escape');await expect(timeline).toHaveCount(0);
+  const taskId=await page.evaluate(()=>{
+    BAONPCTimeline.schedule({npcId:GameState.current.npcs.find(n=>n.name==='艾琳').npc_id,text:'是否接受王城邀請',inMinutes:1,kind:'decision'});
+    GameState.applyUpdate({world_clock:{advance_minutes:1}});
+    GameState.upsertNPC({name:'艾琳',presence:'present'});
+    return GameState.current.npcTimeline.schedules.at(-1).id;
+  });
+  const quote='艾琳看著來信，明確拒絕了王城的邀請。';
+  nextReply=quote+'<BAO_STATE>'+JSON.stringify({npc_timeline:{resolve:[{id:taskId,quote}]}})+'</BAO_STATE>';
+  await page.locator('#user-input').fill('妳決定了嗎？');
+  await page.getByRole('button',{name:'送出訊息',exact:true}).click();
+  await expect.poll(()=>page.evaluate(id=>GameState.current.npcTimeline.schedules.find(s=>s.id===id).status,taskId)).toBe('resolved');
+  expect(requestCount).toBe(2); // Initial inspection request + this story turn, no added helper call.
+  await page.getByRole('button',{name:'故事總覽',exact:true}).click();
+  await control.locator('.story-control-more > summary').click();
+  await control.locator('[data-story-control-action="timeline"]').click();
+  await timeline.locator('[data-npc]').selectOption({label:'艾琳'});
+  await expect(timeline.locator('[data-history]')).toContainText('故事已結案');
+  await expect(timeline.locator('[data-history]')).toContainText(quote);
+  await timeline.getByRole('button',{name:'重新待判定'}).click();
+  await expect(timeline.locator('[data-history]')).toContainText('到期，待判定');
+  await page.screenshot({path:test.info().outputPath('npc-decision-reopened-mobile.png')});
+  await page.keyboard.press('Escape');
   // Desktop uses a vertical document, not context-health's two-column grid areas.
   await page.setViewportSize({width:1440,height:1000});
   await page.evaluate(()=>BAOContextInspector.open());
