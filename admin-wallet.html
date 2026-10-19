@@ -898,6 +898,7 @@ code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
   });
 
   function applyPackage(button){
+    walletTopupAttempt = null;
     var currency=$("currency").value;
     $("payment-amount").value=currency==="USD"?button.dataset.payUsd:button.dataset.payTwd;
     $("processor-fee").value="0";
@@ -915,13 +916,19 @@ code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
   $("currency").addEventListener("change",function(){
     var active=document.querySelector(".package.active");
     if(active) applyPackage(active);
+    resetWalletTopupAttempt();
     updateSummary();
   });
 
   ["payment-amount","processor-fee","net-received","credit-points","payment-method","payment-reference","note"]
-    .forEach(function(id){$(id).addEventListener("input",updateSummary);$(id).addEventListener("change",updateSummary);});
+    .forEach(function(id){$(id).addEventListener("input",function(){resetWalletTopupAttempt();updateSummary();});$(id).addEventListener("change",function(){resetWalletTopupAttempt();updateSummary();});});
 
+  // A retry must preserve the same key. Editing payment details starts a new intent.
+  var walletTopupAttempt = null;
+  var walletTopupSubmitting = false;
+  function resetWalletTopupAttempt(){ walletTopupAttempt = null; }
   $("credit-wallet").onclick=async function(){
+    if(walletTopupSubmitting) return;
     setMessage("topup-message","");
     if(!selected){setMessage("topup-message","請先選擇玩家。");return;}
     var currency=$("currency").value;
@@ -942,6 +949,7 @@ code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
       "實收："+currency+" "+net.toFixed(2);
     if(!confirm(text)) return;
     this.disabled=true;
+    walletTopupSubmitting=true;
     try{
       var body={
         credit_added_microusd:creditMicro,
@@ -953,6 +961,11 @@ code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
         payment_reference:$("payment-reference").value.trim()||null,
         note:$("note").value.trim()||null
       };
+      var topupPayload=JSON.stringify({player_id:selected.id,body:body});
+      if(!walletTopupAttempt||walletTopupAttempt.payload!==topupPayload){
+        walletTopupAttempt={payload:topupPayload,key:crypto.randomUUID()};
+      }
+      body.idempotency_key=walletTopupAttempt.key;
       var data=await api("/admin/players/"+encodeURIComponent(selected.id)+"/wallet-credit",{
         method:"POST",
         body:JSON.stringify(body)
@@ -960,12 +973,13 @@ code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
       if(data&&data.wallet_balance_usd!=null) selected.wallet_balance_usd=data.wallet_balance_usd;
       else selected.wallet_balance_usd=Number(selected.wallet_balance_usd||0)+(credit/1000);
       renderSelected();
-      setMessage("topup-message","加值成功。最新點數："+points(selected.wallet_balance_usd),true);
+      setMessage("topup-message",(data.replayed?"此交易已入帳，未重複補點。":"加值成功。")+" 最新點數："+points(selected.wallet_balance_usd),true);
       await refreshPlayers(selected.id);
     }catch(e){
-      setMessage("topup-message","加值失敗："+e.message);
+      setMessage("topup-message","加值未確認："+e.message+"。如為連線中斷，可重試同一筆；新付款請先修改資料。");
     }finally{
-      $("credit-wallet").disabled=!selected;
+      walletTopupSubmitting=false;
+      $("credit-wallet").disabled=!selected||Number(selected.enabled)===0||Number(selected.wallet_enabled)===0;
     }
   };
 
