@@ -395,243 +395,111 @@ async function adminPlayerMutationRoute(
       );
     }
 
-    const current =
-      await db
-        .prepare(
-          `
-          SELECT
-            balance_microusd
-
-          FROM wallets
-
-          WHERE
-            player_id = ?
-
-            AND
-            enabled = 1
-          `
-        )
-        .bind(
-          playerId
-        )
-        .first();
-
-    if (
-      !current
-    ) {
-      return fail(
-        "player_wallet_not_found",
-        404
-      );
+    // Reuse the same operation key on retries, including after an HTTP timeout.
+    const requestKey = body?.idempotency_key;
+    if (typeof requestKey !== "string" ||
+        !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(requestKey)) {
+      return fail("invalid_idempotency_key", 400);
     }
-
-    const before =
-      adminPlayerMutationSafeMoneyInt(
-        current
-          .balance_microusd
-      );
-
-    const after =
-      before +
-      creditMicrousd;
-
-    if (
-      !Number.isSafeInteger(
-        after
-      )
-    ) {
-      return fail(
-        "wallet_balance_limit"
-      );
-    }
-
-    const topupId =
-      crypto.randomUUID();
-
-    const ledgerId =
-      crypto.randomUUID();
-
-    const paymentMethod =
-      String(
-        body
-          ?.payment_method ||
-        "manual"
-      ).slice(
-        0,
-        80
-      );
-
-    const paymentReference =
-      String(
-        body
-          ?.payment_reference ||
-        ""
-      ).slice(
-        0,
-        200
-      );
-    const note =
-      String(
-        body?.note ||
-        ""
-      ).slice(
-        0,
-        500
-      );
-
+    const paymentMethod = String(body?.payment_method || "manual").slice(0, 80);
+    const paymentReference = String(body?.payment_reference || "").trim().slice(0, 200);
+    const note = String(body?.note || "").slice(0, 500);
+    const requestPayload = JSON.stringify([
+      playerId, creditMicrousd, paymentCurrency, paymentMinor,
+      processorFeeMinor, netReceivedMinor, paymentMethod, paymentReference, note,
+    ]);
+    const topupId = crypto.randomUUID();
+    const ledgerId = crypto.randomUUID();
     const legacyPaymentMicrousd =
-      paymentCurrency ===
-      "USD"
-        ? paymentMinor *
-          10_000
-        : 0;
+      paymentCurrency === "USD" ? paymentMinor * 10_000 : 0;
 
-    await db.batch(
-      [
-        db
-          .prepare(
-            `
-            UPDATE wallets
+    // No historical wallet_topups schema migration required.
+    await db.prepare(`CREATE TABLE IF NOT EXISTS wallet_topup_requests (
+      request_key TEXT PRIMARY KEY,
+      player_id TEXT NOT NULL,
+      topup_id TEXT NOT NULL UNIQUE,
+      request_payload TEXT NOT NULL,
+      created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+    )`).run();
 
-            SET
-              balance_microusd = ?,
-              updated_at =
-                CURRENT_TIMESTAMP
-
-            WHERE
-              player_id = ?
-            `
-          )
-          .bind(
-            after,
-            playerId
-          ),
-
-        db
-          .prepare(
-            `
-            INSERT INTO wallet_topups (
-              topup_id,
-              player_id,
-
-              payment_amount_microusd,
-
-              credit_added_microusd,
-
-              payment_method,
-              payment_reference,
-              note,
-
-              payment_amount_minor,
-              payment_currency,
-
-              processor_fee_minor,
-              net_received_minor
-            )
-
-            VALUES (
-              ?,
-              ?,
-              ?,
-              ?,
-              ?,
-              ?,
-              ?,
-              ?,
-              ?,
-              ?,
-              ?
-            )
-            `
-          )
-          .bind(
-            topupId,
-            playerId,
-
-            legacyPaymentMicrousd,
-
-            creditMicrousd,
-
-            paymentMethod,
-            paymentReference,
-            note,
-
-            paymentMinor,
-            paymentCurrency,
-
-            processorFeeMinor,
-            netReceivedMinor
-          ),
-
-        db
-          .prepare(
-            `
-            INSERT INTO wallet_ledger (
-              ledger_id,
-              player_id,
-              entry_type,
-              amount_microusd,
-
-              balance_before_microusd,
-              balance_after_microusd,
-
-              reference_id,
-              note
-            )
-
-            VALUES (
-              ?,
-              ?,
-              'topup',
-              ?,
-              ?,
-              ?,
-              ?,
-              ?
-            )
-            `
-          )
-          .bind(
-            ledgerId,
-            playerId,
-            creditMicrousd,
-            before,
-            after,
-            topupId,
-            note
-          ),
-      ]
-    );
-
+    // Atomic D1 batch: claim the unique request first. Subsequent updates
+    // execute only for the newly claimed topup_id, so retries are read-only.
+    const results = await db.batch([
+      db.prepare(`INSERT INTO wallet_topup_requests
+        (request_key, player_id, topup_id, request_payload)
+        SELECT ?, w.player_id, ?, ? FROM wallets w
+        WHERE w.player_id = ? AND w.enabled = 1
+          AND w.balance_microusd BETWEEN 0 AND 9000000000000 - ?
+          AND (? = '' OR NOT EXISTS (
+            SELECT 1 FROM wallet_topups t
+            WHERE t.payment_method = ? AND t.payment_reference = ?
+          ))
+        ON CONFLICT(request_key) DO NOTHING`)
+        .bind(requestKey, topupId, requestPayload, playerId, creditMicrousd,
+          paymentReference, paymentMethod, paymentReference),
+      db.prepare(`UPDATE wallets
+        SET balance_microusd = balance_microusd + ?,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE player_id = ? AND enabled = 1
+          AND balance_microusd BETWEEN 0 AND 9000000000000 - ?
+          AND EXISTS (SELECT 1 FROM wallet_topup_requests
+            WHERE request_key = ? AND topup_id = ?)`)
+        .bind(creditMicrousd, playerId, creditMicrousd, requestKey, topupId),
+      db.prepare(`INSERT INTO wallet_topups (
+        topup_id, player_id, payment_amount_microusd, credit_added_microusd,
+        payment_method, payment_reference, note,
+        payment_amount_minor, payment_currency, processor_fee_minor, net_received_minor
+      ) SELECT ?, r.player_id, ?, ?, ?, ?, ?, ?, ?, ?, ?
+        FROM wallet_topup_requests r
+        WHERE r.request_key = ? AND r.topup_id = ?`)
+        .bind(topupId, legacyPaymentMicrousd, creditMicrousd,
+          paymentMethod, paymentReference, note, paymentMinor, paymentCurrency,
+          processorFeeMinor, netReceivedMinor, requestKey, topupId),
+      db.prepare(`INSERT INTO wallet_ledger (
+        ledger_id, player_id, entry_type, amount_microusd,
+        balance_before_microusd, balance_after_microusd, reference_id, note
+      ) SELECT ?, r.player_id, 'topup', ?, w.balance_microusd - ?,
+          w.balance_microusd, r.topup_id, ?
+        FROM wallet_topup_requests r
+        JOIN wallets w ON w.player_id = r.player_id
+        WHERE r.request_key = ? AND r.topup_id = ?`)
+        .bind(ledgerId, creditMicrousd, creditMicrousd, note, requestKey, topupId),
+    ]);
+    const existing = await db.prepare(`SELECT r.topup_id, r.player_id,
+        r.request_payload, l.balance_after_microusd
+      FROM wallet_topup_requests r
+      JOIN wallet_ledger l ON l.reference_id = r.topup_id
+      WHERE r.request_key = ?`).bind(requestKey).first();
+    if (existing && existing.request_payload !== requestPayload)
+      return fail("idempotency_key_conflict", 409);
+    if (results[0].meta.changes > 0 && (
+      results[1].meta.changes !== 1 ||
+      results[2].meta.changes !== 1 ||
+      results[3].meta.changes !== 1
+    )) return fail("wallet_topup_invariant_failed", 500);
+    if (!existing) {
+      if (paymentReference) {
+        const duplicate = await db.prepare(`SELECT topup_id FROM wallet_topups
+          WHERE payment_method = ? AND payment_reference = ? LIMIT 1`)
+          .bind(paymentMethod, paymentReference).first();
+        if (duplicate) return fail("duplicate_payment_reference", 409);
+      }
+      return fail("player_wallet_not_found_or_balance_limit", 409);
+    }
+    const wallet = await db.prepare(`SELECT balance_microusd FROM wallets
+      WHERE player_id = ?`).bind(playerId).first();
+    const balance = adminPlayerMutationSafeMoneyInt(wallet?.balance_microusd);
     return json({
-      topup_id:
-        topupId,
-
-      payment_currency:
-        paymentCurrency,
-
-      payment_amount_minor:
-        paymentMinor,
-
-      processor_fee_minor:
-        processorFeeMinor,
-
-      net_received_minor:
-        netReceivedMinor,
-
-      credited_microusd:
-        creditMicrousd,
-
-      credited_usd:
-        creditMicrousd /
-        1_000_000,
-
-      wallet_balance_microusd:
-        after,
-
-      wallet_balance_usd:
-        after /
-        1_000_000,
+      topup_id: existing.topup_id,
+      replayed: results[0].meta.changes === 0,
+      payment_currency: paymentCurrency,
+      payment_amount_minor: paymentMinor,
+      processor_fee_minor: processorFeeMinor,
+      net_received_minor: netReceivedMinor,
+      credited_microusd: creditMicrousd,
+      credited_usd: creditMicrousd / 1_000_000,
+      wallet_balance_microusd: balance,
+      wallet_balance_usd: balance / 1_000_000,
     });
   }
 
