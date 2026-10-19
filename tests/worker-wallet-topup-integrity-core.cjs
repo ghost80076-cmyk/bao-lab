@@ -52,10 +52,10 @@ CREATE TABLE wallet_ledger (
   amount_microusd INTEGER, balance_before_microusd INTEGER,
   balance_after_microusd INTEGER, reference_id TEXT UNIQUE, note TEXT
 );
-INSERT INTO wallets VALUES ('\${playerId}', 1000, 1, NULL);`.replace('\${playerId}', playerId));
-const rows = table => sqlite.prepare(`SELECT COUNT(*) n FROM \${table}`).get().n;
+INSERT INTO wallets VALUES ('${playerId}', 1000, 1, NULL);`.replace('${playerId}', playerId));
+const rows = table => sqlite.prepare(`SELECT COUNT(*) n FROM ${table}`).get().n;
 const balance = () => sqlite.prepare('SELECT balance_microusd b FROM wallets').get().b;
-const id = n => `00000000-0000-4000-8000-\${String(n).padStart(12, '0')}`;
+const id = n => `00000000-0000-4000-8000-${String(n).padStart(12, '0')}`;
 const creditRequest = (requestKey, overrides = {}) => ({
   idempotency_key: requestKey, credit_added_microusd: 500,
   payment_currency: 'TWD', payment_amount_minor: 25000,
@@ -67,7 +67,7 @@ const creditRequest = (requestKey, overrides = {}) => ({
   const { adminPlayerMutationRoute } = await import(pathToFileURL(path.join(
     __dirname, '../workers/bao-lab-credits-api/modules/admin-player-mutation-routes.js'
   )).href);
-  const route = `/admin/players/\${playerId}/wallet-credit`;
+  const route = `/admin/players/${playerId}/wallet-credit`;
   const post = async body => {
     const res = await adminPlayerMutationRoute(new Request('https://test.local' + route, {
       method: 'POST', headers: { 'content-type': 'application/json' },
