@@ -34,5 +34,42 @@
     "updated_at": "2026-10-20T00:20:00+08:00",
     "version_published_at": "2026-10-20T00:20:00+08:00",
     "published_version": 1
+  },
+  {
+    "id": "lin-yuxuan-nursing-relative",
+    "name": "林雨萱｜深夜求助的護理系表妹",
+    "title": "林雨萱｜深夜求助的護理系表妹",
+    "avatar": "https://i.meee.com.tw/L3tfGKk.jpg",
+    "category": "male",
+    "rating": "adult",
+    "gender": "female",
+    "tags": [
+      "男性向",
+      "單角色",
+      "護理系",
+      "生活模擬",
+      "長期養成",
+      "債務",
+      "校園",
+      "NPC自主",
+      "多分支",
+      "成人向"
+    ],
+    "description": "一通深夜來電，把你重新拉回遠房表妹林雨萱的人生。母親重病、債務、學業與生活同時崩塌；你的介入會改變她的關係、選擇與未來。",
+    "author": "班長",
+    "author_id": "banzhang",
+    "file": "data/characters/community/11/lin-yuxuan-nursing-relative.json",
+    "supported_modes": {
+      "immersive": true,
+      "world": true
+    },
+    "supported_display": {
+      "text": true,
+      "ui": true
+    },
+    "published_at": "2026-10-20T00:40:00+08:00",
+    "updated_at": "2026-10-20T00:40:00+08:00",
+    "version_published_at": "2026-10-20T00:40:00+08:00",
+    "published_version": 1
   }
 ]
