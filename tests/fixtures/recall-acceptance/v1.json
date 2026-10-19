@@ -1,0 +1,842 @@
+{
+  "version": 1,
+  "description": "合成、人工指定 oracle；測本地索引到實際 buildMessages 的輸出，不測 LLM 提取／生成品質。",
+  "stories": {
+    "ring": {
+      "messages": [
+        {
+          "id": "r1",
+          "role": "assistant",
+          "content": "艾琳親眼見到玩家經過王城密道，把戒指藏進壁爐。"
+        },
+        {
+          "id": "r2",
+          "role": "assistant",
+          "content": "守衛只聽見市集傳聞：玩家偷了戒指，尚未證實。"
+        },
+        {
+          "id": "r3",
+          "role": "assistant",
+          "content": "艾琳後來告訴守衛，戒指並非玩家偷走。"
+        }
+      ],
+      "batches": [
+        {
+          "ids": [
+            "r1",
+            "r2"
+          ],
+          "episodes": [
+            {
+              "key": "ring",
+              "text": "玩家經過王城密道，把戒指藏進壁爐。",
+              "entities": [
+                "艾琳"
+              ],
+              "keywords": [
+                "戒指"
+              ],
+              "evidenceIds": [
+                "r1"
+              ],
+              "knowledge": [
+                {
+                  "actor": "艾琳",
+                  "mode": "witnessed",
+                  "claim": "玩家把戒指藏在壁爐。",
+                  "evidenceIds": [
+                    "r1"
+                  ]
+                },
+                {
+                  "actor": "守衛",
+                  "mode": "rumor",
+                  "claim": "聽說玩家偷走戒指，尚未證實。",
+                  "evidenceIds": [
+                    "r2"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ids": [
+            "r3"
+          ],
+          "knowledgeUpdates": [
+            {
+              "eventKey": "ring",
+              "actor": "守衛",
+              "mode": "told",
+              "claim": "艾琳告訴我，戒指不是玩家偷走的。",
+              "evidenceIds": [
+                "r3"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "gate": {
+      "messages": [
+        {
+          "id": "g1",
+          "role": "assistant",
+          "content": "公告：城門今晚關閉。"
+        },
+        {
+          "id": "g2",
+          "role": "assistant",
+          "content": "新公告更正：城門今晚照常開放。"
+        }
+      ],
+      "batches": [
+        {
+          "ids": [
+            "g1"
+          ],
+          "episodes": [
+            {
+              "key": "gate-old",
+              "text": "城門今晚關閉。",
+              "visibility": "public",
+              "certainty": "confirmed",
+              "evidenceIds": [
+                "g1"
+              ]
+            }
+          ]
+        },
+        {
+          "ids": [
+            "g2"
+          ],
+          "episodes": [
+            {
+              "key": "gate-new",
+              "text": "城門今晚照常開放。",
+              "visibility": "public",
+              "certainty": "confirmed",
+              "evidenceIds": [
+                "g2"
+              ],
+              "supersedesKeys": [
+                "gate-old"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "trust": {
+      "messages": [
+        {
+          "id": "t1",
+          "role": "assistant",
+          "content": "雨夜艾琳因玩家隱瞞身分而爭吵。"
+        }
+      ],
+      "batches": [
+        {
+          "ids": [
+            "t1"
+          ],
+          "episodes": [
+            {
+              "key": "trust",
+              "text": "雨夜因隱瞞身分爭吵。",
+              "entities": [
+                "艾琳"
+              ],
+              "keywords": [
+                "雨天",
+                "信任"
+              ],
+              "evidenceIds": [
+                "t1"
+              ],
+              "knowledge": [
+                {
+                  "actor": "艾琳",
+                  "mode": "witnessed",
+                  "claim": "雨夜因玩家隱瞞身分而爭吵。",
+                  "evidenceIds": [
+                    "t1"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "shared": {
+      "messages": [
+        {
+          "id": "s0",
+          "role": "assistant",
+          "content": "王室在暗房安排了北塔撤離。"
+        },
+        {
+          "id": "s1",
+          "role": "assistant",
+          "content": "信使告訴艾琳：北塔明天撤離。"
+        },
+        {
+          "id": "s2",
+          "role": "assistant",
+          "content": "信使告訴守衛：北塔明天撤離。"
+        }
+      ],
+      "batches": [
+        {
+          "ids": [
+            "s0",
+            "s1",
+            "s2"
+          ],
+          "episodes": [
+            {
+              "key": "tower",
+              "text": "王室在暗房安排北塔撤離。",
+              "entities": [
+                "北塔"
+              ],
+              "evidenceIds": [
+                "s0"
+              ],
+              "knowledge": [
+                {
+                  "actor": "艾琳",
+                  "mode": "told",
+                  "claim": "北塔明天撤離。",
+                  "evidenceIds": [
+                    "s1"
+                  ]
+                },
+                {
+                  "actor": "守衛",
+                  "mode": "told",
+                  "claim": "北塔明天撤離。",
+                  "evidenceIds": [
+                    "s2"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "ports": {
+      "messages": [
+        {
+          "id": "p1",
+          "role": "assistant",
+          "content": "港口第1號碼頭整修。"
+        },
+        {
+          "id": "p2",
+          "role": "assistant",
+          "content": "港口第2號碼頭整修。"
+        },
+        {
+          "id": "p3",
+          "role": "assistant",
+          "content": "港口第3號碼頭整修。"
+        },
+        {
+          "id": "p4",
+          "role": "assistant",
+          "content": "港口第4號碼頭整修。"
+        },
+        {
+          "id": "p5",
+          "role": "assistant",
+          "content": "港口第5號碼頭整修。"
+        },
+        {
+          "id": "p6",
+          "role": "assistant",
+          "content": "港口第6號碼頭整修。"
+        }
+      ],
+      "batches": [
+        {
+          "ids": [
+            "p1",
+            "p2",
+            "p3",
+            "p4",
+            "p5",
+            "p6"
+          ],
+          "episodes": [
+            {
+              "key": "port1",
+              "text": "港口第1號碼頭整修。",
+              "visibility": "public",
+              "certainty": "confirmed",
+              "evidenceIds": [
+                "p1"
+              ]
+            },
+            {
+              "key": "port2",
+              "text": "港口第2號碼頭整修。",
+              "visibility": "public",
+              "certainty": "confirmed",
+              "evidenceIds": [
+                "p2"
+              ]
+            },
+            {
+              "key": "port3",
+              "text": "港口第3號碼頭整修。",
+              "visibility": "public",
+              "certainty": "confirmed",
+              "evidenceIds": [
+                "p3"
+              ]
+            },
+            {
+              "key": "port4",
+              "text": "港口第4號碼頭整修。",
+              "visibility": "public",
+              "certainty": "confirmed",
+              "evidenceIds": [
+                "p4"
+              ]
+            },
+            {
+              "key": "port5",
+              "text": "港口第5號碼頭整修。",
+              "visibility": "public",
+              "certainty": "confirmed",
+              "evidenceIds": [
+                "p5"
+              ]
+            },
+            {
+              "key": "port6",
+              "text": "港口第6號碼頭整修。",
+              "visibility": "public",
+              "certainty": "confirmed",
+              "evidenceIds": [
+                "p6"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "cases": [
+    {
+      "id": "owner-literal",
+      "story": "ring",
+      "input": "戒指",
+      "expected": [
+        "ring"
+      ],
+      "primary": "艾琳",
+      "dropIds": [
+        "r3"
+      ],
+      "refs": {
+        "ring": [
+          "r1"
+        ]
+      }
+    },
+    {
+      "id": "rumor-not-objective",
+      "story": "ring",
+      "input": "戒指",
+      "expected": [
+        "ring"
+      ],
+      "primary": "守衛",
+      "dropIds": [
+        "r3"
+      ],
+      "refs": {
+        "ring": [
+          "r2"
+        ]
+      },
+      "forbidden": [
+        "王城密道",
+        "壁爐",
+        "玩家把戒指藏"
+      ]
+    },
+    {
+      "id": "unknown-actor",
+      "story": "ring",
+      "input": "戒指",
+      "expected": [],
+      "primary": "陌生人"
+    },
+    {
+      "id": "unknown-world-cast",
+      "story": "ring",
+      "input": "戒指",
+      "expected": [],
+      "narrativeMode": "world",
+      "primary": "艾琳"
+    },
+    {
+      "id": "mixed-different-beliefs",
+      "story": "ring",
+      "input": "戒指",
+      "expected": [],
+      "primary": "艾琳",
+      "npcs": [
+        {
+          "name": "守衛",
+          "presence": "present"
+        }
+      ],
+      "dropIds": [
+        "r3"
+      ]
+    },
+    {
+      "id": "mixed-unknown",
+      "story": "ring",
+      "input": "戒指",
+      "expected": [],
+      "primary": "艾琳",
+      "npcs": [
+        {
+          "name": "陌生人",
+          "presence": "present"
+        }
+      ]
+    },
+    {
+      "id": "world-present-only",
+      "story": "ring",
+      "input": "戒指",
+      "expected": [
+        "ring"
+      ],
+      "narrativeMode": "world",
+      "primary": "港城故事",
+      "npcs": [
+        {
+          "name": "守衛",
+          "presence": "present"
+        },
+        {
+          "name": "艾琳",
+          "presence": "away"
+        }
+      ],
+      "dropIds": [
+        "r3"
+      ],
+      "refs": {
+        "ring": [
+          "r2"
+        ]
+      },
+      "forbidden": [
+        "壁爐",
+        "王城密道"
+      ]
+    },
+    {
+      "id": "world-mention-is-not-cast",
+      "story": "ring",
+      "input": "艾琳的戒指",
+      "expected": [],
+      "narrativeMode": "world",
+      "primary": "港城故事",
+      "npcs": [
+        {
+          "name": "艾琳",
+          "presence": "away"
+        }
+      ]
+    },
+    {
+      "id": "hidden-objective-not-query-signal",
+      "story": "ring",
+      "input": "王城密道",
+      "expected": [],
+      "primary": "守衛",
+      "dropIds": [
+        "r3"
+      ]
+    },
+    {
+      "id": "later-told-claim",
+      "story": "ring",
+      "input": "戒指",
+      "expected": [
+        "ring"
+      ],
+      "primary": "守衛",
+      "refs": {
+        "ring": [
+          "r3"
+        ]
+      },
+      "forbidden": [
+        "聽說玩家偷走戒指",
+        "王城密道",
+        "壁爐"
+      ]
+    },
+    {
+      "id": "rewind-belief",
+      "story": "ring",
+      "input": "戒指",
+      "expected": [
+        "ring"
+      ],
+      "primary": "守衛",
+      "dropIds": [
+        "r3"
+      ],
+      "refs": {
+        "ring": [
+          "r2"
+        ]
+      }
+    },
+    {
+      "id": "edit-later-belief",
+      "story": "ring",
+      "input": "戒指",
+      "expected": [
+        "ring"
+      ],
+      "primary": "守衛",
+      "edits": {
+        "r3": {
+          "content": "守衛未聽見說明。"
+        }
+      },
+      "refs": {
+        "ring": [
+          "r2"
+        ]
+      }
+    },
+    {
+      "id": "edit-origin",
+      "story": "ring",
+      "input": "戒指",
+      "expected": [],
+      "primary": "艾琳",
+      "edits": {
+        "r1": {
+          "content": "原文已完全改寫。"
+        }
+      }
+    },
+    {
+      "id": "edit-semantic-context",
+      "story": "ring",
+      "input": "戒指",
+      "expected": [],
+      "primary": "艾琳",
+      "edits": {
+        "r1": {
+          "context_content": "改寫後的語意來源"
+        }
+      }
+    },
+    {
+      "id": "missing-origin-branch",
+      "story": "ring",
+      "input": "戒指",
+      "expected": [],
+      "primary": "艾琳",
+      "dropIds": [
+        "r1"
+      ]
+    },
+    {
+      "id": "separate-state-no-index",
+      "story": "ring",
+      "input": "戒指",
+      "expected": [],
+      "primary": "艾琳",
+      "emptyState": true
+    },
+    {
+      "id": "persisted-index",
+      "story": "ring",
+      "input": "戒指",
+      "expected": [
+        "ring"
+      ],
+      "primary": "艾琳",
+      "roundtrip": true,
+      "refs": {
+        "ring": [
+          "r1"
+        ]
+      }
+    },
+    {
+      "id": "unknown-alias-gap",
+      "story": "ring",
+      "input": "戒指",
+      "expected": [
+        "ring"
+      ],
+      "primary": "阿琳",
+      "npcs": [
+        {
+          "name": "艾琳",
+          "aliases": [
+            "阿琳"
+          ],
+          "presence": "away"
+        }
+      ],
+      "diagnostic": "未實作別名到正式知情身份的統一映射",
+      "knownMissing": [
+        "ring"
+      ]
+    },
+    {
+      "id": "public-unknown-cast",
+      "story": "gate",
+      "input": "城門",
+      "expected": [
+        "gate-new"
+      ],
+      "narrativeMode": "world",
+      "refs": {
+        "gate-new": [
+          "g2"
+        ]
+      },
+      "forbidden": [
+        "城門今晚關閉"
+      ]
+    },
+    {
+      "id": "public-rewound-correction",
+      "story": "gate",
+      "input": "城門",
+      "expected": [
+        "gate-old"
+      ],
+      "dropIds": [
+        "g2"
+      ],
+      "refs": {
+        "gate-old": [
+          "g1"
+        ]
+      }
+    },
+    {
+      "id": "invalid-correction-restores-old",
+      "story": "gate",
+      "input": "城門",
+      "expected": [
+        "gate-old"
+      ],
+      "edits": {
+        "g2": {
+          "content": "更正已撤回原文。"
+        }
+      },
+      "refs": {
+        "gate-old": [
+          "g1"
+        ]
+      }
+    },
+    {
+      "id": "public-unrelated",
+      "story": "gate",
+      "input": "宇宙飛船",
+      "expected": []
+    },
+    {
+      "id": "long-story-200-rounds",
+      "story": "trust",
+      "input": "雨夜",
+      "expected": [
+        "trust"
+      ],
+      "primary": "艾琳",
+      "fillerMessages": 400,
+      "refs": {
+        "trust": [
+          "t1"
+        ]
+      }
+    },
+    {
+      "id": "relation-without-original-keyword",
+      "story": "trust",
+      "input": "妳是不是還在怪我？",
+      "expected": [
+        "trust"
+      ],
+      "primary": "艾琳",
+      "refs": {
+        "trust": [
+          "t1"
+        ]
+      }
+    },
+    {
+      "id": "tagged-synonym",
+      "story": "trust",
+      "input": "雨天",
+      "expected": [
+        "trust"
+      ],
+      "primary": "艾琳",
+      "refs": {
+        "trust": [
+          "t1"
+        ]
+      }
+    },
+    {
+      "id": "untagged-paraphrase-gap",
+      "story": "trust",
+      "input": "妳為何不願相信我？",
+      "expected": [
+        "trust"
+      ],
+      "primary": "艾琳",
+      "diagnostic": "關鍵字未命中且不屬既有關係提示；尚無語意向量檢索",
+      "knownMissing": [
+        "trust"
+      ]
+    },
+    {
+      "id": "duplicate-existing-memory",
+      "story": "trust",
+      "input": "雨夜",
+      "expected": [],
+      "primary": "艾琳",
+      "existingMemory": "雨夜因玩家隱瞞身分而爭吵。"
+    },
+    {
+      "id": "full-history-disables-recall",
+      "story": "trust",
+      "input": "雨夜",
+      "expected": [],
+      "primary": "艾琳",
+      "memoryMode": "full"
+    },
+    {
+      "id": "explicit-off-disables-recall",
+      "story": "trust",
+      "input": "雨夜",
+      "expected": [],
+      "primary": "艾琳",
+      "recallEnabled": false
+    },
+    {
+      "id": "common-claim-mixed-cast",
+      "story": "shared",
+      "input": "北塔",
+      "expected": [
+        "tower"
+      ],
+      "primary": "艾琳",
+      "npcs": [
+        {
+          "name": "守衛",
+          "presence": "present"
+        }
+      ],
+      "refs": {
+        "tower": [
+          "s1",
+          "s2"
+        ]
+      },
+      "forbidden": [
+        "王室",
+        "暗房"
+      ]
+    },
+    {
+      "id": "common-claim-single-actor",
+      "story": "shared",
+      "input": "北塔",
+      "expected": [
+        "tower"
+      ],
+      "primary": "艾琳",
+      "refs": {
+        "tower": [
+          "s1"
+        ]
+      },
+      "forbidden": [
+        "守衛｜",
+        "王室",
+        "暗房"
+      ]
+    },
+    {
+      "id": "common-claim-third-unknown",
+      "story": "shared",
+      "input": "北塔",
+      "expected": [],
+      "primary": "艾琳",
+      "npcs": [
+        {
+          "name": "守衛",
+          "presence": "present"
+        },
+        {
+          "name": "陌生人",
+          "presence": "present"
+        }
+      ]
+    },
+    {
+      "id": "quantity-bound-ranking",
+      "story": "ports",
+      "input": "港口",
+      "expected": [
+        "port6",
+        "port5",
+        "port4",
+        "port3"
+      ],
+      "narrativeMode": "world",
+      "ordered": true,
+      "refs": {
+        "port3": [
+          "p3"
+        ],
+        "port4": [
+          "p4"
+        ],
+        "port5": [
+          "p5"
+        ],
+        "port6": [
+          "p6"
+        ]
+      }
+    },
+    {
+      "id": "ranking-unrelated",
+      "story": "ports",
+      "input": "森林魔法",
+      "expected": [],
+      "narrativeMode": "world"
+    }
+  ]
+}
