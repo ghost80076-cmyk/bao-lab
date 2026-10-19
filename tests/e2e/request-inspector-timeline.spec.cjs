@@ -4,10 +4,11 @@ test('mobile request inspector and NPC timeline use existing story controls',asy
   await page.goto('./');
   await page.waitForFunction(()=>Boolean(window.BAOContextInspector&&window.BAONPCTimeline&&window.BAOStoryControlCenter&&App.characters?.length));
   await page.evaluate(async()=>{
-    App.activeCharacter={...App.characters[0],name:'艾琳',greeting:'歡迎回來。'};
+    App.activeCharacter={...App.characters[0],name:'港城故事',greeting:'歡迎回來。'};
     App.config={persona:{name:'旅人'},narrativeMode:'world',displayMode:'ui',api:{type:'custom',model:'mock',key:'UNIQUE_TEST_KEY',baseUrl:'https://example.invalid/v1/chat/completions'},memory:{mode:'full',maxRounds:20,maxContext:64000}};
     Chat.reset();GameState.create(App.activeCharacter,App.config);
     GameState.upsertNPC({name:'艾琳',presence:'away'});
+    if (!GameState.current.npcs.some(n=>n.name==='艾琳')) throw new Error('NPC fixture was not registered');
     Chat.add('user','我先離開城市。');
     App.renderChatShell(false);App.showView('chat');
   });
