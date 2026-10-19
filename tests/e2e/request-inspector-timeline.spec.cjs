@@ -2,13 +2,18 @@ const {test,expect}=require('@playwright/test');
 test('mobile request inspector and NPC timeline use existing story controls',async({page})=>{
   await page.setViewportSize({width:390,height:844});
   await page.goto('./');
-  await page.waitForFunction(()=>Boolean(window.BAOContextInspector&&window.BAONPCTimeline&&window.BAOStoryControlCenter&&App.characters?.length));
+  await page.waitForFunction(()=>Boolean(window.BAOContextInspector&&window.BAONPCTimeline&&window.BAOStoryControlCenter&&window.BAOCanonWorkbench&&window.BAOLorebook&&App.characters?.length));
   await page.evaluate(async()=>{
     App.activeCharacter={...App.characters[0],name:'港城故事',greeting:'歡迎回來。'};
     App.config={persona:{name:'旅人'},narrativeMode:'world',displayMode:'ui',api:{type:'custom',model:'mock',key:'UNIQUE_TEST_KEY',baseUrl:'https://example.invalid/v1/chat/completions'},memory:{mode:'full',maxRounds:20,maxContext:64000}};
     Chat.reset();GameState.create(App.activeCharacter,App.config);
     GameState.upsertNPC({name:'艾琳',presence:'away'});
     if (!GameState.current.npcs.some(n=>n.name==='艾琳')) throw new Error('NPC fixture was not registered');
+    App.activeCharacter.lore='【世界書：城市出口｜城市】守衛正在登記離城旅客。【/世界書】\n【世界書：遠山傳說｜遠山】不可送出的遠山細節。【/世界書】';
+    GameState.current.canon={notebooks:[
+      {id:'canon-core',title:'城門規則',category:'world',tier:'core',content:'離城需登記。'},
+      {id:'canon-ui',title:'待核對筆記',category:'conflicts',tier:'ui',content:'不可送出的存疑細節。'}
+    ]};
     Chat.add('user','我先離開城市。');
     App.renderChatShell(false);App.showView('chat');
   });
@@ -30,6 +35,16 @@ test('mobile request inspector and NPC timeline use existing story controls',asy
   await expect(inspector).toContainText('300 tok');
   await expect(inspector).toContainText('快取讀取 0 tok');
   await expect(inspector).not.toContainText('UNIQUE_TEST_KEY');
+  const canonDetails=inspector.locator('details').filter({has:page.locator('summary', {hasText:/^Canon ·/})});
+  await canonDetails.locator('summary').click();
+  await expect(canonDetails).toContainText('城門規則 · 已加入');
+  await expect(canonDetails).toContainText('待核對筆記 · 僅供界面顯示');
+  const loreDetails=inspector.locator('details').filter({has:page.locator('summary', {hasText:/^角色卡內嵌世界書 ·/})});
+  await loreDetails.locator('summary').click();
+  await expect(loreDetails).toContainText('城市出口 · 已加入');
+  await expect(loreDetails).toContainText('遠山傳說 · 未命中');
+  await expect(inspector).not.toContainText('不可送出的');
+  await page.screenshot({path:test.info().outputPath('context-source-decisions-mobile.png')});
   const noOverflow=async locator=>expect(await locator.evaluate(n=>n.scrollWidth<=n.clientWidth+1)).toBe(true);
   await noOverflow(inspector);
   await inspector.locator('details').last().locator('summary').click();

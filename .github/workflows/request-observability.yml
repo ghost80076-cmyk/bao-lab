@@ -20,6 +20,9 @@ jobs:
         run: |
           node tests/request-observability-core.cjs
           node tests/context-inspector-core.cjs
+          node tests/context-source-decisions-core.cjs
+          node tests/canon-workbench-core.cjs
+          node tests/lorebook-core.cjs
           node tests/npc-timeline-core.cjs
           node tests/npc-timeline-resolution-core.cjs
           node tests/same-model-state-merge-core.cjs
@@ -31,7 +34,7 @@ jobs:
           node tests/worldbook-library-core.cjs
           node tests/frontend-extension-contract.cjs
       - name: Mobile and desktop interaction
-        run: npm run test:e2e -- tests/e2e/request-inspector-timeline.spec.cjs tests/e2e/context-health.spec.cjs --project=chromium
+        run: npm run test:e2e -- tests/e2e/request-inspector-timeline.spec.cjs tests/e2e/context-health.spec.cjs tests/e2e/npc-presence-roundtrip.spec.cjs --project=chromium
       - name: Screenshots and browser reports
         if: always()
         uses: actions/upload-artifact@v4
