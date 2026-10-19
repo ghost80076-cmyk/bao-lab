@@ -84,6 +84,7 @@ jobs:
           node tests/worker-usage-diagnostics-core.cjs
           node tests/worker-cost-chat-settlement-core.cjs
           node tests/worker-wallet-reservations-core.cjs
+          node tests/worker-wallet-topup-integrity-core.cjs
       - name: Replace production Worker content
         env:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
