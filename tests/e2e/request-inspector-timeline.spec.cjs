@@ -31,12 +31,13 @@ test('mobile request inspector and NPC timeline use existing story controls',asy
   await expect(inspector).toContainText('我先離開城市。');
   await page.keyboard.press('Escape');await expect(inspector).toHaveCount(0);
 
-  await page.evaluate(()=>BAOStoryControlCenter.open());
-  const control=page.getByRole('dialog',{name:'本故事控制台'});
+  await page.getByRole('button',{name:'故事總覽',exact:true}).click();
+  const control=page.getByRole('dialog',{name:'故事總覽'});
   await control.locator('.story-control-more > summary').click();
   await control.locator('[data-story-control-action="timeline"]').click();
   const timeline=page.getByRole('dialog',{name:'NPC 個別時間線'});
   await expect(timeline).toBeVisible();
+  await timeline.locator('[data-npc]').selectOption({label:'艾琳'});
   await timeline.getByText('安排離場日程',{exact:true}).click();
   await timeline.locator('[name="text"]').fill('在市場上班');
   await timeline.locator('[name="minutes"]').fill('60');
