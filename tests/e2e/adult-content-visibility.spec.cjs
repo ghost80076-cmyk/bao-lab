@@ -29,7 +29,13 @@ test("adult content stays hidden until the player enables it locally", async ({ 
   await toggle.click();
   await expect(toggle).toBeChecked();
 
-  await page.evaluate(() => App.showView("explore"));
+  await page.evaluate(async () => {
+    App.showView("explore");
+    while (!App.characters?.some(item => item?.id === "desire-werewolf") && App.hasMoreCharacterCatalog?.()) {
+      await App.loadMoreCharacters();
+    }
+    App.renderCharacters("all");
+  });
   await expect(page.locator('#character-list [data-character-id="desire-district"]')).toBeVisible();
   await expect(page.locator('#character-list [data-character-id="desire-werewolf"]')).toBeVisible();
   await expect(page.locator('#character-list [data-character-id="linchenfeng"]')).toBeVisible();
