@@ -169,9 +169,9 @@ code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
       <table class="player-table usage-table">
         <thead><tr>
           <th>時間</th><th>用途／模型</th><th>輸入 Token</th><th>快取讀取</th><th>快取寫入</th>
-          <th>輸出／思考 Token</th><th>玩家實扣 (USD)</th><th>上游成本 (USD)</th><th>狀態</th><th>失敗診斷</th>
+          <th>輸出／思考 Token</th><th>玩家實扣 (USD)</th><th>上游成本 (USD)</th><th>狀態</th><th>請求追蹤／對帳</th>
         </tr></thead>
-        <tbody id="usage-rows"><tr><td colspan="9" class="player-empty">尚未載入。</td></tr></tbody>
+        <tbody id="usage-rows"><tr><td colspan="10" class="player-empty">尚未載入。</td></tr></tbody>
       </table>
     </div>
     <div class="actions">
@@ -496,7 +496,7 @@ code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
     usagePage=0;
     usageHasMore=false;
     $("player-usage-card").hidden=true;
-    $("usage-rows").innerHTML='<tr><td colspan="9" class="player-empty">尚未載入。</td></tr>';
+    $("usage-rows").innerHTML='<tr><td colspan="10" class="player-empty">尚未載入。</td></tr>';
     $("usage-summary").textContent="尚未載入紀錄。";
     $("usage-more").hidden=true;
     setMessage("usage-message","");
@@ -516,7 +516,14 @@ code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
     if(row.failure_code) parts.push(String(row.failure_code));
     if(row.upstream_http_status!=null) parts.push("HTTP "+String(row.upstream_http_status));
     if(row.provider_status) parts.push(String(row.provider_status));
-    if(row.route) parts.push(String(row.route));
+    if(row.transport_route||row.route) parts.push(String(row.transport_route||row.route));
+    if(row.generation_id) parts.push("上游 ID "+String(row.generation_id));
+    if(row.attempt_count!=null) parts.push("生成請求 "+String(row.attempt_count)+" 次");
+    if(row.transport_elapsed_ms!=null) parts.push(String(row.transport_elapsed_ms)+"ms");
+    var checks={matched:"錢包帳本一致",mismatch:"錢包帳本不一致",refunded:"已退回，無實扣",unsettled:"尚未結算",unavailable:"帳本待確認",legacy:"舊制"};
+    parts.push(checks[row.wallet_check]||"帳本待確認");
+    if(row.reported_margin_microusd!=null) parts.push("回報差額 "+usageUsd(row.reported_margin_microusd/1000000));
+    parts.push("供應商帳單尚未核對");
     if(row.transport_failure) parts.push(String(row.transport_failure));
     if(row.rate_limit_scope) parts.push("scope "+String(row.rate_limit_scope));
     if(row.retry_after_seconds!=null) parts.push("retry "+String(row.retry_after_seconds)+"s");
@@ -580,7 +587,7 @@ code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
         '<td>'+escapeHTML(statusLabels[row.status]||row.status||"—")+'</td>'+
         '<td><span class="usage-detail">'+escapeHTML(usageDiagnostic(row))+'</span></td>'+
       '</tr>';
-    }).join(""):'<tr><td colspan="9" class="player-empty">沒有這位玩家的用量紀錄。</td></tr>';
+    }).join(""):'<tr><td colspan="10" class="player-empty">沒有這位玩家的用量紀錄。</td></tr>';
     $("usage-more").hidden=!usageHasMore;
   }
   async function loadPlayerUsage(page){

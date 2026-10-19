@@ -1,3 +1,5 @@
+import { recordRequestTrace } from "./request-trace.js";
+
 import {
   ensureWalletReservations,
   reserveWallet,
@@ -285,6 +287,8 @@ async function costUsdChatRoute(
       sessionId,
       kind
     );
+
+  await recordRequestTrace(db, requestId, result);
 
   if (
     !result.ok

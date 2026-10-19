@@ -155,3 +155,18 @@
     margin-left:18px
   }
 }
+
+/* Request inspection and NPC schedules share the existing themed context surface. */
+[data-context-inspector] pre {font: .82rem/1.7 ui-monospace,monospace;tab-size:2}
+[data-npc-timeline] label {display:grid;gap:6px;margin:12px 0;color:var(--yoru-muted,var(--muted))}
+[data-npc-timeline] input,[data-npc-timeline] select {box-sizing:border-box;max-width:100%;width:100%;font:inherit;padding:10px;border:1px solid var(--border);border-radius:10px;background:var(--yoru-input,var(--bg));color:var(--yoru-text,var(--text))}
+[data-npc-timeline] [data-history] p {padding:10px 0;border-bottom:1px solid var(--border);line-height:1.7;overflow-wrap:anywhere}
+[data-npc-timeline] [data-history] button {margin:6px 0}
+[data-context-inspector] .context-health-panel,[data-npc-timeline] .context-health-panel {display:block}
+[data-context-inspector] .context-health-head p,[data-npc-timeline] .context-health-head p {display:block;font-size:13px}
+
+/* New diagnostic documents follow the selected night/mist/dawn/dusk/sunset surface. */
+:is([data-context-inspector],[data-npc-timeline]) .context-health-panel {background:var(--yoru-surface,var(--surface));color:var(--yoru-text,var(--text));border-color:var(--yoru-card-border,var(--border))}
+:is([data-context-inspector],[data-npc-timeline]) .context-health-advanced {background:var(--yoru-card,var(--surface2));border-color:var(--yoru-card-border,var(--border))}
+:is([data-context-inspector],[data-npc-timeline]) :is(.context-health-head p,.context-health-advanced p) {color:var(--yoru-muted,var(--muted))}
+:is([data-context-inspector],[data-npc-timeline]) .context-health-close {background:var(--yoru-control,var(--surface2));color:var(--yoru-text,var(--text));border-color:var(--yoru-control-border,var(--border))}

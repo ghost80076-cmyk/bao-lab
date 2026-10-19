@@ -208,9 +208,12 @@
         state: owner, config, primary: App.activeCharacter?.name || ""
       }) || []
     };
-    const fixed = core.constants(packs, local.enabled, context);
+    const decisions = [];
+    const onDecision = item => decisions.push(item);
+    const fixed = core.constants(packs, local.enabled, context, {onDecision});
     const picked = core.select(packs, local.enabled, context,
-      { maxChars: 2200, maxEntries: 4, recallMode: local.recallMode });
+      { maxChars: 2200, maxEntries: 4, recallMode: local.recallMode, onDecision });
+    window.BAOContextInspector?.record?.("世界書", decisions);
     if (!fixed.text && !picked.text) return messages;
     const result = messages.map(m => ({ ...m }));
     if (fixed.text) {

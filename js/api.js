@@ -139,6 +139,7 @@ const API = {
     "global-bridge:memory-presentation": 100,
     "cost-control:budget": 110,
     "chat:request-usage": 120,
+    "context-inspector:request": 125,
     "lm-studio:local-transport": 130,
     "credits-pilot:hosted-transport": 140
   }),

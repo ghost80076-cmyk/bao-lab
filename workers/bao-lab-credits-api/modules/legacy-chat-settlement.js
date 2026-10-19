@@ -1,3 +1,5 @@
+import { recordRequestTrace } from "./request-trace.js";
+
 import {
   LEGACY_BILLING_MODE,
 } from "./billing-constants.js";
@@ -302,6 +304,8 @@ async function legacyChatRoute(
       sessionId,
       kind
     );
+
+  await recordRequestTrace(db, requestId, result);
 
   if (
     !result.ok

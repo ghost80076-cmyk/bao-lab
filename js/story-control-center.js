@@ -84,6 +84,7 @@
     persona() { window.BAOStoryActors?.open?.("player"); },
     memory() { window.BAOMemoryWorkbench?.open?.(); },
     context() { window.BAOContextHealth?.open?.(); },
+    timeline() { window.BAONPCTimeline?.open?.(); },
     status() { window.BAOCharacterStatusUI?.openSettings?.(); },
     extensions() { window.BAOStoryExtensionsCenter?.open?.(); },
     narrative() { window.BAONarrativeSettings?.open?.(); },
@@ -144,6 +145,7 @@
             ${card("quick", "快捷指令", data.quick, "打開指令")}
             ${card("context", "上下文狀態", data.context, "查看前情")}
             ${card("extensions", "故事擴充", data.extensions, "查看作用範圍")}
+            ${card("timeline", "NPC 個別時間線", {title:"人物的經歷與日程",detail:"查看知情來源，安排離場活動"}, "查看時間線")}
           </div>
         </details>
         <footer class="story-control-footer">

@@ -577,11 +577,8 @@ const WorkerProviderTransport = (() => {
         return null;
       }
 
-      const rawCost =
-        Number(
-          data.total_cost ??
-          data.usage
-        );
+      const costValue = data.total_cost ?? data.usage;
+      const rawCost = costValue == null || costValue === '' ? NaN : Number(costValue);
 
       return {
         input,
@@ -770,6 +767,8 @@ const WorkerProviderTransport = (() => {
     sessionId = "",
     requestKind = "chat"
   ) {
+    let attemptCount = 0;
+    const fetchGeneration = (...args) => { attemptCount += 1; return fetch(...args); };
     let endpoint;
     let init;
     let usingAwsRelay =
@@ -1230,7 +1229,7 @@ const WorkerProviderTransport = (() => {
   
     try {
       response =
-        await fetch(
+        await fetchGeneration(
           endpoint,
           {          ...init,
   
@@ -1251,6 +1250,7 @@ const WorkerProviderTransport = (() => {
         );
 
       return {
+        attemptCount,
         ok:
           false,
   
@@ -1346,7 +1346,7 @@ const WorkerProviderTransport = (() => {
 
           try {
             response =
-              await fetch(
+              await fetchGeneration(
                 endpoint,
                 {
                   ...init,
@@ -1368,6 +1368,7 @@ const WorkerProviderTransport = (() => {
               );
 
             return {
+              attemptCount,
               ok:
                 false,
 
@@ -1439,6 +1440,9 @@ const WorkerProviderTransport = (() => {
             : "provider_http_error";
   
       return {
+        route,
+        attemptCount,
+        elapsedMs: Math.max(0, Date.now() - transportStartedAt),
         ok:
           false,
   
@@ -1473,6 +1477,9 @@ const WorkerProviderTransport = (() => {
   
     catch {
       return {
+        route,
+        attemptCount,
+        elapsedMs: Math.max(0, Date.now() - transportStartedAt),
         ok:
           false,
   
@@ -1527,9 +1534,7 @@ const WorkerProviderTransport = (() => {
         );
 
       let providerCost =
-        Number(
-          usage.cost
-        );
+        usage.cost == null || usage.cost === "" ? NaN : Number(usage.cost);
 
       providerCost =
         Number.isFinite(
@@ -1586,6 +1591,9 @@ const WorkerProviderTransport = (() => {
       }
 
       return {
+        route,
+        attemptCount,
+        elapsedMs: Math.max(0, Date.now() - transportStartedAt),
         ok:
           typeof text ===
             "string" &&
@@ -1672,11 +1680,15 @@ const WorkerProviderTransport = (() => {
         );
   
       return {
+        route,
+        attemptCount,
+        elapsedMs: Math.max(0, Date.now() - transportStartedAt),
         ok:
           typeof text ===
             "string" &&
           !!text.trim(),
   
+        generationId: data.id || null,
         text,
         input,
         freshInput,
@@ -1768,11 +1780,15 @@ const WorkerProviderTransport = (() => {
             reasoning;
   
     return {
+      route,
+      attemptCount,
+      elapsedMs: Math.max(0, Date.now() - transportStartedAt),
       ok:
         typeof text ===
           "string" &&
         !!text.trim(),
   
+      generationId: data.responseId || null,
       text,
   
       input,

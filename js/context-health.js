@@ -10,7 +10,7 @@
     if (document.querySelector('link[href^="css/context-health.css"]')) return;
     const link = document.createElement("link");
     link.rel = "stylesheet";
-    link.href = "css/context-health.css?v=3";
+    link.href = "css/context-health.css?v=4";
     document.head.appendChild(link);
   };
 
@@ -145,7 +145,8 @@
         </section>
 
         <details class="context-health-advanced">
-          <summary>進階 Token 說明</summary>
+          <summary>進階 Token 說明與請求檢視</summary>
+          <button type="button" class="secondary" data-context-inspector-open>查看本輪送出內容</button>
           <p><b>夜灣管理預算</b>是夜灣用來決定何時整理舊劇情的參考值，不等於模型官方 Context Window。真正上限與計費仍由你選擇的模型／服務商決定。</p>
           <p>「本輪輸入」來自 Provider 回報時才會顯示；不同 Provider 對快取 Token 的回報方式可能不同，因此未知時不推算。</p>
         </details>
@@ -154,6 +155,7 @@
       </section>`;
 
     document.body.appendChild(wrap);
+    wrap.querySelector('[data-context-inspector-open]')?.addEventListener('click', () => { close(); window.BAOContextInspector?.open?.(); });
     wrap.querySelector("[data-context-health-close]")?.addEventListener("click", close);
     wrap.querySelector("[data-context-health-help]")?.addEventListener("click", event => {
       const panel = event.currentTarget.closest(".context-health-panel");

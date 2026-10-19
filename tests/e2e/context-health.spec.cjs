@@ -30,9 +30,12 @@ test('shows player-facing context health without pretending per-layer token prec
   });
 
   const trigger = page.locator('[data-open-context-health]');
-  await expect(trigger).toBeVisible();
+  await expect(trigger).toBeHidden(); // The mobile reading layout intentionally hides the usage strip.
   await expect(trigger).toContainText('上下文 50%');
-  await trigger.click();
+  await page.getByRole('button', {name:'故事總覽', exact:true}).click();
+  const overview = page.getByRole('dialog', {name:'故事總覽'});
+  await overview.locator('.story-control-more > summary').click();
+  await overview.locator('[data-story-control-action="context"]').click();
 
   const dialog = page.getByRole('dialog', { name: '上下文狀態' });
   await expect(dialog).toBeVisible();
@@ -61,13 +64,13 @@ test('shows player-facing context health without pretending per-layer token prec
   await expect(dialog).toContainText('命中 8,000 tok');
 
   await dialog.getByRole('button', { name: /回到故事控制台/ }).click();
-  const control = page.getByRole('dialog', { name: '本故事控制台' });
+  const control = page.getByRole('dialog', { name: '故事總覽' });
   await expect(control).toBeVisible();
   await expect(control.locator('.story-control-head .eyebrow')).toBeHidden();
-  const storyHelp = control.getByRole('button', { name: '故事控制台說明' });
+  const storyHelp = control.getByRole('button', { name: '故事總覽說明' });
   await expect(storyHelp).toBeVisible();
   await expect(control.locator('#story-control-intro')).toBeHidden();
-  const columns = await control.locator('.story-control-grid').evaluate(node => getComputedStyle(node).gridTemplateColumns.trim().split(/\s+/).length);
+  const columns = await control.locator('.story-control-primary').evaluate(node => getComputedStyle(node).gridTemplateColumns.trim().split(/\s+/).length);
   expect(columns).toBe(2);
   await storyHelp.click();
   await expect(control.locator('#story-control-intro')).toBeVisible();

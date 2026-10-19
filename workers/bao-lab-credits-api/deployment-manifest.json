@@ -31,6 +31,7 @@
     "modules/provider-routing.js",
     "modules/provider-transport.js",
     "modules/publication-format.js",
+    "modules/request-trace.js",
     "modules/runtime-config.js",
     "modules/session-auth.js",
     "modules/usage-diagnostics.js",
