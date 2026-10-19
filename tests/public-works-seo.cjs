@@ -6,7 +6,13 @@ const { execFileSync, spawnSync } = require('node:child_process');
 const root = path.resolve(__dirname, '..');
 const temp = fs.mkdtempSync(path.join(os.tmpdir(), 'yorubay-public-works-'));
 try {
-  for (const file of ['scripts/build-public-works.cjs', 'data/public-works.json', 'data/characters.json', 'data/character-catalog/community/manifest.json', 'data/character-catalog/community/page-0001.json', 'sitemap.xml']) {
+  for (const file of ['scripts/build-public-works.cjs', 'data/public-works.json', 'data/characters.json', 'data/character-catalog/community/manifest.json', 'sitemap.xml']) {
+    fs.mkdirSync(path.dirname(path.join(temp, file)), { recursive: true });
+    fs.copyFileSync(path.join(root, file), path.join(temp, file));
+  }
+  const communityManifest = JSON.parse(fs.readFileSync(path.join(root, 'data/character-catalog/community/manifest.json'), 'utf8'));
+  for (const page of communityManifest.pages || []) {
+    const file = page.file;
     fs.mkdirSync(path.dirname(path.join(temp, file)), { recursive: true });
     fs.copyFileSync(path.join(root, file), path.join(temp, file));
   }

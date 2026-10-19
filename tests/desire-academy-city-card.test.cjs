@@ -19,8 +19,8 @@ assert.ok(entry, 'community catalog should include desire-academy-city');
 assert.equal(entry.file, 'data/characters/community/da/desire-academy-city.json');
 assert.equal(entry.avatar, card.meta.avatar);
 assert.equal(entry.rating, 'adult');
-assert.equal(manifest.total, catalog.length);
 assert.equal(manifest.pages[0].count, catalog.length);
+assert.equal(manifest.total, manifest.pages.reduce((sum, page) => sum + page.count, 0));
 
 const coverPath = path.join(__dirname, '..', card.meta.avatar);
 assert.ok(fs.existsSync(coverPath), 'cover should exist');
