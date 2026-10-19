@@ -88,3 +88,15 @@ display.renderModule('profile');
 assert.match(ui.innerHTML,/公開紀錄/);
 assert.doesNotMatch(ui.innerHTML,/&quot;name&quot;/);
 console.log('PASS world module collection cards render safely without raw JSON');
+
+// Compact story status must use the same decoding as the full module tabs.
+const record = {time:'22:36',source:'親眼所見',fact:'他撿起圍巾',verification:'關係未確認',title:'酒吧線索',status:'待查證',secret_note:'不可顯示'};
+for (const value of [[record], JSON.stringify([record]), [JSON.stringify([record])]]) {
+  const saved = JSON.stringify(value);
+  const lines = display.statusLines({fields:[{key:'fact',label:'親見事實'}]}, value).join('\n');
+  for (const text of ['時間：22:36', '來源：親眼所見', '親見事實：他撿起圍巾', '確認程度：關係未確認', '待查證']) assert.ok(lines.includes(text));
+  assert.doesNotMatch(lines, /不可顯示|\{"|\[\{/);
+  assert.equal(JSON.stringify(value),saved);
+}
+assert.match(display.statusLines({}, '[{bad JSON]').join('\n'), /bad JSON/);
+console.log('PASS compact status decodes native and legacy collections without mutating state');

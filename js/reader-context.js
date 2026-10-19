@@ -146,12 +146,15 @@
     });
 
     let worldDefs = [];
+    let internalIds = new Set();
     try {
+      internalIds = new Set((window.BAOWorldModules?.definitions?.(App.activeCharacter) || [])
+        .filter(def => def.visibility === 'internal').map(def => def.id));
       worldDefs = Array.isArray(state.moduleDefinitions) && state.moduleDefinitions.length
         ? state.moduleDefinitions
         : (window.BAOWorldModules?.definitions?.(App.activeCharacter) || []);
     } catch {}
-    const world = worldDefs.map(def => ({
+    const world = worldDefs.filter(def => def.visibility !== 'internal' && !internalIds.has(def.id) && def.enabled !== false).map(def => ({
       id: def.id,
       label: def.label || def.id,
       icon: def.icon || '◇',

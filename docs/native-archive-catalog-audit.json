@@ -918,6 +918,18 @@
             "before": " 21+ 虛構成年人",
             "after": "符合片場設定的虛構演員"
           }
+        ],
+        "gameplay_changes": [
+          {
+            "path": [
+              "world_modules",
+              6,
+              "visibility"
+            ],
+            "before_present": false,
+            "after": "internal",
+            "reason": "閱讀介面隱藏作品既有幕後資料；保留資料與模型規則。"
+          }
         ]
       }
     },
@@ -2288,7 +2300,31 @@
         "messages",
         "events",
         "actions"
-      ]
+      ],
+      "reviewed_maintenance": {
+        "gameplay_changes": [
+          {
+            "path": [
+              "world_modules",
+              9,
+              "visibility"
+            ],
+            "before_present": false,
+            "after": "internal",
+            "reason": "閱讀介面隱藏作品既有幕後資料；保留資料與模型規則。"
+          },
+          {
+            "path": [
+              "world_modules",
+              10,
+              "visibility"
+            ],
+            "before_present": false,
+            "after": "internal",
+            "reason": "閱讀介面隱藏作品既有幕後資料；保留資料與模型規則。"
+          }
+        ]
+      }
     }
   ],
   "validation": {

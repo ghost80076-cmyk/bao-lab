@@ -185,7 +185,7 @@
   const statusText = value => {
     if (value == null || value === '') return '—';
     if (typeof value === 'object') {
-      try { return JSON.stringify(value); } catch { return '—'; }
+      return window.BAOWorldModuleUI?.statusLines?.({}, value).join('；') || '—';
     }
     return String(value);
   };
@@ -193,6 +193,7 @@
     const stream = document.getElementById('chat-stream');
     const state = GameState?.current;
     if (!stream || !state || !App.activeCharacter) return;
+    window.BAOWorldModules?.ensureState?.(App.activeCharacter);
     if (!document.getElementById('bao-inline-story-status-style')) {
       const inlineStatusStyle = document.createElement('style');
       inlineStatusStyle.id = 'bao-inline-story-status-style';
@@ -245,13 +246,10 @@
           : Object.entries(values).map(([key, value]) => key + '：' + statusText(value));
         addSection('人物 · ' + name, lines);
       });
-      (state.moduleDefinitions || []).slice(0, 32).forEach(def => {
+      (state.moduleDefinitions || []).filter(def => def.visibility !== 'internal' && def.enabled !== false).slice(0, 32).forEach(def => {
         const value = state.modules?.[def.id];
         if (value == null) return;
-        const lines = value && typeof value === 'object' && !Array.isArray(value)
-          ? Object.entries(value).map(([key, item]) =>
-            (def.fields?.find(field => field.key === key)?.label || key) + '：' + statusText(item))
-          : [statusText(value)];
+        const lines = window.BAOWorldModuleUI?.statusLines?.(def, value) || [statusText(value)];
         addSection((def.icon || '◈') + ' ' + (def.label || def.id), lines);
       });
     } else if (prefs.status === 'author') {
@@ -280,6 +278,7 @@
         const bubble = firstBubble;
         const html = render(App.activeCharacter.greeting || '', true);
         if (bubble && bubble.innerHTML !== html) bubble.innerHTML = html;
+        bubble?.classList.toggle('authored-rich-message', Boolean(window.BAOChatMarkup.isRichMessage?.(App.activeCharacter.greeting, true)));
       } else if (messages.length) {
         const offset = nodes.length === messages.length + 1 && nodes[0].dataset.storyGreeting === 'true' ? 1 : 0;
         const aligned = nodes.length === messages.length + offset
@@ -291,7 +290,7 @@
             if (!bubble || bubble.querySelector('.story-inline-editor')) return;
             const html = render(msg.content, Boolean(msg.greeting));
             if (bubble.innerHTML !== html) bubble.innerHTML = html;
-            bubble.classList.toggle('authored-rich-message', prefs.mode !== 'native');
+            bubble.classList.toggle('authored-rich-message', Boolean(window.BAOChatMarkup.isRichMessage?.(msg.content, Boolean(msg.greeting))));
           });
         }
       }

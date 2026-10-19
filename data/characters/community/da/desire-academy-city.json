@@ -421,7 +421,8 @@
         "kind": "collection",
         "tracking": "medium",
         "context": "relevant",
-        "max_items": 12
+        "max_items": 12,
+        "visibility": "internal"
       },
       {
         "id": "scene_participants",

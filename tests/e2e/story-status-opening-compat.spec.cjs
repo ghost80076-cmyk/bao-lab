@@ -41,7 +41,7 @@ async function prepareYume(page, mode = 'efficient') {
   await page.goto(process.env.BAO_LIVE_URL ? './?verify=' + (process.env.GITHUB_SHA || Date.now()) : '/');
   await page.waitForFunction(() => Boolean(
     App.characters?.length && window.BAOSceneHTML && window.BAOStoryReader &&
-    window.BAOWorldModules && Storage.status().ready
+    window.BAOWorldModules && window.BAOReaderContext && window.YoruExperience && Storage.status().ready
   ), null, { timeout: 20000 });
   await page.evaluate(async selectedMode => {
     App.activeCharacter = await App.loadCharacter('kurobane-yume-kabukicho');
@@ -309,4 +309,87 @@ test('worldbook condition controls preserve opt-in and never display locked cont
   await expect(privateBook.getByText('已得知資訊（1 項）')).toBeVisible();
   await condition.uncheck();
   await expect.poll(() => page.evaluate(() => GameState.current.worldbookFlags)).toEqual([]);
+});
+
+// Reproduce the mobile screenshots with real opening and committed replies.
+test('plain story ink follows all themes in every reading mode without inheriting rich layout styling', async ({ page }) => {
+  await page.setViewportSize({width:390,height:844});
+  await prepareYume(page);
+  for (const mode of ['native','efficient','free']) {
+    for (const theme of ['night','mist','dawn','dusk','sunset']) {
+      const result = await page.evaluate(async ({mode,theme}) => {
+        YoruExperience.choose({theme});
+        App.activeCharacter=await App.loadCharacter('unread-afterglow-seoul');
+        App.config.scenePresentation={mode,status:'native'};
+        Chat.reset();
+        GameState.create(App.activeCharacter,App.config);
+        const first=Chat.add('assistant',App.activeCharacter.greeting);first.greeting=true;
+        Chat.add('user','我翻開菜單。');
+        Chat.add('assistant','他指向菜單上的一行。\n「這個不錯。」');
+        App.renderChatShell(false);
+        App.showView('chat');
+        BAOSceneHTML.refresh();
+        const stream=document.getElementById('chat-stream');
+        const rgb=value=>value.match(/[\d.]+/g).slice(0,3).map(Number).map(n=>{const v=n/255;return v<=.04045?v/12.92:((v+.055)/1.055)**2.4;});
+        const lum=value=>rgb(value).reduce((sum,v,i)=>sum+v*[.2126,.7152,.0722][i],0);
+        const bg=lum(getComputedStyle(stream).backgroundColor);
+        const measure = () => [...stream.querySelectorAll('.message.assistant > .bubble')].map(node=>{
+          const style=getComputedStyle(node),fg=lum(style.color);
+          return {rich:node.classList.contains('authored-rich-message'),ratio:(Math.max(bg,fg)+.05)/(Math.min(bg,fg)+.05),shadow:style.textShadow};
+        });
+        const committed = measure();
+        Chat.reset();
+        App.renderChatShell(true);
+        BAOSceneHTML.refresh();
+        return [...committed, ...measure()];
+      },{mode,theme});
+      expect(result.length).toBe(3);
+      for(const bubble of result) {
+        expect(bubble.rich,mode+'/'+theme).toBe(false);
+        expect(bubble.ratio,mode+'/'+theme).toBeGreaterThanOrEqual(4.5);
+        if(theme!=='night')expect(bubble.shadow).toBe('none');
+      }
+    }
+  }
+});
+
+test('compact status and world context hide backstage data in current and legacy card snapshots', async ({page}) => {
+  await prepareYume(page);
+  for (const id of ['unread-afterglow-seoul','kept-in-frame-lin-youzhen','desire-academy-city']) {
+    const result=await page.evaluate(async id=>{
+      const character=await App.loadCharacter(id);
+      // Simulate an old saved character with no module visibility metadata.
+      App.activeCharacter=structuredClone(character);
+      App.activeCharacter.world_modules.forEach(def=>delete def.visibility);
+      App.config.scenePresentation={mode:'efficient',status:'native'};
+      Chat.reset();
+      GameState.create(App.activeCharacter,App.config);
+      const internal=GameState.current.moduleDefinitions.filter(d=>d.visibility==='internal');
+      internal.forEach(def=>{GameState.current.modules[def.id]=[{title:'BACKSTAGE_SENTINEL',fact:'PRIVATE_FACT_SENTINEL'}];});
+      // Legacy state often contains a JSON-encoded collection string as one item.
+      if(id==='unread-afterglow-seoul') {
+        const records=GameState.current.modules.signal_ledger;
+        GameState.current.modules.signal_ledger=[JSON.stringify(records)];
+      }
+      const before=JSON.stringify(GameState.current.modules);
+      App.renderChatShell(true);
+      App.showView('chat');
+      BAOSceneHTML.refresh();
+      const status=document.getElementById('bao-inline-story-status').textContent;
+      // Even before the next status refresh, old persisted definitions may say public.
+      internal.forEach(def=>{GameState.current.moduleDefinitions.find(d=>d.id===def.id).visibility='public';});
+      const world=BAOReaderContext.snapshot().world;
+      return {status,world,internal:internal.map(d=>d.id),unchanged:before===JSON.stringify(GameState.current.modules)};
+    },id);
+    expect(result.internal.length).toBeGreaterThan(0);
+    expect(result.status).not.toContain('BACKSTAGE_SENTINEL');
+    expect(result.status).not.toContain('PRIVATE_FACT_SENTINEL');
+    expect(JSON.stringify(result.world)).not.toContain('BACKSTAGE_SENTINEL');
+    expect(result.unchanged).toBe(true);
+    if(id==='unread-afterglow-seoul') {
+      expect(result.status).toContain('姜允載替一位女生撿起圍巾');
+      expect(result.status).toContain('來源：親眼所見');
+      expect(result.status).not.toContain('[{"time"');
+    }
+  }
 });

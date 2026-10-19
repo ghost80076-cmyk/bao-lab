@@ -76,6 +76,17 @@
     return root.innerHTML;
   };
 
+  // Rich styling belongs to actual authored layouts, not every non-native reply.
+  const isRichMessage = (raw, greeting = false) => {
+    if (window.BAOSceneHTML?.prefs?.mode === 'native') return false;
+    if (greeting && App.activeCharacter?.opening?.posts?.length) return true;
+    const source = String(raw || '').replace(/\[STATUS\][\s\S]*?\[\/STATUS\]/gi, '');
+    if (/<\/?[a-z][^>]*>/i.test(source)) return true;
+    const scene = source.match(/\[SCENE:([a-z-]+)\]/i)?.[1]?.toLowerCase();
+    return window.BAOSceneHTML?.prefs?.mode === 'efficient'
+      && Boolean(window.BAOSceneHTML.sceneTemplates?.[scene]) && /\[NARRATION\]/i.test(source);
+  };
+
   const renderAuthoredGreeting = () => {
     const character = App.activeCharacter;
     if (!character?.greeting) return false;
@@ -91,7 +102,7 @@
     const html = window.BAOSceneHTML?.render
       ? BAOSceneHTML.render(character.greeting, true) : sanitize(character.greeting);
     if (bubble.innerHTML !== html) bubble.innerHTML = html;
-    bubble.classList.toggle("authored-rich-message", window.BAOSceneHTML?.prefs?.mode !== "native");
+    bubble.classList.toggle("authored-rich-message", isRichMessage(character.greeting, true));
     bubble.dataset.authoredGreeting = "true";
     if (standalone) first.dataset.storyGreeting = "true";
     return true;
@@ -118,7 +129,7 @@
 
   if (document.getElementById("chat-view")?.classList.contains("active")) repairGreetingSoon();
 
-  window.BAOChatMarkup = { sanitize, renderAuthoredGreeting };
+  window.BAOChatMarkup = { sanitize, renderAuthoredGreeting, isRichMessage };
   const loadSceneStoryPreferences = () => {
     if (!window.BAOSceneHTML || window.BAOSceneStoryPreferences || document.querySelector('script[src^="js/scene-story-preferences.js"]')) return;
     const settings = document.createElement('script');
@@ -129,7 +140,7 @@
   let sceneScript = document.querySelector('script[src^="js/scene-html-modes.js"]');
   if (!sceneScript) {
     const script = document.createElement('script');
-    script.src = 'js/scene-html-modes.js?v=3';
+    script.src = 'js/scene-html-modes.js?v=4';
     script.onerror = () => console.warn('BAO/LAB scene HTML controls failed to load');
     script.addEventListener('load', loadSceneStoryPreferences, { once: true });
     document.head.appendChild(script);

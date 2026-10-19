@@ -18,7 +18,8 @@
     relationship: "關係", relation: "關係", status: "狀態", state: "狀態",
     location: "位置", mood: "情緒", time: "時間", date: "日期",
     message: "訊息", event: "事件", notes: "備註", summary: "摘要",
-    description: "說明", progress: "進度", condition: "狀況"
+    description: "說明", progress: "進度", condition: "狀況",
+    title: "標題", name: "名稱", label: "項目", source: "來源", fact: "觀察事實", verification: "確認程度"
   });
   const privateKey = key => /^(_|private|secret|internal|hidden)/i.test(key);
   const pretty = (v, depth = 0) => {
@@ -48,6 +49,20 @@
       } catch (_) { break; }
     }
     return value;
+  };
+  // The compact reader and module tabs share display decoding and privacy rules.
+  // This is presentation only: never rewrite saved values while formatting them.
+  const statusLines = (def, value) => {
+    const decoded = decodeCollectionText(value);
+    const items = Array.isArray(decoded) ? decoded.slice(0, 80).flatMap(item => {
+      const parsed = decodeCollectionText(item);
+      return Array.isArray(parsed) ? parsed : [parsed];
+    }).slice(0, 80) : [decoded];
+    return items.flatMap(item => {
+      if (!item || typeof item !== 'object' || Array.isArray(item)) return [pretty(item)];
+      return Object.entries(item).filter(([key]) => !privateKey(key)).slice(0, 24)
+        .map(([key, value]) => `${labelFor(def, key)}：${pretty(decodeCollectionText(value))}`);
+    }).map(displayValue);
   };
   const trackLabel = value => value === "high" ? "高頻" : value === "medium" ? "一般" : value === "low" ? "低頻" : "手動";
   const objectHTML = (def,value) => {
@@ -169,5 +184,5 @@
     });
   }
   ensureStyles();
-  window.BAOWorldModuleUI = { injectTabs, renderModule, injectBuilderSummary, stripInternalStateEcho };
+  window.BAOWorldModuleUI = { injectTabs, renderModule, injectBuilderSummary, stripInternalStateEcho, statusLines };
 })();

@@ -56,9 +56,18 @@
     };
   };
 
+  // Older saved story snapshots predate visibility on these authored backstage modules.
+  // Keep the migration narrowly scoped; ordinary player-owned secrets stay visible.
+  const legacyInternalModules = {
+    'unread-afterglow-seoul': ['relationship_edges', 'offscreen_facts'],
+    'kept-in-frame-lin-youzhen': ['relationship_vectors', 'private_facts'],
+    'desire-academy-city': ['relations']
+  };
   const baseDefinitions = character => {
     const raw = character?.world_modules || character?.gameplay?.world_modules || [];
-    return (Array.isArray(raw) ? raw : []).map(normalizeModule).filter(Boolean).filter(x => x.enabled).slice(0, 12);
+    return (Array.isArray(raw) ? raw : []).map(normalizeModule).filter(Boolean).filter(x => x.enabled).slice(0, 12)
+      .map(def => legacyInternalModules[character?.id || character?.meta?.id]?.includes(def.id)
+        ? { ...def, visibility: 'internal' } : def);
   };
 
   const emptyCustomization = () => ({ version: 1, enabledBuiltIns: [], disabled: [], customModules: [], order: [] });

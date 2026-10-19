@@ -515,7 +515,8 @@
         "tracking": "medium",
         "context": "relevant",
         "max_items": 30,
-        "description": "幕後關係多向向量；僅記錄有意義的改變，不在 UI 公開。"
+        "description": "幕後關係多向向量；僅記錄有意義的改變，不在 UI 公開。",
+        "visibility": "internal"
       },
       {
         "id": "offscreen_facts",
@@ -525,7 +526,8 @@
         "tracking": "medium",
         "context": "relevant",
         "max_items": 30,
-        "description": "已定的私下事實，供未來事件一致性使用；尚未查證時不可成為公開線索。"
+        "description": "已定的私下事實，供未來事件一致性使用；尚未查證時不可成為公開線索。",
+        "visibility": "internal"
       }
     ],
     "ui_schema": {
