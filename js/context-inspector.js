@@ -60,7 +60,7 @@
     const data = snapshot();
     const root = document.createElement('div');
     root.className = 'context-health-backdrop'; root.dataset.contextInspector = '';
-    const reason = {included:'已加入',knowledge:'知情篩選排除',evidence:'來源失效',retracted:'已撤回／被更正',duplicate:'已有相同內容',irrelevant:'未命中',budget:'預算／數量上限',disabled:'未啟用',condition:'條件未滿足',world:'世界不符',review:'待審核'};
+    const reason = {included:'已加入',knowledge:'知情篩選排除',evidence:'來源失效',retracted:'已撤回／被更正',duplicate:'已有相同內容',irrelevant:'未命中',budget:'預算／數量上限',disabled:'未啟用',condition:'條件未滿足',world:'世界不符',review:'待審核',matrix:'知情矩陣不直接加入',display:'僅供界面顯示'};
     const tok = n => n == null ? '未知' : n.toLocaleString() + ' tok';
     root.innerHTML = `<section class="context-health-panel" role="dialog" aria-modal="true" aria-label="本輪上下文檢視器">
       <header class="context-health-head"><div><h2>本輪上下文檢視器</h2><p>送出前的訊息快照；服務商仍可能轉換協定格式。字數不等於 Token，固定前綴候選不等於實際快取命中。</p></div><button type="button" class="context-health-close" aria-label="關閉檢視器">×</button></header>

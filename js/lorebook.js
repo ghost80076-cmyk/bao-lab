@@ -15,13 +15,18 @@
     }).trim();
     return { fixed, entries };
   };
-  const select = (entries, context = {}) => {
+  const select = (entries, context = {}, onDecision) => {
+    const decisions = entries.map((entry, index) => ({ id: `inline-${index}`, title: entry.label, reason: 'irrelevant' }));
+    const report = () => decisions.forEach(item => onDecision?.({ ...item }));
     const recent = Array.isArray(context.recentMessages) ? context.recentMessages : [];
     const latestUser = [...recent].reverse().find(m => m?.role === 'user')?.content || context.latestUserText || '';
     const lastReply = [...recent].reverse().find(m => m?.role === 'assistant')?.content || '';
     const state = window.GameState?.current || {};
     const recallMode = state.worldbookLibrary?.recallMode || 'auto';
-    if (recallMode === 'off') return [];
+    if (recallMode === 'off') {
+      decisions.forEach(item => { item.reason = 'disabled'; });
+      report(); return [];
+    }
     const location = String(state.location || '');
     const presentNPCs = (Array.isArray(state.npcs) ? state.npcs : [])
       .filter(npc => npc?.presence === 'present')
@@ -40,13 +45,15 @@
       { text: recallMode === 'scene' ? '' : lastReply, weight: 30 }
     ].map(signal => ({ ...signal, text: String(signal.text || '').toLocaleLowerCase() }));
     let budget = 0;
-    return entries.map((entry, index) => {
+    const selected = entries.map((entry, index) => {
       let score = 0;
       entry.triggers.forEach(trigger => {
         signals.forEach(signal => {
           if (signal.text.includes(trigger)) score = Math.max(score, signal.weight + trigger.length);
         });
       });
+      decisions[index].score = score;
+      if (score > 0) decisions[index].reason = 'budget';
       return { ...entry, score, index };
     }).filter(entry => entry.score > 0).sort((a, b) => b.score - a.score || a.index - b.index)
       .filter(entry => {
@@ -54,16 +61,25 @@
         budget += entry.text.length;
         return true;
       }).slice(0, 3);
+    selected.forEach(entry => { decisions[entry.index].reason = 'included'; });
+    report();
+    return selected;
   };
   const original = engine.composeSystemPrompt;
   engine.composeSystemPrompt = function(character, context = {}) {
     const c = this.normalize(character || {});
-    if (c.prompt_options?.include_lore === false || typeof c.lore !== 'string' || !c.lore.includes('【世界書：')) {
+    if (typeof c.lore !== 'string' || !c.lore.includes('【世界書：')) {
       return original.call(this, c, context);
     }
     const { fixed, entries } = parse(c.lore);
+    if (c.prompt_options?.include_lore === false) {
+      window.BAOContextInspector?.record('角色卡內嵌世界書', entries.map((entry, index) => ({ id: `inline-${index}`, title: entry.label, reason: 'disabled' })));
+      return original.call(this, c, context);
+    }
     const base = original.call(this, { ...c, lore: fixed }, context);
-    const relevant = select(entries, context);
+    const decisions = [];
+    const relevant = select(entries, context, decision => decisions.push(decision));
+    window.BAOContextInspector?.record('角色卡內嵌世界書', decisions);
     if (!relevant.length) return base;
     return base + '\n\n【本輪相關世界書】\n' + relevant.map(entry => `〔${entry.label}〕\n${entry.text}`).join('\n\n') + '\n僅在情境相關時使用上述背景，不要為了帶入設定而強行改變劇情。';
   };

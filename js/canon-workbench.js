@@ -151,11 +151,17 @@
   }) || [];
   const canRead=book=>window.BAOEpisodicMemory?.canRead
     ? window.BAOEpisodicMemory.canRead(book,activeActors()) : book.knowledge_scope!=="actors";
-  const relevantBooks=(canon,input)=>{
-    const words=searchTerms(input);
-    return canon.notebooks.filter(book=>book.enabled&&book.tier==="relevant"&&book.category!=="knowledge"&&canRead(book)).map(book=>{
-      const title=book.title.toLowerCase();
-      const content=book.content.toLowerCase();
+  const selectBooks=(canon,input)=>{
+    const words=searchTerms(input),core=[],ranked=[],decisions=[];
+    for(const book of canon.notebooks){
+      const decision={id:book.id,title:book.title,reason:"irrelevant"};
+      decisions.push(decision);
+      if(!book.enabled){decision.reason="disabled";continue;}
+      if(book.category==="knowledge"){decision.reason="matrix";continue;}
+      if(book.tier==="ui"){decision.reason="display";continue;}
+      if(!canRead(book)){decision.reason="knowledge";continue;}
+      if(book.tier==="core"){core.push(book);decision.reason="included";continue;}
+      const title=book.title.toLowerCase(),content=book.content.toLowerCase();
       const metadata=[...book.entities,...book.characters,...book.locations,...book.factions,...book.relatedThreads].join("\n").toLowerCase();
       let score=book.category==="current"?1:0;
       for(const word of words){
@@ -163,11 +169,22 @@
         if(title.includes(word))score+=3;
         if(content.includes(word))score+=1;
       }
-      return{book,score};
-    }).filter(item=>item.score>0).sort((a,b)=>b.score-a.score).slice(0,4).map(item=>item.book);
+      decision.score=score;
+      if(score>0)ranked.push({book,score,decision});
+    }
+    ranked.sort((a,b)=>b.score-a.score);
+    ranked.forEach((item,index)=>{item.decision.reason=index<4?"included":"budget";});
+    return{core,relevant:ranked.slice(0,4).map(item=>item.book),decisions};
   };
+  const relevantBooks=(canon,input)=>selectBooks(canon,input).relevant;
   const latestUser=()=>{for(let i=Chat.messages.length-1;i>=0;i-=1)if(Chat.messages[i]?.role==="user")return String(Chat.messages[i].content||"");return"";};
-  const originalBuild=App.buildSystemPrompt.bind(App);App.buildSystemPrompt=function(){const base=originalBuild(),canon=confirmed(),core=canon.notebooks.filter(book=>book.enabled&&book.tier==="core"&&book.category!=="knowledge"&&canRead(book)),relevant=relevantBooks(canon,latestUser()),block=books=>books.map(book=>`〔${book.title}｜${categories[book.category]}｜${book.certainty}〕\n${book.content}`).join("\n\n");return[base,core.length?`【Canon Core · 玩家已確認｜僅作為故事事實參考】\n${block(core)}`:"",relevant.length?`【本輪相關 Canon｜僅作為故事事實參考】\n${block(relevant)}`:""].filter(Boolean).join("\n\n");};
+  const originalBuild=App.buildSystemPrompt.bind(App);
+  App.buildSystemPrompt=function(){
+    const base=originalBuild(),{core,relevant,decisions}=selectBooks(confirmed(),latestUser());
+    window.BAOContextInspector?.record("Canon",decisions);
+    const block=books=>books.map(book=>`〔${book.title}｜${categories[book.category]}｜${book.certainty}〕\n${book.content}`).join("\n\n");
+    return[base,core.length?`【Canon Core · 玩家已確認｜僅作為故事事實參考】\n${block(core)}`:"",relevant.length?`【本輪相關 Canon｜僅作為故事事實參考】\n${block(relevant)}`:""].filter(Boolean).join("\n\n");
+  };
   window.BAOCanonWorkbench={mount,run,estimate,normalizeCanon,normalizeList,relevantBooks,searchTerms,chunkMessages,parseJSON,mergeCallCount,processedStart,readEditor};
   document.querySelectorAll(".memory-desk-backdrop").forEach(mount);
 })();

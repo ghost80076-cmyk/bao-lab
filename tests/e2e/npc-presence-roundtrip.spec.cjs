@@ -8,7 +8,7 @@ for (const width of [390, 1440]) {
     await page.goto('./');
     await page.waitForFunction(() => window.App?.characters?.some(c => c.id === 'autonomous-npc-world') &&
       Storage.status().ready && App.__nativeAutonomousWorldStart && document.getElementById('bao-demo-mode') &&
-      window.BAOStateTrackerRepairs && window.BAOCharacterStatusUI, null, { timeout: 15000 });
+      window.BAOStateTrackerRepairs && window.BAOCharacterStatusUI && window.BAOSameModelStateMerge, null, { timeout: 15000 });
     await page.evaluate(async () => {
       await App.openCharacter('autonomous-npc-world');
       App.openBuilder();
@@ -29,15 +29,20 @@ for (const width of [390, 1440]) {
         ...App.config,
         narrativeMode: 'world',
         displayMode: 'ui',
-        cost: { ...(App.config.cost || {}), stateInterval: 1, stateApi: null, stateModel: '' },
+        // This regression sends a state-only response, so select the explicit
+        // separate-helper route. Same-model mode requires a real story appendix
+        // and correctly rejects a direct update without a matching story turn.
+        cost: { ...(App.config.cost || {}), stateInterval: 1, stateApiMode: 'separate',
+          stateApi: { type: 'custom', model: 'browser-state-mock', baseUrl: 'https://example.invalid/v1/chat/completions', key: 'MOCK_ONLY_NOT_SAVED' } },
         api: { ...App.config.api, model: 'browser-mock', key: 'MOCK_ONLY_NOT_SAVED' }
       };
       const send = API.send;
-      API.send = async () => ({ text: JSON.stringify(data) });
+      let calls = 0;
+      API.send = async () => { calls++; return { text: JSON.stringify(data) }; };
       try {
         const result = await WorldStateEngine.update(config, '玩家確認目前場景', '本輪故事明確描述 NPC 的進出。');
         App.renderUIPanel('npc');
-        return { result, npcs: structuredClone(GameState.current.npcs), phase: GameState.current.stateTracker?.phase };
+        return { result, calls, npcs: structuredClone(GameState.current.npcs), phase: GameState.current.stateTracker?.phase, diagnostic: GameState.current.stateTracker?.diagnostic };
       } finally {
         API.send = send;
       }
@@ -51,7 +56,8 @@ for (const width of [390, 1440]) {
       { name: '阿青', role: '店員', location: '書店', presence: 'present' },
       { name: '小周', role: '訪客', presence: 'unknown' }
     ] });
-    expect(inScene.phase).toBe('updated');
+    expect(inScene.phase, inScene.diagnostic).toBe('updated');
+    expect(inScene.calls).toBe(1);
     expect(inScene.npcs.find(n => n.name === '阿青').presence).toBe('present');
     const card = page.locator('.character-status-card[data-character-context="阿青"]');
     await expect(card.locator('[data-npc-presence]')).toHaveText('在場');
@@ -78,7 +84,7 @@ for (const width of [390, 1440]) {
     });
     await page.reload();
     await page.waitForFunction(() => window.App?.characters?.some(c => c.id === 'autonomous-npc-world') &&
-      Storage.status().ready && window.BAOStateTrackerRepairs && window.BAOCharacterStatusUI, null, { timeout: 15000 });
+      Storage.status().ready && window.BAOStateTrackerRepairs && window.BAOCharacterStatusUI && window.BAOSameModelStateMerge, null, { timeout: 15000 });
     const restored = await page.evaluate(() => {
       const slot = Storage.listSlots().find(s => s.label === 'NPC_presence_roundtrip');
       if (!slot) return { ok: false, reason: 'slot not found' };
