@@ -55,4 +55,14 @@ test('mobile request inspector and NPC timeline use existing story controls',asy
   await page.evaluate(()=>BAOContextInspector.open());
   await expect(page.getByRole('dialog',{name:'本輪上下文檢視器'})).toHaveCSS('display','block');
   await page.screenshot({path:test.info().outputPath('context-inspector-desktop.png')});
+  for (const theme of ['night','mist','dawn','dusk','sunset']) {
+    const contrast = await page.evaluate(theme => {
+      YoruExperience.choose({theme});
+      const style = getComputedStyle(document.querySelector('[data-context-inspector] .context-health-panel'));
+      const lum = value => value.match(/[\d.]+/g).slice(0,3).map(Number).map(n=>{const v=n/255;return v<=.04045?v/12.92:((v+.055)/1.055)**2.4;}).reduce((sum,v,i)=>sum+v*[.2126,.7152,.0722][i],0);
+      const bg=lum(style.backgroundColor),fg=lum(style.color);
+      return (Math.max(bg,fg)+.05)/(Math.min(bg,fg)+.05);
+    },theme);
+    expect(contrast,theme).toBeGreaterThanOrEqual(4.5);
+  }
 });
