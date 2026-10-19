@@ -1886,5 +1886,43 @@
     "updated_at": "2026-10-18T16:52:17Z",
     "version_published_at": "2026-10-18T16:52:17Z",
     "published_version": 1
+  },
+  {
+    "id": "desire-dojo-corruption-chronicle",
+    "name": "慾望道場：墮落養成錄",
+    "title": "慾望道場：墮落養成錄",
+    "avatar": "https://i.meee.com.tw/2O07PDV.jpg",
+    "category": "general",
+    "rating": "adult",
+    "gender": "all",
+    "tags": [
+      "TRPG",
+      "道場經營",
+      "回合制",
+      "成人向",
+      "城市探索",
+      "流派相性",
+      "招式養成",
+      "師傅助教",
+      "NPC自主",
+      "勢力經營",
+      "自由探索"
+    ],
+    "description": "成人向道場經營 TRPG。從一間破敗道場起步，招收弟子、學流派招式、拜師與聘助教、挑戰其他道場，在慾望之都建立自己的名聲、傳承與勢力。",
+    "author": "班長",
+    "author_id": "banzhang",
+    "file": "data/characters/community/7c/desire-dojo-corruption-chronicle.json",
+    "supported_modes": {
+      "immersive": true,
+      "world": true
+    },
+    "supported_display": {
+      "text": true,
+      "ui": true
+    },
+    "published_at": "2026-10-19T23:31:00+08:00",
+    "updated_at": "2026-10-19T23:31:00+08:00",
+    "version_published_at": "2026-10-19T23:31:00+08:00",
+    "published_version": 1
   }
 ]
