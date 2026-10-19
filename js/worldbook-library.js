@@ -204,6 +204,8 @@
     if (story() !== owner || cfg() !== local) return messages;
     const context = {
       ...signals(), world: activeWorld(packs, local.enabled),
+      canReadActors: window.BAOEpisodicMemory?.canRead
+        ? (entry,actors) => window.BAOEpisodicMemory.canRead(entry,actors,owner) : undefined,
       actors: window.BAOEpisodicMemory?.audience?.({
         state: owner, config, primary: App.activeCharacter?.name || ""
       }) || []

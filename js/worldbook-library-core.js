@@ -91,9 +91,11 @@
     });
   }
   const lower = value => String(value || "").toLocaleLowerCase();
-  const canRead = (entry, actors) => entry.knowledge_scope !== "actors" ||
-    (Array.isArray(actors) && actors.length > 0 &&
-      actors.every(actor => (entry.known_by || []).includes(actor)));
+  const canRead = (entry, context) => typeof context.canReadActors === 'function'
+    ? context.canReadActors(entry,context.actors)
+    : entry.knowledge_scope !== "actors" ||
+    (Array.isArray(context.actors) && context.actors.length > 0 &&
+      context.actors.every(actor => (entry.known_by || []).includes(actor)));
   // Opted-in rules stay complete and never compete with bounded lore retrieval.
   function constants(packs, enabledIds, context = {}, options = {}) {
     const report = options.onDecision || (() => {});
@@ -105,7 +107,7 @@
       for (const entry of pack.entries || []) {
         if (entry.mode !== "constant") continue;
         const reason = entry.enabled === false ? 'disabled' : entry.review_required ? 'review' :
-          (entry.requires || []).some(flag => !flags.has(flag)) ? 'condition' : !canRead(entry, context.actors) ? 'knowledge' : null;
+          (entry.requires || []).some(flag => !flags.has(flag)) ? 'condition' : !canRead(entry, context) ? 'knowledge' : null;
         if (reason) { report({id:pack.meta.id+':'+entry.id,title:entry.title,reason}); continue; }
         const key = lower(entry.content).replace(/\s+/g, " ");
         if (seen.has(key)) { report({id:pack.meta.id+':'+entry.id,title:entry.title,reason:'duplicate'}); continue; }
@@ -143,7 +145,7 @@
         if (entry.mode === "constant") continue;
         const reason = recallMode === 'off' && entry.mode !== 'foundation' ? 'disabled' :
           entry.enabled === false ? 'disabled' : entry.review_required ? 'review' :
-          (entry.requires || []).some(flag => !flags.has(flag)) ? 'condition' : !canRead(entry, context.actors) ? 'knowledge' : null;
+          (entry.requires || []).some(flag => !flags.has(flag)) ? 'condition' : !canRead(entry, context) ? 'knowledge' : null;
         if (reason) { report({id:pack.meta.id+':'+entry.id,title:entry.title,reason}); continue; }
         let score = entry.mode === "foundation" ? 120 : 0;
         if (entry.mode !== "foundation") {
