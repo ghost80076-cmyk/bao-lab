@@ -107,13 +107,41 @@
     const npc = GameState.current?.npcs?.find(n => n.npc_id === npcId);
     if (!npc) return null;
     const aliases = [npc.name, ...(npc.aliases || [])];
-    const events = BAOEpisodicMemory.knowledgeMatrix({state:GameState.current,messages:Chat.messages,maxEvents:50})
+    const events = BAOEpisodicMemory.knowledgeMatrix({state:GameState.current,messages:Chat.messages,maxEvents:50,includeEvidence:true})
       .flatMap(event => event.knowledge.filter(k => aliases.includes(k.actor)).map(k => ({
-        id:event.id,time:event.time,text:k.claim,mode:k.mode,certainty:event.certainty,source:'message'
+        id:event.id,time:event.time,text:k.claim,mode:k.mode,certainty:event.certainty,source:'message',actor:k.actor,evidence:Array.isArray(k.evidence)?k.evidence:[]
       })));
     const schedules = (GameState.current.npcTimeline?.schedules || []).filter(s => s.npcId === npcId && valid(s))
       .map(s => ({...clone(s),status:s.status === 'resolved' && (!resolutionValid(s) || !valid({anchor:s.completedAnchor})) || s.status === 'completed' && !valid({anchor:s.completedAnchor}) ? 'invalidated' : s.status}));
     return {npcId,name:npc.name,events,schedules};
+  };
+  // Resolve only current-state evidence, on demand. Never display rewritten text
+  // as the original proof, or accept a source ID from another NPC/branch.
+  const reviewSources = ({npcId,eventId,eventActor,scheduleId} = {}) => {
+    const data = snapshot(npcId);
+    if (!data || Boolean(eventId) === Boolean(scheduleId)) return null;
+    let refs, title, kind;
+    if (eventId) {
+      const matches = data.events.filter(e => e.id === eventId && (!eventActor || e.actor === eventActor));
+      const event = matches.length === 1 ? matches[0] : null;
+      if (!event || !event.evidence.length) return null;
+      title = event.text; kind = 'knowledge';
+      refs = event.evidence.map(e => ({...e,label:'取得這項認知的原文'}));
+    } else {
+      const task = data.schedules.find(s => s.id === scheduleId);
+      if (!task) return null;
+      title = task.text; kind = 'schedule'; refs = [];
+      if (task.anchor) refs.push({...task.anchor,label:'建立日程時的對話位置'});
+      if (task.completedAnchor) refs.push({...task.completedAnchor,label:'到期記錄時的對話位置'});
+      if (task.resolution?.evidence) refs.push({...task.resolution.evidence,label:'結案故事原文',storyOnly:true});
+    }
+    return {title,kind,sources:refs.map(ref => {
+      const message = Chat.messages.find(m => m.id === ref.id && BAOEpisodicMemory.signature(m) === ref.signature && (!ref.storyOnly || m.role === 'assistant' && !m.greeting));
+      const base = {id:ref.id,label:ref.label,available:Boolean(message)};
+      if (!message) return base;
+      const content = String(message.content || '');
+      return {...base,role:message.role,greeting:Boolean(message.greeting),content:content.slice(0,12000),chars:content.length,truncated:content.length>12000};
+    })};
   };
   const promptBlock = () => {
     const available = localSchedules().filter(s => ['completed','ready','resolved'].includes(s.status));
@@ -154,12 +182,13 @@
       ${npcs.length ? `<label>人物 <select data-npc>${npcs.map(n => `<option value="${esc(n.npc_id)}">${esc(n.name)}</option>`).join('')}</select></label><div data-history></div>
       <details class="context-health-advanced"><summary>安排離場日程</summary><p>固定日程代表你確認「到期且人物離場時可直接完成」。涉及抉擇或不確定結果請選待判定；人物在場時，一律交由場景判定。</p>
       <form><label>事項 <input name="text" maxlength="300" required></label><label>幾分鐘後 <input name="minutes" type="number" min="1" max="52560000" value="60" required></label><label>處理方式 <select name="kind"><option value="decision">待判定</option><option value="routine">固定日程</option></select></label><button type="submit" class="secondary">加入日程</button></form><p data-message role="status"></p></details>` : '<p>目前沒有已登錄的 NPC。</p>'}</section>`;
+    const sourceDetails = (kind,id,actor = '') => `<details class="context-health-advanced" data-source-${kind}="${esc(id)}" data-source-actor="${esc(actor)}"><summary>${kind === 'event' ? '查看知情來源' : '查看日程來源'}</summary><div data-source-body></div></details>`;
     const render = () => {
       if (GameState.current !== owner) { close(); return; }
       const data = snapshot(root.querySelector('[data-npc]')?.value);
       if (!data) return;
       const labels = {scheduled:'已排定',ready:'到期，待判定',completed:'固定日程完成',resolved:'故事已結案',cancelled:'已取消',invalidated:'來源已變更'};
-      root.querySelector('[data-history]').innerHTML = `<h3>有來源的個人經歷</h3>${data.events.map(e => `<p>${esc(e.time || e.id)} · ${esc(e.mode)} · ${esc(e.certainty)}<br>${esc(e.text)}</p>`).join('') || '<p>尚無可驗證的個人經歷。</p>'}<h3>離場日程</h3>${data.schedules.map(s => `<p>相對 ${esc(s.due)} 分鐘 · ${esc(labels[s.status] || s.status)}<br>${esc(s.text)}${s.resolution ? `<br>結案原文：${esc(s.resolution.quote)}<br><small>來源訊息：${esc(s.resolution.evidence?.id)}</small>` : ''}${['scheduled','ready'].includes(s.status) ? ` <button class="secondary" type="button" data-cancel="${esc(s.id)}">取消</button>` : ''}${s.resolution ? ` <button class="secondary" type="button" data-reopen="${esc(s.id)}">重新待判定</button>` : ''}</p>`).join('') || '<p>尚未安排日程。</p>'}`;
+      root.querySelector('[data-history]').innerHTML = `<h3>有來源的個人經歷</h3>${data.events.map(e => `<p>${esc(e.time || e.id)} · ${esc(e.mode)} · ${esc(e.certainty)}<br>${esc(e.text)}</p>${sourceDetails('event',e.id,e.actor)}`).join('') || '<p>尚無可驗證的個人經歷。</p>'}<h3>離場日程</h3>${data.schedules.map(s => `<p>相對 ${esc(s.due)} 分鐘 · ${esc(labels[s.status] || s.status)}<br>${esc(s.text)}${s.resolution ? `<br>結案原文：${esc(s.resolution.quote)}<br><small>來源訊息：${esc(s.resolution.evidence?.id)}</small>` : ''}${['scheduled','ready'].includes(s.status) ? ` <button class="secondary" type="button" data-cancel="${esc(s.id)}">取消</button>` : ''}${s.resolution ? ` <button class="secondary" type="button" data-reopen="${esc(s.id)}">重新待判定</button>` : ''}</p>${sourceDetails('schedule',s.id)}`).join('') || '<p>尚未安排日程。</p>'}`;
     };
     const close = () => { root.remove(); document.removeEventListener('keydown', onKey); };
     const onKey = e => { if (e.key === 'Escape') close(); };
@@ -172,6 +201,15 @@
       }
       if (e.target.dataset.reopen && GameState.current === owner && reopen(e.target.dataset.reopen)) { App.saveStory(false); render(); }
     });
+    root.addEventListener('toggle', e => {
+      const details = e.target;
+      if (!details.open || !details.matches('[data-source-event],[data-source-schedule]')) return;
+      if (GameState.current !== owner) { close(); return; }
+      const data = reviewSources({npcId:root.querySelector('[data-npc]').value,eventId:details.dataset.sourceEvent,eventActor:details.dataset.sourceActor,scheduleId:details.dataset.sourceSchedule});
+      const body = details.querySelector('[data-source-body]');
+      if (!data) { body.textContent = '來源已變更或不在目前分支，請重新開啟時間線。'; return; }
+      body.innerHTML = `${data.kind === 'schedule' ? '<p>日程由玩家安排；建立與到期的對話位置不代表事件已在故事發生。</p>' : ''}${data.sources.map(source => `<p><b>${esc(source.label)}</b> · ${esc(source.id)}${source.available ? ` · ${esc(source.greeting ? '開場' : source.role === 'assistant' ? '故事回覆' : source.role === 'user' ? '玩家輸入' : source.role)} · ${source.chars.toLocaleString()} 字元${source.truncated ? '（顯示節錄）' : ''}` : ' · 來源已變更或已移除'}</p>${source.available ? `<pre style="white-space:pre-wrap;overflow-wrap:anywhere;max-width:100%">${esc(source.content)}</pre>` : ''}`).join('') || '<p>建立時沒有對話來源。</p>'}`;
+    }, true);
     root.querySelector('[data-npc]')?.addEventListener('change', render);
     root.querySelector('form')?.addEventListener('submit', e => {
       e.preventDefault(); if (GameState.current !== owner) { close(); return; }
@@ -183,5 +221,5 @@
     });
     document.body.appendChild(root); document.addEventListener('keydown', onKey); render(); root.querySelector('button').focus();
   };
-  window.BAONPCTimeline = Object.freeze({schedule,advance,snapshot,promptBlock,open,pendingContext,resolutionContract,checkedResolutions,reopen});
+  window.BAONPCTimeline = Object.freeze({schedule,advance,snapshot,promptBlock,open,pendingContext,resolutionContract,checkedResolutions,reopen,reviewSources});
 })();

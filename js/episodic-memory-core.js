@@ -150,7 +150,7 @@
   }
   // Read-only inspector for the player. The assistant receives only recall()
   // output, never this full table. Invalid/revised source evidence is hidden.
-  function knowledgeMatrix({ state, messages = [], maxEvents = 20 }) {
+  function knowledgeMatrix({ state, messages = [], maxEvents = 20, includeEvidence = false }) {
     const sources = new Map(messages.map((m, i) => [m.id, { message: m, index: i }]));
     const valid = anchors => Array.isArray(anchors) && anchors.length > 0
       && anchors.every(e => object(e) && sources.has(e.id)
@@ -162,7 +162,8 @@
         if (!object(entry) || !entry.actor || !valid(entry.evidence)) continue;
         const seenAt = Math.max(...entry.evidence.map(e => sources.get(e.id).index));
         if (!byActor.has(entry.actor) || seenAt >= byActor.get(entry.actor).seenAt)
-          byActor.set(entry.actor, { actor: entry.actor, mode: entry.mode, claim: entry.claim, seenAt });
+          byActor.set(entry.actor, { actor: entry.actor, mode: entry.mode, claim: entry.claim, seenAt,
+            ...(includeEvidence ? { evidence: entry.evidence.map(e => ({ id: e.id, signature: e.signature })) } : {}) });
       }
       return { id: event.id, text: event.text, time: event.time || '',
         visibility: event.visibility, certainty: event.certainty,

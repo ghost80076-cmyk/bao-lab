@@ -111,7 +111,7 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/episodic-memory.js?v=3"))
     .then(() => worldModulesReady)
     .then(() => loadBAOScript("js/story-timeline.js?v=2"))
-    .then(() => loadBAOScript("js/npc-timeline.js?v=2"))
+    .then(() => loadBAOScript("js/npc-timeline.js?v=3"))
     .then(() => loadBAOScript("js/three-realms-events.js?v=3"))
     .then(() => loadBAOScript("js/worldbook-library-core.js?v=6"))
     .then(() => loadBAOScript("js/worldbook-library.js?v=11"))
