@@ -1,31 +1,31 @@
 {
-  "suiteVersion": 2,
+  "suiteVersion": 3,
   "scope": "合成、人工指定 oracle；測本地索引到實際 buildMessages 的輸出，不測 LLM 提取／生成品質。",
   "sourceHashes": {
-    "js/episodic-memory-core.js": "b6006d47057dc13115761e47f82aa3699bce96bf4beeb2c4f935ec0dcee1ae6a",
+    "js/episodic-memory-core.js": "2884c118f813848feb9b3a99bae5842b05e283f1ede39b57dc3e40a37ddac941",
     "js/episodic-memory.js": "2d51c192dccba113d828b2b9462e01b86f793d700e07278b45546f8a651b6819",
-    "tests/fixtures/recall-acceptance/v2.json": "dc58e4fc217ac3c50f47b4e779b0b284b2336cb24feb9fe3b040e3c1f2db443a",
-    "scripts/evaluate-episodic-recall.cjs": "098adb7cbf813899227623b9b15db27e88f933611d3cb054fb8ce3f333f16aa7"
+    "tests/fixtures/recall-acceptance/v3.json": "b74c0a124725e3522c20fef2ff162d473e1f8c949bd071accb36a01a7a85a475",
+    "scripts/evaluate-episodic-recall.cjs": "fadd74d4e4bfd8d5ac754f06ac90adc82efdcac20f842f23d418ba0d5544cb82"
   },
   "all": {
-    "cases": 41,
-    "truePositives": 23,
+    "cases": 53,
+    "truePositives": 27,
     "falsePositives": 0,
     "falseNegatives": 1,
     "precision": 1,
-    "recall": 0.9583333333333334,
-    "exactMatches": 40,
+    "recall": 0.9642857142857143,
+    "exactMatches": 52,
     "sourceErrors": 0,
     "forbiddenContentCases": 0
   },
   "supported": {
-    "cases": 40,
-    "truePositives": 23,
+    "cases": 52,
+    "truePositives": 27,
     "falsePositives": 0,
     "falseNegatives": 0,
     "precision": 1,
     "recall": 1,
-    "exactMatches": 40,
+    "exactMatches": 52,
     "sourceErrors": 0,
     "forbiddenContentCases": 0
   },
@@ -650,26 +650,28 @@
       "failures": []
     },
     {
-      "id": "untagged-paraphrase-gap",
+      "id": "personal-trust-paraphrase",
       "story": "trust",
-      "diagnostic": "關鍵字未命中且不屬既有關係提示；尚無語意向量檢索",
+      "diagnostic": null,
       "expected": [
         "trust"
       ],
-      "actual": [],
-      "missing": [
+      "actual": [
         "trust"
       ],
+      "missing": [],
       "unexpected": [],
       "sourceErrors": [],
       "forbiddenHits": [],
-      "emittedChars": 0,
-      "budgetChars": 0,
+      "emittedChars": 62,
+      "budgetChars": 62,
       "modelCalls": 0,
       "decisions": [
         {
           "id": "trust",
-          "reason": "irrelevant"
+          "reason": "included",
+          "score": 1,
+          "match": "trust-tag"
         }
       ],
       "failures": []
@@ -1056,6 +1058,279 @@
           "id": "ring",
           "reason": "included",
           "score": 1
+        }
+      ],
+      "failures": []
+    },
+    {
+      "id": "trust-question-can-believe",
+      "story": "trust",
+      "diagnostic": null,
+      "expected": [
+        "trust"
+      ],
+      "actual": [
+        "trust"
+      ],
+      "missing": [],
+      "unexpected": [],
+      "sourceErrors": [],
+      "forbiddenHits": [],
+      "emittedChars": 62,
+      "budgetChars": 62,
+      "modelCalls": 0,
+      "decisions": [
+        {
+          "id": "trust",
+          "reason": "included",
+          "score": 1,
+          "match": "trust-tag"
+        }
+      ],
+      "failures": []
+    },
+    {
+      "id": "trust-question-inverse",
+      "story": "trust",
+      "diagnostic": null,
+      "expected": [
+        "trust"
+      ],
+      "actual": [
+        "trust"
+      ],
+      "missing": [],
+      "unexpected": [],
+      "sourceErrors": [],
+      "forbiddenHits": [],
+      "emittedChars": 62,
+      "budgetChars": 62,
+      "modelCalls": 0,
+      "decisions": [
+        {
+          "id": "trust",
+          "reason": "included",
+          "score": 1
+        }
+      ],
+      "failures": []
+    },
+    {
+      "id": "trust-question-not-believe",
+      "story": "trust",
+      "diagnostic": null,
+      "expected": [
+        "trust"
+      ],
+      "actual": [
+        "trust"
+      ],
+      "missing": [],
+      "unexpected": [],
+      "sourceErrors": [],
+      "forbiddenHits": [],
+      "emittedChars": 62,
+      "budgetChars": 62,
+      "modelCalls": 0,
+      "decisions": [
+        {
+          "id": "trust",
+          "reason": "included",
+          "score": 1,
+          "match": "trust-tag"
+        }
+      ],
+      "failures": []
+    },
+    {
+      "id": "trust-weather-negative",
+      "story": "trust",
+      "diagnostic": null,
+      "expected": [],
+      "actual": [],
+      "missing": [],
+      "unexpected": [],
+      "sourceErrors": [],
+      "forbiddenHits": [],
+      "emittedChars": 0,
+      "budgetChars": 0,
+      "modelCalls": 0,
+      "decisions": [
+        {
+          "id": "trust",
+          "reason": "irrelevant"
+        }
+      ],
+      "failures": []
+    },
+    {
+      "id": "trust-third-person-negative",
+      "story": "trust",
+      "diagnostic": null,
+      "expected": [],
+      "actual": [],
+      "missing": [],
+      "unexpected": [],
+      "sourceErrors": [],
+      "forbiddenHits": [],
+      "emittedChars": 0,
+      "budgetChars": 0,
+      "modelCalls": 0,
+      "decisions": [
+        {
+          "id": "trust",
+          "reason": "irrelevant"
+        }
+      ],
+      "failures": []
+    },
+    {
+      "id": "trust-financial-negative",
+      "story": "trust",
+      "diagnostic": null,
+      "expected": [],
+      "actual": [],
+      "missing": [],
+      "unexpected": [],
+      "sourceErrors": [],
+      "forbiddenHits": [],
+      "emittedChars": 0,
+      "budgetChars": 0,
+      "modelCalls": 0,
+      "decisions": [
+        {
+          "id": "trust",
+          "reason": "irrelevant"
+        }
+      ],
+      "failures": []
+    },
+    {
+      "id": "trust-unknown-cast",
+      "story": "trust",
+      "diagnostic": null,
+      "expected": [],
+      "actual": [],
+      "missing": [],
+      "unexpected": [],
+      "sourceErrors": [],
+      "forbiddenHits": [],
+      "emittedChars": 0,
+      "budgetChars": 0,
+      "modelCalls": 0,
+      "decisions": [
+        {
+          "id": "trust",
+          "reason": "knowledge"
+        }
+      ],
+      "failures": []
+    },
+    {
+      "id": "trust-source-invalid",
+      "story": "trust",
+      "diagnostic": null,
+      "expected": [],
+      "actual": [],
+      "missing": [],
+      "unexpected": [],
+      "sourceErrors": [],
+      "forbiddenHits": [],
+      "emittedChars": 0,
+      "budgetChars": 0,
+      "modelCalls": 0,
+      "decisions": [
+        {
+          "id": "trust",
+          "reason": "evidence"
+        }
+      ],
+      "failures": []
+    },
+    {
+      "id": "trust-duplicate-excluded",
+      "story": "trust",
+      "diagnostic": null,
+      "expected": [],
+      "actual": [],
+      "missing": [],
+      "unexpected": [],
+      "sourceErrors": [],
+      "forbiddenHits": [],
+      "emittedChars": 0,
+      "budgetChars": 0,
+      "modelCalls": 0,
+      "decisions": [
+        {
+          "id": "trust",
+          "reason": "duplicate"
+        }
+      ],
+      "failures": []
+    },
+    {
+      "id": "trust-tag-without-visible-claim",
+      "story": "tag-only",
+      "diagnostic": null,
+      "expected": [],
+      "actual": [],
+      "missing": [],
+      "unexpected": [],
+      "sourceErrors": [],
+      "forbiddenHits": [],
+      "emittedChars": 0,
+      "budgetChars": 0,
+      "modelCalls": 0,
+      "decisions": [
+        {
+          "id": "tag-only",
+          "reason": "irrelevant"
+        }
+      ],
+      "failures": []
+    },
+    {
+      "id": "trust-unrelated-known-event",
+      "story": "ring",
+      "diagnostic": null,
+      "expected": [],
+      "actual": [],
+      "missing": [],
+      "unexpected": [],
+      "sourceErrors": [],
+      "forbiddenHits": [],
+      "emittedChars": 0,
+      "budgetChars": 0,
+      "modelCalls": 0,
+      "decisions": [
+        {
+          "id": "ring",
+          "reason": "irrelevant"
+        }
+      ],
+      "failures": []
+    },
+    {
+      "id": "trust-metaphor-gap",
+      "story": "trust",
+      "diagnostic": "抽象關係隱喻仍未命中標籤或既有提示",
+      "expected": [
+        "trust"
+      ],
+      "actual": [],
+      "missing": [
+        "trust"
+      ],
+      "unexpected": [],
+      "sourceErrors": [],
+      "forbiddenHits": [],
+      "emittedChars": 0,
+      "budgetChars": 0,
+      "modelCalls": 0,
+      "decisions": [
+        {
+          "id": "trust",
+          "reason": "irrelevant"
         }
       ],
       "failures": []

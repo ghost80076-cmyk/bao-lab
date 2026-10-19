@@ -1,0 +1,465 @@
+{
+  "version": 3,
+  "description": "預先保留的信任用語／反例，與開發案例分開計量；不是統計抽樣的玩家品質評估。",
+  "stories": {
+    "ring": {
+      "messages": [
+        {
+          "id": "r1",
+          "role": "assistant",
+          "content": "艾琳親眼見到玩家經過王城密道，把戒指藏進壁爐。"
+        },
+        {
+          "id": "r2",
+          "role": "assistant",
+          "content": "守衛只聽見市集傳聞：玩家偷了戒指，尚未證實。"
+        },
+        {
+          "id": "r3",
+          "role": "assistant",
+          "content": "艾琳後來告訴守衛，戒指並非玩家偷走。"
+        }
+      ],
+      "batches": [
+        {
+          "ids": [
+            "r1",
+            "r2"
+          ],
+          "episodes": [
+            {
+              "key": "ring",
+              "text": "玩家經過王城密道，把戒指藏進壁爐。",
+              "entities": [
+                "艾琳"
+              ],
+              "keywords": [
+                "戒指"
+              ],
+              "evidenceIds": [
+                "r1"
+              ],
+              "knowledge": [
+                {
+                  "actor": "艾琳",
+                  "mode": "witnessed",
+                  "claim": "玩家把戒指藏在壁爐。",
+                  "evidenceIds": [
+                    "r1"
+                  ]
+                },
+                {
+                  "actor": "守衛",
+                  "mode": "rumor",
+                  "claim": "聽說玩家偷走戒指，尚未證實。",
+                  "evidenceIds": [
+                    "r2"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ids": [
+            "r3"
+          ],
+          "knowledgeUpdates": [
+            {
+              "eventKey": "ring",
+              "actor": "守衛",
+              "mode": "told",
+              "claim": "艾琳告訴我，戒指不是玩家偷走的。",
+              "evidenceIds": [
+                "r3"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "gate": {
+      "messages": [
+        {
+          "id": "g1",
+          "role": "assistant",
+          "content": "公告：城門今晚關閉。"
+        },
+        {
+          "id": "g2",
+          "role": "assistant",
+          "content": "新公告更正：城門今晚照常開放。"
+        }
+      ],
+      "batches": [
+        {
+          "ids": [
+            "g1"
+          ],
+          "episodes": [
+            {
+              "key": "gate-old",
+              "text": "城門今晚關閉。",
+              "visibility": "public",
+              "certainty": "confirmed",
+              "evidenceIds": [
+                "g1"
+              ]
+            }
+          ]
+        },
+        {
+          "ids": [
+            "g2"
+          ],
+          "episodes": [
+            {
+              "key": "gate-new",
+              "text": "城門今晚照常開放。",
+              "visibility": "public",
+              "certainty": "confirmed",
+              "evidenceIds": [
+                "g2"
+              ],
+              "supersedesKeys": [
+                "gate-old"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "trust": {
+      "messages": [
+        {
+          "id": "t1",
+          "role": "assistant",
+          "content": "雨夜艾琳因玩家隱瞞身分而爭吵。"
+        }
+      ],
+      "batches": [
+        {
+          "ids": [
+            "t1"
+          ],
+          "episodes": [
+            {
+              "key": "trust",
+              "text": "雨夜因隱瞞身分爭吵。",
+              "entities": [
+                "艾琳"
+              ],
+              "keywords": [
+                "雨天",
+                "信任"
+              ],
+              "evidenceIds": [
+                "t1"
+              ],
+              "knowledge": [
+                {
+                  "actor": "艾琳",
+                  "mode": "witnessed",
+                  "claim": "雨夜因玩家隱瞞身分而爭吵。",
+                  "evidenceIds": [
+                    "t1"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "shared": {
+      "messages": [
+        {
+          "id": "s0",
+          "role": "assistant",
+          "content": "王室在暗房安排了北塔撤離。"
+        },
+        {
+          "id": "s1",
+          "role": "assistant",
+          "content": "信使告訴艾琳：北塔明天撤離。"
+        },
+        {
+          "id": "s2",
+          "role": "assistant",
+          "content": "信使告訴守衛：北塔明天撤離。"
+        }
+      ],
+      "batches": [
+        {
+          "ids": [
+            "s0",
+            "s1",
+            "s2"
+          ],
+          "episodes": [
+            {
+              "key": "tower",
+              "text": "王室在暗房安排北塔撤離。",
+              "entities": [
+                "北塔"
+              ],
+              "evidenceIds": [
+                "s0"
+              ],
+              "knowledge": [
+                {
+                  "actor": "艾琳",
+                  "mode": "told",
+                  "claim": "北塔明天撤離。",
+                  "evidenceIds": [
+                    "s1"
+                  ]
+                },
+                {
+                  "actor": "守衛",
+                  "mode": "told",
+                  "claim": "北塔明天撤離。",
+                  "evidenceIds": [
+                    "s2"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "ports": {
+      "messages": [
+        {
+          "id": "p1",
+          "role": "assistant",
+          "content": "港口第1號碼頭整修。"
+        },
+        {
+          "id": "p2",
+          "role": "assistant",
+          "content": "港口第2號碼頭整修。"
+        },
+        {
+          "id": "p3",
+          "role": "assistant",
+          "content": "港口第3號碼頭整修。"
+        },
+        {
+          "id": "p4",
+          "role": "assistant",
+          "content": "港口第4號碼頭整修。"
+        },
+        {
+          "id": "p5",
+          "role": "assistant",
+          "content": "港口第5號碼頭整修。"
+        },
+        {
+          "id": "p6",
+          "role": "assistant",
+          "content": "港口第6號碼頭整修。"
+        }
+      ],
+      "batches": [
+        {
+          "ids": [
+            "p1",
+            "p2",
+            "p3",
+            "p4",
+            "p5",
+            "p6"
+          ],
+          "episodes": [
+            {
+              "key": "port1",
+              "text": "港口第1號碼頭整修。",
+              "visibility": "public",
+              "certainty": "confirmed",
+              "evidenceIds": [
+                "p1"
+              ]
+            },
+            {
+              "key": "port2",
+              "text": "港口第2號碼頭整修。",
+              "visibility": "public",
+              "certainty": "confirmed",
+              "evidenceIds": [
+                "p2"
+              ]
+            },
+            {
+              "key": "port3",
+              "text": "港口第3號碼頭整修。",
+              "visibility": "public",
+              "certainty": "confirmed",
+              "evidenceIds": [
+                "p3"
+              ]
+            },
+            {
+              "key": "port4",
+              "text": "港口第4號碼頭整修。",
+              "visibility": "public",
+              "certainty": "confirmed",
+              "evidenceIds": [
+                "p4"
+              ]
+            },
+            {
+              "key": "port5",
+              "text": "港口第5號碼頭整修。",
+              "visibility": "public",
+              "certainty": "confirmed",
+              "evidenceIds": [
+                "p5"
+              ]
+            },
+            {
+              "key": "port6",
+              "text": "港口第6號碼頭整修。",
+              "visibility": "public",
+              "certainty": "confirmed",
+              "evidenceIds": [
+                "p6"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "tag-only": {
+      "messages": [
+        {
+          "id": "x1",
+          "role": "assistant",
+          "content": "艾琳收到港口通行證。"
+        }
+      ],
+      "batches": [
+        {
+          "ids": [
+            "x1"
+          ],
+          "episodes": [
+            {
+              "key": "tag-only",
+              "text": "艾琳隱瞞一項交易。",
+              "entities": [
+                "艾琳"
+              ],
+              "keywords": [
+                "信任"
+              ],
+              "evidenceIds": [
+                "x1"
+              ],
+              "knowledge": [
+                {
+                  "actor": "艾琳",
+                  "mode": "witnessed",
+                  "claim": "艾琳拿到了港口通行證。",
+                  "evidenceIds": [
+                    "x1"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "cases": [
+    {
+      "id": "heldout-doubt-you",
+      "story": "trust",
+      "input": "為什麼我就是無法信任你？",
+      "expected": [
+        "trust"
+      ],
+      "primary": "艾琳",
+      "refs": {
+        "trust": [
+          "t1"
+        ]
+      }
+    },
+    {
+      "id": "heldout-believe-us",
+      "story": "trust",
+      "input": "妳可以相信我們嗎？",
+      "expected": [
+        "trust"
+      ],
+      "primary": "艾琳",
+      "refs": {
+        "trust": [
+          "t1"
+        ]
+      }
+    },
+    {
+      "id": "heldout-weather",
+      "story": "trust",
+      "input": "我相信週末會放晴。",
+      "expected": [],
+      "primary": "艾琳"
+    },
+    {
+      "id": "heldout-third-person",
+      "story": "trust",
+      "input": "我相信她能完成報告。",
+      "expected": [],
+      "primary": "艾琳"
+    },
+    {
+      "id": "heldout-finance",
+      "story": "trust",
+      "input": "信貸利率是多少？",
+      "expected": [],
+      "primary": "艾琳"
+    },
+    {
+      "id": "heldout-mixed-cast",
+      "story": "trust",
+      "input": "你還信得過我嗎？",
+      "expected": [],
+      "primary": "艾琳",
+      "npcs": [
+        {
+          "name": "守衛",
+          "presence": "present"
+        }
+      ]
+    },
+    {
+      "id": "heldout-edited-proof",
+      "story": "trust",
+      "input": "我還能信任妳嗎？",
+      "expected": [],
+      "primary": "艾琳",
+      "edits": {
+        "t1": {
+          "context_content": "來源已變動"
+        }
+      }
+    },
+    {
+      "id": "heldout-metaphor-gap",
+      "story": "trust",
+      "input": "我們之間那堵牆還能拆掉嗎？",
+      "expected": [
+        "trust"
+      ],
+      "primary": "艾琳",
+      "diagnostic": "抽象隱喻不在限定字詞對應範圍",
+      "knownMissing": [
+        "trust"
+      ]
+    }
+  ]
+}
