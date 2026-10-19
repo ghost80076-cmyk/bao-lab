@@ -4,16 +4,39 @@
   const object = v => v && typeof v === 'object' && !Array.isArray(v);
   const text = (v, max = 240) => typeof v === 'string' ? v.trim().slice(0, max) : '';
   const list = (v, max = 24) => Array.isArray(v) ? [...new Set(v.map(x => text(x, 100)).filter(Boolean))].slice(0, max) : [];
-  // One shared cast calculation for event recall, Canon and story-local lore.
-  // A mention in dialogue or the work title does not make somebody a speaker.
+  // Only explicit NPC names/aliases link identities. Ambiguity invalidates the
+  // whole private audience; dropping just that speaker could expose a secret.
+  const actorResolver = state => {
+    const registry = new Map();
+    (Array.isArray(state?.npcs) ? state.npcs : []).forEach((npc,index) => {
+      const canonical = text(npc?.name,100);
+      if (!canonical) return;
+      const identity = npc.npc_id ? `id:${npc.npc_id}:${canonical}` : `row:${index}`;
+      for (const name of [canonical,...list(npc.aliases)]) {
+        if (!registry.has(name)) registry.set(name,new Map());
+        registry.get(name).set(identity,canonical);
+      }
+    });
+    return value => {
+      const name = text(value,100), matches = registry.get(name);
+      return !name || matches?.size > 1 ? null : matches?.size ? [...matches.values()][0] : name;
+    };
+  };
+  const resolveActor = (state,value) => actorResolver(state)(value);
+  const resolveCast = (state,actors,resolve = actorResolver(state)) => {
+    const names = list(actors,30).map(resolve);
+    return names.some(name => name === null) ? [] : [...new Set(names)];
+  };
+  // A mention or an absent NPC is not a speaker; world titles stay excluded.
   const audience = ({ state, config, primary = '' } = {}) => {
     const present = (Array.isArray(state?.npcs) ? state.npcs : [])
       .filter(n => n?.presence === 'present').map(n => n.name);
-    return list(config?.narrativeMode === 'immersive' ? [primary, ...present] : present, 30);
+    return resolveCast(state,config?.narrativeMode === 'immersive' ? [primary,...present] : present);
   };
-  const canRead = (entry, actors = []) => {
+  const canRead = (entry, actors = [], state) => {
     if (entry?.knowledge_scope !== 'actors') return true; // Legacy shared data.
-    const cast = list(actors, 30), known = list(entry.known_by, 30);
+    const resolve = actorResolver(state), cast = resolveCast(state,actors,resolve);
+    const known = list(entry.known_by,30).map(resolve).filter(Boolean);
     return cast.length > 0 && cast.every(actor => known.includes(actor));
   };
   const hash = value => { let n = 2166136261; for (const c of String(value)) n = Math.imul(n ^ c.codePointAt(0), 16777619); return (n >>> 0).toString(36); };
@@ -97,7 +120,7 @@
   function recall({ state, messages = [], input = '', actors = [], exclude = '', maxChars = 2400, onDecision = () => {} }) {
     const sources = new Map(messages.map((m, i) => [m.id, { message: m, index: i }]));
     const valid = evidence => Array.isArray(evidence) && evidence.length && evidence.every(e => object(e) && sources.has(e.id) && signature(sources.get(e.id).message) === e.signature);
-    const words = terms(input), audience = list(actors, 30);
+    const resolve = actorResolver(state), words = terms(input), audience = resolveCast(state,actors,resolve);
     const excluded = String(exclude), seen = new Set(), candidates = [];
     const events = (Array.isArray(state?.episodicMemory?.events) ? state.episodicMemory.events : []).slice(-1000);
     const superseded = new Set();
@@ -117,7 +140,7 @@
       // current speaker. Unknown cast => only explicitly public facts.
       const knowledge = audience.map(actor => {
         const history = (Array.isArray(event.knowledge) ? event.knowledge : []).filter(k =>
-          object(k) && k.actor === actor && valid(k.evidence));
+          object(k) && resolve(k.actor) === actor && valid(k.evidence));
         history.sort((a, b) => Math.max(...a.evidence.map(e => sources.get(e.id).index))
           - Math.max(...b.evidence.map(e => sources.get(e.id).index)));
         return history.length ? [history[history.length - 1]] : [];
@@ -133,7 +156,7 @@
       const haystack = [shared ? event.text : '', ...list(event.entities), ...list(event.keywords), ...claims.map(c => c.text)].join('\n').toLowerCase();
       let score = words.reduce((n, word) => n + (haystack.includes(word) ? 1 : 0), 0);
       // Relational cues may omit the event's original words entirely.
-      if (/還記得|上次|以前|當時|承諾|怪我|生.*氣|remember|last time/i.test(input) && audience.some(actor => list(event.entities).includes(actor))) score += 2;
+      if (/還記得|上次|以前|當時|承諾|怪我|生.*氣|remember|last time/i.test(input) && audience.some(actor => list(event.entities).some(name => resolve(name) === actor))) score += 2;
       if (!score) { decision('irrelevant'); continue; }
       const index = Math.max(...event.evidence.map(e => sources.get(e.id).index));
       candidates.push({ event, score, index, lines, shared, proofs: visibleClaims.map((claim,i) => ({line:lines[i],evidence:claim.evidence})) });
@@ -174,5 +197,5 @@
     }).reverse();
   }
   const updateContext = state => (Array.isArray(state?.episodicMemory?.events) ? state.episodicMemory.events : []).filter(object).slice(-8).map(e => ({ id: e.id, text: text(e.text, 120) }));
-  window.BAOEpisodicMemory = { rules, schema, updateContext, ingest, recall, knowledgeMatrix, audience, canRead, terms, signature };
+  window.BAOEpisodicMemory = { rules, schema, updateContext, ingest, recall, knowledgeMatrix, audience, canRead, resolveActor, terms, signature };
 })();

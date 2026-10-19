@@ -2,7 +2,7 @@ const { test, expect } = require('@playwright/test');
 
 async function init(page, mode) {
   await page.goto('./');
-  await page.waitForFunction(() => Boolean(window.BAOAuthorInline && window.BAOGameplayUI && App.characters?.some(c => c.id === 'unread-afterglow-seoul')));
+  await page.waitForFunction(() => Boolean(window.BAOAuthorInline && window.BAOGameplayUI && typeof App?.loadCharacter === 'function'));
   await page.evaluate(async displayMode => {
     localStorage.removeItem('bao-lab:author-regex:v1:' + encodeURIComponent('unread-afterglow-seoul'));
     const character = await App.loadCharacter('unread-afterglow-seoul');
@@ -24,7 +24,7 @@ async function init(page, mode) {
 
 test('desktop builder writes genuine setup and visible UI never renders backstage facts', async ({ page }) => {
   await page.goto('./');
-  await page.waitForFunction(() => Boolean(window.BAOGameplayUI && App.characters?.some(c => c.id === 'unread-afterglow-seoul')));
+  await page.waitForFunction(() => Boolean(window.BAOGameplayUI && typeof App?.loadCharacter === 'function'));
   await page.evaluate(async () => {
     App.activeCharacter = await App.loadCharacter('unread-afterglow-seoul');
     App.openBuilder();

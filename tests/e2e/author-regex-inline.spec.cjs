@@ -113,7 +113,7 @@ test('inline static HTML and CSS remain visible without script permission, and J
 
 test('official community sidecar regex auto-binds and renders without manual import', async ({ page }) => {
   await page.goto('./');
-  await page.waitForFunction(() => Boolean(window.BAOAuthorInline && App.characters?.some(c => c.id === 'dual-host-system-mode')));
+  await page.waitForFunction(() => Boolean(window.BAOAuthorInline && typeof App?.loadCharacter === 'function'));
   await page.evaluate(async () => {
     localStorage.removeItem('bao-lab:author-regex:v1:' + encodeURIComponent('dual-host-system-mode'));
     const character = await App.loadCharacter('dual-host-system-mode');
@@ -152,7 +152,7 @@ test('official community sidecar regex auto-binds and renders without manual imp
 
 test('KTV official sidecar renders the real opening without exposed markers', async ({ page }) => {
   await page.goto('./');
-  await page.waitForFunction(() => Boolean(window.BAOAuthorInline && App.characters?.some(c => c.id === 'ktv-flight-chess')));
+  await page.waitForFunction(() => Boolean(window.BAOAuthorInline && typeof App?.loadCharacter === 'function'));
   await page.evaluate(async () => {
     localStorage.removeItem('bao-lab:author-regex:v1:' + encodeURIComponent('ktv-flight-chess'));
     const character = await App.loadCharacter('ktv-flight-chess');

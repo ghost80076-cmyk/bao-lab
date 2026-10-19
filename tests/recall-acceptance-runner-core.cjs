@@ -1,7 +1,7 @@
 'use strict';
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),os=require('node:os'),{spawnSync}=require('node:child_process');
 const root=path.resolve(__dirname,'..'),dir=fs.mkdtempSync(path.join(os.tmpdir(),'recall-acceptance-'));
-const files=['scripts/evaluate-episodic-recall.cjs','js/episodic-memory-core.js','js/episodic-memory.js','tests/fixtures/recall-acceptance/v1.json'];
+const files=['scripts/evaluate-episodic-recall.cjs','js/episodic-memory-core.js','js/episodic-memory.js','tests/fixtures/recall-acceptance/v2.json'];
 const write=(file,text)=>{const target=path.join(dir,file);fs.mkdirSync(path.dirname(target),{recursive:true});fs.writeFileSync(target,text);};
 const core=fs.readFileSync(path.join(root,files[1]),'utf8'),runtime=fs.readFileSync(path.join(root,files[2]),'utf8');
 const run=()=>{
@@ -15,11 +15,11 @@ try{
  files.forEach(file=>write(file,fs.readFileSync(path.join(root,file),'utf8')));
  const suite=JSON.parse(fs.readFileSync(path.join(root,files[3]),'utf8'));
  assert.equal(new Set(suite.cases.map(c=>c.id)).size,suite.cases.length,'duplicate IDs would hide cases');
- assert.equal(suite.cases.length,34,'case removal needs explicit review');
+ assert.equal(suite.cases.length,41,'case removal needs explicit review');
  const normal=run();assert.equal(normal.status,0);
  assert.deepEqual(normal.report,JSON.parse(fs.readFileSync(path.join(root,'docs/recall-acceptance-baseline.json'),'utf8')),'checked-in evidence must match current core/runtime/fixture/evaluator');
- assert.equal(normal.report.supported.cases,32);assert.equal(normal.report.diagnostic.falseNegatives,2);
- assert.equal(normal.report.all.falseNegatives,2,'known gaps stay in total recall');
+ assert.equal(normal.report.supported.cases,40);assert.equal(normal.report.diagnostic.falseNegatives,1);
+ assert.equal(normal.report.all.falseNegatives,1,'known gaps stay in total recall');
  write(files[2],runtime.replace("    const state = window.GameState?.current;","    return await next(config);\n    const state = window.GameState?.current;"));
  const empty=run();assert.equal(empty.status,1);assert.ok(empty.report.supported.falseNegatives>0,'empty recall cannot silently pass');
  write(files[2],runtime);

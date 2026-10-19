@@ -20,6 +20,9 @@ async function ensureWalletReservations(db) {
 }
 
 async function reserveWallet(db, requestId, playerId, amount) {
+  if (!Number.isSafeInteger(amount) || amount < 0 || amount > 1_000_000_000_000) {
+    throw new RangeError("invalid_wallet_reservation_amount");
+  }
   const operationId = crypto.randomUUID();
   const results = await db.batch([
     db.prepare(`INSERT INTO wallet_reservations
@@ -45,6 +48,10 @@ async function settleWallet(db, {
   requestId, playerId, actualCost, stored = {}, status = 'ok',
   billingMode, pricingVersion, provider, model, refund = false,
 }) {
+  if (!Number.isSafeInteger(actualCost) || actualCost < 0 ||
+      actualCost > 1_000_000_000_000) {
+    throw new RangeError("invalid_wallet_settlement_amount");
+  }
   const operationId = crypto.randomUUID();
   const charge = refund ? 0 : actualCost;
   const active = `request_id = ? AND state = 'settling' AND operation_id = ?`;

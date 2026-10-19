@@ -1,7 +1,7 @@
 'use strict';
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),crypto=require('node:crypto');
 const root=path.resolve(__dirname,'..');
-const files=['js/episodic-memory-core.js','js/episodic-memory.js','tests/fixtures/recall-acceptance/v1.json','scripts/evaluate-episodic-recall.cjs'];
+const files=['js/episodic-memory-core.js','js/episodic-memory.js','tests/fixtures/recall-acceptance/v2.json','scripts/evaluate-episodic-recall.cjs'];
 const read=file=>fs.readFileSync(path.join(root,file),'utf8');
 const suite=JSON.parse(read(files[2]));
 const clone=value=>JSON.parse(JSON.stringify(value));

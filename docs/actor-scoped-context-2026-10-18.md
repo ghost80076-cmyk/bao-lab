@@ -55,3 +55,7 @@
 - `node tests/episodic-memory-core.cjs`：共用角色名單、世界模式、未知角色、多角不同知情。
 - `node tests/canon-workbench-core.cjs`：Core 限定記事本不能跨角色、在場／不在場判定、既有共用規則。
 - `node tests/worldbook-library-core.cjs`：固定規則和關鍵詞召回的受限條目、空名單拒絕、序列化後保留以及未標記的舊條目相容。
+
+## 後續身份對應更新
+
+本頁上述精確名稱限制記錄原始版本。接續固定驗收後，[v2 身份／別名對應](recall-acceptance.md) 會使用目前故事已登錄且唯一的 NPC 別名；同名／別名歧義時整體拒絕私密 audience。Canon 與世界書沿用同一 resolver，舊知情資料不遷移、不新增模型呼叫；其他未結構化資料來源的隔離限制仍保留。

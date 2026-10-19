@@ -16,11 +16,17 @@
       m.id === proof.evidence.id && m.role === 'assistant' && !m.greeting &&
       BAOEpisodicMemory.signature(m) === proof.evidence.signature && typeof m.content === 'string' && m.content.includes(proof.quote)));
   };
+  const sameActor = (a,b) => {
+    const resolve = BAOEpisodicMemory.resolveActor;
+    if (!resolve) return a === b;
+    const identity = resolve(GameState.current,a);
+    return identity !== null && identity === resolve(GameState.current,b);
+  };
   const localSchedules = () => {
     const actors = BAOEpisodicMemory.audience({state:GameState.current,config:App.config,primary:App.activeCharacter?.name || ''});
     if (!actors.length) return [];
     return (GameState.current?.npcTimeline?.schedules || []).filter(s => valid(s) &&
-      valid({anchor:s.completedAnchor}) && actors.every(a => a === s.actor) &&
+      valid({anchor:s.completedAnchor}) && actors.every(a => sameActor(a,s.actor)) &&
       (s.status !== 'resolved' || resolutionValid(s)));
   };
   const pendingContext = () => localSchedules().filter(s => s.status === 'ready').slice(-6).map(s => ({
@@ -36,7 +42,7 @@
     for (const item of raw.resolve.slice(0,6)) {
       const task = ready.get(item?.id), quote = typeof item?.quote === 'string' ? item.quote.trim() : '';
       if (!task || seen.has(task.id) || quote.length < 8 || quote.length > 300) continue;
-      const npc = GameState.current.npcs?.find(n => n.npc_id === task.npcId && n.name === task.actor);
+      const npc = GameState.current.npcs?.find(n => n.npc_id === task.npcId && sameActor(n.name,task.actor));
       if (!npc || ![npc.name,...(npc.aliases || [])].some(name => typeof name === 'string' && name.trim() && quote.includes(name))) continue;
       const origin = task.anchor ? Chat.messages.findIndex(m => m.id === task.anchor.id) : -1;
       const readyAt = task.completedAnchor ? Chat.messages.findIndex(m => m.id === task.completedAnchor.id) : origin;
@@ -95,7 +101,7 @@
     if (data?.version !== 1 || !Array.isArray(data.schedules)) return;
     for (const item of data.schedules.slice(-120)) {
       if (item.status !== 'scheduled' || !valid(item) || !Number.isSafeInteger(item.due) || item.due > clock()) continue;
-      const npc = GameState.current.npcs?.find(n => n.npc_id === item.npcId && n.name === item.actor);
+      const npc = GameState.current.npcs?.find(n => n.npc_id === item.npcId && sameActor(n.name,item.actor));
       if (!npc) continue;
       // Present/unknown characters need the active scene to decide what happens.
       item.status = item.kind === 'routine' && npc.presence === 'away' ? 'completed' : 'ready';
@@ -108,7 +114,7 @@
     if (!npc) return null;
     const aliases = [npc.name, ...(npc.aliases || [])];
     const events = BAOEpisodicMemory.knowledgeMatrix({state:GameState.current,messages:Chat.messages,maxEvents:50,includeEvidence:true})
-      .flatMap(event => event.knowledge.filter(k => aliases.includes(k.actor)).map(k => ({
+      .flatMap(event => event.knowledge.filter(k => BAOEpisodicMemory.resolveActor ? sameActor(k.actor,npc.name) : aliases.includes(k.actor)).map(k => ({
         id:event.id,time:event.time,text:k.claim,mode:k.mode,certainty:event.certainty,source:'message',actor:k.actor,evidence:Array.isArray(k.evidence)?k.evidence:[]
       })));
     const schedules = (GameState.current.npcTimeline?.schedules || []).filter(s => s.npcId === npcId && valid(s))

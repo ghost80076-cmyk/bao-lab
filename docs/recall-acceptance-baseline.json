@@ -1,39 +1,39 @@
 {
-  "suiteVersion": 1,
+  "suiteVersion": 2,
   "scope": "合成、人工指定 oracle；測本地索引到實際 buildMessages 的輸出，不測 LLM 提取／生成品質。",
   "sourceHashes": {
-    "js/episodic-memory-core.js": "89931ac552044ff230f01579002823ec83e5931f3b84b874ddf018aab5091afa",
+    "js/episodic-memory-core.js": "b6006d47057dc13115761e47f82aa3699bce96bf4beeb2c4f935ec0dcee1ae6a",
     "js/episodic-memory.js": "2d51c192dccba113d828b2b9462e01b86f793d700e07278b45546f8a651b6819",
-    "tests/fixtures/recall-acceptance/v1.json": "95fa08bb677770f5a9e0250141c4e826ba241838b8b6b1134016810a8e212fe4",
-    "scripts/evaluate-episodic-recall.cjs": "6a1fa50e52059d5ddb477f2063bb6d0cedfaadc3b44e5744d1ac8e0f699ef264"
+    "tests/fixtures/recall-acceptance/v2.json": "dc58e4fc217ac3c50f47b4e779b0b284b2336cb24feb9fe3b040e3c1f2db443a",
+    "scripts/evaluate-episodic-recall.cjs": "098adb7cbf813899227623b9b15db27e88f933611d3cb054fb8ce3f333f16aa7"
   },
   "all": {
-    "cases": 34,
-    "truePositives": 19,
+    "cases": 41,
+    "truePositives": 23,
     "falsePositives": 0,
-    "falseNegatives": 2,
+    "falseNegatives": 1,
     "precision": 1,
-    "recall": 0.9047619047619048,
-    "exactMatches": 32,
+    "recall": 0.9583333333333334,
+    "exactMatches": 40,
     "sourceErrors": 0,
     "forbiddenContentCases": 0
   },
   "supported": {
-    "cases": 32,
-    "truePositives": 19,
+    "cases": 40,
+    "truePositives": 23,
     "falsePositives": 0,
     "falseNegatives": 0,
     "precision": 1,
     "recall": 1,
-    "exactMatches": 32,
+    "exactMatches": 40,
     "sourceErrors": 0,
     "forbiddenContentCases": 0
   },
   "diagnostic": {
-    "cases": 2,
+    "cases": 1,
     "truePositives": 0,
     "falsePositives": 0,
-    "falseNegatives": 2,
+    "falseNegatives": 1,
     "precision": null,
     "recall": 0,
     "exactMatches": 0,
@@ -431,26 +431,27 @@
       "failures": []
     },
     {
-      "id": "unknown-alias-gap",
+      "id": "registered-alias",
       "story": "ring",
-      "diagnostic": "未實作別名到正式知情身份的統一映射",
+      "diagnostic": null,
       "expected": [
         "ring"
       ],
-      "actual": [],
-      "missing": [
+      "actual": [
         "ring"
       ],
+      "missing": [],
       "unexpected": [],
       "sourceErrors": [],
       "forbiddenHits": [],
-      "emittedChars": 0,
-      "budgetChars": 0,
+      "emittedChars": 59,
+      "budgetChars": 59,
       "modelCalls": 0,
       "decisions": [
         {
           "id": "ring",
-          "reason": "knowledge"
+          "reason": "included",
+          "score": 1
         }
       ],
       "failures": []
@@ -893,6 +894,168 @@
         {
           "id": "port6",
           "reason": "irrelevant"
+        }
+      ],
+      "failures": []
+    },
+    {
+      "id": "alias-collision",
+      "story": "ring",
+      "diagnostic": null,
+      "expected": [],
+      "actual": [],
+      "missing": [],
+      "unexpected": [],
+      "sourceErrors": [],
+      "forbiddenHits": [],
+      "emittedChars": 0,
+      "budgetChars": 0,
+      "modelCalls": 0,
+      "decisions": [
+        {
+          "id": "ring",
+          "reason": "knowledge"
+        }
+      ],
+      "failures": []
+    },
+    {
+      "id": "alias-formal-collision",
+      "story": "ring",
+      "diagnostic": null,
+      "expected": [],
+      "actual": [],
+      "missing": [],
+      "unexpected": [],
+      "sourceErrors": [],
+      "forbiddenHits": [],
+      "emittedChars": 0,
+      "budgetChars": 0,
+      "modelCalls": 0,
+      "decisions": [
+        {
+          "id": "ring",
+          "reason": "knowledge"
+        }
+      ],
+      "failures": []
+    },
+    {
+      "id": "ambiguous-cast-not-dropped",
+      "story": "ring",
+      "diagnostic": null,
+      "expected": [],
+      "actual": [],
+      "missing": [],
+      "unexpected": [],
+      "sourceErrors": [],
+      "forbiddenHits": [],
+      "emittedChars": 0,
+      "budgetChars": 0,
+      "modelCalls": 0,
+      "decisions": [
+        {
+          "id": "ring",
+          "reason": "knowledge"
+        }
+      ],
+      "failures": []
+    },
+    {
+      "id": "alias-world-absent",
+      "story": "ring",
+      "diagnostic": null,
+      "expected": [],
+      "actual": [],
+      "missing": [],
+      "unexpected": [],
+      "sourceErrors": [],
+      "forbiddenHits": [],
+      "emittedChars": 0,
+      "budgetChars": 0,
+      "modelCalls": 0,
+      "decisions": [
+        {
+          "id": "ring",
+          "reason": "knowledge"
+        }
+      ],
+      "failures": []
+    },
+    {
+      "id": "formal-and-alias-deduplicated",
+      "story": "ring",
+      "diagnostic": null,
+      "expected": [
+        "ring"
+      ],
+      "actual": [
+        "ring"
+      ],
+      "missing": [],
+      "unexpected": [],
+      "sourceErrors": [],
+      "forbiddenHits": [],
+      "emittedChars": 59,
+      "budgetChars": 59,
+      "modelCalls": 0,
+      "decisions": [
+        {
+          "id": "ring",
+          "reason": "included",
+          "score": 1
+        }
+      ],
+      "failures": []
+    },
+    {
+      "id": "alias-latest-told-proof",
+      "story": "ring",
+      "diagnostic": null,
+      "expected": [
+        "ring"
+      ],
+      "actual": [
+        "ring"
+      ],
+      "missing": [],
+      "unexpected": [],
+      "sourceErrors": [],
+      "forbiddenHits": [],
+      "emittedChars": 60,
+      "budgetChars": 60,
+      "modelCalls": 0,
+      "decisions": [
+        {
+          "id": "ring",
+          "reason": "included",
+          "score": 1
+        }
+      ],
+      "failures": []
+    },
+    {
+      "id": "alias-rewound-proof",
+      "story": "ring",
+      "diagnostic": null,
+      "expected": [
+        "ring"
+      ],
+      "actual": [
+        "ring"
+      ],
+      "missing": [],
+      "unexpected": [],
+      "sourceErrors": [],
+      "forbiddenHits": [],
+      "emittedChars": 59,
+      "budgetChars": 59,
+      "modelCalls": 0,
+      "decisions": [
+        {
+          "id": "ring",
+          "reason": "included",
+          "score": 1
         }
       ],
       "failures": []
