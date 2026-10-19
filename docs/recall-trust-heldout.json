@@ -1,0 +1,230 @@
+{
+  "suiteVersion": 3,
+  "scope": "預先保留的信任用語／反例，與開發案例分開計量；不是統計抽樣的玩家品質評估。",
+  "sourceHashes": {
+    "js/episodic-memory-core.js": "2884c118f813848feb9b3a99bae5842b05e283f1ede39b57dc3e40a37ddac941",
+    "js/episodic-memory.js": "2d51c192dccba113d828b2b9462e01b86f793d700e07278b45546f8a651b6819",
+    "tests/fixtures/recall-acceptance/trust-heldout.json": "ce4ff2acfcc2fb77137767d1c0578d0e9bcb9c6a589d50a2d5a0ddde10a74981",
+    "scripts/evaluate-episodic-recall.cjs": "fadd74d4e4bfd8d5ac754f06ac90adc82efdcac20f842f23d418ba0d5544cb82"
+  },
+  "all": {
+    "cases": 8,
+    "truePositives": 2,
+    "falsePositives": 0,
+    "falseNegatives": 1,
+    "precision": 1,
+    "recall": 0.6666666666666666,
+    "exactMatches": 7,
+    "sourceErrors": 0,
+    "forbiddenContentCases": 0
+  },
+  "supported": {
+    "cases": 7,
+    "truePositives": 2,
+    "falsePositives": 0,
+    "falseNegatives": 0,
+    "precision": 1,
+    "recall": 1,
+    "exactMatches": 7,
+    "sourceErrors": 0,
+    "forbiddenContentCases": 0
+  },
+  "diagnostic": {
+    "cases": 1,
+    "truePositives": 0,
+    "falsePositives": 0,
+    "falseNegatives": 1,
+    "precision": null,
+    "recall": 0,
+    "exactMatches": 0,
+    "sourceErrors": 0,
+    "forbiddenContentCases": 0
+  },
+  "failedCases": 0,
+  "modelCalls": 0,
+  "results": [
+    {
+      "id": "heldout-doubt-you",
+      "story": "trust",
+      "diagnostic": null,
+      "expected": [
+        "trust"
+      ],
+      "actual": [
+        "trust"
+      ],
+      "missing": [],
+      "unexpected": [],
+      "sourceErrors": [],
+      "forbiddenHits": [],
+      "emittedChars": 62,
+      "budgetChars": 62,
+      "modelCalls": 0,
+      "decisions": [
+        {
+          "id": "trust",
+          "reason": "included",
+          "score": 1
+        }
+      ],
+      "failures": []
+    },
+    {
+      "id": "heldout-believe-us",
+      "story": "trust",
+      "diagnostic": null,
+      "expected": [
+        "trust"
+      ],
+      "actual": [
+        "trust"
+      ],
+      "missing": [],
+      "unexpected": [],
+      "sourceErrors": [],
+      "forbiddenHits": [],
+      "emittedChars": 62,
+      "budgetChars": 62,
+      "modelCalls": 0,
+      "decisions": [
+        {
+          "id": "trust",
+          "reason": "included",
+          "score": 1,
+          "match": "trust-tag"
+        }
+      ],
+      "failures": []
+    },
+    {
+      "id": "heldout-weather",
+      "story": "trust",
+      "diagnostic": null,
+      "expected": [],
+      "actual": [],
+      "missing": [],
+      "unexpected": [],
+      "sourceErrors": [],
+      "forbiddenHits": [],
+      "emittedChars": 0,
+      "budgetChars": 0,
+      "modelCalls": 0,
+      "decisions": [
+        {
+          "id": "trust",
+          "reason": "irrelevant"
+        }
+      ],
+      "failures": []
+    },
+    {
+      "id": "heldout-third-person",
+      "story": "trust",
+      "diagnostic": null,
+      "expected": [],
+      "actual": [],
+      "missing": [],
+      "unexpected": [],
+      "sourceErrors": [],
+      "forbiddenHits": [],
+      "emittedChars": 0,
+      "budgetChars": 0,
+      "modelCalls": 0,
+      "decisions": [
+        {
+          "id": "trust",
+          "reason": "irrelevant"
+        }
+      ],
+      "failures": []
+    },
+    {
+      "id": "heldout-finance",
+      "story": "trust",
+      "diagnostic": null,
+      "expected": [],
+      "actual": [],
+      "missing": [],
+      "unexpected": [],
+      "sourceErrors": [],
+      "forbiddenHits": [],
+      "emittedChars": 0,
+      "budgetChars": 0,
+      "modelCalls": 0,
+      "decisions": [
+        {
+          "id": "trust",
+          "reason": "irrelevant"
+        }
+      ],
+      "failures": []
+    },
+    {
+      "id": "heldout-mixed-cast",
+      "story": "trust",
+      "diagnostic": null,
+      "expected": [],
+      "actual": [],
+      "missing": [],
+      "unexpected": [],
+      "sourceErrors": [],
+      "forbiddenHits": [],
+      "emittedChars": 0,
+      "budgetChars": 0,
+      "modelCalls": 0,
+      "decisions": [
+        {
+          "id": "trust",
+          "reason": "knowledge"
+        }
+      ],
+      "failures": []
+    },
+    {
+      "id": "heldout-edited-proof",
+      "story": "trust",
+      "diagnostic": null,
+      "expected": [],
+      "actual": [],
+      "missing": [],
+      "unexpected": [],
+      "sourceErrors": [],
+      "forbiddenHits": [],
+      "emittedChars": 0,
+      "budgetChars": 0,
+      "modelCalls": 0,
+      "decisions": [
+        {
+          "id": "trust",
+          "reason": "evidence"
+        }
+      ],
+      "failures": []
+    },
+    {
+      "id": "heldout-metaphor-gap",
+      "story": "trust",
+      "diagnostic": "抽象隱喻不在限定字詞對應範圍",
+      "expected": [
+        "trust"
+      ],
+      "actual": [],
+      "missing": [
+        "trust"
+      ],
+      "unexpected": [],
+      "sourceErrors": [],
+      "forbiddenHits": [],
+      "emittedChars": 0,
+      "budgetChars": 0,
+      "modelCalls": 0,
+      "decisions": [
+        {
+          "id": "trust",
+          "reason": "irrelevant"
+        }
+      ],
+      "failures": []
+    }
+  ]
+}

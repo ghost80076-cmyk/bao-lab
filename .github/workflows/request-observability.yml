@@ -35,6 +35,7 @@ jobs:
           node tests/actor-alias-core.cjs
           node tests/actor-alias-runtime.cjs
           node scripts/evaluate-episodic-recall.cjs --report benchmark-results/recall-acceptance.json
+          node scripts/evaluate-episodic-recall.cjs --fixture tests/fixtures/recall-acceptance/trust-heldout.json --report benchmark-results/recall-trust-heldout.json
           node tests/recall-acceptance-runner-core.cjs
           node tests/worldbook-library-core.cjs
           node tests/frontend-extension-contract.cjs

@@ -157,9 +157,19 @@
       let score = words.reduce((n, word) => n + (haystack.includes(word) ? 1 : 0), 0);
       // Relational cues may omit the event's original words entirely.
       if (/還記得|上次|以前|當時|承諾|怪我|生.*氣|remember|last time/i.test(input) && audience.some(actor => list(event.entities).some(name => resolve(name) === actor))) score += 2;
+      // A bounded tag fallback, not semantic search: require interpersonal
+      // wording, an explicit participant and a trust-related visible claim.
+      let match;
+      if (!score && !shared
+        && /(?:相信|信任|信得過|信不過|不信)(?:我們|我|你|妳|彼此)/.test(input)
+        && list(event.keywords).some(tag => /^(?:信任|trust)$/i.test(tag))
+        && audience.some(actor => list(event.entities).some(name => resolve(name) === actor))
+        && visibleClaims.some(claim => /信任|相信|說謊|欺騙|隱瞞|背叛/.test(claim.text))) {
+        score = 1; match = 'trust-tag';
+      }
       if (!score) { decision('irrelevant'); continue; }
       const index = Math.max(...event.evidence.map(e => sources.get(e.id).index));
-      candidates.push({ event, score, index, lines, shared, proofs: visibleClaims.map((claim,i) => ({line:lines[i],evidence:claim.evidence})) });
+      candidates.push({ event, score, ...(match ? {match} : {}), index, lines, shared, proofs: visibleClaims.map((claim,i) => ({line:lines[i],evidence:claim.evidence})) });
     }
     candidates.sort((a, b) => b.score - a.score || b.index - a.index || String(a.event.id).localeCompare(String(b.event.id)));
     const selected = []; let used = 0;
@@ -168,9 +178,9 @@
       if (!lines.length) { onDecision({id:candidate.event.id, reason:'duplicate'}); continue; }
       const sourceIds = [...new Set(candidate.proofs.filter(proof => lines.includes(proof.line)).flatMap(proof => proof.evidence.map(e => e.id)))];
       const block = `〔${text(candidate.event.id, 180)}${candidate.shared && candidate.event.time ? `｜${text(candidate.event.time, 100)}` : ''}｜${candidate.shared ? 'confirmed' : '角色認知'}〕\n${lines.join('\n')}\n來源：${sourceIds.join('、')}`;
-      if (used + block.length > Math.min(2400, Math.max(0, maxChars)) || selected.length >= 4) { onDecision({id:candidate.event.id, reason:'budget',score:candidate.score}); continue; }
+      if (used + block.length > Math.min(2400, Math.max(0, maxChars)) || selected.length >= 4) { onDecision({id:candidate.event.id, reason:'budget',score:candidate.score,...(candidate.match ? {match:candidate.match} : {})}); continue; }
       selected.push({ id: candidate.event.id, block }); used += block.length; lines.forEach(line => seen.add(line));
-      onDecision({id:candidate.event.id, reason:'included',score:candidate.score});
+      onDecision({id:candidate.event.id, reason:'included',score:candidate.score,...(candidate.match ? {match:candidate.match} : {})});
     }
     return selected;
   }

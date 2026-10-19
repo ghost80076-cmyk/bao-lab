@@ -57,6 +57,27 @@ v2 已補上只依已登錄 NPC 身份／別名解析的對應；遇到同名或
 
 同一別名指向兩人、別名碰到另一人的正式名、或無穩定 ID 的重複同名，皆視為歧義。任何 speaker 有歧義時，整份私密 audience 拒絕；不能刪去該 speaker 後只保留另一個有權人物。歧義 known_by 不提供權限，歧義的舊知情記錄不轉給任一人物。公共資料沿用原規則。未登錄名稱仍保留原本的精確名稱行為，不推測拼字、大小寫、翻譯或語意近似，也不自動把不在場人物帶入世界模式。
 
-[目前 v2 結果](recall-acceptance-baseline.json)：41 個案例，其中 40 個既有／新增能力案例符合 oracle；錯召回、錯來源、指定禁用內容均為 0。全體正確條目 23／24，micro recall 95.8%，剩餘 1 筆無關鍵詞改寫仍是已知缺口。原 alias gap 已轉為一般支援案例；增加別名碰撞、正式名碰撞、整體 cast 拒絕、離場角色、去重及後續認知／回退來源查詢。v1 的 19／21 與 v2 的 23／24 分母不同，不作同分布成效提升宣稱。
+[v2 結果](recall-acceptance-v2.json)：41 個案例，其中 40 個既有／新增能力案例符合 oracle；錯召回、錯來源、指定禁用內容均為 0。全體正確條目 23／24，micro recall 95.8%，剩餘 1 筆無關鍵詞改寫仍是已知缺口。原 alias gap 已轉為一般支援案例；增加別名碰撞、正式名碰撞、整體 cast 拒絕、離場角色、去重及後續認知／回退來源查詢。v1 的 19／21 與 v2 的 23／24 分母不同，不作同分布成效提升宣稱。
 
 新增 `actor-alias-core.cjs` 與 `actor-alias-runtime.cjs`，直接驗證 resolver 與真實 Canon／世界書／事件 wrapper／日程管線，涵蓋歧義、多人、不同 state、來源與零模型呼叫。Resolver 每次操作重建目前 registry，事件召回每次只建一份，避免跨故事快取或逐知情記錄重掃 NPC 名冊。
+
+## v3：限定人際信任問句的標籤對應
+
+[開發集](../tests/fixtures/recall-acceptance/v3.json) 有 53 案；另在實作前固定 [8 案保留集](../tests/fixtures/recall-acceptance/trust-heldout.json)，分開執行，不把兩組合併成泛化成效。這仍是人工合成的小樣本，不代表玩家分布。
+
+```sh
+node scripts/evaluate-episodic-recall.cjs --fixture tests/fixtures/recall-acceptance/trust-heldout.json --report /tmp/recall-trust-heldout.json
+```
+
+只有原有排序分數為零，且私密事件通過來源、目前共同知情與去重檢查後，才考慮新對應：輸入含「相信／信任／信得過／信不過／不信」直接接我、你、妳、我們或彼此；事件必須有精確「信任」或 `trust` 標籤、明列當前角色，且實際可見 claim 有信任、說謊、欺騙、隱瞞或背叛字詞。符合時給 1 分。私密客觀正文不參與這個判斷；檢查器會標示「人際信任標籤對應」。這是限定字詞規則，沒有向量檢索、額外模型呼叫或資料遷移。
+
+| 同一組 fixture 的實測 | 開發集改前 | 開發集改後 | 保留集改前 | 保留集改後 |
+| --- | ---: | ---: | ---: | ---: |
+| 符合 oracle 的案例 | 49/53 | 52/53 | 6/8 | 7/8 |
+| 全部條目 micro recall（含已知缺口） | 24/28 | 27/28 | 1/3 | 2/3 |
+| 錯召回／錯來源／指定禁用內容案例 | 0/0/0 | 0/0/0 | 0/0/0 | 0/0/0 |
+| 模型呼叫 | 0 | 0 | 0 | 0 |
+
+原始報告：[開發改前](recall-trust-before.json)、[開發改後](recall-acceptance-baseline.json)、[保留改前](recall-trust-heldout-before.json)、[保留改後](recall-trust-heldout.json)。每組前後使用相同 fixture、runtime、evaluator，只有 core 不同，SHA-256 留在報告內。開發與保留集各有 1 個抽象比喻缺口（裂縫／牆）仍計入 false negative；一般信念、第三人稱、金融字詞、混合知情、改寫來源、重複內容和僅有標籤但可見 claim 無關的反例不應召回。
+
+CI 分開保存兩組結果，核對目前證據與來源雜湊，並注入停用新對應的故障，確認兩組都能抓到漏召回。這不保證任意信任問句皆相關；含多個子句、否定或複雜指代仍可能超出規則能力。後續需更多獨立故事與真實匿名評估，再決定是否擴充。O1 正式帳單對帳仍待實際供應商帳單及 D1 明細。

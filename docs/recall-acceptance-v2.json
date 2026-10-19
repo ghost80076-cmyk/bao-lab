@@ -1,0 +1,1064 @@
+{
+  "suiteVersion": 2,
+  "scope": "合成、人工指定 oracle；測本地索引到實際 buildMessages 的輸出，不測 LLM 提取／生成品質。",
+  "sourceHashes": {
+    "js/episodic-memory-core.js": "b6006d47057dc13115761e47f82aa3699bce96bf4beeb2c4f935ec0dcee1ae6a",
+    "js/episodic-memory.js": "2d51c192dccba113d828b2b9462e01b86f793d700e07278b45546f8a651b6819",
+    "tests/fixtures/recall-acceptance/v2.json": "dc58e4fc217ac3c50f47b4e779b0b284b2336cb24feb9fe3b040e3c1f2db443a",
+    "scripts/evaluate-episodic-recall.cjs": "098adb7cbf813899227623b9b15db27e88f933611d3cb054fb8ce3f333f16aa7"
+  },
+  "all": {
+    "cases": 41,
+    "truePositives": 23,
+    "falsePositives": 0,
+    "falseNegatives": 1,
+    "precision": 1,
+    "recall": 0.9583333333333334,
+    "exactMatches": 40,
+    "sourceErrors": 0,
+    "forbiddenContentCases": 0
+  },
+  "supported": {
+    "cases": 40,
+    "truePositives": 23,
+    "falsePositives": 0,
+    "falseNegatives": 0,
+    "precision": 1,
+    "recall": 1,
+    "exactMatches": 40,
+    "sourceErrors": 0,
+    "forbiddenContentCases": 0
+  },
+  "diagnostic": {
+    "cases": 1,
+    "truePositives": 0,
+    "falsePositives": 0,
+    "falseNegatives": 1,
+    "precision": null,
+    "recall": 0,
+    "exactMatches": 0,
+    "sourceErrors": 0,
+    "forbiddenContentCases": 0
+  },
+  "failedCases": 0,
+  "modelCalls": 0,
+  "results": [
+    {
+      "id": "owner-literal",
+      "story": "ring",
+      "diagnostic": null,
+      "expected": [
+        "ring"
+      ],
+      "actual": [
+        "ring"
+      ],
+      "missing": [],
+      "unexpected": [],
+      "sourceErrors": [],
+      "forbiddenHits": [],
+      "emittedChars": 59,
+      "budgetChars": 59,
+      "modelCalls": 0,
+      "decisions": [
+        {
+          "id": "ring",
+          "reason": "included",
+          "score": 1
+        }
+      ],
+      "failures": []
+    },
+    {
+      "id": "rumor-not-objective",
+      "story": "ring",
+      "diagnostic": null,
+      "expected": [
+        "ring"
+      ],
+      "actual": [
+        "ring"
+      ],
+      "missing": [],
+      "unexpected": [],
+      "sourceErrors": [],
+      "forbiddenHits": [],
+      "emittedChars": 59,
+      "budgetChars": 59,
+      "modelCalls": 0,
+      "decisions": [
+        {
+          "id": "ring",
+          "reason": "included",
+          "score": 1
+        }
+      ],
+      "failures": []
+    },
+    {
+      "id": "unknown-actor",
+      "story": "ring",
+      "diagnostic": null,
+      "expected": [],
+      "actual": [],
+      "missing": [],
+      "unexpected": [],
+      "sourceErrors": [],
+      "forbiddenHits": [],
+      "emittedChars": 0,
+      "budgetChars": 0,
+      "modelCalls": 0,
+      "decisions": [
+        {
+          "id": "ring",
+          "reason": "knowledge"
+        }
+      ],
+      "failures": []
+    },
+    {
+      "id": "unknown-world-cast",
+      "story": "ring",
+      "diagnostic": null,
+      "expected": [],
+      "actual": [],
+      "missing": [],
+      "unexpected": [],
+      "sourceErrors": [],
+      "forbiddenHits": [],
+      "emittedChars": 0,
+      "budgetChars": 0,
+      "modelCalls": 0,
+      "decisions": [
+        {
+          "id": "ring",
+          "reason": "knowledge"
+        }
+      ],
+      "failures": []
+    },
+    {
+      "id": "mixed-different-beliefs",
+      "story": "ring",
+      "diagnostic": null,
+      "expected": [],
+      "actual": [],
+      "missing": [],
+      "unexpected": [],
+      "sourceErrors": [],
+      "forbiddenHits": [],
+      "emittedChars": 0,
+      "budgetChars": 0,
+      "modelCalls": 0,
+      "decisions": [
+        {
+          "id": "ring",
+          "reason": "knowledge"
+        }
+      ],
+      "failures": []
+    },
+    {
+      "id": "mixed-unknown",
+      "story": "ring",
+      "diagnostic": null,
+      "expected": [],
+      "actual": [],
+      "missing": [],
+      "unexpected": [],
+      "sourceErrors": [],
+      "forbiddenHits": [],
+      "emittedChars": 0,
+      "budgetChars": 0,
+      "modelCalls": 0,
+      "decisions": [
+        {
+          "id": "ring",
+          "reason": "knowledge"
+        }
+      ],
+      "failures": []
+    },
+    {
+      "id": "world-present-only",
+      "story": "ring",
+      "diagnostic": null,
+      "expected": [
+        "ring"
+      ],
+      "actual": [
+        "ring"
+      ],
+      "missing": [],
+      "unexpected": [],
+      "sourceErrors": [],
+      "forbiddenHits": [],
+      "emittedChars": 59,
+      "budgetChars": 59,
+      "modelCalls": 0,
+      "decisions": [
+        {
+          "id": "ring",
+          "reason": "included",
+          "score": 1
+        }
+      ],
+      "failures": []
+    },
+    {
+      "id": "world-mention-is-not-cast",
+      "story": "ring",
+      "diagnostic": null,
+      "expected": [],
+      "actual": [],
+      "missing": [],
+      "unexpected": [],
+      "sourceErrors": [],
+      "forbiddenHits": [],
+      "emittedChars": 0,
+      "budgetChars": 0,
+      "modelCalls": 0,
+      "decisions": [
+        {
+          "id": "ring",
+          "reason": "knowledge"
+        }
+      ],
+      "failures": []
+    },
+    {
+      "id": "hidden-objective-not-query-signal",
+      "story": "ring",
+      "diagnostic": null,
+      "expected": [],
+      "actual": [],
+      "missing": [],
+      "unexpected": [],
+      "sourceErrors": [],
+      "forbiddenHits": [],
+      "emittedChars": 0,
+      "budgetChars": 0,
+      "modelCalls": 0,
+      "decisions": [
+        {
+          "id": "ring",
+          "reason": "irrelevant"
+        }
+      ],
+      "failures": []
+    },
+    {
+      "id": "later-told-claim",
+      "story": "ring",
+      "diagnostic": null,
+      "expected": [
+        "ring"
+      ],
+      "actual": [
+        "ring"
+      ],
+      "missing": [],
+      "unexpected": [],
+      "sourceErrors": [],
+      "forbiddenHits": [],
+      "emittedChars": 60,
+      "budgetChars": 60,
+      "modelCalls": 0,
+      "decisions": [
+        {
+          "id": "ring",
+          "reason": "included",
+          "score": 1
+        }
+      ],
+      "failures": []
+    },
+    {
+      "id": "rewind-belief",
+      "story": "ring",
+      "diagnostic": null,
+      "expected": [
+        "ring"
+      ],
+      "actual": [
+        "ring"
+      ],
+      "missing": [],
+      "unexpected": [],
+      "sourceErrors": [],
+      "forbiddenHits": [],
+      "emittedChars": 59,
+      "budgetChars": 59,
+      "modelCalls": 0,
+      "decisions": [
+        {
+          "id": "ring",
+          "reason": "included",
+          "score": 1
+        }
+      ],
+      "failures": []
+    },
+    {
+      "id": "edit-later-belief",
+      "story": "ring",
+      "diagnostic": null,
+      "expected": [
+        "ring"
+      ],
+      "actual": [
+        "ring"
+      ],
+      "missing": [],
+      "unexpected": [],
+      "sourceErrors": [],
+      "forbiddenHits": [],
+      "emittedChars": 59,
+      "budgetChars": 59,
+      "modelCalls": 0,
+      "decisions": [
+        {
+          "id": "ring",
+          "reason": "included",
+          "score": 1
+        }
+      ],
+      "failures": []
+    },
+    {
+      "id": "edit-origin",
+      "story": "ring",
+      "diagnostic": null,
+      "expected": [],
+      "actual": [],
+      "missing": [],
+      "unexpected": [],
+      "sourceErrors": [],
+      "forbiddenHits": [],
+      "emittedChars": 0,
+      "budgetChars": 0,
+      "modelCalls": 0,
+      "decisions": [
+        {
+          "id": "ring",
+          "reason": "evidence"
+        }
+      ],
+      "failures": []
+    },
+    {
+      "id": "edit-semantic-context",
+      "story": "ring",
+      "diagnostic": null,
+      "expected": [],
+      "actual": [],
+      "missing": [],
+      "unexpected": [],
+      "sourceErrors": [],
+      "forbiddenHits": [],
+      "emittedChars": 0,
+      "budgetChars": 0,
+      "modelCalls": 0,
+      "decisions": [
+        {
+          "id": "ring",
+          "reason": "evidence"
+        }
+      ],
+      "failures": []
+    },
+    {
+      "id": "missing-origin-branch",
+      "story": "ring",
+      "diagnostic": null,
+      "expected": [],
+      "actual": [],
+      "missing": [],
+      "unexpected": [],
+      "sourceErrors": [],
+      "forbiddenHits": [],
+      "emittedChars": 0,
+      "budgetChars": 0,
+      "modelCalls": 0,
+      "decisions": [
+        {
+          "id": "ring",
+          "reason": "evidence"
+        }
+      ],
+      "failures": []
+    },
+    {
+      "id": "separate-state-no-index",
+      "story": "ring",
+      "diagnostic": null,
+      "expected": [],
+      "actual": [],
+      "missing": [],
+      "unexpected": [],
+      "sourceErrors": [],
+      "forbiddenHits": [],
+      "emittedChars": 0,
+      "budgetChars": 0,
+      "modelCalls": 0,
+      "decisions": [],
+      "failures": []
+    },
+    {
+      "id": "persisted-index",
+      "story": "ring",
+      "diagnostic": null,
+      "expected": [
+        "ring"
+      ],
+      "actual": [
+        "ring"
+      ],
+      "missing": [],
+      "unexpected": [],
+      "sourceErrors": [],
+      "forbiddenHits": [],
+      "emittedChars": 59,
+      "budgetChars": 59,
+      "modelCalls": 0,
+      "decisions": [
+        {
+          "id": "ring",
+          "reason": "included",
+          "score": 1
+        }
+      ],
+      "failures": []
+    },
+    {
+      "id": "registered-alias",
+      "story": "ring",
+      "diagnostic": null,
+      "expected": [
+        "ring"
+      ],
+      "actual": [
+        "ring"
+      ],
+      "missing": [],
+      "unexpected": [],
+      "sourceErrors": [],
+      "forbiddenHits": [],
+      "emittedChars": 59,
+      "budgetChars": 59,
+      "modelCalls": 0,
+      "decisions": [
+        {
+          "id": "ring",
+          "reason": "included",
+          "score": 1
+        }
+      ],
+      "failures": []
+    },
+    {
+      "id": "public-unknown-cast",
+      "story": "gate",
+      "diagnostic": null,
+      "expected": [
+        "gate-new"
+      ],
+      "actual": [
+        "gate-new"
+      ],
+      "missing": [],
+      "unexpected": [],
+      "sourceErrors": [],
+      "forbiddenHits": [],
+      "emittedChars": 55,
+      "budgetChars": 55,
+      "modelCalls": 0,
+      "decisions": [
+        {
+          "id": "gate-old",
+          "reason": "retracted"
+        },
+        {
+          "id": "gate-new",
+          "reason": "included",
+          "score": 1
+        }
+      ],
+      "failures": []
+    },
+    {
+      "id": "public-rewound-correction",
+      "story": "gate",
+      "diagnostic": null,
+      "expected": [
+        "gate-old"
+      ],
+      "actual": [
+        "gate-old"
+      ],
+      "missing": [],
+      "unexpected": [],
+      "sourceErrors": [],
+      "forbiddenHits": [],
+      "emittedChars": 53,
+      "budgetChars": 53,
+      "modelCalls": 0,
+      "decisions": [
+        {
+          "id": "gate-new",
+          "reason": "evidence"
+        },
+        {
+          "id": "gate-old",
+          "reason": "included",
+          "score": 1
+        }
+      ],
+      "failures": []
+    },
+    {
+      "id": "invalid-correction-restores-old",
+      "story": "gate",
+      "diagnostic": null,
+      "expected": [
+        "gate-old"
+      ],
+      "actual": [
+        "gate-old"
+      ],
+      "missing": [],
+      "unexpected": [],
+      "sourceErrors": [],
+      "forbiddenHits": [],
+      "emittedChars": 53,
+      "budgetChars": 53,
+      "modelCalls": 0,
+      "decisions": [
+        {
+          "id": "gate-new",
+          "reason": "evidence"
+        },
+        {
+          "id": "gate-old",
+          "reason": "included",
+          "score": 1
+        }
+      ],
+      "failures": []
+    },
+    {
+      "id": "public-unrelated",
+      "story": "gate",
+      "diagnostic": null,
+      "expected": [],
+      "actual": [],
+      "missing": [],
+      "unexpected": [],
+      "sourceErrors": [],
+      "forbiddenHits": [],
+      "emittedChars": 0,
+      "budgetChars": 0,
+      "modelCalls": 0,
+      "decisions": [
+        {
+          "id": "gate-old",
+          "reason": "retracted"
+        },
+        {
+          "id": "gate-new",
+          "reason": "irrelevant"
+        }
+      ],
+      "failures": []
+    },
+    {
+      "id": "long-story-200-rounds",
+      "story": "trust",
+      "diagnostic": null,
+      "expected": [
+        "trust"
+      ],
+      "actual": [
+        "trust"
+      ],
+      "missing": [],
+      "unexpected": [],
+      "sourceErrors": [],
+      "forbiddenHits": [],
+      "emittedChars": 62,
+      "budgetChars": 62,
+      "modelCalls": 0,
+      "decisions": [
+        {
+          "id": "trust",
+          "reason": "included",
+          "score": 1
+        }
+      ],
+      "failures": []
+    },
+    {
+      "id": "relation-without-original-keyword",
+      "story": "trust",
+      "diagnostic": null,
+      "expected": [
+        "trust"
+      ],
+      "actual": [
+        "trust"
+      ],
+      "missing": [],
+      "unexpected": [],
+      "sourceErrors": [],
+      "forbiddenHits": [],
+      "emittedChars": 62,
+      "budgetChars": 62,
+      "modelCalls": 0,
+      "decisions": [
+        {
+          "id": "trust",
+          "reason": "included",
+          "score": 2
+        }
+      ],
+      "failures": []
+    },
+    {
+      "id": "tagged-synonym",
+      "story": "trust",
+      "diagnostic": null,
+      "expected": [
+        "trust"
+      ],
+      "actual": [
+        "trust"
+      ],
+      "missing": [],
+      "unexpected": [],
+      "sourceErrors": [],
+      "forbiddenHits": [],
+      "emittedChars": 62,
+      "budgetChars": 62,
+      "modelCalls": 0,
+      "decisions": [
+        {
+          "id": "trust",
+          "reason": "included",
+          "score": 1
+        }
+      ],
+      "failures": []
+    },
+    {
+      "id": "untagged-paraphrase-gap",
+      "story": "trust",
+      "diagnostic": "關鍵字未命中且不屬既有關係提示；尚無語意向量檢索",
+      "expected": [
+        "trust"
+      ],
+      "actual": [],
+      "missing": [
+        "trust"
+      ],
+      "unexpected": [],
+      "sourceErrors": [],
+      "forbiddenHits": [],
+      "emittedChars": 0,
+      "budgetChars": 0,
+      "modelCalls": 0,
+      "decisions": [
+        {
+          "id": "trust",
+          "reason": "irrelevant"
+        }
+      ],
+      "failures": []
+    },
+    {
+      "id": "duplicate-existing-memory",
+      "story": "trust",
+      "diagnostic": null,
+      "expected": [],
+      "actual": [],
+      "missing": [],
+      "unexpected": [],
+      "sourceErrors": [],
+      "forbiddenHits": [],
+      "emittedChars": 0,
+      "budgetChars": 0,
+      "modelCalls": 0,
+      "decisions": [
+        {
+          "id": "trust",
+          "reason": "duplicate"
+        }
+      ],
+      "failures": []
+    },
+    {
+      "id": "full-history-disables-recall",
+      "story": "trust",
+      "diagnostic": null,
+      "expected": [],
+      "actual": [],
+      "missing": [],
+      "unexpected": [],
+      "sourceErrors": [],
+      "forbiddenHits": [],
+      "emittedChars": 0,
+      "budgetChars": 0,
+      "modelCalls": 0,
+      "decisions": [],
+      "failures": []
+    },
+    {
+      "id": "explicit-off-disables-recall",
+      "story": "trust",
+      "diagnostic": null,
+      "expected": [],
+      "actual": [],
+      "missing": [],
+      "unexpected": [],
+      "sourceErrors": [],
+      "forbiddenHits": [],
+      "emittedChars": 0,
+      "budgetChars": 0,
+      "modelCalls": 0,
+      "decisions": [],
+      "failures": []
+    },
+    {
+      "id": "common-claim-mixed-cast",
+      "story": "shared",
+      "diagnostic": null,
+      "expected": [
+        "tower"
+      ],
+      "actual": [
+        "tower"
+      ],
+      "missing": [],
+      "unexpected": [],
+      "sourceErrors": [],
+      "forbiddenHits": [],
+      "emittedChars": 69,
+      "budgetChars": 69,
+      "modelCalls": 0,
+      "decisions": [
+        {
+          "id": "tower",
+          "reason": "included",
+          "score": 1
+        }
+      ],
+      "failures": []
+    },
+    {
+      "id": "common-claim-single-actor",
+      "story": "shared",
+      "diagnostic": null,
+      "expected": [
+        "tower"
+      ],
+      "actual": [
+        "tower"
+      ],
+      "missing": [],
+      "unexpected": [],
+      "sourceErrors": [],
+      "forbiddenHits": [],
+      "emittedChars": 50,
+      "budgetChars": 50,
+      "modelCalls": 0,
+      "decisions": [
+        {
+          "id": "tower",
+          "reason": "included",
+          "score": 1
+        }
+      ],
+      "failures": []
+    },
+    {
+      "id": "common-claim-third-unknown",
+      "story": "shared",
+      "diagnostic": null,
+      "expected": [],
+      "actual": [],
+      "missing": [],
+      "unexpected": [],
+      "sourceErrors": [],
+      "forbiddenHits": [],
+      "emittedChars": 0,
+      "budgetChars": 0,
+      "modelCalls": 0,
+      "decisions": [
+        {
+          "id": "tower",
+          "reason": "knowledge"
+        }
+      ],
+      "failures": []
+    },
+    {
+      "id": "quantity-bound-ranking",
+      "story": "ports",
+      "diagnostic": null,
+      "expected": [
+        "port6",
+        "port5",
+        "port4",
+        "port3"
+      ],
+      "actual": [
+        "port6",
+        "port5",
+        "port4",
+        "port3"
+      ],
+      "missing": [],
+      "unexpected": [],
+      "sourceErrors": [],
+      "forbiddenHits": [],
+      "emittedChars": 230,
+      "budgetChars": 224,
+      "modelCalls": 0,
+      "decisions": [
+        {
+          "id": "port6",
+          "reason": "included",
+          "score": 1
+        },
+        {
+          "id": "port5",
+          "reason": "included",
+          "score": 1
+        },
+        {
+          "id": "port4",
+          "reason": "included",
+          "score": 1
+        },
+        {
+          "id": "port3",
+          "reason": "included",
+          "score": 1
+        },
+        {
+          "id": "port2",
+          "reason": "budget",
+          "score": 1
+        },
+        {
+          "id": "port1",
+          "reason": "budget",
+          "score": 1
+        }
+      ],
+      "failures": []
+    },
+    {
+      "id": "ranking-unrelated",
+      "story": "ports",
+      "diagnostic": null,
+      "expected": [],
+      "actual": [],
+      "missing": [],
+      "unexpected": [],
+      "sourceErrors": [],
+      "forbiddenHits": [],
+      "emittedChars": 0,
+      "budgetChars": 0,
+      "modelCalls": 0,
+      "decisions": [
+        {
+          "id": "port1",
+          "reason": "irrelevant"
+        },
+        {
+          "id": "port2",
+          "reason": "irrelevant"
+        },
+        {
+          "id": "port3",
+          "reason": "irrelevant"
+        },
+        {
+          "id": "port4",
+          "reason": "irrelevant"
+        },
+        {
+          "id": "port5",
+          "reason": "irrelevant"
+        },
+        {
+          "id": "port6",
+          "reason": "irrelevant"
+        }
+      ],
+      "failures": []
+    },
+    {
+      "id": "alias-collision",
+      "story": "ring",
+      "diagnostic": null,
+      "expected": [],
+      "actual": [],
+      "missing": [],
+      "unexpected": [],
+      "sourceErrors": [],
+      "forbiddenHits": [],
+      "emittedChars": 0,
+      "budgetChars": 0,
+      "modelCalls": 0,
+      "decisions": [
+        {
+          "id": "ring",
+          "reason": "knowledge"
+        }
+      ],
+      "failures": []
+    },
+    {
+      "id": "alias-formal-collision",
+      "story": "ring",
+      "diagnostic": null,
+      "expected": [],
+      "actual": [],
+      "missing": [],
+      "unexpected": [],
+      "sourceErrors": [],
+      "forbiddenHits": [],
+      "emittedChars": 0,
+      "budgetChars": 0,
+      "modelCalls": 0,
+      "decisions": [
+        {
+          "id": "ring",
+          "reason": "knowledge"
+        }
+      ],
+      "failures": []
+    },
+    {
+      "id": "ambiguous-cast-not-dropped",
+      "story": "ring",
+      "diagnostic": null,
+      "expected": [],
+      "actual": [],
+      "missing": [],
+      "unexpected": [],
+      "sourceErrors": [],
+      "forbiddenHits": [],
+      "emittedChars": 0,
+      "budgetChars": 0,
+      "modelCalls": 0,
+      "decisions": [
+        {
+          "id": "ring",
+          "reason": "knowledge"
+        }
+      ],
+      "failures": []
+    },
+    {
+      "id": "alias-world-absent",
+      "story": "ring",
+      "diagnostic": null,
+      "expected": [],
+      "actual": [],
+      "missing": [],
+      "unexpected": [],
+      "sourceErrors": [],
+      "forbiddenHits": [],
+      "emittedChars": 0,
+      "budgetChars": 0,
+      "modelCalls": 0,
+      "decisions": [
+        {
+          "id": "ring",
+          "reason": "knowledge"
+        }
+      ],
+      "failures": []
+    },
+    {
+      "id": "formal-and-alias-deduplicated",
+      "story": "ring",
+      "diagnostic": null,
+      "expected": [
+        "ring"
+      ],
+      "actual": [
+        "ring"
+      ],
+      "missing": [],
+      "unexpected": [],
+      "sourceErrors": [],
+      "forbiddenHits": [],
+      "emittedChars": 59,
+      "budgetChars": 59,
+      "modelCalls": 0,
+      "decisions": [
+        {
+          "id": "ring",
+          "reason": "included",
+          "score": 1
+        }
+      ],
+      "failures": []
+    },
+    {
+      "id": "alias-latest-told-proof",
+      "story": "ring",
+      "diagnostic": null,
+      "expected": [
+        "ring"
+      ],
+      "actual": [
+        "ring"
+      ],
+      "missing": [],
+      "unexpected": [],
+      "sourceErrors": [],
+      "forbiddenHits": [],
+      "emittedChars": 60,
+      "budgetChars": 60,
+      "modelCalls": 0,
+      "decisions": [
+        {
+          "id": "ring",
+          "reason": "included",
+          "score": 1
+        }
+      ],
+      "failures": []
+    },
+    {
+      "id": "alias-rewound-proof",
+      "story": "ring",
+      "diagnostic": null,
+      "expected": [
+        "ring"
+      ],
+      "actual": [
+        "ring"
+      ],
+      "missing": [],
+      "unexpected": [],
+      "sourceErrors": [],
+      "forbiddenHits": [],
+      "emittedChars": 59,
+      "budgetChars": 59,
+      "modelCalls": 0,
+      "decisions": [
+        {
+          "id": "ring",
+          "reason": "included",
+          "score": 1
+        }
+      ],
+      "failures": []
+    }
+  ]
+}

@@ -133,7 +133,7 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/story-actors-general-pack.js?v=1"))
     .then(() => loadBAOScript("js/three-realms-story-actor-pack.js?v=1"))
     .then(() => loadBAOScript("js/story-persona-manager.js?v=13"))
-    .then(() => loadBAOScript("js/context-inspector.js?v=2"))
+    .then(() => loadBAOScript("js/context-inspector.js?v=3"))
     .then(() => loadBAOScript("js/context-health-core.js"))
     .then(() => loadBAOScript("js/context-health.js?v=4"))
     .then(() => loadBAOScript("js/commentary-mods-core.js?v=2"))
