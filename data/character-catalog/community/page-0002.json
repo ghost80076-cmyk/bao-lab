@@ -1,0 +1,38 @@
+[
+  {
+    "id": "dynamic-family-forbidden-world",
+    "name": "動態家庭模擬器：禁區世界",
+    "title": "禁區世界｜動態家庭模擬器 V2",
+    "avatar": "https://i.meee.com.tw/sN7MQ1i.png",
+    "category": "general",
+    "rating": "adult",
+    "gender": "all",
+    "tags": [
+      "動態世界",
+      "家庭模擬",
+      "NPC自主",
+      "多視角",
+      "關係網",
+      "秘密線索",
+      "離場事件",
+      "群像",
+      "自由設定"
+    ],
+    "description": "每個人，都有你看不見的生活。從家庭、合租、公寓到家族與組織，NPC 在玩家離場後仍會依自己的日程、企圖、關係與秘密繼續生活。",
+    "author": "班長",
+    "author_id": "banzhang",
+    "file": "data/characters/community/97/dynamic-family-forbidden-world.json",
+    "supported_modes": {
+      "immersive": true,
+      "world": true
+    },
+    "supported_display": {
+      "text": true,
+      "ui": true
+    },
+    "published_at": "2026-10-20T00:20:00+08:00",
+    "updated_at": "2026-10-20T00:20:00+08:00",
+    "version_published_at": "2026-10-20T00:20:00+08:00",
+    "published_version": 1
+  }
+]
