@@ -502,10 +502,9 @@
             "limit": 12
           },
           {
-            "type": "cards",
+            "type": "list",
             "title": "已知道場",
             "path": "modules.world.known_dojos",
-            "variant": "codex",
             "empty": "尚未掌握其他道場情報。",
             "limit": 12
           },
