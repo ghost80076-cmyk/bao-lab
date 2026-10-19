@@ -26,6 +26,9 @@ jobs:
         with:
           node-version: 22
 
+      - name: Offline publication status audit
+        run: node tests/publication-status-audit-core.cjs
+
       - name: E2E group manifest integrity
         run: node --test tests/e2e-group-runner.test.cjs
 
