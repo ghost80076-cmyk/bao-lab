@@ -63,6 +63,10 @@ function pending(id) {
     requestId, playerId: 'p', actualCost, billingMode: 'cost_usd_v2',
     pricingVersion: 'v1', provider: 'g', model: 'm', ...extra,
   });
+  await assert.rejects(reserveWallet(db, 'bad', 'p', -1), /invalid_wallet_reservation_amount/);
+  await assert.rejects(reserveWallet(db, 'bad', 'p', 1.5), /invalid_wallet_reservation_amount/);
+  await assert.rejects(settle('bad', -1), /invalid_wallet_settlement_amount/);
+  await assert.rejects(settle('bad', Number.NaN), /invalid_wallet_settlement_amount/);
   pending('a'); pending('b');
   assert.equal(await reserveWallet(db, 'a', 'p', 200), true);
   assert.equal(await reserveWallet(db, 'a', 'p', 200), false);

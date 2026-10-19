@@ -299,6 +299,33 @@ The EC2 relay must validate `openrouter_provider.max_price` as non-negative fini
 Do not accept arbitrary browser-supplied provider routing. The browser never sends this field; the Worker derives it from the server-side `MODELS_JSON` entry.
 
 
+## Manual wallet top-up integrity
+
+The authenticated `POST /admin/players/:id/wallet-credit` endpoint requires a
+valid UUID `idempotency_key` in the JSON body along with the existing payment
+and `credit_added_microusd` fields. Generate the UUID **once per confirmed
+payment intent**, and reuse it when the HTTP result is unknown (timeouts,
+disconnects, retries). Do not generate a new key merely to retry a response.
+
+- The first accepted request atomically claims the key, increments the current
+  wallet balance, and appends `wallet_topups` and `wallet_ledger` entries.
+- Identical retries return `replayed: true`, the original `topup_id`, and the
+  **current** wallet balance without crediting again.
+- Reusing a key with different payment details returns `409 idempotency_key_conflict`.
+- A nonempty `payment_reference` cannot be reused with the same
+  `payment_method`, even under a different idempotency key.
+- A blank payment reference provides no cross-browser-session deduplication if
+  an admin loses the original UUID; use a real transaction/reference ID when
+  one exists. Test credits or genuinely reference-free manual awards remain
+  possible, but must be reconciled against the wallet ledger.
+- `wallet_topup_requests` is created lazily and stores the idempotency claim
+  separately from historical top-up rows; no existing wallet balance is migrated.
+
+**Rollout:** the admin page must send this new field before the production Worker
+enforces it. Deploy the updated admin page first (it can send an extra field to
+the old Worker), then deploy the Worker after the transaction tests pass. Existing
+automation/scripts posting to this admin endpoint must be updated beforehand.
+
 ## Admin provider control
 
 The authenticated `admin-wallet.html` page can manage two owner-side concerns without exposing them to players:
