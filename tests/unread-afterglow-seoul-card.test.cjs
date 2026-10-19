@@ -99,6 +99,6 @@ assert.equal(published.author, '班長');
 assert.equal(published.author_id, 'banzhang');
 assert.equal(published.avatar, card.meta.avatar, 'catalog and full card must share image');
 assert.ok(published.published_version >= 3, 'cover update should bump published version');
-assert.equal(manifest.total, catalog.length);
 assert.equal(manifest.pages[0].count, catalog.length);
+assert.equal(manifest.total, manifest.pages.reduce((sum, page) => sum + page.count, 0));
 console.log('PASS unread afterglow native card, builder state, UI, regex, text fallback, catalog');
