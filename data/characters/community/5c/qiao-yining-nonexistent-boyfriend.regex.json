@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "type": "yorubay-author-regex-mod",
+  "scope": "assistant_display",
+  "characterId": "qiao-yining-nonexistent-boyfriend",
+  "regex_scripts": [
+    {
+      "scriptName": "喬以寧｜雨夜題字",
+      "description": "只整理玩家已看見的原文；無腳本，不改寫故事與狀態。",
+      "priority": 70,
+      "findRegex": "【YB:QIAO:NIGHT】\\s*([\\s\\S]*?)\\s*【/YB:QIAO:NIGHT】",
+      "flags": "g",
+      "replaceString": "<section aria-label=\"雨夜題字\" style=\"font-family:system-ui,sans-serif;box-sizing:border-box;max-width:100%;overflow-wrap:anywhere;white-space:pre-wrap;line-height:1.9;padding:20px 18px;margin:16px 0;background:linear-gradient(135deg,#171e2b,#32282a);border:1px solid #80665a;border-radius:14px;color:#f5e9dc\"><small style=\"display:block;letter-spacing:2px;font-size:11px;margin-bottom:10px\">AFTER HOURS</small><div>$1</div></section>"
+    },
+    {
+      "scriptName": "喬以寧｜私人筆記",
+      "description": "只整理玩家已看見的原文；無腳本，不改寫故事與狀態。",
+      "priority": 60,
+      "findRegex": "【YB:QIAO:NOTE】\\s*([\\s\\S]*?)\\s*【/YB:QIAO:NOTE】",
+      "flags": "g",
+      "replaceString": "<section aria-label=\"私人筆記\" style=\"font-family:system-ui,sans-serif;box-sizing:border-box;max-width:100%;overflow-wrap:anywhere;white-space:pre-wrap;line-height:1.9;padding:20px 18px;margin:16px 0;background:#eee5d5;border:1px solid #b4a18a;border-radius:14px;color:#362c29\"><small style=\"display:block;letter-spacing:2px;font-size:11px;margin-bottom:10px\">PRIVATE NOTES</small><div>$1</div></section>"
+    }
+  ]
+}

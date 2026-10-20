@@ -108,5 +108,42 @@
     "updated_at": "2026-10-20T14:14:00+08:00",
     "version_published_at": "2026-10-20T14:14:00+08:00",
     "published_version": 1
+  },
+  {
+    "id": "qiao-yining-nonexistent-boyfriend",
+    "name": "喬以寧｜不存在的男朋友",
+    "avatar": "assets/community/qiao-yining-nonexistent-boyfriend.webp",
+    "category": "male",
+    "gender": "female",
+    "tags": [
+      "男性向",
+      "知性OL",
+      "高馬尾",
+      "眼鏡",
+      "假男友",
+      "秘密慾望",
+      "BDSM探索",
+      "權力交換",
+      "慢熱關係",
+      "都市生活"
+    ],
+    "description": "28歲，高馬尾、細銀框眼鏡，總能掌控局面的品牌企劃。公司所有人都知道她有交往三年的男朋友——但那個男人根本不存在。雨夜收工後，你看見了幾乎沒穿過的男性拖鞋，以及寫著Rules、Permission、Praise與Good girl的私人筆記。你會拆穿她的謊，還是慢慢走近她未曾說出口的那一面？",
+    "rating": "adult",
+    "author": "班長",
+    "author_id": "banzhang",
+    "title": "喬以寧｜不存在的男朋友",
+    "file": "data/characters/community/5c/qiao-yining-nonexistent-boyfriend.json",
+    "supported_modes": {
+      "immersive": true,
+      "world": true
+    },
+    "supported_display": {
+      "text": true,
+      "ui": true
+    },
+    "published_version": 1,
+    "published_at": "2026-10-20T23:04:00+08:00",
+    "updated_at": "2026-10-20T23:04:00+08:00",
+    "version_published_at": "2026-10-20T23:04:00+08:00"
   }
 ]

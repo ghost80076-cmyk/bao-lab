@@ -26,6 +26,8 @@ jobs:
           node-version: 22
       - name: Minimal usage signals
         run: node tests/usage-signals-core.cjs
+      - name: Qiao Yining native card integration
+        run: node tests/qiao-yining-card.cjs
       - name: Visual stylesheet identity and cascade order
         run: node --test tests/visual-stylesheet-loading-core.cjs
       - name: Author status binding and persistence
