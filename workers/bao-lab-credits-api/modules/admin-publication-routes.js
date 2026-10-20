@@ -140,7 +140,7 @@ async function adminPublicationRoute(
         has_more: hasMore, next_after_id: hasMore ? page.at(-1).id : null,
         captured_at: new Date().toISOString() });
     } catch (error) {
-      if (error?.httpStatus) return fail(error.message, error.httpStatus);
+      if (error?.httpStatus === 400 && error.message === "invalid_submission_cursor") return fail(error.message, 400);
       if (/no such table: (?:main\.)?work_license_submissions/i.test(String(error?.message))) return fail("publication_submissions_not_initialized", 409);
       return fail("publication_submissions_unavailable", 503);
     }
