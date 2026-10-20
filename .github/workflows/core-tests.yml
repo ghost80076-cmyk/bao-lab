@@ -30,6 +30,8 @@ jobs:
         run: node tests/qiao-yining-card.cjs
       - name: Bai Jin native card integration
         run: node tests/bai-jin-card.cjs
+      - name: Midnight paper bride native state and Regex
+        run: node tests/midnight-paper-bride-mio.cjs
       - name: Visual stylesheet identity and cascade order
         run: node --test tests/visual-stylesheet-loading-core.cjs
       - name: Author status binding and persistence
