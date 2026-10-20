@@ -17,9 +17,14 @@ for (const viewport of [{width:1440,height:1000},{width:390,height:844}]) {
       BAOGameplayUI.syncTabs();BAOGameplayUI.activateInitialPanel();
     });
     const opening=page.locator('#chat-stream .bao-structured-opening');
+    await expect(opening).toBeVisible();
+    await expect(page.locator('#chat-stream .bao-author-inline')).toHaveCount(0);
     await expect(opening).toContainText('看夠了嗎');
     await expect(opening).not.toContainText('【YB:');
     await expect(opening.locator('.bao-opening-choice')).toHaveCount(4);
+    const background=await page.locator('#chat-view').evaluate(el=>el.style.getPropertyValue('--chat-bg-image'));
+    expect(background).toContain('/assets/community/qiao-yining-nonexistent-boyfriend.webp');
+    expect(background).not.toContain('/css/assets/');
     await opening.locator('.bao-opening-choice').first().click();
     await expect(page.locator('#user-input')).toHaveValue('我看向她壓住的筆記本，問：「Good girl，也是工作資料？」');
     expect(await page.evaluate(()=>qiaoRequests)).toBe(0);

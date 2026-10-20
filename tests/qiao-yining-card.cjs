@@ -26,7 +26,8 @@ for (const path of paths) {
 }
 const rules = Regex.normalize(sidecar);
 assert.equal(rules.filter(r => r.reason || r.script || !r.enabled).length, 0);
-const result = Regex.render(c.greeting, rules, false);
+assert.equal(Regex.render(c.greeting, rules, false).matched, false, 'opening Regex must not replace the native draft buttons');
+const result = Regex.render('【YB:QIAO:NIGHT】雨夜【/YB:QIAO:NIGHT】\n門鎖發出一聲輕響\n【YB:QIAO:NOTE】Rules【/YB:QIAO:NOTE】\n看夠了嗎', rules, false);
 assert.equal(result.applied, 2);
 assert.doesNotMatch(result.html, /【\/?YB:QIAO:/);
 assert.match(result.html, /門鎖發出一聲輕響/);

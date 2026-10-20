@@ -168,7 +168,10 @@
 
   const safeBackground = value => {
     const url = String(value || "").trim();
-    return /^(?:https?:\/\/|assets\/|\.\/assets\/)/i.test(url) ? url : "";
+    if (!/^(?:https?:\/\/|\/?assets\/|\.\/assets\/)/i.test(url)) return "";
+    // CSS custom-property URLs resolve against the consuming stylesheet.
+    // Resolve local covers against the page before passing them to CSS.
+    try { return new URL(url, document.baseURI).href; } catch { return ""; }
   };
   const applyAppearance = () => {
     const view = document.getElementById("chat-view"); if (!view) return;
