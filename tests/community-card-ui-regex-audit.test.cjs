@@ -112,7 +112,8 @@ for (const file of cards) {
   void rel;
 }
 
-assert.equal(sidecars.length, 21, 'expected 21 official regex sidecars including Lastlight Survivors');
+assert.equal(sidecars.length, 22, 'expected 22 official regex sidecars including Dual Yandere');
+assert.ok(regexCards.includes('dual-yandere-night-shelter'), 'Dual Yandere official display sidecar must be audited');
 assert.ok(regexCards.includes('lastlight-survivors'), 'Lastlight Survivors official display sidecar must be audited');
 assert.ok(regexCards.includes('fusion-world-entertainment-empire'), 'Fusion world official display sidecar must be audited');
 assert.ok(regexCards.includes('light-energy-celebrity-agency'), 'Chenxi Entertainment official regex sidecar must be audited');
