@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "type": "yorubay-author-regex-mod",
+  "scope": "assistant_display",
+  "characterId": "bai-jin-ash-companion",
+  "regex_scripts": [
+    {
+      "scriptName": "白燼｜轉場題字",
+      "description": "僅排版轉場標題，捕獲內容保持為文字。",
+      "priority": 40,
+      "findRegex": "【YB:BAIJIN:SCENE】\\s*([\\s\\S]*?)\\s*【/YB:BAIJIN:SCENE】",
+      "flags": "g",
+      "replaceString": "<section class=\"yb-bj-scene\" aria-label=\"場景轉換\" style=\"border-left:3px solid #bc5666;padding:12px 16px;margin:12px 0;background:#25232c;color:#f5edf0;white-space:pre-wrap;overflow-wrap:anywhere\">$1</section>"
+    },
+    {
+      "scriptName": "白燼｜拾得紙條",
+      "description": "僅呈現玩家實際讀到的紙條，不執行腳本、不更新狀態。",
+      "priority": 50,
+      "findRegex": "【YB:BAIJIN:NOTE】\\s*([\\s\\S]*?)\\s*【/YB:BAIJIN:NOTE】",
+      "flags": "g",
+      "replaceString": "<aside class=\"yb-bj-note\" aria-label=\"拾得紙條\" style=\"background:#eee8db;color:#36312f;border:1px solid #b7a593;border-radius:12px;padding:16px;line-height:1.85;white-space:pre-wrap;overflow-wrap:anywhere\"><strong>拾得紙條</strong><div>$1</div></aside>"
+    }
+  ]
+}
+
