@@ -60,6 +60,7 @@ jobs:
               tests/e2e/adult-content-visibility.spec.cjs
               tests/e2e/portable-story-actors.spec.cjs
               tests/e2e/author-profile.spec.cjs
+              tests/e2e/publication-export.spec.cjs
               tests/e2e/reading-bookshelf.spec.cjs
               tests/e2e/scene-image-moments.spec.cjs
               tests/e2e/gameplay-ui-engine.spec.cjs

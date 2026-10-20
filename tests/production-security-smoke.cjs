@@ -40,6 +40,13 @@ function header(response, name) {
   check(body.auth_rate_limit_configured === true, "AUTH_RATE_LIMITER is not bound in production");
   check(body.public_registration_protected === true, "public registration is open without account rate limiting");
 
+  const submissions = await fetch(`${base}/admin/characters/license-submissions`, {
+    headers: { origin: allowedOrigin },
+  });
+  check(submissions.status === 401, `anonymous publication export returned ${submissions.status}, expected 401`);
+  const denied = await submissions.json();
+  check(denied.error === "unauthorized" && !denied.rows, "anonymous publication export must not return metadata");
+
   const blockedOrigin = await fetch(`${base}/health`, {
     headers: { origin: "https://security-audit.invalid" },
   });

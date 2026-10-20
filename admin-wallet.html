@@ -249,6 +249,11 @@ code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
     <h2>5. 作品上架管理</h2>
     <p class="note">只建立 GitHub Pull Request，不會直接修改 main 或立即部署。PNG 會先在本機解析角色資料，封面重新編碼並移除內嵌 metadata；原始 SillyTavern 卡不會公開到 repo。</p>
 
+    <details style="margin-bottom:18px"><summary>投稿紀錄核對</summary>
+      <p class="note">匯出投稿的作品、作者、版本與狀態，供離線比對；不包含角色正文、授權全文或管理員金鑰，也不會更改發布狀態。</p>
+      <button id="publication-export" class="secondary" type="button">下載投稿核對資料</button>
+      <p id="publication-export-message" class="note" role="status"></p>
+    </details>
     <div class="grid">
       <label>作者作品（ZIP／PNG／JSON）
         <input id="publish-character-file" type="file" accept=".zip,.png,.json,application/zip,image/png,application/json">
@@ -1087,5 +1092,6 @@ code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
 <script src="js/character-import-upgrade.js?v=3"></script>
 <script src="js/work-package-core.js?v=1"></script>
 <script src="js/admin-character-publish.js?v=2"></script>
+<script src="js/admin-publication-export.js?v=1"></script>
 </body>
 </html>
