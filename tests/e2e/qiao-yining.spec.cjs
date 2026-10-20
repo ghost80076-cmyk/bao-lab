@@ -38,8 +38,8 @@ for (const viewport of [{width:1440,height:1000},{width:390,height:844}]) {
     }
     await page.evaluate(()=>{
       GameState.applyUpdate({modules:{visible:{action:'合上筆記，起身倒茶'},private:{trust:'略微提高'}}});
-      BAOGameplayUI.renderPanel('now');
     });
+    await page.locator('#game-ui .ui-tab[data-panel="now"]').click();
     await expect(page.locator('#ui-panel')).toContainText('合上筆記，起身倒茶');
     await expect(page.locator('#ui-panel')).not.toContainText('略微提高');
     await page.evaluate(()=>{
