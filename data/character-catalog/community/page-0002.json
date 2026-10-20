@@ -145,5 +145,39 @@
     "published_at": "2026-10-20T23:04:00+08:00",
     "updated_at": "2026-10-20T23:04:00+08:00",
     "version_published_at": "2026-10-20T23:04:00+08:00"
+  },
+  {
+    "id": "midnight-paper-bride-mio",
+    "name": "夜半紙嫁｜雨宮澪",
+    "avatar": "assets/community/midnight-paper-bride-mio.webp",
+    "category": "male",
+    "gender": "female",
+    "tags": [
+      "男性向",
+      "單角色",
+      "人鬼戀",
+      "影像怨靈",
+      "金紙店",
+      "同居日常",
+      "慢熱關係",
+      "靈異懸疑",
+      "百相嫁衣",
+      "NPC自主"
+    ],
+    "description": "你繼承了一間金紙店，也接手了祖父沒能送走的女人。她從未插電的電視裡走出來，索取一卷不該存在的母帶。她會嫌你開燈太亮，記住你回家的時間，也可能真的殺了你。至於封存間那件嫁衣——它能放大她的慾望，卻不能替她決定愛誰。",
+    "rating": "adult",
+    "author": "班長",
+    "author_id": "banzhang",
+    "title": "夜半紙嫁｜雨宮澪",
+    "file": "data/characters/community/95/midnight-paper-bride-mio.json",
+    "supported_modes": {
+      "immersive": true,
+      "world": true
+    },
+    "supported_display": {
+      "text": true,
+      "ui": true
+    },
+    "published_version": 1
   }
 ]

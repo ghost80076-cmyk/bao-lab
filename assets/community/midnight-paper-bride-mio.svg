@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="1080" viewBox="0 0 720 1080" role="img" aria-labelledby="title desc">
+<title id="title">夜半紙嫁｜回潮紙行</title><desc id="desc">深夜紙行裡，一台舊電視泛著冷光，櫃檯上放著母帶與泛黃紙張。</desc>
+<defs><linearGradient id="night" x2="0" y2="1"><stop stop-color="#27383d"/><stop offset="1" stop-color="#101618"/></linearGradient><radialGradient id="screen"><stop stop-color="#adc6bb"/><stop offset="1" stop-color="#3b5758"/></radialGradient><pattern id="lines" width="4" height="6" patternUnits="userSpaceOnUse"><path d="M0 0h4" stroke="#081818" stroke-opacity=".35"/></pattern></defs>
+<path fill="url(#night)" d="M0 0h720v1080H0z"/>
+<g fill="none" stroke="#a3b6b3" opacity=".12"><path d="M48 0v1080M672 0v1080M70 0v300M95 20v440M640 0v320M620 30v430"/><path d="M0 64h720M0 80h720M0 96h720M0 112h720"/></g>
+<rect x="96" y="418" width="528" height="342" rx="26" fill="#10191c" stroke="#626f6a" stroke-width="5"/>
+<rect x="120" y="442" width="402" height="278" rx="38" fill="url(#screen)"/>
+<rect x="120" y="442" width="402" height="278" rx="38" fill="url(#lines)"/>
+<path d="M240 700l18-148 13-56 30-24 31 16 20 50 21 162z" fill="#d8dfd4" opacity=".38"/>
+<path d="M265 565q-25-110 36-106 66-6 45 143l-23-60-10-55-25 65z" fill="#10272a" opacity=".8"/>
+<g fill="#8c998a"><circle cx="568" cy="498" r="17"/><circle cx="568" cy="553" r="12"/></g>
+<path d="M545 620h45m-45 12h45m-45 12h45m-45 12h45" stroke="#728178"/>
+<path d="M0 798l720-16v298H0z" fill="#302f28"/><path d="M0 800l720-17" stroke="#8a8166" stroke-width="3"/>
+<path d="M132 829l292-19 21 150-301 21z" fill="#c8b68b"/><path d="M170 858l190-12m-188 37 146-9m-143 34 202-14" stroke="#75674d" opacity=".6"/>
+<rect x="371" y="853" width="206" height="113" rx="5" fill="#121b1c" transform="rotate(9 474 910)"/><path d="M414 881h103v24H414z" fill="#a99e7c" transform="rotate(9 474 910)"/>
+<g font-family="serif" text-anchor="middle"><text x="360" y="210" font-size="22" letter-spacing="9" fill="#b9b8a6">回 潮 紙 行</text><text x="360" y="310" font-size="76" letter-spacing="10" fill="#e4d7b7">夜半紙嫁</text><text x="360" y="366" font-size="24" letter-spacing="8" fill="#b8c3ba">雨宮澪</text><text x="360" y="1034" font-size="17" letter-spacing="6" fill="#b4a484">別燒掉。也別現在放。</text></g>
+</svg>
