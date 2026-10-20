@@ -12,27 +12,44 @@
   const query = new URLSearchParams(location.search);
   const authorId = String(query.get("id") || "").trim().toLowerCase();
 
-  async function loadJson(url, fallback) {
-    try {
-      const response = await fetch(url, { cache: "no-store" });
-      if (!response.ok) return fallback;
-      return await response.json();
-    } catch {
-      return fallback;
-    }
+  const records = value => Array.isArray(value) && value.every(item => item && typeof item === "object" && !Array.isArray(item));
+
+  const workRecords = value => records(value) && value.every(item => typeof item.id === "string" && item.id.trim());
+
+  async function loadJson(url, validate) {
+    const response = await fetch(url, { cache: "no-store" });
+    if (!response.ok) throw new Error("Public metadata unavailable");
+    const value = await response.json();
+    if (!validate(value)) throw new Error("Invalid public metadata");
+    return value;
   }
 
   async function loadAllWorks() {
-    const official = await loadJson("data/characters.json", []);
-    const manifest = await loadJson("data/character-catalog/community/manifest.json", { pages: [] });
-    const pages = Array.isArray(manifest?.pages) ? manifest.pages : [];
-    const community = [];
-    for (const page of pages) {
-      if (!page?.file) continue;
-      const list = await loadJson(String(page.file), []);
-      if (Array.isArray(list)) community.push(...list);
+    const [official, manifest] = await Promise.allSettled([
+      loadJson("data/characters.json", workRecords),
+      loadJson("data/character-catalog/community/manifest.json", value => value && Array.isArray(value.pages))
+    ]);
+    const works = official.status === "fulfilled" ? [...official.value] : [];
+    let complete = official.status === "fulfilled" && manifest.status === "fulfilled";
+    const pages = manifest.status === "fulfilled" ? manifest.value.pages : [];
+    const results = await Promise.allSettled(pages.map(async page => {
+      if (typeof page?.file !== "string" || !page.file.trim()) throw new Error("Missing catalog page");
+      return loadJson(page.file, workRecords);
+    }));
+    for (const result of results) {
+      if (result.status === "fulfilled") works.push(...result.value);
+      else complete = false;
     }
-    return [...(Array.isArray(official) ? official : []), ...community];
+    return { works, complete };
+  }
+
+  function retryNotice() {
+    return `<section class="author-profile-state" role="status"><p>部分作品暫時無法載入，清單可能不完整。</p><button type="button" class="primary" data-author-retry>重新載入作品</button></section>`;
+  }
+
+  function renderUnavailable() {
+    document.title = "作者資料暫時無法載入｜夜灣 YoruBay";
+    root.innerHTML = `<section class="author-profile-state" role="status"><h1>作者資料暫時無法載入</h1><p>請稍後重試，或先返回夜灣探索作品。</p><div class="author-state-actions"><button type="button" class="primary" data-author-retry>重新載入</button><a class="secondary" href="./">返回夜灣</a></div></section>`;
   }
 
   function renderMissing(message) {
@@ -64,12 +81,12 @@
           <div class="author-work-meta"><span>${esc(rating)}</span>${version ? `<span>${esc(version)}</span>` : ""}</div>
           <h2><a href="./?work=${encodeURIComponent(item.id)}">${esc(title)}</a></h2>
           <p>${esc(description)}</p>
-          <div class="author-work-tags">${(item.tags || []).slice(0, 5).map(tag => `<span>#${esc(tag)}</span>`).join("")}</div>
+          <div class="author-work-tags">${(Array.isArray(item.tags) ? item.tags : []).slice(0, 5).map(tag => `<span>#${esc(tag)}</span>`).join("")}</div>
         </div>
       </article>`;
   }
 
-  function authorCard(author) {
+  function authorCard(author, complete) {
     const bio = author.bio || "這位作者尚未填寫公開介紹。";
     return `
       <article class="author-directory-card">
@@ -79,7 +96,7 @@
             <h2><a href="author?id=${encodeURIComponent(author.id)}">${esc(author.name)}</a></h2>
             <p class="author-profile-id">@${esc(author.id)}</p>
           </div>
-          <span class="author-directory-count">${author.work_count} 部作品</span>
+          <span class="author-directory-count">${complete ? "" : "已載入 "}${author.work_count} 部作品</span>
         </div>
         <p class="author-directory-bio">${esc(bio)}</p>
         <div class="author-directory-actions">
@@ -89,13 +106,14 @@
       </article>`;
   }
 
-  function renderDirectory(registry, works) {
+  function renderDirectory(registry, works, complete) {
     const visibleWorks = (Array.isArray(works) ? works : [])
       .filter(item => window.BAOContentPreferences?.canExpose?.(item) !== false);
     const authors = core.directoryEntries(registry, visibleWorks);
     document.title = "作者｜夜灣 YoruBay";
 
     root.innerHTML = `
+      ${complete ? "" : retryNotice()}
       <section class="author-directory-hero">
         <div class="eyebrow">CREATORS</div>
         <h1>夜灣作者</h1>
@@ -112,7 +130,7 @@
           <a class="text-button" href="./">探索作品</a>
         </div>
         <div class="author-directory-grid">
-          ${authors.length ? authors.map(authorCard).join("") : '<p class="note">目前還沒有公開作者。</p>'}
+          ${authors.length ? authors.map(author => authorCard(author, complete)).join("") : '<p class="note">目前還沒有公開作者。</p>'}
         </div>
       </section>`;
   }
@@ -125,15 +143,16 @@
 
     root.innerHTML = '<section class="author-profile-state"><p>正在整理作者頁…</p></section>';
 
-    const [registryRaw, works] = await Promise.all([
-      loadJson("data/authors.json", { schema_version: 1, authors: [] }),
+    const [registryResult, catalogResult] = await Promise.allSettled([
+      loadJson("data/authors.json", value => value && records(value.authors) && value.authors.every(author => core.validAuthorId(author.id))),
       loadAllWorks()
     ]);
-
-    const registry = core.normalizeRegistry(registryRaw);
+    if (registryResult.status !== "fulfilled") { renderUnavailable(); return; }
+    const registry = core.normalizeRegistry(registryResult.value);
+    const { works, complete } = catalogResult.status === "fulfilled" ? catalogResult.value : { works: [], complete: false };
 
     if (!authorId) {
-      renderDirectory(registry, works);
+      renderDirectory(registry, works, complete);
       return;
     }
 
@@ -148,13 +167,14 @@
     document.title = author.name + "｜作者｜夜灣 YoruBay";
 
     root.innerHTML = `
+      ${complete ? "" : retryNotice()}
       <section class="author-profile-hero">
         <div class="author-profile-copy">
           <div class="eyebrow">AUTHOR</div>
           <h1>${esc(author.name)}</h1>
           <p class="author-profile-id">@${esc(author.id)}</p>
           <p class="author-profile-bio">${esc(author.bio || "這位作者尚未填寫公開介紹。")}</p>
-          <div class="author-profile-summary">${authoredWorks.length} 部公開作品</div>
+          <div class="author-profile-summary">${complete ? "" : "已載入 "}${authoredWorks.length} 部公開作品</div>
         </div>
         <aside class="author-support-card" ${author.support_links.length ? "" : "hidden"}>
           <div class="eyebrow">SUPPORT</div>
@@ -175,10 +195,13 @@
           <a class="text-button" href="author">所有作者</a>
         </div>
         <div class="author-work-grid">
-          ${authoredWorks.length ? authoredWorks.map(workCard).join("") : '<p class="note">目前還沒有公開作品。</p>'}
+          ${authoredWorks.length ? authoredWorks.map(workCard).join("") : `<p class="note">${complete ? '目前還沒有公開作品。' : '作品清單尚未完整載入，請稍後重試。'}</p>`}
         </div>
       </section>`;
   }
 
+  root.addEventListener("click", event => {
+    if (event.target.closest?.("[data-author-retry]")) render();
+  });
   render();
 })();

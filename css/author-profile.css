@@ -53,6 +53,7 @@ body.author-page{
 }
 .author-work-tags{margin-top:10px}
 .author-profile-state{padding:34px}
+.author-profile-state[role="status"]{margin-bottom:18px}
 .author-profile-state h1{margin:5px 0 10px}
 .author-profile-state p{max-width:620px;color:var(--muted);line-height:1.7}
 .author-profile-state .primary{display:inline-flex;margin-top:8px;text-decoration:none}
