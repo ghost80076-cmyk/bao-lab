@@ -13,6 +13,7 @@ for (const viewport of [{width:1440,height:1000},{width:390,height:844}]) {
       window.qiaoRequests=0;
       API.send=async()=>{qiaoRequests++;throw new Error('must not send');};
       Chat.reset();GameState.create(c,App.config);
+      Chat.add('assistant',c.greeting).greeting=true;
       App.renderChatShell(true);App.showView('chat');
       BAOGameplayUI.syncTabs();BAOGameplayUI.activateInitialPanel();
     });
