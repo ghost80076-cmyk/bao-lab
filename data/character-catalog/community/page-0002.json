@@ -213,5 +213,40 @@
     "published_at": "2026-10-20T23:51:00+08:00",
     "updated_at": "2026-10-20T23:51:00+08:00",
     "version_published_at": "2026-10-20T23:51:00+08:00"
+  },
+  {
+    "id": "dont-tell-him",
+    "name": "請別告訴他｜上司、網戀與第三個知情人",
+    "title": "請別告訴他｜上司、網戀與第三個知情人",
+    "avatar": "assets/community/dont-tell-him.svg",
+    "category": "female",
+    "gender": "male",
+    "tags": [
+      "女性向",
+      "三男群像",
+      "網戀",
+      "身分錯位",
+      "總裁",
+      "職場戀愛",
+      "佔有慾",
+      "秘密與信任"
+    ],
+    "description": "白天，他撤下妳的提案；夜裡，他用另一個名字聽妳抱怨。溫柔上司察覺了他的異常，直率的追求者已等在門外。三個男人、不同的祕密，從一場沒能準時結束的會議開始。",
+    "rating": "adult",
+    "author": "班長",
+    "author_id": "banzhang",
+    "file": "data/characters/community/60/dont-tell-him.json",
+    "supported_modes": {
+      "immersive": true,
+      "world": true
+    },
+    "supported_display": {
+      "text": true,
+      "ui": true
+    },
+    "published_version": 1,
+    "published_at": "2026-10-21T00:25:00+08:00",
+    "updated_at": "2026-10-21T00:25:00+08:00",
+    "version_published_at": "2026-10-21T00:25:00+08:00"
   }
 ]

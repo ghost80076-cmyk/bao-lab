@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 1080" role="img" aria-labelledby="title desc">
+  <title id="title">請別告訴他</title><desc id="desc">深夜玻璃窗、三道交錯的金色光線與一封未讀訊息，都市戀愛作品封面。</desc>
+  <defs>
+    <linearGradient id="night" x2=".8" y2="1"><stop stop-color="#202330"/><stop offset="1" stop-color="#0b0e17"/></linearGradient>
+    <linearGradient id="gold" x2="1" y2="1"><stop stop-color="#e2c7a0"/><stop offset="1" stop-color="#8f6551"/></linearGradient>
+    <radialGradient id="glow"><stop stop-color="#ac785d" stop-opacity=".3"/><stop offset="1" stop-color="#ac785d" stop-opacity="0"/></radialGradient>
+    <pattern id="windows" width="24" height="32" patternUnits="userSpaceOnUse"><rect x="6" y="6" width="3" height="9" fill="#c7a885" opacity=".3"/></pattern>
+  </defs>
+  <rect width="720" height="1080" fill="url(#night)"/>
+  <ellipse cx="600" cy="720" rx="470" ry="400" fill="url(#glow)"/>
+  <g fill="#171c28"><path d="M0 715h85V510h70v146h69V428h98v287h80V565h58V385h94v330h76V490h90v590H0Z"/></g>
+  <path d="M0 715h85V510h70v146h69V428h98v287h80V565h58V385h94v330h76V490h90v590H0Z" fill="url(#windows)"/>
+  <g stroke="#b99776" opacity=".18"><path d="M78 0v1080M640 0v1080M0 760h720"/><path d="M300 0v760"/></g>
+  <g stroke="url(#gold)" fill="none" stroke-width="2"><path d="M78 920 527 370" opacity=".7"/><path d="M78 940 580 540" opacity=".45"/><path d="M78 960 631 720" opacity=".3"/></g>
+  <text x="78" y="130" fill="#cbb79e" font-family="sans-serif" font-size="15" letter-spacing="5">YORUBAY · AFTER HOURS</text>
+  <text x="72" y="260" fill="#f4e9dc" font-family="serif" font-size="72" letter-spacing="5">請別告訴他</text>
+  <text x="78" y="312" fill="#c6b4a4" font-family="sans-serif" font-size="19" letter-spacing="3">上司、網戀與第三個知情人</text>
+  <g transform="translate(340 795) rotate(-8)">
+    <rect width="282" height="124" rx="17" fill="#202530" stroke="#9f8067"/>
+    <circle cx="29" cy="33" r="5" fill="#c6aa85"/>
+    <text x="48" y="40" fill="#e4d4bd" font-family="sans-serif" font-size="22">北風</text>
+    <text x="25" y="84" fill="#e7e1d8" font-family="sans-serif" font-size="18">還沒下班？</text>
+    <text x="210" y="38" fill="#a8a2a0" font-family="sans-serif" font-size="13">21:18</text>
+  </g>
+  <text x="78" y="1000" fill="#c7b29c" font-family="serif" font-size="22" letter-spacing="2">妳說的那個人，就在這裡。</text>
+</svg>
