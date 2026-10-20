@@ -145,5 +145,39 @@
     "published_at": "2026-10-20T23:04:00+08:00",
     "updated_at": "2026-10-20T23:04:00+08:00",
     "version_published_at": "2026-10-20T23:04:00+08:00"
+  },
+  {
+    "id": "bai-jin-ash-companion",
+    "name": "白燼｜廢城裡的同行者",
+    "avatar": "assets/community/bai-jin-ash-companion.webp",
+    "category": "male",
+    "gender": "female",
+    "tags": [
+      "男性向",
+      "白髮紅瞳",
+      "末世同行",
+      "自主角色",
+      "慢熱關係",
+      "生存探索",
+      "身世懸疑"
+    ],
+    "description": "白髮紅瞳，胸前一枚紅色十字。她能獨自穿過感染者盤踞的街道，也會為一壺乾淨熱水多停留片刻。與白燼同行，物資、舊識與勢力會改變你們的安排；她未曾說完的過去，也藏在廢城的日子裡。",
+    "rating": "general",
+    "author": "班長",
+    "author_id": "banzhang",
+    "title": "白燼｜廢城裡的同行者",
+    "file": "data/characters/community/ba/bai-jin-ash-companion.json",
+    "supported_modes": {
+      "immersive": true,
+      "world": true
+    },
+    "supported_display": {
+      "text": true,
+      "ui": true
+    },
+    "published_version": 1,
+    "published_at": "2026-10-20T23:51:00+08:00",
+    "updated_at": "2026-10-20T23:51:00+08:00",
+    "version_published_at": "2026-10-20T23:51:00+08:00"
   }
 ]

@@ -40,6 +40,7 @@ jobs:
               tests/e2e/world-module-manager-mobile.spec.cjs
           - group: story-experience
             specs: |
+              tests/e2e/bai-jin.spec.cjs
               tests/e2e/qiao-yining.spec.cjs
               tests/e2e/tonight-story.spec.cjs
               tests/e2e/narrative-blunt-style.spec.cjs

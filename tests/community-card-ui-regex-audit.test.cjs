@@ -112,7 +112,8 @@ for (const file of cards) {
   void rel;
 }
 
-assert.equal(sidecars.length, 23, 'expected 23 official regex sidecars including Qiao Yining');
+assert.equal(sidecars.length, 24, 'expected 24 official regex sidecars including Bai Jin');
+assert.ok(regexCards.includes('bai-jin-ash-companion'), 'Bai Jin official display sidecar must be audited');
 assert.ok(regexCards.includes('qiao-yining-nonexistent-boyfriend'), 'Qiao Yining official display sidecar must be audited');
 assert.ok(regexCards.includes('dual-yandere-night-shelter'), 'Dual Yandere official display sidecar must be audited');
 assert.ok(regexCards.includes('lastlight-survivors'), 'Lastlight Survivors official display sidecar must be audited');
