@@ -111,6 +111,10 @@ test('author work links deep-link back into the explore preview', async ({ page 
   await expect(page.locator('#explore-view')).toHaveClass(/active/);
 });
 
+test.describe('author journeys with deterministic metadata routes', () => {
+  // SW-owned navigation bypasses Playwright routes and the local server has no clean-URL rewrite.
+  test.use({ serviceWorkers: 'block' });
+
 // Fixtures only: no support/payment or model request leaves the test context.
 const profileFixture = {
   schema_version: 1,
@@ -230,4 +234,6 @@ test('successful empty author and work metadata keep genuine missing and empty s
   await page.goto('./author.html?id=not-registered');
   await expect(page.getByRole('heading', { name: '找不到這位作者' })).toBeVisible();
   await expect(page.getByRole('button', { name: /重新載入/ })).toHaveCount(0);
+});
+
 });
