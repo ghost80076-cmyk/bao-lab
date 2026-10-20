@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="1067" viewBox="0 0 600 1067" role="img" aria-labelledby="title desc">
+<title id="title">雨宮澪與九條冬花：今夜誰讓你留下</title><desc id="desc">深夜街區，便利商店的暖光與公寓窗戶的冷光映在雨路上，兩個亮著的去處隔街相望。</desc>
+<defs><linearGradient id="sky" x2="0" y2="1"><stop stop-color="#1c1c30"/><stop offset="1" stop-color="#090f19"/></linearGradient><linearGradient id="glass" x2="0" y2="1"><stop stop-color="#d7c8b2"/><stop offset="1" stop-color="#786d77"/></linearGradient><linearGradient id="road" x2="1" y2="0"><stop stop-color="#d6a29c" stop-opacity=".24"/><stop offset=".55" stop-color="#171b2b"/><stop offset="1" stop-color="#adbadb" stop-opacity=".22"/></linearGradient><pattern id="rain" width="54" height="88" patternUnits="userSpaceOnUse" patternTransform="rotate(12)"><path d="M12 0v26M40 50v19" stroke="#bac2db" stroke-opacity=".13"/></pattern></defs>
+<path fill="url(#sky)" d="M0 0h600v1067H0z"/><circle cx="460" cy="205" r="95" fill="#9e788d" opacity=".05"/>
+<path fill="#121522" d="M0 344h177v386H0zM410 260h190v470H410zM192 420h195v310H192z"/>
+<path fill="#a8b4ce" opacity=".45" d="M440 330h34v52h-34zM511 330h34v52h-34zM511 440h34v52h-34z"/>
+<path fill="#d5bfad" opacity=".65" d="M440 440h34v52h-34z"/>
+<path fill="#28202c" d="M0 576h207v154H0z"/><path fill="#c7a5a6" d="M0 582h207v8H0z"/><path fill="url(#glass)" d="M0 611h190v109H0z"/><path stroke="#302d39" stroke-width="5" d="M57 611v109m70-109v109"/>
+<path fill="url(#road)" d="M0 730h600v337H0z"/><path stroke="#d5b3bb" opacity=".2" d="m16 762 132 28m-92 26 111 22m-126 19 145 26m257-98 110-21m-97 64 91-16m-129 65 145-25"/>
+<path fill="url(#rain)" d="M0 0h600v1067H0z"/>
+<g font-family="Noto Sans TC,Microsoft JhengHei,sans-serif"><text x="48" y="94" font-size="13" letter-spacing="5" fill="#c5a2b3">TOKYO · 02:18</text><path d="M48 124h55" stroke="#c5a2b3"/>
+<text x="48" y="203" font-size="42" fill="#f1e7e9" letter-spacing="4">今夜，</text><text x="48" y="267" font-size="42" fill="#f1e7e9" letter-spacing="4">誰讓你留下。</text>
+<text x="50" y="316" font-size="14" fill="#c9bac6" letter-spacing="2">雨宮澪 × 九條冬花</text><text x="48" y="942" font-size="13" fill="#e1c3cc" letter-spacing="5">雙病嬌 ／ 深夜相遇</text><text x="48" y="985" font-size="15" fill="#c8b9c6">一個想被留下。一個已經替你決定。</text></g></svg>

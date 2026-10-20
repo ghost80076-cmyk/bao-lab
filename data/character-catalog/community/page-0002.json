@@ -71,5 +71,42 @@
     "updated_at": "2026-10-20T00:40:00+08:00",
     "version_published_at": "2026-10-20T00:40:00+08:00",
     "published_version": 1
+  },
+  {
+    "id": "dual-yandere-night-shelter",
+    "name": "雨宮澪 × 九條冬花｜雙病嬌・今夜誰讓你留下",
+    "title": "雨宮澪 × 九條冬花｜雙病嬌・今夜誰讓你留下",
+    "avatar": "/assets/community/dual-yandere-night-shelter.svg",
+    "category": "male",
+    "rating": "adult",
+    "gender": "female",
+    "tags": [
+      "雙病嬌",
+      "男性向",
+      "網咖難民",
+      "成熟御姊",
+      "依附",
+      "掌控慾",
+      "情敵相殺",
+      "東京深夜",
+      "心理懸疑",
+      "多分歧"
+    ],
+    "description": "凌晨兩點，她提著裝滿生活用品的袋子，問能不能再陪你待一下。另一個女人卻已把傘放在你家門邊。一個只求你別丟下她，一個習慣替你安排好一切；她們都知道彼此存在，也都想成為你最後留下的人。",
+    "author": "班長",
+    "author_id": "banzhang",
+    "file": "data/characters/community/3c/dual-yandere-night-shelter.json",
+    "supported_modes": {
+      "immersive": true,
+      "world": true
+    },
+    "supported_display": {
+      "text": true,
+      "ui": true
+    },
+    "published_at": "2026-10-20T14:14:00+08:00",
+    "updated_at": "2026-10-20T14:14:00+08:00",
+    "version_published_at": "2026-10-20T14:14:00+08:00",
+    "published_version": 1
   }
 ]
