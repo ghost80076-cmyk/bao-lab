@@ -32,6 +32,7 @@ jobs:
           node-version: 22
       - name: Verify deployment boundary
         run: |
+          node tests/usage-signals-core.cjs
           node --check workers/bao-lab-credits-api/worker.js
           node --check workers/bao-lab-credits-api/modules/account-auth.js
           node --check workers/bao-lab-credits-api/modules/account-author-routes.js

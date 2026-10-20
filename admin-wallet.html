@@ -396,8 +396,13 @@ code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
     <div id="publish-message" class="error"></div>
     <div id="publish-result" class="publish-result"></div>
   </section>
-</div>
 
+<section class="card">
+<h2>遊玩使用訊號</h2><p class="note">近 30 天，自願回報的分頁每日里程碑；不含私人聊天與作品資訊，也不是精確玩家數。BYOK 與燈火合計。每日最多接收 500 批，達上限後不再計入。</p>
+<button id="usage-signals-load" class="secondary" type="button">查看使用統計</button>
+<div id="usage-signals-report" role="status" style="overflow-x:auto">尚未讀取。</div>
+</section>
+</div>
 <script>
 (function(){
   "use strict";
@@ -1093,5 +1098,6 @@ code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
 <script src="js/work-package-core.js?v=1"></script>
 <script src="js/admin-character-publish.js?v=2"></script>
 <script src="js/admin-publication-export.js?v=1"></script>
+<script src="js/admin-usage-signals.js?v=1"></script>
 </body>
 </html>

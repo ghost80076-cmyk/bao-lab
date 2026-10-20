@@ -1,3 +1,5 @@
+import { WorkerUsageSignals } from "./modules/usage-signals.js";
+
 import {
   WorkerChatInput,
 } from "./modules/chat-input.js";
@@ -284,6 +286,10 @@ export default {
             env,
             db
           );
+      }
+
+      else if (url.pathname === "/usage-signals" && request.method === "POST") {
+        response = await WorkerUsageSignals.collect(request, env, db);
       }
 
       else if (

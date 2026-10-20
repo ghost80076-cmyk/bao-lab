@@ -19,6 +19,7 @@ The Worker graph exposes explicit, frozen module-shaped boundaries. The boundary
 | Publication and author identity | `WorkerPublicationFormat`, `WorkerAuthorProfilePublication`, `WorkerAuthorOwnership`, `WorkerGithubPublicationTransport` |
 | Admin routing | `WorkerAdminAuth`, `WorkerAdminProviderControlRoutes`, `WorkerAdminPublicationRoutes`, `WorkerAdminUsageRoutes`, `WorkerAdminPlayerDirectoryRoutes`, `WorkerAdminPlayerMutationRoutes`, `WorkerAdminRoutes` |
 | Chat settlement and dispatch | `WorkerLegacyChatSettlement`, `WorkerCostChatSettlement`, `WorkerChatDispatch` |
+| Voluntary usage milestones | `WorkerUsageSignals` |
 | Entry diagnostics | `WorkerHealthRoute` |
 
 Every named boundary in the table is a separately deployed module. Shared billing modes and numeric guards are separately deployed in `modules/billing-constants.js` and `modules/number-utils.js`; imported function names preserve the existing call sites and behavior.
