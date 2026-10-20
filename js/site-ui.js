@@ -94,7 +94,7 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/chat-shell-fix.js?v=2"))
     .then(() => loadBAOScript("js/player-settings.js?v=10"))
     .then(() => loadBAOScript("js/player-text-replace-mod.js?v=2"))
-    .then(() => loadBAOScript("js/narrative-settings.js?v=8"))
+    .then(() => loadBAOScript("js/narrative-settings.js?v=9"))
     .then(() => loadBAOScript("js/memory-workbench-core.js?v=3"))
     .then(() => loadBAOScript("js/memory-workbench-ai.js"))
     .then(() => loadBAOScript("js/canon-workbench.js?v=3"))

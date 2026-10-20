@@ -81,22 +81,23 @@ const run = file => vm.runInThisContext(
 run("js/narrative-settings.js");
 
 BAONarrativeSettings.set({
-  stylePacks: ["female_kfilm", "cinematic", "natural"],
+  stylePacks: ["female_kfilm", "cinematic", "natural", "realist_subtext"],
   density: "rich",
   physicalContinuity: true
 });
 
 const summary = BAONarrativeSettings.statusLabel(BAONarrativeSettings.get());
-assert.equal(summary.items.length, 5);
-assert.match(summary.text, /5 項啟用/);
+assert.equal(summary.items.length, 6);
+assert.match(summary.text, /6 項啟用/);
 assert.match(summary.title, /女性向 · 韓式電影感/);
 assert.match(summary.title, /電影鏡頭/);
 assert.match(summary.title, /自然口語/);
+assert.match(summary.title, /寫實留白 · 細膩敘事/);
 assert.match(summary.title, /豐富描寫/);
 assert.match(summary.title, /身體連續性/);
 
 App.config = App.collectConfig();
-assert.deepEqual(App.config.narrative.stylePacks, ["female_kfilm", "cinematic", "natural"]);
+assert.deepEqual(App.config.narrative.stylePacks, ["female_kfilm", "cinematic", "natural", "realist_subtext"]);
 
 run("js/prompt-cache.js");
 run("js/prompt-orchestrator.js");
@@ -117,6 +118,8 @@ assert.equal(
   assert.match(systemText, /克制的韓式電影感/);
   assert.match(systemText, /電影鏡頭式/);
   assert.match(systemText, /自然口語/);
+  assert.match(systemText, /採寫實留白的敘事方式/);
+  assert.equal((systemText.match(/採寫實留白的敘事方式/g) || []).length, 1);
   assert.match(systemText, /描寫密度高/);
   assert.match(systemText, /保持身體與空間連續性/);
   assert.match(systemText, /【平台硬規則】/);
@@ -136,6 +139,7 @@ assert.equal(
   assert.match(sentSystemText, /克制的韓式電影感/);
   assert.match(sentSystemText, /電影鏡頭式/);
   assert.match(sentSystemText, /自然口語/);
+  assert.match(sentSystemText, /採寫實留白的敘事方式/);
 
   BAONarrativeSettings.set({});
   App.config.narrative = BAONarrativeSettings.get();

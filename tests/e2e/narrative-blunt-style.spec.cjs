@@ -55,3 +55,35 @@ for (const width of [390, 1440]) {
     expect(await page.evaluate(() => BAONarrativeSettings.buildPrompt(BAONarrativeSettings.get()))).toBe('');
   });
 }
+
+test('realist subtext style is visible, composable, persisted and resettable', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 850 });
+  await page.goto('./');
+  await page.waitForFunction(() => window.BAONarrativeSettings && document.getElementById('chat-view'));
+  await page.evaluate(() => BAONarrativeSettings.set({ stylePacks: [] }));
+  await page.evaluate(() => BAONarrativeSettings.open());
+  const modal = page.getByRole('dialog', { name: '今晚的故事' });
+  await modal.locator('.tonight-advanced summary').click();
+
+  const realist = modal.locator('[data-style-pack="realist_subtext"]');
+  const natural = modal.locator('[data-style-pack="natural"]');
+  await expect(realist).toContainText('寫實留白 · 細膩敘事');
+  await expect(realist).toHaveAttribute('aria-pressed', 'false');
+  await realist.click();
+  await natural.click();
+  await expect(modal.locator('#narrative-pack-status')).toContainText('已選 2 個');
+  await modal.locator('[data-narrative-save]').click();
+
+  expect(await page.evaluate(() => BAONarrativeSettings.get().stylePacks)).toEqual(['natural', 'realist_subtext']);
+  const prompt = await page.evaluate(() => BAONarrativeSettings.buildPrompt(BAONarrativeSettings.get()));
+  expect(prompt).toContain('採寫實留白的敘事方式');
+  expect(prompt).toContain('自然口語');
+
+  await page.reload();
+  await page.waitForFunction(() => window.BAONarrativeSettings);
+  await page.evaluate(() => BAONarrativeSettings.open());
+  await expect(page.locator('[data-style-pack="realist_subtext"]')).toHaveAttribute('aria-pressed', 'true');
+  await page.locator('[data-narrative-reset]').click();
+  expect(await page.evaluate(() => BAONarrativeSettings.get().stylePacks)).toEqual([]);
+  expect(await page.evaluate(() => BAONarrativeSettings.buildPrompt(BAONarrativeSettings.get()))).toBe('');
+});

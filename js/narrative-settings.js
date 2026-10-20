@@ -28,7 +28,8 @@
     natural: ["自然口語", "降低模板感，讓對白有停頓、打岔與生活感。"],
     tender: ["細膩情感", "從對話、距離與小動作呈現關係變化，不預設戀愛結果。"],
     suspense: ["懸疑氛圍", "留意異常、線索與未知，讓揭露循序發生。"],
-    literary: ["文學留白", "以具體意象與含蓄語句呈現餘韻，避免堆砌修辭。"]
+    literary: ["文學留白", "以具體意象與含蓄語句呈現餘韻，避免堆砌修辭。"],
+    realist_subtext: ["寫實留白 · 細膩敘事", "以人物特有的動作、生活細節與對話潛台詞承載情緒，減少模板感。"]
   };
 
   // The simple surface selects one style; advanced combinations remain supported.
@@ -551,6 +552,7 @@
     if (selected.has("tender")) lines.push("從對話、微小動作與距離變化細膩呈現情感，保留關係發展空間，不預設角色愛上玩家。");
     if (selected.has("suspense")) lines.push("用可觀察的異常與線索營造懸疑，循序揭露已有依據的資訊，不擅自改寫世界或強塞反轉。");
     if (selected.has("literary")) lines.push("以具體意象、含蓄語句與適度留白留下餘韻，避免浮誇修辭與重複抒情。");
+    if (selected.has("realist_subtext")) lines.push("採寫實留白的敘事方式：以符合人物習慣的具體行動、生活細節和對話潛台詞呈現情緒，避免情緒標籤、萬用情話、複述玩家已做的事，或寫完細節又解釋含意；讓不同角色保有自己的說話方式，不機械堆疊小動作。只在既有上下文有依據時自然呼應舊細節，允許平凡日常與直白表達，不強制伏筆、衝突或每輪轉折。");
     prefs.storyExtras.forEach(key => lines.push(extras[key][2]));
     if (prefs.characterAgency === "reserved") lines.push("角色較少主動開啟新話題或事件，先對當下互動作出合乎人格的回應；仍保有自己的立場與生活。");
     if (prefs.characterAgency === "natural") lines.push("角色依人格、目標與情境自然提出想法或採取行動，不每輪都等待玩家指示，也不搶走玩家選擇。");
