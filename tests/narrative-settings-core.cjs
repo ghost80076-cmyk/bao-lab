@@ -122,6 +122,19 @@ for (const agency of ['reserved','natural','active','autonomous']) {
 for (const pack of ['tender','suspense','literary']) {
   assert.match(BAONarrativeSettings.buildPrompt({stylePacks:[pack]}), /不得破壞角色卡人格/);
 }
+// The new style is opt-in, composable, deduplicated, and never imposes per-turn drama.
+BAONarrativeSettings.set({ stylePacks: ['realist_subtext', 'natural', 'realist_subtext', 'unknown'] });
+const realist = BAONarrativeSettings.get();
+assert.deepEqual(realist.stylePacks, ['realist_subtext', 'natural']);
+assert.match(BAONarrativeSettings.statusLabel(realist).title, /寫實留白 · 細膩敘事/);
+const realistPrompt = BAONarrativeSettings.buildPrompt(realist);
+assert.match(realistPrompt, /採寫實留白的敘事方式/);
+assert.match(realistPrompt, /對話潛台詞/);
+assert.match(realistPrompt, /允許平凡日常與直白表達/);
+assert.match(realistPrompt, /自然口語/);
+assert.equal((realistPrompt.match(/採寫實留白的敘事方式/g) || []).length, 1);
+assert.doesNotMatch(realistPrompt, /每輪必須|強制轉折/);
+
 BAONarrativeSettings.set({});
 assert.equal(BAONarrativeSettings.buildPrompt(BAONarrativeSettings.get()), '');
 
