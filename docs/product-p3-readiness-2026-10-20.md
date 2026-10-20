@@ -53,3 +53,7 @@ node scripts/audit-publication-status.cjs --submissions /private/submissions.jso
 輸出只含必要識別、狀態與計數，不複製提示詞、角色全文或 `snapshot_json`。命令不發網路請求、不寫 D1、不修改輸入，報告須寫到不存在的新檔案；0 表示無需額外處理的格式／metadata 差異，1 表示有差異，2 表示參數／輸入／輸出錯誤。退出 0 也不構成正式發布驗收完成。
 
 [回歸](../tests/publication-status-audit-core.cjs) 涵蓋錯 repo、開啟／拒絕 PR、缺少合併證據、錯作者／版本、重複快照、正常重複目錄、內容及格式錯誤的原文不外洩、輸入未變與檔案防覆寫；Maintenance CI 執行。尚未提供正式匯出，因此本輪沒有真實投稿差異清單。
+
+## 接續批次：作者路徑與載入失敗恢復
+
+本批補上 [作者／公開版本路徑驗證](author-publication-journey-2026-10-20.md)：作者資料載入失敗、真正不存在與作品清單空值分開顯示；部分作品目錄失敗時保留已取得的公開資料，明示清單不完整並提供手動重試。新增手機／桌面作品 → 作者 → 兩個支持連結 → 作品預覽的瀏覽器案例，以及實際 publisher 輸出接入唯讀核對／作者 reader 的 mock 組合測試。這些驗證不構成正式支付、D1 提交狀態或真實合併驗收。

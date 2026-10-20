@@ -19,7 +19,7 @@ const {
 
 const env = {
   GITHUB_TOKEN: "token",
-  GITHUB_REPO: "test-owner/test-repo",
+  GITHUB_REPO: "ghost80076-cmyk/bao-lab",
   GITHUB_BASE_BRANCH: "main",
 };
 
@@ -69,7 +69,7 @@ const authorDirectory = {
 
   globalThis.fetch = async (url, options = {}) => {
     const parsed = new URL(url);
-    const apiPath = parsed.pathname.replace("/repos/test-owner/test-repo", "") + parsed.search;
+    const apiPath = parsed.pathname.replace("/repos/" + env.GITHUB_REPO, "") + parsed.search;
     const method = String(options.method || "GET").toUpperCase();
     let body = null;
     if (options.body) body = JSON.parse(options.body);
@@ -170,6 +170,26 @@ const authorDirectory = {
       label: "替作者留一盞燈",
       url: "https://example.com/night-writer/support"
     }]);
+
+    // Compose actual publisher outputs with the read-only audit and author reader.
+    // GitHub/D1/merge state is synthetic; no claim of a real publication is made.
+    const { audit } = require("../scripts/audit-publication-status.cjs");
+    const reader = require("../js/author-profile-core.js");
+    const submission = { pr_number: result.pr_number, work_id: nextCatalog[0].id,
+      author_id: result.author_id, published_version: result.published_version, status: "pending_review" };
+    const pull = { number: result.pr_number, state: "open", merged_at: null,
+      base: { ref: env.GITHUB_BASE_BRANCH, repo: { full_name: env.GITHUB_REPO } } };
+    const compare = catalog => audit({ submissions: [submission], pulls: [pull], catalog }).rows[0].status;
+    assert.equal(compare(nextCatalog), "pr_open", "PR output is not a published version");
+    pull.state = "closed";
+    assert.equal(compare(nextCatalog), "pr_closed_unmerged");
+    pull.merged_at = "2026-10-20T00:00:00Z"; pull.merge_commit_sha = "a".repeat(40);
+    assert.notEqual(compare(officialCatalog), "merged_catalog_match", "old public metadata cannot confirm the new submission");
+    assert.equal(compare(nextCatalog.map(item => ({...item, published_version: 1}))), "catalog_version_older");
+    assert.equal(compare(nextCatalog), "merged_catalog_match");
+    const visible = reader.worksForAuthor(nextCatalog, result.author_id);
+    assert.equal(visible.length, 1); assert.equal(visible[0].published_version, result.published_version);
+    assert.equal(reader.normalizeRegistry(nextAuthors).authors[0].support_links[0].url, "https://example.com/night-writer/support");
 
     const prWrite = writes.find(item => item.apiPath === "/pulls");
     assert.match(prWrite.body.body, /Author ID: night-writer/);
