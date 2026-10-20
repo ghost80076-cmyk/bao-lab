@@ -85,6 +85,7 @@ jobs:
           node tests/worker-cost-chat-settlement-core.cjs
           node tests/worker-wallet-reservations-core.cjs
           node tests/worker-wallet-topup-integrity-core.cjs
+          node tests/publication-metadata-export-core.cjs
       - name: Wait for compatible admin Wallet page on public Pages
         shell: bash
         run: |

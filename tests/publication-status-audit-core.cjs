@@ -33,6 +33,11 @@ try{
  const run=()=>spawnSync(process.execPath,[command,...args],{encoding:'utf8',timeout:5000});
  assert.equal(run().status,0);assert.equal(JSON.parse(fs.readFileSync(args.at(-1),'utf8')).rows[0].status,'merged_catalog_match');
  assert.equal(run().status,2,'existing reports must not be overwritten');
+ fs.unlinkSync(args.at(-1));
+ const envelope={schema_version:1,scope:'publication_submission_metadata',complete:true,as_of_id:1,captured_at:'2026-10-20T00:00:00.000Z',rows:base.submissions};
+ fs.writeFileSync(args[1],JSON.stringify(envelope));assert.equal(run().status,0,'admin export must work with the existing audit');
+ fs.unlinkSync(args.at(-1));fs.writeFileSync(args[1],JSON.stringify({...envelope,complete:false}));assert.equal(run().status,2,'partial exports must be rejected');
+ fs.writeFileSync(args[1],JSON.stringify(base.submissions));assert.equal(run().status,0);
  fs.unlinkSync(args.at(-1));fs.writeFileSync(path.join(dir,'catalog.json'),'[]');assert.equal(run().status,1,'missing catalog must fail the audit');
  fs.unlinkSync(args.at(-1));fs.writeFileSync(path.join(dir,'pulls.json'),'PRIVATE_MALFORMED_INPUT');
  const malformed=run();assert.equal(malformed.status,2);assert.doesNotMatch(malformed.stderr,/PRIVATE_MALFORMED_INPUT/);assert.match(malformed.stderr,/Invalid JSON input/);

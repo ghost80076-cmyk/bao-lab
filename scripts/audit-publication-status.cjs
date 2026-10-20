@@ -46,7 +46,10 @@ if(require.main===module){
   if(allowed.some(key=>!opts[key]))throw Error('All four file arguments are required');
   const inputs=allowed.slice(0,3).map(key=>path.resolve(opts[key])),target=path.resolve(opts['--report']);
   if(inputs.some(file=>file===target||(fs.existsSync(target)&&fs.realpathSync(file)===fs.realpathSync(target))))throw Error('Report must not overwrite an input');
-  const report=audit({submissions:JSON.parse(fs.readFileSync(inputs[0],'utf8')),pulls:JSON.parse(fs.readFileSync(inputs[1],'utf8')),catalog:JSON.parse(fs.readFileSync(inputs[2],'utf8'))});
+  const source=JSON.parse(fs.readFileSync(inputs[0],'utf8'));
+  const submissions=Array.isArray(source)?source:source?.schema_version===1&&source.scope==='publication_submission_metadata'&&source.complete===true&&Array.isArray(source.rows)?source.rows:null;
+  if(!submissions)throw Error('Invalid or incomplete submissions export');
+  const report=audit({submissions,pulls:JSON.parse(fs.readFileSync(inputs[1],'utf8')),catalog:JSON.parse(fs.readFileSync(inputs[2],'utf8'))});
   fs.writeFileSync(target,JSON.stringify(report,null,2)+'\n',{flag:'wx'});
   console.log(JSON.stringify({counts:report.counts,attention_rows:report.attention_rows}));
   if(report.attention_rows)process.exitCode=1;

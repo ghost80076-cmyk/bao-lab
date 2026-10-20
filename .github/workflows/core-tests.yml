@@ -516,6 +516,7 @@ jobs:
         run: |
           node tests/worker-wallet-reservations-core.cjs
           node tests/worker-wallet-topup-integrity-core.cjs
+          node tests/publication-metadata-export-core.cjs
       - name: Worker chat dispatch contracts
         run: node tests/worker-chat-dispatch-core.cjs
       - name: Bounded API retry contracts
