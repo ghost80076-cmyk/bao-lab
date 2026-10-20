@@ -20,6 +20,7 @@ const actual = graph.modules.flatMap(module => [
 
 const expected = [
   "WorkerHttp",
+  "WorkerUsageSignals",
   "WorkerCrypto",
   "WorkerSessionAuth",
   "WorkerAccountValidation",

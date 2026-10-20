@@ -36,6 +36,7 @@
     "modules/session-auth.js",
     "modules/usage-diagnostics.js",
     "modules/wallet-reservations.js",
+    "modules/usage-signals.js",
     "worker.js"
   ]
 }

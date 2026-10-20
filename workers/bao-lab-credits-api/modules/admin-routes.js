@@ -1,3 +1,5 @@
+import { WorkerUsageSignals } from "./usage-signals.js";
+
 import {
   adminAuthorized,
 } from "./admin-auth.js";
@@ -67,6 +69,10 @@ async function adminRoute(
 
   const path =
     url.pathname;
+
+  if (path === "/admin/usage-signals" && request.method === "GET") {
+    return WorkerUsageSignals.report(db, env);
+  }
 
   const publicationResponse =
     await adminPublicationRoute(
