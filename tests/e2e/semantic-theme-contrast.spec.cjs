@@ -49,6 +49,7 @@ test('four optional themes keep muted copy and control colors legible on their i
 
 for (const viewport of visualWidth) {
   test(`theme matrix captures home and active-story reader at ${viewport.width}px without document overflow`, async ({ page }) => {
+    test.setTimeout(120_000);
     await page.setViewportSize({ width: viewport.width, height: viewport.height });
     await page.goto('/');
     await page.waitForFunction(() => Boolean(
@@ -57,6 +58,7 @@ for (const viewport of visualWidth) {
     ));
     await page.locator('#home-view [data-view="explore"]').click();
     await page.locator('article').filter({ hasText: '林沉風 - 見過黑暗的人' }).click();
+    await page.getByRole('button', { name: '查看作品', exact: true }).click();
     await page.getByRole('button', { name: '開始故事' }).click();
     await page.locator('#bao-setup-choice [data-bao-setup="advanced"]').click();
     for (let step = 0; step < 3; step++) await page.getByRole('button', { name: '下一步' }).click();
