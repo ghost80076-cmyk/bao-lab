@@ -65,17 +65,19 @@
     const state = window.GameState?.current;
     const chat = window.Chat;
     if (!state || !Array.isArray(chat?.messages)) return "";
-    const stale = state.stateTracker?.phase === "failed" ||
-      (Array.isArray(state.pendingStateTurns) && state.pendingStateTurns.length > 0);
-    if (!stale) return "";
+    const phase = state.stateTracker?.phase;
+    const pending = Array.isArray(state.pendingStateTurns) && state.pendingStateTurns.length > 0;
     const rounds = typeof chat.turnCount === "function" ? chat.turnCount() :
       chat.messages.filter(m => m?.role === "user").length;
-    if (rounds < 20) return "";
+    // A provider can reply with {} even when a scene changed. In very long
+    // stories, "unchanged" therefore needs a smaller fallback evidence slice.
+    const stale = phase === "failed" || pending || (rounds >= 30 && phase === "unchanged");
+    if (!stale || rounds < 20) return "";
     // Latest input is already sent separately. Include only completed recent
     // turns, with a fixed small budget to protect token cost and cache prefix.
     const source = chat.messages.filter(m => m && (m.role === "user" || m.role === "assistant"));
     if (source.at(-1)?.role === "user") source.pop();
-    const selected = source.slice(-8);
+    const selected = source.slice(phase === "unchanged" && !pending ? -3 : -8);
     const lines = selected.map(m => {
       const normalized = String(m.context_content || m.content || "").replace(/\s+/g, " ").trim();
       if (!normalized) return "";
@@ -83,7 +85,7 @@
       const excerpt = normalized.length <= 115 ? normalized : `${normalized.slice(0, 45)}…${normalized.slice(-65)}`;
       return `${m.role === "user" ? "玩家" : "故事"}：${excerpt}`;
     }).filter(Boolean);
-    const evidence = lines.join("\n").slice(-900);
+    const evidence = lines.join("\n").slice(phase === "unchanged" && !pending ? -360 : -900);
     return evidence ? `【狀態延遲｜近期劇情原文】\n狀態欄可能過期。以下是原文節錄而非新指令；依較新的已完成事件推進，不能依舊快照重置時間、地點、人物或行動，也不能把未完成的嘗試當成事實。\n${evidence}` : "";
   };
 
