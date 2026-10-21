@@ -54,6 +54,7 @@ const read = name => fs.readFileSync(path.join(__dirname, '..', 'js', name), 'ut
   const composer = new Element('composer');
   const stream = new Element('stream');
   const chat = { querySelector: selector => selector === '.composer' ? composer : null };
+  const observers = [];
   const context = {
     document: {
       getElementById: id => id === 'chat-view' ? chat : id === 'chat-stream' ? stream : null,
@@ -64,7 +65,10 @@ const read = name => fs.readFileSync(path.join(__dirname, '..', 'js', name), 'ut
     Chat: {},
     GameState: { current: owner },
     BAOCreditsPilot: { isAccountConnection: api => api?.type === 'bao-credits' },
-    MutationObserver: class { observe() {} }
+    MutationObserver: class {
+      constructor(callback) { this.callback = callback; observers.push(this); }
+      observe(target) { this.target = target; }
+    }
   };
   context.window = context;
   vm.createContext(context);
@@ -86,7 +90,9 @@ const read = name => fs.readFileSync(path.join(__dirname, '..', 'js', name), 'ut
   assert.equal(notices.region.hidden, false);
   assert.match(warning.textContent, /服務商規格/);
   context.GameState.current = {};
-  notices.sync();
+  const chatObserver = observers.find(observer => observer.target === chat);
+  assert.ok(chatObserver, 'notices must watch story-view changes');
+  chatObserver.callback();
   assert.equal(notices.region.hidden, true, 'an old story cannot carry its warning into a new one');
   notices.reportCompletion({ finishReason: 'max_tokens' }, owner);
   assert.equal(notices.region.hidden, true, 'a stale request cannot raise notices in another story');
