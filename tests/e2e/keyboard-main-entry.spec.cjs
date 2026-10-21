@@ -45,7 +45,12 @@ test("reduced-motion preference disables global smooth scrolling", async ({ page
 
 test("story mode cards retain native keyboard operability", async ({ page }) => {
   await page.goto("/");
+  await page.waitForFunction(() => Boolean(window.App?.characters?.length));
   await page.evaluate(() => App.showView("builder"));
+  const advanced = page.locator('#bao-setup-choice [data-bao-setup="advanced"]');
+  await expect(advanced).toBeVisible();
+  await advanced.click();
+  await expect(page.locator('.builder-step[data-step-panel="1"]')).toBeVisible();
   const immersive = page.locator('#builder-view input[name="narrative-mode"][value="immersive"]');
   const world = page.locator('#builder-view input[name="narrative-mode"][value="world"]');
   await immersive.focus();
