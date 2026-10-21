@@ -73,6 +73,7 @@ jobs:
       - name: Validate deployment contracts
         run: |
           python3 -m py_compile scripts/aws-model-allowlist-remote.py
+          python3 tests/aws-model-allowlist-remote.test.py
           bash -n scripts/run-aws-model-sync.sh
           node tests/aws-model-sync-deploy-core.cjs
           node tests/model-deployment-plan-core.cjs
