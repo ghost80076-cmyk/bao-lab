@@ -85,7 +85,7 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/character-status-ui.js?v=12"))
     .then(() => loadBAOScript("js/world-state-hook.js?v=5"))
     .catch(err => console.warn("BAO/LAB world state or character status modules failed to load:", err));
-  loadBAOScript("js/cost-control.js?v=3")
+  loadBAOScript("js/cost-control.js?v=4")
     .then(() => loadBAOScript("js/provider-browser-compat.js"))
     .then(() => loadBAOScript("js/model-routing.js?v=7"))
     .then(() => loadBAOScript("js/provider-diagnostics.js"))
@@ -125,7 +125,7 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/streaming-ui.js?v=6"))
     .then(() => loadBAOScript("js/request-lifecycle.js"))
     .then(() => loadBAOScript("js/chat-tool-navigation.js?v=10"))
-    .then(() => loadBAOScript("js/chat-experience-repairs.js?v=4"))
+    .then(() => loadBAOScript("js/chat-experience-repairs.js?v=5"))
     .then(() => loadBAOScript("js/story-quick-commands-core.js"))
     .then(() => loadBAOScript("js/story-quick-commands.js?v=7"))
     .then(() => loadBAOScript("js/mobile-reading-layout.js?v=22"))
