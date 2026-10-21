@@ -98,6 +98,8 @@
     parentObserver.observe(composer.parentElement, { childList: true });
   }
   new MutationObserver(sync).observe(composer, { attributes: true, attributeFilter: ['class'] });
+  // Entering another story toggles the chat view; clear previous-owner notices immediately.
+  new MutationObserver(sync).observe(chat, { attributes: true, attributeFilter: ['class'] });
 
   // A waiting indicator is a system message, not a story sentence. The actual
   // streamed text still appears progressively in this same temporary bubble.
