@@ -127,8 +127,12 @@ for (const model of ["gpt-5.6", "google/gemini-3.1-pro-preview", "anthropic/clau
   assert.match(hospital.at(-1).content, /依較新的已完成事件推進/);
   assert.doesNotMatch(hospital[0].content, /走進醫院急診室/, 'cacheable system prefix must remain stable');
   assert.ok(BAOPromptOrchestrator.recentContinuityEvidence().length < 1200, 'stale state evidence must remain bounded');
-  GameState.current.stateTracker.phase = 'updated';
+  GameState.current.stateTracker.phase = 'unchanged';
   GameState.current.pendingStateTurns = [];
+  const unchanged = await App.buildMessages(localConfig);
+  assert.match(unchanged.at(-1).content, /走進醫院急診室/, 'long-story empty PATCH still needs recent original scene');
+  assert.ok(BAOPromptOrchestrator.recentContinuityEvidence().length < 650, 'unchanged status uses cheaper raw excerpt');
+  GameState.current.stateTracker.phase = 'updated';
   const recovered = await App.buildMessages(localConfig);
   assert.doesNotMatch(recovered.at(-1).content, /狀態延遲｜近期劇情原文/, 'no repeating raw transcript once tracker is healthy');
 
