@@ -195,11 +195,25 @@ const Chat = {
     const charBudget = Math.max(4000, Number(config?.memory?.summaryChunkChars || 24000));
     let chars = 0;
     let boundedEnd = start;
+    // Only summarize fully observed turns. Truncating after a player action
+    // but before the assistant result can turn an attempt into a false fact.
+    // Keep the source in raw context when the next completed turn is too large
+    // for the configured budget; never silently advance the summary cursor.
     for (let i = start; i < end; i++) {
       const size = this.modelContent(this.messages[i]).length;
-      if (boundedEnd > start && chars + size > charBudget) break;
+      if (i > start && chars + size > charBudget) break;
       chars += size;
-      boundedEnd = i + 1;
+      if (this.messages[i]?.role === "assistant") boundedEnd = i + 1;
+    }
+    if (boundedEnd === start) {
+      this.memoryHealth = {
+        ...(this.memoryHealth || {}),
+        phase: "failed",
+        message: "本輪完整對話超出記憶整理預算；未裁切未完成的行動及結果，原始對話會繼續保留。",
+        lastFailureAt: new Date().toISOString(),
+        lastModel: memoryApi?.model || ""
+      };
+      return;
     }
     end = boundedEnd;
     this.ensureMessageIds();
@@ -253,15 +267,24 @@ const Chat = {
         };
         return;
       }
+      // Event indexing is optional. A malformed episode must not invalidate
+      // an otherwise valid paid summary and cause the same chunk to be billed
+      // again on the next turn. Retain the existing event index on error.
+      let episodeWarning = "";
       if (owner && !normalized.repaired && config?.memory?.episodicRecall !== false) {
-        window.BAOEpisodicMemory?.ingest(owner, window.BAOHelperData.parse(result?.text || ""), chunk);
+        try {
+          window.BAOEpisodicMemory?.ingest(owner, window.BAOHelperData.parse(result?.text || ""), chunk);
+        } catch (episodeError) {
+          episodeWarning = "事件索引暫時未更新；長期摘要仍已保存。";
+          console.warn("BAO/LAB episode indexing failed:", episodeError);
+        }
       }
       this.summary = summary;
       this.summarizedUntil = end;
       this.memoryHealth = {
         ...(this.memoryHealth || {}),
         phase: "success",
-        message: `摘要成功，已覆蓋 ${this.turnCount(this.messages.slice(0, end))} 輪。`,
+        message: `摘要成功，已覆蓋 ${this.turnCount(this.messages.slice(0, end))} 輪。${episodeWarning ? " " + episodeWarning : ""}`,
         lastSuccessAt: new Date().toISOString(),
         lastModel: summaryConfig.model || config?.api?.model || "",
         repaired: Boolean(normalized.repaired)
