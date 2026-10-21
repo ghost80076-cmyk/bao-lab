@@ -266,6 +266,12 @@ jobs:
         run: node tests/author-diagnostics-core.cjs
       - name: Model presets and routing
         run: node tests/model-presets-core.cjs
+      - name: Guarded AWS model sync contracts and simulated rollback
+        run: |
+          python3 -m py_compile scripts/aws-model-allowlist-remote.py
+          python3 tests/aws-model-allowlist-remote.test.py
+          bash -n scripts/run-aws-model-sync.sh
+          node tests/aws-model-sync-deploy-core.cjs
       - name: YoruBay invited credits bridge
         run: |
           node --check js/credits-pilot.js
