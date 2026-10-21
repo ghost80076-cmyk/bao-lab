@@ -60,7 +60,7 @@
   const open = () => {
     if (!document.querySelector('link[href^="css/context-health.css"]')) {
       const link = document.createElement('link'); link.rel = 'stylesheet';
-      link.href = 'css/context-health.css?v=4'; document.head.appendChild(link);
+      link.href = 'css/context-health.css?v=5'; document.head.appendChild(link);
     }
     document.querySelector('[data-context-inspector]')?.remove();
     const data = snapshot();
