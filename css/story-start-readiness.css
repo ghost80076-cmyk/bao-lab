@@ -44,6 +44,7 @@
   color:var(--yoru-text,#dfd2ff);text-decoration:none;
   border:1px solid var(--yoru-control-border,rgba(185,151,255,.22));background:var(--yoru-control,rgba(185,151,255,.08))
 }
+#builder-view .bao-start-readiness-missing button[hidden],
 #builder-view .bao-start-readiness-missing a[hidden]{display:none!important}
 #builder-view #start-story[data-bao-ready="true"]{
   box-shadow:0 0 0 1px rgba(117,223,206,.12),0 8px 26px rgba(50,160,135,.12)
