@@ -295,6 +295,7 @@ const Chat = {
   usageKind(config = {}) {
     if (config?.__memoryTask) return config.__memoryRepairTask ? "memory-repair" : "memory";
     if (config?.__stateTask) return "state";
+    if (config?.__inspirationTask) return "action-inspiration";
     if (config?.__storyTool) return "story-tool";
     if (config?.__auxiliaryTask) return "auxiliary";
     return "chat";

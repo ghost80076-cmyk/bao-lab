@@ -4,7 +4,9 @@
   const IMAGE_OVERRIDES = {
     linchenfeng: "https://i.meee.com.tw/UHKTM1O.jpg"
   };
-  const suggestionCache = new Map();
+  const suggestionCache = new WeakMap();
+  const hiddenInspirations = new WeakSet();
+  const inFlightInspirations = new WeakMap();
   const uid = prefix => `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
   const clone = value => Storage.clone(value);
   const safeMessage = message => ({ role: message.role, content: String(message.content || "") });
@@ -213,44 +215,93 @@
       .slice(0, 4);
   };
 
-  const inspirationPrompt = () => {
-    const persona = App.config?.persona || {};
-    return [
-      "你是角色扮演玩家的行動靈感助手，不是故事主持人。",
-      "根據玩家 Persona、目前已知資訊與最近劇情，提出 4 個彼此明顯不同的下一步方向。",
-      "每個方向必須符合玩家目前能知道的資訊，不得替玩家新增未說出口的心理、回憶、能力或既定決定。",
-      "四個方向盡量涵蓋：保守觀察、主動推進、情感/關係、意外但合理的策略。",
-      "每個方向 18～55 字，使用可以直接貼到輸入框再修改的第二人稱或行動敘述。",
-      "只輸出 JSON 字串陣列，不要標題、解釋或 Markdown。",
-      `【玩家 Persona】\n${JSON.stringify(persona)}`
-    ].join("\n\n");
+  // Keep the on-demand helper lean: a short visible scene window, not the full story context.
+  // Character limits are a transport safeguard, not a precise token estimate.
+  const clipInspirationText = (value, limit) => {
+    const text = String(value || "").trim();
+    if (text.length <= limit) return text;
+    const head = Math.floor(limit * 0.25);
+    return text.slice(0, head) + "\n[…中段省略…]\n" + text.slice(-(limit - head));
   };
+
+  const inspirationContext = index => {
+    const persona = clipInspirationText(JSON.stringify(App.config?.persona || {}), 900);
+    const recent = Chat.messages.slice(Math.max(0, index - 3), index + 1)
+      .map((message, offset, list) => {
+        const distance = list.length - 1 - offset;
+        const limit = distance === 0 ? 2400 : distance === 1 ? 900 : distance === 2 ? 900 : 550;
+        return { role: message.role, content: clipInspirationText(message.content, limit) };
+      });
+    // Do not include credentials in the signature; changing the scene, persona or model invalidates results.
+    const api = App.config?.api || {};
+    const signature = JSON.stringify([api.model, api.type, api.route, api.baseUrl, persona, recent]);
+    return { persona, recent, signature };
+  };
+
+  const inspirationPrompt = persona => [
+    "你是角色扮演玩家的行動靈感助手，不是故事主持人。",
+    "只根據以下玩家 Persona 和可見劇情，提供四個不同且可行的下一步行動。不得洩漏未公開的 NPC 意圖或世界秘密。",
+    "不能替玩家虛構心理、回憶或重大決定；選項涵蓋觀察、推進、關係與合理的意外方向。",
+    "每項 18～55 字，可直接填入輸入框再修改。只回覆 JSON 字串陣列，不要其他文字。",
+    "【玩家 Persona 摘要】\n" + persona
+  ].join("\n\n");
 
   const generateInspirations = async (index, button) => {
     if (!aiToolsAvailable()) {
       alert(aiToolsUnavailableMessage());
-      return;
+      return false;
     }
+    const message = Chat.messages[index];
+    if (!message || message.role !== "assistant") return false;
+    normalizeAssistantMessage(message);
+    const context = inspirationContext(index);
+    const story = window.GameState?.current;
+    const cached = suggestionCache.get(message);
+    if (cached?.owner === story && cached.signature === context.signature && cached.suggestions?.length) {
+      hiddenInspirations.delete(message);
+      decorateStream();
+      return true;
+    }
+    const pending = inFlightInspirations.get(message);
+    if (pending?.owner === story && pending.signature === context.signature) {
+      try { return await pending.promise; }
+      catch { return false; }
+    }
+
+    const originalLabel = button?.textContent || "";
     setBusy(button, true);
-    const originalLabel = button.textContent;
-    button.textContent = "產生中…";
-    try {
-      const recent = Chat.messages.slice(Math.max(0, index - 10), index + 1).map(safeMessage);
-      const result = await API.send({ ...App.config.api, __memoryTask: true }, [
-        { role: "system", content: inspirationPrompt() },
-        ...recent,
-        { role: "user", content: "請依照目前情境提供 4 個下一步行動靈感。" }
+    if (button) button.textContent = "產生中…";
+    const request = (async () => {
+      // A distinct story-tool request must not be routed as memory summarization.
+      const result = await API.send({
+        ...App.config.api,
+        __storyTool: true,
+        __inspirationTask: true,
+        maxOutputTokens: 1024
+      }, [
+        { role: "system", content: inspirationPrompt(context.persona) },
+        ...context.recent,
+        { role: "user", content: "依照眼前情境提供四個玩家行動靈感。" }
       ]);
       const suggestions = parseSuggestions(result?.text || "");
       if (!suggestions.length) throw new Error("模型沒有回傳可用的行動建議。");
-      const message = Chat.messages[index];
-      normalizeAssistantMessage(message);
-      suggestionCache.set(message.id, suggestions);
+      // An older response must not repopulate a different story or an edited scene.
+      if (window.GameState?.current !== story || Chat.messages[index] !== message ||
+          inspirationContext(index).signature !== context.signature) return false;
+      suggestionCache.set(message, { owner: story, signature: context.signature, suggestions });
+      hiddenInspirations.delete(message);
       decorateStream();
+      return true;
+    })();
+    inFlightInspirations.set(message, { owner: story, signature: context.signature, promise: request });
+    try {
+      return await request;
     } catch (error) {
-      alert(`行動靈感產生失敗：${error.message || error}`);
+      alert("行動靈感產生失敗：" + String(error?.message || error));
+      return false;
     } finally {
-      button.textContent = originalLabel;
+      if (inFlightInspirations.get(message)?.promise === request) inFlightInspirations.delete(message);
+      if (button) button.textContent = originalLabel;
       setBusy(button, false);
     }
   };
@@ -261,8 +312,7 @@
       alert("目前還沒有可參考的 AI 回覆。");
       return false;
     }
-    await generateInspirations(index, button || null);
-    return true;
+    return generateInspirations(index, button || null);
   };
 
   const rewriteMessage = async (index, button) => {
@@ -375,7 +425,9 @@
   };
 
   const renderSuggestionPanel = (message, index) => {
-    const list = suggestionCache.get(message.id);
+    const entry = suggestionCache.get(message);
+    if (!entry || entry.owner !== window.GameState?.current || entry.signature !== inspirationContext(index).signature || hiddenInspirations.has(message)) return null;
+    const list = entry.suggestions;
     if (!list?.length) return null;
     const panel = document.createElement("div");
     panel.className = "story-inspiration-panel";
@@ -408,7 +460,7 @@
       panel.appendChild(row);
     });
     panel.querySelector("[data-close]").onclick = () => {
-      suggestionCache.delete(message.id);
+      hiddenInspirations.add(message);
       panel.remove();
     };
     return panel;
