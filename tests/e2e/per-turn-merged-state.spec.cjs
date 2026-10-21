@@ -15,8 +15,14 @@ for (const width of [390, 1440]) {
         window.__mergedCalls.push(body);
         const index = window.__mergedCalls.length;
         const patch = index === 1 ? { location: '咖啡館', events: ['第一次見面'] }
-          : index === 2 ? { location: '車站', events: ['一起離開咖啡館'] } : {};
-        const text = `第${index}輪故事。<BAO_STATE>${JSON.stringify(patch)}</BAO_STATE>`;
+          : index === 2 ? { location: '車站', events: ['一起離開咖啡館'] }
+            : index === 4 ? { time: '午夜', location: '咖啡館' } : {};
+        // Fourth turn deliberately conflicts with the explicitly confirmed
+        // scene in the visible story; the helper PATCH must not rewind it.
+        const prose = index === 4
+          ? '第4輪故事。\n當前場景資訊\n時間：凌晨三點\n地點：港口\n'
+          : `第${index}輪故事。`;
+        const text = `${prose}<BAO_STATE>${JSON.stringify(patch)}</BAO_STATE>`;
         if (body.stream) {
           const encoder = new TextEncoder();
           const chunks = [text.slice(0, 9), text.slice(9, 15), text.slice(15)];
@@ -43,7 +49,7 @@ for (const width of [390, 1440]) {
       App.renderChatShell(true);
       App.showView('chat');
     });
-    for (let index = 1; index <= 3; index++) {
+    for (let index = 1; index <= 4; index++) {
       await page.locator('#user-input').fill(`玩家行動${index}`);
       await page.evaluate(() => App.sendMessage());
       await expect.poll(() => page.evaluate(() => GameState.current.stateTracker?.phase)).toBe(index === 3 ? 'unchanged' : 'updated');
@@ -55,7 +61,7 @@ for (const width of [390, 1440]) {
         contract: window.__mergedCalls.at(-1).messages.at(-1).content.includes('BAO_STATE_V1')
       }));
       expect(state.calls).toBe(index);
-      expect(state.location).toBe(index === 1 ? '咖啡館' : '車站');
+      expect(state.location).toBe(index === 1 ? '咖啡館' : index === 4 ? '港口' : '車站');
       expect(state.pending).toBe(0);
       expect(state.contract).toBe(true);
       expect(state.messages.join('')).not.toContain('BAO_STATE');
@@ -67,8 +73,8 @@ for (const width of [390, 1440]) {
     expect(await page.evaluate(() => {
       const saved = Storage.loadStory();
       const ok = Storage.restoreStory(saved);
-      return { ok, location: GameState.current.location, events: GameState.current.events, pending: GameState.current.pendingStateTurns.length };
-    })).toMatchObject({ ok: true, location: '車站', pending: 0, events: expect.arrayContaining([
+      return { ok, location: GameState.current.location, time: GameState.current.time, events: GameState.current.events, pending: GameState.current.pendingStateTurns.length };
+    })).toMatchObject({ ok: true, location: '港口', time: '凌晨三點', pending: 0, events: expect.arrayContaining([
       expect.objectContaining({ id: expect.any(String), text: '第一次見面', source: 'state-model', turn: 1 }),
       expect.objectContaining({ id: expect.any(String), text: '一起離開咖啡館', source: 'state-model', turn: 2 })
     ]) });
