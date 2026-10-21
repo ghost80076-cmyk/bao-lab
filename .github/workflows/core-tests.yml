@@ -586,6 +586,8 @@ jobs:
         run: |
           node tests/prompt-cache-core.cjs
           node tests/gemini-explicit-cache-core.cjs
+      - name: P0 long-story continuity regression
+        run: node tests/story-continuity-p0-core.cjs
       - name: Prompt orchestration adapters
         run: node tests/prompt-orchestrator-core.cjs
       - name: Delayed snapshot and LM scene continuity
