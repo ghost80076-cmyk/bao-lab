@@ -31,7 +31,7 @@ global.fetch = async (url, options) => {
   if (body.model === "openai-stream") return sseResponse([
     `data: ${JSON.stringify({ choices: [{ delta: { content: "第一段" } }] })}`,
     `data: ${JSON.stringify({ choices: [{ delta: { content: "＋第二段" } }] })}`,
-    `data: ${JSON.stringify({ choices: [], usage: { prompt_tokens: 12, completion_tokens: 5, total_tokens: 17 } })}`,
+    `data: ${JSON.stringify({ choices: [{ finish_reason: "length" }], usage: { prompt_tokens: 12, completion_tokens: 5, total_tokens: 17 } })}`,
     "data: [DONE]"
   ].join("\n\n") + "\n\n", [1, 8, 31, 73]);
   if (body.model === "zai-stream") return sseResponse([
@@ -44,12 +44,12 @@ global.fetch = async (url, options) => {
     `event: message_start\ndata: ${JSON.stringify({ type: "message_start", message: { usage: { input_tokens: 20, cache_read_input_tokens: 8, cache_creation_input_tokens: 2, output_tokens: 1 } } })}`,
     `event: content_block_delta\ndata: ${JSON.stringify({ type: "content_block_delta", delta: { type: "text_delta", text: "Claude 串" } })}`,
     `event: content_block_delta\ndata: ${JSON.stringify({ type: "content_block_delta", delta: { type: "text_delta", text: "流" } })}`,
-    `event: message_delta\ndata: ${JSON.stringify({ type: "message_delta", usage: { output_tokens: 6 } })}`,
+    `event: message_delta\ndata: ${JSON.stringify({ type: "message_delta", delta: { stop_reason: "max_tokens" }, usage: { output_tokens: 6 } })}`,
     `event: message_stop\ndata: ${JSON.stringify({ type: "message_stop" })}`
   ].join("\r\n\r\n") + "\r\n\r\n", [5, 19, 62, 101]);
   return sseResponse([
     `data: ${JSON.stringify({ candidates: [{ content: { parts: [{ text: "Gemini 串" }] } }] })}`,
-    `data: ${JSON.stringify({ candidates: [{ content: { parts: [{ text: "流" }] } }], usageMetadata: { promptTokenCount: 30, candidatesTokenCount: 7, totalTokenCount: 37 } })}`
+    `data: ${JSON.stringify({ candidates: [{ content: { parts: [{ text: "流" }] }, finishReason: "MAX_TOKENS" }], usageMetadata: { promptTokenCount: 30, candidatesTokenCount: 7, totalTokenCount: 37 } })}`
   ].join("\n\n") + "\n\n", [3, 17, 44, 89]);
 };
 
@@ -59,6 +59,7 @@ global.fetch = async (url, options) => {
   assert.equal(openAI.text, "第一段＋第二段");
   assert.deepEqual(openAIDeltas.map(item => item.text), ["第一段", "第一段＋第二段"]);
   assert.equal(openAI.usage.total_tokens, 17);
+  assert.equal(openAI.finishReason, "length");
   assert.equal(requests[0].body.stream, true);
   assert.deepEqual(requests[0].body.stream_options, { include_usage: true });
 
@@ -67,6 +68,7 @@ global.fetch = async (url, options) => {
   assert.equal(zai.text, "GLM 串流");
   assert.deepEqual(zaiDeltas, ["GLM 串", "流"]);
   assert.equal(zai.usage.total_tokens, 26);
+  assert.equal(zai.finishReason, "stop", "ordinary stops must not be classified as truncated");
   assert.equal(zai.usage.cached_tokens, 8);
   assert.equal(zai.usage.new_input_tokens, 12);
   assert.equal(requests[1].body.stream, true);
@@ -79,6 +81,7 @@ global.fetch = async (url, options) => {
   assert.deepEqual(anthropicDeltas, ["Claude 串", "流"]);
   assert.equal(anthropic.usage.input_tokens, 30);
   assert.equal(anthropic.usage.output_tokens, 6);
+  assert.equal(anthropic.finishReason, "max_tokens");
   assert.equal(requests[2].body.stream, true);
 
   const geminiDeltas = [];
@@ -86,6 +89,7 @@ global.fetch = async (url, options) => {
   assert.equal(gemini.text, "Gemini 串流");
   assert.deepEqual(geminiDeltas, ["Gemini 串", "流"]);
   assert.equal(gemini.usage.total_tokens, 37);
+  assert.equal(gemini.finishReason, "MAX_TOKENS");
   assert.match(requests[3].url, /gemini-stream:streamGenerateContent\?alt=sse$/);
 
   global.fetch = async (url, options) => {
