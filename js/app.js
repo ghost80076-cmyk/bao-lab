@@ -132,6 +132,7 @@ const App = {
       alert("連線金鑰沒有儲存在存檔中；若使用夜灣燈火，請先登入帳號。");
       return;
     }
+    window.BAOChatSystemNotices?.clearCompletion?.();
     const stream = document.getElementById("chat-stream");
     stream.insertAdjacentHTML("beforeend", `<div class="message user"><div class="bubble">${this.formatMessage(text)}</div></div>`);
     const userNode = stream.lastElementChild;
@@ -155,6 +156,7 @@ const App = {
       const result = await API.send(apiConfig, messages);
       if (!isCurrent()) return;
       const assistant = Chat.add("assistant", result.text);
+      window.BAOChatSystemNotices?.reportCompletion?.(result, owner);
       expected = signature();
       loading.innerHTML = `<div class="bubble">${this.renderStoryMessage(result.text, "assistant", false)}</div>`;
       GameState.addEvent(`玩家與 ${this.activeCharacter.name} 完成一輪互動。`);
