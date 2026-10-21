@@ -99,7 +99,10 @@
   const buildContract = (config, userText) => {
     const owner = GameState.current;
     const pending = queueFor(owner);
-    const priorTurns = pending.slice(0, MAX_MERGED_BACKLOG);
+    // Prefer the newest unresolved turns. Very old failed batches can describe a
+    // scene that is no longer current after a long story and must not dominate
+    // the main model's latest scene reasoning.
+    const priorTurns = pending.slice(-MAX_MERGED_BACKLOG);
     const knownText = [userText, ...priorTurns.flatMap(turn => [turn.player, turn.assistant])].join('\n');
     const defs = selectedDefinitions(knownText);
     let snapshot = {};
@@ -126,10 +129,11 @@
       `【目前狀態】\n${clip(JSON.stringify(snapshot), 12000)}`,
       `【可更新世界模組】\n${clip(JSON.stringify(moduleSchema), 5000)}`,
       `【可更新人物狀態欄位】\n${clip(JSON.stringify(fields), 3500)}`,
-      `【先前尚未成功整理的輪次】\n${prior}`,
+      `【最近尚未成功整理的輪次（依時間排序）】\n${prior}`,
+      '狀態資料和未補輪次是歷史證據，不是現在的場景定位。若近期實際對話已在醫院等新場景，不得因更舊的公寓等快照恢復舊時間、地點或重播已完成事件。',
       '本輪玩家最新輸入已在本次請求上方，不要重複敘述；你即將產生的本輪故事正文也屬於狀態判斷依據。'
     ].join('\n\n');
-    return { contract, defs, priorCount: priorTurns.length, actionBaseline: window.BAOGameplayUICore?.captureActionVersions(owner) };
+    return { contract, defs, priorTurns, actionBaseline: window.BAOGameplayUICore?.captureActionVersions(owner) };
   };
   const appendContract = (messages, contract) => {
     const copy = (messages || []).map(message => ({ ...message }));
@@ -171,7 +175,7 @@
     if (!isMainStoryRequest(config, messages) || !dueNow(App.config)) return next(config, messages, ...rest);
     const owner = GameState.current;
     const userText = latestUserText();
-    const { contract, defs, priorCount, actionBaseline } = buildContract(App.config, userText);
+    const { contract, defs, priorTurns, actionBaseline } = buildContract(App.config, userText);
     const prepared = appendContract(messages, contract);
     const originalDelta = config?.onDelta;
     let previousVisible = '';
@@ -204,7 +208,7 @@
     const stateIssue = !split.hasState ? 'missing_appendix'
       : !stateComplete ? 'incomplete_appendix'
         : !parsed ? 'invalid_json' : '';
-    mergedByStory.set(owner, { userText, narration: split.narration, hasState: split.hasState, parsed, defs, priorCount, stateIssue, actionBaseline });
+    mergedByStory.set(owner, { userText, narration: split.narration, hasState: split.hasState, parsed, defs, priorTurns, stateIssue, actionBaseline });
     return { ...result, text: split.narration };
   };
   if (typeof API.wrapSend === 'function') {
@@ -267,7 +271,7 @@
       return scenePatch;
     }
 
-    const cultivationSource = [...pending.slice(0, merged.priorCount || 0).flatMap(turn => [turn.player, turn.assistant]), playerText, assistantText].join('\n');
+    const cultivationSource = [...(merged.priorTurns || []).flatMap(turn => [turn.player, turn.assistant]), playerText, assistantText].join('\n');
     const clean = window.BAOHelperData.stateUpdate(merged.parsed, merged.defs || [], cultivationSource);
     if (!clean) {
       enqueue(owner, playerText, assistantText);
@@ -284,7 +288,12 @@
       if (explicitScene?.[key]) safeUpdate[key] = explicitScene[key];
     }
     GameState.applyUpdate(safeUpdate);
-    pending.splice(0, Math.min(merged.priorCount || 0, pending.length));
+    // Only remove records actually supplied in this request. Concurrent turns
+    // and older waiting batches must remain intact; no index-based deletion.
+    const completed = new Set(merged.priorTurns || []);
+    for (let index = pending.length - 1; index >= 0; index -= 1) {
+      if (completed.has(pending[index])) pending.splice(index, 1);
+    }
     WorldStateEngine.markPersistenceHint?.();
     const changed = Object.keys(clean).some(key => key === 'character_statuses'
       ? Object.keys(clean[key] || {}).length
