@@ -45,8 +45,9 @@ const lastRequest = () => requests.at(-1);
   assert.equal(canceled.code, "BAO_ABORTED");
   assert.match(canceled.message, /玩家輸入已還原/);
 
-  responseData = { choices: [{ message: { content: "OpenRouter OK" } }], usage: { prompt_tokens: 100, completion_tokens: 20, total_tokens: 120, prompt_tokens_details: { cached_tokens: 60 } } };
+  responseData = { choices: [{ message: { content: "OpenRouter OK" }, finish_reason: "length" }], usage: { prompt_tokens: 100, completion_tokens: 20, total_tokens: 120, prompt_tokens_details: { cached_tokens: 60 } } };
   const openRouter = await API.send({ type: "openrouter", protocol: "openai", model: "anthropic/claude-sonnet", baseUrl: "https://openrouter.ai/api/v1/chat/completions", key: "OR-SECRET", cacheMode: "explicit", explicitCacheModel: "anthropic/claude-sonnet", cacheEnabled: true, maxOutputTokens: 500 }, messages);
+  assert.equal(openRouter.finishReason, "length", "OpenAI-compatible BYOK must retain provider truncation reason");
   assert.equal(openRouter.usage.cached_tokens, 60);
   assert.equal(openRouter.usage.new_input_tokens, 40);
   assert.equal(lastRequest().body.session_id, "bao-lab:test:stable-session");
@@ -78,8 +79,9 @@ const lastRequest = () => requests.at(-1);
   assert.equal(JSON.stringify(lastRequest().body).includes("ZAI-SECRET"), false);
   assert.equal(lastRequest().options.signal, controller.signal, "Z.AI requests must accept the active generation signal");
 
-  responseData = { candidates: [{ content: { parts: [{ text: "Gemini OK" }] } }], usageMetadata: { promptTokenCount: 200, cachedContentTokenCount: 125, candidatesTokenCount: 25, totalTokenCount: 225 } };
+  responseData = { candidates: [{ content: { parts: [{ text: "Gemini OK" }] }, finishReason: "MAX_TOKENS" }], usageMetadata: { promptTokenCount: 200, cachedContentTokenCount: 125, candidatesTokenCount: 25, totalTokenCount: 225 } };
   const gemini = await API.send({ type: "gemini", protocol: "gemini", model: "gemini-test", baseUrl: "https://generativelanguage.googleapis.com/v1beta/models", key: "GEMINI-SECRET", cacheMode: "supported", cacheEnabled: true }, messages);
+  assert.equal(gemini.finishReason, "MAX_TOKENS");
   assert.equal(gemini.usage.cached_tokens, 125);
   assert.equal(gemini.usage.new_input_tokens, 75);
   assert.equal(lastRequest().body.cachedContent, undefined);
@@ -108,8 +110,9 @@ const lastRequest = () => requests.at(-1);
   assert.equal(lastRequest().body.generationConfig.responseFormat.text.mimeType, "application/json");
   assert.equal(lastRequest().body.generationConfig.responseFormat.text.schema, undefined, "flexible JSON tasks must not inherit the legacy memory schema");
 
-  responseData = { content: [{ type: "text", text: "Claude OK" }], usage: { input_tokens: 40, cache_read_input_tokens: 100, cache_creation_input_tokens: 20, output_tokens: 15 } };
+  responseData = { stop_reason: "max_tokens", content: [{ type: "text", text: "Claude OK" }], usage: { input_tokens: 40, cache_read_input_tokens: 100, cache_creation_input_tokens: 20, output_tokens: 15 } };
   const anthropic = await API.send({ type: "anthropic", protocol: "anthropic", route: "official", model: "claude-test", baseUrl: "https://api.anthropic.com/v1/messages", key: "CLAUDE-SECRET", cacheMode: "explicit", explicitCacheModel: "claude-test", cacheEnabled: true }, messages);
+  assert.equal(anthropic.finishReason, "max_tokens", "Anthropic BYOK must retain stop_reason");
   assert.equal(anthropic.usage.input_tokens, 160);
   assert.equal(anthropic.usage.cached_tokens, 100);
   assert.equal(anthropic.usage.cache_write_tokens, 20);
