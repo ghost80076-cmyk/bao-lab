@@ -195,8 +195,9 @@ for (const width of [390, 1280]) {
       YoruExperience.choose({ level:'easy', theme:'mist' });
     });
     if (width === 390) {
-      // Phone discovery path: ••• -> Story overview -> Token / Context.
-      const mobileTools = page.locator('#bao-mobile-tools-tab');
+      // Phone discovery path: composer ＋ -> Story overview -> Token / Context.
+      // The mobile header's legacy ••• tab was deliberately removed by the compact layout.
+      const mobileTools = page.locator('#bao-mobile-composer-tools');
       await expect(mobileTools).toBeVisible();
       await mobileTools.click();
       const mobileOverview = page.locator('#bao-chat-tool-drawer .bao-mobile-quick').getByRole('button', { name: /故事總覽/ });
