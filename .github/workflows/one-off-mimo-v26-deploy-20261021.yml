@@ -1,0 +1,107 @@
+name: One-off MiMo V2.6 production model sync 2026-10-21
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/one-off-mimo-v26-deploy-20261021.yml
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: production-worker
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout exact approved main revision
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Validate guarded deployment code
+        run: |
+          python3 -m py_compile scripts/aws-model-allowlist-remote.py
+          python3 tests/aws-model-allowlist-remote.test.py
+          bash -n scripts/run-aws-model-sync.sh
+          node tests/aws-model-sync-deploy-core.cjs
+          node tests/model-deployment-plan-core.cjs
+          node tests/production-model-registry-audit-core.cjs
+          node tests/production-model-binding-deploy-core.cjs
+
+      - name: Configure short-lived AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::746698923199:role/YoruBayGitHubDeploy
+          aws-region: ap-southeast-2
+          role-session-name: yorubay-mimo-v26-oneoff
+
+      - name: Dry-run AWS and capture live fingerprint
+        id: aws_dry
+        shell: bash
+        run: |
+          set -euo pipefail
+          output="$RUNNER_TEMP/aws-model-dry-run.out"
+          bash scripts/run-aws-model-sync.sh dry-run | tee "$output"
+          current="$(sed -n 's/^CURRENT_SHA256=//p' "$output" | tail -n 1)"
+          desired="$(sed -n 's/^DESIRED_SHA256=//p' "$output" | tail -n 1)"
+          [[ "$current" =~ ^[a-f0-9]{64}$ ]]
+          [[ "$desired" =~ ^[a-f0-9]{64}$ ]]
+          test "$current" != "$desired"
+          echo "current_sha=$current" >> "$GITHUB_OUTPUT"
+
+      - name: Dry-run Cloudflare binding deploy
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_WORKER_NAME: ${{ secrets.CLOUDFLARE_WORKER_NAME }}
+        run: node scripts/apply-production-model-registry.cjs
+
+      - name: Apply AWS relay model allowlist
+        id: aws_apply
+        env:
+          CURRENT_SHA: ${{ steps.aws_dry.outputs.current_sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          output="$RUNNER_TEMP/aws-model-apply.out"
+          bash scripts/run-aws-model-sync.sh apply "$CURRENT_SHA" | tee "$output"
+          grep -qx 'RESULT=changed' "$output"
+          echo 'changed=true' >> "$GITHUB_OUTPUT"
+
+      - name: Deploy Cloudflare registry bindings
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_WORKER_NAME: ${{ secrets.CLOUDFLARE_WORKER_NAME }}
+          YORUBAY_MODEL_BINDINGS_APPLY: APPLY_REGISTRY_MODEL_BINDINGS
+        run: node scripts/apply-production-model-registry.cjs
+
+      - name: Compensate AWS if Cloudflare deployment fails
+        if: ${{ failure() && steps.aws_apply.outputs.changed == 'true' }}
+        run: bash scripts/run-aws-model-sync.sh rollback
+
+      - name: Verify AWS relay is aligned
+        env:
+          OPENROUTER_MODELS: ""
+        shell: bash
+        run: |
+          set -euo pipefail
+          output="$RUNNER_TEMP/aws-model-verify.out"
+          bash scripts/run-aws-model-sync.sh dry-run | tee "$output"
+          grep -qx 'ALIGNED=true' "$output"
+
+      - name: Verify Cloudflare production registry is aligned
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_WORKER_NAME: ${{ secrets.CLOUDFLARE_WORKER_NAME }}
+        run: node scripts/audit-production-model-registry.cjs
