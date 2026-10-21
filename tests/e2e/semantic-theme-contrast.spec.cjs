@@ -48,13 +48,22 @@ test('four optional themes keep muted copy and control colors legible on their i
 });
 
 for (const viewport of visualWidth) {
-  test(`theme matrix captures home and reader at ${viewport.width}px without document overflow`, async ({ page }) => {
+  test(`theme matrix captures home and active-story reader at ${viewport.width}px without document overflow`, async ({ page }) => {
     await page.setViewportSize({ width: viewport.width, height: viewport.height });
     await page.goto('/');
     await page.waitForFunction(() => Boolean(
       window.App?.characters?.length && window.YoruExperience?.choose &&
       document.querySelector('link[href^="css/experience-preferences.css"]')?.sheet
     ));
+    await page.locator('#home-view [data-view="explore"]').click();
+    await page.locator('article').filter({ hasText: '林沉風 - 見過黑暗的人' }).click();
+    await page.getByRole('button', { name: '開始故事' }).click();
+    await page.locator('#bao-setup-choice [data-bao-setup="advanced"]').click();
+    for (let step = 0; step < 3; step++) await page.getByRole('button', { name: '下一步' }).click();
+    await page.locator('#bao-demo-mode').check();
+    await page.getByRole('button', { name: '下一步' }).click();
+    await page.getByRole('button', { name: '開始故事' }).click();
+    await expect(page.locator('#user-input')).toBeVisible();
     fs.mkdirSync('test-results/theme-design-audit', { recursive: true });
     for (const theme of allThemes) {
       await page.evaluate(value => {
@@ -70,12 +79,7 @@ for (const viewport of visualWidth) {
         fullPage: false
       });
 
-      await page.evaluate(() => {
-        App.showView('chat');
-        document.getElementById('chat-stream').innerHTML =
-          '<div class="message assistant"><div class="bubble">夜色裡，故事依然可以安靜地繼續。<p>這是一段用來檢查主題閱讀舒適度的文字。</p></div></div>' +
-          '<div class="message user"><div class="bubble">我想繼續這段旅程。</div></div>';
-      });
+      await page.evaluate(() => App.showView('chat'));
       await expect(page.locator('#chat-view .chat-stream .message.assistant')).toBeVisible();
       overflow = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
       expect(overflow, `${theme} reader at ${viewport.width}`).toBeLessThanOrEqual(1);
