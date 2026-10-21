@@ -40,3 +40,13 @@
 4. 本批不修改角色卡、存檔、API、收費、正則、世界狀態與玩家原本操作習慣；無證據不宣稱完成國際級品質認證。
 
 參考：[WCAG 2.2 SC 2.4.1](https://www.w3.org/WAI/WCAG22/Understanding/bypass-blocks.html)。
+
+## 第二輪：四套可選主題的語義文字對比與畫面證據（2026-10-22）
+
+**已確認的色彩風險**：在變更前的語義 token 檢查中，「月白」的控制色與暖光色、「晨霧」的 muted／控制色、「暮霞」的控制強調色，以及「夕燈」的 muted／控制色，對指定語義背景有低於 4.5:1 的組合。這不是聲稱每個元件都已出現可見障礙，而是文字／小尺寸控制標記若使用該組 token，便有對比不足風險。
+
+本批只在 `css/experience-preferences.css` 微調四套可選主題的文字／accent tokens，保留夜港、surface、圖片、字級、布局和故事行為。測試以頁面實際載入的 CSS 自訂變數計算對比，並對五套主題分別擷取 390px／1280px 的首頁與閱讀區 screenshot，檢查文件水平溢出。不將已生成截圖等同於人工完成視覺評審；需實際查閱工件。
+
+驗收：`tests/e2e/semantic-theme-contrast.spec.cjs` 加入既有 `Fast Browser E2E` 的 story-experience 分組；所有組別 CI 綠燈才能合併。原有其他瀏覽器的閱讀／導覽 smoke 仍獨立維持。
+
+**界線**：4.5:1 為一般大小文字的 WCAG AA 對比目標；這個 token matrix 不是全站逐像素對比證明，亦不取代作者自訂 HTML 及使用者可自訂氣泡色的評估。
