@@ -239,6 +239,7 @@
     if (!eligible(config)) return originalUpdate(config, playerText, assistantText);
     const owner = GameState.current;
     if (!owner) return null;
+    const explicitScene = this.explicitSceneInfo?.(assistantText) || null;
     const scenePatch = this.syncExplicitScene?.(assistantText) || null;
     window.BAOStatusUsageIntegrity?.registerNamedNPCs?.(assistantText);
     const pending = queueFor(owner);
@@ -274,7 +275,15 @@
       return scenePatch;
     }
     if (GameState.current !== owner) return null;
-    GameState.applyUpdate(window.BAOGameplayUICore?.reconcileActionUpdate(owner, clean, merged.actionBaseline) || clean);
+    const reconciled = window.BAOGameplayUICore?.reconcileActionUpdate(owner, clean, merged.actionBaseline) || clean;
+    const safeUpdate = { ...reconciled };
+    // A validated status PATCH may summarize old queued turns. Never let its
+    // delayed scene fields undo the location/time explicitly stated in this
+    // very same completed story response.
+    for (const key of ['time', 'location']) {
+      if (explicitScene?.[key]) safeUpdate[key] = explicitScene[key];
+    }
+    GameState.applyUpdate(safeUpdate);
     pending.splice(0, Math.min(merged.priorCount || 0, pending.length));
     WorldStateEngine.markPersistenceHint?.();
     const changed = Object.keys(clean).some(key => key === 'character_statuses'
@@ -287,7 +296,7 @@
     mark(owner, changed ? 'updated' : 'unchanged', changed
       ? '故事與狀態已由同一個模型、同一次 API 請求完成。'
       : '同一次故事請求已檢查狀態，本輪沒有可確認的變化。');
-    return Object.keys(clean).length ? clean : (scenePatch || {});
+    return Object.keys(safeUpdate).length ? safeUpdate : (scenePatch || {});
   };
 
   window.BAOSameModelStateMerge = { eligible, dueNow, visibleText, splitFinal, intervalFor, isMainStoryRequest };
