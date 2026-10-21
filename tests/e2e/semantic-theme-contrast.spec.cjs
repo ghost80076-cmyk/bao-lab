@@ -90,7 +90,7 @@ for (const viewport of visualWidth) {
           return { text: getComputedStyle(label).color, background: getComputedStyle(header).backgroundColor };
         });
         const toHex = raw => {
-          const parts = raw.match(/\\d+(?:\\.\\d+)?/g)?.slice(0, 3).map(Number);
+          const parts = raw.match(/\d+(?:\.\d+)?/g)?.slice(0, 3).map(Number);
           if (!parts || parts.length !== 3) throw new Error('Non-RGB rendered color: ' + raw);
           return '#' + parts.map(v => Math.round(v).toString(16).padStart(2, '0')).join('');
         };
