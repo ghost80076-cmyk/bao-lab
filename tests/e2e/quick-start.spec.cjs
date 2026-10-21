@@ -162,6 +162,18 @@ test('explicit step navigation keeps older builder workflows usable', async ({ p
   });
   await expect(page.locator('#builder-view')).toHaveAttribute('data-bao-setup', 'advanced');
   await expect(page.locator('[data-step-panel="5"]')).toBeVisible();
+  const interval = page.locator('#state-interval-field');
+  const summary = page.locator('#state-generation-mode');
+  await expect(page.locator('#state-route-choice')).toHaveValue('same');
+  await expect(interval).toBeHidden();
+  await expect(summary).toContainText('每輪同次生成');
+  await page.locator('#state-route-choice').selectOption('separate');
+  await expect(interval).toBeVisible();
+  await expect(summary).toContainText('另外送出狀態 API');
+  await page.locator('#state-interval').fill('7');
+  await page.locator('#state-route-choice').selectOption('same');
+  await expect(interval).toBeHidden();
+  await expect(page.locator('#state-interval')).toHaveValue('7', 'hidden value remains for a later separate route');
 });
 
 
