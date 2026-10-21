@@ -84,7 +84,10 @@
     const sent = (Array.isArray(requestMessages) ? requestMessages : [])
       .filter(m => m && (m.role === "user" || m.role === "assistant"))
       .map(m => ({ role: m.role, content: String(m.content || "").trim() }));
-    const omitted = source.filter(m => {
+    // Limit fallback to the most recent twelve completed rounds: older
+    // transcript belongs to the summary, not to a per-turn scene rescue.
+    // In a healthy 20-round request this window is already present in full.
+    const omitted = source.slice(-24).filter(m => {
       const content = String(m.role === "assistant" ? (m.context_content || m.content || "") : (m.content || "")).trim();
       return content && !sent.some(item => item.role === m.role &&
         (item.content === content || (content.length >= 12 && item.content.includes(content))));
