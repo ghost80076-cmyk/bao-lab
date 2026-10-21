@@ -193,8 +193,18 @@ for (const width of [390, 1280]) {
       App.renderChatShell(false);
       App.showView('chat');
       YoruExperience.choose({ level:'easy', theme:'mist' });
-      BAOStoryControlCenter.open();
     });
+    if (width === 390) {
+      // Phone discovery path: ••• -> Story overview -> Token / Context.
+      const mobileTools = page.locator('#bao-mobile-tools-tab');
+      await expect(mobileTools).toBeVisible();
+      await mobileTools.click();
+      const mobileOverview = page.locator('#bao-chat-tool-drawer .bao-mobile-quick').getByRole('button', { name: /故事總覽/ });
+      await expect(mobileOverview).toBeVisible();
+      await mobileOverview.click();
+    } else {
+      await page.evaluate(() => BAOStoryControlCenter.open());
+    }
     const dialog = page.getByRole('dialog', { name:'故事總覽' });
     const more = dialog.locator('.story-control-more');
     const card = dialog.locator('.story-control-card');
