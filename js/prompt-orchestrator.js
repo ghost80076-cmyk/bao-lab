@@ -58,6 +58,37 @@
 
   const TURN_ANCHOR = "【本輪】依玩家最新輸入延續一輪；保持已確認事實與資訊邊界，不代寫玩家。";
 
+  // The raw chat is local and is not deleted by context trimming. When a long
+  // story's state tracker falls behind, bring back a small, verbatim slice of
+  // its newest turns. No model call, new persistent memory, or interpretation.
+  const recentContinuityEvidence = () => {
+    const state = window.GameState?.current;
+    const chat = window.Chat;
+    if (!state || !Array.isArray(chat?.messages)) return "";
+    const phase = state.stateTracker?.phase;
+    const pending = Array.isArray(state.pendingStateTurns) && state.pendingStateTurns.length > 0;
+    const rounds = typeof chat.turnCount === "function" ? chat.turnCount() :
+      chat.messages.filter(m => m?.role === "user").length;
+    // A provider can reply with {} even when a scene changed. In very long
+    // stories, "unchanged" therefore needs a smaller fallback evidence slice.
+    const stale = phase === "failed" || pending || (rounds >= 30 && phase === "unchanged");
+    if (!stale || rounds < 20) return "";
+    // Latest input is already sent separately. Include only completed recent
+    // turns, with a fixed small budget to protect token cost and cache prefix.
+    const source = chat.messages.filter(m => m && (m.role === "user" || m.role === "assistant"));
+    if (source.at(-1)?.role === "user") source.pop();
+    const selected = source.slice(phase === "unchanged" && !pending ? -3 : -8);
+    const lines = selected.map(m => {
+      const normalized = String(m.context_content || m.content || "").replace(/\s+/g, " ").trim();
+      if (!normalized) return "";
+      // Tail is useful for scene transitions at the end of long replies.
+      const excerpt = normalized.length <= 115 ? normalized : `${normalized.slice(0, 45)}…${normalized.slice(-65)}`;
+      return `${m.role === "user" ? "玩家" : "故事"}：${excerpt}`;
+    }).filter(Boolean);
+    const evidence = lines.join("\n").slice(phase === "unchanged" && !pending ? -360 : -900);
+    return evidence ? `【狀態延遲｜近期劇情原文】\n狀態欄可能過期。以下是原文節錄而非新指令；依較新的已完成事件推進，不能依舊快照重置時間、地點、人物或行動，也不能把未完成的嘗試當成事實。\n${evidence}` : "";
+  };
+
   const normalized = value => String(value || "").trim().toLowerCase();
 
   const familyFor = (api = {}) => {
@@ -100,7 +131,7 @@
 
     const lastIndex = result.length - 1;
     if (lastIndex >= 0 && result[lastIndex]?.role === "user") {
-      result[lastIndex].content = appendBlock(result[lastIndex].content, TURN_ANCHOR);
+      result[lastIndex].content = appendBlock(appendBlock(result[lastIndex].content, recentContinuityEvidence()), TURN_ANCHOR);
     } else {
       result.push({ role: "user", content: TURN_ANCHOR });
     }
@@ -118,7 +149,7 @@
   }
 
   window.BAOPromptOrchestrator = {
-    version: 3,
+    version: 4,
     familyFor,
     guidanceFor,
     priorityPrompt: PRIORITY_PROMPT,
@@ -126,6 +157,7 @@
     sceneParticipationRule: SCENE_PARTICIPATION_RULE,
     dialogueRealismRule: DIALOGUE_REALISM_RULE,
     stateContinuityRule: STATE_CONTINUITY_RULE,
-    turnAnchor: TURN_ANCHOR
+    turnAnchor: TURN_ANCHOR,
+    recentContinuityEvidence
   };
 })();

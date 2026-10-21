@@ -31,7 +31,7 @@ assert.equal(
   true,
   "prompt orchestrator must install through App.wrapBuildMessages"
 );
-assert.equal(BAOPromptOrchestrator.version, 3);
+assert.equal(BAOPromptOrchestrator.version, 4);
 assert.match(BAOPromptOrchestrator.playerAgencyRule, /對話選項與行動建議/);
 assert.match(BAOPromptOrchestrator.playerAgencyRule, /不可逆/);
 assert.equal(BAOPromptOrchestrator.familyFor({ model: "google/gemini-3.1-pro-preview", type: "openrouter" }), "gemini");
@@ -104,6 +104,37 @@ for (const model of ["gpt-5.6", "google/gemini-3.1-pro-preview", "anthropic/clau
   App.activeCharacter = { id: "some-other-card" };
   const other = await App.buildMessages(localConfig);
   assert.doesNotMatch(other[0].content, /黑羽ゆめ｜語言與場景/, "other cards retain their language");
+
+  // Long-story failure: fixed-round/pressure trimming may hide the hospital
+  // scene, but locally saved recent source still exists and can be re-anchored.
+  global.GameState = { current: {
+    time: '凌晨兩點十六分', location: '公寓',
+    stateTracker: { phase: 'failed' }, pendingStateTurns: [{ player: '先前', assistant: '錯誤' }]
+  } };
+  global.Chat = { messages: [], turnCount() {
+    return this.messages.filter(m => m.role === 'user').length;
+  } };
+  for (let i = 0; i < 39; i++) {
+    Chat.messages.push({ role: 'user', content: `玩家行動${i}` },
+      { role: 'assistant', content: i === 38
+        ? '走進醫院急診室，完成登記並與醫師交談。'
+        : `故事場景${i}` });
+  }
+  Chat.messages.push({ role: 'user', content: '接著呢？' });
+  const hospital = await App.buildMessages(localConfig);
+  assert.match(hospital.at(-1).content, /狀態延遲｜近期劇情原文/);
+  assert.match(hospital.at(-1).content, /走進醫院急診室，完成登記/);
+  assert.match(hospital.at(-1).content, /依較新的已完成事件推進/);
+  assert.doesNotMatch(hospital[0].content, /走進醫院急診室/, 'cacheable system prefix must remain stable');
+  assert.ok(BAOPromptOrchestrator.recentContinuityEvidence().length < 1200, 'stale state evidence must remain bounded');
+  GameState.current.stateTracker.phase = 'unchanged';
+  GameState.current.pendingStateTurns = [];
+  const unchanged = await App.buildMessages(localConfig);
+  assert.match(unchanged.at(-1).content, /走進醫院急診室/, 'long-story empty PATCH still needs recent original scene');
+  assert.ok(BAOPromptOrchestrator.recentContinuityEvidence().length < 650, 'unchanged status uses cheaper raw excerpt');
+  GameState.current.stateTracker.phase = 'updated';
+  const recovered = await App.buildMessages(localConfig);
+  assert.doesNotMatch(recovered.at(-1).content, /狀態延遲｜近期劇情原文/, 'no repeating raw transcript once tracker is healthy');
 
   console.log("prompt orchestrator core test passed");
 })().catch(error => {

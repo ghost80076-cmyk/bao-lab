@@ -4,6 +4,9 @@
   const originalUpdate = WorldStateEngine.update.bind(WorldStateEngine);
   let persistenceHint = false;
   const activeOwners = new WeakSet();
+  // Ephemeral per-story evidence. Only explicit, player-visible scene fields
+  // are tracked here; no additional memory store or network request.
+  const explicitSceneVersions = new WeakMap();
 
   const queue = () => {
     if (!window.GameState?.current) return [];
@@ -53,6 +56,13 @@
     if (!owner || typeof GameState.applyUpdate !== 'function') return null;
     const parsed = explicitSceneInfo(raw);
     if (!parsed) return null;
+    if (!onlyUnset) {
+      const prior = explicitSceneVersions.get(owner) || { revision: 0, fields: {} };
+      const revision = prior.revision + 1;
+      const fields = { ...prior.fields };
+      for (const [key, value] of Object.entries(parsed)) fields[key] = { value, revision };
+      explicitSceneVersions.set(owner, { revision, fields });
+    }
     const patch = {};
     for (const key of ['time', 'location']) {
       if (parsed[key] && (onlyUnset ? unknown(owner[key]) : parsed[key] !== owner[key])) patch[key] = parsed[key];
@@ -117,6 +127,7 @@
   WorldStateEngine.update = async function(config, playerText, assistantText) {
     if (!window.GameState?.current) return null;
     const owner = GameState.current;
+    const directScene = explicitSceneInfo(assistantText) || {};
     const scenePatch = syncExplicitScene(assistantText);
     if (!this.enabled(config)) return scenePatch;
     // A clearly labeled speaker is an observed NPC name, not an inferred status.
@@ -125,7 +136,7 @@
     window.BAOStatusUsageIntegrity?.registerNamedNPCs?.(assistantText);
     const pending = queue();
     pending.push({ player: String(playerText || ""), assistant: String(assistantText || "") });
-    if (!activeOwners.has(owner) && pending.length > 12) pending.splice(0, pending.length - 12);
+    // Retain all local pending turns; the API still receives only one bounded batch.
     persistenceHint = true;
     // Queue newer turns while one request is in flight; never resend its batch.
     if (activeOwners.has(owner)) return scenePatch;
@@ -167,10 +178,30 @@
     const combinedPlayer = batch.map((turn, index) => `第 ${index + 1} 輪：${turn.player}`).join("\n\n");
     const combinedAssistant = batch.map((turn, index) => `第 ${index + 1} 輪：${turn.assistant}`).join("\n\n");
     report(owner, "updating", `正在整理 ${batch.length} 輪${pending.length > batch.length ? `（其餘 ${pending.length - batch.length} 輪排隊）` : ""}，完成後會自動套用最新狀態。`);
+    const dispatchedSceneRevision = explicitSceneVersions.get(owner)?.revision || 0;
     activeOwners.add(owner);
     try {
       const result = await originalUpdate(patched, combinedPlayer, combinedAssistant);
       if (GameState.current !== owner) return null;
+      // The helper can finish after another story turn has already established
+      // a newer explicit scene. The helper applies its PATCH internally, so
+      // restore any newer confirmed fields before rendering or saving.
+      const observed = explicitSceneVersions.get(owner);
+      const confirmedScene = { ...directScene };
+      for (const key of ['time', 'location']) {
+        const field = observed?.fields?.[key];
+        if (field?.revision > dispatchedSceneRevision) confirmedScene[key] = field.value;
+      }
+      const restore = {};
+      for (const key of ['time', 'location']) {
+        if (confirmedScene[key] && owner[key] !== confirmedScene[key]) restore[key] = confirmedScene[key];
+      }
+      if (Object.keys(restore).length && typeof GameState.applyUpdate === 'function') {
+        GameState.applyUpdate(restore);
+        persistenceHint = true;
+      }
+      const safeResult = result && typeof result === 'object' && !Array.isArray(result)
+        ? { ...result, ...restore } : result;
       if (result === null || result === undefined) {
         report(
           owner,
@@ -183,7 +214,7 @@
       pending.splice(0, batch.length);
       const changed = Object.keys(result).some(key => key === "character_statuses" ? Object.keys(result[key] || {}).length : key === "npcs" ? (result[key] || []).length : key === "events" ? (result[key] || []).length : true);
       report(owner, changed ? "updated" : "unchanged", changed ? "狀態模型已回傳並套用本輪更新。" : "狀態模型已成功檢查，但沒有可確認的變化。");
-      return result;
+      return safeResult;
     } catch (error) {
       if (GameState.current === owner) report(
         owner,

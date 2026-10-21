@@ -46,7 +46,15 @@ global.WorldStateEngine = {
   stateSnapshot: () => ({ time: GameState.current.time, location: GameState.current.location }),
   parse(text) { try { return JSON.parse(String(text).trim()); } catch { return null; } },
   markPersistenceHint() {},
-  syncExplicitScene() { return null; },
+  explicitSceneInfo(text) {
+    if (!String(text).includes('當前場景資訊')) return null;
+    return { time: '凌晨四點', location: '新房間' };
+  },
+  syncExplicitScene(text) {
+    const patch = this.explicitSceneInfo(text);
+    if (patch) GameState.applyUpdate(patch);
+    return patch;
+  },
   async update() { separateUpdates += 1; return { separate: true }; }
 };
 global.App = {
@@ -80,6 +88,10 @@ global.API = {
     if (providerMode === 'array') return { text: '故事二<BAO_STATE>[{"time":"錯誤"}]</BAO_STATE>', usage: {} };
     if (providerMode === 'partial-marker') return { text: '故事二<BAO_STA', usage: {} };
     if (providerMode === 'unchanged') return { text: '故事二<BAO_STATE>{}</BAO_STATE>', usage: {} };
+    if (providerMode === 'conflicting-scene') return {
+      text: '故事二\n當前場景資訊\n時間：凌晨四點\n地點：新房間\n<BAO_STATE>{"time":"昨天","location":"舊走廊"}</BAO_STATE>',
+      usage: {}
+    };
     return { text: '故事二\n<BAO_STATE>{"time":"午夜","events":["門打開"]}</BAO_STATE>', usage: {} };
   },
   wrapSend(id, wrapper) {
@@ -203,7 +215,17 @@ assert.equal(API.__sendWrapperIds.has('same-model-state-merge:main-story'), true
   result = await API.send(App.config.api, [{ role: 'user', content: orchestrated('長篇恢復') }]);
   await WorldStateEngine.update(App.config, '長篇恢復', result.text);
   assert.equal(owner.stateTracker.phase, 'updated');
-  assert.equal(owner.pendingStateTurns.length, 12, 'recovering one request must consume only four old turns');
+  assert.equal(owner.pendingStateTurns.length, 12, 'recovering one request must consume only four turns');
+  assert.equal(owner.pendingStateTurns[0].player, '長篇玩家0', 'oldest pending record stays as history, never silently dropped');
+  assert.equal(owner.pendingStateTurns.at(-1).player, '長篇玩家11', 'recent pending records are recovered first so the model sees the current scene');
+  // Draining the remaining backlog must never replay the newest recovered
+  // records, and it must eventually reach the oldest preserved records.
+  for (let i = 0; i < 3; i++) {
+    Chat.messages.push({ role: 'assistant', content: '故事二' }, { role: 'user', content: `繼續回合${i}` });
+    result = await API.send(App.config.api, [{ role: 'user', content: orchestrated(`繼續回合${i}`) }]);
+    await WorldStateEngine.update(App.config, `繼續回合${i}`, result.text);
+  }
+  assert.equal(owner.pendingStateTurns.length, 0, 'all old pending records are eventually recovered');
   owner.pendingStateTurns = [];
   App.config.cost.stateInterval = 2;
 
@@ -211,6 +233,17 @@ assert.equal(API.__sendWrapperIds.has('same-model-state-merge:main-story'), true
   assert.deepEqual(BAOSameModelStateMerge.splitFinal('正文<BAO_STATE>{"location":"街道"}</BAO_STATE>'), {
     narration: '正文', stateText: '{"location":"街道"}', hasState: true
   });
+
+  // A stale merged PATCH must not override the scene explicitly established by
+  // its own visible narration, including after a failed backlog.
+  providerMode = 'conflicting-scene';
+  Chat.messages.push({ role: 'assistant', content: '舊回應' }, { role: 'user', content: '走進新房間' });
+  result = await API.send(App.config.api, [{ role: 'user', content: orchestrated('走進新房間') }]);
+  const protectedResult = await WorldStateEngine.update(App.config, '走進新房間', result.text);
+  assert.equal(owner.location, '新房間', 'confirmed narration must win over stale PATCH location');
+  assert.equal(owner.time, '凌晨四點', 'confirmed narration must win over stale PATCH time');
+  assert.equal(protectedResult.location, '新房間', 'the returned state must match the committed scene');
+  providerMode = 'normal';
 
   App.config.cost.stateApi = null;
   App.config.cost.stateModel = 'legacy-stale-model';

@@ -4,12 +4,24 @@ const path = require("node:path");
 const vm = require("node:vm");
 
 global.window = global;
-global.GameState = { current: {} };
+global.GameState = {
+  current: {},
+  applyUpdate(patch = {}) {
+    if (patch.time) this.current.time = patch.time;
+    if (patch.location) this.current.location = patch.location;
+  }
+};
+let releaseDelayed;
 const attempts = [];
 global.WorldStateEngine = {
   enabled: () => true,
   async update(config, playerText, assistantText) {
     attempts.push({ config, playerText, assistantText });
+    if (config.api.model === 'race-tracker') {
+      await new Promise(resolve => { releaseDelayed = resolve; });
+      GameState.applyUpdate({ time: '凌晨一點', location: '舊走廊' });
+      return { time: '凌晨一點', location: '舊走廊' };
+    }
     return attempts.length === 1 ? null : { time: "更新" };
   }
 };
@@ -93,6 +105,36 @@ vm.runInThisContext(source, { filename: "js/world-state-cost.js" });
   await WorldStateEngine.update(contradictorySameConfig, "同模型玩家", "同模型故事");
   assert.equal(attempts.at(-1).config.api.model, "main",
     "explicit same mode must ignore a populated legacy stateApi route");
+
+  // A delayed separate-model PATCH must not move the story back after a newer
+  // completed turn states an explicit scene.
+  GameState.current = { time: '午夜', location: '大廳' };
+  const raceConfig = {
+    narrativeMode: 'world',
+    api: { model: 'main', key: 'mock-only' },
+    cost: { stateInterval: 1, stateApi: { model: 'race-tracker', baseUrl: 'https://state.example/v1', key: 'state-key' } }
+  };
+  const delayed = WorldStateEngine.update(raceConfig, '第一輪', '當前場景資訊\n時間：凌晨一點\n地點：舊走廊');
+  assert.equal(typeof releaseDelayed, 'function');
+  await WorldStateEngine.update(raceConfig, '第二輪', '當前場景資訊\n時間：凌晨二點\n地點：新房間');
+  assert.equal(GameState.current.location, '新房間');
+  releaseDelayed();
+  const delayedResult = await delayed;
+  assert.equal(delayedResult.location, '新房間', 'returned result must match restored scene');
+  assert.equal(GameState.current.location, '新房間', 'late separate status must not rewind location');
+  assert.equal(GameState.current.time, '凌晨二點', 'late separate status must not rewind time');
+  assert.equal(GameState.current.pendingStateTurns.length, 1, 'later turn remains queued');
+
+  // Pending turns must survive long outages; only the transmitted batch is capped.
+  GameState.current = {};
+  const backlogConfig = {
+    narrativeMode: 'world', api: { model: 'main', key: 'mock-only' },
+    cost: { stateInterval: 20 }
+  };
+  for (let i = 0; i < 16; i++) {
+    await WorldStateEngine.update(backlogConfig, '玩家' + i, '故事' + i);
+  }
+  assert.equal(GameState.current.pendingStateTurns.length, 16, 'separate-helper backlog must not silently discard older turns');
 
   console.log("world state cost core test passed");
 })().catch(error => {
