@@ -68,6 +68,10 @@ html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="suns
 html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="sunset"]) .primary:hover:not(:disabled),html[data-yoru-theme="dusk"] .primary:hover:not(:disabled){background:var(--yoru-lantern-bright);color:#fff}
 html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="sunset"]) .secondary,html[data-yoru-theme="dusk"] .secondary{color:var(--yoru-text);background:var(--yoru-control);border-color:var(--yoru-control-border)}
 html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="sunset"]) .secondary:hover:not(:disabled),html[data-yoru-theme="dusk"] .secondary:hover:not(:disabled){background:var(--yoru-control-hover);color:var(--yoru-text)}
+/* Readable, quiet label in platform reader chrome. Never target authored story HTML. */
+html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="sunset"]) #chat-view .chat-topline .eyebrow{
+  color:var(--yoru-muted);
+}
 html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="sunset"]) #chat-view .message.user .bubble,html[data-yoru-theme="dusk"] #chat-view .message.user .bubble{background:var(--yoru-player-bubble);color:var(--yoru-story-text)}
 html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="sunset"]) #chat-view .chat-main,html[data-yoru-theme="dusk"] #chat-view .chat-main{background:var(--yoru-reading)}
 html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="sunset"]) #chat-view .chat-stream,html[data-yoru-theme="dusk"] #chat-view .chat-stream{background:var(--yoru-reading)}
