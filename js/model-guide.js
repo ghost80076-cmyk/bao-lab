@@ -32,7 +32,7 @@
     section.innerHTML = `
       <div class="model-guide-head"><div><div class="eyebrow">BYOK MODEL GUIDE</div><h2>不用最貴的模型，也能玩長篇。</h2></div><p>主模型負責演戲；記憶與狀態可以交給更便宜的輔助模型。快取命中時，重複角色設定與前綴通常能省下大量輸入成本。</p></div>
       <div class="model-tier-grid">
-        <article><span>極省</span><b>Qwen 3.7 Flash / MiMo V2.5</b><p>適合高頻長篇、摘要與狀態整理。尤其適合作為輔助模型。</p></article>
+        <article><span>極省</span><b>Qwen 3.7 Flash / MiMo V2.6 Flash</b><p>適合高頻長篇、摘要與狀態整理。尤其適合作為輔助模型。</p></article>
         <article><span>高 CP</span><b>DeepSeek V4 Flash / MiniMax M3</b><p>成本仍低，適合世界模擬與大量互動。</p></article>
         <article><span>高品質</span><b>Gemini 3.1 Pro / Claude Sonnet 4.6</b><p>重要劇情、角色一致性、細膩關係描寫可優先考慮。</p></article>
         <article><span>豪華</span><b>Claude Opus 4.6</b><p>高預算、高難度場景。通常不必拿來做狀態整理。</p></article>

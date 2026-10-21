@@ -28,6 +28,7 @@
   const displayBaseUrl = (value, protocol = "openai") => localEndpoint(value, protocol)?.baseUrl || String(value || "");
   const escape = value => App.escapeHTML(String(value ?? ""));
   const hasKey = () => Boolean(String(App.config?.api?.key || "").trim()) || Boolean(window.BAOCreditsPilot?.isAccountReady?.(App.config?.api));
+  const isRetiredMiMo = model => ["mimo-v2.5", "mimo-v2.5-pro", "xiaomi/mimo-v2.5"].includes(String(model || "").trim());
   const status = () => {
     const connected = hasKey();
     document.querySelectorAll("[data-bao-api-status]").forEach(node => {
@@ -57,6 +58,7 @@
     backdrop.innerHTML = `<section class="bao-chat-api-dialog" role="dialog" aria-modal="true" aria-labelledby="bao-chat-api-title">
       <header><h2 id="bao-chat-api-title">目前故事的模型連線</h2><div class="bao-chat-api-head-actions"><button type="button" data-api-help aria-label="模型連線說明" aria-expanded="false" aria-controls="bao-chat-api-intro">?</button><button type="button" data-api-close aria-label="關閉設定">×</button></div></header>
       <p id="bao-chat-api-intro" class="bao-chat-api-intro">直接為目前故事連接或更換模型。故事、對話、記憶與世界狀態都不會重置。</p>
+      ${isRetiredMiMo(api.model) ? `<p class="bao-chat-api-retired" role="status">目前故事使用 MiMo V2.5 舊模型。小米官方已停止接受舊 Model ID；OpenRouter 舊路由可能仍有第三方供應。建議從下方選擇 MiMo V2.6 Flash，按「套用到目前故事」才會更換，對話與記憶不會重置。</p>` : ""}
       <form id="bao-chat-api-form" autocomplete="off">
         <label>模型<select name="preset"><option value="custom">自訂／保留現有連線</option>${presets.map((p, i) =>
           `<option value="${i}">${escape(p.provider_label || p.provider || "API")} · ${escape(p.label || p.model || "自訂模型")}</option>`).join("")}</select></label>
@@ -215,7 +217,7 @@
     App.renderChatShell(false);
     App.showView("chat");
     status();
-    if (!save.config?.demoMode && !hasKey()) open();
+    if (!save.config?.demoMode && (!hasKey() || isRetiredMiMo(App.config.api?.model))) open();
     return true;
   };
 
@@ -254,6 +256,7 @@
       .bao-chat-api-dialog header,.bao-chat-api-dialog footer{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
       .bao-chat-api-head-actions{display:flex;align-items:center;gap:6px}.bao-chat-api-dialog header h2{margin:0;font-size:22px}.bao-chat-api-dialog header button{font-size:27px;line-height:1;color:inherit;border:0;background:none;cursor:pointer}.bao-chat-api-dialog header [data-api-help]{display:none;width:34px;height:34px;border:1px solid #4c5365;border-radius:10px;background:#171a23;font-size:15px;font-weight:800}
       .bao-chat-api-dialog p{font-size:14px;line-height:1.6;color:#d4d7e4}
+      .bao-chat-api-dialog .bao-chat-api-retired{border:1px solid #9b7549;border-radius:10px;padding:10px 12px;color:#ffe3b3;background:#382a203d}
       .bao-chat-api-dialog form{display:grid;gap:12px}.bao-chat-api-dialog label{display:grid;gap:5px;font-size:14px}
       .bao-chat-api-dialog input,.bao-chat-api-dialog select{box-sizing:border-box;width:100%;min-width:0;padding:10px;border:1px solid #697086;border-radius:8px;background:#141720;color:#fff;font:inherit}
       .bao-chat-api-advanced{border:1px solid #454b5d;border-radius:12px;background:#171a23}
