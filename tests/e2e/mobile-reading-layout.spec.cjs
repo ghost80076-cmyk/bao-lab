@@ -209,7 +209,7 @@ for (const theme of ['mist','dusk']) {
       };
     });
     const expected = theme === 'mist'
-      ? {tool:'rgb(243, 236, 227)',input:'rgb(255, 253, 248)',control:'rgb(240, 232, 223)',text:'rgb(69, 59, 52)',send:'rgb(157, 115, 88)'}
+      ? {tool:'rgb(243, 236, 227)',input:'rgb(255, 253, 248)',control:'rgb(240, 232, 223)',text:'rgb(69, 59, 52)',send:'rgb(133, 91, 68)'}
       : {tool:'rgb(64, 56, 73)',input:'rgb(52, 47, 66)',control:'rgb(81, 67, 90)',text:'rgb(246, 237, 244)',send:'rgb(210, 176, 219)'};
     if (current.tools !== expected.control) {
       const diagnosis = await page.evaluate(() => {
