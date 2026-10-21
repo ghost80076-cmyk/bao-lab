@@ -130,6 +130,7 @@ jobs:
           tests/e2e/quick-start.spec.cjs
           tests/e2e/account-author-identity.spec.cjs
           tests/e2e/keyboard-main-entry.spec.cjs
+          tests/e2e/first-run-readability.spec.cjs
           --project=chromium
       - name: Upload onboarding report
         if: always()

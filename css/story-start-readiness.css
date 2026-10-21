@@ -18,11 +18,11 @@
 }
 #builder-view .bao-start-readiness-head>div{display:grid;gap:2px}
 #builder-view .bao-start-readiness-head span{
-  color:#8e94a2;font-size:8px;font-weight:900;letter-spacing:.16em
+  color:var(--yoru-muted,#aeb5c2);font-size:11px;line-height:1.4;font-weight:800;letter-spacing:.12em
 }
-#builder-view .bao-start-readiness-head b{color:#d9d5e0;font-size:11px}
+#builder-view .bao-start-readiness-head b{color:var(--yoru-text,#d9d5e0);font-size:13px;line-height:1.45}
 #builder-view .bao-start-readiness-head strong{
-  color:#e7dcae;font-size:11px;text-align:right
+  color:var(--yoru-lantern,#e7dcae);font-size:13px;line-height:1.45;text-align:right
 }
 #builder-view .bao-start-readiness[data-ready="true"]{
   border-color:rgba(117,223,206,.22);background:rgba(20,48,43,.28)
@@ -34,16 +34,17 @@
 }
 #builder-view .bao-start-readiness-missing[hidden]{display:none!important}
 #builder-view .bao-start-readiness-missing span{
-  color:#b7b1c0;font-size:10px;line-height:1.55
+  color:var(--yoru-muted,#b7b1c0);font-size:13px;line-height:1.6
 }
 #builder-view .bao-start-readiness-missing button,
 #builder-view .bao-start-readiness-missing a{
-  flex:0 0 auto;min-height:32px;padding:6px 10px;border-radius:9px;font-size:10px;font-weight:800
+  flex:0 0 auto;min-height:44px;display:inline-flex;align-items:center;justify-content:center;padding:9px 13px;border-radius:9px;font-size:13px;line-height:1.35;font-weight:750
 }
 #builder-view .bao-start-readiness-missing a{
-  display:inline-flex;align-items:center;color:#dfd2ff;text-decoration:none;
-  border:1px solid rgba(185,151,255,.22);background:rgba(185,151,255,.08)
+  color:var(--yoru-text,#dfd2ff);text-decoration:none;
+  border:1px solid var(--yoru-control-border,rgba(185,151,255,.22));background:var(--yoru-control,rgba(185,151,255,.08))
 }
+#builder-view .bao-start-readiness-missing button[hidden],
 #builder-view .bao-start-readiness-missing a[hidden]{display:none!important}
 #builder-view #start-story[data-bao-ready="true"]{
   box-shadow:0 0 0 1px rgba(117,223,206,.12),0 8px 26px rgba(50,160,135,.12)
