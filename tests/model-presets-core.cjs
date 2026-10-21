@@ -101,7 +101,13 @@ assert.equal(grok45.protocol, 'openai');
 assert.equal(grok45.model, 'grok-4.5');
 assert.deepEqual([grok45.pricing.input, grok45.pricing.output, grok45.pricing.cache], [2, 6, 0.3]);
 assert.equal(requireRoute('grok-4.5', 'openrouter').model, 'x-ai/grok-4.5');
-assert.equal(requireRoute('mimo-v2.5', 'mimo-official').pricing.cache, 0.0028);
+assert.equal(requireRoute('mimo-v2.6-flash', 'mimo-official').model, 'mimo-v2.6-flash');
+assert.equal(requireRoute('mimo-v2.6-flash', 'mimo-official').pricing.cache, 0.0028);
+const mimoRouter = requireRoute('mimo-v2.6-flash', 'openrouter');
+assert.equal(mimoRouter.model, 'xiaomi/mimo-v2.6-flash');
+assert.deepEqual([mimoRouter.pricing.input, mimoRouter.pricing.output, mimoRouter.pricing.cache], [0.14, 0.28, 0.0028]);
+assert.deepEqual([mimoRouter.worker.pricing.input, mimoRouter.worker.pricing.output, mimoRouter.worker.pricing.cache, mimoRouter.worker.pricing.cache_write], [0.14, 0.28, 0.0028, 0.14]);
+assert.ok(!modelIds.includes('mimo-v2.5'), 'retired MiMo model must not remain in presets');
 assert.equal(requireRoute('qwen-3.7-flash', 'qwen-official').pricing.input, 0.03);
 assert.equal(requireRoute('deepseek-v4-flash-0731', 'deepseek-official').pricing.cache, 0.007);
 assert.equal(requireRoute('minimax-m3', 'minimax-official').model, 'MiniMax-M3');
@@ -126,7 +132,7 @@ const hostedResolved = hosted.map(model => {
 assert.deepEqual(hostedResolved, [
   { id: 'deepseek-v4-flash-0731', provider: 'openrouter', model: 'deepseek/deepseek-v4-flash-0731' },
   { id: 'qwen-3.7-flash', provider: 'openrouter', model: 'qwen/qwen3.7-flash' },
-  { id: 'mimo-v2.5', provider: 'openrouter', model: 'xiaomi/mimo-v2.5' },
+  { id: 'mimo-v2.6-flash', provider: 'openrouter', model: 'xiaomi/mimo-v2.6-flash' },
   { id: 'gemma-4-31b-it', provider: 'openrouter', model: 'google/gemma-4-31b-it' },
   { id: 'gemini-3-flash', provider: 'gemini', model: 'gemini-3-flash-preview' },
   { id: 'gemini-3.8-flash', provider: 'gemini', model: 'gemini-3.8-flash' },
