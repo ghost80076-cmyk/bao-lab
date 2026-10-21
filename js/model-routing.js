@@ -216,7 +216,8 @@
   const restoreHelper = (kind, api) => {
     const choice = document.getElementById(`${kind}-route-choice`);
     if (!choice) return;
-    const enabled = Boolean(api?.model && api?.baseUrl);
+    const forcedSame = kind === "state" && String(App.config?.cost?.stateApiMode || "").trim() === "same";
+    const enabled = !forcedSame && Boolean(api?.model && api?.baseUrl);
     choice.value = enabled ? "separate" : "same";
     if (enabled) {
       document.getElementById(`${kind}-model-id`).value = api.model || "";
