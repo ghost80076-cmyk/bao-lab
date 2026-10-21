@@ -15,6 +15,10 @@ on:
         description: "For apply only, enter APPLY_REGISTRY_MODEL_BINDINGS"
         required: false
         type: string
+      allowed_model_removals:
+        description: "Exact comma-separated provider:model keys intentionally retired from production"
+        required: false
+        type: string
 
 permissions:
   contents: read
@@ -59,6 +63,7 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_WORKER_NAME: ${{ secrets.CLOUDFLARE_WORKER_NAME }}
+          YORUBAY_MODEL_REMOVALS: ${{ inputs.allowed_model_removals }}
         run: node scripts/apply-production-model-registry.cjs
 
       - name: Upload strict-inherit Worker version and deploy model bindings
@@ -68,6 +73,7 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_WORKER_NAME: ${{ secrets.CLOUDFLARE_WORKER_NAME }}
           YORUBAY_MODEL_BINDINGS_APPLY: ${{ inputs.confirmation }}
+          YORUBAY_MODEL_REMOVALS: ${{ inputs.allowed_model_removals }}
         run: node scripts/apply-production-model-registry.cjs
 
       - name: Verify production registry after version deployment
