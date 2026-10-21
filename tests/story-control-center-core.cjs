@@ -34,6 +34,24 @@ const core = require("../js/story-control-center-core.js");
 }
 
 {
+  const byok = core.tokenSummary({
+    api: { maxOutputTokens: 12032 }, memory: { maxContext: 64000 }
+  });
+  assert.equal(byok.title, "輸出設定 12,032 Token");
+  assert.match(byok.detail, /Context 整理參考 64,000 Token/);
+  assert.match(byok.detail, /BYOK 依模型上限/);
+  const hosted = core.tokenSummary({
+    api: { type: "bao-credits", maxOutputTokens: 12032 },
+    cost: { maxOutputTokens: 12032 }, memory: { maxContext: 32000 }
+  }, 8192);
+  assert.equal(hosted.title, "輸出設定 8,192 Token", "story overview must display the effective hosted cap");
+  assert.match(hosted.detail, /燈火最高 8,192/);
+  const defaults = core.tokenSummary({});
+  assert.equal(defaults.title, "輸出設定 4,096 Token");
+  assert.match(defaults.detail, /32,000 Token/);
+}
+
+{
   const status = core.statusSummary({ enabled: true, fields: [{ key: "mood" }] }, "hidden");
   assert.equal(status.title, "狀態追蹤中");
   assert.equal(status.detail, "追蹤：開 · 顯示：面板隱藏");
