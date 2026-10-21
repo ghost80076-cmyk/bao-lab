@@ -83,6 +83,20 @@ for (const viewport of visualWidth) {
 
       await page.evaluate(() => App.showView('chat'));
       await expect(page.locator('#chat-view .chat-stream .message.assistant')).toBeVisible();
+      if (['mist', 'dawn', 'sunset'].includes(theme)) {
+        const rendered = await page.evaluate(() => {
+          const label = document.querySelector('#chat-view .chat-topline .eyebrow');
+          const header = document.querySelector('#chat-view .chat-topline');
+          return { text: getComputedStyle(label).color, background: getComputedStyle(header).backgroundColor };
+        });
+        const toHex = raw => {
+          const parts = raw.match(/\\d+(?:\\.\\d+)?/g)?.slice(0, 3).map(Number);
+          if (!parts || parts.length !== 3) throw new Error('Non-RGB rendered color: ' + raw);
+          return '#' + parts.map(v => Math.round(v).toString(16).padStart(2, '0')).join('');
+        };
+        expect(contrast(toHex(rendered.background), toHex(rendered.text)),
+          `${theme} platform reader kicker must be readable`).toBeGreaterThanOrEqual(4.5);
+      }
       overflow = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
       expect(overflow, `${theme} reader at ${viewport.width}`).toBeLessThanOrEqual(1);
       await page.screenshot({
