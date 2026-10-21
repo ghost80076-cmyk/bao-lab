@@ -89,4 +89,29 @@ const core = require("../js/context-health-core.js");
   assert.match(result.cache.title, /8,000 tok/);
 }
 
+{
+  const failed = core.trackerSummary({ phase: "failed", pending: 5 }, true, 5);
+  assert.match(failed.title, /失敗/);
+  assert.match(failed.detail, /待補 5 輪/);
+  const waiting = core.trackerSummary({ phase: "waiting" }, true, 2);
+  assert.match(waiting.detail, /等待累積整理/);
+  const updating = core.trackerSummary({ phase: "updating" }, true, 1);
+  assert.match(updating.detail, /正在整理狀態/);
+  const unchanged = core.trackerSummary({ phase: "unchanged" }, true);
+  assert.match(unchanged.detail, /不代表時間或地點已確認為最新/);
+  const updated = core.trackerSummary({ phase: "updated" }, true);
+  assert.match(updated.title, /成功/);
+  assert.equal(core.trackerSummary({ phase: "failed" }, false).title, "未啟用追蹤");
+
+  const statusLayers = core.layers({ statusTracked: true, stateTracker: { phase: "failed" }, pendingStateTurns: 3 });
+  const status = statusLayers.find(item => item.id === "status");
+  assert.equal(status.active, true);
+  assert.match(status.detail, /更新失敗/);
+  assert.match(status.detail, /待補 3 輪/);
+  const inactive = core.layers({ statusTracked: false, stateTracker: { phase: "failed" } })
+    .find(item => item.id === "status");
+  assert.equal(inactive.active, false);
+  assert.equal(inactive.detail, "此故事沒有啟用自動狀態追蹤。");
+}
+
 console.log("context health core test passed");
