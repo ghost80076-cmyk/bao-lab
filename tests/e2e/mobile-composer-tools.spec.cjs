@@ -24,7 +24,8 @@ test('mobile composer keeps tools, input, AI assist and send in one row', async 
     window.BAOMobileReadingLayout.sync();
 
     API.send = async config => {
-      if (config?.__memoryTask) {
+      // Action inspiration is a bounded story tool, not a memory summary.
+      if (config?.__inspirationTask && config?.__storyTool && !config?.__memoryTask) {
         return { text: '["先觀察店內的人","主動詢問昨晚的消息","走到窗邊確認港口動靜","先坐下整理手上的線索"]' };
       }
       return { text: '測試回覆' };
