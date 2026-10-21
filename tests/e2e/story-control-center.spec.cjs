@@ -186,7 +186,8 @@ for (const width of [390, 1280]) {
       App.activeCharacter = App.characters[0];
       App.config = {
         persona:{name:'旅人'},narrativeMode:'immersive',displayMode:'ui',
-        api:{model:'mock'},memory:{mode:'smart',maxRounds:20,maxContext:32000}
+        api:{model:'mock'},memory:{mode:'smart',maxRounds:20,maxContext:32000},
+        cost:{stateInterval:7}
       };
       GameState.create(App.activeCharacter, App.config);
       Chat.reset(); Chat.add('assistant','夜灣故事測試。');
@@ -252,6 +253,8 @@ for (const width of [390, 1280]) {
     await expect(dialog).not.toBeVisible();
     const editor = page.getByRole('dialog', { name: '目前故事：記憶、Token 與成本' });
     await expect(editor).toBeVisible();
+    await expect(editor.locator('[name="stateInterval"]')).toHaveCount(0);
+    await expect(editor.locator('[data-state-generation-mode]')).toContainText('每輪同次生成');
     await editor.locator('[name="maxOutputTokens"]').fill('6144');
     await editor.locator('[name="maxContext"]').fill('40000');
     await editor.getByRole('button', { name: '儲存到目前故事' }).click();
@@ -260,15 +263,31 @@ for (const width of [390, 1280]) {
       output: App.config.api.maxOutputTokens,
       cost: App.config.cost.maxOutputTokens,
       context: App.config.memory.maxContext,
+      interval: App.config.cost.stateInterval,
       activeStory: GameState.current.config === App.config,
       messages: Chat.messages.length
     }));
-    expect(saved).toMatchObject({ output: 6144, cost: 6144, context: 40000, activeStory: true });
+    expect(saved).toMatchObject({ output: 6144, cost: 6144, context: 40000, interval: 7, activeStory: true });
     expect(saved.messages).toBeGreaterThan(0);
     await page.evaluate(() => BAOStoryControlCenter.open());
     await expect(dialog.locator('[data-story-control-action="token"]')).toContainText('輸出設定 6,144 Token');
     await expect(dialog.locator('[data-story-control-action="token"]')).toContainText('40,000 Token');
     await dialog.getByRole('button', { name: '關閉故事總覽' }).click();
+
+    // Only a fully configured explicit helper route exposes the independent interval.
+    await page.evaluate(() => {
+      App.config.cost.stateApi = { model: 'helper-status', baseUrl: 'https://helper.example/v1' };
+      BAOChatExperienceRepairs.openSettings();
+    });
+    await expect(editor.locator('[data-state-generation-mode]')).toContainText('獨立狀態模型');
+    await expect(editor.locator('[name="stateInterval"]')).toHaveValue('7');
+    await editor.locator('[name="stateInterval"]').fill('5');
+    await editor.getByRole('button', { name: '儲存到目前故事' }).click();
+    await expect(editor).not.toBeVisible();
+    expect(await page.evaluate(() => App.config.cost.stateInterval)).toBe(5);
+    await page.evaluate(() => { App.config.cost.stateApiMode = 'same'; BAOChatExperienceRepairs.openSettings(); });
+    await expect(editor.locator('[name="stateInterval"]')).toHaveCount(0);
+    await editor.getByRole('button', { name: '取消' }).click();
 
     expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+2)).toBe(true);
   });

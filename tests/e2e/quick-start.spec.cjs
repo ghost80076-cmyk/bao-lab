@@ -162,6 +162,30 @@ test('explicit step navigation keeps older builder workflows usable', async ({ p
   });
   await expect(page.locator('#builder-view')).toHaveAttribute('data-bao-setup', 'advanced');
   await expect(page.locator('[data-step-panel="5"]')).toBeVisible();
+  const interval = page.locator('#state-interval-field');
+  const summary = page.locator('#state-generation-mode');
+  await expect(page.locator('#state-route-choice')).toHaveValue('same');
+  await expect(interval).toBeHidden();
+  await expect(summary).toContainText('每輪同次生成');
+  // The legacy step-5 navigation keeps its helper panel collapsed; dispatch
+  // the same change event rather than requiring its hidden controls to be clickable.
+  const separate = await page.evaluate(() => {
+    const choice = document.getElementById('state-route-choice');
+    choice.value = 'separate';
+    choice.dispatchEvent(new Event('change', { bubbles: true }));
+    const field = document.getElementById('state-interval-field');
+    return { hidden: field.hidden, cssHidden: field.classList.contains('hidden') };
+  });
+  expect(separate).toEqual({ hidden: false, cssHidden: false });
+  await expect(summary).toContainText('另外送出狀態 API');
+  await page.evaluate(() => {
+    document.getElementById('state-interval').value = '7';
+    const choice = document.getElementById('state-route-choice');
+    choice.value = 'same';
+    choice.dispatchEvent(new Event('change', { bubbles: true }));
+  });
+  await expect(interval).toBeHidden();
+  await expect(page.locator('#state-interval')).toHaveValue('7', 'hidden value remains for a later separate route');
 });
 
 

@@ -9,7 +9,9 @@ const read = name => fs.readFileSync(path.join(__dirname, '..', 'js', name), 'ut
   const values = {
     'api-type': { value: 'gemini' },
     'max-output-tokens': { value: '12032', max: '32768', dataset: {} },
-    'max-output-limit-hint': { textContent: '' }
+    'max-output-limit-hint': { textContent: '' },
+    'state-interval-field': { hidden: false, classList: { toggle() {} } },
+    'state-generation-mode': { textContent: '' }
   };
   const context = {
     document: { readyState: 'loading', getElementById: id => values[id] || null },
@@ -32,6 +34,25 @@ const read = name => fs.readFileSync(path.join(__dirname, '..', 'js', name), 'ut
   cost.syncOutputLimit();
   assert.equal(values['max-output-tokens'].max, '32768');
   assert.equal(values['max-output-tokens'].value, '12032', 'switching back restores the earlier BYOK preference');
+  assert.equal(cost.hasSeparateStateRoute({ cost: { stateModel: 'old-helper' } }), false,
+    'a stale state model name cannot cause a second call');
+  assert.equal(cost.hasSeparateStateRoute({
+    cost: { stateApiMode: 'same', stateApi: { model: 'helper', baseUrl: 'https://status.example/v1' } }
+  }), false, 'explicit same mode overrides legacy helper settings');
+  assert.equal(cost.hasSeparateStateRoute({
+    cost: { stateApi: { model: 'helper', baseUrl: 'https://status.example/v1' } }
+  }), true);
+  context.App.config = { cost: { stateInterval: 9, stateModel: 'old-helper' } };
+  cost.syncStateInterval();
+  assert.equal(values['state-interval-field'].hidden, true, 'merged state never shows unused interval');
+  assert.match(values['state-generation-mode'].textContent, /每輪同次生成/);
+  values['state-route-choice'] = { value: 'separate' };
+  cost.syncStateInterval();
+  assert.equal(values['state-interval-field'].hidden, false, 'the builder exposes interval for separate mode');
+  assert.match(values['state-generation-mode'].textContent, /另外送出狀態 API/);
+  values['state-route-choice'].value = 'same';
+  cost.syncStateInterval();
+  assert.equal(values['state-interval-field'].hidden, true, 'returning to merged mode hides the interval again');
 }
 
 // Output warnings belong to the external request notice, never to story text.
