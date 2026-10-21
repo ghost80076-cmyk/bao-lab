@@ -50,3 +50,7 @@
 驗收：`tests/e2e/semantic-theme-contrast.spec.cjs` 加入既有 `Fast Browser E2E` 的 story-experience 分組；所有組別 CI 綠燈才能合併。原有其他瀏覽器的閱讀／導覽 smoke 仍獨立維持。
 
 **界線**：4.5:1 為一般大小文字的 WCAG AA 對比目標；這個 token matrix 不是全站逐像素對比證明，亦不取代作者自訂 HTML 及使用者可自訂氣泡色的評估。
+
+### 截圖複核追加：實際閱讀器標頭文字（2026-10-22）
+
+以真正進入本機示範故事後的 390px、1280px 截圖復核，確認月白等淺色主題的 `#chat-view .chat-topline .eyebrow` 視覺偏淡。這是夜灣自己產生的閱讀器標頭文字，不是作者自訂作品正文。本輪只為三套淺色主題把此標籤指向原有 `--yoru-muted`，不更動深色夜港／暮霞或作者 HTML。新增基於真實渲染後 `color` 與 `background-color` 的 4.5:1 對比檢查，並繼續保留整體截圖。測試通過前不作為已驗收結果。
