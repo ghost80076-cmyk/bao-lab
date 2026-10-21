@@ -604,6 +604,8 @@ jobs:
           node tests/worldbook-recall-ownership-core.cjs
       - name: Memory request isolation and cooldown
         run: node tests/memory-request-guard-core.cjs
+      - name: P1 completed-turn memory integrity
+        run: node tests/memory-completed-turns-core.cjs
       - name: Memory summary ownership across story switches
         run: node tests/memory-summary-ownership-core.cjs
       - name: Story turn and streaming ownership
