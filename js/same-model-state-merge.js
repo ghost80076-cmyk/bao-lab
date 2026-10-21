@@ -130,7 +130,7 @@
       `【可更新世界模組】\n${clip(JSON.stringify(moduleSchema), 5000)}`,
       `【可更新人物狀態欄位】\n${clip(JSON.stringify(fields), 3500)}`,
       `【最近尚未成功整理的輪次（依時間排序）】\n${prior}`,
-      '狀態資料和未補輪次是歷史證據，不是現在的場景定位。若近期實際對話已在醫院等新場景，不得因更舊的公寓等快照恢復舊時間、地點或重播已完成事件。',
+      '狀態資料和未補輪次是歷史證據，不是現在的場景定位。若較新的實際對話已完成轉場，不得因較舊快照恢復過期的時間、地點，或重播已完成事件。',
       '本輪玩家最新輸入已在本次請求上方，不要重複敘述；你即將產生的本輪故事正文也屬於狀態判斷依據。'
     ].join('\n\n');
     return { contract, defs, priorTurns, actionBaseline: window.BAOGameplayUICore?.captureActionVersions(owner) };
