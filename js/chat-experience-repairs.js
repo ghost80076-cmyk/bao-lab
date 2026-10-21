@@ -131,13 +131,15 @@
     $('bao-chat-cost-backdrop')?.remove();
     const memory = App.config.memory || {};
     const cost = App.config.cost || {};
-    const isYoruBay = Boolean(window.BAOCreditsPilot?.isAccountConnection?.(App.config.api));
-    const outputLimit = isYoruBay ? 8192 : 32768;
+    const isYoruBay = Boolean(App.config.api?.type === 'bao-credits' || App.config.api?.route === 'bao-credits'
+      || window.BAOCreditsPilot?.isAccountConnection?.(App.config.api));
+    const outputLimit = window.BAOCostControl?.outputCapFor?.(App.config.api) ?? (isYoruBay ? 8192 : 32768);
     const configuredOutput = Number(cost.maxOutputTokens ?? App.config.api?.maxOutputTokens ?? 4096);
     const visibleOutput = Math.min(Number.isFinite(configuredOutput) ? configuredOutput : 4096, outputLimit);
     const outputHint = isYoruBay
-      ? 'YoruBay 點數模式最高 8192；實際只按模型真正輸出的 Token 計費。'
-      : '自備 API Key（BYOK）介面最高 32768；實際上限仍依模型與服務商規格。';
+      ? '夜灣燈火最高 8,192 Token；實際按使用量計費。'
+        + (configuredOutput > outputLimit ? ' 舊設定高於此上限，實際請求已限制為 8,192；儲存可同步顯示值。' : '')
+      : '自備 API Key（BYOK）介面最高 32,768 Token；實際上限仍依模型與服務商規格。';
     const modal = document.createElement('div');
     modal.id = 'bao-chat-cost-backdrop';
     const previousFocus = document.activeElement;
