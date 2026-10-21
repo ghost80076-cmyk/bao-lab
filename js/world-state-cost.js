@@ -200,6 +200,8 @@
         GameState.applyUpdate(restore);
         persistenceHint = true;
       }
+      const safeResult = result && typeof result === 'object' && !Array.isArray(result)
+        ? { ...result, ...restore } : result;
       if (result === null || result === undefined) {
         report(
           owner,
@@ -212,7 +214,7 @@
       pending.splice(0, batch.length);
       const changed = Object.keys(result).some(key => key === "character_statuses" ? Object.keys(result[key] || {}).length : key === "npcs" ? (result[key] || []).length : key === "events" ? (result[key] || []).length : true);
       report(owner, changed ? "updated" : "unchanged", changed ? "狀態模型已回傳並套用本輪更新。" : "狀態模型已成功檢查，但沒有可確認的變化。");
-      return result;
+      return safeResult;
     } catch (error) {
       if (GameState.current === owner) report(
         owner,
