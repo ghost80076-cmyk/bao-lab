@@ -6,13 +6,37 @@
     return Number.isFinite(n) ? n : fallback;
   };
 
+  const outputCapFor = api => (api?.type === "bao-credits" || api?.route === "bao-credits"
+    || window.BAOCreditsPilot?.isAccountConnection?.(api)) ? 8192 : 32768;
+  const currentOutputCap = () => outputCapFor({
+    type: document.getElementById("api-type")?.value,
+    route: App?.getSelectedPreset?.()?.route
+  });
+  const syncOutputLimit = () => {
+    const field = document.getElementById("max-output-tokens");
+    if (!field) return;
+    const cap = currentOutputCap(), previousCap = Number(field.max);
+    // Preserve an earlier BYOK choice when briefly selecting a hosted model.
+    if (cap === 8192 && previousCap !== 8192 && Number(field.value) > cap)
+      field.dataset.byokOutputTokens = field.value;
+    if (cap !== 8192 && previousCap === 8192 && field.dataset.byokOutputTokens) {
+      field.value = field.dataset.byokOutputTokens;
+      delete field.dataset.byokOutputTokens;
+    }
+    field.max = String(cap);
+    if (Number(field.value) > cap) field.value = String(cap);
+    const hint = document.getElementById("max-output-limit-hint");
+    if (hint) hint.textContent = cap === 8192
+      ? "夜灣燈火單次最高 8,192 Token；只按實際輸出與計費方案收費，並非每輪固定用滿。"
+      : "BYOK 介面最高 32,768 Token；實際可用長度依模型與服務商限制。";
+  };
   const getCostConfig = () => ({
     inputPerMillion: numberValue("cost-input", 0),
     outputPerMillion: numberValue("cost-output", 0),
     cachePerMillion: numberValue("cost-cache", 0),
     usdTwd: numberValue("cost-fx", 32),
     budgetTwd: numberValue("cost-budget", 0),
-    maxOutputTokens: Math.max(64, numberValue("max-output-tokens", 4096)),
+    maxOutputTokens: Math.min(currentOutputCap(), Math.max(64, numberValue("max-output-tokens", 4096))),
     stateInterval: Math.max(1, numberValue("state-interval", 2))
   });
 
@@ -159,7 +183,7 @@
         <label>Cache 單價（USD / 1M tokens）<input id="cost-cache" type="number" min="0" step="0.01" value="0"></label>
         <label>USD → TWD 換算<input id="cost-fx" type="number" min="1" step="0.1" value="32"></label>
         <label>本次故事預算上限（NT$）<input id="cost-budget" type="number" min="0" step="1" value="0"><small>0 = 不限制</small></label>
-        <label>單次最大輸出 Token<input id="max-output-tokens" type="number" min="64" max="32768" step="64" value="4096"><small>降低可直接限制每次回覆的最大成本。</small></label>
+        <label>單次最大輸出 Token<input id="max-output-tokens" type="number" min="64" max="32768" step="64" value="4096"><small id="max-output-limit-hint">依連線方式套用實際上限。</small></label>
         <label>獨立狀態模型整理間隔（輪）<input id="state-interval" type="number" min="1" max="20" step="1" value="2"><small>僅適用獨立狀態模型。共用主模型時，每輪隨故事一起更新，不另發狀態請求。</small></label>
       </div>`;
     step.appendChild(box);
@@ -235,6 +259,8 @@
 
   const init = () => {
     injectControls();
+    syncOutputLimit();
+    ["api-type", "model-select"].forEach(id => document.getElementById(id)?.addEventListener("change", syncOutputLimit));
     injectUsage();
     patchConfig();
     patchUsage();
@@ -242,7 +268,7 @@
     render();
   };
 
-  window.BAOCostControl = { estimate, cumulativeCost, entryPricing };
+  window.BAOCostControl = { estimate, cumulativeCost, entryPricing, outputCapFor, syncOutputLimit };
   if (document.readyState === "loading") window.addEventListener("DOMContentLoaded", () => setTimeout(init, 20));
   else setTimeout(init, 20);
 })();
