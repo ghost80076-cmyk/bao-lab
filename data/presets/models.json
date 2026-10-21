@@ -875,8 +875,8 @@
       }
     },
     {
-      "id": "mimo-v2.5",
-      "name": "MiMo V2.5",
+      "id": "mimo-v2.6-flash",
+      "name": "MiMo V2.6 Flash",
       "routes": [
         {
           "id": "mimo-official",
@@ -884,8 +884,8 @@
           "provider_label": "Xiaomi MiMo 官方",
           "route": "official",
           "protocol": "openai",
-          "label": "MiMo V2.5 · 極省長篇",
-          "model": "mimo-v2.5",
+          "label": "MiMo V2.6 Flash · 極省長篇",
+          "model": "mimo-v2.6-flash",
           "base_url": "https://api.xiaomimimo.com/v1/chat/completions",
           "badge": "極省",
           "use_case": "高頻聊天、超長篇、便宜狀態整理",
@@ -904,19 +904,19 @@
           "provider_label": "OpenRouter",
           "route": "router",
           "protocol": "openai",
-          "label": "OR · MiMo V2.5",
-          "model": "xiaomi/mimo-v2.5",
+          "label": "OR · MiMo V2.6 Flash",
+          "model": "xiaomi/mimo-v2.6-flash",
           "base_url": "https://openrouter.ai/api/v1/chat/completions",
           "badge": "極省",
           "use_case": "高頻長篇；可跨多個託管商路由",
           "cache": "provider-dependent",
           "pricing": {
-            "input": 0.119,
-            "output": 0.238,
-            "cache": 0.00255,
+            "input": 0.14,
+            "output": 0.28,
+            "cache": 0.0028,
             "note": "顯示目前代表性路由價格，實際依 provider 而異。"
           },
-          "docs_url": "https://openrouter.ai/xiaomi/mimo-v2.5",
+          "docs_url": "https://openrouter.ai/xiaomi/mimo-v2.6-flash",
           "worker": {
             "binding": "MODELS_JSON",
             "aws_openrouter_relay": true,
@@ -925,10 +925,10 @@
               "completion": 0.5
             },
             "pricing": {
-              "input": 0.119,
-              "output": 0.238,
-              "cache": 0.00255,
-              "cache_write": 0.119
+              "input": 0.14,
+              "output": 0.28,
+              "cache": 0.0028,
+              "cache_write": 0.14
             }
           }
         }
@@ -936,7 +936,7 @@
       "hosted": {
         "route_id": "openrouter",
         "tier": "超省備選",
-        "label": "【超省備選】MiMo V2.5",
+        "label": "【超省備選】MiMo V2.6 Flash",
         "use_case": "低成本長篇與世界互動；OpenRouter 路由",
         "order": 30
       }
