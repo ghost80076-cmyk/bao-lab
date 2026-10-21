@@ -24,7 +24,7 @@
   };
   const contentOf = message => typeof message?.content === "string"
     ? message.content : JSON.stringify(message?.content ?? "");
-  const numeric = value => Number.isFinite(Number(value)) ? Number(value) : null;
+  const numeric = value => value !== null && value !== undefined && Number.isFinite(Number(value)) ? Number(value) : null;
 
   function analyze(messages = [], previous = null) {
     const list = Array.isArray(messages) ? messages : [];
