@@ -30,6 +30,24 @@
       ? "夜灣燈火單次最高 8,192 Token；只按實際輸出與計費方案收費，並非每輪固定用滿。"
       : "BYOK 介面最高 32,768 Token；實際可用長度依模型與服務商限制。";
   };
+  const hasSeparateStateRoute = config => {
+    if (String(config?.cost?.stateApiMode || "").trim() === "same") return false;
+    const route = config?.cost?.stateApi;
+    return Boolean(route?.model && route?.baseUrl);
+  };
+  const syncStateInterval = () => {
+    const choice = document.getElementById("state-route-choice");
+    const separate = choice ? choice.value === "separate" : hasSeparateStateRoute(App?.config);
+    const field = document.getElementById("state-interval-field");
+    if (field) {
+      field.hidden = !separate;
+      field.classList.toggle("hidden", !separate);
+    }
+    const summary = document.getElementById("state-generation-mode");
+    if (summary) summary.textContent = separate
+      ? "使用獨立狀態模型：達到下方整理間隔時，會另外送出狀態 API 請求。"
+      : "故事與狀態由主模型每輪同次生成；沒有第二次狀態請求，也不使用整理間隔。長期記憶達門檻時仍可能獨立整理。";
+  };
   const getCostConfig = () => ({
     inputPerMillion: numberValue("cost-input", 0),
     outputPerMillion: numberValue("cost-output", 0),
@@ -184,7 +202,8 @@
         <label>USD → TWD 換算<input id="cost-fx" type="number" min="1" step="0.1" value="32"></label>
         <label>本次故事預算上限（NT$）<input id="cost-budget" type="number" min="0" step="1" value="0"><small>0 = 不限制</small></label>
         <label>單次最大輸出 Token<input id="max-output-tokens" type="number" min="64" max="32768" step="64" value="4096"><small id="max-output-limit-hint">依連線方式套用實際上限。</small></label>
-        <label>獨立狀態模型整理間隔（輪）<input id="state-interval" type="number" min="1" max="20" step="1" value="2"><small>僅適用獨立狀態模型。共用主模型時，每輪隨故事一起更新，不另發狀態請求。</small></label>
+        <p class="note" id="state-generation-mode">故事與狀態由主模型每輪同次生成。</p>
+        <label id="state-interval-field" class="hidden" hidden>獨立狀態模型整理間隔（輪）<input id="state-interval" type="number" min="1" max="20" step="1" value="2"><small>僅啟用獨立狀態 API 時有效；到達間隔會多一次狀態請求。</small></label>
       </div>`;
     step.appendChild(box);
   };
@@ -260,6 +279,7 @@
   const init = () => {
     injectControls();
     syncOutputLimit();
+    syncStateInterval();
     ["api-type", "model-select"].forEach(id => document.getElementById(id)?.addEventListener("change", syncOutputLimit));
     injectUsage();
     patchConfig();
@@ -268,7 +288,7 @@
     render();
   };
 
-  window.BAOCostControl = { estimate, cumulativeCost, entryPricing, outputCapFor, syncOutputLimit };
+  window.BAOCostControl = { estimate, cumulativeCost, entryPricing, outputCapFor, syncOutputLimit, hasSeparateStateRoute, syncStateInterval };
   if (document.readyState === "loading") window.addEventListener("DOMContentLoaded", () => setTimeout(init, 20));
   else setTimeout(init, 20);
 })();
