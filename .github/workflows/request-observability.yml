@@ -19,6 +19,10 @@ jobs:
       - name: Accounting, request capture and NPC source isolation
         run: |
           node tests/request-observability-core.cjs
+          node --check js/context-efficiency-core.js
+          node --check js/context-inspector.js
+          node --check js/context-health.js
+          node tests/context-efficiency-core.cjs
           node tests/context-inspector-core.cjs
           node tests/context-source-decisions-core.cjs
           node tests/canon-workbench-core.cjs
