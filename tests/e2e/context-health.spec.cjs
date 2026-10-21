@@ -58,6 +58,7 @@ test('shows player-facing context health without pretending per-layer token prec
   await expect(dialog).toContainText('充足');
   await expect(dialog).toContainText('32,000 tok');
   await expect(dialog).toContainText('64,000 tok');
+  await expect(dialog.locator('.context-efficiency')).toContainText('完成一輪故事請求後');
   await expect(dialog).toContainText('目前故事層');
   await expect(dialog).toContainText('不假裝估算每一層的精確 Token 佔比');
   await expect(dialog).toContainText('Prompt Cache');
