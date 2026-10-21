@@ -215,7 +215,17 @@ assert.equal(API.__sendWrapperIds.has('same-model-state-merge:main-story'), true
   result = await API.send(App.config.api, [{ role: 'user', content: orchestrated('長篇恢復') }]);
   await WorldStateEngine.update(App.config, '長篇恢復', result.text);
   assert.equal(owner.stateTracker.phase, 'updated');
-  assert.equal(owner.pendingStateTurns.length, 12, 'recovering one request must consume only four old turns');
+  assert.equal(owner.pendingStateTurns.length, 12, 'recovering one request must consume only four turns');
+  assert.equal(owner.pendingStateTurns[0].player, '長篇玩家0', 'oldest pending record stays as history, never silently dropped');
+  assert.equal(owner.pendingStateTurns.at(-1).player, '長篇玩家11', 'recent pending records are recovered first so the model sees the current scene');
+  // Draining the remaining backlog must never replay the newest recovered
+  // records, and it must eventually reach the oldest preserved records.
+  for (let i = 0; i < 3; i++) {
+    Chat.messages.push({ role: 'assistant', content: '故事二' }, { role: 'user', content: `繼續回合${i}` });
+    result = await API.send(App.config.api, [{ role: 'user', content: orchestrated(`繼續回合${i}`) }]);
+    await WorldStateEngine.update(App.config, `繼續回合${i}`, result.text);
+  }
+  assert.equal(owner.pendingStateTurns.length, 0, 'all old pending records are eventually recovered');
   owner.pendingStateTurns = [];
   App.config.cost.stateInterval = 2;
 
