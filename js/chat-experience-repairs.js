@@ -131,6 +131,8 @@
     $('bao-chat-cost-backdrop')?.remove();
     const memory = App.config.memory || {};
     const cost = App.config.cost || {};
+    const separateState = window.BAOCostControl?.hasSeparateStateRoute?.(App.config)
+      ?? (String(cost.stateApiMode || "").trim() !== "same" && Boolean(cost.stateApi?.model && cost.stateApi?.baseUrl));
     const isYoruBay = Boolean(App.config.api?.type === 'bao-credits' || App.config.api?.route === 'bao-credits'
       || window.BAOCreditsPilot?.isAccountConnection?.(App.config.api));
     const outputLimit = window.BAOCostControl?.outputCapFor?.(App.config.api) ?? (isYoruBay ? 8192 : 32768);
@@ -156,7 +158,10 @@
         </fieldset>
         <fieldset><legend>Token 與費用估算</legend>
           ${field('maxOutputTokens','單次最大輸出 Token',visibleOutput,{min:64,max:outputLimit,step:64,hint:outputHint})}
-          ${field('stateInterval','獨立狀態模型整理間隔（輪）',cost.stateInterval ?? 2,{min:1,max:20,hint:'僅適用獨立狀態模型；共用主模型時每輪隨故事更新，不另發狀態請求。'})}
+          <p data-state-generation-mode>${separateState
+            ? '已啟用獨立狀態模型：達到下方整理間隔時，會另外呼叫狀態 API。'
+            : '目前為同模型合併：故事與狀態每輪同次生成，不會額外呼叫狀態模型；長期記憶仍可能在達到門檻時獨立整理。'}</p>
+          ${separateState ? field('stateInterval','獨立狀態模型整理間隔（輪）',cost.stateInterval ?? 2,{min:1,max:20,hint:'只用於獨立狀態 API，與主模型同次生成無關。'}) : ''}
           ${field('inputPerMillion','輸入單價（USD / 1M tokens）',cost.inputPerMillion ?? 0,{min:0,step:0.01})}
           ${field('outputPerMillion','輸出單價（USD / 1M tokens）',cost.outputPerMillion ?? 0,{min:0,step:0.01})}
           ${field('cachePerMillion','Cache 單價（USD / 1M tokens）',cost.cachePerMillion ?? 0,{min:0,step:0.01})}
@@ -182,7 +187,8 @@
           maxRounds: numeric(form,'maxRounds',4,10000), maxContext: numeric(form,'maxContext',1000,2000000),
           summaryInterval: numeric(form,'summaryInterval',2,10000), cache: form.elements.namedItem('cache').value === 'yes' };
         const nextCost = { ...cost, maxOutputTokens: numeric(form,'maxOutputTokens',64,outputLimit),
-          stateInterval: numeric(form,'stateInterval',1,20), inputPerMillion: numeric(form,'inputPerMillion',0),
+          stateInterval: separateState ? numeric(form,'stateInterval',1,20) : (cost.stateInterval ?? 2),
+          inputPerMillion: numeric(form,'inputPerMillion',0),
           outputPerMillion: numeric(form,'outputPerMillion',0), cachePerMillion: numeric(form,'cachePerMillion',0),
           usdTwd: numeric(form,'usdTwd',0.01), budgetTwd: numeric(form,'budgetTwd',0) };
         App.config.memory = nextMemory;
