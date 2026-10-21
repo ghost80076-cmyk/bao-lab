@@ -42,3 +42,17 @@ test("reduced-motion preference disables global smooth scrolling", async ({ page
   const mode = await page.evaluate(() => getComputedStyle(document.documentElement).scrollBehavior);
   expect(mode).toBe("auto");
 });
+
+test("story mode cards retain native keyboard operability", async ({ page }) => {
+  await page.goto("/");
+  await page.evaluate(() => App.showView("builder"));
+  const immersive = page.locator('#builder-view input[name="narrative-mode"][value="immersive"]');
+  const world = page.locator('#builder-view input[name="narrative-mode"][value="world"]');
+  await immersive.focus();
+  await expect(immersive).toBeFocused();
+  await page.keyboard.press("ArrowDown");
+  await expect(world).toBeFocused();
+  await expect(world).toBeChecked();
+  const focusOutline = await world.locator("..").evaluate(node => getComputedStyle(node).outlineStyle);
+  expect(focusOutline).not.toBe("none");
+});
