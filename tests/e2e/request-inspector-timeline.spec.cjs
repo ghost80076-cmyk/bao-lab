@@ -31,6 +31,14 @@ test('mobile request inspector and NPC timeline use existing story controls',asy
     BAOContextHealth.open();
   });
   const health=page.getByRole('dialog',{name:'上下文狀態'});
+  const efficiency=health.locator('.context-efficiency');
+  await expect(efficiency).toContainText('本輪輸入組成');
+  await expect(efficiency).toContainText('玩家本機分析');
+  await efficiency.locator('summary').click();
+  await expect(efficiency).toContainText('近期對話原文');
+  await expect(efficiency).toContainText('疑似重複');
+  await expect(efficiency).not.toContainText('UNIQUE_TEST_KEY');
+  await efficiency.locator('summary').click();
   await health.getByText('進階 Token 說明與請求檢視',{exact:true}).click();
   await health.getByRole('button',{name:'查看本輪送出內容'}).click();
   const inspector=page.getByRole('dialog',{name:'本輪上下文檢視器'});
