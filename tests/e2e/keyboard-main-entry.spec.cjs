@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const fs = require("node:fs");
 
 for (const width of [390, 1280]) {
   test(`keyboard can bypass navigation on ${width}px without horizontal overflow`, async ({ page }) => {
@@ -11,6 +12,11 @@ for (const width of [390, 1280]) {
     await page.keyboard.press("Tab");
     await expect(skip).toBeFocused();
     await expect(skip).toBeInViewport();
+    fs.mkdirSync("test-results/keyboard-main-entry", { recursive: true });
+    await page.screenshot({
+      path: `test-results/keyboard-main-entry/focused-${width}.png`,
+      animations: "disabled"
+    });
     await page.keyboard.press("Enter");
     await expect(page.locator("main#app-main")).toBeFocused();
     await expect(page.locator("#home-view")).toHaveClass(/active/);
