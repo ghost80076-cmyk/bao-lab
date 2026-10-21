@@ -31,7 +31,7 @@ assert.equal(
   true,
   "prompt orchestrator must install through App.wrapBuildMessages"
 );
-assert.equal(BAOPromptOrchestrator.version, 4);
+assert.equal(BAOPromptOrchestrator.version, 5);
 assert.match(BAOPromptOrchestrator.playerAgencyRule, /對話選項與行動建議/);
 assert.match(BAOPromptOrchestrator.playerAgencyRule, /不可逆/);
 assert.equal(BAOPromptOrchestrator.familyFor({ model: "google/gemini-3.1-pro-preview", type: "openrouter" }), "gemini");
