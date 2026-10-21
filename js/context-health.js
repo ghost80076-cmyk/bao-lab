@@ -36,9 +36,12 @@
     let worldDefs = [];
     try { worldDefs = window.BAOWorldModules?.definitions?.(App.activeCharacter) || []; } catch (_) {}
 
-    let statusConfig = {};
-    try { statusConfig = window.BAOCharacterStatus?.configFor?.(App.activeCharacter) || {}; } catch (_) {}
-    const statusTracked = statusConfig?.enabled !== false && Array.isArray(statusConfig?.fields) && statusConfig.fields.length > 0;
+    // The presence of a status UI schema does not mean the tracker actually
+    // ran. Use the same eligibility decision as the world state engine.
+    const statusTracked = typeof WorldStateEngine !== "undefined" && typeof WorldStateEngine.enabled === "function"
+      ? WorldStateEngine.enabled(config)
+      : config.narrativeMode === "world" || config.stateTracking === true
+        || (typeof config.stateTracking !== "boolean" && config.displayMode === "ui");
 
     const narrativeState = window.BAONarrativeSettings?.get?.() || {};
     const narrativeStatus = window.BAONarrativeSettings?.statusLabel?.(narrativeState) || { items: [] };
@@ -59,6 +62,8 @@
       personaName: config.persona?.name || "",
       worldCount: Array.isArray(worldDefs) ? worldDefs.length : 0,
       statusTracked,
+      stateTracker: GameState.current?.stateTracker || {},
+      pendingStateTurns: Array.isArray(GameState.current?.pendingStateTurns) ? GameState.current.pendingStateTurns.length : 0,
       narrativeCount: Array.isArray(narrativeStatus.items) ? narrativeStatus.items.length : 0,
       contextPackConfirmed: Boolean(GameState.current?.contextPack?.playerConfirmed)
     });

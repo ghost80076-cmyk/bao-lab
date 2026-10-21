@@ -64,6 +64,28 @@ test('shows player-facing context health without pretending per-layer token prec
   await expect(dialog).toContainText('Prompt Cache');
   await expect(dialog).toContainText('命中 8,000 tok');
 
+  // Status presence is not proof the engine kept up. The existing panel must
+  // tell players whether it failed, has a backlog, or returned unchanged.
+  await page.evaluate(() => {
+    GameState.current.stateTracker = { phase: 'failed', pending: 2 };
+    GameState.current.pendingStateTurns = [
+      { player: '離開公寓', assistant: '來到醫院' },
+      { player: '掛號', assistant: '等待醫生' }
+    ];
+    window.BAOContextHealth.open();
+  });
+  await expect(page.locator('.context-health-layer').filter({ hasText: '人物／世界狀態' }))
+    .toContainText('更新失敗，狀態可能過期');
+  await expect(page.locator('.context-health-layer').filter({ hasText: '人物／世界狀態' }))
+    .toContainText('待補 2 輪');
+  await page.evaluate(() => {
+    GameState.current.stateTracker = { phase: 'unchanged', pending: 0 };
+    GameState.current.pendingStateTurns = [];
+    window.BAOContextHealth.open();
+  });
+  await expect(page.locator('.context-health-layer').filter({ hasText: '人物／世界狀態' }))
+    .toContainText('不代表時間或地點已確認為最新');
+
   await dialog.getByRole('button', { name: /回到故事控制台/ }).click();
   const control = page.getByRole('dialog', { name: '故事總覽' });
   await expect(control).toBeVisible();

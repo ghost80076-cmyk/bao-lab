@@ -57,6 +57,26 @@
     };
   }
 
+  // Show the actual tracker outcome, not just whether the status module exists.
+  // "unchanged" is not proof that the scene is current: the model may have
+  // returned an empty PATCH while narrative events advanced.
+  function trackerSummary(tracker = {}, enabled = false, pendingTurns = null) {
+    if (!enabled) return { title: "未啟用追蹤", detail: "此故事沒有啟用自動狀態追蹤。" };
+    const phase = text(tracker?.phase);
+    const pending = Math.max(0, Math.floor(num(pendingTurns) ?? num(tracker?.pending) ?? 0));
+    const titles = {
+      updated: "最近一次更新成功",
+      unchanged: "本輪未確認狀態變化",
+      waiting: "等待累積整理",
+      updating: "正在整理狀態",
+      failed: "更新失敗，狀態可能過期"
+    };
+    const title = titles[phase] || "已啟用，尚無更新結果";
+    const detail = [title, pending ? `待補 ${pending} 輪；故事原文仍保留` : "",
+      phase === "unchanged" ? "不代表時間或地點已確認為最新" : ""].filter(Boolean).join(" · ");
+    return { title, detail };
+  }
+
   function layers(input = {}) {
     const rows = [];
     const add = (id, label, active, detail) => rows.push({ id, label, active: Boolean(active), detail: text(detail) });
@@ -67,7 +87,8 @@
     add("notes", "玩家必記事項", Number(input.noteCount || 0) > 0, input.noteCount ? `${Number(input.noteCount)} 條` : "沒有固定筆記");
     add("persona", "玩家身份", Boolean(text(input.personaName)), text(input.personaName) || "未設定");
     add("world", "世界模組", Number(input.worldCount || 0) > 0, input.worldCount ? `${Number(input.worldCount)} 個啟用` : "未啟用");
-    add("status", "人物／世界狀態", Boolean(input.statusTracked), input.statusTracked ? "狀態追蹤中" : "未啟用追蹤");
+    add("status", "人物／世界狀態", Boolean(input.statusTracked),
+      trackerSummary(input.stateTracker, Boolean(input.statusTracked), input.pendingStateTurns).detail);
     add("narrative", "敘事偏好", Number(input.narrativeCount || 0) > 0, input.narrativeCount ? `${Number(input.narrativeCount)} 項啟用` : "完全依角色卡");
     add("context-pack", "Context Pack", Boolean(input.contextPackConfirmed), input.contextPackConfirmed ? "已確認前情會參與故事" : "未套用確認前情");
     return rows;
@@ -85,5 +106,5 @@
     };
   }
 
-  return Object.freeze({ pressure, cacheSummary, memorySummary, layers, summary });
+  return Object.freeze({ pressure, cacheSummary, memorySummary, trackerSummary, layers, summary });
 });
