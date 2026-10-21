@@ -50,6 +50,21 @@
     return { title, detail: detail || "尚未累積足夠內容" };
   }
 
+  function tokenSummary(config = {}, outputCap = 32768) {
+    const asLimit = (value, fallback) => {
+      const number = Number(value);
+      return Number.isFinite(number) && number > 0 ? Math.floor(number) : fallback;
+    };
+    const cap = asLimit(outputCap, 32768);
+    const configuredOutput = asLimit(config?.cost?.maxOutputTokens ?? config?.api?.maxOutputTokens, 4096);
+    const configuredContext = asLimit(config?.memory?.maxContext, 32000);
+    const output = Math.min(configuredOutput, cap);
+    return {
+      title: `輸出設定 ${output.toLocaleString("en-US")} Token`,
+      detail: `Context 整理參考 ${configuredContext.toLocaleString("en-US")} Token · ${cap === 8192 ? "燈火最高 8,192" : "BYOK 依模型上限"}`
+    };
+  }
+
   function statusSummary(config = {}, display = "native") {
     const displayLabels = { native: "夜灣原生面板", author: "作者狀態欄", hidden: "面板隱藏" };
     const tracked = config?.enabled !== false && Array.isArray(config?.fields) && config.fields.length > 0;
@@ -89,6 +104,7 @@
     modelSummary,
     personaSummary,
     memorySummary,
+    tokenSummary,
     statusSummary,
     worldSummary,
     narrativeSummary,
