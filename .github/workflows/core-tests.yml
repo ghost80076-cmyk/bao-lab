@@ -74,6 +74,7 @@ jobs:
       - name: Story Reader core
         run: |
           node tests/story-reader-core.cjs
+          node tests/action-inspiration-core.cjs
           node tests/chat-reading-scroll-core.cjs
           node tests/chat-reading-pipeline-core.cjs
           node tests/reading-hook-ownership-core.cjs
