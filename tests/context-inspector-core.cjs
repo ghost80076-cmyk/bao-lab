@@ -8,6 +8,7 @@ ctx.window=ctx;vm.createContext(ctx);
 vm.runInContext(fs.readFileSync('js/api.js','utf8')+';window.API=API;',ctx);
 const calls=[];
 ctx.API.send=async (config,messages)=>{calls.push(structuredClone(messages));return {text:'reply',usage:{input_tokens:100,cached_tokens:0,output_tokens:12}};};
+vm.runInContext(fs.readFileSync('js/context-efficiency-core.js','utf8'),ctx);
 vm.runInContext(fs.readFileSync('js/context-inspector.js','utf8'),ctx);
 (async()=>{
   const config={model:'mock',key:'PRIVATE_KEY'};
@@ -17,7 +18,9 @@ vm.runInContext(fs.readFileSync('js/context-inspector.js','utf8'),ctx);
   ctx.API.wrapSend('same-model-state-merge:main-story',async(next,c,ms)=>next(c,[...ms,{role:'system',content:'STATE_CONTRACT'}]));
   await ctx.API.send(config,messages);
   let snap=ctx.BAOContextInspector.snapshot();
-  assert.equal(snap.messages.length,3);assert.equal(snap.messages[2].content,'STATE_CONTRACT');
+  assert.equal(snap.messages.length,3);
+  assert.ok(snap.efficiency && snap.efficiency.totalChars > 0, 'local efficiency analysis should be available');
+  assert.equal(snap.efficiency.deltaChars,null,'first request has no previous baseline');assert.equal(snap.messages[2].content,'STATE_CONTRACT');
   assert.equal(snap.layers['世界書'][0].reason,'knowledge');
   assert.equal(snap.layers['事件回憶'][0].match,'trust-tag');
   assert.equal(snap.layers['事件回憶'][0].score,1);

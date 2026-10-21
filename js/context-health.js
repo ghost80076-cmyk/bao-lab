@@ -10,7 +10,7 @@
     if (document.querySelector('link[href^="css/context-health.css"]')) return;
     const link = document.createElement("link");
     link.rel = "stylesheet";
-    link.href = "css/context-health.css?v=4";
+    link.href = "css/context-health.css?v=5";
     document.head.appendChild(link);
   };
 
@@ -68,6 +68,30 @@
     ? "尚無資料"
     : Number(value).toLocaleString() + " tok";
 
+  const efficiencyMarkup = function efficiencyMarkup(report) {
+  const fmt = n => Number(n || 0).toLocaleString("zh-TW");
+  if (!report) return '<section class="context-efficiency" aria-label="上下文效率"><h3>本輪輸入組成</h3><p>完成一輪故事請求後，就能在這裡查看各層占比與疑似重複內容。</p></section>';
+  const layers = (report.layers || []).filter(item => item.chars > 0);
+  const safePercent = n => Math.min(100, Math.max(0, Number(n) || 0));
+  const delta = report.deltaChars === null || report.deltaChars === undefined ? "尚無上輪可比較"
+    : `較上輪${report.deltaChars > 0 ? "增加 +" : report.deltaChars < 0 ? "減少 " : "持平 "}${fmt(Math.abs(report.deltaChars))} 字元`;
+  return `<section class="context-efficiency" aria-label="上下文效率">
+    <div class="context-efficiency-head"><h3>本輪輸入組成</h3><small>玩家本機分析</small></div>
+    <p>共 ${fmt(report.totalChars)} 字元 · ${esc(delta)}</p>
+    <div class="context-efficiency-meter" role="img" aria-label="按段落來源估算的字元占比">
+      ${layers.map(item => `<i class="context-efficiency-color-${esc(item.id)}" style="width:${safePercent(item.percent)}%" title="${esc(item.label)} ${safePercent(item.percent)}%"></i>`).join("")}
+    </div>
+    <details class="context-efficiency-detail">
+      <summary>查看各層占比與重複分析</summary>
+      <div class="context-efficiency-rows">
+        ${layers.map(item => `<div class="context-efficiency-row"><span class="context-efficiency-swatch context-efficiency-color-${esc(item.id)}"></span><span>${esc(item.label)}</span><b>${esc(item.percent.toFixed(1))}%</b><small>${fmt(item.chars)} 字元</small></div>`).join("")}
+      </div>
+      <p>疑似重複：${fmt(report.duplicates?.count)} 段長文字（約 ${fmt(report.duplicates?.chars)} 字元）。只比對固定與本輪內容中的完全相同長段落；可能是刻意保留的必要資訊，不會自動刪除。</p>
+      <p>此處為按訊息位置、已知標題分類的字元估算，並非各層精確 Token、模型實際扣費或快取命中率。原始內容只供玩家本機檢視，不另行上傳或儲存分析報告。</p>
+    </details>
+  </section>`;
+};
+
   const guardCopy = data => {
     const p = data.pressure;
     if (p.level === "manual") return "目前使用完整上下文模式；夜灣不會依管理預算自動縮短近期原文。";
@@ -86,6 +110,7 @@
     close();
     ensureStyles();
     const data = snapshot();
+    const efficiency = window.BAOContextInspector?.snapshot?.()?.efficiency || null;
     const p = data.pressure;
     const pct = p.percent === null ? null : Math.min(100, p.percent);
     const ratioText = p.percent === null ? "—" : p.percent.toFixed(p.percent >= 100 ? 0 : 1) + "%";
@@ -124,6 +149,8 @@
           <article><span>故事記憶</span><strong>${esc(data.memory.title)}</strong><small>${esc(data.memory.detail)}</small></article>
           <article><span>Prompt Cache</span><strong>${esc(data.cache.title)}</strong><small>${esc(data.cache.detail)}</small></article>
         </div>
+
+        ${efficiencyMarkup(efficiency)}
 
         <footer class="context-health-footer">
           <button type="button" class="secondary" data-context-action="memory">🧠 查看／調整記憶</button>
