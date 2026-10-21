@@ -345,6 +345,13 @@ jobs:
           node --check js/cost-control.js
           node --check js/model-routing.js
           node tests/control-routing-idempotency.cjs
+      - name: Output limit and truncation notice contracts
+        run: |
+          node --check js/api.js
+          node --check js/app.js
+          node --check js/chat-system-notices.js
+          node --check js/chat-experience-repairs.js
+          node tests/output-limit-notices-core.cjs
       - name: YoruBay admin player list
         run: node tests/admin-player-list-core.cjs
       - name: YoruBay admin account status
