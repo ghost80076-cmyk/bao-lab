@@ -25,7 +25,9 @@ jobs:
             html="$(curl --fail --silent --show-error --location --max-time 15 "${SITE_URL}" || true)"
             if grep -Fq "<title>${EXPECTED_TITLE}</title>" <<<"${html}" \
               && grep -Fq '<link rel="canonical" href="https://yorubay.com/">' <<<"${html}" \
-              && grep -Fq '<meta property="og:image" content="https://yorubay.com/assets/bao-social-card.png">' <<<"${html}" \
+              && grep -Fq '<meta property="og:image" content="https://yorubay.com/assets/yorubay-og.jpg">' <<<"${html}" \
+              && grep -Fq '<meta property="og:image:type" content="image/jpeg">' <<<"${html}" \
+              && grep -Fq '<meta name="twitter:image" content="https://yorubay.com/assets/yorubay-og.jpg">' <<<"${html}" \
               && grep -Fq '<meta name="twitter:card" content="summary_large_image">' <<<"${html}"; then
               ok=1
               printf 'Live homepage metadata verified on attempt %s.\n' "${attempt}"
@@ -207,7 +209,8 @@ jobs:
         run: |
           set -euo pipefail
           curl --fail --silent --show-error --location --max-time 20 \
-            "${SITE_URL}assets/bao-social-card.png" -o /tmp/bao-social-card.png
-          test -s /tmp/bao-social-card.png
-          file /tmp/bao-social-card.png | grep -Fq 'PNG image data, 1200 x 630'
-          printf 'Social preview image verified as a non-empty 1200x630 PNG.\n'
+            "${SITE_URL}assets/yorubay-og.jpg" -o /tmp/yorubay-og.jpg
+          test -s /tmp/yorubay-og.jpg
+          file /tmp/yorubay-og.jpg | grep -Fq 'JPEG image data'
+          file /tmp/yorubay-og.jpg | grep -Eq '1200[[:space:]]*x[[:space:]]*630'
+          printf 'Social preview image verified as a non-empty 1200x630 JPEG.\n'
