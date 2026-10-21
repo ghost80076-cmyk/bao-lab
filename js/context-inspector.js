@@ -3,7 +3,7 @@
 (() => {
   'use strict';
   if (window.BAOContextInspector || !API.wrapSend) return;
-  const requests = new WeakMap(), sources = new WeakMap();
+  const requests = new WeakMap(), sources = new WeakMap(), lastCompleted = new WeakMap();
   const signature = () => JSON.stringify(Chat.messages.map(m => [m.id, m.role, m.content, m.context_content || '']));
   const esc = value => App.escapeHTML(String(value ?? ''));
   const record = (layer, decisions) => {
@@ -21,10 +21,15 @@
     if (!state || config?.__memoryTask || config?.__stateTask || config?.__connectionTest || config?.__storyTool || config?.__auxiliaryTask) return next(config, messages, ...rest);
     const anchors = Chat.messages.map(m => [m.id, m.role, m.content, m.context_content || '']);
     const src = sources.get(state);
+    let efficiency = null;
+    try {
+      efficiency = window.BAOContextEfficiencyCore?.analyze?.(messages, lastCompleted.get(state)) || null;
+    } catch (_) { /* Never let optional local analytics block a story request. */ }
     let remaining = 200000;
     const entry = {
       at: new Date().toISOString(), model: String(config?.model || ''), status: 'pending',
       layers: src?.signature === signature() ? structuredClone(src.layers) : {},
+      efficiency,
       anchors,
       messages: (Array.isArray(messages) ? messages : []).map((m, i) => {
         const text = typeof m.content === 'string' ? m.content : JSON.stringify(m.content ?? '');
@@ -37,6 +42,7 @@
     try {
       const result = await next(config, messages, ...rest);
       entry.status = 'success';
+      if (requests.get(state) === entry && efficiency) lastCompleted.set(state, { totalChars: efficiency.totalChars });
       // Copy numeric provider usage only; never retain config, keys or response text.
       entry.usage = Object.fromEntries(['input_tokens','cached_tokens','output_tokens'].map(key =>
         [key, typeof result?.usage?.[key] === 'number' ? result.usage[key] : null]));
@@ -75,6 +81,6 @@
     document.addEventListener('keydown', onKey); document.body.appendChild(root); root.querySelector('button').focus();
   };
   const reset = Chat.reset.bind(Chat);
-  Chat.reset = function(...args) { if (GameState.current) { requests.delete(GameState.current); sources.delete(GameState.current); } return reset(...args); };
+  Chat.reset = function(...args) { if (GameState.current) { requests.delete(GameState.current); sources.delete(GameState.current); lastCompleted.delete(GameState.current); } return reset(...args); };
   window.BAOContextInspector = Object.freeze({ record, snapshot, open });
 })();
