@@ -74,11 +74,11 @@
     return `<div class="helper-route-card" data-helper-card="${kind}">
       <label>${isMemory ? "長期記憶摘要" : "NPC／事件／狀態整理"}要用哪個連線？
         <select id="${kind}-route-choice">
-          <option value="same">沿用主聊天模型與 API（同模型時合併狀態）</option>
+          <option value="same">${isMemory ? "沿用主模型 API（記憶仍在達門檻時另行整理）" : "沿用主模型（每輪故事與狀態同次生成）"}</option>
           <option value="separate">使用另一個 API／模型（省費用或分工）</option>
         </select>
       </label>
-      <small class="note">${isMemory ? "記憶仍在達到整理門檻時獨立執行，只送待整理舊對話＋既有摘要。" : "沿用主聊天模型時，狀態會在到達整理間隔後直接併入同一次故事請求；另選模型才使用獨立狀態請求。"}</small>
+      <small class="note">${isMemory ? "記憶仍在達到整理門檻時獨立執行，只送待整理舊對話＋既有摘要。" : "沿用主模型時，每輪故事直接附帶狀態更新，不受獨立狀態模型整理間隔影響；只有另選狀態模型才會額外請求。"}</small>
       <div id="${kind}-route-advanced" class="hidden helper-route-advanced">
         <label>快速選擇服務 / 模型<select id="${kind}-preset-select"><option value="">選擇官方 / OpenRouter 預設…</option>${optionHTML()}</select></label>
         <div class="form-grid">
@@ -114,6 +114,7 @@
   const toggleHelper = kind => {
     const choice = document.getElementById(`${kind}-route-choice`);
     document.getElementById(`${kind}-route-advanced`)?.classList.toggle("hidden", choice?.value !== "separate");
+    if (kind === "state") window.BAOCostControl?.syncStateInterval?.();
   };
 
   const selectedHelperPreset = kind => {
@@ -155,7 +156,7 @@
     const box = document.createElement("div");
     box.id = "helper-routing-box";
     box.className = "cost-control-box";
-    box.innerHTML = `<h3>同模型就合併狀態，不同模型再分工</h3><p class="note">故事與狀態都沿用同一個 DeepSeek／Gemini／GLM 時，夜灣會在狀態整理間隔到達後，讓同一次故事請求順便回傳狀態 PATCH，不再補發第二次狀態 API。記憶仍只在達到摘要門檻時獨立整理。若另選狀態模型，才維持獨立狀態請求。</p><div class="helper-route-grid">${helperCard("memory")}${helperCard("state")}</div>`;
+    box.innerHTML = `<h3>同模型就合併狀態，不同模型再分工</h3><p class="note">故事與狀態沿用同一個 DeepSeek／Gemini／GLM 時，每輪同一次故事請求便會要求回傳狀態 PATCH，不需要也不會等待獨立狀態整理間隔。長期記憶在摘要門檻到達時仍會另外整理；只有明確選擇獨立狀態模型時，才按設定間隔額外送出狀態請求。</p><div class="helper-route-grid">${helperCard("memory")}${helperCard("state")}</div>`;
     step.appendChild(box);
     ["memory","state"].forEach(kind => {
       document.getElementById(`${kind}-route-choice`)?.addEventListener("change", () => toggleHelper(kind));
