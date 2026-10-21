@@ -35,7 +35,7 @@ function setup() {
       chat.messages.push({ id: 'u' + i, role: 'user', content: '第' + i + '輪：前往醫院的意圖' });
       const content = oversizeFirst && i === 1
         ? '故事結果：暫時未抵達醫院。' + '敘事'.repeat(2200)
-        : i === 2 ? '故事結果：進入醫院但尚未就診。' + '敘事'.repeat(1940)
+        : i === 2 ? '故事結果：進入醫院但尚未就診。' + '敘事'.repeat(1976)
         : '故事結果：此輪仍在醫院附近。';
       chat.messages.push({ id: 'a' + i, role: 'assistant', content });
     }
