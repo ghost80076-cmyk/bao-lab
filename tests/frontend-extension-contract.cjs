@@ -68,7 +68,7 @@ increasing(siteUI, [
   'then(() => worldModulesReady)',
   'loadBAOScript("js/three-realms-events.js?v=3")',
   'loadBAOScript("js/streaming-ui.js',
-  'loadBAOScript("js/request-lifecycle.js")'
+  'loadBAOScript("js/request-lifecycle.js?v=2")'
 ], "story extension");
 
 // Modules without their own global idempotency guard currently rely on the loader;
