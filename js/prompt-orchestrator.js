@@ -90,7 +90,7 @@
         (item.content === content || (content.length >= 12 && item.content.includes(content))));
     });
     if (!omitted.length) return "";
-    const selected = omitted.slice(phase === "unchanged" && !pending ? -3 : -8);
+    const selected = omitted.slice(phase === "unchanged" && !pending ? -6 : -8);
     const lines = selected.map(m => {
       const normalized = String(m.role === "assistant" ? (m.context_content || m.content || "") : (m.content || "")).replace(/\s+/g, " ").trim();
       if (!normalized) return "";
