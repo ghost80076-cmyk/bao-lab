@@ -10,6 +10,7 @@ const {
   buildVersionUploadBody,
   deployProductionModelRegistry,
   requireSingleActiveVersion,
+  normalizeRemovalAuthorization,
   summarizeChanges,
 } = require("../scripts/apply-production-model-registry.cjs");
 
@@ -198,26 +199,51 @@ assert.deepEqual(
   ["openrouter:b"]
 );
 
+const legacySettings = {
+  ...settings,
+  bindings: settings.bindings.map(binding =>
+    binding.name === "MODELS_JSON"
+      ? {
+          ...binding,
+          text: JSON.stringify([
+            { provider: "gemini", model: "legacy-model" },
+          ]),
+        }
+      : binding
+  ),
+};
+
 assert.throws(
-  () =>
-    buildVersionPlan(
-      {
-        ...settings,
-        bindings: settings.bindings.map(binding =>
-          binding.name === "MODELS_JSON"
-            ? {
-                ...binding,
-                text: JSON.stringify([
-                  { provider: "gemini", model: "legacy-model" },
-                ]),
-              }
-            : binding
-        ),
-      },
-      plan,
-      graph
-    ),
-  /would remove production models/
+  () => buildVersionPlan(legacySettings, plan, graph),
+  /would remove production models without explicit authorization/
+);
+
+const authorizedRetirement = buildVersionPlan(
+  legacySettings,
+  plan,
+  graph,
+  "",
+  ["gemini:legacy-model"]
+);
+assert.deepEqual(
+  authorizedRetirement.changes.MODELS_JSON.removed,
+  ["gemini:legacy-model"]
+);
+assert.throws(
+  () => buildVersionPlan(settings, plan, graph, "", ["gemini:legacy-model"]),
+  /authorized model removals are not present/
+);
+assert.deepEqual(
+  normalizeRemovalAuthorization("openrouter:vendor/model,gemini:model-a"),
+  ["openrouter:vendor/model", "gemini:model-a"]
+);
+assert.throws(
+  () => normalizeRemovalAuthorization("openrouter:vendor/model,openrouter:vendor/model"),
+  /must not contain duplicates/
+);
+assert.throws(
+  () => normalizeRemovalAuthorization("openrouter:model;rm"),
+  /invalid authorized model removal/
 );
 
 assert.equal(
