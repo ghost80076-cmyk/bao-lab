@@ -10,7 +10,7 @@
     if (document.querySelector('link[href^="css/story-control-center.css"]')) return;
     const link = document.createElement("link");
     link.rel = "stylesheet";
-    link.href = "css/story-control-center.css?v=3";
+    link.href = "css/story-control-center.css?v=4";
     document.head.appendChild(link);
   };
 
@@ -24,6 +24,10 @@
 
   const snapshot = () => {
     const config = App.config || {};
+    const api = config.api || {};
+    const hosted = api.type === "bao-credits" || api.route === "bao-credits"
+      || Boolean(window.BAOCreditsPilot?.isAccountConnection?.(api));
+    const outputCap = window.BAOCostControl?.outputCapFor?.(api) ?? (hosted ? 8192 : 32768);
     const refs = window.BAOStoryLibrary?.refs?.() || {};
     const memoryDiag = window.Chat?.memoryDiagnostics?.(config) || {
       totalRounds: window.Chat?.turnCount?.() || 0,
@@ -70,6 +74,7 @@
       model: core.modelSummary(config.api || {}, routeLabel(config.api || {})),
       persona: core.personaSummary(config.persona || {}),
       memory: core.memorySummary(memoryDiag, Array.isArray(notes) ? notes.length : 0),
+      tokens: core.tokenSummary(config, outputCap),
       context,
       status: core.statusSummary(statusConfig, window.BAOSceneHTML?.prefs?.status || "native"),
       extensions,
@@ -80,6 +85,15 @@
   };
 
   const ACTIONS = {
+    token() {
+      if (window.BAOChatExperienceRepairs?.openSettings) {
+        window.BAOChatExperienceRepairs.openSettings();
+      } else {
+        const entry = document.getElementById("bao-chat-cost-open");
+        if (entry) entry.click();
+        else window.BAOFeedback?.notify?.("Token 與 Context 設定尚在載入，請稍後重試。", "error");
+      }
+    },
     model() { window.BAOChatAPISettings?.open?.(); },
     persona() { window.BAOStoryActors?.open?.("player"); },
     memory() { window.BAOMemoryWorkbench?.open?.(); },
@@ -129,12 +143,13 @@
         </header>
         <p class="story-control-intro" id="story-control-intro">這裡整理目前這一份故事正在使用的設定。連線金鑰、全站語言與其他帳號設定仍留在原本的入口。</p>
         <section class="story-control-section" aria-labelledby="story-control-primary-title">
-          <div class="story-control-section-heading"><h3 id="story-control-primary-title">目前故事</h3><span>常用的四項設定</span></div>
+          <div class="story-control-section-heading"><h3 id="story-control-primary-title">目前故事</h3><span>常用設定</span></div>
           <div class="story-control-grid story-control-primary">
             ${card("model", "故事模型", data.model, "切換模型")}
             ${card("persona", "玩家身份", data.persona, "調整人物")}
             ${card("memory", "故事記憶", data.memory, "查看記憶")}
             ${card("status", "人物／世界狀態", data.status, "管理狀態")}
+            ${card("token", "Token／Context 管理", data.tokens, "調整輸出與輸入預算")}
           </div>
         </section>
         <details class="story-control-more">
@@ -193,7 +208,7 @@
     button.dataset.openStoryControl = "true";
     button.textContent = controls ? "故事" : "☷ 故事總覽";
     button.setAttribute("aria-label", "故事總覽");
-    button.title = "看看這個故事目前使用的模型、身份、記憶、狀態與故事擴充";
+    button.title = "查看故事模型、身份、Token、Context、記憶與狀態";
     button.addEventListener("click", open);
     if (controls) {
       const tools = controls.querySelector("#bao-surface-mode-toggle");

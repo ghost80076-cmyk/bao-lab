@@ -193,16 +193,28 @@ for (const width of [390, 1280]) {
       App.renderChatShell(false);
       App.showView('chat');
       YoruExperience.choose({ level:'easy', theme:'mist' });
-      BAOStoryControlCenter.open();
     });
+    if (width === 390) {
+      // Phone discovery path: composer ＋ -> Story overview -> Token / Context.
+      // The mobile header's legacy ••• tab was deliberately removed by the compact layout.
+      const mobileTools = page.locator('#bao-mobile-composer-tools');
+      await expect(mobileTools).toBeVisible();
+      await mobileTools.click();
+      const mobileOverview = page.locator('#bao-chat-tool-drawer .bao-mobile-quick').getByRole('button', { name: /故事總覽/ });
+      await expect(mobileOverview).toBeVisible();
+      await mobileOverview.click();
+    } else {
+      await page.evaluate(() => BAOStoryControlCenter.open());
+    }
     const dialog = page.getByRole('dialog', { name:'故事總覽' });
     const more = dialog.locator('.story-control-more');
     const card = dialog.locator('.story-control-card');
-    await expect(card).toHaveCount(10);
-    await expect(dialog.locator('.story-control-primary .story-control-card')).toHaveCount(4);
+    await expect(card).toHaveCount(11);
+    await expect(dialog.locator('.story-control-primary .story-control-card')).toHaveCount(5);
     await expect(dialog.locator('.story-control-secondary .story-control-card')).toHaveCount(6);
     await expect(more).not.toHaveAttribute('open','');
     await expect(dialog.locator('[data-story-control-action="model"]')).toBeVisible();
+    await expect(dialog.locator('[data-story-control-action="token"]')).toBeVisible();
     await expect(dialog.locator('[data-story-control-action="context"]')).toBeHidden();
     await expect(dialog.locator('[data-story-control-action="timeline"]')).toBeHidden();
     await more.locator('summary').click();
@@ -227,9 +239,37 @@ for (const width of [390, 1280]) {
       },level);
       await expect(more).toHaveAttribute('open','');
       await expect(dialog.locator('[data-story-control-action="extensions"]')).toBeVisible();
-      await expect(card).toHaveCount(10);
+      await expect(card).toHaveCount(11);
       await dialog.getByRole('button',{name:'關閉故事總覽'}).click();
     }
+    // The visible fifth shortcut reuses the existing per-story editor, not a separate Token state.
+    await page.evaluate(() => BAOStoryControlCenter.open());
+    const tokenCard = dialog.locator('[data-story-control-action="token"]');
+    await expect(tokenCard).toBeVisible();
+    await expect(tokenCard).toContainText('輸出設定 4,096 Token');
+    await expect(tokenCard).toContainText('Context 整理參考 32,000 Token');
+    await tokenCard.click();
+    await expect(dialog).not.toBeVisible();
+    const editor = page.getByRole('dialog', { name: '目前故事：記憶、Token 與成本' });
+    await expect(editor).toBeVisible();
+    await editor.locator('[name="maxOutputTokens"]').fill('6144');
+    await editor.locator('[name="maxContext"]').fill('40000');
+    await editor.getByRole('button', { name: '儲存到目前故事' }).click();
+    await expect(editor).not.toBeVisible();
+    const saved = await page.evaluate(() => ({
+      output: App.config.api.maxOutputTokens,
+      cost: App.config.cost.maxOutputTokens,
+      context: App.config.memory.maxContext,
+      activeStory: GameState.current.config === App.config,
+      messages: Chat.messages.length
+    }));
+    expect(saved).toMatchObject({ output: 6144, cost: 6144, context: 40000, activeStory: true });
+    expect(saved.messages).toBeGreaterThan(0);
+    await page.evaluate(() => BAOStoryControlCenter.open());
+    await expect(dialog.locator('[data-story-control-action="token"]')).toContainText('輸出設定 6,144 Token');
+    await expect(dialog.locator('[data-story-control-action="token"]')).toContainText('40,000 Token');
+    await dialog.getByRole('button', { name: '關閉故事總覽' }).click();
+
     expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+2)).toBe(true);
   });
 }

@@ -21,6 +21,7 @@
   border-radius:14px;background:rgba(181,174,255,.06);color:var(--muted);line-height:1.7
 }
 .story-control-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.story-control-primary [data-story-control-action="token"]{grid-column:1 / -1}
 .story-control-card{
   min-width:0;display:flex;flex-direction:column;align-items:flex-start;text-align:left;gap:5px;
   padding:16px;border:1px solid var(--border);border-radius:17px;background:#171820;color:var(--text);
