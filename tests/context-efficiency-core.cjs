@@ -4,7 +4,7 @@ const core = require('../js/context-efficiency-core.js');
 
 const repeated = '不得替玩家決定動作、心理與台詞，人物只依自己知道的事實行動。'.repeat(5);
 const messages = [
-  {role:'system',content:'【平台必要規則】\n'+repeated+'\n\n【角色核心】\n既有設定\n\n【世界設定】\n王國'},
+  {role:'system',content:'【平台必要規則】\n平台介紹\n\n'+repeated+'\n\n【角色核心】\n既有設定\n\n【世界設定】\n王國'},
   {role:'system',content:'【Context Pack · 玩家已確認的前情】\n重要事件\n\n'+repeated},
   {role:'user',content:'以前的對話'},
   {role:'assistant',content:'故事繼續'},
