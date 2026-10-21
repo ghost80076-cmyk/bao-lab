@@ -61,7 +61,7 @@
   // The raw chat is local and is not deleted by context trimming. When a long
   // story's state tracker falls behind, bring back a small, verbatim slice of
   // its newest turns. No model call, new persistent memory, or interpretation.
-  const recentContinuityEvidence = () => {
+  const recentContinuityEvidence = (requestMessages = []) => {
     const state = window.GameState?.current;
     const chat = window.Chat;
     if (!state || !Array.isArray(chat?.messages)) return "";
@@ -77,9 +77,22 @@
     // turns, with a fixed small budget to protect token cost and cache prefix.
     const source = chat.messages.filter(m => m && (m.role === "user" || m.role === "assistant"));
     if (source.at(-1)?.role === "user") source.pop();
-    const selected = source.slice(phase === "unchanged" && !pending ? -3 : -8);
+    // In fixed-round/pressure modes, the model may have lost a recent scene
+    // while the status tracker still points at an older place. Compare against
+    // the REAL assembled request, not a guessed context window: replaying turns
+    // already sent wastes tokens and cannot fix a missing scene.
+    const sent = (Array.isArray(requestMessages) ? requestMessages : [])
+      .filter(m => m && (m.role === "user" || m.role === "assistant"))
+      .map(m => ({ role: m.role, content: String(m.content || "").trim() }));
+    const omitted = source.filter(m => {
+      const content = String(m.role === "assistant" ? (m.context_content || m.content || "") : (m.content || "")).trim();
+      return content && !sent.some(item => item.role === m.role &&
+        (item.content === content || (content.length >= 12 && item.content.includes(content))));
+    });
+    if (!omitted.length) return "";
+    const selected = omitted.slice(phase === "unchanged" && !pending ? -3 : -8);
     const lines = selected.map(m => {
-      const normalized = String(m.context_content || m.content || "").replace(/\s+/g, " ").trim();
+      const normalized = String(m.role === "assistant" ? (m.context_content || m.content || "") : (m.content || "")).replace(/\s+/g, " ").trim();
       if (!normalized) return "";
       // Tail is useful for scene transitions at the end of long replies.
       const excerpt = normalized.length <= 115 ? normalized : `${normalized.slice(0, 45)}…${normalized.slice(-65)}`;
@@ -131,7 +144,7 @@
 
     const lastIndex = result.length - 1;
     if (lastIndex >= 0 && result[lastIndex]?.role === "user") {
-      result[lastIndex].content = appendBlock(appendBlock(result[lastIndex].content, recentContinuityEvidence()), TURN_ANCHOR);
+      result[lastIndex].content = appendBlock(appendBlock(result[lastIndex].content, recentContinuityEvidence(result)), TURN_ANCHOR);
     } else {
       result.push({ role: "user", content: TURN_ANCHOR });
     }
@@ -149,7 +162,7 @@
   }
 
   window.BAOPromptOrchestrator = {
-    version: 4,
+    version: 5,
     familyFor,
     guidanceFor,
     priorityPrompt: PRIORITY_PROMPT,
