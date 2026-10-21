@@ -128,6 +128,7 @@ jobs:
           npm run test:e2e --
           tests/e2e/quick-start.spec.cjs
           tests/e2e/account-author-identity.spec.cjs
+          tests/e2e/keyboard-main-entry.spec.cjs
           --project=chromium
       - name: Upload onboarding report
         if: always()
@@ -212,6 +213,7 @@ jobs:
           tests/e2e/mobile-story-entry.spec.cjs
           tests/e2e/story-integrity.spec.cjs
           tests/e2e/story-status-opening-compat.spec.cjs
+          tests/e2e/keyboard-main-entry.spec.cjs
           --project=${{ matrix.browser }}
       - name: Upload smoke report
         if: always()
