@@ -247,7 +247,7 @@ const API = {
     if (streaming && response.ok && this.isEventStream(response)) return this.readOpenAIStream(response, config);
     const data = await this.readJSON(response);
     if (!response.ok) throw new Error(this.friendlyError(response.status, data, "OpenAI-compatible API"));
-    return { text: this.contentToText(data?.choices?.[0]?.message?.content) || "模型沒有回傳內容。", usage: this.normalizeUsage(data?.usage || {}, "openai") };
+    return { text: this.contentToText(data?.choices?.[0]?.message?.content) || "模型沒有回傳內容。", finishReason: data?.choices?.[0]?.finish_reason || null, usage: this.normalizeUsage(data?.usage || {}, "openai") };
   },
 
   async sendAnthropic(config, messages) {
@@ -265,7 +265,7 @@ const API = {
     if (this.shouldStream(config) && response.ok && this.isEventStream(response)) return this.readAnthropicStream(response, config);
     const data = await this.readJSON(response);
     if (!response.ok) throw new Error(this.friendlyError(response.status, data, "Anthropic-compatible API"));
-    return { text: (data?.content || []).map(x => x?.type === "text" ? x.text : "").filter(Boolean).join("\n") || "模型沒有回傳內容。", usage: this.normalizeUsage(data?.usage || {}, "anthropic") };
+    return { text: (data?.content || []).map(x => x?.type === "text" ? x.text : "").filter(Boolean).join("\n") || "模型沒有回傳內容。", finishReason: data?.stop_reason || null, usage: this.normalizeUsage(data?.usage || {}, "anthropic") };
   },
 
   async sendGemini(config, messages) {
@@ -374,7 +374,7 @@ const API = {
     return error;
   },
   async readOpenAIStream(response, config) {
-    let text = "", usage = {};
+    let text = "", usage = {}, finishReason = null;
     await this.readSSE(response, ({ data: raw }) => {
       if (raw.trim() === "[DONE]") return;
       const data = this.parseStreamJSON(raw, "OpenAI-compatible API");
@@ -382,21 +382,25 @@ const API = {
       const delta = this.contentToText(data?.choices?.[0]?.delta?.content);
       if (delta) { text += delta; this.emitDelta(config, delta, text); }
       if (data?.usage) usage = data.usage;
+      finishReason = data?.choices?.[0]?.finish_reason || finishReason;
     });
-    return { text: text || "模型沒有回傳內容。", usage: this.normalizeUsage(usage, "openai") };
+    return { text: text || "模型沒有回傳內容。", finishReason, usage: this.normalizeUsage(usage, "openai") };
   },
   async readAnthropicStream(response, config) {
-    let text = "";
+    let text = "", finishReason = null;
     const usage = {};
     await this.readSSE(response, ({ data: raw }) => {
       const data = this.parseStreamJSON(raw, "Anthropic-compatible API");
       if (data?.type === "error" || data?.error) throw this.streamEventError(data, "Anthropic-compatible API");
       if (data?.type === "message_start") Object.assign(usage, data.message?.usage || {});
-      if (data?.type === "message_delta") Object.assign(usage, data.usage || {});
+      if (data?.type === "message_delta") {
+        Object.assign(usage, data.usage || {});
+        finishReason = data?.delta?.stop_reason || finishReason;
+      }
       const delta = data?.type === "content_block_delta" && data?.delta?.type === "text_delta" ? data.delta.text : "";
       if (delta) { text += delta; this.emitDelta(config, delta, text); }
     });
-    return { text: text || "模型沒有回傳內容。", usage: this.normalizeUsage(usage, "anthropic") };
+    return { text: text || "模型沒有回傳內容。", finishReason, usage: this.normalizeUsage(usage, "anthropic") };
   },
   async readGeminiStream(response, config) {
     let text = "", usage = {}, lastData = null, finishReason = null;
