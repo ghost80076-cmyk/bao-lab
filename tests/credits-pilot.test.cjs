@@ -95,7 +95,7 @@ test('OpenAI and xAI hosted presets route through OpenRouter',async()=>{
 });
 test('DeepSeek, Qwen, MiMo and MiniMax hosted presets route through OpenRouter',async()=>{
  const s=build();
- const models=['deepseek/deepseek-v4-flash-0731','qwen/qwen3.7-flash','xiaomi/mimo-v2.5','minimax/minimax-m3'];
+ const models=['deepseek/deepseek-v4-flash-0731','qwen/qwen3.7-flash','xiaomi/mimo-v2.6-flash','minimax/minimax-m3'];
  for (const model of models) await s.api.send({...cfg,model,maxOutputTokens:4096},msgs);
  assert.equal(s.calls.length,models.length);
  for (let i=0;i<models.length;i++) {
@@ -287,7 +287,7 @@ test('registers only the prioritized YoruBay hosted catalog without free or dupl
   assert.deepEqual(Array.from(added.map(p=>p.model)),[
     'deepseek/deepseek-v4-flash-0731',
     'qwen/qwen3.7-flash',
-    'xiaomi/mimo-v2.5',
+    'xiaomi/mimo-v2.6-flash',
     'google/gemma-4-31b-it',
     'gemini-3-flash-preview',
     'gemini-3.8-flash',
