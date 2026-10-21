@@ -73,6 +73,10 @@
     // stories, "unchanged" therefore needs a smaller fallback evidence slice.
     const stale = phase === "failed" || pending || (rounds >= 30 && phase === "unchanged");
     if (!stale || rounds < 20) return "";
+    // Smart mode keeps every unsummarized raw turn and omits only text
+    // covered by a successful summary. Duplicating those covered turns here
+    // defeats the summary budget; address summary quality separately in P1.
+    if (window.App?.config?.memory?.mode === "smart") return "";
     // Latest input is already sent separately. Include only completed recent
     // turns, with a fixed small budget to protect token cost and cache prefix.
     const source = chat.messages.filter(m => m && (m.role === "user" || m.role === "assistant"));
