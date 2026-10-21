@@ -112,7 +112,8 @@ for (const file of cards) {
   void rel;
 }
 
-assert.equal(sidecars.length, 25, 'expected 25 official regex sidecars including Mio and Bai Jin');
+assert.equal(sidecars.length, 26, 'expected 26 official regex sidecars including Dont Tell Him');
+assert.ok(regexCards.includes('dont-tell-him'), 'Dont Tell Him message sidecar must be audited');
 assert.ok(regexCards.includes('bai-jin-ash-companion'), 'Bai Jin official display sidecar must be audited');
 assert.ok(regexCards.includes('midnight-paper-bride-mio'), 'Mio official display sidecar must be audited');
 assert.ok(regexCards.includes('qiao-yining-nonexistent-boyfriend'), 'Qiao Yining official display sidecar must be audited');

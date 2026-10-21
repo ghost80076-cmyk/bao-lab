@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "yorubay-author-regex-mod",
+  "scope": "assistant_display",
+  "characterId": "dont-tell-him",
+  "regex_scripts": [
+    {
+      "scriptName": "請別告訴他｜手機訊息",
+      "description": "只美化已出現的訊息；不更換聯絡人身分、不讀取狀態、不執行腳本。",
+      "priority": 60,
+      "findRegex": "^私訊｜((?:[01]\\d|2[0-3]):[0-5]\\d)[ \\t]*\\r?\\n(北風|蘇清越|嚴梟|賀予深|妳)[：:][ \\t]*([^<>\\r\\n]+)",
+      "flags": "gm",
+      "replaceString": "<aside class=\"yb-dont-tell-message\" style=\"box-sizing:border-box;max-width:100%;overflow-wrap:anywhere;background:rgba(185,151,118,.12);color:inherit;border:1px solid #b99776;border-left:3px solid #b99776;border-radius:12px;padding:.8em 1em;line-height:1.75\"><strong style=\"display:block;font-weight:650\">$2 · $1</strong><span style=\"display:block;white-space:pre-wrap\">$3</span></aside>"
+    }
+  ]
+}
