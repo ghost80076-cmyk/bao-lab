@@ -77,8 +77,24 @@ function summarizeChanges(currentEntries, desiredEntries) {
   return { added, removed, changed };
 }
 
-function buildVersionPlan(settings, plan, graph, commitSha = "") {
+function normalizeRemovalAuthorization(value) {
+  const raw = Array.isArray(value) ? value : String(value || "").split(",");
+  const entries = raw.map(item => String(item || "").trim()).filter(Boolean);
+  if (entries.length !== new Set(entries).size) {
+    throw new Error("authorized model removals must not contain duplicates");
+  }
+  for (const key of entries) {
+    if (!/^[a-z0-9_-]+:[a-z0-9][a-z0-9._:/-]*$/i.test(key)) {
+      throw new Error(`invalid authorized model removal: ${key}`);
+    }
+  }
+  return entries;
+}
+
+function buildVersionPlan(settings, plan, graph, commitSha = "", allowedRemovals = []) {
   const bindings = Array.isArray(settings?.bindings) ? settings.bindings : [];
+  const authorizedRemovals = new Set(normalizeRemovalAuthorization(allowedRemovals));
+  const observedRemovals = new Set();
   const existingByName = new Map(
     bindings
       .filter(binding => binding?.name)
@@ -104,9 +120,13 @@ function buildVersionPlan(settings, plan, graph, commitSha = "") {
     const desiredEntries = desiredByName.get(name);
     const summary = summarizeChanges(currentEntries, desiredEntries);
 
-    if (summary.removed.length) {
+    for (const key of summary.removed) observedRemovals.add(key);
+    const unauthorizedRemovals = summary.removed.filter(
+      key => !authorizedRemovals.has(key)
+    );
+    if (unauthorizedRemovals.length) {
       throw new Error(
-        `${name} would remove production models: ${summary.removed.join(", ")}`
+        `${name} would remove production models without explicit authorization: ${unauthorizedRemovals.join(", ")}`
       );
     }
 
@@ -118,6 +138,15 @@ function buildVersionPlan(settings, plan, graph, commitSha = "") {
 
     targetBindings.push(
       targetBinding(existingByName.get(name), desiredEntries)
+    );
+  }
+
+  const staleRemovalAuthorizations = [...authorizedRemovals]
+    .filter(key => !observedRemovals.has(key))
+    .sort();
+  if (staleRemovalAuthorizations.length) {
+    throw new Error(
+      `authorized model removals are not present in the production diff: ${staleRemovalAuthorizations.join(", ")}`
     );
   }
 
@@ -399,6 +428,9 @@ async function deployProductionModelRegistry(options = {}) {
     options.confirmation ?? process.env.YORUBAY_MODEL_BINDINGS_APPLY ?? "";
   const commitSha =
     options.commitSha ?? process.env.GITHUB_SHA ?? "";
+  const allowedRemovals = normalizeRemovalAuthorization(
+    options.allowedRemovals ?? process.env.YORUBAY_MODEL_REMOVALS ?? ""
+  );
 
   const registry = options.registry || loadRegistry();
   const plan = options.plan || buildModelDeploymentPlan(registry);
@@ -416,11 +448,15 @@ async function deployProductionModelRegistry(options = {}) {
     settings,
     plan,
     graph,
-    commitSha
+    commitSha,
+    allowedRemovals
   );
 
   const hasChanges = Object.values(versionPlan.changes).some(
-    change => change.added.length || change.changed.length
+    change =>
+      change.added.length ||
+      change.removed.length ||
+      change.changed.length
   );
 
   const report = {
@@ -430,6 +466,7 @@ async function deployProductionModelRegistry(options = {}) {
     target_binding_count: versionPlan.target_binding_count,
     inherited_binding_count: versionPlan.inherited_binding_count,
     inherited_binding_types: versionPlan.inherited_binding_types,
+    authorized_model_removals: allowedRemovals,
     inheritance_mode: "strict",
     changes: versionPlan.changes,
     aws: {
@@ -577,6 +614,7 @@ module.exports = {
   fetchLatestDeployment,
   fetchWorkerVersion,
   requireSingleActiveVersion,
+  normalizeRemovalAuthorization,
   summarizeChanges,
   targetBinding,
   uploadWorkerVersion,
