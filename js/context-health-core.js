@@ -60,7 +60,7 @@
   // Show the actual tracker outcome, not just whether the status module exists.
   // "unchanged" is not proof that the scene is current: the model may have
   // returned an empty PATCH while narrative events advanced.
-  function trackerSummary(tracker = {}, enabled = false, pendingTurns = 0) {
+  function trackerSummary(tracker = {}, enabled = false, pendingTurns = null) {
     if (!enabled) return { title: "未啟用追蹤", detail: "此故事沒有啟用自動狀態追蹤。" };
     const phase = text(tracker?.phase);
     const pending = Math.max(0, Math.floor(num(pendingTurns) ?? num(tracker?.pending) ?? 0));
