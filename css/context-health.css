@@ -68,6 +68,25 @@
   color:#d7d2ff;padding:5px 9px;font:inherit;font-size:11px;cursor:pointer;white-space:nowrap
 }
 .context-health-entry:hover,.context-health-entry:focus-visible{border-color:rgba(181,174,255,.44);outline:none}
+
+.context-efficiency{margin-top:15px;padding:14px;border:1px solid var(--yoru-card-border,var(--border));border-radius:16px;background:var(--yoru-card,var(--surface2,#15161d));color:var(--yoru-text,var(--text))}
+.context-efficiency h3{font-size:15px;margin:0}
+.context-efficiency-head{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.context-efficiency-head small,.context-efficiency>p,.context-efficiency-detail p{color:var(--yoru-muted,var(--muted));line-height:1.55;font-size:12px}
+.context-efficiency>p{margin:9px 0}
+.context-efficiency-meter{display:flex;overflow:hidden;gap:2px;height:12px;background:rgba(100,110,130,.17);border-radius:999px}
+.context-efficiency-meter i{height:100%;flex:0 0 auto}
+.context-efficiency-color-platform{background:#8696b1}.context-efficiency-color-world{background:#53b4a1}
+.context-efficiency-color-memory{background:#ae95dc}.context-efficiency-color-worldbook{background:#dbab6b}
+.context-efficiency-color-history{background:#62a7d7}.context-efficiency-color-turn{background:#d985a1}
+.context-efficiency-detail{margin-top:10px}
+.context-efficiency-detail summary{cursor:pointer;font-size:12px;font-weight:700}
+.context-efficiency-rows{display:grid;gap:8px;margin-top:13px}
+.context-efficiency-row{display:grid;grid-template-columns:9px minmax(0,1fr) 50px 90px;gap:8px;align-items:center;font-size:12px}
+.context-efficiency-row small{text-align:right;color:var(--yoru-muted,var(--muted))}
+.context-efficiency-row b{text-align:right}
+.context-efficiency-swatch{display:inline-block;width:9px;height:9px;border-radius:3px}
+
 @media(max-width:720px){
   .context-health-backdrop{align-items:flex-end;padding:0}
   .context-health-panel{
@@ -98,12 +117,16 @@
   .context-health-cards small{display:none}
   .context-health-footer{order:3;display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px;padding-top:8px}
   .context-health-footer button{width:100%;min-height:40px;padding-inline:7px;font-size:11px}
-  .context-health-layers{order:4;margin-top:12px}
+  .context-efficiency{order:3;padding:11px;margin-top:10px}
+  .context-efficiency-row{grid-template-columns:9px minmax(0,1fr) 43px 69px;gap:5px;font-size:11px}
+  .context-efficiency-row small{font-size:10px}
+  .context-health-footer{order:4}
+  .context-health-layers{order:5;margin-top:12px}
   .context-health-section-title p{display:none}
   .context-health-layer-list{gap:6px;margin-top:8px}
   .context-health-layer{padding:9px 10px;gap:8px}
   .context-health-layer small{font-size:10px;line-height:1.35}
-  .context-health-advanced{order:5;margin-top:10px}
+  .context-health-advanced{order:6;margin-top:10px}
 }
 
 
@@ -118,6 +141,7 @@
       "head head"
       "hero layers"
       "cards layers"
+      "efficiency layers"
       "footer advanced";
     gap:12px 18px;
     align-items:start;
@@ -136,6 +160,7 @@
     grid-area:cards;
     margin-top:0
   }
+  .context-efficiency{grid-area:efficiency;margin-top:0}
   .context-health-footer{
     grid-area:footer;
     margin-top:0;
