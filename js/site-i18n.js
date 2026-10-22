@@ -338,6 +338,8 @@
     if (!root) return;
     if (root.nodeType === 3) { translateTextNode(root); return; }
     if (root.nodeType !== 1 || root.closest?.(SKIP)) return;
+    // A bare <option> uses its visible text as the form value. Never change that value.
+    if (root.tagName === "OPTION" && !root.hasAttribute("value")) return;
     translateAttributes(root);
     for (const child of Array.from(root.childNodes || [])) translateTree(child);
   };
