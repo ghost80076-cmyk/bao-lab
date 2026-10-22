@@ -170,6 +170,23 @@
     "顯示成人內容": ["显示成人内容", "Show adult content"],
     "故事留在你的裝置；登入只用於你主動使用的線上服務。": ["故事保存在你的设备；登录仅用于你主动使用的在线服务。", "Stories stay on your device; sign-in is only for online services you choose."],
     "帳號與燈火": ["账号与灯火", "Account & Lights"],
+    "帳號": ["账号", "Account"],
+    "密碼": ["密码", "Password"],
+    "登入": ["登录", "Sign in"],
+    "建立帳號": ["建立账号", "Create account"],
+    "恢復帳號": ["恢复账号", "Recover account"],
+    "我的帳號": ["我的账号", "My account"],
+    "登入夜灣帳號": ["登录夜湾账号", "Sign in to YoruBay"],
+    "顯示名稱": ["显示名称", "Display name"],
+    "登入帳號": ["登录账号", "Login username"],
+    "第一次玩？三步開始 →": ["第一次玩？三步开始 →", "New here? Start in three steps →"],
+    "模型連線完整說明 →": ["模型连接完整说明 →", "Model connection guide →"],
+    "故事仍然留在你手上": ["故事仍然留在你手上", "Your stories stay yours"],
+    "登入不是讀取私人故事的必要條件；自己的連線金鑰（API Key）也不會存進帳號。": ["登录不是读取私人故事的必要条件；自己的连接密钥（API Key）也不会存进账号。", "You do not need to sign in to read local stories. Personal API keys are not saved to your account."],
+    "登入只在你主動使用夜灣燈火與線上服務時需要。自己的模型連線、本地故事、角色、記憶與世界狀態不需要登入。": ["只有主动使用夜湾灯火与在线服务时才需要登录。使用自己的模型连接、本地故事、角色、记忆与世界状态无需登录。", "Sign-in is needed only for optional online services such as YoruBay Lights. Your own API connection and local stories work without it."],
+    "所有作者": ["所有作者", "All creators"],
+    "正在整理作者頁…": ["正在整理作者页…", "Loading creator page…"],
+    "完整連線說明 ↗": ["完整连接说明 ↗", "Connection guide ↗"],
     "帳號與額度": ["账号与额度", "Account & credits"],
     "正在確認帳號狀態…": ["正在检查账号状态…", "Checking account…"],
     "故事優先保存在目前裝置。": ["故事优先保存在当前设备。", "Stories are saved on this device first."],
@@ -247,10 +264,11 @@
   const SKIP = "#chat-stream, #character-list, #character-detail, #chat-character-card, #ui-panel, " +
     "#chat-persona, #chat-model, #home-feature-name, #home-feature-title, " +
     "#home-local-story-name, #home-local-story-preview, #home-character-preview, " +
-    ".brand-paper-prose, .message, [contenteditable], [data-i18n-skip], " +
+    ".brand-paper-prose, .message, .yb-recovery, .yb-wallet, .yb-usage-list, " +
+    "[contenteditable], [data-i18n-skip], " +
     "script, style, noscript, code, pre, textarea";
   const ROOTS = ".topbar, .author-topbar, #home-view, #explore-view, #builder-view, #me-view, #chat-view, " +
-    ".app-shell > footer, .bao-player-modal, .author-page-shell > header, body > header";
+    ".app-shell > footer, .bao-player-modal, .yb-wrap, body > header";
   const originalNodes = new WeakMap();
   const originalAttributes = new WeakMap();
 
@@ -296,7 +314,7 @@
   const titleForLocale = () => t("介面語言");
   const mount = () => {
     if (document.querySelector("[data-yorubay-locale-switch]")) return;
-    const target = document.querySelector(".topbar, .author-topbar-actions, body > header");
+    const target = document.querySelector(".topbar, .author-topbar-actions, .yb-top, body > header");
     if (!target) return;
     const wrapper = document.createElement("label");
     wrapper.className = "yorubay-locale-switch";
