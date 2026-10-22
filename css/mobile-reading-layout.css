@@ -642,3 +642,23 @@
     border-color:var(--yoru-control-border,var(--story-border));
   }
 }
+
+/* Short visual viewports: expanding first-party story status must not crowd
+   out the reading stream or the composer. Authored story HTML is untouched. */
+@media(max-width:820px){
+  #chat-view.active #bao-inline-story-status[open]{
+    min-height:0;
+    max-height:min(180px,calc(var(--bao-mobile-viewport-height,100dvh) * .28))!important;
+    overflow-y:auto!important;
+    overscroll-behavior:contain;
+  }
+  #chat-view.active #bao-inline-story-status[open] > summary{
+    position:sticky;
+    top:0;
+    z-index:2;
+    background:var(--yoru-tool,#101116);
+  }
+  #chat-view.active[data-bao-keyboard-open="true"] #bao-inline-story-status[open]{
+    max-height:min(104px,calc(var(--bao-mobile-viewport-height,100dvh) * .23))!important;
+  }
+}
