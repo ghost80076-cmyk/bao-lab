@@ -22,6 +22,7 @@
       .trim();
   };
   function paint() {
+    if (window.BAOAvatarChat?.enabled?.()) return;
     const stream = document.getElementById('chat-stream');
     if (!stream || !App.activeCharacter || App.config?.offlineWorldPreview) return;
     const nodes = [...stream.querySelectorAll(':scope > .message')];

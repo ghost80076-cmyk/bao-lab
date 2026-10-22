@@ -140,6 +140,7 @@
     const save = sidebar.querySelector('button[onclick*="App.saveStory"]');
     if (save) move(save, quick);
     move(sidebar.querySelector('#bao-scene-controls'), targets.scene);
+    move(sidebar.querySelector('#avatar-chat-controls'), targets.scene);
     move(sidebar.querySelector('[data-open-status-manager]'), targets.world);
     move(sidebar.querySelector('[data-open-world-manager]'), targets.world);
     // Worldbooks contain story lore, not support links: keep their existing
@@ -318,7 +319,7 @@
         detail.append(items);
       }
       if (scene) {
-        scene.querySelectorAll('label').forEach(label => {
+        sidebar.querySelectorAll('#bao-scene-controls label, #avatar-chat-controls label').forEach(label => {
           const original = label.querySelector('select');
           if (!original) return;
           const mirrorLabel = document.createElement('label');

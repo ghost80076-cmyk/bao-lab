@@ -127,10 +127,10 @@
       cardBind.src = 'js/author-regex-card-bind.js?v=4';
       cardBind.onload = () => {
         const inline = document.createElement('script');
-        inline.src = 'js/author-regex-inline.js?v=3';
+        inline.src = 'js/author-regex-inline.js?v=4';
         inline.onload = () => {
           const dock = document.createElement('script');
-          dock.src = 'js/author-regex-dock.js?v=2';
+          dock.src = 'js/author-regex-dock.js?v=3';
           dock.onerror = () => console.warn('BAO/LAB persistent author interface failed to load');
           document.head.appendChild(dock);
         };

@@ -8,8 +8,8 @@
   const DRAFT_KEY_PREFIX = 'bao-lab:persona-builder-draft-v1:';
   const DRAFT_SAVE_DELAY = 650;
   const ADULT_PACK_SRC = 'js/story-actors-adult-pack.js?v=1';
-  const PLAYER_FIELDS = ['name', 'gender', 'age', 'identity', 'appearance', 'personality', 'background', 'abilities', 'relationship', 'extra'];
-  const ACTOR_FIELDS = ['name', 'gender', 'identity', 'appearance', 'personality', 'background', 'voice', 'relationship', 'extra'];
+  const PLAYER_FIELDS = ['avatar', 'name', 'gender', 'age', 'identity', 'appearance', 'personality', 'background', 'abilities', 'relationship', 'extra'];
+  const ACTOR_FIELDS = ['avatar', 'name', 'gender', 'identity', 'appearance', 'personality', 'background', 'voice', 'relationship', 'extra'];
   const packCore = window.BAOStoryActorPackCore || null;
   let adultPackPromise = null;
   const LABELS = {name:'名稱',gender:'性別',age:'年齡',identity:'身分',appearance:'外貌',personality:'個性',background:'背景',abilities:'能力',relationship:'與角色的關係',extra:'補充設定',voice:'說話風格'};
@@ -19,7 +19,7 @@
   const esc = value => App.escapeHTML(String(value ?? ''));
   const id = () => globalThis.crypto?.randomUUID?.() || `actor-${Date.now()}-${Math.random().toString(36).slice(2)}`;
   const trim = (value, limit = 12000) => String(value ?? '').trim().slice(0, limit);
-  const clean = (input, fields) => Object.fromEntries(fields.map(key => [key, trim(input?.[key])]));
+  const clean = (input, fields) => Object.fromEntries(fields.map(key => [key, key === 'avatar' ? (window.BAOAvatarChatCore?.image(input?.avatar) || '') : trim(input?.[key])]));
   const persona = input => clean(input, PLAYER_FIELDS);
   const adultEnabled = () => Boolean(window.BAOContentPreferences?.isAdultContentEnabled?.());
   const portableMeta = input => {
@@ -110,7 +110,7 @@
         if(!record || typeof record.id!=='string' || !record.id || record.id.length>100 || seen.has(record.id) || !record[field] || typeof record[field]!=='object') throw new Error('人物資料或 ID 無效／重複。');
         seen.add(record.id);
         if(typeof record.label!=='string' || record.label.length>80) throw new Error('人物名稱過長或無效。');
-        for(const name of fields) if(record[field][name]!=null && (typeof record[field][name]!=='string' || record[field][name].length>12000)) throw new Error('人物欄位過長或無效：'+name);
+        for(const name of fields) if(record[field][name]!=null && (typeof record[field][name]!=='string' || record[field][name].length>(name==='avatar'?65536:12000))) throw new Error('人物欄位過長或無效：'+name);
         if(!String(record[field].name||'').trim()) throw new Error('人物缺少名稱。');
         const portable=record[field].portable;if(portable&&(typeof portable.core!=='string'||portable.core.length>16000||typeof portable.packId!=='string'||portable.packId.length>100))throw new Error('可攜人物設定過長或無效。');
         return {id:record.id,label:record.label,[field]:normalize(record[field]),savedAt:typeof record.savedAt==='string'?record.savedAt:new Date().toISOString()};
@@ -129,7 +129,7 @@
   }
   function downloadPeople(pack,format='json') {
     const lines=['夜灣人物設定'];
-    for(const [key,field] of [['players','persona'],['actors','actor']])for(const record of pack[key]){lines.push('','【'+(key==='players'?'玩家人物':'AI 人物／NPC')+'】'+record.label);for(const [name,value] of Object.entries(record[field]))if(typeof value==='string'&&value)lines.push((ACTOR_LABELS[name]||name)+'：'+value);}
+    for(const [key,field] of [['players','persona'],['actors','actor']])for(const record of pack[key]){lines.push('','【'+(key==='players'?'玩家人物':'AI 人物／NPC')+'】'+record.label);for(const [name,value] of Object.entries(record[field]))if(name!=='avatar'&&typeof value==='string'&&value)lines.push((ACTOR_LABELS[name]||name)+'：'+value);}
     const url=URL.createObjectURL(new Blob([format==='txt'?'\uFEFF'+lines.join('\n'):JSON.stringify(pack,null,2)],{type:format==='txt'?'text/plain;charset=utf-8':'application/json'}));
     const a=document.createElement('a');a.href=url;const records=[...pack.players,...pack.actors];a.download='夜灣-'+(records.length===1?String(records[0].label).replace(/[\\/:*?"<>|]/g,'-'):'人物庫')+'.'+format;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
   }
@@ -335,6 +335,7 @@
     GameState.current.config = App.config;
     updateLabels();
     App.saveStory?.(false);
+    window.BAOAvatarChat?.refresh?.();
   }
 
   const start = App.startStory.bind(App);
@@ -373,7 +374,7 @@
   const collect = App.collectConfig.bind(App);
   App.collectConfig = function(...args) {
     const config = collect(...args);
-    const additional = Object.fromEntries(['age','appearance','background','abilities'].map(key => [key, document.getElementById(`persona-${key}`)?.value || '']));
+    const additional = Object.fromEntries(['avatar','age','appearance','background','abilities'].map(key => [key, document.getElementById(`persona-${key}`)?.value || '']));
     config.persona = persona({...config.persona, ...additional});
     return config;
   };
@@ -401,8 +402,8 @@
     const state = actors();
     if (!state) return stable;
     const changes = [];
-    if (!same(persona(App.config.persona), persona(state.basePersona))) {
-      changes.push('【玩家角色｜controlled_by=user】', ...PLAYER_FIELDS.map(key => `${LABELS[key]}：${App.config.persona[key] || '未指定'}`), '此人物由玩家控制；AI 不得替玩家決定台詞、心理、選擇或行動。');
+    if (!same(clean(App.config.persona, PLAYER_FIELDS.filter(key => key !== 'avatar')), clean(state.basePersona, PLAYER_FIELDS.filter(key => key !== 'avatar')))) {
+      changes.push('【玩家角色｜controlled_by=user】', ...PLAYER_FIELDS.filter(key => key !== 'avatar').map(key => `${LABELS[key]}：${App.config.persona[key] || '未指定'}`), '此人物由玩家控制；AI 不得替玩家決定台詞、心理、選擇或行動。');
     }
     const activeHosted = state.hostedCharacters.filter(actorAllowed);
     if (activeHosted.length) {
@@ -413,7 +414,7 @@
         const portablePrompt = packCore?.portablePrompt?.(actor);
         if (portablePrompt) changes.push(portablePrompt);
         changes.push(`角色：${actor.name}；類型：${actor.role === 'primary' ? 'AI 主角色' : 'NPC'}；controlled_by=assistant`);
-        changes.push(...ACTOR_FIELDS.filter(key => key !== 'name').map(key => `${ACTOR_LABELS[key]}：${actor[key] || '未指定'}`));
+        changes.push(...ACTOR_FIELDS.filter(key => key !== 'name' && key !== 'avatar').map(key => `${ACTOR_LABELS[key]}：${actor[key] || '未指定'}`));
       }
       changes.push('上述 AI 人物可以互相互動，也可以與原作品 NPC 建立自己的關係、合作、競爭、衝突或離場生活；不要讓所有人物只圍繞玩家。');
       changes.push(`AI 可以演繹上述 controlled_by=assistant 的人物，但不得代替玩家「${App.config.persona.name || '未命名玩家'}」（controlled_by=user）決定言行。`);
@@ -437,10 +438,12 @@
   };
 
   function field(key, value = '') {
+    if (key === 'avatar') return window.BAOPortraitInput?.field(value) || '';
     const content = esc(value);
     return `<label>${esc(LABELS[key] || key)}${MULTI.has(key) ? `<textarea name="${key}" rows="3">${content}</textarea>` : `<input name="${key}" value="${content}">`}</label>`;
   }
   function actorField(key, value = '') {
+    if (key === 'avatar') return window.BAOPortraitInput?.field(value) || '';
     const content = esc(value);
     return `<label>${esc(ACTOR_LABELS[key] || key)}${MULTI.has(key) ? `<textarea name="${key}" rows="3">${content}</textarea>` : `<input name="${key}" value="${content}">`}</label>`;
   }
@@ -457,6 +460,7 @@
       }
       node.value = p[key] || (key === 'gender' ? '未指定' : '');
     });
+    window.BAOPortraitInput?.sync?.();
   }
   function refreshBuilderActors() {
     const list = document.getElementById('bao-builder-actor-list');
@@ -481,6 +485,7 @@
     form._portableMeta = portableMeta(actor.portable);
     ACTOR_FIELDS.forEach(key => { const node = form.elements.namedItem(key); if (node) node.value = actor[key] || ''; });
     form.elements.namedItem('role').value = actor.role || 'additional';
+    window.BAOPortraitInput?.sync?.(form);
   }
   function applyPortableToForm(form, packId) {
     const pack = portableCatalog().find(item => item.id === packId);
@@ -663,6 +668,7 @@
   function installBuilder() {
     const panel = document.querySelector('.builder-step[data-step-panel="3"]');
     if (!panel) return;
+    if (!document.getElementById('persona-avatar') && window.BAOPortraitInput) panel.insertAdjacentHTML('beforeend', BAOPortraitInput.field('', 'persona-avatar'));
     if (!document.getElementById('persona-age')) {
       const more = document.createElement('div');
       more.className = 'bao-persona-more';
@@ -693,6 +699,7 @@
     const form = section.querySelector('form');
     form.onsubmit = event => {
       event.preventDefault();
+      if (form.querySelector('[data-portrait-upload]')?.disabled) return alert('請等待頭像處理完成。');
       const data = formData(form, ACTOR_FIELDS);
       if (!trim(data.name)) return alert('請先為 AI 人物命名。');
       const actor = normalizeActor({...data, id:form.dataset.actorId || id(), role:form.elements.namedItem('role').value, portable:form._portableMeta});
@@ -762,6 +769,7 @@
     if (!dialog) return;
     const form = dialog.querySelector('#bao-actor-form form');
     const feedback = dialog.querySelector('#bao-actor-feedback');
+    if (form.querySelector('[data-portrait-upload]')?.disabled) { feedback.textContent = '請等待頭像處理完成。'; return; }
     const target = dialog.querySelector('#bao-actor-target').value;
     if (target === 'player') {
       const p = persona(formData(form, PLAYER_FIELDS));

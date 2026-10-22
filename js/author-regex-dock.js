@@ -20,7 +20,7 @@
       return saved && saved.enabled === true && Array.isArray(saved.rules) && saved.rules.length ? saved : null;
     } catch (_) { return null; }
   };
-  const enabled = () => Boolean(cardId() && GameState.current && optedIn(cardId()) && settings(cardId()));
+  const enabled = () => Boolean(!window.BAOAvatarChat?.enabled?.() && cardId() && GameState.current && optedIn(cardId()) && settings(cardId()));
   const inChat = () => document.getElementById('chat-view')?.classList.contains('active');
   const safe = (value, max = 120) => String(value ?? '').slice(0, max);
   // Only a small flat object of display preferences may cross the iframe and enter a save.

@@ -406,6 +406,8 @@ jobs:
           node --check js/actor-mode-core.js
           node --check js/actor-mode.js
           node tests/actor-mode-core.cjs
+      - name: Avatar dialogue identity and image safety
+        run: node tests/avatar-chat-core.cjs
       - name: Portable official story actors
         run: |
           node --check js/story-actor-pack-core.js

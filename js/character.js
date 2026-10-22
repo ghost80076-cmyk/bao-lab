@@ -124,6 +124,7 @@ const CharacterEngine = {
       name,
       title,
       avatar: raw.avatar || meta.avatar || "https://picsum.photos/seed/bao-character/800/1000",
+      dialogue: typeof window !== "undefined" && window.BAOAvatarChatCore ? window.BAOAvatarChatCore.normalize(raw.dialogue || presentation.dialogue) : (raw.dialogue || presentation.dialogue || null),
       reading_background: raw.reading_background || presentation.reading_background || presentation.background || raw.background || "",
       rating,
       category,

@@ -48,7 +48,7 @@
     if (!messages.every((message, i) => nodes[i + offset].classList.contains(message.role === "user" ? "user" : "assistant"))) return;
 
     const sceneView = window.BAOSceneChat;
-    const sceneEnabled = sceneView?.prefs?.enabled === true;
+    const sceneEnabled = sceneView?.prefs?.enabled === true && !window.BAOAvatarChat?.enabled?.();
     const renderer = window.BAOSceneHTML;
     const mode = renderer?.prefs?.mode || "native";
     for (let i = 0; i < messages.length; i++) {
@@ -59,7 +59,7 @@
       if (bubble.querySelector(".story-inline-editor")) continue;
       const source = String(message.content || "");
       if (message.role === "user") {
-        const html = App.formatMessage(source);
+        const html = window.BAOAvatarChat?.enabled?.() ? window.BAOAvatarChat.render(source, 'user') : App.formatMessage(source);
         if (bubble.innerHTML !== html) bubble.innerHTML = html;
         continue;
       }

@@ -81,6 +81,7 @@
     return `<section class="bao-scene-card bao-scene-${scene}" style="background:${theme.background};color:${theme.accent};padding:18px;border:${border};border-radius:12px;line-height:1.8;max-width:100%;min-width:0;box-sizing:border-box;overflow-wrap:anywhere;${spacing}"><small style="display:block;opacity:.86;border-bottom:1px solid currentColor;padding-bottom:7px;margin-bottom:10px">${theme.icon} ${theme.label}</small><div>${body}</div></section>`;
   };
   const render = (raw, greeting = false) => {
+    if (window.BAOAvatarChat?.enabled?.()) return window.BAOAvatarChat.render(raw);
     if (greeting && App.activeCharacter?.opening?.posts?.length) return renderStructuredOpening(App.activeCharacter.opening);
     const source = String(raw || '');
     const text = window.BAOYumeArchiveCore?.stripCharacterMarkers?.(source, App.activeCharacter) ?? source;
@@ -301,6 +302,7 @@
   const originalPrompt = App.buildSystemPrompt.bind(App);
   App.buildSystemPrompt = function(...args) {
     const base = originalPrompt(...args);
+    if (window.BAOAvatarChat?.enabled?.()) return `${base}\n\n【玩家排版偏好】使用角色頭像對話模式：旁白獨立成段；每位人物的台詞另起一行，以「人物完整姓名：台詞」呈現。只標記實際發話者，不要替玩家說話。不要輸出 HTML 或圖片網址；圖片由介面配對。原文狀態格式依作品設定保留。`;
     const instructions = {
       native: '【玩家排版偏好】只輸出純文字敘事及對話。不要產生 HTML、CSS、JavaScript、場景標籤或視覺狀態欄。角色卡原有的 HTML 排版要求若與此衝突，以本項玩家選擇為準。',
       efficient: '【玩家排版偏好】優先輸出純文字敘事；只有通訊、動作、調查、奇幻等場景確實需要排版時，才擇一使用 [SCENE:forum]、[SCENE:realistic]、[SCENE:dramatic]、[SCENE:communication]、[SCENE:action]、[SCENE:investigation] 或 [SCENE:fantasy]，並將該場景正文放在 [NARRATION]...[/NARRATION] 中；通訊紀錄可每行使用「發話者：訊息」。沒有適合的場景就直接輸出一般文字。不要杜撰訊息發話者、線索或世界事實；不要輸出 HTML、CSS、JavaScript，也不要為了排版重複敘事。',

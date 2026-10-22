@@ -225,7 +225,7 @@
   };
 
   const inspirationContext = index => {
-    const persona = clipInspirationText(JSON.stringify(App.config?.persona || {}), 900);
+    const persona = clipInspirationText(JSON.stringify(Object.fromEntries(Object.entries(App.config?.persona || {}).filter(([key]) => key !== "avatar"))), 900);
     const recent = Chat.messages.slice(Math.max(0, index - 3), index + 1)
       .map((message, offset, list) => {
         const distance = list.length - 1 - offset;

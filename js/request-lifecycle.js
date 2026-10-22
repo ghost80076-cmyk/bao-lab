@@ -80,9 +80,9 @@
   controls();
   App.__requestLifecyclePatched = true;
   // Real browsers have document.head; headless core tests deliberately do not.
-  if (document.head?.append && !document.querySelector('script[src="js/scene-render-integrity.js"]')) {
+  if (document.head?.append && !document.querySelector('script[src="js/scene-render-integrity.js?v=1"]')) {
     const script = document.createElement('script');
-    script.src = 'js/scene-render-integrity.js';
+    script.src = 'js/scene-render-integrity.js?v=1';
     script.onerror = () => console.warn('BAO/LAB scene render integrity failed to load');
     document.head.append(script);
   }

@@ -12,7 +12,7 @@
     const messages = Chat.messages;
     if (!reader?.render || !Array.isArray(messages) || !App.activeCharacter) return;
     // A separate, explicitly enabled theme owns its own scene cards.
-    if (window.BAOSceneChat?.prefs?.enabled) { window.BAOSceneChat.paint?.(); return; }
+    if (window.BAOSceneChat?.prefs?.enabled && !window.BAOAvatarChat?.enabled?.()) { window.BAOSceneChat.paint?.(); return; }
 
     const nodes = [...stream.querySelectorAll(':scope > .message')];
     const greeting = nodes[0];

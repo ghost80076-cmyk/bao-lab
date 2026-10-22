@@ -143,6 +143,7 @@
   }
   async function refresh() {
     queued = false;
+    if (window.BAOAvatarChat?.enabled?.()) { clear(); return; }
     if (window.BAOAuthorDock?.enabled?.()) { clear(); return; }
     const owner = cardId();
     const data = owner && config(owner);
@@ -157,7 +158,7 @@
     const ticket = ++sequence;
     try {
       const value = await renderInWorker(candidate.source, Core.normalize(data.rules), data.allowScripts === true);
-      if (ticket !== sequence || cardId() !== owner || !candidate.node.isConnected) return;
+      if (ticket !== sequence || cardId() !== owner || !candidate.node.isConnected || window.BAOAvatarChat?.enabled?.()) return;
       if (!value?.matched || !value.rich) { clear(); return; }
       mount(candidate, value, owner, fingerprint, data.allowExternalAssets === true, data.allowStateSharing === true);
     } catch (error) {
