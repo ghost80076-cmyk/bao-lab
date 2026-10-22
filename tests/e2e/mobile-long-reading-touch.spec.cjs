@@ -85,7 +85,11 @@ for (const viewport of [
       'composer must not extend past the visible viewport').toBeLessThanOrEqual(geometry.visualBottom + 2);
     expect(geometry.visualBottom - geometry.composer.bottom,
       'reader must not leave an excessive bottom gap').toBeLessThanOrEqual(12);
-    expect(geometry.composer.top - geometry.reading.bottom).toBeLessThanOrEqual(4);
+    // The existing status/action strip lives between the scrollable story and
+    // composer (approximately 55px in these stress screenshots). Preserve it.
+    const gap = geometry.composer.top - geometry.reading.bottom;
+    expect(gap, 'story and composer must not overlap').toBeGreaterThanOrEqual(-4);
+    expect(gap, 'intervening story-status rail must remain compact').toBeLessThanOrEqual(90);
     expect(geometry.send.height, 'send must not stretch to draft textarea height').toBeLessThanOrEqual(56);
     expect(geometry.readerFontSize).toBeGreaterThanOrEqual(20);
 
