@@ -37,7 +37,7 @@ test.describe('Player 2.0 shell', () => {
     const homeSupport = page.locator('#bao-support-float');
     await expect(homeSupport).toBeVisible();
     await expect(homeSupport).toContainText('投餵肉包');
-    await expect(homeSupport.locator('img[src$="assets/bao-bun.svg"]')).toHaveCount(1);
+    await expect(homeSupport.locator('.bao-character[data-bao-form="bun"]')).toHaveCount(1);
     const mascotButton = page.locator('#bao-mascot-launch');
     await expect(mascotButton).toBeVisible();
     // The mascot intentionally floats; force the synthetic click so Playwright does not wait for a stationary box.
@@ -46,7 +46,7 @@ test.describe('Player 2.0 shell', () => {
     await expect(mascotPanel).toBeVisible();
     const mascotSupport = mascotPanel.getByRole('link', { name: '投餵肉包・支持夜灣' });
     await expect(mascotSupport).toBeVisible();
-    await expect(mascotSupport.locator('img[src$="assets/bao-bun.svg"]')).toHaveCount(1);
+    await expect(mascotSupport.locator('.bao-character[data-bao-form="bun"]')).toHaveCount(1);
     await page.locator('#bao-mascot-close').click();
     await expect(page.locator('.topbar nav [data-bao-regex-link]')).toBeHidden();
     await expect(page.locator('.topbar nav #bao-drive-button')).toBeHidden();

@@ -13,9 +13,9 @@ test.describe('YoruBay official identity and concise community entry', () => {
     await expect(page.locator('#home-library')).toContainText('故事先保存在目前裝置');
     await expect(page.locator('#home-closing')).toBeVisible();
     await expect(page.locator('#home-view .brand-chapter-grid')).toHaveCount(0);
-    const portrait = page.locator('#bao-home-portrait img:not(.bao-portrait-bun)');
+    const portrait = page.locator('#bao-home-portrait .bao-character');
     await expect(portrait).toBeVisible();
-    await expect.poll(() => portrait.evaluate(img => img.complete && img.naturalWidth > 0)).toBe(true);
+    await expect(portrait.locator('.bao-character-frame')).toHaveCSS('background-image', /bao-room\/assets\/bun\.png/);
     await expect(page.locator('#bao-discord-nav')).toHaveCount(0);
     await expect(page.locator('#bao-contact-nav')).toHaveCount(0);
     await expect(page.locator('#home-view .brand-contact')).toHaveCount(0);

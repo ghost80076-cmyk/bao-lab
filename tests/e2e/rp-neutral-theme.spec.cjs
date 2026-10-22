@@ -58,7 +58,7 @@ for (const width of [390, 1440]) {
 test('Bao mascot controls are dark while the mascot image stays intact', async ({ page }) => {
   await page.goto('./');
   await waitForOriginalTheme(page);
-  await expect(page.locator('#bao-home-portrait img')).toBeVisible();
+  await expect(page.locator('#bao-home-portrait .bao-character')).toBeVisible();
   await expect(page.locator('.bao-mascot-launch')).toBeVisible();
   expect((await readBackground(page.locator('.bao-mascot-launch'))).color).toBe('rgb(29, 34, 48)');
   await page.locator('.bao-mascot-launch').click();
