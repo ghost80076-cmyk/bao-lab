@@ -9,6 +9,9 @@ on:
       - 'js/author-regex-inline.js'
       - 'js/author-regex-dock.js'
       - 'js/regex-chat.js'
+      - 'js/regex-chat-worker.js'
+      - 'js/regex-library.js'
+      - 'tests/e2e/regex-chat-worker.spec.cjs'
       - 'tests/e2e/author-regex-inline.spec.cjs'
       - 'tests/e2e/community-author-regex-audit.spec.cjs'
       - 'tests/e2e/unread-afterglow-seoul.spec.cjs'
@@ -29,6 +32,9 @@ on:
       - 'js/author-regex-inline.js'
       - 'js/author-regex-dock.js'
       - 'js/regex-chat.js'
+      - 'js/regex-chat-worker.js'
+      - 'js/regex-library.js'
+      - 'tests/e2e/regex-chat-worker.spec.cjs'
       - 'tests/e2e/author-regex-inline.spec.cjs'
       - 'tests/e2e/community-author-regex-audit.spec.cjs'
       - 'tests/e2e/unread-afterglow-seoul.spec.cjs'
@@ -51,4 +57,4 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup-chromium
-      - run: npm run test:e2e -- tests/e2e/author-regex-inline.spec.cjs tests/e2e/community-author-regex-audit.spec.cjs tests/e2e/author-regex-dock.spec.cjs tests/e2e/author-regex-legacy-input.spec.cjs tests/e2e/author-regex-ui-save.spec.cjs tests/e2e/unread-afterglow-seoul.spec.cjs tests/e2e/midnight-paper-bride-mio.spec.cjs tests/e2e/dont-tell-him.spec.cjs --project=chromium
+      - run: npm run test:e2e -- tests/e2e/author-regex-inline.spec.cjs tests/e2e/community-author-regex-audit.spec.cjs tests/e2e/author-regex-dock.spec.cjs tests/e2e/author-regex-legacy-input.spec.cjs tests/e2e/author-regex-ui-save.spec.cjs tests/e2e/regex-chat-worker.spec.cjs tests/e2e/unread-afterglow-seoul.spec.cjs tests/e2e/midnight-paper-bride-mio.spec.cjs tests/e2e/dont-tell-him.spec.cjs --project=chromium
