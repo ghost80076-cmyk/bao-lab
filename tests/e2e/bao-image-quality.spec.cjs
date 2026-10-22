@@ -20,12 +20,15 @@ for (const viewport of [{ width: 1280, height: 900 }, { width: 390, height: 844 
     const entry = page.locator('#bao-home-portrait');
     await expect(entry).toBeVisible();
     await expect(entry.locator('img')).toHaveCount(0);
+    expect((await entry.locator('.bao-character').boundingBox()).width).toBeLessThanOrEqual(50);
+    expect((await page.locator('#bao-support-float .bao-character').boundingBox()).width).toBeLessThanOrEqual(32);
     await expect(entry.locator('.bao-character-frame')).toHaveCSS('background-image', /bao-room\/assets\/bun\.png/);
     await expect(page.locator('#home-closing .bao-character')).toHaveCount(1);
     await expect(page.locator('#home-closing img')).toHaveCount(0);
     await page.locator('#bao-mascot-launch').click();
     await page.locator('#bao-mascot-transform').click();
     await expect(entry.locator('.bao-character')).toHaveAttribute('data-bao-form', 'human');
+    await expect(entry.locator('.bao-character-frame')).toHaveCSS('background-size', '900% 600%');
     await page.locator('#bao-mascot-motion').click();
     await expect(entry.locator('.bao-character-frame')).toHaveCSS('animation-name', 'none');
     await expect(page.locator('#home-closing .bao-character-frame')).toHaveCSS('animation-name', 'none');

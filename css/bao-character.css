@@ -22,8 +22,8 @@
 #home-view .brand-closing-bao.bao-character{--bao-character-size:72px;width:72px;height:72px}
 
 /* Crop the face for small identity/launcher icons; keep the stage full-body. */
-+.brand-bao-companion>.bao-character,.bao-mascot-avatar>.bao-character{overflow:hidden;border-radius:50%}
-+.brand-bao-companion>.bao-character[data-bao-form="human"]>.bao-character-frame,.bao-mascot-avatar>.bao-character[data-bao-form="human"]>.bao-character-frame{background-size:900% 600%;background-position:calc(12.5% + var(--bao-frame-col,0)*37.5%) calc(var(--bao-frame-row,0)*60%)}
-+.bao-support-icon.bao-character{--bao-character-size:24px;width:24px;height:24px}
+.brand-bao-companion>.bao-character,.bao-mascot-avatar>.bao-character{overflow:hidden;border-radius:50%}
+.brand-bao-companion>.bao-character[data-bao-form="human"]>.bao-character-frame,.bao-mascot-avatar>.bao-character[data-bao-form="human"]>.bao-character-frame{background-size:900% 600%;background-position:calc(12.5% + var(--bao-frame-col,0)*37.5%) calc(var(--bao-frame-row,0)*60%)}
+.bao-support-icon.bao-character{--bao-character-size:24px;width:24px;height:24px}
 
 .bao-mascot--tap .bao-character:not(.bao-character-still)>.bao-character-frame{animation:bao-bun-tap .46s ease-out}
