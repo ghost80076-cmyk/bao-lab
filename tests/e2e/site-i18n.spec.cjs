@@ -33,10 +33,10 @@ for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 
       await expect(page.locator('#bao-chat-api-aside')).toHaveText(label);
       await expect(page.locator('html')).toHaveAttribute('lang', locale);
       await expect(page.locator('#locale-player-fixture')).toHaveText(marker);
-      const explore = page.locator('.topbar nav [data-view="explore"]');
+      const explore = page.locator(viewport.width < 500 ? '#home-view [data-view="explore"]' : '.topbar nav [data-view="explore"]');
       await explore.click();
       await expect(page.locator('#explore-view')).toHaveClass(/active/);
-      await page.locator('.topbar nav [data-view="home"]').click();
+      await page.locator(viewport.width < 500 ? '[data-player-nav="home"]' : '.topbar nav [data-view="home"]').click();
       await expect(page.locator('#home-view')).toHaveClass(/active/);
       expect(await page.evaluate(() => window.BAOPlayerSettings.getLanguage())).toBe(originalStoryLanguage);
     }
@@ -47,7 +47,7 @@ for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 
     await disturbSidebar(page);
     await expect(page.locator('[data-ui-locale-select]')).toHaveValue('zh-Hans');
     await expect(page.locator('#bao-chat-api-aside')).toHaveText('模型连接');
-    await page.locator('.topbar nav [data-view="explore"]').click();
+    await page.locator(viewport.width < 500 ? '#home-view [data-view="explore"]' : '.topbar nav [data-view="explore"]').click();
     await expect(page.locator('#explore-view')).toHaveClass(/active/);
     expect(errors).toEqual([]);
   });
