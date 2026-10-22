@@ -27,3 +27,6 @@
 .bao-support-icon.bao-character{--bao-character-size:24px;width:24px;height:24px}
 
 .bao-mascot--tap .bao-character:not(.bao-character-still)>.bao-character-frame{animation:bao-bun-tap .46s ease-out}
+
+/* Keep the click target fixed; only the character inside it animates. */
+#bao-mascot-root .bao-mascot-launch{animation:none!important;transform:none!important}

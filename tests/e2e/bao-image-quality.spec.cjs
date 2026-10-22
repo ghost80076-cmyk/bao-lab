@@ -25,6 +25,7 @@ for (const viewport of [{ width: 1280, height: 900 }, { width: 390, height: 844 
     await expect(entry.locator('.bao-character-frame')).toHaveCSS('background-image', /bao-room\/assets\/bun\.png/);
     await expect(page.locator('#home-closing .bao-character')).toHaveCount(1);
     await expect(page.locator('#home-closing img')).toHaveCount(0);
+    await expect(page.locator('#bao-mascot-launch')).toHaveCSS('animation-name', 'none');
     await page.locator('#bao-mascot-launch').click();
     await page.locator('#bao-mascot-transform').click();
     await expect(entry.locator('.bao-character')).toHaveAttribute('data-bao-form', 'human');

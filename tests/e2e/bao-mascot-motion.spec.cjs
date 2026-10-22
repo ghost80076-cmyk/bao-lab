@@ -34,6 +34,7 @@ test('native animated mascot opens, responds and switches the introduction in pl
   await switcher.click();
   await expect(root).not.toHaveClass(/bao-mascot--human/);
   await expect(switcher).toHaveAttribute('aria-pressed', 'false');
+  await page.locator('#bao-mascot-close').click();
   await page.locator('[data-bao-page-form=human]').click();
   await expect(root.locator('.bao-character').first()).toHaveAttribute('data-bao-form', 'human');
   await page.reload();
