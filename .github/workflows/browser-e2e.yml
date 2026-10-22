@@ -54,6 +54,8 @@ jobs:
           - group: product-explore
             specs: |
               tests/e2e/bao-dual-form-room.spec.cjs
+              tests/e2e/bao-mascot-motion.spec.cjs
+              tests/e2e/bao-image-quality.spec.cjs
               tests/e2e/avatar-chat.spec.cjs
               tests/e2e/character-import.spec.cjs
               tests/e2e/work-package.spec.cjs

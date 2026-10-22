@@ -45,11 +45,11 @@
     const home = document.getElementById('bao-home-portrait');
     // The current home presentation is a deliberately small companion, not a
     // hero portrait. It should never be replaced with the low-resolution fallback.
-    if (home && !home.classList.contains('brand-bao-companion')) {
+    if (home && !home.querySelector('.bao-character') && !home.classList.contains('brand-bao-companion')) {
       apply(home.querySelector('img:not(.bao-portrait-bun)'), home, true);
     }
     const stage = document.querySelector('.bao-mascot-page .visual');
-    if (stage) apply(stage.querySelector('img.human'), stage, false);
+    if (stage && !stage.classList.contains('bao-native-stage')) apply(stage.querySelector('img.human'), stage, false);
   };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, { once: true });
   else init();

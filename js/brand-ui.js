@@ -57,7 +57,7 @@
             <a class="brand-first-run" href="quick-start">第一次來？三步開始 ↗</a>
           </div>
           <a id="bao-home-portrait" class="brand-bao-companion" href="bao-mascot.html" aria-label="認識夜灣官方吉祥物包包">
-            <img src="assets/bao-human-v2.webp" alt="包包：夜灣官方吉祥物" width="58" height="76" loading="eager"><span>認識包包</span>
+            ${window.BAOCharacter.markup('bun', 'bao-character-follow')}<span>認識包包</span>
           </a>
         </div>
         <button class="brand-feature-stage" id="home-feature-stage" type="button" aria-label="開啟角色：林沉風">
@@ -143,7 +143,7 @@
         </div>
       </section>
       <section id="home-closing" class="brand-closing" aria-labelledby="home-closing-title">
-        <img src="assets/bao-bun.svg" class="brand-closing-bao" alt="包包" width="64" height="64" loading="lazy">
+        ${window.BAOCharacter.markup('bun', 'brand-closing-bao')}
         <p class="brand-section-mark">替你留著燈</p>
         <h2 id="home-closing-title">下一頁，從你開始。</h2>
         <p>選一個作品，把第一句話留給今晚。</p>
@@ -381,7 +381,7 @@
       a.dataset.yorubaySupport = "project";
       a.setAttribute("aria-label", "投餵肉包・選擇支持方式");
       a.title = "投餵肉包・支持夜灣";
-      a.innerHTML = '<img class="bao-support-icon" src="assets/bao-bun.svg" width="24" height="24" alt=""><span>投餵肉包</span>';
+      a.innerHTML = '' + window.BAOCharacter.markup('bun', 'bao-support-icon') + '<span>投餵肉包</span>';
       document.body.appendChild(a);
     }
     wireSupportEntries();

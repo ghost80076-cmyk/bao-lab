@@ -6,6 +6,11 @@ on:
     paths:
       - 'bao-mascot.html'
       - 'bao-room/**'
+      - 'js/bao-character.js'
+      - 'css/bao-character.css'
+      - 'js/brand-ui.js'
+      - 'js/site-ui.js'
+      - 'index.html'
       - 'assets/bao-human-v2.webp'
       - 'js/bao-mascot.js'
       - 'js/bao-image-quality.js'
@@ -32,19 +37,22 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          grep -Fq 'assets/bao-human-v2.webp' bao-mascot.html
+          grep -Fq 'bao-native-stage' bao-mascot.html
+          grep -Fq 'js/bao-character.js' bao-mascot.html
+          grep -Fq 'bao-room/assets/human.png' css/bao-character.css
           grep -Fq 'id="bao-page-open"' bao-mascot.html
           grep -Fq 'js/bao-mascot.js' bao-mascot.html
           grep -Fq 'js/bao-image-quality.js' bao-mascot.html
           grep -Fq 'css/bao-image-quality.css' bao-mascot.html
           grep -Fq 'bao-mascot-transform' js/bao-mascot.js
           grep -Fq 'bao-mascot-motion' js/bao-mascot.js
-          grep -Fq 'bao-bun-eyes' js/bao-mascot.js
+          grep -Fq 'BAOCharacter.set' js/bao-mascot.js
           grep -Fq '@keyframes bao-bun-blink' css/bao-mascot.css
           grep -Fq 'prefers-reduced-motion:reduce' css/bao-mascot.css
           grep -Fq 'bao-image-lowres' js/bao-image-quality.js
           grep -Fq 'bao-portrait-bun' css/bao-image-quality.css
           grep -Fq 'js/bao-image-quality.js' js/bao-visual-ui.js
+          node --check js/bao-character.js
           node --check js/bao-mascot.js
           node --check js/bao-image-quality.js
           node --check js/bao-visual-ui.js
@@ -66,7 +74,8 @@ jobs:
           LIVE_VERIFY_ATTEMPTS: '60'
         run: >-
           bash scripts/verify-live-assets.sh
-          bao-mascot.html assets/bao-human-v2.webp
+          bao-mascot.html index.html js/brand-ui.js js/site-ui.js
+          js/bao-character.js css/bao-character.css
           bao-room/index.html bao-room/style.css bao-room/app.js
           bao-room/assets/bun.png bao-room/assets/human.png
           js/bao-mascot.js css/bao-mascot.css
