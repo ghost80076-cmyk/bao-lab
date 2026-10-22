@@ -99,7 +99,7 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/memory-workbench-ai.js"))
     .then(() => loadBAOScript("js/canon-workbench.js?v=3"))
     .then(() => loadBAOScript("js/memory-workbench-simplify.js?v=2"))
-    .then(() => loadBAOScript("js/chat-markup.js?v=4"))
+    .then(() => loadBAOScript("js/chat-markup.js?v=5"))
     .then(() => loadBAOScript("js/story-tools.js?v=7"))
     .then(() => loadBAOScript("js/context-pack-resume.js"))
     .then(() => loadBAOScript("js/story-library.js?v=10"))

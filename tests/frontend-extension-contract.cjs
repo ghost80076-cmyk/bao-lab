@@ -42,7 +42,7 @@ increasing(index, [
   'src="js/chat.js',
   'src="js/character.js?v=7"',
   'src="js/app.js',
-  'src="js/chat-markup.js?v=4"',
+  'src="js/chat-markup.js?v=5"',
   'src="js/site-ui.js'
 ], "core script");
 
