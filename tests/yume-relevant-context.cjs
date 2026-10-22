@@ -71,3 +71,39 @@ assert.match(misakiPrompt, /兩年前離開夜職/);
 assert.doesNotMatch(misakiPrompt, /[【〔]六人私下設定：桜井りな[】〕]/);
 
 console.log('PASS Yume relevant context: cover character is an entry point, active world NPCs load on demand.');
+
+// Every cast member remains independently retrievable after their lore grows.
+// Merely being in the roster must not load the absent cast's private history.
+for (const person of card.content.profile.cast) {
+  engineContext.window.GameState.current = {
+    location: '街角',
+    npcs: card.content.profile.cast.map(npc => ({
+      name: npc.name, presence: npc.id === person.id ? 'present' : 'away'
+    })),
+    events: []
+  };
+  const prompt = engine.composeSystemPrompt(card, {
+    recentMessages: [{ role: 'user', content: '我問眼前的人接下來有什麼安排。' }]
+  });
+  const { entries } = engineContext.window.BAOLorebook.parse(card.content.lore);
+  const own = entries.find(entry => entry.label.replace('黑', '黒') === person.name);
+  assert.ok(own, person.name);
+  assert.ok(prompt.includes(own.text), `${person.name}: full active lore fits recall budget`);
+  for (const other of entries.filter(entry => entry !== own && /六人私下設定/.test(entry.text))) {
+    assert.ok(!prompt.includes(other.text), `${person.name}: absent ${other.label} stays unloaded`);
+  }
+}
+
+engineContext.window.GameState.current = {
+  location: 'Club Rose', events: [],
+  npcs: [{ name: '桜井りな', presence: 'present' }, { name: '高橋麻美', presence: 'present' }]
+};
+const sharedScene = engine.composeSystemPrompt(card, {
+  recentMessages: [{ role: 'user', content: '我聽她們討論排班。' }]
+});
+const parsed = engineContext.window.BAOLorebook.parse(card.content.lore);
+for (const label of ['桜井りな', '高橋麻美']) {
+  assert.ok(sharedScene.includes(parsed.entries.find(entry => entry.label === label).text));
+}
+assert.ok(!sharedScene.includes(parsed.entries.find(entry => entry.label === '黑羽ゆめ').text));
+console.log('PASS Yume ensemble recall: six independent entries, absent-cast isolation and shared workplace scene.');

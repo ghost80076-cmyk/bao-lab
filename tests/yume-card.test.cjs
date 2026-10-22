@@ -81,3 +81,28 @@ for(const key of ['action','location']) {
   assert.equal(field.context,'relevant');
   assert.equal(field.track,true);
 }
+
+// Exercise real status initialization and updates: one character's defaults and
+// later changes must not become the rest of the cast's psychological state.
+const statusContext = { console, structuredClone };
+statusContext.window = statusContext;
+statusContext.App = { config: {}, activeCharacter: normalized };
+vm.createContext(statusContext);
+for (const script of ['js/state.js', 'js/world-state.js', 'js/character-status.js']) {
+  vm.runInContext(fs.readFileSync(path.join(__dirname, '..', script), 'utf8'), statusContext);
+}
+vm.runInContext('this.stateEngine = GameState;', statusContext);
+statusContext.stateEngine.create(normalized, {});
+const statuses = statusContext.stateEngine.current.characterStatuses;
+assert.match(statuses['黑羽ゆめ'].traits, /依附焦慮/);
+for (const npc of normalized.initial_state.npcs.filter(npc => npc.name !== '黑羽ゆめ')) {
+  assert.equal(statuses[npc.name].traits, '未確認', npc.name);
+}
+statusContext.stateEngine.applyUpdate({ character_statuses: {
+  '桜井りな': { traits: '選擇性信任、隱藏疲憊' }
+}});
+statusContext.BAOCharacterStatus.ensureState(normalized);
+assert.equal(statuses['桜井りな'].traits, '選擇性信任、隱藏疲憊');
+assert.equal(statuses['高橋麻美'].traits, '未確認');
+assert.match(statuses['黑羽ゆめ'].traits, /依附焦慮/);
+console.log('PASS Yume ensemble status: character-specific initialization and independent updates.');
