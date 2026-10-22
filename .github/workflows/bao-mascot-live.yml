@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - 'bao-mascot.html'
+      - 'bao-room/**'
       - 'assets/bao-human-v2.webp'
       - 'js/bao-mascot.js'
       - 'js/bao-image-quality.js'
@@ -66,5 +67,7 @@ jobs:
         run: >-
           bash scripts/verify-live-assets.sh
           bao-mascot.html assets/bao-human-v2.webp
+          bao-room/index.html bao-room/style.css bao-room/app.js
+          bao-room/assets/bun.png bao-room/assets/human.png
           js/bao-mascot.js css/bao-mascot.css
           js/bao-image-quality.js css/bao-image-quality.css js/bao-visual-ui.js

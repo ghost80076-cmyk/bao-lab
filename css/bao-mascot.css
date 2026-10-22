@@ -23,3 +23,5 @@
 @media(max-width:600px){.bao-mascot{right:10px;bottom:calc(10px + env(safe-area-inset-bottom,0px))}.bao-mascot-panel{max-height:calc(100dvh - 95px)}.bao-mascot-launch{padding-right:7px}.bao-mascot-launch-label{font-size:.75rem}.bao-mascot-avatar{width:44px;height:44px}}
 @media(prefers-reduced-motion:reduce){.bao-mascot .bao-mascot-bun,.bao-mascot .bao-bun-eyes,.bao-mascot .bao-mascot-avatar-human{animation:none!important;transition:none!important}}
 .bao-mascot-launch:focus-visible,.bao-mascot button:focus-visible{outline:3px solid #d6aa73;outline-offset:2px}
+
+.bao-mascot-form-note a{color:#f4a8c4;text-underline-offset:3px}
