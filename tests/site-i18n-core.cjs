@@ -18,6 +18,7 @@ const container = { nodeType: 1, closest: () => null, hasAttribute: () => false,
 const doc = {
   readyState: "loading", documentElement: { lang: "zh-Hant" },
   addEventListener() {},
+  getElementById() { return null; },
   querySelectorAll(selector) { return selector.includes(".topbar,") ? [container] : []; },
   querySelector() { return null; }
 };
