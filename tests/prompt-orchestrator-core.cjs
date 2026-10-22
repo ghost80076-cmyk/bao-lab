@@ -31,7 +31,7 @@ assert.equal(
   true,
   "prompt orchestrator must install through App.wrapBuildMessages"
 );
-assert.equal(BAOPromptOrchestrator.version, 5);
+assert.equal(BAOPromptOrchestrator.version, 6);
 assert.match(BAOPromptOrchestrator.playerAgencyRule, /對話選項與行動建議/);
 assert.match(BAOPromptOrchestrator.playerAgencyRule, /不可逆/);
 assert.equal(BAOPromptOrchestrator.familyFor({ model: "google/gemini-3.1-pro-preview", type: "openrouter" }), "gemini");
@@ -93,8 +93,9 @@ for (const model of ["gpt-5.6", "google/gemini-3.1-pro-preview", "anthropic/clau
   const localConfig = { api: { type: "lmstudio", model: "local-model" } };
   const yume = await App.buildMessages(localConfig);
   assert.match(yume[0].content, /【黑羽ゆめ｜語言與場景】/);
-  assert.match(yume[0].content, /自然繁體中文/);
-  assert.match(yume[0].content, /緊接繁中譯文/);
+  assert.match(yume[0].content, /保留日文人名及日本專有詞/);
+  assert.match(yume[0].content, /玩家選定的回覆語言/);
+  assert.doesNotMatch(yume[0].content, /緊接繁中譯文/, "Yume must not override the player language");
   assert.match(yume[0].content, /已進便利店且未離開/);
   assert.match(yume[0].content, /CHAR 角色標籤/);
   assert.doesNotMatch(yume[0].content, /\[CHAR:yume\]/);
