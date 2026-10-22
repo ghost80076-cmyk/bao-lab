@@ -467,6 +467,47 @@
       }
     },
 
+    // Browse metadata without pulling every message, checkpoint and full
+    // snapshot into mobile JS memory. Story/chapter records have tiny payloads
+    // and are already indexed by "kind" in every supported database version.
+    // Keep a fallback for old/test IndexedDB implementations without index().
+    async listLibraryMetadata() {
+      if (!await this.open()) return null;
+      const tx = this._db.transaction(this.storeName, "readonly");
+      const store = tx.objectStore(this.storeName);
+      let stories, chapters;
+      if (typeof store.index === "function" && store.indexNames?.contains?.("kind")) {
+        const byKind = store.index("kind");
+        [stories, chapters] = await Promise.all([
+          this.request(byKind.getAll("story")),
+          this.request(byKind.getAll("chapter"))
+        ]);
+      } else {
+        const records = await this.allRecords();
+        stories = records.filter(record => record.kind === "story");
+        chapters = records.filter(record => record.kind === "chapter");
+      }
+      const chaptersByStory = new Map();
+      for (const chapter of chapters) {
+        if (!chaptersByStory.has(chapter.storyId)) chaptersByStory.set(chapter.storyId, []);
+        chaptersByStory.get(chapter.storyId).push(chapter);
+      }
+      for (const list of chaptersByStory.values()) {
+        list.sort((a, b) => String(a.createdAt || "").localeCompare(String(b.createdAt || "")));
+      }
+      const sorted = stories.map(story => ({
+        ...story,
+        chapterCount: (chaptersByStory.get(story.storyId) || []).length
+      })).sort((a, b) => {
+        if (Boolean(a.pinned) !== Boolean(b.pinned)) return a.pinned ? -1 : 1;
+        return String(b.lastOpenedAt || b.updatedAt || "").localeCompare(String(a.lastOpenedAt || a.updatedAt || ""));
+      });
+      return {
+        stories: sorted,
+        chapterLists: sorted.map(story => chaptersByStory.get(story.storyId) || [])
+      };
+    },
+
     async listStories() {
       const records = await this.allRecords();
       const chapters = records.filter(record => record.kind === "chapter");
