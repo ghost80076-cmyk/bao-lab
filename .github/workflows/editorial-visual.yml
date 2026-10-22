@@ -37,11 +37,19 @@ on:
 jobs:
   visual-and-functional-smoke:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
+    container:
+      image: mcr.microsoft.com/playwright:v1.63.0-noble
+      options: --user 1001
     permissions:
       contents: read
     steps:
       - uses: actions/checkout@v4
-      - uses: ./.github/actions/setup-chromium
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
       - name: Capture responsive pages and check original reading actions
         run: npx playwright test --project=chromium tests/e2e/editorial-visual.spec.cjs tests/e2e/reading-bookshelf.spec.cjs tests/e2e/community-brand.spec.cjs
       - name: Upload screenshots for visual approval
