@@ -5,6 +5,13 @@ on:
     paths:
       - 'js/prompt-orchestrator.js'
       - 'js/player-settings.js'
+      - 'js/site-i18n.js'
+      - 'css/site-i18n.css'
+      - 'index.html'
+      - 'account.html'
+      - 'author.html'
+      - 'quick-start.html'
+      - 'tests/site-i18n-core.cjs'
       - 'data/prompts/*.json'
       - 'data/characters/community/c4/kept-in-frame-lin-youzhen.json'
       - 'tests/natural-dialogue-voice-regression.test.cjs'
@@ -26,11 +33,14 @@ jobs:
       - name: Syntax and targeted regressions
         run: |
           node --check js/prompt-orchestrator.js
+          node --check js/site-i18n.js
+          node --check js/player-settings.js
           node --check tests/natural-dialogue-voice-regression.test.cjs
           node tests/natural-dialogue-voice-regression.test.cjs
           node tests/kept-in-frame-relationship-startup.test.cjs
           node tests/prompt-orchestrator-core.cjs
           node tests/response-language-core.cjs
+          node tests/site-i18n-core.cjs
           node tests/narrative-prompt-pipeline-core.cjs
           node tests/prompt-cache-core.cjs
           node tests/platform-character-prompt-dedup.test.cjs

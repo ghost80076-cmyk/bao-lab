@@ -1,0 +1,23 @@
+/* Small, accessible site-only language control; does not interfere with story tools. */
+.yorubay-locale-switch{
+  display:inline-flex;align-items:center;gap:7px;flex:0 0 auto;
+  color:inherit;font-size:12px;font-weight:500;white-space:nowrap;min-width:0;
+}
+.yorubay-locale-switch .yorubay-locale-label{opacity:.82}
+.yorubay-locale-switch select{
+  width:auto;max-width:145px;min-width:98px;min-height:36px;
+  border:1px solid currentColor;border-radius:9px;padding:5px 24px 5px 8px;
+  font:inherit;color:inherit;background:transparent;cursor:pointer;
+}
+.yorubay-locale-switch select option{color:#20232a;background:#fff}
+.yorubay-locale-switch select:focus-visible{outline:2px solid #ab8c61;outline-offset:3px}
+.topbar > .yorubay-locale-switch{margin-inline-start:8px}
+.author-topbar-actions > .yorubay-locale-switch{margin-inline-start:8px}
+body > header > .yorubay-locale-switch{margin-inline-start:12px}
+@media(max-width:820px){
+  .yorubay-locale-switch .yorubay-locale-label{display:none}
+  .topbar > .yorubay-locale-switch{margin-inline-start:4px}
+  .yorubay-locale-switch select{min-width:91px;max-width:110px;font-size:12px}
+}
+.yb-top{flex-wrap:wrap}
+.yb-top > .yorubay-locale-switch{margin-inline-start:auto}
