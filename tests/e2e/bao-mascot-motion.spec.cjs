@@ -61,11 +61,17 @@ test('mobile mascot stays on screen and hides rather than covering story', async
   await page.goto('/');
   const root = page.locator('#bao-mascot-root');
   await expect(root).toBeVisible();
+  await expect(page.locator('body')).toHaveClass(/bao-mobile-nav-visible/);
+  const launcherBounds = await page.locator('#bao-mascot-launch').boundingBox();
+  const navBounds = await page.locator('#bao-mobile-nav').boundingBox();
+  expect(launcherBounds.y + launcherBounds.height).toBeLessThanOrEqual(navBounds.y - 8);
   await page.locator('#bao-mascot-launch').click();
   await expect(page.locator('#bao-mascot-panel')).toBeVisible();
   const bounds = await page.locator('#bao-mascot-panel').boundingBox();
   expect(bounds).not.toBeNull();
   expect(bounds.x).toBeGreaterThanOrEqual(0);
+  expect(bounds.y).toBeGreaterThanOrEqual(0);
+  expect(bounds.y + bounds.height).toBeLessThanOrEqual(navBounds.y - 8);
   expect(bounds.x + bounds.width).toBeLessThanOrEqual(390);
   await page.evaluate(() => {
     document.getElementById('home-view').classList.remove('active');
