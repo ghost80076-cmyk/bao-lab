@@ -5,7 +5,10 @@
   const R = window.BAORegex;
   const AUTHOR_PREFIX = 'bao-lab:author-regex:v1:';
   const signatures = new WeakMap();
-  let scheduled = false;
+  const pending = new WeakMap();
+  const queue = [];
+  const WORKER_URL = new URL('regex-chat-worker.js', document.currentScript?.src || location.href).href;
+  let scheduled = false, worker = null, busy = false, haltedStamp = null, currentStamp = '';
   const setPlainText = (bubble, value) => {
     const lines = value.split('\n');
     const fragment = document.createDocumentFragment();
@@ -14,6 +17,60 @@
       fragment.appendChild(document.createTextNode(line));
     });
     bubble.replaceChildren(fragment);
+  };
+  // Only one worker operation may run at a time. A catastrophic expression can
+  // always be terminated; never fall back to running it on the UI thread.
+  const pump = () => {
+    if (busy || !queue.length) return;
+    // Newer messages take priority over old history on initial render.
+    const job = queue.pop();
+    if (haltedStamp === job.stamp) {
+      job.deliver(job.source);
+      queueMicrotask(pump);
+      return;
+    }
+    if (!worker) {
+      try {
+        worker = new Worker(WORKER_URL);
+      } catch (error) {
+        haltedStamp = job.stamp;
+        console.warn('BAO/LAB regex worker unavailable; keeping original text', error);
+        job.deliver(job.source);
+        queueMicrotask(pump);
+        return;
+      }
+    }
+    busy = true;
+    let finished = false;
+    let timeout;
+    const finish = (value, failed) => {
+      if (finished) return;
+      finished = true;
+      clearTimeout(timeout);
+      if (failed) {
+        haltedStamp = job.stamp;
+        worker?.terminate();
+        worker = null;
+        console.warn('BAO/LAB regex timed out or failed; keeping original text');
+      }
+      busy = false;
+      job.deliver(failed ? job.source : value);
+      queueMicrotask(pump);
+    };
+    worker.onmessage = event => {
+      const result = event.data;
+      if (result?.ok === true && typeof result.text === 'string') finish(result.text, false);
+      else finish(null, true);
+    };
+    worker.onerror = () => finish(null, true);
+    timeout = setTimeout(() => finish(null, true), 2000);
+    try {
+      worker.postMessage({
+        source: job.source, authorRules: job.authorRules, regexRules: job.regexRules
+      });
+    } catch (_) {
+      finish(null, true);
+    }
   };
   const render = () => {
     scheduled = false;
@@ -31,18 +88,16 @@
     const authorId = String(window.App?.activeCharacter?.id || '').slice(0, 80);
     let authorRules = [];
     try {
-      const Core = window.BAOAuthorRegexCore;
       const saved = authorId ? JSON.parse(localStorage.getItem(AUTHOR_PREFIX + encodeURIComponent(authorId)) || 'null') : null;
-      if (Core && saved?.enabled === true && Array.isArray(saved.rules)) {
-        authorRules = Core.normalize(saved.rules)
-          .filter(rule => rule.enabled && !rule.reason && !rule.rich);
-      }
+      if (saved?.enabled === true && Array.isArray(saved.rules)) authorRules = saved.rules;
     } catch (_) { authorRules = []; }
     const authorActive = authorRules.length > 0;
     const playerState = window.BAOPlayerTextReplace?.get?.() || { active: false, rules: [] };
     const playerActive = playerState.active && playerState.rules.some(rule => rule.enabled && rule.find);
     const active = authorActive || regexActive || playerActive;
     const stamp = JSON.stringify([authorId, authorRules, regexActive, state.rules, playerActive, playerState.rules]);
+    currentStamp = stamp;
+    if (haltedStamp !== stamp) haltedStamp = null;
     nodes.forEach((node, index) => {
       if (!node.classList.contains('assistant') || node.classList.contains('is-streaming')) return;
       const message = records[index - shift];
@@ -54,23 +109,41 @@
       if (!bubble || bubble.querySelector('.story-inline-editor')) return;
       if ([...bubble.querySelectorAll('*')].some(el => el.tagName !== 'BR')) return;
       const previous = signatures.get(bubble);
-      if (!active && !previous) return;
-      const signature = `${String(message.id || index)}|${source}|${stamp}`;
-      let value = source;
-      if (authorActive) {
-        const rendered = window.BAOAuthorRegexCore.render(value, authorRules, false);
-        if (rendered?.matched && !rendered.rich) value = rendered.text;
+      if (!active && !previous && !pending.has(bubble)) return;
+      const signature = String(message.id || index) + '|' + source + '|' + stamp;
+      if (previous?.signature === signature && bubble.textContent === previous.flatValue) return;
+      const display = value => {
+        // Literal player replacements are bounded and contain no regex engine.
+        if (playerActive) value = window.BAOPlayerTextReplace.applyChat(value, playerState);
+        const flatValue = value.replace(/\n/g, '');
+        if (signatures.get(bubble)?.signature === signature && bubble.textContent === flatValue) return;
+        signatures.set(bubble, { signature, flatValue });
+        setPlainText(bubble, value);
+      };
+      if (!authorActive && !regexActive) {
+        pending.delete(bubble);
+        display(source);
+        return;
       }
-      if (regexActive) value = R.apply(value, state.rules);
-      // Player-owned display replacement runs last so it can override author choices.
-      if (playerActive) value = window.BAOPlayerTextReplace.applyChat(value, playerState);
-      const flatValue = value.replace(/\n/g, '');
-      // The reader may repaint the same bubble after our first pass. Compare its
-      // current content as well as its signature before skipping the regex pass.
-      if (previous?.signature === signature && bubble.textContent === flatValue) return;
-      signatures.set(bubble, { signature, flatValue });
-      setPlainText(bubble, value);
+      if (pending.get(bubble) === signature) return;
+      pending.set(bubble, signature);
+      queue.push({
+        stamp, source, authorRules, regexRules: regexActive ? state.rules : [],
+        deliver(value) {
+          if (pending.get(bubble) !== signature) return;
+          pending.delete(bubble);
+          // A previous turn, character or render must never paint over a new one.
+          if (currentStamp !== stamp || !bubble.isConnected || !node.isConnected ||
+              window.Chat?.messages !== records || records[index - shift] !== message ||
+              String(message.content ?? '') !== source ||
+              node.querySelector(':scope > .bubble') !== bubble ||
+              bubble.querySelector('.story-inline-editor') ||
+              [...bubble.querySelectorAll('*')].some(el => el.tagName !== 'BR')) return;
+          display(value);
+        }
+      });
     });
+    pump();
   };
   const schedule = () => {
     if (scheduled) return;

@@ -75,10 +75,14 @@ test('editor exposes description, priority and JSON export without touching mode
 
 test('author plain-text rules run before player-owned replacements', () => {
   const chatSource = fs.readFileSync(path.join(__dirname, '..', 'js', 'regex-chat.js'), 'utf8');
+  const workerSource = fs.readFileSync(path.join(__dirname, '..', 'js', 'regex-chat-worker.js'), 'utf8');
   assert.match(chatSource, /AUTHOR_PREFIX/);
   assert.match(chatSource, /bao:author-regex-changed/);
-  const authorIndex = chatSource.indexOf('BAOAuthorRegexCore.render(value, authorRules, false)');
-  const legacyPlayerIndex = chatSource.indexOf('R.apply(value, state.rules)');
-  const playerIndex = chatSource.indexOf('BAOPlayerTextReplace.applyChat(value, playerState)');
-  assert.ok(authorIndex >= 0 && legacyPlayerIndex > authorIndex && playerIndex > legacyPlayerIndex);
+  // Both regex engines execute in the same killable Worker, in the original order.
+  const authorIndex = workerSource.indexOf('self.BAOAuthorRegexCore.render(value, rules, false)');
+  const legacyIndex = workerSource.indexOf('self.BAORegex.apply(value, data.regexRules)');
+  assert.ok(authorIndex >= 0 && legacyIndex > authorIndex);
+  // Literal player-owned replacement is bounded and runs after Worker output.
+  assert.match(chatSource, /job\.deliver\(failed \? job\.source : value\)/);
+  assert.match(chatSource, /BAOPlayerTextReplace\.applyChat\(value, playerState\)/);
 });
