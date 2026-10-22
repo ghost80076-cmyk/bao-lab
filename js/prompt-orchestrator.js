@@ -43,10 +43,22 @@
   // Keep it in the stable system prefix, not the per-turn anchor or UI cleanup.
   const YUME_OUTPUT_RULE = [
     "【黑羽ゆめ｜語言與場景】",
-    "場景旁白、人物動作及環境描述使用自然繁體中文；保留日文人名及日本專有詞。日語角色可說日文，但應緊接繁中譯文，不能將整段旁白改成日文。",
+    "保留日文人名及日本專有詞。日語角色可以說日文，但翻譯應遵循玩家選定的回覆語言，不得強制使用某一種中文書寫體系。",
     "只輸出可閱讀的敘事與台詞；不要模仿舊回覆中的 CHAR 角色標籤、NARRATION 段落標籤或其結尾標籤。",
     "玩家已進便利店且未離開時，場景就在店內；不得因舊開場再次邀請進店或重問帶傘。依最新行動與已確認事件續寫，不擅自讓其他 NPC 跟著進店。"
   ].join("\n");
+
+  // This governs newly generated story text, not the website UI.
+  // Preserve proper nouns, explicit quotes and schema keys across languages.
+  const OUTPUT_LANGUAGE_RULES = Object.freeze({
+    "zh-Hant": "【玩家指定回覆語言】\n本輪新生成的旁白、敘事與台詞使用繁體中文；角色卡、歷史對話與模板的語言不得改變這項選擇。人名、專有詞、原文引句、程式碼與固定 Schema 欄位保持原樣。",
+    "zh-Hans": "【玩家指定回复语言】\n本轮新生成的旁白、叙述与对话使用简体中文；繁体中文角色卡、历史对话或模板不能覆盖这项选择。人名、专有名词、原文引句、代码与固定 Schema 字段保持原样。",
+    en: "【Player-selected response language】\nWrite all newly generated narration and dialogue in English, even when the character card, story history or templates are in Chinese. Preserve proper nouns, original quotations, code and fixed schema field names. Do not rewrite past messages."
+  });
+  const outputLanguage = () => {
+    const choice = window.BAOPlayerSettings?.getLanguage?.();
+    return Object.prototype.hasOwnProperty.call(OUTPUT_LANGUAGE_RULES, choice) ? choice : "zh-Hant";
+  };
 
   // Only add a model patch where BAO/LAB has an observed failure mode.
   // Modern models that do not need a patch should receive no extra prose coaching.
@@ -141,7 +153,7 @@
     const result = Array.isArray(messages) ? messages.map(message => ({ ...message })) : [];
     const api = config?.api || config || {};
     const yumeRule = this.activeCharacter?.id === "kurobane-yume-kabukicho" ? YUME_OUTPUT_RULE : "";
-    const stableAdapter = [PRIORITY_PROMPT, PLAYER_AGENCY_RULE, SCENE_PARTICIPATION_RULE, DIALOGUE_REALISM_RULE, STATE_CONTINUITY_RULE, guidanceFor(api), yumeRule].filter(Boolean).join("\n\n");
+    const stableAdapter = [PRIORITY_PROMPT, PLAYER_AGENCY_RULE, SCENE_PARTICIPATION_RULE, DIALOGUE_REALISM_RULE, STATE_CONTINUITY_RULE, guidanceFor(api), yumeRule, OUTPUT_LANGUAGE_RULES[outputLanguage()]].filter(Boolean).join("\n\n");
 
     if (result[0]?.role === "system") {
       result[0].content = appendBlock(result[0].content, stableAdapter);
@@ -169,7 +181,9 @@
   }
 
   window.BAOPromptOrchestrator = {
-    version: 5,
+    version: 6,
+    outputLanguage,
+    outputLanguageRules: OUTPUT_LANGUAGE_RULES,
     familyFor,
     guidanceFor,
     priorityPrompt: PRIORITY_PROMPT,
