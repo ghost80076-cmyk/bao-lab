@@ -12,6 +12,8 @@
   };
   const rename = (node, label, help) => {
     if (!node) return;
+    label = window.BAOSiteI18n?.t(label) || label;
+    help = help && (window.BAOSiteI18n?.t(help) || help);
     if (node.textContent.trim() !== label) node.textContent = label;
     if (help && node.title !== help) node.title = help;
   };
