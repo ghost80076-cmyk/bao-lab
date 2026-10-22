@@ -13,6 +13,8 @@
   const dictionary = Object.freeze({
     "首頁": ["首页", "Home"],
     "作品": ["作品", "Stories"],
+    "故事": ["故事", "Stories"],
+    "主要導覽": ["主要导航", "Main navigation"],
     "作者": ["作者", "Creators"],
     "我的": ["我的", "My space"],
     "我的故事": ["我的故事", "My stories"],
@@ -262,13 +264,13 @@
 
   // Protect content that belongs to players/authors or can include LLM output.
   const SKIP = "#chat-stream, #character-list, #character-detail, #chat-character-card, #ui-panel, " +
-    "#chat-persona, #chat-model, #home-feature-name, #home-feature-title, " +
+    "#chat-persona, #chat-model, #chat-title, #home-feature-name, #home-feature-title, " +
     "#home-local-story-name, #home-local-story-preview, #home-character-preview, " +
     ".brand-paper-prose, .message, .yb-recovery, .yb-wallet, .yb-usage-list, " +
     "[contenteditable], [data-i18n-skip], " +
     "script, style, noscript, code, pre, textarea";
-  const ROOTS = ".topbar, .author-topbar, #home-view, #explore-view, #builder-view, #me-view, #chat-view, " +
-    ".app-shell > footer, .bao-player-modal, .yb-wrap, body > header";
+  const ROOTS = ".topbar, .author-topbar, #bao-mobile-nav, #home-view, #explore-view, #builder-view, #me-view, #chat-view, " +
+    ".app-shell > footer, .bao-player-modal, .yb-wrap, body.bao-brand-document > main, body > header";
   const originalNodes = new WeakMap();
   const originalAttributes = new WeakMap();
 
