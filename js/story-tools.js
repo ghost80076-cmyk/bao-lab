@@ -1114,16 +1114,25 @@
     host.innerHTML = '<div class="story-tools-toolbar"><button class="secondary" type="button" data-back>← 返回</button><span class="story-tools-pill">INDEXEDDB STORY LIBRARY</span></div><section class="story-tools-card"><h3>我的故事</h3><p>正在讀取這台裝置上的獨立故事與篇章／分支……</p></section>';
     host.querySelector("[data-back]").onclick = () => GameState.current ? home(host) : close();
     try {
-      const available = await BAOStoryLibrary.flush();
-      if (!available) {
+      // A long story can have queued autosaves. The bookshelf is read-only:
+      // it must not wait for all writes or load full message records just to
+      // display story titles. A pending write can appear after a manual retry.
+      const catalog = await new Promise((resolve, reject) => {
+        const timer = setTimeout(() => reject(new Error("故事資料庫回應較慢。可按「重新讀取」再試；請勿清除網站資料或解除安裝。")), 8000);
+        Promise.resolve().then(() => BAOStoryLibrary.listLibraryMetadata())
+          .then(value => { clearTimeout(timer); resolve(value); },
+            error => { clearTimeout(timer); reject(error); });
+      });
+      if (!host.isConnected) return;
+      if (!catalog) {
         host.innerHTML = '<div class="story-tools-toolbar"><button class="secondary" type="button" data-back>← 返回</button><span class="story-tools-pill">LOCAL STORAGE FALLBACK</span></div>' +
           '<section class="story-tools-card"><h3>這個瀏覽器目前無法使用「我的故事」</h3><p>瀏覽器故事資料庫（IndexedDB）無法使用，因此無法顯示多個獨立故事與篇章／分支。自動存檔、手動存檔與完整 JSON 備份仍會沿用可用的本機儲存方式。</p>' +
           '<div class="story-import-note">建議先匯出完整故事備份；不要清除瀏覽器網站資料。</div></section>';
         host.querySelector("[data-back]").onclick = () => GameState.current ? home(host) : close();
         return;
       }
-      const stories = await BAOStoryLibrary.listStories();
-      const chapterLists = await Promise.all(stories.map(story => BAOStoryLibrary.listChapters(story.storyId)));
+      const stories = catalog.stories;
+      const chapterLists = catalog.chapterLists;
       const active = BAOStoryLibrary.refs();
       const cards = stories.map((story, storyIndex) => {
         const chapters = chapterLists[storyIndex] || [];
@@ -1163,6 +1172,10 @@
         (cards || '<div class="story-library-empty"><b>書架現在還是空的</b><span>從任一角色翻開第一頁；第一次自動存檔後，這段故事就會留在這裡等你回來。</span></div>') +
         (stories.length ? '<div class="story-library-empty" data-story-library-no-results hidden><b>找不到符合的故事</b><span>換個關鍵字，或取消「只看釘選」。</span></div>' : '') + '</section>';
       host.querySelector("[data-back]").onclick = () => GameState.current ? home(host) : close();
+      // Bookshelf cosmetics reuse this already-read metadata snapshot rather
+      // than opening another database read for every chapter.
+      const shell = host.querySelector(".story-library-shell");
+      if (shell) shell.__baoLibraryCatalog = catalog;
       bindMobileHelp(host, "[data-story-library-help]", "story-library-help-open");
       const libraryImportButton = host.querySelector("[data-story-library-import]");
       const libraryImportPicker = host.querySelector("[data-story-library-import-file]");
@@ -1295,8 +1308,10 @@
         }
       }));
     } catch (error) {
-      host.innerHTML = '<div class="story-tools-toolbar"><button class="secondary" type="button" data-back>← 返回</button></div><section class="story-tools-card"><h3>「我的故事」無法開啟</h3><p>' + App.escapeHTML(error.message || String(error)) + '</p></section>';
+      if (!host.isConnected) return;
+      host.innerHTML = '<div class="story-tools-toolbar"><button class="secondary" type="button" data-back>← 返回</button></div><section class="story-tools-card"><h3>「我的故事」暫時無法讀取</h3><p>' + App.escapeHTML(error.message || String(error)) + '</p><p>故事資料仍保留在目前裝置。請勿清除瀏覽器網站資料。</p><button type="button" class="primary" data-story-library-retry>重新讀取</button></section>';
       host.querySelector("[data-back]").onclick = () => GameState.current ? home(host) : close();
+      host.querySelector("[data-story-library-retry]").onclick = () => libraryScreen(host);
     }
   };
 

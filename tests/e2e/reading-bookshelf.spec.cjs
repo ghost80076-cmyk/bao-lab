@@ -148,6 +148,44 @@ for (const width of [320, 390, 900, 1280]) {
   });
 }
 
+test('mobile bookshelf reads indexed metadata without waiting for unrelated queued autosaves', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await openDemoStory(page);
+  await page.evaluate(async () => {
+    App.saveStory(false);
+    await BAOStoryLibrary.flush();
+    // A pending save must never indefinitely block a read-only library index.
+    BAOStoryLibrary._writeQueue = new Promise(() => {});
+    BAOStoryLibrary.allRecords = () => { throw new Error('full-message database scan during bookshelf opening'); };
+    BAOStoryTools.openLibrary();
+  });
+  const shell = page.locator('.story-library-shell');
+  await expect(shell).toBeVisible({ timeout: 4000 });
+  await expect(shell.getByRole('heading', { name: '我的故事' })).toBeVisible();
+  await expect(shell.locator('[data-story-library-card]')).toHaveCount(1);
+  await expect(shell.locator('.bao-shelf-enhanced')).toHaveCount(1);
+});
+
+test('mobile bookshelf shows a retry without wiping player data when metadata read fails', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await openDemoStory(page);
+  await page.evaluate(async () => {
+    App.saveStory(false);
+    await BAOStoryLibrary.flush();
+    const original = BAOStoryLibrary.listLibraryMetadata.bind(BAOStoryLibrary);
+    window.__restoreLibraryMetadataRead = () => { BAOStoryLibrary.listLibraryMetadata = original; };
+    BAOStoryLibrary.listLibraryMetadata = async () => { throw new Error('simulated mobile IndexedDB error'); };
+    BAOStoryTools.openLibrary();
+  });
+  const dialog = page.locator('.story-tools-modal');
+  await expect(dialog.getByText('「我的故事」暫時無法讀取')).toBeVisible();
+  await expect(dialog.getByText('請勿清除瀏覽器網站資料。')).toBeVisible();
+  await page.evaluate(() => window.__restoreLibraryMetadataRead());
+  await dialog.getByRole('button', { name: '重新讀取' }).click();
+  await expect(dialog.locator('.story-library-shell')).toBeVisible();
+  await expect(dialog.locator('[data-story-library-card]')).toHaveCount(1);
+});
+
 test('bookshelf links the active chapter to the existing restore flow', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await openDemoStory(page);

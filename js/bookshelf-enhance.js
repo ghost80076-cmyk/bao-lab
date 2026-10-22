@@ -81,17 +81,19 @@
   const enhance = async shell => {
     if (!shell || shell.dataset.baoShelfRequested) return;
     const library = window.BAOStoryLibrary;
-    if (!library?.listStories || !library?.listChapters) return;
+    if (!library?.listLibraryMetadata) return;
     shell.dataset.baoShelfRequested = 'true';
     try {
-      const stories = await library.listStories();
+      const catalog = shell.__baoLibraryCatalog || await library.listLibraryMetadata();
+      if (!catalog) return;
+      const { stories, chapterLists } = catalog;
       const cards = [...shell.querySelectorAll('.story-library-story')];
       if (!shell.isConnected || stories.length !== cards.length) return;
       installToolbar(shell, stories, cards);
       await Promise.all(stories.map(async (story, index) => {
         const card = cards[index];
         const chapterRows = [...card.querySelectorAll('.story-library-chapter')];
-        const chapters = await library.listChapters(story.storyId);
+        const chapters = chapterLists[index] || [];
         if (!card.isConnected || chapters.length !== chapterRows.length || card.classList.contains('bao-shelf-enhanced')) return;
         const header = card.querySelector(':scope > header');
         const heading = header?.firstElementChild;
