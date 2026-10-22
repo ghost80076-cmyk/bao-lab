@@ -375,9 +375,11 @@
   const refreshSwitcher = () => {
     for (const select of document.querySelectorAll("[data-ui-locale-select]")) {
       select.value = locale;
-      select.setAttribute("aria-label", titleForLocale());
+      if (select.getAttribute("aria-label") !== titleForLocale()) select.setAttribute("aria-label", titleForLocale());
     }
-    for (const label of document.querySelectorAll(".yorubay-locale-label")) label.textContent = titleForLocale();
+    for (const label of document.querySelectorAll(".yorubay-locale-label")) {
+      if (label.textContent !== titleForLocale()) label.textContent = titleForLocale();
+    }
   };
   const apply = () => {
     document.documentElement.lang = locale;

@@ -27,6 +27,7 @@ jobs:
         include:
           - group: mobile-reading
             specs: |
+              tests/e2e/site-i18n.spec.cjs
               tests/e2e/experience-preferences.spec.cjs
               tests/e2e/context-health.spec.cjs
               tests/e2e/player-settings-theme.spec.cjs
