@@ -9,8 +9,8 @@ for (const width of [390, 1440]) {
       Storage.status().ready && window.BAOSceneStoryPreferences && App.__nativeAutonomousWorldStart &&
       document.getElementById('bao-demo-mode'), null, { timeout: 20000 });
 
-    await page.evaluate(() => {
-      App.openCharacter('autonomous-npc-world');
+    await page.evaluate(async () => {
+      await App.openCharacter('autonomous-npc-world');
       App.openBuilder();
       document.getElementById('bao-demo-mode').checked = true;
       document.querySelector('input[name="display-mode"][value="text"]').checked = true;
