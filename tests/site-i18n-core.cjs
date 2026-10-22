@@ -13,8 +13,14 @@ const ui = text("首頁");
 const sent = text("送出");
 const story = text("首頁", true);
 const character = text("我的", true);
+const implicitLabel = text("男性");
+const explicitLabel = text("女性");
+const implicitOption = { nodeType: 1, tagName: "OPTION", closest: () => null,
+  hasAttribute: () => false, childNodes: [implicitLabel] };
+const explicitOption = { nodeType: 1, tagName: "OPTION", closest: () => null,
+  hasAttribute: attr => attr === "value", childNodes: [explicitLabel] };
 const container = { nodeType: 1, closest: () => null, hasAttribute: () => false,
-  childNodes: [ui, sent, story, character] };
+  childNodes: [ui, sent, story, character, implicitOption, explicitOption] };
 const doc = {
   readyState: "loading", documentElement: { lang: "zh-Hant" },
   addEventListener() {},
@@ -39,6 +45,8 @@ assert.equal(i18n.setLocale("en"), "en");
 assert.equal(ui.nodeValue, "Home");
 assert.equal(sent.nodeValue, "Send");
 assert.equal(story.nodeValue, "首頁", "author/player chat content must remain untouched");
+assert.equal(implicitLabel.nodeValue, "男性", "implicit option values must not change");
+assert.equal(explicitLabel.nodeValue, "Female", "options with stable values may localize");
 assert.equal(character.nodeValue, "我的", "character content must remain untouched");
 assert.equal(doc.documentElement.lang, "en");
 assert.equal(storage.get(i18n.storageKey), "en");
@@ -79,6 +87,8 @@ for (const page of ["index.html", "account.html", "author.html", "quick-start.ht
   const html = fs.readFileSync(path.join(__dirname, "..", page), "utf8");
   assert.match(html, /js\/site-i18n\.js\?v=1/, page + " should load interface localization");
   assert.match(html, /css\/site-i18n\.css\?v=1/, page + " should style the interface switch");
+  if (page === "index.html") assert.match(html, /<option value="男性">男性<\/option>/,
+    "gender form values must remain stable while visible labels change");
 }
 const source = read("site-i18n.js");
 assert.match(source, /#chat-stream/);
