@@ -54,6 +54,7 @@
   }
   const settings = Object.assign({}, defaults, storedSettings);
   settings.demoMode = false;
+  if (!["zh-Hant", "zh-Hans", "en"].includes(settings.language)) settings.language = defaults.language;
   if (settings.replyLength === "free") settings.replyLength = "auto";
   if (!["card", "named"].includes(settings.dialogueFormat)) settings.dialogueFormat = "card";
   settings.appearance = Object.assign({}, defaults.appearance, settings.appearance || {});
@@ -124,13 +125,18 @@
     const body = `<div class="bao-setting-section"><h3>回覆長度</h3><p>控制輸出密度，不影響記憶模式。短適合快速對話；長要求完整場景；自動會依日常、戰鬥、轉折等情況調整。</p><div class="bao-choice-grid">${choiceButtons("replyLength", ["short","long","auto"], settings.replyLength)}</div></div>
     <div class="bao-setting-section"><h3>敘事人稱</h3><p>「角色第一人稱」中的我固定是 AI 主要角色；「玩家第二人稱」中的你／妳固定是玩家 Persona。</p><div class="bao-choice-grid two">${choiceButtons("pov", ["card","first","second","third"], settings.pov)}</div></div>
     <div class="bao-setting-section"><h3>對話格式</h3><p>這只控制台詞標示方式，與敘事人稱分開。AI 不會因此替玩家編造台詞。</p><div class="bao-choice-grid two">${choiceButtons("dialogueFormat", ["card","named"], settings.dialogueFormat)}</div></div>
-    <div class="bao-setting-section"><h3>回覆語言</h3><div class="bao-choice-grid">${choiceButtons("language", ["en","zh-Hans","zh-Hant"], settings.language)}</div></div>`;
+    <div class="bao-setting-section"><h3>AI 回覆語言</h3><p>只控制之後由模型生成的敘事與對話，不翻譯網站介面、歷史訊息或既有角色卡。語言變更從下一次送出訊息開始生效。</p><div class="bao-choice-grid">${choiceButtons("language", ["en","zh-Hans","zh-Hant"], settings.language)}</div></div>`;
+    const draft = { replyLength: settings.replyLength, pov: settings.pov, dialogueFormat: settings.dialogueFormat, language: settings.language };
     const modal = showModal("回覆設定", body, wrap => {
       wrap.querySelectorAll("[data-setting]").forEach(btn => btn.addEventListener("click", () => {
-        settings[btn.dataset.setting] = btn.dataset.value;
+        draft[btn.dataset.setting] = btn.dataset.value;
         wrap.querySelectorAll(`[data-setting="${btn.dataset.setting}"]`).forEach(x => x.classList.toggle("active", x === btn));
       }));
-      wrap.querySelector(".bao-modal-save").addEventListener("click", () => { saveSettings(); closeModal(); });
+      wrap.querySelector(".bao-modal-save").addEventListener("click", () => {
+        Object.assign(settings, draft);
+        saveSettings();
+        closeModal();
+      });
     });
     return modal;
   };
@@ -471,10 +477,12 @@
 
   window.BAOPlayerSettings = {
     get: () => JSON.parse(JSON.stringify(settings)),
+    getLanguage: () => settings.language,
     // Rollback uses a trusted get() snapshot, including transient preview state.
     // Raw persisted preferences are restored separately by Storage.
     restoreRuntime: value => {
       const previous = JSON.parse(JSON.stringify(value));
+      if (!["zh-Hant", "zh-Hans", "en"].includes(previous.language)) previous.language = defaults.language;
       Object.keys(settings).forEach(key => delete settings[key]);
       Object.assign(settings, previous);
       applyAppearance();
@@ -482,6 +490,7 @@
     set: value => {
       const next = Object.assign({}, defaults, value && typeof value === "object" ? value : {});
       next.demoMode = false;
+      if (!["zh-Hant", "zh-Hans", "en"].includes(next.language)) next.language = defaults.language;
       if (next.replyLength === "free") next.replyLength = "auto";
       if (!["card", "named"].includes(next.dialogueFormat)) next.dialogueFormat = "card";
       next.appearance = Object.assign({}, defaults.appearance, next.appearance || {});
