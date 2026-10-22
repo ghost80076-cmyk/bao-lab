@@ -26,6 +26,11 @@ jobs:
           node-version: 22
       - name: Minimal usage signals
         run: node tests/usage-signals-core.cjs
+      - name: Regex chat worker regression
+        run: |
+          node --check js/regex-chat-worker.js
+          node --check js/regex-chat.js
+          node --test tests/regex-chat-worker.test.cjs
       - name: Qiao Yining native card integration
         run: node tests/qiao-yining-card.cjs
       - name: Bai Jin native card integration
