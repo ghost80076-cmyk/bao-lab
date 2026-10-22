@@ -22,6 +22,20 @@ class FakeNames {
 class FakeStore {
   constructor(db) { this.db = db; this.indexNames = new FakeNames(db.indexes); }
   createIndex(name) { this.db.indexes.add(name); return {}; }
+  index(name) {
+    if (!this.db.indexes.has(name)) throw new Error("Index missing: " + name);
+    return {
+      getAll(value) {
+        const request = new FakeRequest();
+        setTimeout(() => {
+          request.result = [...global.indexedDB.db.records.values()]
+            .filter(record => record[name] === value).map(record => structuredClone(record));
+          request.onsuccess?.();
+        }, 0);
+        return request;
+      }
+    };
+  }
   getAll() {
     const request = new FakeRequest();
     setTimeout(() => { request.result = [...this.db.records.values()].map(value => structuredClone(value)); request.onsuccess?.(); }, 0);
@@ -296,6 +310,23 @@ vm.runInThisContext(code, { filename: "js/story-library.js" });
   assert.equal(code.includes("async setStoryPinned(storyId, pinned = true)"), true);
   assert.equal(code.includes("async markStoryOpened(storyId, openedAt = new Date().toISOString())"), true);
   assert.equal(code.includes("if (Boolean(a.pinned) !== Boolean(b.pinned))"), true);
+  // Index-backed bookshelf reads must not deserialize message or checkpoint
+  // payloads. Long stories can have thousands of large message records.
+  const originalAllRecords = BAOStoryLibrary.allRecords;
+  BAOStoryLibrary.allRecords = () => { throw new Error("Bookshelf attempted full DB scan"); };
+  try {
+    const catalog = await BAOStoryLibrary.listLibraryMetadata();
+    assert.ok(catalog, "native library catalog exists");
+    assert.equal(catalog.stories.length, catalog.chapterLists.length);
+    assert.ok(catalog.stories.some(story => story.storyId === parentToDelete.storyId));
+    assert.equal(catalog.chapterLists.find((_, i) => catalog.stories[i].storyId === parentToDelete.storyId).length, 1);
+    assert.ok(catalog.chapterLists.every(list => list.every(record => record.kind === "chapter")));
+    assert.equal(catalog.stories.some(story => story.storyId === firstRefs.storyId), false,
+      "deleted story never reappears in the index-backed view");
+  } finally {
+    BAOStoryLibrary.allRecords = originalAllRecords;
+  }
+
   console.log("story library core test passed");
 })().catch(error => {
   console.error(error);
