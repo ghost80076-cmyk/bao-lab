@@ -189,6 +189,17 @@
     "🧠 記憶管理": ["🧠 记忆管理", "🧠 Memory"],
     "✦ 聊天外觀": ["✦ 聊天外观", "✦ Chat appearance"],
     "回覆長度": ["回复长度", "Reply length"],
+    "快速推進 · 約 300～600 字": ["快速推进 · 约 300～600 字", "Quick scenes · around 300–600 Chinese characters"],
+    "完整描寫 · 約 900～1500 字": ["完整描写 · 约 900～1500 字", "Full scenes · around 900–1500 Chinese characters"],
+    "依場景密度調整": ["依场景密度调整", "Adjust to the scene"],
+    "沒有設定時採第三人稱": ["未设置时使用第三人称", "Third-person by default"],
+    "旁白「我」＝ AI 主要角色": ["旁白“我”＝ AI 主要角色", "Narrator “I” = main AI character"],
+    "旁白「你／妳」＝玩家": ["旁白“你”＝玩家", "Narrator “you” = player"],
+    "雙方使用名稱或代詞": ["双方使用名称或代词", "Use names or pronouns"],
+    "角色名稱：「對話」": ["角色名称：“对话”", "Name: dialogue"],
+    "控制輸出密度，不影響記憶模式。短適合快速對話；長要求完整場景；自動會依日常、戰鬥、轉折等情況調整。": ["控制输出密度，不影响记忆模式。短适合快速对话；长要求完整场景；自动依日常、战斗、转折等情况调整。", "Adjusts response length without changing memory. Short for quick scenes, long for richer scenes, automatic for context."],
+    "「角色第一人稱」中的我固定是 AI 主要角色；「玩家第二人稱」中的你／妳固定是玩家 Persona。": ["“角色第一人称”中的我固定是 AI 主要角色；“玩家第二人称”中的你固定是玩家 Persona。", "In first-person, “I” is the AI character; in second-person, “you” is the player persona."],
+    "這只控制台詞標示方式，與敘事人稱分開。AI 不會因此替玩家編造台詞。": ["仅控制台词标示方式，与叙事人称分开。AI 不会因此替玩家编造台词。", "Changes dialogue labels independently of narrative perspective; the AI must not invent player dialogue."],
     "敘事人稱": ["叙事人称", "Narrative perspective"],
     "對話格式": ["对话格式", "Dialogue format"],
     "AI 回覆語言": ["AI 回复语言", "AI response language"],
@@ -340,9 +351,14 @@
           // Child-only listening avoids mutation loops and stays cheap during streaming.
           const parent = mutation.target?.nodeType === 1 ? mutation.target : mutation.target?.parentElement;
           if (parent?.closest?.(SKIP)) continue;
-          const relevant = parent?.closest?.(ROOTS);
-          if (!relevant && !parent?.matches?.(ROOTS)) continue;
-          for (const node of mutation.addedNodes) translateTree(node);
+          const relevant = parent?.closest?.(ROOTS) || parent?.matches?.(ROOTS);
+          for (const node of mutation.addedNodes) {
+            if (relevant) { translateTree(node); continue; }
+            // A modal or a new My-space view may be mounted outside existing roots.
+            if (node.nodeType !== 1) continue;
+            if (node.matches?.(ROOTS)) translateTree(node);
+            for (const inner of node.querySelectorAll?.(ROOTS) || []) translateTree(inner);
+          }
         }
         if (!document.querySelector("[data-yorubay-locale-switch]")) mount();
       });
