@@ -70,3 +70,7 @@
 只將這兩個手機版按鈕的寬度／flex basis／min-width 統一為 44px。保留原本的高度、位置、操作 handler、對話內容、模組及狀態欄；同時調整動態載入 CSS query 版號避免舊快取。
 
 新增真實 demo 故事入口測試，在 320／360／390px 注入不經 AI 的長篇 shell 壓力訊息、模擬大量未送出的玩家文字、測試自訂大字號呈現與底部操作尺寸，檢查正文仍可捲動、頁面無橫向溢出、輸入區與草稿留存，並產生 screenshot 供檢視。這不等於真實行動裝置 200% zoom 或 OS 虛擬鍵盤驗收；鍵盤平移與收合沿用既有 mobile viewport 測試。
+
+### CI 截圖複核追加：長草稿下的送出按鈕高度
+
+新增壓力案例第一版於三種寬度的按鈕寬度、文字閱讀、輸入區尺寸等檢查已達標，但測試發現輸入框 focus 時的 bottom 座標與 `innerHeight` 相差約 7px。重看失敗截圖另發現 `align-self:stretch` 會使「送出」按鈕在輸入框撐高時跟著變成巨大直立按鈕，確屬可見的 UX 問題。修正為 52px 固定高度並與底部工具對齊，同時測試改為依照 `visualViewport.offsetTop + visualViewport.height` 判定可視底邊（含 focus/keyboard viewport 變動），增加送出按鈕高度上限斷言。後續以重新執行的 CI 結果為準。
