@@ -19,3 +19,5 @@ body > header > .yorubay-locale-switch{margin-inline-start:12px}
   .topbar > .yorubay-locale-switch{margin-inline-start:4px}
   .yorubay-locale-switch select{min-width:91px;max-width:110px;font-size:12px}
 }
+.yb-top{flex-wrap:wrap}
+.yb-top > .yorubay-locale-switch{margin-inline-start:auto}
