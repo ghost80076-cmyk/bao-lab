@@ -40,9 +40,9 @@ increasing(index, [
   'src="js/helper-data.js?v=3"',
   'src="js/episodic-memory-core.js?v=6"',
   'src="js/chat.js',
-  'src="js/character.js?v=6"',
+  'src="js/character.js?v=7"',
   'src="js/app.js',
-  'src="js/chat-markup.js?v=4"',
+  'src="js/chat-markup.js?v=5"',
   'src="js/site-ui.js'
 ], "core script");
 
@@ -68,7 +68,7 @@ increasing(siteUI, [
   'then(() => worldModulesReady)',
   'loadBAOScript("js/three-realms-events.js?v=3")',
   'loadBAOScript("js/streaming-ui.js',
-  'loadBAOScript("js/request-lifecycle.js?v=2")'
+  'loadBAOScript("js/request-lifecycle.js?v=3")'
 ], "story extension");
 
 // Modules without their own global idempotency guard currently rely on the loader;

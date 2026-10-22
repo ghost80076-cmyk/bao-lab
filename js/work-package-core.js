@@ -105,7 +105,7 @@
     const regex=manifest.regex?jsonFile(files,manifest.regex):null;
     if(regex){character.import_metadata ||= {};character.import_metadata.work_package_regex=regex;}
     if(assets.length){character.asset_manifest={version:1,assets};for(const asset of assets){if(asset.role==='cover'){character.avatar='yorubay-asset://'+asset.id;if(object(character.meta))character.meta.avatar=character.avatar;}if(asset.role==='background'){character.reading_background='yorubay-asset://'+asset.id;character.presentation ||= {};character.presentation.reading_background=character.reading_background;}}}
-    for(const ref of [character.avatar,character.meta?.avatar,character.reading_background,character.presentation?.reading_background])if(typeof ref==='string'&&ref.startsWith('yorubay-asset://')&&!assets.some(a=>a.id===ref.slice(16)))throw new Error('圖片引用沒有對應原圖：'+ref);
+    for(const ref of [character.avatar,character.meta?.avatar,character.reading_background,character.presentation?.reading_background,...(character.dialogue?.cast||character.presentation?.dialogue?.cast||[]).map(person=>person?.avatar)])if(typeof ref==='string'&&ref.startsWith('yorubay-asset://')&&!assets.some(a=>a.id===ref.slice(16)))throw new Error('圖片引用沒有對應原圖：'+ref);
     character.import_metadata ||= {};character.import_metadata.package_adaptation=clone(manifest.adaptation||{});
     return {character,assets:assets.map(asset=>({...asset,bytes:files[asset.path]})),regex,manifest:clone(manifest),files};
   }

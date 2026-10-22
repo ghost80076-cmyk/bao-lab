@@ -52,6 +52,7 @@ jobs:
               tests/e2e/semantic-theme-contrast.spec.cjs
           - group: product-explore
             specs: |
+              tests/e2e/avatar-chat.spec.cjs
               tests/e2e/character-import.spec.cjs
               tests/e2e/work-package.spec.cjs
               tests/e2e/player-portability.spec.cjs

@@ -6,6 +6,11 @@ const card={schema_version:'1.5',meta:{id:'package-test',name:'作品包測試'}
 async function main(){
   card.gameplay.initial_state.worldbookLibrary.pinned.port=structuredClone(card.gameplay.initial_state.worldbookLibrary.installed[0]);
   card.gameplay.initial_state.worldbookLibrary.pinned.port.entries[0].content='固定版本完整原文';
+  const portraitCard=structuredClone(card);portraitCard.presentation={dialogue:{version:1,mode:'avatar_chat',cast:[{id:'main',name:'小雨',avatar:'yorubay-asset://port'}]}};
+  assert.throws(()=>Core.build({character:portraitCard}),/圖片引用沒有對應原圖/);
+  const portraitPack=Core.build({character:portraitCard,assets:[{id:'port',path:'assets/port.png',role:'portrait'}],files:{'assets/port.png':png}});
+  const portraitFiles=await Core.unzip(portraitPack.bytes);
+  assert.equal(Core.assemble(Core.jsonFile(portraitFiles,'manifest.json'),portraitFiles).character.presentation.dialogue.cast[0].avatar,'yorubay-asset://port');
   const original=JSON.stringify(card),regex={regex_scripts:[{findRegex:'(.*)',replaceString:'<img src="embeded://assets/port.png">$1'}]};
   const packed=Core.build({character:card,regex,assets:[{id:'port',path:'assets/port.png',role:'scene',when:[{path:'location',equals:'碼頭'}]}],files:{'assets/port.png':png,'source/original.json':Core.jsonBytes({secret_plot:'原作秘密'})}});
   assert.equal(JSON.stringify(card),original);

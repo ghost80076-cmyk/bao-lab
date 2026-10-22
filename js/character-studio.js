@@ -155,6 +155,33 @@
   }
   const confirmDiscard = () => !dirty || window.confirm('目前的變更還沒儲存為草稿。確定離開這張卡嗎？');
 
+  function renderDialogueCast() {
+    const container = $('studio-dialogue-cast');
+    if (!container) return;
+    container.replaceChildren();
+    for (const person of window.BAOAvatarChatCore.normalize(base.dialogue).cast) addDialoguePerson(person);
+  }
+  function addDialoguePerson(person = {}) {
+    const container = $('studio-dialogue-cast');
+    if (container.children.length >= 12) return status('最多 12 位作者預設人物；故事中還可以由玩家加入 NPC。');
+    const row = document.createElement('div'); row.className = 'avatar-cast-row'; row.dataset.personId = person.id || id();
+    row.innerHTML = '<label>發話者姓名<input data-cast-name maxlength="100" placeholder="角色姓名，不是作品標題"></label><label>別名（逗號分隔）<input data-cast-aliases maxlength="800"></label>' + window.BAOPortraitInput.field(person.avatar || '', '', 'cast_avatar') + '<button type="button" data-remove-person>移除人物</button>';
+    row.querySelector('[data-cast-name]').value = person.name || '';
+    row.querySelector('[data-cast-aliases]').value = (person.aliases || []).join('、');
+    row.querySelector('[data-remove-person]').onclick = () => {row.remove(); dirty=true;};
+    container.append(row);
+  }
+  function readDialogue() {
+    const rows = [...$('studio-dialogue-cast').children];
+    if (rows.some(row => !row.querySelector('[data-cast-name]').value.trim())) throw new Error('請填寫頭像對應的角色姓名，或移除空白人物。');
+    if (rows.some(row => row.querySelector('[data-portrait-upload]').disabled)) throw new Error('請等待頭像處理完成。');
+    return window.BAOAvatarChatCore.normalize({mode:field('dialogue_mode').value, cast:rows.map(row => ({
+      id:row.dataset.personId, name:row.querySelector('[data-cast-name]').value,
+      aliases:row.querySelector('[data-cast-aliases]').value.split(/[,，、]/), avatar:row.querySelector('input[name="cast_avatar"]').value
+    }))});
+  }
+  $('studio-add-dialogue-person')?.addEventListener('click', () => {addDialoguePerson(); dirty=true;});
+
   function readCard() {
     const name = text('name');
     const world = text('mode') === 'world';
@@ -169,6 +196,7 @@
       id: text('id'), name, title: name,
       category: text('category') || 'general', rating: text('rating') === 'adult' ? 'adult' : 'general',
       description: text('description'), avatar: avatar || DEFAULT_IMAGE,
+      dialogue: readDialogue(),
       tags, quote: text('quote'), greeting: text('greeting'),
       system_prompt: text('system_prompt'),
       profile: profileText ? { 'AI 主角色設定': profileText } : {},
@@ -184,6 +212,8 @@
     const c = engine.normalize(card || {});
     loading = true;
     base = c;
+    if (field('dialogue_mode')) field('dialogue_mode').value = c.dialogue?.mode || 'standard';
+    renderDialogueCast();
     draftId = chosenDraftId;
     for (const key of ['id', 'name', 'category', 'rating', 'description', 'quote', 'greeting', 'system_prompt', 'world', 'lore', 'npc_rules', 'author_instructions', 'creator_notes']) field(key).value = c[key] || '';
     field('avatar').value = c.avatar === DEFAULT_IMAGE || c.avatar.includes('picsum.photos/seed/bao-character') ? '' : c.avatar;
@@ -294,7 +324,7 @@
       meta: { id: c.id, name: c.name, title: c.title, category: c.category, rating: c.rating, avatar: c.avatar, description: c.description, tags: c.tags, gender: c.gender, audience: c.audience, categories: c.categories },
       content: { greeting: c.greeting, system_prompt: c.system_prompt, quote: c.quote, profile: c.profile, world: c.world, lore: c.lore, npc_rules: c.npc_rules, author_instructions: c.author_instructions, creator_notes: c.creator_notes, world_focus: c.world_focus, dynamic_prompts: c.dynamic_prompts },
       gameplay: { supported_modes: c.supported_modes, initial_state: c.initial_state, world_modules: c.world_modules, character_status: c.character_status, prompt: c.prompt_options, ...(c.gameplay_ui ? { ui_schema: c.gameplay_ui } : {}) },
-      presentation: { supported_display: c.supported_display, ui: c.ui, narrative: c.narrative_profile }
+      presentation: { dialogue: c.dialogue, supported_display: c.supported_display, ui: c.ui, narrative: c.narrative_profile }
     };
     if (includeMetadata && c.import_metadata) obj.import_metadata = c.import_metadata;
     return obj;
