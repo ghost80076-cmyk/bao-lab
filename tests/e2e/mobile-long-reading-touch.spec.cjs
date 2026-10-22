@@ -60,7 +60,10 @@ for (const viewport of [
       return {
         tools, inspire, input, send, composer, reading,
         bodyWidth: document.documentElement.scrollWidth, viewportWidth: innerWidth,
-        screenHeight: innerHeight, scrollTop: stream.scrollTop,
+        screenHeight: innerHeight,
+        visualBottom: (window.visualViewport?.offsetTop || 0) + (window.visualViewport?.height || innerHeight),
+        visualOffsetTop: window.visualViewport?.offsetTop || 0,
+        scrollTop: stream.scrollTop,
         canScroll: stream.scrollHeight > stream.clientHeight,
         readerFontSize: parseFloat(getComputedStyle(text).fontSize)
       };
@@ -76,8 +79,12 @@ for (const viewport of [
     expect(geometry.scrollTop).toBeGreaterThan(0);
     expect(geometry.input.width).toBeGreaterThan(95);
     expect(geometry.input.height).toBeLessThanOrEqual(169);
-    expect(Math.abs(geometry.composer.bottom - geometry.screenHeight)).toBeLessThanOrEqual(4);
+    // Focus can slightly shrink/pan the visual viewport even without an on-screen
+    // keyboard in an emulated browser. Align to what the reader actually sees.
+    expect(Math.abs(geometry.composer.bottom - geometry.visualBottom),
+      'composer bottom must follow the visible viewport').toBeLessThanOrEqual(4);
     expect(geometry.composer.top - geometry.reading.bottom).toBeLessThanOrEqual(4);
+    expect(geometry.send.height, 'send must not stretch to draft textarea height').toBeLessThanOrEqual(56);
     expect(geometry.readerFontSize).toBeGreaterThanOrEqual(20);
 
     fs.mkdirSync('test-results/mobile-long-reading-touch', { recursive: true });
