@@ -3,7 +3,7 @@ const { test, expect } = require('@playwright/test');
 async function setup(page, width, legacy = false) {
   await page.setViewportSize({ width, height: 900 });
   await page.goto('./');
-  await page.waitForFunction(() => window.BAONarrativeSettings && window.BAOPromptCache && window.BAOPromptOrchestrator && App.characters?.length);
+  await page.waitForFunction(() => window.BAONarrativeSettings && window.BAOPromptCache && window.BAOPromptOrchestrator && window.BAOStoryControlCenter && Storage.status().ready && App.characters?.length);
   await page.evaluate(legacy => {
     // Deliberately reverse catalog order: merely opening the UI must not reorder a saved prompt.
     BAONarrativeSettings.set({ stylePacks: ['realist_subtext', 'natural'], storyExtras: ['threads', 'daily'],
