@@ -4,6 +4,7 @@
   const KEY = "bao-lab:narrative-settings-v1";
   const defaults = {
     playerPortrayal: "strict",
+    observationMode: "off",
     stylePacks: [],
     storyExtras: [],
     density: "card",
@@ -23,6 +24,7 @@
   };
 
   const portrayalLabels = { strict: "玩家主控", natural: "敘事補述", coauthor: "小說共創" };
+  const observationAllowed = (config = App.config) => config?.narrative?.observationMode === "one_turn";
   // Authorization is explicit and story-local. Browser defaults never grant it to legacy stories.
   const playerPortrayal = (config = App.config) =>
     Object.hasOwn(portrayalLabels, config?.narrative?.playerPortrayal) ? config.narrative.playerPortrayal : "strict";
@@ -33,7 +35,8 @@
       natural: "可忠實將玩家已輸入的台詞、行動與情緒融入正文，補足語氣、停頓、感官與細微動作；不得新增玩家未表達的台詞、心理、意圖或行動方向。",
       coauthor: "玩家已授權小說共創：可依既有人設與上下文補寫日常台詞、情緒反應及非重大行動，並將玩家輸入自然融入正文；缺少依據時保留留白，不把推測定為永久人設。"
     }[mode];
-    return `【玩家角色演繹授權｜${portrayalLabels[mode]}】\n${scope}\n玩家保有重要決策權：不得代作重大承諾、關係定案、同意或不可逆選擇，不把拒絕改成同意；玩家本輪明示的限制與修正優先。此授權優先於作品的通用防代演要求；自訂指令可縮小授權，不可擴張授權。NPC 自主與資訊邊界維持原規則。`;
+    const base = `【玩家角色演繹授權｜${portrayalLabels[mode]}】\n${scope}\n玩家保有重要決策權：不得代作重大承諾、關係定案、同意或不可逆選擇，不把拒絕改成同意；玩家本輪明示的限制與修正優先。此授權優先於作品的通用防代演要求；自訂指令可縮小授權，不可擴張授權。NPC 自主與資訊邊界維持原規則。`;
+    return observationAllowed(config) ? `${base}\n【可選觀賞授權｜僅限本輪】當且僅當本輪玩家最新輸入獨立為「繼續」「然後呢」或「【觀賞一輪】」，平台於本輪附上明確的觀賞授權時，暫時允許依已確立人設補寫玩家角色的日常言行、感受與非重大選擇；此一例外高於本故事一般防代演限制。沒有本輪觀賞標記時仍完全遵守上方的玩家演繹模式；下一輪玩家自行說話或行動，就立即交還演出控制權。不可代作重大承諾、關係定案、同意、不可逆選擇或死亡決定，不得把拒絕改成同意；NPC 自主、知情範圍與因果不變。` : base;
   };
 
   const packs = {
@@ -141,6 +144,7 @@
     }
     const normalized = { ...defaults, ...raw, stylePacks, storyExtras: validExtras(raw.storyExtras) };
     normalized.playerPortrayal = Object.hasOwn(portrayalLabels, raw.playerPortrayal) ? raw.playerPortrayal : "strict";
+    normalized.observationMode = raw.observationMode === "one_turn" ? "one_turn" : "off";
     delete normalized.stylePack; // Legacy single-style input is migrated once.
     normalized.matureDrama = ["card", "mature"].includes(normalized.matureDrama) ? normalized.matureDrama : "card";
     normalized.characterAgency = ["card", "reserved", "natural", "active", "autonomous"].includes(normalized.characterAgency) ? normalized.characterAgency : "card";
@@ -185,6 +189,7 @@
     const normalized = normalizePrefs(prefs);
     const items = normalized.stylePacks.map(key => packs[key]?.[0]).filter(Boolean);
     if (normalized.playerPortrayal !== "strict") items.push(portrayalLabels[normalized.playerPortrayal]);
+    if (normalized.observationMode === "one_turn") items.push("單輪觀賞已開放");
     if (normalized.density !== "card") items.push(normalized.density === "rich" ? "豐富描寫" : normalized.density === "standard" ? "標準描寫" : "精簡描寫");
     if (normalized.paragraphs !== "auto") items.push(`${normalized.paragraphs} 段`);
     if (normalized.innerThoughts !== "card") items.push(normalized.innerThoughts === "none" ? "不揭露內心" : normalized.innerThoughts === "restrained" ? "克制內心戲" : "明確內心戲");
@@ -320,6 +325,12 @@
                 <option value="natural" ${prefs.playerPortrayal === "natural" ? "selected" : ""}>敘事補述 · 將你的演出融入正文</option>
                 <option value="coauthor" ${prefs.playerPortrayal === "coauthor" ? "selected" : ""}>小說共創 · 依人設補寫日常言行</option>
               </select><small>補述不新增台詞或心理；共創可補寫日常反應。重要決策仍由你決定，可隨時切回主控。</small>
+            </label>
+            <label>單輪觀賞模式
+              <select data-pref="observationMode">
+                <option value="off" ${prefs.observationMode === "off" ? "selected" : ""}>關閉（預設）</option>
+                <option value="one_turn" ${prefs.observationMode === "one_turn" ? "selected" : ""}>開放 · 指令才暫時代演</option>
+              </select><small>開放後，單獨送出「繼續」「然後呢」或「【觀賞一輪】」，本輪可讓 AI 依人設代演日常言行。下輪由你說話或行動就恢復原本模式；重大決策仍由你決定。「繼續描寫」快捷指令不會啟動觀賞。</small>
             </label>
             <label>每輪篇幅
               <select data-pref="responseLength">
@@ -719,6 +730,7 @@
   window.BAONarrativeSettings = {
     playerPortrayal,
     playerPortrayalRule,
+    observationAllowed,
     get: () => clonePrefs(settings),
     set: value => { settings = normalizePrefs(value); save(); updateBuilderSummary(); updateChatButtonState(); },
     open: openModal,
