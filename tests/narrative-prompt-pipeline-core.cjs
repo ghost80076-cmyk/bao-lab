@@ -187,6 +187,18 @@ assert.equal(
     assert.equal(effective.includes("允許 AI 替玩家決定同意。"), false);
   }
 
+  // Two optional story-level features share the existing cached system preference layer.
+  App.config = { api: { model: "google/gemini-3.1-pro-preview" }, narrative: { sceneFocus: "protect", storyExpectation: "希望重建信任，但不保證和好。" } };
+  const directionFirst = await App.buildMessages(App.config);
+  const directionSecond = await App.buildMessages(App.config);
+  assert.deepEqual(directionSecond, directionFirst, "unchanged story direction must preserve prompt bytes");
+  const stable = directionFirst[0].content;
+  assert.match(stable, /【場景投入保護】/);
+  assert.match(stable, /玩家場外劇情期待｜非角色意圖/);
+  assert.match(stable, /希望重建信任，但不保證和好/);
+  assert.doesNotMatch(directionFirst.at(-1).content, /希望重建信任/);
+  App.config.narrative = {};
+  assert.doesNotMatch(JSON.stringify(await App.buildMessages(App.config)), /【場景投入保護】|玩家場外劇情期待/);
   console.log("narrative prompt pipeline core test passed");
 })().catch(error => {
   console.error(error);
