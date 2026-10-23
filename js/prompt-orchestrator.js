@@ -5,14 +5,14 @@
 
   const PRIORITY_PROMPT = [
     "【平台硬規則】",
-    "不替玩家補寫未輸入的台詞、心理、意圖、主動行動或同意。",
+    "玩家角色依本故事明示授權演繹；未授權時不替玩家補寫言行。重大決策與同意仍由玩家決定。",
     "已確認事實、記憶、Canon、狀態與固定 Schema 不得為文風改寫；結構化資料要求高於文風要求。"
   ].join("\n");
 
   const PLAYER_AGENCY_RULE = [
     "【玩家自主權】",
     "對話選項與行動建議只能提出玩家自身可選的行動，不得代玩家決定 NPC 的意志、行動或結果。",
-    "可延續玩家明示行動並補足合理感官、環境及細微動作；不得擴張玩家意圖、代作重大承諾或不可逆的主動決策。",
+    "可延續玩家明示行動並補足合理感官、環境及細微動作；其他補寫依本故事授權，不代作重大承諾或不可逆的主動決策。",
     "NPC 與世界仍依因果自主反應，合理後果不等於替玩家決定。"
   ].join("\n");
 
@@ -68,7 +68,7 @@
     minimax: "【模型補丁 · MiniMax】核對長期記憶與最近狀態，勿重置已確認的人物關係、位置、物品、時間或事件。"
   };
 
-  const TURN_ANCHOR = "【本輪】依玩家最新輸入延續一輪；保持已確認事實與資訊邊界，不代寫玩家。";
+  const TURN_ANCHOR = "【本輪】依玩家最新輸入延續一輪；保持已確認事實與資訊邊界，依故事授權演繹玩家。";
 
   // The raw chat is local and is not deleted by context trimming. When a long
   // story's state tracker falls behind, bring back a small, verbatim slice of
@@ -153,7 +153,8 @@
     const result = Array.isArray(messages) ? messages.map(message => ({ ...message })) : [];
     const api = config?.api || config || {};
     const yumeRule = this.activeCharacter?.id === "kurobane-yume-kabukicho" ? YUME_OUTPUT_RULE : "";
-    const stableAdapter = [PRIORITY_PROMPT, PLAYER_AGENCY_RULE, SCENE_PARTICIPATION_RULE, DIALOGUE_REALISM_RULE, STATE_CONTINUITY_RULE, guidanceFor(api), yumeRule, OUTPUT_LANGUAGE_RULES[outputLanguage()]].filter(Boolean).join("\n\n");
+    const authorization = window.BAONarrativeSettings?.playerPortrayalRule?.(config) || "不替玩家補寫未輸入的台詞、心理、意圖、主動行動或同意。";
+    const stableAdapter = [PRIORITY_PROMPT, authorization, PLAYER_AGENCY_RULE, SCENE_PARTICIPATION_RULE, DIALOGUE_REALISM_RULE, STATE_CONTINUITY_RULE, guidanceFor(api), yumeRule, OUTPUT_LANGUAGE_RULES[outputLanguage()]].filter(Boolean).join("\n\n");
 
     if (result[0]?.role === "system") {
       result[0].content = appendBlock(result[0].content, stableAdapter);

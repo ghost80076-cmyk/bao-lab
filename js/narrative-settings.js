@@ -3,6 +3,7 @@
 
   const KEY = "bao-lab:narrative-settings-v1";
   const defaults = {
+    playerPortrayal: "strict",
     stylePacks: [],
     storyExtras: [],
     density: "card",
@@ -17,6 +18,20 @@
     pacing: "card",
     dialogueBalance: "card",
     customInstructions: []
+  };
+
+  const portrayalLabels = { strict: "玩家主控", natural: "敘事補述", coauthor: "小說共創" };
+  // Authorization is explicit and story-local. Browser defaults never grant it to legacy stories.
+  const playerPortrayal = (config = App.config) =>
+    Object.hasOwn(portrayalLabels, config?.narrative?.playerPortrayal) ? config.narrative.playerPortrayal : "strict";
+  const playerPortrayalRule = (config = App.config) => {
+    const mode = playerPortrayal(config);
+    const scope = {
+      strict: "不替玩家補寫未輸入的台詞、心理、意圖或主動行動；可延續明示行動並補足合理感官、環境及細微動作。",
+      natural: "可忠實將玩家已輸入的台詞、行動與情緒融入正文，補足語氣、停頓、感官與細微動作；不得新增玩家未表達的台詞、心理、意圖或行動方向。",
+      coauthor: "玩家已授權小說共創：可依既有人設與上下文補寫日常台詞、情緒反應及非重大行動，並將玩家輸入自然融入正文；缺少依據時保留留白，不把推測定為永久人設。"
+    }[mode];
+    return `【玩家角色演繹授權｜${portrayalLabels[mode]}】\n${scope}\n玩家保有重要決策權：不得代作重大承諾、關係定案、同意或不可逆選擇，不把拒絕改成同意；玩家本輪明示的限制與修正優先。此授權優先於作品的通用防代演要求；自訂指令可縮小授權，不可擴張授權。NPC 自主與資訊邊界維持原規則。`;
   };
 
   const packs = {
@@ -70,7 +85,7 @@
     }).filter(Boolean).slice(0, CUSTOM_INSTRUCTION_LIMIT);
   };
 
-  const classifyInstruction = value => {
+  const classifyInstruction = (value, prefs = {}) => {
     const text = cleanInstructionText(value);
     if (!text) return { kind: "empty", message: "" };
 
@@ -80,12 +95,15 @@
     if (/(NPC|角色).{0,12}(可以|允許|應該|必須).{0,16}(上帝視角|全知|知道所有|未在場.{0,6}知道)/i.test(text)) {
       return { kind: "conflict", message: "這條會破壞角色資訊邊界；夜灣不會把它送進故事 Prompt。" };
     }
-    if (/(可以|允許|請|應該|必須).{0,16}(AI|模型|系統)?.{0,10}(替|代替).{0,8}玩家.{0,16}(決定|描寫|描述|補寫).{0,8}(心理|想法|台詞|行動|選擇|同意)/i.test(text)) {
-      return { kind: "conflict", message: "這條會讓 AI 取得玩家控制權；夜灣不會把它送進故事 Prompt。" };
+    if (/(可以|允許|請|應該|必須).{0,24}(替|代替).{0,8}玩家.{0,16}(決定|描寫|描述|補寫).{0,8}(重大|同意|承諾|不可逆)/i.test(text)) {
+      return { kind: "conflict", message: "重要決策仍由玩家決定；小說共創也不授權這類代作決定。" };
+    }
+    if (prefs.playerPortrayal !== "coauthor" && /(可以|允許|請|應該|必須).{0,16}(AI|模型|系統)?.{0,10}(替|代替).{0,8}玩家.{0,16}(決定|描寫|描述|補寫).{0,8}(心理|想法|台詞|行動|選擇|同意)/i.test(text)) {
+      return { kind: "conflict", message: "這條超出目前的玩家角色演繹授權；可在上方選擇「小說共創」。" };
     }
 
-    if (/(禁止|不得|不要|嚴禁).{0,18}(AI|模型)?.{0,10}(替|代替|補寫)?.{0,8}玩家.{0,18}(心理|想法|心聲|台詞|行動|決定|選擇|同意)/i.test(text)
-      || /玩家.{0,10}(心理|想法|心聲).{0,10}(留白|不描寫|不得描寫)/i.test(text)) {
+    if ((prefs.playerPortrayal || "strict") === "strict" && (/(禁止|不得|不要|嚴禁).{0,18}(AI|模型)?.{0,10}(替|代替|補寫)?.{0,8}玩家.{0,18}(心理|想法|心聲|台詞|行動|決定|選擇|同意)/i.test(text)
+      || /玩家.{0,10}(心理|想法|心聲).{0,10}(留白|不描寫|不得描寫)/i.test(text))) {
       return { kind: "redundant", message: "夜灣已預設保護玩家控制權；這條會自動去重，不再重複送出。" };
     }
     if (/(NPC|角色).{0,14}(禁止|不得|不能|不要|嚴禁).{0,16}(上帝視角|全知|讀取未在場|未在場.{0,6}(資訊|事件|心聲))/i.test(text)
@@ -98,10 +116,10 @@
     return { kind: "custom", message: "會作為本故事的長期寫作偏好送給模型。" };
   };
 
-  const effectiveCustomInstructions = value => {
+  const effectiveCustomInstructions = (value, prefs = {}) => {
     const seen = new Set();
     return normalizeCustomInstructions(value).filter(item => item.enabled).filter(item => {
-      const classification = classifyInstruction(item.text);
+      const classification = classifyInstruction(item.text, prefs);
       if (classification.kind === "conflict" || classification.kind === "redundant") return false;
       const fingerprint = instructionFingerprint(item.text);
       if (!fingerprint || seen.has(fingerprint)) return false;
@@ -117,6 +135,7 @@
       stylePacks = [raw.stylePack];
     }
     const normalized = { ...defaults, ...raw, stylePacks, storyExtras: validExtras(raw.storyExtras) };
+    normalized.playerPortrayal = Object.hasOwn(portrayalLabels, raw.playerPortrayal) ? raw.playerPortrayal : "strict";
     delete normalized.stylePack; // Legacy single-style input is migrated once.
     normalized.matureDrama = ["card", "mature"].includes(normalized.matureDrama) ? normalized.matureDrama : "card";
     normalized.characterAgency = ["card", "reserved", "natural", "active", "autonomous"].includes(normalized.characterAgency) ? normalized.characterAgency : "card";
@@ -147,10 +166,8 @@
   const close = () => document.querySelector(".bao-modal-backdrop")?.remove();
   const isStoryLocal = () => Boolean(document.getElementById("chat-view")?.classList.contains("active") && App.config);
   const clonePrefs = prefs => ({ ...prefs, stylePacks: [...prefs.stylePacks], storyExtras: [...prefs.storyExtras], customInstructions: prefs.customInstructions.map(item => ({ ...item })) });
-  const activePrefs = () => {
-    if (isStoryLocal() && App.config?.narrative) return normalizePrefs(App.config.narrative);
-    return normalizePrefs(settings);
-  };
+  const resolvedPrefs = (config = App.config) => normalizePrefs(config?.narrative || { ...settings, playerPortrayal: "strict" });
+  const activePrefs = () => isStoryLocal() ? resolvedPrefs() : normalizePrefs(settings);
 
   const worldFocus = () => {
     const raw = App.activeCharacter?.world_focus || [];
@@ -160,6 +177,7 @@
   const summaryItems = prefs => {
     const normalized = normalizePrefs(prefs);
     const items = normalized.stylePacks.map(key => packs[key]?.[0]).filter(Boolean);
+    if (normalized.playerPortrayal !== "strict") items.push(portrayalLabels[normalized.playerPortrayal]);
     if (normalized.density !== "card") items.push(normalized.density === "rich" ? "豐富描寫" : normalized.density === "standard" ? "標準描寫" : "精簡描寫");
     if (normalized.paragraphs !== "auto") items.push(`${normalized.paragraphs} 段`);
     if (normalized.innerThoughts !== "card") items.push(normalized.innerThoughts === "none" ? "不揭露內心" : normalized.innerThoughts === "restrained" ? "克制內心戲" : "明確內心戲");
@@ -172,7 +190,7 @@
     if (normalized.responseLength !== "card") items.push(normalized.responseLength === "short" ? "短篇幅" : normalized.responseLength === "medium" ? "中篇幅" : "長篇幅");
     if (normalized.pacing !== "card") items.push(normalized.pacing === "slow" ? "慢節奏" : normalized.pacing === "balanced" ? "平衡節奏" : "較快推進");
     if (normalized.dialogueBalance !== "card") items.push(normalized.dialogueBalance === "dialogue" ? "對話較多" : normalized.dialogueBalance === "balanced" ? "對話描寫平衡" : "描寫較多");
-    const customCount = effectiveCustomInstructions(normalized.customInstructions).length;
+    const customCount = effectiveCustomInstructions(normalized.customInstructions, normalized).length;
     if (customCount) items.push(`自訂指令 ${customCount}`);
     return items;
   };
@@ -243,7 +261,7 @@
       const count = card.querySelector("[data-instruction-count]");
       const text = cleanInstructionText(area?.value || "");
       if (count) count.textContent = `${String(area?.value || "").length} / ${CUSTOM_INSTRUCTION_CHARS}`;
-      let classification = classifyInstruction(text);
+      let classification = classifyInstruction(text, { playerPortrayal: wrap.querySelector('[data-pref="playerPortrayal"]')?.value || "strict" });
       const fingerprint = instructionFingerprint(text);
       if (fingerprint && seen.has(fingerprint)) {
         classification = { kind: "duplicate", message: "與上方另一條相同；送出時只保留一份。" };
@@ -287,6 +305,13 @@
           <div class="tonight-current" data-tonight-current aria-live="polite"></div>
         </section>
         <section class="tonight-section" aria-labelledby="tonight-response"><h3 id="tonight-response">回覆方式 <span>篇幅、節奏與角色互動</span></h3><div class="narrative-select-grid">
+            <label>玩家角色演繹
+              <select data-pref="playerPortrayal">
+                <option value="strict" ${prefs.playerPortrayal === "strict" ? "selected" : ""}>玩家主控 · 沿用原有程度</option>
+                <option value="natural" ${prefs.playerPortrayal === "natural" ? "selected" : ""}>敘事補述 · 將你的演出融入正文</option>
+                <option value="coauthor" ${prefs.playerPortrayal === "coauthor" ? "selected" : ""}>小說共創 · 依人設補寫日常言行</option>
+              </select><small>補述不新增台詞或心理；共創可補寫日常反應。重要決策仍由你決定，可隨時切回主控。</small>
+            </label>
             <label>每輪篇幅
               <select data-pref="responseLength">
                 <option value="card" ${prefs.responseLength === "card" ? "selected" : ""}>沿用回覆設定</option>
@@ -350,7 +375,7 @@
           <div class="narrative-instruction-heading"><div><h3>自訂長期指令</h3><p>只放「AI 應該怎麼寫」；劇情事實、NPC 資料與關係請放記憶／Canon。每條最多 ${CUSTOM_INSTRUCTION_CHARS} 字，${storyLocal ? "只修改目前故事" : "會成為新故事的起始偏好"}。</p></div><span class="chip" data-instruction-total>0 / ${CUSTOM_INSTRUCTION_LIMIT}</span></div>
           <div class="narrative-instruction-list" data-instruction-list>${prefs.customInstructions.map(instructionCardHTML).join("")}</div>
           <button type="button" class="secondary narrative-instruction-add" data-add-instruction>＋ 新增長期指令</button>
-          <div class="narrative-token-note"><strong>自動去重：</strong>夜灣原生已有「不代寫玩家」與角色資訊隔離。重複規則會提示並省略；想覆蓋平台硬規則或破壞資訊邊界的指令不會送出。其餘自訂內容會留在穩定的故事偏好層，只有修改偏好時才改變。</div>
+          <div class="narrative-token-note"><strong>自動去重：</strong>夜灣依上方授權保護玩家控制權，並維持角色資訊隔離。主控模式的重複規則會提示並省略；想覆蓋平台硬規則或破壞資訊邊界的指令不會送出。其餘自訂內容會留在穩定的故事偏好層，只有修改偏好時才改變。</div>
         </div>
 
         <div class="bao-setting-section">
@@ -369,7 +394,7 @@
 
         <div class="bao-setting-section">
           <h3>內心戲</h3>
-          <p>只控制 NPC／角色的內在描寫。無論選哪一種，都不得替玩家編造心理。</p>
+          <p>此項只控制 NPC 的內在描寫；玩家角色依上方演繹授權與自訂限制處理。</p>
           <div class="narrative-select-grid">
             <label>內心揭露程度
               <select data-pref="innerThoughts">
@@ -431,6 +456,7 @@
     }));
     wrap.querySelectorAll("[data-pref]").forEach(select => select.addEventListener("change", () => {
       wrap.querySelectorAll(`[data-pref="${select.dataset.pref}"]`).forEach(other => { other.value = select.value; });
+      refreshInstructionCards(wrap);
     }));
     refreshNight();
     wrap.querySelectorAll("[data-style-pack]").forEach(btn => btn.addEventListener("click", () => {
@@ -565,7 +591,9 @@
 
     if (prefs.responseLength === "short") lines.push("每輪通常以約 300–600 個中文字為目標；若當下只需要一句回應、停頓或短動作，可自然更短，不為湊字數重複。");
     if (prefs.responseLength === "medium") lines.push("每輪通常以約 600–1000 個中文字為目標；依場景需要調整，不為湊字數重複或提前推進未發生內容。");
-    if (prefs.responseLength === "long") lines.push("每輪通常以約 900–1400 個中文字為目標；以有效內容密度為優先，不為湊字數重複描寫或替玩家補行動。");
+    if (prefs.responseLength === "long") lines.push(prefs.playerPortrayal === "coauthor"
+      ? "每輪通常以約 900–1400 個中文字為目標；以有效內容密度為優先，不為湊字數重複描寫或擴張玩家授權。"
+      : "每輪通常以約 900–1400 個中文字為目標；以有效內容密度為優先，不為湊字數重複描寫或替玩家補行動。");
 
     if (prefs.pacing === "slow") lines.push("敘事慢慢展開：重要互動拆成可回應的小步驟，多保留停頓、觀察與未說完的空間，不主動跳過關鍵過程。");
     if (prefs.pacing === "balanced") lines.push("敘事節奏保持平衡：完整處理本輪行動，再自然推進一個有因果的新節點；重要轉折仍等待玩家回應。");
@@ -577,9 +605,9 @@
 
     if (prefs.paragraphs !== "auto") lines.push(`每輪通常以 ${prefs.paragraphs.replace("-", "–")} 段完成；依場景節奏調整，不為湊段數重複內容。`);
 
-    if (prefs.innerThoughts === "none") lines.push("不直接揭露 NPC／角色內心，只從行為、表情、語氣與可觀察反應呈現；不得替玩家描述心理。");
-    if (prefs.innerThoughts === "restrained") lines.push("NPC／角色內心只偶爾以短句克制揭露，保留留白；不得替玩家描述心理。");
-    if (prefs.innerThoughts === "clear") lines.push("可明確描寫 NPC／角色的內在想法與矛盾，但不得替玩家描述心理、意圖或未說出口的決定。");
+    if (prefs.innerThoughts === "none") lines.push("不直接揭露 NPC 內心，只從行為、表情、語氣與可觀察反應呈現；玩家角色依演繹授權處理。");
+    if (prefs.innerThoughts === "restrained") lines.push("NPC 內心只偶爾以短句克制揭露，保留留白；玩家角色依演繹授權處理。");
+    if (prefs.innerThoughts === "clear") lines.push("可明確描寫 NPC 的內在想法與矛盾，玩家角色依演繹授權處理。");
 
     if (prefs.physicalContinuity) lines.push("保持身體與空間連續性：位置、姿態、接觸、施力／受力、衣物與環境變化必須前後有因果，不可無故跳位或重置。");
 
@@ -591,11 +619,12 @@
       if (prefs.intimacy === "continuous") lines.push("親密互動不要無故跳時或省略關鍵轉折；保持距離、姿態、接觸、反應、衣物與場景變化的連續性，並讓角色卡既有的世界觀特徵在相關時自然參與。");
     }
 
-    const customInstructions = effectiveCustomInstructions(prefs.customInstructions);
+    const customInstructions = effectiveCustomInstructions(prefs.customInstructions, prefs);
     if (customInstructions.length) {
       lines.push(`玩家另加的故事級寫作指令：\n${customInstructions.map(text => `- ${text}`).join("\n")}`);
     }
 
+    if (prefs.playerPortrayal !== "strict") lines.push(`玩家選擇「${portrayalLabels[prefs.playerPortrayal]}」，具體範圍以平台玩家角色演繹授權為準。`);
     if (!lines.length) return "";
     lines.push("以上偏好不得破壞角色卡人格、世界規則、既有事實、玩家控制權或角色資訊邊界。");
     return `【玩家敘事偏好】\n${lines.join("\n")}`;
@@ -640,7 +669,7 @@
   const originalBuild = App.buildSystemPrompt.bind(App);
   App.buildSystemPrompt = function() {
     const base = originalBuild();
-    const prefs = normalizePrefs(this.config?.narrative || settings);
+    const prefs = resolvedPrefs(this.config);
     const extra = buildPreferencePrompt(prefs);
     return extra ? `${base}\n\n${extra}` : base;
   };
@@ -658,6 +687,8 @@
   };
 
   window.BAONarrativeSettings = {
+    playerPortrayal,
+    playerPortrayalRule,
     get: () => clonePrefs(settings),
     set: value => { settings = normalizePrefs(value); save(); updateBuilderSummary(); updateChatButtonState(); },
     open: openModal,
@@ -668,7 +699,7 @@
     hasExplicitResponseLength: (config = App.config) =>
       ["short", "medium", "long"].includes(normalizePrefs(config?.narrative || settings).responseLength),
     classifyInstruction,
-    effectiveCustomInstructions: prefs => [...effectiveCustomInstructions(normalizePrefs(prefs).customInstructions)],
+    effectiveCustomInstructions: prefs => [...effectiveCustomInstructions(normalizePrefs(prefs).customInstructions, normalizePrefs(prefs))],
     summaryItems: prefs => [...summaryItems(prefs)],
     statusLabel: prefs => ({ ...statusLabel(prefs), items: [...statusLabel(prefs).items] })
   };

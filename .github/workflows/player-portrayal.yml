@@ -1,0 +1,32 @@
+name: Player portrayal authorization
+on:
+  pull_request:
+    paths:
+      - 'js/narrative-settings.js'
+      - 'js/prompt-orchestrator.js'
+      - 'js/story-persona-manager.js'
+      - 'js/player-settings.js'
+      - 'js/app.js'
+      - 'data/prompts/*.json'
+      - 'tests/narrative-prompt-pipeline-core.cjs'
+      - 'tests/e2e/narrative-cache-preservation.spec.cjs'
+      - '.github/workflows/player-portrayal.yml'
+permissions:
+  contents: read
+jobs:
+  authorization-and-cache:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-chromium
+      - name: Prompt and persona regression
+        run: |
+          node tests/narrative-settings-core.cjs
+          node tests/narrative-prompt-pipeline-core.cjs
+          node tests/prompt-orchestrator-core.cjs
+          node tests/prompt-cache-core.cjs
+          node tests/story-persona-core.cjs
+          node tests/response-language-core.cjs
+          node tests/same-model-state-merge-core.cjs
+      - run: npx playwright test tests/e2e/narrative-cache-preservation.spec.cjs --project=chromium

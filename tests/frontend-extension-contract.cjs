@@ -63,7 +63,7 @@ increasing(siteUI, [
   'loadBAOScript("js/storage-write-guard.js?v=3")',
   'loadBAOScript("js/story-tools.js?v=7")',
   'loadBAOScript("js/prompt-cache.js',
-  'loadBAOScript("js/prompt-orchestrator.js?v=4")',
+  'loadBAOScript("js/prompt-orchestrator.js',
   'loadBAOScript("js/episodic-memory.js?v=3")',
   'then(() => worldModulesReady)',
   'loadBAOScript("js/three-realms-events.js?v=3")',

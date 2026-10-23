@@ -123,3 +123,51 @@ for (const width of [390, 1440]) {
     expect(fallback.calls).toBe(0);
   });
 }
+
+for (const width of [390, 1440]) {
+  test(`player portrayal is explicit, story-local and cache-stable at ${width}px`, async ({ page }) => {
+    await setup(page, width);
+    const before = await page.evaluate(() => preferenceSnapshot());
+    await page.evaluate(() => BAONarrativeSettings.open());
+    const select = page.locator('[data-pref="playerPortrayal"]');
+    await expect(select).toBeVisible();
+    await expect(select).toHaveValue('strict');
+    await select.selectOption('coauthor');
+    await page.locator('.bao-modal-close').click();
+    expect(await page.evaluate(() => preferenceSnapshot())).toEqual(before);
+
+    for (const mode of ['coauthor', 'natural', 'strict']) {
+      await page.evaluate(() => BAONarrativeSettings.open());
+      await select.selectOption(mode);
+      await page.locator('[data-narrative-save]').click();
+      const current = await page.evaluate(() => preferenceSnapshot());
+      expect(await page.evaluate(() => App.config.narrative.playerPortrayal)).toBe(mode);
+      expect(current.defaults).toBe(before.defaults);
+      expect(current.calls).toBe(0);
+      expect(current.messages).toContain('重要決策權');
+      if (mode === 'coauthor') {
+        expect(current.messages).toContain('玩家已授權小說共創');
+        expect(current.messages).not.toMatch(/不替玩家補寫未輸入|不得替玩家決定台詞、心理或行動|不得自行生成玩家/);
+      }
+      if (mode === 'natural') expect(current.messages).toContain('不得新增玩家未表達');
+      if (mode === 'strict') expect(current.messages).toContain('不替玩家補寫未輸入');
+      await page.evaluate(() => BAONarrativeSettings.open());
+      await page.locator('[data-narrative-save]').click();
+      expect(await page.evaluate(() => preferenceSnapshot())).toEqual(current);
+    }
+    expect((await page.evaluate(() => preferenceSnapshot())).messages).toBe(before.messages);
+  });
+}
+
+test('legacy stories do not inherit coauthor authorization from browser defaults', async ({ page }) => {
+  await setup(page, 390, true);
+  await page.evaluate(() => BAONarrativeSettings.set({ playerPortrayal: 'coauthor' }));
+  const before = await page.evaluate(() => preferenceSnapshot());
+  expect(before.messages).not.toContain('玩家已授權小說共創');
+  expect(before.messages).toContain('不替玩家補寫未輸入');
+  await page.evaluate(() => BAONarrativeSettings.open());
+  await expect(page.locator('[data-pref="playerPortrayal"]')).toHaveValue('strict');
+  await page.locator('[data-narrative-save]').click();
+  expect(await page.evaluate(() => preferenceSnapshot())).toEqual(before);
+  expect(await page.evaluate(() => App.collectConfig().narrative.playerPortrayal)).toBe('coauthor');
+});
