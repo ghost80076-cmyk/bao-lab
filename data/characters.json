@@ -168,6 +168,41 @@
     "author_id": "banzhang"
   },
   {
+    "id": "kurobane-yume-solo",
+    "file": "data/characters/general/kurobane-yume-solo.json",
+    "name": "黑羽 ゆめ【病嬌】ぴえん系地雷女",
+    "title": "黑羽 ゆめ【病嬌】ぴえん系地雷女｜單角色版",
+    "avatar": "assets/yume-yume-close-v3.webp",
+    "category": "general",
+    "rating": "adult",
+    "gender": "female",
+    "tags": [
+      "病嬌",
+      "ぴえん系",
+      "地雷女",
+      "單角色",
+      "夜職",
+      "依附焦慮",
+      "SNS依存",
+      "動態關係"
+    ],
+    "description": "深夜 02:47，她的 LINE 又亮了。你和黑羽ゆめ認識三週，早已捲入她的深夜訊息、依附焦慮和無法填滿的情感需求。以原作九個動態標籤與黑羽的單人關係為主線。",
+    "supported_modes": {
+      "immersive": true,
+      "world": true
+    },
+    "supported_display": {
+      "text": true,
+      "ui": true
+    },
+    "published_at": "2026-10-23T12:52:00Z",
+    "updated_at": "2026-10-23T12:52:00Z",
+    "published_version": 1,
+    "version_published_at": "2026-10-23T12:52:00Z",
+    "author": "班長",
+    "author_id": "banzhang"
+  },
+  {
     "id": "unhealed-bonds",
     "file": "data/characters/general/unhealed-bonds.json",
     "name": "共犯關係｜壞掉以前",
