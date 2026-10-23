@@ -408,16 +408,16 @@
     const playerName = App.config?.persona?.name || "玩家";
     return ({
       card: `敘事人稱依角色卡原本設定；若角色卡沒有明確指定，使用第三人稱鏡頭式敘事。無論採何種人稱，都必須維持「${roleName}」與「${playerName}」的身份邊界。`,
-      first: `固定使用 AI 主要角色第一人稱敘事。旁白中的「我」只能指 AI 主要扮演角色「${roleName}」，不能指玩家「${playerName}」。描述玩家時使用玩家名稱或「你／妳」，不得替玩家補心理、台詞或行動。`,
+      first: `固定使用 AI 主要角色第一人稱敘事。旁白中的「我」只能指 AI 主要扮演角色「${roleName}」，不能指玩家「${playerName}」。描述玩家時使用玩家名稱或「你／妳」，玩家角色的補述依本故事演繹授權。`,
       second: `固定使用玩家第二人稱敘事。旁白中的「你／妳」只能指玩家「${playerName}」；AI 主要角色是「${roleName}」，在旁白中使用角色名稱或合適代詞。角色自己的對話可以自然使用「我」，但不得與玩家身份互換。`,
-      third: `固定使用第三人稱鏡頭式／有限視角敘事。「${roleName}」與「${playerName}」都使用名稱或合適代詞指稱；不得使用全知視角洩露角色尚未取得的資訊，也不得代替玩家決定心理、台詞或行動。`
+      third: `固定使用第三人稱鏡頭式／有限視角敘事。「${roleName}」與「${playerName}」都使用名稱或合適代詞指稱；不得使用全知視角洩露角色尚未取得的資訊，玩家角色的補述依本故事演繹授權。`
     }[settings.pov]);
   };
   const dialogueInstruction = () => {
     const roleName = App.activeCharacter?.name || "AI 主要角色";
     const playerName = App.config?.persona?.name || "玩家";
-    if (settings.dialogueFormat !== "named") return "對話格式依角色卡設定；若角色卡沒有指定，使用自然引號台詞。不得自行生成玩家的新台詞。";
-    return `所有可聽見的角色台詞使用下列格式並各自成行：角色名稱：「對話內容」。AI 主要角色的名稱固定寫作「${roleName}」，其他 NPC 使用實際名稱。不得自行生成玩家「${playerName}」的新台詞；只有在忠實重述玩家本輪已輸入的原話時，才可使用格式：${playerName}：「原話」。旁白維持一般敘事，不要加上角色名稱標籤。`;
+    if (settings.dialogueFormat !== "named") return "對話格式依角色卡設定；若角色卡沒有指定，使用自然引號台詞。玩家台詞依本故事演繹授權。";
+    return `所有可聽見的角色台詞使用下列格式並各自成行：角色名稱：「對話內容」。AI 主要角色的名稱固定寫作「${roleName}」，其他 NPC 使用實際名稱。玩家「${playerName}」的台詞依本故事演繹授權；重述已輸入台詞或獲授權補寫日常台詞時，使用格式：${playerName}：「台詞」。旁白維持一般敘事，不要加上角色名稱標籤。`;
   };
   const languageInstruction = () => ({ "zh-Hant":"所有自然語言回覆使用繁體中文。", "zh-Hans":"所有自然語言回覆使用簡體中文。", en:"All natural-language replies must be in English." }[settings.language]);
 

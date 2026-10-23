@@ -67,7 +67,7 @@ for (const model of ["gpt-5.6", "google/gemini-3.1-pro-preview", "anthropic/clau
   assert.doesNotMatch(gemini[0].content, /模型補丁/);
   assert.match(gemini.at(-1).content, /玩家最新輸入/);
   assert.match(gemini.at(-1).content, /【本輪】/);
-  assert.match(gemini.at(-1).content, /不代寫玩家/);
+  assert.match(gemini.at(-1).content, /依故事授權演繹玩家/);
   assert.doesNotMatch(gemini.at(-1).content, /場景參與|在場≠必須發言/);
   assert.doesNotMatch(gemini.at(-1).content, /生動|感官|電影|段落/);
   assert.equal(gemini.length, 3, "scene participation must not add another output-facing message");

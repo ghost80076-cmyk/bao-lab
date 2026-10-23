@@ -22,7 +22,7 @@ let separateUpdates = 0;
 let providerMode = 'normal';
 let releaseResponse;
 const owner = { pendingStateTurns: [], moduleDefinitions: [], time: '晚上', location: '房間', events: [], npcs: [] };
-const TURN_ANCHOR = '【本輪】依玩家最新輸入延續一輪；保持已確認事實與資訊邊界，不代寫玩家。';
+const TURN_ANCHOR = '【本輪】依玩家最新輸入延續一輪；保持已確認事實與資訊邊界，依故事授權演繹玩家。';
 const orchestrated = text => `${text}\n\n${TURN_ANCHOR}`;
 
 global.window = global;

@@ -403,7 +403,7 @@
     if (!state) return stable;
     const changes = [];
     if (!same(clean(App.config.persona, PLAYER_FIELDS.filter(key => key !== 'avatar')), clean(state.basePersona, PLAYER_FIELDS.filter(key => key !== 'avatar')))) {
-      changes.push('【玩家角色｜controlled_by=user】', ...PLAYER_FIELDS.filter(key => key !== 'avatar').map(key => `${LABELS[key]}：${App.config.persona[key] || '未指定'}`), '此人物由玩家控制；AI 不得替玩家決定台詞、心理、選擇或行動。');
+      changes.push('【玩家角色｜controlled_by=user】', ...PLAYER_FIELDS.filter(key => key !== 'avatar').map(key => `${LABELS[key]}：${App.config.persona[key] || '未指定'}`), window.BAONarrativeSettings ? "玩家角色的日常演繹依本故事授權，重要決策仍由玩家決定。" : '此人物由玩家控制；AI 不得替玩家決定台詞、心理、選擇或行動。');
     }
     const activeHosted = state.hostedCharacters.filter(actorAllowed);
     if (activeHosted.length) {
@@ -417,7 +417,7 @@
         changes.push(...ACTOR_FIELDS.filter(key => key !== 'name' && key !== 'avatar').map(key => `${ACTOR_LABELS[key]}：${actor[key] || '未指定'}`));
       }
       changes.push('上述 AI 人物可以互相互動，也可以與原作品 NPC 建立自己的關係、合作、競爭、衝突或離場生活；不要讓所有人物只圍繞玩家。');
-      changes.push(`AI 可以演繹上述 controlled_by=assistant 的人物，但不得代替玩家「${App.config.persona.name || '未命名玩家'}」（controlled_by=user）決定言行。`);
+      changes.push(`AI 可以演繹上述 controlled_by=assistant 的人物，但不得代替玩家「${App.config.persona.name || '未命名玩家'}」（controlled_by=user）作重大決定；日常演繹依本故事的玩家角色演繹授權。`);
     }
     return changes.length ? `${stable}\n\n【本輪人物覆寫】\n${changes.join('\n')}` : stable;
   };
