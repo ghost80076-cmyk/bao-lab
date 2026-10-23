@@ -160,3 +160,17 @@ assert.equal(BAONarrativeSettings.get().sceneFocus, 'card');
 assert.equal(BAONarrativeSettings.get().storyExpectation.length, 240);
 BAONarrativeSettings.set({});
 assert.equal(BAONarrativeSettings.buildPrompt(BAONarrativeSettings.get()), '');
+
+
+// One-turn spectator authorization is opt-in and never inherited by a legacy story.
+assert.equal(BAONarrativeSettings.observationAllowed({}), false);
+assert.equal(BAONarrativeSettings.buildPrompt({ observationMode: 'off' }), '');
+BAONarrativeSettings.set({ observationMode: 'one_turn' });
+assert.equal(BAONarrativeSettings.get().observationMode, 'one_turn');
+assert.equal(BAONarrativeSettings.observationAllowed({ narrative: BAONarrativeSettings.get() }), true);
+assert.match(BAONarrativeSettings.statusLabel(BAONarrativeSettings.get()).title, /單輪觀賞已開放/);
+assert.match(BAONarrativeSettings.playerPortrayalRule({ narrative: BAONarrativeSettings.get() }), /本輪觀賞標記/);
+assert.doesNotMatch(BAONarrativeSettings.playerPortrayalRule({}), /可選觀賞授權/);
+BAONarrativeSettings.set({ observationMode: 'unrecognized' });
+assert.equal(BAONarrativeSettings.get().observationMode, 'off');
+assert.equal(BAONarrativeSettings.buildPrompt(BAONarrativeSettings.get()), '');
