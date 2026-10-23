@@ -125,6 +125,17 @@
             </div>
           </form>
           ${renderCustomList(commandGroups.player)}
+          <section class="story-quick-share" aria-label="匯入與匯出快捷指令">
+            <h4>分享／搬移我的指令</h4>
+            <p class="note">只匯出這個故事裡自己建立的指令，不包含角色設定、聊天、API Key；匯入另一個故事前會先預覽。</p>
+            <div class="story-quick-share-actions">
+              <button type="button" class="secondary" data-quick-export ${commandGroups.player.length ? "" : "disabled"}>匯出指令 JSON</button>
+              <button type="button" class="secondary" data-quick-import>匯入指令 JSON</button>
+              <input type="file" accept=".json,application/json" data-quick-file hidden>
+            </div>
+            <p role="status" class="note" data-quick-share-status aria-live="polite"></p>
+            <div data-quick-import-preview hidden></div>
+          </section>
         </details>
       </section>`;
     document.body.appendChild(wrap);
@@ -171,6 +182,87 @@
         write(core.customCommands(state()).filter(item => item.id !== id));
         open();
       });
+    });
+
+    const owner = GameState.current;
+    const shareStatus = wrap.querySelector("[data-quick-share-status]");
+    const previewRoot = wrap.querySelector("[data-quick-import-preview]");
+    const shareFile = wrap.querySelector("[data-quick-file]");
+    const validOwner = () => GameState.current === owner && wrap.isConnected;
+    wrap.querySelector("[data-quick-export]")?.addEventListener("click", () => {
+      if (!validOwner()) return;
+      const pack = core.exportPack(state());
+      if (!pack.commands.length) {
+        shareStatus.textContent = "本故事還沒有可以匯出的自訂指令。";
+        return;
+      }
+      const data = JSON.stringify(pack, null, 2);
+      const url = URL.createObjectURL(new Blob([data], { type: "application/json;charset=utf-8" }));
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "yorubay-quick-commands.json";
+      document.body.appendChild(link); link.click(); link.remove();
+      window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+      shareStatus.textContent = "已產生指令包；可自行分享或帶到其他故事。";
+    });
+    wrap.querySelector("[data-quick-import]")?.addEventListener("click", () => {
+      if (!validOwner()) return;
+      shareFile.value = "";
+      shareFile.click();
+    });
+    shareFile?.addEventListener("change", async () => {
+      const file = shareFile.files?.[0];
+      if (!file || !validOwner()) return;
+      previewRoot.hidden = true;
+      previewRoot.replaceChildren();
+      try {
+        if (file.size > core.MAX_IMPORT_BYTES)
+          throw new Error("指令 JSON 不能超過 20 KB。");
+        const pack = core.parsePack(await file.text());
+        if (!validOwner()) return;
+        const others = [...core.BUILT_INS, ...core.authorCommands(App.activeCharacter || {})];
+        const plan = core.mergePack(state(), pack, others);
+        if (!plan.added) {
+          shareStatus.textContent = "沒有可新增的指令：" + plan.duplicates + " 條重複，" + plan.overflow + " 條超出上限。";
+          return;
+        }
+        shareStatus.textContent = "以下只會新增到目前故事；請確認內容後再匯入。";
+        const intro = document.createElement("p");
+        intro.className = "note";
+        intro.textContent = "可新增 " + plan.added + " 條 · 跳過重複 " + plan.duplicates + " 條 · 超出上限 " + plan.overflow + " 條";
+        const list = document.createElement("div");
+        list.className = "story-quick-import-items";
+        for (const item of pack.commands) {
+          const row = document.createElement("article");
+          const label = document.createElement("strong"); label.textContent = item.label;
+          const body = document.createElement("small"); body.textContent = item.text;
+          row.append(label, body);
+          list.append(row);
+        }
+        const actions = document.createElement("div");
+        actions.className = "story-quick-share-actions";
+        const confirm = document.createElement("button");
+        confirm.type = "button"; confirm.className = "primary"; confirm.textContent = "確認加入本故事";
+        const cancel = document.createElement("button");
+        cancel.type = "button"; cancel.className = "secondary"; cancel.textContent = "取消";
+        cancel.addEventListener("click", () => { previewRoot.hidden = true; previewRoot.replaceChildren(); shareStatus.textContent = "已取消匯入。"; });
+        confirm.addEventListener("click", () => {
+          if (!validOwner()) return;
+          const fresh = core.mergePack(state(), pack, [...core.BUILT_INS, ...core.authorCommands(App.activeCharacter || {})]);
+          if (fresh.added) write(fresh.commands);
+          if (fresh.added) {
+            open();
+          } else {
+            previewRoot.hidden = true;
+            shareStatus.textContent = "沒有新指令加入，現有指令未變動。";
+          }
+        });
+        actions.append(confirm, cancel);
+        previewRoot.append(intro, list, actions);
+        previewRoot.hidden = false;
+      } catch (error) {
+        if (validOwner()) shareStatus.textContent = "匯入失敗：" + String(error?.message || "指令包格式錯誤");
+      }
     });
 
     wrap.querySelector("[data-quick-close]")?.focus();
