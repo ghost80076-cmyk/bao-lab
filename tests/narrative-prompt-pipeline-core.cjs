@@ -212,9 +212,9 @@ assert.equal(
       assert.equal(once[0].content, stable, "per-turn choice must not invalidate the cached stable prefix");
       assert.match(once.at(-1).content, /【本輪觀賞授權】/);
       assert.match(once.at(-1).content, /重大承諾、同意、關係定案/);
-      assert.equal(BAOPromptOrchestrator.observerCommand({ content: "【玩家最新輸入】\\n" + command }), command);
+      assert.equal(BAOPromptOrchestrator.observerCommand({ content: "【玩家最新輸入】\n" + command }), command);
     }
-    for (const ordinary of ["我推開門走進去。", "「嗯」", "繼續描寫", "繼續，但不要替我說話。", "我說：然後呢？", "【玩家最新輸入】\\n繼續"]) {
+    for (const ordinary of ["我推開門走進去。", "「嗯」", "繼續描寫", "繼續，但不要替我說話。", "我說：然後呢？", "【玩家最新輸入】\n繼續"]) {
       latestInput = ordinary;
       const handback = await App.buildMessages(App.config);
       assert.equal(handback[0].content, stable, "ordinary turns preserve fixed opt-in prefix");
