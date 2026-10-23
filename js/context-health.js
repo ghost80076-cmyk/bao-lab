@@ -10,7 +10,7 @@
     if (document.querySelector('link[href^="css/context-health.css"]')) return;
     const link = document.createElement("link");
     link.rel = "stylesheet";
-    link.href = "css/context-health.css?v=5";
+    link.href = "css/context-health.css?v=6";
     document.head.appendChild(link);
   };
 
@@ -176,6 +176,15 @@
           </div>
         </section>
 
+        <section class="context-health-rebuild" aria-label="人物／世界狀態重建">
+          <h3>人物／世界狀態</h3>
+          <p>時間、地點或人物狀態卡住時，可從故事紀錄重新判斷。不修改故事正文；無法確認的欄位會標示未知。</p>
+          <p>重新整理使用近期原文；深度重建加入較早摘要與事件記憶，並非重讀整篇故事。兩者都會呼叫一次狀態模型並產生 API 費用。</p>
+          <button type="button" class="secondary" data-state-rebuild="recent">重新整理狀態</button>
+          <button type="button" class="secondary" data-state-rebuild="deep">深度重建狀態</button>
+          <p data-state-rebuild-result role="status" aria-live="polite"></p>
+        </section>
+
         <details class="context-health-advanced">
           <summary>進階 Token 說明與請求檢視</summary>
           <button type="button" class="secondary" data-context-inspector-open>查看本輪送出內容</button>
@@ -187,6 +196,22 @@
       </section>`;
 
     document.body.appendChild(wrap);
+    const rebuildOwner = GameState.current;
+    wrap.querySelectorAll('[data-state-rebuild]').forEach(button => button.addEventListener('click', async () => {
+      if (GameState.current !== rebuildOwner) return;
+      const mode = button.dataset.stateRebuild;
+      if (!window.confirm(`${mode === 'deep' ? '深度重建' : '重新整理'}目前狀態？會呼叫一次狀態模型並產生 API 費用，不修改故事正文。`)) return;
+      const buttons = wrap.querySelectorAll('[data-state-rebuild]');
+      const status = wrap.querySelector('[data-state-rebuild-result]');
+      buttons.forEach(b => { b.disabled = true; });
+      status.textContent = '正在整理，請稍候…';
+      try {
+        if (!window.WorldStateEngine?.rebuild) throw new Error('請重新整理網頁以載入狀態重建功能。');
+        await WorldStateEngine.rebuild(App.config, mode);
+        status.textContent = '目前狀態已重新整理。';
+      } catch (error) { status.textContent = String(error?.message || '重建失敗，請稍後再試。'); }
+      finally { buttons.forEach(b => { b.disabled = false; }); }
+    }));
     wrap.querySelector('[data-context-inspector-open]')?.addEventListener('click', () => { close(); window.BAOContextInspector?.open?.(); });
     wrap.querySelector("[data-context-health-close]")?.addEventListener("click", close);
     wrap.querySelector("[data-context-health-help]")?.addEventListener("click", event => {

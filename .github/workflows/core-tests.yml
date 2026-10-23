@@ -565,7 +565,9 @@ jobs:
       - name: Generation request lifecycle
         run: node tests/request-lifecycle-core.cjs
       - name: Accumulated world state turns
-        run: node tests/world-state-cost-core.cjs
+        run: |
+          node tests/world-state-cost-core.cjs
+          node tests/world-state-rebuild-core.cjs
       - name: Same-model story and state merge
         run: node tests/same-model-state-merge-core.cjs
       - name: Native Sunrise startup and isolated memory frames

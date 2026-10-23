@@ -30,6 +30,7 @@ jobs:
               tests/e2e/site-i18n.spec.cjs
               tests/e2e/experience-preferences.spec.cjs
               tests/e2e/context-health.spec.cjs
+              tests/e2e/world-state-rebuild.spec.cjs
               tests/e2e/player-settings-theme.spec.cjs
               tests/e2e/mobile-home-contrast-pwa.spec.cjs
               tests/e2e/mobile-tools-compact.spec.cjs

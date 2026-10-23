@@ -67,7 +67,7 @@
       if (typeof API !== 'undefined') window.API = API;
       if (typeof BAOCharacterStatus !== 'undefined') window.BAOCharacterStatus = BAOCharacterStatus;
       if (typeof BAOHelperData !== 'undefined') window.BAOHelperData = BAOHelperData;
-      for (const src of ['js/story-integrity-fixes.js?v=2', 'js/state-tracker-repairs.js?v=2']) {
+      for (const src of ['js/story-integrity-fixes.js?v=2', 'js/state-tracker-repairs.js?v=3']) {
         if (document.querySelector(`script[src="${src}"]`)) continue;
         const script = document.createElement('script');
         script.src = src;
@@ -110,10 +110,10 @@
       };
       if (window.BAOStatusUsageIntegrity) loadNativePack();
       else {
-        let script = document.querySelector('script[src="js/status-usage-integrity.js?v=2"]');
+        let script = document.querySelector('script[src="js/status-usage-integrity.js?v=3"]');
         if (!script) {
           script = document.createElement('script');
-          script.src = 'js/status-usage-integrity.js?v=2';
+          script.src = 'js/status-usage-integrity.js?v=3';
           script.onerror = () => console.warn('BAO/LAB status and usage diagnostics did not load');
           document.head.appendChild(script);
         }
