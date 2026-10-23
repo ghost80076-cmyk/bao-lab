@@ -12,6 +12,7 @@
 <link rel="stylesheet" href="css/character-studio-lifecycle.css">
 <link rel="stylesheet" href="css/bao-brand-v2.css">
 <link rel="stylesheet" href="css/avatar-chat.css?v=1">
+<link rel="stylesheet" href="css/npc-personality-helper.css?v=1">
 </head>
 <body>
 <div class="app-shell"><header class="topbar"><a class="brand" href="./" aria-label="回夜灣首頁"><img src="assets/bao-mark.svg" alt="" width="32" height="32"><span>夜灣 YoruBay</span></a><nav><a href="./">返回首頁</a><a href="./">探索角色</a></nav></header>
@@ -28,7 +29,30 @@
 <label>標籤（以逗號或換行分隔）<input name="tags" placeholder="都市, 日常, 自主 NPC"></label>
 <label>核心設定／AI 角色規範 <span class="required">*</span><textarea name="system_prompt" rows="9" required placeholder="只寫這張作品專屬的角色個性、動機、關係、語氣、世界規則與特殊限制。如果角色有特殊的說話方式、口癖或表達習慣，請直接寫清楚，並附上幾句對話範例，AI 會更容易理解。"></textarea><small>這裡只需要設定 AI 扮演的角色與世界規則。玩家要說什麼、做什麼，由玩家自己決定，不需要寫進這裡。</small></label>
 <label>初始訊息（故事開場） <span class="required">*</span><textarea name="greeting" rows="5" required placeholder="例：今天是你進入皇家魔法學院的第一天……"></textarea><small>玩家開始故事時會看到的第一段劇情；世界歷史與設定請寫在下方進階欄位。</small></label>
-<details class="studio-advanced"><summary>進階設定：主要角色、世界、作者備註</summary><label>主要 AI 角色／作品主體設定（自由文字）<textarea name="profile" rows="4" placeholder="單角色卡：寫主要 AI 角色的外貌、性格、習慣與關係。多 NPC 世界：只寫作品主體或固定主要角色，不要把所有 NPC 集中塞在這裡。"></textarea><small>這欄會被當成「主要 AI 角色／作品主體」設定，不是 NPC 名冊，也不是玩家 Persona。玩家人物由玩家自己設定；其他 NPC 請放入「背景資料／按需世界書」，或進故事後用「新增 AI 人物／NPC」管理。</small></label><label>世界設定（這個世界如何運作？）<textarea name="world" rows="4" placeholder="例：魔法與科技共存。魔法師需要執照，五大王國彼此對立。"></textarea><small>填寫時代、社會制度、力量體系及世界的基本規則；沒有特殊設定可以留白。這裡的內容預設每輪提供給 AI。</small></label><label>背景資料／按需世界書<textarea name="lore" rows="9" placeholder="固定世界歷史可直接填寫。人物、勢力或地點的長篇細節，按下方「＋ 新增按需條目」加入。"></textarea><small>未包裝的一般背景文字仍每輪提供給 AI；世界書條目只在相關關鍵字或目前位置命中時載入。舊角色卡的背景文字不會自動刪除或轉換。</small></label><button type="button" class="secondary" id="studio-add-lore-entry">＋ 新增按需條目</button><small id="studio-lore-status" class="note" role="status" aria-live="polite"></small><p class="note">範例：<code>【世界書：魔法學院｜魔法學院,學院】</code>，下一行寫學院資料，最後以 <code>【/世界書】</code> 結尾。每輪最多載入 3 條相關資料；長內容仍會佔用 Token。若要寫故事的第一幕，請使用上方「初始訊息」。</p><p class="note">以下兩欄都是補充這張作品的特殊需求，不必重寫網站內建的 NPC 自主、資訊限制及基本敘事規則。核心設定已有相同內容時，留白即可；填寫的內容預設會隨每輪對話送給 AI，重複文字會增加 Token。</p><label>本作品特殊 NPC 規則（選填）<textarea name="npc_rules" rows="3" placeholder="例：學院老師依課表行動；校長不會立即得知宿舍內的事件。"></textarea><small>只寫這張作品的 NPC 特殊行為或限制。網站已有基本 NPC 自主規則；沒有額外要求就留白。</small></label><label>作者專屬敘事偏好（選填）<textarea name="author_instructions" rows="3" placeholder="例：使用近距離第三人稱，不提前揭露謎底。"></textarea><small>只寫這張作品特有的敘事視角、文風或節奏。網站已有基礎敘事模式；核心設定寫過就不要重複。</small></label><label>創作者備註（預設不送 AI）<textarea name="creator_notes" rows="3"></textarea></label><label>角色短句／引言<input name="quote" maxlength="400"></label></details>
+<details class="studio-advanced"><summary>進階設定：主要角色、世界、作者備註</summary><label>主要 AI 角色／作品主體設定（自由文字）<textarea name="profile" rows="4" placeholder="單角色卡：寫主要 AI 角色的外貌、性格、習慣與關係。多 NPC 世界：只寫作品主體或固定主要角色，不要把所有 NPC 集中塞在這裡。"></textarea><small>這欄會被當成「主要 AI 角色／作品主體」設定，不是 NPC 名冊，也不是玩家 Persona。玩家人物由玩家自己設定；其他 NPC 請放入「背景資料／按需世界書」，或進故事後用「新增 AI 人物／NPC」管理。</small></label><label>世界設定（這個世界如何運作？）<textarea name="world" rows="4" placeholder="例：魔法與科技共存。魔法師需要執照，五大王國彼此對立。"></textarea><small>填寫時代、社會制度、力量體系及世界的基本規則；沒有特殊設定可以留白。這裡的內容預設每輪提供給 AI。</small></label><label>背景資料／按需世界書<textarea name="lore" rows="9" placeholder="固定世界歷史可直接填寫。人物、勢力或地點的長篇細節，按下方「＋ 新增按需條目」加入。"></textarea><small>未包裝的一般背景文字仍每輪提供給 AI；世界書條目只在相關關鍵字或目前位置命中時載入。舊角色卡的背景文字不會自動刪除或轉換。</small></label><button type="button" class="secondary" id="studio-add-lore-entry">＋ 新增按需條目</button>
+<details class="studio-npc-axes" id="studio-npc-personality">
+<summary>NPC 人格四軸 · 成因／行為／失控／代價（選填）</summary>
+<p class="note">幫作者整理真正影響角色行動的四個因素；不替你生成個性，也不修改平台的 NPC 自主權或資訊隔離。只有按「加入角色卡」才會寫入，下次儲存草稿／匯出時跟原有設定一起保存。</p>
+<div class="studio-npc-axes-fields">
+<label>角色姓名 <input name="npc_axes_name" maxlength="40" placeholder="例：林曼"></label>
+<label>稱呼／別名（選填，逗號分隔）<input name="npc_axes_aliases" maxlength="180" placeholder="例如：Queen_13, 老大"></label>
+<label>成因｜她為什麼會變成這樣？<textarea name="npc_axes_cause" maxlength="360" rows="2" placeholder="寫已有的人生經驗、關係或價值觀，不必套用固定模板"></textarea></label>
+<label>外顯行為｜日常如何表現？<textarea name="npc_axes_behavior" maxlength="360" rows="2" placeholder="具體談吐、選擇、習慣與待人方式"></textarea></label>
+<label>失控條件｜何時會打破平常模式？<textarea name="npc_axes_trigger" maxlength="360" rows="2" placeholder="什麼情境或壓力會引發與平日不同的反應"></textarea></label>
+<label>代價｜這樣做會失去或承受什麼？<textarea name="npc_axes_cost" maxlength="360" rows="2" placeholder="人際、生活、情緒、利益或劇情後果"></textarea></label>
+<label>加入到哪裡？
+<select name="npc_axes_destination">
+<option value="lore">NPC 按需世界書（推薦，不每輪載入）</option>
+<option value="profile">主要 AI 角色設定（單角色作品）</option>
+</select></label>
+</div>
+<div class="studio-npc-axes-actions">
+<button type="button" class="secondary" data-npc-personality-preview-button>預覽整理結果</button>
+<button type="button" class="primary" data-npc-personality-apply-button>加入角色卡（不自動儲存）</button>
+</div>
+<p class="note" role="status" aria-live="polite" data-npc-personality-status>這是選填工具，不會自行改變角色卡設定。</p>
+<pre data-npc-personality-preview hidden aria-label="人格四軸文字預覽"></pre>
+</details><small id="studio-lore-status" class="note" role="status" aria-live="polite"></small><p class="note">範例：<code>【世界書：魔法學院｜魔法學院,學院】</code>，下一行寫學院資料，最後以 <code>【/世界書】</code> 結尾。每輪最多載入 3 條相關資料；長內容仍會佔用 Token。若要寫故事的第一幕，請使用上方「初始訊息」。</p><p class="note">以下兩欄都是補充這張作品的特殊需求，不必重寫網站內建的 NPC 自主、資訊限制及基本敘事規則。核心設定已有相同內容時，留白即可；填寫的內容預設會隨每輪對話送給 AI，重複文字會增加 Token。</p><label>本作品特殊 NPC 規則（選填）<textarea name="npc_rules" rows="3" placeholder="例：學院老師依課表行動；校長不會立即得知宿舍內的事件。"></textarea><small>只寫這張作品的 NPC 特殊行為或限制。網站已有基本 NPC 自主規則；沒有額外要求就留白。</small></label><label>作者專屬敘事偏好（選填）<textarea name="author_instructions" rows="3" placeholder="例：使用近距離第三人稱，不提前揭露謎底。"></textarea><small>只寫這張作品特有的敘事視角、文風或節奏。網站已有基礎敘事模式；核心設定寫過就不要重複。</small></label><label>創作者備註（預設不送 AI）<textarea name="creator_notes" rows="3"></textarea></label><label>角色短句／引言<input name="quote" maxlength="400"></label></details>
 <details class="studio-advanced" id="studio-gameplay-theme"><summary>進階設定：互動 UI 外觀</summary>
 <p class="note">Gameplay UI 使用平台原生元件；作者可以選主題、主色、密度、圓角與數值條風格，不會執行任意 CSS／JavaScript。只有角色卡已經包含 Gameplay UI schema 時才會套用。</p>
 <div class="studio-grid">
@@ -84,6 +108,8 @@
 <script src="js/character-studio-actions-core.js"></script>
 <script src="js/character-studio.js?v=1"></script>
 <script src="js/character-studio-flow.js?v=3"></script>
+<script src="js/npc-personality-helper-core.js?v=1"></script>
+<script src="js/npc-personality-helper.js?v=1"></script>
 <script src="js/bao-doctor.js"></script>
 <script src="js/character-studio-lifecycle.js"></script>
 </body></html>
