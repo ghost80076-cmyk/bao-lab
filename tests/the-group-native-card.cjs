@@ -1,0 +1,60 @@
+'use strict';
+const fs = require('node:fs');
+const path = require('node:path');
+const assert = require('node:assert/strict');
+const crypto = require('node:crypto');
+const UI = require('../js/gameplay-ui-core.js');
+const Regex = require('../js/author-regex-core.js');
+const Books = require('../js/worldbook-library-core.js');
+const Package = require('../js/work-package-core.js');
+const root = path.resolve(__dirname, '..');
+const read = name => JSON.parse(fs.readFileSync(path.join(root, name), 'utf8'));
+const card = read('data/characters/general/the-group-private-chat.json');
+const sidecar = read('data/characters/general/the-group-private-chat.regex.json');
+const schema = UI.normalize(card.gameplay.ui_schema);
+assert.equal(schema.builder.fields.length, 10);
+assert.equal(schema.panels.length, 4);
+const state = structuredClone(card.gameplay.initial_state);
+const defaults = UI.builderDefaults(schema);
+assert(UI.applyBuilderValues(schema, defaults, state));
+assert.equal(state.modules.private_profile.gender, '未設定');
+assert(UI.applyBuilderValues(schema, {...defaults, nickname: '測試新人', occupation: {option: '其他／自訂', custom: '夜班攝影師'}}, state));
+assert.equal(state.modules.public_profile.nickname, '測試新人');
+assert.equal(state.modules.private_profile.occupation, '夜班攝影師');
+assert.doesNotMatch(JSON.stringify(schema.panels), /private_profile|modules\.knowledge/);
+const book = Books.normalizePack(state.worldbookLibrary.installed[0]);
+assert.equal(book.entries.length, 11);
+assert.deepEqual(sidecar, card.import_metadata.work_package_regex);
+const rules = Regex.normalize(sidecar);
+assert.equal(rules.length, 16);
+assert(rules.every(rule => !rule.reason && !rule.script));
+const opening = Regex.render(card.content.greeting, rules, false);
+assert(opening.matched);
+assert.equal((opening.html.match(/有人要進來。/g) || []).length, 1);
+assert(!opening.html.includes('【YB_GROUP_ENTRY】'));
+for (const speaker of ['Queen_13', 'xia_', 'mnn33', 'Tu_22', 'roro_dark', 'vi_23', 'na_na7']) {
+  for (const mode of ['群聊', '私訊']) {
+    const result = Regex.render(`【${mode}｜${speaker}｜23:21】<img src=x onerror=alert(1)> & $1【/${mode}】`, rules, false);
+    assert(result.matched);
+    assert(result.html.includes('&lt;img'));
+    assert(!result.html.includes('<img src=x'));
+    assert(result.html.includes('&amp; $1'));
+  }
+}
+assert(!Regex.render('【群聊｜陌生成員｜23:21】訊息【/群聊】', rules, false).matched);
+const cover = fs.readFileSync(path.join(root, card.meta.avatar));
+assert.equal(Package.imageMime(cover), 'image/png');
+const catalog = read('data/characters.json').filter(item => item.id === card.meta.id);
+assert.equal(catalog.length, 1);
+assert.equal(catalog[0].rating, 'adult');
+assert.equal(catalog[0].author_id, 'banzhang');
+assert.equal(catalog[0].avatar, card.meta.avatar);
+(async () => {
+  const built = Package.build({character: card, regex: sidecar, assets: [{id: 'group-cover', path: 'assets/group-cover.png', role: 'cover'}], files: {'assets/group-cover.png': new Uint8Array(cover)}});
+  const files = await Package.unzip(built.bytes);
+  const restored = Package.assemble(Package.jsonFile(files, 'manifest.json'), files);
+  assert.equal(restored.character.meta.avatar, 'yorubay-asset://group-cover');
+  assert.equal(restored.character.gameplay.initial_state.worldbookLibrary.installed[0].entries.length, 11);
+  assert.equal(crypto.createHash('sha256').update(restored.assets[0].bytes).digest('hex'), crypto.createHash('sha256').update(cover).digest('hex'));
+  console.log('PASS the group: native setup, private display paths, message escaping, catalog and lossless package assets');
+})().catch(error => { console.error(error); process.exitCode = 1; });

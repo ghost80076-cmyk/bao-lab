@@ -916,5 +916,38 @@
     "version_published_at": "2026-10-13T11:11:00Z",
     "author": "班長",
     "author_id": "banzhang"
+  },
+  {
+    "id": "the-group-private-chat",
+    "name": "群｜姊妹八卦群・養狗紀錄專用",
+    "category": "general",
+    "gender": "female",
+    "tags": [
+      "群像",
+      "私密群聊",
+      "現代台灣",
+      "雙線生活",
+      "身份秘密",
+      "BDSM"
+    ],
+    "description": "七個女人，一個沒有公開入口的私密群。白天工作、戀愛、抱怨伴侶，深夜交換八卦、秘密與權力關係。你可以聊天、潛水、私訊，也可以繼續過自己的生活；群有自己的節奏。",
+    "rating": "adult",
+    "avatar": "assets/characters/the-group/cover.png",
+    "author": "班長",
+    "author_id": "banzhang",
+    "file": "data/characters/general/the-group-private-chat.json",
+    "title": "群｜姊妹八卦群・養狗紀錄專用",
+    "supported_modes": {
+      "immersive": true,
+      "world": true
+    },
+    "supported_display": {
+      "text": true,
+      "ui": true
+    },
+    "published_at": "2026-10-23T13:04:00Z",
+    "updated_at": "2026-10-23T13:04:00Z",
+    "published_version": 1,
+    "version_published_at": "2026-10-23T13:04:00Z"
   }
 ]
