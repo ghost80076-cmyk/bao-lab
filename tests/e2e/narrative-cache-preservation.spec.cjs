@@ -94,3 +94,32 @@ test('unchanged save leaves a legacy story without narrative fields intact', asy
   expect(await page.evaluate(() => preferenceSnapshot())).toEqual(before);
   expect(await page.evaluate(() => Object.hasOwn(App.config, 'narrative'))).toBe(false);
 });
+
+for (const width of [390, 1440]) {
+  test(`story length takes precedence over reply defaults at ${width}px`, async ({ page }) => {
+    await setup(page, width);
+    await page.evaluate(() => BAOPlayerSettings.set({ ...BAOPlayerSettings.get(), replyLength: 'short' }));
+    const before = await page.evaluate(() => preferenceSnapshot());
+    expect(before.messages).toContain('900–1400');
+    expect(before.messages).not.toContain('使用精簡回覆');
+
+    await page.locator('[data-bao-open="reply"]').evaluate(button => button.click());
+    const reply = page.getByRole('dialog', { name: '回覆設定' });
+    await expect(reply).toContainText('會優先使用故事設定');
+    await reply.locator('[data-setting="replyLength"][data-value="long"]').click();
+    await reply.locator('.bao-modal-save').click();
+    const after = await page.evaluate(() => preferenceSnapshot());
+    expect(after.messages).toBe(before.messages);
+    expect(after.config).toBe(before.config);
+    expect(after.state).toBe(before.state);
+    expect(after.calls).toBe(0);
+
+    await page.evaluate(() => BAONarrativeSettings.open());
+    await page.locator('[data-pref="responseLength"]').selectOption('card');
+    await page.locator('[data-narrative-save]').click();
+    const fallback = await page.evaluate(() => preferenceSnapshot());
+    expect(fallback.messages).toContain('使用完整場景回覆');
+    expect(fallback.messages).not.toContain('900–1400');
+    expect(fallback.calls).toBe(0);
+  });
+}

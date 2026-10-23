@@ -92,9 +92,9 @@ window.addEventListener("DOMContentLoaded", () => {
     .catch(err => console.warn("BAO/LAB cost, provider compatibility, model routing or provider diagnostics controls failed to load:", err));
   loadBAOScript("js/storage-write-guard.js?v=3")
     .then(() => loadBAOScript("js/chat-shell-fix.js?v=2"))
-    .then(() => loadBAOScript("js/player-settings.js?v=10"))
+    .then(() => loadBAOScript("js/player-settings.js?v=11"))
     .then(() => loadBAOScript("js/player-text-replace-mod.js?v=2"))
-    .then(() => loadBAOScript("js/narrative-settings.js?v=10"))
+    .then(() => loadBAOScript("js/narrative-settings.js?v=11"))
     .then(() => loadBAOScript("js/memory-workbench-core.js?v=3"))
     .then(() => loadBAOScript("js/memory-workbench-ai.js"))
     .then(() => loadBAOScript("js/canon-workbench.js?v=3"))

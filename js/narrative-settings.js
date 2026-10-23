@@ -289,11 +289,11 @@
         <section class="tonight-section" aria-labelledby="tonight-response"><h3 id="tonight-response">回覆方式 <span>篇幅、節奏與角色互動</span></h3><div class="narrative-select-grid">
             <label>每輪篇幅
               <select data-pref="responseLength">
-                <option value="card" ${prefs.responseLength === "card" ? "selected" : ""}>依角色卡／模型判斷</option>
+                <option value="card" ${prefs.responseLength === "card" ? "selected" : ""}>沿用回覆設定</option>
                 <option value="short" ${prefs.responseLength === "short" ? "selected" : ""}>精簡 · 約 300–600 字</option>
                 <option value="medium" ${prefs.responseLength === "medium" ? "selected" : ""}>適中 · 約 600–1000 字</option>
                 <option value="long" ${prefs.responseLength === "long" ? "selected" : ""}>詳細 · 約 900–1400 字</option>
-              </select><small>以內容密度為優先，不為湊字數重複敘述。</small>
+              </select><small>指定篇幅優先；未指定時沿用「回覆設定」的預設。</small>
             </label>
             <label>對話與描寫
               <select data-pref="dialogueBalance">
@@ -663,6 +663,10 @@
     open: openModal,
     openInstructions: () => openModal({ focusInstructions: true }),
     buildPrompt: buildPreferencePrompt,
+    // Resolve the same normalized source used by buildSystemPrompt, including
+    // the existing browser-default fallback for legacy stories without narrative.
+    hasExplicitResponseLength: (config = App.config) =>
+      ["short", "medium", "long"].includes(normalizePrefs(config?.narrative || settings).responseLength),
     classifyInstruction,
     effectiveCustomInstructions: prefs => [...effectiveCustomInstructions(normalizePrefs(prefs).customInstructions)],
     summaryItems: prefs => [...summaryItems(prefs)],

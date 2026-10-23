@@ -1,6 +1,6 @@
 # BAO/LAB｜AI 作者協作理解包 v0.1
 
-> 2026-09-21 整理。這份公開說明可直接複製或交給作者慣用的 AI（GPT、Claude、Gemini 等）參考；它不是自動轉檔器、相容保證或完整 SDK。**不要將 API Key、密碼、私人故事備份交給 AI 或其他作者。**
+> 2026-10-24 核對目前匯入與作者介面實作。這份公開說明可直接複製或交給作者慣用的 AI（GPT、Claude、Gemini 等）參考；它不是自動轉檔器、相容保證或完整 SDK。**不要將 API Key、密碼、私人故事備份交給 AI 或其他作者。**
 
 ## 先給作者：5 步驟
 
@@ -15,7 +15,9 @@
 - **角色卡 JSON**：名稱、簡介、開場白、角色人格、世界規則及初始狀態。使用 `schema_version: "1.5"` 的頂層物件，主要區塊是 `meta`、`content`、`gameplay`、`presentation`。`meta.id` 建議英數開頭、總長 1～64，其他字元僅限英數、底線及連字號。`meta.category` 是作品受眾分類（`male`／`female`／`r18`），**不是角色性別**。`content.greeting` 是故事開場；`content.system_prompt` 是人格與行為規則；多 NPC 世界的規則可寫進 `content.world`、`content.npc_rules` 等欄位。`presentation.supported_display` 至少讓 `text` 或 `ui` 之一為 `true`。原生 `ui` 不會自動替作者開啟自訂正則。
 - **作者正則 JSON（選用）**：獨立的 `regex_scripts` 陣列，每條含 `scriptName`、`findRegex`、`replaceString`，將開場或 AI 輸出的標記替換成預先設計的 HTML／CSS／JS。也接受規則陣列或 `rules` 格式。作者正則負責視覺與點擊，不是第二份角色人格。
 
-目前角色卡結構檢查**不支援直接把 SillyTavern V2/V3 或其他平台整張卡自動轉換**為 BAO/LAB JSON；請 AI 參照模板改寫，再單獨匯入正則，逐條驗證舊平台專用的 DOM、全域函式及多腳本依賴。若來源匯入流程保留 `extensions.regex_scripts`，可能會綁定該角色卡的本機正則設定，但仍預設停用，不保證所有格式都可用。
+網站角色卡匯入已支援 **SillyTavern V2 JSON／帶有 chara metadata 的原始 PNG**，會先顯示角色資料轉換預覽；PNG 圖片可存為本機封面。夜灣自己匯出的 V2 相容 JSON／PNG 若含完整夜灣擴充資料，會優先還原原生欄位。結構檢查器本身仍驗證夜灣格式，不能把通過檢查等同於第三方介面相容。
+
+一般 SillyTavern V3 目前會提示改用 V2；MMD／LunaTalk 的完整角色與平台腳本沒有整套直接相容保證。已保留的 `extensions.regex_scripts` 可連結角色的本機正則設定，但預設停用且不自動授權 JS。跨平台資料、世界書與腳本需分開驗證，詳見[格式與顯示能力對照](../author-rendering-compatibility.md)。
 
 正式模板：[基礎角色卡](../../data/characters/character-basic-template.json)｜[進階世界卡](../../data/characters/character-template.json)｜[作者沙盒與權限](../author-regex-dock.md)。本協作包另附：[示範角色卡](./example-character.json)｜[示範互動正則](./example-regex.json)。
 

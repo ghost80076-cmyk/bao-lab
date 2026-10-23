@@ -122,7 +122,7 @@
   const choiceButtons = (name, values, selected) => values.map(v => `<button type="button" class="bao-choice ${v === selected ? "active" : ""}" data-setting="${name}" data-value="${v}"><b>${replyLabels[v][0]}</b><span>${replyLabels[v][1]}</span></button>`).join("");
 
   const openReplySettings = () => {
-    const body = `<div class="bao-setting-section"><h3>回覆長度</h3><p>控制輸出密度，不影響記憶模式。短適合快速對話；長要求完整場景；自動會依日常、戰鬥、轉折等情況調整。</p><div class="bao-choice-grid">${choiceButtons("replyLength", ["short","long","auto"], settings.replyLength)}</div></div>
+    const body = `<div class="bao-setting-section"><h3>回覆長度</h3><p>這是未指定故事篇幅時的預設，不影響記憶模式。「今晚的故事」若已指定篇幅，會優先使用故事設定。短適合快速對話；長要求完整場景；自動依場景調整。</p><div class="bao-choice-grid">${choiceButtons("replyLength", ["short","long","auto"], settings.replyLength)}</div></div>
     <div class="bao-setting-section"><h3>敘事人稱</h3><p>「角色第一人稱」中的我固定是 AI 主要角色；「玩家第二人稱」中的你／妳固定是玩家 Persona。</p><div class="bao-choice-grid two">${choiceButtons("pov", ["card","first","second","third"], settings.pov)}</div></div>
     <div class="bao-setting-section"><h3>對話格式</h3><p>這只控制台詞標示方式，與敘事人稱分開。AI 不會因此替玩家編造台詞。</p><div class="bao-choice-grid two">${choiceButtons("dialogueFormat", ["card","named"], settings.dialogueFormat)}</div></div>
     <div class="bao-setting-section"><h3>網站介面語言</h3><p>網站介面語言僅影響選單、按鈕與操作文字；不修改角色卡、故事、玩家輸入或 AI 回覆。</p><div class="bao-choice-grid">${choiceButtons("siteLanguage", ["zh-Hant","zh-Hans","en"], window.BAOSiteI18n?.getLocale?.() || "zh-Hant")}</div></div>
@@ -392,11 +392,17 @@
     box.querySelector("#bao-demo-mode").addEventListener("change", e => { settings.demoMode = e.target.checked; });
   };
 
-  const lengthInstruction = () => settings.replyLength === "short"
+  const lengthInstruction = config => {
+    // The story narrative layer emits its own length instruction. Keep the
+    // existing default verbatim only when that layer has no explicit target.
+    // An older/missing narrative script retains the legacy fallback.
+    if (window.BAONarrativeSettings?.hasExplicitResponseLength?.(config)) return "";
+    return settings.replyLength === "short"
     ? "使用精簡回覆，優先快速對話與劇情推進，通常約 300～600 個中文字；不要為縮短而省略理解本輪所需的關鍵動作或結果。"
     : settings.replyLength === "long"
       ? "使用完整場景回覆，充分描寫動作、環境、角色反應與因果，通常約 900～1500 個中文字；不要為達字數而重複、灌水或拖慢劇情。"
       : "依場景密度自動調整篇幅：日常對話可以簡潔；戰鬥、重大轉折、關係變化或需要沉浸描寫的場景可以加長。不要硬湊固定字數。";
+  };
   const povInstruction = () => {
     const roleName = App.activeCharacter?.name || "AI 主要角色";
     const playerName = App.config?.persona?.name || "玩家";
@@ -419,7 +425,7 @@
   App.buildSystemPrompt = function() {
     const base = originalBuildSystemPrompt();
     const memory = enabledMemoryText();
-    return [base, "", "【玩家回覆設定】", lengthInstruction(), povInstruction(), dialogueInstruction(), languageInstruction(), memory ? `\n【玩家手動記憶】\n${memory}` : ""].filter(Boolean).join("\n");
+    return [base, "", "【玩家回覆設定】", lengthInstruction(this.config), povInstruction(), dialogueInstruction(), languageInstruction(), memory ? `\n【玩家手動記憶】\n${memory}` : ""].filter(Boolean).join("\n");
   };
 
   const originalOpenBuilder = App.openBuilder.bind(App);

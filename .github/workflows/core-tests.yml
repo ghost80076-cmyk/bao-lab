@@ -378,6 +378,8 @@ jobs:
         run: node tests/canon-workbench-core.cjs
       - name: Mature narrative and character agency settings
         run: node tests/narrative-settings-core.cjs
+      - name: Single effective reply length and cache stability
+        run: node tests/reply-length-precedence-core.cjs
       - name: Narrative selection to final request pipeline
         run: node tests/narrative-prompt-pipeline-core.cjs
       - name: Stable chat message IDs
