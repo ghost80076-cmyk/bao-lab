@@ -130,6 +130,10 @@
     const route = helper?.model && helper?.baseUrl ? helper : config?.api;
     window.BAOCreditsPilot?.prepareAccountConfig?.(route);
     if (!route?.key && !window.BAOCreditsPilot?.isAccountReady?.(route)) throw new Error('請先連接狀態模型使用的 API。');
+    // report() reads the tracker queue and initializes legacy stories that do
+    // not have pendingStateTurns yet. Normalize it before taking the baseline
+    // so our own bookkeeping cannot invalidate the stale-result signature.
+    queue();
     const before = mutableSnapshot(owner);
     const signature = historySignature();
     const configSignature = JSON.stringify(config);
