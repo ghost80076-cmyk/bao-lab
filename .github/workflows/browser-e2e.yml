@@ -43,6 +43,7 @@ jobs:
               tests/e2e/story-integrity.spec.cjs
               tests/e2e/per-turn-merged-state.spec.cjs
               tests/e2e/world-module-manager-mobile.spec.cjs
+              tests/e2e/mystery-truth-lock.spec.cjs
           - group: story-experience
             specs: |
               tests/e2e/qiao-yining.spec.cjs
