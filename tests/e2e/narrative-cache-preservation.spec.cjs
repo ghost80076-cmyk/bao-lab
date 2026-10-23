@@ -171,3 +171,46 @@ test('legacy stories do not inherit coauthor authorization from browser defaults
   expect(await page.evaluate(() => preferenceSnapshot())).toEqual(before);
   expect(await page.evaluate(() => App.collectConfig().narrative.playerPortrayal)).toBe('coauthor');
 });
+
+// Opt-in story direction shares the existing narrative modal and never triggers an extra API call.
+for (const width of [390, 1440]) {
+  test(`scene focus and out-of-character expectations stay story-local at ${width}px`, async ({ page }) => {
+    await setup(page, width);
+    const before = await page.evaluate(() => preferenceSnapshot());
+    await page.evaluate(() => BAONarrativeSettings.open());
+    const focus = page.locator('[data-pref="sceneFocus"]');
+    const expectation = page.locator('[data-pref-text="storyExpectation"]');
+    await expect(focus).toHaveValue('card');
+    await expect(expectation).toHaveValue('');
+    await focus.selectOption('protect');
+    await expectation.fill('希望兩人重新建立信任，但不能保證和好。');
+    await page.locator('.bao-modal-close').click();
+    expect(await page.evaluate(() => preferenceSnapshot())).toEqual(before);
+
+    await page.evaluate(() => BAONarrativeSettings.open());
+    await focus.selectOption('protect');
+    await expectation.fill('希望兩人重新建立信任，但不能保證和好。');
+    await page.locator('[data-narrative-save]').click();
+    const after = await page.evaluate(() => preferenceSnapshot());
+    expect(after.saves).toBe(1);
+    expect(after.calls).toBe(0);
+    expect(after.defaults).toBe(before.defaults);
+    expect(after.messages).toContain('【場景投入保護】');
+    expect(after.messages).toContain('【玩家場外劇情期待｜非角色意圖】');
+    expect(after.messages).toContain('希望兩人重新建立信任，但不能保證和好。');
+    expect(await page.evaluate(() => App.config.narrative.sceneFocus)).toBe('protect');
+    expect(await page.evaluate(() => App.config.narrative.storyExpectation)).toContain('希望兩人');
+    expect(await page.evaluate(() => GameState.current.storySessionId)).toBe('cache-test-fixed-session');
+
+    await page.evaluate(() => BAONarrativeSettings.open());
+    await page.locator('[data-narrative-save]').click();
+    expect(await page.evaluate(() => preferenceSnapshot())).toEqual(after);
+    await page.evaluate(() => BAONarrativeSettings.open());
+    await focus.selectOption('card');
+    await expectation.fill('');
+    await page.locator('[data-narrative-save]').click();
+    const reverted = await page.evaluate(() => preferenceSnapshot());
+    expect(reverted.messages).toBe(before.messages);
+    expect(reverted.calls).toBe(0);
+  });
+}
