@@ -101,6 +101,38 @@ assert.doesNotMatch(core.select([actorScoped], ["actor-scope-test"], cast(["艾�
 assert.equal(core.select([actorScoped], ["actor-scope-test"], cast([])).text, "");
 assert.equal(core.normalizePack(actorScoped).entries[1].known_by[0], "艾琳", "reload preserves actor scope");
 
+
+const mystery = core.createMysteryCase({
+  id:"mystery-port-01", title:"港口失蹤案",
+  truth:"真正犯人是值班警衛；失蹤者自願躲藏。",
+  opening:"玩家開局知道港口有人失蹤。",
+  clues:["凌晨兩點船隻未登記。", "監視器影像缺了十分鐘。"]
+});
+assert.equal(mystery.meta.visibility, "private");
+assert.equal(mystery.meta.source, "yorubay-mystery-case");
+assert.equal(mystery.entries.length, 4);
+assert.equal(mystery.entries.find(e => e.id === "sealed-truth").mode, "foundation");
+assert.deepEqual(mystery.entries.find(e => e.id === "sealed-truth").requires, ["mystery-port-01-truth-public"]);
+assert.equal(core.mysteryFlagLabel(mystery, "mystery-port-01-truth-public"), "真相已公開（解除模型保密鎖）");
+assert.equal(core.mysteryFlagLabel(mystery, "mystery-port-01-clue-1-known"), "玩家已取得線索 1");
+assert.equal(core.mysteryFlagLabel(mystery, "unrelated"), "unrelated");
+const look = flags => core.select([mystery], [mystery.meta.id],
+  {latestUser:"港口警衛與監視器", flags}, {maxChars:10000,maxEntries:12}).text;
+assert.match(look([]), /港口有人失蹤/);
+assert.doesNotMatch(look([]), /真正犯人|船隻未登記|影像缺了/);
+assert.match(look(["mystery-port-01-clue-1-known"]), /船隻未登記/);
+assert.doesNotMatch(look(["mystery-port-01-clue-1-known"]), /真正犯人|影像缺了/);
+assert.match(look(["mystery-port-01-truth-public"]), /真正犯人是值班警衛/);
+assert.doesNotMatch(look(["mystery-port-01-truth-public"]), /影像缺了/);
+assert.equal(look([]), look([]), "pre-reveal request bytes stay identical");
+assert.equal(core.select([mystery], [], {latestUser:"港口"}).text, "");
+assert.equal(core.constants([mystery], [mystery.meta.id], {}).text, "", "sealed truth never enters stable prefix");
+const restoredMystery = core.normalizePack(JSON.parse(JSON.stringify(mystery)));
+assert.equal(restoredMystery.entries.find(e => e.id === "sealed-truth").content,
+  mystery.entries.find(e => e.id === "sealed-truth").content, "truth survives portable worldbook snapshots");
+assert.throws(() => core.createMysteryCase({ id:"case-2",title:"案件",truth:"" }), /核心真相/);
+assert.throws(() => core.createMysteryCase({ id:"case-2",title:"案件",truth:"有",clues:Array(9).fill("線索") }), /最多 8 條/);
+
 const loader = fs.readFileSync(path.join(__dirname, "../js/site-ui.js"), "utf8");
 const runtime = fs.readFileSync(path.join(__dirname, "../js/worldbook-library.js"), "utf8");
 assert.ok(loader.indexOf('js/prompt-orchestrator.js') < loader.indexOf('js/worldbook-library.js'));
