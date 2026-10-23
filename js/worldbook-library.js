@@ -389,6 +389,15 @@
       outline:2px solid var(--yoru-lantern,#d6aa73);outline-offset:3px
     }
     .worldbook-library-launch{white-space:normal}
+    .ylb-mystery-builder{margin:12px 0;border:1px solid var(--yoru-card-border,#574a4055);border-radius:12px;padding:11px 13px}
+    .ylb-mystery-builder>summary{cursor:pointer;font-weight:650}
+    .ylb-mystery-builder p{margin:9px 0;font-size:12px;line-height:1.6}
+    .ylb-mystery-form{display:grid;gap:12px;margin-top:12px}
+    .ylb-mystery-form label{display:grid;gap:5px;font-size:13px}
+    .ylb-mystery-form :is(input,textarea){min-width:0;width:100%;max-width:100%;border:1px solid var(--yoru-border,#675a4a);border-radius:9px;padding:10px;color:var(--yoru-text,#e7dfd7);background:var(--yoru-control,#29232a);font:inherit}
+    .ylb-mystery-form textarea{min-height:80px;resize:vertical;line-height:1.55}
+    .ylb-mystery-form button{min-height:40px;padding:9px 12px}
+
     @media(max-width:600px){
       .ylb-backdrop{padding:8px}
       .ylb-modal{max-height:94vh;max-height:94dvh;border-radius:14px}
@@ -436,6 +445,23 @@
     importDescription.textContent = "匯入支援夜灣與 LunaTalk 世界書 JSON，只存目前故事，不會公開。舊作的規則／自訂條目保留原文，待完成設定後才會召回。世界書提供背景資料，狀態欄由故事設定管理。";
     modeHint.append(modeSummary, controls, modeDescription, importDescription);
     backdrop.querySelector(".ylb-footer").before(modeHint);
+    const mysteryEditor = document.createElement("details");
+    mysteryEditor.className = "ylb-mystery-builder";
+    mysteryEditor.innerHTML = `<summary>＋ 建立懸疑案件 · 預先固定真相</summary>
+      <p>作者可先固定核心答案，再放入玩家已知資訊和待揭露線索。只存於目前的本機故事；啟用案件後，未標記揭露的真相與線索不會加入模型請求。</p>
+      <form class="ylb-mystery-form" data-mystery-form>
+        <label>案件名稱 <input name="title" maxlength="80" required placeholder="例如：港口失蹤案"></label>
+        <label>案件核心真相（只有手動標記公開後才會送入模型）
+          <textarea name="truth" maxlength="12000" required placeholder="先確立真正發生了什麼、關鍵原因與主要責任人。"></textarea></label>
+        <label>開局已知資訊（選填，啟用後可召回）
+          <textarea name="opening" maxlength="12000" placeholder="只填玩家角色開局確定知道的事，不放幕後秘密。"></textarea></label>
+        <label>待揭露線索（選填，每行一條，最多 8 條）
+          <textarea name="clues" rows="4" placeholder="雨夜有一艘沒登記的船抵達\n監視器在凌晨兩點中斷"></textarea></label>
+        <button type="submit" class="secondary">固定案件真相 · 存入本故事</button>
+        <p role="status" data-mystery-result></p>
+      </form>`;
+    backdrop.querySelector(".ylb-footer").before(mysteryEditor);
+
     const listing = backdrop.querySelector("[data-ylb-list]");
 
     // Discovery is presentation-only: the existing collection master checkbox
@@ -537,13 +563,17 @@
           input.checked = (openedStory.worldbookFlags || []).includes(flag);
           input.dataset.ylbCondition = flag;
           const caption = document.createElement("span");
-          caption.textContent = flag;
+          caption.textContent = core.mysteryFlagLabel(pack, flag);
           row.style.display = "flex"; row.style.gap = "8px";
           row.append(input, caption); details.append(row);
           input.onchange = async () => {
             input.disabled = true;
-            try { await setCondition(pack.meta.id, flag, input.checked, openedStory); }
-            finally { await render(); }
+            try {
+              if (input.checked && pack.meta.source === "yorubay-mystery-case" &&
+                  flag === pack.meta.id + "-truth-public" &&
+                  !confirm("只有在案件真相已經公開給當前故事後才勾選。啟用後真相將進入模型背景資料，不代表所有 NPC 原本都知道。確定已經公開嗎？")) return;
+              await setCondition(pack.meta.id, flag, input.checked, openedStory);
+            } finally { await render(); }
           };
         }
         target.append(details);
@@ -567,6 +597,7 @@
           (pack.entries.some(entry => entry.mode === "constant") ? " · 每輪 " + pack.entries.filter(entry => entry.mode === "constant").reduce((sum, entry) => sum + entry.content.length, 0) + " 字" : " · 按需召回") +
           (pack.meta.selection_group ? " · 文風擇一" : "") +
           (pack.meta.legacy ? " · 舊版節選" : "") +
+          (pack.meta.source === "yorubay-mystery-case" ? " · 真相預先鎖定" : "") +
           (flagged ? " · " + flagged + " 條待審，不自動召回" : "");
         info.append(heading, note); label.append(check, info);
         article.append(label);
@@ -650,6 +681,41 @@
       if (!packs.length) listing.textContent = "還沒有世界書。可先匯入你自己的世界書 JSON。";
       updateDiscovery();
     };
+    mysteryEditor.querySelector("[data-mystery-form]")?.addEventListener("submit", async event => {
+      event.preventDefault();
+      if (story() !== openedStory) return;
+      const form = event.currentTarget;
+      const status = form.querySelector("[data-mystery-result]");
+      const submit = form.querySelector('button[type="submit"]');
+      submit.disabled = true;
+      try {
+        const data = new FormData(form);
+        const local = cfg();
+        if (!local || story() !== openedStory) return;
+        const packs = await all();
+        if (story() !== openedStory || cfg() !== local) return;
+        if ((local.installed || []).length >= MAX_INSTALLED)
+          throw new Error("本故事已達 6 份私人世界書上限");
+        const id = "mystery-" + Date.now().toString(36) + "-" + (local.installed || []).length;
+        const clues = String(data.get("clues") || "").split(/\r?\n/).map(x => x.trim()).filter(Boolean);
+        const pack = core.createMysteryCase({
+          id, title:String(data.get("title") || ""),
+          truth:String(data.get("truth") || ""), opening:String(data.get("opening") || ""), clues
+        });
+        if (packs.some(item => item.meta.id === pack.meta.id)) throw new Error("案件 ID 重複，請重新建立");
+        if (JSON.stringify([...(local.installed || []), pack]).length > MAX_TOTAL_BYTES)
+          throw new Error("私人世界書總量超過 3.5 MB");
+        if (!confirm("固定案件「" + pack.meta.name + "」？\n這會把既定真相存入本機故事中的私人世界書；建立後此介面不提供改寫答案。\n預設不啟用，需自行在世界書開啟。真相和線索只在你標記揭露後才送入模型。")) return;
+        if (story() !== openedStory || cfg() !== local) return;
+        local.installed = [...(local.installed || []), pack];
+        save();
+        status.textContent = "案件已固定。請在世界書中啟用；揭露條件由你手動確認。";
+        form.reset();
+        await render();
+      } catch (error) {
+        status.textContent = "建立失敗：" + (error?.message || "資料錯誤");
+      } finally { submit.disabled = false; }
+    });
     const picker = backdrop.querySelector("[data-ylb-file]");
     backdrop.querySelector("[data-ylb-import]").onclick = () => { picker.value = ""; picker.click(); };
     picker.onchange = async () => {
