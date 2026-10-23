@@ -68,7 +68,7 @@ for (const width of [390, 1280]) {
     expect(clueText).not.toContain('監視器短暫中斷');
 
     page.once('dialog', dialog => dialog.dismiss());
-    await section.getByRole('checkbox', { name: '真相已公開（解除模型保密鎖）' }).check();
+    await section.getByRole('checkbox', { name: '真相已公開（解除模型保密鎖）' }).click();
     expect(await page.evaluate(() => GameState.current.worldbookFlags.some(f => f.endsWith('-truth-public')))).toBe(false);
     // Check again with intentional confirmation, using the same story-local flag.
     page.once('dialog', dialog => dialog.accept());
