@@ -24,6 +24,7 @@ global.document = {
 };
 
 let capturedRequest = null;
+let latestInput = "玩家最新輸入";
 global.API = {
   async send(config, messages) {
     capturedRequest = { config, messages };
@@ -37,7 +38,7 @@ global.Chat = {
   async context() {
     return [
       { role: "assistant", content: "上一輪" },
-      { role: "user", content: "玩家最新輸入" }
+      { role: "user", content: latestInput }
     ];
   },
   addUsage() {},
@@ -199,6 +200,34 @@ assert.equal(
   assert.doesNotMatch(directionFirst.at(-1).content, /希望重建信任/);
   App.config.narrative = {};
   assert.doesNotMatch(JSON.stringify(await App.buildMessages(App.config)), /【場景投入保護】|玩家場外劇情期待/);
+
+  // Observe only if the story explicitly permits it AND the latest user turn is an exact command.
+  for (const model of ["google/gemini-3.1-pro-preview", "anthropic/claude-sonnet-4.5"]) {
+    App.config = { api: { model }, narrative: { playerPortrayal: "strict", observationMode: "one_turn" } };
+    const stable = (await App.buildMessages(App.config))[0].content;
+    assert.match(stable, /可選觀賞授權｜僅限本輪/);
+    for (const command of ["繼續", "然後呢", "【觀賞一輪】"]) {
+      latestInput = command;
+      const once = await App.buildMessages(App.config);
+      assert.equal(once[0].content, stable, "per-turn choice must not invalidate the cached stable prefix");
+      assert.match(once.at(-1).content, /【本輪觀賞授權】/);
+      assert.match(once.at(-1).content, /重大承諾、同意、關係定案/);
+      assert.equal(BAOPromptOrchestrator.observerCommand({ content: "【玩家最新輸入】\\n" + command }), command);
+    }
+    for (const ordinary of ["我推開門走進去。", "「嗯」", "繼續描寫", "繼續，但不要替我說話。", "我說：然後呢？", "【玩家最新輸入】\\n繼續"]) {
+      latestInput = ordinary;
+      const handback = await App.buildMessages(App.config);
+      assert.equal(handback[0].content, stable, "ordinary turns preserve fixed opt-in prefix");
+      assert.doesNotMatch(handback.at(-1).content, /【本輪觀賞授權】/, "specific player input returns original authority");
+    }
+  }
+  App.config = { api: { model: "google/gemini-3.1-pro-preview" } };
+  latestInput = "繼續";
+  assert.doesNotMatch(JSON.stringify(await App.buildMessages(App.config)), /【本輪觀賞授權】|可選觀賞授權/);
+  App.config = { api: { model: "google/gemini-3.1-pro-preview" }, narrative: { observationMode: "off" } };
+  assert.doesNotMatch(JSON.stringify(await App.buildMessages(App.config)), /【本輪觀賞授權】|可選觀賞授權/);
+  latestInput = "玩家最新輸入";
+
   console.log("narrative prompt pipeline core test passed");
 })().catch(error => {
   console.error(error);
