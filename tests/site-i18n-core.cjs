@@ -85,7 +85,7 @@ assert.equal(JSON.parse(storage.get("bao-lab:player-settings")).language, "zh-Ha
 
 for (const page of ["index.html", "account.html", "author.html", "quick-start.html"]) {
   const html = fs.readFileSync(path.join(__dirname, "..", page), "utf8");
-  assert.match(html, /js\/site-i18n\.js\?v=2/, page + " should load interface localization");
+  assert.match(html, /js\/site-i18n\.js\?v=\d+/, page + " should load interface localization");
   assert.match(html, /css\/site-i18n\.css\?v=1/, page + " should style the interface switch");
   if (page === "index.html") assert.match(html, /<option value="男性">男性<\/option>/,
     "gender form values must remain stable while visible labels change");

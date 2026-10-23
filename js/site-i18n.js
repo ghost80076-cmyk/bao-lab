@@ -11,6 +11,15 @@
   // Keys are the authored Traditional Chinese UI copy. Values are [Simplified, English].
   // Missing copy deliberately stays as authored instead of machine-translating player data.
   const dictionary = Object.freeze({
+    "玩家角色演繹": ["玩家角色演绎", "Player portrayal"],
+    "玩家主控 · 沿用原有程度": ["玩家主控 · 沿用原有程度", "Player control · original scope"],
+    "敘事補述 · 將你的演出融入正文": ["叙事补述 · 将你的演出融入正文", "Narrative detail · weave in your input"],
+    "小說共創 · 依人設補寫日常言行": ["小说共创 · 依人设补写日常言行", "Coauthor · add everyday dialogue and actions"],
+    "補述不新增台詞或心理；共創可補寫日常反應。重要決策仍由你決定，可隨時切回主控。": ["补述不新增台词或心理；共创可补写日常反应。重要决策仍由你决定，可随时切回主控。", "Narrative detail adds no new dialogue or thoughts. Coauthoring can add everyday reactions. Important decisions remain yours; switch back anytime."],
+    "此項只控制 NPC 的內在描寫；玩家角色依上方演繹授權與自訂限制處理。": ["此项只控制 NPC 的内在描写；玩家角色依上方演绎授权与自定义限制处理。", "Controls NPC inner thoughts only. Player portrayal follows your authorization and custom limits above."],
+    "玩家主控": ["玩家主控", "Player control"],
+    "敘事補述": ["叙事补述", "Narrative detail"],
+    "小說共創": ["小说共创", "Coauthoring"],
     "首頁": ["首页", "Home"],
     "作品": ["作品", "Stories"],
     "故事": ["故事", "Stories"],
@@ -249,7 +258,7 @@
     "角色名稱：「對話」": ["角色名称：“对话”", "Name: dialogue"],
     "控制輸出密度，不影響記憶模式。短適合快速對話；長要求完整場景；自動會依日常、戰鬥、轉折等情況調整。": ["控制输出密度，不影响记忆模式。短适合快速对话；长要求完整场景；自动依日常、战斗、转折等情况调整。", "Adjusts response length without changing memory. Short for quick scenes, long for richer scenes, automatic for context."],
     "「角色第一人稱」中的我固定是 AI 主要角色；「玩家第二人稱」中的你／妳固定是玩家 Persona。": ["“角色第一人称”中的我固定是 AI 主要角色；“玩家第二人称”中的你固定是玩家 Persona。", "In first-person, “I” is the AI character; in second-person, “you” is the player persona."],
-    "這只控制台詞標示方式，與敘事人稱分開。AI 不會因此替玩家編造台詞。": ["仅控制台词标示方式，与叙事人称分开。AI 不会因此替玩家编造台词。", "Changes dialogue labels independently of narrative perspective; the AI must not invent player dialogue."],
+    "這只控制台詞標示方式，與敘事人稱分開。玩家台詞的補述依「今晚的故事」演繹授權。": ["仅控制台词标示方式，与叙事人称分开。玩家台词的补述依“今晚的故事”演绎授权。", "Changes dialogue labels independently of narrative perspective. Player dialogue follows the portrayal authorization in Tonight’s story."],
     "敘事人稱": ["叙事人称", "Narrative perspective"],
     "對話格式": ["对话格式", "Dialogue format"],
     "AI 回覆語言": ["AI 回复语言", "AI response language"],

@@ -124,7 +124,7 @@
   const openReplySettings = () => {
     const body = `<div class="bao-setting-section"><h3>回覆長度</h3><p>這是未指定故事篇幅時的預設，不影響記憶模式。「今晚的故事」若已指定篇幅，會優先使用故事設定。短適合快速對話；長要求完整場景；自動依場景調整。</p><div class="bao-choice-grid">${choiceButtons("replyLength", ["short","long","auto"], settings.replyLength)}</div></div>
     <div class="bao-setting-section"><h3>敘事人稱</h3><p>「角色第一人稱」中的我固定是 AI 主要角色；「玩家第二人稱」中的你／妳固定是玩家 Persona。</p><div class="bao-choice-grid two">${choiceButtons("pov", ["card","first","second","third"], settings.pov)}</div></div>
-    <div class="bao-setting-section"><h3>對話格式</h3><p>這只控制台詞標示方式，與敘事人稱分開。AI 不會因此替玩家編造台詞。</p><div class="bao-choice-grid two">${choiceButtons("dialogueFormat", ["card","named"], settings.dialogueFormat)}</div></div>
+    <div class="bao-setting-section"><h3>對話格式</h3><p>這只控制台詞標示方式，與敘事人稱分開。玩家台詞的補述依「今晚的故事」演繹授權。</p><div class="bao-choice-grid two">${choiceButtons("dialogueFormat", ["card","named"], settings.dialogueFormat)}</div></div>
     <div class="bao-setting-section"><h3>網站介面語言</h3><p>網站介面語言僅影響選單、按鈕與操作文字；不修改角色卡、故事、玩家輸入或 AI 回覆。</p><div class="bao-choice-grid">${choiceButtons("siteLanguage", ["zh-Hant","zh-Hans","en"], window.BAOSiteI18n?.getLocale?.() || "zh-Hant")}</div></div>
     <div class="bao-setting-section"><h3>AI 回覆語言</h3><p>只控制之後由模型生成的敘事與對話，不翻譯網站介面、歷史訊息或既有角色卡。語言變更從下一次送出訊息開始生效。</p><div class="bao-choice-grid">${choiceButtons("language", ["zh-Hant","zh-Hans","en"], settings.language)}</div></div>`;
     const draft = { replyLength: settings.replyLength, pov: settings.pov, dialogueFormat: settings.dialogueFormat, language: settings.language, siteLanguage: window.BAOSiteI18n?.getLocale?.() || "zh-Hant" };
