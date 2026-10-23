@@ -23,14 +23,19 @@ async function setup(page, width, legacy = false) {
     App.saveStory = () => { window.preferenceSaves++; };
     API.send = () => { window.preferenceCalls++; throw new Error('Settings must not call a model'); };
     Chat.context = async () => [{ role: 'user', content: '繼續散步。' }];
-    window.preferenceSnapshot = async () => ({
+    window.preferenceSnapshot = async () => {
+      // Prompt assembly lazily initializes existing worldbook/actor state. Capture
+      // after that work so the baseline is not a pre-initialization snapshot.
+      const messages = JSON.stringify(await App.buildMessages(App.config));
+      return ({
       config: JSON.stringify(App.config),
       state: JSON.stringify(GameState.current),
       defaults: localStorage.getItem('bao-lab:narrative-settings-v1'),
-      messages: JSON.stringify(await App.buildMessages(App.config)),
+      messages,
       saves: window.preferenceSaves,
       calls: window.preferenceCalls
-    });
+      });
+    };
   }, legacy);
 }
 
