@@ -68,4 +68,46 @@ assert.equal(core.BUILT_INS[0].label, "繼續描寫");
   assert.match(info.detail, /不會自動送出/);
 }
 
+
+{
+  const source = [{ id:"local-1", label:"第三人稱", text:"請維持第三人稱敘事。" },
+    { id:"local-2", label:"帶金鑰", text:"請保持當前動作連貫。" }];
+  const bundle = core.exportPack(source);
+  assert.equal(bundle.schema, core.PACK_SCHEMA);
+  assert.equal(bundle.version, 1);
+  assert.deepEqual(bundle.commands.map(x => x.label), ["第三人稱","帶金鑰"]);
+  assert.deepEqual(Object.keys(bundle.commands[0]), ["label","text"]);
+  assert.doesNotMatch(JSON.stringify(bundle), /"id"|"source"|"apiKey"|"persona"/);
+  const parsed = core.parsePack(JSON.stringify(bundle));
+  assert.deepEqual(parsed, bundle);
+  const merged = core.mergePack([{id:"local-1", label:"保留",text:"既有私人指令"}],parsed);
+  assert.equal(merged.added,2);
+  assert.equal(merged.duplicates,0);
+  assert.equal(merged.overflow,0);
+  assert.equal(merged.commands.length,3);
+  assert.equal(merged.commands[0].id,"local-1");
+  assert.equal(merged.commands[1].source,undefined);
+  const again = core.mergePack(merged.commands,parsed);
+  assert.equal(again.added,0);
+  assert.equal(again.duplicates,2);
+  assert.deepEqual(again.commands, merged.commands);
+  const busy = Array.from({length:11},(_,i)=>({id:"local-"+i,label:"已有 "+i,text:"本地 "+i}));
+  const overflow = core.mergePack(busy,parsed);
+  assert.equal(overflow.added,1);
+  assert.equal(overflow.overflow,1);
+  assert.equal(overflow.commands.length,12);
+  const built = core.mergePack([], {
+    schema:core.PACK_SCHEMA,version:1,
+    commands:[{label:"繼續",text:core.BUILT_INS[0].text}]
+  },core.BUILT_INS);
+  assert.equal(built.added,0);
+  assert.equal(built.duplicates,1);
+  assert.throws(()=>core.parsePack({schema:"unknown",version:1,commands:[]}),/不是夜灣/);
+  assert.throws(()=>core.parsePack({schema:core.PACK_SCHEMA,version:2,commands:[]}),/不是夜灣/);
+  assert.throws(()=>core.parsePack({schema:core.PACK_SCHEMA,version:1,commands:[]}),/1～12/);
+  assert.throws(()=>core.parsePack({schema:core.PACK_SCHEMA,version:1,commands:[{label:"短",text:"x".repeat(601)}]}),/內容無效/);
+  assert.throws(()=>core.parsePack({schema:core.PACK_SCHEMA,version:1,commands:[{label:"x",text:"same"},{label:"y",text:"same"}]}),/重複/);
+  assert.throws(()=>core.parsePack({schema:core.PACK_SCHEMA,version:1,commands:[{label:"x",text:"a"}],extra:"x".repeat(core.MAX_IMPORT_BYTES)}),/大小上限/);
+}
+
 console.log("story quick commands core test passed");

@@ -70,6 +70,67 @@
     };
   }
 
+  const PACK_SCHEMA = "yorubay-quick-command-pack";
+  const PACK_VERSION = 1;
+  const MAX_IMPORT_BYTES = 20000;
+  const fingerprint = value => clean(value).toLocaleLowerCase("zh-Hant");
+
+  function exportPack(custom = []) {
+    const used = new Set();
+    const commands = customCommands(custom).filter(item => {
+      const key = fingerprint(item.text);
+      if (used.has(key)) return false;
+      used.add(key);
+      return true;
+    }).map(({ label, text }) => ({ label, text }));
+    return { schema: PACK_SCHEMA, version: PACK_VERSION, commands };
+  }
+
+  function parsePack(input) {
+    const source = typeof input === "string" ? JSON.parse(input) : input;
+    if (!source || typeof source !== "object" || Array.isArray(source) ||
+        source.schema !== PACK_SCHEMA || source.version !== PACK_VERSION)
+      throw new Error("不是夜灣快捷指令包（v1）。");
+    if (!Array.isArray(source.commands) || source.commands.length === 0 ||
+        source.commands.length > MAX_CUSTOM)
+      throw new Error("指令包需包含 1～12 條快捷指令。");
+    if (JSON.stringify(source).length > MAX_IMPORT_BYTES)
+      throw new Error("指令包檔案超過大小上限。");
+    const seen = new Set();
+    const commands = source.commands.map((raw, index) => {
+      if (!raw || typeof raw !== "object" || Array.isArray(raw) ||
+          typeof raw.label !== "string" || typeof raw.text !== "string")
+        throw new Error("第 " + (index + 1) + " 條指令格式不正確。");
+      const label = clean(raw.label), text = clean(raw.text);
+      if (!label || !text || label.length > MAX_LABEL || text.length > MAX_TEXT)
+        throw new Error("第 " + (index + 1) + " 條指令名稱或內容無效。");
+      const key = fingerprint(text);
+      if (seen.has(key)) throw new Error("指令包內有重複內容，請先整理。");
+      seen.add(key);
+      return { label, text };
+    });
+    return { schema: PACK_SCHEMA, version: PACK_VERSION, commands };
+  }
+
+  function mergePack(existing = [], input, otherCommands = []) {
+    const pack = parsePack(input);
+    const result = customCommands(existing).map(({ id, label, text }) => ({ id, label, text }));
+    const ids = new Set(result.map(item => item.id));
+    const seen = new Set([...result, ...otherCommands].map(item => fingerprint(item.text)));
+    let added = 0, duplicates = 0, overflow = 0, nextId = 1;
+    for (const command of pack.commands) {
+      if (seen.has(fingerprint(command.text))) { duplicates++; continue; }
+      if (result.length >= MAX_CUSTOM) { overflow++; continue; }
+      let id;
+      do { id = "player-import-" + nextId++; } while (ids.has(id));
+      ids.add(id);
+      seen.add(fingerprint(command.text));
+      result.push({ id, label: command.label, text: command.text });
+      added++;
+    }
+    return { commands: result, added, duplicates, overflow };
+  }
+
   function summary(character = {}, custom = []) {
     const groups = grouped(character, custom);
     return {
@@ -87,7 +148,13 @@
     MAX_CUSTOM,
     MAX_LABEL,
     MAX_TEXT,
+    MAX_IMPORT_BYTES,
+    PACK_SCHEMA,
+    PACK_VERSION,
     BUILT_INS,
+    exportPack,
+    parsePack,
+    mergePack,
     normalizeCommand,
     authorCommands,
     customCommands,
