@@ -697,7 +697,7 @@
         if ((local.installed || []).length >= MAX_INSTALLED)
           throw new Error("本故事已達 6 份私人世界書上限");
         const id = "mystery-" + Date.now().toString(36) + "-" + (local.installed || []).length;
-        const clues = String(data.get("clues") || "").split(/\\r?\\n/).map(x => x.trim()).filter(Boolean);
+        const clues = String(data.get("clues") || "").split(/\r?\n/).map(x => x.trim()).filter(Boolean);
         const pack = core.createMysteryCase({
           id, title:String(data.get("title") || ""),
           truth:String(data.get("truth") || ""), opening:String(data.get("opening") || ""), clues
