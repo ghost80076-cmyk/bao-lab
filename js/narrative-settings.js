@@ -169,7 +169,7 @@
     if (!document.querySelector('link[href^="css/narrative-settings.css"]')) {
       const link = document.createElement("link");
       link.rel = "stylesheet";
-      link.href = "css/narrative-settings.css?v=9";
+      link.href = "css/narrative-settings.css?v=10";
       document.head.appendChild(link);
     }
   };
