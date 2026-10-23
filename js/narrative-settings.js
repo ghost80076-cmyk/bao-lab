@@ -270,9 +270,9 @@
     });
   };
 
-  const openModal = ({ focusInstructions = false } = {}) => {
+  const openModal = ({ focusInstructions = false, draft = null } = {}) => {
     close();
-    const prefs = activePrefs();
+    const prefs = draft ? normalizePrefs(draft) : activePrefs();
     const storyLocal = isStoryLocal();
     const selected = new Set(prefs.stylePacks);
     const focus = worldFocus();
@@ -286,19 +286,35 @@
           <div class="tonight-nights">${Object.entries(nights).map(([key, meta]) => `<button type="button" class="tonight-night" data-night="${key}" aria-pressed="false"><b>${meta[0]}</b><span>${meta[1]}</span></button>`).join("")}</div>
           <div class="tonight-current" data-tonight-current aria-live="polite"></div>
         </section>
-        <section class="tonight-section" aria-label="故事步調"><div class="narrative-select-grid">
-          <label>潮汐 · 故事節奏<select data-pref="pacing">
+        <section class="tonight-section" aria-labelledby="tonight-response"><h3 id="tonight-response">回覆方式 <span>篇幅、節奏與角色互動</span></h3><div class="narrative-select-grid">
+            <label>每輪篇幅
+              <select data-pref="responseLength">
+                <option value="card" ${prefs.responseLength === "card" ? "selected" : ""}>依角色卡／模型判斷</option>
+                <option value="short" ${prefs.responseLength === "short" ? "selected" : ""}>精簡 · 約 300–600 字</option>
+                <option value="medium" ${prefs.responseLength === "medium" ? "selected" : ""}>適中 · 約 600–1000 字</option>
+                <option value="long" ${prefs.responseLength === "long" ? "selected" : ""}>詳細 · 約 900–1400 字</option>
+              </select><small>以內容密度為優先，不為湊字數重複敘述。</small>
+            </label>
+            <label>對話與描寫
+              <select data-pref="dialogueBalance">
+                <option value="card" ${prefs.dialogueBalance === "card" ? "selected" : ""}>依角色卡</option>
+                <option value="dialogue" ${prefs.dialogueBalance === "dialogue" ? "selected" : ""}>對話較多</option>
+                <option value="balanced" ${prefs.dialogueBalance === "balanced" ? "selected" : ""}>平衡</option>
+                <option value="description" ${prefs.dialogueBalance === "description" ? "selected" : ""}>描寫較多</option>
+              </select><small>只調整比例，不改變角色原本的說話習慣。</small>
+            </label>
+          <label>故事節奏<select data-pref="pacing">
             ${[["card", "依作品安排"], ["slow", "慢慢醞釀"], ["balanced", "自然流動"], ["brisk", "波瀾不斷"]].map(([value, label]) => `<option value="${value}" ${prefs.pacing === value ? "selected" : ""}>${label}</option>`).join("")}
-          </select></label>
-          <label>同行者 · 角色多主動？<select data-pref="characterAgency">
-            ${[["card", "依角色原貌"], ["reserved", "慢熱回應"], ["natural", "自然主動"], ["active", "積極互動"], ["autonomous", "高自主性 · 原有設定"]].map(([value, label]) => `<option value="${value}" ${prefs.characterAgency === value ? "selected" : ""}>${label}</option>`).join("")}
-          </select></label>
-        </div></section>
+          </select><small>重要選擇與轉折仍保留玩家回應空間。</small></label>
+          <label>角色主動程度<select data-pref="characterAgency">
+            ${[["card", "依角色原貌"], ["reserved", "慢熱回應"], ["natural", "自然主動"], ["active", "積極互動"], ["autonomous", "高自主性"]].map(([value, label]) => `<option value="${value}" ${prefs.characterAgency === value ? "selected" : ""}>${label}</option>`).join("")}
+          </select><small>角色依人格與目標行動，仍保有自己的立場與生活。</small></label>
+        </div><p class="tonight-current">依作品＝保留原設定；只調整你選擇的項目，從下一次回覆生效。</p></section>
         <section class="tonight-section" aria-labelledby="tonight-extras"><h3 id="tonight-extras">沿途風景 <span>故事加點什麼？可複選</span></h3><div class="tonight-extras">
           ${Object.entries(extras).map(([key, meta]) => `<label><input type="checkbox" data-story-extra="${key}" ${prefs.storyExtras.includes(key) ? "checked" : ""}><span><b>${meta[0]}</b><small>${meta[1]}</small></span></label>`).join("")}
         </div></section>
         <p class="tonight-principle">夜色可以改變，角色與世界仍保有自己的原貌。</p>
-        <details class="tonight-advanced" ${focusInstructions ? "open" : ""}><summary>進階設定 · 文風混搭、篇幅與長期指令</summary>
+        <details class="tonight-advanced" ${focusInstructions ? "open" : ""}><summary>進階設定 · 文風混搭、描寫與長期指令</summary>
         <div class="bao-setting-section">
           <h3>文風包 · 可複選</h3>
           <p>可同時疊加多種效果。未選擇任何項目時完全依角色卡；開啟後系統會合併重複要求，再壓縮成短指令送給模型。</p>
@@ -330,37 +346,6 @@
           </div>
         </div>
 
-        <div class="bao-setting-section">
-          <h3>篇幅、節奏與對話比例</h3>
-          <p>這些是故事級偏好，不會把每一輪硬塞成固定格式；遇到短回應、等待或必要留白時仍可自然縮短。</p>
-          <div class="narrative-select-grid">
-            <label>每輪篇幅
-              <select data-pref="responseLength">
-                <option value="card" ${prefs.responseLength === "card" ? "selected" : ""}>依角色卡／模型判斷</option>
-                <option value="short" ${prefs.responseLength === "short" ? "selected" : ""}>精簡 · 約 300–600 字</option>
-                <option value="medium" ${prefs.responseLength === "medium" ? "selected" : ""}>適中 · 約 600–1000 字</option>
-                <option value="long" ${prefs.responseLength === "long" ? "selected" : ""}>詳細 · 約 900–1400 字</option>
-              </select><small>以內容密度為優先，不為湊字數重複敘述。</small>
-            </label>
-            <label>敘事節奏
-              <select data-pref="pacing">
-                <option value="card" ${prefs.pacing === "card" ? "selected" : ""}>依角色卡</option>
-                <option value="slow" ${prefs.pacing === "slow" ? "selected" : ""}>慢慢展開</option>
-                <option value="balanced" ${prefs.pacing === "balanced" ? "selected" : ""}>平衡</option>
-                <option value="brisk" ${prefs.pacing === "brisk" ? "selected" : ""}>推進較快</option>
-              </select><small>不論快慢，重要選擇與轉折都要保留玩家回應空間。</small>
-            </label>
-            <label>對話與描寫
-              <select data-pref="dialogueBalance">
-                <option value="card" ${prefs.dialogueBalance === "card" ? "selected" : ""}>依角色卡</option>
-                <option value="dialogue" ${prefs.dialogueBalance === "dialogue" ? "selected" : ""}>對話較多</option>
-                <option value="balanced" ${prefs.dialogueBalance === "balanced" ? "selected" : ""}>平衡</option>
-                <option value="description" ${prefs.dialogueBalance === "description" ? "selected" : ""}>描寫較多</option>
-              </select><small>只調整比例，不改變角色原本的說話習慣。</small>
-            </label>
-          </div>
-        </div>
-
         <div class="bao-setting-section" id="bao-narrative-instructions">
           <div class="narrative-instruction-heading"><div><h3>自訂長期指令</h3><p>只放「AI 應該怎麼寫」；劇情事實、NPC 資料與關係請放記憶／Canon。每條最多 ${CUSTOM_INSTRUCTION_CHARS} 字，${storyLocal ? "只修改目前故事" : "會成為新故事的起始偏好"}。</p></div><span class="chip" data-instruction-total>0 / ${CUSTOM_INSTRUCTION_LIMIT}</span></div>
           <div class="narrative-instruction-list" data-instruction-list>${prefs.customInstructions.map(instructionCardHTML).join("")}</div>
@@ -369,7 +354,7 @@
         </div>
 
         <div class="bao-setting-section">
-          <h3>成熟題材與角色自主</h3>
+          <h3>成熟題材</h3>
           <p>這一層只控制故事取向，不取代角色卡，也不會用提示詞去要求模型忽略上游服務規則。</p>
           <div class="narrative-select-grid">
             <label>成熟文學題材
@@ -377,15 +362,6 @@
                 <option value="card" ${prefs.matureDrama === "card" ? "selected" : ""}>依角色卡</option>
                 <option value="mature" ${prefs.matureDrama === "mature" ? "selected" : ""}>成年成熟敘事</option>
               </select><small>允許複雜情感、慾望、道德困境、浪漫與親密關係，不自動說教或急著把衝突化解。</small>
-            </label>
-            <label>角色自主程度
-              <select data-pref="characterAgency">
-                <option value="card" ${prefs.characterAgency === "card" ? "selected" : ""}>依角色卡</option>
-                <option value="reserved" ${prefs.characterAgency === "reserved" ? "selected" : ""}>慢熱回應</option>
-                <option value="natural" ${prefs.characterAgency === "natural" ? "selected" : ""}>自然主動</option>
-                <option value="active" ${prefs.characterAgency === "active" ? "selected" : ""}>積極互動</option>
-                <option value="autonomous" ${prefs.characterAgency === "autonomous" ? "selected" : ""}>高自主性</option>
-              </select><small>NPC 可依人格與利益拒絕、誤解、爭執、欺瞞、主動行動或犯錯，不以討好玩家為最高原則。</small>
             </label>
           </div>
           <div class="narrative-token-note"><strong>設計原則：</strong>保留成熟題材與人物自主的敘事價值；不加入「忽略拒絕、繞過審查、把抗拒視為同意」之類的破限指令。</div>
@@ -418,9 +394,16 @@
         </div>
         </details>
       </div>
-      <div class="bao-modal-footer"><button class="secondary" type="button" data-narrative-reset>全部恢復預設</button><button class="primary" type="button" data-narrative-save>套用設定</button></div>
+      <div class="bao-modal-footer"><button class="secondary" type="button" data-narrative-reset>恢復預設（待套用）</button><button class="primary" type="button" data-narrative-save>套用設定</button></div>
     </section>`;
     document.body.appendChild(wrap);
+    const initialValues = new Map([...wrap.querySelectorAll('[data-pref]')].map(el => [el, el.value]));
+    const initialChecks = new Map([...wrap.querySelectorAll('[data-pref-check]')].map(el => [el, el.checked]));
+    const formSnapshot = () => JSON.stringify({
+      fields: [...wrap.querySelectorAll('select, input, textarea')].map(el => [el.value, el.checked]),
+      packs: [...wrap.querySelectorAll('[data-style-pack].active')].map(el => el.dataset.stylePack)
+    });
+    const initialForm = formSnapshot();
 
     wrap.querySelector(".bao-modal-close").onclick = close;
     wrap.querySelector("[data-narrative-help]")?.addEventListener("click", event => {
@@ -480,29 +463,40 @@
     }
 
     wrap.querySelector("[data-narrative-reset]").onclick = () => {
-      const next = normalizePrefs(defaults);
-      if (storyLocal) {
-        App.config.narrative = clonePrefs(next);
-        App.saveStory?.(false);
-      } else {
-        settings = next;
-        save();
-      }
-      close();
-      updateBuilderSummary();
-      updateChatButtonState();
+      // Reset is a draft too: closing the dialog must not change a story or its cache prefix.
+      openModal({ focusInstructions, draft: defaults });
     };
     wrap.querySelector("[data-narrative-save]").onclick = () => {
+      if (!draft && formSnapshot() === initialForm) {
+        close();
+        return;
+      }
       const stylePacks = [...wrap.querySelectorAll("[data-style-pack].active")].map(btn => btn.dataset.stylePack);
       const customInstructions = [...wrap.querySelectorAll("[data-instruction-item]")].map(card => ({
         text: card.querySelector("[data-instruction-text]")?.value || "",
         enabled: Boolean(card.querySelector("[data-instruction-enabled]")?.checked)
       }));
       const storyExtras = [...wrap.querySelectorAll("[data-story-extra]:checked")].map(input => input.dataset.storyExtra);
-      const next = normalizePrefs({ ...prefs, stylePacks, storyExtras, customInstructions });
-      wrap.querySelectorAll("[data-pref]").forEach(el => { next[el.dataset.pref] = el.value; });
-      wrap.querySelectorAll("[data-pref-check]").forEach(el => { next[el.dataset.prefCheck] = Boolean(el.checked); });
+      // Preserve saved ordering: DOM order is presentation, not a prompt migration.
+      const retainOrder = (previous, chosen) => [
+        ...previous.filter(key => chosen.includes(key)),
+        ...chosen.filter(key => !previous.includes(key))
+      ];
+      const next = normalizePrefs({ ...prefs,
+        stylePacks: retainOrder(prefs.stylePacks, stylePacks),
+        storyExtras: retainOrder(prefs.storyExtras, storyExtras), customInstructions });
+      wrap.querySelectorAll("[data-pref]").forEach(el => {
+        if (el.value !== initialValues.get(el)) next[el.dataset.pref] = el.value;
+      });
+      wrap.querySelectorAll("[data-pref-check]").forEach(el => {
+        if (el.checked !== initialChecks.get(el)) next[el.dataset.prefCheck] = Boolean(el.checked);
+      });
       const normalized = normalizePrefs(next);
+      // A no-op save must not materialize defaults in an old story or autosave it.
+      if (JSON.stringify(normalized) === JSON.stringify(activePrefs())) {
+        close();
+        return;
+      }
       if (storyLocal) {
         App.config.narrative = clonePrefs(normalized);
         App.saveStory?.(false);
