@@ -51,6 +51,7 @@ for (const width of [390, 1440]) {
     await page.evaluate(() => BAONarrativeSettings.open());
     await expect(page.locator('[data-style-pack="male_blunt"]')).toHaveAttribute('aria-pressed', 'true');
     await page.locator('[data-narrative-reset]').click();
+    await page.locator('[data-narrative-save]').click();
     expect(await page.evaluate(() => BAONarrativeSettings.get().stylePacks)).toEqual([]);
     expect(await page.evaluate(() => BAONarrativeSettings.buildPrompt(BAONarrativeSettings.get()))).toBe('');
   });
@@ -84,6 +85,7 @@ test('realist subtext style is visible, composable, persisted and resettable', a
   await page.evaluate(() => BAONarrativeSettings.open());
   await expect(page.locator('[data-style-pack="realist_subtext"]')).toHaveAttribute('aria-pressed', 'true');
   await page.locator('[data-narrative-reset]').click();
+    await page.locator('[data-narrative-save]').click();
   expect(await page.evaluate(() => BAONarrativeSettings.get().stylePacks)).toEqual([]);
   expect(await page.evaluate(() => BAONarrativeSettings.buildPrompt(BAONarrativeSettings.get()))).toBe('');
 });

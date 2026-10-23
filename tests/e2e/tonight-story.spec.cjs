@@ -32,6 +32,7 @@ for (const width of [390, 1440]) {
     expect(overflow).toBe(false);
     await page.screenshot({path:`/tmp/tonight-${width}.png`});
     await modal.locator('[data-narrative-reset]').click();
+    await modal.locator('[data-narrative-save]').click();
     expect(await page.evaluate(() => BAONarrativeSettings.buildPrompt(BAONarrativeSettings.get()))).toBe('');
   });
 }
