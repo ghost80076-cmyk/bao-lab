@@ -142,3 +142,21 @@ BAONarrativeSettings.set({stylePack:'cinematic'});
 assert.deepEqual(BAONarrativeSettings.get().stylePacks, ['cinematic']);
 BAONarrativeSettings.set({...BAONarrativeSettings.get(), stylePacks:[]});
 assert.equal(BAONarrativeSettings.buildPrompt(BAONarrativeSettings.get()), '');
+
+// Optional story direction features must not change an unconfigured story or force plot outcomes.
+assert.equal(BAONarrativeSettings.buildPrompt({ sceneFocus: 'card', storyExpectation: '' }), '');
+BAONarrativeSettings.set({ sceneFocus: 'protect', storyExpectation: ' 希望她能重新信任我。\n但不能保證和好。 ' });
+const direction = BAONarrativeSettings.get();
+assert.equal(direction.sceneFocus, 'protect');
+assert.equal(direction.storyExpectation, '希望她能重新信任我。\n但不能保證和好。'.replace('\n', ' '));
+assert.match(BAONarrativeSettings.buildPrompt(direction), /【場景投入保護】/);
+assert.match(BAONarrativeSettings.buildPrompt(direction), /不為補足戲劇密度強塞/);
+assert.match(BAONarrativeSettings.buildPrompt(direction), /世界時間、已確立的時限/);
+assert.match(BAONarrativeSettings.buildPrompt(direction), /【玩家場外劇情期待｜非角色意圖】/);
+assert.match(BAONarrativeSettings.buildPrompt(direction), /不得用它強制 NPC 變心/);
+assert.match(BAONarrativeSettings.statusLabel(direction).title, /劇情期待已設定/);
+BAONarrativeSettings.set({ sceneFocus: 'invalid', storyExpectation: 'a'.repeat(400) });
+assert.equal(BAONarrativeSettings.get().sceneFocus, 'card');
+assert.equal(BAONarrativeSettings.get().storyExpectation.length, 240);
+BAONarrativeSettings.set({});
+assert.equal(BAONarrativeSettings.buildPrompt(BAONarrativeSettings.get()), '');

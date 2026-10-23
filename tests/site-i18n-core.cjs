@@ -51,11 +51,14 @@ assert.equal(character.nodeValue, "我的", "character content must remain untou
 assert.equal(doc.documentElement.lang, "en");
 assert.equal(storage.get(i18n.storageKey), "en");
 assert.equal(i18n.t("AI 回覆語言"), "AI response language");
+assert.equal(i18n.t("場景投入保護"), "Scene immersion protection");
+assert.equal(i18n.t("玩家的劇情期待"), "Player story expectations");
 
 assert.equal(i18n.setLocale("zh-Hans"), "zh-Hans");
 assert.equal(ui.nodeValue, "首页");
 assert.equal(sent.nodeValue, "发送");
 assert.equal(i18n.t("網站介面語言"), "网站界面语言");
+assert.equal(i18n.t("場景投入保護"), "场景投入保护");
 assert.equal(i18n.setLocale("zh-Hant"), "zh-Hant");
 assert.equal(ui.nodeValue, "首頁", "switch must restore original copy");
 assert.equal(sent.nodeValue, "送出");

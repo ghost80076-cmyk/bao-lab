@@ -11,6 +11,15 @@
   // Keys are the authored Traditional Chinese UI copy. Values are [Simplified, English].
   // Missing copy deliberately stays as authored instead of machine-translating player data.
   const dictionary = Object.freeze({
+    "故事方向": ["故事方向","Story direction"],
+    "守住當下，也可以留一點期待": ["守住当下，也可以留一点期待","Stay in the moment, with room for hope"],
+    "場景投入保護": ["场景投入保护","Scene immersion protection"],
+    "依作品安排（預設）": ["依作品安排（默认）","Follow the story (default)"],
+    "場景專注 · 不無故打斷": ["场景专注 · 不无故打断","Protect focused scenes"],
+    "只在角色正投入連續互動時，減少為了製造高潮而硬插入的事件。世界時間、已成立的期限與 NPC 自主照常運作。": ["仅在角色正投入连续互动时，减少为了制造高潮而硬插入的事件。世界时间、既定期限与 NPC 自主照常运作。","Avoid forced interruptions during ongoing character scenes. World time, established deadlines, and NPC autonomy continue."],
+    "玩家的劇情期待": ["玩家的剧情期待","Player story expectations"],
+    "（選填 · 最多 240 字）": ["（选填 · 最多 240 字）","(optional · up to 240 characters)"],
+    "這是玩家在戲外希望探索的方向，不是角色的想法、NPC 已知事實，也不保證達成。": ["这是玩家在戏外希望探索的方向，不是角色的想法、NPC 已知事实，也不保证达成。","An out-of-character direction, not the player's character thoughts, NPC knowledge, or a guaranteed outcome."],
     "玩家角色演繹": ["玩家角色演绎", "Player portrayal"],
     "玩家主控 · 沿用原有程度": ["玩家主控 · 沿用原有程度", "Player control · original scope"],
     "敘事補述 · 將你的演出融入正文": ["叙事补述 · 将你的演出融入正文", "Narrative detail · weave in your input"],

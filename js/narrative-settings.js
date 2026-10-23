@@ -16,6 +16,8 @@
     characterAgency: "card",
     responseLength: "card",
     pacing: "card",
+    sceneFocus: "card",
+    storyExpectation: "",
     dialogueBalance: "card",
     customInstructions: []
   };
@@ -68,6 +70,9 @@
     const list = Array.isArray(value) ? value : [];
     return [...new Set(list.filter(key => Object.prototype.hasOwnProperty.call(packs, key)))];
   };
+
+  const STORY_EXPECTATION_LIMIT = 240;
+  const normalizeExpectation = value => String(value ?? "").replace(/[\u0000-\u001f\u007f]+/g, " ").trim().slice(0, STORY_EXPECTATION_LIMIT);
 
   const CUSTOM_INSTRUCTION_LIMIT = 10;
   const CUSTOM_INSTRUCTION_CHARS = 200;
@@ -142,6 +147,8 @@
     normalized.responseLength = ["card", "short", "medium", "long"].includes(normalized.responseLength) ? normalized.responseLength : "card";
     normalized.pacing = ["card", "slow", "balanced", "brisk"].includes(normalized.pacing) ? normalized.pacing : "card";
     normalized.dialogueBalance = ["card", "dialogue", "balanced", "description"].includes(normalized.dialogueBalance) ? normalized.dialogueBalance : "card";
+    normalized.sceneFocus = raw.sceneFocus === "protect" ? "protect" : "card";
+    normalized.storyExpectation = normalizeExpectation(raw.storyExpectation);
     normalized.customInstructions = normalizeCustomInstructions(raw.customInstructions);
     normalized.intimacyDetailMod = normalized.intimacyDetailMod === true;
     return normalized;
@@ -158,7 +165,7 @@
     if (!document.querySelector('link[href^="css/narrative-settings.css"]')) {
       const link = document.createElement("link");
       link.rel = "stylesheet";
-      link.href = "css/narrative-settings.css?v=8";
+      link.href = "css/narrative-settings.css?v=9";
       document.head.appendChild(link);
     }
   };
@@ -189,6 +196,8 @@
     items.push(...normalized.storyExtras.map(key => extras[key][0]));
     if (normalized.responseLength !== "card") items.push(normalized.responseLength === "short" ? "短篇幅" : normalized.responseLength === "medium" ? "中篇幅" : "長篇幅");
     if (normalized.pacing !== "card") items.push(normalized.pacing === "slow" ? "慢節奏" : normalized.pacing === "balanced" ? "平衡節奏" : "較快推進");
+    if (normalized.sceneFocus === "protect") items.push("場景專注");
+    if (normalized.storyExpectation) items.push("劇情期待已設定");
     if (normalized.dialogueBalance !== "card") items.push(normalized.dialogueBalance === "dialogue" ? "對話較多" : normalized.dialogueBalance === "balanced" ? "對話描寫平衡" : "描寫較多");
     const customCount = effectiveCustomInstructions(normalized.customInstructions, normalized).length;
     if (customCount) items.push(`自訂指令 ${customCount}`);
@@ -338,6 +347,21 @@
         <section class="tonight-section" aria-labelledby="tonight-extras"><h3 id="tonight-extras">沿途風景 <span>故事加點什麼？可複選</span></h3><div class="tonight-extras">
           ${Object.entries(extras).map(([key, meta]) => `<label><input type="checkbox" data-story-extra="${key}" ${prefs.storyExtras.includes(key) ? "checked" : ""}><span><b>${meta[0]}</b><small>${meta[1]}</small></span></label>`).join("")}
         </div></section>
+        <section class="tonight-section" aria-labelledby="tonight-direction"><h3 id="tonight-direction">故事方向 <span>守住當下，也可以留一點期待</span></h3>
+          <div class="narrative-direction-fields">
+            <label>場景投入保護
+              <select data-pref="sceneFocus">
+                <option value="card" ${prefs.sceneFocus === "card" ? "selected" : ""}>依作品安排（預設）</option>
+                <option value="protect" ${prefs.sceneFocus === "protect" ? "selected" : ""}>場景專注 · 不無故打斷</option>
+              </select>
+              <small>只在角色正投入連續互動時，減少為了製造高潮而硬插入的事件。世界時間、已成立的期限與 NPC 自主照常運作。</small>
+            </label>
+            <label>玩家的劇情期待 <span class="narrative-direction-hint">（選填 · 最多 ${STORY_EXPECTATION_LIMIT} 字）</span>
+              <textarea data-pref-text="storyExpectation" maxlength="${STORY_EXPECTATION_LIMIT}" rows="3" placeholder="例如：希望兩人有重新建立信任的機會，但不要保證和好。">${App.escapeHTML(prefs.storyExpectation)}</textarea>
+              <small>這是玩家在戲外希望探索的方向，不是角色的想法、NPC 已知事實，也不保證達成。</small>
+            </label>
+          </div>
+        </section>
         <p class="tonight-principle">夜色可以改變，角色與世界仍保有自己的原貌。</p>
         <details class="tonight-advanced" ${focusInstructions ? "open" : ""}><summary>進階設定 · 文風混搭、描寫與長期指令</summary>
         <div class="bao-setting-section">
@@ -424,6 +448,7 @@
     document.body.appendChild(wrap);
     const initialValues = new Map([...wrap.querySelectorAll('[data-pref]')].map(el => [el, el.value]));
     const initialChecks = new Map([...wrap.querySelectorAll('[data-pref-check]')].map(el => [el, el.checked]));
+    const initialTexts = new Map([...wrap.querySelectorAll('[data-pref-text]')].map(el => [el, el.value]));
     const formSnapshot = () => JSON.stringify({
       fields: [...wrap.querySelectorAll('select, input, textarea')].map(el => [el.value, el.checked]),
       packs: [...wrap.querySelectorAll('[data-style-pack].active')].map(el => el.dataset.stylePack)
@@ -517,6 +542,9 @@
       wrap.querySelectorAll("[data-pref-check]").forEach(el => {
         if (el.checked !== initialChecks.get(el)) next[el.dataset.prefCheck] = Boolean(el.checked);
       });
+      wrap.querySelectorAll("[data-pref-text]").forEach(el => {
+        if (el.value !== initialTexts.get(el)) next[el.dataset.prefText] = el.value;
+      });
       const normalized = normalizePrefs(next);
       // A no-op save must not materialize defaults in an old story or autosave it.
       if (JSON.stringify(normalized) === JSON.stringify(activePrefs())) {
@@ -598,6 +626,8 @@
     if (prefs.pacing === "slow") lines.push("敘事慢慢展開：重要互動拆成可回應的小步驟，多保留停頓、觀察與未說完的空間，不主動跳過關鍵過程。");
     if (prefs.pacing === "balanced") lines.push("敘事節奏保持平衡：完整處理本輪行動，再自然推進一個有因果的新節點；重要轉折仍等待玩家回應。");
     if (prefs.pacing === "brisk") lines.push("適時增加有因果的事件與轉折，敘事可較快推進明確且低風險的過程，但遇到重要選擇、關係轉折或不可逆行動時停下，保留玩家決定空間。");
+    if (prefs.sceneFocus === "protect") lines.push("【場景投入保護】當玩家與角色正在持續投入眼前的對話或互動時，優先承接該場景，不為補足戲劇密度強塞電話、敲門、新人物或額外危機；安靜、停頓與日常同樣有效。場景可由玩家意願、角色自然行動或已存在的因果收束；NPC 仍可按已知資訊與目標自主離場或回應，世界時間、已確立的時限、危險與合理後果照常發生，不得凍結世界或假造安全。");
+    if (prefs.storyExpectation) lines.push(`【玩家場外劇情期待｜非角色意圖】玩家希望探索的方向：${prefs.storyExpectation}。這是敘事方向參考，不是已發生事實、角色內心或 NPC 已知資訊，也不等於玩家角色已採取行動；不得用它強制 NPC 變心、決定結果、保證關係或違背已確立的世界因果。玩家本輪具體言行與角色實際動機優先；若不相容，保留選擇機會或讓期待自然落空。`);
 
     if (prefs.dialogueBalance === "dialogue") lines.push("提高對話比例，以角色說話、停頓與可觀察反應承載資訊；旁白聚焦必要的動作、環境和節奏，不用長段總結取代對話。");
     if (prefs.dialogueBalance === "balanced") lines.push("對話與描寫保持平衡：讓角色語言、動作、表情與場景資訊互相支撐，不讓任何一邊長時間壓過另一邊。");
