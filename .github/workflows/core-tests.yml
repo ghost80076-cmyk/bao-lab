@@ -135,6 +135,11 @@ jobs:
           node --check js/character-studio-flow-core.js
           node --check js/character-studio-flow.js
           node tests/character-studio-flow-core.cjs
+      - name: Creator NPC personality axes
+        run: |
+          node --check js/npc-personality-helper-core.js
+          node --check js/npc-personality-helper.js
+          node tests/npc-personality-helper-core.cjs
       - name: Character studio lifecycle
         run: |
           node --check js/character-studio-lifecycle-core.js

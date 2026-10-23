@@ -39,6 +39,7 @@ jobs:
               tests/e2e/mobile-long-reading-touch.spec.cjs
               tests/e2e/mobile-compact-status-viewport.spec.cjs
               tests/e2e/story-quick-commands.spec.cjs
+              tests/e2e/npc-personality-creator.spec.cjs
               tests/e2e/mobile-story-entry.spec.cjs
               tests/e2e/story-integrity.spec.cjs
               tests/e2e/per-turn-merged-state.spec.cjs
