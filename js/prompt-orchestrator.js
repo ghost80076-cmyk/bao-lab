@@ -69,6 +69,15 @@
   };
 
   const TURN_ANCHOR = "【本輪】依玩家最新輸入延續一輪；保持已確認事實與資訊邊界，依故事授權演繹玩家。";
+  const OBSERVER_TURN = "【本輪觀賞授權】僅這一輪：玩家明確交出非重大演出權，依既有 Persona、當下情境與已建立的性格代演其日常台詞、動作、感受或微小選擇，讓小說自然前進；不因觀賞模式讓 NPC 改變人格或得知不應知道的事。遇到重大承諾、同意、關係定案、不可逆行動或死亡抉擇，停在玩家可以接手的位置。下輪若玩家輸入自己的具體言行，立即恢復既有演繹設定；此標記只對本輪有效，不形成永久人設或世界事實。";
+  const observerCommand = message => {
+    const content = String(message?.content || "");
+    const marker = "【玩家最新輸入】\n";
+    const at = content.indexOf(marker);
+    if (at < 0) return "";
+    const latest = content.slice(at + marker.length).trim();
+    return ["【觀賞一輪】", "繼續", "然後呢"].includes(latest) ? latest : "";
+  };
 
   // The raw chat is local and is not deleted by context trimming. When a long
   // story's state tracker falls behind, bring back a small, verbatim slice of
@@ -164,7 +173,9 @@
 
     const lastIndex = result.length - 1;
     if (lastIndex >= 0 && result[lastIndex]?.role === "user") {
+      const observe = config?.narrative?.observationMode === "one_turn" && Boolean(observerCommand(result[lastIndex]));
       result[lastIndex].content = appendBlock(appendBlock(result[lastIndex].content, recentContinuityEvidence(result)), TURN_ANCHOR);
+      if (observe) result[lastIndex].content = appendBlock(result[lastIndex].content, OBSERVER_TURN);
     } else {
       result.push({ role: "user", content: TURN_ANCHOR });
     }
@@ -182,7 +193,9 @@
   }
 
   window.BAOPromptOrchestrator = {
-    version: 6,
+    version: 7,
+    observerCommand,
+    observerTurnRule: OBSERVER_TURN,
     outputLanguage,
     outputLanguageRules: OUTPUT_LANGUAGE_RULES,
     familyFor,

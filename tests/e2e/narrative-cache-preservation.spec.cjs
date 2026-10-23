@@ -214,3 +214,51 @@ for (const width of [390, 1440]) {
     expect(reverted.calls).toBe(0);
   });
 }
+
+
+for (const width of [390, 1440]) {
+  test(`one-turn spectator handoff is opt-in, cancelable and cache-friendly at ${width}px`, async ({ page }) => {
+    await setup(page, width);
+    const before = await page.evaluate(() => preferenceSnapshot());
+    await page.evaluate(() => BAONarrativeSettings.open());
+    const mode = page.locator('[data-pref="observationMode"]');
+    await expect(mode).toHaveValue('off');
+    await mode.selectOption('one_turn');
+    await page.locator('.bao-modal-close').click();
+    expect(await page.evaluate(() => preferenceSnapshot())).toEqual(before);
+
+    await page.evaluate(() => BAONarrativeSettings.open());
+    await mode.selectOption('one_turn');
+    await page.locator('[data-narrative-save]').click();
+    const on = await page.evaluate(() => preferenceSnapshot());
+    expect(on.saves).toBe(1);
+    expect(on.calls).toBe(0);
+    expect(on.defaults).toBe(before.defaults);
+    expect(on.messages).toContain('可選觀賞授權｜僅限本輪');
+    expect(on.messages).not.toContain('【本輪觀賞授權】');
+    await page.evaluate(() => {
+      Chat.context = async () => [{ role: 'user', content: '繼續' }];
+    });
+    const observe = await page.evaluate(() => App.buildMessages(App.config));
+    expect(observe[0].content).toContain('可選觀賞授權');
+    expect(observe.at(-1).content).toContain('【本輪觀賞授權】');
+    await page.evaluate(() => {
+      Chat.context = async () => [{ role: 'user', content: '我推開門走出去。' }];
+    });
+    const playerTurn = await page.evaluate(() => App.buildMessages(App.config));
+    expect(playerTurn[0].content).toBe(observe[0].content);
+    expect(playerTurn.at(-1).content).not.toContain('【本輪觀賞授權】');
+    expect(await page.evaluate(() => GameState.current.storySessionId)).toBe('cache-test-fixed-session');
+
+    await page.evaluate(() => BAONarrativeSettings.open());
+    await page.locator('[data-narrative-save]').click();
+    expect((await page.evaluate(() => preferenceSnapshot())).saves).toBe(1);
+    await page.evaluate(() => BAONarrativeSettings.open());
+    await mode.selectOption('off');
+    await page.locator('[data-narrative-save]').click();
+    const off = await page.evaluate(() => App.buildMessages(App.config));
+    expect(off[0].content).not.toContain('可選觀賞授權');
+    expect(off.at(-1).content).not.toContain('【本輪觀賞授權】');
+    expect(await page.evaluate(() => preferenceCalls)).toBe(0);
+  });
+}
