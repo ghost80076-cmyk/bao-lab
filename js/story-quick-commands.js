@@ -10,7 +10,7 @@
     if (document.querySelector('link[href^="css/story-quick-commands.css"]')) return;
     const link = document.createElement("link");
     link.rel = "stylesheet";
-    link.href = "css/story-quick-commands.css?v=2";
+    link.href = "css/story-quick-commands.css?v=3";
     document.head.appendChild(link);
   };
 
