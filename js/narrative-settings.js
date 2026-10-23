@@ -330,7 +330,7 @@
               <select data-pref="observationMode">
                 <option value="off" ${prefs.observationMode === "off" ? "selected" : ""}>關閉（預設）</option>
                 <option value="one_turn" ${prefs.observationMode === "one_turn" ? "selected" : ""}>開放 · 指令才暫時代演</option>
-              </select><small>開放後，單獨送出「繼續」「然後呢」或「【觀賞一輪】」，本輪可讓 AI 依人設代演日常言行。下輪由你說話或行動就恢復原本模式；重大決策仍由你決定。「繼續描寫」快捷指令不會啟動觀賞。</small>
+              </select><small class="narrative-observer-hint">開放後，單獨送出「繼續」「然後呢」或「【觀賞一輪】」，本輪可讓 AI 依人設代演日常言行。下輪由你說話或行動就恢復原本模式；重大決策仍由你決定。「繼續描寫」快捷指令不會啟動觀賞。</small>
             </label>
             <label>每輪篇幅
               <select data-pref="responseLength">
