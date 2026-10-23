@@ -88,3 +88,11 @@
 .bao-modal-backdrop.tonight-backdrop{z-index:10010}
 
 .tonight-intro .tonight-invitation{font-size:13px;color:var(--muted);line-height:1.8;margin-bottom:10px}
+
+/* Optional, story-local scene focus and out-of-character narrative direction. */
+.narrative-direction-fields{display:grid;gap:12px}
+.narrative-direction-fields label{display:flex;flex-direction:column;gap:7px;min-width:0}
+.narrative-direction-fields textarea{display:block;width:100%;max-width:100%;min-height:82px;box-sizing:border-box;resize:vertical;font:inherit;line-height:1.6}
+.narrative-direction-fields small,.narrative-direction-hint{color:var(--muted);font-size:12px;line-height:1.55}
+.narrative-direction-fields select{max-width:100%}
+@media(max-width:650px){.narrative-direction-fields{gap:10px}.narrative-direction-fields label{font-size:12px}.narrative-direction-fields small{font-size:11px}}
