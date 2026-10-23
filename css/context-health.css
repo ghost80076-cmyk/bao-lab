@@ -195,3 +195,8 @@
 :is([data-context-inspector],[data-npc-timeline]) .context-health-advanced {background:var(--yoru-card,var(--surface2));border-color:var(--yoru-card-border,var(--border))}
 :is([data-context-inspector],[data-npc-timeline]) :is(.context-health-head p,.context-health-advanced p) {color:var(--yoru-muted,var(--muted))}
 :is([data-context-inspector],[data-npc-timeline]) .context-health-close {background:var(--yoru-control,var(--surface2));color:var(--yoru-text,var(--text));border-color:var(--yoru-control-border,var(--border))}
+
+.context-health-rebuild{margin-top:14px;padding:12px;border:1px solid var(--border);border-radius:14px;background:var(--surface2);order:6;grid-column:1/-1}
+.context-health-rebuild h3{margin:0 0 8px}
+.context-health-rebuild p{color:var(--muted);line-height:1.65;font-size:13px}
+.context-health-rebuild button{margin:4px 4px 4px 0;max-width:100%;white-space:normal}
