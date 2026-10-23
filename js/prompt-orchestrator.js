@@ -72,7 +72,7 @@
   const OBSERVER_TURN = "【本輪觀賞授權】僅這一輪：玩家明確交出非重大演出權，依既有 Persona、當下情境與已建立的性格代演其日常台詞、動作、感受或微小選擇，讓小說自然前進；不因觀賞模式讓 NPC 改變人格或得知不應知道的事。遇到重大承諾、同意、關係定案、不可逆行動或死亡抉擇，停在玩家可以接手的位置。下輪若玩家輸入自己的具體言行，立即恢復既有演繹設定；此標記只對本輪有效，不形成永久人設或世界事實。";
   const observerCommand = message => {
     const content = String(message?.content || "");
-    const marker = "【玩家最新輸入】\\n";
+    const marker = "【玩家最新輸入】\n";
     const at = content.indexOf(marker);
     if (at < 0) return "";
     const latest = content.slice(at + marker.length).trim();
