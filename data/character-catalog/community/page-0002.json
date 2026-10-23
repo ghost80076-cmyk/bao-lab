@@ -248,5 +248,40 @@
     "published_at": "2026-10-21T00:25:00+08:00",
     "updated_at": "2026-10-21T00:25:00+08:00",
     "version_published_at": "2026-10-21T00:25:00+08:00"
+  },
+  {
+    "id": "gu-wanning-rejuvenation",
+    "name": "顧晚寧｜返齡後暫住你家的高冷御姐",
+    "title": "顧晚寧｜返齡後暫住你家的高冷御姐",
+    "avatar": "assets/community/cb/gu-wanning-rejuvenation.webp",
+    "category": "male",
+    "rating": "adult",
+    "gender": "female",
+    "tags": [
+      "男性向",
+      "單角色",
+      "同居",
+      "高冷御姐",
+      "返齡",
+      "反差",
+      "主動女主",
+      "長期相處"
+    ],
+    "description": "顧晚寧，三十四歲，漂亮、冷靜，從來不輕易求人。她知道自己的魅力，也熟悉怎麼讓人動搖。直到一次原因不明的返齡，打亂了她的身分、工作，連原本合身的衣服都不能穿。深夜，她帶著檢查報告住進你家，仍一臉冷淡地管你脫鞋、吃飯、幾點回來。她說只是暫住。可當你問她剛剛是不是故意的，她未必會否認。",
+    "author": "班長",
+    "author_id": "banzhang",
+    "file": "data/characters/community/cb/gu-wanning-rejuvenation.json",
+    "supported_modes": {
+      "immersive": true,
+      "world": false
+    },
+    "supported_display": {
+      "text": true,
+      "ui": true
+    },
+    "published_at": "2026-10-23T06:14:00.273Z",
+    "updated_at": "2026-10-23T06:14:00.273Z",
+    "version_published_at": "2026-10-23T06:14:00.273Z",
+    "published_version": 1
   }
 ]
