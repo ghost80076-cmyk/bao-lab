@@ -233,6 +233,7 @@
     $('studio-preview').classList.add('hidden');
     loading = false;
     dirty = false;
+    window.BAONPCPersonalityHelper?.reset?.();
     status(chosenDraftId ? '已載入本機草稿' : '新草稿尚未儲存');
   }
   async function refreshList() {
@@ -398,8 +399,8 @@
       finally { button.disabled = false; }
     });
   }
-  form.addEventListener('input', () => { if (!loading) { dirty = true; status('尚未儲存修改'); } });
-  form.addEventListener('change', () => { if (!loading) { dirty = true; status('尚未儲存修改'); } });
+  form.addEventListener('input', event => { if (event.target.closest?.('#studio-npc-personality')) return; if (!loading) { dirty = true; status('尚未儲存修改'); } });
+  form.addEventListener('change', event => { if (event.target.closest?.('#studio-npc-personality')) return; if (!loading) { dirty = true; status('尚未儲存修改'); } });
   form.addEventListener('submit', event => event.preventDefault());
   window.addEventListener('beforeunload', event => { if (dirty) { event.preventDefault(); event.returnValue = ''; } });
   run('studio-add-inventory-action', addInventoryAction);
