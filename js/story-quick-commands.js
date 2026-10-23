@@ -127,9 +127,9 @@
           ${renderCustomList(commandGroups.player)}
           <section class="story-quick-share" aria-label="匯入與匯出快捷指令">
             <h4>分享／搬移我的指令</h4>
-            <p class="note">只匯出這個故事裡自己建立的指令，不包含角色設定、聊天、API Key；匯入另一個故事前會先預覽。</p>
+            <p class="note">只匯出本故事自己建立的指令，不附帶角色卡或聊天資料；如果指令文字本身含金鑰或個資，也會一起匯出，分享前請先檢查。</p>
             <div class="story-quick-share-actions">
-              <button type="button" class="secondary" data-quick-export ${commandGroups.player.length ? "" : "disabled"}>匯出指令 JSON</button>
+              <button type="button" class="secondary" data-quick-export ${core.customCommands(state()).length ? "" : "disabled"}>匯出指令 JSON</button>
               <button type="button" class="secondary" data-quick-import>匯入指令 JSON</button>
               <input type="file" accept=".json,application/json" data-quick-file hidden>
             </div>
