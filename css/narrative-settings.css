@@ -96,3 +96,6 @@
 .narrative-direction-fields small,.narrative-direction-hint{color:var(--muted);font-size:12px;line-height:1.55}
 .narrative-direction-fields select{max-width:100%}
 @media(max-width:650px){.narrative-direction-fields{gap:10px}.narrative-direction-fields label{font-size:12px}.narrative-direction-fields small{font-size:11px}}
+
+/* Observation is opt-in: keep the activation instructions visible on mobile too. */
+@media(max-width:650px){.narrative-settings-modal .narrative-select-grid small.narrative-observer-hint{display:block;font-size:10.5px;line-height:1.45}}
