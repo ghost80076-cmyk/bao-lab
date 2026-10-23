@@ -11,6 +11,10 @@
   // Keys are the authored Traditional Chinese UI copy. Values are [Simplified, English].
   // Missing copy deliberately stays as authored instead of machine-translating player data.
   const dictionary = Object.freeze({
+    "單輪觀賞模式": ["单轮观赏模式","One-turn spectator mode"],
+    "關閉（預設）": ["关闭（默认）","Off (default)"],
+    "開放 · 指令才暫時代演": ["开放 · 仅指令触发临时代演","Allow temporary portrayal by command"],
+    "開放後，單獨送出「繼續」「然後呢」或「【觀賞一輪】」，本輪可讓 AI 依人設代演日常言行。下輪由你說話或行動就恢復原本模式；重大決策仍由你決定。「繼續描寫」快捷指令不會啟動觀賞。": ["开启后，单独发送“继续”“然后呢”或“【观赏一轮】”，AI 可在本轮按人设代演日常言行。下轮你自行说话或行动就恢复原模式；重大决定仍由你掌握。“继续描写”快捷指令不会启动观赏。","When enabled, send only “繼續”, “然後呢”, or “【觀賞一輪】” to let AI portray everyday actions for this turn. Your next dialogue or action restores the original mode. Major decisions remain yours. The Continue Writing shortcut does not trigger spectator mode."],
     "故事方向": ["故事方向","Story direction"],
     "守住當下，也可以留一點期待": ["守住当下，也可以留一点期待","Stay in the moment, with room for hope"],
     "場景投入保護": ["场景投入保护","Scene immersion protection"],
