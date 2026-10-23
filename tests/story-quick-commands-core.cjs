@@ -1,7 +1,16 @@
 const assert = require("node:assert/strict");
 const core = require("../js/story-quick-commands-core.js");
 
-assert.equal(core.BUILT_INS.length, 6);
+assert.equal(core.BUILT_INS.length, 7);
+const clarify = core.BUILT_INS.find(item => item.id === "clarify");
+assert.equal(clarify?.label, "釐清目前局勢");
+assert.match(clarify.text, /【本輪故事內釐清】/);
+assert.match(clarify.text, /在場人物合乎其知情範圍/);
+assert.match(clarify.text, /不能知道的就保留未知/);
+assert.match(clarify.text, /不替我做決定/);
+assert.match(clarify.text, /僅限本輪/);
+assert.ok(clarify.text.length <= core.MAX_TEXT);
+assert.equal(core.BUILT_INS.filter(item => item.id === "clarify").length, 1);
 assert.equal(core.BUILT_INS[0].label, "繼續描寫");
 
 {
@@ -53,7 +62,7 @@ assert.equal(core.BUILT_INS[0].label, "繼續描寫");
     { quick_commands: [{ label: "作品限定", text: "作品限定文字" }] },
     [{ label: "我的指令", text: "我的文字" }]
   );
-  assert.equal(info.title, "8 個快捷指令");
+  assert.equal(info.title, "9 個快捷指令");
   assert.match(info.detail, /作品 1/);
   assert.match(info.detail, /我的 1/);
   assert.match(info.detail, /不會自動送出/);

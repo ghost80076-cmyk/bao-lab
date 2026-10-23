@@ -62,6 +62,15 @@ test('story quick commands fill the composer without sending and persist custom 
   await expect(dialog).toContainText('常用');
   await expect(dialog).toContainText('作品提供');
   await expect(dialog.getByRole('button', { name: /靜候變化/ })).toBeVisible();
+  // Story clarification is a one-turn, player-triggered request in the existing composer.
+  await dialog.getByRole('button', { name: /釐清目前局勢/ }).click();
+  await expect(dialog).not.toBeVisible();
+  await expect(page.locator('#user-input')).toHaveValue(/【本輪故事內釐清】/);
+  await expect(page.locator('#user-input')).toHaveValue(/不讓 NPC 突然全知/);
+  expect(await page.evaluate(() => Chat.messages.length)).toBe(beforeMessages);
+  await page.evaluate(() => { document.getElementById('user-input').value = ''; });
+  await page.evaluate(() => window.BAOStoryQuickCommands.open());
+  dialog = page.getByRole('dialog', { name: '快捷指令' });
 
   await dialog.getByRole('button', { name: /NPC 自主行動/ }).click();
   await expect(dialog).not.toBeVisible();
