@@ -60,6 +60,52 @@
       }, entries
     };
   }
+  // A committed mystery is a private, story-local worldbook. The stored answer
+  // is never selected for the model until the creator explicitly marks it public.
+  // All gates use the existing worldbookFlags; there is no second truth database.
+  function createMysteryCase(input = {}) {
+    if (!obj(input)) fail("案件資料無效");
+    const title = text(input.title, 80);
+    const truth = typeof input.truth === "string" ? input.truth.trim() : "";
+    const opening = typeof input.opening === "string" ? input.opening.trim() : "";
+    const clues = Array.isArray(input.clues) ? input.clues.map(x => String(x || "").trim()).filter(Boolean) : [];
+    if (!title || !truth) fail("請填寫案件名稱與已確立的核心真相");
+    if (truth.length > MAX_CONTENT || opening.length > MAX_CONTENT ||
+        clues.length > 8 || clues.some(clue => clue.length > MAX_CONTENT))
+      fail("案件內容過長（線索最多 8 條，每條不超過 12000 字）");
+    const id = safeId(String(input.id || ""), "案件");
+    const truthFlag = id + "-truth-public";
+    const entries = [
+      ...(opening ? [{
+        id:"starting-evidence", title:"玩家開局已知", mode:"foundation",
+        content:opening
+      }] : []),
+      ...clues.map((content, index) => ({
+        id:"clue-" + (index + 1), title:"案件線索 " + (index + 1),
+        mode:"foundation", content,
+        requires:[id + "-clue-" + (index + 1) + "-known"]
+      })),
+      {
+        id:"sealed-truth", title:"已公開的案件真相", mode:"foundation",
+        content:"【已確立的案件事實】" + truth +
+          "。此資訊在本故事裡已標記公開；不代表每名 NPC 先前都知道，應依各自見聞與因果反應。",
+        requires:[truthFlag]
+      }
+    ];
+    return normalizePack({
+      schema:SCHEMA, version:VERSION,
+      meta:{ id, name:"懸疑案件｜" + title, world:"general",
+        classification:"reference", visibility:"private",
+        source:"yorubay-mystery-case" },
+      entries
+    });
+  }
+  const mysteryFlagLabel = (pack, flag) => {
+    if (pack?.meta?.source !== "yorubay-mystery-case" || !String(flag).startsWith(pack.meta.id + "-")) return flag;
+    if (flag === pack.meta.id + "-truth-public") return "真相已公開（解除模型保密鎖）";
+    const match = String(flag).match(new RegExp("^" + pack.meta.id + "-clue-([1-8])-known$"));
+    return match ? "玩家已取得線索 " + match[1] : flag;
+  };
   function slug(value) {
     const name = String(value || "").toLowerCase().replace(/[^a-z0-9_-]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 70);
     let hash = 2166136261;
@@ -191,5 +237,5 @@
       text: found.map(format).join("\n\n")
     };
   }
-  return { SCHEMA, VERSION, normalizePack, migrateLegacy, select, constants };
+  return { SCHEMA, VERSION, normalizePack, migrateLegacy, createMysteryCase, mysteryFlagLabel, select, constants };
 });
