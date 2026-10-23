@@ -21,7 +21,6 @@ assert.ok(fs.existsSync(path.join(__dirname,'..',solo.meta.avatar)));
 assert.ok(fs.existsSync(path.join(__dirname,'../assets/yume-solo-cover-v1.webp')));
 assert.match(solo.content.greeting,/你們是三週前在歌舞伎町的便利商店認識的/);
 assert.match(solo.content.greeting,/LINE/);
-assert.match(solo.content.greeting,/src="assets\\/yume-solo-cover-v1\\.webp"/);
 assert.match(solo.content.greeting,/地獄開始了/);
 assert.match(solo.content.greeting,/src="assets\/yume-solo-cover-v1\.webp"/);
 assert.match(solo.content.greeting_context,/三週前/);
