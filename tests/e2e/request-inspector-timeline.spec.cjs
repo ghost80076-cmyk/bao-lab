@@ -39,27 +39,16 @@ test('mobile request inspector and NPC timeline use existing story controls',asy
   await expect(efficiency).toContainText('疑似重複');
   await expect(efficiency).not.toContainText('UNIQUE_TEST_KEY');
   await efficiency.locator('summary').click();
-  await health.getByText('進階 Token 說明與請求檢視',{exact:true}).click();
-  await health.getByRole('button',{name:'查看本輪送出內容'}).click();
-  const inspector=page.getByRole('dialog',{name:'本輪上下文檢視器'});
+  await health.getByText('進階 Token 說明',{exact:true}).click();
+  await health.getByRole('button',{name:'查看設定生效狀態'}).click();
+  const inspector=page.getByRole('dialog',{name:'故事總覽'});
   await expect(inspector).toBeVisible();
-  await expect(inspector).toContainText('300 tok');
-  await expect(inspector).toContainText('快取讀取 0 tok');
+  await expect(inspector.locator('[data-settings-effects]')).toBeVisible();
   await expect(inspector).not.toContainText('UNIQUE_TEST_KEY');
-  const canonDetails=inspector.locator('details').filter({has:page.locator('summary', {hasText:/^Canon ·/})});
-  await canonDetails.locator('summary').click();
-  await expect(canonDetails).toContainText('城門規則 · 已加入');
-  await expect(canonDetails).toContainText('待核對筆記 · 僅供界面顯示');
-  const loreDetails=inspector.locator('details').filter({has:page.locator('summary', {hasText:/^角色卡內嵌世界書 ·/})});
-  await loreDetails.locator('summary').click();
-  await expect(loreDetails).toContainText('城市出口 · 已加入');
-  await expect(loreDetails).toContainText('遠山傳說 · 未命中');
-  await expect(inspector).not.toContainText('不可送出的');
-  await page.screenshot({path:test.info().outputPath('context-source-decisions-mobile.png')});
+  await expect(inspector).not.toContainText('守衛正在登記離城旅客。');
+  await expect(inspector).not.toContainText('離城需登記。');
   const noOverflow=async locator=>expect(await locator.evaluate(n=>n.scrollWidth<=n.clientWidth+1)).toBe(true);
   await noOverflow(inspector);
-  await inspector.locator('details').last().locator('summary').click();
-  await expect(inspector).toContainText('我先離開城市。');
   await page.keyboard.press('Escape');await expect(inspector).toHaveCount(0);
 
   await page.getByRole('button',{name:'故事總覽',exact:true}).click();
@@ -136,12 +125,12 @@ test('mobile request inspector and NPC timeline use existing story controls',asy
   await page.screenshot({path:test.info().outputPath('npc-knowledge-source-desktop.png')});
   await page.keyboard.press('Escape');
   await page.evaluate(()=>BAOContextInspector.open());
-  await expect(page.getByRole('dialog',{name:'本輪上下文檢視器'})).toHaveCSS('display','block');
+  await expect(page.getByRole('dialog',{name:'故事總覽'})).toBeVisible();
   await page.screenshot({path:test.info().outputPath('context-inspector-desktop.png')});
   for (const theme of ['night','mist','dawn','dusk','sunset']) {
     const contrast = await page.evaluate(theme => {
       YoruExperience.choose({theme});
-      const style = getComputedStyle(document.querySelector('[data-context-inspector] .context-health-panel'));
+      const style = getComputedStyle(document.querySelector('#bao-chat-tool-drawer .bao-chat-tool-dialog'));
       const lum = value => value.match(/[\d.]+/g).slice(0,3).map(Number).map(n=>{const v=n/255;return v<=.04045?v/12.92:((v+.055)/1.055)**2.4;}).reduce((sum,v,i)=>sum+v*[.2126,.7152,.0722][i],0);
       const bg=lum(style.backgroundColor),fg=lum(style.color);
       return (Math.max(bg,fg)+.05)/(Math.min(bg,fg)+.05);

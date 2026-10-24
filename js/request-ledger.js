@@ -144,21 +144,17 @@
   const snapshot=()=>{const run=runs.get(owner());return run && matches(run)?structuredClone(run):null;};
   const esc=value=>App.escapeHTML(String(value ?? ''));
   const render=()=>{
-    const run=snapshot();if(!run)return '<p data-request-ledger-empty>尚無本輪執行紀錄；送出後可查看任務、略過原因與重試。</p>';
-    const statuses={pending:'處理中',success:'完成',failed:'失敗',cancelled:'已取消',stale:'來源已變更','not-committed':'請求完成，故事未採用'};
-    const routes={main:'主模型連線',separate:'獨立連線',local:'本機模型',hosted:'夜灣燈火',unknown:'尚未進入傳輸層'};
-    const type=({turn:'故事回合',command:'本機設定指令',preview:'本機預覽',memory:'記憶整理',state:'狀態整理'})[run.type] || kinds[run.type] || '模型請求';
-    const reached=new Set(run.calls.map(c=>c.kind)),decisions=run.decisions.slice();
-    if(run.status!=='pending' && run.type==='turn')for(const kind of ['advisor','observer','commentary','memory','state']){
-      if(!reached.has(kind) && !decisions.some(d=>d.kind===kind))decisions.push({kind,reason:'not-reached'});
+    const run=snapshot();if(!run)return '<p data-request-ledger-empty>送出故事回覆後，這裡會顯示最近一輪的處理狀態。</p>';
+    const statuses={pending:'處理中',success:'已完成',failed:'未完成，請檢查連線後重試',cancelled:'已取消',stale:'設定或故事已變更','not-committed':'回覆未採用'};
+    const items=[];
+    for(const kind of Object.keys(kinds)){
+      const calls=run.calls.filter(c=>c.kind===kind),decisions=run.decisions.filter(d=>d.kind===kind);
+      if(!calls.length && !decisions.length)continue;
+      const failed=calls.find(c=>c.status!=='success');
+      const result=calls.length?statuses[failed?.status || 'success']:reasons[decisions.at(-1).reason];
+      items.push(`<p data-execution-kind="${esc(kind)}"><b>${esc(kinds[kind])}</b> · ${esc(result)}</p>`);
     }
-    return `<details class="context-health-advanced" data-request-ledger style="overflow-wrap:anywhere"><summary>本輪執行紀錄 · ${run.logicalRequests} 項請求 · ${run.transportAttempts} 次傳輸嘗試</summary>
-      <p>${esc(type)} · ${esc(run.at)} · ${esc(statuses[run.status])} · 重試 ${run.retries} 次</p>
-      <p>傳輸嘗試是瀏覽器觀測的次數，不等於模型實際處理次數或帳單；燈火伺服器內部重試不在此處計數。未回報用量或費用時保持未知。</p>
-      ${run.calls.map((call,index)=>`<div data-execution-kind="${esc(call.kind)}"><p><b>${index+1}. ${esc(kinds[call.kind])}</b> · ${esc(statuses[call.status])} · ${esc(routes[call.route])}${call.model?' · '+esc(call.model):''}<br>傳輸嘗試 ${call.attemptCount} 次 · 重試 ${call.retries} 次<br>輸入 ${call.usage?.input_tokens ?? '未知'} · 輸出 ${call.usage?.output_tokens ?? '未知'} · 快取 ${call.usage?.cached_tokens ?? '未知'} tok${call.chargedUsd==null?' · 費用未回報':' · 已回報 US$'+esc(call.chargedUsd)}</p>
-      ${call.attempts.map(item=>`<p>第 ${item.number} 次：${item.httpStatus?'HTTP '+item.httpStatus:({pending:'等待回應',cancelled:'已取消','network-failed':'網路失敗'})[item.status] || '回應已接收'}</p>`).join('')}</div>`).join('')}
-      ${decisions.map(d=>`<p data-execution-decision="${esc(d.kind)}"><b>${esc(kinds[d.kind])}</b> · ${esc(reasons[d.reason])}</p>`).join('')}
-      ${run.truncated?'<p>紀錄已達顯示上限；總次數仍持續累計。</p>':''}</details>`;
+    return `<section data-settings-execution style="overflow-wrap:anywhere"><h4>最近回覆狀態</h4><p>${esc(statuses[run.status])}</p>${items.join('')}</section>`;
   };
   window.BAORequestLedger=Object.freeze({decision,transport,snapshot,render,commitRevision});
 })();

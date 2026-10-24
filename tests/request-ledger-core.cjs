@@ -31,7 +31,7 @@ const messages=[{role:'system',content:'PRIVATE_SYSTEM'},{role:'user',content:'P
   let snap=c.BAORequestLedger.snapshot();assert.equal(snap.logicalRequests,1);assert.equal(snap.transportAttempts,3);assert.equal(snap.retries,2);
   assert.deepEqual(Array.from(snap.calls[0].attempts.map(a=>a.httpStatus)),[503,503,200]);assert.equal(callbacks.length,2);
   assert.ok(!requests.at(-1).body.includes('__requestTrace'));
-  const html=c.BAORequestLedger.render();assert.match(html,/3 次傳輸嘗試/);assert.match(html,/重試 2 次/);assert.match(html,/費用未回報/);
+  const html=c.BAORequestLedger.render();assert.match(html,/最近回覆狀態/);assert.match(html,/已完成/);assert.doesNotMatch(html,/傳輸嘗試|重試|HTTP|audit|費用|PRIVATE_|private-endpoint/);
   snap.calls[0].status='tamper';assert.equal(c.BAORequestLedger.snapshot().calls[0].status,'success');
   responder=()=>new Response('{}',{status:503});
   c.API.waitForRetry=async()=>{throw Object.assign(new Error('cancelled during delay'),{name:'AbortError'});};

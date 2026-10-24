@@ -237,7 +237,7 @@
     destination.append(button);
   };
 
-  const openDrawer = () => {
+  const openDrawer = (options = {}) => {
     sync();
     closeDrawer();
     const sidebar = aside();
@@ -248,12 +248,13 @@
     dialog.className = 'bao-chat-tool-dialog';
     dialog.setAttribute('role', 'dialog');
     dialog.setAttribute('aria-modal', 'true');
-    dialog.setAttribute('aria-label', '故事功能選單');
+    dialog.setAttribute('aria-label', options.overview ? '故事總覽' : '故事功能選單');
     const head = document.createElement('header');
-    const title = document.createElement('h2'); title.textContent = '故事功能';
+    const title = document.createElement('h2'); title.textContent = '故事設定與工具';
     const help = window.BAOFeatureHelp?.button?.('tools');
     const close = document.createElement('button');
     close.type = 'button'; close.textContent = '關閉 ×';
+    if(options.overview)close.setAttribute('aria-label','關閉故事總覽');
     close.addEventListener('click', closeDrawer);
     const appearance = document.createElement('button');
     appearance.type = 'button';
@@ -359,6 +360,12 @@
     searchInput.setAttribute('aria-label', '搜尋故事工具');
     searchWrap.append(searchCaption, searchInput);
     body.prepend(searchWrap);
+    if(window.BAOStoryControlCenter?.mount && window.GameState?.current){
+      const overview=document.createElement('details');overview.dataset.storySettingsHub='';overview.open=!!options.overview;
+      const heading=document.createElement('summary');heading.textContent='故事設定與生效狀態';overview.append(heading);
+      window.BAOStoryControlCenter.mount(overview);body.prepend(overview);
+      if(options.effects)overview.querySelector('[data-settings-effects]')?.setAttribute('open','');
+    }
     const searchEmpty = document.createElement('p');
     searchEmpty.className = 'bao-tool-search-empty';
     searchEmpty.textContent = '找不到相符工具。可以換個關鍵字，或清除搜尋查看全部。';
@@ -369,7 +376,7 @@
     let mobileMoreOpenBefore = null;
     const filterTools = () => {
       const q = searchInput.value.trim().toLocaleLowerCase();
-      const groups = [...body.children].filter(node => node.tagName === 'DETAILS');
+      const groups = [...body.children].filter(node => node.tagName === 'DETAILS' && !node.hasAttribute('data-story-settings-hub'));
       const mobile = body.querySelector('.bao-mobile-quick');
       const extra = mobile?.querySelector('.bao-mobile-more');
       if (q) {
