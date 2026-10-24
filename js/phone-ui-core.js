@@ -14,7 +14,7 @@
     const url = txt(value, 2048).trim();
     if (/^https:\/\/[^\s<>"']+$/i.test(url)) return url;
     if (/^data:image\/(?:png|jpeg|webp|gif);base64,[A-Za-z0-9+/=]+$/i.test(url) && url.length <= 350000) return url;
-    if (/^(?:assets|media|uploads)\/[a-zA-Z0-9_./-]+$/.test(url) && !url.split('/').includes('..')) return url;
+    if (/^(?:(?:assets|media|uploads)\/)?[a-zA-Z0-9_./-]+\.(?:png|jpe?g|webp|gif|mp3|m4a|ogg|wav|mp4|webm)$/i.test(url) && !url.split('/').includes('..')) return url;
     return '';
   }
   const defaultConfig = () => ({
