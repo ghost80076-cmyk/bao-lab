@@ -81,6 +81,7 @@ const CharacterEngine = {
       .slice(0, 12);
     const characterStatus = raw.character_status || gameplay.character_status || {};
     const gameplayUI = raw.gameplay_ui || gameplay.ui_schema || gameplay.gameplay_ui || null;
+    const phoneUI = raw.phone_ui || presentation.phone_ui || null;
     const playInfoSurface = raw.play_info_surface || presentation.play_info_surface || (gameplayUI ? "game-ui" : "reader-context");
     const openingRaw = raw.opening || presentation.opening || null;
     const opening = openingRaw && typeof openingRaw === "object" && !Array.isArray(openingRaw)
@@ -147,6 +148,9 @@ const CharacterEngine = {
       actor_mode: actorMode,
       character_status: characterStatus,
       gameplay_ui: gameplayUI && typeof gameplayUI === "object" && !Array.isArray(gameplayUI) ? gameplayUI : null,
+       phone_ui: (phoneUI && typeof phoneUI === 'object' && !Array.isArray(phoneUI))
+         ? (typeof window !== 'undefined' && window.BAOPhoneUICore ? window.BAOPhoneUICore.normalize(phoneUI) : phoneUI)
+         : null,
       story_startup: raw.story_startup || gameplay.story_startup || null,
       timeline_policy: raw.timeline_policy || gameplay.timeline_policy || null,
       play_info_surface: playInfoSurface === "game-ui" ? "game-ui" : "reader-context",
