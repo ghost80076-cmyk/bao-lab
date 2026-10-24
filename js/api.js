@@ -40,6 +40,17 @@ const API = {
     return config.type === "openrouter" || /(^|\.)openrouter\.ai$/i.test((() => { try { return new URL(config.baseUrl).hostname; } catch { return ""; } })());
   },
 
+  // Only current OpenAI reasoning/GPT generations need max_completion_tokens.
+  // Keep legacy and third-party OpenAI-compatible gateways on max_tokens.
+  usesOpenAIMaxCompletionTokens(config = {}) {
+    try {
+      const url = new URL(config.baseUrl || "");
+      if (url.protocol !== "https:" || url.hostname.toLowerCase() !== "api.openai.com" ||
+          url.pathname.replace(/\/+$/, "") !== "/v1/chat/completions") return false;
+    } catch { return false; }
+    return /^(?:gpt-(?:[5-9]|\d{2,})(?:[.-]|$)|o\d+(?:[.-]|$))/i.test(String(config.model || "").trim());
+  },
+
   shouldStream(config = {}) {
     return config.stream === true && typeof config.onDelta === "function";
   },
@@ -234,7 +245,10 @@ const API = {
     const sessionId = config.sessionId || window.BAOPromptCache?.storySessionId?.();
     if (openRouter && sessionId) body.session_id = String(sessionId).slice(0, 256);
     const limit = Number(config.maxOutputTokens || 0);
-    if (limit > 0) body.max_tokens = Math.floor(limit);
+    if (limit > 0) {
+      const parameter = this.usesOpenAIMaxCompletionTokens(config) ? "max_completion_tokens" : "max_tokens";
+      body[parameter] = Math.floor(limit);
+    }
     let response;
     try {
       response = await this.fetchWithRetry(config.baseUrl, {
