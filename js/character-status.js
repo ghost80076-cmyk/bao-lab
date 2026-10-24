@@ -423,7 +423,10 @@
     }).join("\n");
   };
 
-  const hasTrackedFields = () => configFor(window.App?.activeCharacter).fields.some(field => field.track);
+  const hasTrackedFields = () => {
+    const config = configFor(window.App?.activeCharacter);
+    return config.enabled && config.fields.some(field => field.track);
+  };
 
   const snapshotForTracker = (text = "") => {
     const cfg = ensureState(window.App?.activeCharacter) || configFor(window.App?.activeCharacter);

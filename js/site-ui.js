@@ -71,7 +71,7 @@ window.addEventListener("DOMContentLoaded", () => {
     .catch(err => console.warn("BAO/LAB autonomous world workbench or display failed to load:", err));
   const worldModulesReady = loadBAOScript("js/global-bridge.js?v=3")
     .then(() => loadBAOScript("js/world-state.js?v=3"))
-    .then(() => loadBAOScript("js/character-status.js?v=4"))
+    .then(() => loadBAOScript("js/character-status.js?v=5"))
     .then(() => loadBAOScript("js/three-realms-cultivation-core.js?v=1"))
     .then(() => loadBAOScript("js/three-realms-event-profiles.js?v=6"))
     .then(() => loadBAOScript("js/three-realms-events-core.js?v=6"))

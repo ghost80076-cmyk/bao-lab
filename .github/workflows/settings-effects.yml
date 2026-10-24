@@ -15,6 +15,7 @@ on:
       - 'js/interpretation-mods.js'
       - 'js/commentary-mods.js'
       - 'js/world-relevance.js'
+      - 'js/character-status.js'
       - 'js/site-ui.js'
       - 'tests/settings-effects*.cjs'
       - 'tests/settings-lifecycle-contract.cjs'

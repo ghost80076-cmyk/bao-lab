@@ -116,19 +116,20 @@
     const trackingLabels = {high:'高頻追蹤',medium:'中頻追蹤',low:'低頻追蹤',manual:'手動維護'};
     for (const mod of modules) {
       add(`world-module-${mod.id}`,'世界模組範圍',mod.label || mod.id,`${contexts[mod.context] || mod.context} · ${trackingLabels[mod.tracking] || mod.tracking}`,
-        '本故事','目前世界模組設定','configured','主故事加入範圍與狀態整理頻率分開；相關判定、模組數量及字數預算仍可能排除。');
+        '本故事','目前世界模組設定','configured','主故事加入範圍與狀態整理頻率分開；自動整理需啟用狀態追蹤。相關判定、模組數量及字數預算仍可能排除。');
       result.at(-1).selection = [mod.id,mod.context,mod.tracking,mod.triggers,mod.fields];
     }
-    const trackedFields = window.BAOCharacterStatus?.configFor?.(character)?.fields || [];
-    const tracking = config.narrativeMode==='world' || (typeof config.stateTracking==='boolean'?config.stateTracking:config.displayMode==='ui') || trackedFields.some(f=>f.track);
+    const statusConfig = window.BAOCharacterStatus?.configFor?.(character);
+    const trackedFields = statusConfig?.fields || [], statusEnabled = statusConfig?.enabled !== false;
+    const tracking = config.narrativeMode==='world' || (typeof config.stateTracking==='boolean'?config.stateTracking:config.displayMode==='ui') || statusEnabled && trackedFields.some(f=>f.track);
     add('state-tracking','記憶與輔助','人物／世界狀態整理',tracking?'追蹤開啟':'未啟用','本故事','敘事模式與狀態設定',tracking?'configured':'off',
       tracking?'同模型附錄或獨立整理依連線與觸發條件執行；可能另用模型額度，與狀態欄是否顯示分開。':'隱藏面板與停止追蹤是不同設定。');
     result.at(-1).selection = [tracking,config.cost?.stateInterval,config.cost?.stateApiMode,trackedFields.map(f=>[f.key,f.track,f.context])];
     for (const field of trackedFields) {
-      add(`status-field-${field.key}`,'人物狀態欄位',field.label || field.key,`${contexts[field.context] || field.context} · ${field.track?'自動追蹤':'手動維護'}`,
-        '本故事',field.origin==='player'?'玩家自訂欄位':'作品欄位',field.context==='ui_only' && !field.track?'display':'configured',
+      add(`status-field-${field.key}`,'人物狀態欄位',field.label || field.key,statusEnabled?`${contexts[field.context] || field.context} · ${field.track?'自動追蹤':'手動維護'}`:'人物欄位系統未啟用',
+        '本故事',field.origin==='player'?'玩家自訂欄位':'作品欄位',!statusEnabled?'off':field.context==='ui_only' && !field.track?'display':'configured',
         '「不加入主故事」與「不追蹤」是兩件事；自動追蹤的欄位仍交給狀態整理流程。隱藏顯示不會自動停止追蹤。');
-      result.at(-1).selection = [field.key,field.context,field.track,field.type,field.min,field.max];
+      result.at(-1).selection = [field.key,statusEnabled,field.context,field.track,field.type,field.min,field.max];
     }
     const recallOn = config.memory?.mode!=='full' && config.memory?.episodicRecall!==false;
     add('recall','記憶與輔助','事件回憶',recallOn?'按需檢索':'不另行檢索','本故事','記憶設定',recallOn?'conditional':'off',

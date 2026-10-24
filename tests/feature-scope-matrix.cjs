@@ -47,5 +47,10 @@ const begin=(character,mode='immersive',display='text')=>{
     assert.equal(Object.hasOwn(snapshot['測試角色'] || {},'audit_field'),track,'tracking does not depend on main prompt scope');
     fieldCases++;
   }
-  console.log(`PASS ${moduleCases} module context/tracking/mode/layout cases × 3 protocols + 4 tracking ticks; ${fieldCases} character field type/context/tracking cases`);
+  begin({id:'disabled',name:'停用角色',character_status:{enabled:false,fields:[{key:'tracked',context:'core',track:true,default:'DISABLED_FIELD'}]}});
+  c.App.config.stateTracking=false;
+  assert.equal(c.BAOCharacterStatus.hasTrackedFields(),false,'disabled field system must not force paid state tracking');
+  assert.equal(c.WorldStateEngine.enabled(c.App.config),false);
+  const before=bodies.length;await c.WorldStateEngine.update(c.App.config,'QUERY','STORY');assert.equal(bodies.length,before);
+  console.log(`PASS ${moduleCases} module context/tracking/mode/layout cases × 3 protocols + 4 tracking ticks; ${fieldCases} character field type/context/tracking cases; disabled fields make zero state calls`);
 })().catch(error=>{console.error(error);process.exitCode=1;});
