@@ -36,7 +36,7 @@ increasing(index, [
   'src="js/storage.js?v=9"',
   'src="js/story-history-core.js?v=2"',
   'src="js/state.js?v=3"',
-  'src="js/api.js?v=5"',
+  'src="js/api.js?v=6"',
   'src="js/helper-data.js?v=3"',
   'src="js/episodic-memory-core.js?v=6"',
   'src="js/chat.js',
@@ -48,7 +48,7 @@ increasing(index, [
 
 // World-state chain: the bridge must install its guards before world modules.
 increasing(siteUI, [
-  'loadBAOScript("js/global-bridge.js?v=3")',
+  'loadBAOScript("js/global-bridge.js?v=4")',
   'loadBAOScript("js/world-state.js?v=3")',
   'loadBAOScript("js/character-status.js?v=5")',
   'loadBAOScript("js/three-realms-cultivation-core.js?v=1")',
@@ -212,3 +212,7 @@ assert.match(
 assert.ok(siteUI.indexOf("three-realms-story-actor-pack.js") < siteUI.indexOf("story-persona-manager.js"), "Three Realms archetypes must load before the character picker");
 
 console.log("frontend-extension-contract: load order and wrapper guards ok");
+
+assert.ok(siteUI.indexOf('js/request-ledger.js?v=1') > siteUI.indexOf('js/story-control-center.js?v='), 'ledger scopes wrap the completed story-control chain');
+assert.match(read("js/api.js"), /request-ledger:lifecycle/);
+assert.match(read("js/api.js"), /request-ledger:dispatch/);

@@ -241,6 +241,7 @@
   };
   WorldStateEngine.update = async function(config, playerText, assistantText) {
     if (!eligible(config)) return originalUpdate(config, playerText, assistantText);
+    API.noteRequest?.('state','merged');
     const owner = GameState.current;
     if (!owner) return null;
     const explicitScene = this.explicitSceneInfo?.(assistantText) || null;
@@ -259,6 +260,7 @@
     const matchesTurn = merged && String(merged.userText || '') === String(playerText || '') &&
       String(merged.narration || '') === String(assistantText || '');
     if (!matchesTurn || !merged?.hasState || !merged?.parsed) {
+      API.noteRequest?.('state','merged-invalid');
       enqueue(owner, playerText, assistantText);
       const reason = !matchesTurn ? 'turn_mismatch' : (merged.stateIssue || 'invalid_json');
       const why = {
@@ -274,6 +276,7 @@
     const cultivationSource = [...(merged.priorTurns || []).flatMap(turn => [turn.player, turn.assistant]), playerText, assistantText].join('\n');
     const clean = window.BAOHelperData.stateUpdate(merged.parsed, merged.defs || [], cultivationSource);
     if (!clean) {
+      API.noteRequest?.('state','merged-invalid');
       enqueue(owner, playerText, assistantText);
       mark(owner, 'failed', `${scenePatch ? '時間／地點已同步；' : ''}本輪故事已保留，但狀態附錄格式無法套用；不會補發第二次 API，待下一次狀態批次再整理。`, 'invalid_patch');
       return scenePatch;

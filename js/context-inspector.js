@@ -89,12 +89,15 @@
     }
     document.querySelector('[data-context-inspector]')?.remove();
     const data = snapshot();
+    let execution = '';
+    try { execution = window.BAORequestLedger?.render?.() || ''; } catch (_) {}
     const root = document.createElement('div');
     root.className = 'context-health-backdrop'; root.dataset.contextInspector = '';
     const reason = {included:'已加入',knowledge:'知情篩選排除',evidence:'來源失效',retracted:'已撤回／被更正',duplicate:'已有相同內容',irrelevant:'未命中',budget:'預算／數量上限',disabled:'未啟用',condition:'條件未滿足',world:'世界不符',review:'待審核',matrix:'知情矩陣不直接加入',display:'僅供界面顯示'};
     const tok = n => n == null ? '未知' : n.toLocaleString() + ' tok';
     root.innerHTML = `<section class="context-health-panel" role="dialog" aria-modal="true" aria-label="本輪上下文檢視器">
       <header class="context-health-head"><div><h2>本輪上下文檢視器</h2><p>送出前的訊息快照；服務商仍可能轉換協定格式。字數不等於 Token，固定前綴候選不等於實際快取命中。</p></div><button type="button" class="context-health-close" aria-label="關閉檢視器">×</button></header>
+      ${execution}
       ${data ? `<p>${esc(kindLabel(data.kind))} · ${esc(data.at)} · ${esc(data.model)} · ${esc(data.status)}</p><p>Provider 回報：輸入 ${esc(tok(data.usage?.input_tokens))} · 快取讀取 ${esc(tok(data.usage?.cached_tokens))} · 輸出 ${esc(tok(data.usage?.output_tokens))}</p>
       ${window.BAOSettingsEffects?.renderCaptured?.(data.settingsEffects, data.status, data.at, data.kind) || ""}
       ${Object.entries(data.layers).map(([layer, items]) => `<details class="context-health-advanced"><summary>${esc(layer)} · ${items.length} 筆決策</summary>${items.map(item => `<p><b>${esc(item.title || item.id)}</b> · ${esc(reason[item.reason] || item.reason)}${item.score == null ? '' : ' · 排序分數 ' + esc(item.score)}${item.match === 'trust-tag' ? ' · 人際信任標籤對應' : ''}</p>`).join('')}</details>`).join('')}

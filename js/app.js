@@ -129,6 +129,7 @@ const App = {
     const owner = GameState.current, config = this.config;
     window.BAOCreditsPilot?.prepareAccountConfig?.(config.api);
     if (!config.api.key && !window.BAOCreditsPilot?.isAccountReady?.(config.api)) {
+      API.noteRequest?.('story','not-connected');
       alert("連線金鑰沒有儲存在存檔中；若使用夜灣燈火，請先登入帳號。");
       return;
     }

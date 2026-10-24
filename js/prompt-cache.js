@@ -147,9 +147,10 @@
 
     Chat.maybeSummarize = async function(config, force = false, recentRounds = null) {
       const story = window.GameState?.current;
-      if (!story || activeStories.has(story)) return;
+      if (!story || activeStories.has(story)) { API.noteRequest?.('memory','busy'); return; }
       const blockedUntil = cooldowns.get(story) || 0;
       if (blockedUntil > Date.now()) {
+        API.noteRequest?.('memory','cooldown');
         notice(`記憶整理暫停中，約 ${Math.ceil((blockedUntil - Date.now()) / 60000)} 分鐘後再試。原始對話仍保留。`);
         return;
       }

@@ -163,13 +163,13 @@ const Chat = {
   },
 
   async maybeSummarize(config, force = false, recentRounds = null) {
-    if (this.summarizing || config?.demoMode) return;
+    if (this.summarizing || config?.demoMode) { API.noteRequest?.('memory',config?.demoMode?'local-preview':'busy'); return; }
     const configuredRounds = Math.max(4, Number(config?.memory?.maxRounds || 20));
     const rounds = Math.max(4, Number(recentRounds || configuredRounds));
     const keepMessages = rounds * 2;
     const overflow = this.messages.length - keepMessages;
     const interval = Math.max(2, Number(config?.memory?.summaryInterval || 4)) * 2;
-    if (overflow - this.summarizedUntil < (force ? 4 : interval)) return;
+    if (overflow - this.summarizedUntil < (force ? 4 : interval)) { API.noteRequest?.('memory','threshold'); return; }
     // A saved summaryModel without an explicit separate route is legacy metadata.
     // In "same" mode it must never overwrite the active provider's model ID.
     const separateMemory = config?.memory?.summaryApiMode !== "same" &&
@@ -177,6 +177,7 @@ const Chat = {
     const memoryApi = separateMemory ? config.memory.summaryApi : config?.api;
     window.BAOCreditsPilot?.prepareAccountConfig?.(memoryApi);
     if (!memoryApi?.key && !window.BAOCreditsPilot?.isAccountReady?.(memoryApi)) {
+      API.noteRequest?.('memory','not-connected');
       this.memoryHealth = {
         ...(this.memoryHealth || {}),
         phase: "failed",
@@ -257,6 +258,7 @@ const Chat = {
       if (!isCurrent()) return;
       const summary = normalized.summary;
       if (!summary) {
+        API.noteRequest?.('memory','invalid-output');
         this.memoryHealth = {
           ...(this.memoryHealth || {}),
           phase: "failed",
@@ -310,7 +312,7 @@ const Chat = {
   },
 
   async afterTurn(config) {
-    if (config?.memory?.mode !== "smart" || config?.demoMode) return;
+    if (config?.memory?.mode !== "smart" || config?.demoMode) { API.noteRequest?.('memory',config?.demoMode?'local-preview':'memory-mode'); return; }
     const rounds = this.protectedRounds(config);
     await this.maybeSummarize(config, ["high", "critical"].includes(this.contextGuard.level), rounds);
   },
