@@ -1,0 +1,122 @@
+/* Isolated optional phone surface: all selectors prefixed, no global theme changes. */
+.bao-phone-launch{font:inherit;white-space:nowrap;max-width:100%}
+.bao-phone-overlay{position:fixed;inset:0;z-index:2147482000;display:flex;align-items:center;justify-content:center;background:rgba(7,9,17,.76);backdrop-filter:blur(8px);padding:16px}
+.bp-frame{position:relative;width:min(420px,100%);height:min(880px,calc(100dvh - 32px));border:6px solid #15161a;border-radius:49px;background:#090a11;box-shadow:0 28px 85px #0008;overflow:hidden;color:#fff;font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",sans-serif}
+.bp-screen{height:100%;width:100%;position:relative;overflow:hidden;background:#f5f6f8;color:#191919;isolation:isolate}
+.bp-screen *{box-sizing:border-box}
+.bp-screen button,.bp-screen input{font:inherit}
+.bp-screen button{cursor:pointer}
+.bp-screen button:disabled{cursor:default;opacity:.93}
+.bp-screen button:focus-visible,.bp-screen input:focus-visible{outline:3px solid #5b96ff;outline-offset:2px}
+.bp-wallpaper{background-image:linear-gradient(135deg,#35546f,#ad7b8b 52%,#3f4979);background-size:cover;background-position:center;color:#fff}
+.bp-statusbar{position:absolute;z-index:6;top:0;left:0;right:0;height:40px;display:flex;align-items:center;justify-content:space-between;padding:10px 28px 0;font-size:13px;font-weight:650;color:inherit;pointer-events:none}
+.bp-status-dark{color:#fff}
+.bp-home-handle{position:absolute;z-index:20;bottom:7px;left:50%;transform:translateX(-50%);height:5px;width:120px;border:0;border-radius:6px;background:currentColor;color:inherit;opacity:.8;padding:0}
+.bp-lock-main{position:absolute;top:15%;left:0;right:0;display:flex;align-items:center;flex-direction:column;text-shadow:0 2px 12px #0005}
+.bp-lock-date{font-size:19px}
+.bp-lock-clock{font-size:clamp(55px,17vw,80px);font-weight:230;letter-spacing:-4px;line-height:1.1}
+.bp-lock-label{margin-top:16px;font-size:15px}
+.bp-lock-hint{position:absolute;bottom:57px;width:100%;text-align:center;font-size:13px;letter-spacing:.02em;opacity:.9}
+.bp-widgets{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:62px 16px 0}
+.bp-widget{height:138px;min-width:0;overflow:hidden;border-radius:24px;padding:14px 13px;background:rgba(255,255,255,.23);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);box-shadow:0 5px 30px #0001;color:#fff;text-shadow:0 1px 3px #0003;font-size:12px}
+.bp-widget-label{font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bp-temp{font-size:39px;font-weight:250;line-height:1.4}
+.bp-muted{color:#8f949f;font-size:12px}
+.bp-widget .bp-muted{color:#fffd}
+.bp-agenda{margin-top:13px;border-bottom:1px solid #ffffff40;padding-bottom:4px;line-height:1.35;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.bp-apps{padding:27px 17px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));column-gap:8px;row-gap:21px}
+.bp-app-wrap{min-width:0;display:flex;align-items:center;flex-direction:column;gap:5px}
+.bp-app-name{font-size:11px;color:#fff;text-shadow:0 1px 5px #0007;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.bp-icon{display:flex;align-items:center;justify-content:center;height:58px;width:58px;max-width:100%;border:0;border-radius:15px;font-size:31px;color:#fff;background:linear-gradient(145deg,#6985bb,#47547e);box-shadow:0 4px 12px #0003;padding:0}
+.bp-icon-phone{background:#36c85a}.bp-icon-kakao{background:#fee500;color:#2c241c}.bp-icon-x{background:#070707}
+.bp-icon-instagram{background:linear-gradient(35deg,#fdd66c,#ec3282,#6738be)}.bp-icon-spotify{background:#181d19;color:#1db954}
+.bp-icon-photos{background:#f9fafb;color:#d86faa}.bp-icon-notes{background:#fff8cf;color:#777}
+.bp-icon-maps{background:#e1f3e9;color:#4483c8}.bp-icon-youtube{background:#fff;color:#ef2121}
+.bp-icon-settings{background:#a4a9b4}.bp-icon-messages{background:#37c961}.bp-icon-camera{background:#9299a1}
+.bp-dock{position:absolute;bottom:24px;left:12px;right:12px;display:flex;justify-content:space-evenly;gap:5px;padding:13px 6px;background:rgba(248,248,255,.22);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border:1px solid #ffffff34;border-radius:30px}
+.bp-app-page{position:absolute;inset:0;overflow:auto;padding:50px 18px 90px;background:#fff}
+.bp-app-header{min-height:42px;display:flex;align-items:center;gap:10px;color:inherit}
+.bp-back{border:0;background:transparent;color:#158aff;font-size:30px;padding:0 8px 0 0;font-weight:300}
+.bp-app-page h1{font-size:30px;margin:15px 0}
+.bp-app-page h2{font-size:22px}
+.bp-group-heading{margin:24px 0 9px;font-size:13px;font-weight:600;color:#8b8b90}
+.bp-list-row{display:flex;align-items:center;gap:10px;min-height:60px;border-bottom:1px solid #eee;font-size:16px;font-weight:600}
+.bp-flex{flex:1}
+.bp-call-dot{color:#60ad69}.bp-call-dot.bp-red{color:#f44748}
+.bp-phone-tabs{position:sticky;bottom:-90px;display:flex;justify-content:space-around;padding:17px 3px;background:#f9f9fa;border-top:1px solid #e4e4e8;color:#6d7786;font-size:11px}
+.bp-friend{width:100%;border:0;background:none;display:flex;align-items:center;text-align:left;gap:12px;padding:10px 3px;font-size:16px;color:#191919}
+.bp-friend-avatar{width:53px;height:53px;object-fit:cover;border-radius:20px}
+.bp-image-fallback{display:flex;justify-content:center;align-items:center;background:linear-gradient(145deg,#464b60,#242637);color:#fff}
+.bp-profile-avatar{width:92px;height:92px;object-fit:cover;border-radius:34px;margin:16px auto}
+.bp-centered{text-align:center}
+.bp-thread{height:calc(100% - 180px);overflow:auto;margin:6px -18px 0;padding:15px 14px;background:#b9c9d6}
+.bp-chat-row{display:flex;align-items:flex-end;gap:7px;justify-content:flex-start;margin-bottom:15px}
+.bp-chat-row.bp-mine{flex-direction:row-reverse}
+.bp-bubble{padding:12px 13px;max-width:80%;background:#fff;border-radius:13px;font-size:14px;white-space:pre-wrap;overflow-wrap:anywhere}
+.bp-mine .bp-bubble{background:#ffe500}
+.bp-chat-row .bp-muted{color:#576474;font-size:10px}
+.bp-composer{position:absolute;bottom:34px;left:0;right:0;padding:10px;background:white;display:flex;gap:8px}
+.bp-composer input,.bp-video-form input{flex:1;min-width:0;border:1px solid #d4d6da;border-radius:20px;padding:10px;font-size:14px}
+.bp-composer button{border:0;border-radius:18px;background:#ffe500;color:#222;padding:9px 15px}
+.bp-dark-app,.bp-x{background:#050507;color:#fff}
+.bp-x-banner{height:105px;background:linear-gradient(145deg,#282b3e,#181920);margin:8px -18px 0}
+.bp-x-profile{padding:0 4px 18px}
+.bp-x-profile .bp-profile-avatar{margin:-33px 0 5px;border:3px solid #000}
+.bp-x-profile h2{margin:6px 0}
+.bp-tweet{padding:17px 2px;border-top:1px solid #35363c;font-size:14px}
+.bp-tweet p{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.5}
+.bp-tweet .bp-muted{color:#85868c}
+.bp-instagram,.bp-spotify{background:#080809;color:#fff}
+.bp-insta{height:100%;background:linear-gradient(180deg,#191825,#0a0a0f 58%,#030304);display:flex;align-items:center;flex-direction:column;padding:100px 20px 35px;text-align:center;position:relative}
+.bp-insta-avatar{width:126px;height:126px;border-radius:50%;object-fit:cover;animation:bp-breathe 2.4s ease-in-out infinite}
+@keyframes bp-breathe{50%{transform:scale(1.06);filter:drop-shadow(0 0 17px #ffffff38)}}
+.bp-insta h2{font-size:25px;margin:20px 0 5px}
+.bp-insta p{font-size:14px;color:#c9c9d0}
+.bp-call-ringing{margin-top:28px}
+.bp-call-actions{position:absolute;bottom:95px;width:100%;display:flex;justify-content:space-evenly}
+.bp-round{height:58px;width:58px;border:0;border-radius:50%;background:#41414a;color:#fff;font-size:25px;display:flex;align-items:center;justify-content:center;padding:0}
+.bp-danger{background:#fc3756}.bp-accept{background:#28c96c}
+.bp-call-video{position:absolute;inset:0;height:100%;width:100%;object-fit:cover}
+.bp-video-heading{position:absolute;top:45px;left:22px;display:flex;flex-direction:column;align-items:flex-start;text-shadow:0 2px 6px #000}
+.bp-self-video{position:absolute;top:66px;right:16px;width:102px;height:155px;border-radius:16px;border:1px solid #ffffff50;background:linear-gradient(145deg,#646a7b,#18191f);display:flex;align-items:center;justify-content:center;overflow:hidden;touch-action:none;user-select:none;box-shadow:0 6px 22px #0005}
+.bp-self-video video{height:100%;width:100%;object-fit:cover;pointer-events:none}
+.bp-self-flipped{transform:scaleX(-1)}
+.bp-video-hidden video{visibility:hidden}
+.bp-video-messages{position:absolute;bottom:166px;left:16px;right:100px;text-align:left;pointer-events:none}
+.bp-video-msg{color:#fff!important;margin:5px 0!important;text-shadow:0 2px 6px #000;font-size:13px!important;animation:bp-msg-in .2s}
+@keyframes bp-msg-in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.bp-video-actions{display:flex;justify-content:space-evenly;gap:8px;width:100%;position:absolute;bottom:97px}
+.bp-video-actions .bp-round{height:48px;width:48px;font-size:19px}
+.bp-selected{box-shadow:0 0 0 2px #1db954}
+.bp-video-form{display:flex;gap:6px;position:absolute;bottom:36px;left:15px;right:15px}
+.bp-video-form input{background:#fff2;border-color:#fff4;color:#fff}
+.bp-video-form input::placeholder{color:#fffa}
+.bp-video-form button{border:0;background:#fff2;border-radius:50%;width:40px;color:#fff}
+.bp-spotify{position:absolute;inset:0;padding:66px 18px 110px;overflow:auto;background:linear-gradient(180deg,#2b4034 0,#121916 38%,#090b0a 75%);color:#fff}
+.bp-playlist-cover,.bp-now-cover{height:200px;width:200px;max-width:90%;object-fit:cover;margin:0 auto 24px;box-shadow:0 8px 30px #0007}
+.bp-playlist-cover.bp-image-fallback,.bp-now-cover.bp-image-fallback{font-size:84px}
+.bp-spotify h1{font-size:25px;margin:0 0 6px}
+.bp-spotify h2{margin:18px 0 6px}
+.bp-spotify .bp-muted{color:#b6bdba}
+.bp-spotify-tools{display:flex;justify-content:space-between;align-items:center;padding:12px 0 18px}
+.bp-spotify-play{background:#1db954;color:#080f0b;border:0;border-radius:50%;width:55px;height:55px;font-size:23px}
+.bp-track{display:flex;align-items:center;gap:12px;padding:11px 4px;background:transparent;border:0;color:#fff;text-align:left;width:100%}
+.bp-track-icon{font-size:19px;width:24px}
+.bp-track-current .bp-track-icon,.bp-track-current strong{color:#1db954}
+.bp-track-meta{display:flex;flex:1;flex-direction:column;min-width:0;gap:4px;overflow:hidden}
+.bp-track-meta strong,.bp-track-meta small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bp-mini{position:sticky;bottom:0;background:#395848;display:flex;align-items:center;gap:5px;border-radius:10px;padding:6px 8px 10px;min-height:60px}
+.bp-mini-open{display:flex;flex:1;min-width:0;align-items:center;gap:9px;border:0;background:transparent;color:white;text-align:left;padding:0}
+.bp-mini-cover{height:44px;width:44px;object-fit:cover;border-radius:5px;flex:none}
+.bp-mini-toggle{background:none;border:0;color:white;font-size:21px}
+.bp-mini-progress{height:2px;background:#ffffff55;position:absolute;bottom:2px;left:8px;right:8px}
+.bp-mini-fill{height:100%;background:white}
+.bp-now-cover{width:100%;height:auto;aspect-ratio:1/1;max-height:310px;margin:18px auto 28px}
+.bp-seek{width:100%;margin-top:28px;accent-color:#1db954}
+.bp-progress-time{display:flex;justify-content:space-between;color:#aaa;font-size:12px}
+.bp-player-actions{display:flex;align-items:center;justify-content:space-around;gap:2px;margin:35px 0}
+.bp-player-button{border:0;background:none;color:#fff;font-size:24px;width:42px;height:42px}
+.bp-play-main{background:#fff;color:#090d0b;border-radius:50%;width:63px;height:63px;font-size:26px}
+@media(max-width:600px){.bao-phone-overlay{padding:0;background:#000}.bp-frame{border:0;border-radius:0;width:100%;height:100dvh;box-shadow:none}.bp-widgets{margin-top:max(62px,env(safe-area-inset-top))}.bp-home-handle{bottom:max(7px,env(safe-area-inset-bottom))}.bp-dock{bottom:max(24px,env(safe-area-inset-bottom))}.bp-video-form{bottom:max(36px,env(safe-area-inset-bottom))}}
+@media(max-height:730px){.bp-widget{height:113px}.bp-apps{padding-top:14px;row-gap:13px}.bp-icon{height:50px;width:50px;font-size:26px}.bp-lock-main{top:12%}}
+@media(prefers-reduced-motion:reduce){.bp-insta-avatar,.bp-video-msg{animation:none}}
