@@ -25,11 +25,15 @@
     try {
       efficiency = window.BAOContextEfficiencyCore?.analyze?.(messages, lastCompleted.get(state)) || null;
     } catch (_) { /* Never let optional local analytics block a story request. */ }
+    let settingsEffects = null;
+    try { settingsEffects = window.BAOSettingsEffects?.capture?.(messages) || null; }
+    catch (_) { /* Optional diagnostics never change or block a request. */ }
     let remaining = 200000;
     const entry = {
       at: new Date().toISOString(), model: String(config?.model || ''), status: 'pending',
       layers: src?.signature === signature() ? structuredClone(src.layers) : {},
       efficiency,
+      settingsEffects,
       anchors,
       messages: (Array.isArray(messages) ? messages : []).map((m, i) => {
         const text = typeof m.content === 'string' ? m.content : JSON.stringify(m.content ?? '');
@@ -71,6 +75,7 @@
     root.innerHTML = `<section class="context-health-panel" role="dialog" aria-modal="true" aria-label="本輪上下文檢視器">
       <header class="context-health-head"><div><h2>本輪上下文檢視器</h2><p>送出前的訊息快照；服務商仍可能轉換協定格式。字數不等於 Token，固定前綴候選不等於實際快取命中。</p></div><button type="button" class="context-health-close" aria-label="關閉檢視器">×</button></header>
       ${data ? `<p>${esc(data.at)} · ${esc(data.model)} · ${esc(data.status)}</p><p>Provider 回報：輸入 ${esc(tok(data.usage?.input_tokens))} · 快取讀取 ${esc(tok(data.usage?.cached_tokens))} · 輸出 ${esc(tok(data.usage?.output_tokens))}</p>
+      ${window.BAOSettingsEffects?.renderCaptured?.(data.settingsEffects, data.status, data.at) || ""}
       ${Object.entries(data.layers).map(([layer, items]) => `<details class="context-health-advanced"><summary>${esc(layer)} · ${items.length} 筆決策</summary>${items.map(item => `<p><b>${esc(item.title || item.id)}</b> · ${esc(reason[item.reason] || item.reason)}${item.score == null ? '' : ' · 排序分數 ' + esc(item.score)}${item.match === 'trust-tag' ? ' · 人際信任標籤對應' : ''}</p>`).join('')}</details>`).join('')}
       ${data.messages.map((m,i) => `<details class="context-health-advanced"><summary>${i+1}. ${esc(m.label)} · ${esc(m.role)} · ${m.chars.toLocaleString()} 字元${m.truncated ? '（顯示節錄）' : ''}</summary><pre style="white-space:pre-wrap;overflow-wrap:anywhere;max-width:100%">${esc(m.content)}</pre></details>`).join('')}` : '<p>目前沒有可用的送出快照。完成一輪故事請求後即可查看；重新載入或更改分支原文後需再次送出。</p>'}
     </section>`;
