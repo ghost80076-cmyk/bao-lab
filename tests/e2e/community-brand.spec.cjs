@@ -1,6 +1,7 @@
 const { test, expect } = require('@playwright/test');
 
-const INVITE = 'https://discord.gg/N3XpAhwTN';
+const DISCORD_INVITE = 'https://discord.gg/N3XpAhwTN';
+const LINE_INVITE = 'https://line.me/ti/g2/MUhrfagH6_jr76izNfBK7FBUdYZY30Jh9ml24Q?utm_source=invitation&utm_medium=link_copy&utm_campaign=default';
 
 test.describe('YoruBay official identity and concise community entry', () => {
   test('Cinematic Night homepage keeps the character first and mascot subtle', async ({ page }) => {
@@ -19,6 +20,9 @@ test.describe('YoruBay official identity and concise community entry', () => {
     await expect(page.locator('#bao-discord-nav')).toHaveCount(0);
     await expect(page.locator('#bao-contact-nav')).toHaveCount(0);
     await expect(page.locator('#home-view .brand-contact')).toHaveCount(0);
+    await expect(page.locator('#home-community')).toBeVisible();
+    await expect(page.locator('#home-community .brand-line-cta')).toHaveAttribute('href', LINE_INVITE);
+    await expect(page.locator('#home-community .brand-discord-cta')).toHaveAttribute('href', DISCORD_INVITE);
     await expect(page.locator('#home-view .brand-feature-grid')).toHaveCount(0);
     await expect(page.locator('.topbar .brand .brand-wordmark strong')).toHaveText('夜灣');
     await expect(page.locator('.topbar .brand .brand-wordmark small')).toHaveText('YoruBay');
@@ -36,7 +40,8 @@ test.describe('YoruBay official identity and concise community entry', () => {
     await expect(page.locator('#home-view .brand-intro')).toHaveText('替你留了一盞燈。');
     await expect(page.locator('#home-view a[href="quick-start"]')).toHaveCount(1);
     await expect(page.locator('#home-view .brand-first-run')).toContainText('第一次來？三步開始');
-    await expect(page.locator('#bao-contact-footer a')).toHaveAttribute('href', INVITE);
+    await expect(page.locator('#bao-contact-footer .brand-footer-line')).toHaveAttribute('href', LINE_INVITE);
+    await expect(page.locator('#bao-contact-footer .brand-footer-discord')).toHaveAttribute('href', DISCORD_INVITE);
     await page.getByRole('button', { name: '關於夜灣' }).click();
     await expect(page.locator('#about-view.active')).toContainText('一開始，我只是想讓故事好好走下去。');
     await expect(page.locator('#about-view.active')).toContainText('故事可以換模型，但不應該因此失去自己。');

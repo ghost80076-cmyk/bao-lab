@@ -1,7 +1,10 @@
 (() => {
   const DISCORD_INVITE = "https://discord.gg/N3XpAhwTN";
+  const LINE_INVITE = "https://line.me/ti/g2/MUhrfagH6_jr76izNfBK7FBUdYZY30Jh9ml24Q?utm_source=invitation&utm_medium=link_copy&utm_campaign=default";
   const DISCORD_ICON = '<img src="assets/discord-mark.svg" width="21" height="21" alt="">';
+  const LINE_ICON = '<span class="brand-line-icon" aria-hidden="true">LINE</span>';
   const discordLink = (label, className = "brand-discord-cta") => `<a class="${className}" href="${DISCORD_INVITE}" target="_blank" rel="noopener noreferrer" aria-label="${label}（另開 Discord 邀請連結）">${DISCORD_ICON}<span>${label}</span></a>`;
+  const lineLink = (label, className = "brand-line-cta") => `<a class="${className}" href="${LINE_INVITE}" target="_blank" rel="noopener noreferrer" aria-label="${label}（另開 LINE 社群邀請連結）">${LINE_ICON}<span>${label}</span></a>`;
   const nightKey = () => {
     const now = new Date();
     return [now.getFullYear(), String(now.getMonth() + 1).padStart(2, "0"), String(now.getDate()).padStart(2, "0")].join("-");
@@ -172,7 +175,7 @@
     if (footer && !document.getElementById("bao-contact-footer")) {
       const contact = document.createElement("span");
       contact.id = "bao-contact-footer";
-      contact.innerHTML = `聯絡我們：${discordLink("官方 Discord", "brand-footer-discord")}`;
+      contact.innerHTML = `加入社群：${lineLink("LINE 玩家交流社群", "brand-footer-line")}<span aria-hidden="true">·</span>${discordLink("官方 Discord", "brand-footer-discord")}`;
       footer.appendChild(contact);
     }
   };
