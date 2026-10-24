@@ -2,7 +2,7 @@
 (() => {
   'use strict';
   const Core = window.BAOPhoneUICore;
-  if (!Core || !window.App || window.BAOPhoneUI) return;
+  if (!Core || typeof App === 'undefined' || window.BAOPhoneUI) return;
   let root = null, screen = null, config = null, page = 'lock', subpage = '';
   let clock = null, callTimer = null, callStart = 0, messageTimers = [], messageFade = null;
   let audio = null, trackIndex = -1, playing = false, position = 0, expanded = false, shuffle = false, loop = false;
