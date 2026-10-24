@@ -53,6 +53,7 @@ for(const name of ['player-settings','narrative-settings','prompt-cache','prompt
   assert.equal(item('custom-0').evidence,'included');assert.equal(item('custom-1').evidence,'excluded');
   assert.match(item('custom-1').detail,/重複/);assert.match(item('custom-2').detail,/不會/);assert.equal(item('custom-3').evidence,'off');
   assert.equal(item('replyLength').state,'replaced');assert.equal(item('language').evidence,'included');
+  assert.match(item('density').source,/此項未另設/,'a missing story field must not be described as explicitly saved');
   c.App.config.narrative.responseLength='long';view=c.BAOSettingsEffects.snapshot();
   assert.equal(item('responseLength').evidence,'changed');assert.equal(item('playerPortrayal').evidence,'included');
   assert.equal(record.settingsEffects.find(r=>r.id==='responseLength').value,'短篇幅','previous request keeps the old choice');

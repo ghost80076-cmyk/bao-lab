@@ -48,10 +48,10 @@
     if (info) {
       const mode = window.BAONarrativeSettings.playerPortrayal(config);
       add('playerPortrayal','敘事與指令','玩家角色演繹',({strict:'玩家主控',natural:'敘事補述',coauthor:'小說共創'})[mode],
-        '本故事',info.source === 'story' ? narrativeSource : '平台預設（舊故事未授權）','ready',
+        '本故事',info.source === 'story' && ['strict','natural','coauthor'].includes(config.narrative?.playerPortrayal) ? narrativeSource : '平台預設（未另行授權）','ready',
         '重要決策仍由玩家決定。', [window.BAONarrativeSettings.playerPortrayalRule(config)]);
       const observe = window.BAONarrativeSettings.observationAllowed(config);
-      add('observationMode','敘事與指令','單輪觀賞',observe?'已開放':'關閉','本故事',info.source==='story'?narrativeSource:'平台預設',
+      add('observationMode','敘事與指令','單輪觀賞',observe?'已開放':'關閉','本故事',info.source==='story' && Object.hasOwn(config.narrative,'observationMode')?narrativeSource:'平台預設',
         observe?'conditional':'off','開啟後仍需獨立輸入「繼續」「然後呢」或「【觀賞一輪】」；只授權該輪。',
         observe?['【本輪觀賞授權】']:[],'latest');
       for (const [key,label] of Object.entries(fields)) {
@@ -61,7 +61,8 @@
         let display = labelMap[key]?.[value] || (Array.isArray(value) ? value.map(x => (key==='stylePacks'?styleLabels:extraLabels)[x] || x).join('、') || '依作品' : typeof value==='boolean' ? (value?'開啟':'關閉') : value || '未設定');
         let status = selected?'ready':'inherited', detail = selected?'作為之後故事回覆的偏好；不重寫已存在的訊息。':'不額外加入這項要求，保留作品安排。';
         if (key==='intimacy' && prefs.intimacyDetailMod) { status='replaced'; detail='親密場景加強已開啟，使用加強規則；關閉加強後恢復這個選擇。'; }
-        add(key,'敘事與指令',label,display,narrativeScope,narrativeSource,status,detail,expected);
+        const source = info.source==='story' && !Object.hasOwn(config.narrative,key) ? '作品／平台預設（此項未另設）' : narrativeSource;
+        add(key,'敘事與指令',label,display,narrativeScope,source,status,detail,expected);
       }
       const remaining = [...window.BAONarrativeSettings.effectiveCustomInstructions(prefs)];
       list(prefs.customInstructions).forEach((instruction,index) => {
@@ -91,7 +92,7 @@
     }
     const actor = window.BAOActorModeCore?.normalizeState?.(state.actorMode || {},character.actor_mode || {});
     const actorPrompt = actor && window.BAOActorModeCore.buildPrompt({state:actor,defaults:character.actor_mode || {},actorName:character.name || ''});
-    add('actor','世界與角色','角色身份',actor?.role?.label || '未設定','本故事',state.actorMode?'玩家故事設定':'作品預設',actorPrompt?'ready':'off',
+    add('actor','世界與角色','角色身份',actor?.role?.label || '未設定','本故事',state.actorMode?'本故事身份設定':'作品預設',actorPrompt?'ready':'off',
       actorPrompt?'保留角色本體，加入目前身份規則。':'需啟用、有身份內容且目前使用此身份。',actorPrompt?[actorPrompt]:[]);
     const phone = window.BAOPhonePlayerCore?.resolve?.(character.phone_ui,state);
     add('phone','世界與角色','手機介面',phone?'開啟':'關閉','本故事',state.phoneSurface?'玩家故事設定':'作品預設',phone?'ready':'off',
