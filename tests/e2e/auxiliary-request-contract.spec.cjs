@@ -135,6 +135,7 @@ test('retry, format repair and invalid memory are distinct requests with cooldow
   ledger=await page.evaluate(()=>BAORequestLedger.snapshot());expect(records).toEqual(['story','memory','memory-repair']);
   expect(ledger.calls.map(c=>c.kind)).toEqual(records);expect(ledger.retries).toBe(0);expect(ledger.transportAttempts).toBe(3);
   expect(ledger.decisions).toContainEqual({kind:'memory',reason:'invalid-output'});
+  expect(await page.evaluate(()=>BAORequestLedger.render())).toContain('整理結果無法使用，原始對話仍保留');
   await page.evaluate(async()=>{document.getElementById('user-input').value='NEXT';await App.sendMessage();});
   ledger=await page.evaluate(()=>BAORequestLedger.snapshot());expect(ledger.calls.map(c=>c.kind)).toEqual(['story']);
   expect(ledger.decisions).toContainEqual({kind:'memory',reason:'cooldown'});

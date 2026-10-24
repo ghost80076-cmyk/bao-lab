@@ -151,7 +151,8 @@
       const calls=run.calls.filter(c=>c.kind===kind),decisions=run.decisions.filter(d=>d.kind===kind);
       if(!calls.length && !decisions.length)continue;
       const failed=calls.find(c=>c.status!=='success');
-      const result=calls.length?statuses[failed?.status || 'success']:(publicReasons[decisions.at(-1).reason] || reasons[decisions.at(-1).reason]);
+      const unusable=decisions.findLast(d=>['invalid-output','merged-invalid'].includes(d.reason));
+      const result=unusable?publicReasons[unusable.reason]:calls.length?statuses[failed?.status || 'success']:(publicReasons[decisions.at(-1).reason] || reasons[decisions.at(-1).reason]);
       items.push(`<p data-execution-kind="${esc(kind)}"><b>${esc(kinds[kind])}</b> · ${esc(result)}</p>`);
     }
     return `<section data-settings-execution style="overflow-wrap:anywhere"><h4>最近回覆狀態</h4><p>${esc(statuses[run.status])}</p>${items.join('')}</section>`;
