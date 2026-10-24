@@ -120,3 +120,28 @@
 @media(max-width:600px){.bao-phone-overlay{padding:0;background:#000}.bp-frame{border:0;border-radius:0;width:100%;height:100dvh;box-shadow:none}.bp-widgets{margin-top:max(62px,env(safe-area-inset-top))}.bp-home-handle{bottom:max(7px,env(safe-area-inset-bottom))}.bp-dock{bottom:max(24px,env(safe-area-inset-bottom))}.bp-video-form{bottom:max(36px,env(safe-area-inset-bottom))}}
 @media(max-height:730px){.bp-widget{height:113px}.bp-apps{padding-top:14px;row-gap:13px}.bp-icon{height:50px;width:50px;font-size:26px}.bp-lock-main{top:12%}}
 @media(prefers-reduced-motion:reduce){.bp-insta-avatar,.bp-video-msg{animation:none}}
+
+/* Player opt-in settings for the current story (not the author card). */
+.bao-phone-player-entry{max-width:100%;font:inherit}
+.bao-phone-settings-dialog{color:var(--text,#24232b);background:var(--surface,#fff);border:1px solid var(--border,#ccc);border-radius:20px;width:min(520px,calc(100vw - 24px));max-height:min(90dvh,900px);overflow-y:auto;box-shadow:0 24px 70px #0007;padding:22px;font-family:inherit}
+.bao-phone-settings-dialog::backdrop{background:rgba(9,13,26,.68);backdrop-filter:blur(5px)}
+.bp-settings-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.bp-settings-heading h2{font-size:21px;margin:0}
+.bp-settings-close{font:inherit;border:0;background:transparent;color:inherit;padding:8px 12px;cursor:pointer}
+.bp-settings-intro{font-size:13px;line-height:1.6;opacity:.78;margin:12px 0 18px}
+.bp-settings-form{display:flex;flex-direction:column;gap:15px}
+.bp-settings-form .bp-settings-field{display:flex;flex-direction:column;align-items:stretch;gap:7px;font-size:14px}
+.bp-settings-form .bp-settings-field:has(input[type="checkbox"]){flex-direction:row;align-items:center;gap:12px;font-weight:650}
+.bp-settings-form input[type="checkbox"]{width:20px;height:20px;accent-color:#5678bd}
+.bp-settings-form input[type="text"],.bp-settings-form textarea{width:100%;min-width:0;padding:10px 12px;background:var(--surface-alt,#f8f8fb);border:1px solid var(--border,#b6bbc5);border-radius:11px;color:inherit;font:inherit;line-height:1.5}
+.bp-settings-advanced{border:1px solid var(--border,#b6bbc5);border-radius:12px;padding:10px 12px}
+.bp-settings-advanced summary{cursor:pointer;font-size:14px;font-weight:600}
+.bp-settings-advanced p{opacity:.75;font-size:12px;line-height:1.55}
+.bp-settings-advanced textarea{resize:vertical;min-height:100px}
+.bp-settings-error{color:#c53a4b;min-height:1em;font-size:13px;margin:0}
+.bp-settings-actions{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:9px}
+.bp-settings-actions button{font:inherit;cursor:pointer;padding:10px 13px;border-radius:10px}
+@media(max-width:600px){.bao-phone-settings-dialog{border-radius:17px;padding:18px;max-height:92dvh}.bp-settings-actions button{flex:1}}
+
+/* Keep the narrow story header compact; mobile players use the existing tool drawer. */
+@media(max-width:600px){#chat-view .chat-topline #bao-phone-player-entry{display:none!important}}
