@@ -4,6 +4,7 @@
   const engine = window.CharacterEngine;
   const importer = window.BAOCharacterImport;
   const gameplayCore = window.BAOGameplayUICore;
+  const phoneCore = window.BAOPhoneUICore;
   const form = document.getElementById('studio-form');
   if (!engine || !importer || !form) return;
   const $ = id => document.getElementById(id);
@@ -182,6 +183,16 @@
   }
   $('studio-add-dialogue-person')?.addEventListener('click', () => {addDialoguePerson(); dirty=true;});
 
+  function readPhoneUI() {
+    if (!field('phone_ui_enabled')?.checked) return null;
+    let parsed;
+    try { parsed = JSON.parse(field('phone_ui_json').value || '{}'); }
+    catch (_) { throw new Error('手機介面 JSON 格式錯誤，請檢查逗號與引號。'); }
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) throw new Error('手機介面設定必須是 JSON 物件。');
+    const normalized = phoneCore?.normalize({ ...parsed, enabled: true });
+    if (!normalized) throw new Error('手機介面設定無效。');
+    return normalized;
+  }
   function readCard() {
     const name = text('name');
     const world = text('mode') === 'world';
@@ -205,6 +216,7 @@
       supported_modes: { immersive: true, world },
       supported_display: base.supported_display || { text: true, ui: false },
       gameplay_ui: gameplayUI,
+      phone_ui: readPhoneUI(),
       source: 'local-import', schema_version: '1.5'
     };
   }
@@ -219,6 +231,8 @@
     field('avatar').value = c.avatar === DEFAULT_IMAGE || c.avatar.includes('picsum.photos/seed/bao-character') ? '' : c.avatar;
     field('tags').value = (c.tags || []).join(', ');
     field('mode').value = c.supported_modes?.world ? 'world' : 'immersive';
+    field('phone_ui_enabled').checked = Boolean(c.phone_ui);
+    field('phone_ui_json').value = JSON.stringify(c.phone_ui || phoneCore?.defaultConfig?.() || {}, null, 2);
     field('profile').value = typeof c.profile === 'object' ? (c.profile['AI 主角色設定'] || c.profile['人物設定'] || engine.profilePrompt(c.profile)) : String(c.profile || '');
     const theme = gameplayCore?.normalizeTheme?.(c.gameplay_ui?.theme) || { preset: 'default', density: 'comfortable', radius: 'round', meter: 'soft' };
     field('gameplay_theme').value = theme.preset || 'default';
@@ -325,7 +339,7 @@
       meta: { id: c.id, name: c.name, title: c.title, category: c.category, rating: c.rating, avatar: c.avatar, description: c.description, tags: c.tags, gender: c.gender, audience: c.audience, categories: c.categories },
       content: { greeting: c.greeting, system_prompt: c.system_prompt, quote: c.quote, profile: c.profile, world: c.world, lore: c.lore, npc_rules: c.npc_rules, author_instructions: c.author_instructions, creator_notes: c.creator_notes, world_focus: c.world_focus, dynamic_prompts: c.dynamic_prompts },
       gameplay: { supported_modes: c.supported_modes, initial_state: c.initial_state, world_modules: c.world_modules, character_status: c.character_status, prompt: c.prompt_options, ...(c.gameplay_ui ? { ui_schema: c.gameplay_ui } : {}) },
-      presentation: { dialogue: c.dialogue, supported_display: c.supported_display, ui: c.ui, narrative: c.narrative_profile }
+      presentation: { dialogue: c.dialogue, supported_display: c.supported_display, ui: c.ui, narrative: c.narrative_profile, ...(c.phone_ui ? { phone_ui: c.phone_ui } : {}) }
     };
     if (includeMetadata && c.import_metadata) obj.import_metadata = c.import_metadata;
     return obj;
