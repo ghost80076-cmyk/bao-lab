@@ -24,7 +24,7 @@
 <form id="studio-form" autocomplete="off">
 <div class="studio-grid"><label>角色／作品名稱 <span class="required">*</span><input name="name" maxlength="100" required placeholder="例：自主 NPC 世界"></label><label>角色 ID <span class="required">*</span><input name="id" maxlength="64" pattern="[A-Za-z0-9][A-Za-z0-9_-]{0,63}" required placeholder="例：my-original-world"><small>英數、底線或連字號；加入角色庫後不建議更改。</small></label><label>作品取向<select name="category"><option value="general">一般向</option><option value="female">女性向</option><option value="male">男性向</option></select><small>這裡描述作品主要受眾，不是角色性別；沒有明確取向就選一般向。</small></label><label>內容分級<select name="rating"><option value="general">一般內容</option><option value="adult">成人內容（18+）</option></select><small>成人內容只會在玩家主動開啟成人模式後顯示。</small></label><label>敘事類型<select name="mode"><option value="immersive">單角色沉浸</option><option value="world">世界／多 NPC 模擬</option></select></label></div>
 <label>作品簡介<textarea name="description" rows="2" maxlength="3000" placeholder="顯示在探索角色與詳情頁的文字"></textarea></label>
-<section aria-label="手機介面設定" class="studio-advanced">
+<section aria-label="手機介面設定" class="studio-phone-settings">
 <h3>選用手機互動介面</h3>
 <p class="note">純前端呈現模式，世界觀、手機主人與 NPC 都由作者決定。未勾選不會影響現有故事；手機內容不會自行呼叫模型。</p>
 <label><input type="checkbox" name="phone_ui_enabled"> 這張作品使用手機介面</label>
