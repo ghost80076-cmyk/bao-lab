@@ -554,9 +554,13 @@
     schedule();
   });
   window.BAOMobileReadingLayout = { version: 21, sync, syncMessageActions, openTools, enhanceDrawer, togglePanels, openMemory, closePanels, ensureComposerTools, fitComposerInput };
-  const style = document.createElement('link');
-  style.rel = 'stylesheet';
-  style.href = 'css/mobile-reading-layout.css?v=23';
-  document.head.append(style);
+  // index.html preloads this stylesheet for the first chat frame. Legacy
+  // entry pages still get it here, without a duplicate late cascade change.
+  if (!document.querySelector('link[href^="css/mobile-reading-layout.css"]')) {
+    const style = document.createElement('link');
+    style.rel = 'stylesheet';
+    style.href = 'css/mobile-reading-layout.css?v=23';
+    document.head.append(style);
+  }
   sync();
 })();
