@@ -145,7 +145,7 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/interpretation-mods-official-pack.js?v=1"))
     .then(() => loadBAOScript("js/interpretation-mods.js?v=4"))
     .then(() => loadBAOScript("js/actor-mode-core.js?v=1"))
-    .then(() => loadBAOScript("js/actor-mode.js?v=1"))
+    .then(() => loadBAOScript("js/actor-mode.js?v=2"))
     .then(() => loadBAOScript("js/story-extensions-core.js?v=5"))
     .then(() => loadBAOScript("js/story-extension-pack-core.js?v=2"))
     .then(() => loadBAOScript("js/story-extension-pack.js"))

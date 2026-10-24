@@ -9,8 +9,10 @@ for(const width of [320,390,1440])test(`one player settings hub with no prompt d
     App.config={persona:{name:'旅人'},api:{type:'custom',protocol:'openai',model:'PRIVATE_MODEL_782',key:'PRIVATE_KEY_782',baseUrl:'https://player-hub.invalid/v1/chat/completions',stream:false,retryEnabled:false},narrativeMode:'immersive',displayMode:'text',stateTracking:false,narrative:{responseLength:'short'},memory:{mode:'full',maxRounds:20,maxContext:64000}};
     Chat.reset();GameState.create(App.activeCharacter,App.config);Chat.add('user','我沿著港口散步。');App.showView('chat');App.renderChatShell(false);
     const messages=await App.buildMessages(App.config);await API.send(App.config.api,messages);
+    delete GameState.current.actorMode;window.__hubBefore=JSON.stringify(GameState.current);
     BAOChatToolNavigation.openDrawer();
   });
+  expect(await page.evaluate(()=>JSON.stringify(GameState.current))).toBe(await page.evaluate(()=>window.__hubBefore));
   expect(JSON.stringify(bodies)).toContain('PRIVATE_PLATFORM_PREFIX_782');
   const root=page.locator('#bao-chat-tool-drawer'),hub=root.locator('[data-story-settings-hub]');
   await expect(root).toHaveCount(1);await hub.locator(':scope > summary').click();

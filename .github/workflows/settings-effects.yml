@@ -16,6 +16,8 @@ on:
       - 'js/story-revision-state.js'
       - 'js/story-control-center.js'
       - 'js/chat-tool-navigation.js'
+      - 'js/actor-mode.js'
+      - 'tests/actor-mode-core.cjs'
       - 'js/context-health.js'
       - 'tests/e2e/player-settings-hub.spec.cjs'
       - 'js/storage.js'
@@ -47,6 +49,7 @@ jobs:
       - uses: ./.github/actions/setup-chromium
       - name: Read-only settings and unchanged request contracts
         run: |
+          node tests/actor-mode-core.cjs
           node tests/request-ledger-core.cjs
           node tests/settings-effects-core.cjs
           node tests/settings-effects-runtime.cjs
