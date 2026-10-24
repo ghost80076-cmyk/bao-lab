@@ -38,6 +38,7 @@
 <link rel="stylesheet" href="css/brand-community.css">
 <link rel="stylesheet" href="css/first-run-desktop.css">
 <link rel="stylesheet" href="css/bao-cinematic-home.css?v=5">
+<link rel="stylesheet" href="css/bao-character.css?v=1" data-bao-character="1">
 <link rel="stylesheet" href="css/bao-visual-ui.css">
 <link rel="stylesheet" href="css/bao-brand-v2.css?v=yorubay-brand-2">
 <link rel="stylesheet" href="css/bao-editorial.css?v=1">
@@ -58,7 +59,111 @@
 </head><body>
 <a class="yoru-skip-link" href="#app-main">跳至主要內容</a>
 <div class="app-shell"><header class="topbar"><a class="brand" href="#" data-view="home" aria-label="夜灣首頁"><img class="bao-mark" src="assets/bao-mark.svg" width="32" height="32" alt=""><span class="brand-wordmark"><strong>夜灣</strong><small>YoruBay</small></span></a><nav><button data-view="home">首頁</button><button data-view="explore">作品</button><a href="author">作者</a><button id="continue-story" class="hidden">繼續上次故事</button><button id="bao-me-nav" type="button">我的</button><button type="button" data-open-story-library>我的故事</button><button data-view="about">關於夜灣</button></nav></header><main id="app-main" tabindex="-1">
-<section id="home-view" class="view active"><div class="hero"><div><h1>今晚，想走進<br>誰的故事？</h1><p>替你留了一盞燈。</p><p class="seo-intro">夜灣 YoruBay 是以故事與角色為核心的 AI 角色扮演、AI 聊天與世界模擬平台。使用自己的 API 與喜歡的 AI 模型，讓角色、記憶與長篇故事留在自己的裝置上繼續發展。</p><div class="hero-actions"><button class="primary" data-view="explore">開始探索</button><button id="home-continue" class="secondary hidden">繼續閱讀</button></div></div><div class="hero-card"><b>故事在這裡靠岸</b><span>每一個世界，都有一個等你靠岸的位置。</span></div></div></section>
+<section id="home-view" class="view active">
+<section class="brand-hero brand-cinematic-hero">
+        <div class="brand-hero-copy">
+          <h1>今晚，想走進<br>誰的故事？</h1>
+          <p class="brand-intro">替你留了一盞燈。</p>
+          <p class="brand-lead">每一個作品，都是一段正在等你打開的故事。選一個故事，從第一句話開始。</p>
+          <div class="brand-actions">
+            <button class="primary" data-view="explore">開始探索</button>
+            <button id="home-continue" class="secondary hidden">繼續閱讀</button>
+            <a class="brand-first-run" href="quick-start">第一次來？三步開始 ↗</a>
+          </div>
+          <a id="bao-home-portrait" class="brand-bao-companion" href="bao-mascot.html" aria-label="認識夜灣官方吉祥物包包">
+            <i class="bao-character bao-character-follow" data-bao-form="bun" data-bao-mood="0" aria-hidden="true"><i class="bao-character-frame"></i></i><span>認識包包</span>
+          </a>
+        </div>
+        <button class="brand-feature-stage" id="home-feature-stage" type="button" aria-label="開啟角色：林沉風">
+          <img id="home-feature-image" src="https://i.meee.com.tw/UHKTM1O.jpg" alt="林沉風" loading="lazy" decoding="async" fetchpriority="low" referrerpolicy="no-referrer">
+          <span class="brand-feature-shade"></span>
+          <span class="brand-feature-copy"><small>今晚推薦</small><b id="home-feature-name">林沉風</b><em id="home-feature-title">見過黑暗的人</em></span>
+        </button>
+      </section>
+      <section id="home-local-story" class="brand-local-story hidden" aria-labelledby="home-local-story-title">
+        <div class="brand-local-story-cover"><img id="home-local-story-cover" src="assets/bao-mark.svg" alt="" loading="lazy"></div>
+        <div class="brand-local-story-copy">
+          <p class="brand-section-mark">本機故事</p>
+          <span id="home-local-story-time" class="brand-local-story-time">上次閱讀</span>
+          <h2 id="home-local-story-title">繼續你的故事</h2>
+          <h3 id="home-local-story-name">你的故事</h3>
+          <p id="home-local-story-preview">上一次停下來的地方，還替你留著。</p>
+          <div id="home-local-story-meta" class="brand-local-story-meta"></div>
+          <div class="brand-local-story-actions">
+            <button id="home-resume-story" type="button" class="primary">繼續閱讀 <span aria-hidden="true">→</span></button>
+            <button id="home-my-stories" type="button" class="brand-home-link">打開我的故事</button>
+          </div>
+        </div>
+      </section>
+      <section class="brand-home-explore" aria-labelledby="home-explore-title">
+        <div class="brand-home-explore-head">
+          <div><h2 id="home-explore-title">更多作品，今晚也在等你。</h2><p class="brand-home-count">今夜有 <span id="home-character-count">—</span> 個故事正在等你。</p></div>
+          <button class="text-button" id="home-all-works" type="button">查看全部作品 →</button>
+        </div>
+        <div id="home-character-preview" class="home-character-preview" aria-live="polite"></div>
+      </section>
+      <section id="home-night" class="brand-night-intro" aria-labelledby="home-night-title">
+        <p class="brand-section-mark">今晚的故事</p>
+        <h2 id="home-night-title">每個世界，都有自己的夜色。</h2>
+        <p class="brand-night-lead">有人喜歡平靜，有人期待相遇，也有人追逐風暴。<br>選擇故事的氛圍、節奏與互動，走進屬於你的夜晚。</p>
+        <dl class="brand-night-choices">
+          <div><dt>夜色<span>故事氛圍</span></dt><dd>電影光影、日常暖意，或細膩心事。</dd></div>
+          <div><dt>潮汐<span>故事節奏</span></dt><dd>慢慢醞釀、自然流動，或波瀾不斷。</dd></div>
+          <div><dt>同行者<span>角色互動</span></dt><dd>慢熱回應，或更常主動開啟話題。</dd></div>
+        </dl>
+        <p class="brand-night-note">開始故事前或閱讀時，都能在「今晚的故事」調整。預設保留作品原貌。</p>
+      </section>
+      <section id="home-reading" class="brand-reading-intro" aria-labelledby="home-reading-title">
+        <div class="brand-reading-copy">
+          <p class="brand-section-mark">翻開一頁</p>
+          <h2 id="home-reading-title">留一點安靜，<br>讓故事慢慢發生。</h2>
+          <p>讀完這一段，再決定下一句。你可以回看前情、整理重要記憶，讓每一次選擇都有跡可循。</p>
+          <p class="brand-reading-footnote">從一句話開始，也可以寫成很長的故事。</p>
+        </div>
+        <article class="brand-paper-page" aria-labelledby="home-excerpt-title">
+          <header><span>閱讀示例</span><span class="brand-page-chapter">第一章</span></header>
+          <h3 id="home-excerpt-title">燈還亮著</h3>
+          <div class="brand-paper-prose">
+            <p>雨聲落在窗沿。你推開門時，他抬了抬眼，將桌上的書籤夾回書裡。</p>
+            <p>「今天過得怎麼樣？」</p>
+            <p>他沒有催你回答，只把另一張椅子拉開一點。燈光落在空著的那一頁，像是替還沒說出口的話，留了一個位置。</p>
+          </div>
+          <footer><span>故事停在這裡，等你接下一句。</span></footer>
+        </article>
+      </section>
+      <section id="home-library" class="brand-library-intro" aria-labelledby="home-library-title">
+        <div class="brand-library-sample" aria-label="故事書庫的章節示例">
+          <div class="brand-library-sample-head"><span>故事書庫</span><small>章節示例</small></div>
+          <div class="brand-library-book">
+            <div class="brand-library-cover"><img id="home-library-cover" src="https://i.meee.com.tw/UHKTM1O.jpg" alt="" loading="lazy" referrerpolicy="no-referrer"></div>
+            <div class="brand-library-book-copy"><span>留在書庫的故事</span><h3 id="home-library-story">林沉風</h3><p>每次回來，都有一頁等著你。</p></div>
+          </div>
+          <ol class="brand-library-chapters">
+            <li><span>第一章</span><span>第一次相遇</span></li>
+            <li class="brand-chapter-current"><span>第二章</span><span>還沒說完的話</span><small>上次閱讀</small></li>
+          </ol>
+          <button id="home-library-open" type="button" class="brand-home-link">打開我的故事書庫 <span aria-hidden="true">→</span></button>
+        </div>
+        <div class="brand-library-copy">
+          <p class="brand-section-mark">留住故事</p>
+          <h2 id="home-library-title">今晚先讀到這裡。<br>下次，接著寫。</h2>
+          <p>把故事與章節留在自己的書庫。回來時繼續，也能保留分支，走向另一種可能。</p>
+          <div class="brand-sync-note">
+            <h3>換個裝置，接上同一個故事。</h3>
+            <p>故事先保存在目前裝置。想在手機與電腦之間接續，可連結自己的 Google 雲端硬碟；換裝置後先同步，再從書庫繼續。</p>
+            <button id="home-sync-open" type="button" class="brand-home-link">查看跨裝置同步 <span aria-hidden="true">→</span></button>
+            <small>連線金鑰（API Key）不會同步，換裝置時需重新輸入。</small>
+          </div>
+        </div>
+      </section>
+      <section id="home-closing" class="brand-closing" aria-labelledby="home-closing-title">
+        <i class="bao-character brand-closing-bao" data-bao-form="bun" data-bao-mood="0" aria-hidden="true"><i class="bao-character-frame"></i></i>
+        <p class="brand-section-mark">替你留著燈</p>
+        <h2 id="home-closing-title">下一頁，從你開始。</h2>
+        <p>選一個作品，把第一句話留給今晚。</p>
+        <div class="brand-closing-actions"><button id="home-start-story" type="button" class="primary">開始探索 <span aria-hidden="true">→</span></button></div>
+      </section>
+</section>
 <section id="explore-view" class="view"><div class="section-head"><div><h2>探索作品</h2></div></div><div id="adult-notice" class="note hidden">成熟內容僅供已滿 18 歲使用者瀏覽。年齡確認只保存在這台裝置。 <a href="age-content-policy">查看年齡與內容政策</a></div><div id="character-list" class="character-grid"></div></section>
 <section id="detail-view" class="view"><div id="character-detail"></div></section>
 <section id="builder-view" class="view"><div class="builder-head"><button class="text-button" onclick="App.showCharacterDetail()">← 返回角色</button><div><div class="eyebrow">STORY SETUP</div><h2>建立故事</h2><span id="builder-character-chip" class="chip"></span><a id="builder-author-link" class="text-button hidden" href="author">作者</a></div></div><div class="steps"><button class="step active" data-step="1">1 敘事</button><button class="step" data-step="2">2 顯示</button><button class="step" data-step="3">3 玩家</button><button class="step" data-step="4">4 模型連線</button><button class="step" data-step="5">5 記憶</button></div><div class="builder-panel">
