@@ -142,3 +142,6 @@
 .bp-settings-actions{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:9px}
 .bp-settings-actions button{font:inherit;cursor:pointer;padding:10px 13px;border-radius:10px}
 @media(max-width:600px){.bao-phone-settings-dialog{border-radius:17px;padding:18px;max-height:92dvh}.bp-settings-actions button{flex:1}}
+
+/* Keep the narrow story header compact; mobile players use the existing tool drawer. */
+@media(max-width:600px){#chat-view .chat-topline #bao-phone-player-entry{display:none!important}}
