@@ -152,7 +152,7 @@
     if(run.status!=='pending' && run.type==='turn')for(const kind of ['advisor','observer','commentary','memory','state']){
       if(!reached.has(kind) && !decisions.some(d=>d.kind===kind))decisions.push({kind,reason:'not-reached'});
     }
-    return `<details class="context-health-advanced" data-request-ledger><summary>本輪執行紀錄 · ${run.logicalRequests} 項請求 · ${run.transportAttempts} 次傳輸嘗試</summary>
+    return `<details class="context-health-advanced" data-request-ledger style="overflow-wrap:anywhere"><summary>本輪執行紀錄 · ${run.logicalRequests} 項請求 · ${run.transportAttempts} 次傳輸嘗試</summary>
       <p>${esc(type)} · ${esc(run.at)} · ${esc(statuses[run.status])} · 重試 ${run.retries} 次</p>
       <p>傳輸嘗試是瀏覽器觀測的次數，不等於模型實際處理次數或帳單；燈火伺服器內部重試不在此處計數。未回報用量或費用時保持未知。</p>
       ${run.calls.map((call,index)=>`<div data-execution-kind="${esc(call.kind)}"><p><b>${index+1}. ${esc(kinds[call.kind])}</b> · ${esc(statuses[call.status])} · ${esc(routes[call.route])}${call.model?' · '+esc(call.model):''}<br>傳輸嘗試 ${call.attemptCount} 次 · 重試 ${call.retries} 次<br>輸入 ${call.usage?.input_tokens ?? '未知'} · 輸出 ${call.usage?.output_tokens ?? '未知'} · 快取 ${call.usage?.cached_tokens ?? '未知'} tok${call.chargedUsd==null?' · 費用未回報':' · 已回報 US$'+esc(call.chargedUsd)}</p>

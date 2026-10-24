@@ -99,6 +99,7 @@ test('same-model state uses one request; separate state honors its interval and 
 for(const width of [320,390,1440])test(`execution ledger is read-only and fits ${width}px`,async({page})=>{
   await page.setViewportSize({width,height:900});await setup(page);
   const records=[];await mock(page,records);await seed(page,{advisor:true,observer:true,commentary:true});
+  await page.evaluate(()=>{App.config.api.model='<img src=x onerror=window.__ledgerXSS=1>'+ 'x'.repeat(150);});
   await page.evaluate(()=>App.sendMessage());
   const before=await page.evaluate(()=>JSON.stringify([App.config,Chat.messages,GameState.current,JSON.stringify(localStorage)]));
   await page.evaluate(()=>BAOStoryControlCenter.open());
@@ -113,6 +114,7 @@ for(const width of [320,390,1440])test(`execution ledger is read-only and fits $
   expect(await ledger.evaluate(node=>node.scrollWidth<=node.clientWidth+1)).toBe(true);
   expect(await page.evaluate(()=>JSON.stringify([App.config,Chat.messages,GameState.current,JSON.stringify(localStorage)]))).toBe(before);
   expect(records).toHaveLength(4);
+  await expect(ledger.locator('img')).toHaveCount(0);expect(await page.evaluate(()=>window.__ledgerXSS)).toBeUndefined();
   await ledger.scrollIntoViewIfNeeded();await page.screenshot({path:test.info().outputPath(`request-ledger-${width}.png`)});
 });
 test('retry, format repair and invalid memory are distinct requests with cooldown',async({page})=>{
