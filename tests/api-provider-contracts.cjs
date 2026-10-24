@@ -66,6 +66,48 @@ const lastRequest = () => requests.at(-1);
   assert.equal(lastRequest().body.session_id, undefined);
   assert.equal(typeof lastRequest().body.messages[0].content, "string", "custom providers must not inherit explicit caching assumptions");
 
+  // The official GPT-5+ and o-series Chat Completions API rejects max_tokens.
+  responseData = { choices: [{ message: { content: "OpenAI OK" }, finish_reason: "stop" }], usage: { prompt_tokens: 10, completion_tokens: 6, total_tokens: 16 } };
+  const openAIConfig = { type: "openai", protocol: "openai", route: "official", model: "gpt-5.2", baseUrl: "https://api.openai.com/v1/chat/completions", key: "OPENAI-SECRET", maxOutputTokens: 512 };
+  const officialOpenAI = await API.send(openAIConfig, messages);
+  assert.equal(officialOpenAI.text, "OpenAI OK");
+  assert.equal(lastRequest().body.max_completion_tokens, 512, "official GPT-5 must use max_completion_tokens");
+  assert.equal(lastRequest().body.max_tokens, undefined, "official GPT-5 must not send the rejected max_tokens parameter");
+  assert.equal(lastRequest().body.model, "gpt-5.2");
+  assert.equal(JSON.stringify(lastRequest().body).includes("OPENAI-SECRET"), false);
+
+  await API.test(openAIConfig);
+  assert.equal(lastRequest().body.max_completion_tokens, 16, "official GPT connection checks need the same parameter fix");
+  assert.equal(lastRequest().body.max_tokens, undefined);
+
+  await API.send({ ...openAIConfig, model: "o3-mini", maxOutputTokens: 256, stream: true, onDelta() {} }, messages);
+  assert.equal(lastRequest().body.max_completion_tokens, 256, "official o-series must use max_completion_tokens");
+  assert.equal(lastRequest().body.stream, true, "streaming must be preserved");
+  assert.deepEqual(lastRequest().body.stream_options, { include_usage: true });
+
+  await API.send({ ...openAIConfig, model: "gpt-6", maxOutputTokens: 256 }, messages);
+  assert.equal(lastRequest().body.max_completion_tokens, 256, "newer GPT generations must use max_completion_tokens");
+
+  await API.send({ ...openAIConfig, model: "gpt-4", maxOutputTokens: 300 }, messages);
+  assert.equal(lastRequest().body.max_tokens, 300, "legacy GPT must retain max_tokens");
+  assert.equal(lastRequest().body.max_completion_tokens, undefined);
+
+  await API.send({ ...openAIConfig, maxOutputTokens: 0 }, messages);
+  assert.equal(lastRequest().body.max_tokens, undefined, "unset output limit must omit max_tokens");
+  assert.equal(lastRequest().body.max_completion_tokens, undefined, "unset output limit must omit max_completion_tokens");
+
+  await API.send({ ...openAIConfig, type: "custom", route: "custom", baseUrl: "https://relay.example/v1/chat/completions" }, messages);
+  assert.equal(lastRequest().body.max_tokens, 512, "custom GPT-compatible relays must retain existing parameter behavior");
+  assert.equal(lastRequest().body.max_completion_tokens, undefined);
+
+  await API.send({ ...openAIConfig, type: "openrouter", baseUrl: "https://openrouter.ai/api/v1/chat/completions", model: "openai/gpt-5.2" }, messages);
+  assert.equal(lastRequest().body.max_tokens, 512, "OpenRouter must retain existing parameter behavior");
+  assert.equal(lastRequest().body.max_completion_tokens, undefined);
+
+  await API.send({ ...openAIConfig, baseUrl: "https://api.openai.com.evil.example/v1/chat/completions" }, messages);
+  assert.equal(lastRequest().body.max_tokens, 512, "endpoint detection must not trust lookalike hostnames");
+  assert.equal(lastRequest().body.max_completion_tokens, undefined);
+
   responseData = { choices: [{ message: { content: "Z.AI OK" } }], usage: { prompt_tokens: 180, completion_tokens: 20, total_tokens: 200, prompt_tokens_details: { cached_tokens: 90 } } };
   const zai = await API.send({ type: "zai", protocol: "openai", route: "official", model: "glm-user-selected", baseUrl: "https://api.z.ai/api/paas/v4/chat/completions", key: "ZAI-SECRET", cacheMode: "automatic", cacheEnabled: true }, messages);
   assert.equal(zai.text, "Z.AI OK");
