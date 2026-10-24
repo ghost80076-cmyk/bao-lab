@@ -15,10 +15,10 @@ for (const width of [390, 1440]) test(`selected story features survive regenerat
     alerts.push(dialog.message()); return dialog.dismiss();
   });
   await page.goto('./');
-  await page.waitForFunction(() => window.BAOStoryRevisionState && window.BAOActorMode && window.BAOStoryControlCenter && window.BAOPhoneStoryBridge && App.characters?.length && Storage.status().ready);
+  await page.waitForFunction(() => window.BAOMobileReadingLayout && window.BAOStoryRevisionState && window.BAOActorMode && window.BAOStoryControlCenter && window.BAOPhoneStoryBridge && App.characters?.length && Storage.status().ready);
   await page.evaluate(() => {
-    App.activeCharacter = { ...App.characters[0], id: 'feature-audit', name: '測試角色', system_prompt: 'AUDIT_CHARACTER', world_modules: [] };
-    App.config = { persona: { name: '旅人' }, narrativeMode: 'world', displayMode: 'text',
+    App.activeCharacter = { ...App.characters[0], id: 'feature-audit', name: '測試角色', system_prompt: 'AUDIT_CHARACTER', world_modules: [], character_status: { fields: [] }, gameplay: {} };
+    App.config = { persona: { name: '旅人' }, narrativeMode: 'immersive', displayMode: 'text', stateTracking: false,
       narrative: {}, api: { type: 'custom', protocol: 'openai', model: 'audit', key: 'local-test',
         baseUrl: 'https://feature-audit.invalid/v1/chat/completions', stream: false, retryEnabled: false },
       memory: { mode: 'full', maxRounds: 20, maxContext: 64000 } };
@@ -44,6 +44,14 @@ for (const width of [390, 1440]) test(`selected story features survive regenerat
   await modal.locator('[data-pref="responseLength"]').selectOption('short');
   await modal.locator('[data-narrative-save]').click();
   expect(bodies).toHaveLength(0);
+  const openReplyActions = async () => {
+    await page.evaluate(() => BAOMobileReadingLayout.syncMessageActions());
+    const more = page.locator('.story-message-tools').last().locator('details.bao-message-more');
+    if (await more.count() && await more.getAttribute('open') === null) {
+      await more.locator('summary').click();
+    }
+  };
+  await openReplyActions();
   await page.locator('[data-regenerate]').last().click();
   await expect.poll(() => bodies.length).toBe(1);
   await expect.poll(() => page.evaluate(() => Chat.messages.at(-1).content)).toBe('AUDIT_NEW_REPLY');
@@ -51,6 +59,7 @@ for (const width of [390, 1440]) test(`selected story features survive regenerat
   for (const expected of ['AUDIT_CHARACTER', '玩家已授權小說共創', '300–600', 'AUDIT_IDENTITY', 'AUDIT_PHONE_OWNER', 'AUDIT_FIXED', 'AUDIT_DYNAMIC', '【本輪】']) expect(serialized).toContain(expected);
   expect(serialized).not.toContain('AUDIT_REJECTED_REPLY');
   await expect.poll(() => page.evaluate(() => GameState.current.actorMode?.role?.label)).toBe('AUDIT_IDENTITY');
+  await openReplyActions();
   await expect(page.locator('[data-rewrite]').last()).toBeEnabled();
   await page.locator('[data-rewrite]').last().click();
   await expect.poll(() => bodies.length).toBe(2);
