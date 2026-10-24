@@ -40,7 +40,7 @@
     try { notes = window.BAOMemoryWorkbench?.readSlots?.() || []; } catch (_) {}
     let statusConfig = {};
     try { statusConfig = window.BAOCharacterStatus?.configFor?.(App.activeCharacter) || {}; } catch (_) {}
-    const narrativeState = config.narrative || window.BAONarrativeSettings?.get?.() || {};
+    const narrativeState = window.BAONarrativeSettings?.inspect?.(config)?.prefs || config.narrative || window.BAONarrativeSettings?.get?.() || {};
     const narrativeStatus = window.BAONarrativeSettings?.statusLabel?.(narrativeState) || {};
     let extensions = { title: "故事擴充使用原始設定", detail: "世界、閱讀與顯示規則" };
     try {
@@ -98,6 +98,7 @@
     persona() { window.BAOStoryActors?.open?.("player"); },
     memory() { window.BAOMemoryWorkbench?.open?.(); },
     context() { window.BAOContextHealth?.open?.(); },
+    inspector() { window.BAOContextInspector?.open?.(); },
     timeline() { window.BAONPCTimeline?.open?.(); },
     status() { window.BAOCharacterStatusUI?.openSettings?.(); },
     extensions() { window.BAOStoryExtensionsCenter?.open?.(); },
@@ -152,6 +153,7 @@
             ${card("token", "Token／Context 管理", data.tokens, "調整輸出與輸入預算")}
           </div>
         </section>
+        ${window.BAOSettingsEffects?.render?.() || ""}
         <details class="story-control-more">
           <summary>更多故事設定 <span>敘事、快捷指令與進階管理</span></summary>
           <div class="story-control-grid story-control-secondary">
