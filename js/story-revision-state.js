@@ -25,7 +25,15 @@
   const applySnapshot = snapshot => {
     if (!snapshot?.state || !window.GameState) return false;
     const token = storyToken();
-    GameState.current = clone(snapshot.state);
+    const controls = GameState.current || {};
+    const restored = clone(snapshot.state);
+    // Player controls stay current across every internal rewind/reconcile,
+    // including cached variants. Only generated world facts travel in time.
+    for (const key of ["actorMode", "worldbookLibrary", "phoneSurface"]) {
+      if (Object.hasOwn(controls, key)) restored[key] = clone(controls[key]);
+      else delete restored[key];
+    }
+    GameState.current = restored;
     lineages.set(GameState.current, token);
     GameState.current.config = App.config;
     Chat.summary = String(snapshot.summary || "");
@@ -109,20 +117,38 @@
     return null;
   };
 
-  const rebuildStoryToolMessages = messages => {
+  const rebuildStoryToolMessages = async messages => {
     const list = (Array.isArray(messages) ? messages : []).map(item => ({ ...item }));
     const systemIndex = list.findIndex(item => item?.role === "system");
     if (systemIndex < 0) return list;
     const previous = String(list[systemIndex].content || "");
     const marker = "【本次任務】";
     const taskIndex = previous.indexOf(marker);
+    if (typeof App.buildMessages === "function") {
+      const { index } = latestAssistant();
+      const sourceMessages = Chat.messages.slice(0, index);
+      // Keep the tool's bounded history, but isolate a rewrite instruction from
+      // the original latest user turn so observer authorization is evaluated on
+      // the real player input. The task remains explicit and cannot advance time.
+      const contextMessages = list.filter(item => item.role !== "system");
+      const rewrite = taskIndex >= 0 ? contextMessages.pop() : null;
+      const assembled = await App.buildMessages(App.config, { contextMessages, sourceMessages });
+      const result = assembled.map(item => ({ ...item }));
+      if (taskIndex >= 0) {
+        const first = result.find(item => item.role === "system");
+        if (first) first.content += `\n\n${previous.slice(taskIndex)}`;
+      }
+      if (rewrite) result.push(rewrite);
+      return result;
+    }
+    // Older cached clients without the shared builder retain the legacy path.
     const base = App.buildSystemPrompt();
     list[systemIndex].content = taskIndex >= 0 ? `${base}\n\n${previous.slice(taskIndex)}` : base;
     return list;
   };
 
   const revisionSnapshotWrapper = async (next, config, messages) => {
-    if (!config?.__storyTool) return next(config, messages);
+    if (!config?.__storyTool || config?.__inspirationTask) return next(config, messages);
     const token = storyToken(), appConfig = App.config, character = App.activeCharacter;
     const { message } = latestAssistant();
     if (!message) return next(config, messages);
@@ -131,11 +157,17 @@
       && signatureOf(latestAssistant().message) === signature;
     const base = await resolveBase(message);
     if (!current()) throw Object.assign(new Error('故事已切換或修訂來源已變更。'), { code: 'BAO_ABORTED' });
-    if (!base) return next(config, messages);
+    if (!base) {
+      const prepared = typeof App.buildMessages === "function" ? await rebuildStoryToolMessages(messages) : messages;
+      if (!current()) throw Object.assign(new Error('故事已切換或修訂來源已變更。'), { code: 'BAO_ABORTED' });
+      return next(config, prepared);
+    }
     const snapshot = captureSnapshot();
     applySnapshot(base);
     try {
-      return await next(config, rebuildStoryToolMessages(messages));
+      const prepared = await rebuildStoryToolMessages(messages);
+      if (!current()) throw Object.assign(new Error('故事已切換或修訂來源已變更。'), { code: 'BAO_ABORTED' });
+      return await next(config, prepared);
     } finally {
       if (current()) applySnapshot(snapshot);
     }

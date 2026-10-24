@@ -3,7 +3,7 @@
   "scope": "預先保留的信任用語／反例，與開發案例分開計量；不是統計抽樣的玩家品質評估。",
   "sourceHashes": {
     "js/episodic-memory-core.js": "2884c118f813848feb9b3a99bae5842b05e283f1ede39b57dc3e40a37ddac941",
-    "js/episodic-memory.js": "2d51c192dccba113d828b2b9462e01b86f793d700e07278b45546f8a651b6819",
+    "js/episodic-memory.js": "328c2439f0e3bd8722a96c1e3d751a8d4bd4666a8b99c2d6da597c4e74f2071b",
     "tests/fixtures/recall-acceptance/trust-heldout.json": "ce4ff2acfcc2fb77137767d1c0578d0e9bcb9c6a589d50a2d5a0ddde10a74981",
     "scripts/evaluate-episodic-recall.cjs": "fadd74d4e4bfd8d5ac754f06ac90adc82efdcac20f842f23d418ba0d5544cb82"
   },

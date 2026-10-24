@@ -386,7 +386,9 @@ jobs:
       - name: Single effective reply length and cache stability
         run: node tests/reply-length-precedence-core.cjs
       - name: Narrative selection to final request pipeline
-        run: node tests/narrative-prompt-pipeline-core.cjs
+        run: |
+          node tests/narrative-prompt-pipeline-core.cjs
+          node tests/request-feature-contract.cjs
       - name: Stable chat message IDs
         run: node tests/chat-message-id-core.cjs
       - name: Local conversation search

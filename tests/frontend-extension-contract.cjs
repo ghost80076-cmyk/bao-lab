@@ -64,7 +64,7 @@ increasing(siteUI, [
   'loadBAOScript("js/story-tools.js?v=7")',
   'loadBAOScript("js/prompt-cache.js',
   'loadBAOScript("js/prompt-orchestrator.js',
-  'loadBAOScript("js/episodic-memory.js?v=3")',
+  'loadBAOScript("js/episodic-memory.js',
   'then(() => worldModulesReady)',
   'loadBAOScript("js/three-realms-events.js?v=3")',
   'loadBAOScript("js/streaming-ui.js',
@@ -153,7 +153,7 @@ assert.match(promptCache, /API\.wrapSend\("prompt-cache:memory-request-guard", m
 assert.match(promptCache, /return await next\(\{ \.\.\.config, signal: controller\.signal \}, messages, \.\.\.rest\)/);
 
 assert.match(promptOrchestrator, /App\.wrapBuildMessages\("prompt-orchestrator:rules", orchestratorWrapper\)/);
-assert.match(promptOrchestrator, /const messages = await next\(config\)/);
+assert.match(promptOrchestrator, /const messages = await next\(config, request\)/);
 assert.match(promptOrchestrator, /App\.__promptOrchestratorPatched\s*=\s*true/);
 
 assert.match(sameModelStateMerge, /window\.BAOSameModelStateMerge/);

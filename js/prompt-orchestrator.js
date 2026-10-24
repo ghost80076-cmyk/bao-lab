@@ -82,7 +82,7 @@
   // The raw chat is local and is not deleted by context trimming. When a long
   // story's state tracker falls behind, bring back a small, verbatim slice of
   // its newest turns. No model call, new persistent memory, or interpretation.
-  const recentContinuityEvidence = (requestMessages = []) => {
+  const recentContinuityEvidence = (requestMessages = [], sourceMessages = window.Chat?.messages) => {
     const state = window.GameState?.current;
     const chat = window.Chat;
     if (!state || !Array.isArray(chat?.messages)) return "";
@@ -100,7 +100,7 @@
     if (window.App?.config?.memory?.mode === "smart") return "";
     // Latest input is already sent separately. Include only completed recent
     // turns, with a fixed small budget to protect token cost and cache prefix.
-    const source = chat.messages.filter(m => m && (m.role === "user" || m.role === "assistant"));
+    const source = (sourceMessages || []).filter(m => m && (m.role === "user" || m.role === "assistant"));
     if (source.at(-1)?.role === "user") source.pop();
     // In fixed-round/pressure modes, the model may have lost a recent scene
     // while the status tracker still points at an older place. Compare against
@@ -157,8 +157,8 @@
     return [base, extra].filter(Boolean).join("\n\n");
   };
 
-  const orchestratorWrapper = async function(next, config = this.config) {
-    const messages = await next(config);
+  const orchestratorWrapper = async function(next, config = this.config, request = {}) {
+    const messages = await next(config, request);
     const result = Array.isArray(messages) ? messages.map(message => ({ ...message })) : [];
     const api = config?.api || config || {};
     const yumeRule = this.activeCharacter?.id === "kurobane-yume-kabukicho" ? YUME_OUTPUT_RULE : "";
@@ -174,7 +174,7 @@
     const lastIndex = result.length - 1;
     if (lastIndex >= 0 && result[lastIndex]?.role === "user") {
       const observe = config?.narrative?.observationMode === "one_turn" && Boolean(observerCommand(result[lastIndex]));
-      result[lastIndex].content = appendBlock(appendBlock(result[lastIndex].content, recentContinuityEvidence(result)), TURN_ANCHOR);
+      result[lastIndex].content = appendBlock(appendBlock(result[lastIndex].content, recentContinuityEvidence(result, request.sourceMessages)), TURN_ANCHOR);
       if (observe) result[lastIndex].content = appendBlock(result[lastIndex].content, OBSERVER_TURN);
     } else {
       result.push({ role: "user", content: TURN_ANCHOR });
