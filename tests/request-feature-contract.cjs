@@ -50,7 +50,7 @@ const pack = core.normalizePack({ schema: core.SCHEMA, version: 1,
     { id: 'rejected', mode: 'keyword', keywords: ['REJECTED_REPLY'], content: 'SHOULD_NOT_RECALL_REJECTED_REPLY' }
   ] });
 const variants = {
-  density: ['concise', 'standard', 'rich'], paragraphs: ['2-4', '4-6', '6-8'],
+  density: ['concise', 'standard', 'rich'], paragraphs: ['2-3', '3-5', '4-7'],
   innerThoughts: ['none', 'restrained', 'clear'], physicalContinuity: [true],
   intimacyDetailMod: [true], intimacy: ['fade', 'emotion', 'continuous'], matureDrama: ['mature'],
   characterAgency: ['reserved', 'natural', 'active', 'autonomous'], responseLength: ['short', 'medium', 'long'],
