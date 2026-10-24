@@ -87,7 +87,11 @@
     const startHint=$('p','bp-settings-hint','只要勾選並儲存，就能開啟手機；下面都可以留白。名稱只設定這個故事，其他故事與作者作品不會被修改。');
     form.append(on,startHint,owner,contact,advanced,msg,actions);
     modal.append(heading,description,form);
-    modal.addEventListener('close',()=>{modal?.remove();modal=null;});
+    const currentModal=modal;
+    currentModal.addEventListener('close',()=>{
+      currentModal.remove();
+      if(modal===currentModal)modal=null;
+    });
     document.body.append(modal);modal.showModal();
   }
   function field(title,type,name,value,placeholder='',help='') {
