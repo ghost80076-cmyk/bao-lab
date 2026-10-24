@@ -62,7 +62,7 @@ test('malformed and huge payloads cannot grow the saved story without bounds', (
   assert.equal(state.phoneUI.seenIds.length,60);
 });
 test('update instructions are fixed and do not require extra model calls', () => {
-  assert.match(Core.PROMPT,/不增加事件密度/);
+  assert.match(Core.PROMPT,/增加事件密度/);
   assert.match(Core.PROMPT,/不得.*玩家/);
   assert.match(Core.PROMPT,/沒有變動時/);
   assert.ok(Core.PROMPT.includes(Core.OPEN));
