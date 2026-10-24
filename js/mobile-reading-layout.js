@@ -554,13 +554,17 @@
     schedule();
   });
   window.BAOMobileReadingLayout = { version: 21, sync, syncMessageActions, openTools, enhanceDrawer, togglePanels, openMemory, closePanels, ensureComposerTools, fitComposerInput };
-  // index.html preloads this stylesheet for the first chat frame. Legacy
-  // entry pages still get it here, without a duplicate late cascade change.
-  if (!document.querySelector('link[href^="css/mobile-reading-layout.css"]')) {
-    const style = document.createElement('link');
+  // The stylesheet is render-blocking in index.html for the initial story
+  // frame. Move that same link to the END of the cascade once deferred
+  // enhancements are mounted: this restores its original precedence over
+  // later Player/reading styles without creating a second request or link.
+  // Legacy entry pages without the preload still receive the fallback link.
+  let style = document.querySelector('link[href^="css/mobile-reading-layout.css"]');
+  if (!style) {
+    style = document.createElement('link');
     style.rel = 'stylesheet';
     style.href = 'css/mobile-reading-layout.css?v=23';
-    document.head.append(style);
   }
+  if (document.head.lastElementChild !== style) document.head.append(style);
   sync();
 })();
