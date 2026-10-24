@@ -15,7 +15,7 @@ for (const width of [390, 1440]) test(`selected story features survive regenerat
     alerts.push(dialog.message()); return dialog.dismiss();
   });
   await page.goto('./');
-  await page.waitForFunction(() => window.BAOMobileReadingLayout && window.BAOStoryRevisionState && window.BAOActorMode && window.BAOStoryControlCenter && window.BAOPhoneStoryBridge && App.characters?.length && Storage.status().ready);
+  await page.waitForFunction(() => window.BAOSettingsEffects && window.BAOContextInspector && window.BAOMobileReadingLayout && window.BAOStoryRevisionState && window.BAOActorMode && window.BAOStoryControlCenter && window.BAOPhoneStoryBridge && App.characters?.length && Storage.status().ready);
   await page.evaluate(() => {
     App.activeCharacter = { ...App.characters[0], id: 'feature-audit', name: '測試角色', system_prompt: 'AUDIT_CHARACTER', world_modules: [], character_status: { fields: [] }, gameplay: {} };
     App.config = { persona: { name: '旅人' }, narrativeMode: 'immersive', displayMode: 'text', stateTracking: false,
@@ -59,6 +59,20 @@ for (const width of [390, 1440]) test(`selected story features survive regenerat
   for (const expected of ['AUDIT_CHARACTER', '玩家已授權小說共創', '300–600', 'AUDIT_IDENTITY', 'AUDIT_PHONE_OWNER', 'AUDIT_FIXED', 'AUDIT_DYNAMIC', '【本輪】']) expect(serialized).toContain(expected);
   expect(serialized).not.toContain('AUDIT_REJECTED_REPLY');
   await expect.poll(() => page.evaluate(() => GameState.current.actorMode?.role?.label)).toBe('AUDIT_IDENTITY');
+  const checkEvidence = async kind => {
+    await page.evaluate(()=>BAOStoryRevisionState.whenIdle());
+    const snap=await page.evaluate(()=>BAOContextInspector.snapshot());
+    expect(snap).not.toBeNull();expect(snap.kind).toBe(kind);expect(snap.status).toBe('success');
+    for(const id of ['playerPortrayal','responseLength','phone-owner','worldbook']){
+      expect(snap.settingsEffects.find(row=>row.id===id).evidence,`${kind}: ${id}`).toBe('included');
+    }
+    await page.evaluate(()=>BAOContextInspector.open());
+    const inspector=page.getByRole('dialog',{name:'本輪上下文檢視器',exact:true});
+    await expect(inspector).toContainText(kind==='rewrite'?'AI 改寫':'重新生成');
+    if(kind==='rewrite')await expect(inspector).toContainText('改寫要求與原回覆');
+    await inspector.getByRole('button',{name:'關閉檢視器'}).click();
+  };
+  await checkEvidence('regenerate');
   await openReplyActions();
   await expect(page.locator('[data-rewrite]').last()).toBeEnabled();
   await page.locator('[data-rewrite]').last().click();
@@ -66,5 +80,8 @@ for (const width of [390, 1440]) test(`selected story features survive regenerat
   expect(JSON.stringify(bodies[1])).toContain('【本次任務】');
   expect(JSON.stringify(bodies[1])).toContain('AUDIT_IDENTITY');
   expect(JSON.stringify(bodies[1])).toContain('保留結果，調整語氣。');
+  await checkEvidence('rewrite');
+  await page.evaluate(()=>{Chat.messages.at(-1).content='AUDIT_DIFFERENT_VARIANT';});
+  expect(await page.evaluate(()=>BAOContextInspector.snapshot())).toBeNull();
   expect(alerts).toEqual([]);
 });
