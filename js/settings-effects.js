@@ -114,9 +114,13 @@
     result.at(-1).selection = modules.map(m=>[m.id,m.context,m.tracking]);
     const contexts = {core:'每輪核心',relevant:'相關時加入',ui_only:'不加入主故事'};
     const trackingLabels = {high:'高頻追蹤',medium:'中頻追蹤',low:'低頻追蹤',manual:'手動維護'};
+    const separateState = config.cost?.stateApiMode!=='same' && Boolean(config.cost?.stateApi?.model && config.cost?.stateApi?.baseUrl);
     for (const mod of modules) {
       add(`world-module-${mod.id}`,'世界模組範圍',mod.label || mod.id,`${contexts[mod.context] || mod.context} · ${trackingLabels[mod.tracking] || mod.tracking}`,
-        '本故事','目前世界模組設定','configured','主故事加入範圍與狀態整理頻率分開；自動整理需啟用狀態追蹤。相關判定、模組數量及字數預算仍可能排除。');
+        '本故事','目前世界模組設定','configured',
+        '主故事加入範圍與狀態整理分開；自動整理需啟用狀態追蹤。'+
+        (mod.tracking==='manual'?'手動維護不交給模型自動整理。':separateState?'獨立狀態整理啟動時，依高／中／低頻規則排程。':'與主模型同次生成時，高頻較優先；中頻與低頻目前使用相同選取方式，不另設回合間隔。')+
+        '相關判定、模組數量及字數預算仍可能排除。');
       result.at(-1).selection = [mod.id,mod.context,mod.tracking,mod.triggers,mod.fields];
     }
     const statusConfig = window.BAOCharacterStatus?.configFor?.(character);

@@ -24,6 +24,9 @@ async function seed(page,width){
       worldbookLibrary:{version:1,enabled:['lifecycle-book'],pinned:{},recallMode:'auto',installed:[YoruWorldbookLibraryCore.normalizePack({schema:YoruWorldbookLibraryCore.SCHEMA,version:1,
         meta:{id:'lifecycle-book',name:'Book',world:'general'},entries:[{id:'fixed',mode:'constant',content:'LIFECYCLE_FIXED'},
           {id:'dynamic',mode:'keyword',keywords:['LIFECYCLE_QUERY'],content:'LIFECYCLE_DYNAMIC'}]})]}});
+    // This is a world-style work with modules. Only an actual in-scene person
+    // may carry character fields; the work title must never become an NPC.
+    GameState.upsertNPC({name:'範圍角色',role:'同行者',presence:'present',location:GameState.current.location});
     App.showView('chat');App.renderChatShell(false);BAONarrativeSettings.open();
   });
   const modal=page.getByRole('dialog',{name:'今晚的故事',exact:true});
