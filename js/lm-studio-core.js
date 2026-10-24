@@ -39,11 +39,13 @@
     if (Number.isFinite(limit) && limit > 0) body.max_tokens = Math.floor(limit);
     let response;
     try {
+      api?.observeRequest?.(config, 'attempt', { transport: 'local' });
       response = await fetchImpl(target.chatUrl, {
         method: 'POST', headers: headers(config), body: JSON.stringify(body),
         signal: config.signal || api?.activeSignal
       });
-    } catch (error) { throw networkError(error); }
+      api?.observeRequest?.(config, 'http', { status: response.status });
+    } catch (error) { api?.observeRequest?.(config, 'network', { aborted: error?.name === 'AbortError' }); throw networkError(error); }
     if (streaming && response.ok && api.isEventStream(response)) return api.readOpenAIStream(response, config);
     const data = await api.readJSON(response);
     if (!response.ok) {

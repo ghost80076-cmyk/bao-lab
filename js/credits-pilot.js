@@ -313,6 +313,7 @@
     try {
       const headers = { "Content-Type": "application/json" };
       if (legacySession) headers.Authorization = `Bearer ${token}`;
+      API.observeRequest?.(config, 'attempt', { transport: 'hosted' });
       response = await fetch(ENDPOINT, {
         method: "POST",
         headers,
@@ -327,7 +328,8 @@
         }),
         signal: config.signal || API.activeSignal
       });
-    } catch (error) { throw API.networkError(error); }
+      API.observeRequest?.(config, 'http', { status: response.status });
+    } catch (error) { API.observeRequest?.(config, 'network', { aborted: error?.name === 'AbortError' }); throw API.networkError(error); }
     let data;
     try { data = await response.json(); }
     catch { throw new Error(`夜灣 後端回傳了無法解析的內容（HTTP ${response.status}）。`); }

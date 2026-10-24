@@ -109,6 +109,15 @@ const API = {
     return ["ECONNRESET", "ETIMEDOUT", "EAI_AGAIN", "ENETUNREACH", "UND_ERR_CONNECT_TIMEOUT", "UND_ERR_SOCKET"].includes(String(error.code || ""));
   },
 
+  observeRequest(config, event, data = {}) {
+    try { globalThis.BAORequestLedger?.transport?.(config, event, data); }
+    catch (_) { /* Optional diagnostics must never affect a request. */ }
+  },
+  noteRequest(kind, reason) {
+    try { globalThis.BAORequestLedger?.decision?.(kind, reason); }
+    catch (_) { /* Optional diagnostics must never affect a workflow. */ }
+  },
+
   async fetchWithRetry(url, options = {}, config = {}) {
     const maxRetries = this.retryLimit(config);
     const signal = options.signal || config.signal || this.activeSignal;
@@ -116,11 +125,15 @@ const API = {
     while (true) {
       let response;
       try {
+        this.observeRequest(config, 'attempt');
         response = await fetch(url, { ...options, signal });
+        this.observeRequest(config, 'http', { status: response.status });
       } catch (error) {
+        this.observeRequest(config, 'network', { aborted: error?.name === 'AbortError' });
         if (retries >= maxRetries || !this.isRetryableNetworkError(error)) throw error;
         retries += 1;
         const delayMs = this.retryDelayMs(retries);
+        this.observeRequest(config, 'retry', { reason: 'network' });
         config?.onRetry?.({ attempt: retries, maxRetries, reason: "network", delayMs });
         await this.waitForRetry(delayMs, signal);
         continue;
@@ -128,6 +141,7 @@ const API = {
       if (!this.retryStatuses.has(Number(response?.status)) || retries >= maxRetries) return response;
       retries += 1;
       const delayMs = this.retryDelayMs(retries, response);
+      this.observeRequest(config, 'retry', { reason: 'http', status: response.status });
       config?.onRetry?.({ attempt: retries, maxRetries, reason: "http", status: response.status, delayMs });
       try { await response.body?.cancel?.(); } catch {}
       await this.waitForRetry(delayMs, signal);
@@ -139,6 +153,7 @@ const API = {
   // inside text transforms and outside transports which may return without next.
   sendStageOrder: Object.freeze({
     "chat-reading-scroll:before-commit": 10,
+    "request-ledger:lifecycle": 15,
     "story-revision-state:snapshot": 20,
     "prompt-cache:memory-request-guard": 30,
     "helper-api-routing:route": 40,
@@ -151,6 +166,7 @@ const API = {
     "cost-control:budget": 110,
     "chat:request-usage": 120,
     "context-inspector:request": 125,
+    "request-ledger:dispatch": 128,
     "lm-studio:local-transport": 130,
     "credits-pilot:hosted-transport": 140
   }),

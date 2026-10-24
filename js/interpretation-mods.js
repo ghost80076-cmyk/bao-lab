@@ -67,9 +67,9 @@
   };
 
   const sendAuxiliary = async (kind, messages, maxOutputTokens) => {
-    if (!Array.isArray(messages) || !messages.length || App.config?.demoMode || App.config?.offlineWorldPreview) return "";
+    if (!Array.isArray(messages) || !messages.length || App.config?.demoMode || App.config?.offlineWorldPreview) { API.noteRequest?.(kind,App.config?.demoMode || App.config?.offlineWorldPreview?'local-preview':'empty'); return ""; }
     const api = apiForAuxiliary(kind);
-    if (!api) return "";
+    if (!api) { API.noteRequest?.(kind,'not-connected'); return ""; }
     api.maxOutputTokens = maxOutputTokens;
     const result = await API.send(api, messages);
     return String(result?.text || "").trim();
@@ -77,9 +77,9 @@
 
   const generateAdvisor = async playerText => {
     const state = ensureState();
-    if (!state.enabled.includes(ADVISOR_ID)) return "";
+    if (!state.enabled.includes(ADVISOR_ID)) { API.noteRequest?.('advisor','disabled'); return ""; }
     const mods = core.activeForStage(state, catalog(), "pre_response_advisor");
-    if (!mods.length) return "";
+    if (!mods.length) { API.noteRequest?.('advisor','disabled'); return ""; }
     const messages = core.buildAdvisorMessages({
       mods,
       playerText,
@@ -96,9 +96,9 @@
 
   const generateObserver = async (message, playerText = "") => {
     const state = ensureState();
-    if (!state.enabled.includes(OBSERVER_ID) || !message?.content) return "";
+    if (!state.enabled.includes(OBSERVER_ID) || !message?.content) { API.noteRequest?.('observer',state.enabled.includes(OBSERVER_ID)?'empty':'disabled'); return ""; }
     const mods = core.activeForStage(state, catalog(), "post_response_observer");
-    if (!mods.length) return "";
+    if (!mods.length) { API.noteRequest?.('observer','disabled'); return ""; }
     const messages = core.buildObserverMessages({
       mods,
       playerText,

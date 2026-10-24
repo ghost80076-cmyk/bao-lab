@@ -468,6 +468,8 @@ jobs:
           node --check js/story-quick-commands-core.js
           node --check js/story-quick-commands.js
           node tests/story-quick-commands-core.cjs
+      - name: Request execution metadata
+        run: node tests/request-ledger-core.cjs
       - name: API send wrapper foundation
         run: |
           node --check js/api.js

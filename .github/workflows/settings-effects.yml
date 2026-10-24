@@ -6,6 +6,11 @@ on:
       - 'css/settings-effects.css'
       - 'js/narrative-settings.js'
       - 'js/player-settings.js'
+      - 'js/request-ledger.js'
+      - 'js/api.js'
+      - 'js/lm-studio-core.js'
+      - 'js/credits-pilot.js'
+      - 'tests/request-ledger-core.cjs'
       - 'js/context-inspector.js'
       - 'js/story-reader.js'
       - 'js/story-revision-state.js'
@@ -39,6 +44,7 @@ jobs:
       - uses: ./.github/actions/setup-chromium
       - name: Read-only settings and unchanged request contracts
         run: |
+          node tests/request-ledger-core.cjs
           node tests/settings-effects-core.cjs
           node tests/settings-effects-runtime.cjs
           node tests/settings-lifecycle-contract.cjs

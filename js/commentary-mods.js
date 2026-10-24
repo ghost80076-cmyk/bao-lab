@@ -125,9 +125,9 @@
   };
 
   const generateFor = async (message = null, options = {}) => {
-    if (App.config?.demoMode || App.config?.offlineWorldPreview) return false;
+    if (App.config?.demoMode || App.config?.offlineWorldPreview) { API.noteRequest?.('commentary','local-preview'); return false; }
     const target = message || lastAssistant();
-    if (!target?.id || !String(target.content || "").trim()) return false;
+    if (!target?.id || !String(target.content || "").trim()) { API.noteRequest?.('commentary','empty'); return false; }
     const owner = window.GameState?.current, config = App.config;
     const targetId = target.id, sceneText = String(target.content), playerText = previousUserText(target);
     const isCurrent = () => window.GameState?.current === owner && App.config === config
@@ -135,7 +135,7 @@
       && previousUserText(target) === playerText;
     if (!isCurrent()) return false;
     let state = ensureState();
-    if (!options.force && core.outputFor(state, target.id)) return false;
+    if (!options.force && core.outputFor(state, target.id)) { API.noteRequest?.('commentary','cached'); return false; }
 
     if (adultEnabled()) {
       try { await loadAdultPack(); }
@@ -143,7 +143,7 @@
     }
     if (!isCurrent()) return false;
     const mods = activeMods();
-    if (!mods.length) return false;
+    if (!mods.length) { API.noteRequest?.('commentary','disabled'); return false; }
 
     const messages = core.buildMessages({
       mods,
@@ -154,7 +154,7 @@
 
     const api = structuredClone(App.config?.api || {});
     window.BAOCreditsPilot?.prepareAccountConfig?.(api);
-    if (!api.model || !api.baseUrl || (!api.key && !window.BAOCreditsPilot?.isAccountReady?.(api))) return false;
+    if (!api.model || !api.baseUrl || (!api.key && !window.BAOCreditsPilot?.isAccountReady?.(api))) { API.noteRequest?.('commentary','not-connected'); return false; }
     api.__auxiliaryTask = true;
     api.__commentaryTask = true;
     api.maxOutputTokens = mods.length > 1 ? 1400 : 850;

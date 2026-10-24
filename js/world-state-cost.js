@@ -1,6 +1,7 @@
 (() => {
   if (typeof WorldStateEngine === "undefined") return;
 
+  const noteRequest = reason => { if (typeof API !== 'undefined') API.noteRequest?.('state',reason); };
   const originalUpdate = WorldStateEngine.update.bind(WorldStateEngine);
   let persistenceHint = false;
   const activeOwners = new WeakSet();
@@ -215,7 +216,7 @@
     const owner = GameState.current;
     const directScene = explicitSceneInfo(assistantText) || {};
     const scenePatch = syncExplicitScene(assistantText);
-    if (!this.enabled(config)) return scenePatch;
+    if (!this.enabled(config)) { noteRequest('tracking-off'); return scenePatch; }
     // A clearly labeled speaker is an observed NPC name, not an inferred status.
     // Register it before building the tracker snapshot so the state model can
     // update the correct person's fields on this very turn.
@@ -225,14 +226,16 @@
     // Retain all local pending turns; the API still receives only one bounded batch.
     persistenceHint = true;
     // Queue newer turns while one request is in flight; never resend its batch.
-    if (activeOwners.has(owner)) return scenePatch;
+    if (activeOwners.has(owner)) { noteRequest('busy'); return scenePatch; }
     const interval = this.interval(config);
     if (pending.length < interval) {
+      noteRequest('interval');
       report(owner, "waiting", `${scenePatch ? '已同步回覆明示的時間／地點；' : ''}已累積 ${pending.length}／${interval} 輪。繼續故事即可，系統會在達到整理回合時自動更新。`);
       return scenePatch;
     }
     const originalApi = config?.api;
     if (!originalApi?.key) {
+      noteRequest('not-connected');
       report(owner, "failed", `${scenePatch ? '時間／地點已同步；' : ''}主模型連線金鑰（API Key）未填，其他狀態未更新。`);
       return scenePatch;
     }
@@ -240,6 +243,7 @@
       ? null
       : config?.cost?.stateApi;
     if (helper?.model && helper?.baseUrl && !helper.key) {
+      noteRequest('not-connected');
       report(owner, "failed", `${scenePatch ? '時間／地點已同步；' : ''}獨立狀態模型的連線金鑰（API Key）尚未重新填入，請到 AI 連線設定補上。`);
       return scenePatch;
     }

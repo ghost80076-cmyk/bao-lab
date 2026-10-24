@@ -193,6 +193,8 @@
   const commitRevisionEvidence = (message, config) => {
     try { window.BAOContextInspector?.commitRevision?.(message, config.__storyRevisionToken); }
     catch (_) { /* Optional diagnostics never block a revision. */ }
+    try { window.BAORequestLedger?.commitRevision?.(message, config.__storyRevisionToken); }
+    catch (_) { /* Optional diagnostics never block a revision. */ }
   };
   const aiToolsAvailable = () => {
     const api = App.config?.api;
