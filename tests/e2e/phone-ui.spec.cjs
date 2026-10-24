@@ -98,6 +98,8 @@ test('studio simple phone fields and style advice survive draft reload and nativ
   await expect(page.locator('[name=phone_userName]')).toHaveValue('原主人');
   await page.locator('[name=phone_userName]').fill('林曼');
   await page.locator('[name=phone_contactName]').fill('小夏');
+  expect(JSON.parse(await page.locator('[name=phone_ui_json]').inputValue()).userName).toBe('林曼');
+  expect(JSON.parse(await page.locator('[name=phone_ui_json]').inputValue()).contactName).toBe('小夏');
   await page.locator('[name=recommended_styles]').fill('電影感, 自然口語, 電影感');
   await page.locator('#studio-save-draft').click();
   await expect(page.locator('#studio-status')).toContainText('草稿已儲存');

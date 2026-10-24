@@ -192,9 +192,7 @@
         const data = JSON.parse(field('phone_ui_json').value || '{}');
         if (!data || typeof data !== 'object' || Array.isArray(data)) return;
         for (const key of phoneNames) data[key] = field('phone_' + key).value;
-        for (const key of phoneNames) field('phone_' + key).value = c.phone_ui?.[key] || '';
-    field('recommended_styles').value = (Array.isArray(c.narrative_profile?.recommended_styles) ? c.narrative_profile.recommended_styles : []).join(', ');
-    field('phone_ui_json').value = JSON.stringify(data, null, 2);
+        field('phone_ui_json').value = JSON.stringify(data, null, 2);
       } catch (_) { status('請先修正手機 JSON，再修改手機主人或聯絡人。'); }
     } else if (name === 'phone_ui_json') {
       try {
