@@ -30,7 +30,7 @@ test("homepage enhancement preserves first-paint DOM and navigation", async ({ p
     }, { once: true });
   });
   await page.goto("/", { waitUntil: "domcontentloaded" });
-  await page.waitForFunction(() => window.App?.__baoNightHomeRefreshWrapped === true);
+  await page.waitForFunction(() => typeof App !== "undefined" && App.__baoNightHomeRefreshWrapped === true);
   await expect(page.locator("#home-start-story")).toBeVisible();
   expect(await page.evaluate(() =>
     window.__firstPaintHomeHero === document.querySelector("#home-view > .brand-cinematic-hero")
