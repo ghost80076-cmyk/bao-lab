@@ -11,7 +11,7 @@
     conditional:'本次未觸發', off:'未啟用', replaced:'由其他設定取代', excluded:'已省略',
     display:'僅影響畫面', inherited:'未額外加規則', configured:'此項未逐字核對', unavailable:'尚未載入',
     changed:'設定已變更，待下次送出', unknown:'尚無送出紀錄' });
-  const fingerprint = row => JSON.stringify([row.id, row.value, row.scope, row.source, row.state, row.detail, row.expected || [], row.anyExpected || [], row.target]);
+  const fingerprint = row => JSON.stringify([row.id, row.value, row.scope, row.source, row.state, row.detail, row.expected || [], row.anyExpected || [], row.target, row.selection]);
   const publicRow = row => ({ id:row.id, group:row.group, label:row.label, value:String(row.value ?? ''),
     scope:row.scope, source:row.source, state:row.state, detail:row.detail || '',
     stateLabel:labels[row.state] || labels.unavailable });

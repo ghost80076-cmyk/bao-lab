@@ -96,30 +96,41 @@
     const phone = window.BAOPhonePlayerCore?.resolve?.(character.phone_ui,state);
     add('phone','世界與角色','手機介面',phone?'開啟':'關閉','本故事',state.phoneSurface?'玩家故事設定':'作品預設',phone?'ready':'off',
       phone?'介面開啟；只有實際產生可見手機事件時才更新，不增加一個模型請求。':'未加入手機事件輸出規則。',phone?[window.BAOPhoneStoryCore?.PROMPT]:[]);
+    if (phone) {
+      const owner = window.BAOPhonePlayerCore.ownerDescription(state,character.phone_ui);
+      add('phone-owner','世界與角色','手機主人與聯絡人',`${phone.userName || '未指定主人'} · ${phone.contactName || '未指定聯絡人'}`,
+        '本故事',state.phoneSurface?'玩家故事設定':'作品預設','ready','主人說明放在本輪動態資料，不改動固定手機契約。',[owner],'latest');
+    }
     const wb = state.worldbookLibrary || {}, enabled = list(wb.enabled);
     add('worldbook','世界與角色','共享世界書',enabled.length?`${enabled.length} 本 · ${wb.recallMode==='off'?'動態檢索關閉':wb.recallMode==='scene'?'場景檢索':'自動檢索'}`:'未啟用','本故事','世界書選擇',enabled.length?'conditional':'off',
       enabled.length?'已啟用不代表每輪命中。關鍵詞、知情、條件與預算會影響加入；關閉動態檢索仍可保留固定條目。':'尚未選用共享世界書。');
+    result.at(-1).selection = [enabled,wb.recallMode || 'auto'];
     result.at(-1).target = 'current';
     result.at(-1).anyExpected = enabled.length ? ['【已啟用的世界書固定規則與文風】','【世界書按需提供的背景資料｜'] : [];
     const modules = window.BAOWorldModules?.definitions?.(character) || [];
     add('world-modules','世界與角色','世界模組',modules.length?`${modules.length} 個模組`:'未啟用','本故事','作品與玩家模組選擇',
       modules.length?'configured':'off','各模組的核心／相關／僅顯示範圍由模組設定決定；啟用不代表每項資料都送入。');
+    result.at(-1).selection = modules.map(m=>[m.id,m.context,m.tracking]);
     const trackedFields = window.BAOCharacterStatus?.configFor?.(character)?.fields || [];
     const tracking = config.narrativeMode==='world' || (typeof config.stateTracking==='boolean'?config.stateTracking:config.displayMode==='ui') || trackedFields.some(f=>f.track);
     add('state-tracking','記憶與輔助','人物／世界狀態整理',tracking?'追蹤開啟':'未啟用','本故事','敘事模式與狀態設定',tracking?'configured':'off',
       tracking?'同模型附錄或獨立整理依連線與觸發條件執行；可能另用模型額度，與狀態欄是否顯示分開。':'隱藏面板與停止追蹤是不同設定。');
+    result.at(-1).selection = [tracking,config.cost?.stateInterval,config.cost?.stateApiMode,trackedFields.map(f=>[f.key,f.track,f.context])];
     const recallOn = config.memory?.mode!=='full' && config.memory?.episodicRecall!==false;
     add('recall','記憶與輔助','事件回憶',recallOn?'按需檢索':'不另行檢索','本故事','記憶設定',recallOn?'conditional':'off',
       config.memory?.mode==='full'?'完整原文模式不再另加事件回憶。':'只檢索有來源且符合知情邊界的相關事件，不額外呼叫模型。',recallOn?['【本輪事件回憶｜有來源的檢索資料】']:[],'latest');
     add('memory','記憶與輔助','對話記憶',({full:'完整原文',smart:'智慧整理',rounds:'固定輪數'})[config.memory?.mode] || '依故事設定',
       '本故事','記憶設定','configured',config.memory?.mode==='smart'?'達到整理條件時，可能另外呼叫記憶模型。':'控制送入的歷史範圍；不因查看這份摘要而發出請求。');
+    result.at(-1).selection = [config.memory?.mode,config.memory?.maxRounds,config.memory?.maxContext,config.memory?.summaryInterval,config.memory?.summaryApiMode];
     const im = window.BAOInterpretationModsCore?.activeMods?.(state.interpretationMods || {},window.BAOInterpretationMods?.catalog?.() || []) || [];
     add('interpretation','記憶與輔助','雙向解讀',im.length?im.map(m=>m.label).join('、'):'未啟用','本故事','雙向解讀 MOD',im.length?'configured':'off',
       im.length?'依已啟用的前置／後置階段另外呼叫模型；此處不將「啟用」當成已完成呼叫。':'不新增解讀請求。');
+    result.at(-1).selection = [im.map(m=>m.id),state.interpretationMods?.detailMode,state.interpretationMods?.monitorTone];
     const commentary = window.BAOCommentaryModsCore?.activeMods?.(state.commentaryMods || {},window.BAOCommentaryMods?.catalog?.() || [],
       {adultEnabled:Boolean(window.BAOContentPreferences?.isAdultContentEnabled?.())}) || [];
     add('commentary','記憶與輔助','場外人格 MOD',commentary.length?commentary.map(m=>m.label).join('、'):'未啟用',
       '本故事','場外人格選擇',commentary.length?'configured':'off',commentary.length?'故事完成後，依啟用的人格另外呼叫評論模型。':'不新增評論請求。');
+    result.at(-1).selection = commentary.map(m=>m.id);
     const scene = window.BAOSceneHTML?.prefs;
     if (scene) {
       add('scene','畫面與閱讀','故事排版',({native:'原生閱讀',efficient:'節省 Token 的場景排版',free:'自由安全 HTML'})[scene.mode] || '依設定',
@@ -156,7 +167,7 @@
       <div class="settings-effects-body"><p class="settings-effects-intro">${captured?'以下保留送出當時的選擇與規則核對。':'目前設定與最近一次主故事請求分開顯示。變更設定後，需再次送出才能核對。'}請求含此規則，不代表模型一定遵循。</p>
       <p class="settings-effects-request">${esc(data.at?`最近請求：${data.at} · ${request}`:request)}</p>
       ${!captured && data.legacy?'<p class="settings-effects-note">這份故事尚未另存敘事偏好，正沿用此瀏覽器的起始偏好；玩家演繹仍依本故事明示授權。</p>':''}
-      ${[...groups].map(([group,items])=>`<details class="settings-effects-group"><summary>${esc(group)} <span>${items.length} 項</span></summary><dl>${items.map(row=>`<div class="settings-effects-row" data-setting-effect="${esc(row.id)}"><dt>${esc(row.label)}</dt><dd><strong>${esc(row.value)}</strong><div class="settings-effects-meta"><span>${esc(row.scope)}</span><span>來源：${esc(row.source)}</span></div><div class="settings-effects-badges"><span data-effect-state="${esc(row.state)}">${esc(row.stateLabel)}</span><span data-effect-evidence="${esc(row.evidence)}">${esc(row.evidenceLabel)}</span></div>${row.detail?`<p>${esc(row.detail)}</p>`:''}</dd></div>`).join('')}</dl></details>`).join('')}
+      ${[...groups].map(([group,items])=>`<details class="settings-effects-group"><summary>${esc(group)} <span>${items.length} 項</span></summary><dl>${items.map(row=>`<div class="settings-effects-row" data-setting-effect="${esc(row.id)}"><dt>${esc(row.label)}</dt><dd><strong>${esc(row.value)}</strong><div class="settings-effects-meta"><span>${esc(row.scope)}</span><span>來源：${esc(row.source)}</span></div><div class="settings-effects-badges"><span data-effect-state="${esc(row.state)}">${esc(row.stateLabel)}</span>${row.evidenceLabel!==row.stateLabel?`<span data-effect-evidence="${esc(row.evidence)}">${esc(row.evidenceLabel)}</span>`:''}</div>${row.detail?`<p>${esc(row.detail)}</p>`:''}</dd></div>`).join('')}</dl></details>`).join('')}
       ${!captured?'<button type="button" class="secondary" data-story-control-action="inspector">核對最近送出內容</button>':''}
       </div></details>`;
   };
