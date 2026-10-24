@@ -146,12 +146,12 @@
   const render=()=>{
     const run=snapshot();if(!run)return '<p data-request-ledger-empty>送出故事回覆後，這裡會顯示最近一輪的處理狀態。</p>';
     const statuses={pending:'處理中',success:'已完成',failed:'未完成，請檢查連線後重試',cancelled:'已取消',stale:'設定或故事已變更','not-committed':'回覆未採用'};
-    const items=[];
-    for(const kind of Object.keys(kinds)){
+    const items=[],publicReasons={merged:'隨故事回覆一併處理','merged-invalid':'這輪沒有可用的狀態資料，未更新狀態','invalid-output':'整理結果無法使用，原始對話仍保留'};
+    for(const kind of Object.keys(kinds).filter(kind=>kind!=='memory-repair')){
       const calls=run.calls.filter(c=>c.kind===kind),decisions=run.decisions.filter(d=>d.kind===kind);
       if(!calls.length && !decisions.length)continue;
       const failed=calls.find(c=>c.status!=='success');
-      const result=calls.length?statuses[failed?.status || 'success']:reasons[decisions.at(-1).reason];
+      const result=calls.length?statuses[failed?.status || 'success']:(publicReasons[decisions.at(-1).reason] || reasons[decisions.at(-1).reason]);
       items.push(`<p data-execution-kind="${esc(kind)}"><b>${esc(kinds[kind])}</b> · ${esc(result)}</p>`);
     }
     return `<section data-settings-execution style="overflow-wrap:anywhere"><h4>最近回覆狀態</h4><p>${esc(statuses[run.status])}</p>${items.join('')}</section>`;

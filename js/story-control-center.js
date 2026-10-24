@@ -201,7 +201,9 @@
     if(existing){
       existing.open=true;
       if(options.effects)existing.querySelector('[data-settings-effects]')?.setAttribute('open','');
-      existing.closest('[role="dialog"]')?.setAttribute('aria-label','故事總覽');
+      const dialog=existing.closest('[role="dialog"]');
+      dialog?.setAttribute('aria-label','故事總覽');
+      dialog?.querySelector(':scope > header > button:last-child')?.setAttribute('aria-label','關閉故事總覽');
       existing.scrollIntoView({block:'start'});
       return;
     }
