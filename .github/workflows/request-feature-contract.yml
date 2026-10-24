@@ -5,6 +5,7 @@ on:
       - 'js/**'
       - 'index.html'
       - 'tests/request-feature-contract.cjs'
+      - 'tests/fixtures/narrative-variants.cjs'
       - 'tests/e2e/request-feature-contract.spec.cjs'
       - '.github/workflows/request-feature-contract.yml'
 permissions:

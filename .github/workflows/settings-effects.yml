@@ -10,8 +10,19 @@ on:
       - 'js/story-reader.js'
       - 'js/story-revision-state.js'
       - 'js/story-control-center.js'
+      - 'js/storage.js'
+      - 'js/story-library.js'
+      - 'js/interpretation-mods.js'
+      - 'js/commentary-mods.js'
+      - 'js/world-relevance.js'
       - 'js/site-ui.js'
       - 'tests/settings-effects*.cjs'
+      - 'tests/settings-lifecycle-contract.cjs'
+      - 'tests/feature-scope-matrix.cjs'
+      - 'tests/story-restore-recovery-core.cjs'
+      - 'tests/fixtures/narrative-variants.cjs'
+      - 'tests/e2e/settings-lifecycle.spec.cjs'
+      - 'tests/e2e/auxiliary-request-contract.spec.cjs'
       - 'tests/context-inspector-revision.cjs'
       - 'tests/e2e/request-feature-contract.spec.cjs'
       - 'tests/e2e/settings-effects.spec.cjs'
@@ -29,12 +40,15 @@ jobs:
         run: |
           node tests/settings-effects-core.cjs
           node tests/settings-effects-runtime.cjs
+          node tests/settings-lifecycle-contract.cjs
+          node tests/feature-scope-matrix.cjs
+          node tests/story-restore-recovery-core.cjs
           node tests/request-feature-contract.cjs
           node tests/context-inspector-core.cjs
           node tests/context-inspector-revision.cjs
           node tests/reply-length-precedence-core.cjs
       - name: Scope, evidence and preferences on mobile and desktop
-        run: npx playwright test tests/e2e/settings-effects.spec.cjs tests/e2e/request-feature-contract.spec.cjs tests/e2e/narrative-cache-preservation.spec.cjs tests/e2e/story-control-center.spec.cjs --project=chromium
+        run: npx playwright test tests/e2e/settings-effects.spec.cjs tests/e2e/request-feature-contract.spec.cjs tests/e2e/narrative-cache-preservation.spec.cjs tests/e2e/story-control-center.spec.cjs tests/e2e/settings-lifecycle.spec.cjs tests/e2e/auxiliary-request-contract.spec.cjs tests/e2e/story-backup.spec.cjs --project=chromium
       - uses: actions/upload-artifact@v4
         if: always()
         with:

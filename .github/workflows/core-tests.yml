@@ -391,6 +391,8 @@ jobs:
           node tests/request-feature-contract.cjs
           node tests/settings-effects-core.cjs
           node tests/settings-effects-runtime.cjs
+          node tests/settings-lifecycle-contract.cjs
+          node tests/feature-scope-matrix.cjs
           node tests/context-inspector-core.cjs
           node tests/context-inspector-revision.cjs
       - name: Stable chat message IDs

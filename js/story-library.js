@@ -829,8 +829,8 @@
       };
 
       const originalRestore = Storage.restoreStory.bind(Storage);
-      Storage.restoreStory = input => {
-        const restored = originalRestore(input);
+      Storage.restoreStory = (input, ...args) => {
+        const restored = originalRestore(input, ...args);
         if (!restored) return false;
         if (!this.adoptRefs(input)) this.beginStory("第一章");
         const refs = this.refs();

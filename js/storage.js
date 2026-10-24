@@ -732,7 +732,7 @@ const Storage = {
     return this.sanitizeImportedStory(JSON.parse(text));
   },
 
-  _preparePreferenceRestore(preferences = {}) {
+  _preparePreferenceRestore(preferences = {}, { preserveBrowserPreferences = false } = {}) {
     if (!preferences || typeof preferences !== "object") return [];
     const definitions = [
       { name: "player", key: "bao-lab:player-settings", api: window.BAOPlayerSettings, get: "get", set: "set", fallback: {} },
@@ -741,14 +741,29 @@ const Storage = {
     ];
     return definitions.filter(item => item.name === "memorySlots" ? Array.isArray(preferences[item.name]) : Boolean(preferences[item.name])).map(item => {
       const raw = localStorage.getItem(item.key);
+      let stored;
+      try { stored = raw === null ? null : JSON.parse(raw); } catch { stored = null; }
+      // Reply/appearance and new-story defaults belong to the browser. Loading
+      // an older story must not rewind them. A fresh device can hydrate missing
+      // preferences from its portable backup; manual memory notes remain local
+      // to the restored story and are always restored.
+      let next = this.clone(preferences[item.name]);
+      if (preserveBrowserPreferences && item.name !== "memorySlots" && stored && typeof stored === "object" && !Array.isArray(stored)) {
+        const missing = Object.keys(next).some(key => !Object.hasOwn(stored, key));
+        const appearance = item.name === "player" && next.appearance && typeof next.appearance === "object";
+        const missingAppearance = appearance && Object.keys(next.appearance).some(key => !Object.hasOwn(stored.appearance || {}, key));
+        if (!missing && !missingAppearance) return null;
+        next = { ...next, ...stored };
+        if (appearance) next.appearance = { ...preferences[item.name].appearance, ...stored.appearance };
+      }
       let previous;
       try { previous = raw === null ? item.fallback : JSON.parse(raw); }
       catch { previous = item.fallback; }
       const apply = typeof item.api?.[item.set] === "function" ? value => item.api[item.set](value) : null;
       if (apply && typeof item.api?.[item.get] === "function") previous = item.api[item.get]();
       const undo = typeof item.api?.restoreRuntime === "function" ? value => item.api.restoreRuntime(value) : apply;
-      return { ...item, undo, raw, previous: this.clone(previous), next: this.clone(preferences[item.name]), apply, written: false, called: false };
-    });
+      return { ...item, undo, raw, previous: this.clone(previous), next, apply, written: false, called: false };
+    }).filter(Boolean);
   },
 
   applyPreferences(preferences = {}, plan = this._preparePreferenceRestore(preferences)) {
@@ -765,7 +780,7 @@ const Storage = {
     return plan;
   },
 
-  restoreStory(input) {
+  restoreStory(input, { restoreBrowserPreferences = false } = {}) {
     this._lastRestoreError = null;
     if (!input || !window.App || !window.Chat || !window.GameState) {
       this._lastRestoreError = new Error("故事還原資料或執行環境不完整。");
@@ -837,7 +852,7 @@ const Storage = {
       const state = this.clone(save.state || {});
       state.config = config;
       if (save.contextPack && !state.contextPack) state.contextPack = this.clone(save.contextPack);
-      plan = this._preparePreferenceRestore(save.preferences || {});
+      plan = this._preparePreferenceRestore(save.preferences || {}, { preserveBrowserPreferences: !restoreBrowserPreferences });
       previous = [[App, ["characters", "activeCharacter", "config"]], [Chat, Object.keys(chat)], [GameState, ["current"]]]
         .map(([target, keys]) => ({ target, fields: keys.map(key => [key, Object.getOwnPropertyDescriptor(target, key)]) }));
       App.characters = characters;
