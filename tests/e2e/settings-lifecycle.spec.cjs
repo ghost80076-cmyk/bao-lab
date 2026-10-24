@@ -13,7 +13,7 @@ async function seed(page,width){
         density:'rich',paragraphs:'3-5',innerThoughts:'restrained',physicalContinuity:true,intimacyDetailMod:true,matureDrama:'mature',characterAgency:'autonomous',
         responseLength:'long',pacing:'slow',sceneFocus:'protect',storyExpectation:'LIFECYCLE_EXPECTATION',dialogueBalance:'balanced',customInstructions:[{text:'保留 LIFECYCLE_CUSTOM 停頓。',enabled:true}]},
       api:{type:'custom',protocol:'openai',model:'audit',key:'LIFECYCLE_SECRET',baseUrl:'https://lifecycle-audit.invalid/v1/chat/completions',stream:false,retryEnabled:false},
-      memory:{mode:'full',maxRounds:20,maxContext:64000}};
+      memory:{mode:'full',maxRounds:20,maxContext:64000,summaryApi:null,summaryApiMode:'same',summaryModel:''}};
     BAOPlayerSettings.set({language:'en',pov:'third',replyLength:'long',dialogueFormat:'named'});
     BAONarrativeSettings.set({density:'concise',playerPortrayal:'strict'});
     Chat.reset();GameState.create(App.activeCharacter,App.config);Chat.add('user','LIFECYCLE_QUERY');
@@ -56,6 +56,12 @@ for(const width of [390,1440])test(`choices survive real storage, reload, story 
   await expect(page.getByText('存檔匯入並確認寫入完成。',{exact:true})).toBeVisible();
   await page.evaluate(backup=>{if(!Storage.restoreStory(backup))throw Error('import restore failed');},backup);
   expect(await selected(page)).toEqual(currentExpected);expect(bodies).toHaveLength(0);
+  const cache=await page.evaluate(async()=>{
+    const first=await App.buildMessages(App.config),user=Chat.messages.findLast(m=>m.role==='user'),original=user.content;
+    user.content='普通閒聊';const second=await App.buildMessages(App.config);user.content=original;
+    return {first:first[0].content,second:second[0].content,matched:JSON.stringify(first).includes('LIFECYCLE_MODULE'),unmatched:JSON.stringify(second).includes('LIFECYCLE_MODULE')};
+  });
+  expect(cache.matched).toBe(true);expect(cache.unmatched).toBe(false);expect(cache.first).toBe(cache.second);
   await page.evaluate(async()=>{App.config.api.key='test';const ms=await App.buildMessages(App.config);await API.send(App.config.api,ms);});
   expect(bodies).toHaveLength(1);
   const body=JSON.stringify(bodies[0]);for(const marker of ['LIFECYCLE_CARD','玩家已授權小說共創','300–600','LIFECYCLE_IDENTITY','LIFECYCLE_OWNER','LIFECYCLE_FIXED','LIFECYCLE_DYNAMIC','LIFECYCLE_CUSTOM'])expect(body).toContain(marker);
