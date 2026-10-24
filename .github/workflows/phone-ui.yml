@@ -5,25 +5,31 @@ on:
     branches: [main]
     paths:
       - 'js/phone-ui*.js'
+      - 'js/phone-story-*.js'
       - 'css/phone-ui.css'
       - 'js/character.js'
       - 'js/character-studio.js'
       - 'index.html'
       - 'character-studio.html'
       - 'tests/phone-ui.test.cjs'
+      - 'tests/phone-story-core.test.cjs'
       - 'tests/e2e/phone-ui.spec.cjs'
+      - 'tests/e2e/phone-story-sync.spec.cjs'
       - '.github/workflows/phone-ui.yml'
   push:
     branches: [main]
     paths:
       - 'js/phone-ui*.js'
+      - 'js/phone-story-*.js'
       - 'css/phone-ui.css'
       - 'js/character.js'
       - 'js/character-studio.js'
       - 'index.html'
       - 'character-studio.html'
       - 'tests/phone-ui.test.cjs'
+      - 'tests/phone-story-core.test.cjs'
       - 'tests/e2e/phone-ui.spec.cjs'
+      - 'tests/e2e/phone-story-sync.spec.cjs'
       - '.github/workflows/phone-ui.yml'
 
 permissions:
@@ -40,9 +46,11 @@ jobs:
       - run: |
           node --check js/phone-ui-core.js
           node --check js/phone-ui.js
+          node --check js/phone-story-core.js
+          node --check js/phone-story-bridge.js
           node --check js/character-studio.js
           node --check js/character.js
-          node --test tests/phone-ui.test.cjs
+          node --test tests/phone-ui.test.cjs tests/phone-story-core.test.cjs
   browser:
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -56,4 +64,4 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - run: npx playwright test tests/e2e/phone-ui.spec.cjs --project=chromium
+      - run: npx playwright test tests/e2e/phone-ui.spec.cjs tests/e2e/phone-story-sync.spec.cjs --project=chromium
