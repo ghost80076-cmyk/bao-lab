@@ -28,11 +28,13 @@
     const source = App.activeCharacter?.phone_ui;
     if (!source) return null;
     const extra = window.GameState?.current?.modules?.phone_ui;
+    const dynamic = window.GameState?.current?.phoneUI;
+    const combine = value => window.BAOPhoneStoryCore?.mergeDisplay(value, dynamic) || Core.normalize(value);
     if (extra && typeof extra === 'object' && !Array.isArray(extra)) {
-      return Core.normalize({ ...source, ...extra, weather: { ...source.weather, ...extra.weather },
+      return combine({ ...source, ...extra, weather: { ...source.weather, ...extra.weather },
         instagram: { ...source.instagram, ...extra.instagram }, spotify: { ...source.spotify, ...extra.spotify } });
     }
-    return Core.normalize(source);
+    return combine(source);
   };
   const visible = () => !!phoneSource();
   function makeLauncher() {
@@ -458,5 +460,14 @@
       return result;
     });
   }
-  window.BAOPhoneUI=Object.freeze({open,close,refresh:makeLauncher});
+  const refreshFromState = () => {
+    if (!root) return;
+    const updated = phoneSource();
+    if (!updated) { close(); return; }
+    config = updated;
+    // Keep active media and focused messaging surfaces intact.
+    if (page === 'home' || page === 'lock' || page === 'phone' || page === 'x' ||
+        (page === 'kakao' && subpage !== 'chat')) render();
+  };
+  window.BAOPhoneUI=Object.freeze({open,close,refresh:makeLauncher,refreshFromState});
 })();
