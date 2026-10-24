@@ -84,3 +84,35 @@ test('local studio keeps phone presentation data on JSON round trip',async({page
   expect(c.from.userName).toBe('테스트');
   expect(c.normalized.tweets[0].text).toBe('기록');
 });
+
+test('studio simple phone fields and style advice survive draft reload and native export',async({page})=>{
+  await page.setViewportSize({width:390,height:844});
+  await page.goto('/character-studio.html');
+  await page.waitForFunction(()=>window.BAOCharacterStudio && window.BAOPhoneUICore);
+  await page.locator('[name=name]').fill('雨港手機');
+  await page.locator('[name=id]').fill('phone-author-sync');
+  await page.locator('[name=system_prompt]').fill('原作世界設定');
+  await page.locator('[name=greeting]').fill('雨停了。');
+  await page.locator('[name=phone_ui_enabled]').check();
+  await page.locator('[name=phone_ui_json]').fill(JSON.stringify({userName:'原主人',chat:[{text:'先前紀錄'}],weather:{place:'基隆'}}));
+  await expect(page.locator('[name=phone_userName]')).toHaveValue('原主人');
+  await page.locator('[name=phone_userName]').fill('林曼');
+  await page.locator('[name=phone_contactName]').fill('小夏');
+  expect(JSON.parse(await page.locator('[name=phone_ui_json]').inputValue()).userName).toBe('林曼');
+  expect(JSON.parse(await page.locator('[name=phone_ui_json]').inputValue()).contactName).toBe('小夏');
+  await page.locator('[name=recommended_styles]').fill('電影感, 自然口語, 電影感');
+  await page.locator('#studio-save-draft').click();
+  await expect(page.locator('#studio-status')).toContainText('草稿已儲存');
+  await page.reload();
+  await page.locator('.studio-draft').filter({hasText:'雨港手機'}).click();
+  await expect(page.locator('[name=phone_userName]')).toHaveValue('林曼');
+  await expect(page.locator('[name=phone_contactName]')).toHaveValue('小夏');
+  const card=await page.evaluate(()=>BAOCharacterStudio.toExport());
+  expect(card.presentation.phone_ui.chat[0].text).toBe('先前紀錄');
+  expect(card.presentation.phone_ui.weather.place).toBe('基隆');
+  expect(card.presentation.narrative.recommended_styles).toEqual(['電影感','自然口語']);
+  expect(card.content.system_prompt).toBe('原作世界設定');
+  expect(JSON.stringify(card)).not.toContain('playerPortrayal');
+  await page.locator('[name=phone_ui_enabled]').uncheck();
+  expect((await page.evaluate(()=>BAOCharacterStudio.toExport())).presentation.phone_ui).toBeUndefined();
+});

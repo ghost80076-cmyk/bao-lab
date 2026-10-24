@@ -407,7 +407,7 @@
         </div>
 
         <div class="bao-setting-section" id="bao-narrative-instructions">
-          <div class="narrative-instruction-heading"><div><h3>自訂長期指令</h3><p>只放「AI 應該怎麼寫」；劇情事實、NPC 資料與關係請放記憶／Canon。每條最多 ${CUSTOM_INSTRUCTION_CHARS} 字，${storyLocal ? "只修改目前故事" : "會成為新故事的起始偏好"}。</p></div><span class="chip" data-instruction-total>0 / ${CUSTOM_INSTRUCTION_LIMIT}</span></div>
+          <div class="narrative-instruction-heading"><div><h3>自訂長期指令</h3><p>只放「AI 應該怎麼寫」；這是每輪生效的長期偏好。只想這一輪使用的內容請放快捷指令；劇情事實、NPC 資料與關係請放記憶／Canon。每條最多 ${CUSTOM_INSTRUCTION_CHARS} 字，${storyLocal ? "只修改目前故事" : "會成為新故事的起始偏好"}。</p></div><span class="chip" data-instruction-total>0 / ${CUSTOM_INSTRUCTION_LIMIT}</span></div>
           <div class="narrative-instruction-list" data-instruction-list>${prefs.customInstructions.map(instructionCardHTML).join("")}</div>
           <button type="button" class="secondary narrative-instruction-add" data-add-instruction>＋ 新增長期指令</button>
           <div class="narrative-token-note"><strong>自動去重：</strong>夜灣依上方授權保護玩家控制權，並維持角色資訊隔離。主控模式的重複規則會提示並省略；想覆蓋平台硬規則或破壞資訊邊界的指令不會送出。其餘自訂內容會留在穩定的故事偏好層，只有修改偏好時才改變。</div>
