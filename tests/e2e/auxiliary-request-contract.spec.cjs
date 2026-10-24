@@ -101,6 +101,8 @@ for(const width of [320,390,1440])test(`execution ledger is read-only and fits $
   const records=[];await mock(page,records);await seed(page,{advisor:true,observer:true,commentary:true});
   await page.evaluate(()=>{App.config.api.model='<img src=x onerror=window.__ledgerXSS=1>'+ 'x'.repeat(150);});
   await page.evaluate(()=>App.sendMessage());
+  // Initialize existing dashboard defaults before isolating inspector reads.
+  await page.evaluate(()=>BAOStoryControlCenter.snapshot());
   const before=await page.evaluate(()=>JSON.stringify([App.config,Chat.messages,GameState.current,JSON.stringify(localStorage)]));
   await page.evaluate(()=>BAOStoryControlCenter.open());
   const overview=page.getByRole('dialog',{name:'故事總覽',exact:true});
