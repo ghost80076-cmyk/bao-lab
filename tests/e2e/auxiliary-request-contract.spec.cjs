@@ -107,12 +107,11 @@ for(const width of [320,390,1440])test(`execution ledger is read-only and fits $
   await page.evaluate(()=>BAOStoryControlCenter.open());
   const overview=page.getByRole('dialog',{name:'故事總覽',exact:true});
   await overview.locator('[data-settings-effects] > summary').click();
-  await overview.getByRole('button',{name:'核對最近送出內容'}).click();
-  const panel=page.getByRole('dialog',{name:'本輪上下文檢視器',exact:true}),ledger=panel.locator('[data-request-ledger]');
-  await ledger.locator(':scope > summary').click();
-  await expect(ledger).toContainText('4 項請求 · 4 次傳輸嘗試');
-  await expect(ledger.locator('[data-execution-kind]')).toHaveCount(4);
-  await expect(ledger).toContainText('費用未回報');await expect(ledger).toContainText('不等於模型實際處理次數或帳單');
+  const ledger=overview.locator('[data-settings-execution]');
+  await expect(ledger).toContainText('最近回覆狀態');
+  await expect(ledger.locator('[data-execution-kind]')).toHaveCount(6);
+  await expect(ledger).toContainText('已完成');await expect(ledger).not.toContainText('HTTP');
+  await expect(ledger).not.toContainText('傳輸嘗試');await expect(overview).not.toContainText('AUXILIARY_CARD');
   expect(await ledger.evaluate(node=>node.scrollWidth<=node.clientWidth+1)).toBe(true);
   expect(await page.evaluate(()=>JSON.stringify([App.config,Chat.messages,GameState.current,JSON.stringify(localStorage)]))).toBe(before);
   expect(records).toHaveLength(4);
@@ -136,6 +135,7 @@ test('retry, format repair and invalid memory are distinct requests with cooldow
   ledger=await page.evaluate(()=>BAORequestLedger.snapshot());expect(records).toEqual(['story','memory','memory-repair']);
   expect(ledger.calls.map(c=>c.kind)).toEqual(records);expect(ledger.retries).toBe(0);expect(ledger.transportAttempts).toBe(3);
   expect(ledger.decisions).toContainEqual({kind:'memory',reason:'invalid-output'});
+  expect(await page.evaluate(()=>BAORequestLedger.render())).toContain('整理結果無法使用，原始對話仍保留');
   await page.evaluate(async()=>{document.getElementById('user-input').value='NEXT';await App.sendMessage();});
   ledger=await page.evaluate(()=>BAORequestLedger.snapshot());expect(ledger.calls.map(c=>c.kind)).toEqual(['story']);
   expect(ledger.decisions).toContainEqual({kind:'memory',reason:'cooldown'});

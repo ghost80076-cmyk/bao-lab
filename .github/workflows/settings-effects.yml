@@ -15,6 +15,11 @@ on:
       - 'js/story-reader.js'
       - 'js/story-revision-state.js'
       - 'js/story-control-center.js'
+      - 'js/chat-tool-navigation.js'
+      - 'js/actor-mode.js'
+      - 'tests/actor-mode-core.cjs'
+      - 'js/context-health.js'
+      - 'tests/e2e/player-settings-hub.spec.cjs'
       - 'js/storage.js'
       - 'js/story-library.js'
       - 'js/interpretation-mods.js'
@@ -44,6 +49,7 @@ jobs:
       - uses: ./.github/actions/setup-chromium
       - name: Read-only settings and unchanged request contracts
         run: |
+          node tests/actor-mode-core.cjs
           node tests/request-ledger-core.cjs
           node tests/settings-effects-core.cjs
           node tests/settings-effects-runtime.cjs
@@ -55,7 +61,7 @@ jobs:
           node tests/context-inspector-revision.cjs
           node tests/reply-length-precedence-core.cjs
       - name: Scope, evidence and preferences on mobile and desktop
-        run: npx playwright test tests/e2e/settings-effects.spec.cjs tests/e2e/request-feature-contract.spec.cjs tests/e2e/narrative-cache-preservation.spec.cjs tests/e2e/story-control-center.spec.cjs tests/e2e/settings-lifecycle.spec.cjs tests/e2e/auxiliary-request-contract.spec.cjs tests/e2e/story-backup.spec.cjs --project=chromium
+        run: npx playwright test tests/e2e/player-settings-hub.spec.cjs tests/e2e/settings-effects.spec.cjs tests/e2e/request-feature-contract.spec.cjs tests/e2e/narrative-cache-preservation.spec.cjs tests/e2e/story-control-center.spec.cjs tests/e2e/settings-lifecycle.spec.cjs tests/e2e/auxiliary-request-contract.spec.cjs tests/e2e/story-backup.spec.cjs --project=chromium
       - uses: actions/upload-artifact@v4
         if: always()
         with:

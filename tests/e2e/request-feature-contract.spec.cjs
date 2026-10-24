@@ -67,10 +67,10 @@ for (const width of [390, 1440]) test(`selected story features survive regenerat
       expect(snap.settingsEffects.find(row=>row.id===id).evidence,`${kind}: ${id}`).toBe('included');
     }
     await page.evaluate(()=>BAOContextInspector.open());
-    const inspector=page.getByRole('dialog',{name:'本輪上下文檢視器',exact:true});
+    const inspector=page.getByRole('dialog',{name:'故事總覽',exact:true});
     await expect(inspector).toContainText(kind==='rewrite'?'AI 改寫':'重新生成');
-    if(kind==='rewrite')await expect(inspector).toContainText('改寫要求與原回覆');
-    await inspector.getByRole('button',{name:'關閉檢視器'}).click();
+    await expect(inspector).not.toContainText('AUDIT_CHARACTER');
+    await inspector.getByRole('button',{name:'關閉故事總覽'}).click();
   };
   await checkEvidence('regenerate');
   await openReplyActions();

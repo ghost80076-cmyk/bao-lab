@@ -134,3 +134,7 @@
   .story-control-more>summary span{font-size:10px}
   .story-control-more .story-control-secondary{padding:9px;gap:7px}
 }
+
+.story-control-embedded{width:100%;max-height:none;overflow:visible;border:0;box-shadow:none;border-radius:0;padding:0;background:transparent}
+.story-control-embedded .story-control-head h3{margin:8px 0;font-size:18px}
+.story-control-embedded .story-control-intro{margin:10px 0}

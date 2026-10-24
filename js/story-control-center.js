@@ -4,13 +4,13 @@
 
   const core = window.BAOStoryControlCore;
   const esc = value => App.escapeHTML(String(value ?? ""));
-  const close = () => document.querySelector(".story-control-backdrop")?.remove();
+  const close = () => window.BAOChatToolNavigation?.closeDrawer?.();
 
   const ensureStyles = () => {
     if (document.querySelector('link[href^="css/story-control-center.css"]')) return;
     const link = document.createElement("link");
     link.rel = "stylesheet";
-    link.href = "css/story-control-center.css?v=4";
+    link.href = "css/story-control-center.css?v=5";
     document.head.appendChild(link);
   };
 
@@ -98,7 +98,6 @@
     persona() { window.BAOStoryActors?.open?.("player"); },
     memory() { window.BAOMemoryWorkbench?.open?.(); },
     context() { window.BAOContextHealth?.open?.(); },
-    inspector() { window.BAOContextInspector?.open?.(); },
     timeline() { window.BAONPCTimeline?.open?.(); },
     status() { window.BAOCharacterStatusUI?.openSettings?.(); },
     extensions() { window.BAOStoryExtensionsCenter?.open?.(); },
@@ -107,7 +106,6 @@
     quick() { window.BAOStoryQuickCommands?.open?.(); },
     history() { window.BAOStoryHistory?.open?.(); },
     search() { window.BAOConversationSearch?.open?.(); },
-    all() { window.BAOChatToolNavigation?.openDrawer?.(); }
   };
 
   const card = (id, eyebrow, data, hint) => `
@@ -118,28 +116,27 @@
       <span class="story-control-card-link">${esc(hint)} →</span>
     </button>`;
 
-  const open = () => {
+  const mount = host => {
     if (!GameState.current || !App.config) {
       window.BAOFeedback?.notify?.("先進入一個故事，再開啟故事總覽。", "error");
       return;
     }
-    close();
     ensureStyles();
     const data = snapshot();
     const wrap = document.createElement("div");
-    wrap.className = "story-control-backdrop";
+    wrap.className = "story-control-content";
     const title = App.activeCharacter?.name || "目前故事";
     wrap.innerHTML = `
-      <section class="story-control-panel" role="dialog" aria-modal="true" aria-labelledby="story-control-title">
+      <section class="story-control-panel story-control-embedded">
         <header class="story-control-head">
           <div>
             <div class="eyebrow">STORY OVERVIEW</div>
-            <h2 id="story-control-title">故事總覽</h2>
+            <h3 id="story-control-title">目前故事設定</h3>
             <p><b>${esc(title)}</b> · ${esc(data.stats.chapter)} · 約 ${data.stats.turns.toLocaleString()} 輪</p>
           </div>
           <div class="story-control-head-actions">
             <button type="button" class="story-control-help" data-story-control-help aria-label="故事總覽說明" aria-expanded="false" aria-controls="story-control-intro">?</button>
-            <button type="button" class="story-control-close" data-story-control-close aria-label="關閉故事總覽">×</button>
+
           </div>
         </header>
         <p class="story-control-intro" id="story-control-intro">這裡整理目前這一份故事正在使用的設定。連線金鑰、全站語言與其他帳號設定仍留在原本的入口。</p>
@@ -168,10 +165,10 @@
         <footer class="story-control-footer">
           <button type="button" class="secondary" data-story-control-action="history">◇ 故事歷程與收藏</button>
           <button type="button" class="secondary" data-story-control-action="search">⌕ 搜尋這個故事</button>
-          <button type="button" class="secondary" data-story-control-action="all">☰ 全部故事工具</button>
+
         </footer>
       </section>`;
-    document.body.appendChild(wrap);
+    host.appendChild(wrap);
     // Disclosure is only visual; tool handlers and story settings stay unchanged.
     const level = window.YoruExperience?.get?.().level || "easy";
     wrap.querySelector(".story-control-more").open = level === "standard" || level === "pro";
@@ -195,7 +192,22 @@
     wrap.addEventListener("keydown", event => {
       if (event.key === "Escape") close();
     });
-    wrap.querySelector("[data-story-control-close]")?.focus();
+
+  };
+
+  const open = (options={}) => {
+    if(!GameState.current || !App.config)return;
+    const existing=document.querySelector('#bao-chat-tool-drawer [data-story-settings-hub]');
+    if(existing){
+      existing.open=true;
+      if(options.effects)existing.querySelector('[data-settings-effects]')?.setAttribute('open','');
+      const dialog=existing.closest('[role="dialog"]');
+      dialog?.setAttribute('aria-label','故事總覽');
+      dialog?.querySelector(':scope > header > button:last-child')?.setAttribute('aria-label','關閉故事總覽');
+      existing.scrollIntoView({block:'start'});
+      return;
+    }
+    window.BAOChatToolNavigation?.openDrawer?.({overview:true,...options});
   };
 
   const injectEntry = () => {
@@ -249,5 +261,5 @@
     document.addEventListener("DOMContentLoaded", () => window.setTimeout(injectEntry, 250));
   } else window.setTimeout(injectEntry, 250);
 
-  window.BAOStoryControlCenter = Object.freeze({ open, close, snapshot, injectEntry });
+  window.BAOStoryControlCenter = Object.freeze({ open, close, snapshot, injectEntry, mount });
 })();

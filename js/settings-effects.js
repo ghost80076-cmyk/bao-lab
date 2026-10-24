@@ -203,7 +203,7 @@
       <p class="settings-effects-request">${esc(data.at?`最近請求：${kind ? kind+' · ' : ''}${data.at} · ${request}`:request)}</p>
       ${!captured && data.legacy?'<p class="settings-effects-note">這份故事尚未另存敘事偏好，正沿用此瀏覽器的起始偏好；玩家演繹仍依本故事明示授權。</p>':''}
       ${[...groups].map(([group,items])=>`<details class="settings-effects-group"><summary>${esc(group)} <span>${items.length} 項</span></summary><dl>${items.map(row=>`<div class="settings-effects-row" data-setting-effect="${esc(row.id)}"><dt>${esc(row.label)}</dt><dd><strong>${esc(row.value)}</strong><div class="settings-effects-meta"><span>${esc(row.scope)}</span><span>來源：${esc(row.source)}</span></div><div class="settings-effects-badges"><span data-effect-state="${esc(row.state)}">${esc(row.stateLabel)}</span>${row.evidenceLabel!==row.stateLabel?`<span data-effect-evidence="${esc(row.evidence)}">${esc(row.evidenceLabel)}</span>`:''}</div>${row.detail?`<p>${esc(row.detail)}</p>`:''}</dd></div>`).join('')}</dl></details>`).join('')}
-      ${!captured?'<button type="button" class="secondary" data-story-control-action="inspector">核對最近送出內容</button>':''}
+      ${!captured ? window.BAORequestLedger?.render?.() || '' : ''}
       </div></details>`;
   };
   const renderCaptured = (captured,status,at,kind) => Array.isArray(captured)?render({rows:captured,requestStatus:status,at,kind},true):'';

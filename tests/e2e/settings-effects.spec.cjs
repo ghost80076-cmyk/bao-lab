@@ -75,14 +75,9 @@ for(const width of [320,390,1440]) test(`settings scope and captured evidence at
   effects=await openEffects(page);
   await expect(row('responseLength')).toContainText('設定已變更，待下次送出');
   await expect(row('playerPortrayal')).toContainText('請求含此規則');
-  await effects.getByRole('button',{name:'核對最近送出內容'}).click();
-  const inspector=page.getByRole('dialog',{name:'本輪上下文檢視器',exact:true});
-  const captured=inspector.locator('[data-settings-effects]');
-  await captured.locator(':scope > summary').click();
-  await captured.locator('.settings-effects-group').first().locator(':scope > summary').click();
-  await expect(captured.locator('[data-setting-effect="responseLength"]')).toContainText('短篇幅');
-  await expect(captured.locator('[data-setting-effect="responseLength"]')).toContainText('請求含此規則');
-  await expect(captured).toContainText('不代表模型一定遵循');
+  await expect(overview(page)).not.toContainText('SETTINGS_AUDIT_CARD');
+  await expect(overview(page).getByRole('button',{name:'核對最近送出內容'})).toHaveCount(0);
+  expect(await page.evaluate(()=>BAOContextInspector.snapshot().settingsEffects.find(r=>r.id==='responseLength').value)).toBe('短篇幅');
   expect(calls).toBe(1);
 });
 

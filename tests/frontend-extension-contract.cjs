@@ -213,6 +213,6 @@ assert.ok(siteUI.indexOf("three-realms-story-actor-pack.js") < siteUI.indexOf("s
 
 console.log("frontend-extension-contract: load order and wrapper guards ok");
 
-assert.ok(siteUI.indexOf('js/request-ledger.js?v=1') > siteUI.indexOf('js/story-control-center.js?v='), 'ledger scopes wrap the completed story-control chain');
+assert.ok(siteUI.indexOf('js/request-ledger.js?v=2') > siteUI.indexOf('js/story-control-center.js?v='), 'ledger scopes wrap the completed story-control chain');
 assert.match(read("js/api.js"), /request-ledger:lifecycle/);
 assert.match(read("js/api.js"), /request-ledger:dispatch/);

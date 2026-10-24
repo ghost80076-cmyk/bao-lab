@@ -62,3 +62,15 @@ const core = require("../js/actor-mode-core.js");
 }
 
 console.log("actor mode core test passed");
+
+// Opening the unified tool hub may read this summary; it must not initialize story state.
+{
+  const fs=require('node:fs'),vm=require('node:vm');
+  const c={App:{activeCharacter:{name:'測試',actor_mode:{enabled:true,role_active:true,default_role:{label:'鄰居'}}}},GameState:{current:{}},BAOActorModeCore:core,
+    document:{body:{},querySelector:()=>null},MutationObserver:class{observe(){}}};c.window=c;vm.createContext(c);
+  vm.runInContext(fs.readFileSync('js/actor-mode.js','utf8'),c);
+  assert.equal(c.BAOActorMode.summary().roleLabel,'鄰居');assert.deepEqual(c.GameState.current,{});
+  const legacy={enabled:false,role:{label:'草稿'}};c.GameState.current.actorMode=legacy;
+  const before=JSON.stringify(c.GameState.current);c.BAOActorMode.summary();
+  assert.equal(JSON.stringify(c.GameState.current),before);assert.equal(c.GameState.current.actorMode,legacy);
+}

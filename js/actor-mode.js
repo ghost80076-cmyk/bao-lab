@@ -146,7 +146,7 @@
   }
 
   const summary = () => {
-    const state = ensureState();
+    const state = core.normalizeState(window.GameState?.current?.actorMode || {}, defaults());
     const label = state.roleActive ? String(state.role?.label || "").trim() : "";
     return {
       enabled: state.enabled === true,
