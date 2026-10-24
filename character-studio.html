@@ -24,6 +24,13 @@
 <form id="studio-form" autocomplete="off">
 <div class="studio-grid"><label>角色／作品名稱 <span class="required">*</span><input name="name" maxlength="100" required placeholder="例：自主 NPC 世界"></label><label>角色 ID <span class="required">*</span><input name="id" maxlength="64" pattern="[A-Za-z0-9][A-Za-z0-9_-]{0,63}" required placeholder="例：my-original-world"><small>英數、底線或連字號；加入角色庫後不建議更改。</small></label><label>作品取向<select name="category"><option value="general">一般向</option><option value="female">女性向</option><option value="male">男性向</option></select><small>這裡描述作品主要受眾，不是角色性別；沒有明確取向就選一般向。</small></label><label>內容分級<select name="rating"><option value="general">一般內容</option><option value="adult">成人內容（18+）</option></select><small>成人內容只會在玩家主動開啟成人模式後顯示。</small></label><label>敘事類型<select name="mode"><option value="immersive">單角色沉浸</option><option value="world">世界／多 NPC 模擬</option></select></label></div>
 <label>作品簡介<textarea name="description" rows="2" maxlength="3000" placeholder="顯示在探索角色與詳情頁的文字"></textarea></label>
+<section aria-label="手機介面設定" class="studio-advanced">
+<h3>選用手機互動介面</h3>
+<p class="note">純前端呈現模式，世界觀、手機主人與 NPC 都由作者決定。未勾選不會影響現有故事；手機內容不會自行呼叫模型。</p>
+<label><input type="checkbox" name="phone_ui_enabled"> 這張作品使用手機介面</label>
+<label>手機資料（JSON）<textarea name="phone_ui_json" rows="9" spellcheck="false" placeholder='{"userName":"","contactName":"","chat":[],"tweets":[]}'></textarea></label>
+<p class="note">可填 wallpaper、weather、events、calls、chat、tweets、instagram、spotify。聊天室送出的文字會交給夜灣原有故事流程處理。外部影片或音訊需要提供可直接存取的 HTTPS 檔案。</p>
+</section>
 <section aria-label="角色頭像對話設定"><h3>角色頭像對話</h3><label>建議顯示模式<select name="dialogue_mode"><option value="standard">標準模式</option><option value="avatar_chat">角色頭像對話</option></select></label><p class="note">單角色卡填主角色姓名；世界卡可加入固定 NPC。每位人物一張頭像，最多 12 位。玩家可另外設圖，不需要替舊作品補圖。</p><div id="studio-dialogue-cast"></div><button type="button" id="studio-add-dialogue-person">＋ 加入角色頭像</button></section>
 <label>角色圖片網址<input name="avatar" type="url" placeholder="https://...（可留白使用預設圖片）"><small>目前支援 HTTPS 圖片網址；不會把圖片上傳到夜灣。</small></label>
 <label>標籤（以逗號或換行分隔）<input name="tags" placeholder="都市, 日常, 自主 NPC"></label>
@@ -93,6 +100,7 @@
 </form><section id="studio-preview" class="studio-preview hidden" aria-label="角色卡預覽"><h3>本機預覽（不會呼叫 AI）</h3><img id="studio-preview-image" alt="角色圖片預覽" src="assets/bao-bun.svg"><h4 id="studio-preview-name"></h4><p id="studio-preview-description"></p><div class="studio-preview-label">初始訊息</div><p id="studio-preview-greeting"></p><div class="studio-preview-label">核心設定摘要</div><p id="studio-preview-prompt"></p></section>
 </section></div>
 </main><footer><b>夜灣 YoruBay</b><span>本機製作 · 自主備份 · 選擇是否分享</span></footer></div>
+<script src="js/phone-ui-core.js?v=1"></script>
 <script src="js/avatar-chat-core.js?v=1"></script>
 <script src="js/portrait-input.js?v=1"></script>
 <script src="js/character.js?v=6"></script>
