@@ -189,9 +189,9 @@
     alert("為避免既有世界狀態與後續劇情不同步，目前只能修改最新一則 AI 回覆。若要改動舊劇情，請先另存新檔再調整。");
     return false;
   };
-  const mainModelToolConfig = kind => ({ ...App.config.api, __storyTool: true, __storyRevision: kind });
-  const commitRevisionEvidence = message => {
-    try { window.BAOContextInspector?.commitRevision?.(message); }
+  const mainModelToolConfig = kind => ({ ...App.config.api, __storyTool: true, __storyRevision: kind, __storyRevisionToken: {} });
+  const commitRevisionEvidence = (message, config) => {
+    try { window.BAOContextInspector?.commitRevision?.(message, config.__storyRevisionToken); }
     catch (_) { /* Optional diagnostics never block a revision. */ }
   };
   const aiToolsAvailable = () => {
@@ -330,14 +330,15 @@
     if (instruction == null || !instruction.trim()) return;
     setBusy(button, true);
     try {
-      const result = await API.send(mainModelToolConfig('rewrite'), [
+      const config = mainModelToolConfig('rewrite');
+      const result = await API.send(config, [
         { role: "system", content: `${App.buildSystemPrompt()}\n\n【本次任務】只改寫指定的上一則 AI 回覆，不要推進新事件，不要替玩家新增台詞、心理或行動。` },
         ...historyBefore(index),
         { role: "user", content: `【改寫要求】\n${instruction.trim()}\n\n【原 AI 回覆】\n${message.content}\n\n只輸出改寫後的回覆正文。` }
       ]);
       if (!result?.text?.trim()) throw new Error("模型沒有回傳改寫內容。");
       addVariant(message, result.text, "ai-rewrite", { instruction: instruction.trim() });
-      commitRevisionEvidence(message);
+      commitRevisionEvidence(message, config);
       invalidateDerivedMemory();
       save();
       App.renderChatShell(false);
@@ -359,13 +360,14 @@
     try {
       const previous = historyBefore(index);
       if (!previous.some(item => item.role === "user")) throw new Error("找不到可對應的玩家輸入。");
-      const result = await API.send(mainModelToolConfig('regenerate'), [
+      const config = mainModelToolConfig('regenerate');
+      const result = await API.send(config, [
         { role: "system", content: App.buildSystemPrompt() },
         ...previous
       ]);
       if (!result?.text?.trim()) throw new Error("模型沒有回傳新的內容。");
       addVariant(message, result.text, "regenerate");
-      commitRevisionEvidence(message);
+      commitRevisionEvidence(message, config);
       invalidateDerivedMemory();
       save();
       App.renderChatShell(false);

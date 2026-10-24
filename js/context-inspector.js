@@ -50,7 +50,7 @@
     };
     if (revision) {
       const index = Chat.messages.findLastIndex(m => m?.role === 'assistant');
-      if (index >= 0) revisionTargets.set(entry, {message:Chat.messages[index],index});
+      if (index >= 0) revisionTargets.set(entry, {message:Chat.messages[index],index,token:config.__storyRevisionToken});
     }
     requests.set(state, entry);
     try {
@@ -65,9 +65,9 @@
   });
   // Only the real revision caller can bind the captured request to its committed
   // variant. Do not retain the provider response or silently accept a new branch.
-  const commitRevision = message => {
+  const commitRevision = (message, token) => {
     const state = owner(), entry = state && requests.get(state), target = entry && revisionTargets.get(entry);
-    if (!target || entry.status !== 'success' || target.message !== message || Chat.messages[target.index] !== message) return;
+    if (!target || !token || target.token !== token || entry.status !== 'success' || target.message !== message || Chat.messages[target.index] !== message) return;
     if (Chat.messages.length !== entry.anchors.length || target.index !== Chat.messages.length - 1) return;
     const prefix = Chat.messages.slice(0,target.index).map(m => [m.id,m.role,m.content,m.context_content || '']);
     if (JSON.stringify(prefix) !== JSON.stringify(entry.anchors.slice(0,target.index))) return;

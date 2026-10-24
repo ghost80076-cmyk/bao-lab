@@ -20,11 +20,12 @@ load('api');vm.runInContext('window.API=API',c);
 c.API.send=async(config,messages)=>{calls++;assert.ok(messages.some(m=>m.content==='SYSTEM'),'capture uses the rebuilt request');if(fail)throw Error('provider failed');return{text:'NEW',usage:{input_tokens:100}};};
 load('story-revision-state');load('context-efficiency-core');load('context-inspector');
 const seen=[];c.BAOSettingsEffects={capture(messages,{kind}){seen.push(kind);return[{id:'test',value:kind}];}};
-const tool=kind=>({model:'mock',key:'PRIVATE',__storyTool:true,__storyRevision:kind});
+const tool=kind=>({model:'mock',key:'PRIVATE',__storyTool:true,__storyRevision:kind,__storyRevisionToken:{}});
 const input=[{role:'system',content:'LEGACY'},{role:'user',content:'QUERY'}];
 (async()=>{
   const originalState=c.GameState.current,identity=c.BAOStoryRevisionState.contextIdentity();
-  await c.API.send(tool('regenerate'),input);
+  const regenerate=tool('regenerate');
+  await c.API.send(regenerate,input);
   assert.notEqual(c.GameState.current,originalState,'revision really replaced the state while rewinding');
   assert.equal(c.BAOStoryRevisionState.contextIdentity(),identity,'internal rewind keeps diagnostic ownership');
   let snap=c.BAOContextInspector.snapshot();
@@ -32,22 +33,24 @@ const input=[{role:'system',content:'LEGACY'},{role:'user',content:'QUERY'}];
   assert.equal(snap.efficiency.deltaChars,null,'revision does not compare to normal-send baseline');
   const reply=c.Chat.messages.at(-1);reply.content='NEW';
   assert.equal(c.BAOContextInspector.snapshot(),null,'uncommitted source changes invalidate the old anchors');
-  c.BAOContextInspector.commitRevision(reply);
+  c.BAOContextInspector.commitRevision(reply,{});assert.equal(c.BAOContextInspector.snapshot(),null,'another request cannot commit this capture');
+  c.BAOContextInspector.commitRevision(reply,regenerate.__storyRevisionToken);
   assert.equal(c.BAOContextInspector.snapshot().kind,'regenerate','committed replacement remains inspectable');
   c.BAOStoryRevisionState.applySnapshot({state:{location:'reconciled'}});
   assert.ok(c.BAOContextInspector.snapshot(),'post-revision state reconciliation keeps evidence');
   reply.content='OLD';assert.equal(c.BAOContextInspector.snapshot(),null,'variant switch must invalidate evidence');
-  c.BAOContextInspector.commitRevision(reply);assert.equal(c.BAOContextInspector.snapshot(),null,'commit cannot rebind a second time');
+  c.BAOContextInspector.commitRevision(reply,regenerate.__storyRevisionToken);assert.equal(c.BAOContextInspector.snapshot(),null,'commit cannot rebind a second time');
   reply.content='NEW';assert.ok(c.BAOContextInspector.snapshot());
 
-  await c.API.send(tool('rewrite'),input);
+  const rewrite=tool('rewrite');
+  await c.API.send(rewrite,input);
   assert.equal(c.BAOContextInspector.snapshot().kind,'rewrite');
-  c.Chat.messages[0].content='OTHER_BRANCH';reply.content='REWRITE';c.BAOContextInspector.commitRevision(reply);
+  c.Chat.messages[0].content='OTHER_BRANCH';reply.content='REWRITE';c.BAOContextInspector.commitRevision(reply,rewrite.__storyRevisionToken);
   assert.equal(c.BAOContextInspector.snapshot(),null,'a changed prefix cannot be rebound');
   c.Chat.messages[0].content='QUERY';reply.content='NEW';
   fail=true;await assert.rejects(c.API.send(tool('rewrite'),input),/provider failed/);fail=false;
   assert.equal(c.BAOContextInspector.snapshot().status,'failed','failed revision retains original anchors and evidence');
-  reply.content='FAKE';c.BAOContextInspector.commitRevision(reply);assert.equal(c.BAOContextInspector.snapshot(),null,'failed requests cannot commit');reply.content='NEW';
+  reply.content='FAKE';c.BAOContextInspector.commitRevision(reply,rewrite.__storyRevisionToken);assert.equal(c.BAOContextInspector.snapshot(),null,'failed requests cannot commit');reply.content='NEW';
 
   const before=JSON.stringify(c.BAOContextInspector.snapshot());
   // Helpers bypass both rebuilding and capture; a mock terminal needs no rebuilt system.
