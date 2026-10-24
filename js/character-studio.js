@@ -183,6 +183,27 @@
   }
   $('studio-add-dialogue-person')?.addEventListener('click', () => {addDialoguePerson(); dirty=true;});
 
+  // Simple fields edit the same JSON source, never a second configuration store.
+  const phoneNames = ['userName', 'contactName', 'twitterHandle'];
+  form.addEventListener('input', event => {
+    const name = event.target?.name;
+    if (phoneNames.some(key => name === 'phone_' + key)) {
+      try {
+        const data = JSON.parse(field('phone_ui_json').value || '{}');
+        if (!data || typeof data !== 'object' || Array.isArray(data)) return;
+        for (const key of phoneNames) data[key] = field('phone_' + key).value;
+        for (const key of phoneNames) field('phone_' + key).value = c.phone_ui?.[key] || '';
+    field('recommended_styles').value = (Array.isArray(c.narrative_profile?.recommended_styles) ? c.narrative_profile.recommended_styles : []).join(', ');
+    field('phone_ui_json').value = JSON.stringify(data, null, 2);
+      } catch (_) { status('請先修正手機 JSON，再修改手機主人或聯絡人。'); }
+    } else if (name === 'phone_ui_json') {
+      try {
+        const data = JSON.parse(event.target.value || '{}');
+        for (const key of phoneNames) field('phone_' + key).value = String(data?.[key] || '').slice(0,80);
+      } catch (_) { /* Keep invalid input visible for the author to correct. */ }
+    }
+  });
+
   function readPhoneUI() {
     if (!field('phone_ui_enabled')?.checked) return null;
     let parsed;
@@ -217,6 +238,8 @@
       supported_display: base.supported_display || { text: true, ui: false },
       gameplay_ui: gameplayUI,
       phone_ui: readPhoneUI(),
+      narrative_profile: { ...clone(base.narrative_profile || {}),
+        recommended_styles: [...new Set(text('recommended_styles').split(/[,，\n]+/).map(s => s.trim()).filter(Boolean))] },
       source: 'local-import', schema_version: '1.5'
     };
   }
@@ -232,6 +255,8 @@
     field('tags').value = (c.tags || []).join(', ');
     field('mode').value = c.supported_modes?.world ? 'world' : 'immersive';
     field('phone_ui_enabled').checked = Boolean(c.phone_ui);
+    for (const key of phoneNames) field('phone_' + key).value = c.phone_ui?.[key] || '';
+    field('recommended_styles').value = (Array.isArray(c.narrative_profile?.recommended_styles) ? c.narrative_profile.recommended_styles : []).join(', ');
     field('phone_ui_json').value = JSON.stringify(c.phone_ui || phoneCore?.defaultConfig?.() || {}, null, 2);
     field('profile').value = typeof c.profile === 'object' ? (c.profile['AI 主角色設定'] || c.profile['人物設定'] || engine.profilePrompt(c.profile)) : String(c.profile || '');
     const theme = gameplayCore?.normalizeTheme?.(c.gameplay_ui?.theme) || { preset: 'default', density: 'comfortable', radius: 'round', meter: 'soft' };

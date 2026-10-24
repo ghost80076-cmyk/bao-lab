@@ -26,11 +26,28 @@
 <label>作品簡介<textarea name="description" rows="2" maxlength="3000" placeholder="顯示在探索角色與詳情頁的文字"></textarea></label>
 <section aria-label="手機介面設定" class="studio-phone-settings">
 <h3>選用手機互動介面</h3>
-<p class="note">純前端呈現模式，世界觀、手機主人與 NPC 都由作者決定。未勾選不會影響現有故事；手機內容不會自行呼叫模型。</p>
+<p class="note">純前端呈現模式，世界觀、手機主人與 NPC 都由作者決定。未勾選不會影響現有故事；手機動態會隨原本故事回覆更新，不會額外呼叫模型。玩家也能在任何既有故事的「手機設定」覆寫或關閉。</p>
 <label><input type="checkbox" name="phone_ui_enabled"> 這張作品使用手機介面</label>
+<div class="studio-grid">
+<label>手機主人<input name="phone_userName" maxlength="80" placeholder="留白表示未指定"></label>
+<label>主要聯絡人<input name="phone_contactName" maxlength="80" placeholder="作者決定這支手機屬於誰"></label>
+<label>X 帳號<input name="phone_twitterHandle" maxlength="80" placeholder="例：@secret"></label>
+</div>
 <label>手機資料（JSON）<textarea name="phone_ui_json" rows="9" spellcheck="false" placeholder='{"userName":"","contactName":"","chat":[],"tweets":[]}'></textarea></label>
 <p class="note">可填 wallpaper、weather、events、calls、chat、tweets、instagram、spotify。聊天室送出的文字會交給夜灣原有故事流程處理。外部影片或音訊需要提供可直接存取的 HTTPS 檔案。</p>
 </section>
+<details class="studio-advanced" id="studio-feature-guide"><summary>新功能放哪裡？作者設定與玩家選擇</summary>
+<p class="note">作品欄位會隨草稿、角色庫及匯出保存；玩家故事偏好由玩家另外設定，不會因匯入角色卡而授權 AI 代演。</p>
+<ul>
+<li>作品：手機介面、角色頭像、NPC 人格四軸、互動 UI，使用本頁對應欄位。</li>
+<li>玩家：「今晚的故事」設定演繹授權、單輪觀賞、場景投入、劇情期待與自訂長期指令；故事回覆語言在故事設定中選擇。</li>
+<li>快捷指令：在故事內管理及匯入／匯出 JSON；與每輪生效的長期指令分開。</li>
+<li>懸疑案件：故事內「世界書 → 建立懸疑案件」固定真相、手動揭露線索；不要把封存答案同時貼進核心設定。</li>
+<li>舊故事狀態卡住：使用故事中的狀態重建；無須為此重寫角色卡。</li>
+</ul>
+<p class="note">Creator MCP 可產生手機資料與原生作品包。文風建議只供參考；作品敘事要求請填作者專屬敘事偏好，玩家演繹授權由玩家選擇。</p>
+</details>
+<label>建議文風（逗號或換行分隔，選填）<textarea name="recommended_styles" rows="2" placeholder="例：電影感, 自然口語"></textarea><small>保存為作品的文風建議，不會自動開啟文風包，也不會替玩家選擇演繹授權。</small></label>
 <section aria-label="角色頭像對話設定"><h3>角色頭像對話</h3><label>建議顯示模式<select name="dialogue_mode"><option value="standard">標準模式</option><option value="avatar_chat">角色頭像對話</option></select></label><p class="note">單角色卡填主角色姓名；世界卡可加入固定 NPC。每位人物一張頭像，最多 12 位。玩家可另外設圖，不需要替舊作品補圖。</p><div id="studio-dialogue-cast"></div><button type="button" id="studio-add-dialogue-person">＋ 加入角色頭像</button></section>
 <label>角色圖片網址<input name="avatar" type="url" placeholder="https://...（可留白使用預設圖片）"><small>目前支援 HTTPS 圖片網址；不會把圖片上傳到夜灣。</small></label>
 <label>標籤（以逗號或換行分隔）<input name="tags" placeholder="都市, 日常, 自主 NPC"></label>
@@ -114,7 +131,7 @@
 <script src="js/character-studio-flow-core.js"></script>
 <script src="js/character-studio-lifecycle-core.js"></script>
 <script src="js/character-studio-actions-core.js"></script>
-<script src="js/character-studio.js?v=1"></script>
+<script src="js/character-studio.js?v=2"></script>
 <script src="js/character-studio-flow.js?v=3"></script>
 <script src="js/npc-personality-helper-core.js?v=1"></script>
 <script src="js/npc-personality-helper.js?v=1"></script>
