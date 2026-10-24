@@ -313,7 +313,7 @@
     wrap.innerHTML = `<section class="bao-modal narrative-settings-modal" role="dialog" aria-modal="true" aria-labelledby="narrative-settings-title">
       <div class="bao-modal-head"><div><div class="eyebrow">YORUBAY · TONIGHT</div><h2 id="narrative-settings-title">今晚的故事</h2></div><div class="narrative-head-actions"><button class="narrative-help" type="button" data-narrative-help aria-label="敘事設定說明" aria-expanded="false">?</button><button class="bao-modal-close" type="button">關閉</button></div></div>
       <div class="bao-modal-body">
-        <div class="tonight-intro"><p>今晚，想讓故事駛向哪裡？</p><p class="tonight-invitation">世界已經準備好了。選一種夜色，順著潮汐，讓故事慢慢發生。</p><small>${storyLocal ? "只套用於目前故事，從下一次回覆生效。" : "作為新故事的起始偏好，不更動既有故事。"}</small></div>
+        <div class="bao-setting-scope" data-setting-scope role="note">${storyLocal ? "本故事：按「套用設定」後，從下次回覆使用；關閉不儲存修改。" : "新故事預設：只影響之後建立的故事；尚未另存敘事偏好的舊故事也會沿用，玩家演繹授權除外。"}</div><div class="tonight-intro"><p>今晚，想讓故事駛向哪裡？</p><p class="tonight-invitation">世界已經準備好了。選一種夜色，順著潮汐，讓故事慢慢發生。</p><small>${storyLocal ? "只套用於目前故事，從下一次回覆生效。" : "作為新故事的起始偏好；未另存偏好的舊故事會沿用。"}</small></div>
         <section class="tonight-section" aria-labelledby="tonight-night"><h3 id="tonight-night">夜色 <span>故事要有什麼氛圍？</span></h3>
           <div class="tonight-nights">${Object.entries(nights).map(([key, meta]) => `<button type="button" class="tonight-night" data-night="${key}" aria-pressed="false"><b>${meta[0]}</b><span>${meta[1]}</span></button>`).join("")}</div>
           <div class="tonight-current" data-tonight-current aria-live="polite"></div>
@@ -728,6 +728,7 @@
   };
 
   window.BAONarrativeSettings = {
+    inspect: (config = App.config) => ({ source: config?.narrative ? "story" : "browser", prefs: clonePrefs(resolvedPrefs(config)) }),
     playerPortrayal,
     playerPortrayalRule,
     observationAllowed,

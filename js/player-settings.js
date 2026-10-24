@@ -88,7 +88,7 @@
 
   const ensureStyles = () => {
     if (document.querySelector('link[href^="css/player-settings.css"]')) return;
-    const link = document.createElement("link"); link.rel = "stylesheet"; link.href = "css/player-settings.css?v=8"; document.head.appendChild(link);
+    const link = document.createElement("link"); link.rel = "stylesheet"; link.href = "css/player-settings.css?v=9"; document.head.appendChild(link);
   };
 
   const closeModal = () => document.querySelector(".bao-modal-backdrop")?.remove();
@@ -122,7 +122,7 @@
   const choiceButtons = (name, values, selected) => values.map(v => `<button type="button" class="bao-choice ${v === selected ? "active" : ""}" data-setting="${name}" data-value="${v}"><b>${replyLabels[v][0]}</b><span>${replyLabels[v][1]}</span></button>`).join("");
 
   const openReplySettings = () => {
-    const body = `<div class="bao-setting-section"><h3>回覆長度</h3><p>這是未指定故事篇幅時的預設，不影響記憶模式。「今晚的故事」若已指定篇幅，會優先使用故事設定。短適合快速對話；長要求完整場景；自動依場景調整。</p><div class="bao-choice-grid">${choiceButtons("replyLength", ["short","long","auto"], settings.replyLength)}</div></div>
+    const body = `<div class="bao-setting-scope" data-setting-scope role="note">此瀏覽器：這裡的回覆偏好會用於此瀏覽器開啟的故事，按「完成」後儲存。網站語言僅改畫面，AI 語言從下次請求使用。</div><div class="bao-setting-section"><h3>回覆長度</h3><p>這是未指定故事篇幅時的預設，不影響記憶模式。「今晚的故事」若已指定篇幅，會優先使用故事設定。短適合快速對話；長要求完整場景；自動依場景調整。</p><div class="bao-choice-grid">${choiceButtons("replyLength", ["short","long","auto"], settings.replyLength)}</div></div>
     <div class="bao-setting-section"><h3>敘事人稱</h3><p>「角色第一人稱」中的我固定是 AI 主要角色；「玩家第二人稱」中的你／妳固定是玩家 Persona。</p><div class="bao-choice-grid two">${choiceButtons("pov", ["card","first","second","third"], settings.pov)}</div></div>
     <div class="bao-setting-section"><h3>對話格式</h3><p>這只控制台詞標示方式，與敘事人稱分開。玩家台詞的補述依「今晚的故事」演繹授權。</p><div class="bao-choice-grid two">${choiceButtons("dialogueFormat", ["card","named"], settings.dialogueFormat)}</div></div>
     <div class="bao-setting-section"><h3>網站介面語言</h3><p>網站介面語言僅影響選單、按鈕與操作文字；不修改角色卡、故事、玩家輸入或 AI 回覆。</p><div class="bao-choice-grid">${choiceButtons("siteLanguage", ["zh-Hant","zh-Hans","en"], window.BAOSiteI18n?.getLocale?.() || "zh-Hant")}</div></div>
@@ -488,6 +488,11 @@
   window.BAOPlayerSettings = {
     get: () => JSON.parse(JSON.stringify(settings)),
     getLanguage: () => settings.language,
+    inspectPrompt: (config = App.config) => ({
+      replyLength: settings.replyLength, pov: settings.pov, dialogueFormat: settings.dialogueFormat, language: settings.language,
+      lengthOverridden: Boolean(window.BAONarrativeSettings?.hasExplicitResponseLength?.(config)),
+      instructions: { replyLength: lengthInstruction(config), pov: povInstruction(), dialogueFormat: dialogueInstruction(), language: languageInstruction() }
+    }),
     // Rollback uses a trusted get() snapshot, including transient preview state.
     // Raw persisted preferences are restored separately by Storage.
     restoreRuntime: value => {

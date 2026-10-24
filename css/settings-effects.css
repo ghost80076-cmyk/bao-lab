@@ -1,0 +1,18 @@
+.settings-effects{margin-top:16px;border:1px solid var(--yoru-control-border,var(--border,#555));border-radius:14px;overflow:hidden;color:var(--yoru-text,var(--text,#eee))}
+.settings-effects summary{cursor:pointer;padding:12px 14px;font-weight:650;overflow-wrap:anywhere}
+.settings-effects summary:focus-visible{outline:2px solid var(--yoru-accent,#bdb0ff);outline-offset:-3px}
+.settings-effects-body{padding:0 14px 14px;min-width:0}
+.settings-effects-intro,.settings-effects-request,.settings-effects-note{font-size:12px;line-height:1.65;color:var(--yoru-muted,var(--muted,#aaa));overflow-wrap:anywhere}
+.settings-effects-note{padding:9px 11px;border-inline-start:2px solid var(--yoru-accent,#bdb0ff);background:var(--yoru-control,rgba(128,128,128,.08))}
+.settings-effects-group{border-top:1px solid var(--yoru-control-border,var(--border,#555))}
+.settings-effects-group>summary{padding-inline:0;font-size:13px}
+.settings-effects-group>summary span{font-weight:400;font-size:11px;color:var(--yoru-muted,var(--muted,#aaa))}
+.settings-effects-group dl{margin:0}
+.settings-effects-row{display:grid;grid-template-columns:minmax(110px,1fr) minmax(0,3fr);gap:12px;padding:13px 0;border-top:1px solid var(--yoru-control-border,var(--border,#555));font-size:13px;line-height:1.6;overflow-wrap:anywhere}
+.settings-effects-row dt{font-weight:600}.settings-effects-row dd{margin:0;min-width:0}.settings-effects-row strong{font-weight:600;white-space:pre-wrap}
+.settings-effects-meta{display:flex;flex-wrap:wrap;gap:3px 12px;font-size:11px;color:var(--yoru-muted,var(--muted,#aaa))}
+.settings-effects-badges{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}.settings-effects-badges span{padding:2px 7px;border:1px solid var(--yoru-control-border,var(--border,#555));border-radius:6px;font-size:11px;line-height:1.5}
+.settings-effects-badges [data-effect-evidence="included"]{border-color:#488967;color:var(--yoru-text,var(--text,#eee))}
+.settings-effects-badges [data-effect-evidence="changed"],.settings-effects-badges [data-effect-evidence="missing"]{border-color:#b98438}
+.settings-effects-row p{margin:6px 0 0;font-size:12px;color:var(--yoru-muted,var(--muted,#aaa))}
+@media(max-width:480px){.settings-effects-body{padding:0 10px 10px}.settings-effects-row{grid-template-columns:1fr;gap:2px}.settings-effects>summary{font-size:13px;padding:12px 10px}}
