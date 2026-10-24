@@ -52,8 +52,12 @@
     Chat.__cacheUsageAccountingPatched = true;
   };
 
-  App.buildMessages = async function(config = this.config) {
-    const context = await Chat.context(config);
+  App.buildMessages = async function(config = this.config, request = {}) {
+    // Revision requests supply an immutable history view. Never swap Chat.messages
+    // or Chat.context while another request may be using the live conversation.
+    const context = Array.isArray(request.contextMessages)
+      ? request.contextMessages.map(message => ({ ...message }))
+      : await Chat.context(config);
     const latestIndex = context.length - 1;
     const hasLatestUser = latestIndex >= 0 && context[latestIndex]?.role === "user";
     const latest = hasLatestUser ? context[latestIndex] : null;

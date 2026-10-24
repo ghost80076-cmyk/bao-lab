@@ -1,13 +1,13 @@
 (() => {
   'use strict';
   if (!window.BAOEpisodicMemory || typeof App === 'undefined' || typeof App.wrapBuildMessages !== 'function') return;
-  App.wrapBuildMessages('episodic-memory:recall', async function(next, config = this.config) {
+  App.wrapBuildMessages('episodic-memory:recall', async function(next, config = this.config, request = {}) {
     const state = window.GameState?.current;
     const activeConfig = this.config, character = this.activeCharacter;
     const primary = character?.name || '';
     const signature = () => JSON.stringify(Chat.messages.map(m => [m.id, m.role, m.content, m.context_content || '']));
     const source = signature();
-    const messages = await next(config);
+    const messages = await next(config, request);
     // The inner prompt builder may await a provider-independent data load.
     // Never combine its old prompt with the newly selected story's memories.
     if (window.GameState?.current !== state || this.config !== activeConfig
@@ -17,9 +17,10 @@
     const actors = BAOEpisodicMemory.audience({
       state, config, primary
     });
-    const input = [...Chat.messages].reverse().find(m => m.role === 'user')?.content || '';
+    const sourceMessages = request.sourceMessages || Chat.messages;
+    const input = [...sourceMessages].reverse().find(m => m.role === 'user')?.content || '';
     const decisions = [];
-    const selected = BAOEpisodicMemory.recall({ state, messages: Chat.messages, input, actors, exclude: messages.map(m => m.content).join('\n'), onDecision: item => decisions.push(item) });
+    const selected = BAOEpisodicMemory.recall({ state, messages: sourceMessages, input, actors, exclude: messages.map(m => m.content).join('\n'), onDecision: item => decisions.push(item) });
     window.BAOContextInspector?.record?.('事件記憶', decisions);
     if (!selected.length) return messages;
     const latest = messages.length - 1;

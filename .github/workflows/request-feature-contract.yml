@@ -1,0 +1,32 @@
+name: Request feature contract
+on:
+  pull_request:
+    paths:
+      - 'js/**'
+      - 'index.html'
+      - 'tests/request-feature-contract.cjs'
+      - 'tests/e2e/request-feature-contract.spec.cjs'
+      - '.github/workflows/request-feature-contract.yml'
+permissions:
+  contents: read
+jobs:
+  request-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-chromium
+      - name: Serialized request and revision regression
+        run: |
+          node tests/request-feature-contract.cjs
+          node tests/story-revision-pipeline-core.cjs
+          node tests/story-revision-state-core.cjs
+          node tests/status-revision-entry-ownership-core.cjs
+          node tests/worldbook-library-runtime.cjs
+      - name: Mobile and desktop settings to request
+        run: npx playwright test tests/e2e/request-feature-contract.spec.cjs tests/e2e/narrative-cache-preservation.spec.cjs --project=chromium
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: request-feature-contract-results
+          path: test-results/

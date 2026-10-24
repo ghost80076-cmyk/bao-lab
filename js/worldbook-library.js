@@ -163,9 +163,9 @@
     save();
     return true;
   }
-  function signals() {
+  function signals(sourceMessages) {
     const current = story() || {};
-    const messages = typeof Chat !== "undefined" && Array.isArray(Chat.messages) ? Chat.messages : [];
+    const messages = sourceMessages || (typeof Chat !== "undefined" && Array.isArray(Chat.messages) ? Chat.messages : []);
     const recentUser = [...messages].reverse().find(m => m.role === "user");
     const recentAssistant = [...messages].reverse().find(m => m.role === "assistant");
     return {
@@ -192,9 +192,9 @@
     save();
     return true;
   }
-  const wrapper = async (next, config) => {
+  const wrapper = async (next, config, request = {}) => {
     const owner = story();
-    const messages = await next(config);
+    const messages = await next(config, request);
     if (story() !== owner) return messages;
     const local = cfg();
     if (!local?.enabled?.length || !Array.isArray(messages)) return messages;
@@ -203,7 +203,7 @@
     const packs = local.enabled.every(id => owned.some(pack => pack.meta.id === id)) ? owned : await all();
     if (story() !== owner || cfg() !== local) return messages;
     const context = {
-      ...signals(), world: activeWorld(packs, local.enabled),
+      ...signals(request.sourceMessages), world: activeWorld(packs, local.enabled),
       canReadActors: window.BAOEpisodicMemory?.canRead
         ? (entry,actors) => window.BAOEpisodicMemory.canRead(entry,actors,owner) : undefined,
       actors: window.BAOEpisodicMemory?.audience?.({
