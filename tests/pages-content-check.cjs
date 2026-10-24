@@ -1,6 +1,19 @@
 // Read-only deployment verification. Never sends a player's API key or data.
 const fs = require('node:fs');
 const files = ['js/scene-chat-integration.js', 'js/no-api-world-preview.js', 'js/app.js', 'js/chat-markup.js', 'js/scene-html-modes.js', 'index.html', 'assets/bao-mark.svg', 'js/brand-ui.js', 'css/brand-home.css', 'data/presets/models.json', 'js/chat.js', 'js/helper-data.js', 'js/memory-preferences.js', 'js/model-routing.js', 'js/prompt-cache.js', 'js/site-ui.js', 'js/content-preferences-core.js', 'js/content-preferences.js', 'js/commentary-mods-core.js', 'js/commentary-mods-general-pack.js', 'js/commentary-mods.js', 'js/commentary-mods-adult-pack.js', 'css/commentary-mods.css', 'author.html', 'js/author-profile.js', 'js/character-ui.js', 'js/explore-discovery.js', 'js/player-shell-v2.js', 'js/story-backup.js', 'js/story-tools.js', 'js/story-revision-state.js', 'js/story-branches.js', 'js/world-modules.js', 'js/world-state-hook.js', 'js/player-settings.js', 'css/base.css', 'css/player-shell-v2.css', 'css/story-reader.css', 'css/memory-preferences.css', 'css/story-branches.css'];
+// Include both feature implementations and the URLs used by the browser loader.
+const featureFiles = [
+  'js/narrative-settings.js', 'js/prompt-orchestrator.js', 'js/story-persona-manager.js',
+  'js/story-quick-commands-core.js', 'js/story-quick-commands.js',
+  'css/narrative-settings.css', 'css/story-quick-commands.css',
+  'data/prompts/immersive.json', 'data/prompts/world.json'
+];
+files.push(...featureFiles);
+const loaderSources = ['index.html', 'js/site-ui.js', 'js/narrative-settings.js', 'js/story-quick-commands.js']
+  .map(file => fs.readFileSync(file, 'utf8')).join('\n');
+const browserAssets = [...new Set(loaderSources.match(/(?:js|css)\/[a-z0-9-]+\.(?:js|css)\?v=[a-z0-9-]+/gi) || [])]
+  .filter(url => featureFiles.includes(url.split('?')[0]) || /^(js\/(app|site-ui|player-settings)\.js)\?/.test(url));
+
 const storyTools = fs.readFileSync('js/story-tools.js', 'utf8');
 if (storyTools.includes('sourceMessages.length ? sourceMessages : Chat.messages')) throw new Error('Context Pack source isolation regressed to current-chat fallback.');
 if (!storyTools.includes('const messagesToOrganize = requireSourceMessages();')) throw new Error('Context Pack organizer no longer requires an explicit source.');
@@ -31,14 +44,15 @@ if (!storyReaderCSS.includes('#chat-view .composer{order:50}')) throw new Error(
 const base = 'https://ghost80076-cmyk.github.io/bao-lab/';
 (async () => {
   for (let attempt = 0; attempt < 40; attempt++) {
-    const results = await Promise.all(files.map(async file => {
+    const targets = [...files, ...browserAssets];
+    const results = await Promise.all(targets.map(async file => {
       try {
-        const response = await fetch(`${base}${file}?verify=${process.env.GITHUB_SHA || Date.now()}`, { signal: AbortSignal.timeout(15000), cache: 'no-store' });
-        return response.ok && (await response.text()).trim() === fs.readFileSync(file, 'utf8').trim();
+        const response = await fetch(file.includes('?') ? `${base}${file}` : `${base}${file}?verify=${process.env.GITHUB_SHA || Date.now()}`, { signal: AbortSignal.timeout(15000), ...(file.includes('?') ? {} : { cache: 'no-store' }) });
+        return response.ok && (await response.text()).trim() === fs.readFileSync(file.split('?')[0], 'utf8').trim();
       } catch { return false; }
     }));
-    if (results.every(Boolean)) { console.log(`Pages content matches ${process.env.GITHUB_SHA || 'checkout'}: ${files.join(', ')}`); return; }
-    console.log(`Waiting for Pages (${attempt + 1}/40): ${files.filter((_, i) => !results[i]).join(', ')}`);
+    if (results.every(Boolean)) { console.log(`Pages content matches ${process.env.GITHUB_SHA || 'checkout'}: ${targets.join(', ')}`); return; }
+    console.log(`Waiting for Pages (${attempt + 1}/40): ${targets.filter((_, i) => !results[i]).join(', ')}`);
     await new Promise(resolve => setTimeout(resolve, 15000));
   }
   throw new Error('Pages did not serve the checked-out content before the verification deadline.');
