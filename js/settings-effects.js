@@ -87,7 +87,7 @@
       ]) {
         const overridden = key==='replyLength' && player.lengthOverridden;
         add(key,'瀏覽器回覆偏好',label,choices[player[key]] || String(player[key]),'此瀏覽器','回覆設定',overridden?'replaced':'ready',
-          overridden?'「今晚的故事」已指定篇幅，本頁長度暫不採用。':'適用於此瀏覽器開啟的故事；從下次回覆使用。',overridden?[]:[player.instructions[key]]);
+        overridden?'「今晚的故事」已指定篇幅，本頁長度暫不採用。':'適用於此瀏覽器開啟的故事；讀取故事保留目前偏好，新裝置沒有偏好時由備份補入。從下次回覆使用。',overridden?[]:[player.instructions[key]]);
       }
     }
     const actor = window.BAOActorModeCore?.normalizeState?.(state.actorMode || {},character.actor_mode || {});
@@ -112,11 +112,29 @@
     add('world-modules','世界與角色','世界模組',modules.length?`${modules.length} 個模組`:'未啟用','本故事','作品與玩家模組選擇',
       modules.length?'configured':'off','各模組的核心／相關／僅顯示範圍由模組設定決定；啟用不代表每項資料都送入。');
     result.at(-1).selection = modules.map(m=>[m.id,m.context,m.tracking]);
-    const trackedFields = window.BAOCharacterStatus?.configFor?.(character)?.fields || [];
-    const tracking = config.narrativeMode==='world' || (typeof config.stateTracking==='boolean'?config.stateTracking:config.displayMode==='ui') || trackedFields.some(f=>f.track);
+    const contexts = {core:'每輪核心',relevant:'相關時加入',ui_only:'不加入主故事'};
+    const trackingLabels = {high:'高頻追蹤',medium:'中頻追蹤',low:'低頻追蹤',manual:'手動維護'};
+    const separateState = config.cost?.stateApiMode!=='same' && Boolean(config.cost?.stateApi?.model && config.cost?.stateApi?.baseUrl);
+    for (const mod of modules) {
+      add(`world-module-${mod.id}`,'世界模組範圍',mod.label || mod.id,`${contexts[mod.context] || mod.context} · ${trackingLabels[mod.tracking] || mod.tracking}`,
+        '本故事','目前世界模組設定','configured',
+        '主故事加入範圍與狀態整理分開；自動整理需啟用狀態追蹤。'+
+        (mod.tracking==='manual'?'手動維護不交給模型自動整理。':separateState?'獨立狀態整理啟動時，依高／中／低頻規則排程。':'與主模型同次生成時，高頻較優先；中頻與低頻目前使用相同選取方式，不另設回合間隔。')+
+        '相關判定、模組數量及字數預算仍可能排除。');
+      result.at(-1).selection = [mod.id,mod.context,mod.tracking,mod.triggers,mod.fields];
+    }
+    const statusConfig = window.BAOCharacterStatus?.configFor?.(character);
+    const trackedFields = statusConfig?.fields || [], statusEnabled = statusConfig?.enabled !== false;
+    const tracking = config.narrativeMode==='world' || (typeof config.stateTracking==='boolean'?config.stateTracking:config.displayMode==='ui') || statusEnabled && trackedFields.some(f=>f.track);
     add('state-tracking','記憶與輔助','人物／世界狀態整理',tracking?'追蹤開啟':'未啟用','本故事','敘事模式與狀態設定',tracking?'configured':'off',
       tracking?'同模型附錄或獨立整理依連線與觸發條件執行；可能另用模型額度，與狀態欄是否顯示分開。':'隱藏面板與停止追蹤是不同設定。');
     result.at(-1).selection = [tracking,config.cost?.stateInterval,config.cost?.stateApiMode,trackedFields.map(f=>[f.key,f.track,f.context])];
+    for (const field of trackedFields) {
+      add(`status-field-${field.key}`,'人物狀態欄位',field.label || field.key,statusEnabled?`${contexts[field.context] || field.context} · ${field.track?'自動追蹤':'手動維護'}`:'人物欄位系統未啟用',
+        '本故事',field.origin==='player'?'玩家自訂欄位':'作品欄位',!statusEnabled?'off':field.context==='ui_only' && !field.track?'display':'configured',
+        '「不加入主故事」與「不追蹤」是兩件事；自動追蹤的欄位仍交給狀態整理流程。隱藏顯示不會自動停止追蹤。');
+      result.at(-1).selection = [field.key,statusEnabled,field.context,field.track,field.type,field.min,field.max];
+    }
     const recallOn = config.memory?.mode!=='full' && config.memory?.episodicRecall!==false;
     add('recall','記憶與輔助','事件回憶',recallOn?'按需檢索':'不另行檢索','本故事','記憶設定',recallOn?'conditional':'off',
       config.memory?.mode==='full'?'完整原文模式不再另加事件回憶。':'只檢索有來源且符合知情邊界的相關事件，不額外呼叫模型。',recallOn?['【本輪事件回憶｜有來源的檢索資料】']:[],'latest');
@@ -125,12 +143,12 @@
     result.at(-1).selection = [config.memory?.mode,config.memory?.maxRounds,config.memory?.maxContext,config.memory?.summaryInterval,config.memory?.summaryApiMode];
     const im = window.BAOInterpretationModsCore?.activeMods?.(state.interpretationMods || {},window.BAOInterpretationMods?.catalog?.() || []) || [];
     add('interpretation','記憶與輔助','雙向解讀',im.length?im.map(m=>m.label).join('、'):'未啟用','本故事','雙向解讀 MOD',im.length?'configured':'off',
-      im.length?'依已啟用的前置／後置階段另外呼叫模型；此處不將「啟用」當成已完成呼叫。':'不新增解讀請求。');
+      im.length?'一般送出依前置／後置階段最多額外 2 次請求；隱藏顧問摘要仍會生成與計費。重新生成、AI 改寫不自動執行這兩階段；本機預覽不呼叫。':'不新增解讀請求。');
     result.at(-1).selection = [im.map(m=>m.id),state.interpretationMods?.detailMode,state.interpretationMods?.monitorTone];
     const commentary = window.BAOCommentaryModsCore?.activeMods?.(state.commentaryMods || {},window.BAOCommentaryMods?.catalog?.() || [],
       {adultEnabled:Boolean(window.BAOContentPreferences?.isAdultContentEnabled?.())}) || [];
     add('commentary','記憶與輔助','場外人格 MOD',commentary.length?commentary.map(m=>m.label).join('、'):'未啟用',
-      '本故事','場外人格選擇',commentary.length?'configured':'off',commentary.length?'故事完成後，依啟用的人格另外呼叫評論模型。':'不新增評論請求。');
+      '本故事','場外人格選擇',commentary.length?'configured':'off',commentary.length?'一般故事完成後，所有啟用人格共用 1 次額外請求；重新生成、AI 改寫不自動評論，本機預覽不呼叫。':'不新增評論請求。');
     result.at(-1).selection = commentary.map(m=>m.id);
     const scene = window.BAOSceneHTML?.prefs;
     if (scene) {
@@ -147,6 +165,16 @@
     add('site-language','畫面與閱讀','網站介面語言',({'zh-Hant':'繁體中文','zh-Hans':'简体中文',en:'English'})[window.BAOSiteI18n?.getLocale?.()] || '依網站設定',
       '此瀏覽器','網站介面設定','display','只更換選單與按鈕文字，不控制 AI 回覆語言。');
     add('appearance','畫面與閱讀','字體與閱讀外觀','使用目前閱讀設定','此瀏覽器','閱讀外觀','display','字級、配色與對話框外觀不作為故事指令送給模型。');
+    let authorUI = null;
+    try { authorUI = JSON.parse(localStorage.getItem('bao-lab:author-regex:v1:'+encodeURIComponent(String(character.id || '').slice(0,80))) || 'null'); } catch (_) {}
+    if (authorUI && Array.isArray(authorUI.rules)) {
+      add('author-regex','作者介面權限','作者正則介面',authorUI.enabled===true?'已啟用':'關閉','此瀏覽器／此作品','作者介面設定',authorUI.enabled===true?'display':'off',
+        '作者正則處理顯示內容，權限本身不新增主故事規則或模型請求。');
+      for (const [key,label] of Object.entries({allowScripts:'允許介面腳本',allowExternalAssets:'允許外部素材',allowStateSharing:'允許讀取故事狀態',allowUiPersistence:'允許保存介面資料'})) {
+        add(`author-${key}`,'作者介面權限',label,authorUI[key]===true?'允許':'未允許','此瀏覽器／此作品','作者介面獨立權限',authorUI.enabled===true && authorUI[key]===true?'display':'off',
+          authorUI.enabled===true?'只控制作者介面的這項能力；不代表其他權限一併開啟。':'目前作者介面未啟用，保留的權限選擇不生效。');
+      }
+    }
     return result;
   };
   const capture = (messages, {kind}={}) => {

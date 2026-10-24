@@ -125,7 +125,7 @@
   };
 
   const generateFor = async (message = null, options = {}) => {
-    if (App.config?.demoMode) return false;
+    if (App.config?.demoMode || App.config?.offlineWorldPreview) return false;
     const target = message || lastAssistant();
     if (!target?.id || !String(target.content || "").trim()) return false;
     const owner = window.GameState?.current, config = App.config;

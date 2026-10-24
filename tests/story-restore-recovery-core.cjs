@@ -61,18 +61,18 @@ function assertPreserved(f) {
 for (const failure of ['quota', 'normalize', 'messages', 'read', 'player', 'narrative', 'memory', 'status', 'world', 'rollback']) {
   const f = fixture(failure);
   let result;
-  assert.doesNotThrow(() => { result = f.c.store.restoreStory(save()); }, failure);
+  assert.doesNotThrow(() => { result = f.c.store.restoreStory(save(), { restoreBrowserPreferences: true }); }, failure);
   assert.equal(result, false, failure);
   assertPreserved(f);
   assert.ok(f.c.store.status().lastRestoreError);
   if (failure === 'rollback') assert.match(f.c.store.status().lastRestoreError, /無法完整復原/);
   if (failure === 'world') {
-    assert.equal(f.c.store.restoreStory(save()), true, 'a successful retry clears the previous failure');
+    assert.equal(f.c.store.restoreStory(save(), { restoreBrowserPreferences: true }), true, 'a successful retry clears the previous failure');
     assert.equal(f.c.store.status().lastRestoreError, '');
   }
 }
 const blocked = fixture('rollback-storage');
-assert.equal(blocked.c.store.restoreStory(save()), false);
+assert.equal(blocked.c.store.restoreStory(save(), { restoreBrowserPreferences: true }), false);
 assert.equal(blocked.c.App.config, blocked.oldConfig);
 assert.equal(blocked.c.GameState.current, blocked.oldState);
 assert.equal(blocked.raw.get(KEYS[1]), '{ "style": "old" }', 'one rollback failure must not stop other preference recovery');
@@ -80,10 +80,10 @@ assert.equal(blocked.raw.has(KEYS[2]), false);
 assert.match(blocked.c.store.status().lastRestoreError, /無法完整復原/);
 const existing = fixture('world');
 const existingSave = save(); existingSave.characterId = 'old'; existingSave.character.id = 'old';
-assert.equal(existing.c.store.restoreStory(existingSave), false);
+assert.equal(existing.c.store.restoreStory(existingSave, { restoreBrowserPreferences: true }), false);
 assertPreserved(existing);
 const good = fixture('none');
-assert.equal(good.c.store.restoreStory(save()), true);
+assert.equal(good.c.store.restoreStory(save(), { restoreBrowserPreferences: true }), true);
 assert.equal(good.c.App.activeCharacter.id, 'new');
 assert.equal(good.c.Chat.messages[0].content, 'new story');
 assert.equal(good.c.App.config.api.key, '');
@@ -104,7 +104,7 @@ playerContext.applyAppearance = () => { playerContext.paints++; };
 vm.runInNewContext(playerApi, playerContext);
 const playerApiInstance = runtimeFixture.c.BAOPlayerSettings;
 const before = playerApiInstance.get();
-assert.equal(runtimeFixture.c.store.restoreStory(save()), false);
+assert.equal(runtimeFixture.c.store.restoreStory(save(), { restoreBrowserPreferences: true }), false);
 assert.deepEqual(playerApiInstance.get(), before, 'rollback retains transient demo mode and exact runtime preferences');
 assert.equal(playerContext.writes, 1, 'runtime recovery must not rewrite durable preferences');
 assert.equal(playerContext.paints, 2, 'both import and recovery update appearance');
@@ -113,3 +113,21 @@ assert.equal(playerApiInstance.get().demoMode, false, 'normal imports still disa
 assert.equal(playerApiInstance.get().replyLength, 'auto');
 assert.equal(playerApiInstance.get().dialogueFormat, 'card');
 console.log('Player runtime recovery preserves transient settings without relaxing import normalization');
+
+// Ordinary story loads preserve valid browser preferences, even when a saved
+// snapshot is older. Explicit full preference recovery remains transactional.
+const browser = fixture('none');
+assert.equal(browser.c.store.restoreStory(save()), true);
+assert.equal(browser.raw.get(KEYS[0]), '{ "theme": "old" }');
+assert.equal(browser.raw.get(KEYS[1]), '{ "style": "old" }');
+assert.deepEqual(browser.runtime.player, { theme: 'old' });
+assert.deepEqual(browser.runtime.narrative, { style: 'old' });
+assert.equal(browser.c.GameState.current.memorySlots[0].text, 'new note');
+for (const raw of [null, 'broken json', 'null', '[]']) {
+  const fresh = fixture('none');
+  for (const key of KEYS.slice(0, 2)) raw === null ? fresh.raw.delete(key) : fresh.raw.set(key, raw);
+  assert.equal(fresh.c.store.restoreStory(save()), true);
+  assert.deepEqual(fresh.runtime.player, { theme: 'new' });
+  assert.deepEqual(fresh.runtime.narrative, { style: 'new' });
+}
+console.log('Browser preferences survive story switching; fresh/corrupt devices hydrate backup preferences and story notes');

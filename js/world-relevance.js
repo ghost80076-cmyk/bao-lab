@@ -19,8 +19,8 @@
     let prompt = core
       ? base + "\n\n【目前核心狀態】\n" + core + "\n【僅供內部參考，不得照抄】\n以上是上次整理的世界快照，可能落後於最近對話；位置、行動等變動資料若與較新的已確認事件衝突，以較新事件為準。這不是要呈現給玩家的表格或輸出格式。只需正常續寫可感知的故事、人物對話與行動，不得重印此標題、JSON、鍵名或整份數值清單；原生狀態 UI 會自行顯示。不要重新詢問或重設既定內容。"
       : base;
-    if (this.config?.narrativeMode !== "world" && this.config?.displayMode !== "ui") return prompt;
-
+    // A selected module's context policy is independent of the reading layout
+    // and narrative mode. Keep keyword/budget filtering in the shared selector.
     const picked = window.BAOWorldModules.compactRelevantForPrompt(getLatestUserText(), {
       maxModules: 3,
       maxChars: 2200,

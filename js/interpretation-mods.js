@@ -67,7 +67,7 @@
   };
 
   const sendAuxiliary = async (kind, messages, maxOutputTokens) => {
-    if (!Array.isArray(messages) || !messages.length || App.config?.demoMode) return "";
+    if (!Array.isArray(messages) || !messages.length || App.config?.demoMode || App.config?.offlineWorldPreview) return "";
     const api = apiForAuxiliary(kind);
     if (!api) return "";
     api.maxOutputTokens = maxOutputTokens;
@@ -225,7 +225,7 @@
           </label>
           <label class="bao-interpretation-inline-check">
             <input type="checkbox" data-interpretation-show-advisor ${state.showAdvisor ? "checked" : ""}>
-            <span>正文後也顯示肉包的顧問摘要</span>
+            <span>正文後也顯示肉包的顧問摘要（隱藏仍會生成與計費）</span>
           </label>
         </section>
 

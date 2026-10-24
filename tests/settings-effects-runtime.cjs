@@ -68,6 +68,18 @@ for(const name of ['player-settings','narrative-settings','prompt-cache','prompt
   assert.equal(evidence([{role:'user',content:'QUERY'},{role:'user',content:dynamic}]),'conditional');
   assert.equal(evidence([{role:'user',content:dynamic},{role:'assistant',content:'OLD'},{role:'user',content:'QUERY'},{role:'user',content:'TASK'}]),'conditional');
   delete c.GameState.current.worldbookLibrary;
+  const authorKey='bao-lab:author-regex:v1:audit';
+  for(let mask=0;mask<16;mask++){
+    const permissions={enabled:true,rules:[{pattern:'TEST',replacement:'DISPLAY'}]};
+    const keys=['allowScripts','allowExternalAssets','allowStateSharing','allowUiPersistence'];
+    keys.forEach((key,index)=>permissions[key]=!!(mask&(1<<index)));values.set(authorKey,JSON.stringify(permissions));
+    const beforeInspect=snapshot(),effects=c.BAOSettingsEffects.snapshot().rows;
+    keys.forEach(key=>assert.equal(effects.find(r=>r.id==='author-'+key).state,permissions[key]?'display':'off'));
+    assert.equal(snapshot(),beforeInspect,'permission inspection has no side effects');
+    permissions.enabled=false;values.set(authorKey,JSON.stringify(permissions));
+    assert.ok(c.BAOSettingsEffects.snapshot().rows.filter(r=>r.group==='作者介面權限').every(r=>r.state==='off'));
+  }
+  values.delete(authorKey);
   fail=true;await assert.rejects(c.API.send(c.App.config.api,assembled),/provider failed/);
   assert.equal(c.BAOSettingsEffects.snapshot().requestStatus,'failed');
   assert.match(c.BAOSettingsEffects.render(),/請求失敗/);
