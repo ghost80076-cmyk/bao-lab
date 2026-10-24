@@ -149,10 +149,15 @@
     add('appearance','畫面與閱讀','字體與閱讀外觀','使用目前閱讀設定','此瀏覽器','閱讀外觀','display','字級、配色與對話框外觀不作為故事指令送給模型。');
     return result;
   };
-  const capture = messages => core.capture(rows(),messages);
+  const capture = (messages, {kind}={}) => {
+    // Rewrite's final user message is the editing task and quoted rejected
+    // reply. Dynamic evidence belongs to the preceding assembled player turn.
+    const task = kind === 'rewrite' ? messages.findLastIndex(m=>m?.role==='user') : -1;
+    return core.capture(rows(),task < 0 ? messages : messages.filter((_,index)=>index!==task));
+  };
   const snapshot = () => {
     const prior = window.BAOContextInspector?.snapshot?.();
-    return { rows:core.compare(rows(),prior?.settingsEffects),at:prior?.at || '',requestStatus:prior?.status || '',
+    return { rows:core.compare(rows(),prior?.settingsEffects),at:prior?.at || '',requestStatus:prior?.status || '',kind:prior?.kind || '',
       legacy:!App.config?.narrative };
   };
   const ensureStyles = () => {
@@ -164,14 +169,15 @@
     const groups = new Map();
     for (const row of data.rows || []) { if(!groups.has(row.group))groups.set(row.group,[]);groups.get(row.group).push(row); }
     const request = ({pending:'請求處理中',success:'請求完成',failed:'請求失敗'})[data.requestStatus] || '尚無送出紀錄';
+    const kind = ({story:'一般故事回覆',regenerate:'重新生成',rewrite:'AI 改寫'})[data.kind] || '';
     return `<details class="settings-effects" data-settings-effects><summary>${captured?'這次請求的設定核對':'設定範圍與生效狀態'}</summary>
-      <div class="settings-effects-body"><p class="settings-effects-intro">${captured?'以下保留送出當時的選擇與規則核對。':'目前設定與最近一次主故事請求分開顯示。變更設定後，需再次送出才能核對。'}請求含此規則，不代表模型一定遵循。</p>
-      <p class="settings-effects-request">${esc(data.at?`最近請求：${data.at} · ${request}`:request)}</p>
+      <div class="settings-effects-body"><p class="settings-effects-intro">${captured?'以下保留送出當時的選擇與規則核對。':'核對一般故事回覆、重新生成與 AI 改寫的最近一次請求；不含行動靈感或其他輔助任務。變更設定後，需再次送出才能核對。'}請求含此規則，不代表模型一定遵循。</p>
+      <p class="settings-effects-request">${esc(data.at?`最近請求：${kind ? kind+' · ' : ''}${data.at} · ${request}`:request)}</p>
       ${!captured && data.legacy?'<p class="settings-effects-note">這份故事尚未另存敘事偏好，正沿用此瀏覽器的起始偏好；玩家演繹仍依本故事明示授權。</p>':''}
       ${[...groups].map(([group,items])=>`<details class="settings-effects-group"><summary>${esc(group)} <span>${items.length} 項</span></summary><dl>${items.map(row=>`<div class="settings-effects-row" data-setting-effect="${esc(row.id)}"><dt>${esc(row.label)}</dt><dd><strong>${esc(row.value)}</strong><div class="settings-effects-meta"><span>${esc(row.scope)}</span><span>來源：${esc(row.source)}</span></div><div class="settings-effects-badges"><span data-effect-state="${esc(row.state)}">${esc(row.stateLabel)}</span>${row.evidenceLabel!==row.stateLabel?`<span data-effect-evidence="${esc(row.evidence)}">${esc(row.evidenceLabel)}</span>`:''}</div>${row.detail?`<p>${esc(row.detail)}</p>`:''}</dd></div>`).join('')}</dl></details>`).join('')}
       ${!captured?'<button type="button" class="secondary" data-story-control-action="inspector">核對最近送出內容</button>':''}
       </div></details>`;
   };
-  const renderCaptured = (captured,status,at) => Array.isArray(captured)?render({rows:captured,requestStatus:status,at},true):'';
+  const renderCaptured = (captured,status,at,kind) => Array.isArray(captured)?render({rows:captured,requestStatus:status,at,kind},true):'';
   window.BAOSettingsEffects = Object.freeze({snapshot,capture,render,renderCaptured});
 })();

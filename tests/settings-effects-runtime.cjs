@@ -59,6 +59,15 @@ for(const name of ['player-settings','narrative-settings','prompt-cache','prompt
   assert.equal(record.settingsEffects.find(r=>r.id==='responseLength').value,'短篇幅','previous request keeps the old choice');
   // Reverting a draft/current selection to its original value restores evidence.
   c.App.config.narrative.responseLength='short';assert.equal(c.BAOSettingsEffects.snapshot().rows.find(r=>r.id==='responseLength').evidence,'included');
+  // A rewrite task quotes the rejected response. Only the assembled original
+  // player turn can prove dynamic rules; task text must never spoof inclusion.
+  c.GameState.current.worldbookLibrary={enabled:['test']};
+  const dynamic='【世界書按需提供的背景資料｜test】';
+  const evidence=ms=>c.BAOSettingsEffects.capture(ms,{kind:'rewrite'}).find(r=>r.id==='worldbook').evidence;
+  assert.equal(evidence([{role:'user',content:dynamic},{role:'user',content:'TASK'}]),'included');
+  assert.equal(evidence([{role:'user',content:'QUERY'},{role:'user',content:dynamic}]),'conditional');
+  assert.equal(evidence([{role:'user',content:dynamic},{role:'assistant',content:'OLD'},{role:'user',content:'QUERY'},{role:'user',content:'TASK'}]),'conditional');
+  delete c.GameState.current.worldbookLibrary;
   fail=true;await assert.rejects(c.API.send(c.App.config.api,assembled),/provider failed/);
   assert.equal(c.BAOSettingsEffects.snapshot().requestStatus,'failed');
   assert.match(c.BAOSettingsEffects.render(),/請求失敗/);

@@ -270,6 +270,8 @@
 
   window.BAOStoryRevisionState = {
     version: 1,
+    // Ephemeral identity survives internal rewinds, but not an external restore.
+    contextIdentity: storyToken,
     captureSnapshot,
     applySnapshot,
     reconcile,
