@@ -50,24 +50,26 @@
     modal=$('dialog','bao-phone-settings-dialog');
     modal.setAttribute('aria-label','故事手機介面設定');
     const heading=$('div','bp-settings-heading');
-    const title=$('h2','', '📱 手機互動介面');
+    const title=$('h2','', '📱 故事裡的手機');
     const x=$('button','bp-settings-close','✕');x.type='button';x.setAttribute('aria-label','關閉設定');
     x.addEventListener('click',close);
     heading.append(title,x);
-    const description=$('p','bp-settings-intro','這是目前故事專屬的手機呈現方式。作者的角色卡、其他故事、原本的閱讀模式及正則都不會被改動。');
+    const description=$('p','bp-settings-intro','在故事裡用手機傳訊息給角色、查看通話與社群動態。傳訊息會交給目前的故事 AI 處理，不會連接真實通訊帳號。');
     const form=$('form','bp-settings-form');
     form.addEventListener('submit',event => {event.preventDefault();save(event,state,character);});
-    const on=field('啟用這個故事的手機介面','checkbox','enabled',previous?.enabled??Boolean(authored));
-    const owner=field('手機主人／顯示名稱','text','userName',previous?.userName??current.userName,'例：我、林曼、未知主人');
-    const contact=field('主要聯絡人','text','contactName',previous?.contactName??current.contactName,'例：閨蜜、前女友、未知聯絡人');
-    const handle=field('X 帳號（選填）','text','twitterHandle',previous?.twitterHandle??current.twitterHandle,'例：@secret');
+    const on=field('在這個故事中開啟手機','checkbox','enabled',previous?.enabled??Boolean(authored));
+    const owner=field('這是誰的手機？（可留白）','text','userName',previous?.userName??current.userName,'例：你的人物姓名','填故事中的手機持有人。留白表示未指定，不會自動認定是玩家。');
+    const contact=field('想傳訊息給誰？（可留白）','text','contactName',previous?.contactName??current.contactName,'例：角色姓名「阿晴」','填故事中的角色姓名，不需要電話或真實帳號；填名稱不會自動建立新角色。');
+    const handle=field('故事內的 X 顯示帳號（可留白）','text','twitterHandle',previous?.twitterHandle??current.twitterHandle,'例：@rain','只影響手機內的貼文顯示，不需要登入真實 X 帳號。');
     const advanced=$('details','bp-settings-advanced');
-    const summary=$('summary','', '進階：手機自訂資料 JSON（選填）');
-    const note=$('p','', '可設定壁紙、聊天紀錄、社群貼文、通話、歌單等，不會執行 HTML 或 JavaScript。最大 20,000 字元。');
+    const summary=$('summary','', '更多設定與匯入資料（可略過）');
+    const note=$('p','', '一般遊玩不需要填寫資料代碼。只有作者提供手機資料，或你熟悉 JSON 格式時，才需要使用下方欄位。留白會沿用作品內容。');
     const input=$('textarea');input.name='data';input.rows=5;input.maxLength=20000;input.spellcheck=false;
-    input.placeholder='{"chat":[{"text":"早安","from":"them"}],"tweets":["下雨了"]}';
+    input.placeholder='在這裡貼上作者提供的手機資料 JSON（最多 20,000 字元）';
+    input.id='bp-phone-data';input.setAttribute('aria-label','匯入手機資料 JSON');
+    const dataLabel=$('label','bp-settings-field');dataLabel.htmlFor=input.id;dataLabel.textContent='匯入手機資料 JSON（進階）';
     if(previous?.data) input.value=JSON.stringify(previous.data,null,2);
-    advanced.append(summary,note,input);
+    advanced.append(summary,handle,note,dataLabel,input);
     const msg=$('p','bp-settings-error');msg.dataset.phoneSettingsError='';msg.setAttribute('role','status');
     const actions=$('div','bp-settings-actions');
     const reset=$('button','secondary','恢復作品預設');reset.type='button';
@@ -82,12 +84,13 @@
     });
     const saveBtn=$('button','primary','儲存手機設定');saveBtn.type='submit';
     actions.append(reset,saveBtn);
-    form.append(on,owner,contact,handle,advanced,msg,actions);
+    const startHint=$('p','bp-settings-hint','只要勾選並儲存，就能開啟手機；下面都可以留白。名稱只設定這個故事，其他故事與作者作品不會被修改。');
+    form.append(on,startHint,owner,contact,advanced,msg,actions);
     modal.append(heading,description,form);
     modal.addEventListener('close',()=>{modal?.remove();modal=null;});
     document.body.append(modal);modal.showModal();
   }
-  function field(title,type,name,value,placeholder='') {
+  function field(title,type,name,value,placeholder='',help='') {
     const label=$('label','bp-settings-field');
     const text=$('span','',title);const input=$('input');
     input.type=type;input.name=name;
@@ -95,6 +98,7 @@
     else{input.value=String(value||'');input.maxLength=80;input.placeholder=placeholder;}
     label.append(input,text);
     if(type!=='checkbox'){label.replaceChildren(text,input);}
+    if(help){const hint=$('small','bp-settings-field-help',help);hint.id='bp-phone-help-'+name;input.setAttribute('aria-describedby',hint.id);label.append(hint);}
     return label;
   }
   function canSave(state,character,status){

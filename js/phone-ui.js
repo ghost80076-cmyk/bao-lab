@@ -201,8 +201,8 @@
           thread.append(row);
         });
         const form = $('form','bp-composer'); form.dataset.phoneForm = 'message';
-        const input = $('input'); input.name='text'; input.maxLength=1600; input.placeholder='메시지 입력…'; input.required=true;
-        const send = $('button','', '전송'); send.type='submit';
+        const input = $('input'); input.name='text'; input.maxLength=1600; input.placeholder='輸入要傳給角色的訊息…'; input.setAttribute('aria-label','手機訊息'); input.required=true;
+        const send = $('button','', '傳送至故事'); send.type='submit';
         add(form,input,send); area.append(form);
         window.setTimeout(()=>{ if (thread.isConnected) thread.scrollTop = thread.scrollHeight; },0);
       } else if (profile) {
@@ -273,7 +273,7 @@
       [['⇄','flip'],['🎤','mute'],['▣','camera'],['✕','hangup']].forEach(([glyph,action])=>actions.append(button(glyph,action,'bp-round'+(action==='hangup'?' bp-danger':''))));
       area.append(actions);
       const form=$('form','bp-video-form');form.dataset.phoneForm='video';
-      const input=$('input'); input.name='text'; input.placeholder='메시지 보내기…';input.maxLength=1000;input.required=true;
+      const input=$('input'); input.name='text'; input.placeholder='輸入訊息…';input.setAttribute('aria-label','視訊文字訊息');input.maxLength=1000;input.required=true;
       const send=$('button','', '➤');send.type='submit';add(form,input,send);area.append(form);
       callStart=Date.now(); callTimer=window.setInterval(()=>{
         if (!root || !root.querySelector('[data-phone-duration]')) return;
@@ -394,7 +394,7 @@
   }
   function sendToStory(text, medium) {
     if (!App.config || typeof App.sendMessage !== 'function') return;
-    if (App.__requestPending) { window.BAOFeedback?.notify?.('이전 응답을 기다려 주세요.','error');return; }
+    if (App.__requestPending) { window.BAOFeedback?.notify?.('故事仍在回覆中，請稍後再傳送。','error');return; }
     const composer=document.getElementById('user-input');
     if (!composer) return;
     if (composer.value.trim() && !window.confirm('目前故事輸入框有尚未送出的內容，要用手機訊息取代嗎？')) return;
@@ -409,7 +409,6 @@
     e.preventDefault();
     const input=form.elements.namedItem('text');const value=input?.value.trim();
     if(!value)return;
-    if(form.dataset.phoneForm==='video') pushVideoMessage(value,'me');
     sendToStory(value,form.dataset.phoneForm==='video'?'Instagram 視訊':'KakaoTalk');
   }
   function onAction(e) {

@@ -125,3 +125,32 @@ test('mobile navigation can find phone settings without inflating the 320px stor
   await scene.getByRole('button',{name:'📱 手機設定'}).click();
   await expect(page.getByRole('dialog',{name:'故事手機介面設定'})).toBeVisible();
 });
+
+for(const width of [390,1280]) test(`phone settings explain optional fields, show typed text and retain saved values at ${width}px`,async({page})=>{
+  await page.setViewportSize({width,height:844});
+  await story(page);
+  await page.waitForFunction(()=>window.YoruExperience?.choose);
+  for(const theme of ['night','mist','dawn','dusk','sunset']){
+    await page.evaluate(theme=>{YoruExperience.choose({theme});BAOPhonePlayerSettings.open();},theme);
+    const modal=page.getByRole('dialog',{name:'故事手機介面設定'});
+    await expect(modal).toContainText('傳訊息會交給目前的故事 AI 處理');
+    await expect(modal).toContainText('只要勾選並儲存，就能開啟手機');
+    await expect(modal.locator('[name=data]')).toBeHidden();
+    await expect(modal.locator('[name=twitterHandle]')).toBeHidden();
+    await modal.locator('[name=enabled]').check();
+    const owner=modal.locator('[name=userName]');
+    await owner.fill('測試手機主人');
+    await modal.locator('[name=contactName]').fill('阿晴');
+    await expect(owner).toHaveValue('測試手機主人');
+    const colors=await owner.evaluate(el=>{const s=getComputedStyle(el);return {fg:s.color,bg:s.backgroundColor,caret:s.caretColor,fill:s.webkitTextFillColor};});
+    const luminance=color=>color.match(/[\d.]+/g).slice(0,3).map(Number).map(v=>{v/=255;return v<=.04045?v/12.92:((v+.055)/1.055)**2.4;}).reduce((s,v,i)=>s+v*[.2126,.7152,.0722][i],0);
+    const a=luminance(colors.fg),b=luminance(colors.bg);
+    expect((Math.max(a,b)+.05)/(Math.min(a,b)+.05),`${theme} input contrast`).toBeGreaterThanOrEqual(4.5);
+    expect(colors.caret).toBe(colors.fg);expect(colors.fill).toBe(colors.fg);
+    await modal.getByRole('button',{name:'儲存手機設定',exact:true}).click();
+    expect(await page.evaluate(()=>GameState.current.phoneSurface.userName)).toBe('測試手機主人');
+    await page.evaluate(()=>BAOPhonePlayerSettings.open());
+    await expect(modal.locator('[name=userName]')).toHaveValue('測試手機主人');
+    await modal.getByRole('button',{name:'關閉設定',exact:true}).click();
+  }
+});
