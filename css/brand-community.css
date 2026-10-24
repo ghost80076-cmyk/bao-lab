@@ -1,4 +1,4 @@
-/* BAO/LAB world-core identity and official Discord contact surfaces. */
+/* YoruBay community identity and official social contact surfaces. */
 .brand-identity-card{overflow:hidden;position:relative}
 .brand-world-art{display:block;width:min(100%,256px);height:auto;aspect-ratio:1;margin:0 auto 16px;border-radius:50%;object-fit:contain;filter:drop-shadow(0 8px 28px rgba(177,135,249,.13))}
 .brand-discord-nav,.brand-discord-cta,.brand-footer-discord{display:inline-flex;align-items:center;justify-content:center;gap:9px;text-decoration:none;white-space:nowrap}
@@ -20,3 +20,19 @@
 @media(max-width:900px){.brand-contact{align-items:flex-start;flex-direction:column}.brand-identity-card{max-width:560px;width:100%;margin:auto}}
 @media(max-width:560px){.brand-world-art{width:min(72%,220px)}.brand-contact{padding:20px}.brand-discord-cta{white-space:normal}.brand-actions>.brand-discord-cta{width:auto}.brand-contact>.brand-discord-cta{width:100%}.brand-discord-nav img{width:19px;height:19px}}
 @media(prefers-reduced-motion:reduce){.brand-discord-cta{transition:none}}
+
+.brand-community-entry{display:flex;align-items:center;justify-content:space-between;gap:28px;margin:10px 0 36px;padding:clamp(22px,4vw,34px);border:1px solid rgba(185,151,255,.22);border-radius:20px;background:linear-gradient(125deg,rgba(36,32,52,.94),rgba(18,22,31,.96))}
+.brand-community-copy{max-width:62ch}
+.brand-community-entry h2{margin:8px 0 10px;font-size:clamp(24px,3vw,34px);letter-spacing:-.02em}
+.brand-community-entry p{margin:0;color:#c6bfd7;line-height:1.8}
+.brand-community-actions{display:flex;align-items:center;justify-content:flex-end;gap:10px;flex-wrap:wrap;flex:none}
+.brand-line-cta,.brand-footer-line{display:inline-flex;align-items:center;justify-content:center;gap:9px;text-decoration:none;white-space:nowrap}
+.brand-line-cta{padding:11px 18px;border-radius:11px;border:1px solid rgba(6,199,85,.48);color:#effff4;background:linear-gradient(120deg,rgba(6,199,85,.23),rgba(21,48,34,.92));font-weight:800;line-height:1.5;transition:background .2s,border-color .2s,transform .2s}
+.brand-line-cta:hover,.brand-line-cta:focus-visible{color:#fff;background:linear-gradient(120deg,rgba(6,199,85,.36),rgba(25,65,43,.98));border-color:rgba(82,238,145,.78);transform:translateY(-1px)}
+.brand-line-icon{display:inline-grid;place-items:center;min-width:30px;height:21px;padding:0 5px;border-radius:6px;background:#06c755;color:#fff;font-size:8px;font-weight:900;letter-spacing:-.02em;line-height:1}
+.brand-footer-line{color:#75e8a4!important}
+.brand-footer-line:hover{text-decoration:underline}
+.brand-footer-line .brand-line-icon{min-width:27px;height:18px;border-radius:5px;font-size:7px}
+@media(max-width:900px){.brand-community-entry{align-items:flex-start;flex-direction:column}.brand-community-actions{justify-content:flex-start}}
+@media(max-width:560px){.brand-community-entry{padding:20px}.brand-community-actions{display:grid;width:100%;grid-template-columns:1fr}.brand-community-actions>a{width:100%;white-space:normal}.brand-line-cta{white-space:normal}}
+@media(prefers-reduced-motion:reduce){.brand-line-cta{transition:none}}
