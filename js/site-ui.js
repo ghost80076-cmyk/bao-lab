@@ -1,11 +1,22 @@
-const loadBAOScript = src => new Promise((resolve, reject) => {
-  if (document.querySelector(`script[src="${src}"]`)) { resolve(); return; }
-  const script = document.createElement("script");
-  script.src = src;
-  script.onload = resolve;
-  script.onerror = reject;
-  document.head.appendChild(script);
-});
+// Share the pending load promise across enhancement chains. A <script> element
+// inserted by this loader is not ready until its load event fires.
+const baoScriptLoads = new Map();
+const loadBAOScript = src => {
+  const pending = baoScriptLoads.get(src);
+  if (pending) return pending;
+  // Parser-loaded scripts from index.html have already executed before site-ui.js.
+  // Do not infer that dynamically inserted scripts are ready: those are in the map.
+  if (document.querySelector(`script[src="${src}"]`)) return Promise.resolve();
+  const promise = new Promise((resolve, reject) => {
+    const script = document.createElement("script");
+    script.src = src;
+    script.onload = resolve;
+    script.onerror = reject;
+    document.head.appendChild(script);
+  });
+  baoScriptLoads.set(src, promise);
+  return promise;
+};
 
 let baoFeedbackTimer = 0;
 const notifyPlayer = (message, tone = "info") => {
