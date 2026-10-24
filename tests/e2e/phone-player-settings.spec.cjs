@@ -110,9 +110,12 @@ test('player-defined phone gets story events with no author card and stays isola
   await expect(page.locator('#bao-phone-launch')).toHaveCount(0);
   await expect(page.locator('#bao-phone-player-entry')).toHaveCount(1);
 });
-test('mobile navigation can find the player phone setting without rewriting the author card',async({page})=>{
-  await page.setViewportSize({width:390,height:844});
+test('mobile navigation can find phone settings without inflating the 320px story header',async({page})=>{
+  await page.setViewportSize({width:320,height:568});
   await story(page);
+  const header=await page.locator('#chat-view .chat-topline').evaluate(node=>node.getBoundingClientRect().height);
+  expect(header).toBeLessThan(90);
+  await expect(page.locator('#bao-phone-player-entry')).toBeHidden();
   await page.locator('#bao-mobile-composer-tools').click();
   const drawer=page.locator('#bao-chat-tool-drawer');
   await expect(drawer).toBeVisible();
