@@ -4,6 +4,7 @@ on:
   push:
     branches: [main]
     paths:
+      - 'index.html'
       - 'quick-start.html'
       - 'api-guide.html'
       - 'account.html'
@@ -19,6 +20,12 @@ on:
       - '.github/workflows/first-run-live.yml'
       - 'scripts/verify-live-assets.sh'
       - 'tests/live-assets-verifier.test.cjs'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - 'js/brand-ui.js'
+      - '.github/workflows/first-run-live.yml'
   workflow_dispatch:
 
 permissions:
@@ -42,7 +49,8 @@ jobs:
           node <<'NODE'
           const fs = require('node:fs');
           const assert = require('node:assert/strict');
-          const home = fs.readFileSync('js/brand-ui.js', 'utf8');
+          const home = fs.readFileSync('index.html', 'utf8');
+          const brand = fs.readFileSync('js/brand-ui.js', 'utf8');
           const guide = fs.readFileSync('quick-start.html', 'utf8');
           const api = fs.readFileSync('api-guide.html', 'utf8');
           const account = fs.readFileSync('account.html', 'utf8');
@@ -56,7 +64,7 @@ jobs:
           const css = fs.readFileSync('css/first-run-desktop.css', 'utf8');
           for (const phrase of ['href="quick-start"', 'id="home-continue"', 'id="home-character-count"']) assert.ok(home.includes(phrase), `Missing homepage element: ${phrase}`);
           assert.equal((home.match(/href="quick-start"/g) || []).length, 1, 'Homepage should expose one canonical first-run link');
-          assert.ok(!home.includes('builder-api-guide'), 'Duplicate inline builder guide should be removed');
+          assert.ok(!brand.includes('builder-api-guide'), 'Duplicate inline builder guide should be removed');
           for (const phrase of ['id="step-one"', 'id="step-two"', 'id="step-three"', '開始探索', '使用夜灣燈火', '使用自己的模型連線', 'https://openrouter.ai/keys', 'https://aistudio.google.com/apikey']) assert.ok(guide.includes(phrase), `Missing guide element: ${phrase}`);
           for (const phrase of ['路線 A：夜灣燈火', 'href="quick-start"', '路線 B：OpenRouter', '路線 C：Google Gemini', '路線 D：LM Studio 本地 AI']) assert.ok(api.includes(phrase), `Missing API reference route: ${phrase}`);
           for (const phrase of ['href="quick-start"', 'href="api-guide"', '第一次玩？三步開始']) assert.ok(account.includes(phrase), `Missing account navigation: ${phrase}`);
@@ -68,10 +76,11 @@ jobs:
           assert.ok(readinessCss.includes('[data-ready="true"]'), 'Ready-state styling missing');
           assert.ok(!builderCss.includes('#builder-api-guide'), 'Dead builder guide CSS should be removed');
           assert.ok(css.includes('@media(min-width:1081px)'), 'Desktop styles missing');
-          assert.ok(home.includes('css/first-run-desktop.css'), 'Stylesheet not loaded');
+          assert.ok(home.includes('css/first-run-desktop.css') || brand.includes('css/first-run-desktop.css'), 'Stylesheet not loaded');
           console.log('First-run guide, preserved navigation IDs, CSS linkage: OK');
           NODE
       - name: Verify latest guide and stylesheet on live Pages
+        if: github.event_name != 'pull_request'
         shell: bash
         env:
           SITE_URL: https://yorubay.com/
@@ -79,7 +88,7 @@ jobs:
           LIVE_VERIFY_QUERY: verify
         run: >-
           bash scripts/verify-live-assets.sh
-          quick-start.html api-guide.html account.html
+          index.html quick-start.html api-guide.html account.html
           js/brand-ui.js js/character-ui.js js/quick-start-mode.js js/player-builder-v2.js
           js/story-start-readiness-core.js js/story-start-readiness.js
           css/player-builder-v2.css css/story-start-readiness.css css/first-run-desktop.css
