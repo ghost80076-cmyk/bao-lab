@@ -34,6 +34,7 @@ jobs:
               tests/e2e/player-settings-theme.spec.cjs
               tests/e2e/mobile-home-contrast-pwa.spec.cjs
               tests/e2e/home-first-paint.spec.js
+              tests/e2e/story-first-paint-styles.spec.cjs
               tests/e2e/mobile-tools-compact.spec.cjs
               tests/e2e/mobile-composer-tools.spec.cjs
               tests/e2e/mobile-reading-layout.spec.cjs

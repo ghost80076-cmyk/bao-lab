@@ -48,3 +48,27 @@ test('older pages without these links still receive fallback styles in order, on
   assert.deepEqual(p.links.map(l => pathOf(l.href)), ['css/bao-visual-ui.css',
     'css/bao-brand-v2.css', 'css/bao-editorial.css', 'css/bao-image-quality.css']);
 });
+
+test('start and resume first paint has stable reading styles before any deferred scripts', () => {
+  const html = fs.readFileSync('index.html', 'utf8');
+  const head = html.split('</head>')[0];
+  const hrefs = [...head.matchAll(/<link rel="stylesheet" href="([^"]+)"/g)].map(m => m[1]);
+  const critical = [
+    'css/story-reader.css?v=3',
+    'css/chat-tool-navigation.css?v=7',
+    'css/mobile-reading-layout.css?v=23'
+  ];
+  for (const href of critical) {
+    const path = pathOf(href);
+    assert.equal(hrefs.filter(link => pathOf(link) === path).length, 1, path + ' is preloaded once');
+    assert.ok(hrefs.includes(href), 'match the lazy fallback version for ' + path);
+  }
+  assert.ok(hrefs.indexOf('css/story-reader.css?v=3') < hrefs.indexOf('css/chat-tool-navigation.css?v=7'));
+  assert.ok(hrefs.indexOf('css/chat-tool-navigation.css?v=7') < hrefs.indexOf('css/mobile-reading-layout.css?v=23'));
+  assert.ok(hrefs.indexOf('css/mobile-reading-layout.css?v=23') > hrefs.indexOf('css/phone-ui.css?v=2'));
+  const script = fs.readFileSync('js/mobile-reading-layout.js', 'utf8');
+  assert.match(script, /let style = document\.querySelector\('link\[href\^="css\/mobile-reading-layout\.css"\]'\)/,
+    'late mobile JS must reuse its preloaded stylesheet');
+  assert.match(script, /document\.head\.append\(style\)/,
+    'move the same stylesheet to the end after deferred UI styles to retain cascade precedence');
+});
