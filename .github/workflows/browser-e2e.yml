@@ -33,6 +33,7 @@ jobs:
               tests/e2e/world-state-rebuild.spec.cjs
               tests/e2e/player-settings-theme.spec.cjs
               tests/e2e/mobile-home-contrast-pwa.spec.cjs
+              tests/e2e/home-first-paint.spec.js
               tests/e2e/mobile-tools-compact.spec.cjs
               tests/e2e/mobile-composer-tools.spec.cjs
               tests/e2e/mobile-reading-layout.spec.cjs
@@ -228,6 +229,7 @@ jobs:
           tests/e2e/story-integrity.spec.cjs
           tests/e2e/story-status-opening-compat.spec.cjs
           tests/e2e/keyboard-main-entry.spec.cjs
+          tests/e2e/home-first-paint.spec.js
           --project=${{ matrix.browser }}
       - name: Upload smoke report
         if: always()
