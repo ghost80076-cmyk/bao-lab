@@ -65,7 +65,7 @@ test('X, video call and Spotify remain purely optional interactive surfaces',asy
   await expect(page.locator('.bp-mini')).toBeVisible();
   await page.locator('.bp-mini-open').click();
   await expect(page.locator('.bp-seek')).toBeVisible();
-  await page.locator('.bp-seek').fill('5');
+  await page.locator('.bp-seek').evaluate(node=>{node.value='5';node.dispatchEvent(new Event('input',{bubbles:true}));});
   await expect(page.locator('.bp-current-time')).toHaveText('0:05');
   await page.keyboard.press('Escape');
   await expect(page.locator('.bao-phone-overlay')).toHaveCount(0);
