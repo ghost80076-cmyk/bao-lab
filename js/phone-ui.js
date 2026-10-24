@@ -25,10 +25,13 @@
   };
   const displayName = () => config.contactName || config.instagram.callerName || '친구';
   const phoneSource = () => {
-    const source = App.activeCharacter?.phone_ui;
+    const state = window.GameState?.current;
+    if (!state || !App.activeCharacter) return null;
+    const source = window.BAOPhonePlayerCore?.resolve(App.activeCharacter.phone_ui, state)
+      || (!window.BAOPhonePlayerCore ? Core.normalize(App.activeCharacter.phone_ui) : null);
     if (!source) return null;
-    const extra = window.GameState?.current?.modules?.phone_ui;
-    const dynamic = window.GameState?.current?.phoneUI;
+    const extra = state.modules?.phone_ui;
+    const dynamic = state.phoneUI;
     const combine = value => window.BAOPhoneStoryCore?.mergeDisplay(value, dynamic) || Core.normalize(value);
     if (extra && typeof extra === 'object' && !Array.isArray(extra)) {
       return combine({ ...source, ...extra, weather: { ...source.weather, ...extra.weather },
