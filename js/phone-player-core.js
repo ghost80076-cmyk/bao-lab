@@ -14,9 +14,23 @@
     if (!object(value) || value.version !== 1 || typeof value.enabled !== 'boolean') return null;
     let data=null;
     if (object(value.data)) {
-      // Normalization bounds fields before retaining story-owned JSON.
-      const normalized=PhoneCore?.normalize(value.data);
-      if (normalized) data=normalized;
+      // Keep only explicitly supplied keys. Normalizing the whole object and
+      // merging its defaults would silently erase the author's other fields.
+      const source={...value.data, enabled:true};
+      const normalized=PhoneCore?.normalize(source);
+      if(normalized){
+        data={};
+        for(const key of ['wallpaper','events','calls','chat','tweets','apps']){
+          if(has(value.data,key)) data[key]=normalized[key];
+        }
+        for(const group of ['weather','instagram','spotify']){
+          if(!object(value.data[group]))continue;
+          data[group]={};
+          for(const key of Object.keys(normalized[group])){
+            if(has(value.data[group],key)) data[group][key]=normalized[group][key];
+          }
+        }
+      }
     }
     return {
       version:1, enabled:value.enabled,
