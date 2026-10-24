@@ -33,6 +33,14 @@ const messages=[{role:'system',content:'PRIVATE_SYSTEM'},{role:'user',content:'P
   assert.ok(!requests.at(-1).body.includes('__requestTrace'));
   const html=c.BAORequestLedger.render();assert.match(html,/3 次傳輸嘗試/);assert.match(html,/重試 2 次/);assert.match(html,/費用未回報/);
   snap.calls[0].status='tamper';assert.equal(c.BAORequestLedger.snapshot().calls[0].status,'success');
+  responder=()=>new Response('{}',{status:503});
+  c.API.waitForRetry=async()=>{throw Object.assign(new Error('cancelled during delay'),{name:'AbortError'});};
+  await assert.rejects(c.API.send({...config('openai'),retryEnabled:true},messages));
+  assert.equal(c.BAORequestLedger.snapshot().transportAttempts,1);
+  assert.equal(c.BAORequestLedger.snapshot().retries,0,'cancelled retry delay is not an executed retry');
+  c.API.waitForRetry=async()=>{};
+  responder=()=>new Response(JSON.stringify({choices:[{message:{content:'OK'}}]}));
+
   c.Chat.messages.push({id:'one',role:'user',content:'private'}); // Appended future turns preserve old source, until a new scope is opened.
   await c.API.send(config('openai'),messages);c.Chat.messages[0].content='edited';assert.equal(c.BAORequestLedger.snapshot(),null);
   c.Chat.reset();assert.equal(c.BAORequestLedger.snapshot(),null);

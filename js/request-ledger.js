@@ -67,11 +67,11 @@
     const {run,call}=found;
     if(event==='attempt'){
       if(['local','hosted'].includes(data.transport))call.route=data.transport;
+      if(call.attemptCount>0){call.retries++;run.retries++;}
       call.attemptCount++;run.transportAttempts++;
       if(call.attempts.length===10){call.attempts.shift();run.truncated=true;}
       call.attempts.push({number:call.attemptCount,status:'pending'});
-    }else if(event==='retry'){call.retries++;run.retries++;}
-    else if(['http','network'].includes(event)){
+    }else if(['http','network'].includes(event)){
       const item=call.attempts.at(-1);if(!item)return;
       item.status=event==='http'?'http':data.aborted?'cancelled':'network-failed';
       if(event==='http' && Number.isInteger(data.status))item.httpStatus=data.status;
