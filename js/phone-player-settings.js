@@ -19,19 +19,23 @@
   let modal=null;
   const close = () => {modal?.close?.();modal?.remove();modal=null;};
   function refresh() {
-    const btn=document.getElementById('bao-phone-player-entry');
-    if(!active()) {btn?.remove();close();return;}
+    const current=document.getElementById('bao-phone-player-entry');
+    const tool=document.getElementById('bao-phone-player-tool-entry');
+    if(!active()) {current?.remove();tool?.remove();close();return;}
+    const main=document.querySelector('#chat-view .chat-main .chat-topline');
     const aside=document.querySelector('#chat-view .chat-layout > aside');
-    const target=aside?.querySelector('[data-chat-tool-body="scene"]') ||
-      document.querySelector('#chat-view .chat-main .chat-topline');
-    if(!target) return;
-    if(!btn) {
-      const button=$('button','secondary bao-phone-player-entry','📱 手機設定');
-      button.id='bao-phone-player-entry';button.type='button';
-      button.dataset.searchKeywords='手機 互動 UI 畫面 開啟 關閉 電話 社群';
-      button.addEventListener('click',open);
-      target.append(button);
-    } else if(btn.parentElement!==target) target.append(btn);
+    const scene=aside?.querySelector('[data-chat-tool-body="scene"]') || aside;
+    for(const [id,target] of [['bao-phone-player-entry',main],['bao-phone-player-tool-entry',scene]]){
+      if(!target)continue;
+      let button=document.getElementById(id);
+      if(!button) {
+        button=$('button','secondary bao-phone-player-entry','📱 手機設定');
+        button.id=id;button.type='button';
+        button.dataset.searchKeywords='手機 互動 UI 畫面 開啟 關閉 電話 社群';
+        button.addEventListener('click',open);
+      }
+      if(button.parentElement!==target)target.append(button);
+    }
   }
   function open(){
     if(!active())return;
