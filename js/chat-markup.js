@@ -99,8 +99,9 @@
     if ((!standalone && !storedGreeting) || !first?.classList.contains("assistant")) return false;
     const bubble = first.querySelector(".bubble");
     if (!bubble) return false;
+    const source = window.BAOTheAgesBridge?.displaySource(character.id, character.greeting) ?? character.greeting;
     const html = window.BAOSceneHTML?.render
-      ? BAOSceneHTML.render(character.greeting, true) : sanitize(character.greeting);
+      ? BAOSceneHTML.render(source, true) : sanitize(source);
     if (bubble.innerHTML !== html) bubble.innerHTML = html;
     bubble.classList.toggle("authored-rich-message", isRichMessage(character.greeting, true));
     bubble.dataset.authoredGreeting = "true";
@@ -140,7 +141,7 @@
   let sceneScript = document.querySelector('script[src^="js/scene-html-modes.js"]');
   if (!sceneScript) {
     const script = document.createElement('script');
-    script.src = 'js/scene-html-modes.js?v=5';
+    script.src = 'js/scene-html-modes.js?v=6';
     script.onerror = () => console.warn('BAO/LAB scene HTML controls failed to load');
     script.addEventListener('load', loadSceneStoryPreferences, { once: true });
     document.head.appendChild(script);

@@ -115,3 +115,59 @@ test('mobile panel fits its sandbox and character creation remains reachable', a
   expect(dimensions.width).toBeLessThanOrEqual(dimensions.viewport);
   expect(dimensions.scroll).toBeLessThanOrEqual(dimensions.viewport + 1);
 });
+
+async function firstVisit(page, legacy = false) {
+  await page.goto('./');
+  await page.waitForFunction(() => Boolean(window.BAOAuthorDock && window.BAOTheAgesBridge && window.BAOChatUISimplify && window.BAOChatToolNavigation && window.BAOStoryControlCenter && window.Storage?._ready && App.characters?.length));
+  await page.evaluate(async ({ legacy, source }) => {
+    await App.openCharacter('shikong-zhimen');
+    App.config = { narrativeMode: 'immersive', displayMode: 'text', persona: { name: '測試玩家', gender: '未指定', identity: '', personality: '', relationship: '', extra: '' }, api: { type: 'custom', protocol: 'openai', model: 'offline-test', baseUrl: '', key: '' }, memory: { mode: 'smart', maxRounds: 20, maxContext: 32000, cache: false } };
+    if (legacy) {
+      const oldRules = structuredClone(source);
+      oldRules.regex_scripts[0].findRegex = '\\[\\[TG_PANEL\\]\\]';
+      localStorage.setItem('bao-lab:author-regex:v1:shikong-zhimen', JSON.stringify({ enabled: true, allowScripts: false, source: 'official-sidecar', rules: BAOAuthorRegexCore.normalize(oldRules) }));
+      App.activeCharacter = { ...App.activeCharacter, greeting: '<p>[[TG_PANEL]]</p><p><strong>怎麼玩</strong><br>先展開「自訂介面」的進階設定。</p><p>光。你踩上石板。</p>' };
+    }
+    Chat.reset(); GameState.create(App.activeCharacter, App.config);
+    Chat.add('assistant', App.activeCharacter.greeting).greeting = true;
+    App.renderChatShell(true); App.showView('chat');
+    window.__calls = 0; API.send = () => { window.__calls++; throw Error('No automatic model calls'); };
+  }, { legacy, source });
+  await expect(page.getByRole('button', { name: '啟用冒險面板', exact: true })).toBeVisible();
+}
+for (const width of [390, 1280]) {
+  test(`first visit at ${width}px enables the real panel through its visible entry without advanced settings`, async ({ page }, testInfo) => {
+    await page.setViewportSize({ width, height: 844 });
+    await firstVisit(page);
+    await expect(page.locator('.bao-author-inline')).toHaveCount(0);
+    expect(await page.evaluate(() => JSON.parse(localStorage.getItem('bao-lab:author-regex:v1:shikong-zhimen') || '{}').allowScripts)).not.toBe(true);
+    await expect(page.locator('#chat-stream .bubble').first()).not.toContainText('[[TG_PANEL]]');
+    page.once('dialog', dialog => { expect(dialog.message()).toContain('執行作者的互動腳本'); dialog.accept(); });
+    await page.getByRole('button', { name: '啟用冒險面板', exact: true }).click();
+    const frame = page.frameLocator('iframe[title="跨回合作者隔離介面"]');
+    await expect(frame.locator('#tg-name')).toBeVisible();
+    await expect(page.locator('#bao-author-dock')).toHaveJSProperty('open', true);
+    expect(await frame.locator('body').innerText()).not.toContain('<p>');
+    await page.screenshot({ path: testInfo.outputPath(`panel-${width}.png`) });
+    await create(frame);
+    await expect(page.locator('#user-input')).toHaveValue(/【開局】名字：夜行者/);
+    expect(await page.evaluate(() => window.__calls)).toBe(0);
+  });
+}
+test('existing static-placeholder settings recover with the visible button and cancellation grants nothing', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await firstVisit(page, true);
+  await expect(page.locator('.bao-author-inline')).toHaveCount(0);
+  page.once('dialog', dialog => dialog.dismiss());
+  await page.getByRole('button', { name: '啟用冒險面板', exact: true }).click();
+  expect(await page.evaluate(() => JSON.parse(localStorage.getItem('bao-lab:author-regex:v1:shikong-zhimen')).allowScripts)).toBe(false);
+  await expect(page.locator('iframe[title="跨回合作者隔離介面"]')).toHaveCount(0);
+  page.once('dialog', dialog => dialog.accept());
+  await page.getByRole('button', { name: '啟用冒險面板', exact: true }).click();
+  const frame = page.frameLocator('iframe[title="跨回合作者隔離介面"]');
+  await expect(frame.locator('#tg-name')).toBeVisible();
+  expect(await frame.locator('body').innerText()).not.toContain('<p>');
+  await expect(page.locator('#chat-stream .bubble').first()).not.toContainText('[[TG_PANEL]]');
+  await create(frame);
+  await expect(page.locator('#user-input')).toHaveValue(/【開局】/);
+});

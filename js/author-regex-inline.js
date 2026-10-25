@@ -146,6 +146,7 @@
     if (window.BAOAvatarChat?.enabled?.()) { clear(); return; }
     if (window.BAOAuthorDock?.enabled?.()) { clear(); return; }
     const owner = cardId();
+    if (window.BAOTheAgesBridge?.requiresDock(owner)) { clear(); return; }
     const data = owner && config(owner);
     if (!owner || !data || !data.rules.length) { clear(); return; }
     const candidate = target();
