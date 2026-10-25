@@ -113,6 +113,9 @@ jobs:
       - name: AWS relay live audit contract
         run: node tests/aws-relay-live-audit-core.cjs
 
+      - name: Dynamic script in-flight load contract
+        run: node --test tests/site-ui-script-loader-core.cjs
+
       - name: Frontend extension-chain contract
         run: node tests/frontend-extension-contract.cjs
 
