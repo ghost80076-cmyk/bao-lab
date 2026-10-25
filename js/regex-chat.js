@@ -190,7 +190,7 @@
         document.head.appendChild(textMod);
       }
       const mobile = document.createElement('script');
-      mobile.src = 'js/author-regex-mobile.js?v=2';
+      mobile.src = 'js/author-regex-mobile.js?v=3';
       mobile.onerror = () => console.warn('BAO/LAB responsive author controls failed to load');
       document.head.appendChild(mobile);
       const style = document.createElement('style');
@@ -200,10 +200,10 @@
       cardBind.src = 'js/author-regex-card-bind.js?v=4';
       cardBind.onload = () => {
         const inline = document.createElement('script');
-        inline.src = 'js/author-regex-inline.js?v=4';
+        inline.src = 'js/author-regex-inline.js?v=5';
         inline.onload = () => {
           const dock = document.createElement('script');
-          dock.src = 'js/author-regex-dock.js?v=4';
+          dock.src = 'js/author-regex-dock.js?v=5';
           dock.onerror = () => console.warn('BAO/LAB persistent author interface failed to load');
           document.head.appendChild(dock);
         };

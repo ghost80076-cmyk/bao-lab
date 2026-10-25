@@ -113,7 +113,7 @@
       summary.textContent = summary.textContent.replace(/^常駐作者介面/, '自訂介面').replace(/^故事互動面板/, '自訂介面').replace('正則排版', '互動畫面').replace('自訂排版', '互動畫面');
       summary.title = '展開或收起這張作品的互動介面';
     }
-    if (compact.matches) root.open = choices.get(owner) === true;
+    if (compact.matches) root.open = choices.has(owner) ? choices.get(owner) === true : root.dataset.openOnMobile === 'true';
     root.addEventListener('toggle', () => { if (compact.matches) choices.set(owner, root.open); });
   };
   const sync = () => {

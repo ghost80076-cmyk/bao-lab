@@ -161,6 +161,7 @@
     if (!inChat() || GameState.current !== story || cardId() !== owner) return;
     const root = document.createElement('details');
     root.id = 'bao-author-dock'; root.open = true;
+    if (window.BAOTheAgesBridge?.requiresDock(owner)) root.dataset.openOnMobile = 'true';
     root.style.cssText = 'margin:8px 0;border:1px solid #987a9c;border-radius:12px;overflow:hidden;background:#181722;color:#fff;flex-shrink:0';
     const summary = document.createElement('summary'); summary.textContent = `自訂介面 · ${result.name || '互動畫面'}`;
     summary.style.cssText = 'padding:10px 12px;cursor:pointer;font-weight:600';
@@ -179,7 +180,7 @@
     const assets = allowExternalAssets ? 'https: data:' : 'data:';
     const csp = `default-src 'none'; script-src ${allowScripts ? "'unsafe-inline'" : "'none'"}; style-src 'unsafe-inline'; img-src ${assets}; font-src ${assets}; media-src ${assets}; connect-src 'none'; frame-src 'none'; form-action 'none'; base-uri 'none'; object-src 'none'`;
     const token = crypto.randomUUID?.() || `${Math.random()}-${Date.now()}`;
-    const htmlDocument = '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="' + csp + '"><style>html,body{margin:0;min-height:100%;overflow-wrap:anywhere}*,*:before,*:after{box-sizing:border-box}</style>' + (allowScripts ? bootstrap(token) + (window.BAOTheAgesBridge?.bootstrap(owner, token) || '') : '') + '</head><body>' + result.html + '</body></html>';
+    const htmlDocument = '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="' + csp + '"><style>html,body{margin:0;min-height:100%;overflow-wrap:anywhere}*,*:before,*:after{box-sizing:border-box}</style>' + (allowScripts ? bootstrap(token) + (window.BAOTheAgesBridge?.bootstrap(owner, token) || '') : '') + '</head><body>' + (window.BAOTheAgesBridge?.panelHTML(owner, result.html) ?? result.html) + '</body></html>';
     if(window.BAOWorkPackage)window.BAOWorkPackage.setFrameHTML(frame,htmlDocument,App.activeCharacter);else frame.srcdoc=htmlDocument;
     root.append(summary, bar, frame);
     main.insertBefore(root, stream);

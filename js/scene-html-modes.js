@@ -83,7 +83,7 @@
   const render = (raw, greeting = false) => {
     if (window.BAOAvatarChat?.enabled?.()) return window.BAOAvatarChat.render(raw);
     if (greeting && App.activeCharacter?.opening?.posts?.length) return renderStructuredOpening(App.activeCharacter.opening);
-    const source = String(raw || '');
+    const source = String(window.BAOTheAgesBridge?.displaySource(App.activeCharacter?.id, raw) ?? raw ?? '');
     const text = window.BAOYumeArchiveCore?.stripCharacterMarkers?.(source, App.activeCharacter) ?? source;
     const body = withoutMetadata(text);
     if (prefs.mode === 'native') return App.formatMessage(plain(body));

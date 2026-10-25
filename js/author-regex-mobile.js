@@ -9,7 +9,7 @@
       link.href = stylesheet;
       document.head.append(link);
     }
-    for (const src of ['js/chat-ui-simplify.js', 'js/story-entry-visibility.js', 'js/chat-controls-clarity.js?v=2']) {
+    for (const src of ['js/chat-ui-simplify.js?v=2', 'js/story-entry-visibility.js', 'js/chat-controls-clarity.js?v=2']) {
       if (document.querySelector(`script[src="${src}"]`)) continue;
       const script = document.createElement('script');
       script.src = src;
