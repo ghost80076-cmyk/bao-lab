@@ -66,13 +66,6 @@ const warnStoryUnavailable = () => {
 const reportStoryFailure = err => {
   baoExtensionHealth.story = "unavailable";
   console.warn("YoruBay story extensions are unavailable:", err);
-  if (typeof App !== "undefined" && typeof App.wrapShowView === "function") {
-    App.wrapShowView("site-ui:story-loading-warning", (next, view, ...args) => {
-      const result = next(view, ...args);
-      if (view === "chat") warnStoryUnavailable();
-      return result;
-    });
-  }
   if (document.getElementById("chat-view")?.classList.contains("active")) warnStoryUnavailable();
 };
 
@@ -134,6 +127,15 @@ window.addEventListener("DOMContentLoaded", () => {
       if (baoExtensionHealth.story === "ready") return next(...args);
       warnStoryUnavailable();
       return null;
+    });
+  }
+  // Keep player feedback independent from the exact sendMessage wrapper order.
+  // Entering a story while hooks are still loading or failed always surfaces the state.
+  if (typeof App !== "undefined" && typeof App.wrapShowView === "function") {
+    App.wrapShowView("site-ui:story-extension-readiness", (next, view, ...args) => {
+      const result = next(view, ...args);
+      if (view === "chat" && baoExtensionHealth.story !== "ready") warnStoryUnavailable();
+      return result;
     });
   }
   // Some later App wrappers (for example a pre-response advisor) can call
