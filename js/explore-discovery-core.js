@@ -45,7 +45,9 @@
   }
 
   function isAdult(character = {}) {
-    return String(character.category || "").toLowerCase() === "r18" ||
+    const reviewed = character.discovery?.rating;
+    if (["general", "adult"].includes(reviewed)) return reviewed === "adult";
+    return character.adult_content === true || String(character.category || "").toLowerCase() === "r18" ||
       String(character.rating || "").toLowerCase() === "adult";
   }
 
@@ -58,6 +60,8 @@
   }
 
   function workCategory(character = {}) {
+    const reviewed = character.discovery?.category;
+    if (["general", "male", "female", "world"].includes(reviewed)) return reviewed;
     const values = [
       ...(Array.isArray(character.audience) ? character.audience : []),
       ...(Array.isArray(character.categories) ? character.categories : [])
@@ -67,6 +71,7 @@
     if (values.some(value => ["general", "all", "一般", "一般向", "大眾", "大眾向"].includes(value))) return "general";
 
     const category = fold(character.category || "");
+    if (["world", "世界"].includes(category)) return "world";
     if (["female", "女性", "女性向"].includes(category)) return "female";
     if (["male", "男性", "男性向"].includes(category)) return "male";
     if (["general", "一般", "一般向", "大眾", "大眾向", "r18"].includes(category)) return "general";
@@ -77,7 +82,7 @@
   }
 
   function inCategory(character = {}, category = "all") {
-    const active = ["general", "male", "female"].includes(category) ? category : "all";
+    const active = ["general", "male", "female", "world"].includes(category) ? category : "all";
     if (active === "all") return true;
     return workCategory(character) === active;
   }

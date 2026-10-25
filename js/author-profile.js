@@ -71,7 +71,7 @@
     const image = item.avatar || "assets/bao-bun.svg";
     const description = item.description || "這個作品尚未提供簡介。";
     const version = core.publicationLabel(item);
-    const rating = item.rating === "adult" ? "成熟內容" : "一般內容";
+    const rating = (window.BAOContentPreferences?.isDiscoveryAdult?.(item) ?? (item.rating === "adult")) ? "成熟內容" : "一般展示";
     return `
       <article class="author-work-card">
         <a class="author-work-cover" href="./?work=${encodeURIComponent(item.id)}" aria-label="查看作品 ${esc(title)}">

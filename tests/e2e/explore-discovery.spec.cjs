@@ -392,3 +392,41 @@ for (const width of [390, 1280]) {
     await expect(card).toBeVisible();
   });
 }
+
+for (const width of [390, 1280]) {
+  test(`public classification survives lazy loading and keeps adult premises separate (${width}px)`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 844 });
+    await page.goto('./');
+    await page.waitForFunction(() => Boolean(window.BAOExploreDiscovery && App.characters?.length));
+    await page.evaluate(async () => {
+      while (App.hasMoreCharacterCatalog()) await App.loadMoreCharacters();
+      App.showView('explore');
+      App.renderCharacters('all');
+    });
+    const solo = page.locator('#character-list [data-character-id="kurobane-yume-solo"]');
+    await expect(solo).toBeVisible();
+    await expect(solo.locator('.category-badge')).toHaveText('男性向');
+    await expect(solo.locator('.rating-badge')).toHaveCount(0);
+    await expect(page.locator('#character-list [data-character-id="desire-district"]')).toHaveCount(0);
+    await chooseFilter(page, '世界');
+    await expect(page.locator('#character-list [data-character-id="night-sky-magic-academy"]')).toBeVisible();
+    await expect(page.locator('#character-list [data-character-id="linchenfeng"]')).toBeHidden();
+    await expect(solo).toBeHidden();
+    await chooseFilter(page, '女性向');
+    const target = page.locator('#character-list [data-character-id="across-the-hall"]');
+    await expect(target).toBeVisible();
+    await target.locator('.character-image-wrap').click();
+    const preview = page.locator('#explore-work-preview');
+    await expect(preview).toBeVisible();
+    await expect(preview.locator('[data-explore-preview-rating]')).toHaveText('一般展示');
+    await preview.getByRole('button', { name: '查看作品', exact: true }).click();
+    await expect(page.locator('#detail-view')).toHaveClass(/active/);
+    expect(await page.evaluate(() => ({
+      category: BAOExploreDiscoveryCore.workCategory(App.activeCharacter),
+      adult: BAOContentPreferences.isAdult(App.activeCharacter),
+      discoverable: BAOContentPreferences.canExpose(App.activeCharacter),
+      enabled: BAOContentPreferences.isAdultContentEnabled()
+    }))).toEqual({ category: 'female', adult: true, discoverable: true, enabled: false });
+    expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(2);
+  });
+}
