@@ -159,6 +159,7 @@
   function mount(result, owner, story, signature, allowExternalAssets, allowStateSharing, allowUiPersistence) {
     clear();
     if (!inChat() || GameState.current !== story || cardId() !== owner) return;
+    const allowScripts = Boolean(result.script);
     const unified = Boolean(allowScripts && window.BAOTheAgesBridge?.isUnified?.(owner));
     const root = document.createElement('details');
     root.id = 'bao-author-dock'; root.open = true;
@@ -176,7 +177,6 @@
     bar.append(stateLabel, reload);
     const frame = document.createElement('iframe');
     frame.title = '跨回合作者隔離介面'; frame.referrerPolicy = 'no-referrer';
-    const allowScripts = Boolean(result.script);
     frame.setAttribute('sandbox', allowScripts ? 'allow-scripts' : ''); // No allow-same-origin.
     frame.style.cssText = 'display:block;width:100%;height:clamp(240px,42vh,520px);border:0;background:#fff';
     const assets = allowExternalAssets ? 'https: data:' : 'data:';
