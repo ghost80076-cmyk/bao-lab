@@ -54,5 +54,5 @@ card['gameplay']['initial_state']['worldbookLibrary']['installed'][0]['meta']['a
 card['presentation']['supported_display']['ui']=True
 write('data/characters/general/shikong-zhimen.json',card)
 catalog=load('data/characters.json')
-entry={**card['meta'],'file':'data/characters/general/shikong-zhimen.json','title':card['meta']['name'],'supported_modes':card['gameplay']['supported_modes'],'supported_display':card['presentation']['supported_display'],'published_at':'2026-10-25T14:30:00Z','updated_at':'2026-10-25T14:30:00Z','discovery':{'category':'general'}}
+entry={**card['meta'],'file':'data/characters/general/shikong-zhimen.json','title':card['meta']['name'],'supported_modes':card['gameplay']['supported_modes'],'supported_display':card['presentation']['supported_display'],'published_at':'2026-10-25T14:30:00Z','updated_at':'2026-10-25T14:30:00Z','published_version':1,'version_published_at':'2026-10-25T14:30:00Z','discovery':{'category':'world','rating':'general'}}
 catalog=[e for e in catalog if e['id']!=entry['id']];catalog.append(entry);write('data/characters.json',catalog)

@@ -26,9 +26,11 @@ for (const entry of entries) {
   assert.equal(loaded.rating, engine.normalize(raw).rating, entry.id + ': original content rating retained');
   assert.equal(engine.composeSystemPrompt(loaded), engine.composeSystemPrompt(engine.normalize(raw)), entry.id + ': public metadata never changes model prompt');
 }
-assert.equal(byId.size, 72);
-assert.equal([...byId.values()].filter(c => c.discovery.rating).length, 29, 'only reviewed images receive explicit display ratings');
+assert.equal(byId.size, 73);
+assert.equal([...byId.values()].filter(c => c.discovery.rating).length, 30, 'only reviewed images receive explicit display ratings');
 assert.equal([...byId.values()].filter(c => c.rating === 'adult' && c.discovery.rating === 'general').length, 15);
+assert.equal(discovery.workCategory(byId.get('shikong-zhimen')), 'world');
+assert.equal(preferences.isDiscoveryAdult(byId.get('shikong-zhimen')), false, 'reviewed fantasy cover and opening stay general');
 const role = byId.get('kurobane-yume-solo');
 assert.equal(discovery.workCategory(role), 'male');
 assert.equal(preferences.isAdult(role), true, 'content classification stays adult');
@@ -60,5 +62,5 @@ vm.runInNewContext(fs.readFileSync('js/app.js', 'utf8') + '\n;globalThis.app=App
     assert.equal(discovery.isAdult(hydrated), preferences.isDiscoveryAdult(byId.get(id)), id + ': actual loader keeps exposure');
     assert.equal(await app.loadCharacter(id), hydrated, id + ': cache keeps metadata');
   }
-  console.log('PASS: 72 public classifications, 29 image reviews, 15 display corrections, unchanged role prompts, lazy loader/cache and legacy gates');
+  console.log('PASS: 73 public classifications, 30 image reviews, 15 display corrections, unchanged role prompts, lazy loader/cache and legacy gates');
 })().catch(error => { console.error(error); process.exitCode = 1; });

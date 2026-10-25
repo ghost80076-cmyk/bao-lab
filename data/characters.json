@@ -1111,8 +1111,11 @@
     },
     "published_at": "2026-10-25T14:30:00Z",
     "updated_at": "2026-10-25T14:30:00Z",
+    "published_version": 1,
+    "version_published_at": "2026-10-25T14:30:00Z",
     "discovery": {
-      "category": "general"
+      "category": "world",
+      "rating": "general"
     }
   }
 ]
