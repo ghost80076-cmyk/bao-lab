@@ -20,8 +20,13 @@ test('install controller respects installability and dismissal', async () => {
   assert.match(source, /serviceWorker\.register\('\/sw\.js'\)/);
 });
 
-test('service worker keeps a minimal shell only', async () => {
+test('service worker keeps a minimal shell and refreshes the offline HTML fallback', async () => {
   const source = await read('sw.js');
-  assert.match(source, /yorubay-shell-v1/);
-  assert.match(source, /fetch\(event\.request\)\.catch/);
+  assert.match(source, /yorubay-shell-v2/);
+  assert.match(source, /event\.request\.mode === 'navigate'/);
+  assert.match(source, /cache\.put\('\/index\.html', response\.clone\(\)\)/);
+  assert.match(source, /caches\.match\('\/index\.html'\)/);
+  const shell = source.match(/const APP_SHELL = \[([\s\S]*?)\];/)?.[1] || '';
+  assert.doesNotMatch(shell, /\/js\//);
+  assert.doesNotMatch(shell, /\/css\//);
 });
