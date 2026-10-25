@@ -18,6 +18,41 @@ const loadBAOScript = src => {
   return promise;
 };
 
+// Failure isolation for optional UI tools; never mark the world engine as
+// healthy after a failed dependency. Keep diagnostics in memory only.
+const baoExtensionHealth = { world: "loading", optional: {} };
+window.BAOExtensionLoadHealth = Object.freeze({
+  snapshot: () => ({
+    world: baoExtensionHealth.world,
+    optional: { ...baoExtensionHealth.optional }
+  })
+});
+const loadBAOOptionalGroup = (name, sources) =>
+  sources.reduce((chain, src) => chain.then(() => loadBAOScript(src)), Promise.resolve())
+    .then(() => { baoExtensionHealth.optional[name] = "ready"; })
+    .catch(err => {
+      baoExtensionHealth.optional[name] = "unavailable";
+      console.warn(`YoruBay optional ${name} is unavailable:`, err);
+    });
+
+const warnWorldUnavailable = () => window.BAOFeedback?.notify?.(
+  "世界狀態模組載入不完整，人物與世界狀態可能無法更新。請重新整理頁面後再繼續故事。",
+  "error"
+);
+const reportWorldFailure = err => {
+  baoExtensionHealth.world = "unavailable";
+  console.warn("YoruBay world-state extensions are unavailable:", err);
+  // Use the existing view wrapper so a later Start/Resume shows the warning.
+  if (typeof App !== "undefined" && typeof App.wrapShowView === "function") {
+    App.wrapShowView("site-ui:world-loading-warning", (next, view, ...args) => {
+      const result = next(view, ...args);
+      if (view === "chat") warnWorldUnavailable();
+      return result;
+    });
+  }
+  if (document.getElementById("chat-view")?.classList.contains("active")) warnWorldUnavailable();
+};
+
 let baoFeedbackTimer = 0;
 const notifyPlayer = (message, tone = "info") => {
   let toast = document.getElementById("bao-feedback-toast");
@@ -95,7 +130,8 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/world-relevance.js?v=6"))
     .then(() => loadBAOScript("js/character-status-ui.js?v=12"))
     .then(() => loadBAOScript("js/world-state-hook.js?v=6"))
-    .catch(err => console.warn("BAO/LAB world state or character status modules failed to load:", err));
+    .then(() => { baoExtensionHealth.world = "ready"; })
+    .catch(reportWorldFailure);
   loadBAOScript("js/cost-control.js?v=5")
     .then(() => loadBAOScript("js/provider-browser-compat.js"))
     .then(() => loadBAOScript("js/model-routing.js?v=9"))
@@ -115,8 +151,7 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/context-pack-resume.js"))
     .then(() => loadBAOScript("js/story-library.js?v=11"))
     .then(() => loadBAOScript("js/story-backup.js?v=4"))
-    .then(() => loadBAOScript("js/google-drive-config.js"))
-    .then(() => loadBAOScript("js/google-drive-sync.js"))
+    .then(() => loadBAOOptionalGroup("google-drive", ["js/google-drive-config.js", "js/google-drive-sync.js"]))
     .then(() => loadBAOScript("js/prompt-cache.js?v=9"))
     .then(() => loadBAOScript("js/prompt-orchestrator.js?v=7"))
     .then(() => loadBAOScript("js/episodic-memory.js?v=4"))
@@ -127,9 +162,8 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/worldbook-library-core.js?v=8"))
     .then(() => loadBAOScript("js/worldbook-library.js?v=14"))
     .then(() => loadBAOScript("js/story-reader.js?v=12"))
-    .then(() => loadBAOScript("js/conversation-search-core.js?v=4"))
-    .then(() => loadBAOScript("js/conversation-search.js?v=4"))
-    .then(() => loadBAOScript("js/inspiration-copy.js"))
+    .then(() => loadBAOOptionalGroup("conversation-search", ["js/conversation-search-core.js?v=4", "js/conversation-search.js?v=4"]))
+    .then(() => loadBAOOptionalGroup("inspiration-copy", ["js/inspiration-copy.js"]))
     .then(() => loadBAOScript("js/story-revision-state.js?v=9"))
     .then(() => loadBAOScript("js/story-history.js?v=2"))
     .then(() => loadBAOScript("js/story-branches.js?v=2"))
