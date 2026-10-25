@@ -109,15 +109,16 @@ test('optional tool 404 preserves an existing story through reload and file impo
     buffer: Buffer.from(JSON.stringify(backup))
   });
   await expect(page.getByText('存檔匯入並確認寫入完成。', { exact: true })).toBeVisible();
-  const imported = await page.evaluate(() => {
+  const imported = await page.evaluate(originalId => {
     const slots = Storage.listSlots().filter(s => s.label === 'RECOVERY_OLD_STORY');
-    const selected = slots.at(-1);
+    const selected = slots.find(s => s.id !== originalId);
     if (!selected || !Storage.restoreStory(selected)) throw new Error('imported story could not restore');
     App.renderChatShell(false);
     App.showView('chat');
-    return slots.length;
-  });
-  expect(imported).toBeGreaterThanOrEqual(2);
+    return { total: slots.length, selectedId: selected.id };
+  }, backup.id);
+  expect(imported.total).toBeGreaterThanOrEqual(2);
+  expect(imported.selectedId).not.toBe(backup.id);
   assertStory(await inspect(page));
   expect(posts).toEqual([]);
 });
