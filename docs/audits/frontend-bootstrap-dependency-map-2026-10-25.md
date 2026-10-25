@@ -42,3 +42,13 @@
 ## 退出條件
 
 本次 PR 的 Mobile Reading E2E 加入真實瀏覽器測試清單；四個新案例均成功、原 Core／Storage／settings／request-feature／Fast Browser 相關測試通過，才可合併。若有測試因與產品實際語意不符而失敗，先校正測試預期並保留真正的安全斷言，不准直接跳過失敗注入。
+
+## 第五批：PWA 離線 HTML fallback 更新
+
+現有 Service Worker 採 navigation network-first，失線時回退到預快取的 `/index.html`；但舊 `yorubay-shell-v1` 只有 install 時寫入 HTML，成功的線上導航不會更新 fallback。如果 `sw.js` 長時間沒有位元變動，已安裝 PWA 的離線首頁殼可能停留在較舊版本。
+
+修正採最小策略：
+- cache 名稱升為 `yorubay-shell-v2`，本次 Service Worker 更新會在 activate 清掉舊 cache。
+- 每次同源 navigation 成功且 HTTP response 為 ok 時，把 response clone 寫回 `/index.html`；失線仍使用最後一次成功線上導航保存的 HTML。
+- 不宣稱整站離線可玩：目前 APP_SHELL 沒有包含所有 JS/CSS/資料檔，本 PR 不擴大 PWA 快取範圍。
+- Browser E2E 會先把 cache 中 `/index.html` 人工改成 stale marker，再執行受 SW 控制的線上 reload，確認 cache 被新 HTML 覆蓋且首頁仍可見。
