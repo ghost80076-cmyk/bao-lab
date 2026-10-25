@@ -129,6 +129,15 @@ const CharacterEngine = {
       reading_background: raw.reading_background || presentation.reading_background || presentation.background || raw.background || "",
       rating,
       category,
+      // Public discovery metadata is editorial, independent of role capabilities.
+      discovery: (() => {
+        const value = raw.discovery || meta.discovery;
+        if (!value || typeof value !== "object") return null;
+        const result = {};
+        if (["general", "male", "female", "world"].includes(value.category)) result.category = value.category;
+        if (["general", "adult"].includes(value.rating)) result.rating = value.rating;
+        return Object.keys(result).length ? result : null;
+      })(),
       gender: raw.gender || meta.gender || "",
       audience: audienceList,
       categories: Array.isArray(categories) ? categories : [categories].filter(Boolean),

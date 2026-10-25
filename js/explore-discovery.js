@@ -157,7 +157,7 @@
     const key = String(id || "");
     const character = (App.characters || []).find(item => String(item?.id || "") === key);
     if (!character) return false;
-    if (window.BAOContentPreferences?.isAdult?.(character) && !adultEnabled()) {
+    if (window.BAOContentPreferences?.isDiscoveryAdult?.(character) && !adultEnabled()) {
       window.BAOContentPreferences?.guard?.(character);
       return false;
     }
@@ -168,7 +168,7 @@
     const labels = core.capabilityLabels(character);
     const title = character.title || character.name || "未命名作品";
     const author = String(item.author || "").trim();
-    const rating = character.rating === "adult" || item.rating === "adult" ? "成熟內容" : "一般內容";
+    const rating = core.isAdult(character) ? "成熟內容" : "一般展示";
     const meta = [];
     if (author) meta.push("作者 · " + author);
     meta.push(rating);
@@ -298,17 +298,17 @@
             <h4 id="explore-category-label">作品取向</h4>
             <div class="explore-option-row">
               <button type="button" data-explore-category="all">全部</button>
-              <button type="button" data-explore-category="general">一般向</button>
+              <button type="button" data-explore-category="world">世界</button>
               <button type="button" data-explore-category="female">女性向</button>
               <button type="button" data-explore-category="male">男性向</button>
             </div>
           </section>
 
           <section class="explore-filter-group" aria-labelledby="explore-rating-label" data-explore-adult-controls ${adultEnabled() ? "" : "hidden"}>
-            <h4 id="explore-rating-label">內容分級</h4>
+            <h4 id="explore-rating-label">公開展示</h4>
             <div class="explore-option-row">
               <button type="button" data-explore-rating="all">全部</button>
-              <button type="button" data-explore-rating="general">一般</button>
+              <button type="button" data-explore-rating="general">一般展示</button>
               <button type="button" data-explore-rating="mature">成熟內容</button>
             </div>
           </section>
@@ -350,7 +350,7 @@
     };
 
     const setCategory = category => {
-      state.category = ["all", "general", "male", "female"].includes(category) ? category : "all";
+      state.category = ["all", "general", "male", "female", "world"].includes(category) ? category : "all";
       scheduleApply();
       return true;
     };
@@ -741,8 +741,8 @@
     if (activeFilters) {
       const chips = [];
       const labels = {
-        category: { general: "一般向", female: "女性向", male: "男性向" },
-        rating: { all: "全部分級", general: "一般內容", mature: "成熟內容" },
+        category: { general: "一般向", world: "世界", female: "女性向", male: "男性向" },
+        rating: { all: "全部展示", general: "一般展示", mature: "成熟內容" },
         scope: { favorites: "收藏", recent: "最近看過", updates: "有近期更新" },
         capability: { world: "世界模擬", ui: "互動 UI" },
         sort: { latest: "最近發布", updated: "最近更新排序" }
@@ -823,7 +823,7 @@
       }
       state.rating = "mature";
       state.category = "all";
-    } else if (["general", "male", "female"].includes(filter)) {
+    } else if (["general", "male", "female", "world"].includes(filter)) {
       state.category = filter;
     } else if (filter === "all") {
       // "all" refreshes the rendered catalog, but keeps the independent
@@ -839,7 +839,7 @@
     const character = (App.characters || []).find(entry => String(entry?.id || "") === String(id || "")) || null;
     const item = (App.characterManifest || []).find(entry => String(entry?.id || "") === String(id || "")) || {};
     const adultTarget = character || item;
-    if (window.BAOContentPreferences?.isAdult?.(adultTarget) && !adultEnabled()) {
+    if (window.BAOContentPreferences?.isDiscoveryAdult?.(adultTarget) && !adultEnabled()) {
       window.BAOContentPreferences?.guard?.(adultTarget);
       return false;
     }

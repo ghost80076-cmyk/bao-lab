@@ -67,6 +67,7 @@
     isAdultContentEnabled,
     setAdultContentEnabled,
     isAdult: core.isAdult,
+    isDiscoveryAdult: core.isDiscoveryAdult,
     canExpose,
     guard
   });

@@ -32,7 +32,10 @@
     "published_version": 2,
     "version_published_at": "2026-10-08T19:24:25Z",
     "author": "班長",
-    "author_id": "banzhang"
+    "author_id": "banzhang",
+    "discovery": {
+      "category": "female"
+    }
   },
   {
     "id": "autonomous-npc-world",
@@ -64,7 +67,10 @@
     "published_version": 1,
     "version_published_at": "2026-09-18T16:22:55Z",
     "author": "班長",
-    "author_id": "banzhang"
+    "author_id": "banzhang",
+    "discovery": {
+      "category": "world"
+    }
   },
   {
     "id": "open-world-real-persona",
@@ -96,7 +102,10 @@
     "published_version": 1,
     "version_published_at": "2026-09-18T03:29:17Z",
     "author": "班長",
-    "author_id": "banzhang"
+    "author_id": "banzhang",
+    "discovery": {
+      "category": "world"
+    }
   },
   {
     "id": "desire-district",
@@ -132,7 +141,10 @@
     "published_version": 1,
     "version_published_at": "2026-09-19T07:23:28Z",
     "author": "班長",
-    "author_id": "banzhang"
+    "author_id": "banzhang",
+    "discovery": {
+      "category": "world"
+    }
   },
   {
     "id": "kurobane-yume-kabukicho",
@@ -165,7 +177,11 @@
     "published_version": 2,
     "version_published_at": "2026-10-08T19:24:25Z",
     "author": "班長",
-    "author_id": "banzhang"
+    "author_id": "banzhang",
+    "discovery": {
+      "category": "world",
+      "rating": "general"
+    }
   },
   {
     "id": "kurobane-yume-solo",
@@ -200,7 +216,11 @@
     "published_version": 1,
     "version_published_at": "2026-10-23T12:52:00Z",
     "author": "班長",
-    "author_id": "banzhang"
+    "author_id": "banzhang",
+    "discovery": {
+      "category": "male",
+      "rating": "general"
+    }
   },
   {
     "id": "unhealed-bonds",
@@ -235,7 +255,11 @@
     "published_version": 1,
     "version_published_at": "2026-09-28T08:52:59Z",
     "author": "班長",
-    "author_id": "banzhang"
+    "author_id": "banzhang",
+    "discovery": {
+      "category": "female",
+      "rating": "general"
+    }
   },
   {
     "id": "host-club-simulator",
@@ -270,7 +294,11 @@
     "published_version": 1,
     "version_published_at": "2026-09-28T08:51:40Z",
     "author": "班長",
-    "author_id": "banzhang"
+    "author_id": "banzhang",
+    "discovery": {
+      "category": "female",
+      "rating": "general"
+    }
   },
   {
     "id": "night-sky-magic-academy",
@@ -305,7 +333,11 @@
     "published_version": 2,
     "version_published_at": "2026-10-08T19:24:25Z",
     "author": "班長",
-    "author_id": "banzhang"
+    "author_id": "banzhang",
+    "discovery": {
+      "category": "world",
+      "rating": "general"
+    }
   },
   {
     "id": "k-idol-survival-simulator",
@@ -340,7 +372,11 @@
     "published_version": 1,
     "version_published_at": "2026-09-28T13:09:37Z",
     "author": "班長",
-    "author_id": "banzhang"
+    "author_id": "banzhang",
+    "discovery": {
+      "category": "world",
+      "rating": "general"
+    }
   },
   {
     "id": "narcissus-simulator",
@@ -374,7 +410,11 @@
     "published_version": 2,
     "version_published_at": "2026-10-08T19:24:25Z",
     "author": "班長",
-    "author_id": "banzhang"
+    "author_id": "banzhang",
+    "discovery": {
+      "category": "world",
+      "rating": "general"
+    }
   },
   {
     "id": "peng-yuxin-hakka-girlfriend",
@@ -411,7 +451,10 @@
     "published_version": 2,
     "version_published_at": "2026-10-08T19:24:25Z",
     "author": "班長",
-    "author_id": "banzhang"
+    "author_id": "banzhang",
+    "discovery": {
+      "category": "male"
+    }
   },
   {
     "id": "baishiyin-oral-fixation",
@@ -448,7 +491,11 @@
     "published_version": 2,
     "version_published_at": "2026-10-08T19:24:25Z",
     "author": "班長",
-    "author_id": "banzhang"
+    "author_id": "banzhang",
+    "discovery": {
+      "category": "male",
+      "rating": "general"
+    }
   },
   {
     "id": "jiang-yingxue-pure-desire",
@@ -485,7 +532,11 @@
     "published_version": 2,
     "version_published_at": "2026-10-08T19:24:25Z",
     "author": "班長",
-    "author_id": "banzhang"
+    "author_id": "banzhang",
+    "discovery": {
+      "category": "male",
+      "rating": "general"
+    }
   },
   {
     "id": "awakened-silver-dawn",
@@ -522,7 +573,10 @@
     "published_version": 3,
     "version_published_at": "2026-10-08T19:24:25Z",
     "author": "班長",
-    "author_id": "banzhang"
+    "author_id": "banzhang",
+    "discovery": {
+      "category": "world"
+    }
   },
   {
     "id": "lin-yuyan-possessed-husband",
@@ -562,7 +616,10 @@
     "published_version": 2,
     "version_published_at": "2026-10-08T19:24:25Z",
     "author": "班長",
-    "author_id": "banzhang"
+    "author_id": "banzhang",
+    "discovery": {
+      "category": "male"
+    }
   },
   {
     "id": "campus-rival-24h-command",
@@ -604,7 +661,10 @@
     "published_version": 2,
     "version_published_at": "2026-10-08T19:24:25Z",
     "author": "班長",
-    "author_id": "banzhang"
+    "author_id": "banzhang",
+    "discovery": {
+      "category": "male"
+    }
   },
   {
     "id": "dark-military-war-simulator",
@@ -645,7 +705,10 @@
     "published_version": 2,
     "version_published_at": "2026-10-08T19:24:25Z",
     "author": "班長",
-    "author_id": "banzhang"
+    "author_id": "banzhang",
+    "discovery": {
+      "category": "world"
+    }
   },
   {
     "id": "craftsman-ming-survival-trpg",
@@ -687,7 +750,10 @@
     "published_version": 2,
     "version_published_at": "2026-10-08T19:24:25Z",
     "author": "班長",
-    "author_id": "banzhang"
+    "author_id": "banzhang",
+    "discovery": {
+      "category": "world"
+    }
   },
   {
     "id": "baitao-roommate-triangle",
@@ -729,7 +795,10 @@
     "published_version": 2,
     "version_published_at": "2026-10-08T19:24:25Z",
     "author": "班長",
-    "author_id": "banzhang"
+    "author_id": "banzhang",
+    "discovery": {
+      "category": "male"
+    }
   },
   {
     "id": "zhutian-cultivation-fortune-strife",
@@ -768,7 +837,10 @@
     "published_version": 2,
     "version_published_at": "2026-10-08T19:24:25Z",
     "author": "班長",
-    "author_id": "banzhang"
+    "author_id": "banzhang",
+    "discovery": {
+      "category": "world"
+    }
   },
   {
     "id": "baitao-boyfriend-reverse-ntr",
@@ -810,7 +882,10 @@
     "published_version": 2,
     "version_published_at": "2026-10-08T19:24:25Z",
     "author": "班長",
-    "author_id": "banzhang"
+    "author_id": "banzhang",
+    "discovery": {
+      "category": "male"
+    }
   },
   {
     "id": "shen-zhiwan-shared-life",
@@ -842,7 +917,11 @@
     "published_at": "2026-10-10T17:43:24.993256Z",
     "updated_at": "2026-10-10T17:43:24.993256Z",
     "version_published_at": "2026-10-10T17:43:24.993256Z",
-    "published_version": 1
+    "published_version": 1,
+    "discovery": {
+      "category": "male",
+      "rating": "general"
+    }
   },
   {
     "id": "sunrise-city-disorder",
@@ -876,7 +955,10 @@
     "published_at": "2026-10-11T12:08:49.785256Z",
     "updated_at": "2026-10-11T12:08:49.785256Z",
     "version_published_at": "2026-10-11T12:08:49.785256Z",
-    "published_version": 1
+    "published_version": 1,
+    "discovery": {
+      "category": "world"
+    }
   },
   {
     "id": "time-reversal-domination",
@@ -913,7 +995,11 @@
     "published_version": 1,
     "version_published_at": "2026-10-13T10:43:00Z",
     "author": "班長",
-    "author_id": "banzhang"
+    "author_id": "banzhang",
+    "discovery": {
+      "category": "male",
+      "rating": "adult"
+    }
   },
   {
     "id": "shixu-yuanyangjie",
@@ -950,7 +1036,11 @@
     "published_version": 1,
     "version_published_at": "2026-10-13T11:11:00Z",
     "author": "班長",
-    "author_id": "banzhang"
+    "author_id": "banzhang",
+    "discovery": {
+      "category": "world",
+      "rating": "adult"
+    }
   },
   {
     "id": "the-group-private-chat",
@@ -983,6 +1073,10 @@
     "published_at": "2026-10-23T13:04:00Z",
     "updated_at": "2026-10-23T13:04:00Z",
     "published_version": 1,
-    "version_published_at": "2026-10-23T13:04:00Z"
+    "version_published_at": "2026-10-23T13:04:00Z",
+    "discovery": {
+      "category": "world",
+      "rating": "adult"
+    }
   }
 ]

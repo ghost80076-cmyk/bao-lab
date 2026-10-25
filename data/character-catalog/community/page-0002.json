@@ -33,7 +33,10 @@
     "published_at": "2026-10-20T00:20:00+08:00",
     "updated_at": "2026-10-20T00:20:00+08:00",
     "version_published_at": "2026-10-20T00:20:00+08:00",
-    "published_version": 1
+    "published_version": 1,
+    "discovery": {
+      "category": "world"
+    }
   },
   {
     "id": "lin-yuxuan-nursing-relative",
@@ -70,7 +73,10 @@
     "published_at": "2026-10-20T00:40:00+08:00",
     "updated_at": "2026-10-20T00:40:00+08:00",
     "version_published_at": "2026-10-20T00:40:00+08:00",
-    "published_version": 1
+    "published_version": 1,
+    "discovery": {
+      "category": "male"
+    }
   },
   {
     "id": "dual-yandere-night-shelter",
@@ -107,7 +113,11 @@
     "published_at": "2026-10-20T14:14:00+08:00",
     "updated_at": "2026-10-20T14:14:00+08:00",
     "version_published_at": "2026-10-20T14:14:00+08:00",
-    "published_version": 1
+    "published_version": 1,
+    "discovery": {
+      "category": "male",
+      "rating": "general"
+    }
   },
   {
     "id": "qiao-yining-nonexistent-boyfriend",
@@ -144,7 +154,11 @@
     "published_version": 1,
     "published_at": "2026-10-20T23:04:00+08:00",
     "updated_at": "2026-10-20T23:04:00+08:00",
-    "version_published_at": "2026-10-20T23:04:00+08:00"
+    "version_published_at": "2026-10-20T23:04:00+08:00",
+    "discovery": {
+      "category": "male",
+      "rating": "general"
+    }
   },
   {
     "id": "midnight-paper-bride-mio",
@@ -178,7 +192,11 @@
       "text": true,
       "ui": true
     },
-    "published_version": 1
+    "published_version": 1,
+    "discovery": {
+      "category": "male",
+      "rating": "general"
+    }
   },
   {
     "id": "bai-jin-ash-companion",
@@ -212,7 +230,11 @@
     "published_version": 1,
     "published_at": "2026-10-20T23:51:00+08:00",
     "updated_at": "2026-10-20T23:51:00+08:00",
-    "version_published_at": "2026-10-20T23:51:00+08:00"
+    "version_published_at": "2026-10-20T23:51:00+08:00",
+    "discovery": {
+      "category": "male",
+      "rating": "general"
+    }
   },
   {
     "id": "dont-tell-him",
@@ -247,7 +269,11 @@
     "published_version": 1,
     "published_at": "2026-10-21T00:25:00+08:00",
     "updated_at": "2026-10-21T00:25:00+08:00",
-    "version_published_at": "2026-10-21T00:25:00+08:00"
+    "version_published_at": "2026-10-21T00:25:00+08:00",
+    "discovery": {
+      "category": "female",
+      "rating": "general"
+    }
   },
   {
     "id": "gu-wanning-rejuvenation",
@@ -282,6 +308,10 @@
     "published_at": "2026-10-23T06:14:00.273Z",
     "updated_at": "2026-10-23T06:14:00.273Z",
     "version_published_at": "2026-10-23T06:14:00.273Z",
-    "published_version": 1
+    "published_version": 1,
+    "discovery": {
+      "category": "male",
+      "rating": "general"
+    }
   }
 ]

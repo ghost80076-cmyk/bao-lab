@@ -25,7 +25,13 @@
       value.adult_content === true;
   };
 
-  const canExpose = (item, preferences) => !isAdult(item) || normalize(preferences).adultContentEnabled;
+  // Only explicit public review may override a work's discovery rating.
+  // isAdult retains the original content classification for non-discovery uses.
+  const isDiscoveryAdult = item => {
+    const rating = item?.discovery?.rating;
+    return ["general", "adult"].includes(rating) ? rating === "adult" : isAdult(item);
+  };
+  const canExpose = (item, preferences) => !isDiscoveryAdult(item) || normalize(preferences).adultContentEnabled;
 
-  return Object.freeze({ defaults, normalize, isAdult, canExpose });
+  return Object.freeze({ defaults, normalize, isAdult, isDiscoveryAdult, canExpose });
 });
