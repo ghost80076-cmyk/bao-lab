@@ -224,11 +224,18 @@
         };
         request.onsuccess = () => {
           this._db = request.result;
-          this._db.onversionchange = () => this._db?.close?.();
+          this._db.onversionchange = () => {
+            this._db?.close?.();
+            this._db = null;
+            this._ready = null;
+          };
           resolve(this._db);
         };
         request.onerror = () => reject(request.error || new Error("Story Library IndexedDB 無法開啟。"));
       }).catch(error => {
+        // Keep existing records untouched; a transient open failure is retryable.
+        this._db = null;
+        this._ready = null;
         console.warn("BAO/LAB Story Library unavailable:", error);
         return null;
       });

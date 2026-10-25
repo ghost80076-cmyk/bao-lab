@@ -75,6 +75,7 @@ jobs:
           node --check js/experience-preferences.js
           node --check js/chat-tool-navigation.js
           node --check js/site-ui.js
+          node --test tests/site-ui-script-loader-core.cjs
           node tests/experience-preferences-core.cjs
       - name: Public story history and collection
         run: node tests/story-history-core.cjs

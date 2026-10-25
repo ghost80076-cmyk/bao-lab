@@ -61,7 +61,9 @@ increasing(siteUI, [
 // Story chain: story-tools is installed before prompt/cache orchestration and request lifecycle.
 increasing(siteUI, [
   'loadBAOScript("js/storage-write-guard.js?v=3")',
-  'loadBAOScript("js/story-tools.js?v=7")',
+  'loadBAOScript("js/story-tools.js?v=8")',
+  'window.BAOEnsureStoryLibrary()',
+  'loadBAOScript("js/context-pack-resume.js")',
   'loadBAOScript("js/prompt-cache.js',
   'loadBAOScript("js/prompt-orchestrator.js',
   'loadBAOScript("js/episodic-memory.js',
@@ -71,6 +73,9 @@ increasing(siteUI, [
   'loadBAOScript("js/request-lifecycle.js?v=3")'
 ], "story extension");
 
+assert.match(siteUI, /const STORY_LIBRARY_SRC = "js\/story-library\.js\?v=12"/);
+assert.match(siteUI, /window\.BAOEnsureStoryLibrary = \(\) =>/);
+
 // Modules without their own global idempotency guard currently rely on the loader;
 // protect against accidentally adding a second loader while the wrapper design is unchanged.
 assert.equal(
@@ -79,7 +84,7 @@ assert.equal(
   "world-modules must be loaded exactly once by site-ui"
 );
 assert.equal(
-  siteUI.split('loadBAOScript("js/story-tools.js?v=7")').length - 1,
+  siteUI.split('loadBAOScript("js/story-tools.js?v=8")').length - 1,
   1,
   "story-tools must be loaded exactly once by site-ui"
 );

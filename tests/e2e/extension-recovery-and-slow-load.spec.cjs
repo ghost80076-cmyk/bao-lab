@@ -194,3 +194,70 @@ for (const width of [390, 1280]) {
     expect(posts).toEqual([]);
   });
 }
+
+
+test('bookshelf opened while its script is pending stays in loading state and then recovers', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  let release;
+  const gate = new Promise(resolve => { release = resolve; });
+  await page.route('**/js/story-library.js?v=12', async route => {
+    await gate;
+    await route.continue();
+  });
+  try {
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
+    await page.waitForFunction(() => Boolean(window.BAOStoryTools), null, { timeout: 30000 });
+    await page.evaluate(() => BAOStoryTools.openLibrary());
+    await expect(page.locator('.story-tools-main')).toContainText('正在讀取這台裝置上的獨立故事');
+    expect(await page.evaluate(() => Boolean(window.BAOStoryLibrary))).toBe(false);
+  } finally {
+    release();
+  }
+  await expect(page.locator('.story-tools-main')).toContainText('書架現在還是空的');
+  expect(await page.evaluate(() => Boolean(window.BAOStoryLibrary))).toBe(true);
+});
+
+test('bookshelf reload reads the same IndexedDB stories even if a later story module fails', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/');
+  await page.waitForFunction(() => Boolean(window.BAOStoryLibrary && window.BAOStoryTools), null, { timeout: 30000 });
+  await page.evaluate(async () => {
+    await BAOStoryLibrary.open();
+    const now = new Date().toISOString();
+    await BAOStoryLibrary.transaction('readwrite', store => {
+      store.put({
+        id: 'story:keep-story', kind: 'story', storyId: 'keep-story',
+        characterName: '測試角色', title: '關閉後還在的故事',
+        activeChapterId: 'first', createdAt: now, updatedAt: now, lastOpenedAt: now
+      });
+      store.put({
+        id: 'chapter:keep-story:first', kind: 'chapter', storyId: 'keep-story',
+        chapterId: 'first', label: '第一章', createdAt: now, updatedAt: now,
+        messageCount: 1
+      });
+    });
+  });
+  await page.route('**/js/context-pack-resume.js*', route => route.abort());
+  await page.reload();
+  await page.waitForFunction(() => Boolean(window.BAOStoryLibrary && window.BAOStoryTools), null, { timeout: 30000 });
+  await page.evaluate(() => BAOStoryTools.openLibrary());
+  await expect(page.locator('.story-tools-main')).toContainText('關閉後還在的故事');
+  await expect(page.locator('.story-tools-main')).toContainText('第一章');
+  expect(await page.evaluate(async () => (await BAOStoryLibrary.listLibraryMetadata()).stories.length)).toBe(1);
+});
+
+test('bookshelf module fetch error offers a real retry without clearing IndexedDB', async ({ page }) => {
+  let loads = 0;
+  await page.route('**/js/story-library.js?v=12', route => {
+    loads += 1;
+    return loads <= 2 ? route.abort() : route.continue();
+  });
+  await page.goto('/');
+  await page.waitForFunction(() => Boolean(window.BAOStoryTools), null, { timeout: 30000 });
+  await page.waitForFunction(() => window.BAOExtensionLoadHealth?.snapshot().story === 'unavailable', null, { timeout: 30000 });
+  await page.evaluate(() => BAOStoryTools.openLibrary());
+  await expect(page.locator('.story-tools-main')).toContainText('故事書庫模組載入失敗');
+  await page.locator('[data-story-library-retry]').click();
+  await expect(page.locator('.story-tools-main')).toContainText('書架現在還是空的');
+  expect(loads).toBe(3);
+});

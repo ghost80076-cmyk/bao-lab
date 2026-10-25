@@ -1108,27 +1108,40 @@
     }
   };
 
+  const withLibraryTimeout = (promise, message) => new Promise((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error(message)), 8000);
+    Promise.resolve(promise).then(
+      value => { clearTimeout(timer); resolve(value); },
+      error => { clearTimeout(timer); reject(error); }
+    );
+  });
+
   const libraryScreen = async host => {
     setModalMode(host, "library", "我的故事");
-    if (!window.BAOStoryLibrary) return tell("故事書庫仍在載入，請稍後再試。");
     host.innerHTML = '<div class="story-tools-toolbar"><button class="secondary" type="button" data-back>← 返回</button><span class="story-tools-pill">INDEXEDDB STORY LIBRARY</span></div><section class="story-tools-card"><h3>我的故事</h3><p>正在讀取這台裝置上的獨立故事與篇章／分支……</p></section>';
     host.querySelector("[data-back]").onclick = () => GameState.current ? home(host) : close();
     try {
-      // A long story can have queued autosaves. The bookshelf is read-only:
-      // it must not wait for all writes or load full message records just to
-      // display story titles. A pending write can appear after a manual retry.
-      const catalog = await new Promise((resolve, reject) => {
-        const timer = setTimeout(() => reject(new Error("故事資料庫回應較慢。可按「重新讀取」再試；請勿清除網站資料或解除安裝。")), 8000);
-        Promise.resolve().then(() => BAOStoryLibrary.listLibraryMetadata())
-          .then(value => { clearTimeout(timer); resolve(value); },
-            error => { clearTimeout(timer); reject(error); });
-      });
+      // The shelf can be opened before its dynamically loaded module finishes.
+      // Read-only recovery must not wait on unrelated story extensions.
+      const library = window.BAOStoryLibrary || await withLibraryTimeout(
+        window.BAOEnsureStoryLibrary
+          ? window.BAOEnsureStoryLibrary()
+          : Promise.reject(new Error("故事書庫模組尚未就緒，請重新整理頁面。")),
+        "故事書庫模組載入較慢。可按「重新讀取」再試；請勿清除網站資料。"
+      );
+      if (!host.isConnected) return;
+      // Query only metadata, never rewrite or migrate the user's saved stories.
+      const catalog = await withLibraryTimeout(
+        library.listLibraryMetadata(),
+        "故事資料庫回應較慢。可按「重新讀取」再試；請勿清除網站資料或解除安裝。"
+      );
       if (!host.isConnected) return;
       if (!catalog) {
         host.innerHTML = '<div class="story-tools-toolbar"><button class="secondary" type="button" data-back>← 返回</button><span class="story-tools-pill">LOCAL STORAGE FALLBACK</span></div>' +
           '<section class="story-tools-card"><h3>這個瀏覽器目前無法使用「我的故事」</h3><p>瀏覽器故事資料庫（IndexedDB）無法使用，因此無法顯示多個獨立故事與篇章／分支。自動存檔、手動存檔與完整 JSON 備份仍會沿用可用的本機儲存方式。</p>' +
-          '<div class="story-import-note">建議先匯出完整故事備份；不要清除瀏覽器網站資料。</div></section>';
+          '<div class="story-import-note">請保留原本使用的瀏覽器及網站資料。若「繼續故事」仍可使用，請先匯出故事備份。</div><button type="button" class="primary" data-story-library-retry>重新讀取</button></section>';
         host.querySelector("[data-back]").onclick = () => GameState.current ? home(host) : close();
+        host.querySelector("[data-story-library-retry]").onclick = () => libraryScreen(host);
         return;
       }
       const stories = catalog.stories;
@@ -1309,7 +1322,7 @@
       }));
     } catch (error) {
       if (!host.isConnected) return;
-      host.innerHTML = '<div class="story-tools-toolbar"><button class="secondary" type="button" data-back>← 返回</button></div><section class="story-tools-card"><h3>「我的故事」暫時無法讀取</h3><p>' + App.escapeHTML(error.message || String(error)) + '</p><p>故事資料仍保留在目前裝置。請勿清除瀏覽器網站資料。</p><button type="button" class="primary" data-story-library-retry>重新讀取</button></section>';
+      host.innerHTML = '<div class="story-tools-toolbar"><button class="secondary" type="button" data-back>← 返回</button></div><section class="story-tools-card"><h3>「我的故事」暫時無法讀取</h3><p>' + App.escapeHTML(error.message || String(error)) + '</p><p>目前無法確認本機故事資料狀態。請勿清除瀏覽器網站資料。請使用原本的瀏覽器再試。</p><button type="button" class="primary" data-story-library-retry>重新讀取</button></section>';
       host.querySelector("[data-back]").onclick = () => GameState.current ? home(host) : close();
       host.querySelector("[data-story-library-retry]").onclick = () => libraryScreen(host);
     }

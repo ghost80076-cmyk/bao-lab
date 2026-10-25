@@ -22,7 +22,9 @@ function makeLoader(initialScripts = []) {
     },
     createElement(tag) {
       assert.equal(tag, 'script');
-      return { src: '', onload: null, onerror: null };
+      return { src: '', onload: null, onerror: null,
+        remove() { const index = scripts.indexOf(this); if (index !== -1) scripts.splice(index, 1); }
+      };
     },
     head: {
       appendChild(script) {
@@ -73,7 +75,13 @@ test('failed in-flight URL rejects all waiters instead of reporting readiness', 
   scripts[0].onerror(error);
   await assert.rejects(a, err => err === error);
   await assert.rejects(b, err => err === error);
-  assert.equal(scripts.length, 1);
+  assert.equal(scripts.length, 0, 'failed script element is removed so a retry can reload');
+  const retry = load('js/missing.js');
+  assert.notStrictEqual(retry, a);
+  assert.equal(scripts.length, 1, 'a new script request is made');
+  scripts[0].onload();
+  await retry;
+  assert.strictEqual(load('js/missing.js'), retry, 'success remains cached');
 });
 
 test('already parser-loaded core script is reused without adding a new element', async () => {

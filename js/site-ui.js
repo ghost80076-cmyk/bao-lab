@@ -11,11 +11,27 @@ const loadBAOScript = src => {
     const script = document.createElement("script");
     script.src = src;
     script.onload = resolve;
-    script.onerror = reject;
+    script.onerror = error => { script.remove?.(); reject(error); };
     document.head.appendChild(script);
+  }).catch(error => {
+    // A failed script must not permanently block an explicit retry.
+    baoScriptLoads.delete(src);
+    throw error;
   });
   baoScriptLoads.set(src, promise);
   return promise;
+};
+
+const STORY_LIBRARY_SRC = "js/story-library.js?v=12";
+window.BAOEnsureStoryLibrary = () => {
+  if (window.BAOStoryLibrary) return Promise.resolve(window.BAOStoryLibrary);
+  return loadBAOScript(STORY_LIBRARY_SRC).then(() => {
+    if (!window.BAOStoryLibrary) throw new Error("故事書庫程式未完成初始化，請重新整理頁面。");
+    return window.BAOStoryLibrary;
+  }).catch(error => {
+    if (error instanceof Error && error.message.includes("故事書庫")) throw error;
+    throw new Error("故事書庫模組載入失敗。請按「重新讀取」再試；不要清除瀏覽器網站資料。");
+  });
 };
 
 // Failure isolation for optional UI tools; never mark the world engine as
@@ -194,9 +210,9 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/canon-workbench.js?v=3"))
     .then(() => loadBAOScript("js/memory-workbench-simplify.js?v=2"))
     .then(() => loadBAOScript("js/chat-markup.js?v=5"))
-    .then(() => loadBAOScript("js/story-tools.js?v=7"))
+    .then(() => loadBAOScript("js/story-tools.js?v=8"))
+    .then(() => window.BAOEnsureStoryLibrary())
     .then(() => loadBAOScript("js/context-pack-resume.js"))
-    .then(() => loadBAOScript("js/story-library.js?v=11"))
     .then(() => loadBAOScript("js/story-backup.js?v=4"))
     .then(() => loadBAOOptionalGroup("google-drive", ["js/google-drive-config.js", "js/google-drive-sync.js"]))
     .then(() => loadBAOScript("js/prompt-cache.js?v=9"))
