@@ -22,7 +22,10 @@ test('slow core story hook blocks send until the full extension chain is ready',
       Boolean(document.querySelector('script[src^="js/prompt-orchestrator.js"]')) &&
       window.BAOExtensionLoadHealth?.snapshot().story === 'loading'
     , null, { timeout: 35000 });
-    await page.evaluate(() => { document.getElementById('user-input').value = 'READINESS_GUARD_TEST'; });
+    await page.evaluate(() => {
+      App.showView('chat');
+      document.getElementById('user-input').value = 'READINESS_GUARD_TEST';
+    });
     const before = await page.evaluate(() => Chat.messages.length);
     await page.evaluate(async () => { await App.sendMessage(); });
     expect(await page.evaluate(() => document.getElementById('user-input').value)).toBe('READINESS_GUARD_TEST');
@@ -47,13 +50,15 @@ test('missing core prompt hook fails closed and never sends with a partial promp
   await page.goto('/');
   await page.waitForFunction(() => window.BAOExtensionLoadHealth?.snapshot().story === 'unavailable', null, { timeout: 35000 });
   expect(injected).toBeGreaterThanOrEqual(1);
-  await page.evaluate(() => { document.getElementById('user-input').value = 'MUST_NOT_SEND_PARTIAL_PROMPT'; });
+  await page.evaluate(() => {
+    App.showView('chat');
+    document.getElementById('user-input').value = 'MUST_NOT_SEND_PARTIAL_PROMPT';
+  });
+  await expect(page.locator('#bao-feedback-toast')).toContainText('故事核心模組載入不完整');
   const before = await page.evaluate(() => Chat.messages.length);
   await page.evaluate(async () => { await App.sendMessage(); });
   expect(await page.evaluate(() => Chat.messages.length)).toBe(before);
   expect(await page.evaluate(() => document.getElementById('user-input').value)).toBe('MUST_NOT_SEND_PARTIAL_PROMPT');
-  await expect(page.locator('#bao-feedback-toast')).toContainText('故事核心模組載入不完整');
-  await page.evaluate(() => App.showView('chat'));
   await expect(page.locator('#bao-feedback-toast')).toContainText('本次已停止送出');
   expect(posts).toEqual([]);
 });
