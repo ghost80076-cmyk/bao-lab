@@ -81,3 +81,32 @@ test('native install opportunity is available only after opening the My menu ent
   expect(await page.evaluate(() => window.__installPromptCalled)).toBe(true);
   await expect(page.locator('#yorubay-install-prompt')).toHaveCount(0);
 });
+
+
+test('a successful controlled navigation refreshes the cached offline HTML shell', async ({ page }) => {
+  await readyHome(page);
+  await page.evaluate(async () => { await navigator.serviceWorker.ready; });
+  if (!(await page.evaluate(() => Boolean(navigator.serviceWorker.controller)))) {
+    await page.reload();
+    await page.waitForFunction(() => Boolean(navigator.serviceWorker.controller), null, { timeout: 15000 });
+  }
+
+  const cacheNames = await page.evaluate(() => caches.keys());
+  expect(cacheNames).toContain('yorubay-shell-v2');
+
+  await page.evaluate(async () => {
+    const cache = await caches.open('yorubay-shell-v2');
+    await cache.put('/index.html', new Response(
+      '<!doctype html><html><head><title>STALE_SHELL</title></head><body>STALE_OFFLINE_SHELL</body></html>',
+      { headers: { 'Content-Type': 'text/html; charset=utf-8' } }
+    ));
+  });
+  expect(await page.evaluate(async () => (await caches.match('/index.html')).text())).toContain('STALE_OFFLINE_SHELL');
+
+  await page.reload({ waitUntil: 'domcontentloaded' });
+  await expect(page.locator('#home-view .brand-hero h1')).toBeVisible();
+
+  const refreshed = await page.evaluate(async () => (await caches.match('/index.html')).text());
+  expect(refreshed).not.toContain('STALE_OFFLINE_SHELL');
+  expect(refreshed).toContain('夜灣');
+});
