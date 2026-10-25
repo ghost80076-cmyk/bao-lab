@@ -42,3 +42,11 @@
 ## 退出條件
 
 本次 PR 的 Mobile Reading E2E 加入真實瀏覽器測試清單；四個新案例均成功、原 Core／Storage／settings／request-feature／Fast Browser 相關測試通過，才可合併。若有測試因與產品實際語意不符而失敗，先校正測試預期並保留真正的安全斷言，不准直接跳過失敗注入。
+
+## 第四批：故事核心 Hook fail-closed
+
+`js/site-ui.js` 的故事擴充鏈新增 `story=loading|ready|unavailable` 狀態。從 DOMContentLoaded 起即安裝一個透明的 `App.wrapSendMessage` readiness guard：只有整條故事擴充鏈（含 Prompt/cache、memory、worldbook、actor/commentary/interpretation extensions、settings effects 與 request ledger）完成後才呼叫原本 `sendMessage`；載入中或鏈中核心腳本失敗時，不新增玩家訊息、不呼叫 Provider，並透過既有 BAOFeedback 提示重新整理。
+
+此作法暫時採**保守 fail-closed**：在主鏈各模組尚未逐一證明可獨立降級前，任何未被明確列為 optional 的 script 失敗，都不允許以「部分 Hook 已裝、部分未裝」的狀態送故事請求。後續若要將純 UI 模組拆出，必須以 404/慢速注入及 request-body 契約證明不影響 Prompt、記憶、角色授權、世界書或模型路由，不能只因名稱像 UI 就直接 catch-and-continue。
+
+新增瀏覽器測試：延遲 `prompt-orchestrator.js` 時送出被阻擋且 input/Chat 不變；同檔 404 時 `story=unavailable`、進故事顯示錯誤且無 POST；正常載入則 `story=ready` 且 ledger/settings effects 存在。
