@@ -1,0 +1,26 @@
+name: The Ages author engine
+on:
+  pull_request:
+    paths:
+      - 'js/the-ages-bridge.js'
+      - 'js/author-regex-dock.js'
+      - 'js/regex-chat.js'
+      - 'index.html'
+      - 'data/characters/general/shikong-zhimen*'
+      - 'docs/sources/the-ages/**'
+      - 'scripts/build-the-ages.py'
+      - 'tests/the-ages-card.cjs'
+      - 'tests/e2e/the-ages.spec.cjs'
+      - '.github/workflows/the-ages.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  author-engine:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-chromium
+      - run: node tests/the-ages-card.cjs
+      - run: npm run test:e2e -- tests/e2e/the-ages.spec.cjs tests/e2e/author-regex-dock.spec.cjs tests/e2e/author-regex-ui-save.spec.cjs --project=chromium --workers=1

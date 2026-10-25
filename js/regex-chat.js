@@ -203,7 +203,7 @@
         inline.src = 'js/author-regex-inline.js?v=4';
         inline.onload = () => {
           const dock = document.createElement('script');
-          dock.src = 'js/author-regex-dock.js?v=3';
+          dock.src = 'js/author-regex-dock.js?v=4';
           dock.onerror = () => console.warn('BAO/LAB persistent author interface failed to load');
           document.head.appendChild(dock);
         };

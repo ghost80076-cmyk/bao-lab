@@ -1078,5 +1078,44 @@
       "category": "world",
       "rating": "adult"
     }
+  },
+  {
+    "id": "shikong-zhimen",
+    "name": "時空之門",
+    "category": "general",
+    "gender": "",
+    "tags": [
+      "奇幻",
+      "冒險",
+      "MUD",
+      "沙盒",
+      "職業",
+      "轉職",
+      "文字RPG",
+      "致敬經典"
+    ],
+    "description": "你穿過一道發光的門，門在身後熄滅了。\n\n這裡是太陽帝國。五座大城由汗血公路相連：草原上有半獸人紮營，地下水道的蟲子一隻比一隻大，礦鎮的墓園夜裡有鬼魂在找東西，黑森林的山路盡頭，有人看著巨鳥的影子折返。帝國的人見怪不怪，管你們這些從門裡來的人叫「門客」。\n\n選一個職業：戰士、盜賊、施法者、音樂家。找導師練本事，接委託賺錢，雇傭兵或和交上朋友的人組隊，一路練到轉職。沒有主線，也沒有回家的路；要走多遠，由你決定。\n\n致敬台灣經典 MUD《時空之門 The Ages》（4444）｜單人文字冒險・沙盒・職業轉職",
+    "rating": "general",
+    "author": "齊格飛",
+    "author_id": "chicofy",
+    "avatar": "assets/characters/the-ages/cover.png",
+    "file": "data/characters/general/shikong-zhimen.json",
+    "title": "時空之門",
+    "supported_modes": {
+      "immersive": true,
+      "world": true
+    },
+    "supported_display": {
+      "text": true,
+      "ui": true
+    },
+    "published_at": "2026-10-25T14:30:00Z",
+    "updated_at": "2026-10-25T14:30:00Z",
+    "published_version": 1,
+    "version_published_at": "2026-10-25T14:30:00Z",
+    "discovery": {
+      "category": "world",
+      "rating": "general"
+    }
   }
 ]
