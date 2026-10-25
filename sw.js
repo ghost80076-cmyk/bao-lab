@@ -1,4 +1,4 @@
-const CACHE_NAME = 'yorubay-shell-v1';
+const CACHE_NAME = 'yorubay-shell-v2';
 const APP_SHELL = [
   '/',
   '/index.html',
@@ -24,9 +24,20 @@ self.addEventListener('fetch', event => {
   if (url.origin !== self.location.origin) return;
 
   if (event.request.mode === 'navigate') {
-    event.respondWith(
-      fetch(event.request).catch(() => caches.match('/index.html'))
-    );
+    event.respondWith((async () => {
+      try {
+        const response = await fetch(event.request);
+        // Keep the offline HTML fallback aligned with the newest successful
+        // online navigation even when sw.js itself did not otherwise change.
+        if (response.ok && response.type !== 'opaque') {
+          const cache = await caches.open(CACHE_NAME);
+          await cache.put('/index.html', response.clone());
+        }
+        return response;
+      } catch {
+        return (await caches.match('/index.html')) || Response.error();
+      }
+    })());
     return;
   }
 
