@@ -30,7 +30,12 @@ async function story(page, permissions = true) {
   }
   const frame = page.frameLocator('iframe[title="跨回合作者隔離介面"]');
   await expect(frame.locator('#tg-root')).toBeAttached();
-  await page.locator('#bao-author-dock').evaluate(el => { el.open = true; });
+  if (permissions) {
+    await page.getByRole('button', { name: '展開冒險面板', exact: true }).click();
+    await expect(page.locator('#bao-author-dock > summary')).toBeHidden();
+  } else {
+    await page.locator('#bao-author-dock').evaluate(el => { el.open = true; });
+  }
   await expect(frame.locator('#tg-root')).toBeVisible();
   return frame;
 }
@@ -105,6 +110,24 @@ test('without separate receipt and save consent, game data remains ephemeral and
   const feed = await frame.locator('#tg-root').evaluate(() => BAOTheAges.getState());
   expect(feed.protocol.text).not.toContain('TGX:money');
   expect(feed.protocol.text).not.toContain('TGA:' + id);
+});
+test('single mobile entry collapses and restores the original author UI without losing form values', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  const frame = await story(page);
+  await expect(page.locator('#bao-author-dock > summary')).toBeHidden();
+  await expect(frame.locator('#tg-root.tg-min')).toHaveCount(0);
+  await expect(frame.locator('[data-a="close"]')).toBeHidden();
+  await frame.locator('#tg-name').fill('收合保留');
+  await page.getByRole('button', { name: '收合冒險面板', exact: true }).click();
+  await expect(page.locator('#bao-author-dock')).toBeHidden();
+  await expect(page.getByRole('button', { name: '展開冒險面板', exact: true })).toBeVisible();
+  await page.getByRole('button', { name: '展開冒險面板', exact: true }).click();
+  await expect(frame.locator('#tg-name')).toHaveValue('收合保留');
+  await expect(frame.locator('#tg-root.tg-min')).toHaveCount(0);
+  await create(frame);
+  await expect(page.locator('#the-ages-progress')).toHaveText('生命 100%');
+  const count = await page.locator('iframe[title="跨回合作者隔離介面"]').count();
+  expect(count).toBe(1);
 });
 test('mobile panel fits its sandbox and character creation remains reachable', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
