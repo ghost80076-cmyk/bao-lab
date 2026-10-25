@@ -71,9 +71,14 @@ test('author engine creates a character, acknowledges once, backs up and restore
   await page.evaluate(() => { Chat.add('assistant', '一般對話'); App.renderChatShell(false); });
   await expect(frame.locator('#tg-root')).toHaveAttribute('data-identity', 'kept');
   await page.evaluate(() => { Chat.reset(); GameState.create(App.activeCharacter, App.config); App.renderChatShell(true); });
+  // A new story starts with its own collapsed author dock; the host entry opens it.
+  await page.getByRole('button', { name: '展開冒險面板', exact: true }).click();
   await expect(frame.locator('#tg-name')).toBeVisible();
   expect(await page.evaluate(() => Storage.buildStoryPayload().authorGame)).toBeUndefined();
   await page.evaluate(saved => { if (!Storage.restoreStory(saved)) throw Error('restore failed'); App.renderChatShell(false); App.showView('chat'); }, saved);
+  // Restore can replace the story state object without sharing the previous story's open preference.
+  const reopen = page.getByRole('button', { name: '展開冒險面板', exact: true });
+  if (await reopen.isVisible()) await reopen.click();
   await expect(frame.locator('#tg-root')).toContainText('夜行者');
   expect(await page.evaluate(() => JSON.parse(Storage.buildStoryPayload().authorGame.storage.tgmud1_save).name)).toBe('夜行者');
   await frame.locator('#tg-root').evaluate(() => {
