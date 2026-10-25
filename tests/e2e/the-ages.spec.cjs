@@ -30,7 +30,12 @@ async function story(page, permissions = true) {
   }
   const frame = page.frameLocator('iframe[title="跨回合作者隔離介面"]');
   await expect(frame.locator('#tg-root')).toBeAttached();
-  await page.locator('#bao-author-dock').evaluate(el => { el.open = true; });
+  if (permissions) {
+    await page.getByRole('button', { name: '展開冒險面板', exact: true }).click();
+    await expect(page.locator('#bao-author-dock > summary')).toBeHidden();
+  } else {
+    await page.locator('#bao-author-dock').evaluate(el => { el.open = true; });
+  }
   await expect(frame.locator('#tg-root')).toBeVisible();
   return frame;
 }
@@ -66,9 +71,14 @@ test('author engine creates a character, acknowledges once, backs up and restore
   await page.evaluate(() => { Chat.add('assistant', '一般對話'); App.renderChatShell(false); });
   await expect(frame.locator('#tg-root')).toHaveAttribute('data-identity', 'kept');
   await page.evaluate(() => { Chat.reset(); GameState.create(App.activeCharacter, App.config); App.renderChatShell(true); });
+  // A new story starts with its own collapsed author dock; the host entry opens it.
+  await page.getByRole('button', { name: '展開冒險面板', exact: true }).click();
   await expect(frame.locator('#tg-name')).toBeVisible();
   expect(await page.evaluate(() => Storage.buildStoryPayload().authorGame)).toBeUndefined();
   await page.evaluate(saved => { if (!Storage.restoreStory(saved)) throw Error('restore failed'); App.renderChatShell(false); App.showView('chat'); }, saved);
+  // Restore can replace the story state object without sharing the previous story's open preference.
+  const reopen = page.getByRole('button', { name: '展開冒險面板', exact: true });
+  if (await reopen.isVisible()) await reopen.click();
   await expect(frame.locator('#tg-root')).toContainText('夜行者');
   expect(await page.evaluate(() => JSON.parse(Storage.buildStoryPayload().authorGame.storage.tgmud1_save).name)).toBe('夜行者');
   await frame.locator('#tg-root').evaluate(() => {
@@ -105,6 +115,24 @@ test('without separate receipt and save consent, game data remains ephemeral and
   const feed = await frame.locator('#tg-root').evaluate(() => BAOTheAges.getState());
   expect(feed.protocol.text).not.toContain('TGX:money');
   expect(feed.protocol.text).not.toContain('TGA:' + id);
+});
+test('single mobile entry collapses and restores the original author UI without losing form values', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  const frame = await story(page);
+  await expect(page.locator('#bao-author-dock > summary')).toBeHidden();
+  await expect(frame.locator('#tg-root.tg-min')).toHaveCount(0);
+  await expect(frame.locator('[data-a="close"]')).toBeHidden();
+  await frame.locator('#tg-name').fill('收合保留');
+  await page.getByRole('button', { name: '收合冒險面板', exact: true }).click();
+  await expect(page.locator('#bao-author-dock')).toBeHidden();
+  await expect(page.getByRole('button', { name: '展開冒險面板', exact: true })).toBeVisible();
+  await page.getByRole('button', { name: '展開冒險面板', exact: true }).click();
+  await expect(frame.locator('#tg-name')).toHaveValue('收合保留');
+  await expect(frame.locator('#tg-root.tg-min')).toHaveCount(0);
+  await create(frame);
+  await expect(page.locator('#the-ages-progress')).toHaveText('生命 100%');
+  const count = await page.locator('iframe[title="跨回合作者隔離介面"]').count();
+  expect(count).toBe(1);
 });
 test('mobile panel fits its sandbox and character creation remains reachable', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });

@@ -5,6 +5,8 @@
   const ID = 'shikong-zhimen', PREFIX = 'bao-lab:author-regex:v1:';
   const saves = new WeakMap();
   let installed = false, entryQueued = false, openStory = null;
+  const expandedByStory = new WeakMap(), progressByStory = new WeakMap();
+  let activeView = null;
   const settings = () => { try { const value = JSON.parse(localStorage.getItem(PREFIX + ID) || '{}'); return value && typeof value === 'object' && !Array.isArray(value) ? value : {}; } catch (_) { return {}; } };
   function normalize(value) {
     if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
@@ -56,12 +58,48 @@
     return Array.isArray(config.rules) && config.rules.length > 0 && config.enabled === true && config.allowScripts === true && config.allowGameReceipts === true
       && config.allowGamePersistence === true && localStorage.getItem('bao-lab:author-regex-dock:v1:' + ID) === '1';
   }
-  function openPanel() {
-    const panel = document.getElementById('bao-author-dock');
-    if (panel) { panel.open = true; panel.scrollIntoView({ block: 'nearest' }); }
+  // For this opt-in engine, the host entry owns the only collapse action.
+  // Other authors retain the ordinary independent <details> controls.
+  const isUnified = owner => owner === ID && fullyEnabled();
+  function syncPanel() {
+    const story = GameState.current;
+    const available = fullyEnabled();
+    const expanded = Boolean(available && story && expandedByStory.get(story));
+    const entry = document.getElementById('the-ages-entry');
+    const button = entry?.querySelector('#the-ages-enable');
+    const note = entry?.querySelector('[role="status"]');
+    const progress = entry?.querySelector('#the-ages-progress');
+    if (button && !button.disabled) button.textContent = available ? (expanded ? '收合冒險面板' : '展開冒險面板') : '啟用冒險面板';
+    if (entry) entry.classList.toggle('is-open', expanded);
+    if (note) note.hidden = available;
+    if (progress) {
+      const percent = story && progressByStory.get(story);
+      progress.hidden = !available || !Number.isInteger(percent);
+      if (!progress.hidden) progress.textContent = '生命 ' + percent + '%';
+    }
+    if (!activeView || activeView.story !== story || !activeView.root.isConnected) return;
+    activeView.root.open = true;
+    activeView.root.hidden = !expanded;
+    if (expanded && activeView.ready) {
+      activeView.frame.contentWindow?.postMessage({ baoAuthor: 'v1', token: activeView.token,
+        type: 'the-ages-panel-open', value: { open: true } }, '*');
+    }
+  }
+  function bindPanel(owner, root, frame, token, story) {
+    if (!isUnified(owner)) return false;
+    activeView = { root, frame, token, story, ready: false };
+    root.dataset.theAgesUnified = '1';
+    syncPanel();
+    return true;
   }
   async function activate(button) {
-    if (fullyEnabled()) { openStory = GameState.current; openPanel(); window.BAOAuthorDock?.refresh?.(); return; }
+    if (fullyEnabled()) {
+      const story = GameState.current;
+      if (!story || App.activeCharacter?.id !== ID) return;
+      expandedByStory.set(story, !expandedByStory.get(story));
+      syncPanel();
+      return;
+    }
     const story = GameState.current;
     if (!story || App.activeCharacter?.id !== ID) return;
     if (!confirm('啟用齊格飛《時空之門》的冒險面板？\n\n此面板需要：\n・執行作者的互動腳本（仍在隔離畫面內）。\n・讀取本故事 AI 的遊戲回執及劇情存檔，以確認結算。\n・將角色、背包與冒險進度保存到本故事及備份。\n\n面板不會自動呼叫 AI；需要演出的指令仍由你按送出。可在自訂介面進階設定停用。')) return;
@@ -84,9 +122,10 @@
       config = { ...config, enabled: true, allowScripts: true, allowGameReceipts: true, allowGamePersistence: true };
       localStorage.setItem(PREFIX + ID, JSON.stringify(config));
       localStorage.setItem('bao-lab:author-regex-dock:v1:' + ID, '1');
+      expandedByStory.set(story, true);
       window.BAOAuthorInline?.refresh?.(); window.BAOAuthorDock?.refresh?.();
       window.dispatchEvent(new CustomEvent('bao:author-regex-changed'));
-      setTimeout(openPanel, 100);
+      setTimeout(syncPanel, 100);
     } catch (error) {
       const note = document.querySelector('#the-ages-entry [role="status"]');
       if (openStory === story) openStory = null;
@@ -104,30 +143,33 @@
     if (!stream?.parentElement) return;
     if (!entry) {
       entry = document.createElement('section'); entry.id = 'the-ages-entry'; entry.setAttribute('aria-label', '時空之門冒險面板入口');
-      entry.style.cssText = 'flex-shrink:0;margin:6px 0;padding:10px 12px;border:1px solid #c9a24a;border-radius:12px;background:#211b12;color:#f2e5c4;display:flex;gap:8px;align-items:center;flex-wrap:wrap';
+      entry.style.cssText = 'position:sticky;top:0;z-index:18;flex-shrink:0;margin:6px 0;padding:7px 10px;border:1px solid #c9a24a;border-radius:12px;background:#211b12;color:#f2e5c4;display:flex;gap:8px;align-items:center;flex-wrap:wrap';
       const note = document.createElement('span'); note.setAttribute('role', 'status'); note.style.cssText = 'font-size:13px;line-height:1.6;flex:1 1 160px';
       const button = document.createElement('button'); button.type = 'button'; button.id = 'the-ages-enable';
       button.style.cssText = 'width:auto;min-height:44px;padding:8px 14px;flex-shrink:0;border:1px solid #c9a24a;border-radius:8px;background:#d5b56b;color:#17130d;font-weight:700';
       button.addEventListener('click', () => { void activate(button); });
-      entry.append(note, button);
+      const progress = document.createElement('span'); progress.id = 'the-ages-progress'; progress.hidden = true;
+      progress.style.cssText = 'font-size:13px;color:#e5c77b;font-weight:700;white-space:nowrap';
+      entry.append(note, progress, button);
       stream.parentElement.insertBefore(entry, stream);
     }
-    const enabled = fullyEnabled(), button = entry.querySelector('button');
-    if (!button.disabled) {
-      const label = enabled ? '展開冒險面板' : '啟用冒險面板';
-      if (button.textContent !== label) button.textContent = label;
-      const text = entry.dataset.error || (enabled ? '角色建立、移動與戰鬥都在冒險面板操作。' : '先啟用冒險面板，才能建立角色與開始教學。');
-      const note = entry.querySelector('[role="status"]');
+    const enabled = fullyEnabled();
+    const note = entry.querySelector('[role="status"]');
+    if (note) {
+      const text = entry.dataset.error || (enabled ? '' : '先啟用冒險面板，才能建立角色與開始教學。');
       if (note.textContent !== text) note.textContent = text;
     }
+    syncPanel();
   }
-  function panelHTML(owner, html) {
+  function panelHTML(owner, html, unified = false) {
     if (owner !== ID) return html;
     // Older linked rules replaced only the trigger and escaped the rest of the opening.
     // Keep the authored engine nodes; the opening is already rendered in the native reader.
     const doc = new DOMParser().parseFromString(html, 'text/html');
-    return [...doc.body.children].filter(node => node.id === 'tg-bridge-note' || node.tagName === 'SCRIPT' || node.tagName === 'STYLE')
+    const original = [...doc.body.children].filter(node => node.id === 'tg-bridge-note' || node.tagName === 'SCRIPT' || node.tagName === 'STYLE')
       .map(node => node.outerHTML).join('');
+    // Hide only the redundant inner minimize button when the host controls visibility.
+    return original + (unified ? '<style id="bao-the-ages-unified-style">#tg-root .tg-x,#tg-root.tg-min .tg-fab{display:none!important}</style>' : '');
   }
   function scheduleEntry() { if (!entryQueued) { entryQueued = true; queueMicrotask(syncEntry); } }
   function protocol() {
@@ -161,19 +203,33 @@
   }
   function send(active) {
     if (active?.owner !== ID || !active.allowScripts || !active.ready || active.story !== GameState.current) return;
-    if (openStory === active.story) { openStory = null; openPanel(); }
+    if (openStory === active.story) { openStory = null; expandedByStory.set(active.story, true); }
     const config = settings();
     choices(active);
     const value = { storage: config.allowGamePersistence === true ? structuredClone(saves.get(active.story) || {}) : {},
       persistent: config.allowGamePersistence === true, receipts: config.allowGameReceipts === true,
       protocol: config.allowGameReceipts === true ? protocol() : { text: '', manualTurns: 0, hasGameCommands: false } };
     const signature = JSON.stringify(value);
-    if (signature === active.gameSignature) return;
-    active.gameSignature = signature;
-    post(active, 'the-ages-state', value);
+    if (signature !== active.gameSignature) {
+      active.gameSignature = signature;
+      post(active, 'the-ages-state', value);
+    }
+    if (activeView?.frame === active.frame && activeView.story === active.story) {
+      activeView.ready = true;
+      syncPanel();
+    }
   }
   function handle(active, message) {
     if (active.owner !== ID || !message.type?.startsWith('the-ages-')) return false;
+    if (message.type === 'the-ages-panel-ui') {
+      const percent = message.value?.percent;
+      if (percent === null || (Number.isInteger(percent) && percent >= 0 && percent <= 100)) {
+        if (percent === null) progressByStory.delete(active.story);
+        else progressByStory.set(active.story, percent);
+        scheduleEntry();
+      }
+      return true;
+    }
     if (message.type === 'the-ages-save' && settings().allowGamePersistence === true) {
       const value = normalize(message.value);
       if (value) { saves.set(active.story, value); Storage.saveStory(); }
@@ -198,10 +254,33 @@
         save: value => parent.postMessage({ baoAuthor: 'v1', token, type: 'the-ages-save', value }, '*')
       });
       window.addEventListener('message', e => {
-        if (e.source !== parent || e.data?.baoAuthor !== 'v1' || e.data.token !== token || e.data.type !== 'the-ages-state') return;
+        if (e.source !== parent || e.data?.baoAuthor !== 'v1' || e.data.token !== token) return;
+        if (e.data.type === 'the-ages-panel-open') {
+          if (e.data.value?.open === true) document.querySelector('#tg-root.tg-min [data-a="open"]')?.click();
+          return;
+        }
+        if (e.data.type !== 'the-ages-state') return;
         state = e.data.value;
         window.dispatchEvent(new CustomEvent('bao:the-ages-state', { detail: window.BAOTheAges.getState() }));
       });
+      // Report only the visible HP percentage, not character data or the save.
+      let lastPercent;
+      const reportProgress = () => {
+        const root = document.getElementById('tg-root');
+        const hp = root?.querySelector('.tg-bars .tg-bar span')?.textContent || '';
+        const match = hp.match(/生命\s*([\d,]+)\s*\/\s*([\d,]+)/);
+        const current = match && Number(match[1].replace(/,/g, ''));
+        const maximum = match && Number(match[2].replace(/,/g, ''));
+        const percent = maximum > 0 && Number.isFinite(current) ? Math.max(0, Math.min(100, Math.round(current / maximum * 100))) : null;
+        if (percent === lastPercent) return;
+        lastPercent = percent;
+        parent.postMessage({ baoAuthor: 'v1', token, type: 'the-ages-panel-ui', value: { percent } }, '*');
+      };
+      window.addEventListener('DOMContentLoaded', () => {
+        const observer = new MutationObserver(reportProgress);
+        observer.observe(document.body, { childList: true, subtree: true, characterData: true });
+        reportProgress();
+      }, { once: true });
     }.toString() + ')(' + JSON.stringify(token) + ');</script>';
   }
   function controls(host, owner) {
@@ -222,6 +301,9 @@
         if (input.checked && !confirm(note + ' 確定允許嗎？')) { input.checked = false; return; }
         const config = settings(); config[key] = input.checked;
         localStorage.setItem(PREFIX + ID, JSON.stringify(config));
+        window.dispatchEvent(new CustomEvent('bao:author-regex-changed'));
+        window.BAOAuthorDock?.refresh?.();
+        scheduleEntry();
       });
       row.append(input, document.createTextNode(' ' + label));
       const help = document.createElement('small'); help.style.display = 'block'; help.textContent = note;
@@ -229,6 +311,10 @@
     }
     host.append(panel);
   }
-  function clear(active) { if (active?.owner === ID) window.BAOActionChoiceDock?.reset(ID); }
-  window.BAOTheAgesBridge = Object.freeze({ install, send, handle, bootstrap, controls, clear, requiresDock, panelHTML, displaySource });
+  function clear(active) {
+    if (active?.owner !== ID) return;
+    if (activeView?.frame === active.frame) activeView = null;
+    window.BAOActionChoiceDock?.reset(ID);
+  }
+  window.BAOTheAgesBridge = Object.freeze({ install, send, handle, bootstrap, controls, clear, requiresDock, panelHTML, displaySource, isUnified, bindPanel, syncPanel });
 })();

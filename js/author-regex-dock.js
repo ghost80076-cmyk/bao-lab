@@ -159,11 +159,15 @@
   function mount(result, owner, story, signature, allowExternalAssets, allowStateSharing, allowUiPersistence) {
     clear();
     if (!inChat() || GameState.current !== story || cardId() !== owner) return;
+    const allowScripts = Boolean(result.script);
+    const unified = Boolean(allowScripts && window.BAOTheAgesBridge?.isUnified?.(owner));
     const root = document.createElement('details');
     root.id = 'bao-author-dock'; root.open = true;
     root.style.cssText = 'margin:8px 0;border:1px solid #987a9c;border-radius:12px;overflow:hidden;background:#181722;color:#fff;flex-shrink:0';
     const summary = document.createElement('summary'); summary.textContent = `自訂介面 · ${result.name || '互動畫面'}`;
     summary.style.cssText = 'padding:10px 12px;cursor:pointer;font-weight:600';
+    // Keep the details element for existing consumers, but remove its second toggle for The Ages.
+    if (unified) { summary.hidden = true; summary.style.display = 'none'; }
     const bar = document.createElement('div');
     bar.style.cssText = 'display:flex;gap:8px;align-items:center;justify-content:space-between;padding:0 12px 8px;flex-wrap:wrap';
     const stateLabel = document.createElement('span'); stateLabel.style.cssText = 'font-size:12px;overflow-wrap:anywhere';
@@ -173,17 +177,17 @@
     bar.append(stateLabel, reload);
     const frame = document.createElement('iframe');
     frame.title = '跨回合作者隔離介面'; frame.referrerPolicy = 'no-referrer';
-    const allowScripts = Boolean(result.script);
     frame.setAttribute('sandbox', allowScripts ? 'allow-scripts' : ''); // No allow-same-origin.
     frame.style.cssText = 'display:block;width:100%;height:clamp(240px,42vh,520px);border:0;background:#fff';
     const assets = allowExternalAssets ? 'https: data:' : 'data:';
     const csp = `default-src 'none'; script-src ${allowScripts ? "'unsafe-inline'" : "'none'"}; style-src 'unsafe-inline'; img-src ${assets}; font-src ${assets}; media-src ${assets}; connect-src 'none'; frame-src 'none'; form-action 'none'; base-uri 'none'; object-src 'none'`;
     const token = crypto.randomUUID?.() || `${Math.random()}-${Date.now()}`;
-    const htmlDocument = '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="' + csp + '"><style>html,body{margin:0;min-height:100%;overflow-wrap:anywhere}*,*:before,*:after{box-sizing:border-box}</style>' + (allowScripts ? bootstrap(token) + (window.BAOTheAgesBridge?.bootstrap(owner, token) || '') : '') + '</head><body>' + (window.BAOTheAgesBridge?.panelHTML(owner, result.html) ?? result.html) + '</body></html>';
+    const htmlDocument = '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="' + csp + '"><style>html,body{margin:0;min-height:100%;overflow-wrap:anywhere}*,*:before,*:after{box-sizing:border-box}</style>' + (allowScripts ? bootstrap(token) + (window.BAOTheAgesBridge?.bootstrap(owner, token) || '') : '') + '</head><body>' + (window.BAOTheAgesBridge?.panelHTML(owner, result.html, unified) ?? result.html) + '</body></html>';
     if(window.BAOWorkPackage)window.BAOWorkPackage.setFrameHTML(frame,htmlDocument,App.activeCharacter);else frame.srcdoc=htmlDocument;
     root.append(summary, bar, frame);
     main.insertBefore(root, stream);
     active = { owner, story, signature, root, frame, token, ready: false, allowScripts, allowStateSharing, allowUiPersistence, stateLabel };
+    if (unified) window.BAOTheAgesBridge.bindPanel(owner, root, frame, token, story);
     sendState();
   }
   function attachControl() {
