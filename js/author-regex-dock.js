@@ -3,6 +3,7 @@
   'use strict';
   const Core = window.BAOAuthorRegexCore;
   if (!Core || !window.App || !window.Chat || !window.GameState || !window.Storage) return;
+  window.BAOTheAgesBridge?.install();
   const PREFIX = 'bao-lab:author-regex:v1:';
   const DOCK_PREFIX = 'bao-lab:author-regex-dock:v1:';
   const CORE_URL = new URL('author-regex-core.js', document.currentScript?.src || location.href).href;
@@ -99,6 +100,7 @@
   }
   function clear() {
     sequence++;
+    window.BAOTheAgesBridge?.clear(active);
     active?.root.remove();
     active = null;
   }
@@ -107,7 +109,8 @@
       || active.story !== GameState.current || active.owner !== cardId()
       || event.source !== active.frame.contentWindow || event.origin !== 'null'
       || event.data?.baoAuthor !== 'v1' || event.data.token !== active.token) return;
-    if (event.data.type === 'ready') { active.ready = true; sendState(); sendUI(); return; }
+    if (event.data.type === 'ready') { active.ready = true; sendState(); sendUI(); window.BAOTheAgesBridge?.send(active); return; }
+    if (window.BAOTheAgesBridge?.handle(active, event.data)) return;
     if (event.data.type === 'save-ui-state') {
       if (!active.allowUiPersistence || settings(active.owner)?.allowUiPersistence !== true) return;
       const value = normalizeUI(event.data.value);
@@ -176,7 +179,7 @@
     const assets = allowExternalAssets ? 'https: data:' : 'data:';
     const csp = `default-src 'none'; script-src ${allowScripts ? "'unsafe-inline'" : "'none'"}; style-src 'unsafe-inline'; img-src ${assets}; font-src ${assets}; media-src ${assets}; connect-src 'none'; frame-src 'none'; form-action 'none'; base-uri 'none'; object-src 'none'`;
     const token = crypto.randomUUID?.() || `${Math.random()}-${Date.now()}`;
-    const htmlDocument = '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="' + csp + '"><style>html,body{margin:0;min-height:100%;overflow-wrap:anywhere}*,*:before,*:after{box-sizing:border-box}</style>' + (allowScripts ? bootstrap(token) : '') + '</head><body>' + result.html + '</body></html>';
+    const htmlDocument = '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="' + csp + '"><style>html,body{margin:0;min-height:100%;overflow-wrap:anywhere}*,*:before,*:after{box-sizing:border-box}</style>' + (allowScripts ? bootstrap(token) + (window.BAOTheAgesBridge?.bootstrap(owner, token) || '') : '') + '</head><body>' + result.html + '</body></html>';
     if(window.BAOWorkPackage)window.BAOWorkPackage.setFrameHTML(frame,htmlDocument,App.activeCharacter);else frame.srcdoc=htmlDocument;
     root.append(summary, bar, frame);
     main.insertBefore(root, stream);
@@ -226,6 +229,7 @@
         } catch (error) { persistControl.checked = false; console.warn('BAO/LAB author UI persistence:', error.message); }
       });
     }
+    window.BAOTheAgesBridge?.controls(host, cardId());
     control.checked = optedIn(cardId());
     persistControl.checked = settings(cardId())?.allowUiPersistence === true;
   }
@@ -235,9 +239,9 @@
     const owner = cardId(), story = GameState.current, data = owner && settings(owner);
     if (!inChat() || !story || !owner || !data || !optedIn(owner)) { clear(); return; }
     const signature = JSON.stringify([owner, data.allowScripts === true, data.allowExternalAssets === true,
-      data.allowStateSharing === true, data.allowUiPersistence === true, data.rules]);
+      data.allowStateSharing === true, data.allowUiPersistence === true, data.allowGameReceipts === true, data.allowGamePersistence === true, data.rules]);
     if (active && active.owner === owner && active.story === story && active.signature === signature && active.root.isConnected) {
-      sendState(); return;
+      sendState(); window.BAOTheAgesBridge?.send(active); return;
     }
     clear();
     const ticket = sequence;
@@ -263,7 +267,7 @@
   }
   const aside = document.querySelector('#chat-view aside');
   if (aside) new MutationObserver(attachControl).observe(aside, { childList: true });
-  new MutationObserver(() => { if (!active) schedule(); }).observe(stream, { childList: true });
+  new MutationObserver(() => { if (active) window.BAOTheAgesBridge?.send(active); else schedule(); }).observe(stream, { childList: true });
   document.addEventListener('change', event => {
     if (event.target?.closest?.('#bao-author-regex-panel') && event.target !== control && event.target !== persistControl) schedule();
   });
