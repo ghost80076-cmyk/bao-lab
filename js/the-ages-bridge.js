@@ -301,6 +301,9 @@
         if (input.checked && !confirm(note + ' 確定允許嗎？')) { input.checked = false; return; }
         const config = settings(); config[key] = input.checked;
         localStorage.setItem(PREFIX + ID, JSON.stringify(config));
+        window.dispatchEvent(new CustomEvent('bao:author-regex-changed'));
+        window.BAOAuthorDock?.refresh?.();
+        scheduleEntry();
       });
       row.append(input, document.createTextNode(' ' + label));
       const help = document.createElement('small'); help.style.display = 'block'; help.textContent = note;
