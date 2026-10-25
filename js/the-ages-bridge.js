@@ -4,7 +4,7 @@
   if (window.BAOTheAgesBridge) return;
   const ID = 'shikong-zhimen', PREFIX = 'bao-lab:author-regex:v1:';
   const saves = new WeakMap();
-  let installed = false, entryQueued = false;
+  let installed = false, entryQueued = false, openStory = null;
   const settings = () => { try { const value = JSON.parse(localStorage.getItem(PREFIX + ID) || '{}'); return value && typeof value === 'object' && !Array.isArray(value) ? value : {}; } catch (_) { return {}; } };
   function normalize(value) {
     if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
@@ -61,12 +61,13 @@
     if (panel) { panel.open = true; panel.scrollIntoView({ block: 'nearest' }); }
   }
   async function activate(button) {
-    if (fullyEnabled()) { openPanel(); return; }
+    if (fullyEnabled()) { openStory = GameState.current; openPanel(); window.BAOAuthorDock?.refresh?.(); return; }
     const story = GameState.current;
     if (!story || App.activeCharacter?.id !== ID) return;
     if (!confirm('啟用齊格飛《時空之門》的冒險面板？\n\n此面板需要：\n・執行作者的互動腳本（仍在隔離畫面內）。\n・讀取本故事 AI 的遊戲回執及劇情存檔，以確認結算。\n・將角色、背包與冒險進度保存到本故事及備份。\n\n面板不會自動呼叫 AI；需要演出的指令仍由你按送出。可在自訂介面進階設定停用。')) return;
     const entry = document.getElementById('the-ages-entry');
     if (entry) delete entry.dataset.error;
+    openStory = story;
     button.disabled = true; button.textContent = '正在開啟面板…';
     try {
       let config = settings();
@@ -88,6 +89,7 @@
       setTimeout(openPanel, 100);
     } catch (error) {
       const note = document.querySelector('#the-ages-entry [role="status"]');
+      if (openStory === story) openStory = null;
       if (entry) entry.dataset.error = error.message;
       if (note) note.textContent = error.message;
     } finally { button.disabled = false; scheduleEntry(); }
@@ -159,6 +161,7 @@
   }
   function send(active) {
     if (active?.owner !== ID || !active.allowScripts || !active.ready || active.story !== GameState.current) return;
+    if (openStory === active.story) { openStory = null; openPanel(); }
     const config = settings();
     choices(active);
     const value = { storage: config.allowGamePersistence === true ? structuredClone(saves.get(active.story) || {}) : {},

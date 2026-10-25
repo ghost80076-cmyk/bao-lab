@@ -190,7 +190,7 @@
         document.head.appendChild(textMod);
       }
       const mobile = document.createElement('script');
-      mobile.src = 'js/author-regex-mobile.js?v=3';
+      mobile.src = 'js/author-regex-mobile.js?v=2';
       mobile.onerror = () => console.warn('BAO/LAB responsive author controls failed to load');
       document.head.appendChild(mobile);
       const style = document.createElement('style');

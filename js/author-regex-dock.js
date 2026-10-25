@@ -161,7 +161,6 @@
     if (!inChat() || GameState.current !== story || cardId() !== owner) return;
     const root = document.createElement('details');
     root.id = 'bao-author-dock'; root.open = true;
-    if (window.BAOTheAgesBridge?.requiresDock(owner)) root.dataset.openOnMobile = 'true';
     root.style.cssText = 'margin:8px 0;border:1px solid #987a9c;border-radius:12px;overflow:hidden;background:#181722;color:#fff;flex-shrink:0';
     const summary = document.createElement('summary'); summary.textContent = `自訂介面 · ${result.name || '互動畫面'}`;
     summary.style.cssText = 'padding:10px 12px;cursor:pointer;font-weight:600';
