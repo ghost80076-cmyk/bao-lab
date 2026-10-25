@@ -20,10 +20,11 @@ const loadBAOScript = src => {
 
 // Failure isolation for optional UI tools; never mark the world engine as
 // healthy after a failed dependency. Keep diagnostics in memory only.
-const baoExtensionHealth = { world: "loading", optional: {} };
+const baoExtensionHealth = { world: "loading", story: "loading", optional: {} };
 window.BAOExtensionLoadHealth = Object.freeze({
   snapshot: () => ({
     world: baoExtensionHealth.world,
+    story: baoExtensionHealth.story,
     optional: { ...baoExtensionHealth.optional }
   })
 });
@@ -51,6 +52,21 @@ const reportWorldFailure = err => {
     });
   }
   if (document.getElementById("chat-view")?.classList.contains("active")) warnWorldUnavailable();
+};
+
+const warnStoryUnavailable = () => {
+  const loading = baoExtensionHealth.story === "loading";
+  return notifyPlayer(
+    loading
+      ? "故事核心功能仍在載入。為避免部分設定、記憶或角色規則漏套用，暫時不送出；載入完成後再試一次。"
+      : "故事核心模組載入不完整。為避免設定、記憶或角色規則漏套用，本次已停止送出；請重新整理頁面。",
+    "error"
+  );
+};
+const reportStoryFailure = err => {
+  baoExtensionHealth.story = "unavailable";
+  console.warn("YoruBay story extensions are unavailable:", err);
+  if (document.getElementById("chat-view")?.classList.contains("active")) warnStoryUnavailable();
 };
 
 let baoFeedbackTimer = 0;
@@ -104,6 +120,37 @@ const requestPlayerText = ({ title = "輸入名稱", label = "名稱", value = "
 window.BAOFeedback = Object.freeze({ notify: notifyPlayer, requestText: requestPlayerText });
 
 window.addEventListener("DOMContentLoaded", () => {
+  // Fail closed while prompt/memory/story Hook installation is incomplete.
+  // The wrapper stays installed but becomes transparent once the chain is ready.
+  if (typeof App !== "undefined" && typeof App.wrapSendMessage === "function") {
+    App.wrapSendMessage("site-ui:story-extension-readiness", (next, ...args) => {
+      if (baoExtensionHealth.story === "ready") return next(...args);
+      warnStoryUnavailable();
+      return null;
+    });
+  }
+  // Entering a story while hooks are loading or failed always surfaces the state.
+  if (typeof App !== "undefined" && typeof App.wrapShowView === "function") {
+    App.wrapShowView("site-ui:story-extension-readiness", (next, view, ...args) => {
+      const result = next(view, ...args);
+      if (view === "chat" && baoExtensionHealth.story !== "ready") warnStoryUnavailable();
+      return result;
+    });
+  }
+  // Later wrappers may run auxiliary model work before delegating to sendMessage.
+  // Block transport too, while preserving the explicit setup connection test.
+  if (typeof API !== "undefined" && typeof API.wrapSend === "function") {
+    API.wrapSend("site-ui:story-extension-readiness", async (next, config, messages, ...rest) => {
+      if (config?.__connectionTest || baoExtensionHealth.story === "ready") {
+        return next(config, messages, ...rest);
+      }
+      const error = new Error(baoExtensionHealth.story === "loading"
+        ? "故事核心功能仍在載入，暫時不送出模型請求。"
+        : "故事核心模組載入不完整，已停止模型請求；請重新整理頁面。");
+      error.code = "BAO_STORY_EXTENSIONS_NOT_READY";
+      throw error;
+    });
+  }
   // Experience 3.0 is a presentation layer; load early for the landing page
   // without coupling it to the story/Provider initialization chain.
   loadBAOScript("js/experience-preferences-core.js?v=2")
@@ -197,7 +244,8 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/story-control-center-core.js?v=2"))
     .then(() => loadBAOScript("js/story-control-center.js?v=10"))
     .then(() => loadBAOScript("js/request-ledger.js?v=2"))
-    .catch(err => console.warn("BAO/LAB local preview, narrative settings, memory workbench, story tools, story library, story reader or chat markup failed to load:", err));
+    .then(() => { baoExtensionHealth.story = "ready"; })
+    .catch(reportStoryFailure);
   loadBAOScript("js/work-package-core.js?v=2")
     .then(() => loadBAOScript("js/character-library.js?v=3"))
     .then(() => loadBAOScript("js/character-readiness.js"))

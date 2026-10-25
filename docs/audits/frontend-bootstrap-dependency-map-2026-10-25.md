@@ -44,3 +44,10 @@
 ## 退出條件
 
 本次 PR 的 Mobile Reading E2E 加入真實瀏覽器測試清單；四個新案例均成功、原 Core／Storage／settings／request-feature／Fast Browser 相關測試通過，才可合併。若有測試因與產品實際語意不符而失敗，先校正測試預期並保留真正的安全斷言，不准直接跳過失敗注入。
+
+
+## 第五批：故事核心 Hook fail-closed
+
+`js/site-ui.js` 的故事擴充鏈新增 `story=loading|ready|unavailable`。#836 已先把快捷指令、手機閱讀殼、頭像聊天與 Context 診斷列為可降級 optional；其餘尚未證明可獨立降級的 Prompt/cache、memory、worldbook、revision/request lifecycle、actor/commentary/interpretation、settings effects、request ledger 等核心鏈，在完整安裝前一律 fail-closed。
+
+DOM 載入起即安裝 `App.sendMessage` 與 `API.send` readiness guard：載入中或核心鏈失敗時不新增玩家訊息、不送 Provider request；明確 `__connectionTest` 的設定連線測試維持可用。正常跑到 request ledger 後才標記 story ready。新增 E2E 驗證慢速 prompt orchestrator、核心 404、後段 settings effects 404、connection test 例外與正常 ready 路徑。
