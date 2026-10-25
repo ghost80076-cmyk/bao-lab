@@ -56,7 +56,7 @@ const reportWorldFailure = err => {
 
 const warnStoryUnavailable = () => {
   const loading = baoExtensionHealth.story === "loading";
-  return window.BAOFeedback?.notify?.(
+  return notifyPlayer(
     loading
       ? "故事核心功能仍在載入。為避免部分設定、記憶或角色規則漏套用，暫時不送出；載入完成後再試一次。"
       : "故事核心模組載入不完整。為避免設定、記憶或角色規則漏套用，本次已停止送出；請重新整理頁面。",
