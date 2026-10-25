@@ -65,5 +65,8 @@ test('successful load does not display a world failure warning', async ({ page }
     expect(health.optional[key], key).toBe('ready');
   }
   await page.evaluate(() => App.showView('chat'));
-  await expect(page.locator('#bao-feedback-toast')).not.toContainText('世界狀態模組載入不完整');
+  const unexpectedWarning = await page.evaluate(() =>
+    document.getElementById('bao-feedback-toast')?.textContent?.includes('世界狀態模組載入不完整') || false
+  );
+  expect(unexpectedWarning).toBe(false);
 });
