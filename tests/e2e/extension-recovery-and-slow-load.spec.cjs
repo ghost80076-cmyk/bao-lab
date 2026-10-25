@@ -1,5 +1,9 @@
 const { test, expect } = require('@playwright/test');
 
+// Page routing cannot intercept requests already handled by a registered Service Worker.
+// Block SW only in this fault-injection suite so every simulated 404 really reaches the page.
+test.use({ serviceWorkers: 'block' });
+
 // Offline recovery checks against the actual browser storage and story UI.
 // No paid-provider requests: attempts are recorded and must stay empty.
 const ready = page => page.waitForFunction(() => Boolean(
@@ -88,8 +92,11 @@ const assertStory = value => {
 test('optional tool 404 preserves an existing story through reload and file import (390px)', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   const posts = observePosts(page);
-  await page.route('**/js/google-drive-config.js*', route =>
-    route.fulfill({ status: 404, contentType: 'text/javascript', body: '/* intentional offline tool */' }));
+  let injectedFaults = 0;
+  await page.route('**/js/google-drive-config.js*', route => {
+    injectedFaults += 1;
+    return route.fulfill({ status: 404, contentType: 'text/javascript', body: '/* intentional offline tool */' });
+  });
   await page.goto('/');
   await ready(page);
   const backup = await seedOfflineStory(page);
@@ -100,6 +107,7 @@ test('optional tool 404 preserves an existing story through reload and file impo
   expect(await restoreSlot(page)).toBe(true);
   const restored = await inspect(page);
   assertStory(restored);
+  expect(injectedFaults).toBeGreaterThanOrEqual(2);
   expect(restored.health.optional['google-drive']).toBe('unavailable');
   expect(restored.health.world).toBe('ready');
 
@@ -131,13 +139,17 @@ test('world-module 404 never silently marks an old restored story as healthy (12
   const backup = await seedOfflineStory(page);
   expect(JSON.stringify(backup)).not.toContain('RECOVERY_DO_NOT_EXPORT');
 
-  await page.route('**/js/world-state.js*', route =>
-    route.fulfill({ status: 404, contentType: 'text/javascript', body: '/* missing world dependency */' }));
+  let injectedFaults = 0;
+  await page.route('**/js/world-state.js*', route => {
+    injectedFaults += 1;
+    return route.fulfill({ status: 404, contentType: 'text/javascript', body: '/* missing world dependency */' });
+  });
   await page.reload();
   await ready(page);
   expect(await restoreSlot(page)).toBe(true);
   const restored = await inspect(page);
   assertStory(restored);
+  expect(injectedFaults).toBeGreaterThanOrEqual(1);
   expect(restored.health.world).toBe('unavailable');
   await expect(page.locator('#bao-feedback-toast')).toContainText('世界狀態模組載入不完整');
   expect(posts).toEqual([]);
