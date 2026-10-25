@@ -136,6 +136,21 @@ window.addEventListener("DOMContentLoaded", () => {
       return null;
     });
   }
+  // Some later App wrappers (for example a pre-response advisor) can call
+  // API.send before they delegate to sendMessage. Guard the request pipeline too,
+  // while still allowing the explicit connection-test flow used during setup.
+  if (typeof API !== "undefined" && typeof API.wrapSend === "function") {
+    API.wrapSend("site-ui:story-extension-readiness", async (next, config, messages, ...rest) => {
+      if (config?.__connectionTest || baoExtensionHealth.story === "ready") {
+        return next(config, messages, ...rest);
+      }
+      const error = new Error(baoExtensionHealth.story === "loading"
+        ? "故事核心功能仍在載入，暫時不送出模型請求。"
+        : "故事核心模組載入不完整，已停止模型請求；請重新整理頁面。");
+      error.code = "BAO_STORY_EXTENSIONS_NOT_READY";
+      throw error;
+    });
+  }
 
   // Experience 3.0 is a presentation layer; load early for the landing page
   // without coupling it to the story/Provider initialization chain.
