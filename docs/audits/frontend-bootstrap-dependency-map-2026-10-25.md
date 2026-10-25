@@ -28,6 +28,10 @@
 - 本輪 PR：新增 `tests/e2e/extension-recovery-and-slow-load.spec.cjs`：390px 可選 JS 404 時建立與儲存故事、重載後恢復、透過既有匯入入口再次還原；1280px 世界核心 JS 404 時，先建立存檔再重載，確認故事內容未被覆蓋且狀態不可用提示；390/1280px 持續延遲可選 JS，確認相同 URL 併發只建立一支 script、未提早宣告就緒。所有案例禁止額外 POST。
 - 上述 E2E 僅使用合成角色/故事 fixture，不存取正式玩家資料，不呼叫付費模型，也不向正式 D1/Provider 寫入。
 
+### 故障注入與 PWA 的邊界
+
+瀏覽器 E2E 在**測試層**停用 Service Worker，原因是 Playwright 的 `page.route()` 無法攔截已被 Service Worker 接管的請求；首次頁面可成功注入 404，但重新整理後可能由快取供應原腳本，產生錯誤的「故障驗證成功／失敗」結論。測試新增注入次數斷言，確認 reload 階段的 HTTP 404 確實發生。這並非關閉正式產品 PWA，也**不代表**已測試 Service Worker 離線快取更新策略；該情境須另起獨立 PWA 測試。
+
 ## 尚未完成，不得宣稱全面結案
 
 1. `js/site-ui.js` 其餘長鏈中，每個 Hook 的必須/可選分類與單一 404 fail-safe 還未逐檔完成；不能因本表存在就刪除既有 scripts。
