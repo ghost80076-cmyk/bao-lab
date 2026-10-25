@@ -40,3 +40,7 @@
 `site-ui.js` 的 Google Drive、對話搜尋與複製輔助拆為三組有局部 catch 的可選載入單位。任一組 404 時不截斷故事擴充主鏈，後續狀態／閱讀／設定與 ledger 仍繼續載入。世界鏈一旦缺少必要模組則狀態為 `unavailable`，透過現有 View wrapper 在進入故事時顯示訊息；不冒充狀態追蹤已準備好。
 
 覆蓋：390／1280px 瀏覽器腳本 404、功能載入、世界失效提醒；原 #830 in-flight promise contract 保留。本批未調整 Provider body、Prompt/cache/storage 或正常情況下的模組順序；保留後續第三方舊腳本、實機冷載入及真實模型服從率驗收。
+
+## 第三批：舊故事故障恢復驗收與初始化依賴盤點
+
+[前端啟動依賴責任表](frontend-bootstrap-dependency-map-2026-10-25.md) 列出核心、依序 Hook、可選子鏈的界線。此批新增真實瀏覽器中的舊故事儲存／讀檔／匯入，以及世界核心 404 與可選慢速載入的驗收；不更改 Prompt、快取或玩家資料格式。最後的合併條件是最新 PR head 的整套 CI 全綠，實機問題仍另列。
