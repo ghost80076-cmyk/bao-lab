@@ -32,11 +32,13 @@ for (const width of [390, 1280]) {
         tools: Boolean(window.BAOStoryControlCenter),
         ledger: Boolean(window.BAORequestLedger),
         library: Boolean(window.BAOStoryLibrary),
-        backup: Boolean(window.BAOStoryBackup)
+        backup: Boolean(window.BAOStoryBackup),
+        actor: Boolean(window.BAOActorMode),
+        extensions: Boolean(window.BAOStoryExtensionsCenter)
       }), group);
       expect(observed.health.optional[group]).toBe('unavailable');
       expect(observed.health.world).toBe('ready');
-      for (const key of ['reader', 'settings', 'tools', 'ledger', 'library', 'backup']) {
+      for (const key of ['reader', 'settings', 'tools', 'ledger', 'library', 'backup', 'actor', 'extensions']) {
         expect(observed[key], key).toBe(true);
       }
       await page.evaluate(() => App.showView('chat'));
