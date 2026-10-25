@@ -11,7 +11,11 @@ for (const width of [390, 1280]) {
   for (const [group, path] of [
     ['google-drive', 'google-drive-config.js'],
     ['conversation-search', 'conversation-search-core.js'],
-    ['inspiration-copy', 'inspiration-copy.js']
+    ['inspiration-copy', 'inspiration-copy.js'],
+    ['story-quick-commands', 'story-quick-commands-core.js'],
+    ['mobile-reading-layout', 'mobile-reading-layout.js'],
+    ['avatar-chat', 'avatar-chat.js'],
+    ['context-diagnostics', 'context-inspector.js']
   ]) {
     test(`optional ${group} 404 keeps the story tool chain running at ${width}px`, async ({ page }) => {
       await page.setViewportSize({ width, height: 844 });
