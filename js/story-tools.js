@@ -1322,7 +1322,7 @@
       }));
     } catch (error) {
       if (!host.isConnected) return;
-      host.innerHTML = '<div class="story-tools-toolbar"><button class="secondary" type="button" data-back>← 返回</button></div><section class="story-tools-card"><h3>「我的故事」暫時無法讀取</h3><p>' + App.escapeHTML(error.message || String(error)) + '</p><p>目前無法確認本機故事資料狀態。請勿清除瀏覽器網站資料，並使用原本的瀏覽器再試。</p><button type="button" class="primary" data-story-library-retry>重新讀取</button></section>';
+      host.innerHTML = '<div class="story-tools-toolbar"><button class="secondary" type="button" data-back>← 返回</button></div><section class="story-tools-card"><h3>「我的故事」暫時無法讀取</h3><p>' + App.escapeHTML(error.message || String(error)) + '</p><p>目前無法確認本機故事資料狀態。請勿清除瀏覽器網站資料。請使用原本的瀏覽器再試。</p><button type="button" class="primary" data-story-library-retry>重新讀取</button></section>';
       host.querySelector("[data-back]").onclick = () => GameState.current ? home(host) : close();
       host.querySelector("[data-story-library-retry]").onclick = () => libraryScreen(host);
     }
