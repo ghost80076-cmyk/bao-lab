@@ -6,7 +6,10 @@ const vm = require('node:vm');
 
 // Test the real loader in isolation without triggering page startup or network I/O.
 const source = fs.readFileSync(path.join(__dirname, '../js/site-ui.js'), 'utf8');
-const loaderSource = source.split('let baoFeedbackTimer = 0;')[0];
+const start = source.indexOf('const loadBAOScript = src =>');
+const end = source.indexOf('\n};\n\n', start);
+assert.ok(start > 0 && end > start, 'extract only the loader, not later UI extensions');
+const loaderSource = source.slice(0, end + 4);
 assert.match(loaderSource, /const loadBAOScript = src =>/);
 
 function makeLoader(initialScripts = []) {
