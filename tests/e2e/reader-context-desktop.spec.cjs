@@ -94,7 +94,7 @@ test('desktop Play opens a read-only Reader Context without reusing the Studio g
   const info = page.locator('#bao-play-status-toggle');
   await expect(info).toBeVisible();
   await expect(info).toHaveAttribute('aria-controls', 'bao-reader-context');
-  await expect(info).toHaveAttribute('aria-label', '查看故事資訊');
+  await expect(info).toHaveAttribute('aria-label', '查看舞臺：故事資訊');
   await expect(page.locator('#game-ui')).toBeHidden();
 
   await info.click();
