@@ -95,13 +95,19 @@
     const status = document.createElement('button');
     status.type = 'button';
     status.className = 'secondary';
-    status.textContent = '⚙ 狀態欄管理';
-    status.addEventListener('click', openStatusManager);
+    status.textContent = '舞臺';
+    status.addEventListener('click', () => {
+      if (window.BAOStorySurface?.openStatus) window.BAOStorySurface.openStatus();
+      else openStatusManager();
+    });
     const menu = document.createElement('button');
     menu.type = 'button';
     menu.className = 'secondary';
-    menu.textContent = '☰ 全部功能';
-    menu.addEventListener('click', openDrawer);
+    menu.textContent = '控制中心';
+    menu.addEventListener('click', () => {
+      if (window.BAOStoryControlCenter?.open) window.BAOStoryControlCenter.open();
+      else openDrawer({ overview:true });
+    });
     const save = document.createElement('button');
     save.type = 'button';
     save.className = 'secondary';
@@ -121,15 +127,12 @@
     if (!quick) {
       quick = document.createElement('div');
       quick.id = 'bao-chat-quick-actions';
-      const button = document.createElement('button');
-      button.type = 'button';
-      button.className = 'secondary bao-chat-status-launch';
-      button.textContent = '⚙ 狀態欄管理';
-      button.addEventListener('click', openStatusManager);
-      quick.append(button);
+      // Keep only truly frequent story actions here. Status configuration
+      // remains in the categorized Control Center instead of being duplicated.
       (sidebar.querySelector('.chat-meta') || sidebar.querySelector('#chat-character-card'))?.insertAdjacentElement('afterend', quick);
       if (!quick.isConnected) sidebar.prepend(quick);
     }
+    quick.querySelectorAll('.bao-chat-status-launch').forEach(node => node.remove());
     if (!groups) {
       groups = document.createElement('div');
       groups.id = 'bao-chat-tool-groups';
@@ -250,7 +253,7 @@
     dialog.setAttribute('aria-modal', 'true');
     dialog.setAttribute('aria-label', options.overview ? '故事總覽' : '故事功能選單');
     const head = document.createElement('header');
-    const title = document.createElement('h2'); title.textContent = '故事設定與工具';
+    const title = document.createElement('h2'); title.textContent = '控制中心';
     const help = window.BAOFeatureHelp?.button?.('tools');
     const close = document.createElement('button');
     close.type = 'button'; close.textContent = '關閉 ×';
@@ -273,11 +276,13 @@
     const introduction = document.createElement('p');
     introduction.className = 'yoru-tool-intro';
     const level = window.YoruExperience?.get?.().level || 'easy';
-    introduction.textContent = level === 'pro'
-      ? '完整工具都在這裡；想減少選項，可在「外觀與操作」切回輕鬆模式。'
-      : level === 'standard'
-        ? '故事與人物工具已展開。更多設定可視需要開啟。'
-        : '先玩故事就好。常用工具放在前面，其餘功能需要時再展開。';
+    introduction.textContent = options.overview
+      ? '遊玩留在「故事／舞臺」；模型、記憶、指令、存檔與進階管理集中在這裡。'
+      : level === 'pro'
+        ? '完整工具都在這裡；想減少選項，可在「外觀與操作」切回輕鬆模式。'
+        : level === 'standard'
+          ? '故事與人物工具已展開。更多設定可視需要開啟。'
+          : '先玩故事就好。常用工具放在前面，其餘功能需要時再展開。';
     body.append(introduction);
     const quick = document.createElement('div');
     quick.className = 'yoru-tool-actions';
@@ -288,7 +293,7 @@
       button.addEventListener('click', () => { closeDrawer(); handler(); });
       quick.append(button);
     };
-    quickAction('人物與故事資訊', () => window.BAOStorySurface?.openStatus?.());
+    quickAction('舞臺：人物與世界', () => window.BAOStorySurface?.openStatus?.());
     if (window.BAOConversationSearch?.open) {
       quickAction('搜尋對話', () => window.BAOConversationSearch.open());
     }
@@ -362,7 +367,7 @@
     body.prepend(searchWrap);
     if(window.BAOStoryControlCenter?.mount && window.GameState?.current){
       const overview=document.createElement('details');overview.dataset.storySettingsHub='';overview.open=!!options.overview;
-      const heading=document.createElement('summary');heading.textContent='故事設定與生效狀態';overview.append(heading);
+      const heading=document.createElement('summary');heading.textContent='目前故事設定與生效狀態';overview.append(heading);
       window.BAOStoryControlCenter.mount(overview);body.prepend(overview);
       if(options.effects)overview.querySelector('[data-settings-effects]')?.setAttribute('open','');
     }
