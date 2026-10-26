@@ -51,6 +51,9 @@ test('entry points load the core before character and runtime scripts', () => {
   const studio = fs.readFileSync(path.join(__dirname,'../character-studio.html'),'utf8');
   const character = fs.readFileSync(path.join(__dirname,'../js/character.js'),'utf8');
   const editor = fs.readFileSync(path.join(__dirname,'../js/character-studio.js'),'utf8');
+  assert.ok(main.indexOf('js/phone-interaction-core.js') >= 0);
+  assert.ok(main.indexOf('js/phone-interaction-core.js') < main.indexOf('js/phone-ui-core.js'));
+  assert.ok(studio.indexOf('js/phone-interaction-core.js') < studio.indexOf('js/phone-ui-core.js'));
   assert.ok(main.indexOf('js/phone-ui-core.js') < main.indexOf('js/character.js'));
   assert.ok(main.indexOf('js/phone-ui.js') > main.indexOf('js/app.js'));
   assert.ok(studio.indexOf('js/phone-ui-core.js') < studio.indexOf('js/character.js'));

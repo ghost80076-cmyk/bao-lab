@@ -2,11 +2,15 @@
 (() => {
   'use strict';
   const Core = window.BAOPhoneUICore;
+  const Puzzles = window.BAOPhoneInteractionCore;
   if (!Core || typeof App === 'undefined' || window.BAOPhoneUI) return;
   let root = null, screen = null, config = null, page = 'lock', subpage = '';
   let clock = null, callTimer = null, callStart = 0, messageTimers = [], messageFade = null;
   let audio = null, trackIndex = -1, playing = false, position = 0, expanded = false, shuffle = false, loop = false;
   let prevFocus = null, selfDragging = null, activeThread = '';
+  let ownerState=null, ownerCharacter=null, eventNotice='';
+  const itemsFor = app => Puzzles?.visibleItems(config,ownerState?.phoneInteractions,app) || config[app==='kakao'?'threads':app];
+  const accessFor = target => Puzzles?.access(config,ownerState?.phoneInteractions,target) || {exists:true,locked:false,hidden:false};
   const selectedThread = () => config.threads.find(item => item.id === activeThread);
   const threadName = thread => thread?.name || thread?.participants.map(id => config.contacts.find(c => c.id === id)?.name || id).join('、') || displayName();
   const $ = (tag, cls = '', value) => {
@@ -36,13 +40,14 @@
     const dynamic = state.phoneUI;
     const combine = value => window.BAOPhoneStoryCore?.mergeDisplay(value, dynamic) || Core.normalize(value);
     if (extra && typeof extra === 'object' && !Array.isArray(extra)) {
-      return combine({ ...source, ...extra, weather: { ...source.weather, ...extra.weather },
+      return combine({ ...source, ...extra, interactions:source.interactions, weather: { ...source.weather, ...extra.weather },
         instagram: { ...source.instagram, ...extra.instagram }, spotify: { ...source.spotify, ...extra.spotify } });
     }
     return combine(source);
   };
   const visible = () => !!phoneSource();
   function makeLauncher() {
+    if(root && (ownerState!==window.GameState?.current || ownerCharacter!==App.activeCharacter))close();
     const existing = document.getElementById('bao-phone-launch');
     const enabled = visible() && document.getElementById('chat-view')?.classList.contains('active');
     if (!enabled) { existing?.remove(); if (root) close(); return; }
@@ -55,6 +60,47 @@
     const host = main.querySelector('.chat-topline') || main;
     host.prepend(launch);
   }
+  function commitOpen(target,password,status) {
+    if(!config.interactions || !Puzzles)return true;
+    const fail=text=>{if(status)status.textContent=text;else window.BAOFeedback?.notify?.(text,'error');return false;};
+    if(ownerState!==window.GameState?.current || ownerCharacter!==App.activeCharacter)return fail('故事已切換，請重新開啟手機。');
+    if(App.__requestPending)return fail('故事仍在回覆中，請稍後再操作機關。');
+    const result=Puzzles.open(config,ownerState.phoneInteractions,target,password);
+    if(!result.ok)return fail(result.error);
+    if(!result.changed)return true;
+    const had=Object.prototype.hasOwnProperty.call(ownerState,'phoneInteractions'),before=ownerState.phoneInteractions;
+    ownerState.phoneInteractions=result.progress;
+    try {
+      if(App.saveStory(false)===false)throw new Error('save');
+    } catch (_) {
+      if(had)ownerState.phoneInteractions=before;else delete ownerState.phoneInteractions;
+      return fail('故事儲存失敗，這次已讀與解鎖沒有生效，請重試。');
+    }
+    eventNotice=result.notifications.join('；');
+    return true;
+  }
+  function enterTarget(app,id) {
+    const target={app,id},access=accessFor(target);
+    if(!access.exists || access.hidden)return;
+    if(!access.locked && !commitOpen(target))return;
+    if(app==='kakao'){activeThread=id;subpage='chat';}else subpage=id;
+    render();
+  }
+  function renderGate(area,target) {
+    const access=accessFor(target);
+    if(!access.locked)return false;
+    if(!area.querySelector('.bp-app-header'))area.append(appHeader('已鎖定'));
+    add(area,$('h1','','🔒 已鎖定'),$('p','bp-document',access.hint || '找到線索後再來看看。'));
+    if(access.password){
+      const form=$('form','bp-unlock-form');form.dataset.phoneForm='unlock';form.dataset.targetApp=target.app;form.dataset.targetId=target.id;
+      const label=$('label','','故事密碼');
+      const input=$('input');input.type='password';input.name='password';input.maxLength=128;input.required=true;input.autocomplete='off';input.setAttribute('aria-label','故事密碼');
+      label.append(input);const submit=$('button','','解鎖');submit.type='submit';
+      const status=$('p','bp-unlock-status');status.setAttribute('role','status');
+      add(form,label,submit,status);area.append(form);
+    }else add(area,$('p','bp-muted','需要先讀取其他線索，才能開啟這份內容。'));
+    return true;
+  }
   function clearTimers() {
     window.clearInterval(clock); window.clearInterval(callTimer); clock = null; callTimer = null;
     messageTimers.forEach(id => window.clearTimeout(id)); messageTimers = [];
@@ -66,7 +112,7 @@
     playing = false; position = 0; trackIndex = -1; expanded = false;
   }
   function close() {
-    clearTimers(); stopMedia(); root?.remove(); root = null; screen = null;
+    clearTimers(); stopMedia(); root?.remove(); root = null; screen = null;ownerState=null;ownerCharacter=null;eventNotice='';
     if (prevFocus?.isConnected) prevFocus.focus(); prevFocus = null;
   }
   function enterHome() {
@@ -77,6 +123,7 @@
     if (!config) return;
     close(); config = phoneSource();
     if (!config) return;
+    ownerState=window.GameState?.current;ownerCharacter=App.activeCharacter;eventNotice=Puzzles?.validate(config).length?'這份作品的手機機關設定有誤，請作者檢查條件與引用。':'';
     prevFocus = document.activeElement; page = 'lock'; subpage = ''; activeThread = '';
     const overlay = $('div', 'bao-phone-overlay');
     overlay.setAttribute('role', 'dialog'); overlay.setAttribute('aria-modal', 'true'); overlay.setAttribute('aria-label', '作品手機介面');
@@ -124,6 +171,9 @@
     else if (page === 'spotify') renderSpotify();
     else renderBasicApp();
     if (page !== 'instagram' || subpage !== 'video') add(screen, handle());
+    root.querySelector('.bp-event-notice')?.remove();
+    if(eventNotice){const notice=$('div','bp-event-notice'+(page==='kakao' && subpage==='chat'?' bp-chat-notice':''));notice.setAttribute('role','status');
+      const dismiss=button('×','dismiss-notice');dismiss.setAttribute('aria-label','關閉手機通知');add(notice,$('span','',eventNotice),dismiss);root.querySelector('.bp-frame').append(notice);}
     updateClock();
     if (!clock) clock=window.setInterval(updateClock,1000);
   }
@@ -195,7 +245,9 @@
       area.append(tabs);
     } else if (page === 'kakao') {
       const chat = subpage === 'chat', profile = subpage === 'profile';
-      if (chat) {
+      if (chat && selectedThread() && renderGate(area,{app:'kakao',id:activeThread})) {
+        // Locked threads never mount messages or a composer.
+      } else if (chat) {
         add(area,appHeader(threadName(selectedThread())),$('div','bp-thread'));
         area.classList.add('bp-chat-page');
         const thread = area.querySelector('.bp-thread');
@@ -225,20 +277,23 @@
           add(friend,image(config.instagram.avatar,'bp-friend-avatar',displayName().slice(0,1)||'●'),
             $('span','',displayName())); area.append(friend);
         }
-        config.threads.forEach((thread,index) => {
+        itemsFor('kakao').forEach((thread,index) => {
+          const locked=accessFor({app:'kakao',id:thread.id}).locked;
           const friend=button('', 'thread:'+index,'bp-friend');
           add(friend,$('span','bp-friend-avatar bp-image-fallback',thread.participants.length>2?'群':threadName(thread).slice(0,1)),
             add($('span','bp-track-meta'),$('strong','',threadName(thread)),
-              $('small','bp-muted',thread.messages.at(-1)?.text || '尚無訊息')));
+              $('small','bp-muted',locked?'🔒 已鎖定':thread.messages.at(-1)?.text || '尚無訊息')));
           area.append(friend);
         });
       }
     } else if (page === 'photos' || page === 'notes') {
       const photos = page === 'photos';
-      const items = photos ? config.photos : config.notes;
+      const items = itemsFor(page);
       add(area,appHeader(photos ? '相簿' : '備忘錄'));
       const selected = subpage ? items.find(item=>item.id===subpage) : null;
-      if (selected) {
+      if(selected && renderGate(area,{app:page,id:selected.id})){
+        // Do not mount locked text or request locked images.
+      } else if (selected) {
         add(area,$('h1','',selected.title || (photos?'照片':'筆記')));
         if (photos) add(area,image(selected.src,'bp-photo-full','照片'),$('p','bp-document',selected.caption));
         else add(area,$('p','bp-document',selected.text));
@@ -247,9 +302,10 @@
         if (!items.length) list.append($('p','bp-muted',photos?'尚無照片':'尚無筆記'));
         items.forEach((item,index)=>{
           const row=button('', 'document:'+index,photos?'bp-photo-item':'bp-note-item');
-          if (photos) row.append(image(item.src,'bp-photo-thumb','照片'));
+          const locked=accessFor({app:page,id:item.id}).locked;
+          if (photos) row.append(locked?$('div','bp-photo-thumb bp-image-fallback','🔒'):image(item.src,'bp-photo-thumb','照片'));
           add(row,$('strong','',item.title || (photos?'照片':'筆記')));
-          if (!photos) row.append($('small','bp-muted',item.text.slice(0,100)));
+          if (!photos || locked) row.append($('small','bp-muted',locked?'🔒 已鎖定':item.text.slice(0,100)));
           list.append(row);
         });
         area.append(list);
@@ -444,6 +500,11 @@
     const form=e.target.closest('form[data-phone-form]');
     if (!form)return;
     e.preventDefault();
+    if(form.dataset.phoneForm==='unlock'){
+      const target={app:form.dataset.targetApp,id:form.dataset.targetId};
+      if(commitOpen(target,form.elements.namedItem('password').value,form.querySelector('.bp-unlock-status')))render();
+      return;
+    }
     const input=form.elements.namedItem('text');const value=input?.value.trim();
     if(!value)return;
     sendToStory(value,form.dataset.phoneForm==='video'?'Instagram 視訊':'KakaoTalk');
@@ -453,6 +514,7 @@
     const action=target.dataset.phoneAction;
     if (action==='launch')return open();
     if (action==='close')return close();
+    if (action==='dismiss-notice'){eventNotice='';root?.querySelector('.bp-event-notice')?.remove();return;}
     if (action==='unlock')return enterHome();
     if (action==='home')return enterHome();
     if (action==='back') {
@@ -468,12 +530,12 @@
     if (action==='kakao-profile'){subpage='profile';return render();}
     if (action==='kakao-chat'){activeThread='';subpage='chat';return render();}
     if (action.startsWith('thread:')) {
-      const thread=config.threads[Number(action.slice(7))];
-      if(thread){activeThread=thread.id;subpage='chat';render();}return;
+      const thread=itemsFor('kakao')[Number(action.slice(7))];
+      if(thread)enterTarget('kakao',thread.id);return;
     }
     if (action.startsWith('document:') && ['photos','notes'].includes(page)) {
-      const item=config[page][Number(action.slice(9))];
-      if(item){subpage=item.id;render();}return;
+      const item=itemsFor(page)[Number(action.slice(9))];
+      if(item)enterTarget(page,item.id);return;
     }
     if (action==='hangup')return enterHome();
     if (action==='accept'){clearTimers(); subpage='video';return render();}
@@ -509,6 +571,7 @@
   }
   const refreshFromState = () => {
     if (!root) return;
+    if(ownerState!==window.GameState?.current || ownerCharacter!==App.activeCharacter){close();return;}
     const updated = phoneSource();
     if (!updated) { close(); return; }
     config = updated;

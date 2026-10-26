@@ -125,6 +125,11 @@
         status.textContent='自訂手機資料必須是 JSON 物件。';return;
       }
     }
+    if(data){
+      const effective=Core.resolve(character?.phone_ui,state) || window.BAOPhoneUICore.defaultConfig();
+      const errors=window.BAOPhoneInteractionCore?.validate({...effective,...data}) || [];
+      if(errors.length){status.textContent='手機機關：'+errors.join('；');return;}
+    }
     const snapshot=Object.prototype.hasOwnProperty.call(state,'phoneSurface')?clone(state.phoneSurface):undefined;
     const next={
       version:1,enabled:form.elements.namedItem('enabled').checked,

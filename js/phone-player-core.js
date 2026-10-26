@@ -1,10 +1,11 @@
 /* Per-story player phone surface preferences. No storage, DOM or network. */
 (function(root, factory) {
   const api = factory(typeof module === 'object' && module.exports
-    ? require('./phone-ui-core.js') : root?.BAOPhoneUICore);
+    ? require('./phone-ui-core.js') : root?.BAOPhoneUICore,
+    typeof module === 'object' && module.exports ? require('./phone-interaction-core.js') : root?.BAOPhoneInteractionCore);
   if (typeof module === 'object' && module.exports) module.exports = api;
   if (root) root.BAOPhonePlayerCore = api;
-})(typeof window !== 'undefined' ? window : null, function(PhoneCore) {
+})(typeof window !== 'undefined' ? window : null, function(PhoneCore, Interactions) {
   'use strict';
   const object = value => !!value && typeof value === 'object' && !Array.isArray(value);
   const has = (obj, key) => Object.prototype.hasOwnProperty.call(obj, key);
@@ -20,8 +21,10 @@
       const normalized=PhoneCore?.normalize(source);
       if(normalized){
         data={};
-        for(const key of ['wallpaper','events','calls','chat','tweets','apps','locale','storyTime','storyDate','contacts','threads','photos','notes']){
-          if(has(value.data,key)) data[key]=normalized[key];
+        for(const key of ['wallpaper','events','calls','chat','tweets','apps','locale','storyTime','storyDate','contacts','threads','photos','notes','interactions']){
+          // A partial player override can reference author-owned documents.
+          // Validate its raw rules only after merging the complete phone.
+          if(has(value.data,key)) data[key]=key==='interactions'?value.data[key]:normalized[key];
         }
         for(const group of ['weather','instagram','spotify']){
           if(!object(value.data[group]))continue;
@@ -61,7 +64,8 @@
     return PhoneCore.normalize(source);
   };
   const ownerDescription = (story,author,display) => {
-    const config=display || resolve(author,story);
+    const raw=display || resolve(author,story);
+    const config=Interactions?.forPrompt(raw,story?.phoneInteractions) || raw;
     if (!config) return '';
     const owner=config.userName || '未指定';
     const contact=config.contactName || '未指定';
@@ -72,6 +76,7 @@
       '聊天室 ID：'+JSON.stringify(config.threads.map(({id,name,participants})=>({id,name,participants}))),
       '照片 ID：'+JSON.stringify(config.photos.map(({id,title})=>({id,title}))),
       '筆記 ID：'+JSON.stringify(config.notes.map(({id,title})=>({id,title}))),
+      ...(config.interactions || raw?.interactions ? ['手機機關進度：'+JSON.stringify(Interactions?.progress(raw,story?.phoneInteractions))] : []),
       '故事手機時間：'+config.storyTime+' '+config.storyDate,
       '手機主人未指定時，不得推定是玩家或任何特定 NPC。',
       '這是可見資訊範圍，不代表玩家能讀取其他 NPC 私密內容。'
