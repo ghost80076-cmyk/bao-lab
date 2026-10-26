@@ -181,6 +181,7 @@
     window.BAOReaderContext?.close?.({ notify:false });
     const button = document.getElementById('bao-play-status-toggle');
     button?.setAttribute('aria-expanded', 'false');
+    if (!desktop.matches) window.BAOMobileReadingLayout?.closePanels?.();
     syncSurfaceNavigation();
   };
 
@@ -207,12 +208,24 @@
 
   const openStatus = () => {
     if (mode !== 'play') setMode('play');
+    if (!desktop.matches && window.BAOMobileReadingLayout?.togglePanels) {
+      if (!main.classList.contains('bao-mobile-panel-open')) {
+        window.BAOMobileReadingLayout.togglePanels();
+      }
+      statusOpen = main.classList.contains('bao-mobile-panel-open');
+      root.classList.toggle('bao-play-status-open', statusOpen);
+      const button = document.getElementById('bao-play-status-toggle');
+      button?.setAttribute('aria-expanded', String(statusOpen));
+      syncSurfaceNavigation();
+      return;
+    }
     // Desktop Play gets a dedicated read-only context sheet. Studio and compact
     // layouts keep the existing game UI so editing and mobile behavior stay intact.
     if (mode === 'play' && desktop.matches && !hasGameplaySurface() && window.BAOReaderContext?.open?.({
       onClose: () => {
         statusOpen = false;
         document.getElementById('bao-play-status-toggle')?.setAttribute('aria-expanded', 'false');
+        syncSurfaceNavigation();
       }
     })) {
       statusOpen = true;
@@ -321,7 +334,10 @@
       status.id = 'bao-play-status-toggle';
       status.setAttribute('aria-controls', 'game-ui');
       status.setAttribute('aria-expanded', 'false');
-      status.addEventListener('click', () => statusOpen ? closeStatus() : openStatus());
+      status.addEventListener('click', () => {
+        const mobileOpen = !desktop.matches && main.classList.contains('bao-mobile-panel-open');
+        (statusOpen || mobileOpen) ? closeStatus() : openStatus();
+      });
       controls.append(status);
     }
     status.dataset.baoSurfaceRole = 'stage';
