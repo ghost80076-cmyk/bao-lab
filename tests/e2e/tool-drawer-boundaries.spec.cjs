@@ -41,8 +41,9 @@ test('story drawer keeps phone, tablet and desktop geometry across five themes',
           scroll: getComputedStyle(dialog.querySelector('.bao-chat-tool-dialog-body')).overflowY };
       });
       const label = `${width}px ${theme}`;
-      expect(state.top, label).toBe(width <= 820 ? '24px' : '22px');
-      expect(state.bottom, label).toBe(width <= 820 ? '0px' : '22px');
+      const tablet = width > 820 && width <= 1080;
+      expect(state.top, label).toBe(width <= 820 ? '24px' : tablet ? '18px' : '22px');
+      expect(state.bottom, label).toBe(width <= 1080 ? '0px' : '22px');
       expect(state.font, label).toBe(width <= 820 ? '18px' : '22px');
       expect(state.left, label).toBeGreaterThanOrEqual(-1);
       expect(state.right, label).toBeLessThanOrEqual(width + 1);
