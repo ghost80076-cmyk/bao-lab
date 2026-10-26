@@ -258,9 +258,9 @@
     const button = document.getElementById('bao-surface-mode-toggle');
     if (button) {
       const mobile = !desktop.matches;
-      button.textContent = mode === 'studio' ? '返回故事' : '控制中心';
+      button.textContent = '控制中心';
       button.setAttribute('aria-pressed', String(mode === 'studio'));
-      button.setAttribute('aria-label', mode === 'studio' ? '返回故事閱讀' : '開啟控制中心');
+      button.setAttribute('aria-label', '開啟控制中心');
     }
     syncStatusButtonContract();
     if (mode === 'studio') {
@@ -350,7 +350,13 @@
       surface = document.createElement('button');
       surface.type = 'button';
       surface.id = 'bao-surface-mode-toggle';
-      surface.addEventListener('click', () => setMode(mode === 'play' ? 'studio' : 'play'));
+      surface.addEventListener('click', () => {
+        const reopen = mode === 'studio';
+        setMode('studio');
+        if (!reopen) return;
+        if (window.BAOStoryControlCenter?.open) window.BAOStoryControlCenter.open();
+        else window.BAOChatToolNavigation?.openDrawer?.({ overview:true });
+      });
       controls.append(surface);
     }
     surface.dataset.baoSurfaceRole = 'control';
